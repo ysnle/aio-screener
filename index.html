@@ -6122,19 +6122,19 @@ function updateHomeNewsGrid(items) {
     const ago  = typeof timeAgo === 'function' ? timeAgo(item.pubDate) : '';
     const src  = item.source || '';
     const title = (item.title||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return \`<div class="news-item-card" onclick="showPage('market-news',null)" style="cursor:pointer;">
+    return `<div class="news-item-card" onclick="showPage('market-news',null)" style="cursor:pointer;">
       <span class="news-item-dot \${tag.dot}"></span>
       <div class="news-item-body">
         <div class="news-item-headline" title="\${title}">\${title}</div>
         <div class="news-item-meta">\${ago} · \${src}</div>
       </div>
       <span class="news-item-tag \${tag.cls}">\${tag.txt}</span>
-    </div>\`;
+    </div>`;
   }).join('');
 
   // 소스 라벨 갱신
   const srcInfo = document.getElementById('home-news-src-info');
-  if (srcInfo) srcInfo.textContent = \`\${items.length}건 수집 · \${new Date().toLocaleTimeString('ko-KR')}\`;
+  if (srcInfo) srcInfo.textContent = `\${items.length}건 수집 · \${new Date().toLocaleTimeString('ko-KR')}`;
 }
 
 function renderFeed(items) {
