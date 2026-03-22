@@ -11170,9 +11170,9 @@ function getTimeAgo(date) {
 
 /* ── 뉴스→시그널 통합: 뉴스 감성 집계 ─────────────────────── */
 function computeNewsSentimentScore() {
-  if (!window.newsCache || window.newsCache.length === 0) return { score: 50, label: 'N/A', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
+  if (!newsCache || newsCache.length === 0) return { score: 50, label: 'N/A', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
 
-  const recent = filterByAge(window.newsCache, 24); // 24시간 이내
+  const recent = filterByAge(newsCache, 24); // 24시간 이내
   if (recent.length === 0) return { score: 50, label: '데이터 부족', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
 
   let bullCount = 0, bearCount = 0, total = recent.length;
@@ -11204,9 +11204,9 @@ function computeNewsSentimentScore() {
 
 /* ── 뉴스→시그널 통합: 매크로 리스크 집계 ──────────────────── */
 function computeNewsRiskSignals() {
-  if (!window.newsCache) return [];
+  if (!newsCache) return [];
 
-  const recent = filterByAge(window.newsCache, 48); // 48시간 이내
+  const recent = filterByAge(newsCache, 48); // 48시간 이내
   const riskSignals = [];
 
   // 지정학 리스크 카운트
