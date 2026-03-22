@@ -10593,16 +10593,22 @@ function isKoreanText(text) {
 
 /* ── v28: Google Translate 무료 API (Claude 키 없을 때 폴백) ── */
 async function googleTranslateFree(text, from='en', to='ko') {
-  if (!text || text.length < 3) return text;
+  if (!text || text.length < 3) return null;
   try {
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text.slice(0,500))}`;
-    const r = await withTimeout(fetch(url), 6000);
+    // 금융 용어 보존: 티커 심볼, 숫자 등을 마커로 치환
+    let cleanText = text.slice(0, 400);
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(cleanText)}`;
+    const r = await withTimeout(fetch(url), 8000);
     if (!r.ok) return null;
     const d = await r.json();
-    if (Array.isArray(d) && Array.isArray(d[0])) {
-      return d[0].map(s => (s && s[0]) || '').join('');
-    }
-    return null;
+    if (!Array.isArray(d) || !Array.isArray(d[0])) return null;
+    const result = d[0].map(s => (s && s[0]) || '').join('');
+    // 품질 검증: 결과가 너무 짧거나 원문과 동일하면 실패
+    if (!result || result.length < 3) return null;
+    // 품질 검증: 한국어 문자가 최소 20% 이상 포함되어야 유효
+    const koreanChars = (result.match(/[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/g) || []).length;
+    if (koreanChars < result.length * 0.15) return null; // 한글 비율 너무 낮으면 번역 실패로 간주
+    return result;
   } catch(e) { return null; }
 }
 
@@ -10620,36 +10626,50 @@ async function freeTranslateNews(items) {
     _translationCache.set(_tcKey(i.title), { ko_title: i.title, ko_desc: i.desc || '', ko_summary: '', tickers });
   });
 
-  let done = 0;
-  // 3건씩 병렬 (rate limit 방지)
-  for (let i = 0; i < needTrans.length; i += 3) {
-    const batch = needTrans.slice(i, i + 3);
+  let done = 0, translated = 0;
+  // 2건씩 순차 (rate limit 안전 + 번역 품질 보장)
+  for (let i = 0; i < needTrans.length; i += 2) {
+    const batch = needTrans.slice(i, i + 2);
     await Promise.allSettled(batch.map(async (item) => {
       const tickers = extractTickers(item).map(t => '$' + t);
-      const koTitle = await googleTranslateFree(item.title);
-      const koDesc  = item.desc ? await googleTranslateFree(item.desc.slice(0, 200)) : '';
+      let koTitle = null;
+      let koDesc = '';
+      try {
+        koTitle = await googleTranslateFree(item.title);
+        // 제목 번역 성공 시에만 설명도 번역 시도
+        if (koTitle && item.desc) {
+          koDesc = await googleTranslateFree(item.desc.slice(0, 200)) || '';
+        }
+      } catch(e) {}
       if (_translationCache.size >= 500) {
         const firstKey = _translationCache.keys().next().value;
         _translationCache.delete(firstKey);
       }
+      const isTranslated = !!koTitle;
       _translationCache.set(_tcKey(item.title), {
-        ko_title: koTitle || item.title,
+        ko_title: koTitle || item.title,  // 실패 시 원문 유지
         ko_desc: koDesc || item.desc || '',
         ko_summary: koDesc ? (koDesc.length > 100 ? koDesc.slice(0, 97) + '…' : koDesc) : '',
         tickers
       });
       done++;
+      if (isTranslated) translated++;
     }));
     if (statusEl) statusEl.textContent = `🌐 무료 번역 중... (${done}/${needTrans.length})`;
-    if (i + 3 < needTrans.length) await new Promise(r => setTimeout(r, 300));
-    // 매 9건마다 중간 렌더링
-    if (done % 9 === 0) {
+    // 배치 간 500ms 대기 (Google rate limit 방지)
+    if (i + 2 < needTrans.length) await new Promise(r => setTimeout(r, 500));
+    // 매 8건마다 중간 렌더링
+    if (done % 8 === 0) {
       renderFeed(newsCache);
       renderHomeFeed(newsCache);
     }
   }
 
-  if (statusEl) statusEl.innerHTML = `✓ ${done}건 번역 완료 (무료) · <span style="cursor:pointer;text-decoration:underline;color:#fbbf24;" onclick="openApiKeyConfig()">Claude 키 입력 시 AI 해석 추가</span>`;
+  const failCount = done - translated;
+  let statusMsg = `✓ ${translated}건 번역 완료`;
+  if (failCount > 0) statusMsg += ` (${failCount}건 원문 유지)`;
+  statusMsg += ' · ';
+  if (statusEl) statusEl.innerHTML = statusMsg + '<span style="cursor:pointer;text-decoration:underline;color:#fbbf24;" onclick="openApiKeyConfig()">Claude 키 입력 시 AI 해석 추가</span>';
   renderFeed(newsCache);
   renderHomeFeed(newsCache);
   renderBriefingFeed(newsCache);
@@ -10933,8 +10953,12 @@ function getDateLabel(pubDate) {
 function renderFeed(items) {
   if (!items || items.length === 0) return;
 
-  // 필터 적용
-  let filtered = [...items];
+  // v28: 블랙리스트 2차 필터 (번역 후 한국어 제목에도 적용)
+  let filtered = items.filter(i => {
+    if (i._blacklisted) return false;
+    const text = ((i.title||'') + ' ' + (getDisplayTitle(i)||'')).toLowerCase();
+    return !NEWS_BLACKLIST_KW.some(kw => text.includes(kw));
+  });
 
   // 국가 필터
   if (typeof currentCountryFilter !== 'undefined' && currentCountryFilter && currentCountryFilter !== 'all') {
@@ -11146,10 +11170,10 @@ function getTimeAgo(date) {
 
 /* ── 뉴스→시그널 통합: 뉴스 감성 집계 ─────────────────────── */
 function computeNewsSentimentScore() {
-  if (!window.newsCache || window.newsCache.length === 0) return { score: 50, label: 'N/A' };
+  if (!window.newsCache || window.newsCache.length === 0) return { score: 50, label: 'N/A', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
 
   const recent = filterByAge(window.newsCache, 24); // 24시간 이내
-  if (recent.length === 0) return { score: 50, label: '데이터 부족' };
+  if (recent.length === 0) return { score: 50, label: '데이터 부족', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
 
   let bullCount = 0, bearCount = 0, total = recent.length;
   recent.forEach(item => {
@@ -14163,7 +14187,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Update version badge
   const vb = document.getElementById('app-version-badge');
-  if (vb) vb.title = 'v13.0 · 빌드: ' + dateStr;
+  if (vb) vb.title = 'v28 · 빌드: ' + dateStr;
 })();
 });
 
@@ -14174,7 +14198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 //  동작: version.json을 5분마다 fetch → 버전 변경 시 상단 배너 표시
 //  설정: GitHub 저장소 경로(username/repo)를 사이드바에서 입력 저장
 //  배포: git push 후 GitHub Actions가 Pages 자동 빌드 (~30초~2분)
-//  version.json 형식: {"version": "v13.0", "built": "2026-03-21T10:00:00Z"}
+//  version.json 형식: {"version": "v28", "built": "2026-03-22T12:00:00Z"}
 // ═══════════════════════════════════════════════════════════════════════
 
 const GH_REPO_LS   = 'aio_gh_repo';          // localStorage key
