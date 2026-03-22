@@ -11926,12 +11926,29 @@ async function fetchLiveQuotes() {
 
   const allQuotes = [];
 
-  // ─── 1. 암호화폐: CoinGecko (완전 무료, CORS 허용, 프록시 불필요) ────
+  // ─── 1. 암호화폐: CoinGecko (완전 무료) → CF Worker 프록시 폴백 ────
   try {
     const cgUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true';
-    const r = await withTimeout(fetch(cgUrl), 6000);
-    if (r.ok) {
-      const d = await r.json();
+    let d = null;
+    // 직접 시도
+    try {
+      const r = await withTimeout(fetch(cgUrl), 6000);
+      if (r.ok) d = await r.json();
+    } catch(e1) {}
+    // 실패 시 CF Worker 프록시로 재시도
+    if (!d) {
+      const cfW = localStorage.getItem('aio_cf_worker_url') || '';
+      if (cfW) {
+        try {
+          const r2 = await withTimeout(fetch(cfW + '?url=' + encodeURIComponent(cgUrl)), 8000);
+          if (r2.ok) {
+            const text = await r2.text();
+            d = JSON.parse(text.trim());
+          }
+        } catch(e2) {}
+      }
+    }
+    if (d) {
       const cgMap = {bitcoin:'BTC-USD', ethereum:'ETH-USD', solana:'SOL-USD', binancecoin:'BNB-USD'};
       for (const [cgId, sym] of Object.entries(cgMap)) {
         if (d[cgId]) {
@@ -14867,13 +14884,39 @@ window.submitFeedback = async function() {
 // ── API key helpers ────────────────────────────────────────────────────
 const CLAUDE_KEY_LS = 'aio_claude_api_key';
 
+// v28: API 키 유효성 검증 및 sanitize
+function _sanitizeApiKey(raw) {
+  if (!raw) return '';
+  // 비-ASCII 문자 제거 (BOM, zero-width space, 말줄임표 등)
+  return raw.replace(/[^\x20-\x7E]/g, '').trim();
+}
+function _isValidApiKey(key) {
+  // Claude API 키: sk-ant- 접두사, 최소 40자 이상
+  if (!key || key.length < 40) return false;
+  if (!/^sk-ant-/.test(key)) return false;
+  if (/[…·]/.test(key)) return false; // 마스킹된 키 감지
+  return true;
+}
 function getApiKey() {
-  return localStorage.getItem(CLAUDE_KEY_LS) || '';
+  const raw = localStorage.getItem(CLAUDE_KEY_LS) || '';
+  const clean = _sanitizeApiKey(raw);
+  // v28: 마스킹/오염된 키 자동 감지 → 경고
+  if (raw && !_isValidApiKey(clean)) {
+    console.warn('[AIO] 저장된 API 키가 손상됨 (마스킹 버전이 저장됨?). 키를 다시 입력하세요.');
+    return '';
+  }
+  return clean;
 }
 function setApiKey(key) {
   try {
-    if (key && key.trim()) localStorage.setItem(CLAUDE_KEY_LS, key.trim());
-    else localStorage.removeItem(CLAUDE_KEY_LS);
+    const clean = _sanitizeApiKey(key);
+    if (!clean) { localStorage.removeItem(CLAUDE_KEY_LS); return; }
+    // v28: 마스킹된 키 저장 방지
+    if (!_isValidApiKey(clean)) {
+      console.warn('[AIO] 유효하지 않은 API 키 — 저장 거부:', clean.slice(0, 15) + '...');
+      return;
+    }
+    localStorage.setItem(CLAUDE_KEY_LS, clean);
   } catch(e) {
     console.warn('[AIO] localStorage 저장 실패 (Safari 개인정보 보호 모드?)', e);
     alert('⚠ API 키 저장에 실패했습니다.\nSafari 개인정보 보호 모드에서는 데이터가 저장되지 않습니다.\n일반 모드 Chrome 사용을 권장합니다.');
@@ -14885,17 +14928,24 @@ function saveSidebarApiKey() {
   const input = document.getElementById('sidebar-api-key');
   if (!input) return;
   const key = input.value.trim();
+  // v28: 마스킹된 값이 다시 저장되는 것 방지
+  if (key && !_isValidApiKey(_sanitizeApiKey(key))) {
+    alert('⚠ 유효하지 않은 API 키입니다.\nClaude API 키는 sk-ant- 로 시작하는 긴 문자열이어야 합니다.\n다시 입력해주세요.');
+    input.value = '';
+    input.focus();
+    return;
+  }
   setApiKey(key);
   // 저장 피드백
   const btn = input.nextElementSibling;
   if (btn) {
     const orig = btn.textContent;
-    btn.textContent = '✓';
+    btn.textContent = key ? '✓ 저장됨' : '✓ 삭제됨';
     btn.style.color = '#34d399';
     setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1500);
   }
-  // 마스킹 표시
-  if (key) input.value = key.slice(0, 8) + '…' + key.slice(-4);
+  // 마스킹 표시 (별표 사용, 유니코드 … 대신 ... 사용)
+  if (key) input.value = key.slice(0, 8) + '...' + key.slice(-4);
   else input.value = '';
 }
 
@@ -14903,7 +14953,7 @@ function loadSidebarApiKey() {
   const input = document.getElementById('sidebar-api-key');
   if (!input) return;
   const key = getApiKey();
-  if (key) input.value = key.slice(0, 8) + '…' + key.slice(-4);
+  if (key) input.value = key.slice(0, 8) + '...' +key.slice(-4);
 }
 function saveRss2jsonKey() {
   const inp = document.getElementById('rss2json-api-key');
@@ -14935,14 +14985,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   if (inp) inp.addEventListener('blur', () => {
     const key = getApiKey();
-    if (key) inp.value = key.slice(0, 8) + '…' + key.slice(-4);
+    if (key) inp.value = key.slice(0, 8) + '...' +key.slice(-4);
   });
 });
 
 function openApiKeyConfig() {
   const current = getApiKey();
   const masked = current
-    ? current.slice(0, 8) + '…' + current.slice(-4)
+    ? current.slice(0, 8) + '...' +current.slice(-4)
     : '(미설정)';
   const input = prompt(
     'Claude API 키를 입력하세요\n현재: ' + masked +
@@ -15737,6 +15787,12 @@ async function chatSend(ctxId) {
 
   var q = inp.value.trim();
   if (!q) return;
+
+  // v28: API 키 확인 먼저 (횟수 차감 전에 체크)
+  if (!getApiKey()) {
+    chatAppendMsg(ctxId, 'ai', '<div style="color:#f87171;">⚠ Claude API 키가 설정되지 않았거나 손상되었습니다.<br>사이드바 → Claude API 키 입력란에 <code>sk-ant-...</code> 형식의 키를 다시 입력해주세요.</div>');
+    return;
+  }
 
   if (!consumeLLMQuery()) return;
 
