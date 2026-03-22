@@ -5824,7 +5824,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
       💾 <strong style="color:#34d399;">테크/반도체</strong>: Digitimes · TrendForce · SemiAnalysis · EE Times &nbsp;|&nbsp;
       ⚡ <strong style="color:#fbbf24;">에너지/원자재</strong>: OilPrice · Rigzone · Platts &nbsp;|&nbsp;
       ₿ <strong style="color:#f97316;">크립토</strong>: CoinDesk &nbsp;|&nbsp;
-      🇰🇷 <strong style="color:#fbbf24;">한국</strong>: 연합(경제·국제) · 한경 · 매경 · 서울경제 · 조선비즈 · 뉴시스 &nbsp;|&nbsp;
+      🇰🇷 <strong style="color:#fbbf24;">한국</strong>: 구글뉴스(금융·경제·기술) · 연합뉴스 · 한경 · 매경 · 서울경제 · 조선비즈 · 머니투데이 · 이데일리 &nbsp;|&nbsp;
       🌏 <strong style="color:#a78bfa;">아시아</strong>: Nikkei · SCMP · Caixin · Taiwan News · Economic Times
     </div>
 
@@ -9425,12 +9425,17 @@ function fetchWithTimeout(url, opts = {}, ms = 8000) {
   return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(timer));
 }
 
-// ── CORS 프록시 체인 (통합) ──────────────────────────────────
+// ── CORS 프록시 체인 (v29: 확장 + CF Worker 우선) ──────────────────────────────────
+const _cfWorkerUrl = () => localStorage.getItem('aio_cf_worker_url') || '';
 const PROXY_LIST = [
+  ...((() => { const cf = _cfWorkerUrl(); return cf ? [u => `${cf}?url=${encodeURIComponent(u)}`] : []; })()),
   u => 'https://corsproxy.io/?' + encodeURIComponent(u),
   u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
   u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
   u => 'https://corsproxy.app/?' + encodeURIComponent(u),
+  u => 'https://cors-anywhere.herokuapp.com/' + u,
+  u => 'https://thingproxy.freeboard.io/fetch/' + u,
 ];
 let _bestProxy = null;
 
@@ -9507,7 +9512,7 @@ function initFinnhubWebSocket() {
       } catch(e) { console.warn('[AIO] Finnhub parse error:', e); }
     };
 
-    _finnhubWS.onerror = (e) => console.warn('[AIO] Finnhub WS error:', e);
+    _finnhubWS.onerror = (e) => console.warn('[AIO] Finnhub WS error:', e.message || 'connection error');
 
     _finnhubWS.onclose = () => {
       console.log('[AIO] Finnhub WS closed');
@@ -9696,7 +9701,7 @@ async function fetchFinnhubNews(category = 'general') {
     const url = `${DATA_APIS.finnhub.base}/news?category=${category}&token=${key}`;
     const r = await fetchWithTimeout(url, {}, 6000);
     if (r.ok) return await r.json();
-  } catch(e) { console.warn('[AIO] Finnhub news error:', e); }
+  } catch(e) { console.warn('[AIO] Finnhub news error:', e.message || String(e)); }
   return [];
 }
 
@@ -9736,7 +9741,7 @@ async function fetchNewsDataIO(category = 'business') {
         _api: 'newsdata'
       })).filter(i => i.title.length > 10);
     }
-  } catch(e) { console.warn('[AIO] NewsData.io error:', e); }
+  } catch(e) { console.warn('[AIO] NewsData.io error:', e.message || String(e)); }
   return [];
 }
 
@@ -11565,14 +11570,15 @@ function isTelegramMsgRelevant(text) {
 async function fetchTelegramDirect(channelSlug, sourceName) {
   const tgUrl = `https://t.me/s/${channelSlug}`;
   const cfW = localStorage.getItem('aio_cf_worker_url') || '';
-  // v27.3: 프록시 체인 확장 (기존 RSS와 동일 수준) + allorigins raw 추가
+  // v29: 프록시 체인 확장 + thingproxy 추가
   const proxies = [
     ...(cfW ? [u => `${cfW}?url=${encodeURIComponent(u)}`] : []),
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
     u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
     u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
     u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
     u => `https://corsproxy.app/?${encodeURIComponent(u)}`,
+    u => `https://thingproxy.freeboard.io/fetch/${u}`,
   ];
   let lastErr = null;
   for (let pi = 0; pi < proxies.length; pi++) {
@@ -12090,30 +12096,65 @@ async function fetchLiveQuotes() {
     }
   } catch(e) { console.warn('[AIO] CoinGecko 실패:', e.message); }
 
-  // ─── 2. 환율: open.er-api.com (완전 무료, CORS 허용, 프록시 불필요) ───
-  try {
-    const erUrl = 'https://open.er-api.com/v6/latest/USD';
-    const r = await withTimeout(fetch(erUrl), 6000);
+  // ─── 2. 환율: 다중 API 폴백 체인 (v29) ───
+  const fxMap = {KRW:'KRW=X', JPY:'JPY=X', EUR:'EURUSD=X', GBP:'GBPUSD=X', CNY:'CNY=X', AUD:'AUDUSD=X', CAD:'CADUSD=X', CHF:'CHFUSD=X'};
+  let fxLoaded = false;
+  // API 1: open.er-api.com
+  if (!fxLoaded) try {
+    const r = await withTimeout(fetch('https://open.er-api.com/v6/latest/USD'), 5000);
     if (r.ok) {
       const d = await r.json();
       if (d.result === 'success' && d.rates) {
-        // KRW=X → USD/KRW 환율
-        const fxMap = {KRW:'KRW=X', JPY:'JPY=X', EUR:'EURUSD=X', GBP:'GBPUSD=X', CNY:'CNY=X', AUD:'AUDUSD=X', CAD:'CADUSD=X', CHF:'CHFUSD=X'};
         for (const [code, sym] of Object.entries(fxMap)) {
           if (d.rates[code]) {
             let price = d.rates[code];
-            let pct = 0;
-            // EUR, GBP, AUD는 역수 (USD per 1 EUR 등)
-            if (['EURUSD=X','GBPUSD=X','AUDUSD=X'].includes(sym)) {
-              price = 1 / price;
-            }
-            allQuotes.push({ symbol: sym, regularMarketPrice: price, regularMarketChangePercent: pct, regularMarketChange: 0 });
+            if (['EURUSD=X','GBPUSD=X','AUDUSD=X'].includes(sym)) price = 1 / price;
+            allQuotes.push({ symbol: sym, regularMarketPrice: price, regularMarketChangePercent: 0, regularMarketChange: 0 });
           }
         }
-        console.log('[AIO] open.er-api 환율 갱신');
+        fxLoaded = true;
+        console.log('[AIO] 환율 갱신 (open.er-api)');
       }
     }
   } catch(e) { console.warn('[AIO] open.er-api 실패:', e.message); }
+  // API 2: exchangerate-api.com (폴백)
+  if (!fxLoaded) try {
+    const r = await withTimeout(fetch('https://api.exchangerate-api.com/v4/latest/USD'), 5000);
+    if (r.ok) {
+      const d = await r.json();
+      if (d.rates) {
+        for (const [code, sym] of Object.entries(fxMap)) {
+          if (d.rates[code]) {
+            let price = d.rates[code];
+            if (['EURUSD=X','GBPUSD=X','AUDUSD=X'].includes(sym)) price = 1 / price;
+            allQuotes.push({ symbol: sym, regularMarketPrice: price, regularMarketChangePercent: 0, regularMarketChange: 0 });
+          }
+        }
+        fxLoaded = true;
+        console.log('[AIO] 환율 갱신 (exchangerate-api 폴백)');
+      }
+    }
+  } catch(e) { console.warn('[AIO] exchangerate-api 실패:', e.message); }
+  // API 3: fawazahmed0 currency-api (최종 폴백)
+  if (!fxLoaded) try {
+    const r = await withTimeout(fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json'), 5000);
+    if (r.ok) {
+      const d = await r.json();
+      if (d.usd) {
+        const codeMap = {KRW:'krw', JPY:'jpy', EUR:'eur', GBP:'gbp', CNY:'cny', AUD:'aud', CAD:'cad', CHF:'chf'};
+        for (const [code, sym] of Object.entries(fxMap)) {
+          const lc = codeMap[code];
+          if (d.usd[lc]) {
+            let price = d.usd[lc];
+            if (['EURUSD=X','GBPUSD=X','AUDUSD=X'].includes(sym)) price = 1 / price;
+            allQuotes.push({ symbol: sym, regularMarketPrice: price, regularMarketChangePercent: 0, regularMarketChange: 0 });
+          }
+        }
+        fxLoaded = true;
+        console.log('[AIO] 환율 갱신 (fawazahmed0 최종 폴백)');
+      }
+    }
+  } catch(e) { console.warn('[AIO] 모든 환율 API 실패:', e.message); }
 
   // ─── 3. 주식·지수: Yahoo Finance v8/chart (단일 심볼, corsproxy 경유) ──
   // 핵심 심볼을 5개씩 나눠서 순차 요청 (빠른 것부터)
@@ -12169,13 +12210,16 @@ async function fetchLiveQuotes() {
   const CHART_BASE = 'https://query1.finance.yahoo.com/v8/finance/chart/';
   const CHART_PARAMS = '?interval=1d&range=1d';
 
-  // 프록시 우선순위: 빠르고 안정적인 것 먼저
+  // v29: 프록시 우선순위 — CF Worker → 안정 프록시 순
+  const _cfW = localStorage.getItem('aio_cf_worker_url') || '';
   const YF_PROXIES = [
+    ...(_cfW ? [u => `${_cfW}?url=${encodeURIComponent(u)}`] : []),
     u => 'https://corsproxy.io/?' + encodeURIComponent(u),
     u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
     u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
     u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
     u => 'https://corsproxy.app/?' + encodeURIComponent(u),
+    u => 'https://thingproxy.freeboard.io/fetch/' + u,
   ];
 
   // 작동하는 프록시를 기억해서 재사용 (세션 내)
@@ -12848,8 +12892,11 @@ function applyLiveQuotes(quotes) {
       return;
     }
 
-    // Check if price is reasonable compared to previous price
-    if (window._previousPrices[q.symbol]) {
+    // v29: Price sanity check — 첫 로드 시 _previousPrices가 비거나 stale할 수 있으므로
+    // 세션 시작 후 첫 3분 이내이거나, 이전 가격이 없으면 무조건 수용
+    if (!window._priceSessionStart) window._priceSessionStart = Date.now();
+    const sessionAge = Date.now() - window._priceSessionStart;
+    if (window._previousPrices[q.symbol] && sessionAge > 180000) {
       const prevPrice = window._previousPrices[q.symbol];
       const priceChange = Math.abs(price - prevPrice) / prevPrice;
       if (priceChange > 0.5) {
@@ -13348,26 +13395,35 @@ async function fetchHYSpread() {
   if (Date.now() - hyLastFetch < CACHE_MS) return;
 
   const fredUrl = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2&vintage_date=' + new Date().toISOString().slice(0,10);
-  // v16: 다중 프록시 시도
+  // v29: 다중 프록시 시도 (CF Worker 우선)
+  const _cfHy = localStorage.getItem('aio_cf_worker_url') || '';
   const hyProxies = [
-    'https://api.allorigins.win/get?url=' + encodeURIComponent(fredUrl),
-    'https://corsproxy.app/?' + encodeURIComponent(fredUrl),
+    ...(_cfHy ? [`${_cfHy}?url=${encodeURIComponent(fredUrl)}`] : []),
     'https://corsproxy.io/?' + encodeURIComponent(fredUrl),
+    'https://api.allorigins.win/get?url=' + encodeURIComponent(fredUrl),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(fredUrl),
+    'https://corsproxy.app/?' + encodeURIComponent(fredUrl),
     'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(fredUrl),
+    'https://thingproxy.freeboard.io/fetch/' + fredUrl,
   ];
-  const proxyUrl = hyProxies[0]; // 주력 (아래 루프에서 폴백 시도)
 
   // withTimeout is global
 
-  // v16: 다중 프록시로 CSV 수신 시도
+  // v29: 다중 프록시로 CSV 수신 시도 (JSON + raw 텍스트 둘 다 처리)
   let csv = '';
   for (const pUrl of hyProxies) {
     try {
       const resp = await withTimeout(fetch(pUrl), 9000);
       if (!resp.ok) continue;
-      const json = await resp.json();
-      csv = json.contents || (typeof json === 'string' ? json : '');
-      if (csv && csv.length > 20) break;
+      const ct = resp.headers.get('content-type') || '';
+      if (ct.includes('json')) {
+        const json = await resp.json();
+        csv = json.contents || (typeof json === 'string' ? json : '');
+      } else {
+        csv = await resp.text();
+      }
+      if (csv && csv.length > 20 && csv.includes(',')) break;
+      csv = '';
     } catch(e) {}
   }
 
@@ -15494,7 +15550,7 @@ function openChatHistory(ctxId) {
       <div class="ch-header">
         <span class="ch-title">대화 기록 (${ctxLabel}) - ${history.length}건</span>
         <div style="display:flex;gap:6px;">
-          ${history.length > 0 ? '<button onclick="if(confirm(\'모든 대화 기록을 삭제할까요?\')){localStorage.removeItem(\\'aio_chat_history\\');this.closest(\\'.chat-history-overlay\\').remove();}" style="background:none;border:1px solid rgba(248,113,113,0.3);color:#f87171;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;">전체 삭제</button>' : ''}
+          ${history.length > 0 ? '<button onclick="if(confirm(\'모든 대화 기록을 삭제할까요?\')){localStorage.removeItem(\'aio_chat_history\');this.closest(\'.chat-history-overlay\').remove();}" style="background:none;border:1px solid rgba(248,113,113,0.3);color:#f87171;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;">전체 삭제</button>' : ''}
           <button class="ch-close" onclick="this.closest('.chat-history-overlay').remove()">X</button>
         </div>
       </div>
@@ -15504,7 +15560,7 @@ function openChatHistory(ctxId) {
             const dt = new Date(h.ts);
             const timeStr = dt.toLocaleDateString('ko-KR', {month:'short',day:'numeric'}) + ' ' + dt.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
             const ctxBadge = h.ctx ? '<span style="font-size:8px;background:rgba(74,158,255,0.1);color:#60a5fa;padding:1px 5px;border-radius:3px;margin-right:6px;">' + (h.ctx) + '</span>' : '';
-            return '<div class="ch-item" onclick="this.querySelector(\\'.ch-item-a\\').style.whiteSpace=this.querySelector(\\'.ch-item-a\\').style.whiteSpace===\\'normal\\'?\\'nowrap\\':\\'normal\\'">' +
+            return '<div class="ch-item" onclick="this.querySelector(\'.ch-item-a\').style.whiteSpace=this.querySelector(\'.ch-item-a\').style.whiteSpace===\'normal\'?\'nowrap\':\'normal\'">' +
               '<div class="ch-item-q">' + ctxBadge + h.q + '</div>' +
               '<div class="ch-item-a">' + (h.a || '(응답 없음)') + '</div>' +
               '<div class="ch-item-time">' + timeStr + '</div>' +
