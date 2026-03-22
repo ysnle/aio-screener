@@ -9597,14 +9597,27 @@ async function fetchFundamentals(symbol) {
 async function fetchFredSeries(seriesId, limit = 30) {
   const key = DATA_APIS.fred.key();
   if (!key) return null;
+  const url = `${DATA_APIS.fred.base}?series_id=${seriesId}&api_key=${key}&file_type=json&sort_order=desc&limit=${limit}`;
+  // 1차: 직접 호출 시도
   try {
-    const url = `${DATA_APIS.fred.base}?series_id=${seriesId}&api_key=${key}&file_type=json&sort_order=desc&limit=${limit}`;
-    const r = await fetchWithTimeout(url, {}, 8000);
+    const r = await fetchWithTimeout(url, {}, 6000);
     if (r.ok) {
       const data = await r.json();
       return data.observations || [];
     }
-  } catch(e) { console.warn('[AIO] FRED error:', e); }
+  } catch(e) { /* CORS blocked — fallback to proxy */ }
+  // 2차: CORS 프록시 경유
+  try {
+    const r = await fetchViaProxy(url, 8000);
+    if (r.ok) {
+      let data = await r.json();
+      // allorigins /get 엔드포인트는 {contents: "..."} 형태
+      if (data.contents && typeof data.contents === 'string') {
+        data = JSON.parse(data.contents);
+      }
+      return data.observations || [];
+    }
+  } catch(e) { console.warn('[AIO] FRED proxy error:', seriesId, e.message || e); }
   return null;
 }
 
@@ -10866,7 +10879,7 @@ async function autoTranslateNews(items) {
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
-          'anthropic-version': '2024-10-22',
+          'anthropic-version': '2023-06-01',
           'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
@@ -15976,7 +15989,7 @@ async function callClaude(system, messages, onChunk, onDone, onError) {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        'anthropic-version': '2024-10-22',
+        'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
@@ -17686,29 +17699,41 @@ var FRED_SERIES_EXT = {
   'RSXFS':      { name: '소매판매 (식품서비스 제외)', unit: '백만 달러', freq: 'monthly' }
 };
 
-// FRED API fetch (with optional API key)
+// FRED API fetch (with optional API key) — CORS 프록시 폴백 포함
 async function fetchFREDData(seriesId, options) {
   options = options || {};
-  var apiKey = options.apiKey || window.FRED_API_KEY || 'DEMO_KEY';
+  var apiKey = options.apiKey || window.FRED_API_KEY || localStorage.getItem('aio_fred_key') || 'DEMO_KEY';
   var limit = options.limit || 10;
   var sortOrder = options.sortOrder || 'desc';
+  var url = 'https://api.stlouisfed.org/fred/series/observations?series_id=' + seriesId +
+    '&api_key=' + apiKey + '&file_type=json&sort_order=' + sortOrder + '&limit=' + limit;
+  var data = null;
+  // 1차: 직접 호출
   try {
-    var url = 'https://api.stlouisfed.org/fred/series/observations?series_id=' + seriesId +
-      '&api_key=' + apiKey + '&file_type=json&sort_order=' + sortOrder + '&limit=' + limit;
-    var r = await fetch(url);
-    if (r.ok) {
-      var data = await r.json();
-      if (data.observations) {
-        return {
-          series: seriesId,
-          info: FRED_SERIES_EXT[seriesId] || FRED_SERIES[seriesId] || { name: seriesId },
-          data: data.observations.map(function(o) {
-            return { date: o.date, value: parseFloat(o.value) || null };
-          }).filter(function(o) { return o.value !== null; })
-        };
+    var r = await fetchWithTimeout(url, {}, 6000);
+    if (r.ok) data = await r.json();
+  } catch(e) { /* CORS blocked — try proxy */ }
+  // 2차: CORS 프록시 경유
+  if (!data) {
+    try {
+      var r2 = await fetchViaProxy(url, 8000);
+      if (r2.ok) {
+        data = await r2.json();
+        if (data.contents && typeof data.contents === 'string') {
+          data = JSON.parse(data.contents);
+        }
       }
-    }
-  } catch(e) { console.warn('[FRED] fetch error for ' + seriesId + ':', e.message); }
+    } catch(e) { console.warn('[FRED] proxy error for ' + seriesId + ':', e.message || e); }
+  }
+  if (data && data.observations) {
+    return {
+      series: seriesId,
+      info: FRED_SERIES_EXT[seriesId] || FRED_SERIES[seriesId] || { name: seriesId },
+      data: data.observations.map(function(o) {
+        return { date: o.date, value: parseFloat(o.value) || null };
+      }).filter(function(o) { return o.value !== null; })
+    };
+  }
   return null;
 }
 
