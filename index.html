@@ -1298,7 +1298,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
 
 /* ═══ v27.2: RRG Chart 비율 수정 — 레이아웃 깨짐 방지 ═══ */
 #rrg-canvas {
-  max-height: 400px !important;
+  max-height: 480px !important;
   width: 100% !important;
   /* height: auto 제거 — canvas drawing buffer와 CSS 충돌 방지 */
 }
@@ -2551,7 +2551,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
       </div>
       <button onclick="chatClear('signal')" class="tb-btn" style="font-size:9px;">🗑 초기화</button>
     </div>
-    <div id="chat-signal-msgs" style="min-height:80px;max-height:200px;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:7px;padding:10px;margin-bottom:8px;font-size:9px;line-height:1.6;"></div>
+    <div id="chat-signal-msgs" style="min-height:40px;max-height:200px;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:7px;padding:10px;margin-bottom:8px;font-size:9px;line-height:1.6;"></div>
     <div id="chat-signal-chips" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;"></div>
     <div style="display:flex;gap:6px;">
       <input id="chat-signal-inp" type="text" placeholder="지금 거래해도 될까요? VIX 20이면? 어떤 섹터가 유리해요?" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:9px;color:var(--text-primary);outline:none;" onkeydown="if(event.key==='Enter')chatSend('signal')"/>
@@ -5299,8 +5299,8 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
           <span id="rrg-chart-status" style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);margin-left:6px;">—</span>
         </div>
       </div>
-      <div style="position:relative;background:rgba(255,255,255,0.01);border:1px solid var(--border);border-radius:9px;overflow:hidden;">
-        <canvas id="rrg-canvas" width="700" height="400" style="width:100%;max-height:400px;"></canvas>
+      <div style="position:relative;background:rgba(255,255,255,0.01);border:1px solid var(--border);border-radius:9px;overflow:hidden;padding:4px 0;">
+        <canvas id="rrg-canvas" width="900" height="480" style="width:100%;max-height:480px;"></canvas>
       </div>
       <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;font-size:12px;">
         <span style="color:#34d399;">🟢 선도(Leading)</span>
@@ -9386,7 +9386,7 @@ const DATA_APIS = {
   },
   // 3. Financial Modeling Prep (무료 250회/일 — 재무제표, 밸류에이션)
   fmp: {
-    base: 'https://financialmodelingprep.com/api/v3',
+    base: 'https://financialmodelingprep.com/stable',
     key: () => localStorage.getItem('aio_fmp_key') || 'demo',
     limit: '250/day free · 5 years history'
   },
@@ -9581,9 +9581,9 @@ async function fetchFundamentals(symbol) {
   if (!key || key === 'demo') return null;
   try {
     const [profile, ratios, earnings] = await Promise.allSettled([
-      fetchWithTimeout(`${DATA_APIS.fmp.base}/profile/${symbol}?apikey=${key}`, {}, 6000).then(r => r.json()),
-      fetchWithTimeout(`${DATA_APIS.fmp.base}/ratios-ttm/${symbol}?apikey=${key}`, {}, 6000).then(r => r.json()),
-      fetchWithTimeout(`${DATA_APIS.fmp.base}/earnings-surprises/${symbol}?apikey=${key}`, {}, 6000).then(r => r.json()),
+      fetchWithTimeout(`${DATA_APIS.fmp.base}/profile?symbol=${symbol}&apikey=${key}`, {}, 6000).then(r => r.json()),
+      fetchWithTimeout(`${DATA_APIS.fmp.base}/ratios-ttm?symbol=${symbol}&apikey=${key}`, {}, 6000).then(r => r.json()),
+      fetchWithTimeout(`${DATA_APIS.fmp.base}/earnings-surprises?symbol=${symbol}&apikey=${key}`, {}, 6000).then(r => r.json()),
     ]);
     return {
       profile: profile.status === 'fulfilled' ? profile.value[0] : null,
@@ -19621,8 +19621,8 @@ function drawRRG() {
   // Axis labels
   ctx.font = '11px SF Mono, monospace'; ctx.textAlign = 'center';
   ctx.fillStyle = '#64748b';
-  ctx.fillText('RS-Ratio →', W/2, H-6);
-  ctx.save(); ctx.translate(10, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('RS-Ratio →', W/2, H-8);
+  ctx.save(); ctx.translate(16, H/2); ctx.rotate(-Math.PI/2);
   ctx.fillText('RS-Momentum ↑', 0, 0);
   ctx.restore();
 
