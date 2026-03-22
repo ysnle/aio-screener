@@ -1632,12 +1632,12 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
           </div>
           </div>
 
-          <!-- v20: 확장 API 키 설정 -->
+          <!-- v28: 확장 API 키 설정 — 기본 펼침 -->
           <div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--border);">
             <div style="font-size:9px;color:#60a5fa;font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(74,158,255,0.08);border:1px solid rgba(74,158,255,0.2);border-radius:4px;text-align:center;" onclick="var t=this.nextElementSibling;t.style.display=t.style.display==='none'?'block':'none';this.querySelector('.arrow').textContent=t.style.display==='none'?'▼':'▲'">
-              🔑 확장 API 키 설정 <span class="arrow">▼</span>
+              🔑 확장 API 키 설정 <span class="arrow">▲</span>
             </div>
-            <div style="display:none;">
+            <div style="display:block;">
               <div style="font-size:7px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">⚠ 키는 브라우저 localStorage에 저장됩니다. 재배포해도 유지됩니다.</div>
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_av_key_input" class="llm-key-input" placeholder="Alpha Vantage (시장 폭)" title="alphavantage.co 무료 키" style="font-size:9px;">
