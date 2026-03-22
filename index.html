@@ -1840,7 +1840,13 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
       <button onclick="showPage('market-news',null)" style="background:rgba(74,158,255,0.1);border:1px solid rgba(74,158,255,0.2);color:#60a5fa;font-size:8px;padding:2px 8px;border-radius:4px;cursor:pointer;">전체 보기 →</button>
     </div>
     <div id="home-news-highlights" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;max-height:400px;overflow-y:auto;">
-      <div style="text-align:center;padding:12px;color:var(--text-muted);font-size:9px;">뉴스 로딩 중...</div>
+      <div style="text-align:center;padding:12px;">
+        <div style="color:var(--text-muted);font-size:9px;margin-bottom:8px;">📰 뉴스 로딩 중...</div>
+        <div style="height:4px;background:var(--bg-hover);border-radius:2px;overflow:hidden;margin-bottom:6px;">
+          <div id="home-news-progress-bar" style="height:100%;width:0%;background:var(--accent);transition:width 0.3s;border-radius:2px;"></div>
+        </div>
+        <div id="home-news-progress-text" style="font-size:8px;color:var(--text-muted);">0/65 소스 수집 중...</div>
+      </div>
     </div>
   </div>
 
@@ -5814,7 +5820,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
         <span id="last-fetch-time" style="font-size:8px;color:var(--text-muted);font-family:var(--font-mono);">로딩 중...</span>
         <span id="market-news-count" style="font-size:8px;color:var(--text-muted);font-family:var(--font-mono);"></span>
         <span id="market-news-tw-label" style="font-size:8px;color:var(--yellow);font-family:var(--font-mono);background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:4px;padding:2px 8px;">📅 3일 이내</span>
-        <button onclick="fetchAllNews(true)" style="background:rgba(74,158,255,0.1);border:1px solid rgba(74,158,255,0.2);color:#60a5fa;font-size:9px;padding:3px 9px;border-radius:4px;cursor:pointer;font-family:var(--font-mono);">↻ 새로고침</button>
+        <button id="news-refresh-btn" onclick="(function(){if(isFetching){isFetching=false;console.log('[AIO] isFetching force reset');}fetchAllNews(true);})()" style="background:rgba(74,158,255,0.15);border:1px solid rgba(74,158,255,0.4);color:#60a5fa;font-size:9px;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.2s;hover:background:rgba(74,158,255,0.25);">↻ 새로고침</button>
       </div>
     </div>
 
@@ -8408,6 +8414,7 @@ let prevPage = 'home';
 
 function setBreadcrumb(parts) {
   const bc = document.getElementById('breadcrumb');
+  if (!bc) return;
   bc.innerHTML = parts.map((p,i) => i===parts.length-1
     ? `<span class="current">${p}</span>`
     : `<span>${p}</span><span class="sep">/</span>`
@@ -8524,7 +8531,7 @@ function showTheme(themeId) {
     else n.classList.remove('active');
   });
   const bc=document.getElementById('breadcrumb');
-  bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span onclick="showPage('themes',null)" style="cursor:pointer;">테마</span><span class="sep">/</span><span class="current">${t.name}</span>`;
+  bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span onclick="showPage('themes',null)" style="cursor:pointer;">테마</span><span class="sep">/</span><span class="current">${escHtml(t.name)}</span>`;
 }
 
 const tickerData = {
@@ -8567,9 +8574,9 @@ function showTicker(tkr) {
   document.getElementById('ticker-hero-fullname').textContent = d.name;
   document.getElementById('ticker-hero-price').textContent = livePrice;
   const chgEl = document.getElementById('ticker-hero-chg');
-  chgEl.textContent = chgStr; chgEl.className = 'ticker-chg-big ' + chgCls;
+  if (chgEl) { chgEl.textContent = chgStr; chgEl.className = 'ticker-chg-big ' + chgCls; }
   const pnlEl = document.getElementById('ticker-hero-pnl');
-  pnlEl.textContent = d.value !== '—' ? d.value : ''; pnlEl.className = 'pnl';
+  if (pnlEl) { pnlEl.textContent = d.value !== '—' ? d.value : ''; pnlEl.className = 'pnl'; }
   document.getElementById('ticker-hero-value').textContent = d.value !== '—' ? '평가금액: '+d.value : '내 포트폴리오 외 종목';
   const ab = document.getElementById('ticker-action-btn');
   ab.textContent = actionLabels[d.action] || d.action;
@@ -8601,7 +8608,7 @@ function showTicker(tkr) {
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   switchTab(document.querySelector('#page-ticker .tab'), 'tab-overview');
   const bc=document.getElementById('breadcrumb');
-  bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span style="cursor:pointer;" onclick="${parentEl.getAttribute('onclick')}">${parentEl.textContent}</span><span class="sep">/</span><span class="current">${tkr}</span>`;
+  bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span style="cursor:pointer;" onclick="${escHtml(parentEl.getAttribute('onclick'))}">${escHtml(parentEl.textContent)}</span><span class="sep">/</span><span class="current">${escHtml(tkr)}</span>`;
 }
 
 // ═══════════════ SCREENER DATABASE & FUNCTIONS ═══════════════
@@ -9463,17 +9470,32 @@ let _finnhubWS = null;
 let _finnhubPrices = {};
 let _finnhubReconnectAttempts = 0;
 let _finnhubReconnectTimer = null;
+let _finnhubErrorLogged = false; // Track if error already logged for this connection
+const _finnhubMaxRetries = 10;
+const _finnhubMaxDelay = 60; // Max 60 seconds between retries
 
 function initFinnhubWebSocket() {
   const key = DATA_APIS.finnhub.key();
   if (!key) { console.log('[AIO] Finnhub key not set — skipping WebSocket'); return; }
 
+  // If max retries exceeded, show final message and stop
+  if (_finnhubReconnectAttempts > _finnhubMaxRetries) {
+    if (_finnhubReconnectAttempts === _finnhubMaxRetries + 1) {
+      console.warn('[AIO] Finnhub WebSocket: max reconnection attempts (' + _finnhubMaxRetries + ') exceeded. Stopping reconnection.');
+      const badge = document.querySelector('.freshness-badge.fb-live');
+      if (badge) badge.innerHTML = '⚠ FINNHUB 연결 실패';
+    }
+    return;
+  }
+
   try {
+    _finnhubErrorLogged = false; // Reset error logging flag for new connection attempt
     _finnhubWS = new WebSocket('wss://ws.finnhub.io?token=' + key);
 
     _finnhubWS.onopen = () => {
       console.log('[AIO v20] Finnhub WebSocket connected — real-time mode');
       _finnhubReconnectAttempts = 0; // Reset on successful connection
+      _finnhubErrorLogged = false;
       // Subscribe to key symbols (all symbols that appear on active page)
       const wsSymbols = [
         'AAPL','NVDA','TSLA','MSFT','AMZN','GOOGL','META','AMD','AVGO','MU','ARM',
@@ -9513,18 +9535,24 @@ function initFinnhubWebSocket() {
       } catch(e) { console.warn('[AIO] Finnhub parse error:', e); }
     };
 
-    _finnhubWS.onerror = (e) => console.warn('[AIO] Finnhub WS error:', e.message || 'connection error');
+    _finnhubWS.onerror = (e) => {
+      // Only log error once per connection attempt to avoid console spam
+      if (!_finnhubErrorLogged) {
+        console.warn('[AIO] Finnhub WS error:', e.message || 'connection error');
+        _finnhubErrorLogged = true;
+      }
+    };
 
     _finnhubWS.onclose = () => {
       console.log('[AIO] Finnhub WS closed');
       _finnhubReconnectAttempts++;
-      if (_finnhubReconnectAttempts > 10) {
-        console.warn('[AIO] Finnhub max reconnect attempts reached');
+      if (_finnhubReconnectAttempts > _finnhubMaxRetries) {
+        // Will be handled on next initFinnhubWebSocket call
         return;
       }
-      // Exponential backoff: 3s, 6s, 12s, 25s, 50s, ... (max 5 min)
-      const delay = Math.min(300, 3 * Math.pow(2, _finnhubReconnectAttempts - 1));
-      console.log(`[AIO] Reconnecting in ${delay}s (attempt ${_finnhubReconnectAttempts})`);
+      // Exponential backoff: 3s, 6s, 12s, 24s, 48s, ... (max 60s)
+      const delay = Math.min(_finnhubMaxDelay, 3 * Math.pow(2, _finnhubReconnectAttempts - 1));
+      console.log(`[AIO] Finnhub reconnecting in ${delay}s (attempt ${_finnhubReconnectAttempts}/${_finnhubMaxRetries})`);
       if (_finnhubReconnectTimer) clearTimeout(_finnhubReconnectTimer);
       _finnhubReconnectTimer = setTimeout(initFinnhubWebSocket, delay * 1000);
     };
@@ -9586,8 +9614,8 @@ async function fetchFundamentals(symbol) {
       fetchWithTimeout(`${DATA_APIS.fmp.base}/earnings-surprises?symbol=${symbol}&apikey=${key}`, {}, 6000).then(r => r.json()),
     ]);
     return {
-      profile: profile.status === 'fulfilled' ? profile.value[0] : null,
-      ratios: ratios.status === 'fulfilled' ? ratios.value[0] : null,
+      profile: profile.status === 'fulfilled' && Array.isArray(profile.value) && profile.value.length > 0 ? profile.value[0] : null,
+      ratios: ratios.status === 'fulfilled' && Array.isArray(ratios.value) && ratios.value.length > 0 ? ratios.value[0] : null,
       earnings: earnings.status === 'fulfilled' ? earnings.value : null,
     };
   } catch(e) { console.warn('[AIO] FMP error:', e); return null; }
@@ -9613,7 +9641,7 @@ async function fetchFredSeries(seriesId, limit = 30) {
       let data = await r.json();
       // allorigins /get 엔드포인트는 {contents: "..."} 형태
       if (data.contents && typeof data.contents === 'string') {
-        data = JSON.parse(data.contents);
+        try { data = JSON.parse(data.contents); } catch(e) { /* malformed JSON in contents */ }
       }
       return data.observations || [];
     }
@@ -9856,9 +9884,9 @@ async function fetchSentimentHistory() {
     const vixUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?interval=1d&range=3mo';
     const r = await fetchViaProxy(vixUrl, 8000);
     let data;
-    try { data = await r.json(); } catch { const t = await r.text(); data = JSON.parse(t); }
+    try { data = await r.json(); } catch { const t = await r.text(); try { data = JSON.parse(t); } catch(e2) { data = {}; } }
     // Handle allorigins wrapper
-    if (data.contents) data = JSON.parse(data.contents);
+    if (data.contents) try { data = JSON.parse(data.contents); } catch(e) { /* malformed JSON in contents */ }
 
     if (data.chart?.result?.[0]) {
       const result = data.chart.result[0];
@@ -10079,12 +10107,12 @@ const AIO_NEWS_SOURCES = [
 
   // ═══ TIER 0: 한국어 뉴스 (번역 불필요 — 최우선 노출) ═══
   {name:'구글뉴스 금융',         url:'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko', country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'구글뉴스 경제',         url:'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6YW5ZU0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko', country:'kr', tier:1, flag:'🇰🇷', topics:['macro']},
+  {name:'구글뉴스 경제',         url:'https://news.google.com/rss/topics/CAAqIggKIhxDQkFTRHdvSkwyMHZNR2RtY0RFU0FtdHZLQUFQAQ?hl=ko&gl=KR&ceid=KR:ko', country:'kr', tier:1, flag:'🇰🇷', topics:['macro']},
   {name:'구글뉴스 기술',         url:'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko', country:'kr', tier:1, flag:'🇰🇷', topics:['semi','equity']},
   {name:'연합뉴스 경제',         url:'https://www.yna.co.kr/rss/economy.xml',                      country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
   {name:'한국경제',              url:'https://www.hankyung.com/feed/finance',                       country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
   {name:'매일경제',              url:'https://www.mk.co.kr/rss/40300001/',                         country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'조선비즈',              url:'https://biz.chosun.com/rss/finance/',                        country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
+  {name:'조선비즈',              url:'https://biz.chosun.com/rss/all/',                            country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
   {name:'서울경제',              url:'https://www.sedaily.com/RSS/Economy',                         country:'kr', tier:1, flag:'🇰🇷', topics:['macro']},
   {name:'머니투데이',            url:'https://news.mt.co.kr/rss/rss.html?type=1',                  country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
   {name:'이데일리',              url:'https://www.edaily.co.kr/rss/edaily_news.xml',               country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
@@ -11393,6 +11421,7 @@ function computeNewsRiskSignals() {
 let newsCache = [];
 let lastFetchTime = 0;
 let isFetching = false;
+let _fetchStartTime = 0; // v29.3: isFetching 잠김 방지용 타임스탬프
 let currentCountryFilter = 'all';
 let currentTopicFilter = 'all';
 let refreshTimer = null;
@@ -11438,29 +11467,37 @@ function makeTimeoutSignal(ms) {
   return ctrl.signal;
 }
 
+// v29.3: rss2json 연속 실패 시 세션 내 스킵 플래그
+let _rss2jsonFailed = 0;
+
 async function fetchOneFeed(source) {
-  // rss2json.com API 우선 (CORS 없이 직접)
-  try {
-    const apiKey = localStorage.getItem('aio_rss2json_key') || '';
-    const keyParam = apiKey ? '&api_key=' + apiKey : '';
-    const r2jUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(source.url) + '&count=12' + keyParam;
-    const r = await withTimeout(fetch(r2jUrl), 7000);
-    if (r.ok) {
-      const d = await r.json();
-      if (d.status === 'ok' && Array.isArray(d.items) && d.items.length > 0) {
-        return d.items
-          .map(item => ({
-            title:   (item.title || '').replace(/<[^>]+>/g,'').trim(),
-            desc:    (item.description || item.content || '').replace(/<[^>]+>/g,'').trim().slice(0,280),
-            link:    item.link || '#',
-            pubDate: item.pubDate || '',
-            source:  source.name, country: source.country,
-            tier:    source.tier, flag: source.flag,
-          }))
-          .filter(i => i.title.length > 8);
+  // v29.3: rss2json — 연속 2회 이상 실패(429/422)하면 세션 내 스킵 (CF Worker가 더 빠름)
+  if (_rss2jsonFailed < 2) {
+    try {
+      const apiKey = localStorage.getItem('aio_rss2json_key') || '';
+      const keyParam = apiKey ? '&api_key=' + apiKey : '';
+      const r2jUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(source.url) + '&count=12' + keyParam;
+      const r = await withTimeout(fetch(r2jUrl), 5000);
+      if (r.ok) {
+        const d = await r.json();
+        if (d.status === 'ok' && Array.isArray(d.items) && d.items.length > 0) {
+          _rss2jsonFailed = 0; // 성공 시 리셋
+          return d.items
+            .map(item => ({
+              title:   (item.title || '').replace(/<[^>]+>/g,'').trim(),
+              desc:    (item.description || item.content || '').replace(/<[^>]+>/g,'').trim().slice(0,280),
+              link:    item.link || '#',
+              pubDate: item.pubDate || '',
+              source:  source.name, country: source.country,
+              tier:    source.tier, flag: source.flag,
+            }))
+            .filter(i => i.title.length > 8);
+        }
       }
-    }
-  } catch(e) {}
+      // 422/429 등 실패 시 카운트 증가
+      _rss2jsonFailed++;
+    } catch(e) { _rss2jsonFailed++; }
+  }
 
   // CORS 프록시 폴백 (XML 파싱)
   function parseXml(raw) {
@@ -11492,7 +11529,7 @@ async function fetchOneFeed(source) {
   for (const mkProxy of proxies) {
     try {
       const resp = await withTimeout(fetch(mkProxy(source.url)), 9000);
-      if (!resp.ok) continue;
+      if (!resp.ok) { if (resp.status === 429) await new Promise(r => setTimeout(r, 2000)); continue; }
       let raw = '';
       const ct = resp.headers.get('content-type') || '';
       if (ct.includes('json')) {
@@ -11673,6 +11710,11 @@ async function fetchTelegramDirect(channelSlug, sourceName) {
 }
 
 async function fetchAllNews(forceRefresh = false) {
+  // v29.3: isFetching 60초 안전장치 — 60초 이상 잠겨있으면 강제 리셋
+  if (isFetching && _fetchStartTime && Date.now() - _fetchStartTime > 60000) {
+    console.warn('[AIO] fetchAllNews isFetching 60s 초과 — 강제 리셋');
+    isFetching = false;
+  }
   if (isFetching) return;
   // v21: 캐시 유효 시간 10분 (5명 동시접속 시 불필요한 중복 호출 방지)
   if (!forceRefresh && Date.now() - lastFetchTime < 600000) {
@@ -11685,6 +11727,7 @@ async function fetchAllNews(forceRefresh = false) {
   }
 
   isFetching = true;
+  _fetchStartTime = Date.now(); // v29.3: 잠김 방지 타임스탬프
   // v27.3: 새로고침 시 번역 캐시 클리어 (오래된 캐시가 새 뉴스에 잘못 매핑되는 것 방지)
   if (forceRefresh) _translationCache.clear();
   const feed = document.getElementById('live-news-feed');
@@ -11717,13 +11760,18 @@ async function fetchAllNews(forceRefresh = false) {
     const bar = document.getElementById('load-bar');
     const st  = document.getElementById('load-status');
     const progLabel = document.getElementById('news-progress-label');
+    // v29.5: 홈 페이지 진행률도 함께 업데이트
+    const homeBar = document.getElementById('home-news-progress-bar');
+    const homeText = document.getElementById('home-news-progress-text');
     if (bar) bar.style.width = pct + '%';
     if (st)  st.textContent = `(${done}/${total}) ${name} 완료`;
     if (progLabel) progLabel.textContent = `뉴스 수집 중... ${done}/${total}`;
+    if (homeBar) homeBar.style.width = pct + '%';
+    if (homeText) homeText.textContent = `${done}/${total} 소스 수집 중...`;
   };
 
-  // v21: 배치 분할 (4개씩 순차 배치 → 5명 동시접속 시 rate limit 안전)
-  const BATCH_SIZE = 4;
+  // v21: 배치 분할 (3개씩 순차 배치 → CF Worker 100req/분 rate limit 안전)
+  const BATCH_SIZE = 3;
   const results = [];
   for (let i = 0; i < AIO_NEWS_SOURCES.length; i += BATCH_SIZE) {
     const batch = AIO_NEWS_SOURCES.slice(i, i + BATCH_SIZE);
@@ -11797,9 +11845,9 @@ async function fetchAllNews(forceRefresh = false) {
       })
     );
     results.push(...batchResults);
-    // v21: 배치 간 500ms 딜레이 (5명 동시접속 시 rss2json rate limit 안전)
+    // v29.3: 배치 간 1500ms 딜레이 (CF Worker 100req/분 rate limit 안전)
     if (i + BATCH_SIZE < AIO_NEWS_SOURCES.length) {
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, 1500));
     }
   }
 
@@ -11920,11 +11968,20 @@ async function fetchAllNews(forceRefresh = false) {
   }
 }
 
-// v29: 뉴스 로딩 타임아웃 — 45초 후에도 "로딩 중" 상태면 안내 메시지로 교체 (65+ 소스 fetch 시간 감안)
+// v29.5: 뉴스 로딩 타임아웃 — 45초 후에도 "로딩 중" 상태면 부분 결과 표시 + 새로고침 권유
 setTimeout(function() {
   var hn = document.getElementById('home-news-highlights');
   if (hn && hn.innerHTML.indexOf('뉴스 로딩 중') !== -1) {
-    hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;grid-column:1/-1;">📰 뉴스 로딩 시간 초과. <button onclick="fetchAllNews(true)" style="background:rgba(74,158,255,0.1);border:1px solid rgba(74,158,255,0.2);color:#60a5fa;font-size:9px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:6px;">↻ 다시 시도</button></div>';
+    // 부분 결과 있으면 표시, 없으면 에러 메시지
+    if (newsCache && newsCache.length > 0) {
+      hn.innerHTML = '<div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius);padding:12px;margin-bottom:8px;color:var(--yellow);font-size:9px;"><span style="font-weight:600;">⚠ 일부 뉴스 소스에서 데이터를 가져오지 못했습니다.</span> 가져온 뉴스만 표시합니다. <button onclick="fetchAllNews(true)" style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:var(--yellow);font-size:8px;padding:3px 8px;border-radius:4px;cursor:pointer;margin-left:4px;font-weight:600;">↻ 다시 시도</button></div>';
+      // renderHomeFeed를 호출하여 부분 결과 렌더링
+      if (typeof renderHomeFeed === 'function') {
+        renderHomeFeed(newsCache);
+      }
+    } else {
+      hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;">📰 뉴스 로딩 시간 초과 (네트워크 지연). <button onclick="fetchAllNews(true)" style="background:rgba(74,158,255,0.1);border:1px solid rgba(74,158,255,0.2);color:#60a5fa;font-size:9px;padding:3px 9px;border-radius:4px;cursor:pointer;margin-left:6px;font-weight:600;">↻ 다시 시도</button></div>';
+    }
   }
 }, 45000);
 
@@ -13094,7 +13151,7 @@ function refreshHomeDashboard() {
   const spx = ld['^GSPC'] || {};
   const vix = ld['^VIX'] || {};
   const dxy = ld['DX-Y.NYB'] || {};
-  const fg = window._fearGreedScore || 18;
+  const fg = window._lastFG || 18;
   const ts = new Date();
 
   // SECTION 0: One-line market summary
@@ -13360,7 +13417,7 @@ async function autoUpdateMA() {
     const url = 'https://query1.finance.yahoo.com/v8/finance/chart/^GSPC?range=1y&interval=1d';
     const r = await fetchViaProxy(url, 8000);
     const json = typeof r.json === 'function' ? await r.json() : JSON.parse(r);
-    const closes = json.chart.result[0].indicators.quote[0].close.filter(Boolean);
+    const closes = (json?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || []).filter(Boolean);
     if (closes.length >= 200) {
       const ma200 = closes.slice(-200).reduce((a,b) => a+b, 0) / 200;
       const ma50  = closes.slice(-50).reduce((a,b) => a+b, 0) / 50;
@@ -14263,7 +14320,8 @@ function getLLMState() {
 
 function getQuota() {
   const today = new Date().toISOString().slice(0, 10);
-  const stored = JSON.parse(localStorage.getItem('llm_quota') || '{}');
+  let stored;
+  try { stored = JSON.parse(localStorage.getItem('llm_quota') || '{}'); } catch(e) { stored = {}; }
   if (stored.date !== today) {
     const fresh = { date: today, used: 0, costUSD: 0 };
     localStorage.setItem('llm_quota', JSON.stringify(fresh));
@@ -14705,7 +14763,8 @@ function copyFeedback() {
 }
 
 function saveFeedbackToHistory() {
-  const list = JSON.parse(localStorage.getItem('aio_feedback') || '[]');
+  let list;
+  try { list = JSON.parse(localStorage.getItem('aio_feedback') || '[]'); } catch(e) { list = []; }
   list.unshift({
     type: fbSelectedType,
     desc: (document.getElementById('fb-desc')?.value?.trim() || '').slice(0, 120),
@@ -14719,7 +14778,8 @@ function saveFeedbackToHistory() {
 function renderFBHistory() {
   const el = document.getElementById('fb-history-list');
   if (!el) return;
-  const list = JSON.parse(localStorage.getItem('aio_feedback') || '[]');
+  let list;
+  try { list = JSON.parse(localStorage.getItem('aio_feedback') || '[]'); } catch(e) { list = []; }
   if (!list.length) {
     el.innerHTML = '<div style="font-size:9px;color:var(--text-muted);padding:4px;">제출 내역 없음</div>';
     return;
@@ -17720,7 +17780,7 @@ async function fetchFREDData(seriesId, options) {
       if (r2.ok) {
         data = await r2.json();
         if (data.contents && typeof data.contents === 'string') {
-          data = JSON.parse(data.contents);
+          try { data = JSON.parse(data.contents); } catch(e) { /* malformed JSON in contents */ }
         }
       }
     } catch(e) { console.warn('[FRED] proxy error for ' + seriesId + ':', e.message || e); }
@@ -17833,7 +17893,7 @@ async function dynamicTickerLookup(ticker) {
         var r = await withTimeout(fetch(proxies[i](url)), 8000);
         if (r.ok) {
           var raw = await r.json();
-          if (raw.contents) raw = JSON.parse(raw.contents);
+          if (raw.contents) try { raw = JSON.parse(raw.contents); } catch(e) { /* malformed JSON in contents */ }
           var meta = raw && raw.chart && raw.chart.result && raw.chart.result[0] && raw.chart.result[0].meta;
           if (meta && meta.regularMarketPrice) {
             // 캐시에 저장
