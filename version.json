@@ -1,5 +1,5 @@
 {
-  "version": "v30.2",
-  "built": "2026-03-23T13:00:00+09:00",
-  "note": "v30.2: 3/23 장중 Google Finance 실데이터 검증 반영 — KOSPI 5,441(-5.88%), KOSDAQ -4.94%, 섹터ETF 6종 실시간 검증(반도체-4.99%,2차전지-4.44%,방산-5.23%,조선-7.30%,은행-7.11%,바이오-5.99%), FOMC 잔존 4/28→5/5-6 수정, 주간수급 장중미확정처리, 환율 1,508"
+  "version": "v30.4",
+  "built": "2026-03-23T14:30:00+09:00",
+  "note": "v30.4: 운영안전성 고도화 — 전역에러경계(onerror+unhandledrejection), DATA_SNAPSHOT 방어적코딩(undefined/NaN안전), _ldSafe() 유틸리티로 37개 stale fallback 통일, localStorage QuotaExceeded 보호(9곳), Promise rejection 핸들링, retry exponential backoff, JS syntax error 0개 검증 완료"
 }
