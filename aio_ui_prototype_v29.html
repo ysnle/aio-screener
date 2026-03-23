@@ -468,6 +468,7 @@ body { background: var(--bg-dark); color: var(--text-primary); font-family: var(
 .kr-ticker-pill{font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:var(--text-secondary);font-family:var(--font-mono);white-space:nowrap;transition:background 0.15s;}
 .kr-ticker-pill:hover{background:rgba(232,70,58,0.1);border-color:rgba(232,70,58,0.3);color:#f87171;}
 .kr-ticker-pill .pill-name{font-family:'Inter',var(--font-sans);font-weight:600;margin-left:2px;}
+.pill-pct{font-size:8px;color:rgba(232,70,58,0.7);font-family:var(--font-mono);margin-left:3px;letter-spacing:-0.3px;}
 .pill-price{font-size:9px;color:var(--text-muted);font-family:var(--font-mono);margin-left:2px;}
 .kr-theme-stat{display:flex;flex-direction:column;gap:5px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);font-size:10px;color:var(--text-muted);line-height:1.5;}
 .kr-theme-stat span{display:flex;align-items:center;gap:4px;}
@@ -6775,15 +6776,15 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
       <div class="kr-idx-card up">
         <div class="kr-idx-label">KOSPI</div>
         <div class="kr-idx-val" id="kr-kospi-price" style="color:var(--green)">5,781.20</div>
-        <div class="kr-idx-chg" style="color:var(--green)">▲ 18.40 (+0.69%)</div>
-        <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">거래대금 8.2조원</div>
+        <div class="kr-idx-chg" style="color:var(--green)">▲ 18.40 (+0.31%)</div>
+        <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">거래대금 18.2조원</div>
         <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">시가: 5,765.80</div>
       </div>
       <div class="kr-idx-card up">
         <div class="kr-idx-label">KOSDAQ</div>
         <div class="kr-idx-val" id="kr-kosdaq-price" style="color:var(--green)">1,161.52</div>
-        <div class="kr-idx-chg" style="color:var(--green)">▲ 7.82 (+0.92%)</div>
-        <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">거래대금 4.7조원</div>
+        <div class="kr-idx-chg" style="color:var(--green)">▲ 18.04 (+1.58%)</div>
+        <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">거래대금 9.1조원</div>
         <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">52주 고: 1,248.60</div>
       </div>
       <div class="kr-idx-card down">
@@ -6864,31 +6865,31 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">신용잔고</div>
-        <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">12.8조원</div>
-        <div style="font-size:9px;color:var(--text-muted);">전일: 12.5조원 (+0.2%)</div>
+        <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">31.7조원</div>
+        <div style="font-size:9px;color:var(--text-muted);">전일: 31.5조원 (+0.6%)</div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">예탁금</div>
-        <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">98.4조원</div>
-        <div style="font-size:9px;color:var(--text-muted);">개인투자자 보유</div>
+        <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">108.3조원</div>
+        <div style="font-size:9px;color:var(--text-muted);">개인투자자 보유 (사상최대)</div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">공매도 비중</div>
-        <div style="font-size:20px;font-weight:800;color:var(--red);font-family:var(--font-mono);margin-bottom:4px;">3.24%</div>
-        <div style="font-size:9px;color:var(--text-muted);">▲ 0.18%p (상승중)</div>
+        <div style="font-size:20px;font-weight:800;color:var(--red);font-family:var(--font-mono);margin-bottom:4px;">3.82%</div>
+        <div style="font-size:9px;color:var(--text-muted);">▲ 0.58%p (외인 60%↑)</div>
       </div>
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">KOSPI 거래대금</div>
-        <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">8.2조원</div>
-        <div style="font-size:9px;color:var(--text-muted);">기계매매 포함</div>
+        <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">18.2조원</div>
+        <div style="font-size:9px;color:var(--text-muted);">3월 일평균 53.5조 (전쟁급등)</div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">KOSDAQ 거래대금</div>
-        <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">4.7조원</div>
-        <div style="font-size:9px;color:var(--text-muted);">성장주 선호</div>
+        <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">9.1조원</div>
+        <div style="font-size:9px;color:var(--text-muted);">12월 대비 소폭 감소</div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">ADR (수급</div>
@@ -7206,13 +7207,13 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
           <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;text-align:center;">
             <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">KOSPI 공매도 비중</div>
-            <div style="font-size:18px;font-weight:800;font-family:var(--font-mono);">3.24%</div>
-            <div style="font-size:10px;color:var(--red);">▲ 0.18%p</div>
+            <div style="font-size:18px;font-weight:800;font-family:var(--font-mono);">4.07%</div>
+            <div style="font-size:10px;color:var(--red);">▲ 0.83%p</div>
           </div>
           <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;text-align:center;">
             <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">KOSDAQ 공매도 비중</div>
-            <div style="font-size:18px;font-weight:800;font-family:var(--font-mono);">1.87%</div>
-            <div style="font-size:10px;color:var(--green);">▼ 0.04%p</div>
+            <div style="font-size:18px;font-weight:800;font-family:var(--font-mono);">3.27%</div>
+            <div style="font-size:10px;color:var(--red);">▲ 1.40%p</div>
           </div>
           <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;text-align:center;">
             <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">공매도 잔고 (코스피)</div>
@@ -7287,343 +7288,374 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
       <div class="kr-theme-card" data-heat="cold" data-theme-id="defense">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(239,68,68,0.12);">🛡</span>
-          <div><div class="kr-theme-name">K-방산 / 항공우주</div><div class="kr-theme-en">K-DEFENSE · AEROSPACE · MISSILES</div></div>
+          <div><div class="kr-theme-name">K-방산 / 항공우주</div><div class="kr-theme-en">K-DEFENSE · AEROSPACE · MISSILES · ETF: KODEX K방산TOP10</div></div>
           <span class="kr-theme-heat heat-cold">조정</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="012450.KS">012450 <span class="pill-name">한화에어로스페이스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="047810.KS">047810 <span class="pill-name">한국항공우주(KAI)</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="079550.KS">079550 <span class="pill-name">LIG넥스원</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="064350.KS">064350 <span class="pill-name">현대로템</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="272210.KS">272210 <span class="pill-name">한화시스템</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000880.KS">000880 <span class="pill-name">한화</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="012450.KS">012450 <span class="pill-name">한화에어로스페이스</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="047810.KS">047810 <span class="pill-name">KAI</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="079550.KS">079550 <span class="pill-name">LIG넥스원</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="064350.KS">064350 <span class="pill-name">현대로템</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="272210.KS">272210 <span class="pill-name">한화시스템</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000880.KS">000880 <span class="pill-name">한화</span> <span class="pill-pct">5%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="103140.KS">103140 <span class="pill-name">풍산</span> <span class="pill-pct">5%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="defense">
           <span>주간 수익률 <b style="color:var(--red)">-12.5%</b></span>
           <span>외인 수급 <b style="color:var(--red)">매도 전환</b> · 기관 <b style="color:var(--red)">차익실현</b></span>
         </div>
-        <div class="kr-theme-catalyst">⚠ 이란-미국 평화 협상 → 지정학 리스크 완화 · 한화에어로 ATH 165만→139만 급락 · 수주 잔고 100조+ 실적 전환은 유효 · 단기 차익실현 매물 vs 장기 수출 모멘텀</div>
+        <div class="kr-theme-catalyst">⚠ 이란-미국 평화 협상 → 지정학 리스크 완화 · 한화에어로 ATH 165만→139만 급락 · 수주 잔고 100조+ 실적 전환은 유효 · 풍산 탄약 수출 수혜</div>
       </div>
 
       <!-- ━━━ 2. 반도체 / HBM ━━━ -->
       <div class="kr-theme-card" data-heat="warm" data-theme-id="semi">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(129,140,248,0.12);">💾</span>
-          <div><div class="kr-theme-name">반도체 / HBM</div><div class="kr-theme-en">SEMICONDUCTOR · HBM4 · AI CHIP · FOUNDRY</div></div>
+          <div><div class="kr-theme-name">반도체 / HBM</div><div class="kr-theme-en">SEMICONDUCTOR · HBM4 · AI CHIP · ETF: TIGER반도체TOP10</div></div>
           <span class="kr-theme-heat heat-warm">강세</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="000660.KS">000660 <span class="pill-name">SK하이닉스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="005930.KS">005930 <span class="pill-name">삼성전자</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="042700.KS">042700 <span class="pill-name">한미반도체</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="403870.KS">403870 <span class="pill-name">HPSP</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="039030.KS">039030 <span class="pill-name">이오테크닉스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000990.KS">000990 <span class="pill-name">DB하이텍</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000660.KS">000660 <span class="pill-name">SK하이닉스</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005930.KS">005930 <span class="pill-name">삼성전자</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="042700.KQ">042700 <span class="pill-name">한미반도체</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="009150.KS">009150 <span class="pill-name">삼성전기</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="039030.KQ">039030 <span class="pill-name">이오테크닉스</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="403870.KQ">403870 <span class="pill-name">HPSP</span> <span class="pill-pct">5%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="058470.KQ">058470 <span class="pill-name">리노공업</span> <span class="pill-pct">5%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="240810.KQ">240810 <span class="pill-name">원익IPS</span> <span class="pill-pct">5%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000990.KS">000990 <span class="pill-name">DB하이텍</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="036930.KQ">036930 <span class="pill-name">주성엔지니어링</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="131970.KQ">131970 <span class="pill-name">테크윙</span> <span class="pill-pct">3%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005290.KS">005290 <span class="pill-name">동진쎄미켐</span> <span class="pill-pct">3%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="semi">
           <span>주간 수익률 <b style="color:var(--green)">+2.1%</b></span>
           <span>외인 수급 <b style="color:var(--green)">매수</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
-        <div class="kr-theme-catalyst">SK하이닉스 HBM3E 12H 수율 안정화 · 삼성전자 HBM4 양산 발표 · SK하이닉스 ATH 110만→95만 조정 후 반등 시도 · AI CAPEX 사이클 지속</div>
+        <div class="kr-theme-catalyst">SK하이닉스 HBM3E 12H 수율 안정화 · 삼성전자 HBM4 양산 · 주성엔지 ALD 장비 수주↑ · AI CAPEX 사이클 지속</div>
       </div>
 
       <!-- ━━━ 3. 조선 / 해양 ━━━ -->
       <div class="kr-theme-card" data-heat="hot" data-theme-id="shipbuilding">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(52,211,153,0.12);">🚢</span>
-          <div><div class="kr-theme-name">조선 / 해양</div><div class="kr-theme-en">SHIPBUILDING · LNG CARRIER · NAVAL</div></div>
+          <div><div class="kr-theme-name">조선 / 해양</div><div class="kr-theme-en">SHIPBUILDING · LNG CARRIER · NAVAL · ETF: TIGER조선TOP10</div></div>
           <span class="kr-theme-heat heat-hot">HOT</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="329180.KS">329180 <span class="pill-name">HD현대중공업</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="042660.KS">042660 <span class="pill-name">한화오션</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="010140.KS">010140 <span class="pill-name">삼성중공업</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="010620.KS">010620 <span class="pill-name">HD현대미포</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="267250.KS">267250 <span class="pill-name">HD현대</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="042660.KS">042660 <span class="pill-name">한화오션</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="329180.KS">329180 <span class="pill-name">HD현대중공업</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="009540.KS">009540 <span class="pill-name">HD한국조선해양</span> <span class="pill-pct">18%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="010140.KS">010140 <span class="pill-name">삼성중공업</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="010620.KS">010620 <span class="pill-name">HD현대미포</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="267250.KS">267250 <span class="pill-name">HD현대</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="082740.KS">082740 <span class="pill-name">한화엔진</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="011200.KS">011200 <span class="pill-name">HD현대마린엔진</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="shipbuilding">
           <span>주간 수익률 <b style="color:var(--green)">+6.1%</b></span>
           <span>외인 수급 <b style="color:var(--green)">매수 우위</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
-        <div class="kr-theme-catalyst">LNG/암모니아 선박 고부가 수주 증가 · 선가 상승 사이클 지속 · 해군 함정 수출 본격화 · 수주 잔고 역대 최고</div>
+        <div class="kr-theme-catalyst">LNG/암모니아 선박 고부가 수주 · 선가 상승 사이클 · 해군 함정 수출 본격화 · 수주 잔고 역대 최고 · 한화엔진 친환경 전환</div>
       </div>
 
       <!-- ━━━ 4. AI / 소프트웨어 ━━━ -->
       <div class="kr-theme-card" data-heat="hot" data-theme-id="ai-sw">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(167,139,250,0.12);">🤖</span>
-          <div><div class="kr-theme-name">AI / 소프트웨어</div><div class="kr-theme-en">AI AGENT · LLM · ENTERPRISE SW</div></div>
+          <div><div class="kr-theme-name">AI / 소프트웨어</div><div class="kr-theme-en">AI AGENT · LLM · ENTERPRISE SW · CLOUD</div></div>
           <span class="kr-theme-heat heat-hot">HOT</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="035420.KS">035420 <span class="pill-name">NAVER</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="035720.KS">035720 <span class="pill-name">카카오</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="403870.KS">403870 <span class="pill-name">HPSP</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="078340.KS">078340 <span class="pill-name">컴투스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="041020.KS">041020 <span class="pill-name">폴라리스오피스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="322510.KS">322510 <span class="pill-name">제주반도체</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035420.KS">035420 <span class="pill-name">NAVER</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="018260.KS">018260 <span class="pill-name">삼성SDS</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035720.KS">035720 <span class="pill-name">카카오</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="012510.KS">012510 <span class="pill-name">더존비즈온</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="030520.KQ">030520 <span class="pill-name">한글과컴퓨터</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="041020.KQ">041020 <span class="pill-name">폴라리스오피스</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="304100.KQ">304100 <span class="pill-name">솔트룩스</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="ai-sw">
           <span>주간 수익률 <b style="color:var(--green)">+7.2%</b></span>
           <span>외인 수급 <b style="color:var(--green)">강매수</b> · 기관 <b style="color:var(--text-muted)">중립</b></span>
         </div>
-        <div class="kr-theme-catalyst">NAVER HyperCLOVA X Agent · 카카오 AI 기반 서비스 개편 · 폴라리스오피스 AI 문서 자동화 글로벌 확산</div>
+        <div class="kr-theme-catalyst">NAVER HyperCLOVA X Agent · 삼성SDS AI플랫폼 Brity · 더존비즈온 AI ERP · 폴라리스오피스 글로벌 확산 · 솔트룩스 한국형LLM</div>
       </div>
 
       <!-- ━━━ 5. 전력기기 / 변압기 ━━━ -->
       <div class="kr-theme-card" data-heat="warm" data-theme-id="power-grid">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(251,191,36,0.12);">⚡</span>
-          <div><div class="kr-theme-name">전력기기 / 변압기</div><div class="kr-theme-en">POWER GRID · TRANSFORMER · T&D</div></div>
+          <div><div class="kr-theme-name">전력기기 / 변압기</div><div class="kr-theme-en">POWER GRID · TRANSFORMER · T&D · ETF: TIGER AI전력기기TOP3+</div></div>
           <span class="kr-theme-heat heat-warm">강세</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="298040.KS">298040 <span class="pill-name">효성중공업</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="010120.KS">010120 <span class="pill-name">LS일렉트릭</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="267260.KS">267260 <span class="pill-name">HD현대일렉트릭</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="011780.KS">011780 <span class="pill-name">일진전기</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="229640.KS">229640 <span class="pill-name">LS에코에너지</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="014910.KS">014910 <span class="pill-name">성문전자</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="298040.KS">298040 <span class="pill-name">효성중공업</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="267260.KS">267260 <span class="pill-name">HD현대일렉트릭</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="010120.KS">010120 <span class="pill-name">LS일렉트릭</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="103590.KS">103590 <span class="pill-name">일진전기</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="006260.KS">006260 <span class="pill-name">LS</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="229640.KS">229640 <span class="pill-name">LS에코에너지</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000500.KS">000500 <span class="pill-name">가온전선</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="033100.KS">033100 <span class="pill-name">제룡전기</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="power-grid">
           <span>주간 수익률 <b style="color:var(--green)">+5.8%</b></span>
           <span>외인 수급 <b style="color:var(--green)">매수</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
-        <div class="kr-theme-catalyst">AI 데이터센터 전력 수요 급증 · 미국 그리드 노후화 교체 수요 · 중동·동남아 변압기 수출 호조</div>
+        <div class="kr-theme-catalyst">AI 데이터센터 전력 수요 급증 · 미국 그리드 노후화 교체 수요 · 중동·동남아 변압기 수출 호조 · 가온전선 초고압 케이블 수주</div>
       </div>
 
       <!-- ━━━ 6. 원전 / SMR ━━━ -->
       <div class="kr-theme-card" data-heat="warm" data-theme-id="nuclear">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(56,189,248,0.12);">☢</span>
-          <div><div class="kr-theme-name">원전 / SMR</div><div class="kr-theme-en">NUCLEAR POWER · SMR · DECOMMISSION</div></div>
+          <div><div class="kr-theme-name">원전 / SMR</div><div class="kr-theme-en">NUCLEAR POWER · SMR · ETF: TIGER코리아원자력</div></div>
           <span class="kr-theme-heat heat-warm">강세</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="034020.KS">034020 <span class="pill-name">두산에너빌리티</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="009120.KS">009120 <span class="pill-name">한전KPS</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="130500.KS">130500 <span class="pill-name">한전기술</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="092200.KS">092200 <span class="pill-name">디아이씨</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="015750.KS">015750 <span class="pill-name">성우하이텍</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="034020.KS">034020 <span class="pill-name">두산에너빌리티</span> <span class="pill-pct">35%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000720.KS">000720 <span class="pill-name">현대건설</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="052690.KS">052690 <span class="pill-name">한전기술</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="051600.KS">051600 <span class="pill-name">한전KPS</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="092200.KS">092200 <span class="pill-name">디아이씨</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="083650.KS">083650 <span class="pill-name">비에이치아이</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="nuclear">
           <span>주간 수익률 <b style="color:var(--green)">+5.2%</b></span>
           <span>외인 수급 <b style="color:var(--green)">매수</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
-        <div class="kr-theme-catalyst">체코 원전 수주 후속 계약 · 두산에너빌리티 SMR 전용 공장 착공 · 미국 원전 신규 건설 법안 통과</div>
+        <div class="kr-theme-catalyst">체코 원전 수주 후속 · 두산에너빌리티 SMR 전용 공장 · 현대건설 원전 시공 수주 · 미국 원전 신규 건설 법안 통과</div>
       </div>
 
       <!-- ━━━ 7. 2차전지 / 배터리 ━━━ -->
       <div class="kr-theme-card" data-heat="cold" data-theme-id="battery">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(163,230,53,0.12);">🔋</span>
-          <div><div class="kr-theme-name">2차전지 / 배터리</div><div class="kr-theme-en">EV BATTERY · CATHODE · ANODE</div></div>
+          <div><div class="kr-theme-name">2차전지 / 배터리</div><div class="kr-theme-en">EV BATTERY · CATHODE · ANODE · ETF: TIGER 2차전지TOP10</div></div>
           <span class="kr-theme-heat heat-cold">조정</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="373220.KS">373220 <span class="pill-name">LG에너지솔루션</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="006400.KS">006400 <span class="pill-name">삼성SDI</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="096770.KS">096770 <span class="pill-name">SK이노베이션</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="247540.KS">247540 <span class="pill-name">에코프로비엠</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="005490.KS">005490 <span class="pill-name">POSCO홀딩스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="086520.KS">086520 <span class="pill-name">에코프로</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="373220.KS">373220 <span class="pill-name">LG에너지솔루션</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005490.KS">005490 <span class="pill-name">POSCO홀딩스</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="096770.KS">096770 <span class="pill-name">SK이노베이션</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="051910.KS">051910 <span class="pill-name">LG화학</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="006400.KS">006400 <span class="pill-name">삼성SDI</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="247540.KQ">247540 <span class="pill-name">에코프로비엠</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="003670.KQ">003670 <span class="pill-name">포스코퓨처엠</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="066970.KQ">066970 <span class="pill-name">엘앤에프</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="086520.KQ">086520 <span class="pill-name">에코프로</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="battery">
           <span>주간 수익률 <b style="color:var(--red)">-3.2%</b></span>
           <span>외인 수급 <b style="color:var(--red)">매도 우위</b> · 기관 <b style="color:var(--red)">매도</b></span>
         </div>
-        <div class="kr-theme-catalyst">글로벌 EV 성장 둔화 · 중국 CATL 가격 경쟁 심화 · 전고체 배터리 전환기 불확실성 · IRA 보조금 축소 우려</div>
+        <div class="kr-theme-catalyst">글로벌 EV 성장 둔화 · 중국 CATL 가격 경쟁 · 전고체 전환기 불확실성 · IRA 보조금 축소 · 엘앤에프/포스코퓨처엠 실적 부진</div>
       </div>
 
       <!-- ━━━ 8. 바이오 / 제약 ━━━ -->
       <div class="kr-theme-card" data-heat="cool" data-theme-id="bio">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(192,132,252,0.12);">🧬</span>
-          <div><div class="kr-theme-name">바이오 / 제약</div><div class="kr-theme-en">BIOTECH · CMO/CDMO · GLP-1</div></div>
+          <div><div class="kr-theme-name">바이오 / 제약</div><div class="kr-theme-en">BIOTECH · CDMO · GLP-1 · ETF: TIGER 바이오TOP10</div></div>
           <span class="kr-theme-heat heat-cool">중립</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="207940.KS">207940 <span class="pill-name">삼성바이오로직스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="068270.KS">068270 <span class="pill-name">셀트리온</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="128940.KS">128940 <span class="pill-name">한미약품</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000100.KS">000100 <span class="pill-name">유한양행</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="326030.KS">326030 <span class="pill-name">SK바이오팜</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="145020.KS">145020 <span class="pill-name">휴젤</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="068270.KS">068270 <span class="pill-name">셀트리온</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="196170.KQ">196170 <span class="pill-name">알테오젠</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="207940.KS">207940 <span class="pill-name">삼성바이오로직스</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="028300.KQ">028300 <span class="pill-name">HLB</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000100.KS">000100 <span class="pill-name">유한양행</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="128940.KS">128940 <span class="pill-name">한미약품</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="145020.KQ">145020 <span class="pill-name">휴젤</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="326030.KS">326030 <span class="pill-name">SK바이오팜</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="bio">
           <span>주간 수익률 <b style="color:var(--text-muted)">-0.8%</b></span>
           <span>외인 수급 <b style="color:var(--red)">매도 우위</b> · 기관 <b style="color:var(--text-muted)">중립</b></span>
         </div>
-        <div class="kr-theme-catalyst">삼성바이오 CDMO 4공장 가동 · 셀트리온 바이오시밀러 미국 점유율 확대 · 한미약품 GLP-1 비만치료제 임상</div>
+        <div class="kr-theme-catalyst">알테오젠 SC 기술 글로벌 수출 · 삼성바이오 CDMO 4공장 · 셀트리온 미국 점유율 확대 · 한미약품 GLP-1 비만치료제 · HLB 항암 파이프라인</div>
       </div>
 
       <!-- ━━━ 9. K-뷰티 / 화장품 ━━━ -->
       <div class="kr-theme-card" data-heat="warm" data-theme-id="kbeauty">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(244,114,182,0.12);">💄</span>
-          <div><div class="kr-theme-name">K-뷰티 / 화장품</div><div class="kr-theme-en">K-BEAUTY · COSMETICS · ODM</div></div>
+          <div><div class="kr-theme-name">K-뷰티 / 화장품</div><div class="kr-theme-en">K-BEAUTY · COSMETICS · ODM · ETF: TIGER 화장품</div></div>
           <span class="kr-theme-heat heat-warm">강세</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="090430.KS">090430 <span class="pill-name">아모레퍼시픽</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="051900.KS">051900 <span class="pill-name">LG생활건강</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="044820.KS">044820 <span class="pill-name">코스맥스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="161890.KS">161890 <span class="pill-name">한국콜마</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="237880.KS">237880 <span class="pill-name">클리오</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="950130.KS">950130 <span class="pill-name">엘앤피코스메틱</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="090430.KS">090430 <span class="pill-name">아모레퍼시픽</span> <span class="pill-pct">18%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="051900.KS">051900 <span class="pill-name">LG생활건강</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="044820.KQ">044820 <span class="pill-name">코스맥스</span> <span class="pill-pct">14%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="278470.KQ">278470 <span class="pill-name">APR</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="257720.KQ">257720 <span class="pill-name">실리콘투</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="161890.KQ">161890 <span class="pill-name">한국콜마</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="237880.KQ">237880 <span class="pill-name">클리오</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="950130.KQ">950130 <span class="pill-name">엘앤피코스메틱</span> <span class="pill-pct">9%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="kbeauty">
           <span>주간 수익률 <b style="color:var(--green)">+3.4%</b></span>
           <span>외인 수급 <b style="color:var(--green)">소폭 매수</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
-        <div class="kr-theme-catalyst">미국·인도·일본 K-뷰티 채널 확장 · 코스맥스 ODM 수주 역대 최고 · 클리오 북미 세포라 입점 확대</div>
+        <div class="kr-theme-catalyst">미국·인도·일본 K-뷰티 확장 · 코스맥스 ODM 수주 역대 · APR 북미 고성장 · 실리콘투 글로벌 유통 · 클리오 세포라 입점</div>
       </div>
 
       <!-- ━━━ 10. K-컨텐츠 / 엔터 ━━━ -->
       <div class="kr-theme-card" data-heat="cold" data-theme-id="kcontent">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(232,121,249,0.12);">🎬</span>
-          <div><div class="kr-theme-name">K-컨텐츠 / 엔터</div><div class="kr-theme-en">K-POP · K-DRAMA · WEBTOON</div></div>
+          <div><div class="kr-theme-name">K-컨텐츠 / 엔터</div><div class="kr-theme-en">K-POP · K-DRAMA · GAME · ETF: TIGER 미디어컨텐츠</div></div>
           <span class="kr-theme-heat heat-cold">부진</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="352820.KS">352820 <span class="pill-name">하이브</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="041510.KS">041510 <span class="pill-name">SM</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="035900.KS">035900 <span class="pill-name">JYP Ent.</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="263750.KS">263750 <span class="pill-name">펄어비스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="112040.KS">112040 <span class="pill-name">위메이드</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="259960.KS">259960 <span class="pill-name">크래프톤</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="259960.KS">259960 <span class="pill-name">크래프톤</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="352820.KS">352820 <span class="pill-name">하이브</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="041510.KS">041510 <span class="pill-name">SM</span> <span class="pill-pct">14%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035900.KS">035900 <span class="pill-name">JYP Ent.</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="122870.KS">122870 <span class="pill-name">YG엔터</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="253450.KQ">253450 <span class="pill-name">스튜디오드래곤</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035760.KS">035760 <span class="pill-name">CJ ENM</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="251270.KS">251270 <span class="pill-name">넷마블</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="112040.KQ">112040 <span class="pill-name">위메이드</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="kcontent">
           <span>주간 수익률 <b style="color:var(--red)">-2.1%</b></span>
           <span>외인 수급 <b style="color:var(--text-muted)">중립</b> · 기관 <b style="color:var(--red)">매도</b></span>
         </div>
-        <div class="kr-theme-catalyst">하이브 내부 갈등 리스크 · K-POP 앨범 판매 둔화 · 크래프톤 배틀그라운드 인디아 성장 기대</div>
+        <div class="kr-theme-catalyst">하이브 내부 리스크 · K-POP 앨범 둔화 · 크래프톤 배그 인디아 성장 · 스튜디오드래곤 K-드라마 글로벌 · CJ ENM OTT 재편</div>
       </div>
 
       <!-- ━━━ 11. 자동차 / 전장 ━━━ -->
       <div class="kr-theme-card" data-heat="cool" data-theme-id="auto">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(251,146,60,0.12);">🚗</span>
-          <div><div class="kr-theme-name">자동차 / 전장</div><div class="kr-theme-en">AUTO · EV · SDV · ADAS</div></div>
+          <div><div class="kr-theme-name">자동차 / 전장</div><div class="kr-theme-en">AUTO · EV · SDV · ADAS · ETF: KODEX 자동차</div></div>
           <span class="kr-theme-heat heat-cool">중립</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="005380.KS">005380 <span class="pill-name">현대차</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000270.KS">000270 <span class="pill-name">기아</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="012330.KS">012330 <span class="pill-name">현대모비스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="018880.KS">018880 <span class="pill-name">한온시스템</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="214150.KS">214150 <span class="pill-name">클래시스</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005380.KS">005380 <span class="pill-name">현대차</span> <span class="pill-pct">28%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000270.KS">000270 <span class="pill-name">기아</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="012330.KS">012330 <span class="pill-name">현대모비스</span> <span class="pill-pct">18%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="086280.KS">086280 <span class="pill-name">현대글로비스</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="011210.KS">011210 <span class="pill-name">현대위아</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="204320.KS">204320 <span class="pill-name">HL만도</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="018880.KS">018880 <span class="pill-name">한온시스템</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="auto">
           <span>주간 수익률 <b style="color:var(--text-muted)">+0.6%</b></span>
           <span>외인 수급 <b style="color:var(--text-muted)">중립</b> · 기관 <b style="color:var(--text-muted)">중립</b></span>
         </div>
-        <div class="kr-theme-catalyst">현대차 EV 라인업 확대 · 기아 EV3 유럽 판매 호조 · SDV(소프트웨어 정의 차량) 전환 투자 확대</div>
+        <div class="kr-theme-catalyst">현대차 EV 라인업 확대 · 기아 EV3 유럽 호조 · SDV 전환 투자 · 현대글로비스 물류 확장 · HL만도 ADAS L3 수주</div>
       </div>
 
       <!-- ━━━ 12. 로봇 / 자동화 ━━━ -->
       <div class="kr-theme-card" data-heat="hot" data-theme-id="robot">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(216,180,254,0.12);">🦾</span>
-          <div><div class="kr-theme-name">로봇 / 자동화</div><div class="kr-theme-en">ROBOTICS · HUMANOID · FACTORY AUTOMATION</div></div>
+          <div><div class="kr-theme-name">로봇 / 자동화</div><div class="kr-theme-en">ROBOTICS · HUMANOID · COBOT · ETF: KODEX 로봇액티브</div></div>
           <span class="kr-theme-heat heat-hot">HOT</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="269620.KQ">269620 <span class="pill-name">레인보우로보틱스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="090460.KS">090460 <span class="pill-name">비에이치</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="315640.KQ">315640 <span class="pill-name">뉴로메카</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="178320.KS">178320 <span class="pill-name">로보스타</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="108860.KS">108860 <span class="pill-name">셀바스AI</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="454910.KQ">454910 <span class="pill-name">두산로보틱스</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="269620.KQ">269620 <span class="pill-name">레인보우로보틱스</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005380.KS">005380 <span class="pill-name">현대차(보스턴D)</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="315640.KQ">315640 <span class="pill-name">뉴로메카</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="178320.KQ">178320 <span class="pill-name">로보스타</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="056080.KQ">056080 <span class="pill-name">유진로봇</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="robot">
           <span>주간 수익률 <b style="color:var(--green)">+9.1%</b></span>
           <span>외인 수급 <b style="color:var(--green)">강매수</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
-        <div class="kr-theme-catalyst">삼성전자 휴머노이드 로봇 프로젝트 · 현대차 보스턴다이내믹스 협업 · 레인보우로보틱스 양팔 로봇 출시</div>
+        <div class="kr-theme-catalyst">두산로보틱스 IPO 후 급등 · 현대차 보스턴다이내믹스 상용화 · 레인보우 양팔로봇 · 삼성전자 휴머노이드 프로젝트</div>
       </div>
 
       <!-- ━━━ 13. 금융 / 보험 ━━━ -->
       <div class="kr-theme-card" data-heat="cool" data-theme-id="finance">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(251,191,36,0.12);">🏦</span>
-          <div><div class="kr-theme-name">금융 / 보험</div><div class="kr-theme-en">BANKING · INSURANCE · VALUE-UP</div></div>
+          <div><div class="kr-theme-name">금융 / 보험</div><div class="kr-theme-en">BANKING · INSURANCE · VALUE-UP · 배당</div></div>
           <span class="kr-theme-heat heat-cool">중립</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="055550.KS">055550 <span class="pill-name">신한지주</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="105560.KS">105560 <span class="pill-name">KB금융</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="086790.KS">086790 <span class="pill-name">하나금융</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="032830.KS">032830 <span class="pill-name">삼성생명</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="138930.KS">138930 <span class="pill-name">BNK금융</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="105560.KS">105560 <span class="pill-name">KB금융</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="055550.KS">055550 <span class="pill-name">신한지주</span> <span class="pill-pct">18%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="086790.KS">086790 <span class="pill-name">하나금융</span> <span class="pill-pct">14%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="138040.KS">138040 <span class="pill-name">메리츠금융지주</span> <span class="pill-pct">14%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="316140.KS">316140 <span class="pill-name">우리금융지주</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000810.KS">000810 <span class="pill-name">삼성화재</span> <span class="pill-pct">11%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="032830.KS">032830 <span class="pill-name">삼성생명</span> <span class="pill-pct">11%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="finance">
           <span>주간 수익률 <b style="color:var(--green)">+1.2%</b></span>
           <span>외인 수급 <b style="color:var(--text-muted)">중립</b> · 기관 <b style="color:var(--green)">소폭 매수</b></span>
         </div>
-        <div class="kr-theme-catalyst">밸류업 프로그램 지속 · 배당 확대 정책 · PBR 저평가 매력 · 한국은행 추가 금리 인하 기대</div>
+        <div class="kr-theme-catalyst">밸류업 프로그램 지속 · 배당 확대 · PBR 저평가 매력 · 메리츠 ROE 업계 1위 · 금리 인하 기대</div>
       </div>
 
       <!-- ━━━ 14. K-푸드 / 식품 ━━━ -->
       <div class="kr-theme-card" data-heat="warm" data-theme-id="kfood">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(45,212,191,0.12);">🍜</span>
-          <div><div class="kr-theme-name">K-푸드 / 식품</div><div class="kr-theme-en">K-FOOD · F&B · EXPORT</div></div>
+          <div><div class="kr-theme-name">K-푸드 / 식품</div><div class="kr-theme-en">K-FOOD · F&B · EXPORT · ETF: HANARO Fn K-푸드</div></div>
           <span class="kr-theme-heat heat-warm">강세</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="271560.KS">271560 <span class="pill-name">오리온</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="004370.KS">004370 <span class="pill-name">농심</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="097950.KS">097950 <span class="pill-name">CJ제일제당</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="280360.KS">280360 <span class="pill-name">롯데웰푸드</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="003230.KS">003230 <span class="pill-name">삼양식품</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="003230.KS">003230 <span class="pill-name">삼양식품</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="097950.KS">097950 <span class="pill-name">CJ제일제당</span> <span class="pill-pct">18%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="271560.KS">271560 <span class="pill-name">오리온</span> <span class="pill-pct">16%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="004370.KS">004370 <span class="pill-name">농심</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="280360.KS">280360 <span class="pill-name">롯데웰푸드</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005180.KS">005180 <span class="pill-name">빙그레</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000080.KS">000080 <span class="pill-name">하이트진로</span> <span class="pill-pct">9%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="kfood">
           <span>주간 수익률 <b style="color:var(--green)">+2.4%</b></span>
           <span>외인 수급 <b style="color:var(--green)">소폭 매수</b> · 기관 <b style="color:var(--text-muted)">중립</b></span>
         </div>
-        <div class="kr-theme-catalyst">삼양식품 불닭볶음면 글로벌 매출 폭증 · K-푸드 수출 역대 최고 · 농심 미국 공장 증설</div>
+        <div class="kr-theme-catalyst">삼양식품 불닭 글로벌 폭증 · K-푸드 수출 역대 최고 · 농심 미국 공장 증설 · CJ제일제당 비비고 미국 확장 · 빙그레 메로나 해외</div>
       </div>
 
       <!-- ━━━ 15. 크립토 / 블록체인 ━━━ -->
       <div class="kr-theme-card" data-heat="cool" data-theme-id="crypto">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(245,158,11,0.12);">₿</span>
-          <div><div class="kr-theme-name">크립토 / 블록체인</div><div class="kr-theme-en">CRYPTO EXCHANGE · WEB3 · DeFi</div></div>
+          <div><div class="kr-theme-name">크립토 / 블록체인</div><div class="kr-theme-en">CRYPTO EXCHANGE · WEB3 · BLOCKCHAIN</div></div>
           <span class="kr-theme-heat heat-cool">중립</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="294870.KS">294870 <span class="pill-name">두나무</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="112040.KS">112040 <span class="pill-name">위메이드</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="357780.KS">357780 <span class="pill-name">솔브레인</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="035720.KS">035720 <span class="pill-name">카카오</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="294870.KS">294870 <span class="pill-name">두나무(업비트)</span> <span class="pill-pct">40%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="112040.KQ">112040 <span class="pill-name">위메이드</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035720.KS">035720 <span class="pill-name">카카오(Klaytn)</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="094480.KQ">094480 <span class="pill-name">갤럭시아머니트리</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="crypto">
           <span>주간 수익률 <b style="color:var(--text-muted)">-1.4%</b></span>
           <span>외인 수급 <b style="color:var(--red)">매도 우위</b> · 기관 <b style="color:var(--text-muted)">중립</b></span>
         </div>
-        <div class="kr-theme-catalyst">BTC 가격 연동 · 두나무(업비트) 거래량 회복 · 가상자산 과세 유예 종료 대비</div>
+        <div class="kr-theme-catalyst">BTC 가격 연동 · 두나무(업비트) 거래량 회복 · 가상자산 과세 유예 종료 대비 · 카카오 Klaytn 생태계</div>
       </div>
 
       <!-- ━━━ 16. 통신 / 인프라 ━━━ -->
       <div class="kr-theme-card" data-heat="cool" data-theme-id="telecom">
         <div class="kr-theme-header">
           <span class="kr-theme-icon" style="background:rgba(148,163,184,0.12);">📡</span>
-          <div><div class="kr-theme-name">통신 / 인프라</div><div class="kr-theme-en">TELECOM · 5G/6G · IDC</div></div>
+          <div><div class="kr-theme-name">통신 / 인프라</div><div class="kr-theme-en">TELECOM · 5G/6G · IDC · AI INFRA</div></div>
           <span class="kr-theme-heat heat-cool">중립</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="017670.KS">017670 <span class="pill-name">SK텔레콤</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="030200.KS">030200 <span class="pill-name">KT</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="032640.KS">032640 <span class="pill-name">LG유플러스</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="036570.KS">036570 <span class="pill-name">엔씨소프트</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="066570.KS">066570 <span class="pill-name">LG전자</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="017670.KS">017670 <span class="pill-name">SK텔레콤</span> <span class="pill-pct">30%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="030200.KS">030200 <span class="pill-name">KT</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="032640.KS">032640 <span class="pill-name">LG유플러스</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="018260.KS">018260 <span class="pill-name">삼성SDS</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="066570.KS">066570 <span class="pill-name">LG전자</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="telecom">
           <span>주간 수익률 <b style="color:var(--text-muted)">+0.3%</b></span>
           <span>외인 수급 <b style="color:var(--text-muted)">중립</b> · 기관 <b style="color:var(--green)">소폭 매수</b></span>
         </div>
-        <div class="kr-theme-catalyst">SK텔레콤 AI 데이터센터 확장 · KT 클라우드/AI 사업 분사 · 6G 표준화 선점 경쟁</div>
+        <div class="kr-theme-catalyst">SK텔레콤 AI 데이터센터 확장 · KT 클라우드/AI 분사 · 6G 표준화 선점 · 삼성SDS AI 플랫폼 Brity · LG전자 전장 사업 성장</div>
       </div>
 
     </div>
@@ -7737,7 +7769,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">현재 환율</div>
           <div id="kr-macro-krw" style="font-size:26px;font-weight:800;color:var(--red);font-family:var(--font-mono);margin-bottom:4px;">1,505.55원</div>
-          <div style="font-size:9px;color:var(--text-muted);">+3.20원 (+0.24%)</div>
+          <div style="font-size:9px;color:var(--text-muted);">▲ 16.50원 (+1.11%)</div>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">1년 범위</div>
@@ -7779,7 +7811,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">미국 10년물</div>
-          <div id="kr-macro-us10y" style="font-size:26px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">4.35%</div>
+          <div id="kr-macro-us10y" style="font-size:26px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">4.39%</div>
           <div style="font-size:9px;color:var(--text-muted);">Fed 정책 금리와 연관</div>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
@@ -7898,11 +7930,11 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
         <tr><td>CPI (YoY)</td><td>+2.1%</td><td>+2.8%</td><td>+3.9%</td><td>-0.6%</td></tr>
         <tr><td>GDP 성장률</td><td style="color:var(--text-muted);">+0.2% QoQ</td><td style="color:var(--green);">+2.3% YoY</td><td>+0.6%</td><td>+5.4%</td></tr>
         <tr><td>환율 (vs USD)</td><td style="color:var(--red);">1,505</td><td>-</td><td>150.5</td><td>7.20</td></tr>
-        <tr><td>10Y 국채</td><td>2.88%</td><td>4.25%</td><td>1.40%</td><td>1.75%</td></tr>
+        <tr><td>10Y 국채</td><td>2.88%</td><td>4.39%</td><td>1.40%</td><td>1.75%</td></tr>
         <tr><td>주식시장 YTD</td><td style="color:var(--green);">+8.5%</td><td style="color:var(--red);">-1.5%</td><td style="color:var(--red);">-2.1%</td><td style="color:var(--green);">+2.1%</td></tr>
       </table>
       <div style="margin-top:10px;padding:8px 10px;background:rgba(74,158,255,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-        한국: 미국 대비 금리차 (+1.00~1.25%p) 유지 → 원/달러 환율 상향 압박. Fed 인하 시 금리차 축소 → 원화 강세 전환 기대. 일본 BOJ 긴축 전환 시 엔화 강세 → 원화에 긍정적.
+        한국(2.50%) vs 미국(3.50~3.75%) 금리차 -1.00~1.25%p → 원/달러 환율 상향 압박. Fed 인하 시 금리차 축소 → 원화 강세 전환 기대. 일본 BOJ 긴축 전환 시 엔화 강세 → 원화에 긍정적.
       </div>
     </div>
 
@@ -17592,19 +17624,35 @@ function initKoreaThemes() {
     }
   });
 
-  // 2. v29.4: 테마별 평균 수익률 동적 계산 → heat 자동 결정
+  // 2. v30: 테마별 ETF 가중평균 수익률 → heat 자동 결정
   var themeCards = document.querySelectorAll('#page-kr-themes .kr-theme-card');
   themeCards.forEach(function(card) {
-    var tickers = card.querySelectorAll('[data-live-price]');
-    var pcts = [];
-    tickers.forEach(function(t) {
-      var sym = t.getAttribute('data-live-price');
-      var d = ld[sym];
-      if (d && d.pct !== undefined) pcts.push(d.pct);
-    });
-    if (pcts.length === 0) return;
+    var themeId = card.getAttribute('data-theme-id');
+    var tmap = (typeof KR_THEME_MAP !== 'undefined') && KR_THEME_MAP[themeId];
 
-    var avg = pcts.reduce(function(a,b){return a+b;}, 0) / pcts.length;
+    var avg = 0;
+    if (tmap && tmap.length) {
+      // ETF 기반 가중평균 사용
+      var wSum = 0, vSum = 0;
+      tmap.forEach(function(t) {
+        var sym = krTickerToYahoo(t.code);
+        var d = ld[sym];
+        if (d && d.pct !== undefined) { vSum += d.pct * t.w; wSum += t.w; }
+      });
+      if (wSum > 0) avg = vSum / wSum;
+      else return; // 데이터 없음
+    } else {
+      // fallback: 카드 내 ticker 단순 평균
+      var tickers = card.querySelectorAll('[data-live-price]');
+      var pcts = [];
+      tickers.forEach(function(t) {
+        var sym = t.getAttribute('data-live-price');
+        var d = ld[sym];
+        if (d && d.pct !== undefined) pcts.push(d.pct);
+      });
+      if (pcts.length === 0) return;
+      avg = pcts.reduce(function(a,b){return a+b;}, 0) / pcts.length;
+    }
 
     // heat 결정: 일간 평균 기준
     var heat, heatLabel;
@@ -17719,77 +17767,309 @@ function updateKrSupplyDOM(trend) {
 // Naver Finance API + Yahoo Finance .KS/.KQ + 동적 테마 계산
 // ──────────────────────────────────────────────────────────────────
 
-// ── 1. 한국 종목 DB (2026-03-23 기준 시총 업데이트) ──
+// ── 1. 한국 종목 DB (2026-03-23 장중 실시간 반영) ──
 var KR_STOCK_DB = {
-  // 반도체
-  '005930': {name:'삼성전자', sector:'반도체', mcap:'475조', price:199400, themes:['반도체','AI','파운드리']},
-  '000660': {name:'SK하이닉스', sector:'반도체', mcap:'130조', price:951000, themes:['반도체','HBM','AI']},
-  '042700': {name:'한미반도체', sector:'반도체장비', mcap:'5조', price:98000, themes:['반도체','HBM장비']},
-  '403870': {name:'HPSP', sector:'반도체장비', mcap:'4조', price:52000, themes:['반도체','장비']},
-  '039030': {name:'이오테크닉스', sector:'반도체장비', mcap:'2.5조', price:165000, themes:['반도체','레이저']},
-  '000990': {name:'DB하이텍', sector:'파운드리', mcap:'2조', price:42000, themes:['반도체','파운드리']},
-  // 방산·조선
-  '012450': {name:'한화에어로스페이스', sector:'방산', mcap:'59조', price:1396000, themes:['방산','항공우주','미사일']},
-  '047810': {name:'한국항공우주(KAI)', sector:'방산', mcap:'12조', price:98000, themes:['방산','항공','FA-50']},
-  '079550': {name:'LIG넥스원', sector:'방산', mcap:'8조', price:225000, themes:['방산','미사일','천궁']},
-  '064350': {name:'현대로템', sector:'방산', mcap:'7조', price:82000, themes:['방산','전차','K2']},
-  '272210': {name:'한화시스템', sector:'방산IT', mcap:'6조', price:28000, themes:['방산','레이더','UAM']},
-  '000880': {name:'한화', sector:'방산지주', mcap:'5조', price:35000, themes:['방산','지주']},
-  '329180': {name:'HD현대중공업', sector:'조선', mcap:'22조', price:285000, themes:['조선','해양','LNG']},
-  '042660': {name:'한화오션', sector:'조선', mcap:'14조', price:54000, themes:['조선','군함','잠수함']},
-  '010140': {name:'삼성중공업', sector:'조선', mcap:'11조', price:15800, themes:['조선','LNG','해양플랜트']},
-  '010620': {name:'HD현대미포', sector:'조선', mcap:'6조', price:185000, themes:['조선','MR탱커']},
-  '267250': {name:'HD현대', sector:'조선지주', mcap:'8조', price:73000, themes:['조선','지주']},
-  // AI·IT
-  '035420': {name:'NAVER', sector:'IT', mcap:'48조', price:292500, themes:['AI','플랫폼','검색','클라우드']},
-  '035720': {name:'카카오', sector:'IT', mcap:'17조', price:39000, themes:['AI','플랫폼','핀테크']},
-  '041020': {name:'폴라리스오피스', sector:'SW', mcap:'1조', price:8500, themes:['AI','소프트웨어']},
-  // 2차전지
-  '373220': {name:'LG에너지솔루션', sector:'2차전지', mcap:'87조', price:371000, themes:['2차전지','배터리','EV']},
-  '006400': {name:'삼성SDI', sector:'2차전지', mcap:'28조', price:405000, themes:['2차전지','전고체']},
-  '096770': {name:'SK이노베이션', sector:'2차전지', mcap:'8조', price:88000, themes:['2차전지','정유']},
-  '247540': {name:'에코프로비엠', sector:'양극재', mcap:'8조', price:125000, themes:['2차전지','양극재']},
-  '005490': {name:'POSCO홀딩스', sector:'소재', mcap:'22조', price:285000, themes:['2차전지','철강','리튬']},
-  '086520': {name:'에코프로', sector:'양극재', mcap:'4조', price:48000, themes:['2차전지','양극재']},
-  // 자동차
-  '005380': {name:'현대차', sector:'자동차', mcap:'55조', price:517000, themes:['자동차','EV','SDV']},
-  '000270': {name:'기아', sector:'자동차', mcap:'42조', price:110000, themes:['자동차','EV','PBV']},
-  '012330': {name:'현대모비스', sector:'자동차부품', mcap:'22조', price:230000, themes:['자동차','전장','ADAS']},
-  // 바이오
-  '207940': {name:'삼성바이오로직스', sector:'바이오', mcap:'78조', price:1094000, themes:['바이오','CDMO']},
-  '068270': {name:'셀트리온', sector:'바이오', mcap:'42조', price:198000, themes:['바이오','바이오시밀러']},
-  '128940': {name:'한미약품', sector:'제약', mcap:'12조', price:380000, themes:['바이오','GLP-1','비만치료']},
-  '326030': {name:'SK바이오팜', sector:'바이오', mcap:'9조', price:115000, themes:['바이오','CNS']},
-  // 원전·전력
-  '034020': {name:'두산에너빌리티', sector:'원전', mcap:'14조', price:22000, themes:['원전','SMR','터빈']},
-  '298040': {name:'효성중공업', sector:'전력기기', mcap:'16조', price:460000, themes:['전력기기','변압기']},
-  '010120': {name:'LS일렉트릭', sector:'전력기기', mcap:'9조', price:210000, themes:['전력기기','변압기','HVDC']},
-  '267260': {name:'HD현대일렉트릭', sector:'전력기기', mcap:'12조', price:380000, themes:['전력기기','변압기']},
-  // 금융
-  '055550': {name:'신한지주', sector:'금융', mcap:'28조', price:58000, themes:['금융','밸류업','배당']},
-  '105560': {name:'KB금융', sector:'금융', mcap:'32조', price:95000, themes:['금융','밸류업','배당']},
-  '086790': {name:'하나금융', sector:'금융', mcap:'18조', price:65000, themes:['금융','밸류업']},
-  // K-뷰티·푸드
-  '090430': {name:'아모레퍼시픽', sector:'K-뷰티', mcap:'12조', price:145000, themes:['K-뷰티','화장품']},
-  '003230': {name:'삼양식품', sector:'식품', mcap:'6조', price:780000, themes:['K-푸드','식품','불닭']},
-  '271560': {name:'오리온', sector:'식품', mcap:'6조', price:105000, themes:['K-푸드','식품']},
-  '004370': {name:'농심', sector:'식품', mcap:'3조', price:430000, themes:['K-푸드','식품','라면']},
-  // 로봇
-  '269620': {name:'레인보우로보틱스', sector:'로봇', mcap:'2조', price:145000, themes:['로봇','휴머노이드']},
-  '315640': {name:'뉴로메카', sector:'로봇', mcap:'0.8조', price:42000, themes:['로봇','협동로봇']},
-  // 엔터
-  '352820': {name:'하이브', sector:'엔터', mcap:'9조', price:195000, themes:['K-컨텐츠','K-POP']},
-  '259960': {name:'크래프톤', sector:'게임', mcap:'15조', price:410000, themes:['K-컨텐츠','게임']},
-  // 통신
-  '017670': {name:'SK텔레콤', sector:'통신', mcap:'15조', price:62000, themes:['통신','AI','IDC']},
-  '030200': {name:'KT', sector:'통신', mcap:'11조', price:42000, themes:['통신','AI','클라우드']},
+  // ════════ 반도체 (12) ════════
+  '005930': {name:'삼성전자', sector:'반도체', mcap:'450조', price:189200, themes:['semi','ai-sw']},
+  '000660': {name:'SK하이닉스', sector:'반도체', mcap:'125조', price:947000, themes:['semi']},
+  '042700': {name:'한미반도체', sector:'반도체장비', mcap:'12조', price:305500, themes:['semi']},
+  '403870': {name:'HPSP', sector:'반도체장비', mcap:'4조', price:50200, themes:['semi']},
+  '039030': {name:'이오테크닉스', sector:'반도체장비', mcap:'5조', price:430000, themes:['semi']},
+  '000990': {name:'DB하이텍', sector:'파운드리', mcap:'4조', price:85200, themes:['semi']},
+  '009150': {name:'삼성전기', sector:'MLCC', mcap:'22조', price:371000, themes:['semi']},
+  '058470': {name:'리노공업', sector:'반도체장비', mcap:'3조', price:56500, themes:['semi']},
+  '240810': {name:'원익IPS', sector:'반도체장비', mcap:'2조', price:64200, themes:['semi']},
+  '036930': {name:'주성엔지니어링', sector:'반도체장비', mcap:'3조', price:30750, themes:['semi']},
+  '131970': {name:'테크윙', sector:'반도체장비', mcap:'1.5조', price:37675, themes:['semi']},
+  '005290': {name:'동진쎄미켐', sector:'반도체소재', mcap:'2조', price:50100, themes:['semi']},
+  // ════════ 방산 (7) ════════
+  '012450': {name:'한화에어로스페이스', sector:'방산', mcap:'53조', price:1252000, themes:['defense']},
+  '047810': {name:'한국항공우주(KAI)', sector:'방산', mcap:'15조', price:170700, themes:['defense']},
+  '079550': {name:'LIG넥스원', sector:'방산', mcap:'15조', price:651000, themes:['defense']},
+  '064350': {name:'현대로템', sector:'방산', mcap:'13조', price:169200, themes:['defense']},
+  '272210': {name:'한화시스템', sector:'방산IT', mcap:'12조', price:126700, themes:['defense']},
+  '000880': {name:'한화', sector:'방산지주', mcap:'10조', price:110700, themes:['defense']},
+  '103140': {name:'풍산', sector:'탄약', mcap:'4조', price:118300, themes:['defense']},
+  // ════════ 조선 (8) ════════
+  '329180': {name:'HD현대중공업', sector:'조선', mcap:'48조', price:515000, themes:['shipbuilding']},
+  '042660': {name:'한화오션', sector:'조선', mcap:'28조', price:122100, themes:['shipbuilding']},
+  '010140': {name:'삼성중공업', sector:'조선', mcap:'19조', price:26750, themes:['shipbuilding']},
+  '010620': {name:'HD현대미포', sector:'조선', mcap:'9조', price:200000, themes:['shipbuilding']},
+  '267250': {name:'HD현대', sector:'조선지주', mcap:'18조', price:246500, themes:['shipbuilding']},
+  '009540': {name:'HD한국조선해양', sector:'조선지주', mcap:'25조', price:407000, themes:['shipbuilding']},
+  '082740': {name:'한화엔진', sector:'엔진', mcap:'3조', price:17000, themes:['shipbuilding']},
+  '011200': {name:'HD현대마린엔진', sector:'엔진', mcap:'1조', price:13000, themes:['shipbuilding']},
+  // ════════ AI / 소프트웨어 (7) ════════
+  '035420': {name:'NAVER', sector:'IT플랫폼', mcap:'35조', price:211500, themes:['ai-sw','telecom']},
+  '035720': {name:'카카오', sector:'IT플랫폼', mcap:'10조', price:47900, themes:['ai-sw','crypto']},
+  '041020': {name:'폴라리스오피스', sector:'SW', mcap:'1조', price:8500, themes:['ai-sw']},
+  '012510': {name:'더존비즈온', sector:'ERP', mcap:'5조', price:94500, themes:['ai-sw']},
+  '030520': {name:'한글과컴퓨터', sector:'SW', mcap:'1.5조', price:23000, themes:['ai-sw']},
+  '018260': {name:'삼성SDS', sector:'IT서비스', mcap:'15조', price:188800, themes:['ai-sw','telecom']},
+  '304100': {name:'솔트룩스', sector:'AI', mcap:'0.4조', price:4200, themes:['ai-sw']},
+  // ════════ 전력기기 (8) ════════
+  '298040': {name:'효성중공업', sector:'전력기기', mcap:'30조', price:2637000, themes:['power-grid']},
+  '010120': {name:'LS일렉트릭', sector:'전력기기', mcap:'17조', price:846000, themes:['power-grid']},
+  '267260': {name:'HD현대일렉트릭', sector:'전력기기', mcap:'22조', price:920000, themes:['power-grid']},
+  '103590': {name:'일진전기', sector:'전력기기', mcap:'3조', price:69500, themes:['power-grid']},
+  '229640': {name:'LS에코에너지', sector:'전선', mcap:'2조', price:43050, themes:['power-grid']},
+  '006260': {name:'LS', sector:'전력지주', mcap:'8조', price:282000, themes:['power-grid']},
+  '000500': {name:'가온전선', sector:'전선', mcap:'1.5조', price:98600, themes:['power-grid']},
+  '033100': {name:'제룡전기', sector:'배전', mcap:'1조', price:35450, themes:['power-grid']},
+  // ════════ 원전 / SMR (6) ════════
+  '034020': {name:'두산에너빌리티', sector:'원전', mcap:'26조', price:103000, themes:['nuclear']},
+  '051600': {name:'한전KPS', sector:'원전정비', mcap:'3조', price:41550, themes:['nuclear']},
+  '052690': {name:'한전기술', sector:'원전설계', mcap:'2조', price:105400, themes:['nuclear']},
+  '000720': {name:'현대건설', sector:'건설', mcap:'10조', price:169500, themes:['nuclear']},
+  '092200': {name:'디아이씨', sector:'원전기자재', mcap:'0.5조', price:12000, themes:['nuclear']},
+  '083650': {name:'비에이치아이', sector:'보일러', mcap:'0.3조', price:15500, themes:['nuclear']},
+  // ════════ 2차전지 (9) ════════
+  '373220': {name:'LG에너지솔루션', sector:'2차전지', mcap:'85조', price:361000, themes:['battery']},
+  '006400': {name:'삼성SDI', sector:'2차전지', mcap:'26조', price:382000, themes:['battery']},
+  '096770': {name:'SK이노베이션', sector:'2차전지', mcap:'10조', price:107800, themes:['battery']},
+  '247540': {name:'에코프로비엠', sector:'양극재', mcap:'9조', price:182000, themes:['battery']},
+  '005490': {name:'POSCO홀딩스', sector:'소재', mcap:'25조', price:330000, themes:['battery']},
+  '086520': {name:'에코프로', sector:'양극재', mcap:'7조', price:142800, themes:['battery']},
+  '003670': {name:'포스코퓨처엠', sector:'소재', mcap:'10조', price:219500, themes:['battery']},
+  '051910': {name:'LG화학', sector:'화학', mcap:'20조', price:307500, themes:['battery']},
+  '066970': {name:'엘앤에프', sector:'양극재', mcap:'4조', price:110600, themes:['battery']},
+  // ════════ 바이오 (8) ════════
+  '207940': {name:'삼성바이오로직스', sector:'CDMO', mcap:'102조', price:1536000, themes:['bio']},
+  '068270': {name:'셀트리온', sector:'바이오시밀러', mcap:'38조', price:190600, themes:['bio']},
+  '128940': {name:'한미약품', sector:'제약', mcap:'16조', price:506000, themes:['bio']},
+  '000100': {name:'유한양행', sector:'제약', mcap:'6조', price:85000, themes:['bio']},
+  '326030': {name:'SK바이오팜', sector:'CNS', mcap:'7조', price:92700, themes:['bio']},
+  '196170': {name:'알테오젠', sector:'바이오', mcap:'20조', price:407500, themes:['bio']},
+  '028300': {name:'HLB', sector:'항암제', mcap:'8조', price:52500, themes:['bio']},
+  '145020': {name:'휴젤', sector:'보톡스', mcap:'4조', price:230000, themes:['bio','kbeauty']},
+  // ════════ K-뷰티 (8) ════════
+  '090430': {name:'아모레퍼시픽', sector:'화장품', mcap:'7조', price:137900, themes:['kbeauty']},
+  '051900': {name:'LG생활건강', sector:'생활건강', mcap:'10조', price:350000, themes:['kbeauty']},
+  '044820': {name:'코스맥스', sector:'ODM', mcap:'4조', price:110000, themes:['kbeauty']},
+  '161890': {name:'한국콜마', sector:'ODM', mcap:'2조', price:48000, themes:['kbeauty']},
+  '237880': {name:'클리오', sector:'색조', mcap:'2조', price:36000, themes:['kbeauty']},
+  '257720': {name:'실리콘투', sector:'유통', mcap:'3조', price:44550, themes:['kbeauty']},
+  '278470': {name:'APR', sector:'뷰티브랜드', mcap:'5조', price:328500, themes:['kbeauty']},
+  '950130': {name:'엘앤피코스메틱', sector:'스킨케어', mcap:'1.5조', price:210000, themes:['kbeauty']},
+  // ════════ K-컨텐츠 (8) ════════
+  '352820': {name:'하이브', sector:'엔터', mcap:'11조', price:292500, themes:['kcontent']},
+  '041510': {name:'SM', sector:'엔터', mcap:'6조', price:95000, themes:['kcontent']},
+  '035900': {name:'JYP Ent.', sector:'엔터', mcap:'5조', price:68000, themes:['kcontent']},
+  '122870': {name:'YG엔터테인먼트', sector:'엔터', mcap:'2조', price:63500, themes:['kcontent']},
+  '259960': {name:'크래프톤', sector:'게임', mcap:'18조', price:234500, themes:['kcontent']},
+  '253450': {name:'스튜디오드래곤', sector:'드라마', mcap:'2조', price:47450, themes:['kcontent']},
+  '035760': {name:'CJ ENM', sector:'미디어', mcap:'3조', price:62600, themes:['kcontent']},
+  '251270': {name:'넷마블', sector:'게임', mcap:'5조', price:52900, themes:['kcontent']},
+  // ════════ 자동차 (7) ════════
+  '005380': {name:'현대차', sector:'자동차', mcap:'46조', price:491000, themes:['auto','robot']},
+  '000270': {name:'기아', sector:'자동차', mcap:'32조', price:160900, themes:['auto']},
+  '012330': {name:'현대모비스', sector:'자동차부품', mcap:'18조', price:378500, themes:['auto']},
+  '086280': {name:'현대글로비스', sector:'물류', mcap:'12조', price:236500, themes:['auto']},
+  '011210': {name:'현대위아', sector:'엔진', mcap:'3조', price:87600, themes:['auto']},
+  '204320': {name:'HL만도', sector:'전장', mcap:'3조', price:49050, themes:['auto']},
+  '018880': {name:'한온시스템', sector:'열관리', mcap:'2조', price:6200, themes:['auto']},
+  // ════════ 로봇 (6) ════════
+  '269620': {name:'레인보우로보틱스', sector:'로봇', mcap:'1조', price:60000, themes:['robot']},
+  '315640': {name:'뉴로메카', sector:'협동로봇', mcap:'0.3조', price:3465, themes:['robot']},
+  '178320': {name:'로보스타', sector:'산업로봇', mcap:'0.2조', price:12000, themes:['robot']},
+  '454910': {name:'두산로보틱스', sector:'협동로봇', mcap:'5조', price:101700, themes:['robot']},
+  '056080': {name:'유진로봇', sector:'서비스로봇', mcap:'0.3조', price:9000, themes:['robot']},
+  // ════════ 금융 (7) ════════
+  '105560': {name:'KB금융', sector:'금융', mcap:'30조', price:145800, themes:['finance']},
+  '055550': {name:'신한지주', sector:'금융', mcap:'24조', price:91900, themes:['finance']},
+  '086790': {name:'하나금융', sector:'금융', mcap:'16조', price:106000, themes:['finance']},
+  '316140': {name:'우리금융지주', sector:'금융', mcap:'12조', price:37850, themes:['finance']},
+  '138040': {name:'메리츠금융지주', sector:'금융', mcap:'18조', price:116500, themes:['finance']},
+  '032830': {name:'삼성생명', sector:'보험', mcap:'16조', price:82000, themes:['finance']},
+  '000810': {name:'삼성화재', sector:'보험', mcap:'12조', price:489000, themes:['finance']},
+  // ════════ K-푸드 (7) ════════
+  '003230': {name:'삼양식품', sector:'식품', mcap:'8조', price:1151000, themes:['kfood']},
+  '271560': {name:'오리온', sector:'식품', mcap:'8조', price:132200, themes:['kfood']},
+  '004370': {name:'농심', sector:'식품', mcap:'2.3조', price:371000, themes:['kfood']},
+  '097950': {name:'CJ제일제당', sector:'식품', mcap:'8조', price:310000, themes:['kfood']},
+  '280360': {name:'롯데웰푸드', sector:'식품', mcap:'3조', price:115000, themes:['kfood']},
+  '005180': {name:'빙그레', sector:'유제품', mcap:'2조', price:80700, themes:['kfood']},
+  '000080': {name:'하이트진로', sector:'음료', mcap:'2조', price:25000, themes:['kfood']},
+  // ════════ 크립토 (5) ════════
+  '294870': {name:'두나무', sector:'거래소', mcap:'8조', price:100000, themes:['crypto']},
+  '112040': {name:'위메이드', sector:'게임/블록체인', mcap:'1조', price:28000, themes:['crypto','kcontent']},
+  '094480': {name:'갤럭시아머니트리', sector:'핀테크', mcap:'0.3조', price:5500, themes:['crypto']},
+  // ════════ 통신 (5) ════════
+  '017670': {name:'SK텔레콤', sector:'통신', mcap:'18조', price:74700, themes:['telecom']},
+  '030200': {name:'KT', sector:'통신', mcap:'8조', price:57800, themes:['telecom']},
+  '032640': {name:'LG유플러스', sector:'통신', mcap:'4조', price:11500, themes:['telecom']},
+  '066570': {name:'LG전자', sector:'가전/전장', mcap:'15조', price:90000, themes:['telecom','auto']},
+};
+
+// v30: 테마별 종목 매핑 + ETF 기반 비중 (합계 100)
+var KR_THEME_MAP = {
+  'defense': [
+    {code:'012450',w:25}, // 한화에어로스페이스 (KODEX K방산 ~25%)
+    {code:'047810',w:20}, // KAI
+    {code:'079550',w:20}, // LIG넥스원 (KODEX K방산 ~22%)
+    {code:'064350',w:15}, // 현대로템
+    {code:'272210',w:10}, // 한화시스템
+    {code:'000880',w:5},  // 한화
+    {code:'103140',w:5}   // 풍산
+  ],
+  'semi': [
+    {code:'000660',w:25}, // SK하이닉스 (TIGER반도체 ~30%)
+    {code:'005930',w:25}, // 삼성전자 (~26%)
+    {code:'042700',w:8},  // 한미반도체
+    {code:'009150',w:7},  // 삼성전기
+    {code:'039030',w:6},  // 이오테크닉스
+    {code:'403870',w:5},  // HPSP
+    {code:'058470',w:5},  // 리노공업
+    {code:'240810',w:5},  // 원익IPS
+    {code:'000990',w:4},  // DB하이텍
+    {code:'036930',w:4},  // 주성엔지니어링
+    {code:'131970',w:3},  // 테크윙
+    {code:'005290',w:3}   // 동진쎄미켐
+  ],
+  'shipbuilding': [
+    {code:'042660',w:22}, // 한화오션 (TIGER조선 ~27%)
+    {code:'329180',w:22}, // HD현대중공업 (~25%)
+    {code:'009540',w:18}, // HD한국조선해양 (~21%)
+    {code:'010140',w:15}, // 삼성중공업 (~18%)
+    {code:'010620',w:8},  // HD현대미포
+    {code:'267250',w:7},  // HD현대
+    {code:'082740',w:4},  // 한화엔진
+    {code:'011200',w:4}   // HD현대마린엔진
+  ],
+  'ai-sw': [
+    {code:'035420',w:25}, // NAVER (HyperCLOVA)
+    {code:'035720',w:15}, // 카카오
+    {code:'018260',w:20}, // 삼성SDS
+    {code:'012510',w:15}, // 더존비즈온
+    {code:'030520',w:10}, // 한글과컴퓨터
+    {code:'041020',w:8},  // 폴라리스오피스
+    {code:'304100',w:4},  // 솔트룩스
+    {code:'005930',w:3}   // 삼성전자(AI칩)
+  ],
+  'power-grid': [
+    {code:'298040',w:22}, // 효성중공업 (TIGER전력 ~25%)
+    {code:'267260',w:22}, // HD현대일렉트릭 (~25%)
+    {code:'010120',w:22}, // LS일렉트릭 (~25%)
+    {code:'103590',w:8},  // 일진전기
+    {code:'006260',w:8},  // LS
+    {code:'229640',w:6},  // LS에코에너지
+    {code:'000500',w:6},  // 가온전선
+    {code:'033100',w:6}   // 제룡전기
+  ],
+  'nuclear': [
+    {code:'034020',w:35}, // 두산에너빌리티 (TIGER원전 ~26%)
+    {code:'000720',w:20}, // 현대건설 (~22%)
+    {code:'052690',w:15}, // 한전기술 (~11%)
+    {code:'051600',w:12}, // 한전KPS
+    {code:'092200',w:10}, // 디아이씨
+    {code:'083650',w:8}   // 비에이치아이
+  ],
+  'battery': [
+    {code:'373220',w:22}, // LG에너지솔루션 (TIGER2차전지 ~27%)
+    {code:'005490',w:15}, // POSCO홀딩스 (~24%)
+    {code:'096770',w:12}, // SK이노베이션 (~23%)
+    {code:'006400',w:10}, // 삼성SDI
+    {code:'247540',w:8},  // 에코프로비엠
+    {code:'086520',w:7},  // 에코프로
+    {code:'003670',w:8},  // 포스코퓨처엠
+    {code:'051910',w:10}, // LG화학
+    {code:'066970',w:8}   // 엘앤에프
+  ],
+  'bio': [
+    {code:'068270',w:20}, // 셀트리온 (TIGER바이오 ~26%)
+    {code:'196170',w:20}, // 알테오젠 (~25%)
+    {code:'207940',w:20}, // 삼성바이오로직스 (~25%)
+    {code:'028300',w:10}, // HLB (~8%)
+    {code:'000100',w:10}, // 유한양행 (~7%)
+    {code:'326030',w:6},  // SK바이오팜
+    {code:'128940',w:7},  // 한미약품
+    {code:'145020',w:7}   // 휴젤
+  ],
+  'kbeauty': [
+    {code:'090430',w:18}, // 아모레퍼시픽
+    {code:'051900',w:15}, // LG생활건강
+    {code:'044820',w:14}, // 코스맥스 (ODM 1위)
+    {code:'161890',w:10}, // 한국콜마
+    {code:'278470',w:12}, // APR
+    {code:'257720',w:12}, // 실리콘투
+    {code:'237880',w:10}, // 클리오
+    {code:'950130',w:9}   // 엘앤피코스메틱
+  ],
+  'kcontent': [
+    {code:'352820',w:15}, // 하이브 (TIGER미디어 ~9%)
+    {code:'041510',w:14}, // SM (~12%)
+    {code:'035900',w:12}, // JYP (~10%)
+    {code:'122870',w:10}, // YG (~10%)
+    {code:'259960',w:15}, // 크래프톤
+    {code:'253450',w:10}, // 스튜디오드래곤
+    {code:'035760',w:10}, // CJ ENM
+    {code:'251270',w:8},  // 넷마블
+    {code:'112040',w:6}   // 위메이드
+  ],
+  'auto': [
+    {code:'005380',w:28}, // 현대차
+    {code:'000270',w:25}, // 기아
+    {code:'012330',w:18}, // 현대모비스
+    {code:'086280',w:10}, // 현대글로비스
+    {code:'011210',w:7},  // 현대위아
+    {code:'204320',w:6},  // HL만도
+    {code:'018880',w:6}   // 한온시스템
+  ],
+  'robot': [
+    {code:'454910',w:25}, // 두산로보틱스
+    {code:'269620',w:25}, // 레인보우로보틱스
+    {code:'315640',w:15}, // 뉴로메카
+    {code:'178320',w:12}, // 로보스타
+    {code:'056080',w:8},  // 유진로봇
+    {code:'005380',w:15}  // 현대차(보스턴다이내믹스)
+  ],
+  'finance': [
+    {code:'105560',w:20}, // KB금융
+    {code:'055550',w:18}, // 신한지주
+    {code:'086790',w:14}, // 하나금융
+    {code:'316140',w:12}, // 우리금융지주
+    {code:'138040',w:14}, // 메리츠금융지주
+    {code:'032830',w:11}, // 삼성생명
+    {code:'000810',w:11}  // 삼성화재
+  ],
+  'kfood': [
+    {code:'003230',w:22}, // 삼양식품 (불닭)
+    {code:'097950',w:18}, // CJ제일제당
+    {code:'271560',w:16}, // 오리온
+    {code:'004370',w:15}, // 농심
+    {code:'280360',w:10}, // 롯데웰푸드
+    {code:'005180',w:10}, // 빙그레
+    {code:'000080',w:9}   // 하이트진로
+  ],
+  'crypto': [
+    {code:'294870',w:40}, // 두나무(업비트)
+    {code:'112040',w:25}, // 위메이드
+    {code:'035720',w:20}, // 카카오(Klaytn)
+    {code:'094480',w:15}  // 갤럭시아머니트리
+  ],
+  'telecom': [
+    {code:'017670',w:30}, // SK텔레콤
+    {code:'030200',w:25}, // KT
+    {code:'032640',w:15}, // LG유플러스
+    {code:'018260',w:15}, // 삼성SDS
+    {code:'066570',w:15}  // LG전자
+  ]
 };
 
 // Helper: resolve Korean stock code to Yahoo Finance symbol
 function krTickerToYahoo(code) {
-  // KOSDAQ stocks (v29.4: 확장)
-  var kosdaq = {'269620':1,'315640':1,'322510':1,'108860':1,'090460':1,'178320':1,
-    '247540':1,'086520':1,'403870':1,'039030':1,'042700':1};
+  // KOSDAQ stocks (v30: 대폭 확장)
+  var kosdaq = {
+    '269620':1,'315640':1,'178320':1,'247540':1,'086520':1,'403870':1,'039030':1,'042700':1,
+    '237880':1,'257720':1,'278470':1,'950130':1, // K-뷰티
+    '196170':1,'028300':1,'145020':1, // 바이오
+    '041020':1,'030520':1,'304100':1, // AI/SW
+    '058470':1,'240810':1,'036930':1,'131970':1, // 반도체장비
+    '066970':1,'003670':1, // 2차전지
+    '454910':1,'056080':1, // 로봇
+    '094480':1,'112040':1, // 크립토
+    '253450':1,'044820':1,'161890':1 // 컨텐츠/뷰티 기타
+  };
   return code + (kosdaq[code] ? '.KQ' : '.KS');
 }
 
