@@ -1,5 +1,5 @@
 {
-  "version": "v30.4",
-  "built": "2026-03-23T14:30:00+09:00",
-  "note": "v30.4: 운영안전성 고도화 — 전역에러경계(onerror+unhandledrejection), DATA_SNAPSHOT 방어적코딩(undefined/NaN안전), _ldSafe() 유틸리티로 37개 stale fallback 통일, localStorage QuotaExceeded 보호(9곳), Promise rejection 핸들링, retry exponential backoff, JS syntax error 0개 검증 완료"
+  "version": "v30.5",
+  "built": "2026-03-23T23:20:00+09:00",
+  "note": "v30.5: 전체 데이터 파이프라인 안전성 고도화 — fetchKrStockData timeout+NaN방어, fetchKrSupplyData JSON.parse보호, initKoreaHome NaN-safe리팩토링, SEC EDGAR timeout(10-12s), Finnhub뉴스 Array.isArray검증, PutCall/FearGreed JSON.parse방어, data-live-price/chg bulk update _liveData null방어+NaN체크, JS syntax 10블록 0에러 검증"
 }
