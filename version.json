@@ -1,5 +1,5 @@
 {
-  "version": "v29.3",
-  "built": "2026-03-23T06:00:00Z",
-  "note": "v29.3: rss2json피드한도CF워커우선폴백, 뉴스배치3개+1500ms딜레이+429백오프, isFetching60초안전리셋, Fear&Greed대시보드동기화, 데드RSS수정(구글뉴스경제+조선비즈), NULL포인터방지(breadcrumb+ticker+YahooChart), XSS방지(escHtml), FMPProfile배열검증, JSON.parse안전래핑, FRED-CORS프록시폴백, Claude-API버전수정"
+  "version": "v29.5",
+  "built": "2026-03-23T15:30:00Z",
+  "note": "v29.5: 한국시장 대폭강화 — 16개테마카드 data-theme-id추가(동적heat계산연동), kr-supply/kr-home 수급섹션 ID기반동적화(updateKrSupplyDOM 양페이지동시업데이트+바차트연동), kr-macro 정확도개선(금통위일정수정→2월26일동결, 경제캘린더3~5월업데이트, 글로벌비교표Fed3.50~3.75%반영)"
 }
