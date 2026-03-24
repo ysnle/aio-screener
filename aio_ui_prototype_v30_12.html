@@ -268,6 +268,7 @@ body {
 /* v30.11 perf: 인라인 스타일 → CSS 클래스 통합 (21개 beg-explain div에서 반복 인라인 제거) */
 .beg-explain { cursor: pointer; padding: 10px 14px !important; font-size: 12px !important; line-height: 1.5 !important; position: relative;
   display: none; margin: 12px 0 16px; background: rgba(99,102,241,0.08); border-radius: 10px; border-left: 3px solid #6366f1; color: #c7d2fe; }
+body.beginner-mode .beg-explain { display: block; } /* v30.12 fix: CSS 기본 none → beginner-mode 시 표시 */
 .beg-explain::after { content: '▼'; position: absolute; right: 14px; top: 10px; font-size: 9px; color: #818cf8; transition: transform 0.2s; }
 .beg-explain.beg-collapsed::after { transform: rotate(-90deg); }
 .beg-explain.beg-collapsed br, .beg-explain.beg-collapsed strong:not(:first-child),
