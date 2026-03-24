@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v30.13 — 올인원 투자 터미널</title>
+  <title>AIO Screener v30.15 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -436,6 +436,15 @@ body.beginner-mode .beg-explain { display: block; } /* v30.12 fix: CSS 기본 no
 @keyframes chat-dot{0%,60%,100%{opacity:0.3;transform:scale(0.85);}30%{opacity:1;transform:scale(1.1);}}
 .chat-cursor{display:inline-block;width:2px;height:14px;background:var(--accent);margin-left:1px;vertical-align:middle;animation:blink 0.7s step-end infinite;}
 @keyframes blink{50%{opacity:0;}}
+/* v30.14: 챗 내 마크다운 테이블·헤더·리스트 스타일 */
+.chat-table-wrap{overflow-x:auto;margin:8px 0;}
+.chat-tbl{width:100%;border-collapse:collapse;font-size:11px;line-height:1.5;}
+.chat-tbl th{background:rgba(255,255,255,0.06);padding:6px 10px;text-align:left;font-weight:700;border:1px solid rgba(255,255,255,0.1);color:var(--text-primary);white-space:nowrap;}
+.chat-tbl td{padding:5px 10px;border:1px solid rgba(255,255,255,0.07);color:var(--text-secondary);}
+.chat-tbl tr:hover td{background:rgba(255,255,255,0.03);}
+.chat-h{margin:10px 0 4px;color:var(--text-primary);font-weight:700;line-height:1.4;}
+h3.chat-h{font-size:14px;}h4.chat-h{font-size:12.5px;}h5.chat-h{font-size:11.5px;}h6.chat-h{font-size:11px;}
+.chat-li{padding:2px 0 2px 14px;position:relative;line-height:1.6;}.chat-li::before{content:'•';position:absolute;left:2px;color:var(--accent);font-weight:700;}
 /* v29.1: 대화 기록 오버레이 */
 .chat-history-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9500;display:none;justify-content:center;align-items:center;}
 .chat-history-overlay.open{display:flex;}
@@ -1896,7 +1905,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v30.12</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v30.15</span></div>
       <div class="page-subtitle" id="home-date-label">2026.03.23 (월) KST · 실시간 시세 자동갱신</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4115,13 +4124,13 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <div class="beginner-tip" style="margin-bottom:12px;">
     <div class="beginner-tip-title">📚 초보자 완전 가이드 — 기술적 분석이란?</div>
     <div class="beginner-tip-body">
-      기술적 분석은 "과거 가격과 거래량 패턴이 미래에도 반복된다"는 아이디어입니다. 의사가 체온, 혈압, 맥박으로 건강을 진단하듯이, 차트 분석가는 RSI, 이동평균, 거래량으로 주식의 건강을 진단합니다.<br><br>
-      🔹 <b>RSI (상대강도지수):</b> 체온계 같은 것! 70 이상 = "열이 난다" (과열, 조심), 30 이하 = "저체온" (과매도, 반등 기회)<br>
-      🔹 <b>이동평균선:</b> "평균 체온" 같은 것. 50일 평균(중기), 200일 평균(장기). 가격이 이동평균 위에 있으면 건강, 아래면 아픔<br>
-      🔹 <b>MACD:</b> "맥박" 같은 것. 빨라지면(상향 교차) 활력 증가, 느려지면(하향 교차) 활력 감소<br>
-      🔹 <b>볼린저밴드:</b> "혈압 범위" 같은 것. 밴드가 좁아지면(스퀴즈) 곧 큰 움직임이 온다!<br>
-      🔹 <b>거래량:</b> "심박수" 같은 것. 가격이 오를 때 거래량도 늘어야 진짜 건강한 상승. 가격은 오르는데 거래량은 줄면? → 속이 빈 상승<br><br>
-      💡 <b>가장 중요한 법칙:</b> 절대 하나의 지표만 보지 마세요! 의사가 체온만으로 진단하지 않듯, 여러 지표를 종합해서 판단하세요.
+      기술적 분석은 "과거 가격과 거래량 패턴이 미래에도 반복된다"는 아이디어입니다. 내비게이션처럼, 차트 지표들이 주가의 방향과 속도를 알려줍니다.<br><br>
+      🔹 <b>RSI (상대강도지수):</b> 속도계. 70 이상 = 과속 구간(과열, 조심), 30 이하 = 너무 느림(과매도, 반등 기회)<br>
+      🔹 <b>이동평균선:</b> 평균 속도. 50일 평균(중기), 200일 평균(장기). 가격이 이동평균 위 = 상승세, 아래 = 하락세<br>
+      🔹 <b>MACD:</b> 가속도계. 빨라지면(상향 교차) 상승 가속, 느려지면(하향 교차) 모멘텀 감소<br>
+      🔹 <b>볼린저밴드:</b> 변동 범위. 밴드가 좁아지면(스퀴즈) 곧 큰 움직임이 온다!<br>
+      🔹 <b>거래량:</b> 연료량. 가격이 오를 때 거래량도 늘어야 진짜 상승. 거래량 없는 상승 = 연료 없이 오르는 것<br><br>
+      💡 <b>가장 중요한 법칙:</b> 절대 하나의 지표만 보지 마세요! 여러 지표를 종합해서 판단하세요.
     </div>
   </div>
 
@@ -9543,19 +9552,25 @@ function showPage(id, navEl) {
   // Dispatch page shown event for lazy-init
   try { document.dispatchEvent(new CustomEvent('aio:pageShown', { detail: id })); } catch(e) {}
   // 시장 소식 페이지 진입 시 뉴스 자동 로드
+  // v30.14: rAF + setTimeout 폴백 — 비활성 탭에서도 차트 초기화 보장
+  // rAF는 비활성 탭에서 실행이 지연/중단될 수 있으므로 setTimeout(50ms) 폴백 병행
+  function _safePageInit(fn) {
+    var done = false;
+    var run = function() { if (!done) { done = true; fn(); } };
+    requestAnimationFrame(function() { requestAnimationFrame(run); });
+    setTimeout(run, 80);
+  }
   if (id === 'breadth') {
-    requestAnimationFrame(() => requestAnimationFrame(() => initBreadthPage()));
+    _safePageInit(initBreadthPage);
   }
   if (id === 'signal') {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      initSignalDashboard();
-    }));
+    _safePageInit(initSignalDashboard);
   }
   if (id === 'sentiment') {
-    requestAnimationFrame(() => requestAnimationFrame(() => initSentimentPage()));
+    _safePageInit(initSentimentPage);
   }
   if (id === 'fxbond') {
-    requestAnimationFrame(() => requestAnimationFrame(() => updateFxBondPage()));
+    _safePageInit(updateFxBondPage);
   }
   if (id === 'market-news') {
     if (typeof newsCache !== 'undefined' && newsCache.length > 0) {
@@ -9576,7 +9591,7 @@ function showPage(id, navEl) {
   }
   // ── v27 fix: 기술/매크로/펀더멘털 페이지 초기화 핸들러 ──
   if (id === 'technical') {
-    requestAnimationFrame(() => {
+    _safePageInit(function() {
       if (typeof computeMarketHealth === 'function') {
         try {
           var h = computeMarketHealth();
@@ -9593,12 +9608,14 @@ function showPage(id, navEl) {
     });
   }
   if (id === 'macro') {
-    requestAnimationFrame(() => {
+    _safePageInit(function() {
       if (typeof generateMacroStoryline === 'function') { try { generateMacroStoryline(); } catch(e) {} }
+      // v30.14: macro 페이지에서도 Yield Curve 차트 초기화
+      if (typeof initYieldCurveChart === 'function') { try { initYieldCurveChart(); } catch(e) {} }
     });
   }
   if (id === 'fundamental') {
-    requestAnimationFrame(() => {
+    _safePageInit(function() {
       if (typeof initFundamentalCards === 'function') { try { initFundamentalCards(); } catch(e) {} }
     });
   }
@@ -13772,6 +13789,9 @@ async function fetchLiveQuotes() {
     ['ABNB', 'DASH', 'ROKU', 'DUOL', 'APP'],
     ['AXON', 'TOST', 'GRAB', 'SE', 'GME'],
     ['AMC', 'AEHR', 'VIAV', 'CRSP', 'IWM'],
+    // ── 환율 심볼 (chartPreviousClose 확보용) ──
+    ['KRW=X', 'JPY=X', 'EURUSD=X', 'GBPUSD=X', 'CNY=X'],
+    ['AUDUSD=X', 'CADUSD=X', 'CHFUSD=X'],
     // ── Top 200 확장 ──
     ['ABT', 'BSX', 'SYK', 'DHR', 'CI'],
     ['CME', 'ICE', 'MSI', 'APH', 'EOG'],
@@ -13800,7 +13820,14 @@ async function fetchLiveQuotes() {
         const d = await r.json();
         const meta = d?.chart?.result?.[0]?.meta;
         if (meta?.regularMarketPrice && _validatePrice(symbol, meta.regularMarketPrice)) {
-          return { symbol, ...meta, _source: 'live:yahoo-direct' };
+          // v30.14: 직접 요청도 chartPreviousClose 기반 폴백 계산 적용
+          var _dPrice = meta.regularMarketPrice;
+          var _dPrev = meta.chartPreviousClose || meta.previousClose || 0;
+          var _dPct = meta.regularMarketChangePercent;
+          if ((!_dPct || _dPct === 0) && _dPrev > 0) {
+            _dPct = ((_dPrice - _dPrev) / _dPrev) * 100;
+          }
+          return { symbol, ...meta, regularMarketChangePercent: _dPct || 0, chartPreviousClose: _dPrev, _source: 'live:yahoo-direct' };
         }
       }
     } catch(e) {}
@@ -13837,11 +13864,13 @@ async function fetchLiveQuotes() {
             _pct = ((_price - _prevClose) / _prevClose) * 100;
             _chg = _price - _prevClose;
           }
+          // v30.14: chartPreviousClose를 반환에 포함 — 환율 _fxPrevClose 보정용
           return {
             symbol,
             regularMarketPrice: _price,
             regularMarketChangePercent: _pct || 0,
             regularMarketChange: _chg || 0,
+            chartPreviousClose: _prevClose || 0,
             _source: 'live:yahoo-proxy',
           };
         }
@@ -14573,6 +14602,14 @@ function applyLiveQuotes(quotes) {
     window._liveData[q.symbol] = { price, pct };
     window._quoteTimestamps[q.symbol] = now;
     window._previousPrices[q.symbol] = price;
+    // v30.14: 환율 심볼의 chartPreviousClose를 _fxPrevClose에 자동 보정
+    // Yahoo chart API에서 가져온 chartPreviousClose로 환율 변화율 즉시 계산 가능하게 함
+    if (q.chartPreviousClose && q.chartPreviousClose > 0 && q.symbol.includes('=X')) {
+      window._fxPrevClose = window._fxPrevClose || {};
+      if (!window._fxPrevClose[q.symbol] || window._fxPrevClose[q.symbol] <= 0) {
+        window._fxPrevClose[q.symbol] = q.chartPreviousClose;
+      }
+    }
     // v30.11: 데이터 출처 기록
     window._dataSource[q.symbol] = { source: q._source || 'live:yahoo', ts: now };
     const pctStr = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
@@ -16334,8 +16371,13 @@ window.addEventListener('offline', () => {
 
 // ── Browser back/forward support ──────────────────────────────────────
 // popstate only available outside sandboxed iframes
+// v30.14: popstate 핸들러 — 전체 9개 페이지 reinit (기존 3개만 있어서 6개 누락 수정)
 try { window.addEventListener('popstate', (e) => {
   const id = e.state?.page || (location.hash.slice(1)) || 'home';
+  // 이전 페이지 차트 정리 (메모리 누수 방지)
+  if (typeof prevPage !== 'undefined' && prevPage && prevPage !== id) {
+    destroyPageCharts(prevPage);
+  }
   // showPage without pushing another history entry
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const pg = document.getElementById('page-' + id);
@@ -16348,11 +16390,40 @@ try { window.addEventListener('popstate', (e) => {
   setBreadcrumb(parts);
   prevPage = id;
   document.querySelector('.content').scrollTop = 0;
-  // Re-init charts if needed
-  if (id === 'breadth')   requestAnimationFrame(() => requestAnimationFrame(() => initBreadthPage()));
-  // v30.13d: popstate에서도 signal 대시보드 전체 갱신 (기존: computeTradingScore만 호출 → DOM 미갱신)
-  if (id === 'signal')    requestAnimationFrame(() => requestAnimationFrame(() => { if(typeof initSignalDashboard==='function') initSignalDashboard(); }));
-  if (id === 'sentiment') requestAnimationFrame(() => requestAnimationFrame(() => initSentimentPage()));
+  // v30.14: rAF + setTimeout 폴백 (비활성 탭 대응)
+  var _done = false;
+  var _run = function(fn) { return function() { if (!_done) { _done = true; fn(); } }; };
+  var _safeInit = function(fn) {
+    _done = false;
+    var exec = _run(fn);
+    requestAnimationFrame(function() { requestAnimationFrame(exec); });
+    setTimeout(exec, 80);
+  };
+  // Re-init for ALL pages (v30.14: 기존 3개 → 9개)
+  if (id === 'breadth')     _safeInit(function() { initBreadthPage(); });
+  if (id === 'signal')      _safeInit(function() { if(typeof initSignalDashboard==='function') initSignalDashboard(); });
+  if (id === 'sentiment')   _safeInit(function() { initSentimentPage(); });
+  if (id === 'fxbond')      _safeInit(function() { if(typeof updateFxBondPage==='function') updateFxBondPage(); });
+  if (id === 'macro')       _safeInit(function() {
+    if(typeof generateMacroStoryline==='function') { try { generateMacroStoryline(); } catch(e) {} }
+    if(typeof initYieldCurveChart==='function') { try { initYieldCurveChart(); } catch(e) {} }
+  });
+  if (id === 'technical')   _safeInit(function() {
+    if(typeof computeMarketHealth==='function') { try { var h=computeMarketHealth(); var hd=document.getElementById('health-score-display'); var hg=document.getElementById('health-grade-display'); if(hd)hd.textContent=h.score; if(hg){hg.textContent=h.grade;hg.style.color=h.score>=60?'#3ddba5':h.score>=40?'#fbbf24':'#f87171';} } catch(e) {} }
+    if(typeof updatePatternSignals==='function') { try { updatePatternSignals(); } catch(e) {} }
+    if(typeof updateTechIndicators==='function') { try { updateTechIndicators(); } catch(e) {} }
+  });
+  if (id === 'fundamental') _safeInit(function() { if(typeof initFundamentalCards==='function') { try { initFundamentalCards(); } catch(e) {} } });
+  if (id === 'market-news') {
+    if (typeof newsCache !== 'undefined' && newsCache.length > 0) { renderFeed(newsCache); }
+    else if (typeof fetchAllNews === 'function') { setTimeout(() => { try { fetchAllNews().catch(()=>{}); } catch(e){} }, 300); }
+  }
+  if (id === 'briefing') {
+    if (typeof renderBriefingFeed === 'function') {
+      if (typeof newsCache !== 'undefined' && newsCache.length > 0) { renderBriefingFeed(); }
+      else if (typeof fetchAllNews === 'function') { setTimeout(() => fetchAllNews().then(() => renderBriefingFeed()).catch(()=>{}), 300); }
+    }
+  }
 });
 } catch(e) { /* sandboxed */ }
 
@@ -17430,6 +17501,13 @@ const _CHAT_RULES = (function() {
   // v30.13b: 내러티브/스토리텔링 강화 + 응답 깊이 보정 + 사용자 친화적 답변 구조
   return '\n\n【응답 스타일 규칙】\n' +
   '1. 한국어로 답변. 옆에 앉아 설명하는 투자 선배처럼 친근하면서도 전문적으로. 단순한 정보 나열이 아니라 "이야기를 들려주듯" 자연스러운 흐름으로 전달하라. 마치 카페에서 후배에게 시장 이야기를 풀어주는 느낌. 딱딱한 보고서가 아닌, 읽는 재미가 있는 분석을 목표로.\n' +
+  '⚠️ 【포맷 절대 규칙 — 위반 시 답변 품질 F】\n' +
+  '① 마크다운 테이블(| header | header |) 사용 절대 금지 — 렌더링이 깨진다. 비교는 "A: ~, B: ~" 또는 볼드+줄바꿈으로.\n' +
+  '② "의사/환자/진단/진료/체온/맥박/건강검진" 비유 사용 금지.\n' +
+  '③ 비유는 답변 전체에서 최대 1~2회만. 비유 남발은 분석의 신뢰도를 떨어뜨린다. 데이터와 논리로 승부하라.\n' +
+  '④ 이모지는 섹션 구분용으로만 최소 사용 (답변 전체 5개 이하).\n' +
+  '⑤ 【종목 실시간 데이터】 섹션이 있으면 반드시 해당 실제 가격·변화율을 인용하라. 학습 데이터의 과거 가격 사용 금지.\n' +
+  '⑥ 사용자가 특정 종목을 물으면 해당 종목 분석이 답변의 80% 이상이어야 한다. 시장 전체 상황은 맥락으로 간략히만.\n' +
   '2. 서사(내러티브) 구조 — 모든 답변의 뼈대: ① 장면 진입: 질문이나 상황 묘사로 시작 ("지금 VIX가 30을 넘었다. 월가의 공포 체온계가 빨간불이다.") ② 핵심 숫자 임팩트: 수치를 별도 행에 배치하고 즉시 해석 ("→ 이 숫자가 말하는 건...") ③ 왜?(Why) 스토리: 데이터와 논리로 "왜 이런 일이 벌어지는지" 맥락을 풀어준다. 단순 팩트 나열 금지. 반드시 원인-결과의 서사적 흐름으로. ④ 그래서?(So What): "이게 당신의 투자에 무슨 의미인지" 개인적 함의로 연결 ⑤ 액션 클로징: "그래서 당신이 지금 할 수 있는 것은..." 구체적 행동으로 마무리.\n' +
   '3. 핵심 포인트는 3개로 정리 (삼단 구문): "첫째... 둘째... 셋째..."\n' +
   '4. 인과 체인을 3차 파급까지 추적: 1차(직접 영향) → 2차(공급망 연결) → 3차(최종 투자자 영향). 예: "유가↑ → 운송비↑ → 소매 마진↓ → 소비주 실적 하향 → 당신의 포트폴리오에서 소비재 비중 점검 필요"\n' +
@@ -17499,7 +17577,7 @@ const _CHAT_RULES = (function() {
   '  • [종목 분석 질문]: "이 기업의 이야기는 이렇다..." → 사업 본질 한 문장 → 강점과 약점을 서사적으로 → 밸류에이션 판단 → "그래서 지금 매수할 만한가?" 클로징\n' +
   '  • [시장 상황 질문]: "지금 시장에서 벌어지고 있는 일을 한 장면으로 그려보자..." → 핵심 데이터 → 인과 체인 → Bull/Bear → 액션\n' +
   '  • [개념/교육 질문]: "쉽게 설명해볼게. 상상해보자..." → 비유로 개념 도입 → 실전 예시 → 흔한 실수 → "이걸 스크리너에서 확인하려면..." 연결\n' +
-  '  • [포트폴리오 질문]: "당신의 포트폴리오를 건강검진 해보자..." → 현황 진단 → 위험 요소 → 개선안 → 구체적 액션 3가지\n' +
+  '  • [포트폴리오 질문]: "당신의 포트폴리오를 점검해보자..." → 현황 분석 → 위험 요소 → 개선안 → 구체적 액션 3가지\n' +
   '32. 🌊 흐름과 리듬 — 읽기 좋은 답변 만들기:\n' +
   '  • 긴 문단 금지: 3~4문장마다 자연스럽게 끊어서 호흡을 넣어라. 한 문단이 5줄 이상이면 분리.\n' +
   '  • 핵심 수치는 시각적 강조: **볼드** 또는 별도 행 배치. 숫자가 문장 속에 묻히면 안 된다.\n' +
@@ -17547,7 +17625,7 @@ const CHAT_CONTEXTS = {
       var fresh = s._freshness;
       return '당신은 사용자의 매매 판단을 도와주는 AI 전략가입니다. 현재 "매매시그널" 페이지를 보고 있습니다.\n\n' +
         '【매매시그널 페이지 데이터 (신선도: ' + fresh + ')】\n' +
-        '• 종합 트레이딩 스코어: ' + s.score + '/100 (스코어 = "시장의 건강검진 종합점수")\n' +
+        '• 종합 트레이딩 스코어: ' + s.score + '/100 (시장 환경 종합 점수)\n' +
         '• 시장 국면: ' + (regime.regime || '분석중') + '\n' +
         '• S&P 500: ' + s.spx + ' (50SMA: ' + s.spx50ma + ', 200SMA: ' + s.spx200ma + ')\n' +
         '• VIX: ' + s.vix + ' | F&G: ' + s.fg + '\n' +
@@ -17556,8 +17634,8 @@ const CHAT_CONTEXTS = {
         '【스코어 해석 가이드】\n' +
         '75+ 우수: 적극 매수 OK | 55-75 양호: 선별적 매수 | 35-55 중립: 관망 | 25-35 악화: 포지션 축소 | 25미만 위험: 현금 비중 극대화\n\n' +
         '【5대 컴포넌트 세부 해석】\n' +
-        '• 변동성(25%): VIX 기반. VIX 15↓ = 만점, 20~25 = 중간, 30+ = 위험. "시장의 체온이 정상인가?"\n' +
-        '• 모멘텀(25%): 가격 추세 강도. 200SMA 위+상승 = 만점. 아래+하락 = 위험. "환자가 회복 중인가 악화 중인가?"\n' +
+        '• 변동성(25%): VIX 기반. VIX 15↓ = 만점, 20~25 = 중간, 30+ = 위험. 시장의 불안정도 측정.\n' +
+        '• 모멘텀(25%): 가격 추세 강도. 200SMA 위+상승 = 만점. 아래+하락 = 위험. 상승세 유지 vs 하락 전환 판별.\n' +
         '• 추세(20%): 이동평균 배열, 골든/데드크로스. 정배열(50>150>200) = 강한 상승추세.\n' +
         '• 시장폭(20%): 얼마나 많은 종목이 참여하는가. 50%+ = 건강한 상승. 30%↓ = 소수 종목만 이끄는 허약한 시장.\n' +
         '• 매크로(10%): 금리·달러·유가 환경. 금리인하+달러약세 = 주식 우호적.\n\n' +
@@ -17567,7 +17645,7 @@ const CHAT_CONTEXTS = {
         '• 스코어 고점 횡보(70+): "좋은 환경 지속" → 기존 포지션 유지, 트레일링 스탑 관리\n\n' +
         '【응답 프레임워크 — "매매 판단을 이야기로"】\n' +
         '1. 감정 인정으로 시작: "지금 사도 될까? — 이 질문 뒤에는 두려움과 기대가 공존한다. 먼저 데이터로 확인해보자." (감정-논리 블렌딩, 사용자 공감 먼저)\n' +
-        '2. 의사의 진단처럼 풀어가기: 5가지 컴포넌트를 하나씩 체크하되, 단순 나열이 아니라 "첫 번째 바이탈: 변동성 ✅ — 심장박동은 정상이다. 두 번째..." 식으로 서사적으로.\n' +
+        '2. 5가지 컴포넌트를 하나씩 서사적으로 풀어가기: 단순 나열이 아니라 "첫 번째 체크: 변동성 ✅ — 안정 구간이다. 두 번째..." 식으로 흐름을 만들어라.\n' +
         '3. 반전 포인트: "하지만 여기서 대부분이 놓치는 게 있다. 스코어는 낮은데 시장폭이 반등 중이라면? 그건 매도 세력이 소진되고 있다는 신호일 수 있다."\n' +
         '4. Before/After + 시나리오 서사: "만약 내일 스코어가 {A}에서 {B}로 바뀐다면, 게임의 규칙이 달라진다. 깨지는 신호: {C} 이하 → 시나리오 재검토."\n' +
         '5. 상승/하락 양쪽 시나리오를 병렬로 + 구체적 액션: "Bull이면 ~, Bear이면 ~. 지금 당장 확인할 것: ①~ ②~ ③~"\n' +
@@ -17597,8 +17675,8 @@ const CHAT_CONTEXTS = {
         '• Summation Index 방향: 상승 추세 = 시장 건강 / 하락 추세 = 악화 중 / 영하(zero line) 돌파 방향이 핵심\n' +
         '• A/D Line vs 지수 다이버전스: 지수 신고가인데 A/D Line 미갱신 = "소수 종목이 이끄는 허약한 상승" → 조정 경고\n\n' +
         '【비유로 이해하기】\n' +
-        '시장폭 = 학급의 건강검진 결과. S&P 500은 "반 평균 점수"인데, 상위 5명(AAPL, NVDA, MSFT...)이 평균을 올리고 있어도 나머지 495명이 아프면 "반 전체가 건강하다"고 할 수 없죠.\n' +
-        '5SMA 22% = 100명 중 22명만 최근 며칠 동안 건강이 회복됨. 나머지 78명은 여전히 아픕니다.\n\n' +
+        '시장폭 = 반 평균 성적. S&P 500 지수는 "반 평균"인데, 상위 5명(AAPL, NVDA, MSFT...)이 평균을 올려도 나머지 495명 성적이 낮으면 "반 전체가 잘한다"고 말할 수 없다.\n' +
+        '5SMA 22% = 100명 중 22명만 최근 성적이 오름세. 나머지 78명은 여전히 하락 중.\n\n' +
         '현재 시장: S&P ' + s.spx + ' | VIX ' + s.vix + ' | F&G ' + s.fg + '\n' +
         (s._stale.length > 0 ? '⚠️ 일부 데이터 지연 가능: [' + s._stale.join(', ') + ']\n' : '') +
         '【응답 프레임워크】\n' +
@@ -17785,7 +17863,7 @@ const CHAT_CONTEXTS = {
         '• 경영진 분석: 내부자 매수/매도 패턴(SEC Form 4), CEO 보상구조(주식연동 비율), 자본배치 능력(ROIC vs WACC 추이), 주주서한 톤 분석\n\n' +
         '【응답 프레임워크 — "기업을 이야기로 읽다"】\n' +
         '1. 기업의 본질을 한 문장으로: "이 기업은 본질적으로 {한 문장}이다." 여기서부터 스토리를 풀어간다. 이 기업이 왜 존재하는지, 무엇으로 돈을 버는지, 왜 투자자의 관심을 받는지.\n' +
-        '2. 건강검진 서사: 6가지 조건(성장성/수익성/밸류에이션/Moat/가이던스/이익의 질)을 하나씩 "진단"하되, 단순 체크리스트가 아니라 "첫 번째 진단: 성장성. 이 기업의 매출은 지난 3분기 연속..." 식으로 풀어라.\n' +
+        '2. 6가지 조건(성장성/수익성/밸류에이션/Moat/가이던스/이익의 질)을 하나씩 분석하되, 단순 체크리스트가 아니라 "첫 번째, 성장성. 이 기업의 매출은 지난 3분기 연속..." 식으로 스토리로 풀어라.\n' +
         '3. Before/After 스토리: "현재 PER X배. 만약 {카탈리스트}가 실현되면, 시장은 이 기업을 다른 눈으로 보기 시작한다. PER Y배 재평가, 주가 $A→$B. 하지만 반전: {리스크}가 터지면 PER Z배로 곤두박질."\n' +
         '4. 팩트 vs 희망 분리 — 가장 중요: "여기까지가 숫자로 확인된 사실이다. 그리고 여기서부터는 시장의 기대, 즉 아직 검증되지 않은 비전이다. 이 경계를 아는 것이 현명한 투자의 시작이다."\n' +
         '5. 선례 스토리: "이 기업의 현재 상황은 {비교기업}이 {시기}에 있던 모습과 닮아 있다. 그때 무슨 일이 일어났나 하면..." 역사에서 교훈을 뽑아 서사화.\n' +
@@ -18009,8 +18087,8 @@ const CHAT_CONTEXTS = {
         '• 테일 리스크(Tail Risk): 정규분포를 벗어나는 극단적 이벤트(블랙스완). CVaR(Conditional VaR) = VaR 초과 손실의 평균. 포트 보험: OTM 풋/VIX 콜.\n' +
         '• 인컴 최적화: 배당주+커버드콜+채권 믹스에서 세후 실질 인컴 최적화. 배당 성장률 vs 현재 수익률 트레이드오프.\n\n' +
         '반드시 사용자의 실제 보유 종목 티커를 인용하면서 분석.\n' +
-        '【응답 프레임워크 — "당신의 포트폴리오 건강검진"】\n' +
-        '1. 진단 요약으로 시작 — 의사가 환자에게 결과를 알려주듯: "당신의 포트폴리오를 종합 진단해봤다. {N}개 종목, 기술주 {X}%에 집중, 현금 {Y}%. 시장 체력 {S}점인 지금, 솔직히 말하면 {높다/적절/위험하다}."\n' +
+        '【응답 프레임워크 — "당신의 포트폴리오 점검"】\n' +
+        '1. 핵심 요약으로 시작: "당신의 포트폴리오를 점검해봤다. {N}개 종목, 기술주 {X}%에 집중, 현금 {Y}%. 시장 체력 {S}점인 지금, 솔직히 말하면 {높다/적절/위험하다}."\n' +
         '2. 사용자의 실제 종목을 호명하면서 스토리: "당신의 {AAPL}은 지금 ~한 상황이고, {NVDA}는 ~. 여기서 문제는 이 두 종목이 같은 방향으로 움직인다는 점이다." 개인화된 서사.\n' +
         '3. 위험의 서사화: "만약 내일 시장이 -10% 급락한다면? 당신의 포트폴리오는 $~의 손실. 이게 감당 가능한 숫자인가?" 추상적 위험을 구체적 금액으로 전환.\n' +
         '4. Before/After 리밸런싱 스토리: "현재 모습 vs 개선 후 모습을 비교해보자. 기술주 X% → 분산 후 Y%. 이렇게 바꾸면 같은 하락장에서 손실이 ~% 줄어든다."\n' +
@@ -18078,14 +18156,74 @@ function extractChips(text) {
 }
 
 function renderMarkdownLight(text) {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:0.88em">$1</code>')
-    .replace(/\n/g, '<br>');
+  // v30.14: 마크다운 테이블·헤더·리스트 완전 렌더링 — 세로 표시 버그 근본 수정
+  var lines = text.split('\n');
+  var html = [];
+  var inTable = false;
+  var tableRows = [];
+
+  function escLine(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function inlineFmt(s) {
+    return s
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:0.88em">$1</code>');
+  }
+  function isTableSep(s) { return /^\|[\s\-:|]+\|$/.test(s.trim()); }
+  function isTableRow(s) { return /^\|.+\|$/.test(s.trim()); }
+  function parseTableCells(s) {
+    return s.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(function(c){ return inlineFmt(escLine(c.trim())); });
+  }
+  function flushTable() {
+    if (tableRows.length === 0) return;
+    var t = '<div class="chat-table-wrap"><table class="chat-tbl"><thead><tr>';
+    var hdr = tableRows[0];
+    for (var h = 0; h < hdr.length; h++) t += '<th>' + hdr[h] + '</th>';
+    t += '</tr></thead><tbody>';
+    for (var r = 1; r < tableRows.length; r++) {
+      t += '<tr>';
+      for (var c = 0; c < tableRows[r].length; c++) t += '<td>' + (tableRows[r][c] || '') + '</td>';
+      t += '</tr>';
+    }
+    t += '</tbody></table></div>';
+    html.push(t);
+    tableRows = [];
+    inTable = false;
+  }
+
+  for (var i = 0; i < lines.length; i++) {
+    var raw = lines[i];
+    var esc = escLine(raw);
+    // 테이블 감지
+    if (isTableRow(raw)) {
+      if (!inTable) { inTable = true; tableRows = []; }
+      if (isTableSep(raw)) continue; // 구분선 스킵
+      tableRows.push(parseTableCells(raw));
+      continue;
+    }
+    if (inTable) flushTable();
+    // 헤더 (### → h5, ## → h4, # → h3)
+    var hm = raw.match(/^(#{1,4})\s+(.+)$/);
+    if (hm) {
+      var lvl = Math.min(hm[1].length + 2, 6);
+      html.push('<h' + lvl + ' class="chat-h">' + inlineFmt(escLine(hm[2])) + '</h' + lvl + '>');
+      continue;
+    }
+    // 리스트 (- item, * item, N. item)
+    var lm = raw.match(/^(\s*)([-*•]|\d+[.)]) (.+)$/);
+    if (lm) {
+      html.push('<div class="chat-li">' + inlineFmt(escLine(lm[3])) + '</div>');
+      continue;
+    }
+    // 빈 줄
+    if (raw.trim() === '') { html.push('<br>'); continue; }
+    // 일반 텍스트
+    html.push(inlineFmt(esc) + '<br>');
+  }
+  if (inTable) flushTable();
+  return html.join('');
 }
 
 // ── Render suggestion chips ────────────────────────────────────────────
@@ -18223,12 +18361,59 @@ async function callClaude(system, messages, onChunk, onDone, onError) {
   }
 }
 
+// ── v30.15: 사용자 질문에서 티커 자동 감지 + 실시간 데이터 주입 ─────
+function _extractTickers(text) {
+  // 1. 명시적 US 티커 패턴: 대문자 1~5글자 (단독 또는 $ 접두사)
+  var tickers = [];
+  var seen = {};
+  // $AAPL 형식
+  var m1 = text.match(/\$([A-Z]{1,5})\b/g);
+  if (m1) m1.forEach(function(t) { var s = t.slice(1); if (!seen[s]) { seen[s]=1; tickers.push(s); } });
+  // 대문자 티커 (2~5글자, 문장 내에서 독립적으로 등장)
+  var m2 = text.match(/\b([A-Z]{2,5})\b/g);
+  var skipWords = {'AI':1,'OR':1,'AM':1,'AT':1,'BE':1,'BY':1,'DO':1,'GO':1,'IF':1,'IN':1,'IS':1,'IT':1,'MY':1,'NO':1,'OF':1,'ON':1,'SO':1,'TO':1,'UP':1,'US':1,'WE':1,
+    'ALL':1,'AND':1,'ARE':1,'BUT':1,'CAN':1,'DID':1,'FOR':1,'GET':1,'GOT':1,'HAS':1,'HAD':1,'HER':1,'HIM':1,'HIS':1,'HOW':1,'ITS':1,'LET':1,'MAY':1,'NEW':1,'NOT':1,'NOW':1,'OLD':1,'ONE':1,'OUR':1,'OUT':1,'OWN':1,'RUN':1,'SAY':1,'SET':1,'SHE':1,'THE':1,'TOO':1,'TRY':1,'TWO':1,'USE':1,'WAY':1,'WHO':1,'WHY':1,'WIN':1,'WON':1,'YES':1,'YET':1,'YOU':1,
+    'ALSO':1,'BEEN':1,'BEST':1,'BOTH':1,'BULL':1,'BEAR':1,'CALL':1,'COME':1,'EACH':1,'FROM':1,'GOOD':1,'HAVE':1,'HERE':1,'HIGH':1,'JUST':1,'KNOW':1,'LAST':1,'LIKE':1,'LONG':1,'LOOK':1,'MADE':1,'MAKE':1,'MORE':1,'MOST':1,'MUCH':1,'MUST':1,'NEED':1,'NEXT':1,'ONLY':1,'OVER':1,'SELL':1,'SOME':1,'SUCH':1,'TAKE':1,'TELL':1,'THAN':1,'THAT':1,'THEM':1,'THEN':1,'THEY':1,'THIS':1,'TIME':1,'VERY':1,'WANT':1,'WEEK':1,'WELL':1,'WENT':1,'WERE':1,'WHAT':1,'WHEN':1,'WILL':1,'WITH':1,'WORK':1,'YOUR':1,
+    'ABOUT':1,'AFTER':1,'COULD':1,'EVERY':1,'FIRST':1,'GREAT':1,'OTHER':1,'SHORT':1,'SINCE':1,'STILL':1,'THEIR':1,'THERE':1,'THESE':1,'THINK':1,'THOSE':1,'THREE':1,'TODAY':1,'UNDER':1,'WHERE':1,'WHICH':1,'WHILE':1,'WOULD':1,
+    'ETF':1,'IPO':1,'RSI':1,'MACD':1,'VIX':1,'ATR':1,'EMA':1,'SMA':1,'VCP':1,'SEPA':1,'VWAP':1,'FOMC':1,'GDP':1,'CPI':1,'PPI':1,'NFP':1,'PCE':1,'PMI':1,'ISM':1,'YOY':1,'MOM':1,'QOQ':1,'EPS':1,'PER':1,'PBR':1,'ROE':1,'ROA':1,'FCF':1,'DCF':1,'DDM':1,'NAV':1,'PEG':1,'FFR':1,'QE':1,'QT':1};
+  if (m2) m2.forEach(function(t) { if (!seen[t] && !skipWords[t]) { seen[t]=1; tickers.push(t); } });
+  // 한국 종목코드 (6자리 숫자)
+  var m3 = text.match(/\b(\d{6})\b/g);
+  if (m3) m3.forEach(function(c) { var s = c + '.KS'; if (!seen[s]) { seen[s]=1; tickers.push(s); } });
+  return tickers.slice(0, 3); // 최대 3개
+}
+
+async function _fetchTickerDataForChat(tickers) {
+  if (!tickers || tickers.length === 0) return '';
+  var results = [];
+  for (var i = 0; i < tickers.length; i++) {
+    var t = tickers[i];
+    var data = null;
+    // 1. _liveData 캐시 확인
+    var ld = (window._liveData || {})[t];
+    if (ld && ld.price) {
+      data = { ticker: t, price: ld.price, pct: ld.pct || 0, source: 'cache' };
+    } else {
+      // 2. 실시간 Yahoo 조회
+      try { data = await dynamicTickerLookup(t); } catch(e) {}
+    }
+    if (data) {
+      var line = '• ' + data.ticker + (data.name ? ' (' + data.name + ')' : '') + ': $' + Number(data.price).toFixed(2) + ' (' + (data.pct >= 0 ? '+' : '') + Number(data.pct).toFixed(2) + '%)';
+      if (data.exchange) line += ' [' + data.exchange + ']';
+      if (data.currency && data.currency !== 'USD') line += ' ' + data.currency;
+      results.push(line);
+    } else {
+      results.push('• ' + t + ': 데이터 조회 실패 — 티커를 확인하세요.');
+    }
+  }
+  if (results.length === 0) return '';
+  return '\n\n【🔍 사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n⚠️ 위 실시간 가격을 반드시 인용하여 분석하라. 학습 데이터의 과거 가격 사용 금지.\n';
+}
+
 // ── Send message ───────────────────────────────────────────────────────
 async function chatSend(ctxId) {
   var ctx = CHAT_CONTEXTS[ctxId];
   if (!ctx) return;
-  // v20+: dynamic system prompts (portfolio injects live data)
-  var systemPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
   var state = getChatState(ctxId);
   if (state.streaming) return;
 
@@ -18250,6 +18435,17 @@ async function chatSend(ctxId) {
   inp.value = '';
   state.streaming = true;
   if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+  // v30.15: 티커 감지 → 실시간 데이터 조회 → 시스템 프롬프트에 주입
+  var detectedTickers = _extractTickers(q);
+  var tickerDataStr = '';
+  if (detectedTickers.length > 0) {
+    try { tickerDataStr = await _fetchTickerDataForChat(detectedTickers); } catch(e) {}
+  }
+
+  // v20+: dynamic system prompts (portfolio injects live data)
+  var systemPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
+  if (tickerDataStr) systemPrompt += tickerDataStr;
 
   state.messages.push({ role: 'user', content: q });
   chatAppendMsg(ctxId, 'user', renderMarkdownLight(q));
@@ -19420,12 +19616,11 @@ document.addEventListener('aio:liveQuotes', function() {
         '• VIX: ' + s.vix + ' | DXY: ' + s.dxy + ' | 시장건강도: ' + healthStr + '\n' +
         '• F&G: ' + s.fg + ' | 트레이딩 스코어: ' + s.score + '/100\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
-        '【"의사의 진단" 프레임워크】\n' +
-        '시장 = "환자". 의사(분석가)가 단계적으로 진찰:\n' +
-        '1단계 — 전체 건강(시장폭, Market Breadth): "환자 전신 상태" → 시장폭 페이지\n' +
-        '2단계 — 체온(VIX/심리): "열이 있는가?" → 투자심리 페이지\n' +
-        '3단계 — 바이탈(추세): "심장박동은 정상인가?" → Weinstein Stage 진단\n' +
-        '4단계 — 부위 진단(개별종목): "어디가 아픈가?" → 구체적 종목 분석\n\n' +
+        '【4단계 분석 프레임워크】\n' +
+        '1단계 — 시장 전체(시장폭, Market Breadth): 참여도·방향성 → 시장폭 페이지\n' +
+        '2단계 — 변동성/심리(VIX): 공포·탐욕 수준 → 투자심리 페이지\n' +
+        '3단계 — 추세 판단: Weinstein Stage + 이동평균 정배열 여부\n' +
+        '4단계 — 개별 종목: 구체적 진입가·손절가·목표가 제시\n\n' +
         '【Weinstein 4단계】 Stage1(바닥 다지기, 30주MA 평탄+가격 횡보) → Stage2(상승 추세·매수!, 30주MA 위+상향 기울기) → Stage3(천장·매도 준비, 30주MA 평탄화+변동성 확대) → Stage4(하락 추세·회피, 30주MA 아래+하향)\n' +
         '【12 셋업 패턴】 VCP(변동성 축소 패턴, 94%승률), BREAKOUT(돌파), PULLBACK(눌림목), GAP_EP(갭 진입), REVERSAL_OOPS(반전), TIGHT_3B(좁은 레인지), SHAKEOUT(흔들기) 등\n\n' +
         '【VCP(Volatility Contraction Pattern) 상세 — Mark Minervini 방법론】\n' +
@@ -19481,12 +19676,13 @@ document.addEventListener('aio:liveQuotes', function() {
         '• 멀티 인디케이터 크로스체크 전략: 1차 필터(추세: MA 정배열) → 2차 필터(모멘텀: MACD+RSI) → 3차 필터(거래량: OBV+VWAP) → 4차 확인(시장환경: 스코어55+) → 모두 정렬 시만 진입\n' +
         '• 상관관계 분석: 주가-VIX 음의 상관 붕괴 시 = 구조적 변화, 섹터간 상관관계 급등 = 시스템 리스크, 크로스에셋(주식-채권-달러-금) 동시 움직임 해석\n' +
         '• 백테스트 사고법: "이 전략을 최근 5년 다양한 시장 환경(강세/약세/횡보)에서 적용하면 어떤 결과?" 승률, 평균 수익/손실, 최대 드로다운, 샤프비율 관점으로 평가\n\n' +
-        '【응답 프레임워크 — "차트를 이야기로 읽다"】\n' +
-        '1. 의사의 진단 서사: 6조건을 하나씩 체크하되 이야기처럼 풀어라. "첫 번째 진단: Stage — 이 종목은 지금 Stage2 상승 구간에 있다. 좋다. 두 번째: SEPA 조건 — 8개 중 6개 충족..." 단순 체크리스트를 스토리로 전환.\n' +
-        '2. 핵심 가격을 드라마틱하게: "지금 주목할 가격은 딱 3개다. **피봇포인트 ${X}** — 여기를 거래량과 함께 돌파하면 게임이 시작된다. **손절 ${Y}** — 여기가 무너지면 즉시 퇴장. **1차 목표 ${Z}** — 여기까지의 RR비율은 3:1."\n' +
-        '3. Before/After 스토리 + 반전: "이 종목이 피봇을 뚫는다면? Stage2 가속으로 20~30% 상승 여력. 하지만 반전 — {50SMA}가 무너지면 이야기가 완전히 달라진다. 즉시 손절."\n' +
-        '4. 숨은 신호 읽기(반전 포인트): "여기서 대부분이 놓치는 게 있다. 가격은 하락하는데 거래량이 줄고 있다면? 그건 매도 세력이 지쳤다는 뜻이다. VCP의 시작점일 수 있다."\n' +
-        '5. 맥락 연결: "이 분석은 종목 단독이 아닌, 시장 맥락 안에서 읽어야 한다. 지금 리더 섹터에서 VCP가 나오면 성공 확률↑."\n' +
+        '【응답 프레임워크 — 종목 질문 시 반드시 이 순서】\n' +
+        '⚠️ 핵심 원칙: 사용자가 특정 종목을 물으면 해당 종목 분석부터 바로 시작하라. 시장 전체 상황(VIX, SPX 등)은 맥락으로 1~2문장만 언급. 종목이 주인공이다.\n' +
+        '1. 종목 현재 상태부터: "【종목 실시간 데이터】 섹션의 실제 가격·변화율을 인용. 없으면 "현재 실시간 데이터 로딩 중"이라고 말하라.\n' +
+        '2. Weinstein Stage 판단 + 핵심 가격 3개: **피봇포인트** **손절** **1차 목표** + RR비율.\n' +
+        '3. SEPA 8대 조건 체크 — 서사적으로 풀되 간결하게.\n' +
+        '4. Bull/Bear 시나리오 + 깨지는 신호.\n' +
+        '5. 시장 맥락은 마지막에 1~2문장: "참고로 현재 시장 스코어 {X}점, VIX {Y} — 적극 매수 환경은 아니다" 정도로 짧게.\n' +
         '⚠️ 기술분석 질문은 Tier 2~3급. 패턴 이름만 던지고 끝내지 마라. "이 패턴이 의미하는 것"과 "당신이 할 행동"까지 풀어줘라.\n' +
         '⚠️ 전문 용어 첫 등장 시 괄호로 풀어서 설명할 것.\n' +
         '매매시그널(환경 점수)·시장폭(전체 건강도) 페이지 연결.' +
@@ -20556,13 +20752,20 @@ async function dynamicTickerLookup(ticker) {
           if (raw.contents) try { raw = JSON.parse(raw.contents); } catch(e) { /* malformed JSON in contents */ }
           var meta = raw && raw.chart && raw.chart.result && raw.chart.result[0] && raw.chart.result[0].meta;
           if (meta && meta.regularMarketPrice) {
+            // v30.14: chartPreviousClose 기반 폴백 변화율 계산
+            var _dynPrice = meta.regularMarketPrice;
+            var _dynPrev = meta.chartPreviousClose || meta.previousClose || 0;
+            var _dynPct = meta.regularMarketChangePercent;
+            if ((!_dynPct || _dynPct === 0) && _dynPrev > 0) {
+              _dynPct = ((_dynPrice - _dynPrev) / _dynPrev) * 100;
+            }
             // 캐시에 저장
             if (!window._liveData) window._liveData = {};
-            window._liveData[ticker] = { price: meta.regularMarketPrice, pct: meta.regularMarketChangePercent || 0 };
+            window._liveData[ticker] = { price: _dynPrice, pct: _dynPct || 0 };
             return {
               ticker: ticker,
-              price: meta.regularMarketPrice,
-              pct: meta.regularMarketChangePercent || 0,
+              price: _dynPrice,
+              pct: _dynPct || 0,
               name: meta.shortName || meta.longName || ticker,
               exchange: meta.exchangeName || '',
               currency: meta.currency || 'USD',
