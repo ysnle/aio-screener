@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v31.4 — 올인원 투자 터미널</title>
+  <title>AIO Screener v31.2 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1770,11 +1770,11 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
 
           <!-- 모델 선택 + 할당량 패널 -->
           <div class="llm-quota-panel">
-            <!-- v31.3: 적응형 모델 — 기본 Haiku, 복잡도에 따라 Sonnet/Thinking 자동 승격 -->
+            <!-- v30.13: 모델 선택 제거 — 채팅 Sonnet 4.6 고정, 번역 Haiku 4.5 고정 -->
             <div class="llm-quota-row" style="margin-bottom:5px;">
               <span class="llm-quota-lbl">채팅 AI</span>
-              <span style="font-size:10px;color:var(--text-primary);font-weight:600;">적응형</span>
-              <span id="llm-model-label" style="font-size:9px;color:var(--text-muted);margin-left:4px;">기본 Haiku · 심층 Sonnet · 번역 Haiku</span>
+              <span style="font-size:10px;color:var(--text-primary);font-weight:600;">Sonnet 4.6</span>
+              <span id="llm-model-label" style="font-size:9px;color:var(--text-muted);margin-left:4px;">뉴스 번역: Haiku 4.5</span>
             </div>
             <div class="llm-quota-row">
               <span class="llm-quota-lbl">일일 가능</span>
@@ -1905,7 +1905,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v31.4</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v31.2</span></div>
       <div class="page-subtitle" id="home-date-label">2026.03.23 (월) KST · 실시간 시세 자동갱신</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -3669,7 +3669,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
       <div class="acp-header">
         <span class="acp-title">Daily Briefing AI</span>
         <span style="font-size:8px;color:var(--text-muted);margin-left:6px;">Goldman·에너지·기술적 분석 통합 컨텍스트</span>
-        <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형</span>
+        <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude Sonnet 4.6</span>
         <button class="acp-clear" onclick="chatClear('briefing')" title="대화 초기화">✕</button>
       </div>
       <div class="acp-messages" id="chat-briefing-msgs"></div>
@@ -4141,7 +4141,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <div class="aio-chat" id="chat-technical" style="margin-top:16px;">
     <div class="acp-header">
       <span class="acp-title">AI 기술적 분석가</span>
-      <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형</span>
+      <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude Sonnet 4.6</span>
       <button class="acp-clear" onclick="chatClear('technical')" title="대화 초기화">✕</button>
     </div>
     <div class="acp-messages" id="chat-technical-msgs"></div>
@@ -4638,7 +4638,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <div class="aio-chat" id="chat-macro" style="margin-top:16px;">
     <div class="acp-header">
       <span class="acp-title">AI 매크로 전략가</span>
-      <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형</span>
+      <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude Sonnet 4.6</span>
       <button class="acp-clear" onclick="chatClear('macro')" title="대화 초기화">✕</button>
     </div>
     <div class="acp-messages" id="chat-macro-msgs"></div>
@@ -5446,7 +5446,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     <div class="aio-chat" id="chat-fundamental" style="margin-top:16px;">
       <div class="acp-header">
         <span class="acp-title">AI 기업 분석가</span>
-        <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형 · CFA 전문</span>
+        <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude Sonnet 4.6 · CFA 전문</span>
         <button class="acp-clear" onclick="chatClear('fundamental')" title="대화 초기화">✕</button>
       </div>
       <div class="acp-messages" id="chat-fundamental-msgs"></div>
@@ -5614,7 +5614,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     <div class="aio-chat" id="chat-themes" style="margin-top:16px;">
       <div class="acp-header">
         <span class="acp-title">AI 섹터·테마 전략가</span>
-        <span style="margin-left:auto;font-size:10px;font-family:var(--font-mono);color:var(--text-muted);">Claude AI · 적응형</span>
+        <span style="margin-left:auto;font-size:10px;font-family:var(--font-mono);color:var(--text-muted);">Claude Sonnet 4.6</span>
         <button class="acp-clear" onclick="chatClear('themes')" title="초기화">✕</button>
       </div>
       <div class="acp-messages" id="chat-themes-msgs"></div>
@@ -5722,7 +5722,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     <div class="aio-chat" id="chat-theme-detail" style="margin-top:16px;">
       <div class="acp-header">
         <span class="acp-title">Theme Deep Dive</span>
-        <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형</span>
+        <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude Sonnet 4.6</span>
         <button class="acp-clear" onclick="chatClear('theme-detail')" title="대화 초기화">✕</button>
       </div>
       <div class="acp-messages" id="chat-theme-detail-msgs"></div>
@@ -5858,7 +5858,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     <div class="aio-chat" id="chat-portfolio" style="margin-top:12px;">
       <div class="acp-header">
         <span class="acp-title">포트폴리오 AI 분석</span>
-        <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형</span>
+        <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude Sonnet 4.6</span>
         <button class="acp-clear" onclick="chatClear('portfolio')" title="대화 초기화">✕</button>
       </div>
       <div class="acp-messages" id="chat-portfolio-msgs"></div>
@@ -8232,7 +8232,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:10px;">
               <div style="font-size:10px;font-weight:700;color:#a78bfa;margin-bottom:2px;">Claude API (AI 분석·번역) 💰</div>
-              <div style="font-size:9px;color:var(--text-muted);line-height:1.5;">AI 채팅(적응형: Haiku↔Sonnet↔추론), 뉴스 번역(Haiku 4.5)<br><b>발급:</b> <a href="https://console.anthropic.com" target="_blank" style="color:#60a5fa;">console.anthropic.com</a> 가입 → API Key<br><b>비용:</b> 종량제 (일반 ~$0.005/쿼리, 심층 ~$0.02/쿼리, 번역 ~$0.007/배치)<br><b>없으면:</b> AI 기능 비활성, 영어 뉴스 원문 표시</div>
+              <div style="font-size:9px;color:var(--text-muted);line-height:1.5;">AI 채팅(Sonnet 4.6), 뉴스 번역(Haiku 4.5)<br><b>발급:</b> <a href="https://console.anthropic.com" target="_blank" style="color:#60a5fa;">console.anthropic.com</a> 가입 → API Key<br><b>비용:</b> 종량제 (채팅 ~$0.02/쿼리, 번역 ~$0.007/배치)<br><b>없으면:</b> AI 기능 비활성, 영어 뉴스 원문 표시</div>
             </div>
             <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:10px;">
               <div style="font-size:10px;font-weight:700;color:#a78bfa;margin-bottom:2px;">Cloudflare Worker (자체 프록시)</div>
@@ -15981,15 +15981,26 @@ document.addEventListener('DOMContentLoaded', () => {
 //  - OFF: unlimited, no quota deducted
 // ═══════════════════════════════════════════════════════════════════════
 // v30.13: LLM 예산 관리 시스템 (Budget Management)
-// v31.3: 적응형 모델 — 기본 Haiku 4.5, 복잡도별 Sonnet/Thinking 자동 승격
+// 채팅/스크리너 → Sonnet 4.6 고정, 뉴스/번역 → Haiku 4.5 고정
 // Anthropic API Pricing (2026.03):
 //   Sonnet 4.6: Input $3/MTok,  Output $15/MTok  (~$0.020/query)
-// v31.3: 적응형 모델 시스템 — 기본 Haiku, 복잡한 질문은 Sonnet+Thinking 자동 승격
-//   Haiku 4.5:  Input $1/MTok,  Output $5/MTok   (~$0.007/query) — 기본
-//   Sonnet 4.6: Input $3/MTok,  Output $15/MTok  (~$0.020/query) — 심층 분석 시만
-//   Extended Thinking: Output 토큰 요금과 동일 (thinking 토큰도 output으로 과금)
-// Haiku 기본 전환으로 비용 ~67% 절감 (동일 일일 한도 기준 3배 더 많은 질문 가능)
+//   Haiku 4.5:  Input $1/MTok,  Output $5/MTok   (~$0.007/query)
+// Total Budget: $50 USD / 5 users = $10/user/month ≈ ₩14,500/user/month
+// 일일 한도: $0.33/인/일 → Sonnet 기준 ~17회/일
+// v30.13: 채팅/스크리너 → Sonnet 4.6, 뉴스/번역 → Haiku 4.5 고정
+// Sonnet 4.6: $3/MTok in, $15/MTok out (Sonnet 4.5와 동일 가격, 성능 향상)
+// Haiku 4.5: $1/MTok in, $5/MTok out
 const LLM_MODELS = {
+  sonnet: {
+    id: 'claude-sonnet-4-6',
+    label: 'Sonnet 4.6',
+    inputPerMTok: 3,      // USD per 1M tokens
+    outputPerMTok: 15,    // USD per 1M tokens
+    avgInputTokens: 2500, // 시스템 프롬프트 + 컨텍스트 + 대화 이력 감안
+    avgOutputTokens: 800,
+    get costPerQuery() { return (this.avgInputTokens * this.inputPerMTok + this.avgOutputTokens * this.outputPerMTok) / 1e6; }
+    // ~$0.0195/query
+  },
   haiku: {
     id: 'claude-haiku-4-5-20251001',
     label: 'Haiku 4.5',
@@ -15998,122 +16009,9 @@ const LLM_MODELS = {
     avgInputTokens: 2500,
     avgOutputTokens: 800,
     get costPerQuery() { return (this.avgInputTokens * this.inputPerMTok + this.avgOutputTokens * this.outputPerMTok) / 1e6; }
-    // ~$0.0065/query (기본)
-  },
-  sonnet: {
-    id: 'claude-sonnet-4-6',
-    label: 'Sonnet 4.6',
-    inputPerMTok: 3,
-    outputPerMTok: 15,
-    avgInputTokens: 2500,
-    avgOutputTokens: 800,
-    get costPerQuery() { return (this.avgInputTokens * this.inputPerMTok + this.avgOutputTokens * this.outputPerMTok) / 1e6; }
-    // ~$0.0195/query (심층 분석 전용)
-  },
-  'sonnet-thinking': {
-    id: 'claude-sonnet-4-6',
-    label: 'Sonnet 4.6 🧠',
-    inputPerMTok: 3,
-    outputPerMTok: 15,
-    avgInputTokens: 2500,
-    avgOutputTokens: 3000, // thinking 토큰 포함
-    thinking: true,
-    thinkingBudget: 5000,
-    get costPerQuery() { return (this.avgInputTokens * this.inputPerMTok + this.avgOutputTokens * this.outputPerMTok) / 1e6; }
-    // ~$0.0525/query (추론 모드)
+    // ~$0.0065/query (뉴스/번역 전용)
   }
 };
-
-// v31.3: 질문 복잡도 감지 → 모델 자동 선택
-function _detectQueryComplexity(query, ctxId) {
-  var q = query.toLowerCase();
-  var qLen = query.length;
-
-  // ─── 1단계: 컨텍스트별 특화 판단 ───────────────────────────
-  // 포트폴리오: 기본 Sonnet, 심층 Thinking
-  if (ctxId === 'portfolio') {
-    var pfThinking = /리밸런싱|전체.*분석|리스크.*진단|상관관계|최적화|헤지.*전략|시나리오|백테스트|팩터|배분.*전략|변동성.*분석|샤프.*비율|드로다운|베타.*조정|수익률.*기여|attribution|rebalanc|optimize|drawdown|sharpe|risk.?parity/;
-    if (pfThinking.test(q)) return 'sonnet-thinking';
-    return 'sonnet';
-  }
-  // 기업분석(fundamental): 기본 Sonnet, 심층 분석은 Thinking
-  if (ctxId === 'fundamental') {
-    var fundThinking = /DCF|밸류에이션.*모델|적정.*주가|내재.*가치|WACC|잔여.*이익|EV\/EBITDA.*비교|피어.*그룹|산업.*비교.*분석|sum.?of.?parts|comp.*analysis|intrinsic.*value|free.?cash.?flow.*model/;
-    if (fundThinking.test(q)) return 'sonnet-thinking';
-    var fundSonnet = /재무.*분석|실적.*분석|매출.*성장|이익률|부채.*비율|경쟁.*우위|해자|moat|경영진|사업.*모델|revenue|earnings|margin|competitive|valuation/;
-    if (fundSonnet.test(q)) return 'sonnet';
-    // ★ fall through to 범용 판단 (구조적 분석 포함)
-  }
-  // 기술적분석(technical): 전략 수립은 Sonnet, 멀티타임프레임 심층은 Thinking
-  else if (ctxId === 'technical') {
-    var techThinking = /멀티.*타임프레임|다중.*시간|엘리어트.*파동|피보나치.*되돌림.*정밀|와이코프|wyckoff|elliott|intermarket.*analysis|상호.*시장.*분석|divergence.*종합|다이버전스.*종합/;
-    if (techThinking.test(q)) return 'sonnet-thinking';
-    var techSonnet = /진입.*시점|매수.*타이밍|손절.*설정|목표가|지지.*저항|추세.*분석|패턴.*분석|RSI|MACD|볼린저|이동평균|골든크로스|데드크로스|weinstein|stage.*분석|support|resistance|entry|stop.?loss|target/;
-    if (techSonnet.test(q)) return 'sonnet';
-  }
-  // 매매시그널(signal): 스코어 해석은 Sonnet, 시나리오 분석은 Thinking
-  else if (ctxId === 'signal') {
-    var sigThinking = /시나리오.*분석|스코어.*변동.*예측|컴포넌트.*종합.*진단|포지션.*사이징|position.*sizing|scenario|전략.*수립.*해줘/;
-    if (sigThinking.test(q)) return 'sonnet-thinking';
-    var sigSonnet = /스코어.*해석|왜.*이.*점수|매매.*판단|매수.*매도|지금.*사도|지금.*팔아|진입|청산|비중.*조절|포지션|대응.*전략|지금.*어때|매수.*해도|매도.*해야|사도.*될까|팔아도.*될까|들어가도|나가야/;
-    if (sigSonnet.test(q)) return 'sonnet';
-  }
-  // 매크로(macro): 금리/환율 영향 분석은 Sonnet, 멀티팩터 시나리오는 Thinking
-  else if (ctxId === 'macro') {
-    var macThinking = /금리.*인상.*시나리오|연준.*경로|다중.*시나리오|인플레.*디플레.*비교|경기.*침체.*확률|스태그플레이션|yield.*curve.*inversion|멀티팩터|macro.*scenario|recession.*probability/;
-    if (macThinking.test(q)) return 'sonnet-thinking';
-    var macSonnet = /금리.*영향|환율.*전망|달러.*방향|유가.*영향|인플레|디플레|연준|FOMC|CPI|고용|GDP|경기.*사이클|섹터.*로테이션|rate|inflation|fed|dollar|oil.*impact/;
-    if (macSonnet.test(q)) return 'sonnet';
-  }
-  // 시장폭(breadth): 종합 진단은 Sonnet, 다이버전스 심층은 Thinking
-  else if (ctxId === 'breadth') {
-    var brThinking = /다이버전스.*심층|시장폭.*vs.*지수.*괴리.*분석|McClellan.*종합|과거.*비교.*분석|히스토리컬|역사적.*비교|breadth.*divergence.*deep/;
-    if (brThinking.test(q)) return 'sonnet-thinking';
-    var brSonnet = /시장폭.*해석|건강.*상태|참여.*종목|다이버전스|괴리|A\/D|McClellan|종합.*판단|지금.*건강|breadth.*analysis/;
-    if (brSonnet.test(q)) return 'sonnet';
-  }
-  // 투자심리(sentiment): 종합 판단은 Sonnet, 역사적 비교 심층은 Thinking
-  else if (ctxId === 'sentiment') {
-    var senThinking = /공포.*단계.*비교|역사적.*패닉.*비교|바닥.*확인.*체크리스트|capitulation.*분석|항복.*매도.*분석|스마트머니.*vs.*덤머니|sentiment.*extreme.*analysis/;
-    if (senThinking.test(q)) return 'sonnet-thinking';
-    var senSonnet = /공포.*탐욕|지금.*바닥|바닥.*신호|VIX.*해석|AAII|NAAIM|풋콜|put.*call|심리.*분석|과매수|과매도|fear.*greed/;
-    if (senSonnet.test(q)) return 'sonnet';
-  }
-  // 테마(themes, theme-detail): 섹터/테마 분석은 Sonnet, 교차 분석은 Thinking
-  else if (ctxId === 'themes' || ctxId === 'theme-detail') {
-    var thThinking = /교차.*분석|테마.*간.*상관|밸류.*체인.*분석|업스트림.*다운스트림|수혜주.*종합|value.*chain|cross.*theme|supply.*chain.*analysis/;
-    if (thThinking.test(q)) return 'sonnet-thinking';
-    var thSonnet = /테마.*분석|섹터.*전망|수혜주|관련주|성장.*동력|시장.*규모|트렌드|theme|sector.*outlook|beneficiary/;
-    if (thSonnet.test(q)) return 'sonnet';
-  }
-
-  // ─── 2단계: 범용 심층 요청 패턴 (컨텍스트 무관) ─────────────
-  // Thinking급: 깊은 추론이 필요한 패턴
-  var thinkingKw = /심층.*분석|근본.*원인|시나리오.*확률|멀티팩터|DCF|밸류에이션.*모델|포지션.*사이징|감마.*익스포저|옵션.*전략.*설계|리스크.*관리.*전략|비교.*분석.*해줘|왜.*그런지.*자세히|깊이.*분석|종합.*진단|체계적.*분석|정밀.*분석|단계별.*분석/;
-  var thinkingEn = /deep.?analysis|root.?cause|scenario.?model|multi.?factor|position.?sizing|risk.?management.?strategy|comprehensive.*diagnosis|systematic.*analysis|step.?by.?step.*analy/;
-  if (thinkingKw.test(q) || thinkingEn.test(q)) return 'sonnet-thinking';
-
-  // Sonnet급: 분석/전략/판단이 필요한 패턴
-  var sonnetKw = /전략.*제안|매수.*타이밍|진입.*시점|손절|목표가.*설정|섹터.*로테이션|어떻게.*대응|포트폴리오|종합.*판단|비교.*해줘|분석.*해줘|전망.*해줘|평가.*해줘|진단.*해줘|추천.*해줘|왜.*그래|왜.*떨어|왜.*올라|원인.*뭐|이유.*뭐|어떻게.*해야|장단점|리스크.*뭐|영향.*분석/;
-  var sonnetEn = /strategy|recommend|analyze|forecast|evaluate|diagnose|compare|pros.*cons|impact.*analysis|what.*should|why.*drop|why.*rise|how.*respond/;
-  if (sonnetKw.test(q) || sonnetEn.test(q)) return 'sonnet';
-
-  // ─── 3단계: 구조적 복잡도 분석 ─────────────────────────────
-  // 질문이 길거나 여러 조건을 포함하면 Sonnet 승격
-  var questionMarks = (q.match(/\?/g) || []).length;
-  var conjunctions = (q.match(/그리고|또한|더불어|아울러|동시에|함께|and|also|additionally/g) || []).length;
-  var conditions = (q.match(/만약|경우|가정|~면|한다면|된다면|if|when|assuming|suppose/g) || []).length;
-
-  // 복합 질문 (여러 물음표 or 접속사+길이) → Sonnet
-  if (questionMarks >= 2 || (conjunctions >= 2 && qLen > 80)) return 'sonnet';
-  // 조건문 포함 → 시나리오 사고 필요 → Sonnet
-  if (conditions >= 1 && qLen > 60) return 'sonnet';
-  // 긴 질문 (150자+) → 복잡한 의도 가능성 → Sonnet
-  if (qLen > 150) return 'sonnet';
-
-  // ─── 기본: Haiku ───────────────────────────────────────────
-  return 'haiku';
-}
 
 const LLM_BUDGET = {
   totalUSD: 50,               // v30.13: 총 크레딧 $50
@@ -16126,11 +16024,11 @@ const LLM_BUDGET = {
 };
 
 function getSelectedModel() {
-  return 'haiku'; // v31.3: 기본 Haiku (질문별 자동 승격은 chatSend에서 처리)
+  return 'sonnet'; // v30.13: Sonnet 4.6 고정 (뉴스/번역은 Haiku 별도 하드코딩)
 }
 
-function getModelConfig(modelKey) {
-  return LLM_MODELS[modelKey || getSelectedModel()] || LLM_MODELS.haiku;
+function getModelConfig() {
+  return LLM_MODELS[getSelectedModel()] || LLM_MODELS.sonnet;
 }
 
 function calcDailyLimit() {
@@ -16185,7 +16083,7 @@ function updateQuotaBadge() {
   if (track)   { track.classList.toggle('on', isOn); }
   if (swLabel) { swLabel.textContent = isOn ? 'ON' : 'OFF'; swLabel.className = 'llm-switch-label' + (isOn ? ' on' : ''); }
   if (capEl)   capEl.textContent = dailyLimit + '회';
-  if (modelEl) modelEl.textContent = '기본 Haiku · 심층 Sonnet · 번역 Haiku';
+  if (modelEl) modelEl.textContent = model.label;
 
   if (!isOn) {
     if (remEl)   { remEl.textContent = '∞'; remEl.className = 'llm-quota-val'; }
@@ -16259,7 +16157,7 @@ function consumeLLMQuery() {
 document.addEventListener('DOMContentLoaded', () => {
   loadSidebarApiKey();
   loadRss2jsonKey();
-  // v31.3: 적응형 모델 — 기본 Haiku, 질문 복잡도에 따라 Sonnet/Thinking 자동 승격
+  // v30.13: 모델 선택 드롭다운 제거됨 — Sonnet 4.6 고정
   updateQuotaBadge();
 
   // ── 확장 API 키 자동 복원 (safeLSGetSync → input 필드) ──
@@ -18384,37 +18282,16 @@ function chatShowLoading(ctxId) {
 }
 
 // ── Claude API streaming ───────────────────────────────────────────────
-// v31.3: opts = { modelKey: 'haiku'|'sonnet'|'sonnet-thinking' }
-async function callClaude(system, messages, onChunk, onDone, onError, opts) {
+async function callClaude(system, messages, onChunk, onDone, onError) {
   var apiKey = getApiKey();
   if (!apiKey) {
     onError('API 키가 설정되지 않았습니다. 상단 ⚙ 버튼에서 Claude API 키를 입력해주세요.');
     return;
   }
-  opts = opts || {};
-  var modelCfg = getModelConfig(opts.modelKey);
 
   // v30.5: AbortController — 연결 30초 + 청크 간 15초 타임아웃
-  // v31.3: thinking 모드는 60초 (추론 시간 필요)
-  var timeoutMs = modelCfg.thinking ? 60000 : 30000;
   var ctrl = new AbortController();
-  var connectTimer = setTimeout(function() { ctrl.abort(); }, timeoutMs);
-
-  // v31.3: 요청 body 구성
-  var reqBody = {
-    model: modelCfg.id,
-    max_tokens: modelCfg.thinking ? 16000 : 4096,
-    stream: true,
-    system: system,
-    messages: messages
-  };
-  // Extended Thinking 설정
-  if (modelCfg.thinking) {
-    reqBody.thinking = {
-      type: 'enabled',
-      budget_tokens: modelCfg.thinkingBudget || 5000
-    };
-  }
+  var connectTimer = setTimeout(function() { ctrl.abort(); }, 30000);
 
   try {
     var res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -18426,7 +18303,13 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
-      body: JSON.stringify(reqBody)
+      body: JSON.stringify({
+        model: getModelConfig().id,
+        max_tokens: 4096,
+        stream: true,
+        system: system,
+        messages: messages
+      })
     });
     clearTimeout(connectTimer);
 
@@ -18468,13 +18351,10 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
           if (data === '[DONE]') continue;
           try {
             var evt = JSON.parse(data);
-            if (evt.type === 'content_block_delta' && evt.delta) {
-              // v31.3: text_delta만 수집 (thinking_delta는 무시 — 사용자에게 불필요)
-              if (evt.delta.type === 'text_delta') {
-                fullText += evt.delta.text;
-                onChunk(fullText);
-              }
-              // thinking_delta는 의도적으로 건너뜀 — 내부 추론 과정이므로 표시하지 않음
+            if (evt.type === 'content_block_delta' &&
+                evt.delta && evt.delta.type === 'text_delta') {
+              fullText += evt.delta.text;
+              onChunk(fullText);
             }
           } catch(e) {}
         }
@@ -18574,10 +18454,6 @@ async function chatSend(ctxId) {
   state.streaming = true;
   if (btn) { btn.disabled = true; btn.textContent = '…'; }
 
-  // v31.3: 질문 복잡도 감지 → 모델 자동 선택
-  var selectedModelKey = _detectQueryComplexity(q, ctxId);
-  var selectedModelCfg = getModelConfig(selectedModelKey);
-
   // v30.15: 티커 감지 → 실시간 데이터 조회 → 시스템 프롬프트에 주입
   var detectedTickers = _extractTickers(q);
   var tickerDataStr = '';
@@ -18591,11 +18467,6 @@ async function chatSend(ctxId) {
 
   state.messages.push({ role: 'user', content: q });
   chatAppendMsg(ctxId, 'user', renderMarkdownLight(q));
-
-  // v31.3: 사용 모델 표시
-  var modelLabel = selectedModelCfg.label;
-  var modelColor = selectedModelKey === 'sonnet-thinking' ? '#a78bfa' : selectedModelKey === 'sonnet' ? '#60a5fa' : 'var(--text-muted)';
-  var modelBadge = '<div style="font-size:8px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:-4px 0 4px;opacity:0.7;">' + modelLabel + (selectedModelCfg.thinking ? ' (추론 중…)' : '') + '</div>';
 
   // remove stale loading if any, add fresh one
   var staleLoad = document.getElementById('chat-' + ctxId + '-loading');
@@ -18636,15 +18507,7 @@ async function chatSend(ctxId) {
         streamEl.id = '';
         streamEl.innerHTML = renderMarkdownLight(visible);
       } else if (!aiBubble) {
-        aiBubble = chatAppendMsg(ctxId, 'ai', renderMarkdownLight(visible));
-      }
-
-      // v31.3: 응답 완료 후 사용 모델 배지 삽입
-      if (aiBubble && aiBubble.parentNode) {
-        var badgeEl = document.createElement('div');
-        badgeEl.style.cssText = 'font-size:8px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:2px 0 0;opacity:0.6;';
-        badgeEl.textContent = modelLabel;
-        aiBubble.parentNode.appendChild(badgeEl);
+        chatAppendMsg(ctxId, 'ai', renderMarkdownLight(visible));
       }
 
       state.messages.push({ role: 'assistant', content: fullText });
@@ -18664,9 +18527,7 @@ async function chatSend(ctxId) {
       if (loadEl) loadEl.parentNode.removeChild(loadEl);
 
       chatAppendMsg(ctxId, 'ai', '⚠️ ' + renderMarkdownLight(errMsg));
-    },
-    // opts — v31.3 적응형 모델 선택
-    { modelKey: selectedModelKey }
+    }
   );
 }
 
