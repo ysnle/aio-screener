@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+h<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v33.4 — 올인원 투자 터미널</title>
+  <title>AIO Screener v33.5 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -11,7 +11,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ysnle.github.io/aio-screener/">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AIO Screener — 올인원 투자 터미널">
+  <meta name="twitter:title" content="AIO Screener — 올인원 투자 터미널">h
   <meta name="twitter:description" content="실시간 시장 분석, 매매 시그널, 섹터 RRG, Fear&Greed, 포트폴리오 관리.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" type="image/svg+xml">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -1926,7 +1926,7 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v33.4</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v33.5</span></div>
       <div class="page-subtitle" id="home-date-label">2026.03.23 (월) KST · 실시간 시세 자동갱신</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -13801,7 +13801,7 @@ function extractOriginalSource(text) {
 
 // ── 텔레그램 메시지 관련성 필터 (주식/매크로/기관 리포트 선별) ────
 function isTelegramMsgRelevant(text) {
-  if (!text || text.length < 20) return false;
+  if (!text || text.length < 12) return false;  // v33.5: 20→12 (CJK)
   const t = text.toLowerCase();
   // 스팸/광고 필터
   // v33.3: '무료' 단독→복합패턴 구체화, '가입' 단독 제거(ETF 가입 등 정당사용)
