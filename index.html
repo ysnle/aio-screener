@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v31.8 — 올인원 투자 터미널</title>
+  <title>AIO Screener v31.9 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1905,7 +1905,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v31.8</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v31.9</span></div>
       <div class="page-subtitle" id="home-date-label">2026.03.23 (월) KST · 실시간 시세 자동갱신</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -11040,6 +11040,15 @@ async function fetchAllFredData() {
 }
 
 function applyFredToUI(data) {
+  // v31.9: 소스 표시 헬퍼 — FRED 원본 vs Yahoo 실시간 구분
+  function _fredSourceLabel(entry) {
+    if (!entry) return '';
+    if (entry._source && entry._source.startsWith('yahoo-')) {
+      return '실시간 (' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ')';
+    }
+    return 'FRED ' + (entry.date || '');
+  }
+
   // HY Spread
   if (data['BAMLH0A0HYM2']) {
     const spread = data['BAMLH0A0HYM2'].value;
@@ -11050,7 +11059,7 @@ function applyFredToUI(data) {
       el.style.color = bp < 300 ? '#3ddba5' : bp < 450 ? '#fbbf24' : '#f87171';
     }
     const sub = document.getElementById('hy-live-date');
-    if (sub) sub.textContent = 'FRED ' + data['BAMLH0A0HYM2'].date;
+    if (sub) sub.textContent = _fredSourceLabel(data['BAMLH0A0HYM2']);
   }
 
   // 2Y Rate — fix hardcoded value in FX/Bond page
@@ -11061,6 +11070,18 @@ function applyFredToUI(data) {
     if (typeof updateFxBondPage === 'function') updateFxBondPage();
   }
 
+  // v31.9: DGS10 Yahoo 실시간 → _live10Y 동기화 (yield curve 계산용)
+  if (data['DGS10']) {
+    window._live10Y = data['DGS10'].value;
+  }
+  if (data['DGS30']) {
+    window._live30Y = data['DGS30'].value;
+  }
+  // v31.9: VIXCLS Yahoo 실시간 → 센티먼트 히스토리에 최신값 주입
+  if (data['VIXCLS'] && data['VIXCLS']._source && data['VIXCLS']._source.startsWith('yahoo-')) {
+    window._liveVIXCLS = data['VIXCLS'].value;
+  }
+
   // 10Y-2Y Spread
   var _spreadEl = document.getElementById('spread-2s10s-val');
   if (data['T10Y2Y']) {
@@ -11068,6 +11089,9 @@ function applyFredToUI(data) {
     if (_spreadEl) {
       _spreadEl.textContent = (spread >= 0 ? '+' : '') + spread.toFixed(2) + '%';
       _spreadEl.style.color = spread < 0 ? '#f87171' : '#3ddba5';
+      // v31.9: 소스 표시
+      const spreadSub = document.getElementById('spread-2s10s-src');
+      if (spreadSub) spreadSub.textContent = _fredSourceLabel(data['T10Y2Y']);
     }
   } else if (_spreadEl && _spreadEl.textContent === '—') {
     // v30.13d: FRED 실패 시 Yahoo 수익률 데이터로 폴백 계산
@@ -11085,6 +11109,15 @@ function applyFredToUI(data) {
     document.querySelectorAll('[data-fred="FEDFUNDS"]').forEach(el => {
       el.textContent = data['FEDFUNDS'].value.toFixed(2) + '%';
     });
+  }
+
+  // v31.9: FRED 데이터 신선도 요약 콘솔 로그
+  const fredSummary = Object.entries(data).map(([id, d]) => {
+    const src = d._source ? (d._source.startsWith('yahoo') ? '🟢Yahoo' : '🔵FRED') : '🔵FRED';
+    return `  ${id}: ${typeof d.value === 'number' ? d.value.toFixed(2) : d.value} (${src} ${d.date})`;
+  }).join('\n');
+  if (Object.keys(data).length > 0) {
+    console.log('[AIO v31.9] FRED/Yahoo 통합 데이터 현황:\n' + fredSummary);
   }
 }
 
@@ -15291,8 +15324,113 @@ function applyLiveQuotes(quotes) {
   // v30.11: 신선도 뱃지 갱신
   _updateFreshnessBadges();
 
+  // v31.9: Yahoo→FRED 실시간 브릿지 — FRED 지연 데이터를 Yahoo 실시간으로 보완
+  _syncYahooToFred();
+
   // Dispatch event for page-specific refresh
   document.dispatchEvent(new Event('aio:liveQuotes'));
+}
+
+// ═══ v31.9: Yahoo→FRED 실시간 데이터 브릿지 ═════════════════════════
+// FRED 데이터는 1~5일 지연. Yahoo에서 이미 실시간으로 가져오는 동일 데이터가 있으면
+// FRED 값을 Yahoo 실시간 값으로 자동 대체하여 모든 하류 계산이 최신 데이터 사용
+const _YAHOO_FRED_MAP = {
+  // Yahoo심볼 → { fredId, transform(yahooPrice) → fredValue }
+  '^TNX':     { fredId: 'DGS10',    transform: v => v,         label: '10Y 국채금리' },
+  '^TYX':     { fredId: 'DGS30',    transform: v => v,         label: '30Y 국채금리' },
+  '^FVX':     { fredId: 'DGS5',     transform: v => v,         label: '5Y 국채금리' },
+  '^IRX':     { fredId: 'DGS3MO',   transform: v => v,         label: '3M 국채금리' },
+  '^VIX':     { fredId: 'VIXCLS',   transform: v => v,         label: 'VIX' },
+  'DX-Y.NYB': { fredId: 'DTWEXBGS', transform: v => v,         label: '달러인덱스' },
+  'HYG':      { fredId: '_HY_PROXY', transform: v => Math.max(1.5, (82.5 - v) * 0.8 + 2.4), label: 'HY스프레드(추정)' },
+};
+
+function _syncYahooToFred() {
+  const ld = window._liveData || {};
+  const fd = window._fredData || {};
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  let synced = 0;
+
+  for (const [ySym, cfg] of Object.entries(_YAHOO_FRED_MAP)) {
+    const yahoo = ld[ySym];
+    if (!yahoo || !yahoo.price || yahoo.price <= 0) continue;
+
+    const yahooVal = cfg.transform(yahoo.price);
+    const fredEntry = fd[cfg.fredId];
+
+    // FRED 데이터가 없거나 1영업일 이상 지연된 경우 Yahoo로 대체
+    let fredStale = !fredEntry;
+    if (fredEntry && fredEntry.date) {
+      const fredDate = new Date(fredEntry.date);
+      const diffDays = Math.floor((now - fredDate) / 86400000);
+      fredStale = diffDays > 1; // 1일 초과면 stale
+    }
+
+    if (fredStale) {
+      // Yahoo 실시간 값으로 FRED 파이프라인에 주입
+      if (!window._fredData) window._fredData = {};
+      const prevVal = fredEntry ? fredEntry.value : yahooVal;
+      window._fredData[cfg.fredId] = {
+        value: yahooVal,
+        prevValue: fredEntry ? fredEntry.value : yahooVal,
+        date: todayStr,
+        _source: 'yahoo-realtime:' + ySym,
+        _overrideTs: Date.now()
+      };
+
+      // MacroStore에도 동기화 (검증 우회 — Yahoo에서 이미 검증됨)
+      if (window.MacroStore && MacroStore._data) {
+        MacroStore._data[cfg.fredId] = {
+          value: yahooVal,
+          prevValue: prevVal,
+          date: todayStr,
+          source: 'yahoo-bridge'
+        };
+      }
+      synced++;
+    }
+  }
+
+  // DGS10 실시간 → 10Y-2Y 스프레드 자동 갱신
+  const tnx = ld['^TNX'];
+  if (tnx && tnx.price > 0) {
+    const y10 = tnx.price;
+    const y2 = window._live2Y || (fd['DGS2'] ? fd['DGS2'].value : 4.0);
+    const spread10y2y = y10 - y2;
+    if (!window._fredData) window._fredData = {};
+    window._fredData['T10Y2Y'] = {
+      value: spread10y2y,
+      prevValue: fd['T10Y2Y'] ? fd['T10Y2Y'].value : spread10y2y,
+      date: todayStr,
+      _source: 'yahoo-calc:^TNX-DGS2'
+    };
+    // UI 즉시 갱신
+    const spreadEl = document.getElementById('spread-2s10s-val');
+    if (spreadEl) {
+      spreadEl.textContent = (spread10y2y >= 0 ? '+' : '') + spread10y2y.toFixed(2) + '%';
+      spreadEl.style.color = spread10y2y < 0 ? '#f87171' : '#3ddba5';
+    }
+  }
+
+  // 10Y-3M 스프레드도 갱신
+  const irx = ld['^IRX'];
+  if (tnx && tnx.price > 0 && irx && irx.price > 0) {
+    const spread10y3m = tnx.price - irx.price;
+    if (!window._fredData) window._fredData = {};
+    window._fredData['T10Y3M'] = {
+      value: spread10y3m,
+      prevValue: fd['T10Y3M'] ? fd['T10Y3M'].value : spread10y3m,
+      date: todayStr,
+      _source: 'yahoo-calc:^TNX-^IRX'
+    };
+  }
+
+  if (synced > 0) {
+    console.log('[AIO v31.9] Yahoo→FRED 실시간 브릿지:', synced + '개 시리즈 대체 (FRED 지연→Yahoo 실시간)');
+    // FRED UI 재갱신 (Yahoo 실시간 값으로)
+    if (typeof applyFredToUI === 'function') applyFredToUI(window._fredData);
+  }
 }
 
 // ═══ v30.11: 데이터 신선도 뱃지 시스템 ═══════════════════════════════

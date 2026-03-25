@@ -1,6 +1,6 @@
 {
-  "version": "v31.8",
+  "version": "v31.9",
   "built": "2026-03-26T00:00:00+09:00",
-  "note": "v31.8: 통합 — (1) 뉴스 소스 미국 중점 재설계(US 68%) + 키워드 3~5배 확장 + LLM 7개 심화 프레임워크 (2) 3-tier 데이터 검증 스토어(PriceStore/MacroStore/NewsStore) + DataHealth 파이프라인 모니터링",
+  "note": "v31.9: 데이터 최신성 대폭 개선 — Yahoo→FRED 실시간 브릿지로 국채금리/달러인덱스/VIX를 FRED 1~5일 지연 → 15분 실시간 대체, 10Y-2Y/10Y-3M 스프레드 실시간 자동 계산, 데이터 소스 추적(FRED vs Yahoo 실시간) 표시",
   "versioning": "x.y (31→31.1→31.2→...→31.9→32→32.1→...)"
 }
