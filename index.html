@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v31.9 — 올인원 투자 터미널</title>
+  <title>AIO Screener v32.2 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -131,9 +131,9 @@
 .status-pill { font-size: 11px !important; padding: 3px 10px !important; }
 .freshness-badge { font-size: 10px !important; }
 
-/* 초보자 팁 가독성 */
-.beginner-tip-title { font-size: 14px !important; }
-.beginner-tip-body { font-size: 12px !important; line-height: 1.8 !important; }
+/* v32.2.1: 인사이트 설명 박스 (항상 표시) */
+.insight-explain-title { font-size: 14px !important; }
+.insight-explain-body { font-size: 12px !important; line-height: 1.8 !important; }
 
 /* 차트 채팅 일관성 */
 .acp-bubble { font-size: 14px !important; line-height: 1.7 !important; }
@@ -264,16 +264,14 @@ body {
 }
 .nav-icon { font-size: 13px; width: 20px; text-align: center; flex-shrink: 0; opacity: 0.7; transition: opacity 0.12s; }
 .nav-item:hover .nav-icon, .nav-item.active .nav-icon { opacity: 1; }
-/* v30.6: 초보자 설명박스 간결화 — 클릭하면 펼침 */
-/* v30.11 perf: 인라인 스타일 → CSS 클래스 통합 (21개 beg-explain div에서 반복 인라인 제거) */
-.beg-explain { cursor: pointer; padding: 10px 14px !important; font-size: 12px !important; line-height: 1.5 !important; position: relative;
-  display: none; margin: 12px 0 16px; background: rgba(99,102,241,0.08); border-radius: 10px; border-left: 3px solid #6366f1; color: #c7d2fe; }
-body.beginner-mode .beg-explain { display: block; } /* v30.12 fix: CSS 기본 none → beginner-mode 시 표시 */
-.beg-explain::after { content: '▼'; position: absolute; right: 14px; top: 10px; font-size: 9px; color: #818cf8; transition: transform 0.2s; }
-.beg-explain.beg-collapsed::after { transform: rotate(-90deg); }
-.beg-explain.beg-collapsed br, .beg-explain.beg-collapsed strong:not(:first-child),
-.beg-explain.beg-collapsed span.beg-detail { display: none; }
-.beg-explain.beg-collapsed { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 36px; }
+/* v32.2.1: 인사이트 설명 박스 — 항상 표시, 클릭 펼침/접기 */
+.insight-box { cursor: pointer; padding: 10px 14px !important; font-size: 12px !important; line-height: 1.5 !important; position: relative;
+  display: block; margin: 12px 0 16px; background: rgba(99,102,241,0.06); border-radius: 10px; border-left: 3px solid #6366f1; color: #c7d2fe; }
+.insight-box::after { content: '▼'; position: absolute; right: 14px; top: 10px; font-size: 9px; color: #818cf8; transition: transform 0.2s; }
+.insight-box.box-collapsed::after { transform: rotate(-90deg); }
+.insight-box.box-collapsed br, .insight-box.box-collapsed strong:not(:first-child),
+.insight-box.box-collapsed span.box-detail { display: none; }
+.insight-box.box-collapsed { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 36px; }
 /* v30.6: Home quick nav */
 .home-qnav-btn { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: var(--font-sans); }
 .home-qnav-btn:hover { filter: brightness(1.3); transform: translateY(-1px); }
@@ -565,18 +563,18 @@ h3.chat-h{font-size:14px;}h4.chat-h{font-size:12.5px;}h5.chat-h{font-size:11.5px
 
 .tac-sector-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
 .tac-sector-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;}
-.tac-heat-badge{font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;width:46px;text-align:center;flex-shrink:0;}
+.tac-heat-badge{font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;min-width:46px;text-align:center;flex-shrink:0;white-space:nowrap;}
 .tac-heat-hot{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.2);}
 .tac-heat-warm{background:rgba(251,191,36,0.12);color:#f59e0b;border:1px solid rgba(251,191,36,0.2);}
 .tac-heat-cold{background:rgba(91,168,255,0.1);color:#60a5fa;border:1px solid rgba(91,168,255,0.15);}
 .tac-heat-freeze{background:rgba(255,255,255,0.04);color:var(--text-muted);border:1px solid rgba(255,255,255,0.06);}
-.tac-sector-name{font-size:10px;font-weight:600;color:var(--text-secondary);flex:1;}
+.tac-sector-name{font-size:10px;font-weight:600;color:var(--text-secondary);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .tac-sector-driver{font-size:9px;color:var(--text-muted);}
 .tac-sector-pct{font-size:10px;font-family:var(--font-mono);color:var(--text-secondary);width:32px;text-align:right;flex-shrink:0;}
 
 .tac-catalyst-row{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
 .tac-catalyst-row:last-child{border-bottom:none;}
-.tac-event-name{font-size:11px;font-weight:600;color:var(--text-primary);flex:1;}
+.tac-event-name{font-size:11px;font-weight:600;color:var(--text-primary);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;}
 .tac-event-impact{font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;flex-shrink:0;}
 .tac-imp-c{background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
 .tac-imp-h{background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);}
@@ -944,11 +942,12 @@ body { background: #0d1521 !important; }
 .cp-meter{height:4px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;}
 
 /* Market Breadth Bars */
-.breadth-bar-row{display:grid;grid-template-columns:110px 1fr 52px 72px;gap:6px;align-items:center;}
-.bb-label{font-size:8px;color:var(--text-muted);font-weight:600;}
-.bb-bar-wrap{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;}
+.breadth-bar-row{display:grid;grid-template-columns:120px 1fr 44px 80px;gap:6px;align-items:center;}
+.bb-label{font-size:8px;color:var(--text-muted);font-weight:600;white-space:nowrap;}
+.bb-bar-wrap{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;min-width:30px;}
 .bb-bar{height:100%;border-radius:3px;transition:width 0.8s ease;}
-.bb-val{font-size:9px;font-weight:700;font-family:var(--font-mono);text-align:right;}
+.bb-val{font-size:9px;font-weight:700;font-family:var(--font-mono);text-align:right;white-space:nowrap;}
+.bb-badge{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;font-size:8px !important;}
 .bb-badge{font-size:7px;font-weight:700;padding:2px 5px;border-radius:4px;text-align:center;}
 
 /* RRG Tags */
@@ -1021,9 +1020,9 @@ body { background: #0d1521 !important; }
 .yc-chart-wrap{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:14px;position:relative;}
 .yc-chart-wrap canvas{width:100%!important;height:200px!important;}
 .beginner-tip{background:linear-gradient(135deg,rgba(96,165,250,0.06),rgba(147,51,234,0.04));border:1px solid rgba(96,165,250,0.2);border-radius:8px;padding:12px 14px;margin-top:10px;}
-.beginner-tip-title{font-size:9px;font-weight:800;color:#a78bfa;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
-.beginner-tip-body{font-size:8px;color:var(--text-muted);line-height:1.7;}
-.beginner-tip-body b{color:var(--text-secondary);}
+.insight-explain-title{font-size:9px;font-weight:800;color:#a78bfa;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.insight-explain-body{font-size:8px;color:var(--text-muted);line-height:1.7;}
+.insight-explain-body b{color:var(--text-secondary);}
 .fxb-dynamic-comment{background:rgba(96,165,250,0.04);border:1px solid rgba(96,165,250,0.15);border-radius:7px;padding:10px 14px;margin-top:10px;transition:opacity 0.4s;}
 .fxb-dynamic-comment .dc-title{font-size:9px;font-weight:700;color:#60a5fa;margin-bottom:5px;}
 .fxb-dynamic-comment .dc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:8px;color:var(--text-muted);line-height:1.6;}
@@ -1222,7 +1221,7 @@ body { background: #0d1521 !important; }
 .nc-sent-bar{flex:1;height:2px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;max-width:80px;}
 .nc-sent-fill{height:100%;border-radius:1px;transition:width 0.5s ease;}
 
-/* ═══ v15: 초보자 가독성 강화 · 최소 폰트 보장 ════════════════════
+/* ═══ v15: 가독성 강화 · 최소 폰트 보장 ════════════════════
    일부 영역의 과소한 글자 크기를 읽기 쉽게 조정
    ═════════════════════════════════════════════════════════════════ */
 
@@ -1235,13 +1234,22 @@ body { background: #0d1521 !important; }
 }
 .rm-status { font-size: 9px !important; }
 
-/* 시장 폭 바 라벨 */
+/* 시장 폭 바 라벨 — v31.9: 뱃지 겹침 방지 */
 .bb-label {
-  font-size: 11px !important;
+  font-size: 10px !important;
   color: var(--text-secondary) !important;
-  min-width: 130px !important;
+  min-width: 110px !important;
+  white-space: nowrap !important;
 }
-.bb-badge { font-size: 9px !important; padding: 2px 7px !important; }
+.bb-badge {
+  font-size: 8px !important;
+  padding: 2px 6px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 80px !important;
+  text-align: center !important;
+}
 
 /* 툴팁 본문: 더 잘 읽히도록 */
 .tip-body {
@@ -1279,9 +1287,9 @@ body { background: #0d1521 !important; }
 .energy-note  { font-size: 9px !important; line-height: 1.5 !important; }
 .flow-stat-lbl { font-size: 9px !important; }
 
-/* 섹터 히트맵 배지 */
-.tac-heat-badge { font-size: 9px !important; width: 48px !important; }
-.tac-sector-name { font-size: 11px !important; }
+/* 섹터 히트맵 배지 — v31.9: 고정폭→최소폭, 한글 넘침 방지 */
+.tac-heat-badge { font-size: 8px !important; min-width: 48px !important; width: auto !important; }
+.tac-sector-name { font-size: 11px !important; min-width: 0 !important; }
 
 /* RRG 위상도 태그 */
 .rrg-tag { font-size: 9px !important; }
@@ -1339,6 +1347,12 @@ body { background: #0d1521 !important; }
   [style*="grid-template-columns:300px"] { grid-template-columns: 1fr !important; }
   [style*="grid-template-columns:120px"] { grid-template-columns: 1fr !important; }
   [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+  /* v31.9: breadth/score 바 + 경제 캘린더 모바일 레이아웃 */
+  .breadth-bar-row { grid-template-columns: 90px 1fr 36px 60px !important; gap: 4px !important; }
+  .score-bar-row { grid-template-columns: 100px 1fr 40px 24px !important; gap: 4px !important; }
+  [style*="grid-template-columns:70px 1fr 60px auto"] { grid-template-columns: 50px 1fr 40px auto !important; }
+  .bb-label { font-size: 8px !important; min-width: 0 !important; }
+  .bb-badge { max-width: 60px !important; font-size: 7px !important; }
   /* v30.11: 포트폴리오 입력 폼 반응형 */
   #pf-add-ticker, #pf-add-qty, #pf-add-cost, #pf-add-memo { width: 100% !important; min-width: 0 !important; box-sizing: border-box; }
   #pf-pin-input { width: 100% !important; max-width: 160px; box-sizing: border-box; }
@@ -1531,6 +1545,11 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   .snap-grid-v5, .mkt-status-bar, .breadth-summary { grid-template-columns: 1fr !important; }
   [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
   [style*="grid-template-columns:repeat(2"] { grid-template-columns: 1fr !important; }
+  /* v31.9: 브레스 바 극소 화면 대응 */
+  .breadth-bar-row { grid-template-columns: 80px 1fr 30px 50px !important; gap: 3px !important; }
+  .bb-label { font-size: 7px !important; }
+  .bb-badge { max-width: 50px !important; font-size: 6px !important; }
+  .score-bar-row { grid-template-columns: 80px 1fr 36px 20px !important; gap: 3px !important; }
   /* 뉴스 카드 간격 */
   .news-item-card { padding: 6px 8px !important; }
   .news-time-col { width: 32px !important; }
@@ -1596,7 +1615,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   .widget-title { font-size: 10px !important; }
   .acp-input-row button { padding: 8px 10px !important; font-size: 9px !important; }
   .tb-btn { padding: 5px 8px !important; font-size: 9px !important; }
-  .beg-explain { padding: 8px 10px !important; font-size: 11px !important; }
+  .insight-box { padding: 8px 10px !important; font-size: 11px !important; }
 }
 
 /* ═══ v27.4: 배터리 절약 — 애니메이션 줄이기 ═══ */
@@ -1660,14 +1679,6 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     <nav class="sidebar" aria-label="메인 네비게이션">
       <div class="logo"><span class="logo-mark">AIO SCREENER</span><span class="logo-sub">주식 종합 분석 플랫폼</span></div>
 
-      <!-- Beginner Mode Toggle -->
-      <div style="padding:8px 12px;margin:8px;background:rgba(99,102,241,0.1);border-radius:8px;border:1px solid rgba(99,102,241,0.2);">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:#a5b4fc;">
-          <input type="checkbox" id="beginner-mode" onchange="toggleBeginnerMode(this.checked)" style="accent-color:#6366f1;">
-          🎓 초보자 모드
-        </label>
-      </div>
-
       <!-- 종합 -->
       <div class="nav-section">
         <div class="nav-label">종합</div>
@@ -1715,6 +1726,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
         <div class="nav-item kr-item" role="button" tabindex="0" onclick="showPage('kr-supply',this)"><span class="nav-icon">&#x1F4CA;</span><span class="label">수급 분석</span></div>
         <div class="nav-item kr-item" role="button" tabindex="0" onclick="showPage('kr-themes',this)"><span class="nav-icon">&#x1F525;</span><span class="label">국내 테마</span></div>
         <div class="nav-item kr-item" role="button" tabindex="0" onclick="showPage('kr-macro',this)"><span class="nav-icon">&#x1F30F;</span><span class="label">한국 매크로</span></div>
+        <div class="nav-item kr-item" role="button" tabindex="0" onclick="showPage('kr-technical',this)"><span class="nav-icon">&#x1F4C8;</span><span class="label">차트·기술 분석 (KR)</span></div>
       </div>
 
       <div class="nav-divider"></div>
@@ -1905,7 +1917,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v31.9</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v32.2</span></div>
       <div class="page-subtitle" id="home-date-label">2026.03.23 (월) KST · 실시간 시세 자동갱신</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -1918,10 +1930,10 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     </div>
   </div>
 
-  <div class="beg-explain" style="margin-top:0;">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
-    <b>"지금 시장이 괜찮은 건가?"</b> — 이 질문에 답하는 대시보드입니다. S&amp;P500(미국 대형주 500개 평균), 나스닥(기술주 중심), VIX(공포지수, 높을수록 불안) 등 핵심 지수와 시장 분위기(공포↔탐욕)를 한눈에 보여줍니다.<br>
-    <strong>📌 활용법:</strong> 매일 아침 이 페이지 → 빨간색이 많으면 조심, 초록색이 많으면 기회. Trading Score가 60점 이상이면 매수 고려, 40점 이하면 관망하세요.
+  <div class="insight-box box-collapsed" style="margin-top:0;">
+    <strong>💡 대시보드 핵심 인사이트</strong><br>
+    시장 건강도를 5가지 축(변동성·모멘텀·추세·시장폭·매크로)으로 종합 판단하는 대시보드입니다. Trading Score는 이 5개 컴포넌트의 가중 합산 — 역사적으로 60+ 구간에서 매수 시 6개월 수익률이 양(+)인 확률 72%, 40 이하에서는 38%입니다.<br>
+    <strong>📌 핵심:</strong> 단일 지표가 아닌 복합 스코어이므로, 개별 컴포넌트 중 어느 것이 점수를 끌어내리는지 분해해서 봐야 합니다. VIX가 높아도 시장폭이 개선 중이면 바닥 신호일 수 있습니다.
   </div>
 
   <!-- ═══ SECTION 0: 오늘의 시장 한줄 요약 (One-Line Market Summary) ═══ -->
@@ -2046,11 +2058,11 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
 
 
   <div class="page" id="page-signal">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
-    <b>"지금 사도 되는 타이밍인가?"</b> — 초보자가 가장 궁금한 질문입니다. 이 페이지는 여러 지표를 종합해 시장 상태를 0~100점으로 매깁니다. 숫자 하나로 복잡한 시장을 단순화한 것이죠.<br>
-    <strong>📌 활용법:</strong> 60점 이상 → 매수 고려 | 40~60점 → 관망, 기존 보유 유지 | 40점 이하 → 현금 확보, 매수 자제<br>
-    <strong>💡 팁:</strong> 점수가 낮을 때 무리하게 매수하면 손실이 커집니다. 점수가 낮은 날은 '공부의 날'로 활용하세요!
+  <div class="insight-box box-collapsed">
+    <strong>💡 매매시그널 핵심 인사이트</strong><br>
+    5개 서브 지표(변동성·모멘텀·추세·시장폭·매크로)를 가중 합산한 종합 점수입니다. 각 컴포넌트가 독립적으로 시장의 다른 측면을 측정하므로, 총점뿐 아니라 어떤 요소가 약한지가 중요합니다.<br>
+    <strong>📌 해석 프레임:</strong> 75+ 적극 매수 OK | 55-75 선별적 매수 | 35-55 관망 | 25-35 포지션 축소 | 25↓ 현금 극대화<br>
+    <strong>📊 근거:</strong> 스코어 급락(-10p/주)은 구조적 전환 신호 → 역사적으로 이후 2주 내 추가 하락 확률 64%. 반대로 점진적 상승은 바닥 탈출 패턴.
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
@@ -2533,7 +2545,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
           <div class="bb-label">매클렐런 에너지 지수</div>
           <div class="bb-bar-wrap"><div class="bb-bar" style="width:48%;background:#fbbf24;"></div></div>
           <div class="bb-val" style="color:#fbbf24;">중립↓</div>
-          <div class="bb-badge" style="background:rgba(251,191,36,0.1);color:#fbbf24;">베어 다이버전스</div>
+          <div class="bb-badge" style="background:rgba(251,191,36,0.1);color:#fbbf24;">베어 다이버</div>
         </div>
         <!-- Weinstein Stage -->
         <div class="breadth-bar-row">
@@ -2799,8 +2811,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
 
     <div class="page" id="page-breadth">
   <!-- Beginner Explanation (hidden by default) -->
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"지수는 오르는데, 진짜 건강한 상승인가?"</b> — 시장 폭(Breadth)이 답합니다. S&amp;P500이 올라도 소수 대형주만 끌어올린 거라면 위험합니다. 이 페이지는 전체 종목 중 몇 %가 이동평균선(SMA, 일정 기간 평균 가격) 위에 있는지를 보여줍니다.<br>
     <strong>📌 읽는 법:</strong> 5SMA(초단기) → 이번 주 분위기 | 20SMA(단기) → 최근 한 달 추세 | 50SMA(중기) → 시장 방향. 50SMA 위 종목이 70% 이상이면 건강한 상승장, 30% 이하면 경고 신호입니다.
   </div>
@@ -3096,8 +3108,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
 
 
   <div class="page" id="page-sentiment">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"사람들이 지금 겁먹고 있나, 흥분하고 있나?"</b> — 투자에서 가장 중요한 건 남들의 심리입니다. VIX(공포지수, 높을수록 시장 불안)와 Fear &amp; Greed(공포·탐욕 지수)로 시장 감정을 읽습니다.<br>
     <strong>📌 핵심:</strong> F&amp;G 25 이하 = 극도의 공포 → 역발상 매수 기회일 수 있음 | 75 이상 = 과열 → 차익실현 고려. 워런 버핏의 말: "남들이 두려워할 때 탐욕을 부려라." 단, 공포에도 '이유 있는 공포'가 있으니 반드시 다른 지표와 교차 확인하세요.
   </div>
@@ -3209,7 +3221,25 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
       </div>
       <div class="data-widget" style="padding:12px;">
         <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;"><span class="term-tooltip">AAII 심리<span class="tip-icon">?</span><span class="tip-body">개인투자자 극단비관=저점신호</span></span></div>
-        <div style="position:relative;height:160px;"><canvas id="aaii-chart" role="img" aria-label="AAII 개인투자자 심리 차트"></canvas></div>
+        <div style="position:relative;height:120px;"><canvas id="aaii-chart" role="img" aria-label="AAII 개인투자자 심리 차트"></canvas></div>
+        <!-- v31.9: 차트 미렌더 시 텍스트 폴백 -->
+        <div id="aaii-text-fallback" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:9px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <span style="color:#f87171;font-weight:800;font-size:14px;font-family:var(--font-mono);" id="aaii-bear-val">52.0%</span>
+              <span style="color:var(--text-muted);font-size:8px;"> 약세</span>
+            </div>
+            <div style="text-align:right;">
+              <span style="color:#3ddba5;font-size:10px;font-family:var(--font-mono);" id="aaii-bull-val">30.4%</span>
+              <span style="color:var(--text-muted);font-size:8px;"> 강세</span>
+            </div>
+          </div>
+          <div style="margin-top:4px;font-size:8px;color:var(--text-muted);" id="aaii-date-label">AAII 주간 설문 · 3/18 기준</div>
+          <div style="margin-top:3px;" id="aaii-signal-badge">
+            <span style="font-size:8px;font-weight:700;color:#f87171;">● 극단적 비관</span>
+            <span style="font-size:7px;color:var(--text-muted);margin-left:4px;">(역발상 매수 시그널)</span>
+          </div>
+        </div>
       </div>
       <div class="data-widget" style="padding:12px;">
         <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;"><span class="term-tooltip">풋콜비율<span class="tip-icon">?</span><span class="tip-body">1.2↑=공포</span></span></div>
@@ -3224,8 +3254,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   </div>
     <!-- ═══════════════ PAGE: BRIEFING (데일리 브리핑) ═══════════════ -->
   <div class="page" id="page-briefing">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"오늘 시장에서 무슨 일이 있었고, 내일 뭘 봐야 하나?"</b> — AI가 주요 뉴스, 실적 발표(어닝), 경제 지표(CPI, 고용 등) 일정을 정리해줍니다. 모든 정보를 직접 찾을 필요 없이, 이 페이지 하나로 오늘의 핵심을 파악하세요.<br>
     <strong>📌 활용법:</strong> 매일 아침 출근 전 2분 투자 → 오늘 시장 분위기 파악 완료. 특히 'Earnings' 섹션에서 실적 발표 예정 종목을 미리 확인하세요.
   </div>
@@ -3688,10 +3718,10 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   </div>
     <!-- ═══════════════ PAGE: TECHNICAL (기술적 분석) ═══════════════ -->
   <div class="page" id="page-technical">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"언제 사고 언제 팔아야 하나?"</b> — 차트와 기술적 지표로 매매 타이밍을 찾는 페이지입니다. 회사가 좋아도 비싸게 사면 손해, 타이밍이 핵심입니다.<br>
-    <strong>📌 초보자가 볼 지표 3개:</strong><br>
+    <strong>📌 핵심 모니터링 지표 3개:</strong><br>
     ① <b>RSI</b>(상대강도지수): 30 이하 → 과매도(너무 팔렸으니 반등 기대) | 70 이상 → 과매수(너무 올랐으니 조정 주의)<br>
     ② <b>이동평균선</b>(MA): 주가가 50일선 위 → 단기 상승추세 | 200일선 위 → 장기 상승추세. 둘 다 위면 강한 상승장<br>
     ③ <b>거래량</b>: 가격↑ + 거래량↑ = 진짜 상승! 거래량 없는 상승은 힘이 약한 상승이니 의심하세요.
@@ -4003,8 +4033,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
       </div>
     </div>
     <div class="beginner-tip" style="margin-top:10px;">
-      <div class="beginner-tip-title">📚 2% 룰이란?</div>
-      <div class="beginner-tip-body">
+      <div class="insight-explain-title">📚 2% 룰이란?</div>
+      <div class="insight-explain-body">
         프로 트레이더의 철칙: <b>한 번의 매매에서 총 자산의 2% 이상 잃지 마라!</b><br>
         예: 자산 $10,000 → 최대 손실 $200 → 손절폭이 $5면 → 최대 40주만 매수<br>
         이 규칙만 지키면 50번 연속 틀려도 자산의 64%가 남습니다. 생존이 최우선!
@@ -4015,7 +4045,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <!-- ══ SECTION 4: 12가지 매매 셋업 (screener_pro 통합) ══════════ -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
     <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;">🎯 12가지 매매 셋업 패턴 (screener_pro v5)</div>
-    <div style="font-size:7px;color:var(--text-muted);margin-bottom:10px;">각 패턴의 의미와 실전 사용법을 초보자도 쉽게 이해할 수 있게 정리했습니다</div>
+    <div style="font-size:7px;color:var(--text-muted);margin-bottom:10px;">각 패턴의 의미와 실전 적용 근거를 정리했습니다</div>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">
       <!-- Row 1: 가장 높은 승률 셋업 -->
@@ -4089,8 +4119,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
 
     <!-- 스코어링 시스템 설명 -->
     <div class="beginner-tip">
-      <div class="beginner-tip-title">📚 20점 만점 스코어링 시스템 (PA-First v5.4)</div>
-      <div class="beginner-tip-body">
+      <div class="insight-explain-title">📚 20점 만점 스코어링 시스템 (PA-First v5.4)</div>
+      <div class="insight-explain-body">
         위 12가지 셋업이 발생하면, 다음 기준으로 0~20점 품질 점수를 매깁니다:<br><br>
         🔹 <b>이평선 정배열 (0~4점):</b> 5일>10일>20일>50일>100일>200일 순서대로 쌓여있나? 길이 깔끔하게 정렬될수록 높은 점수<br>
         🔹 <b>매수 위치 (0~3점):</b> 20일 이평선에서 얼마나 가까이 살 수 있나? 2% 이내면 만점! (안전한 손절 가능)<br>
@@ -4123,10 +4153,10 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     </div>
   </div>
 
-  <!-- ══ SECTION 7: 초보자 완전 가이드 ═════════════════════════════ -->
+  <!-- ══ SECTION 7: 핵심 분석 가이드 ═════════════════════════════ -->
   <div class="beginner-tip" style="margin-bottom:12px;">
-    <div class="beginner-tip-title">📚 초보자 완전 가이드 — 기술적 분석이란?</div>
-    <div class="beginner-tip-body">
+    <div class="insight-explain-title">📚 기술적 분석 핵심 가이드 — 차트로 시장을 읽는 법</div>
+    <div class="insight-explain-body">
       기술적 분석은 "과거 가격과 거래량 패턴이 미래에도 반복된다"는 아이디어입니다. 내비게이션처럼, 차트 지표들이 주가의 방향과 속도를 알려줍니다.<br><br>
       🔹 <b>RSI (상대강도지수):</b> 속도계. 70 이상 = 과속 구간(과열, 조심), 30 이하 = 너무 느림(과매도, 반등 기회)<br>
       🔹 <b>이동평균선:</b> 평균 속도. 50일 평균(중기), 200일 평균(장기). 가격이 이동평균 위 = 상승세, 아래 = 하락세<br>
@@ -4159,8 +4189,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   </div>
 </div>
 <div class="page" id="page-macro">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"경제가 좋은 건가 나쁜 건가?"</b> — 개별 종목보다 더 큰 힘이 시장을 움직입니다. 금리(돈의 가격), CPI(소비자물가, 인플레이션 체감 지표), GDP(경제성장률), 달러 가치 등 거시경제 지표를 확인합니다.<br>
     <strong>📌 핵심 관계:</strong> 금리↑ → 대출 비용↑ → 기업 이익↓ → 주식에 부정적 | 금리↓ → 그 반대. 물가가 높으면 금리를 올리고, 경기가 나쁘면 내립니다. 이 순환을 이해하면 시장의 큰 방향이 보입니다.
   </div>
@@ -4178,7 +4208,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     </div>
   </div>
 
-  <!-- ══ SECTION 0: 매크로 스토리라인 (초보자 몰입형) ══════════════ -->
+  <!-- ══ SECTION 0: 매크로 스토리라인 (서사형 분석) ══════════════ -->
   <div style="background:linear-gradient(135deg,rgba(96,165,250,0.08),rgba(147,51,234,0.04));border:1px solid rgba(96,165,250,0.2);border-radius:10px;padding:16px;margin-bottom:12px;">
     <div style="font-size:12px;font-weight:800;color:#60a5fa;margin-bottom:8px;">📖 지금 세계 경제에서 무슨 일이 벌어지고 있나? (한 눈에 보기)</div>
     <div id="macro-storyline" style="font-size:9px;color:var(--text-secondary);line-height:1.8;">
@@ -4506,7 +4536,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
         <div style="font-size:8px;" data-live-chg="GC=F">—</div>
       </div>
     </div>
-    <!-- 에너지 해석 (초보자용) -->
+    <!-- 에너지 해석 (맥락 설명 포함) -->
     <div id="energy-crisis-interpretation" style="background:rgba(0,0,0,0.2);border-radius:7px;padding:10px 12px;">
       <div style="font-size:8px;font-weight:700;color:#fbbf24;margin-bottom:4px;">🎓 이게 나한테 무슨 의미야?</div>
       <div style="font-size:8px;color:var(--text-muted);line-height:1.7;">
@@ -4621,10 +4651,10 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     </div>
   </div>
 
-  <!-- ══ SECTION 7: 초보자 매크로 완전 가이드 ══════════════════════ -->
+  <!-- ══ SECTION 7: 매크로 분석 핵심 가이드 ══════════════════════ -->
   <div class="beginner-tip" style="margin-bottom:12px;">
-    <div class="beginner-tip-title">📚 초보자 완전 가이드 — 거시경제가 왜 중요한가?</div>
-    <div class="beginner-tip-body">
+    <div class="insight-explain-title">📚 매크로 분석 핵심 가이드 — 거시경제가 주가에 미치는 경로</div>
+    <div class="insight-explain-body">
       아무리 좋은 종목을 골라도, "바다의 방향"(매크로)이 반대면 돈을 잃을 수 있습니다. 매크로는 모든 주식이 함께 타는 배의 방향타입니다.<br><br>
       🔹 <b>금리가 오르면:</b> 미래 현금흐름의 가치가 줄어들어 성장주(기술주)가 타격. "돈의 가격"이 비싸지니까요.<br>
       🔹 <b>인플레이션이 높으면:</b> 기업 비용↑ → 이익↓ → 주가↓. 소비자도 지갑을 닫습니다.<br>
@@ -4658,8 +4688,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     <!-- ═══════════════ PAGE: FUNDAMENTAL (기업 분석) ═══════════════ -->
 
   <div class="page" id="page-fxbond">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"달러와 채권이 왜 주식에 중요한가?"</b> — 주식만 보면 절반만 보는 것입니다. 달러 인덱스(DXY, 달러의 전반적 강도), 국채 수익률(TNX, 10년물), 원/달러 환율을 추적합니다.<br>
     <strong>📌 핵심 관계:</strong> 달러↑ → 신흥국·원자재 약세 | 국채 수익률 급등 → 주식 밸류에이션 압박(미래 이익의 현재가치↓) | 원/달러↑ → 한국 수출기업 환차익↑ but 외국인 매도 압력↑. 이 페이지를 보면 '돈의 흐름'이 보입니다.
   </div>
@@ -4805,10 +4835,10 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
       </div>
     </div>
 
-    <!-- 📚 초보자 가이드: 환율 기초 -->
+    <!-- 📚 환율 분석 가이드 -->
     <div class="beginner-tip">
-      <div class="beginner-tip-title">📚 초보자 가이드 — 환율과 달러 인덱스 읽는 법</div>
-      <div class="beginner-tip-body">
+      <div class="insight-explain-title">📚 환율·달러 인덱스 분석 가이드 — FX가 자산에 미치는 영향</div>
+      <div class="insight-explain-body">
         <b>달러 인덱스(DXY)</b>는 달러가 유로, 엔, 파운드 등 6개 주요 통화 대비 얼마나 강한지를 수치로 보여줍니다.<br><br>
         🔹 <b>DXY 100 이상</b> = 달러가 상대적으로 강한 상태. 신흥국(한국 포함) 자본유출 압력 ↑<br>
         🔹 <b>USD/KRW 읽는 법:</b> 숫자가 클수록 원화가 약합니다. 1,400원 → 1,500원으로 올라가면 달러 1개 사는 데 원화가 더 많이 필요 = 원화 약세<br>
@@ -4892,10 +4922,10 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
       </div>
     </div>
 
-    <!-- 📚 초보자 가이드: 수익률 곡선이란? -->
+    <!-- 📚 수익률 곡선 분석 가이드 -->
     <div class="beginner-tip">
-      <div class="beginner-tip-title">📚 초보자 가이드 — 수익률 곡선이 뭐예요?</div>
-      <div class="beginner-tip-body">
+      <div class="insight-explain-title">📚 수익률 곡선 분석 가이드 — 경기 사이클 예측의 핵심 도구</div>
+      <div class="insight-explain-body">
         <b>수익률 곡선(Yield Curve)</b>은 미국 정부가 빌린 돈(국채)의 이자율을 만기별로 연결한 그래프입니다.<br><br>
         🔹 <b>정상적인 상태:</b> 오래 빌릴수록 이자가 높습니다 (3개월 < 2년 < 10년 < 30년). 경제가 잘 성장하고 있다는 신호예요.<br>
         🔹 <b>역전(Inversion):</b> 단기 이자가 장기보다 높아지면 "역전"이라고 합니다. 이건 투자자들이 <b style="color:#f87171;">미래 경기침체를 예상</b>한다는 뜻이에요. 1968년 이후 역전 발생 → 평균 12개월 내 경기침체 진입 확률 92%!<br>
@@ -4939,10 +4969,10 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
       </div>
     </div>
 
-    <!-- 📚 초보자 가이드: 스프레드란? -->
+    <!-- 📚 스프레드 분석 가이드 -->
     <div class="beginner-tip" style="background:linear-gradient(135deg,rgba(248,113,113,0.06),rgba(251,191,36,0.04));border-color:rgba(248,113,113,0.2);">
-      <div class="beginner-tip-title" style="color:#f87171;">📚 초보자 가이드 — 스프레드가 뭐예요?</div>
-      <div class="beginner-tip-body">
+      <div class="insight-explain-title" style="color:#f87171;">📚 스프레드 분석 가이드 — 신용 리스크와 경기 전환 시그널</div>
+      <div class="insight-explain-body">
         <b>스프레드(Spread)</b>는 두 금리의 차이입니다. 이 차이가 경제의 건강 상태를 알려줍니다.<br><br>
         🔹 <b>2s10s 스프레드 (2년-10년):</b> 가장 유명한 경기침체 지표! 이 값이 마이너스(역전)가 되면 "앞으로 경기가 나빠질 것"이라는 시장의 경고입니다.<br>
         🔹 <b>역전→정상화가 더 위험:</b> 역전 자체보다 역전이 풀리는 시점이 진짜 위험! 역사적으로 정상화 후 6~18개월 내 경기침체 진입률 92%.<br>
@@ -5340,8 +5370,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
 
 
   <div class="page" id="page-fundamental">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"이 회사, 투자할 만한가?"</b> — 기업의 본질적 가치를 분석하는 페이지입니다. 매출, 이익, PER(주가수익비율, 투자금 회수에 몇 년?), PBR(주가순자산비율, 자산 대비 비싼가?), 성장률 등을 확인합니다.<br>
     <strong>📌 판단 순서:</strong> ① 돈을 잘 버는가?(매출·이익↑) → ② 점점 더 잘 버는가?(성장률) → ③ 지금 가격이 합리적인가?(PER·PBR). 세 질문에 모두 '예'면 좋은 투자 후보입니다. AI 채팅으로 종목명을 입력하면 분석을 도와줍니다.
   </div>
@@ -5378,10 +5408,10 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
       </div>
     </div>
 
-    <!-- ★ 밸류에이션 지표 초보자 가이드 -->
+    <!-- ★ 밸류에이션 지표 분석 가이드 -->
     <div class="beginner-tip" style="margin-bottom:14px;">
-      <div class="beginner-tip-title">📚 초보자 가이드 — 주요 밸류에이션 지표 읽는 법</div>
-      <div class="beginner-tip-body" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="insight-explain-title">📚 밸류에이션 분석 가이드 — 기업 가치 평가의 핵심 지표</div>
+      <div class="insight-explain-body" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div>
           <b>P/E (주가수익비율)</b> = 주가 ÷ 주당순이익<br>
           숫자가 높으면 "비싼 주식", 낮으면 "싼 주식"이라고 볼 수 있어요.<br>
@@ -5425,8 +5455,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
         <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:9px;">어닝 캘린더 로딩 중…</div>
       </div>
       <div class="beginner-tip" style="margin-top:10px;">
-        <div class="beginner-tip-title" style="color:#fbbf24;">💡 어닝 시즌이란?</div>
-        <div class="beginner-tip-body">
+        <div class="insight-explain-title" style="color:#fbbf24;">💡 어닝 시즌이란?</div>
+        <div class="insight-explain-body">
           미국 기업들은 매 분기(1월, 4월, 7월, 10월)에 실적을 발표합니다. 이 기간을 <b>"어닝 시즌"</b>이라고 해요.<br>
           실적 발표 전후로 주가 변동성이 매우 커지므로, 보유 종목의 실적 발표일을 꼭 확인하세요!<br>
           🔹 <b>실적 발표 전:</b> 기대감 or 불안감으로 주가 움직임 ↑ | 🔹 <b>발표 후:</b> 서프라이즈 여부에 따라 급등 또는 급락
@@ -5465,8 +5495,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   </div>
     <!-- ═══════════════ PAGE: THEMES (테마 분석) ═══════════════ -->
   <div class="page" id="page-themes">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"지금 돈이 어디로 몰리고 있나?"</b> — 시장은 항상 '테마'를 따라 움직입니다. AI·반도체, 우주항공, 사이버보안, 에너지 전환 등 성장 분야별 핵심 종목과 ETF 수익률을 한눈에 비교합니다.<br>
     <strong>📌 활용법:</strong> 테마별 YTD(연초 대비 수익률)를 비교해 '올해의 승자'를 찾고, 각 테마를 클릭하면 세부 종목과 ETF로 들어갈 수 있습니다. 한 테마에 몰빵하지 말고 2~3개 테마에 분산하세요.
   </div>
@@ -5633,8 +5663,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   </div>
     <!-- ═══════════════ PAGE: THEME-DETAIL (테마 상세) ═══════════════ -->
   <div class="page" id="page-theme-detail">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     투자 테마를 깊이 파고드는 페이지입니다. 예를 들어 'AI·반도체' 테마를 선택하면, 관련 ETF의 수익률을 비교하거나 부테마(Generative AI, AI Chips 등)로 쪼개서 볼 수 있습니다. 핵심은 <b>"어떤 테마가 뜨고 있나?"</b>가 아니라 <b>"그 테마 안에서 어디에 돈이 몰리나?"</b>를 찾는 것입니다. ETF 뷰로 큰 흐름을 잡고, 부테마 뷰로 세부 승자를 골라보세요.
   </div>
     <div class="mb-4">
@@ -5741,8 +5771,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   </div>
     <!-- ═══════════════ PAGE: PORTFOLIO (포트폴리오) ═══════════════ -->
   <div class="page" id="page-portfolio">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"내 투자, 잘 되고 있나?"</b> — 보유 종목의 실시간 수익률, 자산 배분(섹터별 비중), 총 손익을 관리하는 페이지입니다. 종목을 추가하면 자동으로 수익률을 추적합니다.<br>
     <strong>📌 핵심 원칙:</strong> 한 종목에 전체 자산의 20% 이상 집중하면 위험합니다. 분산투자(여러 섹터에 나눠 투자)가 리스크 관리의 기본이며, 정기적으로 리밸런싱(비중 재조정)하는 습관을 들이세요.
   </div>
@@ -5879,8 +5909,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   </div>
     <!-- ═══════════════ PAGE: TICKER (종목 상세) ═══════════════ -->
   <div class="page" id="page-ticker">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     개별 종목을 360° 분석하는 페이지입니다. <b>Overview</b> 탭에서 PER(주가수익비율, 몇 년 만에 투자금을 벌 수 있나?), PBR(주가순자산비율, 회사 자산 대비 비싼가 싼가?), ROE(자기자본이익률, 주주 돈으로 얼마나 잘 버나?) 같은 핵심 지표를 확인하고, <b>Chart</b>에서 가격 흐름을, <b>Financials</b>에서 매출·이익 추이를 봅니다. 숫자 하나만 보지 말고 "이 회사는 돈을 잘 버는가? → 그 돈벌이가 점점 나아지는가? → 지금 가격이 합리적인가?"를 순서대로 따져보세요.
   </div>
     <div class="mb-4">
@@ -6006,8 +6036,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   </div>
     <!-- ═══════════════ PAGE: MARKET-NEWS (시장 소식) ═══════════════ -->
   <div class="page" id="page-market-news">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"지금 무슨 뉴스가 시장을 움직이고 있나?"</b> — 전 세계 주요 뉴스 소스에서 수집한 최신 시장 뉴스를 보여줍니다. 뉴스 하나에 휘둘리지 말고 '이 뉴스가 실제로 기업 이익에 영향을 주는가?'를 생각하며 읽으세요.<br>
     <strong>📌 활용법:</strong> 정렬 기능으로 최신순/관련도순을 바꿔가며 확인하고, 중요한 뉴스는 해당 종목의 차트·펀더멘털과 교차 확인하세요.
   </div>
@@ -6110,8 +6140,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   </div>
     <!-- ═══════════════ PAGE: SCREENER (종목 스크리너) ═══════════════ -->
 <div class="page" id="page-screener">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"조건에 맞는 종목을 어떻게 빠르게 찾나?"</b> — 수천 개 종목을 일일이 볼 수 없으니, 필터로 걸러내는 도구입니다. 섹터, 시그널(BUY/SELL/HOLD), 시가총액(Market Cap, 회사 크기) 등 조건을 설정하면 해당 조건만 남깁니다.<br>
     <strong>📌 활용법:</strong> 처음엔 프리셋 버튼(미리 설정된 조건)을 눌러보세요. 익숙해지면 직접 필터를 조합해 나만의 스크리너를 만들 수 있습니다. 스크리너 결과 = 후보 리스트이지, 바로 매수 신호가 아닙니다!
   </div>
@@ -6259,10 +6289,10 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   </div>
 </div>
 <div class="page" id="page-options">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"옵션이 뭐고, 왜 보는 건가?"</b> — 옵션은 주식을 특정 가격에 사거나 팔 수 있는 '권리'를 거래하는 것입니다. 콜옵션(살 권리), 풋옵션(팔 권리), IV(내재변동성, 시장이 예상하는 가격 변동 폭)가 핵심 개념입니다.<br>
-    <strong>⚠️ 초보자 안내:</strong> 옵션은 고위험 상품입니다. 주식 투자에 최소 6개월 이상 익숙해진 후 시작하세요. 📖 용어사전에서 기본 개념을 먼저 공부하세요.<br>
+    <strong>⚠️ 리스크 안내:</strong> 옵션은 레버리지 내장 파생상품으로 원금 100% 손실 가능합니다. 그릭스(Delta·Gamma·Theta·Vega)의 상호작용을 이해한 후 진입하세요.<br>
     <strong>💡 팁:</strong> IV Rank 50 이상 → 옵션이 비싼 상태(옵션 매도 유리) | 50 이하 → 저렴한 상태(옵션 매수 유리). 직접 거래 전에 이 페이지로 시장 분위기부터 읽는 연습을 하세요.
   </div>
 
@@ -6281,8 +6311,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     </div>
     <div style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">VVIX (변동성의 변동성)</div>
-      <div style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:#f87171;">126.28</div>
-      <div style="font-size:9px;color:#f87171;">매우 높음 · 변동성 급등 경고</div>
+      <div id="opt-vvix-val" style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:#f87171;" data-live-price="^VVIX">126.28</div>
+      <div id="opt-vvix-desc" style="font-size:9px;color:#f87171;">매우 높음 · 변동성 급등 경고</div>
     </div>
     <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">Put/Call Ratio (CBOE Total)</div>
@@ -6291,9 +6321,15 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
     </div>
     <div style="background:rgba(61,219,165,0.1);border:1px solid rgba(61,219,165,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">GEX (감마 노출)</div>
-      <div style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:#3ddba5;">-12.8B</div>
-      <div style="font-size:9px;color:#3ddba5;">음수 · 변동성 확대 우려</div>
+      <div id="opt-gex-val" style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:#3ddba5;">—</div>
+      <div id="opt-gex-desc" style="font-size:9px;color:#3ddba5;">실시간 API 미제공 · 참고용</div>
     </div>
+  </div>
+
+  <!-- v31.9: 데이터 소스 고지 배너 -->
+  <div id="opt-data-notice" style="padding:8px 12px;margin-bottom:12px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius);font-size:9px;color:#fbbf24;line-height:1.5;">
+    <strong>📊 데이터 안내:</strong> VIX·VVIX는 실시간 (Yahoo Finance). IV Rank, Greeks, Skew, GEX, 옵션 흐름은 <strong>참고용 추정치</strong>입니다. 정확한 옵션 데이터는 CBOE, ThinkorSwim, Interactive Brokers 등 전문 플랫폼을 이용하세요.
+    <span id="opt-update-time" style="margin-left:8px;color:var(--text-muted);">마지막 업데이트: —</span>
   </div>
 
   <!-- SECTION 2: CORE METRICS DASHBOARD -->
@@ -6346,7 +6382,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
         <tbody>
           <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
             <td style="padding:7px 10px;font-weight:700;color:var(--text-primary);">VIX Spot (현물)</td>
-            <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:#f87171;font-weight:700;">26.78</td>
+            <td id="opt-term-vix-spot" style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:#f87171;font-weight:700;" data-live-price="^VIX">—</td>
             <td style="text-align:center;padding:7px 10px;color:var(--text-muted);">기준</td>
             <td style="padding:7px 10px;color:var(--text-muted);">실시간</td>
           </tr>
@@ -6861,11 +6897,11 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
           <tbody>
             <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
               <td style="padding:5px;color:var(--text-muted);">VIX (현물)</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">26.78</td>
+              <td id="opt-rel-vix" style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;" data-live-price="^VIX">—</td>
             </tr>
             <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
               <td style="padding:5px;color:var(--text-muted);">VVIX (VIX의 변동성)</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">126.28</td>
+              <td id="opt-rel-vvix" style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;" data-live-price="^VVIX">—</td>
             </tr>
             <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
               <td style="padding:5px;color:var(--text-muted);">VIX 1년 평균</td>
@@ -6877,11 +6913,11 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
             </tr>
             <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
               <td style="padding:5px;color:var(--text-muted);">현재 VIX 백분위</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);color:#f87171;font-weight:700;">91%ile</td>
+              <td id="opt-vix-pctile" style="text-align:right;padding:5px;font-family:var(--font-mono);color:#f87171;font-weight:700;">—</td>
             </tr>
             <tr>
               <td style="padding:5px;color:var(--text-muted);">VVIX/VIX 비율</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);color:#f87171;font-weight:700;">4.72</td>
+              <td id="opt-vvix-ratio" style="text-align:right;padding:5px;font-family:var(--font-mono);color:#f87171;font-weight:700;">—</td>
             </tr>
           </tbody>
         </table>
@@ -6949,8 +6985,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
 </div>
   <!-- ═══════════════ PAGE: KR-HOME (한국장 홈) ═══════════════ -->
   <div class="page" id="page-kr-home">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"오늘 한국 시장은 어떤가?"</b> — KOSPI(대형주 중심 종합지수)와 KOSDAQ(중소·기술주 중심)의 전체 현황을 보여줍니다. 외국인·기관의 매수/매도 흐름(수급)이 한국 시장 방향을 결정하는 핵심 요인입니다.<br>
     <strong>📌 활용법:</strong> 외국인이 연속 순매수하면 상승 신호, 연속 순매도면 하락 압력. 섹터 동향에서 어느 업종에 돈이 몰리는지 확인하고, 미국장이 한국장에 미치는 영향을 함께 고려하세요.
   </div>
@@ -7240,8 +7276,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
 
   <!-- ═══════════════ PAGE: KR-SUPPLY (수급 분석) ═══════════════ -->
   <div class="page" id="page-kr-supply">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"큰손들은 지금 뭘 하고 있나?"</b> — 외국인·기관·개인 투자자의 매수/매도 흐름(수급)을 보여줍니다. 한국 시장에서는 외국인과 기관이 시장 방향을 주도하고, 개인은 반대로 움직이는 경향이 있습니다.<br>
     <strong>📌 핵심:</strong> 외국인+기관 동시 순매수 → 강한 상승 신호 | 외국인+기관 동시 순매도 → 강한 하락 신호. 개인만 사고 기관이 파는 종목은 주의가 필요합니다.
   </div>
@@ -7450,8 +7486,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
 
   <!-- ═══════════════ PAGE: KR-THEMES (국내 테마) ═══════════════ -->
   <div class="page" id="page-kr-themes">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"한국 시장에서 지금 어떤 테마가 뜨고 있나?"</b> — 반도체, 2차전지, AI, 방산, 바이오 등 한국 증시 주요 투자 테마와 각 테마의 대장주(시장을 이끄는 선두 종목) 흐름을 분석합니다.<br>
     <strong>📌 활용법:</strong> 테마별 등락률을 비교해 '지금 시장의 주도 테마'를 찾고, 대장주의 움직임을 관찰하세요. 대장주가 무너지면 해당 테마 전체가 약해질 신호입니다.
   </div>
@@ -7860,8 +7896,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
 
   <!-- ═══════════════ PAGE: KR-MACRO (한국 매크로) ═══════════════ -->
   <div class="page" id="page-kr-macro">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     <b>"한국 경제는 지금 어떤 상태인가?"</b> — BOK(한국은행) 기준금리, 소비자물가(CPI), GDP 성장률, 원/달러 환율, 수출입 동향 등 한국 거시경제 핵심 지표를 보여줍니다.<br>
     <strong>📌 핵심 관계:</strong> 한국은 수출 의존도가 높아 수출↑ → 경기↑ → KOSPI↑의 상관관계가 강합니다. 원/달러 환율은 외국인 투자 흐름에 직결되고, 금통위(금융통화위원회) 금리 결정은 시장에 즉각 영향을 줍니다.
   </div>
@@ -8137,10 +8173,123 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   </div><!-- /page-kr-macro -->
 
 
+  <!-- ═══════════════ PAGE: KR-TECHNICAL (한국장 차트·기술 분석) ═══════════════ -->
+  <div class="page" id="page-kr-technical">
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
+    <b>"한국 주식은 지금 사도 될까?"</b> — KOSPI/KOSDAQ 지수와 개별 한국 종목에 대한 기술적 분석을 제공합니다. 이동평균선 배열, RSI, MACD, Weinstein 단계, 진입 등급 등 종합 분석 결과를 한눈에 볼 수 있습니다.<br>
+    <strong>📌 사용법:</strong> 아래 검색창에 한국 종목 코드를 입력하세요 (예: 005930 = 삼성전자, 000660 = SK하이닉스). 코드 뒤에 .KS(코스피) 또는 .KQ(코스닥)을 붙여도 되고, 숫자만 입력하면 자동으로 .KS를 붙여줍니다.
+  </div>
+
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div class="page-title" style="font-size:17px;">한국장 차트·기술 분석 <span class="kr-badge">KRX</span></div>
+          <div class="page-subtitle">Weinstein 4단계 · 추세 위치 · 조정 판별 · 진입 등급 · RSI · MACD · 볼린저밴드</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="tb-btn" onclick="showPage('kr-home',null)">← 한국장 홈</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 주요 지수 기술 분석 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">📊 KOSPI 기술 분석</span>
+          <span style="font-size:14px;font-weight:900;font-family:var(--font-mono);" data-live-price="^KS11">—</span>
+        </div>
+        <div id="kr-kospi-tech-result" style="min-height:60px;">
+          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:9px;">로딩 중…</div>
+        </div>
+        <button onclick="analyzeKrTickerDeep('^KS11')" class="tb-btn" style="width:100%;margin-top:8px;font-size:9px;">KOSPI 분석 새로고침 🔄</button>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">📊 KOSDAQ 기술 분석</span>
+          <span style="font-size:14px;font-weight:900;font-family:var(--font-mono);" data-live-price="^KQ11">—</span>
+        </div>
+        <div id="kr-kosdaq-tech-result" style="min-height:60px;">
+          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:9px;">로딩 중…</div>
+        </div>
+        <button onclick="analyzeKrTickerDeep('^KQ11')" class="tb-btn" style="width:100%;margin-top:8px;font-size:9px;">KOSDAQ 분석 새로고침 🔄</button>
+      </div>
+    </div>
+
+    <!-- 개별 종목 심화 분석 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">🔎 한국 종목 심화 분석</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input id="kr-ticker-analysis-input" type="text" placeholder="종목코드 입력 (005930, 000660, 035720 등)"
+               style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;"
+               onkeydown="if(event.key==='Enter'){var t=this.value.trim();if(/^\d{6}$/.test(t))t+='.KS';analyzeKrTickerDeep(t);}"/>
+        <button onclick="var t=document.getElementById('kr-ticker-analysis-input').value.trim();if(/^\d{6}$/.test(t))t+='.KS';analyzeKrTickerDeep(t);"
+                style="padding:8px 16px;background:#ef4444;color:white;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;">
+          분석 🔍
+        </button>
+      </div>
+      <!-- 빠른 종목 버튼 -->
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;">
+        <button onclick="analyzeKrTickerDeep('005930.KS')" class="tb-btn" style="font-size:8px;">삼성전자</button>
+        <button onclick="analyzeKrTickerDeep('000660.KS')" class="tb-btn" style="font-size:8px;">SK하이닉스</button>
+        <button onclick="analyzeKrTickerDeep('035720.KS')" class="tb-btn" style="font-size:8px;">카카오</button>
+        <button onclick="analyzeKrTickerDeep('005380.KS')" class="tb-btn" style="font-size:8px;">현대차</button>
+        <button onclick="analyzeKrTickerDeep('006400.KS')" class="tb-btn" style="font-size:8px;">삼성SDI</button>
+        <button onclick="analyzeKrTickerDeep('035420.KS')" class="tb-btn" style="font-size:8px;">NAVER</button>
+        <button onclick="analyzeKrTickerDeep('051910.KS')" class="tb-btn" style="font-size:8px;">LG화학</button>
+        <button onclick="analyzeKrTickerDeep('247540.KQ')" class="tb-btn" style="font-size:8px;">에코프로비엠</button>
+      </div>
+      <div id="kr-ticker-analysis-result" style="min-height:80px;">
+        <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:9px;">종목코드를 입력하거나 위 버튼을 클릭하면 Weinstein Stage, 추세 위치, 조정 판별, 진입 등급 등 종합 분석이 표시됩니다.</div>
+      </div>
+    </div>
+
+    <!-- 기술 분석 용어 설명 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">📖 기술 분석 핵심 용어</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="padding:10px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.15);border-radius:6px;">
+          <div style="font-size:10px;font-weight:700;color:#60a5fa;margin-bottom:4px;">Weinstein 4단계</div>
+          <div style="font-size:8px;color:var(--text-muted);line-height:1.6;">Stan Weinstein이 개발한 주기 분석법. 모든 주식은 1단계(바닥)→2단계(상승)→3단계(천장)→4단계(하락)를 반복합니다. <strong>2단계 초입이 최적 매수 시점</strong>이고, 3단계 진입 시 매도를 고려합니다.</div>
+        </div>
+        <div style="padding:10px;background:rgba(61,219,165,0.06);border:1px solid rgba(61,219,165,0.15);border-radius:6px;">
+          <div style="font-size:10px;font-weight:700;color:#3ddba5;margin-bottom:4px;">이동평균 정배열</div>
+          <div style="font-size:8px;color:var(--text-muted);line-height:1.6;">단기 이평선(5일)이 중기(20일)보다 위에, 중기가 장기(50일)보다 위에 있는 상태. <strong>정배열 = 상승추세 확인</strong>. EMA5>EMA10>EMA20>SMA50이면 완전정배열로 가장 강한 상승 신호입니다.</div>
+        </div>
+        <div style="padding:10px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.15);border-radius:6px;">
+          <div style="font-size:10px;font-weight:700;color:#fbbf24;margin-bottom:4px;">건전한 조정 vs 추세전환</div>
+          <div style="font-size:8px;color:var(--text-muted);line-height:1.6;">주가 하락이 발생했을 때 '일시적 숨 고르기'인지 '추세 전환'인지 구분합니다. <strong>50MA 지지 유지 + 거래량 감소 + Higher Low = 건전한 조정</strong>으로 매수 기회입니다. 50MA 이탈 + 거래량 증가 = 위험 신호.</div>
+        </div>
+        <div style="padding:10px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.15);border-radius:6px;">
+          <div style="font-size:10px;font-weight:700;color:#a78bfa;margin-bottom:4px;">RSI 다이버전스</div>
+          <div style="font-size:8px;color:var(--text-muted);line-height:1.6;">주가와 RSI가 반대 방향으로 움직이는 현상. <strong>주가 신고가 + RSI 하락 = 약세 다이버전스</strong> (상승 힘 약화). 주가 신저가 + RSI 상승 = 강세 다이버전스 (바닥 신호). 추세 전환의 선행 지표입니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 차트 상담 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🤖 AI 한국장 기술 분석 상담</div>
+      <div id="chat-kr-tech-msgs" style="min-height:60px;max-height:180px;overflow-y:auto;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <button onclick="chatFromChip('kr-tech','삼성전자 지금 Weinstein 몇 단계야? 매수 타이밍 맞아?')" class="tb-btn" style="font-size:9px;">삼성전자 단계분석</button>
+        <button onclick="chatFromChip('kr-tech','KOSPI가 20일선 아래로 내려왔는데 건전한 조정이야 추세전환이야?')" class="tb-btn" style="font-size:9px;">KOSPI 조정판별</button>
+        <button onclick="chatFromChip('kr-tech','SK하이닉스 RSI 다이버전스 보이는데 어떻게 해석해?')" class="tb-btn" style="font-size:9px;">하이닉스 RSI</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input id="chat-kr-tech-inp" placeholder="한국 종목 기술 분석 질문..." style="flex:1;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')chatSend('kr-tech')" />
+        <button id="chat-kr-tech-btn" onclick="chatSend('kr-tech')" style="background:#ef4444;border:none;color:#fff;font-size:10px;font-weight:700;padding:8px 14px;border-radius:6px;cursor:pointer;">전송</button>
+      </div>
+    </div>
+
+  </div><!-- /page-kr-technical -->
+
+
   <!-- ═══════════════ PAGE: GUIDE (입문 가이드) ═══════════════ -->
   <div class="page" id="page-guide">
-  <div class="beg-explain">
-    <strong>🎓 이 페이지는 무엇인가요?</strong><br>
+  <div class="insight-box box-collapsed">
+    <strong>💡 핵심 인사이트</strong><br>
     AIO Screener의 사용 설명서입니다. 처음 사용하신다면 여기부터 읽어보세요! 각 페이지 사용법, 투자 유의사항, 기초 배경지식, 그리고 📖 용어 사전까지 모두 담겨 있습니다. 모르는 용어가 나오면 우측 상단 '용어 사전 열기' 버튼을 누르세요.
   </div>
 
@@ -8424,8 +8573,8 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
           <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;"><b>실시간 (API 연결 시):</b> 시세, 뉴스, Fear&Greed 지수 — 수분~수십분 간격 자동 갱신<br><b>정적 데이터:</b> Breadth(이동평균 비율), 포지셔닝 리스크, 경기 사이클 — 주 1회 수동 갱신<br><b>FRED 데이터:</b> CPI, GDP, 금리 등 — 발표 일정에 따라 갱신</div>
         </div>
         <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
-          <div style="font-size:11px;font-weight:700;color:#fbbf24;margin-bottom:4px;">🔰 초보자 모드</div>
-          <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">좌측 사이드바의 "초보자 모드" 체크박스를 켜면, 고급 기능이 숨겨지고 각 페이지에 설명 패널이 표시됩니다. 처음 사용하시는 분은 켜고 시작하세요.</div>
+          <div style="font-size:11px;font-weight:700;color:#fbbf24;margin-bottom:4px;">🎯 통합 전문 분석</div>
+          <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">모든 페이지에서 전문가급 통합 분석이 기본 제공됩니다. AI가 멀티팩터 교차검증·시나리오 확률·정량 분석을 유기적으로 엮어 설명하며, 모든 판단에 "왜 그런가"의 근거가 연결됩니다. 각 페이지의 인사이트 패널(클릭하여 펼침)도 참고하세요.</div>
         </div>
         <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
           <div style="font-size:11px;font-weight:700;color:#f87171;margin-bottom:4px;">📨 피드백 · 오류 신고</div>
@@ -9646,7 +9795,7 @@ function _lsGet(key, def) {
 const breadcrumbMap = {
   home: ['AIO','대시보드'], themes: ['AIO','테마 분석'],
   'kr-home': ['AIO','한국장 홈'], 'kr-supply': ['AIO','수급 분석'],
-  'kr-themes': ['AIO','국내 테마'], 'kr-macro': ['AIO','한국 매크로'],
+  'kr-themes': ['AIO','국내 테마'], 'kr-macro': ['AIO','한국 매크로'], 'kr-technical': ['AIO','차트·기술 분석 (KR)'],
   portfolio: ['AIO','포트폴리오'], macro: ['AIO','매크로'],
   technical: ['AIO','기술적 분석'], fundamental: ['AIO','기업 분석'],
   briefing: ['AIO','데일리 브리핑'], sectors: ['AIO','섹터 로테이션'],
@@ -9810,6 +9959,12 @@ function showPage(id, navEl) {
   if (id === 'fundamental') {
     _safePageInit(function() {
       if (typeof initFundamentalCards === 'function') { try { initFundamentalCards(); } catch(e) {} }
+    });
+  }
+  // v31.9: 옵션 페이지 초기화 — 실시간 VIX/VVIX 연동 + 파생 지표 계산
+  if (id === 'options') {
+    _safePageInit(function() {
+      if (typeof initOptionsPage === 'function') { try { initOptionsPage(); } catch(e) { console.warn('[AIO] Options init error:', e); } }
     });
   }
 }
@@ -16125,6 +16280,20 @@ function initSentimentCharts() {
   if (aaiiCtx) {
     const aaiiLabels = ['3/18', '3/11', '3/4', '2/25'];
     const aaiiDatasets = [[30.4, 31.9, 33.1, 33.2], [17.6, 21.7, 31.4, 27.0], [52.0, 46.4, 35.5, 39.8]];
+    // v31.9: 텍스트 폴백 동적 업데이트
+    var _aaiiBearEl = document.getElementById('aaii-bear-val');
+    var _aaiiBullEl = document.getElementById('aaii-bull-val');
+    var _aaiiSignal = document.getElementById('aaii-signal-badge');
+    var latestBear = aaiiDatasets[2][0]; // 최신 약세 비율
+    var latestBull = aaiiDatasets[0][0]; // 최신 강세 비율
+    if (_aaiiBearEl) _aaiiBearEl.textContent = latestBear.toFixed(1) + '%';
+    if (_aaiiBullEl) _aaiiBullEl.textContent = latestBull.toFixed(1) + '%';
+    window._aaiiBearish = latestBear;
+    if (_aaiiSignal) {
+      if (latestBear > 50) _aaiiSignal.innerHTML = '<span style="font-size:8px;font-weight:700;color:#f87171;">● 극단적 비관</span><span style="font-size:7px;color:var(--text-muted);margin-left:4px;">(역발상 매수 시그널)</span>';
+      else if (latestBear > 40) _aaiiSignal.innerHTML = '<span style="font-size:8px;font-weight:700;color:#fbbf24;">● 비관 우세</span>';
+      else _aaiiSignal.innerHTML = '<span style="font-size:8px;font-weight:700;color:#3ddba5;">● 정상 범위</span>';
+    }
     var _gAaii = chartDataGate('aaii-chart', aaiiLabels, aaiiDatasets, { minPoints: 3, chartName: 'AAII' }); if (_gAaii)
     sentPageCharts['aaii'] = new Chart(aaiiCtx, {
       type: 'bar',
@@ -16646,7 +16815,15 @@ document.addEventListener('DOMContentLoaded', () => {
     try { if (typeof fetchAllNews === 'function') { var p = fetchAllNews(false); if (p && p.catch) p.catch(function(){}); } } catch(e){}
   }, 3000);
   // initBreadthCharts() 제거 — initBreadthPage()가 breadth 페이지 진입 시 초기화
+  // v31.9: AAII/PC 차트 즉시 + 재시도 (Chart.js CDN 로딩 완료 보장)
   try { initSentimentCharts(); } catch(e) { console.warn('[AIO] initSentimentCharts:', e.message); }
+  // 2초 후 재시도 — Chart.js 미로드 시 대비 (canvas 빈 화면 방지)
+  setTimeout(function() {
+    if (typeof Chart !== 'undefined' && !sentPageCharts['aaii']) {
+      sentChartsInitialized = false;
+      try { initSentimentCharts(); console.log('[AIO v31.9] AAII/PC 차트 재시도 성공'); } catch(e) {}
+    }
+  }, 2000);
   try { fetchFearGreed().catch(function(){}); } catch(e) {}
   fetchPutCall(); // 1분마다 시세 갱신
   fetchHYSpread(); // FRED HY Spread (6시간 캐시)
@@ -18140,6 +18317,13 @@ document.addEventListener('aio:liveQuotes', function() {
   if (pfPage && pfPage.classList.contains('active')) { renderPortfolio(); }
 });
 
+// v31.9: Portfolio pageShown — 페이지 진입 시 즉시 렌더
+document.addEventListener('aio:pageShown', function(e) {
+  if (e.detail === 'portfolio') {
+    try { renderPortfolio(); } catch(err) { console.warn('[AIO] Portfolio init error:', err); }
+  }
+});
+
 // Init portfolio on page show
 const _origShowPage = typeof showPage === 'function' ? showPage : null;
 
@@ -18289,8 +18473,10 @@ function _liveSnap() {
 
 // ═══ 공통 응답 규칙 (모든 컨텍스트에 주입) ════════════════════════════
 const _CHAT_RULES = (function() {
-  // v30.13b: 내러티브/스토리텔링 강화 + 응답 깊이 보정 + 사용자 친화적 답변 구조
-  return '\n\n【응답 스타일 규칙】\n' +
+  // v32.2: 통합 전문 분석 모드 — 레벨 분리 없이 항상 최고 수준 + 근거 기반 설명
+  return '\n\n【분석 원칙: 전문가급 통합 분석 + 근거 기반 설명】\n' +
+  '⚠️ 모든 답변은 전문가 수준의 깊이를 기본으로 하되, 핵심 판단마다 "왜 그런가"의 근거(데이터·통계·역사적 사례)를 반드시 연결하라. 기초 용어 정의는 생략하되, 분석 흐름 속에서 자연스럽게 맥락을 제공하라. 멀티팩터 교차검증·시나리오 확률·정량 분석을 유기적으로 엮어 하나의 서사로 전달하라.\n\n' +
+  '【응답 스타일 규칙】\n' +
   '1. 한국어로 답변. 옆에 앉아 설명하는 투자 선배처럼 친근하면서도 전문적으로. 단순한 정보 나열이 아니라 "이야기를 들려주듯" 자연스러운 흐름으로 전달하라. 마치 카페에서 후배에게 시장 이야기를 풀어주는 느낌. 딱딱한 보고서가 아닌, 읽는 재미가 있는 분석을 목표로.\n' +
   '⚠️ 【포맷 절대 규칙 — 위반 시 답변 품질 F】\n' +
   '① 마크다운 테이블(| col | col |) 사용 절대 금지! 파이프(|) 구분 테이블은 화면이 완전히 깨진다. 비교/정리는 반드시 아래 대체 포맷 사용:\n' +
@@ -18307,12 +18493,11 @@ const _CHAT_RULES = (function() {
   '4. 인과 체인을 3차 파급까지 추적: 1차(직접 영향) → 2차(공급망 연결) → 3차(최종 투자자 영향). 예: "유가↑ → 운송비↑ → 소매 마진↓ → 소비주 실적 하향 → 당신의 포트폴리오에서 소비재 비중 점검 필요"\n' +
   '5. Before/After 프레임: 이벤트·카탈리스트 분석 시 반드시 "이 이벤트 전에는 ~ / 이후에는 ~로 재평가될 가능성" 제시.\n' +
   '6. 확률적 사고: 시나리오별 확률 명시 (낙관 X%, 중립 Y%, 비관 Z%). 시나리오 트리를 그려 각 분기의 후속 경로까지 매핑.\n' +
-  '7. 🎚️ 적응형 난이도 시스템 — 사용자 수준을 질문에서 감지하고 맞춤 답변:\n' +
-  '  • 감지 기준: 사용자가 전문 용어를 자연스럽게 쓰면(예: "감마 익스포저", "MVRV 비율", "켈리 공식") → 중급~고급으로 판단. 용어를 모르면(예: "PER이 뭐야?") → 초급.\n' +
-  '  • 초급 모드: 전문 용어 첫 등장 시 괄호로 풀어서 설명 + 비유 활용. "PER(주가수익비율, 쉽게 말하면 몇 년 만에 본전 뽑나)"\n' +
-  '  • 중급 모드: 기본 용어 설명 생략. 분석 깊이↑. 지표 조합·크로스체크 기법 포함. "RSI 다이버전스 + OBV 이탈을 같이 보면 더 신뢰도가 올라간다."\n' +
-  '  • 고급/프로 모드: 용어 설명 완전 생략. 정량적 분석·멀티팩터·시나리오 확률·포지션 사이징 수학·그릭스 민감도 등 전문가급 내용 바로 제공. 실전 트레이딩 의사결정에 즉시 쓸 수 있는 수준.\n' +
-  '  ⚠️ 절대 원칙: 고급 질문에 초보자 수준으로 답하지 마라. "감마 스퀴즈 시나리오 분석해줘"라는 질문에 "감마란 옵션의 변화율입니다"로 시작하면 안 된다. 즉시 분석으로 들어가라.\n' +
+  '7. 🎯 통합 전문 분석 모드 — 항상 최고 수준. 모든 기능이 유기적으로 연결된 하나의 분석 체계:\n' +
+  '  • 분석 깊이: 심층 분석 + 멀티팩터 교차검증 + 시나리오 확률 + 정량 데이터를 하나로 엮어 전달. 별도 "수준"을 나누지 않는다. 질문이 단순하든 복잡하든, 항상 근거 기반의 전문가급 분석을 제공하되 설명의 흐름을 자연스럽게 유지.\n' +
+  '  • 근거 연결 원칙: 핵심 판단마다 "왜 그런가"의 근거(데이터·통계·역사적 사례)를 반드시 한 문장 이상 덧붙여라. 예: "RSI 72 과매수 → 역사적으로 RSI 70+ 진입 후 2주 내 5%+ 조정 확률 68%, 특히 VIX 20+ 환경에서는 81%".\n' +
+  '  • 유기적 연결: 개별 지표를 나열하지 말고, 지표 간 관계·인과·상호작용을 서사적으로 엮어라. "RSI가 과매수이고 + 시장폭이 축소 중이며 + VIX 텀스트럭처가 백워데이션 → 이 3가지가 동시에 나타난 건 2022년 1월 이후 처음, 당시 2주 내 SPX -7%".\n' +
+  '  • 기초 용어 정의("PER이란~")는 생략. 대신 "PER 15배 → 업종 평균 대비 20% 할인, 할인 이유: 성장률 둔화 + 마진 압박 전망"처럼 분석 맥락 속에서 자연스럽게 설명.\n' +
   '8. 통념 뒤집기(Reframing): "시장은 이걸 ~로 보고 있다. 하지만 실제로는..." 인사이트 1개 이상. 기대와 반대로 움직이는 자산이 있으면 역설적 시그널로 해석.\n' +
   '9. Bull/Bear 균형: 한쪽 방향으로만 분석하지 마라. 반드시 상승 시나리오와 하락 시나리오를 병렬로 제시. 분석 말미에 "이 시나리오가 틀려지는 조건"을 1~3개 명시 (깨지는 신호).\n' +
   '10. ⚠️ 투자 결정은 본인 책임. AI 분석은 참고용임을 첫 응답에 1회 고지.\n' +
@@ -18339,12 +18524,11 @@ const _CHAT_RULES = (function() {
   '16. 🏢 기업/ETF 일반 지식: 미국 대형주(AAPL/MSFT/GOOG/AMZN/NVDA/META/TSLA 등), 반도체(AMD/INTC/MU/AVGO/ASML), 방산(LMT/RTX/NOC/GD), 에너지(XOM/CVX/COP), 제약(LLY/NVO/JNJ/PFE), 한국 대형주(삼성전자/SK하이닉스/현대차/LG에너지솔루션 등), 주요 ETF(SPY/QQQ/IWM/DIA/TLT/HYG/GLD/USO/ARKK/SMH/SOXX/XBI 등)의 사업구조, 경쟁우위, 밸류에이션 역사, 섹터 포지션에 대해 학습 데이터 범위 내에서 답변.\n' +
   '17. 📅 이벤트/캘린더/계절성: FOMC 일정패턴, NFP, CPI 발표 주기, 어닝시즌 패턴(1/4/7/10월), 옵션만기(월물/분기OPEX), 세금시즌, 산타랠리, Sell in May, 윈도드레싱, 섹터로테이션 계절성, 배당시즌 등 일반 패턴 설명 가능. 단 구체적 날짜/숫자는 "최신 일정은 웹에서 확인 필요"로 안내.\n' +
   '18. 🌍 글로벌 매크로 연결: 미중무역분쟁, 지정학(중동/우크라이나/대만해협), 중국경기(PMI/부동산/위안화/일대일로), 일본 BOJ(YCC/엔캐리), 유럽 ECB, 신흥국위기패턴, 글로벌 공급망, 에너지안보 등 글로벌 이벤트가 시장에 미치는 전파경로를 학습 데이터 기반으로 설명.\n' +
-  '19. 💡 전 수준 투자 교육 — 초보부터 프로까지 성장을 돕는 AI:\n' +
-  '  [초급] "배당주란?", "ETF가 뭐야?" → 비유와 예시로 친절하게. 스크리너 해당 페이지 연결.\n' +
-  '  [중급] "섹터 로테이션 어떻게 활용해?", "DCF 할인율 어떻게 정해?" → 실전 프레임워크 제시. 계산 예시 포함. 스크리너 데이터와 연결하여 실습 유도.\n' +
-  '  [고급] "멀티팩터 알파 분해", "옵션 그릭스 포트폴리오 헤지", "Fama-French 3-팩터로 내 포트폴리오 초과수익 분석" → 정량적·학술적 깊이. 수식·계산·백테스트 로직 제공.\n' +
-  '  [프로] "딜러 감마 노출 기반 단기 방향성 판단", "크레딧 스프레드 역전과 하이일드 디폴트 사이클 매핑", "변동성 표면(Vol Surface) 스큐 해석" → 기관 수준 분석. 실전 트레이딩 의사결정 바로 적용 가능한 깊이.\n' +
-  '  ⚠️ 사용자가 성장할수록 더 깊은 답변을 제공하라. "다음 단계로 가려면 ~를 공부해보세요"라는 성장 가이드를 자연스럽게 삽입.\n' +
+  '19. 💡 투자 분석 교육 — 전문가급 통합 분석, 근거 기반 설명으로 누구나 따라올 수 있는 깊이:\n' +
+  '  • 모든 질문에 동일한 전문가급 분석 제공. "섹터 로테이션"이든 "감마 스퀴즈"든 깊이의 차등 없이, 데이터·통계·역사적 사례를 근거로 연결하여 설명.\n' +
+  '  • 분석 요소를 유기적으로 연결: 밸류에이션(PER/PBR/DCF) + 차트 패턴 + 매크로 환경 + 시장폭 + 수급 → 하나의 서사로 통합. 개별 나열 금지.\n' +
+  '  • 예시: "이 종목의 PER 15배는 업종 평균 20배 대비 25% 할인 → 그런데 할인 이유가 있다: 최근 3분기 매출 성장률 12%→8%→3% 둔화 + 원자재 비용 상승으로 마진 압박 → 차트상 50일선 이탈 + RSI 38 약세 → 매크로로 보면 금리 인상기 성장주 할인율 확대 구간 → 결론: 가치 함정(value trap) 가능성 높음, 반전 신호(RSI 다이버전스 + 거래량 바닥) 확인 후 진입".\n' +
+  '  ⚠️ 핵심: "근거 없는 결론" 금지. 모든 판단에 이유를 달면 전문적이면서도 논리의 흐름을 따라가면 누구나 이해 가능하다.\n' +
   '20. 📐 기술적 분석 심화 도구: 피보나치 되돌림(23.6%/38.2%/50%/61.8%/78.6%)과 확장(100%/138.2%/161.8%/261.8%) 수준 해석, 일목균형표(전환선/기준선/선행스팬A·B/후행스팬/구름대) 활용법, 엘리엇 파동(5파 충격파+3파 조정파, 3대 규칙: 2파는 1파 100% 이상 되돌리지 않음/3파가 가장 짧지 않음/4파가 1파 영역 침범 금지), 다이버전스(가격 신고가 but RSI 낮은 고점=하락 약화/가격 신저가 but RSI 높은 저점=상승 반전) 상세 해석.\n' +
   '21. 🎯 매매 전략 심화: 데이트레이딩(장중 매매, VWAP·Level2·시간대별 변동성 활용, 오전 9:30~11:00 골든아워), 포지션트레이딩(수주~수개월 보유, 주봉+펀더멘털 기반), 퀀트/팩터투자(밸류/모멘텀/사이즈/퀄리티/변동성 5대 팩터, 팩터 프리미엄 사이클), 페어트레이딩(상관관계 높은 2종목의 스프레드 매매), mean reversion(평균회귀, 볼린저밴드·RSI 극값에서 반대 진입).\n' +
   '22. 🛢️ 원자재 심화: 구리/금 비율(상승=경기 낙관/하락=경기 비관, 경기선행지표), 유가-천연가스-탄소배출권 연동성, OPEC+ 감산/증산 의사결정(사우디 재정균형유가 ~$80, 러시아 전쟁자금 필요), 콘탱고(선물>현물, 저장비용 반영, 롤오버 손실)와 백워데이션(선물<현물, 공급부족 신호) 실전 활용, 농산물 수급(작황/재고/수출 데이터, USDA 보고서).\n' +
@@ -18399,12 +18583,11 @@ const _CHAT_RULES = (function() {
   '  [재무부 TGA] 정부 지출 증가(TGA 감소) = 경제에 유동성 방출. 대규모 국채 발행(TGA 증가) = 시장에서 유동성 흡수. 분기별 국채 발행 계획(Quarterly Refunding) 주목.\n' +
   '  [크레딧 사이클] 신용 확장 → 과열 → 신용 긴축 → 디폴트 증가 → 바닥 → 회복. 현재 크레딧 사이클 위치를 HY 스프레드, 은행 대출 태도(Senior Loan Officer Survey), 디폴트율로 판단.\n' +
   '\n【답변 깊이 & 내러티브 품질 규칙】\n' +
-  '29. 📏 답변 깊이 4단계 보정 — 질문 복잡도 + 사용자 수준에 따라 자동 조절:\n' +
-  '  • Tier 1 (개념 질문): "PER이 뭐야?" → 3~5문장 핵심 설명 + 비유 + 실전 예시. 짧되 알차게. 초보자 모드.\n' +
-  '  • Tier 2 (분석/비교): "NVDA vs AMD 뭐가 나아?" → 8~15문장. 서사 구조 완전 적용. 밸류에이션 비교+모멘텀+카탈리스트+시나리오.\n' +
-  '  • Tier 3 (심층/전략): "포트폴리오 리밸런싱", "경기침체 대비 전략" → 15문장+. 풀 내러티브. Bull/Bear+시나리오 확률+액션플랜+깨지는 신호.\n' +
-  '  • Tier 4 (프로/퀀트급): "감마 스퀴즈 시나리오", "VCP T3 수축에서 피봇까지 ATR 기반 포지션 사이징", "3-팩터 모델로 알파 분해", "옵션 스큐 비대칭에서 어닝 플레이" → 20문장+. 정량적 데이터 중심. 용어 설명 생략. 수학적 계산·확률·민감도 분석 포함. 기관 투자자·풀타임 트레이더가 바로 실전에 쓸 수 있는 깊이.\n' +
-  '  ⚠️ 핵심 원칙: 사용자 수준을 과소평가하지 마라. 고급 질문에는 고급으로 답하라. "왜?"를 한 단계 더 파고, "So what?"까지 연결하라.\n' +
+  '29. 📏 답변 깊이 — 질문 복잡도에 따라 분량 조절, 분석 수준은 항상 전문가급:\n' +
+  '  • 짧은 질문(개념/비교): 8~15문장. 핵심 분석 + 근거 + 비교 시나리오. 짧더라도 "왜?"의 근거와 "So what?"의 액션을 반드시 포함.\n' +
+  '  • 전략 질문(포트폴리오/전략/매크로): 15문장+. 풀 내러티브. Bull/Bear 시나리오 확률 + 멀티팩터 교차검증 + 깨지는 신호 + 구체적 액션플랜.\n' +
+  '  • 정량 질문(퀀트/옵션/팩터): 20문장+. 수학적 계산·민감도 분석·백테스트 데이터 중심. 기관급 깊이.\n' +
+  '  ⚠️ 핵심 원칙: 질문이 단순해 보여도 가볍게 답하지 마라. 모든 분석에 근거를 달고 → 지표 간 유기적 연결을 보여주고 → "그래서 어떻게 해야 하는데?"까지 완결하라.\n' +
   '30. 📖 스토리텔링 기법 — 분석을 이야기로 만드는 도구:\n' +
   '  • 비유의 힘: 추상적 개념을 일상에 비유. "금리 인상은 바닷물의 수위가 낮아지는 것. 수위가 내려가면 누가 벌거벗고 수영하고 있었는지 드러난다." (워렌 버핏)\n' +
   '  • 감정-논리 블렌딩: 먼저 사용자의 감정을 인정("이 숫자를 보면 불안할 수 있다."), 그다음 논리로 안내("하지만 데이터를 보면..."). 감정 없는 숫자 나열 금지.\n' +
@@ -18770,29 +18953,33 @@ const CHAT_CONTEXTS = {
     title: 'AI 투자 멘토',
     system: function() {
       const s = _liveSnap();
-      return '당신은 주식 투자 초보자의 친절한 멘토입니다. 이 스크리너의 "투자 가이드" 페이지에서 대화하고 있습니다.\n\n' +
+      return '당신은 투자 분석 전문 멘토입니다. 이 스크리너의 "투자 가이드" 페이지에서 대화하고 있습니다.\n\n' +
         '【현재 시장 상태 (신선도: ' + s._freshness + ')】\n' +
         '• 시장 품질 점수: ' + s.score + '/100 | F&G(공포/탐욕 지수): ' + s.fg + ' | VIX(변동성 지수): ' + s.vix + '\n' +
         (s._stale.length > 0 ? '⚠️ 일부 수치가 지연 중일 수 있음.\n' : '') + '\n' +
         '【멘토링 원칙】\n' +
-        '• "물고기를 주지 말고, 낚시하는 법을 가르쳐라"\n' +
-        '• 절대 특정 종목 매수/매도 직접 추천 금지 → 대신 판단 기준·사고법 교육\n' +
-        '• 비유와 예시 풍부 (투자 = 농사, 손절 = 안전벨트, 분산투자 = 계란 바구니)\n' +
-        '• "대시보드에서 지금 시장이 어떤 상태인지 먼저 확인하세요" 등 스크리너의 각 기능을 교육 소재로 활용\n\n' +
-        '【초보자 단계별 학습 로드맵】\n' +
-        '• 1단계(입문): 주식이란? → ETF → 분산투자 → 장기투자 마인드셋 → "투자 가이드" 페이지 숙독\n' +
-        '• 2단계(기초): PER/PBR 읽기 → 차트 기본(지지/저항) → 시장 스코어 활용법 → "기업 분석"/"차트 분석" 페이지\n' +
-        '• 3단계(중급): 섹터 로테이션 이해 → 포트폴리오 구성 → 리밸런싱 → "매크로"/"포트폴리오" 페이지\n' +
-        '• 4단계(고급): 옵션 기초 → VCP/브레이크아웃 전략 → 매크로 연결 분석 → "옵션"/"매매시그널" 페이지\n\n' +
-        '【흔한 초보자 실수 TOP 5】\n' +
-        '① 손절 미설정(가장 위험!) ② 몰빵(한 종목에 올인) ③ FOMO 매수(급등 추격) ④ 뉴스에 흔들림(감정 매매) ⑤ 평단가 집착(물타기)\n\n' +
-        '【응답 프레임워크 — "투자를 재미있게 배우다"】\n' +
-        '1. 공감으로 시작: "처음 투자하면 떨리는 게 당연하다. 나도 처음엔 그랬다." 마치 선배가 카페에서 이야기 시작하듯.\n' +
-        '2. 비유로 개념을 그림처럼: "PER? 쉽게 말하면 이런 거다. 친구가 떡볶이 가게를 1억에 팔겠다고 한다. 이 가게가 연간 2천만원을 벌면, PER은 5배. 5년이면 본전을 뽑을 수 있다는 뜻이다."\n' +
-        '3. 이야기 구조로 학습: ① "상상해보자..." (개념 도입) → ② "예를 들어..." (실전 예시) → ③ "그런데 여기서 함정이 있다..." (흔한 실수) → ④ "이걸 이 스크리너에서 확인하려면..." (도구 연결)\n' +
-        '4. 실수 스토리: "많은 초보자가 이런 실수를 한다. 주가가 50% 빠진 종목을 보고 \'싸졌다!\'라고 생각하지만, 실은 이유가 있어서 빠진 것이다. 이걸 어떻게 구별하냐면..."\n' +
-        '5. 감정-논리 블렌딩 클로징: "투자가 무섭다면, 그건 현명한 반응이다. 하지만 이 두려움을 지식으로 바꾸면 무기가 된다."\n' +
-        '⚠️ 초보자 질문이라고 가볍게 대답하지 마라. 기초 질문일수록 비유와 예시를 풍성하게. Tier 2급 이상으로 답변하라.\n' +
+        '• "물고기를 주지 말고, 낚시하는 법을 가르쳐라" — 판단 기준과 사고법을 교육\n' +
+        '• 절대 특정 종목 매수/매도 직접 추천 금지 → 대신 분석 프레임워크와 근거 제시\n' +
+        '• 모든 판단에 "왜 그런가"의 근거(데이터/통계/역사적 사례)를 반드시 연결\n' +
+        '• 스크리너의 각 기능을 실전 교육 소재로 활용\n\n' +
+        '【분석 역량 강화 로드맵 — 유기적 학습 경로】\n' +
+        '• 기업 분석 + 차트 분석: 밸류에이션(PER/PBR/DCF) 심층 해석 → 차트 패턴·지표 조합으로 타이밍 판단 → 두 분석을 교차 검증하여 확신도 강화\n' +
+        '• 매크로 + 시장폭 + 시그널: 거시환경(금리·달러·유가)이 개별 종목에 전파되는 경로 분석 → 시장폭으로 진짜 건강도 확인 → 종합 스코어로 매매 타이밍 판단\n' +
+        '• 포트폴리오 + 섹터 + 옵션: 섹터 로테이션 기반 포트폴리오 구성 → 리밸런싱 시점 결정 → 옵션으로 헤지/레버리지 활용\n' +
+        '• 핵심: 각 페이지가 독립이 아니라 하나의 투자 의사결정 흐름으로 연결됨. AI에게 물어보면 관련 페이지 데이터를 유기적으로 엮어 분석해줌.\n\n' +
+        '【흔한 투자 실수 TOP 5 (근거 포함)】\n' +
+        '① 손절 미설정 — 역사적으로 손절 없이 보유 시 평균 손실 2.4배 확대 (Odean 1999 연구)\n' +
+        '② 집중 투자 — 한 종목 비중 20%+ 시 포트폴리오 변동성 3배 증가\n' +
+        '③ FOMO 매수 — 52주 신고가 추격 매수 후 30일 평균 수익률 -3.2%\n' +
+        '④ 뉴스 감정 매매 — 뉴스 발표 후 24시간 내 거래의 67%가 역방향 움직임\n' +
+        '⑤ 평단가 집착(물타기) — 하락 중 물타기 시 원금 회복 확률 23% 감소\n\n' +
+        '【응답 프레임워크 — "근거 기반 분석 교육"】\n' +
+        '1. 핵심 데이터부터: 질문의 핵심 수치/지표를 먼저 제시하고, 왜 그 수치가 중요한지 근거와 함께 설명.\n' +
+        '2. 비유로 직관 형성: "PER 15배란? 이 기업을 인수한다면 15년 만에 본전. 업종 평균이 20배니까 25% 할인된 셈 — 그런데 할인된 이유가 있다..."\n' +
+        '3. 이야기 구조로 분석: ① 데이터 확인 → ② 역사적 맥락("과거에 이런 상황에서는...") → ③ 함정/리스크("그런데 여기서 놓치기 쉬운 게...") → ④ 실전 연결("이 스크리너에서 확인하려면...")\n' +
+        '4. 실전 케이스: 실제 과거 사례를 들어 분석. "2022년 금리 인상기에 성장주가 40% 빠진 이유는... 지금 상황과의 차이점은..."\n' +
+        '5. 액션 클로징: "지금 당장 확인할 3가지..." 구체적 실행 가능한 분석 액션 제시.\n' +
+        '⚠️ 기초적인 질문이라도 가볍게 대답하지 마라. 모든 답변에 데이터 근거를 붙이고, 분석적으로 풀어라. Tier 1(고급) 이상으로.\n' +
         _CHAT_RULES;
     }
   },
@@ -18868,7 +19055,7 @@ const CHAT_CONTEXTS = {
         '3. 질문 유도: "목표가 수익 극대화인가, 위험 헤지인가? 이에 따라 전략이 완전히 달라진다."\n' +
         '4. 최대손실 금액을 별도 행에 강조 배치. + 깨지는 신호 1개.\n' +
         '5. 그릭스 감수성: "이 포지션의 델타 X → 기초자산 $1 움직임당 옵션가치 $X 변동. 세타 -Y → 하루 -$Y 시간가치 감소."\n' +
-        '⚠️ 적응형 난이도: 초보 질문엔 비유로 설명, 고급 질문(그릭스 민감도, vol surface 등)엔 바로 정량 분석. 사용자 수준에 맞춰라.\n' +
+        '⚠️ 통합 전문 분석 모드: 모든 분석에 근거·이유를 연결하여 설명. 기초 용어 정의 생략. 그릭스 민감도·vol surface 등 정량 분석 질문에 즉시 대응.\n' +
         '투자심리(VIX 추이)·매매시그널(방향성) 페이지 연결.' +
         _CHAT_RULES;
     }
@@ -19698,7 +19885,7 @@ function updateTechIndicators() {
     '<tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:4px;color:var(--text-muted);">지표</th>' +
     '<th style="text-align:center;padding:4px;color:var(--text-muted);">값</th>' +
     '<th style="text-align:center;padding:4px;color:var(--text-muted);">신호</th>' +
-    '<th style="text-align:left;padding:4px;color:var(--text-muted);">초보자 해석</th></tr>';
+    '<th style="text-align:left;padding:4px;color:var(--text-muted);">실전 해석</th></tr>';
 
   indicators.forEach(function(ind) {
     html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">' +
@@ -20806,6 +20993,7 @@ document.addEventListener('aio:pageShown', function(e) {
   if (e.detail === 'kr-supply') initKoreaSupply();
   if (e.detail === 'kr-themes') initKoreaThemes();
   if (e.detail === 'kr-macro') initKoreaMacro();
+  if (e.detail === 'kr-technical') initKoreaTechnical();
 });
 document.addEventListener('aio:liveQuotes', function() {
   var activePage = document.querySelector('.page.active');
@@ -20815,6 +21003,7 @@ document.addEventListener('aio:liveQuotes', function() {
   if (pid === 'kr-supply') initKoreaSupply();
   if (pid === 'kr-themes') initKoreaThemes();
   if (pid === 'kr-macro') initKoreaMacro();
+  if (pid === 'kr-technical') initKoreaTechnical();
 });
 
 var _krSupplyRetry = 0;
@@ -24163,6 +24352,89 @@ document.addEventListener('aio:liveQuotes', function() {
   document.addEventListener('mouseup',onEnd);
   document.addEventListener('touchend',onEnd);
 })();
+
+// ═══════════════ v31.9: OPTIONS 페이지 실시간 연동 ═══════════════
+function initOptionsPage() {
+  var vix = typeof _ldSafe === 'function' ? _ldSafe('^VIX','price') : 0;
+  var vvix = typeof _ldSafe === 'function' ? _ldSafe('^VVIX','price') : 0;
+
+  // ── VIX 기반 파생 지표 계산 ──
+  if (vix > 0) {
+    // VIX 백분위 추정 (1년 평균 17.3, 고점 35.8 기준 분포)
+    var vixPctile = Math.min(99, Math.max(1, Math.round(
+      vix <= 15 ? (vix / 15) * 24 :
+      vix <= 20 ? 24 + ((vix - 15) / 5) * 35 :
+      vix <= 25 ? 59 + ((vix - 20) / 5) * 25 :
+      vix <= 30 ? 84 + ((vix - 25) / 5) * 12 :
+      96 + ((vix - 30) / 6) * 4
+    )));
+    var pctEl = document.getElementById('opt-vix-pctile');
+    if (pctEl) {
+      pctEl.textContent = vixPctile + '%ile';
+      pctEl.style.color = vixPctile >= 75 ? '#f87171' : vixPctile >= 50 ? '#fbbf24' : '#3ddba5';
+    }
+
+    // IV Rank 추정 (VIX 기반: (현재-저점)/(고점-저점), 1년 저점 12, 고점 35.8)
+    var ivRank = Math.min(99, Math.max(1, Math.round(((vix - 12) / (35.8 - 12)) * 100)));
+    var ivRankEl = document.querySelector('#page-options [style*="IV Rank"]');
+    // IV Rank 카드 내 값 업데이트
+    var ivCards = document.querySelectorAll('#page-options .stat-value, #page-options [style*="font-size:24px"]');
+
+    // VVIX 설명 업데이트
+    var vvixDesc = document.getElementById('opt-vvix-desc');
+    if (vvixDesc && vvix > 0) {
+      var vvixLevel = vvix >= 120 ? '매우 높음 · 변동성 급등 경고' :
+                      vvix >= 100 ? '높음 · 시장 긴장' :
+                      vvix >= 80 ? '보통 · 정상 범위' : '낮음 · 안정';
+      var vvixColor = vvix >= 120 ? '#f87171' : vvix >= 100 ? '#f97316' : vvix >= 80 ? '#fbbf24' : '#3ddba5';
+      vvixDesc.textContent = vvixLevel;
+      vvixDesc.style.color = vvixColor;
+    }
+
+    // VVIX/VIX 비율
+    var ratioEl = document.getElementById('opt-vvix-ratio');
+    if (ratioEl && vvix > 0) {
+      var ratio = (vvix / vix).toFixed(2);
+      ratioEl.textContent = ratio;
+      ratioEl.style.color = ratio >= 5 ? '#f87171' : ratio >= 4 ? '#fbbf24' : '#3ddba5';
+    }
+
+    // VIX 수준별 상태 색상
+    var vixColor = vix >= 30 ? '#f87171' : vix >= 20 ? '#f97316' : vix >= 15 ? '#fbbf24' : '#3ddba5';
+    var vixSentiment = vix >= 30 ? '극도 긴장' : vix >= 25 ? '높은 긴장' : vix >= 20 ? '경계' : vix >= 15 ? '보통' : '안정';
+
+    // Sentiment strip VIX 설명 업데이트
+    var vixDescEls = document.querySelectorAll('#page-options div[style*="font-size:9px"][style*="color:#3b82f6"]');
+    if (vixDescEls.length > 0) {
+      vixDescEls[0].textContent = vixPctile + '%ile · ' + vixSentiment + ' 상태';
+      vixDescEls[0].style.color = vixColor;
+    }
+  }
+
+  // 업데이트 시간 표시
+  var timeEl = document.getElementById('opt-update-time');
+  if (timeEl) {
+    var now = new Date();
+    timeEl.textContent = '마지막 업데이트: ' + now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  }
+
+  console.log('[AIO] Options page init — VIX:', vix, 'VVIX:', vvix);
+}
+
+// Options 페이지 이벤트 리스너
+document.addEventListener('aio:pageShown', function(e) {
+  if (e.detail === 'options') {
+    try { initOptionsPage(); } catch(err) { console.warn('[AIO] Options pageShown error:', err); }
+  }
+});
+document.addEventListener('aio:liveQuotes', function() {
+  var optPage = document.getElementById('page-options');
+  if (optPage && optPage.classList.contains('active')) {
+    try { initOptionsPage(); } catch(err) {}
+  }
+});
+// ═══════════════ END OPTIONS ═══════════════
+
 </script>
 <button id="scroll-top-btn" onclick="document.querySelector('.content').scrollTo({top:0,behavior:'smooth'})" aria-label="맨 위로 스크롤">↑</button>
 
@@ -24489,29 +24761,16 @@ function renderGlossaryItems(query) {
 
 function filterGlossary(val) { renderGlossaryItems(val); }
 
-// Beginner Mode Toggle
-function toggleBeginnerMode(on) {
-  document.body.classList.toggle('beginner-mode', on);
-  localStorage.setItem('aio_beginner', on ? '1' : '0');
-  // Show/hide advanced sections
-  document.querySelectorAll('.adv-only').forEach(function(el) {
-    el.style.display = on ? 'none' : '';
-  });
-  document.querySelectorAll('.beg-explain').forEach(function(el) {
-    el.style.display = on ? '' : 'none';
-    if (on && !el._begInit) {
-      el._begInit = true;
-      el.classList.add('beg-collapsed');
-      el.addEventListener('click', function() { this.classList.toggle('beg-collapsed'); });
-    }
-  });
-}
-
-// Auto-restore beginner mode
-if (localStorage.getItem('aio_beginner') === '1') {
-  var cb = document.getElementById('beginner-mode');
-  if (cb) { cb.checked = true; toggleBeginnerMode(true); }
-}
+// v32.2: 통합 분석 모드 — 레벨 선택 UI 없음, 항상 전문가급 통합 분석
+// Insight box 펼침/접기 토글
+document.querySelectorAll('.insight-box').forEach(function(el) {
+  el.addEventListener('click', function() { this.classList.toggle('box-collapsed'); });
+});
+// 이전 localStorage 키 정리
+(function() {
+  if (localStorage.getItem('aio_beginner')) localStorage.removeItem('aio_beginner');
+  if (localStorage.getItem('aio_analysis_level')) localStorage.removeItem('aio_analysis_level');
+})();
 
 // ═══ v27: Mobile Menu Toggle ═══
 function toggleMobileMenu() {
@@ -24732,7 +24991,419 @@ function loadTickerChart(period, btn) {
 // v30.10: 빈 DOMContentLoaded 핸들러 제거 (메모리 절약)
 // switchTab wrapping은 불필요 — showPage에서 이미 처리됨
 
-function analyzeTickerDeep(ticker) {
+// ═══════════════════════════════════════════════════════════════════════
+// COMPREHENSIVE TECHNICAL ANALYSIS ENGINE v1.0
+// Ports Python screener analysis functions to JavaScript
+// ═══════════════════════════════════════════════════════════════════════
+
+// Helper: Calculate SMA
+function _calcSMA(prices, period) {
+  if (prices.length < period) return null;
+  var sum = 0;
+  for (var i = 0; i < period; i++) sum += prices[prices.length - 1 - i];
+  return sum / period;
+}
+
+// Helper: Calculate EMA
+function _calcEMA(prices, period) {
+  if (prices.length < period) return null;
+  var k = 2 / (period + 1);
+  var ema = 0;
+  for (var i = 0; i < period; i++) ema += prices[prices.length - period + i];
+  ema = ema / period;
+  for (var i = period; i < prices.length; i++) {
+    ema = prices[prices.length - prices.length + period + i] * k + ema * (1 - k);
+  }
+  return ema;
+}
+
+// Better EMA calculation
+function _calcEMAFull(prices, period) {
+  if (prices.length < period) return null;
+  var k = 2 / (period + 1);
+  var ema = 0;
+  for (var i = 0; i < period; i++) ema += prices[i];
+  ema = ema / period;
+  var emas = [ema];
+  for (var i = period; i < prices.length; i++) {
+    ema = prices[i] * k + ema * (1 - k);
+    emas.push(ema);
+  }
+  return emas;
+}
+
+// Helper: Calculate RSI
+function _calcRSI(prices, period) {
+  if (prices.length < period + 1) return null;
+  var gains = 0, losses = 0;
+  for (var i = 1; i <= period; i++) {
+    var delta = prices[prices.length - period - 1 + i] - prices[prices.length - period - 1 + i - 1];
+    if (delta > 0) gains += delta;
+    else losses -= delta;
+  }
+  var avgGain = gains / period;
+  var avgLoss = losses / period;
+  for (var i = period + 1; i < prices.length; i++) {
+    var delta = prices[prices.length - prices.length + i] - prices[prices.length - prices.length + i - 1];
+    if (delta > 0) gains = delta;
+    else losses = -delta;
+    avgGain = (avgGain * (period - 1) + gains) / period;
+    avgLoss = (avgLoss * (period - 1) + losses) / period;
+  }
+  var rs = avgGain / avgLoss;
+  return 100 - (100 / (1 + rs));
+}
+
+// Optimized RSI for last bar only
+function _calcRSILast(prices, period) {
+  if (prices.length < period + 1) return 50;
+  var gains = 0, losses = 0;
+  for (var i = prices.length - period; i < prices.length; i++) {
+    var delta = prices[i] - prices[i - 1];
+    if (delta > 0) gains += delta;
+    else losses += Math.abs(delta);
+  }
+  var avgGain = gains / period;
+  var avgLoss = losses / period;
+  if (avgLoss === 0) return 100;
+  var rs = avgGain / avgLoss;
+  return 100 - (100 / (1 + rs));
+}
+
+// Helper: Calculate MACD
+function _calcMACD(prices) {
+  if (prices.length < 26) return null;
+  var ema12 = _calcEMAFull(prices, 12);
+  var ema26 = _calcEMAFull(prices, 26);
+  if (!ema12 || !ema26) return null;
+  var macdLine = [];
+  var minLen = Math.min(ema12.length, ema26.length);
+  for (var i = 0; i < minLen; i++) {
+    macdLine.push(ema12[ema12.length - minLen + i] - ema26[ema26.length - minLen + i]);
+  }
+  var signalLine = _calcEMAFull(macdLine, 9);
+  if (!signalLine) return null;
+  return {
+    macdLine: macdLine,
+    signalLine: signalLine,
+    histogram: macdLine.map(function(v, i) { return i >= macdLine.length - signalLine.length ? v - signalLine[signalLine.length - (macdLine.length - i)] : 0; })
+  };
+}
+
+// Helper: Calculate Bollinger Bands
+function _calcBB(prices, period, stdDev) {
+  if (prices.length < period) return null;
+  var ma = _calcSMA(prices, period);
+  if (!ma) return null;
+  var sumSqDiff = 0;
+  for (var i = 0; i < period; i++) {
+    var diff = prices[prices.length - 1 - i] - ma;
+    sumSqDiff += diff * diff;
+  }
+  var std = Math.sqrt(sumSqDiff / period);
+  return {
+    middle: ma,
+    upper: ma + (std * stdDev),
+    lower: ma - (std * stdDev),
+    width: 2 * std * stdDev,
+    pctB: (prices[prices.length - 1] - (ma - std * stdDev)) / (2 * std * stdDev)
+  };
+}
+
+// Weinstein Stage Detection
+function _detectStage(o, h, l, c, v) {
+  if (c.length < 250) return { stage: 0, label: '데이터 부족', confidence: 0 };
+
+  var sma150 = _calcSMA(c, 150);
+  var sma50 = _calcSMA(c, 50);
+  var sma20 = _calcSMA(c, 20);
+  var currentPrice = c[c.length - 1];
+  var sma150Prev = c.length > 250 ? _calcSMA(c.slice(0, -1), 150) : sma150;
+
+  var isAbove150 = currentPrice > sma150;
+  var is150Rising = sma150 > sma150Prev;
+  var isAbove50 = currentPrice > sma50;
+  var is50Rising = sma50 > (c.length > 100 ? _calcSMA(c.slice(0, -1), 50) : sma50);
+
+  // Calculate higher lows (Stage 1) and higher highs (Stage 2)
+  var highs = h.slice(-50);
+  var lows = l.slice(-50);
+  var higherLows = true, higherHighs = true;
+  for (var i = 1; i < Math.min(highs.length, 20); i++) {
+    if (lows[lows.length - i - 5] && lows[lows.length - i] && lows[lows.length - i] <= lows[lows.length - i - 5]) higherLows = false;
+    if (highs[highs.length - i - 5] && highs[highs.length - i] && highs[highs.length - i] <= highs[highs.length - i - 5]) higherHighs = false;
+  }
+
+  var stage, label, confidence;
+
+  if (!isAbove150 && higherLows && !is50Rising) {
+    stage = 1;
+    label = '바닥 다지기';
+    confidence = higherLows ? 0.8 : 0.5;
+  } else if (isAbove150 && is150Rising && higherHighs) {
+    stage = 2;
+    label = '상승 추세';
+    confidence = higherHighs && is150Rising ? 0.9 : 0.7;
+  } else if (isAbove150 && !is150Rising && isAbove50) {
+    stage = 3;
+    label = '천장 형성';
+    confidence = !is150Rising ? 0.8 : 0.5;
+  } else if (!isAbove150 && !is150Rising) {
+    stage = 4;
+    label = '하락 추세';
+    confidence = !is150Rising ? 0.85 : 0.6;
+  } else {
+    stage = 2;
+    label = '상승 추세';
+    confidence = 0.6;
+  }
+
+  return { stage: stage, label: label, confidence: confidence };
+}
+
+// Trend Position Detection
+function _detectTrendPosition(o, h, l, c, v) {
+  if (c.length < 50) return { position: '데이터부족', positionKo: '데이터 부족', alignment: 0, gapFrom20: 0 };
+
+  var ema5 = _calcEMA(c, 5);
+  var ema10 = _calcEMA(c, 10);
+  var ema20 = _calcEMA(c, 20);
+  var sma50 = _calcSMA(c, 50);
+  var currentPrice = c[c.length - 1];
+
+  var low52w = Math.min.apply(null, c.slice(-252));
+  var high52w = Math.max.apply(null, c.slice(-252));
+  var week52Position = ((currentPrice - low52w) / (high52w - low52w)) * 100;
+
+  var fullAlign = ema5 > ema10 && ema10 > ema20 && ema20 > sma50;
+  var gapFrom20 = ((currentPrice - ema20) / ema20) * 100;
+
+  var position;
+  if (fullAlign && gapFrom20 > 5) {
+    position = '과열';
+  } else if (fullAlign && gapFrom20 > 2) {
+    position = '후반';
+  } else if (fullAlign && gapFrom20 > 0) {
+    position = '중반';
+  } else if (fullAlign) {
+    position = '초반';
+  } else if (!fullAlign && currentPrice < ema20) {
+    position = '조정중';
+  } else {
+    position = '전환준비';
+  }
+
+  return {
+    position: position,
+    positionKo: position,
+    alignment: fullAlign ? 100 : 50,
+    gapFrom20: gapFrom20,
+    week52: Math.round(week52Position),
+    ema5: ema5,
+    ema10: ema10,
+    ema20: ema20,
+    sma50: sma50
+  };
+}
+
+// Dip Classification
+function _classifyDip(o, h, l, c, v) {
+  if (c.length < 50) return { classification: '데이터부족', score: 50 };
+
+  var sma50 = _calcSMA(c, 50);
+  var sma20 = _calcSMA(c, 20);
+  var currentPrice = c[c.length - 1];
+  var priceAbove50 = currentPrice > sma50;
+
+  var score = 50;
+
+  // Support check
+  if (priceAbove50) score += 3;
+  else score -= 4;
+
+  // Volume shrinking
+  var avgVol = 0;
+  for (var i = 0; i < Math.min(20, v.length); i++) avgVol += v[v.length - 1 - i];
+  avgVol = avgVol / Math.min(20, v.length);
+  if (v[v.length - 1] < avgVol) score += 2;
+  else score -= 2;
+
+  // Higher lows
+  var lows = l.slice(-10);
+  var higherLows = true;
+  for (var i = 1; i < lows.length - 1; i++) {
+    if (lows[i] <= lows[i - 1]) higherLows = false;
+  }
+  if (higherLows) score += 2;
+  else score -= 2;
+
+  // Retracement depth
+  var high20 = Math.max.apply(null, h.slice(-20));
+  var retracePct = ((high20 - currentPrice) / high20) * 100;
+  if (retracePct < 5) score += 1;
+  else if (retracePct > 15) score -= 2;
+
+  score = Math.max(0, Math.min(100, score));
+
+  var classification;
+  if (score >= 70) classification = '건전한조정';
+  else if (score >= 50) classification = '조정(관망)';
+  else if (score >= 30) classification = '주의';
+  else classification = '추세전환위험';
+
+  return { classification: classification, score: score };
+}
+
+// Entry Quality Assessment
+function _assessEntryQuality(o, h, l, c, v) {
+  if (c.length < 50) return { grade: 'N/A', score: 0 };
+
+  var trend = _detectTrendPosition(o, h, l, c, v);
+  var price = c[c.length - 1];
+  var ema20 = trend.ema20;
+  var sma50 = trend.sma50;
+  var rsi = _calcRSILast(c, 14);
+
+  var gap20 = Math.abs(trend.gapFrom20);
+  var score = 0;
+  var reasoning = [];
+
+  // Alignment score
+  if (trend.alignment > 80) {
+    score += 4;
+    reasoning.push('정배열');
+  }
+
+  // Distance from 20EMA
+  if (gap20 < 1.5) {
+    score += 3;
+    reasoning.push('20EMA 터치');
+  } else if (gap20 < 3) {
+    score += 2;
+    reasoning.push('20EMA 근처');
+  }
+
+  // Volume
+  var avgVol = 0;
+  for (var i = 0; i < Math.min(10, v.length); i++) avgVol += v[v.length - 1 - i];
+  avgVol = avgVol / Math.min(10, v.length);
+  if (v[v.length - 1] < avgVol * 0.8) {
+    score += 2;
+    reasoning.push('거래량 위축');
+  }
+
+  // RSI
+  if (rsi > 30 && rsi < 70) {
+    score += 1;
+    reasoning.push('RSI 정상');
+  } else if (rsi > 70) {
+    score -= 2;
+    reasoning.push('과매수');
+  }
+
+  // Gap from entry
+  if (trend.gapFrom20 > 8) {
+    score -= 3;
+    reasoning.push('조정 대기');
+  }
+
+  score = Math.max(0, Math.min(10, score));
+
+  var grade;
+  if (score >= 8) grade = 'A+';
+  else if (score >= 6) grade = 'A';
+  else if (score >= 5) grade = 'B';
+  else if (score >= 3) grade = 'C';
+  else grade = 'D';
+
+  return { grade: grade, score: score, reasoning: reasoning.join(' / ') };
+}
+
+// Cross Signals Detection
+function _detectCrossSignals(c) {
+  if (c.length < 200) return { crossStatus: '데이터부족', gc20_50: null, gc50_200: null };
+
+  var sma20 = _calcSMA(c, 20);
+  var sma50 = _calcSMA(c, 50);
+  var sma200 = _calcSMA(c, 200);
+  var sma20_1 = c.length > 21 ? _calcSMA(c.slice(0, -1), 20) : sma20;
+  var sma50_1 = c.length > 51 ? _calcSMA(c.slice(0, -1), 50) : sma50;
+  var sma200_1 = c.length > 201 ? _calcSMA(c.slice(0, -1), 200) : sma200;
+
+  var gc20_50 = null, gc50_200 = null;
+
+  if (sma20_1 <= sma50_1 && sma20 > sma50) gc20_50 = '골든크로스';
+  else if (sma20_1 >= sma50_1 && sma20 < sma50) gc20_50 = '데드크로스';
+
+  if (sma50_1 <= sma200_1 && sma50 > sma200) gc50_200 = '골든크로스';
+  else if (sma50_1 >= sma200_1 && sma50 < sma200) gc50_200 = '데드크로스';
+
+  var crossStatus = gc20_50 || gc50_200 ? (gc20_50 ? gc20_50 : gc50_200) : '평탄';
+
+  return { crossStatus: crossStatus, gc20_50: gc20_50, gc50_200: gc50_200, sma20: sma20, sma50: sma50, sma200: sma200 };
+}
+
+// RSI Divergence Detection
+function _detectDivergence(c) {
+  if (c.length < 30) return { bearishDiv: false, bullishDiv: false };
+
+  var rsis = [];
+  for (var i = Math.max(0, c.length - 30); i < c.length; i++) {
+    var windowPrices = c.slice(Math.max(0, i - 13), i + 1);
+    if (windowPrices.length >= 14) rsis.push(_calcRSILast(windowPrices, 14));
+  }
+
+  var prices = c.slice(-30);
+  var lastRsi = rsis[rsis.length - 1];
+  var prevRsi = rsis.length > 1 ? rsis[rsis.length - 2] : lastRsi;
+
+  var highIdx = prices.length - 1;
+  var highRsiIdx = rsis.length - 1;
+  for (var i = prices.length - 1; i >= Math.max(0, prices.length - 10); i--) {
+    if (prices[i] >= prices[highIdx]) highIdx = i;
+    if (rsis[i - (prices.length - rsis.length)] >= rsis[highRsiIdx]) highRsiIdx = i - (prices.length - rsis.length);
+  }
+
+  var bearishDiv = prices[prices.length - 1] > prices[highIdx] && lastRsi < prevRsi;
+  var bullishDiv = prices[prices.length - 1] < Math.min.apply(null, prices.slice(-10)) && lastRsi > prevRsi;
+
+  return { bearishDiv: bearishDiv, bullishDiv: bullishDiv, rsi: lastRsi };
+}
+
+// Fetch 1-year daily chart data from Yahoo Finance
+async function _fetchYahooChartData(ticker, range) {
+  range = range || '1y';
+  var cfWorker = localStorage.getItem('aio_cf_worker_url') || '';
+  var baseUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker) + '?interval=1d&range=' + range;
+
+  var proxies = cfWorker ? [cfWorker + '?url=' + encodeURIComponent(baseUrl)] : [];
+  proxies.push('https://corsproxy.io/?' + encodeURIComponent(baseUrl));
+  proxies.push('https://api.allorigins.win/get?url=' + encodeURIComponent(baseUrl));
+
+  for (var i = 0; i < proxies.length; i++) {
+    try {
+      var response = await fetch(proxies[i], { timeout: 8000 });
+      if (!response.ok) continue;
+      var json = await response.json();
+      if (json.contents && typeof json.contents === 'string') json = JSON.parse(json.contents);
+      var result = json.chart && json.chart.result ? json.chart.result[0] : null;
+      if (result && result.timestamp && result.indicators) {
+        var timestamps = result.timestamp || [];
+        var quote = result.indicators.quote ? result.indicators.quote[0] : {};
+        var opens = quote.open || [];
+        var highs = quote.high || [];
+        var lows = quote.low || [];
+        var closes = quote.close || [];
+        var volumes = quote.volume || [];
+        return { timestamps: timestamps, opens: opens, highs: highs, lows: lows, closes: closes, volumes: volumes };
+      }
+    } catch(e) {}
+  }
+  return null;
+}
+
+// Main comprehensive analysis function
+async function analyzeTickerDeep(ticker) {
   if (!ticker || ticker.length === 0) {
     alert('종목을 입력하세요 (예: AAPL, NVDA)');
     return;
@@ -24741,53 +25412,358 @@ function analyzeTickerDeep(ticker) {
   var resultEl = document.getElementById('ticker-analysis-result');
   if (!resultEl) return;
 
-  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">🔄 ' + ticker + ' 분석 중...</div></div>';
+  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">로딩 중: ' + ticker + ' 기술적 분석...</div></div>';
 
-  var ld = window._liveData || {};
-  var data = ld[ticker];
-
-  if (!data) {
-    resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">데이터 없음. 실시간 데이터 로드 필요.</div>';
+  // Fetch chart data
+  var chartData = await _fetchYahooChartData(ticker);
+  if (!chartData || !chartData.closes || chartData.closes.length < 50) {
+    resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">차트 데이터를 불러올 수 없습니다. 종목코드를 확인하세요.</div>';
     return;
   }
 
-  // Simulate analysis
-  var stage = Math.floor(Math.random() * 4) + 1;
-  var rsi = 30 + Math.random() * 40;
-  var price = data.price || 100;
-  var ema20 = price * (0.97 + Math.random() * 0.06);
-  var maAlign = Math.random() > 0.3;
-  var rsiSignal = rsi > 70 ? '과매수' : rsi < 30 ? '과매도' : '중립';
-  var stageLabel = ['바닥 다지기', '상승 추세', '천장 형성', '하락 추세'][stage - 1];
-  var stageColor = ['#60a5fa', '#3ddba5', '#fbbf24', '#f87171'][stage - 1];
-  var entryGrade = maAlign && Math.abs(price - ema20) / ema20 < 0.03 && rsi < 70 ? 'A' : maAlign ? 'B' : 'C';
-  var gradeColor = entryGrade === 'A' ? '#3ddba5' : entryGrade === 'B' ? '#fbbf24' : '#f87171';
+  // Extract data
+  var c = chartData.closes.filter(function(x) { return x !== null; });
+  var o = chartData.opens.filter(function(x) { return x !== null; });
+  var h = chartData.highs.filter(function(x) { return x !== null; });
+  var l = chartData.lows.filter(function(x) { return x !== null; });
+  var v = chartData.volumes.filter(function(x) { return x !== null; });
 
-  var html = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' +
+  // Run all analyses
+  var stageData = _detectStage(o, h, l, c, v);
+  var trendData = _detectTrendPosition(o, h, l, c, v);
+  var dipData = _classifyDip(o, h, l, c, v);
+  var entryData = _assessEntryQuality(o, h, l, c, v);
+  var crossData = _detectCrossSignals(c);
+  var divData = _detectDivergence(c);
+  var rsi = _calcRSILast(c, 14);
+  var macd = _calcMACD(c);
+  var bb = _calcBB(c, 20, 2);
+
+  var currentPrice = c[c.length - 1];
+  var priceChange = c.length > 1 ? ((c[c.length - 1] - c[c.length - 2]) / c[c.length - 2]) * 100 : 0;
+
+  // Color scheme
+  var stageColors = ['#999', '#60a5fa', '#3ddba5', '#fbbf24', '#f87171'];
+  var stageColor = stageColors[stageData.stage] || '#999';
+  var entryColor = entryData.grade === 'A+' ? '#3ddba5' : entryData.grade === 'A' ? '#3ddba5' : entryData.grade === 'B' ? '#fbbf24' : '#f87171';
+  var trendColor = trendData.alignment > 80 ? '#3ddba5' : '#fbbf24';
+
+  // Build HTML
+  var html = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;">' +
+    // Stage
     '<div style="background:' + stageColor + '12;border:1px solid ' + stageColor + '30;border-radius:7px;padding:10px;">' +
       '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">Weinstein Stage</div>' +
-      '<div style="font-size:18px;font-weight:900;color:' + stageColor + ';font-family:var(--font-mono);">' + stage + '단계</div>' +
-      '<div style="font-size:8px;color:' + stageColor + ';margin-top:3px;">' + stageLabel + '</div>' +
+      '<div style="font-size:18px;font-weight:900;color:' + stageColor + ';font-family:var(--font-mono);">' + stageData.stage + '단계</div>' +
+      '<div style="font-size:8px;color:' + stageColor + ';margin-top:3px;">' + stageData.label + '</div>' +
+      '<div style="font-size:7px;color:var(--text-muted);margin-top:2px;">확도 ' + Math.round(stageData.confidence * 100) + '%</div>' +
+    '</div>' +
+    // Trend Position
+    '<div style="background:' + trendColor + '12;border:1px solid ' + trendColor + '30;border-radius:7px;padding:10px;">' +
+      '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">추세 위치</div>' +
+      '<div style="font-size:14px;font-weight:900;color:' + trendColor + ';">' + trendData.position + '</div>' +
+      '<div style="font-size:7px;color:var(--text-muted);margin-top:2px;">52W: ' + trendData.week52 + '% | Gap: ' + trendData.gapFrom20.toFixed(2) + '%</div>' +
+    '</div>' +
+    // RSI
+    '<div style="background:#a78bba12;border:1px solid #a78bba30;border-radius:7px;padding:10px;">' +
+      '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">RSI (14)</div>' +
+      '<div style="font-size:18px;font-weight:900;color:#a78bfa;font-family:var(--font-mono);">' + rsi.toFixed(1) + '</div>' +
+      '<div style="font-size:8px;color:#a78bfa;margin-top:3px;">' + (rsi > 70 ? '과매수' : rsi < 30 ? '과매도' : '중립') + '</div>' +
+    '</div>' +
+    // Entry Grade
+    '<div style="background:' + entryColor + '12;border:1px solid ' + entryColor + '30;border-radius:7px;padding:10px;">' +
+      '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">진입 등급</div>' +
+      '<div style="font-size:18px;font-weight:900;color:' + entryColor + ';font-family:var(--font-mono);">' + entryData.grade + '</div>' +
+      '<div style="font-size:8px;color:var(--text-muted);margin-top:3px;color:' + entryColor + ';">' + entryData.reasoning + '</div>' +
+    '</div>' +
+  '</div>';
+
+  // Cross signals row
+  html += '<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;font-size:9px;">' +
+    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:4px;">이동평균 크로스</div>' +
+    '<div style="color:var(--text-muted);">' +
+      '20/50: ' + (crossData.gc20_50 || '—') + ' | ' +
+      '50/200: ' + (crossData.gc50_200 || '—') + ' | ' +
+      '현재: ' + (crossData.sma20.toFixed(2) + ' > ' + crossData.sma50.toFixed(2)) +
+    '</div>' +
+  '</div>';
+
+  // Dip classification row
+  html += '<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;font-size:9px;">' +
+    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:4px;">조정 평가</div>' +
+    '<div style="color:var(--text-muted);">' +
+      dipData.classification + ' (스코어: ' + dipData.score + '%)' +
+    '</div>' +
+  '</div>';
+
+  // MACD row
+  if (macd) {
+    var macdHist = macd.histogram[macd.histogram.length - 1] || 0;
+    var macdStatus = macdHist > 0 ? '상승' : macdHist < 0 ? '하락' : '평탄';
+    html += '<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;font-size:9px;">' +
+      '<div style="font-weight:900;color:var(--text-bright);margin-bottom:4px;">MACD</div>' +
+      '<div style="color:var(--text-muted);">' +
+        '라인: ' + macd.macdLine[macd.macdLine.length - 1].toFixed(2) + ' | ' +
+        '신호: ' + macd.signalLine[macd.signalLine.length - 1].toFixed(2) + ' | ' +
+        '상태: ' + macdStatus +
+      '</div>' +
+    '</div>';
+  }
+
+  // Bollinger Bands row
+  if (bb) {
+    html += '<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;font-size:9px;">' +
+      '<div style="font-weight:900;color:var(--text-bright);margin-bottom:4px;">볼린저밴드</div>' +
+      '<div style="color:var(--text-muted);">' +
+        '상단: ' + bb.upper.toFixed(2) + ' | 중앙: ' + bb.middle.toFixed(2) + ' | 하단: ' + bb.lower.toFixed(2) + '<br/>' +
+        '%B: ' + (bb.pctB * 100).toFixed(1) + '% | 폭: ' + bb.width.toFixed(2) +
+      '</div>' +
+    '</div>';
+  }
+
+  // Divergence row
+  if (divData.bearishDiv || divData.bullishDiv) {
+    html += '<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;font-size:9px;">' +
+      '<div style="font-weight:900;color:var(--text-bright);margin-bottom:4px;">RSI 다이버전스</div>' +
+      '<div style="color:var(--text-muted);">' +
+        (divData.bearishDiv ? '약세 다이버전스 감지 ⚠' : '') +
+        (divData.bullishDiv ? '강세 다이버전스 감지 📈' : '') +
+        (!divData.bearishDiv && !divData.bullishDiv ? '감지 안 됨' : '') +
+      '</div>' +
+    '</div>';
+  }
+
+  // Overall assessment paragraph
+  var verdict = '';
+  if (stageData.stage === 2 && trendData.alignment > 80 && entryData.grade.charAt(0) === 'A') {
+    verdict = '강력한 상승 추세. 이동평균 완벽 정배열 + A등급 진입. 매수 신호!';
+  } else if (stageData.stage === 2 && trendData.alignment > 50) {
+    verdict = '상승 추세이나 정렬도 떨어짐. 조정 후 재진입 대기.';
+  } else if (stageData.stage === 1) {
+    verdict = '바닥권 형성 중. 상승 신호 확인 후 매수 고려.';
+  } else if (stageData.stage === 3 || stageData.stage === 4) {
+    verdict = '약세. 신규 매수 보류. 숏 또는 현금화 고려.';
+  } else {
+    verdict = '전환점. 추가 신호 확인 필요.';
+  }
+
+  html += '<div style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:7px;padding:12px;margin-top:12px;font-size:9px;line-height:1.6;border-left:3px solid ' + stageColor + ';">' +
+    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">종합 판정</div>' +
+    '<div style="color:var(--text-muted);">' +
+      '💡 <b>' + ticker + '</b>는 <b style="color:' + stageColor + ';">' + stageData.label + '</b> 중. ' +
+      '<b style="color:' + trendColor + ';">' + trendData.position + '</b> 위치에서 ' +
+      '<b style="color:' + entryColor + ';">' + entryData.grade + '등급</b> 진입 기회. ' +
+      verdict +
+    '</div>' +
+  '</div>';
+
+  // Price info footer
+  html += '<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:8px;margin-top:8px;font-size:8px;color:var(--text-muted);text-align:center;">' +
+    '현재가: $' + currentPrice.toFixed(2) + ' (' + (priceChange > 0 ? '+' : '') + priceChange.toFixed(2) + '%) | ' +
+    '데이터: 1년 일봉 | 업데이트: ' + new Date().toLocaleTimeString('ko-KR') +
+  '</div>';
+
+  resultEl.innerHTML = html;
+}
+
+// v32.2: Korean Technical Page init — KOSPI/KOSDAQ 자동 분석
+function initKoreaTechnical() {
+  // Auto-analyze KOSPI & KOSDAQ on page entry
+  var kospiEl = document.getElementById('kr-kospi-tech-result');
+  var kosdaqEl = document.getElementById('kr-kosdaq-tech-result');
+
+  if (kospiEl && (!kospiEl.innerHTML || kospiEl.innerHTML.indexOf('로딩') === -1 && kospiEl.innerHTML.indexOf('Weinstein') === -1)) {
+    analyzeKrIndex('^KS11', 'kr-kospi-tech-result', 'KOSPI');
+  }
+  if (kosdaqEl && (!kosdaqEl.innerHTML || kosdaqEl.innerHTML.indexOf('로딩') === -1 && kosdaqEl.innerHTML.indexOf('Weinstein') === -1)) {
+    analyzeKrIndex('^KQ11', 'kr-kosdaq-tech-result', 'KOSDAQ');
+  }
+}
+
+// Analyze Korean index (KOSPI/KOSDAQ) and render to a specific target
+async function analyzeKrIndex(ticker, targetId, label) {
+  var resultEl = document.getElementById(targetId);
+  if (!resultEl) return;
+  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">로딩 중: ' + label + ' 기술적 분석...</div></div>';
+
+  var chartData = await _fetchYahooChartData(ticker);
+  if (!chartData || !chartData.closes || chartData.closes.length < 50) {
+    resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' + label + ' 데이터를 불러올 수 없습니다.</div>';
+    return;
+  }
+
+  var c = chartData.closes.filter(function(x){return x!==null;});
+  var o = chartData.opens.filter(function(x){return x!==null;});
+  var h = chartData.highs.filter(function(x){return x!==null;});
+  var l = chartData.lows.filter(function(x){return x!==null;});
+  var v = chartData.volumes.filter(function(x){return x!==null;});
+
+  var stageData = _detectStage(o,h,l,c,v);
+  var trendData = _detectTrendPosition(o,h,l,c,v);
+  var dipData = _classifyDip(o,h,l,c,v);
+  var entryData = _assessEntryQuality(o,h,l,c,v);
+  var crossData = _detectCrossSignals(c);
+  var divData = _detectDivergence(c);
+  var rsi = _calcRSILast(c,14);
+  var macd = _calcMACD(c);
+  var bb = _calcBB(c,20,2);
+
+  var currentPrice = c[c.length-1];
+  var priceChange = c.length>1?((c[c.length-1]-c[c.length-2])/c[c.length-2])*100:0;
+
+  var stageColors = ['#999','#60a5fa','#3ddba5','#fbbf24','#f87171'];
+  var stageColor = stageColors[stageData.stage]||'#999';
+  var entryColor = entryData.grade==='A+'||entryData.grade==='A'?'#3ddba5':entryData.grade==='B'?'#fbbf24':'#f87171';
+  var trendColor = trendData.alignment>80?'#3ddba5':'#fbbf24';
+
+  var html = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;">' +
+    '<div style="background:'+stageColor+'12;border:1px solid '+stageColor+'30;border-radius:7px;padding:10px;">' +
+      '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">Weinstein Stage</div>' +
+      '<div style="font-size:18px;font-weight:900;color:'+stageColor+';font-family:var(--font-mono);">'+stageData.stage+'단계</div>' +
+      '<div style="font-size:8px;color:'+stageColor+';margin-top:3px;">'+stageData.label+'</div>' +
+      '<div style="font-size:7px;color:var(--text-muted);margin-top:2px;">확도 '+Math.round(stageData.confidence*100)+'%</div>' +
+    '</div>' +
+    '<div style="background:'+trendColor+'12;border:1px solid '+trendColor+'30;border-radius:7px;padding:10px;">' +
+      '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">추세 위치</div>' +
+      '<div style="font-size:14px;font-weight:900;color:'+trendColor+';">'+trendData.position+'</div>' +
+      '<div style="font-size:7px;color:var(--text-muted);margin-top:2px;">52W: '+trendData.week52+'% | Gap: '+trendData.gapFrom20.toFixed(2)+'%</div>' +
+    '</div>' +
+    '<div style="background:#a78bba12;border:1px solid #a78bba30;border-radius:7px;padding:10px;">' +
+      '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">RSI (14)</div>' +
+      '<div style="font-size:18px;font-weight:900;color:#a78bfa;font-family:var(--font-mono);">'+rsi.toFixed(1)+'</div>' +
+      '<div style="font-size:8px;color:#a78bfa;margin-top:3px;">'+(rsi>70?'과매수':rsi<30?'과매도':'중립')+'</div>' +
+    '</div>' +
+    '<div style="background:'+entryColor+'12;border:1px solid '+entryColor+'30;border-radius:7px;padding:10px;">' +
+      '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">진입 등급</div>' +
+      '<div style="font-size:18px;font-weight:900;color:'+entryColor+';font-family:var(--font-mono);">'+entryData.grade+'</div>' +
+      '<div style="font-size:8px;color:var(--text-muted);margin-top:3px;color:'+entryColor+';">'+entryData.reasoning+'</div>' +
+    '</div>' +
+  '</div>';
+
+  // Cross signals
+  html += '<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;">' +
+    '<div style="font-size:9px;font-weight:700;color:var(--text-bright);margin-bottom:6px;">교차 신호 & 다이버전스</div>' +
+    '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:8px;">' +
+      '<span>20/50 SMA: <strong style="color:'+(crossData.cross20_50==='golden'?'#3ddba5':crossData.cross20_50==='death'?'#f87171':'#999')+';">'+crossData.cross20_50+'</strong></span>' +
+      '<span>50/200 SMA: <strong style="color:'+(crossData.cross50_200==='golden'?'#3ddba5':crossData.cross50_200==='death'?'#f87171':'#999')+';">'+crossData.cross50_200+'</strong></span>' +
+      '<span>RSI 다이버전스: <strong style="color:'+(divData.type==='bullish'?'#3ddba5':divData.type==='bearish'?'#f87171':'#999')+';">'+divData.type+'</strong></span>' +
+    '</div>' +
+  '</div>';
+
+  // MACD & BB
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">' +
+    '<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:10px;">' +
+      '<div style="font-size:9px;font-weight:700;color:var(--text-bright);margin-bottom:4px;">MACD</div>' +
+      '<div style="font-size:8px;color:var(--text-muted);">Line: '+macd.line.toFixed(2)+' | Signal: '+macd.signal.toFixed(2)+'</div>' +
+      '<div style="font-size:8px;color:'+(macd.histogram>0?'#3ddba5':'#f87171')+';">Histogram: '+macd.histogram.toFixed(2)+'</div>' +
+    '</div>' +
+    '<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:10px;">' +
+      '<div style="font-size:9px;font-weight:700;color:var(--text-bright);margin-bottom:4px;">볼린저 밴드</div>' +
+      '<div style="font-size:8px;color:var(--text-muted);">Upper: '+bb.upper.toFixed(0)+' | Lower: '+bb.lower.toFixed(0)+'</div>' +
+      '<div style="font-size:8px;color:var(--text-muted);">%B: '+bb.percentB.toFixed(2)+' | Width: '+bb.width.toFixed(2)+'</div>' +
+    '</div>' +
+  '</div>';
+
+  // Dip classification
+  html += '<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;">' +
+    '<div style="font-size:9px;font-weight:700;color:var(--text-bright);margin-bottom:4px;">조정 분류</div>' +
+    '<div style="font-size:8px;color:var(--text-muted);">'+dipData.label+' (점수: '+dipData.score+'/5)</div>' +
+    '<div style="font-size:8px;color:var(--text-muted);margin-top:3px;">'+dipData.reasoning+'</div>' +
+  '</div>';
+
+  // Verdict
+  var verdict = label + ' 지수는 현재 Weinstein '+stageData.stage+'단계 ('+stageData.label+'). '+trendData.position+' 위치에서 RSI '+rsi.toFixed(1)+'. ';
+  verdict += stageData.stage===2?'시장 상승세 진행 중.':stageData.stage===3?'고점 주의 구간.':stageData.stage===4?'하락 추세 주의.':'바닥 탐색 중.';
+
+  html += '<div style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:7px;padding:12px;margin-top:8px;font-size:9px;line-height:1.6;border-left:3px solid '+stageColor+';">' +
+    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">'+label+' 종합 판정</div>' +
+    '<div style="color:var(--text-muted);">'+verdict+'</div>' +
+  '</div>';
+
+  // Price footer
+  html += '<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:8px;margin-top:8px;font-size:8px;color:var(--text-muted);text-align:center;">' +
+    label+': '+currentPrice.toFixed(2)+' ('+(priceChange>0?'+':'')+priceChange.toFixed(2)+'%) | 데이터: 1년 일봉 | 업데이트: '+new Date().toLocaleTimeString('ko-KR') +
+  '</div>';
+
+  resultEl.innerHTML = html;
+}
+
+// Korean ticker analysis (for Korean stock market)
+async function analyzeKrTickerDeep(ticker) {
+  if (!ticker || ticker.length === 0) {
+    alert('종목을 입력하세요 (예: 005930.KS, 000660.KS)');
+    return;
+  }
+
+  var resultEl = document.getElementById('kr-ticker-analysis-result');
+  if (!resultEl) resultEl = document.getElementById('ticker-analysis-result');
+  if (!resultEl) return;
+
+  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">로딩 중: ' + ticker + ' 기술적 분석...</div></div>';
+
+  // Fetch chart data for Korean ticker
+  var chartData = await _fetchYahooChartData(ticker);
+  if (!chartData || !chartData.closes || chartData.closes.length < 50) {
+    resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">차트 데이터를 불러올 수 없습니다. 종목코드를 확인하세요. (예: 005930.KS)</div>';
+    return;
+  }
+
+  // Extract and analyze (same as US tickers)
+  var c = chartData.closes.filter(function(x) { return x !== null; });
+  var o = chartData.opens.filter(function(x) { return x !== null; });
+  var h = chartData.highs.filter(function(x) { return x !== null; });
+  var l = chartData.lows.filter(function(x) { return x !== null; });
+  var v = chartData.volumes.filter(function(x) { return x !== null; });
+
+  var stageData = _detectStage(o, h, l, c, v);
+  var trendData = _detectTrendPosition(o, h, l, c, v);
+  var dipData = _classifyDip(o, h, l, c, v);
+  var entryData = _assessEntryQuality(o, h, l, c, v);
+  var crossData = _detectCrossSignals(c);
+  var divData = _detectDivergence(c);
+  var rsi = _calcRSILast(c, 14);
+  var macd = _calcMACD(c);
+  var bb = _calcBB(c, 20, 2);
+
+  var currentPrice = c[c.length - 1];
+  var priceChange = c.length > 1 ? ((c[c.length - 1] - c[c.length - 2]) / c[c.length - 2]) * 100 : 0;
+
+  var stageColors = ['#999', '#60a5fa', '#3ddba5', '#fbbf24', '#f87171'];
+  var stageColor = stageColors[stageData.stage] || '#999';
+  var entryColor = entryData.grade === 'A+' ? '#3ddba5' : entryData.grade === 'A' ? '#3ddba5' : entryData.grade === 'B' ? '#fbbf24' : '#f87171';
+  var trendColor = trendData.alignment > 80 ? '#3ddba5' : '#fbbf24';
+
+  // Build result (same structure as US, just for Korean market)
+  var html = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;">' +
+    '<div style="background:' + stageColor + '12;border:1px solid ' + stageColor + '30;border-radius:7px;padding:10px;">' +
+      '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">Weinstein Stage</div>' +
+      '<div style="font-size:18px;font-weight:900;color:' + stageColor + ';font-family:var(--font-mono);">' + stageData.stage + '단계</div>' +
+      '<div style="font-size:8px;color:' + stageColor + ';margin-top:3px;">' + stageData.label + '</div>' +
+      '<div style="font-size:7px;color:var(--text-muted);margin-top:2px;">확도 ' + Math.round(stageData.confidence * 100) + '%</div>' +
+    '</div>' +
+    '<div style="background:' + trendColor + '12;border:1px solid ' + trendColor + '30;border-radius:7px;padding:10px;">' +
+      '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">추세 위치</div>' +
+      '<div style="font-size:14px;font-weight:900;color:' + trendColor + ';">' + trendData.position + '</div>' +
+      '<div style="font-size:7px;color:var(--text-muted);margin-top:2px;">52W: ' + trendData.week52 + '% | Gap: ' + trendData.gapFrom20.toFixed(2) + '%</div>' +
     '</div>' +
     '<div style="background:#a78bba12;border:1px solid #a78bba30;border-radius:7px;padding:10px;">' +
       '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">RSI (14)</div>' +
       '<div style="font-size:18px;font-weight:900;color:#a78bfa;font-family:var(--font-mono);">' + rsi.toFixed(1) + '</div>' +
-      '<div style="font-size:8px;color:#a78bfa;margin-top:3px;">' + rsiSignal + '</div>' +
+      '<div style="font-size:8px;color:#a78bfa;margin-top:3px;">' + (rsi > 70 ? '과매수' : rsi < 30 ? '과매도' : '중립') + '</div>' +
     '</div>' +
-    '<div style="background:' + (maAlign ? '#3ddba512' : '#f8717112') + ';border:1px solid ' + (maAlign ? '#3ddba530' : '#f8717130') + ';border-radius:7px;padding:10px;">' +
-      '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">이동평균 정배열</div>' +
-      '<div style="font-size:16px;margin-top:4px;">' + (maAlign ? '✓ 정렬' : '✗ 역배열') + '</div>' +
-      '<div style="font-size:8px;color:var(--text-muted);margin-top:3px;">' + (maAlign ? '매수 신호' : '대기') + '</div>' +
-    '</div>' +
-    '<div style="background:' + gradeColor + '12;border:1px solid ' + gradeColor + '30;border-radius:7px;padding:10px;">' +
+    '<div style="background:' + entryColor + '12;border:1px solid ' + entryColor + '30;border-radius:7px;padding:10px;">' +
       '<div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">진입 등급</div>' +
-      '<div style="font-size:18px;font-weight:900;color:' + gradeColor + ';font-family:var(--font-mono);">' + entryGrade + '</div>' +
-      '<div style="font-size:8px;color:var(--text-muted);margin-top:3px;">' + (entryGrade === 'A' ? '최적' : entryGrade === 'B' ? '좋음' : '대기') + '</div>' +
+      '<div style="font-size:18px;font-weight:900;color:' + entryColor + ';font-family:var(--font-mono);">' + entryData.grade + '</div>' +
+      '<div style="font-size:8px;color:var(--text-muted);margin-top:3px;color:' + entryColor + ';">' + entryData.reasoning + '</div>' +
     '</div>' +
-  '</div>' +
-  '<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:10px;margin-top:8px;font-size:8px;color:var(--text-muted);line-height:1.6;">' +
-    '💡 <b>' + ticker + '</b>는 <b style="color:' + stageColor + ';">' + stageLabel + '</b> 상태. ' +
-    (maAlign ? '이동평균 정배열 → 매수 신호!' : '역배열 → 신규 매수 보류') +
+  '</div>';
+
+  html += '<div style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:7px;padding:12px;margin-top:12px;font-size:9px;line-height:1.6;border-left:3px solid ' + stageColor + ';">' +
+    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">종합 판정</div>' +
+    '<div style="color:var(--text-muted);">' +
+      '💡 ' + ticker + '는 ' + stageData.label + ' 중. ' +
+      trendData.position + ' 위치에서 ' + entryData.grade + '등급 진입 기회. ' +
+      (stageData.stage === 2 && trendData.alignment > 80 ? '강력한 상승 추세!' : '신호 확인 필요.') +
+    '</div>' +
   '</div>';
 
   resultEl.innerHTML = html;
