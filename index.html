@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v31.7 — 올인원 투자 터미널</title>
+  <title>AIO Screener v31.8 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1905,7 +1905,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v31.7</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v31.8</span></div>
       <div class="page-subtitle" id="home-date-label">2026.03.23 (월) KST · 실시간 시세 자동갱신</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9247,7 +9247,7 @@ function _getKrxDataStatus(symbol) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// v31.7: DATA VALIDATION STORES — 데이터 정확성/최신성/신뢰성 검증 레이어
+// v31.8: DATA VALIDATION STORES — 데이터 정확성/최신성/신뢰성 검증 레이어
 // ═══════════════════════════════════════════════════════════════════
 
 // ── 1. PriceStore — 시세 데이터 검증 저장소 ──
@@ -9260,14 +9260,11 @@ const PriceStore = {
 
   /** 시세 데이터 저장 (검증 후) */
   set(sym, price, pct, source) {
-    // 1) 타입/범위 검증
     if (typeof price !== 'number' || isNaN(price) || price <= 0) {
       this._reject(sym, price, source, 'invalid_price', '가격이 숫자가 아니거나 0 이하');
       return false;
     }
     if (typeof pct !== 'number' || isNaN(pct)) pct = 0;
-
-    // 2) 급변 감지 (세션 시작 3분 이후부터, ±50% 초과 시 거부)
     const age = Date.now() - this._sessionStart;
     if (this._prev[sym] && age > 180000) {
       const jump = Math.abs(price - this._prev[sym]) / this._prev[sym];
@@ -9276,13 +9273,9 @@ const PriceStore = {
         return false;
       }
     }
-
-    // 3) 저장
     this._data[sym] = { price, pct, source: source || 'unknown', ts: Date.now(), stale: false };
     this._prev[sym] = price;
     this._stats.accepted++;
-
-    // 하위 호환: window._liveData 동기화
     window._liveData = window._liveData || {};
     window._liveData[sym] = { price, pct };
     window._quoteTimestamps = window._quoteTimestamps || {};
@@ -9291,53 +9284,37 @@ const PriceStore = {
     window._dataSource[sym] = { source: source || 'live:yahoo', ts: Date.now() };
     return true;
   },
-
-  /** 시세 조회 (staleness 자동 마킹) */
   get(sym) {
     const d = this._data[sym];
     if (!d) return null;
-    d.stale = (Date.now() - d.ts) > 300000; // 5분 초과 = stale
+    d.stale = (Date.now() - d.ts) > 300000;
     return d;
   },
-
-  /** 거부 기록 */
   _reject(sym, price, source, reason, detail) {
     this._stats.rejected++;
     if (this._rejected.length >= 50) this._rejected.shift();
     this._rejected.push({ sym, price, source, reason, detail, ts: Date.now() });
     console.warn(`[PriceStore] 거부: ${sym} = ${price} (${reason}: ${detail})`);
   },
-
-  /** 헬스 리포트 */
   health() {
     const now = Date.now();
     let total = 0, stale = 0, fresh = 0;
     const sources = {};
     for (const [sym, d] of Object.entries(this._data)) {
       total++;
-      if ((now - d.ts) > 300000) { stale++; d.stale = true; }
-      else fresh++;
+      if ((now - d.ts) > 300000) { stale++; d.stale = true; } else fresh++;
       sources[d.source] = (sources[d.source] || 0) + 1;
     }
     this._stats.staleCount = stale;
-    return {
-      total, fresh, stale,
-      accepted: this._stats.accepted,
-      rejected: this._stats.rejected,
+    return { total, fresh, stale, accepted: this._stats.accepted, rejected: this._stats.rejected,
       rejectRate: this._stats.accepted > 0 ? (this._stats.rejected / (this._stats.accepted + this._stats.rejected) * 100).toFixed(1) + '%' : '0%',
-      sources,
-      lastRejects: this._rejected.slice(-5)
-    };
+      sources, lastRejects: this._rejected.slice(-5) };
   }
 };
 
 // ── 2. MacroStore — 거시경제(FRED) 데이터 검증 저장소 ──
 const MacroStore = {
-  _data: {},      // seriesId → { value, prevValue, date, ts, stale }
-  _rejected: [],
-  _stats: { accepted: 0, rejected: 0 },
-
-  // 시리즈별 합리적 범위 (범위 밖이면 경고, 극단적이면 거부)
+  _data: {}, _rejected: [], _stats: { accepted: 0, rejected: 0 },
   _ranges: {
     'UNRATE':       { min: 0, max: 30, warnMax: 15, label: '실업률(%)' },
     'FEDFUNDS':     { min: 0, max: 25, warnMax: 10, label: '기준금리(%)' },
@@ -9352,162 +9329,82 @@ const MacroStore = {
     'ICSA':         { min: 0, max: 1000000, warnMax: 500000, label: '신규 실업수당' },
     'DTWEXBGS':     { min: 50, max: 200, warnMax: 160, label: '달러 인덱스(FRED)' },
   },
-
-  /** 매크로 데이터 저장 (검증 후) */
   set(id, value, prevValue, date) {
-    // 1) FRED "." (결측치) 체크
     if (value === '.' || value === '' || value == null || isNaN(parseFloat(value))) {
       this._reject(id, value, 'missing_value', 'FRED 결측치(.)');
       return false;
     }
     const val = parseFloat(value);
     const prev = prevValue != null ? parseFloat(prevValue) : null;
-
-    // 2) 범위 검증
     const range = this._ranges[id];
     if (range) {
       if (val < range.min || val > range.max) {
         this._reject(id, val, 'out_of_range', `${range.label}: ${val} (범위: ${range.min}~${range.max})`);
         return false;
       }
-      if (val > range.warnMax) {
-        console.warn(`[MacroStore] 경고: ${id}(${range.label}) = ${val} — 이상 고값`);
-      }
+      if (val > range.warnMax) console.warn(`[MacroStore] 경고: ${id}(${range.label}) = ${val} — 이상 고값`);
     }
-
-    // 3) 날짜 신선도 체크
     const dataAge = date ? Math.floor((Date.now() - new Date(date).getTime()) / 86400000) : null;
-
     this._data[id] = { value: val, prevValue: prev, date, ts: Date.now(), dataAgeDays: dataAge, stale: false };
     this._stats.accepted++;
-
-    // 하위 호환: window._fredData 동기화
     window._fredData = window._fredData || {};
     window._fredData[id] = { value: val, prevValue: prev, date };
     return true;
   },
-
-  get(id) {
-    const d = this._data[id];
-    if (!d) return null;
-    d.stale = (Date.now() - d.ts) > 7200000; // 2시간 초과 = stale
-    return d;
-  },
-
+  get(id) { const d = this._data[id]; if (!d) return null; d.stale = (Date.now() - d.ts) > 7200000; return d; },
   _reject(id, value, reason, detail) {
     this._stats.rejected++;
     if (this._rejected.length >= 30) this._rejected.shift();
     this._rejected.push({ id, value, reason, detail, ts: Date.now() });
     console.warn(`[MacroStore] 거부: ${id} = ${value} (${reason}: ${detail})`);
   },
-
   health() {
     const now = Date.now();
     let total = 0, stale = 0, fresh = 0;
-    for (const [id, d] of Object.entries(this._data)) {
-      total++;
-      if ((now - d.ts) > 7200000) { stale++; d.stale = true; }
-      else fresh++;
-    }
-    return {
-      total, fresh, stale,
-      accepted: this._stats.accepted,
-      rejected: this._stats.rejected,
+    for (const [id, d] of Object.entries(this._data)) { total++; if ((now - d.ts) > 7200000) { stale++; d.stale = true; } else fresh++; }
+    return { total, fresh, stale, accepted: this._stats.accepted, rejected: this._stats.rejected,
       lastRejects: this._rejected.slice(-5),
-      series: Object.fromEntries(Object.entries(this._data).map(([k,v]) => [k, { value: v.value, date: v.date, ageDays: v.dataAgeDays }]))
-    };
+      series: Object.fromEntries(Object.entries(this._data).map(([k,v]) => [k, { value: v.value, date: v.date, ageDays: v.dataAgeDays }])) };
   }
 };
 
 // ── 3. NewsStore — 뉴스 품질/중복 필터 저장소 ──
 const NewsStore = {
-  _seen: new Set(),      // URL 기반 중복 방지
-  _deadFeeds: {},        // url → { errorCount, lastError, status }
-  _stats: { total: 0, duplicates: 0, filtered: 0, deadFeedHits: 0 },
-
-  /** 뉴스 기사 배열 필터링 (중복/품질) */
+  _seen: new Set(), _deadFeeds: {}, _stats: { total: 0, duplicates: 0, filtered: 0, deadFeedHits: 0 },
   filter(articles) {
     if (!Array.isArray(articles)) return [];
     const result = [];
     for (const a of articles) {
       this._stats.total++;
-
-      // 1) URL 중복 제거
       const key = (a.link || a.url || '').replace(/[?#].*$/, '').toLowerCase();
-      if (key && this._seen.has(key)) {
-        this._stats.duplicates++;
-        continue;
-      }
-
-      // 2) 제목 품질 필터 (5자 미만 쓰레기)
+      if (key && this._seen.has(key)) { this._stats.duplicates++; continue; }
       const title = a.title || '';
-      if (title.trim().length < 5) {
-        this._stats.filtered++;
-        continue;
-      }
-
-      // 3) 날짜 없는 기사는 현재 시간 기본값
-      if (!a.pubDate && !a.isoDate) {
-        a.pubDate = new Date().toISOString();
-      }
-
+      if (title.trim().length < 5) { this._stats.filtered++; continue; }
+      if (!a.pubDate && !a.isoDate) a.pubDate = new Date().toISOString();
       if (key) this._seen.add(key);
       result.push(a);
     }
     return result;
   },
-
-  /** 죽은 피드 기록 */
   reportDeadFeed(feedUrl, status) {
-    if (!this._deadFeeds[feedUrl]) {
-      this._deadFeeds[feedUrl] = { errorCount: 0, lastError: null, status: null };
-    }
-    const df = this._deadFeeds[feedUrl];
-    df.errorCount++;
-    df.lastError = Date.now();
-    df.status = status;
+    if (!this._deadFeeds[feedUrl]) this._deadFeeds[feedUrl] = { errorCount: 0, lastError: null, status: null };
+    const df = this._deadFeeds[feedUrl]; df.errorCount++; df.lastError = Date.now(); df.status = status;
     this._stats.deadFeedHits++;
   },
-
-  /** 피드가 죽었는지 확인 (3회 연속 실패 시 true) */
-  isDeadFeed(feedUrl) {
-    const df = this._deadFeeds[feedUrl];
-    return df && df.errorCount >= 3;
-  },
-
-  /** 중복 캐시 리셋 (새로고침 시) */
-  resetDuplicates() {
-    this._seen.clear();
-  },
-
+  isDeadFeed(feedUrl) { const df = this._deadFeeds[feedUrl]; return df && df.errorCount >= 3; },
+  resetDuplicates() { this._seen.clear(); },
   health() {
-    return {
-      totalProcessed: this._stats.total,
-      duplicatesRemoved: this._stats.duplicates,
-      qualityFiltered: this._stats.filtered,
+    return { totalProcessed: this._stats.total, duplicatesRemoved: this._stats.duplicates, qualityFiltered: this._stats.filtered,
       deadFeeds: Object.entries(this._deadFeeds).filter(([,v]) => v.errorCount >= 3).map(([url, v]) => ({ url: url.substring(0, 60), errors: v.errorCount, status: v.status })),
-      uniqueArticles: this._seen.size,
-      deadFeedHits: this._stats.deadFeedHits
-    };
+      uniqueArticles: this._seen.size, deadFeedHits: this._stats.deadFeedHits };
   }
 };
 
 // ── DataHealth — 통합 헬스 대시보드 ──
 const DataHealth = {
-  /** 전체 데이터 파이프라인 헬스 리포트 */
-  report() {
-    return {
-      price: PriceStore.health(),
-      macro: MacroStore.health(),
-      news: NewsStore.health(),
-      timestamp: new Date().toISOString(),
-      summary: this._summary()
-    };
-  },
+  report() { return { price: PriceStore.health(), macro: MacroStore.health(), news: NewsStore.health(), timestamp: new Date().toISOString(), summary: this._summary() }; },
   _summary() {
-    const p = PriceStore.health();
-    const m = MacroStore.health();
-    const n = NewsStore.health();
+    const p = PriceStore.health(), m = MacroStore.health(), n = NewsStore.health();
     const issues = [];
     if (p.stale > p.total * 0.3) issues.push(`시세 ${p.stale}/${p.total} stale`);
     if (p.rejected > 10) issues.push(`시세 거부 ${p.rejected}건`);
@@ -9515,12 +9412,8 @@ const DataHealth = {
     if (m.rejected > 0) issues.push(`매크로 거부 ${m.rejected}건`);
     if (n.deadFeeds.length > 0) issues.push(`죽은 피드 ${n.deadFeeds.length}개`);
     if (n.duplicatesRemoved > n.totalProcessed * 0.3) issues.push(`뉴스 중복률 ${(n.duplicatesRemoved/n.totalProcessed*100).toFixed(0)}%`);
-    return {
-      status: issues.length === 0 ? '✅ 정상' : issues.length <= 2 ? '⚠️ 주의' : '🔴 점검 필요',
-      issues
-    };
+    return { status: issues.length === 0 ? '✅ 정상' : issues.length <= 2 ? '⚠️ 주의' : '🔴 점검 필요', issues };
   },
-  /** 콘솔에 리포트 출력 */
   log() {
     const r = this.report();
     console.log('%c[DataHealth] 데이터 파이프라인 헬스 리포트', 'color:#60a5fa;font-weight:bold;font-size:12px;');
@@ -9532,12 +9425,8 @@ const DataHealth = {
     return r;
   }
 };
-
-// 글로벌 노출 (콘솔에서 DataHealth.log() 호출 가능)
-window.PriceStore = PriceStore;
-window.MacroStore = MacroStore;
-window.NewsStore = NewsStore;
-window.DataHealth = DataHealth;
+window.PriceStore = PriceStore; window.MacroStore = MacroStore;
+window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 
 // ═══════════════════════════════════════════════════════════════════
 // DATA_SNAPSHOT — 단일 진실 원천 (Single Source of Truth)
@@ -10964,13 +10853,9 @@ function initFinnhubWebSocket() {
               if (window.PriceStore) {
                 PriceStore.set(sym, price, 0, 'live:finnhub');
               } else {
-                // Fallback: direct write if Store not yet initialized
                 window._liveData = window._liveData || {};
-                if (window._liveData[sym]) {
-                  window._liveData[sym].price = price;
-                } else {
-                  window._liveData[sym] = { price, pct: 0 };
-                }
+                if (window._liveData[sym]) { window._liveData[sym].price = price; }
+                else { window._liveData[sym] = { price, pct: 0 }; }
                 window._quoteTimestamps = window._quoteTimestamps || {};
                 window._quoteTimestamps[sym] = Date.now();
               }
@@ -11138,7 +11023,7 @@ async function fetchAllFredData() {
         const { id, obs } = r.value;
         const latest = obs[0];
         const prev = obs.length > 1 ? obs[1] : null;
-        // v31.7: MacroStore 검증 레이어 경유 (결측치/범위 체크)
+        // v31.8: MacroStore 검증 레이어 경유 (결측치/범위 체크)
         const accepted = MacroStore.set(id, latest.value, prev ? prev.value : null, latest.date);
         if (accepted) {
           results[id] = { value: MacroStore._data[id].value, prevValue: MacroStore._data[id].prevValue, date: latest.date };
@@ -11664,62 +11549,76 @@ async function initV20DataEngine() {
 
 const AIO_NEWS_SOURCES = [
   // ═══════════════════════════════════════════════════════════════════
-  // v29.1: 소스 완전 재설계 — 한국어 우선, 주요 외신 우선, 스팸소스 제거
+  // v31.8: 미국 시장 중점 — 주요 외신 대폭 확장 (US 40+ 소스)
   // ═══════════════════════════════════════════════════════════════════
 
-  // ═══ TIER 0: 한국어 뉴스 (번역 불필요 — 최우선 노출) ═══
-  {name:'구글뉴스 금융',         url:'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko', country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'구글뉴스 경제',         url:'https://news.google.com/rss/topics/CAAqIggKIhxDQkFTRHdvSkwyMHZNR2RtY0RFU0FtdHZLQUFQAQ?hl=ko&gl=KR&ceid=KR:ko', country:'kr', tier:1, flag:'🇰🇷', topics:['macro']},
-  {name:'구글뉴스 기술',         url:'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko', country:'kr', tier:1, flag:'🇰🇷', topics:['semi','equity']},
-  {name:'연합뉴스 경제',         url:'https://www.yna.co.kr/rss/economy.xml',                      country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'한국경제',              url:'https://www.hankyung.com/feed/finance',                       country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'매일경제',              url:'https://www.mk.co.kr/rss/40300001/',                         country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
-  // biz.chosun.com RSS — 404 폐지됨 (2026-03-25 확인, 제거)
-  // news.mt.co.kr RSS — 410 Gone 영구 삭제됨 (2026-03-25 확인, 제거)
-  {name:'서울경제',              url:'https://www.sedaily.com/RSS/Economy',                         country:'kr', tier:1, flag:'🇰🇷', topics:['macro']},
-  {name:'이데일리',              url:'https://www.edaily.co.kr/rss/edaily_news.xml',               country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'아시아경제',            url:'https://www.asiae.co.kr/rss/all.xml',                        country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'연합인포맥스',           url:'https://news.einfomax.co.kr/rss/S1N35.xml',                  country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
-
-  // ═══ TIER 1: 글로벌 주요 외신 (탑티어 — 반드시 포함) ═══
+  // ═══ TIER 1: 🇺🇸 미국 주요 외신 (탑티어 — 최우선 노출) ═══
   {name:'Reuters Markets',     url:'https://feeds.reuters.com/reuters/businessNews',              country:'us', tier:1, flag:'🇺🇸', topics:['macro','equity']},
   {name:'CNBC Top News',       url:'https://search.cnbc.com/rs/search/combinedcombined?partnerId=wrss&id=100003114', country:'us', tier:1, flag:'🇺🇸', topics:['macro','equity']},
+  {name:'CNBC Investing',      url:'https://search.cnbc.com/rs/search/combinedcombined?partnerId=wrss&id=15839069', country:'us', tier:1, flag:'🇺🇸', topics:['equity','earnings']},
+  {name:'CNBC Economy',        url:'https://search.cnbc.com/rs/search/combinedcombined?partnerId=wrss&id=20910258', country:'us', tier:1, flag:'🇺🇸', topics:['macro']},
   {name:'WSJ Markets',         url:'https://feeds.a.dj.com/rss/RSSMarketsMain.xml',              country:'us', tier:1, flag:'🇺🇸', topics:['macro','equity']},
+  {name:'WSJ World',           url:'https://feeds.a.dj.com/rss/RSSWorldNews.xml',                country:'us', tier:1, flag:'🇺🇸', topics:['geo','macro']},
   {name:'Bloomberg',           url:'https://feeds.bloomberg.com/markets/news.rss',                country:'us', tier:1, flag:'🇺🇸', topics:['macro','equity']},
-  {name:'FT Markets',          url:'https://www.ft.com/markets?format=rss',                      country:'eu', tier:1, flag:'🇬🇧', topics:['macro','equity']},
   {name:'MarketWatch',         url:'https://feeds.content.dowjones.io/public/rss/mw_realtimeheadlines', country:'us', tier:1, flag:'🇺🇸', topics:['macro','equity']},
   {name:'Barrons',             url:'https://www.barrons.com/feeds/articles/techtopstories.rss',   country:'us', tier:1, flag:'🇺🇸', topics:['equity']},
-  {name:'CNN Business',        url:'https://rss.cnn.com/rss/money_latest.rss',                    country:'us', tier:1, flag:'🇺🇸', topics:['macro','equity']},
-  {name:'NYT Business',        url:'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml',   country:'us', tier:1, flag:'🇺🇸', topics:['macro']},
-  {name:'BBC Business',        url:'https://feeds.bbci.co.uk/news/business/rss.xml',              country:'eu', tier:1, flag:'🇬🇧', topics:['macro']},
-  {name:'S&P Global',          url:'https://www.spglobal.com/marketintelligence/en/rss-feed/all', country:'us', tier:1, flag:'🇺🇸', topics:['macro','equity']},
   {name:'Yahoo Finance',       url:'https://finance.yahoo.com/news/rssindex',                    country:'us', tier:1, flag:'🇺🇸', topics:['macro','equity']},
   {name:'Seeking Alpha',       url:'https://seekingalpha.com/market_currents.xml',                country:'us', tier:1, flag:'📊', topics:['equity','earnings']},
   {name:'Investing.com',       url:'https://www.investing.com/rss/news.rss',                     country:'us', tier:1, flag:'📈', topics:['macro','equity']},
+  {name:'Benzinga Markets',    url:'https://www.benzinga.com/feed',                              country:'us', tier:1, flag:'🇺🇸', topics:['equity','earnings']},
+  {name:'S&P Global',          url:'https://www.spglobal.com/marketintelligence/en/rss-feed/all', country:'us', tier:1, flag:'🇺🇸', topics:['macro','equity']},
+  {name:'Nasdaq News',         url:'https://www.nasdaq.com/feed/rssoutbound?category=Markets',   country:'us', tier:1, flag:'🇺🇸', topics:['equity','earnings']},
+  {name:'CNN Business',        url:'https://rss.cnn.com/rss/money_latest.rss',                    country:'us', tier:1, flag:'🇺🇸', topics:['macro','equity']},
+  {name:'NYT Business',        url:'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml',   country:'us', tier:1, flag:'🇺🇸', topics:['macro']},
+  {name:'FT Markets',          url:'https://www.ft.com/markets?format=rss',                      country:'eu', tier:1, flag:'🇬🇧', topics:['macro','equity']},
+  {name:'BBC Business',        url:'https://feeds.bbci.co.uk/news/business/rss.xml',              country:'eu', tier:1, flag:'🇬🇧', topics:['macro']},
+  {name:'The Economist Finance',url:'https://www.economist.com/finance-and-economics/rss.xml',    country:'eu', tier:1, flag:'🇬🇧', topics:['macro']},
+  {name:'Google News Finance',  url:'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en', country:'us', tier:1, flag:'🇺🇸', topics:['macro','equity']},
 
-  // ═══ TIER 2: 전문 섹터 (반도체·에너지) — 가젯/리뷰 사이트 제거 ═══
+  // ═══ TIER 1: 📡 텔레그램 큐레이션 채널 ═══
+  {name:'📡 TG Insider Tracking',       url:'https://rsshub.app/telegram/channel/insidertracking',       country:'us', tier:1, flag:'📡', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'insidertracking'},
+  {name:'📡 TG BornLupin',              url:'https://rsshub.app/telegram/channel/bornlupin',             country:'us', tier:1, flag:'📡', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'bornlupin'},
+  {name:'📡 TG Aether Japan Research',  url:'https://rsshub.app/telegram/channel/aetherjapanresearch',   country:'jp', tier:1, flag:'📡', topics:['macro','equity','semi','geo'],      type:'telegram', tgSlug:'aetherjapanresearch'},
+
+  // ═══ TIER 2: 🇺🇸 미국 투자/분석 전문 ═══
+  {name:'Forbes Business',     url:'https://www.forbes.com/business/feed/',                       country:'us', tier:2, flag:'🇺🇸', topics:['equity','macro']},
+  {name:'Business Insider',    url:'https://markets.businessinsider.com/rss/news',                country:'us', tier:2, flag:'🇺🇸', topics:['equity','macro']},
+  {name:'Morningstar',         url:'https://www.morningstar.com/feeds/rss',                       country:'us', tier:2, flag:'🇺🇸', topics:['equity','earnings']},
+  {name:'Zero Hedge',          url:'https://feeds.feedburner.com/zerohedge/feed',                 country:'us', tier:2, flag:'🇺🇸', topics:['macro']},
+
+  // ═══ TIER 2: 반도체·AI ═══
   {name:'TrendForce',          url:'https://www.trendforce.com/feed/',                            country:'us', tier:2, flag:'🖥️', topics:['semi','equity']},
   {name:'Digitimes',           url:'https://www.digitimes.com/rss/rss.xml',                      country:'us', tier:2, flag:'🖥️', topics:['semi','equity']},
   {name:'SemiAnalysis',        url:'https://www.semianalysis.com/feed',                           country:'us', tier:2, flag:'🔬', topics:['semi']},
   {name:'EE Times',            url:'https://www.eetimes.com/feed/',                               country:'us', tier:2, flag:'🔬', topics:['semi']},
+
+  // ═══ TIER 2: 에너지·원자재 ═══
   {name:'OilPrice.com',        url:'https://oilprice.com/rss/main',                              country:'us', tier:2, flag:'⚡', topics:['energy']},
   {name:'Rigzone',             url:'https://www.rigzone.com/news/rss/rigzone_latest.aspx',       country:'us', tier:2, flag:'⚡', topics:['energy']},
   {name:'Platts/Commodities',  url:'https://www.spglobal.com/commodityinsights/en/rss-feed/all',  country:'us', tier:2, flag:'⚡', topics:['energy']},
+  {name:'Kitco Gold',          url:'https://www.kitco.com/feed/',                                 country:'us', tier:2, flag:'🥇', topics:['energy','macro']},
 
-  // ═══ TIER 2: 크립토 (CoinDesk만 — 나머지 스팸 소스 제거) ═══
+  // ═══ TIER 2: 크립토 ═══
   {name:'CoinDesk',            url:'https://www.coindesk.com/arc/outboundfeeds/rss/',             country:'us', tier:2, flag:'₿', topics:['crypto']},
+  {name:'The Block',           url:'https://www.theblock.co/rss.xml',                             country:'us', tier:2, flag:'₿', topics:['crypto']},
+  {name:'DL News',             url:'https://www.dlnews.com/rss/',                                 country:'us', tier:2, flag:'₿', topics:['crypto']},
 
-  // ═══ TIER 2: 지정학·보조 ═══
+  // ═══ TIER 2: 지정학·방산 ═══
   {name:'Reuters World',       url:'https://feeds.reuters.com/Reuters/worldNews',                 country:'us', tier:2, flag:'🌍', topics:['geo']},
-  {name:'Defense One',         url:'https://www.defenseone.com/rss/all/',                         country:'us', tier:2, flag:'🛡️', topics:['geo']},
   {name:'AP Business',         url:'https://rsshub.app/apnews/topics/business',                  country:'us', tier:2, flag:'🇺🇸', topics:['macro']},
-  {name:'Zero Hedge',          url:'https://feeds.feedburner.com/zerohedge/feed',                 country:'us', tier:2, flag:'🇺🇸', topics:['macro']},
+  {name:'Defense One',         url:'https://www.defenseone.com/rss/all/',                         country:'us', tier:2, flag:'🛡️', topics:['geo','defense']},
 
-  // ═══ TIER 2: 아시아 ═══
+  // ═══ TIER 2: 아시아 외신 ═══
   {name:'Nikkei Asia',         url:'https://asia.nikkei.com/rss/feed/nar',                        country:'jp', tier:2, flag:'🇯🇵', topics:['macro','equity']},
   {name:'SCMP',                url:'https://www.scmp.com/rss/1/feed',                             country:'cn', tier:2, flag:'🇨🇳', topics:['macro','geo']},
   {name:'Channel News Asia',   url:'https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6511', country:'sg', tier:2, flag:'🇸🇬', topics:['macro']},
-  {name:'Straits Times',       url:'https://www.straitstimes.com/news/business/rss.xml',          country:'sg', tier:2, flag:'🇸🇬', topics:['macro']},
+
+  // ═══ TIER 2: 🇰🇷 한국어 뉴스 (보조 — 경제 전문지만 유지) ═══
+  {name:'구글뉴스 금융',         url:'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko', country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
+  {name:'연합뉴스 경제',         url:'https://www.yna.co.kr/rss/economy.xml',                      country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
+  {name:'한국경제',              url:'https://www.hankyung.com/feed/finance',                       country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
+  {name:'매일경제',              url:'https://www.mk.co.kr/rss/40300001/',                         country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
+  {name:'연합인포맥스',           url:'https://news.einfomax.co.kr/rss/S1N35.xml',                  country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
 
   // ═══ TIER 3: 유럽 ═══
   {name:'Reuters EU',          url:'https://feeds.reuters.com/reuters/UKBusinessNews/',            country:'eu', tier:3, flag:'🇪🇺', topics:['macro','energy']},
@@ -11732,10 +11631,10 @@ const AIO_NEWS_SOURCES = [
   {name:'World Bank',          url:'https://blogs.worldbank.org/feed',                            country:'us', tier:3, flag:'🏛️', topics:['macro']},
   {name:'BIS Speeches',        url:'https://www.bis.org/doclist/cbspeeches.rss',                  country:'eu', tier:3, flag:'🏛️', topics:['macro']},
 
-  // ═══ 📡 텔레그램 큐레이션 채널 (원문 출처 자동 추출) ═══
-  {name:'📡 TG Insider Tracking',       url:'https://rsshub.app/telegram/channel/insidertracking',       country:'us', tier:1, flag:'📡', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'insidertracking'},
-  {name:'📡 TG BornLupin',              url:'https://rsshub.app/telegram/channel/bornlupin',             country:'us', tier:1, flag:'📡', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'bornlupin'},
-  {name:'📡 TG Aether Japan Research',  url:'https://rsshub.app/telegram/channel/aetherjapanresearch',   country:'jp', tier:1, flag:'📡', topics:['macro','equity','semi','geo'],      type:'telegram', tgSlug:'aetherjapanresearch'},
+  // ═══ TIER 3: 한국어 보조 ═══
+  {name:'서울경제',              url:'https://www.sedaily.com/RSS/Economy',                         country:'kr', tier:3, flag:'🇰🇷', topics:['macro']},
+  {name:'이데일리',              url:'https://www.edaily.co.kr/rss/edaily_news.xml',               country:'kr', tier:3, flag:'🇰🇷', topics:['macro','equity']},
+  {name:'아시아경제',            url:'https://www.asiae.co.kr/rss/all.xml',                        country:'kr', tier:3, flag:'🇰🇷', topics:['macro','equity']},
 ];
 
 // ── Global HTML escape ─────────────────────────────────────────
@@ -11774,6 +11673,55 @@ const MACRO_KW = [
   'hormuz','호르무즈','demand destruction','수요파괴','refinery','정유','brent','wti-brent','spread',
   '카타르','qatar','lng','force majeure','불가항력','netanyahu','네타냐후','capitulation','항복매도',
   'short gamma','숏감마','dealer gamma','딜러감마',
+  // ── v31.8: 채권·금리·통화정책 심화
+  'quantitative easing','quantitative tightening','QE','QT','reverse repo','RRP',
+  'term premium','real yield','TIPS','breakeven inflation','fed funds',
+  'dot plot','jackson hole','minutes','beige book','bank term funding',
+  'sovereign debt','fiscal deficit','debt ceiling','government shutdown',
+  'investment grade','high yield','junk bond','credit default swap','CDS',
+  'BBB downgrade','fallen angel','covenant','leverage loan','CLO',
+  // ── v31.8: 외환·글로벌 중앙은행
+  'ECB','BOJ','BOE','PBOC','BOK','RBA','SNB','Riksbank',
+  'carry trade','currency intervention','forex reserve','capital outflow',
+  'dollar index','euro','sterling','swiss franc','emerging market currency',
+  'bilateral swap','dedollarization','BRICS currency','petrodollar',
+  'won','ringgit','rupee','baht','peso','lira','rand','real',
+  // ── v31.8: 경제지표 심화
+  'ISM','PMI','services PMI','manufacturing PMI','consumer confidence',
+  'retail sales','industrial production','housing starts','building permits',
+  'durable goods','factory orders','trade balance','current account',
+  'leading indicators','LEI','initial claims','continuing claims','JOLTS',
+  'ADP employment','nonfarm payroll','NFP','unemployment rate',
+  'capacity utilization','business inventories','wholesale inventories',
+  'Michigan sentiment','Conference Board','Philly Fed','Empire State',
+  'Chicago PMI','Dallas Fed','Richmond Fed','Kansas City Fed',
+  // ── v31.8: 시스템 리스크·금융안정
+  'systemic risk','financial stability','bank run','deposit flight',
+  'FDIC','bailout','bail-in','too big to fail','stress test',
+  'counterparty risk','rehypothecation','shadow banking','money market',
+  'commercial real estate','CRE','office vacancy','CMBS',
+  'pension fund','sovereign wealth fund','central bank buying',
+  // ── v31.8: 지정학 심화
+  'Taiwan Strait','South China Sea','AUKUS','NATO expansion',
+  'Ukraine','Russia','North Korea','ICBM','hypersonic',
+  'Red Sea','Houthi','shipping disruption','Suez','Panama Canal',
+  'rare earth','critical minerals','chip war','tech decoupling',
+  'friendshoring','nearshoring','reshoring','onshoring',
+  'SWIFT','financial sanctions','asset freeze','embargo',
+  // ── v31.8: 한국어 매크로 심화
+  '통화정책','양적완화','양적긴축','테이퍼링','피봇','금통위',
+  '물가','소비자물가','생산자물가','근원물가','기대인플레',
+  '고용','실업률','신규고용','비농업고용','고용지표',
+  '경상수지','무역수지','수출','수입','무역흑자','무역적자',
+  '재정적자','국가부채','부채한도','예산안',
+  '한국은행','금융통화위원회','기준금리 인하','기준금리 인상','기준금리 동결',
+  '외국인 매도','외국인 매수','외국인 순매수','외국인 순매도',
+  '기관 매수','기관 매도','수급','프로그램매매',
+  '공매도','대차잔고','신용잔고','반대매매',
+  '시스템 리스크','금융안정','예금 인출','뱅크런',
+  '대만해협','남중국해','홍해','후티','수에즈','공급망',
+  '탈달러화','페트로달러','위안화 결제',
+  '희토류','핵심광물','기술패권','디커플링',
 ];
 // TECH_KW: 기술/AI 주요 이벤트 → 섹터 관련 (+15점)
 const TECH_KW = [
@@ -11785,6 +11733,24 @@ const TECH_KW = [
   'Micron','memory','DRAM','NAND','HBM demand','memory shortage','memory boom',
   'MU earnings','AI memory','data center memory',
   '반도체','파운드리','HBM','AI 가속기','메모리','D램','낸드',
+  // ── v31.8: AI/반도체 밸류체인 심화
+  'GPU','TPU','NPU','AI accelerator','inference chip','training chip',
+  'advanced packaging','chiplet','2nm','3nm','GAA','gate-all-around',
+  'wafer','silicon','fab','foundry capacity','utilization rate',
+  'NVIDIA','AMD','Intel','Broadcom','Marvell','Qualcomm',
+  'high bandwidth memory','DDR5','LPDDR5','CXL','UCIe',
+  'AI server','AI infrastructure','data center','hyperscaler',
+  'CapEx','AI spending','cloud spending','AI adoption',
+  'autonomous driving','robotics','humanoid robot','embodied AI',
+  'AI agent','AI assistant','enterprise AI','edge AI',
+  'transformer','large language model','LLM','foundation model',
+  'AI regulation','AI safety','AI governance',
+  // ── v31.8: 한국 반도체 심화
+  '삼성전자','SK하이닉스','삼성파운드리','HBM3E','HBM4',
+  '선단공정','첨단패키징','반도체 수출','반도체 장비','반도체 소재',
+  'AI 서버','데이터센터','클라우드','하이퍼스케일러',
+  '웨이퍼','실리콘','팹','가동률','수율',
+  'GPU 수요','AI 투자','AI 인프라','전력 수요',
 ];
 // MED_KW: 일반 기업/시장 이슈 → 보통 중요도 (+6점)
 const MED_KW = [
@@ -11793,6 +11759,35 @@ const MED_KW = [
   'acquisition','merger','IPO','buyback','dividend','spin-off',
   'chip','battery','EV','cloud','SaaS','cybersecurity','blockchain',
   'bitcoin','crypto','ETF','recall','lawsuit','regulatory',
+  // ── v31.8: 기업 이벤트 심화
+  'stock split','secondary offering','share repurchase','tender offer',
+  'activist investor','proxy fight','board shake-up','CEO change','CFO',
+  'insider buying','insider selling','Form 4','13F filing','SEC filing',
+  'index inclusion','index exclusion','S&P 500 addition','rebalancing',
+  'lockup expiry','lockup expiration','pipe deal','shelf registration',
+  'credit rating','Moody','Fitch','S&P rating','rating downgrade','rating upgrade',
+  'profit warning','revenue shortfall','cost cutting','restructuring','layoff',
+  'capex','capital expenditure','R&D spending','operating margin','gross margin',
+  'free cash flow','FCF','EBITDA','operating income','net income',
+  'same-store sales','comparable sales','backlog','order book','bookings',
+  'ASP','average selling price','unit shipments','market share',
+  'patent','intellectual property','trade secret','antitrust','monopoly',
+  'supply shortage','inventory build','channel check','demand trend',
+  'defense','defence','military','weapon','missile defense','arms deal',
+  'nuclear power','SMR','uranium','renewable energy','solar','wind',
+  'EV battery','lithium','cobalt','nickel','cathode','anode','solid state battery',
+  'biotech','FDA approval','clinical trial','Phase 3','drug pipeline',
+  'SPAC','de-SPAC','direct listing','Dutch auction',
+  // ── v31.8: 한국어 기업 이벤트
+  '실적','매출','영업이익','순이익','가이던스','전망','컨센서스',
+  '자사주','자사주 매입','자사주 소각','배당','증자','감자',
+  '인수합병','M&A','공개매수','경영권','지배구조',
+  '공매도 잔고','신용잔고','대차잔고','기관 순매수','외국인 순매수',
+  '상장폐지','거래정지','관리종목','불성실공시',
+  '방산','방위산업','무기','군수','원전','원자력','우라늄',
+  '2차전지','리튬','배터리','전기차','수소','태양광','풍력',
+  '바이오','신약','임상','FDA','식약처',
+  '조선','LNG선','컨테이너선','벌크선','해운',
 ];
 // ANALYST_KW: 개별 종목 analyst rating → 홈 노출 페널티 (-20점)
 const ANALYST_KW = [
@@ -12044,21 +12039,107 @@ const NEWS_BLACKLIST_KW = [
   'mls','pga','ufc','wwe','formula 1','f1 race','grand prix','wimbledon','us open tennis',
   'world series','stanley cup','champions trophy','cricket','rugby','golf tournament',
   '월드컵','프리미어리그','챔피언스리그','메시','호날두','손흥민','EPL','KBO','K리그',
+  // ── v31.8: 블랙리스트 대폭 강화 — 비금융 콘텐츠 근본 차단
+  // 건강/의료 (금융 무관 — 바이오 기업 뉴스는 MED_KW에서 처리)
+  'diet plan','weight management','home remedy','natural cure','herbal supplement',
+  'mental health tips','stress relief','sleep tips','wellness routine','self care',
+  '건강법','민간요법','다이어트 식단','운동법','스트레칭','명상법',
+  // 라이프스타일/쇼핑
+  'best deals','coupon code','discount code','flash sale','black friday deals',
+  'product unboxing','haul video','outfit of the day','home decor','interior design',
+  'pet care','dog training','cat breeds','gardening tips','diy project',
+  '쿠폰','할인코드','언박싱','인테리어','반려동물','펫케어','원예',
+  // 소셜미디어/인터넷 문화
+  'viral video','meme','trending topic','social media drama','twitter drama',
+  'youtuber','streamer','content creator','subscriber count','views milestone',
+  '바이럴','밈','트렌딩','유튜버','스트리머','구독자',
+  // 자동차 리뷰 (EV/자동차 산업 뉴스는 MED_KW에서 처리)
+  'car review','test drive review','suv review','sedan review','mpg rating',
+  'best cars 2025','best cars 2026','car buying guide','used car',
+  '차량 리뷰','시승기','연비 비교','중고차 시세',
+  // 음식/요리 (산업 뉴스는 별도)
+  'recipe','cooking tips','meal prep','food review','restaurant review',
+  'best restaurants','michelin star','food trend','baking',
+  '레시피','요리법','맛집 추천','밀프렙','베이킹',
+  // 여행 (산업 뉴스는 별도)
+  'travel tips','packing tips','flight deals','hotel deals','travel itinerary',
+  'backpacking','solo travel','road trip','tourist attraction',
+  '여행 팁','항공권 할인','호텔 추천','배낭여행','관광지',
+  // 교육/학술 (금융 무관)
+  'study tips','exam preparation','scholarship','online course','tutorial',
+  'how to learn','language learning','coding tutorial','beginner guide',
+  '공부법','시험 준비','장학금','온라인 강좌','학습법',
+  // 날씨/자연재해 (시장 영향 없는 일반 보도)
+  'weather update','weather alert','storm warning','hurricane watch',
+  'earthquake','volcanic eruption','tsunami warning','climate change opinion',
+  '일기예보','기상특보','태풍 경로','지진 속보',
+  // 정치 인물/선거 캠페인 (경제정책은 MACRO_KW에서 처리)
+  'campaign speech','political rally','endorsement','primary debate',
+  'voter turnout','swing state','battleground','midterm results',
+  '유세','지지율 조사','당내 경선','정치 스캔들',
 ];
 
 // 토픽 키워드 분류
 const TOPIC_KEYWORDS = {
   macro:    ['Fed','FOMC','rate','CPI','PCE','GDP','inflation','deflation','recession','treasury','bond','yield curve',
-              'dollar','DXY','yen','euro','yuan','tariff','trade war','sanction','export ban','금리','인플레','경기침체','환율','채권'],
+              'dollar','DXY','yen','euro','yuan','tariff','trade war','sanction','export ban','금리','인플레','경기침체','환율','채권',
+              'monetary policy','fiscal','stimulus','QE','QT','central bank','beige book','dot plot','jackson hole',
+              'PMI','ISM','consumer confidence','retail sales','industrial production','nonfarm','payroll','employment','unemployment',
+              '통화정책','재정','소비자물가','생산자물가','고용','실업률','경상수지','무역수지','한국은행','금통위',
+              'ECB','BOJ','BOE','PBOC','BOK','RBA'],
   geo:      ['war','attack','sanction','geopolitical','conflict','military','missile','iran','russia','ukraine','china',
-              'taiwan','north korea','nato','전쟁','지정학','분쟁','미중','한반도'],
+              'taiwan','north korea','nato','전쟁','지정학','분쟁','미중','한반도',
+              'Red Sea','Houthi','Suez','Panama Canal','shipping disruption','embargo','SWIFT',
+              'Taiwan Strait','South China Sea','AUKUS','nuclear','ICBM','hypersonic',
+              'rare earth','critical minerals','chip war','tech decoupling','friendshoring','nearshoring',
+              '홍해','후티','수에즈','대만해협','남중국해','기술패권','디커플링','핵심광물','희토류',
+              'ceasefire','escalation','airstrike','invasion','defense spending'],
   semi:     ['semiconductor','chip','AI','GPU','HBM','TSMC','NVDA','AMD','AVGO','SMCI','memory','foundry',
-              'Blackwell','H100','H200','CoWoS','EUV','ASML','반도체','파운드리','HBM'],
-  earnings: ['earnings','EPS','revenue','guidance','quarterly','beat','miss','Q1','Q2','Q3','Q4','실적','가이던스'],
-  energy:   ['oil','brent','WTI','OPEC','LNG','gas','crude','energy','원유','천연가스','에너지'],
-  crypto:   ['bitcoin','BTC','ETH','crypto','blockchain','defi','NFT','코인','비트코인'],
+              'Blackwell','H100','H200','CoWoS','EUV','ASML','반도체','파운드리','HBM',
+              'wafer','fab','advanced packaging','chiplet','2nm','3nm','GAA',
+              'DRAM','NAND','DDR5','CXL','AI server','data center','hyperscaler',
+              'AI accelerator','inference','training','AI infrastructure','AI spending',
+              'Micron','Intel','Qualcomm','Broadcom','Marvell','ARM','Samsung foundry','SK Hynix',
+              '삼성전자','SK하이닉스','AI 서버','데이터센터','웨이퍼','선단공정','메모리'],
+  earnings: ['earnings','EPS','revenue','guidance','quarterly','beat','miss','Q1','Q2','Q3','Q4','실적','가이던스',
+              'profit','net income','operating income','margin','outlook','forecast','consensus','estimate',
+              'revenue growth','earnings surprise','earnings call','conference call','10-K','10-Q',
+              '매출','영업이익','순이익','컨센서스','전망','실적 발표','어닝'],
+  energy:   ['oil','brent','WTI','OPEC','LNG','gas','crude','energy','원유','천연가스','에너지',
+              'refinery','pipeline','drilling','shale','offshore','upstream','downstream','midstream',
+              'oil supply','oil demand','oil inventory','SPR','strategic petroleum','OPEC+',
+              'natural gas','Henry Hub','TTF','coal','carbon','emission','carbon credit',
+              'nuclear','uranium','SMR','solar','wind','renewable','clean energy','hydrogen',
+              '정유','시추','셰일','원전','우라늄','태양광','풍력','수소','재생에너지'],
+  crypto:   ['bitcoin','BTC','ETH','crypto','blockchain','defi','NFT','코인','비트코인',
+              'stablecoin','USDT','USDC','mining','hashrate','halving','on-chain',
+              'crypto ETF','spot ETF','futures ETF','Coinbase','Binance',
+              'DeFi','DEX','TVL','staking','validator','layer 2','rollup',
+              'SEC crypto','crypto regulation','MiCA',
+              '이더리움','솔라나','스테이블코인','채굴','온체인','디파이','크립토 ETF'],
   analyst:  ['price target','target price','upgrades to','downgrades to','initiates coverage','overweight','underweight',
-              'buy rating','sell rating','목표주가','투자의견'],  // 홈 그리드 낮은 우선순위
+              'buy rating','sell rating','목표주가','투자의견'],
+  // ── v31.8: 신규 토픽 추가
+  bond:     ['bond','treasury','yield','credit spread','investment grade','high yield','junk bond',
+              'corporate bond','sovereign bond','municipal bond','TIPS','TLT','HYG','LQD',
+              'duration','convexity','coupon','maturity','issuance','auction',
+              '채권','국채','회사채','하이일드','크레딧','스프레드','듀레이션','국고채','금리'],
+  fx:       ['forex','FX','currency','exchange rate','dollar index','DXY',
+              'USD/JPY','EUR/USD','GBP/USD','USD/KRW','USD/CNY',
+              'carry trade','intervention','capital flow','hot money',
+              'devaluation','revaluation','peg','float',
+              '환율','원달러','엔달러','유로달러','위안','캐리트레이드','외환','외환보유고'],
+  defense:  ['defense','defence','military','weapon','arms','missile','fighter jet',
+              'Lockheed','Raytheon','Northrop','General Dynamics','BAE','Boeing defense',
+              'NATO','defense budget','defense spending','arms deal','procurement',
+              'space','satellite','rocket','launch','SpaceX','Rocket Lab',
+              '방산','방위산업','무기','군수','한화에어로','한국항공우주','LIG넥스원',
+              '우주','위성','발사체','로켓'],
+  equity:   ['stock','share','equity','index','rally','sell-off','correction','bull market','bear market',
+              'market cap','IPO','buyback','dividend','split','listing',
+              'S&P 500','Nasdaq','Dow','Russell','KOSPI','KOSDAQ',
+              '주식','주가','시장','상승','하락','급등','급락','시가총액','상장',
+              '코스피','코스닥','나스닥','다우'],
 };
 
 // v29.1: 금융 관련성 화이트리스트 키워드 — 비금융 소스에서 이 중 하나라도 있어야 통과
@@ -12084,10 +12165,64 @@ const _FINANCE_RELEVANCE_KW = [
   'ceo','cfo','board','shareholder','analyst','upgrade','downgrade','price target',
   'revenue growth','profit margin','operating income','free cash flow',
   'supply chain','trade war','tariff','sanction','export ban','regulation',
-  // 한국어
+  // ── v31.8: 채권·금리·통화 심화
+  'yield curve','credit spread','investment grade','high yield','junk bond',
+  'corporate bond','sovereign','municipal bond','duration','convexity',
+  'coupon','maturity','issuance','auction','repo','reverse repo',
+  'money market','commercial paper','certificate of deposit',
+  'central bank','monetary policy','rate cut','rate hike','pivot',
+  'quantitative','tightening','easing','tapering','balance sheet',
+  'currency','forex','fx','exchange rate','dollar index','dxy',
+  'carry trade','intervention','capital flow','devaluation',
+  // ── v31.8: 기업 이벤트 심화
+  'insider buying','insider selling','13f','sec filing','proxy','activist',
+  'spin-off','spinoff','divestiture','restructuring','bankruptcy','chapter 11',
+  'share repurchase','tender offer','secondary offering','shelf registration',
+  'lockup','pipe deal','warrant','convertible','preferred',
+  'credit rating','moody','fitch','s&p rating','rating change',
+  'capex','r&d','opex','sgna','gross margin','operating margin','net margin',
+  'ebitda','fcf','roic','roe','roa','roce',
+  'backlog','order book','bookings','pipeline','contract win','contract award',
+  'index inclusion','rebalancing','reconstitution',
+  // ── v31.8: 방산/우주/에너지전환
+  'defense','defence','military','weapon','arms deal','defense budget',
+  'space','satellite','rocket','launch vehicle',
+  'nuclear','uranium','smr','solar panel','wind turbine','hydrogen',
+  'ev battery','lithium','cobalt','nickel','cathode','solid state',
+  'carbon credit','emission','esg','sustainability',
+  // ── v31.8: 지정학 → 시장 영향
+  'geopolitical','war','conflict','escalation','ceasefire','sanction',
+  'embargo','blockade','strait','shipping disruption','supply disruption',
+  'rare earth','critical mineral','export control','chip ban',
+  'friendshoring','nearshoring','reshoring','decoupling',
+  // ── v31.8: 시장 구조
+  'short interest','short squeeze','gamma squeeze','options expiration','opex',
+  'dark pool','market maker','dealer','liquidity','bid-ask spread',
+  'volatility','vix','implied volatility','realized volatility',
+  'futures','options','derivatives','swap','forward','hedging',
+  'margin','leverage','deleveraging','risk-off','risk-on',
+  'passive','active','flow','inflow','outflow','rotation',
+  'breadth','advance-decline','new high','new low','oversold','overbought',
+  // 한국어 — 대폭 확장
   '주식','시장','주가','코스피','코스닥','투자','펀드','매출','이익','수익',
   '금리','채권','은행','대출','금융','경제','산업','수출','수입','무역',
   '반도체','배터리','전기차','바이오','제약','원유','에너지',
+  // ── v31.8: 한국어 심화
+  '환율','원달러','달러인덱스','엔화','위안화',
+  '국채','회사채','하이일드','크레딧','스프레드','듀레이션',
+  '한국은행','금통위','기준금리','통화정책',
+  '실적','영업이익','순이익','가이던스','컨센서스','어닝',
+  '자사주','배당','증자','감자','공개매수','인수합병',
+  '공매도','대차잔고','신용잔고','외국인','기관','수급',
+  '방산','군수','조선','원전','우라늄','수소','태양광','풍력',
+  '2차전지','리튬','양극재','음극재','분리막','전해질',
+  'AI','인공지능','데이터센터','클라우드','서버','GPU',
+  '금','은','구리','철광석','원자재','선물','옵션',
+  '펀더멘털','밸류에이션','PER','PBR','ROE','시가총액',
+  '상장','IPO','스팩','SPAC','상장폐지',
+  '지정학','전쟁','제재','수출규제','공급망',
+  '경기','침체','호황','회복','둔화','성장',
+  '물가','인플레','디플레','스태그플레이션',
 ];
 
 // ── 시간창(Time Window) 설정 ─────────────────────────────────────
@@ -12154,13 +12289,19 @@ function scoreItem(item) {
   score += tierBonus[item.tier] || 0;
 
   // 프리미엄 소스 추가 부스트
-  const premiumSources = ['Reuters','Bloomberg','WSJ','CNBC','MarketWatch','FT Markets','S&P Global','Barrons','CNN','NYT','BBC','Seeking Alpha','Yahoo Finance'];
+  const premiumSources = ['Reuters','Bloomberg','WSJ','CNBC','MarketWatch','FT Markets','S&P Global','Barrons',
+    'CNN','NYT','BBC','Seeking Alpha','Yahoo Finance','Investing.com','Benzinga','The Block','Defense One',
+    'Nikkei Asia','SCMP','AP Business','Nasdaq','Forbes','Business Insider','Morningstar','The Economist',
+    'Kitco','DL News','CoinDesk'];
   if (premiumSources.some(s => (item.source || '').includes(s))) score += 5;
 
   // v29.1: 한국어 뉴스 부스트 (번역 불필요 → 즉시 가독성 → 우선 노출)
-  if (item.country === 'kr') score += 12;
+  // v31.8: 한국 부스트 축소 (+12→+3), 미국/글로벌 외신 부스트 신설 (+8)
+  if (item.country === 'kr') score += 3;
+  // v31.8: 미국/글로벌 주요 외신 부스트 — 미국 시장 중점 스크리너
+  if (item.country === 'us' && item.tier === 1) score += 8;
   // v29.1: 구글뉴스 소스 부스트
-  if ((item.source || '').includes('구글뉴스')) score += 8;
+  if ((item.source || '').includes('구글뉴스')) score += 4;
 
   // ── 3. 신선도 감쇄 (시간이 지나면 점수 감소) ────────────
   if (item.pubDate) {
@@ -12207,7 +12348,12 @@ function scoreItem(item) {
     ['Reuters','Bloomberg','WSJ','CNBC','MarketWatch','FT Markets','S&P Global',
      'Seeking Alpha','Investing.com','CoinDesk','OilPrice.com','Benzinga','Barrons',
      'Fed Reserve','ECB Press','IMF Blog','World Bank','BIS Speeches',
-     'The Block','Decrypt','CoinTelegraph','DL News'].includes(item.source);
+     'The Block','Decrypt','CoinTelegraph','DL News',
+     'Defense One','Nikkei Asia','SCMP','AP Business','Yahoo Finance',
+     'CNN Business','NYT Business','BBC Business','Zero Hedge',
+     'TrendForce','Digitimes','SemiAnalysis','EE Times','Rigzone','Platts',
+     'Nasdaq News','Forbes','Business Insider','Morningstar','The Economist',
+     'Kitco Gold','Google News Finance','Channel News Asia'].includes(item.source);
   if (!isExempt && macroHits === 0 && techHits === 0 && medHits === 0 && tickerMentions === 0) {
     // 금융 키워드가 하나도 없으면 추가 체크: 긴급 키워드나 분석 관련도 없으면 차단
     const hasAnyFinanceKw = _FINANCE_RELEVANCE_KW.some(kw => text.includes(kw));
@@ -12215,6 +12361,35 @@ function scoreItem(item) {
       item._blacklisted = true;
       return 0;
     }
+  }
+
+  // ── v31.8: 강화된 2차 관련성 게이트 ──────────────────────────
+  // 면제 소스라도 금융 키워드가 전혀 없는 콘텐츠는 점수를 크게 깎음
+  // (한국 일반 뉴스 소스에서 연예/생활/문화 기사 유입 방지)
+  if (macroHits === 0 && techHits === 0 && medHits === 0 && tickerMentions === 0) {
+    const hasAnyFinanceKw = _FINANCE_RELEVANCE_KW.some(kw => text.includes(kw));
+    if (!hasAnyFinanceKw) {
+      // 금융 관련성이 전혀 없으면 면제 소스라도 제거
+      item._blacklisted = true;
+      return 0;
+    }
+    // 금융 키워드가 1개만 있어도 기본 점수 대폭 감산 (약한 관련성)
+    score -= 15;
+  }
+
+  // ── v31.8: 비금융 콘텐츠 추가 패턴 필터 ────────────────────
+  // 제목에 금융과 전혀 무관한 패턴이 있으면 추가 감점
+  const titleLower = (item.title || '').toLowerCase();
+  const _nonFinPatterns = [
+    /how to (?:cook|bake|clean|fix|decorate|style|dress)/,
+    /best (?:phones|laptops|tablets|headphones|cameras|shows|movies|songs|books|games|apps|gifts|deals)/,
+    /top \d+ (?:tips|tricks|ways|things|reasons|places|destinations|recipes)/,
+    /review[:\s]|unboxing|hands[- ]on|first look/,
+    /(?:wedding|birthday|anniversary|holiday|christmas|halloween|valentine)/,
+  ];
+  if (_nonFinPatterns.some(pat => pat.test(titleLower))) {
+    item._blacklisted = true;
+    return 0;
   }
 
   // 너무 짧은 제목 (스팸 가능성)
@@ -12278,6 +12453,9 @@ function getTopicBadge(topic) {
     crypto:   { cls:'nit-neut', icon:'₿',  label:'크립토' },
     analyst:  { cls:'nit-neut', icon:'📈', label:'분석' },
     equity:   { cls:'nit-bull', icon:'📈', label:'주식' },
+    bond:     { cls:'nit-warn', icon:'🏦', label:'채권' },
+    fx:       { cls:'nit-warn', icon:'💱', label:'외환' },
+    defense:  { cls:'nit-bear', icon:'🛡️', label:'방산' },
     general:  { cls:'nit-neut', icon:'📰', label:'일반' },
   };
   const m = map[topic] || map.general;
@@ -12926,11 +13104,27 @@ function renderFeed(items) {
   filtered = filterByAge(filtered, TW_MARKET_H);
 
   // v21: 정렬 모드 적용
+  // v31.8: 시간순에서도 같은 시간대(30분 단위) 내에서는 외신 우선 노출
   if (_newsSortMode === 'time') {
     filtered.sort((a, b) => {
       const ta = a.pubDate ? new Date(a.pubDate).getTime() : 0;
       const tb = b.pubDate ? new Date(b.pubDate).getTime() : 0;
-      if (tb !== ta) return tb - ta;
+      // 30분(1800000ms) 단위 시간 버킷 — 같은 버킷이면 소스 우선순위로 재정렬
+      const bucketA = Math.floor(ta / 1800000);
+      const bucketB = Math.floor(tb / 1800000);
+      if (bucketA !== bucketB) return bucketB - bucketA; // 최신 버킷 먼저
+      // 같은 시간 버킷 내에서: US Tier1 > 기타 Tier1 > Tier2 > KR > Tier3
+      const _srcPri = (item) => {
+        if (item.tier === 1 && item.country === 'us') return 100;
+        if (item.tier === 1 && item.country !== 'kr') return 90;
+        if (item._tgChannel) return 85;
+        if (item.tier === 1 && item.country === 'kr') return 70;
+        if (item.tier === 2 && item.country !== 'kr') return 60;
+        if (item.tier === 2 && item.country === 'kr') return 40;
+        return 30;
+      };
+      const priDiff = _srcPri(b) - _srcPri(a);
+      if (priDiff !== 0) return priDiff;
       return (b.score || 0) - (a.score || 0);
     });
   } else {
@@ -13346,7 +13540,6 @@ async function fetchOneFeed(source) {
     } catch(e) {}
   }
   _rssMarkFail(source.name); // v30.12 P4: 모든 프록시 실패
-  // v31.7: NewsStore에 죽은 피드 보고
   if (window.NewsStore) NewsStore.reportDeadFeed(source.url, 'all-proxies-failed');
   return [];
 }
@@ -13393,8 +13586,15 @@ function isTelegramMsgRelevant(text) {
   if (!text || text.length < 20) return false;
   const t = text.toLowerCase();
   // 스팸/광고 필터
-  const spamKW = ['광고','sponsored','ad ','join ','subscribe','가입','홍보','이벤트 참여','click here'];
+  const spamKW = ['광고','sponsored','ad ','join ','subscribe','가입','홍보','이벤트 참여','click here',
+    'giveaway','airdrop','free tokens','sign up','telegram bot','promo code','referral',
+    '무료','경품','추첨','텔레그램 봇','프로모션','레퍼럴'];
   if (spamKW.some(kw => t.includes(kw))) return false;
+  // v31.8: 비금융 콘텐츠 강화 차단
+  const tgBlackKW = ['recipe','workout','dating','celebrity','movie review','game review',
+    'horoscope','astrology','meme coin','shitcoin','pump signal','buy signal guaranteed',
+    '연예','아이돌','드라마','맛집','운동법','별자리','밈코인','펌핑','100배'];
+  if (tgBlackKW.some(kw => t.includes(kw))) return false;
   // 관련성 키워드 (최소 1개 이상 포함해야 통과)
   const relevantKW = [
     // 영문 매크로/시장
@@ -13409,12 +13609,41 @@ function isTelegramMsgRelevant(text) {
     // 기관/리포트
     'goldman','morgan stanley','jpmorgan','barclays','citi','nomura','ubs','deutsche',
     'report','research','note','analyst','rating','pt ','price target',
+    // v31.8: 채권·통화·거시 심화
+    'bond','credit','spread','duration','curve','inversion','steepening','flattening',
+    'dollar','dxy','yen','euro','yuan','won','currency','forex','fx',
+    'central bank','ecb','boj','boe','pboc','bok','monetary','fiscal',
+    'pmi','ism','consumer confidence','retail sales','industrial production',
+    'housing','permits','durable goods','trade balance','current account',
+    // v31.8: 기업 이벤트 심화
+    'stock','share','equity','market cap','valuation','multiple','pe ratio',
+    'profit','margin','ebitda','fcf','cash flow','balance sheet',
+    'capex','investment','spending','cost cut','restructuring','layoff',
+    'insider','13f','sec','filing','proxy','activist',
+    'defense','military','weapon','arms','nuclear','uranium',
+    'battery','lithium','ev ','electric vehicle','solar','wind','hydrogen',
+    'biotech','pharma','fda','clinical','pipeline','drug',
+    'shipbuilding','shipping','freight','logistics','container',
+    // v31.8: 시장 구조
+    'short interest','options','futures','derivatives','hedge','swap',
+    'dark pool','market maker','gamma','delta','theta',
+    'breadth','advance','decline','new high','new low',
+    'flow','inflow','outflow','rotation','sector',
     // 한국어
     '금리','인플레','기준금리','연준','실적','매출','가이던스','전망','목표가','상향','하향',
     '반도체','ai','엔비디아','삼성','애플','테슬라','비트코인','원유','금값',
     '관세','무역','제재','고용','실업','경기','침체','호황',
     '리포트','보고서','애널리스트','증권사','투자의견',
     '급등','급락','폭등','폭락','신고가','신저가','속보',
+    // v31.8: 한국어 심화
+    '채권','국채','회사채','크레딧','스프레드','금통위','한국은행','통화정책',
+    '환율','원달러','엔화','위안화','달러인덱스',
+    '주식','주가','시장','코스피','코스닥','나스닥','다우',
+    '영업이익','순이익','컨센서스','어닝','배당','자사주',
+    '외국인','기관','수급','공매도','대차','신용',
+    '방산','군수','조선','원전','2차전지','바이오','신약',
+    '수출','수입','무역수지','경상수지','PMI',
+    '부양책','긴축','양적완화','테이퍼링','피봇',
     // 일본어 (Aether Japan Research)
     '日銀','金利','半導体','決算','為替','円安','円高','株価','市場',
   ];
@@ -13704,8 +13933,8 @@ async function fetchAllNews(forceRefresh = false) {
     })
     .slice(0, 120);
 
-  // v31.7: NewsStore 검증 레이어 — 중복 제거 + 품질 필터
-  NewsStore.resetDuplicates(); // 새 수집 시 중복 캐시 리셋
+  // v31.8: NewsStore 검증 레이어 — 중복 제거 + 품질 필터
+  NewsStore.resetDuplicates();
   const filteredItems = NewsStore.filter(allItems);
   const removedCount = allItems.length - filteredItems.length;
   if (removedCount > 0) console.log(`[NewsStore] ${removedCount}건 필터링됨 (중복/품질)`);
@@ -14920,17 +15149,20 @@ function applyLiveQuotes(quotes) {
     const price = q.regularMarketPrice;
     if (pct == null || price == null) return;
 
-    // v31.7: PriceStore 검증 레이어 경유 (타입/범위/급변 전부 Store에서 처리)
+    // v31.8: PriceStore 검증 레이어 경유 (타입/범위/급변 전부 Store에서 처리)
     const accepted = PriceStore.set(q.symbol, price, pct, q._source || 'live:yahoo');
-    if (!accepted) return; // PriceStore가 거부한 데이터는 UI에 반영하지 않음
-
+    if (!accepted) return;
+    window._previousPrices[q.symbol] = price;
     // v30.14: 환율 심볼의 chartPreviousClose를 _fxPrevClose에 자동 보정
+    // Yahoo chart API에서 가져온 chartPreviousClose로 환율 변화율 즉시 계산 가능하게 함
     if (q.chartPreviousClose && q.chartPreviousClose > 0 && q.symbol.includes('=X')) {
       window._fxPrevClose = window._fxPrevClose || {};
       if (!window._fxPrevClose[q.symbol] || window._fxPrevClose[q.symbol] <= 0) {
         window._fxPrevClose[q.symbol] = q.chartPreviousClose;
       }
     }
+    // v30.11: 데이터 출처 기록
+    window._dataSource[q.symbol] = { source: q._source || 'live:yahoo', ts: now };
     const pctStr = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
     const cls    = pct >= 0 ? 'pnl pos' : 'pnl neg';
     // Track SPX vs ATH for Market Regime display
@@ -17984,6 +18216,50 @@ const _CHAT_RULES = (function() {
   '26. 💼 세금/제도 기초: 미국 양도세(단기<1년 일반소득세율 vs 장기>1년 0/15/20%), 배당세(적격배당 15% vs 비적격 일반세율), 세금손실수확(Tax-Loss Harvesting: 손실 종목 매도→같은 해 이익 상계→30일 후 재매수, wash sale rule 주의), 한국 해외주식 양도세(연 250만원 공제 후 22%), 한국 ISA(비과세 200~400만원+분리과세 9.9%), IRA/401k(세금이연/Roth=비과세 인출). ⚠️ 세금은 개인 상황마다 다르므로 "세무사 상담 권장" 고지 필수.\n' +
   '27. 🧠 행동재무학 상세: 프로스펙트이론(같은 금액이라도 이익보다 손실이 2.5배 크게 느껴짐→손절 못하는 이유), 매몰비용 오류(이미 투입한 비용 때문에 손절 못함→"평단가 낮추기"의 함정), 과신편향(자신의 분석력을 과대평가→과도한 레버리지/집중투자), 가용성 휴리스틱(최근 뉴스에 영향받아 확률을 왜곡→"방금 본 뉴스로 급매수"), 대표성 휴리스틱(소수 데이터로 일반화→"3번 올랐으니 또 오를 거야"), 후향적 편향("나도 알고 있었어"→학습 방해), 군집행동(FOMO+정보폭포→버블형성). 각 편향의 실전 대응법도 설명.\n' +
   '28. 🏛️ 시장구조/제도 심화: 다크풀 거래비중(미국 ~40%, 가격발견 기능 약화 우려), 공매도 데이터(Short Interest Ratio=공매도잔고÷일평균거래량, 10↑ = 숏스퀴즈 가능), naked short 규제(REG SHO), IPO 락업해제(보통 90~180일, 해제 후 매도 압력), 인덱스 편입 효과(S&P500 편입 → 패시브 펀드 강제 매수 → 단기 급등 후 안정), 자사주매입의 EPS 부풀리기(주식수 감소→EPS↑이지만 실질 이익 성장이 아닐 수 있음), SPAC 구조(공모→합병→디스팩, 합병 전 주가 패턴).\n' +
+  '28-1. 📊 크로스에셋 상관관계 분석 — "자산 간 대화를 읽어라":\n' +
+  '  [주식-채권] 정상: 역상관(주식↓→채권↑, 안전자산 수요). 2022 이후: 동조화(금리↑→둘 다↓). 상관관계 변화가 체제 전환(regime change) 시그널. 60/40 포트폴리오 무력화 시기 식별 핵심.\n' +
+  '  [금리-주식] 10Y금리 4.5%↑ = 주식 밸류에이션 압박 강화(DCF 할인율↑). 단, "왜" 금리가 오르는지가 핵심: 성장 기대(Good) vs 인플레 우려(Bad) vs 재정 불안(Ugly). 같은 금리 상승이라도 시장 반응이 정반대.\n' +
+  '  [달러-신흥국] DXY↑ → 신흥국 자금유출+달러부채 부담↑+원자재 가격↓ → 신흥국 주식·통화 약세. 1997 아시아, 2013 Taper Tantrum, 2022 강달러 패턴 반복.\n' +
+  '  [유가-인플레-금리] 유가↑ → 헤드라인 CPI↑ → Fed 매파 → 금리↑ → 달러↑ → 신흥국↓. 유가 $10 상승당 CPI +0.3~0.4%p 추정. 유가 $100+ 장기 유지 시 스태그플레이션 경로.\n' +
+  '  [금-실질금리] 금 가격 ≈ 1/실질금리(TIPS). 실질금리↓ → 금↑. 하지만 2023~2025 중앙은행 매입이 이 관계를 깨뜨림(탈달러화 수요). 중국·인도·터키 중앙은행 금 매입량 사상 최대.\n' +
+  '  [VIX-주식] VIX 스파이크 후 평균 회귀 패턴: VIX 35+ 도달 후 1개월 내 S&P +5~8% 확률 70%↑(역사적 통계). 단, VIX 50+ 시스템 위기에는 적용 안 됨.\n' +
+  '  [구리/금 비율] 상승=경기 낙관(산업금속 수요↑), 하락=경기 비관(안전자산 선호↑). 경기 선행지표로 활용. ISM PMI와 높은 상관관계.\n' +
+  '28-2. 🏦 기관 플로우 & 포지셔닝 분석:\n' +
+  '  [COT(Commitments of Traders)] 선물시장 포지셔닝: 상업적 헤저(기업)·대형투기자(헤지펀드)·소형투기자(개인). 극단적 포지션 = 반전 시그널.\n' +
+  '  [옵션 플로우] 대규모 콜/풋 매수 → 기관 방향 베팅 추적. Sweep order(스윕 주문) = 급한 매수 = 확신 높은 베팅.\n' +
+  '  [ETF 플로우] SPY/QQQ/IWM 자금 유입유출 = 시장 심리 대리변수. HYG(하이일드) 유출 = 신용 리스크 경계. TLT(장기채) 유입 = 경기침체 베팅.\n' +
+  '  [딜러 감마 노출(GEX)] GEX+ = 딜러 롱감마 → 변동성 억제(핀닝). GEX- = 딜러 숏감마 → 변동성 증폭(폭락 가속). Zero Gamma Level이 지지/저항으로 작용.\n' +
+  '  [다크풀 프린트] 대량 블록거래 = 기관의 숨겨진 매매. DIX(Dark Index Sentiment) 상승 = 다크풀에서 기관 매수↑.\n' +
+  '  [Fund Manager Survey] BofA FMS: 현금비중 5%↑ = 극단 약세(역발상 매수). 기술주 비중 최대 = 크라우디드 트레이드(위험).\n' +
+  '  [13F 분석] 분기별 기관 포트폴리오 공개. 버핏/달리오/드러켄밀러 등 전설적 투자자 포지션 변화 추적. 단, 45일 지연 데이터.\n' +
+  '28-3. 📈 어닝 시즌 분석 프레임워크:\n' +
+  '  [어닝 서프라이즈 효과] 실적 발표 후 주가 반응 = (실제 EPS - 컨센서스) × 가이던스 방향 × 시장 기대 프리미엄. 실적 비트(beat)해도 "whisper number(비공식 기대치)"를 못 넘기면 하락.\n' +
+  '  [가이던스가 핵심] Q결과보다 다음 분기 가이던스가 주가 방향 결정. 가이던스 상향 + 실적 비트 = "더블 비트" → 강한 상승. 실적 비트 + 가이던스 하향 = "비트 앤 로워" → 하락.\n' +
+  '  [어닝 시즌 패턴] 1분기(4월): 연간 톤 설정. 2분기(7월): 상반기 점검. 3분기(10월): 연말 전망. 4분기(1월): 연간 결산 + 다음해 가이던스. 대형 은행이 먼저 발표(경기 선행 지표).\n' +
+  '  [섹터별 핵심 지표] 기술주: 매출 성장률, 가이던스 상향 여부, AI 관련 매출 비중. 금융: NIM(순이자마진), 대손충당금, 트레이딩 수익. 에너지: 생산량, CapEx, 배당/자사주 규모. 소비재: SSS(동일점포매출), 마진 추이, 재고 수준.\n' +
+  '  [Post-Earnings Announcement Drift(PEAD)] 실적 서프라이즈 방향으로 60~90일간 추가 드리프트 발생(학술적으로 검증된 이상현상). 서프라이즈 폭이 클수록 드리프트 강도↑.\n' +
+  '28-4. 🎯 시장 레짐(체제) 판별 프레임워크:\n' +
+  '  [4대 레짐] ① 리스크온 확장(S&P↑+VIX↓+HY스프레드↓): 적극 매수 OK ② 불안정 상승(S&P↑+VIX↑): 헤지 준비 ③ 스트레스(S&P↓+VIX↑+HY스프레드↑): 포지션 축소 ④ 회복(S&P 바닥 형성+VIX 하락 시작): 선별 매수 개시.\n' +
+  '  [레짐 전환 신호] 수익률곡선 역전 후 재정상화(bear steepening) = 침체 시작 경고. 크레딧 스프레드 200bp+ 급등 = 신용 경색 경고. VIX 구조 역전(VIX>VIX3M) = 단기 패닉.\n' +
+  '  [섹터 로테이션 사이클] 경기회복(초기): 금융·소재·산업재 → 경기확장(중기): 기술·소비재·통신 → 경기정점(후기): 에너지·헬스케어 → 경기침체: 유틸리티·필수소비재·채권. 현재 사이클 위치 판단이 핵심.\n' +
+  '  [유동성 사이클] Fed B/S 축소(QT) = 유동성↓ = 위험자산 압박. 역레포 잔고 감소 = 시장에 유동성 공급 효과. 재무부 TGA(재무부일반계정) 감소 = 유동성 방출.\n' +
+  '28-5. 💹 정량적 리스크 관리 심화:\n' +
+  '  [포지션 사이징 3대 방법] ① 고정 비율법: 총자산의 1~2%를 단일 거래 최대 손실로 제한 ② ATR 기반: 진입가 - (2×ATR) = 손절가, 포지션 크기 = 리스크금액 ÷ ATR거리 ③ 켈리 공식: f* = (bp - q) / b. 실전에서는 Half-Kelly 사용.\n' +
+  '  [포트폴리오 리스크 분해] 팩터 익스포저: 시장(베타)·사이즈·밸류·모멘텀·퀄리티·변동성 6대 팩터에 대한 노출도 측정. 특정 팩터에 과도한 노출 = 분산 착시.\n' +
+  '  [스트레스 테스트 시나리오] 2008 GFC(-56%), 2020 COVID(-34%), 2022 금리쇼크(-25%), 1987 블랙먼데이(-22% 하루). "당신의 포트폴리오가 이 시나리오에서 얼마를 잃는가?" 구체 금액으로 전환.\n' +
+  '  [최대손실폭(MDD) 심리학] MDD -20% 경험 시 투자자 70%가 바닥에서 매도(행동재무학). MDD를 미리 시뮬레이션하면 패닉 매도 확률↓. "이 포트폴리오의 역사적 MDD는 ~%이고, 그 회복에 ~개월이 걸렸다."\n' +
+  '28-6. 🔗 공급망 & 산업 밸류체인 분석:\n' +
+  '  [반도체 밸류체인] 설계(NVDA/AMD/QCOM) → EDA도구(SNPS/CDNS) → 장비(ASML/AMAT/LRCX/KLAC) → 소재(JSR/도쿄일렉트론) → 파운드리(TSM/삼성) → 패키징(ASE/Amkor) → 테스트(Teradyne/COHU) → 메모리(MU/하이닉스/삼성) → 최종제품(서버/PC/모바일)\n' +
+  '  [AI 밸류체인] GPU/TPU(NVDA/GOOG) → 네트워킹(ANET/CSCO) → 메모리/HBM(MU/하이닉스) → 전력/냉각(EATON/VRT/NUE) → 클라우드(AMZN/MSFT/GOOG) → AI 모델(OpenAI/Anthropic/Google) → AI SaaS(CRM/NOW/PLTR) → AI 에이전트/로보틱스\n' +
+  '  [에너지 전환 체인] 원자재(리튬/코발트/니켈/구리) → 소재(양극재/음극재/전해질/분리막) → 셀(LG엔솔/CATL/삼성SDI/SK온) → 팩(BYD/Tesla) → EV OEM → 충전인프라(ChargePoint) → 배터리 재활용(Li-Cycle/Redwood)\n' +
+  '  [방산 밸류체인] 소재(특수강/티타늄) → 부품(엔진/전자장비/센서) → 플랫폼(항공기/미사일/함정) → 시스템통합(LMT/RTX/NOC/GD/한화에어로/한국항공우주) → 유지보수(MRO) → 우주(RKLB/SpaceX)\n' +
+  '  [조선 밸류체인] 후판(POSCO) → 엔진(두산/MAN/바르질라) → 전자장비(항해/통신) → 조선소(HD현대/삼성중공업/한화오션) → 해운사(HMM/머스크/MSC) → 항만/물류\n' +
+  '28-7. 🌊 유동성 & 자금 흐름 분석:\n' +
+  '  [글로벌 유동성] M2 통화량(미국+유럽+중국+일본) = 글로벌 유동성의 대리변수. M2 YoY 증가 = 위험자산 우호적. M2 수축 = 긴축 환경.\n' +
+  '  [Fed 대차대조표] QE(자산 매입) = B/S 확대 = 유동성↑ = 주식↑. QT(만기 미재투자) = B/S 축소 = 유동성↓ = 주식 압박. 월간 QT 규모($60B+)가 시장에 미치는 영향 모니터링.\n' +
+  '  [역레포(RRP)] 역레포 잔고 감소 → 시장에 유동성 유입 효과. RRP $500B↓ = 시장 유동성 풍부. RRP 소진 + QT 지속 = 유동성 절벽 리스크.\n' +
+  '  [재무부 TGA] 정부 지출 증가(TGA 감소) = 경제에 유동성 방출. 대규모 국채 발행(TGA 증가) = 시장에서 유동성 흡수. 분기별 국채 발행 계획(Quarterly Refunding) 주목.\n' +
+  '  [크레딧 사이클] 신용 확장 → 과열 → 신용 긴축 → 디폴트 증가 → 바닥 → 회복. 현재 크레딧 사이클 위치를 HY 스프레드, 은행 대출 태도(Senior Loan Officer Survey), 디폴트율로 판단.\n' +
   '\n【답변 깊이 & 내러티브 품질 규칙】\n' +
   '29. 📏 답변 깊이 4단계 보정 — 질문 복잡도 + 사용자 수준에 따라 자동 조절:\n' +
   '  • Tier 1 (개념 질문): "PER이 뭐야?" → 3~5문장 핵심 설명 + 비유 + 실전 예시. 짧되 알차게. 초보자 모드.\n' +
