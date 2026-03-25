@@ -10763,7 +10763,7 @@ async function fetchFundamentals(symbol) {
     const [profile, ratios, earnings] = await Promise.allSettled([
       fetchWithTimeout(`${DATA_APIS.fmp.base}/profile?symbol=${symbol}&apikey=${key}`, {}, 6000).then(r => r.json()),
       fetchWithTimeout(`${DATA_APIS.fmp.base}/ratios-ttm?symbol=${symbol}&apikey=${key}`, {}, 6000).then(r => r.json()),
-      fetchWithTimeout(`${DATA_APIS.fmp.base}/earnings-surprises?symbol=${symbol}&apikey=${key}`, {}, 6000).then(r => r.json()),
+      fetchWithTimeout(`${DATA_APIS.fmp.base}/earnings?symbol=${symbol}&apikey=${key}`, {}, 6000).then(r => r.json()),
     ]);
     return {
       profile: profile.status === 'fulfilled' && Array.isArray(profile.value) && profile.value.length > 0 ? profile.value[0] : null,
