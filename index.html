@@ -9391,19 +9391,22 @@ function applyDataSnapshot() {
       }
     }
 
-    // Staleness 경고 — 24시간 초과 시 배너 표시
+    // v31.5: Staleness 경고 — 스냅샷 기준이지만 실시간 데이터가 들어오면 자동 해제
     const updated = S._updated ? new Date(S._updated).getTime() : 0;
     const age = updated ? (Date.now() - updated) : Infinity;
     const staleEl = document.getElementById('snapshot-stale-warning');
     if (staleEl) {
       if (!isNaN(age) && age > 24 * 60 * 60 * 1000) {
         const hrs = Math.floor(age / 3600000);
-        staleEl.textContent = '⚠️ 데이터가 ' + hrs + '시간 전 기준입니다. 최신 데이터를 확인하세요.';
+        staleEl.textContent = '⚠️ 스냅샷 기준 ' + hrs + '시간 전. 실시간 데이터 수신 시 자동 갱신됩니다.';
         staleEl.style.display = 'block';
+        // 실시간 데이터 수신 후 5초 뒤 배너 숨김 (fetchLiveQuotes 완료 대기)
         staleEl._hideTimer = setTimeout(function() {
           var liveTs = window._quoteTimestamps || {};
           var hasRecent = Object.values(liveTs).some(function(t) { return Date.now() - t < 120000; });
-          if (hasRecent && staleEl) { staleEl.style.display = 'none'; }
+          if (hasRecent && staleEl) {
+            staleEl.style.display = 'none';
+          }
         }, 12000);
       } else {
         staleEl.style.display = 'none';
@@ -10776,6 +10779,7 @@ async function fetchFredSeries(seriesId, limit = 30) {
   if (!key) return null;
   const url = `${DATA_APIS.fred.base}?series_id=${seriesId}&api_key=${key}&file_type=json&sort_order=desc&limit=${limit}`;
 
+  // v31.5: JSON 응답에서 observations 추출 (allorigins 래핑 자동 해제)
   function _extractObs(data) {
     if (data.contents && typeof data.contents === 'string') {
       try { data = JSON.parse(data.contents); } catch(e) {}
@@ -10783,26 +10787,27 @@ async function fetchFredSeries(seriesId, limit = 30) {
     return data.observations || [];
   }
 
-  // 1차: CF Worker 우선
+  // 1차: CF Worker 우선 (CORS 문제 없음, 가장 빠름)
   const cfWorker = localStorage.getItem('aio_cf_worker_url');
   if (cfWorker) {
     try {
       const r = await fetchWithTimeout(cfWorker + '?url=' + encodeURIComponent(url), {}, 8000);
       if (r.ok) { return _extractObs(await r.json()); }
-    } catch(e) {}
+    } catch(e) { /* CF Worker failed — try direct */ }
   }
-  // 2차: 직접 호출
+  // 2차: 직접 호출 시도
   try {
     const r = await fetchWithTimeout(url, {}, 6000);
     if (r.ok) { return _extractObs(await r.json()); }
-  } catch(e) {}
-  // 3차: CORS 프록시
+  } catch(e) { /* CORS blocked — fallback to proxy */ }
+  // 3차: CORS 프록시 경유 (corsproxy, allorigins 등)
   try {
     const r = await fetchViaProxy(url, 8000);
     if (r.ok) { return _extractObs(await r.json()); }
   } catch(e) { console.warn('[AIO] FRED proxy error:', seriesId, e.message || e); }
   return null;
 }
+
 const FRED_SERIES = {
   'BAMLH0A0HYM2': { name: 'HY Spread', el: 'hy-live-val', unit: 'bp', multiplier: 100 },
   'T10Y2Y':       { name: '10Y-2Y Spread', el: null, unit: '%' },
@@ -12955,9 +12960,11 @@ async function fetchOneFeed(source) {
   if (_rssIsSkipped(source.name)) {
     return [];
   }
-  // v29.3: rss2json — 연속 2회 이상 실패(429/422)하면 세션 내 스킵 (CF Worker가 더 빠름)
-  // v31.5: CF Worker가 있으면 rss2json 건너뜀 (429 rate limit 방지)
+  // v31.5: CF Worker가 있으면 CF Worker XML 파싱 우선 → rss2json은 CF Worker 없을 때만 폴백
+  // (rss2json 무료 플랜 429 rate limit 방지)
   const _hasCfWorker = !!(localStorage.getItem('aio_cf_worker_url'));
+
+  // CF Worker 없을 때만 rss2json 시도 (또는 CF Worker 실패 시 폴백)
   if (!_hasCfWorker && _rss2jsonFailed < 2) {
     try {
       const apiKey = localStorage.getItem('aio_rss2json_key') || '';
@@ -12967,8 +12974,8 @@ async function fetchOneFeed(source) {
       if (r.ok) {
         const d = await r.json();
         if (d.status === 'ok' && Array.isArray(d.items) && d.items.length > 0) {
-          _rss2jsonFailed = 0; // 성공 시 리셋
-          _rssMarkOk(source.name); // v30.12 P4
+          _rss2jsonFailed = 0;
+          _rssMarkOk(source.name);
           return d.items
             .map(item => ({
               title:   (item.title || '').replace(/<[^>]+>/g,'').trim(),
@@ -12981,12 +12988,11 @@ async function fetchOneFeed(source) {
             .filter(i => i.title.length > 8);
         }
       }
-      // 422/429 등 실패 시 카운트 증가
       _rss2jsonFailed++;
     } catch(e) { _rss2jsonFailed++; }
   }
 
-  // CORS 프록시 폴백 (XML 파싱)
+  // CORS 프록시 폴백 (XML 파싱) — v31.5: CF Worker 우선
   function parseXml(raw) {
     if (!raw || raw.length < 80) return [];
     try {
@@ -13828,27 +13834,26 @@ async function fetchLiveQuotes() {
   async function fetchYFChart(symbol) {
     const url = CHART_BASE + encodeURIComponent(symbol) + CHART_PARAMS;
 
-    // v31.5: CF Worker 시 직접 호출 건너뜀
+    // v31.5: CF Worker가 있으면 직접 호출 건너뜀 (Yahoo CORS 503 방지 → 요청 절반 감소)
     const _skipDirect = !!(localStorage.getItem('aio_cf_worker_url'));
     if (!_skipDirect) {
-      // 직접 시도 (CORS 해제 환경)
-    try {
-      const r = await withTimeout(fetch(url, {headers:{'Accept':'application/json'}}), 3000);
-      if (r.ok) {
-        const d = await r.json();
-        const meta = d?.chart?.result?.[0]?.meta;
-        if (meta?.regularMarketPrice && _validatePrice(symbol, meta.regularMarketPrice)) {
-          // v30.14: 직접 요청도 chartPreviousClose 기반 폴백 계산 적용
-          var _dPrice = meta.regularMarketPrice;
-          var _dPrev = meta.chartPreviousClose || meta.previousClose || 0;
-          var _dPct = meta.regularMarketChangePercent;
-          if ((!_dPct || _dPct === 0) && _dPrev > 0) {
-            _dPct = ((_dPrice - _dPrev) / _dPrev) * 100;
+      // 직접 시도 (CORS 해제 환경일 때만)
+      try {
+        const r = await withTimeout(fetch(url, {headers:{'Accept':'application/json'}}), 3000);
+        if (r.ok) {
+          const d = await r.json();
+          const meta = d?.chart?.result?.[0]?.meta;
+          if (meta?.regularMarketPrice && _validatePrice(symbol, meta.regularMarketPrice)) {
+            var _dPrice = meta.regularMarketPrice;
+            var _dPrev = meta.chartPreviousClose || meta.previousClose || 0;
+            var _dPct = meta.regularMarketChangePercent;
+            if ((!_dPct || _dPct === 0) && _dPrev > 0) {
+              _dPct = ((_dPrice - _dPrev) / _dPrev) * 100;
+            }
+            return { symbol, ...meta, regularMarketChangePercent: _dPct || 0, chartPreviousClose: _dPrev, _source: 'live:yahoo-direct' };
           }
-          return { symbol, ...meta, regularMarketChangePercent: _dPct || 0, chartPreviousClose: _dPrev, _source: 'live:yahoo-direct' };
         }
-      }
-    } catch(e) {}
+      } catch(e) {}
     }
 
     // v30.11: _PROXY_REGISTRY가 lastOk 기준으로 자동 정렬하므로 수동 정렬 불필요
