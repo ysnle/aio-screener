@@ -1,6 +1,6 @@
 {
-  "version": "v31.6",
-  "built": "2026-03-25T18:00:00+09:00",
-  "note": "v31.6: 죽은 RSS 피드 제거 (조선비즈 404, 머니투데이 410) + CF Worker rate limit 100→300/분 증가",
+  "version": "v31.7",
+  "built": "2026-03-25T19:30:00+09:00",
+  "note": "v31.7: 3-tier 데이터 검증 스토어 (PriceStore/MacroStore/NewsStore) + DataHealth 파이프라인 모니터링 + Finnhub WS→PriceStore 연동",
   "versioning": "x.y (31→31.1→31.2→...→31.9→32→32.1→...)"
 }

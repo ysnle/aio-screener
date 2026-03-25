@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v31.6 — 올인원 투자 터미널</title>
+  <title>AIO Screener v31.7 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1905,7 +1905,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v31.6</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v31.7</span></div>
       <div class="page-subtitle" id="home-date-label">2026.03.23 (월) KST · 실시간 시세 자동갱신</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9247,6 +9247,299 @@ function _getKrxDataStatus(symbol) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// v31.7: DATA VALIDATION STORES — 데이터 정확성/최신성/신뢰성 검증 레이어
+// ═══════════════════════════════════════════════════════════════════
+
+// ── 1. PriceStore — 시세 데이터 검증 저장소 ──
+const PriceStore = {
+  _data: {},        // sym → { price, pct, source, ts, stale }
+  _prev: {},        // sym → 이전 가격 (급변 감지용)
+  _rejected: [],    // 최근 거부된 데이터 로그 (최대 50건)
+  _stats: { accepted: 0, rejected: 0, staleCount: 0 },
+  _sessionStart: Date.now(),
+
+  /** 시세 데이터 저장 (검증 후) */
+  set(sym, price, pct, source) {
+    // 1) 타입/범위 검증
+    if (typeof price !== 'number' || isNaN(price) || price <= 0) {
+      this._reject(sym, price, source, 'invalid_price', '가격이 숫자가 아니거나 0 이하');
+      return false;
+    }
+    if (typeof pct !== 'number' || isNaN(pct)) pct = 0;
+
+    // 2) 급변 감지 (세션 시작 3분 이후부터, ±50% 초과 시 거부)
+    const age = Date.now() - this._sessionStart;
+    if (this._prev[sym] && age > 180000) {
+      const jump = Math.abs(price - this._prev[sym]) / this._prev[sym];
+      if (jump > 0.5) {
+        this._reject(sym, price, source, 'price_jump', `${(jump*100).toFixed(1)}% 급변 (이전: ${this._prev[sym]})`);
+        return false;
+      }
+    }
+
+    // 3) 저장
+    this._data[sym] = { price, pct, source: source || 'unknown', ts: Date.now(), stale: false };
+    this._prev[sym] = price;
+    this._stats.accepted++;
+
+    // 하위 호환: window._liveData 동기화
+    window._liveData = window._liveData || {};
+    window._liveData[sym] = { price, pct };
+    window._quoteTimestamps = window._quoteTimestamps || {};
+    window._quoteTimestamps[sym] = Date.now();
+    window._dataSource = window._dataSource || {};
+    window._dataSource[sym] = { source: source || 'live:yahoo', ts: Date.now() };
+    return true;
+  },
+
+  /** 시세 조회 (staleness 자동 마킹) */
+  get(sym) {
+    const d = this._data[sym];
+    if (!d) return null;
+    d.stale = (Date.now() - d.ts) > 300000; // 5분 초과 = stale
+    return d;
+  },
+
+  /** 거부 기록 */
+  _reject(sym, price, source, reason, detail) {
+    this._stats.rejected++;
+    if (this._rejected.length >= 50) this._rejected.shift();
+    this._rejected.push({ sym, price, source, reason, detail, ts: Date.now() });
+    console.warn(`[PriceStore] 거부: ${sym} = ${price} (${reason}: ${detail})`);
+  },
+
+  /** 헬스 리포트 */
+  health() {
+    const now = Date.now();
+    let total = 0, stale = 0, fresh = 0;
+    const sources = {};
+    for (const [sym, d] of Object.entries(this._data)) {
+      total++;
+      if ((now - d.ts) > 300000) { stale++; d.stale = true; }
+      else fresh++;
+      sources[d.source] = (sources[d.source] || 0) + 1;
+    }
+    this._stats.staleCount = stale;
+    return {
+      total, fresh, stale,
+      accepted: this._stats.accepted,
+      rejected: this._stats.rejected,
+      rejectRate: this._stats.accepted > 0 ? (this._stats.rejected / (this._stats.accepted + this._stats.rejected) * 100).toFixed(1) + '%' : '0%',
+      sources,
+      lastRejects: this._rejected.slice(-5)
+    };
+  }
+};
+
+// ── 2. MacroStore — 거시경제(FRED) 데이터 검증 저장소 ──
+const MacroStore = {
+  _data: {},      // seriesId → { value, prevValue, date, ts, stale }
+  _rejected: [],
+  _stats: { accepted: 0, rejected: 0 },
+
+  // 시리즈별 합리적 범위 (범위 밖이면 경고, 극단적이면 거부)
+  _ranges: {
+    'UNRATE':       { min: 0, max: 30, warnMax: 15, label: '실업률(%)' },
+    'FEDFUNDS':     { min: 0, max: 25, warnMax: 10, label: '기준금리(%)' },
+    'CPIAUCSL':     { min: 50, max: 500, warnMax: 400, label: 'CPI' },
+    'DGS2':         { min: -2, max: 20, warnMax: 15, label: '2년 국채(%)' },
+    'DGS10':        { min: -2, max: 20, warnMax: 15, label: '10년 국채(%)' },
+    'DGS30':        { min: -2, max: 20, warnMax: 15, label: '30년 국채(%)' },
+    'T10Y2Y':       { min: -5, max: 5, warnMax: 4, label: '10-2년 스프레드' },
+    'T10Y3M':       { min: -5, max: 5, warnMax: 4, label: '10년-3개월 스프레드' },
+    'BAMLH0A0HYM2': { min: 0, max: 30, warnMax: 15, label: 'HY 스프레드' },
+    'VIXCLS':       { min: 0, max: 100, warnMax: 80, label: 'VIX(FRED)' },
+    'ICSA':         { min: 0, max: 10000, warnMax: 5000, label: '신규 실업수당(K)' },
+    'DTWEXBGS':     { min: 50, max: 200, warnMax: 160, label: '달러 인덱스(FRED)' },
+  },
+
+  /** 매크로 데이터 저장 (검증 후) */
+  set(id, value, prevValue, date) {
+    // 1) FRED "." (결측치) 체크
+    if (value === '.' || value === '' || value == null || isNaN(parseFloat(value))) {
+      this._reject(id, value, 'missing_value', 'FRED 결측치(.)');
+      return false;
+    }
+    const val = parseFloat(value);
+    const prev = prevValue != null ? parseFloat(prevValue) : null;
+
+    // 2) 범위 검증
+    const range = this._ranges[id];
+    if (range) {
+      if (val < range.min || val > range.max) {
+        this._reject(id, val, 'out_of_range', `${range.label}: ${val} (범위: ${range.min}~${range.max})`);
+        return false;
+      }
+      if (val > range.warnMax) {
+        console.warn(`[MacroStore] 경고: ${id}(${range.label}) = ${val} — 이상 고값`);
+      }
+    }
+
+    // 3) 날짜 신선도 체크
+    const dataAge = date ? Math.floor((Date.now() - new Date(date).getTime()) / 86400000) : null;
+
+    this._data[id] = { value: val, prevValue: prev, date, ts: Date.now(), dataAgeDays: dataAge, stale: false };
+    this._stats.accepted++;
+
+    // 하위 호환: window._fredData 동기화
+    window._fredData = window._fredData || {};
+    window._fredData[id] = { value: val, prevValue: prev, date };
+    return true;
+  },
+
+  get(id) {
+    const d = this._data[id];
+    if (!d) return null;
+    d.stale = (Date.now() - d.ts) > 7200000; // 2시간 초과 = stale
+    return d;
+  },
+
+  _reject(id, value, reason, detail) {
+    this._stats.rejected++;
+    if (this._rejected.length >= 30) this._rejected.shift();
+    this._rejected.push({ id, value, reason, detail, ts: Date.now() });
+    console.warn(`[MacroStore] 거부: ${id} = ${value} (${reason}: ${detail})`);
+  },
+
+  health() {
+    const now = Date.now();
+    let total = 0, stale = 0, fresh = 0;
+    for (const [id, d] of Object.entries(this._data)) {
+      total++;
+      if ((now - d.ts) > 7200000) { stale++; d.stale = true; }
+      else fresh++;
+    }
+    return {
+      total, fresh, stale,
+      accepted: this._stats.accepted,
+      rejected: this._stats.rejected,
+      lastRejects: this._rejected.slice(-5),
+      series: Object.fromEntries(Object.entries(this._data).map(([k,v]) => [k, { value: v.value, date: v.date, ageDays: v.dataAgeDays }]))
+    };
+  }
+};
+
+// ── 3. NewsStore — 뉴스 품질/중복 필터 저장소 ──
+const NewsStore = {
+  _seen: new Set(),      // URL 기반 중복 방지
+  _deadFeeds: {},        // url → { errorCount, lastError, status }
+  _stats: { total: 0, duplicates: 0, filtered: 0, deadFeedHits: 0 },
+
+  /** 뉴스 기사 배열 필터링 (중복/품질) */
+  filter(articles) {
+    if (!Array.isArray(articles)) return [];
+    const result = [];
+    for (const a of articles) {
+      this._stats.total++;
+
+      // 1) URL 중복 제거
+      const key = (a.link || a.url || '').replace(/[?#].*$/, '').toLowerCase();
+      if (key && this._seen.has(key)) {
+        this._stats.duplicates++;
+        continue;
+      }
+
+      // 2) 제목 품질 필터 (5자 미만 쓰레기)
+      const title = a.title || '';
+      if (title.trim().length < 5) {
+        this._stats.filtered++;
+        continue;
+      }
+
+      // 3) 날짜 없는 기사는 현재 시간 기본값
+      if (!a.pubDate && !a.isoDate) {
+        a.pubDate = new Date().toISOString();
+      }
+
+      if (key) this._seen.add(key);
+      result.push(a);
+    }
+    return result;
+  },
+
+  /** 죽은 피드 기록 */
+  reportDeadFeed(feedUrl, status) {
+    if (!this._deadFeeds[feedUrl]) {
+      this._deadFeeds[feedUrl] = { errorCount: 0, lastError: null, status: null };
+    }
+    const df = this._deadFeeds[feedUrl];
+    df.errorCount++;
+    df.lastError = Date.now();
+    df.status = status;
+    this._stats.deadFeedHits++;
+  },
+
+  /** 피드가 죽었는지 확인 (3회 연속 실패 시 true) */
+  isDeadFeed(feedUrl) {
+    const df = this._deadFeeds[feedUrl];
+    return df && df.errorCount >= 3;
+  },
+
+  /** 중복 캐시 리셋 (새로고침 시) */
+  resetDuplicates() {
+    this._seen.clear();
+  },
+
+  health() {
+    return {
+      totalProcessed: this._stats.total,
+      duplicatesRemoved: this._stats.duplicates,
+      qualityFiltered: this._stats.filtered,
+      deadFeeds: Object.entries(this._deadFeeds).filter(([,v]) => v.errorCount >= 3).map(([url, v]) => ({ url: url.substring(0, 60), errors: v.errorCount, status: v.status })),
+      uniqueArticles: this._seen.size,
+      deadFeedHits: this._stats.deadFeedHits
+    };
+  }
+};
+
+// ── DataHealth — 통합 헬스 대시보드 ──
+const DataHealth = {
+  /** 전체 데이터 파이프라인 헬스 리포트 */
+  report() {
+    return {
+      price: PriceStore.health(),
+      macro: MacroStore.health(),
+      news: NewsStore.health(),
+      timestamp: new Date().toISOString(),
+      summary: this._summary()
+    };
+  },
+  _summary() {
+    const p = PriceStore.health();
+    const m = MacroStore.health();
+    const n = NewsStore.health();
+    const issues = [];
+    if (p.stale > p.total * 0.3) issues.push(`시세 ${p.stale}/${p.total} stale`);
+    if (p.rejected > 10) issues.push(`시세 거부 ${p.rejected}건`);
+    if (m.stale > 0) issues.push(`매크로 ${m.stale}/${m.total} stale`);
+    if (m.rejected > 0) issues.push(`매크로 거부 ${m.rejected}건`);
+    if (n.deadFeeds.length > 0) issues.push(`죽은 피드 ${n.deadFeeds.length}개`);
+    if (n.duplicatesRemoved > n.totalProcessed * 0.3) issues.push(`뉴스 중복률 ${(n.duplicatesRemoved/n.totalProcessed*100).toFixed(0)}%`);
+    return {
+      status: issues.length === 0 ? '✅ 정상' : issues.length <= 2 ? '⚠️ 주의' : '🔴 점검 필요',
+      issues
+    };
+  },
+  /** 콘솔에 리포트 출력 */
+  log() {
+    const r = this.report();
+    console.log('%c[DataHealth] 데이터 파이프라인 헬스 리포트', 'color:#60a5fa;font-weight:bold;font-size:12px;');
+    console.log(`  상태: ${r.summary.status}`);
+    console.log(`  시세: ${r.price.fresh} fresh / ${r.price.stale} stale / ${r.price.rejected} rejected (${r.price.rejectRate})`);
+    console.log(`  매크로: ${r.macro.fresh} fresh / ${r.macro.stale} stale / ${r.macro.rejected} rejected`);
+    console.log(`  뉴스: ${r.news.uniqueArticles} unique / ${r.news.duplicatesRemoved} dupes / ${r.news.deadFeeds.length} dead feeds`);
+    if (r.summary.issues.length > 0) console.warn('  이슈:', r.summary.issues.join(' | '));
+    return r;
+  }
+};
+
+// 글로벌 노출 (콘솔에서 DataHealth.log() 호출 가능)
+window.PriceStore = PriceStore;
+window.MacroStore = MacroStore;
+window.NewsStore = NewsStore;
+window.DataHealth = DataHealth;
+
+// ═══════════════════════════════════════════════════════════════════
 // DATA_SNAPSHOT — 단일 진실 원천 (Single Source of Truth)
 // ─────────────────────────────────────────────────────────────────
 // 🔴 데이터 업데이트 시 이 객체만 수정하면 전체 페이지에 반영됩니다.
@@ -10667,15 +10960,20 @@ function initFinnhubWebSocket() {
             const price = trade.p;
             if (typeof price === 'number' && !isNaN(price) && price > 0) {
               _finnhubPrices[sym] = price;
-              // Update window._liveData immediately (use for all price displays)
-              window._liveData = window._liveData || {};
-              if (window._liveData[sym]) {
-                window._liveData[sym].price = price;
+              // Route through PriceStore for validation & global sync
+              if (window.PriceStore) {
+                PriceStore.set(sym, price, 0, 'live:finnhub');
               } else {
-                window._liveData[sym] = { price, pct: 0 };
+                // Fallback: direct write if Store not yet initialized
+                window._liveData = window._liveData || {};
+                if (window._liveData[sym]) {
+                  window._liveData[sym].price = price;
+                } else {
+                  window._liveData[sym] = { price, pct: 0 };
+                }
+                window._quoteTimestamps = window._quoteTimestamps || {};
+                window._quoteTimestamps[sym] = Date.now();
               }
-              window._quoteTimestamps = window._quoteTimestamps || {};
-              window._quoteTimestamps[sym] = Date.now();
               // Update DOM elements
               document.querySelectorAll(`[data-live-price="${sym}"]`).forEach(el => {
                 el.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -10840,9 +11138,11 @@ async function fetchAllFredData() {
         const { id, obs } = r.value;
         const latest = obs[0];
         const prev = obs.length > 1 ? obs[1] : null;
-        const val = parseFloat(latest.value);
-        const prevVal = prev ? parseFloat(prev.value) : null;
-        results[id] = { value: val, prevValue: prevVal, date: latest.date };
+        // v31.7: MacroStore 검증 레이어 경유 (결측치/범위 체크)
+        const accepted = MacroStore.set(id, latest.value, prev ? prev.value : null, latest.date);
+        if (accepted) {
+          results[id] = { value: MacroStore._data[id].value, prevValue: MacroStore._data[id].prevValue, date: latest.date };
+        }
       }
     });
     if (i + 3 < seriesIds.length) await new Promise(ok => setTimeout(ok, 300)); // rate limit
@@ -10850,7 +11150,7 @@ async function fetchAllFredData() {
 
   window._fredData = results;
   applyFredToUI(results);
-  console.log('[AIO v20] FRED data loaded:', Object.keys(results).length, 'series');
+  console.log('[AIO v20] FRED data loaded:', Object.keys(results).length, 'series (MacroStore 검증)');
   return results;
 }
 
@@ -11345,6 +11645,14 @@ async function initV20DataEngine() {
 
   // Phase 7: Start recurring scheduler
   setTimeout(() => { startDataScheduler(); }, 15000);
+
+  // Phase 8: Data Health report (after all phases settle)
+  setTimeout(() => {
+    if (window.DataHealth) {
+      console.log('[AIO] ═══ Data Pipeline Health Report ═══');
+      DataHealth.log();
+    }
+  }, 20000);
 
   // Log API key status
   const keyStatus = API_KEY_CONFIG.map(k => {
@@ -13038,6 +13346,8 @@ async function fetchOneFeed(source) {
     } catch(e) {}
   }
   _rssMarkFail(source.name); // v30.12 P4: 모든 프록시 실패
+  // v31.7: NewsStore에 죽은 피드 보고
+  if (window.NewsStore) NewsStore.reportDeadFeed(source.url, 'all-proxies-failed');
   return [];
 }
 
@@ -13394,13 +13704,19 @@ async function fetchAllNews(forceRefresh = false) {
     })
     .slice(0, 120);
 
-  newsCache = allItems;
-  window._allNewsItems = allItems;  // v29: 텔레그램 필터 등에서 참조
+  // v31.7: NewsStore 검증 레이어 — 중복 제거 + 품질 필터
+  NewsStore.resetDuplicates(); // 새 수집 시 중복 캐시 리셋
+  const filteredItems = NewsStore.filter(allItems);
+  const removedCount = allItems.length - filteredItems.length;
+  if (removedCount > 0) console.log(`[NewsStore] ${removedCount}건 필터링됨 (중복/품질)`);
+
+  newsCache = filteredItems;
+  window._allNewsItems = filteredItems;  // v29: 텔레그램 필터 등에서 참조
   lastFetchTime = Date.now();
   // isFetching = false; // v27.3: finally 블록으로 이동 (중복 방지)
 
   const progLabel = document.getElementById('news-progress-label');
-  if (progLabel) progLabel.textContent = `뉴스 수집 완료 · ${allItems.length}건`;
+  if (progLabel) progLabel.textContent = `뉴스 수집 완료 · ${filteredItems.length}건 (${removedCount}건 필터링)`;
 
   if (dot) { dot.style.background = 'var(--green)'; dot.style.boxShadow = '0 0 5px var(--green)'; }
   if (lbl) lbl.textContent = '새로고침';
@@ -14604,38 +14920,17 @@ function applyLiveQuotes(quotes) {
     const price = q.regularMarketPrice;
     if (pct == null || price == null) return;
 
-    // Validate price: must be a positive number within 50% of previous known price
-    if (typeof price !== 'number' || isNaN(price) || price <= 0) {
-      console.warn(`[AIO] Invalid price for ${q.symbol}: ${price}`);
-      return;
-    }
+    // v31.7: PriceStore 검증 레이어 경유 (타입/범위/급변 전부 Store에서 처리)
+    const accepted = PriceStore.set(q.symbol, price, pct, q._source || 'live:yahoo');
+    if (!accepted) return; // PriceStore가 거부한 데이터는 UI에 반영하지 않음
 
-    // v29: Price sanity check — 첫 로드 시 _previousPrices가 비거나 stale할 수 있으므로
-    // 세션 시작 후 첫 3분 이내이거나, 이전 가격이 없으면 무조건 수용
-    if (!window._priceSessionStart) window._priceSessionStart = Date.now();
-    const sessionAge = Date.now() - window._priceSessionStart;
-    if (window._previousPrices[q.symbol] && sessionAge > 180000) {
-      const prevPrice = window._previousPrices[q.symbol];
-      const priceChange = Math.abs(price - prevPrice) / prevPrice;
-      if (priceChange > 0.5) {
-        console.warn(`[AIO] Price jump for ${q.symbol}: ${prevPrice} → ${price} (${(priceChange*100).toFixed(1)}%) — keeping previous`);
-        return;
-      }
-    }
-
-    window._liveData[q.symbol] = { price, pct };
-    window._quoteTimestamps[q.symbol] = now;
-    window._previousPrices[q.symbol] = price;
     // v30.14: 환율 심볼의 chartPreviousClose를 _fxPrevClose에 자동 보정
-    // Yahoo chart API에서 가져온 chartPreviousClose로 환율 변화율 즉시 계산 가능하게 함
     if (q.chartPreviousClose && q.chartPreviousClose > 0 && q.symbol.includes('=X')) {
       window._fxPrevClose = window._fxPrevClose || {};
       if (!window._fxPrevClose[q.symbol] || window._fxPrevClose[q.symbol] <= 0) {
         window._fxPrevClose[q.symbol] = q.chartPreviousClose;
       }
     }
-    // v30.11: 데이터 출처 기록
-    window._dataSource[q.symbol] = { source: q._source || 'live:yahoo', ts: now };
     const pctStr = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
     const cls    = pct >= 0 ? 'pnl pos' : 'pnl neg';
     // Track SPX vs ATH for Market Regime display
