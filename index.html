@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v33.0 — 올인원 투자 터미널</title>
+  <title>AIO Screener v33.2 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1917,7 +1917,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v33.0</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v33.2</span></div>
       <div class="page-subtitle" id="home-date-label">2026.03.23 (월) KST · 실시간 시세 자동갱신</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -18950,29 +18950,121 @@ const CHAT_CONTEXTS = {
           });
         }
 
+        // ── v33.2: 추가 9개 데이터 소스 주입 ──
+
+        // 경영진 상세
+        if (fd.fmpExecutives && fd.fmpExecutives.length) {
+          prompt += '\n● 경영진 (Key Executives):\n';
+          fd.fmpExecutives.slice(0, 8).forEach(function(ex) {
+            prompt += '  ' + (ex.name||'') + ' | ' + (ex.title||'') + ' | 보상: $' + _fmtNum(ex.pay||0) + ' | 성별: ' + (ex.gender||'N/A') + ' | 생년: ' + (ex.yearBorn||'N/A') + '\n';
+          });
+        }
+
+        // 내부자 거래 (경영진 매매 패턴)
+        if (fd.fmpInsiderTrades && fd.fmpInsiderTrades.length) {
+          prompt += '\n● 내부자 거래 (Insider Trading) — 경영진 매매 패턴:\n';
+          var buyCount = 0, sellCount = 0, buyVal = 0, sellVal = 0;
+          fd.fmpInsiderTrades.forEach(function(t) {
+            var val = Math.abs((t.securitiesTransacted||0) * (t.price||0));
+            if (t.transactionType === 'P-Purchase' || t.acquistionOrDisposition === 'A') { buyCount++; buyVal += val; }
+            else { sellCount++; sellVal += val; }
+          });
+          prompt += '  최근 ' + fd.fmpInsiderTrades.length + '건: 매수 ' + buyCount + '건($' + _fmtNum(buyVal) + ') / 매도 ' + sellCount + '건($' + _fmtNum(sellVal) + ')\n';
+          fd.fmpInsiderTrades.slice(0, 5).forEach(function(t) {
+            prompt += '  ' + (t.filingDate||'').slice(0,10) + ' | ' + (t.reportingName||'') + ' (' + (t.typeOfOwner||'') + ') | ' + (t.transactionType||'') + ' | ' + (t.securitiesTransacted||0).toLocaleString() + '주 @ $' + (t.price||0).toFixed(2) + '\n';
+          });
+        }
+
+        // 기관 투자자
+        if (fd.fmpInstitutional && fd.fmpInstitutional.length) {
+          prompt += '\n● 기관 투자자 (Top Institutional Holders):\n';
+          fd.fmpInstitutional.slice(0, 10).forEach(function(h) {
+            prompt += '  ' + (h.holder||'') + ' | ' + (h.shares||0).toLocaleString() + '주 | $' + _fmtNum((h.shares||0)*(h.value||0)/((h.shares||1))) + ' | 변동: ' + (h.change||0).toLocaleString() + '주\n';
+          });
+        }
+
+        // 애널리스트 추정
+        if (fd.fmpEstimates && fd.fmpEstimates.length) {
+          prompt += '\n● 애널리스트 추정 (Consensus Estimates):\n';
+          fd.fmpEstimates.slice(0, 4).forEach(function(e) {
+            prompt += '  ' + (e.date||'') + ': EPS 예상 $' + (e.estimatedEpsAvg||0).toFixed(2) + ' (Low $' + (e.estimatedEpsLow||0).toFixed(2) + ' ~ High $' + (e.estimatedEpsHigh||0).toFixed(2) + ') | 매출 예상 $' + _fmtNum(e.estimatedRevenueAvg||0) + '\n';
+          });
+        }
+
+        // 목표가 컨센서스
+        if (fd.fmpPriceTarget) {
+          var pt = fd.fmpPriceTarget;
+          prompt += '\n● 목표가 컨센서스:\n';
+          prompt += '  컨센서스: $' + (pt.targetConsensus||'N/A') + ' | 최고: $' + (pt.targetHigh||'N/A') + ' | 최저: $' + (pt.targetLow||'N/A') + ' | 중간: $' + (pt.targetMedian||'N/A') + '\n';
+          if (fd.price) prompt += '  현재가 대비: ' + (((pt.targetConsensus||0)/fd.price - 1)*100).toFixed(1) + '% ' + ((pt.targetConsensus||0) > fd.price ? '상승 여력' : '하락 리스크') + '\n';
+        }
+
+        // 매출 세그먼트 (제품별)
+        if (fd.fmpRevSegment && fd.fmpRevSegment.length) {
+          prompt += '\n● 매출 세그먼트 (제품/사업부별):\n';
+          fd.fmpRevSegment.slice(0, 2).forEach(function(seg) {
+            var keys = Object.keys(seg).filter(function(k) { return k !== 'date'; });
+            var dateStr = seg.date || '';
+            prompt += '  [' + dateStr + '] ';
+            keys.forEach(function(k) { prompt += k + ': $' + _fmtNum(seg[k]) + ' | '; });
+            prompt += '\n';
+          });
+        }
+
+        // 매출 지역별
+        if (fd.fmpRevGeo && fd.fmpRevGeo.length) {
+          prompt += '\n● 지역별 매출:\n';
+          fd.fmpRevGeo.slice(0, 2).forEach(function(geo) {
+            var keys = Object.keys(geo).filter(function(k) { return k !== 'date'; });
+            var dateStr = geo.date || '';
+            prompt += '  [' + dateStr + '] ';
+            keys.forEach(function(k) { prompt += k + ': $' + _fmtNum(geo[k]) + ' | '; });
+            prompt += '\n';
+          });
+        }
+
+        // 재무 성장률
+        if (fd.fmpGrowth && fd.fmpGrowth.length) {
+          prompt += '\n● 재무 성장률 (YoY):\n';
+          fd.fmpGrowth.slice(0, 3).forEach(function(g) {
+            var yr = (g.date||'').slice(0,4);
+            prompt += '  FY' + yr + ': 매출성장 ' + ((g.revenueGrowth||0)*100).toFixed(1) + '% | 순이익성장 ' + ((g.netIncomeGrowth||0)*100).toFixed(1) + '% | EPS성장 ' + ((g.epsgrowth||0)*100).toFixed(1) + '% | FCF성장 ' + ((g.freeCashFlowGrowth||0)*100).toFixed(1) + '% | EBITDA성장 ' + ((g.ebitdagrowth||0)*100).toFixed(1) + '%\n';
+          });
+        }
+
+        // DCF 밸류에이션
+        if (fd.fmpDCF) {
+          prompt += '\n● DCF 밸류에이션 (FMP 모델):\n';
+          prompt += '  DCF 적정가: $' + (typeof fd.fmpDCF.dcf === 'number' ? fd.fmpDCF.dcf.toFixed(2) : 'N/A') + ' | 현재가: $' + (fd.fmpDCF.stockPrice||fd.price||0).toFixed(2) + '\n';
+          if (fd.fmpDCF.dcf && fd.price) {
+            var dcfUpside = ((fd.fmpDCF.dcf / fd.price - 1) * 100).toFixed(1);
+            prompt += '  DCF 대비 ' + (dcfUpside > 0 ? dcfUpside + '% 저평가 (업사이드)' : Math.abs(dcfUpside) + '% 고평가 (다운사이드)') + '\n';
+          }
+        }
+
         prompt += '\n═══════════════════════════════════════════════════\n\n';
       }
 
-      // ── 15개 관점 분석 지시 ──
+      // ── 15개 관점 분석 지시 (v33.2: ★데이터 태그 강화) ──
       prompt += '【★ 핵심 지시: 15개 관점 종합 기업 분석 프레임워크】\n';
       prompt += '사용자가 기업 분석을 요청하면, 위에 제공된 실제 수집 데이터를 기반으로 아래 15개 관점을 유기적으로 연결하여 분석하라.\n';
       prompt += '단순 나열이 아니라, 하나의 스토리로 연결해야 한다. "이 회사는 왜 존재하고, 어떻게 돈을 벌고, 그 돈벌이가 지속 가능한가"라는 큰 질문에 답하는 흐름.\n\n';
 
-      prompt += '1. 【기업 개요】 한 문장 정의 + 핵심 숫자(시총/매출/이익/직원). "이 기업은 본질적으로 ___다."\n';
-      prompt += '2. 【설립 배경 & 성장 과정】 창업 스토리 → 핵심 전환점(피벗) → 현재 위치. 타임라인으로.\n';
-      prompt += '3. 【경영진 분석】 CEO/핵심 경영진의 이력, 리더십 스타일, 주주 친화도(자사주매입/배당 정책), 내부자 매매 패턴, 보상 구조, 과거 성과. ★실제 데이터: 자사주매입/배당 금액이 현금흐름표에 있음.\n';
-      prompt += '4. 【비즈니스 모델】 돈을 버는 메커니즘을 명확히. 구독형/거래형/플랫폼/하드웨어+서비스 등. 단위경제(LTV/CAC) 분석.\n';
-      prompt += '5. 【제품 & 서비스 포트폴리오】 세그먼트별 매출 비중, 각 제품의 성장률, 신규 출시 예정 제품.\n';
-      prompt += '6. 【기술력 & 경쟁 우위(Moat)】 6가지 해자 유형 중 어떤 것을 보유? 특허, 기술 독점, 네트워크 효과, 전환비용, 브랜드, 규모의 경제, 비용 우위, 무형자산. 강도 평가.\n';
-      prompt += '7. 【수익 구조】 매출 구성(지역별/세그먼트별), 마진 추이(Gross→Op→Net), 수익 집중도 리스크, 반복매출(recurring) 비중.\n';
-      prompt += '8. 【재무제표 심층 분석】 ★실제 데이터 기반. 손익계산서 트렌드(매출 성장률, 마진 변화), 대차대조표 건전성(유동비율, D/E, Goodwill), 현금흐름 품질(영업CF vs 순이익 = 이익의 질). Dupont ROE 분해. Red Flags 체크.\n';
-      prompt += '9. 【밸류에이션 분석】 ★실제 데이터 기반. PER/PBR/EV-EBITDA/P/S/FCF Yield 현재값 + 역사적 범위 + 동종업계 비교. DCF 간략 추정(가능한 경우). 현재 가격이 비싼지/적정인지/싼지 판단.\n';
-      prompt += '10. 【시장 분석 (TAM/SAM/SOM)】 총 시장 규모(TAM), 서비스 가능 시장(SAM), 현재 점유율(SOM). 시장 성장률, 침투율.\n';
-      prompt += '11. 【수요 & 공급망 분석】 수요 드라이버(어떤 트렌드가 수요를 만드는가), 공급망 구조(핵심 부품/원자재 의존도), 재고 수준, 공급 리스크.\n';
-      prompt += '12. 【협력 & 파트너십】 전략적 제휴, 주요 고객(매출 10%+ 고객), 생태계 위치(밸류체인에서의 포지션).\n';
-      prompt += '13. 【경쟁 구조】 주요 경쟁사 비교(★경쟁사 데이터 제공됨), 시장 점유율, 포터의 5가지 경쟁력, 차별화 포인트.\n';
-      prompt += '14. 【리스크 요인】 사업 리스크, 재무 리스크, 규제 리스크, 매크로 리스크, 기술 대체 리스크, ESG/평판 리스크. 각각의 가능성과 영향도.\n';
-      prompt += '15. 【투자 포인트 종합】 Bull Case / Base Case / Bear Case 시나리오. 카탈리스트와 깨지는 신호. 최종 투자 의견(매수/보유/관망)과 근거.\n\n';
+      prompt += '1. 【기업 개요】 한 문장 정의 + 핵심 숫자(시총/매출/이익/직원). "이 기업은 본질적으로 ___다." ★데이터: fmpProfile(companyName, sector, industry, mktCap, fullTimeEmployees)\n';
+      prompt += '2. 【설립 배경 & 성장 과정】 창업 스토리 → 핵심 전환점(피벗) → 현재 위치. 타임라인으로. ★데이터: fmpProfile(ipoDate, description), SEC 공시 이력\n';
+      prompt += '3. 【경영진 분석】 CEO/핵심 경영진의 이력·직급·보상구조·리더십 스타일·주주 친화도(자사주매입+배당 정책)·내부자 매매 패턴(매수 우위인가 매도 우위인가). ★데이터: fmpExecutives(name, title, pay, yearBorn) + fmpInsiderTrades(매수/매도 건수·금액·개인별 패턴) + 현금흐름표(commonStockRepurchased, dividendsPaid). ⚠️ 내부자 매수 증가=경영진 자신감 시그널, 대량 매도=경계 시그널.\n';
+      prompt += '4. 【비즈니스 모델】 돈을 버는 메커니즘을 명확히. 구독형/거래형/플랫폼/하드웨어+서비스 등. 반복매출(recurring) 비중. 단위경제(LTV/CAC) 분석 가능 시 포함.\n';
+      prompt += '5. 【제품 & 서비스 포트폴리오】 ★데이터: fmpRevSegment(제품/사업부별 매출 분해). 세그먼트별 매출 비중, 각 세그먼트 성장률, 수익성 차이, 신규 세그먼트 확장 여부. 매출 집중도(한 세그먼트에 50%+ 의존 시 리스크).\n';
+      prompt += '6. 【기술력 & 경쟁 우위(Moat)】 6가지 해자 유형 중 어떤 것을 보유? 특허, 기술 독점, 네트워크 효과, 전환비용, 브랜드, 규모의 경제, 비용 우위, 무형자산. 강도 평가(좁은 해자/넓은 해자/없음).\n';
+      prompt += '7. 【수익 구조】 ★데이터: fmpRevGeo(지역별 매출) + fmpRevSegment + 손익계산서(마진 추이). 매출 구성(지역별+세그먼트별), Gross→Op→Net 마진 추이(개선/악화/안정), 수익 집중도 리스크, 지역별 성장률 차이.\n';
+      prompt += '8. 【재무제표 심층 분석】 ★데이터: 손익계산서(5개년) + 대차대조표 + 현금흐름표 + fmpGrowth(성장률 추이). 매출·이익 성장 트렌드, 마진 변화 방향, 유동비율·D/E·이자보상배율, 영업CF vs 순이익(이익의 질), Dupont ROE 분해, Red Flags(재고 급증/매출채권 급증/Goodwill 과다). ⚠️ 성장률 "방향"이 현재값보다 중요 — 가속인가 감속인가?\n';
+      prompt += '9. 【밸류에이션 분석】 ★데이터: fmpMetrics(PER/PBR/EV-EBITDA/P·S/FCF Yield/ROIC) + fmpDCF(적정가) + fmpPriceTarget(목표가 컨센서스). 현재 밸류에이션 vs DCF 적정가 vs 애널리스트 컨센서스 목표가 삼중 비교. 섹터 평균 대비 프리미엄/디스카운트 여부. "왜 이 밸류에이션을 받는가"의 근거.\n';
+      prompt += '10. 【시장 분석 (TAM/SAM/SOM)】 총 시장 규모(TAM), 서비스 가능 시장(SAM), 현재 점유율(SOM). 시장 성장률(CAGR), 침투율, 시장 확대 트리거. ★학습 데이터 + 매출 세그먼트로 추론.\n';
+      prompt += '11. 【수요 & 공급망 분석】 수요 드라이버(어떤 메가트렌드가 수요를 만드는가), 공급망 구조(핵심 부품/원자재 의존도), 재고 수준(대차대조표 inventory), 공급 리스크(지정학, 단일 소스 의존).\n';
+      prompt += '12. 【협력 & 파트너십】 전략적 제휴, 주요 고객 집중도(매출 10%+ 고객), 생태계 위치(밸류체인에서의 포지션). ★데이터: fmpInstitutional(기관 투자자 구성으로 어떤 펀드가 주목하는지 판단).\n';
+      prompt += '13. 【경쟁 구조】 ★데이터: peers(경쟁사 리스트) + fmpEstimates(향후 성장 기대치 비교). 주요 경쟁사와 밸류에이션·성장률·마진 비교. 포터의 5가지 경쟁력. 차별화 포인트. 경쟁 심화/완화 트렌드.\n';
+      prompt += '14. 【리스크 요인】 사업 리스크(경쟁 심화, 기술 대체), 재무 리스크(부채, 유동성), 규제 리스크(독점 규제, 수출 규제), 매크로 리스크(금리·환율·경기 민감도), ESG/평판 리스크. 각 리스크의 가능성(H/M/L)과 영향도(H/M/L) 매트릭스.\n';
+      prompt += '15. 【투자 포인트 종합】 ★데이터: fmpPriceTarget + fmpDCF + fmpEstimates + 전체 분석 종합. Bull Case(낙관 시나리오 + 목표가) / Base Case(기본 시나리오) / Bear Case(비관 시나리오). 핵심 카탈리스트(실적 서프라이즈, 신제품, M&A 등)와 깨지는 신호. 내부자 매매 방향이 시사하는 바. 최종 투자 의견(매수/보유/관망)과 근거 3줄 요약.\n\n';
 
       prompt += '【응답 프레임워크 — "기업을 하나의 이야기로"】\n';
       prompt += '• 15개 관점을 기계적으로 나열하지 마라. 기업의 "왜 존재하는가"에서 시작해서 "투자할 만한가"로 자연스럽게 흐르는 스토리를 만들어라.\n';
@@ -19908,6 +20000,45 @@ async function fundamentalSearch() {
 
     var ev = await _fmpFetch('v3/enterprise-values/' + ticker + '?limit=3');
     if (ev && ev.length) { collected.fmpEV = ev; updateProgress('Enterprise Value 데이터'); }
+
+    // ─── v33.2: 9개 추가 FMP 엔드포인트 — 15개 관점 완전 커버 ───
+    updateProgress('경영진·내부자·기관·애널리스트 데이터 수집 중...');
+
+    // (1) 경영진 상세 (이름, 직급, 보상)
+    var executives = await _fmpFetch('v3/key-executives/' + ticker);
+    if (executives && executives.length) { collected.fmpExecutives = executives.slice(0, 10); collected.sources.push('FMP (경영진)'); updateProgress('경영진: ' + executives.length + '명 데이터'); }
+
+    // (2) 내부자 거래 (경영진 매매 패턴)
+    var insiderTrades = await _fmpFetch('v4/insider-trading?symbol=' + ticker + '&limit=20');
+    if (insiderTrades && insiderTrades.length) { collected.fmpInsiderTrades = insiderTrades.slice(0, 15); collected.sources.push('FMP (내부자 거래)'); updateProgress('내부자 거래: 최근 ' + Math.min(15, insiderTrades.length) + '건'); }
+
+    // (3) 기관 투자자 보유 현황
+    var instHolders = await _fmpFetch('v3/institutional-holder/' + ticker);
+    if (instHolders && instHolders.length) { collected.fmpInstitutional = instHolders.slice(0, 15); collected.sources.push('FMP (기관 보유)'); updateProgress('기관 투자자: 상위 ' + Math.min(15, instHolders.length) + '개 기관'); }
+
+    // (4) 애널리스트 추정치 (향후 EPS/매출 예상)
+    var estimates = await _fmpFetch('v3/analyst-estimates/' + ticker + '?limit=4');
+    if (estimates && estimates.length) { collected.fmpEstimates = estimates; collected.sources.push('FMP (애널리스트 추정)'); updateProgress('애널리스트 추정: ' + estimates.length + '개 분기 전망'); }
+
+    // (5) 목표가 컨센서스
+    var priceTarget = await _fmpFetch('v4/price-target-consensus?symbol=' + ticker);
+    if (priceTarget && priceTarget[0]) { collected.fmpPriceTarget = priceTarget[0]; collected.sources.push('FMP (목표가)'); updateProgress('목표가 컨센서스: $' + (priceTarget[0].targetConsensus||'N/A')); }
+
+    // (6) 매출 세그먼트 (제품별)
+    var revSegment = await _fmpFetch('v4/revenue-product-segmentation?symbol=' + ticker + '&structure=flat&period=annual');
+    if (revSegment && revSegment.length) { collected.fmpRevSegment = revSegment.slice(0, 3); collected.sources.push('FMP (매출 세그먼트)'); updateProgress('매출 세그먼트: 제품별 분해'); }
+
+    // (7) 매출 지역별
+    var revGeo = await _fmpFetch('v4/revenue-geographic-segmentation?symbol=' + ticker + '&structure=flat');
+    if (revGeo && revGeo.length) { collected.fmpRevGeo = revGeo.slice(0, 3); collected.sources.push('FMP (지역별 매출)'); updateProgress('지역별 매출 분해'); }
+
+    // (8) 재무 성장률
+    var growth = await _fmpFetch('v3/financial-growth/' + ticker + '?limit=5');
+    if (growth && growth.length) { collected.fmpGrowth = growth; collected.sources.push('FMP (성장률)'); updateProgress('재무 성장률: ' + growth.length + '개년'); }
+
+    // (9) DCF 밸류에이션
+    var dcf = await _fmpFetch('v3/discounted-cash-flow/' + ticker);
+    if (dcf && dcf[0]) { collected.fmpDCF = dcf[0]; collected.sources.push('FMP (DCF)'); updateProgress('DCF 적정가: $' + (typeof dcf[0].dcf === 'number' ? dcf[0].dcf.toFixed(2) : 'N/A')); }
   } else {
     updateFail('FMP API 키 미설정 — SEC EDGAR 데이터만으로 분석 진행 (사이드바에서 FMP 키를 입력하면 더 풍부한 데이터 수집 가능)');
   }
@@ -20014,6 +20145,39 @@ function _renderFundFinancials(d) {
   var inc = (d.fmpIncome && d.fmpIncome[0]) || {};
   var ev = (d.fmpEV && d.fmpEV[0]) || {};
 
+  // SEC XBRL 폴백 데이터 준비
+  var sf = d.secFin || {};
+  var lastRev = (sf.revenue && sf.revenue.length > 0) ? sf.revenue[sf.revenue.length - 1] : null;
+  var lastNI = (sf.netIncome && sf.netIncome.length > 0) ? sf.netIncome[sf.netIncome.length - 1] : null;
+  var lastEps = (sf.eps && sf.eps.length > 0) ? sf.eps[sf.eps.length - 1] : null;
+  var lastAssets = (sf.totalAssets && sf.totalAssets.length > 0) ? sf.totalAssets[sf.totalAssets.length - 1] : null;
+  var lastEquity = (sf.equity && sf.equity.length > 0) ? sf.equity[sf.equity.length - 1] : null;
+  var lastGross = (sf.grossProfit && sf.grossProfit.length > 0) ? sf.grossProfit[sf.grossProfit.length - 1] : null;
+  var lastOpCF = (sf.opCashFlow && sf.opCashFlow.length > 0) ? sf.opCashFlow[sf.opCashFlow.length - 1] : null;
+  var lastCapex = (sf.capex && sf.capex.length > 0) ? sf.capex[sf.capex.length - 1] : null;
+  var lastDebt = (sf.totalDebt && sf.totalDebt.length > 0) ? sf.totalDebt[sf.totalDebt.length - 1] : null;
+
+  // SEC 값 헬퍼
+  function sv(item) { return item ? (item.val || item.value || 0) : 0; }
+
+  // SEC 기반 파생 지표 계산
+  var secRevVal = sv(lastRev);
+  var secNIVal = sv(lastNI);
+  var secEpsVal = sv(lastEps);
+  var secEquityVal = sv(lastEquity);
+  var secAssetsVal = sv(lastAssets);
+  var secGrossVal = sv(lastGross);
+  var secOpCFVal = sv(lastOpCF);
+  var secCapexVal = sv(lastCapex);
+  var secDebtVal = sv(lastDebt);
+  var secROE = (secEquityVal && secNIVal) ? secNIVal / secEquityVal : null;
+  var secGrossMargin = (secRevVal && secGrossVal) ? secGrossVal / secRevVal : null;
+  var secFCF = secOpCFVal - Math.abs(secCapexVal);
+  var secDE = (secEquityVal && secDebtVal) ? secDebtVal / secEquityVal : null;
+  var secMktCap = d.price ? d.price * (d.sharesOut || 0) : 0;
+  // PE from SEC
+  var secPE = (secEpsVal && d.price) ? d.price / secEpsVal : null;
+
   function card(label, value, sub, color) {
     return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">' +
       '<div style="font-size:9px;color:var(--text-muted);">' + label + '</div>' +
@@ -20021,19 +20185,33 @@ function _renderFundFinancials(d) {
       (sub ? '<div style="font-size:9px;color:var(--text-muted);margin-top:2px;">' + sub + '</div>' : '') + '</div>';
   }
 
+  // 값 선택: FMP 우선, SEC XBRL 폴백
+  var mktCap = p.mktCap || ev.marketCapitalization || secMktCap || 0;
+  var peVal = m.peRatio || p.pe || secPE;
+  var roeVal = r.returnOnEquity || secROE;
+  var epsVal = inc.epsdiluted || secEpsVal;
+  var revVal = inc.revenue || secRevVal;
+  var niVal = inc.netIncome || secNIVal;
+  var gmVal = r.grossProfitMargin || secGrossMargin;
+  var deVal = r.debtEquityRatio || secDE;
+  var revYear = inc.revenue ? (inc.calendarYear || inc.date || '').slice(0,4) : (lastRev ? (lastRev.end||'').slice(0,4) : '');
+  var isSEC = !inc.revenue && secRevVal; // SEC 폴백 사용 여부
+
   var html = '';
-  html += card('시가총액', '$' + _fmtNum(p.mktCap || ev.marketCapitalization || 0), p.sector || '');
-  html += card('P/E (TTM)', m.peRatio ? m.peRatio.toFixed(1) + 'x' : (p.pe ? p.pe.toFixed(1) + 'x' : 'N/A'), m.peRatio > 30 ? '고평가 영역' : m.peRatio > 15 ? '적정' : '저평가 영역', m.peRatio > 40 ? '#f87171' : m.peRatio < 15 ? '#3ddba5' : '#fbbf24');
-  html += card('ROE', r.returnOnEquity ? (r.returnOnEquity * 100).toFixed(1) + '%' : 'N/A', r.returnOnEquity > 0.2 ? '우수' : r.returnOnEquity > 0.1 ? '양호' : '주의', r.returnOnEquity > 0.2 ? '#3ddba5' : r.returnOnEquity > 0.1 ? '#fbbf24' : '#f87171');
-  html += card('EPS (TTM)', m.earningsYield ? '$' + (inc.epsdiluted || 0).toFixed(2) : 'N/A', '');
-  html += card('매출', '$' + _fmtNum(inc.revenue || 0), inc.revenue > 0 ? 'FY ' + (inc.calendarYear || inc.date || '').slice(0,4) : '');
-  html += card('순이익', '$' + _fmtNum(inc.netIncome || 0), '', (inc.netIncome || 0) >= 0 ? '#3ddba5' : '#f87171');
-  html += card('Gross Margin', r.grossProfitMargin ? (r.grossProfitMargin * 100).toFixed(1) + '%' : 'N/A', '매출총이익률');
-  html += card('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : 'N/A', '잉여현금흐름 수익률');
+  html += card('시가총액', mktCap > 0 ? '$' + _fmtNum(mktCap) : 'N/A', p.sector || (isSEC ? 'SEC XBRL' : ''));
+  html += card('P/E (TTM)', peVal ? peVal.toFixed(1) + 'x' : 'N/A', peVal > 30 ? '고평가 영역' : peVal > 15 ? '적정' : (peVal ? '저평가 영역' : ''), peVal > 40 ? '#f87171' : peVal < 15 ? '#3ddba5' : '#fbbf24');
+  html += card('ROE', roeVal ? (roeVal * 100).toFixed(1) + '%' : 'N/A', roeVal > 0.2 ? '우수' : roeVal > 0.1 ? '양호' : (roeVal ? '주의' : ''), roeVal > 0.2 ? '#3ddba5' : roeVal > 0.1 ? '#fbbf24' : '#f87171');
+  html += card('EPS (TTM)', epsVal ? '$' + epsVal.toFixed(2) : 'N/A', '');
+  html += card('매출', revVal ? '$' + _fmtNum(revVal) : 'N/A', revYear ? 'FY ' + revYear : '');
+  html += card('순이익', niVal ? '$' + _fmtNum(niVal) : 'N/A', '', (niVal || 0) >= 0 ? '#3ddba5' : '#f87171');
+  html += card('Gross Margin', gmVal ? (gmVal * 100).toFixed(1) + '%' : 'N/A', '매출총이익률');
+  html += card('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : (secFCF && mktCap > 0 ? ((secFCF / mktCap) * 100).toFixed(1) + '%' : 'N/A'), '잉여현금흐름 수익률');
   html += card('EV/EBITDA', m.enterpriseValueOverEBITDA ? m.enterpriseValueOverEBITDA.toFixed(1) + 'x' : 'N/A', '기업가치 대비');
-  html += card('P/B', m.pbRatio ? m.pbRatio.toFixed(2) + 'x' : 'N/A', '주가순자산비율');
-  html += card('부채비율', r.debtEquityRatio ? r.debtEquityRatio.toFixed(2) + 'x' : 'N/A', r.debtEquityRatio > 2 ? '높음' : '안정', r.debtEquityRatio > 2 ? '#f87171' : '#3ddba5');
+  html += card('P/B', m.pbRatio ? m.pbRatio.toFixed(2) + 'x' : (secEquityVal && d.price && secEquityVal > 0 ? (mktCap / secEquityVal).toFixed(2) + 'x' : 'N/A'), '주가순자산비율');
+  html += card('부채비율', deVal ? deVal.toFixed(2) + 'x' : 'N/A', deVal > 2 ? '높음' : (deVal ? '안정' : ''), deVal > 2 ? '#f87171' : '#3ddba5');
   html += card('배당수익률', p.lastDiv ? ((p.lastDiv / (d.price || 1)) * 100).toFixed(2) + '%' : '0%', '연간 배당');
+
+  if (isSEC) { html += '<div style="grid-column:1/-1;text-align:center;font-size:9px;color:var(--text-muted);padding:4px;">📋 SEC EDGAR XBRL 기반 데이터 (FMP API 키 설정 시 더 풍부한 지표 제공)</div>'; }
 
   grid.innerHTML = html;
   el.style.display = 'block';
@@ -22097,54 +22275,66 @@ async function fetchSECFilings(ticker, formType) {
     } catch(e) { console.warn('[SEC] search error:', e.message); }
     return null;
   }
+  var url = 'https://data.sec.gov/submissions/CIK' + cik + '.json';
+  var data = null;
+  // 1차: 직접 호출
   try {
-    var url = 'https://data.sec.gov/submissions/CIK' + cik + '.json';
     var r = await withTimeout(fetch(url, {headers:{'User-Agent':'AIO Dashboard contact@example.com','Accept':'application/json'}}), 10000);
-    if (r.ok) {
-      var data = await r.json();
-      return {
-        name: data.name,
-        cik: cik,
-        sic: data.sic,
-        sicDescription: data.sicDescription,
-        filings: data.filings ? data.filings.recent : null,
-        website: data.website || '',
-        exchanges: data.exchanges || [],
-        tickers: data.tickers || []
-      };
-    }
-  } catch(e) { console.warn('[SEC] filing fetch error:', e.message); }
-  return null;
+    if (r.ok) data = await r.json();
+  } catch(e) { console.warn('[SEC] filing direct fetch failed:', e.message); }
+  // 2차: CORS 프록시 경유
+  if (!data) {
+    try {
+      var r2 = await fetchViaProxy(url, 12000);
+      if (r2.ok) {
+        data = await r2.json();
+        if (data.contents && typeof data.contents === 'string') {
+          try { data = JSON.parse(data.contents); } catch(e2) { /* malformed */ }
+        }
+      }
+    } catch(e) { console.warn('[SEC] filing proxy fetch failed:', e.message); }
+  }
+  if (!data) return null;
+  return {
+    name: data.name,
+    cik: cik,
+    sic: data.sic,
+    sicDescription: data.sicDescription,
+    filings: data.filings ? data.filings.recent : null,
+    website: data.website || '',
+    exchanges: data.exchanges || [],
+    tickers: data.tickers || []
+  };
 }
 
 // SEC EDGAR: Get company financial facts (XBRL)
 async function fetchSECFinancials(ticker) {
   var cik = SEC_TICKER_CIK[ticker];
   if (!cik) return null;
+  var url = 'https://data.sec.gov/api/xbrl/companyfacts/CIK' + cik + '.json';
+  var data = null;
+  // 1차: 직접 호출
   try {
-    var url = 'https://data.sec.gov/api/xbrl/companyfacts/CIK' + cik + '.json';
     var r = await withTimeout(fetch(url, {headers:{'User-Agent':'AIO Dashboard contact@example.com','Accept':'application/json'}}), 12000);
-    if (r.ok) {
-      var data = await r.json();
-      // Extract key financial metrics
-      var facts = data.facts || {};
-      var usGaap = facts['us-gaap'] || {};
-      var result = { ticker: ticker, cik: cik };
-      // Revenue
-      if (usGaap.Revenues) result.revenues = usGaap.Revenues.units;
-      else if (usGaap.RevenueFromContractWithCustomerExcludingAssessedTax) result.revenues = usGaap.RevenueFromContractWithCustomerExcludingAssessedTax.units;
-      // Net Income
-      if (usGaap.NetIncomeLoss) result.netIncome = usGaap.NetIncomeLoss.units;
-      // EPS
-      if (usGaap.EarningsPerShareDiluted) result.eps = usGaap.EarningsPerShareDiluted.units;
-      // Total Assets
-      if (usGaap.Assets) result.assets = usGaap.Assets.units;
-      // Stockholders Equity
-      if (usGaap.StockholdersEquity) result.equity = usGaap.StockholdersEquity.units;
-      return result;
-    }
-  } catch(e) { console.warn('[SEC] financials error:', e.message); }
-  return null;
+    if (r.ok) data = await r.json();
+  } catch(e) { console.warn('[SEC] XBRL direct fetch failed (CORS):', e.message); }
+  // 2차: CORS 프록시 경유
+  if (!data) {
+    try {
+      var r2 = await fetchViaProxy(url, 15000);
+      if (r2.ok) {
+        data = await r2.json();
+        if (data.contents && typeof data.contents === 'string') {
+          try { data = JSON.parse(data.contents); } catch(e2) { /* malformed */ }
+        }
+      }
+    } catch(e) { console.warn('[SEC] XBRL proxy fetch failed:', e.message); }
+  }
+  if (!data || !data.facts) return null;
+  // 원시 XBRL 데이터 그대로 반환 → _parseSECFinancials()에서 파싱
+  data._ticker = ticker;
+  data._cik = cik;
+  return data;
 }
 
 // ══════════════════════════════════════════════════════════════════
