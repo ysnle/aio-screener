@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v31.5 — 올인원 투자 터미널</title>
+  <title>AIO Screener v31.6 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1905,7 +1905,7 @@ body.keyboard-open .aio-chat { max-height: 40vh; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v31.5</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v31.6</span></div>
       <div class="page-subtitle" id="home-date-label">2026.03.23 (월) KST · 실시간 시세 자동갱신</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -11366,9 +11366,9 @@ const AIO_NEWS_SOURCES = [
   {name:'연합뉴스 경제',         url:'https://www.yna.co.kr/rss/economy.xml',                      country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
   {name:'한국경제',              url:'https://www.hankyung.com/feed/finance',                       country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
   {name:'매일경제',              url:'https://www.mk.co.kr/rss/40300001/',                         country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'조선비즈',              url:'https://biz.chosun.com/rss/all/',                            country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
+  // biz.chosun.com RSS — 404 폐지됨 (2026-03-25 확인, 제거)
+  // news.mt.co.kr RSS — 410 Gone 영구 삭제됨 (2026-03-25 확인, 제거)
   {name:'서울경제',              url:'https://www.sedaily.com/RSS/Economy',                         country:'kr', tier:1, flag:'🇰🇷', topics:['macro']},
-  {name:'머니투데이',            url:'https://news.mt.co.kr/rss/rss.html?type=1',                  country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
   {name:'이데일리',              url:'https://www.edaily.co.kr/rss/edaily_news.xml',               country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
   {name:'아시아경제',            url:'https://www.asiae.co.kr/rss/all.xml',                        country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
   {name:'연합인포맥스',           url:'https://news.einfomax.co.kr/rss/S1N35.xml',                  country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
