@@ -13049,17 +13049,12 @@ const NEWS_BLACKLIST_KW = [
   // 지방정부 예산/계획 (매크로 재정정책과 구분 — 지역 단위)
   '세부계획 공시','시행계획','지역계획','추진계획 발표',
   '지역경제 활성화','지역 활성화','상권 활성화','마을 활성화',
-  // 한국 국내 정치/법조/사회 (비금융) — 주의: 지정학(전쟁/외교/무역)은 제외
-  '경찰청','경찰서','파출소','지구대','수사본부','수사팀',
-  '국정원','정보원',
-  '정무','행안부','복지부','교육부','환경부',
-  '의원이','의원은','의원의',
-  // 한국 국내 사회 이슈 (금융 무관) — 주의: '시위','집회' 제외 (지정학 기사에서 등장 가능)
-  '시민단체','인권단체','농성','성명서','규탄 대회','규탄 성명',
+  // 한국 순수 국내 사회/생활 (금융 문맥 공존 불가)
+  // 주의: 정치 키워드(대통령, 장관, 국회 등)는 제거함 — 금융 정책 뉴스와 공존 가능하므로
+  // → STEP 2 금융 관련성 게이트에서 컨텍스트로 판단
   '학부모','교육감','교육청',
-  // 영문 국내 정치/사회 (비금융) — 주의: 지정학/무역정책 뉴스는 보존
-  'gun control','abortion','lgbtq','civil rights',
-  'immigration policy','border patrol','asylum seeker','deportation',
+  // 영문 순수 사회 이슈 (금융 문맥 공존 불가)
+  'gun control','abortion rights','lgbtq rights',
   'school shooting','mass shooting',
 ];
 
@@ -13279,12 +13274,46 @@ function scoreItem(item) {
     'Kitco','DL News','CoinDesk'];
   if (premiumSources.some(s => (item.source || '').includes(s))) score += 5;
 
-  // v34.1b: 외신 부스트 대폭 강화, 한국 부스트 제거
-  // 미국 시장 중점 스크리너 → 주요 외신 최우선
+  // v34.1c: 미국 주식 시장 중심 스크리너 — 소스 계층 부스트
+  // US Tier1 외신 최우선, 한국은 콘텐츠 품질로만 판단
   if (item.country === 'us' && item.tier === 1) score += 12;
-  if (item.country !== 'kr' && item.tier === 1) score += 5; // 비한국 Tier1 추가
-  if (item.country !== 'kr' && item.tier === 2) score += 3; // 비한국 Tier2
-  // 한국 소스는 부스트 없음 (0) — 콘텐츠 품질로만 판단
+  else if (item.country !== 'kr' && item.tier === 1) score += 8;
+  else if (item.country !== 'kr' && item.tier === 2) score += 4;
+  // 한국 소스: 부스트 0 — 순수 콘텐츠 품질로만 경쟁
+
+  // v34.1c: 대형주/대장주/주도주 티커 부스트 시스템
+  // 시장을 주도하는 핵심 종목에 대한 뉴스를 우선 노출
+  const _MEGA_TICKERS = new Set([
+    // US Mega Cap (시총 $500B+)
+    'AAPL','MSFT','NVDA','GOOGL','GOOG','AMZN','META','TSLA','BRK.B','AVGO',
+    'LLY','JPM','V','UNH','MA','XOM','COST','HD','PG','JNJ',
+    // US 주도주/테마 대장주
+    'AMD','SMCI','ARM','PLTR','MRVL','MU','QCOM','INTC','TSM','ASML',
+    'COIN','MSTR','SQ','CRWD','SNOW','NET','DDOG','ZS','PANW',
+    'LMT','RTX','NOC','GD','BA',
+    // 핵심 ETF/지수
+    'SPY','QQQ','DIA','IWM','SOXX','SMH','XLE','XLF','XLK','GLD','TLT','VIX',
+    // 한국 대장주
+    '삼성전자','SK하이닉스','현대차','LG에너지솔루션','삼성바이오로직스','POSCO홀딩스',
+    'NAVER','카카오','셀트리온','기아','한화에어로스페이스',
+  ]);
+  const _LARGE_TICKERS = new Set([
+    'ORCL','CRM','ADBE','NOW','UBER','ABNB','SHOP','SQ','RBLX',
+    'NKE','DIS','NFLX','PYPL','BABA','PDD','JD','SE','GRAB',
+    'CVX','COP','SLB','OXY','DVN','HAL','MPC','VLO','PSX',
+    'GS','MS','C','BAC','WFC','AXP','BLK','SCHW','ICE',
+    'PFE','MRK','ABBV','TMO','ABT','ISRG','REGN','MRNA','VRTX',
+    'CAT','DE','GE','HON','MMM','UNP','UPS','FDX',
+    'WMT','TGT','LOW','MCD','SBUX','CMG','YUM',
+    'DELL','HPE','WDC','STX','ON','MCHP','TXN','ADI','KLAC','LRCX','AMAT',
+  ]);
+  if (foundTickers.length > 0) {
+    const hasMega = foundTickers.some(t => _MEGA_TICKERS.has(t));
+    const hasLarge = foundTickers.some(t => _LARGE_TICKERS.has(t));
+    if (hasMega) score += 8;        // 메가캡/대장주 뉴스: +8
+    else if (hasLarge) score += 4;  // 대형주 뉴스: +4
+    // 기타 티커 (소형주): 기본 티커 부스트만 적용 (위에서 이미 +2~4)
+  }
   // v29.1: 구글뉴스 소스 부스트
   if ((item.source || '').includes('구글뉴스')) score += 4;
 
@@ -13321,15 +13350,14 @@ function scoreItem(item) {
   const spamKW = ['sponsored','advertisement','promoted','partner content','editorial','opinion piece'];
   spamKW.forEach(kw => { if (text.includes(kw)) score -= 20; });
 
-  // v27.4: 비주식 뉴스 블랙리스트 — 즉시 제거 대상 표시
-  if (NEWS_BLACKLIST_KW.some(kw => text.includes(kw.toLowerCase()))) {
-    item._blacklisted = true;
-    return 0;
-  }
+  // ── v34.1c: 3단계 뉴스 선별 시스템 (컨텍스트 기반) ──────────────
+  // 원칙: "주식/금융 관련 키워드가 함께 있으면 → 통과 (정치 기사여도)"
+  //       "주식/금융 관련 키워드가 전혀 없으면 → 차단 (어떤 소스여도)"
+  //
+  // 예시: "대통령이 코스피 부양 정책 발표" → '코스피'(MACRO_KW) 매칭 → 통과 ✅
+  //       "대통령이 교육 예산 확대"           → 금융KW 0개 → 차단 ❌
+  //       "울주군 복지단체 건강음료 배달사업"   → 금융KW 0개 → 차단 ❌
 
-  // v29.1→v34.1: 금융 관련성 게이트 — Tier1 매크로 소스/텔레그램은 면제
-  // v34.1: 한국 소스(country==='kr') 면제 제거 — 지역 뉴스 유입 근본 차단
-  // 나머지 소스(일반 뉴스, 테크 블로그 등)는 최소 1개 금융 키워드가 있어야 통과
   const isExempt = item._tgChannel ||
     ['Reuters','Bloomberg','WSJ','CNBC','MarketWatch','FT Markets','S&P Global',
      'Seeking Alpha','Investing.com','CoinDesk','OilPrice.com','Benzinga','Barrons',
@@ -13340,43 +13368,42 @@ function scoreItem(item) {
      'TrendForce','Digitimes','SemiAnalysis','EE Times','Rigzone','Platts',
      'Nasdaq News','Forbes','Business Insider','Morningstar','The Economist',
      'Kitco Gold','Google News Finance','Channel News Asia'].includes(item.source);
-  if (!isExempt && macroHits === 0 && techHits === 0 && medHits === 0 && tickerMentions === 0) {
-    // 금융 키워드가 하나도 없으면 추가 체크: 긴급 키워드나 분석 관련도 없으면 차단
-    const hasAnyFinanceKw = _FINANCE_RELEVANCE_KW.some(kw => text.includes(kw));
-    if (!hasAnyFinanceKw) {
+
+  // 금융 관련성 총합 = MACRO + TECH + MED + 티커
+  const finRelevance = macroHits + techHits + medHits + tickerMentions;
+
+  // ── STEP 1: 하드 블랙리스트 (금융 문맥에서 절대 안 나오는 키워드) ──
+  // 연예/스포츠/부동산/범죄/날씨 등 = 금융 키워드와 공존할 가능성 0%
+  if (NEWS_BLACKLIST_KW.some(kw => text.includes(kw.toLowerCase()))) {
+    // 예외: 금융 관련성이 충분히 높으면 (finRelevance >= 3) 블랙리스트를 override
+    // → "아파트 REIT 투자" 같은 기사가 '아파트'에 걸려도 구조 가능
+    if (finRelevance >= 3) {
+      score -= 10; // 패널티만 부과하고 통과
+    } else {
       item._blacklisted = true;
       return 0;
     }
   }
 
-  // ── v34.1b: 강화된 2차 관련성 게이트 ──────────────────────────
-  // 면제 소스라도 금융 키워드가 전혀 없는 콘텐츠는 점수를 크게 깎음
-  if (macroHits === 0 && techHits === 0 && medHits === 0 && tickerMentions === 0) {
-    const hasAnyFinanceKw = _FINANCE_RELEVANCE_KW.some(kw => text.includes(kw));
-    if (!hasAnyFinanceKw) {
+  // ── STEP 2: 금융 관련성 게이트 (컨텍스트 기반) ──
+  // MACRO/TECH/MED 키워드 + 티커 = 0이면 → _FINANCE_RELEVANCE_KW 체크
+  if (finRelevance === 0) {
+    const finKwMatches = _FINANCE_RELEVANCE_KW.filter(kw => text.includes(kw));
+    if (finKwMatches.length === 0) {
+      // 금융 관련 키워드가 단 하나도 없음 → 차단
       item._blacklisted = true;
       return 0;
     }
-    // 금융 키워드가 1개만 있어도 기본 점수 대폭 감산
-    score -= 15;
-  }
-
-  // ── v34.1b: 한국 비전문 소스 추가 필터 ──────────────────────────
-  // 한국 일반 뉴스 소스(매경/연합/한경/서울경제 등)에서 유입되는 기사 중
-  // MACRO/TECH/MED 키워드 없이 광범위 한국어 키워드('기업','수출','에너지','산업')만으로 통과한 경우
-  // → 지방정부 보도자료일 가능성 높음 → 추가 필터링
-  const _KR_BROAD_KW = ['기업','수출','수입','에너지','산업','경제','금융','은행','시장','무역'];
-  if (item.country === 'kr' && !isExempt && macroHits === 0 && techHits === 0 && medHits === 0 && tickerMentions === 0) {
-    // MACRO/TECH/MED 전부 0이면서 한국 소스 → 광범위 KW만으로 통과한 경우
-    const matchedBroad = _FINANCE_RELEVANCE_KW.filter(kw => text.includes(kw));
-    const allBroad = matchedBroad.every(kw => _KR_BROAD_KW.includes(kw));
-    if (allBroad && matchedBroad.length <= 2) {
-      // 광범위 키워드 1~2개만 매칭 = 지방정부/일반 기사 → 차단
+    // 광범위 한국어 키워드('기업','수출','에너지' 등)만으로 통과한 경우
+    const _KR_BROAD_KW = ['기업','수출','수입','에너지','산업','경제','금융','은행','시장','무역'];
+    const allBroad = finKwMatches.every(kw => _KR_BROAD_KW.includes(kw));
+    if (allBroad && finKwMatches.length <= 2) {
+      // 지방정부 보도자료 패턴 → 차단
       item._blacklisted = true;
       return 0;
     }
-    // 3개 이상이더라도 전부 광범위면 대폭 감산
-    if (allBroad) score -= 25;
+    // 약한 관련성 → 감산
+    score -= (allBroad ? 20 : 10);
   }
 
   // ── v31.8: 비금융 콘텐츠 추가 패턴 필터 ────────────────────
@@ -13398,10 +13425,8 @@ function scoreItem(item) {
     // 한국 인사/임명 패턴
     /\[인사\]|인사이동|보직변경|전보발령/,
     /(?:사장|원장|이사장|회장)\s*(?:\d+연임|취임|퇴임|이취임)/,
-    // 영문 정치/법조/사회 패턴
-    /(?:trump|biden|harris)\s+(?:says|calls|demands|announces|signs|vetoes)/,
-    /(?:senate|house)\s+(?:passes|votes|approves|blocks|rejects)/,
-    /(?:governor|mayor)\s+(?:signs|vetoes|announces|declares)/,
+    // 영문 순수 비금융 패턴 (정치 제거 — 무역/관세/금융정책과 공존 가능하므로)
+    /(?:governor|mayor)\s+(?:signs|vetoes|declares)\s+(?!.*(?:tax|budget|tariff|trade))/,
   ];
   if (_nonFinPatterns.some(pat => pat.test(titleLower))) {
     item._blacklisted = true;
