@@ -13307,13 +13307,6 @@ function scoreItem(item) {
     'WMT','TGT','LOW','MCD','SBUX','CMG','YUM',
     'DELL','HPE','WDC','STX','ON','MCHP','TXN','ADI','KLAC','LRCX','AMAT',
   ]);
-  if (foundTickers.length > 0) {
-    const hasMega = foundTickers.some(t => _MEGA_TICKERS.has(t));
-    const hasLarge = foundTickers.some(t => _LARGE_TICKERS.has(t));
-    if (hasMega) score += 8;        // 메가캡/대장주 뉴스: +8
-    else if (hasLarge) score += 4;  // 대형주 뉴스: +4
-    // 기타 티커 (소형주): 기본 티커 부스트만 적용 (위에서 이미 +2~4)
-  }
   // v29.1: 구글뉴스 소스 부스트
   if ((item.source || '').includes('구글뉴스')) score += 4;
 
@@ -13340,6 +13333,14 @@ function scoreItem(item) {
     }
   });
   item._tickerMentions = tickerMentions;
+
+  // v34.1c: 대형주/대장주/주도주 티커 부스트 시스템
+  if (foundTickers.length > 0) {
+    const hasMega = foundTickers.some(t => _MEGA_TICKERS.has(t));
+    const hasLarge = foundTickers.some(t => _LARGE_TICKERS.has(t));
+    if (hasMega) score += 8;        // 메가캡/대장주 뉴스: +8
+    else if (hasLarge) score += 4;  // 대형주 뉴스: +4
+  }
 
   // ── 5. 감정 강도 부스트 (극단적 표현) ────────────────────
   const urgentKW = ['crash','surge','plunge','soar','spike','collapse','record high','record low',
