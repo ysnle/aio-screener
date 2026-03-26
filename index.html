@@ -1395,6 +1395,7 @@ body { background: #0d1521 !important; }
   [style*="grid-template-columns:300px"] { grid-template-columns: 1fr !important; }
   [style*="grid-template-columns:120px"] { grid-template-columns: 1fr !important; }
   [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+  [style*="grid-template-columns:repeat(5"] { grid-template-columns: repeat(2, 1fr) !important; }
   /* v31.9: breadth/score 바 + 경제 캘린더 모바일 레이아웃 */
   .breadth-bar-row { grid-template-columns: 90px 1fr 36px 60px !important; gap: 4px !important; }
   .score-bar-row { grid-template-columns: 100px 1fr 40px 24px !important; gap: 4px !important; }
@@ -2044,12 +2045,19 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
   </div>
 
   <!-- ═══ SECTION 2: 핵심 지표 카드 (Key Metrics Cards) ═══ -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;">
     <!-- S&P 500 -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #3ddba5;">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">S&P 500</div>
       <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);" data-live-price="^GSPC">6,506</div>
       <div style="font-size:11px;font-weight:600;margin-top:3px;" data-live-chg="^GSPC">—</div>
+    </div>
+
+    <!-- NASDAQ 100 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #a78bfa;">
+      <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">NASDAQ</div>
+      <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);" data-live-price="^IXIC">—</div>
+      <div style="font-size:11px;font-weight:600;margin-top:3px;" data-live-chg="^IXIC">—</div>
     </div>
 
     <!-- VIX 공포지수 -->
@@ -5981,6 +5989,48 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
       </table>
     </div>
 
+    <!-- ═══ 다중 워치리스트 시스템 ═══ -->
+    <div class="data-widget" style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;">
+        <div class="widget-title" style="margin:0;">⭐ 관심 종목 리스트</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <select id="wl-select" onchange="switchWatchlist()" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:9px;padding:4px 8px;font-family:var(--font-mono);min-width:120px;">
+            <option value="">리스트 선택...</option>
+          </select>
+          <button class="tb-btn" onclick="createWatchlist()" style="font-size:8px;">+ 새 리스트</button>
+          <button class="tb-btn" onclick="renameWatchlist()" style="font-size:8px;" id="wl-rename-btn" disabled>✏️ 이름변경</button>
+          <button class="tb-btn" onclick="deleteWatchlist()" style="font-size:8px;color:#f87171;" id="wl-delete-btn" disabled>🗑️ 삭제</button>
+        </div>
+      </div>
+      <!-- 워치리스트 종목 추가 -->
+      <div id="wl-add-row" style="display:none;padding:6px 12px 8px;border-top:1px solid var(--border);">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input id="wl-add-ticker" type="text" placeholder="티커 입력 (예: AAPL)" style="width:100px;padding:5px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;font-family:var(--font-mono);text-transform:uppercase;" onkeydown="if(event.key==='Enter')addToWatchlist()">
+          <input id="wl-add-note" type="text" placeholder="메모 (선택)" style="width:140px;padding:5px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')addToWatchlist()">
+          <button class="tb-btn primary" onclick="addToWatchlist()" style="font-size:9px;padding:5px 12px;">추가</button>
+        </div>
+      </div>
+      <!-- 워치리스트 테이블 -->
+      <div id="wl-content" style="padding:0 12px 10px;">
+        <div id="wl-empty-msg" style="padding:16px;text-align:center;color:var(--text-muted);font-size:10px;">
+          리스트를 선택하거나 새로 만들어주세요. 관심 종목을 그룹별로 관리할 수 있습니다.
+        </div>
+        <table id="wl-table" style="display:none;width:100%;border-collapse:collapse;font-size:10px;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:6px 8px;color:var(--text-secondary);font-size:8px;">종목</th>
+              <th style="text-align:right;padding:6px;color:var(--text-secondary);font-size:8px;">현재가</th>
+              <th style="text-align:right;padding:6px;color:var(--text-secondary);font-size:8px;">등락%</th>
+              <th style="text-align:center;padding:6px;color:var(--text-secondary);font-size:8px;">신호</th>
+              <th style="text-align:left;padding:6px;color:var(--text-secondary);font-size:8px;">메모</th>
+              <th style="text-align:center;padding:6px;color:var(--text-secondary);font-size:8px;">관리</th>
+            </tr>
+          </thead>
+          <tbody id="wl-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- 포트폴리오 AI 분석 -->
     <div class="aio-chat" id="chat-portfolio" style="margin-top:12px;">
       <div class="acp-header">
@@ -6359,14 +6409,16 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
             <th style="text-align:left;padding:8px;font-weight:700;cursor:pointer;" onclick="sortScreenerBy('sym')">종목 ↕</th>
             <th style="text-align:right;padding:8px;font-weight:700;cursor:pointer;" onclick="sortScreenerBy('price')">현재가 ↕</th>
             <th style="text-align:right;padding:8px;font-weight:700;cursor:pointer;" onclick="sortScreenerBy('chgPct')">등락% ↕</th>
+            <th style="text-align:center;padding:8px;font-weight:700;">5일 추이</th>
             <th style="text-align:center;padding:8px;font-weight:700;">신호</th>
             <th style="text-align:right;padding:8px;font-weight:700;cursor:pointer;" onclick="sortScreenerBy('rsi')">RSI ↕</th>
             <th style="text-align:right;padding:8px;font-weight:700;cursor:pointer;" onclick="sortScreenerBy('mcap')">시가총액 ↕</th>
             <th style="text-align:left;padding:8px;font-weight:700;">핵심 메모</th>
+            <th style="text-align:center;padding:8px;font-weight:700;font-size:9px;">⭐</th>
           </tr>
         </thead>
         <tbody id="screener-results-body">
-          <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">스캔 실행을 누르세요</td></tr>
+          <tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">스캔 실행을 누르세요</td></tr>
         </tbody>
       </table>
     </div>
@@ -11208,13 +11260,17 @@ function renderScreenerResults() {
       '<td style="padding:8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:9px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
       '<td style="text-align:right;padding:8px;font-family:var(--font-mono);font-weight:700;" data-live-price="' + escHtml(r.sym) + '">—</td>' +
       '<td style="text-align:right;padding:8px;font-family:var(--font-mono);color:' + cc + ';" data-live-chg="' + escHtml(r.sym) + '">' + (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%</td>' +
+      '<td style="text-align:center;padding:6px 4px;"><canvas class="sparkline-mini" data-spark-ticker="' + escHtml(r.sym) + '" width="64" height="22" style="display:inline-block;vertical-align:middle;"></canvas></td>' +
       '<td style="text-align:center;padding:8px;"><span style="background:' + sb + ';color:' + sc + ';padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
       '<td style="text-align:right;padding:8px;font-family:var(--font-mono);">' + r.rsi + '</td>' +
       '<td style="text-align:right;padding:8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
-      '<td style="padding:8px;color:var(--text-muted);font-size:10px;">' + escHtml(r.memo) + '</td></tr>';
+      '<td style="padding:8px;color:var(--text-muted);font-size:10px;">' + escHtml(r.memo) + '</td>' +
+      '<td style="text-align:center;padding:4px;"><button onclick="event.stopPropagation();addToWatchlistFromScreener(\'' + escHtml(r.sym) + '\')" style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.5;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5" title="관심 종목에 추가">⭐</button></td></tr>';
   });
 
-  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
+  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
+  // 스파크라인 미니차트 렌더링
+  requestAnimationFrame(function() { renderSparklines(filtered); });
   document.getElementById('screener-result-count').textContent = filtered.length;
 
   // 스크리너 결과에 실시간 가격 즉시 반영
@@ -11238,6 +11294,112 @@ function renderScreenerResults() {
       }
     });
   });
+}
+
+// ═══ 스파크라인 미니차트 시스템 ═══════════════════════════════════════
+var _sparkCache = {}; // { ticker: { data: [numbers], ts: timestamp } }
+var _sparkCacheTTL = 5 * 60 * 1000; // 5분 캐시
+
+function renderSparklines(filtered) {
+  var canvases = document.querySelectorAll('.sparkline-mini[data-spark-ticker]');
+  canvases.forEach(function(canvas) {
+    var ticker = canvas.getAttribute('data-spark-ticker');
+    var cached = _sparkCache[ticker];
+    if (cached && (Date.now() - cached.ts < _sparkCacheTTL)) {
+      drawSparkline(canvas, cached.data, ticker);
+    } else {
+      fetchSparkData(ticker).then(function(data) {
+        if (data && data.length > 1) {
+          _sparkCache[ticker] = { data: data, ts: Date.now() };
+          drawSparkline(canvas, data, ticker);
+        } else {
+          drawSparkPlaceholder(canvas);
+        }
+      }).catch(function() { drawSparkPlaceholder(canvas); });
+    }
+  });
+}
+
+function fetchSparkData(ticker) {
+  var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker) +
+    '?range=5d&interval=1d&includePrePost=false';
+  return fetch(url).then(function(r) { return r.json(); }).then(function(json) {
+    try {
+      var closes = json.chart.result[0].indicators.quote[0].close;
+      return closes.filter(function(v) { return v !== null && isFinite(v); });
+    } catch(e) { return null; }
+  });
+}
+
+function drawSparkline(canvas, data, ticker) {
+  var ctx = canvas.getContext('2d');
+  if (!ctx || data.length < 2) return;
+  var w = canvas.width, h = canvas.height;
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  ctx.scale(dpr, dpr);
+
+  var min = Math.min.apply(null, data);
+  var max = Math.max.apply(null, data);
+  var range = max - min || 1;
+  var pad = 2;
+  var xStep = (w - pad*2) / (data.length - 1);
+  var yScale = (h - pad*2) / range;
+
+  // 트렌드 색상 결정: 첫 값 vs 마지막 값
+  var isUp = data[data.length - 1] >= data[0];
+  var color = isUp ? '#3ddba5' : '#f87171';
+
+  // 영역 채우기 (gradient)
+  ctx.beginPath();
+  data.forEach(function(v, i) {
+    var x = pad + i * xStep;
+    var y = h - pad - (v - min) * yScale;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.lineTo(pad + (data.length - 1) * xStep, h);
+  ctx.lineTo(pad, h);
+  ctx.closePath();
+  var grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, isUp ? 'rgba(61,219,165,0.18)' : 'rgba(248,113,113,0.18)');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // 라인
+  ctx.beginPath();
+  data.forEach(function(v, i) {
+    var x = pad + i * xStep;
+    var y = h - pad - (v - min) * yScale;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // 마지막 점 (현재가)
+  var lastX = pad + (data.length - 1) * xStep;
+  var lastY = h - pad - (data[data.length - 1] - min) * yScale;
+  ctx.beginPath();
+  ctx.arc(lastX, lastY, 1.5, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+function drawSparkPlaceholder(canvas) {
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  var w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = 'rgba(148,163,184,0.3)';
+  ctx.font = '8px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('—', w/2, h/2 + 3);
 }
 
 function sortScreenerBy(col) {
@@ -12835,6 +12997,37 @@ const NEWS_BLACKLIST_KW = [
   'campaign speech','political rally','endorsement','primary debate',
   'voter turnout','swing state','battleground','midterm results',
   '유세','지지율 조사','당내 경선','정치 스캔들',
+  // ── v34.1: 지역/지방 뉴스 근본 차단 — 투자와 무관한 한국 지역 뉴스 완전 제거
+  // 지방자치/행정 (금융 무관)
+  '시장이','군수','구청장','도지사','면장','읍장','동장','이장',
+  '시의회','군의회','구의회','도의회','지방의회','지방자치',
+  '시청','군청','구청','도청','주민센터','행정복지센터',
+  '조례','행정처분','민원','주민설명회','공청회',
+  // 지역 개발/인프라 (금융 무관)
+  '새만금','혁신도시','세종시','행정수도','지역균형',
+  '도시재생','마을만들기','주민참여예산','지역화폐','지역상품권',
+  '상공인','소상공인','자영업자','전통시장','골목상권',
+  '지역축제','마을축제','문화행사','주민행사',
+  // 지방 생활/복지 (금융 무관)
+  '어르신','노인정','경로당','노인복지','노인일자리',
+  '보건소','건강센터','치매센터','장애인복지','사회복지',
+  '어린이집','유치원','돌봄센터','방과후','학교급식',
+  '종량제','분리수거','쓰레기','폐기물','환경미화','하수처리',
+  '청소년센터','도서관','문화센터','체육시설','공원조성',
+  '신중년','일자리센터','고용센터','직업훈련',
+  '의료 소외','보건의료','응급의료','의료취약',
+  // 지역 교통/도로 (금융 무관)
+  '시내버스','마을버스','노선변경','정류장','도로확장','교차로',
+  '주차장','신호등','횡단보도','보행자','자전거도로',
+  // 영양/식품 안전 (금융 무관)
+  '영양정보','식품안전','급식','식약처','위생점검',
+  '식중독','불량식품','유통기한','원산지표시',
+  // 지역 사건/인물 프로필 (금융 무관)
+  '청암히어로','모범시민','자원봉사','봉사활동','나눔','기부금',
+  '현충원','참배','추도식','기념식','기공식','준공식','개관식',
+  '장학재단','포스코청암','시상식','공로상','표창',
+  // 선거구/지역 정치 (금융 무관)
+  '지역구','출마','예비후보','공천','당협위원장',
 ];
 
 // 토픽 키워드 분류
@@ -13100,9 +13293,10 @@ function scoreItem(item) {
     return 0;
   }
 
-  // v29.1: 금융 관련성 게이트 — 한국 소스/Tier1 매크로 소스/텔레그램은 면제
+  // v29.1→v34.1: 금융 관련성 게이트 — Tier1 매크로 소스/텔레그램은 면제
+  // v34.1: 한국 소스(country==='kr') 면제 제거 — 지역 뉴스 유입 근본 차단
   // 나머지 소스(일반 뉴스, 테크 블로그 등)는 최소 1개 금융 키워드가 있어야 통과
-  const isExempt = (item.country === 'kr') || item._tgChannel ||
+  const isExempt = item._tgChannel ||
     ['Reuters','Bloomberg','WSJ','CNBC','MarketWatch','FT Markets','S&P Global',
      'Seeking Alpha','Investing.com','CoinDesk','OilPrice.com','Benzinga','Barrons',
      'Fed Reserve','ECB Press','IMF Blog','World Bank','BIS Speeches',
@@ -13958,22 +14152,52 @@ function renderFeed(items) {
   if (countEl) countEl.textContent = filtered.length + '건';
 }
 
-/* ── renderHomeFeed(): 홈 대시보드 뉴스 그리드 ───────────────── */
+/* ── renderHomeFeed(): 홈 대시보드 "주요 뉴스" (핵심 3~5개만) ── */
 function renderHomeFeed(items) {
   const container = document.getElementById('home-news-highlights');
   if (!container || !items || items.length === 0) return;
 
-  // 홈은 7일 이내 + 애널리스트 제외
+  // v34.1: 주요 뉴스 = 48시간 이내 + 고품질만 엄선
   let filtered = filterByAge(items, TW_HOME_H);
   filtered = filtered.filter(i => i.topic !== 'analyst');
 
-  // v27.2: 홈 피드는 항상 시간순 (최신순)
-  filtered.sort((a, b) => {
-    const ta = a.pubDate ? new Date(a.pubDate).getTime() : 0;
-    const tb = b.pubDate ? new Date(b.pubDate).getTime() : 0;
-    return tb - ta;
+  // ── 핵심 뉴스 선별 로직 ──
+  // 1) score >= 25 인 항목만 (저품질 완전 제거)
+  let topNews = filtered.filter(i => (i.score || 0) >= 25);
+
+  // 2) 매크로/지정학/실적/정책 토픽 우선 가중
+  const PRIORITY_TOPICS = ['macro','geopolitics','earnings','policy','fed','rates','trade'];
+  topNews.forEach(i => {
+    i._homeBoost = (i.score || 0);
+    if (PRIORITY_TOPICS.includes(i.topic)) i._homeBoost += 15;
+    // 티커 연결된 뉴스 보너스
+    const tks = getDisplayTickers(i);
+    if (tks.length > 0) i._homeBoost += 10;
+    // 텔레그램 채널 소스 보너스 (속보성)
+    if (i._tgChannel) i._homeBoost += 5;
   });
-  filtered = filtered.slice(0, 8);
+
+  // 3) 가중 점수 기준 정렬 → 최대 5개
+  topNews.sort((a, b) => (b._homeBoost || 0) - (a._homeBoost || 0));
+  topNews = topNews.slice(0, 5);
+
+  // 4) 최소 3개 미달 시 score 기준 완화하여 보충
+  if (topNews.length < 3) {
+    const existing = new Set(topNews.map(i => i.link));
+    const backup = filtered
+      .filter(i => !existing.has(i.link) && (i.score || 0) >= 15)
+      .sort((a, b) => (b.score || 0) - (a.score || 0))
+      .slice(0, 3 - topNews.length);
+    topNews = topNews.concat(backup);
+  }
+
+  // 5) 결과가 0이면 안내 메시지
+  if (topNews.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:10px;">현재 주요 뉴스가 없습니다.</div>';
+    return;
+  }
+
+  filtered = topNews;
 
   container.innerHTML = filtered.map(item => {
     const sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
@@ -14350,11 +14574,13 @@ function isTelegramMsgRelevant(text) {
     '경품','추첨','텔레그램 봇','프로모션','레퍼럴',
     '무료 이벤트','무료 참여','무료 가입','무료 체험','무료 쿠폰','무료 배송'];
   if (spamKW.some(kw => t.includes(kw))) return false;
-  // v31.8: 비금융 콘텐츠 강화 차단
+  // v31.8→v34.1: 비금융 콘텐츠 강화 차단 + NEWS_BLACKLIST_KW 통합
   const tgBlackKW = ['recipe','workout','dating','celebrity','movie review','game review',
     'horoscope','astrology','meme coin','shitcoin','pump signal','buy signal guaranteed',
     '연예','아이돌','드라마','맛집','운동법','별자리','밈코인','펌핑','100배'];
   if (tgBlackKW.some(kw => t.includes(kw))) return false;
+  // v34.1: 글로벌 블랙리스트도 적용 (지역 뉴스 등)
+  if (NEWS_BLACKLIST_KW.some(kw => t.includes(kw.toLowerCase()))) return false;
   // 관련성 키워드 (최소 1개 이상 포함해야 통과)
   const relevantKW = [
     // 영문 매크로/시장
@@ -18718,10 +18944,16 @@ function addPortfolioPosition() {
   renderPortfolio();
 }
 function removePosition(ticker) {
-  if (!confirm(ticker + ' 포지션을 삭제하시겠습니까?')) return;
-  const positions = getPortfolioData().filter(p => p.ticker !== ticker);
-  savePortfolioData(positions);
-  renderPortfolio();
+  showConfirmModal(
+    ticker + ' 포지션 삭제',
+    ticker + ' 종목이 포트폴리오에서 삭제됩니다. 계속하시겠습니까?',
+    function() {
+      const positions = getPortfolioData().filter(p => p.ticker !== ticker);
+      savePortfolioData(positions);
+      renderPortfolio();
+    },
+    '📉'
+  );
 }
 function editPosition(ticker) {
   const positions = getPortfolioData();
@@ -18740,10 +18972,35 @@ function clearPortfolioForm() {
     if (el) el.value = '';
   });
 }
+// ═══ Confirmation Modal 시스템 ═══════════════════════════════════════
+var _confirmCallback = null;
+function showConfirmModal(title, msg, onConfirm, icon) {
+  _confirmCallback = onConfirm;
+  document.getElementById('aio-confirm-title').textContent = title;
+  document.getElementById('aio-confirm-msg').textContent = msg;
+  document.getElementById('aio-confirm-icon').textContent = icon || '⚠️';
+  var okBtn = document.getElementById('aio-confirm-ok');
+  okBtn.onclick = function() { closeConfirmModal(); if (_confirmCallback) _confirmCallback(); };
+  var modal = document.getElementById('aio-confirm-modal');
+  modal.style.display = 'flex';
+  // ESC 키로 닫기
+  modal._escHandler = function(e) { if (e.key === 'Escape') closeConfirmModal(); };
+  document.addEventListener('keydown', modal._escHandler);
+}
+function closeConfirmModal() {
+  var modal = document.getElementById('aio-confirm-modal');
+  modal.style.display = 'none';
+  _confirmCallback = null;
+  if (modal._escHandler) { document.removeEventListener('keydown', modal._escHandler); modal._escHandler = null; }
+}
+
 function clearAllPositions() {
-  if (!confirm('모든 포지션을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
-  savePortfolioData([]);
-  renderPortfolio();
+  showConfirmModal(
+    '포트폴리오 전체 삭제',
+    '모든 포지션이 영구 삭제됩니다. 이 작업은 되돌릴 수 없습니다. 정말 삭제하시겠습니까?',
+    function() { savePortfolioData([]); renderPortfolio(); },
+    '🗑️'
+  );
 }
 
 // Render Portfolio
@@ -18888,6 +19145,286 @@ function importPortfolio(event) {
   reader.readAsText(file);
 }
 
+// ══════════════════════════════════════════════════════════════════════
+// 다중 워치리스트 시스템 — localStorage CRUD + Live Price + SCREENER_DB 연동
+// ══════════════════════════════════════════════════════════════════════
+var WL_STORAGE_KEY = 'aio_watchlists';
+var WL_ACTIVE_KEY = 'aio_watchlist_active';
+
+function getWatchlists() {
+  try {
+    var raw = localStorage.getItem(WL_STORAGE_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch(e) { return []; }
+}
+function saveWatchlists(lists) {
+  try { localStorage.setItem(WL_STORAGE_KEY, JSON.stringify(lists)); } catch(e) {}
+}
+function getActiveWatchlistId() {
+  return localStorage.getItem(WL_ACTIVE_KEY) || '';
+}
+function setActiveWatchlistId(id) {
+  try { localStorage.setItem(WL_ACTIVE_KEY, id); } catch(e) {}
+}
+
+function createWatchlist() {
+  var name = prompt('새 관심 종목 리스트 이름을 입력하세요:\n(예: 반도체 관심주, 배당 모니터링, AI 테마)');
+  if (!name || !name.trim()) return;
+  name = name.trim();
+  var lists = getWatchlists();
+  // 중복 이름 체크
+  if (lists.some(function(l) { return l.name === name; })) {
+    alert('이미 같은 이름의 리스트가 있습니다.');
+    return;
+  }
+  var id = 'wl_' + Date.now();
+  lists.push({ id: id, name: name, tickers: [], createdAt: Date.now() });
+  saveWatchlists(lists);
+  setActiveWatchlistId(id);
+  refreshWatchlistUI();
+}
+
+function renameWatchlist() {
+  var activeId = getActiveWatchlistId();
+  if (!activeId) return;
+  var lists = getWatchlists();
+  var wl = lists.find(function(l) { return l.id === activeId; });
+  if (!wl) return;
+  var newName = prompt('리스트 이름 변경:', wl.name);
+  if (!newName || !newName.trim() || newName.trim() === wl.name) return;
+  newName = newName.trim();
+  if (lists.some(function(l) { return l.name === newName && l.id !== activeId; })) {
+    alert('이미 같은 이름의 리스트가 있습니다.');
+    return;
+  }
+  wl.name = newName;
+  saveWatchlists(lists);
+  refreshWatchlistUI();
+}
+
+function deleteWatchlist() {
+  var activeId = getActiveWatchlistId();
+  if (!activeId) return;
+  var lists = getWatchlists();
+  var wl = lists.find(function(l) { return l.id === activeId; });
+  if (!wl) return;
+  showConfirmModal(
+    '워치리스트 삭제',
+    '"' + wl.name + '" 리스트와 ' + wl.tickers.length + '개 종목이 삭제됩니다. 계속하시겠습니까?',
+    function() {
+      var updated = lists.filter(function(l) { return l.id !== activeId; });
+      saveWatchlists(updated);
+      setActiveWatchlistId('');
+      refreshWatchlistUI();
+    },
+    '🗑️'
+  );
+}
+
+function switchWatchlist() {
+  var sel = document.getElementById('wl-select');
+  if (!sel) return;
+  setActiveWatchlistId(sel.value);
+  renderWatchlistContent();
+  updateWatchlistButtons();
+}
+
+function addToWatchlist(ticker, note) {
+  var activeId = getActiveWatchlistId();
+  if (!activeId) { alert('먼저 워치리스트를 선택하세요.'); return; }
+  // 인자 없으면 입력 필드에서 가져오기
+  if (!ticker) {
+    var inp = document.getElementById('wl-add-ticker');
+    ticker = (inp ? inp.value : '').trim().toUpperCase();
+    var noteInp = document.getElementById('wl-add-note');
+    note = noteInp ? noteInp.value.trim() : '';
+  }
+  if (!ticker) { alert('티커를 입력하세요.'); return; }
+  var lists = getWatchlists();
+  var wl = lists.find(function(l) { return l.id === activeId; });
+  if (!wl) return;
+  // 중복 체크
+  if (wl.tickers.some(function(t) { return t.sym === ticker; })) {
+    alert(ticker + '는 이미 이 리스트에 있습니다.');
+    return;
+  }
+  wl.tickers.push({ sym: ticker, note: note || '', addedAt: Date.now() });
+  saveWatchlists(lists);
+  // 입력 필드 초기화
+  var inp = document.getElementById('wl-add-ticker');
+  if (inp) inp.value = '';
+  var noteInp = document.getElementById('wl-add-note');
+  if (noteInp) noteInp.value = '';
+  renderWatchlistContent();
+}
+
+function removeFromWatchlist(ticker) {
+  var activeId = getActiveWatchlistId();
+  if (!activeId) return;
+  var lists = getWatchlists();
+  var wl = lists.find(function(l) { return l.id === activeId; });
+  if (!wl) return;
+  wl.tickers = wl.tickers.filter(function(t) { return t.sym !== ticker; });
+  saveWatchlists(lists);
+  renderWatchlistContent();
+}
+
+// 스크리너에서 워치리스트에 빠르게 추가
+function addToWatchlistFromScreener(ticker) {
+  var lists = getWatchlists();
+  if (lists.length === 0) {
+    alert('워치리스트가 없습니다. 포트폴리오 페이지에서 먼저 리스트를 만들어주세요.');
+    return;
+  }
+  if (lists.length === 1) {
+    // 리스트 1개면 바로 추가
+    var wl = lists[0];
+    if (wl.tickers.some(function(t) { return t.sym === ticker; })) {
+      alert(ticker + '는 이미 "' + wl.name + '"에 있습니다.');
+      return;
+    }
+    wl.tickers.push({ sym: ticker, note: '', addedAt: Date.now() });
+    saveWatchlists(lists);
+    showToast('⭐ ' + ticker + ' → ' + wl.name);
+    return;
+  }
+  // 리스트가 여러 개면 선택 드롭다운
+  var names = lists.map(function(l, i) { return (i+1) + '. ' + l.name + ' (' + l.tickers.length + '종목)'; }).join('\n');
+  var choice = prompt('어떤 리스트에 ' + ticker + '를 추가할까요?\n\n' + names + '\n\n번호를 입력하세요:');
+  if (!choice) return;
+  var idx = parseInt(choice) - 1;
+  if (isNaN(idx) || idx < 0 || idx >= lists.length) { alert('유효하지 않은 번호입니다.'); return; }
+  var wl = lists[idx];
+  if (wl.tickers.some(function(t) { return t.sym === ticker; })) {
+    alert(ticker + '는 이미 "' + wl.name + '"에 있습니다.');
+    return;
+  }
+  wl.tickers.push({ sym: ticker, note: '', addedAt: Date.now() });
+  saveWatchlists(lists);
+  showToast('⭐ ' + ticker + ' → ' + wl.name);
+}
+
+// 간단 토스트 알림
+function showToast(msg) {
+  var toast = document.createElement('div');
+  toast.textContent = msg;
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(61,219,165,0.95);color:#000;padding:8px 18px;border-radius:8px;font-size:11px;font-weight:700;z-index:99998;pointer-events:none;opacity:0;transition:opacity 0.3s;';
+  document.body.appendChild(toast);
+  requestAnimationFrame(function() { toast.style.opacity = '1'; });
+  setTimeout(function() {
+    toast.style.opacity = '0';
+    setTimeout(function() { toast.remove(); }, 400);
+  }, 2000);
+}
+
+function updateWatchlistButtons() {
+  var hasActive = !!getActiveWatchlistId();
+  var renBtn = document.getElementById('wl-rename-btn');
+  var delBtn = document.getElementById('wl-delete-btn');
+  var addRow = document.getElementById('wl-add-row');
+  if (renBtn) renBtn.disabled = !hasActive;
+  if (delBtn) delBtn.disabled = !hasActive;
+  if (addRow) addRow.style.display = hasActive ? 'block' : 'none';
+}
+
+function refreshWatchlistUI() {
+  var sel = document.getElementById('wl-select');
+  if (!sel) return;
+  var lists = getWatchlists();
+  var activeId = getActiveWatchlistId();
+  sel.innerHTML = '<option value="">리스트 선택... (' + lists.length + '개)</option>';
+  lists.forEach(function(l) {
+    var opt = document.createElement('option');
+    opt.value = l.id;
+    opt.textContent = l.name + ' (' + l.tickers.length + '종목)';
+    if (l.id === activeId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  updateWatchlistButtons();
+  renderWatchlistContent();
+}
+
+function renderWatchlistContent() {
+  var activeId = getActiveWatchlistId();
+  var emptyMsg = document.getElementById('wl-empty-msg');
+  var table = document.getElementById('wl-table');
+  var tbody = document.getElementById('wl-tbody');
+  if (!emptyMsg || !table || !tbody) return;
+
+  if (!activeId) {
+    emptyMsg.style.display = 'block';
+    table.style.display = 'none';
+    emptyMsg.textContent = '리스트를 선택하거나 새로 만들어주세요. 관심 종목을 그룹별로 관리할 수 있습니다.';
+    return;
+  }
+
+  var lists = getWatchlists();
+  var wl = lists.find(function(l) { return l.id === activeId; });
+  if (!wl) {
+    emptyMsg.style.display = 'block';
+    table.style.display = 'none';
+    return;
+  }
+
+  if (wl.tickers.length === 0) {
+    emptyMsg.style.display = 'block';
+    table.style.display = 'none';
+    emptyMsg.textContent = '"' + wl.name + '" 리스트가 비어있습니다. 위에서 티커를 추가하거나 스크리너에서 ⭐ 버튼을 눌러주세요.';
+    return;
+  }
+
+  emptyMsg.style.display = 'none';
+  table.style.display = 'table';
+
+  var ld = window._liveData || {};
+  // SCREENER_DB에서 신호 정보 가져오기
+  var dbMap = {};
+  if (typeof SCREENER_DB !== 'undefined') {
+    SCREENER_DB.forEach(function(s) { dbMap[s.sym] = s; });
+  }
+
+  var html = '';
+  wl.tickers.forEach(function(t) {
+    var d = ld[t.sym];
+    var db = dbMap[t.sym];
+    var price = d && d.price ? d.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+    var chg = d ? (d.pct || 0) : 0;
+    var cc = chg >= 0 ? '#3ddba5' : '#f87171';
+    var chgStr = d ? ((chg >= 0 ? '+' : '') + chg.toFixed(2) + '%') : '—';
+    var signal = db ? db.signal : '—';
+    var sc = signal === 'BUY' ? '#3ddba5' : signal === 'SELL' ? '#f87171' : signal === 'WATCH' ? '#fbbf24' : '#94a3b8';
+    var sb = signal === 'BUY' ? 'rgba(61,219,165,0.15)' : signal === 'SELL' ? 'rgba(248,113,113,0.15)' : signal === 'WATCH' ? 'rgba(251,191,36,0.15)' : 'rgba(148,163,184,0.15)';
+    var nameStr = db ? db.name : '';
+
+    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;" onclick="prevPage=\'portfolio\';showTicker(\'' + t.sym + '\')" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'none\'">' +
+      '<td style="padding:6px 8px;"><b style="color:var(--text-primary);font-family:var(--font-mono);font-size:11px;">' + t.sym + '</b>' + (nameStr ? '<div style="font-size:7px;color:var(--text-muted);">' + nameStr + '</div>' : '') + '</td>' +
+      '<td style="text-align:right;padding:6px;font-family:var(--font-mono);font-weight:700;font-size:10px;">' + price + '</td>' +
+      '<td style="text-align:right;padding:6px;font-family:var(--font-mono);font-weight:700;font-size:10px;color:' + cc + ';">' + chgStr + '</td>' +
+      '<td style="text-align:center;padding:6px;">' + (signal !== '—' ? '<span style="background:' + sb + ';color:' + sc + ';padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;">' + signal + '</span>' : '<span style="color:var(--text-muted);font-size:9px;">—</span>') + '</td>' +
+      '<td style="padding:6px;color:var(--text-muted);font-size:9px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (t.note || '') + '</td>' +
+      '<td style="text-align:center;padding:6px;">' +
+        '<button onclick="event.stopPropagation();removeFromWatchlist(\'' + t.sym + '\')" style="background:none;border:none;cursor:pointer;font-size:10px;" title="삭제">✕</button>' +
+      '</td>' +
+    '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+// 포트폴리오 페이지 진입 시 워치리스트도 렌더
+document.addEventListener('aio:pageShown', function(e) {
+  if (e.detail === 'portfolio') {
+    try { refreshWatchlistUI(); } catch(err) { console.warn('[AIO] Watchlist init error:', err); }
+  }
+});
+// 실시간 시세 갱신 시 워치리스트도 갱신
+document.addEventListener('aio:liveQuotes', function() {
+  var pfPage = document.getElementById('page-portfolio');
+  if (pfPage && pfPage.classList.contains('active')) {
+    try { renderWatchlistContent(); } catch(err) {}
+  }
+});
+
 // Build portfolio context string for AI
 function getPortfolioContextForAI() {
   const positions = getPortfolioData();
@@ -18908,6 +19445,23 @@ function getPortfolioContextForAI() {
     return `${p.ticker}: ${p.qty}주, 매수$${p.cost}, 현재$${price.toFixed(2)}(${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%), 손익 ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(0)} (${pnlPct}%), 보유${holdDays}일${targetStr}${p.memo ? ', 메모:'+p.memo : ''}`;
   });
   return `【사용자 포트폴리오】총 자산: $${totalValue.toLocaleString('en',{maximumFractionDigits:0})}, ${positions.length}종목\n` + lines.join('\n');
+}
+
+// 워치리스트 컨텍스트 for AI
+function getWatchlistContextForAI() {
+  var lists = getWatchlists();
+  if (!lists.length) return '';
+  var ld = window._liveData || {};
+  var parts = lists.map(function(wl) {
+    if (!wl.tickers.length) return '  ' + wl.name + ': (비어있음)';
+    var tks = wl.tickers.map(function(t) {
+      var d = ld[t.sym];
+      var pct = d ? (d.pct || 0) : 0;
+      return t.sym + (d ? '(' + (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%)' : '');
+    }).join(', ');
+    return '  ' + wl.name + ': ' + tks;
+  });
+  return '\n【관심 종목 워치리스트】\n' + parts.join('\n');
 }
 
 // Hook: refresh portfolio on live data update
@@ -19016,7 +19570,7 @@ function openChatHistory(ctxId) {
       <div class="ch-header">
         <span class="ch-title">대화 기록 (${ctxLabel}) - ${history.length}건</span>
         <div style="display:flex;gap:6px;">
-          ${history.length > 0 ? '<button onclick="if(confirm(\'모든 대화 기록을 삭제할까요?\')){localStorage.removeItem(\'aio_chat_history\');this.closest(\'.chat-history-overlay\').remove();}" style="background:none;border:1px solid rgba(248,113,113,0.3);color:#f87171;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;">전체 삭제</button>' : ''}
+          ${history.length > 0 ? '<button onclick="showConfirmModal(\'대화 기록 전체 삭제\',\'모든 대화 기록이 영구 삭제됩니다. 계속하시겠습니까?\',function(){localStorage.removeItem(\'aio_chat_history\');document.querySelector(\'.chat-history-overlay\')&&document.querySelector(\'.chat-history-overlay\').remove();},\'💬\')" style="background:none;border:1px solid rgba(248,113,113,0.3);color:#f87171;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;">전체 삭제</button>' : ''}
           <button class="ch-close" onclick="this.closest('.chat-history-overlay').remove()">X</button>
         </div>
       </div>
@@ -19881,10 +20435,11 @@ const CHAT_CONTEXTS = {
     title: 'AI 포트폴리오 분석가',
     system: function() {
       const pfCtx = typeof getPortfolioContextForAI === 'function' ? getPortfolioContextForAI() : '포트폴리오 미등록';
+      const wlCtx = typeof getWatchlistContextForAI === 'function' ? getWatchlistContextForAI() : '';
       const s = _liveSnap();
       var fresh = s._freshness;
       return '당신은 CFA 포트폴리오 분석 전문가입니다. "내 포트폴리오" 페이지에서 대화하고 있습니다.\n\n' +
-        '【사용자 포트폴리오】\n' + pfCtx + '\n\n' +
+        '【사용자 포트폴리오】\n' + pfCtx + wlCtx + '\n\n' +
         '【시장 환경 (신선도: ' + fresh + ')】\n' +
         '• 시장 품질: ' + s.score + '/100 | VIX: ' + s.vix + ' | F&G: ' + s.fg + '\n' +
         '• 10Y 금리: ' + s.tnx + '% | WTI: $' + s.wti + '\n' +
@@ -23430,7 +23985,8 @@ function computeTradingScore(mode) {
     newsRisks.forEach(r => { compositeScore += r.impact; });
   } catch(e) { console.warn('[AIO] News sentiment integration error:', e); }
 
-  const total = Math.max(0, Math.min(100, compositeScore));
+  // 최소 5점 보장 — 0점은 "데이터 미수신"으로 오해되므로 바닥값 설정
+  const total = Math.max(5, Math.min(100, compositeScore));
 
   return { total, volScore, momScore, trendScore, breadthScore, macroScore };
 }
@@ -27507,5 +28063,20 @@ function calculateRR() {
   });
 })();
 </script>
+
+<!-- ═══ Confirmation Modal ═══ -->
+<div id="aio-confirm-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;" onclick="closeConfirmModal()">
+  <div style="background:var(--bg-card,#1a1a2e);border:1px solid rgba(248,113,113,0.3);border-radius:12px;padding:24px 28px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <span id="aio-confirm-icon" style="font-size:22px;">⚠️</span>
+      <div id="aio-confirm-title" style="font-size:14px;font-weight:800;color:var(--text-primary,#fff);"></div>
+    </div>
+    <div id="aio-confirm-msg" style="font-size:11px;color:var(--text-secondary,#a0a0b0);line-height:1.6;margin-bottom:20px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="closeConfirmModal()" style="padding:8px 18px;font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);border:1px solid var(--border,#333);border-radius:6px;color:var(--text-secondary,#a0a0b0);cursor:pointer;">취소</button>
+      <button id="aio-confirm-ok" style="padding:8px 18px;font-size:11px;font-weight:700;background:rgba(248,113,113,0.2);border:1px solid rgba(248,113,113,0.4);border-radius:6px;color:#f87171;cursor:pointer;">확인</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
