@@ -13028,6 +13028,39 @@ const NEWS_BLACKLIST_KW = [
   '장학재단','포스코청암','시상식','공로상','표창',
   // 선거구/지역 정치 (금융 무관)
   '지역구','출마','예비후보','공천','당협위원장',
+  // ── v34.1b: 한국 지방정부/행정 기사 근본 차단 (수출·기업·에너지 등 광범위 키워드 오탐 방지)
+  // 광역·기초 자치단체 + 행정 행위 (금융 무관)
+  '강원도,','전남도,','경남도,','충남도,','충북도,','경북도,','전북도,','제주도,',
+  '강원도 ','전남도 ','경남도 ','충남도 ','충북도 ','경북도 ','전북도 ','제주도 ',
+  '울주군','울산시','울릉군','양양군','횡성군','평창군','정선군','영월군','태백시',
+  '합천군','산청군','하동군','남해군','거창군','함양군','의령군','창녕군',
+  '영광군','장성군','담양군','곡성군','구례군','보성군','고흥군','장흥군','강진군',
+  '해남군','완도군','진도군','무안군','신안군','함평군','영암군','나주시',
+  '업무협약','양해각서','MOU 체결','MOU체결','협력 체결','협약식','체결식',
+  '어촌뉴딜','농촌뉴딜','도시뉴딜','지역뉴딜',
+  '일자리 창출','고용 창출','일자리사업','공공근로','희망근로',
+  '선착순 모집','참가자 모집','수강생 모집','교육생 모집',
+  '비즈니스 매칭','상담회','수출상담','비즈매칭',
+  '건강음료','배달사업','돌봄사업','돌봄서비스',
+  '행정 지원','행정지원','세무 지원','세무지원','지방세 감면','지방세 지원',
+  // 지역 인사/임명/기관 (금융 무관)
+  '[인사]','인사이동','보직변경','전보발령','승진자 명단',
+  '3연임','연임 성공','취임식','이취임식','퇴임식',
+  // 지방정부 예산/계획 (매크로 재정정책과 구분 — 지역 단위)
+  '세부계획 공시','시행계획','지역계획','추진계획 발표',
+  '지역경제 활성화','지역 활성화','상권 활성화','마을 활성화',
+  // 한국 국내 정치/법조/사회 (비금융) — 주의: 지정학(전쟁/외교/무역)은 제외
+  '경찰청','경찰서','파출소','지구대','수사본부','수사팀',
+  '국정원','정보원',
+  '정무','행안부','복지부','교육부','환경부',
+  '의원이','의원은','의원의',
+  // 한국 국내 사회 이슈 (금융 무관) — 주의: '시위','집회' 제외 (지정학 기사에서 등장 가능)
+  '시민단체','인권단체','농성','성명서','규탄 대회','규탄 성명',
+  '학부모','교육감','교육청',
+  // 영문 국내 정치/사회 (비금융) — 주의: 지정학/무역정책 뉴스는 보존
+  'gun control','abortion','lgbtq','civil rights',
+  'immigration policy','border patrol','asylum seeker','deportation',
+  'school shooting','mass shooting',
 ];
 
 // 토픽 키워드 분류
@@ -13246,11 +13279,12 @@ function scoreItem(item) {
     'Kitco','DL News','CoinDesk'];
   if (premiumSources.some(s => (item.source || '').includes(s))) score += 5;
 
-  // v29.1: 한국어 뉴스 부스트 (번역 불필요 → 즉시 가독성 → 우선 노출)
-  // v31.8: 한국 부스트 축소 (+12→+3), 미국/글로벌 외신 부스트 신설 (+8)
-  if (item.country === 'kr') score += 3;
-  // v31.8: 미국/글로벌 주요 외신 부스트 — 미국 시장 중점 스크리너
-  if (item.country === 'us' && item.tier === 1) score += 8;
+  // v34.1b: 외신 부스트 대폭 강화, 한국 부스트 제거
+  // 미국 시장 중점 스크리너 → 주요 외신 최우선
+  if (item.country === 'us' && item.tier === 1) score += 12;
+  if (item.country !== 'kr' && item.tier === 1) score += 5; // 비한국 Tier1 추가
+  if (item.country !== 'kr' && item.tier === 2) score += 3; // 비한국 Tier2
+  // 한국 소스는 부스트 없음 (0) — 콘텐츠 품질로만 판단
   // v29.1: 구글뉴스 소스 부스트
   if ((item.source || '').includes('구글뉴스')) score += 4;
 
@@ -13315,18 +13349,34 @@ function scoreItem(item) {
     }
   }
 
-  // ── v31.8: 강화된 2차 관련성 게이트 ──────────────────────────
+  // ── v34.1b: 강화된 2차 관련성 게이트 ──────────────────────────
   // 면제 소스라도 금융 키워드가 전혀 없는 콘텐츠는 점수를 크게 깎음
-  // (한국 일반 뉴스 소스에서 연예/생활/문화 기사 유입 방지)
   if (macroHits === 0 && techHits === 0 && medHits === 0 && tickerMentions === 0) {
     const hasAnyFinanceKw = _FINANCE_RELEVANCE_KW.some(kw => text.includes(kw));
     if (!hasAnyFinanceKw) {
-      // 금융 관련성이 전혀 없으면 면제 소스라도 제거
       item._blacklisted = true;
       return 0;
     }
-    // 금융 키워드가 1개만 있어도 기본 점수 대폭 감산 (약한 관련성)
+    // 금융 키워드가 1개만 있어도 기본 점수 대폭 감산
     score -= 15;
+  }
+
+  // ── v34.1b: 한국 비전문 소스 추가 필터 ──────────────────────────
+  // 한국 일반 뉴스 소스(매경/연합/한경/서울경제 등)에서 유입되는 기사 중
+  // MACRO/TECH/MED 키워드 없이 광범위 한국어 키워드('기업','수출','에너지','산업')만으로 통과한 경우
+  // → 지방정부 보도자료일 가능성 높음 → 추가 필터링
+  const _KR_BROAD_KW = ['기업','수출','수입','에너지','산업','경제','금융','은행','시장','무역'];
+  if (item.country === 'kr' && !isExempt && macroHits === 0 && techHits === 0 && medHits === 0 && tickerMentions === 0) {
+    // MACRO/TECH/MED 전부 0이면서 한국 소스 → 광범위 KW만으로 통과한 경우
+    const matchedBroad = _FINANCE_RELEVANCE_KW.filter(kw => text.includes(kw));
+    const allBroad = matchedBroad.every(kw => _KR_BROAD_KW.includes(kw));
+    if (allBroad && matchedBroad.length <= 2) {
+      // 광범위 키워드 1~2개만 매칭 = 지방정부/일반 기사 → 차단
+      item._blacklisted = true;
+      return 0;
+    }
+    // 3개 이상이더라도 전부 광범위면 대폭 감산
+    if (allBroad) score -= 25;
   }
 
   // ── v31.8: 비금융 콘텐츠 추가 패턴 필터 ────────────────────
@@ -13338,6 +13388,20 @@ function scoreItem(item) {
     /top \d+ (?:tips|tricks|ways|things|reasons|places|destinations|recipes)/,
     /review[:\s]|unboxing|hands[- ]on|first look/,
     /(?:wedding|birthday|anniversary|holiday|christmas|halloween|valentine)/,
+    // v34.1b: 한국 지방정부 기사 패턴 (제목에서 지자체가 주어)
+    /^(?:울주군|울산시|강원도|전남도|경남도|충남도|충북도|경북도|전북도|제주도|합천군|산청군|나주시|정선군|영월군|태백시|양양군|횡성군|평창군)/,
+    /(?:군|시|도),\s*(?:올해|내년|금년|이번|신규|지역|도내|관내)/,
+    // 한국 업무협약/행사/모집 패턴
+    /업무협약|양해각서|mou\s*체결|협약식|체결식/,
+    /선착순\s*모집|참가자\s*모집|수강생\s*모집/,
+    /일자리\s*(?:창출|사업|대책|계획)|공공근로/,
+    // 한국 인사/임명 패턴
+    /\[인사\]|인사이동|보직변경|전보발령/,
+    /(?:사장|원장|이사장|회장)\s*(?:\d+연임|취임|퇴임|이취임)/,
+    // 영문 정치/법조/사회 패턴
+    /(?:trump|biden|harris)\s+(?:says|calls|demands|announces|signs|vetoes)/,
+    /(?:senate|house)\s+(?:passes|votes|approves|blocks|rejects)/,
+    /(?:governor|mayor)\s+(?:signs|vetoes|announces|declares)/,
   ];
   if (_nonFinPatterns.some(pat => pat.test(titleLower))) {
     item._blacklisted = true;
@@ -14061,19 +14125,19 @@ function renderFeed(items) {
     filtered.sort((a, b) => {
       const ta = a.pubDate ? new Date(a.pubDate).getTime() : 0;
       const tb = b.pubDate ? new Date(b.pubDate).getTime() : 0;
-      // 30분(1800000ms) 단위 시간 버킷 — 같은 버킷이면 소스 우선순위로 재정렬
-      const bucketA = Math.floor(ta / 1800000);
-      const bucketB = Math.floor(tb / 1800000);
+      // v34.1b: 15분(900000ms) 버킷 — 외신 우선순위 강화
+      const bucketA = Math.floor(ta / 900000);
+      const bucketB = Math.floor(tb / 900000);
       if (bucketA !== bucketB) return bucketB - bucketA; // 최신 버킷 먼저
-      // 같은 시간 버킷 내에서: US Tier1 > 기타 Tier1 > Tier2 > KR > Tier3
+      // 같은 시간 버킷 내에서: US Tier1 > 글로벌 Tier1 > TG > 글로벌 Tier2 > KR Tier1 > KR Tier2 > Tier3
       const _srcPri = (item) => {
         if (item.tier === 1 && item.country === 'us') return 100;
         if (item.tier === 1 && item.country !== 'kr') return 90;
-        if (item._tgChannel) return 85;
-        if (item.tier === 1 && item.country === 'kr') return 70;
-        if (item.tier === 2 && item.country !== 'kr') return 60;
-        if (item.tier === 2 && item.country === 'kr') return 40;
-        return 30;
+        if (item._tgChannel) return 80;
+        if (item.tier === 2 && item.country !== 'kr') return 65;
+        if (item.tier === 1 && item.country === 'kr') return 50;
+        if (item.tier === 2 && item.country === 'kr') return 30;
+        return 20;
       };
       const priDiff = _srcPri(b) - _srcPri(a);
       if (priDiff !== 0) return priDiff;
