@@ -448,14 +448,14 @@ body {
 /* v29.1: 대화 기록 열람 버튼 */
 .acp-history-btn{background:none;border:1px solid rgba(255,255,255,0.08);color:var(--text-muted);cursor:pointer;font-size:10px;padding:3px 8px;border-radius:4px;transition:all 0.15s;font-family:'Inter',var(--font-sans);}
 .acp-history-btn:hover{color:#a78bfa;border-color:rgba(167,139,250,0.3);background:rgba(167,139,250,0.08);}
-/* v29.1→v33.4: 메시지 영역 확장 가능 시스템 (480px 기본, 확장 시 75vh) */
-.acp-messages{padding:12px 16px 24px;max-height:480px;min-height:120px;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:12px;flex-grow:1;transition:max-height 0.3s ease;}
-.aio-chat.chat-expanded .acp-messages{max-height:75vh;min-height:300px;}
+/* v34.1c: 메시지 영역 — 기본 충분히 크게, 확장 시 제한 없이 콘텐츠에 맞춤 */
+.acp-messages{padding:12px 16px 24px;max-height:520px;min-height:120px;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:12px;flex-grow:1;transition:max-height 0.3s ease;}
+.aio-chat.chat-expanded .acp-messages{max-height:none;min-height:300px;}
 .acp-messages:empty::before{content:'AI 어시스턴트에게 시장, 종목, 전략에 대해 질문하세요';display:block;text-align:center;font-size:12px;color:var(--text-muted);padding:40px 20px;font-family:'Inter',var(--font-sans);line-height:1.6;}
-.acp-msg{display:flex;gap:8px;align-items:flex-start;}
+.acp-msg{display:flex;gap:8px;align-items:flex-start;max-width:100%;overflow:hidden;}
 .acp-msg.user{flex-direction:row-reverse;}
-/* v29.1→v33.4: 버블 — 가로 스크롤 제거, 세로 흐름 강제 */
-.acp-bubble{font-size:13px;line-height:1.7;padding:10px 14px;border-radius:10px;font-family:'Inter',var(--font-sans);max-width:100%;word-break:break-word;overflow-wrap:break-word;overflow-x:hidden;overflow-y:visible;white-space:normal;box-sizing:border-box;}
+/* v34.1c: 버블 — 가로 오버플로우 근본 수정, flex 자식으로서 축소 가능 */
+.acp-bubble{font-size:13px;line-height:1.7;padding:10px 14px;border-radius:10px;font-family:'Inter',var(--font-sans);max-width:100%;min-width:0;flex:1 1 0%;word-break:break-word;overflow-wrap:break-word;overflow-x:hidden;overflow-y:visible;white-space:normal;box-sizing:border-box;}
 .acp-msg.ai .acp-bubble{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);color:var(--text-secondary);}
 .acp-msg.user .acp-bubble{background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:var(--text-primary);}
 /* v33.4: 채팅 확장 토글 버튼 */
@@ -20774,9 +20774,9 @@ function chatAppendMsg(ctxId, role, html, id) {
   if (!container) return null;
   var wrap = document.createElement('div');
   wrap.className = 'acp-msg ' + role;
-  if (id) wrap.id = id;
   var bubble = document.createElement('div');
   bubble.className = 'acp-bubble';
+  if (id) bubble.id = id;
   bubble.innerHTML = html;
   wrap.appendChild(bubble);
   container.appendChild(wrap);
@@ -21008,7 +21008,7 @@ async function chatSend(ctxId) {
 
   // remove stale loading if any, add fresh one
   var staleLoad = document.getElementById('chat-' + ctxId + '-loading');
-  if (staleLoad) staleLoad.parentNode.removeChild(staleLoad);
+  if (staleLoad) { var sw = staleLoad.closest('.acp-msg') || staleLoad.parentNode; sw.parentNode.removeChild(sw); }
   chatShowLoading(ctxId);
 
   var aiBubble = null;
@@ -21019,7 +21019,7 @@ async function chatSend(ctxId) {
     // onChunk — live update
     function(fullText) {
       var loadEl = document.getElementById('chat-' + ctxId + '-loading');
-      if (loadEl) loadEl.parentNode.removeChild(loadEl);
+      if (loadEl) { var loadWrap = loadEl.closest('.acp-msg') || loadEl.parentNode; loadWrap.parentNode.removeChild(loadWrap); }
 
       if (!aiBubble) {
         aiBubble = chatAppendMsg(ctxId, 'ai', '', 'chat-' + ctxId + '-streaming');
@@ -21028,8 +21028,8 @@ async function chatSend(ctxId) {
       if (aiBubble) {
         aiBubble.innerHTML = renderMarkdownLight(visible) + '<span class="chat-cursor">▌</span>';
       }
-      // v33.4: 긴 답변 시 자동 확장 (500자 이상이면 자동으로 채팅 영역 확장)
-      if (fullText.length > 500) {
+      // v34.1c: 긴 답변 시 자동 확장 (200자 이상이면 자동으로 채팅 영역 확장 — 일반 LLM 채팅처럼)
+      if (fullText.length > 200) {
         var chatEl = document.getElementById('chat-' + ctxId);
         if (chatEl && !chatEl.classList.contains('chat-expanded')) {
           chatEl.classList.add('chat-expanded');
@@ -21046,7 +21046,7 @@ async function chatSend(ctxId) {
       if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
 
       var loadEl = document.getElementById('chat-' + ctxId + '-loading');
-      if (loadEl) loadEl.parentNode.removeChild(loadEl);
+      if (loadEl) { var loadWrap = loadEl.closest('.acp-msg') || loadEl.parentNode; loadWrap.parentNode.removeChild(loadWrap); }
 
       var streamEl = document.getElementById('chat-' + ctxId + '-streaming');
       var visible = stripChips(fullText);
@@ -21079,7 +21079,7 @@ async function chatSend(ctxId) {
       if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
 
       var loadEl = document.getElementById('chat-' + ctxId + '-loading');
-      if (loadEl) loadEl.parentNode.removeChild(loadEl);
+      if (loadEl) { var loadWrap = loadEl.closest('.acp-msg') || loadEl.parentNode; loadWrap.parentNode.removeChild(loadWrap); }
 
       chatAppendMsg(ctxId, 'ai', '⚠️ ' + renderMarkdownLight(errMsg));
     },
