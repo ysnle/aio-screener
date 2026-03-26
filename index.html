@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v34.1 — 올인원 투자 터미널</title>
+  <title>AIO Screener v34.2 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -10076,9 +10076,9 @@ function showPage(id, navEl) {
   if (id === 'briefing') {
     if (typeof renderBriefingFeed === 'function') {
       if (typeof newsCache !== 'undefined' && newsCache.length > 0) {
-        renderBriefingFeed();
+        renderBriefingFeed(newsCache);
       } else if (typeof fetchAllNews === 'function') {
-        setTimeout(() => fetchAllNews().then(() => renderBriefingFeed()).catch(e => console.warn('[AIO] Briefing fetch error:', e)), 600);
+        setTimeout(() => fetchAllNews().then(() => renderBriefingFeed(newsCache)).catch(e => console.warn('[AIO] Briefing fetch error:', e)), 600);
       }
     }
   }
@@ -18296,8 +18296,8 @@ try { window.addEventListener('popstate', (e) => {
   }
   if (id === 'briefing') {
     if (typeof renderBriefingFeed === 'function') {
-      if (typeof newsCache !== 'undefined' && newsCache.length > 0) { renderBriefingFeed(); }
-      else if (typeof fetchAllNews === 'function') { setTimeout(() => fetchAllNews().then(() => renderBriefingFeed()).catch(()=>{}), 300); }
+      if (typeof newsCache !== 'undefined' && newsCache.length > 0) { renderBriefingFeed(newsCache); }
+      else if (typeof fetchAllNews === 'function') { setTimeout(() => fetchAllNews().then(() => renderBriefingFeed(newsCache)).catch(()=>{}), 300); }
     }
   }
 });
@@ -19728,7 +19728,7 @@ const _CHAT_RULES = (function() {
   '  - 시나리오: "📈 낙관(40%): ... / 📊 중립(35%): ... / 📉 비관(25%): ..."\n' +
   '② "의사/환자/진단/진료/체온/맥박/건강검진" 비유 사용 금지.\n' +
   '③ 비유는 답변 전체에서 최대 1~2회만. 비유 남발은 분석의 신뢰도를 떨어뜨린다. 데이터와 논리로 승부하라.\n' +
-  '④ 이모지는 섹션 구분용으로만 최소 사용 (답변 전체 5개 이하).\n' +
+  '④ 이모지는 답변 전체에서 절대 5개 이하! 6개 이상 사용하면 무조건 실패(F). 섹션 구분에 이모지 대신 "---" 구분선 + 볼드 제목을 사용하라. 숫자 이모지(1️⃣2️⃣)도 금지 — 대신 "1.", "2." 텍스트 사용. 📍🔍🎯🔗📊 같은 장식 이모지도 카운트에 포함된다.\n' +
   '⑤ 【종목 실시간 데이터】 섹션이 있으면 반드시 해당 실제 가격·변화율을 인용하라. 학습 데이터의 과거 가격 사용 금지.\n' +
   '⑥ 사용자가 특정 종목을 물으면 해당 종목 분석이 답변의 80% 이상이어야 한다. 시장 전체 상황은 맥락으로 간략히만.\n' +
   '2. 서사(내러티브) 구조 — 모든 답변의 뼈대: ① 장면 진입: 질문이나 상황 묘사로 시작 ("지금 VIX가 30을 넘었다. 월가의 공포 체온계가 빨간불이다.") ② 핵심 숫자 임팩트: 수치를 별도 행에 배치하고 즉시 해석 ("→ 이 숫자가 말하는 건...") ③ 왜?(Why) 스토리: 데이터와 논리로 "왜 이런 일이 벌어지는지" 맥락을 풀어준다. 단순 팩트 나열 금지. 반드시 원인-결과의 서사적 흐름으로. ④ 그래서?(So What): "이게 당신의 투자에 무슨 의미인지" 개인적 함의로 연결 ⑤ 액션 클로징: "그래서 당신이 지금 할 수 있는 것은..." 구체적 행동으로 마무리.\n' +
@@ -20812,7 +20812,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   // v31.3: 요청 body 구성
   var reqBody = {
     model: modelCfg.id,
-    max_tokens: modelCfg.thinking ? 16000 : 4096,
+    max_tokens: modelCfg.thinking ? 16000 : 8192,
     stream: true,
     system: system,
     messages: messages
