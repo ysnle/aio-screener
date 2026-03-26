@@ -1,9 +1,9 @@
-h<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v33.5 — 올인원 투자 터미널</title>
+  <title>AIO Screener v34.1 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -11,7 +11,7 @@ h<!DOCTYPE html>
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ysnle.github.io/aio-screener/">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AIO Screener — 올인원 투자 터미널">h
+  <meta name="twitter:title" content="AIO Screener — 올인원 투자 터미널">
   <meta name="twitter:description" content="실시간 시장 분석, 매매 시그널, 섹터 RRG, Fear&Greed, 포트폴리오 관리.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" type="image/svg+xml">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -45,6 +45,46 @@ h<!DOCTYPE html>
   --fs-min: 11px;       /* v24: 최소 폰트 크기 업 */
   --lh-body: 1.6;      /* v24: 본문 줄 간격 개선 */
 }
+
+/* ═══ v34: BLOOMBERG-STYLE GLOBAL MARKET OVERVIEW ═══ */
+#gmo-table tbody tr { border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.15s; }
+#gmo-table tbody tr:hover { background:rgba(255,153,0,0.05); }
+#gmo-table .gmo-region-header { background:rgba(255,255,255,0.02); }
+#gmo-table .gmo-region-header td { padding:4px 10px; font-size:9px; font-weight:700; color:#ff9900; letter-spacing:0.06em; border-top:1px solid rgba(255,153,0,0.15); }
+#gmo-table .gmo-sym { color:#ff9900; font-weight:400; }
+#gmo-table .gmo-price { color:#f5f5b8; text-align:right; font-variant-numeric:tabular-nums; }
+#gmo-table .gmo-chg { text-align:right; font-weight:600; font-variant-numeric:tabular-nums; }
+#gmo-table .gmo-sig { text-align:center; font-size:10px; }
+.gmo-pos { color:var(--green); }
+.gmo-neg { color:var(--red); }
+.gmo-flat { color:var(--text-muted); }
+
+/* Bloomberg-style cell update flash */
+@keyframes gmo-cell-flash {
+  0% { background:rgba(255,255,100,0.25); }
+  100% { background:transparent; }
+}
+.gmo-flash { animation: gmo-cell-flash 0.6s ease-out; }
+
+/* Bloomberg-style freshness dot pulse */
+@keyframes gmo-pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+#gmo-freshness-dot.gmo-live { animation: gmo-pulse 1.5s infinite; }
+
+/* v34: Keyboard shortcuts help modal */
+#kbd-shortcuts-modal {
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,0.6); align-items:center; justify-content:center;
+}
+#kbd-shortcuts-modal.active { display:flex; }
+#kbd-shortcuts-inner {
+  background:var(--bg-card); border:2px solid rgba(255,153,0,0.3);
+  border-radius:10px; padding:20px 24px; max-width:420px; width:90%;
+  max-height:80vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,0.5);
+}
+#kbd-shortcuts-inner h3 { font-size:14px; font-weight:800; color:#ff9900; margin-bottom:14px; font-family:var(--font-mono); }
+.kbd-row { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:11px; }
+.kbd-key { background:rgba(255,153,0,0.12); color:#ff9900; padding:2px 8px; border-radius:3px; font-family:var(--font-mono); font-size:10px; font-weight:700; }
+.kbd-desc { color:var(--text-secondary); font-size:10px; }
 
 /* ═══ TOOLTIP SYSTEM ═══ */
 .aio-tip {
@@ -1926,7 +1966,7 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v33.5</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v34.1</span></div>
       <div class="page-subtitle" id="home-date-label">2026.03.23 (월) KST · 실시간 시세 자동갱신</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -2031,6 +2071,35 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">달러인덱스</div>
       <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);" data-live-price="DX-Y.NYB">99.50</div>
       <div style="font-size:11px;font-weight:600;margin-top:3px;" data-live-chg="DX-Y.NYB">—</div>
+    </div>
+  </div>
+
+  <!-- ═══ SECTION 2.5: Bloomberg-Style 글로벌 마켓 오버뷰 (v34) ═══ -->
+  <div id="bloomberg-global-overview" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(255,153,0,0.04);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:10px;font-weight:700;color:#ff9900;letter-spacing:0.08em;text-transform:uppercase;font-family:var(--font-mono);">GLOBAL MARKETS</span>
+        <span id="gmo-freshness-dot" style="width:7px;height:7px;border-radius:50%;background:#3ddba5;display:inline-block;" title="데이터 신선도"></span>
+        <span id="gmo-update-time" style="font-size:8px;color:var(--text-muted);font-family:var(--font-mono);">—</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button onclick="toggleGmoExpand()" id="gmo-expand-btn" style="background:rgba(255,153,0,0.1);border:1px solid rgba(255,153,0,0.25);color:#ff9900;font-size:8px;padding:2px 8px;border-radius:3px;cursor:pointer;font-family:var(--font-mono);">EXPAND</button>
+      </div>
+    </div>
+    <div id="gmo-table-wrap" style="overflow-x:auto;overflow-y:hidden;">
+      <table id="gmo-table" style="width:100%;border-collapse:collapse;font-size:11px;font-family:var(--font-mono);">
+        <thead>
+          <tr style="background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);">
+            <th style="padding:5px 10px;text-align:left;font-size:10px;color:var(--text-muted);font-weight:700;min-width:110px;">Market</th>
+            <th style="padding:5px 8px;text-align:right;font-size:10px;color:var(--text-muted);font-weight:700;min-width:80px;">Price</th>
+            <th style="padding:5px 8px;text-align:right;font-size:10px;color:var(--text-muted);font-weight:700;min-width:60px;">Chg%</th>
+            <th style="padding:5px 8px;text-align:center;font-size:10px;color:var(--text-muted);font-weight:700;min-width:50px;">Signal</th>
+          </tr>
+        </thead>
+        <tbody id="gmo-tbody">
+          <!-- 동적으로 채워짐 -->
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -10329,7 +10398,7 @@ var SCREENER_DB = [
   { sym:'PM', name:'Philip Morris', sector:'Consumer Defensive', signal:'HOLD', memo:'담배+가열식 제품 · Marlboro · 연초 수요', mcap:165, rsi:56, index:'SP500' },
   { sym:'PGR', name:'Progressive Corp', sector:'Financials', signal:'BUY', memo:'자동차 보험 · 수익성 개선 · AI 손해사정', mcap:175, rsi:57, index:'SP500' },
   { sym:'UNP', name:'Union Pacific', sector:'Industrials', signal:'HOLD', memo:'철도 운송 · 인프라 수혜 · 배당', mcap:195, rsi:55, index:'SP500' },
-  { sym:'TJX', name:'TJX Companies', sector:'Consumer Discretionary', signal:'HOLD', memo:'T.J. Maxx · 이월 상품 · 인플레 방어', mcap:115, rsi:52, index:'SP500' },
+  { sym:'TJX', name:'TJX Companies', sector:'Consumer', signal:'HOLD', memo:'T.J. Maxx · 이월 상품 · 인플레 방어', mcap:115, rsi:52, index:'SP500' },
   { sym:'C', name:'Citigroup', sector:'Financials', signal:'HOLD', memo:'글로벌 투자은행 · 구조조정 · NII 회복', mcap:165, rsi:48, index:'SP500' },
   { sym:'SCHW', name:'Charles Schwab', sector:'Financials', signal:'HOLD', memo:'증권 플랫폼 · 자산 운용 · 금리 민감', mcap:195, rsi:52, index:'SP500' },
   { sym:'ADP', name:'Automatic Data Processing', sector:'Technology', signal:'HOLD', memo:'급여관리 SaaS · HCM 플랫폼 · 안정 성장', mcap:278, rsi:54, index:'SP500' },
@@ -10337,7 +10406,7 @@ var SCREENER_DB = [
   { sym:'PLD', name:'Prologis', sector:'Real Estate', signal:'HOLD', memo:'물류 부동산 REIT · e-commerce 수혜 · 배당', mcap:95, rsi:50, index:'SP500' },
   { sym:'BSX', name:'Boston Scientific', sector:'Healthcare', signal:'HOLD', memo:'의료 기기 · 심장 스텐트 · 신흥국 성장', mcap:95, rsi:52, index:'SP500' },
   { sym:'ADI', name:'Analog Devices', sector:'Technology', signal:'BUY', memo:'아날로그 칩 · 산업용 IoT · AI 센서', mcap:155, rsi:50, index:'SP500' },
-  { sym:'MDLZ', name:'Mondelez', sector:'Consumer Staples', signal:'HOLD', memo:'과자 · Oreo · 글로벌 소비재 · 배당', mcap:145, rsi:54, index:'SP500' },
+  { sym:'MDLZ', name:'Mondelez', sector:'Consumer Defensive', signal:'HOLD', memo:'과자 · Oreo · 글로벌 소비재 · 배당', mcap:145, rsi:54, index:'SP500' },
   { sym:'CI', name:'Cigna Group', sector:'Healthcare', signal:'HOLD', memo:'헬스케어 보험 · Express Scripts · 규제', mcap:105, rsi:45, index:'SP500' },
   { sym:'SYK', name:'Stryker Corp', sector:'Healthcare', signal:'BUY', memo:'의료 기기 · 정형외과 · 인구 고령화', mcap:155, rsi:55, index:'SP500' },
   { sym:'WM', name:'Waste Management', sector:'Utilities', signal:'HOLD', memo:'폐기물 관리 · 재활용 · 배당', mcap:90, rsi:52, index:'SP500' },
@@ -10345,17 +10414,17 @@ var SCREENER_DB = [
   { sym:'CME', name:'CME Group', sector:'Financials', signal:'BUY', memo:'선물 거래소 · 암호화폐 선물 · 글로벌 시장', mcap:78, rsi:55, index:'SP500' },
   { sym:'EOG', name:'EOG Resources', sector:'Energy', signal:'BUY', memo:'석유/가스 · 셰일 오일 · 배당 매력', mcap:95, rsi:58, index:'SP500' },
   { sym:'AON', name:'Aon', sector:'Financials', signal:'HOLD', memo:'보험 브로커 · 위험관리 · 인수합병', mcap:82, rsi:52, index:'SP500' },
-  { sym:'CL', name:'Colgate-Palmolive', sector:'Consumer Staples', signal:'HOLD', memo:'치약 · 구강관리 · 글로벌 배당', mcap:85, rsi:54, index:'SP500' },
+  { sym:'CL', name:'Colgate-Palmolive', sector:'Consumer Defensive', signal:'HOLD', memo:'치약 · 구강관리 · 글로벌 배당', mcap:85, rsi:54, index:'SP500' },
   { sym:'ICE', name:'Intercontinental Exchange', sector:'Financials', signal:'BUY', memo:'거래소 · NYSE · 암호 선물 성장', mcap:85, rsi:54, index:'SP500' },
   { sym:'MSI', name:'Motorola Solutions', sector:'Technology', signal:'BUY', memo:'무선통신 · 공공안전 · AI 기반 분석', mcap:65, rsi:56, index:'SP500' },
   { sym:'APH', name:'Aphria/Tilray', sector:'Consumer', signal:'WATCH', memo:'대마 · 합법화 · 규제 리스크', mcap:12, rsi:45, index:'NASDAQ100' },
   { sym:'NSC', name:'Norfolk Southern', sector:'Industrials', signal:'HOLD', memo:'철도 운송 · 인프라 수혜 · 배당', mcap:58, rsi:52, index:'SP500' },
   { sym:'CTAS', name:'Cintas', sector:'Industrials', signal:'BUY', memo:'제복 임차 · 위생용품 · 높은 성장', mcap:75, rsi:58, index:'SP500' },
-  { sym:'ORLY', name:'O\'Reilly Automotive', sector:'Consumer Discretionary', signal:'HOLD', memo:'자동차 부품 · 애프터마켓 · 배당', mcap:70, rsi:50, index:'SP500' },
-  { sym:'AZO', name:'AutoZone', sector:'Consumer Discretionary', signal:'HOLD', memo:'자동차 부품 · 독립점 지원 · 높은 배당', mcap:68, rsi:48, index:'SP500' },
+  { sym:'ORLY', name:'O\'Reilly Automotive', sector:'Consumer', signal:'HOLD', memo:'자동차 부품 · 애프터마켓 · 배당', mcap:70, rsi:50, index:'SP500' },
+  { sym:'AZO', name:'AutoZone', sector:'Consumer', signal:'HOLD', memo:'자동차 부품 · 독립점 지원 · 높은 배당', mcap:68, rsi:48, index:'SP500' },
   { sym:'MCK', name:'McKesson', sector:'Healthcare', signal:'HOLD', memo:'의약품 배급 · 헬스케어 공급망', mcap:95, rsi:54, index:'SP500' },
   { sym:'MCO', name:'Moody\'s', sector:'Financials', signal:'HOLD', memo:'신용등급 기관 · 채권 평가 · 높은 마진', mcap:75, rsi:55, index:'SP500' },
-  { sym:'MAR', name:'Marriott International', sector:'Consumer Discretionary', signal:'HOLD', memo:'호텔 체인 · 여행 수요 · 배당 재개', mcap:75, rsi:52, index:'SP500' },
+  { sym:'MAR', name:'Marriott International', sector:'Consumer', signal:'HOLD', memo:'호텔 체인 · 여행 수요 · 배당 재개', mcap:75, rsi:52, index:'SP500' },
   { sym:'MMC', name:'Marsh McLennan', sector:'Financials', signal:'HOLD', memo:'보험 브로커 · 위험관리 · M&A 성장', mcap:85, rsi:54, index:'SP500' },
   { sym:'AIG', name:'American International Group', sector:'Financials', signal:'HOLD', memo:'보험 · 손해보험 · 수익성 개선', mcap:78, rsi:50, index:'SP500' },
   { sym:'SHW', name:'Sherwin-Williams', sector:'Materials', signal:'HOLD', memo:'도료 · 건설 경기 민감 · 주택 수요', mcap:65, rsi:48, index:'SP500' },
@@ -10367,31 +10436,31 @@ var SCREENER_DB = [
   { sym:'MET', name:'MetLife', sector:'Financials', signal:'HOLD', memo:'생명보험 · 연금 · 구조조정 진행', mcap:95, rsi:50, index:'SP500' },
   { sym:'PRU', name:'Prudential Financial', sector:'Financials', signal:'HOLD', memo:'생명/일반 보험 · 연금 · 배당', mcap:70, rsi:48, index:'SP500' },
   { sym:'TROW', name:'T. Rowe Price', sector:'Financials', signal:'HOLD', memo:'자산운용 · 뮤추얼펀드 · 배당', mcap:45, rsi:52, index:'SP500' },
-  { sym:'TGT', name:'Target', sector:'Consumer Discretionary', signal:'HOLD', memo:'백화점 · e-commerce 성장 · 배당', mcap:65, rsi:48, index:'SP500' },
-  { sym:'EBAY', name:'eBay', sector:'Consumer Discretionary', signal:'HOLD', memo:'온라인 경매 · 헬스케어 확장 · 배당', mcap:48, rsi:50, index:'SP500' },
+  { sym:'TGT', name:'Target', sector:'Consumer', signal:'HOLD', memo:'백화점 · e-commerce 성장 · 배당', mcap:65, rsi:48, index:'SP500' },
+  { sym:'EBAY', name:'eBay', sector:'Consumer', signal:'HOLD', memo:'온라인 경매 · 헬스케어 확장 · 배당', mcap:48, rsi:50, index:'SP500' },
   { sym:'PCAR', name:'PACCAR Inc', sector:'Industrials', signal:'BUY', memo:'트럭 제조 · Peterbilt · 배당', mcap:55, rsi:56, index:'SP500' },
   { sym:'DD', name:'DuPont de Nemours', sector:'Materials', signal:'HOLD', memo:'화학 · 반도체 소재 · 배당', mcap:72, rsi:50, index:'SP500' },
   { sym:'HCA', name:'HCA Healthcare', sector:'Healthcare', signal:'HOLD', memo:'병원 체인 · 높은 마진 · 구매 자산', mcap:72, rsi:52, index:'SP500' },
   { sym:'ROP', name:'Roper Technologies', sector:'Industrials', signal:'BUY', memo:'산업용 소프트웨어 · 높은 배당 · M&A 전략', mcap:75, rsi:56, index:'SP500' },
   { sym:'DHR', name:'Danaher', sector:'Industrials', signal:'BUY', memo:'과학 장비 · Life Sciences · 배당', mcap:195, rsi:54, index:'SP500' },
-  { sym:'CMG', name:'Chipotle Mexican Grill', sector:'Consumer Discretionary', signal:'HOLD', memo:'멕시코 음식 · 위생 기준 · 성장 정체', mcap:75, rsi:50, index:'SP500' },
+  { sym:'CMG', name:'Chipotle Mexican Grill', sector:'Consumer', signal:'HOLD', memo:'멕시코 음식 · 위생 기준 · 성장 정체', mcap:75, rsi:50, index:'SP500' },
   { sym:'CARR', name:'Carrier Global', sector:'Industrials', signal:'HOLD', memo:'냉난방 · 건설 수혜 · 배당', mcap:62, rsi:54, index:'SP500' },
-  { sym:'MNST', name:'Monster Beverage', sector:'Consumer Staples', signal:'BUY', memo:'에너지 음료 · 고성장 · 해외 확장', mcap:52, rsi:52, index:'SP500' },
+  { sym:'MNST', name:'Monster Beverage', sector:'Consumer Defensive', signal:'BUY', memo:'에너지 음료 · 고성장 · 해외 확장', mcap:52, rsi:52, index:'SP500' },
   { sym:'PSA', name:'Public Storage', sector:'Real Estate', signal:'HOLD', memo:'보관 창고 REIT · 소비자 저축 · 배당', mcap:62, rsi:50, index:'SP500' },
-  { sym:'KHC', name:'Kraft Heinz', sector:'Consumer Staples', signal:'HOLD', memo:'식품 · 저가 일용소비재 · 구조조정', mcap:48, rsi:48, index:'SP500' },
+  { sym:'KHC', name:'Kraft Heinz', sector:'Consumer Defensive', signal:'HOLD', memo:'식품 · 저가 일용소비재 · 구조조정', mcap:48, rsi:48, index:'SP500' },
   { sym:'AEP', name:'American Electric Power', sector:'Utilities', signal:'HOLD', memo:'전력회사 · 재생에너지 · 배당 성장', mcap:82, rsi:50, index:'SP500' },
   { sym:'O', name:'Realty Income', sector:'Real Estate', signal:'HOLD', memo:'상업용 REIT · 월배당 · 안정 수익', mcap:68, rsi:52, index:'SP500' },
   { sym:'SRE', name:'Sempra Energy', sector:'Utilities', signal:'HOLD', memo:'전력·가스 · 캘리포니아 · 배당 성장', mcap:65, rsi:50, index:'SP500' },
   { sym:'EXC', name:'Exelon', sector:'Utilities', signal:'HOLD', memo:'전력회사 · 원전 · 배당', mcap:68, rsi:48, index:'SP500' },
   { sym:'WEC', name:'WEC Energy Group', sector:'Utilities', signal:'HOLD', memo:'전력·가스 · 위스콘신 · 배당 성장', mcap:45, rsi:50, index:'SP500' },
-  { sym:'SYY', name:'Sysco', sector:'Consumer Staples', signal:'HOLD', memo:'식품 배급 · 외식업 · 배당', mcap:55, rsi:52, index:'SP500' },
-  { sym:'YUM', name:'YUM! Brands', sector:'Consumer Discretionary', signal:'HOLD', memo:'KFC/Taco Bell · 프랜차이즈 · 배당', mcap:95, rsi:54, index:'SP500' },
+  { sym:'SYY', name:'Sysco', sector:'Consumer Defensive', signal:'HOLD', memo:'식품 배급 · 외식업 · 배당', mcap:55, rsi:52, index:'SP500' },
+  { sym:'YUM', name:'YUM! Brands', sector:'Consumer', signal:'HOLD', memo:'KFC/Taco Bell · 프랜차이즈 · 배당', mcap:95, rsi:54, index:'SP500' },
   { sym:'HUM', name:'Humana', sector:'Healthcare', signal:'HOLD', memo:'의료보험 · Medicare Advantage · 규제', mcap:52, rsi:45, index:'SP500' },
   { sym:'IDXX', name:'IDEXX Laboratories', sector:'Healthcare', signal:'BUY', memo:'동물 의료 · 진단기기 · 높은 성장', mcap:65, rsi:56, index:'SP500' },
   { sym:'PAYX', name:'Paychex', sector:'Technology', signal:'HOLD', memo:'급여관리 · HCM 플랫폼 · 배당 성장', mcap:65, rsi:54, index:'SP500' },
   { sym:'IQV', name:'IQVIA Holdings', sector:'Healthcare', signal:'HOLD', memo:'임상시험 · 의료 정보 · 배당', mcap:65, rsi:50, index:'SP500' },
   { sym:'BK', name:'The Bank of New York Mellon', sector:'Financials', signal:'HOLD', memo:'자산 보관 · 신탁 · 배당', mcap:55, rsi:52, index:'SP500' },
-  { sym:'STZ', name:'Constellation Brands', sector:'Consumer Staples', signal:'HOLD', memo:'맥주 · 와인 · Corona · 배당', mcap:52, rsi:48, index:'SP500' },
+  { sym:'STZ', name:'Constellation Brands', sector:'Consumer Defensive', signal:'HOLD', memo:'맥주 · 와인 · Corona · 배당', mcap:52, rsi:48, index:'SP500' },
   { sym:'CNC', name:'Centene', sector:'Healthcare', signal:'HOLD', memo:'의료보험 · Medicaid · 규제', mcap:68, rsi:45, index:'SP500' },
   { sym:'NXPI', name:'NXP Semiconductors', sector:'Technology', signal:'BUY', memo:'반도체 · 자동차 칩 · 배당', mcap:95, rsi:54, index:'SP500' },
   { sym:'GPN', name:'Global Payments', sector:'Technology', signal:'HOLD', memo:'결제 처리 · 멀티채널 · 배당', mcap:75, rsi:50, index:'SP500' },
@@ -10406,7 +10475,415 @@ var SCREENER_DB = [
   { sym:'VRSK', name:'Verisk Analytics', sector:'Financials', signal:'BUY', memo:'보험 데이터 · AI 분석 · 배당', mcap:55, rsi:54, index:'SP500' },
   { sym:'EFX', name:'Equifax', sector:'Financials', signal:'HOLD', memo:'신용조회 · 빅데이터 · 배당', mcap:62, rsi:50, index:'SP500' },
   { sym:'HUBB', name:'Hubbell Inc', sector:'Industrials', signal:'HOLD', memo:'전기 제품 · 인프라 수혜 · 배당', mcap:55, rsi:54, index:'SP500' },
+
+  // ═══ v33.1: 시총 $10B+ 전종목 + 핵심 ETF + 유명 소형주 (368개) ═══
+  { sym:'GOOG', name:'Alphabet Class C', sector:'Technology', signal:'BUY', memo:'구글 C주 · GOOGL과 동일 사업', mcap:3630, rsi:50, index:'SP500' },
+  { sym:'GEV', name:'GE Vernova', sector:'Utilities', signal:'BUY', memo:'전력 장비 · 신재생 · GE 분사 · AI 데이터센터 전력', mcap:220, rsi:55, index:'SP500' },
+  { sym:'TMUS', name:'T-Mobile US', sector:'Communication Services', signal:'HOLD', memo:'미국 3대 통신 · 5G 선도 · 가입자 성장', mcap:239, rsi:52, index:'SP500' },
+  { sym:'TXN', name:'Texas Instruments', sector:'Technology', signal:'HOLD', memo:'아날로그 반도체 · 자동차/산업 · 배당', mcap:200, rsi:48, index:'SP500' },
+  { sym:'ANET', name:'Arista Networks', sector:'Technology', signal:'BUY', memo:'데이터센터 네트워킹 · AI 인프라 핵심', mcap:170, rsi:52, index:'SP500' },
+  { sym:'ETN', name:'Eaton Corp', sector:'Industrials', signal:'BUY', memo:'전력 관리 · 데이터센터 전기 인프라 · AI 수혜', mcap:150, rsi:52, index:'SP500' },
+  { sym:'CB', name:'Chubb Ltd', sector:'Financials', signal:'HOLD', memo:'글로벌 손해보험 · 재보험', mcap:128, rsi:50, index:'SP500' },
+  { sym:'ACN', name:'Accenture', sector:'Technology', signal:'HOLD', memo:'IT 컨설팅 글로벌 1위 · AI/클라우드 전환', mcap:140, rsi:50, index:'SP500' },
+  { sym:'PH', name:'Parker-Hannifin', sector:'Industrials', signal:'HOLD', memo:'모션&컨트롤 · 항공우주 · 산업', mcap:126, rsi:50, index:'SP500' },
+  { sym:'MDT', name:'Medtronic', sector:'Healthcare', signal:'HOLD', memo:'의료기기 글로벌 1위 · 심장/당뇨/척추', mcap:130, rsi:48, index:'SP500' },
+  { sym:'MO', name:'Altria Group', sector:'Consumer Defensive', signal:'HOLD', memo:'미국 담배 · 고배당 7%+ · 방어주', mcap:108, rsi:52, index:'SP500' },
+  { sym:'NEM', name:'Newmont Corp', sector:'Materials', signal:'HOLD', memo:'세계 최대 금광 · 금값 상관', mcap:107, rsi:55, index:'SP500' },
+  { sym:'SO', name:'Southern Company', sector:'Utilities', signal:'HOLD', memo:'미국 최대 유틸리티 · 원전/태양광', mcap:103, rsi:52, index:'SP500' },
+  { sym:'CMCSA', name:'Comcast', sector:'Communication Services', signal:'HOLD', memo:'NBC유니버셜 · Xfinity · Peacock', mcap:108, rsi:46, index:'SP500' },
+  { sym:'SNDK', name:'SanDisk', sector:'Technology', signal:'HOLD', memo:'NAND 플래시 · WDC에서 분사', mcap:102, rsi:48, index:'SP500' },
+  { sym:'WDC', name:'Western Digital', sector:'Technology', signal:'HOLD', memo:'HDD/SSD · 데이터센터 스토리지', mcap:94, rsi:46, index:'SP500' },
+  { sym:'HWM', name:'Howmet Aerospace', sector:'Industrials', signal:'BUY', memo:'항공우주 부품 · 엔진 · 방산', mcap:96, rsi:55, index:'SP500' },
+  { sym:'EQIX', name:'Equinix', sector:'Real Estate', signal:'BUY', memo:'데이터센터 REIT · AI 인프라', mcap:93, rsi:50, index:'SP500' },
+  { sym:'TT', name:'Trane Technologies', sector:'Industrials', signal:'HOLD', memo:'냉난방(HVAC) · 데이터센터 냉각', mcap:95, rsi:50, index:'SP500' },
+  { sym:'CVS', name:'CVS Health', sector:'Healthcare', signal:'HOLD', memo:'약국체인 + Aetna 보험 + 헬스허브', mcap:90, rsi:46, index:'SP500' },
+  { sym:'STX', name:'Seagate Tech', sector:'Technology', signal:'HOLD', memo:'HDD · 데이터센터 스토리지', mcap:88, rsi:48, index:'SP500' },
+  { sym:'FDX', name:'FedEx', sector:'Industrials', signal:'HOLD', memo:'글로벌 물류 · 이커머스 수혜', mcap:86, rsi:46, index:'SP500' },
+  { sym:'PWR', name:'Quanta Services', sector:'Industrials', signal:'BUY', memo:'전력망 건설 · 재생에너지 · AI 인프라', mcap:78, rsi:52, index:'SP500' },
+  { sym:'MRSH', name:'Marsh McLennan', sector:'Financials', signal:'HOLD', memo:'보험 브로커 · 리스크 컨설팅', mcap:85, rsi:50, index:'SP500' },
+  { sym:'UPS', name:'UPS', sector:'Industrials', signal:'HOLD', memo:'미국 최대 택배 · 배당', mcap:84, rsi:44, index:'SP500' },
+  { sym:'PNC', name:'PNC Financial', sector:'Financials', signal:'HOLD', memo:'미국 6위 은행', mcap:83, rsi:48, index:'SP500' },
+  { sym:'BX', name:'Blackstone', sector:'Financials', signal:'HOLD', memo:'세계 최대 대체투자 · PE/부동산', mcap:82, rsi:50, index:'SP500' },
+  { sym:'AMT', name:'American Tower', sector:'Real Estate', signal:'HOLD', memo:'통신 타워 REIT · 글로벌', mcap:82, rsi:46, index:'SP500' },
+  { sym:'JCI', name:'Johnson Controls', sector:'Industrials', signal:'HOLD', memo:'빌딩 자동화 · HVAC · 화재안전', mcap:82, rsi:50, index:'SP500' },
+  { sym:'KKR', name:'KKR & Co', sector:'Financials', signal:'HOLD', memo:'대체투자 · PE/인프라 · AI 투자', mcap:82, rsi:50, index:'SP500' },
+  { sym:'USB', name:'US Bancorp', sector:'Financials', signal:'HOLD', memo:'미국 5위 은행 · 배당', mcap:80, rsi:48, index:'SP500' },
+  { sym:'ITW', name:'Illinois Tool Works', sector:'Industrials', signal:'HOLD', memo:'산업 장비 · 다각화 · 배당왕', mcap:76, rsi:50, index:'SP500' },
+  { sym:'CMI', name:'Cummins', sector:'Industrials', signal:'HOLD', memo:'디젤/수소 엔진 · 전기화 전환', mcap:76, rsi:48, index:'SP500' },
+  { sym:'RCL', name:'Royal Caribbean', sector:'Consumer', signal:'HOLD', memo:'크루즈 · 프리미엄', mcap:75, rsi:48, index:'SP500' },
+  { sym:'EMR', name:'Emerson Electric', sector:'Industrials', signal:'HOLD', memo:'산업 자동화 · 소프트웨어 전환', mcap:74, rsi:50, index:'SP500' },
+  { sym:'CSX', name:'CSX Corp', sector:'Industrials', signal:'HOLD', memo:'미국 철도 · 화물 운송', mcap:73, rsi:48, index:'SP500' },
+  { sym:'PSX', name:'Phillips 66', sector:'Energy', signal:'HOLD', memo:'미국 정유 · 화학 · 미드스트림', mcap:71, rsi:48, index:'SP500' },
+  { sym:'VLO', name:'Valero Energy', sector:'Energy', signal:'HOLD', memo:'미국 최대 독립 정유 · 배당', mcap:71, rsi:48, index:'SP500' },
+  { sym:'CRH', name:'CRH plc', sector:'Materials', signal:'HOLD', memo:'건축자재 · 인프라 · 아일랜드 기반', mcap:70, rsi:50, index:'SP500' },
+  { sym:'HLT', name:'Hilton', sector:'Consumer', signal:'HOLD', memo:'글로벌 호텔 · 럭셔리/비즈니스', mcap:70, rsi:50, index:'SP500' },
+  { sym:'ROST', name:'Ross Stores', sector:'Consumer', signal:'HOLD', memo:'오프프라이스 리테일', mcap:70, rsi:50, index:'SP500' },
+  { sym:'MPC', name:'Marathon Petroleum', sector:'Energy', signal:'HOLD', memo:'미국 정유 · 자사주매입', mcap:69, rsi:48, index:'SP500' },
+  { sym:'WBD', name:'Warner Bros Discovery', sector:'Communication Services', signal:'WATCH', memo:'HBO · CNN · DC · 부채 리스크', mcap:68, rsi:42, index:'SP500' },
+  { sym:'RSG', name:'Republic Services', sector:'Industrials', signal:'HOLD', memo:'폐기물 처리 2위 · ESG', mcap:67, rsi:52, index:'SP500' },
+  { sym:'LHX', name:'L3Harris Tech', sector:'Industrials', signal:'BUY', memo:'방산 전자 · 통신 · 우주', mcap:66, rsi:52, index:'SP500' },
+  { sym:'APO', name:'Apollo Global', sector:'Financials', signal:'HOLD', memo:'대체투자 · 크레딧 · 보험', mcap:65, rsi:48, index:'SP500' },
+  { sym:'ELV', name:'Elevance Health', sector:'Healthcare', signal:'HOLD', memo:'헬스케어 보험 · Anthem', mcap:64, rsi:42, index:'SP500' },
+  { sym:'COR', name:'Cencora', sector:'Healthcare', signal:'HOLD', memo:'의약품 유통 · AmerisourceBergen', mcap:63, rsi:52, index:'SP500' },
+  { sym:'APD', name:'Air Products', sector:'Materials', signal:'HOLD', memo:'산업가스 · 수소 · 클린에너지', mcap:62, rsi:46, index:'SP500' },
+  { sym:'BKR', name:'Baker Hughes', sector:'Energy', signal:'HOLD', memo:'유전 서비스 · 에너지 전환', mcap:62, rsi:48, index:'SP500' },
+  { sym:'DLR', name:'Digital Realty', sector:'Real Estate', signal:'BUY', memo:'데이터센터 REIT · AI 수혜', mcap:61, rsi:50, index:'SP500' },
+  { sym:'OXY', name:'Occidental Petroleum', sector:'Energy', signal:'HOLD', memo:'E&P · 탄소포집 · 버핏 투자', mcap:60, rsi:46, index:'SP500' },
+  { sym:'TEL', name:'TE Connectivity', sector:'Technology', signal:'HOLD', memo:'커넥터 · 센서 · 자동차/산업/항공', mcap:59, rsi:50, index:'SP500' },
+  { sym:'OKE', name:'ONEOK', sector:'Energy', signal:'HOLD', memo:'천연가스 가공 · MLP 대안', mcap:57, rsi:52, index:'SP500' },
+  { sym:'TFC', name:'Truist Financial', sector:'Financials', signal:'HOLD', memo:'미국 지역 은행', mcap:56, rsi:46, index:'SP500' },
+  { sym:'AJG', name:'Arthur J Gallagher', sector:'Financials', signal:'HOLD', memo:'보험 브로커 · M&A 성장', mcap:56, rsi:52, index:'SP500' },
+  { sym:'FANG', name:'Diamondback Energy', sector:'Energy', signal:'HOLD', memo:'퍼미안 분지 E&P · 배당', mcap:54, rsi:48, index:'SP500' },
+  { sym:'ALL', name:'Allstate', sector:'Financials', signal:'HOLD', memo:'미국 손해보험 · 자동차보험', mcap:54, rsi:50, index:'SP500' },
+  { sym:'MPWR', name:'Monolithic Power', sector:'Technology', signal:'BUY', memo:'전력 반도체 · AI 서버 전원', mcap:53, rsi:48, index:'SP500' },
+  { sym:'CTVA', name:'Corteva', sector:'Materials', signal:'HOLD', memo:'농업 화학 · 종자/작물보호', mcap:53, rsi:48, index:'SP500' },
+  { sym:'ADSK', name:'Autodesk', sector:'Technology', signal:'HOLD', memo:'CAD/BIM 설계 소프트웨어', mcap:53, rsi:48, index:'SP500' },
+  { sym:'D', name:'Dominion Energy', sector:'Utilities', signal:'HOLD', memo:'유틸리티 · 배당 · 재생에너지', mcap:53, rsi:48, index:'SP500' },
+  { sym:'FAST', name:'Fastenal', sector:'Industrials', signal:'HOLD', memo:'산업 유통 · 자동화 · 배당', mcap:52, rsi:48, index:'SP500' },
+  { sym:'GWW', name:'W.W. Grainger', sector:'Industrials', signal:'HOLD', memo:'산업 유통 · MRO', mcap:50, rsi:50, index:'SP500' },
+  { sym:'FIX', name:'Comfort Systems USA', sector:'Industrials', signal:'BUY', memo:'데이터센터 MEP 시공 · AI 인프라', mcap:50, rsi:55, index:'SP500' },
+  { sym:'NDAQ', name:'Nasdaq Inc', sector:'Financials', signal:'HOLD', memo:'거래소 · 데이터 · 핀테크', mcap:49, rsi:50, index:'SP500' },
+  { sym:'AME', name:'AMETEK', sector:'Industrials', signal:'HOLD', memo:'전자 장비 · 항공우주', mcap:49, rsi:50, index:'SP500' },
+  { sym:'ZTS', name:'Zoetis', sector:'Healthcare', signal:'HOLD', memo:'동물 의약품 글로벌 1위', mcap:49, rsi:46, index:'SP500' },
+  { sym:'CAH', name:'Cardinal Health', sector:'Healthcare', signal:'HOLD', memo:'의약품 유통 · 배당', mcap:49, rsi:52, index:'SP500' },
+  { sym:'XEL', name:'Xcel Energy', sector:'Utilities', signal:'HOLD', memo:'재생에너지 유틸리티', mcap:48, rsi:50, index:'SP500' },
+  { sym:'TER', name:'Teradyne', sector:'Technology', signal:'HOLD', memo:'반도체 테스트 장비 · 로보틱스', mcap:48, rsi:50, index:'SP500' },
+  { sym:'EW', name:'Edwards Lifesciences', sector:'Healthcare', signal:'HOLD', memo:'심장 판막 · 구조적 심장질환', mcap:48, rsi:48, index:'SP500' },
+  { sym:'ETR', name:'Entergy', sector:'Utilities', signal:'HOLD', memo:'유틸리티 · 원전 · 데이터센터 전력', mcap:46, rsi:50, index:'SP500' },
+  { sym:'GRMN', name:'Garmin', sector:'Technology', signal:'HOLD', memo:'GPS/웨어러블 · 항공 · 피트니스', mcap:46, rsi:52, index:'SP500' },
+  { sym:'BDX', name:'BD (Becton Dickinson)', sector:'Healthcare', signal:'HOLD', memo:'의료기기 · 진단 · 주사기', mcap:45, rsi:48, index:'SP500' },
+  { sym:'KR', name:'Kroger', sector:'Consumer Defensive', signal:'HOLD', memo:'미국 대형 마트 · 배당', mcap:44, rsi:50, index:'SP500' },
+  { sym:'HSY', name:'Hershey', sector:'Consumer Defensive', signal:'HOLD', memo:'초콜릿/스낵 · 코코아 가격 영향', mcap:44, rsi:44, index:'SP500' },
+  { sym:'CVNA', name:'Carvana', sector:'Consumer', signal:'WATCH', memo:'온라인 중고차 · 턴어라운드', mcap:43, rsi:52, index:'SP500' },
+  { sym:'DAL', name:'Delta Air Lines', sector:'Industrials', signal:'HOLD', memo:'미국 프리미엄 항공', mcap:43, rsi:46, index:'SP500' },
+  { sym:'WAB', name:'Wabtec', sector:'Industrials', signal:'HOLD', memo:'철도 장비 · 기관차 · 디지털', mcap:41, rsi:50, index:'SP500' },
+  { sym:'FITB', name:'Fifth Third Bancorp', sector:'Financials', signal:'HOLD', memo:'미국 중서부 지역 은행', mcap:41, rsi:48, index:'SP500' },
+  { sym:'EQT', name:'EQT Corporation', sector:'Energy', signal:'HOLD', memo:'미국 최대 천연가스 · 앱팔래치아', mcap:41, rsi:48, index:'SP500' },
+  { sym:'AMP', name:'Ameriprise Financial', sector:'Financials', signal:'HOLD', memo:'자산운용 · 재무설계', mcap:41, rsi:48, index:'SP500' },
+  { sym:'CBRE', name:'CBRE Group', sector:'Real Estate', signal:'HOLD', memo:'글로벌 상업용 부동산 서비스', mcap:41, rsi:48, index:'SP500' },
+  { sym:'ROK', name:'Rockwell Automation', sector:'Industrials', signal:'HOLD', memo:'산업 자동화 · 스마트 팩토리', mcap:41, rsi:46, index:'SP500' },
+  { sym:'DHI', name:'DR Horton', sector:'Consumer', signal:'HOLD', memo:'미국 최대 주택건설 · 금리 민감', mcap:40, rsi:44, index:'SP500' },
+  { sym:'PEG', name:'PSEG', sector:'Utilities', signal:'HOLD', memo:'뉴저지 유틸리티 · 원전 · 데이터센터', mcap:40, rsi:50, index:'SP500' },
+  { sym:'ED', name:'Consolidated Edison', sector:'Utilities', signal:'HOLD', memo:'뉴욕 유틸리티 · 배당귀족', mcap:38, rsi:50, index:'SP500' },
+  { sym:'FICO', name:'Fair Isaac Corp', sector:'Technology', signal:'HOLD', memo:'FICO 신용점수 · 데이터 독점', mcap:42, rsi:50, index:'SP500' },
+  { sym:'GIS', name:'General Mills', sector:'Consumer Defensive', signal:'HOLD', memo:'시리얼/스낵 · 방어주 · 배당', mcap:35, rsi:50, index:'SP500' },
+  { sym:'DOV', name:'Dover Corp', sector:'Industrials', signal:'HOLD', memo:'산업 장비 · 펌프/에너지', mcap:22, rsi:50, index:'SP500' },
+  { sym:'ANSS', name:'ANSYS', sector:'Technology', signal:'HOLD', memo:'시뮬레이션 소프트웨어', mcap:30, rsi:50, index:'SP500' },
+  { sym:'HIG', name:'Hartford Financial', sector:'Financials', signal:'HOLD', memo:'보험 · 손해/생명/뮤추얼', mcap:32, rsi:52, index:'SP500' },
+  { sym:'ACGL', name:'Arch Capital', sector:'Financials', signal:'HOLD', memo:'재보험 · 인수심사 우수', mcap:38, rsi:54, index:'SP500' },
+  { sym:'IFF', name:'Intl Flavors & Fragrances', sector:'Materials', signal:'HOLD', memo:'향료/향수/식품첨가물', mcap:22, rsi:44, index:'SP500' },
+  { sym:'STT', name:'State Street', sector:'Financials', signal:'HOLD', memo:'자산관리 · SPDR ETF', mcap:28, rsi:50, index:'SP500' },
+  { sym:'KVUE', name:'Kenvue', sector:'Consumer Defensive', signal:'HOLD', memo:'JNJ 소비자헬스 분사 · 타이레놀/리스테린', mcap:40, rsi:48, index:'SP500' },
+  { sym:'PPG', name:'PPG Industries', sector:'Materials', signal:'HOLD', memo:'페인트/코팅 · 자동차/건축', mcap:28, rsi:48, index:'SP500' },
+  { sym:'VLTO', name:'Veralto', sector:'Technology', signal:'HOLD', memo:'수질/제품식별 · Danaher 분사', mcap:28, rsi:50, index:'SP500' },
+  { sym:'GEHC', name:'GE HealthCare', sector:'Healthcare', signal:'HOLD', memo:'의료영상/진단 · AI · GE 분사', mcap:38, rsi:48, index:'SP500' },
+  { sym:'HPQ', name:'HP Inc', sector:'Technology', signal:'HOLD', memo:'PC/프린터 · AI PC 기대', mcap:30, rsi:46, index:'SP500' },
+  { sym:'MTB', name:'M&T Bank', sector:'Financials', signal:'HOLD', memo:'미국 동부 지역 은행', mcap:28, rsi:48, index:'SP500' },
+  { sym:'LDOS', name:'Leidos Holdings', sector:'Industrials', signal:'HOLD', memo:'방산 IT · 정부 계약', mcap:22, rsi:50, index:'SP500' },
+  { sym:'IT', name:'Gartner', sector:'Technology', signal:'HOLD', memo:'IT 리서치/컨설팅', mcap:35, rsi:48, index:'SP500' },
+  { sym:'K', name:'Kellanova', sector:'Consumer Defensive', signal:'HOLD', memo:'시리얼/스낵 · Mars 인수', mcap:28, rsi:48, index:'SP500' },
+  { sym:'CPAY', name:'Corpay', sector:'Technology', signal:'HOLD', memo:'기업 결제 · 플릿카드', mcap:25, rsi:50, index:'SP500' },
+  { sym:'WST', name:'West Pharma', sector:'Healthcare', signal:'HOLD', memo:'의약품 포장 · 바이알/주사기', mcap:22, rsi:44, index:'SP500' },
+  { sym:'PHM', name:'PulteGroup', sector:'Consumer', signal:'HOLD', memo:'주택건설 · 다양한 가격대', mcap:22, rsi:46, index:'SP500' },
+  { sym:'SBAC', name:'SBA Communications', sector:'Real Estate', signal:'HOLD', memo:'통신 타워 REIT', mcap:25, rsi:46, index:'SP500' },
+  { sym:'RF', name:'Regions Financial', sector:'Financials', signal:'HOLD', memo:'남부 지역 은행', mcap:22, rsi:48, index:'SP500' },
+  { sym:'WRB', name:'Berkley Corp', sector:'Financials', signal:'HOLD', memo:'특수보험', mcap:22, rsi:52, index:'SP500' },
+  { sym:'NTAP', name:'NetApp', sector:'Technology', signal:'HOLD', memo:'스토리지/클라우드', mcap:25, rsi:50, index:'SP500' },
+  { sym:'MTD', name:'Mettler-Toledo', sector:'Technology', signal:'HOLD', memo:'정밀측정 장비', mcap:25, rsi:48, index:'SP500' },
+  { sym:'AWK', name:'American Water Works', sector:'Utilities', signal:'HOLD', memo:'미국 최대 수도회사', mcap:28, rsi:50, index:'SP500' },
+  { sym:'ATO', name:'Atmos Energy', sector:'Utilities', signal:'HOLD', memo:'천연가스 유통', mcap:22, rsi:52, index:'SP500' },
+  { sym:'PPL', name:'PPL Corp', sector:'Utilities', signal:'HOLD', memo:'유틸리티 · 배당', mcap:24, rsi:50, index:'SP500' },
+  { sym:'ESS', name:'Essex Property', sector:'Real Estate', signal:'HOLD', memo:'서부 아파트 REIT', mcap:18, rsi:48, index:'SP500' },
+  { sym:'EIX', name:'Edison Intl', sector:'Utilities', signal:'HOLD', memo:'캘리포니아 유틸리티', mcap:28, rsi:48, index:'SP500' },
+  { sym:'DG', name:'Dollar General', sector:'Consumer', signal:'HOLD', memo:'달러스토어 · 저소득층', mcap:20, rsi:42, index:'SP500' },
+  { sym:'EXR', name:'Extra Space Storage', sector:'Real Estate', signal:'HOLD', memo:'셀프스토리지 REIT', mcap:30, rsi:48, index:'SP500' },
+  { sym:'CDW', name:'CDW Corp', sector:'Technology', signal:'HOLD', memo:'IT 유통/솔루션', mcap:25, rsi:48, index:'SP500' },
+  { sym:'IRM', name:'Iron Mountain', sector:'Real Estate', signal:'HOLD', memo:'데이터센터 REIT · AI 수혜', mcap:30, rsi:52, index:'SP500' },
+  { sym:'CLX', name:'Clorox', sector:'Consumer Defensive', signal:'HOLD', memo:'소독/청소용품 · 배당', mcap:20, rsi:46, index:'SP500' },
+  { sym:'AVB', name:'AvalonBay', sector:'Real Estate', signal:'HOLD', memo:'프리미엄 아파트 REIT', mcap:30, rsi:48, index:'SP500' },
+  { sym:'MAA', name:'Mid-America Apartment', sector:'Real Estate', signal:'HOLD', memo:'선벨트 아파트 REIT', mcap:18, rsi:48, index:'SP500' },
+  { sym:'GDDY', name:'GoDaddy', sector:'Technology', signal:'HOLD', memo:'도메인/웹호스팅 · SMB', mcap:25, rsi:52, index:'SP500' },
+  { sym:'TSCO', name:'Tractor Supply', sector:'Consumer', signal:'HOLD', memo:'농촌 리테일 · 라이프스타일', mcap:28, rsi:50, index:'SP500' },
+  { sym:'VTR', name:'Ventas', sector:'Real Estate', signal:'HOLD', memo:'시니어 주거/의료 REIT', mcap:22, rsi:48, index:'SP500' },
+  { sym:'LII', name:'Lennox Intl', sector:'Industrials', signal:'HOLD', memo:'HVAC · 냉난방 장비', mcap:22, rsi:52, index:'SP500' },
+  { sym:'ZBRA', name:'Zebra Technologies', sector:'Technology', signal:'HOLD', memo:'바코드/RFID 스캐너', mcap:18, rsi:46, index:'SP500' },
+  { sym:'CHD', name:'Church & Dwight', sector:'Consumer Defensive', signal:'HOLD', memo:'가정용품 · OxiClean', mcap:25, rsi:50, index:'SP500' },
+  { sym:'VRSN', name:'VeriSign', sector:'Technology', signal:'HOLD', memo:'.com/.net 도메인 독점', mcap:22, rsi:50, index:'SP500' },
+  { sym:'PKG', name:'Packaging Corp', sector:'Materials', signal:'HOLD', memo:'골판지 포장 · 이커머스', mcap:18, rsi:50, index:'SP500' },
+  { sym:'MKTX', name:'MarketAxess', sector:'Financials', signal:'HOLD', memo:'채권 전자거래 플랫폼', mcap:10, rsi:44, index:'SP500' },
+  { sym:'LYV', name:'Live Nation', sector:'Consumer', signal:'HOLD', memo:'콘서트/티켓마스터 · 라이브 엔터', mcap:25, rsi:48, index:'SP500' },
+  { sym:'TYL', name:'Tyler Technologies', sector:'Technology', signal:'HOLD', memo:'공공부문 소프트웨어', mcap:22, rsi:50, index:'SP500' },
+  { sym:'CBOE', name:'Cboe Global Markets', sector:'Financials', signal:'HOLD', memo:'옵션 거래소 · VIX', mcap:22, rsi:50, index:'SP500' },
+  { sym:'BR', name:'Broadridge Financial', sector:'Technology', signal:'HOLD', memo:'금융 기술 인프라', mcap:25, rsi:50, index:'SP500' },
+  { sym:'STLD', name:'Steel Dynamics', sector:'Materials', signal:'HOLD', memo:'미니밀 철강 · 건설/자동차', mcap:20, rsi:48, index:'SP500' },
+  { sym:'FE', name:'FirstEnergy', sector:'Utilities', signal:'HOLD', memo:'오하이오 유틸리티', mcap:25, rsi:48, index:'SP500' },
+  { sym:'J', name:'Jacobs Solutions', sector:'Industrials', signal:'HOLD', memo:'엔지니어링/건설 · 인프라', mcap:18, rsi:48, index:'SP500' },
+  { sym:'LUV', name:'Southwest Airlines', sector:'Industrials', signal:'HOLD', memo:'미국 저가항공', mcap:18, rsi:44, index:'SP500' },
+  { sym:'CAG', name:'Conagra Brands', sector:'Consumer Defensive', signal:'HOLD', memo:'냉동식품 · 방어주', mcap:15, rsi:44, index:'SP500' },
+  { sym:'NI', name:'NiSource', sector:'Utilities', signal:'HOLD', memo:'가스 유틸리티', mcap:18, rsi:50, index:'SP500' },
+  { sym:'KDP', name:'Keurig Dr Pepper', sector:'Consumer Defensive', signal:'HOLD', memo:'음료/커피 · 배당', mcap:40, rsi:50, index:'SP500' },
+  { sym:'HOLX', name:'Hologic', sector:'Healthcare', signal:'HOLD', memo:'여성건강 진단장비', mcap:20, rsi:48, index:'SP500' },
+  { sym:'EG', name:'Everest Group', sector:'Financials', signal:'HOLD', memo:'재보험', mcap:18, rsi:50, index:'SP500' },
+  { sym:'HAL', name:'Halliburton', sector:'Energy', signal:'HOLD', memo:'유전 서비스 · 시추/완결', mcap:22, rsi:46, index:'SP500' },
+  { sym:'CFG', name:'Citizens Financial', sector:'Financials', signal:'HOLD', memo:'동부 지역 은행', mcap:20, rsi:46, index:'SP500' },
+  { sym:'WTW', name:'Willis Towers Watson', sector:'Financials', signal:'HOLD', memo:'보험 브로커 · 컨설팅', mcap:30, rsi:48, index:'SP500' },
+  { sym:'KEY', name:'KeyCorp', sector:'Financials', signal:'HOLD', memo:'지역 은행 · 배당', mcap:18, rsi:44, index:'SP500' },
+  { sym:'BRO', name:'Brown & Brown', sector:'Financials', signal:'HOLD', memo:'보험 브로커 · M&A', mcap:28, rsi:52, index:'SP500' },
+  { sym:'MOH', name:'Molina Healthcare', sector:'Healthcare', signal:'HOLD', memo:'Medicaid 관리의료', mcap:20, rsi:46, index:'SP500' },
+  { sym:'PFG', name:'Principal Financial', sector:'Financials', signal:'HOLD', memo:'자산운용/보험 · 은퇴', mcap:18, rsi:50, index:'SP500' },
+  { sym:'COO', name:'CooperCompanies', sector:'Healthcare', signal:'HOLD', memo:'콘택트렌즈 · 여성건강', mcap:20, rsi:48, index:'SP500' },
+  { sym:'TXT', name:'Textron', sector:'Industrials', signal:'HOLD', memo:'Bell 헬리콥터 · Cessna', mcap:15, rsi:48, index:'SP500' },
+  { sym:'DGX', name:'Quest Diagnostics', sector:'Healthcare', signal:'HOLD', memo:'임상검사 · 진단', mcap:20, rsi:50, index:'SP500' },
+  { sym:'SNA', name:'Snap-on', sector:'Industrials', signal:'HOLD', memo:'전문 공구 · 자동차 정비', mcap:18, rsi:52, index:'SP500' },
+  { sym:'MAS', name:'Masco Corp', sector:'Industrials', signal:'HOLD', memo:'주택 개보수 · 배관/페인트', mcap:15, rsi:46, index:'SP500' },
+  { sym:'DPZ', name:'Dominos Pizza', sector:'Consumer', signal:'HOLD', memo:'피자 프랜차이즈 · 디지털', mcap:18, rsi:50, index:'SP500' },
+  { sym:'FDS', name:'FactSet Research', sector:'Financials', signal:'HOLD', memo:'금융 데이터/분석', mcap:18, rsi:48, index:'SP500' },
+  { sym:'BG', name:'Bunge Global', sector:'Consumer Defensive', signal:'HOLD', memo:'곡물/농산물 트레이딩', mcap:15, rsi:48, index:'SP500' },
+  { sym:'ARE', name:'Alexandria RE', sector:'Real Estate', signal:'HOLD', memo:'생명과학 오피스 REIT', mcap:18, rsi:42, index:'SP500' },
+  { sym:'WSO', name:'Watsco', sector:'Industrials', signal:'HOLD', memo:'HVAC 유통 · 에어컨', mcap:20, rsi:52, index:'SP500' },
+  { sym:'BAX', name:'Baxter Intl', sector:'Healthcare', signal:'HOLD', memo:'의료기기 · 신장관리', mcap:18, rsi:42, index:'SP500' },
+  { sym:'CPB', name:'Campbell Soup', sector:'Consumer Defensive', signal:'HOLD', memo:'식품 · 스낵 · 배당', mcap:12, rsi:46, index:'SP500' },
+  { sym:'DVA', name:'DaVita', sector:'Healthcare', signal:'HOLD', memo:'투석 센터 · 신장치료', mcap:12, rsi:50, index:'SP500' },
+  { sym:'PODD', name:'Insulet', sector:'Healthcare', signal:'HOLD', memo:'인슐린 펌프 Omnipod', mcap:18, rsi:48, index:'SP500' },
+  { sym:'WAT', name:'Waters Corp', sector:'Healthcare', signal:'HOLD', memo:'분석기기 · HPLC · 질량분석', mcap:18, rsi:46, index:'SP500' },
+  { sym:'EXPD', name:'Expeditors Intl', sector:'Industrials', signal:'HOLD', memo:'물류/포워딩 · 글로벌 운송', mcap:15, rsi:48, index:'SP500' },
+  { sym:'WBA', name:'Walgreens', sector:'Healthcare', signal:'WATCH', memo:'약국체인 · 턴어라운드 · 리스크', mcap:10, rsi:38, index:'SP500' },
+  { sym:'CINF', name:'Cincinnati Financial', sector:'Financials', signal:'HOLD', memo:'손해보험 · 배당왕', mcap:20, rsi:52, index:'SP500' },
+  { sym:'POOL', name:'Pool Corp', sector:'Consumer', signal:'HOLD', memo:'수영장 장비/유통', mcap:15, rsi:46, index:'SP500' },
+  { sym:'EMN', name:'Eastman Chemical', sector:'Materials', signal:'HOLD', memo:'특수화학 · 첨가제/섬유', mcap:12, rsi:44, index:'SP500' },
+  { sym:'NVR', name:'NVR Inc', sector:'Consumer', signal:'HOLD', memo:'주택건설 · 토지매입 안 함', mcap:28, rsi:52, index:'SP500' },
+  { sym:'BLDR', name:'Builders FirstSource', sector:'Consumer', signal:'HOLD', memo:'건축자재 유통 · 주택시장', mcap:20, rsi:46, index:'SP500' },
+  { sym:'NTRS', name:'Northern Trust', sector:'Financials', signal:'HOLD', memo:'자산관리/커스터디', mcap:20, rsi:48, index:'SP500' },
+  { sym:'IPG', name:'Interpublic Group', sector:'Communication Services', signal:'HOLD', memo:'광고 · Omnicom 합병 추진', mcap:12, rsi:44, index:'SP500' },
+  { sym:'LKQ', name:'LKQ Corp', sector:'Consumer', signal:'HOLD', memo:'자동차 부품 애프터마켓', mcap:10, rsi:44, index:'SP500' },
+  { sym:'FSLR', name:'First Solar', sector:'Technology', signal:'HOLD', memo:'태양광 패널 · 미국 제조 · IRA', mcap:18, rsi:42, index:'SP500' },
+  { sym:'ENPH', name:'Enphase Energy', sector:'Technology', signal:'WATCH', memo:'태양광 인버터 · 가정용 에너지', mcap:10, rsi:38, index:'SP500' },
+  { sym:'ON', name:'ON Semiconductor', sector:'Technology', signal:'HOLD', memo:'전력/센서 반도체 · EV · 산업', mcap:25, rsi:44, index:'SP500' },
+  { sym:'SWKS', name:'Skyworks Solutions', sector:'Technology', signal:'HOLD', memo:'RF 반도체 · 5G/모바일', mcap:14, rsi:42, index:'SP500' },
+  { sym:'JBHT', name:'JB Hunt Transport', sector:'Industrials', signal:'HOLD', memo:'트럭/물류 · 인터모달', mcap:18, rsi:46, index:'SP500' },
+  { sym:'RL', name:'Ralph Lauren', sector:'Consumer', signal:'HOLD', memo:'럭셔리 패션 · 브랜드', mcap:14, rsi:50, index:'SP500' },
+  { sym:'KIM', name:'Kimco Realty', sector:'Real Estate', signal:'HOLD', memo:'리테일 REIT', mcap:15, rsi:48, index:'SP500' },
+  { sym:'TFX', name:'Teleflex', sector:'Healthcare', signal:'HOLD', memo:'의료기기 · 카테터', mcap:10, rsi:44, index:'SP500' },
+  { sym:'ILMN', name:'Illumina', sector:'Healthcare', signal:'WATCH', memo:'유전체 시퀀싱 · 정밀의료', mcap:15, rsi:42, index:'SP500' },
+  { sym:'PTC', name:'PTC Inc', sector:'Technology', signal:'HOLD', memo:'CAD/PLM/IoT 소프트웨어', mcap:20, rsi:48, index:'SP500' },
+  { sym:'ALB', name:'Albemarle', sector:'Materials', signal:'WATCH', memo:'리튬 · 2차전지 소재 · 변동성', mcap:10, rsi:38, index:'SP500' },
+  { sym:'ALGN', name:'Align Technology', sector:'Healthcare', signal:'HOLD', memo:'인비절라인 투명교정', mcap:14, rsi:44, index:'SP500' },
+  { sym:'NCLH', name:'Norwegian Cruise', sector:'Consumer', signal:'HOLD', memo:'크루즈 · 여행 수요', mcap:10, rsi:42, index:'SP500' },
+  { sym:'BBWI', name:'Bath & Body Works', sector:'Consumer', signal:'HOLD', memo:'홈/바디 프래그런스', mcap:10, rsi:42, index:'SP500' },
+  { sym:'MGM', name:'MGM Resorts', sector:'Consumer', signal:'HOLD', memo:'카지노 · 라스베가스', mcap:12, rsi:44, index:'SP500' },
+  { sym:'APTV', name:'Aptiv', sector:'Consumer', signal:'HOLD', memo:'자동차 전장 · ADAS · 커넥터', mcap:14, rsi:42, index:'SP500' },
+  { sym:'GEN', name:'Gen Digital', sector:'Technology', signal:'HOLD', memo:'Norton/Avast 사이버보안', mcap:18, rsi:50, index:'SP500' },
+  { sym:'CZR', name:'Caesars Entertainment', sector:'Consumer', signal:'HOLD', memo:'카지노/호텔 · 부채 리스크', mcap:10, rsi:40, index:'SP500' },
+  { sym:'CE', name:'Celanese', sector:'Materials', signal:'HOLD', memo:'아세틸/폴리머', mcap:10, rsi:38, index:'SP500' },
+  { sym:'GL', name:'Globe Life', sector:'Financials', signal:'HOLD', memo:'생명보험 · 배당', mcap:12, rsi:46, index:'SP500' },
+  { sym:'HRL', name:'Hormel Foods', sector:'Consumer Defensive', signal:'HOLD', memo:'육가공 · 배당왕', mcap:17, rsi:42, index:'SP500' },
+  { sym:'AES', name:'AES Corp', sector:'Utilities', signal:'HOLD', memo:'재생에너지/LNG · 글로벌', mcap:12, rsi:42, index:'SP500' },
+  { sym:'CMS', name:'CMS Energy', sector:'Utilities', signal:'HOLD', memo:'미시간 유틸리티', mcap:20, rsi:50, index:'SP500' },
+  { sym:'AKAM', name:'Akamai', sector:'Technology', signal:'HOLD', memo:'CDN/엣지컴퓨팅', mcap:15, rsi:46, index:'SP500' },
+  { sym:'WRK', name:'WestRock', sector:'Materials', signal:'HOLD', memo:'포장 · 골판지', mcap:12, rsi:44, index:'SP500' },
+  { sym:'JNPR', name:'Juniper Networks', sector:'Technology', signal:'HOLD', memo:'네트워크 장비 · HPE 인수', mcap:14, rsi:48, index:'SP500' },
+  { sym:'UDR', name:'UDR Inc', sector:'Real Estate', signal:'HOLD', memo:'아파트 REIT', mcap:15, rsi:48, index:'SP500' },
+  { sym:'BXP', name:'Boston Properties', sector:'Real Estate', signal:'HOLD', memo:'오피스 REIT', mcap:12, rsi:42, index:'SP500' },
+  { sym:'ALLE', name:'Allegion', sector:'Industrials', signal:'HOLD', memo:'보안/잠금장치 · Schlage', mcap:12, rsi:48, index:'SP500' },
+  { sym:'AIZ', name:'Assurant', sector:'Financials', signal:'HOLD', memo:'특수보험 · 보증', mcap:10, rsi:48, index:'SP500' },
+  { sym:'MHK', name:'Mohawk Industries', sector:'Consumer', signal:'HOLD', memo:'바닥재/타일 · 주택리모델링', mcap:10, rsi:42, index:'SP500' },
+  { sym:'MTCH', name:'Match Group', sector:'Communication Services', signal:'HOLD', memo:'Tinder/Hinge 데이팅 앱', mcap:10, rsi:40, index:'SP500' },
+  { sym:'GNRC', name:'Generac', sector:'Technology', signal:'HOLD', memo:'발전기 · 에너지 저장', mcap:10, rsi:44, index:'SP500' },
+  { sym:'RHI', name:'Robert Half', sector:'Industrials', signal:'HOLD', memo:'인력 채용 · 컨설팅', mcap:10, rsi:42, index:'SP500' },
+  { sym:'DAY', name:'Dayforce', sector:'Industrials', signal:'HOLD', memo:'HR 클라우드 · Ceridian 후속', mcap:10, rsi:46, index:'SP500' },
+  { sym:'CHRW', name:'CH Robinson', sector:'Industrials', signal:'HOLD', memo:'물류 브로커 · 3PL', mcap:12, rsi:48, index:'SP500' },
+  { sym:'HSIC', name:'Henry Schein', sector:'Healthcare', signal:'HOLD', memo:'치과/의료 유통', mcap:10, rsi:44, index:'SP500' },
+  { sym:'DVN', name:'Devon Energy', sector:'Energy', signal:'HOLD', memo:'셰일 E&P · 변동배당', mcap:22, rsi:46, index:'SP500' },
+  { sym:'LNT', name:'Alliant Energy', sector:'Utilities', signal:'HOLD', memo:'아이오와 유틸리티', mcap:15, rsi:50, index:'SP500' },
+  { sym:'EVRG', name:'Evergy', sector:'Utilities', signal:'HOLD', memo:'캔자스 유틸리티', mcap:15, rsi:50, index:'SP500' },
+  { sym:'FRT', name:'Federal Realty', sector:'Real Estate', signal:'HOLD', memo:'리테일 REIT · 배당왕', mcap:10, rsi:46, index:'SP500' },
+  { sym:'TECH', name:'Bio-Techne', sector:'Healthcare', signal:'HOLD', memo:'단백질/항체 · 생명과학 도구', mcap:10, rsi:46, index:'SP500' },
+  { sym:'REG', name:'Regency Centers', sector:'Real Estate', signal:'HOLD', memo:'쇼핑센터 REIT', mcap:12, rsi:48, index:'SP500' },
+  { sym:'FFIV', name:'F5 Networks', sector:'Technology', signal:'HOLD', memo:'네트워크 보안/로드밸런싱', mcap:15, rsi:50, index:'SP500' },
+  { sym:'IEX', name:'IDEX Corp', sector:'Industrials', signal:'HOLD', memo:'유체처리 · 방산', mcap:15, rsi:48, index:'SP500' },
+  { sym:'CPT', name:'Camden Property', sector:'Real Estate', signal:'HOLD', memo:'선벨트 아파트 REIT', mcap:12, rsi:48, index:'SP500' },
+  { sym:'INCY', name:'Incyte', sector:'Healthcare', signal:'HOLD', memo:'항암/면역 바이오 · Jakafi', mcap:15, rsi:46, index:'SP500' },
+  { sym:'BIO', name:'Bio-Rad Labs', sector:'Healthcare', signal:'HOLD', memo:'생명과학 기기 · 진단', mcap:10, rsi:46, index:'SP500' },
+  { sym:'VTRS', name:'Viatris', sector:'Healthcare', signal:'HOLD', memo:'제네릭 의약품 · 배당', mcap:12, rsi:46, index:'SP500' },
+  { sym:'CRL', name:'Charles River Labs', sector:'Healthcare', signal:'HOLD', memo:'CRO · 전임상 서비스', mcap:10, rsi:42, index:'SP500' },
+  { sym:'TPR', name:'Tapestry', sector:'Consumer', signal:'HOLD', memo:'Coach/Kate Spade · 럭셔리', mcap:14, rsi:48, index:'SP500' },
+  { sym:'SWK', name:'Stanley Black & Decker', sector:'Industrials', signal:'HOLD', memo:'전동공구 · DeWalt', mcap:12, rsi:42, index:'SP500' },
+  { sym:'PAYC', name:'Paycom', sector:'Technology', signal:'HOLD', memo:'HR/급여 클라우드 SaaS', mcap:12, rsi:46, index:'SP500' },
+  { sym:'EPAM', name:'EPAM Systems', sector:'Technology', signal:'HOLD', memo:'IT 아웃소싱 · 동유럽 기반', mcap:12, rsi:44, index:'SP500' },
+  { sym:'RVTY', name:'Revvity', sector:'Healthcare', signal:'HOLD', memo:'생명과학 진단 · PerkinElmer', mcap:12, rsi:46, index:'SP500' },
+  { sym:'SOLV', name:'Solventum', sector:'Healthcare', signal:'HOLD', memo:'3M 헬스케어 분사 · 의료용품', mcap:10, rsi:42, index:'SP500' },
+  { sym:'BWA', name:'BorgWarner', sector:'Industrials', signal:'HOLD', memo:'자동차 파워트레인 · EV 전환', mcap:10, rsi:42, index:'SP500' },
+  { sym:'PARA', name:'Paramount', sector:'Communication Services', signal:'WATCH', memo:'CBS · Paramount+ · Skydance 합병', mcap:10, rsi:38, index:'SP500' },
+  { sym:'WYNN', name:'Wynn Resorts', sector:'Consumer', signal:'HOLD', memo:'카지노 · 마카오/라스베가스', mcap:10, rsi:44, index:'SP500' },
+  { sym:'CHTR', name:'Charter Communications', sector:'Communication Services', signal:'HOLD', memo:'미국 2위 케이블TV · Spectrum', mcap:50, rsi:46, index:'SP500' },
+  { sym:'CPRT', name:'Copart', sector:'Industrials', signal:'HOLD', memo:'온라인 자동차 경매 · 보험 폐차', mcap:55, rsi:52, index:'SP500' },
+  { sym:'DLTR', name:'Dollar Tree', sector:'Consumer', signal:'HOLD', memo:'달러스토어 · Family Dollar', mcap:15, rsi:42, index:'SP500' },
+  { sym:'DXCM', name:'DexCom', sector:'Healthcare', signal:'HOLD', memo:'연속 혈당 모니터(CGM) · 당뇨관리', mcap:30, rsi:42, index:'SP500' },
+  { sym:'GFS', name:'GlobalFoundries', sector:'Technology', signal:'HOLD', memo:'반도체 파운드리 · 비첨단 공정 특화', mcap:25, rsi:44, index:'SP500' },
+  { sym:'MCHP', name:'Microchip Technology', sector:'Technology', signal:'HOLD', memo:'마이크로컨트롤러 · 아날로그 · 자동차', mcap:30, rsi:42, index:'SP500' },
+  { sym:'ODFL', name:'Old Dominion Freight', sector:'Industrials', signal:'HOLD', memo:'LTL 화물 · 미국 최고 효율', mcap:40, rsi:48, index:'SP500' },
+  { sym:'FOXA', name:'Fox Corp A', sector:'Communication Services', signal:'HOLD', memo:'Fox News · 스포츠', mcap:20, rsi:48, index:'SP500' },
+  { sym:'FOX', name:'Fox Corp B', sector:'Communication Services', signal:'HOLD', memo:'Fox News · 스포츠 · B주', mcap:20, rsi:48, index:'SP500' },
+  { sym:'NWSA', name:'News Corp A', sector:'Communication Services', signal:'HOLD', memo:'WSJ · 출판/미디어', mcap:18, rsi:48, index:'SP500' },
+  { sym:'NWS', name:'News Corp B', sector:'Communication Services', signal:'HOLD', memo:'WSJ · 출판/미디어 · B주', mcap:18, rsi:48, index:'SP500' },
+  { sym:'BABA', name:'Alibaba', sector:'Technology', signal:'WATCH', memo:'중국 최대 이커머스 · 클라우드 · ADR', mcap:351, rsi:55, index:'NYSE' },
+  { sym:'SAP', name:'SAP SE', sector:'Technology', signal:'HOLD', memo:'ERP 글로벌 1위 · 클라우드 전환 · ADR', mcap:234, rsi:50, index:'NYSE' },
+  { sym:'NVO', name:'Novo Nordisk', sector:'Healthcare', signal:'BUY', memo:'비만/당뇨 Ozempic · GLP-1 · ADR', mcap:216, rsi:42, index:'NYSE' },
+  { sym:'NVS', name:'Novartis', sector:'Healthcare', signal:'HOLD', memo:'글로벌 제약 · 항암/면역 · ADR', mcap:307, rsi:52, index:'NYSE' },
+  { sym:'AZN', name:'AstraZeneca', sector:'Healthcare', signal:'HOLD', memo:'항암제 · 면역치료 · ADR', mcap:315, rsi:48, index:'NYSE' },
+  { sym:'HSBC', name:'HSBC Holdings', sector:'Financials', signal:'HOLD', memo:'글로벌 은행 · 아시아 강세 · ADR', mcap:296, rsi:54, index:'NYSE' },
+  { sym:'TM', name:'Toyota Motor', sector:'Consumer', signal:'HOLD', memo:'세계 최대 자동차 · 하이브리드 · ADR', mcap:323, rsi:50, index:'NYSE' },
+  { sym:'SHEL', name:'Shell plc', sector:'Energy', signal:'HOLD', memo:'글로벌 에너지 메이저 · LNG · ADR', mcap:223, rsi:50, index:'NYSE' },
+  { sym:'RIO', name:'Rio Tinto', sector:'Materials', signal:'HOLD', memo:'글로벌 광업 · 철광석/구리 · ADR', mcap:168, rsi:48, index:'NYSE' },
+  { sym:'BHP', name:'BHP Group', sector:'Materials', signal:'HOLD', memo:'세계 최대 광업 · 철광석/구리 · ADR', mcap:184, rsi:46, index:'NYSE' },
+  { sym:'MUFG', name:'MUFG Financial', sector:'Financials', signal:'HOLD', memo:'일본 최대 은행 · ADR', mcap:223, rsi:52, index:'NYSE' },
+  { sym:'SMFG', name:'Sumitomo Mitsui FG', sector:'Financials', signal:'HOLD', memo:'일본 3대 은행 · ADR', mcap:152, rsi:52, index:'NYSE' },
+  { sym:'MFG', name:'Mizuho Financial', sector:'Financials', signal:'HOLD', memo:'일본 메가뱅크 · ADR', mcap:124, rsi:50, index:'NYSE' },
+  { sym:'UBS', name:'UBS Group', sector:'Financials', signal:'HOLD', memo:'스위스 투자은행 · Credit Suisse 합병 · ADR', mcap:129, rsi:50, index:'NYSE' },
+  { sym:'PDD', name:'PDD Holdings', sector:'Technology', signal:'WATCH', memo:'Temu/핀둬둬 · 중국 이커머스 · ADR', mcap:142, rsi:50, index:'NASDAQ100' },
+  { sym:'SONY', name:'Sony Group', sector:'Technology', signal:'HOLD', memo:'게임/엔터/반도체 · PS5 · ADR', mcap:139, rsi:48, index:'NYSE' },
+  { sym:'SCCO', name:'Southern Copper', sector:'Materials', signal:'HOLD', memo:'구리 생산 · 전기화 수혜 · ADR', mcap:160, rsi:50, index:'NYSE' },
+  { sym:'SAN', name:'Banco Santander', sector:'Financials', signal:'HOLD', memo:'스페인 최대 은행 · ADR', mcap:178, rsi:55, index:'NYSE' },
+  { sym:'BBVA', name:'BBVA', sector:'Financials', signal:'HOLD', memo:'스페인 2위 은행 · 라틴 · ADR', mcap:133, rsi:55, index:'NYSE' },
+  { sym:'BTI', name:'British American Tobacco', sector:'Consumer Defensive', signal:'HOLD', memo:'담배 · 고배당 · ADR', mcap:130, rsi:50, index:'NYSE' },
+  { sym:'UL', name:'Unilever', sector:'Consumer Defensive', signal:'HOLD', memo:'글로벌 소비재 · 식품/뷰티 · ADR', mcap:162, rsi:50, index:'NYSE' },
+  { sym:'BUD', name:'Anheuser-Busch InBev', sector:'Consumer Defensive', signal:'HOLD', memo:'세계 최대 맥주 · ADR', mcap:159, rsi:48, index:'NYSE' },
+  { sym:'TTE', name:'TotalEnergies', sector:'Energy', signal:'HOLD', memo:'프랑스 에너지 메이저 · ADR', mcap:163, rsi:50, index:'NYSE' },
+  { sym:'BP', name:'BP plc', sector:'Energy', signal:'HOLD', memo:'영국 에너지 메이저 · ADR', mcap:96, rsi:48, index:'NYSE' },
+  { sym:'HDB', name:'HDFC Bank', sector:'Financials', signal:'HOLD', memo:'인도 최대 민영은행 · ADR', mcap:154, rsi:50, index:'NYSE' },
+  { sym:'IBN', name:'ICICI Bank', sector:'Financials', signal:'HOLD', memo:'인도 2위 민영은행 · ADR', mcap:113, rsi:48, index:'NYSE' },
+  { sym:'BCS', name:'Barclays', sector:'Financials', signal:'HOLD', memo:'영국 투자은행 · ADR', mcap:87, rsi:52, index:'NYSE' },
+  { sym:'DB', name:'Deutsche Bank', sector:'Financials', signal:'HOLD', memo:'독일 최대 은행 · ADR', mcap:70, rsi:50, index:'NYSE' },
+  { sym:'ING', name:'ING Groep', sector:'Financials', signal:'HOLD', memo:'네덜란드 은행 · ADR', mcap:84, rsi:50, index:'NYSE' },
+  { sym:'TD', name:'Toronto-Dominion', sector:'Financials', signal:'HOLD', memo:'캐나다 최대 은행 · ADR', mcap:160, rsi:48, index:'NYSE' },
+  { sym:'RY', name:'Royal Bank of Canada', sector:'Financials', signal:'HOLD', memo:'캐나다 2위 은행 · ADR', mcap:237, rsi:52, index:'NYSE' },
+  { sym:'BMO', name:'Bank of Montreal', sector:'Financials', signal:'HOLD', memo:'캐나다 은행 · ADR', mcap:100, rsi:48, index:'NYSE' },
+  { sym:'BNS', name:'Bank of Nova Scotia', sector:'Financials', signal:'HOLD', memo:'캐나다 은행 · ADR', mcap:94, rsi:48, index:'NYSE' },
+  { sym:'CM', name:'CIBC', sector:'Financials', signal:'HOLD', memo:'캐나다 은행 · ADR', mcap:88, rsi:48, index:'NYSE' },
+  { sym:'SNY', name:'Sanofi', sector:'Healthcare', signal:'HOLD', memo:'프랑스 제약 · 면역/희귀질환 · ADR', mcap:113, rsi:48, index:'NYSE' },
+  { sym:'GSK', name:'GSK plc', sector:'Healthcare', signal:'HOLD', memo:'영국 제약 · 백신/면역 · ADR', mcap:117, rsi:48, index:'NYSE' },
+  { sym:'TAK', name:'Takeda Pharma', sector:'Healthcare', signal:'HOLD', memo:'일본 최대 제약 · ADR', mcap:58, rsi:48, index:'NYSE' },
+  { sym:'ENB', name:'Enbridge', sector:'Energy', signal:'HOLD', memo:'캐나다 파이프라인 · 고배당 · ADR', mcap:113, rsi:50, index:'NYSE' },
+  { sym:'EPD', name:'Enterprise Products', sector:'Energy', signal:'HOLD', memo:'미국 최대 MLP · 배당 · 파이프라인', mcap:78, rsi:52, index:'NYSE' },
+  { sym:'ET', name:'Energy Transfer', sector:'Energy', signal:'HOLD', memo:'MLP · 천연가스 · 고배당', mcap:63, rsi:52, index:'NYSE' },
+  { sym:'SU', name:'Suncor Energy', sector:'Energy', signal:'HOLD', memo:'캐나다 오일샌드 · ADR', mcap:65, rsi:50, index:'NYSE' },
+  { sym:'CNQ', name:'Canadian Natural Res', sector:'Energy', signal:'HOLD', memo:'캐나다 최대 석유 생산 · ADR', mcap:83, rsi:50, index:'NYSE' },
+  { sym:'EQNR', name:'Equinor', sector:'Energy', signal:'HOLD', memo:'노르웨이 국영 에너지 · ADR', mcap:70, rsi:48, index:'NYSE' },
+  { sym:'VALE', name:'Vale SA', sector:'Materials', signal:'HOLD', memo:'브라질 철광석 · 니켈 · ADR', mcap:73, rsi:44, index:'NYSE' },
+  { sym:'PBR', name:'Petrobras', sector:'Energy', signal:'HOLD', memo:'브라질 국영 에너지 · 고배당 · ADR', mcap:96, rsi:48, index:'NYSE' },
+  { sym:'ITUB', name:'Itau Unibanco', sector:'Financials', signal:'HOLD', memo:'브라질 최대 은행 · ADR', mcap:99, rsi:48, index:'NYSE' },
+  { sym:'INFY', name:'Infosys', sector:'Technology', signal:'HOLD', memo:'인도 IT 아웃소싱 · ADR', mcap:62, rsi:46, index:'NYSE' },
+  { sym:'NTES', name:'NetEase', sector:'Technology', signal:'HOLD', memo:'중국 게임/음악 · ADR', mcap:88, rsi:50, index:'NASDAQ100' },
+  { sym:'JD', name:'JD.com', sector:'Technology', signal:'WATCH', memo:'중국 이커머스 · 물류 · ADR', mcap:41, rsi:48, index:'NASDAQ100' },
+  { sym:'BIDU', name:'Baidu', sector:'Technology', signal:'WATCH', memo:'중국 검색/AI · 자율주행 · ADR', mcap:43, rsi:46, index:'NASDAQ100' },
+  { sym:'TCOM', name:'Trip.com', sector:'Consumer', signal:'HOLD', memo:'중국 최대 온라인여행 · ADR', mcap:47, rsi:50, index:'NASDAQ100' },
+  { sym:'CPNG', name:'Coupang', sector:'Technology', signal:'HOLD', memo:'한국 이커머스 · ADR', mcap:45, rsi:48, index:'NYSE' },
+  { sym:'AMX', name:'America Movil', sector:'Communication Services', signal:'HOLD', memo:'라틴아메리카 통신 · ADR', mcap:72, rsi:48, index:'NYSE' },
+  { sym:'LYG', name:'Lloyds Banking', sector:'Financials', signal:'HOLD', memo:'영국 최대 리테일 은행 · ADR', mcap:81, rsi:50, index:'NYSE' },
+  { sym:'NWG', name:'NatWest Group', sector:'Financials', signal:'HOLD', memo:'영국 은행 · ADR', mcap:65, rsi:50, index:'NYSE' },
+  { sym:'NGG', name:'National Grid', sector:'Utilities', signal:'HOLD', memo:'영/미 전력망 · ADR', mcap:92, rsi:50, index:'NYSE' },
+  { sym:'RELX', name:'RELX plc', sector:'Industrials', signal:'HOLD', memo:'데이터/분석/출판 · ADR', mcap:51, rsi:50, index:'NYSE' },
+  { sym:'DEO', name:'Diageo', sector:'Consumer Defensive', signal:'HOLD', memo:'주류 글로벌 1위 · 기네스/조니워커 · ADR', mcap:56, rsi:44, index:'NYSE' },
+  { sym:'HLN', name:'Haleon', sector:'Healthcare', signal:'HOLD', memo:'소비자 헬스케어 · GSK 분사 · ADR', mcap:45, rsi:48, index:'NYSE' },
+  { sym:'RACE', name:'Ferrari', sector:'Consumer', signal:'HOLD', memo:'럭셔리 자동차 · 프리미엄 밸류에이션', mcap:69, rsi:50, index:'NYSE' },
+  { sym:'MFC', name:'Manulife Financial', sector:'Financials', signal:'HOLD', memo:'캐나다 보험 · 아시아 · ADR', mcap:60, rsi:50, index:'NYSE' },
+  { sym:'B', name:'Barrick Mining', sector:'Materials', signal:'HOLD', memo:'세계 2위 금광 · ADR', mcap:76, rsi:55, index:'NYSE' },
+  { sym:'AU', name:'AngloGold Ashanti', sector:'Materials', signal:'HOLD', memo:'금광 · 아프리카/호주 · ADR', mcap:55, rsi:55, index:'NYSE' },
+  { sym:'AEM', name:'Agnico Eagle Mines', sector:'Materials', signal:'HOLD', memo:'금광 · 안정적 생산 · ADR', mcap:108, rsi:55, index:'NYSE' },
+  { sym:'WPM', name:'Wheaton Precious Metals', sector:'Materials', signal:'HOLD', memo:'금/은 스트리밍 · 로열티 · ADR', mcap:63, rsi:55, index:'NYSE' },
+  { sym:'FNV', name:'Franco-Nevada', sector:'Materials', signal:'HOLD', memo:'금/은 로열티 스트리밍 · ADR', mcap:42, rsi:52, index:'NYSE' },
+  { sym:'GFI', name:'Gold Fields', sector:'Materials', signal:'HOLD', memo:'남아공 금광 · ADR', mcap:40, rsi:55, index:'NYSE' },
+  { sym:'TRP', name:'TC Energy', sector:'Energy', signal:'HOLD', memo:'캐나다 파이프라인 · 배당 · ADR', mcap:61, rsi:50, index:'NYSE' },
+  { sym:'CP', name:'Canadian Pacific KC', sector:'Industrials', signal:'HOLD', memo:'캐나다~멕시코 철도 · ADR', mcap:75, rsi:48, index:'NYSE' },
+  { sym:'CNI', name:'Canadian National Railway', sector:'Industrials', signal:'HOLD', memo:'캐나다 철도 · 물류 · ADR', mcap:65, rsi:48, index:'NYSE' },
+  { sym:'IMO', name:'Imperial Oil', sector:'Energy', signal:'HOLD', memo:'캐나다 석유 · Exxon 자회사 · ADR', mcap:56, rsi:50, index:'NYSE' },
+  { sym:'E', name:'Eni SpA', sector:'Energy', signal:'HOLD', memo:'이탈리아 에너지 메이저 · ADR', mcap:65, rsi:48, index:'NYSE' },
+  { sym:'ARES', name:'Ares Management', sector:'Financials', signal:'HOLD', memo:'대체투자 · 크레딧 전문', mcap:55, rsi:50, index:'SP500' },
+  { sym:'BAM', name:'Brookfield Asset Mgmt', sector:'Financials', signal:'HOLD', memo:'인프라/재생에너지 투자 · ADR', mcap:86, rsi:50, index:'NYSE' },
+  { sym:'BN', name:'Brookfield Corp', sector:'Financials', signal:'HOLD', memo:'글로벌 대체투자 · 인프라 · ADR', mcap:107, rsi:50, index:'NYSE' },
+  { sym:'WY', name:'Weyerhaeuser', sector:'Real Estate', signal:'HOLD', memo:'목재/부동산 REIT · 주택시장', mcap:25, rsi:46, index:'SP500' },
+  { sym:'MPLX', name:'MPLX LP', sector:'Energy', signal:'HOLD', memo:'MLP · 미드스트림 · 고배당', mcap:57, rsi:52, index:'NYSE' },
+  { sym:'LNG', name:'Cheniere Energy', sector:'Energy', signal:'HOLD', memo:'미국 최대 LNG 수출 · 에너지 안보', mcap:41, rsi:50, index:'SP500' },
+  { sym:'CCEP', name:'Coca-Cola Europacific', sector:'Consumer Defensive', signal:'HOLD', memo:'코카콜라 유럽/태평양 보틀러', mcap:41, rsi:50, index:'NYSE' },
+  { sym:'CCL', name:'Carnival Corp', sector:'Consumer', signal:'HOLD', memo:'크루즈 · 여행 수요 회복', mcap:40, rsi:44, index:'SP500' },
+  { sym:'ALNY', name:'Alnylam Pharma', sector:'Healthcare', signal:'HOLD', memo:'RNAi 치료제 · 희귀질환', mcap:53, rsi:48, index:'SP500' },
+  { sym:'ARGX', name:'argenx SE', sector:'Healthcare', signal:'HOLD', memo:'자가면역 항체치료 · Vyvgart · ADR', mcap:51, rsi:48, index:'NASDAQ100' },
+  { sym:'TKO', name:'TKO Group', sector:'Communication Services', signal:'HOLD', memo:'WWE+UFC 합병 · 스포츠 엔터', mcap:42, rsi:50, index:'NYSE' },
+  { sym:'FERG', name:'Ferguson Enterprises', sector:'Industrials', signal:'HOLD', memo:'배관/HVAC 유통 · 인프라', mcap:51, rsi:48, index:'SP500' },
+  { sym:'TRI', name:'Thomson Reuters', sector:'Industrials', signal:'HOLD', memo:'법률/세무/뉴스 데이터 · ADR', mcap:59, rsi:50, index:'NYSE' },
+  { sym:'MDLN', name:'Medline Inc', sector:'Healthcare', signal:'HOLD', memo:'의료용품 유통 · 최근 IPO', mcap:57, rsi:48, index:'NYSE' },
+  { sym:'WCN', name:'Waste Connections', sector:'Industrials', signal:'HOLD', memo:'폐기물 처리 · 안정 성장 · ADR', mcap:46, rsi:52, index:'NYSE' },
+  { sym:'HEI', name:'HEICO Corp', sector:'Industrials', signal:'HOLD', memo:'항공기 부품 · 방산', mcap:46, rsi:50, index:'SP500' },
+  { sym:'FER', name:'Ferrovial', sector:'Industrials', signal:'HOLD', memo:'인프라 · 톨도로/공항 · ADR', mcap:53, rsi:48, index:'NYSE' },
+  { sym:'TEAM', name:'Atlassian', sector:'Technology', signal:'HOLD', memo:'Jira/Confluence · 개발도구 · ADR', mcap:43, rsi:46, index:'NASDAQ100' },
+  { sym:'RKT', name:'Rocket Companies', sector:'Financials', signal:'HOLD', memo:'온라인 모기지 · 핀테크', mcap:54, rsi:50, index:'NYSE' },
+  { sym:'SPY', name:'SPDR S&P 500 ETF', sector:'ETF', signal:'HOLD', memo:'S&P 500 · 세계 최대 ETF', mcap:580, rsi:50, index:'SP500' },
+  { sym:'QQQ', name:'Invesco QQQ Trust', sector:'ETF', signal:'HOLD', memo:'나스닥 100 · 기술주 중심', mcap:280, rsi:48, index:'NASDAQ100' },
+  { sym:'VTI', name:'Vanguard Total Market', sector:'ETF', signal:'HOLD', memo:'미국 전체 시장 4,000+', mcap:420, rsi:50, index:'SP500' },
+  { sym:'VOO', name:'Vanguard S&P 500', sector:'ETF', signal:'HOLD', memo:'S&P 500 · 저비용 0.03%', mcap:530, rsi:50, index:'SP500' },
+  { sym:'IVV', name:'iShares Core S&P 500', sector:'ETF', signal:'HOLD', memo:'S&P 500 · iShares', mcap:510, rsi:50, index:'SP500' },
+  { sym:'SOXX', name:'iShares Semiconductor', sector:'ETF', signal:'HOLD', memo:'반도체 ETF', mcap:15, rsi:48, index:'NASDAQ100' },
+  { sym:'ARKK', name:'ARK Innovation', sector:'ETF', signal:'WATCH', memo:'캐시 우드 · 파괴적 혁신', mcap:6, rsi:42, index:'NYSE' },
+  { sym:'ARKG', name:'ARK Genomic', sector:'ETF', signal:'WATCH', memo:'유전체/바이오 혁신', mcap:2, rsi:40, index:'NYSE' },
+  { sym:'ARKF', name:'ARK Fintech', sector:'ETF', signal:'WATCH', memo:'핀테크 혁신 · 크립토', mcap:1, rsi:42, index:'NYSE' },
+  { sym:'GLD', name:'SPDR Gold', sector:'ETF', signal:'HOLD', memo:'금 현물 · 인플레 헤지', mcap:80, rsi:55, index:'NYSE' },
+  { sym:'SLV', name:'iShares Silver', sector:'ETF', signal:'HOLD', memo:'은 현물', mcap:14, rsi:52, index:'NYSE' },
+  { sym:'USO', name:'US Oil Fund', sector:'ETF', signal:'HOLD', memo:'WTI 원유 선물', mcap:3, rsi:48, index:'NYSE' },
+  { sym:'TLT', name:'iShares 20+ Treasury', sector:'ETF', signal:'HOLD', memo:'장기국채 · 금리 역상관 · 헤지', mcap:50, rsi:44, index:'NASDAQ100' },
+  { sym:'TIP', name:'iShares TIPS', sector:'ETF', signal:'HOLD', memo:'물가연동 국채', mcap:20, rsi:48, index:'NYSE' },
+  { sym:'HYG', name:'iShares High Yield', sector:'ETF', signal:'HOLD', memo:'하이일드 회사채 · 크레딧', mcap:15, rsi:48, index:'NYSE' },
+  { sym:'LQD', name:'iShares Inv Grade', sector:'ETF', signal:'HOLD', memo:'투자등급 회사채', mcap:30, rsi:48, index:'NYSE' },
+  { sym:'SHY', name:'iShares 1-3Y Treasury', sector:'ETF', signal:'HOLD', memo:'단기국채 · 현금 대안', mcap:25, rsi:52, index:'NYSE' },
+  { sym:'BND', name:'Vanguard Total Bond', sector:'ETF', signal:'HOLD', memo:'종합 채권', mcap:100, rsi:48, index:'NYSE' },
+  { sym:'AGG', name:'iShares US Aggregate', sector:'ETF', signal:'HOLD', memo:'종합 채권', mcap:110, rsi:48, index:'NYSE' },
+  { sym:'EEM', name:'iShares Emerging', sector:'ETF', signal:'HOLD', memo:'신흥국 · 중국/인도/한국', mcap:20, rsi:46, index:'NYSE' },
+  { sym:'EFA', name:'iShares EAFE', sector:'ETF', signal:'HOLD', memo:'선진국(미국제외) · 유럽/일본', mcap:50, rsi:48, index:'NYSE' },
+  { sym:'FXI', name:'iShares China', sector:'ETF', signal:'WATCH', memo:'중국 대형주', mcap:8, rsi:50, index:'NYSE' },
+  { sym:'EWJ', name:'iShares Japan', sector:'ETF', signal:'HOLD', memo:'일본 주식', mcap:15, rsi:48, index:'NYSE' },
+  { sym:'EWY', name:'iShares Korea', sector:'ETF', signal:'HOLD', memo:'한국 주식 · 삼성/SK', mcap:5, rsi:46, index:'NYSE' },
+  { sym:'VWO', name:'Vanguard Emerging', sector:'ETF', signal:'HOLD', memo:'신흥국 · 저비용', mcap:70, rsi:46, index:'NYSE' },
+  { sym:'INDA', name:'iShares India', sector:'ETF', signal:'HOLD', memo:'인도 주식', mcap:10, rsi:48, index:'NYSE' },
+  { sym:'VXX', name:'iPath VIX', sector:'ETF', signal:'WATCH', memo:'VIX 선물 · 단기 헤지', mcap:1, rsi:45, index:'NYSE' },
+  { sym:'UVXY', name:'ProShares Ultra VIX', sector:'ETF', signal:'WATCH', memo:'VIX 1.5X · 초단기 헤지', mcap:1, rsi:45, index:'NYSE' },
+
+
+  // ── 섹터/테마 ETF 보강 ──
+  { sym:'XLK', name:'Technology Select Sector SPDR', sector:'ETF', signal:'HOLD', memo:'기술 섹터 ETF · AAPL MSFT NVDA 등', mcap:0, rsi:50, index:'ETF' },
+  { sym:'AMLP', name:'Alerian MLP ETF', sector:'ETF', signal:'HOLD', memo:'MLP 미드스트림 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'BOTZ', name:'Global X Robotics & AI ETF', sector:'ETF', signal:'HOLD', memo:'로봇/AI ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'GDX', name:'VanEck Gold Miners ETF', sector:'ETF', signal:'HOLD', memo:'금광 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'HACK', name:'ETFMG Prime Cyber Security ETF', sector:'ETF', signal:'HOLD', memo:'사이버보안 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'ICLN', name:'iShares Global Clean Energy ETF', sector:'ETF', signal:'HOLD', memo:'클린에너지 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'IGV', name:'iShares Expanded Tech-Software ETF', sector:'ETF', signal:'HOLD', memo:'소프트웨어 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'ITA', name:'iShares US Aerospace & Defense ETF', sector:'ETF', signal:'HOLD', memo:'방위산업 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'LIT', name:'Global X Lithium & Battery ETF', sector:'ETF', signal:'HOLD', memo:'리튬/배터리 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'OIH', name:'VanEck Oil Services ETF', sector:'ETF', signal:'HOLD', memo:'유전서비스 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'SMH', name:'VanEck Semiconductor ETF', sector:'ETF', signal:'HOLD', memo:'반도체 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'URA', name:'Global X Uranium ETF', sector:'ETF', signal:'HOLD', memo:'우라늄 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XBI', name:'SPDR S&P Biotech ETF', sector:'ETF', signal:'HOLD', memo:'바이오테크 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XLB', name:'Materials Select Sector SPDR', sector:'Materials', signal:'HOLD', memo:'소재 섹터 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XLC', name:'Communication Services Select SPDR', sector:'Communication Services', signal:'HOLD', memo:'커뮤니케이션 섹터 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XLE', name:'Energy Select Sector SPDR', sector:'Energy', signal:'HOLD', memo:'에너지 섹터 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XLF', name:'Financial Select Sector SPDR', sector:'Financials', signal:'HOLD', memo:'금융 섹터 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XLI', name:'Industrial Select Sector SPDR', sector:'Industrials', signal:'HOLD', memo:'산업재 섹터 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XLP', name:'Consumer Staples Select SPDR', sector:'Consumer Defensive', signal:'HOLD', memo:'필수소비재 섹터 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XLRE', name:'Real Estate Select SPDR', sector:'Real Estate', signal:'HOLD', memo:'부동산 섹터 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XLU', name:'Utilities Select Sector SPDR', sector:'Utilities', signal:'HOLD', memo:'유틸리티 섹터 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XLV', name:'Health Care Select Sector SPDR', sector:'Healthcare', signal:'HOLD', memo:'헬스케어 섹터 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XLY', name:'Consumer Discretionary Select SPDR', sector:'Consumer', signal:'HOLD', memo:'임의소비재 섹터 ETF', mcap:0, rsi:50, index:'ETF' },
+  { sym:'XOP', name:'SPDR S&P Oil & Gas Exploration ETF', sector:'ETF', signal:'HOLD', memo:'석유가스 탐사 ETF', mcap:0, rsi:50, index:'ETF' },
+  // ── 테마 누락분 보강 ──
+  { sym:'ABB', name:'ABB Ltd', sector:'Industrials', signal:'HOLD', memo:'산업자동화 · 로봇 · 전력장비 글로벌 리더', mcap:96, rsi:52, index:'ADR' },
+  { sym:'ADM', name:'Archer-Daniels-Midland', sector:'Consumer Defensive', signal:'HOLD', memo:'곡물 트레이딩 · 식품 가공 메이저', mcap:22, rsi:44, index:'SP500' },
+  { sym:'ES', name:'Eversource Energy', sector:'Utilities', signal:'HOLD', memo:'뉴잉글랜드 유틸리티 · 전력/가스 배전', mcap:22, rsi:50, index:'SP500' },
+  { sym:'FANUY', name:'Fanuc Corp', sector:'Industrials', signal:'HOLD', memo:'일본 산업용 로봇·CNC 세계 1위', mcap:30, rsi:48, index:'ADR' },
+  { sym:'IIVI', name:'Coherent Corp (II-VI)', sector:'Technology', signal:'HOLD', memo:'레이저·광학소재 · 데이터센터 트랜시버', mcap:7, rsi:46, index:'' },
+  { sym:'JETS', name:'US Global Jets ETF', sector:'ETF', signal:'HOLD', memo:'항공산업 ETF · 미국 항공사 집중', mcap:0, rsi:50, index:'ETF' },
+  { sym:'NDSN', name:'Nordson Corp', sector:'Industrials', signal:'HOLD', memo:'정밀 분사·접착 장비 · 니치 산업 리더', mcap:13, rsi:48, index:'SP500' },
+  { sym:'PNW', name:'Pinnacle West Capital', sector:'Utilities', signal:'HOLD', memo:'애리조나 전력 유틸리티 · APS 자회사', mcap:11, rsi:52, index:'SP500' },
+  { sym:'TPL', name:'Texas Pacific Land', sector:'Energy', signal:'HOLD', memo:'텍사스 로열티/수자원 · 퍼미안 분지 광대한 토지', mcap:35, rsi:55, index:'SP500' },
 ];
+
 
 var _scrSortCol = 'mcap';
 var _scrSortAsc = false;
@@ -10449,10 +10926,10 @@ var SCR_KEYWORD_ALIASES = {
   '미사일': ['RTX','LMT'],
   '패트리어트': ['RTX'],
   // 에너지
-  '에너지': ['XOM','CVX','SLB'],
-  '석유': ['XOM','CVX','SLB'],
-  '오일': ['XOM','CVX','SLB'],
-  '유전': ['SLB'],
+  '에너지': ['XOM','CVX','SLB','COP','EOG','OXY','SHEL','TTE','BP','HAL','BKR','DVN'],
+  '석유': ['XOM','CVX','SLB','COP','SHEL','TTE','BP'],
+  '오일': ['XOM','CVX','SLB','COP','SHEL','TTE','BP'],
+  '유전': ['SLB','HAL','BKR'],
   // 배당
   '배당': ['XOM','CVX','WMT','COST','JPM','V','GS','DE','KO','PEP','PG','JNJ','ABBV','MRK','VZ','T','MCD','HD'],
   'dividend': ['XOM','CVX','WMT','COST','JPM','V','GS','DE'],
@@ -10468,7 +10945,7 @@ var SCR_KEYWORD_ALIASES = {
   // 핀테크 / 금융
   '핀테크': ['V','MA','XYZ','COIN','JPM','GS','SOFI','AFRM','UPST','AXP','BLK','SPGI'],
   'fintech': ['V','XYZ','COIN','JPM','GS'],
-  '은행': ['JPM','GS'],
+  '은행': ['JPM','GS','BAC','WFC','MS','C','USB','PNC','SCHW','BK'],
   '결제': ['V','XYZ'],
   '암호화폐': ['COIN'],
   '비트코인': ['COIN','XYZ'],
@@ -10537,21 +11014,21 @@ var SCR_KEYWORD_ALIASES = {
   'robot': ['ISRG','HON','DE','JOBY'],
   'eda': ['SNPS','CDNS'],
   '장비': ['ASML','AMAT','LRCX','KLAC'],
-  '보험': ['UNH','TRV','BRK.B'],
+  '보험': ['UNH','TRV','BRK.B','CB','ALL','PGR','HIG','ACGL','AFL','MET'],
   '음식': ['MCD','SBUX','KO','PEP','COST','WMT','CAVA'],
   '식음료': ['MCD','SBUX','KO','PEP','COST','WMT','CAVA'],
   '항공': ['BA','GE','RTX','LMT'],
   '통신': ['T','VZ','CSCO'],
   'telecom': ['T','VZ','CSCO'],
-  '부동산': ['PLD','O','SPG','VTR','EQIX'],
-  'reit': ['PLD','O','SPG','VTR','EQIX'],
-  '유틸리티': ['NEE','CEG','VST','DUK','AEP'],
+  '부동산': ['PLD','O','SPG','VTR','EQIX','DLR','AMT','PSA','IRM','SBAC','WELL'],
+  'reit': ['PLD','O','SPG','VTR','EQIX','DLR','AMT','PSA','IRM','SBAC','WELL'],
+  '유틸리티': ['NEE','CEG','VST','DUK','AEP','SO','D','NRG','EXC','XEL','AWK'],
   '클린에너지': ['NEE','ICLN','TAN'],
   '스트리밍': ['NFLX','DIS','SPOT','ROKU'],
   '소셜미디어': ['META','GOOGL','RDDT','PINS','SNAP','RBLX'],
   'social': ['META','GOOGL','RDDT','PINS','SNAP','RBLX'],
   '자산운용': ['BLK','BRK.B','GS','MS','SPGI'],
-  'etf': ['SPY','QQQ','IWM','DIA','GLD','TLT'],
+  'etf': ['SPY','QQQ','IWM','DIA','VOO','VTI','GLD','TLT','HYG','EEM','EFA','AGG','BND','SOXX','ARKK'],
   '지수': ['SPY','QQQ','IWM','DIA'],
   // 새 카테고리
   '광모듈': ['AAOI','COHR','LITE','CIEN','GLW','VIAV'],
@@ -10593,8 +11070,55 @@ var SCR_KEYWORD_ALIASES = {
   'hr': ['WDAY','MNDY'],
   '데이터분석': ['DDOG','SNOW','CFLT','ESTC','MDB','PLTR'],
   'analytics': ['DDOG','SNOW','CFLT','ESTC','MDB','PLTR'],
-  '모빌리티': ['UBER','GRAB','RIVN','LCID']
+  '모빌리티': ['UBER','GRAB','RIVN','LCID'],
+  // ═══ v33.1: 확장 유니버스 앨리어스 ═══
+  'adr': ['BABA','TSM','NVO','ASML','SHOP','SE','MELI','PDD','SONY','CPNG','BIDU','JD','TCOM','HSBC','TM','SHEL','RIO','BHP','VALE','PBR','INFY','NVS','AZN','UBS','SAP','UL','BTI','BUD','TTE','BP','NEM','AMX','NU','ITUB'],
+  '해외주식': ['BABA','TSM','NVO','ASML','SHOP','SE','MELI','PDD','SONY','CPNG','BIDU','JD','TCOM','HSBC','TM','SHEL','RIO','BHP','VALE','PBR','INFY','NVS','AZN'],
+  '중국주식': ['BABA','PDD','BIDU','JD','TCOM','NTES'],
+  '일본주식': ['TM','SONY','MUFG','SMFG','MFG','TAK'],
+  '인도주식': ['HDB','IBN','INFY'],
+  '유럽주식': ['ASML','SAP','NVS','AZN','SHEL','TTE','BP','UBS','UL','BUD','BTI','HSBC','NVO','GSK','SNY','RIO','BHP','DEO'],
+  '캐나다주식': ['SHOP','TD','RY','BMO','BNS','CM','ENB','CNQ','SU','TRP','CP','CNI'],
+  '라틴아메리카': ['MELI','NU','PBR','VALE','ITUB','AMX','CPNG'],
+  '대체투자': ['BX','KKR','APO','ARES','BAM','BN'],
+  'pe': ['BX','KKR','APO','ARES'],
+  '에너지메이저': ['XOM','CVX','SHEL','TTE','BP','COP','EOG','OXY'],
+  '정유': ['PSX','VLO','MPC'],
+  '미드스트림': ['WMB','KMI','OKE','ENB','EPD','ET','MPLX','TRGP'],
+  '천연가스': ['LNG','EQT','ET','WMB'],
+  '유전서비스': ['SLB','HAL','BKR'],
+  '대형은행': ['JPM','BAC','WFC','GS','MS','C','USB','PNC','TFC','SCHW','BK'],
+  '지역은행': ['USB','PNC','TFC','MTB','RF','CFG','KEY','FITB'],
+  '투자은행': ['GS','MS','JPM','BAC','C'],
+  '보험확장': ['UNH','BRK.B','CB','ALL','PGR','HIG','ACGL','AFL','MET','PRU','MFC','AIG'],
+  '신용평가': ['SPGI','MCO','MSCI'],
+  '거래소': ['CME','ICE','CBOE','NDAQ','COIN'],
+  '제약확장': ['LLY','NVO','JNJ','PFE','ABBV','MRK','NVS','AZN','BMY','GILD','AMGN','REGN','VRTX','GSK','SNY','TAK'],
+  '의료기기': ['ISRG','MDT','BSX','SYK','BDX','EW','ABT','ALGN','PODD','DXCM'],
+  '의료유통': ['MCK','CAH','COR','WBA','HSIC'],
+  '관리의료': ['UNH','ELV','CI','CVS','MOH','HCA'],
+  '항공우주': ['BA','RTX','LMT','NOC','GD','HII','LHX','HWM','TXT','TDG','HEI'],
+  '물류확장': ['FDX','UPS','CSX','NSC','JBHT','EXPD','CHRW','CP','CNI','ODFL'],
+  '철도': ['CSX','NSC','UNP','CP','CNI'],
+  '산업자동화': ['EMR','ROK','ETN','PH','ITW','DOV','AME'],
+  '전력장비': ['ETN','PH','HUBB','GEV','VRT','PWR'],
+  'hvac': ['TT','CARR','LII','JCI','WSO'],
+  '유틸리티확장': ['NEE','SO','DUK','D','AEP','EXC','XEL','WEC','PPL','EIX','ETR','FE','AES','CMS','NI','ED','AWK','PEG','NRG'],
+  '리츠': ['PLD','AMT','EQIX','DLR','SPG','PSA','O','WELL','IRM','SBAC','EXR','AVB','ESS','MAA','VTR','KIM','ARE','WY'],
+  '데이터센터리츠': ['EQIX','DLR','IRM','AMT'],
+  '크루즈': ['CCL','RCL','NCLH'],
+  '카지노': ['LVS','MGM','CZR','WYNN'],
+  '호텔': ['HLT','MAR','BKNG','ABNB'],
+  '주택건설': ['DHI','PHM','NVR','BLDR'],
+  '필수소비': ['PG','KO','PEP','WMT','COST','CL','CHD','CLX','GIS','KDP','KR','KVUE','MO','PM','BTI','DEO','BUD','STZ'],
+  '금광': ['NEM','AEM','B','AU','GFI','WPM','FNV'],
+  '구리': ['FCX','SCCO','BHP','RIO'],
+  '화학': ['DD','PPG','IFF','EMN','CE','DOW','ALB','CTVA'],
+  '산업가스': ['LIN','APD'],
+  'it컨설팅': ['ACN','INFY','CTSH','EPAM','IT'],
+  '게임확장': ['EA','TTWO','RBLX','NTES','SONY','MTCH']
 };
+
 
 function renderScreenerResults() {
   var market = document.getElementById('scr-market').value;
@@ -12018,52 +12542,68 @@ const ANALYST_KW = [
 // 하위 호환: HIGH_KW = MACRO_KW + TECH_KW
 const HIGH_KW = [...MACRO_KW, ...TECH_KW];
 const KNOWN_TICKERS = new Set([
-  // ═══ 🇺🇸 미국 대형주 (Mega Cap / 주도주 / 대장주) ═══
-  'NVDA','AAPL','TSLA','MSFT','AMZN','GOOGL','GOOG','META','BRK.B','BRK.A',
-  'JPM','V','UNH','XOM','JNJ','WMT','PG','MA','HD','COST','ORCL','NFLX',
-  'DIS','PEP','KO','CSCO','ABT','PFE','TMO','DHR','UPS','CAT','DE','GE',
-  // ── 반도체 / AI ──
-  'AMD','AVGO','TSM','MU','INTC','QCOM','ARM','SMCI','MRVL','ANET','LRCX','AMAT','KLAC','ASML',
-  'SNPS','CDNS','ON','ADI','TXN','NXPI','SWKS','MCHP','GFS','WOLF','ACLS',
-  'COHR','LITE','GLW','CIEN','AAOI','FN','CRDO','MPWR','MTSI',
-  // ── 소프트웨어 / 클라우드 ──
-  'CRM','NOW','PLTR','CRWD','PANW','ZS','FTNT','DDOG','SNOW','MDB','NET',
-  'ADBE','WDAY','VEEV','TTD','SHOP','SQ','BILL','HUBS','TWLO','OKTA',
-  'PATH','CFLT','MNDY','ESTC','DOCN','APP','RBLX','PINS','SNAP','U','ROKU',
-  // ── 핀테크 / 금융 ──
-  'JPM','GS','MS','BLK','SCHW','C','BAC','WFC','AXP','COF','PYPL','AFRM','SOFI','NU','UPST',
-  'HOOD','ICE','CME','SPGI','MCO','MSCI','FIS','FISV',
-  // ── 방산 / 항공우주 ──
-  'LMT','RTX','NOC','GD','HII','LHX','BA','TDG','HEI','KTOS','RKLB','ASTS',
-  'LUNR','RDW','SPCE','PL','NBIS',
-  // ── 에너지 / 원자재 ──
-  'XOM','CVX','COP','OXY','SLB','HAL','BKR','MPC','VLO','PSX','FANG','DVN','PXD',
-  'NEM','VALE','GOLD','FCX','BHP','RIO','SCCO','TECK','MP',
-  // ── 바이오 / 헬스케어 ──
-  'MRK','LLY','NVO','MRNA','REGN','ABBV','GILD','BMY','AMGN','VRTX','ISRG','DXCM',
-  'ZTS','IDXX','ALNY','SGEN','BIIB','ILMN','EXAS',
-  // ── 자동차 / EV ──
-  'TSLA','RIVN','LCID','NIO','XPEV','LI','GM','F','TM','HMC','UBER','LYFT',
-  // ── 소비재 / 리테일 ──
-  'HD','MCD','NKE','SBUX','LOW','TGT','BKNG','ABNB','DASH','CPNG',
-  // ── 크립토 관련 ──
-  'COIN','MSTR','MARA','RIOT','CIFR','WULF','IREN','CRWV','CLSK','HUT','BITF',
-  // ── 양자컴퓨팅 ──
-  'IONQ','RGTI','QUBT','QBTS',
-  // ── 주요 ETF ──
-  'SPY','QQQ','DIA','IWM','RSP','VOO','VTI','ARKK','ARKG','ARKF',
-  'ITA','OIH','IGV','SOXX','SMH','HACK','ICLN','KARS','XBI','IBB',
-  'XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC',
-  'GLD','SLV','GDX','USO','UNG','TLT','HYG','LQD','IEF','SHY','EMB',
-  // ── 원자재 선물 ──
-  'BZ=F','CL=F','GC=F','SI=F','NG=F','HG=F',
-  // ── 지수 ──
-  'SPX','NDX','DJI','RUT',
-  // ── 암호화폐 ──
-  'BTC','ETH','SOL','BNB','XRP','ADA','DOGE','AVAX','DOT','LINK','MATIC','UNI',
-  // ── 기타 인기 / 밈주 ──
-  'GME','AMC','BBBY','DWAC','RDDT','SMMT','CELH','DUOL','TOST','CAVA',
-]);
+  'AAOI','AAPL','ABBV','ABNB','ABT','ACGL','ACLS','ACN','ADA','ADBE','ADI','ADP',
+  'ADSK','AEHR','AEM','AEP','AES','AFL','AFRM','AGG','AI','AIG','AIZ','AJG',
+  'AKAM','ALB','ALGN','ALL','ALLE','ALNY','AMAT','AMC','AMD','AME','AMGN','AMP',
+  'AMT','AMX','AMZN','ANET','ANSS','AON','APD','APH','APO','APP','APTV','ARE',
+  'ARES','ARGX','ARKF','ARKG','ARKK','ARM','ASML','ASTS','ATO','AU','AVAX','AVB',
+  'AVGO','AWK','AXON','AXP','AZN','AZO','B','BA','BABA','BAC','BAM','BAX',
+  'BBBY','BBVA','BBWI','BCS','BDX','BG','BHP','BIDU','BIIB','BILL','BIO','BIRD',
+  'BITF','BK','BKNG','BKR','BLDR','BLK','BMO','BMY','BN','BNB','BND','BNS',
+  'BP','BR','BRK-B','BRK.A','BRK.B','BRO','BSX','BTC','BTI','BUD','BWA','BX',
+  'BXP','BZ=F','C','CAG','CAH','CARR','CAT','CAVA','CB','CBOE','CBRE','CCEP',
+  'CCJ','CCL','CDNS','CDW','CE','CEG','CELH','CFG','CFLT','CHD','CHRW','CHTR',
+  'CI','CIEN','CIFR','CINF','CL','CL=F','CLSK','CLX','CM','CMCSA','CME','CMG',
+  'CMI','CMS','CNC','CNI','CNQ','COF','COHR','COIN','COO','COP','COR','COST',
+  'CP','CPAY','CPB','CPNG','CPRT','CPT','CRDO','CRH','CRL','CRM','CRSP','CRWD',
+  'CRWV','CSCO','CSX','CTAS','CTSH','CTVA','CVNA','CVS','CVX','CZR','D','DAL',
+  'DASH','DAY','DB','DD','DDOG','DE','DECK','DELL','DEO','DG','DGX','DHI',
+  'DHR','DIA','DIS','DJI','DLR','DLTR','DM','DNA','DOCN','DOGE','DOT','DOV',
+  'DOW','DPZ','DUK','DUOL','DVA','DVN','DWAC','DXCM','E','EA','EBAY','ECL',
+  'ED','EEM','EFA','EFX','EG','EIX','ELV','EMB','EMN','EMR','ENB','ENPH',
+  'EOG','EPAM','EPD','EQIX','EQNR','EQT','ESS','ESTC','ET','ETH','ETN','ETR',
+  'EVRG','EW','EWJ','EWY','EXAS','EXC','EXPD','EXR','F','FANG','FAST','FCX',
+  'FDS','FDX','FE','FER','FERG','FFIV','FI','FICO','FIS','FISV','FITB','FIX',
+  'FN','FNV','FOX','FOXA','FRT','FSLR','FTNT','FXI','GC=F','GD','GDDY','GDX',
+  'GE','GEHC','GEN','GEV','GFI','GFS','GILD','GIS','GL','GLD','GLW','GM',
+  'GME','GNRC','GOLD','GOOG','GOOGL','GPN','GRAB','GRMN','GS','GSK','GTLB','GWW',
+  'HACK','HAL','HCA','HD','HDB','HEI','HG=F','HIG','HII','HIMS','HLN','HLT',
+  'HMC','HOLX','HON','HOOD','HPE','HPQ','HRL','HSBC','HSIC','HSY','HUBB','HUBS',
+  'HUM','HUT','HWM','HYG','IBB','IBM','IBN','ICE','ICLN','IDXX','IEF','IEX',
+  'IFF','IGV','ILMN','IMO','INCY','INDA','INFY','ING','INTC','INTU','IONQ','IPG',
+  'IQV','IREN','IRM','ISRG','IT','ITA','ITUB','ITW','IVV','IWM','J','JBHT',
+  'JCI','JD','JNJ','JNPR','JOBY','JPM','K','KARS','KDP','KEY','KEYS','KHC',
+  'KIM','KKR','KLAC','KMI','KO','KR','KTOS','KVUE','LCID','LDOS','LHX','LI',
+  'LII','LIN','LINK','LITE','LKQ','LLY','LMT','LNG','LNT','LOW','LQD','LRCX',
+  'LULU','LUNR','LUV','LYFT','LYG','LYV','MA','MAA','MAR','MARA','MAS','MATIC',
+  'MCD','MCHP','MCK','MCO','MDB','MDLN','MDLZ','MDT','MELI','MET','META','MFC',
+  'MFG','MGM','MHK','MKTX','MMC','MMM','MNDY','MNST','MO','MOH','MP','MPC',
+  'MPLX','MPWR','MRK','MRNA','MRSH','MRVL','MS','MSCI','MSFT','MSI','MSTR','MTB',
+  'MTCH','MTD','MTSI','MU','MUFG','NBIS','NCLH','NDAQ','NDX','NEE','NEM','NET',
+  'NFLX','NG=F','NGG','NI','NIO','NKE','NOC','NOW','NRG','NSC','NTAP','NTES',
+  'NTRS','NU','NUE','NVDA','NVO','NVR','NVS','NWG','NWS','NWSA','NXPI','O',
+  'ODFL','OIH','OKE','OKLO','OKTA','ON','ONON','ORCL','ORLY','OTIS','OXY','PANW',
+  'PARA','PATH','PAYC','PAYX','PBR','PCAR','PDD','PEG','PEP','PFE','PFG','PG',
+  'PGR','PH','PHM','PINS','PKG','PL','PLBY','PLD','PLTR','PM','PNC','PODD',
+  'POOL','PPG','PPL','PRU','PSA','PSX','PTC','PWR','PXD','PYPL','QBTS','QCOM',
+  'QQQ','QUBT','RACE','RBLX','RCL','RDDT','RDW','REG','REGN','RELX','RF','RGTI',
+  'RHI','RIO','RIOT','RIVN','RKLB','RKT','RL','RMD','ROK','ROKU','ROP','ROST',
+  'RSG','RSP','RTX','RUT','RVTY','RY','SAN','SAP','SBAC','SBUX','SCCO','SCHW',
+  'SE','SGEN','SHEL','SHOP','SHW','SHY','SI=F','SLB','SLV','SMCI','SMFG','SMH',
+  'SMMT','SMR','SNA','SNAP','SNDK','SNOW','SNPS','SNY','SO','SOFI','SOL','SOLV',
+  'SONY','SOUN','SOXX','SPCE','SPG','SPGI','SPOT','SPX','SPY','SQ','SRE','STE',
+  'STLD','STT','STX','STZ','SU','SWK','SWKS','SYK','SYY','T','TAK','TCOM',
+  'TD','TDG','TEAM','TECH','TECK','TEL','TEM','TER','TFC','TFX','TGT','TIP',
+  'TJX','TKO','TLN','TLT','TM','TMO','TMUS','TOST','TPR','TRGP','TRI','TROW',
+  'TRP','TRV','TSCO','TSLA','TSM','TT','TTD','TTE','TTWO','TWLO','TXN','TXT',
+  'TYL','U','UBER','UBS','UDR','UL','UNG','UNH','UNI','UNP','UPS','UPST',
+  'URI','USB','USO','UVXY','V','VALE','VEEV','VIAV','VLO','VLTO','VOO','VRSK',
+  'VRSN','VRT','VRTX','VST','VTI','VTR','VTRS','VWO','VXX','VZ','WAB','WAT',
+  'WBA','WBD','WCN','WDAY','WDC','WEC','WELL','WFC','WM','WMB','WMT','WOLF',
+  'WPM','WRB','WRK','WSO','WST','WTW','WULF','WY','WYNN','XBI','XEL','XLB',
+  'XLC','XLE','XLF','XLI','XLK','XLP','XLRE','XLU','XLV','XLY','XOM','XPEV',
+  'XRP','XYZ','YUM','ZBRA','ZS','ZTS'
+,'ABB','ADM','AMLP','BOTZ','ES','FANUY','IIVI','JETS','LIT','NDSN','PNW','TPL','URA','XOP'],'000001.SS','BTC-USD','CIBR','DX-Y.NYB','ETH-USD','MMFD','MMFI','MMTW','^DJI','^FCHI','^FTSE','^GDAXI','^GSPC','^HSI','^IXIC','^KS11','^N225','^RUT','^TNX','^VIX');
 
 // v27.4: 한국어 기업명/영문 소문자 → 티커 매핑 (대폭 확장)
 const KR_TICKER_MAP = {
@@ -13801,7 +14341,7 @@ function extractOriginalSource(text) {
 
 // ── 텔레그램 메시지 관련성 필터 (주식/매크로/기관 리포트 선별) ────
 function isTelegramMsgRelevant(text) {
-  if (!text || text.length < 12) return false;  // v33.5: 20→12 (CJK)
+  if (!text || text.length < 12) return false;  // v33.5: 20→12 (CJK 문자는 정보밀도 높아 18자도 완전한 문장)
   const t = text.toLowerCase();
   // 스팸/광고 필터
   // v33.3: '무료' 단독→복합패턴 구체화, '가입' 단독 제거(ETF 가입 등 정당사용)
@@ -15524,6 +16064,9 @@ function applyLiveQuotes(quotes) {
       el.className = d.pct >= 0 ? 'pnl pos' : 'pnl neg';
     }
   });
+
+  // v34: 글로벌 마켓 오버뷰 신선도 타임스탬프 갱신
+  window._liveQuoteTimestamp = Date.now();
 
   // v30.11: 신선도 뱃지 갱신
   _updateFreshnessBadges();
@@ -18590,7 +19133,7 @@ const _CHAT_RULES = (function() {
   '22. 🛢️ 원자재 심화: 구리/금 비율(상승=경기 낙관/하락=경기 비관, 경기선행지표), 유가-천연가스-탄소배출권 연동성, OPEC+ 감산/증산 의사결정(사우디 재정균형유가 ~$80, 러시아 전쟁자금 필요), 콘탱고(선물>현물, 저장비용 반영, 롤오버 손실)와 백워데이션(선물<현물, 공급부족 신호) 실전 활용, 농산물 수급(작황/재고/수출 데이터, USDA 보고서).\n' +
   '23. 🪙 크립토 심화: BTC 4년 반감기 사이클(반감기 후 12~18개월 강세→이후 조정, 단 2024 반감기 후 기관ETF 유입으로 전통 패턴 변형 가능), 온체인 핵심지표(거래소 잔고 감소=HODLing 증가/고래 주소 이동=대량 매매 신호/funding rate 양수=롱 과열·음수=숏 과열/MVRV비율=시장가치÷실현가치, 3.5↑ 과열), 규제 이벤트 영향(SEC 소송/ETF 승인/CBDC 정책), DeFi 위험(스마트컨트랙트 취약성/유동성 풀 impermanent loss/프로토콜 해킹).\n' +
   '24. 💰 배당/인컴 투자 심화: 배당귀족(S&P500 내 25년+ 연속 배당 인상)과 배당킹(50년+), 배당 함정(고수익률이지만 감소 추세→주가 하락 선행 지표), 배당커버리지(EPS÷배당금, 1.5↑ 안전), 배당 성장 복합수익률(CAGR) 장기 복리 효과, Ex-dividend date 전후 주가 패턴, 리츠(FFO/AFFO 기반 밸류에이션, 금리 민감도), 커버드콜 ETF(JEPI/QYLD — 월배당 but 상승 제한).\n' +
-  '25. 🌐 지정학 리스크 & 투자: 대만해협 긴장 시 반도체 공급망 영향(TSMC 글로벌 첨단칩 90% 생산, 차질 시 세계 GDP $2.5조 손실 추정), 중동 긴장→유가 급등→인플레 재점화 경로, 미중 기술패권→반도체장비 수출규제→중국 자급자족 투자 가속, 우크라이나→에너지/곡물 공급 교란, 지정학 헤지(금/국채/방산ETF/에너지ETF/VIX콜옵션). 공급망 재편(nearshoring/friendshoring)이 만드는 투자 기회: 멕시코/인도/베트남 제조업.\n' +
+  '25. 🌐 지정학 리스크 & 투자: 대만해협 긴장 시 반도체 공급망 영향(TSMC 글로벌 첨단칩 90% 생산, 차질 시 세계 GDP $2.5조 손실 추정), 중동 긴장→유가 급등→인플레 재점화 경로(유가 $10↑ → CPI +0.3~0.4%p), 미중 기술패권→반도체장비 수출규제→중국 자급자족 투자 가속, 우크라이나→에너지/곡물 공급 교란, 지정학 헤지(금/국채/방산ETF/에너지ETF/VIX콜옵션). 공급망 재편(nearshoring/friendshoring)이 만드는 투자 기회: 멕시코/인도/베트남 제조업. 이란-이스라엘 전쟁 시 분석 체크리스트: ① 호르무즈 해협 교란 여부(글로벌 원유 수송의 20%) ② 이란 핵 프로그램 상태 ③ 트럼프의 Escalate-to-De-escalate 패턴(최대 요구 → 조정 → 합의) ④ 이란 내부 통제력(인터넷 차단/인프라 피해) ⑤ 미중 정상회담 타임라인(유효 협상 기간 ~1개월). 시장 레짐: 200일선 아래+GEX 음수 = 지정학 헤드라인에 변동성 증폭. 30년물 5%+WTI $100 = 정치적 전환점(BofA 하트넷). SLR 완화/연준 스왑라인 가동 여부가 유동성 위기 대응의 핵심 변수.\n' +
   '26. 💼 세금/제도 기초: 미국 양도세(단기<1년 일반소득세율 vs 장기>1년 0/15/20%), 배당세(적격배당 15% vs 비적격 일반세율), 세금손실수확(Tax-Loss Harvesting: 손실 종목 매도→같은 해 이익 상계→30일 후 재매수, wash sale rule 주의), 한국 해외주식 양도세(연 250만원 공제 후 22%), 한국 ISA(비과세 200~400만원+분리과세 9.9%), IRA/401k(세금이연/Roth=비과세 인출). ⚠️ 세금은 개인 상황마다 다르므로 "세무사 상담 권장" 고지 필수.\n' +
   '27. 🧠 행동재무학 상세: 프로스펙트이론(같은 금액이라도 이익보다 손실이 2.5배 크게 느껴짐→손절 못하는 이유), 매몰비용 오류(이미 투입한 비용 때문에 손절 못함→"평단가 낮추기"의 함정), 과신편향(자신의 분석력을 과대평가→과도한 레버리지/집중투자), 가용성 휴리스틱(최근 뉴스에 영향받아 확률을 왜곡→"방금 본 뉴스로 급매수"), 대표성 휴리스틱(소수 데이터로 일반화→"3번 올랐으니 또 오를 거야"), 후향적 편향("나도 알고 있었어"→학습 방해), 군집행동(FOMO+정보폭포→버블형성). 각 편향의 실전 대응법도 설명.\n' +
   '28. 🏛️ 시장구조/제도 심화: 다크풀 거래비중(미국 ~40%, 가격발견 기능 약화 우려), 공매도 데이터(Short Interest Ratio=공매도잔고÷일평균거래량, 10↑ = 숏스퀴즈 가능), naked short 규제(REG SHO), IPO 락업해제(보통 90~180일, 해제 후 매도 압력), 인덱스 편입 효과(S&P500 편입 → 패시브 펀드 강제 매수 → 단기 급등 후 안정), 자사주매입의 EPS 부풀리기(주식수 감소→EPS↑이지만 실질 이익 성장이 아닐 수 있음), SPAC 구조(공모→합병→디스팩, 합병 전 주가 패턴).\n' +
@@ -18627,8 +19170,12 @@ const _CHAT_RULES = (function() {
   '  [스트레스 테스트 시나리오] 2008 GFC(-56%), 2020 COVID(-34%), 2022 금리쇼크(-25%), 1987 블랙먼데이(-22% 하루). "당신의 포트폴리오가 이 시나리오에서 얼마를 잃는가?" 구체 금액으로 전환.\n' +
   '  [최대손실폭(MDD) 심리학] MDD -20% 경험 시 투자자 70%가 바닥에서 매도(행동재무학). MDD를 미리 시뮬레이션하면 패닉 매도 확률↓. "이 포트폴리오의 역사적 MDD는 ~%이고, 그 회복에 ~개월이 걸렸다."\n' +
   '28-6. 🔗 공급망 & 산업 밸류체인 분석:\n' +
-  '  [반도체 밸류체인] 설계(NVDA/AMD/QCOM) → EDA도구(SNPS/CDNS) → 장비(ASML/AMAT/LRCX/KLAC) → 소재(JSR/도쿄일렉트론) → 파운드리(TSM/삼성) → 패키징(ASE/Amkor) → 테스트(Teradyne/COHU) → 메모리(MU/하이닉스/삼성) → 최종제품(서버/PC/모바일)\n' +
-  '  [AI 밸류체인] GPU/TPU(NVDA/GOOG) → 네트워킹(ANET/CSCO) → 메모리/HBM(MU/하이닉스) → 전력/냉각(EATON/VRT/NUE) → 클라우드(AMZN/MSFT/GOOG) → AI 모델(OpenAI/Anthropic/Google) → AI SaaS(CRM/NOW/PLTR) → AI 에이전트/로보틱스\n' +
+  '  [반도체 밸류체인] 설계(NVDA/AMD/QCOM) → EDA도구(SNPS/CDNS) → 장비(ASML/AMAT/LRCX/KLAC) → 소재(JSR/도쿄일렉트론) → 파운드리(TSM/삼성/Intel 18A) → 패키징(ASE/Amkor/Tesla TeraFab FOPLP) → 테스트(Teradyne/COHU) → 메모리(MU/하이닉스/삼성) → HBM 적층(TSV/CoWoS) → 인터커넥트(SerDes/CPO/실리콘포토닉스) → 최종제품(서버/PC/모바일/위성)\n' +
+  '  [AI 밸류체인 확장] GPU/TPU(NVDA/GOOG) → 커스텀ASIC(AVGO/MRVL) → 네트워킹(ANET/CSCO) → 인터커넥트(NVLink/UALink/CXL) → 광모듈(COHR/LITE/CIEN/AAOI) → 메모리/HBM(MU/하이닉스)+LPDDR(QCOM AI200) → 전력/냉각(EATON/VRT/NUE) → 클라우드(AMZN/MSFT/GOOG)+GPU임대(CoreWeave) → AI 모델(OpenAI/Anthropic) → AI SaaS(CRM/NOW/PLTR) → 에이전트/로보틱스\n' +
+  '  [우주 반도체 밸류체인] 통신칩(QCOM RF) → Adaptive SoC(AMD Versal) → 우주용 FPGA(MCHP RT PolarFire) → 광통신모듈(레이저링크) → 위성 플랫폼(SpaceX/Blue Origin) → 궤도 데이터센터(100만 노드) → 지상국/안테나\n' +
+  '  [파운드리 경쟁 구도 2026] TSMC N2(밀도 313MTr, 최대 생태계) vs Intel 18A(PowerVia, 미국 본토, 외부 고객 확보 중) vs Samsung SF2(가격 공격, 테슬라 $165억 계약). 파운드리 핵심 방정식: D₀(결함밀도)→수율→원가. 더 많은 웨이퍼 = 더 빠른 BKM = 더 높은 수율의 선순환.\n' +
+  '  [Memory TCO 전쟁] HBM 독점(SK하이닉스/삼성/마이크론) 가격 폭등 → Celestial AI(Marvell 인수) 광학 CXL 메모리 풀링으로 메모리 비용 1/5 절감. NVIDIA Vera Rubin: LPDDR 54TB(CPU) + HBM4 20.7TB(GPU). "메모리 계층화"가 AI 인프라 TCO의 핵심. HBM을 없애는 게 아니라 위에 계층을 추가(L4: Photonic Memory).\n' +
+  '  [인터커넥트 병목] SerDes 224G→448G 진화 중. PAM4가 고속 인터커넥트 실질 한계(PAM6/8은 ADC 복잡도·지연 이슈). 실리콘 포토닉스/CPO가 구리의 한계를 극복하는 차세대 연결 기술. Marvell Celestial AI OMIB(광학 인터포저) = 150ns 미만 지연으로 수미터 떨어진 메모리 풀 접근.\n' +
   '  [에너지 전환 체인] 원자재(리튬/코발트/니켈/구리) → 소재(양극재/음극재/전해질/분리막) → 셀(LG엔솔/CATL/삼성SDI/SK온) → 팩(BYD/Tesla) → EV OEM → 충전인프라(ChargePoint) → 배터리 재활용(Li-Cycle/Redwood)\n' +
   '  [방산 밸류체인] 소재(특수강/티타늄) → 부품(엔진/전자장비/센서) → 플랫폼(항공기/미사일/함정) → 시스템통합(LMT/RTX/NOC/GD/한화에어로/한국항공우주) → 유지보수(MRO) → 우주(RKLB/SpaceX)\n' +
   '  [조선 밸류체인] 후판(POSCO) → 엔진(두산/MAN/바르질라) → 전자장비(항해/통신) → 조선소(HD현대/삼성중공업/한화오션) → 해운사(HMM/머스크/MSC) → 항만/물류\n' +
@@ -18664,7 +19211,43 @@ const _CHAT_RULES = (function() {
   '  • 첫 응답 시 사용자의 질문 의도를 한 문장으로 재확인: "좋은 질문이다. 핵심은 ~인데..." 또는 "많은 투자자가 이걸 궁금해한다."\n' +
   '  • 분석 중 사용자가 다음에 물어볼 만한 것을 선제적으로 언급: "아마 \'그러면 언제 사야 해?\'라는 질문이 떠오를 텐데..."\n' +
   '  • 불확실성에 솔직하되, 판단 기준은 명확하게: "아직 확신할 단계는 아니다. 하지만 {조건A}가 충족되면 확신이 70%로 올라간다."\n' +
-  '  • 마무리에 격려 또는 방향 제시: "이 분석이 당신의 다음 결정에 도움이 되길 바란다. 더 궁금한 건 아래 질문을 눌러보자."\n';
+  '  • 마무리에 격려 또는 방향 제시: "이 분석이 당신의 다음 결정에 도움이 되길 바란다. 더 궁금한 건 아래 질문을 눌러보자."\n' +
+  '\n═══ v34.1: 심화 분석 프레임워크 (2026.03 인사이트 통합) ═══\n' +
+  '34. 🔴 유동성 위기 조기 경보 시스템 — "모든 자산이 동시에 팔릴 때":\n' +
+  '  [유동성 레이어 두께 판별] GDP 대비 지준금 비율로 유동성 버퍼를 평가. 명목 수치가 아닌 GDP 대비 비율로 봐야 실질 레벨을 안다. SLR(보완적레버리지비율) 완화 여부가 유동성 숨통의 핵심 변수.\n' +
+  '  [2020년 3월 패턴 인식] 금이 팔리는 건 나빠서가 아니라 "팔 수 있기 때문". 마진콜 시 가장 유동적인 자산(금/은/국채)이 먼저 청산된다. 달러+에너지만 오르고 나머지 전부 하락 = 유동성 위기 전형 신호.\n' +
+  '  [Cross-Currency Basis Swap] 비달러 기관의 달러 조달 비용 지표. 스프레드 확대 = 글로벌 달러 유동성 경색 신호. 2020년 3월 55bp 확대 시 연준 긴급 스왑라인 가동. 현재 수치 모니터링 필수.\n' +
+  '  [HY Cash-Synthetic Basis] 실제 하이일드 채권이 CDS 파생상품보다 싸게 거래 = 강제 매도 진행 중. -100bp 이하 = 신용시장 비명. -143bp = 2년 최저. 사모펀드/사적신용 위기 선행 신호.\n' +
+  '  [사적신용(Private Credit) 리스크] 블랙스톤 BCRED 같은 대형 사적신용 펀드의 월간 손실/환매 요청 급증은 "유동성 없는 자산의 유동성 약속"이 깨지기 시작한다는 경고. 자기 돈 투입(GP commitment) = 환매 대응 현금 부족 신호. 메달리아 같은 개별 대출 78센트 평가 = 포트폴리오 전체 신뢰 균열.\n' +
+  '  [유동성 위기 5단계] ① 신용 스프레드 확대 → ② 현금 찾기 시작(유동 자산 매도) → ③ Cross-Currency Basis 확대 → ④ 금/은 급락(마진콜) → ⑤ 달러만 상승(최후의 피난처). 현재 어느 단계인지 판별하라.\n' +
+  '35. 🌍 지정학 리스크 심화 분석 — "협상의 역학과 시장 전파":\n' +
+  '  [트럼프 협상 패턴: Escalate to De-escalate] 금요일 "끝낼 수도 있다" 흘리기 → 토요일 극단적 최후통첩 → 월요일 협상 제스처로 양보 유도. 2017~18 북한, 2020 솔레이마니, 관세전쟁에서 반복. 시장은 이 패턴을 학습 중이므로 반응 폭이 점차 축소.\n' +
+  '  [이란-미국 비대칭 레버리지] 이란의 호르무즈 카드는 강력하지만, 실제 인프라 피해·내부 통제력 약화·인터넷 차단 상태를 고려하면 장기전 부담은 이란이 훨씬 큼. "호르무즈가 없으면 이란은 협상 우위 제로." 시장은 이란의 포장된 레버리지를 과대평가하는 경향.\n' +
+  '  [전쟁-유가-금리 전파 경로] 전쟁 장기화 → 유가↑ → 인플레 재점화 → 고금리 장기화 우려 → 신용시장 스트레스 → 사모펀드 부담 → 유동성 경색. 이 인과 체인의 반대 방향(휴전→유가↓→금리↓→신용 완화)도 동일한 강도로 작동. 전쟁 시나리오가 시장 방향 결정의 가장 큰 변수.\n' +
+  '  [감마 구조와 지정학] S&P 500 감마가 음수 영역(GEX-)일 때 지정학 헤드라인이 터지면 하락 가속. 양의 헤드라인에는 숏스퀴즈형 급등 → 그러나 200일선 아래라면 구조적 방향 전환 아님. "오늘의 반등이 구조적 전환인가 기술적 반등인가"를 감마 포지셔닝으로 판별.\n' +
+  '  [Bull/Bear 시나리오 체크리스트] 🟢 Bull: 전쟁 종결 + 유가 하락 + 스태그플레이션 우려 소멸 + 중앙은행 완화 지속 → FTD(Follow-Through Day) + 새로운 리더십 + 변동성 급감. 🔴 Bear: 전쟁 지속/확대 + 호르무즈 교란 + 유가 신고가 + 스태그플레이션 경성 데이터 확인 → 브레이크아웃 실패 + 시장폭 악화 + 변동성 지속 상승.\n' +
+  '36. 🔬 반도체 심화 분석 — "AI 밸류체인의 숨은 구조":\n' +
+  '  [Tesla TeraFab 전략] 테라팹의 첫 제품은 최첨단 AI GPU가 아닌 "네트워크 SoC + 패키징". 네트워크 칩은 위성당 수십 개 → 수만 기 위성 = 수십만~수백만 개 반복 수요. CAPEX 회수 기간을 3~5년에서 1~2년으로 압축하는 핵심 전략. SpaceX 내부 수요가 앵커 고객.\n' +
+  '  [우주 데이터센터 시장] SpaceX 100만 노드 분산형 데이터센터 FCC 제출, Blue Origin 51,600기 Project Sunrise. 이 시장의 핵심은 GPU가 아닌 "광통신+라우팅+연산 통합 SoC". 기존 지상 분절 구조(칩/광통신/RF 따로)에서 우주 통합 구조(단일 시스템)로 아키텍처 전환.\n' +
+  '  [Adaptive SoC Phase 전략] Phase 1(현재): 표준 미확립 → FPGA/Adaptive SoC 지배(AMD Versal). Phase 2(중기): 검증 기능 ASIC화 + 진화 기능 Adaptive 유지 혼합(TeraFab). Phase 3(확장기): 표준 확정 → ASIC 메인스트림(Broadcom/Marvell). 투자 타이밍은 "지금 어떤 Phase인가"로 판단.\n' +
+  '  [Intel 파운드리 생존 분석] 18A: RibbonFET+PowerVia 양산 시작, 그러나 외부 고객 미확보. PDK 성숙도·BKM 깊이·수율 학습 속도 = 모두 시간×물량 함수. TSMC N2 대비 밀도 열세(238 vs 313 MTr/mm²), 생태계 열세(IP 부족). 승부처는 18A-P(범용)와 14A(High-NA EUV). Apple/Nvidia I/O 다이 주문이 "go/no-go" 결정적 이벤트.\n' +
+  '  [파운드리 경제학 핵심 방정식] D₀(결함밀도) 차이 → 수율 격차 → 다이당 원가 38%+ 차이. 웨이퍼 가격 $20,000+ 시대, 수율 65% vs 90%의 경제적 격차가 산업 구조를 결정. "더 많은 웨이퍼를 돌릴수록 BKM이 빨라지고 수율이 올라가는" 선순환 vs 악순환.\n' +
+  '37. 💡 AI 순환 투자 구조 분석 — "돈의 회전목마":\n' +
+  '  [순환 투자 루프] NVIDIA → OpenAI 투자($1000억) → OpenAI가 CoreWeave에서 GPU 임대 → CoreWeave가 NVIDIA GPU 대량 구매 → NVIDIA 매출↑ → 루프 반복. AMD도 OpenAI $60억 워런트 교환. 이 구조는 자본이 계속 유입되는 동안만 작동.\n' +
+  '  [CoreWeave의 구조적 리스크] 매출 $50억 vs 부채 $213억(4배). 성장할수록 빚이 늘어나는 GPU 임대 모델. 수주잔고 $668억이지만 이행하려면 더 많은 GPU 구매 = 더 많은 부채. Meta 계약 담보로 $85억 신디케이트 대출 추진. 미래 매출로 현재 빚을 메우는 순환.\n' +
+  '  [NVIDIA 실적의 이면] 역대급 실적(연간 순이익 $1,200억)이지만, 번 돈을 AI 생태계에 전부 재투자: OpenAI $1,000억, Groq $200억, Intel $50억, Anthropic $100억, 자사주 $370억. "금고에 남은 돈이 크게 늘지 않는" 이유.\n' +
+  '  [순환 투자 깨지는 조건] ① AI 수익화(토큰 매출)가 GPU 투자비를 감당 못 하면 → 임대업체 디폴트 → GPU 수요 급감 → NVIDIA 성장 둔화. ② 금리 상승으로 레버리지 비용↑ → CoreWeave 이자 부담 → 수익성 악화. ③ 경쟁 GPU(AMD MI400, 자체 칩) 확대 → NVIDIA 독점 약화.\n' +
+  '38. 🔗 인터커넥션 시대 분석 — "연결이 가치다":\n' +
+  '  [Memory Wall 현실화] 30년 전 예언이 현실: 연산 60,000배 증가 vs 메모리 대역폭 100배 vs 인터커넥트 30배. 격차 1,000배↑. GPU 활용률 30~40% = 나머지 시간은 데이터 대기.\n' +
+  '  [인터커넥트 3대 접근] ① 속도↑: SerDes 224G→448G(공정 미세화 함수) ② 통로↑: HBM 1024bit→2048bit, 3D 적층 ③ 효율↑: PAM4(2bit/심볼)→PAM6/8(한계 근접, ADC 복잡도 기하급수↑).\n' +
+  '  [실리콘 포토닉스/CPO] 구리의 한계를 광으로 극복. 구리 최대 1m(224Gbps) vs 광 100m+. 발열·간섭 없음. 단, 전기→광→전기 변환 비용(1.5~5 pJ/bit). CPO 시장 2036년 $200억 전망. Marvell의 Celestial AI($50억 인수), Ayar Labs UCIe 광 칩렛.\n' +
+  '  [Memory TCO 전쟁] HBM 공급 부족 + 가격 폭등 → TCO 위협. Celestial AI의 광학 CXL 메모리 풀링: HBM 2스택(72GB)+DDR5 2TB로 메모리 비용 1/5 절감. NVIDIA도 Vera Rubin에 LPDDR5X 54TB 채택(HBM의 2.6배). "메모리 계층화"가 2026년 AI 인프라의 핵심 트렌드.\n' +
+  '  [Qualcomm의 숨은 전략] "모바일 AP 회사"라는 틀 깨기: ① AI200($768GB LPDDR, 기존 GPU의 4배 메모리) ② AI250 near-memory computing(실효 대역폭 10배) ③ 3D IC+DRAM 융합 ④ RF/우주통신(SpaceX 상장 시 최대 시너지). Edge-to-Cloud 생태계: 30년 LPDDR 최적화 DNA.\n' +
+  '  [NVIDIA vs 개방형 연합] 🔵 NVIDIA: NVLink 독점 + CPO 내재화 + 수직통합. 🟢 개방형: AMD/Intel/MS/Meta → UALink+CXL+이더넷 + Marvell 기술 제공. 2026년 AI 인프라 전쟁의 진짜 축은 "연결 표준의 주도권".\n' +
+  '39. ⚡ 매크로-신용 순환 분석 프레임워크:\n' +
+  '  [금리 민감도의 진짜 의미] "금리에 민감하다"의 표면 아래에 "유동성 레이어가 얇아졌다"는 본질이 있다. GDP 대비 지준금 비율 하락 = 금리 변동에 대한 시장 내성 감소. SLR 완화가 숨통 열쇠.\n' +
+  '  [금리 상승의 3가지 맛] ① Good: 성장 기대(주식↑) ② Bad: 인플레 우려(주식↓) ③ Ugly: 재정 불안/유동성 경색(모든 자산↓). "왜" 금리가 오르는지가 "얼마나" 오르는지보다 중요.\n' +
+  '  [연준 대차대조표 전망] 워시(차기 연준 의장 후보)의 "대차대조표 축소" = 명목 수치 축소가 아닌 GDP 대비 비율 관리 가능성. "GDP가 커지면 명목 B/S 유지 가능" → QT의 다른 해석.\n';
 })();
 
 const CHAT_CONTEXTS = {
@@ -25073,6 +25656,29 @@ document.addEventListener('aio:liveQuotes', function() {
   </script>
 
 <!-- ═══ GLOSSARY MODAL ═══ -->
+<!-- ═══ v34: Bloomberg-Style Keyboard Shortcuts Help Modal ═══ -->
+<div id="kbd-shortcuts-modal" onclick="if(event.target===this)closeKbdHelp()">
+  <div id="kbd-shortcuts-inner">
+    <h3>⌨ KEYBOARD SHORTCUTS</h3>
+    <div class="kbd-row"><span class="kbd-key">?</span><span class="kbd-desc">단축키 도움말 열기/닫기</span></div>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">빠른 검색 포커스</span></div>
+    <div class="kbd-row"><span class="kbd-key">ESC</span><span class="kbd-desc">모달/메뉴 닫기</span></div>
+    <div class="kbd-row"><span class="kbd-key">1</span><span class="kbd-desc">홈 (시장 현황)</span></div>
+    <div class="kbd-row"><span class="kbd-key">2</span><span class="kbd-desc">시그널</span></div>
+    <div class="kbd-row"><span class="kbd-key">3</span><span class="kbd-desc">브리핑</span></div>
+    <div class="kbd-row"><span class="kbd-key">4</span><span class="kbd-desc">매크로</span></div>
+    <div class="kbd-row"><span class="kbd-key">5</span><span class="kbd-desc">뉴스</span></div>
+    <div class="kbd-row"><span class="kbd-key">6</span><span class="kbd-desc">포트폴리오</span></div>
+    <div class="kbd-row"><span class="kbd-key">7</span><span class="kbd-desc">스크리너</span></div>
+    <div class="kbd-row"><span class="kbd-key">8</span><span class="kbd-desc">한국장</span></div>
+    <div class="kbd-row"><span class="kbd-key">G</span><span class="kbd-desc">글로벌 마켓 오버뷰 토글</span></div>
+    <div class="kbd-row"><span class="kbd-key">R</span><span class="kbd-desc">데이터 새로고침</span></div>
+    <div style="margin-top:12px;text-align:center;">
+      <button onclick="closeKbdHelp()" style="background:rgba(255,153,0,0.15);border:1px solid rgba(255,153,0,0.3);color:#ff9900;font-size:10px;padding:6px 20px;border-radius:4px;cursor:pointer;font-family:var(--font-mono);font-weight:700;">CLOSE (ESC)</button>
+    </div>
+  </div>
+</div>
+
 <div id="glossary-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);">
   <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:680px;max-height:80vh;background:#111827;border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;">
     <div style="padding:20px 24px 12px;border-bottom:1px solid rgba(255,255,255,0.08);">
@@ -25638,22 +26244,183 @@ document.querySelectorAll('.nav-item').forEach(function(n) {
   }
 })();
 
-// ═══ v27: Keyboard Navigation Enhancement ═══
+// ═══ v34: Bloomberg-Style Global Market Overview ═══════════════════════
+const GMO_MARKETS = [
+  { region: '🇺🇸 Americas', items: [
+    { sym: '^GSPC', label: 'S&P 500' },
+    { sym: '^IXIC', label: 'NASDAQ' },
+    { sym: '^DJI',  label: 'DOW 30' },
+    { sym: '^RUT',  label: 'Russell 2K' },
+    { sym: 'BTC-USD', label: 'Bitcoin' },
+    { sym: 'ETH-USD', label: 'Ethereum' },
+  ]},
+  { region: '🌍 Rates & Commodities', items: [
+    { sym: '^VIX',    label: 'VIX' },
+    { sym: '^TNX',    label: 'US 10Y' },
+    { sym: 'DX-Y.NYB', label: 'DXY' },
+    { sym: 'GC=F',   label: 'Gold' },
+    { sym: 'CL=F',   label: 'WTI Crude' },
+    { sym: 'SI=F',   label: 'Silver' },
+  ]},
+  { region: '🌏 Asia-Pacific', items: [
+    { sym: '^N225',  label: 'Nikkei 225' },
+    { sym: '^HSI',   label: 'Hang Seng' },
+    { sym: '000001.SS', label: 'Shanghai' },
+    { sym: '^KS11', label: 'KOSPI' },
+  ]},
+  { region: '🇪🇺 EMEA', items: [
+    { sym: '^GDAXI', label: 'DAX' },
+    { sym: '^FTSE',  label: 'FTSE 100' },
+    { sym: '^FCHI',  label: 'CAC 40' },
+  ]},
+];
+
+let _gmoExpanded = false;
+let _gmoPrevData = {};
+
+function toggleGmoExpand() {
+  _gmoExpanded = !_gmoExpanded;
+  const btn = document.getElementById('gmo-expand-btn');
+  if (btn) btn.textContent = _gmoExpanded ? 'COMPACT' : 'EXPAND';
+  renderGmoTable();
+}
+
+function getGmoSignal(pct) {
+  if (pct == null || isNaN(pct)) return { text: '—', cls: 'gmo-flat' };
+  if (pct > 1.5) return { text: '▲▲', cls: 'gmo-pos' };
+  if (pct > 0.3) return { text: '▲', cls: 'gmo-pos' };
+  if (pct > -0.3) return { text: '—', cls: 'gmo-flat' };
+  if (pct > -1.5) return { text: '▼', cls: 'gmo-neg' };
+  return { text: '▼▼', cls: 'gmo-neg' };
+}
+
+function renderGmoTable() {
+  const tbody = document.getElementById('gmo-tbody');
+  if (!tbody) return;
+  const ld = window._liveData || {};
+  let html = '';
+  const regions = _gmoExpanded ? GMO_MARKETS : GMO_MARKETS.slice(0, 2);
+
+  for (const group of regions) {
+    html += `<tr class="gmo-region-header"><td colspan="4">${group.region}</td></tr>`;
+    for (const item of group.items) {
+      const d = ld[item.sym];
+      const price = d && d.price != null ? d.price : null;
+      const pct = d && d.pct != null ? d.pct : null;
+      const prevPrice = _gmoPrevData[item.sym];
+      const flashCls = (prevPrice != null && price != null && prevPrice !== price) ? ' gmo-flash' : '';
+      const priceFmt = price != null
+        ? (price >= 10000 ? price.toLocaleString(undefined,{maximumFractionDigits:0}) :
+           price >= 100 ? price.toLocaleString(undefined,{maximumFractionDigits:1}) :
+           price >= 1 ? price.toFixed(2) : price.toFixed(4))
+        : '—';
+      const pctFmt = pct != null ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '—';
+      const pctCls = pct != null ? (pct >= 0 ? 'gmo-pos' : 'gmo-neg') : 'gmo-flat';
+      const sig = getGmoSignal(pct);
+      html += `<tr>
+        <td style="padding:3px 10px;" class="gmo-sym">${item.label}</td>
+        <td style="padding:3px 8px;" class="gmo-price${flashCls}">${priceFmt}</td>
+        <td style="padding:3px 8px;" class="gmo-chg ${pctCls}">${pctFmt}</td>
+        <td style="padding:3px 8px;" class="gmo-sig ${sig.cls}">${sig.text}</td>
+      </tr>`;
+      if (price != null) _gmoPrevData[item.sym] = price;
+    }
+  }
+  tbody.innerHTML = html;
+
+  // Update freshness dot
+  updateGmoFreshness();
+}
+
+function updateGmoFreshness() {
+  const dot = document.getElementById('gmo-freshness-dot');
+  const timeEl = document.getElementById('gmo-update-time');
+  if (!dot) return;
+  const ts = window._liveQuoteTimestamp;
+  if (!ts) { dot.style.background = '#7e8a9e'; return; }
+  const age = (Date.now() - ts) / 1000;
+  if (age < 15) { dot.style.background = '#3ddba5'; dot.classList.add('gmo-live'); }
+  else if (age < 60) { dot.style.background = '#fbbf24'; dot.classList.remove('gmo-live'); }
+  else if (age < 180) { dot.style.background = '#f97316'; dot.classList.remove('gmo-live'); }
+  else { dot.style.background = '#f87171'; dot.classList.remove('gmo-live'); }
+  if (timeEl) {
+    const d = new Date(ts);
+    timeEl.textContent = d.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }
+}
+
+// Initialize GMO on page load + live data events
+document.addEventListener('aio:liveQuotes', renderGmoTable);
+setTimeout(renderGmoTable, 2000);
+
+// ═══ v34: Keyboard Shortcuts Help Modal ═══════════════════════════════
+function openKbdHelp() {
+  const m = document.getElementById('kbd-shortcuts-modal');
+  if (m) m.classList.add('active');
+}
+function closeKbdHelp() {
+  const m = document.getElementById('kbd-shortcuts-modal');
+  if (m) m.classList.remove('active');
+}
+
+// ═══ v34: Enhanced Keyboard Navigation ═══════════════════════════════
 document.addEventListener('keydown', function(e) {
-  // ESC closes modals and mobile menu
+  // Don't fire shortcuts when typing in inputs
+  const tag = (e.target.tagName || '').toLowerCase();
+  const isInput = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
+
+  // ESC always works — closes modals and mobile menu
   if (e.key === 'Escape') {
+    closeKbdHelp();
     var glossary = document.getElementById('glossary-modal');
     if (glossary && glossary.style.display !== 'none') {
       glossary.style.display = 'none';
       return;
     }
     closeMobileMenu();
+    return;
   }
-  // Ctrl+K for quick search focus
+
+  // Ctrl+K for quick search focus (works even in inputs)
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
     var searchInput = document.querySelector('.search-bar input');
     if (searchInput) searchInput.focus();
+    return;
+  }
+
+  // All other shortcuts only when NOT in input
+  if (isInput) return;
+
+  // ? = show shortcuts help
+  if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+    e.preventDefault();
+    const m = document.getElementById('kbd-shortcuts-modal');
+    if (m && m.classList.contains('active')) closeKbdHelp();
+    else openKbdHelp();
+    return;
+  }
+
+  // Number keys 1-8 = page navigation
+  const pageMap = { '1':'home', '2':'signal', '3':'briefing', '4':'macro', '5':'market-news', '6':'portfolio', '7':'screener', '8':'kr-home' };
+  if (pageMap[e.key]) {
+    e.preventDefault();
+    if (typeof showPage === 'function') showPage(pageMap[e.key], null);
+    return;
+  }
+
+  // G = toggle global market overview expand
+  if (e.key === 'g' || e.key === 'G') {
+    e.preventDefault();
+    toggleGmoExpand();
+    return;
+  }
+
+  // R = refresh live data
+  if (e.key === 'r' || e.key === 'R') {
+    e.preventDefault();
+    if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes();
+    return;
   }
 });
 
