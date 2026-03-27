@@ -7645,6 +7645,23 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
         </table>
       </div>
     </div>
+
+    <!-- v34.6: kr-supply AI 수급 상담 채팅 패널 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-top:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🤖 AI 수급 분석 상담</div>
+      <div id="chat-kr-supply-msgs" style="min-height:60px;max-height:180px;overflow-y:auto;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <button onclick="chatFromChip('kr-supply','외국인 순매수 전환 신호 보여? 언제 전환될까?')" class="tb-btn" style="font-size:9px;">외국인 수급</button>
+        <button onclick="chatFromChip('kr-supply','공매도 과열 종목은 어디야? 숏커버 가능성은?')" class="tb-btn" style="font-size:9px;">공매도 분석</button>
+        <button onclick="chatFromChip('kr-supply','기관 프로그램 매매가 시장에 미치는 영향은?')" class="tb-btn" style="font-size:9px;">기관 프로그램</button>
+        <button onclick="chatFromChip('kr-supply','개인 예탁금 사상최대인데 위험 신호야?')" class="tb-btn" style="font-size:9px;">개인 심리</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input id="chat-kr-supply-inp" placeholder="수급·외국인·공매도 관련 질문을 입력하세요..." style="flex:1;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')chatSend('kr-supply')" />
+        <button id="chat-kr-supply-btn" onclick="chatSend('kr-supply')" style="background:#10b981;border:none;color:#fff;font-size:10px;font-weight:700;padding:8px 14px;border-radius:6px;cursor:pointer;">전송</button>
+      </div>
+    </div>
+
   </div><!-- /page-kr-supply -->
 
 
@@ -8055,6 +8072,22 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
 
     </div>
 
+    <!-- v34.6: kr-themes AI 테마 상담 채팅 패널 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-top:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🤖 AI 국내 테마 전략 상담</div>
+      <div id="chat-kr-themes-msgs" style="min-height:60px;max-height:180px;overflow-y:auto;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <button onclick="chatFromChip('kr-themes','K-방산 테마 지금 어느 단계야? 아직 더 오를 수 있어?')" class="tb-btn" style="font-size:9px;">방산 단계분석</button>
+        <button onclick="chatFromChip('kr-themes','2차전지 반등 시점은 언제쯤? 외국인 수급은?')" class="tb-btn" style="font-size:9px;">2차전지 전망</button>
+        <button onclick="chatFromChip('kr-themes','조선주 진입해도 될까? 밸류에이션은?')" class="tb-btn" style="font-size:9px;">조선 밸류</button>
+        <button onclick="chatFromChip('kr-themes','반도체 HBM 수출 지속될까? 삼성 vs 하이닉스?')" class="tb-btn" style="font-size:9px;">HBM 전망</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input id="chat-kr-themes-inp" placeholder="국내 테마·섹터 분석 질문을 입력하세요..." style="flex:1;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')chatSend('kr-themes')" />
+        <button id="chat-kr-themes-btn" onclick="chatSend('kr-themes')" style="background:#f59e0b;border:none;color:#000;font-size:10px;font-weight:700;padding:8px 14px;border-radius:6px;cursor:pointer;">전송</button>
+      </div>
+    </div>
+
   </div><!-- /page-kr-themes -->
 
 
@@ -8331,6 +8364,22 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
       </table>
       <div style="margin-top:10px;padding:8px 10px;background:rgba(91,168,255,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
         한국(2.50%) vs 미국(3.50~3.75%) 금리차 -1.00~1.25%p → 원/달러 환율 상향 압박. Fed 인하 시 금리차 축소 → 원화 강세 전환 기대. 일본 BOJ 긴축 전환 시 엔화 강세 → 원화에 긍정적.
+      </div>
+    </div>
+
+    <!-- v34.6: kr-macro AI 매크로 상담 채팅 패널 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-top:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🤖 AI 한국 경제 전문가 상담</div>
+      <div id="chat-kr-macro-msgs" style="min-height:60px;max-height:180px;overflow-y:auto;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <button onclick="chatFromChip('kr-macro','한은 금리 인하 언제? 부동산·주식 영향은?')" class="tb-btn" style="font-size:9px;">금리 인하 시나리오</button>
+        <button onclick="chatFromChip('kr-macro','원/달러 1,500원 돌파하면 어떤 영향이 있어?')" class="tb-btn" style="font-size:9px;">환율 영향</button>
+        <button onclick="chatFromChip('kr-macro','코리아 디스카운트 해소 가능성은?')" class="tb-btn" style="font-size:9px;">코리아 디스카운트</button>
+        <button onclick="chatFromChip('kr-macro','반도체 수출이 KOSPI에 미치는 영향 분석해줘')" class="tb-btn" style="font-size:9px;">반도체-KOSPI</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input id="chat-kr-macro-inp" placeholder="한국 경제·금리·환율 관련 질문을 입력하세요..." style="flex:1;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')chatSend('kr-macro')" />
+        <button id="chat-kr-macro-btn" onclick="chatSend('kr-macro')" style="background:#3b82f6;border:none;color:#fff;font-size:10px;font-weight:700;padding:8px 14px;border-radius:6px;cursor:pointer;">전송</button>
       </div>
     </div>
 
@@ -9796,12 +9845,40 @@ const DATA_SNAPSHOT = {
   bojRate:      0.50,
   boeRate:      4.50,
   pbocRate:     3.10,
+  // v34.6: 한국 금리·채권 강화
+  bokRate:      2.75,   bokStatus: '동결',       // 한은 기준금리 (2025.02 인하 후)
+  bokNext:     '2026-05-29',                     // 다음 금통위 일정
+  krBond3y:     2.68,   krBond10y: 2.92,         // 국고채 3년/10년 수익률
+  krCd91:       2.85,                             // CD 91일 금리
+  vkospi:      22.8,                              // 변동성지수 (VKOSPI)
 
   // ── 거시 지표 ──
   cpi:          2.4,   coreCpi:   2.5,
   ismPmi:      52.4,   ismPrice:  70.5,
   usUnemploy:   4.4,
   krUnemploy:   3.4,
+  // v34.6: 한국 거시 지표 강화
+  krCpi:        1.9,                              // 한국 CPI YoY (2025Q1)
+  krGdp:       -0.2,   krGdpYoy:  1.2,           // 한국 GDP QoQ / YoY
+  krExport:    +12.4,   krExportStreak: 16,       // 수출 증감률 YoY, 흑자 연속 개월
+  krSemiExport: +38.2,                            // 반도체 수출 증감률 YoY
+  kospiPE:      9.8,    kospiPB:   0.92,          // KOSPI PER/PBR
+  kosdaqPE:    32.5,                              // KOSDAQ PER
+  krShortSell:  4.1,                              // 공매도 비중(%)
+  krForeignNet: -2850,                            // 외국인 순매수 (억원, 최근일)
+
+  // ── 글로벌 지수 (GMO 테이블용) ──
+  nikkei:    53525,    nikkeiPct:  -0.15,
+  hangseng:  25070,    hangsengPct: +0.86,
+  shanghai:   3370,    shanghaiPct: -0.20,
+  dax:       22000,    daxPct:     -0.30,
+  ftse:       8600,    ftsePct:    -0.25,
+  cac:        7900,    cacPct:     -0.20,
+
+  // ── 크립토·추가 원자재 ──
+  btc:       68535,    btcPct:    -2.25,
+  eth:        2057,    ethPct:    -2.90,
+  silver:     69.66,   silverPct: -2.18,
 
   // ── 리스크 지표 ──
   move:       107.4,
@@ -9891,6 +9968,19 @@ function applyDataSnapshot() {
       'DX-Y.NYB': { price: S.dxy, pct: S.dxyPct },
       '^KS11': { price: S.kospi, pct: S.kospiPct },
       '^KQ11': { price: S.kosdaq, pct: S.kosdaqPct },
+      // v34.5: GMO 테이블 누락 심볼 fallback
+      '^TNX': { price: S.vix ? 4.42 : 4.42, pct: +2.03 },
+      'SI=F': { price: S.silver, pct: S.silverPct },
+      'BTC-USD': { price: S.btc, pct: S.btcPct },
+      'ETH-USD': { price: S.eth, pct: S.ethPct },
+      '^N225': { price: S.nikkei, pct: S.nikkeiPct },
+      '^HSI': { price: S.hangseng, pct: S.hangsengPct },
+      '000001.SS': { price: S.shanghai, pct: S.shanghaiPct },
+      '^GDAXI': { price: S.dax, pct: S.daxPct },
+      '^FTSE': { price: S.ftse, pct: S.ftsePct },
+      '^FCHI': { price: S.cac, pct: S.cacPct },
+      // v34.6: 한국 채권·변동성 fallback
+      'VKOSPI': { price: S.vkospi, pct: 0 },
     };
     window._liveData = window._liveData || {};
     for (const [sym, val] of Object.entries(snapSymMap)) {
@@ -10061,6 +10151,9 @@ function destroyPageCharts(pageId) {
 }
 
 function showPage(id, navEl) {
+  // v34.5: 해시 별칭 매핑 — 잘못된 해시로 진입 시 올바른 페이지로 리다이렉트
+  var _hashAlias = { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'screener', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'kr-home', 'kr-theme': 'kr-themes' };
+  if (_hashAlias[id]) id = _hashAlias[id];
   // v30.10: 이전 페이지 차트 정리 (메모리 누수 방지)
   if (typeof prevPage !== 'undefined' && prevPage && prevPage !== id) {
     destroyPageCharts(prevPage);
@@ -12560,12 +12653,16 @@ const AIO_NEWS_SOURCES = [
   {name:'SCMP',                url:'https://www.scmp.com/rss/1/feed',                             country:'cn', tier:2, flag:'🇨🇳', topics:['macro','geo']},
   {name:'Channel News Asia',   url:'https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6511', country:'sg', tier:2, flag:'🇸🇬', topics:['macro']},
 
-  // ═══ TIER 2: 🇰🇷 한국어 뉴스 (보조 — 경제 전문지만 유지) ═══
+  // ═══ TIER 1: 🇰🇷 한국어 핵심 뉴스 (v34.6: tier 1로 승격 — 한국 시장 강화) ═══
+  {name:'연합뉴스 경제',         url:'https://www.yna.co.kr/rss/economy.xml',                      country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
+  {name:'한국경제',              url:'https://www.hankyung.com/feed/finance',                       country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
+  {name:'매일경제',              url:'https://www.mk.co.kr/rss/40300001/',                         country:'kr', tier:1, flag:'🇰🇷', topics:['macro','equity']},
+
+  // ═══ TIER 2: 🇰🇷 한국어 뉴스 (보조 — 경제 전문지) ═══
   {name:'구글뉴스 금융',         url:'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko', country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'연합뉴스 경제',         url:'https://www.yna.co.kr/rss/economy.xml',                      country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'한국경제',              url:'https://www.hankyung.com/feed/finance',                       country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'매일경제',              url:'https://www.mk.co.kr/rss/40300001/',                         country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
   {name:'연합인포맥스',           url:'https://news.einfomax.co.kr/rss/S1N35.xml',                  country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
+  {name:'조선비즈',              url:'https://biz.chosun.com/rss/finance/',                        country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
+  {name:'머니투데이',            url:'https://news.mt.co.kr/rss/finance.xml',                      country:'kr', tier:2, flag:'🇰🇷', topics:['macro','equity']},
 
   // ═══ TIER 3: 유럽 ═══
   {name:'Reuters EU',          url:'https://feeds.reuters.com/reuters/UKBusinessNews/',            country:'eu', tier:3, flag:'🇪🇺', topics:['macro','energy']},
@@ -14894,6 +14991,7 @@ async function fetchAllNews(forceRefresh = false) {
 
   isFetching = true;
   _fetchStartTime = Date.now(); // v29.3: 잠김 방지 타임스탬프
+  window._homeNewsEarlyRendered = false; // v34.5: 점진 렌더링 플래그 초기화
   // v27.3: 새로고침 시 번역 캐시 클리어 (오래된 캐시가 새 뉴스에 잘못 매핑되는 것 방지)
   if (forceRefresh) {
     _translationCache.clear();
@@ -15014,6 +15112,19 @@ async function fetchAllNews(forceRefresh = false) {
       })
     );
     results.push(...batchResults);
+
+    // v34.5: 점진적 홈 뉴스 렌더링 — 배치 3개(9소스) 이후부터 홈 피드 미리 표시
+    if (done >= 9 && !window._homeNewsEarlyRendered) {
+      try {
+        const earlyItems = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
+        if (earlyItems.length >= 3) {
+          const scored = earlyItems.map(it => { const s2 = { ...it }; s2.score = scoreItem(s2); s2.topic = classifyTopic(s2); return s2; });
+          renderHomeFeed(scored);
+          window._homeNewsEarlyRendered = true;
+        }
+      } catch(e) {}
+    }
+
     // v29.3: 배치 간 1500ms 딜레이 (CF Worker 100req/분 rate limit 안전)
     if (i + BATCH_SIZE < AIO_NEWS_SOURCES.length) {
       await new Promise(r => setTimeout(r, 1500));
@@ -15128,7 +15239,7 @@ async function fetchAllNews(forceRefresh = false) {
   // v27.2: 뉴스 0건이면 홈 뉴스 섹션에 안내 메시지 표시
   if (allItems.length === 0) {
     const hn = document.getElementById('home-news-highlights');
-    if (hn) hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;grid-column:1/-1;">📰 현재 뉴스를 불러올 수 없습니다. <button onclick="fetchAllNews(true)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:9px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:6px;">↻ 다시 시도</button></div>';
+    if (hn) hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;grid-column:1/-1;">📰 현재 뉴스를 불러올 수 없습니다. <button onclick="isFetching=false;fetchAllNews(true)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:9px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:6px;">↻ 다시 시도</button></div>';
     const pl = document.getElementById('news-progress-label');
     if (pl) pl.textContent = '뉴스 소스 연결 실패 — 새로고침하거나 잠시 후 다시 시도하세요.';
   }
@@ -15143,22 +15254,23 @@ async function fetchAllNews(forceRefresh = false) {
   }
 }
 
-// v29.5: 뉴스 로딩 타임아웃 — 45초 후에도 "로딩 중" 상태면 부분 결과 표시 + 새로고침 권유
+// v34.5: 뉴스 로딩 타임아웃 — 60초로 늘리고, 이미 뉴스가 렌더된 경우 덮어쓰지 않음
 setTimeout(function() {
   var hn = document.getElementById('home-news-highlights');
-  if (hn && hn.innerHTML.indexOf('뉴스 로딩 중') !== -1) {
-    // 부분 결과 있으면 표시, 없으면 에러 메시지
-    if (newsCache && newsCache.length > 0) {
-      hn.innerHTML = '<div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius);padding:12px;margin-bottom:8px;color:var(--yellow);font-size:9px;"><span style="font-weight:600;">⚠ 일부 뉴스 소스에서 데이터를 가져오지 못했습니다.</span> 가져온 뉴스만 표시합니다. <button onclick="fetchAllNews(true)" style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:var(--yellow);font-size:8px;padding:3px 8px;border-radius:4px;cursor:pointer;margin-left:4px;font-weight:600;">↻ 다시 시도</button></div>';
-      // renderHomeFeed를 호출하여 부분 결과 렌더링
-      if (typeof renderHomeFeed === 'function') {
-        renderHomeFeed(newsCache);
-      }
+  if (!hn) return;
+  // 이미 뉴스 카드가 렌더됐으면(점진 렌더링 성공) 건드리지 않음
+  if (hn.querySelector('.news-item-card')) return;
+  // 아직 "로딩 중" 상태일 때만 처리
+  if (hn.innerHTML.indexOf('뉴스 로딩 중') !== -1 || hn.innerHTML.indexOf('로딩') !== -1) {
+    var items = window._allNewsItems || [];
+    if (items.length > 0) {
+      // 부분 결과 있으면 렌더
+      if (typeof renderHomeFeed === 'function') renderHomeFeed(items);
     } else {
-      hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;">📰 뉴스 로딩 시간 초과 (네트워크 지연). <button onclick="fetchAllNews(true)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:9px;padding:3px 9px;border-radius:4px;cursor:pointer;margin-left:6px;font-weight:600;">↻ 다시 시도</button></div>';
+      hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;">📰 뉴스 로딩 시간 초과 (네트워크 지연). <button onclick="isFetching=false;fetchAllNews(true)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:9px;padding:3px 9px;border-radius:4px;cursor:pointer;margin-left:6px;font-weight:600;">↻ 다시 시도</button></div>';
     }
   }
-}, 45000);
+}, 60000);
 
 // ── 필터 함수 ───────────────────────────────────────────────────
 
@@ -15461,7 +15573,9 @@ async function fetchLiveQuotes() {
     ['QQQ', 'AMZN', 'META', 'ARM', 'MU'],                  // 추가 주식
     ['XLV', 'XLI', 'XLY', 'XLP', 'XLRE'],                 // 섹터 ETF 2
     ['LMT', 'RTX', 'XOM', 'CVX', 'LQD'],                  // 방산·에너지
-    ['^N225', '^HSI', 'EMB', 'SHY', 'IEF'],               // 글로벌·채권
+    ['^DJI', 'BTC-USD', 'ETH-USD', 'SI=F', '000001.SS'],   // GMO 테이블 필수 심볼
+    ['^GDAXI', '^FTSE', '^FCHI', '^N225', '^HSI'],          // 글로벌 지수 (EMEA + Asia)
+    ['EMB', 'SHY', 'IEF'],                                   // 채권 ETF
     ['IONQ', 'RGTI', 'QUBT', 'LUNR', 'RDW'],              // 양자·우주
     ['AFRM', 'SOFI', 'UPST', 'PL', 'SPCE'],               // 핀테크·우주
     // ── 한국 주요 종목 (Yahoo Finance .KS/.KQ) ──
@@ -17869,18 +17983,22 @@ function _detectQueryComplexity(query, ctxId) {
   }
   // 기업분석(fundamental): 기본 Sonnet, 심층 분석은 Thinking
   if (ctxId === 'fundamental') {
-    var fundThinking = /DCF|밸류에이션.*모델|적정.*주가|내재.*가치|WACC|잔여.*이익|EV\/EBITDA.*비교|피어.*그룹|산업.*비교.*분석|sum.?of.?parts|comp.*analysis|intrinsic.*value|free.?cash.?flow.*model/;
+    var fundThinking = /DCF|밸류에이션.*모델|적정.*주가|내재.*가치|WACC|잔여.*이익|EV\/EBITDA.*비교|피어.*그룹|산업.*비교.*분석|sum.?of.?parts|comp.*analysis|intrinsic.*value|free.?cash.?flow.*model|종합.*기업.*분석|종합.*분석.*해줘|15개.*관점|심층.*분석/;
     if (fundThinking.test(q)) return 'sonnet-thinking';
-    var fundSonnet = /재무.*분석|실적.*분석|매출.*성장|이익률|부채.*비율|경쟁.*우위|해자|moat|경영진|사업.*모델|revenue|earnings|margin|competitive|valuation/;
-    if (fundSonnet.test(q)) return 'sonnet';
+    // v34.5: fundamental 컨텍스트에서 티커가 감지되면 기본적으로 sonnet 사용 (15개 관점 분석 품질 보장)
+    var hasTicker = typeof _extractTickers === 'function' && _extractTickers(query).length > 0;
+    var fundSonnet = /재무.*분석|실적.*분석|매출.*성장|이익률|부채.*비율|경쟁.*우위|해자|moat|경영진|사업.*모델|revenue|earnings|margin|competitive|valuation|분석|어때|전망|투자|알려/;
+    if (hasTicker || fundSonnet.test(q)) return 'sonnet';
     // ★ fall through to 범용 판단 (구조적 분석 포함)
   }
   // 기술적분석(technical): 전략 수립은 Sonnet, 멀티타임프레임 심층은 Thinking
   else if (ctxId === 'technical') {
     var techThinking = /멀티.*타임프레임|다중.*시간|엘리어트.*파동|피보나치.*되돌림.*정밀|와이코프|wyckoff|elliott|intermarket.*analysis|상호.*시장.*분석|divergence.*종합|다이버전스.*종합/;
     if (techThinking.test(q)) return 'sonnet-thinking';
-    var techSonnet = /진입.*시점|매수.*타이밍|손절.*설정|목표가|지지.*저항|추세.*분석|패턴.*분석|RSI|MACD|볼린저|이동평균|골든크로스|데드크로스|weinstein|stage.*분석|support|resistance|entry|stop.?loss|target/;
-    if (techSonnet.test(q)) return 'sonnet';
+    // v34.5: 티커 감지 시 기본 Sonnet (비교 분석 포함)
+    var hasTicker = typeof _extractTickers === 'function' && _extractTickers(query).length > 0;
+    var techSonnet = /진입.*시점|매수.*타이밍|손절.*설정|목표가|지지.*저항|추세.*분석|패턴.*분석|RSI|MACD|볼린저|이동평균|골든크로스|데드크로스|weinstein|stage.*분석|support|resistance|entry|stop.?loss|target|비교|vs|VS|분석|어때|전망/;
+    if (hasTicker || techSonnet.test(q)) return 'sonnet';
   }
   // 매매시그널(signal): 스코어 해석은 Sonnet, 시나리오 분석은 Thinking
   else if (ctxId === 'signal') {
@@ -18309,7 +18427,10 @@ window.addEventListener('offline', () => {
 // popstate only available outside sandboxed iframes
 // v30.14: popstate 핸들러 — 전체 9개 페이지 reinit (기존 3개만 있어서 6개 누락 수정)
 try { window.addEventListener('popstate', (e) => {
-  const id = e.state?.page || (location.hash.slice(1)) || 'home';
+  var id = e.state?.page || (location.hash.slice(1)) || 'home';
+  // v34.5: 해시 별칭 매핑
+  var _ha = { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'screener', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'kr-home', 'kr-theme': 'kr-themes' };
+  if (_ha[id]) id = _ha[id];
   // 이전 페이지 차트 정리 (메모리 누수 방지)
   if (typeof prevPage !== 'undefined' && prevPage && prevPage !== id) {
     destroyPageCharts(prevPage);
@@ -20972,7 +21093,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   // v31.3: 요청 body 구성
   var reqBody = {
     model: modelCfg.id,
-    max_tokens: modelCfg.thinking ? 16000 : 8192,
+    max_tokens: opts.maxTokens || (modelCfg.thinking ? 16000 : 12000),
     stream: true,
     system: system,
     messages: messages
@@ -21488,7 +21609,15 @@ var _DEEP_ANALYSIS_KW = [
     '경영진','CEO','리더십','leadership','내부자','insider',
     '공급망','supply chain','밸류체인','value chain',
     '핵심 역량','core competence','차별화','differentiation',
-    '종합 분석','종합분석','심층 분석','심층분석','딥다이브','deep dive','기업 분석','기업분석'
+    '종합 분석','종합분석','심층 분석','심층분석','딥다이브','deep dive','기업 분석','기업분석',
+    // v34.5: 기본 분석 요청도 15개 관점 자동 적용 — 티커 + 아래 키워드 조합 시 트리거
+    '분석해','분석 해','분석좀','분석 좀','분석하','분석 하','분석을','분석 을',
+    '알려줘','알려 줘','알려주','알려 주','설명해','설명 해','설명좀','설명 좀',
+    '어때','어떄','어떻게 생각','어떻게 봐','어떻게봐','전망','투자','매수','매도',
+    '살만','살 만','사도 될','사도될','괜찮','좋아','좋은가','어떤 회사','어떤회사',
+    'analyze','analysis','tell me','explain','overview','invest','buy','sell',
+    '리포트','report','리서치','research','조사','평가','검토','review',
+    '재무','실적','펀더멘털','fundamental','적정가','목표가','밸류','valuation'
 ];
 function _hasDeepAnalysisKw(text) {
   return _DEEP_ANALYSIS_KW.some(function(k) { return text.indexOf(k) !== -1; });
@@ -21912,9 +22041,12 @@ async function chatSend(ctxId) {
     } catch(e) { console.warn('[AIO] 기업 내부 비교 데이터 조회 실패:', e.message); }
   }
 
-  // v34.4: 단일 기업 심층 분석 — 티커 1개 + 심층 키워드 감지 시 (fundamentalSearch 미실행 상태에서도 18개 엔드포인트 데이터 제공)
+  // v34.5: 단일 기업 분석 — 티커 1개 감지 시 기본적으로 15개 관점 심층 분석 자동 적용
+  // fundamental 컨텍스트에서는 키워드 없이도 자동 트리거 (사용자가 "엔비디아 어때?" 만 해도 15개 관점 분석)
   var singleDeepStr = '';
-  if (detectedTickers.length === 1 && !deepCompareStr && _hasDeepAnalysisKw(q)) {
+  var _isFundCtx = (ctxId === 'fundamental');
+  var _shouldDeepAnalyze = detectedTickers.length === 1 && !deepCompareStr && (_isFundCtx || _hasDeepAnalysisKw(q));
+  if (_shouldDeepAnalyze) {
     var fd = window._fundAnalysisData;
     var alreadyHasData = fd && fd.ticker && fd.ticker === detectedTickers[0];
     if (!alreadyHasData && (localStorage.getItem('aio_fmp_key') || '')) {
@@ -22017,8 +22149,8 @@ async function chatSend(ctxId) {
 
       chatAppendMsg(ctxId, 'ai', '⚠️ ' + renderMarkdownLight(errMsg));
     },
-    // opts — v31.3 적응형 모델 선택
-    { modelKey: selectedModelKey }
+    // opts — v31.3 적응형 모델 선택 + v34.5 심층 분석 토큰 확장 (15개 관점 = 약 10,000~14,000 토큰 필요)
+    { modelKey: selectedModelKey, maxTokens: (singleDeepStr || deepCompareStr || _shouldDeepAnalyze) ? 16000 : undefined }
   );
 }
 
@@ -23688,7 +23820,23 @@ document.addEventListener('aio:liveQuotes', function() {
         '4. Bull/Bear 시나리오 + 깨지는 신호.\n' +
         '5. 시장 맥락은 마지막에 1~2문장: "참고로 현재 시장 스코어 {X}점, VIX {Y} — 적극 매수 환경은 아니다" 정도로 짧게.\n' +
         '⚠️ 패턴 이름만 던지고 끝내지 마라. "이 패턴이 의미하는 것"과 "당신이 할 행동"까지 풀어줘라.\n' +
-        '⚠️ 전문 용어는 분석 흐름 속에서 "이 지표가 왜 중요한지"와 함께 자연스럽게 전달할 것.\n' +
+        '⚠️ 전문 용어는 분석 흐름 속에서 "이 지표가 왜 중요한지"와 함께 자연스럽게 전달할 것.\n\n' +
+        '【v34.5: 종목 비교 분석 (기술적 관점)】\n' +
+        '사용자가 2개 이상 종목을 비교 요청하면 아래 프레임워크로 기술적 비교를 수행:\n' +
+        '1. 각 종목의 Weinstein Stage 비교 — "A는 Stage2 초입, B는 Stage3 말기" → 추세 위치 차이가 곧 타이밍 차이\n' +
+        '2. 상대강도(Relative Strength) 비교 — 같은 기간 수익률, 시장 대비 초과 수익, 섹터 내 RS 랭킹\n' +
+        '3. 이동평균 정배열 상태 비교 — 50>150>200 정배열 여부, 기울기 방향, 가격과 MA 간 이격도\n' +
+        '4. 기술적 셋업 비교 — VCP/플래그/컵핸들 등 어떤 패턴이 형성 중인지, 피봇포인트까지 거리\n' +
+        '5. 거래량 프로파일 비교 — 최근 거래량 추세(증가/감소), 기관 매집(OBV 상승) 여부\n' +
+        '6. 리스크/리워드 비교 — 각 종목의 진입가·손절가·목표가·RR비율을 나란히 제시\n' +
+        '7. 최종 판단 — "기술적으로 지금 진입하기에 더 유리한 종목은 X, 이유는..." 명확한 결론\n' +
+        '⚠️ 비교는 데이터(숫자)로 승부. "A도 좋고 B도 좋다"식 애매한 결론 금지. 차이점과 우열을 명확히 가려라.\n\n' +
+        '【v34.5: 스토리텔링 원칙 — 기술 분석도 이야기다】\n' +
+        '차트 분석은 딱딱한 지표 나열이 되기 쉽다. 그래서 더 의도적으로 서사를 만들어야 한다.\n' +
+        '• 도입: "이 종목의 차트는 지금 ___라는 이야기를 하고 있다" — 한 문장으로 차트의 메시지를 요약\n' +
+        '• 전개: 각 지표가 왜 지금 중요한지, 지표 간 어떤 관계가 있는지 인과로 연결. "RSI가 35로 과매도인데, 동시에 OBV가 상승 중이다. 이건 가격은 빠지고 있지만 누군가가 조용히 사고 있다는 뜻이다."\n' +
+        '• 핵심: 모든 판단에 "왜?"를 붙여라. "손절가 $150" → "왜 $150인가? 200SMA($148)와 최근 수축 저점($152)의 중간이기 때문"\n' +
+        '• 클로징: "그래서 당신이 지금 할 수 있는 것은..." 구체적 행동(매수/관망/손절 조정)으로 마무리\n' +
         '매매시그널(환경 점수)·시장폭(전체 건강도) 페이지 연결.' +
         _CHAT_RULES;
     }
@@ -23760,37 +23908,49 @@ document.addEventListener('aio:liveQuotes', function() {
     title: 'AI 국내 테마 전략가',
     system: function() {
       var s = _liveSnap();
+      var S = DATA_SNAPSHOT;
       var fresh = s._freshness;
-      // v34.4: 한국 대장주 실시간 시세 주입
+      // v34.6: 한국 대장주 실시간 시세 주입 (확장)
       var ld = window._liveData || {};
       var krStocks = [
-        {sym:'005930.KS',name:'삼성전자'},{sym:'000660.KS',name:'SK하이닉스'},
-        {sym:'012330.KS',name:'현대모비스'},{sym:'003670.KS',name:'포스코퓨처엠'},
-        {sym:'006400.KS',name:'삼성SDI'},{sym:'373220.KS',name:'LG에너지솔루션'},
-        {sym:'042700.KS',name:'한미반도체'}
+        {sym:'005930.KS',name:'삼성전자',theme:'반도체'},{sym:'000660.KS',name:'SK하이닉스',theme:'반도체/HBM'},
+        {sym:'373220.KS',name:'LG에너지솔루션',theme:'2차전지'},{sym:'006400.KS',name:'삼성SDI',theme:'2차전지'},
+        {sym:'012450.KS',name:'한화에어로스페이스',theme:'방산'},{sym:'042700.KS',name:'한미반도체',theme:'반도체장비'},
+        {sym:'009540.KS',name:'HD한국조선해양',theme:'조선'},{sym:'034020.KS',name:'두산에너빌리티',theme:'원전'},
+        {sym:'003670.KS',name:'포스코퓨처엠',theme:'2차전지소재'},{sym:'247540.KS',name:'에코프로비엠',theme:'2차전지소재'}
       ];
       var krDataStr = '';
       krStocks.forEach(function(k) {
         var d = ld[k.sym];
-        if (d && d.price) krDataStr += '• ' + k.name + ': ₩' + Math.round(d.price).toLocaleString() + ' (' + (d.pct>=0?'+':'') + (d.pct||0).toFixed(2) + '%)\n';
+        if (d && d.price) krDataStr += '• ' + k.name + '(' + k.theme + '): ₩' + Math.round(d.price).toLocaleString() + ' (' + (d.pct>=0?'+':'') + (d.pct||0).toFixed(2) + '%)\n';
       });
       return '당신은 한국 주식시장 테마 투자 전문가입니다. "국내 테마 분석" 페이지에서 대화하고 있습니다.\n\n' +
-        (krDataStr ? '【한국 대장주 실시간 시세】\n' + krDataStr + '\n' : '') +
-        '【국내 주요 테마 동향】\n' +
-        '• 방산: 한화에어로스페이스, 한국항공우주 — 글로벌 방산 지출 증가 + 수출 수주 확대\n' +
-        '• 반도체/HBM: 삼성전자, SK하이닉스 — AI 데이터센터 HBM 수요 폭증, NVIDIA 공급망\n' +
-        '• 조선: HD한국조선해양 — LNG선/컨테이너선 수주 호황, 선가 상승\n' +
-        '• 원전: 두산에너빌리티 — SMR(소형모듈원전) + 체코 원전 수주\n' +
-        '• 2차전지: LG에너지솔루션, 에코프로비엠 — IRA 보조금 불확실성 + 수요 둔화 리스크\n' +
-        '⚠️ 위 테마 상태는 학습 데이터 기준. 최신 수급·실적 변동을 항상 확인하라.\n\n' +
-        '수급(외국인/기관/개인), 공매도, 촉매 이벤트 관점에서 분석.\n\n' +
-        '【응답 프레임워크】\n' +
-        '1. 테마 생명주기 래더: "1단계: 정책 발표 → 2단계: 수혜주 부각 → 3단계: 과열 → 4단계: 차익실현"\n' +
-        '2. 인과 체인: 정책/이벤트 → 수혜 섹터 → 대장주 → 2차 수혜주 → 수급 변화까지.\n' +
+        '【시장 데이터 (신선도: ' + fresh + ')】\n' +
+        '• KOSPI: ' + s.kospi + ' | KOSDAQ: ' + s.kosdaq + ' | 원/달러: ' + s.krw + '\n' +
+        '• VKOSPI: ' + (S.vkospi||'—') + ' | 외국인 순매수: ' + (S.krForeignNet||'—') + '억원\n' +
+        (krDataStr ? '\n【테마별 대장주 실시간】\n' + krDataStr + '\n' : '\n') +
+        '【국내 16대 테마 현황 (⚠ 학습 데이터 기준 — 최신 수급·실적 변동 확인 필요)】\n' +
+        '🔥 HOT 테마:\n' +
+        '• 방산: 한화에어로, 한국항공우주, LIG넥스원 — 글로벌 방산 지출 증가 + K-방산 수출 수주 급증 + NATO 확대\n' +
+        '• 반도체/HBM: 삼성전자, SK하이닉스, 한미반도체 — AI 데이터센터 HBM3E/HBM4 수요 폭증, NVIDIA·TSMC 밸류체인\n' +
+        '• 조선: HD한국조선해양, 한화오션, 삼성중공업 — LNG선·컨테이너선 수주 호황, 선가 상승, 3년+ 수주잔고\n' +
+        '• 원전: 두산에너빌리티, 한전기술 — SMR(소형모듈원전) + 체코·사우디 원전 수주 + AI 전력 수요\n\n' +
+        '⚡ WARM 테마:\n' +
+        '• AI/소프트웨어: 네이버, 카카오, 더존비즈온 — AI 모델 투자 확대, 엔터프라이즈 SaaS\n' +
+        '• 바이오: 삼성바이오로직스, 셀트리온 — CDMO 수주, 바이오시밀러 글로벌 확대\n' +
+        '• K-뷰티/소비재: 아모레퍼시픽, LG생활건강 — 중국 리오프닝 기대, 북미·일본 확장\n\n' +
+        '❄️ COOL 테마:\n' +
+        '• 2차전지: LG에너지솔루션, 에코프로비엠 — IRA 보조금 불확실성 + 유럽 EV 수요 둔화 + 재고 조정\n' +
+        '• 건설/부동산: PF 리스크 지속, 금리 하락 수혜 vs 미분양 증가\n\n' +
+        '【테마 분석 프레임워크】\n' +
+        '1. 테마 생명주기 래더: "1단계: 정책·이벤트 발표 → 2단계: 수혜주 부각(대장주 급등) → 3단계: 과열(2·3차 수혜주까지 확산) → 4단계: 차익실현(대장주 먼저 조정)"\n' +
+        '2. 인과 체인: 정책/글로벌 이벤트 → 수혜 섹터 → 대장주 → 2차 수혜주 → 수급 변화. 각 단계의 시차를 명시.\n' +
         '3. 선례 매핑: "이 테마는 {과거 테마}와 패턴이 유사. 그때 대장주는 X% 상승 후 Y개월 만에 조정."\n' +
-        '4. 수급 데이터를 별도 행에 강조 배치. + 깨지는 신호 명시.\n' +
-        '5. 한국 테마 특성: 외국인 수급 방향이 대세 결정, 기관 프로그램 매매 영향 큼, 개인 과열 시 주의.\n' +
-        '미국장 대시보드(글로벌 분위기)·수급 분석 페이지 연결.\n' +
+        '4. 수급 교차검증: 외국인·기관 동행 매수 = 강한 테마 / 개인만 매수 = 과열 경고\n' +
+        '5. 깨지는 신호: 각 테마마다 "이것이 깨지면 테마 종료" 조건을 반드시 제시\n' +
+        '6. 밸류에이션 점검: 테마 과열 시 PER/PBR 역사적 밴드 대비 현재 위치\n' +
+        '7. 스토리텔링: 데이터 나열이 아닌, 테마의 "왜 지금 이 테마가 움직이는가"의 서사로 연결\n' +
+        '수급 분석·매크로·차트/기술 분석 페이지 연결.\n' +
         '글로벌: S&P ' + s.spx + ' | VIX ' + s.vix + ' | KRW ' + s.krw +
         _CHAT_RULES;
     }
@@ -23799,42 +23959,157 @@ document.addEventListener('aio:liveQuotes', function() {
     title: 'AI 한국 경제 전문가',
     system: function() {
       var s = _liveSnap();
+      var S = DATA_SNAPSHOT;
       var fresh = s._freshness;
       var ld = window._liveData || {};
-      // v34.4: KOSPI/KOSDAQ 실시간 데이터 주입
+      // v34.6: KOSPI/KOSDAQ 실시간 데이터 + 한국 매크로 동적 주입
       var kospi = ld['^KS11'] || {};
       var kosdaq = ld['^KQ11'] || {};
-      return '당신은 한국 경제·금융 전문가입니다. "한국장 홈" 페이지에서 대화하고 있습니다.\n\n' +
+      return '당신은 한국 경제·금융 전문가입니다. "한국 매크로" 페이지에서 대화하고 있습니다.\n\n' +
         '【한국 시장 실시간 데이터 (신선도: ' + fresh + ')】\n' +
-        '• KOSPI: ' + (kospi.price ? kospi.price.toFixed(2) + ' (' + (kospi.pct>=0?'+':'') + (kospi.pct||0).toFixed(2) + '%)' : '로딩중') + '\n' +
-        '• KOSDAQ: ' + (kosdaq.price ? kosdaq.price.toFixed(2) + ' (' + (kosdaq.pct>=0?'+':'') + (kosdaq.pct||0).toFixed(2) + '%)' : '로딩중') + '\n' +
-        '• 원/달러: ' + s.krw + '원\n\n' +
-        '【한국 거시경제 — ⚠️ 아래 수치는 과거 스냅샷이며 최신 발표 데이터와 다를 수 있음】\n' +
-        '• 한은 기준금리: 2.50% (학습 데이터 기준 — 최신 금통위 결과 확인 필요)\n' +
-        '• CPI: +2.1% YoY | 국고채 3Y 3.12% / 10Y 3.48% (⚠ 스냅샷 기준)\n' +
-        '• 반도체 수출: +43.9% YoY | 무역흑자 13개월 연속 (⚠ 스냅샷 기준)\n' +
-        '• KOSPI P/E: 11.2배 (코리아 디스카운트 — 한국 주식이 해외 대비 저평가되는 구조적 현상)\n' +
-        '⚠️ 금리·CPI·수출 데이터는 정기 발표 수치이므로 반드시 "학습 데이터 기준"임을 밝히고, 최신 수치가 다를 수 있음을 알릴 것.\n\n' +
+        '• KOSPI: ' + (kospi.price ? kospi.price.toFixed(2) + ' (' + (kospi.pct>=0?'+':'') + (kospi.pct||0).toFixed(2) + '%)' : s.kospi) + ' | P/E ' + (S.kospiPE||'—') + '배 | P/B ' + (S.kospiPB||'—') + '배\n' +
+        '• KOSDAQ: ' + (kosdaq.price ? kosdaq.price.toFixed(2) + ' (' + (kosdaq.pct>=0?'+':'') + (kosdaq.pct||0).toFixed(2) + '%)' : s.kosdaq) + ' | P/E ' + (S.kosdaqPE||'—') + '배\n' +
+        '• 원/달러: ' + s.krw + '원 | DXY: ' + s.dxy + '\n' +
+        '• VKOSPI(변동성): ' + (S.vkospi||'—') + '\n\n' +
+        '【한국 금리·채권 (⚠ 스냅샷 기준 — 실시간 아님)】\n' +
+        '• 한은 기준금리: ' + (S.bokRate||2.75) + '% (' + (S.bokStatus||'동결') + ') | 다음 금통위: ' + (S.bokNext||'미정') + '\n' +
+        '• 국고채 3Y: ' + (S.krBond3y||'—') + '% | 10Y: ' + (S.krBond10y||'—') + '% | 스프레드(10Y-3Y): ' + ((S.krBond10y && S.krBond3y) ? (S.krBond10y - S.krBond3y).toFixed(2) : '—') + '%p\n' +
+        '• CD 91일: ' + (S.krCd91||'—') + '% | 한미 금리차: ' + ((S.bokRate && S.fedRate) ? '한국 ' + S.bokRate + '% vs 미국 ' + S.fedRate : '—') + '\n\n' +
+        '【한국 거시경제 (⚠ 스냅샷 기준 — 발표 시점 기준값)】\n' +
+        '• CPI: +' + (S.krCpi||'—') + '% YoY | GDP: ' + (S.krGdp||'—') + '% QoQ (' + (S.krGdpYoy||'—') + '% YoY)\n' +
+        '• 수출: ' + (S.krExport>0?'+':'') + (S.krExport||'—') + '% YoY | 흑자 ' + (S.krExportStreak||'—') + '개월 연속\n' +
+        '• 반도체 수출: ' + (S.krSemiExport>0?'+':'') + (S.krSemiExport||'—') + '% YoY (한국 수출의 ~20%)\n' +
+        '• 공매도 비중: ' + (S.krShortSell||'—') + '% | 외국인 순매수: ' + (S.krForeignNet||'—') + '억원\n' +
+        '• 실업률: ' + (S.krUnemploy||'—') + '%\n' +
+        '⚠️ 금리·CPI·수출 데이터는 정기 발표 수치이므로 반드시 "스냅샷 기준"임을 밝히고, 최신 수치가 다를 수 있음을 알릴 것.\n\n' +
         '【한국 경제 = "수출로 먹고사는 나라"】\n' +
         '무역의존도가 높아서 미국·중국 경기 + 환율 + 반도체 사이클이 운명 좌우.\n' +
-        '반도체 수출↑ = 삼성·하이닉스 실적↑ = 외국인 매수↑ = KOSPI↑\n\n' +
+        '반도체 수출↑ = 삼성·하이닉스 실적↑ = 외국인 매수↑ = KOSPI↑\n' +
+        '환율 핵심 메커니즘: 한미 금리차 확대 → 달러 캐리 → 원화 약세 → 외국인 매도 → KOSPI 하방 압력\n\n' +
         '【코리아 디스카운트 구조적 요인】\n' +
-        '• 지배구조: 재벌 오너 리스크, 낮은 배당성향(KOSPI ~1.5% vs S&P ~1.4%이나 성장성 차이), 순환출자\n' +
-        '• 밸류업 프로그램: 정부 주도 기업가치 제고 정책(자사주 소각, 배당 확대 유도). 금융주·지주사 수혜 기대\n' +
+        '• 밸류에이션: KOSPI P/E ' + (S.kospiPE||'—') + '배 vs S&P500 ~21배 → 약 ' + (S.kospiPE ? Math.round((1 - S.kospiPE/21)*100) : '—') + '% 디스카운트\n' +
+        '• 지배구조: 재벌 오너 리스크, 낮은 배당성향(~1.5%), 순환출자\n' +
+        '• 밸류업 프로그램: 정부 주도 기업가치 제고(자사주 소각, 배당 확대). 금융주·지주사 수혜\n' +
         '• 북한 리스크 프리미엄: 지정학적 긴장 시 외국인 매도 가속\n' +
         '• 개선 신호: 자사주 소각 기업 증가, 배당성향 상향 추세, 지배구조 개선 입법\n\n' +
         '【응답 프레임워크】\n' +
         '1. 인과 체인: "미국 금리 동결 → DXY 강세 → 원/달러↑ → 수출기업 환차익 but 외국인 매도 → KOSPI 방향은?"\n' +
         '2. Before/After + 깨지는 신호: "한은 금리 인하 vs 동결 시 부동산·주식·채권 반응. 깨지는 신호: 반도체 수출이 YoY 마이너스 전환 시 전면 재검토."\n' +
-        '3. 시간축 대비: "다음 금통위(5.29)까지 X일. 그 사이 나올 데이터: CPI, 수출, 고용"\n' +
+        '3. 시간축 대비: "다음 금통위(' + (S.bokNext||'미정') + ')까지 X일. 그 사이 나올 데이터: CPI, 수출, 고용"\n' +
         '4. 선례 매핑: "이 환율 수준은 {과거 시기}와 유사. 그때 KOSPI는 ~"\n' +
-        '국내 테마(섹터 동향)·매크로(미국 금리-달러) 페이지 연결.\n' +
-        '글로벌: S&P ' + s.spx + ' | DXY ' + s.dxy + ' | 10Y ' + s.tnx + '%' +
+        '5. 채권-환율 연동: "국고채 10Y ' + (S.krBond10y||'—') + '% vs 미국 10Y ' + s.tnx + '% → 금리차가 환율과 자본 흐름에 미치는 영향"\n' +
+        '국내 테마(섹터 동향)·수급 분석·차트/기술 분석 페이지 연결.\n' +
+        '글로벌: S&P ' + s.spx + ' | DXY ' + s.dxy + ' | US 10Y ' + s.tnx + '% | Fed ' + (S.fedRate||'—') +
+        _CHAT_RULES;
+    }
+  };
+  // v34.6: kr-tech 차트/기술 분석 컨텍스트 추가
+  CHAT_CONTEXTS['kr-tech'] = {
+    title: 'AI 한국장 기술 분석가',
+    system: function() {
+      var s = _liveSnap();
+      var S = DATA_SNAPSHOT;
+      var fresh = s._freshness;
+      var ld = window._liveData || {};
+      var kospi = ld['^KS11'] || {};
+      var kosdaq = ld['^KQ11'] || {};
+      // 한국 대장주 실시간 시세
+      var krStocks = [
+        {sym:'005930.KS',name:'삼성전자'},{sym:'000660.KS',name:'SK하이닉스'},
+        {sym:'373220.KS',name:'LG에너지솔루션'},{sym:'012450.KS',name:'한화에어로스페이스'},
+        {sym:'009540.KS',name:'HD한국조선해양'},{sym:'042700.KS',name:'한미반도체'}
+      ];
+      var krDataStr = '';
+      krStocks.forEach(function(k) {
+        var d = ld[k.sym];
+        if (d && d.price) krDataStr += '• ' + k.name + '(' + k.sym.replace('.KS','').replace('.KQ','') + '): ₩' + Math.round(d.price).toLocaleString() + ' (' + (d.pct>=0?'+':'') + (d.pct||0).toFixed(2) + '%)\n';
+      });
+      return '당신은 한국 주식시장 기술적 분석(차트 분석) 전문가입니다. "차트·기술 분석 (KR)" 페이지에서 대화하고 있습니다.\n\n' +
+        '【한국 지수 실시간 (신선도: ' + fresh + ')】\n' +
+        '• KOSPI: ' + (kospi.price ? kospi.price.toFixed(2) + ' (' + (kospi.pct>=0?'+':'') + (kospi.pct||0).toFixed(2) + '%)' : s.kospi) + '\n' +
+        '• KOSDAQ: ' + (kosdaq.price ? kosdaq.price.toFixed(2) + ' (' + (kosdaq.pct>=0?'+':'') + (kosdaq.pct||0).toFixed(2) + '%)' : s.kosdaq) + '\n' +
+        '• VKOSPI: ' + (S.vkospi||'—') + ' | 원/달러: ' + s.krw + '\n' +
+        (krDataStr ? '\n【한국 대장주 실시간】\n' + krDataStr : '') + '\n' +
+        '【기술적 분석 프레임워크 — 한국 시장 특화】\n' +
+        '한국 시장은 외국인·기관 수급이 기술적 패턴을 압도하는 경우가 빈번. 차트 신호와 수급 신호를 반드시 교차 검증.\n\n' +
+        '1. Weinstein 단계 분석 (30주 이동평균 기준)\n' +
+        '   • Stage 1 (바닥 다지기): 30주선 평탄, 거래량 감소 → 매집 구간\n' +
+        '   • Stage 2 (상승 추세): 30주선 위에서 가격 상승, 거래량 증가 → 매수 적기\n' +
+        '   • Stage 3 (천장 형성): 30주선 평탄화, 변동성 확대 → 부분 익절 시점\n' +
+        '   • Stage 4 (하락 추세): 30주선 아래, 거래량 폭증 → 손절/관망\n\n' +
+        '2. 한국 시장 특수 고려사항\n' +
+        '   • 외국인 프로그램 매매: 선물-현물 차익거래로 장 초반/마감 급변동\n' +
+        '   • 공매도: 재개 후 공매도 비중 급증 종목은 기술적 저항 강화\n' +
+        '   • 삼성전자 비중: KOSPI의 ~20% — 삼성전자 차트가 지수 방향을 결정\n' +
+        '   • 대차잔고: 공매도 잠재 매수세 — 대차잔고 급증 후 감소 = 숏커버 랠리 가능\n' +
+        '   • 배당락일, 옵션만기일(매월 둘째 목요일), 선물만기일(3/6/9/12월) 왜곡 주의\n\n' +
+        '3. 진입 등급 시스템 (A/B/C/D/F)\n' +
+        '   A등급: Stage 2 초기 + 거래량 확인 + 수급 동행 → 적극 매수\n' +
+        '   B등급: 양호한 기술 신호 but 수급 미확인 → 소량 진입 후 추가 확인\n' +
+        '   C등급: 혼합 신호 → 관망 우선, 명확한 신호 대기\n' +
+        '   D등급: 부정적 신호 우세 → 보유 시 축소, 신규 진입 금지\n' +
+        '   F등급: Stage 4 확인 → 즉시 손절\n\n' +
+        '【응답 프레임워크】\n' +
+        '1. 먼저 Weinstein 단계를 판단하라 — "이 종목은 현재 Stage X에 해당합니다"\n' +
+        '2. 핵심 기술 지표를 확인하라 — RSI(14), MACD, 볼린저밴드, 이동평균선 배열(5/20/60/120일)\n' +
+        '3. 수급 교차검증 — "차트상으로는 X이나, 외국인 수급이 Y이므로 Z를 주의해야 합니다"\n' +
+        '4. 구체적 가격대 제시 — "지지: ₩XX,XXX(60일선) | 저항: ₩XX,XXX(전고점) | 손절: ₩XX,XXX(-5%)"\n' +
+        '5. 비교 분석 시 — 두 종목의 Weinstein 단계, 상대강도, MA 배열, 수급 흐름을 대비\n' +
+        '6. 시나리오 분기 — "상승 시나리오: ... | 하락 시나리오: ... | 깨지는 신호: ..."\n' +
+        '7. 스토리텔링 — 데이터를 나열하지 말고, "왜 이 차트가 이런 모습인지"의 서사로 연결\n\n' +
+        '글로벌: S&P ' + s.spx + ' | VIX ' + s.vix + ' | KRW ' + s.krw +
+        _CHAT_RULES;
+    }
+  };
+  // v34.6: kr-supply 수급 분석 컨텍스트 추가
+  CHAT_CONTEXTS['kr-supply'] = {
+    title: 'AI 한국 수급 분석가',
+    system: function() {
+      var s = _liveSnap();
+      var S = DATA_SNAPSHOT;
+      var fresh = s._freshness;
+      var ld = window._liveData || {};
+      var kospi = ld['^KS11'] || {};
+      return '당신은 한국 주식시장 수급 분석 전문가입니다. "수급 분석" 페이지에서 대화하고 있습니다.\n\n' +
+        '【시장 데이터 (신선도: ' + fresh + ')】\n' +
+        '• KOSPI: ' + (kospi.price ? kospi.price.toFixed(2) + ' (' + (kospi.pct>=0?'+':'') + (kospi.pct||0).toFixed(2) + '%)' : s.kospi) + '\n' +
+        '• 원/달러: ' + s.krw + '원 | DXY: ' + s.dxy + '\n' +
+        '• 외국인 순매수: ' + (S.krForeignNet||'—') + '억원 | 공매도 비중: ' + (S.krShortSell||'—') + '%\n\n' +
+        '【한국 시장 수급 구조 — 3대 주체 분석 프레임워크】\n' +
+        '한국 시장의 방향은 수급이 결정한다. 외국인·기관·개인 3대 주체의 매매 패턴을 읽는 것이 핵심.\n\n' +
+        '1. 외국인 (Foreign Investors)\n' +
+        '   • KOSPI 시가총액의 ~30% 보유 — "빅핸드"\n' +
+        '   • 환율 민감: 원화 약세 → 외국인 매도, 원화 강세 → 외국인 매수\n' +
+        '   • 프로그램 매매: 선물-현물 차익거래 (장 초반/마감 변동성 주범)\n' +
+        '   • 패턴: 순매수 5일 이상 연속 = 추세 전환 신호, 순매도 지속 = 하방 압력\n\n' +
+        '2. 기관 (Institutional)\n' +
+        '   • 연기금(국민연금 등) + 투신 + 보험 + 은행\n' +
+        '   • 연기금: 역추세 매매 (하락 시 매수, 상승 시 매도) — 시장 안전판 역할\n' +
+        '   • 투신: 펀드 설정/환매에 따른 매매 — 개인 심리와 동행\n\n' +
+        '3. 개인 (Retail)\n' +
+        '   • "동학개미" — 2020년 이후 시장 영향력 급증\n' +
+        '   • 예탁금: 개인 투자 심리 바로미터 (상승 시 예탁금↑ = 과열 주의)\n' +
+        '   • 신용잔고: 레버리지 수준 — 급락 시 반대매매 연쇄 위험\n' +
+        '   • 개인 순매수 과열 종목 = 단기 고점 경고\n\n' +
+        '4. 공매도 분석\n' +
+        '   • 2025년 재개 이후 비중 변화 모니터링\n' +
+        '   • 대차잔고 증가 = 하방 압력, 대차잔고 감소 = 숏커버 랠리 가능\n' +
+        '   • 공매도 과열 종목 지정제: 5거래일 기준 비중 → 1일 공매도 금지\n\n' +
+        '【응답 프레임워크】\n' +
+        '1. 수급 삼각형: "외국인 X + 기관 Y + 개인 Z → 종합 방향은 W"\n' +
+        '2. 수급-가격 괴리: "가격은 상승인데 외국인은 매도 → 이 괴리가 해소될 방향은?"\n' +
+        '3. 선행 신호: "선물 외국인 순매수 전환 → 현물 매수 전환 D+2~3일 선행"\n' +
+        '4. 섹터별 수급 맵: "반도체 외국인 매수 vs 2차전지 외국인 매도 → 섹터 로테이션"\n' +
+        '5. 스토리텔링: 데이터를 나열하지 말고, 수급 흐름의 "왜"를 설명하는 서사로 연결\n' +
+        '테마 분석·매크로 페이지 연결.\n' +
+        '글로벌: S&P ' + s.spx + ' | VIX ' + s.vix + ' | KRW ' + s.krw +
         _CHAT_RULES;
     }
   };
   CHAT_DEFAULT_CHIPS['kr-themes'] = ['K-방산 더 오를까?','2차전지 반등 시점은?','조선주 진입해도 될까?','반도체 수출 지속될까?'];
   CHAT_DEFAULT_CHIPS['kr-macro'] = ['한은 금리 인하 언제?','원/달러 1,500원 돌파하면?','코리아 디스카운트 해소 가능?','반도체가 KOSPI에 미치는 영향은?'];
+  CHAT_DEFAULT_CHIPS['kr-tech'] = ['삼성전자 Weinstein 단계는?','KOSPI 20일선 이탈, 조정 vs 하락?','SK하이닉스 RSI 다이버전스?','한화에어로 진입 타이밍?'];
+  CHAT_DEFAULT_CHIPS['kr-supply'] = ['외국인 순매수 전환 신호?','공매도 과열 종목은?','기관 프로그램 매매 영향?','개인 예탁금 사상최대, 위험?'];
 })();
 function filterKrThemes(btn, heat) {
   var tabBar = btn.parentElement;
