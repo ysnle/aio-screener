@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v34.9 — 올인원 투자 터미널</title>
+  <title>AIO Screener v35.5 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -596,6 +596,7 @@ h3.chat-h{font-size:14px;}h4.chat-h{font-size:12.5px;}h5.chat-h{font-size:11.5px
 .kr-theme-stat{display:flex;flex-direction:column;gap:5px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);font-size:10px;color:var(--text-muted);line-height:1.5;}
 .kr-theme-stat span{display:flex;align-items:center;gap:4px;}
 .kr-theme-catalyst{margin-top:8px;padding:8px 10px;background:rgba(99,102,241,0.06);border-left:2px solid rgba(99,102,241,0.4);border-radius:0 6px 6px 0;font-size:10px;color:var(--text-secondary);line-height:1.5;}
+.kr-theme-catalyst::after{content:" (2026.03 기준)";font-size:8px;color:var(--text-muted);font-style:italic;}
 
   
 /* ═══════════════ TACTICAL INTELLIGENCE (X-OUTSIDE style) ═══════════════ */
@@ -2013,7 +2014,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v34.9</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v35.5</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -3311,6 +3312,7 @@ body.light-theme canvas { filter:none; }
           <div style="font-size:9px;color:var(--text-muted);">점수: <span id="fg-score-val">18</span>/100</div>
           <div style="font-size:9px;color:var(--text-secondary);">등급: <span id="fg-rating-text" style="color:#dc2626;">극단 공포 (Extreme Fear)</span></div>
           <div id="fg-live-badge" style="font-size:8px;color:var(--green);margin-top:4px;font-weight:700;">● LIVE</div>
+          <div id="fg-historical-ref" style="font-size:7px;color:var(--text-muted);margin-top:2px;font-style:italic;"></div>
         </div>
       </div>
 
@@ -6040,7 +6042,7 @@ body.light-theme canvas { filter:none; }
         </div>
         <div>
           <div style="font-size:7px;color:var(--text-muted);margin-bottom:2px;">메모 (선택)</div>
-          <input id="pf-add-memo" type="text" placeholder="AI 반도체" aria-label="메모" style="width:120px;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;">
+          <input id="pf-add-memo" type="text" placeholder="매수 근거 (예: 실적 서프라이즈, 밸류에이션)" aria-label="메모" style="width:120px;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;">
         </div>
         <button class="tb-btn primary" onclick="addPortfolioPosition()" style="font-size:10px;padding:6px 14px;">추가</button>
         <button class="tb-btn" onclick="clearPortfolioForm()" style="font-size:9px;">초기화</button>
@@ -6354,6 +6356,13 @@ body.light-theme canvas { filter:none; }
       <span class="chip" onclick="filterNewsByTopic('crypto',this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">크립토</span>
     </div>
 
+    <!-- v34.9: 뉴스 유형 탭 (전체/시장/기업) -->
+    <div id="news-type-tabs" style="display:flex;gap:0;margin-bottom:10px;border-bottom:2px solid var(--border);">
+      <button class="news-type-tab active" data-type="all" onclick="setNewsTypeTab('all',this)" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--accent);border-bottom:2px solid var(--accent);margin-bottom:-2px;cursor:pointer;font-family:inherit;">전체</button>
+      <button class="news-type-tab" data-type="market" onclick="setNewsTypeTab('market',this)" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit;">📊 시장 뉴스</button>
+      <button class="news-type-tab" data-type="company" onclick="setNewsTypeTab('company',this)" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit;">🏢 기업 뉴스</button>
+    </div>
+
     <!-- 로딩 프로그레스 바 -->
     <div id="news-progress-wrap" style="display:none;margin-bottom:8px;">
       <div style="font-size:9px;color:var(--text-muted);margin-bottom:3px;" id="news-progress-label">뉴스 로딩 중...</div>
@@ -6417,7 +6426,7 @@ body.light-theme canvas { filter:none; }
       <div>
         <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">시장</div>
         <select id="scr-market" aria-label="시장 필터" onchange="renderScreenerResults()" style="width:100%;background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:6px;font-size:11px;">
-          <option value="">전체</option><option value="SP500">S&P 500</option><option value="DOW30">다우 30</option><option value="NASDAQ100">NASDAQ 100</option><option value="RUSSELL2000">Russell 2000</option>
+          <option value="">전체</option><option value="SP500">S&P 500</option><option value="DOW30">다우 30</option><option value="NASDAQ100">NASDAQ 100</option><option value="RUSSELL2000">Russell 2000</option><option value="KOSPI">KOSPI</option><option value="KOSDAQ">KOSDAQ</option>
         </select>
       </div>
       <div>
@@ -7405,7 +7414,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- ═══ 섹션 4: 오늘의 주요 이슈 ═══ -->
     <div class="data-widget" style="margin-bottom:12px;">
-      <div class="widget-title">오늘의 주요 이슈 <span class="kr-tag">KR</span></div>
+      <div class="widget-title">주요 이슈 <span style="font-size:9px;color:var(--text-muted);font-weight:400;">(스냅샷)</span> <span class="kr-tag">KR</span></div>
       <div id="kr-issues-container" style="display:flex;flex-direction:column;gap:6px;padding:4px 0;">
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.12);">
           <span style="width:8px;height:8px;border-radius:50%;background:#fbbf24;display:inline-block;flex-shrink:0;margin-top:3px;"></span>
@@ -7426,51 +7435,51 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- ═══ 섹션 5: KRX 섹터 성과 ═══ -->
+    <!-- ═══ 섹션 5: KRX 섹터 ETF 성과 (v35.5: data-live-price 바인딩) ═══ -->
     <div class="data-widget" style="margin-bottom:12px;">
-      <div class="widget-title">KRX 섹터 & 주요 ETF 성과 <span style="font-size:9px;color:var(--red);font-weight:400;">(3/23 장중 ~12:50)</span></div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
-        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
+      <div class="widget-title">KRX 섹터 & 주요 ETF 성과 <span id="kr-etf-ts" style="font-size:9px;color:var(--text-muted);font-weight:400;">(실시간)</span></div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;" id="kr-etf-grid">
+        <div class="kr-etf-card" data-live-price="091160.KS" style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 반도체</span>
-            <span style="font-size:11px;color:var(--red);font-weight:700;">-4.99%</span>
+            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div style="font-size:9px;color:var(--red);">₩98,685 · 외인 매도 충격</div>
+          <div class="kr-etf-price" style="font-size:9px;color:var(--text-muted);">로딩 중...</div>
         </div>
-        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
+        <div class="kr-etf-card" data-live-price="305720.KS" style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 2차전지</span>
-            <span style="font-size:11px;color:var(--red);font-weight:700;">-4.44%</span>
+            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div style="font-size:9px;color:var(--red);">₩15,615 · EV 약세</div>
+          <div class="kr-etf-price" style="font-size:9px;color:var(--text-muted);">로딩 중...</div>
         </div>
-        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
+        <div class="kr-etf-card" data-live-price="012450.KS" style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">방산 (한화에어로)</span>
-            <span style="font-size:11px;color:var(--red);font-weight:700;">-5.23%</span>
+            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div style="font-size:9px;color:var(--red);">₩1,251,000 · 동반 급락</div>
+          <div class="kr-etf-price" style="font-size:9px;color:var(--text-muted);">로딩 중...</div>
         </div>
-        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
+        <div class="kr-etf-card" data-live-price="329180.KS" style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;font-weight:600;color:var(--text-primary);">SOL 조선TOP3</span>
-            <span style="font-size:11px;color:var(--red);font-weight:700;">-7.30%</span>
+            <span style="font-size:11px;font-weight:600;color:var(--text-primary);">조선 (HD현대중공업)</span>
+            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div style="font-size:9px;color:var(--red);">₩33,545 · 조선주 급락</div>
+          <div class="kr-etf-price" style="font-size:9px;color:var(--text-muted);">로딩 중...</div>
         </div>
-        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
+        <div class="kr-etf-card" data-live-price="091220.KS" style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">TIGER 은행</span>
-            <span style="font-size:11px;color:var(--red);font-weight:700;">-7.11%</span>
+            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div style="font-size:9px;color:var(--red);">₩15,085 · 금융주 급락</div>
+          <div class="kr-etf-price" style="font-size:9px;color:var(--text-muted);">로딩 중...</div>
         </div>
-        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
+        <div class="kr-etf-card" data-live-price="244580.KS" style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 바이오</span>
-            <span style="font-size:11px;color:var(--red);font-weight:700;">-5.99%</span>
+            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div style="font-size:9px;color:var(--red);">₩12,555 · 방어주도 급락</div>
+          <div class="kr-etf-price" style="font-size:9px;color:var(--text-muted);">로딩 중...</div>
         </div>
       </div>
     </div>
@@ -7787,6 +7796,14 @@ body.light-theme canvas { filter:none; }
         <button class="kr-tab" onclick="filterKrThemes(this,'cool')">중립</button>
         <button class="kr-tab" onclick="filterKrThemes(this,'cold')">조정/부진</button>
       </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);">
+        <span style="font-size:9px;color:var(--text-muted);margin-right:2px;line-height:24px;">섹터:</span>
+        <button class="kr-tab kr-sector-tab active" onclick="filterKrSector(this,'all')">전체</button>
+        <button class="kr-tab kr-sector-tab" onclick="filterKrSector(this,'tech')">IT/반도체</button>
+        <button class="kr-tab kr-sector-tab" onclick="filterKrSector(this,'industry')">산업/에너지</button>
+        <button class="kr-tab kr-sector-tab" onclick="filterKrSector(this,'consumer')">소비/문화</button>
+        <button class="kr-tab kr-sector-tab" onclick="filterKrSector(this,'finance')">금융/통신</button>
+      </div>
     </div>
 
     <div class="kr-theme-grid" id="kr-theme-container">
@@ -7808,7 +7825,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="103140.KS">103140 <span class="pill-name">풍산</span> <span class="pill-pct">5%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="defense">
-          <span>주간 수익률 <b style="color:var(--red)">-12.5%</b></span>
+          <span>일간 수익률 <b style="color:var(--red)">-12.5%</b></span>
           <span>외인 수급 <b style="color:var(--red)">매도 전환</b> · 기관 <b style="color:var(--red)">차익실현</b></span>
         </div>
         <div class="kr-theme-catalyst">⚠ 이란-미국 평화 협상 → 지정학 리스크 완화 · 한화에어로 ATH 165만→139만 급락 · 수주 잔고 100조+ 실적 전환은 유효 · 풍산 탄약 수출 수혜</div>
@@ -7836,7 +7853,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="005290.KS">005290 <span class="pill-name">동진쎄미켐</span> <span class="pill-pct">3%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="semi">
-          <span>주간 수익률 <b style="color:var(--green)">+2.1%</b></span>
+          <span>일간 수익률 <b style="color:var(--green)">+2.1%</b></span>
           <span>외인 수급 <b style="color:var(--green)">매수</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
         <div class="kr-theme-catalyst">SK하이닉스 HBM3E 12H 수율 안정화 · 삼성전자 HBM4 양산 · 주성엔지 ALD 장비 수주↑ · AI CAPEX 사이클 지속</div>
@@ -7860,7 +7877,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="011200.KS">011200 <span class="pill-name">HD현대마린엔진</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="shipbuilding">
-          <span>주간 수익률 <b style="color:var(--green)">+6.1%</b></span>
+          <span>일간 수익률 <b style="color:var(--green)">+6.1%</b></span>
           <span>외인 수급 <b style="color:var(--green)">매수 우위</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
         <div class="kr-theme-catalyst">LNG/암모니아 선박 고부가 수주 · 선가 상승 사이클 · 해군 함정 수출 본격화 · 수주 잔고 역대 최고 · 한화엔진 친환경 전환</div>
@@ -7874,16 +7891,16 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-hot">HOT</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="035420.KS">035420 <span class="pill-name">NAVER</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="018260.KS">018260 <span class="pill-name">삼성SDS</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="035720.KS">035720 <span class="pill-name">카카오</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="012510.KS">012510 <span class="pill-name">더존비즈온</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035420.KS">035420 <span class="pill-name">NAVER</span> <span class="pill-pct">26%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="018260.KS">018260 <span class="pill-name">삼성SDS</span> <span class="pill-pct">21%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035720.KS">035720 <span class="pill-name">카카오</span> <span class="pill-pct">16%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="012510.KS">012510 <span class="pill-name">더존비즈온</span> <span class="pill-pct">16%</span> <span class="pill-price"></span></span>
           <span class="kr-ticker-pill" data-live-price="030520.KQ">030520 <span class="pill-name">한글과컴퓨터</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="041020.KQ">041020 <span class="pill-name">폴라리스오피스</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="041020.KQ">041020 <span class="pill-name">폴라리스오피스</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
           <span class="kr-ticker-pill" data-live-price="304100.KQ">304100 <span class="pill-name">솔트룩스</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="ai-sw">
-          <span>주간 수익률 <b style="color:var(--green)">+7.2%</b></span>
+          <span>일간 수익률 <b style="color:var(--green)">+7.2%</b></span>
           <span>외인 수급 <b style="color:var(--green)">강매수</b> · 기관 <b style="color:var(--text-muted)">중립</b></span>
         </div>
         <div class="kr-theme-catalyst">NAVER HyperCLOVA X Agent · 삼성SDS AI플랫폼 Brity · 더존비즈온 AI ERP · 폴라리스오피스 글로벌 확산 · 솔트룩스 한국형LLM</div>
@@ -7907,7 +7924,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="033100.KS">033100 <span class="pill-name">제룡전기</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="power-grid">
-          <span>주간 수익률 <b style="color:var(--green)">+5.8%</b></span>
+          <span>일간 수익률 <b style="color:var(--green)">+5.8%</b></span>
           <span>외인 수급 <b style="color:var(--green)">매수</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
         <div class="kr-theme-catalyst">AI 데이터센터 전력 수요 급증 · 미국 그리드 노후화 교체 수요 · 중동·동남아 변압기 수출 호조 · 가온전선 초고압 케이블 수주</div>
@@ -7929,7 +7946,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="083650.KS">083650 <span class="pill-name">비에이치아이</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="nuclear">
-          <span>주간 수익률 <b style="color:var(--green)">+5.2%</b></span>
+          <span>일간 수익률 <b style="color:var(--green)">+5.2%</b></span>
           <span>외인 수급 <b style="color:var(--green)">매수</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
         <div class="kr-theme-catalyst">체코 원전 수주 후속 · 두산에너빌리티 SMR 전용 공장 · 현대건설 원전 시공 수주 · 미국 원전 신규 건설 법안 통과</div>
@@ -7954,7 +7971,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="086520.KQ">086520 <span class="pill-name">에코프로</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="battery">
-          <span>주간 수익률 <b style="color:var(--red)">-3.2%</b></span>
+          <span>일간 수익률 <b style="color:var(--red)">-3.2%</b></span>
           <span>외인 수급 <b style="color:var(--red)">매도 우위</b> · 기관 <b style="color:var(--red)">매도</b></span>
         </div>
         <div class="kr-theme-catalyst">글로벌 EV 성장 둔화 · 중국 CATL 가격 경쟁 · 전고체 전환기 불확실성 · IRA 보조금 축소 · 엘앤에프/포스코퓨처엠 실적 부진</div>
@@ -7978,7 +7995,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="326030.KS">326030 <span class="pill-name">SK바이오팜</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="bio">
-          <span>주간 수익률 <b style="color:var(--text-muted)">-0.8%</b></span>
+          <span>일간 수익률 <b style="color:var(--text-muted)">-0.8%</b></span>
           <span>외인 수급 <b style="color:var(--red)">매도 우위</b> · 기관 <b style="color:var(--text-muted)">중립</b></span>
         </div>
         <div class="kr-theme-catalyst">알테오젠 SC 기술 글로벌 수출 · 삼성바이오 CDMO 4공장 · 셀트리온 미국 점유율 확대 · 한미약품 GLP-1 비만치료제 · HLB 항암 파이프라인</div>
@@ -8002,7 +8019,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="950130.KQ">950130 <span class="pill-name">엘앤피코스메틱</span> <span class="pill-pct">9%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="kbeauty">
-          <span>주간 수익률 <b style="color:var(--green)">+3.4%</b></span>
+          <span>일간 수익률 <b style="color:var(--green)">+3.4%</b></span>
           <span>외인 수급 <b style="color:var(--green)">소폭 매수</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
         <div class="kr-theme-catalyst">미국·인도·일본 K-뷰티 확장 · 코스맥스 ODM 수주 역대 · APR 북미 고성장 · 실리콘투 글로벌 유통 · 클리오 세포라 입점</div>
@@ -8027,7 +8044,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="112040.KQ">112040 <span class="pill-name">위메이드</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="kcontent">
-          <span>주간 수익률 <b style="color:var(--red)">-2.1%</b></span>
+          <span>일간 수익률 <b style="color:var(--red)">-2.1%</b></span>
           <span>외인 수급 <b style="color:var(--text-muted)">중립</b> · 기관 <b style="color:var(--red)">매도</b></span>
         </div>
         <div class="kr-theme-catalyst">하이브 내부 리스크 · K-POP 앨범 둔화 · 크래프톤 배그 인디아 성장 · 스튜디오드래곤 K-드라마 글로벌 · CJ ENM OTT 재편</div>
@@ -8050,7 +8067,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="018880.KS">018880 <span class="pill-name">한온시스템</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="auto">
-          <span>주간 수익률 <b style="color:var(--text-muted)">+0.6%</b></span>
+          <span>일간 수익률 <b style="color:var(--text-muted)">+0.6%</b></span>
           <span>외인 수급 <b style="color:var(--text-muted)">중립</b> · 기관 <b style="color:var(--text-muted)">중립</b></span>
         </div>
         <div class="kr-theme-catalyst">현대차 EV 라인업 확대 · 기아 EV3 유럽 호조 · SDV 전환 투자 · 현대글로비스 물류 확장 · HL만도 ADAS L3 수주</div>
@@ -8072,7 +8089,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="056080.KQ">056080 <span class="pill-name">유진로봇</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="robot">
-          <span>주간 수익률 <b style="color:var(--green)">+9.1%</b></span>
+          <span>일간 수익률 <b style="color:var(--green)">+9.1%</b></span>
           <span>외인 수급 <b style="color:var(--green)">강매수</b> · 기관 <b style="color:var(--green)">매수</b></span>
         </div>
         <div class="kr-theme-catalyst">두산로보틱스 IPO 후 급등 · 현대차 보스턴다이내믹스 상용화 · 레인보우 양팔로봇 · 삼성전자 휴머노이드 프로젝트</div>
@@ -8095,7 +8112,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="032830.KS">032830 <span class="pill-name">삼성생명</span> <span class="pill-pct">11%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="finance">
-          <span>주간 수익률 <b style="color:var(--green)">+1.2%</b></span>
+          <span>일간 수익률 <b style="color:var(--green)">+1.2%</b></span>
           <span>외인 수급 <b style="color:var(--text-muted)">중립</b> · 기관 <b style="color:var(--green)">소폭 매수</b></span>
         </div>
         <div class="kr-theme-catalyst">밸류업 프로그램 지속 · 배당 확대 · PBR 저평가 매력 · 메리츠 ROE 업계 1위 · 금리 인하 기대</div>
@@ -8118,7 +8135,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="000080.KS">000080 <span class="pill-name">하이트진로</span> <span class="pill-pct">9%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="kfood">
-          <span>주간 수익률 <b style="color:var(--green)">+2.4%</b></span>
+          <span>일간 수익률 <b style="color:var(--green)">+2.4%</b></span>
           <span>외인 수급 <b style="color:var(--green)">소폭 매수</b> · 기관 <b style="color:var(--text-muted)">중립</b></span>
         </div>
         <div class="kr-theme-catalyst">삼양식품 불닭 글로벌 폭증 · K-푸드 수출 역대 최고 · 농심 미국 공장 증설 · CJ제일제당 비비고 미국 확장 · 빙그레 메로나 해외</div>
@@ -8138,7 +8155,7 @@ body.light-theme canvas { filter:none; }
           <span class="kr-ticker-pill" data-live-price="094480.KQ">094480 <span class="pill-name">갤럭시아머니트리</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="crypto">
-          <span>주간 수익률 <b style="color:var(--text-muted)">-1.4%</b></span>
+          <span>일간 수익률 <b style="color:var(--text-muted)">-1.4%</b></span>
           <span>외인 수급 <b style="color:var(--red)">매도 우위</b> · 기관 <b style="color:var(--text-muted)">중립</b></span>
         </div>
         <div class="kr-theme-catalyst">BTC 가격 연동 · 두나무(업비트) 거래량 회복 · 가상자산 과세 유예 종료 대비 · 카카오 Klaytn 생태계</div>
@@ -8152,17 +8169,16 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-cool">중립</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="017670.KS">017670 <span class="pill-name">SK텔레콤</span> <span class="pill-pct">30%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="030200.KS">030200 <span class="pill-name">KT</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="032640.KS">032640 <span class="pill-name">LG유플러스</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="018260.KS">018260 <span class="pill-name">삼성SDS</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="066570.KS">066570 <span class="pill-name">LG전자</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="017670.KS">017670 <span class="pill-name">SK텔레콤</span> <span class="pill-pct">32%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="030200.KS">030200 <span class="pill-name">KT</span> <span class="pill-pct">28%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="032640.KS">032640 <span class="pill-name">LG유플러스</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="018260.KS">018260 <span class="pill-name">삼성SDS</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="telecom">
-          <span>주간 수익률 <b style="color:var(--text-muted)">+0.3%</b></span>
+          <span>일간 수익률 <b style="color:var(--text-muted)">+0.3%</b></span>
           <span>외인 수급 <b style="color:var(--text-muted)">중립</b> · 기관 <b style="color:var(--green)">소폭 매수</b></span>
         </div>
-        <div class="kr-theme-catalyst">SK텔레콤 AI 데이터센터 확장 · KT 클라우드/AI 분사 · 6G 표준화 선점 · 삼성SDS AI 플랫폼 Brity · LG전자 전장 사업 성장</div>
+        <div class="kr-theme-catalyst">SK텔레콤 AI 데이터센터 확장 · KT 클라우드/AI 분사 · 6G 표준화 선점 · 삼성SDS AI 플랫폼 Brity · LG유플러스 IDC 투자</div>
       </div>
 
     </div>
@@ -8210,7 +8226,7 @@ body.light-theme canvas { filter:none; }
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">현재 기준금리</div>
-          <div style="font-size:28px;font-weight:800;color:var(--yellow);font-family:var(--font-mono);margin-bottom:4px;" data-snap="bok-rate">2.75%</div>
+          <div style="font-size:28px;font-weight:800;color:var(--yellow);font-family:var(--font-mono);margin-bottom:4px;" data-snap="bok-rate">2.50%</div>
           <div style="font-size:9px;color:var(--text-muted);">2024년 1월: 3.50%</div>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
@@ -8450,8 +8466,8 @@ body.light-theme canvas { filter:none; }
       <div class="widget-title">글로벌 비교 — 한국 vs 주요국</div>
       <table class="kr-flow-table">
         <tr><th>지표</th><th>한국</th><th>미국</th><th>일본</th><th>중국</th></tr>
-        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">2.75%</td><td data-snap="fed-rate">3.50-3.75</td><td>0.50%</td><td>3.10%</td></tr>
-        <tr><td>CPI (YoY)</td><td data-snap="kr-cpi">1.9%</td><td data-snap="cpi">2.4%</td><td>+3.7%</td><td>-0.7%</td></tr>
+        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">2.50%</td><td data-snap="fed-rate">3.50-3.75</td><td>0.50%</td><td>3.10%</td></tr>
+        <tr><td>CPI (YoY)</td><td data-snap="kr-cpi">2.0%</td><td data-snap="cpi">2.4%</td><td>+3.7%</td><td>-0.7%</td></tr>
         <tr><td>GDP 성장률</td><td style="color:var(--red);" data-snap="kr-gdp">-0.2%</td><td style="color:var(--green);">+2.3% YoY</td><td>+0.6%</td><td>+5.4%</td></tr>
         <tr><td>환율 (vs USD)</td><td style="color:var(--red);" data-snap="krw">1,506</td><td>-</td><td>149.2</td><td>7.24</td></tr>
         <tr><td>10Y 국채</td><td data-snap="kr-bond-10y">2.92%</td><td>4.41%</td><td>1.52%</td><td>1.82%</td></tr>
@@ -8506,7 +8522,7 @@ body.light-theme canvas { filter:none; }
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">📈 TradingView 한국 종목 차트</div>
       <div style="display:flex;gap:6px;">
-        <input id="tv-kr-sym" value="005930" placeholder="종목코드" style="width:90px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" />
+        <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" style="width:120px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" onkeydown="if(event.key==='Enter')loadTVChart('kr')" />
         <button onclick="loadTVChart('kr')" class="tb-btn" style="font-size:10px;">차트 로드</button>
       </div>
     </div>
@@ -9900,7 +9916,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v34.9';
+const APP_VERSION = 'v35.5';
 
 // v34.5: 프로덕션 로그 억제 — console.log만 조건부 억제, warn/error는 유지
 // URL에 ?debug=1 추가 시 전체 로그 활성화 (개발 모드)
@@ -9954,7 +9970,7 @@ const DATA_SNAPSHOT = {
   boeRate:      4.50,
   pbocRate:     3.10,
   // v34.6: 한국 금리·채권 강화
-  bokRate:      2.75,   bokStatus: '동결',       // 한은 기준금리 (2025.02 인하 후)
+  bokRate:      2.50,   bokStatus: '동결',       // 한은 기준금리 (2025.05 인하 후 2.50% → 2026.02까지 6연속 동결)
   bokNext:     '2026-05-29',                     // 다음 금통위 일정
   krBond3y:     2.68,   krBond10y: 2.92,         // 국고채 3년/10년 수익률
   krCd91:       2.85,                             // CD 91일 금리
@@ -9966,7 +9982,7 @@ const DATA_SNAPSHOT = {
   usUnemploy:   4.4,
   krUnemploy:   3.4,
   // v34.6: 한국 거시 지표 강화
-  krCpi:        1.9,                              // 한국 CPI YoY (2025Q1)
+  krCpi:        2.0,                              // 한국 CPI YoY (2026.02 기준)
   krGdp:       -0.2,   krGdpYoy:  1.2,           // 한국 GDP QoQ / YoY
   krExport:    +12.4,   krExportStreak: 16,       // 수출 증감률 YoY, 흑자 연속 개월
   krSemiExport: +38.2,                            // 반도체 수출 증감률 YoY
@@ -10754,6 +10770,7 @@ var SCREENER_DB = [
   { sym:'HCA', name:'HCA Healthcare', sector:'Healthcare', signal:'HOLD', memo:'병원 체인 · 높은 마진 · 구매 자산', mcap:72, rsi:52, index:'SP500' },
   { sym:'ROP', name:'Roper Technologies', sector:'Industrials', signal:'BUY', memo:'산업용 소프트웨어 · 높은 배당 · M&A 전략', mcap:75, rsi:56, index:'SP500' },
   { sym:'DHR', name:'Danaher', sector:'Industrials', signal:'BUY', memo:'과학 장비 · Life Sciences · 배당', mcap:195, rsi:54, index:'SP500' },
+  { sym:'A', name:'Avantor', sector:'Healthcare', signal:'HOLD', memo:'생명과학 장비·시약·소모품 · 연구용 화학제품', mcap:18, rsi:45, index:'SP500' },
   { sym:'CMG', name:'Chipotle Mexican Grill', sector:'Consumer', signal:'HOLD', memo:'멕시코 음식 · 위생 기준 · 성장 정체', mcap:75, rsi:50, index:'SP500' },
   { sym:'CARR', name:'Carrier Global', sector:'Industrials', signal:'HOLD', memo:'냉난방 · 건설 수혜 · 배당', mcap:62, rsi:54, index:'SP500' },
   { sym:'MNST', name:'Monster Beverage', sector:'Consumer Defensive', signal:'BUY', memo:'에너지 음료 · 고성장 · 해외 확장', mcap:52, rsi:52, index:'SP500' },
@@ -11208,6 +11225,85 @@ var SCREENER_DB = [
   { sym:'BITO', name:'ProShares Bitcoin Strategy ETF', sector:'ETF', signal:'HOLD', memo:'비트코인 선물 ETF · 최초 승인', mcap:0, rsi:50, index:'ETF' },
   { sym:'QBTS', name:'D-Wave Quantum', sector:'Technology', signal:'WATCH', memo:'양자컴퓨터 상용화 선두 · 어닐링 방식', mcap:2, rsi:58, index:'NYSE' },
   { sym:'UMC', name:'United Microelectronics', sector:'Technology', signal:'HOLD', memo:'대만 파운드리 · 성숙 공정 특화 · TSMC 대안', mcap:18, rsi:45, index:'ADR' },
+
+  // ═══ v35.5: 한국 KOSPI/KOSDAQ 주요 종목 (KR_THEME_MAP 기반 top 50) ═══
+  // 🔴 반도체 (semi)
+  { sym:'005930.KS', name:'삼성전자', sector:'Technology', signal:'HOLD', memo:'HBM4 양산 · 파운드리 수율 개선 · AI 메모리 수혜', mcap:350, rsi:45, index:'KOSPI' },
+  { sym:'000660.KS', name:'SK하이닉스', sector:'Technology', signal:'BUY', memo:'HBM3E 12H 수율 안정화 · AI CAPEX 사이클 지속', mcap:120, rsi:52, index:'KOSPI' },
+  { sym:'042700.KQ', name:'한미반도체', sector:'Technology', signal:'BUY', memo:'HBM TC 본더 독점 · AI 반도체 후공정 수혜', mcap:8, rsi:55, index:'KOSDAQ' },
+  { sym:'009150.KS', name:'삼성전기', sector:'Technology', signal:'HOLD', memo:'MLCC · AI 서버용 고용량 전환 · 전장 비중 확대', mcap:10, rsi:48, index:'KOSPI' },
+  { sym:'402340.KS', name:'SK스퀘어', sector:'Technology', signal:'HOLD', memo:'SK하이닉스 지분 보유 · AI 투자 밸류체인', mcap:10, rsi:50, index:'KOSPI' },
+
+  // 🛡 K-방산 (defense)
+  { sym:'012450.KS', name:'한화에어로스페이스', sector:'Industrials', signal:'BUY', memo:'수주 잔고 100조+ · NATO 추가 수주 · 글로벌 방산 대장', mcap:45, rsi:60, index:'KOSPI' },
+  { sym:'047810.KS', name:'한국항공우주(KAI)', sector:'Industrials', signal:'BUY', memo:'경공격기 FA-50 수출 · KF-21 양산 · 방산 수출 확대', mcap:12, rsi:55, index:'KOSPI' },
+  { sym:'079550.KS', name:'LIG넥스원', sector:'Industrials', signal:'BUY', memo:'미사일/유도무기 · 중동 수출 급증 · 국방비 증가 수혜', mcap:8, rsi:52, index:'KOSPI' },
+  { sym:'064350.KS', name:'현대로템', sector:'Industrials', signal:'BUY', memo:'K2 전차 · 폴란드 수출 · 철도·방산 이중 수혜', mcap:6, rsi:50, index:'KOSPI' },
+
+  // 🚢 조선 (shipbuilding)
+  { sym:'042660.KS', name:'한화오션', sector:'Industrials', signal:'BUY', memo:'LNG선 고부가 수주 · 선가 상승 사이클 · 수주 잔고 역대', mcap:15, rsi:55, index:'KOSPI' },
+  { sym:'329180.KS', name:'HD현대중공업', sector:'Industrials', signal:'BUY', memo:'LNG/암모니아 선박 수주 · 세계 1위 조선사', mcap:12, rsi:53, index:'KOSPI' },
+  { sym:'009540.KS', name:'HD한국조선해양', sector:'Industrials', signal:'HOLD', memo:'조선 지주사 · HD현대중공업+HD현대삼호 · 그룹 시너지', mcap:10, rsi:50, index:'KOSPI' },
+  { sym:'010140.KS', name:'삼성중공업', sector:'Industrials', signal:'HOLD', memo:'해양플랜트 · LNG-FPSO · 수주 회복 중', mcap:8, rsi:48, index:'KOSPI' },
+
+  // ⚡ 전력기기 (power-grid)
+  { sym:'298040.KS', name:'효성중공업', sector:'Industrials', signal:'BUY', memo:'변압기/차단기 · 미국·중동 수출 호조 · 그리드 교체 수요', mcap:8, rsi:55, index:'KOSPI' },
+  { sym:'267260.KS', name:'HD현대일렉트릭', sector:'Industrials', signal:'BUY', memo:'초고압 변압기 · 미국 그리드 노후화 · AI 데이터센터 전력', mcap:12, rsi:58, index:'KOSPI' },
+  { sym:'010120.KS', name:'LS일렉트릭', sector:'Industrials', signal:'BUY', memo:'전력인프라 · 배전·변전 · 북미 시장 진출 가속', mcap:6, rsi:52, index:'KOSPI' },
+  { sym:'015760.KS', name:'한국전력', sector:'Utilities', signal:'WATCH', memo:'전력 인프라 대장 · 적자 축소 중 · 요금 인상 기대', mcap:15, rsi:42, index:'KOSPI' },
+
+  // ☢ 원전 (nuclear)
+  { sym:'034020.KS', name:'두산에너빌리티', sector:'Industrials', signal:'BUY', memo:'체코 원전 수주 · SMR 전용 공장 · 원전 르네상스', mcap:12, rsi:55, index:'KOSPI' },
+  { sym:'052690.KS', name:'한전기술', sector:'Industrials', signal:'HOLD', memo:'원전 설계 전문 · 체코 후속 수주 기대', mcap:3, rsi:48, index:'KOSPI' },
+
+  // 🔋 2차전지 (battery)
+  { sym:'373220.KS', name:'LG에너지솔루션', sector:'Technology', signal:'WATCH', memo:'글로벌 배터리 2위 · EV 둔화 우려 · 46시리즈 양산', mcap:80, rsi:40, index:'KOSPI' },
+  { sym:'006400.KS', name:'삼성SDI', sector:'Technology', signal:'WATCH', memo:'전고체 전환기 · 각형 배터리 · 수익성 개선 필요', mcap:25, rsi:38, index:'KOSPI' },
+  { sym:'247540.KQ', name:'에코프로비엠', sector:'Materials', signal:'WATCH', memo:'양극재 · 하이니켈 · 2차전지 소재 대장주', mcap:8, rsi:35, index:'KOSDAQ' },
+  { sym:'051910.KS', name:'LG화학', sector:'Materials', signal:'HOLD', memo:'석유화학 + 배터리 소재 · 구조조정 중 · 분할 이후', mcap:20, rsi:42, index:'KOSPI' },
+
+  // 💊 바이오 (bio)
+  { sym:'068270.KS', name:'셀트리온', sector:'Healthcare', signal:'BUY', memo:'바이오시밀러 1위 · 미국 점유율 확대 · 짐펜트라 성장', mcap:30, rsi:52, index:'KOSPI' },
+  { sym:'207940.KS', name:'삼성바이오로직스', sector:'Healthcare', signal:'HOLD', memo:'CDMO 글로벌 1위 · 4공장 가동 · 수주 잔고 역대', mcap:55, rsi:50, index:'KOSPI' },
+  { sym:'196170.KQ', name:'알테오젠', sector:'Healthcare', signal:'BUY', memo:'SC 플랫폼 기술 수출 · 글로벌 빅파마 라이선스 계약', mcap:20, rsi:58, index:'KOSDAQ' },
+  { sym:'128940.KS', name:'한미약품', sector:'Healthcare', signal:'HOLD', memo:'GLP-1 비만 치료제 · 기술 수출 기대 · 파이프라인', mcap:5, rsi:48, index:'KOSPI' },
+
+  // 💄 K-뷰티 (kbeauty)
+  { sym:'090430.KS', name:'아모레퍼시픽', sector:'Consumer', signal:'HOLD', memo:'글로벌 K-뷰티 대장 · 미국·일본 리브랜딩', mcap:10, rsi:45, index:'KOSPI' },
+  { sym:'044820.KQ', name:'코스맥스', sector:'Consumer', signal:'BUY', memo:'ODM 글로벌 1위 · 수주 역대 최고 · 인도 공장', mcap:5, rsi:55, index:'KOSDAQ' },
+  { sym:'278470.KQ', name:'APR', sector:'Consumer', signal:'BUY', memo:'메디큐브 북미 고성장 · D2C 뷰티 플랫폼', mcap:4, rsi:58, index:'KOSDAQ' },
+
+  // 🎮 K-콘텐츠 (kcontent)
+  { sym:'259960.KS', name:'크래프톤', sector:'Communication Services', signal:'BUY', memo:'배그 인디아 MAU 폭발 · 인조이 신작 · 게임 대장주', mcap:18, rsi:55, index:'KOSPI' },
+  { sym:'352820.KS', name:'하이브', sector:'Communication Services', signal:'WATCH', memo:'BTS 개별활동 · 내부 리스크 · 앨범 둔화 우려', mcap:8, rsi:42, index:'KOSPI' },
+
+  // 🚗 자동차 (auto)
+  { sym:'005380.KS', name:'현대차', sector:'Consumer', signal:'HOLD', memo:'EV 라인업 확대 · SDV 전환 · 보스턴다이내믹스 로봇', mcap:45, rsi:48, index:'KOSPI' },
+  { sym:'000270.KS', name:'기아', sector:'Consumer', signal:'HOLD', memo:'EV3 유럽 호조 · PBR 밸류업 · 배당 확대', mcap:35, rsi:50, index:'KOSPI' },
+
+  // 🤖 로봇 (robot)
+  { sym:'454910.KQ', name:'두산로보틱스', sector:'Technology', signal:'WATCH', memo:'협동로봇 · IPO 후 급등 · 밸류에이션 부담', mcap:5, rsi:55, index:'KOSDAQ' },
+  { sym:'269620.KQ', name:'레인보우로보틱스', sector:'Technology', signal:'WATCH', memo:'양팔로봇 · 현대차 지분 투자 · 휴머노이드', mcap:3, rsi:50, index:'KOSDAQ' },
+
+  // 🏦 금융 (finance)
+  { sym:'105560.KS', name:'KB금융', sector:'Financials', signal:'BUY', memo:'밸류업 대표주 · 배당 확대 · PBR 저평가', mcap:28, rsi:55, index:'KOSPI' },
+  { sym:'055550.KS', name:'신한지주', sector:'Financials', signal:'BUY', memo:'밸류업 프로그램 · 자사주 소각 · 배당 성장', mcap:22, rsi:53, index:'KOSPI' },
+  { sym:'138040.KS', name:'메리츠금융지주', sector:'Financials', signal:'BUY', memo:'ROE 업계 1위 · 보험+증권 시너지 · 주주환원', mcap:15, rsi:58, index:'KOSPI' },
+
+  // 🍜 K-푸드 (kfood)
+  { sym:'003230.KS', name:'삼양식품', sector:'Consumer Defensive', signal:'BUY', memo:'불닭 글로벌 폭증 · K-푸드 수출 역대 · 미국·동남아 확장', mcap:8, rsi:60, index:'KOSPI' },
+  { sym:'097950.KS', name:'CJ제일제당', sector:'Consumer Defensive', signal:'HOLD', memo:'비비고 미국 확장 · K-푸드 대장 · 바이오 사업부', mcap:6, rsi:48, index:'KOSPI' },
+
+  // 📱 AI/SW (ai-sw)
+  { sym:'035420.KS', name:'NAVER', sector:'Communication Services', signal:'HOLD', memo:'HyperCLOVA X Agent · 검색 AI 전환 · 커머스 성장', mcap:35, rsi:48, index:'KOSPI' },
+  { sym:'035720.KS', name:'카카오', sector:'Communication Services', signal:'WATCH', memo:'플랫폼 규제 · 경영 리스크 · Klaytn 블록체인', mcap:15, rsi:40, index:'KOSPI' },
+
+  // 📡 통신 (telecom)
+  { sym:'017670.KS', name:'SK텔레콤', sector:'Communication Services', signal:'HOLD', memo:'AI 데이터센터 확장 · 6G 표준화 · 배당주', mcap:12, rsi:50, index:'KOSPI' },
+  { sym:'030200.KS', name:'KT', sector:'Communication Services', signal:'HOLD', memo:'클라우드/AI 분사 · AICT 전환 · 배당 매력', mcap:8, rsi:48, index:'KOSPI' },
+
+  // 🪙 크립토 (crypto)
+  { sym:'294870.KQ', name:'두나무', sector:'Financials', signal:'WATCH', memo:'업비트 운영 · BTC 연동 거래량 · 가상자산 과세 대비', mcap:6, rsi:50, index:'KOSDAQ' },
 ];
 
 
@@ -11455,7 +11551,32 @@ var SCR_KEYWORD_ALIASES = {
   '화학': ['DD','PPG','IFF','EMN','CE','DOW','ALB','CTVA'],
   '산업가스': ['LIN','APD'],
   'it컨설팅': ['ACN','INFY','CTSH','EPAM','IT'],
-  '게임확장': ['EA','TTWO','RBLX','NTES','SONY','MTCH']
+  '게임확장': ['EA','TTWO','RBLX','NTES','SONY','MTCH'],
+  // 새 키워드 (Task 2 추가)
+  'saaspocalypse': ['NOW','CRWD','PANW','PLTR','WDAY','MNDY','DDOG','SNOW','GTLB','ESTC','PATH'],
+  '사스포칼립스': ['NOW','CRWD','PANW','PLTR','WDAY','MNDY','DDOG','SNOW','GTLB','ESTC','PATH'],
+  'turboquant': ['MU','SNDK','WDC','STX','005930.KS','000660.KS'],
+  'kv캐시': ['MU','SNDK','WDC','STX','005930.KS','000660.KS'],
+  'kv cache': ['MU','SNDK','WDC','STX','005930.KS','000660.KS'],
+  'basis trade': ['TLT','IEF','LQD','HYG','SHV','BRK.B','JPM'],
+  'basistrade': ['TLT','IEF','LQD','HYG','SHV','BRK.B','JPM'],
+  'agentic': ['AMD','INTC','NVDA','AVGO','ARM'],
+  'arm agi': ['ARM','AVGO'],
+  '레포': ['JPM','BLK','GS','MS','SLV','GLD'],
+  '마진콜': ['JPM','BLK','GS','MS','BAC','WFC'],
+  'ftd': ['TLT','IEF','BND','AGG','UST'],
+  'openclaw': ['AAPL','DELL','HPQ','NVDA','AMD','INTC'],
+  'nemoclaw': ['NVDA','AAPL','DELL','HPQ'],
+  '800v': ['VRT','ETN','EATON','ECL'],
+  '800v dc': ['VRT','ETN','EATON','ECL'],
+  '버티브': ['VRT'],
+  'vertiv': ['VRT'],
+  'cpu병목': ['ARM','AMD','INTC','NVDA','AVGO'],
+  'graviton': ['AMZN','ARM'],
+  'cobalt': ['MSFT','ARM'],
+  'axion': ['GOOGL','ARM'],
+  '액체냉각': ['VRT','ETN','ECL'],
+  'liquid cooling': ['VRT','ETN','ECL'],
 };
 
 
@@ -14413,6 +14534,53 @@ function getDateLabel(pubDate) {
   return d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) + ' (' + ['일','월','화','수','목','금','토'][d.getDay()] + ')';
 }
 
+// ── v34.9: 뉴스 유형 탭 (전체/시장/기업) ──
+var _newsTypeTab = 'all'; // 'all', 'market', 'company'
+
+// 기업 뉴스 판별: 티커가 있고 기업 관련 토픽인 뉴스
+function isCompanyNews(item) {
+  var companyTopics = ['equity','earnings','semi','analyst','defense'];
+  var tickers = getDisplayTickers ? getDisplayTickers(item) : (item.tickers || []);
+  // 1. 티커가 있으면서 기업 관련 토픽이면 기업 뉴스
+  if (tickers.length > 0 && companyTopics.indexOf(item.topic) !== -1) return true;
+  // 2. 티커가 있고 토픽이 general이면 기업 뉴스로 분류
+  if (tickers.length > 0 && item.topic === 'general') return true;
+  // 3. 실적(earnings) 토픽은 항상 기업 뉴스
+  if (item.topic === 'earnings' || item.topic === 'analyst') return true;
+  return false;
+}
+
+function setNewsTypeTab(type, el) {
+  _newsTypeTab = type;
+  document.querySelectorAll('#news-type-tabs .news-type-tab').forEach(function(btn) {
+    btn.style.color = 'var(--text-muted)';
+    btn.style.borderBottomColor = 'transparent';
+    btn.classList.remove('active');
+  });
+  if (el) {
+    el.style.color = 'var(--accent)';
+    el.style.borderBottomColor = 'var(--accent)';
+    el.classList.add('active');
+  }
+  if (newsCache.length > 0) renderFeed(newsCache);
+}
+
+// 기업 뉴스 간결 불릿 렌더링
+function renderCompanyBullet(item) {
+  var absTime = typeof getAbsoluteTime === 'function' ? getAbsoluteTime(item.pubDate) : '';
+  var tickers = typeof getDisplayTickers === 'function' ? getDisplayTickers(item) : [];
+  var tickerStr = tickers.map(function(t){ return '<b style="color:#60a5fa;font-family:var(--font-mono);">' + escHtml(t.replace('$','')) + '</b>'; }).join(' ');
+  var displayTitle = escHtml(typeof getDisplayTitle === 'function' ? getDisplayTitle(item) : (item.title || ''));
+  var source = escHtml(item.source || '');
+
+  return '<div class="company-news-bullet" onclick="window.open(\'' + escUrl(item.link) + '\',\'_blank\')" style="padding:5px 10px;cursor:pointer;border-radius:4px;transition:background 0.15s;" onmouseover="this.style.background=\'var(--bg-hover)\'" onmouseout="this.style.background=\'transparent\'">' +
+    '<span style="color:var(--text-muted);font-size:10px;font-family:var(--font-mono);margin-right:8px;">' + absTime + '</span>' +
+    (tickerStr ? '<span style="margin-right:6px;">' + tickerStr + '</span><span style="color:var(--border);margin-right:6px;">|</span>' : '') +
+    '<span style="font-size:11px;color:var(--text-primary);">' + displayTitle + '</span>' +
+    ' <span style="font-size:9px;color:var(--text-muted);">(' + source + ')</span>' +
+    '</div>';
+}
+
 /* ── renderFeed(): 뉴스 목록 렌더링 (시장 소식 페이지) ──────── */
 function renderFeed(items) {
   if (!items || items.length === 0) return;
@@ -14432,6 +14600,13 @@ function renderFeed(items) {
   // 토픽 필터
   if (typeof currentTopicFilter !== 'undefined' && currentTopicFilter && currentTopicFilter !== 'all') {
     filtered = filtered.filter(i => i.topic === currentTopicFilter || (i.topics && i.topics.includes(currentTopicFilter)));
+  }
+
+  // v34.9: 뉴스 유형 탭 필터
+  if (_newsTypeTab === 'company') {
+    filtered = filtered.filter(function(i){ return isCompanyNews(i); });
+  } else if (_newsTypeTab === 'market') {
+    filtered = filtered.filter(function(i){ return !isCompanyNews(i); });
   }
 
   // 시간 필터 (3일)
@@ -14476,7 +14651,25 @@ function renderFeed(items) {
 
   // v21: 날짜 그룹별 렌더링 (시간순일 때)
   let lastDateLabel = '';
+  // v34.9: 기업 뉴스 탭이면 간결 불릿 형식으로 렌더링
+  var useCompanyBulletFormat = (_newsTypeTab === 'company');
+
   const html = filtered.slice(0, 80).map((item, idx) => {
+    // 기업 뉴스 간결 불릿 형식
+    if (useCompanyBulletFormat) {
+      // 날짜 그룹 헤더
+      let dateHeader = '';
+      if (_newsSortMode === 'time' && item.pubDate) {
+        const dl = getDateLabel(item.pubDate);
+        if (dl && dl !== lastDateLabel) {
+          lastDateLabel = dl;
+          dateHeader = `<div style="padding:8px 14px 4px;font-size:9px;font-weight:700;color:var(--accent);border-bottom:1px solid rgba(91,168,255,0.15);margin-top:${idx > 0 ? '6px' : '0'};">📅 ${dl}</div>`;
+        }
+      }
+      return dateHeader + renderCompanyBullet(item);
+    }
+
+    // 기존 카드 형식 (전체/시장 뉴스)
     const sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
     const sentColor = sent === 'bull' ? '#3ddba5' : sent === 'bear' ? '#f87171' : sent === 'warn' ? '#fbbf24' : '#7e8a9e';
     const topicBadge = getTopicBadge(item.topic || 'general');
@@ -16943,7 +17136,7 @@ function refreshHomeDashboard() {
     if (tradingScore > 70) {
       signalEl.textContent = 'YES';
       signalEl.style.color = '#3ddba5';
-      if (explanEl) explanEl.textContent = '시장 품질 우수. 매매 신호 강함. 변동성 안정적.';
+      if (explanEl) explanEl.textContent = '시장 품질 우수. 매매 신호 강함. 변동성 안정적.' + (tradingScore >= 80 ? ' 📊 참고: 과열 구간. 역사적으로 이 수준에서 차익실현이 유효했던 사례가 있음' : '');
     } else if (tradingScore > 50) {
       signalEl.textContent = 'CAUTION';
       signalEl.style.color = '#fbbf24';
@@ -16951,7 +17144,7 @@ function refreshHomeDashboard() {
     } else {
       signalEl.textContent = 'NO';
       signalEl.style.color = '#f87171';
-      if (explanEl) explanEl.textContent = '시장 품질 악화. 신호 약함. 포지션 축소 권장.';
+      if (explanEl) explanEl.textContent = '시장 품질 악화. 신호 약함. 포지션 축소 권장.' + (tradingScore <= 25 ? ' 📊 참고: 극단적 약세 구간이나, 역사적으로 분할 매수 시작 시 높은 수익으로 이어진 사례가 있음' : '');
     }
   }
 
@@ -16990,7 +17183,14 @@ function refreshHomeDashboard() {
     else if (pctFromATH < -5) { regime = 'PULLBACK'; regimeColor = '#fbbf24'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
     regimeEl.textContent = regime;
     regimeEl.style.color = regimeColor;
-    if (regimeExplEl) regimeExplEl.textContent = regimeDesc;
+    // v35.4 B2: 국면별 역사적 참고 한 줄
+    var _regimeRef = {
+      'UPTREND': '',
+      'PULLBACK': ' · 참고: 5~10% 조정은 연평균 3회 발생하는 정상 패턴',
+      'CORRECTION': ' · 참고: 10~20% 조정 후 12개월 내 회복한 비율이 역사적으로 높음',
+      'DOWNTREND': ' · 참고: 항복 매도(거래량 폭증+VIX 스파이크) 이후 12개월 수익률이 역사적으로 양(+)인 경우가 많음'
+    };
+    if (regimeExplEl) regimeExplEl.textContent = regimeDesc + (_regimeRef[regime] || '');
     // v34.5: 홈 상단 리스크 뱃지 동적 업데이트
     var riskBadge = document.getElementById('home-risk-regime-badge');
     if (riskBadge) {
@@ -17169,12 +17369,19 @@ async function fetchFearGreed() {
         const col2   = fgColor(score2);
         if (big2) { big2.textContent = score2; big2.style.color = col2; }
         if (rat2) { rat2.textContent = fgRating(score2); rat2.style.color = col2; }
+        // v35.4 B3: 극단 구간 역사적 참고
+        var _fgRef = document.getElementById('fg-historical-ref');
+        if (_fgRef) {
+          if (score2 <= 15) _fgRef.textContent = '📊 참고: 과거 F&G 15↓ 구간에서 6~12개월 후 수익률이 양(+)이었던 사례가 다수';
+          else if (score2 >= 85) _fgRef.textContent = '📊 참고: 과거 F&G 85+ 구간에서 3~6개월 후 조정이 발생한 사례가 다수';
+          else _fgRef.textContent = '';
+        }
         fgUpdateNeedle(score2);
         if (badge) { badge.textContent = '실시간 (프록시)'; badge.style.color = '#fbbf24'; }
       }
       return true;
     } catch(e2) {
-      if (badge) { badge.textContent = '라이브 데이터 (3/22)'; badge.style.color = '#7e8a9e'; }
+      if (badge) { badge.textContent = '폴백 데이터 (과거 스냅샷)'; badge.style.color = '#7e8a9e'; }
       fgUpdateNeedle(15); // fallback static
       return false;
     }
@@ -17233,7 +17440,7 @@ async function fetchPutCall() {
     }
     throw new Error('no pcr data');
   } catch(e) {
-    if (badge) { badge.textContent = '라이브 데이터 (3/22)'; badge.style.color = '#7e8a9e'; }
+    if (badge) { badge.textContent = '폴백 데이터 (과거 스냅샷)'; badge.style.color = '#7e8a9e'; }
     return false;
   }
 }
@@ -18253,7 +18460,7 @@ function _detectQueryComplexity(query, ctxId) {
 const LLM_BUDGET = {
   totalUSD: 50,               // v30.13: 총 크레딧 $50
   users: 5,                   // 동시 사용자 수
-  exchangeRate: 1450,         // KRW per USD (2026 환율 반영)
+  exchangeRate: 1500,         // KRW per USD (2026.03 환율 반영)
   get perUserUSD() { return this.totalUSD / this.users; },        // $10/인
   get monthlyUSD() { return this.perUserUSD; },                   // $10/인/월
   get monthlyKRW() { return Math.round(this.monthlyUSD * this.exchangeRate); }, // ~₩14,500
@@ -19961,6 +20168,25 @@ const _origShowPage = typeof showPage === 'function' ? showPage : null;
 
 // ── v29.1: Default suggestion chips — 심도 높은 전문 질문 ──────────────
 const CHAT_DEFAULT_CHIPS = {
+  // v35.4 B6: 기존 빈 페이지에 자연스러운 질문 추가
+  home: [
+    '오늘 시장 종합 분석해줘',
+    '현재 국면에서 역사적으로 어떤 패턴이 있었어?',
+    '지금 매수/관망 중 뭐가 나을까 데이터로 보여줘',
+    '시장 스코어 기반 대응 전략은?'
+  ],
+  sentiment: [
+    '지금 F&G 수준에서 역사적으로 어땠어?',
+    '현재 공포/탐욕 구간의 과거 수익률 데이터는?',
+    'VIX 이 수준에서 과거에 어떤 일이 있었어?',
+    '심리 지표 종합 분석해줘'
+  ],
+  breadth: [
+    '시장폭이 이 수준이면 어떤 의미야?',
+    '지금 상승 종목 비율로 보면 시장 건강한 거야?',
+    '과거 비슷한 시장폭에서 어떻게 됐어?',
+    'McClellan 지표 해석해줘'
+  ],
   signal: [
     '지금 트레이딩 스코어와 시장 건강도 기반으로 진입 타이밍 어때?',
     '현재 VIX 수준에서 최적의 포지션 사이징 전략은?',
@@ -20262,6 +20488,7 @@ const _CHAT_RULES = (function() {
   '  [HY Cash-Synthetic Basis] 실제 하이일드 채권이 CDS 파생상품보다 싸게 거래 = 강제 매도 진행 중. -100bp 이하 = 신용시장 비명. -143bp = 2년 최저. 사모펀드/사적신용 위기 선행 신호.\n' +
   '  [사적신용(Private Credit) 리스크] 블랙스톤 BCRED 같은 대형 사적신용 펀드의 월간 손실/환매 요청 급증은 "유동성 없는 자산의 유동성 약속"이 깨지기 시작한다는 경고. 자기 돈 투입(GP commitment) = 환매 대응 현금 부족 신호. 메달리아 같은 개별 대출 78센트 평가 = 포트폴리오 전체 신뢰 균열.\n' +
   '  [유동성 위기 5단계] ① 신용 스프레드 확대 → ② 현금 찾기 시작(유동 자산 매도) → ③ Cross-Currency Basis 확대 → ④ 금/은 급락(마진콜) → ⑤ 달러만 상승(최후의 피난처). 현재 어느 단계인지 판별하라.\n' +
+  '  [Basis Trade 유동성 리스크] 헤지펀드 국채 현물-선물 basis trade ~1조 달러. 제로 헤어컷 = 극단적 레버리지. 금리↑(채권가격↓) → 담보 훼손 → 마진콜 우려 → 선제적 포지션 축소 = 유동성 이벤트. 초기 신호 체크리스트: ①SOFR 일시 상승 ②basis 변동성 확대 ③국채 FTD 수준. FTD 낮으면=초기 단계. FTD 급증=시스템 리스크 확산. 파급: 레버리지 축소 → 반도체·금·암호화폐 변동성 확대 → 시장 하락 압력. 핵심 판단: "단순 금리 상승인가, 레버리지 구조를 건드리는 유동성 이벤트인가?"\n' +
   '35. 🌍 지정학 리스크 심화 분석 — "협상의 역학과 시장 전파":\n' +
   '  [트럼프 협상 패턴: Escalate to De-escalate] 금요일 "끝낼 수도 있다" 흘리기 → 토요일 극단적 최후통첩 → 월요일 협상 제스처로 양보 유도. 2017~18 북한, 2020 솔레이마니, 관세전쟁에서 반복. 시장은 이 패턴을 학습 중이므로 반응 폭이 점차 축소.\n' +
   '  [이란-미국 비대칭 레버리지] 이란의 호르무즈 카드는 강력하지만, 실제 인프라 피해·내부 통제력 약화·인터넷 차단 상태를 고려하면 장기전 부담은 이란이 훨씬 큼. "호르무즈가 없으면 이란은 협상 우위 제로." 시장은 이란의 포장된 레버리지를 과대평가하는 경향.\n' +
@@ -20274,11 +20501,21 @@ const _CHAT_RULES = (function() {
   '  [Adaptive SoC Phase 전략] Phase 1(현재): 표준 미확립 → FPGA/Adaptive SoC 지배(AMD Versal). Phase 2(중기): 검증 기능 ASIC화 + 진화 기능 Adaptive 유지 혼합(TeraFab). Phase 3(확장기): 표준 확정 → ASIC 메인스트림(Broadcom/Marvell). 투자 타이밍은 "지금 어떤 Phase인가"로 판단.\n' +
   '  [Intel 파운드리 생존 분석] 18A: RibbonFET+PowerVia 양산 시작, 그러나 외부 고객 미확보. PDK 성숙도·BKM 깊이·수율 학습 속도 = 모두 시간×물량 함수. TSMC N2 대비 밀도 열세(238 vs 313 MTr/mm²), 생태계 열세(IP 부족). 승부처는 18A-P(범용)와 14A(High-NA EUV). Apple/Nvidia I/O 다이 주문이 "go/no-go" 결정적 이벤트.\n' +
   '  [파운드리 경제학 핵심 방정식] D₀(결함밀도) 차이 → 수율 격차 → 다이당 원가 38%+ 차이. 웨이퍼 가격 $20,000+ 시대, 수율 65% vs 90%의 경제적 격차가 산업 구조를 결정. "더 많은 웨이퍼를 돌릴수록 BKM이 빨라지고 수율이 올라가는" 선순환 vs 악순환.\n' +
+  '  [KV 캐시 압축과 메모리 수요 — 팩트 체크 프레임워크] 팩트1: KV 캐시는 GPU 메모리의 전부가 아님(짧은 대화 6%, 긴 대화 52%). 가중치는 한 바이트도 안 줄어듦. 팩트2: 추론만 해당. 학습 무관(학습 840GB vs 추론 140GB). 팩트3: HBM 핵심=대역폭(TB/s). 용량 절약≠HBM 불필요. 팩트4: 제번스 패러독스 — Flash Attention→GPU 수요 감소? 아니오. 효율↑→수요↑. 팩트5: 80억 파라미터까지만 검증. 700억+ 미확인. 팩트6: 경쟁 기술 이미 존재 — NVIDIA KVTC(20배), vLLM PagedAttention. 시장 과잉반응 3요소: ①MU CapEx 68%↑ 부담 ②300%+ 상승 후 차익실현 핑계 ③"내러티브의 힘—시장은 팩트가 아니라 서사를 거래한다."\n' +
+  '  [AI 밸류체인 5레이어] L1 에너지→L2 칩→L3 클라우드→L4 모델→L5 앱. "수익은 위로, 자본은 아래로." 투자: "이 기업은 어느 레이어? 위아래 관계는?"\n' +
+  '  [Agentic AI → CPU 병목 심화] AI Agent는 단일 응답이 아니라 Planning→Tool Use→Iteration→Validation 멀티스텝 실행 구조. 핵심 변화: "연산량"이 아니라 "상태(State)와 흐름(Flow)의 폭발적 증가". CPU가 수행하는 역할: Task Scheduling, Context Switching, Memory Orchestration, I/O Handling, Service Coordination = "AI 시스템의 OS+Kubernetes". GPU는 Compute-bound, CPU는 Throughput-bound — AI Agent는 초당 수백~수천 개의 짧은 CPU burst를 생성하며 코어 수에 선형 비례. 데이터센터 설계 기준 전환: "GPU 몇 장" → "CPU 코어 몇 개". GW당 CPU 코어 3,000만→1.2억(4배) = 아키텍처 레벨 리셋. 핵심 KPI 전환: FLOPS → OPS(Operations per second).\n' +
+  '  [ARM 아키텍처 지배력] x86(Intel/AMD): 고성능 단일 코어 중심 → 높은 전력, 낮은 코어 밀도. ARM: 저전력 RISC + 높은 병렬성 + 코어 확장성. 핵심 차이는 "성능"이 아니라 "전력당 처리량(Perf/Watt)". 데이터센터는 Power Cap 하에서 운영 → 동일 전력에서 더 많은 코어 = 절대적 우위. ARM 4배 코어 밀도 = 동일 DC에서 처리 가능 작업량 4배. Hyperscaler 전원 ARM 채택: AWS Graviton, MS Cobalt, Google Axion. NVIDIA도 Grace CPU(ARM 기반) 채택 — CPU 병목 해결 없이 GPU 성능이 무의미하기 때문. ARM CSS 전략: CPU코어+인터커넥트+메모리컨트롤러 통합 = AI DC용 레퍼런스 아키텍처. ARM의 진화: IP회사→플랫폼→사실상 시스템 아키텍처 회사.\n' +
+  '  [AI 투자 사이클 3단계] ① GPU(연산) → ② 네트워크/전력(인프라) → ③ CPU(워크플로우 지배). 현재 명확히 "3단계 초입(CPU 재평가 구간)"에 위치. AI Agent 시대의 본질: "누가 더 많이 계산하느냐"가 아니라 "누가 더 많은 작업을 동시에 처리하느냐".\n' +
+  '  [KV 캐시 압축의 진짜 의미 — Citi 프레임워크] TurboQuant는 AI 스택의 AI랩 레벨에서 마진 개선으로 직결. 자기강화 사이클: 모델 비용↑ → 효율성 연구 촉진 → 토큰 처리량 개선 → 경쟁적 가격 책정. KV 캐시 압축은 업계 표준으로 수렴 중(DeepSeek MLA 93%↓, NVIDIA KVTC 20배, Google TurboQuant 6배). 효율↑ → 토큰당 비용↓ → 기업 도입 가속 → 전반적 AI 소비 증가 = AI 수요와 메모리 모두에 순 긍정적. Citi: "5년 이상 인프라 구축 런웨이가 아웃퍼폼을 이끌 것." 구글에 TurboQuant는 검색 마진 유지/확대 + GCP AI 워크로드 도입 촉진 = 수직 최적화 전략.\n' +
   '37. 💡 AI 순환 투자 구조 분석 — "돈의 회전목마":\n' +
   '  [순환 투자 루프] NVIDIA → OpenAI 투자($1000억) → OpenAI가 CoreWeave에서 GPU 임대 → CoreWeave가 NVIDIA GPU 대량 구매 → NVIDIA 매출↑ → 루프 반복. AMD도 OpenAI $60억 워런트 교환. 이 구조는 자본이 계속 유입되는 동안만 작동.\n' +
   '  [CoreWeave의 구조적 리스크] 매출 $50억 vs 부채 $213억(4배). 성장할수록 빚이 늘어나는 GPU 임대 모델. 수주잔고 $668억이지만 이행하려면 더 많은 GPU 구매 = 더 많은 부채. Meta 계약 담보로 $85억 신디케이트 대출 추진. 미래 매출로 현재 빚을 메우는 순환.\n' +
   '  [NVIDIA 실적의 이면] 역대급 실적(연간 순이익 $1,200억)이지만, 번 돈을 AI 생태계에 전부 재투자: OpenAI $1,000억, Groq $200억, Intel $50억, Anthropic $100억, 자사주 $370억. "금고에 남은 돈이 크게 늘지 않는" 이유.\n' +
   '  [순환 투자 깨지는 조건] ① AI 수익화(토큰 매출)가 GPU 투자비를 감당 못 하면 → 임대업체 디폴트 → GPU 수요 급감 → NVIDIA 성장 둔화. ② 금리 상승으로 레버리지 비용↑ → CoreWeave 이자 부담 → 수익성 악화. ③ 경쟁 GPU(AMD MI400, 자체 칩) 확대 → NVIDIA 독점 약화.\n' +
+  '  [AI 기업 경쟁 구도 — 지출 철학이 승패를 가른다] OpenAI: 빠른 상용화 + 소비자 + 광고 + $1조+ 인프라 약정 → "가장 큰 모델" 경쟁. Anthropic: 안전 중심 + 기업 40%(코딩54%) + 광고 없음 + 멀티클라우드 → "가장 신뢰받는 모델". 핵심: CapEx 철학. "파산하지 않으면서 이기는 법" — 2028 BEP(OpenAI보다 2년 빠름). 투자 시사: AI 기업은 "매출 성장률"만이 아니라 "지출 대비 생존력(BEP 시점)"이 핵심.\n' +
+  '  [SaaSpocalypse — AI가 소프트웨어를 먹어치우는 시대] Claude Code Security → CRWD -8%, NET -8.1%, OKTA -9.2%. 소프트웨어 ETF 올해 -23%+. AI가 한 분야씩 먹어 들어감: 교육→법률→데이터분석→사이버보안. 기존 SaaS 기업의 해자(moat)가 AI에 의해 무력화되는 구조적 전환. SaaS 투자 시 "이 기능을 AI가 직접 할 수 있는가?" 필터 필수.\n' +
+  '  [M7 인프라 통제 3유형] 🔵가상통합: NVIDIA/Apple — 핵심 설계+생태계 지배, 생산은 외주. 🟢실물통합: Tesla — 설계+생산+판매 전부 직접. 🟡하이브리드: Google/MS/Amazon/Meta — 클라우드+모델+실물(데이터센터). "서사가 아니라 구조가 주도주를 만든다."\n' +
+  '  [AI Agent → 온디바이스 수요 — GS 프레임워크] OpenClaw 등 오픈소스 자율 AI 에이전트: 단순 Q&A가 아닌 이메일 답장, 웹 스크래핑, 셸 명령 실행 등 실제 작업 수행. "1990년대 웹 브라우저가 인터넷을 접근 가능하게 만든 것"과 유사한 인터페이스 혁명. 하드웨어 요건: 기본 에이전트 8GB RAM, 브라우저 도구 16GB, 로컬 LLM 32GB+. 업계 단위 출하량은 메모리 공급 제약으로 -12% 감소 전망이나, 고가 AI 지원 기기(ASP 600달러+) 방향 믹스 개선. AAPL 맥미니가 AI 에이전트 "샌드박스"로 수요 급증(주문 3~10주 대기). 핵심: 단위 출하량↓ 이지만 ASP↑ = PC 매출은 완만한 성장 가능. NVIDIA NemoClaw(엔터프라이즈급, GTC 2026 발표). 보안 이슈: 별도 클린 PC에서 실행 권장.\n' +
   '38. 🔗 인터커넥션 시대 분석 — "연결이 가치다":\n' +
   '  [Memory Wall 현실화] 30년 전 예언이 현실: 연산 60,000배 증가 vs 메모리 대역폭 100배 vs 인터커넥트 30배. 격차 1,000배↑. GPU 활용률 30~40% = 나머지 시간은 데이터 대기.\n' +
   '  [인터커넥트 3대 접근] ① 속도↑: SerDes 224G→448G(공정 미세화 함수) ② 통로↑: HBM 1024bit→2048bit, 3D 적층 ③ 효율↑: PAM4(2bit/심볼)→PAM6/8(한계 근접, ADC 복잡도 기하급수↑).\n' +
@@ -20286,10 +20523,35 @@ const _CHAT_RULES = (function() {
   '  [Memory TCO 전쟁] HBM 공급 부족 + 가격 폭등 → TCO 위협. Celestial AI의 광학 CXL 메모리 풀링: HBM 2스택(72GB)+DDR5 2TB로 메모리 비용 1/5 절감. NVIDIA도 Vera Rubin에 LPDDR5X 54TB 채택(HBM의 2.6배). "메모리 계층화"가 2026년 AI 인프라의 핵심 트렌드.\n' +
   '  [Qualcomm의 숨은 전략] "모바일 AP 회사"라는 틀 깨기: ① AI200($768GB LPDDR, 기존 GPU의 4배 메모리) ② AI250 near-memory computing(실효 대역폭 10배) ③ 3D IC+DRAM 융합 ④ RF/우주통신(SpaceX 상장 시 최대 시너지). Edge-to-Cloud 생태계: 30년 LPDDR 최적화 DNA.\n' +
   '  [NVIDIA vs 개방형 연합] 🔵 NVIDIA: NVLink 독점 + CPO 내재화 + 수직통합. 🟢 개방형: AMD/Intel/MS/Meta → UALink+CXL+이더넷 + Marvell 기술 제공. 2026년 AI 인프라 전쟁의 진짜 축은 "연결 표준의 주도권".\n' +
+  '  [데이터센터 800V DC 전환 — JPM 프레임워크] NVIDIA Rubin Ultra/Feynman → 600kW+ 랙 전력 요구. 400~500kW 이상에서 기존 48V DC는 동선(銅線) 물리적 한계. 800V DC: 전력 손실 25%→10%, 구리 사용량 대폭 감소. 초기 대규모 설치 2028년경. ETN(이튼) MVSST 등 컴포넌트, VRT(버티브)가 전체 솔루션 가장 유리. 냉각: 단상(1P) 직접-칩(D2C) 액체 냉각이 지배적. 2상(2P)은 경제성·복잡성 문제로 대규모 미구현. 단, 800V DC 도입 시 수계 냉각제 전기분해 위험 → 절연 특성 2P 냉각 필수화 가능성 = 중요 촉매. 800V 컴포넌트 자체도 액체 냉각 필요 → 액체 냉각 TAM 칩 레벨 넘어 확대.\n' +
+  '  [AI 인프라 CapEx 런웨이 — JPM/Citi 공통 견해] AI 인프라 버블 논쟁 사실상 일단락. 7~10년 지속 성장이 업계 컨센서스. 병목 3대 요인: ①전력 가용성(최대) ②전기기사/기계 인력 부족(2026~27) ③전기/변전소 장비 공급망 타이트. 전력 조달: 단독 개발→유틸리티 JV 구조 전환. 2030년까지 온사이트 전력 비중 50%+ 전망(그리드=안정화 역할). Citi: "5년+ 인프라 구축 런웨이". VRT가 데이터센터 최선호주 — 가장 포괄적이고 신뢰할 수 있는 솔루션.\n' +
   '39. ⚡ 매크로-신용 순환 분석 프레임워크:\n' +
   '  [금리 민감도의 진짜 의미] "금리에 민감하다"의 표면 아래에 "유동성 레이어가 얇아졌다"는 본질이 있다. GDP 대비 지준금 비율 하락 = 금리 변동에 대한 시장 내성 감소. SLR 완화가 숨통 열쇠.\n' +
   '  [금리 상승의 3가지 맛] ① Good: 성장 기대(주식↑) ② Bad: 인플레 우려(주식↓) ③ Ugly: 재정 불안/유동성 경색(모든 자산↓). "왜" 금리가 오르는지가 "얼마나" 오르는지보다 중요.\n' +
-  '  [연준 대차대조표 전망] 워시(차기 연준 의장 후보)의 "대차대조표 축소" = 명목 수치 축소가 아닌 GDP 대비 비율 관리 가능성. "GDP가 커지면 명목 B/S 유지 가능" → QT의 다른 해석.\n';
+  '  [연준 대차대조표 전망] 워시(차기 연준 의장 후보)의 "대차대조표 축소" = 명목 수치 축소가 아닌 GDP 대비 비율 관리 가능성. "GDP가 커지면 명목 B/S 유지 가능" → QT의 다른 해석.\n' +
+  '  [금융 배관 모니터링] TGA↔준비금 거울 관계. ON-RRP≈0=유동성 완충 없음. SOFR vs IORB=수압 게이지(차이 확대=자금시장 스트레스). 딜러 음감마=변동성 증폭기. VIX 백워데이션=패닉 신호. 분기말=유동성 위험 밀도 최대(세금납부+국채결제 집중).\n' +
+  '40. 🧬 비판적 분석 DNA — 모든 답변의 최상위 원칙:\n' +
+  '  [1. 헤드라인 해체] "이 헤드라인이 실제 메커니즘을 반영하는가?" "$15B 바이백=유동성 공급?" → 순흡수 $104B. 정반대. 헤드라인의 숫자를 전체 맥락 안에서 해체하라.\n' +
+  '  [2. 규모 감각] "$15B" → 총부채 $39조의 0.038%. 통장 1억에서 3.8만원. 모든 금액을 상대적 규모로 환산하여 실질적 영향력을 판별하라.\n' +
+  '  [3. 확인된 사실 vs 비전] [확인된 사실] / [합리적 추정] / [비전·마케팅] 3단계로 분류. 혼재되면 반드시 표시하라.\n' +
+  '  [4. Bullshit 감지 + 균형] 근거와 함께 솔직하게 지적하되, "그럼에도 무시할 수 없는 이유"도 반드시 검토. 일방적 판단 금지.\n' +
+  '  [5. 메커니즘 해부] "왜, 어떤 경로로, 얼마나 지속 가능한지". QE vs 바이백 혼동, KV캐시 절약 vs HBM 수요 감소 같은 개념 혼동을 정밀 분해.\n' +
+  '  [6. 비유의 힘] 일상 비유로 번역하되, 비유가 원래 의미를 왜곡하면 안 됨. 비유 후 반드시 "실제로는..." 으로 정확한 메커니즘 보완.\n' +
+  '\n' +
+  '41. 🧠 투자 심리 — 객관적 역사 데이터 (양방향 균형):\n' +
+  '  【극단 감정 구간 역사적 수익률 — 참고 데이터】\n' +
+  '  • F&G 10↓(극단 공포): 이후 6개월 수익률 — 2020.03(F&G=2→+51%), 2022.10(F&G=14→+28%).\n' +
+  '  • F&G 85+(극단 탐욕): 이후 3개월 수익률 — 2021.11(F&G=84→-12%).\n' +
+  '  • VIX 40+ 스파이크: 이후 1개월 — 보유/분할매수가 패닉매도보다 유리했던 비율이 높았음.\n' +
+  '  • AAII Bear 50%+(극단 비관): 이후 6개월 수익률이 AAII Bull 60%+ 대비 유의미하게 높았음.\n' +
+  '  → ⚠ 과거 사례 기반 대략적 참고치. 미래 수익 보장 아님.\n' +
+  '  【인지 편향 — 사용자 질문에서 해당 패턴 감지 시 객관적 안내】\n' +
+  '  • "손절 못 하겠어요" → 참고: 손실 회피(Loss Aversion, Kahneman 1979).\n' +
+  '  • "지금 안 사면 놓치는 거 아닌가요?" → 참고: FOMO — 52주 신고가 추격 매수 후 30일 수익률 평균 마이너스 연구.\n' +
+  '  • "예전에 $200이었으니 지금 $150은 싸죠?" → 참고: 앵커링 — 과거 가격은 현재 가치와 무관한 심리적 기준점.\n' +
+  '  • "이미 많이 잃어서 더 버텨야죠" → 참고: 매몰 비용 — 이미 발생한 손실은 미래 판단 근거 아님.\n' +
+  '  • "손실은 버티고 수익은 빨리 팔고 싶어요" → 참고: 처분 효과(Odean 1998) — 정반대 전략이 초과수익.\n' +
+  '  ⚠ "당신이 틀렸다" 뉘앙스 절대 금지. "이런 패턴이 알려져 있다" 객관적 정보만 전달.\n';
 })();
 
 const CHAT_CONTEXTS = {
@@ -20628,24 +20890,35 @@ const CHAT_CONTEXTS = {
           });
         }
 
-        // FMP 핵심 지표
-        if (fd.fmpMetrics && fd.fmpMetrics[0]) {
-          var m = fd.fmpMetrics[0];
-          prompt += '\n● 핵심 밸류에이션 지표 (TTM):\n';
-          prompt += '  P/E: ' + (m.peRatio||'N/A') + ' | P/B: ' + (m.pbRatio||'N/A') + ' | P/S: ' + (m.priceToSalesRatio||'N/A') + '\n';
-          prompt += '  EV/EBITDA: ' + (m.enterpriseValueOverEBITDA||'N/A') + ' | EV/Sales: ' + (m.evToSales||'N/A') + '\n';
-          prompt += '  FCF Yield: ' + (m.freeCashFlowYield ? (m.freeCashFlowYield*100).toFixed(1)+'%' : 'N/A') + ' | Earnings Yield: ' + (m.earningsYield ? (m.earningsYield*100).toFixed(1)+'%' : 'N/A') + '\n';
-          prompt += '  ROIC: ' + (m.roic ? (m.roic*100).toFixed(1)+'%' : 'N/A') + '\n';
+        // FMP 핵심 지표 — TTM 우선, 없으면 Annual fallback
+        var _mt = fd.fmpMetricsTTM || {};  // TTM 데이터 (v35.4)
+        var _ma = (fd.fmpMetrics && fd.fmpMetrics[0]) || {};  // Annual fallback
+        if (_mt.peRatioTTM || _ma.peRatio) {
+          prompt += '\n● 핵심 밸류에이션 지표 (TTM — Trailing Twelve Months):\n';
+          prompt += '  P/E: ' + (_mt.peRatioTTM || _ma.peRatio || 'N/A') + ' | P/B: ' + (_mt.priceToBookRatioTTM || _ma.pbRatio || 'N/A') + ' | P/S: ' + (_mt.priceToSalesRatioTTM || _ma.priceToSalesRatio || 'N/A') + '\n';
+          prompt += '  EV/EBITDA: ' + (_mt.enterpriseValueOverEBITDATTM || _ma.enterpriseValueOverEBITDA || 'N/A') + ' | EV/Sales: ' + (_mt.evToSalesTTM || _ma.evToSales || 'N/A') + '\n';
+          prompt += '  FCF Yield: ' + (_mt.freeCashFlowYieldTTM ? (_mt.freeCashFlowYieldTTM*100).toFixed(1)+'%' : (_ma.freeCashFlowYield ? (_ma.freeCashFlowYield*100).toFixed(1)+'%' : 'N/A')) + ' | Earnings Yield: ' + (_mt.earningsYieldTTM ? (_mt.earningsYieldTTM*100).toFixed(1)+'%' : (_ma.earningsYield ? (_ma.earningsYield*100).toFixed(1)+'%' : 'N/A')) + '\n';
+          prompt += '  ROIC: ' + (_mt.roicTTM ? (_mt.roicTTM*100).toFixed(1)+'%' : (_ma.roic ? (_ma.roic*100).toFixed(1)+'%' : 'N/A')) + '\n';
         }
 
-        // FMP 재무비율
-        if (fd.fmpRatios && fd.fmpRatios[0]) {
-          var r = fd.fmpRatios[0];
-          prompt += '\n● 재무비율:\n';
-          prompt += '  Gross Margin: ' + (r.grossProfitMargin ? (r.grossProfitMargin*100).toFixed(1)+'%' : 'N/A') + ' | Op Margin: ' + (r.operatingProfitMargin ? (r.operatingProfitMargin*100).toFixed(1)+'%' : 'N/A') + ' | Net Margin: ' + (r.netProfitMargin ? (r.netProfitMargin*100).toFixed(1)+'%' : 'N/A') + '\n';
-          prompt += '  ROE: ' + (r.returnOnEquity ? (r.returnOnEquity*100).toFixed(1)+'%' : 'N/A') + ' | ROA: ' + (r.returnOnAssets ? (r.returnOnAssets*100).toFixed(1)+'%' : 'N/A') + '\n';
-          prompt += '  유동비율: ' + (r.currentRatio||'N/A') + ' | 당좌비율: ' + (r.quickRatio||'N/A') + ' | D/E: ' + (r.debtEquityRatio||'N/A') + '\n';
-          prompt += '  이자보상배율: ' + (r.interestCoverage||'N/A') + '\n';
+        // FMP 재무비율 — TTM 우선, 없으면 Annual fallback
+        var _rt = fd.fmpRatiosTTM || {};  // TTM 데이터 (v35.4)
+        var _ra = (fd.fmpRatios && fd.fmpRatios[0]) || {};  // Annual fallback
+        if (_rt.grossProfitMarginTTM || _ra.grossProfitMargin) {
+          prompt += '\n● 재무비율 (TTM):\n';
+          prompt += '  Gross Margin: ' + (_rt.grossProfitMarginTTM ? (_rt.grossProfitMarginTTM*100).toFixed(1)+'%' : (_ra.grossProfitMargin ? (_ra.grossProfitMargin*100).toFixed(1)+'%' : 'N/A')) + ' | Op Margin: ' + (_rt.operatingProfitMarginTTM ? (_rt.operatingProfitMarginTTM*100).toFixed(1)+'%' : (_ra.operatingProfitMargin ? (_ra.operatingProfitMargin*100).toFixed(1)+'%' : 'N/A')) + ' | Net Margin: ' + (_rt.netProfitMarginTTM ? (_rt.netProfitMarginTTM*100).toFixed(1)+'%' : (_ra.netProfitMargin ? (_ra.netProfitMargin*100).toFixed(1)+'%' : 'N/A')) + '\n';
+          prompt += '  ROE: ' + (_rt.returnOnEquityTTM ? (_rt.returnOnEquityTTM*100).toFixed(1)+'%' : (_ra.returnOnEquity ? (_ra.returnOnEquity*100).toFixed(1)+'%' : 'N/A')) + ' | ROA: ' + (_rt.returnOnAssetsTTM ? (_rt.returnOnAssetsTTM*100).toFixed(1)+'%' : (_ra.returnOnAssets ? (_ra.returnOnAssets*100).toFixed(1)+'%' : 'N/A')) + '\n';
+          prompt += '  유동비율: ' + (_rt.currentRatioTTM || _ra.currentRatio || 'N/A') + ' | 당좌비율: ' + (_rt.quickRatioTTM || _ra.quickRatio || 'N/A') + ' | D/E: ' + (_rt.debtEquityRatioTTM || _ra.debtEquityRatio || 'N/A') + '\n';
+          prompt += '  이자보상배율: ' + (_rt.interestCoverageTTM || _ra.interestCoverage || 'N/A') + '\n';
+        }
+
+        // FMP 연간 추이 (최근 3개년 — 트렌드 분석용)
+        if (fd.fmpMetrics && fd.fmpMetrics.length >= 2) {
+          prompt += '\n● 밸류에이션 연간 추이 (Annual Trend):\n';
+          fd.fmpMetrics.slice(0, 3).forEach(function(ym) {
+            var yr = (ym.date||'').slice(0,4);
+            prompt += '  FY' + yr + ': P/E ' + (ym.peRatio||'N/A') + ' | P/B ' + (ym.pbRatio||'N/A') + ' | EV/EBITDA ' + (ym.enterpriseValueOverEBITDA||'N/A') + ' | ROIC ' + (ym.roic ? (ym.roic*100).toFixed(1)+'%' : 'N/A') + '\n';
+          });
         }
 
         // 경쟁사
@@ -20691,7 +20964,7 @@ const CHAT_CONTEXTS = {
         if (fd.fmpInstitutional && fd.fmpInstitutional.length) {
           prompt += '\n● 기관 투자자 (Top Institutional Holders):\n';
           fd.fmpInstitutional.slice(0, 10).forEach(function(h) {
-            prompt += '  ' + (h.holder||'') + ' | ' + (h.shares||0).toLocaleString() + '주 | $' + _fmtNum((h.shares||0)*(h.value||0)/((h.shares||1))) + ' | 변동: ' + (h.change||0).toLocaleString() + '주\n';
+            prompt += '  ' + (h.holder||'') + ' | ' + (h.shares||0).toLocaleString() + '주 | $' + _fmtNum(h.value||0) + ' | 변동: ' + (h.change||0).toLocaleString() + '주\n';
           });
         }
 
@@ -20749,8 +21022,8 @@ const CHAT_CONTEXTS = {
           prompt += '\n● DCF 밸류에이션 (FMP 모델):\n';
           prompt += '  DCF 적정가: $' + (typeof fd.fmpDCF.dcf === 'number' ? fd.fmpDCF.dcf.toFixed(2) : 'N/A') + ' | 현재가: $' + (fd.fmpDCF.stockPrice||fd.price||0).toFixed(2) + '\n';
           if (fd.fmpDCF.dcf && fd.price) {
-            var dcfUpside = ((fd.fmpDCF.dcf / fd.price - 1) * 100).toFixed(1);
-            prompt += '  DCF 대비 ' + (dcfUpside > 0 ? dcfUpside + '% 저평가 (업사이드)' : Math.abs(dcfUpside) + '% 고평가 (다운사이드)') + '\n';
+            var _dcfUp = (fd.fmpDCF.dcf / fd.price - 1) * 100;
+            prompt += '  DCF 대비 ' + (_dcfUp >= 0 ? _dcfUp.toFixed(1) + '% 저평가 (업사이드)' : Math.abs(_dcfUp).toFixed(1) + '% 고평가 (다운사이드)') + '\n';
           }
         }
 
@@ -21481,7 +21754,7 @@ async function _fetchSectorCompareData(stocks) {
             line.pegRatio = rt.pegRatioTTM;
             line.psRatio = rt.priceToSalesRatioTTM;
             line.evToEbitda = rt.enterpriseValueOverEBITDATTM;
-            line.evToRev = rt.priceToSalesRatioTTM; // proxy
+            line.evToRev = null; // v35.4: evToSales는 key-metrics-ttm에서 별도 조회
             line.roe = rt.returnOnEquityTTM;
             line.roa = rt.returnOnAssetsTTM;
             line.grossMargin = rt.grossProfitMarginTTM;
@@ -21505,6 +21778,7 @@ async function _fetchSectorCompareData(stocks) {
           if (Array.isArray(km) && km[0]) {
             var k = km[0];
             if (!line.evToEbitda && k.enterpriseValueOverEBITDATTM) line.evToEbitda = k.enterpriseValueOverEBITDATTM;
+            if (k.evToSalesTTM) line.evToRev = k.evToSalesTTM; // v35.4: 정확한 EV/Sales
             line.revenuePerShare = k.revenuePerShareTTM;
             line.netIncomePerShare = k.netIncomePerShareTTM;
             line.bookValuePerShare = k.bookValuePerShareTTM;
@@ -21528,9 +21802,9 @@ async function _fetchSectorCompareData(stocks) {
             if (inc[1].epsdiluted && inc[1].epsdiluted > 0) {
               line.epsGrowth = ((inc[0].epsdiluted - inc[1].epsdiluted) / Math.abs(inc[1].epsdiluted) * 100);
             }
-            // 3년 매출 CAGR
-            if (inc.length >= 3 && inc[2].revenue > 0) {
-              line.rev3yCagr = (Math.pow(inc[0].revenue / inc[2].revenue, 0.5) - 1) * 100;
+            // 2개년 매출 CAGR (inc[0] vs inc[2] = 2년 간격)
+            if (inc.length >= 3 && inc[2].revenue > 0 && inc[0].revenue > 0) {
+              line.rev2yCagr = (Math.pow(inc[0].revenue / inc[2].revenue, 0.5) - 1) * 100;
             }
           }
         }
@@ -21652,7 +21926,7 @@ function _formatSectorComparePrompt(sectorLabel, compareData) {
 
     // 성장
     lines.push('   [성장]');
-    lines.push('   매출성장(YoY): ' + _pct(d.revGrowth) + (d.rev3yCagr != null ? ' | 매출 2Y CAGR: ' + _pct(d.rev3yCagr) : ''));
+    lines.push('   매출성장(YoY): ' + _pct(d.revGrowth) + (d.rev2yCagr != null ? ' | 매출 2Y CAGR: ' + _pct(d.rev2yCagr) : ''));
     lines.push('   EPS성장(YoY): ' + _pct(d.epsGrowth) + ' | 최근EPS: ' + (d.latestEps != null ? '$' + _f(d.latestEps,2) : 'N/A'));
     lines.push('   최근매출: ' + _fm(d.latestRev) + (d.latestEbitda ? ' | EBITDA: ' + _fm(d.latestEbitda) : ''));
     lines.push('');
@@ -21850,7 +22124,7 @@ async function _fetchDeepCompareData(tickers) {
       var _fmpUrl = 'https://financialmodelingprep.com/api/';
       var _fmpGet = function(ep) { return withTimeout(fetch(_fmpUrl + ep + (ep.indexOf('?')>-1?'&':'?') + 'apikey=' + fmpKey), 6000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}); };
       var [profRes, revSegRes, revGeoRes, incRes, cfRes, growthRes, execRes, insiderRes, instRes, ratioRes,
-           balRes, metricsRes, peersRes, surprisesRes, evRes, estimatesRes, tgtRes, dcfRes] = await Promise.all([
+           balRes, metricsRes, metricsTTMRes, peersRes, surprisesRes, evRes, estimatesRes, tgtRes, dcfRes] = await Promise.all([
         _fmpGet('v3/profile/' + t),
         _fmpGet('v4/revenue-product-segmentation?symbol=' + t + '&structure=flat&period=annual'),
         _fmpGet('v4/revenue-geographic-segmentation?symbol=' + t + '&structure=flat&period=annual'),
@@ -21863,7 +22137,8 @@ async function _fetchDeepCompareData(tickers) {
         _fmpGet('v3/ratios-ttm/' + t),
         // v34.2: 누락된 8개 엔드포인트 추가 — fundamentalSearch() 18개 완전 정합
         _fmpGet('v3/balance-sheet-statement/' + t + '?limit=3'),
-        _fmpGet('v3/key-metrics/' + t + '?limit=3'),
+        _fmpGet('v3/key-metrics/' + t + '?limit=3'),  // Annual (추이용)
+        _fmpGet('v3/key-metrics-ttm/' + t),  // v35.4: TTM 추가
         _fmpGet('v4/stock_peers?symbol=' + t),
         _fmpGet('v3/earnings-surprises/' + t),
         _fmpGet('v3/enterprise-values/' + t + '?limit=1'),
@@ -21884,6 +22159,7 @@ async function _fetchDeepCompareData(tickers) {
         ratios: (ratioRes && ratioRes[0]) || null,
         balance: balRes || null,
         metrics: metricsRes || null,
+        metricsTTM: (metricsTTMRes && metricsTTMRes[0]) || null,
         peers: (peersRes && peersRes[0] && peersRes[0].peersList) ? peersRes[0].peersList : null,
         surprises: surprisesRes ? (surprisesRes.slice ? surprisesRes.slice(0, 8) : null) : null,
         ev: (evRes && evRes[0]) || null,
@@ -22060,11 +22336,15 @@ function _formatDeepComparePrompt(tickers, deepData) {
       });
     }
 
-    // 12. 핵심 지표 (Key Metrics)
+    // 12. 핵심 투자 지표 — TTM 우선 + Annual 추이
+    if (d.metricsTTM) {
+      var _kmt = d.metricsTTM;
+      out += '\n【핵심 투자 지표 (TTM)】 EV/EBITDA ' + _f(_kmt.enterpriseValueOverEBITDATTM) + 'x | FCF Yield ' + _f(_kmt.freeCashFlowYieldTTM ? _kmt.freeCashFlowYieldTTM*100 : null) + '% | ROIC ' + _f(_kmt.roicTTM ? _kmt.roicTTM*100 : null) + '% | 배당수익률 ' + _f(_kmt.dividendYieldTTM ? _kmt.dividendYieldTTM*100 : null) + '%\n';
+    }
     if (d.metrics && Array.isArray(d.metrics) && d.metrics.length > 0) {
-      out += '\n【핵심 투자 지표】\n';
+      out += '【핵심 투자 지표 (Annual 추이)】\n';
       d.metrics.slice(0, 2).forEach(function(km) {
-        out += '  ' + (km.calendarYear || km.date || '?') + ': EV/EBITDA ' + _f(km.enterpriseValueOverEBITDA) + 'x | FCF Yield ' + _f(km.freeCashFlowYield ? km.freeCashFlowYield*100 : null) + '% | ROIC ' + _f(km.roic ? km.roic*100 : null) + '% | 매출/직원 ' + _fm(km.revenuePerShare) + '/주 | 배당수익률 ' + _f(km.dividendYield ? km.dividendYield*100 : null) + '%\n';
+        out += '  ' + (km.calendarYear || km.date || '?') + ': EV/EBITDA ' + _f(km.enterpriseValueOverEBITDA) + 'x | FCF Yield ' + _f(km.freeCashFlowYield ? km.freeCashFlowYield*100 : null) + '% | ROIC ' + _f(km.roic ? km.roic*100 : null) + '% | 배당수익률 ' + _f(km.dividendYield ? km.dividendYield*100 : null) + '%\n';
       });
     }
 
@@ -22591,10 +22871,17 @@ async function fundamentalSearch() {
     if (cashflow && cashflow.length) { collected.fmpCashflow = cashflow; collected.sources.push('FMP (현금흐름표)'); updateProgress('현금흐름표: ' + cashflow.length + '개년 데이터'); }
 
     var ratios = await _fmpFetch('v3/ratios/' + ticker + '?limit=5');
-    if (ratios && ratios.length) { collected.fmpRatios = ratios; collected.sources.push('FMP (재무비율)'); updateProgress('재무비율: ' + ratios.length + '개년 데이터'); }
+    if (ratios && ratios.length) { collected.fmpRatios = ratios; collected.sources.push('FMP (재무비율·Annual)'); updateProgress('재무비율: ' + ratios.length + '개년 데이터'); }
 
     var metrics = await _fmpFetch('v3/key-metrics/' + ticker + '?limit=5');
-    if (metrics && metrics.length) { collected.fmpMetrics = metrics; collected.sources.push('FMP (핵심 지표)'); updateProgress('핵심 지표: PE/PB/EV/EBITDA/ROE/ROIC 등'); }
+    if (metrics && metrics.length) { collected.fmpMetrics = metrics; collected.sources.push('FMP (핵심 지표·Annual)'); updateProgress('핵심 지표: PE/PB/EV/EBITDA/ROE/ROIC 등'); }
+
+    // ─── v35.4 FIX: TTM 엔드포인트 추가 (연간 데이터와 별도로 최신 TTM 수치 수집) ───
+    var ratiosTTM = await _fmpFetch('v3/ratios-ttm/' + ticker);
+    if (ratiosTTM && ratiosTTM[0]) { collected.fmpRatiosTTM = ratiosTTM[0]; updateProgress('재무비율 TTM 데이터 수집 완료'); }
+
+    var metricsTTM = await _fmpFetch('v3/key-metrics-ttm/' + ticker);
+    if (metricsTTM && metricsTTM[0]) { collected.fmpMetricsTTM = metricsTTM[0]; updateProgress('핵심 지표 TTM 데이터 수집 완료'); }
 
     var peers = await _fmpFetch('v4/stock_peers?symbol=' + ticker);
     if (peers && peers[0] && peers[0].peersList) { collected.peers = peers[0].peersList; collected.sources.push('FMP (경쟁사)'); updateProgress('경쟁사 그룹: ' + peers[0].peersList.join(', ')); }
@@ -22813,7 +23100,7 @@ function _renderFundFinancials(d) {
   html += card('EV/EBITDA', m.enterpriseValueOverEBITDA ? m.enterpriseValueOverEBITDA.toFixed(1) + 'x' : 'N/A', '기업가치 대비');
   html += card('P/B', m.pbRatio ? m.pbRatio.toFixed(2) + 'x' : (secEquityVal && d.price && secEquityVal > 0 ? (mktCap / secEquityVal).toFixed(2) + 'x' : 'N/A'), '주가순자산비율');
   html += card('부채비율', deVal ? deVal.toFixed(2) + 'x' : 'N/A', deVal > 2 ? '높음' : (deVal ? '안정' : ''), deVal > 2 ? '#f87171' : '#3ddba5');
-  html += card('배당수익률', p.lastDiv ? ((p.lastDiv / (d.price || 1)) * 100).toFixed(2) + '%' : '0%', '연간 배당');
+  html += card('배당수익률', (p.lastDiv && d.price && d.price > 0) ? ((p.lastDiv / d.price) * 100).toFixed(2) + '%' : (p.lastDiv ? 'N/A' : '0%'), '연간 배당');
 
   if (isSEC) { html += '<div style="grid-column:1/-1;text-align:center;font-size:9px;color:var(--text-muted);padding:4px;">📋 SEC EDGAR XBRL 기반 데이터 (FMP API 키 설정 시 더 풍부한 지표 제공)</div>'; }
 
@@ -22910,42 +23197,46 @@ function _renderFundValuation(d) {
   var el = document.getElementById('fund-rpt-valuation');
   var body = document.getElementById('fund-rpt-val-body');
   if (!el || !body) return;
-  var m = (d.fmpMetrics && d.fmpMetrics[0]) || {};
-  var r = (d.fmpRatios && d.fmpRatios[0]) || {};
+  // v35.4: TTM 데이터 우선, Annual fallback
+  var mt = d.fmpMetricsTTM || {};
+  var rt = d.fmpRatiosTTM || {};
+  var ma = (d.fmpMetrics && d.fmpMetrics[0]) || {};
+  var ra = (d.fmpRatios && d.fmpRatios[0]) || {};
   var p = d.fmpProfile || {};
-  if (!m.peRatio && !r.priceEarningsRatio) { el.style.display = 'none'; return; }
+  var hasTTM = !!(mt.peRatioTTM || rt.peRatioTTM);
+  if (!mt.peRatioTTM && !ma.peRatio && !ra.priceEarningsRatio) { el.style.display = 'none'; return; }
 
   var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
 
-  // 좌측: 밸류에이션 지표
+  // 좌측: 밸류에이션 지표 (TTM 우선)
   html += '<div>';
-  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">핵심 배수</div>';
+  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">핵심 배수' + (hasTTM ? ' <span style="color:#3ddba5;font-size:8px;">TTM</span>' : ' <span style="color:#f59e0b;font-size:8px;">Annual</span>') + '</div>';
   function valRow(label, val, bench) {
     return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:10px;">' +
       '<span style="color:var(--text-secondary);">' + label + '</span>' +
       '<span style="color:var(--text-primary);font-family:var(--font-mono);font-weight:600;">' + val + '</span></div>';
   }
-  html += valRow('P/E (TTM)', (m.peRatio || 0).toFixed(1) + 'x');
+  html += valRow('P/E (TTM)', (mt.peRatioTTM || ma.peRatio || 0).toFixed(1) + 'x');
   html += valRow('Forward P/E', p.pe ? p.pe.toFixed(1) + 'x' : 'N/A');
-  html += valRow('P/B', (m.pbRatio || 0).toFixed(2) + 'x');
-  html += valRow('P/S', (m.priceToSalesRatio || r.priceToSalesRatio || 0).toFixed(2) + 'x');
-  html += valRow('EV/EBITDA', (m.enterpriseValueOverEBITDA || 0).toFixed(1) + 'x');
-  html += valRow('EV/Sales', (m.evToSales || 0).toFixed(2) + 'x');
-  html += valRow('PEG', m.peRatio && r.netIncomePerEBT ? 'N/A' : 'N/A');
-  html += valRow('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : 'N/A');
+  html += valRow('P/B', (mt.priceToBookRatioTTM || ma.pbRatio || 0).toFixed(2) + 'x');
+  html += valRow('P/S', (mt.priceToSalesRatioTTM || ma.priceToSalesRatio || ra.priceToSalesRatio || 0).toFixed(2) + 'x');
+  html += valRow('EV/EBITDA', (mt.enterpriseValueOverEBITDATTM || ma.enterpriseValueOverEBITDA || 0).toFixed(1) + 'x');
+  html += valRow('EV/Sales', (mt.evToSalesTTM || ma.evToSales || 0).toFixed(2) + 'x');
+  html += valRow('PEG', (rt.pegRatioTTM ? rt.pegRatioTTM.toFixed(2) + 'x' : 'N/A'));
+  html += valRow('FCF Yield', mt.freeCashFlowYieldTTM ? (mt.freeCashFlowYieldTTM * 100).toFixed(1) + '%' : (ma.freeCashFlowYield ? (ma.freeCashFlowYield * 100).toFixed(1) + '%' : 'N/A'));
   html += '</div>';
 
-  // 우측: 수익성 지표
+  // 우측: 수익성 지표 (TTM 우선)
   html += '<div>';
-  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">수익성 & 효율성</div>';
-  html += valRow('Gross Margin', r.grossProfitMargin ? (r.grossProfitMargin * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('Operating Margin', r.operatingProfitMargin ? (r.operatingProfitMargin * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('Net Margin', r.netProfitMargin ? (r.netProfitMargin * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('ROE', r.returnOnEquity ? (r.returnOnEquity * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('ROA', r.returnOnAssets ? (r.returnOnAssets * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('ROIC', m.roic ? (m.roic * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('유동비율', r.currentRatio ? r.currentRatio.toFixed(2) + 'x' : 'N/A');
-  html += valRow('부채비율 (D/E)', r.debtEquityRatio ? r.debtEquityRatio.toFixed(2) + 'x' : 'N/A');
+  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">수익성 & 효율성' + (hasTTM ? ' <span style="color:#3ddba5;font-size:8px;">TTM</span>' : ' <span style="color:#f59e0b;font-size:8px;">Annual</span>') + '</div>';
+  html += valRow('Gross Margin', (rt.grossProfitMarginTTM || ra.grossProfitMargin) ? ((rt.grossProfitMarginTTM || ra.grossProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
+  html += valRow('Operating Margin', (rt.operatingProfitMarginTTM || ra.operatingProfitMargin) ? ((rt.operatingProfitMarginTTM || ra.operatingProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
+  html += valRow('Net Margin', (rt.netProfitMarginTTM || ra.netProfitMargin) ? ((rt.netProfitMarginTTM || ra.netProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
+  html += valRow('ROE', (rt.returnOnEquityTTM || ra.returnOnEquity) ? ((rt.returnOnEquityTTM || ra.returnOnEquity) * 100).toFixed(1) + '%' : 'N/A');
+  html += valRow('ROA', (rt.returnOnAssetsTTM || ra.returnOnAssets) ? ((rt.returnOnAssetsTTM || ra.returnOnAssets) * 100).toFixed(1) + '%' : 'N/A');
+  html += valRow('ROIC', (mt.roicTTM || ma.roic) ? ((mt.roicTTM || ma.roic) * 100).toFixed(1) + '%' : 'N/A');
+  html += valRow('유동비율', (rt.currentRatioTTM || ra.currentRatio) ? (rt.currentRatioTTM || ra.currentRatio).toFixed(2) + 'x' : 'N/A');
+  html += valRow('부채비율 (D/E)', (rt.debtEquityRatioTTM || ra.debtEquityRatio) ? (rt.debtEquityRatioTTM || ra.debtEquityRatio).toFixed(2) + 'x' : 'N/A');
   html += '</div>';
 
   html += '</div>';
@@ -24174,7 +24465,7 @@ document.addEventListener('aio:liveQuotes', function() {
         '• 원/달러: ' + s.krw + '원 | DXY: ' + s.dxy + '\n' +
         '• VKOSPI(변동성): ' + (S.vkospi||'—') + '\n\n' +
         '【한국 금리·채권 (⚠ 스냅샷 기준 — 실시간 아님)】\n' +
-        '• 한은 기준금리: ' + (S.bokRate||2.75) + '% (' + (S.bokStatus||'동결') + ') | 다음 금통위: ' + (S.bokNext||'미정') + '\n' +
+        '• 한은 기준금리: ' + (S.bokRate||2.50) + '% (' + (S.bokStatus||'동결') + ') | 다음 금통위: ' + (S.bokNext||'미정') + '\n' +
         '• 국고채 3Y: ' + (S.krBond3y||'—') + '% | 10Y: ' + (S.krBond10y||'—') + '% | 스프레드(10Y-3Y): ' + ((S.krBond10y && S.krBond3y) ? (S.krBond10y - S.krBond3y).toFixed(2) : '—') + '%p\n' +
         '• CD 91일: ' + (S.krCd91||'—') + '% | 한미 금리차: ' + ((S.bokRate && S.fedRate) ? '한국 ' + S.bokRate + '% vs 미국 ' + S.fedRate : '—') + '\n\n' +
         '【한국 거시경제 (⚠ 스냅샷 기준 — 발표 시점 기준값)】\n' +
@@ -24325,6 +24616,46 @@ function filterKrThemes(btn, heat) {
   });
 }
 
+// v35.5: 카탈리스트 데이터 JS 분리 — 한 곳에서 업데이트 가능
+var KR_THEME_CATALYSTS = {
+  'defense':     '수주 잔고 100조+ 실적 전환 · 한화에어로 NATO 추가 수주 · 풍산 탄약 수출 수혜 · KAI 경공격기 수출',
+  'semi':        'SK하이닉스 HBM3E 12H 수율 안정화 · 삼성전자 HBM4 양산 · 주성엔지 ALD 장비 수주↑ · AI CAPEX 사이클 지속',
+  'shipbuilding':'LNG/암모니아 선박 고부가 수주 · 선가 상승 사이클 · 해군 함정 수출 본격화 · 수주 잔고 역대 최고',
+  'ai-sw':       'NAVER HyperCLOVA X Agent · 삼성SDS AI플랫폼 Brity · 더존비즈온 AI ERP · 폴라리스오피스 글로벌 확산',
+  'power-grid':  'AI 데이터센터 전력 수요 급증 · 미국 그리드 노후화 교체 수요 · 중동·동남아 변압기 수출 호조',
+  'nuclear':     '체코 원전 수주 후속 · 두산에너빌리티 SMR 전용 공장 · 미국 원전 신규 건설 법안 통과',
+  'battery':     '글로벌 EV 성장 둔화 · 중국 CATL 가격 경쟁 · 전고체 전환기 불확실성 · IRA 보조금 축소',
+  'bio':         '알테오젠 SC 기술 글로벌 수출 · 삼성바이오 CDMO 4공장 · 셀트리온 미국 점유율 확대 · 한미약품 GLP-1',
+  'kbeauty':     '미국·인도·일본 K-뷰티 확장 · 코스맥스 ODM 수주 역대 · APR 북미 고성장 · 클리오 세포라 입점',
+  'kcontent':    '하이브 내부 리스크 · K-POP 앨범 둔화 · 크래프톤 배그 인디아 성장 · 스튜디오드래곤 K-드라마 글로벌',
+  'auto':        '현대차 EV 라인업 확대 · 기아 EV3 유럽 호조 · SDV 전환 투자 · HL만도 ADAS L3 수주',
+  'robot':       '두산로보틱스 IPO 후 급등 · 현대차 보스턴다이내믹스 상용화 · 레인보우 양팔로봇',
+  'finance':     '밸류업 프로그램 지속 · 배당 확대 · PBR 저평가 매력 · 메리츠 ROE 업계 1위 · 금리 인하 기대',
+  'kfood':       '삼양식품 불닭 글로벌 폭증 · K-푸드 수출 역대 최고 · 농심 미국 공장 증설 · CJ제일제당 비비고 미국 확장',
+  'crypto':      'BTC 가격 연동 · 두나무(업비트) 거래량 회복 · 가상자산 과세 유예 종료 대비',
+  'telecom':     'SK텔레콤 AI 데이터센터 확장 · KT 클라우드/AI 분사 · 6G 표준화 선점 · 삼성SDS AI 플랫폼 Brity'
+};
+
+// v35.5: 섹터 카테고리 필터
+var _KR_SECTOR_MAP = {
+  'tech':     ['semi','ai-sw','robot'],
+  'industry': ['defense','shipbuilding','power-grid','nuclear','battery','auto'],
+  'consumer': ['bio','kbeauty','kcontent','kfood','crypto'],
+  'finance':  ['finance','telecom']
+};
+function filterKrSector(btn, sector) {
+  var tabBar = btn.parentElement;
+  if (tabBar) tabBar.querySelectorAll('.kr-sector-tab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  var cards = document.querySelectorAll('#kr-theme-container .kr-theme-card');
+  var allowed = sector === 'all' ? null : _KR_SECTOR_MAP[sector];
+  cards.forEach(function(card) {
+    if (!allowed) { card.style.display = ''; return; }
+    var tid = card.getAttribute('data-theme-id');
+    card.style.display = allowed.indexOf(tid) >= 0 ? '' : 'none';
+  });
+}
+
 function krSupplyTab(btn, tabId) {
   var tabBar = btn.closest('.kr-tabs');
   if (tabBar) tabBar.querySelectorAll('.kr-tab').forEach(function(t){ t.classList.remove('active'); });
@@ -24409,6 +24740,66 @@ function initKoreaHome() {
           priceEl.textContent += pctStr;
           priceEl.style.color = pv >= 0 ? 'var(--green)' : 'var(--red)';
         }
+      }
+      // v35.5: 등락률·시총 동적 갱신
+      var chgEl = card.querySelector('.kr-screen-chg');
+      if (chgEl && d.pct != null) {
+        var pv2 = _krNum(d.pct);
+        chgEl.textContent = (pv2 >= 0 ? '+' : '') + pv2.toFixed(2) + '%';
+        chgEl.style.color = pv2 >= 0 ? 'var(--green)' : 'var(--red)';
+      }
+      var capEl = card.querySelector('.kr-screen-cap');
+      if (capEl && d.mktCap != null) {
+        var cap = _krNum(d.mktCap);
+        if (cap >= 1e12) capEl.textContent = (cap / 1e12).toFixed(0) + '조원';
+        else if (cap >= 1e8) capEl.textContent = (cap / 1e8).toFixed(0) + '억원';
+        else capEl.textContent = cap.toLocaleString() + '원';
+      }
+    }
+  });
+
+  // v35.5: 대장주 카드 클릭 → 해당 테마 페이지 이동
+  homeCards.forEach(function(card) {
+    if (card._krClickBound) return;
+    card._krClickBound = true;
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function() {
+      var sym = card.getAttribute('data-live-price');
+      if (!sym) return;
+      var code = sym.replace(/\.(KS|KQ)$/i, '');
+      // KR_THEME_MAP에서 해당 코드가 포함된 테마 찾기
+      if (typeof KR_THEME_MAP === 'undefined') return;
+      for (var themeId in KR_THEME_MAP) {
+        var found = KR_THEME_MAP[themeId].some(function(t) { return t.code === code; });
+        if (found) {
+          showPage('kr-themes');
+          // 해당 테마 카드로 스크롤
+          setTimeout(function() {
+            var tc = document.querySelector('[data-theme-id="' + themeId + '"]');
+            if (tc) tc.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 200);
+          return;
+        }
+      }
+    });
+  });
+
+  // v35.5: ETF 카드 실시간 갱신
+  var etfCards = document.querySelectorAll('#kr-etf-grid .kr-etf-card[data-live-price]');
+  etfCards.forEach(function(card) {
+    var sym = card.getAttribute('data-live-price');
+    var d = ld[sym];
+    if (d && d.price != null) {
+      var pctEl = card.querySelector('.kr-etf-pct');
+      var priceEl = card.querySelector('.kr-etf-price');
+      var pv = _krNum(d.pct);
+      if (pctEl) {
+        pctEl.textContent = (pv >= 0 ? '+' : '') + pv.toFixed(2) + '%';
+        pctEl.style.color = pv >= 0 ? 'var(--green)' : 'var(--red)';
+      }
+      if (priceEl) {
+        priceEl.textContent = '₩' + Math.round(d.price).toLocaleString();
+        priceEl.style.color = pv >= 0 ? 'var(--green)' : 'var(--red)';
       }
     }
   });
@@ -24563,6 +24954,12 @@ function initKoreaThemes() {
       statEl.textContent = (avg >= 0 ? '+' : '') + avg.toFixed(1) + '%';
       statEl.style.color = avg >= 0 ? 'var(--green)' : 'var(--red)';
     }
+
+    // v35.5: 카탈리스트 텍스트 JS 변수에서 동적 주입
+    var catEl = card.querySelector('.kr-theme-catalyst');
+    if (catEl && KR_THEME_CATALYSTS[themeId]) {
+      catEl.textContent = KR_THEME_CATALYSTS[themeId];
+    }
   });
 }
 
@@ -24571,16 +24968,19 @@ async function fetchKrSupplyData() {
   try {
     var cfW = localStorage.getItem('aio_cf_worker_url') || '';
     var naverUrl = 'https://m.stock.naver.com/api/index/KOSPI/investorTrend';
+    // v35.5: 프록시 체인 강화 — 4단계 fallback
     var proxies = [
       ...(cfW ? [cfW + '?url=' + encodeURIComponent(naverUrl)] : []),
       'https://corsproxy.io/?' + encodeURIComponent(naverUrl),
       'https://api.allorigins.win/raw?url=' + encodeURIComponent(naverUrl),
+      'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(naverUrl),
+      'https://thingproxy.freeboard.io/fetch/' + naverUrl,
     ];
 
     for (var i = 0; i < proxies.length; i++) {
       try {
         var r = await withTimeout(fetch(proxies[i]), 8000);
-        if (!r.ok) continue;
+        if (!r.ok) { console.log('[KR] 프록시 ' + (i+1) + ' HTTP ' + r.status); continue; }
         var data = await r.json();
         if (data && (data.investorTrends || data.contents)) {
           var parsed = data;
@@ -24588,19 +24988,36 @@ async function fetchKrSupplyData() {
           if (parsed && parsed.investorTrends && parsed.investorTrends.length > 0) {
             window._krSupplyData = parsed.investorTrends;
             updateKrSupplyDOM(parsed.investorTrends[0]); // 최신 데이터
-            console.log('[KR] 수급 데이터 로드 성공 (Naver Finance)');
+            console.log('[KR] 수급 데이터 로드 성공 (프록시 ' + (i+1) + '/' + proxies.length + ')');
             return;
           }
         }
-      } catch(e) { continue; }
+      } catch(e) { console.log('[KR] 프록시 ' + (i+1) + ' 실패:', e.message); continue; }
     }
 
-    // Naver 실패 시 → 네이버 시세 JSON 대체 시도
-    var altUrl = 'https://polling.finance.naver.com/api/realtime/domestic/stock/024110';
+    // v35.5: 모든 프록시 실패 시 사용자에게 명확한 안내
     console.warn('[KR] 수급 데이터 로드 실패 — 폴백 데이터 사용');
+    _showKrSupplyFallbackNotice();
   } catch(e) {
     console.warn('[KR] fetchKrSupplyData error:', e);
+    _showKrSupplyFallbackNotice();
   }
+}
+
+// v35.5: 수급 데이터 폴백 안내 표시
+function _showKrSupplyFallbackNotice() {
+  var targets = ['kr-home-kospi-supply', 'kr-supply-kospi-flow', 'kr-supply-kosdaq-flow'];
+  targets.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var existing = el.querySelector('.kr-supply-fallback-notice');
+    if (existing) return; // 이미 표시됨
+    var notice = document.createElement('div');
+    notice.className = 'kr-supply-fallback-notice';
+    notice.style.cssText = 'padding:6px 8px;margin-top:6px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:4px;font-size:9px;color:var(--yellow);';
+    notice.textContent = '⚠ 실시간 수급 데이터 로드 실패 — 아래는 과거 스냅샷입니다. AI 채팅에서 최신 수급을 질문하세요.';
+    el.appendChild(notice);
+  });
 }
 
 function updateKrSupplyDOM(trend) {
@@ -24813,7 +25230,8 @@ var KR_THEME_MAP = {
     {code:'000990',w:4},  // DB하이텍
     {code:'036930',w:4},  // 주성엔지니어링
     {code:'131970',w:3},  // 테크윙
-    {code:'005290',w:3}   // 동진쎄미켐
+    {code:'005290',w:3},  // 동진쎄미켐
+    {code:'402340',w:3}   // SK스퀘어 (v35.5: 추가 — SK하이닉스 지분 보유, 시총 ~10조)
   ],
   'shipbuilding': [
     {code:'042660',w:22}, // 한화오션 (TIGER조선 ~27%)
@@ -24826,21 +25244,22 @@ var KR_THEME_MAP = {
     {code:'011200',w:4}   // HD현대마린엔진
   ],
   'ai-sw': [
-    {code:'035420',w:25}, // NAVER (HyperCLOVA)
-    {code:'035720',w:15}, // 카카오
-    {code:'018260',w:20}, // 삼성SDS
-    {code:'012510',w:15}, // 더존비즈온
+    {code:'035420',w:26}, // NAVER (HyperCLOVA)
+    {code:'035720',w:16}, // 카카오
+    {code:'018260',w:21}, // 삼성SDS
+    {code:'012510',w:16}, // 더존비즈온
     {code:'030520',w:10}, // 한글과컴퓨터
-    {code:'041020',w:8},  // 폴라리스오피스
-    {code:'304100',w:4},  // 솔트룩스
-    {code:'005930',w:3}   // 삼성전자(AI칩)
+    {code:'041020',w:7},  // 폴라리스오피스
+    {code:'304100',w:4}   // 솔트룩스
+    // v35.5: 삼성전자(005930) 제거 — 이미 semi 25%에 포함, AI-SW 3%는 불필요
   ],
   'power-grid': [
-    {code:'298040',w:22}, // 효성중공업 (TIGER전력 ~25%)
-    {code:'267260',w:22}, // HD현대일렉트릭 (~25%)
-    {code:'010120',w:22}, // LS일렉트릭 (~25%)
-    {code:'103590',w:8},  // 일진전기
-    {code:'006260',w:8},  // LS
+    {code:'298040',w:20}, // 효성중공업 (TIGER전력 ~25%)
+    {code:'267260',w:20}, // HD현대일렉트릭 (~25%)
+    {code:'010120',w:20}, // LS일렉트릭 (~25%)
+    {code:'015760',w:8},  // 한국전력 (v35.5: 추가 — 시총 ~15조, 전력 인프라 대장)
+    {code:'103590',w:7},  // 일진전기
+    {code:'006260',w:7},  // LS
     {code:'229640',w:6},  // LS에코에너지
     {code:'000500',w:6},  // 가온전선
     {code:'033100',w:6}   // 제룡전기
@@ -24918,8 +25337,9 @@ var KR_THEME_MAP = {
     {code:'086790',w:14}, // 하나금융
     {code:'316140',w:12}, // 우리금융지주
     {code:'138040',w:14}, // 메리츠금융지주
-    {code:'032830',w:11}, // 삼성생명
-    {code:'000810',w:11}  // 삼성화재
+    {code:'032830',w:9},  // 삼성생명
+    {code:'000810',w:9},  // 삼성화재
+    {code:'323410',w:6}   // 카카오뱅크 (v35.5: 추가 — 핀테크, 시총 ~10조)
   ],
   'kfood': [
     {code:'003230',w:22}, // 삼양식품 (불닭)
@@ -24937,11 +25357,11 @@ var KR_THEME_MAP = {
     {code:'094480',w:15}  // 갤럭시아머니트리
   ],
   'telecom': [
-    {code:'017670',w:30}, // SK텔레콤
-    {code:'030200',w:25}, // KT
-    {code:'032640',w:15}, // LG유플러스
-    {code:'018260',w:15}, // 삼성SDS
-    {code:'066570',w:15}  // LG전자
+    {code:'017670',w:32}, // SK텔레콤
+    {code:'030200',w:28}, // KT
+    {code:'032640',w:20}, // LG유플러스
+    {code:'018260',w:20}  // 삼성SDS
+    // v35.5: LG전자(066570) 제거 — 가전/전장 업체, 통신 테마에 부적합
   ]
 };
 
@@ -25166,7 +25586,7 @@ async function fetchFREDData(seriesId, options) {
       series: seriesId,
       info: FRED_SERIES_EXT[seriesId] || FRED_SERIES[seriesId] || { name: seriesId },
       data: data.observations.map(function(o) {
-        return { date: o.date, value: parseFloat(o.value) || null };
+        var _pv = parseFloat(o.value); return { date: o.date, value: isNaN(_pv) ? null : _pv };
       }).filter(function(o) { return o.value !== null; })
     };
   }
@@ -25276,12 +25696,12 @@ async function dynamicTickerLookup(ticker) {
             var _dynPrice = meta.regularMarketPrice;
             var _dynPrev = meta.chartPreviousClose || meta.previousClose || 0;
             var _dynPct = meta.regularMarketChangePercent;
-            if ((!_dynPct || _dynPct === 0) && _dynPrev > 0) {
+            if (_dynPct == null && _dynPrev > 0) {
               _dynPct = ((_dynPrice - _dynPrev) / _dynPrev) * 100;
             }
             // 캐시에 저장
             if (!window._liveData) window._liveData = {};
-            window._liveData[ticker] = { price: _dynPrice, pct: _dynPct || 0 };
+            window._liveData[ticker] = { price: _dynPrice, pct: _dynPct != null ? _dynPct : 0 };
             return {
               ticker: ticker,
               price: _dynPrice,
@@ -26706,7 +27126,7 @@ var THEME_MAP = [
     etf:'IGV', etfName:'iShares Software',
     leaders:['CRM','NOW','ADBE','ORCL','PANW','CRWD','ZS','FTNT','DDOG','SNOW','PLTR','NET'],
     leaderHighlight:['PLTR','CRWD','NOW','PANW'],
-    // PLTR = AI 플랫폼 리더, 퍼포먼스 폭발적
+    // PLTR = AI 플랫폼 리더, 퍼포먼스 폭발적 | SaaSpocalypse/AI 대체 관련 키워드
     subThemes:[
       { name:'엔터프라이즈 SaaS', tickers:['CRM','NOW','ADBE','ORCL','WDAY'] },
       { name:'사이버보안', tickers:['PANW','CRWD','ZS','FTNT','NET'], etf:'HACK' },
@@ -26818,6 +27238,7 @@ var THEME_MAP = [
     leaderHighlight:['NVDA','VRT','ANET','SMCI'],
     subThemes:[
       { name:'AI 칩/가속기', tickers:['NVDA','AMD','AVGO'] },
+      { name:'에이전트 인프라(CPU)', tickers:['AMD','INTC','ARM','AVGO'] },
       { name:'서버/HW', tickers:['SMCI','DELL','HPE'] },
       { name:'냉각/전력', tickers:['VRT','GNRC'] },
       { name:'네트워킹', tickers:['ANET','CSCO'] },
@@ -28268,6 +28689,11 @@ var GLOSSARY = [
   {term:'승자의 저주', cat:'배경지식', def:'경쟁 입찰에서 이긴 사람이 실제로는 과대지불한 경우. IPO·M&A·부동산 경매에서 흔함. 흥분 속 과열 경계.'},
   {term:'앵커링 효과', cat:'배경지식', def:'처음 본 숫자(앵커)에 판단이 고정되는 심리. "예전에 $200이었으니 $150은 싸다"→실제 가치와 무관. 매수가에 집착하는 투자자의 대표적 실수.'},
   {term:'손실 회피(Loss Aversion)', cat:'배경지식', def:'같은 금액이라도 손실의 고통이 이익의 기쁨보다 약 2배 큼(카너먼·트버스키). 손절 못하고 버티는 심리, 이익은 빨리 확정하는 심리의 원인.'},
+  // v35.4 B7: 행동경제학 용어 4개 추가
+  {term:'처분 효과(Disposition Effect)', cat:'배경지식', def:'이익 종목은 빨리 팔고, 손실 종목은 오래 보유하려는 심리. 역사적으로 정반대 전략의 수익률이 높았다는 연구가 있음(Odean 1998).'},
+  {term:'과잉 자신감(Overconfidence)', cat:'배경지식', def:'자신의 판단력을 과대평가하는 편향. 거래 빈도가 높을수록 수익률이 낮아지는 경향이 관찰됨(Barber & Odean 2000).'},
+  {term:'평균 회귀(Mean Reversion)', cat:'배경지식', def:'극단적으로 오르거나 내린 자산이 장기 평균으로 돌아오는 경향. VIX 스파이크 후 빠른 하락이 대표적 사례.'},
+  {term:'항복 매도(Capitulation)', cat:'배경지식', def:'투자자들이 공포에 모든 포지션을 청산하는 현상. 거래량 폭증+VIX 스파이크+F&G 한 자릿수가 동반되며, 역사적으로 시장 바닥 근처에서 관찰되는 경우가 많았음.'},
 ];
 
 var _glossaryCat = 'all';
