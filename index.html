@@ -29587,7 +29587,7 @@ function loadTVChart(page) {
     if (wrap) wrap.style.display = 'block';
   } else if (page === 'kr') {
     var code = (document.getElementById('tv-kr-sym') || {}).value || '005930';
-    sym = code.replace(/\.(KS|KQ)$/i, '') + '.KS';
+    sym = 'KRX:' + code.replace(/\.(KS|KQ)$/i, '');
     containerId = 'tv-widget-kr';
   }
   var container = document.getElementById(containerId);
