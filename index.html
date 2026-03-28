@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIO Screener v34.5 — 올인원 투자 터미널</title>
+  <!-- v34.6: 캐시 방지 — GitHub Pages에서 항상 최신 버전 제공 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>AIO Screener v34.6 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1938,7 +1942,7 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
     </nav>
 
     <!-- ── GitHub Pages 자동 업데이트 배너 ──────────────── -->
-    <div id="update-banner" role="alert" onclick="window.location.reload()" title="클릭하면 최신 버전으로 새로고침">
+    <div id="update-banner" role="alert" onclick="window.location.href=window.location.pathname+'?v='+Date.now()" title="클릭하면 최신 버전으로 새로고침">
       <span class="banner-text">🔄 새 버전이 배포되었습니다</span>
       <span class="banner-sub">클릭하여 최신 버전으로 새로고침</span>
       <button class="banner-close" aria-label="업데이트 배너 닫기" onclick="event.stopPropagation();document.getElementById('update-banner').classList.remove('show');">✕</button>
@@ -1972,7 +1976,7 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v34.5</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v34.6</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -8115,13 +8119,13 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">현재 기준금리</div>
-          <div style="font-size:28px;font-weight:800;color:var(--yellow);font-family:var(--font-mono);margin-bottom:4px;">2.50%</div>
+          <div style="font-size:28px;font-weight:800;color:var(--yellow);font-family:var(--font-mono);margin-bottom:4px;" data-snap="bok-rate">2.75%</div>
           <div style="font-size:9px;color:var(--text-muted);">2024년 1월: 3.50%</div>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">다음 금통위</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">2026년 4월</div>
-          <div style="font-size:9px;color:var(--yellow);">동결 vs 인하 대기</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:4px;" data-snap="bok-next">2026-05-29</div>
+          <div style="font-size:9px;color:var(--yellow);" data-snap="bok-status">동결</div>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">시장 기대</div>
@@ -8355,11 +8359,11 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
       <div class="widget-title">글로벌 비교 — 한국 vs 주요국</div>
       <table class="kr-flow-table">
         <tr><th>지표</th><th>한국</th><th>미국</th><th>일본</th><th>중국</th></tr>
-        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);">2.50%</td><td>3.50~3.75%</td><td>0.50%</td><td>3.10%</td></tr>
-        <tr><td>CPI (YoY)</td><td>+2.0%</td><td>+2.4%</td><td>+3.7%</td><td>-0.7%</td></tr>
-        <tr><td>GDP 성장률</td><td style="color:var(--red);">-0.3% QoQ</td><td style="color:var(--green);">+2.3% YoY</td><td>+0.6%</td><td>+5.4%</td></tr>
-        <tr><td>환율 (vs USD)</td><td style="color:var(--red);">1,508</td><td>-</td><td>149.2</td><td>7.24</td></tr>
-        <tr><td>10Y 국채</td><td>2.85%</td><td>4.41%</td><td>1.52%</td><td>1.82%</td></tr>
+        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">2.75%</td><td data-snap="fed-rate">3.50-3.75</td><td>0.50%</td><td>3.10%</td></tr>
+        <tr><td>CPI (YoY)</td><td data-snap="kr-cpi">1.9%</td><td data-snap="cpi">2.4%</td><td>+3.7%</td><td>-0.7%</td></tr>
+        <tr><td>GDP 성장률</td><td style="color:var(--red);" data-snap="kr-gdp">-0.2%</td><td style="color:var(--green);">+2.3% YoY</td><td>+0.6%</td><td>+5.4%</td></tr>
+        <tr><td>환율 (vs USD)</td><td style="color:var(--red);" data-snap="krw">1,506</td><td>-</td><td>149.2</td><td>7.24</td></tr>
+        <tr><td>10Y 국채</td><td data-snap="kr-bond-10y">2.92%</td><td>4.41%</td><td>1.52%</td><td>1.82%</td></tr>
         <tr><td>주식시장 YTD</td><td style="color:var(--green);">+5.2%</td><td style="color:var(--red);">-3.8%</td><td style="color:var(--red);">-4.2%</td><td style="color:var(--green);">+1.8%</td></tr>
       </table>
       <div style="margin-top:10px;padding:8px 10px;background:rgba(91,168,255,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
@@ -9793,7 +9797,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v34.5';
+const APP_VERSION = 'v34.6';
 
 // v34.5: 프로덕션 로그 억제 — console.log만 조건부 억제, warn/error는 유지
 // URL에 ?debug=1 추가 시 전체 로그 활성화 (개발 모드)
@@ -9813,7 +9817,7 @@ if (!AIO_DEBUG) {
 // ─────────────────────────────────────────────────────────────────
 const DATA_SNAPSHOT = {
   _updated: '2026-03-27T11:00:00+09:00',   // ISO 타임스탬프 — 마지막 수동 업데이트
-  _note: 'v34.2 — 시장 데이터 갱신 (3/27 오전)',
+  _note: 'v34.6 — 한국 시장 대폭 강화 (3/27)',
 
   // ── 미국 주요 지수 (3/26 수 종가) ──
   spx:        6477.10,  spxPct:    -1.74,
@@ -9944,6 +9948,21 @@ function applyDataSnapshot() {
       'fg':            S.fg ?? '—',
       'fg-label':      S.fgLabel || '—',
       'snapshot-date': _safeDate(S._updated),
+      // v34.6: 한국 매크로 data-snap 매핑
+      'bok-rate':      _snap.fixed(S.bokRate) + '%',
+      'bok-status':    S.bokStatus || '—',
+      'bok-next':      S.bokNext || '—',
+      'kr-bond-3y':    _snap.fixed(S.krBond3y) + '%',
+      'kr-bond-10y':   _snap.fixed(S.krBond10y) + '%',
+      'kr-cpi':        _snap.fixed(S.krCpi, 1) + '%',
+      'kr-gdp':        (S.krGdp > 0 ? '+' : '') + _snap.fixed(S.krGdp, 1) + '%',
+      'kr-gdp-yoy':    (S.krGdpYoy > 0 ? '+' : '') + _snap.fixed(S.krGdpYoy, 1) + '%',
+      'kr-export':     (S.krExport > 0 ? '+' : '') + _snap.fixed(S.krExport, 1) + '%',
+      'kr-semi-export': (S.krSemiExport > 0 ? '+' : '') + _snap.fixed(S.krSemiExport, 1) + '%',
+      'kospi-pe':      _snap.fixed(S.kospiPE, 1),
+      'kospi-pb':      _snap.fixed(S.kospiPB),
+      'vkospi':        _snap.fixed(S.vkospi, 1),
+      'kr-short-sell': _snap.fixed(S.krShortSell, 1) + '%',
     };
     document.querySelectorAll('[data-snap]').forEach(el => {
       const key = el.getAttribute('data-snap');
@@ -18028,6 +18047,27 @@ function _detectQueryComplexity(query, ctxId) {
     var senSonnet = /공포.*탐욕|지금.*바닥|바닥.*신호|VIX.*해석|AAII|NAAIM|풋콜|put.*call|심리.*분석|과매수|과매도|fear.*greed/;
     if (senSonnet.test(q)) return 'sonnet';
   }
+  // v34.6: 한국 시장 컨텍스트 — 기본 Sonnet (한국 시장 분석 품질 보장)
+  else if (ctxId === 'kr-tech') {
+    var krTechThinking = /멀티.*타임프레임|엘리어트|와이코프|피보나치.*정밀|wyckoff|elliott|intermarket|상호.*시장/;
+    if (krTechThinking.test(q)) return 'sonnet-thinking';
+    return 'sonnet'; // kr-tech는 항상 Sonnet 이상
+  }
+  else if (ctxId === 'kr-themes') {
+    var krThThinking = /교차.*분석|테마.*간.*상관|밸류.*체인|value.*chain|종합.*비교/;
+    if (krThThinking.test(q)) return 'sonnet-thinking';
+    return 'sonnet'; // kr-themes는 항상 Sonnet 이상
+  }
+  else if (ctxId === 'kr-macro') {
+    var krMacThinking = /금리.*시나리오|다중.*시나리오|경기.*침체.*확률|스태그플레이션|환율.*시나리오|한미.*금리차.*시나리오/;
+    if (krMacThinking.test(q)) return 'sonnet-thinking';
+    return 'sonnet'; // kr-macro는 항상 Sonnet 이상
+  }
+  else if (ctxId === 'kr-supply') {
+    var krSupThinking = /수급.*시나리오|외국인.*전환.*시나리오|공매도.*종합.*분석|프로그램.*매매.*심층/;
+    if (krSupThinking.test(q)) return 'sonnet-thinking';
+    return 'sonnet'; // kr-supply는 항상 Sonnet 이상
+  }
   // 테마(themes, theme-detail): 섹터/테마 분석은 Sonnet, 교차 분석은 Thinking
   else if (ctxId === 'themes' || ctxId === 'theme-detail') {
     var thThinking = /교차.*분석|테마.*간.*상관|밸류.*체인.*분석|업스트림.*다운스트림|수혜주.*종합|value.*chain|cross.*theme|supply.*chain.*analysis/;
@@ -18388,6 +18428,12 @@ function showUpdateBanner(newVer, builtTs) {
   banner.classList.add('show');
 }
 
+// v34.6: 강제 캐시 무효화 새로고침
+function forceRefresh() {
+  // 쿼리스트링으로 캐시 무시
+  window.location.href = window.location.pathname + '?v=' + Date.now();
+}
+
 // ── 폴링 시작/재시작 ─────────────────────────────────────
 function startGhPolling() {
   if (_ghPollTimer) clearInterval(_ghPollTimer);
@@ -18403,6 +18449,10 @@ function startGhPolling() {
 // ── DOMContentLoaded 시 초기화 ───────────────────────────
 /* v20: DOMContentLoaded Handler #3 - GitHub Polling */
 document.addEventListener('DOMContentLoaded', () => {
+  // v34.6: 캐시 버스트 쿼리스트링 제거 (URL 정리)
+  if (window.location.search.includes('v=')) {
+    window.history.replaceState(null, '', window.location.pathname);
+  }
   loadGhRepo();
   startGhPolling();
   // Initialize home dashboard
