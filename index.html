@@ -2016,7 +2016,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v37.0</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v37.1</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9858,7 +9858,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v37.0';
+const APP_VERSION = 'v37.1';
 
 // v34.5: 프로덕션 로그 억제 — console.log만 조건부 억제, warn/error는 유지
 // URL에 ?debug=1 추가 시 전체 로그 활성화 (개발 모드)
@@ -21098,8 +21098,26 @@ function _closeSnap() {
 /**
  * v36.9: 분석용 종가 데이터 접근 헬퍼
  * chartPreviousClose가 있으면 종가, 없으면 현재 price를 폴백
+ *
+ * ═══ v37.1: 분석 데이터 소스 이원화 원칙 ═══
+ * ┌─────────────────┬───────────┬─────────────────────────────────┐
+ * │ 데이터 유형      │ 소스      │ 사용 함수/위치                   │
+ * ├─────────────────┼───────────┼─────────────────────────────────┤
+ * │ 주가 (SPX,SPY,  │ _closingVal│ computeTradingScore(SPX,RSP,SPY)│
+ * │ QQQ,RSP,개별종목)│ (종가)     │ computeMarketHealth(SPY,QQQ)    │
+ * │                 │           │ classifyMarketRegime(SPX)       │
+ * │                 │           │ kr-themes/kr-macro CHAT_CONTEXTS│
+ * ├─────────────────┼───────────┼─────────────────────────────────┤
+ * │ 시장 환경       │ _ldSafe   │ computeTradingScore(VIX,VVIX,   │
+ * │ (VIX,DXY,TNX,   │ (실시간)   │   DXY,TNX,HYG,유가)            │
+ * │ HYG,CL=F,환율)  │           │ computeMarketHealth(VIX)        │
+ * │                 │           │ classifyMarketRegime(VIX)       │
+ * └─────────────────┴───────────┴─────────────────────────────────┘
+ * 이유: 주가는 장 마감까지 봐야 정확한 분석 → 종가 고정
+ *       시장 환경은 실시간성이 중요 → 선물/24시간 거래 데이터 즉각 반영
+ *
  * @param {string} sym - Yahoo Finance 심볼
- * @param {string} [field='price'] - 'price' | 'pct' (pct는 종가 기준이 아니므로 0 반환)
+ * @param {string} [field='price'] - 'price' | 'pct'
  * @returns {number|null}
  */
 function _closingVal(sym, field) {
@@ -24386,7 +24404,7 @@ function _renderFundSources(d) {
 
 // ── Market Health Score (screener_pro compute_market_health 방법론) ──
 function computeMarketHealth() {
-  // v36.9: 분석 함수는 종가 기준 데이터 사용 (장중 점수 흔들림 방지)
+  // v37.1: 주가(SPY/QQQ)=종가 기준, 시장 환경(VIX)=실시간
   var ld = window._liveData || {};
   if (!_closingVal('SPY') && !(ld['SPY'])) return;
   if (!_closingVal('QQQ') && !(ld['QQQ'])) return;
@@ -24408,8 +24426,8 @@ function computeMarketHealth() {
   else if (qqqChg > -1) { score -= 4; }
   else { score -= 8; details.push('QQQ 약세'); }
 
-  // VIX adjustment (종가 기준)
-  var vp = _closingVal('^VIX') || 20;
+  // VIX adjustment (실시간 — 공포 지수는 현재 값이 중요)
+  var vp = _ldSafe('^VIX','price') || 20;
   if (vp < 15) { score += 12; details.push('VIX ' + vp.toFixed(1) + ' 안정'); }
   else if (vp < 20) { score += 6; details.push('VIX ' + vp.toFixed(1) + ' 보통'); }
   else if (vp < 25) { score -= 4; details.push('VIX ' + vp.toFixed(1) + ' 주의'); }
@@ -27586,12 +27604,14 @@ function getExecutionWindowScore() {
 
 // ── Trading Score Computation ─────────────────────────────────────
 function computeTradingScore(mode) {
-  // v36.9: 분석 함수는 종가 기준 데이터 사용 (장중 변동으로 점수 흔들림 방지)
-  const vix   = _closingVal('^VIX') || _ldSafe('^VIX','price');
-  const vvix  = _closingVal('^VVIX') || 100;
-  const dxy   = _closingVal('DX-Y.NYB') || _ldSafe('DX-Y.NYB','price');
-  const hyg   = _closingVal('HYG') || _ldSafe('HYG','price');
-  const tnx   = _closingVal('^TNX') || _ldSafe('^TNX','price');
+  // v37.1: 데이터 소스 이원화
+  // - 주가(SPX, SPY, RSP): 종가 기준 → 장중 등락으로 점수 흔들림 방지
+  // - 시장 환경(VIX, DXY, TNX, HYG, 유가): 실시간 → 현재 시장 상태 즉각 반영
+  const vix   = _ldSafe('^VIX','price') || 20;
+  const vvix  = _ldSafe('^VVIX','price') || 100;
+  const dxy   = _ldSafe('DX-Y.NYB','price') || 104;
+  const hyg   = _ldSafe('HYG','price') || 78;
+  const tnx   = _ldSafe('^TNX','price') || 4.3;
   const fg    = window._lastFG  || 18;
   const rsp   = _closingVal('RSP');
   const spy   = _closingVal('SPY');
@@ -27676,8 +27696,8 @@ function computeTradingScore(mode) {
   else if (hyBp > 400) compositeScore -= 8;
   else if (hyBp > 350) compositeScore -= 3;
 
-  // v20: 지정학 위험 보정 (v36.9: 종가 기준)
-  const oilPrice = _closingVal('CL=F') || 0;
+  // v20: 지정학 위험 보정 (v37.1: 유가 실시간 — 선물 24시간 거래)
+  const oilPrice = _ldSafe('CL=F','price') || 0;
   if (oilPrice > 100) compositeScore -= 10; // 유가 $100+ = 스태그플레이션 위험
   else if (oilPrice > 90) compositeScore -= 5;
 
@@ -27762,11 +27782,11 @@ function computeExecutionWindow() {
 
 // ── Market Regime Classification (v20+) ──────────────────────────
 function classifyMarketRegime() {
-  // v36.9: 종가 기준 — 장중에 레짐이 왔다갔다하는 것 방지
+  // v37.1: SPX=종가(레짐 판단 안정성), VIX=실시간(급변 즉시 감지)
   const spxPrice = _closingVal('^GSPC') || _ldSafe('^GSPC','price');
   const spx200ma = (window._spxMA && window._spxMA[200]) || 6593;
   const spx50ma  = (window._spxMA && window._spxMA[50])  || 6656;
-  const vix = _closingVal('^VIX') || (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.vix : 20);
+  const vix = _ldSafe('^VIX','price') || (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.vix : 20);
   const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : 27;
 
   let regime = 'CHOP';
