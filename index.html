@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v38.0 — 올인원 투자 터미널</title>
+  <title>AIO Screener v38.2 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -268,9 +268,9 @@ body {
 }
 .app { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
 .sidebar { width: var(--sidebar-w); background: var(--bg-surface); border-right: 1px solid rgba(255,255,255,0.12); overflow-y: auto; display: flex; flex-direction: column; /* v30.7: 사이드바 테두리 강화 */ }
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 .topbar { background: var(--bg-surface); border-bottom: 1px solid rgba(255,255,255,0.12); padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; /* v30.7: 상단바 테두리 강화 */ }
-.content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; }
+.content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; min-height: 0; }
 /* v30.11 perf: content-visibility로 비활성 페이지 렌더링 비용 제거 */
 .page { display: none; content-visibility: hidden; contain-intrinsic-size: auto 2000px; overflow-x: hidden; }
 .page.active { display: block; content-visibility: visible; contain-intrinsic-size: none; overflow-x: hidden; }
@@ -2017,7 +2017,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v38.0</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v38.2</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9897,7 +9897,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v37.2';
+const APP_VERSION = 'v38.2';
 
 // v34.5: 프로덕션 로그 억제 — console.log만 조건부 억제, warn/error는 유지
 // URL에 ?debug=1 추가 시 전체 로그 활성화 (개발 모드)
@@ -12044,7 +12044,7 @@ function fetchSparkData(ticker) {
       var closes = json.chart.result[0].indicators.quote[0].close;
       return closes.filter(function(v) { return v !== null && isFinite(v); });
     } catch(e) { return null; }
-  });
+  }).catch(function() { return null; });
 }
 
 function drawSparkline(canvas, data, ticker) {
@@ -12458,7 +12458,9 @@ function initFinnhubWebSocket() {
               }
               // Update DOM elements
               document.querySelectorAll(`[data-live-price="${sym}"]`).forEach(el => {
-                el.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                var _pp = el.querySelector('.pill-price');
+                if (_pp) { _pp.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+                else { el.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
                 el.style.borderBottom = ''; // Clear stale indicator
               });
             }
@@ -13082,6 +13084,7 @@ document.addEventListener('visibilitychange', () => {
     Object.values(REFRESH_SCHEDULE).forEach(cfg => {
       if (cfg.timer) { clearTimeout(cfg.timer); cfg.timer = null; }
     });
+    if (window._dataStatusInterval) { clearInterval(window._dataStatusInterval); window._dataStatusInterval = null; }
     console.log('[AIO] Tab hidden — scheduler paused');
   } else {
     _schedulerPaused = false;
@@ -13093,6 +13096,7 @@ document.addEventListener('visibilitychange', () => {
       }
     });
     restartScheduler();
+    if (!window._dataStatusInterval) window._dataStatusInterval = setInterval(updateDataStatus, 60000);
     _lastVisibleTime = Date.now();
     console.log('[AIO] Tab visible — scheduler resumed (elapsed ' + Math.round(elapsed/1000) + 's)');
   }
@@ -13374,7 +13378,7 @@ const MACRO_KW = [
   '금리','전쟁','경기침체','인플레','관세','수출규제','부양책','긴축',
   '달러','원화','환율','채권','국채','기준금리',
   '이란','호르무즈','원유 급등','스태그플레이션','에너지 위기','유가 충격',
-  '이스라엘','레바논','헤즈볼라','봉쇄','공습','드론','유조선','해상봉쇄',
+  '이스라엘','레바논','헤즈볼라','봉쇄','공습','드론','유조선','해상봉쇄','해운항로',
   // ── 전쟁/유가 추가 키워드
   'hormuz','호르무즈','demand destruction','수요파괴','refinery','정유','brent','wti-brent','spread',
   '카타르','qatar','lng','force majeure','불가항력','netanyahu','네타냐후','capitulation','항복매도',
@@ -16893,7 +16897,7 @@ async function fetchLiveQuotes() {
           var _pct = meta.regularMarketChangePercent;
           var _chg = meta.regularMarketChange;
           // chart API는 변화율을 안 주는 경우가 많음 → previousClose로 직접 계산
-          if ((!_pct || _pct === 0) && _prevClose > 0) {
+          if (_pct == null && _prevClose > 0) {
             _pct = ((_price - _prevClose) / _prevClose) * 100;
             _chg = _price - _prevClose;
           }
@@ -17590,7 +17594,9 @@ function applyLiveQuotes(quotes) {
     const ageMs = now - (window._quoteTimestamps[q.symbol] || now);
     const isStale = isMarketHours && ageMs > 5 * 60 * 1000; // > 5 min during market hours
     document.querySelectorAll(`[data-live-price="${q.symbol}"]`).forEach(el => {
-      el.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      var _pp = el.querySelector('.pill-price');
+      if (_pp) { _pp.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+      else { el.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
       if (isStale) {
         el.style.borderBottom = '2px dashed var(--yellow)';
         el.title = `가격 갱신: ${new Date(window._quoteTimestamps[q.symbol]).toLocaleTimeString('ko-KR')} — 현재: ${new Date().toLocaleTimeString('ko-KR')}`;
@@ -17730,7 +17736,9 @@ function applyLiveQuotes(quotes) {
     if (d && d.price != null && !isNaN(d.price)) {
       var fmt = d.price >= 1000 ? d.price.toLocaleString(undefined, {maximumFractionDigits:0}) :
                 d.price >= 10 ? d.price.toFixed(2) : d.price.toFixed(4);
-      el.textContent = fmt;
+      var _pp = el.querySelector('.pill-price');
+      if (_pp) { _pp.textContent = fmt; }
+      else { el.textContent = fmt; }
     }
   });
   document.querySelectorAll('[data-live-chg]').forEach(function(el) {
@@ -19014,6 +19022,7 @@ function initBreadthPage(forceReinit) {
     function bpMouseLeave() {
       Object.values(bpChartInstances).forEach(c => { c._cursorX = null; c.draw(); });
     }
+    if (ctx._bpMouseLeave) ctx.removeEventListener('mouseleave', ctx._bpMouseLeave);
     ctx._bpMouseLeave = bpMouseLeave;
     ctx.addEventListener('mouseleave', bpMouseLeave);
     return chart;
@@ -26286,7 +26295,7 @@ var KR_THEME_CATALYSTS = {
   'finance':     '밸류업 프로그램 지속 · 배당 확대 · PBR 저평가 매력 · 메리츠 ROE 업계 1위 · 금리 인하 기대',
   'kfood':       '삼양식품 불닭 글로벌 폭증 · K-푸드 수출 역대 최고 · 농심 미국 공장 증설 · CJ제일제당 비비고 미국 확장',
   'crypto':      'BTC 가격 연동 · 두나무 거래량 회복 · 가상자산 과세 유예 · 위메이드 WEMIX 3.0',
-  'telecom':     'SK텔레콤 AI DC 확장 · KT 클라우드/AI 분사 · 6G 표준화 · 삼성SDS Brity',
+  'telecom':     'SK텔레콤 AI DC 확장 · KT 클라우드/AI 분사 · 6G 표준화 · LG유플러스 IDC 투자',
   'construction':'체코 원전 건설 · 이라크·사우디 플랜트 · SOC 예산 확대 · GTX 수도권 인프라',
   'retail':      '이마트 구조조정 · 신세계 럭셔리 · 편의점 해외 진출 · 소비 회복 기대',
   'steel_chem':  'POSCO 2차전지 수직계열화 · 현대제철 H-Form · 유가 $100 정유 마진 · LG화학 분리막',
@@ -27526,7 +27535,7 @@ var KR_STOCK_DB = {
   '041020': {name:'폴라리스오피스', sector:'SW', mcap:'0.5조', price:4645, themes:['ai-sw']},
   '012510': {name:'더존비즈온', sector:'ERP', mcap:'6.3조', price:119300, themes:['ai-sw']},
   '030520': {name:'한글과컴퓨터', sector:'SW', mcap:'1.3조', price:20100, themes:['ai-sw']},
-  '018260': {name:'삼성SDS', sector:'IT서비스', mcap:'12조', price:156300, themes:['ai-sw','telecom']},
+  '018260': {name:'삼성SDS', sector:'IT서비스', mcap:'12조', price:156300, themes:['ai-sw']},
   '304100': {name:'솔트룩스', sector:'AI', mcap:'2.2조', price:23000, themes:['ai-sw']},
   // ════════ 전력기기 (8) ════════
   '298040': {name:'효성중공업', sector:'전력기기', mcap:'30조', price:2676000, themes:['power-grid']},
@@ -27620,7 +27629,7 @@ var KR_STOCK_DB = {
   '017670': {name:'SK텔레콤', sector:'통신', mcap:'19조', price:79900, themes:['telecom']},
   '030200': {name:'KT', sector:'통신', mcap:'8.4조', price:60800, themes:['telecom']},
   '032640': {name:'LG유플러스', sector:'통신', mcap:'5.6조', price:16100, themes:['telecom']},
-  '066570': {name:'LG전자', sector:'가전/전장', mcap:'19조', price:112000, themes:['telecom','auto']},
+  '066570': {name:'LG전자', sector:'가전/전장', mcap:'19조', price:112000, themes:['auto']},
   // ════════ 지주·대형 (4) ════════
   '034730': {name:'SK', sector:'지주', mcap:'18.2조', price:334000, themes:[]},
   '003550': {name:'LG', sector:'지주', mcap:'13.7조', price:89000, themes:[]},
@@ -27642,7 +27651,7 @@ var KR_STOCK_DB = {
   '282330': {name:'BGF리테일', sector:'편의점', mcap:'2.5조', price:143000, themes:['retail']},
   '030000': {name:'제일기획', sector:'광고', mcap:'3.8조', price:25800, themes:['retail']},
   '011170': {name:'롯데케미칼', sector:'석유화학', mcap:'3.5조', price:99800, themes:['steel_chem']},
-  '010950': {name:'S-Oil', sector:'정유', mcap:'8.2조', price:72500, themes:['steel_chem','energy_kr']},
+  '010950': {name:'S-Oil', sector:'정유', mcap:'8.2조', price:72500, themes:['energy_kr']},
   '000120': {name:'CJ대한통운', sector:'물류', mcap:'5.8조', price:116500, themes:['logistics']},
   '003490': {name:'대한항공', sector:'항공', mcap:'11조', price:28950, themes:['logistics']},
   '180640': {name:'한진칼', sector:'항공지주', mcap:'3.8조', price:66800, themes:['logistics']},
