@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v38.2 — 올인원 투자 터미널</title>
+  <title>AIO Screener v38.3 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2017,7 +2017,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v38.2</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v38.3</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9897,7 +9897,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v38.2';
+const APP_VERSION = 'v38.3';
 
 // v34.5: 프로덕션 로그 억제 — console.log만 조건부 억제, warn/error는 유지
 // URL에 ?debug=1 추가 시 전체 로그 활성화 (개발 모드)
@@ -12458,9 +12458,11 @@ function initFinnhubWebSocket() {
               }
               // Update DOM elements
               document.querySelectorAll(`[data-live-price="${sym}"]`).forEach(el => {
-                var _pp = el.querySelector('.pill-price');
-                if (_pp) { _pp.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-                else { el.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+                // v38.3: P24 일반 보호 — children 있는 복합 요소는 전용 업데이트에 위임
+                if (el.children.length > 0) {
+                  var _pp = el.querySelector('.pill-price') || el.querySelector('.kr-etf-price');
+                  if (_pp) _pp.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                } else { el.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
                 el.style.borderBottom = ''; // Clear stale indicator
               });
             }
@@ -13332,8 +13334,9 @@ const AIO_NEWS_SOURCES = [
 
   // ═══ TIER 3: 한국어 보조 ═══
   {name:'서울경제',              url:'https://www.sedaily.com/RSS/Economy',                         country:'kr', tier:3, flag:'🇰🇷', topics:['macro']},
-  {name:'이데일리',              url:'https://www.edaily.co.kr/rss/edaily_news.xml',               country:'kr', tier:3, flag:'🇰🇷', topics:['macro','equity']},
-  {name:'아시아경제',            url:'https://www.asiae.co.kr/rss/all.xml',                        country:'kr', tier:3, flag:'🇰🇷', topics:['macro','equity']},
+  // v38.3: 이데일리·아시아경제 제거 — RSS 피드 전부 사망 확인 (2026-03-29 브라우저 실테스트 완료)
+  // 이데일리: edaily_news/stock/economy.xml 전부 홈페이지 리다이렉트
+  // 아시아경제: all.xml(연예·스포츠 혼입), economy/stock/finance.xml 전부 404
 ];
 
 // ── Global HTML escape ─────────────────────────────────────────
@@ -14042,6 +14045,21 @@ const NEWS_BLACKLIST_KW = [
   // 영문 순수 사회 이슈 (금융 문맥 공존 불가)
   'gun control','abortion rights','lgbtq rights',
   'school shooting','mass shooting',
+  // ── v38.3 B4: 비금융 한국 뉴스 추가 차단 (보험/카드/CSR/인사/부동산 등)
+  // 보험/카드 상품 (금융 산업 뉴스와 구분 — 개인 상품 광고성)
+  '보험료 인상','보험료 인하','보험 가입','보험금 청구','보험 상품','보험설계사',
+  '카드 혜택','신용카드 추천','카드 포인트','카드 할인','연회비',
+  // CSR/ESG 보도자료 (투자 판단 무관)
+  '사회공헌','봉사단','나눔활동','기부금 전달','장학금 수여','사랑나눔',
+  // 기업 인사/임명 (시장 영향 없는 중간관리직)
+  '부장 승진','차장 승진','과장 승진','대리 승진','인사발령','보직 이동',
+  '신입사원','공채','채용설명회','인턴 모집',
+  // 법원/소송 (금융 무관 민사)
+  '이혼 소송','양육권','상속 분쟁','임대차 분쟁','층간소음',
+  // 군사/안보 (방산주 뉴스는 별도 처리)
+  '훈련 실시','군사 훈련','합동 훈련',
+  // 생활 경제 팁 (투자 무관)
+  '절약법','가계부','용돈','저축 습관','짠테크',
 ];
 
 // 토픽 키워드 분류
@@ -14345,6 +14363,8 @@ function scoreItem(item) {
   else if (item.country !== 'kr' && item.tier === 1) score += 8;
   else if (item.country !== 'kr' && item.tier === 2) score += 4;
   // 한국 소스: 부스트 0 — 순수 콘텐츠 품질로만 경쟁
+  // v38.3 B3: 한국 Tier 3 소스 감점 — 비금융 기사 유입 가능성 높은 소스
+  if (item.country === 'kr' && item.tier === 3) score -= 5;
 
   // v34.1c: 대형주/대장주/주도주 티커 부스트 시스템
   // 시장을 주도하는 핵심 종목에 대한 뉴스를 우선 노출
@@ -14463,7 +14483,7 @@ function scoreItem(item) {
     // 광범위 한국어 키워드('기업','수출','에너지' 등)만으로 통과한 경우
     const _KR_BROAD_KW = ['기업','수출','수입','에너지','산업','경제','금융','은행','시장','무역'];
     const allBroad = finKwMatches.every(kw => _KR_BROAD_KW.includes(kw));
-    if (allBroad && finKwMatches.length <= 2) {
+    if (allBroad && finKwMatches.length <= 3) {  // v38.3 B2: 임계값 2→3 상향 (광범위 KW 3개까지도 차단)
       // 지방정부 보도자료 패턴 → 차단
       item._blacklisted = true;
       return 0;
@@ -14493,6 +14513,17 @@ function scoreItem(item) {
     /(?:사장|원장|이사장|회장)\s*(?:\d+연임|취임|퇴임|이취임)/,
     // 영문 순수 비금융 패턴 (정치 제거 — 무역/관세/금융정책과 공존 가능하므로)
     /(?:governor|mayor)\s+(?:signs|vetoes|declares)\s+(?!.*(?:tax|budget|tariff|trade))/,
+    // v38.3 B5: 한국어 비금융 패턴 추가
+    /오늘의?\s*날씨|기상\s*(?:청|특보)|(?:폭우|폭설|한파|폭염)\s*(?:주의보|경보)/,
+    /(?:축구|야구|농구|배구|골프)\s*(?:결과|경기|시즌|감독)/,
+    /건강\s*(?:관리|검진|보험|증진)|의료\s*(?:봉사|지원|서비스)/,
+    /입학\s*(?:식|설명회)|졸업\s*(?:식|축하)|학교\s*(?:폭력|급식|운영)/,
+    /교통\s*(?:사고|정체|통제|우회)|도로\s*(?:공사|정비|개통)/,
+    /(?:실종|수색|구조|신원)\s*(?:아동|노인|신고|확인)/,
+    /(?:보이스피싱|전화사기|스미싱|피싱)\s*(?:피해|주의|예방)/,
+    /(?:동물원|수족관|놀이공원|워터파크)\s*(?:개장|입장|이벤트)/,
+    /(?:결혼|돌잔치|장례|제사|명절)\s*(?:준비|비용|선물)/,
+    /(?:미용|피부|성형|다이어트|헬스)\s*(?:클리닉|시술|관리)/,
   ];
   if (_nonFinPatterns.some(pat => pat.test(titleLower))) {
     item._blacklisted = true;
@@ -15706,13 +15737,22 @@ async function fetchOneFeed(source) {
   // CORS 프록시 폴백 (XML 파싱) — v31.5: CF Worker 우선
   function parseXml(raw) {
     if (!raw || raw.length < 80) return [];
+    // v38.3 B6: HTML entity 이중 인코딩 해제 (&amp;amp; → &amp; → &)
+    function _decodeEntities(s) {
+      if (!s) return s;
+      // 최대 3회 반복 디코딩 (삼중 인코딩 방지)
+      for (var i = 0; i < 3 && /&amp;|&lt;|&gt;|&quot;|&#\d+;|&#x[\da-f]+;/i.test(s); i++) {
+        s = s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'");
+      }
+      return s;
+    }
     try {
       const parser = new DOMParser();
       const xml = parser.parseFromString(raw, 'text/xml');
       const items = xml.querySelectorAll('item, entry');
       return Array.from(items).slice(0,12).map(item => {
-        const title = (item.querySelector('title')?.textContent||'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();
-        const desc  = (item.querySelector('description,summary,content')?.textContent||'').replace(/<[^>]+>/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim().slice(0,280);
+        const title = _decodeEntities((item.querySelector('title')?.textContent||'').replace(/<!\[CDATA\[|\]\]>/g,'').trim());
+        const desc  = _decodeEntities((item.querySelector('description,summary,content')?.textContent||'').replace(/<[^>]+>/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim().slice(0,280));
         const link  = item.querySelector('link')?.textContent?.trim() || item.querySelector('link')?.getAttribute('href') || '#';
         const pub   = item.querySelector('pubDate,published,updated')?.textContent || '';
         return { title, desc, link, pubDate:pub, source:source.name, country:source.country, tier:source.tier, flag:source.flag };
@@ -16705,6 +16745,7 @@ async function fetchLiveQuotes() {
     // 먼저 가져올 핵심 심볼 (홈 화면에 표시)
     ['^GSPC', '^IXIC', '^VIX', 'CL=F', 'GC=F'],          // 지수·원자재
     ['DX-Y.NYB', '^TNX', '^TYX', 'HYG', 'SPY'],            // 달러·금리·ETF
+    ['BZ=F', 'NG=F', 'SI=F', 'KRW=X', 'HG=F'],             // v38.3: Brent·원자재·원달러 우선 fetch
     ['NVDA', 'AAPL', 'TSLA', 'MSFT', 'AMD'],               // 대형주
     ['XLE', 'XLK', 'XLF', 'GLD', 'TLT'],                   // 섹터 ETF
     ['ES=F', 'NQ=F', 'YM=F', 'VXX', 'UVXY'],               // v36.6: 지수선물 + VIX ETF
@@ -17594,9 +17635,11 @@ function applyLiveQuotes(quotes) {
     const ageMs = now - (window._quoteTimestamps[q.symbol] || now);
     const isStale = isMarketHours && ageMs > 5 * 60 * 1000; // > 5 min during market hours
     document.querySelectorAll(`[data-live-price="${q.symbol}"]`).forEach(el => {
-      var _pp = el.querySelector('.pill-price');
-      if (_pp) { _pp.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-      else { el.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+      // v38.3: P24 일반 보호 — children 있는 복합 요소는 전용 업데이트에 위임
+      if (el.children.length > 0) {
+        var _pp = el.querySelector('.pill-price') || el.querySelector('.kr-etf-price');
+        if (_pp) _pp.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      } else { el.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
       if (isStale) {
         el.style.borderBottom = '2px dashed var(--yellow)';
         el.title = `가격 갱신: ${new Date(window._quoteTimestamps[q.symbol]).toLocaleTimeString('ko-KR')} — 현재: ${new Date().toLocaleTimeString('ko-KR')}`;
@@ -17736,9 +17779,11 @@ function applyLiveQuotes(quotes) {
     if (d && d.price != null && !isNaN(d.price)) {
       var fmt = d.price >= 1000 ? d.price.toLocaleString(undefined, {maximumFractionDigits:0}) :
                 d.price >= 10 ? d.price.toFixed(2) : d.price.toFixed(4);
-      var _pp = el.querySelector('.pill-price');
-      if (_pp) { _pp.textContent = fmt; }
-      else { el.textContent = fmt; }
+      // v38.3: P24 일반 보호 — children 있는 복합 요소는 전용 업데이트에 위임
+      if (el.children.length > 0) {
+        var _pp = el.querySelector('.pill-price') || el.querySelector('.kr-etf-price');
+        if (_pp) _pp.textContent = fmt;
+      } else { el.textContent = fmt; }
     }
   });
   document.querySelectorAll('[data-live-chg]').forEach(function(el) {
@@ -18560,6 +18605,9 @@ function initSentimentPage(forceReinit) {
 
   // Also init legacy charts (AAII + P/C) which share canvas IDs
   initSentimentCharts();
+
+  // v38.3: 심리 복합 분석 텍스트 — 페이지 진입 시에도 생성 (F&G API 콜백 타이밍 문제 방어)
+  if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 300);
 
   const tip = {
     backgroundColor: '#0d1117', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
@@ -25264,6 +25312,7 @@ function updatePatternSignals() {
 
 // ── Macro Storyline (immersive Korean narrative) ──
 function generateMacroStoryline() {
+  var ld = window._liveData || {};  // v38.3: ld 변수 선언 누락 수정 (ReferenceError → 무한 "생성 중…")
   var vix = _ldSafe('^VIX','price');
   var tnx = _ldSafe('^TNX','price');
   var fvx = _ldSafe('^FVX','price');
@@ -25414,7 +25463,13 @@ function updateMacroGridMeanings(ld, vix, tnx, fvx, dxy, wti, spread) {
     }
   }
 
-  // 2s10s Spread meaning
+  // 2s10s Spread value + meaning
+  // v38.3: macro-spread-value 연결 (orphaned element 수정)
+  var spreadValEl = document.getElementById('macro-spread-value');
+  if (spreadValEl) {
+    spreadValEl.textContent = (spread >= 0 ? '+' : '') + spread + '%';
+    spreadValEl.style.color = spread < 0 ? '#f87171' : spread < 0.5 ? '#fbbf24' : '#3ddba5';
+  }
   var spreadEl = document.getElementById('macro-spread-meaning');
   if (spreadEl) {
     spreadEl.textContent = spread > 0 ? '✓ 정상 · ' + spread + '%' : '⚠ 역전 · ' + spread + '%';
@@ -26860,6 +26915,11 @@ function _showKrSupplyFallbackNotice() {
     notice.textContent = '⚠ 실시간 수급 데이터 로드 실패 — 아래는 과거 스냅샷입니다. AI 채팅에서 최신 수급을 질문하세요.';
     el.appendChild(notice);
   });
+  // v38.3: 분석 텍스트 "로딩 중..." 소거 — 실패 시에도 안내 표시
+  var analysisEl = document.getElementById('kr-supply-analysis-text');
+  if (analysisEl && analysisEl.textContent.indexOf('로딩') !== -1) {
+    analysisEl.innerHTML = '⚠ 실시간 수급 데이터를 불러오지 못했습니다. 아래 스냅샷은 정적 데이터입니다.';
+  }
 }
 
 function updateKrSupplyDOM(kospiTrend, kosdaqTrend, kospiHistory) {
@@ -29689,7 +29749,11 @@ async function initFundamentalCards() {
   if (!grid) return;
 
   // Fallback fundamental data (March 2026 estimates) - 참고용 데이터
-  var fundDataNote = ' <span style="font-size:9px;color:var(--text-muted);">(참고용 데이터)</span>';
+  // v38.3 H6: 라이브 가격 수신 시 라벨 동적 변경
+  var hasLiveData = window._liveData && Object.keys(window._liveData).length > 10;
+  var fundDataNote = hasLiveData
+    ? ' <span style="font-size:9px;color:#3ddba5;">(실시간 가격 · 참고용 지표)</span>'
+    : ' <span style="font-size:9px;color:var(--text-muted);">(참고용 데이터)</span>';
   var FUND_FALLBACK = {
     'NVDA': { pe: 35.2, roe: 115.0, eps: 4.90, mcap: '4.20T', sector: 'Technology', signal: '매수 · Blackwell Ultra AI 수요 폭증' },
     'AAPL': { pe: 31.39, roe: 145.0, eps: 7.90, mcap: '3.64T', sector: 'Technology', signal: '보유 · Apple Intelligence · 서비스 성장' },
