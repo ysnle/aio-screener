@@ -270,10 +270,10 @@ body {
 .sidebar { width: var(--sidebar-w); background: var(--bg-surface); border-right: 1px solid rgba(255,255,255,0.12); overflow-y: auto; display: flex; flex-direction: column; /* v30.7: 사이드바 테두리 강화 */ }
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .topbar { background: var(--bg-surface); border-bottom: 1px solid rgba(255,255,255,0.12); padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; /* v30.7: 상단바 테두리 강화 */ }
-.content { flex: 1; overflow-y: auto; padding: 20px; }
+.content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; }
 /* v30.11 perf: content-visibility로 비활성 페이지 렌더링 비용 제거 */
-.page { display: none; content-visibility: hidden; contain-intrinsic-size: auto 2000px; }
-.page.active { display: block; content-visibility: visible; contain-intrinsic-size: auto none; }
+.page { display: none; content-visibility: hidden; contain-intrinsic-size: auto 2000px; overflow-x: hidden; }
+.page.active { display: block; content-visibility: visible; contain-intrinsic-size: none; overflow-x: hidden; }
 
 .logo {
   padding: 16px 16px 14px;
@@ -311,12 +311,12 @@ body {
 .nav-item:hover .nav-icon, .nav-item.active .nav-icon { opacity: 1; }
 /* v33.0.1: 인사이트 설명 박스 — 항상 표시, 클릭 펼침/접기 */
 .insight-box { cursor: pointer; padding: 10px 14px !important; font-size: 12px !important; line-height: 1.5 !important; position: relative;
-  display: block; margin: 12px 0 16px; background: rgba(99,102,241,0.06); border-radius: 10px; border-left: 3px solid #6366f1; color: #c7d2fe; }
+  display: block; margin: 12px 0 16px; background: rgba(99,102,241,0.06); border-radius: 10px; border-left: 3px solid #6366f1; color: #c7d2fe; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word; word-break: break-word; }
 .insight-box::after { content: '▼'; position: absolute; right: 14px; top: 10px; font-size: 9px; color: #818cf8; transition: transform 0.2s; }
 .insight-box.box-collapsed::after { transform: rotate(-90deg); }
 .insight-box.box-collapsed br, .insight-box.box-collapsed strong:not(:first-child),
 .insight-box.box-collapsed span.box-detail { display: none; }
-.insight-box.box-collapsed { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 36px; }
+.insight-box.box-collapsed { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 36px; max-width: 100%; box-sizing: border-box; }
 /* v30.6: Home quick nav */
 .home-qnav-btn { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: var(--font-sans); }
 .home-qnav-btn:hover { filter: brightness(1.3); transform: translateY(-1px); }
