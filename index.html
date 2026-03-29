@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v37.9 — 올인원 투자 터미널</title>
+  <title>AIO Screener v38.0 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -273,7 +273,7 @@ body {
 .content { flex: 1; overflow-y: auto; padding: 20px; }
 /* v30.11 perf: content-visibility로 비활성 페이지 렌더링 비용 제거 */
 .page { display: none; content-visibility: hidden; contain-intrinsic-size: auto 2000px; }
-.page.active { display: block; content-visibility: visible; }
+.page.active { display: block; content-visibility: visible; contain-intrinsic-size: auto none; }
 
 .logo {
   padding: 16px 16px 14px;
@@ -2017,7 +2017,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v37.9</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v38.0</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -7320,7 +7320,6 @@ body.light-theme canvas { filter:none; }
       <div>
         <div class="page-title">수급 분석 <span class="kr-badge">KRX</span></div>
         <div class="page-subtitle">투자자별 순매수 · 프로그램 매매 · 공매도 현황 · 외인 보유 비중</div>
-        <div style="background:rgba(251,146,60,0.15);border:1px solid rgba(251,146,60,0.3);border-radius:8px;padding:8px 12px;margin-top:6px;font-size:10px;color:#fb923c;">⚠ v34.9: 이 페이지의 수급 데이터는 <b>정적 스냅샷</b>입니다. API 연동 시스템은 준비 완료 상태입니다. 한국 공시 데이터 API 엔드포인트 확보 시 즉시 연동 가능합니다. 최신 수급 동향은 AI 채팅에서 확인하세요.</div>
       </div>
       <div class="page-actions">
         <button class="tb-btn" onclick="showPage('kr-home',null)">← 한국장 홈</button>
@@ -7329,9 +7328,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- 동적 분석 컨테이너 -->
     <div id="kr-supply-analysis" class="data-widget" style="margin-bottom:12px;background:rgba(91,168,255,0.05);border:1px solid rgba(91,168,255,0.15);">
-      <div id="kr-supply-analysis-text" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
-        외국인이 반도체(SK하이닉스 +1,820억)와 방산주(한화에어로스페이스 +680억)를 중심으로 5거래일 연속 순매수 중. 개인은 차익 실현 매도. 기관은 환매 압박으로 소폭 매도.
-      </div>
+      <div id="kr-supply-analysis-text" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">수급 데이터 로딩 중...</div>
     </div>
 
     <!-- 지수 현황 카드 -->
@@ -26716,6 +26713,9 @@ function showKrThemeDetail(themeId) {
           '<th style="padding:8px;text-align:center;font-size:10px;color:var(--text-muted);font-weight:700;">소스</th>'+
         '</tr></thead><tbody>'+rows+'</tbody></table></div>'+
 
+    // 심층 분석 섹션
+    _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, totalStocks, topStock, topPct, botStock, botPct, sorted, ld, tmap) +
+
     // AI 분석 버튼
     '<div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;">'+
       '<button onclick="chatFromChip(\'kr-themes\',\''+tn+' 테마 심층 분석: 현재 모멘텀, 수급, 밸류에이션, 리스크 종합 판단해줘\')" class="tb-btn" style="font-size:10px;padding:6px 12px;">🤖 AI 심층 분석</button>'+
@@ -26725,6 +26725,63 @@ function showKrThemeDetail(themeId) {
     '</div>';
 
   panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ═══ 한국 테마 심층 분석 생성 ═══
+function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, topPct, botStock, botPct, sorted, ld, tmap) {
+  var h = '<div style="margin-top:14px;padding:14px;background:rgba(99,102,241,0.05);border:1px solid rgba(99,102,241,0.15);border-radius:10px;">';
+  h += '<div style="font-size:13px;font-weight:900;color:var(--accent);margin-bottom:10px;">🔍 심층 분석</div>';
+  var ss = [];
+
+  // 1) 테마 온도 진단
+  if (avg >= 3) ss.push('🔥 <b>매우 강세</b> — 시장에서 가장 뜨거운 테마 중 하나입니다. 외국인·기관 동반 매수가 집중될 수 있으나, 단기 과열에 따른 차익실현 압력도 경계가 필요합니다.');
+  else if (avg >= 1) ss.push('📈 <b>강세</b> — 모멘텀이 살아있는 테마입니다. 실적 발표, 정책 수혜, 수주 등 펀더멘털 촉매가 주가를 떠받치고 있을 가능성이 높습니다.');
+  else if (avg >= 0) ss.push('➡ <b>보합</b> — 방향성 탐색 구간입니다. 시장이 이 테마에 대해 뚜렷한 확신을 갖지 못하고 있으며, 새로운 촉매가 필요합니다.');
+  else if (avg >= -2) ss.push('📉 <b>약세</b> — 차익실현 매물 또는 섹터 로테이션 매도가 출회되고 있습니다. 펀더멘털이 훼손된 것인지 일시적 수급 이탈인지 구분이 핵심입니다.');
+  else ss.push('💥 <b>급락</b> — 시장에서 외면받고 있는 테마입니다. 구조적 악재(정책 변경, 수요 급감, 경쟁 심화)가 있는지 점검이 필요합니다.');
+
+  // 2) 종목 간 퍼포먼스 격차
+  if (topPct !== undefined && botPct !== undefined && topStock && botStock) {
+    var spread = topPct - botPct;
+    if (spread > 5) ss.push('📊 <b>종목 간 편차 ' + spread.toFixed(1) + '%p — 극심</b>: 대장주와 후발주의 퍼포먼스 차이가 매우 큽니다. 같은 테마라도 옥석 가리기가 핵심입니다. <b>' + topStock + '</b>이(가) 테마를 이끌고, <b>' + botStock + '</b>은(는) 개별 악재나 밸류에이션 부담으로 뒤처지고 있습니다.');
+    else if (spread > 2) ss.push('📊 <b>종목 간 편차 ' + spread.toFixed(1) + '%p</b>: 적절한 수준. 테마 전반이 유사하게 움직이고 있어 ETF 접근도 유효합니다.');
+    else ss.push('📊 <b>종목 간 편차 ' + spread.toFixed(1) + '%p</b>: 매우 좁습니다. 테마 전체가 동일 재료에 반응하고 있으며, 개별 종목 차별화보다 테마 방향성이 더 중요한 구간입니다.');
+  }
+
+  // 3) 상승 비율 기반 건강도
+  var upRatio = total > 0 ? Math.round(upCnt / total * 100) : 0;
+  if (upRatio >= 70) ss.push('💪 <b>테마 건강도 우수</b> — 구성종목 중 ' + upRatio + '%가 상승. 광범위한 매수세가 테마 전체를 지지하고 있어 추세 지속 가능성이 높습니다.');
+  else if (upRatio >= 50) ss.push('⚖ <b>테마 건강도 보통</b> — 상승 ' + upCnt + '개 vs 하락 ' + dnCnt + '개. 대장주 위주로만 오르고 있다면 폭이 좁은 랠리로, 후발주 확산 여부를 모니터링해야 합니다.');
+  else ss.push('⚠ <b>테마 건강도 취약</b> — 하락 종목(' + dnCnt + '개)이 상승 종목(' + upCnt + '개)보다 많습니다. 테마 모멘텀이 꺾이는 신호일 수 있어 추격 매수는 자제가 권장됩니다.');
+
+  // 4) 대장주 vs 후발주 분석
+  if (sorted.length >= 3) {
+    var top3Avg = 0, bot3Avg = 0;
+    for (var ti = 0; ti < Math.min(3, sorted.length); ti++) {
+      var td = ld[krTickerToYahoo(sorted[ti].code)];
+      top3Avg += td ? (td.pct || 0) : 0;
+    }
+    for (var bi = Math.max(0, sorted.length-3); bi < sorted.length; bi++) {
+      var bd = ld[krTickerToYahoo(sorted[bi].code)];
+      bot3Avg += bd ? (bd.pct || 0) : 0;
+    }
+    top3Avg /= Math.min(3, sorted.length);
+    bot3Avg /= Math.min(3, sorted.length);
+    var gap = top3Avg - bot3Avg;
+    if (gap > 3) ss.push('🏆 <b>대장주 독주:</b> 상위 3종목 평균 ' + (top3Avg>=0?'+':'') + top3Avg.toFixed(2) + '% vs 하위 3종목 ' + (bot3Avg>=0?'+':'') + bot3Avg.toFixed(2) + '%. 대장주에 자금이 집중되고 있으며, 후발주 진입 시 대장주 추세 확인 후 접근하는 것이 안전합니다.');
+    else if (gap < 1) ss.push('🤝 <b>동반 움직임:</b> 상위·하위 종목 편차가 ' + gap.toFixed(1) + '%p로 작습니다. 테마 내 종목들이 함께 움직이고 있어 테마 자체의 방향성에 베팅하는 전략이 유효합니다.');
+  }
+
+  // 5) 비중 집중도 분석
+  if (tmap.length >= 3) {
+    var maxW = 0, maxWName = '';
+    tmap.forEach(function(t) { if (t.w > maxW) { maxW = t.w; maxWName = (KR_STOCK_DB[t.code] || {}).name || t.code; } });
+    if (maxW >= 30) ss.push('⚖ <b>비중 집중:</b> ' + maxWName + '이(가) ' + maxW + '%로 테마 비중이 높습니다. 이 종목의 등락이 테마 전체 수익률을 좌우하므로, 해당 종목의 개별 이벤트(실적, 수주, 규제)에 주의가 필요합니다.');
+  }
+
+  h += ss.map(function(s) { return '<div style="font-size:11px;color:var(--text-secondary);line-height:1.7;margin-bottom:6px;">' + s + '</div>'; }).join('');
+  h += '</div>';
+  return h;
 }
 
 // v29.4: Naver Finance 수급 데이터 가져오기 (CORS 프록시 경유)
@@ -26873,12 +26930,38 @@ function updateKrSupplyDOM(kospiTrend, kosdaqTrend, kospiHistory) {
       streakEl.textContent = foreignStreakDays + '일 연속 ' + (fNet < 0 ? '매도' : '매수');
       streakEl.style.color = fNet < 0 ? 'var(--red)' : 'var(--green)';
     }
-    // 수급 분석 텍스트
+    // 수급 종합 분석 텍스트
     var analysisEl = document.getElementById('kr-supply-analysis-text');
     if (analysisEl) {
-      var analysisText = '외국인 ' + formatAmt(fNet) + ' · 기관 ' + formatAmt(iNet) + ' · 개인 ' + formatAmt(pNet);
-      if (foreignStreakDays > 2) analysisText += ' (외국인 ' + foreignStreakDays + '거래일 연속 ' + (fNet < 0 ? '순매도' : '순매수') + ')';
-      analysisEl.textContent = analysisText;
+      var parts = [];
+      // 1) 주체별 수급 요약
+      var mainBuyer = fNet > 0 && iNet > 0 ? '외국인·기관 동반 매수' :
+                      fNet > 0 ? '외국인 주도 매수' :
+                      iNet > 0 ? '기관 주도 매수' :
+                      pNet > 0 ? '개인 주도 매수 (역방향 주의)' : '전 주체 매도 우위';
+      parts.push('📊 <b>오늘의 수급:</b> ' + mainBuyer);
+      parts.push('외국인 ' + formatAmt(fNet) + ' · 기관 ' + formatAmt(iNet) + ' · 개인 ' + formatAmt(pNet));
+      // 2) 연속성 분석
+      if (foreignStreakDays > 1) {
+        var streakSignal = foreignStreakDays >= 5 ? '강한 추세 형성' : foreignStreakDays >= 3 ? '방향성 확인' : '초기 단계';
+        parts.push('🔄 외국인 <b>' + foreignStreakDays + '거래일 연속 ' + (fNet < 0 ? '순매도' : '순매수') + '</b> — ' + streakSignal);
+      }
+      // 3) 수급 시그널 해석
+      if (fNet > 0 && iNet > 0) {
+        parts.push('🟢 <b>긍정 시그널:</b> 외국인+기관 동반 매수는 강한 상승 신호. 개인만 반대로 움직이면 시장 방향은 기관 쪽을 따를 가능성 높음.');
+      } else if (fNet < 0 && iNet < 0) {
+        parts.push('🔴 <b>경고 시그널:</b> 외국인+기관 동시 매도. 개인이 사고 있지만, 스마트머니의 이탈은 하락 리스크를 시사.');
+      } else if (fNet > 0 && iNet < 0) {
+        parts.push('🟡 <b>혼조:</b> 외국인 매수 vs 기관 매도 — 외국인은 중장기, 기관은 단기 차익실현 가능성.');
+      } else if (fNet < 0 && iNet > 0) {
+        parts.push('🟡 <b>혼조:</b> 기관 매수 vs 외국인 매도 — 환율 영향 또는 글로벌 리스크오프 가능성.');
+      }
+      // 4) 개인 비중 경고
+      var totalAbs = Math.abs(fNet) + Math.abs(iNet) + Math.abs(pNet);
+      if (totalAbs > 0 && pNet > 0 && Math.abs(pNet) / totalAbs > 0.6) {
+        parts.push('⚠ 개인 순매수 비중이 높음 — 역사적으로 개인 편중 매수 후 단기 조정 확률 상승.');
+      }
+      analysisEl.innerHTML = parts.join('<br>');
     }
     // 알림 배너
     var bannerEl = document.getElementById('kr-supply-alert-banner');
@@ -30684,9 +30767,92 @@ function showThemeDetail(themeId) {
   var breadth = calcSectorBreadth(theme.leaders);
   html += '<div style="margin-top:8px;font-size:11px;color:var(--text-muted);">📊 브레드스(양봉비율): <b style="color:' + (breadth>50?'#3ddba5':'#f87171') + '">' + breadth + '%</b> (' + theme.leaders.length + '종목 기준)</div>';
 
+  // ── 심층 분석 섹션 ──
+  html += _buildThemeDeepAnalysis(theme, perf, breadth, ld);
+
   container.innerHTML = html;
   container.style.display = 'block';
   container.dataset.currentTheme = themeId;
+}
+
+// ═══ 미국 테마 심층 분석 생성 ═══
+function _buildThemeDeepAnalysis(theme, perf, breadth, ld) {
+  var h = '<div style="margin-top:14px;padding:14px;background:rgba(99,102,241,0.05);border:1px solid rgba(99,102,241,0.15);border-radius:10px;">';
+  h += '<div style="font-size:13px;font-weight:900;color:var(--accent);margin-bottom:10px;">🔍 심층 분석</div>';
+  var sections = [];
+
+  // 1) 테마 온도 진단
+  var pct = perf.chgPct || 0;
+  var tempDiag = '';
+  if (pct >= 3) tempDiag = '🔥 <b>매우 강세</b> — 시장 전체에서 가장 주목받는 테마 중 하나입니다. 단기 과열 가능성도 체크해야 합니다.';
+  else if (pct >= 1) tempDiag = '📈 <b>강세</b> — 모멘텀이 살아있습니다. 기관·헤지펀드 자금이 유입되고 있을 가능성이 높습니다.';
+  else if (pct >= 0) tempDiag = '➡ <b>보합</b> — 방향성 탐색 중입니다. 시장이 이 테마에 대해 확신을 갖지 못하고 있습니다.';
+  else if (pct >= -2) tempDiag = '📉 <b>약세</b> — 차익실현 또는 로테이션 매도가 나오고 있습니다. 펀더멘털 훼손인지 일시적 조정인지 구분이 필요합니다.';
+  else tempDiag = '💥 <b>급락</b> — 시장에서 외면받고 있는 테마입니다. 구조적 문제가 있는지 확인하세요.';
+  sections.push(tempDiag);
+
+  // 2) 종목 간 퍼포먼스 격차 분석
+  var pcts = [], topTk = null, topV = -999, botTk = null, botV = 999;
+  theme.leaders.forEach(function(t) {
+    var d = ld[t];
+    if (d && d.pct !== undefined) {
+      pcts.push({ t: t, p: d.pct });
+      if (d.pct > topV) { topV = d.pct; topTk = t; }
+      if (d.pct < botV) { botV = d.pct; botTk = t; }
+    }
+  });
+  if (pcts.length >= 2) {
+    var spread = topV - botV;
+    var spreadDiag = '';
+    if (spread > 5) spreadDiag = '종목 간 등락 편차가 <b>' + spread.toFixed(1) + '%p</b>로 매우 큽니다. 테마 내에서도 승자와 패자가 명확히 갈리고 있으며, 옥석 가리기(stock picking)가 중요한 구간입니다.';
+    else if (spread > 2) spreadDiag = '종목 간 편차 <b>' + spread.toFixed(1) + '%p</b> — 적절한 수준입니다. 테마 전반이 비슷하게 움직이고 있어 ETF 접근도 유효합니다.';
+    else spreadDiag = '종목 간 편차 <b>' + spread.toFixed(1) + '%p</b>로 매우 좁습니다. 테마 전체가 동일 재료에 반응하고 있으며, ETF 매매가 효율적입니다.';
+    sections.push('📊 ' + spreadDiag);
+    if (topTk && botTk) {
+      sections.push('🥇 <b>최강 종목:</b> ' + topTk + ' (' + (topV>=0?'+':'') + topV.toFixed(2) + '%) — 테마 리더로서 시장 관심 집중');
+      sections.push('🥉 <b>최약 종목:</b> ' + botTk + ' (' + (botV>=0?'+':'') + botV.toFixed(2) + '%) — 개별 악재 또는 밸류에이션 부담 가능성');
+    }
+  }
+
+  // 3) 브레드스 기반 건강도
+  if (breadth >= 70) sections.push('💪 <b>테마 건강도 우수</b> — 상승 종목 비율 ' + breadth + '%. 광범위한 매수세가 테마 전체를 떠받치고 있어 추세 지속 가능성이 높습니다.');
+  else if (breadth >= 50) sections.push('⚖ <b>테마 건강도 보통</b> — 상승 종목 ' + breadth + '%. 일부 종목만 이끌고 있어 선별 투자가 필요합니다.');
+  else sections.push('⚠ <b>테마 건강도 취약</b> — 상승 종목 ' + breadth + '%. 대다수 종목이 하락 중이며, 테마 모멘텀이 약화되고 있습니다. 추격 매수 자제가 권장됩니다.');
+
+  // 4) 서브테마 간 비교
+  if (theme.subThemes && theme.subThemes.length >= 2) {
+    var subPerfs = [];
+    theme.subThemes.forEach(function(sub) {
+      var sp = calcCompositePerf(sub.tickers, sub.weights);
+      subPerfs.push({ name: sub.name, pct: sp.chgPct });
+    });
+    subPerfs.sort(function(a,b) { return b.pct - a.pct; });
+    var bestSub = subPerfs[0], worstSub = subPerfs[subPerfs.length - 1];
+    if (bestSub && worstSub && bestSub.name !== worstSub.name) {
+      var subGap = bestSub.pct - worstSub.pct;
+      if (subGap > 1) {
+        sections.push('🔀 <b>서브테마 격차:</b> "' + bestSub.name + '"(' + (bestSub.pct>=0?'+':'') + bestSub.pct.toFixed(2) + '%)이 "' + worstSub.name + '"(' + (worstSub.pct>=0?'+':'') + worstSub.pct.toFixed(2) + '%) 대비 ' + subGap.toFixed(1) + '%p 우세. 자금이 서브테마 내에서도 로테이션되고 있습니다.');
+      }
+    }
+  }
+
+  // 5) ETF vs 개별주 비교
+  if (theme.etf) {
+    var etfD = ld[theme.etf];
+    if (etfD && etfD.pct !== undefined) {
+      var etfP = etfD.pct;
+      if (Math.abs(pct - etfP) > 0.5) {
+        var diff = pct - etfP;
+        sections.push('📦 <b>ETF(' + theme.etf + ') 대비:</b> 대장주 평균이 ETF보다 ' + (diff>0?'+':'') + diff.toFixed(2) + '%p ' + (diff>0?'높음':'낮음') + ' — ' + (diff>0?'대장주가 ETF를 이끌고 있어 강한 모멘텀 신호':'소형주/후발주가 더 강해 ETF가 과소 반영 중'));
+      }
+    }
+  }
+
+  h += sections.map(function(s) {
+    return '<div style="font-size:11px;color:var(--text-secondary);line-height:1.7;margin-bottom:6px;">' + s + '</div>';
+  }).join('');
+  h += '</div>';
+  return h;
 }
 
 function closeThemeDetail() {
