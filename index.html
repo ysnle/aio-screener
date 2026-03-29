@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v35.6 — 올인원 투자 터미널</title>
+  <title>AIO Screener v37.9 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -587,13 +587,14 @@ h3.chat-h{font-size:14px;}h4.chat-h{font-size:12.5px;}h5.chat-h{font-size:11.5px
 .heat-warm{background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.35);}
 .heat-cool{background:rgba(148,163,184,0.15);color:#94a3b8;border:1px solid rgba(148,163,184,0.3);}
 .heat-cold{background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);}
-.kr-theme-tickers{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
-.kr-ticker-pill{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:var(--text-secondary);font-family:var(--font-sans);white-space:nowrap;transition:all 0.2s ease;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
-.kr-ticker-pill:hover{background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.3);transform:translateY(-1px);}
+.kr-theme-tickers{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;}
+.kr-ticker-pill{font-size:12px;padding:5px 8px;border-radius:6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);color:var(--text-secondary);font-family:var(--font-sans);transition:all 0.2s ease;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:6px;}
+.kr-ticker-pill:hover{background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);}
 .kr-ticker-pill .pill-code{display:none;}
-.kr-ticker-pill .pill-name{font-family:'Inter',var(--font-sans);font-weight:700;font-size:11px;}
-.pill-pct{font-size:11px;font-weight:800;font-family:var(--font-mono);margin-left:2px;letter-spacing:-0.3px;transition:color 0.2s;}
-.pill-price{font-size:9px;color:var(--text-muted);font-family:var(--font-mono);margin-left:2px;}
+.kr-ticker-pill .pill-name{font-weight:700;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pill-wt{font-size:9px;color:var(--text-muted);font-family:var(--font-mono);background:rgba(255,255,255,0.06);padding:1px 4px;border-radius:3px;white-space:nowrap;}
+.pill-price{font-size:11px;font-weight:700;font-family:var(--font-mono);text-align:right;white-space:nowrap;}
+.pill-pct{font-size:11px;font-weight:800;font-family:var(--font-mono);text-align:right;white-space:nowrap;min-width:52px;letter-spacing:-0.3px;transition:color 0.2s;}
 .kr-theme-stat{display:flex;flex-direction:column;gap:5px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);font-size:10px;color:var(--text-muted);line-height:1.5;}
 .kr-theme-stat span{display:flex;align-items:center;gap:4px;}
 .kr-theme-catalyst{margin-top:8px;padding:8px 10px;background:rgba(99,102,241,0.06);border-left:2px solid rgba(99,102,241,0.4);border-radius:0 6px 6px 0;font-size:10px;color:var(--text-secondary);line-height:1.5;}
@@ -2016,7 +2017,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v37.1</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v37.9</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -3389,6 +3390,11 @@ body.light-theme canvas { filter:none; }
           <div id="pc-live-badge" style="font-size:8px;color:var(--accent);margin-top:4px;font-weight:700;">● LIVE</div>
         </div>
       </div>
+    </div>
+    <!-- v37.8: 심리지표 복합 분석 -->
+    <div class="data-widget" style="margin-top:12px;">
+      <div class="widget-title">📊 시장 심리 복합 판단</div>
+      <div id="sent-analysis-text" style="padding:10px;font-size:10.5px;color:var(--text-secondary);line-height:1.7;">심리 지표 로딩 중...</div>
     </div>
   </div>
     <!-- ═══════════════ PAGE: BRIEFING (데일리 브리핑) ═══════════════ -->
@@ -5370,6 +5376,12 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
+    <!-- v37.8: 펀더멘털 동적 분석 -->
+    <div class="data-widget" style="margin-bottom:12px;">
+      <div class="widget-title">📊 기업 밸류에이션 스캔</div>
+      <div id="fund-analysis-text" style="padding:10px;font-size:10.5px;color:var(--text-secondary);line-height:1.7;">기업 카드 로딩 후 자동 분석됩니다</div>
+    </div>
+
     <!-- ★ 어닝 캘린더 (다가오는 실적 발표) -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -5863,6 +5875,12 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
+    <!-- v37.8: 포트폴리오 동적 진단 -->
+    <div class="data-widget" style="margin-bottom:12px;">
+      <div class="widget-title">📊 포트폴리오 자동 진단</div>
+      <div id="pf-analysis-text" style="padding:10px;font-size:10.5px;color:var(--text-secondary);line-height:1.7;">포트폴리오를 추가하면 자동 분석됩니다</div>
+    </div>
+
     <!-- 포트폴리오 AI 분석 -->
     <div class="aio-chat" id="chat-portfolio" style="margin-top:12px;">
       <div class="acp-header">
@@ -6262,6 +6280,12 @@ body.light-theme canvas { filter:none; }
         </tbody>
       </table>
     </div>
+  </div>
+
+  <!-- v37.8: 스크리너 동적 분석 -->
+  <div class="data-widget" style="margin-bottom:12px;">
+    <div class="widget-title">📊 스크리닝 결과 분석</div>
+    <div id="scr-analysis-text" style="padding:10px;font-size:10.5px;color:var(--text-secondary);line-height:1.7;">스캔 실행 후 자동 분석됩니다</div>
   </div>
 
   <!-- v34.9: 워크플로우 연결 -->
@@ -6972,6 +6996,12 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
+  <!-- v37.8: 옵션 동적 분석 -->
+  <div class="data-widget" style="margin-top:12px;">
+    <div class="widget-title">📊 옵션 환경 자동 판단</div>
+    <div id="opt-analysis-text" style="padding:10px;font-size:10.5px;color:var(--text-secondary);line-height:1.7;">데이터 로딩 중...</div>
+  </div>
+
   <!-- SECTION 10: AI CHAT -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
     <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🤖 AI 옵션 전략 상담</div>
@@ -7550,13 +7580,13 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-cold">조정</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="012450.KS"><span class="pill-code">012450</span> <span class="pill-name">한화에어로스페이스</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="047810.KS"><span class="pill-code">047810</span> <span class="pill-name">KAI</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="079550.KS"><span class="pill-code">079550</span> <span class="pill-name">LIG넥스원</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="064350.KS"><span class="pill-code">064350</span> <span class="pill-name">현대로템</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="272210.KS"><span class="pill-code">272210</span> <span class="pill-name">한화시스템</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000880.KS"><span class="pill-code">000880</span> <span class="pill-name">한화</span> <span class="pill-pct">5%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="103140.KS"><span class="pill-code">103140</span> <span class="pill-name">풍산</span> <span class="pill-pct">5%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="012450.KS"><span class="pill-code">012450</span> <span class="pill-name">한화에어로스페이스</span> <span class="pill-wt">25%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="047810.KS"><span class="pill-code">047810</span> <span class="pill-name">KAI</span> <span class="pill-wt">20%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="079550.KS"><span class="pill-code">079550</span> <span class="pill-name">LIG넥스원</span> <span class="pill-wt">20%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="064350.KS"><span class="pill-code">064350</span> <span class="pill-name">현대로템</span> <span class="pill-wt">15%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="272210.KS"><span class="pill-code">272210</span> <span class="pill-name">한화시스템</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000880.KS"><span class="pill-code">000880</span> <span class="pill-name">한화</span> <span class="pill-wt">5%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="103140.KS"><span class="pill-code">103140</span> <span class="pill-name">풍산</span> <span class="pill-wt">5%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="defense">
           <span>일간 수익률 <b style="color:var(--red)">-12.5%</b></span>
@@ -7573,18 +7603,18 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-warm">강세</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="000660.KS"><span class="pill-code">000660</span> <span class="pill-name">SK하이닉스</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="005930.KS"><span class="pill-code">005930</span> <span class="pill-name">삼성전자</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="042700.KQ"><span class="pill-code">042700</span> <span class="pill-name">한미반도체</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="009150.KS"><span class="pill-code">009150</span> <span class="pill-name">삼성전기</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="039030.KQ"><span class="pill-code">039030</span> <span class="pill-name">이오테크닉스</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="403870.KQ"><span class="pill-code">403870</span> <span class="pill-name">HPSP</span> <span class="pill-pct">5%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="058470.KQ"><span class="pill-code">058470</span> <span class="pill-name">리노공업</span> <span class="pill-pct">5%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="240810.KQ"><span class="pill-code">240810</span> <span class="pill-name">원익IPS</span> <span class="pill-pct">5%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000990.KS"><span class="pill-code">000990</span> <span class="pill-name">DB하이텍</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="036930.KQ"><span class="pill-code">036930</span> <span class="pill-name">주성엔지니어링</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="131970.KQ"><span class="pill-code">131970</span> <span class="pill-name">테크윙</span> <span class="pill-pct">3%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="005290.KS"><span class="pill-code">005290</span> <span class="pill-name">동진쎄미켐</span> <span class="pill-pct">3%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000660.KS"><span class="pill-code">000660</span> <span class="pill-name">SK하이닉스</span> <span class="pill-wt">25%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005930.KS"><span class="pill-code">005930</span> <span class="pill-name">삼성전자</span> <span class="pill-wt">25%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="042700.KQ"><span class="pill-code">042700</span> <span class="pill-name">한미반도체</span> <span class="pill-wt">8%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="009150.KS"><span class="pill-code">009150</span> <span class="pill-name">삼성전기</span> <span class="pill-wt">7%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="039030.KQ"><span class="pill-code">039030</span> <span class="pill-name">이오테크닉스</span> <span class="pill-wt">6%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="403870.KQ"><span class="pill-code">403870</span> <span class="pill-name">HPSP</span> <span class="pill-wt">5%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="058470.KQ"><span class="pill-code">058470</span> <span class="pill-name">리노공업</span> <span class="pill-wt">5%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="240810.KQ"><span class="pill-code">240810</span> <span class="pill-name">원익IPS</span> <span class="pill-wt">5%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000990.KS"><span class="pill-code">000990</span> <span class="pill-name">DB하이텍</span> <span class="pill-wt">4%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="036930.KQ"><span class="pill-code">036930</span> <span class="pill-name">주성엔지니어링</span> <span class="pill-wt">4%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="131970.KQ"><span class="pill-code">131970</span> <span class="pill-name">테크윙</span> <span class="pill-wt">3%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005290.KS"><span class="pill-code">005290</span> <span class="pill-name">동진쎄미켐</span> <span class="pill-wt">3%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="semi">
           <span>일간 수익률 <b style="color:var(--green)">+2.1%</b></span>
@@ -7601,14 +7631,14 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-hot">HOT</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="042660.KS"><span class="pill-code">042660</span> <span class="pill-name">한화오션</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="329180.KS"><span class="pill-code">329180</span> <span class="pill-name">HD현대중공업</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="009540.KS"><span class="pill-code">009540</span> <span class="pill-name">HD한국조선해양</span> <span class="pill-pct">18%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="010140.KS"><span class="pill-code">010140</span> <span class="pill-name">삼성중공업</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="010620.KS"><span class="pill-code">010620</span> <span class="pill-name">HD현대미포</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="267250.KS"><span class="pill-code">267250</span> <span class="pill-name">HD현대</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="082740.KS"><span class="pill-code">082740</span> <span class="pill-name">한화엔진</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="011200.KS"><span class="pill-code">011200</span> <span class="pill-name">HD현대마린엔진</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="042660.KS"><span class="pill-code">042660</span> <span class="pill-name">한화오션</span> <span class="pill-wt">22%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="329180.KS"><span class="pill-code">329180</span> <span class="pill-name">HD현대중공업</span> <span class="pill-wt">22%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="009540.KS"><span class="pill-code">009540</span> <span class="pill-name">HD한국조선해양</span> <span class="pill-wt">18%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="010140.KS"><span class="pill-code">010140</span> <span class="pill-name">삼성중공업</span> <span class="pill-wt">15%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="010620.KS"><span class="pill-code">010620</span> <span class="pill-name">HD현대미포</span> <span class="pill-wt">8%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="267250.KS"><span class="pill-code">267250</span> <span class="pill-name">HD현대</span> <span class="pill-wt">7%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="082740.KS"><span class="pill-code">082740</span> <span class="pill-name">한화엔진</span> <span class="pill-wt">4%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="011200.KS"><span class="pill-code">011200</span> <span class="pill-name">HD현대마린엔진</span> <span class="pill-wt">4%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="shipbuilding">
           <span>일간 수익률 <b style="color:var(--green)">+6.1%</b></span>
@@ -7625,13 +7655,13 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-hot">HOT</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="035420.KS"><span class="pill-code">035420</span> <span class="pill-name">NAVER</span> <span class="pill-pct">26%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="018260.KS"><span class="pill-code">018260</span> <span class="pill-name">삼성SDS</span> <span class="pill-pct">21%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="035720.KS"><span class="pill-code">035720</span> <span class="pill-name">카카오</span> <span class="pill-pct">16%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="012510.KS"><span class="pill-code">012510</span> <span class="pill-name">더존비즈온</span> <span class="pill-pct">16%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="030520.KQ"><span class="pill-code">030520</span> <span class="pill-name">한글과컴퓨터</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="041020.KQ"><span class="pill-code">041020</span> <span class="pill-name">폴라리스오피스</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="304100.KQ"><span class="pill-code">304100</span> <span class="pill-name">솔트룩스</span> <span class="pill-pct">4%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035420.KS"><span class="pill-code">035420</span> <span class="pill-name">NAVER</span> <span class="pill-wt">26%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="018260.KS"><span class="pill-code">018260</span> <span class="pill-name">삼성SDS</span> <span class="pill-wt">21%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035720.KS"><span class="pill-code">035720</span> <span class="pill-name">카카오</span> <span class="pill-wt">16%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="012510.KS"><span class="pill-code">012510</span> <span class="pill-name">더존비즈온</span> <span class="pill-wt">16%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="030520.KQ"><span class="pill-code">030520</span> <span class="pill-name">한글과컴퓨터</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="041020.KQ"><span class="pill-code">041020</span> <span class="pill-name">폴라리스오피스</span> <span class="pill-wt">7%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="304100.KQ"><span class="pill-code">304100</span> <span class="pill-name">솔트룩스</span> <span class="pill-wt">4%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="ai-sw">
           <span>일간 수익률 <b style="color:var(--green)">+7.2%</b></span>
@@ -7648,14 +7678,14 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-warm">강세</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="298040.KS"><span class="pill-code">298040</span> <span class="pill-name">효성중공업</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="267260.KS"><span class="pill-code">267260</span> <span class="pill-name">HD현대일렉트릭</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="010120.KS"><span class="pill-code">010120</span> <span class="pill-name">LS일렉트릭</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="103590.KS"><span class="pill-code">103590</span> <span class="pill-name">일진전기</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="006260.KS"><span class="pill-code">006260</span> <span class="pill-name">LS</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="229640.KS"><span class="pill-code">229640</span> <span class="pill-name">LS에코에너지</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000500.KS"><span class="pill-code">000500</span> <span class="pill-name">가온전선</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="033100.KS"><span class="pill-code">033100</span> <span class="pill-name">제룡전기</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="298040.KS"><span class="pill-code">298040</span> <span class="pill-name">효성중공업</span> <span class="pill-wt">22%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="267260.KS"><span class="pill-code">267260</span> <span class="pill-name">HD현대일렉트릭</span> <span class="pill-wt">22%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="010120.KS"><span class="pill-code">010120</span> <span class="pill-name">LS일렉트릭</span> <span class="pill-wt">22%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="103590.KS"><span class="pill-code">103590</span> <span class="pill-name">일진전기</span> <span class="pill-wt">8%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="006260.KS"><span class="pill-code">006260</span> <span class="pill-name">LS</span> <span class="pill-wt">8%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="229640.KS"><span class="pill-code">229640</span> <span class="pill-name">LS에코에너지</span> <span class="pill-wt">6%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000500.KS"><span class="pill-code">000500</span> <span class="pill-name">가온전선</span> <span class="pill-wt">6%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="033100.KS"><span class="pill-code">033100</span> <span class="pill-name">제룡전기</span> <span class="pill-wt">6%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="power-grid">
           <span>일간 수익률 <b style="color:var(--green)">+5.8%</b></span>
@@ -7672,12 +7702,12 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-warm">강세</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="034020.KS"><span class="pill-code">034020</span> <span class="pill-name">두산에너빌리티</span> <span class="pill-pct">35%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000720.KS"><span class="pill-code">000720</span> <span class="pill-name">현대건설</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="052690.KS"><span class="pill-code">052690</span> <span class="pill-name">한전기술</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="051600.KS"><span class="pill-code">051600</span> <span class="pill-name">한전KPS</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="092200.KS"><span class="pill-code">092200</span> <span class="pill-name">디아이씨</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="083650.KS"><span class="pill-code">083650</span> <span class="pill-name">비에이치아이</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="034020.KS"><span class="pill-code">034020</span> <span class="pill-name">두산에너빌리티</span> <span class="pill-wt">35%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000720.KS"><span class="pill-code">000720</span> <span class="pill-name">현대건설</span> <span class="pill-wt">20%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="052690.KS"><span class="pill-code">052690</span> <span class="pill-name">한전기술</span> <span class="pill-wt">15%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="051600.KS"><span class="pill-code">051600</span> <span class="pill-name">한전KPS</span> <span class="pill-wt">12%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="092200.KS"><span class="pill-code">092200</span> <span class="pill-name">디아이씨</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="083650.KS"><span class="pill-code">083650</span> <span class="pill-name">비에이치아이</span> <span class="pill-wt">8%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="nuclear">
           <span>일간 수익률 <b style="color:var(--green)">+5.2%</b></span>
@@ -7694,15 +7724,15 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-cold">조정</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="373220.KS"><span class="pill-code">373220</span> <span class="pill-name">LG에너지솔루션</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="005490.KS"><span class="pill-code">005490</span> <span class="pill-name">POSCO홀딩스</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="096770.KS"><span class="pill-code">096770</span> <span class="pill-name">SK이노베이션</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="051910.KS"><span class="pill-code">051910</span> <span class="pill-name">LG화학</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="006400.KS"><span class="pill-code">006400</span> <span class="pill-name">삼성SDI</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="247540.KQ"><span class="pill-code">247540</span> <span class="pill-name">에코프로비엠</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="003670.KQ"><span class="pill-code">003670</span> <span class="pill-name">포스코퓨처엠</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="066970.KQ"><span class="pill-code">066970</span> <span class="pill-name">엘앤에프</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="086520.KQ"><span class="pill-code">086520</span> <span class="pill-name">에코프로</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="373220.KS"><span class="pill-code">373220</span> <span class="pill-name">LG에너지솔루션</span> <span class="pill-wt">22%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005490.KS"><span class="pill-code">005490</span> <span class="pill-name">POSCO홀딩스</span> <span class="pill-wt">15%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="096770.KS"><span class="pill-code">096770</span> <span class="pill-name">SK이노베이션</span> <span class="pill-wt">12%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="051910.KS"><span class="pill-code">051910</span> <span class="pill-name">LG화학</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="006400.KS"><span class="pill-code">006400</span> <span class="pill-name">삼성SDI</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="247540.KQ"><span class="pill-code">247540</span> <span class="pill-name">에코프로비엠</span> <span class="pill-wt">8%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="003670.KQ"><span class="pill-code">003670</span> <span class="pill-name">포스코퓨처엠</span> <span class="pill-wt">8%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="066970.KQ"><span class="pill-code">066970</span> <span class="pill-name">엘앤에프</span> <span class="pill-wt">8%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="086520.KQ"><span class="pill-code">086520</span> <span class="pill-name">에코프로</span> <span class="pill-wt">7%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="battery">
           <span>일간 수익률 <b style="color:var(--red)">-3.2%</b></span>
@@ -7719,14 +7749,14 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-cool">중립</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="068270.KS"><span class="pill-code">068270</span> <span class="pill-name">셀트리온</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="196170.KQ"><span class="pill-code">196170</span> <span class="pill-name">알테오젠</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="207940.KS"><span class="pill-code">207940</span> <span class="pill-name">삼성바이오로직스</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="028300.KQ"><span class="pill-code">028300</span> <span class="pill-name">HLB</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000100.KS"><span class="pill-code">000100</span> <span class="pill-name">유한양행</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="128940.KS"><span class="pill-code">128940</span> <span class="pill-name">한미약품</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="145020.KQ"><span class="pill-code">145020</span> <span class="pill-name">휴젤</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="326030.KS"><span class="pill-code">326030</span> <span class="pill-name">SK바이오팜</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="068270.KS"><span class="pill-code">068270</span> <span class="pill-name">셀트리온</span> <span class="pill-wt">20%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="196170.KQ"><span class="pill-code">196170</span> <span class="pill-name">알테오젠</span> <span class="pill-wt">20%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="207940.KS"><span class="pill-code">207940</span> <span class="pill-name">삼성바이오로직스</span> <span class="pill-wt">20%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="028300.KQ"><span class="pill-code">028300</span> <span class="pill-name">HLB</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000100.KS"><span class="pill-code">000100</span> <span class="pill-name">유한양행</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="128940.KS"><span class="pill-code">128940</span> <span class="pill-name">한미약품</span> <span class="pill-wt">7%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="145020.KQ"><span class="pill-code">145020</span> <span class="pill-name">휴젤</span> <span class="pill-wt">7%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="326030.KS"><span class="pill-code">326030</span> <span class="pill-name">SK바이오팜</span> <span class="pill-wt">6%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="bio">
           <span>일간 수익률 <b style="color:var(--text-muted)">-0.8%</b></span>
@@ -7743,14 +7773,14 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-warm">강세</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="090430.KS"><span class="pill-code">090430</span> <span class="pill-name">아모레퍼시픽</span> <span class="pill-pct">18%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="051900.KS"><span class="pill-code">051900</span> <span class="pill-name">LG생활건강</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="044820.KQ"><span class="pill-code">044820</span> <span class="pill-name">코스맥스BTI</span> <span class="pill-pct">14%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="278470.KQ"><span class="pill-code">278470</span> <span class="pill-name">APR</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="257720.KQ"><span class="pill-code">257720</span> <span class="pill-name">실리콘투</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="161890.KQ"><span class="pill-code">161890</span> <span class="pill-name">한국콜마</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="237880.KQ"><span class="pill-code">237880</span> <span class="pill-name">클리오</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="950130.KQ"><span class="pill-code">950130</span> <span class="pill-name">엘앤피코스메틱</span> <span class="pill-pct">9%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="090430.KS"><span class="pill-code">090430</span> <span class="pill-name">아모레퍼시픽</span> <span class="pill-wt">18%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="051900.KS"><span class="pill-code">051900</span> <span class="pill-name">LG생활건강</span> <span class="pill-wt">15%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="044820.KQ"><span class="pill-code">044820</span> <span class="pill-name">코스맥스BTI</span> <span class="pill-wt">14%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="278470.KQ"><span class="pill-code">278470</span> <span class="pill-name">APR</span> <span class="pill-wt">12%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="257720.KQ"><span class="pill-code">257720</span> <span class="pill-name">실리콘투</span> <span class="pill-wt">12%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="161890.KQ"><span class="pill-code">161890</span> <span class="pill-name">한국콜마</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="237880.KQ"><span class="pill-code">237880</span> <span class="pill-name">클리오</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="950130.KQ"><span class="pill-code">950130</span> <span class="pill-name">엘앤피코스메틱</span> <span class="pill-wt">9%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="kbeauty">
           <span>일간 수익률 <b style="color:var(--green)">+3.4%</b></span>
@@ -7767,15 +7797,15 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-cold">부진</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="259960.KS"><span class="pill-code">259960</span> <span class="pill-name">크래프톤</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="352820.KS"><span class="pill-code">352820</span> <span class="pill-name">하이브</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="041510.KS"><span class="pill-code">041510</span> <span class="pill-name">SM</span> <span class="pill-pct">14%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="035900.KS"><span class="pill-code">035900</span> <span class="pill-name">JYP Ent.</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="122870.KS"><span class="pill-code">122870</span> <span class="pill-name">YG엔터</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="253450.KQ"><span class="pill-code">253450</span> <span class="pill-name">스튜디오드래곤</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="035760.KS"><span class="pill-code">035760</span> <span class="pill-name">CJ ENM</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="251270.KS"><span class="pill-code">251270</span> <span class="pill-name">넷마블</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="112040.KQ"><span class="pill-code">112040</span> <span class="pill-name">위메이드</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="259960.KS"><span class="pill-code">259960</span> <span class="pill-name">크래프톤</span> <span class="pill-wt">15%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="352820.KS"><span class="pill-code">352820</span> <span class="pill-name">하이브</span> <span class="pill-wt">15%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="041510.KS"><span class="pill-code">041510</span> <span class="pill-name">SM</span> <span class="pill-wt">14%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035900.KS"><span class="pill-code">035900</span> <span class="pill-name">JYP Ent.</span> <span class="pill-wt">12%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="122870.KS"><span class="pill-code">122870</span> <span class="pill-name">YG엔터</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="253450.KQ"><span class="pill-code">253450</span> <span class="pill-name">스튜디오드래곤</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035760.KS"><span class="pill-code">035760</span> <span class="pill-name">CJ ENM</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="251270.KS"><span class="pill-code">251270</span> <span class="pill-name">넷마블</span> <span class="pill-wt">8%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="112040.KQ"><span class="pill-code">112040</span> <span class="pill-name">위메이드</span> <span class="pill-wt">6%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="kcontent">
           <span>일간 수익률 <b style="color:var(--red)">-2.1%</b></span>
@@ -7792,13 +7822,13 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-cool">중립</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="005380.KS"><span class="pill-code">005380</span> <span class="pill-name">현대차</span> <span class="pill-pct">28%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000270.KS"><span class="pill-code">000270</span> <span class="pill-name">기아</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="012330.KS"><span class="pill-code">012330</span> <span class="pill-name">현대모비스</span> <span class="pill-pct">18%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="086280.KS"><span class="pill-code">086280</span> <span class="pill-name">현대글로비스</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="011210.KS"><span class="pill-code">011210</span> <span class="pill-name">현대위아</span> <span class="pill-pct">7%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="204320.KS"><span class="pill-code">204320</span> <span class="pill-name">HL만도</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="018880.KS"><span class="pill-code">018880</span> <span class="pill-name">한온시스템</span> <span class="pill-pct">6%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005380.KS"><span class="pill-code">005380</span> <span class="pill-name">현대차</span> <span class="pill-wt">28%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000270.KS"><span class="pill-code">000270</span> <span class="pill-name">기아</span> <span class="pill-wt">25%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="012330.KS"><span class="pill-code">012330</span> <span class="pill-name">현대모비스</span> <span class="pill-wt">18%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="086280.KS"><span class="pill-code">086280</span> <span class="pill-name">현대글로비스</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="011210.KS"><span class="pill-code">011210</span> <span class="pill-name">현대위아</span> <span class="pill-wt">7%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="204320.KS"><span class="pill-code">204320</span> <span class="pill-name">HL만도</span> <span class="pill-wt">6%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="018880.KS"><span class="pill-code">018880</span> <span class="pill-name">한온시스템</span> <span class="pill-wt">6%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="auto">
           <span>일간 수익률 <b style="color:var(--text-muted)">+0.6%</b></span>
@@ -7815,12 +7845,12 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-hot">HOT</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="454910.KQ"><span class="pill-code">454910</span> <span class="pill-name">두산로보틱스</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="277810.KQ"><span class="pill-code">277810</span> <span class="pill-name">레인보우로보틱스</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="005380.KS"><span class="pill-code">005380</span> <span class="pill-name">현대차(보스턴D)</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="315640.KQ"><span class="pill-code">315640</span> <span class="pill-name">뉴로메카</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="178320.KQ"><span class="pill-code">178320</span> <span class="pill-name">로보스타</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="056080.KQ"><span class="pill-code">056080</span> <span class="pill-name">유진로봇</span> <span class="pill-pct">8%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="454910.KQ"><span class="pill-code">454910</span> <span class="pill-name">두산로보틱스</span> <span class="pill-wt">25%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="277810.KQ"><span class="pill-code">277810</span> <span class="pill-name">레인보우로보틱스</span> <span class="pill-wt">25%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005380.KS"><span class="pill-code">005380</span> <span class="pill-name">현대차(보스턴D)</span> <span class="pill-wt">15%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="315640.KQ"><span class="pill-code">315640</span> <span class="pill-name">뉴로메카</span> <span class="pill-wt">15%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="178320.KQ"><span class="pill-code">178320</span> <span class="pill-name">로보스타</span> <span class="pill-wt">12%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="056080.KQ"><span class="pill-code">056080</span> <span class="pill-name">유진로봇</span> <span class="pill-wt">8%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="robot">
           <span>일간 수익률 <b style="color:var(--green)">+9.1%</b></span>
@@ -7837,13 +7867,13 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-cool">중립</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="105560.KS"><span class="pill-code">105560</span> <span class="pill-name">KB금융</span> <span class="pill-pct">20%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="055550.KS"><span class="pill-code">055550</span> <span class="pill-name">신한지주</span> <span class="pill-pct">18%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="086790.KS"><span class="pill-code">086790</span> <span class="pill-name">하나금융</span> <span class="pill-pct">14%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="138040.KS"><span class="pill-code">138040</span> <span class="pill-name">메리츠금융지주</span> <span class="pill-pct">14%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="316140.KS"><span class="pill-code">316140</span> <span class="pill-name">우리금융지주</span> <span class="pill-pct">12%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000810.KS"><span class="pill-code">000810</span> <span class="pill-name">삼성화재</span> <span class="pill-pct">11%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="032830.KS"><span class="pill-code">032830</span> <span class="pill-name">삼성생명</span> <span class="pill-pct">11%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="105560.KS"><span class="pill-code">105560</span> <span class="pill-name">KB금융</span> <span class="pill-wt">20%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="055550.KS"><span class="pill-code">055550</span> <span class="pill-name">신한지주</span> <span class="pill-wt">18%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="086790.KS"><span class="pill-code">086790</span> <span class="pill-name">하나금융</span> <span class="pill-wt">14%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="138040.KS"><span class="pill-code">138040</span> <span class="pill-name">메리츠금융지주</span> <span class="pill-wt">14%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="316140.KS"><span class="pill-code">316140</span> <span class="pill-name">우리금융지주</span> <span class="pill-wt">12%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000810.KS"><span class="pill-code">000810</span> <span class="pill-name">삼성화재</span> <span class="pill-wt">11%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="032830.KS"><span class="pill-code">032830</span> <span class="pill-name">삼성생명</span> <span class="pill-wt">11%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="finance">
           <span>일간 수익률 <b style="color:var(--green)">+1.2%</b></span>
@@ -7860,13 +7890,13 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-warm">강세</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="003230.KS"><span class="pill-code">003230</span> <span class="pill-name">삼양식품</span> <span class="pill-pct">22%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="097950.KS"><span class="pill-code">097950</span> <span class="pill-name">CJ제일제당</span> <span class="pill-pct">18%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="271560.KS"><span class="pill-code">271560</span> <span class="pill-name">오리온</span> <span class="pill-pct">16%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="004370.KS"><span class="pill-code">004370</span> <span class="pill-name">농심</span> <span class="pill-pct">15%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="280360.KS"><span class="pill-code">280360</span> <span class="pill-name">롯데웰푸드</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="005180.KS"><span class="pill-code">005180</span> <span class="pill-name">빙그레</span> <span class="pill-pct">10%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="000080.KS"><span class="pill-code">000080</span> <span class="pill-name">하이트진로</span> <span class="pill-pct">9%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="003230.KS"><span class="pill-code">003230</span> <span class="pill-name">삼양식품</span> <span class="pill-wt">22%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="097950.KS"><span class="pill-code">097950</span> <span class="pill-name">CJ제일제당</span> <span class="pill-wt">18%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="271560.KS"><span class="pill-code">271560</span> <span class="pill-name">오리온</span> <span class="pill-wt">16%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="004370.KS"><span class="pill-code">004370</span> <span class="pill-name">농심</span> <span class="pill-wt">15%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="280360.KS"><span class="pill-code">280360</span> <span class="pill-name">롯데웰푸드</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="005180.KS"><span class="pill-code">005180</span> <span class="pill-name">빙그레</span> <span class="pill-wt">10%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="000080.KS"><span class="pill-code">000080</span> <span class="pill-name">하이트진로</span> <span class="pill-wt">9%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="kfood">
           <span>일간 수익률 <b style="color:var(--green)">+2.4%</b></span>
@@ -7883,9 +7913,9 @@ body.light-theme canvas { filter:none; }
           <span class="kr-theme-heat heat-cool">중립</span>
         </div>
         <div class="kr-theme-tickers">
-          <span class="kr-ticker-pill" data-live-price="112040.KQ"><span class="pill-code">112040</span> <span class="pill-name">위메이드</span> <span class="pill-pct">40%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="035720.KS"><span class="pill-code">035720</span> <span class="pill-name">카카오(Klaytn)</span> <span class="pill-pct">35%</span> <span class="pill-price"></span></span>
-          <span class="kr-ticker-pill" data-live-price="094480.KQ"><span class="pill-code">094480</span> <span class="pill-name">갤럭시아머니트리</span> <span class="pill-pct">25%</span> <span class="pill-price"></span></span>
+          <span class="kr-ticker-pill" data-live-price="112040.KQ"><span class="pill-code">112040</span> <span class="pill-name">위메이드</span> <span class="pill-wt">40%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="035720.KS"><span class="pill-code">035720</span> <span class="pill-name">카카오(Klaytn)</span> <span class="pill-wt">35%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
+          <span class="kr-ticker-pill" data-live-price="094480.KQ"><span class="pill-code">094480</span> <span class="pill-name">갤럭시아머니트리</span> <span class="pill-wt">25%</span> <span class="pill-price"></span> <span class="pill-pct"></span></span>
         </div>
         <div class="kr-theme-stat" data-theme-stat="crypto">
           <span>일간 수익률 <b style="color:var(--text-muted)">-1.4%</b></span>
@@ -7940,6 +7970,12 @@ body.light-theme canvas { filter:none; }
     <div id="kr-theme-detail-panel" style="display:none;background:var(--bg-card);border:2px solid var(--accent);border-radius:12px;padding:18px;margin-bottom:14px;position:relative;">
       <button onclick="document.getElementById('kr-theme-detail-panel').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;font-weight:700;">✕</button>
       <div id="kr-theme-detail-content"></div>
+    </div>
+
+    <!-- v37.8: kr-themes 동적 테마 분석 -->
+    <div class="data-widget" style="margin-bottom:12px;">
+      <div class="widget-title">📊 테마 동향 자동 분석</div>
+      <div id="kr-themes-analysis-text" style="padding:10px;font-size:10.5px;color:var(--text-secondary);line-height:1.7;">테마 데이터 로딩 중...</div>
     </div>
 
     <!-- v34.6: kr-themes AI 테마 상담 채팅 패널 -->
@@ -8177,6 +8213,12 @@ body.light-theme canvas { filter:none; }
       <div style="background:rgba(248,113,113,0.05);border-radius:8px;padding:10px;font-size:10px;color:var(--text-secondary);">
         <b style="color:var(--red);">⚠️ 주의:</b> PF(프로젝트파이낸싱) 부실화 우려 지속. 건설사 신용등급 조정. 금리 인하 시까지 부동산 약세 예상
       </div>
+    </div>
+
+    <!-- ═══ v37.8: 한국 매크로 동적 분석 ═══ -->
+    <div class="data-widget" id="kr-macro-dynamic-widget" style="margin-bottom:12px;">
+      <div class="widget-title">📊 매크로 환경 자동 판단</div>
+      <div id="kr-macro-analysis-text" style="padding:10px;font-size:10.5px;color:var(--text-secondary);line-height:1.7;">데이터 로딩 중...</div>
     </div>
 
     <!-- ═══ 섹션 6: 정책 일정 ═══ -->
@@ -9858,7 +9900,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v37.1';
+const APP_VERSION = 'v37.2';
 
 // v34.5: 프로덕션 로그 억제 — console.log만 조건부 억제, warn/error는 유지
 // URL에 ?debug=1 추가 시 전체 로그 활성화 (개발 모드)
@@ -11947,6 +11989,8 @@ function renderScreenerResults() {
   // 스파크라인 미니차트 렌더링
   requestAnimationFrame(function() { renderSparklines(filtered); });
   document.getElementById('screener-result-count').textContent = filtered.length;
+  // v37.8: 동적 스크리너 분석
+  if (typeof _generateScreenerAnalysis === 'function') _generateScreenerAnalysis(filtered, ld);
 
   // 스크리너 결과에 실시간 가격 즉시 반영
   var ld2 = window._liveData || {};
@@ -13213,6 +13257,10 @@ const AIO_NEWS_SOURCES = [
   {name:'📡 TG Insider Tracking',       url:'https://rsshub.app/telegram/channel/insidertracking',       country:'us', tier:1, flag:'📡', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'insidertracking'},
   {name:'📡 TG BornLupin',              url:'https://rsshub.app/telegram/channel/bornlupin',             country:'us', tier:1, flag:'📡', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'bornlupin'},
   {name:'📡 TG Aether Japan Research',  url:'https://rsshub.app/telegram/channel/aetherjapanresearch',   country:'jp', tier:1, flag:'📡', topics:['macro','equity','semi','geo'],      type:'telegram', tgSlug:'aetherjapanresearch'},
+  // v37.2: 속보·지정학·매크로 텔레그램 채널 추가
+  {name:'📡 TG FirstSquawk',           url:'https://rsshub.app/telegram/channel/firstsquawk',           country:'us', tier:1, flag:'📡', topics:['macro','geo','energy','defense'],  type:'telegram', tgSlug:'firstsquawk'},
+  {name:'📡 TG FinancialJuice',        url:'https://rsshub.app/telegram/channel/financialjuicechannel', country:'us', tier:1, flag:'📡', topics:['macro','geo','energy'],            type:'telegram', tgSlug:'financialjuicechannel'},
+  {name:'📡 TG WalterBloomberg',       url:'https://rsshub.app/telegram/channel/walterbloomberg',       country:'us', tier:1, flag:'📡', topics:['macro','equity','earnings'],        type:'telegram', tgSlug:'walterbloomberg'},
 
   // ═══ TIER 2: 🇺🇸 미국 투자/분석 전문 ═══
   {name:'Forbes Business',     url:'https://www.forbes.com/business/feed/',                       country:'us', tier:2, flag:'🇺🇸', topics:['equity','macro']},
@@ -13220,10 +13268,19 @@ const AIO_NEWS_SOURCES = [
   {name:'Morningstar',         url:'https://www.morningstar.com/feeds/rss',                       country:'us', tier:2, flag:'🇺🇸', topics:['equity','earnings']},
   {name:'Zero Hedge',          url:'https://feeds.feedburner.com/zerohedge/feed',                 country:'us', tier:2, flag:'🇺🇸', topics:['macro']},
 
+  // ═══ TIER 2: 테크·AI 전문 매체 (v37.3 추가) ═══
+  {name:'TechCrunch',          url:'https://techcrunch.com/feed/',                                country:'us', tier:2, flag:'🖥️', topics:['semi','equity','earnings']},
+  {name:'The Verge',           url:'https://www.theverge.com/rss/index.xml',                     country:'us', tier:2, flag:'🖥️', topics:['semi','equity']},
+  {name:'Ars Technica',        url:'https://feeds.arstechnica.com/arstechnica/index',             country:'us', tier:2, flag:'🖥️', topics:['semi']},
+  {name:'Wired Business',      url:'https://www.wired.com/feed/category/business/latest/rss',    country:'us', tier:2, flag:'🖥️', topics:['semi','equity']},
+  {name:'VentureBeat',         url:'https://venturebeat.com/feed/',                               country:'us', tier:2, flag:'🖥️', topics:['semi','equity']},
+  {name:'The Information',     url:'https://www.theinformation.com/feed',                         country:'us', tier:2, flag:'🔬', topics:['semi','equity']},
+
   // ═══ TIER 2: 반도체·AI ═══
   {name:'TrendForce',          url:'https://www.trendforce.com/feed/',                            country:'us', tier:2, flag:'🖥️', topics:['semi','equity']},
   {name:'Digitimes',           url:'https://www.digitimes.com/rss/rss.xml',                      country:'us', tier:2, flag:'🖥️', topics:['semi','equity']},
   {name:'SemiAnalysis',        url:'https://www.semianalysis.com/feed',                           country:'us', tier:2, flag:'🔬', topics:['semi']},
+  {name:'Tom\'s Hardware',     url:'https://www.tomshardware.com/feeds/all',                     country:'us', tier:2, flag:'🔬', topics:['semi']},
   {name:'EE Times',            url:'https://www.eetimes.com/feed/',                               country:'us', tier:2, flag:'🔬', topics:['semi']},
 
   // ═══ TIER 2: 에너지·원자재 ═══
@@ -13241,6 +13298,9 @@ const AIO_NEWS_SOURCES = [
   {name:'Reuters World',       url:'https://feeds.reuters.com/Reuters/worldNews',                 country:'us', tier:2, flag:'🌍', topics:['geo']},
   {name:'AP Business',         url:'https://rsshub.app/apnews/topics/business',                  country:'us', tier:2, flag:'🇺🇸', topics:['macro']},
   {name:'Defense One',         url:'https://www.defenseone.com/rss/all/',                         country:'us', tier:2, flag:'🛡️', topics:['geo','defense']},
+  // v37.2: 중동·지정학 커버리지 보강
+  {name:'Al Jazeera English',  url:'https://www.aljazeera.com/xml/rss/all.xml',                  country:'qa', tier:2, flag:'🌍', topics:['geo','macro','energy']},
+  {name:'Middle East Eye',     url:'https://www.middleeasteye.net/rss',                          country:'uk', tier:2, flag:'🌍', topics:['geo','energy']},
 
   // ═══ TIER 2: 아시아 외신 ═══
   {name:'Nikkei Asia',         url:'https://asia.nikkei.com/rss/feed/nar',                        country:'jp', tier:2, flag:'🇯🇵', topics:['macro','equity']},
@@ -13294,9 +13354,18 @@ const MACRO_KW = [
   'FOMC','Federal Reserve','Fed','rate hike','rate cut','interest rate','pivot',
   'CPI','PCE','GDP','inflation','deflation','recession','stagflation',
   'tariff','trade war','sanction','export ban','supply chain',
-  // ── 지정학·전쟁 (2026 지정학적 리스크 모니터링)
+  // ── v37.5: 관세/무역전쟁 키워드 보강 (2025-2026 핵심 이슈)
+  'Section 301','reciprocal tariff','retaliatory tariff','countervailing duty',
+  'anti-dumping','de minimis','USMCA','trade deficit','trade surplus','customs duty',
+  'trade negotiation','trade deal','trade agreement','trade representative','USTR',
+  'import duty','export restriction','entity list','blacklist','commerce department',
+  '상호관세','보복관세','반덤핑','상계관세','무역적자','무역협상','관세율','수입관세','수출제한',
+  '엔티티리스트','무역대표부','통상압력','무역분쟁','무역협정',
+  // ── 지정학·전쟁 (2026 지정학적 리스크 모니터링) — v37.2 보강
   'war','attack','missile','invasion','nuclear','conflict','geopolitical',
   'Iran','Hormuz','strait','airstrike','ceasefire','escalation','Middle East',
+  'Israel','Lebanon','Hezbollah','CENTCOM','drone','drone strike','blockade',
+  'IRGC','proxy war','oil tanker','tanker seizure','shipping lane',
   'Brent','crude oil','oil embargo','energy shock','oil supply',
   'crash','crisis','collapse','default','systemic','contagion',
   'treasury','yield curve','bond market','credit spread','VIX spike',
@@ -13304,10 +13373,11 @@ const MACRO_KW = [
   'earnings season','S&P','Nasdaq','Dow','market breadth','correction',
   'oil price','OPEC','energy crisis','gold','commodities',
   'bank failure','liquidity','margin call','short squeeze',
-  // ── 한국어 추가 (이란전쟁·스태그)
+  // ── 한국어 추가 (이란전쟁·스태그) — v37.2 보강
   '금리','전쟁','경기침체','인플레','관세','수출규제','부양책','긴축',
   '달러','원화','환율','채권','국채','기준금리',
   '이란','호르무즈','원유 급등','스태그플레이션','에너지 위기','유가 충격',
+  '이스라엘','레바논','헤즈볼라','봉쇄','공습','드론','유조선','해상봉쇄',
   // ── 전쟁/유가 추가 키워드
   'hormuz','호르무즈','demand destruction','수요파괴','refinery','정유','brent','wti-brent','spread',
   '카타르','qatar','lng','force majeure','불가항력','netanyahu','네타냐후','capitulation','항복매도',
@@ -13361,6 +13431,17 @@ const MACRO_KW = [
   '대만해협','남중국해','홍해','후티','수에즈','공급망',
   '탈달러화','페트로달러','위안화 결제',
   '희토류','핵심광물','기술패권','디커플링',
+  // ── v37.7: AI 투자·전력수요·정책 키워드
+  'AI CapEx','hyperscaler CapEx','data center CapEx','cloud CapEx','AI spending',
+  'power demand','electricity demand','grid capacity','grid bottleneck','grid congestion',
+  'nuclear revival','nuclear renaissance','energy permitting','permitting reform',
+  'industrial policy','CHIPS Act','IRA','Inflation Reduction Act','IIJA',
+  'AI regulation','AI executive order','EU AI Act','AI governance',
+  'Medicare GLP-1','drug pricing','IRA drug negotiation',
+  // 한국어
+  'AI투자','빅테크설비투자','데이터센터투자','전력수요','전력난','송전망','계통',
+  '원전르네상스','에너지허가','산업정책','반도체특별법','K칩스법',
+  'AI규제','AI거버넌스',
 ];
 // TECH_KW: 기술/AI 주요 이벤트 → 섹터 관련 (+15점)
 const TECH_KW = [
@@ -13374,7 +13455,7 @@ const TECH_KW = [
   '반도체','파운드리','HBM','AI 가속기','메모리','D램','낸드',
   // ── v31.8: AI/반도체 밸류체인 심화
   'GPU','TPU','NPU','AI accelerator','inference chip','training chip',
-  'advanced packaging','chiplet','2nm','3nm','GAA','gate-all-around',
+  'advanced packaging','chiplet','2nm','3nm','1.4nm','GAA','gate-all-around',
   'wafer','silicon','fab','foundry capacity','utilization rate',
   'NVIDIA','AMD','Intel','Broadcom','Marvell','Qualcomm',
   'high bandwidth memory','DDR5','LPDDR5','CXL','UCIe',
@@ -13384,12 +13465,119 @@ const TECH_KW = [
   'AI agent','AI assistant','enterprise AI','edge AI',
   'transformer','large language model','LLM','foundation model',
   'AI regulation','AI safety','AI governance',
+  // ── v37.6: 2026 핵심 기술 키워드 대폭 확장
+  // 반도체 첨단패키징·인터커넥트
+  'CPO','co-packaged optics','silicon photonics','optical interconnect',
+  'glass substrate','glass core','glass interposer',
+  'CoWoS','CoWoS-L','CoWoS-S','InFO','EMIB','Foveros',
+  'BSPDN','backside power delivery','backside power',
+  'interposer','RDL','redistribution layer',
+  'HBM4','HBM3E','HBM4E','12-Hi','16-Hi',
+  // AI 신패러다임
+  'agentic AI','AI agent framework','multi-agent','agent orchestration',
+  'reasoning model','chain of thought','test-time compute',
+  'on-device AI','AI PC','AI phone','AI at the edge',
+  'sovereign AI','national AI','AI sovereignty',
+  'world model','video generation','text-to-video','image generation',
+  // 컴퓨팅·네트워크
+  'custom silicon','custom ASIC','Trainium','Inferentia','MTIA',
+  'RISC-V','ARM architecture','Arm Holdings',
+  'InfiniBand','NVLink','Ultra Ethernet','UALink',
+  'DPU','SmartNIC','network switch','Tomahawk','Jericho',
+  // 데이터센터·전력·냉각
+  'liquid cooling','immersion cooling','direct-to-chip cooling',
+  'data center power','power density','rack density',
+  'nuclear data center','SMR data center','AI power demand',
+  'UPS','power distribution','busbar','transformer shortage',
+  // 로봇·자율주행
+  'humanoid','Figure','Boston Dynamics','Agility Robotics','1X',
+  'Optimus Gen','Tesla Bot','warehouse robot','industrial robot',
+  'L4 autonomy','L5 autonomy','lidar','perception','sensor fusion',
+  // EV·배터리
+  '800V architecture','800V platform','silicon carbide','SiC','GaN',
+  'ultra-fast charging','solid state battery','sodium-ion battery',
+  'LFP','NMC','dry electrode','4680 cell',
+  // ── v37.7: 양자컴퓨팅
+  'quantum computing','quantum computer','qubit','quantum advantage','quantum supremacy',
+  'quantum error correction','topological qubit','quantum processor','quantum algorithm',
+  'IONQ','IonQ','Rigetti','D-Wave','IBM Quantum','Google Willow','Quantinuum',
+  'quantum networking','quantum cryptography','post-quantum','PQC',
+  // ── v37.7: 우주경제·위성·LEO
+  'space economy','LEO','low earth orbit','satellite constellation','Starlink',
+  'AST SpaceMobile','Kuiper constellation','OneWeb','Iridium','Globalstar',
+  'Planet Labs','Rocket Lab','Blue Origin','space station','orbital',
+  'space data center','satellite internet','direct-to-cell','D2C satellite',
+  // ── v37.7: 사이버보안 심화
+  'zero trust','ZTNA','SASE','XDR','EDR','MDR','SOAR','SIEM',
+  'ransomware','phishing','threat detection','identity security','IAM','PAM',
+  'Fortinet','FTNT','SentinelOne','S','Okta','OKTA','Varonis','Rubrik',
+  'cloud security','container security','DevSecOps','CNAPP','CSPM',
+  'post-quantum cryptography','AI security','deepfake detection',
+  // ── v37.7: 핵에너지 르네상스·전력인프라
+  'nuclear renaissance','Constellation Energy','CEG','Vistra','VST','Talen Energy',
+  'Three Mile Island','power purchase agreement','PPA','grid modernization',
+  'NuScale','NuScale Power','OKLO','Kairos Power','TerraPower','X-energy',
+  'transformer','grid transformer','power transformer','substation',
+  'Quanta Services','EATON','Vertiv','Schneider Electric',
+  // ── v37.7: AI 인프라 소프트웨어·MLOps
+  'MLOps','AI inference','AI training','model serving','vector database',
+  'RAG','retrieval augmented generation','fine-tuning','RLHF','DPO',
+  'synthetic data','data labeling','Scale AI','Weights & Biases','Databricks',
+  'Hugging Face','vLLM','TensorRT','ONNX','model optimization',
+  // ── v37.3: 메가캡 테크 기업 · AI 기업 · 핵심 이벤트
+  'Apple','AAPL','iPhone','iPad','Mac','Vision Pro','WWDC','App Store','Apple Intelligence',
+  'Microsoft','MSFT','Windows','Azure','Copilot','Build','Activision',
+  'Google','GOOGL','Alphabet','Search','YouTube','Waymo','Google I/O','Google Cloud',
+  'Amazon','AMZN','AWS','Prime','Alexa','re:Invent','Kuiper','Amazon Robotics',
+  'Meta','META','Facebook','Instagram','WhatsApp','Reality Labs','Llama','Threads',
+  'Tesla','TSLA','FSD','Full Self-Driving','Robotaxi','Cybertruck','Optimus','Megapack','Terafab','Supercharger','Gigafactory',
+  'NVIDIA','NVDA','GTC','Jensen Huang','Blackwell','Rubin','CUDA','DGX','Grace',
+  // ── v37.3: AI 스타트업 · 플랫폼 기업
+  'OpenAI','ChatGPT','GPT-5','Sora','Sam Altman','AGI',
+  'Anthropic','Claude','constitutional AI',
+  'xAI','Grok','Elon Musk AI',
+  'Mistral','Cohere','Perplexity','AI21','Inflection',
+  'Hugging Face','Stability AI','Midjourney','Runway',
+  // ── v37.3: 클라우드 · SaaS · 사이버보안
+  'Salesforce','CRM','ServiceNow','NOW','Snowflake','SNOW','Palantir','PLTR',
+  'CrowdStrike','CRWD','Palo Alto','PANW','Datadog','DDOG','Zscaler','ZS',
+  'Shopify','SHOP','Block','SQ','PayPal','PYPL','Stripe',
+  'Oracle','ORCL','Oracle Cloud','SAP','Workday','WDAY',
+  // ── v37.3: 테크 이벤트 · 컨퍼런스
+  'CES','MWC','GTC','WWDC','Google I/O','Build','re:Invent','re:MARS',
+  'product launch','developer conference','keynote','developer day',
+  // ── v37.3: 한국어 테크 기업
+  '엔비디아','테슬라','애플','마이크로소프트','구글','아마존','메타',
+  '오픈AI','앤트로픽','일론 머스크','젠슨 황','팀 쿡',
+  '자율주행','로보택시','로봇','휴머노이드','비전프로',
+  'FSD','완전자율주행','기가팩토리','테라팹','슈퍼차저',
   // ── v31.8: 한국 반도체 심화
   '삼성전자','SK하이닉스','삼성파운드리','HBM3E','HBM4',
   '선단공정','첨단패키징','반도체 수출','반도체 장비','반도체 소재',
   'AI 서버','데이터센터','클라우드','하이퍼스케일러',
   '웨이퍼','실리콘','팹','가동률','수율',
   'GPU 수요','AI 투자','AI 인프라','전력 수요',
+  // ── v37.6: 한국어 핵심 기술 키워드 대폭 확장
+  'CPO','광패키징','광인터커넥트','실리콘 포토닉스',
+  '유리기판','글래스기판','글래스코어','글래스인터포저',
+  '에이전틱AI','AI에이전트','멀티에이전트','에이전트',
+  '온디바이스AI','AI PC','AI폰','소버린AI',
+  '추론모델','체인오브쏘트','테스트타임컴퓨트',
+  '맞춤형실리콘','커스텀칩','ASIC','트레이니움','인퍼런시아',
+  '인피니밴드','NVLink','초고속네트워크',
+  '액침냉각','수냉','직접냉각','데이터센터전력',
+  '전력반도체','SiC','탄화규소','GaN','질화갈륨',
+  '800V','초고속충전','전고체배터리','나트륨이온배터리',
+  '휴머노이드로봇','피규어','보스턴다이나믹스','테슬라봇',
+  'L4자율주행','라이다','센서퓨전',
+  '리스크파이브','RISC-V','ARM아키텍처',
+  '후면전력전달','BSPDN','재배선층',
+  // ── v37.7: 한국어 양자·우주·사이버·원전 키워드
+  '양자컴퓨팅','양자컴퓨터','큐비트','양자우위','양자암호',
+  '우주경제','저궤도위성','위성인터넷','스타링크','우주데이터센터',
+  '제로트러스트','사이버보안','랜섬웨어','클라우드보안','AI보안',
+  '원전르네상스','소형모듈원전','뉴스케일','전력망','변압기','송전','배전',
+  'MLOps','AI추론','AI학습','벡터DB','RAG','파인튜닝','합성데이터',
 ];
 // MED_KW: 일반 기업/시장 이슈 → 보통 중요도 (+6점)
 const MED_KW = [
@@ -13413,10 +13601,56 @@ const MED_KW = [
   'patent','intellectual property','trade secret','antitrust','monopoly',
   'supply shortage','inventory build','channel check','demand trend',
   'defense','defence','military','weapon','missile defense','arms deal',
+  // ── v37.6: 방산·에너지·EV 키워드 보강
+  'Golden Dome','Iron Dome','missile shield','hypersonic defense','space defense',
+  'drone defense','counter-drone','directed energy','laser weapon',
   'nuclear power','SMR','uranium','renewable energy','solar','wind',
   'EV battery','lithium','cobalt','nickel','cathode','anode','solid state battery',
+  '800V','SiC inverter','fast charging','battery swap','V2G','vehicle-to-grid',
+  // ── v37.7: GLP-1·비만치료제 세부 확장
+  'Wegovy','Ozempic','Mounjaro','Zepbound','tirzepatide','semaglutide','liraglutide',
+  'oral GLP-1','GLP-1 agonist','incretin','weight loss drug','obesity drug','anti-obesity',
+  'Medicare obesity','Medicare GLP-1','Novo Nordisk','NVO','Eli Lilly','LLY','Amgen obesity',
+  // ── v37.7: 바이오·제약 심화
+  'bispecific antibody','ADC','antibody drug conjugate','CAR-T','cell therapy','gene therapy',
+  'mRNA','RNA therapeutics','CRISPR','gene editing','BBB shuttle','brain-blood barrier',
+  'Phase 1','Phase 2','Phase 3','NDA','BLA','PDUFA','EMA approval',
+  'orphan drug','rare disease','oncology','immunotherapy','checkpoint inhibitor','PD-1','PD-L1',
+  'biosimilar','generic drug','patent cliff','loss of exclusivity','LOE',
+  // ── v37.7: ESS·에너지저장
+  'ESS','energy storage','BESS','grid-scale battery','grid storage','battery storage',
+  'stationary storage','utility-scale','peak shaving','frequency regulation',
+  // ── v37.7: 조선·해운·해양
+  'shipbuilding','shipyard','newbuild','order book','vessel','tanker','bulk carrier',
+  'container ship','LNG carrier','warship','naval vessel','frigate','destroyer',
+  'HD Hyundai','Hanwha Ocean','Samsung Heavy','Daewoo Shipbuilding',
+  // ── v37.7: 우주·위성 기업
+  'SpaceX','Rocket Lab','RKLB','Blue Origin','satellite','Starlink','AST SpaceMobile','ASTS',
+  'Iridium','IRDM','Globalstar','GSAT','Planet Labs','PL','L3Harris','LHX',
+  // ── v37.7: 사이버보안 기업 이벤트
+  'ransomware attack','data breach','cyber attack','zero-day','vulnerability',
+  'Fortinet','FTNT','SentinelOne','Okta','Rubrik','IPO',
   'biotech','FDA approval','clinical trial','Phase 3','drug pipeline',
   'SPAC','de-SPAC','direct listing','Dutch auction',
+  // ── v37.3: 기업 이벤트 · 제품 · 규제 보강
+  'product launch','product reveal','product announcement','new product',
+  'developer conference','keynote','investor day','analyst day','capital markets day',
+  'CEO','CTO','CFO resignation','management change','succession',
+  'antitrust ruling','DOJ','FTC','EU fine','consent decree','breakup',
+  'data breach','security incident','outage','service disruption',
+  'content moderation','platform ban','TikTok ban','Section 230',
+  'streaming','subscriber','subscriber growth','churn','ARPU',
+  'Netflix','NFLX','Disney','DIS','Spotify','SPOT',
+  'Uber','UBER','Airbnb','ABNB','DoorDash','DASH','Instacart',
+  'Visa','V','Mastercard','MA','Amex','AXP',
+  'JPMorgan','Goldman Sachs','Morgan Stanley','Bank of America','Citigroup',
+  'Berkshire','Buffett','Munger',
+  // ── v37.3: 한국어 기업 이벤트 보강
+  '제품 출시','신제품','개발자 컨퍼런스','키노트','투자자의 날',
+  '독점금지','반독점','벌금','규제','플랫폼 규제',
+  '데이터 유출','서비스 장애','해킹',
+  '넷플릭스','디즈니','스포티파이','우버','에어비앤비',
+  '버크셔','버핏','JP모건','골드만삭스','모건스탠리',
   // ── v31.8: 한국어 기업 이벤트
   '실적','매출','영업이익','순이익','가이던스','전망','컨센서스',
   '자사주','자사주 매입','자사주 소각','배당','증자','감자',
@@ -13424,9 +13658,25 @@ const MED_KW = [
   '공매도 잔고','신용잔고','대차잔고','기관 순매수','외국인 순매수',
   '상장폐지','거래정지','관리종목','불성실공시',
   '방산','방위산업','무기','군수','원전','원자력','우라늄',
+  // ── v37.6: 한국 방산·에너지·EV·바이오 키워드 보강
+  '골든돔','아이언돔','미사일방어','극초음속','우주방위','드론방어','레이저무기',
+  'SMR','소형모듈원전','원전수출','한수원','두산에너빌리티',
   '2차전지','리튬','배터리','전기차','수소','태양광','풍력',
+  '800V','초고속충전','전고체배터리','나트륨이온','LFP','하이니켈',
+  'SiC 인버터','배터리스왑','V2G',
   '바이오','신약','임상','FDA','식약처',
+  'GLP-1','비만치료제','바이오시밀러','ADC','항체약물접합체',
   '조선','LNG선','컨테이너선','벌크선','해운',
+  // ── v37.7: 한국 바이오·ESS·조선·우주 키워드 보강
+  '위고비','오젬픽','마운자로','제패운드','세마글루타이드','티르제파타이드',
+  '경구GLP-1','비만약','체중감량','항비만','노보노디스크','일라이릴리',
+  '이중항체','CAR-T','세포치료','유전자치료','mRNA','크리스퍼','유전자편집',
+  '알테오젠','에이비엘바이오','삼성바이오로직스','셀트리온','SK바이오사이언스',
+  'ESS','에너지저장','BESS','그리드','계통안정화','피크셰이빙',
+  'HD현대중공업','한화오션','삼성중공업','HD현대미포','군함','호위함','구축함',
+  '한화에어로스페이스','현대로템','LIG넥스원','풍산',
+  '우주항공','위성','발사체','누리호','스타링크','저궤도',
+  '사이버공격','랜섬웨어','해킹','보안사고','제로데이',
 ];
 // ANALYST_KW: 개별 종목 analyst rating → 홈 노출 페널티 (-20점)
 const ANALYST_KW = [
@@ -13796,7 +14046,8 @@ const NEWS_BLACKLIST_KW = [
 // 토픽 키워드 분류
 const TOPIC_KEYWORDS = {
   macro:    ['Fed','FOMC','rate','CPI','PCE','GDP','inflation','deflation','recession','treasury','bond','yield curve',
-              'dollar','DXY','yen','euro','yuan','tariff','trade war','sanction','export ban','금리','인플레','경기침체','환율','채권',
+              'dollar','DXY','yen','euro','yuan','tariff','trade war','sanction','export ban','reciprocal tariff','Section 301','de minimis','USMCA','customs duty','상호관세','보복관세','관세율','무역분쟁',
+              '금리','인플레','경기침체','환율','채권',
               'monetary policy','fiscal','stimulus','QE','QT','central bank','beige book','dot plot','jackson hole',
               'PMI','ISM','consumer confidence','retail sales','industrial production','nonfarm','payroll','employment','unemployment',
               '통화정책','재정','소비자물가','생산자물가','고용','실업률','경상수지','무역수지','한국은행','금통위',
@@ -13807,14 +14058,34 @@ const TOPIC_KEYWORDS = {
               'Taiwan Strait','South China Sea','AUKUS','nuclear','ICBM','hypersonic',
               'rare earth','critical minerals','chip war','tech decoupling','friendshoring','nearshoring',
               '홍해','후티','수에즈','대만해협','남중국해','기술패권','디커플링','핵심광물','희토류',
-              'ceasefire','escalation','airstrike','invasion','defense spending'],
+              'ceasefire','escalation','airstrike','invasion','defense spending',
+              // v37.2: 중동 전쟁·지정학 키워드 보강
+              'israel','lebanon','hezbollah','hormuz','strait','blockade','CENTCOM','drone','drone strike',
+              'IRGC','proxy','oil tanker','tanker seizure','shipping lane','oil embargo',
+              '이란','이스라엘','레바논','헤즈볼라','호르무즈','봉쇄','공습','드론','유조선','해상봉쇄'],
   semi:     ['semiconductor','chip','AI','GPU','HBM','TSMC','NVDA','AMD','AVGO','SMCI','memory','foundry',
               'Blackwell','H100','H200','CoWoS','EUV','ASML','반도체','파운드리','HBM',
-              'wafer','fab','advanced packaging','chiplet','2nm','3nm','GAA',
+              'wafer','fab','advanced packaging','chiplet','2nm','3nm','1.4nm','GAA',
               'DRAM','NAND','DDR5','CXL','AI server','data center','hyperscaler',
               'AI accelerator','inference','training','AI infrastructure','AI spending',
               'Micron','Intel','Qualcomm','Broadcom','Marvell','ARM','Samsung foundry','SK Hynix',
-              '삼성전자','SK하이닉스','AI 서버','데이터센터','웨이퍼','선단공정','메모리'],
+              '삼성전자','SK하이닉스','AI 서버','데이터센터','웨이퍼','선단공정','메모리',
+              // v37.6: 첨단패키징·인터커넥트·AI신패러다임
+              'CPO','co-packaged optics','silicon photonics','glass substrate','유리기판','광패키징',
+              'BSPDN','backside power','interposer','HBM4','HBM3E',
+              'agentic AI','에이전틱AI','multi-agent','reasoning model','on-device AI','AI PC',
+              'sovereign AI','소버린AI','custom silicon','ASIC','Trainium','Inferentia',
+              'liquid cooling','immersion cooling','액침냉각','수냉',
+              'InfiniBand','NVLink','Ultra Ethernet',
+              '휴머노이드','humanoid','Figure','Optimus',
+              // v37.3: 메가캡 테크 · AI 기업 · 주요 이벤트
+              'NVIDIA','Apple','AAPL','Microsoft','MSFT','Google','GOOGL','Alphabet','Amazon','AMZN',
+              'Meta','META','Tesla','TSLA','GTC','WWDC','Google I/O','Build','re:Invent','CES',
+              'OpenAI','ChatGPT','GPT','Anthropic','Claude','xAI','Grok','Mistral','Perplexity',
+              'FSD','Robotaxi','Optimus','Terafab','Vision Pro','Copilot','AWS','Azure',
+              'LLM','large language model','foundation model','AGI',
+              '엔비디아','테슬라','애플','마이크로소프트','구글','아마존','메타',
+              '오픈AI','앤트로픽','자율주행','로보택시','비전프로'],
   earnings: ['earnings','EPS','revenue','guidance','quarterly','beat','miss','Q1','Q2','Q3','Q4','실적','가이던스',
               'profit','net income','operating income','margin','outlook','forecast','consensus','estimate',
               'revenue growth','earnings surprise','earnings call','conference call','10-K','10-Q',
@@ -13824,7 +14095,12 @@ const TOPIC_KEYWORDS = {
               'oil supply','oil demand','oil inventory','SPR','strategic petroleum','OPEC+',
               'natural gas','Henry Hub','TTF','coal','carbon','emission','carbon credit',
               'nuclear','uranium','SMR','solar','wind','renewable','clean energy','hydrogen',
-              '정유','시추','셰일','원전','우라늄','태양광','풍력','수소','재생에너지'],
+              // v37.6: 데이터센터 전력·EV 800V·배터리
+              'data center power','AI power demand','nuclear data center','grid infrastructure',
+              '800V','SiC','solid state battery','LFP','sodium-ion','EV battery',
+              'liquid cooling','immersion cooling','power density',
+              '정유','시추','셰일','원전','우라늄','태양광','풍력','수소','재생에너지',
+              '데이터센터전력','800V','전고체배터리','액침냉각','전력반도체'],
   crypto:   ['bitcoin','BTC','ETH','crypto','blockchain','defi','NFT','코인','비트코인',
               'stablecoin','USDT','USDC','mining','hashrate','halving','on-chain',
               'crypto ETF','spot ETF','futures ETF','Coinbase','Binance',
@@ -13847,13 +14123,66 @@ const TOPIC_KEYWORDS = {
               'Lockheed','Raytheon','Northrop','General Dynamics','BAE','Boeing defense',
               'NATO','defense budget','defense spending','arms deal','procurement',
               'space','satellite','rocket','launch','SpaceX','Rocket Lab',
+              // v37.6: 골든돔·드론방어·우주방위
+              'Golden Dome','Iron Dome','missile defense','missile shield','hypersonic defense',
+              'drone defense','counter-drone','directed energy','laser weapon','space defense',
+              'DARPA','AUKUS','Palantir defense','Anduril','Shield AI',
+              '골든돔','아이언돔','미사일방어','극초음속방어','드론방어','레이저무기','우주방위',
               '방산','방위산업','무기','군수','한화에어로','한국항공우주','LIG넥스원',
               '우주','위성','발사체','로켓'],
   equity:   ['stock','share','equity','index','rally','sell-off','correction','bull market','bear market',
               'market cap','IPO','buyback','dividend','split','listing',
               'S&P 500','Nasdaq','Dow','Russell','KOSPI','KOSDAQ',
               '주식','주가','시장','상승','하락','급등','급락','시가총액','상장',
-              '코스피','코스닥','나스닥','다우'],
+              '코스피','코스닥','나스닥','다우',
+              // v37.3: 기업 이벤트 · 금융 기업 보강
+              'acquisition','merger','M&A','antitrust','DOJ','FTC',
+              'product launch','keynote','investor day','analyst day',
+              'CEO','management change','restructuring','layoff','cost cutting',
+              'JPMorgan','Goldman Sachs','Morgan Stanley','Bank of America','Citigroup',
+              'Berkshire','Buffett','Netflix','NFLX','Disney','DIS','Uber','UBER','Airbnb','ABNB',
+              'Visa','Mastercard','Salesforce','CrowdStrike','Palantir','Snowflake',
+              '인수합병','경영권','구조조정','해고','인원감축',
+              'JP모건','골드만삭스','버크셔','버핏','넷플릭스','디즈니'],
+  // ── v37.7: 헬스케어/바이오 토픽 신설
+  healthcare:['GLP-1','Wegovy','Ozempic','Mounjaro','Zepbound','semaglutide','tirzepatide',
+              'obesity drug','weight loss drug','anti-obesity','oral GLP-1',
+              'Novo Nordisk','NVO','Eli Lilly','LLY','Amgen',
+              'ADC','antibody drug conjugate','bispecific','CAR-T','cell therapy','gene therapy',
+              'mRNA','CRISPR','gene editing','RNA therapeutics','biosimilar',
+              'FDA','FDA approval','clinical trial','Phase 3','PDUFA','NDA','BLA',
+              'oncology','immunotherapy','PD-1','checkpoint inhibitor','orphan drug',
+              'drug pricing','patent cliff','loss of exclusivity',
+              'biotech','pharmaceutical','pharma M&A',
+              '비만치료제','GLP-1','위고비','오젬픽','마운자로',
+              '바이오','신약','임상','FDA','식약처','바이오시밀러',
+              '항체약물접합체','ADC','이중항체','CAR-T','세포치료','유전자치료',
+              '알테오젠','에이비엘바이오','삼성바이오로직스','셀트리온'],
+  // ── v37.7: 조선·해운 토픽 신설
+  shipbuilding:['shipbuilding','shipyard','newbuild','vessel','order book',
+              'LNG carrier','tanker','container ship','bulk carrier',
+              'warship','naval vessel','frigate','destroyer','submarine',
+              'HD Hyundai','Hanwha Ocean','Samsung Heavy',
+              'shipping','freight rate','BDI','Baltic Dry','SCFI','container rate',
+              'IMO','decarbonization','LNG bunkering','methanol fuel','ammonia fuel',
+              '조선','LNG선','컨테이너선','벌크선','해운','군함','수주',
+              'HD현대중공업','한화오션','삼성중공업','HD현대미포',
+              '해운운임','BDI','친환경선박','메탄올추진','암모니아추진'],
+  // ── v37.7: 우주·위성 토픽 신설
+  space:    ['space','satellite','LEO','low earth orbit','Starlink','SpaceX',
+              'Rocket Lab','RKLB','Blue Origin','AST SpaceMobile','ASTS',
+              'Iridium','Globalstar','Planet Labs','L3Harris','Northrop Grumman',
+              'launch','rocket','orbit','space station','space economy',
+              'direct-to-cell','satellite internet','satellite constellation',
+              'space debris','space defense','DARPA','Space Force',
+              '우주','위성','발사체','저궤도','스타링크','우주경제',
+              '누리호','우주항공청','우주방위'],
+  // ── v37.7: 양자컴퓨팅 토픽 신설
+  quantum:  ['quantum computing','quantum computer','qubit','quantum advantage',
+              'quantum supremacy','quantum error correction','topological qubit',
+              'IONQ','IonQ','Rigetti','D-Wave','IBM Quantum','Google Willow','Quantinuum',
+              'quantum networking','quantum cryptography','post-quantum','PQC',
+              '양자컴퓨팅','양자컴퓨터','큐비트','양자우위','양자암호'],
 };
 
 // v29.1: 금융 관련성 화이트리스트 키워드 — 비금융 소스에서 이 중 하나라도 있어야 통과
@@ -18048,10 +18377,13 @@ async function fetchFearGreed() {
         fgUpdateNeedle(score2);
         if (badge) { badge.textContent = '실시간 (프록시)'; badge.style.color = '#fbbf24'; }
       }
+      // v37.8: 심리 복합 분석 갱신
+      if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
       return true;
     } catch(e2) {
       if (badge) { badge.textContent = '폴백 데이터 (과거 스냅샷)'; badge.style.color = '#7e8a9e'; }
       fgUpdateNeedle(15); // fallback static
+      if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
       return false;
     }
   }
@@ -20469,6 +20801,10 @@ function updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDaily
       return `<span style="color:var(--text-secondary);font-size:9px;">${k} ${pct}%</span>`;
     }).join(' · ');
   }
+  // v37.8: 동적 포트폴리오 진단
+  if (typeof _generatePortfolioAnalysis === 'function') {
+    _generatePortfolioAnalysis(positions, ld, { totalValue: totalValue, totalCost: totalCost, totalDailyChg: totalDailyChg, totalPnl: totalPnl, totalPnlPct: totalPnlPct });
+  }
 }
 
 function refreshPortfolioPrices() {
@@ -21058,25 +21394,32 @@ function _liveSnap() {
  */
 function _closeSnap() {
   var ld = window._liveData || {};
-  // chartPreviousClose가 있으면 전일 종가, 없으면 현재 price를 폴백
+  // ═══ v37.2: 이원화 원칙을 _closeSnap에도 완전 적용 ═══
+  // 주가/지수 → chartPreviousClose(종가), 시장환경 → 실시간(_ld)
   function _close(sym) {
     var d = ld[sym];
     if (!d) return null;
-    // Yahoo chart API는 chartPreviousClose를 제공 — 이것이 전일 종가
     return d.chartPreviousClose || d.previousClose || d.price || null;
   }
   function _closeFmt(sym, dec) {
     var v = _close(sym);
     return v != null ? Number(v).toFixed(dec || 0) : '—';
   }
-  // 전일 종가 기준 변동률은 의미 없음 (0%) → 데이터 포인트만 제공
+  // 시장환경 데이터는 실시간 (VIX, DXY, TNX, 유가 등은 24시간/선물 거래)
+  function _liveFmt(sym, dec) {
+    var v = _ld(sym, 'price');
+    return v != null ? Number(v).toFixed(dec || 0) : '—';
+  }
   return {
-    basis: '전일 종가 (최종 확정 데이터)',
+    // ── 주가·지수: 종가 (확정 데이터) ──
+    stockBasis: '전일 종가 (확정)',
     spx: _closeFmt('^GSPC'), nasdaq: _closeFmt('^IXIC'),
     dow: _closeFmt('^DJI'), rut: _closeFmt('^RUT'),
-    vix: _closeFmt('^VIX',1), vvix: _closeFmt('^VVIX',1),
+    // ── 시장환경: 실시간 (24h/선물 거래) ──
+    envBasis: '실시간',
+    vix: _liveFmt('^VIX',1), vvix: _liveFmt('^VVIX',1),
     vvixVixRatio: (function() {
-      var vix = _close('^VIX'), vvix = _close('^VVIX');
+      var vix = _ld('^VIX','price'), vvix = _ld('^VVIX','price');
       if (vix && vvix && vix > 0) {
         var r = vvix / vix;
         var label = r < 5 ? '과잉 안도' : r < 6 ? '정상' : r < 7 ? '긴장 감지' : '고위험';
@@ -21084,10 +21427,10 @@ function _closeSnap() {
       }
       return '—';
     })(),
-    dxy: _closeFmt('DX-Y.NYB',1),
-    tnx: _closeFmt('^TNX',2), tyx: _closeFmt('^TYX',2),
-    wti: _closeFmt('CL=F',1), brent: _closeFmt('BZ=F',1),
-    gold: _closeFmt('GC=F'), krw: _closeFmt('KRW=X'),
+    dxy: _liveFmt('DX-Y.NYB',1),
+    tnx: _liveFmt('^TNX',2), tyx: _liveFmt('^TYX',2),
+    wti: _liveFmt('CL=F',1), brent: _liveFmt('BZ=F',1),
+    gold: _liveFmt('GC=F'), krw: _liveFmt('KRW=X'),
     fg: window._lastFG || '데이터 없음',
     score: window._tradingScore || '계산중',
     spx50ma: (window._spxMA && window._spxMA[50]) || '—',
@@ -21099,20 +21442,25 @@ function _closeSnap() {
  * v36.9: 분석용 종가 데이터 접근 헬퍼
  * chartPreviousClose가 있으면 종가, 없으면 현재 price를 폴백
  *
- * ═══ v37.1: 분석 데이터 소스 이원화 원칙 ═══
- * ┌─────────────────┬───────────┬─────────────────────────────────┐
- * │ 데이터 유형      │ 소스      │ 사용 함수/위치                   │
- * ├─────────────────┼───────────┼─────────────────────────────────┤
- * │ 주가 (SPX,SPY,  │ _closingVal│ computeTradingScore(SPX,RSP,SPY)│
- * │ QQQ,RSP,개별종목)│ (종가)     │ computeMarketHealth(SPY,QQQ)    │
- * │                 │           │ classifyMarketRegime(SPX)       │
- * │                 │           │ kr-themes/kr-macro CHAT_CONTEXTS│
- * ├─────────────────┼───────────┼─────────────────────────────────┤
- * │ 시장 환경       │ _ldSafe   │ computeTradingScore(VIX,VVIX,   │
- * │ (VIX,DXY,TNX,   │ (실시간)   │   DXY,TNX,HYG,유가)            │
- * │ HYG,CL=F,환율)  │           │ computeMarketHealth(VIX)        │
- * │                 │           │ classifyMarketRegime(VIX)       │
- * └─────────────────┴───────────┴─────────────────────────────────┘
+ * ═══ v37.2: 분석 데이터 소스 이원화 원칙 (분석함수 + LLM 답변 완전 적용) ═══
+ * ┌─────────────────┬───────────┬──────────────────────────────────────────┐
+ * │ 데이터 유형      │ 소스      │ 사용 함수/위치                            │
+ * ├─────────────────┼───────────┼──────────────────────────────────────────┤
+ * │ 주가 (SPX,SPY,  │ _closingVal│ computeTradingScore(SPX,RSP,SPY)        │
+ * │ QQQ,RSP,개별종목)│ (종가)     │ computeMarketHealth(SPY,QQQ)            │
+ * │                 │           │ classifyMarketRegime(SPX)               │
+ * │                 │           │ CHAT: home(분석기준), technical, macro   │
+ * │                 │           │ CHAT: kr-themes, kr-macro, kr-tech,     │
+ * │                 │           │       kr-supply (종가 기준)              │
+ * ├─────────────────┼───────────┼──────────────────────────────────────────┤
+ * │ 시장 환경       │ _ldSafe   │ computeTradingScore(VIX,VVIX,DXY,TNX,   │
+ * │ (VIX,DXY,TNX,   │ _ld       │   HYG,유가)                             │
+ * │ HYG,CL=F,환율)  │ (실시간)   │ computeMarketHealth(VIX)                │
+ * │                 │           │ classifyMarketRegime(VIX)               │
+ * │                 │           │ CHAT: _closeSnap().envBasis=실시간       │
+ * │                 │           │ CHAT: 모든 컨텍스트에서 VIX/DXY/TNX/환율 │
+ * │                 │           │       = _liveSnap() 또는 _liveFmt() 사용 │
+ * └─────────────────┴───────────┴──────────────────────────────────────────┘
  * 이유: 주가는 장 마감까지 봐야 정확한 분석 → 종가 고정
  *       시장 환경은 실시간성이 중요 → 선물/24시간 거래 데이터 즉각 반영
  *
@@ -21404,11 +21752,13 @@ const CHAT_CONTEXTS = {
         '• 지수선물(참고): ES ' + s.esFut + '(' + s.esPct + '%) | NQ ' + s.nqFut + '(' + s.nqPct + '%) | YM ' + s.ymFut + '(' + s.ymPct + '%)\n' +
         (s.extHours !== '해당없음' ? '• 시간외: ' + s.extHours + '\n' : '') +
         '• WTI: $' + s.wti + ' | Gold: $' + s.gold + ' | USD/KRW: ' + s.krw + '\n' +
-        '\n【분석 기준 데이터 (' + c.basis + ')】\n' +
-        '⚠ 아래는 전일 종가(확정 데이터)이다. 분석·해석·근거·비교 시 반드시 이 종가를 사용하라. 위의 실시간 데이터는 현재 시장 방향만 참고.\n' +
-        '• SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
-        '• VIX: ' + c.vix + ' | VVIX: ' + c.vvix + ' | VVIX/VIX: ' + c.vvixVixRatio + '\n' +
-        '• 10Y: ' + c.tnx + '% | 30Y: ' + c.tyx + '% | DXY: ' + c.dxy + ' | WTI: $' + c.wti + ' | Gold: $' + c.gold + '\n' +
+        '\n【분석 기준 데이터 — v37.1 이원화 원칙】\n' +
+        '⚠ 데이터 이원화 원칙을 반드시 준수하라:\n' +
+        '  ① 주가·지수 분석 시 → 아래 종가(확정 데이터) 사용. 장중 실시간 주가는 방향 참고만.\n' +
+        '  ② 시장환경(VIX·금리·환율·유가) 분석 시 → 아래 실시간 데이터 사용. 24시간/선물 거래되므로 최신값이 분석 기준.\n\n' +
+        '• [종가/' + c.stockBasis + '] SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + ' | Russell: ' + c.rut + '\n' +
+        '• [' + c.envBasis + '] VIX: ' + c.vix + ' | VVIX: ' + c.vvix + ' | VVIX/VIX: ' + c.vvixVixRatio + '\n' +
+        '• [' + c.envBasis + '] 10Y: ' + c.tnx + '% | 30Y: ' + c.tyx + '% | DXY: ' + c.dxy + ' | WTI: $' + c.wti + ' | Gold: $' + c.gold + '\n' +
         // v34.4: 시장건강도 + 국면 판단 주입
         (function() {
           var regime = typeof classifyMarketRegime === 'function' ? classifyMarketRegime() : null;
@@ -21419,6 +21769,10 @@ const CHAT_CONTEXTS = {
           return extra;
         })() +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 데이터가 지연/폴백 상태일 수 있음. "현재"가 아닌 "최근 기준"으로 언급할 것.\n' : '') + '\n' +
+        '【지정학 컨텍스트 (2026.03 현재)】\n' +
+        '미국-이란 전쟁 1개월 경과. 호르무즈 봉쇄 위험 지속(사우디 송유관 700만bbl/d 우회 가동). 후티 미사일·이스라엘 레바논 타격 등 다전선 분쟁.\n' +
+        '유가 시나리오: 기본 Brent $120 수준, 호르무즈 4~6주 봉쇄 시 $150 가능. 석유 메이저 CEO들: 전쟁 끝나도 유가 고수준 유지 전망, 항공유→디젤→휘발유 순차 부족 경고.\n' +
+        '핵심 프레임: 에너지 수입 의존도 높은 지역(일본·유럽)이 교역조건 악화로 가장 취약. 전쟁 종식 시 억눌린 반등도 아시아가 선행.\n\n' +
         '【응답 프레임워크 — "오늘의 시장을 이야기로"】\n' +
         '1. 장면 진입: "오늘 시장은 {상태}다." 한 문장으로 상황을 그린다. 마치 뉴스 앵커가 첫 멘트를 던지듯. 핵심 숫자를 별도 행에 임팩트 있게 배치.\n' +
         '2. "왜?" — 인과 스토리: 숫자 나열이 아닌 스토리로 연결. "VIX가 치솟은 건 우연이 아니다. 지난주 옵션 시장에서 시작된 파장이..." 식으로 맥락을 풀어줘라.\n' +
@@ -21436,15 +21790,18 @@ const CHAT_CONTEXTS = {
     title: 'AI 매매 전략가',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       const regime = typeof classifyMarketRegime === 'function' ? classifyMarketRegime() : {regime:'분석중'};
       var fresh = s._freshness;
       return '당신은 사용자의 매매 판단을 도와주는 AI 전략가입니다. 현재 "매매시그널" 페이지를 보고 있습니다.\n\n' +
         '【매매시그널 페이지 데이터 (신선도: ' + fresh + ')】\n' +
         '• 종합 트레이딩 스코어: ' + s.score + '/100 (시장 환경 종합 점수)\n' +
         '• 시장 국면: ' + (regime.regime || '분석중') + '\n' +
-        '• S&P 500: ' + s.spx + ' (50SMA: ' + s.spx50ma + ', 200SMA: ' + s.spx200ma + ')\n' +
-        '• VIX: ' + s.vix + ' | F&G: ' + s.fg + '\n' +
+        '• S&P 500: ' + s.spx + ' (50SMA: ' + s.spx50ma + ', 200SMA: ' + s.spx200ma + ') [' + s.indexBasis + ']\n' +
+        '• VIX: ' + s.vix + ' [실시간] | F&G: ' + s.fg + '\n' +
         '• 스코어 구성: 변동성(25%) + 모멘텀(25%) + 추세(20%) + 시장폭(20%) + 매크로(10%)\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. VIX·DXY 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 지연/폴백 가능. 확정 발언 자제.\n' : '') + '\n' +
         '【스코어 해석 가이드】\n' +
         '75+ 우수: 적극 매수 OK | 55-75 양호: 선별적 매수 | 35-55 중립: 관망 | 25-35 악화: 포지션 축소 | 25미만 위험: 현금 비중 극대화\n\n' +
@@ -21475,6 +21832,7 @@ const CHAT_CONTEXTS = {
     title: 'AI 시장폭 분석가',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       return '당신은 시장폭(Market Breadth) 전문 분석가입니다. 현재 "시장 폭" 페이지를 보고 있습니다.\n\n' +
         '【시장폭이란?】\n' +
         '"시장폭"은 지수만 보면 안 보이는 시장의 진짜 건강 상태를 보여줍니다. S&P 500이 올라도, 실제로 상승하는 종목이 소수에 불과하면 그것은 "겉만 번지르르한 상승"입니다.\n\n' +
@@ -21492,7 +21850,9 @@ const CHAT_CONTEXTS = {
         '【비유로 이해하기】\n' +
         '시장폭 = 반 평균 성적. S&P 500 지수는 "반 평균"인데, 상위 5명(AAPL, NVDA, MSFT...)이 평균을 올려도 나머지 495명 성적이 낮으면 "반 전체가 잘한다"고 말할 수 없다.\n' +
         '5SMA 22% = 100명 중 22명만 최근 성적이 오름세. 나머지 78명은 여전히 하락 중.\n\n' +
-        '현재 시장: S&P ' + s.spx + ' | VIX ' + s.vix + ' | F&G ' + s.fg + '\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
+        '현재 시장: S&P ' + s.spx + ' [' + s.indexBasis + '] | VIX ' + s.vix + ' [실시간] | F&G ' + s.fg + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. VIX 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ 일부 데이터 지연 가능: [' + s._stale.join(', ') + ']\n' : '') +
         '【응답 프레임워크】\n' +
         '1. 핵심 숫자를 별도 행에 강조 배치: "5SMA 위 종목 비율: 22%." → 바로 해석.\n' +
@@ -21510,11 +21870,12 @@ const CHAT_CONTEXTS = {
     title: 'AI 심리 분석가',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       var fresh = s._freshness;
       return '당신은 투자 심리(Sentiment) 분석 전문가이자 행동경제학 해설가입니다. 현재 "투자 심리" 페이지를 보고 있습니다.\n\n' +
         '【투자심리 페이지 데이터 (신선도: ' + fresh + ')】\n' +
         '• Fear & Greed Index: ' + s.fg + '/100' + (s._stale.indexOf('F&G') >= 0 ? ' (⚠ 폴백값)' : '') + '\n' +
-        '• VIX: ' + s.vix + ' (시장의 "공포 체온계" — 쉽게 말하면 투자자들이 얼마나 겁먹었는지를 보여주는 숫자)\n' +
+        '• VIX: ' + s.vix + ' [실시간] (시장의 "공포 체온계" — 쉽게 말하면 투자자들이 얼마나 겁먹었는지를 보여주는 숫자)\n' +
         '• NAAIM: 펀드매니저 주식비중 (30↓ = 전문가들도 겁먹은 상태)\n' +
         '• Put/Call Ratio(풋콜비율, 하락 보험 수요 vs 상승 베팅 비율): 1.2↑ = 극심한 헤지 수요\n' +
         '• HY Spread(고수익 채권 스프레드, 기업 부도 위험의 척도): 높을수록 신용시장 스트레스\n\n' +
@@ -21529,6 +21890,10 @@ const CHAT_CONTEXTS = {
         '• Put/Call Ratio: 0.7↓ = 낙관 과잉(콜 매수 과다), 1.2+ = 극단 공포(풋 헤지 폭증)\n' +
         '• VIX 구조: VIX>VIX3M(3개월) = 단기 공포 > 중기 = 패닉 구간. VIX<VIX3M = 정상 contango\n' +
         '• 스마트머니 vs 덤머니: 기관(COT 포지션)이 매수하는데 개인이 매도하면 = 바닥 근접 시그널\n\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. VIX·심리지표 등은 실시간 값 사용.\n\n' +
+        '【지정학 컨텍스트 (2026.03)】\n' +
+        '미-이란 전쟁 지속. 호르무즈 봉쇄 위험, 후티·이스라엘-레바논 다전선. 전쟁 불확실성이 투자심리(VIX·F&G)에 직접 영향. 공포 지표 해석 시 지정학 프리미엄 고려 필수.\n\n' +
         '【응답 프레임워크】\n' +
         '1. 질문 진입: "지금 바닥일까? 이 질문에 답하기 전에, 먼저 공포의 단계를 보자."\n' +
         '2. 에스컬레이션 래더: "1단계: 불안(F&G 40↓) → 2단계: 공포(F&G 25↓) → 3단계: 극단 공포(F&G 15↓) → 4단계: 항복(VIX 스파이크+거래량 폭증). 지금은 N단계."\n' +
@@ -21545,27 +21910,21 @@ const CHAT_CONTEXTS = {
     title: 'AI 브리핑 앵커',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       var fresh = s._freshness;
       return '당신은 사용자를 위한 개인 시장 뉴스 앵커입니다. "오늘의 브리핑" 페이지를 보고 있습니다.\n\n' +
         '【시장 스냅샷 (신선도: ' + fresh + ')】\n' +
         '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) | NASDAQ: ' + (s.nasdaq || '—') + ' (' + (s.nasdaqPct || '—') + '%) | DOW: ' + (s.dow || '—') + ' (' + (s.dowPct || '—') + '%) [' + s.indexBasis + ']\n' +
         '• 50SMA: ' + s.spx50ma + ' | 200SMA: ' + s.spx200ma + '\n' +
-        '• VIX: ' + s.vix + ' | DXY: ' + s.dxy + '\n' +
-        '• WTI: $' + s.wti + ' | Brent: $' + s.brent + ' | Gold: $' + s.gold + '\n' +
-        '• F&G: ' + s.fg + ' | 10Y 금리: ' + s.tnx + '% | 트레이딩 스코어: ' + s.score + '/100\n' +
+        '• VIX: ' + s.vix + ' [실시간] | DXY: ' + s.dxy + ' [실시간]\n' +
+        '• WTI: $' + s.wti + ' [실시간] | Brent: $' + s.brent + ' [실시간] | Gold: $' + s.gold + ' [실시간]\n' +
+        '• F&G: ' + s.fg + ' | 10Y 금리: ' + s.tnx + '% [실시간] | 트레이딩 스코어: ' + s.score + '/100\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. VIX·DXY·유가·금리 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
-        // v34.4: 하드코딩 이벤트 제거 → 실시간 뉴스 캐시 주입
-        (function() {
-          var nc = window.newsCache;
-          if (!nc || !Array.isArray(nc) || nc.length === 0) return '【최근 뉴스】 아직 수집되지 않았습니다. 시장 소식 페이지에서 뉴스를 로드해주세요.\n\n';
-          var top5 = nc.filter(function(n) { return n && n.title; }).slice(0, 5);
-          if (top5.length === 0) return '';
-          var lines = '【최근 주요 뉴스 (실시간 수집)】\n';
-          top5.forEach(function(n, i) {
-            lines += (i+1) + '. ' + (n.title||'').slice(0,80) + (n.source ? ' (' + n.source + ')' : '') + '\n';
-          });
-          return lines + '⚠️ 위 뉴스는 RSS/텔레그램에서 자동 수집된 최신 헤드라인입니다.\n\n';
-        })() +
+        // v37.5: 구버전 newsCache.slice(0,5) 제거 — _buildNewsContext()가 토픽·관련도 기반으로 주입
+        '【지정학 컨텍스트 (2026.03)】\n' +
+        '미-이란 전쟁 지속. 호르무즈 봉쇄 위험(사우디 송유관 우회), 후티 미사일, 이스라엘-레바논 다전선. Brent 기본 $120, 봉쇄 시 $150. 에너지 수입 의존 지역(일본·유럽) 교역조건 악화 취약.\n\n' +
         '【응답 프레임워크 — "상수/변수 분리"】\n' +
         '1. 장면 진입: "오늘 시장의 주인공은 {이벤트/종목}이다." 한 문장으로 시작.\n' +
         '2. 상수/변수 분리: "이미 반영된 뉴스(상수) vs 아직 미반영된 불확실성(변수)"을 구분. 변수만 시나리오에 반영.\n' +
@@ -21583,12 +21942,15 @@ const CHAT_CONTEXTS = {
     title: 'AI 기술적 분석가',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       var fresh = s._freshness;
       return '당신은 CMT(차트기술분석사, Chartered Market Technician)이며 Stan Weinstein Stage Analysis(스탠 와인스타인의 4단계 주가 분석법) 전문가입니다. 현재 "차트/기술 분석" 페이지를 보고 있습니다.\n\n' +
         '【데이터 (신선도: ' + fresh + ')】\n' +
-        '• S&P 500: ' + s.spx + ' | 50SMA(50일 이동평균): ' + s.spx50ma + ' | 200SMA(200일 이동평균): ' + s.spx200ma + '\n' +
-        '• VIX: ' + s.vix + ' | DXY(달러 인덱스): ' + s.dxy + '\n' +
+        '• S&P 500: ' + s.spx + ' [' + s.indexBasis + '] | 50SMA(50일 이동평균): ' + s.spx50ma + ' | 200SMA(200일 이동평균): ' + s.spx200ma + '\n' +
+        '• VIX: ' + s.vix + ' [실시간] | DXY(달러 인덱스): ' + s.dxy + ' [실시간]\n' +
         '• F&G: ' + s.fg + '\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. VIX·DXY 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
         '【이 페이지 분석 도구】\n' +
         '시장건강도 스코어, Weinstein 4단계(Stage1 바닥→Stage2 상승→Stage3 천장→Stage4 하락), RSI(상대강도지수)·MACD(추세추종)·볼린저밴드(변동성 범위), 지지/저항선, 멀티타임프레임 분석\n\n' +
@@ -21603,13 +21965,16 @@ const CHAT_CONTEXTS = {
     title: 'AI 매크로 전략가',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       var fresh = s._freshness;
       return '당신은 글로벌 매크로 전략가이자 "경제 이야기꾼"입니다. 현재 "매크로 분석" 페이지를 보고 있습니다.\n\n' +
         '【매크로 데이터 (신선도: ' + fresh + ')】\n' +
-        '• Fed 기준금리: 3.50~3.75% | 10Y(미국 10년 국채 금리): ' + s.tnx + '% | DXY(달러 인덱스): ' + s.dxy + '\n' +
+        '• Fed 기준금리: 3.50~3.75% | 10Y(미국 10년 국채 금리): ' + s.tnx + '% [실시간] | DXY(달러 인덱스): ' + s.dxy + ' [실시간]\n' +
         '• WTI(미국 원유): $' + s.wti + ' | Brent(국제 원유): $' + s.brent + ' | WTI-Brent 스프레드: $' + _fmt((_ld('BZ=F','price')||DATA_SNAPSHOT.brent)-(_ld('CL=F','price')||DATA_SNAPSHOT.wti),1) + '\n' +
         '• Gold: $' + s.gold + ' | USD/KRW: ' + s.krw + '\n' +
-        '• VIX: ' + s.vix + '\n' +
+        '• VIX: ' + s.vix + ' [실시간]\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. 금리·환율·유가·VIX 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
         '【경제의 숨결 — 인터커넥션 맵】\n' +
         '유가↑ → 물가↑ → Fed 금리↑ → 달러↑ → 신흥국 자금 유출 → 수요↓ → 유가↓... 경제의 호흡.\n' +
@@ -21628,6 +21993,7 @@ const CHAT_CONTEXTS = {
     title: 'AI 기업 분석가',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       var fresh = s._freshness;
       var fd = window._fundAnalysisData; // 수집된 실제 기업 데이터
 
@@ -21635,8 +22001,10 @@ const CHAT_CONTEXTS = {
       var prompt = '당신은 골드만삭스 리서치 헤드 + CFA 레벨의 기업 분석 전문가입니다. 현재 "기업 종합 분석" 페이지를 보고 있습니다.\n\n';
 
       prompt += '【현재 시장 환경 (신선도: ' + fresh + ')】\n';
-      prompt += '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) | VIX: ' + s.vix + ' | F&G: ' + s.fg + '\n';
-      prompt += '• 10Y 금리: ' + s.tnx + '% (밸류에이션 할인율에 직접 영향)\n';
+      prompt += '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) [' + s.indexBasis + '] | VIX: ' + s.vix + ' [실시간] | F&G: ' + s.fg + '\n';
+      prompt += '• 10Y 금리: ' + s.tnx + '% [실시간] (밸류에이션 할인율에 직접 영향)\n';
+      prompt += '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n';
+      prompt += '⚠ 주가·지수 분석 시 위 종가 기준. VIX·금리 등 시장환경은 실시간 값 사용.\n';
       prompt += (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n';
 
       // ── 수집된 실제 기업 데이터 주입 ──
@@ -21933,6 +22301,7 @@ const CHAT_CONTEXTS = {
     title: 'AI 테마 전략가',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       var fresh = s._freshness;
       return '당신은 테마 투자 전문가입니다. 현재 "테마 분석" 페이지를 보고 있습니다.\n\n' +
         // v34.4: 테마 ETF 실시간 데이터 주입
@@ -21968,7 +22337,7 @@ const CHAT_CONTEXTS = {
         '• 전통에너지: 유가 강세 + OPEC+ 감산 → XOM/CVX/COP 수혜. 배당+자사주매입 매력\n' +
         '• 원전 르네상스: AI 데이터센터 전력수요 폭증 → SMR(소형모듈원전), 우라늄(CCJ/UUUU)\n' +
         '• 재생에너지: 정치적 역풍 가능성 있으나 장기 구조적 성장. 태양광(ENPH/FSLR), 풍력(GE Vernova)\n\n' +
-        '시장 환경: S&P ' + s.spx + ' | VIX ' + s.vix + ' | F&G ' + s.fg + '\n' +
+        '시장 환경: S&P ' + s.spx + ' [' + s.indexBasis + '] | VIX ' + s.vix + ' [실시간] | F&G ' + s.fg + '\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') +
         '【응답 프레임워크】\n' +
         '1. 질문 진입: "이 테마는 지금 어디쯤 와 있을까?"\n' +
@@ -22003,9 +22372,12 @@ const CHAT_CONTEXTS = {
     title: 'AI 투자 멘토',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       return '당신은 투자 분석 전문 멘토입니다. 이 스크리너의 "투자 가이드" 페이지에서 대화하고 있습니다.\n\n' +
         '【현재 시장 상태 (신선도: ' + s._freshness + ')】\n' +
-        '• 시장 품질 점수: ' + s.score + '/100 | F&G(공포/탐욕 지수): ' + s.fg + ' | VIX(변동성 지수): ' + s.vix + '\n' +
+        '• 시장 품질 점수: ' + s.score + '/100 | F&G(공포/탐욕 지수): ' + s.fg + ' | VIX(변동성 지수): ' + s.vix + ' [실시간]\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. VIX 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ 일부 수치가 지연 중일 수 있음.\n' : '') + '\n' +
         '【멘토링 원칙】\n' +
         '• "물고기를 주지 말고, 낚시하는 법을 가르쳐라" — 판단 기준과 사고법을 교육\n' +
@@ -22039,11 +22411,14 @@ const CHAT_CONTEXTS = {
     title: 'AI 종목 스크리너',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       var fresh = s._freshness;
       return '당신은 종목 스크리닝 전문가입니다. "스크리너" 페이지에서 대화하고 있습니다.\n\n' +
         '【시장 환경 (신선도: ' + fresh + ')】\n' +
-        '• 시장 품질: ' + s.score + '/100 | VIX: ' + s.vix + ' | F&G: ' + s.fg + '\n' +
+        '• 시장 품질: ' + s.score + '/100 | VIX: ' + s.vix + ' [실시간] | F&G: ' + s.fg + '\n' +
         '• 시장 품질 35 미만 = 신규 매수보다 현금 확보 우선\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. VIX 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
         '자연어 조건("실적 좋고 저평가된 기술주" 등)으로 종목을 분석합니다.\n\n' +
         '【주요 스크리닝 방법론】\n' +
@@ -22079,11 +22454,14 @@ const CHAT_CONTEXTS = {
     title: 'AI 옵션 전략가',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       var fresh = s._freshness;
       return '당신은 옵션 전문 트레이더이자 교육자입니다. "옵션 전략" 페이지에서 대화하고 있습니다.\n\n' +
         '【옵션 데이터 (신선도: ' + fresh + ')】\n' +
-        '• VIX: ' + s.vix + ' (VIX가 높다 = IV(내재변동성, 옵션 가격에 녹아있는 시장의 불안 체온)가 높다 = 옵션 프리미엄이 비싸다)\n' +
-        '• S&P 500: ' + s.spx + ' | F&G: ' + s.fg + '\n' +
+        '• VIX: ' + s.vix + ' [실시간] (VIX가 높다 = IV(내재변동성, 옵션 가격에 녹아있는 시장의 불안 체온)가 높다 = 옵션 프리미엄이 비싸다)\n' +
+        '• S&P 500: ' + s.spx + ' [' + s.indexBasis + '] | F&G: ' + s.fg + '\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. VIX 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
         '【옵션 = "보험"이라고 생각하세요】\n' +
         '풋옵션(하락 보험) 매수 = 화재보험 가입 (집이 안 타도 보험료 날리지만, 타면 생명줄)\n' +
@@ -22125,13 +22503,18 @@ const CHAT_CONTEXTS = {
       const pfCtx = typeof getPortfolioContextForAI === 'function' ? getPortfolioContextForAI() : '포트폴리오 미등록';
       const wlCtx = typeof getWatchlistContextForAI === 'function' ? getWatchlistContextForAI() : '';
       const s = _liveSnap();
+      const c = _closeSnap();
       var fresh = s._freshness;
       return '당신은 CFA 포트폴리오 분석 전문가입니다. "내 포트폴리오" 페이지에서 대화하고 있습니다.\n\n' +
         '【사용자 포트폴리오】\n' + pfCtx + wlCtx + '\n\n' +
         '【시장 환경 (신선도: ' + fresh + ')】\n' +
-        '• 시장 품질: ' + s.score + '/100 | VIX: ' + s.vix + ' | F&G: ' + s.fg + '\n' +
-        '• 10Y 금리: ' + s.tnx + '% | WTI: $' + s.wti + '\n' +
+        '• 시장 품질: ' + s.score + '/100 | VIX: ' + s.vix + ' [실시간] | F&G: ' + s.fg + '\n' +
+        '• 10Y 금리: ' + s.tnx + '% [실시간] | WTI: $' + s.wti + ' [실시간]\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. VIX·금리·유가 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
+        '【지정학 컨텍스트 (2026.03)】\n' +
+        '미-이란 전쟁 지속. 호르무즈 봉쇄 위험(Brent 기본 $120, 봉쇄 시 $150). 에너지 수입 의존 지역 교역조건 악화 취약. 포트폴리오 에너지·방산 섹터 노출도와 지정학 리스크 연결 분석 필수.\n\n' +
         '【포트폴리오 비유】\n' +
         '분산투자 = 건물의 기둥 여러 개 (하나가 부러져도 안 무너짐)\n' +
         '섹터 편중 = 기둥이 한쪽에만 몰려있음 (지진 나면 위험)\n' +
@@ -22188,11 +22571,14 @@ const CHAT_CONTEXTS = {
     title: 'AI 환율·채권 분석가',
     system: function() {
       const s = _liveSnap();
+      const c = _closeSnap();
       var fresh = s._freshness;
       return '당신은 외환·채권 전문 분석가입니다. "환율/채권" 페이지에서 대화하고 있습니다.\n\n' +
         '【데이터 (신선도: ' + fresh + ')】\n' +
-        '• USD/KRW: ' + s.krw + '원 | DXY(달러 인덱스): ' + s.dxy + '\n' +
-        '• 10Y 미국 국채: ' + s.tnx + '% | Gold: $' + s.gold + '\n' +
+        '• USD/KRW: ' + s.krw + '원 [실시간] | DXY(달러 인덱스): ' + s.dxy + ' [실시간]\n' +
+        '• 10Y 미국 국채: ' + s.tnx + '% [실시간] | Gold: $' + s.gold + ' [실시간]\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. 환율·금리·금 등은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
         '【환율 = "경제의 체온계"】\n' +
         '원/달러 상승(원화 약세) → 수출기업 유리(삼성전자) but 원자재 수입비용↑, 외국인 매도 압력\n' +
@@ -23309,6 +23695,81 @@ function _formatDeepComparePrompt(tickers, deepData) {
  * 웹검색이 필요한 질문인지 자동 판단
  * @returns {string|null} 검색 쿼리 또는 null
  */
+// ── v37.2: 뉴스 컨텍스트 주입 — newsCache에서 관련 뉴스를 추출해 LLM 시스템 프롬프트에 주입 ──
+// 컨텍스트별 관심 토픽 매핑
+// v37.4: 전체 CHAT_CONTEXTS에 뉴스 컨텍스트 주입 — 컨텍스트별 관심 토픽 매핑
+var _CTX_TOPIC_MAP = {
+  // ── 미국 시장 ──
+  'home':        ['macro','geo','energy','semi','earnings','equity','healthcare','defense'],
+  'signal':      ['macro','equity','semi','earnings','healthcare'],
+  'breadth':     ['macro','equity'],
+  'sentiment':   ['macro','equity','geo','energy'],
+  'briefing':    ['macro','geo','energy','semi','earnings','equity','healthcare','defense','space','quantum'],
+  'technical':   ['macro','equity','semi'],
+  'macro':       ['macro','geo','energy','bond','fx'],
+  'fundamental': ['earnings','equity','semi','energy','healthcare'],
+  'themes':      ['semi','energy','crypto','defense','equity','healthcare','shipbuilding','space','quantum'],
+  'screener':    ['earnings','equity','semi','energy','healthcare','defense','shipbuilding'],
+  'options':     ['macro','equity','semi'],
+  'portfolio':   ['macro','equity','semi','earnings','energy','geo','healthcare','defense'],
+  'fxbond':      ['fx','bond','macro','geo','energy'],
+  'mentor':      ['macro','equity','semi','earnings','healthcare'],
+  // ── 한국 시장 ──
+  'kr-macro':    ['macro','geo','energy','fx','bond','equity'],
+  'kr-tech':     ['semi','earnings','equity','quantum'],
+  'kr-supply':   ['macro','equity','semi','fx'],
+  'kr-themes':   ['semi','energy','defense','equity','earnings','healthcare','shipbuilding','space']
+};
+
+function _buildNewsContext(ctxId, query) {
+  if (!newsCache || newsCache.length === 0) return '';
+
+  var topics = _CTX_TOPIC_MAP[ctxId] || ['macro','geo','energy'];
+  var q = (query || '').toLowerCase();
+  var now = Date.now();
+  var H24 = 24 * 3600000;
+
+  // 24시간 이내 뉴스만
+  var recent = newsCache.filter(function(it) {
+    if (!it.pubDate) return false;
+    return (now - new Date(it.pubDate).getTime()) < H24;
+  });
+
+  // 관련도 스코어링: 토픽 매칭 + 질문 키워드 매칭 + 기존 score
+  var scored = recent.map(function(it) {
+    var rel = 0;
+    // 토픽 매칭
+    if (topics.indexOf(it.topic) !== -1) rel += 10;
+    // 질문 키워드가 제목에 포함
+    var title = (it.title || '').toLowerCase();
+    var words = q.split(/\s+/).filter(function(w) { return w.length > 2; });
+    words.forEach(function(w) { if (title.indexOf(w) !== -1) rel += 5; });
+    // 기존 뉴스 중요도 점수 반영
+    rel += Math.min((it.score || 0) / 10, 5);
+    // 신선도 보너스 (6시간 이내 +3)
+    if (it.pubDate && (now - new Date(it.pubDate).getTime()) < 6 * 3600000) rel += 3;
+    return { item: it, rel: rel };
+  });
+
+  // 토픽 매칭 또는 질문 키워드 매칭된 것만
+  scored = scored.filter(function(s) { return s.rel >= 10; });
+  scored.sort(function(a, b) { return b.rel - a.rel; });
+
+  // 상위 5건 (토큰 절약)
+  var top = scored.slice(0, 5);
+  if (top.length === 0) return '';
+
+  var lines = top.map(function(s, idx) {
+    var it = s.item;
+    var age = it.pubDate ? Math.round((now - new Date(it.pubDate).getTime()) / 3600000) : '?';
+    return (idx + 1) + '. [' + (it.source || '?') + ' · ' + age + 'h전] ' + (it.title || '').substring(0, 80);
+  });
+
+  return '\n\n【최근 시장 뉴스 (자동 수집, 24h 이내)】\n' +
+    '아래는 스크리너가 자동 수집한 관련 뉴스 헤드라인이다. 분석 시 참고하되, 제목만으로 과도한 해석을 하지 마라.\n' +
+    lines.join('\n') + '\n';
+}
+
 function _needsWebSearch(query, ctxId) {
   var pKey = localStorage.getItem('aio_perplexity_key') || '';
   var gKey = localStorage.getItem('aio_google_cse_key') || '';
@@ -23625,6 +24086,9 @@ async function chatSend(ctxId) {
     }
   }
 
+  // v37.2: 뉴스 컨텍스트 주입 — newsCache에서 관련 뉴스 자동 추출
+  var newsContextStr = _buildNewsContext(ctxId, q);
+
   // v20+: dynamic system prompts (portfolio injects live data)
   var systemPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
   if (tickerDataStr) systemPrompt += tickerDataStr;
@@ -23632,6 +24096,7 @@ async function chatSend(ctxId) {
   if (deepCompareStr) systemPrompt += deepCompareStr;
   if (singleDeepStr) systemPrompt += singleDeepStr;
   if (webSearchStr) systemPrompt += webSearchStr;
+  if (newsContextStr) systemPrompt += newsContextStr;
 
   state.messages.push({ role: 'user', content: q });
   chatAppendMsg(ctxId, 'user', renderMarkdownLight(q));
@@ -24419,8 +24884,8 @@ function computeMarketHealth() {
   else if (spyChg > -1) { score -= 5; details.push('SPY 소폭 음봉'); }
   else { score -= 10; details.push('SPY 약세 ' + spyChg.toFixed(1) + '%'); }
 
-  // QQQ component
-  var qqqChg = qqq.pct || 0;
+  // QQQ component (종가 기준 pct)
+  var qqqChg = (ld['QQQ'] && ld['QQQ'].pct) || 0;
   if (qqqChg > 1) { score += 8; details.push('QQQ 강세'); }
   else if (qqqChg > 0) { score += 4; }
   else if (qqqChg > -1) { score -= 4; }
@@ -25337,16 +25802,19 @@ document.addEventListener('aio:liveQuotes', function() {
     title: 'AI 기술적 분석가 (Pro)',
     system: function() {
       var s = _liveSnap();
+      var c = _closeSnap();
       var health = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
       var healthStr = health ? (health.score + '점 ' + health.grade + ' ' + health.regime) : '계산중';
 
       var fresh = s._freshness;
       return '당신은 CMT(차트기술분석사)이며 Stan Weinstein Stage Analysis + screener_pro v5.4 전문가입니다. "차트/기술 분석" 페이지에서 대화하고 있습니다.\n\n' +
-        '【데이터 (신선도: ' + fresh + ')】\n' +
+        '【실시간 시세 (신선도: ' + fresh + ')】\n' +
         '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) | NASDAQ: ' + (s.nasdaq || '—') + ' (' + (s.nasdaqPct || '—') + '%) [' + s.indexBasis + ']\n' +
         '• 50SMA: ' + s.spx50ma + ' | 200SMA: ' + s.spx200ma + '\n' +
-        '• VIX: ' + s.vix + ' | DXY: ' + s.dxy + ' | 시장건강도: ' + healthStr + '\n' +
+        '• VIX: ' + s.vix + ' [실시간] | DXY: ' + s.dxy + ' [실시간] | 시장건강도: ' + healthStr + '\n' +
         '• F&G: ' + s.fg + ' | 트레이딩 스코어: ' + s.score + '/100\n' +
+        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
+        '⚠ 주가·지수 분석 시 위 종가 기준. VIX·DXY 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
         '【4단계 분석 프레임워크】\n' +
         '1단계 — 시장 전체(시장폭, Market Breadth): 참여도·방향성 → 시장폭 페이지\n' +
@@ -25442,43 +25910,87 @@ document.addEventListener('aio:liveQuotes', function() {
     title: 'AI 매크로 전략가 (Pro)',
     system: function() {
       var s = _liveSnap();
+      var c = _closeSnap();
       var fresh = s._freshness;
       return '당신은 글로벌 매크로 전략가이자 "경제 스토리텔러"입니다. "매크로 분석" 페이지에서 대화하고 있습니다.\n\n' +
-        '【매크로 데이터 (신선도: ' + fresh + ')】\n' +
+        '【매크로 데이터 — 실시간 (신선도: ' + fresh + ')】\n' +
         '• Fed: 3.50~3.75% | 10Y: ' + s.tnx + '% | DXY: ' + s.dxy + '\n' +
         '• WTI: $' + s.wti + ' | Brent: $' + s.brent + ' | Gold: $' + s.gold + '\n' +
         '• VIX: ' + s.vix + ' | KRW: ' + s.krw + '\n' +
+        '【주요 지수 종가 (확정)】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
+        '⚠ 주가·지수 분석 시 종가 기준. VIX·금리·환율·유가 등 시장환경은 위 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음. 확정 발언 자제.\n' : '') + '\n' +
         '【경제의 숨결 — 인터커넥션 맵】\n' +
         '유가↑ → 물가↑ → Fed 금리↑ → 달러↑ + 금리↑ → 주식↓ → 소비↓ → 수요파괴 → 유가↓ → 사이클 반복. 경제의 호흡.\n\n' +
-        '【시나리오 트리 (확률) — 스냅샷 기준, 최신 상황에 따라 조정 필요】\n' +
-        'A. 연착륙(30%): 유가 안정 + 금리인하 → 성장주 | B. 스태그플레이션(45%): 유가↑ + 성장↓ → 에너지·금 | C. 침체(25%): 수요파괴 → 현금·채권\n' +
-        '⚠️ 위 확률은 기준 시나리오. 최신 데이터에 따라 확률을 재조정해서 답변할 것.\n\n' +
-        '【2026 섹터 로테이션 — "Great Rotation" 프레임】\n' +
-        '2025년 말~2026년 초 시장 핵심 트렌드: 기술주 집중에서 경기순환/실물자산으로 자금 이동\n' +
-        '• 리더 섹터: 에너지(XLE), 원자재(XLB), 산업재(XLI), 금융(XLF) — 인플레/재정지출 수혜\n' +
-        '• 소외 섹터: 기술(XLK), 통신(XLC) — 밸류에이션 부담 + 금리 민감\n' +
-        '• 방어 섹터: 유틸리티(XLU), 헬스케어(XLV) — 경기 둔화 헤지\n' +
-        '• 로테이션 확인 지표: ① XLE/XLK 상대강도 추이 ② 소형주(IWM) vs 대형주(SPY) ③ 밸류(RPV) vs 그로스(RPG) 비율\n' +
-        '• 로테이션 전환 신호: ISM PMI 50 상회, 구리/금 비율 상승, yield curve 정상화\n\n' +
-        '【Fed 정책 경로 & 시장 임팩트】\n' +
-        '• 금리인하 사이클: 인하 초기 → 성장주 반등 / 인하 후기 → 침체 우려 시 방어주\n' +
+        '【시나리오 트리 (2026.03 기준 — 미국-이란 전쟁 진행 중)】\n' +
+        'A. 스태그플레이션 심화(45%): 유가 $100~120 고착+관세 이중 인플레→Fed 매파 유지→성장↓. 수혜: 에너지(XLE)·금(GLD)·TIPS·유틸리티(XLU)\n' +
+        'B. 전쟁 확전/호르무즈 봉쇄(25%): 유가 $120→$150 급등, 항공유 부족→디젤→휘발유 순차 파급. 수혜: 에너지·방산·금, 회피: 항공·운송·화학·소비재\n' +
+        'C. 외교적 해결/전쟁 종식(20%): 유가 급락→아시아 최우선 반등(일본→EM아시아→유럽 순). 수혜: 성장주·일본·EM, 회피: 에너지 롱 청산\n' +
+        'D. 글로벌 침체(10%): 수요파괴+신용경색(민간 크레딧 디폴트율 7%↑)→현금·국채·금\n' +
+        '⚠️ 위 확률은 2026.03 기준. 최신 유가·VIX·DXY 데이터에 따라 확률을 재조정해서 답변할 것.\n\n' +
+        '【월가 핵심 분석 프레임워크 (2026.03 — 전시 환경)】\n' +
+        '아래는 주요 IB·리서치의 분석 논리를 참고 프레임워크로 정리한 것이다. 특정 하우스의 포지션을 그대로 답변하지 말고, 이 논리를 활용하여 스스로 판단하라.\n' +
+        '• 교역조건(Terms of Trade) 프레임: 에너지 수입 의존도가 높은 국가(일본·유럽)는 유가 급등 시 교역조건 악화 → 통화 약세 → 주식 하방. 2022년 러-우 전쟁 당시와 동일 패턴. 에너지 자급률이 높은 미국은 상대적 방어.\n' +
+        '• 민간 크레딧 스트레스: 유가 급등+금리 고착 장기화 시 민간 크레딧(특히 레버리지드론·하이일드) 디폴트율 급등 가능. 이는 은행 섹터의 대손충당금 증가 → 금융주 리스크로 전이. HYG 스프레드 확대 속도가 선행지표.\n' +
+        '• 실질금리 vs 인플레 헤지: 유가 급등→인플레 압력에도, 금융 긴축 국면에서 실질금리(TIPS)는 상대적 양호한 성과를 보이는 경향. 명목금리 상승 vs 인플레 기대의 균형을 봐야 함.\n' +
+        '• 전쟁 종식 시 회복 순서 논리: 에너지 수입 의존도가 높고 유가 충격이 가장 컸던 지역이 가장 먼저 반등(억눌린 반등). 역사적으로 아시아(특히 일본·한국)→EM→유럽 순서.\n' +
+        '• 유가 시나리오: Brent $120 수준이 공급 제약의 기본 시나리오, 호르무즈 4~6주 봉쇄 시 $150까지 가능. 석유 메이저 CEO들은 전쟁 종료 후에도 공급 여건이 가격에 충분히 반영되지 않았다고 판단 → 구조적 고유가 시사.\n' +
+        '• 달러 분석의 복잡성: 지정학 리스크→달러 강세 요인 vs 유럽 단기금리의 더 가파른 상승→달러 롱 구축 어려움. 단순 "전쟁=달러 강세" 공식이 아님.\n' +
+        '⚠️ 위 프레임워크를 참고하되, 반드시 실시간 데이터와 교차 검증하여 독자적으로 판단할 것. 특정 IB 포지션을 그대로 전달하지 마라.\n\n' +
+        '【2026 섹터 분석 — 전시(戰時) + 로테이션 프레임】\n' +
+        '미국-이란 전쟁 + 관세 이중 충격 환경에서의 섹터별 핵심 동인:\n' +
+        '• 에너지(XLE): 유가 직접 수혜, 석유 메이저 마진 확대. 단, 전쟁 종식 시 급격한 되돌림 리스크\n' +
+        '• 유틸리티(XLU): 방어적 특성+배당 매력. 금리 고착 시에도 안정적 수요. AI 전력 수요 구조적 성장\n' +
+        '• 방산: 전쟁 지속→수주 확대, 미 CENTCOM 군사 전개 확대 신호\n' +
+        '• 금융(XLF): 금리 수혜 vs 디폴트율 상승 리스크 상충. HYG 스프레드·대출 부실률 모니터링 필수\n' +
+        '• 기술(XLK): 금리 민감+밸류에이션 부담, 단 AI 투자는 구조적 지속. 선별적 접근\n' +
+        '• 항공·운송·화학: 유가 원가 직격, 연료 부족 시 운영 차질. 가장 취약한 섹터\n' +
+        '• 로테이션 확인 지표: ① XLE/XLK 상대강도 ② IWM/SPY ③ RPV/RPG ④ HYG 스프레드 확대 속도\n\n' +
+        '【Fed 정책 경로 & 시장 임팩트 (2026.03 현재)】\n' +
+        '• 현재 기조: 매파. 파월은 관세+유가 이중 인플레 압력을 이유로 금리 동결/긴축 유지\n' +
+        '• 하반기 전환 가능성: 계절적 실업률 상승 → 이중 책무(고용) 부각 → 금리인하 복귀 경로\n' +
         '• QT(양적긴축) 종료 시점이 유동성 전환점. QT 종료 → 유동성 바닥 → 위험자산 반등\n' +
-        '• Fed 커뮤니케이션 패턴: FOMC 성명서 톤 변화 → dot plot 변화 → 파월 기자회견 뉘앙스. 세 가지 일치 시 강한 시그널.\n\n' +
+        '• 금리인하 시작 시: 초기→성장주 반등 / 후기→침체 우려 시 방어주\n' +
+        '• Fed 커뮤니케이션 패턴: FOMC 성명서 톤 → dot plot → 파월 기자회견. 세 가지 일치 시 강한 시그널.\n\n' +
         '【경기사이클 4단계 & 섹터 매핑】\n' +
         '① 회복기(Early): GDP↑ + 인플레↓ → 금융(XLF), 부동산(XLRE), 경기소비재(XLY) 유리\n' +
         '② 확장기(Mid): GDP↑ + 인플레 보통 → 기술(XLK), 산업재(XLI), 원자재(XLB) 유리\n' +
         '③ 과열기(Late): GDP 보통 + 인플레↑ → 에너지(XLE), 원자재(XLB), 헬스케어(XLV) 유리\n' +
         '④ 침체기(Recession): GDP↓ + 인플레↓ → 유틸리티(XLU), 필수소비재(XLP), 국채(TLT), 금(GLD) 유리\n' +
         '• 선행지표(LEI, yield curve, PMI) → 동행지표(GDP, 고용, 산업생산) → 후행지표(CPI, 실업률) 순서로 경기 판단.\n\n' +
-        '【지정학 리스크 시장 전파 경로】\n' +
-        '• 대만해협: TSMC 차질→글로벌 첨단칩 90% 위기→반도체주 급락+방산주 급등→공급망 재편 수혜(인도/베트남 제조업)\n' +
-        '• 중동: 호르무즈해협 긴장→유가$100+→인플레 재점화→Fed 긴축 지속→성장주 압박. 헤지: 에너지ETF(XLE)+금(GLD)\n' +
-        '• 미중 기술패권: 반도체장비 수출규제→중국 자급자족 투자(SMIC)→글로벌 장비사(ASML/AMAT) 매출 타격 vs 미국 onshoring 수혜(INTC fab)\n\n' +
-        '비유: 경제=바다, 금리=파도, 달러=바람, 유가=연료, 금=방공호, 섹터로테이션=해류 방향 전환, 지정학=해저 지진\n' +
+        '【지정학 리스크 — 미국-이란 전쟁 진행 중 (2026.03)】\n' +
+        '🔴 현재 진행 중:\n' +
+        '• 미국-이란 전쟁: 1개월 경과, 미 의회 반대 여론 높지만 정치적 교착. USS 트리폴리 CENTCOM 도착(군사 전개 확대)\n' +
+        '• 호르무즈 해협: 봉쇄 위험 지속. 사우디 동서 송유관 하루 700만배럴 최대 가동(우회 수송). Citi: 4~6주 봉쇄 시 Brent $150\n' +
+        '• 후티 반군: 이스라엘 향 순항미사일 발사(요격), 홍해 항로 위험 지속→해운·보험 비용↑\n' +
+        '• 이스라엘: 레바논 남부 드론 타격, 다전선 분쟁 확산 우려\n' +
+        '• 카타르 외교: 에너지 안보·항행 자유 차원 위기 관리 대화 강조(긴장 완화 시도)\n' +
+        '• 석유 CEO 전망: 셰브론/코노코필립스/셸 — 전쟁 끝나도 유가 높은 수준 유지 전망, 항공유→디젤→휘발유 순차 부족 경고\n\n' +
+        '전파 경로: 호르무즈 봉쇄→유가 $120~150→인플레 재점화→Fed 매파 고착→금리↑→성장주 압박→소비↓→수요파괴\n' +
+        '우회 경로: 사우디 송유관(700만bbl/d)+카타르 외교→유가 상단 제한 요인\n' +
+        '헤지: 에너지(XLE)+금(GLD)+방산+유틸리티(XLU)+TIPS\n\n' +
+        '🟡 잠재 리스크:\n' +
+        '• 대만해협: TSMC 차질→첨단칩 90% 위기→반도체주 급락+방산주 급등\n' +
+        '• 미중 기술패권: 반도체 수출규제→SMIC 자급자족 vs INTC/ASML 타격\n\n' +
+        '비유: 경제=바다, 금리=파도, 달러=바람, 유가=연료, 금=방공호, 전쟁=해저 지진, 호르무즈=해상 병목\n\n' +
+        '【이벤트 하락 vs 순환적 하락 — 하락 유형 판단 프레임워크】\n' +
+        '시장 하락은 원인과 지속성에 따라 전혀 다른 대응이 필요하다:\n' +
+        '• 이벤트 하락: 지정학 충격·정책 서프라이즈 등 일회성 이벤트 → 낙폭이 충분하면 반등, V자 회복 가능. 역사적으로 평균 -12~15%에서 마무리.\n' +
+        '• 순환적 하락: 경기 사이클 전환(확장→둔화→침체) → 하락이 수개월 이어지며 -20~35%. 이벤트 하락에서 순환적 하락으로 "턴"할 수 있다는 것이 핵심 리스크.\n' +
+        '• 판단 기준: ① 유가-장기국채 상관관계 — 유가↑+국채금리↑(인플레만 우려)이면 이벤트, 유가↑+국채금리↓(경기둔화/침체 우려 반영)이면 순환적 전환 신호 ② 크레딧 스프레드 확대 속도 ③ PMI·고용 선행지표 악화 여부\n' +
+        '• 현재 상태(2026.03): SPX 제외 주요 지수 공식 조정(-10%) 진입. 이벤트 하락의 낙폭 조건은 충족되기 시작 → 여기서 멈추느냐(반등), 순환적으로 넘어가느냐의 기로.\n' +
+        '• 깨지는 신호: 유가 상승+장기국채 매수(금리↓)가 동시에 나타나면 "인플레 걱정"에서 "스태그플레이션/침체 걱정"으로 시장 내러티브가 전환된 것. 이것이 순환적 하락 전환의 초기 신호.\n\n' +
+        '【글로벌 수급 구조 판단 프레임워크 — "누가 팔고, 누가 안 팔았나"】\n' +
+        '하락장에서 가장 중요한 질문은 가격이 아니라 "매도 압력이 얼마나 남았는가"이다:\n' +
+        '• 시스템매틱 매도(CTA·리스크패리티): 규칙 기반 자동 매도. 변동성↑이나 모멘텀↓ 시 기계적으로 매도. 이들의 매도가 월 $180~200억 규모에 달하면 "셀링 클라이맥스" 근접.\n' +
+        '• 재량적 매도(헤지펀드·기관): 펀더멘탈·매크로 판단에 따른 매도. CTA 이후 2차 파동.\n' +
+        '• 미매도 주체(개인·연기금): 이들이 아직 안 팔았으면 하방 리스크 잔존. 반대로 이들이 오히려 매수하고 있으면 수급 바닥 근접.\n' +
+        '• 숏 스퀴즈 역학: CTA·헤지펀드 숏 포지션이 대규모로 쌓인 상태에서 지정학 완화 뉴스(호르무즈 개방, 휴전 등) 하나만 나오면 숏 청산 러시→급등 가능. 매도 압력이 소진되고 "살 사람만 남은 구조"일수록 반등의 스프링은 더 강하게 압축.\n' +
+        '• IB 트레이딩 데스크 vs 리서치 구분: 트레이딩 데스크 노트는 공개 의무 없이 고객에게만 전달되며, 리서치팀 분석과 다르게 자기 포지션이 깔려있을 수 있다. "골드만이 말했다"가 아니라 수급 데이터 자체를 보고 판단하라.\n' +
+        '⚠️ 수급 구조는 방향을 알려주지 않는다. 타이밍을 알려준다. "매도 소진+촉매 하나"의 조합이 급반등의 레시피.\n\n' +
         '【응답 프레임워크 — "경제를 한 편의 이야기로"】\n' +
         '1. 인과 스토리: 체인을 숫자 나열이 아닌 서사로 연결. "유가가 $90을 뚫은 순간, 도미노가 시작된다. 먼저 운송비가 15% 뛰고, 그 비용은 마트 진열대의 가격표로 전이된다. CPI가 0.3%p 올라가면, Fed는 \'아직 인하할 때가 아니다\'라는 메시지를 보낸다. 그리고 그 메시지가 성장주의 밸류에이션을 짓누른다."\n' +
-        '2. 에스컬레이션 래더를 극장처럼: "지금 경제라는 극장에서 몇 막이 올라와 있는지 보자. 1막: 유가 $80~85, 관객이 약간 불안해하는 정도. 2막: $85~95, 속삭임이 커진다. 3막: $95~110, 자리를 떠나는 사람이 나온다. 4막: $110+, 패닉. 지금은 N막이다."\n' +
+        '2. 에스컬레이션 래더를 극장처럼: "지금 경제라는 극장에서 몇 막이 올라와 있는지 보자. 1막: 유가 $85~95, 긴장감이 감도는 정도. 2막: $95~110, 속삭임이 커진다. 3막: $110~130(현재 구간), 자리를 떠나는 사람이 나온다. 4막: $130~150, 패닉—연료 부족 시작. 5막: $150+, 수요파괴. 지금은 N막이다."\n' +
         '3. 상수/변수 분리: "이미 시장이 소화한 뉴스(상수)와 아직 가격에 반영되지 않은 불확실성(변수). 투자자는 변수에만 집중하면 된다."\n' +
         '4. 카드 카운팅을 서사로: "Fed의 카드를 세어보자. 금리인하 카드 몇 장, QT 종료 카드, 긴급 대출 카드... 카드를 꺼낼 때마다 시장에 전해지는 메시지가 다르다."\n' +
         '5. 바다의 비유 연결: "지금 경제라는 바다에서 해류(섹터로테이션)는 어디로 흐르고 있는가? 당신의 배(포트폴리오)는 순풍에 있는가, 역풍에 있는가?"\n' +
@@ -25588,6 +26100,24 @@ document.addEventListener('aio:liveQuotes', function() {
         '무역의존도가 높아서 미국·중국 경기 + 환율 + 반도체 사이클이 운명 좌우.\n' +
         '반도체 수출↑ = 삼성·하이닉스 실적↑ = 외국인 매수↑ = KOSPI↑\n' +
         '환율 핵심 메커니즘: 한미 금리차 확대 → 달러 캐리 → 원화 약세 → 외국인 매도 → KOSPI 하방 압력\n\n' +
+        '【미국-이란 전쟁의 한국 영향 (2026.03)】\n' +
+        '• 유가 급등(Brent $120+): 한국 원유 수입 의존도 ~95% → 무역수지 악화, 경상수지 적자 전환 위험\n' +
+        '• 환율 압력: 유가↑+달러 강세→원화 약세 가속→외국인 매도→KOSPI 하방\n' +
+        '• 인플레: 에너지 가격 전이→내수 소비 위축, 한은 금리인하 여력 제한\n' +
+        '• 전쟁 종식 시 회복 논리: 에너지 수입 의존도 높은 아시아(일본·한국)가 유가 충격 가장 크지만, 종식 시 억눌린 반등도 가장 먼저 발생(역사적 패턴)\n' +
+        '• 수혜 섹터: 조선(유조선·LNG선 수주↑), 방산(K-방산 수출), 정유(마진 확대)\n' +
+        '• 피해 섹터: 항공(유가 원가), 석유화학(원료비), 내수소비재\n\n' +
+        '【이벤트 하락 vs 순환적 하락 — 한국 시장 판단 프레임】\n' +
+        '한국 시장은 이 구분의 영향을 미국보다 더 크게 받는다 (높은 무역·외국인 의존도):\n' +
+        '• 이벤트 하락이라면: 외인 매도세 진정 → 사태 안정화에 따라 순매수 복귀 여지 충분. 낙폭이 통계적 조정(-10%) 도달하면 반등 가능.\n' +
+        '• 순환적 하락이라면: 외인 추가 매도 지속, 원화 약세 심화, 수출 둔화 → 하방 열림.\n' +
+        '• 깨지는 신호: 반도체 수출 YoY 마이너스 전환, 원/달러 급등+KOSPI 동반 하락 지속 3주+, 외인 순매도 금액보다 기관·개인 매도 동반 시 구조적 전환.\n\n' +
+        '【외국인 매도 — 절대 금액 vs 상대 비중 분석 프레임】\n' +
+        '외인 매도 규모를 볼 때 절대 금액만 보면 판단을 잘못한다:\n' +
+        '• 2026.03 현재: 아시아 EM에서 외인이 역사상 가장 빠르고 큰 절대 금액으로 매도 중 (2008년 상회).\n' +
+        '• 그러나 상대 비중: KOSPI 시총 대비 외인 순매도 비중은 약 -1.1%로, 2008년(-3%+)을 한참 하회. 이유: 과거 대비 기관·개인 비중이 커지면서 외인 영향력이 상대적으로 축소. 한국 시장은 더 이상 "외인 놀이터"가 아님.\n' +
+        '• 판단법: 절대 금액 사상 최대 → 공포 유발, 상대 비중 미비 → 실제 충격은 과거보다 작을 수 있음. 둘 다 봐야 한다.\n' +
+        '• 반전 신호: 외인 순매수 5일 연속 전환, 공매도 잔고 감소(숏커버), 원화 강세 전환.\n\n' +
         '【코리아 디스카운트 구조적 요인】\n' +
         '• 밸류에이션: KOSPI P/E ' + (S.kospiPE||'—') + '배 vs S&P500 ~21배 → 약 ' + (S.kospiPE ? Math.round((1 - S.kospiPE/21)*100) : '—') + '% 디스카운트\n' +
         '• 지배구조: 재벌 오너 리스크, 낮은 배당성향(~1.5%), 순환출자\n' +
@@ -25615,7 +26145,9 @@ document.addEventListener('aio:liveQuotes', function() {
       var ld = window._liveData || {};
       var kospi = ld['^KS11'] || {};
       var kosdaq = ld['^KQ11'] || {};
-      // 한국 대장주 실시간 시세
+      // v37.2: 한국 대장주 종가 기준 (이원화 원칙 적용)
+      var kospiClose = _closingVal('^KS11');
+      var kosdaqClose = _closingVal('^KQ11');
       var krStocks = [
         {sym:'005930.KS',name:'삼성전자'},{sym:'000660.KS',name:'SK하이닉스'},
         {sym:'373220.KS',name:'LG에너지솔루션'},{sym:'012450.KS',name:'한화에어로스페이스'},
@@ -25623,15 +26155,21 @@ document.addEventListener('aio:liveQuotes', function() {
       ];
       var krDataStr = '';
       krStocks.forEach(function(k) {
+        var cp = _closingVal(k.sym);
         var d = ld[k.sym];
-        if (d && d.price) krDataStr += '• ' + k.name + '(' + k.sym.replace('.KS','').replace('.KQ','') + '): ₩' + Math.round(d.price).toLocaleString() + ' (' + (d.pct>=0?'+':'') + (d.pct||0).toFixed(2) + '%)\n';
+        if (cp || (d && d.price)) {
+          var p = cp || d.price;
+          var pct = (d && d.pct) || 0;
+          krDataStr += '• ' + k.name + '(' + k.sym.replace('.KS','').replace('.KQ','') + '): ₩' + Math.round(p).toLocaleString() + ' (' + (pct>=0?'+':'') + pct.toFixed(2) + '%) [종가]\n';
+        }
       });
       return '당신은 한국 주식시장 기술적 분석(차트 분석) 전문가입니다. "차트·기술 분석 (KR)" 페이지에서 대화하고 있습니다.\n\n' +
-        '【한국 지수 실시간 (신선도: ' + fresh + ')】\n' +
-        '• KOSPI: ' + (kospi.price ? kospi.price.toFixed(2) + ' (' + (kospi.pct>=0?'+':'') + (kospi.pct||0).toFixed(2) + '%)' : s.kospi) + '\n' +
-        '• KOSDAQ: ' + (kosdaq.price ? kosdaq.price.toFixed(2) + ' (' + (kosdaq.pct>=0?'+':'') + (kosdaq.pct||0).toFixed(2) + '%)' : s.kosdaq) + '\n' +
-        '• VKOSPI: ' + (S.vkospi||'—') + ' | 원/달러: ' + s.krw + '\n' +
-        (krDataStr ? '\n【한국 대장주 실시간】\n' + krDataStr : '') + '\n' +
+        '【한국 지수 종가 기준 (신선도: ' + fresh + ')】\n' +
+        '• KOSPI: ' + (kospiClose ? kospiClose.toFixed(2) : (kospi.price ? kospi.price.toFixed(2) : s.kospi)) + ' (' + (kospi.pct>=0?'+':'') + (kospi.pct||0).toFixed(2) + '%) [종가]\n' +
+        '• KOSDAQ: ' + (kosdaqClose ? kosdaqClose.toFixed(2) : (kosdaq.price ? kosdaq.price.toFixed(2) : s.kosdaq)) + ' (' + (kosdaq.pct>=0?'+':'') + (kosdaq.pct||0).toFixed(2) + '%) [종가]\n' +
+        '• VKOSPI: ' + (S.vkospi||'—') + ' [실시간] | 원/달러: ' + s.krw + ' [실시간]\n' +
+        (krDataStr ? '\n【한국 대장주 종가 기준】\n' + krDataStr : '') +
+        '⚠ 주가·지수 분석 시 종가 기준. VKOSPI·환율 등 시장환경은 실시간 값 사용.\n\n' +
         '【기술적 분석 프레임워크 — 한국 시장 특화】\n' +
         '한국 시장은 외국인·기관 수급이 기술적 패턴을 압도하는 경우가 빈번. 차트 신호와 수급 신호를 반드시 교차 검증.\n\n' +
         '1. Weinstein 단계 분석 (30주 이동평균 기준)\n' +
@@ -25672,10 +26210,12 @@ document.addEventListener('aio:liveQuotes', function() {
       var fresh = s._freshness;
       var ld = window._liveData || {};
       var kospi = ld['^KS11'] || {};
+      // v37.2: 이원화 원칙 — KOSPI 종가 기준
+      var kospiClose = _closingVal('^KS11');
       return '당신은 한국 주식시장 수급 분석 전문가입니다. "수급 분석" 페이지에서 대화하고 있습니다.\n\n' +
         '【시장 데이터 (신선도: ' + fresh + ')】\n' +
-        '• KOSPI: ' + (kospi.price ? kospi.price.toFixed(2) + ' (' + (kospi.pct>=0?'+':'') + (kospi.pct||0).toFixed(2) + '%)' : s.kospi) + '\n' +
-        '• 원/달러: ' + s.krw + '원 | DXY: ' + s.dxy + '\n' +
+        '• KOSPI: ' + (kospiClose ? kospiClose.toFixed(2) : (kospi.price ? kospi.price.toFixed(2) : s.kospi)) + ' (' + (kospi.pct>=0?'+':'') + (kospi.pct||0).toFixed(2) + '%) [종가]\n' +
+        '• 원/달러: ' + s.krw + '원 [실시간] | DXY: ' + s.dxy + ' [실시간]\n' +
         '• 외국인 순매수: ' + (S.krForeignNet||'—') + '억원 | 공매도 비중: ' + (S.krShortSell||'—') + '%\n\n' +
         '【한국 시장 수급 구조 — 3대 주체 분석 프레임워크】\n' +
         '한국 시장의 방향은 수급이 결정한다. 외국인·기관·개인 3대 주체의 매매 패턴을 읽는 것이 핵심.\n\n' +
@@ -25697,6 +26237,13 @@ document.addEventListener('aio:liveQuotes', function() {
         '   • 2025년 재개 이후 비중 변화 모니터링\n' +
         '   • 대차잔고 증가 = 하방 압력, 대차잔고 감소 = 숏커버 랠리 가능\n' +
         '   • 공매도 과열 종목 지정제: 5거래일 기준 비중 → 1일 공매도 금지\n\n' +
+        '5. 글로벌 시스템매틱 매도 & 숏 스퀴즈 역학\n' +
+        '   • CTA(추세추종): 변동성↑·모멘텀↓ 시 기계적 매도. 월 $180~200억 규모 순숏 시 "셀링 클라이맥스" 근접\n' +
+        '   • 리스크 패리티: 변동성 급등 시 자동 비중 축소 → 주식·채권 동반 매도\n' +
+        '   • 이들의 매도 소진 + 개인·연기금 미매도(오히려 매수) = "살 사람만 남은 구조"\n' +
+        '   • 이 상태에서 지정학 완화 뉴스 1건(호르무즈 개방, 휴전 등)이면 숏 청산 러시 → 급등\n' +
+        '   • 한국 특수성: 외인 절대 매도 금액 사상 최대(2008년 상회)이나, KOSPI 시총 대비 비중은 ~-1.1%로 과거보다 훨씬 낮음. 기관·개인 비중 확대로 외인 충격 상대적 축소.\n' +
+        '   ⚠️ 수급 데이터를 볼 때: IB 트레이딩 데스크 노트는 자기 포지션이 깔려있을 수 있으므로, "누가 말했나"가 아니라 데이터 자체를 보고 판단해야 한다.\n\n' +
         '【응답 프레임워크】\n' +
         '1. 수급 삼각형: "외국인 X + 기관 Y + 개인 Z → 종합 방향은 W"\n' +
         '2. 수급-가격 괴리: "가격은 상승인데 외국인은 매도 → 이 괴리가 해소될 방향은?"\n' +
@@ -26000,17 +26547,21 @@ function initKoreaSupply() {
 
 function initKoreaThemes() {
   var ld = window._liveData || {};
-  // 1. pill: 등락률 표시 + 가격 + 배경 틴트
+  // 1. pill: 종목명 · 가격 · 등락률 명확 표시
   document.querySelectorAll('#page-kr-themes [data-live-price]').forEach(function(pill) {
     var sym = pill.getAttribute('data-live-price'), d = ld[sym];
     if (d && d.price !== undefined) {
       var priceEl = pill.querySelector('.pill-price');
-      if (priceEl) { priceEl.textContent = d.price >= 1000 ? Math.round(d.price).toLocaleString() + '원' : d.price.toLocaleString(); }
+      if (priceEl) { priceEl.textContent = d.price >= 1000 ? Math.round(d.price).toLocaleString() : d.price.toLocaleString(); }
       var pctEl = pill.querySelector('.pill-pct');
-      if (pctEl && d.pct !== undefined) { pctEl.textContent = (d.pct >= 0 ? '+' : '') + d.pct.toFixed(1) + '%'; pctEl.style.color = d.pct >= 0 ? 'var(--green)' : 'var(--red)'; }
-      var a = Math.min(Math.abs(d.pct||0)*4,15)/100;
+      if (pctEl && d.pct !== undefined) {
+        pctEl.textContent = (d.pct >= 0 ? '+' : '') + d.pct.toFixed(2) + '%';
+        pctEl.style.color = d.pct >= 0 ? 'var(--green)' : 'var(--red)';
+      }
+      // 행 전체 배경 틴트
+      var a = Math.min(Math.abs(d.pct||0)*3,12)/100;
       pill.style.background = (d.pct>=0)?'rgba(61,219,165,'+a+')':'rgba(248,113,113,'+a+')';
-      pill.style.borderColor = (d.pct>=0)?'rgba(61,219,165,0.25)':'rgba(248,113,113,0.25)';
+      pill.style.borderColor = (d.pct>=0)?'rgba(61,219,165,0.15)':'rgba(248,113,113,0.15)';
     }
   });
 
@@ -26074,6 +26625,7 @@ function initKoreaThemes() {
     }
   });
   renderKrThemePerfBars(ld);
+  if (typeof _generateKrThemesAnalysis === 'function') _generateKrThemesAnalysis(ld);
 }
 function renderKrThemePerfBars(ld) {
   var c = document.getElementById('kr-theme-perf-bars'); if (!c||!ld||Object.keys(ld).length<5) return;
@@ -26087,18 +26639,91 @@ function renderKrThemePerfBars(ld) {
 function showKrThemeDetail(themeId) {
   var panel=document.getElementById('kr-theme-detail-panel'),content=document.getElementById('kr-theme-detail-content');
   if(!panel||!content)return;var tmap=KR_THEME_MAP[themeId];if(!tmap)return;var ld=window._liveData||{};
-  var CN={'defense':'🛡 K-방산','semi':'🔬 반도체/HBM','shipbuilding':'🚢 조선/해양','ai-sw':'🤖 AI/SW','power-grid':'⚡ 전력기기','nuclear':'☢ 원전','battery':'🔋 2차전지','bio':'💊 바이오','kbeauty':'💄 K뷰티','kcontent':'🎬 K콘텐츠','auto':'🚗 자동차/EV','robot':'🦾 로봇','finance':'🏦 금융','kfood':'🍜 K푸드','crypto':'₿ 크립토','telecom':'📡 통신','construction':'🏗 건설/인프라','retail':'🛒 유통','steel_chem':'⛏ 철강/화학','logistics':'🚚 물류/운송','medtech_kr':'🏥 의료기기','energy_kr':'⛽ 에너지/정유'};
-  var cat=KR_THEME_CATALYSTS[themeId]||'';var ws=0,vs=0;
-  tmap.forEach(function(t){var d=ld[krTickerToYahoo(t.code)];if(d&&d.pct!==undefined&&t.w>0){vs+=d.pct*t.w;ws+=t.w;}});
+  var CN={'defense':'🛡 K-방산/항공우주','semi':'🔬 반도체/HBM','shipbuilding':'🚢 조선/해양','ai-sw':'🤖 AI/소프트웨어','power-grid':'⚡ 전력기기/변압기','nuclear':'☢ 원전/SMR','battery':'🔋 2차전지/배터리','bio':'💊 바이오/제약','kbeauty':'💄 K뷰티','kcontent':'🎬 K콘텐츠','auto':'🚗 자동차/EV','robot':'🦾 로봇/자동화','finance':'🏦 금융','kfood':'🍜 K푸드','crypto':'₿ 크립토','telecom':'📡 통신','construction':'🏗 건설/인프라','retail':'🛒 유통','steel_chem':'⛏ 철강/화학','logistics':'🚚 물류/운송','medtech_kr':'🏥 의료기기','energy_kr':'⛽ 에너지/정유'};
+  var cat=KR_THEME_CATALYSTS[themeId]||'';
+  // 테마 통계 계산
+  var ws=0,vs=0,upCnt=0,dnCnt=0,topStock=null,topPct=-999,botStock=null,botPct=999;
+  tmap.forEach(function(t){
+    var info=KR_STOCK_DB[t.code]||{},sym=krTickerToYahoo(t.code),d=ld[sym];
+    if(d&&d.pct!==undefined&&t.w>0){vs+=d.pct*t.w;ws+=t.w;if(d.pct>=0)upCnt++;else dnCnt++;}
+    if(d&&d.pct!==undefined){if(d.pct>topPct){topPct=d.pct;topStock=info.name||t.code;}if(d.pct<botPct){botPct=d.pct;botStock=info.name||t.code;}}
+  });
   var avg=ws>0?vs/ws:0,ip=avg>=0,cc=ip?'#3ddba5':'#f87171';
+  var totalStocks=tmap.length,upRatio=totalStocks>0?Math.round(upCnt/totalStocks*100):0;
+
+  // 테마 강도 판단
+  var strength='',strengthCol='';
+  if(avg>=3){strength='🔥 매우 강세';strengthCol='#3ddba5';}
+  else if(avg>=1){strength='📈 강세';strengthCol='#3ddba5';}
+  else if(avg>=0){strength='➡ 보합·소폭강세';strengthCol='#94a3b8';}
+  else if(avg>=-1){strength='➡ 보합·소폭약세';strengthCol='#94a3b8';}
+  else if(avg>=-3){strength='📉 약세';strengthCol='#f87171';}
+  else{strength='💥 급락';strengthCol='#f87171';}
+
+  // 종목 테이블 (등락률 순 정렬)
   var sorted=tmap.slice().sort(function(a,b){var da=ld[krTickerToYahoo(a.code)],db=ld[krTickerToYahoo(b.code)];return(db?db.pct||0:0)-(da?da.pct||0:0);});
-  var rows='';sorted.forEach(function(t,idx){var info=KR_STOCK_DB[t.code]||{},sym=krTickerToYahoo(t.code),d=ld[sym];
+  var rows='';sorted.forEach(function(t,idx){
+    var info=KR_STOCK_DB[t.code]||{},sym=krTickerToYahoo(t.code),d=ld[sym];
     var price=d?d.price:(info.price||0),pct=d?(d.pct||0):0,pCol=pct>=0?'#3ddba5':'#f87171';
-    var ps=price>=1000?Math.round(price).toLocaleString()+'원':price+'원';var pcs=(pct>=0?'+':'')+pct.toFixed(2)+'%';
-    var lt=d?'<span style="color:#3ddba5;font-size:8px;">●LIVE</span>':'<span style="color:var(--text-muted);font-size:8px;">○</span>';
-    rows+='<tr style="background:'+(idx%2===0?'rgba(255,255,255,0.015)':'transparent')+';"><td style="padding:6px 8px;font-size:11px;font-family:var(--font-mono);color:var(--text-muted);">'+t.code+'</td><td style="padding:6px 8px;font-size:12px;font-weight:700;">'+(info.name||t.code)+'<div style="font-size:9px;color:var(--text-muted);">'+(info.sector||'')+'</div></td><td style="padding:6px 8px;font-size:12px;font-weight:800;font-family:var(--font-mono);text-align:right;">'+ps+'</td><td style="padding:6px 8px;font-size:12px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+pCol+';">'+pcs+'</td><td style="padding:6px 8px;font-size:11px;text-align:right;color:var(--text-muted);">'+(info.mcap||'—')+'</td><td style="padding:6px 8px;font-size:10px;text-align:center;">'+t.w+'%</td><td style="padding:6px 8px;text-align:center;">'+lt+'</td></tr>';});
+    var ps=price>=1000?Math.round(price).toLocaleString()+'원':price+'원';
+    var pcs=(pct>=0?'+':'')+pct.toFixed(2)+'%';
+    var lt=d?'<span style="color:#3ddba5;font-size:8px;">● LIVE</span>':'<span style="color:var(--text-muted);font-size:8px;">○</span>';
+    var rankIcon=idx===0?'🥇 ':idx===1?'🥈 ':idx===2?'🥉 ':'';
+    rows+='<tr style="background:'+(idx%2===0?'rgba(255,255,255,0.015)':'transparent')+';border-bottom:1px solid rgba(255,255,255,0.03);"><td style="padding:7px 8px;font-size:12px;font-weight:700;white-space:nowrap;">'+rankIcon+(info.name||t.code)+'<div style="font-size:9px;color:var(--text-muted);font-weight:400;">'+(info.sector||'')+' · '+t.code+'</div></td><td style="padding:7px 8px;font-size:13px;font-weight:800;font-family:var(--font-mono);text-align:right;">'+ps+'</td><td style="padding:7px 8px;font-size:13px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+pCol+';">'+pcs+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;color:var(--text-muted);">'+(info.mcap||'—')+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;">'+t.w+'%</td><td style="padding:7px 8px;text-align:center;">'+lt+'</td></tr>';
+  });
+
   var tn=(CN[themeId]||themeId).replace(/[^가-힣a-zA-Z0-9\/\s]/g,'').trim();
-  content.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;"><div><span style="font-size:16px;font-weight:900;">'+(CN[themeId]||themeId)+'</span></div><div style="text-align:right;"><div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div><div style="font-size:10px;color:var(--text-muted);">가중평균 일간 수익률</div></div></div><div style="background:rgba(99,102,241,0.06);border-left:3px solid rgba(99,102,241,0.4);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px;"><div style="font-size:10px;font-weight:700;color:var(--accent);margin-bottom:4px;">🔥 촉매</div><div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">'+cat+'</div></div><div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--border);"><th style="padding:8px;text-align:left;font-size:10px;color:var(--text-muted);">코드</th><th style="padding:8px;text-align:left;font-size:10px;color:var(--text-muted);">종목명</th><th style="padding:8px;text-align:right;font-size:10px;color:var(--text-muted);">현재가</th><th style="padding:8px;text-align:right;font-size:10px;color:var(--text-muted);">등락률</th><th style="padding:8px;text-align:right;font-size:10px;color:var(--text-muted);">시총</th><th style="padding:8px;text-align:center;font-size:10px;color:var(--text-muted);">비중</th><th style="padding:8px;text-align:center;font-size:10px;color:var(--text-muted);">소스</th></tr></thead><tbody>'+rows+'</tbody></table></div><div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;"><button onclick="chatFromChip(\'kr-themes\',\''+tn+' 테마 진입 타이밍 분석해줘\')" class="tb-btn" style="font-size:9px;">🤖 AI 분석</button><button onclick="chatFromChip(\'kr-themes\',\''+tn+' 외국인 수급 흐름 분석해줘\')" class="tb-btn" style="font-size:9px;">📊 수급 분석</button><button onclick="chatFromChip(\'kr-themes\',\''+tn+' 리스크 요인 분석해줘\')" class="tb-btn" style="font-size:9px;">⚠ 리스크</button></div>';
+
+  content.innerHTML=
+    // 헤더: 테마명 + 수익률 + 강도
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">'+
+      '<div><div style="font-size:18px;font-weight:900;">'+(CN[themeId]||themeId)+'</div>'+
+        '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">구성종목 '+totalStocks+'개 · 상승 '+upCnt+' · 하락 '+dnCnt+'</div></div>'+
+      '<div style="text-align:right;">'+
+        '<div style="font-size:22px;font-weight:900;font-family:var(--font-mono);color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div>'+
+        '<div style="font-size:11px;color:'+strengthCol+';font-weight:700;">'+strength+'</div></div></div>'+
+
+    // 요약 카드 4개
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;text-align:center;border:1px solid rgba(255,255,255,0.05);">'+
+        '<div style="font-size:9px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">상승 비율</div>'+
+        '<div style="font-size:18px;font-weight:900;color:'+(upRatio>=60?'#3ddba5':upRatio<=40?'#f87171':'#94a3b8')+';">'+upRatio+'%</div></div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;text-align:center;border:1px solid rgba(255,255,255,0.05);">'+
+        '<div style="font-size:9px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">최고 종목</div>'+
+        '<div style="font-size:12px;font-weight:800;color:#3ddba5;">'+topStock+'</div><div style="font-size:10px;color:#3ddba5;">+'+(topPct>=0?'+':'')+topPct.toFixed(2)+'%</div></div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;text-align:center;border:1px solid rgba(255,255,255,0.05);">'+
+        '<div style="font-size:9px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">최저 종목</div>'+
+        '<div style="font-size:12px;font-weight:800;color:#f87171;">'+botStock+'</div><div style="font-size:10px;color:#f87171;">'+(botPct>=0?'+':'')+botPct.toFixed(2)+'%</div></div>'+
+      '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;text-align:center;border:1px solid rgba(255,255,255,0.05);">'+
+        '<div style="font-size:9px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">가중평균</div>'+
+        '<div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div></div>'+
+    '</div>'+
+
+    // 촉매
+    (cat?'<div style="background:rgba(99,102,241,0.06);border-left:3px solid rgba(99,102,241,0.4);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px;">'+
+      '<div style="font-size:10px;font-weight:700;color:var(--accent);margin-bottom:4px;">🔥 촉매 / 핵심 이슈</div>'+
+      '<div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">'+cat+'</div></div>':'')+
+
+    // 종목 테이블
+    '<div style="overflow-x:auto;border:1px solid rgba(255,255,255,0.06);border-radius:8px;">'+
+      '<table style="width:100%;border-collapse:collapse;">'+
+        '<thead><tr style="background:rgba(255,255,255,0.03);border-bottom:2px solid rgba(255,255,255,0.08);">'+
+          '<th style="padding:8px;text-align:left;font-size:10px;color:var(--text-muted);font-weight:700;">종목</th>'+
+          '<th style="padding:8px;text-align:right;font-size:10px;color:var(--text-muted);font-weight:700;">현재가</th>'+
+          '<th style="padding:8px;text-align:right;font-size:10px;color:var(--text-muted);font-weight:700;">등락률</th>'+
+          '<th style="padding:8px;text-align:center;font-size:10px;color:var(--text-muted);font-weight:700;">시총</th>'+
+          '<th style="padding:8px;text-align:center;font-size:10px;color:var(--text-muted);font-weight:700;">비중</th>'+
+          '<th style="padding:8px;text-align:center;font-size:10px;color:var(--text-muted);font-weight:700;">소스</th>'+
+        '</tr></thead><tbody>'+rows+'</tbody></table></div>'+
+
+    // AI 분석 버튼
+    '<div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;">'+
+      '<button onclick="chatFromChip(\'kr-themes\',\''+tn+' 테마 심층 분석: 현재 모멘텀, 수급, 밸류에이션, 리스크 종합 판단해줘\')" class="tb-btn" style="font-size:10px;padding:6px 12px;">🤖 AI 심층 분석</button>'+
+      '<button onclick="chatFromChip(\'kr-themes\',\''+tn+' 테마 외국인·기관 수급 흐름과 향후 전망 분석해줘\')" class="tb-btn" style="font-size:10px;padding:6px 12px;">📊 수급 분석</button>'+
+      '<button onclick="chatFromChip(\'kr-themes\',\''+tn+' 테마 대장주와 후발주 비교 분석하고 진입 전략 알려줘\')" class="tb-btn" style="font-size:10px;padding:6px 12px;">🎯 진입 전략</button>'+
+      '<button onclick="chatFromChip(\'kr-themes\',\''+tn+' 테마 리스크 요인과 주의할 점 분석해줘\')" class="tb-btn" style="font-size:10px;padding:6px 12px;">⚠ 리스크</button>'+
+    '</div>';
+
   panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -27551,7 +28176,289 @@ function initKoreaMacro() {
       }
     }
   }
+  _generateKrMacroAnalysis(ld);
 }
+
+// ═══ v37.8: 동적 분석 텍스트 생성 함수 모음 ═══
+
+// ── 1) 한국 매크로 분석 ──
+function _generateKrMacroAnalysis(ld) {
+  var el = document.getElementById('kr-macro-analysis-text'); if (!el) return;
+  var krw = ld['KRW=X'], tnx = ld['^TNX'], vix = ld['^VIX'], kospi = ld['^KS11'] || ld['KOSPI'];
+  var dxy = ld['DX-Y.NYB'], wti = ld['CL=F'];
+  var t = '';
+  // 환율 판단
+  if (krw && krw.price) {
+    var kp = krw.price;
+    t += '<b style="color:var(--accent);">원/달러 ' + kp.toFixed(0) + '원</b> — ';
+    t += kp > 1450 ? '<span style="color:var(--red);">원화 급약세 구간. 외국인 자금 유출 압력, 수입물가 상승, 한은 개입 가능성. 내수주 약세·수출주 환차익 구간.</span>' :
+         kp > 1380 ? '<span style="color:var(--yellow);">원화 약세 구간. 수출기업 수혜이나 외국인 매도 압력 주의. 환헤지 비용 증가.</span>' :
+         kp > 1300 ? '<span style="color:var(--text-secondary);">적정 범위. 환율 변동성 낮아 시장 안정적. 외국인 수급 중립.</span>' :
+         '<span style="color:var(--green);">원화 강세. 외국인 순매수 기대. 수입 원자재 부담 완화. 내수 소비 회복 신호.</span>';
+    t += '<br>';
+  }
+  // 미국 금리 판단
+  if (tnx && tnx.price) {
+    var tp = tnx.price;
+    t += '<b>미 10Y 금리 ' + tp.toFixed(2) + '%</b> — ';
+    t += tp > 4.8 ? '<span style="color:var(--red);">초고금리. 글로벌 자금 달러 쏠림, 신흥국 유출 가속. 한국 성장주·부동산 약세 압력 극심.</span>' :
+         tp > 4.3 ? '<span style="color:var(--yellow);">고금리 지속. 한미 금리차 확대 시 원화 약세 연결. PER 높은 성장주 밸류에이션 부담.</span>' :
+         tp > 3.8 ? '<span style="color:var(--text-secondary);">중립 구간. 금리 인하 기대감과 인플레 우려 공존. 업종별 차별화 장세.</span>' :
+         '<span style="color:var(--green);">금리 하락 국면. 글로벌 유동성 완화 기대. 성장주·테크주 수혜. 한국 수출주에 긍정적.</span>';
+    t += '<br>';
+  }
+  // VIX 판단 (한국 영향)
+  if (vix && vix.price) {
+    var vp = vix.price;
+    t += '<b>VIX ' + vp.toFixed(1) + '</b> — ';
+    t += vp > 30 ? '<span style="color:var(--red);">글로벌 공포 확산. 코스피 동반 하락 가능성 높음. 방어주·현금비중 확대 구간.</span>' :
+         vp > 22 ? '<span style="color:var(--yellow);">불안 심화. 코스피 변동성 확대. 단기 트레이딩 유의, 레버리지 축소 권장.</span>' :
+         vp > 16 ? '<span style="color:var(--text-secondary);">정상 범위. 글로벌 리스크 제한적. 한국 시장 자체 재료(수급·실적)가 더 중요.</span>' :
+         '<span style="color:var(--green);">극저변동. 글로벌 안정기. 코스피 상승 탄력 기대. 성장테마 적극 매수 구간.</span>';
+    t += '<br>';
+  }
+  // 종합 판단
+  var krwRisk = (krw && krw.price > 1400) ? 1 : 0;
+  var rateRisk = (tnx && tnx.price > 4.5) ? 1 : 0;
+  var vixRisk = (vix && vix.price > 25) ? 1 : 0;
+  var riskSum = krwRisk + rateRisk + vixRisk;
+  t += '<br><b>【종합 판단】</b> ';
+  t += riskSum >= 3 ? '<span style="color:var(--red);font-weight:700;">⛈ 삼중 악재 (환율↑ 금리↑ 변동성↑). 현금비중 50% 이상 유지, 방산·필수소비재 방어 전략.</span>' :
+       riskSum === 2 ? '<span style="color:var(--yellow);font-weight:700;">⛅ 이중 부담. 선별적 매매 필요. 고배당·수출주 중심 포트폴리오 추천.</span>' :
+       riskSum === 1 ? '<span style="color:var(--text-secondary);font-weight:700;">🌤 일부 리스크 존재. 업종별 차별화 예상. 실적 모멘텀 기반 종목 선별.</span>' :
+       '<span style="color:var(--green);font-weight:700;">☀ 매크로 환경 양호! 환율 안정+금리 적정+변동성 낮음. 성장테마 적극 비중 확대 구간.</span>';
+  el.innerHTML = t || '데이터 대기 중...';
+}
+
+// ── 2) 한국 테마 동향 분석 ──
+function _generateKrThemesAnalysis(ld) {
+  var el = document.getElementById('kr-themes-analysis-text'); if (!el) return;
+  if (typeof KR_THEME_MAP === 'undefined') { el.textContent = '테마 데이터 없음'; return; }
+  var CN = {'defense':'방산','semi':'반도체','shipbuilding':'조선','ai-sw':'AI/SW','power-grid':'전력기기','nuclear':'원전','battery':'2차전지','bio':'바이오','kbeauty':'K뷰티','kcontent':'K콘텐츠','auto':'자동차','robot':'로봇','finance':'금융','kfood':'K푸드','crypto':'크립토','telecom':'통신','construction':'건설','retail':'유통','steel_chem':'철강/화학','logistics':'물류','medtech_kr':'의료기기','energy_kr':'에너지'};
+  var perfs = [];
+  for (var tid in KR_THEME_MAP) {
+    var t = KR_THEME_MAP[tid], ws = 0, vs = 0;
+    t.forEach(function(s) { var d = ld[krTickerToYahoo(s.code)]; if (d && d.pct !== undefined && s.w > 0) { vs += d.pct * s.w; ws += s.w; } });
+    if (ws > 0) perfs.push({ id: tid, name: CN[tid] || tid, perf: vs / ws });
+  }
+  if (!perfs.length) { el.textContent = '실시간 데이터 대기 중...'; return; }
+  perfs.sort(function(a, b) { return b.perf - a.perf; });
+  var top3 = perfs.slice(0, 3), bot3 = perfs.slice(-3).reverse();
+  var hotCount = perfs.filter(function(p) { return p.perf >= 1; }).length;
+  var coldCount = perfs.filter(function(p) { return p.perf <= -1; }).length;
+  var avgPerf = perfs.reduce(function(s, p) { return s + p.perf; }, 0) / perfs.length;
+
+  var h = '<b style="color:var(--green);">상승 주도:</b> ' + top3.map(function(p) { return p.name + ' <b style="color:var(--green);">' + (p.perf >= 0 ? '+' : '') + p.perf.toFixed(1) + '%</b>'; }).join(', ') + '<br>';
+  h += '<b style="color:var(--red);">하락 주도:</b> ' + bot3.map(function(p) { return p.name + ' <b style="color:var(--red);">' + (p.perf >= 0 ? '+' : '') + p.perf.toFixed(1) + '%</b>'; }).join(', ') + '<br>';
+  h += '<br>';
+
+  // 시장 폭 판단
+  h += '<b>【테마 폭 판단】</b> ';
+  if (hotCount >= perfs.length * 0.6) h += '<span style="color:var(--green);">테마 전반 강세 ('+hotCount+'/'+perfs.length+' 상승). 시장 참여 폭 넓음. 순환매 장세 — 눌림목 매수 유효.</span>';
+  else if (coldCount >= perfs.length * 0.6) h += '<span style="color:var(--red);">테마 전반 약세 ('+coldCount+'/'+perfs.length+' 하락). 수급 위축. 현금비중 확대 또는 인버스 헤지 고려.</span>';
+  else h += '<span style="color:var(--yellow);">테마 차별화 장세. 상위 테마 집중+하위 테마 회피 전략 유효.</span>';
+  h += '<br>';
+
+  // 방어 vs 성장 판단
+  var defThemes = ['defense','nuclear','telecom','finance','kfood'];
+  var growThemes = ['semi','ai-sw','battery','robot','bio'];
+  var defAvg = 0, growAvg = 0, defN = 0, growN = 0;
+  perfs.forEach(function(p) {
+    if (defThemes.indexOf(p.id) >= 0) { defAvg += p.perf; defN++; }
+    if (growThemes.indexOf(p.id) >= 0) { growAvg += p.perf; growN++; }
+  });
+  if (defN > 0) defAvg /= defN;
+  if (growN > 0) growAvg /= growN;
+  h += '<b>【스타일 판단】</b> ';
+  if (growAvg > defAvg + 0.5) h += '<span style="color:var(--green);">성장 테마 주도 (성장 ' + growAvg.toFixed(1) + '% vs 방어 ' + defAvg.toFixed(1) + '%). 리스크온 — AI·반도체·로봇·바이오 비중 확대.</span>';
+  else if (defAvg > growAvg + 0.5) h += '<span style="color:var(--yellow);">방어 테마 우세 (방어 ' + defAvg.toFixed(1) + '% vs 성장 ' + growAvg.toFixed(1) + '%). 리스크오프 — 방산·원전·통신·금융 선호.</span>';
+  else h += '<span>성장·방어 균형. 모멘텀 추종보다 실적 기반 종목 선별 유효.</span>';
+
+  el.innerHTML = h;
+}
+
+// ── 3) 포트폴리오 자동 진단 ──
+function _generatePortfolioAnalysis(positions, ld, stats) {
+  var el = document.getElementById('pf-analysis-text'); if (!el) return;
+  if (!positions || positions.length === 0) { el.textContent = '포트폴리오를 추가하면 자동 분석됩니다'; return; }
+  var h = '';
+  // 집중도 분석
+  var vals = positions.map(function(p) { var d = ld[p.ticker]; return { ticker: p.ticker, val: (d ? d.price : p.cost) * p.qty }; });
+  vals.sort(function(a, b) { return b.val - a.val; });
+  var topPct = stats.totalValue > 0 ? (vals[0].val / stats.totalValue * 100) : 0;
+  h += '<b>집중도:</b> 최대 비중 ' + vals[0].ticker + ' <b>' + topPct.toFixed(0) + '%</b>';
+  h += topPct > 40 ? ' <span style="color:var(--red);">— 과집중 위험! 해당 종목 급락 시 포트폴리오 전체 타격. 30% 이하로 분산 권장.</span>' :
+       topPct > 25 ? ' <span style="color:var(--yellow);">— 비중 높음. 리스크 관리 필요.</span>' :
+       ' <span style="color:var(--green);">— 적정 분산.</span>';
+  h += '<br>';
+  // 일간 손익 판단
+  var dpct = stats.totalValue > 0 ? (stats.totalDailyChg / stats.totalValue * 100) : 0;
+  h += '<b>오늘:</b> ' + (dpct >= 0 ? '+' : '') + dpct.toFixed(2) + '% ';
+  h += Math.abs(dpct) > 3 ? '<span style="color:var(--red);">— 변동 과대. 리밸런싱 검토.</span>' :
+       dpct > 1 ? '<span style="color:var(--green);">— 양호한 수익. 추세 지속 확인.</span>' :
+       dpct < -1 ? '<span style="color:var(--yellow);">— 하락 압력. 손절/추매 기준 점검.</span>' :
+       '<span>— 보합권.</span>';
+  h += '<br>';
+  // 총 손익
+  h += '<b>누적 P&L:</b> ' + (stats.totalPnlPct >= 0 ? '+' : '') + stats.totalPnlPct.toFixed(1) + '% ';
+  h += stats.totalPnlPct > 20 ? '<span style="color:var(--green);">— 고수익 구간. 일부 이익 실현 고려.</span>' :
+       stats.totalPnlPct > 0 ? '<span style="color:var(--green);">— 수익 중. 손절선 관리 유지.</span>' :
+       stats.totalPnlPct > -10 ? '<span style="color:var(--yellow);">— 소폭 손실. 종목별 원인 분석 필요.</span>' :
+       '<span style="color:var(--red);">— 큰 손실 구간. 전체 전략 재검토 필요. 손절 기준 즉시 점검.</span>';
+  el.innerHTML = h;
+}
+
+// ── 4) 스크리너 결과 분석 ──
+function _generateScreenerAnalysis(filtered, ld) {
+  var el = document.getElementById('scr-analysis-text'); if (!el) return;
+  if (!filtered || filtered.length === 0) { el.textContent = '조건에 맞는 종목이 없습니다'; return; }
+  var buyCount = 0, sellCount = 0, watchCount = 0;
+  var upCount = 0, downCount = 0;
+  var avgRsi = 0, rsiN = 0;
+  filtered.forEach(function(r) {
+    if (r.signal === 'BUY') buyCount++;
+    else if (r.signal === 'SELL') sellCount++;
+    else if (r.signal === 'WATCH') watchCount++;
+    var d = ld[r.sym];
+    if (d && d.pct > 0) upCount++;
+    else if (d && d.pct < 0) downCount++;
+    if (r.rsi) { avgRsi += r.rsi; rsiN++; }
+  });
+  if (rsiN > 0) avgRsi /= rsiN;
+  var h = '<b>결과 ' + filtered.length + '종목:</b> ';
+  h += '<span style="color:var(--green);">BUY ' + buyCount + '</span> · <span style="color:var(--red);">SELL ' + sellCount + '</span> · <span style="color:var(--yellow);">WATCH ' + watchCount + '</span>';
+  h += ' (오늘 상승 ' + upCount + ' / 하락 ' + downCount + ')';
+  h += '<br>';
+  // RSI 분포
+  h += '<b>평균 RSI ' + avgRsi.toFixed(0) + '</b> — ';
+  h += avgRsi > 65 ? '<span style="color:var(--yellow);">전반적 과열 구간. 신규 진입 시 풀백 대기 권장.</span>' :
+       avgRsi < 35 ? '<span style="color:var(--green);">전반적 과매도. 반등 기회 탐색 구간.</span>' :
+       '<span>중립 RSI 범위. 개별 종목 모멘텀 차별화.</span>';
+  h += '<br>';
+  // 시그널 비율 해석
+  var buyRatio = filtered.length > 0 ? buyCount / filtered.length * 100 : 0;
+  h += '<b>매수 시그널 비율 ' + buyRatio.toFixed(0) + '%</b> — ';
+  h += buyRatio > 60 ? '<span style="color:var(--green);">강세 시그널 다수. 시장 전반 상승 모멘텀.</span>' :
+       buyRatio < 20 ? '<span style="color:var(--red);">매수 시그널 희소. 방어적 접근 필요.</span>' :
+       '<span>혼조 시그널. 종목별 선별 매매.</span>';
+  el.innerHTML = h;
+}
+
+// ── 5) 심리지표 복합 분석 ──
+function _generateSentimentAnalysis() {
+  var el = document.getElementById('sent-analysis-text'); if (!el) return;
+  var ld = window._liveData || {};
+  var fgEl = document.getElementById('fg-score-big');
+  var fgScore = fgEl ? parseInt(fgEl.textContent) : NaN;
+  var vix = ld['^VIX'] ? ld['^VIX'].price : NaN;
+  var pcEl = document.getElementById('pc-score-big');
+  var pcr = pcEl ? parseFloat(pcEl.textContent) : NaN;
+  var h = '';
+  if (!isNaN(fgScore)) {
+    h += '<b>Fear & Greed ' + fgScore + '</b> — ';
+    h += fgScore < 20 ? '<span style="color:var(--green);">극단적 공포. 역사적으로 6~12개월 후 양(+) 수익 사례 다수. 분할 매수 적기.</span>' :
+         fgScore < 35 ? '<span style="color:var(--yellow);">공포 우세. 시장 센티먼트 악화이나 바닥 근접 가능. 관심종목 리스트 준비.</span>' :
+         fgScore < 65 ? '<span>중립. 센티먼트가 방향을 결정하지 않는 구간. 펀더멘털·수급 기반 판단.</span>' :
+         fgScore < 80 ? '<span style="color:var(--yellow);">탐욕 구간. 차익실현 매물 출현 가능. 신규 매수 보수적 접근.</span>' :
+         '<span style="color:var(--red);">극단적 탐욕. 과거 85+ 구간에서 3~6개월 내 조정 빈발. 비중 축소 고려.</span>';
+    h += '<br>';
+  }
+  if (!isNaN(vix)) {
+    h += '<b>VIX ' + vix.toFixed(1) + '</b> — ';
+    h += vix > 35 ? '<span style="color:var(--red);">패닉 수준. 옵션 프리미엄 극대. 풋 매도(현금보유자) 기회이나 고위험.</span>' :
+         vix > 25 ? '<span style="color:var(--yellow);">경계 수준. 단기 헤지 필요. VIX 하락 반전 시 매수 시그널.</span>' :
+         vix > 16 ? '<span>정상 범위. 옵션 프리미엄 적정.</span>' :
+         '<span style="color:var(--green);">안정기. 콜 매수 비용 저렴. 그러나 VIX 급등 전조일 수 있어 컨틴전시 플랜 필수.</span>';
+    h += '<br>';
+  }
+  if (!isNaN(pcr)) {
+    h += '<b>P/C비율 ' + pcr.toFixed(2) + '</b> — ';
+    h += pcr > 1.3 ? '<span style="color:var(--green);">풋 과다. 극단적 방어심리 = 역발상 매수 신호.</span>' :
+         pcr > 1.0 ? '<span style="color:var(--yellow);">풋 우세. 하방 헤지 수요 높음. 추세 전환 모니터링.</span>' :
+         pcr > 0.7 ? '<span>균형. 시장 방향성 미확정.</span>' :
+         '<span style="color:var(--red);">콜 과다. 과도한 낙관. 단기 조정 가능성 경계.</span>';
+    h += '<br>';
+  }
+  // 복합 판단
+  if (!isNaN(fgScore) && !isNaN(vix)) {
+    h += '<br><b>【복합 판단】</b> ';
+    if (fgScore < 25 && vix > 28) h += '<span style="color:var(--green);font-weight:700;">극단 공포+고변동 = 역사적 매수 구간. 우량주 분할 진입 최적기.</span>';
+    else if (fgScore > 75 && vix < 15) h += '<span style="color:var(--red);font-weight:700;">과열+저변동 = 폭풍 전 고요. 이익 실현 + 풋옵션 보험 추천.</span>';
+    else if (fgScore < 40 && vix > 20) h += '<span style="color:var(--yellow);font-weight:700;">공포 확산 중. 추가 하락 가능이나 반등 임박 신호. 관심종목 대기.</span>';
+    else h += '<span>특이 신호 없음. 펀더멘털·기술적 분석 병행 판단.</span>';
+  }
+  el.innerHTML = h || '심리 지표 데이터 대기 중...';
+}
+
+// ── 6) 옵션 환경 분석 ──
+function _generateOptionsAnalysis(vix, vvix, vixPctile, ivRank) {
+  var el = document.getElementById('opt-analysis-text'); if (!el) return;
+  var h = '';
+  if (vix > 0) {
+    h += '<b>VIX ' + vix.toFixed(1) + ' (' + (vixPctile||0) + '%ile)</b> — ';
+    h += vix >= 30 ? '<span style="color:var(--red);">극도 변동성. 프리미엄 매도(Covered Call, CSP) 수익성 최고. 단, 네이키드 매도 위험. Iron Condor 날개 폭 확대 필수.</span>' :
+         vix >= 22 ? '<span style="color:var(--yellow);">높은 변동성. 옵션 매도 전략 유리. Straddle 매도 또는 Jade Lizard 고려. 헤지 비용(풋 매수) 상승 중.</span>' :
+         vix >= 16 ? '<span>정상 변동성. 방향성 전략(수직스프레드) 적합. IV Crush 위험 중간.</span>' :
+         '<span style="color:var(--green);">저변동. 옵션 매수(콜/풋) 저렴. 스트래들/스트랭글 매수 기회. 그러나 VIX 급등 전 구간일 수 있어 소량 진입.</span>';
+    h += '<br>';
+  }
+  if (ivRank !== undefined && ivRank > 0) {
+    h += '<b>IV Rank ' + ivRank + '</b> — ';
+    h += ivRank >= 70 ? '<span style="color:var(--red);">최근 1년 대비 고점. 옵션 매도(프리미엄 수취) 최적 구간. IV Mean Reversion 기대.</span>' :
+         ivRank >= 40 ? '<span style="color:var(--yellow);">중간 수준. 매수/매도 모두 가능. 이벤트(FOMC, 실적) 전후 IV 변화 주시.</span>' :
+         '<span style="color:var(--green);">저IV 구간. 옵션 매수 유리 (저렴). 변동성 확대 전 롱감마 포지션 고려.</span>';
+    h += '<br>';
+  }
+  if (vvix > 0 && vix > 0) {
+    var ratio = vvix / vix;
+    h += '<b>VVIX/VIX ' + ratio.toFixed(2) + '</b> — ';
+    h += ratio < 5 ? '<span style="color:var(--red);">과잉 안도. 시장이 VIX 상승을 경계하지 않음 = 충격 시 급변동 취약. 보호적 풋 권장.</span>' :
+         ratio > 7 ? '<span style="color:var(--red);">고긴장. VIX 스파이크 임박 신호. 기존 매도 포지션 축소 또는 헤지 강화.</span>' :
+         '<span style="color:var(--green);">정상 범위. 옵션 시장 균형 상태.</span>';
+    h += '<br>';
+  }
+  // 종합 전략 추천
+  h += '<br><b>【추천 전략】</b> ';
+  if (vix >= 28 && ivRank >= 60) h += '<span style="color:var(--green);font-weight:700;">프리미엄 수취 황금기. Covered Call (OTM 10-15%), Cash-Secured Put, Iron Condor(넓은 날개) 적극 활용.</span>';
+  else if (vix <= 15 && ivRank <= 30) h += '<span style="color:var(--accent);font-weight:700;">저IV 매수 기회. 롱 Straddle/Strangle, 캘린더 스프레드(원월 매수) 고려. 이벤트 전 진입 유효.</span>';
+  else if (vix >= 20 && vix < 28) h += '<span style="font-weight:700;">혼합 전략. Vertical Spread(방향성 + 프리미엄 수취), Butterfly(목표가 지정) 적합.</span>';
+  else h += '<span>중립 환경. 소규모 디렉셔널 베팅 또는 이벤트 대기.</span>';
+  el.innerHTML = h;
+}
+
+// ── 7) 펀더멘털 분석 ──
+function _generateFundamentalAnalysis(fallback, ld) {
+  var el = document.getElementById('fund-analysis-text'); if (!el) return;
+  if (!fallback || Object.keys(fallback).length === 0) { el.textContent = '기업 데이터 대기 중...'; return; }
+  var h = '', items = [];
+  for (var sym in fallback) {
+    var fb = fallback[sym], d = ld[sym];
+    var chg = d ? (d.pct || 0) : 0;
+    items.push({ sym: sym, pe: fb.pe, roe: fb.roe, eps: fb.eps, mcap: fb.mcap, sector: fb.sector, signal: fb.signal, chg: chg });
+  }
+  // PE 분포
+  var pes = items.filter(function(i) { return i.pe > 0; });
+  var avgPe = pes.length > 0 ? pes.reduce(function(s, i) { return s + i.pe; }, 0) / pes.length : 0;
+  h += '<b>평균 P/E ' + avgPe.toFixed(1) + '</b> — ';
+  h += avgPe > 35 ? '<span style="color:var(--red);">고평가 구간. 실적 성장률이 뒷받침되지 않으면 밸류에이션 조정 위험. PEG 비율 확인 필수.</span>' :
+       avgPe > 22 ? '<span style="color:var(--yellow);">적정~다소 높음. 성장주 프리미엄 반영. 실적 서프라이즈 여부가 주가 방향 결정.</span>' :
+       avgPe > 0 ? '<span style="color:var(--green);">합리적 밸류에이션. 실적 대비 저평가 종목 탐색 기회.</span>' : '';
+  h += '<br>';
+  // 최고 ROE
+  var roes = items.filter(function(i) { return i.roe > 0; }).sort(function(a, b) { return b.roe - a.roe; });
+  if (roes.length > 0) {
+    h += '<b>최고 ROE:</b> ' + roes.slice(0, 3).map(function(r) { return r.sym + ' <b>' + r.roe + '%</b>'; }).join(', ');
+    h += ' — 자본 수익성 우수. 장기 복리 효과 기대.<br>';
+  }
+  // 오늘 등락 상위/하위
+  var sorted = items.slice().sort(function(a, b) { return b.chg - a.chg; });
+  if (sorted.length > 2) {
+    h += '<b>오늘 강세:</b> ' + sorted.slice(0, 2).map(function(r) { return r.sym + ' <span style="color:var(--green);">' + (r.chg >= 0 ? '+' : '') + r.chg.toFixed(1) + '%</span>'; }).join(', ') + ' · ';
+    h += '<b>약세:</b> ' + sorted.slice(-2).map(function(r) { return r.sym + ' <span style="color:var(--red);">' + (r.chg >= 0 ? '+' : '') + r.chg.toFixed(1) + '%</span>'; }).join(', ') + '<br>';
+  }
+  el.innerHTML = h || '펀더멘털 데이터 대기 중...';
+}
+
   </script>
   <script>
 // ══════════════════════════════════════════════════════════════════
@@ -28742,6 +29649,8 @@ async function initFundamentalCards() {
   // Also load earnings surprises and calendar with fallback data
   loadEarningsSurprises();
   loadEarningsCalendar();
+  // v37.8: 동적 펀더멘털 분석
+  if (typeof _generateFundamentalAnalysis === 'function') _generateFundamentalAnalysis(FUND_FALLBACK, window._liveData || {});
 }
 
 function loadEarningsSurprises() {
@@ -30212,6 +31121,8 @@ function initOptionsPage() {
     timeEl.textContent = '마지막 업데이트: ' + now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
   }
 
+  // v37.8: 동적 옵션 분석
+  if (typeof _generateOptionsAnalysis === 'function') _generateOptionsAnalysis(vix, vvix, vixPctile, ivRank);
   console.log('[AIO] Options page init — VIX:', vix, 'VVIX:', vvix);
 }
 
