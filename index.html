@@ -8646,8 +8646,16 @@ body.light-theme canvas { filter:none; }
               <div style="font-size:9px;color:var(--text-muted);line-height:1.5;">AI 채팅(적응형: Haiku↔Sonnet↔추론), 뉴스 번역(Haiku 4.5)<br><b>발급:</b> <a href="https://console.anthropic.com" target="_blank" style="color:#60a5fa;">console.anthropic.com</a> 가입 → API Key<br><b>비용:</b> 종량제 (일반 ~$0.005/쿼리, 심층 ~$0.02/쿼리, 번역 ~$0.007/배치)<br><b>없으면:</b> AI 기능 비활성, 영어 뉴스 원문 표시</div>
             </div>
             <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:10px;">
-              <div style="font-size:10px;font-weight:700;color:#a78bfa;margin-bottom:2px;">Cloudflare Worker (자체 프록시)</div>
-              <div style="font-size:9px;color:var(--text-muted);line-height:1.5;">CORS 프록시 자체 구축 시 안정성 향상<br><b>구축:</b> Cloudflare Workers에 CORS 프록시 배포<br><b>없으면:</b> 공용 프록시 사용 (무료, 가끔 느림)</div>
+              <div style="font-size:10px;font-weight:700;color:#a78bfa;margin-bottom:2px;">Cloudflare Worker (자체 프록시) — 강력 권장</div>
+              <div style="font-size:9px;color:var(--text-muted);line-height:1.5;">공용 CORS 프록시는 언제든 중단될 수 있습니다. 자체 프록시를 세팅하면 시세/뉴스 안정성이 크게 향상됩니다.<br>
+              <b>구축 방법 (5분):</b><br>
+              1. <a href="https://dash.cloudflare.com" target="_blank" style="color:#60a5fa;">dash.cloudflare.com</a> 무료 가입<br>
+              2. Workers &amp; Pages → Create Worker → 아래 코드 붙여넣기:<br>
+              <code style="font-size:8px;background:rgba(0,0,0,0.3);padding:2px 4px;border-radius:3px;">export default{async fetch(r){const u=new URL(r.url).searchParams.get('url');if(!u)return new Response('url param required',{status:400});const f=await fetch(u,{headers:{'User-Agent':'AIO-Proxy/1.0'}});const h=new Headers(f.headers);h.set('Access-Control-Allow-Origin','*');return new Response(f.body,{status:f.status,headers:h})}}</code><br>
+              3. Deploy → 생성된 URL (예: <code style="font-size:8px;">https://my-proxy.username.workers.dev</code>) 복사<br>
+              4. 사이드바 "🔑 확장 API 키" → CF Worker URL에 붙여넣기<br>
+              <b>무료 한도:</b> 일 10만 요청 (사용자 4명이면 충분)<br>
+              <b>없으면:</b> 공용 프록시 사용 (무료, 불안정 — 중단 위험 있음)</div>
             </div>
           </div>
         </div>
@@ -9070,7 +9078,16 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- v30.11 perf: Chart.js를 <head>에서 여기로 이동 — 초기 DOM 렌더링 차단 제거 -->
+  <!-- v38.3: CDN 이중화 — jsDelivr 실패 시 cdnjs 자동 전환 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+  if (typeof Chart === 'undefined') {
+    console.warn('[AIO] jsDelivr CDN 실패 — cdnjs 폴백 로드');
+    var _cjsFallback = document.createElement('script');
+    _cjsFallback.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+    document.head.appendChild(_cjsFallback);
+  }
+  </script>
   <!-- Script blocks -->
   <script>
 
@@ -9102,8 +9119,8 @@ function showDataError(area, msg, severity) {
   // data-status-panel에 표시 (있는 경우)
   var panel = document.getElementById('data-status-panel');
   if (panel) {
-    var icon = severity === 'error' ? '🔴' : '🟡';
-    var color = severity === 'error' ? '#ef4444' : '#fbbf24';
+    var icon = severity === 'error' ? '🔴' : severity === 'info' ? '🟢' : '🟡';
+    var color = severity === 'error' ? '#ef4444' : severity === 'info' ? '#3ddba5' : '#fbbf24';
     panel.innerHTML = '<span style="color:' + color + ';font-size:10px;">' + icon + ' ' + area + ': ' + msg + '</span>';
     setTimeout(function() {
       if (panel.innerHTML.indexOf(msg) !== -1) {
@@ -9377,26 +9394,91 @@ function _renderApiDashboard() {
   }).join('\n');
 }
 
+var _retryAllInProgress = false;
 function _checkAllDeadBanner() {
-  var apis = ['yahoo-quote', 'yahoo-chart', 'coingecko', 'rss-news', 'fred'];
-  var deadCount = 0;
-  apis.forEach(function(k) { if (window._apiHealth[k] && window._apiHealth[k].status === 'error') deadCount++; });
+  // v38.3: 전체 API 모니터링 (finnhub, fear-greed, exchange-rate 포함)
+  var apis = Object.keys(window._apiHealth);
+  var deadCount = 0, warnCount = 0, deadNames = [];
+  apis.forEach(function(k) {
+    var h = window._apiHealth[k];
+    if (!h) return;
+    if (h.status === 'error') { deadCount++; deadNames.push(h.label); }
+    else if (h.status === 'warn') { warnCount++; }
+  });
   var banner = document.getElementById('snapshot-stale-warning');
   if (!banner) return;
   if (deadCount >= 3) {
-    banner.innerHTML = '⚠️ 대부분의 데이터 소스가 응답하지 않습니다. 현재 표시되는 데이터는 정적 스냅샷입니다.';
+    var nameStr = deadNames.slice(0, 4).join(', ') + (deadNames.length > 4 ? ' 외 ' + (deadNames.length - 4) + '개' : '');
+    banner.innerHTML = '⚠️ 다수 데이터 소스 연결 실패 (' + deadCount + '/' + apis.length + '): ' + nameStr +
+      ' — 캐시 데이터 표시 중 ' +
+      '<button id="btn-retry-all-apis" onclick="_retryAllFailedApis()" style="' +
+      'background:rgba(220,38,38,0.25);border:1px solid rgba(220,38,38,0.5);color:#fca5a5;' +
+      'font-size:9px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:8px;font-weight:600;' +
+      'font-family:var(--font-mono);transition:all 0.2s;">🔄 수동 재연결</button>';
     banner.style.display = 'block';
     banner.style.background = 'rgba(220,38,38,0.15)';
     banner.style.borderColor = 'rgba(220,38,38,0.3)';
     banner.style.color = '#f87171';
-  } else if (deadCount >= 1) {
-    banner.innerHTML = '⚠️ 일부 데이터 소스(' + deadCount + '개)가 응답하지 않습니다. 해당 항목은 마지막 수신 데이터를 표시합니다.';
+  } else if (deadCount >= 1 || warnCount >= 2) {
+    banner.innerHTML = '⚠️ 일부 데이터 소스(' + deadCount + '개 실패, ' + warnCount + '개 불안정)가 응답하지 않습니다. 해당 항목은 마지막 수신 데이터를 표시합니다.' +
+      (deadCount >= 1 ? ' <button id="btn-retry-all-apis" onclick="_retryAllFailedApis()" style="' +
+      'background:rgba(234,179,8,0.2);border:1px solid rgba(234,179,8,0.4);color:#fbbf24;' +
+      'font-size:9px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:8px;font-weight:600;' +
+      'font-family:var(--font-mono);transition:all 0.2s;">🔄 재연결</button>' : '');
     banner.style.display = 'block';
     banner.style.background = 'rgba(234,179,8,0.12)';
     banner.style.borderColor = 'rgba(234,179,8,0.3)';
     banner.style.color = '#fbbf24';
   } else {
     banner.style.display = 'none';
+  }
+}
+
+// v38.3: 실패한 API 일괄 재시도
+async function _retryAllFailedApis() {
+  if (_retryAllInProgress) return;
+  _retryAllInProgress = true;
+  var btn = document.getElementById('btn-retry-all-apis');
+  if (btn) { btn.textContent = '⏳ 재연결 중...'; btn.disabled = true; }
+  try {
+    var failedKeys = [];
+    Object.keys(window._apiHealth).forEach(function(k) {
+      if (window._apiHealth[k].status === 'error' || window._apiHealth[k].status === 'warn') {
+        failedKeys.push(k);
+        // 에러 카운트 초기화하여 재시도 기회 부여
+        window._apiHealth[k].errCount = 0;
+        window._apiHealth[k].status = 'unknown';
+      }
+    });
+    _renderApiDashboard();
+    var retryTasks = [];
+    var hasKey = function(k) { return failedKeys.indexOf(k) !== -1; };
+    if ((hasKey('yahoo-quote') || hasKey('yahoo-chart')) && typeof fetchLiveQuotes === 'function') retryTasks.push(fetchLiveQuotes());
+    if (hasKey('fear-greed') && typeof fetchFearGreed === 'function') retryTasks.push(fetchFearGreed());
+    if (hasKey('fred') && typeof fetchAllFredData === 'function') retryTasks.push(fetchAllFredData());
+    if (hasKey('coingecko') && typeof fetchLiveQuotes === 'function') retryTasks.push(fetchLiveQuotes()); // coingecko는 시세에 포함
+    if (hasKey('rss-news') && typeof fetchAllNews === 'function') retryTasks.push(fetchAllNews(true));
+    if (hasKey('finnhub') && typeof initFinnhubWebSocket === 'function') { try { initFinnhubWebSocket(); } catch(e){} }
+    // exchange-rate는 globalRefresh 내에서 시세와 함께 처리됨
+    if (hasKey('exchange-rate') && typeof globalRefresh === 'function') { /* globalRefresh에서 처리 */ }
+    await Promise.allSettled(retryTasks);
+    _checkAllDeadBanner();
+    // 재시도 후 여전히 실패한 API 카운트
+    var stillDead = 0;
+    Object.keys(window._apiHealth).forEach(function(k) {
+      if (window._apiHealth[k].status === 'error') stillDead++;
+    });
+    if (stillDead === 0) {
+      showDataError('재연결', '모든 데이터 소스 재연결 성공', 'info');
+    } else {
+      showDataError('재연결', stillDead + '개 소스가 여전히 응답하지 않습니다 — 네트워크 상태를 확인하세요', 'warn');
+    }
+  } catch(e) {
+    console.warn('[AIO] _retryAllFailedApis error:', e);
+    showDataError('재연결', '재연결 시도 중 오류 발생', 'warn');
+  } finally {
+    _retryAllInProgress = false;
+    if (btn) { btn.textContent = '🔄 수동 재연결'; btn.disabled = false; }
   }
 }
 
@@ -10381,10 +10463,26 @@ function _ldSafe(sym, prop, hardFallback) {
   return hardFallback ?? 0;
 }
 
-// 안전한 localStorage 래퍼 (QuotaExceeded 방지)
+// 안전한 localStorage 래퍼 (QuotaExceeded 방지 + 자동 정리 + 사용자 알림)
 function _lsSet(key, val) {
   try { localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val)); }
-  catch(e) { console.warn('[AIO:LS]', key, e.message); }
+  catch(e) {
+    if (e.name === 'QuotaExceededError' || e.code === 22) {
+      console.warn('[AIO:LS] 용량 초과 — 캐시 정리 시도:', key);
+      // 캐시 데이터만 선별 정리 (API키·포트폴리오 보호)
+      var cacheKeys = [];
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && (k.startsWith('aio_cached_') || k.startsWith('aio_trans_') || k.startsWith('aio_fx_prev'))) cacheKeys.push(k);
+      }
+      cacheKeys.forEach(function(k) { try { localStorage.removeItem(k); } catch(_){} });
+      // 정리 후 재시도
+      try { localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val)); return; }
+      catch(e2) {
+        showDataError('저장소', '브라우저 저장 공간이 부족합니다. 설정 > 데이터 초기화를 권장합니다.', 'error');
+      }
+    } else { console.warn('[AIO:LS]', key, e.message); }
+  }
 }
 function _lsGet(key, def) {
   try { var v = localStorage.getItem(key); return v != null ? v : def; }
@@ -10399,7 +10497,7 @@ const breadcrumbMap = {
   technical: ['AIO','기술적 분석'], fundamental: ['AIO','기업 분석'],
   briefing: ['AIO','데일리 브리핑'], sectors: ['AIO','섹터 로테이션'],
   screener: ['AIO','종목 스크리너'], options: ['AIO','옵션 대시보드'],
-  'market-news': ['AIO','시장 소식'], signal: ['AIO','Trading Signal'], breadth: ['AIO','Market Breadth'], sentiment: ['AIO','Sentiment'],
+  'market-news': ['AIO','시장 소식'], signal: ['AIO','매매 시그널'], breadth: ['AIO','시장 흐름'], sentiment: ['AIO','투자 심리'],
   guide: ['AIO','입문 가이드'],
   'theme-detail': ['AIO','테마','—'],
   ticker: ['AIO','—','—'],
@@ -10461,6 +10559,19 @@ function destroyPageCharts(pageId) {
       if (typeof _signalInterval !== 'undefined' && _signalInterval) {
         clearInterval(_signalInterval); _signalInterval = null;
       }
+    }
+    // v38.3: market-news 페이지 이탈 시 뉴스 리프레시 타이머 해제
+    if (pageId === 'market-news') {
+      if (typeof refreshTimer !== 'undefined' && refreshTimer) {
+        clearTimeout(refreshTimer); refreshTimer = null;
+      }
+    }
+    // v38.3: technical 페이지 차트 정리
+    if (pageId === 'technical') {
+      document.querySelectorAll('#page-technical canvas').forEach(function(c) {
+        var ctx = c.getContext && c.getContext('2d');
+        if (ctx && ctx.chart) { try { ctx.chart.destroy(); } catch(e){} }
+      });
     }
   } catch(e) { console.warn('[AIO] destroyPageCharts error:', e); }
 }
@@ -11992,27 +12103,28 @@ function renderScreenerResults() {
   // v37.8: 동적 스크리너 분석
   if (typeof _generateScreenerAnalysis === 'function') _generateScreenerAnalysis(filtered, ld);
 
-  // 스크리너 결과에 실시간 가격 즉시 반영
+  // v38.3: 스크리너 결과에 실시간 가격 즉시 반영 — tbody 스코프 한정 (O(n) 단일 패스)
   var ld2 = window._liveData || {};
-  filtered.forEach(function(r) {
-    var d = ld2[r.sym];
-    if (!d) return;
-    document.querySelectorAll('[data-live-price="' + r.sym + '"]').forEach(function(el) {
-      if (el.closest('#screener-results-body')) {
-        el.textContent = d.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-        el.style.color = 'var(--text-primary)';
-        el.style.fontWeight = '700';
-      }
+  var tbody = document.getElementById('screener-results-body');
+  if (tbody) {
+    tbody.querySelectorAll('[data-live-price]').forEach(function(el) {
+      var sym = el.getAttribute('data-live-price');
+      var d = ld2[sym];
+      if (!d) return;
+      el.textContent = d.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+      el.style.color = 'var(--text-primary)';
+      el.style.fontWeight = '700';
     });
-    document.querySelectorAll('[data-live-chg="' + r.sym + '"]').forEach(function(el) {
-      if (el.closest('#screener-results-body')) {
-        var pct = d.pct || 0;
-        el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-        el.style.color = pct >= 0 ? '#3ddba5' : '#f87171';
-        el.style.fontWeight = '700';
-      }
+    tbody.querySelectorAll('[data-live-chg]').forEach(function(el) {
+      var sym = el.getAttribute('data-live-chg');
+      var d = ld2[sym];
+      if (!d) return;
+      var pct = d.pct || 0;
+      el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+      el.style.color = pct >= 0 ? '#3ddba5' : '#f87171';
+      el.style.fontWeight = '700';
     });
-  });
+  }
 }
 
 // ═══ 스파크라인 미니차트 시스템 ═══════════════════════════════════════
@@ -12405,21 +12517,25 @@ let _finnhubPrices = {};
 let _finnhubReconnectAttempts = 0;
 let _finnhubReconnectTimer = null;
 let _finnhubErrorLogged = false; // Track if error already logged for this connection
-const _finnhubMaxRetries = 10;
-const _finnhubMaxDelay = 60; // Max 60 seconds between retries
+const _finnhubMaxDelay = 60; // Max 60 seconds between retries (fast phase)
+const _finnhubSlowDelay = 300; // 5 minutes between retries (slow phase, after 10 fast attempts)
 
 function initFinnhubWebSocket() {
   const key = DATA_APIS.finnhub.key();
   if (!key) { console.log('[AIO] Finnhub key not set — skipping WebSocket'); return; }
 
-  // If max retries exceeded, show final message and stop
-  if (_finnhubReconnectAttempts > _finnhubMaxRetries) {
-    if (_finnhubReconnectAttempts === _finnhubMaxRetries + 1) {
-      console.warn('[AIO] Finnhub WebSocket: max reconnection attempts (' + _finnhubMaxRetries + ') exceeded. Stopping reconnection.');
-      const badge = document.querySelector('.freshness-badge.fb-live');
-      if (badge) badge.innerHTML = '⚠ FINNHUB 연결 실패';
-    }
+  // v38.3: 10회 빠른 재연결 실패 후 → 5분 간격 슬로우 모드 (영구 포기 안 함)
+  if (_finnhubReconnectAttempts >= 10 && _finnhubReconnectAttempts % 5 !== 0) {
+    // 슬로우 모드: 5회마다 1회만 시도 (실질 25분 간격)
+    _finnhubReconnectAttempts++;
+    if (_finnhubReconnectTimer) clearTimeout(_finnhubReconnectTimer);
+    _finnhubReconnectTimer = setTimeout(initFinnhubWebSocket, _finnhubSlowDelay * 1000);
     return;
+  }
+  if (_finnhubReconnectAttempts === 10) {
+    console.warn('[AIO] Finnhub WS: 빠른 재연결 10회 실패 → 슬로우 모드 전환 (5분 간격)');
+    const badge = document.querySelector('.freshness-badge.fb-live');
+    if (badge) badge.innerHTML = '⚠ 재연결 대기';
   }
 
   try {
@@ -12485,13 +12601,11 @@ function initFinnhubWebSocket() {
     _finnhubWS.onclose = () => {
       console.log('[AIO] Finnhub WS closed');
       _finnhubReconnectAttempts++;
-      if (_finnhubReconnectAttempts > _finnhubMaxRetries) {
-        // Will be handled on next initFinnhubWebSocket call
-        return;
-      }
-      // Exponential backoff: 3s, 6s, 12s, 24s, 48s, ... (max 60s)
-      const delay = Math.min(_finnhubMaxDelay, 3 * Math.pow(2, _finnhubReconnectAttempts - 1));
-      console.log(`[AIO] Finnhub reconnecting in ${delay}s (attempt ${_finnhubReconnectAttempts}/${_finnhubMaxRetries})`);
+      // 10회까지: 지수 백오프 (3s→6s→12s→...→60s), 이후: 슬로우 모드 (initFinnhub 내부 처리)
+      const delay = _finnhubReconnectAttempts <= 10
+        ? Math.min(_finnhubMaxDelay, 3 * Math.pow(2, _finnhubReconnectAttempts - 1))
+        : _finnhubSlowDelay;
+      console.log(`[AIO] Finnhub reconnecting in ${delay}s (attempt ${_finnhubReconnectAttempts})`);
       if (_finnhubReconnectTimer) clearTimeout(_finnhubReconnectTimer);
       _finnhubReconnectTimer = setTimeout(initFinnhubWebSocket, delay * 1000);
     };
@@ -12586,6 +12700,8 @@ async function fetchFredSeries(seriesId, limit = 30) {
   try {
     const r = await fetchWithTimeout(url, {}, 6000);
     if (r.ok) { return _extractObs(await r.json()); }
+    if (r.status === 429) { console.warn('[AIO] FRED rate limit hit — 60s 대기'); await new Promise(ok => setTimeout(ok, 60000)); return null; }
+    if (r.status === 403 || r.status === 400) { showDataError('FRED', 'API 키가 유효하지 않거나 한도 초과', 'error'); return null; }
   } catch(e) { /* CORS blocked — fallback to proxy */ }
   // 3차: CORS 프록시 경유 (corsproxy, allorigins 등)
   try {
@@ -13118,11 +13234,20 @@ function updateDataStatusError(status, msg) {
 function updateDataStatus() {
   const el = document.getElementById('data-status-panel');
   if (!el) return;
-  const now = new Date();
-  const statusHtml = Object.entries(REFRESH_SCHEDULE)
-    .map(([k, cfg]) => `<span style="font-size:8px;color:var(--text-muted);margin-right:8px;">${cfg.label} ✓</span>`)
-    .join('');
-  el.innerHTML = statusHtml;
+  const now = Date.now();
+  // v38.3: stale 감지 — 마지막 시세 갱신이 10분 이상 경과하면 경고
+  const lastQuoteTs = window._quoteTimestamps ? Math.max(0, ...Object.values(window._quoteTimestamps)) : 0;
+  const staleMin = lastQuoteTs > 0 ? Math.floor((now - lastQuoteTs) / 60000) : -1;
+  if (staleMin > 10) {
+    el.innerHTML = `<span style="font-size:9px;color:#fbbf24;font-weight:700;">⚠ 시세 ${staleMin}분 전 갱신</span>`;
+    el.title = `마지막 시세 갱신: ${new Date(lastQuoteTs).toLocaleTimeString('ko-KR')} — ${staleMin}분 경과`;
+  } else if (staleMin >= 0) {
+    const t = new Date(lastQuoteTs).toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+    el.innerHTML = `<span style="font-size:8px;color:var(--text-muted);">시세 ${t} 갱신</span>`;
+    el.title = '정상 갱신 중';
+  } else {
+    el.innerHTML = '<span style="font-size:8px;color:var(--text-muted);">데이터 갱신 중...</span>';
+  }
 }
 
 // Apply technical indicators to UI
@@ -27746,19 +27871,21 @@ var KR_THEME_MAP = {
     {code:'103140',w:5}   // 풍산
   ],
   'semi': [
-    {code:'000660',w:24}, // SK하이닉스 (TIGER반도체 ~30%)
-    {code:'005930',w:24}, // 삼성전자 (~26%)
+    {code:'005930',w:28}, // 삼성전자 (시총 비례 상향)
+    {code:'000660',w:28}, // SK하이닉스 (시총 비례 상향)
     {code:'042700',w:8},  // 한미반도체
-    {code:'009150',w:7},  // 삼성전기
-    {code:'039030',w:6},  // 이오테크닉스
-    {code:'403870',w:5},  // HPSP
-    {code:'058470',w:5},  // 리노공업
-    {code:'240810',w:5},  // 원익IPS
-    {code:'000990',w:4},  // DB하이텍
-    {code:'036930',w:4},  // 주성엔지니어링
-    {code:'131970',w:3},  // 테크윙
-    {code:'005290',w:3},  // 동진쎄미켐
-    {code:'402340',w:2}   // SK스퀘어 (v35.5: 추가 — SK하이닉스 지분 보유, 시총 ~10조)
+    {code:'007660',w:5},  // 이수페타시스 (HBM4 패키지 기판)
+    {code:'095340',w:4},  // ISC (반도체 테스트 소켓 1위)
+    {code:'009150',w:5},  // 삼성전기
+    {code:'039030',w:4},  // 이오테크닉스
+    {code:'403870',w:4},  // HPSP
+    {code:'058470',w:3},  // 리노공업
+    {code:'240810',w:3},  // 원익IPS
+    {code:'000990',w:2},  // DB하이텍
+    {code:'036930',w:2},  // 주성엔지니어링
+    {code:'131970',w:2},  // 테크윙
+    {code:'005290',w:1},  // 동진쎄미켐
+    {code:'402340',w:1}   // SK스퀘어
   ],
   'shipbuilding': [
     {code:'042660',w:22}, // 한화오션 (TIGER조선 ~27%)
@@ -27781,15 +27908,17 @@ var KR_THEME_MAP = {
     // v35.5: 삼성전자(005930) 제거 — 이미 semi 25%에 포함, AI-SW 3%는 불필요
   ],
   'power-grid': [
-    {code:'298040',w:20}, // 효성중공업 (TIGER전력 ~25%)
-    {code:'267260',w:20}, // HD현대일렉트릭 (~25%)
-    {code:'010120',w:20}, // LS일렉트릭 (~25%)
-    {code:'015760',w:8},  // 한국전력 (v35.5: 추가 — 시총 ~15조, 전력 인프라 대장)
-    {code:'103590',w:7},  // 일진전기
-    {code:'006260',w:7},  // LS
-    {code:'229640',w:6},  // LS에코에너지
-    {code:'000500',w:6},  // 가온전선
-    {code:'033100',w:6}   // 제룡전기
+    {code:'267260',w:25}, // HD현대일렉트릭 (시총 ~24조, 1위 상향)
+    {code:'298040',w:20}, // 효성중공업
+    {code:'010120',w:18}, // LS일렉트릭
+    {code:'015760',w:7},  // 한국전력
+    {code:'103590',w:6},  // 일진전기
+    {code:'006260',w:5},  // LS
+    {code:'001440',w:5},  // 대한전선 (해저케이블·송배전)
+    {code:'062040',w:5},  // 산일전기 (배전변압기)
+    {code:'229640',w:3},  // LS에코에너지
+    {code:'000500',w:3},  // 가온전선
+    {code:'033100',w:3}   // 제룡전기
   ],
   'nuclear': [
     {code:'034020',w:30}, // 두산에너빌리티 (TIGER원전 ~26%, 30%로 보정)
@@ -27812,14 +27941,15 @@ var KR_THEME_MAP = {
     {code:'009830',w:4}   // 한화솔루션 (수소·태양광·케미칼)
   ],
   'bio': [
-    {code:'068270',w:20}, // 셀트리온 (TIGER바이오 ~26%)
-    {code:'196170',w:20}, // 알테오젠 (~25%)
-    {code:'207940',w:20}, // 삼성바이오로직스 (~25%)
-    {code:'028300',w:10}, // HLB (~8%)
-    {code:'000100',w:10}, // 유한양행 (~7%)
-    {code:'326030',w:6},  // SK바이오팜
-    {code:'128940',w:7},  // 한미약품
-    {code:'145020',w:7}   // 휴젤
+    {code:'207940',w:25}, // 삼성바이오로직스 (시총 ~80조, 1위 상향)
+    {code:'068270',w:18}, // 셀트리온
+    {code:'196170',w:18}, // 알테오젠
+    {code:'141080',w:10}, // 리가켐바이오 (ADC 플랫폼 글로벌 기술수출)
+    {code:'028300',w:8},  // HLB
+    {code:'000100',w:7},  // 유한양행
+    {code:'128940',w:5},  // 한미약품
+    {code:'326030',w:5},  // SK바이오팜
+    {code:'145020',w:4}   // 휴젤
   ],
   'kbeauty': [
     {code:'090430',w:18}, // 아모레퍼시픽
@@ -27843,21 +27973,22 @@ var KR_THEME_MAP = {
     {code:'112040',w:6}   // 위메이드
   ],
   'auto': [
-    {code:'005380',w:28}, // 현대차
-    {code:'000270',w:25}, // 기아
-    {code:'012330',w:18}, // 현대모비스
-    {code:'086280',w:10}, // 현대글로비스
+    {code:'005380',w:30}, // 현대차 (시총 비례 상향)
+    {code:'000270',w:28}, // 기아 (시총 비례 상향)
+    {code:'012330',w:15}, // 현대모비스
+    {code:'086280',w:9},  // 현대글로비스
     {code:'011210',w:7},  // 현대위아
     {code:'204320',w:6},  // HL만도
-    {code:'018880',w:6}   // 한온시스템
+    {code:'018880',w:5}   // 한온시스템
   ],
   'robot': [
-    {code:'454910',w:25}, // 두산로보틱스
-    {code:'277810',w:25}, // 레인보우로보틱스
-    {code:'315640',w:15}, // 뉴로메카
-    {code:'178320',w:12}, // 로보스타
-    {code:'056080',w:8},  // 유진로봇
-    {code:'005380',w:15}  // 현대차(보스턴다이내믹스)
+    {code:'454910',w:22}, // 두산로보틱스
+    {code:'277810',w:22}, // 레인보우로보틱스
+    {code:'108320',w:12}, // 로보티즈 (스마트 액추에이터 글로벌 1위)
+    {code:'315640',w:12}, // 뉴로메카
+    {code:'005380',w:12}, // 현대차(보스턴다이내믹스)
+    {code:'178320',w:10}, // 로보스타
+    {code:'056080',w:10}  // 유진로봇
   ],
   'finance': [
     {code:'105560',w:19}, // KB금융
@@ -27879,8 +28010,10 @@ var KR_THEME_MAP = {
     {code:'000080',w:9}   // 하이트진로
   ],
   'crypto': [
-    {code:'112040',w:28}, {code:'035720',w:24}, {code:'094480',w:18},
-    {code:'041190',w:15}, {code:'047080',w:15}
+    {code:'112040',w:32}, // 위메이드 (위믹스)
+    {code:'035720',w:28}, // 카카오 (클립/Ground X)
+    {code:'094480',w:22}, // 갤럭시아머니트리
+    {code:'041190',w:18}  // 우리기술투자
   ],
   'telecom': [
     {code:'017670',w:38}, // SK텔레콤 (시총 19조, AI DC 확장)
@@ -27922,8 +28055,10 @@ var KR_THEME_MAP = {
     {code:'357780',w:18}  // 솔바이오 (체외진단 POCT)
   ],
   'energy_kr': [
-    {code:'010950',w:30}, {code:'096770',w:25}, {code:'078930',w:20},
-    {code:'015760',w:15}, {code:'034730',w:10}
+    {code:'010950',w:35}, // S-Oil
+    {code:'096770',w:28}, // SK이노베이션
+    {code:'078930',w:22}, // GS
+    {code:'034730',w:15}  // SK가스
   ]
 };
 
@@ -27936,7 +28071,8 @@ function krTickerToYahoo(code) {
     '094480':1,'112040':1,'122870':1,'131970':1,'141080':1,'145020':1,'161890':1,'178320':1,'192820':1,
     '196170':1,'229640':1,'237880':1,'240810':1,'247540':1,'253450':1,'257720':1,'263750':1,
     '277810':1,'278470':1,'302440':1,'304100':1,'315640':1,'323410':1,'357780':1,
-    '403870':1,'454910':1,'950130':1,'047080':1,'047820':1
+    '403870':1,'454910':1,'950130':1,'047080':1,'047820':1,
+    '095340':1,'062040':1,'108320':1
   };
   return code + (kosdaq[code] ? '.KQ' : '.KS');
 }
@@ -30191,22 +30327,22 @@ var THEME_MAP = [
   {
     id:'photonics', nameKr:'광통신/포토닉스', emoji:'💡', color:'#fde68a',
     etf:null, etfName:'(커스텀 합산)',
-    // ETF 없음 → 시가총액+최근 퍼포먼스 가중 합산으로 테마 성과 산출
-    leaders:['LITE','COHR','AVGO','GLW','CIEN','AAOI','VIAV'],
+    leaders:['LITE','COHR','AVGO','GLW','CIEN','AAOI','VIAV','ANET','MRVL'],
     leaderHighlight:['LITE','COHR','CIEN','AAOI'],
-    // LITE, COHR = 광통신 장비 대장주 (퍼포먼스 탁월)
+    weights:{LITE:18,COHR:16,CIEN:14,AVGO:12,AAOI:10,GLW:8,ANET:8,MRVL:8,VIAV:6},
     subThemes:[
       { name:'광부품/장비', tickers:['LITE','COHR','AAOI','VIAV'] },
       { name:'광섬유/네트워크', tickers:['CIEN','GLW','ANET'] },
       { name:'광전자 플랫폼', tickers:['AVGO','MRVL'] }
     ],
-    isComposite: true  // 커스텀 합산 플래그
+    isComposite: true
   },
   {
     id:'crypto', nameKr:'크립토/블록체인', emoji:'₿', color:'#f59e0b',
     etf:null, etfName:'(BTC-USD 기준)',
     leaders:['COIN','MARA','RIOT','MSTR','HOOD'],
     leaderHighlight:['COIN','MSTR','MARA','HOOD'],
+    weights:{COIN:25,MSTR:22,MARA:18,HOOD:18,RIOT:17},
     subThemes:[
       { name:'거래소/핀테크', tickers:['COIN','HOOD'] },
       { name:'채굴', tickers:['MARA','RIOT','CLSK'] },
@@ -30218,15 +30354,16 @@ var THEME_MAP = [
   {
     id:'ai_infra', nameKr:'AI 인프라/데이터센터', emoji:'🧠', color:'#a78bfa',
     etf:null, etfName:'(커스텀 합산)',
-    leaders:['NVDA','AVGO','AMD','SMCI','DELL','HPE','NTAP','VRT','ANET'],
-    leaderHighlight:['NVDA','VRT','ANET','SMCI'],
+    leaders:['NVDA','AVGO','AMD','ANET','VRT','ALAB','CRDO','MRVL','APH','CLS','EME','SMCI','DELL','HPE','ETN'],
+    leaderHighlight:['NVDA','VRT','ANET','ALAB'],
+    weights:{NVDA:18,AVGO:12,ANET:10,VRT:8,AMD:8,ALAB:7,CRDO:6,MRVL:5,APH:5,CLS:4,EME:4,SMCI:4,DELL:3,HPE:3,ETN:3},
     subThemes:[
       { name:'AI 칩/가속기', tickers:['NVDA','AMD','AVGO'] },
       { name:'에이전트 인프라(CPU)', tickers:['AMD','INTC','ARM','AVGO'] },
-      { name:'서버/HW', tickers:['SMCI','DELL','HPE'] },
-      { name:'냉각/전력', tickers:['VRT','GNRC'] },
-      { name:'네트워킹', tickers:['ANET','CSCO'] },
-      { name:'양자컴퓨팅', tickers:['IONQ','RGTI','QBTS'] }
+      { name:'서버/HW', tickers:['SMCI','DELL','HPE','CLS'] },
+      { name:'냉각/전력', tickers:['VRT','ETN'] },
+      { name:'네트워킹', tickers:['ANET','CSCO','ALAB','CRDO','MRVL'] },
+      { name:'DC 건설/커넥터', tickers:['APH','EME'] }
     ],
     isComposite: true
   },
@@ -30379,10 +30516,8 @@ function calcCompositePerf(tickers, weights) {
       // v36.4: ETF 추종 정적 비중 (정확한 섹터 대표성)
       w = weights[t];
     } else {
-      // 폴백: 시가총액 프록시 + 퍼포먼스 가미
-      var priceWeight = Math.sqrt(d.price || 1);
-      var perfBonus = 1 + Math.max(0, chg) * 0.1;
-      w = priceWeight * perfBonus;
+      // 폴백: 시가총액 프록시 (√price) — v38.3: perfBonus 제거 (상승 편향 해소)
+      w = Math.sqrt(d.price || 1);
     }
     weighted += chg * w;
     totalWeight += w;
@@ -31166,58 +31301,58 @@ function showThemeByEtf(etfSym) {
 var SUB_THEMES = [
   // ═══ AI · 반도체 (9) ═══
   {id:'bigtech',name:'빅테크 M7',emoji:'🏛',color:'#818cf8',desc:'시장 시총 38% 메가캡 리더',leaders:['AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA'],tickers:['AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA'],etf:'QQQ',weights:{AAPL:18,MSFT:17,NVDA:16,AMZN:14,GOOGL:12,META:13,TSLA:10}},
-  {id:'ai_chip',name:'AI 반도체/가속기',emoji:'⚡',color:'#c084fc',desc:'GPU·ASIC·커스텀 칩 경쟁',leaders:['NVDA','AMD','AVGO','ARM'],tickers:['NVDA','AMD','AVGO','ARM','QCOM','MRVL','SMCI'],etf:'SMH',weights:{NVDA:25,AVGO:14,AMD:12,QCOM:10,ARM:10,MRVL:8,SMCI:7}},
+  {id:'ai_chip',name:'AI 반도체/가속기',emoji:'⚡',color:'#c084fc',desc:'GPU·ASIC·커스텀 칩 경쟁',leaders:['NVDA','AMD','AVGO','ARM'],tickers:['NVDA','AMD','AVGO','ARM','QCOM','MRVL','SMCI'],etf:'SMH',weights:{NVDA:28,AVGO:16,AMD:14,QCOM:12,ARM:11,MRVL:10,SMCI:9}},
   {id:'memory',name:'메모리 반도체',emoji:'🧊',color:'#93c5fd',desc:'HBM·DDR5 슈퍼사이클',leaders:['MU','STX','WDC'],tickers:['MU','STX','WDC','SSNLF'],etf:null,weights:{MU:40,STX:28,WDC:22,SSNLF:10}},
   {id:'semi_equip',name:'반도체 장비/EDA',emoji:'🔧',color:'#a3e635',desc:'EUV·증착·검사·설계자동화(EDA)',leaders:['ASML','AMAT','LRCX','KLAC'],tickers:['ASML','AMAT','LRCX','KLAC','TER','ONTO','ACLS','ENTG','UCTT','CDNS','SNPS'],etf:null,weights:{ASML:20,AMAT:16,LRCX:14,KLAC:12,CDNS:10,SNPS:10,TER:6,ONTO:4,ENTG:4,ACLS:2,UCTT:2}},
-  {id:'foundry',name:'파운드리/성숙공정',emoji:'🏭',color:'#94a3b8',desc:'비첨단 공정·차량용·IoT',leaders:['INTC','GFS','TSM','UMC'],tickers:['INTC','GFS','TSM','UMC','SSNLF'],etf:null,weights:{TSM:35,INTC:25,UMC:15,GFS:15,SSNLF:10}},
+  {id:'foundry',name:'파운드리/성숙공정',emoji:'🏭',color:'#94a3b8',desc:'비첨단 공정·차량용·IoT',leaders:['TSM','INTC','GFS','UMC'],tickers:['TSM','INTC','UMC','GFS','SSNLF'],etf:null,weights:{TSM:42,INTC:22,UMC:14,GFS:12,SSNLF:10}},
   {id:'photonics',name:'광통신/포토닉스',emoji:'💡',color:'#fde68a',desc:'AI DC 광인터커넥트 폭증',leaders:['LITE','COHR','CIEN','AAOI'],tickers:['LITE','COHR','CIEN','AAOI','GLW','VIAV','ANET','AVGO','MRVL'],etf:null,weights:{LITE:18,COHR:16,CIEN:14,AVGO:12,AAOI:10,GLW:8,ANET:8,MRVL:8,VIAV:6}},
   {id:'dc_network',name:'DC 네트워킹',emoji:'🔗',color:'#38bdf8',desc:'DC 초고속 연결·CXL·이더넷',leaders:['ALAB','CRDO','ANET','CSCO'],tickers:['ALAB','CRDO','ANET','CSCO','MRVL','AVGO'],etf:null,weights:{ALAB:22,CRDO:20,ANET:18,AVGO:16,CSCO:14,MRVL:10}},
-  {id:'dc_infra',name:'DC 인프라/전력·냉각',emoji:'🏢',color:'#fb923c',desc:'AI DC 전력·냉각·서버',leaders:['VRT','DELL','HPE','EQIX'],tickers:['VRT','DELL','HPE','NTAP','EQIX','DLR','GNRC'],etf:null,weights:{VRT:22,EQIX:18,DELL:16,DLR:14,HPE:12,NTAP:10,GNRC:8}},
+  {id:'dc_infra',name:'DC 인프라/전력·냉각',emoji:'🏢',color:'#fb923c',desc:'AI DC 전력·냉각·서버·건설',leaders:['VRT','ETN','EQIX','EME'],tickers:['VRT','ETN','EQIX','DLR','DELL','HPE','EME','CLS'],etf:null,weights:{VRT:20,ETN:16,EQIX:14,DLR:12,DELL:10,EME:10,CLS:10,HPE:8}},
   {id:'neocloud',name:'네오클라우드/AI호스팅',emoji:'☁',color:'#7dd3fc',desc:'GPU 클라우드·채굴→AI 전환',leaders:['IREN','CRWV','NBIS','CIFR','WULF'],tickers:['IREN','CRWV','NBIS','CIFR','WULF','CLSK','HUT','APLD','BTBT'],etf:null,weights:{IREN:16,CRWV:14,NBIS:12,CIFR:12,WULF:12,CLSK:10,HUT:8,APLD:8,BTBT:8}},
   // ═══ SW · 클라우드 (3) ═══
-  {id:'cloud_saas',name:'클라우드/SaaS',emoji:'💻',color:'#fb7185',desc:'엔터프라이즈 SaaS·디지털 전환',leaders:['CRM','NOW','ADBE','ORCL'],tickers:['CRM','NOW','ADBE','ORCL','WDAY','SNOW','DDOG','MDB'],etf:'IGV',weights:{CRM:18,NOW:15,ADBE:14,ORCL:13,WDAY:10,SNOW:8,DDOG:7,MDB:5}},
+  {id:'cloud_saas',name:'클라우드/SaaS',emoji:'💻',color:'#fb7185',desc:'엔터프라이즈 SaaS·디지털 전환',leaders:['CRM','NOW','ADBE','ORCL'],tickers:['CRM','NOW','ADBE','ORCL','INTU','WDAY','SNOW','DDOG','MDB'],etf:'IGV',weights:{CRM:16,NOW:14,ADBE:13,ORCL:12,INTU:10,WDAY:10,SNOW:9,DDOG:8,MDB:8}},
   {id:'ai_platform',name:'AI 플랫폼/에이전트',emoji:'🧠',color:'#a78bfa',desc:'AI 플랫폼·에이전트·MLOps',leaders:['PLTR','AI','PATH','DDOG'],tickers:['PLTR','AI','PATH','DDOG','SNOW','MDB','TTD'],etf:null,weights:{PLTR:25,DDOG:15,SNOW:14,TTD:12,PATH:12,AI:12,MDB:10}},
-  {id:'cybersec',name:'사이버보안',emoji:'🛡',color:'#f87171',desc:'AI 위협·제로트러스트 확산',leaders:['PANW','CRWD','ZS','FTNT'],tickers:['PANW','CRWD','ZS','FTNT','NET','S','CYBR'],etf:'HACK',weights:{PANW:18,CRWD:16,ZS:14,FTNT:13,NET:10,S:8,CYBR:7}},
+  {id:'cybersec',name:'사이버보안',emoji:'🛡',color:'#f87171',desc:'AI 위협·제로트러스트 확산',leaders:['PANW','CRWD','ZS','FTNT'],tickers:['PANW','CRWD','ZS','FTNT','NET','S','CYBR'],etf:'HACK',weights:{PANW:20,CRWD:18,ZS:16,FTNT:14,NET:12,S:10,CYBR:10}},
   // ═══ 에너지 (7) ═══
-  {id:'oil_major',name:'에너지 메이저',emoji:'🛢',color:'#3ddba5',desc:'통합 석유 메이저·유가 수혜',leaders:['XOM','CVX','COP','OXY'],tickers:['XOM','CVX','COP','OXY','DVN','FANG','TPL'],etf:'XLE',weights:{XOM:22,CVX:18,COP:14,OXY:10,DVN:8,FANG:6,TPL:4}},
-  {id:'oil_service',name:'오일 서비스/E&P',emoji:'⛽',color:'#fca5a5',desc:'시추·유정 서비스·정유',leaders:['SLB','HAL','BKR','VLO'],tickers:['SLB','HAL','BKR','VLO','MPC','PSX'],etf:'OIH',weights:{SLB:24,HAL:18,BKR:16,VLO:14,MPC:12,PSX:10}},
-  {id:'mlp_pipe',name:'MLP/파이프라인',emoji:'🔧',color:'#fdba74',desc:'천연가스 운송·배당 인컴',leaders:['WMB','TRGP','ET','KMI'],tickers:['WMB','TRGP','ET','KMI','EPD','OKE'],etf:'AMLP',weights:{WMB:20,TRGP:18,ET:16,KMI:14,EPD:14,OKE:12}},
-  {id:'nuclear_util',name:'원전/원자력',emoji:'☢',color:'#86efac',desc:'AI 전력 수요·SMR·원전 부활',leaders:['CEG','VST','NRG','CCJ'],tickers:['CEG','VST','NRG','CCJ','LEU','SMR','OKLO'],etf:'URA',weights:{CCJ:20,CEG:18,VST:15,NRG:13,LEU:10,SMR:10,OKLO:8}},
-  {id:'solar_renew',name:'태양광/재생에너지',emoji:'☀',color:'#fbbf24',desc:'태양광·풍력·IRA 수혜',leaders:['ENPH','FSLR','NEE','RUN'],tickers:['ENPH','SEDG','FSLR','RUN','NEE'],etf:'ICLN',weights:{ENPH:22,FSLR:20,NEE:18,RUN:14,SEDG:12}},
+  {id:'oil_major',name:'에너지 메이저',emoji:'🛢',color:'#3ddba5',desc:'통합 석유 메이저·유가 수혜',leaders:['XOM','CVX','COP','EOG'],tickers:['XOM','CVX','COP','EOG','OXY','DVN','FANG','TPL'],etf:'XLE',weights:{XOM:24,CVX:18,COP:14,EOG:10,OXY:10,DVN:8,FANG:8,TPL:8}},
+  {id:'oil_service',name:'오일 서비스/E&P',emoji:'⛽',color:'#fca5a5',desc:'시추·유정 서비스·정유',leaders:['SLB','HAL','BKR','VLO'],tickers:['SLB','HAL','BKR','VLO','MPC','PSX'],etf:'OIH',weights:{SLB:24,HAL:20,BKR:16,VLO:16,MPC:14,PSX:10}},
+  {id:'mlp_pipe',name:'MLP/파이프라인',emoji:'🔧',color:'#fdba74',desc:'천연가스 운송·배당 인컴',leaders:['WMB','TRGP','ET','KMI'],tickers:['WMB','TRGP','ET','KMI','EPD','OKE'],etf:'AMLP',weights:{WMB:20,TRGP:18,ET:18,KMI:16,EPD:14,OKE:14}},
+  {id:'nuclear_util',name:'원전/원자력',emoji:'☢',color:'#86efac',desc:'AI 전력 수요·SMR·원전 부활',leaders:['CEG','VST','NRG','CCJ','GEV'],tickers:['CEG','VST','NRG','CCJ','GEV','LEU','SMR','OKLO','BWXT'],etf:'URA',weights:{CCJ:16,CEG:15,GEV:15,VST:12,NRG:10,BWXT:9,LEU:8,SMR:8,OKLO:7}},
+  {id:'solar_renew',name:'태양광/재생에너지',emoji:'☀',color:'#fbbf24',desc:'태양광·풍력·IRA 수혜',leaders:['ENPH','FSLR','NEE','RUN'],tickers:['ENPH','SEDG','FSLR','RUN','NEE'],etf:'ICLN',weights:{ENPH:24,FSLR:22,NEE:20,RUN:18,SEDG:16}},
   {id:'hydrogen_ess',name:'수소/ESS',emoji:'💧',color:'#67e8f9',desc:'그린수소·연료전지·ESS',leaders:['PLUG','BE','STEM'],tickers:['PLUG','BE','STEM','FCEL'],etf:null,weights:{PLUG:30,BE:28,STEM:22,FCEL:20}},
-  {id:'grid_util',name:'전력 유틸리티',emoji:'💡',color:'#60a5fa',desc:'유틸리티·송배전·그리드 현대화',leaders:['NEE','DUK','AEP','EXC'],tickers:['NEE','DUK','AEP','EXC','ETR','ES','FE','EVRG','XEL','EIX'],etf:'XLU',weights:{NEE:16,DUK:12,AEP:10,EXC:10,ETR:8,ES:7,FE:7,EVRG:6,XEL:6,EIX:6}},
+  {id:'grid_util',name:'전력 유틸리티',emoji:'💡',color:'#60a5fa',desc:'유틸리티·송배전·그리드 현대화',leaders:['NEE','DUK','AEP','EXC'],tickers:['NEE','DUK','AEP','EXC','ETR','ES','FE','EVRG','XEL','EIX'],etf:'XLU',weights:{NEE:18,DUK:14,AEP:12,EXC:11,ETR:9,ES:8,FE:8,EVRG:7,XEL:7,EIX:6}},
   // ═══ 금융 (5) ═══
-  {id:'big_bank',name:'대형 은행',emoji:'🏦',color:'#fbbf24',desc:'미국 6대 은행·금리 수혜',leaders:['JPM','GS','MS','BAC'],tickers:['JPM','GS','MS','BAC','WFC','C'],etf:'XLF',weights:{JPM:24,BAC:16,WFC:14,GS:13,MS:12,C:10}},
+  {id:'big_bank',name:'대형 은행',emoji:'🏦',color:'#fbbf24',desc:'미국 6대 은행·금리 수혜',leaders:['JPM','GS','MS','BAC'],tickers:['JPM','GS','MS','BAC','WFC','C'],etf:'XLF',weights:{JPM:26,BAC:18,WFC:15,GS:15,MS:14,C:12}},
   {id:'asset_mgmt',name:'자산운용/PE',emoji:'💼',color:'#d4a054',desc:'대체투자·PE·자산운용',leaders:['BX','KKR','APO','BLK'],tickers:['BX','KKR','APO','BLK','SCHW'],etf:null,weights:{BLK:24,BX:20,KKR:20,APO:18,SCHW:18}},
-  {id:'insurance',name:'보험',emoji:'🏛',color:'#a3a3a3',desc:'손보·생보·재보험·금리 수혜',leaders:['BRK-B','PGR','ALL','MET'],tickers:['BRK-B','PGR','ALL','MET','TRV','CB'],etf:null,weights:{BRK_B:28,PGR:18,TRV:14,CB:14,ALL:14,MET:12}},
+  {id:'insurance',name:'보험',emoji:'🏛',color:'#a3a3a3',desc:'손보·생보·재보험·금리 수혜',leaders:['BRK-B','PGR','ALL','MET'],tickers:['BRK-B','PGR','ALL','MET','TRV','CB'],etf:null,weights:{'BRK-B':28,PGR:18,TRV:14,CB:14,ALL:14,MET:12}},
   {id:'fintech_crypto',name:'핀테크/크립토',emoji:'💳',color:'#f59e0b',desc:'디지털 결제·DeFi·BTC ETF',leaders:['COIN','HOOD','SOFI','MSTR'],tickers:['COIN','XYZ','PYPL','AFRM','SOFI','HOOD','MARA','RIOT','MSTR','NU'],etf:null,weights:{COIN:16,MSTR:14,PYPL:12,SOFI:10,HOOD:10,MARA:8,RIOT:8,AFRM:8,NU:7,XYZ:7},compositeBase:'BTC-USD'},
   {id:'btc_etf',name:'BTC ETF/보유',emoji:'🪙',color:'#f59e0b',desc:'비트코인 현물 ETF·기관 유입',leaders:['IBIT','BITO','MSTR','COIN'],tickers:['IBIT','BITO','MSTR','COIN','MARA','RIOT'],etf:null,weights:{IBIT:25,MSTR:22,COIN:18,BITO:15,MARA:10,RIOT:10},compositeBase:'BTC-USD'},
   // ═══ 헬스케어 (4) ═══
-  {id:'pharma',name:'대형 제약',emoji:'💊',color:'#c084fc',desc:'블록버스터 신약·고배당',leaders:['LLY','JNJ','MRK','ABBV'],tickers:['LLY','JNJ','MRK','ABBV','PFE','BMY','AZN'],etf:'XLV',weights:{LLY:22,JNJ:16,MRK:14,ABBV:14,PFE:10,BMY:8,AZN:8}},
-  {id:'biotech',name:'바이오텍',emoji:'🧬',color:'#a78bfa',desc:'유전자치료·항체·mRNA',leaders:['VRTX','REGN','AMGN','GILD'],tickers:['VRTX','REGN','AMGN','GILD','MRNA','BIIB'],etf:'XBI',weights:{VRTX:22,REGN:18,AMGN:16,GILD:14,MRNA:12,BIIB:8}},
-  {id:'glp1',name:'GLP-1/비만치료',emoji:'💉',color:'#86efac',desc:'GLP-1 작용제 시장 폭발 성장',leaders:['LLY','NVO','AMGN'],tickers:['LLY','NVO','AMGN','VKTX','AZN','PFE'],etf:null,weights:{LLY:28,NVO:22,AMGN:18,VKTX:12,AZN:10,PFE:10}},
-  {id:'medtech',name:'의료기기/서비스',emoji:'🏥',color:'#f0abfc',desc:'수술로봇·진단·의료 혁신',leaders:['ISRG','ABT','BSX','SYK'],tickers:['ISRG','ABT','BSX','SYK','MDT','DHR','TMO','A','MCK'],etf:null,weights:{ISRG:18,ABT:14,BSX:12,SYK:12,DHR:10,TMO:10,MDT:8,MCK:8,A:8}},
+  {id:'pharma',name:'대형 제약',emoji:'💊',color:'#c084fc',desc:'블록버스터 신약·고배당',leaders:['LLY','JNJ','MRK','ABBV'],tickers:['LLY','JNJ','MRK','ABBV','PFE','BMY','AZN'],etf:'XLV',weights:{LLY:24,JNJ:16,MRK:14,ABBV:14,PFE:12,BMY:10,AZN:10}},
+  {id:'biotech',name:'바이오텍',emoji:'🧬',color:'#a78bfa',desc:'유전자치료·항체·mRNA',leaders:['VRTX','REGN','AMGN','GILD'],tickers:['VRTX','REGN','AMGN','GILD','MRNA','BIIB'],etf:'XBI',weights:{VRTX:22,REGN:20,AMGN:16,GILD:16,MRNA:14,BIIB:12}},
+  {id:'glp1',name:'GLP-1/비만치료',emoji:'💉',color:'#86efac',desc:'GLP-1 작용제 시장 폭발 성장',leaders:['LLY','NVO','AMGN'],tickers:['LLY','NVO','AMGN','VKTX','AZN','PFE'],etf:null,weights:{LLY:35,NVO:28,AMGN:12,VKTX:10,AZN:8,PFE:7}},
+  {id:'medtech',name:'의료기기/서비스',emoji:'🏥',color:'#f0abfc',desc:'수술로봇·진단·의료 혁신',leaders:['ABT','ISRG','BSX','SYK'],tickers:['ABT','ISRG','BSX','SYK','MDT','EW','GEHC'],etf:null,weights:{ABT:20,ISRG:18,BSX:15,SYK:14,MDT:12,EW:11,GEHC:10}},
   // ═══ 산업 · 방산 (5) ═══
-  {id:'defense',name:'방산/국방',emoji:'🎖',color:'#6ee7b7',desc:'지정학 긴장·국방비 증가',leaders:['LMT','RTX','GD','NOC'],tickers:['LMT','RTX','GD','NOC','HII','HWM','LHX','GE','PLTR','LDOS'],etf:'ITA',weights:{RTX:17,LMT:15,GD:13,GE:11,NOC:10,PLTR:10,LHX:8,HWM:6,HII:5,LDOS:5}},
+  {id:'defense',name:'방산/국방',emoji:'🎖',color:'#6ee7b7',desc:'지정학 긴장·국방비 증가',leaders:['GE','RTX','LMT','GD'],tickers:['GE','RTX','LMT','GD','NOC','PLTR','LHX','HWM','HII','LDOS'],etf:'ITA',weights:{GE:18,RTX:17,LMT:14,GD:12,NOC:10,PLTR:9,LHX:7,HWM:5,HII:4,LDOS:4}},
   {id:'space',name:'우주/항공',emoji:'🚀',color:'#67e8f9',desc:'우주 인터넷·발사체·위성',leaders:['RKLB','ASTS','LUNR','PL'],tickers:['RKLB','ASTS','LUNR','RDW','PL','BA','LMT','FLR'],etf:null,weights:{RKLB:22,ASTS:18,BA:16,LMT:12,LUNR:10,PL:8,RDW:8,FLR:6}},
-  {id:'industrial',name:'산업재/건설장비',emoji:'🏗',color:'#60a5fa',desc:'건설 중장비·물류·인프라',leaders:['CAT','DE','HON','UNP'],tickers:['CAT','DE','HON','UNP','FDX','UPS','WAB','PH','EMR'],etf:'XLI',weights:{CAT:16,DE:14,HON:13,UNP:12,FDX:10,UPS:9,PH:8,EMR:7,WAB:5}},
-  {id:'robotics_auto',name:'로보틱스/자동화',emoji:'🤖',color:'#d8b4fe',desc:'AI 로봇·산업자동화',leaders:['ISRG','ROK','TER','TSLA'],tickers:['ISRG','ROK','TER','EMR','TSLA','FANUY','PATH'],etf:'BOTZ',weights:{ISRG:22,ROK:16,TER:14,TSLA:12,EMR:10,FANUY:8,PATH:6}},
+  {id:'industrial',name:'산업재/건설장비',emoji:'🏗',color:'#60a5fa',desc:'건설 중장비·물류·인프라',leaders:['CAT','DE','HON','UNP'],tickers:['CAT','DE','HON','UNP','FDX','UPS','WAB','PH','EMR'],etf:'XLI',weights:{CAT:16,DE:14,HON:14,UNP:12,FDX:12,UPS:10,PH:8,EMR:8,WAB:6}},
+  {id:'robotics_auto',name:'로보틱스/자동화',emoji:'🤖',color:'#d8b4fe',desc:'AI 로봇·산업자동화',leaders:['ISRG','ROK','TER','TSLA'],tickers:['ISRG','ROK','TER','EMR','TSLA','FANUY','PATH'],etf:'BOTZ',weights:{ISRG:24,ROK:18,TER:16,TSLA:14,EMR:12,FANUY:8,PATH:8}},
   {id:'quantum',name:'양자컴퓨팅',emoji:'🔮',color:'#f0abfc',desc:'양자우위·오류보정 진전',leaders:['IONQ','RGTI','QUBT','QBTS'],tickers:['IONQ','RGTI','QUBT','QBTS','GOOGL','IBM','MSFT'],etf:null,weights:{IONQ:20,RGTI:16,GOOGL:14,IBM:14,MSFT:12,QUBT:12,QBTS:12}},
   // ═══ 소비 · 유통 (5) ═══
-  {id:'ecommerce',name:'이커머스/리테일',emoji:'🛒',color:'#fb923c',desc:'온라인 쇼핑·옴니채널',leaders:['AMZN','SHOP','CPNG','COST'],tickers:['AMZN','SHOP','CPNG','EBAY','WMT','TGT','COST'],etf:null,weights:{AMZN:28,WMT:18,COST:14,SHOP:12,CPNG:10,TGT:10,EBAY:8}},
-  {id:'consumer_brand',name:'소비재 브랜드',emoji:'👟',color:'#f472b6',desc:'글로벌 소비재·명품·F&B',leaders:['NKE','LULU','SBUX','MCD'],tickers:['NKE','LULU','SBUX','MCD','KO','PEP','PG','MNST','DG'],etf:'XLP',weights:{PG:16,KO:14,PEP:12,MCD:12,NKE:10,SBUX:8,LULU:8,MNST:6,DG:4}},
-  {id:'ev_auto',name:'EV/자율주행',emoji:'🚗',color:'#22d3ee',desc:'전기차·자율주행·SDV',leaders:['TSLA','RIVN','GM','F'],tickers:['TSLA','RIVN','LCID','GM','F','APTV','ON'],etf:'LIT',weights:{TSLA:28,GM:16,F:14,RIVN:10,APTV:10,ON:8,LCID:6}},
-  {id:'travel',name:'여행/레저/항공',emoji:'✈',color:'#c4b5fd',desc:'여행 수요·호텔·항공',leaders:['BKNG','ABNB','DAL','MAR'],tickers:['BKNG','ABNB','MAR','HLT','DAL','UAL','LUV','CCL','RCL'],etf:'JETS',weights:{BKNG:18,MAR:14,HLT:12,ABNB:12,DAL:10,UAL:9,RCL:7,CCL:6,LUV:5}},
-  {id:'delivery',name:'플랫폼/딜리버리',emoji:'🛵',color:'#f472b6',desc:'라이드셰어·음식배달',leaders:['UBER','DASH','CPNG'],tickers:['UBER','DASH','CPNG','GRAB','TOST','SE'],etf:null,weights:{UBER:28,DASH:22,CPNG:16,SE:14,GRAB:10,TOST:10}},
+  {id:'ecommerce',name:'이커머스/리테일',emoji:'🛒',color:'#fb923c',desc:'온라인 쇼핑·옴니채널',leaders:['AMZN','SHOP','WMT','COST'],tickers:['AMZN','WMT','COST','SHOP','CPNG','TGT','EBAY'],etf:null,weights:{AMZN:34,WMT:16,COST:12,SHOP:12,CPNG:10,TGT:8,EBAY:8}},
+  {id:'consumer_brand',name:'소비재 브랜드',emoji:'👟',color:'#f472b6',desc:'글로벌 소비재·명품·F&B',leaders:['NKE','LULU','SBUX','MCD'],tickers:['NKE','LULU','SBUX','MCD','KO','PEP','PG','MNST','DG'],etf:'XLP',weights:{PG:16,KO:14,PEP:14,MCD:12,NKE:12,SBUX:10,LULU:8,MNST:8,DG:6}},
+  {id:'ev_auto',name:'EV/자율주행',emoji:'🚗',color:'#22d3ee',desc:'전기차·자율주행·SDV',leaders:['TSLA','RIVN','GM','F'],tickers:['TSLA','RIVN','LCID','GM','F','APTV','ON'],etf:'LIT',weights:{TSLA:30,GM:16,F:14,RIVN:12,APTV:12,ON:10,LCID:6}},
+  {id:'travel',name:'여행/레저/항공',emoji:'✈',color:'#c4b5fd',desc:'여행 수요·호텔·항공',leaders:['BKNG','ABNB','DAL','MAR'],tickers:['BKNG','ABNB','MAR','HLT','DAL','UAL','LUV','CCL','RCL'],etf:'JETS',weights:{BKNG:18,MAR:14,HLT:14,ABNB:12,DAL:12,UAL:10,RCL:8,CCL:7,LUV:5}},
+  {id:'delivery',name:'플랫폼/딜리버리',emoji:'🛵',color:'#f472b6',desc:'라이드셰어·음식배달',leaders:['UBER','DASH','CPNG'],tickers:['UBER','DASH','CPNG','SE','GRAB','TOST'],etf:null,weights:{UBER:32,DASH:22,CPNG:16,SE:12,GRAB:10,TOST:8}},
   // ═══ 미디어 · 통신 (4) ═══
-  {id:'streaming',name:'스트리밍/미디어',emoji:'🎬',color:'#e879f9',desc:'OTT·콘텐츠 전쟁',leaders:['NFLX','DIS','SPOT','ROKU'],tickers:['NFLX','DIS','SPOT','ROKU','PARA'],etf:null,weights:{NFLX:30,DIS:24,SPOT:20,ROKU:14,PARA:12}},
-  {id:'social_ad',name:'소셜/디지털광고',emoji:'📱',color:'#fb7185',desc:'소셜미디어·디지털광고',leaders:['META','GOOGL','SNAP','PINS'],tickers:['META','GOOGL','SNAP','PINS','RDDT','TTD','APP'],etf:null,weights:{META:28,GOOGL:24,TTD:12,APP:10,SNAP:10,PINS:8,RDDT:8}},
-  {id:'gaming',name:'게이밍/e스포츠',emoji:'🎮',color:'#c4b5fd',desc:'AAA 게임·e스포츠',leaders:['EA','TTWO','RBLX','U'],tickers:['EA','TTWO','RBLX','U','NFLX','DKNG'],etf:null,weights:{EA:22,TTWO:20,RBLX:18,NFLX:16,DKNG:14,U:10}},
+  {id:'streaming',name:'스트리밍/미디어',emoji:'🎬',color:'#e879f9',desc:'OTT·콘텐츠 전쟁',leaders:['NFLX','DIS','SPOT','ROKU'],tickers:['NFLX','DIS','SPOT','ROKU','PARA'],etf:null,weights:{NFLX:38,DIS:22,SPOT:18,ROKU:12,PARA:10}},
+  {id:'social_ad',name:'소셜/디지털광고',emoji:'📱',color:'#fb7185',desc:'소셜미디어·디지털광고',leaders:['META','GOOGL','TTD','APP'],tickers:['META','GOOGL','TTD','APP','SNAP','PINS','RDDT'],etf:null,weights:{META:30,GOOGL:28,TTD:12,APP:10,SNAP:8,PINS:6,RDDT:6}},
+  {id:'gaming',name:'게이밍/e스포츠',emoji:'🎮',color:'#c4b5fd',desc:'AAA 게임·e스포츠',leaders:['EA','TTWO','RBLX','DKNG'],tickers:['EA','TTWO','RBLX','DKNG','U','NTDOY'],etf:null,weights:{EA:24,TTWO:22,RBLX:18,DKNG:16,NTDOY:12,U:8}},
   {id:'telecom_us',name:'미국 통신',emoji:'📡',color:'#94a3b8',desc:'5G·광대역·ARPU',leaders:['T','VZ','TMUS'],tickers:['T','VZ','TMUS'],etf:'XLC',weights:{TMUS:38,T:30,VZ:32}},
   // ═══ 부동산 · 원자재 (3) ═══
   {id:'reit_dc',name:'DC 리츠',emoji:'🏠',color:'#f472b6',desc:'DC 리츠·AI 인프라 임대',leaders:['EQIX','DLR','AMT'],tickers:['EQIX','DLR','AMT','CCI','SBAC'],etf:'XLRE',weights:{EQIX:28,DLR:22,AMT:20,CCI:16,SBAC:14}},
-  {id:'gold_mining',name:'금/은 광산',emoji:'🥇',color:'#fcd34d',desc:'금값 사상최고·인플레 헷지',leaders:['NEM','GOLD','AEM','WPM'],tickers:['NEM','GOLD','AEM','WPM','FNV','GFI','KGC'],etf:'GDX',weights:{NEM:20,GOLD:16,AEM:14,WPM:14,FNV:12,GFI:10,KGC:8}},
-  {id:'materials',name:'원자재/광업',emoji:'⛏',color:'#a3e635',desc:'구리·리튬·전략 광물',leaders:['FCX','LIN','APD','MP'],tickers:['FCX','LIN','APD','AA','MP','LAC','ALB','CTVA','ADM'],etf:'XLB',weights:{LIN:18,APD:14,FCX:12,CTVA:10,ADM:10,ALB:8,AA:8,MP:6,LAC:4}}
+  {id:'gold_mining',name:'금/은 광산',emoji:'🥇',color:'#fcd34d',desc:'금값 사상최고·인플레 헷지',leaders:['AEM','NEM','GOLD','WPM'],tickers:['AEM','NEM','GOLD','WPM','FNV','GFI','KGC'],etf:'GDX',weights:{AEM:18,NEM:16,GOLD:16,WPM:14,FNV:14,GFI:12,KGC:10}},
+  {id:'materials',name:'원자재/광업',emoji:'⛏',color:'#a3e635',desc:'구리·리튬·전략 광물',leaders:['FCX','LIN','APD','MP'],tickers:['FCX','LIN','APD','AA','MP','LAC','ALB','CTVA','ADM'],etf:'XLB',weights:{LIN:18,APD:14,FCX:14,CTVA:12,ADM:10,ALB:10,AA:8,MP:8,LAC:6}}
 ];
 
 // 세분화 테마 인덱스
