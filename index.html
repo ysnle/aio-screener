@@ -2053,7 +2053,10 @@ body.light-theme canvas { filter:none; }
     </div>
     <!-- v39.0: 이번 주 핵심 뉴스 (오늘의 시장 하단에 통합) -->
     <div id="home-news-highlights" style="border-top:1px solid rgba(91,168,255,0.15);padding-top:8px;margin-top:4px;">
-      <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">📰 핵심 뉴스 수집 중...</div>
+      <div style="font-size:9px;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
+        <span style="display:inline-block;width:8px;height:8px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></span>
+        핵심 뉴스 수집 중... (80개 소스 분석)
+      </div>
     </div>
   </div>
 
@@ -16649,17 +16652,8 @@ async function fetchAllNews(forceRefresh = false) {
     );
     results.push(...batchResults);
 
-    // v34.5: 점진적 홈 뉴스 렌더링 — 배치 3개(9소스) 이후부터 홈 피드 미리 표시
-    if (done >= 9 && !window._homeNewsEarlyRendered) {
-      try {
-        const earlyItems = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
-        if (earlyItems.length >= 3) {
-          const scored = earlyItems.map(it => { const s2 = { ...it }; s2.score = scoreItem(s2); s2.topic = classifyTopic(s2); return s2; });
-          renderHomeFeed(scored);
-          window._homeNewsEarlyRendered = true;
-        }
-      } catch(e) {}
-    }
+    // v39.0c: 점진적 홈 뉴스 렌더링 비활성화 — 전체 수집 완료 후에만 핵심 뉴스 렌더링
+    // (불완전한 데이터로 핵심 뉴스를 선별하면 중요 뉴스가 빠지는 문제 방지)
 
     // v29.3: 배치 간 1500ms 딜레이 (CF Worker 100req/분 rate limit 안전)
     if (i + BATCH_SIZE < AIO_NEWS_SOURCES.length) {
