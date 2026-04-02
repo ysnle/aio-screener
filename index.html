@@ -2096,6 +2096,23 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
+  <!-- ═══ SECTION 1.5: 이번 주 핵심 뉴스 (v39.0 — 상단 배치) ═══ -->
+  <div style="margin-bottom:16px;">
+    <div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;margin-bottom:8px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;">
+      <span>🔥 이번 주 핵심</span>
+      <button onclick="showPage('market-news',null)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:8px;padding:2px 8px;border-radius:4px;cursor:pointer;">전체 뉴스 →</button>
+    </div>
+    <div id="home-news-highlights" style="display:grid;grid-template-columns:1fr;gap:8px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;text-align:center;">
+        <div style="color:var(--text-muted);font-size:9px;margin-bottom:8px;">📰 핵심 뉴스 수집 중...</div>
+        <div style="height:3px;background:var(--bg-hover);border-radius:2px;overflow:hidden;">
+          <div id="home-news-progress-bar" style="height:100%;width:0%;background:var(--accent);transition:width 0.3s;border-radius:2px;"></div>
+        </div>
+        <div id="home-news-progress-text" style="font-size:8px;color:var(--text-muted);margin-top:4px;">소스 수집 중...</div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ SECTION 2: 핵심 지표 카드 (Key Metrics Cards) ═══ -->
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;">
     <!-- S&P 500 -->
@@ -2171,22 +2188,7 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- ═══ SECTION 4: 주요 뉴스 하이라이트 (News Highlights) ═══ -->
-  <div style="margin-bottom:16px;">
-    <div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;margin-bottom:10px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;">
-      <span>📰 주요 뉴스</span>
-      <button onclick="showPage('market-news',null)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:8px;padding:2px 8px;border-radius:4px;cursor:pointer;">전체 보기 →</button>
-    </div>
-    <div id="home-news-highlights" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;max-height:400px;overflow-y:auto;">
-      <div style="text-align:center;padding:12px;">
-        <div style="color:var(--text-muted);font-size:9px;margin-bottom:8px;">📰 뉴스 로딩 중...</div>
-        <div style="height:4px;background:var(--bg-hover);border-radius:2px;overflow:hidden;margin-bottom:6px;">
-          <div id="home-news-progress-bar" style="height:100%;width:0%;background:var(--accent);transition:width 0.3s;border-radius:2px;"></div>
-        </div>
-        <div id="home-news-progress-text" style="font-size:8px;color:var(--text-muted);">0/65 소스 수집 중...</div>
-      </div>
-    </div>
-  </div>
+  <!-- ═══ SECTION 4: 주요 뉴스 — SECTION 1.5로 이동됨 (v39.0) ═══ -->
 
   <!-- ═══ SECTION 5: 빠른 이동 — 홈 하단에서 제거 (상단으로 이동됨) ═══ -->
 
@@ -10187,7 +10189,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v38.9';
+const APP_VERSION = 'v39.0';
 
 // v34.5: 프로덕션 로그 억제 — console.log만 조건부 억제, warn/error는 유지
 // URL에 ?debug=1 추가 시 전체 로그 활성화 (개발 모드)
@@ -13599,11 +13601,11 @@ const AIO_NEWS_SOURCES = [
   // ═══ TIER 1: 📡 텔레그램 큐레이션 채널 ═══
   {name:'📡 TG Insider Tracking',       url:'https://rsshub.app/telegram/channel/insidertracking',       country:'us', tier:1, flag:'📡', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'insidertracking'},
   {name:'📡 TG BornLupin',              url:'https://rsshub.app/telegram/channel/bornlupin',             country:'us', tier:1, flag:'📡', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'bornlupin'},
+  {name:'📡 TG WalterBloomberg',       url:'https://rsshub.app/telegram/channel/walterbloomberg',       country:'us', tier:1, flag:'📡', topics:['macro','equity','earnings'],        type:'telegram', tgSlug:'walterbloomberg'},
   {name:'📡 TG Aether Japan Research',  url:'https://rsshub.app/telegram/channel/aetherjapanresearch',   country:'jp', tier:1, flag:'📡', topics:['macro','equity','semi','geo'],      type:'telegram', tgSlug:'aetherjapanresearch'},
-  // v37.2: 속보·지정학·매크로 텔레그램 채널 추가
+  // v37.2: 속보·지정학·매크로 텔레그램 채널 추가 (v39.0: FirstSquawk/FinancialJuice 공개 미리보기 비활성 — 코드에서 자동 스킵)
   {name:'📡 TG FirstSquawk',           url:'https://rsshub.app/telegram/channel/firstsquawk',           country:'us', tier:1, flag:'📡', topics:['macro','geo','energy','defense'],  type:'telegram', tgSlug:'firstsquawk'},
   {name:'📡 TG FinancialJuice',        url:'https://rsshub.app/telegram/channel/financialjuicechannel', country:'us', tier:1, flag:'📡', topics:['macro','geo','energy'],            type:'telegram', tgSlug:'financialjuicechannel'},
-  {name:'📡 TG WalterBloomberg',       url:'https://rsshub.app/telegram/channel/walterbloomberg',       country:'us', tier:1, flag:'📡', topics:['macro','equity','earnings'],        type:'telegram', tgSlug:'walterbloomberg'},
 
   // ═══ TIER 2: 🇺🇸 미국 투자/분석 전문 ═══
   {name:'Forbes Business',     url:'https://www.forbes.com/business/feed/',                       country:'us', tier:2, flag:'🇺🇸', topics:['equity','macro']},
@@ -13884,7 +13886,7 @@ const TECH_KW = [
   // ── v37.7: 사이버보안 심화
   'zero trust','ZTNA','SASE','XDR','EDR','MDR','SOAR','SIEM',
   'ransomware','phishing','threat detection','identity security','IAM','PAM',
-  'Fortinet','FTNT','SentinelOne','S','Okta','OKTA','Varonis','Rubrik',
+  'Fortinet','FTNT','SentinelOne','Okta','OKTA','Varonis','Rubrik',
   'cloud security','container security','DevSecOps','CNAPP','CSPM',
   'post-quantum cryptography','AI security','deepfake detection',
   // ── v37.7: 핵에너지 르네상스·전력인프라
@@ -14322,6 +14324,8 @@ const NEWS_BLACKLIST_KW = [
   'murder','homicide','kidnapping','robbery','assault','shooting suspect',
   'car crash','traffic accident','wildfire','flood damage','tornado',
   'missing person','fugitive','manhunt','drug bust','drug trafficking',
+  // v39.0: 한국어 셀럽/비금융 보강
+  '카다시안','유명 모델','약물 운전','음주 단속','전용기','사생활','열애설',
   // 크립토 스팸 (Price Prediction 기사 완전 차단)
   'price prediction','price forecast 2025','price forecast 2026','price forecast 2027',
   'price prediction 2025','price prediction 2026','price prediction 2027','price prediction 2030',
@@ -14827,6 +14831,22 @@ function scoreItem(item) {
   const urgentKW = ['crash','surge','plunge','soar','spike','collapse','record high','record low',
                     '급등','급락','폭락','폭등','사상최고','사상최저','긴급','속보','breaking'];
   urgentKW.forEach(kw => { if (text.includes(kw.toLowerCase())) score += 3; });
+
+  // ── 5b. v39.0: 핵심 인물 발언/인터뷰 부스트 ────────────────
+  // 시장 영향력 있는 인물의 발언·인터뷰·연설은 높은 중요도
+  const _KEY_FIGURES = ['powell','yellen','lagarde','jensen huang','tim cook','elon musk',
+    'satya nadella','lisa su','altman','buffett','dimon','dalio','ackman','druckenmiller',
+    'trump','biden','xi jinping','putin',
+    '파월','옐런','젠슨 황','일론 머스크','올트먼','버핏','트럼프','시진핑','푸틴'];
+  const _SPEECH_KW = ['says','said','interview','speech','remarks','testimony','hearing',
+    'conference','keynote','told','warns','expects','sees','calls for','announces',
+    '발언','인터뷰','연설','기자회견','증언','청문','담화','언급','경고','전망','선언'];
+  const hasKeyFigure = _KEY_FIGURES.some(kw => text.includes(kw));
+  if (hasKeyFigure) {
+    score += 8; // 핵심 인물 언급 자체 +8
+    const hasSpeechContext = _SPEECH_KW.some(kw => text.includes(kw));
+    if (hasSpeechContext) score += 7; // 발언/인터뷰 맥락이면 추가 +7 (총 +15)
+  }
 
   // ── 6. 중복/스팸 패널티 ────────────────────────────────
   const spamKW = ['sponsored','advertisement','promoted','partner content','editorial','opinion piece'];
@@ -15696,16 +15716,20 @@ function renderFeed(items) {
   filtered = filterByAge(filtered, TW_MARKET_H);
 
   // v21: 정렬 모드 적용
-  // v31.8: 시간순에서도 같은 시간대(30분 단위) 내에서는 외신 우선 노출
+  // v39.0: 시간순에서도 중요도 가중 혼합 정렬 — 30분 버킷 + score 영향력 확대
   if (_newsSortMode === 'time') {
     filtered.sort((a, b) => {
       const ta = a.pubDate ? new Date(a.pubDate).getTime() : 0;
       const tb = b.pubDate ? new Date(b.pubDate).getTime() : 0;
-      // v34.1b: 15분(900000ms) 버킷 — 외신 우선순위 강화
-      const bucketA = Math.floor(ta / 900000);
-      const bucketB = Math.floor(tb / 900000);
+      // v39.0: 30분(1800000ms) 버킷으로 확장 — 같은 시간대 내 중요도 정렬 기회 확대
+      const bucketA = Math.floor(ta / 1800000);
+      const bucketB = Math.floor(tb / 1800000);
       if (bucketA !== bucketB) return bucketB - bucketA; // 최신 버킷 먼저
-      // 같은 시간 버킷 내에서: US Tier1 > 글로벌 Tier1 > TG > 글로벌 Tier2 > KR Tier1 > KR Tier2 > Tier3
+      // v39.0: 같은 시간 버킷 내에서 score 우선 정렬 (중요 뉴스 먼저)
+      // score 차이가 15점 이상이면 score 우선, 아니면 소스 등급 + score 보조
+      const scoreDiff = (b.score || 0) - (a.score || 0);
+      if (Math.abs(scoreDiff) >= 15) return scoreDiff;
+      // 소스 등급 비교
       const _srcPri = (item) => {
         if (item.tier === 1 && item.country === 'us') return 100;
         if (item.tier === 1 && item.country !== 'kr') return 90;
@@ -15717,7 +15741,7 @@ function renderFeed(items) {
       };
       const priDiff = _srcPri(b) - _srcPri(a);
       if (priDiff !== 0) return priDiff;
-      return (b.score || 0) - (a.score || 0);
+      return scoreDiff;
     });
   } else {
     filtered.sort((a, b) => (b.score || 0) - (a.score || 0));
@@ -15810,81 +15834,82 @@ function renderFeed(items) {
   if (countEl) countEl.textContent = filtered.length + '건';
 }
 
-/* ── renderHomeFeed(): 홈 대시보드 "주요 뉴스" (핵심 3~5개만) ── */
+/* ── renderHomeFeed(): 홈 대시보드 "이번 주 핵심" (v39.0 — 최고 중요도 3~4개 카드) ── */
 function renderHomeFeed(items) {
   const container = document.getElementById('home-news-highlights');
   if (!container || !items || items.length === 0) return;
 
-  // v34.1: 주요 뉴스 = 48시간 이내 + 고품질만 엄선
-  let filtered = filterByAge(items, TW_HOME_H);
-  filtered = filtered.filter(i => i.topic !== 'analyst');
+  // v39.0: 7일(168시간) 범위로 확장 — "이번 주" 핵심 뉴스
+  let filtered = filterByAge(items, 168);
+  filtered = filtered.filter(i => !i._blacklisted && i.topic !== 'analyst');
 
-  // ── 핵심 뉴스 선별 로직 ──
-  // 1) score >= 25 인 항목만 (저품질 완전 제거)
-  let topNews = filtered.filter(i => (i.score || 0) >= 25);
-
-  // 2) 매크로/지정학/실적/정책 토픽 우선 가중
+  // ── 핵심 뉴스 선별: score 50+ 만, 중요도 가중 정렬 ──
   const PRIORITY_TOPICS = ['macro','geopolitics','earnings','policy','fed','rates','trade'];
+  let topNews = filtered.filter(i => (i.score || 0) >= 50);
   topNews.forEach(i => {
     i._homeBoost = (i.score || 0);
-    if (PRIORITY_TOPICS.includes(i.topic)) i._homeBoost += 15;
-    // 티커 연결된 뉴스 보너스
+    if (PRIORITY_TOPICS.includes(i.topic)) i._homeBoost += 20;
     const tks = getDisplayTickers(i);
     if (tks.length > 0) i._homeBoost += 10;
-    // 텔레그램 채널 소스 보너스 (속보성)
     if (i._tgChannel) i._homeBoost += 5;
+    // 프리미엄 소스 부스트
+    if (['Reuters','Bloomberg','WSJ','CNBC','FT Markets','NYT Business'].some(s => (i.source||'').includes(s))) i._homeBoost += 10;
+  });
+  topNews.sort((a, b) => (b._homeBoost || 0) - (a._homeBoost || 0));
+
+  // 중복 토픽 제거 — 같은 주제 뉴스가 3개 나오지 않도록
+  const seenTopics = {};
+  topNews = topNews.filter(i => {
+    const key = (i.topic || 'general');
+    seenTopics[key] = (seenTopics[key] || 0) + 1;
+    return seenTopics[key] <= 2; // 같은 토픽 최대 2개
   });
 
-  // 3) 가중 점수 기준 정렬 → 최대 5개
-  topNews.sort((a, b) => (b._homeBoost || 0) - (a._homeBoost || 0));
-  topNews = topNews.slice(0, 5);
+  topNews = topNews.slice(0, 4);
 
-  // 4) 최소 3개 미달 시 score 기준 완화하여 보충
-  if (topNews.length < 3) {
+  // 최소 2개 미달 시 score 완화
+  if (topNews.length < 2) {
     const existing = new Set(topNews.map(i => i.link));
     const backup = filtered
-      .filter(i => !existing.has(i.link) && (i.score || 0) >= 15)
+      .filter(i => !existing.has(i.link) && (i.score || 0) >= 30)
       .sort((a, b) => (b.score || 0) - (a.score || 0))
       .slice(0, 3 - topNews.length);
     topNews = topNews.concat(backup);
   }
 
-  // 5) 결과가 0이면 안내 메시지
   if (topNews.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:10px;">현재 주요 뉴스가 없습니다.</div>';
+    container.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;color:var(--text-muted);font-size:10px;">현재 핵심 뉴스가 없습니다.</div>';
     return;
   }
 
-  filtered = topNews;
-
-  container.innerHTML = filtered.map(item => {
+  // v39.0: 카드형 렌더링 — 각 뉴스가 독립 카드로 시각적 구분
+  container.innerHTML = topNews.map(item => {
     const sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
-    const sentColor = sent === 'bull' ? '#3ddba5' : sent === 'bear' ? '#f87171' : sent === 'warn' ? '#fbbf24' : '#7e8a9e';
+    const sentIcon = sent === 'bull' ? '🟢' : sent === 'bear' ? '🔴' : sent === 'warn' ? '🟡' : '⚪';
+    const sentBorder = sent === 'bull' ? 'rgba(61,219,165,0.3)' : sent === 'bear' ? 'rgba(248,113,113,0.3)' : sent === 'warn' ? 'rgba(251,191,36,0.3)' : 'var(--border)';
     const topicBadge = getTopicBadge(item.topic || 'general');
-    const absTime = getAbsoluteTime(item.pubDate);
     const timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
     const displayTitle = escHtml(getDisplayTitle(item));
-    const displayDesc = getDisplayDesc(item);
     const displaySummary = getDisplaySummary(item);
-    const descHtml = displayDesc ? `<div style="font-size:9px;color:var(--text-secondary);margin-top:2px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${escHtml(displayDesc)}</div>` : '';
-    const summaryHtml = displaySummary ? `<div style="font-size:8px;color:#a78bfa;margin-top:2px;font-style:italic;">💡 ${escHtml(displaySummary)}</div>` : '';
+    const summaryHtml = displaySummary ? `<div style="font-size:9px;color:#a78bfa;margin-top:4px;line-height:1.4;font-style:italic;">💡 ${escHtml(displaySummary)}</div>` : '';
     const tickers = getDisplayTickers(item);
     const tickerHtml = tickers.length > 0
-      ? `<span class="news-tickers">${tickers.map(t => `<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(91,168,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;">${escHtml(t)}</span>`).join('')}</span>`
+      ? `<div style="margin-top:4px;">${tickers.slice(0,4).map(t => `<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(91,168,255,0.1);padding:1px 5px;border-radius:3px;margin-right:3px;">$${escHtml(t)}</span>`).join('')}</div>`
       : '';
 
-    return `<div class="news-item-card" onclick="window.open('${escUrl(item.link)}','_blank')">
-      <div class="news-time-col">
-        <span class="news-time-abs">${absTime || timeAgo}</span>
-        <span class="news-time-dot" style="background:${sentColor};"></span>
+    return `<div onclick="window.open('${escUrl(item.link)}','_blank')" style="background:var(--bg-card);border:1px solid ${sentBorder};border-radius:var(--radius);padding:10px 14px;cursor:pointer;transition:border-color 0.2s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='${sentBorder}'">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:700;color:var(--text-primary);line-height:1.4;">${sentIcon} ${displayTitle}</div>
+          ${summaryHtml}
+          ${tickerHtml}
+        </div>
+        ${topicBadge}
       </div>
-      <div class="news-item-body">
-        <div class="news-item-headline">${tickerHtml}${displayTitle}</div>
-        ${descHtml}
-        ${summaryHtml}
-        <div class="news-item-meta">${item._tgChannel ? '<span style="background:rgba(139,92,246,0.15);color:#a78bfa;font-size:7px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">📡 TG</span>' : ''}${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+        <span style="font-size:8px;color:var(--text-muted);">${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo}</span>
+        ${item._tgChannel ? '<span style="background:rgba(139,92,246,0.15);color:#a78bfa;font-size:7px;font-weight:700;padding:1px 4px;border-radius:3px;">📡 TG</span>' : ''}
       </div>
-      ${topicBadge}
     </div>`;
   }).join('');
 }
@@ -15898,12 +15923,15 @@ function renderBriefingFeed(items) {
     return;
   }
 
-  // v27.2: 24시간 이내 + 시간순 정렬 (최신순) + 매크로/지정학 부스트
+  // v39.0: 24시간 이내 + 중요도 가중 시간순 정렬 (30분 버킷 내 score 우선)
   let filtered = filterByAge(items, TW_BRIEFING_H);
   filtered.sort((a, b) => {
     const ta = a.pubDate ? new Date(a.pubDate).getTime() : 0;
     const tb = b.pubDate ? new Date(b.pubDate).getTime() : 0;
-    return tb - ta;
+    const bucketA = Math.floor(ta / 1800000);
+    const bucketB = Math.floor(tb / 1800000);
+    if (bucketA !== bucketB) return bucketB - bucketA;
+    return (b.score || 0) - (a.score || 0);
   });
 
   container.innerHTML = filtered.slice(0, 15).map(item => {
@@ -16248,6 +16276,11 @@ function isTelegramMsgRelevant(text) {
   if (tgBlackKW.some(kw => t.includes(kw))) return false;
   // v34.1: 글로벌 블랙리스트도 적용 (지역 뉴스 등)
   if (NEWS_BLACKLIST_KW.some(kw => t.includes(kw.toLowerCase()))) return false;
+  // v39.0: 너무 광범위한 단독 키워드 매칭 방지 — 이 키워드만 1개 매칭되면 불충분
+  // "space"만으로 통과 → 우주와 무관한 맥락 가능, "stock"만으로 통과 → 비금융 맥락 가능
+  const _TG_BROAD_KW = new Set(['space','market','report','note','stock','share','investment',
+    'spending','cost','profit','launch','trade','bond','credit','flow','sector',
+    '시장','기업','산업','경제','금융','수출','수입','에너지','투자']);
   // 관련성 키워드 (최소 1개 이상 포함해야 통과)
   const relevantKW = [
     // 영문 매크로/시장
@@ -16317,7 +16350,14 @@ function isTelegramMsgRelevant(text) {
     '日銀','金利','半導体','決算','為替','円安','円高','株価','市場',
     '利上げ','利下げ','景気','株式','投資','企業','収益','配当','防衛','宇宙','ロケット','衛星','原発','原子力',
   ];
-  return relevantKW.some(kw => t.includes(kw));
+  // v39.0: 매칭된 키워드 수집 — 광범위 키워드만 1개 매칭이면 불통과
+  const matchedKW = relevantKW.filter(kw => t.includes(kw));
+  if (matchedKW.length === 0) return false;
+  // 매칭된 키워드 중 구체적(비광범위) 키워드가 1개 이상이면 통과
+  const hasSpecificKW = matchedKW.some(kw => !_TG_BROAD_KW.has(kw));
+  if (hasSpecificKW) return true;
+  // 광범위 키워드만 매칭된 경우: 2개 이상이어야 통과
+  return matchedKW.length >= 2;
 }
 
 async function fetchTelegramDirect(channelSlug, sourceName) {
@@ -16412,9 +16452,9 @@ async function fetchTelegramDirect(channelSlug, sourceName) {
 }
 
 async function fetchAllNews(forceRefresh = false) {
-  // v29.3: isFetching 60초 안전장치 — 60초 이상 잠겨있으면 강제 리셋
-  if (isFetching && _fetchStartTime && Date.now() - _fetchStartTime > 60000) {
-    console.warn('[AIO] fetchAllNews isFetching 60s 초과 — 강제 리셋');
+  // v39.0: isFetching 안전장치 — 180초로 확장 (80소스 x 1.5초 딜레이 + 프록시 타임아웃 고려)
+  if (isFetching && _fetchStartTime && Date.now() - _fetchStartTime > 180000) {
+    console.warn('[AIO] fetchAllNews isFetching 180s 초과 — 강제 리셋');
     isFetching = false;
   }
   if (isFetching) return;
@@ -16506,8 +16546,69 @@ async function fetchAllNews(forceRefresh = false) {
             'https://rsshub.ktachibana.party',
             'https://rsshub.app',
           ];
+          // v39.0: rsshub에서 403 차단된 채널 — 직접 스크래핑 우선
+          const _TG_DIRECT_ONLY = ['walterbloomberg'];
+          // v39.0: t.me/s/ 공개 미리보기 비활성화된 채널 — 스킵 (시간 낭비 방지)
+          const _TG_UNAVAILABLE = ['firstsquawk', 'financialjuicechannel'];
           const tgPath = s.url.replace(/^https?:\/\/rsshub\.app/, '');
           return (async () => {
+            // v39.0: 비활성 채널은 즉시 스킵
+            if (_TG_UNAVAILABLE.includes(slug)) {
+              _debugWarn(`[AIO TG] ${s.name}: 공개 미리보기 비활성 — 스킵`);
+              updateBar(s.name);
+              return [];
+            }
+            // v39.0: 직접 스크래핑 전용 채널 — CF Worker 1회 시도 후 빠르게 결과 반환
+            if (_TG_DIRECT_ONLY.includes(slug)) {
+              const cfW2 = localStorage.getItem('aio_cf_worker_url') || '';
+              if (cfW2) {
+                try {
+                  const tgUrl2 = `https://t.me/s/${slug}`;
+                  const r2 = await withTimeout(fetch(`${cfW2}?url=${encodeURIComponent(tgUrl2)}`), 12000);
+                  if (r2.ok) {
+                    const raw2 = await r2.text();
+                    if (raw2 && raw2.length > 500) {
+                      const doc2 = new DOMParser().parseFromString(raw2, 'text/html');
+                      const msgs2 = doc2.querySelectorAll('.tgme_widget_message_wrap, [class*="message_wrap"], [data-post]');
+                      const items2 = [];
+                      msgs2.forEach(wrap => {
+                        const textEl = wrap.querySelector('.tgme_widget_message_text, [class*="message_text"]');
+                        const dateEl = wrap.querySelector('time');
+                        const linkEl = wrap.querySelector('.tgme_widget_message_date, [class*="message_date"]');
+                        if (!textEl) return;
+                        const fullText = (textEl.innerText || textEl.textContent || '').trim();
+                        if (!fullText || !isTelegramMsgRelevant(fullText)) return;
+                        const originalSrc = extractOriginalSource(fullText);
+                        items2.push({
+                          title: fullText.slice(0, 200),
+                          desc: fullText.slice(0, 280),
+                          link: linkEl ? (linkEl.getAttribute('href') || tgUrl2) : tgUrl2,
+                          pubDate: dateEl ? dateEl.getAttribute('datetime') : new Date().toISOString(),
+                          source: originalSrc ? `${originalSrc} (📡TG)` : s.name,
+                          feed: s.name, tier: 1, flag: '📡', _tgChannel: slug,
+                        });
+                      });
+                      if (items2.length > 0) {
+                        console.log(`[AIO TG] ${s.name}: CF Worker 직접 스크래핑 성공 (${items2.length}건)`);
+                        updateBar(s.name);
+                        return items2.reverse();
+                      }
+                    }
+                  }
+                } catch(e) { _debugWarn(`[AIO TG] ${s.name}: CF Worker 직접 스크래핑 실패`, e.message); }
+              }
+              // CF Worker 실패 시 기존 fetchTelegramDirect 폴백
+              try {
+                const items = await fetchTelegramDirect(slug, s.name);
+                updateBar(s.name);
+                if (items.length > 0) {
+                  console.log(`[AIO TG] ${s.name}: 직접 스크래핑 폴백 성공 (${items.length}건)`);
+                  return items;
+                }
+              } catch(e) { _debugWarn(`[AIO TG] ${s.name}: 직접 스크래핑 폴백 실패`, e.message); }
+              updateBar(s.name);
+              return [];
+            }
             // 1) CF Worker로 rsshub 미러 순회 fetch 시도 (CORS 우회 가장 안정적)
             const cfW = localStorage.getItem('aio_cf_worker_url') || '';
             if (cfW) {
