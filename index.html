@@ -2037,17 +2037,23 @@ body.light-theme canvas { filter:none; }
     <strong>📌 핵심:</strong> 단일 지표가 아닌 복합 스코어이므로, 개별 컴포넌트 중 어느 것이 점수를 끌어내리는지 분해해서 봐야 합니다. VIX가 높아도 시장폭이 개선 중이면 바닥 신호일 수 있습니다.
   </div>
 
-  <!-- ═══ SECTION 0: 오늘의 시장 한줄 요약 (One-Line Market Summary) ═══ -->
-  <div id="home-market-summary-banner" style="background:linear-gradient(135deg,rgba(91,168,255,0.08),rgba(91,168,255,0.02));border:1px solid rgba(91,168,255,0.2);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-    <div>
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;margin-bottom:2px;text-transform:uppercase;">📊 오늘의 시장</div>
-      <div id="home-summary-text" style="font-size:14px;font-weight:600;color:var(--text-primary);font-family:var(--font-mono);line-height:1.4;">
-        시장 데이터 로딩 중...
+  <!-- ═══ SECTION 0: 오늘의 시장 + 이번 주 핵심 (v39.0 통합) ═══ -->
+  <div id="home-market-summary-banner" style="background:linear-gradient(135deg,rgba(91,168,255,0.08),rgba(91,168,255,0.02));border:1px solid rgba(91,168,255,0.2);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:8px;">
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;margin-bottom:2px;text-transform:uppercase;">📊 오늘의 시장</div>
+        <div id="home-summary-text" style="font-size:14px;font-weight:600;color:var(--text-primary);font-family:var(--font-mono);line-height:1.4;">
+          시장 데이터 로딩 중...
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;">마지막 갱신</div>
+        <div id="home-summary-time" style="font-size:11px;font-weight:700;color:#5ba8ff;font-family:var(--font-mono);">—</div>
       </div>
     </div>
-    <div style="text-align:right;">
-      <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;">마지막 갱신</div>
-      <div id="home-summary-time" style="font-size:11px;font-weight:700;color:#5ba8ff;font-family:var(--font-mono);">—</div>
+    <!-- v39.0: 이번 주 핵심 뉴스 (오늘의 시장 하단에 통합) -->
+    <div id="home-news-highlights" style="border-top:1px solid rgba(91,168,255,0.15);padding-top:8px;margin-top:4px;">
+      <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">📰 핵심 뉴스 수집 중...</div>
     </div>
   </div>
 
@@ -2093,23 +2099,6 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;margin-bottom:8px;text-transform:uppercase;">시장 국면</div>
       <div id="home-market-regime" style="font-size:18px;font-weight:800;color:#fbbf24;margin-bottom:6px;font-family:var(--font-mono);">CORRECTION</div>
       <div id="home-regime-explanation" style="font-size:8px;color:var(--text-secondary);">ATH -6.8% · 200일선 하향이탈 · 4주 연속 하락</div>
-    </div>
-  </div>
-
-  <!-- ═══ SECTION 1.5: 이번 주 핵심 뉴스 (v39.0 — 상단 배치) ═══ -->
-  <div style="margin-bottom:16px;">
-    <div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;margin-bottom:8px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;">
-      <span>🔥 이번 주 핵심</span>
-      <button onclick="showPage('market-news',null)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:8px;padding:2px 8px;border-radius:4px;cursor:pointer;">전체 뉴스 →</button>
-    </div>
-    <div id="home-news-highlights" style="display:grid;grid-template-columns:1fr;gap:8px;">
-      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;text-align:center;">
-        <div style="color:var(--text-muted);font-size:9px;margin-bottom:8px;">📰 핵심 뉴스 수집 중...</div>
-        <div style="height:3px;background:var(--bg-hover);border-radius:2px;overflow:hidden;">
-          <div id="home-news-progress-bar" style="height:100%;width:0%;background:var(--accent);transition:width 0.3s;border-radius:2px;"></div>
-        </div>
-        <div id="home-news-progress-text" style="font-size:8px;color:var(--text-muted);margin-top:4px;">소스 수집 중...</div>
-      </div>
     </div>
   </div>
 
@@ -15834,81 +15823,66 @@ function renderFeed(items) {
   if (countEl) countEl.textContent = filtered.length + '건';
 }
 
-/* ── renderHomeFeed(): 홈 대시보드 "이번 주 핵심" (v39.0 — 최고 중요도 3~4개 카드) ── */
+/* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
 function renderHomeFeed(items) {
   const container = document.getElementById('home-news-highlights');
   if (!container || !items || items.length === 0) return;
 
-  // v39.0: 7일(168시간) 범위로 확장 — "이번 주" 핵심 뉴스
-  let filtered = filterByAge(items, 168);
-  filtered = filtered.filter(i => !i._blacklisted && i.topic !== 'analyst');
+  // v39.0: 72시간 이내 + score 80+ 진짜 핵심만
+  let filtered = filterByAge(items, 72);
+  filtered = filtered.filter(i => !i._blacklisted && i.topic !== 'analyst' && (i.score || 0) >= 80);
 
-  // ── 핵심 뉴스 선별: score 50+ 만, 중요도 가중 정렬 ──
+  // 중요도 가중 정렬
   const PRIORITY_TOPICS = ['macro','geopolitics','earnings','policy','fed','rates','trade'];
-  let topNews = filtered.filter(i => (i.score || 0) >= 50);
-  topNews.forEach(i => {
+  filtered.forEach(i => {
     i._homeBoost = (i.score || 0);
     if (PRIORITY_TOPICS.includes(i.topic)) i._homeBoost += 20;
-    const tks = getDisplayTickers(i);
-    if (tks.length > 0) i._homeBoost += 10;
-    if (i._tgChannel) i._homeBoost += 5;
-    // 프리미엄 소스 부스트
     if (['Reuters','Bloomberg','WSJ','CNBC','FT Markets','NYT Business'].some(s => (i.source||'').includes(s))) i._homeBoost += 10;
+    if (i._tgChannel) i._homeBoost += 5;
   });
-  topNews.sort((a, b) => (b._homeBoost || 0) - (a._homeBoost || 0));
+  filtered.sort((a, b) => (b._homeBoost || 0) - (a._homeBoost || 0));
 
-  // 중복 토픽 제거 — 같은 주제 뉴스가 3개 나오지 않도록
+  // 토픽 중복 제거 + 최대 3개
   const seenTopics = {};
-  topNews = topNews.filter(i => {
+  filtered = filtered.filter(i => {
     const key = (i.topic || 'general');
     seenTopics[key] = (seenTopics[key] || 0) + 1;
-    return seenTopics[key] <= 2; // 같은 토픽 최대 2개
+    return seenTopics[key] <= 1; // 같은 토픽 1개만
   });
+  filtered = filtered.slice(0, 3);
 
-  topNews = topNews.slice(0, 4);
-
-  // 최소 2개 미달 시 score 완화
-  if (topNews.length < 2) {
-    const existing = new Set(topNews.map(i => i.link));
-    const backup = filtered
-      .filter(i => !existing.has(i.link) && (i.score || 0) >= 30)
+  // score 80+ 미달 시 60+로 완화
+  if (filtered.length < 2) {
+    const existing = new Set(filtered.map(i => i.link));
+    const backup = filterByAge(items, 72)
+      .filter(i => !existing.has(i.link) && !i._blacklisted && (i.score || 0) >= 60)
       .sort((a, b) => (b.score || 0) - (a.score || 0))
-      .slice(0, 3 - topNews.length);
-    topNews = topNews.concat(backup);
+      .slice(0, 3 - filtered.length);
+    filtered = filtered.concat(backup);
   }
 
-  if (topNews.length === 0) {
-    container.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;color:var(--text-muted);font-size:10px;">현재 핵심 뉴스가 없습니다.</div>';
+  if (filtered.length === 0) {
+    container.innerHTML = '<div style="font-size:9px;color:var(--text-muted);">현재 핵심 뉴스가 없습니다.</div>';
     return;
   }
 
-  // v39.0: 카드형 렌더링 — 각 뉴스가 독립 카드로 시각적 구분
-  container.innerHTML = topNews.map(item => {
+  // v39.0: 간결 불릿 — 한국어 번역 제목 사용, 소스+시간, 클릭 시 원문 이동
+  container.innerHTML = '<div style="font-size:9px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">🔥 핵심 뉴스</div>' +
+    filtered.map(item => {
     const sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
     const sentIcon = sent === 'bull' ? '🟢' : sent === 'bear' ? '🔴' : sent === 'warn' ? '🟡' : '⚪';
-    const sentBorder = sent === 'bull' ? 'rgba(61,219,165,0.3)' : sent === 'bear' ? 'rgba(248,113,113,0.3)' : sent === 'warn' ? 'rgba(251,191,36,0.3)' : 'var(--border)';
-    const topicBadge = getTopicBadge(item.topic || 'general');
     const timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
+    // 한국어 번역 제목 우선 사용
     const displayTitle = escHtml(getDisplayTitle(item));
-    const displaySummary = getDisplaySummary(item);
-    const summaryHtml = displaySummary ? `<div style="font-size:9px;color:#a78bfa;margin-top:4px;line-height:1.4;font-style:italic;">💡 ${escHtml(displaySummary)}</div>` : '';
     const tickers = getDisplayTickers(item);
-    const tickerHtml = tickers.length > 0
-      ? `<div style="margin-top:4px;">${tickers.slice(0,4).map(t => `<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(91,168,255,0.1);padding:1px 5px;border-radius:3px;margin-right:3px;">$${escHtml(t)}</span>`).join('')}</div>`
+    const tickerStr = tickers.length > 0
+      ? tickers.slice(0,3).map(t => `<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);">${escHtml(t.startsWith('$') ? t : '$'+t)}</span>`).join(' ') + ' '
       : '';
-
-    return `<div onclick="window.open('${escUrl(item.link)}','_blank')" style="background:var(--bg-card);border:1px solid ${sentBorder};border-radius:var(--radius);padding:10px 14px;cursor:pointer;transition:border-color 0.2s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='${sentBorder}'">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:12px;font-weight:700;color:var(--text-primary);line-height:1.4;">${sentIcon} ${displayTitle}</div>
-          ${summaryHtml}
-          ${tickerHtml}
-        </div>
-        ${topicBadge}
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
-        <span style="font-size:8px;color:var(--text-muted);">${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo}</span>
-        ${item._tgChannel ? '<span style="background:rgba(139,92,246,0.15);color:#a78bfa;font-size:7px;font-weight:700;padding:1px 4px;border-radius:3px;">📡 TG</span>' : ''}
+    return `<div onclick="window.open('${escUrl(item.link)}','_blank')" style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.03);" onmouseenter="this.style.background='rgba(91,168,255,0.05)'" onmouseleave="this.style.background='transparent'">
+      <span style="flex-shrink:0;font-size:10px;line-height:1.6;">${sentIcon}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">${tickerStr}${displayTitle}</div>
+        <div style="font-size:8px;color:var(--text-muted);margin-top:1px;">${escHtml(item.source||'')} · ${timeAgo}</div>
       </div>
     </div>`;
   }).join('');
