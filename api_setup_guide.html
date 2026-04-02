@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIO Screener - API 설정 가이드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background-color: #0a0a0f;
+            color: #e0e0e0;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #1a1a25;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #00d4ff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border: 1px solid #00d4ff;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background-color: rgba(0, 212, 255, 0.1);
+            transform: translateX(-4px);
+        }
+
+        .overview-card {
+            background: linear-gradient(135deg, #1a1a25 0%, #15151d 100%);
+            border: 1px solid #2a2a35;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .overview-card h2 {
+            color: #00d4ff;
+            margin-bottom: 16px;
+            font-size: 20px;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-box {
+            background-color: rgba(0, 212, 255, 0.05);
+            border: 1px solid #0099ff;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-box .label {
+            color: #a0a0a0;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-box .value {
+            color: #00d4ff;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .api-section {
+            background: linear-gradient(135deg, #1a1a25 0%, #15151d 100%);
+            border: 1px solid #2a2a35;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .api-section:hover {
+            border-color: #0099ff;
+            box-shadow: 0 4px 30px rgba(0, 153, 255, 0.2);
+        }
+
+        .api-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #2a2a35;
+            padding-bottom: 16px;
+        }
+
+        .api-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .api-badge.free {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+
+        .api-badge.paid {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+        }
+
+        .api-section h3 {
+            color: #00d4ff;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .api-section .subtitle {
+            color: #a0a0a0;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .step-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .step {
+            display: flex;
+            gap: 16px;
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #0a0a0f;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+            padding-top: 4px;
+        }
+
+        .step-content p {
+            color: #e0e0e0;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .step-content strong {
+            color: #00d4ff;
+        }
+
+        .code-block {
+            background-color: #0f0f15;
+            border: 1px solid #2a2a35;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block code {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #00d4ff;
+            display: block;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: #0099ff;
+            color: #0a0a0f;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background-color: #00d4ff;
+            transform: scale(1.05);
+        }
+
+        .copy-btn.copied {
+            background-color: #4caf50;
+        }
+
+        .info-box {
+            background-color: rgba(0, 212, 255, 0.05);
+            border-left: 4px solid #0099ff;
+            padding: 16px;
+            border-radius: 6px;
+            margin: 12px 0;
+        }
+
+        .info-box.warning {
+            background-color: rgba(255, 152, 0, 0.05);
+            border-left-color: #ff9800;
+        }
+
+        .info-box.success {
+            background-color: rgba(76, 175, 80, 0.05);
+            border-left-color: #4caf50;
+        }
+
+        .info-box p {
+            color: #e0e0e0;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .pricing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .pricing-table th,
+        .pricing-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a35;
+        }
+
+        .pricing-table th {
+            background-color: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .pricing-table tr:hover {
+            background-color: rgba(0, 212, 255, 0.05);
+        }
+
+        .pricing-table .free-tier {
+            color: #4caf50;
+        }
+
+        .pricing-table .recommend {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .features-list {
+            list-style: none;
+            margin: 12px 0;
+            padding-left: 0;
+        }
+
+        .features-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .features-list li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: 700;
+        }
+
+        .features-list li.unavailable {
+            color: #a0a0a0;
+        }
+
+        .features-list li.unavailable:before {
+            content: '✗';
+            color: #ff5252;
+        }
+
+        .settings-guide {
+            background-color: rgba(0, 212, 255, 0.05);
+            border: 1px solid #0099ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+
+        .settings-guide h4 {
+            color: #00d4ff;
+            margin-bottom: 12px;
+        }
+
+        .settings-step {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .settings-step .icon {
+            color: #00d4ff;
+            font-weight: 700;
+            min-width: 24px;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #2a2a35;
+            margin: 32px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 32px 0;
+            border-top: 1px solid #2a2a35;
+            color: #a0a0a0;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .api-section {
+                padding: 20px;
+            }
+
+            .api-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .step {
+                gap: 12px;
+            }
+        }
+
+        .success-message {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 6px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .toc {
+            background: linear-gradient(135deg, #1a1a25 0%, #15151d 100%);
+            border: 1px solid #2a2a35;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .toc h3 {
+            color: #00d4ff;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            margin-bottom: 8px;
+        }
+
+        .toc a {
+            color: #0099ff;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .toc a:hover {
+            color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AIO Screener - API 설정 가이드</h1>
+            <a href="/" class="back-link">← 스크리너로 돌아가기</a>
+        </header>
+
+        <div class="overview-card">
+            <h2>📊 개요</h2>
+            <p>AIO Screener는 여러 무료 및 유료 API를 통합하여 실시간 주가, 뉴스, 경제 데이터를 제공합니다. 아래 가이드를 따라 각 API를 설정하면 모든 기능을 활용할 수 있습니다.</p>
+            <div class="overview-grid">
+                <div class="stat-box">
+                    <div class="label">주요 무료 API</div>
+                    <div class="value">6개</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">월 예상 비용</div>
+                    <div class="value">$2-5</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">설정 소요 시간</div>
+                    <div class="value">15분</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">지원 구간</div>
+                    <div class="value">24/5</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="toc">
+            <h3>목차</h3>
+            <ul>
+                <li><a href="#finnhub">Finnhub API (실시간 주가)</a></li>
+                <li><a href="#newsdata">NewsData.io (글로벌 뉴스)</a></li>
+                <li><a href="#cloudflare">Cloudflare Workers (CORS 프록시)</a></li>
+                <li><a href="#claude">Claude API (AI 분석)</a></li>
+                <li><a href="#other">기타 내장 API</a></li>
+                <li><a href="#pricing">비용 요약표</a></li>
+                <li><a href="#setup">AIO 스크리너 내 설정 방법</a></li>
+            </ul>
+        </div>
+
+        <!-- Finnhub API Section -->
+        <div class="api-section" id="finnhub">
+            <div class="api-header">
+                <div>
+                    <h3>Finnhub API</h3>
+                    <div class="subtitle">실시간 주가 데이터 & 기업 뉴스</div>
+                </div>
+                <span class="api-badge free">무료</span>
+            </div>
+
+            <div class="step-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <p><strong>Finnhub 가입하기</strong></p>
+                        <p>https://finnhub.io 에 접속하여 <strong>'Sign Up'</strong> 버튼을 클릭합니다.</p>
+                        <p>이메일을 입력하고 비밀번호를 설정한 후 계정을 생성합니다.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <p><strong>API Key 발급받기</strong></p>
+                        <p>로그인 후 대시보드에서 <strong>'API Tokens'</strong> 섹션을 찾습니다.</p>
+                        <p>무료 플랜 (Free) 에서 자동으로 생성된 API Key를 복사합니다.</p>
+                        <div class="info-box success">
+                            <p>✓ 무료 플랜: 60 calls/minute, WebSocket 지원, 최대 30개 심볼</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <p><strong>AIO 스크리너에 입력하기</strong></p>
+                        <p>AIO 스크리너 좌측 메뉴의 <strong>⚙ 설정</strong> → <strong>API Keys</strong> 에서</p>
+                        <p><strong>'Finnhub API Key'</strong> 입력란에 복사한 키를 붙여넣습니다.</p>
+                        <p>저장 버튼을 클릭하면 자동으로 localStorage에 저장됩니다.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <p><strong>제공 데이터 확인</strong></p>
+                        <ul class="features-list">
+                            <li>실시간 주가 (WebSocket 기반)</li>
+                            <li>기업 뉴스 및 소식</li>
+                            <li>기본 재무 데이터 (P/E, 배당율 등)</li>
+                            <li>기업 프로필 정보</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <p><strong>💡 팁:</strong> 무료 플랜만으로도 대부분의 개인 투자자 용도에는 충분합니다. 월 60회 이상의 API 호출이 필요하면 유료 플랜 ($50/월) 업그레이드를 고려하세요.</p>
+            </div>
+        </div>
+
+        <!-- NewsData.io Section -->
+        <div class="api-section" id="newsdata">
+            <div class="api-header">
+                <div>
+                    <h3>NewsData.io</h3>
+                    <div class="subtitle">글로벌 뉴스 및 시장 뉴스</div>
+                </div>
+                <span class="api-badge free">무료</span>
+            </div>
+
+            <div class="step-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <p><strong>NewsData.io 가입하기</strong></p>
+                        <p>https://newsdata.io 에 접속하여 우측 상단의 <strong>'Sign Up'</strong> 버튼을 클릭합니다.</p>
+                        <p>이메일 또는 Google/GitHub 계정으로 가입할 수 있습니다.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <p><strong>API Key 발급받기</strong></p>
+                        <p>로그인 후 <strong>'Dashboard'</strong> → <strong>'API Keys'</strong> 섹션에서</p>
+                        <p>생성된 API Key를 복사합니다. (자동으로 생성되어 있습니다)</p>
+                        <div class="info-box success">
+                            <p>✓ 무료 플랜: 200 credits/day, 50+ 언어 지원, 실시간 뉴스</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <p><strong>AIO 스크리너에 입력하기</strong></p>
+                        <p>AIO 스크리너의 <strong>⚙ 설정</strong> → <strong>API Keys</strong> 에서</p>
+                        <p><strong>'NewsData.io API Key'</strong> 입력란에 API Key를 붙여넣습니다.</p>
+                        <p><strong>저장</strong> 버튼을 클릭합니다.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <p><strong>제공 데이터 확인</strong></p>
+                        <ul class="features-list">
+                            <li>글로벌 비즈니스 뉴스</li>
+                            <li>기술 및 금융 뉴스</li>
+                            <li>경제 뉴스 (다양한 국가)</li>
+                            <li>CORS 지원 (별도 프록시 불필요)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p><strong>📌 주의:</strong> NewsData.io는 CORS (Cross-Origin Resource Sharing) 를 지원하므로, Cloudflare Workers 같은 프록시 없이도 브라우저에서 직접 호출 가능합니다.</p>
+            </div>
+        </div>
+
+        <!-- Cloudflare Workers Section -->
+        <div class="api-section" id="cloudflare">
+            <div class="api-header">
+                <div>
+                    <h3>Cloudflare Workers</h3>
+                    <div class="subtitle">CORS 프록시 서버</div>
+                </div>
+                <span class="api-badge free">무료</span>
+            </div>
+
+            <div class="step-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <p><strong>Cloudflare 계정 가입하기</strong></p>
+                        <p>https://dash.cloudflare.com 에 접속합니다.</p>
+                        <p><strong>'Sign Up'</strong> 버튼을 클릭하고 이메일과 비밀번호로 계정을 생성합니다.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <p><strong>Worker 생성하기</strong></p>
+                        <p>좌측 메뉴에서 <strong>'Workers & Pages'</strong> 를 선택합니다.</p>
+                        <p><strong>'Create Worker'</strong> 버튼을 클릭합니다.</p>
+                        <p>이름을 입력 (예: "aio-proxy") 하고 <strong>'Deploy'</strong> 을 클릭합니다.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <p><strong>프록시 코드 추가하기</strong></p>
+                        <p>Worker 에디터 창에 다음 코드를 붙여넣습니다:</p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                            <code>addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request));
+});
+
+async function handleRequest(request) {
+  const url = new URL(request.url);
+  const targetUrl = url.searchParams.get('url');
+  if (!targetUrl) {
+    return new Response('Missing ?url= parameter', { status: 400 });
+  }
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; AIO-Screener/1.0)',
+      },
+    });
+    const body = await response.text();
+    return new Response(body, {
+      status: response.status,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': '*',
+        'Content-Type': response.headers.get('Content-Type') || 'text/plain',
+      },
+    });
+  } catch (err) {
+    return new Response('Proxy error: ' + err.message, { status: 500 });
+  }
+}</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <p><strong>배포 및 URL 확인하기</strong></p>
+                        <p>코드 우측 상단의 <strong>'Save and Deploy'</strong> 버튼을 클릭합니다.</p>
+                        <p>배포 완료 후 표시되는 Worker URL을 복사합니다 (예: https://aio-proxy.yourname.workers.dev).</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <p><strong>AIO 스크리너에 입력하기</strong></p>
+                        <p>AIO 스크리너의 <strong>⚙ 설정</strong> → <strong>API Keys</strong> 에서</p>
+                        <p><strong>'Cloudflare Proxy URL'</strong> 입력란에 Worker URL을 붙여넣습니다.</p>
+                        <p><strong>저장</strong> 버튼을 클릭합니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box success">
+                <p>✓ 무료 플랜: 100,000 requests/day (충분한 한도)</p>
+            </div>
+
+            <div class="info-box">
+                <p><strong>🔧 사용 방법:</strong> CORS 문제가 있는 API 호출 시, <code>https://aio-proxy.workers.dev?url=TARGET_URL</code> 형식으로 요청하면 프록시를 통해 전달됩니다.</p>
+            </div>
+        </div>
+
+        <!-- Claude API Section -->
+        <div class="api-section" id="claude">
+            <div class="api-header">
+                <div>
+                    <h3>Claude API (Anthropic)</h3>
+                    <div class="subtitle">시장 분석 AI 챗봇</div>
+                </div>
+                <span class="api-badge paid">유료 (저비용)</span>
+            </div>
+
+            <div class="step-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <p><strong>Anthropic 계정 가입하기</strong></p>
+                        <p>https://console.anthropic.com 에 접속합니다.</p>
+                        <p><strong>'Get Started'</strong> 또는 <strong>'Sign Up'</strong> 버튼을 클릭합니다.</p>
+                        <p>이메일로 가입하거나 Google 계정을 사용합니다.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <p><strong>API Key 생성하기</strong></p>
+                        <p>로그인 후 좌측 메뉴에서 <strong>'API Keys'</strong> 를 선택합니다.</p>
+                        <p><strong>'Create Key'</strong> 버튼을 클릭하고 이름을 입력합니다 (예: "AIO Screener").</p>
+                        <p>생성된 API Key를 안전한 곳에 복사해둡니다.</p>
+                        <div class="info-box warning">
+                            <p>⚠️ 이 Key는 다시 보여지지 않으므로 반드시 안전하게 보관하세요!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <p><strong>결제 정보 추가하기 (선택사항)</strong></p>
+                        <p><strong>'Billing'</strong> 탭에서 신용카드 정보를 추가합니다.</p>
+                        <p>월 한도를 설정할 수 있습니다 (예: $10 한도 설정).</p>
+                        <div class="info-box">
+                            <p>💡 첫 사용 시 $5 크레딧을 제공합니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <p><strong>AIO 스크리너에 입력하기</strong></p>
+                        <p>AIO 스크리너의 <strong>⚙ 설정</strong> → <strong>API Keys</strong> 에서</p>
+                        <p><strong>'Claude API Key'</strong> 입력란에 API Key를 붙여넣습니다.</p>
+                        <p><strong>저장</strong> 버튼을 클릭합니다.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <p><strong>모델 선택하기</strong></p>
+                        <p>권장 모델: <strong>claude-3-haiku</strong> (가장 저렴, 스트리밍 지원)</p>
+                        <p>가격 (2024년 기준):</p>
+                        <ul class="features-list">
+                            <li>Input: ~$0.25 / 1M tokens</li>
+                            <li>Output: ~$1.25 / 1M tokens</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box success">
+                <p>✓ 월 예상 비용 (일 50회 질문): $2-5/월</p>
+            </div>
+
+            <div class="info-box">
+                <p><strong>예시:</strong> 3,000 토큰 입력 + 500 토큰 출력 = 약 $0.001 (0.1센트)</p>
+            </div>
+        </div>
+
+        <!-- Other APIs Section -->
+        <div class="api-section" id="other">
+            <div class="api-header">
+                <div>
+                    <h3>기타 내장 무료 API</h3>
+                    <div class="subtitle">별도 설정 불필요</div>
+                </div>
+                <span class="api-badge free">무료</span>
+            </div>
+
+            <p style="margin-bottom: 20px; color: #a0a0a0;">다음 API들은 AIO 스크리너에 이미 내장되어 있으며, 별도의 API Key 설정이 필요하지 않습니다:</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px;">
+                <div style="background-color: rgba(0, 212, 255, 0.05); border: 1px solid #2a2a35; border-radius: 8px; padding: 16px;">
+                    <h4 style="color: #00d4ff; margin-bottom: 8px;">CoinGecko</h4>
+                    <p style="color: #a0a0a0; font-size: 13px; margin-bottom: 8px;">암호화폐 데이터</p>
+                    <ul class="features-list">
+                        <li>실시간 암호화폐 가격</li>
+                        <li>시가총액, 거래량</li>
+                        <li>완전 무료</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: rgba(0, 212, 255, 0.05); border: 1px solid #2a2a35; border-radius: 8px; padding: 16px;">
+                    <h4 style="color: #00d4ff; margin-bottom: 8px;">Exchange Rate API</h4>
+                    <p style="color: #a0a0a0; font-size: 13px; margin-bottom: 8px;">실시간 환율</p>
+                    <ul class="features-list">
+                        <li>150+ 국가 환율</li>
+                        <li>실시간 업데이트</li>
+                        <li>완전 무료</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: rgba(0, 212, 255, 0.05); border: 1px solid #2a2a35; border-radius: 8px; padding: 16px;">
+                    <h4 style="color: #00d4ff; margin-bottom: 8px;">FRED (Federal Reserve)</h4>
+                    <p style="color: #a0a0a0; font-size: 13px; margin-bottom: 8px;">미국 경제 데이터</p>
+                    <ul class="features-list">
+                        <li>기준금리, 실업률</li>
+                        <li>GDP, 인플레이션</li>
+                        <li>API Key 필요 (무료)</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: rgba(0, 212, 255, 0.05); border: 1px solid #2a2a35; border-radius: 8px; padding: 16px;">
+                    <h4 style="color: #00d4ff; margin-bottom: 8px;">Alpha Vantage</h4>
+                    <p style="color: #a0a0a0; font-size: 13px; margin-bottom: 8px;">주식 데이터</p>
+                    <ul class="features-list">
+                        <li>5분봉, 일봉, 주봉</li>
+                        <li>기술적 지표 (SMA, EMA)</li>
+                        <li>무료: 5 calls/min</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: rgba(0, 212, 255, 0.05); border: 1px solid #2a2a35; border-radius: 8px; padding: 16px;">
+                    <h4 style="color: #00d4ff; margin-bottom: 8px;">Twelve Data</h4>
+                    <p style="color: #a0a0a0; font-size: 13px; margin-bottom: 8px;">글로벌 금융 데이터</p>
+                    <ul class="features-list">
+                        <li>주식, 선물, 암호화폐</li>
+                        <li>다양한 시간봉</li>
+                        <li>무료: 8 calls/min</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: rgba(0, 212, 255, 0.05); border: 1px solid #2a2a35; border-radius: 8px; padding: 16px;">
+                    <h4 style="color: #00d4ff; margin-bottom: 8px;">Financial Modeling Prep</h4>
+                    <p style="color: #a0a0a0; font-size: 13px; margin-bottom: 8px;">재무제표 데이터</p>
+                    <ul class="features-list">
+                        <li>재무제표, 캐시플로우</li>
+                        <li>재무비율</li>
+                        <li>무료: 250 calls/day</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: rgba(0, 212, 255, 0.05); border: 1px solid #2a2a35; border-radius: 8px; padding: 16px;">
+                    <h4 style="color: #00d4ff; margin-bottom: 8px;">RSS2JSON</h4>
+                    <p style="color: #a0a0a0; font-size: 13px; margin-bottom: 8px;">RSS 피드 변환</p>
+                    <ul class="features-list">
+                        <li>뉴스 피드</li>
+                        <li>블로그 업데이트</li>
+                        <li>무료: 10K/day</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Pricing Table -->
+        <div class="api-section" id="pricing">
+            <h3 style="margin-bottom: 20px;">💰 비용 요약표</h3>
+            <table class="pricing-table">
+                <thead>
+                    <tr>
+                        <th>서비스</th>
+                        <th>무료 한도</th>
+                        <th>유료 플랜</th>
+                        <th>추천</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Finnhub</strong></td>
+                        <td class="free-tier">60 calls/min</td>
+                        <td>$50/mo</td>
+                        <td class="recommend">✅ 무료 충분</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NewsData.io</strong></td>
+                        <td class="free-tier">200 credits/day</td>
+                        <td>$22/mo</td>
+                        <td class="recommend">✅ 무료 충분</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cloudflare Workers</strong></td>
+                        <td class="free-tier">100K requests/day</td>
+                        <td>$5/mo</td>
+                        <td class="recommend">✅ 무료 충분</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Claude API</strong></td>
+                        <td class="free-tier">$5 크레딧 (1회)</td>
+                        <td>종량제</td>
+                        <td class="recommend">💰 $2-5/mo</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CoinGecko</strong></td>
+                        <td class="free-tier">무료 (제한 없음)</td>
+                        <td>$50/mo</td>
+                        <td class="recommend">✅ 무료 충분</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RSS2JSON</strong></td>
+                        <td class="free-tier">10K/day</td>
+                        <td>$6/mo</td>
+                        <td class="recommend">✅ 무료 충분</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box success" style="margin-top: 24px;">
+                <p><strong>✓ 월 총 예상 비용:</strong> Claude API만 설정해도 $2-5/월이면 충분합니다. 다른 API는 모두 무료이므로 추가 비용이 없습니다.</p>
+            </div>
+        </div>
+
+        <!-- AIO Setup Guide -->
+        <div class="api-section" id="setup">
+            <h3 style="margin-bottom: 24px;">⚙️ AIO 스크리너 내 설정 방법</h3>
+
+            <div class="settings-guide">
+                <h4>단계별 설정 가이드</h4>
+
+                <div class="settings-step">
+                    <div class="icon">1</div>
+                    <div>AIO 스크리너를 실행하고 <strong>좌측 메뉴의 ⚙ 아이콘</strong>을 클릭합니다.</div>
+                </div>
+
+                <div class="settings-step">
+                    <div class="icon">2</div>
+                    <div><strong>'API Keys'</strong> 또는 <strong>'Settings'</strong> 탭으로 이동합니다.</div>
+                </div>
+
+                <div class="settings-step">
+                    <div class="icon">3</div>
+                    <div>각 API에 대해 위 가이드에서 발급받은 API Key를 해당 입력란에 붙여넣습니다.</div>
+                </div>
+
+                <div class="settings-step">
+                    <div class="icon">4</div>
+                    <div><strong>'Save'</strong> 또는 <strong>'저장'</strong> 버튼을 클릭하면 자동으로 브라우저의 localStorage에 저장됩니다.</div>
+                </div>
+
+                <div class="settings-step">
+                    <div class="icon">5</div>
+                    <div>페이지를 새로고침해도 설정이 유지됩니다.</div>
+                </div>
+            </div>
+
+            <div class="info-box warning" style="margin-top: 24px;">
+                <p><strong>🔒 보안 주의사항:</strong></p>
+                <ul class="features-list" style="margin-top: 8px;">
+                    <li>API Key는 브라우저의 localStorage에만 저장됩니다.</li>
+                    <li>GitHub Pages에 배포해도 개인 Key는 서버에 저장되지 않습니다.</li>
+                    <li>다른 사람의 컴퓨터에서 사용할 때는 꼭 로그아웃하세요.</li>
+                    <li>프라이빗 브라우징 모드에서는 설정이 저장되지 않습니다.</li>
+                </ul>
+            </div>
+
+            <div style="background-color: rgba(76, 175, 80, 0.05); border: 1px solid #4caf50; border-radius: 8px; padding: 16px; margin-top: 20px;">
+                <h4 style="color: #4caf50; margin-bottom: 12px;">✓ 설정 완료 체크리스트</h4>
+                <ul class="features-list">
+                    <li>Finnhub API Key 입력 및 저장</li>
+                    <li>NewsData.io API Key 입력 및 저장</li>
+                    <li>Cloudflare Worker URL 입력 및 저장</li>
+                    <li>Claude API Key 입력 및 저장 (선택사항)</li>
+                    <li>각 API의 실시간 데이터 확인</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <footer>
+            <p>AIO Screener - API 설정 가이드 | 마지막 업데이트: 2026년 3월</p>
+            <p style="margin-top: 8px; color: #808080; font-size: 12px;">각 API의 이용 약관 및 개인정보 처리방침을 꼭 읽어보세요.</p>
+        </footer>
+    </div>
+
+    <div class="success-message" id="successMessage">코드가 클립보드에 복사되었습니다!</div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.innerText;
+
+            navigator.clipboard.writeText(code).then(() => {
+                const message = document.getElementById('successMessage');
+                button.classList.add('copied');
+                button.textContent = '✓ 복사됨';
+
+                message.classList.add('show');
+                setTimeout(() => {
+                    message.classList.remove('show');
+                }, 3000);
+
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.textContent = '복사';
+                }, 2000);
+            }).catch(err => {
+                console.error('복사 실패:', err);
+                button.textContent = '❌ 실패';
+                setTimeout(() => {
+                    button.textContent = '복사';
+                }, 2000);
+            });
+        }
+
+        // Smooth scroll for TOC links
+        document.querySelectorAll('.toc a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

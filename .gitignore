@@ -1,0 +1,37 @@
+# AIO Screener .gitignore
+# 배포 파일만 push — 프로젝트 관리 파일은 로컬 전용
+
+# 프로젝트 관리 (로컬 전용)
+_context/
+_backup/
+_archive/
+outputs/
+CHANGELOG.md
+CLAUDE.md
+*.md
+!README.md
+
+# 이전 버전 백업/스냅샷
+aio_ui_prototype_*.html
+*.backup
+*.bak
+*.backup.*
+
+# 감사/분석 문서
+AUDIT_*.md
+AUDIT_*.txt
+HARDCODED_*.md
+HARDCODED_*.txt
+README_AUDIT.md
+REMEDIATION_ROADMAP.md
+
+# Office 문서
+*.docx
+*.xlsx
+
+# Claude Code
+.claude/
+
+# OS
+Thumbs.db
+.DS_Store
