@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v39.0 — 올인원 투자 터미널</title>
+  <title>AIO Screener v39.1 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2018,7 +2018,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v39.0</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v39.1</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -10181,7 +10181,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v39.0';
+const APP_VERSION = 'v39.1';
 
 // v34.5: 프로덕션 로그 억제 — console.log만 조건부 억제, warn/error는 유지
 // URL에 ?debug=1 추가 시 전체 로그 활성화 (개발 모드)
@@ -11085,7 +11085,7 @@ var SCREENER_DB = [
   // ══════════════════════════════════════════════════════════════
   // NASDAQ-100 전용 (S&P500 미포함 또는 나스닥 특성 강조)
   // ══════════════════════════════════════════════════════════════
-  { sym:'MRVL', name:'Marvell Technology', sector:'Technology', signal:'BUY', memo:'NVLink Fusion 파트너십 · NVIDIA $20억 투자 · 실리콘 포토닉스 · AI-RAN · 커스텀 XPU', mcap:62, rsi:44, index:'NASDAQ100' },
+  { sym:'MRVL', name:'Marvell Technology', sector:'Technology', signal:'BUY', memo:'NVLink Fusion 파트너십 · NVIDIA $2B 투자(2026.03) · Celestial AI Photonic Fabric($3.25B 인수) · L2 scale-up 광학 핵심 · 커스텀 XPU · AI-RAN · FY26 DC매출 $6.1B(+46.5%) · FY28 $15B 가이던스', mcap:62, rsi:44, index:'NASDAQ100' },
   { sym:'SNPS', name:'Synopsys', sector:'Technology', signal:'BUY', memo:'반도체 설계 EDA 도구 · AI 칩 설계 필수', mcap:80, rsi:48, index:'NASDAQ100' },
   { sym:'CDNS', name:'Cadence Design', sector:'Technology', signal:'BUY', memo:'EDA + 시스템 설계 · AI 칩 설계 인프라', mcap:75, rsi:50, index:'NASDAQ100' },
   { sym:'LRCX', name:'Lam Research', sector:'Technology', signal:'BUY', memo:'반도체 식각 장비 · 메모리 투자 사이클 수혜', mcap:95, rsi:45, index:'NASDAQ100' },
@@ -11127,9 +11127,9 @@ var SCREENER_DB = [
   // ══════════════════════════════════════════════════════════════
   // ── AI / 광학 / 데이터센터 인프라 ──
   { sym:'AAOI', name:'Applied Optoelectronics', sector:'Technology', signal:'BUY', memo:'AI 데이터센터 광모듈 · 800G 트랜시버 수요 폭증', mcap:2.5, rsi:62, index:'RUSSELL2000' },
-  { sym:'COHR', name:'Coherent Corp', sector:'Technology', signal:'BUY', memo:'광통신 부품 · AI DC 800G/1.6T 모듈 · NVIDIA $2B 투자(2026.03) · InP EML 레이저 캡처 · OFC2026 광표준 합의 · 레이저 병목 최대 수혜', mcap:15, rsi:55, index:'SP500' },
-  { sym:'LITE', name:'Lumentum', sector:'Technology', signal:'BUY', memo:'광학 레이저 · NVIDIA $2B 투자(2026.03) · EML/DFB 레이저 병목 수혜 · InP 기판 수요 200만장 vs 공급 60만장(30%) · DC 광모듈', mcap:6, rsi:48, index:'NASDAQ100' },
-  { sym:'POET', name:'POET Technologies', sector:'Technology', signal:'WATCH', memo:'광인터포저(Teralight) · 포토닉스 반도체화 · EML 4개(업계 8~16) · Luxshare/FIT/LITEON 파트너 · 1.6T 프로토 2026말 · 프리레버뉴 · 현금 $450M(시총57%)', mcap:0.8, rsi:44, index:'OTC' },
+  { sym:'COHR', name:'Coherent Corp', sector:'Technology', signal:'BUY', memo:'L1 scale-out 핵심 · NVIDIA $2B 투자(2026.03) · SiPh+레이저 양대산맥 · 6인치 InP 기판 자체생산(CHIPS Act $33M) · 800G/1.6T CPO 모듈 · InP 수직통합 → supply chain 병목 해소 · OFC2026 CPO TAM $21B', mcap:15, rsi:55, index:'SP500' },
+  { sym:'LITE', name:'Lumentum', sector:'Technology', signal:'BUY', memo:'L1 scale-out 레이저 왕 · NVIDIA $2B 투자(2026.03) · Greensboro InP fab 인수(240k sqft, 2028양산) · R300 OCS(300x300 광회로스위치, 전력65%절감) · UHP CPO 레이저 역대최대 구매약정 · InP 기판 병목(수요200만 vs 공급60만)', mcap:6, rsi:48, index:'NASDAQ100' },
+  { sym:'POET', name:'POET Technologies', sector:'Technology', signal:'WATCH', memo:'광인터포저(Teralight) · 포토닉스 반도체화 · EML 4개(업계 8~16) · Luxshare/FIT/LITEON 파트너 · 1.6T 프로토 2026말 · Celestial AI(MRVL 인수) Photonic Fabric 핵심부품 공급 가능성 · NVIDIA 광학 supply chain 빈칸 후보 · 프리레버뉴 · 현금 $450M(시총57%)', mcap:0.8, rsi:44, index:'OTC' },
   { sym:'CIEN', name:'Ciena', sector:'Technology', signal:'BUY', memo:'광네트워킹 장비 · AI 트래픽 증가 수혜', mcap:9, rsi:52, index:'SP500' },
   { sym:'GLW', name:'Corning', sector:'Technology', signal:'BUY', memo:'광섬유 · AI 데이터센터 광케이블 수요 폭증 · Gorilla Glass', mcap:40, rsi:55, index:'SP500' },
   { sym:'VRT', name:'Vertiv Holdings', sector:'Industrials', signal:'BUY', memo:'DC 냉각/전력 인프라 · AI 전력 수요 수혜 · GPU TDP H100=700W→Vera Rubin=2300W · 랙 120kW→600kW→1MW · 800V DC 전환 수혜', mcap:42, rsi:48, index:'SP500' },
@@ -12055,10 +12055,12 @@ var SCR_KEYWORD_ALIASES = {
   'etf': ['SPY','QQQ','IWM','DIA','VOO','VTI','GLD','TLT','HYG','EEM','EFA','AGG','BND','SOXX','ARKK'],
   '지수': ['SPY','QQQ','IWM','DIA'],
   // 새 카테고리
-  '광모듈': ['AAOI','COHR','LITE','CIEN','GLW','VIAV'],
-  '광통신': ['AAOI','COHR','LITE','CIEN','GLW','VIAV'],
-  'photonics': ['AAOI','COHR','LITE','CIEN','GLW','VIAV'],
-  'optical': ['AAOI','COHR','LITE','CIEN','GLW','VIAV'],
+  '광모듈': ['AAOI','COHR','LITE','CIEN','GLW','VIAV','MRVL'],
+  '광통신': ['AAOI','COHR','LITE','CIEN','GLW','VIAV','MRVL'],
+  'photonics': ['AAOI','COHR','LITE','CIEN','GLW','VIAV','MRVL'],
+  'optical': ['AAOI','COHR','LITE','CIEN','GLW','VIAV','MRVL'],
+  'ai-optical': ['COHR','LITE','MRVL','AAOI','GLW','CIEN'],
+  'AI광학': ['COHR','LITE','MRVL','AAOI','GLW','CIEN'],
   '데이터센터': ['VRT','DELL','HPE','EQIX','DLR','ANET'],
   'datacenter': ['VRT','DELL','HPE','EQIX','DLR','ANET'],
   '밈주식': ['GME','AMC'],
@@ -13837,6 +13839,12 @@ const TECH_KW = [
   'Teralight','POET','optical interposer','InP','InP substrate','indium phosphide',
   'GaAs','gallium arsenide','EAM','MZM','MRM','TFLN','thin film lithium niobate',
   'NVIDIA COUPE','OFC 2026','optical standard','multimode fiber','MMF','single mode fiber','SMF',
+  // v39.0f: NVIDIA 광학 제국 + AI 경쟁 구도 (2026.04)
+  'Photonic Fabric','Celestial AI','NVLink Fusion','optical scale-up',
+  'Ayar Labs','TeraPHY','Lightmatter','Passage','photonic interposer',
+  'Scintil Photonics','OCS','optical circuit switch','R300 OCS',
+  'MAI-Transcribe','MAI-Voice','MAI-Image','Microsoft AI','Mustafa Suleyman',
+  'Maia chip','custom XPU','Structera',
   // v38.6: DC 전력 심화 (HVDC, 전력 스택, parasitic loss)
   'HVDC','high voltage DC','parasitic energy','parasitic loss',
   'skin effect','thyristor','IGBT','power semiconductor','VRM',
@@ -13863,7 +13871,7 @@ const TECH_KW = [
   // 컴퓨팅·네트워크
   'custom silicon','custom ASIC','Trainium','Inferentia','MTIA',
   'RISC-V','ARM architecture','Arm Holdings',
-  'InfiniBand','NVLink','Ultra Ethernet','UALink',
+  'InfiniBand','NVLink','NVLink 6.0','Ultra Ethernet','UALink','NVLink Fusion',
   'DPU','SmartNIC','network switch','Tomahawk','Jericho',
   // 데이터센터·전력·냉각
   'liquid cooling','immersion cooling','direct-to-chip cooling',
@@ -22493,6 +22501,12 @@ const CHAT_CONTEXTS = {
         '• LTA(장기공급계약) 시그널: 2027년 LTA 협상에 최소가격(floor price)+선지급(prepayment) 조항 포함 전망. 26년 LTA 미확보 구매자 → 27년 더 높은 가격 수용 불가피. 삼성전자 2Q26 견적가 조기 발표 + 유연한 상향 조항.\n' +
         '• 수혜 체인: NVDA(GPU) → AVGO/MRVL(네트워킹) → 삼성전자/SK하이닉스/마이크론(메모리) → CoreWeave/Nebius(네오클라우드) → SMCI/DELL(서버) → Vertiv/EATON(전력/냉각)\n' +
         '⚠️ 반도체 종목 분석 시 단순 PER이 아니라 "공급 제약 지속 기간"과 "가격결정력(pricing power)" 관점에서 판단하라.\n\n' +
+        '【NVIDIA 광학 제국 & AI 경쟁 구도 (2026.04)】\n' +
+        '• NVIDIA 광학 3레이어: L1 Scale-out(rack간, CPO — COHR/LITE, 2026-27) → L2 Scale-up(GPU간, Photonic Fabric — MRVL/Celestial AI + NVLink Fusion, 2028-29) → L3 In-package(칩내부, Ayar Labs/Lightmatter, 2029+)\n' +
+        '• NVIDIA 투자 공식: 투자($2B) → 제조확장 → 물량선점. 4개월 $12B+(Synopsys/CoreWeave/COHR/LITE/Nebius/MRVL 각 $2B). Supply chain 병목 위치에 다음 수혜주.\n' +
+        '• InP 기판 병목: Sumitomo(60%)+AXT(35%)=95%. 수요200만 vs 공급60만. 중국 인듐 수출통제. COHR 6인치 InP 라인 구축 중.\n' +
+        '• UALink vs NVLink Fusion: NVLink Fusion은 경쟁사 칩을 포용하면서 자기 생태계 lock-in. MRVL을 NVLink 진영으로 확보.\n' +
+        '• AI 모델 군비경쟁: MSFT MAI 3종(2026.04, 2027 frontier 목표), Google Gemini 3.1, Meta Llama, Apple 자체모델. 빅테크 전부 자체 학습 = 컴퓨트 수요 다변화 = GPU/메모리/네트워킹 구조적 수혜.\n\n' +
         '【응답 프레임워크 — "매매 판단을 이야기로"】\n' +
         '1. 감정 인정으로 시작: "지금 사도 될까? — 이 질문 뒤에는 두려움과 기대가 공존한다. 먼저 데이터로 확인해보자." (감정-논리 블렌딩, 사용자 공감 먼저)\n' +
         '2. 5가지 컴포넌트를 하나씩 서사적으로 풀어가기: 단순 나열이 아니라 "첫 번째 체크: 변동성 ✅ — 안정 구간이다. 두 번째..." 식으로 흐름을 만들어라.\n' +
@@ -22617,6 +22631,10 @@ const CHAT_CONTEXTS = {
         // v37.5: 구버전 newsCache.slice(0,5) 제거 — _buildNewsContext()가 토픽·관련도 기반으로 주입
         '【지정학 컨텍스트 (2026.03)】\n' +
         '미-이란 전쟁 지속. 호르무즈 봉쇄 위험(사우디 송유관 우회), 후티 미사일, 이스라엘-레바논 다전선. Brent 기본 $120, 봉쇄 시 $150. 에너지 수입 의존 지역(일본·유럽) 교역조건 악화 취약.\n\n' +
+        '【AI 경쟁 구도 & 시장 전환 (2026.04)】\n' +
+        '• 빅테크 AI 군비경쟁: MSFT MAI 자체모델 3종 출시(음성/이미지/전사, 2027 frontier 목표), Google Gemini 3.1+Veo3, Meta Llama. OpenAI 의존→자체 구축 전환 = 컴퓨트 수요 제2파동.\n' +
+        '• NVIDIA 광학 투자 $12B+(4개월): 개별 뉴스가 아닌 하나의 전략. 투자→제조확장→물량선점 공식 반복. copper→optical 전환 가속.\n' +
+        '• 시장 전환 프레임: 반도체가 끝난 게 아니라 속도가 꺾이며 다음 서사(SW/플랫폼)로 넘어가는 과정. 하드웨어 위에 올라탈 다음 레이어를 봐라.\n\n' +
         '【미너비니 원칙 — 뉴스 vs 시장 구조 분리】\n' +
         '큰 반등이 나왔을 때: "뉴스가 트리거였지만, 시장이 이미 과매도에서 반등 준비가 돼 있었다. 원인과 결과를 혼동하지 마라."\n' +
         '• 매크로 미해결(유가 고공, 인플레 압력, Fed 동결) 상태에서의 랠리 = 조정 중 랠리(rally within correction)일 가능성\n' +
@@ -23027,7 +23045,8 @@ const CHAT_CONTEXTS = {
         '【AI 밸류체인 계층 맵】\n' +
         '• L1 반도체: GPU(NVDA), 메모리/HBM(MU/SK하이닉스), 장비(ASML/AMAT) — 가장 확실한 수혜, 고밸류에이션\n' +
         '• L2 인프라: 클라우드(AMZN/MSFT/GOOG), 네트워크(ANET/CSCO), 전력/냉각(EATON/VRT) — AI 확장의 물리적 기반\n' +
-        '• L3 플랫폼: AI 모델(MSFT-OpenAI/GOOG-Gemini/META-Llama), AI SaaS(CRM/NOW) — 소프트웨어 레이어\n' +
+        '• L2.5 광학 인터커넥트: CPO 레이저(COHR/LITE), 광DSP/Photonic Fabric(MRVL), OCS(LITE R300), 실리콘포토닉스 — NVIDIA 4개월 $12B 투자 집중 영역. copper→optical 전환의 핵심 병목.\n' +
+        '• L3 플랫폼: AI 모델(MSFT-MAI/OpenAI/GOOG-Gemini/META-Llama), AI SaaS(CRM/NOW) — 소프트웨어 레이어. MSFT 2027 frontier 자체모델 목표.\n' +
         '• L4 응용: AI 에이전트, 자율주행, 로보틱스, AI 헬스케어 — 장기 비전, 고위험 고보상\n' +
         '⚠️ 밸류체인 상위(L1)일수록 확실하지만 비싸고, 하위(L4)일수록 불확실하지만 잠재력 큼.\n\n' +
         '【에너지 전환 맵 — 2026 포커스】\n' +
