@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v40.3 — 올인원 투자 터미널</title>
+  <title>AIO Screener v40.4 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -141,7 +141,7 @@
 
 /* 인라인 font-size 6px~7px → 10px 최소 보장 */
 .page [style*="font-size:6px"],
-/* v40.3: 최소 글자 크기 강제 — 모든 인라인 7~10px을 최소 11px로 */
+/* v40.4: 최소 글자 크기 강제 — 모든 인라인 7~10px을 최소 11px로 */
 .page [style*="font-size: 6px"],
 .page [style*="font-size:6px"] { font-size: 11px !important; }
 .page [style*="font-size:7px"],
@@ -265,7 +265,8 @@ body {
   text-rendering: optimizeLegibility;
 }
 .app { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
-.sidebar { width: var(--sidebar-w); background: var(--bg-surface); border-right: 1px solid rgba(255,255,255,0.12); overflow-y: auto; display: flex; flex-direction: column; /* v30.7: 사이드바 테두리 강화 */ }
+.sidebar { width: var(--sidebar-w); background: var(--bg-surface); border-right: 1px solid rgba(255,255,255,0.12); overflow-y: auto; display: flex; flex-direction: column; transition: margin-left 0.3s, width 0.3s; flex-shrink: 0; }
+.sidebar.collapsed { margin-left: calc(-1 * var(--sidebar-w)); width: 0; overflow: hidden; }
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 .topbar { background: var(--bg-surface); border-bottom: 1px solid rgba(255,255,255,0.12); padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; /* v30.7: 상단바 테두리 강화 */ }
 .content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; min-height: 0; }
@@ -297,8 +298,8 @@ body {
 }
 .nav-section { padding: 0 6px 10px; }
 .nav-label {
-  font-size: 11px; /* v40.3: 10→11px */
-  color: #8b95a5; /* v40.3: var(--text-muted) → 밝게 */
+  font-size: 11px; /* v40.4: 10→11px */
+  color: #8b95a5; /* v40.4: var(--text-muted) → 밝게 */
   font-weight: 700;
   padding: 8px 10px 4px;
   letter-spacing: 0.10em;
@@ -360,9 +361,9 @@ body {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.12s;
-  color: #cbd5e1; /* v40.3: 선명도 개선 — var(--text-secondary) #94a3b8 → #cbd5e1 */
-  font-size: 13px; /* v40.3: 12→13px */
-  font-weight: 600; /* v40.3: 500→600 */
+  color: #cbd5e1; /* v40.4: 선명도 개선 — var(--text-secondary) #94a3b8 → #cbd5e1 */
+  font-size: 13px; /* v40.4: 12→13px */
+  font-weight: 600; /* v40.4: 500→600 */
   border-left: 2px solid transparent;
   letter-spacing: 0.01em;
 }
@@ -1991,6 +1992,7 @@ body.light-theme canvas { filter:none; }
       <div class="topbar" style="justify-content:space-between;">
         <div style="display:flex;align-items:center;gap:8px;">
           <button class="mobile-hamburger" onclick="toggleMobileMenu()" aria-label="메뉴 열기">☰</button>
+          <button onclick="toggleSidebar()" style="background:none;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;padding:4px 6px;border-radius:4px;display:none;" id="sidebar-toggle-btn" title="사이드바 열기/닫기">☰</button>
           <div id="breadcrumb"></div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
@@ -2015,7 +2017,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v40.3</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v40.4</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4060,26 +4062,6 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- Chat Panel -->
-  <div class="aio-chat" id="chat-technical" style="margin-top:16px;">
-    <div class="acp-header">
-      <span class="acp-title">AI 기술적 분석가</span>
-      <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형</span>
-      <button class="acp-expand-btn" onclick="toggleChatExpand('technical')" title="채팅 영역 확장/축소">↗ 확장</button><button class="acp-clear" onclick="chatClear('technical')" title="대화 초기화">✕</button>
-    </div>
-    <div class="acp-messages" id="chat-technical-msgs"></div>
-    <div class="acp-chips" id="chat-technical-chips">
-      <div class="q-chip" onclick="chatFromChip('technical',this.textContent.trim())">S&P 500 지금 몇 단계야?</div>
-      <div class="q-chip" onclick="chatFromChip('technical',this.textContent.trim())">NVDA 매수 타이밍?</div>
-      <div class="q-chip" onclick="chatFromChip('technical',this.textContent.trim())">VIX 30 넘으면?</div>
-      <div class="q-chip" onclick="chatFromChip('technical',this.textContent.trim())">VCP 셋업 설명해줘</div>
-    </div>
-    <div class="acp-input-row">
-      <input id="chat-technical-inp" placeholder="종목/지수 기술적 분석 질문…"
-             onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSend('technical')}"/>
-      <button id="chat-technical-btn" onclick="chatSend('technical')">전송 ▶</button>
-    </div>
-  </div>
 </div>
 <div class="page" id="page-macro">
   <div class="insight-box box-collapsed">
@@ -4549,26 +4531,6 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- Chat Panel -->
-  <div class="aio-chat" id="chat-macro" style="margin-top:16px;">
-    <div class="acp-header">
-      <span class="acp-title">AI 매크로 전략가</span>
-      <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형</span>
-      <button class="acp-expand-btn" onclick="toggleChatExpand('macro')" title="채팅 영역 확장/축소">↗ 확장</button><button class="acp-clear" onclick="chatClear('macro')" title="대화 초기화">✕</button>
-    </div>
-    <div class="acp-messages" id="chat-macro-msgs"></div>
-    <div class="acp-chips" id="chat-macro-chips">
-      <div class="q-chip" onclick="chatFromChip('macro',this.textContent.trim())">지금 금리 어떻게 돼?</div>
-      <div class="q-chip" onclick="chatFromChip('macro',this.textContent.trim())">유가 올라가면 내 주식은?</div>
-      <div class="q-chip" onclick="chatFromChip('macro',this.textContent.trim())">경기침체 올까?</div>
-      <div class="q-chip" onclick="chatFromChip('macro',this.textContent.trim())">달러 약세면 뭐 사야해?</div>
-    </div>
-    <div class="acp-input-row">
-      <input id="chat-macro-inp" placeholder="매크로, 금리, 환율에 대해 편하게 질문하세요…"
-             onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSend('macro')}"/>
-      <button id="chat-macro-btn" onclick="chatSend('macro')">전송 ▶</button>
-    </div>
-  </div>
 </div>
     <!-- ═══════════════ PAGE: FUNDAMENTAL (기업 분석) ═══════════════ -->
 
@@ -5235,21 +5197,6 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- ══ SECTION I: AI 채팅 분석 ══════════════════════ -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
-    <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">🤖 AI 환율·채권 분석</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-      <button onclick="chatFromChip('fxbond','지금 원달러 환율 전망은?')" class="tb-btn">원달러 전망</button>
-      <button onclick="chatFromChip('fxbond','미국 10년물 금리가 주식시장에 미치는 영향?')" class="tb-btn">10Y 금리 영향</button>
-      <button onclick="chatFromChip('fxbond','엔캐리 트레이드 청산 리스크 분석해줘')" class="tb-btn">엔캐리 리스크</button>
-      <button onclick="chatFromChip('fxbond','환율 헷지 전략 추천해줘')" class="tb-btn">환율 헷지 전략</button>
-    </div>
-    <div style="display:flex;gap:6px;">
-      <input id="chat-fxbond-inp" placeholder="환율, 금리, 채권 관련 질문을 입력하세요..." style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:11px;" onkeydown="if(event.key==='Enter')chatSend('fxbond')" />
-      <button id="chat-fxbond-btn" onclick="chatSend('fxbond')" style="background:#3b82f6;border:none;color:#fff;font-size:11px;font-weight:700;padding:8px 16px;border-radius:6px;cursor:pointer;">AI 분석</button>
-    </div>
-    <div id="chat-fxbond-msgs" style="margin-top:8px;max-height:120px;overflow-y:auto;overflow-x:hidden;padding-bottom:16px;"></div>
-  </div>
 </div><!-- fix: page-fxbond outer close -->
 
 
@@ -5379,26 +5326,6 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- Chat Panel — AI 종합 기업 분석 -->
-    <div class="aio-chat" id="chat-fundamental" style="margin-top:16px;">
-      <div class="acp-header">
-        <span class="acp-title">AI 기업 분석가</span>
-        <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · SEC+FMP 데이터 기반 · 15개 관점 분석</span>
-        <button class="acp-expand-btn" onclick="toggleChatExpand('fundamental')" title="채팅 영역 확장/축소">↗ 확장</button><button class="acp-clear" onclick="chatClear('fundamental')" title="대화 초기화">✕</button>
-      </div>
-      <div class="acp-messages" id="chat-fundamental-msgs"></div>
-      <div class="acp-chips" id="chat-fundamental-chips">
-        <div class="q-chip" onclick="chatFromChip('fundamental',this.textContent.trim())">종합 기업 분석</div>
-        <div class="q-chip" onclick="chatFromChip('fundamental',this.textContent.trim())">재무제표 심층 분석</div>
-        <div class="q-chip" onclick="chatFromChip('fundamental',this.textContent.trim())">경쟁 구조 & 해자</div>
-        <div class="q-chip" onclick="chatFromChip('fundamental',this.textContent.trim())">리스크 & 투자 포인트</div>
-      </div>
-      <div class="acp-input-row">
-        <input id="chat-fundamental-inp" placeholder="종목명이나 질문을 입력하세요... (예: NVDA 종합 분석해줘)"
-               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSend('fundamental')}"/>
-        <button id="chat-fundamental-btn" onclick="chatSend('fundamental')">전송 ▶</button>
-      </div>
-    </div>
   </div>
     <!-- ═══════════════ PAGE: THEMES (테마 분석) ═══════════════ -->
   <div class="page" id="page-themes">
@@ -5549,26 +5476,6 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- Chat Panel -->
-    <div class="aio-chat" id="chat-themes" style="margin-top:16px;">
-      <div class="acp-header">
-        <span class="acp-title">AI 섹터·테마 전략가</span>
-        <span style="margin-left:auto;font-size:10px;font-family:var(--font-mono);color:var(--text-muted);">Claude AI · 적응형</span>
-        <button class="acp-expand-btn" onclick="toggleChatExpand('themes')" title="채팅 영역 확장/축소">↗ 확장</button><button class="acp-clear" onclick="chatClear('themes')" title="초기화">✕</button>
-      </div>
-      <div class="acp-messages" id="chat-themes-msgs"></div>
-      <div class="acp-chips" id="chat-themes-chips">
-        <div class="q-chip" onclick="chatFromChip('themes',this.textContent.trim())">지금 주도 섹터는?</div>
-        <div class="q-chip" onclick="chatFromChip('themes',this.textContent.trim())">AI 테마 전망은?</div>
-        <div class="q-chip" onclick="chatFromChip('themes',this.textContent.trim())">에너지 아직 탈만해?</div>
-        <div class="q-chip" onclick="chatFromChip('themes',this.textContent.trim())">다음 주도 테마 후보는?</div>
-      </div>
-      <div class="acp-input-row">
-        <input id="chat-themes-inp" placeholder="섹터, 테마, 트렌드에 대해 질문하세요..."
-               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSend('themes')}"/>
-        <button id="chat-themes-btn" onclick="chatSend('themes')">전송 ▶</button>
-      </div>
-    </div>
   </div>
     <!-- ═══════════════ PAGE: THEME-DETAIL (테마 상세) ═══════════════ -->
   <div class="page" id="page-theme-detail">
@@ -5737,7 +5644,7 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- v40.3: 포트폴리오 비중 시각화 + 섹터 + 현금 -->
+    <!-- v40.4: 포트폴리오 비중 시각화 + 섹터 + 현금 -->
     <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;margin-bottom:14px;">
       <!-- 비중 도넛 -->
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;">
@@ -5879,28 +5786,6 @@ body.light-theme canvas { filter:none; }
       <div id="pf-analysis-text" style="padding:10px;font-size:10.5px;color:var(--text-secondary);line-height:1.7;">포트폴리오를 추가하면 자동 분석됩니다</div>
     </div>
 
-    <!-- 포트폴리오 AI 분석 -->
-    <div class="aio-chat" id="chat-portfolio" style="margin-top:12px;">
-      <div class="acp-header">
-        <span class="acp-title">포트폴리오 AI 분석</span>
-        <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형</span>
-        <button class="acp-expand-btn" onclick="toggleChatExpand('portfolio')" title="채팅 영역 확장/축소">↗ 확장</button><button class="acp-clear" onclick="chatClear('portfolio')" title="대화 초기화">✕</button>
-      </div>
-      <div class="acp-messages" id="chat-portfolio-msgs"></div>
-      <div class="acp-chips" id="chat-portfolio-chips">
-        <div class="q-chip" onclick="chatFromChip('portfolio','내 포트폴리오 전체 분석해줘')">전체 분석</div>
-        <div class="q-chip" onclick="chatFromChip('portfolio','리스크가 가장 높은 종목은?')">리스크 진단</div>
-        <div class="q-chip" onclick="chatFromChip('portfolio','리밸런싱 필요한 부분 있어?')">리밸런싱 제안</div>
-        <div class="q-chip" onclick="chatFromChip('portfolio','섹터 쏠림 괜찮아?')">섹터 집중도</div>
-        <div class="q-chip" onclick="chatFromChip('portfolio','목표가 대비 현재 상태 점검해줘')">목표가 점검</div>
-        <div class="q-chip" onclick="chatFromChip('portfolio','손절/익절 기준을 잡아줘')">손익 전략</div>
-      </div>
-      <div class="acp-input-row">
-        <input id="chat-portfolio-inp" placeholder="내 포트폴리오에 대해 질문하세요..."
-               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSend('portfolio')}"/>
-        <button id="chat-portfolio-btn" onclick="chatSend('portfolio')">전송 ▶</button>
-      </div>
-    </div>
 
     </div><!-- pf-main -->
   </div>
@@ -7400,7 +7285,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <div class="kr-theme-grid" id="kr-theme-container">
-      <!-- v40.3: 정적 HTML 제거. KR_THEME_MAP 기반 JS 동적 생성 (renderKrThemeCardsFromMap). -->
+      <!-- v40.4: 정적 HTML 제거. KR_THEME_MAP 기반 JS 동적 생성 (renderKrThemeCardsFromMap). -->
       <!-- ━━━ 아래는 renderKrThemeCardsFromMap()가 동적 생성 ━━━ -->
     </div>
 
@@ -7423,22 +7308,6 @@ body.light-theme canvas { filter:none; }
     <div class="data-widget" style="margin-bottom:12px;">
       <div class="widget-title">📊 테마 동향 자동 분석</div>
       <div id="kr-themes-analysis-text" style="padding:10px;font-size:10.5px;color:var(--text-secondary);line-height:1.7;">테마 데이터 로딩 중...</div>
-    </div>
-
-    <!-- v34.6: kr-themes AI 테마 상담 채팅 패널 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-top:14px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🤖 AI 국내 테마 전략 상담</div>
-      <div id="chat-kr-themes-msgs" style="min-height:60px;max-height:180px;overflow-y:auto;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-        <button onclick="chatFromChip('kr-themes','K-방산 테마 지금 어느 단계야? 아직 더 오를 수 있어?')" class="tb-btn" style="font-size:9px;">방산 단계분석</button>
-        <button onclick="chatFromChip('kr-themes','2차전지 반등 시점은 언제쯤? 외국인 수급은?')" class="tb-btn" style="font-size:9px;">2차전지 전망</button>
-        <button onclick="chatFromChip('kr-themes','조선주 진입해도 될까? 밸류에이션은?')" class="tb-btn" style="font-size:9px;">조선 밸류</button>
-        <button onclick="chatFromChip('kr-themes','반도체 HBM 수출 지속될까? 삼성 vs 하이닉스?')" class="tb-btn" style="font-size:9px;">HBM 전망</button>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <input id="chat-kr-themes-inp" placeholder="국내 테마·섹터 분석 질문을 입력하세요..." style="flex:1;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')chatSend('kr-themes')" />
-        <button id="chat-kr-themes-btn" onclick="chatSend('kr-themes')" style="background:#f59e0b;border:none;color:#000;font-size:10px;font-weight:700;padding:8px 14px;border-radius:6px;cursor:pointer;">전송</button>
-      </div>
     </div>
 
   </div><!-- /page-kr-themes -->
@@ -7724,22 +7593,6 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- v34.6: kr-macro AI 매크로 상담 채팅 패널 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-top:14px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🤖 AI 한국 경제 전문가 상담</div>
-      <div id="chat-kr-macro-msgs" style="min-height:60px;max-height:180px;overflow-y:auto;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-        <button onclick="chatFromChip('kr-macro','한은 금리 인하 언제? 부동산·주식 영향은?')" class="tb-btn" style="font-size:9px;">금리 인하 시나리오</button>
-        <button onclick="chatFromChip('kr-macro','원/달러 1,500원 돌파하면 어떤 영향이 있어?')" class="tb-btn" style="font-size:9px;">환율 영향</button>
-        <button onclick="chatFromChip('kr-macro','코리아 디스카운트 해소 가능성은?')" class="tb-btn" style="font-size:9px;">코리아 디스카운트</button>
-        <button onclick="chatFromChip('kr-macro','반도체 수출이 KOSPI에 미치는 영향 분석해줘')" class="tb-btn" style="font-size:9px;">반도체-KOSPI</button>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <input id="chat-kr-macro-inp" placeholder="한국 경제·금리·환율 관련 질문을 입력하세요..." style="flex:1;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')chatSend('kr-macro')" />
-        <button id="chat-kr-macro-btn" onclick="chatSend('kr-macro')" style="background:#3b82f6;border:none;color:#fff;font-size:10px;font-weight:700;padding:8px 14px;border-radius:6px;cursor:pointer;">전송</button>
-      </div>
-    </div>
-
   </div><!-- /page-kr-macro -->
 
 
@@ -7957,21 +7810,6 @@ body.light-theme canvas { filter:none; }
           <div style="font-size:10px;font-weight:700;color:#a78bfa;margin-bottom:4px;">RSI 다이버전스</div>
           <div style="font-size:8px;color:var(--text-muted);line-height:1.6;">주가와 RSI가 반대 방향으로 움직이는 현상. <strong>주가 신고가 + RSI 하락 = 약세 다이버전스</strong> (상승 힘 약화). 주가 신저가 + RSI 상승 = 강세 다이버전스 (바닥 신호). 추세 전환의 선행 지표입니다.</div>
         </div>
-      </div>
-    </div>
-
-    <!-- AI 차트 상담 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🤖 AI 한국장 기술 분석 상담</div>
-      <div id="chat-kr-tech-msgs" style="min-height:60px;max-height:180px;overflow-y:auto;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-        <button onclick="chatFromChip('kr-tech','삼성전자 지금 Weinstein 몇 단계야? 매수 타이밍 맞아?')" class="tb-btn" style="font-size:9px;">삼성전자 단계분석</button>
-        <button onclick="chatFromChip('kr-tech','KOSPI가 20일선 아래로 내려왔는데 건전한 조정이야 추세전환이야?')" class="tb-btn" style="font-size:9px;">KOSPI 조정판별</button>
-        <button onclick="chatFromChip('kr-tech','SK하이닉스 RSI 다이버전스 보이는데 어떻게 해석해?')" class="tb-btn" style="font-size:9px;">하이닉스 RSI</button>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <input id="chat-kr-tech-inp" placeholder="한국 종목 기술 분석 질문..." style="flex:1;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')chatSend('kr-tech')" />
-        <button id="chat-kr-tech-btn" onclick="chatSend('kr-tech')" style="background:#ef4444;border:none;color:#fff;font-size:10px;font-weight:700;padding:8px 14px;border-radius:6px;cursor:pointer;">전송</button>
       </div>
     </div>
 
@@ -9501,7 +9339,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v40.3';
+const APP_VERSION = 'v40.4';
 
 // v34.5: 프로덕션 로그 억제 — console.log만 조건부 억제, warn/error는 유지
 // URL에 ?debug=1 추가 시 전체 로그 활성화 (개발 모드)
@@ -17868,7 +17706,7 @@ function generateDynamicBriefing() {
   html += '<div style="font-size:8px;color:' + vixColor + ';margin-top:3px;">' + fmtPct(vixChg) + ' · ' + vixLabel + '</div></div>';
   html += '</div>';
 
-  // ── v40.3: NASDAQ · Gold · USD/KRW 추가 3컬럼 ──
+  // ── v40.4: NASDAQ · Gold · USD/KRW 추가 3컬럼 ──
   var ndx = ld['^IXIC'] || {};
   var ndxPrice = ndx.price || 0;
   var ndxChg = (ndx.pct != null ? ndx.pct : 0);
@@ -17897,7 +17735,7 @@ function generateDynamicBriefing() {
     html += '</div>';
   }
 
-  // ── v40.3: 트레이딩 스코어 게이지 ──
+  // ── v40.4: 트레이딩 스코어 게이지 ──
   var tsScore = 50, tsLabel = '분석중', tsColor = 'var(--text-secondary)';
   try {
     if (typeof computeTradingScore === 'function') {
@@ -17919,7 +17757,7 @@ function generateDynamicBriefing() {
   html += '<div style="height:100%;width:' + tsPct + '%;background:' + tsColor + ';border-radius:3px;transition:width 0.5s;"></div>';
   html += '</div></div>';
 
-  // ── v40.3: 섹터 히트맵 ──
+  // ── v40.4: 섹터 히트맵 ──
   var sectorETFs = [{s:'XLK',n:'기술'},{s:'XLF',n:'금융'},{s:'XLE',n:'에너지'},{s:'XLV',n:'헬스'},{s:'XLI',n:'산업'},{s:'XLY',n:'소비'},{s:'XLP',n:'필수'},{s:'XLRE',n:'리츠'},{s:'XLB',n:'소재'},{s:'XLU',n:'유틸'},{s:'XLC',n:'통신'}];
   var secHasData = false;
   sectorETFs.forEach(function(e) { if (ld[e.s] && ld[e.s].pct != null) secHasData = true; });
@@ -17941,7 +17779,7 @@ function generateDynamicBriefing() {
     html += '</div></div>';
   }
 
-  // ── v40.3: M7 리더십 미니 바 ──
+  // ── v40.4: M7 리더십 미니 바 ──
   var m7syms = ['AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'];
   var m7Has = false;
   m7syms.forEach(function(t) { if (ld[t] && ld[t].pct != null) m7Has = true; });
@@ -17968,7 +17806,7 @@ function generateDynamicBriefing() {
   }
 
   el.innerHTML = html;
-  console.log('[AIO v40.3] 동적 브리핑 생성 완료 (' + dateStr + ' ' + timeStr + ')');
+  console.log('[AIO v40.4] 동적 브리핑 생성 완료 (' + dateStr + ' ' + timeStr + ')');
 }
 
 // v35.8: 스크리너 DB mcap 라이브 업데이트
@@ -19995,7 +19833,7 @@ try { window.addEventListener('popstate', (e) => {
     if(typeof computeMarketHealth==='function') { try { var h=computeMarketHealth(); var hd=document.getElementById('health-score-display'); var hg=document.getElementById('health-grade-display'); if(hd)hd.textContent=h.score; if(hg){hg.textContent=h.grade;hg.style.color=h.score>=60?'#3ddba5':h.score>=40?'#fbbf24':'#f87171';} } catch(e) {} }
     if(typeof updatePatternSignals==='function') { try { updatePatternSignals(); } catch(e) {} }
     if(typeof updateTechIndicators==='function') { try { updateTechIndicators(); } catch(e) {} }
-    // v40.3: TradingView 자동 로드 (SPY 기본)
+    // v40.4: TradingView 자동 로드 (SPY 기본)
     var tvTechC = document.getElementById('tv-widget-technical');
     if(tvTechC && !tvTechC.querySelector('iframe') && typeof loadTVChart==='function') { try { loadTVChart('technical'); } catch(e) {} }
   });
@@ -20890,7 +20728,7 @@ function renderPortfolio() {
   });
 
   updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDailyChg);
-  // v40.3: 포지션 도넛 + 섹터 브레이크다운 갱신
+  // v40.4: 포지션 도넛 + 섹터 브레이크다운 갱신
   drawPositionDonut();
   // 현금 입력 필드 복원
   var cashInp = document.getElementById('pf-cash-input');
@@ -21961,8 +21799,8 @@ const CHAT_CONTEXTS = {
         '⚠ 주가·지수 분석 시 위 종가 기준. 금리·환율·유가·VIX 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
 
-        // v40.3: 매크로 변수 교차 분석 프레임
-        '【매크로 변수 교차 분석 프레임 (v40.3)】\n' +
+        // v40.4: 매크로 변수 교차 분석 프레임
+        '【매크로 변수 교차 분석 프레임 (v40.4)】\n' +
         '단일 변수 해석 금지. 반드시 교차 조합으로 판단:\n' +
         '• 금리↑ + 달러↑ + 유가↑ = "트리플 긴축" → 성장주 밸류에이션 압축 + 이머징 자금유출 + 소비 위축. 가장 위험한 조합.\n' +
         '• 금리↓ + 달러↓ + 유가↓ = "트리플 완화" → 성장주 리레이팅 + 신흥국 유입 + 소비 회복. 이상적 환경.\n' +
@@ -21972,8 +21810,8 @@ const CHAT_CONTEXTS = {
         '• VIX↑ + 10Y↓ = "안전자산 도피"(주식 매도 → 채권 매수). VIX↑ + 10Y↑ = 최악(주식도 채권도 매도).\n' +
         '→ 현재 금리 ' + s.tnx + '% / DXY ' + s.dxy + ' / WTI $' + s.wti + ' / VIX ' + s.vix + ' 조합이 위 시나리오 중 어디에 해당하는가?\n\n' +
 
-        // v40.3: 금리 에스컬레이션 래더
-        '【금리 에스컬레이션 래더 (v40.3)】\n' +
+        // v40.4: 금리 에스컬레이션 래더
+        '【금리 에스컬레이션 래더 (v40.4)】\n' +
         '• 10Y 3.5%↓: 성장주 우호, 멀티플 확장, 리츠/유틸 강세\n' +
         '• 10Y 3.5-4.0%: 중립. 실적 성장이 주가 방향 결정\n' +
         '• 10Y 4.0-4.5%: 긴축 임계점. 고PE 종목 압박, 은행/보험 수혜\n' +
@@ -21981,8 +21819,8 @@ const CHAT_CONTEXTS = {
         '• 10Y 5.0%+: 2007 이후 최고. 주식 자금 채권으로 대이동. 경기침체 선행 가능\n' +
         '현재 10Y ' + s.tnx + '% → 위 래더에서 현재 위치와 다음 단계 리스크를 명시.\n\n' +
 
-        // v40.3: 달러 에스컬레이션 래더
-        '【달러(DXY) 에스컬레이션 래더 (v40.3)】\n' +
+        // v40.4: 달러 에스컬레이션 래더
+        '【달러(DXY) 에스컬레이션 래더 (v40.4)】\n' +
         '• DXY 98↓: 달러 약세 — 신흥국/원자재/금 강세. 수출주 역풍, 해외수익 환산 유리\n' +
         '• DXY 100-103: 중립 구간\n' +
         '• DXY 104-107: 달러 강세 — 이머징 압박 시작, 원자재 약세 압력\n' +
@@ -21993,7 +21831,7 @@ const CHAT_CONTEXTS = {
         '유가↑ → 물가↑ → Fed 금리↑ → 달러↑ → 신흥국 자금 유출 → 수요↓ → 유가↓... 경제의 호흡.\n' +
         '⚠️ 최신 데이터가 "—"이면 확정 발언 자제.\n\n' +
 
-        // v40.3: Fed 정책 경로 시나리오
+        // v40.4: Fed 정책 경로 시나리오
         '【Fed 정책 경로 시나리오 (2026.04)】\n' +
         '• 기본(65%): 동결 3.50-3.75% 유지. 유가발 인플레 vs 경기둔화 관망. 데이터 의존.\n' +
         '• 인하(20%): 유가 안정 + 고용 둔화 시 2026 하반기 1-2회 인하. 성장주 리레이팅 기회.\n' +
@@ -22006,8 +21844,8 @@ const CHAT_CONTEXTS = {
         '• $150+/bbl(테일): 강제적 수요 파괴 + 경기 침체. 에너지 압박 장기화 시 기업 방어적 고용.\n' +
         '• 크로스에셋: 채권-주식 양의 상관(안전자산 실종). 2Y UST 롱. 호르무즈 재개통 = 필요조건이지 충분조건 아님.\n\n' +
 
-        // v40.3: 경기 사이클 위치 판별
-        '【경기 사이클 현재 위치 판별 (v40.3)】\n' +
+        // v40.4: 경기 사이클 위치 판별
+        '【경기 사이클 현재 위치 판별 (v40.4)】\n' +
         '• 확장 초기(Early): ISM↑ + 금리↓ + 실업↓ → 경기민감주/소형주 강세\n' +
         '• 확장 중기(Mid): ISM 50+ 안정 + 금리 상승 시작 → 테크/성장주 주도\n' +
         '• 확장 후기(Late): ISM 고점 후 하락 + 금리↑ + 임금↑ → 에너지/소재/가치주. 인플레 헤지 필요\n' +
@@ -22018,7 +21856,7 @@ const CHAT_CONTEXTS = {
         '• 상수/변수 분리: 이미 반영된 뉴스(상수)와 미반영 불확실성(변수) 구분.\n' +
         '• 에스컬레이션 래더: 유가·금리·달러 각각의 단계별 임팩트.\n' +
         '• 비유+정량 병행: 비유로 흐름을 잡고, 즉시 정량적 인과 분석으로 연결.\n\n' +
-        '【응답 프레임워크 (v40.3 고도화)】\n' +
+        '【응답 프레임워크 (v40.4 고도화)】\n' +
         '1. 현재 매크로 레짐 한줄 진단: "지금은 {확장후기/수축초기/...} 국면이다."\n' +
         '2. 교차변수 조합 판독: 금리/달러/유가/VIX 4변수 동시 해석.\n' +
         '3. 에스컬레이션 래더: 핵심 변수의 현재 위치와 다음 단계 임계점.\n' +
@@ -22283,8 +22121,8 @@ const CHAT_CONTEXTS = {
         prompt += '\n═══════════════════════════════════════════════════\n\n';
       }
 
-      // ── v40.3: 금리 환경 연동 밸류에이션 프레임 ──
-      prompt += '【금리 환경 연동 밸류에이션 프레임 (v40.3)】\n';
+      // ── v40.4: 금리 환경 연동 밸류에이션 프레임 ──
+      prompt += '【금리 환경 연동 밸류에이션 프레임 (v40.4)】\n';
       prompt += '현재 10Y 금리: ' + s.tnx + '% → DCF 할인율(WACC)에 직접 반영. 금리 1%p 상승 = 성장주 적정가 약 10-15% 하락.\n';
       prompt += '• 10Y 4.5%+: 고PE(35+) 성장주 밸류에이션 압축 구간. FCF Yield < 10Y 금리이면 "채권이 더 매력적" 판단.\n';
       prompt += '• 10Y 3.5-4.5%: 중립. PE 25-35 성장주는 실적 성장이 뒷받침되면 정당화 가능.\n';
@@ -22292,8 +22130,8 @@ const CHAT_CONTEXTS = {
       prompt += '• Earnings Yield(1/PE) vs 10Y 비교: EY > 10Y+2%p = 주식 매력적 / EY < 10Y = 채권 우위.\n';
       prompt += '→ "현재 10Y ' + s.tnx + '%에서 이 기업의 PE가 정당화되는가?" 반드시 판단하라.\n\n';
 
-      // ── v40.3: 교차 분석 프레임 ──
-      prompt += '【교차 분석 프레임 — 단일 지표가 아닌 "조합"으로 판단 (v40.3)】\n';
+      // ── v40.4: 교차 분석 프레임 ──
+      prompt += '【교차 분석 프레임 — 단일 지표가 아닌 "조합"으로 판단 (v40.4)】\n';
       prompt += '• PE × 금리 환경: 고PE(35+) + 10Y 4.5%+ = 이중 밸류에이션 리스크. 저PE(<15) + 금리 하락기 = 리레이팅 기회.\n';
       prompt += '• ROE × D/E: ROE 20%+ but D/E 1.5+ = 레버리지 기반 ROE(경기 하강 시 취약). ROE 20%+ & D/E < 0.5 = 진짜 수익성.\n';
       prompt += '• 매출성장 × 마진변화: 매출↑+마진↑ = 스케일링 성공(최고). 매출↑+마진↓ = 외형성장만(비용 효율 의심). 매출↓+마진↑ = 구조조정(일시적). 매출↓+마진↓ = 위험.\n';
@@ -22302,8 +22140,8 @@ const CHAT_CONTEXTS = {
       prompt += '• 실적 서프라이즈 패턴: 4분기 연속 beat = 보수적 가이던스 경영진(긍정적). beat폭 분기별 축소 = 모멘텀 둔화 선행지표. miss 후 주가 상승 = 악재 이미 선반영.\n';
       prompt += '→ 단일 지표 해석 금지. 반드시 2개 이상 교차 검증 후 판단.\n\n';
 
-      // ── v40.3: 섹터별 적정 밸류에이션 레인지 ──
-      prompt += '【섹터별 적정 밸류에이션 레인지 가이드 (v40.3)】\n';
+      // ── v40.4: 섹터별 적정 밸류에이션 레인지 ──
+      prompt += '【섹터별 적정 밸류에이션 레인지 가이드 (v40.4)】\n';
       prompt += '• Technology: PE 25-40, EV/EBITDA 18-30 (AI/클라우드 성장 프리미엄 반영)\n';
       prompt += '• Healthcare/Biotech: PE 18-30, EV/EBITDA 12-22 (파이프라인 옵션 가치)\n';
       prompt += '• Financials: PB 1.0-2.0, PE 10-18 (자산 기반 밸류에이션)\n';
@@ -22314,7 +22152,7 @@ const CHAT_CONTEXTS = {
       prompt += '• Utilities: PE 15-22 (규제 환경, 금리 민감)\n';
       prompt += '→ 분석 대상 기업의 섹터를 확인하고, 해당 레인지 내 위치를 판단하라. 레인지 초과 시 "왜 프리미엄을 받는가" 근거 필수.\n\n';
 
-      // ── v40.3: 2026.04 시장 맥락 주입 ──
+      // ── v40.4: 2026.04 시장 맥락 주입 ──
       prompt += '【2026.04 시장 맥락 — 기업 분석 시 반영할 거시환경】\n';
       prompt += '• 고금리 장기화: Fed 기준금리 3.50-3.75%, 10Y ' + s.tnx + '%. 성장주 밸류에이션 압축 vs 금융주 순이자마진 개선.\n';
       prompt += '• 유가 $100+: 에너지 기업 수혜, 항공/운송/소비재 비용 압박. 유가 민감 기업은 마진 영향 분석 필수.\n';
@@ -22357,7 +22195,7 @@ const CHAT_CONTEXTS = {
       prompt += '14. 【리스크 요인】 사업 리스크(경쟁 심화, 기술 대체), 재무 리스크(부채, 유동성), 규제 리스크(독점 규제, 수출 규제), 매크로 리스크(금리·환율·경기 민감도), ESG/평판 리스크. 각 리스크의 가능성(H/M/L)과 영향도(H/M/L) 매트릭스.\n';
       prompt += '15. 【투자 포인트 종합】 ★데이터: fmpPriceTarget + fmpDCF + fmpEstimates + 전체 분석 종합. Bull Case(낙관 시나리오 + 목표가) / Base Case(기본 시나리오) / Bear Case(비관 시나리오). 핵심 카탈리스트(실적 서프라이즈, 신제품, M&A 등)와 깨지는 신호. 내부자 매매 방향이 시사하는 바. 최종 투자 의견(매수/보유/관망)과 근거 3줄 요약.\n\n';
 
-      prompt += '【응답 프레임워크 — "기업을 하나의 이야기로" (v40.3 고도화)】\n';
+      prompt += '【응답 프레임워크 — "기업을 하나의 이야기로" (v40.4 고도화)】\n';
       prompt += '1. 한줄 판결로 시작: "이 기업은 본질적으로 {한마디 정의}이다." — 투자자가 1초 만에 핵심을 잡도록.\n';
       prompt += '2. 숫자 3개로 열기: "PE X배, 매출성장 Y%, FCF Z억 — 이 세 숫자가 말하는 것은..." 정량적 진입.\n';
       prompt += '3. 해자 판정 → 성장의 질 → 밸류에이션 정당성 → 리스크 순서로 스토리 전개. 기계적 나열 금지.\n';
@@ -22556,8 +22394,8 @@ const CHAT_CONTEXTS = {
         '⚠ 주가·지수 분석 시 위 종가 기준. 환율·금리·금 등은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
 
-        // v40.3: 채권-주식-환율 교차 분석 프레임
-        '【채권-주식-환율 교차 분석 프레임 (v40.3)】\n' +
+        // v40.4: 채권-주식-환율 교차 분석 프레임
+        '【채권-주식-환율 교차 분석 프레임 (v40.4)】\n' +
         '자산 간 관계가 정상인지, 이상 신호인지 자동 판별:\n' +
         '• 10Y↑ + SPX↓ = 정상(금리 상승 → 주식 밸류에이션 압축). 10Y↑ + SPX↑ = 비정상(금리 무시 랠리) → 지속 불가, 조정 예고.\n' +
         '• 10Y↓ + 금↑ = 정상(안전자산 선호). 10Y↑ + 금↑ = 인플레 헤지 수요(물가 불안). 10Y↓ + 금↓ = 디플레 공포.\n' +
@@ -22566,8 +22404,8 @@ const CHAT_CONTEXTS = {
         '• HY 스프레드↑ + IG 스프레드 안정 = 저질 기업만 스트레스. 양쪽 동시↑ = 시스템 리스크.\n' +
         '→ 현재 10Y ' + s.tnx + '% / DXY ' + s.dxy + ' / Gold $' + s.gold + ' 조합을 판독하라.\n\n' +
 
-        // v40.3: 원/달러 에스컬레이션 래더 확장
-        '【원/달러 에스컬레이션 래더 (v40.3 확장)】\n' +
+        // v40.4: 원/달러 에스컬레이션 래더 확장
+        '【원/달러 에스컬레이션 래더 (v40.4 확장)】\n' +
         '• 1,300↓: 원화 강세 — 외인 매수 유인, 수입물가↓, 내수주 유리\n' +
         '• 1,300-1,350: 중립 — 수출·내수 균형\n' +
         '• 1,350-1,400: 경계 — 외인 순매도 가속, 수입물가↑, 원자재 비용 부담\n' +
@@ -22576,8 +22414,8 @@ const CHAT_CONTEXTS = {
         '• 1,500+: 비상 — 아시아 위기(1997) 이후 최고 수준. IMF 트라우마 재점화.\n' +
         '현재 ' + s.krw + '원 → 현재 위치와 다음 임계점까지 거리.\n\n' +
 
-        // v40.3: 채권 투자 전략 매트릭스
-        '【채권 투자 전략 — 금리 시나리오별 (v40.3)】\n' +
+        // v40.4: 채권 투자 전략 매트릭스
+        '【채권 투자 전략 — 금리 시나리오별 (v40.4)】\n' +
         '• 금리 정점 → 인하 시작: 장기채(TLT/EDV) 강세 시작. Duration 확대. 채권 자본차익 기회.\n' +
         '• 금리 상승 지속: 단기채(SHV/BIL)+TIPS(물가연동). Duration 축소. 쿠폰 수입 중심.\n' +
         '• 금리 동결 장기화: 중기채(IEF) + 크레딧(LQD). 적정 Duration + 수익률 프리미엄 수확.\n' +
@@ -22598,15 +22436,15 @@ const CHAT_CONTEXTS = {
         '• 원캐리: 한미 금리차 시 자금 유출, 원화 약세 압력\n' +
         '• 위험 신호: 엔/달러 급변동 + VIX 급등 + 신흥국 CDS 확대 = 캐리 청산 3중 경고\n\n' +
 
-        // v40.3: 역사적 참고점
-        '【역사적 참고점 — 채권/환율 위기 패턴 (v40.3)】\n' +
+        // v40.4: 역사적 참고점
+        '【역사적 참고점 — 채권/환율 위기 패턴 (v40.4)】\n' +
         '• 2022.10 채권 폭락: 10Y 4.33% → 주식 바닥 동시 도달. "채권의 항복 = 주식의 바닥"\n' +
         '• 2023.10 10Y 5% 터치: "term premium(기간 프리미엄) 급등" — SPX -10% 조정 → 이후 5개월 +20% 반등\n' +
         '• 2024.08 엔캐리 청산: 엔/달러 162→142 급락 + VIX 65 → 3주 만에 회복. 구조적 위기 아닌 포지션 해소.\n' +
         '• 1997 아시아 위기: 원/달러 900→1,900. 경상수지 적자 + 단기외채 과다 + 외환보유고 부족 조합.\n' +
         '→ 현재 상황이 위 사례 중 어디에 가장 유사한가?\n\n' +
 
-        '【응답 프레임워크 (v40.3 고도화)】\n' +
+        '【응답 프레임워크 (v40.4 고도화)】\n' +
         '1. 교차 자산 판독: 채권/환율/금/주식이 같은 이야기를 하고 있는가? 비동조 시 왜?\n' +
         '2. 인과 체인 3차까지: "10Y X% 돌파 → DXY 강세 → 원/달러 Y원 → 외인 매도 → KOSPI 하락 → 당신의 한국주식"\n' +
         '3. 에스컬레이션 래더: 원/달러·10Y·DXY 각각의 현재 위치와 다음 임계점.\n' +
@@ -26147,7 +25985,7 @@ function computeEconomicTemperature() {
   // Weighted average: VIX 30%, Curve 25%, Oil 20%, DXY 15%, Credit 10%
   var temp = (vixScore * 0.30 + curveScore * 0.25 + oilScore * 0.20 + dxyScore * 0.15 + creditScore * 0.10);
 
-  // v40.3: 교차변수 보정 — 단순 합산이 아닌 "관계" 인식
+  // v40.4: 교차변수 보정 — 단순 합산이 아닌 "관계" 인식
   // 트리플 긴축: 금리↑ + 달러↑ + 유가↑ 동시 → 추가 페널티
   var tripleHawkCount = 0;
   if (tnx > 4.5) tripleHawkCount++;
@@ -26665,7 +26503,7 @@ document.addEventListener('aio:liveQuotes', function() {
   <script>
 // Korea Market chat contexts — 스토리텔링 + 스크리너 연결
 (function(){
-  // v40.3: kr-home/kr-supply CHAT_CONTEXT 제거됨 (AI 채팅 불필요 페이지)
+  // v40.4: kr-home/kr-supply CHAT_CONTEXT 제거됨 (AI 채팅 불필요 페이지)
   // kr-themes, kr-macro, kr-tech만 유지
 
 
@@ -27163,7 +27001,7 @@ function initKoreaSupply() {
 
 function initKoreaThemes() {
   var ld = window._liveData || {};
-  // v40.3: 카드를 KR_THEME_MAP에서 동적 생성 (정적 HTML 제거됨 — 단일 진실 원천)
+  // v40.4: 카드를 KR_THEME_MAP에서 동적 생성 (정적 HTML 제거됨 — 단일 진실 원천)
   if (typeof renderKrThemeCardsFromMap === 'function') renderKrThemeCardsFromMap();
   // 1. pill: 종목명 · 가격 · 등락률 명확 표시
   document.querySelectorAll('#page-kr-themes [data-live-price]').forEach(function(pill) {
@@ -27245,7 +27083,7 @@ function initKoreaThemes() {
   renderKrThemePerfBars(ld);
   if (typeof _generateKrThemesAnalysis === 'function') _generateKrThemesAnalysis(ld);
 }
-// v40.3: KR_THEME_MAP 기반 테마 카드 동적 생성 — 단일 진실 원천(Single Source of Truth)
+// v40.4: KR_THEME_MAP 기반 테마 카드 동적 생성 — 단일 진실 원천(Single Source of Truth)
 // 정적 HTML 카드 제거. KR_THEME_MAP + KR_STOCK_DB + KR_THEME_CATALYSTS에서 자동 생성.
 function renderKrThemeCardsFromMap() {
   var container = document.getElementById('kr-theme-container');
@@ -28593,7 +28431,7 @@ var KR_THEME_MAP = {
     {code:'097950',w:16}, // CJ제일제당
     {code:'271560',w:14}, // 오리온
     {code:'004370',w:13}, // 농심
-    {code:'001800',w:12}, // 오뚜기 — v40.3 추가
+    {code:'001800',w:12}, // 오뚜기 — v40.4 추가
     {code:'280360',w:9},  // 롯데웰푸드
     {code:'005180',w:8},  // 빙그레
     {code:'000080',w:8}   // 하이트진로
@@ -28644,9 +28482,9 @@ var KR_THEME_MAP = {
     {code:'006800',w:18}, // 미래컴퍼니 (수술로봇 레티아이)
     {code:'141080',w:16}, // 리가켐바이오 (ADC 항체약물접합체)
     {code:'357780',w:12}, // 솔바이오 (체외진단 POCT)
-    {code:'085660',w:12}, // 차바이오텍 (줄기세포/재생의료) — v40.3 추가
-    {code:'950160',w:10}, // 코오롱티슈진 (인보사/유전자치료) — v40.3 추가
-    {code:'322310',w:10}  // 오로스테크놀로지 (의료AI/영상진단) — v40.3 추가
+    {code:'085660',w:12}, // 차바이오텍 (줄기세포/재생의료) — v40.4 추가
+    {code:'950160',w:10}, // 코오롱티슈진 (인보사/유전자치료) — v40.4 추가
+    {code:'322310',w:10}  // 오로스테크놀로지 (의료AI/영상진단) — v40.4 추가
   ],
   'energy_kr': [
     // SK이노 시총 10조 1위. S-Oil 사우디아람코 자회사. 4사 과점 구조.
@@ -28655,7 +28493,7 @@ var KR_THEME_MAP = {
     {code:'078930',w:22}, // GS (시총 ~5조, GS칼텍스 지주)
     {code:'018670',w:20}  // SK가스 (시총 ~2조, LNG/LPG)
   ],
-  // v40.3: 광/포토닉스 테마
+  // v40.4: 광/포토닉스 테마
   'photonics_kr': [
     // 쏠리드 시총 ~1.5조 1위. 케이엠더블유 ~1조. 소형주 중심 테마.
     {code:'050890',w:14}, // 쏠리드 (시총 ~1.5조, 광중계기/DAS 1위, 대장)
@@ -29252,9 +29090,9 @@ function _generateKrMacroAnalysis(ld) {
        riskSum === 1 ? '<span style="color:var(--text-secondary);font-weight:700;">🌤 일부 리스크 존재. 업종별 차별화 예상. 실적 모멘텀 기반 종목 선별.</span>' :
        '<span style="color:var(--green);font-weight:700;">☀ 매크로 환경 양호! 환율 안정+금리 적정+변동성 낮음. 성장테마 적극 비중 확대 구간.</span>';
 
-  // v40.3: 교차변수 심화 진단
+  // v40.4: 교차변수 심화 진단
   if (wti && wti.price && krw && krw.price && vix && vix.price) {
-    t += '<br><br><b>【교차변수 심화 진단 (v40.3)】</b><br>';
+    t += '<br><br><b>【교차변수 심화 진단 (v40.4)】</b><br>';
     var wp2 = wti.price, kp2 = krw.price, vp2 = vix.price;
     // 유가↑+원화↓ = 수입물가 이중 타격
     if (wp2 > 90 && kp2 > 1400) {
@@ -29274,7 +29112,7 @@ function _generateKrMacroAnalysis(ld) {
     }
   }
 
-  // v40.3: 트레이딩 스코어 연동
+  // v40.4: 트레이딩 스코어 연동
   var krMacroTs = 50;
   try { if (typeof computeTradingScore === 'function') krMacroTs = computeTradingScore().score || 50; } catch(e) {}
   t += '<br><b>【글로벌 시장 환경】</b> 트레이딩 스코어 <b style="color:' + (krMacroTs >= 55 ? 'var(--green)' : krMacroTs >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + krMacroTs + '/100</b> — ';
@@ -29384,12 +29222,12 @@ function _generateKrThemesAnalysis(ld) {
     }
   }
 
-  // v40.3: 매크로 환경 연동 테마 진단
+  // v40.4: 매크로 환경 연동 테마 진단
   var krMacroVix = usLd['^VIX'] ? usLd['^VIX'].price : null;
   var krMacroWti = usLd['CL=F'] ? usLd['CL=F'].price : null;
   var krMacroKrw = usLd['KRW=X'] ? usLd['KRW=X'].price : null;
   if (krMacroVix || krMacroWti || krMacroKrw) {
-    h += '<br><br><b>【매크로 환경 → 테마 영향 (v40.3)】</b><br>';
+    h += '<br><br><b>【매크로 환경 → 테마 영향 (v40.4)】</b><br>';
     if (krMacroWti && krMacroWti > 100) {
       h += '<span style="color:var(--red);">유가 $' + krMacroWti.toFixed(0) + ' → 에너지·정유 수혜, 항공·운송·2차전지 역풍. 원자재 비용 부담이 테마 전반에 영향.</span><br>';
     }
@@ -29405,7 +29243,7 @@ function _generateKrThemesAnalysis(ld) {
     }
   }
 
-  // v40.3: 트레이딩 스코어 연동
+  // v40.4: 트레이딩 스코어 연동
   var krTsVal = 50;
   try { if (typeof computeTradingScore === 'function') krTsVal = computeTradingScore().score || 50; } catch(e) {}
   h += '<br><b>【시장 환경】</b> 트레이딩 스코어 <b style="color:' + (krTsVal >= 55 ? 'var(--green)' : krTsVal >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + krTsVal + '/100</b> — ';
@@ -30030,7 +29868,7 @@ function _generateSentimentAnalysis() {
     else h += '<span>특이 신호 없음. 펀더멘털·기술적 분석 병행 판단.</span>';
   }
 
-  // v40.3: 역사적 참고점 비교
+  // v40.4: 역사적 참고점 비교
   if (!isNaN(fgScore) && !isNaN(vix)) {
     h += '<br><br><b>【역사적 참고점 비교】</b> ';
     var closest = '';
@@ -30042,7 +29880,7 @@ function _generateSentimentAnalysis() {
     h += '<span style="color:var(--accent);">현재 F&G ' + fgScore + ', VIX ' + vix.toFixed(1) + ' → ' + closest + '</span><br>';
   }
 
-  // v40.3: 행동경제학 편향 진단
+  // v40.4: 행동경제학 편향 진단
   if (!isNaN(fgScore)) {
     h += '<br><b>【행동편향 진단】</b> ';
     var biases = [];
@@ -30059,7 +29897,7 @@ function _generateSentimentAnalysis() {
     h += '<br>';
   }
 
-  // v40.3: 트레이딩 스코어 연동
+  // v40.4: 트레이딩 스코어 연동
   var tsVal2 = 50;
   try { if (typeof computeTradingScore === 'function') tsVal2 = computeTradingScore().score || 50; } catch(e) {}
   h += '<br><b>【시장 환경 연동】</b> 트레이딩 스코어 <b style="color:' + (tsVal2 >= 55 ? 'var(--green)' : tsVal2 >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + tsVal2 + '/100</b> — ';
@@ -30362,7 +30200,7 @@ function _generateFundamentalAnalysis(fallback, ld) {
     h += '<br>';
   }
 
-  // v40.3: 금리 환경 연동 밸류에이션 코멘트
+  // v40.4: 금리 환경 연동 밸류에이션 코멘트
   var tnxVal = _ldSafe('^TNX','price') || 0;
   if (tnxVal > 0 && pes.length > 0) {
     h += '<br><b>【금리 환경 연동 분석】</b> ';
@@ -30383,7 +30221,7 @@ function _generateFundamentalAnalysis(fallback, ld) {
     h += '<br>';
   }
 
-  // v40.3: 트레이딩 스코어 연동 시장 환경 코멘트
+  // v40.4: 트레이딩 스코어 연동 시장 환경 코멘트
   var tsVal = 50;
   try { if (typeof computeTradingScore === 'function') { tsVal = computeTradingScore().score || 50; } } catch(e) {}
   h += '<br><b>【시장 환경】</b> 트레이딩 스코어 <b style="color:' + (tsVal >= 55 ? 'var(--green)' : tsVal >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + tsVal + '/100</b> — ';
@@ -30709,7 +30547,7 @@ function drawPortfolioDonut() {
   ctx.clearRect(0,0,W,H);
   var cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 8, ri = r * 0.55;
 
-  // v40.3: 실제 포지션 데이터 기반 동적 도넛 차트
+  // v40.4: 실제 포지션 데이터 기반 동적 도넛 차트
   var positions = typeof getPortfolioData === 'function' ? getPortfolioData() : [];
   var ld = window._liveData || {};
   var SECTOR_COLORS = {'Technology':'#60a5fa','Healthcare':'#3ddba5','Financial Services':'#f59e0b','Consumer Cyclical':'#f472b6','Energy':'#ef4444','Industrials':'#a78bfa','Consumer Defensive':'#34d399','Communication Services':'#818cf8','Utilities':'#fbbf24','Real Estate':'#f87171','Basic Materials':'#06b6d4','CASH':'#94a3b8'};
@@ -30805,7 +30643,7 @@ function drawPortfolioDonut() {
     legendEl.innerHTML = lh;
   }
 
-  // v40.3: 섹터 브레이크다운 바 차트 (도넛 옆 or 아래)
+  // v40.4: 섹터 브레이크다운 바 차트 (도넛 옆 or 아래)
   var sectorEl = document.getElementById('pf-sector-breakdown');
   if (sectorEl && items.length > 0) {
     var sectorMap = {};
@@ -30833,7 +30671,7 @@ function drawPortfolioDonut() {
   }
 }
 
-// v40.3: 포지션 기반 도넛 차트 (portfolio-donut과 별도)
+// v40.4: 포지션 기반 도넛 차트 (portfolio-donut과 별도)
 function drawPositionDonut() {
   var c = document.getElementById('pf-position-donut');
   if (!c) return;
@@ -30955,7 +30793,7 @@ function drawPositionDonut() {
   }
 }
 
-// v40.3: 현금 포지션 저장
+// v40.4: 현금 포지션 저장
 function saveCashPosition(val) {
   var cash = parseFloat(val) || 0;
   try { localStorage.setItem('aio_portfolio_cash', cash > 0 ? cash.toString() : '0'); } catch(e) {}
@@ -31837,7 +31675,7 @@ function generateFxBondCommentary() {
 
   var implEl = document.getElementById('bond-dc-implication');
   if (implEl && tnx) {
-    // v40.3: 크로스에셋 상관분석 + 투자전략 통합
+    // v40.4: 크로스에셋 상관분석 + 투자전략 통합
     var implParts = [];
     // 채권-주식 관계 진단
     var spyD = ld['SPY'];
@@ -35587,7 +35425,7 @@ function updateKrBreadth() {
 
 // v33.0: Korean Technical Page init — KOSPI/KOSDAQ 자동 분석
 function initKoreaTechnical() {
-  // v40.3: TradingView 차트 자동 로드 (삼성전자 기본)
+  // v40.4: TradingView 차트 자동 로드 (삼성전자 기본)
   var tvKrContainer = document.getElementById('tv-widget-kr');
   if (tvKrContainer && !tvKrContainer.querySelector('iframe')) {
     try { loadTVChart('kr'); } catch(e) {}
@@ -36354,5 +36192,228 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 </div>
+<!-- v40.4: 통합 AI 사이드 패널 -->
+<style>
+#ai-panel{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:95vw;background:var(--bg-surface);border-left:1px solid rgba(91,168,255,0.2);z-index:9000;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);box-shadow:-8px 0 32px rgba(0,0,0,0.4);}
+#ai-panel.open{transform:translateX(0);}
+.ai-ph{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.ai-ph-title{font-size:14px;font-weight:700;color:var(--text-primary);}
+.ai-ph-badge{font-size:9px;font-family:var(--font-mono);padding:2px 8px;background:rgba(91,168,255,0.12);color:#5ba8ff;border-radius:4px;}
+.ai-ph-close{margin-left:auto;background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:4px 8px;}
+.ai-ph-close:hover{color:var(--text-primary);}
+#ai-panel-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.7;}
+.ai-msg{display:flex;gap:8px;max-width:95%;}
+.ai-msg.user{align-self:flex-end;flex-direction:row-reverse;}
+.ai-msg.ai{align-self:flex-start;}
+.ai-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.7;word-break:break-word;}
+.ai-msg.user .ai-bubble{background:rgba(91,168,255,0.15);color:var(--text-primary);border-bottom-right-radius:4px;}
+.ai-msg.ai .ai-bubble{background:rgba(255,255,255,0.04);color:var(--text-secondary);border-bottom-left-radius:4px;border:1px solid var(--border);}
+.ai-chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 14px;flex-shrink:0;}
+.ai-chip{font-size:11px;padding:5px 12px;background:rgba(91,168,255,0.08);border:1px solid rgba(91,168,255,0.2);color:#5ba8ff;border-radius:16px;cursor:pointer;transition:all 0.15s;}
+.ai-chip:hover{background:rgba(91,168,255,0.18);transform:translateY(-1px);}
+.ai-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0;background:var(--bg-surface);}
+.ai-input-row input{flex:1;padding:10px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;outline:none;}
+.ai-input-row input:focus{border-color:#5ba8ff;}
+.ai-input-row button{padding:10px 18px;background:linear-gradient(135deg,#5ba8ff,#818cf8);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.ai-input-row button:hover{filter:brightness(1.1);}
+.ai-input-row button:disabled{opacity:0.5;cursor:not-allowed;}
+#ai-fab{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#5ba8ff,#818cf8);color:white;border:none;font-size:22px;cursor:pointer;z-index:8999;box-shadow:0 4px 16px rgba(91,168,255,0.4);transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+#ai-fab:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(91,168,255,0.6);}
+@media(max-width:768px){#ai-panel{width:100vw;max-width:100vw;}}
+</style>
+
+<div id="ai-panel">
+  <div class="ai-ph">
+    <span class="ai-ph-title" id="ai-panel-title">AI 분석가</span>
+    <span class="ai-ph-badge" id="ai-panel-badge">—</span>
+    <button class="ai-ph-close" onclick="toggleAIPanel()">✕</button>
+  </div>
+  <div id="ai-panel-msgs"></div>
+  <div id="ai-panel-chips" class="ai-chips"></div>
+  <div class="ai-input-row">
+    <input id="ai-panel-inp" placeholder="질문하세요..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSendUnified();}"/>
+    <button id="ai-panel-btn" onclick="chatSendUnified()">전송 ▶</button>
+  </div>
+</div>
+<button id="ai-fab" onclick="toggleAIPanel()" title="AI 분석가">💬</button>
+
+<script>
+// v40.4: 왼쪽 사이드바 토글
+function toggleSidebar() {
+  var sb = document.querySelector('.sidebar');
+  if (!sb) return;
+  sb.classList.toggle('collapsed');
+  // 토글 버튼 아이콘 변경
+  var btn = document.getElementById('sidebar-toggle-btn');
+  if (btn) btn.textContent = sb.classList.contains('collapsed') ? '☰' : '✕';
+  // 상태 저장
+  try { localStorage.setItem('aio_sidebar_collapsed', sb.classList.contains('collapsed') ? '1' : ''); } catch(e) {}
+}
+// 페이지 로드 시 사이드바 상태 복원 + 데스크톱에서 토글 버튼 표시
+(function() {
+  var btn = document.getElementById('sidebar-toggle-btn');
+  if (btn && window.innerWidth > 768) btn.style.display = 'inline-block';
+  try {
+    if (localStorage.getItem('aio_sidebar_collapsed') === '1') {
+      var sb = document.querySelector('.sidebar');
+      if (sb) { sb.classList.add('collapsed'); if (btn) btn.textContent = '☰'; }
+    }
+  } catch(e) {}
+})();
+
+// v40.4: 통합 AI 사이드 패널 로직
+var _aiCurrentCtx = null;
+var _aiCtxMap = {
+  'technical':'technical','macro':'macro','fxbond':'fxbond',
+  'fundamental':'fundamental','themes':'themes','portfolio':'portfolio',
+  'kr-themes':'kr-themes','kr-macro':'kr-macro','kr-technical':'kr-tech'
+};
+var _aiDefaultChips = {
+  'technical':['RSI 해석','MACD 신호','지지/저항선','패턴 분석'],
+  'macro':['경제 전망','금리 영향','유가 시나리오','달러 방향'],
+  'fxbond':['환율 전망','채권 전략','수익률곡선','캐리트레이드'],
+  'fundamental':['기업 분석','밸류에이션','재무제표 해석','경쟁 구도'],
+  'themes':['주도 테마는?','AI 테마 전망','섹터 로테이션','테마 진입 시점'],
+  'portfolio':['리스크 분석','리밸런싱 시점','섹터 배분','손절/익절 전략'],
+  'kr-themes':['K-방산 전망','반도체 수출','조선주 분석','2차전지 반등'],
+  'kr-macro':['한은 금리','원/달러 전망','코리아 디스카운트','수출 경기'],
+  'kr-tech':['삼성전자 분석','KOSPI 추세','SK하이닉스 RSI','한화에어로 타이밍']
+};
+
+function toggleAIPanel() {
+  var p = document.getElementById('ai-panel');
+  var fab = document.getElementById('ai-fab');
+  if (!p) return;
+  var isOpen = p.classList.contains('open');
+  if (isOpen) {
+    p.classList.remove('open');
+    if (fab) fab.style.display = '';
+  } else {
+    p.classList.add('open');
+    if (fab) fab.style.display = 'none';
+    // 현재 페이지에 맞는 맥락 설정
+    var activePage = document.querySelector('.page.active');
+    if (activePage) {
+      var pid = activePage.id.replace('page-','');
+      updateAIPanelContext(pid);
+    }
+    var inp = document.getElementById('ai-panel-inp');
+    if (inp) setTimeout(function() { inp.focus(); }, 300);
+  }
+}
+
+function updateAIPanelContext(pageId) {
+  var ctxId = _aiCtxMap[pageId];
+  if (!ctxId || !CHAT_CONTEXTS[ctxId]) return;
+  _aiCurrentCtx = ctxId;
+  var titleEl = document.getElementById('ai-panel-title');
+  var badgeEl = document.getElementById('ai-panel-badge');
+  if (titleEl) titleEl.textContent = CHAT_CONTEXTS[ctxId].title || 'AI';
+  if (badgeEl) badgeEl.textContent = pageId;
+  // 메시지 이력 복원
+  var msgsEl = document.getElementById('ai-panel-msgs');
+  if (msgsEl) {
+    msgsEl.innerHTML = '';
+    var state = getChatState(ctxId);
+    state.messages.forEach(function(m) {
+      _appendAIMsg(m.role === 'user' ? 'user' : 'ai', renderMarkdownLight(typeof m.content === 'string' ? stripChips(m.content) : ''));
+    });
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+  }
+  // 칩 복원
+  var chips = _aiDefaultChips[ctxId] || [];
+  var chipsEl = document.getElementById('ai-panel-chips');
+  if (chipsEl) {
+    chipsEl.innerHTML = chips.map(function(c) {
+      return '<div class="ai-chip" onclick="aiChipClick(this)">' + c + '</div>';
+    }).join('');
+  }
+}
+
+function _appendAIMsg(role, html, id) {
+  var msgsEl = document.getElementById('ai-panel-msgs');
+  if (!msgsEl) return null;
+  var msg = document.createElement('div');
+  msg.className = 'ai-msg ' + role;
+  if (id) msg.id = id;
+  var bubble = document.createElement('div');
+  bubble.className = 'ai-bubble';
+  bubble.innerHTML = html;
+  msg.appendChild(bubble);
+  msgsEl.appendChild(msg);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  return bubble;
+}
+
+function chatSendUnified() {
+  if (!_aiCurrentCtx) return;
+  var ctx = CHAT_CONTEXTS[_aiCurrentCtx];
+  if (!ctx) return;
+  var state = getChatState(_aiCurrentCtx);
+  if (state.streaming) return;
+  var inp = document.getElementById('ai-panel-inp');
+  var btn = document.getElementById('ai-panel-btn');
+  if (!inp) return;
+  var q = inp.value.trim();
+  if (!q) return;
+  if (typeof consumeLLMQuery === 'function' && !consumeLLMQuery()) return;
+  inp.value = '';
+  state.streaming = true;
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  state.messages.push({ role: 'user', content: q });
+  _appendAIMsg('user', renderMarkdownLight(q));
+  // 로딩 표시
+  var loadBubble = _appendAIMsg('ai', '<span style="color:var(--text-muted);">분석 중...</span>', 'ai-panel-loading');
+  var aiBubble = null;
+  var sysPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
+  callClaude(
+    sysPrompt,
+    state.messages,
+    function(fullText) {
+      var loadEl = document.getElementById('ai-panel-loading');
+      if (loadEl) loadEl.parentNode.removeChild(loadEl);
+      if (!aiBubble) { aiBubble = _appendAIMsg('ai', '', 'ai-panel-streaming'); }
+      var visible = stripChips(fullText);
+      if (aiBubble) aiBubble.innerHTML = renderMarkdownLight(visible) + '<span style="color:#5ba8ff;animation:blink 0.7s infinite;">|</span>';
+      var msgsEl = document.getElementById('ai-panel-msgs');
+      if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
+    },
+    function(fullText) {
+      state.streaming = false;
+      if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
+      var loadEl = document.getElementById('ai-panel-loading');
+      if (loadEl) loadEl.parentNode.removeChild(loadEl);
+      var streamEl = document.getElementById('ai-panel-streaming');
+      var visible = stripChips(fullText);
+      if (streamEl) { streamEl.id = ''; streamEl.querySelector('.ai-bubble').innerHTML = renderMarkdownLight(visible); }
+      else if (!aiBubble) { _appendAIMsg('ai', renderMarkdownLight(visible)); }
+      state.messages.push({ role: 'assistant', content: fullText });
+      var newChips = extractChips(fullText);
+      if (newChips.length > 0) {
+        var chipsEl = document.getElementById('ai-panel-chips');
+        if (chipsEl) chipsEl.innerHTML = newChips.map(function(c) { return '<div class="ai-chip" onclick="aiChipClick(this)">' + c + '</div>'; }).join('');
+      }
+    },
+    function(errMsg) {
+      state.streaming = false;
+      if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
+      var loadEl = document.getElementById('ai-panel-loading');
+      if (loadEl) loadEl.parentNode.removeChild(loadEl);
+      _appendAIMsg('ai', '<span style="color:#f87171;">⚠️ ' + renderMarkdownLight(errMsg) + '</span>');
+    }
+  );
+}
+
+function aiChipClick(el) {
+  var inp = document.getElementById('ai-panel-inp');
+  if (inp) { inp.value = el.textContent.trim(); chatSendUnified(); }
+}
+
+// showPage 연결: 페이지 전환 시 AI 맥락 자동 업데이트
+document.addEventListener('aio:pageShown', function(e) {
+  if (e && e.detail) updateAIPanelContext(e.detail);
+});
+</script>
+
 </body>
 </html>
