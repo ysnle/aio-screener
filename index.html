@@ -155,6 +155,16 @@
 .page [style*="font-size:11px"],
 .page [style*="font-size: 11px"] { font-size: 12px !important; }
 
+/* v40.6: 사이드바 인라인 font-size 최소 11px 보장 */
+.sidebar [style*="font-size:7px"],
+.sidebar [style*="font-size: 7px"],
+.sidebar [style*="font-size:8px"],
+.sidebar [style*="font-size: 8px"],
+.sidebar [style*="font-size:9px"],
+.sidebar [style*="font-size: 9px"],
+.sidebar [style*="font-size:10px"],
+.sidebar [style*="font-size: 10px"] { font-size: 11px !important; }
+
 /* 인라인 font-size 11px → 13px */
 .page [style*="font-size:11px"],
 .page [style*="font-size: 11px"] { font-size: 13px !important; }
@@ -172,7 +182,7 @@
 
 /* 상태 pill 통일 */
 .status-pill { font-size: 11px !important; padding: 3px 10px !important; }
-.freshness-badge { font-size: 10px !important; }
+.freshness-badge { font-size: 11px !important; }
 
 /* v33.0.1: 인사이트 설명 박스 (항상 표시) */
 .insight-explain-title { font-size: 14px !important; }
@@ -225,7 +235,7 @@ select:focus {
 /* 수익률 곡선 셀 */
 .yc-term { font-size: 12px !important; }
 .yc-rate { font-size: 16px !important; }
-.yc-note { font-size: 10px !important; }
+.yc-note { font-size: 11px !important; }
 
 /* 스프레드 카드 */
 .spread-card .sc-label { font-size: 13px !important; }
@@ -266,7 +276,7 @@ body {
 }
 .app { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
 .sidebar { width: var(--sidebar-w); background: var(--bg-surface); border-right: 1px solid rgba(255,255,255,0.12); overflow-y: auto; display: flex; flex-direction: column; transition: margin-left 0.3s, width 0.3s; flex-shrink: 0; }
-.sidebar.collapsed { margin-left: calc(-1 * var(--sidebar-w)); width: 0; min-width: 0; overflow: hidden; padding: 0; border: none; }
+.sidebar.collapsed { width: 0; min-width: 0; overflow: hidden; padding: 0; border: none; }
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 .topbar { background: var(--bg-surface); border-bottom: 1px solid rgba(255,255,255,0.12); padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; /* v30.7: 상단바 테두리 강화 */ }
 .content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; min-height: 0; }
@@ -748,10 +758,10 @@ body { font-size: 14px !important; }
 
 /* 내비게이션 */
 .nav-item  { font-size: 12px !important; padding: 8px 10px 8px 13px !important; }
-.nav-label { font-size: 10px !important; }
+.nav-label { font-size: 11px !important; }
 .nav-item .en { display: none !important; }  /* v20: 이중표기 제거 */
 .logo-mark { font-size: 14px !important; }
-.logo-sub  { font-size: 9px !important; }
+.logo-sub  { font-size: 11px !important; }
 
 /* 페이지 헤더 */
 .page-title    { font-size: 18px !important; }
@@ -1003,7 +1013,7 @@ body { background: #0d1521 !important; }
 .bb-bar-wrap{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;min-width:30px;}
 .bb-bar{height:100%;border-radius:3px;transition:width 0.8s ease;}
 .bb-val{font-size:9px;font-weight:700;font-family:var(--font-mono);text-align:right;white-space:nowrap;}
-.bb-badge{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;font-size:8px !important;}
+.bb-badge{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;font-size:11px !important;}
 .bb-badge{font-size:7px;font-weight:700;padding:2px 5px;border-radius:4px;text-align:center;}
 
 /* RRG Tags */
@@ -1283,22 +1293,22 @@ body { background: #0d1521 !important; }
 
 /* 리스크 모니터 라벨 */
 .rm-label {
-  font-size: 10px !important;
+  font-size: 11px !important;
   font-weight: 700 !important;
   line-height: 1.45 !important;
   letter-spacing: 0.01em !important;
 }
-.rm-status { font-size: 9px !important; }
+.rm-status { font-size: 11px !important; }
 
 /* 시장 폭 바 라벨 — v31.9: 뱃지 겹침 방지 */
 .bb-label {
-  font-size: 10px !important;
+  font-size: 11px !important;
   color: var(--text-secondary) !important;
   min-width: 110px !important;
   white-space: nowrap !important;
 }
 .bb-badge {
-  font-size: 8px !important;
+  font-size: 11px !important;
   padding: 2px 6px !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -1316,51 +1326,51 @@ body { background: #0d1521 !important; }
 
 /* 전술 점수 카드 */
 .tac-score-label {
-  font-size: 9px !important;
+  font-size: 11px !important;
   letter-spacing: 0.04em !important;
 }
-.tac-score-sub { font-size: 10px !important; }
+.tac-score-sub { font-size: 11px !important; }
 
 /* 이벤트/시나리오 설명 */
-.tac-event-scenario { font-size: 10px !important; line-height: 1.5 !important; }
+.tac-event-scenario { font-size: 11px !important; line-height: 1.5 !important; }
 .tac-kill-trigger { font-size: 11px !important; }
 
 /* 스테이지 카드 */
-.stage-label { font-size: 9px !important; letter-spacing: 0.05em !important; }
-.stage-desc { font-size: 9px !important; line-height: 1.5 !important; }
+.stage-label { font-size: 11px !important; letter-spacing: 0.05em !important; }
+.stage-desc { font-size: 11px !important; line-height: 1.5 !important; }
 .stage-name { font-size: 12px !important; }
 
 /* 뉴스 카드 */
 .nc-title { font-size: 12px !important; line-height: 1.55 !important; }
 .nc-desc  { font-size: 11px !important; }
-.nc-source, .nc-time { font-size: 9px !important; }
-.nc-topic { font-size: 9px !important; padding: 2px 7px !important; }
+.nc-source, .nc-time { font-size: 11px !important; }
+.nc-topic { font-size: 11px !important; padding: 2px 7px !important; }
 
 /* 실행 타이밍 설명 */
-#exec-window-desc { font-size: 10px !important; }
+#exec-window-desc { font-size: 11px !important; }
 
 /* 에너지/흐름 통계 라벨 */
-.energy-note  { font-size: 9px !important; line-height: 1.5 !important; }
-.flow-stat-lbl { font-size: 9px !important; }
+.energy-note  { font-size: 11px !important; line-height: 1.5 !important; }
+.flow-stat-lbl { font-size: 11px !important; }
 
 /* 섹터 히트맵 배지 — v31.9: 고정폭→최소폭, 한글 넘침 방지 */
-.tac-heat-badge { font-size: 8px !important; min-width: 48px !important; width: auto !important; }
+.tac-heat-badge { font-size: 11px !important; min-width: 48px !important; width: auto !important; }
 .tac-sector-name { font-size: 11px !important; min-width: 0 !important; }
 
 /* RRG 위상도 태그 */
-.rrg-tag { font-size: 9px !important; }
+.rrg-tag { font-size: 11px !important; }
 
 /* 섹터 타일 이름 */
-.sec-name { font-size: 9px !important; }
+.sec-name { font-size: 11px !important; }
 
 /* 인터뷰 카드 인용문 */
-.interview-quote { font-size: 10px !important; line-height: 1.7 !important; }
+.interview-quote { font-size: 11px !important; line-height: 1.7 !important; }
 
 /* breadth 차트 섹션 제목 보조 */
 .bb-badge[style*="BEARISH"] { font-weight: 700 !important; }
 
 /* 사이드바 하단 메모 */
-.llm-budget-note { font-size: 9px !important; }
+.llm-budget-note { font-size: 11px !important; }
 
 /* ═══ v20: Missing PnL classes ═══ */
 .pnl { font-family: var(--font-mono); font-weight: 700; font-size: 11px; }
@@ -1408,8 +1418,8 @@ body { background: #0d1521 !important; }
   .breadth-bar-row { grid-template-columns: 90px 1fr 36px 60px !important; gap: 4px !important; }
   .score-bar-row { grid-template-columns: 100px 1fr 40px 24px !important; gap: 4px !important; }
   [style*="grid-template-columns:70px 1fr 60px auto"] { grid-template-columns: 50px 1fr 40px auto !important; }
-  .bb-label { font-size: 8px !important; min-width: 0 !important; }
-  .bb-badge { max-width: 60px !important; font-size: 7px !important; }
+  .bb-label { font-size: 11px !important; min-width: 0 !important; }
+  .bb-badge { max-width: 60px !important; font-size: 11px !important; }
   /* v30.11: 포트폴리오 입력 폼 반응형 */
   #pf-add-ticker, #pf-add-qty, #pf-add-cost, #pf-add-memo { width: 100% !important; min-width: 0 !important; box-sizing: border-box; }
   #pf-pin-input { width: 100% !important; max-width: 160px; box-sizing: border-box; }
@@ -1604,20 +1614,20 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   [style*="grid-template-columns:repeat(2"] { grid-template-columns: 1fr !important; }
   /* v31.9: 브레스 바 극소 화면 대응 */
   .breadth-bar-row { grid-template-columns: 80px 1fr 30px 50px !important; gap: 3px !important; }
-  .bb-label { font-size: 7px !important; }
-  .bb-badge { max-width: 50px !important; font-size: 6px !important; }
+  .bb-label { font-size: 11px !important; }
+  .bb-badge { max-width: 50px !important; font-size: 11px !important; }
   .score-bar-row { grid-template-columns: 80px 1fr 36px 20px !important; gap: 3px !important; }
   /* 뉴스 카드 간격 */
   .news-item-card { padding: 6px 8px !important; }
   .news-time-col { width: 32px !important; }
-  .news-time-abs { font-size: 8px !important; }
+  .news-time-abs { font-size: 11px !important; }
   .news-item-headline { font-size: 11px !important; }
   /* 차트 높이 축소 */
   canvas { max-height: 200px !important; }
   /* 사이드바 드로어 전체 너비 */
   #board-drawer { width: 100% !important; max-width: 100vw !important; }
   /* 뉴스 정렬 버튼 */
-  .news-sort-btn { padding: 4px 8px !important; font-size: 8px !important; min-height: 32px !important; }
+  .news-sort-btn { padding: 4px 8px !important; font-size: 11px !important; min-height: 32px !important; }
   /* 대시보드 타이틀 */
   .page-title { font-size: 14px !important; }
   /* 테이블 스크롤 */
@@ -1672,12 +1682,12 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
 /* ═══ v30.11: 극소 화면 (320px 이하, iPhone SE 1세대) ═══ */
 @media (max-width: 320px) {
   .page-title { font-size: 12px !important; }
-  .page-subtitle { font-size: 8px !important; }
+  .page-subtitle { font-size: 11px !important; }
   .topbar .topbar-title { display: none; }
   .data-widget { padding: 8px !important; border-radius: 6px !important; }
-  .widget-title { font-size: 10px !important; }
-  .acp-input-row button { padding: 8px 10px !important; font-size: 9px !important; }
-  .tb-btn { padding: 5px 8px !important; font-size: 9px !important; }
+  .widget-title { font-size: 11px !important; }
+  .acp-input-row button { padding: 8px 10px !important; font-size: 11px !important; }
+  .tb-btn { padding: 5px 8px !important; font-size: 11px !important; }
   .insight-box { padding: 8px 10px !important; font-size: 11px !important; }
 }
 
@@ -1748,7 +1758,8 @@ body.light-theme .nav-item.active { color:#2563eb; background:rgba(37,99,235,0.0
 body.light-theme .insight-box { background:rgba(37,99,235,0.05); border-color:rgba(37,99,235,0.15); }
 body.light-theme canvas { filter:none; }
 /* ── v34.9: 다크/라이트 토글 버튼 ── */
-.theme-toggle-btn { position:fixed; bottom:20px; right:20px; z-index:9999; width:40px; height:40px; border-radius:50%; border:1px solid var(--border); background:var(--bg-card); color:var(--text-primary); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.2); transition:all 0.3s; }
+/* v40.6: 테마 토글 — 고정 위치 제거, 사이드바 하단에 통합 */
+.theme-toggle-btn { display:none; }
 .theme-toggle-btn:hover { transform:scale(1.1); }
 /* ── v34.9: 색각 이상 접근성 (▲/▼ 아이콘 병용) ── */
 .a11y-up::before { content:'▲ '; font-size:0.8em; }
@@ -1841,6 +1852,13 @@ body.light-theme canvas { filter:none; }
       <div style="padding:8px 12px 4px;">
         <button onclick="openFeedbackBoard()" style="width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(232,70,58,0.07);border:1px solid rgba(232,70,58,0.2);border-radius:6px;cursor:pointer;transition:all 0.2s;color:var(--text-secondary);" onmouseover="this.style.background='rgba(232,70,58,0.14)'" onmouseout="this.style.background='rgba(232,70,58,0.07)'">
           <span style="font-size:10px;font-weight:600;font-family:'Inter',var(--font-sans);letter-spacing:0.05em;">📋 게시판</span>
+        </button>
+      </div>
+
+      <!-- v40.6: 테마 토글 — 사이드바 하단에 통합 -->
+      <div style="padding:4px 12px 8px;">
+        <button onclick="toggleTheme()" id="sidebar-theme-btn" style="width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;cursor:pointer;transition:all 0.2s;color:var(--text-secondary);" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+          <span style="font-size:11px;font-weight:600;font-family:'Inter',var(--font-sans);letter-spacing:0.05em;" id="sidebar-theme-label">🌙 다크 모드</span>
         </button>
       </div>
 
@@ -14197,6 +14215,9 @@ function scoreItem(item) {
   });
   item._tickerMentions = tickerMentions;
 
+  // 금융 관련성 총합 (정치 감점 판단에 필요하므로 여기서 선언)
+  const finRelevance = macroHits + techHits + medHits + tickerMentions;
+
   // v34.1c: 대형주/대장주/주도주 티커 부스트 시스템
   if (foundTickers.length > 0) {
     const hasMega = foundTickers.some(t => _MEGA_TICKERS.has(t));
@@ -14297,9 +14318,6 @@ function scoreItem(item) {
      'TrendForce','Digitimes','SemiAnalysis','EE Times','Rigzone','Platts',
      'Nasdaq News','Forbes','Business Insider','Morningstar','The Economist',
      'Kitco Gold','Google News Finance','Channel News Asia'].includes(item.source);
-
-  // 금융 관련성 총합 = MACRO + TECH + MED + 티커
-  const finRelevance = macroHits + techHits + medHits + tickerMentions;
 
   // ── STEP 1: 하드 블랙리스트 (금융 문맥에서 절대 안 나오는 키워드) ──
   // 연예/스포츠/부동산/범죄/날씨 등 = 금융 키워드와 공존할 가능성 0%
@@ -15289,9 +15307,9 @@ function renderFeed(items) {
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
 // v40.4: 홈 핵심뉴스 — 시장 전체에 영향을 주는 핵심 뉴스 2~3개 (정적, 새 이벤트 발생 시 수동 교체)
 var HOME_WEEKLY_NEWS = [
-  { title: 'S&P 500 이틀 연속 급락 — 4/3 -4.8%, 4/4 -6.0%. 2거래일 $6.6조 증발, 역사상 최대 2일 손실. 경기침체 공포 확산.', source: 'CNBC/Bloomberg', date: '2026-04-04', sentiment: 'bear', topic: 'macro' },
-  { title: '트럼프 상호관세 "Liberation Day" — 중국 54%, EU 20%, 한국 25% 부과. 중국 34% 보복 관세로 무역전쟁 전면 확전.', source: 'Reuters/WSJ', date: '2026-04-04', sentiment: 'bear', topic: 'trade' },
-  { title: 'AI 인프라 공급망 3대 병목 — TSMC N3 2027 매진, CPO/InP 레이저 부족, PCB 드릴비트 품귀. 메모리 LSA 선불금 하방 방어.', source: 'SemiAnalysis', date: '2026-04-03', sentiment: 'warn', topic: 'tech' },
+  { title: '이란 전쟁 장기화 우려 — 트럼프 "수주간 계속" 발언에 WTI $110 돌파. S&P 500 1Q -4.6%, 전쟁 이후 최악 분기 마감.', source: 'CNBC/Bloomberg', date: '2026-04-05', sentiment: 'bear', topic: 'macro' },
+  { title: 'Liberation Day 관세 1주년 — 공장 일자리 89,000명 감소, 무역적자 오히려 확대. 철강·알루미늄·구리 50% 관세 확정.', source: 'NPR/Reuters', date: '2026-04-04', sentiment: 'bear', topic: 'trade' },
+  { title: 'S&P 500 주간 +3.4% 반등 — 이란·오만 호르무즈 해협 모니터링 협의로 휴전 기대. 그러나 유가 $110 부담 지속.', source: 'Bloomberg/WSJ', date: '2026-04-04', sentiment: 'warn', topic: 'macro' },
 ];
 
 function renderHomeFeed(items) {
@@ -20650,7 +20668,6 @@ function fbDeleteEntry(id) {
 }
 
 /* ── Updated submitFeedback — posts to JSONBin + mailto fallback ── */
-const _origSubmitFeedback = window.submitFeedback;
 window.submitFeedback = async function() {
   const titleEl = document.getElementById('fb-title');
   const descEl  = document.getElementById('fb-desc');
@@ -34147,7 +34164,8 @@ document.addEventListener('aio:liveQuotes', function() {
 </div>
 
 <!-- v27.2: Draggable glossary floating button -->
-<button id="glossary-btn" style="position:fixed;bottom:24px;right:24px;z-index:9999;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#6366f1);border:none;color:white;font-size:22px;cursor:grab;box-shadow:0 4px 15px rgba(99,102,241,0.4);transition:box-shadow .2s;touch-action:none;user-select:none;" title="드래그하여 이동 · 클릭하여 용어사전 열기">📖</button>
+<!-- v40.6: 용어 사전 플로팅 버튼 제거 — 사이드바 '용어 사전' 페이지와 중복 -->
+<button id="glossary-btn" style="display:none;">📖</button>
 <script>
 (function(){
   var btn=document.getElementById('glossary-btn');
@@ -36518,6 +36536,9 @@ function toggleTheme() {
   body.classList.toggle('light-theme');
   var isLight = body.classList.contains('light-theme');
   if (btn) btn.textContent = isLight ? '☀️' : '🌙';
+  // v40.6: 사이드바 테마 버튼 라벨 동기화
+  var sbLabel = document.getElementById('sidebar-theme-label');
+  if (sbLabel) sbLabel.textContent = isLight ? '☀️ 라이트 모드' : '🌙 다크 모드';
   localStorage.setItem('aio_theme', isLight ? 'light' : 'dark');
   // TradingView iframe 테마 업데이트
   document.querySelectorAll('iframe[src*="tradingview"]').forEach(function(f) {
@@ -36531,6 +36552,8 @@ function toggleTheme() {
     document.body.classList.add('light-theme');
     var btn = document.getElementById('theme-toggle');
     if (btn) btn.textContent = '☀️';
+    var sbLabel = document.getElementById('sidebar-theme-label');
+    if (sbLabel) sbLabel.textContent = '☀️ 라이트 모드';
   }
 })();
 
@@ -36635,6 +36658,67 @@ document.addEventListener('DOMContentLoaded', function() {
     var el = document.getElementById(id);
     if (el) el.setAttribute('aria-live', 'polite');
   });
+
+  // 9~15: HTML 전체 파싱 완료 후 실행 (AI 패널/모달이 WCAG 스크립트 뒤에 위치)
+  setTimeout(function() {
+
+  // 9. nav-item에 aria-label 추가 (이모지 + 라벨 텍스트 정리)
+  document.querySelectorAll('.nav-item[role="button"]').forEach(function(nav) {
+    if (nav.getAttribute('aria-label')) return;
+    var label = nav.querySelector('.label');
+    if (label) nav.setAttribute('aria-label', label.textContent.trim() + ' 페이지');
+  });
+
+  // 10. 주요 액션 버튼에 aria-label 추가
+  var btnLabels = {
+    'sidebar-toggle-btn': '사이드바 열기/닫기',
+    'topbar-refresh-btn': '데이터 새로고침',
+    'mobile-menu-btn': '모바일 메뉴'
+  };
+  Object.keys(btnLabels).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && !el.getAttribute('aria-label')) el.setAttribute('aria-label', btnLabels[id]);
+  });
+
+  // 11. 사이드바 input에 aria-label 추가
+  document.querySelectorAll('.sidebar input:not([aria-label])').forEach(function(inp) {
+    inp.setAttribute('aria-label', inp.placeholder || inp.title || 'API 키 입력');
+  });
+
+  // 12. onclick div에 role="button" + tabindex 보강
+  document.querySelectorAll('[onclick]:not([role])').forEach(function(el) {
+    if (el.tagName === 'BUTTON' || el.tagName === 'A') return;
+    el.setAttribute('role', 'button');
+    if (!el.getAttribute('tabindex')) el.setAttribute('tabindex', '0');
+  });
+
+  // 13. 빈 텍스트 인터랙티브 요소에 명시적 aria-label 추가
+  var classLabels = {
+    'mobile-overlay': '모바일 메뉴 닫기',
+    'llm-switch-track': 'AI 도우미 전환',
+    'ai-ph-close': 'AI 패널 닫기',
+    'acp-history-btn': 'AI 대화 기록'
+  };
+  Object.keys(classLabels).forEach(function(cls) {
+    document.querySelectorAll('.' + cls).forEach(function(el) {
+      if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', classLabels[cls]);
+    });
+  });
+
+  // 14. 모든 인터랙티브 요소에 aria-label 일괄 보강
+  var emojiLabel = {'🌙':'다크/라이트 테마 전환','☰':'메뉴 열기','✕':'닫기','↻':'새로고침','💬':'AI 채팅 열기'};
+  document.querySelectorAll('button:not([aria-label]), [role="button"]:not([aria-label]), [onclick]:not([aria-label])').forEach(function(el) {
+    if (el.tagName === 'A') return;
+    var text = el.textContent.trim();
+    // 이모지만 있는 버튼 → 매핑 테이블 사용
+    if (text.length <= 2 && emojiLabel[text]) { el.setAttribute('aria-label', emojiLabel[text]); return; }
+    // 텍스트가 있으면 그대로 사용
+    if (text && text.length <= 40) { el.setAttribute('aria-label', text); return; }
+    // 긴 텍스트는 첫 30자
+    if (text) el.setAttribute('aria-label', text.substring(0, 30));
+  });
+
+  }, 0); // setTimeout 끝
 })();
 </script>
 
