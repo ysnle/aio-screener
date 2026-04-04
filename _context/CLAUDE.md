@@ -17,7 +17,7 @@ AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터
 실시간 시장 데이터, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed 지수, 포트폴리오 관리 기능을 하나의 HTML 파일에 담고 있다.
 
 - **배포 URL**: `https://ysnle.github.io/aio-screener/`
-- **현재 버전**: v39.9
+- **현재 버전**: v40.0
 - **메인 파일**: `index.html` (~33,000줄, ~2.1MB)
 
 ## 기술 스택
