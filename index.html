@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v40.2 — 올인원 투자 터미널</title>
+  <title>AIO Screener v40.3 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -141,7 +141,7 @@
 
 /* 인라인 font-size 6px~7px → 10px 최소 보장 */
 .page [style*="font-size:6px"],
-/* v40.2: 최소 글자 크기 강제 — 모든 인라인 7~10px을 최소 11px로 */
+/* v40.3: 최소 글자 크기 강제 — 모든 인라인 7~10px을 최소 11px로 */
 .page [style*="font-size: 6px"],
 .page [style*="font-size:6px"] { font-size: 11px !important; }
 .page [style*="font-size:7px"],
@@ -297,8 +297,8 @@ body {
 }
 .nav-section { padding: 0 6px 10px; }
 .nav-label {
-  font-size: 11px; /* v40.2: 10→11px */
-  color: #8b95a5; /* v40.2: var(--text-muted) → 밝게 */
+  font-size: 11px; /* v40.3: 10→11px */
+  color: #8b95a5; /* v40.3: var(--text-muted) → 밝게 */
   font-weight: 700;
   padding: 8px 10px 4px;
   letter-spacing: 0.10em;
@@ -360,9 +360,9 @@ body {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.12s;
-  color: #cbd5e1; /* v40.2: 선명도 개선 — var(--text-secondary) #94a3b8 → #cbd5e1 */
-  font-size: 13px; /* v40.2: 12→13px */
-  font-weight: 600; /* v40.2: 500→600 */
+  color: #cbd5e1; /* v40.3: 선명도 개선 — var(--text-secondary) #94a3b8 → #cbd5e1 */
+  font-size: 13px; /* v40.3: 12→13px */
+  font-weight: 600; /* v40.3: 500→600 */
   border-left: 2px solid transparent;
   letter-spacing: 0.01em;
 }
@@ -2015,7 +2015,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v40.2</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v40.3</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -2860,27 +2860,6 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- ─ 섹션 구분: AI & 전략 ─ -->
-  <div class="section-divider"></div>
-  <div class="section-header">🤖 AI 분석 · 시나리오 · 전략</div>
-
-  <!-- ─ AI 터미널 ─ -->
-  <div id="chat-signal" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
-      <div>
-        <div style="font-size:10px;font-weight:700;color:var(--text-secondary);">🤖 AI Terminal — 거래 전략 분석</div>
-        <div style="font-size:8px;color:var(--text-muted);margin-top:2px;">현재 시장 환경을 분석하고 개인화된 거래 전략을 제공합니다</div>
-      </div>
-      <button class="acp-expand-btn" onclick="toggleChatExpand('signal')" title="채팅 영역 확장/축소">↗ 확장</button>
-      <button onclick="chatClear('signal')" class="tb-btn" style="font-size:9px;">🗑 초기화</button>
-    </div>
-    <div id="chat-signal-msgs" class="acp-messages" style="min-height:40px;max-height:320px;overflow-y:auto;overflow-x:hidden;background:rgba(0,0,0,0.2);border-radius:7px;padding:10px 10px 20px;margin-bottom:8px;font-size:9px;line-height:1.6;"></div>
-    <div id="chat-signal-chips" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;"></div>
-    <div style="display:flex;gap:6px;">
-      <input id="chat-signal-inp" type="text" placeholder="지금 거래해도 될까요? VIX 20이면? 어떤 섹터가 유리해요?" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:9px;color:var(--text-primary);outline:none;" onkeydown="if(event.key==='Enter')chatSend('signal')"/>
-      <button id="chat-signal-btn" class="tb-btn primary" onclick="chatSend('signal')" style="font-size:9px;min-width:52px;">전송 ▶</button>
-    </div>
-  </div>
 
   <!-- ─ v38.9: 미너비니 4단계 바닥 프로세스 (동적) ─ -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
@@ -3621,27 +3600,6 @@ body.light-theme canvas { filter:none; }
 
     </div><!-- /briefing-static-archive v34.5 -->
 
-    <!-- Chat Panel -->
-    <div class="aio-chat" id="chat-briefing" style="margin-top:4px;">
-      <div class="acp-header">
-        <span class="acp-title">Daily Briefing AI</span>
-        <span style="font-size:8px;color:var(--text-muted);margin-left:6px;">실시간 뉴스 + 시장 데이터 통합 분석</span>
-        <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형</span>
-        <button class="acp-expand-btn" onclick="toggleChatExpand('briefing')" title="채팅 영역 확장/축소">↗ 확장</button><button class="acp-clear" onclick="chatClear('briefing')" title="대화 초기화">✕</button>
-      </div>
-      <div class="acp-messages" id="chat-briefing-msgs"></div>
-      <div class="acp-chips" id="chat-briefing-chips">
-        <div class="q-chip" onclick="chatFromChip('briefing',this.textContent.trim())">오늘 시장 종합 브리핑</div>
-        <div class="q-chip" onclick="chatFromChip('briefing',this.textContent.trim())">지금 가장 중요한 리스크 요인은?</div>
-        <div class="q-chip" onclick="chatFromChip('briefing',this.textContent.trim())">이번 주 주목할 이벤트 분석</div>
-        <div class="q-chip" onclick="chatFromChip('briefing',this.textContent.trim())">현재 매수/관망/매도 어느 쪽?</div>
-      </div>
-      <div class="acp-input-row">
-        <input id="chat-briefing-inp" placeholder="오늘의 시황에 대해 질문하세요..."
-               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSend('briefing')}"/>
-        <button id="chat-briefing-btn" onclick="chatSend('briefing')">전송 ▶</button>
-      </div>
-    </div>
   </div>
     <!-- ═══════════════ PAGE: TECHNICAL (기술적 분석) ═══════════════ -->
   <div class="page" id="page-technical">
@@ -5779,7 +5737,7 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- v40.2: 포트폴리오 비중 시각화 + 섹터 + 현금 -->
+    <!-- v40.3: 포트폴리오 비중 시각화 + 섹터 + 현금 -->
     <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;margin-bottom:14px;">
       <!-- 비중 도넛 -->
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;">
@@ -6912,21 +6870,6 @@ body.light-theme canvas { filter:none; }
     <div id="opt-analysis-text" style="padding:10px;font-size:10.5px;color:var(--text-secondary);line-height:1.7;">데이터 로딩 중...</div>
   </div>
 
-  <!-- SECTION 10: AI CHAT -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
-    <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🤖 AI 옵션 전략 상담</div>
-    <div id="chat-options-msgs" style="min-height:60px;max-height:180px;overflow-y:auto;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-      <button onclick="chatFromChip('options','NVDA 78 IV Rank에서 Covered Call 전략이 나을까?')" class="tb-btn" style="font-size:9px;">NVDA Covered Call</button>
-      <button onclick="chatFromChip('options','PCE 3/28 발표 전에 어떤 옵션 포지션을 가져야 할까?')" class="tb-btn" style="font-size:9px;">PCE 대비 전략</button>
-      <button onclick="chatFromChip('options','Put/Call 비율 1.28과 VVIX 89는 무슨 의미야?')" class="tb-btn" style="font-size:9px;">P/C & VVIX 해석</button>
-      <button onclick="chatFromChip('options','GEX가 -12.8B이면 시장에 어떤 영향이 있어?')" class="tb-btn" style="font-size:9px;">GEX 분석</button>
-    </div>
-    <div style="display:flex;gap:8px;">
-      <input id="chat-options-inp" placeholder="옵션 전략, Greeks, 시장 신호 질문..." style="flex:1;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')chatSend('options')" />
-      <button id="chat-options-btn" onclick="chatSend('options')" style="background:#3b82f6;border:none;color:#fff;font-size:10px;font-weight:700;padding:8px 14px;border-radius:6px;cursor:pointer;">전송</button>
-    </div>
-  </div>
 </div>
   <!-- ═══════════════ PAGE: KR-HOME (한국장 홈) ═══════════════ -->
   <div class="page" id="page-kr-home">
@@ -7417,21 +7360,6 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- v34.6: kr-supply AI 수급 상담 채팅 패널 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-top:14px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🤖 AI 수급 분석 상담</div>
-      <div id="chat-kr-supply-msgs" style="min-height:60px;max-height:180px;overflow-y:auto;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-        <button onclick="chatFromChip('kr-supply','외국인 순매수 전환 신호 보여? 언제 전환될까?')" class="tb-btn" style="font-size:9px;">외국인 수급</button>
-        <button onclick="chatFromChip('kr-supply','공매도 과열 종목은 어디야? 숏커버 가능성은?')" class="tb-btn" style="font-size:9px;">공매도 분석</button>
-        <button onclick="chatFromChip('kr-supply','기관 프로그램 매매가 시장에 미치는 영향은?')" class="tb-btn" style="font-size:9px;">기관 프로그램</button>
-        <button onclick="chatFromChip('kr-supply','개인 예탁금 사상최대인데 위험 신호야?')" class="tb-btn" style="font-size:9px;">개인 심리</button>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <input id="chat-kr-supply-inp" placeholder="수급·외국인·공매도 관련 질문을 입력하세요..." style="flex:1;padding:8px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')chatSend('kr-supply')" />
-        <button id="chat-kr-supply-btn" onclick="chatSend('kr-supply')" style="background:#10b981;border:none;color:#fff;font-size:10px;font-weight:700;padding:8px 14px;border-radius:6px;cursor:pointer;">전송</button>
-      </div>
-    </div>
 
   </div><!-- /page-kr-supply -->
 
@@ -7472,7 +7400,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <div class="kr-theme-grid" id="kr-theme-container">
-      <!-- v40.2: 정적 HTML 제거. KR_THEME_MAP 기반 JS 동적 생성 (renderKrThemeCardsFromMap). -->
+      <!-- v40.3: 정적 HTML 제거. KR_THEME_MAP 기반 JS 동적 생성 (renderKrThemeCardsFromMap). -->
       <!-- ━━━ 아래는 renderKrThemeCardsFromMap()가 동적 생성 ━━━ -->
     </div>
 
@@ -8589,16 +8517,6 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- AI 채팅 -->
-    <div class="aio-chat">
-      <div class="acp-header"><div class="ai-dot"></div><span class="acp-title">AI 투자 멘토 — 무엇이든 물어보세요</span><button class="acp-expand-btn" onclick="toggleChatExpand('guide')" title="채팅 영역 확장/축소">↗ 확장</button><button class="acp-clear" onclick="chatClear('guide')">🗑</button></div>
-      <div class="acp-messages" id="chat-guide-msgs"></div>
-      <div class="acp-chips" id="chat-guide-chips"></div>
-      <div class="acp-input-row">
-        <input id="chat-guide-inp" placeholder="사용법이나 투자 용어를 질문해보세요..." onkeydown="if(event.key==='Enter')chatSend('guide')">
-        <button id="chat-guide-btn" onclick="chatSend('guide')">질문 →</button>
-      </div>
-    </div>
   </div>
 
     <!-- Feedback Modal -->
@@ -9583,7 +9501,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v40.2';
+const APP_VERSION = 'v40.3';
 
 // v34.5: 프로덕션 로그 억제 — console.log만 조건부 억제, warn/error는 유지
 // URL에 ?debug=1 추가 시 전체 로그 활성화 (개발 모드)
@@ -17950,7 +17868,7 @@ function generateDynamicBriefing() {
   html += '<div style="font-size:8px;color:' + vixColor + ';margin-top:3px;">' + fmtPct(vixChg) + ' · ' + vixLabel + '</div></div>';
   html += '</div>';
 
-  // ── v40.2: NASDAQ · Gold · USD/KRW 추가 3컬럼 ──
+  // ── v40.3: NASDAQ · Gold · USD/KRW 추가 3컬럼 ──
   var ndx = ld['^IXIC'] || {};
   var ndxPrice = ndx.price || 0;
   var ndxChg = (ndx.pct != null ? ndx.pct : 0);
@@ -17979,7 +17897,7 @@ function generateDynamicBriefing() {
     html += '</div>';
   }
 
-  // ── v40.2: 트레이딩 스코어 게이지 ──
+  // ── v40.3: 트레이딩 스코어 게이지 ──
   var tsScore = 50, tsLabel = '분석중', tsColor = 'var(--text-secondary)';
   try {
     if (typeof computeTradingScore === 'function') {
@@ -18001,7 +17919,7 @@ function generateDynamicBriefing() {
   html += '<div style="height:100%;width:' + tsPct + '%;background:' + tsColor + ';border-radius:3px;transition:width 0.5s;"></div>';
   html += '</div></div>';
 
-  // ── v40.2: 섹터 히트맵 ──
+  // ── v40.3: 섹터 히트맵 ──
   var sectorETFs = [{s:'XLK',n:'기술'},{s:'XLF',n:'금융'},{s:'XLE',n:'에너지'},{s:'XLV',n:'헬스'},{s:'XLI',n:'산업'},{s:'XLY',n:'소비'},{s:'XLP',n:'필수'},{s:'XLRE',n:'리츠'},{s:'XLB',n:'소재'},{s:'XLU',n:'유틸'},{s:'XLC',n:'통신'}];
   var secHasData = false;
   sectorETFs.forEach(function(e) { if (ld[e.s] && ld[e.s].pct != null) secHasData = true; });
@@ -18023,7 +17941,7 @@ function generateDynamicBriefing() {
     html += '</div></div>';
   }
 
-  // ── v40.2: M7 리더십 미니 바 ──
+  // ── v40.3: M7 리더십 미니 바 ──
   var m7syms = ['AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'];
   var m7Has = false;
   m7syms.forEach(function(t) { if (ld[t] && ld[t].pct != null) m7Has = true; });
@@ -18050,7 +17968,7 @@ function generateDynamicBriefing() {
   }
 
   el.innerHTML = html;
-  console.log('[AIO v40.2] 동적 브리핑 생성 완료 (' + dateStr + ' ' + timeStr + ')');
+  console.log('[AIO v40.3] 동적 브리핑 생성 완료 (' + dateStr + ' ' + timeStr + ')');
 }
 
 // v35.8: 스크리너 DB mcap 라이브 업데이트
@@ -20077,7 +19995,7 @@ try { window.addEventListener('popstate', (e) => {
     if(typeof computeMarketHealth==='function') { try { var h=computeMarketHealth(); var hd=document.getElementById('health-score-display'); var hg=document.getElementById('health-grade-display'); if(hd)hd.textContent=h.score; if(hg){hg.textContent=h.grade;hg.style.color=h.score>=60?'#3ddba5':h.score>=40?'#fbbf24':'#f87171';} } catch(e) {} }
     if(typeof updatePatternSignals==='function') { try { updatePatternSignals(); } catch(e) {} }
     if(typeof updateTechIndicators==='function') { try { updateTechIndicators(); } catch(e) {} }
-    // v40.2: TradingView 자동 로드 (SPY 기본)
+    // v40.3: TradingView 자동 로드 (SPY 기본)
     var tvTechC = document.getElementById('tv-widget-technical');
     if(tvTechC && !tvTechC.querySelector('iframe') && typeof loadTVChart==='function') { try { loadTVChart('technical'); } catch(e) {} }
   });
@@ -20972,7 +20890,7 @@ function renderPortfolio() {
   });
 
   updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDailyChg);
-  // v40.2: 포지션 도넛 + 섹터 브레이크다운 갱신
+  // v40.3: 포지션 도넛 + 섹터 브레이크다운 갱신
   drawPositionDonut();
   // 현금 입력 필드 복원
   var cashInp = document.getElementById('pf-cash-input');
@@ -22003,401 +21921,6 @@ function _getChatRules() {
 }
 
 const CHAT_CONTEXTS = {
-  // ── 홈 대시보드 ─────────────────────────────────────────
-  home: {
-    title: 'AI 시장 브리퍼',
-    system: function() {
-      const s = _liveSnap();
-      const c = _closeSnap();
-      var fresh = s._freshness;
-      // 세션 상태 레이블
-      var usLabel = s.usSession === 'open' ? '본장 진행 중' : s.usSession === 'pre' ? '프리마켓' : s.usSession === 'after' ? '애프터마켓' : s.usSession === 'futures_only' ? '선물만 거래 중' : '마감';
-      var krLabel = s.krSession === 'open' ? '장중' : s.krSession === 'pre' ? '프리' : s.krSession === 'after' ? '시간외' : '장 마감';
-      return '당신은 사용자의 개인 시장 브리퍼입니다. 현재 사용자가 보고 있는 "홈 대시보드" 페이지의 데이터를 기반으로 대화합니다.\n\n' +
-        '【시장 세션 상태】 미국: ' + usLabel + ' | 한국: ' + krLabel + (s.futuresOpen ? ' | 선물시장: 운영 중' : '') + '\n\n' +
-        '【실시간 현황 (데이터 신선도: ' + fresh + ')】\n' +
-        '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) | NASDAQ: ' + (s.nasdaq || '—') + ' (' + (s.nasdaqPct || '—') + '%) | DOW: ' + (s.dow || '—') + ' (' + (s.dowPct || '—') + '%) [' + s.indexBasis + ']\n' +
-        '• 50SMA: ' + s.spx50ma + ' | 200SMA: ' + s.spx200ma + '\n' +
-        '• 시장 품질 점수: ' + s.score + '/100\n' +
-        '• Fear & Greed: ' + s.fg + (s._stale.indexOf('F&G') >= 0 ? ' (⚠ 폴백값 — 최신 확인 필요)' : '') + '\n' +
-        '• VIX: ' + s.vix + ' | VVIX: ' + s.vvix + ' | VVIX/VIX: ' + s.vvixVixRatio + '\n' +
-        '• DXY: ' + s.dxy + ' | 10Y: ' + s.tnx + '%\n' +
-        '• 지수선물(참고): ES ' + s.esFut + '(' + s.esPct + '%) | NQ ' + s.nqFut + '(' + s.nqPct + '%) | YM ' + s.ymFut + '(' + s.ymPct + '%)\n' +
-        (s.extHours !== '해당없음' ? '• 시간외: ' + s.extHours + '\n' : '') +
-        '• WTI: $' + s.wti + ' | Gold: $' + s.gold + ' | USD/KRW: ' + s.krw + '\n' +
-        '\n【분석 기준 데이터 — v37.1 이원화 원칙】\n' +
-        '⚠ 데이터 이원화 원칙을 반드시 준수하라:\n' +
-        '  ① 주가·지수 분석 시 → 아래 종가(확정 데이터) 사용. 장중 실시간 주가는 방향 참고만.\n' +
-        '  ② 시장환경(VIX·금리·환율·유가) 분석 시 → 아래 실시간 데이터 사용. 24시간/선물 거래되므로 최신값이 분석 기준.\n\n' +
-        '• [종가/' + c.stockBasis + '] SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + ' | Russell: ' + c.rut + '\n' +
-        '• [' + c.envBasis + '] VIX: ' + c.vix + ' | VVIX: ' + c.vvix + ' | VVIX/VIX: ' + c.vvixVixRatio + '\n' +
-        '• [' + c.envBasis + '] 10Y: ' + c.tnx + '% | 30Y: ' + c.tyx + '% | DXY: ' + c.dxy + ' | WTI: $' + c.wti + ' | Gold: $' + c.gold + '\n' +
-        // v34.4: 시장건강도 + 국면 판단 주입
-        (function() {
-          var regime = typeof classifyMarketRegime === 'function' ? classifyMarketRegime() : null;
-          var health = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
-          var extra = '';
-          if (regime) extra += '• 시장 국면: ' + (regime.regime||'분석중') + '\n';
-          if (health) extra += '• 시장 건강도: ' + health.score + '점 ' + health.grade + ' (' + health.regime + ')\n';
-          return extra;
-        })() +
-        (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 데이터가 지연/폴백 상태일 수 있음. "현재"가 아닌 "최근 기준"으로 언급할 것.\n' : '') + '\n' +
-        '【지정학 컨텍스트 (2026.03 현재)】\n' +
-        '미국-이란 전쟁 1개월 경과. 호르무즈 봉쇄 위험 지속(사우디 송유관 700만bbl/d 우회 가동). 후티 미사일·이스라엘 레바논 타격 등 다전선 분쟁.\n' +
-        '유가 시나리오: 기본 Brent $120 수준, 호르무즈 4~6주 봉쇄 시 $150 가능. 석유 메이저 CEO들: 전쟁 끝나도 유가 고수준 유지 전망, 항공유→디젤→휘발유 순차 부족 경고.\n' +
-        '핵심 프레임: 에너지 수입 의존도 높은 지역(일본·유럽)이 교역조건 악화로 가장 취약. 전쟁 종식 시 억눌린 반등도 아시아가 선행.\n\n' +
-        '【응답 프레임워크 — "오늘의 시장을 이야기로"】\n' +
-        '1. 장면 진입: "오늘 시장은 {상태}다." 한 문장으로 상황을 그린다. 마치 뉴스 앵커가 첫 멘트를 던지듯. 핵심 숫자를 별도 행에 임팩트 있게 배치.\n' +
-        '2. "왜?" — 인과 스토리: 숫자 나열이 아닌 스토리로 연결. "VIX가 치솟은 건 우연이 아니다. 지난주 옵션 시장에서 시작된 파장이..." 식으로 맥락을 풀어줘라.\n' +
-        '3. Before/After: "어제까지는 ~였는데, 오늘은 ~로 바뀌었다. 이 변화가 밸류에이션 공식을 어떻게 뒤흔드는가?"\n' +
-        '4. 상승/하락 양쪽 시나리오 병렬 제시 후 "깨지는 신호" 1~2개 명시.\n' +
-        '5. 액션 클로징: "그래서 당신이 오늘 할 수 있는 3가지..." 구체적 행동 제안. 추상적 조언("조심하세요") 금지, 실행 가능한 액션만.\n' +
-        '⚠️ 항상 전문가급 분석. 5줄 짜리 답변 금지. 시장 상황을 데이터 근거와 인과 체인으로 풍성하게 읽어줘라.\n' +
-        '대시보드의 "매매 신호"(스코어가 100점 만점인 종합 시장 체력 점수), "시장 품질", "시장 국면" 카드의 의미를 쉽게 풀어서 설명하고, 매매시그널·시장폭·투자심리 페이지로 자연스럽게 연결.' +
-        _getChatRules();
-    }
-  },
-
-  // ── 매매 시그널 ─────────────────────────────────────────
-  signal: {
-    title: 'AI 매매 전략가',
-    system: function() {
-      const s = _liveSnap();
-      const c = _closeSnap();
-      const regime = typeof classifyMarketRegime === 'function' ? classifyMarketRegime() : {regime:'분석중'};
-      var fresh = s._freshness;
-      return '당신은 사용자의 매매 판단을 도와주는 AI 전략가입니다. 현재 "매매시그널" 페이지를 보고 있습니다.\n\n' +
-        '【매매시그널 페이지 데이터 (신선도: ' + fresh + ')】\n' +
-        '• 종합 트레이딩 스코어: ' + s.score + '/100 (시장 환경 종합 점수)\n' +
-        '• 시장 국면: ' + (regime.regime || '분석중') + '\n' +
-        '• S&P 500: ' + s.spx + ' (50SMA: ' + s.spx50ma + ', 200SMA: ' + s.spx200ma + ') [' + s.indexBasis + ']\n' +
-        '• VIX: ' + s.vix + ' [실시간] | F&G: ' + s.fg + '\n' +
-        '• 스코어 구성: 변동성(25%) + 모멘텀(25%) + 추세(20%) + 시장폭(20%) + 매크로(10%)\n' +
-        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
-        '⚠ 주가·지수 분석 시 위 종가 기준. VIX·DXY 등 시장환경은 실시간 값 사용.\n' +
-        (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 지연/폴백 가능. 확정 발언 자제.\n' : '') + '\n' +
-        '【스코어 해석 가이드】\n' +
-        '75+ 우수: 적극 매수 OK | 55-75 양호: 선별적 매수 | 35-55 중립: 관망 | 25-35 악화: 포지션 축소 | 25미만 위험: 현금 비중 극대화\n\n' +
-        '【5대 컴포넌트 세부 해석】\n' +
-        '• 변동성(25%): VIX 기반. VIX 15↓ = 만점, 20~25 = 중간, 30+ = 위험. 시장의 불안정도 측정.\n' +
-        '• 모멘텀(25%): 가격 추세 강도. 200SMA 위+상승 = 만점. 아래+하락 = 위험. 상승세 유지 vs 하락 전환 판별.\n' +
-        '• 추세(20%): 이동평균 배열, 골든/데드크로스. 정배열(50>150>200) = 강한 상승추세.\n' +
-        '• 시장폭(20%): 얼마나 많은 종목이 참여하는가. 50%+ = 건강한 상승. 30%↓ = 소수 종목만 이끄는 허약한 시장.\n' +
-        '• 매크로(10%): 금리·달러·유가 환경. 금리인하+달러약세 = 주식 우호적.\n\n' +
-        '【스코어 변동 시나리오】\n' +
-        '• 스코어 급락(-10p 이상/주): "무언가 구조적으로 바뀌고 있다" → 즉각 포지션 축소 검토\n' +
-        '• 스코어 점진적 상승: "바닥 탈출 중" → 선별적 매수 시작, 리더주 VCP 패턴 확인\n' +
-        '• 스코어 고점 횡보(70+): "좋은 환경 지속" → 기존 포지션 유지, 트레일링 스탑 관리\n\n' +
-        '【미너비니 4단계 바닥 프로세스 — 시장 전환점 판별 프레임워크】\n' +
-        '조정장에서 가장 큰 랠리가 나온다. 뉴스가 트리거일 수 있지만, 시장이 이미 과매도 상태에서 반등 준비가 돼 있었기 때문. 원인과 결과를 혼동하지 마라.\n' +
-        '1단계 과매도(Oversold): 가격 하락 + 시장폭 악화 + 거래량 후속 확인(follow-through) 부재. 일방적 시장 = 신뢰 불가.\n' +
-        '2단계 랠리(Rally): 과매도에서 불가피한 반등. 핵심은 랠리의 "품질" 판별. 고품질 = 광범위(broad-based). 저품질 = 숏커버링 주도(가장 많이 빠진 종목이 가장 많이 반등). 첫 며칠은 무시 = 잠재적 노이즈. Follow-through가 나오는지, 리더십 종목이 부상하는지, 적절한 셋업이 형성되는지가 관건.\n' +
-        '3단계 리테스트(Retest): 랠리 후 거의 항상 과매도 저점을 재시험. 성공적 리테스트의 핵심 = 매도 압력 감소: 이동평균 하회 종목 감소, 신저가 종목·섹터·시장 감소, 총거래량·하락거래량 감소. 리테스트 실패 시 → 저점 갱신 중 다이버전스 탐색. 예외적 뉴스 시 V자 회복도 가능(코로나 바닥) → 시장폭 확인으로 대체.\n' +
-        '4단계 브레드스 쓰러스트(Breadth Thrust): 벤치마크 지수가 풀백 거의 없이 급등 + 극히 높은 종목·섹터·시장 참여율. 이것이 진짜 바닥 확인. 충분한 시장폭이면 리테스트 불필요한 경우도 있음.\n' +
-        '현재 단계 판별 기준: 스코어 30↓ = 1단계(과매도). 스코어 반등 중 = 2단계(랠리 품질 관찰). 리테스트 성공 = 3단계 통과. 시장폭 80%+ 쓰러스트 = 4단계 완료.\n' +
-        '★ 핵심 원칙: "조정 기간 중 할 일은 단순하다 — 최고의 상대강도(RS)와 가장 타이트한 가격 움직임을 보이는 종목을 찾아라. 시장이 전환될 때 그들이 미래의 리더다."\n\n' +
-        '【GPU 컴퓨트 마켓 & 메모리 슈퍼사이클 프레임워크 (2026.04 — SemiAnalysis/Jefferies/메리츠)】\n' +
-        '반도체/AI 인프라 종목 분석 시 아래 프레임워크를 적용하라:\n' +
-        '• GPU 렌탈 사이클: H100 렌탈 가격 2025.10 저점 $1.70/hr → 2026.03 $2.35/hr (+40%). 온디맨드 완전 매진. 서브렛팅(전대) 발생 — 모나코 GP 아파트처럼 클러스터 세분화 재임대. GPU 가동률이 핵심 지표(가격보다 선행). 블랙웰 리드타임 6~7월, 8~9월 전량 예약 완료.\n' +
-        '• 수요 폭발 기폭제: 에이전트 AI(Claude Code). Anthropic ARR $9B→$25B(1분기 3배). SemiAnalysis 전망: 2026년 말 전체 코드 커밋 20%+ Claude Code 점유. 토큰당 $5이지만 ROI가 비용을 압도.\n' +
-        '• 3단 시장 구조: (i) 단기(온디맨드/스팟/3개월 미만) — 가동률이 핵심 (ii) 중기(3개월~3년) — 1년 계약 지수가 가장 민감 (iii) 장기(4~5년 오프테이크) — 대형 AI 연구소가 수만 GPU 클러스터 선점, 네오클라우드가 이를 담보로 대출.\n' +
-        '• 자기 강화 사이클: 공급 증가 → 수요가 더 빠르게 증가 (AI ROI > 비용). 가격 하락 전망보다 추가 상승 가능성이 높음.\n' +
-        '• 네오클라우드 ROIC: CoreWeave/Nebius — 렌탈 가격↑ + H100 경제적 수명 연장 → 자본 효율성 개선. 단, CoreWeave 매출 $50억 vs 부채 $213억(4배) 리스크.\n' +
-        '• 공급망 전파: 메모리 파라볼릭 폭등(LPDDR5 4배, DDR5 6배 YoY) → AI 서버 가격 아포칼립스 → 클러스터 투자비용↑ → 신규 공급 억제 → 렌탈 가격↑.\n' +
-        '• 메모리 가격 동학: 서버 DRAM 2Q26 고정가 +43~48% QoQ (기존 +28~33%에서 상향). NAND MLC +39~49% MoM (공급사 철수+패닉 재고 확보). 메모리 BOM 비중 50% 돌파 → OEM 전가 한계.\n' +
-        '• LTA(장기공급계약) 시그널: 2027년 LTA 협상에 최소가격(floor price)+선지급(prepayment) 조항 포함 전망. 26년 LTA 미확보 구매자 → 27년 더 높은 가격 수용 불가피. 삼성전자 2Q26 견적가 조기 발표 + 유연한 상향 조항.\n' +
-        '• 수혜 체인: NVDA(GPU) → AVGO/MRVL(네트워킹) → 삼성전자/SK하이닉스/마이크론(메모리) → CoreWeave/Nebius(네오클라우드) → SMCI/DELL(서버) → Vertiv/EATON(전력/냉각)\n' +
-        '⚠️ 반도체 종목 분석 시 단순 PER이 아니라 "공급 제약 지속 기간"과 "가격결정력(pricing power)" 관점에서 판단하라.\n\n' +
-        '【JP모건 유가 시나리오 & 크로스에셋 전략 (2026.04)】\n' +
-        '• 유가 단계별 시나리오: 기본 $100/bbl(2Q유지) → 해협 지속 시 $120-130 → 5월 중순까지 물동량 차질 시 $150+. 하반기 부분 재개통+재고 정상화 시 하락 전환.\n' +
-        '• 소비자 한계점: 가솔린 $4+/gal → OBBBA 부양효과 상쇄 → K자형 확산(저소득층 직격). 에너지 압박 장기화 시 기업 방어적 고용 전환 위험.\n' +
-        '• 크로스에셋 포지셔닝: 비선형 하방 헤지 유지 + 퀄리티 성장주(higher-for-longer 저항력). 경기침체 시 저변동성 아웃퍼폼. 스태그플레이션 시 방어주+테크 모두 압박.\n' +
-        '• 선택적 재진입: 아시아 테크+일본(개별 내러티브), 에너지 수출국(AUD/BRL/NOK), 미국 예외주의 일부 재부상. 2Y UST 롱, 금 강세 유지(금광주 비중확대).\n' +
-        '• 유가-금리-달러 삼각관계: 유가 충격 → 채권/주식 양의 상관(안전자산 실종). 금/달러 반대 반응. Fed 인상 장벽 높아짐(순에너지 수출국+안정적 인플레 기대).\n\n' +
-        '【메모리 CapEx 폭발 & HBM 구조적 부족 (2026.04 — SemiAnalysis/AMD)】\n' +
-        '• 하이퍼스케일러 메모리 CapEx 비중: 8%(2023-24) → 30%(2026) → 30%+(2027). 4년 만에 4배. 증분 지출 $250B 중 막대한 비중.\n' +
-        '• DRAM 가격: 2026 2배+ 상승, 2027 두 자릿수 ASP 추가 상승. LPDDR5 계약가 2025Q1 이후 3배+. 2026Q1 공개시장 GB당 $10+.\n' +
-        '• HBM 전량 매진: HBM3E(2026), HBM4, HBM4E — Hynix/Samsung/Micron 전사 2026-27 물량 확보 완료. 구조적 공급부족 2027까지.\n' +
-        '• NVDA VVP 가격 vs AMD 비용불이익: NVDA는 VVP(최우선우대) DRAM 가격 적용 → 시장 가격 왜곡. AMD는 메모리 함유량 높은데 가격 우대 없음 → 구조적 비용 위험.\n' +
-        '• 2027-28 커스텀 HBM 시대: Hynix 기성품 → 칩설계사+메모리팹 공동설계로 전환. 선제적 예측 조달 가속.\n' +
-        '• B200 서버 15-20% 인상(연말까지). 메모리 BOM 비중 50% 돌파. 2027 repricing은 월가 추정치 미반영.\n\n' +
-        '【샘 알트먼 AGI & Compute 올인 (2026.04)】\n' +
-        '• AGI 타임라인: 2년 내 데이터센터 인지능력 > 전 인류 뇌 인지능력. "기계가 인간보다 더 많이 생각하는 세상."\n' +
-        '• Sora 중단 → Compute 집중 재배치: (1) 자동 연구원(수십년 과학→1년) (2) 자동 회사(1인 유니콘) (3) 슈퍼 개인 에이전트(OpenClaw). 비디오 생성 포기하고 고차원 목표에 올인.\n' +
-        '• 투자 함의: AGI 타임라인 단축 = 컴퓨트/메모리/전력 수요 가속. Sora 포기는 compute 제약의 방증 = GPU/HBM 수요 더 강화.\n\n' +
-        '【NVIDIA 광학 제국 & AI 경쟁 구도 (2026.04)】\n' +
-        '• NVIDIA 광학 3레이어: L1 Scale-out(rack간, CPO — COHR/LITE, 2026-27) → L2 Scale-up(GPU간, Photonic Fabric — MRVL/Celestial AI + NVLink Fusion, 2028-29) → L3 In-package(칩내부, Ayar Labs/Lightmatter, 2029+)\n' +
-        '• NVIDIA 투자 공식: 투자($2B) → 제조확장 → 물량선점. 4개월 $12B+(Synopsys/CoreWeave/COHR/LITE/Nebius/MRVL 각 $2B). Supply chain 병목 위치에 다음 수혜주.\n' +
-        '• InP 기판 병목: Sumitomo(60%)+AXT(35%)=95%. 수요200만 vs 공급60만. 중국 인듐 수출통제. COHR 6인치 InP 라인 구축 중.\n' +
-        '• UALink vs NVLink Fusion: NVLink Fusion은 경쟁사 칩을 포용하면서 자기 생태계 lock-in. MRVL을 NVLink 진영으로 확보.\n' +
-        '• AI 모델 군비경쟁: MSFT MAI 3종(2026.04, 2027 frontier 목표), Google Gemini 3.1, Meta Llama, Apple 자체모델. 빅테크 전부 자체 학습 = 컴퓨트 수요 다변화 = GPU/메모리/네트워킹 구조적 수혜.\n\n' +
-        '【v39.2 컴포넌트 교차 분석 프레임 — 단순 점수가 아닌 "관계"를 봐라】\n' +
-        '• 추세↑ + 시장폭↓ = "소수 대형주가 지수를 끌어올리는 위험한 상승" → 실체 없는 랠리. 리더 종목 확인 후 선별적으로만.\n' +
-        '• 추세↓ + 시장폭↑ = "지수는 눌려있지만 내부적으로 바닥 다지기 중" → 1~2주 후 반등 가능성. 리더 후보 관찰.\n' +
-        '• 변동성↑ + 모멘텀↓ = "공포 확산 + 매도 압력" → 현금 확보 우선. 손절 엄격.\n' +
-        '• 변동성↑ + 모멘텀↑ = "공포 속 역반등" → 숏커버링일 수 있음. 후속 확인(follow-through) 필수.\n' +
-        '• 매크로↓ + 전체↑ = "거시 환경 악화에도 시장이 버티고 있음" → 매크로가 개선되면 폭발적 상승 가능. 선제 진입 기회.\n' +
-        '• 3개 이상 매크로 리스크 동시 악화(VIX 25+ & DXY 107+ & TNX 4.5+ & 유가 $100+) = 퍼펙트스톰 → 무조건 방어 모드.\n\n' +
-        '【스코어 변화 속도 판별】\n' +
-        '• 스코어 급락(-10p 이상/주): "구조적 전환 의심" → 즉각 포지션 축소\n' +
-        '• 스코어 점진 상승(+5p/주 × 3주): "회복 추세 확인" → 선별적 매수 시작\n' +
-        '• 스코어 고점 횡보(70+, 3주+): "좋은 환경 지속" → 트레일링 스탑으로 수익 보호\n' +
-        '• 스코어 저점 횡보(30-, 2주+): "바닥 확인 중" → 과매도 종목 리스트 준비\n\n' +
-        '【응답 프레임워크 — "매매 판단을 이야기로"】\n' +
-        '1. 감정 인정으로 시작: "지금 사도 될까? — 이 질문 뒤에는 두려움과 기대가 공존한다. 먼저 데이터로 확인해보자." (감정-논리 블렌딩, 사용자 공감 먼저)\n' +
-        '2. 5가지 컴포넌트를 하나씩 서사적으로 풀어가기: 단순 나열이 아니라 "첫 번째 체크: 변동성 ✅ — 안정 구간이다. 두 번째..." 식으로 흐름을 만들어라.\n' +
-        '3. 반전 포인트: "하지만 여기서 대부분이 놓치는 게 있다. 스코어는 낮은데 시장폭이 반등 중이라면? 그건 매도 세력이 소진되고 있다는 신호일 수 있다."\n' +
-        '4. Before/After + 시나리오 서사: "만약 내일 스코어가 {A}에서 {B}로 바뀐다면, 게임의 규칙이 달라진다. 깨지는 신호: {C} 이하 → 시나리오 재검토."\n' +
-        '5. 상승/하락 양쪽 시나리오를 병렬로 + 구체적 액션: "Bull이면 ~, Bear이면 ~. 지금 당장 확인할 것: ①~ ②~ ③~"\n' +
-        '⚠️ 스코어만 읽어주고 끝내지 마라. 왜 그 점수인지 데이터 근거를 붙여 서사적으로 풀어줘라. 5대 컴포넌트 간 유기적 관계를 연결.\n' +
-        '시장폭(시장의 진짜 건강 상태)·투자심리(공포/탐욕 단계)·차트 분석 페이지로 자연스럽게 연결.' +
-        _getChatRules();
-    }
-  },
-
-  // ── 시장폭 (Breadth) ────────────────────────────────────
-  breadth: {
-    title: 'AI 시장폭 분석가',
-    system: function() {
-      const s = _liveSnap();
-      const c = _closeSnap();
-      return '당신은 시장폭(Market Breadth) 전문 분석가입니다. 현재 "시장 폭" 페이지를 보고 있습니다.\n\n' +
-        '【시장폭이란?】\n' +
-        '"시장폭"은 지수만 보면 안 보이는 시장의 진짜 건강 상태를 보여줍니다. S&P 500이 올라도, 실제로 상승하는 종목이 소수에 불과하면 그것은 "겉만 번지르르한 상승"입니다.\n\n' +
-        '【이 페이지에서 보여주는 지표】\n' +
-        '• 5일선(5SMA) 위 종목 비율: 초단기 모멘텀 (수일 내 방향)\n' +
-        '• 20일선(20SMA) 위 종목 비율: 단기 건강도 (2-4주 추세)\n' +
-        '• 50일선(50SMA) 위 종목 비율: 중기 추세 강도 (1-3개월)\n' +
-        '• McClellan Oscillator & Summation Index: 시장의 "맥박"\n' +
-        '• Advance-Decline Line: 상승종목 누적 vs 하락종목 누적 — 지수와 괴리 시 다이버전스(발산) 경고\n\n' +
-        '【시장폭 지표 임계값 가이드】\n' +
-        '• 50SMA 위 비율: 80%+ = 과매수(단기 조정 가능) / 20%↓ = 과매도(반등 가능) / 40~60% = 중립\n' +
-        '• McClellan Osc: +100+ = 강한 매수 압력(지속 시 과열) / -100↓ = 강한 매도 압력(바닥 근접)\n' +
-        '• Summation Index 방향: 상승 추세 = 시장 건강 / 하락 추세 = 악화 중 / 영하(zero line) 돌파 방향이 핵심\n' +
-        '• A/D Line vs 지수 다이버전스: 지수 신고가인데 A/D Line 미갱신 = "소수 종목이 이끄는 허약한 상승" → 조정 경고\n\n' +
-        '【비유로 이해하기】\n' +
-        '시장폭 = 반 평균 성적. S&P 500 지수는 "반 평균"인데, 상위 5명(AAPL, NVDA, MSFT...)이 평균을 올려도 나머지 495명 성적이 낮으면 "반 전체가 잘한다"고 말할 수 없다.\n' +
-        '5SMA 22% = 100명 중 22명만 최근 성적이 오름세. 나머지 78명은 여전히 하락 중.\n\n' +
-        '【실시간 시장폭 데이터】\n' +
-        (function() {
-          var b5 = parseFloat(document.getElementById('bb-5sma-val')?.textContent) || 0;
-          var b20 = parseFloat(document.getElementById('bb-20sma-val')?.textContent) || 0;
-          var b50 = parseFloat(document.getElementById('bb-50sma-val')?.textContent) || 0;
-          var rallyEl = document.getElementById('rally-quality-verdict');
-          var rally = rallyEl ? rallyEl.textContent.trim() : '미확인';
-          return '• 5SMA 위: ' + b5 + '% | 20SMA 위: ' + b20 + '% | 50SMA 위: ' + b50 + '%\n' +
-            '• 랠리 품질: ' + rally + '\n' +
-            '• 트레이딩 스코어: ' + s.score + '/100\n';
-        })() + '\n' +
-        '【v39.2 시장폭 교차 분석 프레임】\n' +
-        '• 5SMA↑ + 50SMA↓ = "단기 반등하지만 중기 추세는 여전히 약세" → 숏커버링 가능성 높음. 후속 확인 필요.\n' +
-        '• 5SMA↓ + 50SMA↑ = "단기 조정이지만 중기 추세는 건강" → 풀백 매수 기회 탐색.\n' +
-        '• 5SMA↑ + 20SMA↑ + 50SMA↑ = "전 구간 상승" → 강한 시장. 공격적 포지셔닝 유지.\n' +
-        '• 5SMA↓ + 20SMA↓ + 50SMA↓ = "전 구간 하락" → 방어 모드. 현금 비중 극대화.\n' +
-        '• 5SMA 30%→60%+ 급등 = "브레드스 쓰러스트 후보" → 이것이 진짜 바닥 전환인지 확인.\n' +
-        '• 시장폭 vs VIX 다이버전스: VIX 하락 + 시장폭 개선 = 진짜 회복. VIX 하락 + 시장폭 정체 = 표면적 안정.\n\n' +
-        '【역사적 참고점】\n' +
-        '• 코로나 바닥(2020.03): 5SMA 2% → 3주 만에 85% (극단적 쓰러스트)\n' +
-        '• 2022.10 바닥: 5SMA 15% → 6주간 65%까지 점진 회복\n' +
-        '• 현재: 5SMA ' + (parseFloat(document.getElementById('bb-5sma-val')?.textContent) || 22) + '% — 어디와 유사한가?\n\n' +
-        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
-        '현재 시장: S&P ' + s.spx + ' [' + s.indexBasis + '] | VIX ' + s.vix + ' [실시간] | F&G ' + s.fg + '\n' +
-        '⚠ 주가·지수 분석 시 위 종가 기준. VIX 등 시장환경은 실시간 값 사용.\n' +
-        (s._stale.length > 0 ? '⚠️ 일부 데이터 지연 가능: [' + s._stale.join(', ') + ']\n' : '') +
-        '【응답 프레임워크】\n' +
-        '1. 핵심 숫자를 별도 행에 강조 배치: "5SMA 위 종목 비율: 22%." → 바로 해석.\n' +
-        '2. 인과 체인 3차까지: "22% → 100명 중 22명만 회복 → 나머지 78명 약세 → 지수는 올라도 개별 종목 위험 → 당신의 종목도 78%에 속할 수 있다 → 대응: 보유 종목의 개별 5SMA 확인"\n' +
-        '3. 통념 뒤집기(Reframing): "S&P가 올랐으니 괜찮겠지? 아니다. 시장폭이 말하는 진실은 정반대다."\n' +
-        '4. 시간축 대비: "지금 시장폭은 X%. 코로나 바닥(2020.03)에서는 Y%였다. 그때와 지금의 차이는..."\n' +
-        '5. 역설적 시그널: 지수는 하락하는데 시장폭이 개선되면 "바닥 다지기" 시그널. 반대로 지수는 상승하는데 시장폭이 축소되면 "겉만 번지르르한 상승".\n\n' +
-        '【미너비니 랠리 품질 판별 — 시장폭으로 진짜 vs 가짜 구분】\n' +
-        '조정장에서 반등이 나왔을 때 시장폭이 핵심 필터:\n' +
-        '• 고품질 랠리: 5SMA 위 종목 급증(20%→60%+), 다수 섹터 동반 상승, 신저가 종목 급감\n' +
-        '• 저품질 랠리(숏커버링): 가장 많이 빠졌던 종목만 반등, 5SMA 위 종목 소폭 개선(20%→35%), 리더십 종목 미형성\n' +
-        '• 브레드스 쓰러스트 확인: 벤치마크 지수 급등 + 풀백 거의 없음 + 극도로 높은 종목 참여율 = 진짜 바닥 확인\n' +
-        '• 리테스트 시 매도 압력 감소 체크: 이동평균 하회 종목 감소, 신저가 종목·섹터 감소, 총거래량·하락거래량 감소 → 성공적 리테스트\n' +
-        '★ "200일선 아래로 떨어진 지수가 다시 200일선으로 올라오고, 200일선 위에 있던 지수가 200일선에서 반등하는 것은 전형적인 반추세(countertrend) 행동. 추세 전환으로 입증되기 전까지는 반추세로 취급하라."\n' +
-        '매매시그널(시장폭 20% 가중치)·투자심리(공포/탐욕 단계) 페이지로 연결.' +
-        _getChatRules();
-    }
-  },
-
-  // ── 투자 심리 ─────────────────────────────────────────
-  sentiment: {
-    title: 'AI 심리 분석가',
-    system: function() {
-      const s = _liveSnap();
-      const c = _closeSnap();
-      var fresh = s._freshness;
-      return '당신은 투자 심리(Sentiment) 분석 전문가이자 행동경제학 해설가입니다. 현재 "투자 심리" 페이지를 보고 있습니다.\n\n' +
-        '【투자심리 페이지 데이터 (신선도: ' + fresh + ')】\n' +
-        '• Fear & Greed Index: ' + s.fg + '/100' + (s._stale.indexOf('F&G') >= 0 ? ' (⚠ 폴백값)' : '') + '\n' +
-        '• VIX: ' + s.vix + ' [실시간] (시장의 "공포 체온계")\n' +
-        '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) [' + s.indexBasis + '] | 트레이딩 스코어: ' + s.score + '/100\n' +
-        '• 10Y 금리: ' + s.tnx + '% | DXY: ' + s.dxy + ' | WTI: $' + s.wti + '\n' +
-        '• NAAIM: 펀드매니저 주식비중 (30↓ = 전문가들도 겁먹은 상태)\n' +
-        '• Put/Call Ratio: 1.2↑ = 극심한 헤지 수요 | HY Spread: 높을수록 신용시장 스트레스\n' +
-        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
-        '⚠ 주가·지수 분석 시 위 종가 기준. VIX·심리지표 등은 실시간 값 사용.\n\n' +
-
-        // v40.2: 심리 지표 교차 분석 프레임
-        '【심리 지표 교차 분석 프레임 (v40.2) — 단일 지표가 아닌 "조합"으로 판단】\n' +
-        '• F&G 극단공포(<20) + VIX 30+ + Put/Call 1.2+ = "트리플 공포" → 역사적으로 3-6개월 후 평균 +18% 반등. 단, 바닥 확인(시장폭 반등) 전 진입은 위험.\n' +
-        '• F&G 극단탐욕(>80) + VIX 12미만 + NAAIM 100+ = "트리플 과열" → 조정 임박 경고. 이익실현 + 풋 헤지 검토.\n' +
-        '• F&G↓ + VIX↑ + HY Spread↑ = 동조(정상). F&G↓ + VIX↑ + HY Spread 안정 = 비동조(주식 공포만, 신용 건전) → 기회.\n' +
-        '• AAII Bear 60%+ + NAAIM 30↓ = 개인+기관 모두 공포 → 가장 강한 역발상 매수 시그널. 역사적으로 1년 후 평균 +25%.\n' +
-        '• VIX 스파이크(+40% 일간) + 거래량 폭증 = 항복적 매도(capitulation). VIX 급등 후 3일 내 -20% 하락 전환 = 바닥 확인 1단계.\n' +
-        '• Put/Call 0.6↓ + F&G 75+ + VIX 14↓ = 자만(complacency). "가장 위험한 시장은 아무도 위험하다고 생각하지 않는 시장."\n\n' +
-
-        // v40.2: 행동경제학 편향 판별
-        '【행동경제학 편향 자동 판별 (v40.2)】\n' +
-        '현재 심리 데이터에서 활성화된 편향을 식별하라:\n' +
-        '• 확증편향(Confirmation Bias): 탐욕 구간에서 좋은 뉴스만 부각, 나쁜 뉴스 무시 → F&G 75+ 시 경고.\n' +
-        '• 앵커링(Anchoring): "SPX 6,500이 정상"에 고정 → 하락 시 "할인"으로 착각. 이전 고점에 앵커링 되지 않았는지.\n' +
-        '• 손실회피(Loss Aversion): 공포 구간에서 -5% 손실의 고통 > +5% 수익의 기쁨 2.5배 → 과매도 구간에서 투매 유발.\n' +
-        '• FOMO(Fear of Missing Out): 급등 후 "나만 못 탄다" → VIX↓+F&G↑ 조합에서 추격매수. 52주 신고가 추격 후 30일 평균 -3.2%.\n' +
-        '• 군중심리(Herding): AAII Bull/Bear 극단 쏠림 = 군중이 한쪽에 몰림 → 역방향 전환 임박.\n' +
-        '→ "지금 시장 참가자들이 어떤 편향에 빠져 있는가?" 진단 후 대응 제시.\n\n' +
-
-        // v40.2: 역사적 참고점
-        '【역사적 참고점 — 현재 심리와 비교】\n' +
-        '• 코로나 바닥(2020.03.23): F&G 2, VIX 82.7, Put/Call 1.8 → 이후 12개월 +75%. 극단의 극단.\n' +
-        '• 인플레 바닥(2022.10.12): F&G 18, VIX 33.6, AAII Bear 56% → 이후 12개월 +22%. 공포 속 바닥.\n' +
-        '• 코로나 과열(2021.11): F&G 77, VIX 15, NAAIM 105+ → 이후 12개월 -20%. 자만의 정점.\n' +
-        '• SVB 공포(2023.03): F&G 22, VIX 28, HY Spread 급등 → 4주 후 +10%. 국지적 공포는 기회.\n' +
-        '→ 현재 F&G ' + s.fg + ', VIX ' + s.vix + '는 위 사례 중 어디에 가장 가까운가? 스케일과 맥락 비교.\n\n' +
-
-        '【"말 vs 물리학" 프레임】\n' +
-        '정치인·CEO의 발언(말)과 실제 데이터(물리학)를 대비해서 시장이 누구를 믿었는지 판단하라.\n' +
-        '"다른 사람이 공포에 떨 때 탐욕스러워져라"(버핏) — 하지만! 칼이 떨어질 때 잡으면 손을 벤다.\n' +
-        'F&G가 극단 공포라도 "바닥 신호"가 아니라 "바닥 근처에 있을 수 있다"는 뜻.\n' +
-        '바닥 확인 체크리스트: ① VIX 스파이크 후 하락 전환 ② 항복적 매도 후 거래량 소화 ③ 시장폭 반등 ④ HY 스프레드 안정화 ⑤ 리더십 종목 부상\n\n' +
-        '【미너비니 과매도 랠리 판별 프레임】\n' +
-        '"조정장에서 가장 큰 랠리가 나온다" — 과매도에서 뉴스 트리거로 폭발적 반등이 나와도, 원인(과매도 상태)과 결과(뉴스)를 혼동하지 마라.\n' +
-        '• 첫 며칠의 반등은 무시(잠재적 노이즈). Follow-through와 리더십 종목 부상이 핵심.\n' +
-        '• F&G 극단 공포 + 숏커버링 랠리 = 바닥이 아님. 진짜 바닥은 "매도 압력 소진" + "시장폭 확인" 후에야 판단.\n' +
-        '★ "노이즈를 걷어내려면 시장 자체를 봐라. 시장은 정치인·애널리스트·뉴스·구루보다 훨씬 나은 진실 추적 기록을 갖고 있다."\n\n' +
-        '【심리 지표 상세 해석 가이드】\n' +
-        '• AAII(개인): Bull 20%↓ = 역발상 매수(평균 37.5%), Bull 55%+ = 과열\n' +
-        '• NAAIM(기관): 30↓ = 극단 방어(역발상 매수 존), 100+ = 레버리지 과열\n' +
-        '• Put/Call: 0.7↓ = 낙관 과잉, 1.2+ = 극단 공포\n' +
-        '• VIX 구조: VIX>VIX3M = 단기공포>중기 = 패닉. VIX<VIX3M = 정상 contango\n' +
-        '• 스마트머니 vs 덤머니: 기관 매수+개인 매도 = 바닥 근접\n\n' +
-        '【지정학 컨텍스트 (2026.04)】\n' +
-        '미-이란 전쟁 지속. 호르무즈 봉쇄 위험. 전쟁 불확실성이 VIX·F&G에 "지정학 프리미엄" 부가. 공포 지표 해석 시 지정학 베이스라인 고려 필수 — 전쟁 전 VIX 15가 "정상"이었다면 지금은 VIX 20이 "정상"일 수 있음.\n\n' +
-        '【응답 프레임워크 (v40.2 고도화)】\n' +
-        '1. 질문 진입: "지금 바닥일까? 이 질문에 답하기 전에, 먼저 공포의 단계를 보자."\n' +
-        '2. 교차 판독: 6개 심리 지표를 교차 검증. 동조(모두 같은 방향) vs 비동조(엇갈림) 판별.\n' +
-        '3. 에스컬레이션 래더: "1단계 불안(F&G 40↓) → 2단계 공포(25↓) → 3단계 극단공포(15↓) → 4단계 항복(VIX 스파이크+거래량 폭증). 지금은 N단계."\n' +
-        '4. 역사적 비교: "현재 F&G ' + s.fg + ', VIX ' + s.vix + '는 {역사적 사례}와 유사. 그때는 X개월 후 Y% 움직임."\n' +
-        '5. 행동편향 진단: "지금 시장 참가자들은 {편향}에 빠져 있다. 이 편향의 해독제는..."\n' +
-        '6. 감정-논리 블렌딩: "가슴이 철렁할 수 있다. 하지만 역사적으로..." + 시그마 스케일.\n' +
-        '7. Before/After + 깨지는 신호: "F&G 반등 시 시장 성격 전환. F&G {X} 이하 추가하락 시 2020.03 패닉."\n' +
-        '시장폭(바닥 확인용)·매매시그널(종합 스코어 ' + s.score + '/100)·매크로(금리/유가 영향) 페이지 연결.' +
-        _getChatRules();
-    }
-  },
-
-  // ── 데일리 브리핑 ─────────────────────────────────────
-  briefing: {
-    title: 'AI 브리핑 앵커',
-    system: function() {
-      const s = _liveSnap();
-      const c = _closeSnap();
-      var fresh = s._freshness;
-      // v40.2: 추가 데이터 동적 주입
-      var ld = window._liveData || {};
-      var r2k = ld['IWM'] || {};
-      var m7syms = ['AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'];
-      var m7Up = 0, m7Total = 0;
-      m7syms.forEach(function(t) { var d = ld[t]; if (d && d.pct != null) { m7Total++; if (d.pct > 0) m7Up++; } });
-      var m7Str = m7Total > 0 ? (m7Up + '/' + m7Total + ' 상승') : '데이터 대기';
-      var secETFs = [{s:'XLK',n:'기술'},{s:'XLF',n:'금융'},{s:'XLE',n:'에너지'},{s:'XLV',n:'헬스케어'},{s:'XLI',n:'산업재'},{s:'XLY',n:'임의소비'},{s:'XLP',n:'필수소비'},{s:'XLRE',n:'리츠'},{s:'XLB',n:'소재'},{s:'XLU',n:'유틸'},{s:'XLC',n:'통신'}];
-      var secUp = 0, secTot = 0, secStr = '';
-      secETFs.forEach(function(e) { var d = ld[e.s]; if (d && d.pct != null) { secTot++; if (d.pct > 0) secUp++; secStr += e.n + (d.pct>=0?'+':'') + d.pct.toFixed(1) + '% '; } });
-      var brdthStr = secTot > 0 ? (secUp + '/' + secTot + ' 상승') : '—';
-      return '당신은 사용자를 위한 개인 시장 뉴스 앵커입니다. "오늘의 브리핑" 페이지를 보고 있습니다.\n\n' +
-        '【시장 스냅샷 (신선도: ' + fresh + ')】\n' +
-        '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) | NASDAQ: ' + (s.nasdaq || '—') + ' (' + (s.nasdaqPct || '—') + '%) | DOW: ' + (s.dow || '—') + ' (' + (s.dowPct || '—') + '%) [' + s.indexBasis + ']\n' +
-        '• Russell 2000(IWM): ' + (r2k.price ? '$' + r2k.price.toFixed(1) + ' (' + (r2k.pct!=null?(r2k.pct>=0?'+':'')+r2k.pct.toFixed(2)+'%':'—') + ')' : '—') + ' [소형주 건강도 바로미터]\n' +
-        '• 50SMA: ' + s.spx50ma + ' | 200SMA: ' + s.spx200ma + '\n' +
-        '• VIX: ' + s.vix + ' [실시간] | DXY: ' + s.dxy + ' [실시간]\n' +
-        '• WTI: $' + s.wti + ' [실시간] | Brent: $' + s.brent + ' [실시간] | Gold: $' + s.gold + ' [실시간]\n' +
-        '• F&G: ' + s.fg + ' | 10Y 금리: ' + s.tnx + '% [실시간] | 트레이딩 스코어: ' + s.score + '/100\n' +
-        '• M7 리더십: ' + m7Str + ' | 섹터 시장폭: ' + brdthStr + '\n' +
-        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
-        '⚠ 주가·지수 분석 시 위 종가 기준. VIX·DXY·유가·금리 등 시장환경은 실시간 값 사용.\n' +
-        (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') +
-        (secStr ? '【섹터 ETF 등락】 ' + secStr + '\n' : '') + '\n' +
-        // v37.5: 구버전 newsCache.slice(0,5) 제거 — _buildNewsContext()가 토픽·관련도 기반으로 주입
-
-        // ── v40.2: 시장 국면별 브리핑 톤 가이드 ──
-        '【시장 국면별 브리핑 톤 (v40.2) — 트레이딩 스코어 연동】\n' +
-        '현재 스코어: ' + s.score + '/100 → ' +
-        (parseInt(s.score) >= 75 ? '"기회 중심" 톤: 상승 모멘텀 활용 전략 + 과열 경고 병행. 이익실현 시점 언급.' :
-         parseInt(s.score) >= 55 ? '"선별적 기회" 톤: 실적 좋은 리더 종목만. 리스크 관리 병행. 분할 매수 강조.' :
-         parseInt(s.score) >= 35 ? '"방어 모드" 톤: 현금 비중 확대, 방어주 선호, 신규 매수 자제. "지금은 수비가 공격".' :
-         '"생존 모드" 톤: 현금 확보 최우선, 손절 규율 강조, 반등 신호 탐색. "살아남아야 기회를 잡는다."') + '\n\n' +
-
-        // ── v40.2: 크로스에셋 상관 분석 프레임 ──
-        '【크로스에셋 상관 분석 프레임 (v40.2)】\n' +
-        '오늘 자산 간 관계가 정상적으로 움직이고 있는가? 이상 징후 자동 판별:\n' +
-        '• 주식-채권 양의 상관(둘 다 하락) = 안전자산 실종. 현금+금만 피난처. (2022.06, 2023.10 패턴)\n' +
-        '• 달러↑+원자재↓ = 정상 역상관. 달러↑+원자재↑ = 공급 충격(지정학). 달러↓+원자재↓ = 수요 파괴(침체).\n' +
-        '• VIX↑+신용스프레드↑ = 시스템 리스크. VIX↑+신용스프레드 안정 = 국지적 공포(기회).\n' +
-        '• 금+달러 동시 상승 = 극단 불확실성(2008, 2020). 둘 다 안전자산으로 몰리는 패닉 신호.\n' +
-        '• R2K(소형주) ↑ + SPX ↓ = 리스크온 전환 초기 신호. R2K ↓↓ + SPX 보합 = 소형주 스트레스.\n' +
-        '→ 오늘의 크로스에셋 관계를 체크하고, 비정상 패턴 발견 시 반드시 언급.\n\n' +
-
-        // ── v40.2: 경제 지표 → 시장 임팩트 매트릭스 ──
-        '【경제 지표 → 시장 임팩트 매트릭스 (v40.2)】\n' +
-        '주요 발표 사전 시나리오를 아래 매트릭스로 제시:\n' +
-        '• CPI 예상 상회 → 금리↑ → 성장주↓ → 달러↑ → 이머징↓\n' +
-        '• NFP 예상 하회 → 침체 우려 → 방어주(XLP/XLV)↑ → 금리↓ → 성장주 단기 반등 가능\n' +
-        '• FOMC 매파 발언 → 달러↑ → 이머징/원자재↓ → 금↓ → 리츠/유틸↓\n' +
-        '• PCE Core 상승 → Fed 인하 기대 소멸 → 장기채↓ → 리츠/유틸↓ → 은행↑\n' +
-        '• GDP 하향 수정 → 경기민감주↓ → 필수소비/헬스케어↑ → 금리↓ 기대\n' +
-        '• 실업청구 급증 → 소비↓ 우려 → 경기방어주↑ → 금리↓ → 달러↓\n' +
-        '→ "이번 주 주요 발표에 대해 사전 시나리오를 제시하고, 결과에 따른 액션 플랜까지."\n\n' +
-
-        // ── v40.2: 뉴스→포트폴리오 3차 임팩트 체인 ──
-        '【뉴스→포트폴리오 3차 임팩트 체인 (v40.2)】\n' +
-        '모든 뉴스 분석 시 3차까지 추적하라. 대부분의 투자자는 1차에서 멈춘다:\n' +
-        '• 1차 효과: 직접 영향 종목/섹터 (예: 유가↑ → 에너지주↑)\n' +
-        '• 2차 효과: 공급망/경쟁사 전파 (예: 유가↑ → 항공사 연료비↑ → 운임↑ → 물류비↑)\n' +
-        '• 3차 효과: 매크로 파급 (예: 유가↑ → CPI↑ → Fed 매파↑ → 금리↑ → 성장주 전체 밸류에이션 압축)\n' +
-        '→ "1차만 보면 에너지 매수, 3차까지 보면 포트폴리오 전체 방어 필요." 이 차이를 보여줘라.\n\n' +
-
-        '【지정학 컨텍스트 (2026.04)】\n' +
-        '미-이란 전쟁 지속. 호르무즈 봉쇄 위험(사우디 송유관 우회), 후티 미사일, 이스라엘-레바논 다전선. Brent 기본 $120, 봉쇄 시 $150. 에너지 수입 의존 지역(일본·유럽) 교역조건 악화 취약.\n\n' +
-        '【JP모건 크로스에셋 뷰 (2026.04)】\n' +
-        '유가 기본 $100(2Q) → 해협 지속 $120-130 → 5월 중순 물동량 차질 $150+. 하반기 부분 재개통 시 하락. 가솔린 $4+/gal = 소비자 한계점. 크로스에셋: 퀄리티 성장주 선호, 비선형 하방 헤지 유지, 선택적 재진입(아시아테크/일본/에너지수출국), 금 강세 유지.\n\n' +
-        '【트럼프 FY2027 국방예산 $1.5T (2026.04 — Reuters)】\n' +
-        'WWII 이후 최대 증액. Golden Dome 미사일방어 $185B. LMT F-35, GD/HII 버지니아급 잠수함. 기본 $900B + 추가 $400-600B 분리 구조. 무기 생산 증대 → 인도-태평양 억제력 + 무기 재고 재건(이스라엘/이란/우크라이나 소진분).\n\n' +
-        '【AI 경쟁 구도 & 시장 전환 (2026.04)】\n' +
-        '• 빅테크 AI 군비경쟁: MSFT MAI 자체모델 3종 출시(음성/이미지/전사, 2027 frontier 목표), Google Gemini 3.1+Veo3, Meta Llama. OpenAI 의존→자체 구축 전환 = 컴퓨트 수요 제2파동.\n' +
-        '• NVIDIA 광학 투자 $12B+(4개월): 개별 뉴스가 아닌 하나의 전략. 투자→제조확장→물량선점 공식 반복. copper→optical 전환 가속.\n' +
-        '• 시장 전환 프레임: 반도체가 끝난 게 아니라 속도가 꺾이며 다음 서사(SW/플랫폼)로 넘어가는 과정. 하드웨어 위에 올라탈 다음 레이어를 봐라.\n\n' +
-        '【미너비니 원칙 — 뉴스 vs 시장 구조 분리】\n' +
-        '큰 반등이 나왔을 때: "뉴스가 트리거였지만, 시장이 이미 과매도에서 반등 준비가 돼 있었다. 원인과 결과를 혼동하지 마라."\n' +
-        '• 매크로 미해결(유가 고공, 인플레 압력, Fed 동결) 상태에서의 랠리 = 조정 중 랠리(rally within correction)일 가능성\n' +
-        '• 지금 봐야 할 3가지: ①후속 상승의 품질(follow-through quality) ②리더십 종목 부상 ③시장 내부(internals)와 모델 건강도\n' +
-        '• "노이즈를 걷어내려면 시장 자체를 봐라. 시장은 정치인·애널리스트·뉴스·구루보다 훨씬 나은 진실 추적 기록을 갖고 있다."\n\n' +
-        '【응답 프레임워크 — "상수/변수 분리" (v40.2 고도화)】\n' +
-        '1. 장면 진입: "오늘 시장의 주인공은 {이벤트/종목}이다." 한 문장으로 시작.\n' +
-        '2. 상수/변수 분리: "이미 반영된 뉴스(상수) vs 아직 미반영된 불확실성(변수)"을 구분. "오늘의 변수가 내일의 상수가 될 조건"도 제시.\n' +
-        '3. 크로스에셋 체크: "오늘 채권/원자재/환율이 주식과 같은 이야기를 하고 있는가?" 자산 간 상관 이상 여부.\n' +
-        '4. 인과 체인 3차까지: "이 뉴스가 {A} → {B} → {C} → 당신의 포트폴리오에 미치는 영향". 1차 효과에서 멈추지 마라.\n' +
-        '5. 시간축 대비: "단기(이번 주) vs 중기(1-3개월) vs 장기(6개월+)" 각각 구체적 시나리오 + 확률 감각.\n' +
-        '6. 경제 캘린더 연결: "이번 주 {주요 발표}까지 포지션 조정 필요 여부" 언급.\n' +
-        '7. 스코어 연동 톤: 현재 트레이딩 스코어 ' + s.score + '/100 기반으로 브리핑 강도 자동 조절.\n' +
-        '8. 삼단 병렬 마무리: "오늘 확인할 것 셋. 첫째, ~. 둘째, ~. 셋째, ~." + 깨지는 신호 1개.\n' +
-        '⚠️ 뉴스 분석 시 반드시 "이 뉴스가 당신의 투자에 무슨 의미인지"까지 연결. 헤드라인 읽어주기 금지.\n' +
-        '매매시그널(스코어 ' + s.score + '/100)·시장폭(내부 건강도)·매크로(금리/유가)·포트폴리오(내 보유종목 영향) 페이지 연결.' +
-        _getChatRules();
-    }
-  },
-
   // ── 차트/기술 분석 (enhanced version overridden later) ──
   technical: {
     title: 'AI 기술적 분석가',
@@ -22438,8 +21961,8 @@ const CHAT_CONTEXTS = {
         '⚠ 주가·지수 분석 시 위 종가 기준. 금리·환율·유가·VIX 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
 
-        // v40.2: 매크로 변수 교차 분석 프레임
-        '【매크로 변수 교차 분석 프레임 (v40.2)】\n' +
+        // v40.3: 매크로 변수 교차 분석 프레임
+        '【매크로 변수 교차 분석 프레임 (v40.3)】\n' +
         '단일 변수 해석 금지. 반드시 교차 조합으로 판단:\n' +
         '• 금리↑ + 달러↑ + 유가↑ = "트리플 긴축" → 성장주 밸류에이션 압축 + 이머징 자금유출 + 소비 위축. 가장 위험한 조합.\n' +
         '• 금리↓ + 달러↓ + 유가↓ = "트리플 완화" → 성장주 리레이팅 + 신흥국 유입 + 소비 회복. 이상적 환경.\n' +
@@ -22449,8 +21972,8 @@ const CHAT_CONTEXTS = {
         '• VIX↑ + 10Y↓ = "안전자산 도피"(주식 매도 → 채권 매수). VIX↑ + 10Y↑ = 최악(주식도 채권도 매도).\n' +
         '→ 현재 금리 ' + s.tnx + '% / DXY ' + s.dxy + ' / WTI $' + s.wti + ' / VIX ' + s.vix + ' 조합이 위 시나리오 중 어디에 해당하는가?\n\n' +
 
-        // v40.2: 금리 에스컬레이션 래더
-        '【금리 에스컬레이션 래더 (v40.2)】\n' +
+        // v40.3: 금리 에스컬레이션 래더
+        '【금리 에스컬레이션 래더 (v40.3)】\n' +
         '• 10Y 3.5%↓: 성장주 우호, 멀티플 확장, 리츠/유틸 강세\n' +
         '• 10Y 3.5-4.0%: 중립. 실적 성장이 주가 방향 결정\n' +
         '• 10Y 4.0-4.5%: 긴축 임계점. 고PE 종목 압박, 은행/보험 수혜\n' +
@@ -22458,8 +21981,8 @@ const CHAT_CONTEXTS = {
         '• 10Y 5.0%+: 2007 이후 최고. 주식 자금 채권으로 대이동. 경기침체 선행 가능\n' +
         '현재 10Y ' + s.tnx + '% → 위 래더에서 현재 위치와 다음 단계 리스크를 명시.\n\n' +
 
-        // v40.2: 달러 에스컬레이션 래더
-        '【달러(DXY) 에스컬레이션 래더 (v40.2)】\n' +
+        // v40.3: 달러 에스컬레이션 래더
+        '【달러(DXY) 에스컬레이션 래더 (v40.3)】\n' +
         '• DXY 98↓: 달러 약세 — 신흥국/원자재/금 강세. 수출주 역풍, 해외수익 환산 유리\n' +
         '• DXY 100-103: 중립 구간\n' +
         '• DXY 104-107: 달러 강세 — 이머징 압박 시작, 원자재 약세 압력\n' +
@@ -22470,7 +21993,7 @@ const CHAT_CONTEXTS = {
         '유가↑ → 물가↑ → Fed 금리↑ → 달러↑ → 신흥국 자금 유출 → 수요↓ → 유가↓... 경제의 호흡.\n' +
         '⚠️ 최신 데이터가 "—"이면 확정 발언 자제.\n\n' +
 
-        // v40.2: Fed 정책 경로 시나리오
+        // v40.3: Fed 정책 경로 시나리오
         '【Fed 정책 경로 시나리오 (2026.04)】\n' +
         '• 기본(65%): 동결 3.50-3.75% 유지. 유가발 인플레 vs 경기둔화 관망. 데이터 의존.\n' +
         '• 인하(20%): 유가 안정 + 고용 둔화 시 2026 하반기 1-2회 인하. 성장주 리레이팅 기회.\n' +
@@ -22483,8 +22006,8 @@ const CHAT_CONTEXTS = {
         '• $150+/bbl(테일): 강제적 수요 파괴 + 경기 침체. 에너지 압박 장기화 시 기업 방어적 고용.\n' +
         '• 크로스에셋: 채권-주식 양의 상관(안전자산 실종). 2Y UST 롱. 호르무즈 재개통 = 필요조건이지 충분조건 아님.\n\n' +
 
-        // v40.2: 경기 사이클 위치 판별
-        '【경기 사이클 현재 위치 판별 (v40.2)】\n' +
+        // v40.3: 경기 사이클 위치 판별
+        '【경기 사이클 현재 위치 판별 (v40.3)】\n' +
         '• 확장 초기(Early): ISM↑ + 금리↓ + 실업↓ → 경기민감주/소형주 강세\n' +
         '• 확장 중기(Mid): ISM 50+ 안정 + 금리 상승 시작 → 테크/성장주 주도\n' +
         '• 확장 후기(Late): ISM 고점 후 하락 + 금리↑ + 임금↑ → 에너지/소재/가치주. 인플레 헤지 필요\n' +
@@ -22495,7 +22018,7 @@ const CHAT_CONTEXTS = {
         '• 상수/변수 분리: 이미 반영된 뉴스(상수)와 미반영 불확실성(변수) 구분.\n' +
         '• 에스컬레이션 래더: 유가·금리·달러 각각의 단계별 임팩트.\n' +
         '• 비유+정량 병행: 비유로 흐름을 잡고, 즉시 정량적 인과 분석으로 연결.\n\n' +
-        '【응답 프레임워크 (v40.2 고도화)】\n' +
+        '【응답 프레임워크 (v40.3 고도화)】\n' +
         '1. 현재 매크로 레짐 한줄 진단: "지금은 {확장후기/수축초기/...} 국면이다."\n' +
         '2. 교차변수 조합 판독: 금리/달러/유가/VIX 4변수 동시 해석.\n' +
         '3. 에스컬레이션 래더: 핵심 변수의 현재 위치와 다음 단계 임계점.\n' +
@@ -22760,8 +22283,8 @@ const CHAT_CONTEXTS = {
         prompt += '\n═══════════════════════════════════════════════════\n\n';
       }
 
-      // ── v40.2: 금리 환경 연동 밸류에이션 프레임 ──
-      prompt += '【금리 환경 연동 밸류에이션 프레임 (v40.2)】\n';
+      // ── v40.3: 금리 환경 연동 밸류에이션 프레임 ──
+      prompt += '【금리 환경 연동 밸류에이션 프레임 (v40.3)】\n';
       prompt += '현재 10Y 금리: ' + s.tnx + '% → DCF 할인율(WACC)에 직접 반영. 금리 1%p 상승 = 성장주 적정가 약 10-15% 하락.\n';
       prompt += '• 10Y 4.5%+: 고PE(35+) 성장주 밸류에이션 압축 구간. FCF Yield < 10Y 금리이면 "채권이 더 매력적" 판단.\n';
       prompt += '• 10Y 3.5-4.5%: 중립. PE 25-35 성장주는 실적 성장이 뒷받침되면 정당화 가능.\n';
@@ -22769,8 +22292,8 @@ const CHAT_CONTEXTS = {
       prompt += '• Earnings Yield(1/PE) vs 10Y 비교: EY > 10Y+2%p = 주식 매력적 / EY < 10Y = 채권 우위.\n';
       prompt += '→ "현재 10Y ' + s.tnx + '%에서 이 기업의 PE가 정당화되는가?" 반드시 판단하라.\n\n';
 
-      // ── v40.2: 교차 분석 프레임 ──
-      prompt += '【교차 분석 프레임 — 단일 지표가 아닌 "조합"으로 판단 (v40.2)】\n';
+      // ── v40.3: 교차 분석 프레임 ──
+      prompt += '【교차 분석 프레임 — 단일 지표가 아닌 "조합"으로 판단 (v40.3)】\n';
       prompt += '• PE × 금리 환경: 고PE(35+) + 10Y 4.5%+ = 이중 밸류에이션 리스크. 저PE(<15) + 금리 하락기 = 리레이팅 기회.\n';
       prompt += '• ROE × D/E: ROE 20%+ but D/E 1.5+ = 레버리지 기반 ROE(경기 하강 시 취약). ROE 20%+ & D/E < 0.5 = 진짜 수익성.\n';
       prompt += '• 매출성장 × 마진변화: 매출↑+마진↑ = 스케일링 성공(최고). 매출↑+마진↓ = 외형성장만(비용 효율 의심). 매출↓+마진↑ = 구조조정(일시적). 매출↓+마진↓ = 위험.\n';
@@ -22779,8 +22302,8 @@ const CHAT_CONTEXTS = {
       prompt += '• 실적 서프라이즈 패턴: 4분기 연속 beat = 보수적 가이던스 경영진(긍정적). beat폭 분기별 축소 = 모멘텀 둔화 선행지표. miss 후 주가 상승 = 악재 이미 선반영.\n';
       prompt += '→ 단일 지표 해석 금지. 반드시 2개 이상 교차 검증 후 판단.\n\n';
 
-      // ── v40.2: 섹터별 적정 밸류에이션 레인지 ──
-      prompt += '【섹터별 적정 밸류에이션 레인지 가이드 (v40.2)】\n';
+      // ── v40.3: 섹터별 적정 밸류에이션 레인지 ──
+      prompt += '【섹터별 적정 밸류에이션 레인지 가이드 (v40.3)】\n';
       prompt += '• Technology: PE 25-40, EV/EBITDA 18-30 (AI/클라우드 성장 프리미엄 반영)\n';
       prompt += '• Healthcare/Biotech: PE 18-30, EV/EBITDA 12-22 (파이프라인 옵션 가치)\n';
       prompt += '• Financials: PB 1.0-2.0, PE 10-18 (자산 기반 밸류에이션)\n';
@@ -22791,7 +22314,7 @@ const CHAT_CONTEXTS = {
       prompt += '• Utilities: PE 15-22 (규제 환경, 금리 민감)\n';
       prompt += '→ 분석 대상 기업의 섹터를 확인하고, 해당 레인지 내 위치를 판단하라. 레인지 초과 시 "왜 프리미엄을 받는가" 근거 필수.\n\n';
 
-      // ── v40.2: 2026.04 시장 맥락 주입 ──
+      // ── v40.3: 2026.04 시장 맥락 주입 ──
       prompt += '【2026.04 시장 맥락 — 기업 분석 시 반영할 거시환경】\n';
       prompt += '• 고금리 장기화: Fed 기준금리 3.50-3.75%, 10Y ' + s.tnx + '%. 성장주 밸류에이션 압축 vs 금융주 순이자마진 개선.\n';
       prompt += '• 유가 $100+: 에너지 기업 수혜, 항공/운송/소비재 비용 압박. 유가 민감 기업은 마진 영향 분석 필수.\n';
@@ -22834,7 +22357,7 @@ const CHAT_CONTEXTS = {
       prompt += '14. 【리스크 요인】 사업 리스크(경쟁 심화, 기술 대체), 재무 리스크(부채, 유동성), 규제 리스크(독점 규제, 수출 규제), 매크로 리스크(금리·환율·경기 민감도), ESG/평판 리스크. 각 리스크의 가능성(H/M/L)과 영향도(H/M/L) 매트릭스.\n';
       prompt += '15. 【투자 포인트 종합】 ★데이터: fmpPriceTarget + fmpDCF + fmpEstimates + 전체 분석 종합. Bull Case(낙관 시나리오 + 목표가) / Base Case(기본 시나리오) / Bear Case(비관 시나리오). 핵심 카탈리스트(실적 서프라이즈, 신제품, M&A 등)와 깨지는 신호. 내부자 매매 방향이 시사하는 바. 최종 투자 의견(매수/보유/관망)과 근거 3줄 요약.\n\n';
 
-      prompt += '【응답 프레임워크 — "기업을 하나의 이야기로" (v40.2 고도화)】\n';
+      prompt += '【응답 프레임워크 — "기업을 하나의 이야기로" (v40.3 고도화)】\n';
       prompt += '1. 한줄 판결로 시작: "이 기업은 본질적으로 {한마디 정의}이다." — 투자자가 1초 만에 핵심을 잡도록.\n';
       prompt += '2. 숫자 3개로 열기: "PE X배, 매출성장 Y%, FCF Z억 — 이 세 숫자가 말하는 것은..." 정량적 진입.\n';
       prompt += '3. 해자 판정 → 성장의 질 → 밸류에이션 정당성 → 리스크 순서로 스토리 전개. 기계적 나열 금지.\n';
@@ -22930,152 +22453,6 @@ const CHAT_CONTEXTS = {
         '4. 인과 체인: 촉매 이벤트 → 수혜 섹터 → 대장주 → 2차 수혜주까지.\n' +
         '5. Before/After + 깨지는 신호: "이 촉매가 실현되면 밸류에이션이 어떻게 바뀌는가" + "이 테마가 깨지는 조건: ①~, ②~, ③~"\n' +
         '매매시그널(전체 환경)·차트 분석(대장주 타이밍) 연결.' +
-        _getChatRules();
-    }
-  },
-
-  // ── 테마 상세 ─────────────────────────────────────────
-  'theme-detail': {
-    title: 'AI 테마 심층분석가',
-    system: function() {
-      return '당신은 특정 테마 심층 분석 전문가입니다.\n\n' +
-        '【응답 프레임워크】\n' +
-        '1. 번호 챕터 + 감정 곡선: ① 테마 배경(불안/기대 인정) → ② 대장주 분석(탐색) → ③ 후발주 기회(발견) → ④ 리스크 시나리오(경계) → ⑤ 실전 전략(확신)\n' +
-        '2. 조건 필터링 소거법: "대장주가 되려면 ①시총 대장 ②테마 매출 비중 최대 ③기관 수급 유입. 이 조건을 모두 만족하는 건?"\n' +
-        '3. 밸류체인 매핑: 해당 테마의 밸류체인 계층별 핵심 기업·병목·대체 불가능한 위치.\n' +
-        '4. 선례 매핑: "이 테마는 {과거 테마}와 패턴이 유사하다. 그때 대장주는 X% 상승 후 Y개월 만에 조정."\n' +
-        '5. ETF vs 개별종목 Before/After: "ETF = 리스크 X / 개별 = 리스크 Y"\n' +
-        '6. 깨지는 신호 명시: "이 테마가 틀려지는 조건 3가지: ①~, ②~, ③~"\n' +
-        '시장폭(전체 환경) 페이지 연결.' +
-        _getChatRules();
-    }
-  },
-
-  // ── 투자 가이드 ─────────────────────────────────────────
-  guide: {
-    title: 'AI 투자 멘토',
-    system: function() {
-      const s = _liveSnap();
-      const c = _closeSnap();
-      return '당신은 투자 분석 전문 멘토입니다. 이 스크리너의 "투자 가이드" 페이지에서 대화하고 있습니다.\n\n' +
-        '【현재 시장 상태 (신선도: ' + s._freshness + ')】\n' +
-        '• 시장 품질 점수: ' + s.score + '/100 | F&G(공포/탐욕 지수): ' + s.fg + ' | VIX(변동성 지수): ' + s.vix + ' [실시간]\n' +
-        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
-        '⚠ 주가·지수 분석 시 위 종가 기준. VIX 등 시장환경은 실시간 값 사용.\n' +
-        (s._stale.length > 0 ? '⚠️ 일부 수치가 지연 중일 수 있음.\n' : '') + '\n' +
-        '【멘토링 원칙】\n' +
-        '• "물고기를 주지 말고, 낚시하는 법을 가르쳐라" — 판단 기준과 사고법을 교육\n' +
-        '• 절대 특정 종목 매수/매도 직접 추천 금지 → 대신 분석 프레임워크와 근거 제시\n' +
-        '• 모든 판단에 "왜 그런가"의 근거(데이터/통계/역사적 사례)를 반드시 연결\n' +
-        '• 스크리너의 각 기능을 실전 교육 소재로 활용\n\n' +
-        '【분석 역량 강화 로드맵 — 유기적 학습 경로】\n' +
-        '• 기업 분석 + 차트 분석: 밸류에이션(PER/PBR/DCF) 심층 해석 → 차트 패턴·지표 조합으로 타이밍 판단 → 두 분석을 교차 검증하여 확신도 강화\n' +
-        '• 매크로 + 시장폭 + 시그널: 거시환경(금리·달러·유가)이 개별 종목에 전파되는 경로 분석 → 시장폭으로 진짜 건강도 확인 → 종합 스코어로 매매 타이밍 판단\n' +
-        '• 포트폴리오 + 섹터 + 옵션: 섹터 로테이션 기반 포트폴리오 구성 → 리밸런싱 시점 결정 → 옵션으로 헤지/레버리지 활용\n' +
-        '• 핵심: 각 페이지가 독립이 아니라 하나의 투자 의사결정 흐름으로 연결됨. AI에게 물어보면 관련 페이지 데이터를 유기적으로 엮어 분석해줌.\n\n' +
-        '【흔한 투자 실수 TOP 5 (근거 포함)】\n' +
-        '① 손절 미설정 — 역사적으로 손절 없이 보유 시 평균 손실 2.4배 확대 (Odean 1999 연구)\n' +
-        '② 집중 투자 — 한 종목 비중 20%+ 시 포트폴리오 변동성 3배 증가\n' +
-        '③ FOMO 매수 — 52주 신고가 추격 매수 후 30일 평균 수익률 -3.2%\n' +
-        '④ 뉴스 감정 매매 — 뉴스 발표 후 24시간 내 거래의 67%가 역방향 움직임\n' +
-        '⑤ 평단가 집착(물타기) — 하락 중 물타기 시 원금 회복 확률 23% 감소\n\n' +
-        '【응답 프레임워크 — "근거 기반 분석 교육"】\n' +
-        '1. 핵심 데이터부터: 질문의 핵심 수치/지표를 먼저 제시하고, 왜 그 수치가 중요한지 근거와 함께 설명.\n' +
-        '2. 비유로 직관 형성: "PER 15배란? 이 기업을 인수한다면 15년 만에 본전. 업종 평균이 20배니까 25% 할인된 셈 — 그런데 할인된 이유가 있다..."\n' +
-        '3. 이야기 구조로 분석: ① 데이터 확인 → ② 역사적 맥락("과거에 이런 상황에서는...") → ③ 함정/리스크("그런데 여기서 놓치기 쉬운 게...") → ④ 실전 연결("이 스크리너에서 확인하려면...")\n' +
-        '4. 실전 케이스: 실제 과거 사례를 들어 분석. "2022년 금리 인상기에 성장주가 40% 빠진 이유는... 지금 상황과의 차이점은..."\n' +
-        '5. 액션 클로징: "지금 당장 확인할 3가지..." 구체적 실행 가능한 분석 액션 제시.\n' +
-        '⚠️ 기초적인 질문이라도 가볍게 대답하지 마라. 모든 답변에 데이터 근거를 붙이고, 분석적으로 풀어라. 근거 → 이유 → 액션까지 완결.\n' +
-        _getChatRules();
-    }
-  },
-
-  // ── 종목 스크리너 ─────────────────────────────────────
-  screener: {
-    title: 'AI 종목 스크리너',
-    system: function() {
-      const s = _liveSnap();
-      const c = _closeSnap();
-      var fresh = s._freshness;
-      return '당신은 종목 스크리닝 전문가입니다. "스크리너" 페이지에서 대화하고 있습니다.\n\n' +
-        '【시장 환경 (신선도: ' + fresh + ')】\n' +
-        '• 시장 품질: ' + s.score + '/100 | VIX: ' + s.vix + ' [실시간] | F&G: ' + s.fg + '\n' +
-        '• 시장 품질 35 미만 = 신규 매수보다 현금 확보 우선\n' +
-        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
-        '⚠ 주가·지수 분석 시 위 종가 기준. VIX 등 시장환경은 실시간 값 사용.\n' +
-        (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
-        '자연어 조건("실적 좋고 저평가된 기술주" 등)으로 종목을 분석합니다.\n\n' +
-        '【주요 스크리닝 방법론】\n' +
-        '• CAN SLIM(William O\'Neil): C(최근 분기 EPS +25%↑) + A(연간 EPS 5년 +25%↑) + N(신제품/신경영) + S(유통주식수↓) + L(섹터 리더) + I(기관 매수↑) + M(시장 방향 ↑)\n' +
-        '• SEPA(Mark Minervini): 가격>150SMA>200SMA, RS Rating 70+, 52주 고점 25% 이내\n' +
-        '• 밸류 스크리닝: PER < 섹터 평균, PEG < 1.0, FCF Yield > 5%, 부채비율 < 1.0\n' +
-        '• 배당 스크리닝: 배당수익률 3%+, 배당성향 60%↓, 배당 성장 5년 연속, Payout Ratio 안정\n' +
-        '• 품질(Quality) 스크리닝: ROE 15%+, Gross Margin 40%+, 순이익률 10%+, 영업CF>순이익\n\n' +
-        '【스크리닝 결과 해석 주의사항】\n' +
-        '• 수치만으로 판단 금지: 저PER이 항상 저평가가 아님 (성장 정체, 일회성 이익, 회계 조작 가능)\n' +
-        '• 섹터 맥락 필수: 기술주 PER 30 ≠ 유틸리티 PER 30. 반드시 같은 섹터 내 비교\n' +
-        '• 시간 추이 확인: 현재 숫자보다 "3~4분기 추세"가 중요. 개선 중? 악화 중?\n\n' +
-        '【응답 프레임워크】\n' +
-        '1. 조건 필터링 소거법: 사용자 조건 분해 → 각 조건별 통과 종목 좁히기 → "공교롭게도 이 조건을 모두 만족하는 건..." 최종 후보 제시.\n' +
-        '2. 핵심 수치 강조 배치: "{종목명}" → "PER: X배 | 매출성장: +Y% | FCF Yield: Z% | RS: N점" → 즉시 해석.\n' +
-        '3. Before/After + 깨지는 신호: "시장 환경 개선(스코어 55+) 시 상승 여력 ~. 깨지는 신호: 실적 미스 또는 스코어 25↓ 시 재검토."\n' +
-        '4. 사실 vs 비전 분리: "확인된 실적: {팩트}. 미검증 성장 기대: {비전}." 투자자가 스스로 판단할 수 있게.\n' +
-        '5. 매매 타이밍 연결: "스크리닝 통과 = 투자 대상 후보. 실제 매수 타이밍은 차트 분석 페이지에서 VCP/브레이크아웃 확인 후."\n\n' +
-        '【v34.2: 섹터 비교 분석 모드 (실시간 데이터가 주입된 경우)】\n' +
-        '시스템 프롬프트에 【📊 섹터 비교 분석】 데이터가 포함되어 있으면 아래 포맷으로 응답:\n' +
-        '1. 비교 요약표: 종목명 | PER | PBR | 매출성장 | ROE | FCF Yield — 한눈에 비교 가능한 표 형식\n' +
-        '2. 왜 이 종목이 가장 유리한가: "X가 PER Y배로 가장 낮지만, 매출 성장 Z%로 성장까지 겸비" 식의 서사적 분석\n' +
-        '3. 주의 사항: "낮은 PER이 밸류 트랩일 수 있는 이유" 등 리스크 요인 반드시 병기\n' +
-        '4. 최종 픽 1~2개와 근거: "종합하면 가장 유리한 건 X. 다만 Y도 성장 모멘텀 감안 시 주목할 만"\n' +
-        '5. 후속 액션: "기업 분석 페이지에서 X의 상세 재무제표를 확인해보세요"\n\n' +
-        '차트 분석(기술적 타이밍)·매매시그널(환경 점수)·기업 분석(상세 펀더멘털) 페이지 연결.' +
-        _getChatRules();
-    }
-  },
-
-  // ── 옵션 전략 ─────────────────────────────────────────
-  options: {
-    title: 'AI 옵션 전략가',
-    system: function() {
-      const s = _liveSnap();
-      const c = _closeSnap();
-      var fresh = s._freshness;
-      return '당신은 옵션 전문 트레이더이자 교육자입니다. "옵션 전략" 페이지에서 대화하고 있습니다.\n\n' +
-        '【옵션 데이터 (신선도: ' + fresh + ')】\n' +
-        '• VIX: ' + s.vix + ' [실시간] (VIX가 높다 = IV(내재변동성, 옵션 가격에 녹아있는 시장의 불안 체온)가 높다 = 옵션 프리미엄이 비싸다)\n' +
-        '• S&P 500: ' + s.spx + ' [' + s.indexBasis + '] | F&G: ' + s.fg + '\n' +
-        '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + '\n' +
-        '⚠ 주가·지수 분석 시 위 종가 기준. VIX 등 시장환경은 실시간 값 사용.\n' +
-        (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
-        '【옵션 = "보험"이라고 생각하세요】\n' +
-        '풋옵션(하락 보험) 매수 = 화재보험 가입 (집이 안 타도 보험료 날리지만, 타면 생명줄)\n' +
-        '콜옵션(상승 베팅) 매수 = 복권 구매 (소액으로 큰 수익 가능, 하지만 대부분 손실)\n' +
-        'Covered Call(보유주식에 콜옵션 매도) = 집을 빌려주면서 월세 받기 (안정적이지만 집값 급등 시 못 누림)\n' +
-        '⚠️ 옵션은 고위험 상품. 반드시 최대손실 금액을 먼저 계산!\n\n' +
-        '【감마 노출(GEX) & 딜러 포지셔닝】\n' +
-        '• 딜러 롱감마(GEX+): 딜러가 하락 시 매수/상승 시 매도 → 변동성 억제, 좁은 레인지\n' +
-        '• 딜러 숏감마(GEX-): 딜러가 하락 시 매도/상승 시 매수 → 변동성 증폭, 급등락\n' +
-        '• Zero Gamma Level: GEX가 양→음으로 전환되는 가격 수준. 이 아래로 가면 "빠른 하락" 구간\n' +
-        '• OPEX(옵션만기) 효과: 만기일 가까울수록 감마 효과 증폭 → 만기주 핀닝(max pain 근처 수렴) 가능\n\n' +
-        '【시장 상황별 전략 매핑】\n' +
-        '• VIX 15↓(저변동): Debit Spread(제한된 비용으로 방향성 베팅), Calendar Spread(시간가치 수확)\n' +
-        '• VIX 20~30(중변동): Iron Condor(양쪽 매도로 프리미엄 수확), Covered Call(보유주 월세)\n' +
-        '• VIX 30+(고변동): Cash-Secured Put(폭락 시 저가 매수+프리미엄), Protective Put(보험)\n' +
-        '• 어닝 시즌: Straddle/Strangle(방향 모를 때), IV Crush 주의(실적 발표 후 IV 급락→옵션 가치 하락)\n\n' +
-        '【프로급 옵션 분석 — 고급 사용자 대응】\n' +
-        '• 변동성 표면(Vol Surface): IV 스큐(OTM 풋 > OTM 콜 = 하방 헤지 수요↑), IV Term Structure(전방 콘탱고/백워데이션), IV Smile 해석\n' +
-        '• 그릭스 포트폴리오 관리: 델타 중립 유지, 감마 스캘핑(감마+세타 트레이드오프), 베가 매매(IV 확대/축소 예측), 참(Charm)/반나(Vanna)/볼가(Volga) 고차 그릭스\n' +
-        '• 복합 전략: Ratio Spread(비대칭 수익구조), Back Spread(큰 움직임 베팅), Diagonal Spread(시간+방향 결합), Jade Lizard(무손실 하방+상방 수익)\n' +
-        '• 어닝 플레이 고급: 어닝 전 IV Percentile 확인 → 높으면 매도전략(IC/Strangle) / 낮으면 매수전략(Straddle). Expected Move = ATM Straddle × 0.85\n' +
-        '• 딜러 포지셔닝 심화: GEX(감마노출)·DEX(델타노출)·VEX(베가노출) → 시장 방향성+변동성+레인지 예측. 0DTE(당일만기) 폭증이 GEX에 미치는 영향\n\n' +
-        '【응답 프레임워크】\n' +
-        '1. VIX 에스컬레이션 래더: "VIX 15↓: 평온(옵션 쌈) → 20-25: 불안(IV 보통) → 25-35: 공포(프리미엄 비쌈, 매도 전략 유리) → 35+: 패닉(딜러 숏감마 = 하방 증폭). 지금은 N단계."\n' +
-        '2. Before/After: "VIX가 변하면 당신의 옵션 포지션 손익은 ~ (세타·감마·베가 민감도까지 계산)"\n' +
-        '3. 질문 유도: "목표가 수익 극대화인가, 위험 헤지인가? 이에 따라 전략이 완전히 달라진다."\n' +
-        '4. 최대손실 금액을 별도 행에 강조 배치. + 깨지는 신호 1개.\n' +
-        '5. 그릭스 감수성: "이 포지션의 델타 X → 기초자산 $1 움직임당 옵션가치 $X 변동. 세타 -Y → 하루 -$Y 시간가치 감소."\n' +
-        '⚠️ 통합 전문 분석 모드: 모든 분석에 근거·이유를 연결하여 설명. 기초 용어 정의 생략. 그릭스 민감도·vol surface 등 정량 분석 질문에 즉시 대응.\n' +
-        '투자심리(VIX 추이)·매매시그널(방향성) 페이지 연결.' +
         _getChatRules();
     }
   },
@@ -23179,8 +22556,8 @@ const CHAT_CONTEXTS = {
         '⚠ 주가·지수 분석 시 위 종가 기준. 환율·금리·금 등은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '⚠️ [' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
 
-        // v40.2: 채권-주식-환율 교차 분석 프레임
-        '【채권-주식-환율 교차 분석 프레임 (v40.2)】\n' +
+        // v40.3: 채권-주식-환율 교차 분석 프레임
+        '【채권-주식-환율 교차 분석 프레임 (v40.3)】\n' +
         '자산 간 관계가 정상인지, 이상 신호인지 자동 판별:\n' +
         '• 10Y↑ + SPX↓ = 정상(금리 상승 → 주식 밸류에이션 압축). 10Y↑ + SPX↑ = 비정상(금리 무시 랠리) → 지속 불가, 조정 예고.\n' +
         '• 10Y↓ + 금↑ = 정상(안전자산 선호). 10Y↑ + 금↑ = 인플레 헤지 수요(물가 불안). 10Y↓ + 금↓ = 디플레 공포.\n' +
@@ -23189,8 +22566,8 @@ const CHAT_CONTEXTS = {
         '• HY 스프레드↑ + IG 스프레드 안정 = 저질 기업만 스트레스. 양쪽 동시↑ = 시스템 리스크.\n' +
         '→ 현재 10Y ' + s.tnx + '% / DXY ' + s.dxy + ' / Gold $' + s.gold + ' 조합을 판독하라.\n\n' +
 
-        // v40.2: 원/달러 에스컬레이션 래더 확장
-        '【원/달러 에스컬레이션 래더 (v40.2 확장)】\n' +
+        // v40.3: 원/달러 에스컬레이션 래더 확장
+        '【원/달러 에스컬레이션 래더 (v40.3 확장)】\n' +
         '• 1,300↓: 원화 강세 — 외인 매수 유인, 수입물가↓, 내수주 유리\n' +
         '• 1,300-1,350: 중립 — 수출·내수 균형\n' +
         '• 1,350-1,400: 경계 — 외인 순매도 가속, 수입물가↑, 원자재 비용 부담\n' +
@@ -23199,8 +22576,8 @@ const CHAT_CONTEXTS = {
         '• 1,500+: 비상 — 아시아 위기(1997) 이후 최고 수준. IMF 트라우마 재점화.\n' +
         '현재 ' + s.krw + '원 → 현재 위치와 다음 임계점까지 거리.\n\n' +
 
-        // v40.2: 채권 투자 전략 매트릭스
-        '【채권 투자 전략 — 금리 시나리오별 (v40.2)】\n' +
+        // v40.3: 채권 투자 전략 매트릭스
+        '【채권 투자 전략 — 금리 시나리오별 (v40.3)】\n' +
         '• 금리 정점 → 인하 시작: 장기채(TLT/EDV) 강세 시작. Duration 확대. 채권 자본차익 기회.\n' +
         '• 금리 상승 지속: 단기채(SHV/BIL)+TIPS(물가연동). Duration 축소. 쿠폰 수입 중심.\n' +
         '• 금리 동결 장기화: 중기채(IEF) + 크레딧(LQD). 적정 Duration + 수익률 프리미엄 수확.\n' +
@@ -23221,15 +22598,15 @@ const CHAT_CONTEXTS = {
         '• 원캐리: 한미 금리차 시 자금 유출, 원화 약세 압력\n' +
         '• 위험 신호: 엔/달러 급변동 + VIX 급등 + 신흥국 CDS 확대 = 캐리 청산 3중 경고\n\n' +
 
-        // v40.2: 역사적 참고점
-        '【역사적 참고점 — 채권/환율 위기 패턴 (v40.2)】\n' +
+        // v40.3: 역사적 참고점
+        '【역사적 참고점 — 채권/환율 위기 패턴 (v40.3)】\n' +
         '• 2022.10 채권 폭락: 10Y 4.33% → 주식 바닥 동시 도달. "채권의 항복 = 주식의 바닥"\n' +
         '• 2023.10 10Y 5% 터치: "term premium(기간 프리미엄) 급등" — SPX -10% 조정 → 이후 5개월 +20% 반등\n' +
         '• 2024.08 엔캐리 청산: 엔/달러 162→142 급락 + VIX 65 → 3주 만에 회복. 구조적 위기 아닌 포지션 해소.\n' +
         '• 1997 아시아 위기: 원/달러 900→1,900. 경상수지 적자 + 단기외채 과다 + 외환보유고 부족 조합.\n' +
         '→ 현재 상황이 위 사례 중 어디에 가장 유사한가?\n\n' +
 
-        '【응답 프레임워크 (v40.2 고도화)】\n' +
+        '【응답 프레임워크 (v40.3 고도화)】\n' +
         '1. 교차 자산 판독: 채권/환율/금/주식이 같은 이야기를 하고 있는가? 비동조 시 왜?\n' +
         '2. 인과 체인 3차까지: "10Y X% 돌파 → DXY 강세 → 원/달러 Y원 → 외인 매도 → KOSPI 하락 → 당신의 한국주식"\n' +
         '3. 에스컬레이션 래더: 원/달러·10Y·DXY 각각의 현재 위치와 다음 임계점.\n' +
@@ -26770,7 +26147,7 @@ function computeEconomicTemperature() {
   // Weighted average: VIX 30%, Curve 25%, Oil 20%, DXY 15%, Credit 10%
   var temp = (vixScore * 0.30 + curveScore * 0.25 + oilScore * 0.20 + dxyScore * 0.15 + creditScore * 0.10);
 
-  // v40.2: 교차변수 보정 — 단순 합산이 아닌 "관계" 인식
+  // v40.3: 교차변수 보정 — 단순 합산이 아닌 "관계" 인식
   // 트리플 긴축: 금리↑ + 달러↑ + 유가↑ 동시 → 추가 페널티
   var tripleHawkCount = 0;
   if (tnx > 4.5) tripleHawkCount++;
@@ -27288,41 +26665,9 @@ document.addEventListener('aio:liveQuotes', function() {
   <script>
 // Korea Market chat contexts — 스토리텔링 + 스크리너 연결
 (function(){
-  // v39.2: kr-home CHAT_CONTEXT 신규
-  CHAT_CONTEXTS['kr-home'] = {
-    title: 'AI 한국장 브리퍼',
-    system: function() {
-      var s = _liveSnap();
-      var c = _closeSnap();
-      var ld = window._liveData || {};
-      var kospi = ld['^KS11'], kosdaq = ld['^KQ11'], krw = ld['KRW=X'], vkospi = ld['VKOSPI'] || ld['^KS200VI'];
-      return '당신은 한국 주식시장 전문 브리퍼입니다. "한국장 홈" 페이지를 보고 있습니다.\n\n' +
-        '【한국 시장 실시간 현황】\n' +
-        '• KOSPI: ' + (kospi ? kospi.price + ' (' + (kospi.pct != null ? (kospi.pct >= 0 ? '+' : '') + kospi.pct.toFixed(2) + '%' : '—') + ')' : '데이터 로딩 중') + '\n' +
-        '• KOSDAQ: ' + (kosdaq ? kosdaq.price + ' (' + (kosdaq.pct != null ? (kosdaq.pct >= 0 ? '+' : '') + kosdaq.pct.toFixed(2) + '%' : '—') + ')' : '데이터 로딩 중') + '\n' +
-        '• USD/KRW: ' + (krw ? krw.price : '—') + '원\n' +
-        '• VKOSPI: ' + (vkospi ? vkospi.price : '—') + '\n' +
-        '• 미국 시장: S&P ' + s.spx + ' (' + s.spxPct + '%) | VIX ' + s.vix + '\n\n' +
-        '【한국 시장 핵심 메커니즘 (v39.2)】\n' +
-        '• 수출 의존 경제: 반도체 수출 = KOSPI 수익률의 선행지표. 삼성전자+SK하이닉스 = KOSPI 시총 30%+.\n' +
-        '• 환율-외국인 연동: 원화 약세(KRW 1,500+) = 외국인 매도 압력↑. 원화 강세 = 외국인 순매수 전환 기대.\n' +
-        '• KOSPI-KOSDAQ 디커플링: KOSPI↑+KOSDAQ↓ = 외인 대형주 매수+개인 소형주 매도(리스크오프). KOSDAQ↑+KOSPI→ = 개인 주도 테마 장세.\n' +
-        '• VKOSPI 임계값: 20↓ = 안정, 25~30 = 주의, 30+ = 극단적 공포(역발상 기회)\n\n' +
-        '【현재 시장 맥락 (2026.04)】\n' +
-        '• 미-이란 전쟁 + 호르무즈 → 유가 $100+ → 한국 원유 의존도 95% → 경상수지 악화 우려\n' +
-        '• 외국인 연속 순매도 (3월 누적 30조+) → 개인 매수세로 버팀 → K자형 시장\n' +
-        '• 수혜 테마: 조선(LNG선), 방산(NATO수출), 반도체(AI HBM), 전력기기(AI DC)\n' +
-        '• 약세 테마: 2차전지(EV 둔화), K-컨텐츠(실적 부진)\n\n' +
-        '【페이지 연결 가이드】\n' +
-        '수급 분석 → 외국인/기관 자금흐름 상세 | 국내 테마 → 22개 테마별 종목 분석 | 한국 매크로 → 금리/환율/수출 상세\n\n' +
-        '【응답 프레임워크】\n' +
-        '1. "오늘 한국장 한 줄 요약" → KOSPI/KOSDAQ/환율/수급 핵심 숫자 제시\n' +
-        '2. 미국 장 결과 → 한국 장 영향 연결 (전일 S&P/NASDAQ → 오늘 KOSPI 갭)\n' +
-        '3. 외국인 매매 의미 해석: "외국인이 XX조 팔았다" → "하지만 상대 비중으로는 Y%에 불과. 2008년과 비교하면..."\n' +
-        '4. 수급 분석·국내 테마·한국 매크로 페이지 연결 안내.' +
-        _getChatRules();
-    }
-  };
+  // v40.3: kr-home/kr-supply CHAT_CONTEXT 제거됨 (AI 채팅 불필요 페이지)
+  // kr-themes, kr-macro, kr-tech만 유지
+
 
   CHAT_CONTEXTS['kr-themes'] = {
     title: 'AI 국내 테마 전략가',
@@ -27519,60 +26864,6 @@ document.addEventListener('aio:liveQuotes', function() {
         '5. 비교 분석 시 — 두 종목의 Weinstein 단계, 상대강도, MA 배열, 수급 흐름을 대비\n' +
         '6. 시나리오 분기 — "상승 시나리오: ... | 하락 시나리오: ... | 깨지는 신호: ..."\n' +
         '7. 스토리텔링 — 데이터를 나열하지 말고, "왜 이 차트가 이런 모습인지"의 서사로 연결\n\n' +
-        '글로벌: S&P ' + s.spx + ' | VIX ' + s.vix + ' | KRW ' + s.krw +
-        _getChatRules();
-    }
-  };
-  // v34.6: kr-supply 수급 분석 컨텍스트 추가
-  CHAT_CONTEXTS['kr-supply'] = {
-    title: 'AI 한국 수급 분석가',
-    system: function() {
-      var s = _liveSnap();
-      var S = DATA_SNAPSHOT;
-      var fresh = s._freshness;
-      var ld = window._liveData || {};
-      var kospi = ld['^KS11'] || {};
-      // v37.2: 이원화 원칙 — KOSPI 종가 기준
-      var kospiClose = _closingVal('^KS11');
-      return '당신은 한국 주식시장 수급 분석 전문가입니다. "수급 분석" 페이지에서 대화하고 있습니다.\n\n' +
-        '【시장 데이터 (신선도: ' + fresh + ')】\n' +
-        '• KOSPI: ' + (kospiClose ? kospiClose.toFixed(2) : (kospi.price ? kospi.price.toFixed(2) : s.kospi)) + ' (' + (kospi.pct != null ? ((kospi.pct>=0?'+':'') + kospi.pct.toFixed(2) + '%') : '등락률 N/A') + ') [종가]\n' +
-        '• 원/달러: ' + s.krw + '원 [실시간] | DXY: ' + s.dxy + ' [실시간]\n' +
-        '• 외국인 순매수: ' + (S.krForeignNet||'—') + '억원 | 공매도 비중: ' + (S.krShortSell||'—') + '%\n\n' +
-        '【한국 시장 수급 구조 — 3대 주체 분석 프레임워크】\n' +
-        '한국 시장의 방향은 수급이 결정한다. 외국인·기관·개인 3대 주체의 매매 패턴을 읽는 것이 핵심.\n\n' +
-        '1. 외국인 (Foreign Investors)\n' +
-        '   • KOSPI 시가총액의 ~30% 보유 — "빅핸드"\n' +
-        '   • 환율 민감: 원화 약세 → 외국인 매도, 원화 강세 → 외국인 매수\n' +
-        '   • 프로그램 매매: 선물-현물 차익거래 (장 초반/마감 변동성 주범)\n' +
-        '   • 패턴: 순매수 5일 이상 연속 = 추세 전환 신호, 순매도 지속 = 하방 압력\n\n' +
-        '2. 기관 (Institutional)\n' +
-        '   • 연기금(국민연금 등) + 투신 + 보험 + 은행\n' +
-        '   • 연기금: 역추세 매매 (하락 시 매수, 상승 시 매도) — 시장 안전판 역할\n' +
-        '   • 투신: 펀드 설정/환매에 따른 매매 — 개인 심리와 동행\n\n' +
-        '3. 개인 (Retail)\n' +
-        '   • "동학개미" — 2020년 이후 시장 영향력 급증\n' +
-        '   • 예탁금: 개인 투자 심리 바로미터 (상승 시 예탁금↑ = 과열 주의)\n' +
-        '   • 신용잔고: 레버리지 수준 — 급락 시 반대매매 연쇄 위험\n' +
-        '   • 개인 순매수 과열 종목 = 단기 고점 경고\n\n' +
-        '4. 공매도 분석\n' +
-        '   • 2025년 재개 이후 비중 변화 모니터링\n' +
-        '   • 대차잔고 증가 = 하방 압력, 대차잔고 감소 = 숏커버 랠리 가능\n' +
-        '   • 공매도 과열 종목 지정제: 5거래일 기준 비중 → 1일 공매도 금지\n\n' +
-        '5. 글로벌 시스템매틱 매도 & 숏 스퀴즈 역학\n' +
-        '   • CTA(추세추종): 변동성↑·모멘텀↓ 시 기계적 매도. 월 $180~200억 규모 순숏 시 "셀링 클라이맥스" 근접\n' +
-        '   • 리스크 패리티: 변동성 급등 시 자동 비중 축소 → 주식·채권 동반 매도\n' +
-        '   • 이들의 매도 소진 + 개인·연기금 미매도(오히려 매수) = "살 사람만 남은 구조"\n' +
-        '   • 이 상태에서 지정학 완화 뉴스 1건(호르무즈 개방, 휴전 등)이면 숏 청산 러시 → 급등\n' +
-        '   • 한국 특수성: 외인 절대 매도 금액 사상 최대(2008년 상회)이나, KOSPI 시총 대비 비중은 ~-1.1%로 과거보다 훨씬 낮음. 기관·개인 비중 확대로 외인 충격 상대적 축소.\n' +
-        '   ⚠️ 수급 데이터를 볼 때: IB 트레이딩 데스크 노트는 자기 포지션이 깔려있을 수 있으므로, "누가 말했나"가 아니라 데이터 자체를 보고 판단해야 한다.\n\n' +
-        '【응답 프레임워크】\n' +
-        '1. 수급 삼각형: "외국인 X + 기관 Y + 개인 Z → 종합 방향은 W"\n' +
-        '2. 수급-가격 괴리: "가격은 상승인데 외국인은 매도 → 이 괴리가 해소될 방향은?"\n' +
-        '3. 선행 신호: "선물 외국인 순매수 전환 → 현물 매수 전환 D+2~3일 선행"\n' +
-        '4. 섹터별 수급 맵: "반도체 외국인 매수 vs 2차전지 외국인 매도 → 섹터 로테이션"\n' +
-        '5. 스토리텔링: 데이터를 나열하지 말고, 수급 흐름의 "왜"를 설명하는 서사로 연결\n' +
-        '테마 분석·매크로 페이지 연결.\n' +
         '글로벌: S&P ' + s.spx + ' | VIX ' + s.vix + ' | KRW ' + s.krw +
         _getChatRules();
     }
@@ -27872,7 +27163,7 @@ function initKoreaSupply() {
 
 function initKoreaThemes() {
   var ld = window._liveData || {};
-  // v40.2: 카드를 KR_THEME_MAP에서 동적 생성 (정적 HTML 제거됨 — 단일 진실 원천)
+  // v40.3: 카드를 KR_THEME_MAP에서 동적 생성 (정적 HTML 제거됨 — 단일 진실 원천)
   if (typeof renderKrThemeCardsFromMap === 'function') renderKrThemeCardsFromMap();
   // 1. pill: 종목명 · 가격 · 등락률 명확 표시
   document.querySelectorAll('#page-kr-themes [data-live-price]').forEach(function(pill) {
@@ -27954,7 +27245,7 @@ function initKoreaThemes() {
   renderKrThemePerfBars(ld);
   if (typeof _generateKrThemesAnalysis === 'function') _generateKrThemesAnalysis(ld);
 }
-// v40.2: KR_THEME_MAP 기반 테마 카드 동적 생성 — 단일 진실 원천(Single Source of Truth)
+// v40.3: KR_THEME_MAP 기반 테마 카드 동적 생성 — 단일 진실 원천(Single Source of Truth)
 // 정적 HTML 카드 제거. KR_THEME_MAP + KR_STOCK_DB + KR_THEME_CATALYSTS에서 자동 생성.
 function renderKrThemeCardsFromMap() {
   var container = document.getElementById('kr-theme-container');
@@ -29302,7 +28593,7 @@ var KR_THEME_MAP = {
     {code:'097950',w:16}, // CJ제일제당
     {code:'271560',w:14}, // 오리온
     {code:'004370',w:13}, // 농심
-    {code:'001800',w:12}, // 오뚜기 — v40.2 추가
+    {code:'001800',w:12}, // 오뚜기 — v40.3 추가
     {code:'280360',w:9},  // 롯데웰푸드
     {code:'005180',w:8},  // 빙그레
     {code:'000080',w:8}   // 하이트진로
@@ -29353,9 +28644,9 @@ var KR_THEME_MAP = {
     {code:'006800',w:18}, // 미래컴퍼니 (수술로봇 레티아이)
     {code:'141080',w:16}, // 리가켐바이오 (ADC 항체약물접합체)
     {code:'357780',w:12}, // 솔바이오 (체외진단 POCT)
-    {code:'085660',w:12}, // 차바이오텍 (줄기세포/재생의료) — v40.2 추가
-    {code:'950160',w:10}, // 코오롱티슈진 (인보사/유전자치료) — v40.2 추가
-    {code:'322310',w:10}  // 오로스테크놀로지 (의료AI/영상진단) — v40.2 추가
+    {code:'085660',w:12}, // 차바이오텍 (줄기세포/재생의료) — v40.3 추가
+    {code:'950160',w:10}, // 코오롱티슈진 (인보사/유전자치료) — v40.3 추가
+    {code:'322310',w:10}  // 오로스테크놀로지 (의료AI/영상진단) — v40.3 추가
   ],
   'energy_kr': [
     // SK이노 시총 10조 1위. S-Oil 사우디아람코 자회사. 4사 과점 구조.
@@ -29364,7 +28655,7 @@ var KR_THEME_MAP = {
     {code:'078930',w:22}, // GS (시총 ~5조, GS칼텍스 지주)
     {code:'018670',w:20}  // SK가스 (시총 ~2조, LNG/LPG)
   ],
-  // v40.2: 광/포토닉스 테마
+  // v40.3: 광/포토닉스 테마
   'photonics_kr': [
     // 쏠리드 시총 ~1.5조 1위. 케이엠더블유 ~1조. 소형주 중심 테마.
     {code:'050890',w:14}, // 쏠리드 (시총 ~1.5조, 광중계기/DAS 1위, 대장)
@@ -29961,9 +29252,9 @@ function _generateKrMacroAnalysis(ld) {
        riskSum === 1 ? '<span style="color:var(--text-secondary);font-weight:700;">🌤 일부 리스크 존재. 업종별 차별화 예상. 실적 모멘텀 기반 종목 선별.</span>' :
        '<span style="color:var(--green);font-weight:700;">☀ 매크로 환경 양호! 환율 안정+금리 적정+변동성 낮음. 성장테마 적극 비중 확대 구간.</span>';
 
-  // v40.2: 교차변수 심화 진단
+  // v40.3: 교차변수 심화 진단
   if (wti && wti.price && krw && krw.price && vix && vix.price) {
-    t += '<br><br><b>【교차변수 심화 진단 (v40.2)】</b><br>';
+    t += '<br><br><b>【교차변수 심화 진단 (v40.3)】</b><br>';
     var wp2 = wti.price, kp2 = krw.price, vp2 = vix.price;
     // 유가↑+원화↓ = 수입물가 이중 타격
     if (wp2 > 90 && kp2 > 1400) {
@@ -29983,7 +29274,7 @@ function _generateKrMacroAnalysis(ld) {
     }
   }
 
-  // v40.2: 트레이딩 스코어 연동
+  // v40.3: 트레이딩 스코어 연동
   var krMacroTs = 50;
   try { if (typeof computeTradingScore === 'function') krMacroTs = computeTradingScore().score || 50; } catch(e) {}
   t += '<br><b>【글로벌 시장 환경】</b> 트레이딩 스코어 <b style="color:' + (krMacroTs >= 55 ? 'var(--green)' : krMacroTs >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + krMacroTs + '/100</b> — ';
@@ -30093,12 +29384,12 @@ function _generateKrThemesAnalysis(ld) {
     }
   }
 
-  // v40.2: 매크로 환경 연동 테마 진단
+  // v40.3: 매크로 환경 연동 테마 진단
   var krMacroVix = usLd['^VIX'] ? usLd['^VIX'].price : null;
   var krMacroWti = usLd['CL=F'] ? usLd['CL=F'].price : null;
   var krMacroKrw = usLd['KRW=X'] ? usLd['KRW=X'].price : null;
   if (krMacroVix || krMacroWti || krMacroKrw) {
-    h += '<br><br><b>【매크로 환경 → 테마 영향 (v40.2)】</b><br>';
+    h += '<br><br><b>【매크로 환경 → 테마 영향 (v40.3)】</b><br>';
     if (krMacroWti && krMacroWti > 100) {
       h += '<span style="color:var(--red);">유가 $' + krMacroWti.toFixed(0) + ' → 에너지·정유 수혜, 항공·운송·2차전지 역풍. 원자재 비용 부담이 테마 전반에 영향.</span><br>';
     }
@@ -30114,7 +29405,7 @@ function _generateKrThemesAnalysis(ld) {
     }
   }
 
-  // v40.2: 트레이딩 스코어 연동
+  // v40.3: 트레이딩 스코어 연동
   var krTsVal = 50;
   try { if (typeof computeTradingScore === 'function') krTsVal = computeTradingScore().score || 50; } catch(e) {}
   h += '<br><b>【시장 환경】</b> 트레이딩 스코어 <b style="color:' + (krTsVal >= 55 ? 'var(--green)' : krTsVal >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + krTsVal + '/100</b> — ';
@@ -30739,7 +30030,7 @@ function _generateSentimentAnalysis() {
     else h += '<span>특이 신호 없음. 펀더멘털·기술적 분석 병행 판단.</span>';
   }
 
-  // v40.2: 역사적 참고점 비교
+  // v40.3: 역사적 참고점 비교
   if (!isNaN(fgScore) && !isNaN(vix)) {
     h += '<br><br><b>【역사적 참고점 비교】</b> ';
     var closest = '';
@@ -30751,7 +30042,7 @@ function _generateSentimentAnalysis() {
     h += '<span style="color:var(--accent);">현재 F&G ' + fgScore + ', VIX ' + vix.toFixed(1) + ' → ' + closest + '</span><br>';
   }
 
-  // v40.2: 행동경제학 편향 진단
+  // v40.3: 행동경제학 편향 진단
   if (!isNaN(fgScore)) {
     h += '<br><b>【행동편향 진단】</b> ';
     var biases = [];
@@ -30768,7 +30059,7 @@ function _generateSentimentAnalysis() {
     h += '<br>';
   }
 
-  // v40.2: 트레이딩 스코어 연동
+  // v40.3: 트레이딩 스코어 연동
   var tsVal2 = 50;
   try { if (typeof computeTradingScore === 'function') tsVal2 = computeTradingScore().score || 50; } catch(e) {}
   h += '<br><b>【시장 환경 연동】</b> 트레이딩 스코어 <b style="color:' + (tsVal2 >= 55 ? 'var(--green)' : tsVal2 >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + tsVal2 + '/100</b> — ';
@@ -31071,7 +30362,7 @@ function _generateFundamentalAnalysis(fallback, ld) {
     h += '<br>';
   }
 
-  // v40.2: 금리 환경 연동 밸류에이션 코멘트
+  // v40.3: 금리 환경 연동 밸류에이션 코멘트
   var tnxVal = _ldSafe('^TNX','price') || 0;
   if (tnxVal > 0 && pes.length > 0) {
     h += '<br><b>【금리 환경 연동 분석】</b> ';
@@ -31092,7 +30383,7 @@ function _generateFundamentalAnalysis(fallback, ld) {
     h += '<br>';
   }
 
-  // v40.2: 트레이딩 스코어 연동 시장 환경 코멘트
+  // v40.3: 트레이딩 스코어 연동 시장 환경 코멘트
   var tsVal = 50;
   try { if (typeof computeTradingScore === 'function') { tsVal = computeTradingScore().score || 50; } } catch(e) {}
   h += '<br><b>【시장 환경】</b> 트레이딩 스코어 <b style="color:' + (tsVal >= 55 ? 'var(--green)' : tsVal >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + tsVal + '/100</b> — ';
@@ -31418,7 +30709,7 @@ function drawPortfolioDonut() {
   ctx.clearRect(0,0,W,H);
   var cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 8, ri = r * 0.55;
 
-  // v40.2: 실제 포지션 데이터 기반 동적 도넛 차트
+  // v40.3: 실제 포지션 데이터 기반 동적 도넛 차트
   var positions = typeof getPortfolioData === 'function' ? getPortfolioData() : [];
   var ld = window._liveData || {};
   var SECTOR_COLORS = {'Technology':'#60a5fa','Healthcare':'#3ddba5','Financial Services':'#f59e0b','Consumer Cyclical':'#f472b6','Energy':'#ef4444','Industrials':'#a78bfa','Consumer Defensive':'#34d399','Communication Services':'#818cf8','Utilities':'#fbbf24','Real Estate':'#f87171','Basic Materials':'#06b6d4','CASH':'#94a3b8'};
@@ -31514,7 +30805,7 @@ function drawPortfolioDonut() {
     legendEl.innerHTML = lh;
   }
 
-  // v40.2: 섹터 브레이크다운 바 차트 (도넛 옆 or 아래)
+  // v40.3: 섹터 브레이크다운 바 차트 (도넛 옆 or 아래)
   var sectorEl = document.getElementById('pf-sector-breakdown');
   if (sectorEl && items.length > 0) {
     var sectorMap = {};
@@ -31542,7 +30833,7 @@ function drawPortfolioDonut() {
   }
 }
 
-// v40.2: 포지션 기반 도넛 차트 (portfolio-donut과 별도)
+// v40.3: 포지션 기반 도넛 차트 (portfolio-donut과 별도)
 function drawPositionDonut() {
   var c = document.getElementById('pf-position-donut');
   if (!c) return;
@@ -31664,7 +30955,7 @@ function drawPositionDonut() {
   }
 }
 
-// v40.2: 현금 포지션 저장
+// v40.3: 현금 포지션 저장
 function saveCashPosition(val) {
   var cash = parseFloat(val) || 0;
   try { localStorage.setItem('aio_portfolio_cash', cash > 0 ? cash.toString() : '0'); } catch(e) {}
@@ -32546,7 +31837,7 @@ function generateFxBondCommentary() {
 
   var implEl = document.getElementById('bond-dc-implication');
   if (implEl && tnx) {
-    // v40.2: 크로스에셋 상관분석 + 투자전략 통합
+    // v40.3: 크로스에셋 상관분석 + 투자전략 통합
     var implParts = [];
     // 채권-주식 관계 진단
     var spyD = ld['SPY'];
@@ -36296,7 +35587,7 @@ function updateKrBreadth() {
 
 // v33.0: Korean Technical Page init — KOSPI/KOSDAQ 자동 분석
 function initKoreaTechnical() {
-  // v40.2: TradingView 차트 자동 로드 (삼성전자 기본)
+  // v40.3: TradingView 차트 자동 로드 (삼성전자 기본)
   var tvKrContainer = document.getElementById('tv-widget-kr');
   if (tvKrContainer && !tvKrContainer.querySelector('iframe')) {
     try { loadTVChart('kr'); } catch(e) {}

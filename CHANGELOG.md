@@ -6,6 +6,26 @@
 
 ---
 
+## v40.3 — AI 기능 정리: 불필요 페이지 AI 채팅 제거 (2026-04-04)
+
+### CHAT_CONTEXT 제거 (9개)
+- home, signal, breadth, sentiment, briefing, guide, screener, options, theme-detail
+- kr-home, kr-supply
+
+### AI 채팅 패널 HTML 제거 (5개)
+- signal, briefing, options, guide, kr-supply 페이지에서 채팅 입력/출력 패널 완전 제거
+
+### 유지 (9개 페이지만 AI 기능)
+- **시장 분석 5개**: technical, macro, fxbond, fundamental, themes
+- **내 투자 1개**: portfolio
+- **한국 시장 3개**: kr-themes, kr-macro, kr-technical
+
+### TradingView 자동 로드
+- technical 페이지: SPY 차트 진입 시 자동 로드
+- kr-technical 페이지: 삼성전자(005930) 차트 진입 시 자동 로드
+
+---
+
 ## v40.2 — 사이드바 선명도 + 글자 크기 + 배치 구조 개선 (2026-04-04)
 
 ### 사이드바 선명도 개선
