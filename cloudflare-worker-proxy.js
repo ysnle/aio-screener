@@ -1,52 +1,96 @@
 /**
  * AIO Screener CORS 프록시 - Cloudflare Workers
+ * v2.0: 보안 강화 — Origin 화이트리스트, URL 도메인 화이트리스트, SSRF 차단, 타임아웃
  *
  * 배포 방법:
  * 1. https://workers.cloudflare.com 접속 및 무료 계정 생성
  * 2. "새 Worker 만들기" 클릭
- * 3. 아래 코드 전체 복사 및 붙여넣기
- * 4. "배포" 버튼 클릭
+ * 3. 아래 코드 전체 복사 및 붙여넣��
+ * 4. "배포" 버��� 클릭
  * 5. 워커 URL 복사 (예: https://aio-proxy.username.workers.dev)
  * 6. AIO Screener 설정 패널의 "CF Worker URL"에 붙여넣기
  */
 
-// Rate limiting을 위한 간단한 in-memory 맵 (메모리 캐시)
-const rateLimitMap = new Map();
+// ── 허용 Origin (CORS) ──────────────────────────────────────────
+const ALLOWED_ORIGINS = [
+  'https://ysnle.github.io',
+  'http://localhost',
+  'http://127.0.0.1',
+];
 
-/**
- * IP 주소 기반 Rate Limiter
- * 최대 300요청/분
- */
+// ── 허용 타겟 도메인 (Open Proxy 방지) ───���──────────────────────
+const ALLOWED_DOMAINS = [
+  'query1.finance.yahoo.com',
+  'query2.finance.yahoo.com',
+  'finance.yahoo.com',
+  'api.rss2json.com',
+  'rss2json.com',
+  'www.alphavantage.co',
+  'api.twelvedata.com',
+  'finnhub.io',
+  'api.stlouisfed.org',
+  'financialmodelingprep.com',
+  'newsdata.io',
+  'efts.sec.gov',
+  'data.sec.gov',
+  'stooq.com',
+  'www.stooq.com',
+  'rsshub.app',
+  'nitter.net',
+  't.me',
+  'm.stock.naver.com',
+  'api.fear-and-greed.com',
+  'production.dataviz.cnn.io',
+];
+
+// ── Private IP 차단 (SSRF 방지) ─────────────────────────────────
+function isPrivateHost(hostname) {
+  // IP 패턴
+  if (/^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|0\.|169\.254\.|::1|fc00|fd00|fe80|localhost)/i.test(hostname)) {
+    return true;
+  }
+  return false;
+}
+
+// ── Rate Limiter ─────────────────────────────────────────────────
+// NOTE: Worker isolate 간 Map 공유 불가. 단일 isolate 내에서만 유효한 best-effort 방어.
+// 완전한 레이트 리밋은 Cloudflare Rate Limiting Rules 또는 Durable Objects 필요.
+const rateLimitMap = new Map();
+const RATE_LIMIT = 300; // 요청/분
+
 function checkRateLimit(ip) {
   const now = Date.now();
-  const key = ip;
-
-  if (!rateLimitMap.has(key)) {
-    rateLimitMap.set(key, { count: 1, resetTime: now + 60000 });
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 });
     return true;
   }
-
-  const record = rateLimitMap.get(key);
-
+  const record = rateLimitMap.get(ip);
   if (now > record.resetTime) {
-    rateLimitMap.set(key, { count: 1, resetTime: now + 60000 });
+    rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 });
     return true;
   }
-
-  if (record.count >= 300) {
-    return false;
-  }
-
+  if (record.count >= RATE_LIMIT) return false;
   record.count++;
   return true;
 }
 
+// 오래된 항목 정리 (isolate 장기 유지 시 메모리 방어)
+function cleanupRateLimitMap() {
+  const now = Date.now();
+  for (const [key, val] of rateLimitMap) {
+    if (now > val.resetTime + 60000) rateLimitMap.delete(key);
+  }
+}
+
 /**
- * CORS 헤더 생성
+ * CORS 헤더 생성 — Origin 화이트리스트 적용
  */
-function getCorsHeaders() {
+function getCorsHeaders(requestOrigin) {
+  const origin = ALLOWED_ORIGINS.some(o => requestOrigin && requestOrigin.startsWith(o))
+    ? requestOrigin
+    : ALLOWED_ORIGINS[0];
   return {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Max-Age': '86400',
@@ -56,14 +100,14 @@ function getCorsHeaders() {
 /**
  * 에러 응답 생성
  */
-function errorResponse(message, status = 400) {
+function errorResponse(message, status = 400, origin = '') {
   return new Response(
     JSON.stringify({ error: message, status }),
     {
       status,
       headers: {
         'Content-Type': 'application/json',
-        ...getCorsHeaders(),
+        ...getCorsHeaders(origin),
         'X-AIO-Proxy': 'cloudflare-worker',
       },
     }
@@ -74,26 +118,29 @@ function errorResponse(message, status = 400) {
  * 메인 요청 핸들러
  */
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request) {
+    const requestOrigin = request.headers.get('Origin') || '';
+
     // OPTIONS 프리플라이트 요청 처리
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         status: 204,
-        headers: getCorsHeaders(),
+        headers: getCorsHeaders(requestOrigin),
       });
     }
 
     // GET 요청만 허용
     if (request.method !== 'GET') {
-      return errorResponse('GET 요청만 지원됩니다', 405);
+      return errorResponse('GET 요청만 지원됩니다', 405, requestOrigin);
     }
 
-    // 클라이언트 IP 추출
+    // 클라이언트 IP ���출
     const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
 
-    // Rate limit 체크
+    // Rate limit 체크 + 정리
+    cleanupRateLimitMap();
     if (!checkRateLimit(clientIp)) {
-      return errorResponse('너무 많은 요청입니다. 1분당 최대 300개 요청', 429);
+      return errorResponse('Too many requests', 429, requestOrigin);
     }
 
     // URL 파라미터 파싱
@@ -101,7 +148,7 @@ export default {
     const targetUrl = url.searchParams.get('url');
 
     if (!targetUrl) {
-      return errorResponse('url 쿼리 파라미터가 필요합니다');
+      return errorResponse('url parameter required', 400, requestOrigin);
     }
 
     // URL 유효성 검사
@@ -109,23 +156,46 @@ export default {
     try {
       parsedUrl = new URL(targetUrl);
     } catch {
-      return errorResponse('유효하지 않은 URL입니다');
+      return errorResponse('Invalid URL', 400, requestOrigin);
     }
 
-    // 타겟 URL이 http/https인지 확인
+    // 프로토콜 검사
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-      return errorResponse('http 또는 https 프로토콜만 지원됩니다');
+      return errorResponse('Only http/https supported', 400, requestOrigin);
+    }
+
+    // SSRF 방지: Private IP 차단
+    if (isPrivateHost(parsedUrl.hostname)) {
+      return errorResponse('Forbidden', 403, requestOrigin);
+    }
+
+    // 도메인 화이트리스트 검사
+    const targetHost = parsedUrl.hostname.toLowerCase();
+    if (!ALLOWED_DOMAINS.some(d => targetHost === d || targetHost.endsWith('.' + d))) {
+      return errorResponse('Domain not allowed', 403, requestOrigin);
     }
 
     try {
-      // 타겟 URL 요청
+      // 타겟 URL 요청 (10초 타임아웃)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       const response = await fetch(targetUrl, {
         method: 'GET',
         headers: {
-          'User-Agent': 'AIO-Screener-Proxy/1.0 (+https://workers.cloudflare.com)',
+          'User-Agent': 'Mozilla/5.0 (compatible)',
         },
-        cf: { cacheTtl: 30 }, // 30초 캐시
+        signal: controller.signal,
+        cf: { cacheTtl: 30 },
       });
+
+      clearTimeout(timeoutId);
+
+      // 대용량 응답 차단 (5MB 제한)
+      const contentLength = response.headers.get('content-length');
+      if (contentLength && parseInt(contentLength) > 5 * 1024 * 1024) {
+        return errorResponse('Response too large', 502, requestOrigin);
+      }
 
       // 응답 데이터 읽기
       const data = await response.text();
@@ -137,13 +207,13 @@ export default {
         headers: {
           'Content-Type': contentType,
           'Cache-Control': 'public, max-age=30',
-          ...getCorsHeaders(),
+          ...getCorsHeaders(requestOrigin),
           'X-AIO-Proxy': 'cloudflare-worker',
-          'X-Original-Status': response.status,
         },
       });
     } catch (error) {
-      return errorResponse(`타겟 URL 요청 실패: ${error.message}`, 502);
+      const msg = error.name === 'AbortError' ? 'Request timeout' : 'Upstream error';
+      return errorResponse(msg, 502, requestOrigin);
     }
   },
 };
