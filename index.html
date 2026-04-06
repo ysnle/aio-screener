@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v42.7 — 올인원 투자 터미널</title>
+  <title>AIO Screener v42.9 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -917,6 +917,7 @@ html { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparen
 .nit-bear { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
 .nit-neut { background: rgba(148,163,184,0.1); color: #94a3b8; border: 1px solid rgba(148,163,184,0.2); }
 .nit-warn { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+.news-unverified-badge { font-size:7px; font-weight:700; background:rgba(251,191,36,0.1); color:#fbbf24; padding:1px 5px; border-radius:3px; border:1px solid rgba(251,191,36,0.25); margin-right:4px; flex-shrink:0; }
 
 /* 시장 상태 바 */
 .mkt-status-bar {
@@ -2237,7 +2238,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v42.7</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v42.9</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9534,7 +9535,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v42.7';
+const APP_VERSION = 'v42.9';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -10489,7 +10490,7 @@ var SCREENER_DB = [
   { sym:'PANW', name:'Palo Alto Networks', sector:'Technology', signal:'BUY', memo:'AI 보안 플랫폼 통합 · 엔터프라이즈 수요 강세', mcap:133, rsi:52, index:'SP500' },
   { sym:'NOW', name:'ServiceNow', sector:'Technology', signal:'BUY', memo:'AI Agent 워크플로 자동화 · 엔터프라이즈 SaaS 선두', mcap:116, rsi:48, index:'SP500' },
   { sym:'CRWD', name:'CrowdStrike', sector:'Technology', signal:'BUY', memo:'AI 위협탐지 Falcon · 엔드포인트 보안 1위', mcap:104, rsi:52, index:'SP500' },
-  { sym:'CEG', name:'Constellation Energy', sector:'Utilities', signal:'BUY', memo:'AI 데이터센터 전력 계약 · 원전 가동률 극대화', mcap:102, rsi:45, index:'SP500' },
+  { sym:'CEG', name:'Constellation Energy', sector:'Utilities', signal:'BUY', memo:'원전 PPA 장기계약 · AI 데이터센터 전력 계약 · 가동률 85~90% 목표 · Rate Base 확대', mcap:102, rsi:45, index:'SP500' },
   { sym:'HON', name:'Honeywell', sector:'Industrials', signal:'HOLD', memo:'산업자동화 · 항공우주 · 분사 계획', mcap:140, rsi:48, index:'DOW30' },
   { sym:'AMGN', name:'Amgen', sector:'Healthcare', signal:'HOLD', memo:'바이오 대형주 · 비만치료제 MariTide 임상 · 배당', mcap:170, rsi:44, index:'DOW30' },
   { sym:'IBM', name:'IBM', sector:'Technology', signal:'HOLD', memo:'Red Hat · AI watsonx · 하이브리드 클라우드 전환', mcap:210, rsi:55, index:'DOW30' },
@@ -10523,7 +10524,7 @@ var SCREENER_DB = [
   { sym:'WFC', name:'Wells Fargo', sector:'Financials', signal:'HOLD', memo:'소매 뱅킹 회복 · 자산 상한 해제 기대', mcap:195, rsi:50, index:'SP500' },
   { sym:'MS', name:'Morgan Stanley', sector:'Financials', signal:'HOLD', memo:'자산관리+IB · 부유층 고객 · M&A 회복', mcap:175, rsi:50, index:'SP500' },
   { sym:'COIN', name:'Coinbase', sector:'Financials', signal:'WATCH', memo:'BTC 강세 수혜 · 규제 명확화 · Base L2', mcap:53, rsi:48, index:'SP500' },
-  { sym:'VST', name:'Vistra', sector:'Utilities', signal:'BUY', memo:'천연가스+원전 · AI 데이터센터 전력 계약', mcap:49, rsi:42, index:'SP500' },
+  { sym:'VST', name:'Vistra', sector:'Utilities', signal:'BUY', memo:'천연가스+원전 · AI 데이터센터 PPA · 가스 가동률 레버리지(60%→85%) · Rate Base 성장주 리레이팅', mcap:49, rsi:42, index:'SP500' },
   { sym:'MRNA', name:'Moderna', sector:'Healthcare', signal:'SELL', memo:'mRNA 파이프라인 불확실 · 현금 소진 · 매출 급감', mcap:20, rsi:32, index:'SP500' },
   { sym:'XYZ', name:'Block Inc', sector:'Financials', signal:'HOLD', memo:'Cash App 성장 · 비트코인 전략 · Square 결제', mcap:36, rsi:45, index:'SP500' },
   { sym:'COP', name:'ConocoPhillips', sector:'Energy', signal:'HOLD', memo:'E&P 대형주 · Marathon 인수 · 생산 확대', mcap:125, rsi:52, index:'SP500' },
@@ -10607,10 +10608,10 @@ var SCREENER_DB = [
   { sym:'SQ', name:'Block Inc (SQ)', sector:'Financials', signal:'HOLD', memo:'Square 결제 · Cash App · 비트코인 전략', mcap:36, rsi:45, index:'SP500' },
   { sym:'MSTR', name:'MicroStrategy', sector:'Technology', signal:'WATCH', memo:'비트코인 최대 보유 기업 · BTC 레버리지 투자', mcap:65, rsi:55, index:'NASDAQ100' },
   // ── 전력 / 에너지 / 원전 ──
-  { sym:'NRG', name:'NRG Energy', sector:'Utilities', signal:'BUY', memo:'AI 데이터센터 전력 · 천연가스+재생에너지', mcap:22, rsi:52, index:'SP500' },
+  { sym:'NRG', name:'NRG Energy', sector:'Utilities', signal:'BUY', memo:'AI 데이터센터 PPA 직접계약 · 천연가스+재생에너지 · Rate Base 확대', mcap:22, rsi:52, index:'SP500' },
   { sym:'CCJ', name:'Cameco', sector:'Energy', signal:'BUY', memo:'우라늄 생산 세계 2위 · 원전 르네상스 수혜', mcap:25, rsi:55, index:'SP500' },
   { sym:'OKLO', name:'Oklo Inc', sector:'Utilities', signal:'WATCH', memo:'소형원전(SMR) · Sam Altman 투자 · AI 전력', mcap:4, rsi:58, index:'RUSSELL2000' },
-  { sym:'TLN', name:'Talen Energy', sector:'Utilities', signal:'BUY', memo:'원전+천연가스 · AI 데이터센터 전력 계약 · 리스트럭처링', mcap:12, rsi:52, index:'SP500' },
+  { sym:'TLN', name:'Talen Energy', sector:'Utilities', signal:'BUY', memo:'원전+천연가스 · AI 데이터센터 PPA · Rate Base 확대 · 리스트럭처링', mcap:12, rsi:52, index:'SP500' },
   // ── 자동차 / 모빌리티 ──
   { sym:'RIVN', name:'Rivian Automotive', sector:'Consumer', signal:'WATCH', memo:'EV 픽업/SUV · 아마존 배송 밴 · 현금 소진 우려', mcap:15, rsi:38, index:'NASDAQ100' },
   { sym:'LCID', name:'Lucid Group', sector:'Consumer', signal:'WATCH', memo:'럭셔리 EV · 사우디 투자 · 생산 램프업 느림', mcap:7, rsi:35, index:'NASDAQ100' },
@@ -10742,7 +10743,7 @@ var SCREENER_DB = [
 
   // ═══ v33.1: 시총 $10B+ 전종목 + 핵심 ETF + 유명 소형주 (368개) ═══
   { sym:'GOOG', name:'Alphabet Class C', sector:'Technology', signal:'BUY', memo:'구글 C주 · GOOGL과 동일 사업', mcap:3630, rsi:50, index:'SP500' },
-  { sym:'GEV', name:'GE Vernova', sector:'Utilities', signal:'BUY', memo:'Behind-the-Meter 자체발전 수혜(SemiAnalysis) · DC 전력망 3년+ 대기 → 터빈/스위치 수요 폭증 · 전력장비 · AI DC 전력', mcap:220, rsi:55, index:'SP500' },
+  { sym:'GEV', name:'GE Vernova', sector:'Utilities', signal:'BUY', memo:'Behind-the-Meter 자체발전 수혜(SemiAnalysis) · DC 전력망 3년+ 대기 → 터빈/스위치 수요 폭증 · 가스터빈 $2,500→$3,000/kW 가격 상승 · 전력장비 · AI DC 전력', mcap:220, rsi:55, index:'SP500' },
   { sym:'TMUS', name:'T-Mobile US', sector:'Communication Services', signal:'HOLD', memo:'미국 3대 통신 · 5G 선도 · 가입자 성장', mcap:239, rsi:52, index:'SP500' },
   { sym:'TXN', name:'Texas Instruments', sector:'Technology', signal:'HOLD', memo:'아날로그 반도체 · 자동차/산업 · 배당', mcap:200, rsi:48, index:'SP500' },
   { sym:'ANET', name:'Arista Networks', sector:'Technology', signal:'BUY', memo:'데이터센터 네트워킹 · AI 인프라 핵심', mcap:170, rsi:52, index:'SP500' },
@@ -10763,7 +10764,7 @@ var SCREENER_DB = [
   { sym:'CVS', name:'CVS Health', sector:'Healthcare', signal:'HOLD', memo:'약국체인 + Aetna 보험 + 헬스허브', mcap:90, rsi:46, index:'SP500' },
   { sym:'STX', name:'Seagate Tech', sector:'Technology', signal:'HOLD', memo:'HDD · 데이터센터 스토리지', mcap:88, rsi:48, index:'SP500' },
   { sym:'FDX', name:'FedEx', sector:'Industrials', signal:'HOLD', memo:'글로벌 물류 · 이커머스 수혜', mcap:86, rsi:46, index:'SP500' },
-  { sym:'PWR', name:'Quanta Services', sector:'Industrials', signal:'BUY', memo:'전력망 건설 · 재생에너지 · AI 인프라', mcap:78, rsi:52, index:'SP500' },
+  { sym:'PWR', name:'Quanta Services', sector:'Industrials', signal:'BUY', memo:'송전망 건설 최대 수혜 · 전력망 병목 구조적 Capex · 재생에너지 · AI 인프라', mcap:78, rsi:52, index:'SP500' },
   { sym:'MRSH', name:'Marsh McLennan', sector:'Financials', signal:'HOLD', memo:'보험 브로커 · 리스크 컨설팅', mcap:85, rsi:50, index:'SP500' },
   { sym:'UPS', name:'UPS', sector:'Industrials', signal:'HOLD', memo:'미국 최대 택배 · 배당', mcap:84, rsi:44, index:'SP500' },
   { sym:'PNC', name:'PNC Financial', sector:'Financials', signal:'HOLD', memo:'미국 6위 은행', mcap:83, rsi:48, index:'SP500' },
@@ -13063,6 +13064,8 @@ const AIO_NEWS_SOURCES = [
   {name:'BBC Business',        url:'https://feeds.bbci.co.uk/news/business/rss.xml',              country:'eu', tier:1, flag:'UK', topics:['macro']},
   {name:'The Economist Finance',url:'https://www.economist.com/finance-and-economics/rss.xml',    country:'eu', tier:1, flag:'UK', topics:['macro']},
   {name:'Google News Finance',  url:'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en', country:'us', tier:1, flag:'US', topics:['macro','equity']},
+  // v42.9: Axios 추가 — 미국 정치·외교·정책 속보에 강한 주류 매체 (소식통 인용 비중 높아 isUnverifiedClaim 배지 자동 적용)
+  {name:'Axios',               url:'https://api.axios.com/feed/',                                  country:'us', tier:1, flag:'US', topics:['macro','geo','policy']},
 
   // ═══ TIER 1: 텔레그램 큐레이션 채널 ═══
   {name:'TG Insider Tracking',       url:'https://rsshub.app/telegram/channel/insidertracking',       country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'insidertracking'},
@@ -13220,6 +13223,11 @@ const MACRO_KW = [
   'Golden Dome','defense budget','national defense','FY2027 defense',
   'Virginia-class submarine','F-35 procurement','defense spending',
   'weapons production','Indo-Pacific','무기 재고 재건','국방예산','골든 돔',
+  // v42.8: Power & Utilities Supercycle 키워드
+  'power supercycle','AI power demand','Rate Base','power PPA','transmission grid',
+  'onsite power','gas turbine','fuel cell','onsite generation','power purchase agreement',
+  '전력 슈퍼사이클','가스터빈','연료전지','송전 병목','전력 PPA','유틸리티 성장',
+  '전력 직접계약','Rate Base 확대','전력 인프라','AI 전력',
   // v38.6: 민간신용·소비심리·시장미시구조 (퍼펙트스톰 분석)
   'private credit','사모신용','사모펀드','사모대출','redemption','환매','redemption wave','환매 위기',
   'private credit default','default rate','디폴트율','Apollo','Blackstone credit',
@@ -14668,6 +14676,21 @@ function getTopicBadge(topic) {
   return `<span class="news-item-tag ${m.cls}">${m.icon} ${m.label}</span>`;
 }
 
+/* ── v42.9: 미확인 소식통 감지 — 익명 소식통·교차검증 없는 기사 탐지 ── */
+function isUnverifiedClaim(item) {
+  var text = ((item.title || '') + ' ' + (item.desc || '') + ' ' + (item.translated || '')).toLowerCase();
+  var patterns = [
+    'sources say', 'sources said', 'sources told', 'source told',
+    'people familiar', 'sources familiar', 'officials familiar',
+    'according to people', 'people with knowledge', 'sources close to',
+    'who asked not to be', 'who declined to be', 'speaking anonymously', 'speaking on condition',
+    'unconfirmed report', 'unconfirmed claim',
+    '소식통에 따르면', '소식통에 의하면', '익명의 관계자', '복수의 관계자',
+    '복수의 소식통', '사정에 정통한', '알려진 바에 따르면'
+  ];
+  return patterns.some(function(p) { return text.indexOf(p) !== -1; });
+}
+
 /* ── v21: 정렬 모드 ──────────────────────────────────────────── */
 let _newsSortMode = 'time'; // 'time' (최신순) or 'score' (중요도순)
 
@@ -15559,6 +15582,7 @@ function renderFeed(items) {
     const sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
     const sentColor = sent === 'bull' ? '#3ddba5' : sent === 'bear' ? '#f87171' : sent === 'warn' ? '#fbbf24' : '#7e8a9e';
     const topicBadge = getTopicBadge(item.topic || 'general');
+    const unverifiedBadge = isUnverifiedClaim(item) ? '<span class="news-unverified-badge">⚠ 미확인</span>' : '';
 
     // 시간 표시: "14:32" 형태 + 상대시간
     const absTime = getAbsoluteTime(item.pubDate);
@@ -15602,7 +15626,7 @@ function renderFeed(items) {
         <div class="news-item-headline">${tickerHtml}${displayTitle}</div>
         ${descHtml}
         ${summaryHtml}
-        <div class="news-item-meta">${item._tgChannel ? '<span style="background:rgba(139,92,246,0.15);color:#a78bfa;font-size:7px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">TG</span>' : ''}${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo} ${scoreBar}</div>
+        <div class="news-item-meta">${item._tgChannel ? '<span style="background:rgba(139,92,246,0.15);color:#a78bfa;font-size:7px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">TG</span>' : ''}${unverifiedBadge}${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo} ${scoreBar}</div>
       </div>
       ${topicBadge}
     </div>`;
@@ -15960,6 +15984,7 @@ function _renderBriefingBullet(item) {
   var tickers = !_macroT.includes(item.topic) ? getDisplayTickers(item) : [];
   var tickerStr = tickers.length > 0 ? tickers.map(function(t) { return '<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(91,168,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;">' + escHtml(t) + '</span>'; }).join('') : '';
   var sentBadge = sentLabel ? '<span style="font-size:7px;font-weight:700;color:' + dotColor + ';background:' + dotColor + '18;padding:1px 5px;border-radius:3px;margin-left:6px;">' + sentLabel + '</span>' : '';
+  var unverBadge = isUnverifiedClaim(item) ? '<span style="font-size:7px;font-weight:700;background:rgba(251,191,36,0.1);color:#fbbf24;padding:1px 5px;border-radius:3px;border:1px solid rgba(251,191,36,0.25);margin-right:4px;">⚠ 미확인</span>' : '';
 
   var out = '<div style="padding:8px 10px;margin-bottom:6px;border-radius:6px;background:rgba(255,255,255,0.02);border-left:3px solid ' + dotColor + ';cursor:pointer;transition:background 0.15s;" onclick="window.open(\'' + escUrl(item.link) + '\',\'_blank\')" onmouseover="this.style.background=\'rgba(255,255,255,0.04)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.02)\'">';
   out += '<div style="font-size:11px;font-weight:700;color:var(--text-primary);line-height:1.45;">' + tickerStr + displayTitle + sentBadge + '</div>';
@@ -15969,7 +15994,7 @@ function _renderBriefingBullet(item) {
   if (displaySummary) {
     out += '<div style="font-size:9.5px;color:#a78bfa;margin-top:3px;line-height:1.4;font-style:italic;">' + escHtml(displaySummary) + '</div>';
   }
-  out += '<div style="font-size:8px;color:var(--text-muted);margin-top:4px;">' + (item.flag||'') + ' ' + escHtml(item.source||'') + ' · ' + (absTime || timeAgo) + '</div>';
+  out += '<div style="font-size:8px;color:var(--text-muted);margin-top:4px;">' + unverBadge + (item.flag||'') + ' ' + escHtml(item.source||'') + ' · ' + (absTime || timeAgo) + '</div>';
   out += '</div>';
   return out;
 }
@@ -27439,7 +27464,7 @@ document.addEventListener('aio:liveQuotes', function() {
         '【2026 섹터 분석 — 전시(戰時) + 로테이션 프레임】\n' +
         '미국-이란 전쟁 + 관세 이중 충격 환경에서의 섹터별 핵심 동인:\n' +
         '• 에너지(XLE): 유가 직접 수혜, 석유 메이저 마진 확대. 단, 전쟁 종식 시 급격한 되돌림 리스크\n' +
-        '• 유틸리티(XLU): 방어적 특성+배당 매력. 금리 고착 시에도 안정적 수요. AI 전력 수요 구조적 성장\n' +
+        '• 유틸리티(XLU): AI 전력 슈퍼사이클 진입 — 배당주→성장주 리레이팅 초입. 핵심: 데이터센터 28GW+ 구조적 수요(선형→지수적). 최대 병목=송전망(발전보다 Grid 투자 부족). 가스발전 가동률 60%→85~90% 레버리지. Rate Base 확대=장기 이익 성장. PPA/onsite 직접계약 비중↑=실적 가시성↑. 주가 결정 변수=데이터센터 PPA 계약 확보 여부. 수혜: CEG(원전PPA), VST(가스+원전), GEV(가스터빈 $2,500→$3,000/kW), NRG(DC PPA), TLN(원전+가스), PWR(송전망건설), ETN(전력인프라)\n' +
         '• 방산: 전쟁 지속→수주 확대, 미 CENTCOM 군사 전개 확대 신호\n' +
         '• 금융(XLF): 금리 수혜 vs 디폴트율 상승 리스크 상충. HYG 스프레드·대출 부실률 모니터링 필수\n' +
         '• 기술(XLK): 금리 민감+밸류에이션 부담, 단 AI 투자는 구조적 지속. 선별적 접근\n' +

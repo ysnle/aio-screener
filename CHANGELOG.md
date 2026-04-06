@@ -6,6 +6,33 @@
 
 ---
 
+## v42.9 -- Axios RSS 추가 + 미확인 소식통 배지 시스템 (2026-04-06)
+
+### 신규 기능 (2건)
+- **Axios RSS 소스 추가**: `https://api.axios.com/feed/` — TIER 1 macro/geo/policy 토픽. 미국 정치·외교·정책 속보 커버리지 강화 (이란 휴전 협상 등 DC 정보망 기사 포착)
+- **미확인 소식통 배지 (`⚠ 미확인`)**: 익명 소식통 인용·교차검증 없는 기사 자동 탐지 + 뉴스 피드 & 브리핑 양쪽 메타 라인에 황색 배지 표시
+  - `isUnverifiedClaim(item)` 함수 신설 — 17개 패턴 탐지 (영어 12 + 한국어 5)
+  - 탐지 패턴: `sources say/told`, `people familiar`, `speaking anonymously`, `소식통에 따르면`, `익명의 관계자`, `복수의 소식통` 등
+  - CSS: `.news-unverified-badge` — `nit-warn` 스타일 계열 (황색 앰버)
+  - 적용 범위: `renderFeed()` 뉴스 카드 메타라인 + `_renderBriefingBullet()` 브리핑 불릿 메타라인
+
+---
+
+## v42.8 -- Power & Utilities Supercycle 통합 (2026-04-06)
+
+### 리서치 통합 (1건)
+- **Power & Utilities Strategy — AI 전력 슈퍼사이클**: 전력 인프라 구조적 투자 기회 분석 통합. 42개 핵심 포인트 추출 → 시그널 ㉑ 신설. 송전망 병목, 가스발전 가동률 레버리지(60%→85~90%), Rate Base 확대, PPA 직접계약 구조 반영.
+
+### 코드 업데이트 (index.html)
+- **MACRO_KW 보강**: `power supercycle`, `Rate Base`, `gas turbine`, `power PPA`, `transmission grid`, `가스터빈`, `연료전지`, `송전 병목`, `전력 PPA` 등 14개 키워드 추가 (모두 R17 기준 3글자+)
+- **CHAT_CONTEXTS['macro'] XLU 섹터 확장**: AI 전력 슈퍼사이클 프레임워크 반영 — 송전 병목, 가동률 레버리지, Rate Base 성장, 수혜 종목 7개 구체화
+- **워치리스트 메모 업데이트 (6종목)**: CEG(원전PPA·가동률목표), VST(가스레버리지·리레이팅), NRG(직접PPA·Rate Base), TLN(PPA·Rate Base), GEV(가스터빈 $2,500→$3,000/kW), PWR(송전망 병목 최대수혜)
+
+### 레퍼런스 업데이트
+- `AIO_매크로_시그널_레퍼런스.md` 11차 병합 — 시그널 ㉑ (AI 전력 슈퍼사이클) 추가 (5개 표, 깨지는 신호, AIO 매핑 포함)
+
+---
+
 ## v42.7 -- 심층 QA 에이전트 FAIL/WARN 3건 수정 (2026-04-06)
 
 ### BUG 수정 (3건)
