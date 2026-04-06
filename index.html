@@ -21647,9 +21647,9 @@ function renderPortfolio() {
       <td style="text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;">${p.target && p.target > 0 ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--green)' : 'var(--red)'; return '$'+p.target.toFixed(0)+'<div style="font-size:7px;color:'+uColor+';">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : '<span style="color:var(--text-muted);font-size:7px;">미설정</span>'}</td>
       <td style="text-align:center;padding:6px;font-size:9px;" id="pf-weight-${p.ticker}">—</td>
       <td style="text-align:center;padding:6px;">
-        <button onclick="event.stopPropagation();showPage('technical');setTimeout(function(){var inp=document.getElementById('deep-ticker-input');if(inp)inp.value='${p.ticker}'},300)" style="background:none;border:none;cursor:pointer;font-size:10px;" title="차트 분석"></button>
-        <button onclick="event.stopPropagation();editPosition('${p.ticker}')" style="background:none;border:none;cursor:pointer;font-size:10px;" title="수정"></button>
-        <button onclick="event.stopPropagation();removePosition('${p.ticker}')" style="background:none;border:none;cursor:pointer;font-size:10px;" title="삭제"></button>
+        <button onclick="event.stopPropagation();showPage('technical');setTimeout(function(){var inp=document.getElementById('deep-ticker-input');if(inp)inp.value='${p.ticker}'},300)" style="background:none;border:none;cursor:pointer;font-size:11px;" title="차트 분석">📈</button>
+        <button onclick="event.stopPropagation();editPosition('${p.ticker}')" style="background:none;border:none;cursor:pointer;font-size:11px;" title="수정">✏️</button>
+        <button onclick="event.stopPropagation();removePosition('${p.ticker}')" style="background:none;border:none;cursor:pointer;font-size:11px;" title="삭제">🗑️</button>
       </td>
     </tr>`;
   });
