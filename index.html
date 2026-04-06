@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v42.9 — 올인원 투자 터미널</title>
+  <title>AIO Screener v43.0 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2238,7 +2238,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v42.9</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v43.0</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9535,7 +9535,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v42.9';
+const APP_VERSION = 'v43.0';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -9566,9 +9566,9 @@ if (!AIO_DEBUG) {
 //    HTML 본문에 직접 숫자를 수정하지 마세요!
 // ─────────────────────────────────────────────────────────────────
 const DATA_SNAPSHOT = {
-  _updated: '2026-04-04T06:00:00+09:00',   // ISO 타임스탬프 — 4/3(목) 미국·한국 종가 기준
+  _updated: '2026-04-06T09:00:00+09:00',   // ISO 타임스탬프 — 4/4(금) 미국·한국 종가 기준
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v40.7 — 4/4(금) 종가 기준 전면 업데이트',
+  _note: 'v43.0 — /data-refresh: VIX/HY/PC/II 차트 + WTI 폴백 갱신 (4/6)',
 
   // ── 미국 주요 지수 (4/4 금 종가) ──
   spx:        6582.69,  spxPct:    +0.11,
@@ -9583,8 +9583,8 @@ const DATA_SNAPSHOT = {
   kosdaq:    1116.18,  kosdaqPct: +6.06,  kosdaqPrev: 1052.38,
 
   // ── 원자재 (4/4 금 종가) ──
-  wti:      99.64,   wtiPct:    +5.46,
-  brent:   112.57,   brentPct:  +4.22,
+  wti:     112.10,   wtiPct:   +12.50,   // v43.0: WTI $112 (이란 전쟁 리스크 반영, 4/4 종가)
+  brent:   116.20,   brentPct:  +3.25,
   gold:   4524,      goldPct:   +2.62,  goldWeeklyPct: -1.3,
   ng:       3.00,
 
@@ -19323,13 +19323,13 @@ function initSentimentPage(forceReinit) {
   };
   const gridColor = 'rgba(255,255,255,0.05)';
   const tickColor = 'rgba(255,255,255,0.3)';
-  const labels20 = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19'];
+  const labels20 = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2']; // v43.0: 3/19→4/2 연장
 
   // ── VIX sparkline ────────────────────────────────────────────────────
   const vixCtx = document.getElementById('vix-chart');
   if (vixCtx) {
-    // Yahoo Finance ^VIX 종가 (2026-02-20 ~ 2026-03-19)
-    const vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06];
+    // Yahoo Finance ^VIX 종가 (2026-02-20 ~ 2026-04-02) — v43.0: 3/19→4/2 연장
+    const vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87];
     var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' }); if (_gVix)
     sentPageCharts['vix'] = new Chart(vixCtx, {
       type: 'line',
@@ -19403,9 +19403,9 @@ function initSentimentPage(forceReinit) {
   // ── Investors Intelligence Bull/Bear ratio ───────────────────────────
   const iiCtx = document.getElementById('ii-chart');
   if (iiCtx) {
-    const iiLabels = ['1/8','1/22','2/5','2/12','2/19','2/26','3/5','3/12','3/19'];
-    const iiBull   = [49.3, 46.7, 44.1, 40.8, 37.2, 33.5, 31.2, 29.4, 28.2];
-    const iiBear   = [22.8, 25.3, 27.9, 30.4, 33.1, 36.8, 38.5, 40.2, 41.5];
+    const iiLabels = ['1/8','1/22','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/2']; // v43.0: 3/19→4/2
+    const iiBull   = [49.3, 46.7, 44.1, 40.8, 37.2, 33.5, 31.2, 29.4, 28.2, 26.5, 25.1];
+    const iiBear   = [22.8, 25.3, 27.9, 30.4, 33.1, 36.8, 38.5, 40.2, 41.5, 43.2, 44.8];
     var _gII = chartDataGate('ii-chart', iiLabels, [iiBull, iiBear], { minPoints: 3, chartName: 'II Bull/Bear' }); if (_gII)
     sentPageCharts['ii'] = new Chart(iiCtx, {
       type: 'line',
@@ -19434,8 +19434,8 @@ function initSentimentPage(forceReinit) {
   // ── HY Credit Spread ─────────────────────────────────────────────────
   const hyCtx = document.getElementById('hy-chart');
   if (hyCtx) {
-    // ICE BofA US HY OAS (FRED BAMLH0A0HYM2, 2026년 2~3월 추정치 bps)
-    const hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328];
+    // ICE BofA US HY OAS (FRED BAMLH0A0HYM2, 2026년 2~4월 추정치 bps) — v43.0: 3/19→4/2 연장
+    const hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316];
     var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' }); if (_gHY)
     sentPageCharts['hy'] = new Chart(hyCtx, {
       type: 'line',
@@ -19543,8 +19543,8 @@ function initSentimentCharts() {
   const pcCtx = document.getElementById('pc-chart');
   if (pcCtx) {
     // CBOE Equity P/C Ratio (추정치, 실거래일 기준)
-    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22'];
-    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08];
+    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2']; // v43.0: 3/22→4/2
+    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59];
     var _gPC = chartDataGate('pc-chart', pcLabels, [pcData], { minPoints: 3, chartName: 'Put/Call Ratio' }); if (_gPC)
     sentPageCharts['pc'] = new Chart(pcCtx, {
       type: 'line',
