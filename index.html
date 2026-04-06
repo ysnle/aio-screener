@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v43.0 — 올인원 투자 터미널</title>
+  <title>AIO Screener v43.1 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2238,7 +2238,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v43.0</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v43.1</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9535,7 +9535,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v43.0';
+const APP_VERSION = 'v43.1';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -10478,12 +10478,12 @@ var SCREENER_DB = [
   { sym:'CSCO', name:'Cisco Systems', sector:'Technology', signal:'HOLD', memo:'네트워킹 장비 · AI 인프라 스위칭 수요', mcap:230, rsi:52, index:'DOW30' },
   { sym:'DIS', name:'Walt Disney', sector:'Communication Services', signal:'HOLD', memo:'스트리밍 흑자 전환 · 테마파크 · ESPN 재편', mcap:195, rsi:45, index:'DOW30' },
   { sym:'PLTR', name:'Palantir', sector:'Technology', signal:'WATCH', memo:'AI 플랫폼(AIP) 정부+상용 확산 · 고평가 우려', mcap:360, rsi:55, index:'SP500' },
-  { sym:'MU', name:'Micron Technology', sector:'Technology', signal:'BUY', memo:'HBM3E/4/4E 전량 매진 · LSA 선불금으로 하방 방어(SemiAnalysis) · DRAM 2배+ 가격상승 · 메모리BOM 50%돌파 · CSP LTA 선지급+최소가격 · 2027 repricing 미반영', mcap:477, rsi:42, index:'SP500' },
+  { sym:'MU', name:'Micron Technology', sector:'Technology', signal:'BUY', memo:'KeyBanc OW $600 · HBM3E/4E 전량 매진 · LTA 가격하한선+선급금 구조(하이퍼스케일러) → 하방보호 강화 · 2Q26 DRAM/NAND +30~50% QoQ(KeyBanc) · WSTS 2월 메모리가격 DRAM+55%/NAND+41% MoM · 리레이팅 진행중 · 2027 repricing 미반영', mcap:477, rsi:42, index:'SP500' },
   { sym:'CAT', name:'Caterpillar', sector:'Industrials', signal:'BUY', memo:'인프라 투자 사이클 · 데이터센터 건설 수혜', mcap:319, rsi:58, index:'DOW30' },
   { sym:'RTX', name:'Raytheon Tech', sector:'Industrials', signal:'BUY', memo:'F-35/패트리엇 · 글로벌 방위비 증가 수혜', mcap:267, rsi:59, index:'SP500' },
   { sym:'GS', name:'Goldman Sachs', sector:'Financials', signal:'HOLD', memo:'M&A/IPO 수수료 회복 · 자산관리 확대', mcap:244, rsi:52, index:'DOW30' },
   { sym:'GE', name:'GE Aerospace', sector:'Industrials', signal:'BUY', memo:'항공 엔진 수요 · 항공 여행 회복 · 분사 완료', mcap:220, rsi:58, index:'DOW30' },
-  { sym:'INTC', name:'Intel', sector:'Technology', signal:'BUY', memo:'아폴로 팹34 지분49% $142억 재매입 · EPS +$0.03~0.05 증가 · 18A 양산 진입 · 파운드리 2.0 · WF PT $45', mcap:100, rsi:55, index:'DOW30' },
+  { sym:'INTC', name:'Intel', sector:'Technology', signal:'BUY', memo:'KeyBanc OW $70 · 18A 수율65%(팬서레이크 양산) · 애플14A 맥북/아이패드 수주 · 구글 Humu Fish TPU EMIB-T $40~50억 · 아시아 서버CPU 수요급증+2차 가격인상 · 팹34 지분49% $142억 재매입 · 파운드리 2.0 상방 시나리오 현실화', mcap:100, rsi:55, index:'DOW30' },
   { sym:'LMT', name:'Lockheed Martin', sector:'Industrials', signal:'BUY', memo:'트럼프 FY2027 $1.5T 국방예산(WWII후 최대증액) · F-35 조달 포함 · Golden Dome $185B · 인도태평양 억제력 강화 · 무기재고 재건', mcap:145, rsi:61, index:'SP500' },
   { sym:'ARM', name:'ARM Holdings', sector:'Technology', signal:'BUY', memo:'AI 에지 칩 설계 · 모바일+서버 CPU 아키텍처 독점 · 자체 CPU 칩 발표(2026.03) · Agentic AI CPU 병목→ARM 4배 코어밀도 수혜 · Raymond James $166', mcap:141, rsi:48, index:'SP500' },
   { sym:'QCOM', name:'Qualcomm', sector:'Technology', signal:'HOLD', memo:'스냅드래곤 X Elite · 모바일 AI · PC 시장 진출', mcap:139, rsi:48, index:'SP500' },
@@ -13400,6 +13400,12 @@ const TECH_KW = [
   'Rubin Ultra','HBM Rubin','memory supercycle 2027','memory supercycle 2028',
   'ERLI','earnings revision leading indicator','이익수정선행지표',
   'helium supply chain','helium semiconductor','헬륨 공급망',
+  // v43.1: WSTS 2026년 2월 + Intel 18A + MU LTA 구조개선 (2026.04, JP모건/KeyBanc)
+  'WSTS','semiconductor revenue','monthly semiconductor',
+  '18A','Panther Lake','Intel 14A','Humu Fish',
+  'server CPU','server CPU demand','server CPU price',
+  'LTA structure','pricing floor contract','Intel foundry customer',
+  'DRAM pricing','NAND pricing','memory contract price',
   // 로봇·자율주행
   'humanoid','Figure','Boston Dynamics','Agility Robotics','1X Technologies',
   'Optimus Gen','Tesla Bot','warehouse robot','industrial robot',
@@ -27467,7 +27473,7 @@ document.addEventListener('aio:liveQuotes', function() {
         '• 유틸리티(XLU): AI 전력 슈퍼사이클 진입 — 배당주→성장주 리레이팅 초입. 핵심: 데이터센터 28GW+ 구조적 수요(선형→지수적). 최대 병목=송전망(발전보다 Grid 투자 부족). 가스발전 가동률 60%→85~90% 레버리지. Rate Base 확대=장기 이익 성장. PPA/onsite 직접계약 비중↑=실적 가시성↑. 주가 결정 변수=데이터센터 PPA 계약 확보 여부. 수혜: CEG(원전PPA), VST(가스+원전), GEV(가스터빈 $2,500→$3,000/kW), NRG(DC PPA), TLN(원전+가스), PWR(송전망건설), ETN(전력인프라)\n' +
         '• 방산: 전쟁 지속→수주 확대, 미 CENTCOM 군사 전개 확대 신호\n' +
         '• 금융(XLF): 금리 수혜 vs 디폴트율 상승 리스크 상충. HYG 스프레드·대출 부실률 모니터링 필수\n' +
-        '• 기술(XLK): 금리 민감+밸류에이션 부담, 단 AI 투자는 구조적 지속. 선별적 접근\n' +
+        '• 기술(XLK)/반도체: AI 투자 구조적 지속, 금리 민감+밸류에이션 부담 → 선별적 접근. [WSTS 2026년 2월] 반도체 산업 매출 YoY +86%(메모리 제외 +25%), MoM +25%. 3개월 이동평균 YoY +61%·MoM +8% — 수요 모멘텀 지속 개선. 메모리가격: DRAM MoM +55%, NAND MoM +41%. JPM: 2026년 섹터 매출 20%+ 성장 전망 유지. 수혜 순서: 가속컴퓨팅·메모리·네트워킹 > 아날로그·MCU(계절 하회). 주의: 메모리 가격상승 → 스마트폰 유닛 -11%·PC -9% JPM 전망 하향. [MU — KeyBanc OW $600] 하이퍼스케일러 LTA에 가격하한선+선급금 구조 → 하방보호 강화·리레이팅 지속. 2Q26 DRAM/NAND +30~50% QoQ. [INTC — KeyBanc OW $70] 18A 수율65%(팬서레이크 양산), 애플14A 맥북/아이패드 수주, 구글 Humu Fish TPU EMIB-T $40~50억, 아시아 서버CPU 수요급증+2차 가격인상. 파운드리 2.0 상방 시나리오 현실화 중.\n' +
         '• 항공·운송·화학: 유가 원가 직격, 연료 부족 시 운영 차질. 가장 취약한 섹터\n' +
         '• 로테이션 확인 지표: ① XLE/XLK 상대강도 ② IWM/SPY ③ RPV/RPG ④ HYG 스프레드 확대 속도\n\n' +
         '【Fed 정책 경로 & 시장 임팩트 (2026.04 현재)】\n' +

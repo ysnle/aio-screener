@@ -6,6 +6,21 @@
 
 ---
 
+## v43.1 -- JP모건 WSTS 2026년 2월 + KeyBanc MU/INTC 통합 (2026-04-06)
+
+### 리서치 통합 (3건)
+- **JP모건 반도체 — WSTS 2026년 2월**: 산업 매출 YoY +86%(메모리 제외 +25%), MoM +25%. DRAM MoM +55%, NAND MoM +41%. 3개월 이동평균 YoY +61%·MoM +8%. JPM 2026년 섹터 매출 20%+ 성장 전망 유지. 스마트폰 유닛 -11%·PC -9% 하향 (메모리가격 상승 영향)
+- **KeyBanc MU OW $600**: LTA 가격하한선+선급금(하이퍼스케일러) 구조 개선 → 하방보호 강화. 2Q26 DRAM/NAND +30~50% QoQ 전망. 리레이팅 지속
+- **KeyBanc INTC OW $70 + 바바리안 위클리**: 18A 수율65%(팬서레이크 양산), 애플14A 맥북/아이패드 수주, 구글 Humu Fish TPU EMIB-T $40~50억, 아시아 서버CPU 급증+2차 가격인상. 파운드리 2.0 상방 시나리오 현실화
+
+### 코드 업데이트
+- **SCREENER_DB MU 메모**: KeyBanc $600·WSTS 메모리가격·LTA 구조개선·2Q26 전망 반영
+- **SCREENER_DB INTC 메모**: KeyBanc $70·18A 수율·애플/구글 파운드리 수주·서버CPU 수요 반영
+- **CHAT_CONTEXTS['macro'] 기술(XLK) 섹션 확장**: WSTS 데이터·MU/INTC 촉매 상세 반영
+- **TECH_KW 보강**: `WSTS`, `18A`, `Panther Lake`, `Intel 14A`, `Humu Fish`, `server CPU`, `DRAM pricing`, `NAND pricing` 등 12개 키워드 추가
+
+---
+
 ## v43.0 -- /data-refresh: 차트 데이터 갱신 + WTI 폴백 수정 (2026-04-06)
 
 ### 데이터 갱신 (/data-refresh 22카테고리 전수 스캔)
