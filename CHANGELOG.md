@@ -6,6 +6,626 @@
 
 ---
 
+## v42.7 -- 심층 QA 에이전트 FAIL/WARN 3건 수정 (2026-04-06)
+
+### BUG 수정 (3건)
+- **fomc-next 데드코드 제거 (FAIL)**: `applyDataSnapshot()` map의 `'fomc-next'` 키 + DOMContentLoaded의 `querySelector('[data-snap="fomc-next"]')` — HTML에 대응 요소 없어 항상 null. 두 곳 모두 제거.
+- **`window._lastFG` 초기값 없음 (WARN MEDIUM)**: `fetchFearGreed()` 응답 전까지 FG 의존 컴포넌트(AI 컨텍스트, 매매스코어, 심리 페이지)가 하드코딩 18로 동작. `applyDataSnapshot()` 직후 `DATA_SNAPSHOT.fg`로 초기화 추가.
+- **signal 페이지 breadth 바 미갱신 (WARN MEDIUM)**: breadth 페이지를 방문하지 않으면 signal 페이지의 시장 폭 바(bb-5sma-bar 등)가 항상 하드코딩 초기값. signal liveQuotes 리스너에 `updateBreadthBars()` 추가.
+
+---
+
+## v42.6 -- sentimentPage AAII blank + macro 모바일 overflow 수정 (2026-04-06)
+
+### BUG 수정 (2건)
+- **AAII/PC 차트 blank 버그 (R9)**: `initSentimentPage()` 내 `initSentimentCharts()`가 AAII+PC 차트를 생성한 직후, 동일 함수 안의 두 번째 cleanup 루프가 AAII+PC를 다시 destroy → blank canvas 노출. 해당 중복 루프 제거. VIX/NAAIM/II/HY 4개 차트는 이미 첫 번째 루프에서 처리되므로 무결성 유지.
+- **macro 페이지 모바일 수평 overflow (R5)**: 외환·채권 요약 `grid-template-columns:repeat(6,1fr)` → `repeat(auto-fit,minmax(85px,1fr))` 변경. 모바일 375px: 3열×2행, 데스크톱: 6열 1행 유지.
+
+---
+
+## v42.5 -- 미커버 영역 전수 QA 수정 9건 (2026-04-06)
+
+### FAIL 수정 (4건)
+- **F1/F2 (R17)**: `TECH_KW '팹'` 1글자 → `'팹리스'` 교체. `MACRO_KW` 중복 2글자 키워드 제거 — `'봉쇄'`(해상봉쇄 존재), `'물가'`(소비자물가 등 존재), `'고용'`(고용지표 등 존재). `'긴축'`→`'긴축정책'`, `'피봇'`→`'금리피봇'` 확장
+- **F3 (R15)**: `d.pct || 0` 패턴 5건 → `d.pct != null ? d.pct : 0` 명시적 null 체크 (L25741, L25748, L27560, L27714, L34305)
+- **F4 (R15)**: `spx.pct?.toFixed(2) || '0.00'` → `spx.pct != null ? spx.pct.toFixed(2) : '—'` + summarytxt null 분기 처리 (L18767)
+
+### 뉴스 선별 로직 강화 (scoreItem 개선)
+- **제목 vs 본문 가중치 분리**: 제목 키워드 히트 1.5배, 본문 히트 1.0배 — 제목에 핵심 키워드 있는 기사 우대
+- **키워드 길이 가중치**: 1글자=0.3, 2글자=0.6, 3-4글자=1.0, 5글자+=1.3 — 짧은 키워드 단독 히트가 스코어를 과도하게 끌어올리는 문제 방지
+- **finRelevance 게이트 강화**: `=== 0` → `< 0.5` — 1글자 키워드 단독 본문 히트(0.3)는 자동 차단, 2글자 이상(0.6+)은 통과
+- 효과: `'팹'` 단독 기사 → score=0 차단. `'삼성 파운드리 팹 가동률'` 다중 키워드 기사 → 정상 통과. 키워드 제거 없이 정밀도 향상
+
+### WARN 수정 (5건)
+- **W1 (R22)**: 브리핑 뉴스 score 임계값 `>= 40` → `>= 45` (R22 기준 맞춤)
+- **W2 (보안)**: `e.message` innerHTML 삽입 시 `escHtml()` 미적용 → 적용 (L15897)
+- **W3 (P37)**: CSS class 기반 `font-size:8px` 5개 → `11px` 상향 (`.kr-badge`, `.kr-tag`, `.tac-score-label`, `.tac-radar-table th`, `.tac-heat-badge`)
+- **W4 (W5 검증)**: `destroyPageCharts()` — `kr-home`/`kr-supply`/`kr-themes`/`kr-macro` 4개 KR 페이지 canvas 정리 케이스 추가
+- **W6 확인**: technical/macro liveQuotes 리스너 — L27240에 이미 존재 (PASS, 오탐)
+
+---
+
+## v42.4 -- 전수 QA 수정 11건 (2026-04-06)
+
+### FAIL 수정 (4건)
+- **[A-2] breadth-bar querySelector 버그**: `breadthEl.querySelector('div')` → `breadthEl.style.width` 직접 적용 (technical 페이지 시장 건강도 게이지 항상 50% 고정 수정)
+- **[A-3] applyDataSnapshot 매핑 누락**: macro 페이지 소비·고용·주택 카드 4개 (`retail-sales`, `wage-growth`, `cons-conf`, `housing`) DATA_SNAPSHOT 연결 추가
+- **[A-1+C-1] 브레드쓰 바 Dead DOM 수정**: signal 페이지 5SMA/20SMA/50SMA 바 행에 ID 부여 + `updateBreadthBars()` 함수 신설; breadth 페이지 NDX 카드도 동기 갱신; `initBreadthPage` 호출 시 자동 업데이트
+- **[D-3] RRG destroyPageCharts 누락**: themes 페이지 이탈 시 `rrg-canvas` clearRect 추가 (재진입 잔상 방지)
+
+### WARN 수정 (7건)
+- **[B-2] 브레드쓰 바 레이블 텍스트 단축**: `5일선(5SMA) 상위 비율` → `5SMA 상위` (overflow ellipsis 안전권 확보)
+- **[B-3] 모바일 반응형**: `risk-monitor-grid` + portfolio summary card — `repeat(4,1fr)` → `repeat(auto-fill,minmax(100px/130px,1fr))` (좁은 화면 2열 자동 전환)
+- **[C-2] 브레드쓰 차트 데이터 갱신**: 2/20~3/19 → 3/6~4/2 (20거래일, 4/3 Good Friday 반영); bpSPX* / bpNDX* / bhSPX* / bhNDX* 전체 교체
+- **[C-4] 포트폴리오 벤치마크 차트 추정 레이블**: `※ 현재 총수익률 기준 선형 추정 — 실제 일별 수익률과 다를 수 있음` 주석 추가
+- **[A-4] stale 경고 임계값 개선**: `getDataAge()` — `days > 3` → `days > 1` (R21: 2일 이상 경과 시 stale 배지 표시)
+
+### 구조 변경
+- `updateBreadthBars()`: signal 페이지 + breadth 페이지 NDX 카드 단일 함수로 통합 갱신
+- NDX 전역 캐시 추가: `window._breadthNDX5`, `window._breadthNDX20`, `window._breadthNDX50`
+
+---
+
+## v42.3 -- 매매 시그널 페이지 버그 수정 + QA 전수 점검 (2026-04-06)
+
+### FAIL → 수정 완료
+1. **시장 폭 바 레이블 겹침** — `.bb-label { font-size:11px }` override가 120px 컬럼 초과. `8px`로 복원 + `text-overflow:ellipsis` 적용
+2. **Pattern Scanner 제거** — Signal/Momentum 업데이트 함수 없음 (Dead 컬럼), 종목 하드코딩 (사용자 미요청). 테이블 전체 제거
+3. **포트폴리오 배분 카드 텍스트 겹침** — 2컬럼 그리드 해체, 가로 레이아웃(도넛+레전드) 재구성, `flex:1;min-width:0` 적용
+4. **리스크 히트맵 WTI/Brent 구형값** — `$98/$112` 하드코딩 → `—` (라이브 업데이트 대기)
+5. **fxbond 수익률 곡선 차트 무음 실패** — fxbond에 캔버스 없이 `initYieldCurveChart()` 호출. 호출 제거
+
+### QA 결과 요약 (PASS)
+- page-home, page-breadth, page-macro, page-themes, page-kr-home/themes/supply/macro/technical, page-portfolio, page-ticker — 구조 정상
+- 버전 6곳 동기화, div 균형 3600:3600
+
+---
+
+## v42.2 -- AI 패널 오른쪽 사이드바 UX 개선 (2026-04-06)
+
+### 변경 사항
+- **AI 패널 위치 구조 변경**: `#ai-panel`을 `.app` 내부 flex 자식 → `<body>` 직계 자식으로 이동 (position:fixed가 overflow:hidden 조상의 영향을 받던 Chromium 버그 수정)
+- **콘텐츠 밀어내기 (push effect)**: AI 패널 열릴 때 `.app`에 `max-width: calc(100vw - 400px)` 적용 → 기존 화면 가리지 않고 콘텐츠 밀어내기
+- **탑바 AI 분석가 버튼**: 패널 열기/닫기 토글, 텍스트 "AI 분석가" ↔ "AI 닫기" 전환
+- **트랜지션**: `#ai-panel { transition: transform 0.3s }`, `.app { transition: max-width 0.3s }` 동시 적용
+- **인라인 스타일 방식**: CSS 클래스 기반 transform이 Chromium 문서 타임라인 이슈로 비작동 → JS inline style로 교체
+- **FAB 버튼 제거**: `#ai-fab` 완전 제거, 탑바 버튼으로 대체
+
+### 기술 교훈 (BUG-POSTMORTEM 참조)
+- `position:fixed` 요소가 `.app{overflow:hidden}` 내부에 있으면 fixed positioning이 조상에 갇힘
+- CSS `document.timeline.currentTime` 는 백그라운드 탭/헤드리스 컨텍스트에서 0으로 동결됨 (실제 브라우저에서는 정상 동작)
+- `body.style.paddingRight`는 `body{overflow:hidden}`이 뷰포트로 전파되어 실제 콘텐츠 너비에 영향 없음
+
+---
+
+## v42.1 -- 지식 통합: 7개 리서치 자료 반영 (2026-04-06)
+
+### 통합 자료 (10차 병합)
+- **GS KOSPI 바닥 분석**: 선행 P/E 7.58배(-2σ), 하방 5,100, 목표 7,000, ERLI 프레임워크
+- **JPM GDW (2026.04.03)**: 에너지 공급 10% 차단, 글로벌 PMI 51.4, 미국 서비스 PMI 49.8, 일본 단칸 18, BOJ 4월 인상, 한국 1Q GDP 5.0% 상향
+- **BofA 메모리슈퍼사이클**: 2027~28년 지속 전망, HBM 3~4배 캐파 소모, 루빈 울트라 HBM 3배, 1Q/2Q26 신기록 예상
+- **반도체 균형뷰 (ASML vs SAP)**: HF 롱/숏 배율 1~2배(2021년 13배), 롱온리 역대 최고 13~14%, 헬륨/나프타 공급망 리스크, ASML PE 30.4배 vs SAP 16.7배
+- **NVDA NTC**: 제본스 역설 물리적 구현 (VRAM 6.5GB→970MB, 수요 증가 역설)
+- **Anthropic-UK**: AI 기업 지정학 다각화 패턴 (미국 정부 갈등 → 영국 확장)
+- **반도체 낙관뷰**: AI 추론+엣지+휴머노이드 구조적 수요, 슈퍼사이클 논거 강화
+
+### 파일 변경
+- `_context/archive-reports/AIO_매크로_시그널_레퍼런스.md` — 10차 병합 (시그널 ⑰~⑳ 추가)
+- `_context/archive-reports/AIO_콘텐츠_업그레이드_레퍼런스.md` — 9차 병합 (프레임워크 ⑰~⑲, 기법 ⑯~⑰ 추가) → 11차 병합 (프레임워크 ⑳~㉒ 추가)
+- `index.html` — CHAT_CONTEXT(kr-macro/macro) GS+JPM 데이터 추가, TECH_KW/MACRO_KW 키워드 보강, portfolio CHAT_CONTEXT 포트폴리오 운용 철학 섹션 추가
+
+### 통합 자료 (11차 병합: 포트폴리오 관리 철학)
+- **대장주 원칙**: 섹터 리더만 매수 — 3등주는 상승 미흡 + 하락 초과 낙폭 (프레임워크 ⑳)
+- **전투 vs 전쟁**: 10종목 5승/2-3보합/2-3패 → 계좌 우상향 구조 설계 (프레임워크 ㉑)
+- **레버리지 최적화 + MDD 수학**: 50% 레버리지+분산 >> 100% 집중, MDD -50% 복구 +100% 필요 (프레임워크 ㉒)
+- **52주 신고가 섹터 루틴**: 신고가 비중 높은 섹터 = 유동성 선행 지표 → 섹터 로테이션 조기 탐지
+
+---
+
+## v42.1 -- UX 유기적 연결: 마켓 펄스 바 + 크로스링크 + 정보 과부하 해소 (2026-04-05)
+
+### Phase 1: 마켓 펄스 바 (전 페이지 1줄 요약)
+- **마켓 펄스 바**: 모든 분석 페이지 상단에 1줄 상태 요약 — [시그널 62 선별매수] [시장폭 약세] [심리 18 극단공포] [매크로 CORRECTION]
+- 각 세그먼트 클릭 시 해당 페이지로 즉시 이동
+- `updateMarketPulse()` 함수 — `computeTradingScore()`, `_lastFG`, 시장폭 DOM, 매크로 레짐 데이터 읽기
+- 홈/가이드/용어 페이지에서는 자동 숨김
+
+### Phase 2: 크로스링크 네비게이션 (페이지 간 유기적 연결)
+- **시그널 서브스코어**: 변동성→심리, 모멘텀→기술, 추세→기술, 시장폭→시장폭, 매크로→매크로 직접 이동
+- **홈 KPI 카드**: S&P/NASDAQ→기술분석, VIX/F&G→심리, DXY→환율채권 클릭 네비게이션
+- **매매판단 대시보드**: 클릭 시 시그널 페이지 이동
+- **시장폭 다이버전스**: "심리 지표 확인 →" + "매매 시그널 확인 →" 크로스링크
+- **심리 극단값**: F&G ≤25 또는 ≥75일 때 "시그널 페이지에서 매매 타이밍 확인 →" 자동 표시
+- **브리핑**: "매크로 상세 →" + "매매 시그널 →" 링크
+
+### Phase 3: 장황한 설명 텍스트 정리
+- **beginner-tip 7개**: 기본 접힌 상태 (클릭 시 펼침) — 기술적 패턴 가이드, 차트 설명 등
+- **시장폭 해석 가이드**: 트래픽라이트 3단계 가이드 접기/펼치기 지원
+
+### Phase 4: 시그널 페이지 정보 과부하 해소
+- **티커 스크롤바 숨김**: 13개 심볼 스크롤 → 스냅 카드와 중복이므로 제거
+- **스냅 카드 클릭 네비게이션**: S&P/NASDAQ→기술분석, VIX→심리, WTI/Gold→매크로, BTC→환율채권
+- **리스크 모니터 축소**: 13셀 3행 → 8셀 2행
+  - Row 1: VVIX, VIX 선물구조, MOVE, RSP/SPY (고유 지표만)
+  - Row 2: SKEW, 딜러감마, 기관매매, Put/Call (고유 지표만)
+  - 숨김: VIX(스냅카드 중복), DXY(홈KPI/FX채권 중복), HYG/TNX(FX채권 중복), F&G(심리 중복)
+  - JS getElementById용 DOM은 hidden으로 유지 (런타임 에러 방지)
+
+### CSS 추가
+- `.market-pulse-bar`, `.pulse-seg` — 마켓 펄스 바 스타일
+- `.cross-link` — 페이지 간 링크 스타일 (9px, accent color, hover underline)
+- `.beginner-tip.collapsed` — 접기/펼치기 CSS
+
+---
+
+## v42 -- 시장 뉴스 카테고리별 그룹 뷰 + 데일리 브리핑 AI 분석 (2026-04-05)
+
+### 시장 뉴스: 카테고리별 그룹 뷰 + 탭 안정화
+- **4번째 탭 "카테고리별" 추가**: 16개 카테고리(매크로/지정학/주식/반도체/실적/에너지/채권/외환/크립토/방산/헬스케어/조선/양자/우주/애널리스트/기타)로 자동 분류
+- **탭 전환 안정화**: 카테고리별 모드에서 토픽/국가/정렬 필터 자동 숨김 → 다른 탭 복귀 시 자동 복원
+- **중복 컨테이너 제거**: `news-feed` + `live-news-feed` 이중 구조 → `live-news-feed` 단일로 통합
+- **`_TOPIC_GROUP_ORDER`**: 16개 카테고리 정의 (순서/라벨/아이콘)
+- **`_renderCategoryGroupView()`**: 뉴스를 topic별 그룹핑 → 섹션 헤더 + 불릿 렌더링
+
+### 데일리 브리핑: 8AM KST 기준 + AI 분석·해석·설명
+- **8AM KST 앵커**: `_getBriefingWindowKST()` — 오전 8시 기준 24시간 절대 윈도우
+- **캐시 고정**: 같은 앵커 날짜면 캐시 재사용, 다음 8AM까지 내용 변경 없음
+- **AI 브리핑 생성**: API 키 있으면 Claude Haiku로 뉴스 분석 요청
+  - 핵심 요약 + 카테고리별 분석(사실/해석/영향) + 뉴스 간 연결고리 + 리스크/기회 + 내일 주목 이벤트
+  - 전문 용어에 쉬운 설명 괄호 추가
+  - 생성에 30초~1분 소요 (로딩 UI 표시)
+- **폴백**: API 키 없거나 생성 실패 시 카테고리별 불릿 표시 + API 키 안내
+- **UI**: "LIVE RSS" → "1일 1회 · 08:00 KST", 다음 갱신까지 남은 시간 표시
+
+---
+
+## v41.9 -- Naver US 주식 API 전면 통합: 재무제표/컨센서스/기업개요 + AI 채팅 보강 (2026-04-05)
+
+### 신규 기능: Naver Finance US Stock API 통합
+- **Core 인프라**: `fetchNaverUSData(sym, includeFinance)` -- 3개 엔드포인트(basic/integration/finance) 병렬 조회
+- **Reuters 티커 매핑**: `_toNaverReuters()` -- Yahoo 티커 -> Reuters 코드 변환 (.O=NASDAQ, .N=NYSE), BRK-B 특수 처리
+- **NYSE 종목 맵**: `_NAVER_NYSE` -- 150+ NYSE 상장 종목 세트, 나머지는 NASDAQ(.O) 기본
+- **캐싱**: `_naverUSCache` -- 10분 TTL, 재무 포함/미포함 별도 캐시 키
+
+### AI 채팅 데이터 보강 (3함수)
+- **`_fetchTickerDataForChat`**: Naver 한국어명, 업종, 컨센서스(목표가/추천점수), 기업개요(250자) 추가
+- **`_fetchSectorCompareData`**: 종목별 Naver 컨센서스/한국어명 수집 -> 포맷에 교차 검증 출력
+- **`_fetchDeepCompareData`**: Naver 재무제표(annual), 기업개요, 컨센서스, 동종업종 비교 전체 통합
+
+### 포맷 함수 Naver 데이터 출력
+- **`_formatSectorComparePrompt`**: 종목명에 한국어명 병기, 업종 한국어 표기, Naver 컨센서스 섹션 추가
+- **`_formatDeepComparePrompt`**: 한국어 기업개요 섹션, Naver 컨센서스 교차 검증, Naver 재무 데이터, 동종업종 비교 4개 섹션 추가
+
+### UI 보강
+- **`showTicker()`**: 종목 상세 화면에서 Naver 한국어명 비동기 표시 (US 종목 한정)
+
+### 기술 세부
+- Naver API는 CORS 차단 -> 기존 `fetchViaProxy()` 인프라 활용
+- FMP(무료 250/day)가 primary, Naver는 보충/교차 검증 소스로 역할 분리
+- 에러 시 silent fail (기존 FMP 데이터만으로 정상 동작)
+
+---
+
+## v41.8 -- 감사 리포트 3건 반영: 종목 품질 정비 + 테마 가중치 재분배 + CSS 그리드 정렬 (2026-04-05)
+
+### 버그 수정 (2건)
+- **streaming weights PARA->PSKY 키 불일치**: tickers는 PSKY로 업데이트했으나 weights 키가 PARA로 남아 가중치 0% 처리. 키 이름 수정
+- **KR 종목 pill CSS Grid 열 불일치**: `.pill-code` display:none 시 grid 배치에서 제외되어 name/weight/price/pct 열 뒤죽박죽. grid `1fr auto auto auto` + `::before` 가중치 바로 교체
+
+### 종목 품질 정비 (감사 리포트 기반)
+- **제거**: SSNLF(OTC/유동성부족), LCID(Altman Z -3.10), STEM(NYSE 미달/파산84%), U(신뢰상실), BTBT/HUT/APLD(AI매출 미미)
+- **가중치 축소**: PLUG 28->25, FCEL 24->15, SEDG 16->8, 카카오(crypto) 30->15
+- **가중치 확대**: BE 35, FLNC 25(신규), 위메이드 35, ENPH 28, FSLR 26
+- **테마 축소**: photonics_kr 12->4종목(시총 200억 미만 8개 제거), neocloud 8->6종목
+- **KR_STOCK_DB theme 배열 6건 수정**: POSCO홀딩스/LG화학/한화솔루션 battery+steel_chem, 현대글로비스 auto+logistics, 리가켐바이오 bio+medtech_kr, SK이노베이션 battery+energy_kr
+
+### 분석 로직 개선 (2건)
+- **SPY ATH 동적 추적**: 하드코딩 640 -> localStorage 기반 동적 갱신 (Math.max(현재가, 저장값, 640))
+- **calcCompositePerf 가중치 폴백**: sqrt(price) -> SCREENER_DB mcap 기반 (시총 비례 정확도 향상)
+
+### 전체 바/그래프 정렬 전수 점검
+- KR 종목 pill, KR 테마 퍼포먼스 바, US 섹터 퍼포먼스 바, 서브테마 그리드, 점수/시장폭 바 -- 5개 패턴 모두 확인 완료
+
+---
+
+## v41.7 -- 전수 QA: FX 반전 수정 + KNOWN_TICKERS 20개 복구 + insight-box 4곳 교정 (2026-04-06)
+
+### 버그 수정 (3건)
+- **CADUSD=X/CHFUSD=X FX_INVERTED 누락**: PriceStore 300+ 경고 해소. FX_INVERTED에 추가 + Yahoo/chart batch에서 제거
+- **KNOWN_TICKERS 20개 심볼 유실**: Set 생성자 `]` 밖 인자 무시 버그. ^GSPC/^VIX/BTC-USD 등 핵심 지수 복구 + 중복 4개 제거 → 795개
+- **insight-box 텍스트 4페이지 교차**: market-news/options/theme-detail/ticker 각 페이지 맥락 맞게 교정
+
+### v40+ 기능 브라우저 적용 확인
+- skip-link, WCAG landmarks, aria-live, escHtml, design tokens, AI 패널, 타이밍 상수 — 모두 정상 적용 확인
+
+---
+
+## v41.6 -- Dead Code 대량 제거: 19개 미사용 함수/변수 정리 (~400줄 삭감) (2026-04-06)
+
+### Dead 함수 제거 (19개)
+- `updateGreeksPanel` — Greeks DOM 업데이트 (호출처 없음)
+- `exportScreenerCSV` — 스크리너 CSV 내보내기 (호출처 없음)
+- `addPriceAlert` — 가격 알림 추가 (DOM 입력 요소 없음)
+- `screenerToChart` / `screenerToFundamental` — 스크리너-차트/펀더멘털 연결 (호출처 없음)
+- `newsToStock` — 뉴스-종목 워크플로우 (호출처 없음)
+- `fmtKrFull`, `_lsSet`, `_lsGet`, `sortScreenerBy`, `setScreenerPreset`, `calcPositionSize` — v41.5에서 제거
+- `switchSectorTab`, `switchPortTab`, `makeTimeoutSignal`, `toggleFBHistory` — v41.5에서 제거
+- `getKrStockInfo`, `formatKrPrice`, `fetchKrStockData` — v41.5에서 제거
+
+### Dead 변수/래퍼 제거
+- `LLM_DAILY_LIMIT` — 선언만 있고 참조 없음
+- `_lastScreenerSym` + `_origShowTicker` 래퍼 — dead 함수에서만 사용
+- `_origShowPage`, `_origShowPage2`, `_fundPageInitQueued` — v41.5에서 제거
+
+### 중복 코드 제거
+- v39.2 console.log 무음 IIFE 제거 — v30 PRODUCTION suppress IIFE와 중복
+
+---
+
+## v41.5 -- 코드 리뷰: XSS 방어 + 좀비 타이머 해제 + R15 위반 수정 (2026-04-06)
+
+### 보안 (XSS 방어)
+- [CRITICAL] `analyzeTickerDeep`/`analyzeKrTickerDeep` — 사용자 입력 ticker를 `escHtml()` escape 처리
+- [HIGH] `updateFail`/`updateProgress` — `e.message` innerHTML 삽입 시 `escHtml()` 적용
+- [HIGH] `showDataError`/`updateDataStatusError` — msg 파라미터 `escHtml()` 적용
+
+### 메모리/타이머
+- [HIGH] `destroyPageCharts('signal')` — `sigRefreshTimer` + `window._refreshSignalInterval` 해제 추가 (좀비 타이머 방지)
+
+### 데이터 무결성
+- [HIGH] R15 위반 수정 — `_pct || 0` → `_pct != null ? _pct : null` (Yahoo/CoinGecko 3곳)
+- 0% 변동(실제 데이터)과 null(미수신)을 정확히 구분
+
+### 뉴스 필터
+- [FAIL] MACRO_KW 'QE'/'QT' 2글자 키워드 제거 — R17 위반 수정 (full form 이미 존재)
+
+### 페이지 전환
+- [WARN] `_fundInitDone` 리셋 추가 — fundamental 페이지 재진입 시 Dead Page 방지
+
+### Dead Code 제거
+- `_origShowPage` (L21738) 미사용 삭제
+- `_origShowPage2`/`_fundPageInitQueued` 미사용 정리, IIFE로 래핑
+
+### 디버깅
+- [MEDIUM] `_fetchYahooChartData` 빈 catch 블록에 `console.warn` 추가
+
+---
+
+## v41.4 -- 접근성 감사 후속: focus-visible + label + 모달 포커스 + skip-link 정리 (2026-04-06)
+
+### 접근성 (WCAG 2.1 AA)
+- `[role="button"]:focus-visible` CSS 추가 — 동적 role 부여 요소에도 포커스 링 표시
+- 진입 품질 계산기 label 3개에 `for` 속성 연결 (eq-price, eq-ema20, eq-rsi)
+- 폼 input aria-label 4건 추가: wl-add-ticker, wl-add-note, fb-desc, fb-desc label `for` 연결
+- 모달 4개 open 시 첫 포커스 가능 요소로 자동 이동 (kbd/glossary/confirm/board)
+- skip-link 중복 제거 — JS 동적 생성 skip-nav 삭제, HTML 하드코딩 .skip-link 유지
+- sidebar aria-label 덮어쓰기 방지 — HTML `<nav aria-label>` 존중
+
+### font-size
+- .kbd-key/.kbd-desc 10px → 11px (모달 내부, .page override 미적용 영역)
+
+---
+
+## v41.3 -- 전수 감사: font-size 완전 커버 + Worker 보안 강화 + heading 수정 (2026-04-06)
+
+### CSS 접근성 전수 커버
+- **font-size sub-11px override 36건 추가**: 9px 클래스 9건, btn-accent/vault 2건, 10px 클래스 19건, score-bar-row 1건, 테이블 기본값 5건
+- **총 104개 sub-11px CSS 클래스** 모두 `!important` override로 최소 11px 보장
+- 인라인 스타일(.page/.sidebar/.topbar) + CSS 클래스 양쪽 모두 완전 커버
+
+### Cloudflare Worker 보안 강화 (v2.0)
+- **[Critical] CORS Origin 화이트리스트**: `*` → GitHub Pages + localhost만 허용
+- **[Critical] URL 도메인 화이트리스트**: 21개 허용 도메인 (Yahoo Finance, FRED, SEC 등) 외 차단
+- **[High] SSRF Private IP 차단**: 127.x, 10.x, 192.168.x, 169.254.x, ::1 등 내부 IP 접근 차단
+- **[High] 레이트 리밋 한계 명시** + Map 정리 함수 추가
+- **[Medium] fetch 타임아웃 10초**: AbortController 적용
+- **[Medium] 응답 크기 제한 5MB**: Content-Length 검사
+- **[Medium] 에러 메시지 정보 제한**: 내부 에러 노출 차단, User-Agent 익명화
+
+### 접근성 수정
+- **heading 계층**: 키보드 단축키 모달 h3 → h2 (다이얼로그 최상위 heading)
+
+---
+
+## v41.2 -- S급 마무리: 튜토리얼 제거 + 버튼 CSS 시스템 + 접근성 강화 + Breadth 동적 API (2026-04-06)
+
+### 기관급 품질 정리
+- **튜토리얼/퀴즈 시스템 완전 제거**: 5분 퀵 스타트 온보딩 가이드 위젯 삭제, CHANGELOG 참조 정리
+- **버튼 CSS 디자인 시스템 도입**: 14개 유틸리티 클래스 (btn-icon, btn-close, btn-accent x7색상, btn-vault, btn-cta) -- 17개 인라인 스타일 버튼 변환
+- **topbar 시맨틱 태그**: `<div class="topbar">` -> `<header class="topbar" role="banner">`
+
+### WCAG 접근성 S급
+- **스크린리더 h1**: sr-only `<h1>AIO Screener - 올인원 투자 터미널</h1>` 동적 삽입
+- **모달 포커스 트랩**: `role="dialog"` 요소에 Tab/Shift+Tab 순환 키보드 트랩
+- **aria-live 확장**: snapshot-stale-warning, data-status-panel, home-risk-regime-badge, score-decision-sub 4개 영역 추가
+- **page-title heading role**: `.page-title` 요소에 `role="heading" aria-level="2"` 보강
+
+### Breadth 동적 API
+- **bh-price 히스토리 차트 동적화**: `_refreshBreadthHistoryCharts()` 추가 -- Yahoo Finance SPY/QQQ 1개월 데이터로 정적 배열 실시간 교체
+- bp-price + bh-price 2개 가격 차트 모두 Yahoo Finance 동적 fetch 완료
+- Breadth MA 비율(5/20/50 SMA)은 무료 API 미존재 -- 수동 갱신 유지 + stale 경고 표시
+
+---
+
+## v41.1 -- 코드 품질 S급: 타이밍 상수 + 스크롤바 통합 + 차트 토큰 확대 (2026-04-05)
+
+### JS 코드 품질
+- **타이밍 상수 객체 `T` 도입**: UI_FEEDBACK, COOLDOWN, SIGNAL_REFRESH, FETCH_TIMEOUT, DATE_REFRESH, CHUNK_TIMEOUT, BATCH_DELAY, RETRY_DELAY -- 17곳 매직 넘버 교체
+- **TBD 플레이스홀더 제거**: 옵션 테이블 TSLA 행의 "TBD" -> 통일 표기 "-"
+
+### CSS 디자인 시스템
+- **스크롤바 이중 정의 통합**: `.content` 전용(6px) + 전역(7px) 충돌 -> 전역 단일 정의로 통합
+- **Firefox 스크롤바 폴백**: `scrollbar-width: thin; scrollbar-color` 추가 (크로스 브라우저)
+- **스크롤바 thumb border-radius**: 하드코딩 4px -> `var(--radius-sm)` 토큰화
+- **Breadth 차트 캔버스 높이**: 8개 `bp-*/bh-*` 캔버스에 `var(--chart-h-sm)` CSS 규칙 적용
+- **RRG 캔버스 높이 충돌 정리**: 인라인 dead code `max-height:480px` 제거, 모바일 `280px` -> `var(--chart-h-lg)` 토큰화
+
+---
+
+## v41 — A+ 등급 달성: CSS 토큰 전면 적용 + WCAG 접근성 완전체 + 키보드/모달 UX 강화 (2026-04-05)
+
+### CSS 디자인 토큰 전면 적용
+- **border-radius 토큰화**: 25개+ CSS 클래스의 하드코딩 4/5/6px를 `var(--radius-sm)`, `var(--radius-md)`로 변환
+  - `.nav-item:focus-visible`, `.acp-clear`, `.acp-history-btn`, `.acp-expand-btn`, `.ch-close`, `.kr-badge`, `.kr-bar-wrap`, `.kr-bar-fill`, `.kr-tab`, `.kr-theme-heat`, `.kr-ticker-pill`, `.tac-sector-row`, `.flow-stat`, `.news-sort-btn`, `.sent-badge`, `.sig-guide-card`, `.sig-ticker-bar`, `.rm-status`, `.cp-meter`, `.bb-badge`, `.rrg-tag`, `.sec-tile`, `.fx-signal`, `.home-fx-cell`, `.mfx-cell`, `.llm-key-input`, `.llm-key-save`, `.llm-quota-panel`, `.search-bar`, `.acp-bubble pre`, `.fb-type-btn`, `.board-tab`
+- **box-shadow 토큰화**: `.data-widget` → `var(--shadow-card)`, `.risk-mon-cell/.cp-cell` → `var(--shadow-card)`, `#kbd-shortcuts-inner` → `var(--shadow-modal)`
+- **차트 높이 토큰 추가**: `--chart-h-xs: 120px` 신규, `.yc-chart-wrap canvas` → `var(--chart-h-md)`
+
+### WCAG 접근성 완전체
+- **모달/패널 ARIA**: `#aio-confirm-modal`, `#kbd-shortcuts-modal`, `#glossary-modal` → `role="dialog" aria-modal="true"`
+- **AI 패널**: `role="complementary" aria-label`, 토글 시 `aria-hidden`/`aria-expanded` 동적 전환
+- **게시판 drawer**: `role="dialog" aria-modal="true" aria-label`
+- **aria-expanded**: 사이드바 토글, AI 패널 토글 버튼에 상태 반영
+- **aria-pressed**: AI ON/OFF 토글에 `aria-pressed="true"`
+- **aria-current="page"**: 활성 nav-item에 동적 설정 + `showPage()` 전환 시 자동 업데이트
+- **canvas 접근성**: `kr-vkospi-chart` → `role="img" aria-label="VKOSPI 변동성 지수 차트"` 추가
+- **키보드 핸들링**: 모든 `[role="button"]` 요소에 Enter/Space 활성화 + tabindex 보강
+- **페이지 전환 focus**: `showPage()` 시 `.page-title`로 focus 이동 (스크린리더 지원)
+- **Escape 닫기 확장**: AI 패널 + 피드백 게시판도 Escape 키로 닫기
+
+### 인라인 스타일 토큰화
+- AI ON/OFF 버튼: `role="button" aria-pressed` + `border-radius` → `var(--radius-sm)`
+- 게시판 닫기 버튼: `aria-label="게시판 닫기"` + `border-radius` → `var(--radius-sm)`
+
+---
+
+## v40.9 — S급 전면 개선: 디자인 시스템 + 매크로 커버리지 + 접근성 + 백엔드 (2026-04-05)
+
+### CSS 디자인 시스템 표준화
+- :root에 디자인 토큰 추가: --radius-sm/md/lg, --orange/purple/cyan/indigo, --spacing-xs~xl, --shadow-card/modal, --chart-h-sm/md/lg
+- 사이드바 버튼 3개 인라인 스타일+hover → `.sidebar-action-btn` CSS 클래스 통합 (onmouseover 제거)
+- border-radius 표준화: .page-tab, .tb-btn, .q-chip → CSS 변수 참조
+- KR 카드 패딩 통일: .kr-screen-card 10px→12px, .kr-idx-card 12px→14px, .tac-score-card 10px→12px
+
+### 매크로 커버리지 확장 (A- → A)
+- DATA_SNAPSHOT에 5개 지표 추가: PCE Core, ISM 서비스, 임금 상승률, 소매판매, 소비자심리, 주택착공
+- 매크로 페이지에 2행째 지표 카드 4개 추가 (소매/임금/소비자심리/주택)
+- CHAT_CONTEXTS macro에 새 지표 데이터 주입 (AI 분석 품질 향상)
+
+### 테마 커버리지 강화 (A- → A)
+- 테마 추천 질문에 우주/위성산업, 리쇼어링/공급망 재편 추가
+
+### 접근성 강화 (B+ → A)
+- skip-to-content 링크 추가 (키보드 내비게이션)
+- main/navigation landmark 역할 설정
+- data-live-price 전체에 aria-live="polite" + aria-atomic 추가
+- WCAG 스크립트 14→17개 섹션으로 확장
+
+### 데이터 정합성 수정
+- TNX 3곳 불일치 통일 (4.44/4.39/4.313 → 4.31)
+- FVX 불일치 (4.01 → 4.08)
+- VKOSPI 코멘트, DXY 툴팁 시효성 제거
+- 옵션 Greeks 만기 "4/18" → "근월물 예시" (2곳)
+- SEC EDGAR URL 하드코딩 2025 → 동적 1년 계산
+
+### 백엔드 견고성
+- Dead code `_calcRSI` 제거 (버그 있는 미사용 함수 20줄)
+- Dead proxy 2개 제거 (cors-anywhere, crossorigin.me)
+- kr-technical 차트 destroyPageCharts 정리 추가 (메모리 누수 방지)
+- applyLiveQuotes Array.isArray 가드 추가
+- 센티먼트 차트 높이 개선 (110px→140px)
+
+### 검증 결과
+- div 균형: 확인 완료
+- 콘솔 에러: 0건
+- 버전 6곳 동기화 완료
+
+---
+
+## v40.8 — 전면 심층 점검: 텍스트 간소화 + UX 수정 + 색상 의미 정합 (2026-04-05)
+
+### 텍스트 간소화 (30개+ 섹션, 평균 55% 축소)
+- 매크로 페이지: 6개 지표 카드 설명 50-65% 압축 (화살표 표기법 도입)
+- 경제 사이클 해석 + 인터커넥션 상세 간소화
+- FX/Bond: 환율·수익률곡선·스프레드 분석 가이드 3곳 50-60% 압축
+- 센티먼트: NAAIM/Investor Intelligence 툴팁 60%+ 축소
+- 시장 건강도 설명 56% 축소
+- Breadth: 종합 진단 + 미너비니 랠리 품질 판별 카드 30% 축소
+- 옵션: Greeks 초보자 요약 간소화
+- 가이드 페이지: 12개 대시보드 사용법 전수 간소화 (평균 65% 축소)
+- 공통 기능(AI 채팅, 피드백, 용어사전, 통합분석) 4곳 간소화
+- 한국 시장 안내 4곳 간소화
+- 유의사항 섹션 간소화
+
+### UX/레이아웃 수정
+- Z-index 충돌 해소: #ai-panel 9000→8998 (feedback-overlay와 겹침 방지)
+- 경제 사이클 Late Cycle 색상: 빨강(#f87171)→노랑(#fbbf24) — 의미 정합 (Late Cycle=주의 전환, 위험 아님)
+
+### 만료/시효성 데이터 갱신
+- 옵션 페이지 QQQ Straddle 만기: 3/29→5/2 (PCE 기반)
+- VIX Spot 해석 PCE 경고: 3/28→4/30 (다음 PCE 일정 반영)
+- VIX 하드코딩 수치(26.78) → 일반화 설명으로 교체 (2곳)
+- Breadth 50SMA 날짜 하드코딩(3/6일 51.88%) → 일반화
+- 인플레 카드 "유가 급등 중" → "모니터링 중"
+- 한국 외국인 매도 "3월 누적" → "3-4월 누적" (3곳)
+- VKOSPI "3월 중 82 돌파" → "82 돌파 기록"
+- "구글 터보퀀트 쇼크" → "관세 불확실성"
+- 매크로 부제목 "모든 것이 연결되어 있습니다" → "상호 연결 분석"
+
+### 기술적 분석 가이드 간소화
+- Weinstein 4단계, 이동평균 정배열, 건전한 조정 vs 추세전환, RSI 다이버전스 설명 압축
+
+### 검증 결과
+- div 균형: **3561/3561**
+- 콘솔 에러: 0건 예상
+- 버전 6곳 동기화 완료
+
+---
+
+## v40.7 — sub-11px 전수 근절 + DATA_SNAPSHOT 최신화 + 탑바 보호 (2026-04-05)
+
+### CSS sub-11px 전수 근절 (60+ 클래스)
+- v40.6에서 미보호된 CSS 클래스 60개+ 일괄 override 추가 (11px !important)
+- 대상: CP 히트맵(.cp-en/.cp-detail), FX/Bond(.fx-note/.yc-en/.sc-note 등), 메트릭 카드(.mc-label/.mc-sub), 한국 종목(.kr-badge/.kr-idx-label/.kr-tag 등), 전술 이벤트(.tac-sector-driver/.tac-event-impact), 테이블 헤더(6종), 뉴스/인터뷰/분석 배지 등
+- .tip-icon (?) 아이콘: 8px→11px, 원형 13px→15px
+- .news-sort-btn 기본값: 9px→11px
+- .gmo-sig GMO 시그널 화살표: 10px→11px
+- .rm-tip 리스크 모니터 툴팁: 8px→11px, width 180→200px
+
+### 사이드바/탑바 CSS 수정
+- .llm-panel-title 10→11, .llm-switch-label 10→11, .llm-key-save 9→11, .llm-quota-lbl 9→11, .llm-key-input 10→11, #gh-sync-status 8→11
+- 탑바 인라인 font-size 최소 11px 보장 CSS 추가 (.topbar [style*="font-size:Npx"])
+- 시세 갱신 타임스탬프 JS 생성 span: 8px→11px (3곳)
+
+### 인라인 font-size 수정
+- font-size:10.5px 4곳 → 12px (sent-analysis-text, opt-analysis-text, kr-themes-analysis-text, kr-macro-analysis-text)
+- pf-analysis-text 10.5px → 12px
+- 데이터 갱신 중 span 8px → 11px
+
+### DATA_SNAPSHOT 최신화 (3/27→4/4)
+- 미국 지수: SPX 6368→6583, RUT 2450→2530 (4/4 종가 반영)
+- 환율: KRW 1509→1511, DXY 100.0→100.2
+- 크립토: BTC 66310→67323, ETH 1900→2054
+- FALLBACK_QUOTES 동기화: 한국 지수 4/3 종가, 미국/환율/크립토 4/4 종가
+- 날짜 코멘트 전수 정리 (3/27→4/4)
+
+### 검증 결과
+- 전 페이지(11) + 사이드바 + 탑바 + AI 패널: sub-11px **0건**
+- 콘솔 에러: **0건**
+- div 균형: **3561/3561**
+
+---
+
+## v40.6 — 전수 QA: TDZ 크래시 수정 + 안티패턴 12건 + 데이터 정합성 + KR_STOCK_DB 정리 (2026-04-05)
+
+### CRITICAL: oilPrice TDZ 크래시 수정
+- `computeTradingScore()`에서 `const oilPrice`가 사용 후 선언되어 TDZ ReferenceError 발생 (매 로드 16+ 콘솔 에러)
+- 선언을 사용 지점 전으로 이동하여 해결
+
+### .pct||0 안티패턴 근절 (R15 위반 12건)
+- `d.pct||0` → `d.pct != null ? d.pct : 0` 패턴으로 전수 교체
+- 대상: M7 리더십, 섹터 카운팅, XLF/Gold/DXY 시그널, KR 테마 카드, 매매 브리핑 등 9건
+- `breadthData.abv50 || 48` 폴백값 3건도 null-safe + 정확한 폴백(28)으로 수정
+
+### 데이터 정합성 수정
+- AAII 날짜 라벨 "3/18" → "4/1" (실제 데이터와 일치)
+- regime-aaii 약세 비율 61.9% → 51.4% (최신 발표 반영)
+- VKOSPI 폴백 28.50 → 58.86 (DATA_SNAPSHOT과 동기화)
+- Breadth 5/20/50SMA 3곳 이중 표시 동기화 (home sidebar vs breadth page)
+- 전일종가 날짜 "3/26" → "4/3" (DATA_SNAPSHOT _updated 기준)
+- CHAT_CONTEXT fedRate 하드코딩 → DATA_SNAPSHOT.fedRate 동적 참조
+- DATA_SNAPSHOT._note HTML 태그 오염 정리
+
+### KR_STOCK_DB 품질 정리
+- SK스퀘어 mcap 71.7조 → 81조, price 544000 → 483000 (4/3 기준)
+- 엘앤피코스메틱(950130) 제거 — 비상장 종목, mcap 0.0조
+- HDC현대산업개발 themes:[] → themes:['construction'], 크립토→건설 섹션으로 이동
+- 현대차 themes:['auto','robot'] → ['auto'] (로봇 테마 과잉 분류 제거)
+
+### CSS/UI 정리
+- .nav-item font-size 12px → 13px (가독성 개선)
+- Dead CSS `#page-screener` 규칙 제거 (존재하지 않는 페이지 ID)
+- sub-11px 텍스트 전수 근절: data-status-panel 8px→11px, gmo-region-header 9px→11px, F&G SVG Fear/Greed 9→11, ai-ph-badge 9→11px, home-fg-label 8→11px, 피드백 보드 9→11px
+
+### 데이터 최신성 업데이트
+- 한국장 시장 체감 온도 "(3/27)" → "(4/3)" 4곳 (투자심리/개인/외인/모멘텀)
+- VKOSPI 설명 "32.5 (3/27)" → "58.86 (4/3)"
+- 경제 캘린더 3/24-3/28 주차 → 4/7-4/11 주차 전면 교체 (CPI 4/10, PPI 4/11, FOMC 의사록 4/9)
+- PCE 일정 "3/28" → "4/30" 3곳 (시그널, 옵션, 전략 가이드)
+- 옵션 전략 Straddle "(3/27)" 날짜 참조 제거
+
+---
+
+## v40.5 — 지식 베이스 시스템 + 데이터 최신화 + 뉴스 선별 강화 + 7개 분석글 통합 (2026-04-04)
+
+(v40.4 내용 포함 — 단일 배포)
+
+## v40.4 — 지식 베이스 시스템 강화 + Jeff Sun 트레이딩 프레임워크 통합 (2026-04-04)
+
+### 지식 베이스 린팅 시스템 (카파시 패턴 반영)
+- `/knowledge-lint` 스킬 신규 생성 — _context/ 문서 간 교차 정합성 점검 (L1~L5 5단계)
+- _context/ 핵심 문서 3개에 검증 상태 프론트매터 추가 (verified_by, last_verified, confidence)
+- RULES.md에 R19(지식 정합성 린팅), R20(에이전트 산출물 검증 관리) 추가
+
+### Hook 시스템 (zodchiii/Thariq 패턴 반영)
+- `protect-files.sh` — 백업 파일(v*.html), _backup/, _archive/ 수정 차단 (PreToolUse)
+- `block-dangerous.sh` — rm -rf, 파일 삭제, force push 차단 (PreToolUse)
+- `validate-edit.sh` — index.html 수정 시 div 균형 자동 체크 (PostToolUse)
+- settings.local.json에 Hook 연결 완료
+
+### 스킬 Gotchas 섹션 추가
+- bug-fix: 6개 gotchas (init 가드, APP_VERSION, d.pct||0 등)
+- post-edit-qa: 5개 gotchas (div 균형, 캔버스 ID, popstate 등)
+- integrate: 4개 gotchas (CHAT_CONTEXT 이원화, 키워드 오탐 등)
+
+### Jeff Sun CFTe 트레이딩 프레임워크 통합
+- AIO_콘텐츠_업그레이드_레퍼런스.md에 8차 병합 (A~G 프레임워크 + 기법 18~21)
+- technical CHAT_CONTEXT: ATR% from 50-MA 배수, RVOL, LoD, VCP 정량적 진입 필터 추가
+- technical Pro CHAT_CONTEXT: Jeff Sun 15 Hard Rules 핵심 + 3-Stop + R-Multiple 추가
+- portfolio CHAT_CONTEXT: 3-Stop 리스크 관리 + R-Multiple 매매 품질 평가 추가
+
+### 스크리너/시그널/상세 페이지 UI 반영
+- `getAdrEstimate()` 함수 신규 — mcap 티어 + 섹터 기반 ADR%(평균일일변동폭) 추정
+- 스크리너 필터/정렬 로직에 ADR% 지원 추가 (scr-adr 필터, adr 정렬)
+- **시그널 페이지 "스윙 진입 체크리스트" 카드** 신규 — VIX/스코어/섹터폭/연속상승/FOMC 5항목 실시간 체크
+- **종목 상세(showTicker) "진입 적합성 판단" 섹션** 신규 — RSI/시그널/시장환경/ADR% 4항목 자동 판단
+- `updateEntryChecklist()` 함수 — aio:liveQuotes 이벤트 연동, 시그널 페이지 활성 시 자동 업데이트
+
+### 4개 분석글 통합 (SemiAnalysis + WF INTC/AMZN/GOOGL)
+- 매크로 시그널 레퍼런스 8차 병합: 공급망 3대 병목(N3/CPO/PCB) + DC 건설 패러다임 + 메모리 LSA 선불금 + WF IB 리서치
+- SCREENER_DB 종목 업데이트:
+  - INTC: WATCH→BUY (아폴로 재매입 $142억, WF PT $45)
+  - AMZN: memo 보강 (AWS +28%→+36%, 캐팩스 $200B, WF PT $305)
+  - GOOGL: memo 보강 (GCP +61%, 수주잔고 $2400억, WF PT $361)
+  - TSM: memo 보강 (N3 2027까지 매진, 물량 경쟁)
+  - MU: memo 보강 (LSA 선불금 하방 방어)
+  - GEV: memo 보강 (Behind-the-Meter 자체발전 수혜)
+- TECH_KW: PCB/CCL 병목, 모듈형 DC, Behind-the-Meter, LSA 선불금 등 12개 키워드 추가
+
+### 데이터 최신화 + 동적 전환 (전수 점검 결과)
+- **배포 규칙 변경**: 자동 배포 금지 → 사용자 명시적 요청 시에만 배포
+- **날만 데이터 경고 UI**: `getDataAge()` + `renderStaleWarning()` — 3일+ 경과 시 노란 배지 표시 (sentiment/breadth/kr-home)
+- **VIX 차트 동적 전환**: `_refreshSentimentChartData()` — Yahoo Finance ^VIX 1개월 데이터로 자동 교체 (실패 시 하드코딩 폴백)
+- **HY OAS 차트 동적 전환**: HYG ETF 가격 → OAS 추정 변환 자동 교체
+- **브레드쓰 SPY/QQQ 가격 차트 동적 전환**: `_refreshBreadthPriceChart()` — Yahoo Finance 1개월 데이터 자동 교체
+- **DATA_SNAPSHOT 전면 업데이트** (3/27 → 4/3 기준):
+  - KOSPI: 5438→5478 (+8.44%), KOSDAQ: 1141→1116 (+6.06%)
+  - VKOSPI: 28.5→58.86 (극도 공포)
+  - USD/KRW: 1509.58→1509.55
+- **AAII 심리 차트 업데이트**: 4/1 최신 (Bull 33.6%, Neutral 15.0%, Bear 51.4%)
+- **NAAIM 차트 업데이트**: 4/1 최신 (68.36)
+- **브레드쓰 % 프로그레스바 업데이트**: 50SMA 38%→27.6%, 20SMA 30%→32%, 5SMA 22%→35%
+
+### 뉴스 파이프라인 전수 점검 + 3곳 선별 체계 개편
+- **홈 핵심뉴스**: 정적 큐레이션(`HOME_WEEKLY_NEWS`) — 시장 전체 핵심 이벤트 2~3개. 현재: S&P 이틀 급락/트럼프 관세/AI 병목.
+- **데일리 브리핑**: score 45+ / 최대 20건 / 20건 초과 시 score 우선 선별 → 시간순 재정렬
+- **시장 뉴스**: score 30+ / 최대 150건 / 48시간 / 시간순 + 광범위 커버리지
+- **scoreItem() 대폭 강화**: 5대 토픽 부스트(매크로/지정학/주식/외환/채권 +5~15점) + 비시장 정치 감점(-25점)
+- 뉴스 캐시 120→200건 확대
+
+### 3개 분석글 통합 (미래에셋 쓰리백 + Citi 매크로 + Citi 고용)
+- 매크로 시그널 레퍼런스 9차 병합: GPU 렌탈 가격 역전, 한국 호르무즈 최취약국, 2Q 섹터 전략, NFP 서프라이즈
+- DATA_SNAPSHOT: 실업률 4.4→4.26% (참가율 급락 기인, Citi)
+- SCREENER_DB: ASML memo 보강 (60% 마진 목표, 밸류체인 병목 핵심)
+- MACRO_KW: GPU 렌탈/경활률/AUDUSD/섹터 로테이션/호르무즈 취약 등 15개 추가
+- TECH_KW: always-on agent/KAIROS/B200 spot/Teradyne/Advantest 등 12개 추가
+
+### 기업분석 데이터 N/A 수정 (ASML 등 외국발행인)
+- SEC XBRL 파싱에서 20-F/20-F/A(외국발행인 양식) 대응 추가 (기존 10-K만 처리)
+- IFRS 회계기준(`ifrs-full`) 폴백 추가 (us-gaap 없는 기업 대응)
+- 사이드바 collapsed CSS 보강 (min-width:0, padding:0, border:none)
+
+---
+
 ## v40.4 — AI 채팅 오른쪽 사이드바 통합 (2026-04-04)
 
 ### 아키텍처 변경: 페이지별 채팅 → 통합 슬라이드 패널
