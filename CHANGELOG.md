@@ -6,6 +6,179 @@
 
 ---
 
+## v44.1 -- /data-refresh: VIX/HY/PC/BP 차트 4/3~4/6 연장 + NFP/ISM 3월 갱신 (2026-04-07)
+
+### 차트 시계열 Extension
+- **labels20 + vixData + hyData**: 4/2→4/6 연장 (17→19개 데이터포인트)
+  - VIX: 4/3=23.87, 4/6=24.17 | HY OAS: 4/3=316, 4/6=317
+- **pcLabels + pcData**: 4/2→4/6 연장 (19→21개)
+  - Put/Call: 4/3=0.65, 4/6=0.68
+- **bpLabels + 8개 bp 배열**: 4/2→4/6 연장 (20→22개)
+  - SPX5: 4/3=37.5%, 4/6=39.0% | NDX5: 4/3=33.2%, 4/6=35.0%
+
+### DATA_SNAPSHOT 갱신
+- `usUnemploy`: 4.26 → 4.30 (3월 NFP +228K, 4/3 발표)
+- `usWageGrowth`: 3.8 → 3.5 (시간당 평균 임금 YoY, 4/3 NFP)
+- `ismSvc`: 54.4 → 54.0 (ISM 서비스업 PMI 3월, 4/3 발표)
+- `_updated`: 2026-04-06 → 2026-04-07T15:00:00+09:00
+
+---
+
+## v44.0 -- 재검토: CHAT_CONTEXTS 프레임워크 레이어 5개 섹션 신규 추가 (2026-04-07)
+
+### 재검토 갭 분석 결과
+- v43.6~v43.9 통합 작업에서 SCREENER_DB/TECH_KW는 반영됐으나 CHAT_CONTEXTS 프레임워크 레이어 미반영 확인
+- Q1~Q5 기준 재평가: 5개 프레임워크 섹션 누락 → 전면 추가
+
+### CHAT_CONTEXTS `_getChatRules()` 섹션 47~51 신규 추가
+- **§47 AMD "충분히 좋은" 전략** (Q1+Q2+Q3+Q5): "GPU 시장 제로섬 아님" — EPYC→GPU upsell 구조, Diamond Rapids/ARM Bull/Bear, CoWoS 약정 확인
+- **§48 WFE 구조적 성장 패러다임** (Q2+Q4+Q3+Q5): "Capex↑ ≠ Supply↑" — HBM이 DRAM 팹 용량 3~4x 잠식, LRCX/AMAT 성장주 재분류 논리, $140B/$180B 전망
+- **§49 MRVL 이진선택 해소** (Q1+Q2+Q3+Q4+Q5): 하이퍼스케일러 양자택일→스펙트럼 전환, AI 이질화=MRVL 구조적 필수화, ALAB 연동
+- **§50 AVGO 구조적 레버리지** (Q4+Q3+Q5): TPU+네트워킹=경쟁력 역학, LTA 2031 근거, Mediatek 위협 Bear 조건
+- **§51 Agentic AI → CPU 수요 전환** (Q2+Q4+Q5): 에이전틱 AI=CPU 코어 처리, Vera CPU/EPYC 카탈리스트, 서버 DRAM 연동
+
+---
+
+## v43.9 -- 4개 핵심 프레임워크 심층 반영 + /integrate 스킬 2단계 강화 (2026-04-07)
+
+### CHAT_CONTEXTS['macro'] XLK 섹션 — 프레임워크 레이어 추가
+- **AVGO 협상 레버리지 구조**: "TPU 단독 ≠ 경쟁력 / TPU + 네트워킹 = 경쟁력" — LTA는 결과물, 시스템 성능 결정자 지위가 본질
+- **WFE 패러다임 전환**: "Capex 증가 ≠ 공급 증가" — LRCX/AMAT를 사이클주 아닌 구조적 성장주로 재분류하는 논리
+- **AMD "충분히 좋은" 테시스**: Bull/Bear 핵심 변수 = Diamond Rapids 속도 + ARM 침식 속도 두 가지만
+- **MRVL 이진 선택 해소 테시스**: 하이퍼스케일러 양자택일→스펙트럼 전환, 이질화 심화=MRVL 구조적 필수화
+
+### /integrate SKILL.md 2단계 강화
+- 심층 추출 레이어 추가: 투자 테시스 로직 / 패러다임 전환 여부 / 핵심 논쟁 구조 / 구조적 논리 / 인접 파급 논리
+- 원칙 명문화: "등급/목표주가는 결과물, 그 결론을 만든 사고 구조와 논리 체계를 반영해야 함"
+
+---
+
+## v43.8 -- WF AMD Tactical + MRVL-NVDA 파트너십 다각도 통합 (2026-04-07)
+
+### SCREENER_DB 2종목 갱신
+- **AMD**: WF OW PT $345(2Q26 Tactical), EPYC +40%+ y/y, Turin/Diamond Rapids, DC GPU $13.5B→$32.3B→$40B+, 서버CPU TAM $100B by 2030, EPS 2026E $6.25, 시나리오 $180/$345/$430
+- **MRVL**: NVLink Fusion IP블록 퍼실리테이터, Trainium4 호환, CelestialAI EAM→AMZN, AI-RAN Cavium, MS PT $103 / Evercore $120 / UBS $120
+
+### TECH_KW v43.8 블록 추가 (14개 키워드)
+Turin CPU, Zen 6, EPYC server CPU, server CPU TAM, NVLink Fusion IP, XPU NVLink, CelestialAI EAM, EAM-based photonics, Scorpio X, ALAB Scorpio, AI-RAN 5G/6G, Cavium baseband, NVSwitch alternative, heterogeneous compute
+
+### CHAT_CONTEXTS['macro'] XLK 섹션 확장
+AMD 2Q26 Tactical 상세(EPYC 경로/DC GPU/시나리오), MRVL-NVDA 파트너십 다각도(MS/JPM/Evercore 시각, ALAB 포지셔닝, AI-RAN, CelestialAI EAM)
+
+---
+
+## v43.7 -- MS LRCX + Evercore WFE + Memory 슈퍼사이클 + UBS Rubin Ultra (2026-04-07)
+
+### SCREENER_DB 4종목 갱신
+- **LRCX**: MS OW PT $260, 5분기 연속 9% beat, JunQ $6.2bn, DRAM QoQ 최고치, NAND WFE 최대 수혜
+- **AMAT**: Evercore 탑픽, WFE $140B/$180B 상향, HBM 용량 확대=장비 수요 배수 확대
+- **MU**: DRAM 컨트랙트 Q2 +50%↑, NAND +70~75% QoQ, 모바일 Q2 캐치업, 슈퍼사이클 2027-28
+- **TER**: 신호 HOLD→BUY, Rubin Ultra 2-die→288랙=2x 테스트 수량 수혜, CoPoS 2026 앞당김
+
+### TECH_KW v43.7 블록 추가 (14개 키워드)
+WFE forecast, memory super-cycle, Rubin Ultra 2-die, Rubin 288 rack, CoPoS 2026, DRAM/NAND contract price, KV cache memory, agentic DRAM/NAND, MLPerf v6, CPO teach-in, HBM/NAND bit growth, SABRE 3D
+
+### CHAT_CONTEXTS['macro'] XLK 섹션 확장
+메모리 슈퍼사이클 2027-28 공급 제약 3가지, Agentic AI=KV 캐시=DRAM/NAND 집약화, LRCX 어닝 구조, Rubin Ultra 2-die 전환 상세, 컨트랙트 사이클(DRAM +50%/NAND +70~75%)
+
+---
+
+## v43.6 -- KeyBanc 4/5-6 DC/서버/패키징 심화 통합 (2026-04-07)
+
+### SCREENER_DB 8종목 갱신
+- **NVDA**: Rubin HBM4 자격검증 6월→9월 지연, 목표 1.5M GPU/6K VR랙
+- **AVGO**: Google LTA 2031(TPU+네트워킹) 확정, META Arke(MTIA v450) 수주, Mediatek ~50% 위협→LTA로 방어
+- **AMD**: CoWoS 인터포저 20K→80K(+167%), CPU 매출 +127% YoY, PT $330
+- **MU**: HBM4 자격검증 지연(SKH 베이스다이 재설계), 수율 <30%
+- **INTC**: Humu Fish $48~58B(상향), Trainium4→Alchip EMIB-T 채택 유력
+- **MRVL**: Maia 300 볼륨 500K→300K 미만 하향, TLVR/Dual Loop 평가 중
+- **MPWR**: Vera Rubin Stage 2 전원 60~70% 점유, VR ASP GB300 대비 +30%, PT $1500
+- **META**: MTIA 로드맵 전면 갱신(Olympia 취소→Apollo, Arke→AVGO, Iris 2H26)
+- **QCOM**: 중국 빌드 -20% avg 반영, SWKS: CSS→ARM 마이그레이션 royalty 우려
+
+### TECH_KW v43.6 블록 추가 (14개 키워드)
+Zebra Fish, Humu Fish, MTIA Arke/Iris/Apollo, Maia 300, Trainium 3A/3B/4, FOCoS, VPD, TLVR, Dual Loop VR, Aspeed power, Google LTA, Rubin rack 등
+
+### CHAT_CONTEXTS['macro'] XLK 섹션 확장
+AVGO LTA 2031 구조, META MTIA 전체 로드맵, AWS Trainium 3A→3B→4, MRVL Maia 지연, MPWR VPD/ASP 데이터, AMD CoWoS 확장, TLVR 대안 평가
+
+---
+
+## v43.5 -- HOME_WEEKLY_NEWS 업데이트 + /data-refresh F1 섹션 (2026-04-07)
+
+### HOME_WEEKLY_NEWS 갱신
+- 트럼프 이란 최후통첩 (4/7 오후 8시 — 자정 내 발전소/교량 파괴 선언, WTI $112, 호르무즈 봉쇄)
+- Liberation Day 관세 1주년: 공장 일자리 89K 감소, 무역적자 확대, 철강/알루미늄/구리 50% 확정
+- Anthropic ARR $30B: 엔터프라이즈 500→1,000명(2개월), GW급 TPU 2027
+
+### /data-refresh SKILL.md F1 섹션 신설
+- HOME_WEEKLY_NEWS 수동 큐레이션 상세 절차 문서화
+- 선별 기준(score 90+급), 형식 스펙(sentiment/topic 판별표), 3건 유지 규칙
+- 웹 검색 전략 + 단계별 업데이트 절차 추가
+
+---
+
+## v43.4 -- TSMC 병목 + EMIB vs CoWoS 패키징 경쟁 + JPM GTM 통합 (2026-04-07)
+
+### 리서치 통합 (3건 + 이미지 리포트)
+- **Damnang — TSMC 병목**: PDK 고착 구조(마스크셋 $100M+, DTCO), 수율 플라이휠 40년, Capex $52~56B/년(Intel 3.4배), 3nm 200K wpm, 2nm Fab22 Q4 2025 양산, CoWoS 35K→125K 패널/월
+- **Damnang — EMIB vs CoWoS**: EMIB-T(120x180mm, 38+브릿지, bump pitch 35→25μm), 3.5D 혼동 정리(Intel=EMIB+Foveros / Broadcom=CoWoS-L+SoIC), NVIDIA Feynman EMIB 검토, 삼성 수직통합 피치
+- **JP Morgan GTM (2026.03)**: AI 산업 S&P500 비중(Hyperscalers 19.6%, Semis 14.8%), 4Q25 GDP +0.7%(순수출 -1.0%p 드래그), S&P500 #1 JPMorgan 등극($21.2T)
+
+### SCREENER_DB 5종목 갱신
+- **NVDA**: CoWoS 60%+ 점유, Feynman EMIB 검토=다변화 신호
+- **TSM**: Capex $52~56B, 3nm 200K wpm, CoWoS 35K→125K, PDK+DTCO 고착 모트
+- **AVGO**: XDSiP 3.5D = CoWoS-L + SoIC (TSMC 스택) 명시
+- **INTC**: EMIB-T 상세(120x180mm/38+브릿지/25μm), Foveros Direct, Clearwater Forest, 패키징 매출 대폭 초과
+- **AAPL**: TSMC 2nm 초기물량 절반 이상 선점, Intel 14A 추가 수주
+
+### TECH_KW v43.4 블록 추가
+SoIC, Foveros Direct, hybrid bonding, XDSiP, Clearwater Forest, DTCO, PDK, tapeout cost, bump pitch, EMIB-M, CoPoS, CoWoS-R, TSMC bottleneck 등 17개
+
+### CHAT_CONTEXTS['macro'] 기술(XLK) 섹션 확장
+TSMC 병목 심화(Broadcom CEO 발언), PDK/DTCO 고착 구조, EMIB vs CoWoS 경쟁 프레임, 3.5D 아키텍처 혼동 정리, 삼성 수직통합 피치, AI 산업 S&P500 비중, 4Q25 GDP 데이터
+
+---
+
+## v43.3 -- 애널리스트 목표주가·등급 뉴스 강화 (2026-04-07)
+
+### 뉴스 스코어링 개선
+- **애널리스트 패널티 → 보너스 전환**: `score -= min(analystHits,2)*10` (최대 -20) → `score += min(analystHits,1)*3` (최대 +3)
+- **대형주 애널리스트 추가 부스트**: 티커 검출 후 analystHits>0이면 메가캡 +10 / 대형주 +5 추가 — 중요 등급 변경 브리핑 진입 보장
+- **기대 스코어 변화** (NVDA 업그레이드, Tier1 소스, 1시간 이내): -20→+23 개선 → 총점 약 65~75 (브리핑 45+ 통과)
+
+### 소스 추가
+- **Nasdaq Analyst Activity** (TIER 1): `category=Analyst+Activity` — 애널리스트 등급·목표주가 전용 피드
+
+### ANALYST_KW 확장
+- 액션 키워드 추가: `raises target`, `cuts target`, `raises pt`, `initiates at buy/OW/outperform` 등
+- IB 하우스명 추가: Jefferies, JPMorgan, Goldman Sachs, Morgan Stanley, Citi, BofA, KeyBanc, Piper Sandler, Barclays 등 13개
+- 한국어 추가: `목표주가 상향/하향`, `투자의견 상향/하향`, `비중확대/비중축소`
+
+### 미추가 (Wall St Engine)
+- wallstengine.com: Beehiiv 뉴스레터 — 공개 RSS 없음 → 추가 불가
+
+---
+
+## v43.2 -- Citi 1Q26 + KeyBanc Asia Tour(HBM4/CoWoS/파운드리) + Anthropic $30B + GPT 6.0 (2026-04-07)
+
+### 리서치 통합 (8건)
+- **Citi 1Q26 반도체 프리뷰**: AVGO/NVDA/TXN/MPWR 탑픽. AMD/ADI Citi CW. SWKS > QCOM (Apple 공급망). 아날로그 가격 +10~15% 상승사이클. 스마트폰 -17% 유닛 하락
+- **KeyBanc Asia Tour — 메모리**: DRAM/NAND 1Q26 +100% QoQ, 2Q26 +30~50%. SNDK/META LTA $0.50/GB 하한가+선급금 구조. HBM4 수율: 삼성 선두·SKH 재설계·MU <30%(개선 중). Rubin 출하 200K→150K 하향
+- **KeyBanc Asia Tour — DC/서버**: 서버 출하 +18.5%. INTC 2차·AMD 1차 가격인상. Lunar Lake 판매 호조. 에이전틱AI=CPU 수요 신규 동인. META/MSFT NVDA Vera CPU 발주
+- **KeyBanc Asia Tour — 파운드리**: INTC 18A 수율 65%·Apple 추가 14A 확인·구글 Humu Fish EMIB-T. CoWoS 650K/840K 공급확장
+- **Anthropic $30B ARR**: 엔터프라이즈 클라이언트 500→1,000명(2개월). Google+Broadcom GW급 TPU 2027 계약
+- **GPT 6.0 / 대만 ODM**: 컴퓨팅 +40% 요구. Foxconn/Quanta/Wistron 주문 급증
+
+### 코드 업데이트
+- **SCREENER_DB 9종목 메모 갱신**: NVDA(CoWoS/Rubin), AVGO(EMIB-T/탑픽), AMD(에이전틱AI CPU), ADI(CW/아날로그가격), TXN(HOLD→BUY/탑픽), MPWR(탑픽/KeyBanc raised), ON(HOLD→BUY/KeyBanc), SWKS(HOLD→BUY/Citi), QCOM(주의 추가)
+- **TECH_KW 보강**: `EMIB-T`, `HBM4 qualification/yield/supply`, `Lunar Lake`, `analog pricing`, `GPT 6.0/GPT6`, `CoWoS supply/capacity`, `Vera CPU`, `Taiwan ODM AI`, `agentic AI CPU`, `Anthropic ARR`, `GW-scale TPU`, `Samsung/SKH/Micron HBM4` 등 18개 키워드 추가
+- **MACRO_KW 보강**: `Anthropic`, `OpenAI`, `xAI`, `AI run-rate`, `ARR milestone`, `GW-scale compute`, `Sam Altman`, `Dario Amodei` 추가 → Anthropic/OpenAI 뉴스 +40pt 합산 스코어링
+- **CHAT_CONTEXTS['macro'] XLK 섹션**: HBM4 공급망 재편·CoWoS 확장·아날로그 가격사이클·에이전틱AI CPU 수요·Anthropic $30B·GPT-6 컴퓨팅 수요 상세 추가
+- **HOME_WEEKLY_NEWS**: Anthropic ARR $30B + Google/Broadcom GW TPU 계약 추가 (핵심 뉴스 교체)
+
+---
+
 ## v43.1 -- JP모건 WSTS 2026년 2월 + KeyBanc MU/INTC 통합 (2026-04-06)
 
 ### 리서치 통합 (3건)
