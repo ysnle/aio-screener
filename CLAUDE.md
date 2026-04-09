@@ -1,199 +1,101 @@
 # AIO Screener — Claude Code 프로젝트 가이드
 
-## 새 대화 시작 시 필수 읽기 순서
+AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
-1. 이 파일 (CLAUDE.md) — 프로젝트 개요 + 절대 규칙 + 작업 규칙
-2. `_context/BUG-POSTMORTEM.md` — 과거 버그 사후 분석 (같은 실수 반복 방지)
-3. `CHANGELOG.md` (최근 5개 항목) — 현재 버전, 최근 변경 내역
-4. `_context/QA-CHECKLIST.md` — 수정 후 점검 절차
+- 배포: `https://ysnle.github.io/aio-screener/`
+- 현재 버전: **v45.5**
+- 메인 파일: `index.html` (**~38,250줄**, ~2.1MB)
+- 스택: HTML5 + 인라인 CSS3 + Vanilla JS(ES5/ES6) · Chart.js(CDN) · AES-256(API 키 암호화) · GitHub Pages 정적 호스팅 · 한국어 UI · 다크 테마 · WCAG AA
 
-## 프로젝트 개요
+## 새 대화 시작 시 필수 읽기
 
-AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다.
-실시간 시장 데이터, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed 지수, 포트폴리오 관리 기능을 하나의 HTML 파일에 담고 있다.
+1. 이 파일 (CLAUDE.md) — 절대 규칙 + 작업 규칙 요약
+2. `_context/RULES.md` — 마스터 룰 R1~R26 (필요 시)
+3. 작업 유형에 따라 아래 "작업 유형별 읽을 파일" 표 참조
 
-- **배포 URL**: `https://ysnle.github.io/aio-screener/`
-- **현재 버전**: v43.1
-- **메인 파일**: `index.html` (~33,000줄, ~2.1MB)
+## 상세 문서 위치
 
-## 기술 스택
-
-- HTML5, CSS3 (인라인), Vanilla JavaScript (ES5/ES6 혼용) — 프레임워크 없음
-- Chart.js (CDN), Inter + JetBrains Mono (Google Fonts), 이모지 아이콘
-- API: Yahoo Finance, rss2json, 다수 CORS 프록시 체인
-- 프록시: Cloudflare Workers (`cloudflare-worker-proxy.js`)
-- 배포: GitHub Pages (정적 호스팅)
-- AES-256 (API 키 클라이언트 사이드 암호화), 다크 테마 전용
-- **MCP**: context7 — 외부 라이브러리 코드 작성/디버깅 시 `use context7`로 최신 공식 문서 참조
-
-## 파일 구조
-
-```
-AIO/
-├── index.html                      ← 메인 (= 최신 버전)
-├── aio_ui_prototype_v{N}.html      ← 버전별 스냅샷
-├── version.json                    ← 현재 버전 메타데이터
-├── CHANGELOG.md                    ← 전체 변경 이력
-├── cloudflare-worker-proxy.js      ← CORS 프록시 워커
-├── _backup/                        ← 수정 전 백업본
-├── _archive/                       ← 이전 버전 보관
-├── _context/                       ← QA/점검/규칙 통합 폴더 (유일한 진실의 원천)
-│   ├── RULES.md                    ← 마스터 룰 (R1~R26)
-│   ├── BUG-POSTMORTEM.md           ← 버그 사후 분석 + violated_rule 역참조 (R25)
-│   ├── QA-CHECKLIST.md             ← 실행 가능한 QA 체크리스트
-│   ├── INDEX.md                    ← 지식 베이스 자동 인덱스 (R24)
-│   ├── KNOWLEDGE-BASE.md           ← 기술 인사이트 축적 (R26)
-│   ├── working-rules.md            ← 작업 규칙
-│   ├── voice-and-style.md          ← 톤 & 스타일 가이드
-│   └── archive-reports/            ← 과거 버전별 리포트 아카이브
-├── .claude/
-│   ├── hooks/                       ← 자동 실행 Hook 스크립트
-│   │   ├── protect-files.sh         ← PreToolUse: 백업/아카이브 파일 덮어쓰기 차단
-│   │   ├── block-dangerous.sh       ← PreToolUse: rm -rf, force push 등 위험 명령 차단
-│   │   └── validate-edit.sh         ← PostToolUse: index.html div 균형 자동 체크
-│   └── skills/                      ← 스킬 (slash commands)
-│       ├── bug-fix/                 ← 버그 수정 워크플로우
-│       ├── post-edit-qa/            ← 수정 후 QA
-│       ├── integrate/               ← 자료 통합
-│       └── knowledge-lint/          ← 지식 베이스 린팅
-└── outputs/                        ← 생성 결과물
-```
-
-## Hook 시스템 (자동 방어)
-
-CLAUDE.md 규칙을 "제안"이 아닌 "강제"로 만드는 자동 Hook:
-
-| Hook | 타이밍 | 역할 |
-|------|--------|------|
-| `protect-files.sh` | PreToolUse (Edit/Write) | 백업 파일(v*.html), _backup/, _archive/ 수정 차단 |
-| `block-dangerous.sh` | PreToolUse (Bash) | rm, git reset --hard, force push 차단 |
-| `validate-edit.sh` | PostToolUse (Edit/Write) | index.html 수정 시 div 열림/닫힘 균형 자동 검증 |
-
-Hook은 `.claude/settings.local.json`에서 관리. exit 2 = 차단 + 사유 전달, exit 0 = 통과.
+- **파일 구조 / Hook 시스템**: `_context/CLAUDE.md`
+- **index.html 내부 구조 + line 범위 맵**: `_context/CODE-MAP.md` ← **index.html 수정 전 필독**
+- **마스터 룰 R1~R26**: `_context/RULES.md`
+- **버그 사후 분석**: `_context/BUG-POSTMORTEM.md`
+- **QA 체크리스트**: `_context/QA-CHECKLIST.md`
+- **작업/백업/자료 분류 규칙**: `_context/working-rules.md`
+- **기술 인사이트**: `_context/KNOWLEDGE-BASE.md`
+- **지식 베이스 인덱스**: `_context/INDEX.md`
 
 ---
 
-## 절대 규칙
+## 절대 규칙 (핵심만 — 상세는 RULES.md)
 
 ### R1. 버전 동기화 (6곳 필수)
-버전 변경 시 반드시 6곳 모두 동일한 버전 문자열인지 확인:
+버전 변경 시 6곳 모두 동일한 문자열:
 1. `<title>` 태그
 2. `#app-version-badge` 인라인 텍스트
-3. `const APP_VERSION` — JS 상수 (title과 badge를 JS에서 덮어씀)
-4. `version.json` → `version` 필드
-5. `_context/CLAUDE.md` → `현재 버전:` 행
-6. `CHANGELOG.md` → 최상단 항목의 버전 번호
+3. `const APP_VERSION` JS 상수
+4. `version.json` → `version`
+5. `_context/CLAUDE.md` → `현재 버전`
+6. `CHANGELOG.md` 최상단 항목
 
-확인 명령:
+확인:
 ```bash
 grep '<title>' index.html | head -1
 grep 'app-version-badge' index.html | grep -o '>v[^<]*<'
-cat version.json | grep version
+grep version version.json
 grep '현재 버전' _context/CLAUDE.md
 head -20 CHANGELOG.md | grep '## v'
 ```
 
 ### R2. 버전 체계
-소수점 아래 1자리만: 31.1, 31.2, ..., 31.9, 32. 절대 31.10 금지.
+소수점 아래 1자리만: 31.1, 31.2, ..., 31.9, 32. **31.10 금지**.
 
 ### R3. 버그 수정 시 사후 분석 필수
-모든 버그 수정 후 `_context/BUG-POSTMORTEM.md`에 기록 (형식은 RULES.md 참조).
+모든 버그 수정 후 `_context/BUG-POSTMORTEM.md`에 기록 (형식은 RULES.md).
 
-### R4~R26 — 상세 규칙은 `_context/RULES.md` 참조
-주요 항목: 동적 DOM 삽입 주의(R4), CSS overflow 3중 방어(R5), LLM 응답 안전장치(R6), 한국어 텍스트 레이아웃(R7), 차트 텍스트 폴백(R8), Dead Page 방지(R9), 종목코드 3중 검증(R10~R12), CHAT_CONTEXTS 이원화(R13), 뉴스 키워드 현행화(R14), 데이터 미수신 vs 0% 구분(R15), 뉴스 티커 토픽 기반 표시(R16), 키워드 길이 제한(R17), 텔레그램 채널 관리(R18), 지식 정합성 린팅(R19), 에이전트 산출물 검증 관리(R20), 데이터 경과일 관리(R21), 뉴스 계층적 선별(R22), ADR 재무 파싱(R23), **_context/ 인덱스 자동 관리(R24)**, **버그 역참조 체계(R25)**, **기술 인사이트 환류(R26)**.
-
----
-
-## 토큰 효율성 규칙
-
-### 응답 스타일
-- 인사/칭찬/마무리 멘트 금지 ("Sure!", "Great question!", "I hope this helps!" 등)
-- 사용자 질문 되풀이 금지 — 바로 답변/작업 시작
-- 불필요한 면책/경고/주의사항 금지 — 코드 작성에 집중
-- 요청 범위 외 제안 금지 — 시킨 것만 정확히 수행
-- 과잉 설계 금지 — 단순하고 직접적인 해법 우선
-
-### 작업 효율
-- 파일은 한 번만 읽기 — 이미 읽은 파일 재읽기 금지 (변경 의심 시 제외)
-- 한 번의 집중된 코딩 패스 — write-delete-rewrite 사이클 회피
-- 테스트 1회, 수정 필요 시 수정 후 확인 1회 — 불필요한 반복 금지
-- ASCII 우선 — em dash(—), smart quotes("") 대신 표준 문자 사용
-- 모르면 솔직히 말하기 — 파일 경로나 함수명을 추측/날조 금지
+### R4~R26
+상세 규칙은 `_context/RULES.md` 참조. 주요 축: 동적 DOM(R4), CSS overflow(R5), LLM 안전장치(R6), Dead Page 방지(R9), 종목코드 검증(R10~R12), CHAT_CONTEXTS 이원화(R13), 뉴스 키워드/티커(R14~R18), 데이터 경과일(R21), 뉴스 계층 선별(R22), 인덱스 자동 관리(R24), 버그 역참조(R25), 기술 인사이트 환류(R26).
 
 ---
 
-## 작업 규칙
+## 작업 규칙 (핵심)
 
-### 배포 규칙
-- **자동 배포/커밋 금지** — 사용자가 명시적으로 요청할 때만 커밋/푸시/배포
+### 배포
+- **자동 배포/커밋 금지** — 사용자가 명시적으로 요청할 때만 (/deploy 또는 "배포해줘")
 - `index.html`이 곧 최신 버전 — 항상 이 파일에서 작업
 
-### 버전 백업 파일 관리
-- 이전 버전 백업 파일(aio_ui_prototype_vXX.html)에 새 버전 내용을 **절대 덮어쓰지 말 것**
-- 새 버전은 항상 새 파일명으로 별도 생성
-- 사소한 수정은 현재 버전에 누적, 큰 변경은 버전 번호를 올림
-
-### 코드 수정 시 QA/점검 시스템 자동 반영 필수
-코드 수정 완료 시 **사용자가 따로 요청하지 않아도** 아래를 같이 업데이트:
+### 코드 수정 시 자동 반영 (사용자 요청 없어도)
 1. `_context/BUG-POSTMORTEM.md` — 버그 원인/수정/예방 기록
 2. `_context/QA-CHECKLIST.md` — 새 검증 항목 추가
 3. `_context/RULES.md` — 새 규칙/패턴 추가
 4. 버전 6곳 동기화 (R1)
 
-### 자료 자동 분류 처리
-사용자가 자료만 보내면 별도 지시 없이도 자동 처리:
-- 분석글/칼럼 → `AIO_콘텐츠_업그레이드_레퍼런스.md`에 기법 추출 병합
-- 매크로/시장 시그널 글 → `AIO_매크로_시그널_레퍼런스.md`에 시그널 추출 병합
-- UI/대시보드 이미지 → `AIO_UI_디자인_레퍼런스.md`에 패턴 추출 병합
-- 기타 → 유형 판단 애매하면 사용자에게 확인
+### index.html 수정 원칙
+- **절대 전체 재작성 금지** — 38,250줄 단일 파일이므로 필요한 부분만 패치
+- 수정 전 `_context/CODE-MAP.md`에서 해당 기능의 line 범위 확인 → Read offset/limit로 부분 읽기
+- 이전 버전 백업(aio_ui_prototype_vXX.html)에 덮어쓰기 금지
+- 자료 자동 분류 / 백업 관리 등 상세는 `_context/working-rules.md`
 
 ---
 
-## 아키텍처 특징
+## 토큰 효율성
 
-1. **단일 파일 아키텍처**: 모든 HTML, CSS, JS가 `index.html` 하나에 존재
-2. **절대 전체 재작성 금지**: 33,000줄 파일이므로 필요한 부분만 패치
-3. **파일 삭제 금지**: 이전 버전 파일은 기록 보존 목적으로 유지
-4. **정적 폴백**: API 실패 시 하드코딩된 시세 데이터로 즉시 렌더링
-5. **CORS 프록시 체인**: rss2json → 다수 무료 프록시 → Cloudflare Worker 순서로 폴백
-6. **페이지 시스템**: `showPage(id)` — 21개 페이지 SPA식 탭 전환
-   - home, signal, technical, breadth, sentiment, macro, fxbond, sector, rrg
-   - watchlist, screener, etf, learning, briefing, news, portfolio, glossary
-   - chat, settings, about, history
-7. **다크 테마 전용**: `#0a0e14` 배경, CSS 변수로 일관된 색상 체계
-8. **한국어 UI**: 모든 사용자 대면 텍스트는 한국어
-9. **WCAG 접근성**: 최소 대비비 4.5:1 (AA) 준수
+- 인사/칭찬/마무리 멘트 금지
+- 질문 되풀이 금지 — 바로 답변/작업
+- 요청 범위 외 제안/과잉 설계 금지
+- 파일은 한 번만 읽기 (변경 의심 시 제외) — 특히 index.html은 CODE-MAP 기반 부분 읽기
+- ASCII 우선 · 모르면 솔직히 말하기 (경로/함수명 날조 금지)
 
-## 핵심 함수/패턴
-
-- `applyStaticFallbacks()` — 정적 시세 데이터 즉시 적용
-- `fetchLiveQuotes()` — 실시간 시세 API 호출
-- `chartDataGate()` — 차트 데이터 검증 게이트 (NaN/null 방어)
-- `_ldSafe(ticker, field)` — `_liveData` 안전 접근 + `_SNAP_FALLBACK` 폴백
-- `showPage(id)` — SPA 페이지 전환
-- `destroyPageCharts(pageId)` — 페이지 이탈 시 Chart.js 인스턴스 정리
-- `showConfirmModal()` — 커스텀 확인 모달 (native confirm() 대체)
-- `safeLS()` / `safeLSGet()` — 암호화된 localStorage 래퍼
-- `updateMarketPulse()` — 마켓 펄스 바 갱신 (v42.1+, 페이지 간 유기적 연결)
-
-## 상태 라이프사이클
-
-페이지 전환 흐름: `showPage(newPage)` → `destroyPageCharts(oldPage)` → `initXxxPage()` → `initXxxCharts()`
-
-반복 발생 버그 패턴:
-- init 가드가 destroy 시 리셋되지 않아 재진입 실패 (R9, 3회 위반)
-- 캔버스 ID가 실제 해당 페이지 DOM과 불일치
-- popstate와 showPage 양쪽에서 초기화 함수 불일치
-- Yahoo Finance API `meta`에 `regularMarketChangePercent` 없음 → 수동 계산 필요
-- **stale DOM 참조**: 리팩토링 후 `getElementById`가 삭제된 ID를 참조 → 기능 무음 실패 (P43)
+---
 
 ## 작업 유형별 읽을 파일
 
 | 작업 유형 | 읽을 파일 |
 |-----------|-----------|
+| index.html 수정 | **CODE-MAP.md** → 해당 line 범위만 Read |
 | 버그 수정 | RULES.md → BUG-POSTMORTEM.md → QA-CHECKLIST.md |
-| 새 기능 추가 | RULES.md → working-rules.md → QA-CHECKLIST.md |
+| 새 기능 추가 | RULES.md → working-rules.md → CODE-MAP.md |
 | QA/점검 요청 | RULES.md → BUG-POSTMORTEM.md → QA-CHECKLIST.md |
-| 리팩토링/개편 | RULES.md → BUG-POSTMORTEM.md → CLAUDE.md |
-| 버전 릴리스 | RULES.md → working-rules.md (버전 동기화 규칙) |
-| 지식 린팅 | RULES.md(R19~R20) → `/knowledge-lint` 스킬 실행 |
+| 리팩토링/개편 | RULES.md → BUG-POSTMORTEM.md → CODE-MAP.md |
+| 버전 릴리스 | RULES.md(R1~R2) → working-rules.md |
+| 지식 린팅 | RULES.md(R19~R20) → `/knowledge-lint` 스킬 |
+| 자료 통합 | working-rules.md(자료 자동 분류) → `/integrate` |

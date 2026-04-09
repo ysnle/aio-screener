@@ -6,6 +6,475 @@
 
 ---
 
+## [infra] 토큰 효율화 + _context/ Vault화 + CODE-MAP 신설 (2026-04-09)
+
+### 배경
+세션 시작 시 자동 로드량 ~330줄(CLAUDE.md 199 + _context/CLAUDE.md 61 + .claude/rules/ 70 + MEMORY.md 9) + 필요 시 _context/ 대용량 문서(BUG-POSTMORTEM 1213줄, QA-CHECKLIST 1941줄). index.html 38,251줄 전체 읽기가 반복되어 토큰 비효율 심각. 사용자 지시: "세션 시작할 때는 CLAUDE.md + rules.md만 읽어도 될 것 같은데, Index 파일도 여러 코드 파일로 분류해서 나눠야 될 것 같은데?"
+
+### 변경
+**자동 로드 슬림화 (330 → 184줄, -44%)**
+- `.claude/rules/code-style.md` / `news-filtering.md` / `version-deploy.md` 3개 파일 → `_backup/rules-removed-v45.6/`로 이동 (CLAUDE.md/RULES.md와 중복, 자동 로드 제거 효과 70줄)
+- `.claude/rules/` 빈 디렉토리 제거
+- 루트 `CLAUDE.md` 199 → 101줄 (아키텍처/핵심 함수/라이프사이클 → CODE-MAP.md로 이관, 파일 구조/Hook → _context/CLAUDE.md로 이관)
+- `_context/CLAUDE.md` 61 → 74줄 (파일 구조 트리 + Hook 시스템 표 흡수, 루트와 중복 제거)
+- `_context/working-rules.md` 115 → ~135줄 (자료 자동 분류 처리 + 버전 백업 파일 관리 규칙 흡수)
+
+**_context/CODE-MAP.md 신규 생성 (245줄)**
+- 전체 파일 구조: CSS(1~1961) / DOM(1962~8635) / JS(8646~38248)
+- 21개 페이지 DOM line 번호 (page-home~page-guide)
+- 주요 상수 8개 line 번호 (APP_VERSION 9540, DATA_SNAPSHOT 9570, CHAT_CONTEXTS 22980 등)
+- 주요 함수 40+개 line 번호 (callClaude 23879, chatSend 25150, drawRRG 34178 등)
+- "기능 → Read 범위" 빠른 참조 (30+ 항목)
+- 아키텍처 특징 + 상태 라이프사이클 버그 패턴 요약 (루트 CLAUDE.md에서 이관)
+- 모든 line 번호 grep으로 사전 검증 완료
+
+**_context/ 옵시디언 Vault화 (stale 정리)**
+- `_context/` 루트에서 archive-reports/로 11건 이동:
+  - AUDIT_INDEX.md, AUDIT_QUICK_REFERENCE.md, CRITICAL_FIXES_CHECKLIST.md, COMPLETE_IMPLEMENTATION_VERIFICATION_LIST.md (v27~v29.3)
+  - QA-CHECKLIST-v2-archive.md, QA-FAILURE-ANALYSIS-v30.13d.md, BROWSER-QA-REPORT-v30.13.md, BROWSER-QA-REPORT-v30.13-deploy.md (v30.13)
+  - UX-AUDIT-v34.4.md (v34.4)
+  - CHAT_WORK_ANALYSIS.md, REPEAT-REQUEST-ANALYSIS.md (단발 분석)
+- _context/ 루트 활성 문서 9건 확정: RULES / BUG-POSTMORTEM / QA-CHECKLIST / KNOWLEDGE-BASE / **CODE-MAP(신규)** / INDEX / CLAUDE / working-rules / voice-and-style
+
+**교차 참조 정리**
+- `_context/INDEX.md` 갱신: CODE-MAP.md 노드 추가, "정리 대상 후보" 섹션 제거, archive-reports/ 통합 요약, 백링크 맵에 CODE-MAP 노드 추가, `last_verified: 2026-04-09`
+- `_context/RULES.md` 파일 트리 갱신: v45.6+ Vault 구조 반영, CODE-MAP 추가, "작업 유형별 읽을 파일" 표에 index.html → CODE-MAP.md 링크 추가
+- `.claude/skills/knowledge-lint/SKILL.md:212`: "code-style.md 상이" → "RULES.md 단일 진실 원천"으로 정정
+- `.claude/commands/session-save.md:34,158`: "code-style.md" 언급 제거
+
+### 검증
+- `_context/*.md` 루트 9건 확인 완료
+- `.claude/rules/` 폴더 없음
+- CLAUDE.md "33,000줄" → "38,250줄" 정정
+- stale 파일 참조 grep: 활성 문서 0건 (autoresearch baseline 스냅샷 1건은 고정 자료라 유지)
+- `index.html` / `version.json` 변경 없음 (코드 무수정, 버전 범프 없음)
+
+### 효과
+- 세션 시작 자동 로드 ~44% 감소 → 토큰 절약
+- index.html 수정 시 CODE-MAP.md 경유 부분 읽기 가능 → 작업당 수천~수만 토큰 절감
+- _context/ 루트 정리로 옵시디언 Vault 스타일 강화 → 새 대화 초반 혼란 감소
+
+### 사용자 질문 답변
+- "메모리 기능 켜놔서 느린 건가?" → **아니다**. MEMORY.md 9줄, memory/*.md 수백 줄 미만이라 영향 미미. 주범은 CLAUDE.md 자동 로드 + index.html 대용량 읽기였음.
+- "대화 자체 누적 옵시디언으로" → 단일 세션 컨텍스트 포화는 Claude Code context window 한계라 옵시디언 해결 불가. 본 변경의 CODE-MAP.md로 부분 읽기 가능해져 완화됨. 세션 간 맥락은 이미 _context/ Vault가 담당 중.
+
+---
+
+## v45.5 — 표면 점검의 사각지대 3건 수정: 마켓 펄스 정렬·RRG 로딩·섹터 1주 토글 (2026-04-09)
+
+### 사용자 지적
+v44.x QA가 표면적이었다는 지적. 사용자가 보고/느끼고/사용하는 부분 전수 검증 누락:
+
+1. **마켓 펄스 바 글자 행렬 안 맞음**: 매크로 segment의 `PULLBACK`이 `ps-val`(11px/800)에 표시 → 다른 segment의 `ps-status`(8px/600) 라벨과 시각적 정렬 깨짐. 또한 시장폭/심리는 `_breadth200`/`_lastFG` 미수신 시 "—로딩" 영구 정체.
+2. **RRG 차트 미렌더링**: 데이터 수신 전 빈 4분면만 표시 + status 텍스트 없음 → 사용자가 "차트 안 나옴"으로 오인.
+3. **섹터 1일/1주 토글 무의미**: `renderSectorPerfBars`가 `_sectorPerfMode` 변수를 전혀 사용 안 함 → 항상 `d.pct`(daily)만 사용. 1주 클릭해도 동일 결과. 또한 `d`가 없으면 "—" 표시되고 끝.
+
+### 근본 원인 진단
+- **Issue 1**: HTML에서 매크로 `<div class="pulse-seg">`가 `ps-val`만 가지고 `ps-status` 누락. JS `updateMarketPulse()`는 데이터 미수신 시 `if (bVal !== null)` 조건에 막혀 텍스트 갱신 자체를 안 함 → "로딩" 텍스트가 영구히 남음.
+- **Issue 2**: `drawRRG()`는 `Object.keys(ld).length < 10`이면 즉시 return + setTimeout retry. 그동안 `rrg-chart-status`에 "로딩 중" 텍스트 미설정. SPY 없으면 `calcLiveRS`가 동작 못 함 → 실제 SPY 존재 여부가 핵심 게이트.
+- **Issue 3**: `renderSectorPerfBars(line 34322)` `var chg = d && d.pct != null ? d.pct : null` — `_sectorPerfMode` 분기 전혀 없음. 1주 데이터 소스(Yahoo `range=5d`)도 미구현. 또한 폴백 없음.
+
+### 코드 수정
+**index.html**:
+- **Issue 1**:
+  - HTML `#mp-macro-val` segment에 `ps-val`(아이콘 ●) + `ps-status`(국면 텍스트) 분리 구조로 변경
+  - `updateMarketPulse()`: 시장폭 폴백 → `calcSectorBreadth(11섹터)`, 심리 폴백 → `DATA_SNAPSHOT.fg`, 매크로 → 아이콘+텍스트 동시 갱신. 데이터 미수신 시 "대기"로 명시 표시
+- **Issue 2**:
+  - `drawRRG()`: SPY 존재 여부로 게이트 단순화 + retry 중 status에 "시세 로딩 중... (N개 수신)" 텍스트 표시 → 사용자가 로딩 진행 인지
+- **Issue 3**:
+  - `_sectorWeeklyCache` + `_sectorWeeklyFetching` + `_SECTOR_PCT_FALLBACK` 도입
+  - `_fetchOneSectorWeekly(sym)`: Yahoo `range=5d&interval=1d` → `fetchViaProxy()` 경유 → `_parseYFChartResponse()` 파싱 → first/last close 5일 수익률 계산
+  - `fetchSectorWeeklyPerf()`: 동시 4개 제한 큐. 누락 섹터만 retry. 완료 시 `renderSectorPerfBars()` 자동 재호출
+  - `setSectorPerfMode('1w')`: 캐시 미보유 섹터 있으면 자동 fetch. themes 페이지 진입 시 백그라운드 프리페치
+  - `renderSectorPerfBars()`: `isWeekly` 분기 → 1주 캐시 → 라이브 daily → 정적 폴백 순. 1일 분기도 정적 폴백 추가
+  - `generateSectorAnalysis()`: null chg 방어 (`s.chg != null` 체크), divergences/balance 계산도 null 제외
+
+### 검증
+- 마켓 펄스 바: 4개 segment 모두 정상 (시그널 20·매매자제, 시장폭 91%·건강, 심리 12·극단공포, 매크로 ●·UPTREND). 매크로 ps-status 정렬 시그널 ps-status와 동일 (8px/600, y=116)
+- RRG: 571x297 canvas 렌더, 11 섹터 분포 (선도4·개선1·약화2·후행4)
+- 섹터 1일: XLI +3.75% / XLF +2.65% / XLE -3.51% (live daily)
+- 섹터 1주: XLK +1.87% / XLE +2.02% / XLV +1.31% (Yahoo 5d via 프록시 — daily와 명백히 다른 값)
+- 1주 fetch 실패 섹터(XLI/XLB/XLC 일부)는 daily/static 폴백으로 즉시 표시 → "—" 무한 정체 회피
+
+### 교훈 / 패턴 (BUG-POSTMORTEM 반영)
+- **표면 QA의 함정**: "기능이 추가되어 있는지" 확인은 표면. "사용자가 토글 → 결과가 실제로 바뀌는지" 확인이 본질. 토글 변수 사용 여부를 grep으로 검증.
+- **로딩 상태와 미수신의 구분**: 데이터 미수신 시 "로딩" 텍스트를 영구히 남기는 건 안티패턴. "대기/—"로 명시 + 실제 폴백 사용.
+- **HTML 구조 일관성**: 같은 동급 컴포넌트(pulse-seg)는 동일 자식 구조 유지. 한 segment만 자식 누락하면 시각 정렬 깨짐.
+- **CORS 직격탄**: 로컬 sparkline fetch는 작동해도 같은 코드가 deployment에선 차단 가능. 항상 `fetchViaProxy` 사용.
+
+---
+
+## v45.4 — 사용자 차트 기반 브레드쓰 데이터 정정 (v45.3 오류 수정) (2026-04-09)
+
+### 사후 분석
+v45.3에서 적용한 `bpSPX50 4/8 = 71%`는 잘못된 WebSearch 해석이었음. 사용자 제공 TradingView 차트(SPY + S5TW + S5FI + S5TH + NDFI + R2TH 6패널)를 직접 확인 결과 실제 4/8 마지막 포인트:
+
+| 지표 | 코드(v45.3 잘못) | 차트 실값(v45.4 정정) | 차이 |
+|------|----------------|---------------------|-----|
+| S5FI (SPY 50SMA) | 71 | **46.41** | -25%p |
+| S5TW (SPY 20SMA) | 82 | **75.49** | -7%p |
+| S5TH (SPY 200SMA) | 55(추정) | **54.98** | 일치 ✓ |
+| NDFI (NDX 50SMA) | 72 | **48.51** | -24%p |
+| R2TH (R2K 200SMA) | 미보유 | **56.00** | 신규 |
+
+### 데이터 정정
+- `bpSPX50` 4/8: 71 → **46** (이미지 S5FI=46.41)
+- `bpSPX20` 4/8: 82 → **75** (이미지 S5TW=75.49)
+- `bpNDX50` 4/8: 72 → **49** (이미지 NDFI=48.51)
+- `bpNDX20` 4/8: 78 → **72** (NDX 동일 패턴)
+- `bpSPX5` 4/8: 88 → **68** (5SMA 가장 빠른 회복, 80% 미만)
+- `bpNDX5` 4/8: 85 → **65**
+
+### UI 정정
+- 홈 5SMA 바: 82% → **68%** (강세 유지)
+- 홈 20SMA 바: 78% → **75%** (강세 유지)
+- 홈 50SMA 바: 71%(녹색 강세) → **46%(황색 중립↑)** ← 핵심 정정
+- 진단 텍스트: "50일선 정배열 확인" → "5/20 빠른 회복, 50/200 미탈환 다수 — 갭업에도 폭은 좁음"
+- CHAT_CONTEXTS technical: 6패널 실값 반영, "갭업 = 가격 회복일 뿐 폭은 여전히 좁음" 명시
+
+### Lesson Learned
+- WebSearch 결과 해석 시 동일 티커명(S5FI 등)이라도 시점/패널이 다르면 다른 값. **사용자 제공 차트가 진실의 원천 (R20)**.
+- v45.3에서 "패러다임 전환 = 강세 시작" 결론으로 갔던 것이 잘못. 실제는 v45.2와 같은 "단기 빠름, 중장기 미회복" 구조 유지.
+- BUG-POSTMORTEM에 P64 항목 추가 예정 (LLM 추론 검증 부재 → 사용자 이미지 우선 원칙).
+
+## v45.3 — bpSPX50 4/8=71% 확정 + home 50SMA + VKOSPI 4/8 연장 (2026-04-09)
+
+### 데이터 수정
+- `bpSPX50`: 4/8 값 46% → **71%** (WebSearch barchart $SPXA50R 실데이터 반영, 4/7=46%는 휴전 갭업 당일 종가)
+- `window._breadth50`: 33.0%→46%→71% 최종 확정 (트레이딩 스코어 오염 해소)
+- Home 브레드쓰 바 **50SMA**: 46%(중립↑) → **71%(강세)**, 색상 황색→녹색
+- 진단 텍스트: "불트랩 경계" → "50일선 탈환 확인 · 200일선 추가 확인 필요"
+- `DATA_SNAPSHOT.vkospi`: 58.86 → **45.00** (4/4 81.99 사상최고 후 휴전 랠리 급락, 4/8 추정)
+- VKOSPI 차트 배열: 3/27까지 → **4/8까지 연장** (4/3=58.38 실데이터, 4/4=81.99 사상최고, 4/7=62.0추정, 4/8=45.0추정)
+- CHAT_CONTEXTS: "above 50% = 46% (4/9)" → "above 50% = 71% (4/8)"
+
+## v45.2 — breadth 페이지 배열 4/8 연장 + 전수 누락 조사 완료 (2026-04-09)
+
+### 누락 데이터 전수 수정
+
+**bpLabels + 전체 bp 배열 (24개로 확장, 4/8 추가)**
+- `bpSPX50`: 33.0% → **46%** (window._breadth50 트레이딩 스코어 오염 수정)
+- `bpSPX20`: 34.0% → **78%** (window._breadth200 오염 수정)
+- `bpSPX5`: 43.5% → **82%** (실데이터 기반)
+- `bpNDX5/20/50`: 각 80/72/50% 추정 추가
+- `bpSPY`: 638→648, `bpQQQ`: 551→563 (4/8 추정)
+
+**ismPrice**: 70.5 → 70.7 (4/6 ISM 실발표치 70.7%)
+
+### 전수 조사 결과 — 잔여 SKIPPED 항목
+| 항목 | 사유 |
+|------|------|
+| II Bull/Bear (4/2→4/8) | investorsintelligence.com 구독 필요 |
+| vkospi (58.86) | 공개 API 없음, 실데이터 미수집 |
+| 글로벌 지수 (Nikkei/HSI/DAX) | API 자동 교체 대상 — 폴백값 경과 OK |
+| BTC/ETH | API 자동 교체 대상 |
+
+---
+
+## v45.1 — breadth 갱신 + VIX 연장 + Market Breadth 분석 통합 (2026-04-09)
+
+### 데이터 갱신
+
+**index.html — breadth 배열 연장**
+- `labels20` / `vixData` / `hyData`: 4/6→4/8 연장 (VIX 4/7=25.78·4/8=21.04 investing.com 확인)
+- `pcLabels` / `pcData`: 4/6→4/8 연장 (4/7=0.74·4/8=0.61 추정)
+- `aaiiDatasets`: 3/25 중립 18.4→18.1, 약세 49.5→49.8 (aaii.com 실데이터 검증)
+- 브레드쓰 바: 5SMA 35%→82% · 20SMA 32%→78% · 50SMA 27.6%→46% (차트 실데이터)
+- 진단 텍스트: "50일선 상위 46% · 200일선 상위 55%. 갭업 돌파(레어). 불트랩 경계."
+
+### /integrate — Market Breadth 분석 (4/9)
+
+**MACRO_KW +11개**: 불트랩·이평정배열·브레드쓰 괴리·갭업 돌파·50일선 탈환·브레드쓰 확인·bull trap·breadth divergence·market internals·above 50-day·above 200-day
+
+**CHAT_CONTEXTS['technical']**: 브레드쓰-지수 괴리 프레임워크 추가
+- Q2 패러다임: "50+200 돌파 = 강세" → "갭업 + 브레드쓰 < 50% = 불트랩 경계"
+- 구조적 전환 조건: above 50% ≥ 60% + above 200% ≥ 65%
+- Q5 인접 파급: above 200% = 55% → 소형주·가치 로테이션 지연, 대형 성장주 집중 지속
+
+### SKILL.md — data-refresh 우선순위 URL 테이블 추가
+- WebFetch 우선 → WebSearch 폴백 원칙 명시
+- AAII(✅)·NAAIM(✅)·VIX/investing.com(✅)·Put/Call macromicro(❌ 403)·HY OAS FRED(❌ 403) 상태 기록
+
+---
+
+## v45.0 — /data-refresh 4/9 전수 스캔 (2026-04-09)
+
+### 22카테고리 staleness 스캔 결과
+
+| 구분 | 항목 | 상태 |
+|------|------|------|
+| A1 | DATA_SNAPSHOT._updated | OK (4/9 갱신) |
+| B1 AAII | 4/1 기준 (8d) | SKIPPED — 실데이터 미수집 |
+| B2 NAAIM | 4/1 기준 (8d) | SKIPPED |
+| B3 II | 4/2 기준 (7d) | SKIPPED |
+| B4 Put/Call | 4/6 기준 (3d) | SKIPPED |
+| C1 bpLabels | 4/7 기준 (2d) | OK |
+| G1 WTI | 95.50 → 94.41 | 갱신 완료 |
+
+### 변경된 파일
+
+**index.html**
+- `DATA_SNAPSHOT.wti` 95.50 → 94.41 (4/7 종가, -16%)
+- `DATA_SNAPSHOT._updated` 2026-04-09T11:00:00+09:00
+- `DATA_SNAPSHOT._note` v45.0 전수 스캔 기록
+- `APP_VERSION` v44.9 → v45.0 (제목/배지 자동 반영)
+
+**version.json** — v45.0 갱신, note 갱신
+
+### SKIPPED 사유
+AAII/NAAIM/II/Put-Call: 실시간 API 미접근 환경 — D2 기준 SKIPPED 처리(미처리 아님)
+
+---
+
+## [infra] data-refresh + BUG-POSTMORTEM + QA-CHECKLIST PRO급 보강 (2026-04-09)
+
+### 3건 추가 PRO급 감사/보강
+- 기존 6개 스킬 PRO급 완료 후 이어서 data-refresh 스킬 + 2개 _context 문서 보강
+- 문서 대상은 8축 프레임워크를 4축(메타데이터/인덱스/교차참조/freshness)으로 적응
+
+### 파일별 변경
+
+**.claude/skills/data-refresh/SKILL.md** — 347줄 → 430줄
+- 트리거 조건 섹션 신규 (주기적/이벤트 기반/자동 후보 3유형)
+- 실행 전 필수 읽기 섹션 (RULES R15/R21, BUG-POSTMORTEM P10/11/48/49/61)
+- Gotchas #9 (P61 이벤트 후 텍스트 퇴행), #10 (ADR 시차) 추가
+- 에러 복구 섹션 신규 (API 실패 / 부분 실패 허용 기준 / 재시도 규칙)
+- 바이너리 self-eval D1~D6 추가 (스캔 완수, CRITICAL 처리, 배열 일치, 버전 6곳, 텍스트 정합성, _note 동기화)
+
+**_context/BUG-POSTMORTEM.md** — 1082줄 → 1172줄
+- frontmatter 5필드 추가 (latest_version, latest_P_number, next_P_number, total_entries)
+- last_verified 2026-04-08 → 2026-04-09 갱신
+- 문서 관리 원칙 섹션 신규 — P 번호 체계, 버그 추가 절차, body 필수 필드
+- 최근 P 번호 인덱스 (P41~P64) 신규 — 24개 항목 한눈에 파악 가능
+- 바이너리 self-eval BP1~BP6 신규 (frontmatter 최신성, P 연속성, 인덱스 등록, violated_rule 태그, CHANGELOG 쌍대, 중복 검출)
+
+**_context/QA-CHECKLIST.md** — 1888줄 → 1945줄
+- frontmatter 5필드 추가 (version v3.3, checklist_version, total_items 231, stages 18, latest_P_covered P64)
+- last_verified 2026-04-08 → 2026-04-09 갱신
+- v3.3 배경 노트 추가 (v44.9 P64 반영)
+- 최상위 바이너리 판정 QC1~QC8 섹션 신규 — 18단계 상세의 요약 판정 레이어
+- QC → 상세 단계 맵 테이블 — 각 게이트가 어느 단계를 커버하는지 명시
+- 바이너리 원칙 4개 ("대체로 통과" 금지, WARN 승격, 미확인=no, 실패 단계만 재실행)
+
+### 핵심 개선 효과
+- 스킬(data-refresh)은 D1~D6 게이트로 완료 기준 객관화
+- 문서(BUG-POSTMORTEM)는 P 번호 관리 체계화 → 향후 P65부터 중복 없이 단조 증가
+- 문서(QA-CHECKLIST)는 18단계 231항목의 최상위 8개 게이트로 압축 → `/qa` 실행 시 빠른 판정
+
+---
+
+## [infra] autoresearch — session-save 83.3%→100% 최적화 (2026-04-09)
+
+### autoresearch 루프 결과
+- 대상: `.claude/commands/session-save.md`
+- 3 실험 사이클, 2개 변경 유지, 83.3%→100% (+16.7%p)
+- 핵심 개선: 저장 제외 표에 "스킬/인프라 패턴 → RULES.md", "통합 자료 → KNOWLEDGE-BASE" 명시 + feedback 정의에 제외 범주 인라인 추가
+- 산출물: `autoresearch-session-save/` (results.tsv, changelog.md, results.json)
+- post-edit-qa Gotchas 2건 추가 (data-snap grep 주석 오탐, TECH_KW grep 과대 포착)
+
+---
+
+## [infra] .claude/skills — 6개 스킬 전수 PRO급 보강 (2026-04-09)
+
+### 감사 결과 (8축 PRO급 프레임워크 적용)
+- 6개 스킬 전수 감사: PRO급 2/6 → 6/6 달성
+- 공통 보강 패턴: 바이너리 self-eval + Gotchas + 단일 진실의 원천(wrapper) 확립
+
+### 파일별 변경
+- `.claude/commands/session-save.md` — 11줄 → 166줄: 저장 대상/제외 범주 명시, S1~S6 eval, Gotchas 8개, frontmatter 형식
+- `.claude/commands/qa.md` — 24줄 → 112줄: post-edit-qa 스킬로 위임, 4개 실행 모드, Q1~Q6 eval, 재시도 규칙, Gotchas 6개
+- `.claude/skills/bug-fix/SKILL.md` — 91줄 → 135줄: 포스트모템 형식 템플릿, B1~B6 eval, 재읽기 금지 명시
+- `.claude/commands/integrate.md` — 28줄 → 39줄: skills/integrate/SKILL.md wrapper로 축소 (이원화 해소)
+- `.claude/skills/knowledge-lint/SKILL.md` — 145줄 → 213줄: KL1~KL7 eval, Gotchas 8개, 린팅 예시 리포트
+
+### 핵심 설계 원칙 확립
+- 커맨드(commands/) = 진입점 wrapper만 담당
+- 스킬(skills/) = 풀 스펙 단일 진실의 원천
+- 모든 스킬에 바이너리 self-eval 시리즈 통일 (S/Q/B/KL/E)
+
+---
+
+## v44.9 -- /integrate Citi 스태그플레이션 플레이북 (2026-04-09)
+
+### 통합 자료
+- **Citi 글로벌 주식 전략: 스태그플레이션 플레이북** (2026-04-02)
+
+### _getChatRules §64 추가
+- §64: 스태그플레이션 플레이북 — Q2 패러다임 전환(에너지 EPS가 헤드라인 방어 → 섹터·지역 배분이 알파), Q1 2026 vs 2022 취약점 비교, Q3 Bull/Bear 분기, Q4 포지셔닝 구조(공매도 집중=반등 잠재력), Q5 한국 양날의 칼
+
+### MACRO_KW +19개 추가
+stagflation playbook/scenario, net short positioning, sector dispersion EPS, energy EPS offset, commodity exporter hedge, Eurostoxx50 positioning, Korea net long risk, 스태그플레이션 플레이북, 지정학 헤지, 순공매도, 섹터 편차, 라틴아메리카 헤지 등
+
+### 버전 동기화
+- v44.8 → v44.9 (6곳 동기화)
+
+### /bug-fix — KNOWN_TICKERS 누락 수정 (P64)
+- **버그**: v44.8 신규 5종목(KEX·NVT·MTZ·SEI·LBRT)이 SCREENER_DB에만 있고 KNOWN_TICKERS 미등록 → 뉴스 티커 배지 미작동
+- **수정**: KNOWN_TICKERS에 알파벳순 삽입 (KEX·LBRT·MTZ·NVT·SEI)
+- BUG-POSTMORTEM P64 기록 + QA-CHECKLIST 3F-0 항목 신설
+
+---
+
+## v44.8 -- /auto-integrate 6개 자료: Citi DC전력 + JPM Glasswing + 맥북네오 (2026-04-09)
+
+### 통합 자료
+1. **Citi DC 전문가콜** (Mark Egan STAG) — 백업·주전력 장기 수요, 학습→추론 믹스 전환
+2. **Citi 기계 부문** — CAT/CMI 발전 사업 상향여지
+3. **Citi 미드스트림** — WMB BTM 2GW·$70억+, SEI/LBRT BUY
+4. **Citi 유틸리티/전력** — NEE 올오브더어보브, SRE/SO/FE/PPL 추론DC 수혜
+5. **JPM Anthropic Project Glasswing** — Claude Mythos Preview, CRWD/PANW 창립파트너
+6. **Apple MacBook Neo** — A18 Pro 빈닝칩 재고 딜레마, TSMC N3E 풀가동
+
+### SCREENER_DB 갱신 (9종 업데이트)
+- CAT: DC백업 MW당$100만, 리드타임, 추론DC 스탠바이↑
+- CMI: 디젤백업 유지, 왕복엔진 가변부하 강점
+- WMB: HOLD→**BUY** 상향, BTM 2GW·$70억+ 승인, Socrates 10년계약
+- NEE: HOLD→**BUY** 상향, 올오브더어보브 독보적
+- ETN: 하이브리드전력아키텍처 수혜군
+- CRWD: Project Glasswing 창립파트너, 섀도AI 1,800+앱
+- PANW: Project Glasswing 창립파트너, AI-on-AI 방어
+- EQIX: 전력공급 제약→DC 가격결정력 강화
+- AAPL: MacBook Neo 빈닝칩 딜레마, TSMC N3E 풀가동
+
+### SCREENER_DB 신규 5종 추가
+- **KEX** (Kirby Corp): 발전기 패키징, OEM 리드타임18월, 믹스개선
+- **NVT** (nVent Electric): 전기보호, ETN/VRT/GEV 수혜군
+- **MTZ** (MasTec): 전력EPC, 추론DC 입지이동 수혜
+- **SEI** (Solaris Energy Infrastructure): 현장발전 BUY, 10년계약
+- **LBRT** (Liberty Energy): 현장발전 BUY, 장기계약 구조
+
+### _getChatRules §62·§63 추가
+- §62: DC전력 패러다임 전환 — 워크로드별 부하 프로파일이 발전원/백업용량/입지 결정
+- §63: AI보안 군비경쟁 — 앤트로픽 파괴자→파트너 전환, CRWD/PANW 창립파트너
+
+### 키워드 추가
+- TECH_KW +14개: MacBook Neo, chip binning, Project Glasswing, Claude Mythos, shadow AI, aeroderivative turbine, prime power generation, demand response datacenter, inference datacenter proximity, BTM gas power 등
+- MACRO_KW +10개: BTM natural gas, training inference mix, standby power capacity, AI security arms race 등
+
+---
+
+## v44.7 -- /post-edit-qa 2차: 미확인 구간 전수 점검 + 3건 수정 (2026-04-08)
+
+### 점검 범위 (이번 세션 미확인 구간 집중)
+T3(데이터 파이프라인)·T4(차트정렬)·T5(CSS)·T6(XSS)·T7(접근성)·T9(키워드)·T12(종목품질)·T13(Dead HTML)·T17(이벤트 정합성) 전수
+
+### PASS 확인 항목
+- T13-1: data-snap HTML 키 27개 — applyDataSnapshot map 전부 매핑 ✓
+- T13-3: querySelector('div') 2곳 — 전부 null 가드 있음 ✓
+- T13-6: macro/options 페이지 Chart.js canvas 없음 → destroyPageCharts 미등록 무해 ✓
+- T9: MACRO_KW/TECH_KW 내 2자 이하 영문·한글 키워드 0건 ✓
+- T8 R15: d.pct||0 패턴 0건 ✓
+- T8 FX_INVERTED: EURUSD/GBPUSD/AUDUSD/CADUSD/CHFUSD 5개 등록 완비 ✓
+- T6 XSS: encodeURIComponent + escHtml 69건, innerHTML 취약 패턴 0건 ✓
+- T7 skip-link: .skip-link 존재 (L1966) ✓
+- T17: 역방향 텍스트 잔존 0건 (이란전쟁 언급은 AI 분석 프레임워크 컨텍스트) ✓
+- T12 LCID: WATCH 등급, 현재 상장 중 ✓
+
+### 수정 완료 (FAIL 2건 + WARN 1건)
+- **FAIL→FIX: `.sec-name{font-size:6px}` → 8px** (P37 위반 — 시그널 페이지 섹터 타일 이름 레이블. CSS 클래스라 `[style*="font-size:6px"]` !important 오버라이드 미적용 사각지대)
+- **FAIL→FIX: `.hfc-note{font-size:6px}` → 8px** (동일 P37 위반)
+- **WARN→FIX: bpLabels 4/6→4/7 연장** (브레드쓰 차트 2거래일 괴리 해소. 4/7 휴전 급등 데이터 추가: SPY 638·QQQ 551·SPX5 43.5%·NDX5 40.0%·SPX20 34.0%·NDX20 25.5%·SPX50 33.0%·NDX50 29.5%)
+
+### 잔존 WARN (설계 의도, 즉시 수정 불가)
+- T7: 7px CSS 클래스 다수(cp-detail·fx-note·yc-note 등) — 밀집형 금융 대시보드 설계 의도, 보조 레이블 한정
+- T5: @media 480px 1건 — 주 브레이크포인트 768px로 운영
+
+---
+
+## v44.6 -- /post-edit-qa: 이란 휴전 정합성 QA + 구조 개선 (2026-04-08)
+
+### QA 결과 요약 (이벤트-드리븐 시장 연결성/직관성/논리성/정합성 중점)
+- TIER 1 PASS: div 균형 3601/3601, 버전 6곳 v44.6 동기화
+- FAIL 6건 수정 완료 (F1~F5 + W1)
+
+### 수정 내용 (휴전 후 데이터-텍스트 불일치 6건)
+- **F1 KR-매크로 물가 코멘트** (L7593): "이란전쟁發 유가급등 상방 리스크" → "2주 휴전 WTI -15% 단기 완화, 재교전 시 재점화 상존"
+- **F2 KR-매크로 수입 코멘트** (L7711): "에너지 수입 급증(유가 $98↑)" → "WTI $95.5 휴전 후 -15%, 불확실성 상존"
+- **F3 매크로 수요파괴 섹션** (L4650): 제목 "수요가 무너지고 있다" → "전쟁 최고점 기준 데이터" + 휴전 회복 중 경고 추가
+- **F4 매크로 JPM 6옵션** (L4665): "◐ 이란 1.4억 배럴 제재 해제" → "✓ 이란 2주 휴전 합의(4/7 · 10개항 협상)"
+- **F5 매크로 시나리오 A 조건** (L4690): "조건: 중동 휴전 + 유가 $80대" → 현재 상태(휴전 O · WTI $95.5 하락 중) 명시
+- **W1 시그널 CP1 지정학 카드** (L2822): detail 텍스트에 2주 휴전 반영 + 미터바 95%→80% 조정
+
+### 구조 개선 3건 (WARN → 해소)
+- **W2 해소** `generateMacroStoryline()` 지정학 챕터 신설 (L26952~26989): WTI 8%+ 급변 OR VIX 25+ && WTI 85+ 시 자동 감지. 급락(휴전/OPEC+)/급등(전쟁/봉쇄)/지속(리스크 지속) 3가지 분기 내러티브 + 재교전 경고 체크리스트. live 우선 + DATA_SNAPSHOT.wtiPct 폴백
+- **W3 해소** 전역 타이머 window 변수 등록: `window._dateEngineInterval`(DATE_ENGINE 1h 갱신), `window._globalUpdateInterval`(가격알림+접근성 30s). setInterval 11 / clearInterval 11 완벽 균형
+- **W4 해소(확인)** raw `ld['` 114회 전수 재검증 — 전부 null-guarded 패턴(`ld['X'] ? ld['X'].prop : fallback`). 진짜 위험 패턴 0건 확인. false positive
+
+---
+
+## v44.5 -- 4개 글 통합: Capex효율화/TFP괴리/자본조달/SPY200MA (2026-04-08)
+
+### 출처 및 글 유형
+- 글1 (개인투자자 매매 분석): AVGO Capex 효율화 사이클 + 섹터 우선순위 레이팅
+- 글2 (매크로 분석): AI 생산성 기대-현실 괴리 + 크루그먼 근원CPI 전가 메커니즘
+- 글3 (투자철학): 자본조달 = 돈의 흐름 본질론
+- 글4 (기술적+전략): SPY 200MA 4일 저항 + 휴전 재충전 리스크
+
+### SCREENER_DB 업데이트 (3개)
+- **CRWV 신규**: 네오클라우드 1위 · 이란 눌림 후 수급 유입 기대
+- **NBIS 신규**: CRWV 대비 업사이드 더 남음 · 오버행 적음
+- **IREN 업데이트**: 장기 오버행 우려 명기 · NBIS 후순위
+
+### _getChatRules() §58~§61 신규 추가
+- §58: AVGO Capex 효율화 사이클 + 섹터 우선순위 5단계 레이팅 (Q2+Q4+Q3+Q5)
+- §59: AI 생산성 기대-현실 괴리 + TFP 0.32% + 크루그먼 근원CPI 전가 (Q2+Q4+Q3+Q5)
+- §60: 자본조달 = 이자율 본질 + Equity/Debt 두 축 프레임 (Q2+Q4)
+- §61: SPY 200MA 4일 저항 + 2주 휴전 재충전 리스크 (Q1+Q2+Q3+Q4+Q5)
+
+### MACRO_KW + TECH_KW 신규 키워드 (+22개)
+TFP/생산성 격차, H4L, T-Bills 재발행 압박, 근원CPI 전가, 자본조달, SPY 200MA, CRWV/NBIS 네오클라우드, Capex 효율화 사이클 등
+
+---
+
+## v44.4 -- /data-refresh 전수 스캔 완료: Gold 갱신 (2026-04-08)
+
+### 갱신 내용
+- **Gold**: $4,524 → $4,705 (+4.0%) — 휴전 후 달러 약세 반영 (Sunday Guardian 4/8)
+- **VKOSPI 58.86**: 현재값 확인 (opened 56.80, 관세 등 복합 리스크 지속) — 갱신 불필요
+- **22개 카테고리 전수 점검 완료**: 나머지 20개 항목 모두 OK
+
+---
+
+## v44.3 -- 미-이란 2주 휴전: WTI -15% + 핵심뉴스 교체 (2026-04-08)
+
+### 갱신 내용
+- **HOME_WEEKLY_NEWS[0]**: "트럼프 이란 최후통첩"(bear) → "미-이란 2주 휴전 합의"(bull)
+  - 호르무즈 완전 재개통 조건, 4/10 이슬라마바드 협상
+  - WTI -15%, S&P500 선물 +2.5%, 나스닥100 +3%
+- **DATA_SNAPSHOT.wti**: $112.10 → $95.50 (-15.2%)
+- **DATA_SNAPSHOT.brent**: $116.20 → $99.80 (-14.1%)
+- **DATA_SNAPSHOT._updated**: 2026-04-08T09:00:00+09:00
+
+---
+
+## v44.2 -- 6개 리포트 통합: MSFT/AVGO/Samsung/LITE/CRDO/CPI (2026-04-07)
+
+### 출처
+- GS: MSFT 3QFY 프리뷰 + M365 SOTP, OW PT $600
+- Citi: 미국 CPI 프리뷰 (에너지-근원 격차 프레임워크)
+- JPM: AVGO GOOGL LTA/Anthropic 3.5GW 확장 + Samsung 1Q26 실적 프리뷰
+- 미즈호: LITE CPO/OCS/InP (PT $930) + CRDO AEC/ZFO/ALC (PT $200)
+
+### SCREENER_DB 업데이트 (5개)
+- **MSFT**: Azure Fairwater 공급제약 + Capex FY27 $178B + M365 SOTP ~4배 EBIT 할인 + E7 5월 GA + GS PT $600
+- **AVGO**: FY27 AI $120B+ 컨빅션 + Anthropic 3.5GW(기존 1GW→3.5GW) + AAPL 공급계약 선례
+- **005930.KS**: 1Q26 매출 133조/OP 57.2조 + DRAM/NAND ASP +75~85% QoQ + 충족률 65% + JPM PT 30만원 (signal HOLD→BUY)
+- **LITE**: CPO 변곡점 2H26 + OCS 수주잔고 $400M+ + F27E $5.6B + Scale-up CPO 2028 + PT $930
+- **CRDO**: 신규 추가 — AEC 800G/1.6T + ZFO + ALC + FY27 AEC +51% + PT $200
+
+### _getChatRules() §52~§57 신규 추가
+- §52: MSFT Azure 공급제약 (Q1~Q5)
+- §53: CPI 에너지-근원 격차 (Q2~Q5)
+- §54: AVGO FY27 $120B+ 컨빅션 추가 앵글 (Q1+Q4+Q3+Q5)
+- §55: LITE CPO/OCS 아키텍처 전환 (Q1~Q5)
+- §56: CRDO AEC→ZFO→ALC 전거리 스펙트럼 (Q1~Q5)
+- §57: Samsung 1Q26 성장→지속가능성 전환 (Q1~Q5)
+
+### TECH_KW 신규 키워드 (+18개)
+AEC cable, ZeroFlap optics, ALC cable, Azure Fairwater, E7 license, M365 SOTP, OCS scale-up, scale-up CPO, UHP laser, Samsung 1Q26, memory fill rate, Credo Serdes 외
+
+---
+
 ## v44.1 -- /data-refresh: VIX/HY/PC/BP 차트 4/3~4/6 연장 + NFP/ISM 3월 갱신 (2026-04-07)
 
 ### 차트 시계열 Extension

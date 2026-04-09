@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v44.1 — 올인원 투자 터미널</title>
+  <title>AIO Screener v45.5 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1070,7 +1070,7 @@ body { background: #0d1521 !important; }
 /* Sector Heatmap Tiles */
 .sec-tile{border-radius:var(--radius-md);padding:5px 4px;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);transition:background 0.5s;}
 .sec-sym{font-size:9px;font-weight:700;font-family:var(--font-mono);color:var(--text-secondary);}
-.sec-name{font-size:6px;color:var(--text-muted);}
+.sec-name{font-size:8px;color:var(--text-muted);}
 .sec-chg{font-size:9px;font-weight:700;font-family:var(--font-mono);margin-top:2px;}
 
 /* Score Bar rows */
@@ -1177,7 +1177,7 @@ body { background: #0d1521 !important; }
 .hfc-label{font-size:7px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;}
 .hfc-val{font-size:13px;font-weight:800;font-family:var(--font-mono);color:var(--text-primary);margin:2px 0;}
 .hfc-chg{font-size:8px;font-family:var(--font-mono);}
-.hfc-note{font-size:6px;color:var(--text-muted);margin-top:2px;}
+.hfc-note{font-size:8px;color:var(--text-muted);margin-top:2px;}
 
 /* Macro page FX mini cells */
 .mfx-cell{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:var(--radius-md);padding:6px 8px;text-align:center;}
@@ -2225,7 +2225,8 @@ body.light-theme canvas { filter:none; }
           </div>
           <div class="pulse-seg" onclick="showPage('macro',null)" title="거시경제 상세">
             <span class="ps-label">매크로</span>
-            <span class="ps-val" id="mp-macro-val" style="color:var(--text-muted);">—</span>
+            <span class="ps-val" id="mp-macro-icon" style="color:var(--text-muted);font-size:9px;">●</span>
+            <span class="ps-status" id="mp-macro-val" style="color:var(--text-muted);">로딩</span>
           </div>
         </div>
         <!-- All pages will be inserted here -->
@@ -2238,7 +2239,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v44.1</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v45.5</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -2819,8 +2820,8 @@ body.light-theme canvas { filter:none; }
         <div class="cp-num" style="color:#f87171;">CP1</div>
         <div class="cp-name">지정학</div>
         <div class="cp-score" style="color:#f87171;">CRITICAL</div>
-        <div class="cp-detail">지정학 긴장 모니터링 · WTI <span data-snap="wti">—</span> · Brent <span data-snap="brent">—</span> · 중동/우크라이나/대만 리스크 상시 주시</div>
-        <div class="cp-meter"><div style="width:95%;height:100%;background:linear-gradient(90deg,#ef4444,#dc2626);border-radius:3px;"></div></div>
+        <div class="cp-detail">4/7 미-이란 2주 휴전 · WTI <span data-snap="wti">—</span>(-16%) · Brent <span data-snap="brent">—</span> · 재교전/영구종전 갈림길 · 우크라이나/대만 리스크 병존</div>
+        <div class="cp-meter"><div style="width:80%;height:100%;background:linear-gradient(90deg,#ef4444,#dc2626);border-radius:3px;"></div></div>
       </div>
       <!-- CP2 -->
       <div class="cp-cell" style="border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.05);">
@@ -2895,23 +2896,23 @@ body.light-theme canvas { filter:none; }
         <!-- % above 5 SMA (v42.4: ID 부여 → updateBreadthBars() 동적 갱신) -->
         <div class="breadth-bar-row">
           <div class="bb-label">5SMA 상위</div>
-          <div class="bb-bar-wrap"><div id="bb-5sma-bar" class="bb-bar" style="width:35%;background:#f87171;"></div></div>
-          <div id="bb-5sma-val" class="bb-val" style="color:#f87171;">35%</div>
-          <div id="bb-5sma-badge" class="bb-badge" style="background:rgba(248,113,113,0.1);color:#f87171;">약세</div>
+          <div class="bb-bar-wrap"><div id="bb-5sma-bar" class="bb-bar" style="width:68%;background:#3ddba5;"></div></div>
+          <div id="bb-5sma-val" class="bb-val" style="color:#3ddba5;">68%</div>
+          <div id="bb-5sma-badge" class="bb-badge" style="background:rgba(61,219,165,0.1);color:#3ddba5;">강세</div>
         </div>
         <!-- % above 20 SMA -->
         <div class="breadth-bar-row">
           <div class="bb-label">20SMA 상위</div>
-          <div class="bb-bar-wrap"><div id="bb-20sma-bar" class="bb-bar" style="width:32%;background:#f87171;"></div></div>
-          <div id="bb-20sma-val" class="bb-val" style="color:#f87171;">32%</div>
-          <div id="bb-20sma-badge" class="bb-badge" style="background:rgba(248,113,113,0.1);color:#f87171;">약세</div>
+          <div class="bb-bar-wrap"><div id="bb-20sma-bar" class="bb-bar" style="width:75%;background:#3ddba5;"></div></div>
+          <div id="bb-20sma-val" class="bb-val" style="color:#3ddba5;">75%</div>
+          <div id="bb-20sma-badge" class="bb-badge" style="background:rgba(61,219,165,0.1);color:#3ddba5;">강세</div>
         </div>
         <!-- % above 50 SMA -->
         <div class="breadth-bar-row">
           <div class="bb-label">50SMA 상위</div>
-          <div class="bb-bar-wrap"><div id="bb-50sma-bar" class="bb-bar" style="width:27.6%;background:#f87171;"></div></div>
-          <div id="bb-50sma-val" class="bb-val" style="color:#f87171;">27.6%</div>
-          <div id="bb-50sma-badge" class="bb-badge" style="background:rgba(248,113,113,0.1);color:#f87171;">약세</div>
+          <div class="bb-bar-wrap"><div id="bb-50sma-bar" class="bb-bar" style="width:46%;background:#fbbf24;"></div></div>
+          <div id="bb-50sma-val" class="bb-val" style="color:#fbbf24;">46%</div>
+          <div id="bb-50sma-badge" class="bb-badge" style="background:rgba(251,191,36,0.1);color:#fbbf24;">중립↑</div>
         </div>
         <!-- NYSE A/D Line -->
         <div class="breadth-bar-row">
@@ -2943,7 +2944,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
       <div style="font-size:8px;color:var(--text-muted);margin-top:10px;line-height:1.5;background:rgba(255,255,255,0.02);border-radius:5px;padding:7px;">
-        <b style="color:#fbbf24;">진단:</b> 50SMA 상위 27.6%. 광범위 약세. 소수 대형주만 버티는 구조.
+        <b style="color:#fbbf24;">진단:</b> 5SMA 68% · 20SMA 75% · 50SMA 46% · 200SMA 55%. 단기(5/20) 빠른 회복, 중장기(50/200) 미탈환 다수. <b>속도 차이 = 갭업 랠리에도 폭은 좁음</b> — 50일선 60% 돌파까지 추가 확인 필요.
       </div>
     </div>
 
@@ -4647,13 +4648,13 @@ body.light-theme canvas { filter:none; }
     <!-- 수요파괴 + JPM 옵션 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
       <div style="background:rgba(0,0,0,0.15);border-radius:7px;padding:10px;">
-        <div style="font-size:9px;font-weight:700;color:#f87171;margin-bottom:4px;">수요파괴 현황 (수요가 무너지고 있다)</div>
+        <div style="font-size:9px;font-weight:700;color:#fbbf24;margin-bottom:4px;">수요파괴 피크 데이터 (전쟁 최고점 기준)</div>
         <div style="font-size:8px;color:var(--text-muted);line-height:1.6;">
           아시아 정제유 선적: <b style="color:#f87171;">-30~35%</b><br>
           제트유(항공): <b style="color:#f87171;">-40%</b> · 노선 철수<br>
           미국 휘발유: <b style="color:#f87171;">월간 +29%</b><br>
           미국 디젤: <b style="color:#f87171;">월간 +35%</b><br>
-          <span style="font-size:7px;color:var(--text-muted);">불가항력: YNCC, 롯데케미칼, 시노펙, 포모사</span>
+          <span style="font-size:7px;color:#fbbf24;">⚡ 4/7 2주 휴전 합의 → WTI -15%($95.5). 수요 회복 진행 중. 재교전 시 재악화 경계.</span>
         </div>
       </div>
       <div style="background:rgba(0,0,0,0.15);border-radius:7px;padding:10px;">
@@ -4662,7 +4663,7 @@ body.light-theme canvas { filter:none; }
           <span style="color:#3ddba5;">✓</span> SPR 방출 <span style="font-size:7px;color:var(--text-muted);">(비상 비축유 풀기)</span><br>
           <span style="color:#3ddba5;">✓</span> 존스법 면제 <span style="font-size:7px;color:var(--text-muted);">(외국 유조선 허용)</span><br>
           <span style="color:#3ddba5;">✓</span> 러시아 정제유 완화<br>
-          <span style="color:#fbbf24;">◐</span> 이란 1.4억 배럴 제재 해제<br>
+          <span style="color:#3ddba5;">✓</span> 이란 2주 휴전 합의 (4/7 · 10개항 협상 진행)<br>
           <span style="color:#fbbf24;">◐</span> 수출 관세/금지<br>
           <span style="color:var(--text-muted);">○</span> 긴급 시장 개입
         </div>
@@ -4687,7 +4688,8 @@ body.light-theme canvas { filter:none; }
           <div id="scenario-a-pct" style="font-size:10px;font-weight:700;color:#3ddba5;width:30px;text-align:right;">30%</div>
         </div>
         <div style="font-size:7px;color:var(--text-secondary);line-height:1.5;">
-          <b>조건:</b> 중동 휴전 + 유가 $80대<br>
+          <b>조건:</b> 2주 휴전 → 영구 종전 + 유가 $80대 안착<br>
+          <b style="color:#fbbf24;">현재:</b> 휴전 O · WTI $95.5 (↓ 진행 중)<br>
           <b>당신의 영향:</b> 성장주 ↑↑↑, 기술주 강세
         </div>
       </div>
@@ -7016,8 +7018,8 @@ body.light-theme canvas { filter:none; }
       </div>
       <div class="kr-idx-card down">
         <div class="kr-idx-label">VKOSPI</div>
-        <div class="kr-idx-val" id="kr-vkospi-val" style="color:var(--red)">58.86</div>
-        <div class="kr-idx-chg" style="color:var(--red)">3월 중 82 돌파 후 하락 중 · 4/3 종가</div>
+        <div class="kr-idx-val" id="kr-vkospi-val" style="color:#fbbf24">45.00</div>
+        <div class="kr-idx-chg" style="color:#fbbf24">4/4 81.99 사상최고 후 휴전 랠리로 급락 · 4/8 추정</div>
         <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">변동성 지수 (KRX 공포지수)</div>
         <div style="font-size:9px;color:var(--red);margin-top:2px;">30 이상: 극단적 공포</div>
       </div>
@@ -7590,7 +7592,7 @@ body.light-theme canvas { filter:none; }
           </div>
         </div>
         <div style="margin-top:10px;padding:8px;background:rgba(91,168,255,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-          물가 목표치(2.0%) 도달. 이란전쟁發 유가급등이 향후 물가 상방 리스크
+          물가 목표치(2.0%) 도달. 미-이란 2주 휴전(4/7) 후 WTI -15%($95.5) → 단기 물가 압력 완화. 단, 2주 재충전 후 재교전 시 유가 재급등·물가 재점화 시나리오 상존
         </div>
       </div>
 
@@ -7708,7 +7710,7 @@ body.light-theme canvas { filter:none; }
           <tr><td>식품</td><td style="color:var(--text-muted);">15억 USD</td><td style="color:var(--red);">-3.2%</td></tr>
         </table>
         <div style="margin-top:10px;padding:8px;background:rgba(251,191,36,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-          에너지 수입 급증 (이란전쟁 유가 $98↑). 반도체 설비 수입도 대폭 증가
+          에너지 수입 부담 지속 (WTI $95.5, 2주 휴전 후 -15%). 재교전 시 재급등 불확실성 상존. 반도체 설비 수입도 대폭 증가
         </div>
       </div>
     </div>
@@ -9535,7 +9537,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v44.1';
+const APP_VERSION = 'v45.5';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -9566,9 +9568,9 @@ if (!AIO_DEBUG) {
 //    HTML 본문에 직접 숫자를 수정하지 마세요!
 // ─────────────────────────────────────────────────────────────────
 const DATA_SNAPSHOT = {
-  _updated: '2026-04-07T15:00:00+09:00',   // ISO 타임스탬프 — 4/3(목) 미국 종가 + NFP 기준
+  _updated: '2026-04-09T15:30:00+09:00',   // ISO 타임스탬프 — v45.4 사용자 차트 기반 브레드쓰 정정
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v44.1 — /data-refresh: VIX/HY/PC/BP 차트 + NFP/ISM 갱신 (4/7)',
+  _note: 'v45.4 — 사용자 차트 정정: S5FI=46.41(50SMA), S5TW=75.49(20SMA), S5TH=54.98(200SMA), NDFI=48.51, R2TH=56. v45.3 71% 오류 수정',
 
   // ── 미국 주요 지수 (4/4 금 종가) ──
   spx:        6582.69,  spxPct:    +0.11,
@@ -9582,10 +9584,10 @@ const DATA_SNAPSHOT = {
   kospi:     5478.70,  kospiPct:  +8.44,  kospiPrev: 5051.98,
   kosdaq:    1116.18,  kosdaqPct: +6.06,  kosdaqPrev: 1052.38,
 
-  // ── 원자재 (4/4 금 종가) ──
-  wti:     112.10,   wtiPct:   +12.50,   // v43.0: WTI $112 (이란 전쟁 리스크 반영, 4/4 종가)
-  brent:   116.20,   brentPct:  +3.25,
-  gold:   4524,      goldPct:   +2.62,  goldWeeklyPct: -1.3,
+  // ── 원자재 (4/7 미-이란 휴전 합의 후 급락) ──
+  wti:      94.41,   wtiPct:   -16.00,   // v45.0: WTI $94.41 (4/7 종가, 미-이란 휴전 -16%, 4/9 갱신)
+  brent:    99.80,   brentPct: -14.10,
+  gold:   4705,      goldPct:   +4.00,  goldWeeklyPct: +2.1,  // v44.5: 휴전 후 달러 약세+불확실성 완화 (4/8)
   ng:       3.00,
 
   // ── 환율 (4/4) ──
@@ -9605,12 +9607,12 @@ const DATA_SNAPSHOT = {
   bokNext:     '2026-05-29',                     // 다음 금통위 일정
   krBond3y:     2.82,   krBond10y: 3.72,         // 국고채 3년/10년 수익률 (<span data-date-ref="kr-last-basis">기준</span>, 10Y 월중 최고)
   krCd91:       2.78,                             // CD 91일 금리
-  vkospi:      58.86,                             // 변동성지수 (VKOSPI) — 80 돌파 이력 있음, 20↑=경계 30↑=공포
+  vkospi:      45.00,                             // 변동성지수 (VKOSPI) — 4/4 81.99 사상최고, 휴전 랠리 후 하락 중 (4/8 추정), 20↑=경계 30↑=공포
 
   // ── 거시 지표 ──
   cpi:          2.4,   coreCpi:   2.5,
   pce:          2.5,   corePce:   2.6,            // PCE Core YoY (Fed 주목 지표)
-  ismPmi:      52.4,   ismPrice:  70.5,
+  ismPmi:      52.4,   ismPrice:  70.7,   // v45.2: 4/6 ISM 실데이터 70.7% (2022년 10월 이후 최고)
   ismSvc:      54.0,                              // ISM 서비스업 PMI (3월, 4/3 발표)
   usUnemploy:   4.30,  // 3월 NFP: +228K(컨센 135K 상회), 실업률 4.3% (4/3 발표)
   usWageGrowth: 3.5,                              // 시간당 평균 임금 YoY 3.5% (4/3 NFP)
@@ -9846,7 +9848,7 @@ const DATE_ENGINE = (function() {
 
 // 페이지 로드 시 즉시 실행 + 1시간마다 갱신
 try { DATE_ENGINE.applyToDOM(); } catch(e) { console.warn('[DATE_ENGINE] 초기화 실패:', e); }
-setInterval(function() { try { DATE_ENGINE.applyToDOM(); } catch(e) {} }, T.DATE_REFRESH);
+window._dateEngineInterval = setInterval(function() { try { DATE_ENGINE.applyToDOM(); } catch(e) {} }, T.DATE_REFRESH);
 
 // ═══════════════════════════════════════════════════════════════════
 // applyDataSnapshot — DATA_SNAPSHOT → HTML 자동 매핑
@@ -10442,13 +10444,13 @@ var SCREENER_DB = [
   // S&P 500 — 메가캡 & 대형주 (2026-03 Yahoo Finance 기준)
   // ══════════════════════════════════════════════════════════════
   { sym:'NVDA', name:'NVIDIA', sector:'Technology', signal:'BUY', memo:'Blackwell Ultra 양산 · CoWoS 2026 650K/2027 840K 확보 · Rubin HBM4 자격검증 지연(6월→9월) · Rubin 목표 1.5M GPU/6K VR랙 · Feynman EMIB 검토=CoWoS 공급 다변화 신호 · AI DC 수요 구조적 지속 · PE 35x', mcap:4197, rsi:48, index:'SP500' },
-  { sym:'AAPL', name:'Apple', sector:'Technology', signal:'HOLD', memo:'iPhone 17 AI 탑재 기대 · 서비스 매출 성장 지속 · TSMC 2nm 초기 물량 절반 이상 선점 · 인텔 14A 맥북/아이패드 추가 수주 확인', mcap:3645, rsi:52, index:'SP500' },
+  { sym:'AAPL', name:'Apple', sector:'Technology', signal:'HOLD', memo:'MacBook Neo 성공 딜레마 · A18 Pro 빈닝칩 재고 소진 위기(팀쿡 "맥 역사상 첫구매 최고 첫주") · TSMC N3E 풀가동 · 추가생산 시 마진↓ · 생태계 유입 전략 vs 단기 수익성 트레이드오프 · 서비스 매출 성장 지속', mcap:3645, rsi:52, index:'SP500' },
   { sym:'GOOGL', name:'Alphabet', sector:'Technology', signal:'BUY', memo:'GCP +61%(WF, 시장 +50%) · 수주잔고 $2400억(2배 증가) · 검색 +17% · 2026 캐팩스 $175~185B · WF PT $361', mcap:3641, rsi:50, index:'SP500' },
-  { sym:'MSFT', name:'Microsoft', sector:'Technology', signal:'BUY', memo:'Azure AI + Copilot · MAI 자체모델 3종(2026.04, 2027 frontier목표) · 일본DC $100억 투자(2029까지)+소프트뱅크 AI협력 · 텍사스 $70억 가스발전소 · Maia칩 자체XPU', mcap:2838, rsi:48, index:'SP500' },
+  { sym:'MSFT', name:'Microsoft', sector:'Technology', signal:'BUY', memo:'Azure AI + Copilot · 3QFY Azure 37.5~39.0% cc(공급제약·Fairwater 정상화가 열쇠) · Capex FY27 $178B(+23% yoy, 컨센 $167B 상회) · M365 잠식 리스크 ~4배 EBIT 할인 반영(GS SOTP — 앱SW 섹터 14배 대비) · E7 5월 GA+9개월 이내 전환 기대 · MAI 자체모델 3종(2026.04) · GS OW PT $600', mcap:2838, rsi:48, index:'SP500' },
   { sym:'AMZN', name:'Amazon', sector:'Technology', signal:'BUY', memo:'AWS +28%→+36% 가속(WF) · 2026 캐팩스 $200B 유지 · 1Q FCF 상향 변곡 · WF PT $305 · Kuiper LEO(2028)', mcap:2205, rsi:46, index:'SP500' },
   { sym:'META', name:'Meta Platforms', sector:'Technology', signal:'BUY', memo:'Llama 4 오픈소스 AI · 광고 수익 최적화 · Reels 성장 · MTIA 로드맵: Olympia(v500) 취소→Apollo(v600) 교체 · Arke(MTIA v450) → AVGO 수주 확정 · Iris(v400) 추론칩 2H26 양산 · Astrid(MTIA v500) 취소 · AI infra Capex 확대', mcap:1502, rsi:50, index:'SP500' },
   { sym:'TSM', name:'TSMC', sector:'Technology', signal:'BUY', memo:'파운드리 독점 모트 · Capex $52~56B/년(Intel의 3.4배) · 3nm 200K wpm(2026말) · 2nm Fab22 카오슝 Q4 2025 양산 · CoWoS 35K→110~125K 패널/월(2026말) · PDK+DTCO 고착=고객 전환비용=칩 재설계(마스크셋 $100M+) · 수율 플라이휠 40년 · 44% 점유율', mcap:1708, rsi:52, index:'SP500' },
-  { sym:'AVGO', name:'Broadcom', sector:'Technology', signal:'BUY', memo:'구글 LTA 2031(TPU+네트워킹) 확정 · META Arke(MTIA v450) 수주 · XDSiP 3.5D(CoWoS-L+SoIC) · 네트워킹 자산이 LTA 협상 레버리지 · 리스크: Mediatek Zebra/Humu Fish 2028 구글 TPU ~50% 위협(LTA로 포지션 방어) · Anthropic 3.5GW TPU 2027(AVGO 공급) · 2028 DC TAM $731B · VMware 시너지', mcap:1472, rsi:45, index:'SP500' },
+  { sym:'AVGO', name:'Broadcom', sector:'Technology', signal:'BUY', memo:'구글 LTA 2031(TPU+네트워킹) 확정 · Anthropic 3.5GW TPU 2027(+1GW 기존) · FY27 AI 매출 $120B+ 컨빅션(TPU+네트워킹 $80~90B+, JPM) · AAPL 10년 공급계약 선례→추가 유사계약 예상 · META Arke(MTIA v450) 수주 · XDSiP 3.5D(CoWoS-L+SoIC) · 리스크: Mediatek Humu Fish 2028 TPU ~50% 위협(LTA로 방어)', mcap:1472, rsi:45, index:'SP500' },
   { sym:'TSLA', name:'Tesla', sector:'Consumer', signal:'WATCH', memo:'로보택시 기대 vs 브랜드 리스크 · PE 344x 고평가', mcap:1381, rsi:42, index:'SP500' },
   { sym:'BRK.B', name:'Berkshire Hathaway', sector:'Financials', signal:'HOLD', memo:'워런 버핏 · 보험+투자 콩글로머릿 · 현금 2,770억$', mcap:1072, rsi:55, index:'SP500' },
   { sym:'LLY', name:'Eli Lilly', sector:'Healthcare', signal:'BUY', memo:'비만치료제 Mounjaro/Zepbound · GLP-1 시장 지배', mcap:812, rsi:45, index:'SP500' },
@@ -10479,7 +10481,7 @@ var SCREENER_DB = [
   { sym:'DIS', name:'Walt Disney', sector:'Communication Services', signal:'HOLD', memo:'스트리밍 흑자 전환 · 테마파크 · ESPN 재편', mcap:195, rsi:45, index:'DOW30' },
   { sym:'PLTR', name:'Palantir', sector:'Technology', signal:'WATCH', memo:'AI 플랫폼(AIP) 정부+상용 확산 · 고평가 우려', mcap:360, rsi:55, index:'SP500' },
   { sym:'MU', name:'Micron Technology', sector:'Technology', signal:'BUY', memo:'KeyBanc OW $600 · Evercore 탑픽 · HBM3E/4E 전량 매진 · HBM4 자격검증 지연 · MU HBM4 수율 <30%(개선 중) · LTA 가격하한선+선급금 구조 → 하방보호 · 2Q26 DRAM/NAND +30~50% QoQ · DRAM 컨트랙트 Q2 +50%↑ 전망 · NAND 컨트랙트 +70~75% QoQ 전망 · 모바일 Q2 캐치업 시작 · 메모리 슈퍼사이클 2027-28 유지', mcap:477, rsi:42, index:'SP500' },
-  { sym:'CAT', name:'Caterpillar', sector:'Industrials', signal:'BUY', memo:'인프라 투자 사이클 · 데이터센터 건설 수혜', mcap:319, rsi:58, index:'DOW30' },
+  { sym:'CAT', name:'Caterpillar', sector:'Industrials', signal:'BUY', memo:'[Citi 04/09] DC백업 발전기 MW당$100만(엔진$50만) · 리드타임 디젤12~18월/왕복36월 · 추론DC전환→스탠바이MW↑(100IT→175백업) · 발전부문 매출 상향여지', mcap:319, rsi:58, index:'DOW30' },
   { sym:'RTX', name:'Raytheon Tech', sector:'Industrials', signal:'BUY', memo:'F-35/패트리엇 · 글로벌 방위비 증가 수혜', mcap:267, rsi:59, index:'SP500' },
   { sym:'GS', name:'Goldman Sachs', sector:'Financials', signal:'HOLD', memo:'M&A/IPO 수수료 회복 · 자산관리 확대', mcap:244, rsi:52, index:'DOW30' },
   { sym:'GE', name:'GE Aerospace', sector:'Industrials', signal:'BUY', memo:'항공 엔진 수요 · 항공 여행 회복 · 분사 완료', mcap:220, rsi:58, index:'DOW30' },
@@ -10487,9 +10489,9 @@ var SCREENER_DB = [
   { sym:'LMT', name:'Lockheed Martin', sector:'Industrials', signal:'BUY', memo:'트럼프 FY2027 $1.5T 국방예산(WWII후 최대증액) · F-35 조달 포함 · Golden Dome $185B · 인도태평양 억제력 강화 · 무기재고 재건', mcap:145, rsi:61, index:'SP500' },
   { sym:'ARM', name:'ARM Holdings', sector:'Technology', signal:'BUY', memo:'AI 에지 칩 설계 · 모바일+서버 CPU 아키텍처 독점 · 자체 CPU 칩 발표(2026.03) · Agentic AI CPU 병목→ARM 4배 코어밀도 수혜 · Raymond James $166', mcap:141, rsi:48, index:'SP500' },
   { sym:'QCOM', name:'Qualcomm', sector:'Technology', signal:'HOLD', memo:'스냅드래곤 X Elite · 모바일 AI · PC 시장 진출 · Citi: SWKS > QCOM (Apple 공급망 재편 위험) · KeyBanc: 중국 수요 약세 지속, 2026 빌드 -20% avg(vs -10% 이전) · QRVO와 함께 Sector Weight', mcap:139, rsi:48, index:'SP500' },
-  { sym:'PANW', name:'Palo Alto Networks', sector:'Technology', signal:'BUY', memo:'AI 보안 플랫폼 통합 · 엔터프라이즈 수요 강세', mcap:133, rsi:52, index:'SP500' },
+  { sym:'PANW', name:'Palo Alto Networks', sector:'Technology', signal:'BUY', memo:'[JPM 04/09] Project Glasswing 창립파트너(CRWD와 공동) · AI에 AI로 맞서는 방어 파트너십 · 섀도AI 확산→보안예산 확장 수혜 · 플랫폼 통합 전략 지속', mcap:133, rsi:52, index:'SP500' },
   { sym:'NOW', name:'ServiceNow', sector:'Technology', signal:'BUY', memo:'AI Agent 워크플로 자동화 · 엔터프라이즈 SaaS 선두', mcap:116, rsi:48, index:'SP500' },
-  { sym:'CRWD', name:'CrowdStrike', sector:'Technology', signal:'BUY', memo:'AI 위협탐지 Falcon · 엔드포인트 보안 1위', mcap:104, rsi:52, index:'SP500' },
+  { sym:'CRWD', name:'CrowdStrike', sector:'Technology', signal:'BUY', memo:'[JPM 04/09] Project Glasswing 창립파트너 · 취약점발견→무기화 수분내 단축 · 고객환경 섀도AI 1,800+앱 발견 · 보안예산 기존IT 외부로 확장 · AI-on-AI방어 필수 파트너', mcap:104, rsi:52, index:'SP500' },
   { sym:'CEG', name:'Constellation Energy', sector:'Utilities', signal:'BUY', memo:'원전 PPA 장기계약 · AI 데이터센터 전력 계약 · 가동률 85~90% 목표 · Rate Base 확대', mcap:102, rsi:45, index:'SP500' },
   { sym:'HON', name:'Honeywell', sector:'Industrials', signal:'HOLD', memo:'산업자동화 · 항공우주 · 분사 계획', mcap:140, rsi:48, index:'DOW30' },
   { sym:'AMGN', name:'Amgen', sector:'Healthcare', signal:'HOLD', memo:'바이오 대형주 · 비만치료제 MariTide 임상 · 배당', mcap:170, rsi:44, index:'DOW30' },
@@ -10514,7 +10516,7 @@ var SCREENER_DB = [
   { sym:'AMAT', name:'Applied Materials', sector:'Technology', signal:'BUY', memo:'Evercore 탑픽 — WFE $140B/$180B(2026/2027) 상향 수혜 · HBM4 고용량화+첨단패키징 장비 수요 · Agentic AI DRAM/NAND 집약화→설비투자 직접 수혜 · HBM 3~4x 용량 확장=AMAT 장비 수요 배수 확대', mcap:140, rsi:45, index:'SP500' },
   { sym:'SLB', name:'Schlumberger', sector:'Energy', signal:'HOLD', memo:'유전서비스 수요 · 디지털 전환 · 중동 확장', mcap:70, rsi:52, index:'SP500' },
   { sym:'T', name:'AT&T', sector:'Communication Services', signal:'HOLD', memo:'5G·광통신 · 부채 축소 · 고배당', mcap:145, rsi:50, index:'SP500' },
-  { sym:'NEE', name:'NextEra Energy', sector:'Utilities', signal:'HOLD', memo:'재생에너지 1위 · 태양광+풍력 · 안정 성장', mcap:155, rsi:48, index:'SP500' },
+  { sym:'NEE', name:'NextEra Energy', sector:'Utilities', signal:'BUY', memo:'[Citi 04/09] 가스터빈+에어로+왕복엔진+이동식발전기 올오브더어보브 독보적 · DC전력 원스톱 솔루션 · 학습→추론 전환 양면수혜 · BTM수요 포함 단기~중기 최선호', mcap:155, rsi:48, index:'SP500' },
   { sym:'LOW', name:'Lowe\'s', sector:'Consumer', signal:'HOLD', memo:'주택 리모델링 · Home Depot 경쟁 · 주주환원', mcap:125, rsi:46, index:'SP500' },
   { sym:'SPGI', name:'S&P Global', sector:'Financials', signal:'HOLD', memo:'신용평가+데이터 · 금융 인프라 독점', mcap:150, rsi:52, index:'SP500' },
   { sym:'DE', name:'Deere & Co', sector:'Industrials', signal:'HOLD', memo:'정밀 농업 자동화 · AI 기반 농기계', mcap:151, rsi:50, index:'SP500' },
@@ -10567,7 +10569,9 @@ var SCREENER_DB = [
   { sym:'QUBT', name:'Quantum Computing', sector:'Technology', signal:'WATCH', memo:'양자컴퓨팅 · 광자 기반 · 초기 매출', mcap:2, rsi:55, index:'RUSSELL2000' },
   { sym:'CAVA', name:'CAVA Group', sector:'Consumer', signal:'BUY', memo:'지중해 패스트캐주얼 · 고성장 외식 체인 · 미국 확장', mcap:15, rsi:58, index:'RUSSELL2000' },
   { sym:'SOUN', name:'SoundHound AI', sector:'Technology', signal:'WATCH', memo:'음성 AI 플랫폼 · 자동차+레스토랑 · 고평가', mcap:5, rsi:50, index:'RUSSELL2000' },
-  { sym:'IREN', name:'IREN Limited', sector:'Technology', signal:'WATCH', memo:'AI 데이터센터+비트코인 채굴 · 전력 인프라', mcap:4, rsi:48, index:'RUSSELL2000' },
+  { sym:'CRWV', name:'CoreWeave', sector:'Technology', signal:'BUY', memo:'네오클라우드 1위 · GPU 임대 마켓플레이스 리더 · MSFT/GOOGL/OpenAI 장기계약 · AI Capex 회수기 수혜(기존 인프라 최대 활용) · 이란 사태 눌림 후 수급 유입 기대', mcap:23, rsi:50, index:'NASDAQ100' },
+  { sym:'NBIS', name:'Nebius Group', sector:'Technology', signal:'BUY', memo:'네오클라우드 · CRWV 대비 업사이드 더 남음(오버행 적음) · 유럽 AI 인프라 · 이란 눌림 후 네오클라우드 섹터 수급 유입 기대', mcap:6, rsi:48, index:'NASDAQ100' },
+  { sym:'IREN', name:'IREN Limited', sector:'Technology', signal:'WATCH', memo:'네오클라우드(AI DC+비트코인 채굴 전환) · 전력 인프라 · NBIS 대비 장기 오버행 우려 높음 · 이란 사태 눌림 후 수급 유입 예상되나 NBIS 후순위', mcap:4, rsi:48, index:'RUSSELL2000' },
   { sym:'BIRD', name:'Allbirds', sector:'Consumer', signal:'SELL', memo:'친환경 신발 · 매출 감소 · 구조조정', mcap:0.1, rsi:28, index:'RUSSELL2000' },
   { sym:'DM', name:'Desktop Metal', sector:'Technology', signal:'WATCH', memo:'산업용 3D 프린팅 · 양산화 도전', mcap:0.5, rsi:35, index:'RUSSELL2000' },
   // ══════════════════════════════════════════════════════════════
@@ -10576,7 +10580,8 @@ var SCREENER_DB = [
   // ── AI / 광학 / 데이터센터 인프라 ──
   { sym:'AAOI', name:'Applied Optoelectronics', sector:'Technology', signal:'BUY', memo:'AI 데이터센터 광모듈 · 800G 트랜시버 수요 폭증', mcap:2.5, rsi:62, index:'RUSSELL2000' },
   { sym:'COHR', name:'Coherent Corp', sector:'Technology', signal:'BUY', memo:'L1 scale-out 핵심 · NVIDIA $2B 투자(2026.03) · SiPh+레이저 양대산맥 · 6인치 InP 기판 자체생산(CHIPS Act $33M) · 800G/1.6T CPO 모듈 · InP 수직통합 → supply chain 병목 해소 · OFC2026 CPO TAM $21B', mcap:15, rsi:55, index:'SP500' },
-  { sym:'LITE', name:'Lumentum', sector:'Technology', signal:'BUY', memo:'L1 scale-out 레이저 왕 · NVIDIA $2B 투자(2026.03) · Greensboro InP fab 인수(240k sqft, 2028양산) · R300 OCS(300x300 광회로스위치, 전력65%절감) · UHP CPO 레이저 역대최대 구매약정 · InP 기판 병목(수요200만 vs 공급60만)', mcap:6, rsi:48, index:'NASDAQ100' },
+  { sym:'LITE', name:'Lumentum', sector:'Technology', signal:'BUY', memo:'InP EML/CW 레이저 왕 · CPO 변곡점 2H26(NVDA Spectrum-X/Quantum-X) · OCS 수주잔고 $400M+(40배) · F27E 매출 $5.6B(컨센 +26%) · Scale-up CPO Rosa-Feynman 2028(TAM 3~16x vs scale-out) · OCS TAM 2028E $15B · SJ/Caswell→CPO 전환 · 스미토모 InP 7년 공급약정 · Greensboro InP fab 인수(2028양산) · 미즈호 OP PT $930', mcap:6, rsi:48, index:'NASDAQ100' },
+  { sym:'CRDO', name:'Credo Technology', sector:'Technology', signal:'BUY', memo:'AEC 800G/1.6T 리더십(xAI/META/Azure/OCI) · $-콘텐츠 6배 성장(ASP+케이블수 복합) · ZeroFlap Optics(ZFO): 링크플랩↓·Tensorwave 2026 · ALC(Active Linear Cable): 30m·ASP 절반·Cu수준 신뢰성→플러거블 잠재 대체(C2027E SOP) · 2029E AEC TAM $10B+(침투율 47%) · F26/27E AEC +222%/+51% · 미즈호 OP PT $200', mcap:10, rsi:45, index:'NASDAQ100' },
   { sym:'POET', name:'POET Technologies', sector:'Technology', signal:'WATCH', memo:'광인터포저(Teralight) · 포토닉스 반도체화 · EML 4개(업계 8~16) · Luxshare/FIT/LITEON 파트너 · 1.6T 프로토 2026말 · Celestial AI(MRVL 인수) Photonic Fabric 핵심부품 공급 가능성 · NVIDIA 광학 supply chain 빈칸 후보 · 프리레버뉴 · 현금 $450M(시총57%)', mcap:0.8, rsi:44, index:'OTC' },
   { sym:'CIEN', name:'Ciena', sector:'Technology', signal:'BUY', memo:'광네트워킹 장비 · AI 트래픽 증가 수혜', mcap:9, rsi:52, index:'SP500' },
   { sym:'GLW', name:'Corning', sector:'Technology', signal:'BUY', memo:'광섬유 · AI 데이터센터 광케이블 수요 폭증 · Gorilla Glass', mcap:40, rsi:55, index:'SP500' },
@@ -10630,7 +10635,9 @@ var SCREENER_DB = [
   { sym:'ONON', name:'On Holding', sector:'Consumer', signal:'BUY', memo:'스위스 러닝화 브랜드 · 로저 페더러 · 고성장', mcap:15, rsi:55, index:'SP500' },
   // ── 방어적 배당 / 인프라 ──
   { sym:'TRGP', name:'Targa Resources', sector:'Energy', signal:'HOLD', memo:'천연가스 수집/처리 · 배당 성장 · 인프라', mcap:35, rsi:55, index:'SP500' },
-  { sym:'WMB', name:'Williams Companies', sector:'Energy', signal:'HOLD', memo:'천연가스 파이프라인 · 안정 배당 · 인프라', mcap:55, rsi:52, index:'SP500' },
+  { sym:'WMB', name:'Williams Companies', sector:'Energy', signal:'BUY', memo:'[Citi 04/09] BTM 배후미터 2GW·$70억+ 승인 · Socrates 10년계약 · 추가6GW 장비확보($200억+ capex잠재력) · capex/EBITDA 5배(10년계약기준) · 2026 EBITDA 50%+ 잠재 증분', mcap:55, rsi:52, index:'SP500' },
+  { sym:'SEI', name:'Solaris Energy Infrastructure', sector:'Energy', signal:'BUY', memo:'[Citi 04/09] 현장 발전 테마 BUY 유지 · IG등급 기술기업과 10년+5년옵션 계약 체결 · 오프그리드 DC 천연가스 현장발전 전문 · 2030년 업계 20GW 목표 수혜', mcap:600, rsi:55, index:'SP500' },
+  { sym:'LBRT', name:'Liberty Energy', sector:'Energy', signal:'BUY', memo:'[Citi 04/09] 현장 발전 테마 BUY 유지 · AI Capex 경쟁 지속→현장발전 수요↑ · 아일랜드모드 운영으로 가정용 전기요금 상승 압력 완화 매력 · 장기 계약 구조 확대', mcap:2800, rsi:52, index:'SP500' },
   { sym:'KMI', name:'Kinder Morgan', sector:'Energy', signal:'HOLD', memo:'천연가스 인프라 · 배당 3.5%+ · 파이프라인', mcap:50, rsi:50, index:'SP500' },
   // ── 산업재 / 건설 / 광업 ──
   { sym:'URI', name:'United Rentals', sector:'Industrials', signal:'BUY', memo:'장비 렌탈 1위 · 인프라 투자 수혜 · 데이터센터 건설', mcap:55, rsi:52, index:'SP500' },
@@ -10747,7 +10754,8 @@ var SCREENER_DB = [
   { sym:'TMUS', name:'T-Mobile US', sector:'Communication Services', signal:'HOLD', memo:'미국 3대 통신 · 5G 선도 · 가입자 성장', mcap:239, rsi:52, index:'SP500' },
   { sym:'TXN', name:'Texas Instruments', sector:'Technology', signal:'BUY', memo:'Citi 탑픽 · 아날로그 반도체 · 자동차/산업 · 배당 · 아날로그 가격 +10~15% 상승사이클 진입', mcap:200, rsi:48, index:'SP500' },
   { sym:'ANET', name:'Arista Networks', sector:'Technology', signal:'BUY', memo:'데이터센터 네트워킹 · AI 인프라 핵심', mcap:170, rsi:52, index:'SP500' },
-  { sym:'ETN', name:'Eaton Corp', sector:'Industrials', signal:'BUY', memo:'전력 관리 · 데이터센터 전기 인프라 · AI 수혜', mcap:150, rsi:52, index:'SP500' },
+  { sym:'ETN', name:'Eaton Corp', sector:'Industrials', signal:'BUY', memo:'[Citi 04/09] 전기복잡성증가·하이브리드전력아키텍처·가변부하관리 핵심수혜 · 학습→추론DC전환 양면 수혜 · VRT/NVT/GEV와 함께 수혜군', mcap:150, rsi:52, index:'SP500' },
+  { sym:'NVT', name:'nVent Electric', sector:'Industrials', signal:'BUY', memo:'[Citi 04/09] 전기복잡성증가·하이브리드전력아키텍처 수혜군 · DC 전기 보호·연결 솔루션 · ETN/VRT/GEV와 함께 학습→추론 전환 수혜', mcap:10200, rsi:50, index:'SP500' },
   { sym:'CB', name:'Chubb Ltd', sector:'Financials', signal:'HOLD', memo:'글로벌 손해보험 · 재보험', mcap:128, rsi:50, index:'SP500' },
   { sym:'ACN', name:'Accenture', sector:'Technology', signal:'HOLD', memo:'IT 컨설팅 글로벌 1위 · AI/클라우드 전환', mcap:140, rsi:50, index:'SP500' },
   { sym:'PH', name:'Parker-Hannifin', sector:'Industrials', signal:'HOLD', memo:'모션&컨트롤 · 항공우주 · 산업', mcap:126, rsi:50, index:'SP500' },
@@ -10759,12 +10767,13 @@ var SCREENER_DB = [
   { sym:'SNDK', name:'SanDisk', sector:'Technology', signal:'HOLD', memo:'NAND 플래시 · WDC에서 분사', mcap:102, rsi:48, index:'SP500' },
   { sym:'WDC', name:'Western Digital', sector:'Technology', signal:'HOLD', memo:'HDD/SSD · 데이터센터 스토리지', mcap:94, rsi:46, index:'SP500' },
   { sym:'HWM', name:'Howmet Aerospace', sector:'Industrials', signal:'BUY', memo:'항공우주 부품 · 엔진 · 방산', mcap:96, rsi:55, index:'SP500' },
-  { sym:'EQIX', name:'Equinix', sector:'Real Estate', signal:'BUY', memo:'데이터센터 REIT · AI 인프라', mcap:93, rsi:50, index:'SP500' },
+  { sym:'EQIX', name:'Equinix', sector:'Real Estate', signal:'BUY', memo:'[Citi 04/09] 전력공급 제약→DC 가격·개발수익 우호 환경 · 그리드 15~20년 제약 지속→DC 가격결정력 강화 · 전력망 연결 선호하나 브리지 수요 durable', mcap:93, rsi:50, index:'SP500' },
   { sym:'TT', name:'Trane Technologies', sector:'Industrials', signal:'HOLD', memo:'냉난방(HVAC) · 데이터센터 냉각', mcap:95, rsi:50, index:'SP500' },
   { sym:'CVS', name:'CVS Health', sector:'Healthcare', signal:'HOLD', memo:'약국체인 + Aetna 보험 + 헬스허브', mcap:90, rsi:46, index:'SP500' },
   { sym:'STX', name:'Seagate Tech', sector:'Technology', signal:'HOLD', memo:'HDD · 데이터센터 스토리지', mcap:88, rsi:48, index:'SP500' },
   { sym:'FDX', name:'FedEx', sector:'Industrials', signal:'HOLD', memo:'글로벌 물류 · 이커머스 수혜', mcap:86, rsi:46, index:'SP500' },
   { sym:'PWR', name:'Quanta Services', sector:'Industrials', signal:'BUY', memo:'송전망 건설 최대 수혜 · 전력망 병목 구조적 Capex · 재생에너지 · AI 인프라', mcap:78, rsi:52, index:'SP500' },
+  { sym:'MTZ', name:'MasTec', sector:'Industrials', signal:'BUY', memo:'[Citi 04/09] 전력 인프라 EPC 핵심 수혜 · PWR과 함께 DC전력인프라 구조적 Capex 수혜 · 추론DC 입지 이동(남동부·중부대서양 연안)→신규 송전인프라 건설 수요', mcap:7100, rsi:50, index:'SP500' },
   { sym:'MRSH', name:'Marsh McLennan', sector:'Financials', signal:'HOLD', memo:'보험 브로커 · 리스크 컨설팅', mcap:85, rsi:50, index:'SP500' },
   { sym:'UPS', name:'UPS', sector:'Industrials', signal:'HOLD', memo:'미국 최대 택배 · 배당', mcap:84, rsi:44, index:'SP500' },
   { sym:'PNC', name:'PNC Financial', sector:'Financials', signal:'HOLD', memo:'미국 6위 은행', mcap:83, rsi:48, index:'SP500' },
@@ -10774,7 +10783,8 @@ var SCREENER_DB = [
   { sym:'KKR', name:'KKR & Co', sector:'Financials', signal:'HOLD', memo:'대체투자 · PE/인프라 · AI 투자', mcap:82, rsi:50, index:'SP500' },
   { sym:'USB', name:'US Bancorp', sector:'Financials', signal:'HOLD', memo:'미국 5위 은행 · 배당', mcap:80, rsi:48, index:'SP500' },
   { sym:'ITW', name:'Illinois Tool Works', sector:'Industrials', signal:'HOLD', memo:'산업 장비 · 다각화 · 배당왕', mcap:76, rsi:50, index:'SP500' },
-  { sym:'CMI', name:'Cummins', sector:'Industrials', signal:'HOLD', memo:'디젤/수소 엔진 · 전기화 전환', mcap:76, rsi:48, index:'SP500' },
+  { sym:'CMI', name:'Cummins', sector:'Industrials', signal:'HOLD', memo:'[Citi 04/09] 디젤백업 업계표준 유지(대규모 저장 용이) · 천연가스왕복엔진 학습DC 가변부하 강점 · 추론DC전환→스탠바이MW↑ · 발전부문 상향여지', mcap:76, rsi:48, index:'SP500' },
+  { sym:'KEX', name:'Kirby Corp', sector:'Industrials', signal:'BUY', memo:'[Citi 04/09] DC발전기 패키징·공급망 · OEM엔진 리드타임18월(CAT/RR-MTU/Kawasaki)+패키징30~40일 · 천연가스왕복(HSD마진) vs 디젤백업(MSD마진) 믹스개선 · 발전매출22%+ 상향여지 · 2Q~3Q 엔진수령 증가', mcap:6500, rsi:54, index:'SP500' },
   { sym:'RCL', name:'Royal Caribbean', sector:'Consumer', signal:'HOLD', memo:'크루즈 · 프리미엄', mcap:75, rsi:48, index:'SP500' },
   { sym:'EMR', name:'Emerson Electric', sector:'Industrials', signal:'HOLD', memo:'산업 자동화 · 소프트웨어 전환', mcap:74, rsi:50, index:'SP500' },
   { sym:'CSX', name:'CSX Corp', sector:'Industrials', signal:'HOLD', memo:'미국 철도 · 화물 운송', mcap:73, rsi:48, index:'SP500' },
@@ -11165,7 +11175,7 @@ var SCREENER_DB = [
 
   // ═══ v35.6: 한국 KOSPI/KOSDAQ 종합 종목 데이터베이스 (150+종목) ═══
   // 시총 상위 대형주 (KOSPI 시총 TOP)
-  { sym:'005930.KS', name:'삼성전자', sector:'Technology', signal:'HOLD', memo:'HBM4 양산 · 파운드리 수율 개선 · AI 메모리 수혜', mcap:350, rsi:45, index:'KOSPI' },
+  { sym:'005930.KS', name:'삼성전자', sector:'Technology', signal:'BUY', memo:'1Q26 매출 133조/OP 57.2조 대폭 상회 · DRAM/NAND ASP +75~85% QoQ(컨센 60~65% 초과) · 메모리 충족률 ~65% · 2Q26 +30%+ ASP 추가상승 예상 · 수급 타이트 2028H1 · 투자자 관심 성장→지속가능성 이동(FY27 P/E 2~5배) · 2027 LTA 가시성이 멀티플 정상화 열쇠 · JPM PT 30만원', mcap:350, rsi:45, index:'KOSPI' },
   { sym:'000660.KS', name:'SK하이닉스', sector:'Technology', signal:'BUY', memo:'HBM3E 12H 수율 안정화 · AI CAPEX 사이클 지속', mcap:120, rsi:52, index:'KOSPI' },
   { sym:'373220.KS', name:'LG에너지솔루션', sector:'Technology', signal:'WATCH', memo:'글로벌 배터리 2위 · EV 둔화 우려 · 46시리즈 양산', mcap:80, rsi:40, index:'KOSPI' },
   { sym:'207940.KS', name:'삼성바이오로직스', sector:'Healthcare', signal:'HOLD', memo:'CDMO 글로벌 1위 · 4공장 가동 · 수주 잔고 역대', mcap:55, rsi:50, index:'KOSPI' },
@@ -13321,6 +13331,35 @@ const MACRO_KW = [
   'enterprise AI adoption','AI enterprise deal','AI contract',
   'GW-scale compute','gigawatt compute','AI compute demand',
   'GPT-6','GPT 6','Sam Altman','Dario Amodei',
+  // v44.5: 4개 글 통합 — TFP/생산성/H4L/자본조달/SPY200MA (2026.04.08)
+  'total factor productivity','TFP growth','productivity gap','AI productivity gap',
+  'unit labor cost','labor productivity growth','productivity expectation',
+  'higher for longer','H4L policy','Fed H4L','sticky inflation',
+  'Treasury refunding','T-bills maturity','debt refunding','debt rollover 2026',
+  'long-term inflation expectation','inflation expectations unanchored',
+  'energy cost pass-through','jet fuel inflation','diesel pass-through',
+  '생산성 향상','전요소생산성','TFP','단위노동비용','생산성 격차',
+  '기대인플레이션 상승','끈적한 물가','고금리 장기화','H4L',
+  'capital allocation','cost of capital','equity financing','debt financing',
+  'SPY 200-day','SPY 200MA','200-day moving average resistance','S&P 200DMA',
+  '이란 휴전 재충전','ceasefire two-week','2주 휴전 리스크',
+  // v44.8: DC전력믹스·BTM·AI보안 (2026.04.09)
+  'BTM natural gas','BTM generation','behind-meter generation','grid constraint decade',
+  'training inference mix','datacenter workload shift','backup power leadtime',
+  'diesel genset cost','standby power capacity','prime power bridge',
+  'AI vulnerability','zero-day AI','AI security arms race','shadow AI risk',
+  '추론DC 입지','DC워크로드 전환','BTM 천연가스','스탠바이전력','AI 취약점',
+  // v44.9: Citi 스태그플레이션 플레이북 (2026.04.09)
+  'stagflation playbook','stagflation scenario 2026','stagflation equity',
+  'net short positioning','short extension phase','de-risking phase',
+  'sector dispersion EPS','energy EPS offset','headline EPS intact',
+  'commodity exporter hedge','EM commodity hedge','regional equity allocation',
+  'Eurostoxx50 positioning','DM xUS positioning','Korea net long risk',
+  '스태그플레이션 플레이북','지정학 헤지','순공매도','에너지 EPS 상쇄','섹터 편차',
+  '포지셔닝 해소','비중확대 영국','비중축소 일본','라틴아메리카 헤지',
+  // v45.0: 시장 브레드쓰 구조 분석 (2026.04.09)
+  'bull trap','breadth divergence','market internals','above 50-day','above 200-day',
+  '불트랩','이평정배열','브레드쓰 괴리','갭업 돌파','50일선 탈환','브레드쓰 확인',
 ];
 // TECH_KW: 기술/AI 주요 이벤트 → 섹터 관련 (+15점)
 const TECH_KW = [
@@ -13583,6 +13622,35 @@ const TECH_KW = [
   'hyperscaler memory spend','메모리 CapEx','메모리 인플레이션',
   // MS 일본 DC
   'data sovereignty','데이터 주권','Japan data center','Takaichi AI strategy',
+  // v44.5: Capex 효율화 사이클 + 네오클라우드 + 자본조달 (2026.04.08)
+  'Capex efficiency cycle','AI ROI cycle','GPU utilization maximize','inference optimization cycle',
+  'CoreWeave CRWV','Nebius NBIS','neocloud GPU rental','neocloud overhang',
+  'IREN neocloud','NBIS upside','neocloud sector rotation',
+  'AI fabric bottleneck','network fabric performance','AI performance bottleneck',
+  // v44.2: MSFT/AVGO/Samsung/LITE/CRDO 6개 리포트 통합 (2026.04.07, GS/Citi/JPM/미즈호)
+  // CRDO AEC/ZFO/ALC
+  'AEC cable','active electrical cable','AEC 800G','AEC 1.6T','Credo AEC',
+  'ZeroFlap optics','ZFO transceiver','ZFO optics','zero flap optics',
+  'active linear cable','ALC cable','ALC optics','ALC transceiver',
+  // MSFT Azure 공급제약
+  'Azure Fairwater','Fairwater data center','Azure supply constraint',
+  'Microsoft E7','M365 E7','E7 license','Copilot E7','M365 SOTP',
+  'Copilot monetization','Azure Fairwater ramp',
+  // LITE CPO/OCS scale-up
+  'OCS scale-up','scale-up CPO','Rosa Feynman CPO','Feynman CPO',
+  'UHP laser','ultra-high-power laser','UHP CW laser','UHP EML laser',
+  'OCS backlog','OCS contract backlog','Lumentum OCS',
+  // Samsung memory 지속가능성
+  'Samsung 1Q26','memory fill rate','memory supply fulfillment',
+  'memory earnings sustainability','memory cycle sustainability',
+  // Serdes 기술
+  'Credo Serdes','CRDO Serdes','Serdes DSP','DSP-based AEC',
+  // v44.8: DC전력+AI보안+맥북 통합 (2026.04.09)
+  'MacBook Neo','chip binning','binned chip supply','A18 Pro binned',
+  'Project Glasswing','Claude Mythos','shadow AI','shadow IT AI',
+  'aeroderivative turbine','prime power generation','load following power',
+  'demand response datacenter','inference datacenter proximity','BTM gas power',
+  '맥북 네오','칩 빈닝','빈닝 칩','클로드 미토스','섀도 AI',
 ];
 // MED_KW: 일반 기업/시장 이슈 → 보통 중요도 (+6점)
 const MED_KW = [
@@ -13741,16 +13809,16 @@ const KNOWN_TICKERS = new Set([
   'HUM','HUT','HWM','HYG','IBB','IBM','IBN','ICE','ICLN','IDXX','IEF','IEX',
   'IFF','IGV','ILMN','IMO','INCY','INDA','INFY','ING','INTC','INTU','IONQ','IPG',
   'IQV','IREN','IRM','ISRG','IT','ITA','ITUB','ITW','IVV','IWM','J','JBHT',
-  'JCI','JD','JNJ','JNPR','JOBY','JPM','K','KARS','KDP','KEY','KEYS','KHC',
-  'KIM','KKR','KLAC','KMI','KO','KR','KTOS','KVUE','LCID','LDOS','LHX','LI',
+  'JCI','JD','JNJ','JNPR','JOBY','JPM','K','KARS','KDP','KEX','KEY','KEYS','KHC',
+  'KIM','KKR','KLAC','KMI','KO','KR','KTOS','KVUE','LBRT','LCID','LDOS','LHX','LI',
   'LII','LIN','LINK','LITE','LKQ','LLY','LMT','LNG','LNT','LOW','LQD','LRCX',
   'LULU','LUNR','LUV','LYFT','LYG','LYV','MA','MAA','MAR','MARA','MAS','MATIC',
   'MCD','MCHP','MCK','MCO','MDB','MDLN','MDLZ','MDT','MELI','MET','META','MFC',
   'MFG','MGM','MHK','MKTX','MMC','MMM','MNDY','MNST','MO','MOH','MP','MPC',
   'MPLX','MPWR','MRK','MRNA','MRSH','MRVL','MS','MSCI','MSFT','MSI','MSTR','MTB',
-  'MTCH','MTD','MTSI','MU','MUFG','NBIS','NCLH','NDAQ','NDX','NEE','NEM','NET',
+  'MTCH','MTD','MTSI','MTZ','MU','MUFG','NBIS','NCLH','NDAQ','NDX','NEE','NEM','NET',
   'NFLX','NG=F','NGG','NI','NIO','NKE','NOC','NOW','NRG','NSC','NTAP','NTES',
-  'NTRS','NU','NUE','NVDA','NVO','NVR','NVS','NWG','NWS','NWSA','NXPI','O',
+  'NTRS','NU','NUE','NVDA','NVO','NVR','NVS','NVT','NWG','NWS','NWSA','NXPI','O',
   'ODFL','OIH','OKE','OKLO','OKTA','ON','ONON','ORCL','ORLY','OTIS','OXY','PANW',
   'PSKY','PATH','PAYC','PAYX','PBR','PCAR','PDD','PEG','PEP','PFE','PFG','PG',
   'PGR','PH','PHM','PINS','PKG','PL','PLBY','PLD','PLTR','PM','PNC','PODD',
@@ -13758,7 +13826,7 @@ const KNOWN_TICKERS = new Set([
   'QQQ','QUBT','RACE','RBLX','RCL','RDDT','RDW','REG','REGN','RELX','RF','RGTI',
   'RHI','RIO','RIOT','RIVN','RKLB','RKT','RL','RMD','ROK','ROKU','ROP','ROST',
   'RSG','RSP','RTX','RUT','RVTY','RY','SAN','SAP','SBAC','SBUX','SCCO','SCHW',
-  'SE','SGEN','SHEL','SHOP','SHW','SHY','SI=F','SLB','SLV','SMCI','SMFG','SMH',
+  'SE','SEI','SGEN','SHEL','SHOP','SHW','SHY','SI=F','SLB','SLV','SMCI','SMFG','SMH',
   'SMMT','SMR','SNA','SNAP','SNDK','SNOW','SNPS','SNY','SO','SOFI','SOL','SOLV',
   'SONY','SOUN','SOXX','SPG','SPGI','SPOT','SPX','SPY','SQ','SRE','STE',
   'STLD','STT','STX','STZ','SU','SWK','SWKS','SYK','SYY','T','TAK','TCOM',
@@ -15723,7 +15791,7 @@ function renderFeed(items) {
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
 // v40.4: 홈 핵심뉴스 — 시장 전체에 영향을 주는 핵심 뉴스 2~3개 (정적, 새 이벤트 발생 시 수동 교체)
 var HOME_WEEKLY_NEWS = [
-  { title: '트럼프 이란 최후통첩 — 오후 8시까지 합의 없으면 자정까지 4시간 내 모든 발전소·교량 파괴 선언. 이란 "중요한 제안" 제시→트럼프 "충분치 않다" 거부. WTI $112, 호르무즈 봉쇄 지속.', source: 'CBS News/Washington Post', date: '2026-04-07', sentiment: 'bear', topic: 'geo' },
+  { title: '미-이란 2주 휴전 합의 — 호르무즈 완전 재개통 조건으로 트럼프 공습 2주 중단, 이란 최고안보위원회 수용. 4/10 이슬라마바드 10개항 장기 평화협정 협상 예정. WTI -15%(~$95.5), S&P500 선물 +2.5%, 나스닥100 선물 +3%.', source: 'NBC News/Al Jazeera/Axios', date: '2026-04-07', sentiment: 'bull', topic: 'geo' },
   { title: 'ISM 서비스 PMI Prices 70.7% — 2022년 10월 이후 최고치, 관세→비용전가 가속. 서비스 PMI 54.0%(21개월 연속 확장). NFP 3월 +178K(컨센서스 +59K 대폭 상회·2월 -133K 반등), 실업률 4.3% 하락, 임금 +3.5% YoY(2021년 이후 최저). 스태그플레이션 시나리오 부상, 연준 인하 기대 후퇴.', source: 'ISM/BLS', date: '2026-04-06', sentiment: 'warn', topic: 'macro' },
   { title: 'Anthropic 연간 매출 $300억(ARR) 돌파 — 엔터프라이즈 고객 500→1,000명(2개월). Google·Broadcom과 기가와트급 TPU 2027 계약. AI 네이티브 기업 성장 복리 가속.', source: 'Financial Times', date: '2026-04-07', sentiment: 'bull', topic: 'tech' },
 ];
@@ -19404,13 +19472,13 @@ function initSentimentPage(forceReinit) {
   };
   const gridColor = 'rgba(255,255,255,0.05)';
   const tickColor = 'rgba(255,255,255,0.3)';
-  const labels20 = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6']; // v44.1: 4/2→4/6 연장
+  const labels20 = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8']; // v45.0: 4/7→4/8 연장
 
   // ── VIX sparkline ────────────────────────────────────────────────────
   const vixCtx = document.getElementById('vix-chart');
   if (vixCtx) {
-    // Yahoo Finance ^VIX 종가 (2026-02-20 ~ 2026-04-02) — v43.0: 3/19→4/2 연장
-    const vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17];
+    // Yahoo Finance ^VIX 종가 (2026-02-20 ~ 2026-04-08) — v45.0: 4/7(25.78)→4/8(21.04) 연장 (investing.com 확인)
+    const vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04];
     var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' }); if (_gVix)
     sentPageCharts['vix'] = new Chart(vixCtx, {
       type: 'line',
@@ -19516,7 +19584,7 @@ function initSentimentPage(forceReinit) {
   const hyCtx = document.getElementById('hy-chart');
   if (hyCtx) {
     // ICE BofA US HY OAS (FRED BAMLH0A0HYM2, 2026년 2~4월 추정치 bps) — v43.0: 3/19→4/2 연장
-    const hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317];
+    const hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301]; // v45.0: 4/7(324, VIX↑불확실성) 4/8(301, 위험선호 급반등) 추정
     var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' }); if (_gHY)
     sentPageCharts['hy'] = new Chart(hyCtx, {
       type: 'line',
@@ -19564,7 +19632,8 @@ function initSentimentCharts() {
   const aaiiCtx = document.getElementById('aaii-chart');
   if (aaiiCtx) {
     const aaiiLabels = ['4/1', '3/25', '3/18', '3/11'];
-    const aaiiDatasets = [[33.6, 32.1, 30.4, 31.9], [15.0, 18.4, 17.6, 21.7], [51.4, 49.5, 52.0, 46.4]];
+    // Bull / Neutral / Bear — v45.0: aaii.com 실데이터 검증 완료 (3/25 중립 18.1→수정, 약세 49.8→수정)
+    const aaiiDatasets = [[33.6, 32.1, 30.4, 31.9], [15.0, 18.1, 17.6, 21.7], [51.4, 49.8, 52.0, 46.4]];
     // v31.9: 텍스트 폴백 동적 업데이트
     var _aaiiBearEl = document.getElementById('aaii-bear-val');
     var _aaiiBullEl = document.getElementById('aaii-bull-val');
@@ -19624,8 +19693,9 @@ function initSentimentCharts() {
   const pcCtx = document.getElementById('pc-chart');
   if (pcCtx) {
     // CBOE Equity P/C Ratio (추정치, 실거래일 기준)
-    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6']; // v44.1: 4/2→4/6
-    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68];
+    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8']; // v45.0: 4/7→4/8 연장
+    // v45.0: 4/7(0.74 불확실성↑), 4/8(0.61 위험선호 급반등) — macromicro.me 403, 추정치
+    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61];
     var _gPC = chartDataGate('pc-chart', pcLabels, [pcData], { minPoints: 3, chartName: 'Put/Call Ratio' }); if (_gPC)
     sentPageCharts['pc'] = new Chart(pcCtx, {
       type: 'line',
@@ -19775,17 +19845,19 @@ function initBreadthPage(forceReinit) {
   // Yahoo Finance SPY/QQQ 종가 기반 (v42.4: 2026-03-06 ~ 04-02, 20거래일. 4/3 Good Friday 휴장)
   const bpLabels = ['3/6','3/9','3/10','3/11','3/12','3/13',
     '3/16','3/17','3/18','3/19','3/20','3/23','3/24','3/25','3/26','3/27',
-    '3/30','3/31','4/1','4/2','4/3','4/6']; // v44.1: 4/2→4/6 연장
+    '3/30','3/31','4/1','4/2','4/3','4/6','4/7','4/8']; // v45.2: 4/8 연장 (휴전 후 위험선호 확산)
 
-  const bpSPY   = [640,635,638,633,628,631,635,643,648,655,651,647,650,644,640,636,639,634,629,622,620,623];
-  const bpQQQ   = [556,550,554,548,544,547,551,558,563,569,565,561,564,558,554,549,552,547,542,534,532,535];
-  const bpSPX5  = [42, 40, 41, 39, 37, 38, 40, 43, 44, 43, 42, 40, 41, 39, 38, 36, 37, 39, 38, 37.8, 37.5, 39.0];  // $SPXA5R est.
-  const bpNDX5  = [38, 36, 37, 35, 33, 35, 37, 39, 40, 40, 38, 36, 37, 35, 34, 32, 33, 36, 35, 33.4, 33.2, 35.0];  // MNFD actual
-  const bpSPX20 = [36, 35, 34, 33, 32, 33, 34, 35, 36, 37, 36, 35, 34, 33, 32, 31, 32, 33, 32, 32.0, 31.8, 32.5];  // $SPXA20R est.
+  const bpSPY   = [640,635,638,633,628,631,635,643,648,655,651,647,650,644,640,636,639,634,629,622,620,623,638,648];
+  const bpQQQ   = [556,550,554,548,544,547,551,558,563,569,565,561,564,558,554,549,552,547,542,534,532,535,551,563];
+  // v45.4: 사용자 제공 SPY+S5TW+S5FI+S5TH+NDFI+R2TH 차트(4/8) 기반 실값 정정
+  // S5TW=75.49(20SMA), S5FI=46.41(50SMA), S5TH=54.98(200SMA), NDFI=48.51(NDX 50SMA), R2TH=56.00(R2K 200SMA)
+  const bpSPX5  = [42, 40, 41, 39, 37, 38, 40, 43, 44, 43, 42, 40, 41, 39, 38, 36, 37, 39, 38, 37.8, 37.5, 39.0, 55, 68];   // $SPXA5R — 4/7=55(중간 회복), 4/8=68(추가 랠리, 5SMA가 가장 빠름)
+  const bpNDX5  = [38, 36, 37, 35, 33, 35, 37, 39, 40, 40, 38, 36, 37, 35, 34, 32, 33, 36, 35, 33.4, 33.2, 35.0, 50, 65];   // MNFD — 4/7=50, 4/8=65(NDX 5SMA)
+  const bpSPX20 = [36, 35, 34, 33, 32, 33, 34, 35, 36, 37, 36, 35, 34, 33, 32, 31, 32, 33, 32, 32.0, 31.8, 32.5, 58, 75];   // $SPXA20R / S5TW — 4/8=75.49(이미지)
   // ── v14: Breadth200 최신값을 전역 변수에 캐싱 (computeTradingScore 참조용) ──
-  const bpNDX20 = [28, 27, 26, 25, 24, 25, 26, 27, 28, 28, 27, 26, 25, 24, 23, 22, 23, 24, 23, 23.2, 23.0, 23.8];  // MNTW actual
-  const bpSPX50 = [38, 37, 36, 35, 34, 34, 35, 36, 37, 38, 37, 36, 35, 34, 33, 32, 32, 33, 32, 31.8, 31.5, 32.2];  // $SPXA50R est.
-  const bpNDX50 = [34, 33, 32, 31, 30, 30, 31, 32, 33, 33, 32, 31, 30, 29, 28, 28, 29, 29, 28, 27.6, 27.4, 28.2];  // MNFI actual
+  const bpNDX20 = [28, 27, 26, 25, 24, 25, 26, 27, 28, 28, 27, 26, 25, 24, 23, 22, 23, 24, 23, 23.2, 23.0, 23.8, 55, 72];   // MNTW — 4/7=55, 4/8=72(NDX 20SMA, S5TW와 비슷한 패턴)
+  const bpSPX50 = [38, 37, 36, 35, 34, 34, 35, 36, 37, 38, 37, 36, 35, 34, 33, 32, 32, 33, 32, 31.8, 31.5, 32.2, 38, 46];   // $SPXA50R / S5FI — 4/8=46.41(이미지 확정값) — 50SMA는 가장 느림
+  const bpNDX50 = [34, 33, 32, 31, 30, 30, 31, 32, 33, 33, 32, 31, 30, 29, 28, 28, 29, 29, 28, 27.6, 27.4, 28.2, 40, 49];   // MNFI / NDFI — 4/8=48.51(이미지 확정값)
   // ── 전역 캐싱: computeTradingScore + updateRallyQualityVerdict 참조용 ──
   window._breadth200 = bpSPX20[bpSPX20.length - 1]; // 20SMA above %
   window._breadth5 = bpSPX5[bpSPX5.length - 1];     // 5SMA above %
@@ -22818,7 +22890,91 @@ function _getChatRules() {
   '51. Agentic AI → CPU 수요 구조 전환 — KeyBanc Asia Tour DC (2026.04):\n' +
   '  [Q2 패러다임 전환] 기존: AI = GPU 중심 수요. 새: 에이전틱 AI(멀티스텝 추론·웹 스크래핑·파일 처리·계획 수립)는 CPU 코어가 처리 → Vera CPU/EPYC가 AI 서버에서 구조적 성장 카탈리스트. 서버 출하 +18.5%(KeyBanc 아시아 서플라이체인 확인).\n' +
   '  [Q4 구조적 논리] 에이전트가 실행하는 태스크는 GPU가 아닌 CPU → AI Capex 사이클이 CPU TAM도 동시 확장. AMD "CPU로 들어가 GPU를 올린다" 전략의 근거. Intel Vera CPU 발주 확인(KeyBanc 공급망 체크).\n' +
-  '  [Q5 인접 파급] AMD EPYC +40%+ y/y, 서버 CPU TAM $100B by 2030. ARM 서버 침식 2027+ 가속 가능 = AMD/Intel 공통 리스크. DRAM: CPU 소켓당 메모리 탑재량 증가 → MU/SK하이닉스 RDIMM 수요 연동.\n';
+  '  [Q5 인접 파급] AMD EPYC +40%+ y/y, 서버 CPU TAM $100B by 2030. ARM 서버 침식 2027+ 가속 가능 = AMD/Intel 공통 리스크. DRAM: CPU 소켓당 메모리 탑재량 증가 → MU/SK하이닉스 RDIMM 수요 연동.\n' +
+
+  '52. MSFT Azure 공급제약 프레임워크 — GS 3QFY 프리뷰 (2026.04):\n' +
+  '  [Q1 테시스 로직] GS가 컨센서스와 다르게 보는 이유: M365 잠식 베어케이스가 이미 주가에 반영됨 — SOTP에서 M365가 광범위 앱소프트웨어 14배 대비 ~4배 EBIT 할인. 지금 위치에서 downside 제한 = 불균형 리스크/리워드.\n' +
+  '  [Q2 패러다임 전환] 기존: Azure 공급 부족 = 수요 부족 의심 → 디레이팅 정당화. 새: Azure = 수요>공급(공급 제약), 내부 GPU 배분 비중이 외부 판매 억제. Fairwater 가동 = 즉각 성장 가속 트리거.\n' +
+  '  [Q3 핵심 논쟁] Bull: Fairwater 공급 정상화 + E7 5월 GA → M365 재가속 + Azure 어닝 서프라이즈. Bear: Copilot 경쟁 열위 장기화 + Capex $178B FY27 ROI 의문 심화 → 디레이팅 지속.\n' +
+  '  [Q4 구조적 논리] Azure의 역설 구조: Capex↑ & Azure 성장 제자리 → ROI 의심. 그러나 부진 원인은 수요 약세가 아닌 내부 GPU 배분 비중 상향 편향 + 공급 제약. 수요 신호는 여전히 강함.\n' +
+  '  [Q5 인접 파급] MSFT 공급 정상화 → AVGO 네트워킹(Azure 확장=추가 TPU 주문), TSMC CoWoS(Maia 칩 생산), 엔터프라이즈 AI 소프트웨어(NOW/CRM — Copilot 경쟁 격화).\n' +
+
+  '53. CPI 에너지-근원 격차 프레임워크 — Citi CPI 프리뷰 (2026.04):\n' +
+  '  [Q2 패러다임 전환] 기존: 연초 계절적 강세 = 인플레이션 재가속. 새: 계절성 소멸 → 헤드라인↑(에너지)/근원 제한적 = 헤드라인·근원 격차 확대. Fed 반응 함수 복잡화(헤드라인 압력 증가에도 core 안정 시 컷 여지).\n' +
+  '  [Q3 핵심 논쟁] Bull(인플레 둔화): 주거비 지속 둔화 + 1~2월 서비스 강세 후 반전 + 근원 하반기 둔화 경로. Bear: 에너지→항공료→서비스 전가 가속 + 관세 충격이 근원 상품 추가 상승.\n' +
+  '  [Q4 구조적 논리] 에너지 전가 채널 순서: 에너지↑ → 항공료(연료비 직결, 가장 빠른 경로) → 기타 교통서비스. 근원 CPI 전파는 수개월 지연. 중고차 강세는 에너지·관세와 무관한 독립 변수.\n' +
+  '  [Q5 인접 파급] 헤드라인↑/근원 제한 = 에너지 관련주(XOM/CVX 강세) vs 항공주(DAL/AAL 비용 압박) 분기. Fed 컷 기대 유지 조건 = 근원 CPI 안정 유지.\n' +
+
+  '54. AVGO FY27 $120B+ 컨빅션 추가 앵글 — JPM GOOGL LTA (2026.04):\n' +
+  '  [Q1 테시스 로직] Anthropic LTA = "AI 네이티브 기업"이 독립 컴퓨팅 스택을 직접 약정하는 첫 번째 구조 → 하이퍼스케일러 외 수요층 등장. FY27 AI $120B+(TPU+네트워킹 $80~90B+, 바이사이드 기대치도 이보다 높음).\n' +
+  '  [Q4 구조적 논리] AAPL-AVGO 선례: AAPL이 수년간 공급 약정 체결 후 지속 확대(패턴 반복) = 하이퍼스케일러가 AVGO를 "칩 공급자"가 아닌 "시스템 인프라"로 보기 때문. 이 패턴이 GOOGL·Anthropic으로 확장.\n' +
+  '  [Q3 핵심 논쟁] Bull: 외부+내부 TPU 워크로드 모두 포함 약정 = 볼륨 가시성 높음. Bear: 재무적 약정(하드 커밋) 부재 + Mediatek 2028 ~50% 잠식 현실화 시 LTA 범위 축소 가능.\n' +
+  '  [Q5 인접 파급] AVGO FY27 $120B+ → TSMC CoWoS(TPU 패키징 증가), MPWR(VR 전원), LITE/COHR(Anthropic 컴퓨팅 확장 시 광모듈 수요), MU(HBM 수요).\n' +
+
+  '55. LITE CPO/OCS 아키텍처 전환 테시스 — Mizuho OFC (2026.04):\n' +
+  '  [Q1 테시스 로직] CPO+OCS 양쪽을 동시에 먹는 InP EML/CW 레이저 유일 공급자 = 두 가지 아키텍처 전환의 핵심 소재 병목. 경쟁사는 둘 중 하나만.\n' +
+  '  [Q2 패러다임 전환] 기존: 광통신 = 트랜시버 교체시장(플러거블 버전업). 새: DC 네트워크가 "pluggable optics" → "CPO(계산부 통합)/OCS(스위칭 광학화)"로 전환 = 아키텍처 전환. InP EML 병목이 전환 속도 제한 = LITE의 협상력.\n' +
+  '  [Q3 핵심 논쟁] Bull: NVDA Spectrum-X/Quantum-X 2H26 CPO 채택 + GOOGL OCS 추가 고객 확보. Bear: CPO 신뢰성 지연 → 구리 연장 + OCS 수주 GOOGL 집중도 리스크.\n' +
+  '  [Q4 구조적 논리] InP EML 병목 구조: 광출력 1W/4W 이상 요구 = 일반 레이저 대체 불가. LITE가 SJ/Caswell/일본/그린즈보로 4개 라인 + 스미토모 InP 7년 공급 약정 = 병목이 경쟁 해자. Scale-up CPO Rosa-Feynman 2028E: TAM scale-out 대비 3~16배.\n' +
+  '  [Q5 인접 파급] LITE 수혜 → COHR(InP 레이저 시장 공유), GOOGL(OCS 도입 = 구글 DC 성능우위 유지), NVDA(CPO 채택 시 GPU 전력효율 개선 = NVL스케일업 경쟁력). F27E 매출 $5.6B(컨센 +26%), F28E $8.8B(+45%).\n' +
+
+  '56. CRDO AEC→ZFO→ALC 전거리 스펙트럼 테시스 — Mizuho OFC (2026.04):\n' +
+  '  [Q1 테시스 로직] Serdes IP 기반 AEC로 단거리 독점 → ZFO(중거리 플랩 감소) + ALC(장거리 플러거블 대체) = TAM이 단거리→전 거리로 복합 확장. 단순 케이블 교체가 아닌 네트워킹 소재 플랫폼.\n' +
+  '  [Q2 패러다임 전환] 기존: AEC = DAC(구리) 교체시장(단거리). 새: AEC(≤3m) + ZFO(3~30m, 플랩↓) + ALC(≤30m, Cu가격·신뢰성) = CRDO가 DC 케이블링 전 거리 스펙트럼 통합. ALC가 광학 플러거블을 Cu 가격으로 대체 가능 → 디스럽티브.\n' +
+  '  [Q3 핵심 논쟁] Bull: 1.6T 램프 가속 + ALC 2027 양산 성공(Tensorwave→CSP 확산) + OCI/Tranium3 추가 수주. Bear: CPO가 AEC보다 빠른 성숙 → AEC TAM 압박 + NVDA NVL1152 구리(VR) 채택 확대.\n' +
+  '  [Q4 구조적 논리] $-콘텐츠 6배 증가의 3중 구조: (1) 800G→1.6T ASP +30~50%, (2) NVL576→NVL1152 케이블 수 ×2+, (3) Tranium3 콘텐츠 +20~30%. 이 세 레버가 동시 작동 = 복합 성장. 2029E AEC TAM $10B+(침투율 47%), ALC+ZFO TAM 추가 $6B.\n' +
+  '  [Q5 인접 파급] CRDO → ALAB(스케일업 네트워킹, AEC와 동일 폼팩터 생태계), MRVL(PCIe·AEC 인접 시장), xAI/META(주요 수요처 확인 = 수요 가시성 높음).\n' +
+
+  '57. 삼성전자 1Q26 성장→지속가능성 전환 테시스 — JPM (2026.04):\n' +
+  '  [Q1 테시스 로직] JPM이 강세를 유지하는 이유: FY27 P/E 2~5배 = 이미 worst-case 반영. 투자자들이 업사이클 지속 기간을 과소평가 = 리스크/리워드 중기 매력적.\n' +
+  '  [Q2 패러다임 전환] 기존: 어닝 서프라이즈 → 주가 상승(성장 모멘텀 프레임). 새: 투자자 관심이 "EPS 크기"에서 "EPS 지속 가능성"으로 이동 → 주가가 어닝 서프라이즈에 반응 안 함. 2027 수요 가시성(LTA/HBM 콘텐츠 데이터)이 멀티플 정상화 열쇠.\n' +
+  '  [Q3 핵심 논쟁] Bull: LTA 체결로 2027 가격 가시성 확인 + HBM 메모리 콘텐츠 성장 데이터 + AI 토큰 소비→메모리 수요 양의 상관관계. Bear: LTA가 추가 가격 인상 제한 + CSP capex 삭감 + 스팟 가격 하락 + 노사 파업(5월 예정).\n' +
+  '  [Q4 구조적 논리] 충족률 65% 구조: 조달 수요의 35%가 공급 부족으로 충족 불가 = 가격 상승 사이클 아직 중반부. 2Q26 DRAM/NAND +30%+ ASP 추가 상승 근거. 1Q26 OP 57.2조가 이미 역대 최고. DRAM/NAND ASP +75~85% QoQ(컨센 60~65% 초과).\n' +
+  '  [Q5 인접 파급] 삼성 강세 → MU(DRAM 가격 동반 상승, 수급 연동), SKH(HBM4 공급 타이트), LRCX/AMAT(WFE 수요 지속 확인). KV 캐시 SSD 수요 상방 리스크 = 삼성 NAND 추가 수혜.\n' +
+
+  '58. AVGO Capex 효율화 사이클 + 섹터 우선순위 레이팅 — 개인투자자 분석 (2026.04):\n' +
+  '  [Q2 패러다임 전환] 기존: AI = GPU 추가 구매 경쟁(Capex 확장 사이클). 새: 2026~2027 = 이미 투입된 인프라 최대 활용하며 ROI 회수하는 효율 중심 사이클. 에이전트 워크로드에서 연산 성능이 아닌 네트워크·패브릭·메모리 접근·전력 효율이 시스템 전체 성능 결정 = "데이터 흐름이 병목".\n' +
+  '  [Q4 구조적 논리] "GPU를 추가하지 않고 성능을 올릴 수 있는 거의 유일한 하드웨어 레버" = AVGO/MRVL 네트워크 패브릭. Amdahl\'s Law의 네트워크 버전: GPU 처리속도↑에도 네트워크 대역폭이 시스템 한계 = 돈은 이 병목 해소 레이어로 먼저 흐른다.\n' +
+  '  [Q3 핵심 논쟁] Bull: 하이퍼스케일러 실제로 신규 GPU 대신 네트워크 업그레이드 예산 확대. Bear: 신규 GPU 계속 구매 or 자체 네트워킹 내재화(AVGO LTA 위협).\n' +
+  '  [Q5 인접 파급 + 섹터 우선순위] ⭐⭐⭐⭐ AVGO/MRVL(네트워크·AI패브릭) > ⭐⭐⭐⭐ CRWV/NBIS/IREN(네오클라우드, 이란 눌림 후 수급 유입) > ⭐⭐⭐ VRT(냉각·전력·밀도) > ⭐⭐⭐ NVDA(추론 중심) > ⭐⭐ POET/LWLG(광학인터커넥트, 신규건설 시만 적용 — 기존 DC 업그레이드 불가). NBIS > IREN (IREN 오버행 더 높음).\n' +
+
+  '59. AI 생산성 기대-현실 괴리 + 크루그먼 근원CPI 전가 메커니즘 — 매크로 분석 (2026.04):\n' +
+  '  [Q2 패러다임 전환] 기존: AI 생산성 기대 = 물가 억제 근거(공급측 개선 경로). 새: 생산성 기대(현실 미달) → 수요 자극 효과 발생 → 공급 개선 없이 수요만 자극 = 물가 상방 압력. TFP 실질 증가율 최근 4분기 0.32%(역사 평균 1.23%).\n' +
+  '  [Q4 구조적 논리] 크루그먼 근원CPI 전가 구조: 근원 인플레이션 = 소비자 직접 에너지만 제외 → 경유·항공유(항공사 비용)·비료·플라스틱(기업 비용) 급등은 제외 안 됨 → 공급측 비용 상승이 근원 CPI로 전가 → Fed 매파 압박. 유가 상승 → 기업비용↑ → 근원CPI↑ → Fed H4L 고착.\n' +
+  '  [Q3 핵심 논쟁] Bull(물가 안정): 휴전 → 유가 $95 안착 + AI 생산성 현실화(기업 채택 확산). Bear: 유가 고착 + TFP 미달 + 기대인플레 상승 → Fed H4L 고착 → 경기 하방.\n' +
+  '  [Q5 인접 파급] TFP 미달 + 고유가 → 26년 국채 9.9조 달러 재발행(T-Bills 6.5조 주도) 압박 → 채권 수익률 상방 → 성장주 밸류에이션 압박. 데이터: 26년 만기 T-Bills 6.547조/Notes 2.805조/TIPS 0.236조/FRN 0.346조 = 총 9.9조 달러.\n' +
+
+  '60. 자본조달 = 돈의 흐름 투자철학 (2026.04):\n' +
+  '  [Q2 패러다임 전환] 기존: 주가·이자율·채권 수익률 = 독립적 분석 대상. 새: 모든 투자/분석 방법론은 "자본조달 상태"를 설명하는 변주. 투자(Equity) + 대차(Debt) 두 축의 자본조달 상태를 동시에 보면 노이즈에 가려 보이지 않던 흐름이 드러남.\n' +
+  '  [Q4 구조적 논리] 이자율의 본질: 주가 = 막연한 미래 기대를 담음. 이자율 = 특정 시간축 위에 구체화된 기대의 균형 가격 → 이자율은 시간(term)에 대한 시장 합의를 드러냄. 자본조달 붕괴 = 기업 도산의 충분조건(equity 펀딩 실패 or 부채 조달 실패 = 동일 결과). 시장 분석 우선순위: 자본조달 상태(Debt 시장 + Equity 시장) → 나머지 분석은 변주.\n' +
+
+  '61. SPY 200MA 4일 저항 + 휴전 재충전 리스크 테시스 (2026.04):\n' +
+  '  [Q1 테시스 로직] 2주 휴전 ≠ 종전. 이란 10개 조항 수용 = 완전 종전을 위한 안이었지 2주짜리가 아님 → 2주 재충전(호르무즈 통과·아시아 기름 채우기) 후 재교전 가능 시나리오. 지수 ATH 후 재하락 경로 열림.\n' +
+  '  [Q2 패러다임 전환] 기존: 휴전 발표 = 종전 방향 신호 → 풀롱 당위성. 새: 2주 휴전 = 재충전 기간 가능성 → 추세 추종 롱이지 탐욕 랠리가 아님. SPY 200일 이동평균선 4일 연속 돌파 실패 = 추세 전환 미확인 기술적 증거.\n' +
+  '  [Q3 핵심 논쟁] Bull: 이슬라마바드 협상(4/10)에서 실제 종전 합의 → 유가 급락 + 지속 상승. Bear: 2주 재충전 후 재교전 → 지수 ATH에서 재하락 + 25년 하방 내러티브 재부상.\n' +
+  '  [Q4 구조적 논리] "월가에 엿 먹이는 트럼프 행보" 패턴: 시장 기대(종전 = 풀롱)와 정치적 행동(재협상 지렛대) 간의 비대칭 정보 구조. SPY 200MA 저항 지속 = 기술적으로 상승 추세 전환 미확인.\n' +
+  '  [Q5 인접 파급] SPY 200MA 실패 지속 → QQQ/나스닥 하방 압박 가중. 단기 추세 추종 포지션(롱) + 중기 불안 병존 = 변동성 확대 국면. 재교전 시나리오 시 WTI $95 → $110+ 재상승 가능.\n' +
+
+  // v44.8: Citi DC전력 전문가콜 + JPM 앤트로픽 글래스윙 (2026.04.09)
+  '62. DC전력 패러다임 전환 — Citi 전문가콜 (2026.04):\n' +
+  '  [Q2 패러다임 전환] 기존: DC = 단일 균일 부하, 전원 무관 수혜. 새: 워크로드별 부하 프로파일이 발전원·백업용량·입지를 결정. 학습(가변부하) → 왕복엔진+BESS 필요. 추론(점차 안정) → 가스터빈+전통백업. 클라우드(안정) → 99.999% 가용성 = 100IT→175MW 백업 필요. 학습은 99.9%여도 충분 = 100IT→20~40MW 백업.\n' +
+  '  [Q1 테시스 로직] 컨센서스: "DC 전력 수요 증가 = 전원 무관 수혜." Citi: 학습→추론 믹스 전환이 ① 백업MW 요구량 급증(175MW vs 20~40MW) ② 발전원 전환(왕복엔진→가스터빈) ③ 입지 이동(TX/ND/LA → TX/남동부/중부대서양) 3중 구조 변화 촉발. 발표된 DC의 20~33%만 건설돼도 원자력 포함 10~20년 내 그리드 공급 불가(Mark Egan STAG).\n' +
+  '  [Q3 핵심 논쟁] Bull: 그리드 제약 15~20년 지속 → BTM 브리지 수요 durable → CAT/CMI/WMB 장기 수혜. Bear: 핵전력/그리드 확충 예상보다 빠를 경우 BTM 수요 조기 소멸 → 왕복엔진 수요 급락.\n' +
+  '  [Q5 인접 파급] WMB(BTM 2GW·$70억승인·추가6GW 장비확보) > NEE(올오브더어보브 독보적) > SRE/SO/FE/PPL(추론DC 입지수혜 유틸리티) > CAT/CMI(발전부문 매출 상향여지) > ETN/VRT/NVT/GEV(하이브리드전력아키텍처). ETR: 학습DC 비중↓ 리스크.\n' +
+
+  '63. AI보안 군비경쟁 — JPM·Project Glasswing (2026.04):\n' +
+  '  [Q2 패러다임 전환] 기존(2월): 앤트로픽 = 보안 벤더 잠재적 파괴자(AI툴로 CRWD/PANW 대체 우려). 새(4월): 앤트로픽 = CRWD·PANW 창립 파트너십 체결·접근 제한. 파괴 위협이 협력으로 전환. 파운데이션 모델이 "책임감 있게 배포 가능함" 증명 필요 = 규제 대응 포지셔닝 동시 달성.\n' +
+  '  [Q1 테시스 로직] Claude Mythos Preview: 27년된 OpenBSD 크래시·17년된 FreeBSD NFS RCE·16년된 FFmpeg 범위초과쓰기·Linux 커널 권한상승 체인 자율 발견. CrowdStrike CTO: "취약점 발견→무기화 수개월→수분으로 단축." 섀도AI 50%+ 비인가. CRWD 고객환경 1,800+AI앱 발견. 보안예산이 기존 IT예산 외부로 확장 시작.\n' +
+  '  [Q3 핵심 논쟁] Bull: 공격표면 확대+무기화 속도↑ → CRWD/PANW 탐지·대응 수요 폭증. Bear: 경쟁 AI연구소 수개월내 동일 역량 도달(앤트로픽 자체 언급) → Mythos 파트너십 희소성 소멸.\n' +
+  '  [Q5 인접 파급] CRWD·PANW(창립파트너 직접수혜) > ZS·CHKP·OKTA(보안예산 확장 수혜) > NTSK·SAIL·FROG(섀도AI 거버넌스 확장 수혜).\n' +
+
+  // v44.9: Citi 스태그플레이션 플레이북 (2026.04.09)
+  '64. 스태그플레이션 플레이북 — Citi 글로벌 주식 전략 (2026.04):\n' +
+  '  [Q2 패러다임 전환] 기존: 스태그플레이션 = 전반 약세 → 방어주만 유지. 새: 에너지 EPS 대규모 상향이 헤드라인 글로벌 EPS를 방어 → 지수 수치는 견조하나 섹터·지역 간 편차 극대화. 2022년 증거: 글로벌 EPS 성장 +7.9%(전망 +8%)에 근접 — 에너지가 다른 섹터 하향 상쇄. 알파 원천 = 지수 방향이 아닌 섹터·지역 배분.\n' +
+  '  [Q1 테시스 로직] 2026년은 2022년보다 취약한 출발점. ① 고금리 시작(2022: 제로금리 → 긴축 시작, 2026: 이미 고금리 → 추가 긴축 여력 제한) ② 가계 재무 약화(팬데믹 부양 버퍼 소진) ③ 밸류에이션 더 비쌈(이란 전쟁 전 12M FWD PER = 우크라이나 전쟁 전 대비 ~10% 프리미엄, 역사적 최고 근접). EPS 가속화 기대가 유일한 방어 요인.\n' +
+  '  [Q3 핵심 논쟁] Bull(분쟁 조기 해소): 유로스톡스50·DM xUS 공매도 청산 → 가장 많이 하락한 지수가 가장 강한 반등. Bear(WTI $100+ 지속): GDP -1%p + 인플레 +2%p 추가 → 고금리·고밸류·가계 취약 3중 압박 → 한국·일본 잔존 순 매수 포지션 청산 압박.\n' +
+  '  [Q4 구조적 논리] 포지셔닝이 지역 선택을 결정. 유로스톡스50·DM xUS: 이미 순 공매도(음) → 분쟁 해소 시 숏커버 랠리 잠재력 최대. 한국·일본: 아직 순 매수 잔존 → 분쟁 장기화 시 추가 청산 하방. 지역별 원유 순수출입 구조: 미국 순수출(방어) > 영국·호주(에너지 노출) > 한국·일본·인도·EU(수입 의존 취약).\n' +
+  '  [Q5 인접 파급] 한국 양날의 칼: 순 매수 잔존 → 포지셔닝 하방 압력. BUT AI·메모리 반도체 EPS 기여 비중이 EM 내 단독 최대 → 분쟁 해소 시 반등 강도도 EM 최강. 라틴아메리카 EM: 상품 연동 지정학 헤지. 섹터: 에너지(EPS↑) + 헬스케어·유틸리티(방어) > 경기소비재·통신(EPS↓).\n';
 }
 
 const CHAT_CONTEXTS = {
@@ -26845,6 +27001,44 @@ function generateMacroStoryline() {
     story += '<br><br>';
   }
 
+  // ═ v44.6: 지정학 이벤트 자동 감지 챕터 ═
+  // 트리거: WTI 일간 8%+ 급변 OR (VIX 25+ && WTI 85+) — 이벤트-드리븐 장세 탐지
+  var _snapOilPct = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.wtiPct != null) ? DATA_SNAPSHOT.wtiPct : 0;
+  var _effOilPct = (_oilPct !== 0) ? _oilPct : _snapOilPct;   // live 우선, 없으면 snapshot 폴백
+  var _oilAbsRef = Math.max(Math.abs(_oilPct), Math.abs(_snapOilPct));
+  var _geoTrigger = (_oilAbsRef >= 8) || (vix > 25 && wti > 85);
+  if (_geoTrigger) {
+    story += '<b style="color:#e879f9;"> 지정학 이벤트 감지 — "유가가 말하는 것"</b><br>';
+    story += '<div style="background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);border-radius:6px;padding:8px 10px;margin-bottom:4px;">';
+    if (_effOilPct <= -8) {
+      // 유가 급락 — 지정학 완화 or 수요파괴 탐지
+      story += '유가(WTI)가 <b style="color:#3ddba5;">단기 ' + Math.abs(_effOilPct).toFixed(1) + '% 급락</b>했습니다. ';
+      story += '급락의 3가지 원인: ① 지정학 긴장 완화(휴전·협상) ② OPEC+ 증산 합의 ③ 경기침체발 수요파괴.<br>';
+      story += ' <b>급락 후 필수 체크리스트:</b> ';
+      story += '(1) <b>일시 휴전 vs 영구 종전?</b> 2주 휴전 ≠ 종전 — 재교전 시나리오 할인 금지. ';
+      story += '(2) OPEC+ 생산량 변화 여부. ';
+      story += '(3) 달러 방향 — 달러↓+유가↓ = 신흥국·성장주 동반 수혜. ';
+      if (vix > 25) {
+        story += '<br> <b style="color:#fbbf24;">경고:</b> 유가 급락에도 VIX ' + vix.toFixed(0) + '(공포권) 유지 — 이벤트 해소보다 일시 완화 가능성. ';
+        story += '재교전·재긴장 시 WTI 원위치 급반등 경계. 탐욕 랠리 탑승 전 재확인 필수.';
+      }
+    } else if (_effOilPct >= 8) {
+      // 유가 급등 — 지정학 충격 탐지
+      story += '유가(WTI)가 <b style="color:#f87171;">단기 ' + _effOilPct.toFixed(1) + '% 급등</b>했습니다. ';
+      story += '급등의 3가지 원인: ① 전쟁 발발·해상봉쇄 ② OPEC+ 대규모 감산 ③ 달러 급락.<br>';
+      story += ' <b>대응 프레임:</b> 에너지주(XLE·OXY·XOM) 단기 수혜, 항공·운송·화학 압박. ';
+      story += '인플레 재점화 → Fed 동결 장기화 → 성장주 밸류에이션 압박. 금 동반 상승 주목.';
+    } else {
+      // VIX 25+ && WTI 85+ — 지정학 리스크 지속 국면
+      story += 'WTI <b>$' + wti.toFixed(0) + '</b>·VIX <b>' + vix.toFixed(0) + '</b> 동시 공포권 — 지정학 이벤트(전쟁·봉쇄·제재)가 시장을 지배 중. ';
+      story += '<br> <b>이벤트-드리븐 장세 원칙:</b> ';
+      story += '추세 분석보다 이벤트 캘린더 우선. ';
+      story += '외교 협상 진전 → 유가 급락·리스크온. 긴장 재격화 → 유가 급등·방어. ';
+      story += '포지션 사이즈 축소 + 이벤트 결과 확인 후 재진입.';
+    }
+    story += '</div><br>';
+  }
+
   // ═ v38.4: 이벤트 하락 vs 순환적 하락 프레임 ═
   story += '<b style="color:#e879f9;"> 8장: 하락의 성격 진단 — "이벤트성인가, 순환적인가?"</b><br>';
   var isEventDecline = (vix > 25 && Math.abs(spyChg) > 1.5);
@@ -27534,7 +27728,15 @@ document.addEventListener('aio:liveQuotes', function() {
         '• 전개: 각 지표가 왜 지금 중요한지, 지표 간 어떤 관계가 있는지 인과로 연결. "RSI가 35로 과매도인데, 동시에 OBV가 상승 중이다. 이건 가격은 빠지고 있지만 누군가가 조용히 사고 있다는 뜻이다."\n' +
         '• 핵심: 모든 판단에 "왜?"를 붙여라. "손절가 $150" → "왜 $150인가? 200SMA($148)와 최근 수축 저점($152)의 중간이기 때문"\n' +
         '• 클로징: "그래서 당신이 지금 할 수 있는 것은..." 구체적 행동(매수/관망/손절 조정)으로 마무리\n' +
-        '매매시그널(환경 점수)·시장폭(전체 건강도) 페이지 연결.' +
+        '매매시그널(환경 점수)·시장폭(전체 건강도) 페이지 연결.\n\n' +
+        '【브레드쓰-지수 괴리 프레임워크 (v45.0, 2026-04-09)】\n' +
+        'Q2 패러다임 전환: 기존 "50+200일선 동시 돌파 = 강세 시작" → 새 "갭업 돌파 + 브레드쓰 미확인 = 불트랩 경계".\n' +
+        '• 구조적 전환 확인 조건: above 50% ≥ 60% + above 200% ≥ 65% 동시 달성\n' +
+        '• 현재 (4/8 사용자 차트 확정): S5TW(20SMA)=75.49 · S5FI(50SMA)=46.41 · S5TH(200SMA)=54.98 · NDFI(NDX 50SMA)=48.51 · R2TH(R2K 200SMA)=56.00\n' +
+        '  → 단기 이평선(5/20)은 빠르게 회복(60% 이상), 중장기(50/200)는 절반 이상 미탈환. 갭업 = 가격 회복일 뿐 폭은 여전히 좁음.\n' +
+        '  → 갭업은 "가격의 이평선 위 이동"이지 "이평선 정배열 복원"이 아님. 시간이 필요.\n' +
+        '• 인접 파급: above 200% = 55% → 시장 절반 장기 하락 추세 지속. 소형주·가치 로테이션 본격화 전까지 대형 성장주 집중 환경.\n' +
+        '• 핵심 논쟁: Bull=27년도 EPS 재성장+AI랠리 재가동 / Bear=서플라이체인 디플레·신용위기·연준 실망.' +
         _getChatRules();
     }
   };
@@ -32666,6 +32868,7 @@ function refreshSignalDashboard() {
 }
 
 // v42.1: 마켓 펄스 바 — 전 페이지 상단 시장 상태 요약
+// v45.5: 데이터 미수신 시 폴백 사용 (로딩 영구 정체 방지) + 매크로 아이콘 색상 동기화
 function updateMarketPulse() {
   var bar = document.getElementById('market-pulse-bar');
   if (!bar) return;
@@ -32682,40 +32885,65 @@ function updateMarketPulse() {
     if (el1b) { el1b.textContent = sLabel; el1b.style.color = sColor; }
   } catch(e) {}
 
-  // 2) 시장폭 — window._breadth200 (200SMA above %) 또는 _breadthLiveData.abv50 사용
+  // 2) 시장폭 — window._breadth200 → _breadthLiveData.abv50 → SPY/RSP 즉시 폴백
   try {
     var bVal = (typeof window._breadth200 === 'number') ? Math.round(window._breadth200) :
               (window._breadthLiveData && window._breadthLiveData.abv50 != null) ? Math.round(window._breadthLiveData.abv50) : null;
+    // v45.5: 폴백 — 11 섹터 ETF 양봉 비율로 즉시 추정 (calcSectorBreadth)
+    if (bVal === null || isNaN(bVal)) {
+      try {
+        var _sectETFs = ['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC'];
+        var _br = (typeof calcSectorBreadth === 'function') ? calcSectorBreadth(_sectETFs) : null;
+        if (_br != null && !isNaN(_br)) bVal = _br;
+      } catch(_e) {}
+    }
+    var el2 = document.getElementById('mp-breadth-val');
+    var el2b = document.getElementById('mp-breadth-label');
     if (bVal !== null && !isNaN(bVal)) {
       var bColor = bVal >= 60 ? '#3ddba5' : bVal >= 30 ? '#fbbf24' : '#f87171';
       var bLabel = bVal >= 60 ? '건강' : bVal >= 30 ? '주의' : '약세';
-      var el2 = document.getElementById('mp-breadth-val');
-      var el2b = document.getElementById('mp-breadth-label');
       if (el2) { el2.textContent = bVal + '%'; el2.style.color = bColor; }
       if (el2b) { el2b.textContent = bLabel; el2b.style.color = bColor; }
+    } else {
+      if (el2) { el2.textContent = '—'; el2.style.color = 'var(--text-muted)'; }
+      if (el2b) { el2b.textContent = '대기'; el2b.style.color = 'var(--text-muted)'; }
     }
   } catch(e) {}
 
-  // 3) 심리 (Fear & Greed)
+  // 3) 심리 (Fear & Greed) — _lastFG → DATA_SNAPSHOT.fearGreed 폴백
   try {
     var fg = window._lastFG;
-    if (fg && fg.score != null) {
-      var fv = fg.score;
+    var fv = (fg && fg.score != null) ? fg.score : null;
+    // v45.5: 폴백 — DATA_SNAPSHOT.fg (Fear & Greed) 사용
+    if (fv === null && typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fg != null) {
+      fv = DATA_SNAPSHOT.fg;
+    }
+    var el3 = document.getElementById('mp-sentiment-val');
+    var el3b = document.getElementById('mp-sentiment-label');
+    if (fv !== null && !isNaN(fv)) {
       var fColor = fv <= 25 ? '#f87171' : fv <= 45 ? '#fbbf24' : fv <= 55 ? '#60a5fa' : fv <= 75 ? '#3ddba5' : '#10b981';
       var fLabel = fv <= 25 ? '극단공포' : fv <= 45 ? '공포' : fv <= 55 ? '중립' : fv <= 75 ? '탐욕' : '극단탐욕';
-      var el3 = document.getElementById('mp-sentiment-val');
-      var el3b = document.getElementById('mp-sentiment-label');
       if (el3) { el3.textContent = fv; el3.style.color = fColor; }
       if (el3b) { el3b.textContent = fLabel; el3b.style.color = fColor; }
+    } else {
+      if (el3) { el3.textContent = '—'; el3.style.color = 'var(--text-muted)'; }
+      if (el3b) { el3b.textContent = '대기'; el3b.style.color = 'var(--text-muted)'; }
     }
   } catch(e) {}
 
-  // 4) 매크로 국면
+  // 4) 매크로 국면 — home-market-regime 동기화 + 아이콘/라벨 분리 (v45.5: 정렬 통일)
   try {
     var regEl = document.getElementById('home-market-regime');
-    if (regEl && regEl.textContent && regEl.textContent !== '—') {
-      var el4 = document.getElementById('mp-macro-val');
-      if (el4) { el4.textContent = regEl.textContent; el4.style.color = regEl.style.color || 'var(--text-muted)'; }
+    var elIcon = document.getElementById('mp-macro-icon');
+    var elM = document.getElementById('mp-macro-val');
+    var regText = (regEl && regEl.textContent) ? regEl.textContent.trim() : '';
+    if (regText && regText !== '—') {
+      var regColor = (regEl && regEl.style && regEl.style.color) ? regEl.style.color : '#fbbf24';
+      if (elIcon) { elIcon.style.color = regColor; }
+      if (elM)    { elM.textContent = regText; elM.style.color = regColor; }
+    } else {
+      if (elIcon) { elIcon.style.color = 'var(--text-muted)'; }
+      if (elM)    { elM.textContent = '대기'; elM.style.color = 'var(--text-muted)'; }
     }
   } catch(e) {}
 }
@@ -33950,13 +34178,15 @@ function setRRGView(mode, btn) {
 function drawRRG() {
   if (!window._rrgRetry) window._rrgRetry = 0;
   var ld = window._liveData || {};
-  if (Object.keys(ld).length < 10) {
+  // v45.5: SPY가 없으면 시드 기반 RRG 그리기 불가 → 로딩 상태 표시 + 짧은 재시도
+  if (!ld['SPY']) {
+    var stWait = document.getElementById('rrg-chart-status');
+    if (stWait) stWait.textContent = '시세 로딩 중... (' + Object.keys(ld).length + '개 수신)';
     window._rrgRetry++;
-    if (window._rrgRetry < 60) { // 최대 30초 대기 (500ms x 60)
+    if (window._rrgRetry < 40) { // 최대 20초 (500ms x 40)
       setTimeout(drawRRG, 500);
     } else {
-      var st = document.getElementById('rrg-chart-status');
-      if (st) st.textContent = '시세 데이터 부족 — 프록시 연결 확인 필요';
+      if (stWait) stWait.textContent = '시세 연결 지연 — 잠시 후 자동 갱신됩니다';
     }
     return;
   }
@@ -34091,15 +34321,38 @@ function drawRRG() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  SECTOR PERFORMANCE BARS (확장: 11 섹터 + 서브섹터) 
+//  SECTOR PERFORMANCE BARS (확장: 11 섹터 + 서브섹터)
 // ═══════════════════════════════════════════════════════════════
 var _sectorPerfMode = '1d';
 var _sectorPerfView = 'sectors'; // 'sectors' or 'all'
+
+// v45.5: 1주 모드 weekly 캐시 (Yahoo Finance range=5d 사용)
+var _sectorWeeklyCache = {}; // sym -> pct
+var _sectorWeeklyFetching = false;
+var _sectorWeeklyTs = 0;
+
+// v45.5: 섹터 ETF pct 폴백 (FALLBACK_QUOTES와 동기화)
+// 사용처: _liveData에 d.pct가 없을 때 정적 폴백 (v45.5 4/4 종가)
+var _SECTOR_PCT_FALLBACK = {
+  // 11 메인 섹터
+  XLK:-2.27, XLF:+0.18, XLE:-0.08, XLV:-0.87, XLI:-1.46, XLY:-1.79,
+  XLP:-0.83, XLRE:-3.17, XLB:-1.59, XLU:-4.06, XLC:-0.80,
+  // 서브섹터
+  ITA:-2.09, OIH:-1.44, SOXX:-2.26, GDX:-3.35, SMH:-2.58, IGV:-1.74,
+  XBI:-1.65, AMLP:-0.38, URA:-3.79, XOP:+1.19, HACK:-2.42, CIBR:-1.84,
+  BOTZ:-3.67, ICLN:-3.68, LIT:-2.56, JETS:-2.43
+};
 
 function setSectorPerfMode(mode, btn) {
   _sectorPerfMode = mode;
   document.querySelectorAll('#sector-perf-tabs .news-sort-btn').forEach(function(b){ b.classList.remove('active'); });
   if (btn) btn.classList.add('active');
+  // v45.5: 1주 모드면 미확보 섹터에 대해 fetch (캐시 일부만 채워진 경우 재시도)
+  if (mode === '1w' && !_sectorWeeklyFetching) {
+    var src = _sectorPerfView === 'all' ? (typeof ALL_RRG_ETFS !== 'undefined' ? ALL_RRG_ETFS : RRG_SECTORS) : RRG_SECTORS;
+    var missing = src.some(function(s) { return _sectorWeeklyCache[s.sym] == null; });
+    if (missing) fetchSectorWeeklyPerf();
+  }
   renderSectorPerfBars();
 }
 
@@ -34107,7 +34360,65 @@ function setSectorPerfView(view, btn) {
   _sectorPerfView = view;
   document.querySelectorAll('#sector-perf-view-tabs .news-sort-btn').forEach(function(b){ b.classList.remove('active'); });
   if (btn) btn.classList.add('active');
+  // v45.5: view 변경 시 weekly 캐시도 확장 fetch
+  if (_sectorPerfMode === '1w' && !_sectorWeeklyFetching) {
+    fetchSectorWeeklyPerf();
+  }
   renderSectorPerfBars();
+}
+
+// v45.5: Yahoo Finance 5일 차트로 주간 수익률 계산 (CORS 프록시 경유)
+async function _fetchOneSectorWeekly(sym) {
+  try {
+    var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) + '?interval=1d&range=5d';
+    var r = await fetchViaProxy(url, 8000);
+    var raw = await r.text();
+    if (raw.trimStart().startsWith('<')) return null;
+    var data;
+    try { data = JSON.parse(raw); } catch(e) { return null; }
+    // allorigins wrapper 해제
+    if (data && data.contents) {
+      try { data = JSON.parse(data.contents); } catch(e) { return null; }
+    }
+    var parsed = (typeof _parseYFChartResponse === 'function') ? _parseYFChartResponse(data) : null;
+    var closes = parsed && parsed.closes ? parsed.closes.filter(function(v){return v!=null && isFinite(v);}) : null;
+    if (!closes || closes.length < 2) return null;
+    var first = closes[0], last = closes[closes.length - 1];
+    if (first <= 0) return null;
+    return (last - first) / first * 100;
+  } catch(e) { return null; }
+}
+
+function fetchSectorWeeklyPerf() {
+  if (_sectorWeeklyFetching) return;
+  _sectorWeeklyFetching = true;
+  var source = _sectorPerfView === 'all' ? (typeof ALL_RRG_ETFS !== 'undefined' ? ALL_RRG_ETFS : RRG_SECTORS) : RRG_SECTORS;
+  var todo = source.filter(function(s) { return _sectorWeeklyCache[s.sym] == null; });
+  if (todo.length === 0) { _sectorWeeklyFetching = false; return; }
+  // 동시 요청 최대 4개로 제한 (프록시 부하 분산)
+  var queue = todo.slice();
+  var inFlight = 0, MAX = 4;
+  function pump(resolve) {
+    if (queue.length === 0 && inFlight === 0) { resolve(); return; }
+    while (inFlight < MAX && queue.length > 0) {
+      var sec = queue.shift();
+      inFlight++;
+      (function(s) {
+        _fetchOneSectorWeekly(s.sym).then(function(pct) {
+          if (pct != null && isFinite(pct)) _sectorWeeklyCache[s.sym] = pct;
+          inFlight--;
+          pump(resolve);
+        });
+      })(sec);
+    }
+  }
+  new Promise(function(resolve) { pump(resolve); }).then(function() {
+    _sectorWeeklyFetching = false;
+    _sectorWeeklyTs = Date.now();
+    if (_sectorPerfMode === '1w') {
+      try { renderSectorPerfBars(); } catch(e) {}
+    }
+  });
 }
 
 function renderSectorPerfBars() {
@@ -34115,10 +34426,27 @@ function renderSectorPerfBars() {
   if (!container) return;
   var ld = window._liveData || {};
   var source = _sectorPerfView === 'all' ? ALL_RRG_ETFS : RRG_SECTORS;
+  var isWeekly = (_sectorPerfMode === '1w');
 
   var sectors = source.map(function(sec) {
     var d = ld[sec.sym];
-    var chg = d && d.pct != null ? d.pct : null;
+    var chg;
+    if (isWeekly) {
+      // v45.5: 1주 모드 — weekly 캐시 → 라이브 daily → 정적 폴백 순
+      if (_sectorWeeklyCache[sec.sym] != null) {
+        chg = _sectorWeeklyCache[sec.sym];
+      } else if (d && d.pct != null) {
+        chg = d.pct; // fetch 미완료 — 라이브 daily로 임시 표시
+      } else if (_SECTOR_PCT_FALLBACK[sec.sym] != null) {
+        chg = _SECTOR_PCT_FALLBACK[sec.sym]; // 최종 — 정적 daily 폴백
+      } else {
+        chg = null;
+      }
+    } else {
+      // v45.5: 1일 모드 — 라이브 → 정적 폴백 순
+      chg = (d && d.pct != null) ? d.pct :
+            (_SECTOR_PCT_FALLBACK[sec.sym] != null ? _SECTOR_PCT_FALLBACK[sec.sym] : null);
+    }
     var rs = calcLiveRS(sec.sym);
     return { sym: sec.sym, name: sec.name, chg: chg, color: sec.color, q: rs.quadrant };
   });
@@ -34183,9 +34511,12 @@ function generateSectorAnalysis(sectors) {
     if (s.q === 'Lagging') laggingSectors.push(s.sym);
   });
 
+  // v45.5: null chg 방어 — 1주 모드에서 fetch 미완료 시 크래시 방지
+  var _bestChg = (best && best.chg != null) ? best.chg : 0;
+  var _worstChg = (worst && worst.chg != null) ? worst.chg : 0;
   var text = '';
-  text += '최강: <b style="color:#3ddba5;">' + best.name + '(' + best.sym + ') ' + (best.chg>=0?'+':'') + best.chg.toFixed(2) + '%</b> · ';
-  text += '최약: <b style="color:#f87171;">' + worst.name + '(' + worst.sym + ') ' + worst.chg.toFixed(2) + '%</b>';
+  text += '최강: <b style="color:#3ddba5;">' + best.name + '(' + best.sym + ') ' + (_bestChg>=0?'+':'') + _bestChg.toFixed(2) + '%</b> · ';
+  text += '최약: <b style="color:#f87171;">' + worst.name + '(' + worst.sym + ') ' + _worstChg.toFixed(2) + '%</b>';
 
   if (leadingSectors.length > 0) {
     text += '<br><span style="color:#3ddba5;font-size:11px;">선도:</span> <b style="color:#3ddba5;font-size:11px;">' + leadingSectors.join(', ') + '</b>';
@@ -34244,16 +34575,17 @@ function generateSectorAnalysis(sectors) {
     { a: 'XLP', b: 'XLV', label: '필수소비-헬스케어' }
   ];
   var sectorChgMap = {};
-  sectors.forEach(function(s) { sectorChgMap[s.sym] = s.chg; });
+  // v45.5: null chg 제외 (1주 모드 fetch 미완료 대응)
+  sectors.forEach(function(s) { if (s.chg != null) sectorChgMap[s.sym] = s.chg; });
   // RRG_SUBSECTORS에서도 가져오기
   var ld = window._liveData || {};
   ['SMH','XOP'].forEach(function(sym) {
-    if (ld[sym] && ld[sym].pct !== undefined) sectorChgMap[sym] = ld[sym].pct;
+    if (ld[sym] && ld[sym].pct != null) sectorChgMap[sym] = ld[sym].pct;
   });
   var divergences = [];
   correlatedPairs.forEach(function(pair) {
     var chgA = sectorChgMap[pair.a], chgB = sectorChgMap[pair.b];
-    if (chgA !== undefined && chgB !== undefined) {
+    if (chgA != null && chgB != null) {
       var gap = Math.abs(chgA - chgB);
       if (gap > 2.0) {
         divergences.push({ label: pair.label, a: pair.a, chgA: chgA, b: pair.b, chgB: chgB, gap: gap });
@@ -34267,9 +34599,10 @@ function generateSectorAnalysis(sectors) {
     });
   }
 
-  // v38.5: 방어/공격 밸런스 지표
+  // v38.5: 방어/공격 밸런스 지표 (v45.5: null chg 제외)
   var defChgSum = 0, defN = 0, atkChgSum = 0, atkN = 0;
   sectors.forEach(function(s) {
+    if (s.chg == null) return;
     if (defensive.indexOf(s.sym) !== -1) { defChgSum += s.chg; defN++; }
     if (cyclical.indexOf(s.sym) !== -1) { atkChgSum += s.chg; atkN++; }
   });
@@ -35046,6 +35379,10 @@ document.addEventListener('aio:pageShown', function(e) {
       renderThemeHeatmap();
       renderAllEtfGrid();
       renderSubThemesGrid();
+      // v45.5: 1주 캐시 백그라운드 프리페치 (사용자가 1주 탭 클릭 시 즉각 표시)
+      if (Object.keys(_sectorWeeklyCache).length === 0 && !_sectorWeeklyFetching) {
+        try { fetchSectorWeeklyPerf(); } catch(_e) {}
+      }
     }, 200);
   }
 });
@@ -36683,18 +37020,22 @@ function initKrVkospiChart() {
     krTechCharts['vkospi'].destroy();
   }
 
-  // VKOSPI 일별 종가 (2026-02-24 ~ 2026-03-27, KRX 발표 기준)
-  // 3/5 장중 82 돌파 (사상최고) 후 점진 하락
+  // VKOSPI 일별 종가 (2026-02-24 ~ 2026-04-08, KRX 발표 기준)
+  // 4/4 81.99 사상최고 (관세 쇼크) → 4/7 휴전 갭업 급락 → 4/8 추정 45.0
   var vkLabels = ['2/24','2/25','2/26','2/27','2/28',
                   '3/3','3/4','3/5','3/6','3/7',
                   '3/10','3/11','3/12','3/13','3/14',
                   '3/17','3/18','3/19','3/20','3/21',
-                  '3/24','3/25','3/26','3/27'];
+                  '3/24','3/25','3/26','3/27',
+                  '3/28','3/31','4/1','4/2','4/3',
+                  '4/4','4/7','4/8'];
   var vkData   = [18.2, 19.8, 22.1, 25.6, 28.9,
                   35.4, 42.7, 68.3, 55.1, 48.7,
                   44.2, 41.8, 39.5, 37.2, 36.1,
                   35.8, 34.9, 34.2, 33.8, 33.5,
-                  33.1, 32.8, 32.6, 32.5];
+                  33.1, 32.8, 32.6, 32.5,
+                  32.2, 33.0, 35.5, 42.0, 58.38,
+                  81.99, 62.0, 45.0];
 
   var tickColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#888';
   var gridColor = 'rgba(255,255,255,0.04)';
@@ -37432,7 +37773,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // ── 주기적 업데이트 훅 ──
-setInterval(function() {
+window._globalUpdateInterval = setInterval(function() {
   checkPriceAlerts();
   applyA11yIndicators();
 }, 30000); // 30초마다 가격 알림 체크 + 접근성 아이콘 갱신
