@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v45.7 — 올인원 투자 터미널</title>
+  <title>AIO Screener v45.8 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2239,7 +2239,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v45.7</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v45.8</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9537,7 +9537,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v45.7';
+const APP_VERSION = 'v45.8';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -38228,29 +38228,76 @@ async function chatSendUnified() {
   var aiBubble = null;
   var sysPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
 
-  // v45.7: 티커 감지 → 실시간 데이터 주입 (chatSend와 동일 파이프라인)
+  // v45.7+: chatSend()와 동일 7개 파이프라인 완전 이식
+  var ctxId = _aiCurrentCtx;
   try {
+    // 1. 티커 감지 + 실시간 시세
     var detectedTickers = typeof _extractTickers === 'function' ? _extractTickers(q) : [];
     if (detectedTickers.length > 0 && typeof _fetchTickerDataForChat === 'function') {
       var tickerDataStr = await _fetchTickerDataForChat(detectedTickers);
       if (tickerDataStr) sysPrompt += tickerDataStr;
     }
-    // 웹검색 (최신 정보 필요 시)
-    if (typeof _needsWebSearch === 'function' && typeof _aiWebSearch === 'function') {
-      var searchQuery = _needsWebSearch(q, _aiCurrentCtx);
-      if (searchQuery) {
-        var webResult = await _aiWebSearch(searchQuery);
-        if (webResult && typeof _formatSearchForPrompt === 'function') {
-          sysPrompt += _formatSearchForPrompt(webResult);
-        }
+
+    // 2. 섹터 비교 (티커 없이 섹터 질문 시)
+    if (detectedTickers.length === 0 && typeof _detectSectorQuery === 'function') {
+      var sectorMatch = _detectSectorQuery(q);
+      if (sectorMatch && typeof _fetchSectorCompareData === 'function') {
+        try {
+          var compareData = await _fetchSectorCompareData(sectorMatch.stocks);
+          if (compareData && typeof _formatSectorComparePrompt === 'function')
+            sysPrompt += _formatSectorComparePrompt(sectorMatch.sectorLabel, compareData);
+        } catch(e) {}
       }
     }
-    // 뉴스 컨텍스트
+
+    // 3. 심층 비교 2~3종목
+    if (detectedTickers.length >= 2 && typeof _detectDeepCompareIntent === 'function' && _detectDeepCompareIntent(q)) {
+      var deepTickers = detectedTickers.slice(0, 3);
+      if (typeof _fetchDeepCompareData === 'function') {
+        try {
+          var deepData = await _fetchDeepCompareData(deepTickers);
+          if (deepData && typeof _formatDeepComparePrompt === 'function')
+            sysPrompt += _formatDeepComparePrompt(deepTickers, deepData);
+        } catch(e) {}
+      }
+    }
+
+    // 4. 단일 기업 15관점 심층 분석
+    var _isFundCtx = (ctxId === 'fundamental');
+    if (detectedTickers.length === 1 && typeof _hasDeepAnalysisKw === 'function' && (_isFundCtx || _hasDeepAnalysisKw(q))) {
+      var fd = window._fundAnalysisData;
+      var alreadyHasData = fd && fd.ticker && fd.ticker === detectedTickers[0];
+      if (!alreadyHasData && (localStorage.getItem('aio_fmp_key') || '') && typeof _fetchDeepCompareData === 'function') {
+        try {
+          var singleDeepData = await _fetchDeepCompareData(detectedTickers);
+          if (singleDeepData && typeof _formatSingleDeepPrompt === 'function')
+            sysPrompt += _formatSingleDeepPrompt(detectedTickers[0], singleDeepData);
+        } catch(e) {}
+      }
+    }
+
+    // 5. 웹검색 (최신 정보 필요 시)
+    if (typeof _needsWebSearch === 'function' && typeof _aiWebSearch === 'function') {
+      var searchQuery = _needsWebSearch(q, ctxId);
+      if (searchQuery) {
+        try {
+          var webResult = await _aiWebSearch(searchQuery);
+          if (webResult && typeof _formatSearchForPrompt === 'function')
+            sysPrompt += _formatSearchForPrompt(webResult);
+        } catch(e) {}
+      }
+    }
+
+    // 6. 뉴스 컨텍스트
     if (typeof _buildNewsContext === 'function') {
-      var newsCtx = _buildNewsContext(_aiCurrentCtx, q);
+      var newsCtx = _buildNewsContext(ctxId, q);
       if (newsCtx) sysPrompt += newsCtx;
     }
   } catch(e) { console.warn('[AIO] chatSendUnified 데이터 주입 실패:', e.message); }
+
+  // 7. 모델 자동 선택 (질문 복잡도 기반)
+  var selectedModelKey = typeof _detectQueryComplexity === 'function' ? _detectQueryComplexity(q, ctxId) : 'haiku';
+  var modelOpts = { modelKey: selectedModelKey };
 
   callClaude(
     sysPrompt,
@@ -38286,7 +38333,8 @@ async function chatSendUnified() {
       var loadEl = document.getElementById('ai-panel-loading');
       if (loadEl) loadEl.parentNode.removeChild(loadEl);
       _appendAIMsg('ai', '<span style="color:#f87171;">' + renderMarkdownLight(errMsg) + '</span>');
-    }
+    },
+    modelOpts
   );
 }
 

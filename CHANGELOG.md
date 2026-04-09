@@ -6,6 +6,19 @@
 
 ---
 
+## v45.8 — AI 채팅 패널 7개 파이프라인 완전 이식 (2026-04-09)
+
+v45.7에서 3개(티커 시세/웹검색/뉴스)만 이식했던 것을 chatSend()와 100% 동일한 7개로 확장:
+- [추가] 섹터 비교: `_detectSectorQuery` + `_fetchSectorCompareData` (FMP 밸류에이션)
+- [추가] 심층 비교 2~3종목: `_detectDeepCompareIntent` + `_fetchDeepCompareData`
+- [추가] 단일 기업 15관점 분석: `_hasDeepAnalysisKw` + `_formatSingleDeepPrompt`
+- [추가] 모델 자동 선택: `_detectQueryComplexity` → Haiku/Sonnet/Sonnet-thinking 자동 전환
+- callClaude에 `modelOpts` 인자 전달 추가
+
+이제 통합 AI 사이드 패널 = 인라인 채팅과 동일 기능. 사용자가 "반도체 섹터 비교해줘", "NVDA vs AMD 비교", "AAPL 분석해줘" 같은 질문에 실시간 데이터 + 심층 분석 데이터가 자동 주입됨.
+
+---
+
 ## v45.7 — AI 채팅 패널 실시간 데이터 주입 (2026-04-09)
 
 ### 근본 원인
