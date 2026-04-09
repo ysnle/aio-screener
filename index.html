@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v45.5 — 올인원 투자 터미널</title>
+  <title>AIO Screener v45.6 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2239,7 +2239,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v45.5</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v45.6</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9537,7 +9537,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v45.5';
+const APP_VERSION = 'v45.6';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -9596,6 +9596,7 @@ const DATA_SNAPSHOT = {
 
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
+  fedStatus:   '동결',  // v45.6: 동적화 — Fed 금리 변경 시 이 값 갱신 (인하/인상/동결)
   fomc:        '5/5-6',
   fomcNext:    '6/16-17',
   ecbRate:      2.15,  ecbStatus: '동결',
@@ -10240,9 +10241,15 @@ function showPage(id, navEl) {
           var hd = document.getElementById('health-score-display');
           var hg = document.getElementById('health-grade-display');
           var hr = document.getElementById('health-regime-display');
-          if (hd) hd.textContent = h.score;
-          if (hg) { hg.textContent = h.grade; hg.style.color = h.score >= 60 ? '#3ddba5' : h.score >= 40 ? '#fbbf24' : '#f87171'; }
-          if (hr) hr.textContent = h.regime || '';
+          // v45.6: score가 0 또는 NaN이면 데이터 부족 — "대기" 표시
+          if (h && h.score > 0) {
+            if (hd) hd.textContent = h.score;
+            if (hg) { hg.textContent = h.grade; hg.style.color = h.score >= 60 ? '#3ddba5' : h.score >= 40 ? '#fbbf24' : '#f87171'; }
+            if (hr) hr.textContent = h.regime || '';
+          } else {
+            if (hd) hd.textContent = '대기';
+            if (hg) { hg.textContent = '시세 수신 중…'; hg.style.color = 'var(--text-muted)'; }
+          }
         } catch(e) {}
       }
       if (typeof updatePatternSignals === 'function') { try { updatePatternSignals(); } catch(e) {} }
@@ -18429,8 +18436,13 @@ function applyLiveQuotes(quotes) {
       if (card) card.style.borderLeftColor = pct >= 0 ? '#3ddba5' : '#f87171';
     }
   });
-  // VIX 별도 처리
-  const vixQ = quotes.find(q => q.symbol === '^VIX');
+  // VIX 별도 처리 — v45.6: _liveData/DATA_SNAPSHOT 폴백 추가
+  var vixQ = quotes.find(q => q.symbol === '^VIX');
+  if (!vixQ) {
+    var _vld = (window._liveData || {})['^VIX'];
+    if (_vld && _vld.price > 0) vixQ = { symbol: '^VIX', regularMarketPrice: _vld.price };
+    else if (DATA_SNAPSHOT && DATA_SNAPSHOT.vix > 0) vixQ = { symbol: '^VIX', regularMarketPrice: DATA_SNAPSHOT.vix };
+  }
   if (vixQ) {
     const vp = vixQ.regularMarketPrice;
     const lvl = vp >= 30 ? '패닉 (매우 위험)' : vp >= 25 ? '공포 (경계)' : vp >= 20 ? '불안 (주의)' : vp >= 15 ? '안정' : '과도한 낙관';
@@ -19074,15 +19086,31 @@ function refreshHomeDashboard() {
     if (fgLabelEl) fgLabelEl.textContent = fgLabel;
   }
 
-  // SECTION 3: Market Briefing
+  // SECTION 3: Market Briefing — v45.6: 실시간 섹터 데이터 기반 동적 생성
   const briefingEl = document.getElementById('home-briefing-content');
   if (briefingEl) {
-    const topSector = '에너지 (XLE 99%ile)';
-    const bottomSector = '금융 (XLF 12%ile)';
-    const briefing = `
-      <div>• 최강 섹터: ${topSector} — 지정학적 프리미엄 지속</div>
-      <div>• 최약 섹터: ${bottomSector} — 금리 민감 약세</div>
-      <div>• 시장 폭: 좁음 (대형주 편중 심화)</div>
+    var _sectorETFs = ['XLK','XLF','XLE','XLV','XLY','XLP','XLI','XLB','XLC','XLRE','XLU'];
+    var _sNames = {XLK:'기술',XLF:'금융',XLE:'에너지',XLV:'헬스케어',XLY:'경기소비재',XLP:'필수소비재',XLI:'산업재',XLB:'소재',XLC:'커뮤니케이션',XLRE:'부동산',XLU:'유틸리티'};
+    var _sPcts = [];
+    _sectorETFs.forEach(function(s) {
+      var d = _liveData[s];
+      if (d && d.pct != null) _sPcts.push({sym: s, name: _sNames[s] || s, pct: d.pct});
+    });
+    var topSector, bottomSector, breadthComment;
+    if (_sPcts.length >= 3) {
+      _sPcts.sort(function(a, b) { return b.pct - a.pct; });
+      topSector = _sPcts[0].name + ' (' + _sPcts[0].sym + ' ' + (_sPcts[0].pct > 0 ? '+' : '') + _sPcts[0].pct.toFixed(1) + '%)';
+      bottomSector = _sPcts[_sPcts.length - 1].name + ' (' + _sPcts[_sPcts.length - 1].sym + ' ' + (_sPcts[_sPcts.length - 1].pct > 0 ? '+' : '') + _sPcts[_sPcts.length - 1].pct.toFixed(1) + '%)';
+      var posCount = _sPcts.filter(function(s) { return s.pct > 0; }).length;
+      var ratio = posCount / _sPcts.length;
+      breadthComment = ratio >= 0.7 ? '넓음 (광범위 상승)' : ratio >= 0.4 ? '보통 (선별적 흐름)' : '좁음 (소수 섹터 집중)';
+    } else {
+      topSector = '데이터 수집 중…'; bottomSector = '데이터 수집 중…'; breadthComment = '데이터 대기';
+    }
+    var briefing = `
+      <div>• 최강 섹터: ${topSector}</div>
+      <div>• 최약 섹터: ${bottomSector}</div>
+      <div>• 시장 폭: ${breadthComment}</div>
       <div>• 신호 강도: ${tradingScore > 70 ? '강함' : tradingScore > 50 ? '중립' : '약함'}</div>
     `;
     briefingEl.innerHTML = briefing;
@@ -23542,8 +23570,8 @@ const CHAT_CONTEXTS = {
         '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
         '주가·지수 분석 시 위 종가 기준. VIX·금리·유가 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '[' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
-        '【지정학 컨텍스트 (2026.03)】\n' +
-        '미-이란 전쟁 지속. 호르무즈 봉쇄 위험(Brent 기본 $120, 봉쇄 시 $150). 에너지 수입 의존 지역 교역조건 악화 취약. 포트폴리오 에너지·방산 섹터 노출도와 지정학 리스크 연결 분석 필수.\n\n' +
+        '【지정학 컨텍스트 (2026.04 — 미-이란 2주 휴전)】\n' +
+        '미-이란 2주 휴전 합의(4/7). WTI $' + s.wti + ', Brent $' + s.brent + '. 영구 정전 전환 vs 재교전 불확실. 에너지 섹터 변동성 지속. 포트폴리오 에너지·방산 노출도와 휴전 시나리오별 영향 분석 필수.\n\n' +
         '【포트폴리오 비유】\n' +
         '분산투자 = 건물의 기둥 여러 개 (하나가 부러져도 안 무너짐)\n' +
         '섹터 편중 = 기둥이 한쪽에만 몰려있음 (지진 나면 위험)\n' +
@@ -27127,7 +27155,8 @@ function updateMacroGridMeanings(ld, vix, tnx, fvx, dxy, wti, spread) {
   // Fed Rate meaning
   var fedEl = document.getElementById('macro-fed-meaning');
   if (fedEl) {
-    var meaning = '기준금리: ' + DATA_SNAPSHOT.fedRate + '% 동결 (다음 FOMC: ' + DATA_SNAPSHOT.fomc + ')';
+    var fedStatus = DATA_SNAPSHOT.fedStatus || '동결';
+    var meaning = '기준금리: ' + DATA_SNAPSHOT.fedRate + '% ' + fedStatus + ' (다음 FOMC: ' + DATA_SNAPSHOT.fomc + ')';
     if (tnx > 4.5) meaning = '높은 금리 → 주식 약세, 채권 강세 | CPI 재점화로 인하 지연';
     if (tnx < 3.5) meaning = '낮은 금리 → 주식에 유리!';
     fedEl.textContent = meaning;
@@ -27757,13 +27786,13 @@ document.addEventListener('aio:liveQuotes', function() {
         (s._stale.length > 0 ? '[' + s._stale.join(', ') + '] 폴백값일 수 있음. 확정 발언 자제.\n' : '') + '\n' +
         '【경제의 숨결 — 인터커넥션 맵】\n' +
         '유가↑ → 물가↑ → Fed 금리↑ → 달러↑ + 금리↑ → 주식↓ → 소비↓ → 수요파괴 → 유가↓ → 사이클 반복. 경제의 호흡.\n\n' +
-        '【시나리오 트리 (2026.04 Week 1 — 미국-이란 전쟁 5주차, 퍼펙트 스톰)】\n' +
-        '• 현황: Brent $113(사상최고), WTI $90, 유가 전쟁 개시 후 +35%. S&P 5주 연속 하락(4년 최장, 6,368=7개월 저점). 10Y 4.48%, 30Y 5% 근접. VIX 26.78. 미국 YTD vs 해외(ex-US) +10% 언더퍼폼(30년 최악). Moody\'s AI 침체모델 49%(50+ 시 1년 내 침체). Michigan 소비심리 53.3(2026 최저). Gas $3.96/gal.\n' +
-        'A. 스태그플레이션 심화(40%): Brent $100~120 고착+관세 이중 인플레→Fed 매파("관망") 유지→성장↓. 유럽 2026년 내 3회 금리인상 프라이싱 중. 수혜: XLE·GLD·TIPS·XLU\n' +
-        'B. 호르무즈 장기 봉쇄(30%↑): 호르무즈 사실상 봉쇄, 글로벌 원유 20% 차단, 1,000척·2만명 발묶임. 이란: 미국 15개항 휴전안 거부→5개항 역제안. 이란 내부 분열(대통령 "종전 준비" vs IRGC "미국 테크기업 18곳 타격 경고"). WTI-Brent 스프레드 2013년 이후 최대(미국 자급 vs 세계 의존). 수혜: 에너지·방산·금, 회피: 항공·운송·화학\n' +
-        'C. 외교적 해결(15%↓): 바닥 3조건 — ① 호르무즈 실질 재개방 ② 이란 내부 통합 종전(IRGC 포함) ③ Brent 의미있게 하락→인플레 기대 꺾임. EU 의장-이란 대통령 직통전화, 중국·파키스탄 5개항 평화 프레임워크. 프랑스·이탈리아 영공 사용 거부. 수혜: 성장주·일본·EM\n' +
-        'D. 글로벌 침체(15%↑): Apollo $151억 사모펀드 환매 11.2%(업계 $101억), 디폴트율 5.8%(Fitch). Q4 GDP 1.4%→0.7% 하향. 고용 -9.2만명. 예측시장 침체확률 37%. 수혜: 현금·국채·금\n' +
-        '위 확률은 2026.04 기준. 최신 유가·VIX·DXY 데이터에 따라 확률을 재조정해서 답변할 것.\n\n' +
+        '【시나리오 트리 (2026.04 Week 2 — 미-이란 2주 휴전 후 불확실한 안도 랠리)】\n' +
+        '• 현황: 미-이란 2주 휴전 합의(4/7) → WTI $' + s.wti + ', Brent $' + s.brent + ' (전쟁 극점 대비 -15~20% 하락). SPX ' + c.spx + ' (휴전 후 급반등). VIX ' + s.vix + '. 10Y ' + s.tnx + '%. DXY ' + s.dxy + '. 관세 불확실성 지속.\n' +
+        'A. 스태그플레이션 잔존(35%): 휴전이 2주 한시적 → 재교전 리스크. 관세 인플레 잔존. Brent $95~110 레인지. Fed "관망" 유지. 수혜: XLE·GLD·TIPS·XLU\n' +
+        'B. 휴전→영구 정전 전환(30%): 이란 IRGC 포함 내부 합의 + 호르무즈 완전 재개방 → 유가 $80대 복귀. 인플레 기대 꺾임 → Fed 비둘기 전환 가능. 수혜: 성장주·기술·EM·일본\n' +
+        'C. 재교전(20%): 2주 휴전 만료 후 협상 결렬. WTI 재급등 $110+. VIX 35+. 수혜: 에너지·방산·금, 회피: 항공·운송·화학\n' +
+        'D. 글로벌 침체(15%): 관세+유가 이중 충격 누적 → 소비 위축. Apollo 디폴트율 5.8%. 예측시장 침체확률 37%. 수혜: 현금·국채·금\n' +
+        '위 확률은 휴전 합의 기준. 최신 유가·VIX·DXY 실시간 데이터에 따라 확률을 재조정해서 답변할 것.\n\n' +
         '【월가 핵심 분석 프레임워크 (2026.03 — 전시 환경)】\n' +
         '아래는 주요 IB·리서치의 분석 논리를 참고 프레임워크로 정리한 것이다. 특정 하우스의 포지션을 그대로 답변하지 말고, 이 논리를 활용하여 스스로 판단하라.\n' +
         '• 교역조건(Terms of Trade) 프레임: 에너지 수입 의존도가 높은 국가(일본·유럽)는 유가 급등 시 교역조건 악화 → 통화 약세 → 주식 하방. 2022년 러-우 전쟁 당시와 동일 패턴. 에너지 자급률이 높은 미국은 상대적 방어.\n' +

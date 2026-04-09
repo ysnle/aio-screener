@@ -6,6 +6,32 @@
 
 ---
 
+## v45.6 — 콘텐츠 동적화 + UX 감사 6건 수정 (2026-04-09)
+
+### 배경
+/qa full (T1~T13) + CONTENT-AUDIT (21페이지 + CHAT_CONTEXTS §1~§64)에서 발견된 콘텐츠 하드코딩 및 데이터 괴리 수정.
+
+### 수정 6건
+
+1. **홈 섹터 브리핑 동적화** (L19080): 하드코딩 "에너지 XLE 99%ile / 금융 XLF 12%ile" 5줄 → 실시간 _liveData 섹터 ETF 11종목 기반 동적 생성. 최강/최약 섹터 + 시장 폭(상승 섹터 비율) 자동 계산.
+
+2. **macro Pro 시나리오 휴전 반영** (L27761): "전쟁 5주차 퍼펙트 스톰" (SPX 6368, Brent $113) → "미-이란 2주 휴전 후 불확실한 안도 랠리" + _liveSnap() 실시간 수치 주입. 시나리오 확률 재조정 (A.스태그 35% / B.영구정전 30% / C.재교전 20% / D.침체 15%).
+
+3. **portfolio 지정학 휴전 반영** (L23545): "미-이란 전쟁 지속 + Brent $120" → "2주 휴전 합의 + WTI/Brent 실시간값" + 재교전 리스크 명시.
+
+4. **fedRate 해설 동적화** (L27130): 하드코딩 "동결" → DATA_SNAPSHOT.fedStatus 필드 참조. Fed 금리 변경 시 /data-refresh로 "인하"/"인상"으로 갱신 가능.
+
+5. **signal VIX 폴백 추가** (L18434): quotes 배열에 ^VIX 없을 때 _liveData → DATA_SNAPSHOT 순으로 폴백. "—" 영구 정체 해소.
+
+6. **technical health-score 데이터 부족 대응** (L10241): computeMarketHealth() 결과가 0/NaN일 때 "대기 / 시세 수신 중…" 표시. "—" 영구 정체 해소.
+
+### 검증
+- div 균형 3601/3601 유지
+- 버전 6곳 v45.6 동기화
+- DATA_SNAPSHOT.fedStatus 필드 신설
+
+---
+
 ## [infra] 토큰 효율화 + _context/ Vault화 + CODE-MAP 신설 (2026-04-09)
 
 ### 배경
