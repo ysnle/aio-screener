@@ -17963,6 +17963,79 @@ async function fetchLiveQuotes() {
   console.log('[AIO] Yahoo Finance 갱신:', yfCount, '/' + PRIORITY_SYMS.reduce((a,g)=>a+g.length,0) + '개',
     groupFailStreak >= MAX_GROUP_FAILS ? '(프록시 불안정으로 조기 종료)' : '');
 
+  // ─── v46.3: Stooq 폴백 — Yahoo 실패/부분 실패 시 미국 주식/ETF/원자재 보완 ───
+  // Stooq: 무료, API키 불필요, 배치 지원 (+ 구분), CSV 응답
+  // 지원: 미국 주식(.US), ETF(.US), WTI(CL.F), Gold(GC.F), DXY(DX.F)
+  // 미지원: VIX, 채권 금리 (Yahoo 유지)
+  var gotSyms = {};
+  allQuotes.forEach(function(q) { gotSyms[q.symbol] = true; });
+  var usMissing = [];
+  var stooqMap = {}; // Yahoo심볼 → Stooq심볼 매핑
+  PRIORITY_SYMS.forEach(function(group) {
+    group.forEach(function(sym) {
+      if (gotSyms[sym]) return;
+      if (sym.endsWith('.KS') || sym.endsWith('.KQ') || sym === '^KS11' || sym === '^KQ11') return; // 한국 제외
+      var stSym = null;
+      if (sym === '^GSPC') stSym = 'spy.us'; // S&P 500 → SPY 프록시
+      else if (sym === '^DJI') stSym = 'dia.us';
+      else if (sym === '^IXIC') stSym = 'qqq.us';
+      else if (sym === '^VIX' || sym === '^TNX' || sym === '^TYX' || sym === '^IRX' || sym === '^VVIX') return; // Stooq 미지원
+      else if (sym === 'CL=F') stSym = 'cl.f';
+      else if (sym === 'BZ=F') stSym = 'bz.f';
+      else if (sym === 'GC=F') stSym = 'gc.f';
+      else if (sym === 'SI=F') stSym = 'si.f';
+      else if (sym === 'DX-Y.NYB' || sym === 'DX=F') stSym = 'dx.f';
+      else if (sym === 'BTC-USD' || sym === 'ETH-USD') return; // Stooq 미지원
+      else if (sym.includes('=X')) return; // 환율은 별도 API
+      else stSym = sym.replace(/[^A-Z0-9]/g, '').toLowerCase() + '.us'; // 일반 미국 주식
+      if (stSym) { usMissing.push(sym); stooqMap[sym] = stSym; }
+    });
+  });
+
+  if (usMissing.length > 0) {
+    // 배치: 최대 30개씩 + 구분 쿼리
+    var stBatches = [];
+    for (var si = 0; si < usMissing.length; si += 30) {
+      stBatches.push(usMissing.slice(si, si + 30));
+    }
+    for (var sbi = 0; sbi < stBatches.length; sbi++) {
+      var stBatch = stBatches[sbi];
+      var stSymStr = stBatch.map(function(s) { return stooqMap[s]; }).join('+');
+      var stUrl = 'https://stooq.com/q/l/?s=' + stSymStr + '&f=sd2t2ohlcv&h&e=csv';
+      try {
+        var stResp;
+        try { stResp = await fetchWithTimeout(stUrl, {}, 6000); } catch(e) { stResp = await fetchViaProxy(stUrl, 8000); }
+        if (stResp.ok) {
+          var stText = await stResp.text();
+          // 프록시 래퍼 처리
+          if (stText.startsWith('{')) { try { var stJ = JSON.parse(stText); stText = stJ.contents || stText; } catch(e){} }
+          var stLines = stText.trim().split('\n').slice(1); // 헤더 제거
+          stLines.forEach(function(line) {
+            var cols = line.split(',');
+            if (cols.length < 8 || cols[1] === 'N/D') return;
+            var stSym = cols[0].trim();
+            // 역매핑: Stooq심볼 → Yahoo심볼
+            var yahooSym = null;
+            for (var ys in stooqMap) { if (stooqMap[ys] === stSym.toLowerCase()) { yahooSym = ys; break; } }
+            if (!yahooSym) return;
+            var close = parseFloat(cols[7]); // Close
+            var open = parseFloat(cols[4]);   // Open
+            if (isNaN(close) || close <= 0) return;
+            var pct = open > 0 ? ((close - open) / open * 100) : 0; // 당일 시가 대비
+            allQuotes.push({
+              symbol: yahooSym,
+              regularMarketPrice: close,
+              regularMarketChangePercent: +pct.toFixed(2),
+              regularMarketChange: +(close - open).toFixed(2),
+              _source: 'live:stooq'
+            });
+          });
+          console.log('[AIO-Stooq] 폴백 배치 ' + (sbi+1) + ':', stBatch.length + '개 시도');
+        }
+      } catch(e) { console.warn('[AIO-Stooq] 폴백 실패:', e.message); }
+    }
+  }
+
   // ─── 최종 결과 적용 ─────────────────────────────────────────
   if (allQuotes.length > 0) {
     applyLiveQuotes(allQuotes);
