@@ -68,6 +68,7 @@
 - **_SECTOR_PCT_FALLBACK**: 전쟁 피크(XLU -4.06% 등)→4/9 종가 기준(7일 연속 상승 반영)
 - **KR_THEME_CATALYSTS 5건 갱신**: semi(§57 삼성 1Q26 OP 57.2조+충족률 65%), defense(휴전 프리미엄 축소), power-grid(§62 DC전력 분화), energy_kr(유가 $98 반등+크루그먼 전이), photonics_kr(§58 Capex 효율화)
 - **fetchKrNaverQuotes 복원력**: 배치 실패 시 개별 폴백 5→10개 확대 — 테마 퍼포먼스 정확도 향상
+- **[신규] 3차/4차 폴백 엔드포인트 추가**: `api.finance.naver.com/siseJson.naver` + `fchart.stock.naver.com/siseJson.nhn` — 2일치 OHLCV로 종가+등락률 계산. 기존 1차(배치)+2차(개별) 실패 시 상위 20개 대장주에 대해 자동 시도. 직접 fetch 우선 → 프록시 폴백. _dataSource 태그: `live:naver-sise` / `live:naver-fchart`
 
 ---
 

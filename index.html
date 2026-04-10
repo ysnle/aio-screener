@@ -17353,6 +17353,81 @@ async function fetchKrNaverQuotes() {
     }
   }
 
+  // ── 3차/4차 폴백: api.finance.naver.com / fchart.stock.naver.com (v46.3) ──
+  // 1차(배치)+2차(개별) 완료 후 아직 데이터 없는 종목에 대해 siseJson 엔드포인트 시도
+  var allCodesFlat = [];
+  if (typeof KR_STOCK_DB !== 'undefined') {
+    KR_STOCK_DB.forEach(function(s) { if (s.code) allCodesFlat.push(s.code); });
+  }
+  var gotSyms = {};
+  results.forEach(function(r) { gotSyms[r.symbol] = true; });
+  var missing = allCodesFlat.filter(function(c) { return !gotSyms[krTickerToYahoo(c)]; });
+
+  if (missing.length > 0) {
+    var today = new Date();
+    var yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 2); // 주말 대비 2일 전
+    var fmt = function(d) { return d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0'); };
+    var startD = fmt(yesterday), endD = fmt(today);
+
+    var siseEndpoints = [
+      {url: 'https://api.finance.naver.com/siseJson.naver', tag: 'live:naver-sise'},
+      {url: 'https://fchart.stock.naver.com/siseJson.nhn', tag: 'live:naver-fchart'}
+    ];
+
+    // 가중치 상위 20개만 (API 부하 최소화)
+    var topMissing = missing.slice(0, 20);
+
+    for (var epIdx = 0; epIdx < siseEndpoints.length; epIdx++) {
+      if (topMissing.length === 0) break;
+      var ep = siseEndpoints[epIdx];
+      var siseResults = [];
+
+      await Promise.allSettled(topMissing.map(async function(code) {
+        var sUrl = ep.url + '?symbol=' + code + '&requestType=1&startTime=' + startD + '&endTime=' + endD + '&timeframe=day';
+        try {
+          // 직접 fetch 시도 (CORS 허용 가능), 실패 시 프록시
+          var r;
+          try { r = await fetchWithTimeout(sUrl, {}, 5000); } catch(e) { r = await fetchViaProxy(sUrl, 6000); }
+          if (!r.ok) return;
+          var text = typeof r.text === 'function' ? await r.text() : '';
+          if (typeof r.json === 'function' && !text) { var j = await r.json(); text = JSON.stringify(j); }
+          // 파싱: ["YYYYMMDD", 시가, 고가, 저가, 종가, 거래량, 외국인소진율]
+          var rows = [];
+          var rx = /\["(\d{8})",\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\]/g;
+          var m;
+          while ((m = rx.exec(text)) !== null) {
+            rows.push({ date: m[1], open: +m[2], high: +m[3], low: +m[4], close: +m[5], vol: +m[6] });
+          }
+          if (rows.length === 0) return;
+          var latest = rows[rows.length - 1];
+          var prev = rows.length >= 2 ? rows[rows.length - 2] : null;
+          var price = latest.close;
+          var pct = prev ? ((price - prev.close) / prev.close * 100) : 0;
+
+          if (price > 0) {
+            siseResults.push({
+              symbol: krTickerToYahoo(code),
+              regularMarketPrice: price,
+              regularMarketChangePercent: +pct.toFixed(2),
+              regularMarketChange: prev ? (price - prev.close) : 0,
+              _source: ep.tag
+            });
+          }
+        } catch(e) {}
+      }));
+
+      if (siseResults.length > 0) {
+        results.push.apply(results, siseResults);
+        console.log('[KR-sise] ' + ep.tag + ' 폴백:', siseResults.length + '개 추가');
+        // 성공 종목 제거
+        var gotNow = {};
+        siseResults.forEach(function(r) { gotNow[r.symbol] = true; });
+        topMissing = topMissing.filter(function(c) { return !gotNow[krTickerToYahoo(c)]; });
+      }
+    }
+  }
+
   var elapsed = Date.now() - _startTs;
   console.log('[KR-Naver] 네이버 파이낸스 완료:', results.length + '개 (' + elapsed + 'ms)');
   return results;
