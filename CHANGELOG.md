@@ -63,6 +63,12 @@
 - **DATA_SNAPSHOT 갱신**: _updated 4/10, WTI $94.41→$97.87(반등), Brent $99.80→$95.92, KOSPI 5478→5872(+6.87%), PCE 전망 2.5/2.6→2.7/2.7(Fed 3월 상향)
 - **배열 길이 검증 통과**: labels20/vixData/hyData=21, bpLabels/bpSPY/bpSPX*=24
 
+### 테마/트렌드 파이프라인 품질 개선
+- **RRG 시드값 전면 갱신**: 전쟁 피크 기준→휴전 후 섹터 로테이션 반영. 기술/반도체 Lagging→Improving, 에너지 Leading→Weakening 전환, 사이버보안 AI군비경쟁(§63) 반영
+- **_SECTOR_PCT_FALLBACK**: 전쟁 피크(XLU -4.06% 등)→4/9 종가 기준(7일 연속 상승 반영)
+- **KR_THEME_CATALYSTS 5건 갱신**: semi(§57 삼성 1Q26 OP 57.2조+충족률 65%), defense(휴전 프리미엄 축소), power-grid(§62 DC전력 분화), energy_kr(유가 $98 반등+크루그먼 전이), photonics_kr(§58 Capex 효율화)
+- **fetchKrNaverQuotes 복원력**: 배치 실패 시 개별 폴백 5→10개 확대 — 테마 퍼포먼스 정확도 향상
+
 ---
 
 ## v46.2 — UX/접근성 + 기술 지표 + Deep Search + CHAT_CONTEXTS 4개 + commands 4개 (2026-04-10)
