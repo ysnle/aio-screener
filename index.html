@@ -30899,6 +30899,71 @@ async function dynamicTickerLookup(ticker) {
       } catch(e) {}
     }
   } catch(e) { console.warn('[Dynamic] lookup error:', e.message); }
+
+  // v46.3: Stooq 폴백 — Yahoo 실패 시 미국 주식/ETF/원자재
+  var _noStooq = {'^GSPC':1,'^DJI':1,'^IXIC':1,'^RUT':1,'^VIX':1,'^VVIX':1,'^TNX':1,'^TYX':1,'^IRX':1,'^FVX':1,'BTC-USD':1,'ETH-USD':1};
+  if (!_noStooq[ticker] && !ticker.includes('=X') && !ticker.endsWith('.KS') && !ticker.endsWith('.KQ')) {
+    var stSym;
+    if (ticker === 'CL=F') stSym = 'cl.f';
+    else if (ticker === 'BZ=F') stSym = 'bz.f';
+    else if (ticker === 'GC=F') stSym = 'gc.f';
+    else if (ticker === 'DX-Y.NYB') stSym = 'dx.f';
+    else { var cl = ticker.replace(/[^A-Z0-9]/gi,''); if (cl.length >= 1 && cl.length <= 5) stSym = cl.toLowerCase() + '.us'; }
+    if (stSym) {
+      try {
+        var stUrl = 'https://stooq.com/q/l/?s=' + stSym + '&f=sd2t2ohlcv&h&e=csv';
+        var stR;
+        try { stR = await fetchWithTimeout(stUrl, {}, 5000); } catch(e2) { stR = await fetchViaProxy(stUrl, 6000); }
+        if (stR.ok) {
+          var stTxt = await stR.text();
+          if (stTxt.startsWith('{')) try { stTxt = JSON.parse(stTxt).contents || stTxt; } catch(e3){}
+          var stLines = stTxt.trim().split('\n');
+          if (stLines.length >= 2) {
+            var cols = stLines[1].split(',');
+            if (cols.length >= 8 && cols[1] !== 'N/D') {
+              var stPrice = parseFloat(cols[7]);
+              var stOpen = parseFloat(cols[4]);
+              if (stPrice > 0) {
+                var stPct = stOpen > 0 ? ((stPrice - stOpen) / stOpen * 100) : 0;
+                if (!window._liveData) window._liveData = {};
+                window._liveData[ticker] = { price: stPrice, pct: +stPct.toFixed(2) };
+                return { ticker: ticker, price: stPrice, pct: +stPct.toFixed(2), name: ticker, source: 'stooq' };
+              }
+            }
+          }
+        }
+      } catch(e4) {}
+    }
+  }
+
+  // 한국 종목: siseJson 폴백
+  if (ticker.endsWith('.KS') || ticker.endsWith('.KQ')) {
+    var krCode = ticker.replace('.KS','').replace('.KQ','');
+    var today = new Date();
+    var yd = new Date(today); yd.setDate(yd.getDate()-2);
+    var df = function(d){return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');};
+    try {
+      var sUrl = 'https://api.finance.naver.com/siseJson.naver?symbol=' + krCode + '&requestType=1&startTime=' + df(yd) + '&endTime=' + df(today) + '&timeframe=day';
+      var sR;
+      try { sR = await fetchWithTimeout(sUrl, {}, 5000); } catch(e5) { sR = await fetchViaProxy(sUrl, 6000); }
+      if (sR.ok) {
+        var sTxt = await sR.text();
+        var rows = [];
+        var rx = /\["(\d{8})",\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\]/g;
+        var mm;
+        while ((mm = rx.exec(sTxt)) !== null) rows.push({close:+mm[5], prev:rows.length > 0 ? rows[rows.length-1].close : 0});
+        if (rows.length > 0) {
+          var last = rows[rows.length-1];
+          var prev = rows.length >= 2 ? rows[rows.length-2].close : last.close;
+          var kPct = prev > 0 ? ((last.close - prev) / prev * 100) : 0;
+          if (!window._liveData) window._liveData = {};
+          window._liveData[ticker] = { price: last.close, pct: +kPct.toFixed(2) };
+          return { ticker: ticker, price: last.close, pct: +kPct.toFixed(2), name: krCode, source: 'naver-sise' };
+        }
+      }
+    } catch(e6) {}
+  }
+
   return null;
 }
 
@@ -34913,7 +34978,34 @@ async function _fetchOneSectorWeekly(sym) {
     var first = closes[0], last = closes[closes.length - 1];
     if (first <= 0) return null;
     return (last - first) / first * 100;
-  } catch(e) { return null; }
+  } catch(e) {}
+
+  // v46.3: Stooq 폴백 — Yahoo 5일 차트 실패 시
+  var _noSt = {'^GSPC':1,'^DJI':1,'^IXIC':1,'^VIX':1,'^TNX':1};
+  if (!_noSt[sym]) {
+    var stSym = sym.replace(/[^A-Z0-9]/gi,'').toLowerCase() + '.us';
+    if (sym === 'CL=F') stSym = 'cl.f';
+    else if (sym === 'GC=F') stSym = 'gc.f';
+    else if (sym === 'DX-Y.NYB') stSym = 'dx.f';
+    try {
+      var stUrl = 'https://stooq.com/q/l/?s=' + stSym + '&f=sd2t2ohlcv&h&e=csv';
+      var stR;
+      try { stR = await fetchWithTimeout(stUrl, {}, 5000); } catch(e2) { stR = await fetchViaProxy(stUrl, 6000); }
+      if (stR && stR.ok) {
+        var stTxt = await stR.text();
+        if (stTxt.startsWith('{')) try { stTxt = JSON.parse(stTxt).contents || stTxt; } catch(e3){}
+        var cols = stTxt.trim().split('\n')[1];
+        if (cols) {
+          var c = cols.split(',');
+          if (c.length >= 8 && c[1] !== 'N/D') {
+            var stOpen = parseFloat(c[4]), stClose = parseFloat(c[7]);
+            if (stOpen > 0 && stClose > 0) return ((stClose - stOpen) / stOpen) * 100; // 당일 시가→종가 (1주 근사)
+          }
+        }
+      }
+    } catch(e4) {}
+  }
+  return null;
 }
 
 function fetchSectorWeeklyPerf() {
