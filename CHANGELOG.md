@@ -6,6 +6,180 @@
 
 ---
 
+## v46.3 — /integrate 4개 매크로 분석글 전체 통합 (2026-04-10)
+
+### 통합 자료 4건
+1. **4월 이벤트 캘린더** — GS/JPM/ASML/TSM/NFLX 어닝, CPI/PPI, 워시 청문회, OPEX, 세금 마감, 바이백 블랙아웃 해제
+2. **FOMC 의사록 요약** — Vast majority 듀얼 리스크(고용↓ + 인플레↑), Some 양방향 금리 시그널(인상 포함), 비주거 서비스 끈적
+3. **전쟁 이후 이벤트** — 휴전 환호 vs 수면 아래(유가/생산성/연준 인준), Higher For Longer 내러티브, 국채 금리 드라이버 전환
+4. **구독자 Q&A: TGA/2023교훈** — 옐런 TGA 메커니즘(역레포→시장 이전), 베센트 유동성 도구, 정치적 유동성 공급, 중립 포지션 + 트리거
+
+### CHAT_CONTEXTS + 시스템 프롬프트 (4곳)
+- **§65~§66**: FOMC 듀얼 리스크 + H4L / 2023 TGA 교훈 + 재무부-연준 힘겨루기
+- **macro system prompt**: Fed 정책 경로 확률 재조정(동결55%/인하25%/인상20%) + 듀얼 리스크 반영 + 재무부-연준 유동성 역학 추가
+- **fxbond system prompt**: FOMC 듀얼 리스크 + 채권 금리 드라이버 전환(3월→4월) + TGA 메커니즘 + 재무부 발행 전략 컨텍스트 추가
+- **_generateAIBriefing 프롬프트**: 매크로 맥락 블록 신설 — FOMC 듀얼 리스크, 4월 핵심 이벤트, 재무부-연준 역학, 리스크 요인
+
+### 페이지별 분석 텍스트 반영 (5곳)
+- **매크로 시나리오 트리 DOM**: 3개 시나리오 조건/현재 상태 업데이트 — 휴전→종전+감세, 듀얼 리스크+H4L, 휴전 붕괴+생산성 미달
+- **데일리 브리핑 경제 캘린더**: 4/13~4/17 이벤트 6건 추가 (GS/JPM/ASML/TSM·NFLX·워시 청문회/OPEX), FOMC 설명 업데이트
+- **한국 거시 금리차 해석**: 듀얼 리스크→H4L→금리차 축소 지연 + Citi 순매수 포지션 리스크 + 감세 환류 반등 여지
+- **시그널 진입 체크리스트**: eventDates에 4/11~4/17 이벤트 6일 추가
+- **HOME_WEEKLY_NEWS**: 3건 전면 교체 (FOMC 듀얼 리스크 / 4월 S급 이벤트 밀집 / 휴전+TGA 교훈)
+
+### 이전 자료(§40~§64) 전체 페이지 반영 (6개 시스템 프롬프트 + 1 DOM)
+- **signal prompt**: §46 미너비니 바닥 프로세스 3단계 + 5개 서브스코어 해석(각 20점) + 국면 판정 기준(UPTREND/PULLBACK/DOWNTREND/CRASH) + 진입 체크리스트 5항목
+- **technical prompt**: 매크로-기술적 교차 분석 신설 — VIX/10Y/유가/DXY 환경이 차트 패턴 성공률에 미치는 영향 + §46 바닥 판별 연결
+- **fundamental prompt**: §64 경기사이클 섹터 로테이션 가이드(확장/스태그/Capex효율화) + §58 AI 인프라 투자 우선순위
+- **themes prompt**: §58 Capex 효율화 사이클 투자 우선순위(AVGO/MRVL>CRWV>VRT>NVDA) + §62 DC전력 워크로드별 분화(학습/추론/클라우드)
+- **sentiment prompt**: §41 극단값 역사적 데이터(F&G 10↓ +12~15% / VIX 40+ V자) + HY OAS 500bp+/300bp↓ + NAAIM 활용 기준 + 인지편향 양방향 경고
+- **fxbond prompt**: §60 자본조달 프레임워크(Equity+Debt 두 축 = 단일 해석 금지)
+- **한국 거시 DOM**: §57 삼성전자 성장→지속가능성 전환(OP 57.2조, 충족률 65%) + §64 한국 포지셔닝 리스크(순매수 잔존 + 원유 수입국 취약 + EM 최강 반등 양날의 칼)
+
+### 데이터/키워드
+- **MACRO_KW +48개**: 워시 청문회/인준, TGA 메커니즘, 바이백 블랙아웃, 비주거 서비스, 듀얼 리스크, 양방향 금리, 정치적 유동성 등
+- **SCREENER_DB**: GS(어닝 4/13 + 롱온리 매수우위), JPM(어닝 4/14 + 전술적 강세 전환)
+- **KNOWLEDGE-BASE**: FOMC 수량 표현 해석 계층 + 재무부-연준 힘겨루기 메커니즘 (2023 증거)
+
+### 페이지 정적 텍스트 전수 반영 (8개 페이지)
+- **시그널 CP1~CP8 카드**: 지정학(2주 재충전 시나리오), 통화정책(FOMC 듀얼 리스크+워시), 거시(비주거 서비스+크루그먼 전이+생산성갭), 재정(감세 환류+Debt-to-GDP), 유동성(TGA+베센트+정치적 유동성), 기업실적(4월 어닝 시즌 상세), 사이버(Claude Mythos+섀도AI) + GS 데스크 플로우 갱신
+- **매크로 타임라인**: "2025-26 연착륙" → "2026 듀얼 리스크 속 방향 결정 + 재무부 vs 연준 힘겨루기"
+- **환율채권 수익률곡선 가이드**: 금리 드라이버 전환(경기둔화→기대인플레) + 재무부 역학 + 한국 H4L 영향
+- **테마 사이클 진단/전략**: Citi §64 스태그 플레이북 + §58 Capex 효율화(AVGO/MRVL>VRT>NVDA) + §62 DC전력(WMB>NEE>유틸)
+- **옵션 VIX 해석**: FOMC 듀얼 리스크 + 4월 이벤트 밀집 변동성 경고
+- **옵션 스큐 해석**: §64 섹터 편차 극대화 + 기관 헤징 맥락
+- **심리 NAAIM 가이드**: 25↓ 극단 방어 / 95+ 풀투자 기준 추가
+- **심리 HY 스프레드 가이드**: 500bp+ 스트레스 + 사모신용 리스크 추가
+
+### 품질 개선 (전수 점검)
+- **수요파괴 데이터**: 날짜/출처 보강 — "(2026.03~04 전쟁 피크, JPM/IEA/EIA)" + 크루그먼 전이 경로 주석
+- **setInterval 메모리 누수**: `_globalUpdateInterval` clearInterval 미정리 → beforeunload 리스너 + 중복 실행 방지 추가
+- **브레드쓰 폴백값 불일치 수정**: 브레드쓰 페이지 DOM 폴백이 3월 전쟁 피크 값(35/32/27.6%)이었음 → 4/8 차트 데이터 최신값(68/75/46%)으로 정렬. 색상·배지·해석 텍스트 동시 갱신
+- **NDX 브레드쓰 폴백**: 33.4/23.2/27.6% → 65/72/49% (4/8 기준) + 색상 정렬
+- **브레드쓰 종합 진단**: "Breadth Divergence 85% 약세" → "5/20SMA 회복 확인, 50SMA 미탈환, 미너비니 2단계(리테스트) 관찰"
+
+### /data-refresh (WebSearch 기반 최신화)
+- **CRITICAL: FOMC 일정 오류 수정** — `5/5-6` → `4/28-29` (직근 FOMC 누락이었음). eventDates + DATA_SNAPSHOT.fomc + 한국 거시 캘린더 동시 수정
+- **DATA_SNAPSHOT 갱신**: _updated 4/10, WTI $94.41→$97.87(반등), Brent $99.80→$95.92, KOSPI 5478→5872(+6.87%), PCE 전망 2.5/2.6→2.7/2.7(Fed 3월 상향)
+- **배열 길이 검증 통과**: labels20/vixData/hyData=21, bpLabels/bpSPY/bpSPX*=24
+
+---
+
+## v46.2 — UX/접근성 + 기술 지표 + Deep Search + CHAT_CONTEXTS 4개 + commands 4개 (2026-04-10)
+
+### 수정 6건
+
+1. **대비비 WCAG AA 충족** — `--text-muted` `#8fa3b5`→`#a0b4c8` (대비비 3.3:1→4.6:1). `#152035` 배경 위 뮤트 텍스트 전역 개선.
+2. **7px 폰트 전량 제거** — 202곳 `font-size:7px` → `9px` 일괄 교체. 극소 보조 텍스트(타임스탬프/소스명/라벨) 가독성 확보.
+3. **AI 패널 배지 기본값** — `ai-panel-badge` "—" → "AI 분석가" (컨텍스트 미선택 시 안내).
+4. **technical 종목 입력 안내** — `realtime-pattern-indicator` "—" → "종목을 입력하세요", `eq-grade-display` "—" → "입력 대기".
+5. **signal pending 요소** — `rm-vixstr-val` "—"→"대기", `bp-step2/3-check` "—"→"시세 수신 중".
+6. **themes 섹터 텍스트 잘림** — `min-width:0` 기존 적용 확인, 잘림은 디자인 의도(ellipsis).
+
+### 기술 지표 보강
+7. **MA 크로스오버 자동 감지** — `computeMarketHealth()`에 50MA/200MA 크로스 + ATH 대비 위치 반영. 골든 크로스+가격 위=+8점, 데스 크로스+가격 아래=-10점.
+8. **지지/저항 동적화** — `updateSRLevels()`: 라운드 넘버만 → MA50/MA200/ATH 기반 동적 레벨 추가. 현재가 위치에 따라 "50일선 지지/저항" 자동 표시.
+
+### Deep Search 보강
+9. **멀티 쿼리 병렬 검색** — `_aiDeepSearch()` 신설. 복합 질문(50자+ 또는 티커+맥락) 시 자동 트리거. 메인 쿼리 + 종목 뉴스/실적/전망 + 매크로 보조 쿼리 최대 4개 병렬 실행 후 종합.
+10. **chatSendUnified Deep Search 통합** — 복합 질문 감지 시 일반 검색 대신 Deep Search 자동 사용.
+
+### 어닝 콜 AI 요약 — 보류 판단
+트랜스크립트 소스 불안정(Seeking Alpha 페이월, 공개 API 없음) + Claude 토큰 비용 $0.3~1/콜 → 안정적 소스 확보 전까지 추가하지 않음.
+
+### 검증
+- div 3601/3601, error 0건, 7px 잔존 0건
+- `--text-muted` 대비비 4.6:1 (AA 4.5:1 충족)
+- MA 크로스: 50MA=6765 > 200MA=6659 (골든 크로스), ATH=6947
+- Deep Search: `_aiDeepSearch()` 함수 존재 + chatSendUnified 통합 확인
+
+### CHAT_CONTEXTS silent failure 해결 (P69)
+11. **signal/breadth/sentiment/theme-detail 4개 컨텍스트 신설** — 이전에 chatSend/chatSendUnified에서 `if (!ctx) return;`으로 조용히 무시되던 4개 페이지 AI 채팅 정상화.
+    - signal: 매매 시그널 전문가 (스코어 해석, 진입 체크리스트, 5서브스코어)
+    - breadth: 시장 폭 전문가 (브레드쓰 데이터, 괴리 분석, Breadth Thrust)
+    - sentiment: 투자 심리 전문가 (F&G, VIX, AAII 역지표, Put/Call)
+    - theme-detail: 테마 심층 분석가 (종목 비교, 테마 타이밍 4단계)
+12. **_aiCtxMap 4개 매핑 추가** — signal/breadth/sentiment/theme-detail → 통합 AI 패널에서 해당 페이지 진입 시 자동 컨텍스트 전환.
+13. **_aiDefaultChips 4개 칩세트 추가** — 각 페이지별 추천 질문 4개씩.
+
+### commands wrapper 보완
+14. **bug-fix.md / data-refresh.md / knowledge-lint.md / autoresearch.md** 4개 command wrapper 신설. 이전에는 skills/에만 SKILL.md가 있고 commands/에 진입점이 없어 `/bug-fix` 등이 자동완성에 안 나왔음.
+
+---
+
+## v46.1 — BofA Anthropic $30B + META Muse Spark + Citi CIO 서베이 통합 (2026-04-10)
+
+### /integrate — 4개 자료 통합
+
+**SCREENER_DB 갱신 4종목:**
+- META: Muse Spark(MSL 첫 폐쇄형) — 멀티모달추론+쇼핑에이전트, BofA PT $885 / JPM PT $825
+- GOOGL: Anthropic TPU 3.5GW 추가 계약, GCP 백로그 $1000B+ 추산, Citi GCP +50% YoY
+- CRWD: Citi 사이버 NTM +7% 가속
+- PLTR: Citi AI 플랫폼 긍정 시각 유지
+
+**TECH_KW +5개:** Muse Spark, MSL, Meta Superintelligence, Anthropic ARR, agentic commerce
+**MACRO_KW +5개:** AI Capex, IT budget, CIO survey, seat-based SaaS, AI cannibalization
+
+**CHAT_CONTEXTS macro Pro 보강:**
+- [BofA] Anthropic ARR $30B — AI Capex 정당화 결정적 증거, AWS 1Q +$13B QoQ
+- [Citi CIO] GenAI +14% 가속, 59% 인력감축 예상, AI 캐니발라이제이션 가시화
+
+### 패러다임 전환 (Q2)
+기존: AI 수요는 빅테크 자체 소비 → 언젠가 기업 확산
+새 틀: 기업 AI 채택이 이미 가속 단계 ($1M+ 고객 2개월에 2배, GenAI 예산 +14% 순증). "수요 검증 완료 → 공급이 병목" 국면
+
+### 다중 리포트 수렴/분기 (META)
+수렴: BofA+JPM — 5월→4월 조기 출시 = 불확실성 해소 + 스케일링 궤적 검증 시작
+분기: PT $885(BofA, 18x) vs $825(JPM, 26x) — 멀티플 기준 다르나 방향 동일(비중확대)
+
+---
+
+## v46.0 — /integrate 4/9 마켓 서머리 + 아마존 주주서한 + Barclays MRVL + INTC-GOOGL (2026-04-10)
+
+### /integrate — 8개 자료 통합 (뉴스 + IB 리서치 교차 분석)
+
+**자료**: 4/9 마켓 서머리 2건, SNOW/SOFI/Firefly 기업 뉴스, 아마존 CEO 주주서한, INTC-GOOGL IPU 협력, Barclays MRVL OW 상향 $150
+
+**SCREENER_DB 갱신 6종목:**
+- AMZN: CEO서한 — 자체칩 TAM $50B/년, AWS AI $15B 런레이트, Capex $200B, Alexa+ 2배
+- MRVL: Barclays OW $150 — 광포트 26년 2배→27년 2배, 광학부문 ~90% 성장, 보수적 EPS ~$5
+- SNOW: AI 투자 ROI — 문제해결 수일→10~15분
+- SOFI: 포브스 2026 미국 1위 은행
+- DAL: 휴전 후 항공 강세, 수요+매출 확인
+- INTC: 구글과 맞춤형 IPU 공동개발 (Xeon6 + 이질적 AI 시스템)
+
+**MACRO_KW +5개:** FOMC minutes, short covering, short squeeze, hedge fund short, prime book leverage, GDPNow
+
+**CHAT_CONTEXTS:**
+- macro Pro에 '4/9 시장 맥락' 블록 신설: 숏커버링 동력, FOMC 양방향 리스크, 호르무즈 재통제, 자금 흐름(EM $70.3B 유출/금 $12B 유출/크립토 유입), GDPNow 1.32%
+- themes에 §66 'GPU 너머의 AI 인프라 — 이질적 시스템 시대' 신설: AMZN+INTC-GOOGL+Barclays MRVL 3곳 수렴 분석 (자체칩 $50B + IPU + 광학 90% = 다층 밸류체인)
+
+### 패러다임 전환 (Q2)
+기존: AI 투자 = GPU 구매 → NVDA 독점 수혜
+새 틀: AI 인프라 = 이질적 시스템(CPU+IPU+가속기+광학). 자체칩(AMZN $50B) + 맞춤 IPU(INTC) + 광학(MRVL 90%) = "GPU 너머의 AI 인프라" 시대
+
+---
+
+## v45.9 — JPM TSMC CoWoS 첨단 후공정 업데이트 통합 (2026-04-09)
+
+### /integrate — JP모건 TSMC CoWoS 첨단 후공정 리포트
+
+**SCREENER_DB 갱신 4종목:**
+- TSM: CoWoS 115K/155K/175K wfpm(26/27/28E) + SoIC 대폭 상향 + 구조적 초과수요 15~20%
+- AVGO: CoWoS 250K/400K(26/27E 대폭 상향) + TPU 430만/690만 유닛 + v9 퓨마피시/후무피시 경쟁
+- AMD: MI450 지연(2nm 재테이프아웃+HBM4) CoWoS 77K + 베니스CPU ASE 외주
+- INTC: EMIB-T TPU v9(후무피시) 2028 양산 가능 상태 업데이트
+
+**TECH_KW +13개:** Rubin, Rubin Ultra, Feynman, HBM4, CoPoS, CoWoP, SoIC, COUPE, panel level packaging, Ironwood, Sunfish, Pumafish, Humufish, Zebrafish, Trainium
+
+**CHAT_CONTEXTS §65 신설 (themes 컨텍스트):**
+- 패러다임 전환: CoWoS 캐파↑에도 SoIC/3D 수요 폭증 → 첨단 패키징 = 새로운 희소 자원
+- 구조적 논리: 패키징이 칩 성능만큼 중요한 경쟁 변수 → 역전된 가치사슬
+- 핵심 논쟁: Bull(15~20% 초과수요=TSMC 프리미엄) vs Bear(CoPoS 조기 성숙/EMIB 성공)
+- 인접 파급: ASE/Amkor OSAT 수혜, Alchip Trn3 전량, INTC EMIB 레퍼런스, ALAB CPO
+
+---
+
 ## v45.8 — AI 채팅 패널 7개 파이프라인 완전 이식 (2026-04-09)
 
 v45.7에서 3개(티커 시세/웹검색/뉴스)만 이식했던 것을 chatSend()와 100% 동일한 7개로 확장:
