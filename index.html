@@ -17971,23 +17971,26 @@ async function fetchLiveQuotes() {
   allQuotes.forEach(function(q) { gotSyms[q.symbol] = true; });
   var usMissing = [];
   var stooqMap = {}; // Yahoo심볼 → Stooq심볼 매핑
+  // Stooq 미지원: 지수(^GSPC/^DJI/^IXIC — 가격 체계 다름), VIX, 금리, 암호화폐, 환율
+  var _stooqSkip = {'^GSPC':1,'^DJI':1,'^IXIC':1,'^RUT':1,'^VIX':1,'^VVIX':1,'^TNX':1,'^TYX':1,'^IRX':1,'^FVX':1,'BTC-USD':1,'ETH-USD':1};
   PRIORITY_SYMS.forEach(function(group) {
     group.forEach(function(sym) {
       if (gotSyms[sym]) return;
-      if (sym.endsWith('.KS') || sym.endsWith('.KQ') || sym === '^KS11' || sym === '^KQ11') return; // 한국 제외
+      if (sym.endsWith('.KS') || sym.endsWith('.KQ') || sym === '^KS11' || sym === '^KQ11') return;
+      if (_stooqSkip[sym]) return;
+      if (sym.includes('=X')) return; // 환율은 별도 API
       var stSym = null;
-      if (sym === '^GSPC') stSym = 'spy.us'; // S&P 500 → SPY 프록시
-      else if (sym === '^DJI') stSym = 'dia.us';
-      else if (sym === '^IXIC') stSym = 'qqq.us';
-      else if (sym === '^VIX' || sym === '^TNX' || sym === '^TYX' || sym === '^IRX' || sym === '^VVIX') return; // Stooq 미지원
-      else if (sym === 'CL=F') stSym = 'cl.f';
+      if (sym === 'CL=F') stSym = 'cl.f';
       else if (sym === 'BZ=F') stSym = 'bz.f';
       else if (sym === 'GC=F') stSym = 'gc.f';
       else if (sym === 'SI=F') stSym = 'si.f';
+      else if (sym === 'NG=F') stSym = 'ng.f';
       else if (sym === 'DX-Y.NYB' || sym === 'DX=F') stSym = 'dx.f';
-      else if (sym === 'BTC-USD' || sym === 'ETH-USD') return; // Stooq 미지원
-      else if (sym.includes('=X')) return; // 환율은 별도 API
-      else stSym = sym.replace(/[^A-Z0-9]/g, '').toLowerCase() + '.us'; // 일반 미국 주식
+      else {
+        // 일반 미국 주식/ETF: AAPL → aapl.us, XLK → xlk.us
+        var clean = sym.replace(/[^A-Z0-9]/gi, '');
+        if (clean.length >= 1 && clean.length <= 5) stSym = clean.toLowerCase() + '.us';
+      }
       if (stSym) { usMissing.push(sym); stooqMap[sym] = stSym; }
     });
   });
@@ -18021,12 +18024,15 @@ async function fetchLiveQuotes() {
             var close = parseFloat(cols[7]); // Close
             var open = parseFloat(cols[4]);   // Open
             if (isNaN(close) || close <= 0) return;
-            var pct = open > 0 ? ((close - open) / open * 100) : 0; // 당일 시가 대비
+            // pct: 기존 _liveData에 chartPreviousClose가 있으면 전일 대비, 없으면 시가 대비(차선)
+            var prevClose = (window._liveData && window._liveData[yahooSym] && window._liveData[yahooSym].chartPreviousClose > 0)
+              ? window._liveData[yahooSym].chartPreviousClose : open;
+            var pct = prevClose > 0 ? ((close - prevClose) / prevClose * 100) : 0;
             allQuotes.push({
               symbol: yahooSym,
               regularMarketPrice: close,
               regularMarketChangePercent: +pct.toFixed(2),
-              regularMarketChange: +(close - open).toFixed(2),
+              regularMarketChange: +(close - prevClose).toFixed(2),
               _source: 'live:stooq'
             });
           });
