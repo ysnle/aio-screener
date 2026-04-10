@@ -17980,12 +17980,15 @@ async function fetchLiveQuotes() {
       if (_stooqSkip[sym]) return;
       if (sym.includes('=X')) return; // 환율은 별도 API
       var stSym = null;
+      // 원자재 선물: 명시 매핑만 (ES=F/NQ=F/YM=F 등 지수 선물은 Stooq 미지원)
       if (sym === 'CL=F') stSym = 'cl.f';
       else if (sym === 'BZ=F') stSym = 'bz.f';
       else if (sym === 'GC=F') stSym = 'gc.f';
       else if (sym === 'SI=F') stSym = 'si.f';
       else if (sym === 'NG=F') stSym = 'ng.f';
+      else if (sym === 'HG=F') stSym = 'hg.f';
       else if (sym === 'DX-Y.NYB' || sym === 'DX=F') stSym = 'dx.f';
+      else if (sym.includes('=F')) return; // 기타 선물(ES=F/NQ=F/YM=F 등) Stooq 미지원 → 스킵
       else {
         // 일반 미국 주식/ETF: AAPL → aapl.us, XLK → xlk.us
         var clean = sym.replace(/[^A-Z0-9]/gi, '');
@@ -30907,7 +30910,11 @@ async function dynamicTickerLookup(ticker) {
     if (ticker === 'CL=F') stSym = 'cl.f';
     else if (ticker === 'BZ=F') stSym = 'bz.f';
     else if (ticker === 'GC=F') stSym = 'gc.f';
+    else if (ticker === 'SI=F') stSym = 'si.f';
+    else if (ticker === 'NG=F') stSym = 'ng.f';
+    else if (ticker === 'HG=F') stSym = 'hg.f';
     else if (ticker === 'DX-Y.NYB') stSym = 'dx.f';
+    else if (ticker.includes('=F')) stSym = null; // 지수 선물(ES=F/NQ=F/YM=F) Stooq 미지원
     else { var cl = ticker.replace(/[^A-Z0-9]/gi,''); if (cl.length >= 1 && cl.length <= 5) stSym = cl.toLowerCase() + '.us'; }
     if (stSym) {
       try {
@@ -34981,12 +34988,16 @@ async function _fetchOneSectorWeekly(sym) {
   } catch(e) {}
 
   // v46.3: Stooq 폴백 — Yahoo 5일 차트 실패 시
-  var _noSt = {'^GSPC':1,'^DJI':1,'^IXIC':1,'^VIX':1,'^TNX':1};
-  if (!_noSt[sym]) {
-    var stSym = sym.replace(/[^A-Z0-9]/gi,'').toLowerCase() + '.us';
+  var _noSt = {'^GSPC':1,'^DJI':1,'^IXIC':1,'^RUT':1,'^VIX':1,'^VVIX':1,'^TNX':1,'^TYX':1,'^IRX':1,'^FVX':1};
+  if (!_noSt[sym] && !sym.endsWith('.KS') && !sym.endsWith('.KQ') && !sym.includes('=X')) {
+    var stSym = null;
     if (sym === 'CL=F') stSym = 'cl.f';
+    else if (sym === 'BZ=F') stSym = 'bz.f';
     else if (sym === 'GC=F') stSym = 'gc.f';
     else if (sym === 'DX-Y.NYB') stSym = 'dx.f';
+    else if (sym.includes('=F')) stSym = null; // 지수 선물 Stooq 미지원
+    else { var _cl = sym.replace(/[^A-Z0-9]/gi,''); if (_cl.length >= 1 && _cl.length <= 5) stSym = _cl.toLowerCase() + '.us'; }
+    if (stSym) {
     try {
       var stUrl = 'https://stooq.com/q/l/?s=' + stSym + '&f=sd2t2ohlcv&h&e=csv';
       var stR;
@@ -35004,7 +35015,8 @@ async function _fetchOneSectorWeekly(sym) {
         }
       }
     } catch(e4) {}
-  }
+    } // if (stSym)
+  } // if (!_noSt)
   return null;
 }
 
