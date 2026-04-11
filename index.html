@@ -17334,6 +17334,11 @@ async function fetchKrNaverQuotes() {
             var chgPct = parseFloat(String(d.cr || d.fluctuationsRatio || '0').replace(/,/g, ''));
             var chgVal = parseFloat(String(d.cv || d.compareToPreviousClosePrice || '0').replace(/,/g, ''));
 
+            // v46.4: 가격/등락률 유효성 검증
+            if (!isFinite(price)) price = 0;
+            if (!isFinite(chgPct) || Math.abs(chgPct) > 30) chgPct = 0; // 한국 상한가 ±30%
+            if (!isFinite(chgVal)) chgVal = 0;
+
             if (code && price > 0) {
               var yahooSym = krTickerToYahoo(code);
               results.push({
@@ -17429,12 +17434,17 @@ async function fetchKrNaverQuotes() {
             rows.push({ date: m[1], open: +m[2], high: +m[3], low: +m[4], close: +m[5], vol: +m[6] });
           }
           if (rows.length === 0) return;
+          // v46.4: 파싱 결과 검증 — 가격 유효성 + 범위
+          rows = rows.filter(function(r) { return r.close > 0 && isFinite(r.close) && r.open > 0; });
+          if (rows.length === 0) return;
           var latest = rows[rows.length - 1];
           var prev = rows.length >= 2 ? rows[rows.length - 2] : null;
           var price = latest.close;
-          var pct = prev ? ((price - prev.close) / prev.close * 100) : 0;
+          var pct = prev && prev.close > 0 ? ((price - prev.close) / prev.close * 100) : 0;
+          // pct 범위 검증: ±30% 이상은 데이터 오류 가능 (한국 상한가 ±30%)
+          if (!isFinite(pct) || Math.abs(pct) > 30) pct = 0;
 
-          if (price > 0) {
+          if (price > 0 && isFinite(price)) {
             siseResults.push({
               symbol: krTickerToYahoo(code),
               regularMarketPrice: price,
@@ -18055,11 +18065,12 @@ async function fetchLiveQuotes() {
             if (!yahooSym) return;
             var close = parseFloat(cols[7]); // Close
             var open = parseFloat(cols[4]);   // Open
-            if (isNaN(close) || close <= 0) return;
-            // pct: 기존 _liveData에 chartPreviousClose가 있으면 전일 대비, 없으면 시가 대비(차선)
+            // v46.4: CSV 파싱 검증 — NaN/Infinity/음수 방어
+            if (!isFinite(close) || close <= 0 || !isFinite(open) || open <= 0) return;
             var prevClose = (window._liveData && window._liveData[yahooSym] && window._liveData[yahooSym].chartPreviousClose > 0)
               ? window._liveData[yahooSym].chartPreviousClose : open;
             var pct = prevClose > 0 ? ((close - prevClose) / prevClose * 100) : 0;
+            if (!isFinite(pct) || Math.abs(pct) > 50) pct = 0; // 50%+ 변동 = 데이터 오류 가능
             allQuotes.push({
               symbol: yahooSym,
               regularMarketPrice: close,
@@ -32563,13 +32574,14 @@ function computeTradingScore(mode) {
   // - 시장 환경(VIX, DXY, TNX, HYG, 유가): 실시간 → 현재 시장 상태 즉각 반영
   // v46.4: 폴백값을 DATA_SNAPSHOT._fallback에서 읽음 (단일 진실 원천)
   var _fb = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
-  const vix   = _ldSafe('^VIX','price') || _fb.vix || 20;
-  const vvix  = _ldSafe('^VVIX','price') || _fb.vvix || 100;
-  const dxy   = _ldSafe('DX-Y.NYB','price') || _fb.dxy || 104;
-  const hyg   = _ldSafe('HYG','price') || _fb.hyg || 78;
-  const tnx   = _ldSafe('^TNX','price') || _fb.tnx || 4.3;
-  const oilPrice = _ldSafe('CL=F','price') || 0;
-  const fg    = window._lastFG  || _fb.fg || 35;
+  var _clamp = function(v, lo, hi) { return Math.max(lo, Math.min(hi, isFinite(v) ? v : lo)); };
+  const vix   = _clamp(_ldSafe('^VIX','price') || _fb.vix || 20, 5, 150);
+  const vvix  = _clamp(_ldSafe('^VVIX','price') || _fb.vvix || 100, 50, 250);
+  const dxy   = _clamp(_ldSafe('DX-Y.NYB','price') || _fb.dxy || 104, 80, 130);
+  const hyg   = _clamp(_ldSafe('HYG','price') || _fb.hyg || 78, 50, 100);
+  const tnx   = _clamp(_ldSafe('^TNX','price') || _fb.tnx || 4.3, 0, 8);
+  const oilPrice = _clamp(_ldSafe('CL=F','price') || 0, 0, 300);
+  const fg    = _clamp(window._lastFG || _fb.fg || 35, 0, 100);
   const rsp   = _closingVal('RSP');
   const spy   = _closingVal('SPY');
 
@@ -34747,8 +34759,8 @@ function calcLiveRS(sym) {
   var d = ld[sym], spy = ld['SPY'];
   if (!d || !spy) return { rsRatio: 100, rsMom: 100, quadrant: 'unknown' };
 
-  var secChg = (d.pct != null ? d.pct : 0);
-  var spyChg = (spy.pct != null ? spy.pct : 0);
+  var secChg = (d.pct != null && isFinite(d.pct) ? d.pct : 0);
+  var spyChg = (spy.pct != null && isFinite(spy.pct) ? spy.pct : 0);
   var relPerf = secChg - spyChg;
 
   // v27.2: 누적 히스토리 기반 RS 계산 (충분한 데이터 + 유의미한 분산 필요)
