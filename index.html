@@ -18105,7 +18105,8 @@ async function fetchLiveQuotes() {
     if (lqTs) lqTs.textContent = '시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' 갱신 (' + allQuotes.length + '개)';
   } else {
     fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount||0) + 1;
-    const wait = Math.min(300, 30 * fetchLiveQuotes._failCount);
+    // v46.4: 지수적 백오프 (선형 30×N → 지수 15×2^N, 최대 300초)
+    const wait = Math.min(300, 15 * Math.pow(2, fetchLiveQuotes._failCount - 1));
     const lqTs = document.getElementById('live-quote-ts');
     if (lqTs) lqTs.textContent = wait + '초 후 재시도...';
     updateDataStatusError('error', 'API 연결 실패 — ' + wait + '초 후 재시도');
@@ -36942,12 +36943,19 @@ document.querySelectorAll('.nav-item').forEach(function(n) {
   var contentEl = document.querySelector('.content');
   var scrollBtn = document.getElementById('scroll-top-btn');
   if (contentEl && scrollBtn) {
+    // v46.4: throttle로 scroll 성능 최적화 (고빈도 이벤트 16ms 간격 제한)
+    var _scrollTick = false;
     contentEl.addEventListener('scroll', function() {
-      if (contentEl.scrollTop > 400) {
-        scrollBtn.classList.add('visible');
-      } else {
-        scrollBtn.classList.remove('visible');
-      }
+      if (_scrollTick) return;
+      _scrollTick = true;
+      requestAnimationFrame(function() {
+        if (contentEl.scrollTop > 400) {
+          scrollBtn.classList.add('visible');
+        } else {
+          scrollBtn.classList.remove('visible');
+        }
+        _scrollTick = false;
+      });
     });
   }
 })();
