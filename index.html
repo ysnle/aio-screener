@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v46.3 — 올인원 투자 터미널</title>
+  <title>AIO Screener v46.4 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -311,8 +311,8 @@ body {
 .topbar { background: var(--bg-surface); border-bottom: 1px solid rgba(255,255,255,0.12); padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; /* v30.7: 상단바 테두리 강화 */ }
 .content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; min-height: 0; }
 /* v30.11 perf: content-visibility로 비활성 페이지 렌더링 비용 제거 */
-.page { display: none; content-visibility: hidden; contain-intrinsic-size: auto 2000px; overflow-x: hidden; }
-.page.active { display: block; content-visibility: visible; contain-intrinsic-size: none; overflow-x: hidden; }
+.page { display: none; content-visibility: hidden; contain-intrinsic-size: auto 2000px; }
+.page.active { display: block; content-visibility: visible; contain-intrinsic-size: none; }
 
 .logo {
   padding: 16px 16px 14px;
@@ -2239,7 +2239,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v46.3</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v46.4</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -2828,7 +2828,7 @@ body.light-theme canvas { filter:none; }
         <div class="cp-num" style="color:#fbbf24;">CP2</div>
         <div class="cp-name">통화정책</div>
         <div class="cp-score" style="color:#fbbf24;">MEDIUM</div>
-        <div class="cp-detail">연준 <span data-snap="fed-rate">3.50-3.75</span>% · FOMC "vast majority" 듀얼 리스크(고용↓+인플레↑) · "Some" 인상 논의 · 워시 청문회(4/16) · H4L 전환 신호</div>
+        <div class="cp-detail">연준 <span data-snap="fed-rate">3.50-3.75</span>% · FOMC "vast majority" 듀얼 리스크(고용↓+인플레↑) · "Some" 인상 논의 · 워시 청문회(4/13 월) · H4L 전환 신호</div>
         <div class="cp-meter"><div style="width:55%;height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:3px;"></div></div>
       </div>
       <!-- CP3 -->
@@ -2836,7 +2836,7 @@ body.light-theme canvas { filter:none; }
         <div class="cp-num" style="color:#f87171;">CP3</div>
         <div class="cp-name">거시경제</div>
         <div class="cp-score" style="color:#f87171;">HIGH</div>
-        <div class="cp-detail">CPI(4/10) PPI(4/11) · 비주거 서비스 끈적 · 유가→투입비용→근원CPI 전이(크루그먼 경로) · 기대인플레 불안정 리스크 · 생산성 갭(TFP 0.32% vs 1.23%)</div>
+        <div class="cp-detail">CPI+PPI(4/10 금) · 비주거 서비스 끈적 · 유가→투입비용→근원CPI 전이(크루그먼 경로) · 기대인플레 불안정 리스크 · 생산성 갭(TFP 0.32% vs 1.23%)</div>
         <div class="cp-meter"><div style="width:75%;height:100%;background:linear-gradient(90deg,#f87171,#ef4444);border-radius:3px;"></div></div>
       </div>
       <!-- CP4 -->
@@ -2860,7 +2860,7 @@ body.light-theme canvas { filter:none; }
         <div class="cp-num" style="color:#f87171;">CP6</div>
         <div class="cp-name">원자재</div>
         <div class="cp-score" style="color:#f87171;">HIGH</div>
-        <div class="cp-detail">WTI <span data-snap="wti">—</span> · Brent <span data-snap="brent">—</span> · 금 <span data-snap="gold">—</span> · 원자재 공급 리스크 및 인플레 영향 모니터링</div>
+        <div class="cp-detail">WTI <span data-snap="wti">—</span> · Brent <span data-snap="brent">—</span> · JPM: 걸프 60개+ 자산 타격, 정유 240만bpd 중단, 동서 파이프라인 70만bpd 손실(수년 수리) · 휴전 후에도 구조적 공급 감소 잔존</div>
         <div class="cp-meter"><div style="width:70%;height:100%;background:linear-gradient(90deg,#f87171,#ef4444);border-radius:3px;"></div></div>
       </div>
       <!-- CP7 -->
@@ -3777,42 +3777,32 @@ body.light-theme canvas { filter:none; }
       </div>
       <div class="cal-row">
         <span style="font-family:var(--font-mono);color:#f87171;flex-shrink:0;min-width:32px;">4/10</span>
-        <span style="color:#f87171;flex-shrink:0;min-width:28px;">목</span>
-        <span><b style="color:#f87171;">CPI 소비자물가 (3월, 核心)</b> — 유가 급등 반영 여부 핵심. 예상 상회 시 금리 인하 기대 후퇴 → 달러 강세. 이 주 최대 이벤트.</span>
+        <span style="color:#f87171;flex-shrink:0;min-width:28px;">금</span>
+        <span><b style="color:#f87171;">CPI 소비자물가 (3월, 核心) + PPI 생산자물가</b> — 유가 급등 반영 여부 핵심. 주간 실업청구 동시. 미시간 소비자심리 예비치.</span>
       </div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">4/10</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:28px;">목</span>
-        <span><b style="color:var(--text-primary);">주간 실업청구</b> — 고용 시장 체력 점검. 30만 초과 시 경기침체 경고.</span>
-      </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">4/11</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:28px;">금</span>
-        <span><b style="color:#fbbf24;">PPI 생산자물가 (3월)</b> — CPI 선행 지표. 공급 비용 압력 확인. 미시간 소비자심리 예비치 동시 발표.</span>
-      </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">4/13</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:28px;">일</span>
-        <span><b style="color:var(--text-primary);">GS 어닝</b> — 바이백 블랙아웃 해제 후 첫 실적. 케빈 워시 청문회 시작.</span>
+        <span style="font-family:var(--font-mono);color:#f87171;flex-shrink:0;min-width:32px;">4/13</span>
+        <span style="color:#f87171;flex-shrink:0;min-width:28px;">월</span>
+        <span><b style="color:#f87171;">GS 어닝 + 케빈 워시 청문회</b> — 바이백 블랙아웃 해제 후 첫 실적. 차기 연준 의장 통화정책 방향. 인준 불확실성(틸리스 반대 지속).</span>
       </div>
       <div class="cal-row">
         <span style="font-family:var(--font-mono);color:#fbbf24;flex-shrink:0;min-width:32px;">4/14</span>
-        <span style="color:#fbbf24;flex-shrink:0;min-width:28px;">월</span>
+        <span style="color:#fbbf24;flex-shrink:0;min-width:28px;">화</span>
         <span><b style="color:#fbbf24;">JPM 어닝</b> — 미국 최대 은행 "전술적 강세" 전환. ZHU 어닝.</span>
       </div>
       <div class="cal-row">
         <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">4/15</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:28px;">화</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:28px;">수</span>
         <span><b style="color:var(--text-primary);">ASML 어닝</b> · <b style="color:#f87171;">세금 보고 마감</b> — TGA 유동성 축소(일시적). VIX 옵션 만기.</span>
       </div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:#f87171;flex-shrink:0;min-width:32px;">4/16</span>
-        <span style="color:#f87171;flex-shrink:0;min-width:28px;">수</span>
-        <span><b style="color:#f87171;">TSM·NFLX 어닝 + 워시 청문회</b> — 차기 연준 의장 통화정책 방향. 인준 불확실성(틸리스 반대 지속).</span>
+        <span style="font-family:var(--font-mono);color:#fbbf24;flex-shrink:0;min-width:32px;">4/16</span>
+        <span style="color:#fbbf24;flex-shrink:0;min-width:28px;">목</span>
+        <span><b style="color:#fbbf24;">TSM·NFLX 어닝</b> — 반도체 AI 수요 확인. 넷플릭스 구독자 성장.</span>
       </div>
       <div class="cal-row">
         <span style="font-family:var(--font-mono);color:#fbbf24;flex-shrink:0;min-width:32px;">4/17</span>
-        <span style="color:#fbbf24;flex-shrink:0;min-width:28px;">목</span>
+        <span style="color:#fbbf24;flex-shrink:0;min-width:28px;">금</span>
         <span><b style="color:#fbbf24;">4월 옵션 만기(OPEX)</b> — 변동성 확대 가능. PEP 어닝.</span>
       </div>
     </div>
@@ -7781,7 +7771,7 @@ body.light-theme canvas { filter:none; }
       <table class="kr-flow-table">
         <tr><th>날짜</th><th>이벤트</th><th>영향</th></tr>
         <tr><td>03/27</td><td>한국은행 금융안정회의 (3월)</td><td style="color:var(--text-muted);">▶ 참고 (금리결정 없음)</td></tr>
-        <tr><td>04월 중</td><td>한국은행 금통위 (4월)</td><td style="color:var(--yellow);">▶ 동결 vs 인하 관건</td></tr>
+        <tr><td>04월 중</td><td>한국은행 금통위 (4월)</td><td style="color:var(--yellow);">▶ 이창용: 공급 충격 일시적이면 금리 대응 불필요, 장기화 시 대응. 인플레 리스크↑ 부인 불가</td></tr>
         <tr><td>04/28~29</td><td>미국 FOMC (4월)</td><td style="color:var(--red);">▶ 중요 — 듀얼 리스크 확인</td></tr>
         <tr><td>05월 중</td><td>한국은행 금통위 (5월)</td><td style="color:var(--yellow);">▶ 인하 가능성 상승</td></tr>
         <tr><td>05/21</td><td>1분기 GDP 최종 발표</td><td style="color:var(--text-muted);">▶ 참고</td></tr>
@@ -9576,7 +9566,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v46.3';
+const APP_VERSION = 'v46.4';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -10491,7 +10481,7 @@ var SCREENER_DB = [
   // ══════════════════════════════════════════════════════════════
   { sym:'NVDA', name:'NVIDIA', sector:'Technology', signal:'BUY', memo:'Blackwell Ultra 양산 · CoWoS 2026 650K/2027 840K 확보 · Rubin HBM4 자격검증 지연(6월→9월) · Rubin 목표 1.5M GPU/6K VR랙 · Feynman EMIB 검토=CoWoS 공급 다변화 신호 · AI DC 수요 구조적 지속 · PE 35x', mcap:4197, rsi:48, index:'SP500' },
   { sym:'AAPL', name:'Apple', sector:'Technology', signal:'HOLD', memo:'MacBook Neo 성공 딜레마 · A18 Pro 빈닝칩 재고 소진 위기(팀쿡 "맥 역사상 첫구매 최고 첫주") · TSMC N3E 풀가동 · 추가생산 시 마진↓ · 생태계 유입 전략 vs 단기 수익성 트레이드오프 · 서비스 매출 성장 지속', mcap:3645, rsi:52, index:'SP500' },
-  { sym:'GOOGL', name:'Alphabet', sector:'Technology', signal:'BUY', memo:'Anthropic TPU 3.5GW 추가계약(2027~, 기존 1GW+증분) · GCP 백로그 $1000B+ 추산 · GCP +61%(WF) · Citi: GCP +50% YoY 전망 · 검색 +17% · 2026 캐팩스 $175~185B · WF PT $361', mcap:3641, rsi:50, index:'SP500' },
+  { sym:'GOOGL', name:'Alphabet', sector:'Technology', signal:'BUY', memo:'[미즈호 PT $420] TPU 로열티 구조 전환(AVGO→앤트로픽 직접 판매, GOOGL 로열티) = 자산경량형 69% 한계 OI 마진 · 강세 시 클라우드 27년 $149B(컨센 +28%) · 클라우드 OI 30% 기여 → 검색 디스럽션 희석 · GCP +54%/+41%(26/27E) · 앤트로픽 파트너십 + TPU 생태계 확장', mcap:3641, rsi:50, index:'SP500' },
   { sym:'MSFT', name:'Microsoft', sector:'Technology', signal:'BUY', memo:'Azure AI + Copilot · 3QFY Azure 37.5~39.0% cc(공급제약·Fairwater 정상화가 열쇠) · Capex FY27 $178B(+23% yoy, 컨센 $167B 상회) · M365 잠식 리스크 ~4배 EBIT 할인 반영(GS SOTP — 앱SW 섹터 14배 대비) · E7 5월 GA+9개월 이내 전환 기대 · MAI 자체모델 3종(2026.04) · GS OW PT $600', mcap:2838, rsi:48, index:'SP500' },
   { sym:'AMZN', name:'Amazon', sector:'Technology', signal:'BUY', memo:'CEO서한: 자체칩(Trainium/Graviton) 잠재 TAM $50B/년 · AWS AI 런레이트 $15B 돌파 · 2026 Capex ~$200B(사상최대) · 물류로봇 100만대+ · Alexa+ AI 대화량 2배 · Amazon Leo 위성 2026H2 출시 · WF PT $305', mcap:2205, rsi:46, index:'SP500' },
   { sym:'META', name:'Meta Platforms', sector:'Technology', signal:'BUY', memo:'BofA PT $885 · JPM PT $825 · Muse Spark(MSL 첫 폐쇄형 모델) 출시 — 멀티모달추론+멀티에이전트+쇼핑에이전트 · 5월 예상→4월 조기=불확실성 해소 · 선도모델 대비 효율적(용량 수요 절감) · 광고 ROAS 향상 잠재 · MTIA: Arke(v450)→AVGO · Reels 성장', mcap:1502, rsi:50, index:'SP500' },
@@ -10526,7 +10516,7 @@ var SCREENER_DB = [
   { sym:'CSCO', name:'Cisco Systems', sector:'Technology', signal:'HOLD', memo:'네트워킹 장비 · AI 인프라 스위칭 수요', mcap:230, rsi:52, index:'DOW30' },
   { sym:'DIS', name:'Walt Disney', sector:'Communication Services', signal:'HOLD', memo:'스트리밍 흑자 전환 · 테마파크 · ESPN 재편', mcap:195, rsi:45, index:'DOW30' },
   { sym:'PLTR', name:'Palantir', sector:'Technology', signal:'WATCH', memo:'AI 플랫폼(AIP) 정부+상용 확산 · Citi: AI플랫폼/하이퍼스케일러 긍정 시각 유지 · 고평가 우려', mcap:360, rsi:55, index:'SP500' },
-  { sym:'MU', name:'Micron Technology', sector:'Technology', signal:'BUY', memo:'KeyBanc OW $600 · Evercore 탑픽 · HBM3E/4E 전량 매진 · HBM4 자격검증 지연 · MU HBM4 수율 <30%(개선 중) · LTA 가격하한선+선급금 구조 → 하방보호 · 2Q26 DRAM/NAND +30~50% QoQ · DRAM 컨트랙트 Q2 +50%↑ 전망 · NAND 컨트랙트 +70~75% QoQ 전망 · 모바일 Q2 캐치업 시작 · 메모리 슈퍼사이클 2027-28 유지', mcap:477, rsi:42, index:'SP500' },
+  { sym:'MU', name:'Micron Technology', sector:'Technology', signal:'BUY', memo:'[미즈호 PT $545] HBM+HBF 동시 수혜 · KVCache 16TB/GPU · NAND 2026E -6% 공급 타이트 · 2Q-3Q26E 계약가 +81%/+20% · HBM3E/4E 전량 매진 · LTA 가격하한선+선급금 → 하방보호 · 메모리 슈퍼사이클 1H27E까지', mcap:477, rsi:42, index:'SP500' },
   { sym:'CAT', name:'Caterpillar', sector:'Industrials', signal:'BUY', memo:'[Citi 04/09] DC백업 발전기 MW당$100만(엔진$50만) · 리드타임 디젤12~18월/왕복36월 · 추론DC전환→스탠바이MW↑(100IT→175백업) · 발전부문 매출 상향여지', mcap:319, rsi:58, index:'DOW30' },
   { sym:'RTX', name:'Raytheon Tech', sector:'Industrials', signal:'BUY', memo:'F-35/패트리엇 · 글로벌 방위비 증가 수혜', mcap:267, rsi:59, index:'SP500' },
   { sym:'GS', name:'Goldman Sachs', sector:'Financials', signal:'HOLD', memo:'M&A/IPO 수수료 회복 · 자산관리 확대 · 4/13 어닝발표 — 바이백 블랙아웃 해제 후 첫 실적 · 롱온리 +24% 매수우위(데스크플로우) · 금리 H4L 환경 NII 안정', mcap:244, rsi:52, index:'DOW30' },
@@ -10537,7 +10527,7 @@ var SCREENER_DB = [
   { sym:'QCOM', name:'Qualcomm', sector:'Technology', signal:'HOLD', memo:'스냅드래곤 X Elite · 모바일 AI · PC 시장 진출 · Citi: SWKS > QCOM (Apple 공급망 재편 위험) · KeyBanc: 중국 수요 약세 지속, 2026 빌드 -20% avg(vs -10% 이전) · QRVO와 함께 Sector Weight', mcap:139, rsi:48, index:'SP500' },
   { sym:'PANW', name:'Palo Alto Networks', sector:'Technology', signal:'BUY', memo:'[JPM 04/09] Project Glasswing 창립파트너(CRWD와 공동) · AI에 AI로 맞서는 방어 파트너십 · 섀도AI 확산→보안예산 확장 수혜 · 플랫폼 통합 전략 지속', mcap:133, rsi:52, index:'SP500' },
   { sym:'NOW', name:'ServiceNow', sector:'Technology', signal:'BUY', memo:'AI Agent 워크플로 자동화 · 엔터프라이즈 SaaS 선두', mcap:116, rsi:48, index:'SP500' },
-  { sym:'CRWD', name:'CrowdStrike', sector:'Technology', signal:'BUY', memo:'[JPM 04/09] Project Glasswing 창립파트너 · 취약점발견→무기화 수분내 단축 · 고객환경 섀도AI 1,800+앱 발견 · 보안예산 기존IT 외부로 확장 · AI-on-AI방어 필수 파트너 · Citi: 사이버 NTM +7% 가속', mcap:104, rsi:52, index:'SP500' },
+  { sym:'CRWD', name:'CrowdStrike', sector:'Technology', signal:'BUY', memo:'[JPM §63+§68] Mythos/GPT-5.3-Codex 임계점 도달 · 자율해킹 역량 실증 · 창립파트너 · 제한적 공개(gated release) 산업 표준화 · 보안예산 IT 외부 확장 · 오픈AI $10M 사이버 신뢰 접근 · 섀도AI 1,800+앱', mcap:104, rsi:52, index:'SP500' },
   { sym:'CEG', name:'Constellation Energy', sector:'Utilities', signal:'BUY', memo:'원전 PPA 장기계약 · AI 데이터센터 전력 계약 · 가동률 85~90% 목표 · Rate Base 확대', mcap:102, rsi:45, index:'SP500' },
   { sym:'HON', name:'Honeywell', sector:'Industrials', signal:'HOLD', memo:'산업자동화 · 항공우주 · 분사 계획', mcap:140, rsi:48, index:'DOW30' },
   { sym:'AMGN', name:'Amgen', sector:'Healthcare', signal:'HOLD', memo:'바이오 대형주 · 비만치료제 MariTide 임상 · 배당', mcap:170, rsi:44, index:'DOW30' },
@@ -10626,7 +10616,7 @@ var SCREENER_DB = [
   // ── AI / 광학 / 데이터센터 인프라 ──
   { sym:'AAOI', name:'Applied Optoelectronics', sector:'Technology', signal:'BUY', memo:'AI 데이터센터 광모듈 · 800G 트랜시버 수요 폭증', mcap:2.5, rsi:62, index:'RUSSELL2000' },
   { sym:'COHR', name:'Coherent Corp', sector:'Technology', signal:'BUY', memo:'L1 scale-out 핵심 · NVIDIA $2B 투자(2026.03) · SiPh+레이저 양대산맥 · 6인치 InP 기판 자체생산(CHIPS Act $33M) · 800G/1.6T CPO 모듈 · InP 수직통합 → supply chain 병목 해소 · OFC2026 CPO TAM $21B', mcap:15, rsi:55, index:'SP500' },
-  { sym:'LITE', name:'Lumentum', sector:'Technology', signal:'BUY', memo:'InP EML/CW 레이저 왕 · CPO 변곡점 2H26(NVDA Spectrum-X/Quantum-X) · OCS 수주잔고 $400M+(40배) · F27E 매출 $5.6B(컨센 +26%) · Scale-up CPO Rosa-Feynman 2028(TAM 3~16x vs scale-out) · OCS TAM 2028E $15B · SJ/Caswell→CPO 전환 · 스미토모 InP 7년 공급약정 · Greensboro InP fab 인수(2028양산) · 미즈호 OP PT $930', mcap:6, rsi:48, index:'NASDAQ100' },
+  { sym:'LITE', name:'Lumentum', sector:'Technology', signal:'BUY', memo:'InP EML/CW 레이저 왕 · 2028년까지 AI 주문 장부 가득(블룸버그 4/10) · 주가 1500%+ 상승에도 수요>공급 · NVDA 지원 · CPO 변곡점 2H26 · OCS 수주잔고 $400M+ · Scale-up CPO Rosa-Feynman 2028 · 스미토모 InP 7년 약정 · 미즈호 PT $930', mcap:6, rsi:48, index:'NASDAQ100' },
   { sym:'CRDO', name:'Credo Technology', sector:'Technology', signal:'BUY', memo:'AEC 800G/1.6T 리더십(xAI/META/Azure/OCI) · $-콘텐츠 6배 성장(ASP+케이블수 복합) · ZeroFlap Optics(ZFO): 링크플랩↓·Tensorwave 2026 · ALC(Active Linear Cable): 30m·ASP 절반·Cu수준 신뢰성→플러거블 잠재 대체(C2027E SOP) · 2029E AEC TAM $10B+(침투율 47%) · F26/27E AEC +222%/+51% · 미즈호 OP PT $200', mcap:10, rsi:45, index:'NASDAQ100' },
   { sym:'POET', name:'POET Technologies', sector:'Technology', signal:'WATCH', memo:'광인터포저(Teralight) · 포토닉스 반도체화 · EML 4개(업계 8~16) · Luxshare/FIT/LITEON 파트너 · 1.6T 프로토 2026말 · Celestial AI(MRVL 인수) Photonic Fabric 핵심부품 공급 가능성 · NVIDIA 광학 supply chain 빈칸 후보 · 프리레버뉴 · 현금 $450M(시총57%)', mcap:0.8, rsi:44, index:'OTC' },
   { sym:'CIEN', name:'Ciena', sector:'Technology', signal:'BUY', memo:'광네트워킹 장비 · AI 트래픽 증가 수혜', mcap:9, rsi:52, index:'SP500' },
@@ -10810,7 +10800,7 @@ var SCREENER_DB = [
   { sym:'NEM', name:'Newmont Corp', sector:'Materials', signal:'HOLD', memo:'세계 최대 금광 · 금값 상관', mcap:107, rsi:55, index:'SP500' },
   { sym:'SO', name:'Southern Company', sector:'Utilities', signal:'HOLD', memo:'미국 최대 유틸리티 · 원전/태양광', mcap:103, rsi:52, index:'SP500' },
   { sym:'CMCSA', name:'Comcast', sector:'Communication Services', signal:'HOLD', memo:'NBC유니버셜 · Xfinity · Peacock', mcap:108, rsi:46, index:'SP500' },
-  { sym:'SNDK', name:'SanDisk', sector:'Technology', signal:'HOLD', memo:'NAND 플래시 · WDC에서 분사', mcap:102, rsi:48, index:'SP500' },
+  { sym:'SNDK', name:'SanDisk', sector:'Technology', signal:'BUY', memo:'[미즈호 PT $1000] KVCache eSSD + HBF(고대역폭 플래시) 패러다임 · 추론 랙 NAND=훈련 4배 · HBF=HBM 10배 용량+100배 대역폭 · 2Q-3Q26E 계약가 QoQ +81%/+20% · NAND 웨이퍼 2026E -6% · F27/28E EPS 컨센 +11%/+28%', mcap:102, rsi:48, index:'SP500' },
   { sym:'WDC', name:'Western Digital', sector:'Technology', signal:'HOLD', memo:'HDD/SSD · 데이터센터 스토리지', mcap:94, rsi:46, index:'SP500' },
   { sym:'HWM', name:'Howmet Aerospace', sector:'Industrials', signal:'BUY', memo:'항공우주 부품 · 엔진 · 방산', mcap:96, rsi:55, index:'SP500' },
   { sym:'EQIX', name:'Equinix', sector:'Real Estate', signal:'BUY', memo:'[Citi 04/09] 전력공급 제약→DC 가격·개발수익 우호 환경 · 그리드 15~20년 제약 지속→DC 가격결정력 강화 · 전력망 연결 선호하나 브리지 수요 durable', mcap:93, rsi:50, index:'SP500' },
@@ -13429,6 +13419,14 @@ const MACRO_KW = [
   'TGA 메커니즘','재무부 유동성','역레포 인출','T-bill 발행 전략',
   '바이백 재개','바이백 블랙아웃','세금 시즌 유동성','정치적 유동성',
   '중간선거 시장','재무부 vs 연준','베센트','감세 환류',
+  // v46.4: 걸프 인프라 피해 + 이창용 한은 (2026.04.10)
+  'Gulf energy infrastructure','Ras Laffan damage','Sitra refinery','East-West pipeline',
+  'refinery outage','pipeline attack','energy infrastructure repair','supply shock measurable',
+  'Saudi Aramco attack','Khurais attack','Manifa attack','pumping station attack',
+  'BOK Lee Chang-yong','supply shock temporary','WGBI inflow','supplementary budget Korea',
+  'exchange rate DXY relative','걸프 인프라 피해','라스 라판','시트라 정유소',
+  '동서 파이프라인','정유 가동중단','공급 충격 정량화','이창용 총재','WGBI 유입',
+  '추경 초과세수','환율 DXY 상대비교',
 ];
 // TECH_KW: 기술/AI 주요 이벤트 → 섹터 관련 (+15점)
 const TECH_KW = [
@@ -13723,6 +13721,16 @@ const TECH_KW = [
   'aeroderivative turbine','prime power generation','load following power',
   'demand response datacenter','inference datacenter proximity','BTM gas power',
   '맥북 네오','칩 빈닝','빈닝 칩','클로드 미토스','섀도 AI',
+  // v46.4: NAND HBF + AI사이버 임계점 + 걸프 인프라 + TPU 로열티 (2026.04.10)
+  'KVCache eSSD','KV cache SSD','high bandwidth flash','HBF NAND','16-layer SLC',
+  'QLC eSSD','NAND wafer capacity','NAND supply tight','375L NAND','459L NAND',
+  'SanDisk HBF','SNDK earnings','WDC earnings','STX earnings',
+  'GPT-5.3-Codex','Codex cyber','gated release','trusted access cyber','cyber trust',
+  'Anthropic custom chip','Anthropic chip design','AI lab chip',
+  'Lumentum orders','LITE backlog','InP laser capacity','CPO backlog 2028',
+  'TPU royalty','TPU asset-light','GCP marginal OI','cloud OI contribution',
+  'KVCache','고대역폭 플래시','NAND 공급 타이트','제한적 공개','사이버 신뢰',
+  '앤트로픽 자체칩','TPU 로열티','클라우드 한계이익률',
 ];
 // MED_KW: 일반 기업/시장 이슈 → 보통 중요도 (+6점)
 const MED_KW = [
@@ -15864,8 +15872,8 @@ function renderFeed(items) {
 // v40.4: 홈 핵심뉴스 — 시장 전체에 영향을 주는 핵심 뉴스 2~3개 (정적, 새 이벤트 발생 시 수동 교체)
 var HOME_WEEKLY_NEWS = [
   { title: 'FOMC 의사록 듀얼 리스크 — "Vast majority" 고용 하방+인플레 상방 동시 경고. 비주거 서비스 끈적, "Some" 양방향 금리 시그널(인상 포함) 주장. 휴전 환호 뒤 수면 아래 이벤트: 워시 인준 불확실, 생산성 갭→Debt-to-GDP, H4L 장기화 리스크.', source: 'Federal Reserve/분석', date: '2026-04-09', sentiment: 'warn', topic: 'macro' },
-  { title: '4월 S급 이벤트 밀집 — GS/JPM 어닝(4/13-14), ASML(4/15), TSM·NFLX·워시 청문회(4/16), OPEX(4/17). CPI(4/10), PPI(4/11). 바이백 블랙아웃 해제·세금 보고 마감(4/15). JPM "전술적 강세" 전환, 골드만 롱온리 +24% 매수 우위.', source: '경제 캘린더', date: '2026-04-10', sentiment: 'bull', topic: 'macro' },
-  { title: '미-이란 2주 휴전 합의 — 호르무즈 재개통 조건으로 공습 2주 중단. BUT 2주 재충전 후 재교전 가능 시나리오 상존. 2023년 교훈: 연준 브레이크 vs 재무부 액셀 → 액셀이 이김(S&P+24%). 베센트(소로스 출신) 유동성 도구 보유.', source: 'NBC/Al Jazeera/분석', date: '2026-04-07', sentiment: 'warn', topic: 'geo' },
+  { title: '4월 S급 이벤트 밀집 — CPI+PPI(4/10 금), GS+워시 청문회(4/13 월), JPM(4/14 화), ASML(4/15 수), TSM·NFLX(4/16 목), OPEX(4/17 금). 바이백 블랙아웃 해제·세금 마감(4/15). JPM "전술적 강세", 골드만 롱온리 +24% 매수 우위.', source: '경제 캘린더', date: '2026-04-10', sentiment: 'bull', topic: 'macro' },
+  { title: 'JPM 걸프 인프라 피해 정량화 — 60개+ 자산 타격, 정유 240만bpd 가동중단, 사우디 동서 파이프라인 70만bpd 손실. 최소 8개 심각 피해(수년 수리). 카타르 라스 라판 17% 용량 수리 수년. 휴전 후에도 구조적 공급 감소 잔존 = 유가 $100+ 지지 구조.', source: 'JPMorgan/사우디 통신', date: '2026-04-10', sentiment: 'bear', topic: 'geo' },
 ];
 
 function renderHomeFeed(items) {
@@ -16097,7 +16105,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '【현재 매크로 맥락 (2026.04)】\n' +
     '• FOMC 듀얼 리스크: "vast majority" 고용 하방 + 인플레 상방 동시 경고. 비주거 서비스 끈적. "Some" 양방향 금리 시그널(인상 포함). H4L(Higher For Longer) 전환 신호.\n' +
     '• Fed 정책 경로: 동결 55% / 인하 25% / 인상 20%. 재무부-연준 힘겨루기: 베센트(소로스 출신) 유동성 도구 + 감세(OBBBA $1,500~1,600억) + 바이백 재개. 2023년 교훈: 연준 브레이크 vs 재무부 액셀 → 액셀 승리(S&P +24%).\n' +
-    '• 4월 이벤트: CPI(4/10), PPI(4/11), GS/JPM(4/13-14), ASML(4/15), TSM·NFLX·워시 청문회(4/16), OPEX(4/17), 세금 마감(4/15).\n' +
+    '• 4월 이벤트: CPI+PPI(4/10 금), GS+워시 청문회(4/13 월), JPM(4/14 화), ASML(4/15 수), TSM·NFLX(4/16 목), OPEX(4/17 금), 세금 마감(4/15).\n' +
     '• 지정학: 2주 휴전(4/7) — 재충전 후 재교전 가능. 호르무즈 통행료 영구화 리스크. WTI $100+ 지속 시 GDP -0.6%p.\n' +
     '• 생산성 갭: AI 생산성 기대(TFP 실질 0.32% vs 역사 1.23%) 미달 → 인플레 유지 + 성장↓ → Debt-to-GDP 악화.\n\n' +
     '【반도체/AI 인프라 맥락】\n' +
@@ -23244,7 +23252,7 @@ function _getChatRules() {
   // v46.3: FOMC 의사록 듀얼 리스크 + 4월 이벤트 밀집 + 2023 TGA 교훈 (2026.04.10)
   '65. FOMC 의사록 듀얼 리스크 + Higher For Longer 전환 신호 (2026.04):\n' +
   '  [Q2 패러다임 전환] 기존: FOMC = 인플레 또는 고용 단일 축 해석 → 인하/동결 이항. 새: "vast majority"가 고용 하방 + 인플레 상방 동시 경고 = 듀얼 리스크 국면 진입. Some 참가자가 양방향 금리 시그널(인상 포함) 필요 주장 → 일방향 인하 기대 사실상 폐기. 비주거 서비스 끈적 + 기대인플레 유가발 상승 = H4L(Higher For Longer) 내러티브 부상.\n' +
-  '  [Q4 구조적 논리] ① 표면=균형, 내부=취약. "Majority" 균형 vs "Vast majority" 취약 — 저채용 환경에서 노동 수요 소폭 하락만으로 실업률 급등 가능(비선형). AI 채용 지연 효과: Many 참가자 확인. ② 인플레 끈적함의 역학: 비주거 서비스 팬데믹 이전 대비 여전히 높음 + 유가 $100+ 지속 시 투입비용→근원물가 전이 경로 활성화 → 기대인플레 흔들릴 가능성(Some 우려). ③ 연준 내부 양방향 논의 = 시장이 인하만 가격에 반영하면 비대칭 리스크. 4월 CPI/PPI + 워시 청문회(4/16)가 방향 결정 이벤트.\n' +
+  '  [Q4 구조적 논리] ① 표면=균형, 내부=취약. "Majority" 균형 vs "Vast majority" 취약 — 저채용 환경에서 노동 수요 소폭 하락만으로 실업률 급등 가능(비선형). AI 채용 지연 효과: Many 참가자 확인. ② 인플레 끈적함의 역학: 비주거 서비스 팬데믹 이전 대비 여전히 높음 + 유가 $100+ 지속 시 투입비용→근원물가 전이 경로 활성화 → 기대인플레 흔들릴 가능성(Some 우려). ③ 연준 내부 양방향 논의 = 시장이 인하만 가격에 반영하면 비대칭 리스크. 4월 CPI/PPI + 워시 청문회(4/13 월)가 방향 결정 이벤트.\n' +
   '  [Q3 핵심 논쟁] Bull: 유가 일시적 안정 → 주거 서비스 둔화 + 생산성↑ → 디스인플레 경로 유지 → 하반기 1-2회 인하. Bear: 유가 $100+ 장기화 → 기대인플레 불안정 + 비주거 서비스 재가속 → 동결 장기화 또는 인상 논의 본격화 → Higher For Longer.\n' +
   '  [Q5 인접 파급] 채권: 3월(경기둔화 기대) vs 4월+(기대인플레 영향 확대) — 금리 드라이버 전환 가능. 금: 실질금리와 기대인플레 동시 상승 시 기존 역상관 약화 → 다른 움직임 패턴 가능. 워시 인준: 틸리스 반대 지속 + 트럼프 액션 필요 → 통화정책 불확실성 가중.\n' +
 
@@ -23253,7 +23261,31 @@ function _getChatRules() {
   '  [Q4 구조적 논리] ① 2023년 메커니즘: TGA $8,000억→$494억 강제 방출(부채한도)→시장 유동성 지탱. 6월 부채한도 해제 후 T-bill 대량 발행→MMF가 역레포($2.2조)에서 인출해 매수→은행 지급준비금 $390억만 감소→시장 유동성 사실상 미감소. ② 2026년 차이: TGA $8,063억 정상, 부채한도 이미 $5조 인상→2023식 강제 방출 없음. BUT 감세(OBBBA $1,500~1,600억+원천징수 $600억) + 발행 전략 조절 = 다른 형태의 유동성 공급 가능. ③ 중간선거 7개월 전: 궁지에 몰린 정권은 시장을 방치하지 않는다 = 정치적 인센티브.\n' +
   '  [Q3 핵심 논쟁] Bull: 정치적 유동성 공급 + 감세 환류 + 바이백 블랙아웃 해제 + 어닝(매출+9.7%, 이익+13%) → 하반기 랠리. JPM "전술적 강세", 골드만 롱온리 +24% 매수 우위. Bear: 호르무즈 통행료 영구화 + 2주 휴전 붕괴 → WTI $100+ 지속 → GDP -0.6%p + 사모신용 잔존 리스크 + 워시 인준 실패 → 비관 재부상.\n' +
   '  [Q1 테시스 로직] "예측이 아니라 준비." 2023년 비관론에 갇혀 +24% 놓친 경험 + 2026년 낙관 올인 시 호르무즈 장기화에 무방비 → 중립 포지션 + 시나리오별 트리거 설정이 최적. 현금 비중↑ + 확신도 높은 곳 선별 참여 + 뉴스 흐름 따라 사이즈 조절.\n' +
-  '  [Q5 인접 파급] 4월 이벤트 밀집: GS/JPM(4/13-14) → ASML/TSM/NFLX(4/15-16) → OPEX(4/17) + CPI(4/11) + 워시 청문회(4/16) + 세금 마감(4/15). TGA 세금 시즌 유동성 축소 = 일시적(정부→민간 환류). 국채 금리: 3월(경기둔화)→4월(기대인플레) 드라이버 전환 시 금 가격도 기존과 다른 패턴 가능.\n';
+  '  [Q5 인접 파급] 4월 이벤트 밀집: GS/JPM(4/13-14) → ASML/TSM/NFLX(4/15-16) → OPEX(4/17) + CPI+PPI(4/10) + 워시 청문회(4/13 월) + 세금 마감(4/15). TGA 세금 시즌 유동성 축소 = 일시적(정부→민간 환류). 국채 금리: 3월(경기둔화)→4월(기대인플레) 드라이버 전환 시 금 가격도 기존과 다른 패턴 가능.\n' +
+
+  // v46.4: JPM 원유 인프라 피해 + AI사이버 임계점 + NAND HBF + GOOGL TPU 로열티 + 이창용 (2026.04.10)
+  '67. 걸프 에너지 인프라 측정 가능한 공급 충격 — JPM 원유 분석 (2026.04):\n' +
+  '  [Q2 패러다임 전환] 기존: 휴전 = 공급 정상화 임박 → 유가 하락 방향. 새: 6주간 60개+ 자산 타격, 정유 240만bpd 가동중단, 최소 8개 심각 피해(수년 수리). 사우디 동서 파이프라인 70만bpd 손실(500만bpd 우회로 핵심). "단발적 혼란"→"측정 가능한 공급 충격" 전환. 휴전 후에도 구조적 공급 감소 잔존.\n' +
+  '  [Q4 구조적 논리] 피해 계층: ① 즉시 복구(대부분) ② 수주 내 복구(90만bpd) ③ 1개월(80만bpd) ④ 장기 수리(70만bpd — 바레인 시트라+이란 테헤란). 카타르 라스 라판: 17% 용량 수년 수리. 사우디 동서 파이프라인: 휴전 수시간 만에 펌핑 스테이션 공격 = 의도적 전략자산 타격.\n' +
+  '  [Q3 핵심 논쟁] Bull: 대부분 시설 빠른 복구 + 사우디 증산 여력 + 휴전 유지. Bear: 장기 수리 70만bpd + 파이프라인 우회로 손상 = 구조적 공급 부족 잔존 → 유가 $100+ 지지.\n' +
+  '  [Q5 인접 파급] 에너지 인프라 재건 수요: 사우디 아람코 Capex↑. 정유 마진 상승: 수리 기간 중 정제 공급↓ → 디젤/항공유 가격 지지. 보험료: 걸프 해상운송 보험료 상승 지속.\n' +
+
+  '68. AI 사이버보안 임계점 + 제한적 공개 시대 (2026.04):\n' +
+  '  [Q2 패러다임 전환] 기존: AI 보안 위협 = 미래 우려(수년 후). 새: 임계점 도달 확인. 앤트로픽 Mythos + 오픈AI GPT-5.3-Codex = 자율적 해킹 역량 실증. 제한적 공개(gated release)가 산업 표준으로 부상. 오픈AI "사이버 신뢰 접근" $10M 크레딧 파일럿.\n' +
+  '  [Q4 구조적 논리] 되돌릴 수 없는 역학: SANS "역량은 이미 존재", 팔로알토 "몇 주~몇 달 내 유사 역량 공개 모델 출현", 에이슬 "Mythos 취약점 일부는 이미 공개 모델로 탐지 가능". 제한적 공개 = 시간 벌기일 뿐. 보안 예산이 기존 IT예산 밖으로 확장 시작.\n' +
+  '  [Q5 인접 파급] CRWD/PANW(창립 파트너 → §63 연속) > ZS/CHKP/OKTA(보안예산 확장) > 앤트로픽/오픈AI(규제 대응 포지셔닝 = 책임 있는 배포 → 기업 신뢰↑). 앤트로픽 자체칩 설계 검토 중(CNA) → AVGO TPU 파트너십 가치 재평가, GOOGL TPU 독점 위협.\n' +
+
+  '69. NAND KVCache/HBF 패러다임 — 미즈호 샌디스크 (2026.04):\n' +
+  '  [Q2 패러다임 전환] 기존: NAND = 범용 스토리지, AI 수혜 제한적. 새: KVCache eSSD + HBF(고대역폭 플래시) = NAND이 AI 추론 인프라 핵심 계층으로 진화. 추론 랙 NAND = 훈련 랙의 4배. HBF = HBM 10배 용량 + TLC SSD 6배 용량 + 100배 대역폭. 16층 SLC-NAND 적층.\n' +
+  '  [Q4 구조적 논리] NAND 공급 타이트 구조적 심화: ① 2026E 웨이퍼 생산능력 -6%, 2027E 보합 ② 375L/459L 노드 전환에 비트 증가 집중 ③ HBF 16층 적층 = HBM과 동일한 "트레이드 비율" 제약. 2Q-3Q26E 계약가 QoQ +81%/+20%.\n' +
+  '  [Q3 핵심 논쟁] Bull: 추론/에이전틱 → KVCache 16TB/GPU + HBF 2H26E 샘플 → NAND 공급 부족 지속. Bear: HDD 대체 속도 예상 미달 or NAND 노드 전환 완료 후 공급 급증.\n' +
+  '  [Q5 인접 파급] SNDK(PT $1000 미즈호) > WDC($400) > STX($565) > MU($545, HBF+HBM 동시 수혜). LRCX(375L/459L 전환 장비 수혜) > MKSI($320). 에이전틱AI → KVCache 수요 폭증 = NAND 상승 여력 1H27E까지.\n' +
+
+  '70. 알파벳 GCP TPU 로열티 구조 — 미즈호 (2026.04):\n' +
+  '  [Q2 패러다임 전환] 기존: GOOGL AI 투자 = 자본집약적(capex 부담 → 멀티플 디스카운트). 새: TPU 판매가 자산경량형 로열티 구조로 전환 — AVGO가 앤트로픽에 직접 칩 판매, GOOGL에 로열티 지급(AVGO 8-K). 69% 한계 OI 마진(Q/Q) 설명. 클라우드 OI 확대 → 검색 디스럽션 리스크 희석.\n' +
+  '  [Q4 구조적 논리] ① 로열티 구조 = capex 부담 없이 TPU 생태계 수익화 → "AI 곡괭이와 삽" 플레이. ② 강세 시 클라우드 매출 27년 $149B(컨센 $116B +28%), OI 기여 30%. ③ 검색 방문자 수·유료클릭 모두 성장 → 디스럽션 에어포켓 리스크 완화.\n' +
+  '  [Q3 핵심 논쟁] Bull: TPU 로열티 + 앤트로픽 파트너십 + 검색 안정 → "AI 패자"→"AI 승자" 멀티플 재평가. Bear: Gemini 전환 속도 > 수익화 속도 → 에어포켓. 앤트로픽 자체칩 검토 → TPU 독점 위협.\n' +
+  '  [Q5 인접 파급] AVGO(TPU 로열티 직접 수혜 + 앤트로픽 칩 판매) > TSMC(TPU 파운드리) > CRWD/PANW(Mythos 파트너 → §68 연속). 앤트로픽: 자체칩 검토는 GOOGL/AVGO 협상 레버리지 강화 수단일 수 있음.\n';
 }
 
 const CHAT_CONTEXTS = {
@@ -23353,7 +23385,7 @@ const CHAT_CONTEXTS = {
         '• 기본(55%): 동결 3.50-3.75% 장기 유지(Higher For Longer). FOMC "vast majority" 듀얼 리스크 — 고용 하방 + 인플레 상방 동시 경고. 비주거 서비스 끈적 + 기대인플레 유가발 상승. "Some" 참가자 양방향 금리 시그널(인상 포함) 필요 주장.\n' +
         '• 인하(25%): 유가 안정($85↓) + 고용 추가 둔화(저채용 환경에서 충격 시 실업 급등) 시 2026 하반기 1-2회 인하. "Many" 물가가 예상대로 하락 시 인하 적절. 주거 서비스 둔화 + 생산성↑이 하방 압력.\n' +
         '• 인상(20%): 유가 $120+ 지속 → 투입비용→근원물가 전이 + 기대인플레 불안정화 시. "Some"이 명시적 인상 논의. 2026년은 2022년보다 취약(이미 고금리 + 가계 버퍼 소진 + 밸류에이션 비쌈).\n' +
-        '• 핵심 변수: ① 4월 CPI/PPI(4/10-11) — 유가 전이 강도 확인 ② 워시 청문회(4/16) — 차기 의장 통화정책 방향 ③ 어닝 시즌(GS/JPM/TSM/NFLX) — 기업 실적 방어 여부.\n' +
+        '• 핵심 변수: ① 4월 CPI+PPI(4/10 금) — 유가 전이 강도 확인 ② 워시 청문회(4/13 월) — 차기 의장 통화정책 방향 ③ 어닝 시즌(GS/JPM/TSM/NFLX) — 기업 실적 방어 여부.\n' +
         '• 재무부-연준 힘겨루기: 2023년 증거 — 연준 브레이크(5%+QT) vs 재무부 액셀(TGA방출+T-bill) → 액셀 승리(S&P+24%). 2026년 베센트(소로스 출신) = 유동성 조절 도구 보유. 감세(OBBBA $1,500~1,600억) + 중간선거 7개월 전 = 정치적 유동성 공급 인센티브.\n' +
         '→ "Fed가 다음에 할 수 있는 행동"과 "그에 따른 자산별 반응" + "재무부 유동성 대응"을 동시 시나리오로 제시.\n\n' +
 
@@ -28648,7 +28680,7 @@ function filterKrThemes(btn, heat) {
 
 // v35.5: 카탈리스트 데이터 JS 분리 — 한 곳에서 업데이트 가능
 var KR_THEME_CATALYSTS = {
-  'defense':     '수주 잔고 100조+ 실적 전환 · 한화에어로 NATO 수주 · 풍산 탄약 수출 · 미-이란 2주 휴전 → 방산 프리미엄 축소 경계 · 워시 청문회(4/16) 국방예산 방향',
+  'defense':     '수주 잔고 100조+ 실적 전환 · 한화에어로 NATO 수주 · 풍산 탄약 수출 · 미-이란 2주 휴전 → 방산 프리미엄 축소 경계 · 워시 청문회(4/13 월) 국방예산 방향',
   'semi':        '삼성전자 1Q26 OP 57.2조 역대 최고 · 메모리 충족률 65%(가격↑) · DRAM/NAND ASP +75~85% QoQ(2Q26E) · HBM4 수급 타이트 · SK하이닉스 HBM3E 12H 안정화',
   'shipbuilding':'LNG/암모니아 선박 고부가 수주 · 선가 상승 사이클 · 해군 함정 수출 본격화 · 수주 잔고 역대 최고',
   'ai-sw':       'NAVER HyperCLOVA X Agent · 삼성SDS AI플랫폼 Brity · 더존비즈온 AI ERP · 폴라리스오피스 글로벌 확산',
@@ -33331,7 +33363,7 @@ function updateEntryChecklist() {
     // CPI 발표일
     '2026-04-10','2026-05-13','2026-06-11','2026-07-15',
     // v46.3: 4월 S급 이벤트 (어닝/청문회/OPEX)
-    '2026-04-11','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17'
+    '2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17'
   ];
   var now = new Date();
   var nearEvent = false;
@@ -36065,7 +36097,7 @@ document.addEventListener('aio:liveQuotes', function() {
           '• 비주거 서비스 끈적 + 유가 $100+ 시 투입비용→근원물가 전이 → 기대인플레 불안정 리스크.\n' +
           '• "Some" 참가자 양방향 금리 시그널(인상 포함) 필요 주장 → 시장의 인하 일변도 기대와 괴리.\n' +
           '• 채권 금리 드라이버 전환: 3월(경기둔화 기대→금리↓) → 4월(기대인플레 영향↑→금리 방향 불확실).\n' +
-          '• 4/11 CPI + 4/16 워시 청문회 = 금리 방향 결정 이벤트.\n' +
+          '• 4/10 CPI+PPI + 4/13 워시 청문회 = 금리 방향 결정 이벤트.\n' +
           '\n【재무부-연준 유동성 역학 (2023년 교훈)】\n' +
           '• 2023년: 옐런 TGA 방출 + T-bill 발행(역레포→시장 이전) → 연준 긴축에도 S&P+24%.\n' +
           '• 2026년: TGA $8,063억 정상, 부채한도 $5조 인상 완료 → 2023식 강제 방출 없음.\n' +
