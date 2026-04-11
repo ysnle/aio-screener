@@ -23690,6 +23690,21 @@ const CHAT_CONTEXTS = {
           }
         }
 
+        // v46.4: 공매도 현황 주입
+        if (fd.fmpShortInterest && fd.fmpShortInterest.length) {
+          prompt += '\n● 공매도 현황 (Short Interest):\n';
+          fd.fmpShortInterest.slice(0, 3).forEach(function(si) {
+            prompt += '  ' + (si.date||'') + ': Short Interest ' + (si.shortInterest||0).toLocaleString() + '주 | Float 대비 ' + ((si.shortPercentOfFloat||0)*100).toFixed(1) + '% | 평균 커버 ' + (si.daysToCover||0).toFixed(1) + '일\n';
+          });
+        }
+
+        // v46.4: 데이터 품질 경고 주입
+        if (fd._dataWarnings && fd._dataWarnings.length > 0) {
+          prompt += '\n⚠️ 데이터 품질 경고 (' + fd._dataWarnings.length + '건):\n';
+          fd._dataWarnings.forEach(function(w) { prompt += '  - ' + w + '\n'; });
+          prompt += '→ 위 경고가 있는 항목은 분석 시 신뢰도를 낮추어 해석하세요. 다른 소스와 교차 확인을 권장합니다.\n';
+        }
+
         prompt += '\n═══════════════════════════════════════════════════\n\n';
       }
 
@@ -23765,7 +23780,13 @@ const CHAT_CONTEXTS = {
       prompt += '12. 【협력 & 파트너십】 전략적 제휴, 주요 고객 집중도(매출 10%+ 고객), 생태계 위치(밸류체인에서의 포지션). 데이터: fmpInstitutional(기관 투자자 구성으로 어떤 펀드가 주목하는지 판단).\n';
       prompt += '13. 【경쟁 구조】 데이터: peers(경쟁사 리스트) + fmpEstimates(향후 성장 기대치 비교). 주요 경쟁사와 밸류에이션·성장률·마진 비교. 포터의 5가지 경쟁력. 차별화 포인트. 경쟁 심화/완화 트렌드.\n';
       prompt += '14. 【리스크 요인】 사업 리스크(경쟁 심화, 기술 대체), 재무 리스크(부채, 유동성), 규제 리스크(독점 규제, 수출 규제), 매크로 리스크(금리·환율·경기 민감도), ESG/평판 리스크. 각 리스크의 가능성(H/M/L)과 영향도(H/M/L) 매트릭스.\n';
-      prompt += '15. 【투자 포인트 종합】 데이터: fmpPriceTarget + fmpDCF + fmpEstimates + 전체 분석 종합. Bull Case(낙관 시나리오 + 목표가) / Base Case(기본 시나리오) / Bear Case(비관 시나리오). 핵심 카탈리스트(실적 서프라이즈, 신제품, M&A 등)와 깨지는 신호. 내부자 매매 방향이 시사하는 바. 최종 투자 의견(매수/보유/관망)과 근거 3줄 요약.\n\n';
+      prompt += '15. 【투자 포인트 종합】 데이터: fmpPriceTarget + fmpDCF + fmpEstimates + 전체 분석 종합. Bull Case(낙관 시나리오 + 목표가) / Base Case(기본 시나리오) / Bear Case(비관 시나리오). 핵심 카탈리스트(실적 서프라이즈, 신제품, M&A 등)와 깨지는 신호. 내부자 매매 방향이 시사하는 바. 최종 투자 의견(매수/보유/관망)과 근거 3줄 요약.\n';
+      // v46.4: 5개 추가 관점 (15→20)
+      prompt += '16. 【이익의 질 (Earnings Quality)】 발생액 비율 = (순이익 - 영업CF) / 총자산. 높을수록 이익의 질 낮음. 영업CF > 순이익 = 건전한 이익(현금 기반). 영업CF < 순이익 = 발생액 기반 이익(감가상각·충당금 조작 가능). FCF/순이익 비율이 80%+ = 우수, 50%↓ = 경고.\n';
+      prompt += '17. 【자본 배분 효율성 (Capital Allocation)】 주주 환원율 = (자사주매입 + 배당) / 순이익. 100%+ = 초과 환원(부채 증가 여부 확인). CAPEX / 감가상각: >1.5 = 성장 투자 중, <1 = 유지 투자만(성장 정체 시그널). 최근 3년 트렌드가 중요.\n';
+      prompt += '18. 【주식 희석 추적 (Share Dilution)】 발행주식수 YoY 변화: 증가 = 희석(SBC 많은 기술주 주의). EPS 성장 vs 순이익 성장 괴리 = 희석 영향. 5%+ 연간 희석 = 경고. 자사주매입이 SBC를 상쇄하는지 확인.\n';
+      prompt += '19. 【공매도 현황 (Short Interest)】 Short % of Float: 5%↓ = 정상, 10%+ = 높은 공매도(숏스퀴즈 가능성 OR 구조적 약세 시그널), 20%+ = 극단. 공매도 증가 추세 = 기관의 약세 베팅 증가. 감소 추세 = 숏커버 랠리 잠재력.\n';
+      prompt += '20. 【운영 레버리지 (Operating Leverage)】 OL = 영업이익 성장률 / 매출 성장률. OL > 1.5 = 강한 운영 레버리지(매출 1% 증가 시 영업이익 1.5%+). OL < 0.5 = 약한 레버리지(고정비 부담 or 경쟁 심화). 경기 민감주는 OL이 양방향으로 크게 작용.\n\n';
 
       prompt += '【응답 프레임워크 — "기업을 하나의 이야기로" (v40.4 고도화)】\n';
       prompt += '1. 한줄 판결로 시작: "이 기업은 본질적으로 {한마디 정의}이다." — 투자자가 1초 만에 핵심을 잡도록.\n';
@@ -26044,6 +26065,83 @@ function _fundRecentSearches(ticker) {
 }
 
 // 메인 종합 분석 함수
+// v46.4: FMP 데이터 검증 레이어 — ticker 불일치, 가격 괴리, 수치 범위, 데이터 결함 감지
+function _validateFMPData(collected) {
+  var warnings = [];
+  var ticker = collected.ticker;
+
+  // 1. Ticker 매칭: FMP profile.symbol vs 요청 ticker
+  if (collected.fmpProfile && collected.fmpProfile.symbol) {
+    var fmpSym = collected.fmpProfile.symbol.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    var reqSym = ticker.replace(/[^A-Z0-9]/g, '');
+    if (fmpSym !== reqSym) {
+      warnings.push('티커 불일치: 요청=' + ticker + ', FMP 응답=' + collected.fmpProfile.symbol + ' — 다른 종목 데이터일 수 있음');
+      collected._tickerMismatch = true;
+    }
+  }
+
+  // 2. 가격 괴리: Yahoo vs FMP (10% 이상이면 경고)
+  if (collected.price && collected.fmpProfile && collected.fmpProfile.price && collected.fmpProfile.price > 0) {
+    var priceDiff = Math.abs(collected.price - collected.fmpProfile.price) / collected.price * 100;
+    if (priceDiff > 10) {
+      warnings.push('가격 괴리 ' + priceDiff.toFixed(1) + '%: Yahoo $' + collected.price.toFixed(2) + ' vs FMP $' + collected.fmpProfile.price.toFixed(2));
+    }
+  }
+
+  // 3. 매출 합리성: 최신 연도 매출이 0 또는 null
+  if (collected.fmpIncome && collected.fmpIncome.length > 0) {
+    var latestRev = collected.fmpIncome[0].revenue;
+    if (latestRev === 0 || latestRev == null) {
+      warnings.push('최신 매출 $0 또는 null — 데이터 결함 또는 프리 IPO 기업');
+    }
+    // 매출 급감 경고 (YoY -50% 이상)
+    if (collected.fmpIncome.length >= 2) {
+      var prevRev = collected.fmpIncome[1].revenue;
+      if (prevRev > 0 && latestRev > 0 && (latestRev - prevRev) / prevRev < -0.5) {
+        warnings.push('매출 YoY -' + (Math.abs((latestRev - prevRev) / prevRev) * 100).toFixed(0) + '% 급감 — 구조 변화 확인 필요');
+      }
+    }
+  }
+
+  // 4. PE 범위 경고
+  var pe = null;
+  if (collected.fmpRatiosTTM && collected.fmpRatiosTTM.peRatioTTM) pe = collected.fmpRatiosTTM.peRatioTTM;
+  else if (collected.fmpMetricsTTM && collected.fmpMetricsTTM.peRatioTTM) pe = collected.fmpMetricsTTM.peRatioTTM;
+  if (pe !== null && (pe < -100 || pe > 1000)) {
+    warnings.push('P/E ' + pe.toFixed(1) + ' — 비정상 범위 (데이터 오류 가능)');
+  }
+
+  // 5. 시가총액 0 이하
+  if (collected.fmpProfile && collected.fmpProfile.mktCap != null && collected.fmpProfile.mktCap <= 0) {
+    warnings.push('시가총액 $0 — 상장폐지 또는 데이터 결함');
+  }
+
+  // 6. 이익의 질 경고 (순이익 > 영업CF = 발생액 기반)
+  if (collected.fmpIncome && collected.fmpIncome[0] && collected.fmpCashflow && collected.fmpCashflow[0]) {
+    var ni = collected.fmpIncome[0].netIncome || 0;
+    var ocf = collected.fmpCashflow[0].operatingCashFlow || 0;
+    if (ni > 0 && ocf > 0 && ni > ocf * 1.5) {
+      warnings.push('이익의 질 경고: 순이익($' + _fmtNum(ni) + ') > 영업CF($' + _fmtNum(ocf) + ') × 1.5 — 발생액 기반 이익 비중 높음');
+    }
+  }
+
+  // 7. 주식 희석 경고
+  if (collected.fmpIncome && collected.fmpIncome.length >= 2) {
+    var curShares = collected.fmpIncome[0].weightedAverageShsOutDil || 0;
+    var prevShares = collected.fmpIncome[1].weightedAverageShsOutDil || 0;
+    if (curShares > 0 && prevShares > 0) {
+      var dilution = (curShares - prevShares) / prevShares * 100;
+      if (dilution > 5) {
+        warnings.push('주식 희석 ' + dilution.toFixed(1) + '% YoY — SBC 또는 유상증자 영향 확인');
+      }
+    }
+  }
+
+  collected._dataWarnings = warnings;
+  if (warnings.length > 0) console.warn('[FMP-Validate] ' + ticker + ':', warnings);
+  return warnings;
+}
+
 async function fundamentalSearch() {
   var inp = document.getElementById('fund-search-input');
   if (!inp) return;
@@ -26184,6 +26282,15 @@ async function fundamentalSearch() {
     // (9) DCF 밸류에이션
     var dcf = await _fmpFetch('v3/discounted-cash-flow/' + ticker);
     if (dcf && dcf[0]) { collected.fmpDCF = dcf[0]; collected.sources.push('FMP (DCF)'); updateProgress('DCF 적정가: $' + (typeof dcf[0].dcf === 'number' ? dcf[0].dcf.toFixed(2) : 'N/A')); }
+
+    // v46.4: (10) 공매도 현황 (Short Interest)
+    var shortInt = await _fmpFetch('v4/short-interest?symbol=' + ticker);
+    if (shortInt && shortInt.length) {
+      collected.fmpShortInterest = shortInt.slice(0, 5);
+      collected.sources.push('FMP (공매도)');
+      var latestSI = shortInt[0];
+      updateProgress('공매도: ' + ((latestSI.shortPercentOfFloat || 0) * 100).toFixed(1) + '% of Float');
+    }
   } else {
     updateFail('FMP API 키 미설정 — SEC EDGAR 데이터만으로 분석 진행 (사이드바에서 FMP 키를 입력하면 더 풍부한 데이터 수집 가능)');
   }
@@ -26194,6 +26301,9 @@ async function fundamentalSearch() {
     loadHtml += '<div style="font-size:9px;color:var(--text-muted);">' + collected.sources.join(' · ') + '</div>';
     loadingEl.innerHTML = loadHtml;
   }
+
+  // v46.4: FMP 데이터 검증 레이어 — 잘못된 데이터 감지 + AI에 경고 주입
+  _validateFMPData(collected);
 
   // 글로벌에 저장 (LLM 프롬프트 주입용)
   window._fundAnalysisData = collected;
