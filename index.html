@@ -9684,6 +9684,27 @@ const DATA_SNAPSHOT = {
   krShip:      -1.60,  krShipPrice:   34100,
   krBank:      -1.30,  krBankPrice:   15300,
   krBio:       -1.10,  krBioPrice:    12700,
+
+  // ── v46.4: 트레이딩 스코어 폴백값 (단일 진실 원천) ──
+  // /data-refresh 실행 시 이 값들을 DATA_SNAPSHOT과 함께 갱신.
+  // 모든 computeTradingScore/computeMarketHealth/computeExecutionWindow가 여기서 읽음.
+  _fallback: {
+    fg: 35,              // Fear & Greed (/data-refresh 시 갱신)
+    vix: 31,             // VIX
+    breadth200: 75,      // 20SMA Above % (bpSPX20 마지막 값과 동기화)
+    breadth5: 68,        // 5SMA Above %
+    breadth50: 46,       // 50SMA Above %
+    pcr: 0.95,           // Put/Call Ratio
+    aaiiBear: 50,        // AAII Bearish %
+    spx50ma: 6765,       // SPX 50일 이동평균
+    spx200ma: 6659,      // SPX 200일 이동평균
+    spxATH: 6947,        // SPX 사상 최고가
+    dxy: 100,            // 달러 인덱스
+    tnx: 4.3,            // 10년 금리
+    hyg: 78,             // HYG ETF 가격
+    vvix: 135,           // VVIX
+    _syncDate: '2026-04-10'  // 마지막 동기화 날짜
+  }
 };
 
 // 편의 포맷터 (안전한 숫자 포맷 — undefined/NaN 방어)
@@ -19210,7 +19231,7 @@ function refreshHomeDashboard() {
   const spx = ld['^GSPC'] || {};
   const vix = ld['^VIX'] || {};
   const dxy = ld['DX-Y.NYB'] || {};
-  const fg = window._lastFG || 35;
+  const fg = window._lastFG || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 35);
   const ts = new Date();
 
   // SECTION 0: One-line market summary
@@ -19470,7 +19491,7 @@ async function fetchFearGreed() {
         if (prevScore > 0 && prevScore <= 100) {
           h1.textContent = '전일: ' + prevScore + '점';
         } else {
-          const score = window._lastFG || 35;
+          const score = window._lastFG || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 35);
           h1.textContent = score <= 25 ? '극단 공포 구간' : score <= 45 ? '공포 구간' : score <= 55 ? '중립 구간' : score <= 75 ? '탐욕 구간' : '극단 탐욕 구간';
         }
       }
@@ -20023,7 +20044,7 @@ function updateWSAnalysis() {
   var spy = ld['SPY'], rsp = ld['RSP'];
 
   var spyPct = spy ? (spy.pct != null ? spy.pct : 0) : 0;
-  var breadth = (typeof window._breadth200 === 'number') ? window._breadth200 : 75;
+  var breadth = (typeof window._breadth200 === 'number') ? window._breadth200 : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.breadth200 : 75);
 
   var stage, color, advice;
   if (breadth > 65 && spyPct > 0) {
@@ -26784,7 +26805,7 @@ function updateWeinsteinStage() {
   var fvx = _ldSafe('^FVX','price');
   var hygPrice = _ldSafe('HYG','price');
   var hygChg = ld['HYG'] ? (ld['HYG'].pct != null ? ld['HYG'].pct : 0) : 0;
-  var breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : 75;
+  var breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.breadth200 : 75);
   var breadthData = window._breadthLiveData || {};
   var abv50 = breadthData.abv50 != null ? breadthData.abv50 : 28;
 
@@ -26973,7 +26994,7 @@ function updateMTF() {
   var hygChg = ld['HYG'] ? (ld['HYG'].pct != null ? ld['HYG'].pct : 0) : 0;
   var breadthData = window._breadthLiveData || {};
   var abv50 = breadthData.abv50 != null ? breadthData.abv50 : 28;
-  var breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : 75;
+  var breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.breadth200 : 75);
   var rsp = ld['RSP'];
   var rspChg = rsp ? (rsp.pct != null ? rsp.pct : 0) : chg;
 
@@ -32430,13 +32451,15 @@ function computeTradingScore(mode) {
   // v37.1: 데이터 소스 이원화
   // - 주가(SPX, SPY, RSP): 종가 기준 → 장중 등락으로 점수 흔들림 방지
   // - 시장 환경(VIX, DXY, TNX, HYG, 유가): 실시간 → 현재 시장 상태 즉각 반영
-  const vix   = _ldSafe('^VIX','price') || 20;
-  const vvix  = _ldSafe('^VVIX','price') || 100;
-  const dxy   = _ldSafe('DX-Y.NYB','price') || 104;
-  const hyg   = _ldSafe('HYG','price') || 78;
-  const tnx   = _ldSafe('^TNX','price') || 4.3;
+  // v46.4: 폴백값을 DATA_SNAPSHOT._fallback에서 읽음 (단일 진실 원천)
+  var _fb = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
+  const vix   = _ldSafe('^VIX','price') || _fb.vix || 20;
+  const vvix  = _ldSafe('^VVIX','price') || _fb.vvix || 100;
+  const dxy   = _ldSafe('DX-Y.NYB','price') || _fb.dxy || 104;
+  const hyg   = _ldSafe('HYG','price') || _fb.hyg || 78;
+  const tnx   = _ldSafe('^TNX','price') || _fb.tnx || 4.3;
   const oilPrice = _ldSafe('CL=F','price') || 0;
-  const fg    = window._lastFG  || 35;  // v46.4: 휴전 후 회복 반영 (이전 18=극단공포)
+  const fg    = window._lastFG  || _fb.fg || 35;
   const rsp   = _closingVal('RSP');
   const spy   = _closingVal('SPY');
 
@@ -32463,9 +32486,8 @@ function computeTradingScore(mode) {
   else               momScore = 15;
 
   // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
-  // v46.4: MA 폴백값 갱신 (4/10 기준 추정: 50SMA~6765, 200SMA~6659)
-  const spx200ma = (window._spxMA && window._spxMA[200]) || 6659;
-  const spx50ma  = (window._spxMA && window._spxMA[50])  || 6765;
+  const spx200ma = (window._spxMA && window._spxMA[200]) || _fb.spx200ma || 6659;
+  const spx50ma  = (window._spxMA && window._spxMA[50])  || _fb.spx50ma || 6765;
   const spxPrice = _closingVal('^GSPC') || _ldSafe('^GSPC','price');
   let trendScore;
   if (spxPrice > spx50ma * 1.02)     trendScore = 82;
@@ -32477,7 +32499,7 @@ function computeTradingScore(mode) {
   // 4. Breadth Score (20%) — % above 200 SMA
   // window._breadth200 is updated by initBreadthPage() when live data is loaded;
   // fallback to 27.1 (3/22 기준 실측치) if not yet available.
-  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : 75;  // v46.4: 4/8 실측 75% (이전 27.1=전쟁 피크)
+  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : (_fb.breadth200 || 75);
   let breadthScore;
   if (breadth200 > 70)      breadthScore = 88;
   else if (breadth200 > 55) breadthScore = 72;
@@ -32496,12 +32518,12 @@ function computeTradingScore(mode) {
   macroScore = Math.max(10, Math.min(90, macroScore));
 
   // v20+: Put/Call ratio 보정
-  const pcr = window._putCallRatio || 0.95;  // v46.4: 휴전 후 안정 (이전 1.21=공포)
+  const pcr = window._putCallRatio || _fb.pcr || 0.95;
   if (pcr > 1.3) { momScore = Math.max(5, momScore - 8); }
   else if (pcr > 1.1) { momScore = Math.max(5, momScore - 4); }
 
   // v20+: AAII extreme bearish = contrarian positive (but NOT timing indicator)
-  const aaiiBear = window._aaiiBearish || 50;  // v46.4: 이전 61.9→50 (약간 회복)
+  const aaiiBear = window._aaiiBearish || _fb.aaiiBear || 50;
   if (aaiiBear > 55) { breadthScore = Math.max(breadthScore, 20); }
 
   // v39.2: 교차변수 보정 — 복합 리스크 시 추가 감점
@@ -32570,9 +32592,10 @@ function getScoreAdvice(score) {
 // ── Execution Window Score (v20+) ────────────────────────────────
 function computeExecutionWindow() {
   const ld = window._liveData || {};
-  const vix = _ldSafe('^VIX','price');
-  const fg = window._lastFG || 35;
-  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : 75;
+  var _fb2 = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
+  const vix = _ldSafe('^VIX','price') || _fb2.vix || 20;
+  const fg = window._lastFG || _fb2.fg || 35;
+  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : (_fb2.breadth200 || 75);
 
   // Breakout holding: are breakouts sustaining? Low breadth + high VIX = no
   let breakoutHold = 50;
@@ -32595,7 +32618,7 @@ function computeExecutionWindow() {
   // Leader retention: are leading stocks holding gains?
   let leaderHold = 50;
   if (breadth200 < 40) leaderHold -= 15;
-  const pcr = window._putCallRatio || 0.95;  // v46.4
+  const pcr = window._putCallRatio || _fb2.pcr || 0.95;
   if (pcr > 1.2) leaderHold -= 10;
   leaderHold = Math.max(0, Math.min(100, leaderHold));
 
@@ -32627,7 +32650,7 @@ function classifyMarketRegime() {
   const spx200ma = (window._spxMA && window._spxMA[200]) || 6593;
   const spx50ma  = (window._spxMA && window._spxMA[50])  || 6656;
   const vix = _ldSafe('^VIX','price') || (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.vix : 20);
-  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : 75;
+  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.breadth200 : 75);
 
   let regime = 'CHOP';
   let label = '횡보·혼조';
