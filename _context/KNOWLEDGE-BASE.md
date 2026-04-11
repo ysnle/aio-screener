@@ -182,6 +182,26 @@ confidence: high
 - 관련 규칙: 매크로 분석 시 연준 단독 해석 금지, 재무부 발행 전략 동시 고려
 - 발견 버전: v46.3
 
+### CSS overflow-x:hidden의 overflow-y 자동 변환 (P74)
+- CSS 명세: `overflow-x: hidden`만 설정 → 브라우저가 `overflow-y`를 자동으로 `auto`로 변환
+- 결과: 의도하지 않게 스크롤 컨테이너가 됨 → 부모의 스크롤과 충돌
+- `.content(overflow-y:auto)` > `.page(overflow-x:hidden → overflow-y:auto 자동)` = 이중 스크롤 충돌
+- 해결: `.page`에서 overflow-x:hidden 제거 (`.content`가 이미 처리)
+- 발견 버전: v46.4
+
+### 폴백값 구조화 원칙 (P72)
+- 폴백값은 각 함수에 하드코딩 금지 → `DATA_SNAPSHOT._fallback` 단일 진실 원천
+- /data-refresh 시 DATA_SNAPSHOT과 _fallback 동시 갱신 → 자동 동기화
+- 발견: 3월 전쟁 피크 폴백값(F&G=18, breadth=27.1)이 4월 휴전 후에도 잔존 → 극단 공포 표시
+- 발견 버전: v46.4
+
+### 데이터 검증 3단계 원칙
+- L1 입력: PriceStore.set() (symbol 유효성 + 가격 범위 + 급변 감지)
+- L2 가공: _clamp(v, lo, hi) (VIX 5~150, DXY 80~130 등 합리 범위)
+- L3 출력: escHtml() (XSS 방어) + isFinite() (NaN 노출 방지)
+- FMP 전용: _validateFMPData() 7개 검증 (ticker 매칭, 가격 괴리, PE 범위, 이익의 질, 희석)
+- 발견 버전: v46.4
+
 ---
 
 ## 인사이트 추가 규칙

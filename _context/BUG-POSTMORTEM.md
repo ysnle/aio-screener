@@ -3,9 +3,9 @@ verified_by: agent
 last_verified: 2026-04-09
 confidence: high
 latest_version: v46.2
-latest_P_number: P71
-next_P_number: P72
-total_entries: 71
+latest_P_number: P76
+next_P_number: P77
+total_entries: 76
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -86,6 +86,11 @@ total_entries: 71
 | P69 | v46.2 | 2026-04-10 | CHAT_CONTEXTS signal/breadth/sentiment/theme-detail 미정의 → silent failure. _aiCtxMap/Chips 미매핑. commands wrapper 4개 누락 |
 | P70 | v46.3 | 2026-04-10 | Stooq 폴백 지수 매핑 오류: ^GSPC→SPY(spy.us) 매핑 시 ETF 가격($680)이 지수(6800)에 주입되어 10배 괴리. pct도 시가 대비로 계산(전일 대비 아님). 지수/선물 스킵 리스트 분리 + chartPreviousClose 우선으로 수정 |
 | P71 | v46.3 | 2026-04-10 | Stooq 선물 심볼 미지원: ES=F/NQ=F/YM=F가 esf.us/nqf.us/ymf.us로 변환되어 Stooq에서 N/D 반환. `sym.includes('=F')` 가드 추가. 원자재 선물(CL=F/GC=F 등)은 명시 매핑(cl.f/gc.f)으로 별도 처리 |
+| P72 | v46.4 | 2026-04-11 | 트레이딩 스코어 폴백값이 3월 전쟁 피크 기준(F&G=18, breadth=27.1, PCR=1.21)으로 고정 → DATA_SNAPSHOT._fallback 단일 진실 원천 신설. 24곳 참조 통일 |
+| P73 | v46.4 | 2026-04-11 | 브리핑 캘린더 요일 전부 오류(4/10=목→금, 4/13=일→월 등) + PPI 4/11 토요일 + 워시 청문회 4/16→4/13. 14곳 일괄 수정 |
+| P74 | v46.4 | 2026-04-11 | .page overflow-x:hidden → CSS 명세에 의해 overflow-y 자동 auto 변환 → .page가 스크롤 컨테이너화 → .content 스크롤과 충돌. themes 페이지 마우스 휠 무반응. overflow-x:hidden 제거로 해결 |
+| P75 | v46.4 | 2026-04-11 | FOMC 일정 5/5-6 → 4/28-29 오류. eventDates + DATA_SNAPSHOT.fomc + 한국거시 캘린더 + 시스템 프롬프트 14곳 동시 수정 |
+| P76 | v46.4 | 2026-04-11 | 브레드쓰 폴백값 불일치: 시그널 페이지(68/75/46) vs 브레드쓰 페이지(35/32/27.6). 차트 배열 마지막 값과 정렬. 색상/배지/해석 텍스트 동시 갱신 |
 | P65 | v45.5 | 2026-04-09 | 토글/모드 변수는 렌더 함수 내부에서 실제로 분기 사용되는지 grep 검증 (UI에 버튼만 wired된 dead toggle 방지) |
 | P66 | v45.5 | 2026-04-09 | 데이터 미수신 상태에서 "로딩" 텍스트 영구 정체 금지 — 폴백 데이터 우선 사용, 그래도 없으면 "대기/—"로 명시 |
 | P67 | v45.5 | 2026-04-09 | 같은 동급 컴포넌트(pulse-seg/카드)는 동일 자식 구조 유지. 한쪽만 자식 누락 시 시각 정렬 깨짐 |
