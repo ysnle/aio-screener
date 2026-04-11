@@ -9395,6 +9395,11 @@ const PriceStore = {
 
   /** 시세 데이터 저장 (검증 후) */
   set(sym, price, pct, source) {
+    // v46.4: symbol 유효성 검증
+    if (!sym || typeof sym !== 'string' || sym.trim() === '') {
+      this._reject(sym, price, source, 'invalid_symbol', '심볼 빈값/비문자열');
+      return false;
+    }
     if (typeof price !== 'number' || isNaN(price) || price <= 0) {
       this._reject(sym, price, source, 'invalid_price', '가격이 숫자가 아니거나 0 이하');
       return false;
@@ -15906,6 +15911,9 @@ function renderHomeFeed(items) {
     const sentIcons = { bull: '<span class="sd sd-g"></span>', bear: '<span class="sd sd-r"></span>', warn: '<span class="sd sd-y"></span>', neutral: '<span class="sd sd-w"></span>' };
     container.innerHTML = '<div style="font-size:9px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">핵심 뉴스</div>' +
       HOME_WEEKLY_NEWS.map(function(n) {
+        // v46.4: 필드 누락 방어
+        if (!n) return '';
+        n.title = n.title || ''; n.source = n.source || ''; n.date = n.date || ''; n.sentiment = n.sentiment || 'neutral';
         var icon = sentIcons[n.sentiment] || '<span class="sd sd-w"></span>';
         return '<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03);">' +
           '<span style="flex-shrink:0;font-size:10px;line-height:1.6;">' + icon + '</span>' +
@@ -24464,6 +24472,8 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
               // v31.3: text_delta만 수집 (thinking_delta는 무시 — 사용자에게 불필요)
               if (evt.delta.type === 'text_delta') {
                 fullText += evt.delta.text;
+                // v46.4: 응답 길이 제한 (50KB) — 메모리 보호
+                if (fullText.length > 50000) { fullText = fullText.slice(0, 50000) + '\n\n[응답이 50,000자를 초과하여 잘렸습니다]'; reader.cancel(); break; }
                 onChunk(fullText);
               }
               // thinking_delta는 의도적으로 건너뜀 — 내부 추론 과정이므로 표시하지 않음
@@ -27567,8 +27577,8 @@ function generateMacroStoryline() {
   var gold = _ldSafe('GC=F','price');
   var hyg = _ldSafe('HYG','price');
   var spy = _ldSafe('SPY','price');
-  var spyChg = ld['SPY'] ? (ld['SPY'].pct != null ? ld['SPY'].pct : 0) : -1.5;
-  var dxyChg = ld['DX-Y.NYB'] ? (ld['DX-Y.NYB'].pct != null ? ld['DX-Y.NYB'].pct : 0) : -10;
+  var spyChg = ld['SPY'] ? (ld['SPY'].pct != null && isFinite(ld['SPY'].pct) ? ld['SPY'].pct : 0) : 0;
+  var dxyChg = ld['DX-Y.NYB'] ? (ld['DX-Y.NYB'].pct != null && isFinite(ld['DX-Y.NYB'].pct) ? ld['DX-Y.NYB'].pct : 0) : 0;
 
   var story = '';
   var summary = '';
@@ -30087,8 +30097,10 @@ async function fetchKrWeeklySupply() {
 // fetchKrNaverQuotes의 개별 종목 응답에서 marketCap 필드를 추출하여 KR_STOCK_DB에 반영
 function _enrichMarketCap(code, data) {
   if (!data) return;
-  var mcap = parseFloat(data.marketCap || data.marketCapitalization || 0);
-  if (mcap <= 0) return;
+  // v46.4: 쉼표/공백 포함 문자열 파싱 방어
+  var mcapRaw = String(data.marketCap || data.marketCapitalization || '0').replace(/[,\s]/g, '');
+  var mcap = parseFloat(mcapRaw);
+  if (!isFinite(mcap) || mcap <= 0) return;
   // KR_STOCK_DB에서 해당 종목 찾아 시총 업데이트
   if (typeof KR_STOCK_DB !== 'undefined') {
     var sym = code + (code.length === 6 ? '.KS' : '');
@@ -33649,7 +33661,7 @@ function updateMarketPulse() {
   // 1) 시그널 스코어
   try {
     var sc = computeTradingScore('swing');
-    var t = sc.total;
+    var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : 50;
     var sColor = t >= 70 ? '#3ddba5' : t >= 50 ? '#60a5fa' : t >= 35 ? '#fbbf24' : '#f87171';
     var sLabel = t >= 75 ? '적극매수' : t >= 60 ? '선별매수' : t >= 45 ? '관망' : t >= 30 ? '비중축소' : '매매자제';
     var el1 = document.getElementById('mp-signal-score');
@@ -39025,6 +39037,8 @@ async function chatSendUnified() {
   if (!inp) return;
   var q = inp.value.trim();
   if (!q) return;
+  // v46.4: 입력 길이 제한 (10000자) — API 비용 + 메모리 보호
+  if (q.length > 10000) { q = q.slice(0, 10000); inp.value = q; }
   if (typeof consumeLLMQuery === 'function' && !consumeLLMQuery()) return;
   inp.value = '';
   state.streaming = true;
