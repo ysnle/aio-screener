@@ -3,9 +3,9 @@ verified_by: agent
 last_verified: 2026-04-09
 confidence: high
 latest_version: v46.2
-latest_P_number: P76
-next_P_number: P77
-total_entries: 76
+latest_P_number: P81
+next_P_number: P82
+total_entries: 81
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -91,6 +91,11 @@ total_entries: 76
 | P74 | v46.4 | 2026-04-11 | .page overflow-x:hidden → CSS 명세에 의해 overflow-y 자동 auto 변환 → .page가 스크롤 컨테이너화 → .content 스크롤과 충돌. themes 페이지 마우스 휠 무반응. overflow-x:hidden 제거로 해결 |
 | P75 | v46.4 | 2026-04-11 | FOMC 일정 5/5-6 → 4/28-29 오류. eventDates + DATA_SNAPSHOT.fomc + 한국거시 캘린더 + 시스템 프롬프트 14곳 동시 수정 |
 | P76 | v46.4 | 2026-04-11 | 브레드쓰 폴백값 불일치: 시그널 페이지(68/75/46) vs 브레드쓰 페이지(35/32/27.6). 차트 배열 마지막 값과 정렬. 색상/배지/해석 텍스트 동시 갱신 |
+| P77 | v46.5 | 2026-04-11 | 번역 배치 분리자(§§§) 실패 시 8건 전부 null 반환. 개별 1건씩 재시도 폴백 추가. Google Translate가 구분자를 번역/변형하면 전체 배치 손실 |
+| P78 | v46.5 | 2026-04-11 | 테마 히트맵/세분화 테마 renderThemeHeatmap()/renderSubThemesGrid()에서 _liveData<5이면 500ms 후 무한 재시도. 프록시 전면 장애 시 CPU 100% + 영구 "로딩 중". 최대 60회(30초) 제한 추가 |
+| P79 | v46.5 | 2026-04-11 | Brent 원유 $— 표시. brentPrice = brent.price \|\| 0에서 DATA_SNAPSHOT.brent 폴백 누락. WTI도 동일 패턴 수정 |
+| P80 | v46.5 | 2026-04-11 | getTopicBadge()에 healthcare/shipbuilding/space/quantum 4개 토픽 배지 누락. TOPIC_KEYWORDS에는 있지만 배지 map에 없어 'general'로 폴백. 4개 배지 추가 |
+| P81 | v46.5 | 2026-04-11 | 10+페이지 "로딩 중" 영구 고정. 프록시 전면 장애 시 signal/sentiment/fxbond/themes/options/kr-* 등 10개 페이지에서 "로딩 중..."이 영구 표시. 글로벌 워치독(60초 활성/75초 비활성) 추가 |
 | P65 | v45.5 | 2026-04-09 | 토글/모드 변수는 렌더 함수 내부에서 실제로 분기 사용되는지 grep 검증 (UI에 버튼만 wired된 dead toggle 방지) |
 | P66 | v45.5 | 2026-04-09 | 데이터 미수신 상태에서 "로딩" 텍스트 영구 정체 금지 — 폴백 데이터 우선 사용, 그래도 없으면 "대기/—"로 명시 |
 | P67 | v45.5 | 2026-04-09 | 같은 동급 컴포넌트(pulse-seg/카드)는 동일 자식 구조 유지. 한쪽만 자식 누락 시 시각 정렬 깨짐 |
