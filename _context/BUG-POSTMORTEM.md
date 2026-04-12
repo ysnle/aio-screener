@@ -1,8 +1,8 @@
 ---
 verified_by: agent
-last_verified: 2026-04-09
+last_verified: 2026-04-11
 confidence: high
-latest_version: v46.2
+latest_version: v46.5
 latest_P_number: P81
 next_P_number: P82
 total_entries: 81
