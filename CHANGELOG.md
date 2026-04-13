@@ -6,7 +6,94 @@
 
 ---
 
-## v46.5 — 뉴스 파이프라인 전면 보강 + 브리핑 UX 개선 + 13건 자료 통합 + 데이터 갱신 (2026-04-11)
+## v46.7 — 코드 품질 전면 보강: async 안전성 + 데이터 정확성 + 레이어 감사 CRITICAL 수정 (2026-04-13)
+
+### async 안전성 (11건)
+- analyzeTickerDeep, analyzeKrIndex, analyzeKrTickerDeep: try-catch 래핑 (무한 "로딩 중" 방지)
+- safeLS/safeLSGet/_migrateToEncrypted/_restoreDecryptedKeys: AES 암복호화 에러 차단
+- googleTranslateFree, initFundamentalCards, applyFredToUI, _aiWebSearch fallback: 에러 전파 차단
+
+### 데이터 정확성 (15건)
+- FOMC 5월 일정: 5/5-6 → 4/28-29 (정정)
+- VKOSPI: 28.5 → 45.0 (극단 공포 수준 반영)
+- KOSPI/KOSDAQ/KRW 폴백값 현행화, 한국 3년 국채/CPI/GDP/반도체수출 갱신
+- WTI/DXY/임금상승률 최신값 반영
+- 만기 QQQ PUT 행 + AAPL 빈 행 제거
+- GOOGL 모지바케 수정 ('매수'), BOK 테이블 4월 동결 추가
+
+### 레이어 감사 CRITICAL 수정 (9건)
+- **_lastFG 타입 불일치**: `fg.score`(객체 접근) → 직접 숫자 비교 (Market Pulse F&G 항상 null이던 버그)
+- **Korean MACD 속성명**: `macd.line`/`.signal` → `macd.macdLine[last]`/`.signalLine[last]` (크래시 수정)
+- **bb.percentB → bb.pctB**: 볼린저 %B NaN 수정
+- **VIX 라벨 swap**: "주의"↔"경계" 뒤바뀜 수정 (20+ = 경계, 15+ = 주의)
+- **Division-by-zero 가드**: _detectTrendPosition(52주 범위=0), _calcBB(std=0) 방어
+- **_SNAP_FALLBACK**: ^KS11, ^KQ11, BTC-USD 누락 보완
+- **F&G cutoff 통일**: sentiment 페이지 20/40/60/80 → 25/45/55/75 (CNN 표준)
+- **AI 프롬프트 스코어 해석**: 4티어 → 5티어 정합성 통일
+
+### 코드 정리
+- dead data-snap 키 22개 제거, 6px 폰트 → 11px (WCAG AA), AAII 차트 동적화
+- 시그널 임계값 5단계 정규화, breadth 진단 ID 추가
+
+---
+
+## v46.6 — 14건 자료 통합: 이란 협상결렬 + 실질금리 + SW→Semi 로테이션 + 광자 양자컴퓨팅 + 사모신용 + CRWD Glasswing + ASML + AI 3대장 (2026-04-13)
+
+### 자료 통합 (10건)
+1. **PhotonCap Xanadu 분석** — XNDU SCREENER_DB 추가, 광자 양자컴퓨팅 TECH_KW 14개, themes §71
+2. **Perplexity 6 Mid-Cap Semis** — AMKR/PLAB/ASX SCREENER_DB 추가, KNOWN_TICKERS 4개(AMKR/PLAB/ASX/XNDU)
+3. **Jefferies AMZN "Mispriced Not Broken"** — AMZN 메모 갱신(11x EV/EBITDA, PT $300, agentic commerce), fundamental §69
+4. **돈스 이란 협상 결렬** — macro §70 (물리적 공급 데이터 JPM Kavanagh: 14M bbl/d 갭, 호르무즈 11%), MACRO_KW 30개
+5. **돈스 이슬라마바드 협상 프리뷰** — SW→Semi 로테이션(-23% 역대 최악), 사모신용 CDX Financials, macro §70
+6. **부산아재 유가-인플레 역학** — 실질금리 붕괴, Inverse-L 필립스, WGT/단위노동비용, macro §70
+7. **돈스 Google 양자/비트코인** — MSTR 메모 갱신(CRQC 리스크), TECH_KW 양자-암호 위협, themes §71
+8. **UBS ServiceNow 하향** — NOW signal BUY→WATCH, 메모 갱신(AI 크라우딩), fundamental §69
+9. **돈스 실질금리 신호** — Warsh/2차 파급효과/기대인플레 프레임워크, macro §70
+10. **Travis JPM Q2 GTM (Chart 1~17 전체)** — forward PE 22x→19.7x, Mag7 underperform, top-10 concentration↓, international diversification(약달러 수혜), 14% avg intra-year drawdown, 자산군 수익률 예측불가(멀티에셋 분산), 실질수익률 핵심, 금 장기 열위, 지정학 -5% 평균→항상 회복, 베어마켓=기회
+
+### CHAT_CONTEXTS
+- **§69** (fundamental): SW→Semi 역대급 로테이션 + AMZN Mispriced 테시스 + NOW AI 크라우딩
+- **§70** (macro): 이란 협상 결렬 + 호르무즈 물리적 현실(JPM Kavanagh) + 실질금리 붕괴 + 2차 파급효과
+- **§71** (themes): 광자 양자컴퓨팅(Xanadu Nature 3편) + Google 양자-BTC 위협 + 사모신용 스트레스
+- portfolio 지정학 컨텍스트 업데이트 (2주 휴전 → 협상 결렬)
+
+### KNOWLEDGE-BASE
+- 군사적 승리 ≠ 전략적 승리 — 호르무즈 역학 (패러다임 전환)
+- 실질금리 마이너스 전환 리스크 — 2차 파급효과 (패러다임 전환)
+
+### 데이터
+- SCREENER_DB: +4 신규(XNDU/AMKR/PLAB/ASX), 3건 메모 갱신(AMZN/NOW/MSTR)
+- TECH_KW: +14 키워드(광자 양자컴퓨팅 + CRQC + OSAT/포토마스크)
+- MACRO_KW: +30 키워드(이란 협상결렬 + 실질금리 + 사모신용 + SW-Semi 로테이션 + 필립스 곡선)
+- KNOWN_TICKERS: +4 (AMKR/ASX/PLAB/XNDU)
+
+### 추가 통합 (4건, 같은 세션)
+11. **Citi CRWD SVP 대화** — Project Glasswing(Anthropic $100M 토큰), 퍼징=AI 사이버 핵심벡터, 에이전틱 패칭 한계, CRWD 메모 갱신, §72
+12. **닛케이 소프트뱅크 일본 AI 신회사** — Sovereign AI 일본판, NEC/혼다/소니 8개사, NEDO 1조엔, §72
+13. **JPM ASML 1Q26 프리뷰** — PT €1813, 삼성 P5 EUV 20기 오더, FY27-28 상향 여지, ASML 메모 갱신, §72
+14. **대만 AI 3대장 출하 호조** — 3월 사상 최고, 2Q>1Q, 랙(L11) QoQ 두 자릿수, 연간 2x, 3Q 루빈 전환기 리스크, §72
+
+- SCREENER_DB: 2건 메모 갱신(CRWD/ASML)
+- TECH_KW: +14 키워드(Glasswing/fuzzing/KEV/sovereign AI Japan/Samsung P5/rack L11/GB300/Rubin transition)
+- CHAT_CONTEXTS: §72(themes) 추가
+
+### 실행 레이어 심층 점검
+- 13 CHAT_CONTEXTS 전수 실행 → 13/13 PASS
+- 21 페이지 렌더링 → 21/21 PASS, JS 에러 0건
+- 10 데이터 파이프라인 → 330 심볼 LIVE, 849 SCREENER_DB, 82 뉴스 소스
+- macro Pro 오버라이드(line ~29100) §70 누락 발견 → 수정 완료
+
+### 스킬 업그레이드
+- **integrate SKILL.md**: Gotchas #9~#12 추가 (macro Pro 오버라이드, X 스레드 읽기, Perplexity 결과≠프롬프트, SCREENER_DB 중복 체크)
+- **post-edit-qa SKILL.md**: Gotcha #15 추가 (CHAT_CONTEXTS 오버라이드 런타임 검증)
+
+### 예약 스케줄 간소화
+- 3개→2개: daily-site-check(통합 갱신) + weekly-qa-check(v46.5 현행화)
+- daily-data-refresh-check 비활성
+
+---
+
+## v46.5 — 뉴스 파이프라인 전면 보강 + 브리핑 UX + AI 채팅 다층화 + 기관급 보강 + 전수 QA (2026-04-11~12)
 
 ### 뉴스 파이프라인 보강 (9건)
 1. **번역 배치 분리자 실패 → 개별 폴백** — 8건 전부 null 반환 → 1건씩 재시도
@@ -39,6 +126,44 @@
 
 ### /data-refresh
 - VIX/HY/PC 시계열 4/9-4/10 연장, AAII(Bull 35.7/Bear 43.0), NAAIM(69.38), II(Bull 24.0/Bear 46.0)
+
+### 기관급 데이터 보강 (4건, 2026-04-12)
+1. **뉴스 감성 시계열 차트** — 투자 심리 페이지, 24포인트 롤링, 50% 기준선
+2. **FRED 경제지표 시계열** — 거시경제 페이지, 실업률/CPI(YoY)/기준금리 3개 미니차트
+3. **섹터 ETF 20일 시계열** — 테마 페이지, 상위 5개 섹터 수익률% 오버레이
+4. **A-D 비율 시계열** — 시장 폭 페이지, bpSPX5 기반, 색상 코딩
+
+### AI 채팅 다층화 (5건, 2026-04-12)
+1. **할루시네이션 방지 태그** — systemPrompt에 데이터 검증 상태(✓/✗/⚠) 주입
+2. **messages 자동 trim** — 60,000자 초과 시 오래된 메시지 제거 (토큰 폭발 방지)
+3. **모델 폴백 + 자동 재시도** — 타임아웃/5xx → sonnet-thinking→sonnet→haiku 자동 전환
+4. **응답 데이터 신뢰도 배지** — 📊재무 ✓ | 📰뉴스 ✓ | 🔍웹검색 ✓ 자동 표시
+5. **피드백 버튼 👍/👎** — 응답별 평가 localStorage 100건 저장
+
+### SCREENER_DB 보강 (2026-04-12)
+- mcap 단위 오류 4건 수정 (NVT 10200→10, MTZ 7100→7, KEX 6500→6.5, LBRT 2800→2.8)
+- IV Rank 계산 기준 갱신 (52주 범위 12~82, 기존 12~35.8 구식)
+- TSLA/LLY/MRK/GE/ISRG/WFC/MS/BKNG/PM/SYK/UNP/C/BRK.B/GOOG/MA 15종목 memo 보강
+
+### 버그 수정 P82 (2026-04-12)
+- **포트폴리오 종목 추가 TypeError** — KNOWN_TICKERS(Set).indexOf() → .has() 수정. 실제 클릭 테스트로만 발견 가능한 버그.
+
+### UX 에러 처리 보강
+- **market-news**: feed 영역 에러 안내 + 재시도 버튼 추가
+- **차트 폴백**: _showChartFallback()에 "↻ 데이터 재시도" 버튼 추가
+- **테마 히트맵/세분화**: 무한 재시도 루프 30초(60회) 제한
+
+### 자동화 인프라
+- **Hook**: check-version-sync.sh (PostToolUse — R1 버전 6곳 자동 검증)
+- **Scheduled Task**: daily-data-refresh-check (매주 월~금 09:03 KST)
+- **Agent**: performance-analyzer (7티어 성능 분석)
+- **settings.local.json**: permissions 240→58개 정리
+
+### 스킬/규칙 업그레이드
+- **post-edit-qa**: TIER 15 실제 클릭 테스트 추가 (10개 필수 인터랙션)
+- **bug-fix**: Gotcha 15~18 추가 (Set/Array, 코드≠동작, placeholder, AI 검증)
+- **RULES.md**: R28 실제 클릭 테스트 필수, R29 AI 채팅 데이터 검증 태그
+- **KNOWLEDGE-BASE**: 인사이트 4건 축적 (AI인프라 패러다임, SW $100B Shock, 클릭 테스트, AI 할루시네이션)
 
 ---
 

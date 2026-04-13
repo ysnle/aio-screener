@@ -3,9 +3,9 @@ verified_by: agent
 last_verified: 2026-04-11
 confidence: high
 latest_version: v46.5
-latest_P_number: P81
-next_P_number: P82
-total_entries: 81
+latest_P_number: P82
+next_P_number: P83
+total_entries: 82
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -96,6 +96,7 @@ total_entries: 81
 | P79 | v46.5 | 2026-04-11 | Brent 원유 $— 표시. brentPrice = brent.price \|\| 0에서 DATA_SNAPSHOT.brent 폴백 누락. WTI도 동일 패턴 수정 |
 | P80 | v46.5 | 2026-04-11 | getTopicBadge()에 healthcare/shipbuilding/space/quantum 4개 토픽 배지 누락. TOPIC_KEYWORDS에는 있지만 배지 map에 없어 'general'로 폴백. 4개 배지 추가 |
 | P81 | v46.5 | 2026-04-11 | 10+페이지 "로딩 중" 영구 고정. 프록시 전면 장애 시 signal/sentiment/fxbond/themes/options/kr-* 등 10개 페이지에서 "로딩 중..."이 영구 표시. 글로벌 워치독(60초 활성/75초 비활성) 추가 |
+| P82 | v46.5 | 2026-04-12 | 포트폴리오 종목 추가 TypeError. KNOWN_TICKERS가 Set인데 addPortfolioPosition()에서 .indexOf() 호출 → TypeError: knownTickers.indexOf is not a function. Set.has()로 수정. **실제 사용자가 포트폴리오에 종목 추가 불가능했던 심각한 버그** — 코드 레벨 검증(typeof 확인)으로는 발견 불가, 실제 클릭 테스트로만 발견 가능 |
 | P65 | v45.5 | 2026-04-09 | 토글/모드 변수는 렌더 함수 내부에서 실제로 분기 사용되는지 grep 검증 (UI에 버튼만 wired된 dead toggle 방지) |
 | P66 | v45.5 | 2026-04-09 | 데이터 미수신 상태에서 "로딩" 텍스트 영구 정체 금지 — 폴백 데이터 우선 사용, 그래도 없으면 "대기/—"로 명시 |
 | P67 | v45.5 | 2026-04-09 | 같은 동급 컴포넌트(pulse-seg/카드)는 동일 자식 구조 유지. 한쪽만 자식 누락 시 시각 정렬 깨짐 |
