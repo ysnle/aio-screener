@@ -6,6 +6,101 @@
 
 ---
 
+## v46.8 — 심층 QA 6건 수정 + /data-refresh 4/14: 이란 협상결렬 반영 (2026-04-14)
+
+### 심층 QA 수정 (6건)
+- **[CRITICAL] signal 타이머 재진입 버그 (P83)**: initSignalDashboard에서 _refreshSignalInterval 재등록 누락 → signal 페이지 재진입 시 refreshSignal 45초 타이머 영구 소멸. 재등록 로직 추가
+- **[HIGH] R16 'geo' 토픽 누락 (P86)**: classifyTopic()→'geo' 반환하나 매크로 배열 3곳에 'geo' 미포함 → 지정학 뉴스에 ETF 티커 잘못 표시. 3곳 추가
+- **[HIGH] vix.price/spx.pct null guard (P87)**: undefined 시 항상 '위험'/'관망' 표시 → != null 체크 추가
+- **[HIGH] kr retry setTimeout 미정리 (P84/P85)**: _krSupplyRetry/_krMacroRetry 페이지 이탈 시 clearTimeout 없음 → 타이머 핸들 보관 + destroyPageCharts에서 정리
+- **[MEDIUM] _dateEngineInterval guard**: clearInterval guard 추가 (다른 타이머와 일관성)
+- **[LOW] 미사용 변수 kstH 제거**: _getBriefingWindowKST() 데드 변수 제거
+
+### 함수 로직/기준 심층 점검 수정 (10건)
+- **[CRITICAL] PCR 보정 무효화 (P88)**: fetchPutCall()에서 window._putCallRatio 미설정 → computeTradingScore PCR 보정 완전 무효. 할당 추가
+- **[CRITICAL] 이벤트 날짜 하드코딩 (P89)**: updateEntryChecklist에 과거 CPI(4/10), S급(4/13~17) 잔존 → ec-event 항상 FAIL. 과거 날짜 제거
+- **[CRITICAL] _calcEMA 인덱스 오류 (P90)**: 2번째 루프 prices[period+i] 범위 초과 → EMA5/10/20 왜곡. 표준 EMA 구현으로 교체
+- **[HIGH] F&G momScore CNN 표준 통일**: fg>35=중립 → fg>=45=중립 (CNN 25/45/55/75)
+- **[HIGH] SPY 보합 오분류**: pct=0이 "소폭 음봉"(-5점)으로 분류 → ±0.05% 보합 구간 추가
+- **[HIGH] VIX 라벨 4곳 통일**: 안정/주의/경계/공포/극단공포 5단계 표준화 (15/20/25/30)
+- **[HIGH] F&G 경계값 <= vs < 통일**: 25/45/55/75 경계에서 <=로 표준화
+- **[HIGH] VKOSPI 라벨 3곳 통일**: 15/25/35 기준 안정/경계/공포/극단공포 표준화
+- **[HIGH] updateBottomProcess Dead Zone (P91)**: b5=null시 stage=0 오판 → null 안전 처리 추가
+- **[HIGH] _lastVisibleTime 미갱신 (P92)**: 탭 숨김→복귀 시 전체 재fetch → 숨김 시점 기록 추가
+- **[HIGH] initKoreaHome 타이머 미정리 (P93)**: P84 동일 패턴 → _krHomeRetryTimer + clearTimeout
+
+### MEDIUM 수정 (7건)
+- HY 스프레드 보정: DOM 텍스트 파싱("—" 시 무효) → HYG ETF 가격 기반 OAS 근사로 전환
+- ExecutionWindow 기저값: 50/45/40/50(합=46.25→WEAK) → 65/60/55/65(합=61.25→MOD) 상향
+- getSentimentFromText: 'war'→'trade war'/'military'+'conflict'+'sanctions', 'boom'→'market boom' (오분류 방지)
+- _macroT 데드 토픽 정리: TOPIC_KEYWORDS 미존재 5개(geopolitics/policy/fed/rates/trade) → 실존 키 5개(macro/geo/energy/bond/fx)로 교체
+- _SNAP_FALLBACK 확장: 20개→31개 (^DJI, ^IXIC, ^RUT, QQQ, ETH-USD, NG=F, SI=F, GLD, TLT 추가)
+- fetchWithProxy: CORS_PROXY 하드코딩 → fetchViaProxy/_PROXY_REGISTRY 위임 (프록시 상태 피드백 통합)
+- ^KR3Y 폴백: DATA_SNAPSHOT.krBond3y 폴백 추가 + CADUSD=X/CHFUSD=X → CAD=X/CHF=X 표준 심볼 수정
+- _krSupplyLoaded 리셋: destroyPageCharts('kr-supply')에서 플래그 false로 리셋 (재진입 시 수급 재fetch)
+
+### 분석/선별/보안 함수 심층 점검 수정 (13건)
+- **[CRITICAL] _generateAIBriefing 과거 이벤트**: 4/10 CPI, 4/13 GS 등 이미 지난 이벤트 → 미래 이벤트만 유지 + 지정학 봉쇄 반영
+- **[CRITICAL] XYZ→SQ 티커**: Block Inc 실제 티커는 SQ (SCREENER_DB)
+- **[HIGH] p.memo XSS**: innerHTML에 escHtml 없이 삽입 → escHtml(p.memo) 적용
+- **[HIGH] Stooq CSV 인덱스**: cols[7](Volume)→cols[6](Close), cols[4](High)→cols[3](Open) 수정
+- **[HIGH] DATA_APIS 암호화 우회**: localStorage.getItem→safeLSGetSync 교체 (PIN 설정 시 키 암호화 미작동 수정)
+- **[HIGH] Consumer Staples→Consumer Defensive**: defCount 항상 0 수정 (방어주 VIX 민감도 정상화)
+- **[HIGH] SECTOR_COLORS Financials 추가**: 포트폴리오 도넛 금융주 색상 누락 + Consumer 별칭 추가
+- **[HIGH] macro Pro 시나리오 라벨**: "휴전 후 안도 랠리"→"협상결렬+호르무즈 봉쇄"
+- **[MEDIUM] safeLS falsy 함정**: `!value`→`value == null || value === ''` (0/false 오삭제 방지)
+- **[MEDIUM] analyzeKrIndex MACD null 가드**: macd.macdLine null 시 TypeError 방지
+- **[MEDIUM] mcap=10B dead zone**: MID 상한 >=10→>10 (경계값 포함)
+- **[MEDIUM] INTC 음수 PE 색상**: 적자(PE<0)를 노란색→빨간색으로 표시
+- **[MEDIUM] chatSendUnified API 키 체크**: 쿼터 차감 전 키 존재 확인 (쿼터 낭비 방지)
+- **[MEDIUM] ESC 핸들러 중복 등록**: showConfirmModal 연속 호출 시 이전 핸들러 제거
+
+### 기술분석/UI 함수 심층 점검 수정 (7건)
+- **[HIGH] RSI Wilder SMMA 구현**: 단순평균→Wilder Smoothed MA (표준 RSI, 최대 5~8pt 차이 수정)
+- **[HIGH] 워치리스트 XSS**: t.sym/t.note innerHTML 미이스케이프 → escHtml 적용
+- **[HIGH] 포트폴리오 p.ticker onclick XSS**: 5곳 ${p.ticker}→${_eTk} escHtml 적용
+- **[HIGH] importPortfolio 스키마 검증**: JSON 임포트 후 티커 형식/길이/타입 필터링 + memo 길이 제한
+- **[MEDIUM] Yahoo 차트 배열 동기화**: o/h/l/c 독립 필터→인덱스 동기화 필터 + NaN 방어
+- **[MEDIUM] IV Rank 52주 주석 갱신**: 범위 확인 (2025.04~2026.04 저점12/고점82 아직 유효)
+- **[MEDIUM] RSI null 반환**: 데이터 부족 시 50→null, 호출부 ?? 50 폴백
+
+### LOW 잔여 보강 (15건)
+- _detectStage: 30주 MA 수평화 조건 추가 (Stage 1 와인스타인 표준) + higherLows 0-falsy 방어 + is50Rising 사문 분기 제거
+- drawSparkline: 플랫라인(모든 값 동일) 시 가운데 수평선 렌더
+- fetchFearGreed: const score 변수 섀도잉→_fbScore 변수명 분리 + 폴백 needle 15→DATA_SNAPSHOT._fallback.fg
+- _detectTrendPosition: alignment 이진(50/100)→퍼센트(0/33/67/100) + 52주 고저 최소 100일 데이터 가드
+- renderSubThemesGrid: var ld 이중 선언 제거
+- showKrThemeDetail: topStock/botStock null 시 '—' 폴백 (-999.00% 방지)
+- _aiWebSearch: var result 중복 선언→pResult/gResult 분리
+- withTimeout: AbortController 미사용 레거시 경고 주석 추가
+- chatSendUnified DeepSearch: 예외 시 일반 검색 폴백 보장 (개별 try-catch 분리)
+- FRED_SERIES multiplier 사문화 필드 제거
+- renderGlossaryItems: g.term/g.cat/g.def escHtml 선제 적용
+- sonnet-thinking label: 후행 공백→'Sonnet 4.6 Thinking'
+- VIX DOM 초기값: vix-live-val 31.05→29.80 잔존 수정
+- DATA_APIS key(): safeLSGetSync 경로 호환 (PIN 암호화 지원)
+
+### 설명/해설/코멘터리 함수 심층 점검 (6건)
+- **[CRITICAL] generateMacroStoryline ^FVX→2년물 오표기**: 5년물(^FVX)을 "2년물 금리"로 표시 → _live2Y(실제 2년물) 참조 + spread parseFloat 타입 보장
+- **[HIGH] _generatePortfolioAnalysis 베타 noop**: `pfBeta/totalW*totalW`(항등) → `pfBeta/totalW` 수정
+- **[MEDIUM] F&G 극단공포 20→25 통일**: _generateSentimentAnalysis의 `< 20` → `<= 25` (CNN 표준)
+- **[MEDIUM] _updateSentimentActionGuides fgScore=0 falsy**: `fgScore &&` → `fgScore != null &&`
+- **[MEDIUM] generateSectorAnalysis 빈 배열**: sectors.length===0 방어 추가
+- **[MEDIUM] generateFxBondCommentary _live2Y 폴백**: ^FVX 혼용 주의 주석 추가
+
+### /data-refresh 4/14
+- VIX/HY OAS/P/C 시계열 4/13 연장 (이란 협상결렬+호르무즈 봉쇄)
+- DATA_SNAPSHOT 전면 갱신: S&P 6894, VIX 29.8, WTI $98, Brent $103, F&G 28
+- fomcNext: '6/16-17' → '4/28-29' (다음 FOMC 4/28-29 수정)
+- KOSPI 5809(-0.86%), VKOSPI 35 갱신
+- FALLBACK_QUOTES 4/13 종가로 전면 갱신
+- HOME_WEEKLY_NEWS: 봉쇄 "시사"→"발효" + TSMC Q1 $35.7B 추가
+- _SECTOR_PCT_FALLBACK + _sectorRRGSeed: 에너지 Leading, SW/항공 Lagging 반영
+- P61 텍스트 정합성: 매크로/한국 페이지 휴전 텍스트 → 봉쇄 반영 4곳
+- 배열 길이 검증 통과: labels20=vixData=hyData=24, pcLabels=pcData=26
+
+---
+
 ## v46.7 — 코드 품질 전면 보강: async 안전성 + 데이터 정확성 + 레이어 감사 CRITICAL 수정 (2026-04-13)
 
 ### async 안전성 (11건)
@@ -86,6 +181,18 @@
 ### 스킬 업그레이드
 - **integrate SKILL.md**: Gotchas #9~#12 추가 (macro Pro 오버라이드, X 스레드 읽기, Perplexity 결과≠프롬프트, SCREENER_DB 중복 체크)
 - **post-edit-qa SKILL.md**: Gotcha #15 추가 (CHAT_CONTEXTS 오버라이드 런타임 검증)
+
+### 추가 통합 (6건, 세션 3차)
+15. **Credo-DustPhotonics 인수** — CRDO 메모 갱신(SiPho PIC 수직계열화), TECH_KW +5, §73
+16. **Bloom Energy-Oracle 2.8GW** — BE 신규 DB 추가, 온사이트 발전 패러다임, §73
+17. **DA Davidson CRWV PT$175↑** — CRWV 메모 갱신(Meta $350억+Anthropic), §73
+18. **Evercore SNDK OP PT$1200** — SNDK 메모 갱신(SCA 구조적 타이트), §73
+19. **GS NBIS PT$205↑ + BofA NBIS PT$175↑/CRWV PT$120↑** — NBIS 메모 갱신, 네오클라우드 수렴, §73
+20. **홈 주요 뉴스 3건 교체** — 이란 협상결렬 + SW→Semi 로테이션 + 네오클라우드/AI출하
+
+- SCREENER_DB: +1 신규(BE) + 4건 갱신(CRDO/CRWV/NBIS/SNDK)
+- TECH_KW: +16 키워드(DustPhotonics/SiPho/Bloom/SCA/neocloud convergence 등)
+- CHAT_CONTEXTS: §73(themes) 추가
 
 ### 예약 스케줄 간소화
 - 3개→2개: daily-site-check(통합 갱신) + weekly-qa-check(v46.5 현행화)

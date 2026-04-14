@@ -1,11 +1,11 @@
 ---
 verified_by: agent
-last_verified: 2026-04-11
+last_verified: 2026-04-14
 confidence: high
-latest_version: v46.5
-latest_P_number: P82
-next_P_number: P83
-total_entries: 82
+latest_version: v46.8
+latest_P_number: P105
+next_P_number: P106
+total_entries: 105
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -97,6 +97,29 @@ total_entries: 82
 | P80 | v46.5 | 2026-04-11 | getTopicBadge()에 healthcare/shipbuilding/space/quantum 4개 토픽 배지 누락. TOPIC_KEYWORDS에는 있지만 배지 map에 없어 'general'로 폴백. 4개 배지 추가 |
 | P81 | v46.5 | 2026-04-11 | 10+페이지 "로딩 중" 영구 고정. 프록시 전면 장애 시 signal/sentiment/fxbond/themes/options/kr-* 등 10개 페이지에서 "로딩 중..."이 영구 표시. 글로벌 워치독(60초 활성/75초 비활성) 추가 |
 | P82 | v46.5 | 2026-04-12 | 포트폴리오 종목 추가 TypeError. KNOWN_TICKERS가 Set인데 addPortfolioPosition()에서 .indexOf() 호출 → TypeError: knownTickers.indexOf is not a function. Set.has()로 수정. **실제 사용자가 포트폴리오에 종목 추가 불가능했던 심각한 버그** — 코드 레벨 검증(typeof 확인)으로는 발견 불가, 실제 클릭 테스트로만 발견 가능 |
+| P83 | v46.8 | 2026-04-14 | **signal 타이머 재진입 영구 소멸**. destroyPageCharts('signal')에서 _refreshSignalInterval 해제 후, initSignalDashboard()에서 _signalInterval만 재등록하고 _refreshSignalInterval/sigRefreshTimer는 재등록하지 않음. signal 페이지 1회 이탈→재진입 시 refreshSignal() 45초 타이머 영구 소멸. violated_rule: R15 |
+| P84 | v46.8 | 2026-04-14 | kr-supply 재귀 setTimeout 미정리. _krSupplyRetry 500ms×20회 재시도 중 페이지 이탈해도 setTimeout 콜백 계속 실행. _krSupplyRetryTimer 핸들 보관 + destroyPageCharts에서 clearTimeout 추가. violated_rule: R15 |
+| P85 | v46.8 | 2026-04-14 | kr-macro 재귀 setTimeout 미정리. P84와 동일 패턴. _krMacroRetryTimer 핸들 보관 + destroyPageCharts에서 clearTimeout 추가. violated_rule: R15 |
+| P86 | v46.8 | 2026-04-14 | R16 'geo' 토픽 티커 숨김 누락. classifyTopic()이 'geo' 반환하나 매크로 토픽 배열 3곳에 'geo' 없음 → 지정학 뉴스(이란, 호르무즈 등)에 $SPY/$QQQ ETF 티커 잘못 표시. 3곳 배열에 'geo' 추가. violated_rule: R16 |
+| P87 | v46.8 | 2026-04-14 | vix.price/spx.pct null guard 누락. vix.price undefined 시 `undefined < 15` = false → 항상 '위험' 표시. spx.pct undefined 시 항상 '관망'. != null 체크 추가. violated_rule: R15 |
+| P88 | v46.8 | 2026-04-14 | **window._putCallRatio 미설정**. fetchPutCall()이 DATA_SNAPSHOT.pcr은 갱신하나 window._putCallRatio는 할당 안 함. computeTradingScore/computeExecutionWindow의 PCR 보정 완전 무효화. window._putCallRatio = parseFloat(pcr) 추가. violated_rule: R15 |
+| P89 | v46.8 | 2026-04-14 | updateEntryChecklist 이벤트 날짜 하드코딩. CPI 2026-04-10(경과 4일), S급 이벤트 4/13~17이 현재 날짜 포함 → ec-event 항상 FAIL. 과거 날짜 제거 + 미래 이벤트만 유지. violated_rule: R15 |
+| P90 | v46.8 | 2026-04-14 | **_calcEMA 루프 인덱스 오류**. 2번째 루프 `prices[prices.length - prices.length + period + i]` = `prices[period + i]`, i=period일 때 prices[2*period] → 배열 범위 초과 → undefined 값으로 EMA 계산 왜곡. _calcEMAFull 패턴으로 수정. violated_rule: R15 |
+| P91 | v46.8 | 2026-04-14 | updateBottomProcess Dead Zone. b5=null, score=40일 때 모든 stage 조건 false → stage=0 "정상 환경" 오판. b5 null 안전 처리 + 폴백 로직 추가. violated_rule: R15 |
+| P92 | v46.8 | 2026-04-14 | _lastVisibleTime 탭 숨김 시 미갱신. 숨김→복귀 시 elapsed가 "페이지 로드 이후 경과 시간"으로 측정 → 짧은 숨김에도 전체 재fetch 트리거. 숨김 시점에 _lastVisibleTime 저장 추가. violated_rule: R15 |
+| P93 | v46.8 | 2026-04-14 | initKoreaHome 재귀 setTimeout 미정리. P84/P85와 동일 패턴. _krHomeRetryTimer 핸들 보관 + destroyPageCharts에서 clearTimeout 추가. violated_rule: R15 |
+| P94 | v46.8 | 2026-04-14 | HY 스프레드 보정 DOM 파싱 무효화. hyBp를 DOM 텍스트("계산 중…")에서 parseInt → NaN → 0 → 보정 전면 무효. HYG ETF 가격 기반 OAS 근사((100-HYG)*15bps)로 전환. violated_rule: R15 |
+| P95 | v46.8 | 2026-04-14 | **Stooq CSV 인덱스 오류**. cols[7](Volume)을 Close로, cols[4](High)를 Open으로 파싱. fetchLiveQuotes + dynamicTickerLookup 양쪽. cols[6] 우선 + cols[3] 우선으로 수정. violated_rule: R15 |
+| P96 | v46.8 | 2026-04-14 | DATA_APIS key() 암호화 우회. PIN 설정 후 localStorage.getItem이 `aio_enc::...` 암호화 문자열을 그대로 API에 전달. safeLSGetSync 교체. violated_rule: R15 |
+| P97 | v46.8 | 2026-04-14 | Consumer Staples→Consumer Defensive 참조 오류. _generatePortfolioAnalysis defCount가 항상 0 (SCREENER_DB는 'Consumer Defensive' 사용). violated_rule: R15 |
+| P98 | v46.8 | 2026-04-14 | SECTOR_COLORS 'Financials' 누락. 포트폴리오 도넛 차트에서 JPM/GS/V 등 금융주 색상 미매핑. 'Financials'+'Consumer' 별칭 추가. violated_rule: R15 |
+| P99 | v46.8 | 2026-04-14 | XYZ→SQ 티커 오류. SCREENER_DB에서 Block Inc 티커가 'XYZ'(비존재)로 등록 → 실시간 시세 미수신. 'SQ'로 수정. violated_rule: R15 |
+| P100 | v46.8 | 2026-04-14 | **renderPortfolio/renderWatchlistContent XSS 4건**. p.ticker/p.memo/t.sym/t.note가 innerHTML에 escHtml 없이 삽입. importPortfolio 스키마 검증도 부재 → 조작된 JSON 파일 임포트 시 저장-XSS. escHtml 적용 + 스키마 검증 추가. violated_rule: R15 |
+| P101 | v46.8 | 2026-04-14 | **_calcRSILast 단순평균→Wilder SMMA**. 주석에 "Wilder smoothing"이라 되어 있지만 실제는 Simple Average. 표준 RSI와 최대 5~8pt 차이. Wilder SMMA 구현으로 교체. violated_rule: R15 |
+| P102 | v46.8 | 2026-04-14 | **generateMacroStoryline ^FVX(5년물)를 "2년물 금리"로 오표기**. yield curve 2s10s 역전 판단이 5Y-10Y로 이루어짐. _live2Y(실제 2년물) 참조로 교체 + spread parseFloat 타입 보장. violated_rule: R15 |
+| P103 | v46.8 | 2026-04-14 | _generatePortfolioAnalysis 베타 계산 noop. `pfBeta / totalW * totalW` = 항등(나눗셈 후 다시 곱셈). `pfBeta / totalW`로 수정. violated_rule: R15 |
+| P104 | v46.8 | 2026-04-14 | isCompanyNews companyTopics 5개 토픽 누락. healthcare/shipbuilding/space/quantum/crypto 기업 뉴스가 시장 뉴스로 오분류. companyTopics 확장 + marketOnlyTopics 분리. violated_rule: R16 |
+| P105 | v46.8 | 2026-04-14 | _generateAIBriefing 과거 이벤트 미래 주입. CPI 4/10(경과 4일), GS 4/13(경과 1일) 등 이미 지난 이벤트가 "향후 이벤트"로 AI 프롬프트에 주입. 과거 날짜 제거 + 지정학 봉쇄 반영. violated_rule: R15 |
 | P65 | v45.5 | 2026-04-09 | 토글/모드 변수는 렌더 함수 내부에서 실제로 분기 사용되는지 grep 검증 (UI에 버튼만 wired된 dead toggle 방지) |
 | P66 | v45.5 | 2026-04-09 | 데이터 미수신 상태에서 "로딩" 텍스트 영구 정체 금지 — 폴백 데이터 우선 사용, 그래도 없으면 "대기/—"로 명시 |
 | P67 | v45.5 | 2026-04-09 | 같은 동급 컴포넌트(pulse-seg/카드)는 동일 자식 구조 유지. 한쪽만 자식 누락 시 시각 정렬 깨짐 |

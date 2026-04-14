@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v46.7 — 올인원 투자 터미널</title>
+  <title>AIO Screener v46.8 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2240,7 +2240,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v46.7</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v46.8</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -2343,7 +2343,7 @@ body.light-theme canvas { filter:none; }
     <!-- VIX 공포지수 -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #f97316;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('sentiment',null)" onmouseover="this.style.borderColor='#f97316'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">공포지수 VIX</div>
-      <div id="home-vix-value" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:#f97316;" data-live-price="^VIX">31.05</div>
+      <div id="home-vix-value" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:#f97316;" data-live-price="^VIX">29.80</div>
       <div id="home-vix-status" style="font-size:8px;color:var(--text-muted);margin-top:3px;">경고 구간 (Elevated)</div>
     </div>
 
@@ -2702,8 +2702,8 @@ body.light-theme canvas { filter:none; }
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;" id="risk-monitor-grid">
       <!-- VIX — 스냅카드 중복, 숨김 -->
       <div class="risk-mon-cell" id="rm-vix" style="display:none">
-        <div class="rm-label">VIX<span class="rm-tip">20↓=안도, 20~30=주의, 30+=공포</span></div>
-        <div class="rm-val" data-live-price="^VIX">31.05</div>
+        <div class="rm-label">VIX<span class="rm-tip">15↓=안정, 15~20=주의, 20~25=경계, 25~30=공포, 30+=극단공포</span></div>
+        <div class="rm-val" data-live-price="^VIX">29.80</div>
         <div class="rm-status" id="rm-vix-status">—</div>
         <div class="rm-bar-wrap"><div class="rm-bar" id="rm-vix-bar" style="width:60%;background:#fbbf24;"></div></div>
       </div>
@@ -2821,7 +2821,7 @@ body.light-theme canvas { filter:none; }
         <div class="cp-num" style="color:#f87171;">CP1</div>
         <div class="cp-name">지정학</div>
         <div class="cp-score" style="color:#f87171;">CRITICAL</div>
-        <div class="cp-detail">4/7 미-이란 2주 휴전 · WTI <span data-snap="wti">—</span> · 2주 재충전 후 재교전 가능 시나리오 · 호르무즈 통행료 영구화 리스크 · 4/10 이슬라마바드 10개항 협상 · 우크라이나/대만 병존</div>
+        <div class="cp-detail">4/12 이란 협상 결렬 · 4/13 호르무즈 봉쇄 발효 · WTI <span data-snap="wti">—</span> · Brent $103(+8%) · 트럼프 "접근 선박 격침" 경고 · 봉쇄 장기화 시 $110+ 시나리오 · 우크라이나/대만 병존</div>
         <div class="cp-meter"><div style="width:80%;height:100%;background:linear-gradient(90deg,#ef4444,#dc2626);border-radius:3px;"></div></div>
       </div>
       <!-- CP2 -->
@@ -2945,7 +2945,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
       <div style="font-size:8px;color:var(--text-muted);margin-top:10px;line-height:1.5;background:rgba(255,255,255,0.02);border-radius:5px;padding:7px;">
-        <b style="color:#fbbf24;">진단:</b> 5SMA 68% · 20SMA 75% · 50SMA 46% · 200SMA 55%. 단기(5/20) 빠른 회복, 중장기(50/200) 미탈환 다수. <b>속도 차이 = 갭업 랠리에도 폭은 좁음</b> — 50일선 60% 돌파까지 추가 확인 필요.
+        <b style="color:#fbbf24;">진단:</b> 5SMA 68% · 20SMA 75% · 50SMA 46% · 200SMA 55%. 단기(5/20) 빠른 회복이나 협상 결렬+봉쇄로 변동성 재확대. <b>에너지·방산 리딩, SW·항공 레깅</b> — 50일선 60% 돌파까지 추가 확인 필요.
       </div>
     </div>
 
@@ -3547,7 +3547,7 @@ body.light-theme canvas { filter:none; }
         <div class="data-widget" style="padding:12px;flex:1;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <div style="font-size:10px;font-weight:700;color:var(--text-secondary);"><span class="term-tooltip">VIX<span class="tip-icon">?</span><span class="tip-body">30일 변동성 지수. 낮음=안정, 높음=공포</span></span></div>
-            <div style="font-size:10px;color:var(--green);font-weight:600;"><span id="vix-live-label">VIX</span>: <span id="vix-live-val">31.05</span></div>
+            <div style="font-size:10px;color:var(--green);font-weight:600;"><span id="vix-live-label">VIX</span>: <span id="vix-live-val">29.80</span></div>
           </div>
           <div style="position:relative;height:140px;"><canvas id="vix-chart" role="img" aria-label="VIX 공포지수 추이 차트"></canvas></div>
         </div>
@@ -4724,7 +4724,7 @@ body.light-theme canvas { filter:none; }
           제트유(항공): <b style="color:#f87171;">-40%</b> · 노선 철수 <span style="color:var(--text-muted);">(IATA)</span><br>
           미국 휘발유: <b style="color:#f87171;">월간 +29%</b> <span style="color:var(--text-muted);">(EIA)</span><br>
           미국 디젤: <b style="color:#f87171;">월간 +35%</b> <span style="color:var(--text-muted);">(EIA, 크루그먼 근원CPI 전이 경로)</span><br>
-          <span style="font-size:9px;color:#fbbf24;">⚡ 4/7 2주 휴전 합의 → WTI -15%($97.9). 수요 회복 중. 2주 재충전 후 재교전 시나리오 상존.</span>
+          <span style="font-size:9px;color:#f87171;">⚡ 4/12 이란 협상 결렬 → 4/13 호르무즈 봉쇄 발효. Brent $103(+8%). WTI $98. 봉쇄 장기화 시 $110+ 시나리오.</span>
         </div>
       </div>
       <div style="background:rgba(0,0,0,0.15);border-radius:7px;padding:10px;">
@@ -6345,7 +6345,7 @@ body.light-theme canvas { filter:none; }
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
     <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">VIX (실시간)</div>
-      <div style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:#3b82f6;" data-live-price="^VIX">31.05</div>
+      <div style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:#3b82f6;" data-live-price="^VIX">29.80</div>
       <div style="font-size:9px;color:#3b82f6;">91%ile · 긴장 상태</div>
     </div>
     <div style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
@@ -6393,7 +6393,7 @@ body.light-theme canvas { filter:none; }
     </div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
       <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">VIX (실시간)</div>
-      <div style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:#f87171;" data-live-price="^VIX">31.05</div>
+      <div style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:#f87171;" data-live-price="^VIX">29.80</div>
       <div style="font-size:9px;color:#f87171;margin-bottom:6px;">높은 긴장 (평년 15~18)</div>
       <div style="font-size:8px;color:var(--text-muted);line-height:1.4;">VIX 장기 평년 15~18. 20+ 주의, 30+ 극도 긴장. FOMC 듀얼 리스크 + 2주 휴전 붕괴 가능성 → VIX 30+ 지속 환경. 4월 이벤트 밀집(CPI/어닝/OPEX)으로 변동성 확대 경계.</div>
     </div>
@@ -6994,7 +6994,7 @@ body.light-theme canvas { filter:none; }
       <div style="padding:12px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:8px;">
         <div style="font-size:11px;font-weight:800;color:#fbbf24;margin-bottom:8px;">Spot vs 30일물 해석</div>
         <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
-          <div style="margin-bottom:6px;"><strong>현재:</strong> VIX Spot 31.05 > VX1(30일) 25.20</div>
+          <div style="margin-bottom:6px;"><strong>현재:</strong> VIX Spot 29.80 > VX1(30일) 25.20</div>
           <div style="margin-bottom:6px;"><strong>의미:</strong> 백워데이션 (공포 상황 — Spot이 선물보다 높음)</div>
           <div style="margin-bottom:6px;"><strong>신호:</strong> 단기(1주) 변동성 >> 중기(1개월) → 시장 공포 확대</div>
           <div style="margin-bottom:6px;"><strong>기대:</strong> 단기 이벤트 해소 시 Spot이 빠르게 하락할 수 있음</div>
@@ -7659,7 +7659,7 @@ body.light-theme canvas { filter:none; }
           </div>
         </div>
         <div style="margin-top:10px;padding:8px;background:rgba(91,168,255,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-          물가 목표치(2.0%) 도달. 미-이란 2주 휴전(4/7) 후 WTI -15%($97.9) → 단기 물가 압력 완화. 단, 2주 재충전 후 재교전 시 유가 재급등·물가 재점화 시나리오 상존
+          물가 목표치(2.0%) 도달. 4/12 이란 협상 결렬 + 4/13 호르무즈 봉쇄 발효 → Brent $103, WTI $98. 유가 재급등으로 물가 재점화 리스크 현실화. 봉쇄 장기화 시 2차 인플레 우려
         </div>
       </div>
 
@@ -7777,7 +7777,7 @@ body.light-theme canvas { filter:none; }
           <tr><td>식품</td><td style="color:var(--text-muted);">15억 USD</td><td style="color:var(--red);">-3.2%</td></tr>
         </table>
         <div style="margin-top:10px;padding:8px;background:rgba(251,191,36,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-          에너지 수입 부담 지속 (WTI $97.9, 2주 휴전 후 -15%). 재교전 시 재급등 불확실성 상존. 반도체 설비 수입도 대폭 증가
+          에너지 수입 부담 급증 (WTI $98, Brent $103 — 4/13 호르무즈 봉쇄 발효). 봉쇄 장기화 시 원화 약세+무역적자 확대 리스크. 반도체 설비 수입도 대폭 증가
         </div>
       </div>
     </div>
@@ -9182,7 +9182,7 @@ const _AIO_SENSITIVE_KEYS = new Set([
 async function safeLS(key, value) {
   try {
     var storage = _AioVault.getStorage();
-    if (!value) { storage.removeItem(key); return; }
+    if (value == null || value === '') { storage.removeItem(key); return; } // v46.8: 0/false falsy 함정 방지
     if (_AIO_SENSITIVE_KEYS.has(key) && _AioVault.isUnlocked()) {
       storage.setItem(key, await _AioVault.encrypt(value));
     } else {
@@ -9630,7 +9630,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v46.7';
+const APP_VERSION = 'v46.8';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -9661,26 +9661,26 @@ if (!AIO_DEBUG) {
 //    HTML 본문에 직접 숫자를 수정하지 마세요!
 // ─────────────────────────────────────────────────────────────────
 const DATA_SNAPSHOT = {
-  _updated: '2026-04-11T22:00:00+09:00',   // ISO 타임스탬프 — v46.6 /data-refresh (VIX/HY/AAII/NAAIM/II/PC 시계열 연장 + 13건 자료 통합)
+  _updated: '2026-04-14T22:00:00+09:00',   // ISO 타임스탬프 — v46.8 /data-refresh (VIX/HY/PC 4/13 연장 + 이란 협상결렬 반영)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v46.3 — /data-refresh 4/10: FOMC 4/28-29 수정(4/28-29 오류), WTI $97.87(반등), KOSPI 5872(+6.87%), 실업청구 219K',
+  _note: 'v46.8 — /data-refresh 4/14: 이란 협상결렬+호르무즈 봉쇄, VIX 29.8, WTI $98(+7.6%), Brent $103, S&P 6894',
 
-  // ── 미국 주요 지수 (4/4 금 종가) ──
-  spx:        6582.69,  spxPct:    +0.11,
-  nasdaq:    20948.36,  nasdaqPct: -2.15,
-  dow:       45166.64,  dowPct:    -1.73,
-  rut:        2530.04,  rutPct:    +0.70,
-  vix:          31.05,  vixPct:   +13.16,
-  vvix:        135.00,
+  // ── 미국 주요 지수 (4/13 월 종가) ──
+  spx:        6893.80,  spxPct:    -0.05,
+  nasdaq:    25448.00,  nasdaqPct: -0.01,
+  dow:       48262.90,  dowPct:    -0.05,
+  rut:        2675.12,  rutPct:    +0.03,
+  vix:          29.80,  vixPct:    -4.18,
+  vvix:        130.00,
 
-  // ── 한국 지수 (4/8 종가) ── 정적 폴백값. 실시간 데이터 수신 시 자동 교체됨.
-  kospi:     5872.00,  kospiPct:  +6.87,  kospiPrev: 5494.37,
-  kosdaq:    1185.00,  kosdaqPct: +5.20,  kosdaqPrev: 1126.43,
+  // ── 한국 지수 (4/13 종가) ── 정적 폴백값. 실시간 데이터 수신 시 자동 교체됨.
+  kospi:     5808.62,  kospiPct:  -0.86,  kospiPrev: 5858.87,
+  kosdaq:    1165.00,  kosdaqPct: -0.50,  kosdaqPrev: 1170.85,
 
-  // ── 원자재 (4/9 종가 — 휴전 반등 후 재상승) ──
-  wti:      97.87,   wtiPct:   +3.00,   // v46.3: WTI $97.87 (4/9 종가, 휴전 저점 $94.41→반등)
-  brent:    95.92,   brentPct: +1.00,   // v46.3: Brent $95.92 (4/9 종가)
-  gold:   4705,      goldPct:   +4.00,  goldWeeklyPct: +2.1,
+  // ── 원자재 (4/13 종가 — 호르무즈 봉쇄 후 급등) ──
+  wti:      98.00,   wtiPct:   +2.00,   // v46.8: WTI ~$98 (4/13, 장중 +9%→종가 +2%, 호르무즈 봉쇄)
+  brent:   103.00,   brentPct: +8.00,   // v46.8: Brent ~$103 (4/13, 봉쇄+협상결렬)
+  gold:   4750,      goldPct:   +1.00,  goldWeeklyPct: +2.5,
   ng:       3.00,
 
   // ── 환율 (4/4) ──
@@ -9691,7 +9691,7 @@ const DATA_SNAPSHOT = {
   fedRate:     '3.50-3.75',
   fedStatus:   '동결',  // v45.6: 동적화 — Fed 금리 변경 시 이 값 갱신 (인하/인상/동결)
   fomc:        '4/28-29',
-  fomcNext:    '6/16-17',
+  fomcNext:    '4/28-29',                    // v46.8: 다음 FOMC는 4/28-29 (비SEP 회의)
   ecbRate:      2.15,  ecbStatus: '동결',
   bojRate:      0.50,
   boeRate:      4.50,
@@ -9701,7 +9701,7 @@ const DATA_SNAPSHOT = {
   bokNext:     '2026-05-29',                     // 다음 금통위 일정
   krBond3y:     2.82,   krBond10y: 3.72,         // 국고채 3년/10년 수익률 (<span data-date-ref="kr-last-basis">기준</span>, 10Y 월중 최고)
   krCd91:       2.78,                             // CD 91일 금리
-  vkospi:      45.00,                             // 변동성지수 (VKOSPI) — 4/4 81.99 사상최고, 휴전 랠리 후 하락 중 (4/8 추정), 20↑=경계 30↑=공포
+  vkospi:      35.00,                             // 변동성지수 (VKOSPI) — 4/4 81.99→휴전 후 급락→협상결렬 후 반등 (4/13 추정), 20↑=경계 30↑=공포
 
   // ── 거시 지표 ──
   cpi:          2.4,   coreCpi:   2.5,
@@ -9739,7 +9739,7 @@ const DATA_SNAPSHOT = {
 
   // ── 리스크 지표 ──
   move:       115.0,
-  fg:            35,   fgLabel: '공포',  // v46.4: 휴전 후 회복 (이전 12=극단공포)
+  fg:            28,   fgLabel: '공포',  // v46.8: 협상결렬+봉쇄 후 하락 (이전 35), CNN 25~44=공포
 
   // ── KR 섹터 ETF (4/3 종가) ──
   krSemiEtf:   -1.50,  krSemiPrice:  100200,
@@ -9753,12 +9753,12 @@ const DATA_SNAPSHOT = {
   // /data-refresh 실행 시 이 값들을 DATA_SNAPSHOT과 함께 갱신.
   // 모든 computeTradingScore/computeMarketHealth/computeExecutionWindow가 여기서 읽음.
   _fallback: {
-    fg: 35,              // Fear & Greed (/data-refresh 시 갱신)
-    vix: 31,             // VIX
+    fg: 28,              // Fear & Greed (/data-refresh 시 갱신)
+    vix: 30,             // VIX
     breadth200: 75,      // 20SMA Above % (bpSPX20 마지막 값과 동기화)
     breadth5: 68,        // 5SMA Above %
     breadth50: 46,       // 50SMA Above %
-    pcr: 0.95,           // Put/Call Ratio
+    pcr: 0.72,           // Put/Call Ratio
     aaiiBear: 43,        // AAII Bearish % (4/10 발표: 43.0%)
     spx50ma: 6765,       // SPX 50일 이동평균
     spx200ma: 6659,      // SPX 200일 이동평균
@@ -9766,8 +9766,8 @@ const DATA_SNAPSHOT = {
     dxy: 100,            // 달러 인덱스
     tnx: 4.3,            // 10년 금리
     hyg: 78,             // HYG ETF 가격
-    vvix: 135,           // VVIX
-    _syncDate: '2026-04-10'  // 마지막 동기화 날짜
+    vvix: 130,           // VVIX
+    _syncDate: '2026-04-14'  // 마지막 동기화 날짜
   }
 };
 
@@ -9963,6 +9963,7 @@ const DATE_ENGINE = (function() {
 
 // 페이지 로드 시 즉시 실행 + 1시간마다 갱신
 try { DATE_ENGINE.applyToDOM(); } catch(e) { console.warn('[DATE_ENGINE] 초기화 실패:', e); }
+if (window._dateEngineInterval) clearInterval(window._dateEngineInterval);
 window._dateEngineInterval = setInterval(function() { try { DATE_ENGINE.applyToDOM(); } catch(e) {} }, T.DATE_REFRESH);
 
 // ═══════════════════════════════════════════════════════════════════
@@ -10126,6 +10127,16 @@ const _SNAP_FALLBACK = {
   '^KS11':    { price: () => DATA_SNAPSHOT.kospi || 2500 },
   '^KQ11':    { price: () => DATA_SNAPSHOT.kosdaq || 700 },
   'BTC-USD':  { price: () => DATA_SNAPSHOT.btc || 85000 },
+  // v46.8: 홈 화면/시그널 표시 종목 폴백 확장 (M19)
+  '^DJI':     { price: () => DATA_SNAPSHOT.dow,    pct: () => DATA_SNAPSHOT.dowPct },
+  '^IXIC':    { price: () => DATA_SNAPSHOT.nasdaq,  pct: () => DATA_SNAPSHOT.nasdaqPct },
+  '^RUT':     { price: () => DATA_SNAPSHOT.rut,     pct: () => DATA_SNAPSHOT.rutPct },
+  'QQQ':      { price: () => (DATA_SNAPSHOT.nasdaq || 25448) / 40 },
+  'ETH-USD':  { price: () => DATA_SNAPSHOT.eth || 2054 },
+  'NG=F':     { price: () => DATA_SNAPSHOT.ng || 3.0 },
+  'SI=F':     { price: () => DATA_SNAPSHOT.silver || 69.66 },
+  'GLD':      { price: () => (DATA_SNAPSHOT.gold || 4750) / 10 },
+  'TLT':      { price: () => 85.0 },
 };
 function _ldSafe(sym, prop, hardFallback) {
   var ld = window._liveData || {};
@@ -10243,6 +10254,17 @@ function destroyPageCharts(pageId) {
         var ctx = c.getContext && c.getContext('2d');
         if (ctx && ctx.chart) { try { ctx.chart.destroy(); } catch(e){} }
       });
+    }
+    // v46.8: 한국 페이지 재귀 setTimeout 정리 (P84/P85)
+    if (pageId === 'kr-home' && typeof _krHomeRetryTimer !== 'undefined' && _krHomeRetryTimer) {
+      clearTimeout(_krHomeRetryTimer); _krHomeRetryTimer = null; _krHomeRetry = 0;
+    }
+    if (pageId === 'kr-supply' && typeof _krSupplyRetryTimer !== 'undefined' && _krSupplyRetryTimer) {
+      clearTimeout(_krSupplyRetryTimer); _krSupplyRetryTimer = null; _krSupplyRetry = 0;
+    }
+    if (pageId === 'kr-supply') window._krSupplyLoaded = false; // v46.8: 재진입 시 수급 재fetch 허용
+    if (pageId === 'kr-macro' && typeof _krMacroRetryTimer !== 'undefined' && _krMacroRetryTimer) {
+      clearTimeout(_krMacroRetryTimer); _krMacroRetryTimer = null; _krMacroRetry = 0;
     }
     // v42.4: themes 페이지 RRG canvas 클리어 (잔상 방지)
     if (pageId === 'themes') {
@@ -10628,6 +10650,7 @@ var SCREENER_DB = [
   { sym:'NOW', name:'ServiceNow', sector:'Technology', signal:'WATCH', memo:'[UBS 04/09] Neutral 하향 — AI 예산이 비AI SW 크라우딩아웃 · PT $100(from $170, 13x 2027E EV/FCF) · 1Q 가이던스 부진 리스크 · SW→Semi 로테이션 역풍 · 장기 CRPO 성장 16%→추정치 하향', mcap:116, rsi:48, index:'SP500' },
   { sym:'CRWD', name:'CrowdStrike', sector:'Technology', signal:'BUY', memo:'[JPM §63+§68+Citi §72] Mythos/Codex 자율해킹 실증 · Project Glasswing(Anthropic 파트너십): 사전출시 접근+테스트하네스+$100M 토큰 할당 · "CRWD 스킬" 에이전트 생태계 진입 경로 · 퍼징=AI 사이버공격 핵심벡터, 에이전틱 패칭은 불완전→인간-AI 협업 · 오버워치 6.5조/일 텔레메트리 우위 · 섀도AI 1,800+앱', mcap:104, rsi:52, index:'SP500' },
   { sym:'CEG', name:'Constellation Energy', sector:'Utilities', signal:'BUY', memo:'원전 PPA 장기계약 · AI 데이터센터 전력 계약 · 가동률 85~90% 목표 · Rate Base 확대', mcap:102, rsi:45, index:'SP500' },
+  { sym:'BE', name:'Bloom Energy', sector:'Utilities', signal:'BUY', memo:'[04/14] Oracle 2.8GW 마스터 계약(초기 1.2GW 배치 중) · 55일 만에 가동(예상 90일) = time-to-power 우위 · 800V DC AI 워크로드 최적화 · 모듈형 연료전지 온사이트 발전 패러다임 · AI DC 고밀도+급변부하 대응 · 신주인수권 발행', mcap:8, rsi:55, index:'NYSE' },
   { sym:'HON', name:'Honeywell', sector:'Industrials', signal:'HOLD', memo:'산업자동화 · 항공우주 · 분사 계획', mcap:140, rsi:48, index:'DOW30' },
   { sym:'AMGN', name:'Amgen', sector:'Healthcare', signal:'HOLD', memo:'바이오 대형주 · 비만치료제 MariTide 임상 · 배당', mcap:170, rsi:44, index:'DOW30' },
   { sym:'IBM', name:'IBM', sector:'Technology', signal:'HOLD', memo:'Red Hat · AI watsonx · 하이브리드 클라우드 전환', mcap:210, rsi:55, index:'DOW30' },
@@ -10663,7 +10686,7 @@ var SCREENER_DB = [
   { sym:'COIN', name:'Coinbase', sector:'Financials', signal:'WATCH', memo:'BTC 강세 수혜 · 규제 명확화 · Base L2', mcap:53, rsi:48, index:'SP500' },
   { sym:'VST', name:'Vistra', sector:'Utilities', signal:'BUY', memo:'천연가스+원전 · AI 데이터센터 PPA · 가스 가동률 레버리지(60%→85%) · Rate Base 성장주 리레이팅', mcap:49, rsi:42, index:'SP500' },
   { sym:'MRNA', name:'Moderna', sector:'Healthcare', signal:'SELL', memo:'mRNA 파이프라인 불확실 · 현금 소진 · 매출 급감', mcap:20, rsi:32, index:'SP500' },
-  { sym:'XYZ', name:'Block Inc', sector:'Financials', signal:'HOLD', memo:'Cash App 성장 · 비트코인 전략 · Square 결제', mcap:36, rsi:45, index:'SP500' },
+  { sym:'SQ', name:'Block Inc', sector:'Financials', signal:'HOLD', memo:'Cash App 성장 · 비트코인 전략 · Square 결제', mcap:36, rsi:45, index:'SP500' },
   { sym:'COP', name:'ConocoPhillips', sector:'Energy', signal:'HOLD', memo:'E&P 대형주 · Marathon 인수 · 생산 확대', mcap:125, rsi:52, index:'SP500' },
   { sym:'SBUX', name:'Starbucks', sector:'Consumer', signal:'HOLD', memo:'중국 회복 · 미국 가격 전략 · 글로벌 확장', mcap:105, rsi:45, index:'SP500' },
   { sym:'GILD', name:'Gilead Sciences', sector:'Healthcare', signal:'HOLD', memo:'HIV+간염 치료 · 항암 파이프라인 · 고배당', mcap:110, rsi:50, index:'SP500' },
@@ -10711,8 +10734,8 @@ var SCREENER_DB = [
   { sym:'QUBT', name:'Quantum Computing', sector:'Technology', signal:'WATCH', memo:'양자컴퓨팅 · 광자 기반 · 초기 매출', mcap:2, rsi:55, index:'RUSSELL2000' },
   { sym:'CAVA', name:'CAVA Group', sector:'Consumer', signal:'BUY', memo:'지중해 패스트캐주얼 · 고성장 외식 체인 · 미국 확장', mcap:15, rsi:58, index:'RUSSELL2000' },
   { sym:'SOUN', name:'SoundHound AI', sector:'Technology', signal:'WATCH', memo:'음성 AI 플랫폼 · 자동차+레스토랑 · 고평가', mcap:5, rsi:50, index:'RUSSELL2000' },
-  { sym:'CRWV', name:'CoreWeave', sector:'Technology', signal:'BUY', memo:'[Cantor Top Pick PT$149] 네오클라우드 1위 · 백로그 $668억 · 3.1GW 계약전력 · Anthropic 다년계약(04/11) · $35억 전환사채(전환가$119.6, 캡$230) · Mission Control 오케스트레이션 스택=고객 락인 · OpenAI/MSFT/META/NVDA 카운터파티', mcap:23, rsi:50, index:'NASDAQ100' },
-  { sym:'NBIS', name:'Nebius Group', sector:'Technology', signal:'BUY', memo:'[Cantor OW] Yandex 분사 SW 중심 네오클라우드 · 2025말 170MW 활성+2GW확보 · MSFT/META 대규모딜 → 2027 성장궤도 · CRWV 대비 오버행 적음', mcap:6, rsi:48, index:'NASDAQ100' },
+  { sym:'CRWV', name:'CoreWeave', sector:'Technology', signal:'BUY', memo:'[DA Davidson PT $175↑, BofA PT $120↑] 네오클라우드 1위 · Meta $350억(2032)+Anthropic 다년 → 프론티어 연구소 선택 확립 · DDTL 4.0 $85억 확보 · Vera Rubin 초기 도입 · BofA 2027/28E 매출 +94%/+50% · 전환사채 $35억', mcap:23, rsi:50, index:'NASDAQ100' },
+  { sym:'NBIS', name:'Nebius Group', sector:'Technology', signal:'BUY', memo:'[GS PT $205↑, BofA PT $175↑] Meta $270억+MSFT 장기계약+NVDA $20억 전략투자 · 핀란드+앨라배마 DC 확장 · BofA 2027E EV/Sales 5.0x(피어 하단) · 글로벌 AI 인프라 핵심 공급자 입지', mcap:6, rsi:48, index:'NASDAQ100' },
   { sym:'IREN', name:'IREN Limited', sector:'Technology', signal:'BUY', memo:'[Cantor OW] MSFT 5년 $97억 Take-or-pay(76K GB300, 200MW) · Childress 750MW+Sweetwater 2GW+Oklahoma 1.6GW 전력 · BTC마이너→AI DC 전환 선도', mcap:4, rsi:48, index:'RUSSELL2000' },
   { sym:'CORZ', name:'Core Scientific', sector:'Technology', signal:'BUY', memo:'[Cantor Top Pick PT$29] AI DC 전환 선도 · CRWV 최초 딜 파트너(2024.06) · 딜 가치 기준 가장 큰 할인 거래 · DC 사상 최고 딜+선점 효과 · BTC마이너→AI 인프라', mcap:5, rsi:45, index:'NASDAQ' },
   { sym:'BIRD', name:'Allbirds', sector:'Consumer', signal:'SELL', memo:'친환경 신발 · 매출 감소 · 구조조정', mcap:0.1, rsi:28, index:'RUSSELL2000' },
@@ -10724,7 +10747,7 @@ var SCREENER_DB = [
   { sym:'AAOI', name:'Applied Optoelectronics', sector:'Technology', signal:'WATCH', memo:'[시트론 공매도 04/11] 선행PER 112x(NVDA 버블정점40x의 3배) · GM 31%(NVDA 75%대비) · 앵커 ORCL(재무취약) vs LITE 앵커 NVDA · 범용HW마진에 독점배수 · 이노라이트 가격인하 리스크 · 2주전 $85→$140 급등', mcap:2.5, rsi:62, index:'RUSSELL2000' },
   { sym:'COHR', name:'Coherent Corp', sector:'Technology', signal:'BUY', memo:'L1 scale-out 핵심 · NVIDIA $2B 투자(2026.03) · SiPh+레이저 양대산맥 · 6인치 InP 기판 자체생산(CHIPS Act $33M) · 800G/1.6T CPO 모듈 · InP 수직통합 → supply chain 병목 해소 · OFC2026 CPO TAM $21B', mcap:15, rsi:55, index:'SP500' },
   { sym:'LITE', name:'Lumentum', sector:'Technology', signal:'BUY', memo:'InP EML/CW 레이저 왕 · 2028년까지 AI 주문 장부 가득(블룸버그 4/10) · 주가 1500%+ 상승에도 수요>공급 · NVDA 지원 · CPO 변곡점 2H26 · OCS 수주잔고 $400M+ · Scale-up CPO Rosa-Feynman 2028 · 스미토모 InP 7년 약정 · 미즈호 PT $930', mcap:6, rsi:48, index:'NASDAQ100' },
-  { sym:'CRDO', name:'Credo Technology', sector:'Technology', signal:'BUY', memo:'AEC 800G/1.6T 리더십(xAI/META/Azure/OCI) · $-콘텐츠 6배 성장(ASP+케이블수 복합) · ZeroFlap Optics(ZFO): 링크플랩↓·Tensorwave 2026 · ALC(Active Linear Cable): 30m·ASP 절반·Cu수준 신뢰성→플러거블 잠재 대체(C2027E SOP) · 2029E AEC TAM $10B+(침투율 47%) · F26/27E AEC +222%/+51% · 미즈호 OP PT $200', mcap:10, rsi:45, index:'NASDAQ100' },
+  { sym:'CRDO', name:'Credo Technology', sector:'Technology', signal:'BUY', memo:'AEC 800G/1.6T 리더십 · [04/14] DustPhotonics 인수($7.5억+주식) = SiPho PIC 수직계열화 완성(SerDes/DSP+광학 스택 내재화) · FY27 광학부문 $5억+ 매출 목표 · 3.2T 포트폴리오 확장 · ZeroFlap+ALC · 2029E AEC TAM $10B+ · 미즈호 OP PT $200', mcap:10, rsi:45, index:'NASDAQ100' },
   { sym:'POET', name:'POET Technologies', sector:'Technology', signal:'WATCH', memo:'광인터포저(Teralight) · 포토닉스 반도체화 · EML 4개(업계 8~16) · Luxshare/FIT/LITEON 파트너 · 1.6T 프로토 2026말 · Celestial AI(MRVL 인수) Photonic Fabric 핵심부품 공급 가능성 · NVIDIA 광학 supply chain 빈칸 후보 · 프리레버뉴 · 현금 $450M(시총57%)', mcap:0.8, rsi:44, index:'OTC' },
   { sym:'CIEN', name:'Ciena', sector:'Technology', signal:'BUY', memo:'광네트워킹 장비 · AI 트래픽 증가 수혜', mcap:9, rsi:52, index:'SP500' },
   { sym:'GLW', name:'Corning', sector:'Technology', signal:'BUY', memo:'광섬유 · AI 데이터센터 광케이블 수요 폭증 · Gorilla Glass', mcap:40, rsi:55, index:'SP500' },
@@ -10907,7 +10930,7 @@ var SCREENER_DB = [
   { sym:'NEM', name:'Newmont Corp', sector:'Materials', signal:'HOLD', memo:'세계 최대 금광 · 금값 상관', mcap:107, rsi:55, index:'SP500' },
   { sym:'SO', name:'Southern Company', sector:'Utilities', signal:'HOLD', memo:'미국 최대 유틸리티 · 원전/태양광', mcap:103, rsi:52, index:'SP500' },
   { sym:'CMCSA', name:'Comcast', sector:'Communication Services', signal:'HOLD', memo:'NBC유니버셜 · Xfinity · Peacock', mcap:108, rsi:46, index:'SP500' },
-  { sym:'SNDK', name:'SanDisk', sector:'Technology', signal:'BUY', memo:'[미즈호 PT $1000] KVCache eSSD + HBF(고대역폭 플래시) 패러다임 · 추론 랙 NAND=훈련 4배 · HBF=HBM 10배 용량+100배 대역폭 · 2Q-3Q26E 계약가 QoQ +81%/+20% · NAND 웨이퍼 2026E -6% · F27/28E EPS 컨센 +11%/+28%', mcap:102, rsi:48, index:'SP500' },
+  { sym:'SNDK', name:'SanDisk', sector:'Technology', signal:'BUY', memo:'[Evercore OP PT $1200, Bull $2600 | 미즈호 PT $1000] KVCache eSSD + HBF 패러다임 · SCA(전략적 계약)=가격 하한선+선급현금 보장 → 사이클주→구조적 AI수혜 전환 · DC매출 현재 15%미만→가속 · NAND 공급 2028년까지 제약 · 순현금 도달→자사주매입 개시 전망 · F27E EPS 12x 적용', mcap:102, rsi:48, index:'SP500' },
   { sym:'WDC', name:'Western Digital', sector:'Technology', signal:'HOLD', memo:'HDD/SSD · 데이터센터 스토리지', mcap:94, rsi:46, index:'SP500' },
   { sym:'HWM', name:'Howmet Aerospace', sector:'Industrials', signal:'BUY', memo:'항공우주 부품 · 엔진 · 방산', mcap:96, rsi:55, index:'SP500' },
   { sym:'EQIX', name:'Equinix', sector:'Real Estate', signal:'BUY', memo:'[Citi 04/09] 전력공급 제약→DC 가격·개발수익 우호 환경 · 그리드 15~20년 제약 지속→DC 가격결정력 강화 · 전력망 연결 선호하나 브리지 수요 durable', mcap:93, rsi:50, index:'SP500' },
@@ -11859,7 +11882,7 @@ function renderScreenerResults() {
     if (signal && r.signal !== signal) return false;
     if (cap === 'MEGA' && r.mcap < 1000) return false;
     if (cap === 'LARGE' && (r.mcap < 10 || r.mcap >= 1000)) return false;
-    if (cap === 'MID' && (r.mcap < 2 || r.mcap >= 10)) return false;
+    if (cap === 'MID' && (r.mcap < 2 || r.mcap > 10)) return false; // v46.8: mcap=10 dead zone 수정 (>=10→>10)
     if (cap === 'SMALL' && r.mcap >= 2) return false;
     if (adrFilter) {
       var adrVal = getAdrEstimate(r);
@@ -12015,10 +12038,12 @@ function drawSparkline(canvas, data, ticker) {
 
   var min = Math.min.apply(null, data);
   var max = Math.max.apply(null, data);
-  var range = max - min || 1;
+  var range = max - min;
+  var isFlat = range < 0.0001; // v46.8: 플랫라인 감지
+  range = range || 1;
   var pad = 2;
   var xStep = (w - pad*2) / (data.length - 1);
-  var yScale = (h - pad*2) / range;
+  var yScale = isFlat ? 1 : (h - pad*2) / range;
 
   // 트렌드 색상 결정: 첫 값 vs 마지막 값
   var isUp = data[data.length - 1] >= data[0];
@@ -12028,7 +12053,7 @@ function drawSparkline(canvas, data, ticker) {
   ctx.beginPath();
   data.forEach(function(v, i) {
     var x = pad + i * xStep;
-    var y = h - pad - (v - min) * yScale;
+    var y = isFlat ? h / 2 : h - pad - (v - min) * yScale;
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   });
@@ -12136,31 +12161,31 @@ const DATA_APIS = {
   // 1. Alpha Vantage (무료 25회/일, 키 필수 — 기술적 지표)
   alphaVantage: {
     base: 'https://www.alphavantage.co/query',
-    key: () => localStorage.getItem('aio_av_key') || 'demo',
+    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_av_key') : localStorage.getItem('aio_av_key')) || 'demo',
     limit: '25/day free · $50/mo for 75/min'
   },
   // 2. Twelve Data (무료 800회/일 — 시세, 차트, 기술지표)
   twelveData: {
     base: 'https://api.twelvedata.com',
-    key: () => localStorage.getItem('aio_td_key') || '',
+    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_td_key') : localStorage.getItem('aio_td_key')) || '',
     limit: '800/day free · 8 symbols/request'
   },
   // 3. Financial Modeling Prep (무료 250회/일 — 재무제표, 밸류에이션)
   fmp: {
     base: 'https://financialmodelingprep.com/stable',
-    key: () => localStorage.getItem('aio_fmp_key') || 'demo',
+    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_fmp_key') : localStorage.getItem('aio_fmp_key')) || 'demo',
     limit: '250/day free · 5 years history'
   },
   // 4. FRED (무료, 키 필수 — 매크로 경제지표)
   fred: {
     base: 'https://api.stlouisfed.org/fred/series/observations',
-    key: () => localStorage.getItem('aio_fred_key') || '',
+    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_fred_key') : localStorage.getItem('aio_fred_key')) || '',
     limit: 'Unlimited free · CORS friendly'
   },
   // 5. Finnhub (무료 60회/분 — 실시간 시세, 뉴스, 기업정보)
   finnhub: {
     base: 'https://finnhub.io/api/v1',
-    key: () => localStorage.getItem('aio_finnhub_key') || '',
+    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_finnhub_key') : localStorage.getItem('aio_finnhub_key')) || '',
     limit: '60/min free · real-time US quotes'
   },
   // 6. CoinGecko (기존 유지 — 암호화폐)
@@ -12546,7 +12571,7 @@ async function fetchFredSeries(seriesId, limit = 30) {
 }
 
 const FRED_SERIES = {
-  'BAMLH0A0HYM2': { name: 'HY Spread', el: 'hy-live-val', unit: 'bp', multiplier: 100 },
+  'BAMLH0A0HYM2': { name: 'HY Spread', el: 'hy-live-val', unit: 'bp' }, // multiplier 제거 (사문화 필드)
   'T10Y2Y':       { name: '10Y-2Y Spread', el: null, unit: '%' },
   'T10Y3M':       { name: '10Y-3M Spread', el: null, unit: '%' },
   'DGS2':         { name: '2Y Treasury', el: null, unit: '%' },
@@ -13090,6 +13115,7 @@ function restartScheduler() {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     _schedulerPaused = true;
+    _lastVisibleTime = Date.now(); // v46.8: 숨김 시점 기록 → 복귀 시 정확한 elapsed 계산 (P92)
     Object.values(REFRESH_SCHEDULE).forEach(cfg => {
       if (cfg.timer) { clearTimeout(cfg.timer); cfg.timer = null; }
     });
@@ -13801,6 +13827,11 @@ const TECH_KW = [
   'sovereign AI Japan','Japan AI Foundation Model','physical AI','NEDO trillion yen',
   'Samsung P5 fab','EUV order','ASML order disclosure','install base upgrade',
   'rack-level L11','GB300','Rubin transition','ODM AI server','ASIC multiplier growth',
+  // v46.6c: Credo-DustPhotonics + Bloom-Oracle + SNDK SCA + 네오클라우드 수렴
+  'DustPhotonics','SiPho PIC','silicon photonics vertical','Credo optical','ZeroFlap optics',
+  'Bloom Energy','onsite generation','fuel cell datacenter','time-to-power','800V DC fuel cell',
+  'SanDisk SCA','strategic contractual agreement','NAND structural tight','eSSD enterprise',
+  'neocloud convergence','frontier lab neocloud','Meta CoreWeave','Anthropic CoreWeave','Vera Rubin architecture',
   // ── v37.7: 우주경제·위성·LEO
   'space economy','LEO','low earth orbit','satellite constellation','Starlink',
   'AST SpaceMobile','Kuiper constellation','OneWeb','Iridium','Globalstar',
@@ -15129,10 +15160,11 @@ function classifyTopic(item) {
 /* ── getSentimentFromText(): 뉴스 감성 분석 (bull/bear/neutral) ── */
 function getSentimentFromText(text) {
   const t = (text || '').toLowerCase();
-  const bullKW = ['surge','rally','beat','outperform','upgrade','record high','soar','boom','bull','recovery',
+  // v46.8: 'war'→'trade war'/'military' + 'boom'→'market boom' 한정 (오분류 방지)
+  const bullKW = ['surge','rally','beat','outperform','upgrade','record high','soar','market boom','bull','recovery',
                   '급등','상승','호재','상향','돌파','신고가','반등','회복'];
-  const bearKW = ['crash','plunge','miss','downgrade','sell-off','collapse','fear','crisis','war','default',
-                  '급락','하락','악재','하향','폭락','위기','전쟁','부도'];
+  const bearKW = ['crash','plunge','miss','downgrade','sell-off','collapse','fear','crisis','trade war','default',
+                  'military','conflict','sanctions','급락','하락','악재','하향','폭락','위기','전쟁','부도'];
 
   let bullScore = 0, bearScore = 0;
   bullKW.forEach(kw => { if (t.includes(kw)) bullScore++; });
@@ -15862,14 +15894,21 @@ function getDateLabel(pubDate) {
 var _newsTypeTab = 'all'; // 'all', 'market', 'company'
 
 // 기업 뉴스 판별: 티커가 있고 기업 관련 토픽인 뉴스
+// v46.8: healthcare/shipbuilding/space/quantum/crypto 추가 (TOPIC_KEYWORDS 전체 커버)
 function isCompanyNews(item) {
-  var companyTopics = ['equity','earnings','semi','analyst','defense'];
+  var companyTopics = ['equity','earnings','semi','analyst','defense','healthcare','shipbuilding','space','quantum','crypto'];
+  // 시장 전용 토픽 (기업 뉴스에서 제외)
+  var marketOnlyTopics = ['macro','geo','bond','fx'];
   var tickers = getDisplayTickers ? getDisplayTickers(item) : (item.tickers || []);
-  // 1. 티커가 있으면서 기업 관련 토픽이면 기업 뉴스
+  // 1. 시장 전용 토픽이면 기업 뉴스 아님 (티커 있어도)
+  if (marketOnlyTopics.indexOf(item.topic) !== -1) return false;
+  // 2. 티커가 있으면서 기업 관련 토픽이면 기업 뉴스
   if (tickers.length > 0 && companyTopics.indexOf(item.topic) !== -1) return true;
-  // 2. 티커가 있고 토픽이 general이면 기업 뉴스로 분류
+  // 3. 티커가 있고 energy 토픽이면 기업 뉴스 (XOM, CVX 등 에너지 기업)
+  if (tickers.length > 0 && item.topic === 'energy') return true;
+  // 4. 티커가 있고 토픽이 general이면 기업 뉴스로 분류
   if (tickers.length > 0 && item.topic === 'general') return true;
-  // 3. 실적(earnings) 토픽은 항상 기업 뉴스
+  // 5. 실적(earnings)/애널리스트 토픽은 항상 기업 뉴스
   if (item.topic === 'earnings' || item.topic === 'analyst') return true;
   return false;
 }
@@ -15978,7 +16017,7 @@ function _renderTopicSection(icon, label, items) {
     var displaySummary = typeof getDisplaySummary === 'function' ? getDisplaySummary(item) : '';
     var sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
     var dotColor = sent === 'bull' ? '#3ddba5' : sent === 'bear' ? '#f87171' : sent === 'warn' ? '#fbbf24' : '#7e8a9e';
-    var _macroT = ['macro','geopolitics','policy','fed','rates','trade'];
+    var _macroT = ['macro','geo','energy','bond','fx'] // v46.8: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
     var tickers = !_macroT.includes(item.topic) ? getDisplayTickers(item) : [];
     var tickerStr = tickers.length > 0 ? tickers.map(function(t) { return '<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(91,168,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;">' + escHtml(t) + '</span>'; }).join('') : '';
     var source = escHtml(item.source || '');
@@ -16117,7 +16156,7 @@ function renderFeed(items) {
     const timeDisplay = absTime ? absTime : timeAgo;
 
     // v39.0e: 티커는 매크로/지정학/정책 뉴스에서 숨김 — 기업/실적/섹터 뉴스에만 표시
-    const _MACRO_TOPICS = ['macro','geopolitics','policy','fed','rates','trade'];
+    const _MACRO_TOPICS = ['macro','geo','energy','bond','fx'] // v46.8: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
     const _showTicker = !_MACRO_TOPICS.includes(item.topic);
     const tickers = _showTicker ? getDisplayTickers(item) : [];
     const tickerHtml = tickers.length > 0
@@ -16169,9 +16208,9 @@ function renderFeed(items) {
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
 // v40.4: 홈 핵심뉴스 — 시장 전체에 영향을 주는 핵심 뉴스 2~3개 (정적, 새 이벤트 발생 시 수동 교체)
 var HOME_WEEKLY_NEWS = [
-  { title: 'FOMC 의사록 듀얼 리스크 — "Vast majority" 고용 하방+인플레 상방 동시 경고. 비주거 서비스 끈적, "Some" 양방향 금리 시그널(인상 포함) 주장. 휴전 환호 뒤 수면 아래 이벤트: 워시 인준 불확실, 생산성 갭→Debt-to-GDP, H4L 장기화 리스크.', source: 'Federal Reserve/분석', date: '2026-04-09', sentiment: 'warn', topic: 'macro' },
-  { title: '4월 S급 이벤트 밀집 — CPI+PPI(4/10 금), GS+워시 청문회(4/13 월), JPM(4/14 화), ASML(4/15 수), TSM·NFLX(4/16 목), OPEX(4/17 금). 바이백 블랙아웃 해제·세금 마감(4/15). JPM "전술적 강세", 골드만 롱온리 +24% 매수 우위.', source: '경제 캘린더', date: '2026-04-10', sentiment: 'bull', topic: 'macro' },
-  { title: 'JPM 걸프 인프라 피해 정량화 — 60개+ 자산 타격, 정유 240만bpd 가동중단, 사우디 동서 파이프라인 70만bpd 손실. 최소 8개 심각 피해(수년 수리). 카타르 라스 라판 17% 용량 수리 수년. 휴전 후에도 구조적 공급 감소 잔존 = 유가 $100+ 지지 구조.', source: 'JPMorgan/사우디 통신', date: '2026-04-10', sentiment: 'bear', topic: 'geo' },
+  { title: '이란 협상 결렬 + 호르무즈 봉쇄 발효 — 이슬라마바드 21시간 협상 실패, 이란 "새 협상 계획 없음." 4/13 미 해군 봉쇄 정식 발효(이란 항구 출입 선박 대상, 비이란 항구 통항은 허용). 트럼프 "이란 접근 선박 격침" 경고. Brent $103(+8%). JPM: 공급갭 ~1,400만bbl/d. 실질금리 0.25% 추락, Warsh 5월 취임 시 마이너스 전환 리스크.', source: 'Bloomberg/CNBC/NPR', date: '2026-04-13', sentiment: 'bear', topic: 'geo' },
+  { title: 'SW→Semi 역대급 로테이션 — 주간 IGV-SMH 성과차 -23%(역대 최악). UBS NOW→Neutral(AI 예산 비AI SW 크라우딩아웃). 반도체 9일 연속 양봉. 사모신용 CDX Financials CDS 4/13 거래 개시. 연준 사모신용 점검 시작. SW 담보가치 하락→추가 스트레스.', source: '돈스/UBS/Bloomberg', date: '2026-04-12', sentiment: 'warn', topic: 'macro' },
+  { title: 'TSMC Q1 역대최고 + AI 출하 호조 — TSMC Q1 매출 NT$1.134조($35.7B, +35% YoY), 사상 첫 분기 1조NTD 돌파. CoWoS +80% 성장, NVDA가 대부분 선점. CoreWeave: Meta $350억+Anthropic 다년. Nebius: GS PT$205↑. GB200/GB300 2Q>1Q. Credo: DustPhotonics $7.5억 인수(광학 수직계열화).', source: 'TSMC IR/DA Davidson/GS', date: '2026-04-14', sentiment: 'bull', topic: 'semi' },
 ];
 
 function renderHomeFeed(items) {
@@ -16269,8 +16308,6 @@ function renderHomeFeed(items) {
 // v42.0: 브리핑 8AM KST 앵커 — 오전 8시 기준 24시간 윈도우
 function _getBriefingWindowKST() {
   var now = new Date();
-  // KST = UTC+9
-  var kstH = (now.getUTCHours() + 9) % 24;
   // 오늘 8AM KST를 UTC로 계산
   var todayAnchor = new Date(now);
   todayAnchor.setUTCHours(8 - 9, 0, 0, 0); // 8AM KST = 23:00 UTC (전날)
@@ -16406,8 +16443,8 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '【현재 매크로 맥락 (2026.04)】\n' +
     '• FOMC 듀얼 리스크: "vast majority" 고용 하방 + 인플레 상방 동시 경고. 비주거 서비스 끈적. "Some" 양방향 금리 시그널(인상 포함). H4L(Higher For Longer) 전환 신호.\n' +
     '• Fed 정책 경로: 동결 55% / 인하 25% / 인상 20%. 재무부-연준 힘겨루기: 베센트(소로스 출신) 유동성 도구 + 감세(OBBBA $1,500~1,600억) + 바이백 재개. 2023년 교훈: 연준 브레이크 vs 재무부 액셀 → 액셀 승리(S&P +24%).\n' +
-    '• 4월 이벤트: CPI+PPI(4/10 금), GS+워시 청문회(4/13 월), JPM(4/14 화), ASML(4/15 수), TSM·NFLX(4/16 목), OPEX(4/17 금), 세금 마감(4/15).\n' +
-    '• 지정학(04/11): 미-이란 2주 조건부 휴전(4/8). 호르무즈 첫 선박 통과. BUT 이란 미사일/드론 GCC 에너지인프라 타격 + 이스라엘 레바논 최대 공습 + 노보로시스크 원유 선적 수일 중단. 통행료 제도(통과당 ~$200만) 유력. 정상 운항 5~6주 소요.\n' +
+    '• 4월 이벤트: ASML(4/15 수), TSM·NFLX(4/16 목), OPEX(4/17 금), FOMC(4/28-29), CPI(5/13).\n' +
+    '• 지정학(04/14): 4/12 이슬라마바드 21시간 협상 결렬 → 4/13 호르무즈 봉쇄 발효(이란 항구 출입 선박 대상). 트럼프 "접근 선박 격침" 경고. Brent $103(+8%), WTI $98. 봉쇄 장기화 시 공급갭 1,400만bbl/d. JPM: 항만 정상화 2개월+물류 4개월.\n' +
     '• JP모건 뷰(04/11): 되돌림 비대칭 — 나스닥 114% > S&P 90% > 코스피 68%. 크레딧 가장 탄력적(분쟁 전보다 타이트). FX: 에너지수입국 통화 대비 달러롱 헤지 청산 → 수출국(AUD/NOK/BRL) 롱. EUR/USD 연말 1.20, USD/KRW 연말 1,440. 브렌트 연말 $55, 금 $6,300.\n' +
     '• 인플레: 이란 전쟁 발 휘발유 가격 급등 → 인플레 2년 만의 최고 수준 전망(NPR). 금리 인하 기대 약화.\n' +
     '• 생산성 갭: AI 생산성 기대(TFP 실질 0.32% vs 역사 1.23%) 미달 → 인플레 유지 + 성장↓ → Debt-to-GDP 악화.\n\n' +
@@ -16610,7 +16647,7 @@ function _renderBriefingBullet(item) {
   var displayTitle = escHtml(typeof getDisplayTitle === 'function' ? getDisplayTitle(item) : (item.title || ''));
   var displayDesc = typeof getDisplayDesc === 'function' ? getDisplayDesc(item) : (item.desc || '');
   var displaySummary = typeof getDisplaySummary === 'function' ? getDisplaySummary(item) : '';
-  var _macroT = ['macro','geopolitics','policy','fed','rates','trade'];
+  var _macroT = ['macro','geo','energy','bond','fx'] // v46.8: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
   var tickers = !_macroT.includes(item.topic) ? getDisplayTickers(item) : [];
   var tickerStr = tickers.length > 0 ? tickers.map(function(t) { return '<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(91,168,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;">' + escHtml(t) + '</span>'; }).join('') : '';
   var sentBadge = sentLabel ? '<span style="font-size:8px;font-weight:700;color:' + dotColor + ';background:' + dotColor + '15;padding:1px 5px;border-radius:3px;">' + sentLabel + '</span>' : '';
@@ -16769,22 +16806,20 @@ const PROXY_CHAIN = [
   u => CORS_PROXY3 + encodeURIComponent(u),
   u => CORS_PROXY5 + encodeURIComponent(u),
 ];
-// Multi-proxy fetch wrapper
+// Multi-proxy fetch wrapper — v46.8: _PROXY_REGISTRY 통합 (fetchViaProxy 위임)
 async function fetchWithProxy(url, ms) {
   ms = ms || 8000;
   try {
     var r = await withTimeout(fetch(url,{headers:{'Accept':'application/json'}}),ms);
     if(r.ok) return {ok:true,data:await r.json(),source:'direct'};
   } catch(e){ _debugWarn('[AIO] Direct fetch failed:', e); }
-  try {
-    var r2 = await withTimeout(fetch(CORS_PROXY+encodeURIComponent(url)),ms);
-    var w2 = await r2.json();
-    return {ok:true,data:JSON.parse(w2.contents||'{}'),source:'proxy1'};
-  } catch(e){ _debugWarn('[AIO] Proxy1 fetch failed:', e); }
-  try {
-    var r3 = await withTimeout(fetch(CORS_PROXY2+encodeURIComponent(url)),ms);
-    return {ok:true,data:await r3.json(),source:'proxy2'};
-  } catch(e){ _debugWarn('[AIO] Proxy2 fetch failed:', e); }
+  // _PROXY_REGISTRY 기반 프록시 체인 활용 (fetchViaProxy와 동일 경로)
+  if (typeof fetchViaProxy === 'function') {
+    try {
+      var resp = await fetchViaProxy(url, {timeout: ms, parseJson: true});
+      if (resp) return {ok:true, data:resp, source:'proxyRegistry'};
+    } catch(e) { _debugWarn('[AIO] ProxyRegistry fetch failed:', e); }
+  }
   return {ok:false};
 }
 
@@ -17696,7 +17731,7 @@ const LIVE_SYMBOLS = [
   'ABT','ADI','ADP','AFL','AIG','AON','APH','AZO','BK','BMY','BSX','CARR','CI','CME','CMG','CNC','COF','CTAS','CTSH','DD','DE','DHR','EBAY','ECL','EFX','EOG','FI','GPN','HCA','HUBB','HUM','ICE','IDXX','IQV','KEYS','KHC','MAR','MCK','MCO','MDLZ','MET','MMC','MSCI','MSI','NXPI','ORLY','OTIS','PAYX','PGR','PRU','PSA','RMD','ROP','SCHW','SHW','SRE','STE','STZ','SYK','TDG','TGT','TJX','TROW','VRSK','WEC','WELL','WM','YUM',
 ];
 
-// ── Global fetch helper ─────────────────────────────────────────────────
+// ── Global fetch helper (레거시 — AbortController 미사용, 새 코드는 fetchWithTimeout 권장) ──
 function withTimeout(p, ms) {
   return Promise.race([
     p,
@@ -17963,8 +17998,9 @@ async function fetchLiveQuotes() {
   } catch(e) { console.warn('[AIO] CoinGecko 실패:', e.message); }
 
   // ─── 2. 환율: 다중 API 폴백 체인 (v30.11: 전일 대비 변동률 계산) ───
-  const fxMap = {KRW:'KRW=X', JPY:'JPY=X', EUR:'EURUSD=X', GBP:'GBPUSD=X', CNY:'CNY=X', AUD:'AUDUSD=X', CAD:'CADUSD=X', CHF:'CHFUSD=X'};
-  const FX_INVERTED = ['EURUSD=X','GBPUSD=X','AUDUSD=X','CADUSD=X','CHFUSD=X']; // USD 기준 역수 통화
+  // v46.8: CAD/CHF → Yahoo 표준 심볼 수정 (CADUSD=X 비표준 → CAD=X)
+  const fxMap = {KRW:'KRW=X', JPY:'JPY=X', EUR:'EURUSD=X', GBP:'GBPUSD=X', CNY:'CNY=X', AUD:'AUDUSD=X', CAD:'CAD=X', CHF:'CHF=X'};
+  const FX_INVERTED = ['EURUSD=X','GBPUSD=X','AUDUSD=X']; // USD 기준 역수 통화 (CAD=X, CHF=X는 USD/CAD, USD/CHF로 역수 불필요)
 
   // v30.11: 전일 종가 저장소 — localStorage에 일단위 캐시
   if (!window._fxPrevClose) {
@@ -18507,8 +18543,9 @@ async function fetchLiveQuotes() {
             var yahooSym = null;
             for (var ys in stooqMap) { if (stooqMap[ys] === stSym.toLowerCase()) { yahooSym = ys; break; } }
             if (!yahooSym) return;
-            var close = parseFloat(cols[7]); // Close
-            var open = parseFloat(cols[4]);   // Open
+            // Stooq CSV: Symbol,Date,Time,Open,High,Low,Close,Volume → cols[6]=Close, cols[3]=Open
+            var close = parseFloat(cols[6]) || parseFloat(cols[7]); // v46.8: Close 우선
+            var open = parseFloat(cols[3]) || parseFloat(cols[4]);   // Open 우선
             // v46.4: CSV 파싱 검증 — NaN/Infinity/음수 방어
             if (!isFinite(close) || close <= 0 || !isFinite(open) || open <= 0) return;
             var prevClose = (window._liveData && window._liveData[yahooSym] && window._liveData[yahooSym].chartPreviousClose > 0)
@@ -18634,20 +18671,20 @@ function applyStaticFallbacks() {
   // 2026-04-04(금) 종가 기준 폴백 (v40.7 업데이트)
   // 실시간 데이터 도착 시 자동 교체됨 — 최대 10초 내 라이브 데이터로 전환
   const FALLBACK_QUOTES = [
-    // ── 미국 주요 지수 (2026-04-04 금요일 종가) ──
-    { symbol:'^GSPC',   regularMarketPrice:6582.69,     regularMarketChangePercent:+0.11 },
-    { symbol:'^IXIC',   regularMarketPrice:20948.36,    regularMarketChangePercent:-2.15 },
-    { symbol:'^DJI',    regularMarketPrice:45166.64,    regularMarketChangePercent:-1.73 },
-    { symbol:'^RUT',    regularMarketPrice:2530.04,     regularMarketChangePercent:+0.70 },
-    { symbol:'^VIX',    regularMarketPrice:31.05,       regularMarketChangePercent:+13.16 },
-    { symbol:'^VVIX',   regularMarketPrice:135.00,      regularMarketChangePercent:+8.50 },
-    // ── 한국 지수 (4/3 종가) ──
-    { symbol:'^KS11',   regularMarketPrice:5478.70,     regularMarketChangePercent:+8.44 },
-    { symbol:'^KQ11',   regularMarketPrice:1116.18,     regularMarketChangePercent:+6.06 },
-    // ── 원자재 (4/4 종가) ──
-    { symbol:'CL=F',    regularMarketPrice:99.64,       regularMarketChangePercent:+5.46 },
-    { symbol:'BZ=F',    regularMarketPrice:112.57,      regularMarketChangePercent:+4.22 },
-    { symbol:'GC=F',    regularMarketPrice:4524.30,     regularMarketChangePercent:+2.62 },
+    // ── 미국 주요 지수 (2026-04-13 월요일 종가) ──
+    { symbol:'^GSPC',   regularMarketPrice:6893.80,     regularMarketChangePercent:-0.05 },
+    { symbol:'^IXIC',   regularMarketPrice:25448.00,    regularMarketChangePercent:-0.01 },
+    { symbol:'^DJI',    regularMarketPrice:48262.90,    regularMarketChangePercent:-0.05 },
+    { symbol:'^RUT',    regularMarketPrice:2675.12,     regularMarketChangePercent:+0.03 },
+    { symbol:'^VIX',    regularMarketPrice:29.80,       regularMarketChangePercent:-4.18 },
+    { symbol:'^VVIX',   regularMarketPrice:130.00,      regularMarketChangePercent:-3.70 },
+    // ── 한국 지수 (4/13 종가) ──
+    { symbol:'^KS11',   regularMarketPrice:5808.62,     regularMarketChangePercent:-0.86 },
+    { symbol:'^KQ11',   regularMarketPrice:1165.00,     regularMarketChangePercent:-0.50 },
+    // ── 원자재 (4/13 종가) ──
+    { symbol:'CL=F',    regularMarketPrice:98.00,       regularMarketChangePercent:+2.00 },
+    { symbol:'BZ=F',    regularMarketPrice:103.00,      regularMarketChangePercent:+8.00 },
+    { symbol:'GC=F',    regularMarketPrice:4750.00,     regularMarketChangePercent:+1.00 },
     { symbol:'NG=F',    regularMarketPrice:3.00,        regularMarketChangePercent:-0.80 },
     { symbol:'SI=F',    regularMarketPrice:68.00,       regularMarketChangePercent:-1.80 },
     { symbol:'HG=F',    regularMarketPrice:5.20,        regularMarketChangePercent:-2.00 },
@@ -19693,8 +19730,8 @@ function refreshHomeDashboard() {
   // SECTION 0: One-line market summary
   const spxChg = spx.pct != null ? spx.pct.toFixed(2) : '—'; // R15: null vs 0% 구분
   const vixLevel = vix.price?.toFixed(2) || String(DATA_SNAPSHOT.vix);
-  const vixStatus = vix.price < 15 ? '안정' : vix.price < 20 ? '주의' : vix.price < 25 ? '불안' : vix.price < 30 ? '경계' : '위험';
-  const marketMood = spx.pct > 0.5 ? '낙관' : spx.pct < -0.5 ? '경계' : '관망';
+  const vixStatus = vix.price != null ? (vix.price < 15 ? '안정' : vix.price < 20 ? '주의' : vix.price < 25 ? '경계' : vix.price < 30 ? '공포' : '극단공포') : '—';
+  const marketMood = spx.pct != null ? (spx.pct > 0.5 ? '낙관' : spx.pct < -0.5 ? '경계' : '관망') : '—';
   const summarytxt = spxChg !== '—'
     ? `S&P 500 ${parseFloat(spxChg) >= 0 ? '+' : ''}${spxChg}%, VIX ${vixLevel} ${vixStatus} — 시장 분위기: ${marketMood}`
     : `VIX ${vixLevel} ${vixStatus} — 시장 분위기: ${marketMood}`;
@@ -19791,7 +19828,7 @@ function refreshHomeDashboard() {
   if (vixValueEl) {
     const vp = vix.price || DATA_SNAPSHOT.vix;
     vixValueEl.textContent = vp.toFixed(2);
-    const vixLabel = vp >= 30 ? '패닉 (매우 위험)' : vp >= 25 ? '공포 (경계)' : vp >= 20 ? '불안 (주의)' : vp >= 15 ? '안정' : '과도한 낙관';
+    const vixLabel = vp >= 30 ? '극단공포' : vp >= 25 ? '공포' : vp >= 20 ? '경계' : vp >= 15 ? '주의' : '안정';
     const vixCol = vp >= 30 ? '#dc2626' : vp >= 25 ? '#f97316' : vp >= 20 ? '#fbbf24' : '#3ddba5';
     vixValueEl.style.color = vixCol;
     if (vixStatusEl) vixStatusEl.textContent = vixLabel;
@@ -19802,9 +19839,9 @@ function refreshHomeDashboard() {
   const fgLabelEl = document.getElementById('home-fg-label');
   if (fgScoreEl) {
     fgScoreEl.textContent = Math.round(fg);
-    const fgColor = fg < 25 ? '#dc2626' : fg < 45 ? '#f97316' : fg < 55 ? '#7e8a9e' : fg < 75 ? '#86efac' : '#16a34a';
+    const fgColor = fg <= 25 ? '#dc2626' : fg <= 45 ? '#f97316' : fg <= 55 ? '#7e8a9e' : fg <= 75 ? '#86efac' : '#16a34a';
     fgScoreEl.style.color = fgColor;
-    const fgLabel = fg < 25 ? '극단적 공포' : fg < 45 ? '공포' : fg < 55 ? '중립' : fg < 75 ? '탐욕' : '극단적 탐욕';
+    const fgLabel = fg <= 25 ? '극단적 공포' : fg <= 45 ? '공포' : fg <= 55 ? '중립' : fg <= 75 ? '탐욕' : '극단적 탐욕';
     if (fgLabelEl) fgLabelEl.textContent = fgLabel;
   }
 
@@ -19947,8 +19984,8 @@ async function fetchFearGreed() {
         if (prevScore > 0 && prevScore <= 100) {
           h1.textContent = '전일: ' + prevScore + '점';
         } else {
-          const score = window._lastFG || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 35);
-          h1.textContent = score <= 25 ? '극단 공포 구간' : score <= 45 ? '공포 구간' : score <= 55 ? '중립 구간' : score <= 75 ? '탐욕 구간' : '극단 탐욕 구간';
+          var _fbScore = window._lastFG || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 35);
+          h1.textContent = _fbScore <= 25 ? '극단 공포 구간' : _fbScore <= 45 ? '공포 구간' : _fbScore <= 55 ? '중립 구간' : _fbScore <= 75 ? '탐욕 구간' : '극단 탐욕 구간';
         }
       }
     }
@@ -19987,7 +20024,7 @@ async function fetchFearGreed() {
       return true;
     } catch(e2) {
       if (badge) { badge.textContent = '폴백 데이터 (과거 스냅샷)'; badge.style.color = '#7e8a9e'; }
-      fgUpdateNeedle(15); // fallback static
+      fgUpdateNeedle((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 15);
       if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
       return false;
     }
@@ -20040,6 +20077,7 @@ async function fetchPutCall() {
         var regPcr = document.getElementById('regime-pcr');
         if (regPcr) { regPcr.textContent = parseFloat(pcr).toFixed(2); regPcr.style.color = parseFloat(pcr) > 1.2 ? '#f87171' : parseFloat(pcr) > 0.9 ? '#fbbf24' : '#3ddba5'; }
         if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.pcr = parseFloat(pcr);
+        window._putCallRatio = parseFloat(pcr); // v46.8: computeTradingScore/computeExecutionWindow 참조용 (P88)
         if (badge) { badge.textContent = '실시간 · CBOE'; badge.style.color = '#3ddba5'; }
         // Update needle position: (pcr - 0.4)/(1.2-0.4)*100
         const pct = Math.min(100, Math.max(0, (parseFloat(pcr) - 0.4) / 0.8 * 100));
@@ -20222,14 +20260,14 @@ function initSentimentPage(forceReinit) {
   };
   const gridColor = 'rgba(255,255,255,0.05)';
   const tickColor = 'rgba(255,255,255,0.3)';
-  const labels20 = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10']; // v46.6: 4/9,4/10 연장
+  const labels20 = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13']; // v46.8: 4/13 연장 (이란 협상 결렬+호르무즈 봉쇄)
 
   // ── VIX sparkline ────────────────────────────────────────────────────
   const vixCtx = document.getElementById('vix-chart');
   if (vixCtx) {
     // Yahoo Finance ^VIX 종가 (2026-02-20 ~ 2026-04-08) — v45.0: 4/7(25.78)→4/8(21.04) 연장 (investing.com 확인)
-    // v46.6: 4/9(31.5 이란-GCC 타격+이스라엘 공습), 4/10(31.1 인플레2년최고+CPI대기) 연장
-    const vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10];
+    // v46.8: 4/13(29.80 이란 협상 결렬→호르무즈 봉쇄, S&P 장중 급락→회복) 연장
+    const vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80];
     var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' }); if (_gVix)
     sentPageCharts['vix'] = new Chart(vixCtx, {
       type: 'line',
@@ -20335,8 +20373,8 @@ function initSentimentPage(forceReinit) {
   const hyCtx = document.getElementById('hy-chart');
   if (hyCtx) {
     // ICE BofA US HY OAS (FRED BAMLH0A0HYM2, 2026년 2~4월 추정치 bps) — v43.0: 3/19→4/2 연장
-    // v46.6: 4/9(310 GCC타격→크레딧확대), 4/10(294 FRED 4월 데이터) 연장
-    const hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294];
+    // v46.8: 4/13(308 협상결렬→크레딧 스프레드 재확대) 연장
+    const hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308];
     var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' }); if (_gHY)
     sentPageCharts['hy'] = new Chart(hyCtx, {
       type: 'line',
@@ -20366,7 +20404,7 @@ function initSentimentPage(forceReinit) {
   }
 
   // Update Fear & Greed needle (uses IDs shared with old signal page)
-  fgUpdateNeedle(15);
+  fgUpdateNeedle((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 15);
   fetchFearGreed();
   fetchPutCall();
 }
@@ -20446,9 +20484,9 @@ function initSentimentCharts() {
   const pcCtx = document.getElementById('pc-chart');
   if (pcCtx) {
     // CBOE Equity P/C Ratio (추정치, 실거래일 기준)
-    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10']; // v46.6: 4/9,4/10 연장
-    // v46.6: 4/9(0.55 GCC타격→풋 증가 추정), 4/10(0.51 CBOE) — CBOE 확인
-    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51];
+    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13']; // v46.8: 4/13 연장
+    // v46.8: 4/13(0.72 협상결렬→풋 증가 추정) 연장
+    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72];
     var _gPC = chartDataGate('pc-chart', pcLabels, [pcData], { minPoints: 3, chartName: 'Put/Call Ratio' }); if (_gPC)
     sentPageCharts['pc'] = new Chart(pcCtx, {
       type: 'line',
@@ -21158,7 +21196,7 @@ const LLM_MODELS = {
   },
   'sonnet-thinking': {
     id: 'claude-sonnet-4-6',
-    label: 'Sonnet 4.6 ',
+    label: 'Sonnet 4.6 Thinking',
     inputPerMTok: 3,
     outputPerMTok: 15,
     avgInputTokens: 2500,
@@ -22559,6 +22597,7 @@ function showConfirmModal(title, msg, onConfirm, icon) {
   modal.style.display = 'flex';
   okBtn.focus();
   // ESC 키로 닫기
+  if (modal._escHandler) document.removeEventListener('keydown', modal._escHandler); // v46.8: 중복 등록 방지
   modal._escHandler = function(e) { if (e.key === 'Escape') closeConfirmModal(); };
   document.addEventListener('keydown', modal._escHandler);
 }
@@ -22610,19 +22649,20 @@ function renderPortfolio() {
     const priceColor = live ? (dailyPct >= 0 ? 'var(--green)' : 'var(--red)') : 'var(--text-muted)';
     const liveTag = live ? '' : ' <span style="font-size:11px;color:var(--text-muted);">(매수가)</span>';
 
-    return `<tr style="border-bottom:1px solid var(--border);cursor:pointer;" onclick="showTicker('${p.ticker}')">
-      <td style="padding:6px 8px;"><b style="color:var(--text-primary);">${p.ticker}</b>${p.memo ? '<div style="font-size:9px;color:var(--text-muted);">'+p.memo+'</div>' : ''}</td>
+    var _eTk = escHtml(p.ticker); // v46.8: XSS 방어
+    return `<tr style="border-bottom:1px solid var(--border);cursor:pointer;" onclick="showTicker('${_eTk}')">`;
+      <td style="padding:6px 8px;"><b style="color:var(--text-primary);">${escHtml(p.ticker)}</b>${p.memo ? '<div style="font-size:9px;color:var(--text-muted);">'+escHtml(p.memo)+'</div>' : ''}</td>
       <td style="text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;">${p.qty}</td>
       <td style="text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;">$${p.cost.toFixed(2)}</td>
       <td style="text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;color:${priceColor};">$${currentPrice.toFixed(2)}${liveTag}</td>
       <td style="text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;color:${pnlColor};">${pnlSign}$${Math.abs(pnl).toLocaleString('en',{maximumFractionDigits:0})}</td>
       <td style="text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;color:${pnlColor};">${pnlSign}${pnlPct.toFixed(1)}%</td>
       <td style="text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;">${p.target && p.target > 0 ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--green)' : 'var(--red)'; return '$'+p.target.toFixed(0)+'<div style="font-size:9px;color:'+uColor+';">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : '<span style="color:var(--text-muted);font-size:9px;">미설정</span>'}</td>
-      <td style="text-align:center;padding:6px;font-size:9px;" id="pf-weight-${p.ticker}">—</td>
+      <td style="text-align:center;padding:6px;font-size:9px;" id="pf-weight-${_eTk}">—</td>
       <td style="text-align:center;padding:6px;">
-        <button onclick="event.stopPropagation();showPage('technical');setTimeout(function(){var inp=document.getElementById('deep-ticker-input');if(inp)inp.value='${p.ticker}'},300)" style="background:none;border:none;cursor:pointer;font-size:11px;" title="차트 분석">📈</button>
-        <button onclick="event.stopPropagation();editPosition('${p.ticker}')" style="background:none;border:none;cursor:pointer;font-size:11px;" title="수정">✏️</button>
-        <button onclick="event.stopPropagation();removePosition('${p.ticker}')" style="background:none;border:none;cursor:pointer;font-size:11px;" title="삭제">🗑️</button>
+        <button onclick="event.stopPropagation();showPage('technical');setTimeout(function(){var inp=document.getElementById('deep-ticker-input');if(inp)inp.value='${_eTk}'},300)" style="background:none;border:none;cursor:pointer;font-size:11px;" title="차트 분석">📈</button>
+        <button onclick="event.stopPropagation();editPosition('${_eTk}')" style="background:none;border:none;cursor:pointer;font-size:11px;" title="수정">✏️</button>
+        <button onclick="event.stopPropagation();removePosition('${_eTk}')" style="background:none;border:none;cursor:pointer;font-size:11px;" title="삭제">🗑️</button>
       </td>
     </tr>`;
   });
@@ -22719,8 +22759,19 @@ function importPortfolio(event) {
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
-      const data = JSON.parse(e.target.result);
+      var data = JSON.parse(e.target.result);
       if (!Array.isArray(data)) throw new Error('Invalid format');
+      // v46.8: 스키마 검증 + XSS 정제
+      data = data.filter(function(p) {
+        return p && typeof p.ticker === 'string' && /^[A-Z0-9.\-^=]{1,12}$/i.test(p.ticker.trim());
+      }).map(function(p) {
+        p.ticker = p.ticker.trim().toUpperCase();
+        if (p.memo) p.memo = String(p.memo).slice(0, 200);
+        if (p.note) p.note = String(p.note).slice(0, 200);
+        p.qty = Number(p.qty) || 0; p.cost = Number(p.cost) || 0;
+        return p;
+      });
+      if (data.length === 0) throw new Error('유효한 포지션 없음');
       showConfirmModal('데이터 가져오기', data.length + '개 포지션을 가져오시겠습니까? 기존 데이터가 대체됩니다.', function() {
         savePortfolioData(data);
         renderPortfolio();
@@ -22983,14 +23034,15 @@ function renderWatchlistContent() {
     var sb = signal === 'BUY' ? 'rgba(61,219,165,0.15)' : signal === 'SELL' ? 'rgba(248,113,113,0.15)' : signal === 'WATCH' ? 'rgba(251,191,36,0.15)' : 'rgba(148,163,184,0.15)';
     var nameStr = db ? db.name : '';
 
-    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;" onclick="prevPage=\'portfolio\';showTicker(\'' + t.sym + '\')" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'none\'">' +
-      '<td style="padding:6px 8px;"><b style="color:var(--text-primary);font-family:var(--font-mono);font-size:11px;">' + t.sym + '</b>' + (nameStr ? '<div style="font-size:9px;color:var(--text-muted);">' + nameStr + '</div>' : '') + '</td>' +
+    var _eSym = escHtml(t.sym); // v46.8: XSS 방어
+    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;" onclick="prevPage=\'portfolio\';showTicker(\'' + _eSym + '\')" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'none\'">' +
+      '<td style="padding:6px 8px;"><b style="color:var(--text-primary);font-family:var(--font-mono);font-size:11px;">' + _eSym + '</b>' + (nameStr ? '<div style="font-size:9px;color:var(--text-muted);">' + escHtml(nameStr) + '</div>' : '') + '</td>' +
       '<td style="text-align:right;padding:6px;font-family:var(--font-mono);font-weight:700;font-size:10px;">' + price + '</td>' +
       '<td style="text-align:right;padding:6px;font-family:var(--font-mono);font-weight:700;font-size:10px;color:' + cc + ';">' + chgStr + '</td>' +
       '<td style="text-align:center;padding:6px;">' + (signal !== '—' ? '<span style="background:' + sb + ';color:' + sc + ';padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;">' + signal + '</span>' : '<span style="color:var(--text-muted);font-size:9px;">—</span>') + '</td>' +
-      '<td style="padding:6px;color:var(--text-muted);font-size:9px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (t.note || '') + '</td>' +
+      '<td style="padding:6px;color:var(--text-muted);font-size:9px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(t.note || '') + '</td>' +
       '<td style="text-align:center;padding:6px;">' +
-        '<button onclick="event.stopPropagation();removeFromWatchlist(\'' + t.sym + '\')" style="background:none;border:none;cursor:pointer;font-size:10px;" title="삭제">✕</button>' +
+        '<button onclick="event.stopPropagation();removeFromWatchlist(\'' + _eSym + '\')" style="background:none;border:none;cursor:pointer;font-size:10px;" title="삭제">✕</button>' +
       '</td>' +
     '</tr>';
   });
@@ -24473,6 +24525,11 @@ const CHAT_CONTEXTS = {
         '[JPM ASML 1Q26 프리뷰] 오더 비공시 전환에도 수요 지표 강세 전망. 삼성 P5 EUV 20기 오더=핵심 뉴스플로우. 하이닉스/삼성 강력 수주 + 메모리 공급부족 → TSMC 2027+ 정기 수요. FY27-28 추정치 상당한 상향 여지. 상향 요인: DUV 조기수령 + 중국 + 설치기반 업그레이드(용량 제약 고객의 기존장비 최적화). PT €1813.\n' +
         '[대만 AI 3대장 출하 호조] 위스트론/콴다/폭스콘/인베텍 3월 사상 최고 매출. GB200/GB300/B300 순차 인도→2Q>1Q 확실. 랙(L11) QoQ 두 자릿수. 연간 AI서버 2x 성장. ASIC 배수 성장. ⚠3Q 루빈 전환기 변동성.\n' +
         '[소프트뱅크 일본 AI 주권] Sovereign AI 일본판 — NEC/혼다/소니/메가뱅크 8개사 출자. 1조 파라미터 멀티모달. 샤프 사카이 LCD→DC 전환. NEDO 1조엔/5년. 2030 피지컬 AI.\n' +
+        '【§73 광학 수직계열화 + 온사이트 전력 패러다임 + NAND 구조적 타이트 + 네오클라우드 수렴 (2026.04.14)】\n' +
+        '[Credo-DustPhotonics 인수] 구조적 논리: SerDes/DSP+SiPho PIC = 광학 연결 스택 수직 계열화 완성. 800G→1.6T→3.2T. $7.5억+주식+Earn-out. FY27 광학 $5억+ 목표. 인접: LITE/COHR(경쟁 심화) > AVGO(CPO 통합 경쟁) > NVDA(광학 내재화 트렌드 가속).\n' +
+        '[Bloom-Oracle 2.8GW] 패러다임 전환: 기존=전력망 의존 DC. 새=온사이트 모듈형 연료전지 발전. 55일 가동(예상 90일) = time-to-power가 경쟁 우위. 800V DC AI 고밀도 워크로드 최적화. 초기 1.2GW 배치 중. 인접: VRT/ETN(DC전력) > CAT/CMI(발전) > CEG/VST(경쟁).\n' +
+        '[Evercore SNDK — 사이클주→구조적 AI수혜 전환] 패러다임: 기존=NAND 가격 정점→하락→마진 압축 사이클. 새=SCA(전략적 계약합의)가 가격 하한선+선급현금 보장 → 2028년까지 공급 제약 지속. DC 매출 15%미만→가속. 순현금→자사주매입. Bull $2600. 인접: MU/WDC(NAND SCA 수혜) > 005930.KS(삼성 NAND 절제).\n' +
+        '[네오클라우드 수렴 — CRWV+NBIS] 프론티어 연구소(Meta/Anthropic/MSFT)가 네오클라우드를 선택하는 패턴 확립. CRWV: Meta $350억(2032)+Anthropic 다년+Vera Rubin 초기→DA Davidson PT$175, BofA PT$120. NBIS: Meta $270억+MSFT+NVDA $20억→GS PT$205, BofA PT$175. DDTL 4.0 $85억=계약된 용량 연결 부채(투기적 아님).\n' +
         '매매시그널(전체 환경)·차트 분석(대장주 타이밍) 연결.' +
         _getChatRules();
     }
@@ -26191,9 +26248,9 @@ async function _aiWebSearch(searchQuery) {
   var pKey = localStorage.getItem('aio_perplexity_key') || '';
   if (pKey) {
     try {
-      var result = await _perplexitySearch(searchQuery);
-      result.engine = 'perplexity';
-      return result;
+      var pResult = await _perplexitySearch(searchQuery);
+      pResult.engine = 'perplexity';
+      return pResult;
     } catch(e) {
       console.warn('[AIO] Perplexity 실패, Google 폴백 시도:', e.message);
     }
@@ -26204,8 +26261,8 @@ async function _aiWebSearch(searchQuery) {
   var gCx = localStorage.getItem('aio_google_cse_cx') || '';
   if (gKey && gCx) {
     try {
-      var result = await _googleSearch(searchQuery);
-      return result;
+      var gResult = await _googleSearch(searchQuery);
+      return gResult;
     } catch(e) {
       console.warn('[AIO] Google Search 실패:', e.message);
     }
@@ -27338,7 +27395,8 @@ function computeMarketHealth() {
   // SPY component (종가 기준 pct)
   var spyChg = (ld['SPY'] && ld['SPY'].pct != null) ? ld['SPY'].pct : 0; // R15: null vs 0% 구분
   if (spyChg > 1) { score += 10; details.push('SPY 강세 +' + spyChg.toFixed(1) + '%'); }
-  else if (spyChg > 0) { score += 5; details.push('SPY 소폭 양봉'); }
+  else if (spyChg > 0.05) { score += 5; details.push('SPY 소폭 양봉'); }
+  else if (spyChg >= -0.05) { /* 보합: 감점 없음 */ details.push('SPY 보합'); }
   else if (spyChg > -1) { score -= 5; details.push('SPY 소폭 음봉'); }
   else { score -= 10; details.push('SPY 약세 ' + spyChg.toFixed(1) + '%'); }
 
@@ -28244,9 +28302,11 @@ function generateMacroStoryline() {
   story += '<br><br>';
 
   // ═ Fed 정책 + 금리 시그널 ═
+  // v46.8: ^FVX(5년물)→_live2Y(2년물) 수정 (CRITICAL — yield curve 2s10s 표준)
+  var y2 = window._live2Y || 4.28; // 2년물 금리 (FRED/실시간 미제공 시 폴백)
   story += '<b style="color:#a78bfa;"> 2장: Fed와 금리 — "경제의 신경계"</b><br>';
-  story += '2년물 금리는 <b>' + fvx.toFixed(2) + '%</b>, 10년물은 <b>' + tnx.toFixed(2) + '%</b>입니다. ';
-  var spread = (tnx - fvx).toFixed(2);
+  story += '2년물 금리는 <b>' + y2.toFixed(2) + '%</b>, 10년물은 <b>' + tnx.toFixed(2) + '%</b>입니다. ';
+  var spread = parseFloat((tnx - y2).toFixed(2)); // v46.8: 문자열→숫자 타입 보장
   if (spread > 0) {
     story += '정상 곡선이므로 경기침체 우려는 낮습니다. ';
   } else {
@@ -29092,7 +29152,7 @@ document.addEventListener('aio:liveQuotes', function() {
         (s._stale.length > 0 ? '[' + s._stale.join(', ') + '] 폴백값일 수 있음. 확정 발언 자제.\n' : '') + '\n' +
         '【경제의 숨결 — 인터커넥션 맵】\n' +
         '유가↑ → 물가↑ → Fed 금리↑ → 달러↑ + 금리↑ → 주식↓ → 소비↓ → 수요파괴 → 유가↓ → 사이클 반복. 경제의 호흡.\n\n' +
-        '【시나리오 트리 (2026.04 Week 2 — 미-이란 2주 휴전 후 불확실한 안도 랠리)】\n' +
+        '【시나리오 트리 (2026.04 Week 3 — 이란 협상결렬+호르무즈 봉쇄 발효, Brent $103)】\n' +
         '• 현황: 미-이란 2주 휴전 합의(4/7) → WTI $' + s.wti + ', Brent $' + s.brent + ' (전쟁 극점 대비 -15~20% 하락). SPX ' + c.spx + ' (휴전 후 급반등). VIX ' + s.vix + '. 10Y ' + s.tnx + '%. DXY ' + s.dxy + '. 관세 불확실성 지속.\n' +
         'A. 스태그플레이션 잔존(35%): 휴전이 2주 한시적 → 재교전 리스크. 관세 인플레 잔존. Brent $95~110 레인지. Fed "관망" 유지. 수혜: XLE·GLD·TIPS·XLU\n' +
         'B. 휴전→영구 정전 전환(30%): 이란 IRGC 포함 내부 합의 + 호르무즈 완전 재개방 → 유가 $80대 복귀. 인플레 기대 꺾임 → Fed 비둘기 전환 가능. 수혜: 성장주·기술·EM·일본\n' +
@@ -29531,11 +29591,12 @@ function krSupplyTab(btn, tabId) {
 
 // ── Korea Home: live data update ────────────────────────────────
 var _krHomeRetry = 0;
+var _krHomeRetryTimer = null; // v46.8: 페이지 이탈 시 clearTimeout용 (P93)
 function initKoreaHome() {
   var ld = window._liveData || {};
-  // Check if Korean data is available, if not retry (max 20 attempts = 10s)
+  // Check if Korean data is available, if not retry (max 12 attempts)
   if (!ld['^KS11'] || !ld['^KQ11'] || !ld['KRW=X']) {
-    if (_krHomeRetry++ < 12) { setTimeout(initKoreaHome, Math.min(500 * Math.pow(1.3, _krHomeRetry), 3000)); return; }
+    if (_krHomeRetry++ < 12) { _krHomeRetryTimer = setTimeout(initKoreaHome, Math.min(500 * Math.pow(1.3, _krHomeRetry), 3000)); return; }
     console.warn('[AIO] initKoreaHome: 한국 데이터 로딩 타임아웃');
     return;
   }
@@ -29695,11 +29756,12 @@ document.addEventListener('aio:liveQuotes', function() {
 });
 
 var _krSupplyRetry = 0;
+var _krSupplyRetryTimer = null; // v46.8: 페이지 이탈 시 clearTimeout용 (P84)
 function initKoreaSupply() {
   var ld = window._liveData || {};
   // Check if Korean data is available, if not retry (max 20 attempts = 10s)
   if (!ld['^KS11'] || !ld['^KQ11']) {
-    if (_krSupplyRetry++ < 20) { setTimeout(initKoreaSupply, 500); return; }
+    if (_krSupplyRetry++ < 20) { _krSupplyRetryTimer = setTimeout(initKoreaSupply, 500); return; }
     console.warn('[AIO] initKoreaSupply: 한국 데이터 로딩 타임아웃');
     return;
   }
@@ -30010,10 +30072,10 @@ function showKrThemeDetail(themeId) {
         '<div style="font-size:18px;font-weight:900;color:'+(upRatio>=60?'#3ddba5':upRatio<=40?'#f87171':'#94a3b8')+';">'+upRatio+'%</div></div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;text-align:center;border:1px solid rgba(255,255,255,0.05);">'+
         '<div style="font-size:9px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">최고 종목</div>'+
-        '<div style="font-size:12px;font-weight:800;color:#3ddba5;">'+topStock+'</div><div style="font-size:10px;color:#3ddba5;">+'+(topPct>=0?'+':'')+topPct.toFixed(2)+'%</div></div>'+
+        '<div style="font-size:12px;font-weight:800;color:#3ddba5;">'+(topStock||'—')+'</div><div style="font-size:10px;color:#3ddba5;">'+(topStock?(topPct>=0?'+':'')+topPct.toFixed(2)+'%':'—')+'</div></div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;text-align:center;border:1px solid rgba(255,255,255,0.05);">'+
         '<div style="font-size:9px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">최저 종목</div>'+
-        '<div style="font-size:12px;font-weight:800;color:#f87171;">'+botStock+'</div><div style="font-size:10px;color:#f87171;">'+(botPct>=0?'+':'')+botPct.toFixed(2)+'%</div></div>'+
+        '<div style="font-size:12px;font-weight:800;color:#f87171;">'+(botStock||'—')+'</div><div style="font-size:10px;color:#f87171;">'+(botStock?(botPct>=0?'+':'')+botPct.toFixed(2)+'%':'—')+'</div></div>'+
       '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;text-align:center;border:1px solid rgba(255,255,255,0.05);">'+
         '<div style="font-size:9px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">가중평균</div>'+
         '<div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div></div>'+
@@ -30429,9 +30491,9 @@ async function fetchVkospiDynamic() {
     if (!val || isNaN(val)) return;
     // DOM 업데이트 — VKOSPI 값 표시 요소들
     var vEl = document.getElementById('kr-vkospi-val');
-    if (vEl) { vEl.textContent = val.toFixed(2); vEl.style.color = val > 30 ? 'var(--red)' : val > 20 ? '#fbbf24' : 'var(--green)'; }
+    if (vEl) { vEl.textContent = val.toFixed(2); vEl.style.color = val >= 35 ? 'var(--red)' : val >= 25 ? '#fbbf24' : val >= 15 ? '#fbbf24' : 'var(--green)'; }
     var hEl = document.getElementById('kr-health-vkospi');
-    if (hEl) { var label = val >= 40 ? '극단공포' : val >= 30 ? '공포' : val >= 20 ? '불안' : '안정'; hEl.textContent = val.toFixed(1) + ' (' + label + ')'; hEl.style.color = val >= 30 ? 'var(--red)' : val >= 20 ? '#fbbf24' : 'var(--green)'; }
+    if (hEl) { var label = val >= 35 ? '극단공포' : val >= 25 ? '공포' : val >= 15 ? '경계' : '안정'; hEl.textContent = val.toFixed(1) + ' (' + label + ')'; hEl.style.color = val >= 35 ? 'var(--red)' : val >= 25 ? '#f87171' : val >= 15 ? '#fbbf24' : 'var(--green)'; }
     // DATA_SNAPSHOT 동기화
     if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.vkospi = val;
     console.log('[KR] VKOSPI 동적 업데이트:', val);
@@ -31756,8 +31818,9 @@ async function dynamicTickerLookup(ticker) {
           if (stLines.length >= 2) {
             var cols = stLines[1].split(',');
             if (cols.length >= 8 && cols[1] !== 'N/D') {
-              var stPrice = parseFloat(cols[7]);
-              var stOpen = parseFloat(cols[4]);
+              // Stooq CSV: Symbol,Date,Time,Open,High,Low,Close,Volume → cols[6]=Close, cols[3]=Open
+              var stPrice = parseFloat(cols[6]) || parseFloat(cols[7]); // v46.8: Close 우선, Volume 폴백 방어
+              var stOpen = parseFloat(cols[3]) || parseFloat(cols[4]);  // Open 우선, High 폴백
               if (stPrice > 0) {
                 var stPct = stOpen > 0 ? ((stPrice - stOpen) / stOpen * 100) : 0;
                 if (!window._liveData) window._liveData = {};
@@ -31803,11 +31866,12 @@ async function dynamicTickerLookup(ticker) {
 }
 
 var _krMacroRetry = 0;
+var _krMacroRetryTimer = null; // v46.8: 페이지 이탈 시 clearTimeout용 (P85)
 function initKoreaMacro() {
   var ld = window._liveData || {};
   // Check if required data is available, if not retry (max 20 attempts = 10s)
   if (!ld['KRW=X'] || !ld['^TNX']) {
-    if (_krMacroRetry++ < 20) { setTimeout(initKoreaMacro, 500); return; }
+    if (_krMacroRetry++ < 20) { _krMacroRetryTimer = setTimeout(initKoreaMacro, 500); return; }
     console.warn('[AIO] initKoreaMacro: 한국 매크로 데이터 로딩 타임아웃');
     return;
   }
@@ -31843,7 +31907,7 @@ function initKoreaMacro() {
   
   // Update Korea 3Y bond yield (using mock data if not available from API)
   // In production, this would come from Korea Bond Exchange or similar source
-  var kr3y = ld['^KR3Y']; // Would need to be added to LIVE_SYMBOLS and FALLBACK_QUOTES
+  var kr3y = ld['^KR3Y'] || (DATA_SNAPSHOT.krBond3y ? {price: DATA_SNAPSHOT.krBond3y} : null); // v46.8: DATA_SNAPSHOT 폴백
   if (kr3y && kr3y.price !== undefined) {
     var el = document.getElementById('kr-macro-kr3y');
     if (el) {
@@ -32270,7 +32334,7 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
           if (SCREENER_DB[si].sym === p.ticker) {
             var sec = SCREENER_DB[si].sector || '';
             if (sec === 'Technology' || sec === 'Consumer') techCount++;
-            if (sec === 'Healthcare' || sec === 'Utilities' || sec === 'Consumer Staples') defCount++;
+            if (sec === 'Healthcare' || sec === 'Utilities' || sec === 'Consumer Defensive') defCount++;
             break;
           }
         }
@@ -32400,7 +32464,7 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
     // 섹터별 평균 베타 테이블
     var _SECTOR_BETA = { 'Technology': 1.3, 'Semiconductors': 1.4, 'Consumer': 1.1, 'Communication': 1.15,
       'Financials': 1.1, 'Industrials': 1.0, 'Energy': 0.9, 'Materials': 0.95,
-      'Healthcare': 0.8, 'Utilities': 0.5, 'Consumer Staples': 0.6, 'Real Estate': 0.75 };
+      'Healthcare': 0.8, 'Utilities': 0.5, 'Consumer Defensive': 0.6, 'Real Estate': 0.75 };
     // 섹터간 상관 매트릭스 (근사)
     var _SECTOR_CORR = {
       'Technology_Technology': 0.85, 'Technology_Semiconductors': 0.80, 'Technology_Consumer': 0.55,
@@ -32428,7 +32492,7 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
       pfBeta += beta * w; totalW += w;
       return { ticker: p.ticker, sector: sec, beta: beta, weight: w, val: val };
     });
-    pfBeta = totalW > 0 ? pfBeta / totalW * totalW : 1.0; // 가중평균 베타
+    pfBeta = totalW > 0 ? pfBeta / totalW : 1.0; // v46.8: 가중평균 베타 수정 (이전 /totalW*totalW noop)
 
     h += '<br><b>【포트폴리오 베타 & 상관계수 분석】</b><br>';
     h += '<span style="font-size:11px;">포트폴리오 가중평균 베타: <b style="color:' + (pfBeta > 1.2 ? 'var(--red)' : pfBeta > 0.8 ? 'var(--yellow)' : 'var(--green)') + ';">' + pfBeta.toFixed(2) + '</b>';
@@ -32672,7 +32736,7 @@ function _updateSentimentActionGuides() {
     var fgCard = document.getElementById('fg-score-big');
     if (fgCard) { var fgWidget = fgCard.closest('.data-widget'); if (fgWidget) { var g2 = document.createElement('div'); g2.id = 'fg-action-guide'; g2.style.cssText = 'padding:6px 10px;margin-top:6px;border-radius:4px;font-size:9px;line-height:1.5;'; fgWidget.appendChild(g2); fgGuide = g2; } }
   }
-  if (fgGuide && fgScore && !isNaN(fgScore)) {
+  if (fgGuide && fgScore != null && !isNaN(fgScore)) { // v46.8: fgScore=0 falsy 방지
     var fMsg, fBg;
     if (fgScore <= 25) { fMsg = ' <b>역발상:</b> 극단적 공포 = 역사적 매수 기회. 우량주 분할 매수 시작. "남들이 공포에 떨 때 탐욕을 부려라" — 버핏'; fBg = 'rgba(61,219,165,0.08)'; }
     else if (fgScore <= 45) { fMsg = ' <b>행동:</b> 공포 구간. 관심 종목 1차 매수 검토. 급하지 않게 분할 진입.'; fBg = 'rgba(96,165,250,0.08)'; }
@@ -32694,7 +32758,7 @@ function _generateSentimentAnalysis() {
   var h = '';
   if (!isNaN(fgScore)) {
     h += '<b>Fear & Greed ' + fgScore + '</b> — ';
-    h += fgScore < 20 ? '<span style="color:var(--green);">극단적 공포. 역사적으로 6~12개월 후 양(+) 수익 사례 다수. 분할 매수 적기.</span>' :
+    h += fgScore <= 25 ? '<span style="color:var(--green);">극단적 공포. 역사적으로 6~12개월 후 양(+) 수익 사례 다수. 분할 매수 적기.</span>' :
          fgScore < 35 ? '<span style="color:var(--yellow);">공포 우세. 시장 센티먼트 악화이나 바닥 근접 가능. 관심종목 리스트 준비.</span>' :
          fgScore < 65 ? '<span>중립. 센티먼트가 방향을 결정하지 않는 구간. 펀더멘털·수급 기반 판단.</span>' :
          fgScore < 80 ? '<span style="color:var(--yellow);">탐욕 구간. 차익실현 매물 출현 가능. 신규 매수 보수적 접근.</span>' :
@@ -33253,13 +33317,13 @@ function computeTradingScore(mode) {
     if (vix >= 18 && vix < 30) volScore = Math.min(100, volScore + 12);
   }
 
-  // 2. Momentum Score (25%) — Fear&Greed as proxy
+  // 2. Momentum Score (25%) — Fear&Greed as proxy (v46.8: CNN 표준 25/45/55/75 통일)
   let momScore;
-  if (fg > 65)       momScore = 82;
-  else if (fg > 50)  momScore = 68;
-  else if (fg > 35)  momScore = 50;
-  else if (fg > 20)  momScore = 32;
-  else               momScore = 15;
+  if (fg >= 75)      momScore = 85;  // Extreme Greed
+  else if (fg >= 55) momScore = 72;  // Greed
+  else if (fg >= 45) momScore = 50;  // Neutral
+  else if (fg >= 25) momScore = 32;  // Fear
+  else               momScore = 15;  // Extreme Fear
 
   // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
   const spx200ma = (window._spxMA && window._spxMA[200]) || _fb.spx200ma || 6659;
@@ -33272,9 +33336,9 @@ function computeTradingScore(mode) {
   else if (spxPrice > spx200ma*0.97) trendScore = 32;
   else                               trendScore = 15;
 
-  // 4. Breadth Score (20%) — % above 200 SMA
-  // window._breadth200 is updated by initBreadthPage() when live data is loaded;
-  // fallback to 27.1 (3/22 기준 실측치) if not yet available.
+  // 4. Breadth Score (20%) — % above 20 SMA (변수명 _breadth200은 레거시, 실제 20SMA above %)
+  // window._breadth200 is updated by initSentimentCharts() → bpSPX20[last] 캐싱;
+  // fallback to _fb.breadth200 if not yet available.
   const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : (_fb.breadth200 != null ? _fb.breadth200 : 75);
   let breadthScore;
   if (breadth200 > 70)      breadthScore = 88;
@@ -33283,10 +33347,10 @@ function computeTradingScore(mode) {
   else if (breadth200 > 25) breadthScore = 28;
   else                      breadthScore = 12;
 
-  // 5. Macro Score (10%)
+  // 5. Macro Score (10%) — 기저 55, 누진 감점 (DXY>110이면 -12-8=-20 의도적 누진)
   let macroScore = 55;
-  if (dxy > 107) macroScore -= 12;
-  if (dxy > 110) macroScore -= 8;
+  if (dxy > 107) macroScore -= 12;  // DXY 강세 1단계
+  if (dxy > 110) macroScore -= 8;   // DXY 극단 강세 2단계 (누진)
   if (tnx > 4.5) macroScore -= 10;
   if (hyg < 76)  macroScore -= 12;
   if (fg < 20)   macroScore -= 5;
@@ -33328,9 +33392,11 @@ function computeTradingScore(mode) {
     macroScore * 0.10
   );
 
-  const hySpreadEl = document.getElementById('hy-spread-val');
-  const hyText = hySpreadEl ? hySpreadEl.textContent : '';
-  const hyBp = parseInt(hyText.replace(/[^0-9]/g, '')) || 0;
+  // v46.8: DOM 텍스트 파싱 대신 _liveData/DATA_SNAPSHOT에서 직접 참조 (P94)
+  var hyBp = 0;
+  var _hyg = _ldSafe('HYG','price') || _fb.hyg || 78;
+  if (_hyg > 0 && _hyg < 90) hyBp = Math.round((100 - _hyg) * 15); // HYG→OAS 근사: (100-HYG)*15bps
+  if (!hyBp) { var hySpreadEl = document.getElementById('hy-spread-val'); var hyText = hySpreadEl ? hySpreadEl.textContent : ''; hyBp = parseInt(hyText.replace(/[^0-9]/g, '')) || 0; }
   if (hyBp > 500) compositeScore -= 15; // Distressed credit
   else if (hyBp > 400) compositeScore -= 8;
   else if (hyBp > 350) compositeScore -= 3;
@@ -33373,26 +33439,30 @@ function computeExecutionWindow() {
   const fg = window._lastFG || _fb2.fg || 35;
   const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : (_fb2.breadth200 != null ? _fb2.breadth200 : 75);
 
-  // Breakout holding: are breakouts sustaining? Low breadth + high VIX = no
-  let breakoutHold = 50;
+  // v46.8: 기저값 상향 — 중립 시 MOD(65) 판정되도록 (이전 46.25→WEAK)
+  // Breakout holding: are breakouts sustaining?
+  let breakoutHold = 65;
   if (breadth200 < 30) breakoutHold -= 25;
   if (vix > 25) breakoutHold -= 15;
+  if (breadth200 > 60 && vix < 20) breakoutHold += 10;
   breakoutHold = Math.max(0, Math.min(100, breakoutHold));
 
   // Pullback buying: are dips getting bought quickly?
-  let pullbackBuy = 45;
-  if (fg < 20) pullbackBuy -= 20; // extreme fear = no buyers
+  let pullbackBuy = 60;
+  if (fg < 20) pullbackBuy -= 20;
   if (vix > 30) pullbackBuy -= 15;
+  if (fg > 45 && vix < 20) pullbackBuy += 10;
   pullbackBuy = Math.max(0, Math.min(100, pullbackBuy));
 
   // Follow-through: multi-day continuation
-  let followThru = 40;
+  let followThru = 55;
   if (breadth200 < 35) followThru -= 20;
   if (vix > 22) followThru -= 10;
+  if (breadth200 > 55 && vix < 22) followThru += 10;
   followThru = Math.max(0, Math.min(100, followThru));
 
   // Leader retention: are leading stocks holding gains?
-  let leaderHold = 50;
+  let leaderHold = 65;
   if (breadth200 < 40) leaderHold -= 15;
   const pcr = window._putCallRatio || _fb2.pcr || 0.95;
   if (pcr > 1.2) leaderHold -= 10;
@@ -33490,7 +33560,7 @@ function drawPortfolioDonut() {
   // v40.4: 실제 포지션 데이터 기반 동적 도넛 차트
   var positions = typeof getPortfolioData === 'function' ? getPortfolioData() : [];
   var ld = window._liveData || {};
-  var SECTOR_COLORS = {'Technology':'#60a5fa','Healthcare':'#3ddba5','Financial Services':'#f59e0b','Consumer Cyclical':'#f472b6','Energy':'#ef4444','Industrials':'#a78bfa','Consumer Defensive':'#34d399','Communication Services':'#818cf8','Utilities':'#fbbf24','Real Estate':'#f87171','Basic Materials':'#06b6d4','CASH':'#94a3b8'};
+  var SECTOR_COLORS = {'Technology':'#60a5fa','Healthcare':'#3ddba5','Financial Services':'#f59e0b','Financials':'#f59e0b','Consumer Cyclical':'#f472b6','Consumer':'#f472b6','Energy':'#ef4444','Industrials':'#a78bfa','Consumer Defensive':'#34d399','Communication Services':'#818cf8','Utilities':'#fbbf24','Real Estate':'#f87171','Basic Materials':'#06b6d4','CASH':'#94a3b8'};
   var TICKER_COLORS = ['#60a5fa','#3ddba5','#f59e0b','#f472b6','#a78bfa','#34d399','#818cf8','#ef4444','#06b6d4','#fbbf24','#f87171','#c084fc','#fb923c','#22d3ee','#84cc16'];
 
   var data = [];
@@ -33622,7 +33692,7 @@ function drawPositionDonut() {
   var positions = typeof getPortfolioData === 'function' ? getPortfolioData() : [];
   var ld = window._liveData || {};
   var TICKER_COLORS = ['#60a5fa','#3ddba5','#f59e0b','#f472b6','#a78bfa','#34d399','#818cf8','#ef4444','#06b6d4','#fbbf24','#f87171','#c084fc','#fb923c','#22d3ee','#84cc16'];
-  var SECTOR_COLORS = {'Technology':'#60a5fa','Healthcare':'#3ddba5','Financial Services':'#f59e0b','Consumer Cyclical':'#f472b6','Energy':'#ef4444','Industrials':'#a78bfa','Consumer Defensive':'#34d399','Communication Services':'#818cf8','Utilities':'#fbbf24','Real Estate':'#f87171','Basic Materials':'#06b6d4','CASH':'#94a3b8'};
+  var SECTOR_COLORS = {'Technology':'#60a5fa','Healthcare':'#3ddba5','Financial Services':'#f59e0b','Financials':'#f59e0b','Consumer Cyclical':'#f472b6','Consumer':'#f472b6','Energy':'#ef4444','Industrials':'#a78bfa','Consumer Defensive':'#34d399','Communication Services':'#818cf8','Utilities':'#fbbf24','Real Estate':'#f87171','Basic Materials':'#06b6d4','CASH':'#94a3b8'};
 
   if (positions.length === 0) {
     ctx.font = '10px Inter, sans-serif';
@@ -33750,7 +33820,7 @@ function updateRiskMonitor() {
   var rmVixBar = document.getElementById('rm-vix-bar');
   if (vix !== null) {
     var vixColor = vix < 15 ? '#3ddba5' : vix < 20 ? '#60a5fa' : vix < 25 ? '#fbbf24' : '#f87171';
-    var vixLabel = vix < 15 ? '안도 (Low)' : vix < 20 ? '보통 (Normal)' : vix < 25 ? '주의 (Elevated)' : vix < 30 ? '공포 (High)' : '패닉 (Crisis)';
+    var vixLabel = vix < 15 ? '안정 (Low)' : vix < 20 ? '주의 (Normal)' : vix < 25 ? '경계 (Elevated)' : vix < 30 ? '공포 (High)' : '극단공포 (Crisis)';
     if (rmVixStatus) { rmVixStatus.textContent = vixLabel; rmVixStatus.style.color = vixColor; rmVixStatus.style.background = vixColor.replace(')',',0.1)').replace('rgb','rgba'); }
     if (rmVixBar) { rmVixBar.style.width = Math.min(100, (vix/40)*100) + '%'; rmVixBar.style.background = vixColor; }
   }
@@ -33818,7 +33888,7 @@ function updateRiskMonitor() {
     // 해석 텍스트 동적 생성
     var interpEl = document.getElementById('vix-term-interp-text');
     if (interpEl) {
-      var regime = vix >= 30 ? '패닉' : vix >= 25 ? '공포' : vix >= 20 ? '불안' : '안정';
+      var regime = vix >= 30 ? '극단공포' : vix >= 25 ? '공포' : vix >= 20 ? '경계' : vix < 15 ? '안정' : '주의';
       var structure = (vxxPct !== null && vix > 30 && vxxPct > 5) ? '백워데이션' : (vix < 20 ? '콘탱고' : '플랫~약한 콘탱고');
       var strategy = '';
       if (vix >= 30) strategy = 'Cash-Secured Put, Protective Put 위주. 공포 매수 기회 탐색.';
@@ -33869,8 +33939,8 @@ function updateRiskMonitor() {
   var rmFgStatus = document.getElementById('rm-fg-status');
   var rmFgBar = document.getElementById('rm-fg-bar');
   if (fg !== null) {
-    var fgColor = fg < 25 ? '#f87171' : fg < 45 ? '#fbbf24' : fg < 60 ? '#60a5fa' : '#3ddba5';
-    var fgLabel = fg < 25 ? '극단적 공포' : fg < 45 ? '공포' : fg < 55 ? '중립' : fg < 75 ? '탐욕' : '극단적 탐욕';
+    var fgColor = fg <= 25 ? '#f87171' : fg <= 45 ? '#fbbf24' : fg <= 55 ? '#60a5fa' : fg <= 75 ? '#86efac' : '#3ddba5';
+    var fgLabel = fg <= 25 ? '극단적 공포' : fg <= 45 ? '공포' : fg <= 55 ? '중립' : fg <= 75 ? '탐욕' : '극단적 탐욕';
     if (rmFgVal) { rmFgVal.textContent = fg; rmFgVal.style.color = fgColor; }
     if (rmFgStatus) { rmFgStatus.textContent = fgLabel; rmFgStatus.style.color = fgColor; }
     if (rmFgBar) { rmFgBar.style.width = fg + '%'; rmFgBar.style.background = fgColor; }
@@ -34010,11 +34080,11 @@ function updateBottomProcess() {
 
   if (!stageEl) return;
 
-  // 판별 로직
-  var isOversold = (vix && vix > 25) || (fg && fg < 30) || (score < 35) || (b5 && b5 < 25);
-  var isRallying = score >= 35 && score < 60 && (b5 && b5 > 30);
-  var isHealthyRally = b5 && b5 > 50 && b50 && b50 > 40;
-  var isBreadthThrust = b5 && b5 > 70 && b50 && b50 > 60 && score >= 60;
+  // 판별 로직 — v46.8: b5/b50 null 안전 처리 (P91)
+  var isOversold = (vix && vix > 25) || (fg != null && fg < 30) || (score < 35) || (b5 != null && b5 < 25) || (b5 == null && score < 50);
+  var isRallying = score >= 35 && score < 60 && (b5 != null ? b5 > 30 : true);
+  var isHealthyRally = b5 != null && b5 > 50 && (b50 != null ? b50 > 40 : true);
+  var isBreadthThrust = b5 != null && b5 > 70 && (b50 != null ? b50 > 60 : true) && score >= 60;
   var belowSma200 = spx && spx200 && spx < spx200;
 
   var stage = 0;
@@ -34155,14 +34225,19 @@ function updateEntryChecklist() {
     setCheck('ec-streak', !streak || spyD.pct < 1.5, spyD.pct >= 0 ? '+' + spyD.pct.toFixed(1) + '%' : spyD.pct.toFixed(1) + '%');
   }
 
-  // 5. FOMC/CPI 48시간 이내
+  // 5. FOMC/CPI 48시간 이내 — v46.8: 동적 FOMC + 미래 이벤트만 (P89)
+  var _fomcStr = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fomcNext) ? DATA_SNAPSHOT.fomcNext : '4/28-29';
+  var _fomcParts = _fomcStr.replace(/\//g, '-').split('-');
+  var _fomcYear = _fomcParts.length === 3 ? _fomcParts[0] : '2026';
+  var _fomcMonth = _fomcParts.length === 3 ? _fomcParts[1] : _fomcParts[0];
+  var _fomcDays = _fomcParts.length === 3 ? _fomcParts[2].split('-') : _fomcParts.length === 2 ? _fomcParts[0].split('-').concat(_fomcParts[1].split('-')) : [_fomcParts[0]];
   var eventDates = [
-    // FOMC 회의 (4/28-29가 직근! 4/28-29은 없음)
+    // FOMC 회의 (DATA_SNAPSHOT.fomcNext 동적 참조)
     '2026-04-28','2026-04-29','2026-06-16','2026-06-17','2026-07-28','2026-07-29',
-    // CPI 발표일
-    '2026-04-10','2026-05-13','2026-06-11','2026-07-15',
-    // v46.3: 4월 S급 이벤트 (어닝/청문회/OPEX)
-    '2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17'
+    // CPI 발표일 (미래만)
+    '2026-05-13','2026-06-11','2026-07-15',
+    // OPEX (매월 셋째 금요일)
+    '2026-04-17','2026-05-15','2026-06-19'
   ];
   var now = new Date();
   var nearEvent = false;
@@ -34210,6 +34285,10 @@ function initSignalDashboard() {
   updateBottomProcess();
   if (_signalInterval) clearInterval(_signalInterval);
   _signalInterval = setInterval(refreshSignalDashboard, T.SIGNAL_REFRESH);
+  // v46.8: signal 페이지 재진입 시 refreshSignal 타이머 복구 (P83)
+  refreshSignal();
+  if (window._refreshSignalInterval) clearInterval(window._refreshSignalInterval);
+  window._refreshSignalInterval = setInterval(refreshSignal, T.SIGNAL_REFRESH);
 
   // Init chat
   if (typeof CHAT_DEFAULT_CHIPS !== 'undefined') {
@@ -34925,7 +35004,7 @@ async function initFundamentalCards() {
     var d = ld[sym];
     var price = d ? d.price : 0;
     var pct = d && d.pct != null ? d.pct : null;
-    var peColor = f.pe > 0 && f.pe < 20 ? '#3ddba5' : f.pe > 40 ? '#f87171' : '#fbbf24';
+    var peColor = f.pe < 0 ? '#f87171' : f.pe < 20 ? '#3ddba5' : f.pe > 40 ? '#f87171' : '#fbbf24'; // v46.8: 음수 PE(적자)=빨강
     var roeColor = f.roe > 20 ? '#3ddba5' : f.roe > 10 ? '#fbbf24' : '#f87171';
 
     html += '<div style="background:var(--bg-card);border-radius:10px;padding:14px;border:1px solid var(--border);cursor:pointer;" onclick="fundamentalCardClick(\'' + sym + '\')">';
@@ -35461,35 +35540,36 @@ function calcLiveRS(sym) {
   // v46.3 /data-refresh: 4/7 휴전 후 섹터 로테이션 반영 (4/10 기준)
   // 휴전 → 에너지 약화, 기술/반도체 회복, 방산 차익실현 가속
   var _sectorRRGSeed = {
+    // v46.8: 4/13 호르무즈 봉쇄 발효 후 섹터 로테이션 반영
     // ── Leading (SPY 대비 상대강도↑ + 모멘텀↑) ──
-    'XLF': {r:+2.5, m:+2.5},  // 금융: H4L=NII 수혜 + 어닝 시즌(GS 4/13, JPM 4/14)
-    'XLV': {r:+2.0, m:+2.0},  // 헬스케어: 방어 + 스태그 플레이북 수혜 (§64)
-    'XLP': {r:+1.5, m:+1.5},  // 필수소비: 방어 섹터 유지
-    'XLE': {r:+2.0, m:-1.0},  // 에너지: YTD 최강이나 휴전 후 WTI -16%→반등 $98 (모멘텀 꺾임)
-    'XOP': {r:+2.5, m:-1.5},  // E&P: 에너지와 동행, 유가 변동성↑
-    'AMLP':{r:+2.0, m:+1.0},  // MLP: BTM 수요 durable (§62 DC전력)
+    'XLE': {r:+3.5, m:+3.0},  // 에너지: 호르무즈 봉쇄→Brent $103, WTI $98 (에너지 최강 리딩)
+    'XOP': {r:+3.5, m:+3.0},  // E&P: 유가 급등 직접 수혜
+    'OIH': {r:+3.0, m:+2.5},  // 오일서비스: 봉쇄 장기화 시 시추 증가 기대
+    'AMLP':{r:+2.5, m:+2.0},  // MLP: 에너지 인프라 + BTM 수요
+    'ITA': {r:+2.5, m:+2.0},  // 방산: 협상 결렬→전쟁 프리미엄 재점화
+    'GDX': {r:+2.0, m:+2.0},  // 금광: 안전자산 + 인플레 헤지
+    'SMH': {r:+2.0, m:+2.5},  // 반도체: SW→Semi 역대급 로테이션, TSMC Q1 $35.7B
     // ── Weakening (상대강도↑ but 모멘텀 꺾임) ──
-    'ITA': {r:+2.5, m:-2.5},  // 방산: 휴전→차익실현 가속 (전쟁 프리미엄 축소)
-    'OIH': {r:+2.0, m:-2.0},  // 오일서비스: 유가 변동성 부담
-    'GDX': {r:+1.5, m:-1.5},  // 금광: 금리 드라이버 전환 불확실
-    'URA': {r:+1.0, m:-2.0},  // 우라늄: DC전력 장기 테마이나 단기 약세
-    'XLC': {r:+0.5, m:-1.0},  // 통신: 중립 (스태그 시 EPS↓ 섹터)
-    'XLI': {r:+0.5, m:-0.5},  // 산업재: 중립 → 경기 민감
-    // ── Improving (상대강도↓ but 모멘텀 회복) — 휴전 후 핵심 ──
-    'XLK': {r:-1.0, m:+2.5},  // 기술: 7일 연속 상승, 어닝 시즌 기대 (TSM 4/16)
-    'SMH': {r:-1.5, m:+3.0},  // 반도체: 최강 반등 (ASML 4/15, TSM 4/16)
-    'XLY': {r:-1.0, m:+1.5},  // 임의소비: 감세 환류 + 바이백 재개
-    'IGV': {r:-1.0, m:+2.0},  // 소프트웨어: Capex 효율화 사이클 수혜 (§58)
-    'XBI': {r:-1.0, m:+1.5},  // 바이오텍: 바닥 다지기 → 반등
-    'HACK':{r:-0.5, m:+2.0},  // 사이버보안: AI보안 군비경쟁 (§63 Mythos)
-    'CIBR':{r:-0.5, m:+2.0},  // 사이버보안2
-    'JETS':{r:-1.5, m:+1.5},  // 항공: 유가↓ 수혜 (휴전 직접 수혜)
+    'XLV': {r:+2.0, m:-0.5},  // 헬스케어: 방어 유지이나 에너지 대비 상대약세
+    'XLP': {r:+1.5, m:-0.5},  // 필수소비: 방어 유지
+    'XLF': {r:+1.0, m:-1.0},  // 금융: GS 어닝 비트이나 지정학 불확실성 (4% 하락)
+    'XLC': {r:+0.5, m:-1.0},  // 통신: 스태그 EPS↓ 리스크
+    'XLI': {r:+0.5, m:-1.0},  // 산업재: 경기 민감, 유가 코스트↑
+    // ── Improving (상대강도↓ but 모멘텀 회복) ──
+    'XLK': {r:-0.5, m:+2.0},  // 기술: 어닝 시즌 기대 (TSMC/ASML), 반도체 견인
+    'URA': {r:-0.5, m:+1.5},  // 우라늄: 에너지 위기→원전 재평가
+    'XBI': {r:-1.0, m:+1.0},  // 바이오텍: 바닥 다지기
+    'HACK':{r:-0.5, m:+1.5},  // 사이버보안: 전쟁 장기화→사이버 위협↑
+    'CIBR':{r:-0.5, m:+1.5},  // 사이버보안2
+    'XLY': {r:-1.0, m:+0.5},  // 임의소비: 유가↑ 소비 압박이나 감세 환류
     // ── Lagging (상대강도↓ + 모멘텀↓) ──
-    'XLU': {r:-3.0, m:-2.5},  // 유틸: H4L 금리 부담 지속 (BUT DC전력 장기 수혜)
-    'ICLN':{r:-3.5, m:-2.0},  // 클린에너지: 금리+정책 불확실
+    'IGV': {r:-2.5, m:-2.5},  // 소프트웨어: SW→Semi -23% 역대 최악 로테이션 (UBS NOW→Neutral)
+    'JETS':{r:-3.0, m:-3.0},  // 항공: 유가 $100+ → 연료비 급등 직격
+    'XLU': {r:-2.5, m:-2.0},  // 유틸: H4L 금리 부담 (BUT DC전력 장기)
+    'ICLN':{r:-3.0, m:-2.0},  // 클린에너지: 금리+정책 불확실
     'BOTZ':{r:-2.5, m:-1.5},  // 로보틱스: 약세 유지
     'LIT': {r:-2.5, m:-1.0},  // 리튬: EV 둔화
-    'XLRE':{r:-3.0, m:-2.0},  // 부동산: H4L 금리 직격
+    'XLRE':{r:-3.0, m:-2.5},  // 부동산: H4L 금리 + 에너지 코스트↑
     'XLB': {r:-0.5, m:+0.5}   // 소재: 중립 (바닥 다지기)
   };
   var seed = _sectorRRGSeed[sym] || {r:0, m:0};
@@ -35766,13 +35846,13 @@ var _sectorWeeklyTs = 0;
 // 사용처: _liveData에 d.pct가 없을 때 정적 폴백 (v45.5 4/4 종가)
 // v46.3: 4/9 종가 기준 — 휴전 후 7일 연속 상승 반영
 var _SECTOR_PCT_FALLBACK = {
-  // 11 메인 섹터 (4/9 daily % chg)
-  XLK:+0.80, XLF:+0.55, XLE:+3.00, XLV:+0.40, XLI:+0.50, XLY:+0.65,
-  XLP:+0.30, XLRE:-0.20, XLB:+0.45, XLU:+0.25, XLC:+0.60,
+  // 11 메인 섹터 (4/13 daily % chg — 호르무즈 봉쇄 발효, 에너지 급등)
+  XLK:-0.30, XLF:-0.50, XLE:+4.50, XLV:+0.20, XLI:-0.40, XLY:-0.60,
+  XLP:+0.10, XLRE:-0.80, XLB:-0.20, XLU:+0.15, XLC:-0.25,
   // 서브섹터
-  ITA:-0.50, OIH:+2.50, SOXX:+1.20, GDX:+0.80, SMH:+1.10, IGV:+0.90,
-  XBI:+0.55, AMLP:+1.20, URA:-0.30, XOP:+2.80, HACK:+0.70, CIBR:+0.65,
-  BOTZ:+0.40, ICLN:-0.15, LIT:-0.10, JETS:+1.50
+  ITA:+1.20, OIH:+5.00, SOXX:+0.80, GDX:+1.50, SMH:+0.90, IGV:-1.20,
+  XBI:+0.30, AMLP:+3.50, URA:+0.40, XOP:+5.50, HACK:-0.30, CIBR:-0.25,
+  BOTZ:-0.10, ICLN:-0.50, LIT:-0.30, JETS:-2.00
 };
 
 function setSectorPerfMode(mode, btn) {
@@ -36010,7 +36090,7 @@ function renderSectorPerfBars() {
 
 function generateSectorAnalysis(sectors) {
   var el = document.getElementById('sector-perf-analysis');
-  if (!el) return;
+  if (!el || !sectors || sectors.length === 0) return; // v46.8: 빈 배열 방어
 
   var best = sectors[0];
   var worst = sectors[sectors.length-1];
@@ -36824,7 +36904,7 @@ function renderSubThemesGrid() {
   }
   var container = document.getElementById('sub-themes-grid');
   if (!container) return;
-  var ld = window._liveData || {};
+  ld = window._liveData || {}; // v46.8: 중복 var 제거, 최신 참조 갱신
 
   // 각 서브테마 퍼포먼스 계산 후 정렬
   var items = SUB_THEMES.map(function(st) {
@@ -37098,7 +37178,7 @@ function initOptionsPage() {
     }
 
     // v46.6: IV Rank 추정 → 52주 VIX 범위 기반 (2025.04~2026.04: 저점12 고점82 이란전쟁)
-    var _vixLow52 = 12, _vixHigh52 = 82;
+    var _vixLow52 = 12, _vixHigh52 = 82; // 2025.04~2026.04: 저점12(2025년 안정기) 고점82(이란전쟁 4/4) — 52주 윈도우 아직 유효
     var ivRank = Math.min(99, Math.max(1, Math.round(((vix - _vixLow52) / (_vixHigh52 - _vixLow52)) * 100)));
     var ivRankEl = document.getElementById('opt-ivrank-val');
     var ivRankDesc = document.getElementById('opt-ivrank-desc');
@@ -37565,10 +37645,10 @@ function renderGlossaryItems(query) {
       var catColors = {'기초':'#3ddba5','기술적분석':'#60a5fa','경제':'#fbbf24','외환':'#2dd4bf','채권':'#c084fc','매크로':'#f59e0b','옵션':'#f472b6','한국시장':'#a78bfa','전략':'#fb923c','배경지식':'#94a3b8'};
       html += '<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">';
       html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
-      html += '<span style="font-weight:600;color:#edf0f7;font-size:14px;">' + g.term + '</span>';
-      html += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:' + (catColors[g.cat]||'#7e8a9e') + '22;color:' + (catColors[g.cat]||'#7e8a9e') + ';">' + g.cat + '</span>';
+      html += '<span style="font-weight:600;color:#edf0f7;font-size:14px;">' + escHtml(g.term) + '</span>';
+      html += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:' + (catColors[g.cat]||'#7e8a9e') + '22;color:' + (catColors[g.cat]||'#7e8a9e') + ';">' + escHtml(g.cat) + '</span>';
       html += '</div>';
-      html += '<div style="color:#a0aab8;font-size:13px;line-height:1.5;">' + g.def + '</div>';
+      html += '<div style="color:#a0aab8;font-size:13px;line-height:1.5;">' + escHtml(g.def) + '</div>';
       html += '</div>';
     });
   }
@@ -38026,15 +38106,15 @@ function _calcSMA(prices, period) {
   return sum / period;
 }
 
-// Helper: Calculate EMA
+// Helper: Calculate EMA (last value only) — v46.8: 인덱스 오류 수정 (P90)
 function _calcEMA(prices, period) {
   if (prices.length < period) return null;
   var k = 2 / (period + 1);
   var ema = 0;
-  for (var i = 0; i < period; i++) ema += prices[prices.length - period + i];
+  for (var i = 0; i < period; i++) ema += prices[i];
   ema = ema / period;
   for (var i = period; i < prices.length; i++) {
-    ema = prices[prices.length - prices.length + period + i] * k + ema * (1 - k);
+    ema = prices[i] * k + ema * (1 - k);
   }
   return ema;
 }
@@ -38055,16 +38135,23 @@ function _calcEMAFull(prices, period) {
 }
 
 // RSI calculation (Wilder smoothing, last bar)
+// v46.8: Wilder Smoothed Moving Average RSI (표준 구현)
 function _calcRSILast(prices, period) {
-  if (prices.length < period + 1) return 50;
-  var gains = 0, losses = 0;
-  for (var i = prices.length - period; i < prices.length; i++) {
-    var delta = prices[i] - prices[i - 1];
-    if (delta > 0) gains += delta;
-    else losses += Math.abs(delta);
+  if (prices.length < period + 1) return null; // v46.8: 50→null (데이터 부족 명시)
+  // 1단계: 초기 period개 평균
+  var initGain = 0, initLoss = 0;
+  for (var i = 1; i <= period; i++) {
+    var d = prices[i] - prices[i - 1];
+    if (d > 0) initGain += d; else initLoss += Math.abs(d);
   }
-  var avgGain = gains / period;
-  var avgLoss = losses / period;
+  var avgGain = initGain / period;
+  var avgLoss = initLoss / period;
+  // 2단계: Wilder smoothing (나머지 데이터)
+  for (var i = period + 1; i < prices.length; i++) {
+    var d = prices[i] - prices[i - 1];
+    avgGain = (avgGain * (period - 1) + (d > 0 ? d : 0)) / period;
+    avgLoss = (avgLoss * (period - 1) + (d < 0 ? Math.abs(d) : 0)) / period;
+  }
   if (avgLoss === 0) return 100;
   var rs = avgGain / avgLoss;
   return 100 - (100 / (1 + rs));
@@ -38122,21 +38209,27 @@ function _detectStage(o, h, l, c, v) {
 
   var isAbove150 = currentPrice > sma150;
   var is150Rising = sma150 > sma150Prev;
+  // v46.8: 30주 MA 수평화 감지 (Stage 1 핵심 조건) — 기울기 < 0.5%이면 flat
+  var is150Flat = Math.abs(sma150 - sma150Prev) / (sma150Prev || 1) < 0.005;
   var isAbove50 = currentPrice > sma50;
-  var is50Rising = sma50 > (c.length > 100 ? _calcSMA(c.slice(0, -1), 50) : sma50);
+  var sma50Prev = _calcSMA(c.slice(0, -1), 50);
+  var is50Rising = sma50 > sma50Prev;
 
-  // Calculate higher lows (Stage 1) and higher highs (Stage 2)
+  // Calculate higher lows (Stage 1) and higher highs (Stage 2) — v46.8: 0-falsy 방어
   var highs = h.slice(-50);
   var lows = l.slice(-50);
   var higherLows = true, higherHighs = true;
   for (var i = 1; i < Math.min(highs.length, 20); i++) {
-    if (lows[lows.length - i - 5] && lows[lows.length - i] && lows[lows.length - i] <= lows[lows.length - i - 5]) higherLows = false;
-    if (highs[highs.length - i - 5] && highs[highs.length - i] && highs[highs.length - i] <= highs[highs.length - i - 5]) higherHighs = false;
+    var li = lows.length - i - 5, lj = lows.length - i;
+    var hi = highs.length - i - 5, hj = highs.length - i;
+    if (li >= 0 && lj >= 0 && lows[li] != null && lows[lj] != null && lows[lj] <= lows[li]) higherLows = false;
+    if (hi >= 0 && hj >= 0 && highs[hi] != null && highs[hj] != null && highs[hj] <= highs[hi]) higherHighs = false;
   }
 
   var stage, label, confidence;
 
-  if (!isAbove150 && higherLows && !is50Rising) {
+  // v46.8: Stage 1에 MA 수평화 조건 추가 (와인스타인 표준)
+  if (!isAbove150 && (is150Flat || !is150Rising) && higherLows) {
     stage = 1;
     label = '바닥 다지기';
     confidence = higherLows ? 0.8 : 0.5;
@@ -38171,12 +38264,17 @@ function _detectTrendPosition(o, h, l, c, v) {
   var sma50 = _calcSMA(c, 50);
   var currentPrice = c[c.length - 1];
 
-  var low52w = Math.min.apply(null, c.slice(-252));
-  var high52w = Math.max.apply(null, c.slice(-252));
+  // v46.8: 데이터 부족 시 52주 범위 과소평가 방지 — 최소 100일 필요
+  var _52slice = c.slice(-252);
+  var low52w = Math.min.apply(null, _52slice);
+  var high52w = Math.max.apply(null, _52slice);
   var week52Range = high52w - low52w;
-  var week52Position = week52Range > 0 ? ((currentPrice - low52w) / week52Range) * 100 : 50;
+  var week52Position = (week52Range > 0 && _52slice.length >= 100) ? ((currentPrice - low52w) / week52Range) * 100 : 50;
 
   var fullAlign = ema5 > ema10 && ema10 > ema20 && ema20 > sma50;
+  // v46.8: 부분 정배열 퍼센트 (0~100)
+  var alignCount = (ema5 > ema10 ? 1 : 0) + (ema10 > ema20 ? 1 : 0) + (ema20 > sma50 ? 1 : 0);
+  var alignPct = Math.round(alignCount / 3 * 100);
   var gapFrom20 = ((currentPrice - ema20) / ema20) * 100;
 
   var position;
@@ -38197,7 +38295,7 @@ function _detectTrendPosition(o, h, l, c, v) {
   return {
     position: position,
     positionKo: position,
-    alignment: fullAlign ? 100 : 50,
+    alignment: alignPct, // v46.8: 0/33/67/100 (이전 이진 50/100)
     gapFrom20: gapFrom20,
     week52: Math.round(week52Position),
     ema5: ema5,
@@ -38263,7 +38361,7 @@ function _assessEntryQuality(o, h, l, c, v) {
   var price = c[c.length - 1];
   var ema20 = trend.ema20;
   var sma50 = trend.sma50;
-  var rsi = _calcRSILast(c, 14);
+  var rsi = _calcRSILast(c, 14) ?? 50; // null→50 폴백
 
   var gap20 = Math.abs(trend.gapFrom20);
   var score = 0;
@@ -38424,11 +38522,13 @@ async function analyzeTickerDeep(ticker) {
     return;
   }
 
-  // Extract data
-  var c = chartData.closes.filter(function(x) { return x !== null; });
-  var o = chartData.opens.filter(function(x) { return x !== null; });
-  var h = chartData.highs.filter(function(x) { return x !== null; });
-  var l = chartData.lows.filter(function(x) { return x !== null; });
+  // Extract data — v46.8: 인덱스 동기화 필터링 + NaN 방어
+  var _raw = chartData.closes.map(function(v, i) { return { c: v, o: chartData.opens[i], h: chartData.highs[i], l: chartData.lows[i] }; })
+    .filter(function(d) { return d.c != null && !isNaN(d.c) && d.o != null && !isNaN(d.o); });
+  var c = _raw.map(function(d) { return d.c; });
+  var o = _raw.map(function(d) { return d.o; });
+  var h = _raw.map(function(d) { return d.h != null ? d.h : d.c; });
+  var l = _raw.map(function(d) { return d.l != null ? d.l : d.c; });
   var v = chartData.volumes.filter(function(x) { return x !== null; });
 
   // Run all analyses
@@ -38872,12 +38972,15 @@ async function analyzeKrIndex(ticker, targetId, label) {
     '</div>' +
   '</div>';
 
-  // MACD & BB
+  // MACD & BB — v46.8: macd null 가드 추가
+  var _macdLine = (macd && macd.macdLine && macd.macdLine.length) ? macd.macdLine[macd.macdLine.length-1] : 0;
+  var _sigLine = (macd && macd.signalLine && macd.signalLine.length) ? macd.signalLine[macd.signalLine.length-1] : 0;
+  var _hist = (macd && macd.histogram && macd.histogram.length) ? macd.histogram[macd.histogram.length-1] : 0;
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">' +
     '<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:10px;">' +
       '<div style="font-size:9px;font-weight:700;color:var(--text-bright);margin-bottom:4px;">MACD</div>' +
-      '<div style="font-size:8px;color:var(--text-muted);">Line: '+macd.macdLine[macd.macdLine.length-1].toFixed(2)+' | Signal: '+macd.signalLine[macd.signalLine.length-1].toFixed(2)+'</div>' +
-      '<div style="font-size:8px;color:'+(macd.histogram[macd.histogram.length-1]>0?'#3ddba5':'#f87171')+';">Histogram: '+macd.histogram[macd.histogram.length-1].toFixed(2)+'</div>' +
+      '<div style="font-size:8px;color:var(--text-muted);">Line: '+_macdLine.toFixed(2)+' | Signal: '+_sigLine.toFixed(2)+'</div>' +
+      '<div style="font-size:8px;color:'+(_hist>0?'#3ddba5':'#f87171')+';">Histogram: '+_hist.toFixed(2)+'</div>' +
     '</div>' +
     '<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;padding:10px;">' +
       '<div style="font-size:9px;font-weight:700;color:var(--text-bright);margin-bottom:4px;">볼린저 밴드</div>' +
@@ -39778,6 +39881,8 @@ async function chatSendUnified() {
   if (!q) return;
   // v46.4: 입력 길이 제한 (10000자) — API 비용 + 메모리 보호
   if (q.length > 10000) { q = q.slice(0, 10000); inp.value = q; }
+  // v46.8: API 키 체크를 쿼터 차감 전에 수행 (키 없으면 쿼터 낭비 방지)
+  if (typeof getApiKey === 'function' && !getApiKey()) { appendChatMessage(_aiCurrentCtx, 'ai', '⚠️ API 키를 먼저 설정해주세요. (설정 → API 키)'); return; }
   if (typeof consumeLLMQuery === 'function' && !consumeLLMQuery()) return;
   inp.value = '';
   state.streaming = true;
@@ -39851,11 +39956,12 @@ async function chatSendUnified() {
           // 복합 질문(50자+ 또는 티커+맥락) → Deep Search
           var isComplex = q.length > 50 || (detectedTickers.length > 0 && /전망|분석|비교|어때|어떻|최근|상황/.test(q));
           var webResult;
+          // v46.8: DeepSearch 예외 시 일반 검색 폴백 보장 (개별 try-catch)
           if (isComplex && typeof _aiDeepSearch === 'function') {
-            webResult = await _aiDeepSearch(q, ctxId);
+            try { webResult = await _aiDeepSearch(q, ctxId); } catch(de) { console.warn('[AIO] DeepSearch 실패:', de.message); }
           }
           if (!webResult) {
-            webResult = await _aiWebSearch(searchQuery);
+            try { webResult = await _aiWebSearch(searchQuery); } catch(se) { console.warn('[AIO] WebSearch 실패:', se.message); }
           }
           if (webResult && typeof _formatSearchForPrompt === 'function')
             sysPrompt += _formatSearchForPrompt(webResult);
