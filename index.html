@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v46.8 — 올인원 투자 터미널</title>
+  <title>AIO Screener v46.9 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2240,7 +2240,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v46.8</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v46.9</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9182,7 +9182,7 @@ const _AIO_SENSITIVE_KEYS = new Set([
 async function safeLS(key, value) {
   try {
     var storage = _AioVault.getStorage();
-    if (value == null || value === '') { storage.removeItem(key); return; } // v46.8: 0/false falsy 함정 방지
+    if (value == null || value === '') { storage.removeItem(key); return; } // v46.9: 0/false falsy 함정 방지
     if (_AIO_SENSITIVE_KEYS.has(key) && _AioVault.isUnlocked()) {
       storage.setItem(key, await _AioVault.encrypt(value));
     } else {
@@ -9630,7 +9630,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v46.8';
+const APP_VERSION = 'v46.9';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -9661,9 +9661,9 @@ if (!AIO_DEBUG) {
 //    HTML 본문에 직접 숫자를 수정하지 마세요!
 // ─────────────────────────────────────────────────────────────────
 const DATA_SNAPSHOT = {
-  _updated: '2026-04-14T22:00:00+09:00',   // ISO 타임스탬프 — v46.8 /data-refresh (VIX/HY/PC 4/13 연장 + 이란 협상결렬 반영)
+  _updated: '2026-04-14T22:00:00+09:00',   // ISO 타임스탬프 — v46.9 /data-refresh (VIX/HY/PC 4/13 연장 + 이란 협상결렬 반영)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v46.8 — /data-refresh 4/14: 이란 협상결렬+호르무즈 봉쇄, VIX 29.8, WTI $98(+7.6%), Brent $103, S&P 6894',
+  _note: 'v46.9 — /data-refresh 4/14: 이란 협상결렬+호르무즈 봉쇄, VIX 29.8, WTI $98(+7.6%), Brent $103, S&P 6894',
 
   // ── 미국 주요 지수 (4/13 월 종가) ──
   spx:        6893.80,  spxPct:    -0.05,
@@ -9678,8 +9678,8 @@ const DATA_SNAPSHOT = {
   kosdaq:    1165.00,  kosdaqPct: -0.50,  kosdaqPrev: 1170.85,
 
   // ── 원자재 (4/13 종가 — 호르무즈 봉쇄 후 급등) ──
-  wti:      98.00,   wtiPct:   +2.00,   // v46.8: WTI ~$98 (4/13, 장중 +9%→종가 +2%, 호르무즈 봉쇄)
-  brent:   103.00,   brentPct: +8.00,   // v46.8: Brent ~$103 (4/13, 봉쇄+협상결렬)
+  wti:      98.00,   wtiPct:   +2.00,   // v46.9: WTI ~$98 (4/13, 장중 +9%→종가 +2%, 호르무즈 봉쇄)
+  brent:   103.00,   brentPct: +8.00,   // v46.9: Brent ~$103 (4/13, 봉쇄+협상결렬)
   gold:   4750,      goldPct:   +1.00,  goldWeeklyPct: +2.5,
   ng:       3.00,
 
@@ -9691,7 +9691,7 @@ const DATA_SNAPSHOT = {
   fedRate:     '3.50-3.75',
   fedStatus:   '동결',  // v45.6: 동적화 — Fed 금리 변경 시 이 값 갱신 (인하/인상/동결)
   fomc:        '4/28-29',
-  fomcNext:    '4/28-29',                    // v46.8: 다음 FOMC는 4/28-29 (비SEP 회의)
+  fomcNext:    '4/28-29',                    // v46.9: 다음 FOMC는 4/28-29 (비SEP 회의)
   ecbRate:      2.15,  ecbStatus: '동결',
   bojRate:      0.50,
   boeRate:      4.50,
@@ -9739,7 +9739,7 @@ const DATA_SNAPSHOT = {
 
   // ── 리스크 지표 ──
   move:       115.0,
-  fg:            28,   fgLabel: '공포',  // v46.8: 협상결렬+봉쇄 후 하락 (이전 35), CNN 25~44=공포
+  fg:            28,   fgLabel: '공포',  // v46.9: 협상결렬+봉쇄 후 하락 (이전 35), CNN 25~44=공포
 
   // ── KR 섹터 ETF (4/3 종가) ──
   krSemiEtf:   -1.50,  krSemiPrice:  100200,
@@ -10127,7 +10127,7 @@ const _SNAP_FALLBACK = {
   '^KS11':    { price: () => DATA_SNAPSHOT.kospi || 2500 },
   '^KQ11':    { price: () => DATA_SNAPSHOT.kosdaq || 700 },
   'BTC-USD':  { price: () => DATA_SNAPSHOT.btc || 85000 },
-  // v46.8: 홈 화면/시그널 표시 종목 폴백 확장 (M19)
+  // v46.9: 홈 화면/시그널 표시 종목 폴백 확장 (M19)
   '^DJI':     { price: () => DATA_SNAPSHOT.dow,    pct: () => DATA_SNAPSHOT.dowPct },
   '^IXIC':    { price: () => DATA_SNAPSHOT.nasdaq,  pct: () => DATA_SNAPSHOT.nasdaqPct },
   '^RUT':     { price: () => DATA_SNAPSHOT.rut,     pct: () => DATA_SNAPSHOT.rutPct },
@@ -10255,14 +10255,14 @@ function destroyPageCharts(pageId) {
         if (ctx && ctx.chart) { try { ctx.chart.destroy(); } catch(e){} }
       });
     }
-    // v46.8: 한국 페이지 재귀 setTimeout 정리 (P84/P85)
+    // v46.9: 한국 페이지 재귀 setTimeout 정리 (P84/P85)
     if (pageId === 'kr-home' && typeof _krHomeRetryTimer !== 'undefined' && _krHomeRetryTimer) {
       clearTimeout(_krHomeRetryTimer); _krHomeRetryTimer = null; _krHomeRetry = 0;
     }
     if (pageId === 'kr-supply' && typeof _krSupplyRetryTimer !== 'undefined' && _krSupplyRetryTimer) {
       clearTimeout(_krSupplyRetryTimer); _krSupplyRetryTimer = null; _krSupplyRetry = 0;
     }
-    if (pageId === 'kr-supply') window._krSupplyLoaded = false; // v46.8: 재진입 시 수급 재fetch 허용
+    if (pageId === 'kr-supply') window._krSupplyLoaded = false; // v46.9: 재진입 시 수급 재fetch 허용
     if (pageId === 'kr-macro' && typeof _krMacroRetryTimer !== 'undefined' && _krMacroRetryTimer) {
       clearTimeout(_krMacroRetryTimer); _krMacroRetryTimer = null; _krMacroRetry = 0;
     }
@@ -10603,9 +10603,9 @@ var SCREENER_DB = [
   { sym:'NVDA', name:'NVIDIA', sector:'Technology', signal:'BUY', memo:'Blackwell Ultra 양산 · CoWoS 2026 650K/2027 840K 확보 · Rubin HBM4 자격검증 지연(6월→9월) · Rubin 목표 1.5M GPU/6K VR랙 · Feynman EMIB 검토=CoWoS 공급 다변화 신호 · AI DC 수요 구조적 지속 · PE 35x', mcap:4197, rsi:48, index:'SP500' },
   { sym:'AAPL', name:'Apple', sector:'Technology', signal:'HOLD', memo:'MacBook Neo 성공 딜레마 · A18 Pro 빈닝칩 재고 소진 위기(팀쿡 "맥 역사상 첫구매 최고 첫주") · TSMC N3E 풀가동 · 추가생산 시 마진↓ · 생태계 유입 전략 vs 단기 수익성 트레이드오프 · 서비스 매출 성장 지속', mcap:3645, rsi:52, index:'SP500' },
   { sym:'GOOGL', name:'Alphabet', sector:'Technology', signal:'BUY', memo:'[BofA PT$370, 미즈호 PT$420] 검색 점유율 90.0%(+24bps YoY) 안정 · Gemini DAU 8,900만(+332% YoY, +9% MoM) · 크레딧 래퍼 구조로 AI DC 백스톱(WULF/CIFR/HUT) · Intel 다년 AI 컴퓨팅 협력(CPU+IPU) · TPU 로열티 자산경량 69% OI마진 · 앤트로픽 파트너십 · Cloud Next 4/22, I/O 5/19', mcap:3641, rsi:50, index:'SP500' },
-  { sym:'MSFT', name:'Microsoft', sector:'Technology', signal:'BUY', memo:'Azure AI + Copilot · 3QFY Azure 37.5~39.0% cc(공급제약·Fairwater 정상화가 열쇠) · Capex FY27 $178B(+23% yoy, 컨센 $167B 상회) · M365 잠식 리스크 ~4배 EBIT 할인 반영(GS SOTP — 앱SW 섹터 14배 대비) · E7 5월 GA+9개월 이내 전환 기대 · MAI 자체모델 3종(2026.04) · GS OW PT $600', mcap:2838, rsi:48, index:'SP500' },
+  { sym:'MSFT', name:'Microsoft', sector:'Technology', signal:'BUY', memo:'Azure AI + Copilot→오픈클로 영감 GUI 에이전트 진화(다단계 업무 자동화, Anthropic Computer Use 경쟁) · OpenAI "MSFT가 고객확보 제한"→Amazon Bedrock 선회 · 3QFY Azure 37.5~39.0%cc · Capex FY27 $178B · MAI 자체모델 3종 · GS OW PT $600', mcap:2838, rsi:48, index:'SP500' },
   { sym:'AMZN', name:'Amazon', sector:'Technology', signal:'BUY', memo:'[Jefferies 04/12] "Mispriced Not Broken" — AI capex 타이밍 이슈(구조적 아님) · 11x NTM EV/EBITDA = 10년 저점(WMT 대비 ~10턴↓) · SOTP ~46%↑ · AWS 가속 전환 임박(백로그↑+엔터프라이즈 믹스) · agentic commerce = 리테일 내구성 · CEO서한: 자체칩 TAM $50B/년 · PT $300(JEF) $305(WF)', mcap:2205, rsi:46, index:'SP500' },
-  { sym:'META', name:'Meta Platforms', sector:'Technology', signal:'BUY', memo:'[번스타인 Outperform PT$900] Muse Spark — Artificial Analysis 5위, Vals Index 3위 데뷔 · 토큰효율성: Opus4.6의 1/3 토큰 · MMMU-Pro 비전 80.5% · Contemplating 모드 · 31억 사용자+2억 크리에이터 배포기반 · AI Advantage+ 광고자동화 · Vibes 앱/Neural Band 기기 · 에이전틱 커머스', mcap:1502, rsi:50, index:'SP500' },
+  { sym:'META', name:'Meta Platforms', sector:'Technology', signal:'BUY', memo:'[번스타인 PT$900] 2026 순광고 $243B로 GOOGL 초과(사상 첫 역전) · AI추천→릴스 시청 YoY+30% · AI비디오생성 ARR $10B · 릴스 12M 매출 $50B 전망 · GOOGL 검색점유율 48.5%(10년만에 50%↓) · Muse Spark · 31억 사용자 배포기반 · CoreWeave $350억(2032)', mcap:1502, rsi:50, index:'SP500' },
   { sym:'TSM', name:'TSMC', sector:'Technology', signal:'BUY', memo:'파운드리 독점 모트 · CoWoS 캐파 115K/155K/175K wfpm(26/27/28E, JPM 상향) · SoIC 35K/65K wfpm(27/28E, 대폭상향 — 2nm AI-ASIC+CPO) · 수요 15~20% 초과(구조적) · CoPoS 2028 CoWoS 대체 · OSAT외주(ASE/Amkor) · PDK+DTCO 고착 · 수율 플라이휠 40년 · 44% 점유율', mcap:1708, rsi:52, index:'SP500' },
   { sym:'AVGO', name:'Broadcom', sector:'Technology', signal:'BUY', memo:'JPM CoWoS 250K/400K(26/27E 대폭상향) · TPU 430만/690만유닛(26/27E) · TPUv9 퓨마피시(SoIC+CoWoS-L) vs 미디어텍후무피시(EMIB-T) 경쟁 · 구글 LTA 2031(TPU+네트워킹) 확정 · Anthropic 3.5GW TPU 2027(+1GW 기존) · FY27 AI 매출 $120B+ 컨빅션(TPU+네트워킹 $80~90B+, JPM) · AAPL 10년 공급계약 선례→추가 유사계약 예상 · META Arke(MTIA v450) 수주 · XDSiP 3.5D(CoWoS-L+SoIC) · 리스크: Mediatek Humu Fish 2028 TPU ~50% 위협(LTA로 방어)', mcap:1472, rsi:45, index:'SP500' },
   { sym:'TSLA', name:'Tesla', sector:'Consumer', signal:'WATCH', memo:'Cybercab 4월 양산 개시(목표 2~4M대/년, $25K~30K) · Austin 로보택시 FSD 무인 서비스 시작(1/22) · Q1 358K대 인도(컨센 372K 미달, 2분기 연속) · Optimus 휴머노이드 · 에너지 저장(Megapack) · PE 323x 극단 밸류에이션 · HSBC PT $119 vs Bull $600', mcap:1381, rsi:42, index:'SP500' },
@@ -10930,13 +10930,13 @@ var SCREENER_DB = [
   { sym:'NEM', name:'Newmont Corp', sector:'Materials', signal:'HOLD', memo:'세계 최대 금광 · 금값 상관', mcap:107, rsi:55, index:'SP500' },
   { sym:'SO', name:'Southern Company', sector:'Utilities', signal:'HOLD', memo:'미국 최대 유틸리티 · 원전/태양광', mcap:103, rsi:52, index:'SP500' },
   { sym:'CMCSA', name:'Comcast', sector:'Communication Services', signal:'HOLD', memo:'NBC유니버셜 · Xfinity · Peacock', mcap:108, rsi:46, index:'SP500' },
-  { sym:'SNDK', name:'SanDisk', sector:'Technology', signal:'BUY', memo:'[Evercore OP PT $1200, Bull $2600 | 미즈호 PT $1000] KVCache eSSD + HBF 패러다임 · SCA(전략적 계약)=가격 하한선+선급현금 보장 → 사이클주→구조적 AI수혜 전환 · DC매출 현재 15%미만→가속 · NAND 공급 2028년까지 제약 · 순현금 도달→자사주매입 개시 전망 · F27E EPS 12x 적용', mcap:102, rsi:48, index:'SP500' },
-  { sym:'WDC', name:'Western Digital', sector:'Technology', signal:'HOLD', memo:'HDD/SSD · 데이터센터 스토리지', mcap:94, rsi:46, index:'SP500' },
+  { sym:'SNDK', name:'SanDisk', sector:'Technology', signal:'BUY', memo:'[Citi PT $980↑+Evercore OP PT $1200 Bull $2600 수렴] NAND ASP QQ +70-75%(TrendForce, 정점 미도달) · SCA=가격하한+선급현금→사이클→구조적AI수혜 전환 · Nanya $10억 DRAM 확보(eSSD CY26H2) · TurboQuant=AI채택촉진→스토리지↑(DeepSeek역설) · 키옥시아 JV 2034연장 · 순현금→주주환원 · FY27E $130+ EPS 경로(컨센 $94)', mcap:102, rsi:48, index:'SP500' },
+  { sym:'WDC', name:'Western Digital', sector:'Technology', signal:'BUY', memo:'[Citi PT $405↑(21x)] F3Q26E $32.6억(+42%YY) · 100→140TB 로드맵 · 장기: GM50%+/OM40%+/FCF30%+/EPS$20+ · 2nd HAMR 퀄 진행 · HDD 멀티플 18→21x 재평가 · 부채 감축', mcap:94, rsi:46, index:'SP500' },
   { sym:'HWM', name:'Howmet Aerospace', sector:'Industrials', signal:'BUY', memo:'항공우주 부품 · 엔진 · 방산', mcap:96, rsi:55, index:'SP500' },
   { sym:'EQIX', name:'Equinix', sector:'Real Estate', signal:'BUY', memo:'[Citi 04/09] 전력공급 제약→DC 가격·개발수익 우호 환경 · 그리드 15~20년 제약 지속→DC 가격결정력 강화 · 전력망 연결 선호하나 브리지 수요 durable', mcap:93, rsi:50, index:'SP500' },
   { sym:'TT', name:'Trane Technologies', sector:'Industrials', signal:'HOLD', memo:'냉난방(HVAC) · 데이터센터 냉각', mcap:95, rsi:50, index:'SP500' },
   { sym:'CVS', name:'CVS Health', sector:'Healthcare', signal:'HOLD', memo:'약국체인 + Aetna 보험 + 헬스허브', mcap:90, rsi:46, index:'SP500' },
-  { sym:'STX', name:'Seagate Tech', sector:'Technology', signal:'HOLD', memo:'HDD · 데이터센터 스토리지', mcap:88, rsi:48, index:'SP500' },
+  { sym:'STX', name:'Seagate Tech', sector:'Technology', signal:'BUY', memo:'[Citi PT $595↑(21x)] F3Q26E $29.6억(+37%YY) GM44.5% · Mozaic4+(44TB) 2개 하이퍼스케일러 양산 · F4Q26E $33.1억 GM46% · HAMR EB 비중↑ · HDD 멀티플 21x 재평가 · FY26E $117억(+29%) EPS $13.39', mcap:88, rsi:48, index:'SP500' },
   { sym:'FDX', name:'FedEx', sector:'Industrials', signal:'HOLD', memo:'글로벌 물류 · 이커머스 수혜', mcap:86, rsi:46, index:'SP500' },
   { sym:'PWR', name:'Quanta Services', sector:'Industrials', signal:'BUY', memo:'송전망 건설 최대 수혜 · 전력망 병목 구조적 Capex · 재생에너지 · AI 인프라', mcap:78, rsi:52, index:'SP500' },
   { sym:'MTZ', name:'MasTec', sector:'Industrials', signal:'BUY', memo:'[Citi 04/09] 전력 인프라 EPC 핵심 수혜 · PWR과 함께 DC전력인프라 구조적 Capex 수혜 · 추론DC 입지 이동(남동부·중부대서양 연안)→신규 송전인프라 건설 수요', mcap:7, rsi:50, index:'SP500' },
@@ -11882,7 +11882,7 @@ function renderScreenerResults() {
     if (signal && r.signal !== signal) return false;
     if (cap === 'MEGA' && r.mcap < 1000) return false;
     if (cap === 'LARGE' && (r.mcap < 10 || r.mcap >= 1000)) return false;
-    if (cap === 'MID' && (r.mcap < 2 || r.mcap > 10)) return false; // v46.8: mcap=10 dead zone 수정 (>=10→>10)
+    if (cap === 'MID' && (r.mcap < 2 || r.mcap > 10)) return false; // v46.9: mcap=10 dead zone 수정 (>=10→>10)
     if (cap === 'SMALL' && r.mcap >= 2) return false;
     if (adrFilter) {
       var adrVal = getAdrEstimate(r);
@@ -12039,7 +12039,7 @@ function drawSparkline(canvas, data, ticker) {
   var min = Math.min.apply(null, data);
   var max = Math.max.apply(null, data);
   var range = max - min;
-  var isFlat = range < 0.0001; // v46.8: 플랫라인 감지
+  var isFlat = range < 0.0001; // v46.9: 플랫라인 감지
   range = range || 1;
   var pad = 2;
   var xStep = (w - pad*2) / (data.length - 1);
@@ -13115,7 +13115,7 @@ function restartScheduler() {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     _schedulerPaused = true;
-    _lastVisibleTime = Date.now(); // v46.8: 숨김 시점 기록 → 복귀 시 정확한 elapsed 계산 (P92)
+    _lastVisibleTime = Date.now(); // v46.9: 숨김 시점 기록 → 복귀 시 정확한 elapsed 계산 (P92)
     Object.values(REFRESH_SCHEDULE).forEach(cfg => {
       if (cfg.timer) { clearTimeout(cfg.timer); cfg.timer = null; }
     });
@@ -13832,6 +13832,15 @@ const TECH_KW = [
   'Bloom Energy','onsite generation','fuel cell datacenter','time-to-power','800V DC fuel cell',
   'SanDisk SCA','strategic contractual agreement','NAND structural tight','eSSD enterprise',
   'neocloud convergence','frontier lab neocloud','Meta CoreWeave','Anthropic CoreWeave','Vera Rubin architecture',
+  // v46.9b: NAND SCA + HDD 재평가 + 광고 패권 + 기업 AI 3파전
+  'NAND SCA','strategic contractual agreement NAND','NAND price floor','TurboQuant','TurboQuant storage',
+  'Mozaic 4+','HAMR 44TB','100TB drive','140TB drive','HDD rerating',
+  'Nanya DRAM investment','eSSD qualification','eSSD ramp','NAND ASP acceleration',
+  'OpenClaw','GUI agent','computer use agent','Copilot GUI agent','digital agent automation',
+  'OpenAI Bedrock','enterprise AI three-way','Claude mania','Anthropic ARR 300','OpenAI Amazon alliance',
+  'META ad revenue overtake','Reels AI recommendation','AI video generation tool','Google search share decline',
+  'Amazon LEO antenna','LEO gigabit aviation',
+  'Western Digital','Seagate Technology','SanDisk earnings','WDC target','STX target',
   // ── v37.7: 우주경제·위성·LEO
   'space economy','LEO','low earth orbit','satellite constellation','Starlink',
   'AST SpaceMobile','Kuiper constellation','OneWeb','Iridium','Globalstar',
@@ -15160,7 +15169,7 @@ function classifyTopic(item) {
 /* ── getSentimentFromText(): 뉴스 감성 분석 (bull/bear/neutral) ── */
 function getSentimentFromText(text) {
   const t = (text || '').toLowerCase();
-  // v46.8: 'war'→'trade war'/'military' + 'boom'→'market boom' 한정 (오분류 방지)
+  // v46.9: 'war'→'trade war'/'military' + 'boom'→'market boom' 한정 (오분류 방지)
   const bullKW = ['surge','rally','beat','outperform','upgrade','record high','soar','market boom','bull','recovery',
                   '급등','상승','호재','상향','돌파','신고가','반등','회복'];
   const bearKW = ['crash','plunge','miss','downgrade','sell-off','collapse','fear','crisis','trade war','default',
@@ -15894,7 +15903,7 @@ function getDateLabel(pubDate) {
 var _newsTypeTab = 'all'; // 'all', 'market', 'company'
 
 // 기업 뉴스 판별: 티커가 있고 기업 관련 토픽인 뉴스
-// v46.8: healthcare/shipbuilding/space/quantum/crypto 추가 (TOPIC_KEYWORDS 전체 커버)
+// v46.9: healthcare/shipbuilding/space/quantum/crypto 추가 (TOPIC_KEYWORDS 전체 커버)
 function isCompanyNews(item) {
   var companyTopics = ['equity','earnings','semi','analyst','defense','healthcare','shipbuilding','space','quantum','crypto'];
   // 시장 전용 토픽 (기업 뉴스에서 제외)
@@ -16017,7 +16026,7 @@ function _renderTopicSection(icon, label, items) {
     var displaySummary = typeof getDisplaySummary === 'function' ? getDisplaySummary(item) : '';
     var sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
     var dotColor = sent === 'bull' ? '#3ddba5' : sent === 'bear' ? '#f87171' : sent === 'warn' ? '#fbbf24' : '#7e8a9e';
-    var _macroT = ['macro','geo','energy','bond','fx'] // v46.8: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
+    var _macroT = ['macro','geo','energy','bond','fx'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
     var tickers = !_macroT.includes(item.topic) ? getDisplayTickers(item) : [];
     var tickerStr = tickers.length > 0 ? tickers.map(function(t) { return '<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(91,168,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;">' + escHtml(t) + '</span>'; }).join('') : '';
     var source = escHtml(item.source || '');
@@ -16156,7 +16165,7 @@ function renderFeed(items) {
     const timeDisplay = absTime ? absTime : timeAgo;
 
     // v39.0e: 티커는 매크로/지정학/정책 뉴스에서 숨김 — 기업/실적/섹터 뉴스에만 표시
-    const _MACRO_TOPICS = ['macro','geo','energy','bond','fx'] // v46.8: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
+    const _MACRO_TOPICS = ['macro','geo','energy','bond','fx'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
     const _showTicker = !_MACRO_TOPICS.includes(item.topic);
     const tickers = _showTicker ? getDisplayTickers(item) : [];
     const tickerHtml = tickers.length > 0
@@ -16208,9 +16217,10 @@ function renderFeed(items) {
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
 // v40.4: 홈 핵심뉴스 — 시장 전체에 영향을 주는 핵심 뉴스 2~3개 (정적, 새 이벤트 발생 시 수동 교체)
 var HOME_WEEKLY_NEWS = [
-  { title: '이란 협상 결렬 + 호르무즈 봉쇄 발효 — 이슬라마바드 21시간 협상 실패, 이란 "새 협상 계획 없음." 4/13 미 해군 봉쇄 정식 발효(이란 항구 출입 선박 대상, 비이란 항구 통항은 허용). 트럼프 "이란 접근 선박 격침" 경고. Brent $103(+8%). JPM: 공급갭 ~1,400만bbl/d. 실질금리 0.25% 추락, Warsh 5월 취임 시 마이너스 전환 리스크.', source: 'Bloomberg/CNBC/NPR', date: '2026-04-13', sentiment: 'bear', topic: 'geo' },
-  { title: 'SW→Semi 역대급 로테이션 — 주간 IGV-SMH 성과차 -23%(역대 최악). UBS NOW→Neutral(AI 예산 비AI SW 크라우딩아웃). 반도체 9일 연속 양봉. 사모신용 CDX Financials CDS 4/13 거래 개시. 연준 사모신용 점검 시작. SW 담보가치 하락→추가 스트레스.', source: '돈스/UBS/Bloomberg', date: '2026-04-12', sentiment: 'warn', topic: 'macro' },
-  { title: 'TSMC Q1 역대최고 + AI 출하 호조 — TSMC Q1 매출 NT$1.134조($35.7B, +35% YoY), 사상 첫 분기 1조NTD 돌파. CoWoS +80% 성장, NVDA가 대부분 선점. CoreWeave: Meta $350억+Anthropic 다년. Nebius: GS PT$205↑. GB200/GB300 2Q>1Q. Credo: DustPhotonics $7.5억 인수(광학 수직계열화).', source: 'TSMC IR/DA Davidson/GS', date: '2026-04-14', sentiment: 'bull', topic: 'semi' },
+  { title: '이란 협상 결렬→봉쇄→재협상 곧 재개 전망 — 이슬라마바드 21시간 협상 실패 후 미 해군 봉쇄 발효. 트럼프 "이란 접근 선박 격침" 경고. 그러나 파키스탄 국방장관 "다음 라운드 곧 예상"(4/14 공식 발언), 파키스탄(아심 무니르) 중재로 재협상 재개 사실상 공식화. 시장은 재협상 기대 선반영 중. JPM: 공급갭 ~1,400만bbl/d, 물리적 정상화 수개월.', source: 'Deccan Herald/Al Jazeera/NPR', date: '2026-04-14', sentiment: 'warn', topic: 'geo' },
+  { title: '소프트웨어 강한 반등 + 반도체 동반 강세 — 지난주 -23% 역대 최악 SW-Semi 괴리 후, 소프트웨어(IGV) 강한 반등 시작. AI 예산 크라우딩아웃 우려 과도했다는 재평가. 반도체 10일+ 양봉 지속, TSMC Q1 사상최고 NT$1.134조(+35%YoY). NAND ASP QQ +70-75%(TrendForce). 양쪽 동반 강세는 시장 저변 확대 신호.', source: 'TrendForce/TSMC IR', date: '2026-04-14', sentiment: 'bull', topic: 'semi' },
+  { title: '기업 뉴스 — Credo: DustPhotonics $7.5억 인수(광학 수직계열화) · Bloom Energy: Oracle 2.8GW 연료전지 계약(55일 가동) · CoreWeave: Meta $350억+Anthropic 다년 계약 · Meta: 2026 광고매출 $243B로 구글 사상 첫 추월 · MSFT: 코파일럿→GUI 에이전트 진화 · OpenAI: Amazon Bedrock 선회, "MSFT가 고객확보 제한."', source: 'IR/BusinessWire/CNBC/WSJ', date: '2026-04-14', sentiment: 'bull', topic: 'equity' },
+  { title: '오늘 밤 3월 PPI 발표 — 컨센: 헤드라인 MoM +1.0%(2022.03 이후 최고), YoY 4.6%. 코어(ex식품에너지) +0.5%, 에너지 +10%. 핵심 관전: 코어 +0.6% 이상이면 에너지→서비스 2차 파급 확인 → 스태그플레이션 공포. 하회 시 인플레 피크 아웃 신호로 성장주 추가 반등. 서비스 +0.6% 여부가 Fed 인상 논의의 분기점.', source: 'BLS/Continuum Economics', date: '2026-04-15', sentiment: 'warn', topic: 'macro' },
 ];
 
 function renderHomeFeed(items) {
@@ -16647,7 +16657,7 @@ function _renderBriefingBullet(item) {
   var displayTitle = escHtml(typeof getDisplayTitle === 'function' ? getDisplayTitle(item) : (item.title || ''));
   var displayDesc = typeof getDisplayDesc === 'function' ? getDisplayDesc(item) : (item.desc || '');
   var displaySummary = typeof getDisplaySummary === 'function' ? getDisplaySummary(item) : '';
-  var _macroT = ['macro','geo','energy','bond','fx'] // v46.8: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
+  var _macroT = ['macro','geo','energy','bond','fx'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
   var tickers = !_macroT.includes(item.topic) ? getDisplayTickers(item) : [];
   var tickerStr = tickers.length > 0 ? tickers.map(function(t) { return '<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(91,168,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;">' + escHtml(t) + '</span>'; }).join('') : '';
   var sentBadge = sentLabel ? '<span style="font-size:8px;font-weight:700;color:' + dotColor + ';background:' + dotColor + '15;padding:1px 5px;border-radius:3px;">' + sentLabel + '</span>' : '';
@@ -16806,7 +16816,7 @@ const PROXY_CHAIN = [
   u => CORS_PROXY3 + encodeURIComponent(u),
   u => CORS_PROXY5 + encodeURIComponent(u),
 ];
-// Multi-proxy fetch wrapper — v46.8: _PROXY_REGISTRY 통합 (fetchViaProxy 위임)
+// Multi-proxy fetch wrapper — v46.9: _PROXY_REGISTRY 통합 (fetchViaProxy 위임)
 async function fetchWithProxy(url, ms) {
   ms = ms || 8000;
   try {
@@ -17998,7 +18008,7 @@ async function fetchLiveQuotes() {
   } catch(e) { console.warn('[AIO] CoinGecko 실패:', e.message); }
 
   // ─── 2. 환율: 다중 API 폴백 체인 (v30.11: 전일 대비 변동률 계산) ───
-  // v46.8: CAD/CHF → Yahoo 표준 심볼 수정 (CADUSD=X 비표준 → CAD=X)
+  // v46.9: CAD/CHF → Yahoo 표준 심볼 수정 (CADUSD=X 비표준 → CAD=X)
   const fxMap = {KRW:'KRW=X', JPY:'JPY=X', EUR:'EURUSD=X', GBP:'GBPUSD=X', CNY:'CNY=X', AUD:'AUDUSD=X', CAD:'CAD=X', CHF:'CHF=X'};
   const FX_INVERTED = ['EURUSD=X','GBPUSD=X','AUDUSD=X']; // USD 기준 역수 통화 (CAD=X, CHF=X는 USD/CAD, USD/CHF로 역수 불필요)
 
@@ -18544,7 +18554,7 @@ async function fetchLiveQuotes() {
             for (var ys in stooqMap) { if (stooqMap[ys] === stSym.toLowerCase()) { yahooSym = ys; break; } }
             if (!yahooSym) return;
             // Stooq CSV: Symbol,Date,Time,Open,High,Low,Close,Volume → cols[6]=Close, cols[3]=Open
-            var close = parseFloat(cols[6]) || parseFloat(cols[7]); // v46.8: Close 우선
+            var close = parseFloat(cols[6]) || parseFloat(cols[7]); // v46.9: Close 우선
             var open = parseFloat(cols[3]) || parseFloat(cols[4]);   // Open 우선
             // v46.4: CSV 파싱 검증 — NaN/Infinity/음수 방어
             if (!isFinite(close) || close <= 0 || !isFinite(open) || open <= 0) return;
@@ -20077,7 +20087,7 @@ async function fetchPutCall() {
         var regPcr = document.getElementById('regime-pcr');
         if (regPcr) { regPcr.textContent = parseFloat(pcr).toFixed(2); regPcr.style.color = parseFloat(pcr) > 1.2 ? '#f87171' : parseFloat(pcr) > 0.9 ? '#fbbf24' : '#3ddba5'; }
         if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.pcr = parseFloat(pcr);
-        window._putCallRatio = parseFloat(pcr); // v46.8: computeTradingScore/computeExecutionWindow 참조용 (P88)
+        window._putCallRatio = parseFloat(pcr); // v46.9: computeTradingScore/computeExecutionWindow 참조용 (P88)
         if (badge) { badge.textContent = '실시간 · CBOE'; badge.style.color = '#3ddba5'; }
         // Update needle position: (pcr - 0.4)/(1.2-0.4)*100
         const pct = Math.min(100, Math.max(0, (parseFloat(pcr) - 0.4) / 0.8 * 100));
@@ -20260,13 +20270,13 @@ function initSentimentPage(forceReinit) {
   };
   const gridColor = 'rgba(255,255,255,0.05)';
   const tickColor = 'rgba(255,255,255,0.3)';
-  const labels20 = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13']; // v46.8: 4/13 연장 (이란 협상 결렬+호르무즈 봉쇄)
+  const labels20 = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13']; // v46.9: 4/13 연장 (이란 협상 결렬+호르무즈 봉쇄)
 
   // ── VIX sparkline ────────────────────────────────────────────────────
   const vixCtx = document.getElementById('vix-chart');
   if (vixCtx) {
     // Yahoo Finance ^VIX 종가 (2026-02-20 ~ 2026-04-08) — v45.0: 4/7(25.78)→4/8(21.04) 연장 (investing.com 확인)
-    // v46.8: 4/13(29.80 이란 협상 결렬→호르무즈 봉쇄, S&P 장중 급락→회복) 연장
+    // v46.9: 4/13(29.80 이란 협상 결렬→호르무즈 봉쇄, S&P 장중 급락→회복) 연장
     const vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80];
     var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' }); if (_gVix)
     sentPageCharts['vix'] = new Chart(vixCtx, {
@@ -20373,7 +20383,7 @@ function initSentimentPage(forceReinit) {
   const hyCtx = document.getElementById('hy-chart');
   if (hyCtx) {
     // ICE BofA US HY OAS (FRED BAMLH0A0HYM2, 2026년 2~4월 추정치 bps) — v43.0: 3/19→4/2 연장
-    // v46.8: 4/13(308 협상결렬→크레딧 스프레드 재확대) 연장
+    // v46.9: 4/13(308 협상결렬→크레딧 스프레드 재확대) 연장
     const hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308];
     var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' }); if (_gHY)
     sentPageCharts['hy'] = new Chart(hyCtx, {
@@ -20484,8 +20494,8 @@ function initSentimentCharts() {
   const pcCtx = document.getElementById('pc-chart');
   if (pcCtx) {
     // CBOE Equity P/C Ratio (추정치, 실거래일 기준)
-    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13']; // v46.8: 4/13 연장
-    // v46.8: 4/13(0.72 협상결렬→풋 증가 추정) 연장
+    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13']; // v46.9: 4/13 연장
+    // v46.9: 4/13(0.72 협상결렬→풋 증가 추정) 연장
     const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72];
     var _gPC = chartDataGate('pc-chart', pcLabels, [pcData], { minPoints: 3, chartName: 'Put/Call Ratio' }); if (_gPC)
     sentPageCharts['pc'] = new Chart(pcCtx, {
@@ -22597,7 +22607,7 @@ function showConfirmModal(title, msg, onConfirm, icon) {
   modal.style.display = 'flex';
   okBtn.focus();
   // ESC 키로 닫기
-  if (modal._escHandler) document.removeEventListener('keydown', modal._escHandler); // v46.8: 중복 등록 방지
+  if (modal._escHandler) document.removeEventListener('keydown', modal._escHandler); // v46.9: 중복 등록 방지
   modal._escHandler = function(e) { if (e.key === 'Escape') closeConfirmModal(); };
   document.addEventListener('keydown', modal._escHandler);
 }
@@ -22649,7 +22659,7 @@ function renderPortfolio() {
     const priceColor = live ? (dailyPct >= 0 ? 'var(--green)' : 'var(--red)') : 'var(--text-muted)';
     const liveTag = live ? '' : ' <span style="font-size:11px;color:var(--text-muted);">(매수가)</span>';
 
-    var _eTk = escHtml(p.ticker); // v46.8: XSS 방어
+    var _eTk = escHtml(p.ticker); // v46.9: XSS 방어
     return `<tr style="border-bottom:1px solid var(--border);cursor:pointer;" onclick="showTicker('${_eTk}')">`;
       <td style="padding:6px 8px;"><b style="color:var(--text-primary);">${escHtml(p.ticker)}</b>${p.memo ? '<div style="font-size:9px;color:var(--text-muted);">'+escHtml(p.memo)+'</div>' : ''}</td>
       <td style="text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;">${p.qty}</td>
@@ -22761,7 +22771,7 @@ function importPortfolio(event) {
     try {
       var data = JSON.parse(e.target.result);
       if (!Array.isArray(data)) throw new Error('Invalid format');
-      // v46.8: 스키마 검증 + XSS 정제
+      // v46.9: 스키마 검증 + XSS 정제
       data = data.filter(function(p) {
         return p && typeof p.ticker === 'string' && /^[A-Z0-9.\-^=]{1,12}$/i.test(p.ticker.trim());
       }).map(function(p) {
@@ -23034,7 +23044,7 @@ function renderWatchlistContent() {
     var sb = signal === 'BUY' ? 'rgba(61,219,165,0.15)' : signal === 'SELL' ? 'rgba(248,113,113,0.15)' : signal === 'WATCH' ? 'rgba(251,191,36,0.15)' : 'rgba(148,163,184,0.15)';
     var nameStr = db ? db.name : '';
 
-    var _eSym = escHtml(t.sym); // v46.8: XSS 방어
+    var _eSym = escHtml(t.sym); // v46.9: XSS 방어
     html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;" onclick="prevPage=\'portfolio\';showTicker(\'' + _eSym + '\')" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'none\'">' +
       '<td style="padding:6px 8px;"><b style="color:var(--text-primary);font-family:var(--font-mono);font-size:11px;">' + _eSym + '</b>' + (nameStr ? '<div style="font-size:9px;color:var(--text-muted);">' + escHtml(nameStr) + '</div>' : '') + '</td>' +
       '<td style="text-align:right;padding:6px;font-family:var(--font-mono);font-weight:700;font-size:10px;">' + price + '</td>' +
@@ -24431,6 +24441,11 @@ const CHAT_CONTEXTS = {
         '[Jefferies AMZN "Mispriced Not Broken"] 11x NTM EV/EBITDA = WMT 대비 ~10턴↓(10년 저점). AI capex $200B는 타이밍 이슈(구조적 아님): 백로그↑+장기계약+엔터프라이즈 믹스 개선 → AWS 가속 전환 임박. SOTP ~46%↑. 핵심 반론: "agentic commerce"가 리테일 내구성 보장 — 실행/풀필먼트/라스트마일은 AI가 대체 불가.\n' +
         '[핵심 논쟁] Bull: SW 크라우딩은 일시적 + AI 예산 정상화 후 SW 반등. Bear: 구조적 디스인터미디에이션 — AI 에이전트가 SaaS 시트 자체를 대체. NOW/CRM/WDAY 등 밸류에이션 영구 하향.\n' +
         '[인접 파급] IGV(SW ETF) 약세 지속 시 → 사모신용 시장 스트레스(SW 담보 가치↓). 반도체(SMH) 9일 연속 양봉. 반대: AMZN/GOOGL = SW+인프라 양면 포지셔닝 가능.\n' +
+        '【§74 NAND SCA 패러다임 + HDD 멀티플 재평가 + 광고 패권 역전 + 기업 AI 3파전 (Citi/Evercore/WSJ/CNBC 2026.04.14)】\n' +
+        '[NAND SCA 패러다임 전환 — Citi+Evercore SNDK 수렴] 기존: NAND=사이클주(가격 정점→하락→마진 압축 반복). 새 틀: SCA(전략적 계약합의)=가격 하한선+선급현금 보장→사이클 변동성 구조적 완화. NAND ASP QQ +70-75%(TrendForce, 정점 미도달). Citi: 가격 추가 상승 여지. Evercore: FY27E $130+ EPS 경로(컨센 $94.49 대비 +38%). TurboQuant 역학: 시장 "압축=수요↓" vs 경영진 "효율↑→AI 채택 가속→추론↑→스토리지↑"(DeepSeek 역설의 스토리지 버전). Nanya $10억=eSSD DRAM 확보. 인접: MU/WDC/STX(NAND/HDD SCA) > 005930.KS(삼성 절제).\n' +
+        '[HDD 멀티플 재평가 — Citi STX+WDC 동시 상향] 멀티플 18x→21x. 근거: "내구적 가격+수요 데이터." HAMR(Mozaic4+ 44TB)+100-140TB 로드맵. WDC 장기: GM50%+/OM40%+/FCF30%+/EPS$20+. STX FY26E $117억(+29%). HDD가 성장주 밸류에이션 정당화.\n' +
+        '[META 광고 패권 역전 — WSJ] 2026 순광고 $243B > GOOGL $239B(사상 첫 역전). AI 추천→릴스 시청 YoY+30%. AI 비디오 도구 ARR $10B. 릴스 12M $50B. GOOGL 검색 점유율 48.5%(10년 만에 50%↓). 핵심: AI 추천 알고리즘이 광고 수익을 재분배하는 구조적 전환.\n' +
+        '[기업 AI 3파전 — CNBC] OpenAI "MSFT가 고객확보 제한"→Amazon Bedrock 선회. Anthropic ARR $300억 vs OpenAI 기업 40%(소비자와 대등 궤도). "Claude 매니아"(HumanX). MSFT 코파일럿→오픈클로 GUI 에이전트 진화. 구조적 역학: 하이퍼스케일러 자체 AI 채널(Bedrock/Vertex) = AI 모델사의 유통 지배력 확보 수단.\n' +
         _getChatRules();
 
       return prompt;
@@ -28302,11 +28317,11 @@ function generateMacroStoryline() {
   story += '<br><br>';
 
   // ═ Fed 정책 + 금리 시그널 ═
-  // v46.8: ^FVX(5년물)→_live2Y(2년물) 수정 (CRITICAL — yield curve 2s10s 표준)
+  // v46.9: ^FVX(5년물)→_live2Y(2년물) 수정 (CRITICAL — yield curve 2s10s 표준)
   var y2 = window._live2Y || 4.28; // 2년물 금리 (FRED/실시간 미제공 시 폴백)
   story += '<b style="color:#a78bfa;"> 2장: Fed와 금리 — "경제의 신경계"</b><br>';
   story += '2년물 금리는 <b>' + y2.toFixed(2) + '%</b>, 10년물은 <b>' + tnx.toFixed(2) + '%</b>입니다. ';
-  var spread = parseFloat((tnx - y2).toFixed(2)); // v46.8: 문자열→숫자 타입 보장
+  var spread = parseFloat((tnx - y2).toFixed(2)); // v46.9: 문자열→숫자 타입 보장
   if (spread > 0) {
     story += '정상 곡선이므로 경기침체 우려는 낮습니다. ';
   } else {
@@ -29591,7 +29606,7 @@ function krSupplyTab(btn, tabId) {
 
 // ── Korea Home: live data update ────────────────────────────────
 var _krHomeRetry = 0;
-var _krHomeRetryTimer = null; // v46.8: 페이지 이탈 시 clearTimeout용 (P93)
+var _krHomeRetryTimer = null; // v46.9: 페이지 이탈 시 clearTimeout용 (P93)
 function initKoreaHome() {
   var ld = window._liveData || {};
   // Check if Korean data is available, if not retry (max 12 attempts)
@@ -29756,7 +29771,7 @@ document.addEventListener('aio:liveQuotes', function() {
 });
 
 var _krSupplyRetry = 0;
-var _krSupplyRetryTimer = null; // v46.8: 페이지 이탈 시 clearTimeout용 (P84)
+var _krSupplyRetryTimer = null; // v46.9: 페이지 이탈 시 clearTimeout용 (P84)
 function initKoreaSupply() {
   var ld = window._liveData || {};
   // Check if Korean data is available, if not retry (max 20 attempts = 10s)
@@ -31819,7 +31834,7 @@ async function dynamicTickerLookup(ticker) {
             var cols = stLines[1].split(',');
             if (cols.length >= 8 && cols[1] !== 'N/D') {
               // Stooq CSV: Symbol,Date,Time,Open,High,Low,Close,Volume → cols[6]=Close, cols[3]=Open
-              var stPrice = parseFloat(cols[6]) || parseFloat(cols[7]); // v46.8: Close 우선, Volume 폴백 방어
+              var stPrice = parseFloat(cols[6]) || parseFloat(cols[7]); // v46.9: Close 우선, Volume 폴백 방어
               var stOpen = parseFloat(cols[3]) || parseFloat(cols[4]);  // Open 우선, High 폴백
               if (stPrice > 0) {
                 var stPct = stOpen > 0 ? ((stPrice - stOpen) / stOpen * 100) : 0;
@@ -31866,7 +31881,7 @@ async function dynamicTickerLookup(ticker) {
 }
 
 var _krMacroRetry = 0;
-var _krMacroRetryTimer = null; // v46.8: 페이지 이탈 시 clearTimeout용 (P85)
+var _krMacroRetryTimer = null; // v46.9: 페이지 이탈 시 clearTimeout용 (P85)
 function initKoreaMacro() {
   var ld = window._liveData || {};
   // Check if required data is available, if not retry (max 20 attempts = 10s)
@@ -31907,7 +31922,7 @@ function initKoreaMacro() {
   
   // Update Korea 3Y bond yield (using mock data if not available from API)
   // In production, this would come from Korea Bond Exchange or similar source
-  var kr3y = ld['^KR3Y'] || (DATA_SNAPSHOT.krBond3y ? {price: DATA_SNAPSHOT.krBond3y} : null); // v46.8: DATA_SNAPSHOT 폴백
+  var kr3y = ld['^KR3Y'] || (DATA_SNAPSHOT.krBond3y ? {price: DATA_SNAPSHOT.krBond3y} : null); // v46.9: DATA_SNAPSHOT 폴백
   if (kr3y && kr3y.price !== undefined) {
     var el = document.getElementById('kr-macro-kr3y');
     if (el) {
@@ -32492,7 +32507,7 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
       pfBeta += beta * w; totalW += w;
       return { ticker: p.ticker, sector: sec, beta: beta, weight: w, val: val };
     });
-    pfBeta = totalW > 0 ? pfBeta / totalW : 1.0; // v46.8: 가중평균 베타 수정 (이전 /totalW*totalW noop)
+    pfBeta = totalW > 0 ? pfBeta / totalW : 1.0; // v46.9: 가중평균 베타 수정 (이전 /totalW*totalW noop)
 
     h += '<br><b>【포트폴리오 베타 & 상관계수 분석】</b><br>';
     h += '<span style="font-size:11px;">포트폴리오 가중평균 베타: <b style="color:' + (pfBeta > 1.2 ? 'var(--red)' : pfBeta > 0.8 ? 'var(--yellow)' : 'var(--green)') + ';">' + pfBeta.toFixed(2) + '</b>';
@@ -32736,7 +32751,7 @@ function _updateSentimentActionGuides() {
     var fgCard = document.getElementById('fg-score-big');
     if (fgCard) { var fgWidget = fgCard.closest('.data-widget'); if (fgWidget) { var g2 = document.createElement('div'); g2.id = 'fg-action-guide'; g2.style.cssText = 'padding:6px 10px;margin-top:6px;border-radius:4px;font-size:9px;line-height:1.5;'; fgWidget.appendChild(g2); fgGuide = g2; } }
   }
-  if (fgGuide && fgScore != null && !isNaN(fgScore)) { // v46.8: fgScore=0 falsy 방지
+  if (fgGuide && fgScore != null && !isNaN(fgScore)) { // v46.9: fgScore=0 falsy 방지
     var fMsg, fBg;
     if (fgScore <= 25) { fMsg = ' <b>역발상:</b> 극단적 공포 = 역사적 매수 기회. 우량주 분할 매수 시작. "남들이 공포에 떨 때 탐욕을 부려라" — 버핏'; fBg = 'rgba(61,219,165,0.08)'; }
     else if (fgScore <= 45) { fMsg = ' <b>행동:</b> 공포 구간. 관심 종목 1차 매수 검토. 급하지 않게 분할 진입.'; fBg = 'rgba(96,165,250,0.08)'; }
@@ -33317,7 +33332,7 @@ function computeTradingScore(mode) {
     if (vix >= 18 && vix < 30) volScore = Math.min(100, volScore + 12);
   }
 
-  // 2. Momentum Score (25%) — Fear&Greed as proxy (v46.8: CNN 표준 25/45/55/75 통일)
+  // 2. Momentum Score (25%) — Fear&Greed as proxy (v46.9: CNN 표준 25/45/55/75 통일)
   let momScore;
   if (fg >= 75)      momScore = 85;  // Extreme Greed
   else if (fg >= 55) momScore = 72;  // Greed
@@ -33392,7 +33407,7 @@ function computeTradingScore(mode) {
     macroScore * 0.10
   );
 
-  // v46.8: DOM 텍스트 파싱 대신 _liveData/DATA_SNAPSHOT에서 직접 참조 (P94)
+  // v46.9: DOM 텍스트 파싱 대신 _liveData/DATA_SNAPSHOT에서 직접 참조 (P94)
   var hyBp = 0;
   var _hyg = _ldSafe('HYG','price') || _fb.hyg || 78;
   if (_hyg > 0 && _hyg < 90) hyBp = Math.round((100 - _hyg) * 15); // HYG→OAS 근사: (100-HYG)*15bps
@@ -33439,7 +33454,7 @@ function computeExecutionWindow() {
   const fg = window._lastFG || _fb2.fg || 35;
   const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : (_fb2.breadth200 != null ? _fb2.breadth200 : 75);
 
-  // v46.8: 기저값 상향 — 중립 시 MOD(65) 판정되도록 (이전 46.25→WEAK)
+  // v46.9: 기저값 상향 — 중립 시 MOD(65) 판정되도록 (이전 46.25→WEAK)
   // Breakout holding: are breakouts sustaining?
   let breakoutHold = 65;
   if (breadth200 < 30) breakoutHold -= 25;
@@ -34080,7 +34095,7 @@ function updateBottomProcess() {
 
   if (!stageEl) return;
 
-  // 판별 로직 — v46.8: b5/b50 null 안전 처리 (P91)
+  // 판별 로직 — v46.9: b5/b50 null 안전 처리 (P91)
   var isOversold = (vix && vix > 25) || (fg != null && fg < 30) || (score < 35) || (b5 != null && b5 < 25) || (b5 == null && score < 50);
   var isRallying = score >= 35 && score < 60 && (b5 != null ? b5 > 30 : true);
   var isHealthyRally = b5 != null && b5 > 50 && (b50 != null ? b50 > 40 : true);
@@ -34225,7 +34240,7 @@ function updateEntryChecklist() {
     setCheck('ec-streak', !streak || spyD.pct < 1.5, spyD.pct >= 0 ? '+' + spyD.pct.toFixed(1) + '%' : spyD.pct.toFixed(1) + '%');
   }
 
-  // 5. FOMC/CPI 48시간 이내 — v46.8: 동적 FOMC + 미래 이벤트만 (P89)
+  // 5. FOMC/CPI 48시간 이내 — v46.9: 동적 FOMC + 미래 이벤트만 (P89)
   var _fomcStr = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fomcNext) ? DATA_SNAPSHOT.fomcNext : '4/28-29';
   var _fomcParts = _fomcStr.replace(/\//g, '-').split('-');
   var _fomcYear = _fomcParts.length === 3 ? _fomcParts[0] : '2026';
@@ -34285,7 +34300,7 @@ function initSignalDashboard() {
   updateBottomProcess();
   if (_signalInterval) clearInterval(_signalInterval);
   _signalInterval = setInterval(refreshSignalDashboard, T.SIGNAL_REFRESH);
-  // v46.8: signal 페이지 재진입 시 refreshSignal 타이머 복구 (P83)
+  // v46.9: signal 페이지 재진입 시 refreshSignal 타이머 복구 (P83)
   refreshSignal();
   if (window._refreshSignalInterval) clearInterval(window._refreshSignalInterval);
   window._refreshSignalInterval = setInterval(refreshSignal, T.SIGNAL_REFRESH);
@@ -35004,7 +35019,7 @@ async function initFundamentalCards() {
     var d = ld[sym];
     var price = d ? d.price : 0;
     var pct = d && d.pct != null ? d.pct : null;
-    var peColor = f.pe < 0 ? '#f87171' : f.pe < 20 ? '#3ddba5' : f.pe > 40 ? '#f87171' : '#fbbf24'; // v46.8: 음수 PE(적자)=빨강
+    var peColor = f.pe < 0 ? '#f87171' : f.pe < 20 ? '#3ddba5' : f.pe > 40 ? '#f87171' : '#fbbf24'; // v46.9: 음수 PE(적자)=빨강
     var roeColor = f.roe > 20 ? '#3ddba5' : f.roe > 10 ? '#fbbf24' : '#f87171';
 
     html += '<div style="background:var(--bg-card);border-radius:10px;padding:14px;border:1px solid var(--border);cursor:pointer;" onclick="fundamentalCardClick(\'' + sym + '\')">';
@@ -35540,7 +35555,7 @@ function calcLiveRS(sym) {
   // v46.3 /data-refresh: 4/7 휴전 후 섹터 로테이션 반영 (4/10 기준)
   // 휴전 → 에너지 약화, 기술/반도체 회복, 방산 차익실현 가속
   var _sectorRRGSeed = {
-    // v46.8: 4/13 호르무즈 봉쇄 발효 후 섹터 로테이션 반영
+    // v46.9: 4/13 호르무즈 봉쇄 발효 후 섹터 로테이션 반영
     // ── Leading (SPY 대비 상대강도↑ + 모멘텀↑) ──
     'XLE': {r:+3.5, m:+3.0},  // 에너지: 호르무즈 봉쇄→Brent $103, WTI $98 (에너지 최강 리딩)
     'XOP': {r:+3.5, m:+3.0},  // E&P: 유가 급등 직접 수혜
@@ -36090,7 +36105,7 @@ function renderSectorPerfBars() {
 
 function generateSectorAnalysis(sectors) {
   var el = document.getElementById('sector-perf-analysis');
-  if (!el || !sectors || sectors.length === 0) return; // v46.8: 빈 배열 방어
+  if (!el || !sectors || sectors.length === 0) return; // v46.9: 빈 배열 방어
 
   var best = sectors[0];
   var worst = sectors[sectors.length-1];
@@ -36904,7 +36919,7 @@ function renderSubThemesGrid() {
   }
   var container = document.getElementById('sub-themes-grid');
   if (!container) return;
-  ld = window._liveData || {}; // v46.8: 중복 var 제거, 최신 참조 갱신
+  ld = window._liveData || {}; // v46.9: 중복 var 제거, 최신 참조 갱신
 
   // 각 서브테마 퍼포먼스 계산 후 정렬
   var items = SUB_THEMES.map(function(st) {
@@ -38106,7 +38121,7 @@ function _calcSMA(prices, period) {
   return sum / period;
 }
 
-// Helper: Calculate EMA (last value only) — v46.8: 인덱스 오류 수정 (P90)
+// Helper: Calculate EMA (last value only) — v46.9: 인덱스 오류 수정 (P90)
 function _calcEMA(prices, period) {
   if (prices.length < period) return null;
   var k = 2 / (period + 1);
@@ -38135,9 +38150,9 @@ function _calcEMAFull(prices, period) {
 }
 
 // RSI calculation (Wilder smoothing, last bar)
-// v46.8: Wilder Smoothed Moving Average RSI (표준 구현)
+// v46.9: Wilder Smoothed Moving Average RSI (표준 구현)
 function _calcRSILast(prices, period) {
-  if (prices.length < period + 1) return null; // v46.8: 50→null (데이터 부족 명시)
+  if (prices.length < period + 1) return null; // v46.9: 50→null (데이터 부족 명시)
   // 1단계: 초기 period개 평균
   var initGain = 0, initLoss = 0;
   for (var i = 1; i <= period; i++) {
@@ -38209,13 +38224,13 @@ function _detectStage(o, h, l, c, v) {
 
   var isAbove150 = currentPrice > sma150;
   var is150Rising = sma150 > sma150Prev;
-  // v46.8: 30주 MA 수평화 감지 (Stage 1 핵심 조건) — 기울기 < 0.5%이면 flat
+  // v46.9: 30주 MA 수평화 감지 (Stage 1 핵심 조건) — 기울기 < 0.5%이면 flat
   var is150Flat = Math.abs(sma150 - sma150Prev) / (sma150Prev || 1) < 0.005;
   var isAbove50 = currentPrice > sma50;
   var sma50Prev = _calcSMA(c.slice(0, -1), 50);
   var is50Rising = sma50 > sma50Prev;
 
-  // Calculate higher lows (Stage 1) and higher highs (Stage 2) — v46.8: 0-falsy 방어
+  // Calculate higher lows (Stage 1) and higher highs (Stage 2) — v46.9: 0-falsy 방어
   var highs = h.slice(-50);
   var lows = l.slice(-50);
   var higherLows = true, higherHighs = true;
@@ -38228,7 +38243,7 @@ function _detectStage(o, h, l, c, v) {
 
   var stage, label, confidence;
 
-  // v46.8: Stage 1에 MA 수평화 조건 추가 (와인스타인 표준)
+  // v46.9: Stage 1에 MA 수평화 조건 추가 (와인스타인 표준)
   if (!isAbove150 && (is150Flat || !is150Rising) && higherLows) {
     stage = 1;
     label = '바닥 다지기';
@@ -38264,7 +38279,7 @@ function _detectTrendPosition(o, h, l, c, v) {
   var sma50 = _calcSMA(c, 50);
   var currentPrice = c[c.length - 1];
 
-  // v46.8: 데이터 부족 시 52주 범위 과소평가 방지 — 최소 100일 필요
+  // v46.9: 데이터 부족 시 52주 범위 과소평가 방지 — 최소 100일 필요
   var _52slice = c.slice(-252);
   var low52w = Math.min.apply(null, _52slice);
   var high52w = Math.max.apply(null, _52slice);
@@ -38272,7 +38287,7 @@ function _detectTrendPosition(o, h, l, c, v) {
   var week52Position = (week52Range > 0 && _52slice.length >= 100) ? ((currentPrice - low52w) / week52Range) * 100 : 50;
 
   var fullAlign = ema5 > ema10 && ema10 > ema20 && ema20 > sma50;
-  // v46.8: 부분 정배열 퍼센트 (0~100)
+  // v46.9: 부분 정배열 퍼센트 (0~100)
   var alignCount = (ema5 > ema10 ? 1 : 0) + (ema10 > ema20 ? 1 : 0) + (ema20 > sma50 ? 1 : 0);
   var alignPct = Math.round(alignCount / 3 * 100);
   var gapFrom20 = ((currentPrice - ema20) / ema20) * 100;
@@ -38295,7 +38310,7 @@ function _detectTrendPosition(o, h, l, c, v) {
   return {
     position: position,
     positionKo: position,
-    alignment: alignPct, // v46.8: 0/33/67/100 (이전 이진 50/100)
+    alignment: alignPct, // v46.9: 0/33/67/100 (이전 이진 50/100)
     gapFrom20: gapFrom20,
     week52: Math.round(week52Position),
     ema5: ema5,
@@ -38522,7 +38537,7 @@ async function analyzeTickerDeep(ticker) {
     return;
   }
 
-  // Extract data — v46.8: 인덱스 동기화 필터링 + NaN 방어
+  // Extract data — v46.9: 인덱스 동기화 필터링 + NaN 방어
   var _raw = chartData.closes.map(function(v, i) { return { c: v, o: chartData.opens[i], h: chartData.highs[i], l: chartData.lows[i] }; })
     .filter(function(d) { return d.c != null && !isNaN(d.c) && d.o != null && !isNaN(d.o); });
   var c = _raw.map(function(d) { return d.c; });
@@ -38972,7 +38987,7 @@ async function analyzeKrIndex(ticker, targetId, label) {
     '</div>' +
   '</div>';
 
-  // MACD & BB — v46.8: macd null 가드 추가
+  // MACD & BB — v46.9: macd null 가드 추가
   var _macdLine = (macd && macd.macdLine && macd.macdLine.length) ? macd.macdLine[macd.macdLine.length-1] : 0;
   var _sigLine = (macd && macd.signalLine && macd.signalLine.length) ? macd.signalLine[macd.signalLine.length-1] : 0;
   var _hist = (macd && macd.histogram && macd.histogram.length) ? macd.histogram[macd.histogram.length-1] : 0;
@@ -39881,7 +39896,7 @@ async function chatSendUnified() {
   if (!q) return;
   // v46.4: 입력 길이 제한 (10000자) — API 비용 + 메모리 보호
   if (q.length > 10000) { q = q.slice(0, 10000); inp.value = q; }
-  // v46.8: API 키 체크를 쿼터 차감 전에 수행 (키 없으면 쿼터 낭비 방지)
+  // v46.9: API 키 체크를 쿼터 차감 전에 수행 (키 없으면 쿼터 낭비 방지)
   if (typeof getApiKey === 'function' && !getApiKey()) { appendChatMessage(_aiCurrentCtx, 'ai', '⚠️ API 키를 먼저 설정해주세요. (설정 → API 키)'); return; }
   if (typeof consumeLLMQuery === 'function' && !consumeLLMQuery()) return;
   inp.value = '';
@@ -39956,7 +39971,7 @@ async function chatSendUnified() {
           // 복합 질문(50자+ 또는 티커+맥락) → Deep Search
           var isComplex = q.length > 50 || (detectedTickers.length > 0 && /전망|분석|비교|어때|어떻|최근|상황/.test(q));
           var webResult;
-          // v46.8: DeepSearch 예외 시 일반 검색 폴백 보장 (개별 try-catch)
+          // v46.9: DeepSearch 예외 시 일반 검색 폴백 보장 (개별 try-catch)
           if (isComplex && typeof _aiDeepSearch === 'function') {
             try { webResult = await _aiDeepSearch(q, ctxId); } catch(de) { console.warn('[AIO] DeepSearch 실패:', de.message); }
           }

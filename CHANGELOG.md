@@ -6,6 +6,33 @@
 
 ---
 
+## v46.9 — 8건 통합: NAND SCA 패러다임 + HDD 재평가 + 광고 패권 역전 + 기업 AI 3파전 + integrate 스킬 보강 (2026-04-14)
+
+### 자료 통합 (8건)
+1. **Citi SNDK 심층** — PT $980↑, NAND ASP QQ +70-75%(정점 미도달), SCA 패러다임, Nanya $10억, TurboQuant DeepSeek역설, 키옥시아 JV 2034연장
+2. **Citi STX** — PT $595↑(21x), Mozaic 4+ 44TB 양산, HAMR 확대, F3Q26E +37%YY
+3. **Citi WDC** — PT $405↑(21x), 100→140TB 로드맵, 장기 GM50%+/OM40%+/EPS$20+
+4. **MSFT 오픈클로 코파일럿** — GUI 에이전트 진화, Anthropic Computer Use 경쟁
+5. **OpenAI-Amazon vs MSFT** — Bedrock 선회, Anthropic ARR $300억, 기업 AI 3파전
+6. **Amazon LEO 항공 안테나** — 1Gbps 기가비트급
+7. **META 광고 매출 GOOGL 초과** — 순광고 $243B vs $239B(사상 첫 역전), AI 추천 릴스 +30%, GOOGL 검색 48.5%
+8. **Evercore SNDK** — OP PT $1200 Bull $2600, FY27E $130+ EPS 경로(5가지 레버)
+
+### 코드 변경
+- SCREENER_DB: 5건 갱신(SNDK/STX→BUY/WDC→BUY/META/MSFT)
+- TECH_KW: +18 키워드(NAND SCA/TurboQuant/Mozaic/100TB/OpenClaw/GUI agent/Bedrock/LEO antenna 등)
+- CHAT_CONTEXTS: §74(fundamental) — NAND SCA 패러다임 + HDD 멀티플 재평가 + 광고 패권 역전 + 기업 AI 3파전
+- KNOWLEDGE-BASE: NAND SCA 패러다임 전환 인사이트 축적
+
+### integrate 스킬 보강 (v46.8)
+- 기업 뉴스/딜 처리 절차 신설 (M&A/파트너십/대형계약 5단계)
+- IB 등급/PT 뉴스 처리 절차 신설 (1줄 업다운그레이드 4단계)
+- 뉴스 파이프라인 런타임 검증 절차 신설 (scoreItem/classifyTopic 시뮬레이션)
+- 반영 체크리스트에 CHAT_CONTEXTS 오버라이드 확인 + 런타임 검증 추가
+- Gotchas #9~#12 (macro Pro 오버라이드, X 스레드, Perplexity, DB 중복)
+
+---
+
 ## v46.8 — 심층 QA 6건 수정 + /data-refresh 4/14: 이란 협상결렬 반영 (2026-04-14)
 
 ### 심층 QA 수정 (6건)
