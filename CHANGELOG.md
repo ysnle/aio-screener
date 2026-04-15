@@ -6,7 +6,65 @@
 
 ---
 
-## v46.9 — 8건 통합: NAND SCA 패러다임 + HDD 재평가 + 광고 패권 역전 + 기업 AI 3파전 + integrate 스킬 보강 (2026-04-14)
+## v47 — 전면 보강: AI채팅 완전 이식 + 환각 제로 정책 + 데이터 전면 최신화 + UX 보강 (2026-04-15)
+
+### AI 채팅 보강 (7건)
+- chatSendUnified에 chatSend 동일 기능 7건 이식: 자동 재시도+모델 폴백, saveChatEntry, 모델 배지, 데이터 신뢰도 배지, 피드백 버튼, 웹검색 출처+알림 배지
+- streaming 중복 방지 로직 수정 (강제 해제 → 단순 return)
+
+### 환각 방지 3중 강화
+- `_getChatRules` 최상단 환각 제로 정책 신설 (8개 금지 조항, 모든 규칙보다 우선)
+- chatSendUnified 데이터 검증 태그 chatSend과 동일 5항목 상세화
+- `_needsWebSearch` 트리거 확장: 티커 감지 시 무조건 검색, "어때/전망/분석" 패턴 추가
+
+### 런타임 결함 수정 (5건)
+- showPage() `.content` null 방어 (2곳)
+- chatSend loadWrap.parentNode null 방어 (3곳)
+
+### 콘텐츠 품질 수정 (4건)
+- 홈 점수 기준 불일치: "70+ = YES" → "75+ 적극 매수" (computeTradingScore 실제 로직과 통일)
+- VIX 상태 "경고 구간 (Elevated)" → 동적값으로 통일
+- AAII 51.4% 하드코딩 → regime-aaii 동적 업데이트 연결
+- NYSE 매도 비율 하드코딩 제거
+
+### DATA_SNAPSHOT 전면 최신화 (/data-refresh 4/15)
+- 이란 재협상 기대 반영: VIX 29.80→18.36, WTI $98→$91, SPX 6894→6967(ATH근접)
+- 글로벌 지수: Nikkei 53373→57816, Hang Seng→25947, BTC 67323→74442
+- 환율: DXY 100.19→98.65, KRW 1510→1485
+- FALLBACK_QUOTES 전면 동기화, _fallback 5개 갱신
+- 차트 시계열 labels20/vixData/hyData/pcLabels/pcData 4/14 추가
+- 서술 텍스트 P61 8곳 갱신 (협상 결렬→재협상 국면)
+
+### 테마/섹터 전면 보강
+- RRG 시드 26개 섹터 재배치 (에너지/방산 Leading→Weakening, 기술/SW→Leading)
+- 섹터 폴백 16개 4/14 기준 갱신
+- 메모리 테마 SNDK 추가 (leaders 1위, w=30)
+- FCEL/PLUG 가중치 축소 (파산 위험)
+- KR_STOCK_DB 누락 8종목 추가
+- KR_THEME_CATALYSTS defense/energy 갱신
+- kr-themes CHAT_CONTEXTS 수익률 현행화 + 기준 시점 명기
+- macro Pro 지정학 "전쟁 5주차"→"재협상 국면" 전면 재작성
+
+### UX 보강
+- 로딩 워치독 60초→30초, API 키 미설정 시 맞춤 안내
+- 신규 사용자 온보딩 배너 (API 키 설정 안내, 닫기+기억)
+- Safari 개인정보보호 모드 localStorage 차단 감지+경고
+- openApiKeyConfig prompt()→사이드바 포커스 이동
+- 포트폴리오 PIN 설정 prompt()→PIN 입력 UI
+
+---
+
+## v46.9 — 8건 통합 + AI 채팅 버그 수정 + 미지원 페이지 UX (2026-04-14~15)
+
+### AI 채팅 버그 수정 (2026-04-15)
+- **appendChatMessage→_appendAIMsg 수정**: chatSendUnified에서 존재하지 않는 함수 호출 → API 키 미설정 시 ReferenceError crash
+- **ctx.system() try-catch 감쌈**: system prompt 생성 에러 시 streaming 플래그 stuck → 이후 모든 채팅 영구 차단되던 문제 방지
+- **state.streaming stuck 자동 해제**: 이전 요청 crash로 streaming=true 고착 시 1회 자동 해제
+- **sysPrompt undefined 방어**: ctx.system() 실패 시 .indexOf() TypeError 방지
+- **callClaude 미정의 방어**: script 블록 로드 실패 시 에러 메시지 표시
+- **AI 미지원 페이지 UX**: 매핑 없는 8개 페이지(home/briefing/ticker/market-news/options/kr-home/kr-supply/guide)에서 AI 패널 열면 안내 메시지 + 입력 비활성화, 지원 페이지 전환 시 자동 활성화
+
+### 자료 통합 (8건, 2026-04-14)
 
 ### 자료 통합 (8건)
 1. **Citi SNDK 심층** — PT $980↑, NAND ASP QQ +70-75%(정점 미도달), SCA 패러다임, Nanya $10억, TurboQuant DeepSeek역설, 키옥시아 JV 2034연장

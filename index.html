@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v46.9 — 올인원 투자 터미널</title>
+  <title>AIO Screener v47 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2236,11 +2236,16 @@ body.light-theme canvas { filter:none; }
 
   <!-- ═══ 데이터 경과 경고 배너 ═══ -->
   <div id="snapshot-stale-warning" style="display:none;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);border-radius:8px;padding:8px 14px;margin-bottom:10px;font-size:10px;color:#fbbf24;font-weight:600;text-align:center;"></div>
+  <!-- v46.10: 신규 사용자 API 키 미설정 안내 -->
+  <div id="api-key-onboarding" style="display:none;background:rgba(91,168,255,0.08);border:1px solid rgba(91,168,255,0.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:10px;color:#60a5fa;text-align:center;line-height:1.6;">
+    실시간 시세·기업 분석·경제지표를 사용하려면 <b>API 키 설정</b>이 필요합니다. 사이드바 하단 → API 키 입력란에서 설정하세요. <a href="#" onclick="document.querySelector('.sidebar-api-section')?.scrollIntoView({behavior:'smooth'});return false;" style="color:#5ba8ff;text-decoration:underline;">설정하러 가기</a>
+    <button onclick="this.parentElement.style.display='none';try{localStorage.setItem('aio_onboard_dismissed','1')}catch(e){}" style="background:none;border:none;color:#5ba8ff;cursor:pointer;font-size:9px;margin-left:8px;">✕ 닫기</button>
+  </div>
 
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v46.9</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v47</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -2254,7 +2259,7 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <div class="insight-box box-collapsed" style="margin-top:0;">
-    <strong>5가지 지표로 시장 건강도를 한눈에 — 스코어 70+ = 매수(YES), 50-70 = 주의(CAUTION), 50↓ = 방어(NO)</strong>
+    <strong>5가지 지표로 시장 건강도를 한눈에 — 75+ 적극 매수 | 60-75 매수 우호 | 45-60 중립 | 30-45 주의 | 30↓ 위험</strong>
   </div>
 
   <!-- ═══ SECTION 0: 오늘의 시장 + 이번 주 핵심 (v39.0 통합) ═══ -->
@@ -2319,8 +2324,8 @@ body.light-theme canvas { filter:none; }
     <!-- 시장 국면 -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
       <div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;margin-bottom:8px;text-transform:uppercase;">시장 국면</div>
-      <div id="home-market-regime" style="font-size:18px;font-weight:800;color:#fbbf24;margin-bottom:6px;font-family:var(--font-mono);">CORRECTION</div>
-      <div id="home-regime-explanation" style="font-size:8px;color:var(--text-secondary);">ATH -6.8% · 200일선 하향이탈 · 4주 연속 하락</div>
+      <div id="home-market-regime" style="font-size:18px;font-weight:800;color:#3ddba5;margin-bottom:6px;font-family:var(--font-mono);">UPTREND</div>
+      <div id="home-regime-explanation" style="font-size:8px;color:var(--text-secondary);">ATH 근접 · 이란 재협상 기대 · VIX 18↓</div>
     </div>
   </div>
 
@@ -2329,7 +2334,7 @@ body.light-theme canvas { filter:none; }
     <!-- S&P 500 -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #3ddba5;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('technical',null)" onmouseover="this.style.borderColor='#3ddba5'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">S&P 500</div>
-      <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);" data-live-price="^GSPC">6,369</div>
+      <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);" data-live-price="^GSPC">6,967</div>
       <div style="font-size:11px;font-weight:600;margin-top:3px;" data-live-chg="^GSPC">—</div>
     </div>
 
@@ -2343,21 +2348,21 @@ body.light-theme canvas { filter:none; }
     <!-- VIX 공포지수 -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #f97316;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('sentiment',null)" onmouseover="this.style.borderColor='#f97316'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">공포지수 VIX</div>
-      <div id="home-vix-value" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:#f97316;" data-live-price="^VIX">29.80</div>
-      <div id="home-vix-status" style="font-size:8px;color:var(--text-muted);margin-top:3px;">경고 구간 (Elevated)</div>
+      <div id="home-vix-value" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:#3ddba5;" data-live-price="^VIX">18.36</div>
+      <div id="home-vix-status" style="font-size:8px;color:var(--text-muted);margin-top:3px;">—</div>
     </div>
 
     <!-- Fear & Greed -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #fbbf24;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('sentiment',null)" onmouseover="this.style.borderColor='#fbbf24'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">Fear & Greed</div>
-      <div id="home-fg-score" style="font-size:16px;font-weight:800;font-family:var(--font-mono);">15</div>
-      <div id="home-fg-label" style="font-size:11px;color:var(--text-muted);margin-top:3px;">극단적 공포 (Extreme Fear)</div>
+      <div id="home-fg-score" style="font-size:16px;font-weight:800;font-family:var(--font-mono);">32</div>
+      <div id="home-fg-label" style="font-size:11px;color:var(--text-muted);margin-top:3px;">공포 (Fear)</div>
     </div>
 
     <!-- 달러인덱스 DXY -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #60a5fa;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('fxbond',null)" onmouseover="this.style.borderColor='#60a5fa'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">달러인덱스</div>
-      <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);" data-live-price="DX-Y.NYB">100.19</div>
+      <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);" data-live-price="DX-Y.NYB">98.65</div>
       <div style="font-size:11px;font-weight:600;margin-top:3px;" data-live-chg="DX-Y.NYB">—</div>
     </div>
   </div>
@@ -2527,27 +2532,27 @@ body.light-theme canvas { filter:none; }
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;">
       <div style="font-size:9px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">시장 국면 진단</div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <div id="regime-badge" style="padding:5px 14px;border-radius:16px;font-size:11px;font-weight:800;font-family:var(--font-mono);background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;">CHOP</div>
+        <div id="regime-badge" style="padding:5px 14px;border-radius:16px;font-size:11px;font-weight:800;font-family:var(--font-mono);background:rgba(61,219,165,0.15);border:1px solid rgba(61,219,165,0.3);color:#3ddba5;">—</div>
         <div>
-          <div id="regime-label" style="font-size:10px;font-weight:600;color:var(--text-secondary);">세속 상승장 내 순환적 조정</div>
-          <div id="regime-sub" style="font-size:8px;color:var(--text-muted);margin-top:2px;">Secular Bull → Cyclical Correction</div>
+          <div id="regime-label" style="font-size:10px;font-weight:600;color:var(--text-secondary);">—</div>
+          <div id="regime-sub" style="font-size:8px;color:var(--text-muted);margin-top:2px;">—</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
         <div style="background:rgba(255,255,255,0.02);border-radius:5px;padding:6px;text-align:center;">
           <div style="font-size:9px;color:var(--text-muted);">NYSE 매도 비율</div>
-          <div id="regime-nyse-sell" style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:#f87171;">4:1</div>
-          <div style="font-size:9px;color:#f87171;">올해 최고</div>
+          <div id="regime-nyse-sell" style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:#f87171;">—</div>
+          <div style="font-size:9px;color:var(--text-muted);">—</div>
         </div>
         <div style="background:rgba(255,255,255,0.02);border-radius:5px;padding:6px;text-align:center;">
           <div style="font-size:9px;color:var(--text-muted);">AAII 약세 비율</div>
-          <div id="regime-aaii" style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:#f87171;">51.4%</div>
-          <div style="font-size:9px;color:#fbbf24;">역발상 긍정</div>
+          <div id="regime-aaii" style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:#f87171;">—</div>
+          <div style="font-size:9px;color:#fbbf24;">—</div>
         </div>
         <div style="background:rgba(255,255,255,0.02);border-radius:5px;padding:6px;text-align:center;">
           <div style="font-size:9px;color:var(--text-muted);">Put/Call 비율</div>
-          <div id="regime-pcr" style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:#fbbf24;">1.21</div>
-          <div style="font-size:9px;color:#fbbf24;">스파이크 중</div>
+          <div id="regime-pcr" style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);">—</div>
+          <div style="font-size:9px;color:var(--text-muted);">—</div>
         </div>
       </div>
     </div>
@@ -2694,8 +2699,8 @@ body.light-theme canvas { filter:none; }
           <canvas id="risk-gauge-small" role="img" aria-label="리스크 수준 게이지" width="60" height="30"></canvas>
         </div>
         <div>
-          <div id="risk-composite-val" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:#fbbf24;">31</div>
-          <div id="risk-composite-label" style="font-size:9px;color:#fbbf24;font-weight:700;">TENSION</div>
+          <div id="risk-composite-val" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:#3ddba5;">18</div>
+          <div id="risk-composite-label" style="font-size:9px;color:#3ddba5;font-weight:700;">LOW</div>
         </div>
       </div>
     </div>
@@ -2703,7 +2708,7 @@ body.light-theme canvas { filter:none; }
       <!-- VIX — 스냅카드 중복, 숨김 -->
       <div class="risk-mon-cell" id="rm-vix" style="display:none">
         <div class="rm-label">VIX<span class="rm-tip">15↓=안정, 15~20=주의, 20~25=경계, 25~30=공포, 30+=극단공포</span></div>
-        <div class="rm-val" data-live-price="^VIX">29.80</div>
+        <div class="rm-val" data-live-price="^VIX">18.36</div>
         <div class="rm-status" id="rm-vix-status">—</div>
         <div class="rm-bar-wrap"><div class="rm-bar" id="rm-vix-bar" style="width:60%;background:#fbbf24;"></div></div>
       </div>
@@ -2817,12 +2822,12 @@ body.light-theme canvas { filter:none; }
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
       <!-- CP1 -->
-      <div class="cp-cell" style="border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.05);">
-        <div class="cp-num" style="color:#f87171;">CP1</div>
+      <div class="cp-cell" style="border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.05);">
+        <div class="cp-num" style="color:#fbbf24;">CP1</div>
         <div class="cp-name">지정학</div>
-        <div class="cp-score" style="color:#f87171;">CRITICAL</div>
-        <div class="cp-detail">4/12 이란 협상 결렬 · 4/13 호르무즈 봉쇄 발효 · WTI <span data-snap="wti">—</span> · Brent $103(+8%) · 트럼프 "접근 선박 격침" 경고 · 봉쇄 장기화 시 $110+ 시나리오 · 우크라이나/대만 병존</div>
-        <div class="cp-meter"><div style="width:80%;height:100%;background:linear-gradient(90deg,#ef4444,#dc2626);border-radius:3px;"></div></div>
+        <div class="cp-score" style="color:#fbbf24;">HIGH→완화</div>
+        <div class="cp-detail">4/14 트럼프 "이란 협상 재개" 시사 · 파키스탄 중재 재협상 곧 재개 전망 · WTI <span data-snap="wti">—</span>(봉쇄 발효 중이나 완화 기대) · 시장 선반영 중 · 재협상 실패 시 재급등 리스크 잔존 · 우크라이나/대만 병존</div>
+        <div class="cp-meter"><div style="width:55%;height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:3px;"></div></div>
       </div>
       <!-- CP2 -->
       <div class="cp-cell" style="border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.05);">
@@ -2857,12 +2862,12 @@ body.light-theme canvas { filter:none; }
         <div class="cp-meter"><div style="width:50%;height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:3px;"></div></div>
       </div>
       <!-- CP6 -->
-      <div class="cp-cell" style="border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.05);">
-        <div class="cp-num" style="color:#f87171;">CP6</div>
+      <div class="cp-cell" style="border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.05);">
+        <div class="cp-num" style="color:#fbbf24;">CP6</div>
         <div class="cp-name">원자재</div>
-        <div class="cp-score" style="color:#f87171;">HIGH</div>
-        <div class="cp-detail">WTI <span data-snap="wti">—</span> · Brent <span data-snap="brent">—</span> · JPM: 걸프 60개+ 자산 타격, 정유 240만bpd 중단, 동서 파이프라인 70만bpd 손실(수년 수리) · 휴전 후에도 구조적 공급 감소 잔존</div>
-        <div class="cp-meter"><div style="width:70%;height:100%;background:linear-gradient(90deg,#f87171,#ef4444);border-radius:3px;"></div></div>
+        <div class="cp-score" style="color:#fbbf24;">MEDIUM</div>
+        <div class="cp-detail">WTI <span data-snap="wti">—</span>(재협상 기대→$91↓) · Brent <span data-snap="brent">—</span>($95↓) · 봉쇄 중이나 재협상 재개 시 추가 하락 여지 · JPM: 구조적 공급 감소(정유 240만bpd+파이프라인 70만bpd) 잔존 · 재협상 실패 시 $110+ 재급등</div>
+        <div class="cp-meter"><div style="width:50%;height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:3px;"></div></div>
       </div>
       <!-- CP7 -->
       <div class="cp-cell" style="border-color:rgba(61,219,165,0.3);background:rgba(61,219,165,0.05);">
@@ -2945,7 +2950,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
       <div style="font-size:8px;color:var(--text-muted);margin-top:10px;line-height:1.5;background:rgba(255,255,255,0.02);border-radius:5px;padding:7px;">
-        <b style="color:#fbbf24;">진단:</b> 5SMA 68% · 20SMA 75% · 50SMA 46% · 200SMA 55%. 단기(5/20) 빠른 회복이나 협상 결렬+봉쇄로 변동성 재확대. <b>에너지·방산 리딩, SW·항공 레깅</b> — 50일선 60% 돌파까지 추가 확인 필요.
+        <b style="color:#fbbf24;">진단:</b> 5SMA 68% · 20SMA 75% · 50SMA 46% · 200SMA 55%. 이란 재협상 기대→VIX 18↓ 급락, 단기 브레드쓰 급반등. <b>기술·소프트웨어 리딩, 에너지·방산 조정</b> — 50일선 60% 돌파 및 재협상 결과 확인 필요.
       </div>
     </div>
 
@@ -3547,7 +3552,7 @@ body.light-theme canvas { filter:none; }
         <div class="data-widget" style="padding:12px;flex:1;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <div style="font-size:10px;font-weight:700;color:var(--text-secondary);"><span class="term-tooltip">VIX<span class="tip-icon">?</span><span class="tip-body">30일 변동성 지수. 낮음=안정, 높음=공포</span></span></div>
-            <div style="font-size:10px;color:var(--green);font-weight:600;"><span id="vix-live-label">VIX</span>: <span id="vix-live-val">29.80</span></div>
+            <div style="font-size:10px;color:var(--green);font-weight:600;"><span id="vix-live-label">VIX</span>: <span id="vix-live-val">18.36</span></div>
           </div>
           <div style="position:relative;height:140px;"><canvas id="vix-chart" role="img" aria-label="VIX 공포지수 추이 차트"></canvas></div>
         </div>
@@ -3586,11 +3591,11 @@ body.light-theme canvas { filter:none; }
         <div id="aaii-text-fallback" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:9px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <div>
-              <span style="color:#f87171;font-weight:800;font-size:14px;font-family:var(--font-mono);" id="aaii-bear-val">52.0%</span>
+              <span style="color:#f87171;font-weight:800;font-size:14px;font-family:var(--font-mono);" id="aaii-bear-val">43.0%</span>
               <span style="color:var(--text-muted);font-size:8px;"> 약세</span>
             </div>
             <div style="text-align:right;">
-              <span style="color:#3ddba5;font-size:10px;font-family:var(--font-mono);" id="aaii-bull-val">30.4%</span>
+              <span style="color:#3ddba5;font-size:10px;font-family:var(--font-mono);" id="aaii-bull-val">35.7%</span>
               <span style="color:var(--text-muted);font-size:8px;"> 강세</span>
             </div>
           </div>
@@ -4724,7 +4729,7 @@ body.light-theme canvas { filter:none; }
           제트유(항공): <b style="color:#f87171;">-40%</b> · 노선 철수 <span style="color:var(--text-muted);">(IATA)</span><br>
           미국 휘발유: <b style="color:#f87171;">월간 +29%</b> <span style="color:var(--text-muted);">(EIA)</span><br>
           미국 디젤: <b style="color:#f87171;">월간 +35%</b> <span style="color:var(--text-muted);">(EIA, 크루그먼 근원CPI 전이 경로)</span><br>
-          <span style="font-size:9px;color:#f87171;">⚡ 4/12 이란 협상 결렬 → 4/13 호르무즈 봉쇄 발효. Brent $103(+8%). WTI $98. 봉쇄 장기화 시 $110+ 시나리오.</span>
+          <span style="font-size:9px;color:#fbbf24;">⚡ 4/14 이란 재협상 재개 전망(파키스탄 중재) → 유가 급락 WTI $91(-8%), Brent $95(-5%). 봉쇄 발효 중이나 시장은 완화 선반영. 재협상 실패 시 $110+ 재급등 리스크.</span>
         </div>
       </div>
       <div style="background:rgba(0,0,0,0.15);border-radius:7px;padding:10px;">
@@ -4946,7 +4951,7 @@ body.light-theme canvas { filter:none; }
       <div class="fx-card fx-dxy-card" id="fx-dxy-card">
         <div class="fx-flag">🇺🇸</div>
         <div class="fx-pair">DXY Index</div>
-        <div class="fx-rate" data-live-price="DX-Y.NYB">100.19</div>
+        <div class="fx-rate" data-live-price="DX-Y.NYB">98.65</div>
         <div class="fx-chg" data-live-chg="DX-Y.NYB">—</div>
         <div class="fx-note">달러 강세 = 신흥국 압박 · 원자재 하락 요인</div>
         <div id="dxy-card-signal" class="fx-signal fx-warn">강달러 경고</div>
@@ -5360,7 +5365,7 @@ body.light-theme canvas { filter:none; }
       <div style="margin-bottom:16px;">
         <div style="font-size:11px;font-weight:700;color:#60a5fa;margin-bottom:6px;"> Chapter 1: 달러의 두 얼굴</div>
         <p style="margin:0;color:var(--text-muted);font-size:11px;line-height:1.9;">
-          달러 인덱스(DXY)가 <b style="color:#60a5fa;" data-live-price="DX-Y.NYB">100.19</b>을 기록하고 있습니다.
+          달러 인덱스(DXY)가 <b style="color:#60a5fa;" data-live-price="DX-Y.NYB">98.65</b>을 기록하고 있습니다.
           달러가 강해지면 미국 다국적 기업의 해외 수익이 환산 시 줄어들어 실적에 부담이 됩니다.
           반면 한국 수출기업은 원화 약세 덕분에 달러로 받는 수출 대금의 원화 환산 가치가 높아져 수혜를 받습니다.
           현재 원/달러 환율 <b style="color:#fbbf24;" data-live-price="KRW=X">1,508</b>원대는 수출기업에겐 호재,
@@ -5408,7 +5413,7 @@ body.light-theme canvas { filter:none; }
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;">
       <div style="background:rgba(96,165,250,0.05);border:1px solid rgba(96,165,250,0.15);border-radius:8px;padding:10px;text-align:center;">
         <div style="font-size:8px;color:var(--text-muted);font-weight:700;">DXY 달러인덱스</div>
-        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:#60a5fa;margin:4px 0;" data-live-price="DX-Y.NYB">100.19</div>
+        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:#60a5fa;margin:4px 0;" data-live-price="DX-Y.NYB">98.65</div>
         <div style="font-size:9px;" data-live-chg="DX-Y.NYB">—</div>
       </div>
       <div style="background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.15);border-radius:8px;padding:10px;text-align:center;">
@@ -6345,8 +6350,8 @@ body.light-theme canvas { filter:none; }
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
     <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">VIX (실시간)</div>
-      <div style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:#3b82f6;" data-live-price="^VIX">29.80</div>
-      <div style="font-size:9px;color:#3b82f6;">91%ile · 긴장 상태</div>
+      <div style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:#3b82f6;" data-live-price="^VIX">18.36</div>
+      <div style="font-size:9px;color:var(--text-muted);">—</div>
     </div>
     <div style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">VVIX (변동성의 변동성)</div>
@@ -6393,7 +6398,7 @@ body.light-theme canvas { filter:none; }
     </div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
       <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">VIX (실시간)</div>
-      <div style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:#f87171;" data-live-price="^VIX">29.80</div>
+      <div style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:#f87171;" data-live-price="^VIX">18.36</div>
       <div style="font-size:9px;color:#f87171;margin-bottom:6px;">높은 긴장 (평년 15~18)</div>
       <div style="font-size:8px;color:var(--text-muted);line-height:1.4;">VIX 장기 평년 15~18. 20+ 주의, 30+ 극도 긴장. FOMC 듀얼 리스크 + 2주 휴전 붕괴 가능성 → VIX 30+ 지속 환경. 4월 이벤트 밀집(CPI/어닝/OPEX)으로 변동성 확대 경계.</div>
     </div>
@@ -6994,7 +6999,7 @@ body.light-theme canvas { filter:none; }
       <div style="padding:12px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:8px;">
         <div style="font-size:11px;font-weight:800;color:#fbbf24;margin-bottom:8px;">Spot vs 30일물 해석</div>
         <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
-          <div style="margin-bottom:6px;"><strong>현재:</strong> VIX Spot 29.80 > VX1(30일) 25.20</div>
+          <div style="margin-bottom:6px;"><strong>현재:</strong> VIX Spot 18.36 (재협상 기대로 급락, 기간구조 동적 갱신)</div>
           <div style="margin-bottom:6px;"><strong>의미:</strong> 백워데이션 (공포 상황 — Spot이 선물보다 높음)</div>
           <div style="margin-bottom:6px;"><strong>신호:</strong> 단기(1주) 변동성 >> 중기(1개월) → 시장 공포 확대</div>
           <div style="margin-bottom:6px;"><strong>기대:</strong> 단기 이벤트 해소 시 Spot이 빠르게 하락할 수 있음</div>
@@ -7026,7 +7031,7 @@ body.light-theme canvas { filter:none; }
     <div style="padding:12px;background:rgba(61,219,165,0.08);border:1px solid rgba(61,219,165,0.3);border-radius:8px;margin-top:12px;">
       <div style="font-size:11px;font-weight:800;color:#3ddba5;margin-bottom:8px;">실무 거래 적용</div>
       <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
-        <strong style="color:#3ddba5;">1. 프리미엄 수취 기회:</strong> VIX 91%ile는 옵션 프리미엄이 매우 높은 상태. Covered Call, CSP, Iron Condor 수익성 ↑<br><br>
+        <strong style="color:#3ddba5;">1. 프리미엄 수취 기회:</strong> VIX가 높을수록 옵션 프리미엄 상승. Covered Call, CSP, Iron Condor 수익성 ↑<br><br>
         <strong style="color:#3ddba5;">2. 헤징 비용 상승:</strong> 하락 헤지 (Put 매수)의 프리미엘이 비쌈. 대신 Put 매도 유리.<br><br>
         <strong style="color:#3ddba5;">3. 백워데이션 활용:</strong> 근월 프리미엄 과대 상태. Calendar Spread (매도 근월 / 매수 원월)로 정상화 수익 추구.<br><br>
         <strong style="color:#3ddba5;">4. PCE 이벤트 전략:</strong> 다음 PCE(4/30)까지 변동성 지속. 이벤트 후 IV Crush 예상. Straddle 진입 고려.
@@ -7077,7 +7082,7 @@ body.light-theme canvas { filter:none; }
       </div>
       <div class="kr-idx-card down">
         <div class="kr-idx-label">KRW/USD</div>
-        <div class="kr-idx-val" id="kr-krw-price" style="color:var(--red)" data-snap="krw-full">1,510.54</div>
+        <div class="kr-idx-val" id="kr-krw-price" style="color:var(--red)" data-snap="krw-full">1,485.00</div>
         <div class="kr-idx-chg" style="color:var(--red)">▲ 1.66 (+0.11%) <span data-date-ref="kr-last"></span></div>
         <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">원화 약세 (중동 리스크 · 1,500원대 고착)</div>
         <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">1년 범위: 1,225~1,525원</div>
@@ -7659,7 +7664,7 @@ body.light-theme canvas { filter:none; }
           </div>
         </div>
         <div style="margin-top:10px;padding:8px;background:rgba(91,168,255,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-          물가 목표치(2.0%) 도달. 4/12 이란 협상 결렬 + 4/13 호르무즈 봉쇄 발효 → Brent $103, WTI $98. 유가 재급등으로 물가 재점화 리스크 현실화. 봉쇄 장기화 시 2차 인플레 우려
+          물가 목표치(2.0%) 초과. 4/14 이란 재협상 재개 전망 → Brent $95(-5%), WTI $91(-8%). 유가 하락으로 물가 재점화 리스크 일부 완화. 단 봉쇄 중이며 재협상 실패 시 재급등 우려 잔존
         </div>
       </div>
 
@@ -7777,7 +7782,7 @@ body.light-theme canvas { filter:none; }
           <tr><td>식품</td><td style="color:var(--text-muted);">15억 USD</td><td style="color:var(--red);">-3.2%</td></tr>
         </table>
         <div style="margin-top:10px;padding:8px;background:rgba(251,191,36,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-          에너지 수입 부담 급증 (WTI $98, Brent $103 — 4/13 호르무즈 봉쇄 발효). 봉쇄 장기화 시 원화 약세+무역적자 확대 리스크. 반도체 설비 수입도 대폭 증가
+          에너지 수입 부담 완화 추세 (WTI $91, Brent $95 — 이란 재협상 기대). 재협상 성공 시 원화 강세+무역수지 개선 기대. 단 봉쇄 지속 중이며 구조적 공급 감소 잔존. 반도체 설비 수입 대폭 증가
         </div>
       </div>
     </div>
@@ -9630,7 +9635,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v46.9';
+const APP_VERSION = 'v47';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -9661,31 +9666,31 @@ if (!AIO_DEBUG) {
 //    HTML 본문에 직접 숫자를 수정하지 마세요!
 // ─────────────────────────────────────────────────────────────────
 const DATA_SNAPSHOT = {
-  _updated: '2026-04-14T22:00:00+09:00',   // ISO 타임스탬프 — v46.9 /data-refresh (VIX/HY/PC 4/13 연장 + 이란 협상결렬 반영)
+  _updated: '2026-04-15T22:00:00+09:00',   // ISO 타임스탬프 — v46.10 /data-refresh (이란 재협상 기대→VIX 급락, 유가 급락, 주식 급등)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v46.9 — /data-refresh 4/14: 이란 협상결렬+호르무즈 봉쇄, VIX 29.8, WTI $98(+7.6%), Brent $103, S&P 6894',
+  _note: 'v46.10 — /data-refresh 4/15: 이란 재협상 기대감, VIX 18.36(-38%), WTI $91(-7%), S&P 6967(ATH근접)',
 
-  // ── 미국 주요 지수 (4/13 월 종가) ──
-  spx:        6893.80,  spxPct:    -0.05,
-  nasdaq:    25448.00,  nasdaqPct: -0.01,
-  dow:       48262.90,  dowPct:    -0.05,
-  rut:        2675.12,  rutPct:    +0.03,
-  vix:          29.80,  vixPct:    -4.18,
-  vvix:        130.00,
+  // ── 미국 주요 지수 (4/14 월 종가) ──
+  spx:        6967.38,  spxPct:    +1.18,
+  nasdaq:    25750.00,  nasdaqPct: +1.50,
+  dow:       48820.00,  dowPct:    +1.15,
+  rut:        2710.00,  rutPct:    +1.30,
+  vix:          18.36,  vixPct:    -3.97,
+  vvix:         95.00,
 
-  // ── 한국 지수 (4/13 종가) ── 정적 폴백값. 실시간 데이터 수신 시 자동 교체됨.
-  kospi:     5808.62,  kospiPct:  -0.86,  kospiPrev: 5858.87,
-  kosdaq:    1165.00,  kosdaqPct: -0.50,  kosdaqPrev: 1170.85,
+  // ── 한국 지수 (4/15 종가) ── 정적 폴백값. 실시간 데이터 수신 시 자동 교체됨.
+  kospi:     5960.00,  kospiPct:  +2.60,  kospiPrev: 5808.62,
+  kosdaq:    1190.00,  kosdaqPct: +2.00,  kosdaqPrev: 1165.00,
 
-  // ── 원자재 (4/13 종가 — 호르무즈 봉쇄 후 급등) ──
-  wti:      98.00,   wtiPct:   +2.00,   // v46.9: WTI ~$98 (4/13, 장중 +9%→종가 +2%, 호르무즈 봉쇄)
-  brent:   103.00,   brentPct: +8.00,   // v46.9: Brent ~$103 (4/13, 봉쇄+협상결렬)
-  gold:   4750,      goldPct:   +1.00,  goldWeeklyPct: +2.5,
+  // ── 원자재 (4/14 종가 — 이란 재협상 기대로 급락) ──
+  wti:      91.28,   wtiPct:   -8.00,   // v46.10: WTI $91.28 (이란 재협상 기대→호르무즈 봉쇄 완화 전망)
+  brent:    94.79,   brentPct: -4.60,   // v46.10: Brent $94.79
+  gold:   4822,      goldPct:   +1.50,  goldWeeklyPct: +1.8,
   ng:       3.00,
 
-  // ── 환율 (4/4) ──
-  krw:      1510.54,  krwPct:   +0.05,  krwRound: 1511,
-  dxy:       100.19,  dxyPct:   +0.16,
+  // ── 환율 (4/14) ──
+  krw:      1485.00,  krwPct:   -1.70,  krwRound: 1485,
+  dxy:        98.65,  dxyPct:   -1.53,
 
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
@@ -9701,7 +9706,7 @@ const DATA_SNAPSHOT = {
   bokNext:     '2026-05-29',                     // 다음 금통위 일정
   krBond3y:     2.82,   krBond10y: 3.72,         // 국고채 3년/10년 수익률 (<span data-date-ref="kr-last-basis">기준</span>, 10Y 월중 최고)
   krCd91:       2.78,                             // CD 91일 금리
-  vkospi:      35.00,                             // 변동성지수 (VKOSPI) — 4/4 81.99→휴전 후 급락→협상결렬 후 반등 (4/13 추정), 20↑=경계 30↑=공포
+  vkospi:      22.00,                             // 변동성지수 (VKOSPI) — 이란 재협상 기대로 급락 (4/15 추정), 20↑=경계 30↑=공포
 
   // ── 거시 지표 ──
   cpi:          2.4,   coreCpi:   2.5,
@@ -9724,22 +9729,22 @@ const DATA_SNAPSHOT = {
   krShortSell:  4.1,                              // 공매도 비중(%)
   krForeignNet:-17939,                            // 외국인 순매수 (억원, 4/3 — 연속 순매도)
 
-  // ── 글로벌 지수 (GMO 테이블용, 4/4 금 종가) ──
-  nikkei:    53373,    nikkeiPct:  -0.43,
-  hangseng:  24900,    hangsengPct: -0.60,
-  shanghai:   3350,    shanghaiPct: -0.30,
-  dax:       22613,    daxPct:     -1.50,
-  ftse:       9972,    ftsePct:    -1.33,
-  cac:        7769,    cacPct:     -0.98,
+  // ── 글로벌 지수 (GMO 테이블용, 4/15 종가) ──
+  nikkei:    57816,    nikkeiPct:  +2.32,
+  hangseng:  25947,    hangsengPct: +0.29,
+  shanghai:   3420,    shanghaiPct: +1.20,
+  dax:       23200,    daxPct:     +1.80,
+  ftse:      10611,    ftsePct:    +0.01,
+  cac:        7950,    cacPct:     +1.50,
 
-  // ── 크립토·추가 원자재 (4/4) ──
-  btc:       67323,    btcPct:    +0.64,
-  eth:        2054,    ethPct:    +0.01,
-  silver:     69.66,   silverPct: -2.18,
+  // ── 크립토·추가 원자재 (4/14) ──
+  btc:       74442,    btcPct:    +5.00,
+  eth:        2375,    ethPct:    +8.10,
+  silver:     71.50,   silverPct: +2.64,
 
   // ── 리스크 지표 ──
   move:       115.0,
-  fg:            28,   fgLabel: '공포',  // v46.9: 협상결렬+봉쇄 후 하락 (이전 35), CNN 25~44=공포
+  fg:            32,   fgLabel: '공포',  // v46.10: 이란 재협상 기대로 개선 (이전 28), CNN 25~44=공포
 
   // ── KR 섹터 ETF (4/3 종가) ──
   krSemiEtf:   -1.50,  krSemiPrice:  100200,
@@ -9753,8 +9758,8 @@ const DATA_SNAPSHOT = {
   // /data-refresh 실행 시 이 값들을 DATA_SNAPSHOT과 함께 갱신.
   // 모든 computeTradingScore/computeMarketHealth/computeExecutionWindow가 여기서 읽음.
   _fallback: {
-    fg: 28,              // Fear & Greed (/data-refresh 시 갱신)
-    vix: 30,             // VIX
+    fg: 32,              // Fear & Greed (/data-refresh 시 갱신)
+    vix: 18,             // VIX (4/14: 18.36)
     breadth200: 75,      // 20SMA Above % (bpSPX20 마지막 값과 동기화)
     breadth5: 68,        // 5SMA Above %
     breadth50: 46,       // 50SMA Above %
@@ -9762,11 +9767,11 @@ const DATA_SNAPSHOT = {
     aaiiBear: 43,        // AAII Bearish % (4/10 발표: 43.0%)
     spx50ma: 6765,       // SPX 50일 이동평균
     spx200ma: 6659,      // SPX 200일 이동평균
-    spxATH: 6947,        // SPX 사상 최고가
-    dxy: 100,            // 달러 인덱스
+    spxATH: 6967,        // SPX 사상 최고가 (4/14: ATH 근접)
+    dxy: 99,             // 달러 인덱스 (4/14: 98.65)
     tnx: 4.3,            // 10년 금리
-    hyg: 78,             // HYG ETF 가격
-    vvix: 130,           // VVIX
+    hyg: 80,             // HYG ETF 가격 (신용 스프레드 완화)
+    vvix: 95,            // VVIX (VIX 급락과 동반 하락)
     _syncDate: '2026-04-14'  // 마지막 동기화 날짜
   }
 };
@@ -10305,7 +10310,8 @@ function showPage(id, navEl) {
   // v42.1: 마켓 펄스 바 — home에서는 숨기고 나머지 페이지에서 표시
   var _mpBar = document.getElementById('market-pulse-bar');
   if (_mpBar) _mpBar.style.display = (id === 'home' || id === 'guide' || id === 'glossary') ? 'none' : 'flex';
-  document.querySelector('.content').scrollTop = 0;
+  var _contentEl = document.querySelector('.content');
+  if (_contentEl) _contentEl.scrollTop = 0;
   // v41: 페이지 전환 시 focus를 새 페이지 타이틀로 이동 (스크린리더 지원)
   if (pg) { var pt = pg.querySelector('.page-title'); if (pt) { pt.setAttribute('tabindex', '-1'); pt.focus({preventScroll:true}); } }
   // Dispatch page shown event for lazy-init
@@ -16219,7 +16225,6 @@ function renderFeed(items) {
 var HOME_WEEKLY_NEWS = [
   { title: '이란 협상 결렬→봉쇄→재협상 곧 재개 전망 — 이슬라마바드 21시간 협상 실패 후 미 해군 봉쇄 발효. 트럼프 "이란 접근 선박 격침" 경고. 그러나 파키스탄 국방장관 "다음 라운드 곧 예상"(4/14 공식 발언), 파키스탄(아심 무니르) 중재로 재협상 재개 사실상 공식화. 시장은 재협상 기대 선반영 중. JPM: 공급갭 ~1,400만bbl/d, 물리적 정상화 수개월.', source: 'Deccan Herald/Al Jazeera/NPR', date: '2026-04-14', sentiment: 'warn', topic: 'geo' },
   { title: '소프트웨어 강한 반등 + 반도체 동반 강세 — 지난주 -23% 역대 최악 SW-Semi 괴리 후, 소프트웨어(IGV) 강한 반등 시작. AI 예산 크라우딩아웃 우려 과도했다는 재평가. 반도체 10일+ 양봉 지속, TSMC Q1 사상최고 NT$1.134조(+35%YoY). NAND ASP QQ +70-75%(TrendForce). 양쪽 동반 강세는 시장 저변 확대 신호.', source: 'TrendForce/TSMC IR', date: '2026-04-14', sentiment: 'bull', topic: 'semi' },
-  { title: '기업 뉴스 — Credo: DustPhotonics $7.5억 인수(광학 수직계열화) · Bloom Energy: Oracle 2.8GW 연료전지 계약(55일 가동) · CoreWeave: Meta $350억+Anthropic 다년 계약 · Meta: 2026 광고매출 $243B로 구글 사상 첫 추월 · MSFT: 코파일럿→GUI 에이전트 진화 · OpenAI: Amazon Bedrock 선회, "MSFT가 고객확보 제한."', source: 'IR/BusinessWire/CNBC/WSJ', date: '2026-04-14', sentiment: 'bull', topic: 'equity' },
   { title: '오늘 밤 3월 PPI 발표 — 컨센: 헤드라인 MoM +1.0%(2022.03 이후 최고), YoY 4.6%. 코어(ex식품에너지) +0.5%, 에너지 +10%. 핵심 관전: 코어 +0.6% 이상이면 에너지→서비스 2차 파급 확인 → 스태그플레이션 공포. 하회 시 인플레 피크 아웃 신호로 성장주 추가 반등. 서비스 +0.6% 여부가 Fed 인상 논의의 분기점.', source: 'BLS/Continuum Economics', date: '2026-04-15', sentiment: 'warn', topic: 'macro' },
 ];
 
@@ -18681,31 +18686,31 @@ function applyStaticFallbacks() {
   // 2026-04-04(금) 종가 기준 폴백 (v40.7 업데이트)
   // 실시간 데이터 도착 시 자동 교체됨 — 최대 10초 내 라이브 데이터로 전환
   const FALLBACK_QUOTES = [
-    // ── 미국 주요 지수 (2026-04-13 월요일 종가) ──
-    { symbol:'^GSPC',   regularMarketPrice:6893.80,     regularMarketChangePercent:-0.05 },
-    { symbol:'^IXIC',   regularMarketPrice:25448.00,    regularMarketChangePercent:-0.01 },
-    { symbol:'^DJI',    regularMarketPrice:48262.90,    regularMarketChangePercent:-0.05 },
-    { symbol:'^RUT',    regularMarketPrice:2675.12,     regularMarketChangePercent:+0.03 },
-    { symbol:'^VIX',    regularMarketPrice:29.80,       regularMarketChangePercent:-4.18 },
-    { symbol:'^VVIX',   regularMarketPrice:130.00,      regularMarketChangePercent:-3.70 },
-    // ── 한국 지수 (4/13 종가) ──
-    { symbol:'^KS11',   regularMarketPrice:5808.62,     regularMarketChangePercent:-0.86 },
-    { symbol:'^KQ11',   regularMarketPrice:1165.00,     regularMarketChangePercent:-0.50 },
-    // ── 원자재 (4/13 종가) ──
-    { symbol:'CL=F',    regularMarketPrice:98.00,       regularMarketChangePercent:+2.00 },
-    { symbol:'BZ=F',    regularMarketPrice:103.00,      regularMarketChangePercent:+8.00 },
-    { symbol:'GC=F',    regularMarketPrice:4750.00,     regularMarketChangePercent:+1.00 },
+    // ── 미국 주요 지수 (2026-04-14 월요일 종가 — 이란 재협상 기대) ──
+    { symbol:'^GSPC',   regularMarketPrice:6967.38,     regularMarketChangePercent:+1.18 },
+    { symbol:'^IXIC',   regularMarketPrice:25750.00,    regularMarketChangePercent:+1.50 },
+    { symbol:'^DJI',    regularMarketPrice:48820.00,    regularMarketChangePercent:+1.15 },
+    { symbol:'^RUT',    regularMarketPrice:2710.00,     regularMarketChangePercent:+1.30 },
+    { symbol:'^VIX',    regularMarketPrice:18.36,       regularMarketChangePercent:-3.97 },
+    { symbol:'^VVIX',   regularMarketPrice:95.00,       regularMarketChangePercent:-5.00 },
+    // ── 한국 지수 (4/15 종가) ──
+    { symbol:'^KS11',   regularMarketPrice:5960.00,     regularMarketChangePercent:+2.60 },
+    { symbol:'^KQ11',   regularMarketPrice:1190.00,     regularMarketChangePercent:+2.00 },
+    // ── 원자재 (4/14 종가 — 이란 재협상 기대로 유가 급락) ──
+    { symbol:'CL=F',    regularMarketPrice:91.28,       regularMarketChangePercent:-8.00 },
+    { symbol:'BZ=F',    regularMarketPrice:94.79,       regularMarketChangePercent:-4.60 },
+    { symbol:'GC=F',    regularMarketPrice:4822.00,     regularMarketChangePercent:+1.50 },
     { symbol:'NG=F',    regularMarketPrice:3.00,        regularMarketChangePercent:-0.80 },
     { symbol:'SI=F',    regularMarketPrice:68.00,       regularMarketChangePercent:-1.80 },
     { symbol:'HG=F',    regularMarketPrice:5.20,        regularMarketChangePercent:-2.00 },
-    // ── 암호화폐 (4/4) ──
-    { symbol:'BTC-USD', regularMarketPrice:67323,       regularMarketChangePercent:+0.64 },
-    { symbol:'ETH-USD', regularMarketPrice:2054,        regularMarketChangePercent:+0.01 },
+    // ── 암호화폐 (4/14) ──
+    { symbol:'BTC-USD', regularMarketPrice:74442,       regularMarketChangePercent:+5.00 },
+    { symbol:'ETH-USD', regularMarketPrice:2375,        regularMarketChangePercent:+8.10 },
     { symbol:'SOL-USD', regularMarketPrice:82.00,       regularMarketChangePercent:-3.80 },
     { symbol:'BNB-USD', regularMarketPrice:610.00,      regularMarketChangePercent:-2.50 },
-    // ── 환율 (4/4) ──
-    { symbol:'DX-Y.NYB', regularMarketPrice:100.19,      regularMarketChangePercent:+0.16 },
-    { symbol:'KRW=X',   regularMarketPrice:1510.54,     regularMarketChangePercent:+0.05 },
+    // ── 환율 (4/14) ──
+    { symbol:'DX-Y.NYB', regularMarketPrice:98.65,       regularMarketChangePercent:-1.53 },
+    { symbol:'KRW=X',   regularMarketPrice:1485.00,     regularMarketChangePercent:-1.70 },
     { symbol:'JPY=X',   regularMarketPrice:160.50,      regularMarketChangePercent:+0.45 },
     { symbol:'EURUSD=X', regularMarketPrice:1.1520,      regularMarketChangePercent:-0.20 },
     { symbol:'GBPUSD=X', regularMarketPrice:1.3280,      regularMarketChangePercent:-0.35 },
@@ -18717,7 +18722,7 @@ function applyStaticFallbacks() {
     { symbol:'^IRX',    regularMarketPrice:3.58,        regularMarketChangePercent:-0.10 },
     { symbol:'^FVX',    regularMarketPrice:4.08,        regularMarketChangePercent:+0.70 },
     // ── 채권 ETF ──
-    { symbol:'HYG',     regularMarketPrice:78.92,       regularMarketChangePercent:-0.93 },
+    { symbol:'HYG',     regularMarketPrice:80.20,       regularMarketChangePercent:+1.62 },
     { symbol:'LQD',     regularMarketPrice:107.85,      regularMarketChangePercent:-1.23 },
     { symbol:'TLT',     regularMarketPrice:85.83,       regularMarketChangePercent:-1.90 },
     { symbol:'IEF',     regularMarketPrice:94.88,       regularMarketChangePercent:-0.90 },
@@ -20270,14 +20275,14 @@ function initSentimentPage(forceReinit) {
   };
   const gridColor = 'rgba(255,255,255,0.05)';
   const tickColor = 'rgba(255,255,255,0.3)';
-  const labels20 = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13']; // v46.9: 4/13 연장 (이란 협상 결렬+호르무즈 봉쇄)
+  const labels20 = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14']; // v46.10: 4/14 연장 (이란 재협상 기대→VIX 급락)
 
   // ── VIX sparkline ────────────────────────────────────────────────────
   const vixCtx = document.getElementById('vix-chart');
   if (vixCtx) {
     // Yahoo Finance ^VIX 종가 (2026-02-20 ~ 2026-04-08) — v45.0: 4/7(25.78)→4/8(21.04) 연장 (investing.com 확인)
     // v46.9: 4/13(29.80 이란 협상 결렬→호르무즈 봉쇄, S&P 장중 급락→회복) 연장
-    const vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80];
+    const vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36];
     var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' }); if (_gVix)
     sentPageCharts['vix'] = new Chart(vixCtx, {
       type: 'line',
@@ -20384,7 +20389,7 @@ function initSentimentPage(forceReinit) {
   if (hyCtx) {
     // ICE BofA US HY OAS (FRED BAMLH0A0HYM2, 2026년 2~4월 추정치 bps) — v43.0: 3/19→4/2 연장
     // v46.9: 4/13(308 협상결렬→크레딧 스프레드 재확대) 연장
-    const hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308];
+    const hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285];
     var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' }); if (_gHY)
     sentPageCharts['hy'] = new Chart(hyCtx, {
       type: 'line',
@@ -20444,6 +20449,14 @@ function initSentimentCharts() {
     if (_aaiiBearEl) _aaiiBearEl.textContent = latestBear.toFixed(1) + '%';
     if (_aaiiBullEl) _aaiiBullEl.textContent = latestBull.toFixed(1) + '%';
     window._aaiiBearish = latestBear;
+    // v46.10: signal 페이지 regime-aaii 동적 연결
+    var _regAaii = document.getElementById('regime-aaii');
+    if (_regAaii) {
+      _regAaii.textContent = latestBear.toFixed(1) + '%';
+      _regAaii.style.color = latestBear > 50 ? '#f87171' : latestBear > 40 ? '#fbbf24' : '#3ddba5';
+    }
+    var _regAaiiSub = _regAaii ? _regAaii.nextElementSibling : null;
+    if (_regAaiiSub) _regAaiiSub.textContent = latestBear > 50 ? '극단 비관 (역발상)' : latestBear > 40 ? '비관 우세' : '정상 범위';
     if (_aaiiSignal) {
       if (latestBear > 50) _aaiiSignal.innerHTML = '<span style="font-size:8px;font-weight:700;color:#f87171;">● 극단적 비관</span><span style="font-size:9px;color:var(--text-muted);margin-left:4px;">(역발상 매수 시그널)</span>';
       else if (latestBear > 40) _aaiiSignal.innerHTML = '<span style="font-size:8px;font-weight:700;color:#fbbf24;">● 비관 우세</span>';
@@ -20494,9 +20507,9 @@ function initSentimentCharts() {
   const pcCtx = document.getElementById('pc-chart');
   if (pcCtx) {
     // CBOE Equity P/C Ratio (추정치, 실거래일 기준)
-    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13']; // v46.9: 4/13 연장
-    // v46.9: 4/13(0.72 협상결렬→풋 증가 추정) 연장
-    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72];
+    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14']; // v46.10: 4/14 연장 (이란 재협상→PCR 하락)
+    // v46.10: 4/14(0.58 재협상 기대→풋 감소 추정)
+    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58];
     var _gPC = chartDataGate('pc-chart', pcLabels, [pcData], { minPoints: 3, chartName: 'Put/Call Ratio' }); if (_gPC)
     sentPageCharts['pc'] = new Chart(pcCtx, {
       type: 'line',
@@ -21115,6 +21128,23 @@ document.addEventListener('DOMContentLoaded', () => {
   var _tcRestored = _tcLoadFromStorage();
   if (_tcRestored > 0) console.log('[AIO v30.12] 번역 캐시 ' + _tcRestored + '건 복원됨');
 
+  // v46.10: localStorage 가용 여부 감지 (Safari 개인정보보호 모드)
+  (function() {
+    try { localStorage.setItem('_ls_test', '1'); localStorage.removeItem('_ls_test'); }
+    catch(e) {
+      var w = document.getElementById('snapshot-stale-warning');
+      if (w) { w.textContent = '현재 브라우저 설정에서 데이터 저장이 차단되어 있습니다. 포트폴리오·API 키가 저장되지 않습니다. 시크릿/개인정보보호 모드를 해제하세요.'; w.style.display = 'block'; }
+    }
+  })();
+
+  // v46.10: 신규 사용자 API 키 미설정 시 온보딩 배너
+  (function() {
+    var hasKey = !!(localStorage.getItem('aio_finnhub_key') || localStorage.getItem('aio_fmp_key') || localStorage.getItem('aio_fred_key') || localStorage.getItem('aio_claude_key'));
+    var dismissed = localStorage.getItem('aio_onboard_dismissed');
+    var banner = document.getElementById('api-key-onboarding');
+    if (banner && !hasKey && !dismissed) banner.style.display = 'block';
+  })();
+
   // v17: 정적 기본값 즉시 로드 (API 연결 전에 빈칸/— 없애기)
   applyStaticFallbacks();
   // v40.4: 홈 핵심뉴스 정적 큐레이션 즉시 표시 (뉴스 수집 대기 불필요)
@@ -21731,7 +21761,8 @@ try { window.addEventListener('popstate', (e) => {
   const parts = breadcrumbMap[id] || ['AIO', id];
   setBreadcrumb(parts);
   prevPage = id;
-  document.querySelector('.content').scrollTop = 0;
+  var _cEl = document.querySelector('.content');
+  if (_cEl) _cEl.scrollTop = 0;
   // v39.2: aio:pageShown 이벤트 발송 — showPage()와 동일하게 lazy-init 트리거
   try { document.dispatchEvent(new CustomEvent('aio:pageShown', { detail: id })); } catch(e) {}
   // v30.14: rAF + setTimeout 폴백 (비활성 탭 대응)
@@ -22430,21 +22461,24 @@ document.addEventListener('DOMContentLoaded', () => {
 setTimeout(function() {
   // 현재 활성 페이지의 "로딩 중" 요소만 처리 (비활성 페이지는 진입 시 init에서 처리)
   var _loadingPatterns = ['로딩 중...','로딩 중…','분석 로딩 중…','분석 로딩 중...','데이터 로딩 중...','데이터 로딩 중…','데이터 로딩 중'];
-  var _fallbackMsg = '데이터 연결 지연 — 새로고침 또는 잠시 후 다시 시도';
+  // v46.10: API 키 미설정 감지 → 맞춤 안내
+  var hasAnyKey = !!(localStorage.getItem('aio_finnhub_key') || localStorage.getItem('aio_fmp_key') || localStorage.getItem('aio_fred_key'));
+  var _fallbackMsg = hasAnyKey ? '데이터 연결 지연 — 새로고침(R키) 시도' : '사이드바 하단에서 API 키를 설정하면 실시간 데이터가 표시됩니다';
   var replaced = 0;
   document.querySelectorAll('.page.active *').forEach(function(el) {
-    if (el.children.length > 0) return; // 텍스트 노드만
+    if (el.children.length > 0) return;
     var txt = el.textContent.trim();
     if (_loadingPatterns.some(function(p) { return txt === p; })) {
       el.textContent = _fallbackMsg;
       el.style.color = 'var(--text-muted)';
       el.style.fontStyle = 'italic';
+      el.style.fontSize = '9px';
       replaced++;
     }
   });
-  if (replaced > 0) console.log('[AIO v46.6] 로딩 워치독: ' + replaced + '개 로딩 상태 대체');
+  if (replaced > 0) console.log('[AIO v46.10] 로딩 워치독: ' + replaced + '개 로딩 상태 대체');
 
-  // 비활성 페이지도 순회 (사용자가 나중에 진입할 때 대비)
+  // 비활성 페이지도 순회
   setTimeout(function() {
     var total = 0;
     document.querySelectorAll('.page:not(.active) *').forEach(function(el) {
@@ -22454,26 +22488,28 @@ setTimeout(function() {
         el.textContent = _fallbackMsg;
         el.style.color = 'var(--text-muted)';
         el.style.fontStyle = 'italic';
+        el.style.fontSize = '9px';
         total++;
       }
     });
-    if (total > 0) console.log('[AIO v46.6] 로딩 워치독 (비활성): ' + total + '개 대체');
-  }, 15000); // 비활성 페이지는 75초 후
-}, 60000); // 활성 페이지 60초 후
+    if (total > 0) console.log('[AIO v46.10] 로딩 워치독 (비활성): ' + total + '개 대체');
+  }, 10000); // 비활성 페이지는 40초 후
+}, 30000); // v46.10: 60초→30초 (사용자 대기 시간 단축)
 
 function openApiKeyConfig() {
-  const current = getApiKey();
-  const masked = current
-    ? current.slice(0, 8) + '...' +current.slice(-4)
-    : '(미설정)';
-  const input = prompt(
-    'Claude API 키를 입력하세요\n현재: ' + masked +
-    '\n\n비워두면 기존 키가 삭제됩니다.',
-    current
-  );
-  if (input === null) return; // cancelled
-  setApiKey(input.trim());
-  showToast(input.trim() ? 'API 키가 저장되었습니다 ✓' : 'API 키가 삭제되었습니다');
+  // v46.10: prompt() → 사이드바 API 키 입력란으로 포커스 (R6 준수)
+  var sb = document.querySelector('.sidebar');
+  if (sb && sb.classList.contains('collapsed')) {
+    sb.classList.remove('collapsed');
+    var toggleBtn = document.getElementById('sidebar-toggle-btn');
+    if (toggleBtn) toggleBtn.textContent = '✕';
+  }
+  var apiInput = document.getElementById('sidebar-api-key');
+  if (apiInput) {
+    apiInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(function() { apiInput.focus(); apiInput.select(); }, 300);
+    showToast('사이드바에서 Claude API 키를 입력하세요');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -22508,11 +22544,28 @@ function unlockPortfolio() {
   else { input.style.borderColor = '#f87171'; setTimeout(() => input.style.borderColor = '', T.UI_FEEDBACK); }
 }
 function setupPortfolioPin() {
-  const newPin = prompt('새 PIN 4자리를 입력하세요 (숫자만):');
-  if (newPin && /^\d{4}$/.test(newPin)) {
-    try { localStorage.setItem(PF_PIN_KEY, newPin); } catch(e) {}
-    showToast('PIN이 설정되었습니다.');
-  } else if (newPin !== null) { showToast('4자리 숫자만 입력하세요.'); }
+  // v46.10: prompt() → PIN 입력 UI (R6 준수)
+  var pinInput = document.getElementById('pf-pin-input');
+  if (!pinInput) return;
+  var lockScreen = document.getElementById('pf-lock-screen');
+  var mainEl = document.getElementById('pf-main');
+  if (lockScreen) lockScreen.style.display = 'block';
+  if (mainEl) mainEl.style.display = 'none';
+  pinInput.value = '';
+  pinInput.placeholder = '새 PIN';
+  pinInput.focus();
+  pinInput.onkeydown = function(e) {
+    if (e.key === 'Enter') {
+      var newPin = pinInput.value.trim();
+      if (/^\d{4}$/.test(newPin)) {
+        try { localStorage.setItem(PF_PIN_KEY, newPin); } catch(ex) {}
+        showToast('PIN이 설정되었습니다.');
+        pinInput.placeholder = '••••';
+        pinInput.onkeydown = function(ev) { if (ev.key === 'Enter') unlockPortfolio(); };
+        showPortfolioMain();
+      } else { showToast('4자리 숫자만 입력하세요.'); pinInput.value = ''; }
+    }
+  };
 }
 function resetPortfolioPin() {
   showConfirmModal('PIN 초기화', 'PIN을 초기화하시겠습니까? 포트폴리오 데이터는 유지됩니다.', function() {
@@ -23489,6 +23542,14 @@ function _getChatRules() {
   '• 미국 최근 거래일 종가: ' + _usLastStr + '\n' +
   '• 현재 연도: ' + _kst.getFullYear() + '년\n' +
   '절대로 과거 연도(2025년 등)를 현재로 언급하지 마라. 현재는 ' + _kst.getFullYear() + '년이다.\n\n' +
+  '【환각(Hallucination) 제로 정책 — 이 규칙이 다른 모든 규칙보다 우선】\n' +
+  '너는 이 시스템 프롬프트에 주입된 데이터만 사용할 수 있다. 학습 데이터에서 기억한 과거 가격·실적·뉴스를 현재 사실처럼 말하면 사용자에게 금전적 손해를 입힌다.\n' +
+  '• 가격: 【종목 실시간 데이터】 또는 【시장 데이터】 섹션에 명시된 가격만 인용. 없으면 "현재가 데이터 미수신"이라 답하라.\n' +
+  '• 재무: 【기업 분석 데이터】 섹션이 없으면 PER/PBR/ROE/매출/이익 수치를 절대 언급 금지. "기업 분석 페이지에서 종목을 검색하면 실시간 재무 데이터를 확인할 수 있습니다"로 안내.\n' +
+  '• 뉴스: 【웹검색】 또는 【뉴스 컨텍스트】 섹션이 없으면 "보도에 따르면/최근 발표에서" 같은 뉴스 인용 표현 금지. "웹검색 데이터가 없어 최신 뉴스를 확인할 수 없습니다"라 답하라.\n' +
+  '• 날짜가 붙은 사실("4월 10일 실적 발표"): 시스템 프롬프트에 해당 정보가 있을 때만 언급. 없으면 날조.\n' +
+  '• 애널리스트 목표가: 시스템 프롬프트에 명시된 것만 인용. "월가 컨센서스 $X"를 추측으로 만들지 마라.\n' +
+  '• 확신 수준: 데이터가 있으면 확정적으로, 없으면 "확인 필요"로. 중간은 없다.\n\n' +
   '【분석 원칙: 전문가급 통합 분석 + 근거 기반 설명】\n' +
   '모든 답변은 전문가 수준의 깊이를 기본으로 하되, 핵심 판단마다 "왜 그런가"의 근거(데이터·통계·역사적 사례)를 반드시 연결하라. 기초 용어 정의는 생략하되, 분석 흐름 속에서 자연스럽게 맥락을 제공하라. 멀티팩터 교차검증·시나리오 확률·정량 분석을 유기적으로 엮어 하나의 서사로 전달하라.\n\n' +
   '【응답 스타일 규칙】\n' +
@@ -23501,7 +23562,13 @@ function _getChatRules() {
   '② "의사/환자/진단/진료/체온/맥박/건강검진" 비유 사용 금지.\n' +
   '③ 비유는 답변 전체에서 최대 1~2회만. 비유 남발은 분석의 신뢰도를 떨어뜨린다. 데이터와 논리로 승부하라.\n' +
   '④ 이모지는 답변 전체에서 절대 5개 이하! 6개 이상 사용하면 무조건 실패(F). 섹션 구분에 이모지 대신 "---" 구분선 + 볼드 제목을 사용하라. 숫자 이모지(1⃣2⃣)도 금지 — 대신 "1.", "2." 텍스트 사용. 같은 장식 이모지도 카운트에 포함된다.\n' +
-  '⑤ 【종목 실시간 데이터】 섹션이 있으면 반드시 해당 실제 가격·변화율을 인용하라. 학습 데이터의 과거 가격 사용 금지.\n' +
+  '⑤ 【종목 실시간 데이터】 섹션이 있으면 반드시 해당 실제 가격·변화율을 인용하라. 학습 데이터의 과거 가격 사용 절대 금지.\n' +
+  '⑤-0. 【환각 절대 금지 — 최우선 규칙】\n' +
+  '  - 시스템 프롬프트에 주입된 데이터만 사용. 주입되지 않은 수치(PER/ROE/매출/시총/주가)를 추측하거나 학습 데이터에서 꺼내지 마라.\n' +
+  '  - 【데이터 검증 상태】에서 ✗ 표시된 항목은 "해당 데이터가 확인되지 않았습니다"라고 명확히 밝혀라.\n' +
+  '  - 뉴스 ✗이면 "최근 보도에 따르면" 류의 표현 사용 금지. 웹검색 ✗이면 "현재 시점에서"라는 확정적 표현 금지.\n' +
+  '  - 재무 ✗이면 PER/PBR/ROE/마진/매출 등 구체적 숫자를 절대 언급하지 마라. "재무 데이터를 확인하려면 기업 분석 페이지에서 종목을 검색해주세요"로 안내.\n' +
+  '  - 가격을 말할 때는 반드시 데이터 출처(실시간/종가/폴백)를 명시하라. 출처 없는 가격 언급 금지.\n' +
   '⑤-2. 【섹터 비교 분석】 섹션이 있으면 반드시 해당 실시간 밸류에이션 데이터(PER/PBR/ROE/매출성장 등)를 인용하여 종목 간 비교 분석하라. 비교 요약 → 최종 추천(1~2개) → 주의사항 → 후속 액션 순서로 구성. N/A 항목은 "데이터 확인 필요"로 표기.\n' +
   '⑤-3. 【 기업 내부 비교 분석 데이터】 섹션이 있으면 15개 관점(기업 개요/설립 배경/경영진/비즈니스 모델/제품 포트폴리오/기술력&해자/수익 구조/재무제표/밸류에이션/시장 TAM/수요&공급망/파트너십/경쟁 구조/리스크/투자포인트) 프레임워크에 따라 심층 비교 분석하라. 기업 내부 전략기획팀이 이사회에 보고하는 수준의 깊이와 디테일 필수. 반드시 제공된 실제 숫자(세그먼트별 매출·R&D/매출·마진 추이·FCF마진·D/E·내부자 매매·DCF 적정가 등)를 인용. 단답·요약 절대 금지.\n' +
   '⑤-4. 【단일 기업 심층 분석 지침】 섹션이 있으면 해당 기업에 대해 15개 관점 프레임워크 + 해자 7유형 판정을 적용하여 전문 리서치 리포트 수준의 심층 분석을 수행하라. fundamentalSearch()로 검색하지 않은 상태에서도 채팅만으로 18개 FMP 데이터가 주입된 것이므로, 이 데이터를 최대한 활용하라. Bull/Base/Bear 시나리오 + 깨지는 신호 필수.\n' +
@@ -24567,8 +24634,8 @@ const CHAT_CONTEXTS = {
         '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
         '주가·지수 분석 시 위 종가 기준. VIX·금리·유가 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '[' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
-        '【지정학 컨텍스트 (2026.04.12 — 이란 협상 결렬)】\n' +
-        '이슬라마바드 협상 결렬(4/12). 이란 "새 협상 계획 없음." 호르무즈 15척/일(정상의 11%). 미 해군 기뢰 제거 시작. WTI $' + s.wti + ', Brent $' + s.brent + '. JPM: 공급갭 ~1,400만bbl/d. 해군 봉쇄 시 $150+. 포트폴리오 에너지·방산 노출도 + 인플레 헤지 점검 필수.\n\n' +
+        '【지정학 컨텍스트 (2026.04.15 — 이란 재협상 재개 전망)】\n' +
+        '4/12 이슬라마바드 협상 결렬 → 4/13 봉쇄 발효 → 4/14 트럼프 "이란 협상 재개" 시사 + 파키스탄 중재 재협상 곧 재개. 시장 재협상 기대 선반영: VIX 18↓(-38%), WTI $' + s.wti + '(-8%), Brent $' + s.brent + '(-5%). 봉쇄 지속 중이나 완화 기대. 재협상 실패 시 유가 재급등 + VIX 30+ 복귀 리스크. 에너지·방산 비중 축소 검토 vs 헤지 유지 판단 필요.\n\n' +
         '【포트폴리오 비유】\n' +
         '분산투자 = 건물의 기둥 여러 개 (하나가 부러져도 안 무너짐)\n' +
         '섹터 편중 = 기둥이 한쪽에만 몰려있음 (지진 나면 위험)\n' +
@@ -26073,8 +26140,14 @@ function _needsWebSearch(query, ctxId) {
   // ── 검색 불필요: 순수 교육/개념/용어 질문 ──
   var eduOnly = /^(PER|PBR|EPS|ROE|RSI|MACD|볼린저|이동평균|골든크로스|DCF|밸류에이션|배당|옵션|콜|풋|그릭스|델타|감마|세타|베가|캐리.*트레이드|공매도|시가총액|베타|샤프).*?(이란|뭐야|뭐지|설명|알려|개념|정의)/i;
   if (eduOnly.test(q)) return null;
-  // 짧은 개념 질문 (15자 미만)
-  if (qLen < 15 && /뭐야|뭐지|뭔가요|알려줘|설명|개념|정의|이란/.test(q)) return null;
+  // 짧은 개념 질문 (15자 미만 + 순수 개념어만)
+  if (qLen < 15 && /뭐야|뭐지|뭔가요|알려줘|설명|개념|정의/.test(q) && !/어때|어떻|전망|분석|지금|살까|팔까|매수|매도/.test(q)) return null;
+
+  // v46.10: 티커/종목명 감지 시 항상 웹검색 (환각 방지 핵심)
+  var hasTicker = typeof _extractTickers === 'function' && _extractTickers(query).length > 0;
+  if (hasTicker) return _buildSearchQuery(query, ctxId);
+  // 짧은 질문이라도 "어때/전망/분석/지금" 포함 시 검색
+  if (/어때|어떻|전망|분석|지금|살까|팔까|매수|매도|상황/.test(q)) return _buildSearchQuery(query, ctxId);
 
   // ── 검색 필요 패턴 ──
   var searchPatterns = [
@@ -26507,7 +26580,7 @@ async function chatSend(ctxId) {
     // onChunk — live update
     function(fullText) {
       var loadEl = document.getElementById('chat-' + ctxId + '-loading');
-      if (loadEl) { var loadWrap = loadEl.closest('.acp-msg') || loadEl.parentNode; loadWrap.parentNode.removeChild(loadWrap); }
+      if (loadEl) { var loadWrap = loadEl.closest('.acp-msg') || loadEl.parentNode; if (loadWrap && loadWrap.parentNode) loadWrap.parentNode.removeChild(loadWrap); }
 
       if (!aiBubble) {
         aiBubble = chatAppendMsg(ctxId, 'ai', '', 'chat-' + ctxId + '-streaming');
@@ -26534,7 +26607,7 @@ async function chatSend(ctxId) {
       if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
 
       var loadEl = document.getElementById('chat-' + ctxId + '-loading');
-      if (loadEl) { var loadWrap = loadEl.closest('.acp-msg') || loadEl.parentNode; loadWrap.parentNode.removeChild(loadWrap); }
+      if (loadEl) { var loadWrap = loadEl.closest('.acp-msg') || loadEl.parentNode; if (loadWrap && loadWrap.parentNode) loadWrap.parentNode.removeChild(loadWrap); }
 
       var streamEl = document.getElementById('chat-' + ctxId + '-streaming');
       var visible = stripChips(fullText);
@@ -26624,7 +26697,7 @@ async function chatSend(ctxId) {
       if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
 
       var loadEl = document.getElementById('chat-' + ctxId + '-loading');
-      if (loadEl) { var loadWrap = loadEl.closest('.acp-msg') || loadEl.parentNode; loadWrap.parentNode.removeChild(loadWrap); }
+      if (loadEl) { var loadWrap = loadEl.closest('.acp-msg') || loadEl.parentNode; if (loadWrap && loadWrap.parentNode) loadWrap.parentNode.removeChild(loadWrap); }
 
       chatAppendMsg(ctxId, 'ai', '' + renderMarkdownLight(errMsg));
     },
@@ -29215,18 +29288,22 @@ document.addEventListener('aio:liveQuotes', function() {
         '③ 과열기(Late): GDP 보통 + 인플레↑ → 에너지(XLE), 원자재(XLB), 헬스케어(XLV) 유리\n' +
         '④ 침체기(Recession): GDP↓ + 인플레↓ → 유틸리티(XLU), 필수소비재(XLP), 국채(TLT), 금(GLD) 유리\n' +
         '• 선행지표(LEI, yield curve, PMI) → 동행지표(GDP, 고용, 산업생산) → 후행지표(CPI, 실업률) 순서로 경기 판단.\n\n' +
-        '【지정학 리스크 — 미국-이란 전쟁 5주차 (2026.04)】\n' +
-        ' 현재 진행 중:\n' +
-        '• 전쟁 5주차: 미국 15개항 휴전안 전달(파키스탄 경유) → 이란 즉각 거부 → 5개항 역제안(호르무즈 주권, 배상금, 적대행위 중단). 이란 IMO에 서한: "비적대국 선박은 사전 조율 시 통과 허용, 미국·이스라엘 선박 불허"\n' +
-        '• 호르무즈 해협: 사실상 봉쇄. 글로벌 원유 공급 20% 차단, 1,000척·2만명 발묶임. 이라크 유전 불가항력(force majeure) 선언\n' +
-        '• 군사 확전: 82공수사단 1,000명 추가 파견. 미국, 이란 미사일·드론·해군 생산시설 2/3 파괴 발표. 쿠웨이트 공항 이란 공격 대형 화재. 이라크 하바니야 기지 미군 공습→이라크군 7명 사망, 이라크 총리 미국 대사 소환\n' +
-        '• 이란 내부 균열: 페제시키안 대통령 "공격 재발 방지 보장 시 종전 준비" vs 외무장관 아라그치 "이건 협상 아님, 메시지 교환일 뿐" vs IRGC "미국 테크기업 18곳(AAPL,GOOGL,TSLA,MSFT,NVDA,BA,META) 타격 경고". 민선정부·종교지도부·혁명수비대 = 3개의 다른 생존 논리\n' +
-        '• 트럼프: "우리가 떠나면 해협은 자동으로 열린다" + WSJ: "호르무즈 대부분 닫힌 상태에서 군사작전 종료 의향". 전쟁 목표가 "전쟁 없었으면 없었을 문제 해결"로 변질\n' +
-        '• 외교 동향: EU 의장-이란 대통령 직통전화. 중국+파키스탄 5개항 평화 프레임워크. 프랑스·이탈리아 미국 군사작전 영공 사용 거부\n' +
-        '• 석유 CEO 전망: 셰브론/코노코/셸 — 전쟁 후에도 구조적 고유가\n\n' +
-        '전파 경로: 호르무즈 봉쇄→유가 $113~150→인플레 재점화→Fed 매파 고착→금리↑→성장주 압박→소비↓→수요파괴\n' +
-        '핵심 구조: WTI-Brent 스프레드 2013년 이후 최대 = 미국 에너지 자급 vs 세계 호르무즈 의존. "미국은 괜찮지만 세계는 아니다"\n' +
-        '헤지: 에너지(XLE)+금(GLD)+방산+유틸리티(XLU)+TIPS\n\n' +
+        '【지정학 리스크 — 미국-이란 재협상 국면 (2026.04.15)】\n' +
+        '⚡ 상황 전환:\n' +
+        '• 4/12 이슬라마바드 21시간 협상 결렬 → 4/13 호르무즈 봉쇄 발효 → 4/14 트럼프 "이란 협상 재개" 시사\n' +
+        '• 파키스탄 국방장관 "다음 라운드 곧 예상"(4/14 공식 발언). 시장 재협상 기대 선반영: VIX 18↓(-38%), WTI $91(-8%), Brent $95(-5%)\n' +
+        '• 봉쇄 발효 중이나 사실상 "정전 전 단계(pre-ceasefire)" 진입\n' +
+        '• 핵심 변수: 재협상 성공 시 유가 $80대 복귀+VIX 15↓ vs 실패 시 $110+재급등+VIX 30+ 복귀\n\n' +
+        '잔존 리스크:\n' +
+        '• 호르무즈: 봉쇄 발효 중. 글로벌 원유 공급 20% 영향. 물리적 정상화 수개월(JPM)\n' +
+        '• 구조적 공급 감소: 걸프 정유 240만bpd 중단, 파이프라인 70만bpd 손실(수년 수리)\n' +
+        '• 석유 CEO 전망: 재협상 성공해도 구조적 고유가 유지 (셰브론/코노코/셸)\n' +
+        '• IRGC 강경파 vs 페제시키안 온건파 내부 갈등 → 재협상 좌초 가능성\n\n' +
+        '시나리오:\n' +
+        'A. 재협상 성공(40%): WTI $80↓, VIX 15↓, 성장주 ATH 재도전, 에너지·방산 조정\n' +
+        'B. 재협상 장기화(35%): WTI $85-95 박스, VIX 18-25, 현 수준 횡보\n' +
+        'C. 재협상 결렬(25%): WTI $110+, VIX 30+, 인플레 재점화, Fed 매파 고착\n\n' +
+        '헤지: 시나리오 C 대비 에너지(XLE)+금(GLD) 소량 유지. 시나리오 A 대비 기술주(XLK) 비중 유지.\n\n' +
         ' 잠재 리스크:\n' +
         '• 대만해협: TSMC 차질→첨단칩 90% 위기→반도체주 급락+방산주 급등\n' +
         '• 미중 기술패권: 반도체 수출규제→SMIC 자급자족 vs INTC/ASML 타격\n\n' +
@@ -29343,24 +29420,25 @@ document.addEventListener('aio:liveQuotes', function() {
         '• KOSPI: ' + s.kospi + ' | KOSDAQ: ' + s.kosdaq + ' | 원/달러: ' + s.krw + '\n' +
         '• VKOSPI: ' + (S.vkospi||'—') + ' | 외국인 순매수: ' + (S.krForeignNet||'—') + '억원\n' +
         (krDataStr ? '\n【테마별 대장주 종가 기준】\n' + krDataStr + '\n' : '\n') +
-        '【국내 22대 테마 현황 (v39.2 업데이트 — 2026.04)】\n' +
+        '【국내 22대 테마 현황 (v46.10 — 2026.04.15, 이란 재협상 국면)】\n' +
+        '⚠ 아래 수익률은 참고값. 실제 수익률은 페이지 테마 퍼포먼스 바에서 실시간 확인.\n\n' +
         'HOT 테마 (강한 모멘텀 + 외인/기관 매수):\n' +
-        '• 로봇/자동화: 두산로보틱스, 레인보우로보틱스, 현대차(보스턴다이나믹스) — 휴머노이드 상용화 + 공장 자동화 수출 | +9.1%\n' +
-        '• AI/소프트웨어: NAVER(HyperCLOVA X Agent), 삼성SDS, 더존비즈온, 폴라리스오피스 — AI 에이전트 시대 진입 | +7.2%\n' +
-        '• 조선/해양: 한화오션, HD현대중공업, 삼성중공업 — LNG선·암모니아선 고부가 수주, 선가 상승 사이클 | +6.1%\n' +
-        '• 의료기기: 삼천당제약(경구용 GLP-1), 미래컴퍼니(수술로봇) — FDA 승인 기대 | HOT\n\n' +
+        '• 반도체/HBM: SK하이닉스(HBM3E 12H), 삼성전자(HBM4), 한미반도체 — NAND SCA 패러다임 + HBM 전량 매진(2027까지) + TSMC Q1 사상최고 | HOT\n' +
+        '• 로봇/자동화: 두산로보틱스, 레인보우로보틱스 — 휴머노이드 상용화 + 공장 자동화 수출 | HOT\n' +
+        '• AI/소프트웨어: NAVER(HyperCLOVA X Agent), 삼성SDS, 더존비즈온 — AI 에이전트 시대 + SW 반등 | HOT\n' +
+        '• 의료기기: 삼천당제약(경구용 GLP-1 대량생산), 미래컴퍼니(수술로봇) — FDA 승인 기대 | HOT\n\n' +
         '강세 테마 (꾸준한 상승 + 수급 양호):\n' +
-        '• 전력기기/변압기: 효성중공업, HD현대일렉트릭, LS일렉트릭 — AI DC 전력 수요 + 미국 그리드 노후화 교체 | +5.8%\n' +
-        '• 원전/SMR: 두산에너빌리티, 한전기술 — 체코·폴란드 원전 + 미국 SMR 법안 + AI 전력 | +5.2%\n' +
-        '• K-뷰티: 아모레퍼시픽, 코스맥스BTI, APR, 실리콘투 — 미국·일본·인도 K-뷰티 확장 | +3.4%\n' +
-        '• 반도체/HBM: SK하이닉스(HBM3E 12H), 삼성전자(HBM4), 한미반도체 — HBM 전량 매진(2027까지) | +2.1%\n' +
-        '• K-푸드: 삼양식품(불닭 글로벌), 오리온, 농심 — K-푸드 수출액 역대 최고 | +2.4%\n' +
-        '• 에너지/정유: S-Oil, SK이노베이션 — 유가 $100+ 수혜, 정유 마진 회복 | 강세\n\n' +
-        '→ 중립: 금융(밸류업 수혜 기대), 자동차(현대차 SDV + 수출), 바이오(GLP-1 + 삼바 CDMO)\n\n' +
+        '• 조선/해양: 한화오션, HD현대중공업, 삼성중공업 — LNG선·암모니아선 고부가 수주, 선가 상승 사이클 | 강세\n' +
+        '• 전력기기/변압기: 효성중공업, HD현대일렉트릭, LS일렉트릭 — AI DC 전력 수요 + 미국 그리드 노후화 교체 | 강세\n' +
+        '• 원전/SMR: 두산에너빌리티, 한전기술 — 체코·폴란드 원전 + 미국 SMR 법안 + AI 전력 | 강세\n' +
+        '• K-뷰티: 아모레퍼시픽, 코스맥스BTI, APR, 실리콘투 — 미국·일본·인도 K-뷰티 확장 | 강세\n' +
+        '• K-푸드: 삼양식품(불닭 글로벌), 오리온, 농심 — K-푸드 수출액 역대 최고 | 강세\n\n' +
+        '→ 중립→개선: 금융(밸류업), 자동차(현대차 SDV), 바이오(GLP-1+삼바 CDMO)\n\n' +
         ' 조정/약세 테마:\n' +
-        '• 방산: 한화에어로 ATH 후 조정(-12.5%) — 외인 매도 전환. 다만 수주잔고 100조+ 실적 전환은 유효\n' +
-        '• 2차전지: LG에너지솔루션, 에코프로비엠 — 글로벌 EV 둔화 + 중국 CATL 가격 경쟁 | -3.2%\n' +
-        '• K-컨텐츠: 하이브, SM, JYP — 실적 부진 + 아이돌 피로감 | -2.1%\n\n' +
+        '• 방산: 이란 재협상→방산 프리미엄 축소. 한화에어로 조정 중. 다만 수주잔고 100조+ 실적 전환 유효\n' +
+        '• 에너지/정유: 유가 $91 급락(재협상 기대) → 정유 마진 축소. 재협상 실패 시 재급등\n' +
+        '• 2차전지: LG에너지솔루션, 에코프로비엠 — 글로벌 EV 둔화 + 중국 CATL 가격 경쟁\n' +
+        '• K-컨텐츠: 하이브, SM, JYP — 실적 부진 + 아이돌 피로감\n\n' +
         '【테마 분석 프레임워크】\n' +
         '1. 테마 생명주기 래더: "1단계: 정책·이벤트 발표 → 2단계: 수혜주 부각(대장주 급등) → 3단계: 과열(2·3차 수혜주까지 확산) → 4단계: 차익실현(대장주 먼저 조정)"\n' +
         '2. 인과 체인: 정책/글로벌 이벤트 → 수혜 섹터 → 대장주 → 2차 수혜주 → 수급 변화. 각 단계의 시차를 명시.\n' +
@@ -29549,7 +29627,7 @@ function filterKrThemes(btn, heat) {
 
 // v35.5: 카탈리스트 데이터 JS 분리 — 한 곳에서 업데이트 가능
 var KR_THEME_CATALYSTS = {
-  'defense':     '수주 잔고 100조+ 실적 전환 · 한화에어로 NATO 수주 · 풍산 탄약 수출 · 미-이란 2주 휴전 → 방산 프리미엄 축소 경계 · 워시 청문회(4/13 월) 국방예산 방향',
+  'defense':     '수주 잔고 100조+ 실적 전환 · 한화에어로 NATO 수주 · 풍산 탄약 수출 · 이란 재협상 재개 전망→방산 프리미엄 축소 · 단 재협상 실패 시 재급등',
   'semi':        '삼성전자 1Q26 OP 57.2조 역대 최고 · 메모리 충족률 65%(가격↑) · DRAM/NAND ASP +75~85% QoQ(2Q26E) · HBM4 수급 타이트 · SK하이닉스 HBM3E 12H 안정화',
   'shipbuilding':'LNG/암모니아 선박 고부가 수주 · 선가 상승 사이클 · 해군 함정 수출 본격화 · 수주 잔고 역대 최고',
   'ai-sw':       'NAVER HyperCLOVA X Agent · 삼성SDS AI플랫폼 Brity · 더존비즈온 AI ERP · 폴라리스오피스 글로벌 확산',
@@ -29570,7 +29648,7 @@ var KR_THEME_CATALYSTS = {
   'steel_chem':  'POSCO 2차전지 수직계열화 · 현대제철 H-Form · 유가 $100 정유 마진 · LG화학 분리막',
   'logistics':   'CJ대한통운 합병 · 대한항공 아시아나 합병 · 현대글로비스 성장 · 항공화물 수요',
   'medtech_kr':  '삼천당제약 경구용 GLP-1 대량생산 → 코스닥 시총 1위 · 미래컴퍼니 수술로봇 레티아이 · 리가켐바이오 ADC 기술이전',
-  'energy_kr':   'S-Oil 샤힌프로젝트 · 유가 $98(휴전 반등) · WTI $100+ 지속 시 정유 마진↑ · 크루그먼 전이(디젤→근원CPI) 리스크 · 호르무즈 통제 지속',
+  'energy_kr':   'S-Oil 샤힌프로젝트 · 유가 $91(재협상 기대 하락) · WTI $80대 복귀 시 정유 마진↓ · 재협상 실패 시 $110+ 재급등 · 구조적 공급 감소 잔존',
   'photonics_kr':'Capex 효율화 사이클(§58): 네트워크 패브릭이 시스템 병목 · CPO/OCS 아키텍처 전환(§55) · InP EML 병목 · NVIDIA 광학 $12B 수혜'
 };
 
@@ -31206,6 +31284,15 @@ var KR_STOCK_DB = {
   '032500': {name:'케이엠더블유', sector:'통신장비', mcap:'1.0조', price:30000, themes:['photonics_kr','quantum']},
   '218410': {name:'RFHIC', sector:'RF반도체', mcap:'0.8조', price:17000, themes:['photonics_kr','quantum']},
   '138080': {name:'오이솔루션', sector:'광모듈', mcap:'0.3조', price:12000, themes:['photonics_kr']},
+  // v46.10: KR_THEME_MAP 누락 종목 보충 (8건)
+  '001800': {name:'오뚜기', sector:'식품', mcap:'2.5조', price:380000, themes:['kfood']},
+  '018290': {name:'브이티', sector:'뷰티', mcap:'1.8조', price:22000, themes:['kbeauty']},
+  '950130': {name:'엘앤피코스메틱', sector:'뷰티', mcap:'0.5조', price:18000, themes:['kbeauty']},
+  '439090': {name:'마녀공장', sector:'뷰티', mcap:'0.4조', price:25000, themes:['kbeauty']},
+  '114570': {name:'아이패밀리SC', sector:'뷰티', mcap:'0.3조', price:12000, themes:['kbeauty']},
+  '085660': {name:'차바이오텍', sector:'바이오', mcap:'0.6조', price:18000, themes:['medtech_kr']},
+  '950160': {name:'코오롱티슈진', sector:'바이오', mcap:'0.4조', price:9000, themes:['medtech_kr']},
+  '322310': {name:'오로스테크놀로지', sector:'의료기기', mcap:'0.3조', price:15000, themes:['medtech_kr']},
 };
 
 // v35.8: 테마별 종목 매핑 + 비중(w) 합계 100
@@ -35555,37 +35642,37 @@ function calcLiveRS(sym) {
   // v46.3 /data-refresh: 4/7 휴전 후 섹터 로테이션 반영 (4/10 기준)
   // 휴전 → 에너지 약화, 기술/반도체 회복, 방산 차익실현 가속
   var _sectorRRGSeed = {
-    // v46.9: 4/13 호르무즈 봉쇄 발효 후 섹터 로테이션 반영
+    // v46.10: 4/14 이란 재협상 기대 → 에너지/방산 조정, 기술/SW 급반등
     // ── Leading (SPY 대비 상대강도↑ + 모멘텀↑) ──
-    'XLE': {r:+3.5, m:+3.0},  // 에너지: 호르무즈 봉쇄→Brent $103, WTI $98 (에너지 최강 리딩)
-    'XOP': {r:+3.5, m:+3.0},  // E&P: 유가 급등 직접 수혜
-    'OIH': {r:+3.0, m:+2.5},  // 오일서비스: 봉쇄 장기화 시 시추 증가 기대
-    'AMLP':{r:+2.5, m:+2.0},  // MLP: 에너지 인프라 + BTM 수요
-    'ITA': {r:+2.5, m:+2.0},  // 방산: 협상 결렬→전쟁 프리미엄 재점화
-    'GDX': {r:+2.0, m:+2.0},  // 금광: 안전자산 + 인플레 헤지
-    'SMH': {r:+2.0, m:+2.5},  // 반도체: SW→Semi 역대급 로테이션, TSMC Q1 $35.7B
+    'SMH': {r:+3.0, m:+3.0},  // 반도체: TSMC Q1 사상최고 + NAND ASP +70% + 어닝 시즌 기대
+    'XLK': {r:+2.5, m:+3.0},  // 기술: VIX 18→성장주 리레이팅, ATH 근접
+    'IGV': {r:+1.5, m:+3.0},  // 소프트웨어: -23% 역대 낙폭 후 강한 반등 (AI 크라우딩아웃 우려 과도 재평가)
+    'GDX': {r:+2.0, m:+1.5},  // 금광: Gold $4,822 사상최고 지속
+    'XLF': {r:+1.5, m:+2.0},  // 금융: BlackRock 어닝 비트 + GS/JPM 호실적
     // ── Weakening (상대강도↑ but 모멘텀 꺾임) ──
-    'XLV': {r:+2.0, m:-0.5},  // 헬스케어: 방어 유지이나 에너지 대비 상대약세
-    'XLP': {r:+1.5, m:-0.5},  // 필수소비: 방어 유지
-    'XLF': {r:+1.0, m:-1.0},  // 금융: GS 어닝 비트이나 지정학 불확실성 (4% 하락)
-    'XLC': {r:+0.5, m:-1.0},  // 통신: 스태그 EPS↓ 리스크
-    'XLI': {r:+0.5, m:-1.0},  // 산업재: 경기 민감, 유가 코스트↑
+    'XLE': {r:+2.0, m:-2.0},  // 에너지: 봉쇄 발효 중이나 재협상→WTI $91(-8%) 급락
+    'XOP': {r:+2.0, m:-2.0},  // E&P: 유가 급락 직격
+    'OIH': {r:+1.5, m:-1.5},  // 오일서비스: 재협상 성공 시 추가 하락
+    'ITA': {r:+1.5, m:-1.0},  // 방산: 재협상→전쟁 프리미엄 축소
+    'AMLP':{r:+1.0, m:-1.0},  // MLP: 에너지 하방 연동
     // ── Improving (상대강도↓ but 모멘텀 회복) ──
-    'XLK': {r:-0.5, m:+2.0},  // 기술: 어닝 시즌 기대 (TSMC/ASML), 반도체 견인
-    'URA': {r:-0.5, m:+1.5},  // 우라늄: 에너지 위기→원전 재평가
-    'XBI': {r:-1.0, m:+1.0},  // 바이오텍: 바닥 다지기
-    'HACK':{r:-0.5, m:+1.5},  // 사이버보안: 전쟁 장기화→사이버 위협↑
+    'XLY': {r:-0.5, m:+1.5},  // 임의소비: 유가↓→소비 부담 완화 + 감세 환류
+    'HACK':{r:-0.5, m:+1.5},  // 사이버보안: AI 위협 구조적
     'CIBR':{r:-0.5, m:+1.5},  // 사이버보안2
-    'XLY': {r:-1.0, m:+0.5},  // 임의소비: 유가↑ 소비 압박이나 감세 환류
+    'XBI': {r:-1.0, m:+1.0},  // 바이오텍: 바닥 다지기
+    'URA': {r:-0.5, m:+1.0},  // 우라늄: 에너지 다변화 테마 유지
+    'BOTZ':{r:-1.0, m:+1.0},  // 로보틱스: AI 회복 동반
+    'XLB': {r:-0.5, m:+1.0},  // 소재: 바닥 탈출 시도
     // ── Lagging (상대강도↓ + 모멘텀↓) ──
-    'IGV': {r:-2.5, m:-2.5},  // 소프트웨어: SW→Semi -23% 역대 최악 로테이션 (UBS NOW→Neutral)
-    'JETS':{r:-3.0, m:-3.0},  // 항공: 유가 $100+ → 연료비 급등 직격
-    'XLU': {r:-2.5, m:-2.0},  // 유틸: H4L 금리 부담 (BUT DC전력 장기)
-    'ICLN':{r:-3.0, m:-2.0},  // 클린에너지: 금리+정책 불확실
-    'BOTZ':{r:-2.5, m:-1.5},  // 로보틱스: 약세 유지
-    'LIT': {r:-2.5, m:-1.0},  // 리튬: EV 둔화
-    'XLRE':{r:-3.0, m:-2.5},  // 부동산: H4L 금리 + 에너지 코스트↑
-    'XLB': {r:-0.5, m:+0.5}   // 소재: 중립 (바닥 다지기)
+    'JETS':{r:-2.0, m:-1.0},  // 항공: 유가 하락 수혜이나 아직 $91 고유가
+    'XLU': {r:-2.0, m:-1.5},  // 유틸: 금리 부담 + 안전자산 수요 감소
+    'ICLN':{r:-2.5, m:-1.5},  // 클린에너지: 금리+정책 불확실
+    'LIT': {r:-2.0, m:-1.0},  // 리튬: EV 둔화
+    'XLRE':{r:-2.5, m:-2.0},  // 부동산: H4L 금리 부담
+    'XLV': {r:+0.5, m:-0.5},  // 헬스케어: 중립 (방어→공격 전환 중)
+    'XLP': {r:+0.5, m:-0.5},  // 필수소비: 중립
+    'XLC': {r:+0.5, m:+0.5},  // 통신: Meta 광고 역전 호재
+    'XLI': {r:+0.5, m:+0.5}   // 산업재: 유가↓→비용 완화
   };
   var seed = _sectorRRGSeed[sym] || {r:0, m:0};
   // 실시간 가격 변화를 미세 노이즈로 추가 (±2 클램프로 시드 기반 배치 유지)
@@ -35861,13 +35948,13 @@ var _sectorWeeklyTs = 0;
 // 사용처: _liveData에 d.pct가 없을 때 정적 폴백 (v45.5 4/4 종가)
 // v46.3: 4/9 종가 기준 — 휴전 후 7일 연속 상승 반영
 var _SECTOR_PCT_FALLBACK = {
-  // 11 메인 섹터 (4/13 daily % chg — 호르무즈 봉쇄 발효, 에너지 급등)
-  XLK:-0.30, XLF:-0.50, XLE:+4.50, XLV:+0.20, XLI:-0.40, XLY:-0.60,
-  XLP:+0.10, XLRE:-0.80, XLB:-0.20, XLU:+0.15, XLC:-0.25,
+  // 11 메인 섹터 (4/14 daily % chg — 이란 재협상 기대, 기술↑ 에너지↓)
+  XLK:+1.80, XLF:+1.50, XLE:-3.50, XLV:+0.80, XLI:+1.00, XLY:+1.20,
+  XLP:+0.40, XLRE:+0.60, XLB:+0.50, XLU:-0.20, XLC:+1.30,
   // 서브섹터
-  ITA:+1.20, OIH:+5.00, SOXX:+0.80, GDX:+1.50, SMH:+0.90, IGV:-1.20,
-  XBI:+0.30, AMLP:+3.50, URA:+0.40, XOP:+5.50, HACK:-0.30, CIBR:-0.25,
-  BOTZ:-0.10, ICLN:-0.50, LIT:-0.30, JETS:-2.00
+  ITA:-1.50, OIH:-4.00, SOXX:+2.00, GDX:+0.80, SMH:+2.20, IGV:+2.50,
+  XBI:+0.90, AMLP:-2.00, URA:+0.30, XOP:-4.50, HACK:+1.00, CIBR:+0.90,
+  BOTZ:+0.50, ICLN:-0.30, LIT:+0.20, JETS:+1.50
 };
 
 function setSectorPerfMode(mode, btn) {
@@ -36754,7 +36841,7 @@ var SUB_THEMES = [
   // ═══ AI · 반도체 (9) ═══
   {id:'bigtech',name:'빅테크 M7',emoji:'',color:'#818cf8',desc:'시장 시총 38% 메가캡 리더',leaders:['AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA'],tickers:['AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA'],etf:'QQQ',weights:{AAPL:18,MSFT:17,NVDA:16,AMZN:14,GOOGL:12,META:13,TSLA:10}},
   {id:'ai_chip',name:'AI 반도체/가속기',emoji:'',color:'#c084fc',desc:'GPU·ASIC·커스텀 칩 경쟁',leaders:['NVDA','AMD','AVGO','ARM'],tickers:['NVDA','AMD','AVGO','ARM','QCOM','MRVL','SMCI'],etf:'SMH',weights:{NVDA:28,AVGO:16,AMD:14,QCOM:12,ARM:11,MRVL:10,SMCI:9}},
-  {id:'memory',name:'메모리 반도체',emoji:'',color:'#93c5fd',desc:'HBM·DDR5 슈퍼사이클',leaders:['MU','STX','WDC'],tickers:['MU','STX','WDC'],etf:null,weights:{MU:44,STX:32,WDC:24}},
+  {id:'memory',name:'메모리 반도체',emoji:'',color:'#93c5fd',desc:'HBM·DDR5·NAND SCA 슈퍼사이클',leaders:['SNDK','MU','STX','WDC'],tickers:['SNDK','MU','STX','WDC'],etf:null,weights:{SNDK:30,MU:30,STX:22,WDC:18}},
   {id:'semi_equip',name:'반도체 장비/EDA',emoji:'',color:'#a3e635',desc:'EUV·증착·검사·설계자동화(EDA)',leaders:['ASML','AMAT','LRCX','KLAC'],tickers:['ASML','AMAT','LRCX','KLAC','TER','ONTO','ACLS','ENTG','UCTT','CDNS','SNPS'],etf:null,weights:{ASML:20,AMAT:16,LRCX:14,KLAC:12,CDNS:10,SNPS:10,TER:6,ONTO:4,ENTG:4,ACLS:2,UCTT:2}},
   {id:'foundry',name:'파운드리/성숙공정',emoji:'',color:'#94a3b8',desc:'비첨단 공정·차량용·IoT',leaders:['TSM','INTC','GFS','UMC'],tickers:['TSM','INTC','UMC','GFS'],etf:null,weights:{TSM:44,INTC:22,UMC:18,GFS:16}},
   {id:'photonics',name:'광통신/포토닉스',emoji:'',color:'#fde68a',desc:'AI DC 광인터커넥트 폭증 · 레이저 병목(2025~2027) · NVIDIA $4B 레이저 캡처',leaders:['LITE','COHR','CIEN','AAOI'],tickers:['LITE','COHR','CIEN','AAOI','GLW','VIAV','ANET','AVGO','MRVL','POET'],etf:null,weights:{LITE:18,COHR:16,CIEN:14,AVGO:12,AAOI:10,GLW:8,ANET:8,MRVL:8,VIAV:5,POET:1}},
@@ -36771,7 +36858,7 @@ var SUB_THEMES = [
   {id:'mlp_pipe',name:'MLP/파이프라인',emoji:'',color:'#fdba74',desc:'천연가스 운송·배당 인컴',leaders:['WMB','TRGP','ET','KMI'],tickers:['WMB','TRGP','ET','KMI','EPD','OKE'],etf:'AMLP',weights:{WMB:20,TRGP:18,ET:18,KMI:16,EPD:14,OKE:14}},
   {id:'nuclear_util',name:'원전/원자력',emoji:'',color:'#86efac',desc:'AI 전력 수요·SMR·원전 부활',leaders:['CEG','VST','NRG','CCJ','GEV'],tickers:['CEG','VST','NRG','CCJ','GEV','LEU','SMR','OKLO','BWXT'],etf:'URA',weights:{CCJ:16,CEG:15,GEV:15,VST:12,NRG:10,BWXT:9,LEU:8,SMR:8,OKLO:7}},
   {id:'solar_renew',name:'태양광/재생에너지',emoji:'',color:'#fbbf24',desc:'태양광·풍력·IRA 수혜',leaders:['ENPH','FSLR','NEE','RUN'],tickers:['ENPH','FSLR','NEE','RUN','SEDG'],etf:'ICLN',weights:{ENPH:28,FSLR:26,NEE:22,RUN:16,SEDG:8}},
-  {id:'hydrogen_ess',name:'수소/ESS',emoji:'',color:'#67e8f9',desc:'그린수소·연료전지·ESS',leaders:['BE','PLUG','FLNC'],tickers:['BE','PLUG','FLNC','FCEL'],etf:null,weights:{BE:35,PLUG:25,FLNC:25,FCEL:15}},
+  {id:'hydrogen_ess',name:'수소/ESS',emoji:'',color:'#67e8f9',desc:'그린수소·연료전지·ESS',leaders:['BE','FLNC','PLUG'],tickers:['BE','FLNC','PLUG','FCEL'],etf:null,weights:{BE:40,FLNC:30,PLUG:20,FCEL:10}},
   {id:'grid_util',name:'전력 유틸리티',emoji:'',color:'#60a5fa',desc:'유틸리티·송배전·그리드 현대화',leaders:['NEE','DUK','AEP','EXC'],tickers:['NEE','DUK','AEP','EXC','ETR','ES','FE','EVRG','XEL','EIX'],etf:'XLU',weights:{NEE:18,DUK:14,AEP:12,EXC:11,ETR:9,ES:8,FE:8,EVRG:7,XEL:7,EIX:6}},
   // ═══ 금융 (5) ═══
   {id:'big_bank',name:'대형 은행',emoji:'',color:'#fbbf24',desc:'미국 6대 은행·금리 수혜',leaders:['JPM','GS','MS','BAC'],tickers:['JPM','GS','MS','BAC','WFC','C'],etf:'XLF',weights:{JPM:26,BAC:18,WFC:15,GS:15,MS:14,C:12}},
@@ -39835,14 +39922,52 @@ function toggleAIPanel() {
       var pid = activePage.id.replace('page-','');
       updateAIPanelContext(pid);
     }
+    // AI 미지원 페이지에서 열면 안내
+    if (!_aiCurrentCtx) {
+      var msgsEl = document.getElementById('ai-panel-msgs');
+      if (msgsEl && !msgsEl.querySelector('.ai-no-ctx')) {
+        msgsEl.innerHTML = '<div class="ai-no-ctx" style="text-align:center;padding:40px 20px;color:var(--text-muted);font-size:12px;line-height:1.8;">' +
+          '이 페이지에서는 AI 분석가를 사용할 수 없습니다.<br>' +
+          '<span style="font-size:11px;">매매 시그널, 차트 분석, 매크로, 기업 분석, 테마,<br>포트폴리오, 환율·채권, 시장 폭, 투자 심리,<br>한국 테마/매크로/기술 페이지에서 이용 가능합니다.</span></div>';
+      }
+      var aiInp = document.getElementById('ai-panel-inp');
+      var aiBtn = document.getElementById('ai-panel-btn');
+      if (aiInp) aiInp.disabled = true;
+      if (aiBtn) aiBtn.disabled = true;
+    } else {
+      var aiInp = document.getElementById('ai-panel-inp');
+      var aiBtn = document.getElementById('ai-panel-btn');
+      if (aiInp) aiInp.disabled = false;
+      if (aiBtn) aiBtn.disabled = false;
+    }
     var inp = document.getElementById('ai-panel-inp');
-    if (inp) setTimeout(function() { inp.focus(); }, 300);
+    if (inp && !inp.disabled) setTimeout(function() { inp.focus(); }, 300);
   }
 }
 
 function updateAIPanelContext(pageId) {
   var ctxId = _aiCtxMap[pageId];
-  if (!ctxId || !CHAT_CONTEXTS[ctxId]) return;
+  var aiInp = document.getElementById('ai-panel-inp');
+  var aiBtn = document.getElementById('ai-panel-btn');
+  if (!ctxId || !CHAT_CONTEXTS[ctxId]) {
+    // AI 미지원 페이지 전환 시
+    _aiCurrentCtx = null;
+    if (aiInp) aiInp.disabled = true;
+    if (aiBtn) aiBtn.disabled = true;
+    var msgsEl = document.getElementById('ai-panel-msgs');
+    if (msgsEl) {
+      msgsEl.innerHTML = '<div class="ai-no-ctx" style="text-align:center;padding:40px 20px;color:var(--text-muted);font-size:12px;line-height:1.8;">' +
+        '이 페이지에서는 AI 분석가를 사용할 수 없습니다.<br>' +
+        '<span style="font-size:11px;">매매 시그널, 차트 분석, 매크로, 기업 분석, 테마,<br>포트폴리오, 환율·채권, 시장 폭, 투자 심리,<br>한국 테마/매크로/기술 페이지에서 이용 가능합니다.</span></div>';
+    }
+    var titleEl = document.getElementById('ai-panel-title');
+    if (titleEl) titleEl.textContent = 'AI 분석가';
+    var chipsEl = document.getElementById('ai-panel-chips');
+    if (chipsEl) chipsEl.innerHTML = '';
+    return;
+  }
+  if (aiInp) aiInp.disabled = false;
+  if (aiBtn) aiBtn.disabled = false;
   _aiCurrentCtx = ctxId;
   var titleEl = document.getElementById('ai-panel-title');
   var badgeEl = document.getElementById('ai-panel-badge');
@@ -39884,20 +40009,21 @@ function _appendAIMsg(role, html, id) {
 }
 
 async function chatSendUnified() {
-  if (!_aiCurrentCtx) return;
+  console.log('[AIO] chatSendUnified 시작, ctx:', _aiCurrentCtx);
+  if (!_aiCurrentCtx) { console.warn('[AIO] _aiCurrentCtx null'); return; }
   var ctx = CHAT_CONTEXTS[_aiCurrentCtx];
-  if (!ctx) return;
+  if (!ctx) { console.warn('[AIO] CHAT_CONTEXTS에 없음:', _aiCurrentCtx); return; }
   var state = getChatState(_aiCurrentCtx);
-  if (state.streaming) return;
+  if (state.streaming) { console.warn('[AIO] streaming 중복 방지'); return; }
   var inp = document.getElementById('ai-panel-inp');
   var btn = document.getElementById('ai-panel-btn');
-  if (!inp) return;
+  if (!inp) { console.warn('[AIO] ai-panel-inp 없음'); return; }
   var q = inp.value.trim();
   if (!q) return;
   // v46.4: 입력 길이 제한 (10000자) — API 비용 + 메모리 보호
   if (q.length > 10000) { q = q.slice(0, 10000); inp.value = q; }
   // v46.9: API 키 체크를 쿼터 차감 전에 수행 (키 없으면 쿼터 낭비 방지)
-  if (typeof getApiKey === 'function' && !getApiKey()) { appendChatMessage(_aiCurrentCtx, 'ai', '⚠️ API 키를 먼저 설정해주세요. (설정 → API 키)'); return; }
+  if (typeof getApiKey === 'function' && !getApiKey()) { _appendAIMsg('ai', '⚠️ API 키를 먼저 설정해주세요. (설정 → API 키)'); return; }
   if (typeof consumeLLMQuery === 'function' && !consumeLLMQuery()) return;
   inp.value = '';
   state.streaming = true;
@@ -39913,16 +40039,22 @@ async function chatSendUnified() {
   // 로딩 표시
   var loadBubble = _appendAIMsg('ai', '<span style="color:var(--text-muted);">분석 중...</span>', 'ai-panel-loading');
   var aiBubble = null;
-  var sysPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
+  var sysPrompt = '';
+  try { sysPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system; }
+  catch(sysErr) { console.warn('[AIO] system prompt 생성 실패:', sysErr.message); sysPrompt = ''; }
 
   // v45.7+: chatSend()와 동일 7개 파이프라인 완전 이식
   var ctxId = _aiCurrentCtx;
+  var _uniWebResult = null;
+  var _uniTickerData = false;
+  var _uniDeepData = false;
+  var _uniNewsCtx = false;
   try {
     // 1. 티커 감지 + 실시간 시세
     var detectedTickers = typeof _extractTickers === 'function' ? _extractTickers(q) : [];
     if (detectedTickers.length > 0 && typeof _fetchTickerDataForChat === 'function') {
       var tickerDataStr = await _fetchTickerDataForChat(detectedTickers);
-      if (tickerDataStr) sysPrompt += tickerDataStr;
+      if (tickerDataStr) { sysPrompt += tickerDataStr; _uniTickerData = true; }
     }
 
     // 2. 섹터 비교 (티커 없이 섹터 질문 시)
@@ -39943,8 +40075,9 @@ async function chatSendUnified() {
       if (typeof _fetchDeepCompareData === 'function') {
         try {
           var deepData = await _fetchDeepCompareData(deepTickers);
-          if (deepData && typeof _formatDeepComparePrompt === 'function')
-            sysPrompt += _formatDeepComparePrompt(deepTickers, deepData);
+          if (deepData && typeof _formatDeepComparePrompt === 'function') {
+            sysPrompt += _formatDeepComparePrompt(deepTickers, deepData); _uniDeepData = true;
+          }
         } catch(e) {}
       }
     }
@@ -39957,8 +40090,9 @@ async function chatSendUnified() {
       if (!alreadyHasData && (localStorage.getItem('aio_fmp_key') || '') && typeof _fetchDeepCompareData === 'function') {
         try {
           var singleDeepData = await _fetchDeepCompareData(detectedTickers);
-          if (singleDeepData && typeof _formatSingleDeepPrompt === 'function')
-            sysPrompt += _formatSingleDeepPrompt(detectedTickers[0], singleDeepData);
+          if (singleDeepData && typeof _formatSingleDeepPrompt === 'function') {
+            sysPrompt += _formatSingleDeepPrompt(detectedTickers[0], singleDeepData); _uniDeepData = true;
+          }
         } catch(e) {}
       }
     }
@@ -39978,8 +40112,9 @@ async function chatSendUnified() {
           if (!webResult) {
             try { webResult = await _aiWebSearch(searchQuery); } catch(se) { console.warn('[AIO] WebSearch 실패:', se.message); }
           }
-          if (webResult && typeof _formatSearchForPrompt === 'function')
-            sysPrompt += _formatSearchForPrompt(webResult);
+          if (webResult && typeof _formatSearchForPrompt === 'function') {
+            sysPrompt += _formatSearchForPrompt(webResult); _uniWebResult = webResult;
+          }
         } catch(e) {}
       }
     }
@@ -39987,62 +40122,151 @@ async function chatSendUnified() {
     // 6. 뉴스 컨텍스트
     if (typeof _buildNewsContext === 'function') {
       var newsCtx = _buildNewsContext(ctxId, q);
-      if (newsCtx) sysPrompt += newsCtx;
+      if (newsCtx) { sysPrompt += newsCtx; _uniNewsCtx = true; }
     }
   } catch(e) { console.warn('[AIO] chatSendUnified 데이터 주입 실패:', e.message); }
+
+  // sysPrompt 방어 — ctx.system() 실패 시 빈 문자열 폴백
+  if (!sysPrompt) sysPrompt = '';
 
   // v46.6: AI 패널 할루시네이션 방지 — 데이터 검증 태그 주입
   var _pHasNews = sysPrompt.indexOf('최근 시장 뉴스') !== -1;
   var _pHasWeb = sysPrompt.indexOf('웹검색') !== -1 || sysPrompt.indexOf('검색 결과') !== -1;
   var _pHasFMP = sysPrompt.indexOf('P/E') !== -1 || sysPrompt.indexOf('ROE') !== -1;
   var _pSnapAge = DATA_SNAPSHOT._updated ? Math.round((Date.now() - new Date(DATA_SNAPSHOT._updated).getTime()) / 3600000) : 999;
-  sysPrompt += '\n\n【데이터 신뢰도】 뉴스:' + (_pHasNews ? '✓' : '✗없음') +
-    ' | 웹검색:' + (_pHasWeb ? '✓' : '✗미실행') +
-    ' | 재무:' + (_pHasFMP ? '✓' : '✗미수집') +
-    ' | 정적데이터:' + (_pSnapAge < 48 ? '✓' + _pSnapAge + 'h전' : '⚠' + _pSnapAge + 'h경과') +
-    '\n✗ 표시 항목은 "확인되지 않음"이라고 밝혀라. 추측/꾸며내기 금지.\n';
+  sysPrompt += '\n\n【데이터 검증 상태 — 반드시 준수】\n';
+  sysPrompt += '• 실시간 시세: ' + (Object.keys(window._liveData||{}).length > 10 ? '✓ 정상' : '⚠ 지연 — 가격 수치를 단정하지 마라') + '\n';
+  sysPrompt += '• 기업 재무(FMP): ' + (_pHasFMP ? '✓ 수집 완료' : '✗ 미수집 — PER/ROE/마진 등 재무 수치를 추측하지 마라. "재무 데이터 미수집"이라고 밝혀라') + '\n';
+  sysPrompt += '• 뉴스 컨텍스트: ' + (_pHasNews ? '✓ 주입됨' : '✗ 관련 뉴스 없음 — "최근 뉴스에 따르면"이라고 시작하지 마라') + '\n';
+  sysPrompt += '• 웹검색: ' + (_pHasWeb ? '✓ 검색 완료' : '✗ 미실행 — 검증되지 않은 최신 정보를 확정적으로 말하지 마라') + '\n';
+  sysPrompt += '• 정적데이터: ' + (_pSnapAge < 48 ? '✓ ' + _pSnapAge + '시간 전' : '⚠ ' + _pSnapAge + '시간 경과') + '\n';
+  sysPrompt += '규칙: ✗ 또는 ⚠ 표시된 데이터는 "확인되지 않음" 또는 "데이터 미수집"이라고 명시적으로 밝혀야 한다. 추측하거나 꾸며내지 마라.\n';
 
   // 7. 모델 자동 선택 (질문 복잡도 기반)
-  var selectedModelKey = typeof _detectQueryComplexity === 'function' ? _detectQueryComplexity(q, ctxId) : 'haiku';
-  var modelOpts = { modelKey: selectedModelKey };
+  var selectedModelKey = 'haiku';
+  try { selectedModelKey = typeof _detectQueryComplexity === 'function' ? _detectQueryComplexity(q, ctxId) : 'haiku'; } catch(e) {}
+  var selectedModelCfg = typeof getModelConfig === 'function' ? getModelConfig(selectedModelKey) : { label: selectedModelKey };
+  var modelOpts = { modelKey: selectedModelKey, maxTokens: (_uniDeepData) ? 16000 : undefined };
 
-  callClaude(
-    sysPrompt,
-    state.messages,
-    function(fullText) {
-      var loadEl = document.getElementById('ai-panel-loading');
-      if (loadEl) loadEl.parentNode.removeChild(loadEl);
-      if (!aiBubble) { aiBubble = _appendAIMsg('ai', '', 'ai-panel-streaming'); }
-      var visible = stripChips(fullText);
-      if (aiBubble) aiBubble.innerHTML = renderMarkdownLight(visible) + '<span style="color:#5ba8ff;animation:blink 0.7s infinite;">|</span>';
-      var msgsEl = document.getElementById('ai-panel-msgs');
-      if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
-    },
-    function(fullText) {
-      state.streaming = false;
-      if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
-      var loadEl = document.getElementById('ai-panel-loading');
-      if (loadEl) loadEl.parentNode.removeChild(loadEl);
-      var streamEl = document.getElementById('ai-panel-streaming');
-      var visible = stripChips(fullText);
-      if (streamEl) { streamEl.id = ''; streamEl.querySelector('.ai-bubble').innerHTML = renderMarkdownLight(visible); }
-      else if (!aiBubble) { _appendAIMsg('ai', renderMarkdownLight(visible)); }
-      state.messages.push({ role: 'assistant', content: fullText });
-      var newChips = extractChips(fullText);
-      if (newChips.length > 0) {
-        var chipsEl = document.getElementById('ai-panel-chips');
-        if (chipsEl) chipsEl.innerHTML = newChips.map(function(c) { return '<div class="ai-chip" onclick="aiChipClick(this)">' + c + '</div>'; }).join('');
+  // v46.10: 웹검색 수행 시 검색 알림 배지
+  if (_uniWebResult) {
+    var _engBadge = _uniWebResult.engine === 'perplexity' ? 'Perplexity' : 'Google';
+    _appendAIMsg('ai', '<div style="font-size:8px;color:#a78bfa;padding:4px 8px;background:rgba(167,139,250,0.08);border-radius:4px;margin-bottom:4px;">' + _engBadge + ' 검색 완료 — 최신 정보 ' + (_uniWebResult.citations ? _uniWebResult.citations.length : 0) + '건 수집</div>');
+  }
+
+  console.log('[AIO] callClaude 호출, model:', selectedModelKey, 'sysPrompt:', (sysPrompt||'').length + '자');
+  if (typeof callClaude !== 'function') {
+    console.error('[AIO] callClaude 함수 미정의!');
+    state.streaming = false; if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
+    _appendAIMsg('ai', '<span style="color:#f87171;">시스템 오류: callClaude 함수를 찾을 수 없습니다. 페이지를 새로고침해주세요.</span>');
+    return;
+  }
+
+  // v46.10: chatSend()와 동일한 onChunk/onDone/onError + 재시도/폴백 완전 이식
+  var _uniOnChunk = function(fullText) {
+    var loadEl = document.getElementById('ai-panel-loading');
+    if (loadEl) loadEl.parentNode.removeChild(loadEl);
+    if (!aiBubble) { aiBubble = _appendAIMsg('ai', '', 'ai-panel-streaming'); }
+    var visible = stripChips(fullText);
+    if (aiBubble) aiBubble.innerHTML = renderMarkdownLight(visible) + '<span style="color:#5ba8ff;animation:blink 0.7s infinite;">|</span>';
+    var msgsEl = document.getElementById('ai-panel-msgs');
+    if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
+  };
+
+  var _uniOnDone = function(fullText) {
+    state.streaming = false;
+    state._retryCount = 0;
+    if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
+    var loadEl = document.getElementById('ai-panel-loading');
+    if (loadEl) loadEl.parentNode.removeChild(loadEl);
+    var streamEl = document.getElementById('ai-panel-streaming');
+    var visible = stripChips(fullText);
+    if (streamEl) { streamEl.id = ''; streamEl.querySelector('.ai-bubble').innerHTML = renderMarkdownLight(visible); }
+    else if (!aiBubble) { _appendAIMsg('ai', renderMarkdownLight(visible)); }
+    state.messages.push({ role: 'assistant', content: fullText });
+
+    // v46.10: 모델 배지
+    var _bubbleParent = (streamEl || (aiBubble ? aiBubble.parentNode : null));
+    if (_bubbleParent) {
+      var modelColor = selectedModelKey === 'sonnet-thinking' ? '#a78bfa' : selectedModelKey === 'sonnet' ? '#60a5fa' : 'var(--text-muted)';
+      var badgeEl = document.createElement('div');
+      badgeEl.style.cssText = 'font-size:8px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:2px 0 0;opacity:0.6;';
+      badgeEl.textContent = selectedModelCfg.label || selectedModelKey;
+      _bubbleParent.appendChild(badgeEl);
+
+      // v46.10: 데이터 신뢰도 배지
+      var _srcBadge = document.createElement('div');
+      _srcBadge.style.cssText = 'font-size:8px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:rgba(255,255,255,0.02);border-radius:4px;';
+      var _bItems = [];
+      _bItems.push(_uniTickerData ? '<span style="color:#3ddba5;">📊 재무 ✓</span>' : '<span style="color:#7e8a9e;">📊 재무 ✗</span>');
+      _bItems.push(_uniNewsCtx ? '<span style="color:#3ddba5;">📰 뉴스 ✓</span>' : '<span style="color:#7e8a9e;">📰 뉴스 ✗</span>');
+      if (_uniWebResult) _bItems.push('<span style="color:#a78bfa;">🔍 웹검색 ✓</span>');
+      if (_uniDeepData) _bItems.push('<span style="color:#60a5fa;">🔬 심층 ✓</span>');
+      _srcBadge.innerHTML = _bItems.join('');
+      _bubbleParent.appendChild(_srcBadge);
+
+      // v46.10: 피드백 버튼
+      var _fbId = 'fb-' + Date.now();
+      var _fbDiv = document.createElement('div');
+      _fbDiv.style.cssText = 'display:flex;gap:6px;justify-content:flex-end;margin:2px 0;';
+      _fbDiv.innerHTML = '<button onclick="this.style.color=\'#3ddba5\';_aiFeedback(\'' + _fbId + '\',1)" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨">👍</button>' +
+        '<button onclick="this.style.color=\'#f87171\';_aiFeedback(\'' + _fbId + '\',-1)" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확">👎</button>';
+      _bubbleParent.appendChild(_fbDiv);
+    }
+
+    // v46.10: 웹검색 출처 링크
+    if (_uniWebResult && _uniWebResult.citations && _uniWebResult.citations.length > 0 && typeof _searchCitationsHTML === 'function') {
+      var citTarget = streamEl || (aiBubble ? aiBubble.parentNode : null);
+      if (citTarget) {
+        var citDiv = document.createElement('div');
+        citDiv.innerHTML = _searchCitationsHTML(_uniWebResult);
+        citTarget.appendChild(citDiv);
       }
-    },
-    function(errMsg) {
-      state.streaming = false;
-      if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
-      var loadEl = document.getElementById('ai-panel-loading');
-      if (loadEl) loadEl.parentNode.removeChild(loadEl);
-      _appendAIMsg('ai', '<span style="color:#f87171;">' + renderMarkdownLight(errMsg) + '</span>');
-    },
-    modelOpts
-  );
+    }
+
+    // v46.10: 대화 기록 저장
+    if (typeof saveChatEntry === 'function') saveChatEntry(ctxId, q, visible);
+
+    var newChips = extractChips(fullText);
+    if (newChips.length > 0) {
+      var chipsEl = document.getElementById('ai-panel-chips');
+      if (chipsEl) chipsEl.innerHTML = newChips.map(function(c) { return '<div class="ai-chip" onclick="aiChipClick(this)">' + c + '</div>'; }).join('');
+    }
+  };
+
+  // v46.10: 자동 재시도 + 모델 폴백 (chatSend와 동일)
+  var _uniOnError = function(errMsg) {
+    var _retryable = /시간 초과|timeout|네트워크|AbortError|500|502|503|529|overloaded/i.test(errMsg);
+    var _retried = state._retryCount || 0;
+    var _fallbackOrder = ['sonnet-thinking','sonnet','haiku'];
+    var _currentIdx = _fallbackOrder.indexOf(selectedModelKey);
+
+    if (_retryable && _retried < 2) {
+      state._retryCount = _retried + 1;
+      var nextModel = selectedModelKey;
+      if (_retried >= 1 && _currentIdx >= 0 && _currentIdx < _fallbackOrder.length - 1) {
+        nextModel = _fallbackOrder[_currentIdx + 1];
+        _appendAIMsg('ai', '<div style="font-size:9px;color:#fbbf24;padding:4px 8px;background:rgba(251,191,36,0.08);border-radius:4px;">⟳ 응답 지연 — ' + (typeof getModelConfig === 'function' ? getModelConfig(nextModel).label : nextModel) + '로 재시도 중...</div>');
+      } else {
+        _appendAIMsg('ai', '<div style="font-size:9px;color:#fbbf24;padding:4px 8px;background:rgba(251,191,36,0.08);border-radius:4px;">⟳ 재시도 중... (' + (_retried+1) + '/2)</div>');
+      }
+      setTimeout(function() {
+        callClaude(sysPrompt, state.messages, _uniOnChunk, _uniOnDone,
+          function(e2) { state.streaming = false; state._retryCount = 0; if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; } _appendAIMsg('ai', '<span style="color:#f87171;">' + renderMarkdownLight(e2) + '</span>'); },
+          { modelKey: nextModel }
+        );
+      }, 2000);
+      return;
+    }
+    state.streaming = false;
+    state._retryCount = 0;
+    if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
+    var loadEl = document.getElementById('ai-panel-loading');
+    if (loadEl) loadEl.parentNode.removeChild(loadEl);
+    _appendAIMsg('ai', '<span style="color:#f87171;">' + renderMarkdownLight(errMsg) + '</span>');
+  };
+
+  callClaude(sysPrompt, state.messages, _uniOnChunk, _uniOnDone, _uniOnError, modelOpts);
 }
 
 function aiChipClick(el) {
