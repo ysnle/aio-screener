@@ -1,6 +1,6 @@
 {
-  "version": "v47",
-  "built": "2026-04-15T23:30:00+09:00",
-  "note": "v47: 전면 보강 — AI채팅 7건 이식 + 환각 제로 정책 + DATA_SNAPSHOT 4/15 + 테마/RRG/섹터 갱신 + UX",
-  "versioning": "x.y (31→...→46.9→47)"
+  "version": "v47.5",
+  "built": "2026-04-16T18:10:00+09:00",
+  "note": "v47.5: 파생 로직·설명·대응·트레이딩 규칙 정합성 폭보강 (사용자 지적 후). v47.4는 숫자만 교체, 파생 로직·설명문 정합성 미확인 상태였음. 이번 패치: (1) _fallback 블록 6필드 동기화(fg 68→47 CNN, fg_uw 68 신설, vvix 95→90, move/skew 신설, spxATH 6967→7022, spx50ma/200ma 갱신, dxy 99→98, _syncDate 4/14→4/15) — computeTradingScore/ExecutionWindow 단일 진실원천 확보. (2) classifyMarketRegime 하드코딩 6593/6656 → _fb 통합 (비하드코딩 정상화). (3) FALLBACK_QUOTES ^GSPC 6967.38→7022.95, ^IXIC 25750→24016, ^VVIX 95→90.10 정합. (4) MACRO_KW 키워드에 4/15 실측치 추가(F&G 47 Neutral, SKEW 141.86, VVIX 90.10, MOVE 62.36) — 레거시 키워드 병존 유지로 후방호환. (5) CHAT_CONTEXTS 잔존 3개소 정정: 분배 §72 트레이딩 규칙의 SKEW 139/MOVE 68 → 141.86/62.36 + '표면(대중)' 라인 F&G 68 → UW F&G 68 명시(CNN F&G 47 Neutral 병기). 결론: 숫자 변경이 분석 함수(momScore·trendScore)·모니터링 트리거·시나리오 텍스트·MA 기준선에 자동 반영 완료.",
+  "versioning": "x.y (31→...→47→47.1→47.2→47.3→47.4→47.5)"
 }
