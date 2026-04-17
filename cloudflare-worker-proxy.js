@@ -19,28 +19,53 @@ const ALLOWED_ORIGINS = [
 ];
 
 // ── 허용 타겟 도메인 (Open Proxy 방지) ───���──────────────────────
+// v47.10: 11개 도메인 추가 — index.html 실제 호출처 전수 동기화 (P112)
+// 기존 누락으로 CF Worker 경유 시 403 Forbidden → 직접 호출 폴백, 설계 취지 무산되던 문제 해결
 const ALLOWED_DOMAINS = [
+  // Yahoo Finance
   'query1.finance.yahoo.com',
   'query2.finance.yahoo.com',
   'finance.yahoo.com',
+  // 뉴스/RSS
   'api.rss2json.com',
   'rss2json.com',
+  // 주요 API
   'www.alphavantage.co',
   'api.twelvedata.com',
   'finnhub.io',
   'api.stlouisfed.org',
   'financialmodelingprep.com',
   'newsdata.io',
+  // SEC
   'efts.sec.gov',
   'data.sec.gov',
+  // Stooq
   'stooq.com',
   'www.stooq.com',
+  // RSS 수집
   'rsshub.app',
   'nitter.net',
   't.me',
+  // Naver 증권 (v47.10: 4곳 추가)
   'm.stock.naver.com',
+  'api.stock.naver.com',
+  'polling.finance.naver.com',
+  'api.finance.naver.com',
+  'fchart.stock.naver.com',
+  // Fear & Greed
   'api.fear-and-greed.com',
   'production.dataviz.cnn.io',
+  'api.alternative.me',
+  // 암호화폐
+  'api.coingecko.com',
+  // 환율
+  'open.er-api.com',
+  'api.exchangerate-api.com',
+  // 옵션
+  'cdn.cboe.com',
+  // 번역
+  'translate.googleapis.com',
+  'translate.google.com',
 ];
 
 // ── Private IP 차단 (SSRF 방지) ─────────────────────────────────

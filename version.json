@@ -1,6 +1,6 @@
 {
-  "version": "v47",
-  "built": "2026-04-15T23:30:00+09:00",
-  "note": "v47: 전면 보강 — AI채팅 7건 이식 + 환각 제로 정책 + DATA_SNAPSHOT 4/15 + 테마/RRG/섹터 갱신 + UX",
-  "versioning": "x.y (31→...→46.9→47)"
+  "version": "v48.10",
+  "built": "2026-04-17T19:45:00+09:00",
+  "note": "v48.10: 세션 전수 점검 — v48.4/v48.5/v48.1에서 수집만 하고 UI 미노출이던 데이터 3건 UI 연결 (P125, 무료). 기존 스크리너 다크 테마 + var(--bg-card)/--text-secondary 변수 + 폰트 11px+ 준수. (1) CoinGecko /global → 크립토 시장 온도계 카드 (sentiment 페이지 F&G 위젯 하단). BTC 도미넌스(≥55% 알트 약세 빨강/≥48% 중립 상단 노랑/≥42% 중립 녹/<42% 알트시즌 파랑) + ETH 도미넌스 + 전체 시총 + 24h 시총 변동(±3% 티어) + 24h 거래량. _renderCryptoTempo() 신설, aio:pageShown sentiment 훅. (2) SEC XBRL Frames 섹터 백분위 순위 카드 → _renderFundFinancials 'SEC XBRL 섹터 백분위 (v48.10 신규)' 섹션. Revenues + NetIncomeLoss 각각 myVal + rank/N + 상위 N% 배지(≤5% 진녹/≤25% 녹/≤50% 노랑/>50% 빨강) + 평균·중위수 비교. 전 US-GAAP 보고 기업 대비 정량 위치. (3) Finnhub 향후 어닝 일정 카드 → _renderFundEarnings 상단 섹션. 최대 5건 (date/분기/장전·장후·장중/예상 EPS/예상 매출) 그리드 카드. 기존 과거 서프라이즈 테이블은 '과거 서프라이즈 (FMP)' 구분선으로 하위 이동. 기존 테마·색상 완벽 일관 (#10b981/#3ddba5/#fbbf24/#f87171 공통 티어 색상). 수집-UI 불일치 P116/P121/P122 패턴 완전 해소.",
+  "versioning": "x.y (31→...→48.8→48.9→48.10)"
 }
