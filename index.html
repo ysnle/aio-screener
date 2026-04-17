@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.11 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.12 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2245,7 +2245,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.11</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.12</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9721,7 +9721,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.11';
+const APP_VERSION = 'v48.12';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -26506,6 +26506,30 @@ async function _fetchTickerDataForChat(tickers) {
         if (trendText) results.push('  [주가 추이] ' + trendText);
       } catch(e) {}
 
+      // v48.12: Finnhub 애널리스트 추천 + 향후 어닝 일정 자동 주입 — 기관 뷰 반영
+      try {
+        var _fhRec = await fetchFinnhubRecommendation(data.ticker);
+        if (_fhRec) {
+          var _total = (_fhRec.strongBuy||0) + (_fhRec.buy||0) + (_fhRec.hold||0) + (_fhRec.sell||0) + (_fhRec.strongSell||0);
+          if (_total > 0) {
+            var _bull = (_fhRec.strongBuy||0) + (_fhRec.buy||0);
+            var _bear = (_fhRec.sell||0) + (_fhRec.strongSell||0);
+            var _verdict = _bull/_total >= 0.6 ? '매수 우세' : _bull/_total >= 0.4 ? '완만 매수' : _bear/_total >= 0.4 ? '매도 우세' : '중립';
+            results.push('  [애널리스트 컨센서스] ' + _total + '명 · StrongBuy ' + (_fhRec.strongBuy||0) + '/Buy ' + (_fhRec.buy||0) + '/Hold ' + (_fhRec.hold||0) + '/Sell ' + (_fhRec.sell||0) + '/StrongSell ' + (_fhRec.strongSell||0) + ' → ' + _verdict + ' (Finnhub · ' + (_fhRec.period||'') + ')');
+          }
+        }
+      } catch(e) {}
+      try {
+        var _today = new Date().toISOString().slice(0,10);
+        var _60d = new Date(Date.now() + 60*86400000).toISOString().slice(0,10);
+        var _fhEarn = await fetchFinnhubEarningsCalendar(_today, _60d, data.ticker);
+        if (_fhEarn && _fhEarn.length > 0) {
+          var _e = _fhEarn[0];
+          var _hour = _e.hour === 'bmo' ? '장전' : _e.hour === 'amc' ? '장후' : _e.hour === 'dmh' ? '장중' : '미정';
+          results.push('  [다음 어닝] ' + (_e.date||'미정') + ' ' + _hour + ' · 예상 EPS $' + (_e.epsEstimate != null ? Number(_e.epsEstimate).toFixed(2) : 'N/A') + (_e.revenueEstimate ? ' · 예상 매출 ' + _fm(_e.revenueEstimate) : ''));
+        }
+      } catch(e) {}
+
       // v34.2: FMP 키가 있으면 핵심 밸류에이션도 조회하여 추가
       if (fmpKey) {
         try {
@@ -27046,14 +27070,21 @@ function _buildNewsContext(ctxId, query) {
   var top = scored.slice(0, 5);
   if (top.length === 0) return '';
 
+  // v48.12: 제목 + 본문 요약(desc 또는 summary) 120자까지 주입 — "왜 올랐나/내렸나" 맥락 제공
+  //         기관 리서치처럼 '이유와 근거'를 AI가 설명하려면 헤드라인만으로 부족
   var lines = top.map(function(s, idx) {
     var it = s.item;
     var age = it.pubDate ? Math.round((now - new Date(it.pubDate).getTime()) / 3600000) : '?';
-    return (idx + 1) + '. [' + (it.source || '?') + ' · ' + age + 'h전] ' + (it.title || '').substring(0, 80);
+    var title = (it.title || '').substring(0, 100);
+    var descRaw = (it.desc || it.summary || it.description || '').toString().replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+    var descShort = descRaw ? descRaw.substring(0, 140) + (descRaw.length > 140 ? '…' : '') : '';
+    var line = (idx + 1) + '. [' + (it.source || '?') + ' · ' + age + 'h전] ' + title;
+    if (descShort) line += '\n   └ ' + descShort;
+    return line;
   });
 
   return '\n\n【최근 시장 뉴스 (자동 수집, 24h 이내)】\n' +
-    '아래는 스크리너가 자동 수집한 관련 뉴스 헤드라인이다. 분석 시 참고하되, 제목만으로 과도한 해석을 하지 마라.\n' +
+    '아래는 스크리너가 자동 수집한 관련 뉴스 헤드라인 + 요약이다. 각 뉴스의 시간(Nh전)을 확인하고, 주가 추이와 교차 검증 후 답변하라. 제목만으로 과도한 해석 금지, 단 요약의 사실 근거(숫자·기관명·인용)는 적극 활용.\n' +
     lines.join('\n') + '\n';
 }
 
@@ -27509,6 +27540,13 @@ async function chatSend(ctxId) {
   _dataVerify += '4. "최근 상승세" 표현은 주입된 추이로 검증 후에만 사용.\n';
   _dataVerify += '5. 시간 불일치 탐지: 긍정 뉴스일 이후 주가 급락이면 "재료 소진/후속 악재" 가능성 언급.\n';
   _dataVerify += '6. 네 기억 속 주가/실적은 거의 100% 오래된 값. 주입된 [주가 추이]/[실시간 시세]/[웹검색]만 현재값으로 취급.\n';
+
+  // v48.12: 기관 리서치 스타일 답변 구조 (chatSend 일관성)
+  _dataVerify += '\n【기관 애널리스트 스타일 답변 구조 — 종목 질문 시】\n';
+  _dataVerify += '골드만·JP모건·버핏·아크인베스트·월가 애널리스트처럼 논리적 이유·근거와 함께 설명하라. 단순 의견 금지. 6단계 프레임워크:\n';
+  _dataVerify += '① 현재 상황(가격·[주가 추이]·최근 변화) ② 투자 스토리/내러티브(성장 동력·해자·테마) ③ 재무·밸류에이션(섹터 평균 대비 "왜 그 수준인가")\n';
+  _dataVerify += '④ Bull Case(목표가 상단 + 구체적 달성 조건) ⑤ Bear Case(하락 트리거) ⑥ 카탈리스트 + 리스크 + 깨지는 신호 3~5개.\n';
+  _dataVerify += '[실시간 시세][주가 추이][뉴스][애널리스트 컨센서스][다음 어닝][재무 FMP][웹검색] 모두 교차 참조. 항상 숫자·시점·출처로 근거 제시. 인사이트의 핵심("이 종목에서 지금 가장 중요한 한 가지")을 먼저 명시.\n';
 
   _dataVerify += '\n【데이터 검증 상태 — 반드시 준수】\n';
   _dataVerify += '• 실시간 시세: ' + _liveStatusCS + '\n';
@@ -41563,6 +41601,17 @@ async function chatSendUnified() {
   sysPrompt += '4. "최근 상승세" 같은 표현은 반드시 주입된 추이 데이터(5D/20D/3M)로 검증 후에만 사용.\n';
   sysPrompt += '5. 시간 불일치 탐지: 긍정 뉴스 보도일 이후 주가 급락이 있으면 "재료 소진" 또는 "후속 악재" 가능성을 반드시 언급.\n';
   sysPrompt += '6. 네 기억 속 주가/실적 수치는 거의 100% 오래된 것. 주입된 [주가 추이]·[실시간 시세]·[웹검색]만 현재값으로 취급.\n';
+
+  // v48.12: 기관 리서치 스타일 답변 구조 — 단편적 의견 대신 논리적 투자 리서치 형태
+  sysPrompt += '\n【기관 애널리스트 스타일 답변 구조 — 종목 질문 시】\n';
+  sysPrompt += '골드만·JP모건·버핏·아크인베스트·월가 애널리스트처럼 논리적 이유·근거와 함께 설명하라. 단순 의견("좋다/나쁘다") 금지. 다음 6단계 프레임워크를 반드시 따르되, 데이터 ✗ 항목은 생략하고 솔직히 표기:\n';
+  sysPrompt += '① **현재 상황** (한 줄 요약): 가격 · [주가 추이] 라벨 · 최근 주요 변화\n';
+  sysPrompt += '② **투자 스토리/내러티브**: 이 기업이 왜 시장 관심인가 — 핵심 비즈니스, 성장 동력, 해자(moat — 네트워크 효과·전환비용·규모의 경제·브랜드·지적재산), 속한 테마(AI/반도체/2차전지 등)\n';
+  sysPrompt += '③ **재무·밸류에이션**: 주입된 PER/ROE/매출성장/FCF를 섹터 평균 대비 평가. "비싸다/싸다"가 아니라 "왜 그 수준인가"\n';
+  sysPrompt += '④ **Bull Case (낙관)**: 목표가 상단 + 달성 조건(구체적 KPI·이벤트). 예: "FOMC 금리인하 + Q3 어닝 10% 상회 시 목표 $X"\n';
+  sysPrompt += '⑤ **Bear Case (비관)**: 하락 시나리오 + 트리거. 예: "경쟁사 XYZ 점유율 탈환 시 섹터 리레이팅"\n';
+  sysPrompt += '⑥ **핵심 카탈리스트 + 리스크 + 깨지는 신호**: 향후 3~6개월 주가 방향 결정 요소 3~5개. [다음 어닝] [애널리스트 컨센서스] 반영. 깨지는 신호("이 지표가 X 돌파하면 판단 재검토") 명시.\n';
+  sysPrompt += '규칙: 주입된 [실시간 시세] [주가 추이] [뉴스] [애널리스트 컨센서스] [다음 어닝] [재무 FMP] [웹검색]을 **모두 교차 참조**. "~카더라" "일반적으로" 같은 두루뭉실 금지. 항상 숫자·시점·출처로 근거 제시. 인사이트의 핵심("이 종목에서 지금 가장 중요한 한 가지")을 먼저 명시.\n';
 
   sysPrompt += '\n【데이터 검증 상태 — 반드시 준수】\n';
   sysPrompt += '• 실시간 시세: ' + _liveStatus + '\n';

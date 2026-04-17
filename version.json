@@ -1,6 +1,6 @@
 {
-  "version": "v48.11",
-  "built": "2026-04-17T20:15:00+09:00",
-  "note": "v48.11: AI 채팅 환각 방지 5중 강화 (P126, 무료). 사용자 보고: '긍정 뉴스로 오른 종목이 최근 하락인데 AI가 여전히 추천' 추세 전환 미반영 케이스. 5건 수정: (1) _fetchTickerTrend() 신설 — Yahoo chart range=3mo 1회 호출로 5D/20D/3M 변동 + 추세 라벨(단기·중기 상승/하락/반등 초기/조정 중/횡보/강세 유지/약세 지속/혼조) + 3M 범위 내 위치 %. _tickerTrendCache 10분 TTL. _fetchTickerDataForChat 루프에서 '[주가 추이]' 라인 자동 주입. (2) chatSendUnified/chatSend system prompt 상단에 '오늘 날짜 (KST) + Claude 학습 커트오프 2025년 초' 경고 블록 — 기억 속 '최근'이 사용자 기준 얼마나 과거인지 의식 강제. (3) 추세 해석 필수 규칙 6개 — 긍정 뉴스 + [주가 추이] 하락 추세 시 뉴스만으로 추천 금지, [주가 추이] 라벨 먼저 확인, 애널리스트 목표가 발표 시점 확인, 시간 불일치 탐지(뉴스일 이후 급락 = 재료 소진/후속 악재). (4) 데이터 검증 태그 강화: _quoteTimestamps 분 단위 stale(5분+ 주의/10분+ 지연 명시/미수신 시 가격 인용 금지), [주가 추이] 주입 여부 별도 항목, DATA_SNAPSHOT 72h+ 경과 시 정적 수치 인용 자체 금지. (5) Perplexity search_recency_filter 동적 — 쿼리에 '오늘/지금/금일/방금/현재/당일/today/now' 포함 시 'day', 그 외 'week'. chatSendUnified + chatSend 양쪽 일관 적용.",
-  "versioning": "x.y (31→...→48.9→48.10→48.11)"
+  "version": "v48.12",
+  "built": "2026-04-17T20:45:00+09:00",
+  "note": "v48.12: AI 채팅 기관 리서치 스타일 + 내러티브 강화 (P127, 무료). 사용자 보고: '최근 주식/기업 소식, 기관·애널리스트 등급·목표가, 논리적 이유·근거, 인사이트 핵심 모두 반영돼야'. 실측 결과 3가지 누락 확인 후 보강: (1) Finnhub recommendation/earnings calendar — fundamentalSearch 경로만 주입되고 일반 AI 채팅(_fetchTickerDataForChat)은 미주입이던 문제 해결. 티커 감지 시마다 '[애널리스트 컨센서스] N명 · StrongBuy/Buy/Hold/Sell/StrongSell → 매수 우세/완만 매수/중립/매도 우세' + '[다음 어닝] 날짜 · 장전/장후 · 예상 EPS/매출' 자동 주입. (2) _buildNewsContext 뉴스 본문 요약 120자 포함 — 기존 헤드라인(80자)만 주입으로 '왜 올랐나/내렸나' 맥락 부족. desc/summary/description 필드 HTML 스트립 후 140자 요약 + '└' 인덴트. (3) 기관 애널리스트 스타일 답변 6단계 프레임워크 — 단편적 의견 대신 논리적 리서치 구조 강제: ①현재 상황 ②투자 스토리/내러티브(해자·성장 동력·테마) ③재무·밸류에이션(섹터 평균 대비 '왜 그 수준인가') ④Bull Case(목표가 + 달성 조건) ⑤Bear Case(하락 트리거) ⑥카탈리스트·리스크·깨지는 신호 3~5개. [실시간/주가 추이/뉴스/애널리스트/다음 어닝/FMP/웹검색] 모두 교차 참조 + 인사이트의 핵심 먼저 명시. chatSendUnified + chatSend 일관 적용.",
+  "versioning": "x.y (31→...→48.10→48.11→48.12)"
 }
