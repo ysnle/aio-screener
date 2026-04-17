@@ -1,6 +1,6 @@
 {
-  "version": "v48.10",
-  "built": "2026-04-17T19:45:00+09:00",
-  "note": "v48.10: 세션 전수 점검 — v48.4/v48.5/v48.1에서 수집만 하고 UI 미노출이던 데이터 3건 UI 연결 (P125, 무료). 기존 스크리너 다크 테마 + var(--bg-card)/--text-secondary 변수 + 폰트 11px+ 준수. (1) CoinGecko /global → 크립토 시장 온도계 카드 (sentiment 페이지 F&G 위젯 하단). BTC 도미넌스(≥55% 알트 약세 빨강/≥48% 중립 상단 노랑/≥42% 중립 녹/<42% 알트시즌 파랑) + ETH 도미넌스 + 전체 시총 + 24h 시총 변동(±3% 티어) + 24h 거래량. _renderCryptoTempo() 신설, aio:pageShown sentiment 훅. (2) SEC XBRL Frames 섹터 백분위 순위 카드 → _renderFundFinancials 'SEC XBRL 섹터 백분위 (v48.10 신규)' 섹션. Revenues + NetIncomeLoss 각각 myVal + rank/N + 상위 N% 배지(≤5% 진녹/≤25% 녹/≤50% 노랑/>50% 빨강) + 평균·중위수 비교. 전 US-GAAP 보고 기업 대비 정량 위치. (3) Finnhub 향후 어닝 일정 카드 → _renderFundEarnings 상단 섹션. 최대 5건 (date/분기/장전·장후·장중/예상 EPS/예상 매출) 그리드 카드. 기존 과거 서프라이즈 테이블은 '과거 서프라이즈 (FMP)' 구분선으로 하위 이동. 기존 테마·색상 완벽 일관 (#10b981/#3ddba5/#fbbf24/#f87171 공통 티어 색상). 수집-UI 불일치 P116/P121/P122 패턴 완전 해소.",
-  "versioning": "x.y (31→...→48.8→48.9→48.10)"
+  "version": "v48.11",
+  "built": "2026-04-17T20:15:00+09:00",
+  "note": "v48.11: AI 채팅 환각 방지 5중 강화 (P126, 무료). 사용자 보고: '긍정 뉴스로 오른 종목이 최근 하락인데 AI가 여전히 추천' 추세 전환 미반영 케이스. 5건 수정: (1) _fetchTickerTrend() 신설 — Yahoo chart range=3mo 1회 호출로 5D/20D/3M 변동 + 추세 라벨(단기·중기 상승/하락/반등 초기/조정 중/횡보/강세 유지/약세 지속/혼조) + 3M 범위 내 위치 %. _tickerTrendCache 10분 TTL. _fetchTickerDataForChat 루프에서 '[주가 추이]' 라인 자동 주입. (2) chatSendUnified/chatSend system prompt 상단에 '오늘 날짜 (KST) + Claude 학습 커트오프 2025년 초' 경고 블록 — 기억 속 '최근'이 사용자 기준 얼마나 과거인지 의식 강제. (3) 추세 해석 필수 규칙 6개 — 긍정 뉴스 + [주가 추이] 하락 추세 시 뉴스만으로 추천 금지, [주가 추이] 라벨 먼저 확인, 애널리스트 목표가 발표 시점 확인, 시간 불일치 탐지(뉴스일 이후 급락 = 재료 소진/후속 악재). (4) 데이터 검증 태그 강화: _quoteTimestamps 분 단위 stale(5분+ 주의/10분+ 지연 명시/미수신 시 가격 인용 금지), [주가 추이] 주입 여부 별도 항목, DATA_SNAPSHOT 72h+ 경과 시 정적 수치 인용 자체 금지. (5) Perplexity search_recency_filter 동적 — 쿼리에 '오늘/지금/금일/방금/현재/당일/today/now' 포함 시 'day', 그 외 'week'. chatSendUnified + chatSend 양쪽 일관 적용.",
+  "versioning": "x.y (31→...→48.9→48.10→48.11)"
 }

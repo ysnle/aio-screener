@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.10 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.11 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2245,7 +2245,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.10</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.11</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9721,7 +9721,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.10';
+const APP_VERSION = 'v48.11';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -26431,6 +26431,51 @@ function _extractTickers(text) {
   return tickers.slice(0, 5); // v34.4: 최대 5개 (기본 데이터), 심층 비교는 chatSend에서 3개로 재제한
 }
 
+// v48.11: 주가 추이 자동 분석 — 5D/20D/3M 변동 + 추세 라벨 + 52주 위치
+// Yahoo chart range=3mo 1회 호출로 추세 전환 감지용 핵심 지표 산출.
+// "긍정 뉴스 + 하락 추세" 같은 시간 불일치 상황을 AI가 반드시 인식하도록 프롬프트에 주입.
+async function _fetchTickerTrend(ticker) {
+  try {
+    // window._tickerTrendCache 10분 TTL
+    if (!window._tickerTrendCache) window._tickerTrendCache = {};
+    var c = window._tickerTrendCache[ticker];
+    if (c && (Date.now() - c._ts < 600000)) return c.text;
+    var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker) + '?interval=1d&range=3mo';
+    var r;
+    try { r = await fetchViaProxy(url, 6000); } catch(e) { return null; }
+    if (!r || !r.ok) return null;
+    var d = await r.json();
+    var result = d && d.chart && d.chart.result && d.chart.result[0];
+    if (!result) return null;
+    var closes = ((result.indicators && result.indicators.quote && result.indicators.quote[0] && result.indicators.quote[0].close) || []).filter(function(v){ return v != null && !isNaN(v); });
+    if (closes.length < 20) return null;
+    var now = closes[closes.length - 1];
+    var d5 = closes[Math.max(0, closes.length - 6)];
+    var d20 = closes[Math.max(0, closes.length - 21)];
+    var d60 = closes[0];
+    var pct5 = ((now - d5) / d5) * 100;
+    var pct20 = ((now - d20) / d20) * 100;
+    var pct60 = ((now - d60) / d60) * 100;
+    // 추세 라벨 — 5D/20D 조합으로 전환 상황 식별
+    var label;
+    if (pct5 > 2 && pct20 > 5) label = '단기·중기 상승 추세';
+    else if (pct5 > 2 && pct20 < -3) label = '반등 초기 (중기는 하락)';
+    else if (pct5 < -2 && pct20 < -5) label = '단기·중기 하락 추세';
+    else if (pct5 < -2 && pct20 > 3) label = '조정 중 (중기는 상승)';
+    else if (Math.abs(pct5) < 2 && Math.abs(pct20) < 3) label = '횡보';
+    else if (pct20 > 10) label = '강세 유지';
+    else if (pct20 < -10) label = '약세 지속';
+    else label = '혼조';
+    // 52주 위치 (3개월 범위 기준 근사치)
+    var hi = Math.max.apply(null, closes);
+    var lo = Math.min.apply(null, closes);
+    var pos = hi > lo ? Math.round(((now - lo) / (hi - lo)) * 100) : 50;
+    var text = label + ' (5D ' + (pct5>=0?'+':'') + pct5.toFixed(1) + '% · 20D ' + (pct20>=0?'+':'') + pct20.toFixed(1) + '% · 3M ' + (pct60>=0?'+':'') + pct60.toFixed(1) + '% · 3M 범위 ' + pos + '% 위치)';
+    window._tickerTrendCache[ticker] = { text: text, _ts: Date.now() };
+    return text;
+  } catch(e) { return null; }
+}
+
 async function _fetchTickerDataForChat(tickers) {
   if (!tickers || tickers.length === 0) return '';
   var _f = function(v, dec) { return v != null && !isNaN(v) ? Number(v).toFixed(dec || 1) : 'N/A'; };
@@ -26454,6 +26499,12 @@ async function _fetchTickerDataForChat(tickers) {
       if (data.exchange) line += ' [' + data.exchange + ']';
       if (data.currency && data.currency !== 'USD') line += ' ' + data.currency;
       results.push(line);
+
+      // v48.11: 주가 추이 라인 자동 주입 — "긍정 뉴스 + 하락 추세" 같은 시간 불일치 감지 필수 근거
+      try {
+        var trendText = await _fetchTickerTrend(data.ticker);
+        if (trendText) results.push('  [주가 추이] ' + trendText);
+      } catch(e) {}
 
       // v34.2: FMP 키가 있으면 핵심 밸류에이션도 조회하여 추가
       if (fmpKey) {
@@ -27119,7 +27170,8 @@ async function _perplexitySearch(searchQuery) {
       return_citations: true,
       // v48.2: 금융 도메인 화이트리스트 — 노이즈 제거 + 공신력 있는 출처 우선
       search_domain_filter: ['bloomberg.com','reuters.com','cnbc.com','wsj.com','ft.com','marketwatch.com','seekingalpha.com','barrons.com','yahoo.com','investing.com','economist.com','morningstar.com','mk.co.kr','hankyung.com','sedaily.com','chosun.com','mt.co.kr'],
-      search_recency_filter: 'week',
+      // v48.11: recency 동적 — "오늘/지금/금일/방금/현재/당일/today/now" 키워드 포함 시 day, 그 외 week
+      search_recency_filter: /오늘|지금|금일|방금|현재|당일|today|now|just\s/i.test(searchQuery) ? 'day' : 'week',
       return_related_questions: false
     })
   });
@@ -27423,21 +27475,51 @@ async function chatSend(ctxId) {
   if (webSearchStr) systemPrompt += webSearchStr;
   if (newsContextStr) systemPrompt += newsContextStr;
 
-  // v46.6: AI 할루시네이션 방지 — 데이터 검증 태그 주입
-  var _dataVerify = '\n\n【데이터 검증 상태 — 반드시 준수】\n';
-  // 실시간 데이터 신선도
+  // v48.11: 환각 방지 5중 강화 (chatSend) — chatSendUnified와 완전 일치
+  // 1) 오늘 날짜 + Claude 커트오프  2) 추세 해석 필수 규칙  3) [주가 추이] 주입 여부 체크
+  // 4) _liveData 분 단위 stale 체크  5) DATA_SNAPSHOT 72h+ 수치 인용 금지
+
+  // 오늘 날짜 (KST)
+  var _todayCS;
+  try {
+    var _nowKstCS = new Date(new Date().getTime() + (9*60 - new Date().getTimezoneOffset()) * 60000);
+    _todayCS = _nowKstCS.toISOString().slice(0,10) + ' (KST)';
+  } catch(e) { _todayCS = new Date().toISOString().slice(0,10); }
+
+  // _liveData 분 단위 stale
   var _ldAge = window._quoteTimestamps ? Math.round((Date.now() - Math.max.apply(null, Object.values(window._quoteTimestamps))) / 60000) : null;
-  _dataVerify += '• 실시간 시세: ' + (_ldAge !== null && _ldAge < 5 ? '✓ 정상 (' + _ldAge + '분 전 갱신)' : '⚠ 지연 또는 미수신 — 가격 수치를 단정하지 마라') + '\n';
-  // FMP 재무 데이터
-  _dataVerify += '• 기업 재무(FMP): ' + (tickerDataStr ? '✓ 수집 완료' : '✗ 미수집 — PER/ROE/마진 등 재무 수치를 추측하지 마라. "재무 데이터 미수집"이라고 밝혀라') + '\n';
-  // 뉴스 컨텍스트
-  _dataVerify += '• 뉴스 컨텍스트: ' + (newsContextStr ? '✓ ' + newsContextStr.split('\n').filter(function(l){return l.match(/^\d/);}).length + '건 주입됨' : '✗ 관련 뉴스 없음 — "최근 뉴스에 따르면"이라고 시작하지 마라') + '\n';
-  // 웹검색
-  _dataVerify += '• 웹검색: ' + (webSearchStr ? '✓ 검색 완료' : '✗ 미실행 — 검증되지 않은 최신 정보를 확정적으로 말하지 마라') + '\n';
-  // DATA_SNAPSHOT 경과일
+  var _liveStatusCS;
+  if (_ldAge == null || !isFinite(_ldAge) || Object.keys(window._liveData||{}).length <= 10) _liveStatusCS = '✗ 미수신 — 가격 수치 인용 자체 금지';
+  else if (_ldAge >= 10) _liveStatusCS = '⚠ ' + _ldAge + '분 전 데이터 — 가격 수치 인용 시 "약 ' + _ldAge + '분 지연" 명시 필수';
+  else if (_ldAge >= 5) _liveStatusCS = '⚠ ' + _ldAge + '분 지연 — 주의';
+  else _liveStatusCS = '✓ 정상 (' + _ldAge + '분 전 갱신)';
+
   var _snapAge = DATA_SNAPSHOT._updated ? Math.round((Date.now() - new Date(DATA_SNAPSHOT._updated).getTime()) / 3600000) : 999;
-  _dataVerify += '• 정적 데이터: ' + (_snapAge < 48 ? '✓ ' + _snapAge + '시간 전 갱신' : '⚠ ' + _snapAge + '시간 경과 — 정적 수치가 현재와 다를 수 있음을 명시하라') + '\n';
-  _dataVerify += '규칙: 위에서 ✗ 또는 ⚠ 표시된 데이터는 "확인되지 않음" 또는 "데이터 미수집"이라고 명시적으로 밝혀야 한다. 추측하거나 꾸며내지 마라.\n';
+  var _hasTrendCS = (tickerDataStr || '').indexOf('[주가 추이]') !== -1;
+
+  var _dataVerify = '\n\n【오늘 날짜 + 학습 데이터 커트오프】\n';
+  _dataVerify += '• 오늘: ' + _todayCS + '\n';
+  _dataVerify += '• 네 학습 데이터 커트오프는 약 2025년 초. 그 이후 시장/기업/주가 정보는 아래 주입된 실시간 데이터·뉴스·웹검색 결과**만** 신뢰하라.\n';
+  _dataVerify += '• 네 기억 속 "최근"이 오늘 기준 얼마나 과거인지 반드시 의식하라.\n';
+
+  _dataVerify += '\n【추세 해석 필수 규칙 — 종목 추천·매수·매도 판단 시 무조건 준수】\n';
+  _dataVerify += '1. 긍정 뉴스가 있어도 [주가 추이] 라벨이 "하락 추세·약세 지속·조정 중"이면 → 호재 이미 반영됐거나 다른 부정 요인. **뉴스만으로 추천 금지**.\n';
+  _dataVerify += '2. 반드시 [주가 추이](5D/20D/3M) 먼저 확인 후 답변.\n';
+  _dataVerify += '3. 애널리스트 목표가는 "발표 시점" 확인 — 오래된 목표가는 "참고용"으로만.\n';
+  _dataVerify += '4. "최근 상승세" 표현은 주입된 추이로 검증 후에만 사용.\n';
+  _dataVerify += '5. 시간 불일치 탐지: 긍정 뉴스일 이후 주가 급락이면 "재료 소진/후속 악재" 가능성 언급.\n';
+  _dataVerify += '6. 네 기억 속 주가/실적은 거의 100% 오래된 값. 주입된 [주가 추이]/[실시간 시세]/[웹검색]만 현재값으로 취급.\n';
+
+  _dataVerify += '\n【데이터 검증 상태 — 반드시 준수】\n';
+  _dataVerify += '• 실시간 시세: ' + _liveStatusCS + '\n';
+  _dataVerify += '• 주가 추이(5D/20D/3M): ' + (_hasTrendCS ? '✓ 주입됨 — 이 추이를 기준으로 추세 판단하라' : '✗ 미주입 — 추세 언급 자체 금지') + '\n';
+  _dataVerify += '• 기업 재무(FMP): ' + (tickerDataStr ? '✓ 수집 완료' : '✗ 미수집 — PER/ROE/마진 등 재무 수치를 추측하지 마라. "재무 데이터 미수집"이라고 밝혀라') + '\n';
+  _dataVerify += '• 뉴스 컨텍스트: ' + (newsContextStr ? '✓ ' + newsContextStr.split('\n').filter(function(l){return l.match(/^\d/);}).length + '건 주입됨 (시간 표기 포함)' : '✗ 관련 뉴스 없음 — "최근 뉴스에 따르면"이라고 시작하지 마라') + '\n';
+  _dataVerify += '• 웹검색: ' + (webSearchStr ? '✓ 검색 완료' : '✗ 미실행 — 검증되지 않은 최신 정보를 확정적으로 말하지 마라') + '\n';
+  if (_snapAge >= 72) _dataVerify += '• 정적 데이터: ⚠⚠ ' + _snapAge + '시간(' + Math.round(_snapAge/24) + '일) 경과 — **정적 수치 인용 자체 금지**. 실시간/웹검색만 사용\n';
+  else if (_snapAge < 48) _dataVerify += '• 정적 데이터: ✓ ' + _snapAge + '시간 전 갱신\n';
+  else _dataVerify += '• 정적 데이터: ⚠ ' + _snapAge + '시간 경과 — 수치 인용 시 "N시간 전 스냅샷" 명시\n';
+  _dataVerify += '규칙: ✗ 또는 ⚠ 표시된 데이터는 "확인되지 않음"·"데이터 미수집"이라고 명시적으로 밝혀야 한다. 추측 금지.\n';
   systemPrompt += _dataVerify;
 
   // v46.6: messages 배열 자동 trim — 토큰 폭발 방지 (60,000자 ≈ 15K토큰 제한)
@@ -41441,17 +41523,57 @@ async function chatSendUnified() {
   // sysPrompt 방어 — ctx.system() 실패 시 빈 문자열 폴백
   if (!sysPrompt) sysPrompt = '';
 
+  // v48.11: 환각 방지 5중 강화 — 오늘 날짜 + Claude 커트오프 + 추세 해석 규칙 + 분 단위 stale + 72h 금지
   // v46.6: AI 패널 할루시네이션 방지 — 데이터 검증 태그 주입
   var _pHasNews = sysPrompt.indexOf('최근 시장 뉴스') !== -1;
   var _pHasWeb = sysPrompt.indexOf('웹검색') !== -1 || sysPrompt.indexOf('검색 결과') !== -1;
   var _pHasFMP = sysPrompt.indexOf('P/E') !== -1 || sysPrompt.indexOf('ROE') !== -1;
+  var _pHasTrend = sysPrompt.indexOf('[주가 추이]') !== -1;
   var _pSnapAge = DATA_SNAPSHOT._updated ? Math.round((Date.now() - new Date(DATA_SNAPSHOT._updated).getTime()) / 3600000) : 999;
-  sysPrompt += '\n\n【데이터 검증 상태 — 반드시 준수】\n';
-  sysPrompt += '• 실시간 시세: ' + (Object.keys(window._liveData||{}).length > 10 ? '✓ 정상' : '⚠ 지연 — 가격 수치를 단정하지 마라') + '\n';
+  // v48.11: _liveData 분 단위 stale 체크 (_quoteTimestamps 활용)
+  var _ldAgeMin = null;
+  try {
+    if (window._quoteTimestamps) {
+      var ts = Object.values(window._quoteTimestamps);
+      if (ts.length > 0) _ldAgeMin = Math.round((Date.now() - Math.max.apply(null, ts)) / 60000);
+    }
+  } catch(e) {}
+  var _liveStatus;
+  if (Object.keys(window._liveData||{}).length <= 10) _liveStatus = '✗ 미수신 — 가격 수치 인용 자체 금지. "실시간 연결 중" 안내만';
+  else if (_ldAgeMin != null && _ldAgeMin >= 10) _liveStatus = '⚠ ' + _ldAgeMin + '분 전 데이터 — 가격 수치 인용 시 "약 N분 지연" 명시 필수';
+  else if (_ldAgeMin != null && _ldAgeMin >= 5) _liveStatus = '⚠ ' + _ldAgeMin + '분 지연 — 주의';
+  else _liveStatus = '✓ 정상' + (_ldAgeMin != null ? ' (' + _ldAgeMin + '분 전)' : '');
+
+  // v48.11: 오늘 날짜 + Claude 학습 커트오프 경고 블록 (환각 근본 방지)
+  var _todayStr;
+  try {
+    var _nowKst = new Date(new Date().getTime() + (9*60 - new Date().getTimezoneOffset()) * 60000);
+    _todayStr = _nowKst.toISOString().slice(0,10) + ' (KST)';
+  } catch(e) { _todayStr = new Date().toISOString().slice(0,10); }
+
+  sysPrompt += '\n\n【오늘 날짜 + 학습 데이터 커트오프】\n';
+  sysPrompt += '• 오늘: ' + _todayStr + '\n';
+  sysPrompt += '• 네 학습 데이터 커트오프는 약 2025년 초. 그 이후 시장/기업/주가 정보는 아래 주입된 실시간 데이터·뉴스·웹검색 결과**만** 신뢰하라.\n';
+  sysPrompt += '• 네 기억 속 "최근"이 오늘 기준 얼마나 과거인지 반드시 의식하라. 학습 시점 기준의 "최근"을 사용자 현재 기준 "최근"으로 오인하지 마라.\n';
+
+  sysPrompt += '\n【추세 해석 필수 규칙 — 종목 추천·매수·매도 판단 시 무조건 준수】\n';
+  sysPrompt += '1. 긍정 뉴스가 있어도 주입된 [주가 추이] 라벨이 "하락 추세·약세 지속·조정 중"이면 → 그 호재는 이미 반영되었거나 다른 부정 요인 존재. **뉴스만으로 추천 금지**.\n';
+  sysPrompt += '2. 반드시 [주가 추이] 라벨(상승/횡보/하락/조정/반등)을 먼저 확인 후 답변 구성.\n';
+  sysPrompt += '3. 애널리스트 목표가는 "발표 시점"을 확인 — 오래된 목표가는 "참고용" 으로만 언급.\n';
+  sysPrompt += '4. "최근 상승세" 같은 표현은 반드시 주입된 추이 데이터(5D/20D/3M)로 검증 후에만 사용.\n';
+  sysPrompt += '5. 시간 불일치 탐지: 긍정 뉴스 보도일 이후 주가 급락이 있으면 "재료 소진" 또는 "후속 악재" 가능성을 반드시 언급.\n';
+  sysPrompt += '6. 네 기억 속 주가/실적 수치는 거의 100% 오래된 것. 주입된 [주가 추이]·[실시간 시세]·[웹검색]만 현재값으로 취급.\n';
+
+  sysPrompt += '\n【데이터 검증 상태 — 반드시 준수】\n';
+  sysPrompt += '• 실시간 시세: ' + _liveStatus + '\n';
+  sysPrompt += '• 주가 추이(5D/20D/3M): ' + (_pHasTrend ? '✓ 주입됨 — 이 추이를 기준으로 추세 판단하라' : '✗ 미주입 — 추세 언급 자체 금지') + '\n';
   sysPrompt += '• 기업 재무(FMP): ' + (_pHasFMP ? '✓ 수집 완료' : '✗ 미수집 — PER/ROE/마진 등 재무 수치를 추측하지 마라. "재무 데이터 미수집"이라고 밝혀라') + '\n';
-  sysPrompt += '• 뉴스 컨텍스트: ' + (_pHasNews ? '✓ 주입됨' : '✗ 관련 뉴스 없음 — "최근 뉴스에 따르면"이라고 시작하지 마라') + '\n';
+  sysPrompt += '• 뉴스 컨텍스트: ' + (_pHasNews ? '✓ 주입됨 (시간 표기 포함)' : '✗ 관련 뉴스 없음 — "최근 뉴스에 따르면"이라고 시작하지 마라') + '\n';
   sysPrompt += '• 웹검색: ' + (_pHasWeb ? '✓ 검색 완료' : '✗ 미실행 — 검증되지 않은 최신 정보를 확정적으로 말하지 마라') + '\n';
-  sysPrompt += '• 정적데이터: ' + (_pSnapAge < 48 ? '✓ ' + _pSnapAge + '시간 전' : '⚠ ' + _pSnapAge + '시간 경과') + '\n';
+  // v48.11: DATA_SNAPSHOT 72h+ 경과 시 수치 인용 자체 금지
+  if (_pSnapAge >= 72) sysPrompt += '• 정적데이터: ⚠⚠ ' + _pSnapAge + '시간(' + Math.round(_pSnapAge/24) + '일) 경과 — **정적 수치 인용 자체 금지**. 실시간/웹검색 결과만 사용\n';
+  else if (_pSnapAge < 48) sysPrompt += '• 정적데이터: ✓ ' + _pSnapAge + '시간 전\n';
+  else sysPrompt += '• 정적데이터: ⚠ ' + _pSnapAge + '시간 경과 — 수치 인용 시 "N시간 전 스냅샷" 명시\n';
   sysPrompt += '규칙: ✗ 또는 ⚠ 표시된 데이터는 "확인되지 않음" 또는 "데이터 미수집"이라고 명시적으로 밝혀야 한다. 추측하거나 꾸며내지 마라.\n';
 
   // 7. 모델 자동 선택 (질문 복잡도 기반)
