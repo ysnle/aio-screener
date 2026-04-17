@@ -1,6 +1,6 @@
 {
-  "version": "v48.12",
-  "built": "2026-04-17T20:45:00+09:00",
-  "note": "v48.12: AI 채팅 기관 리서치 스타일 + 내러티브 강화 (P127, 무료). 사용자 보고: '최근 주식/기업 소식, 기관·애널리스트 등급·목표가, 논리적 이유·근거, 인사이트 핵심 모두 반영돼야'. 실측 결과 3가지 누락 확인 후 보강: (1) Finnhub recommendation/earnings calendar — fundamentalSearch 경로만 주입되고 일반 AI 채팅(_fetchTickerDataForChat)은 미주입이던 문제 해결. 티커 감지 시마다 '[애널리스트 컨센서스] N명 · StrongBuy/Buy/Hold/Sell/StrongSell → 매수 우세/완만 매수/중립/매도 우세' + '[다음 어닝] 날짜 · 장전/장후 · 예상 EPS/매출' 자동 주입. (2) _buildNewsContext 뉴스 본문 요약 120자 포함 — 기존 헤드라인(80자)만 주입으로 '왜 올랐나/내렸나' 맥락 부족. desc/summary/description 필드 HTML 스트립 후 140자 요약 + '└' 인덴트. (3) 기관 애널리스트 스타일 답변 6단계 프레임워크 — 단편적 의견 대신 논리적 리서치 구조 강제: ①현재 상황 ②투자 스토리/내러티브(해자·성장 동력·테마) ③재무·밸류에이션(섹터 평균 대비 '왜 그 수준인가') ④Bull Case(목표가 + 달성 조건) ⑤Bear Case(하락 트리거) ⑥카탈리스트·리스크·깨지는 신호 3~5개. [실시간/주가 추이/뉴스/애널리스트/다음 어닝/FMP/웹검색] 모두 교차 참조 + 인사이트의 핵심 먼저 명시. chatSendUnified + chatSend 일관 적용.",
-  "versioning": "x.y (31→...→48.10→48.11→48.12)"
+  "version": "v48.13",
+  "built": "2026-04-17T21:15:00+09:00",
+  "note": "v48.13: 기존 스크리너 자연 통합 2건 — Finnhub /company-news 재도입 + 포트폴리오 벤치마크 차트 실데이터 (P128, 무료). (1) v47.10에서 dead code로 제거됐던 fetchFinnhubCompanyNews 재도입 — Finnhub /company-news?from=-14d&to=today 호출, 최신순 정렬 + headline 중복 제거 + 상위 15건 반환. fundamentalSearch의 Finnhub Promise.allSettled에 4번째 job으로 편입(_fhResults[3]) → collected.finnhubNews 저장 + sources 'Finnhub (기업 뉴스)' 추가. 기존 _renderFund* 패턴 그대로 _renderFundNews(d) 신설 — 헤드라인 140자 + 요약 180자 + N시간/일 전 + source/date 라벨. XSS escHtml 전수 적용. fund-rpt-news DOM은 fund-rpt-earnings 뒤 · fund-rpt-sources 앞 섹션에 자연 삽입. (2) updateBenchmarkChart 버그 수정 + SPY/포트폴리오 30일 실데이터 연결 — 기존 stub은 p.sym/p.avgCost/p.shares 필드로 항상 0% 표시(getPortfolioData 실제 필드는 ticker/cost/qty). 교정 후 Yahoo chart range=1mo로 SPY 30일 종가 + 포트폴리오 상위 10 종목 Promise.all 병렬 fetch → 가중 수익률 일별 계산. 미커버 종목(11+ 또는 fetch 실패)은 현재 누적 수익률 선형 분포. 색상 기존 팔레트(--accent 블루 SPY #60a5fa, 포트폴리오 #3ddba5 녹색) + Alpha 색상 티어. 커버리지 % 하단 표시. 포트폴리오 빈 상태 안내. 기존 CSS 변수·폰트·색상 100% 준수, 새 UI 패턴 도입 없음 — 자연 통합.",
+  "versioning": "x.y (31→...→48.11→48.12→48.13)"
 }

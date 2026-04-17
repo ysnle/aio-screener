@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.12 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.13 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2245,7 +2245,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.12</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.13</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5594,6 +5594,15 @@ body.light-theme canvas { filter:none; }
       <div id="fund-rpt-earnings" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">실적 서프라이즈 히스토리</div>
         <div id="fund-rpt-earn-body"></div>
+      </div>
+
+      <!-- v48.13: 최근 기업 뉴스 (Finnhub /company-news 14일) -->
+      <div id="fund-rpt-news" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">최근 기업 뉴스 (14일)</div>
+          <div style="font-size:10px;color:var(--text-muted);">Finnhub /company-news</div>
+        </div>
+        <div id="fund-rpt-news-body"></div>
       </div>
 
       <!-- ── 데이터 소스 요약 ── -->
@@ -9721,7 +9730,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.12';
+const APP_VERSION = 'v48.13';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -13159,7 +13168,37 @@ async function fetchFinnhubNews(category = 'general') {
 }
 
 // v47.10: fetchFinnhubCompanyNews 제거 — 정의만 있고 호출 0건 (dead code P112)
-// 향후 티커 상세 페이지에서 활용 시 재도입 고려 (Finnhub /company-news 무료 60/min)
+// v48.13: 재도입 — 기업 분석 페이지에서 '최근 기업 뉴스' 섹션에 활용 (Finnhub 무료 60/min)
+//         headline/datetime/source/url 수집 → _renderFundNews UI + AI 프롬프트 근거
+async function fetchFinnhubCompanyNews(symbol, daysBack) {
+  var key = DATA_APIS.finnhub.key();
+  if (!key) return [];
+  daysBack = daysBack || 14;
+  try {
+    var to = new Date().toISOString().slice(0,10);
+    var from = new Date(Date.now() - daysBack * 86400000).toISOString().slice(0,10);
+    var url = DATA_APIS.finnhub.base + '/company-news?symbol=' + encodeURIComponent(symbol) + '&from=' + from + '&to=' + to + '&token=' + key;
+    var r = await fetchWithTimeout(url, {}, 6000);
+    if (!r.ok) return [];
+    var d = await r.json();
+    if (!Array.isArray(d)) return [];
+    // 최신순 정렬 + 중복 제거(headline 기준) + 상위 15건
+    var seen = {};
+    var items = d.filter(function(n){ if (!n || !n.headline || seen[n.headline]) return false; seen[n.headline] = 1; return true; });
+    items.sort(function(a,b){ return (b.datetime||0) - (a.datetime||0); });
+    return items.slice(0, 15).map(function(n){
+      return {
+        headline: n.headline || '',
+        summary: (n.summary || '').replace(/\s+/g,' ').trim(),
+        url: n.url || '',
+        source: n.source || 'Finnhub',
+        datetime: n.datetime || 0,
+        date: n.datetime ? new Date(n.datetime * 1000).toISOString().slice(0,10) : '',
+        image: n.image || null
+      };
+    });
+  } catch(e) { console.warn('[AIO] Finnhub company-news error:', e.message); return []; }
+}
 
 // v48.0: Finnhub 무료 티어 확장 활용 — /stock/metric (PE/PB/ROE/52W 통합), /stock/recommendation (애널리스트), /calendar/earnings
 // FMP 유료 키 없는 사용자에게도 유사 품질의 밸류에이션 제공. 무료 60/min.
@@ -28058,7 +28097,7 @@ async function fundamentalSearch() {
     if (progressEl) progressEl.innerHTML = '<div style="color:#3ddba5;">캐시 사용: ' + _ageMin + '분 전 분석 결과 (FMP 무료 250/day 보호)</div>';
     var collected = _cached.data;
     window._fundAnalysisData = collected;
-    try { _renderFundHeader(collected); _renderFundSEC(collected); _renderFundFinancials(collected); _renderFundStatements(collected); _renderFundValuation(collected); _renderFundPeers(collected); _renderFundEarnings(collected); _renderFundSources(collected); } catch(e) { console.warn('[AIO] fund 캐시 렌더 실패:', e.message); }
+    try { _renderFundHeader(collected); _renderFundSEC(collected); _renderFundFinancials(collected); _renderFundStatements(collected); _renderFundValuation(collected); _renderFundPeers(collected); _renderFundEarnings(collected); if (typeof _renderFundNews === 'function') _renderFundNews(collected); _renderFundSources(collected); } catch(e) { console.warn('[AIO] fund 캐시 렌더 실패:', e.message); }
     if (loadingEl) loadingEl.innerHTML = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">캐시 데이터 (' + _ageMin + '분 전) — ' + (collected.sources||[]).length + '개 소스</div><div style="font-size:9px;color:var(--text-muted);">' + ((collected.sources||[]).join(' · ')) + '</div>';
     // AI 채팅 입력창 세팅 (기존 동작 유지)
     var _chatInpC = document.getElementById('chat-fundamental-inp');
@@ -28202,7 +28241,8 @@ async function fundamentalSearch() {
       var _fhResults = await Promise.allSettled([
         fetchFinnhubMetrics(ticker),
         fetchFinnhubRecommendation(ticker),
-        fetchFinnhubEarningsCalendar(_today, _90d, ticker)
+        fetchFinnhubEarningsCalendar(_today, _90d, ticker),
+        fetchFinnhubCompanyNews(ticker, 14)  // v48.13: 최근 14일 기업 뉴스
       ]);
       if (_fhResults[0].status === 'fulfilled' && _fhResults[0].value) {
         collected.finnhubMetrics = _fhResults[0].value;
@@ -28225,6 +28265,12 @@ async function fundamentalSearch() {
         collected.finnhubEarnings = _fhResults[2].value.slice(0, 5);
         collected.sources.push('Finnhub (어닝 일정)');
         updateProgress('어닝 일정: ' + collected.finnhubEarnings.length + '건 (향후 90일)');
+      }
+      // v48.13: 기업 뉴스 (최근 14일)
+      if (_fhResults[3] && _fhResults[3].status === 'fulfilled' && _fhResults[3].value && _fhResults[3].value.length > 0) {
+        collected.finnhubNews = _fhResults[3].value;
+        collected.sources.push('Finnhub (기업 뉴스)');
+        updateProgress('기업 뉴스: ' + collected.finnhubNews.length + '건 (최근 14일)');
       }
     } catch(e) { console.warn('[AIO] Finnhub 보조 조회 실패:', e.message); }
   }
@@ -28260,6 +28306,7 @@ async function fundamentalSearch() {
   _renderFundValuation(collected);
   _renderFundPeers(collected);
   _renderFundEarnings(collected);
+  if (typeof _renderFundNews === 'function') _renderFundNews(collected);  // v48.13
   _renderFundSources(collected);
 
   // ─── LLM에 실제 데이터 전달하여 종합 분석 요청 ───
@@ -28815,6 +28862,38 @@ function _renderFundEarnings(d) {
     html += '</table></div>';
   }
 
+  body.innerHTML = html;
+  el.style.display = 'block';
+}
+
+// v48.13: 최근 기업 뉴스 렌더 (Finnhub /company-news 14일) — 기존 _renderFund* 패턴 100% 준수
+function _renderFundNews(d) {
+  var el = document.getElementById('fund-rpt-news');
+  var body = document.getElementById('fund-rpt-news-body');
+  if (!el || !body || !d.finnhubNews || !d.finnhubNews.length) return;
+  var now = Date.now();
+  var html = '';
+  d.finnhubNews.slice(0, 10).forEach(function(n) {
+    var ageHours = n.datetime ? Math.round((now - n.datetime * 1000) / 3600000) : 0;
+    var ageLabel = ageHours < 24 ? ageHours + '시간 전' : Math.round(ageHours / 24) + '일 전';
+    var headlineSafe = escHtml((n.headline || '').substring(0, 140));
+    var summarySafe = n.summary ? escHtml(n.summary.substring(0, 180)) + (n.summary.length > 180 ? '…' : '') : '';
+    var sourceSafe = escHtml(n.source || '');
+    var urlSafe = n.url && /^https?:\/\//.test(n.url) ? n.url : '#';
+    html += '<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">';
+    html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">';
+    html += '<a href="' + escHtml(urlSafe) + '" target="_blank" rel="noopener" style="flex:1;font-size:12px;font-weight:700;color:var(--text-primary);text-decoration:none;line-height:1.4;">' + headlineSafe + '</a>';
+    html += '<span style="font-size:10px;color:var(--text-muted);white-space:nowrap;font-family:var(--font-mono);">' + ageLabel + '</span>';
+    html += '</div>';
+    html += '<div style="display:flex;justify-content:space-between;gap:10px;margin-top:4px;">';
+    html += '<span style="font-size:10px;color:var(--text-secondary);line-height:1.5;flex:1;">' + summarySafe + '</span>';
+    html += '</div>';
+    html += '<div style="font-size:9px;color:var(--text-muted);margin-top:3px;">' + sourceSafe + ' · ' + (n.date || '') + '</div>';
+    html += '</div>';
+  });
+  if (d.finnhubNews.length > 10) {
+    html += '<div style="font-size:10px;color:var(--text-muted);text-align:center;padding:6px 0;">+ ' + (d.finnhubNews.length - 10) + '건 더 (최신 14일)</div>';
+  }
   body.innerHTML = html;
   el.style.display = 'block';
 }
@@ -40806,49 +40885,175 @@ function bsGreeks(S, K, T, r, sigma, type) {
   return { delta:+delta.toFixed(4), gamma:+gamma.toFixed(5), theta:+theta.toFixed(4), vega:+vega.toFixed(4), rho:+rho.toFixed(4) };
 }
 // ── Phase 2-4: 포트폴리오 SPY 벤치마크 비교 차트 ──
-function updateBenchmarkChart() {
+// v48.13: 포트폴리오 vs SPY 벤치마크 차트 — 기존 stub 수정 + SPY 30일 실데이터 + 필드명 교정
+//   기존 버그: p.sym/p.avgCost/p.shares (getPortfolioData 실제 필드는 ticker/cost/qty) → 항상 0% 표시
+//   수정: 올바른 필드 참조 + SPY Yahoo chart 1mo 실데이터 + 포트폴리오 종목 Yahoo chart 병렬(최대 10종목)
+async function updateBenchmarkChart() {
   var canvas = document.getElementById('pf-benchmark-chart');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
   var W = canvas.width = canvas.parentElement.offsetWidth - 32;
   var H = canvas.height = 200;
   ctx.clearRect(0, 0, W, H);
-  // 포트폴리오 데이터 수집
-  var pfData = getPortfolioData ? getPortfolioData() : [];
-  var totalInvested = 0, totalCurrent = 0;
-  pfData.forEach(function(p) {
-    var cost = (p.avgCost || p.price) * (p.shares || 0);
-    var ld = (window._liveData || {})[p.sym];
-    var cur = ld ? ld.price * (p.shares || 0) : cost;
-    totalInvested += cost; totalCurrent += cur;
+
+  // 로딩 표시
+  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'center';
+  ctx.fillText('SPY 30일 실데이터 조회 중...', W/2, H/2);
+
+  // 포트폴리오 데이터 수집 (v48.13: 실제 필드명 ticker/qty/cost 사용)
+  var pfData = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
+  pfData = (pfData || []).filter(function(p){ return p && p.ticker && p.qty > 0 && p.cost > 0; });
+
+  if (pfData.length === 0) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = '12px Inter, sans-serif'; ctx.fillStyle = '#64748b'; ctx.textAlign = 'center';
+    ctx.fillText('포트폴리오가 비어 있습니다', W/2, H/2 - 6);
+    ctx.font = '10px Inter, sans-serif';
+    ctx.fillText('종목 추가 후 갱신 버튼 클릭', W/2, H/2 + 12);
+    return;
+  }
+
+  // SPY 30일 실데이터 (Yahoo chart)
+  var spySeries = null;
+  try {
+    var spyUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/SPY?interval=1d&range=1mo';
+    var r = await fetchViaProxy(spyUrl, 8000);
+    if (r && r.ok) {
+      var d = await r.json();
+      var closes = ((((d||{}).chart||{}).result||[])[0]||{}).indicators;
+      var arr = closes && closes.quote && closes.quote[0] && closes.quote[0].close;
+      if (arr && arr.length > 0) {
+        spySeries = arr.filter(function(v){ return v != null && !isNaN(v); });
+      }
+    }
+  } catch(e) {}
+  if (!spySeries || spySeries.length < 5) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#f87171'; ctx.textAlign = 'center';
+    ctx.fillText('SPY 시세 조회 실패 — 네트워크 확인', W/2, H/2);
+    return;
+  }
+  var spyBase = spySeries[0];
+  var spyPct = spySeries.map(function(v){ return (v - spyBase) / spyBase * 100; });
+
+  // 포트폴리오 30일 가중 수익률 (최대 10 종목 · 나머지는 현재 수익률 선형 분포)
+  var topTickers = pfData.slice().sort(function(a,b){
+    var ld_ = window._liveData || {};
+    var vA = (ld_[a.ticker] && ld_[a.ticker].price ? ld_[a.ticker].price : a.cost) * a.qty;
+    var vB = (ld_[b.ticker] && ld_[b.ticker].price ? ld_[b.ticker].price : b.cost) * b.qty;
+    return vB - vA;
+  }).slice(0, 10);
+  var topSymSet = {};
+  topTickers.forEach(function(p){ topSymSet[p.ticker] = true; });
+
+  var seriesPromises = topTickers.map(function(p){
+    var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(p.ticker) + '?interval=1d&range=1mo';
+    return fetchViaProxy(url, 6000).then(function(rr){
+      if (!rr || !rr.ok) return null;
+      return rr.json();
+    }).then(function(dd){
+      if (!dd || !dd.chart || !dd.chart.result || !dd.chart.result[0]) return null;
+      var ind = dd.chart.result[0].indicators;
+      var arr = ind && ind.quote && ind.quote[0] && ind.quote[0].close;
+      if (!arr) return null;
+      var clean = arr.filter(function(v){ return v != null && !isNaN(v); });
+      if (clean.length < 5) return null;
+      return { ticker: p.ticker, qty: p.qty, cost: p.cost, closes: clean };
+    }).catch(function(){ return null; });
   });
-  var pfReturn = totalInvested > 0 ? ((totalCurrent - totalInvested) / totalInvested * 100) : 0;
-  // SPY 수익률 (DATA_SNAPSHOT 기반)
-  var spyReturn = typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.spxPct || 0 : 0;
-  // 시뮬레이션 30일 곡선
-  var days = 30;
-  ctx.strokeStyle = '#3ddba5'; ctx.lineWidth = 2; ctx.beginPath();
-  for (var i = 0; i < days; i++) {
-    var x = i / (days-1) * W;
-    var y = H/2 - (pfReturn * (i+1)/days) * (H/4) / Math.max(Math.abs(pfReturn), Math.abs(spyReturn), 1);
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  var tickerSeries = await Promise.all(seriesPromises);
+  tickerSeries = tickerSeries.filter(function(s){ return s !== null; });
+
+  // 포트폴리오 현재가 기준 총 가치 (weight 계산용)
+  var ld = window._liveData || {};
+  var totalCurrentValue = 0;
+  pfData.forEach(function(p){
+    var cur = (ld[p.ticker] && ld[p.ticker].price > 0) ? ld[p.ticker].price : p.cost;
+    totalCurrentValue += cur * p.qty;
+  });
+
+  // 30일 포트폴리오 수익률 = top 종목들의 weighted daily % 합산 + 나머지는 현재 수익률 선형 분포
+  var L = Math.min(30, spySeries.length);
+  var pfPct = new Array(L).fill(0);
+  var coveredWeight = 0;
+  tickerSeries.forEach(function(s){
+    var curPrice = (ld[s.ticker] && ld[s.ticker].price > 0) ? ld[s.ticker].price : s.closes[s.closes.length-1];
+    var weight = (curPrice * s.qty) / totalCurrentValue;
+    coveredWeight += weight;
+    // 길이 맞추기 (종목별 거래일 달라질 수 있음)
+    var arr = s.closes.slice(-L);
+    var base = arr[0];
+    for (var i = 0; i < L; i++) {
+      var pct = ((arr[Math.min(i, arr.length-1)] - base) / base) * 100;
+      pfPct[i] += pct * weight;
+    }
+  });
+  // 미커버 부분: 현재 누적 수익률 / 30일 선형 분포
+  if (coveredWeight < 0.999) {
+    var uncovTotal = 0, uncovInvested = 0;
+    pfData.forEach(function(p){
+      if (topSymSet[p.ticker]) return;
+      var cur = (ld[p.ticker] && ld[p.ticker].price > 0) ? ld[p.ticker].price : p.cost;
+      uncovTotal += cur * p.qty;
+      uncovInvested += p.cost * p.qty;
+    });
+    var uncovReturn = uncovInvested > 0 ? ((uncovTotal - uncovInvested) / uncovInvested * 100) : 0;
+    var uncovWeight = 1 - coveredWeight;
+    for (var j = 0; j < L; j++) {
+      pfPct[j] += uncovReturn * (j / (L - 1)) * uncovWeight;
+    }
   }
-  ctx.stroke();
-  ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2; ctx.beginPath();
-  for (var i = 0; i < days; i++) {
-    var x = i / (days-1) * W;
-    var y = H/2 - (spyReturn * (i+1)/days) * (H/4) / Math.max(Math.abs(pfReturn), Math.abs(spyReturn), 1);
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  }
-  ctx.stroke();
+
+  // 렌더
+  ctx.clearRect(0, 0, W, H);
+  var allVals = pfPct.concat(spyPct.slice(-L));
+  var maxV = Math.max.apply(null, allVals);
+  var minV = Math.min.apply(null, allVals);
+  var range = Math.max(Math.abs(maxV), Math.abs(minV), 2);
+  var padding = 20;
+  var plotH = H - padding * 2;
+  var yZero = padding + plotH / 2;
+  var yScale = (plotH / 2) / range;
+
   // 0% 기준선
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
-  ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(0, yZero); ctx.lineTo(W, yZero); ctx.stroke(); ctx.setLineDash([]);
+
+  // SPY 선 (v48.13: --accent blue 계열 공통 팔레트)
+  var spyPlot = spyPct.slice(-L);
+  ctx.strokeStyle = '#60a5fa'; ctx.lineWidth = 2; ctx.beginPath();
+  for (var i = 0; i < L; i++) {
+    var x = (i / (L - 1)) * W;
+    var y = yZero - spyPlot[i] * yScale;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // 포트폴리오 선 (공통 녹색 팔레트)
+  ctx.strokeStyle = '#3ddba5'; ctx.lineWidth = 2.5; ctx.beginPath();
+  for (var i = 0; i < L; i++) {
+    var x = (i / (L - 1)) * W;
+    var y = yZero - pfPct[i] * yScale;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
   // 레이블
-  ctx.font = '10px Inter'; ctx.fillStyle = '#3ddba5';
-  ctx.fillText('내 포트폴리오: ' + pfReturn.toFixed(1) + '%', 8, 14);
-  ctx.fillStyle = '#3b82f6';
-  ctx.fillText('SPY: ' + spyReturn.toFixed(1) + '%', 8, 28);
+  var pfFinal = pfPct[L-1];
+  var spyFinal = spyPlot[L-1];
+  var alpha = pfFinal - spyFinal;
+  var alphaColor = alpha >= 0 ? '#3ddba5' : '#f87171';
+  ctx.textAlign = 'left';
+  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#3ddba5';
+  ctx.fillText('내 포트폴리오: ' + (pfFinal>=0?'+':'') + pfFinal.toFixed(1) + '% (30일)', 10, 16);
+  ctx.fillStyle = '#60a5fa';
+  ctx.fillText('SPY: ' + (spyFinal>=0?'+':'') + spyFinal.toFixed(1) + '% (30일)', 10, 32);
+  ctx.fillStyle = alphaColor;
+  ctx.fillText('Alpha: ' + (alpha>=0?'+':'') + alpha.toFixed(1) + '%p', 10, 48);
+
+  // 커버리지 표시
+  ctx.font = '9px Inter, sans-serif'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
+  ctx.fillText('일별 실데이터 커버리지: ' + (coveredWeight * 100).toFixed(0) + '% · Yahoo 30일', W - 10, H - 8);
 }
 
 // ── Phase 2-6: 가격 알림 시스템 ──
