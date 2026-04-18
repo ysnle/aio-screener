@@ -6,6 +6,69 @@
 
 ---
 
+## v48.17 — /integrate 35건 전수 반영 (v48.16 누락 24건 완전 처리) (2026-04-18)
+
+### 트리거
+사용자 지시: "35건의 자료 모두 분석하고 참고해서 반영한거야? 빠짐없이 다 해줘. 뉴스/소식 같은 경우 내용뿐만 아니라 파이프라인과 선별 기준과 같이 봤으면 해."
+
+v48.16에서 11건만 완전 반영됐음을 솔직히 인정, 나머지 24건 전수 처리 + 뉴스 파이프라인(소스/토픽 분류) 점검까지 포함한 보강 버전.
+
+### A. SCREENER_DB 추가 16개 티커 메모 갱신
+
+- **NVDA**: Citi Rubin CX9 논쟁(일부 2026→2027 이월) + LPU TSMC 이관 + Feynman EMIB
+- **CRWD**: WF 양쪽 독점 파트너(Anthropic Glasswing 창립 + OpenAI TAC 조기접근)
+- **ZS**: OpenAI TAC 14개 초기 파트너 진입 (Glasswing엔 제외)
+- **GLW**: JPM OW→N PT$115→$175 (광학 프리미엄 +83% 과열)
+- **FN**: JPM OW→N PT$530→$700 + Negative Catalyst Watch
+- **DELL**: JPM PT$165→$205 (AI 서버 + 메모리 비용 전가 최선호)
+- **APH**: JPM AFL 2위 PT$185→$190 (Amphenol 정정 — 이전 Aphria/Tilray 오표기 수정)
+- **ANET**: JPM AFL 1위 PT$190→$200 (2026/2027 35%+ 매출, MSFT/OpenAI/Anthropic NeoCloud)
+- **NTAP**: JPM OW→N PT$125→$110 (NAND 계약가 C4Q25 +36% → C2Q26 +73% → FY27 GPM -200bps)
+- **QCOM**: JPM OW→N PT$185→$140 + Negative Catalyst (ARM AGI CPU + Nvidia Groq LPX 경쟁)
+- **STX**: JPM Positive Catalyst PT$525→$600 (HAMR 전환 주도 F3Q/F4Q GPM 긍정)
+- **WDC**: JPM PT$320→$400 (HDD 2위 HAMR 전환)
+- **삼성전자**: GS 미국 투자자 SEC>HXSCL 선호 (HBM4 리더십 + 주주환원 임박)
+- **SK하이닉스**: GS 높은 베타 + ADR 상장 잠재 밸류에이션
+- **MRVL**: **Google TPU 신규 설계 벤더 승격(MediaTek급)** + Google LPU 논의 범위
+- **CDW**: JPM Positive Catalyst (IT 디스트리뷰터 최선호)
+
+### B. CHAT_CONTEXTS 프레임워크 3건 추가 (§74-§76)
+
+- **§74 JPM 하드웨어/네트워킹 AI 밸류에이션 로테이션**: 펀더멘털 < 밸류에이션 드라이버 · 광→HDD/EMS/DELL 순위 재편 · 광 프리미엄 +83% 과열 · 2028년 이익 전제 필요
+- **§75 FactSet 어닝 — NVDA 제외 매그7 역전**: NVDA 뺀 매그6 성장률 6.4% < 나머지 493개사 10.1% · 긍정적 서프라이즈 주가 반응 -0.2%(5년 평균 +1.0% 대비) · "좋은 실적은 이미 가격에 반영"
+- **§76 테라팹 + DC 규제 — 반도체 장비주 Capex 촉매**: 머스크 TSLA+SpaceX JV 장비 수요 신규 출현 + Maine 20MW+ DC 모라토리엄 · 12개 주 검토 → 온사이트 발전(Wartsila 34SG 412MW 오하이오) 신규 수요
+
+### C. macro 시스템 프롬프트 신규 섹션 2건
+
+- **Fed 경로 씨티 4/18 재조정**: 호르무즈 재개통 후 극적 가격 오류 정상화 → 연말 -75bp 인하 전망(씨티 공식 뷰). Warsh 청문회 + 근원 PCE + 노동시장 이완
+- **2% 물가목표 구조적 붕괴 + Data Dependence 딜레마**: 2% 목표 = 90년대 뉴질랜드 임의 출발 → 2010년대 중반 "착하게" 미덕 전환 → 중물가 시대. Forward Guidance 실패(2021-2022) vs Data Dependence 역풍(현재). "2%가 정상"이라는 가정 자체 검토
+
+### D. 뉴스 파이프라인 보강 (사용자 명시 요청)
+
+**AIO_NEWS_SOURCES 추가**:
+- Washington Post Politics (tier:1, macro/policy/geo) — Maine DC 규제 등 주·연방 정책
+- Washington Post Business (tier:1, macro/equity)
+
+**TOPIC_KEYWORDS.macro 추가 14개+**:
+- `data center ban`, `DC moratorium`, `grid connection delay`, `Maine DC`, `Virginia DC`, `Ohio DC`, `state moratorium`, `DC siting`
+- `data dependence`, `forward guidance failure`, `2% inflation target`, `mid-inflation`
+- 한국어: 데이터센터 금지/DC 규제/전력망 부하/중물가/2% 물가목표/데이터 디펜던스
+
+**TOPIC_KEYWORDS.semi 추가 20개+**:
+- MTIA/Meta MTIA/Rubin CPX/Vera Rubin/NVLink Fusion/CX9 (커스텀 실리콘 로드맵)
+- HBF/high bandwidth flash/DustPhotonics/ZR optical/x402 (신규 기술)
+- Google Cloud Next/Google I/O/Marketing Live/Brandcast/Ask Maps/Search Live/Personal Intelligence (2026 이벤트)
+- OpenAI TAC/Project Glasswing/Trust Access (AI 보안)
+- 위성통신: satellite/D2D/Direct-to-Device/LEO/low earth orbit/Globalstar/Amazon LEO/Project Kuiper (AMZN LEO 인수 커버)
+
+### 검증
+
+- 뉴스 분류 예시: Maine DC 금지 → `macro`(DC moratorium 히트), 머스크 테라팹 → `semi`(Terafab 히트), Wartsila DC → `energy`(data center power 히트), AMZN Globalstar → `semi`(D2D/LEO 히트), TSMC vs 삼성 Groq → `semi` (이미 커버)
+- Washington Post 소스 추가로 주 정부 정책 뉴스 피드 누락 해소
+- 광학주 과열 + HDD 재평가 로테이션 프레임워크 §74 반영으로 AI 인프라 섹터 회전 가시화
+
+---
+
 ## v48.16 — /integrate 35건 리서치 자료 통합 (Citi/JPM/BofA/Mizuho/GS/DA Davidson/Bernstein/TD Cowen/WF) (2026-04-18)
 
 ### 트리거
