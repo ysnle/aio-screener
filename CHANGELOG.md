@@ -6,6 +6,62 @@
 
 ---
 
+## v48.20 — /integrate + 뉴스 파이프라인 미반영 누락 완전 보강 (2026-04-19)
+
+### 트리거
+사용자 피드백: "이전 35개 자료 전방위 반영과 이번 뉴스 파이프라인 전수 조사 모두 남은 부분 없이 완벽하게? 관련 함수/로직/기준들도 같이?"
+→ 정직하게 반성: v48.18/v48.19는 macro 프롬프트와 텔레그램/아시아/EU 필터만 반영. 6개 다른 페이지 CHAT_CONTEXT, 티커 overlap 신규 오탐 위험, 클릭베이트 패턴 등 미반영. v48.20에서 완전 보강.
+
+### A. 공용 맥락 함수 도입 (단일 진실 원천)
+
+`_getV48IntegratedContext(pageFocus)` — 35건 리서치 핵심 프레임워크를 12줄 common 블록으로 정리 + 페이지별 focus 블록 7종 제공:
+- **common** (모든 페이지 공용):
+  - Citi 자산배분(미국 OW↑, EM 중립↓, 매그7 PEG GFC 후 저점 = 역설적 퀄리티 매수)
+  - Fed 경로 씨티 4/18 재조정(호르무즈 재개통 → 연말 -75bp)
+  - 2% 물가목표 구조적 붕괴 + Data Dependence 딜레마
+  - AI 인프라 공급 가시성(AVGO-Meta MTIA 2029+, TSMC 3년 Capex $190-200B, ASML 조기 상향)
+  - HBM+HBF 3계층 메모리 + 메모리 LTA 레버리지 역전(SEC>HXSCL)
+  - NVDA 제외 매그7 역전(6.4% < 10.1%), 긍정 서프라이즈 주가 반응 -0.2%
+  - JPM 하드웨어 로테이션(광→HDD/EMS/DELL)
+  - DC 규제+테라팹(Maine 모라토리엄/Wartsila 34SG)
+  - AI 보안 표준화(OpenAI TAC + Anthropic Glasswing, CRWD 양쪽)
+  - MRVL Google TPU 설계 벤더 승격 + LPU 논의
+  - 예정 이벤트(Cloud Next/FOMC/GOOGL 1Q/I/O)
+- **focus** 7종: technical(베어마켓 체크리스트 8/18), fundamental(JPM Top10, NVDA 집중도), fxbond(Fed 재조정, FX 전망), sentiment(매그7 집중도, 유포리아), themes(AI 인프라 가시성, HBF, 광→HDD), kr-macro(메모리 LTA 역전, SEC HBM4), kr-themes(한국 반도체 슈퍼사이클)
+
+### B. 5개 CHAT_CONTEXT에 맥락 주입
+
+각 페이지 system 함수의 `_getChatRules()` 직전에 `_getV48IntegratedContext('XXX')` 호출 삽입:
+- `technical` → focus: 'technical'
+- `fundamental` → focus: 'fundamental'
+- `themes` → focus: 'themes'
+- `fxbond` → focus: 'fxbond'
+- `sentiment` → focus: 'sentiment'
+
+효과: 각 페이지 AI 챗 질의 시 35건 리서치 핵심 프레임워크를 자동 인용. macro CHAT_CONTEXT는 v48.16/v48.18에서 이미 충분히 업데이트됨.
+
+### C. 파이프라인 안전장치 보강
+
+- **`_TICKER_WORD_OVERLAP`** +7개 오탐 위험 티커: KEYS(Keysight, "keys to success") / TEL(TE Connectivity, "tell") / TER(Teradyne) / APH(Amphenol) / CLS(Celestica) / JBL(Jabil) / DELL / ON / IT / AI
+- **`_TICKER_AMBIGUOUS`** +10개 모호 티커: FLEX/CELL/ARE/HOLD/RARE/REAL/TRUE/LIFE/BEST/SAFE — 금융 문맥 확인 필수
+- **`NEWS_BLACKLIST_KW`** +13개 2026 AI 클릭베이트 패턴: 'ai stock to buy now', 'next ai winner', 'ai stock of the decade', '100x ai stock', 'ai millionaire', 'quantum stock to buy', 'ai picks under $', 'AI 황제주', 'AI 대박주', 'AI 차세대 황제', '양자 대장주', '암호화폐 무료'
+
+### D. KR_THEME_CATALYSTS 3개 테마 갱신
+
+- **semi**: GS 미국 투자자 SEC>HXSCL 선호(HBM4 리더십+주주환원 임박) + 메모리 LTA 레버리지 역전 + TSMC C.C.Wei "차세대 LPU 고객 긴밀 협력"=삼성 Groq 단기 경계
+- **power-grid**: Maine 주 20MW+ DC 모라토리엄 통과(최소 12개 주 검토) + 온사이트 발전(Wartsila 34SG 412MW 오하이오) 신수요
+- **photonics_kr**: JPM 광학 프리미엄 +83% 과열 → 2028년 이익 전제 필요(GLW/FN OW→N)
+
+### E. 파이프라인 건전성 검증 결과 (모두 견고함)
+
+- **NewsStore._deadFeeds**: errorCount≥3 자동 비활성화, health() 리포팅 ✓
+- **중복 제거**: link/url 정규화 후 seen Set 차단, title 길이<5 품질 필터 ✓
+- **번역 폴백 4단계**: 성공→한국어 / 실패→`[EN] 원문` / 중→`[번역 중] 원문` / 이미 한국어→원문 ✓
+- **getDisplayTickers**: API 번역 캐시 티커 + 로컬 extractTickers 항상 병합(캐시 유무 무관) ✓
+- **getDisplayDesc/Summary**: 번역 실패 시 원문 설명 축약 폴백 ✓
+
+---
+
 ## v48.19 — 뉴스 파이프라인 심층 점검 + 버그 3개 수정 + KR_TICKER_MAP 대폭 확장 (2026-04-18)
 
 ### 트리거
