@@ -6403,10 +6403,10 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- v31.9: 데이터 소스 고지 배너 -->
+  <!-- v31.9: 데이터 소스 고지 배너 · v48.15: 스냅샷 경과일 자동 표시 (텍스트-C) -->
   <div id="opt-data-notice" style="padding:8px 12px;margin-bottom:12px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius);font-size:9px;color:#fbbf24;line-height:1.5;">
-    <strong>데이터 안내:</strong> VIX·VVIX는 실시간 (Yahoo Finance). IV Rank, Greeks, Skew, GEX, 옵션 흐름은 <strong>참고용 추정치</strong>입니다. 정확한 옵션 데이터는 CBOE, ThinkorSwim, Interactive Brokers 등 전문 플랫폼을 이용하세요.
-    <span id="opt-update-time" style="margin-left:8px;color:var(--text-muted);">마지막 업데이트: —</span>
+    <strong>데이터 안내:</strong> VIX·VVIX는 실시간 (Yahoo Finance). IV Rank, Greeks, Skew, GEX, 옵션 흐름은 <strong>참고용 추정치 · 주간 수동 갱신</strong>입니다. 정확한 옵션 데이터는 CBOE, ThinkorSwim, Interactive Brokers 등 전문 플랫폼을 이용하세요.
+    <span id="opt-update-time" style="margin-left:8px;color:var(--text-muted);">스냅샷: <span data-snap-date="option-snapshot">2026-04-15</span> · <span id="option-snapshot-stale-days">경과 계산중</span></span>
   </div>
 
   <!-- SECTION 2: CORE METRICS DASHBOARD -->
@@ -6495,7 +6495,7 @@ body.light-theme canvas { filter:none; }
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <div style="font-size:12px;font-weight:700;color:var(--text-primary);">변동성 스큐 · 헤징 수요 분석</div>
-      <span style="font-size:8px;color:var(--text-muted);background:rgba(255,255,255,0.04);padding:2px 8px;border-radius:4px;"> 스냅샷 데이터 · 실시간 아님</span>
+      <span style="font-size:8px;color:var(--text-muted);background:rgba(255,255,255,0.04);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-15</span> · 실시간 아님</span>
     </div>
     <div style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:11px;">
@@ -6551,7 +6551,7 @@ body.light-theme canvas { filter:none; }
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <div style="font-size:12px;font-weight:700;color:var(--text-primary);">옵션 흐름 · 이상 활동 추적</div>
-      <span style="font-size:8px;color:var(--text-muted);background:rgba(255,255,255,0.04);padding:2px 8px;border-radius:4px;"> 스냅샷 · 실제 흐름은 CBOE/TOS 참조</span>
+      <span style="font-size:8px;color:var(--text-muted);background:rgba(255,255,255,0.04);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-15</span> · 실제 흐름은 CBOE/TOS</span>
     </div>
     <div style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:10px;">
@@ -6640,7 +6640,10 @@ body.light-theme canvas { filter:none; }
 
   <!-- SECTION 6: GREEKS SENSITIVITY PANEL -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">Greeks 감도 패널 · 위험도 분석</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-primary);">Greeks 감도 패널 · 위험도 분석</div>
+      <span style="font-size:8px;color:var(--text-muted);background:rgba(255,255,255,0.04);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-15</span></span>
+    </div>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px;">
       <!-- SPY ATM Options -->
       <div style="padding:12px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:8px;">
@@ -6862,7 +6865,10 @@ body.light-theme canvas { filter:none; }
 
   <!-- SECTION 8: INDIVIDUAL STOCK IV TABLE (ENHANCED) -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">개별 종목 IV 현황 · 실적일정 · 크러시 위험</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-primary);">개별 종목 IV 현황 · 실적일정 · 크러시 위험</div>
+      <span style="font-size:8px;color:var(--text-muted);background:rgba(255,255,255,0.04);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-15</span></span>
+    </div>
     <div style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:10px;">
         <thead>
@@ -7681,19 +7687,19 @@ body.light-theme canvas { filter:none; }
         <div style="display:grid;gap:8px;">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;">
             <span style="font-size:11px;color:var(--text-secondary);">소비자물가지수 (CPI)</span>
-            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);">+2.1% YoY</span>
+            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);" data-snap="kr-cpi-yoy">+2.1% YoY</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;">
             <span style="font-size:11px;color:var(--text-secondary);">생산자물가지수 (PPI)</span>
-            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);">+1.5% YoY</span>
+            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);" data-snap="kr-ppi-yoy">+1.5% YoY</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;">
             <span style="font-size:11px;color:var(--text-secondary);">핵심물가지수</span>
-            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);">+1.4% YoY</span>
+            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);" data-snap="kr-core-cpi">+1.4% YoY</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;">
             <span style="font-size:11px;color:var(--text-secondary);">기타공공서비스요금</span>
-            <span style="font-size:14px;font-weight:700;color:var(--red);font-family:var(--font-mono);">+3.2% YoY</span>
+            <span style="font-size:14px;font-weight:700;color:var(--red);font-family:var(--font-mono);" data-snap="kr-service-price">+3.2% YoY</span>
           </div>
         </div>
         <div style="margin-top:10px;padding:8px;background:rgba(91,168,255,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
@@ -7706,15 +7712,15 @@ body.light-theme canvas { filter:none; }
         <div style="display:grid;gap:8px;">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;">
             <span style="font-size:11px;color:var(--text-secondary);">제조업 PMI</span>
-            <span style="font-size:14px;font-weight:700;color:var(--green);font-family:var(--font-mono);">51.1</span>
+            <span style="font-size:14px;font-weight:700;color:var(--green);font-family:var(--font-mono);" data-snap="kr-manuf-pmi">51.1</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;">
             <span style="font-size:11px;color:var(--text-secondary);">서비스업 PMI</span>
-            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);">51.2</span>
+            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);" data-snap="kr-service-pmi">51.2</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;">
             <span style="font-size:11px;color:var(--text-secondary);">GDP 성장률 (전분기 대비)</span>
-            <span style="font-size:14px;font-weight:700;color:var(--red);font-family:var(--font-mono);">-0.3%</span>
+            <span style="font-size:14px;font-weight:700;color:var(--red);font-family:var(--font-mono);" data-snap="kr-gdp-qoq">-0.3%</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;">
             <span style="font-size:11px;color:var(--text-secondary);">실업률</span>
@@ -7776,12 +7782,12 @@ body.light-theme canvas { filter:none; }
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">미국 10년물</div>
-          <div id="kr-macro-us10y" style="font-size:26px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">4.41%</div>
+          <div id="kr-macro-us10y" style="font-size:26px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="tnx">4.41%</div>
           <div style="font-size:9px;color:var(--text-muted);">Fed 정책 금리와 연관</div>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">한국 3년물</div>
-          <div id="kr-macro-kr3y" style="font-size:26px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">2.82%</div>
+          <div id="kr-macro-kr3y" style="font-size:26px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="kr-bond-3y">2.82%</div>
           <div style="font-size:9px;color:var(--text-muted);">한국은행 기준금리와 유관</div>
         </div>
       </div>
@@ -10692,6 +10698,12 @@ function applyDataSnapshot() {
       'kr-52w-low':    _snap.fixed(S.kr52wLow || 72, 0) + '개',
       'kr-advance':    _snap.fixed(S.krAdvance || 684, 0) + '개',
       'kr-decline':    _snap.fixed(S.krDecline || 481, 0) + '개',
+      // v48.15: kr-macro 페이지 세부 지표 data-snap 바인딩 (텍스트-B)
+      'kr-cpi-yoy':    (S.krCpi > 0 ? '+' : '') + _snap.fixed(S.krCpi, 1) + '% YoY',
+      'kr-ppi-yoy':    (S.krPpi > 0 ? '+' : '') + _snap.fixed(S.krPpi, 1) + '% YoY',
+      'kr-manuf-pmi':  _snap.fixed(S.krPmi, 1),
+      'kr-gdp-qoq':    (S.krGdp > 0 ? '+' : '') + _snap.fixed(S.krGdp, 1) + '%',
+      'kr-bond-3y':    _snap.fixed(S.krBond3y, 2) + '%',
     };
     document.querySelectorAll('[data-snap]').forEach(el => {
       const key = el.getAttribute('data-snap');

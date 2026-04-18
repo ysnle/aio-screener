@@ -1,16 +1,16 @@
 ---
 verified_by: agent
-last_verified: 2026-04-11
+last_verified: 2026-04-18
 confidence: high
 auto_refresh: true
-target_version: v46.5
+target_version: v48.14
 ---
 
 # _context/ 지식 베이스 인덱스
 
 > **목적**: _context/ 폴더 내 모든 문서의 역할, 상태, 연결 관계를 한눈에 파악.
 > **갱신 주기**: `/knowledge-lint` 실행 시 자동 갱신 (L6 단계).
-> **마지막 갱신: 2026-04-11 (v46.5) — 뉴스 파이프라인 보강 + 브리핑 UX + 13건 통합 + BUG P77~P81 + KB Q2 패러다임 2건.
+> **마지막 갱신**: 2026-04-18 (v48.14) — 월가 기관 수준 아키텍처 전면 보강 + 테마 DB 확장 + P126~P131 + 16개 신규 인프라.
 
 ---
 
@@ -18,20 +18,19 @@ target_version: v46.5
 
 | 문서 | 역할 | 갱신일 | 신뢰도 |
 |------|------|--------|--------|
-| [RULES.md](RULES.md) | 마스터 룰 R1~R27 — 모든 작업의 최상위 규칙 | 2026-04-09 | high |
-| [BUG-POSTMORTEM.md](BUG-POSTMORTEM.md) | 버그 사후 분석 P1~P81 — 예방 규칙(P) 원천 | 2026-04-11 | high |
-| [QA-CHECKLIST.md](QA-CHECKLIST.md) | 실행 가능한 QA 체크리스트 v3.3 — 브라우저 검증 포함 | 2026-04-09 | high |
-| [CLAUDE.md](CLAUDE.md) | _context/ 컨텍스트 — 파일 구조 / Hook / 문서 역할 | 2026-04-11 | high |
+| [RULES.md](RULES.md) | 마스터 룰 R1~R31 — 모든 작업의 최상위 규칙 | 2026-04-18 | high |
+| [BUG-POSTMORTEM.md](BUG-POSTMORTEM.md) | 버그 사후 분석 P1~P131 — 예방 규칙(P) 원천 | 2026-04-18 | high |
+| [QA-CHECKLIST.md](QA-CHECKLIST.md) | 실행 가능한 QA 체크리스트 v3.3 — 브라우저 검증 포함 | 2026-04-18 | high |
+| [CLAUDE.md](CLAUDE.md) | _context/ 컨텍스트 — 파일 구조 / Hook / 문서 역할 | 2026-04-18 | high |
 | [KNOWLEDGE-BASE.md](KNOWLEDGE-BASE.md) | 기술 인사이트 축적 — AI인프라 패러다임, SW Shock 포함 | 2026-04-11 | high |
-| [CODE-MAP.md](CODE-MAP.md) | **index.html 39,513줄 line 범위 맵 — 부분 읽기 가이드** | 2026-04-11 | high |
+| [CODE-MAP.md](CODE-MAP.md) | **index.html ~44,400줄 line 범위 맵 — 부분 읽기 가이드** | 2026-04-18 | high |
 
-## 운영 문서
+## 세션 인수인계 문서
 
 | 문서 | 역할 | 갱신일 |
 |------|------|--------|
-| [working-rules.md](working-rules.md) | 작업 규칙 — 백업, 변경기록, 자료 분류, 버전 관리 | 2026-04-09 |
-| [voice-and-style.md](voice-and-style.md) | 코딩 스타일 가이드 — 네이밍, 포맷 | 2026-03-24 |
-| [INDEX.md](INDEX.md) | 이 파일 — 지식 베이스 자동 인덱스 | 2026-04-09 |
+| [NEXT-SESSION-v48.14.md](NEXT-SESSION-v48.14.md) | v48.14 → v48.15 세션 이어받기 노트 (P2 후속 + 장기 로드맵) | 2026-04-18 |
+| [INDEX.md](INDEX.md) | 이 파일 — 지식 베이스 자동 인덱스 | 2026-04-18 |
 
 ## archive-reports/ (44+건, 아카이브 전용)
 

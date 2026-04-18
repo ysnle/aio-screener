@@ -1,14 +1,15 @@
 ---
 verified_by: agent
-last_verified: 2026-04-14
+last_verified: 2026-04-18
 confidence: high
+target_version: v48.14
 ---
 
 # AIO Screener — 마스터 룰 (RULES.md)
 # 모든 작업 전 이 파일을 먼저 읽고 시작할 것
 
 > **목적**: 반복되는 실수를 방지하고, 점검·QA·수정 작업의 품질을 보장하기 위한 최상위 규칙
-> **최종 수정**: v42.1 (2026-04-05)
+> **최종 수정**: v48.14 (2026-04-18) — knowledge-lint 자동 갱신
 
 ---
 
