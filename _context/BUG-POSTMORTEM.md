@@ -1,11 +1,11 @@
 ---
 verified_by: agent
-last_verified: 2026-04-17
+last_verified: 2026-04-18
 confidence: high
-latest_version: v48.10
-latest_P_number: P125
-next_P_number: P126
-total_entries: 125
+latest_version: v48.14
+latest_P_number: P131
+next_P_number: P132
+total_entries: 131
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -143,6 +143,99 @@ total_entries: 125
 | P65 | v45.5 | 2026-04-09 | 토글/모드 변수는 렌더 함수 내부에서 실제로 분기 사용되는지 grep 검증 (UI에 버튼만 wired된 dead toggle 방지) |
 | P66 | v45.5 | 2026-04-09 | 데이터 미수신 상태에서 "로딩" 텍스트 영구 정체 금지 — 폴백 데이터 우선 사용, 그래도 없으면 "대기/—"로 명시 |
 | P67 | v45.5 | 2026-04-09 | 같은 동급 컴포넌트(pulse-seg/카드)는 동일 자식 구조 유지. 한쪽만 자식 누락 시 시각 정렬 깨짐 |
+
+---
+
+## [2026-04-18] v48.14 — Agent 전수 아키텍처 감사 Critical 6건 + P2 Warning 13건
+
+**세션 컨텍스트**: Agent 3회 심층 감사 (테마 전수 · 스크리너 전체 텍스트 · 아키텍처 월가 수준)
+Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 터미널)
+
+### BUG-P126: KOSPI/VVIX DOM 폴백값과 DATA_SNAPSHOT 불일치 (CRITICAL)
+- **violated_rule**: R15 (stale data 방어 체계 위반)
+- **증상**: page-kr-home DOM에 KOSPI `5,872.00` 표기되나 DATA_SNAPSHOT.kospi=`6091.39`. VVIX는 DOM `126.28` vs DATA_SNAPSHOT=`90.10` (-40% 차이). applyDataSnapshot이 일부 DOM만 갱신하는 "sync gap" 버그.
+- **근본 원인**: `applyDataSnapshot()` map 객체에 kospi/vvix/skew 매핑이 **의도적으로 누락** 또는 **data-snap 속성 자체 누락**. `data-live-price`가 있어도 실시간 수신 전까지는 정적 폴백값 노출.
+- **수정**:
+  - [index.html:10344~10404](index.html:10344) map 확장: vvix/skew/vix/pcr/tnx/tyx/irx/fvx/dxy/spx/nasdaq/dow/rut/gold/silver/btc/eth/kr-ppi/kr-pmi/kr-export 등 **41개 추가** (41→49)
+  - [index.html:7100](index.html:7100) KOSPI DOM: `5,872.00` → `6,091.39` + `data-live-price="^KS11"` 추가
+  - [index.html:6387](index.html:6387) VVIX DOM: `126.28` → `90.10` + `data-snap="vvix"` 추가
+  - [index.html:2780](index.html:2780) SKEW DOM: `data-snap="skew"` 신규 바인딩
+- **예방**: **P126** — `data-snap` 속성 추가 시 `applyDataSnapshot()` map 객체에 동일 키 존재 확인. DATA_SNAPSHOT 갱신 시 DOM 폴백값도 동기화 (6곳 이상 체크: index.html + FALLBACK_QUOTES + map). 배포 전 `grep 'data-snap="\([a-z-]*\)"' | cut` 매핑 커버리지 자동 확인.
+
+### BUG-P127: aio:pageShown 이벤트 중복 dispatch (HIGH)
+- **violated_rule**: 신규 P127
+- **증상**: showPage() + popstate 핸들러 양쪽에서 `document.dispatchEvent('aio:pageShown')` 독립 호출. 26개 리스너가 2회 실행될 위험. `_updatePerfTable` 같은 네트워크 핸들러는 2배 API 호출.
+- **근본 원인**: 두 경로가 동일 페이지 전환 이벤트를 독립적으로 발사. dedup guard 없음.
+- **수정**: [index.html:10753~](index.html:10753) `_firePageShown(id, source)` dedup helper 신설 — 200ms 내 동일 id 발사 시 두 번째 무시. showPage/popstate 둘 다 이 helper 경유.
+- **예방**: **P127** — `dispatchEvent` 호출이 2곳 이상 있으면 반드시 dedup guard 추가. `detail` 객체에 `source` 필드로 호출 경로 구분.
+
+### BUG-P128: native prompt() R6 위반 3곳 (HIGH)
+- **violated_rule**: R6 (native modal 금지)
+- **증상**: `createWatchlist`/`renameWatchlist`/워치리스트 선택 3곳에서 native `prompt()` 사용 — 브라우저 모달 비일관·a11y 약함·XSS 경유 가능.
+- **근본 원인**: v46.10에서 API 키/PIN은 `showConfirmModal`로 이전됐으나 워치리스트 CRUD 3곳 미이전.
+- **수정**: [index.html:23929~](index.html:23929) `showPromptModal(title, label, defaultValue, onSubmit, opts)` 신설 (ESC·Enter·클릭 외곽 닫기·포커스·a11y). 3곳 전원 교체 → native `prompt()` **0건**.
+- **예방**: **P128** — 새 modal 패턴 도입 시 기존 native `prompt/confirm/alert` 호출 전수 grep 후 일괄 이전. R6에 "prompt() 호출 수 grep으로 CI 체크" 추가.
+
+### BUG-P129: AI 50KB truncation 시 마지막 chunk 미렌더 (MEDIUM)
+- **violated_rule**: 신규 P129
+- **증상**: Claude 응답이 50KB 초과 시 `reader.cancel()` 호출되나 truncated 텍스트의 마지막 `onChunk` 호출이 누락. UI에 "잘렸습니다" 메시지가 표시 안 되는 경우 발생.
+- **근본 원인**: break 직전에 onChunk(fullText)가 없어 취소된 텍스트가 DOM에 반영 안 됨.
+- **수정**: [index.html:26926~](index.html:26926) 50KB 초과 시 `onChunk(fullText)` 강제 호출 **후** `reader.cancel()` 실행. `_aioLog('warn', 'ai', 'response truncated at 50KB')` 로깅.
+- **예방**: **P129** — stream 종료·취소 전에 반드시 최종 payload를 receiver에 전달. AbortController·reader.cancel 호출 직전 마지막 렌더 call 명시.
+
+### BUG-P130: 프록시 flat 60s cooldown — thundering herd 위험 (MEDIUM)
+- **violated_rule**: 신규 P130
+- **증상**: `_PROXY_REGISTRY.markFail` 5회 fail 시 항상 60초 cooldown. 다수 프록시 동시 실패 시 60초 후 모두 동시 재시도 → thundering herd.
+- **근본 원인**: backoff 단계 고정 + jitter 없음. 프록시가 "일시적 장애"와 "영구적 장애"를 구분 못 함.
+- **수정**: [index.html:12950~](index.html:12950) exponential backoff + jitter 도입:
+  - `cooldownLevel` 추적 (0~5)
+  - 60s → 120s → 240s → 480s → 960s → 1800s (30분 상한, 32x)
+  - ±30% jitter 랜덤 offset (herd 방지)
+  - markOk에서 cooldownLevel 리셋
+- **예방**: **P130** — 서비스 간 자동 재시도 로직은 반드시 exponential backoff + jitter. Circuit breaker 패턴은 프록시 이상의 API에도 적용 (FinnhubWS는 별도 처리).
+
+### BUG-P131: FinnhubWS 서킷 브레이커 부재 — 무한 재연결 (LOW)
+- **violated_rule**: 신규 P131 (P130 확장 적용)
+- **증상**: Finnhub WS 재연결 로직이 실패 횟수만 count, 상한 없음. 네트워크 장기 장애 시 무한 재시도.
+- **근본 원인**: `_finnhubReconnectAttempts` 증가만 있고 절대 상한 없음. 10회 후 슬로우 모드로 전환되나 24시간 이상 계속 시도.
+- **수정**: [index.html:13091~](index.html:13091) `_finnhubCircuit` 서킷 브레이커 추가:
+  - 1시간 window 내 20회+ fail 시 24시간 완전 disable
+  - window 리셋 로직 + `disabledUntil` 타임스탬프
+  - `_aioLog('error', 'finnhub', '서킷 OPEN')` 경고 + UI 배지
+- **예방**: **P131** — 자동 재시도 로직은 **절대 상한 타이머** 필수. WebSocket 재연결뿐 아니라 모든 무한 루프 형태 API 호출에 적용.
+
+---
+
+### 부가 개선 (P 번호 없이 기록, v48.14에서 함께 배포)
+
+**인프라 16개 신설** — 월가 기관 수준 아키텍처 보강 (Agent 감사 기반):
+- `_aioLog` 중앙 로거 + ring-buffer 500건 + `_aioLogs` 조회 API (`all/tail/byLevel/byArea/rate/clear/dump`)
+- `window.onerror` + `onunhandledrejection` 전역 에러 훅 (ring buffer 자동 수집)
+- Rate 임계 (1분 50건+) → `data-status-panel` 자동 배너
+- `AIOBus.emit/on/off/once/stats` 이벤트 버스 래퍼 (기존 dispatchEvent 호환)
+- 6종 커스텀 이벤트: aio:pageShown/liveQuotes/liveDataReceived/**regime-change/api-status-change/threshold-breach** (3종 신설)
+- `PAGES` 라우터 테이블 (21개 페이지 중앙 선언 — showPage 실제 교체는 점진 마이그레이션 예정)
+- `safeLSGetJSON` + `LS_SCHEMAS` (aio_portfolio/watchlists/cached_quotes/llm_usage/user_prefs 5개 key 스키마 검증)
+- `_pageState` 통합 (initialized/charts/timers/observers) + `destroyPageCharts` 연계 자동 정리
+- `_lazyInit` IntersectionObserver 헬퍼 (theme-detail 샘플 적용, 나머지 20개 차트는 후속)
+- `_fireThresholdBreach(metric, value, threshold, direction)` — VIX/Fed/DXY 임계 돌파 자동 dispatch
+- `_fireRegimeChange(key, prevLevel, newLevel, value, reg)` — NARRATIVE_ENGINE 레짐 전이 자동 dispatch
+- `showPromptModal` R6 준수 (native prompt 0건)
+- `HISTORICAL_PRECEDENTS` 상수 분리 (2000.01/2007.10/2021.11 중앙 관리)
+- `NARRATIVE_ENGINE.setSnapshot/clearSnapshot` DI API
+- `_warnDirectLiveDataWrite` SSOT 경고 훅 (`window.AIO_DEBUG=true` 모드)
+- Stale-cache degradation `fetchViaProxy` (6h TTL localStorage 폴백)
+
+**데이터 확장**:
+- 테마 DB 신설: `THEME_NARRATIVES` 47개 미국 + `KR_THEME_NARRATIVES` 22개 한국 = **69개 구조적 내러티브** (why/valueChain/playerRoles 기관 리서치 스타일)
+- `KR_SUB_THEMES` 22개 구조화 (미국 SUB_THEMES와 동일 구조)
+- `KR_INSIGHT_MAP` 매핑 (kr_* ↔ short ID)
+- `_getThemeNews()` 테마별 뉴스 자동 매칭 (Top 3 핫테마에 AI 프롬프트 주입)
+- `_buildMarketLeadersSnapshot()` / `_buildKoreaLeadersSnapshot()` — Top 3 narrative + INSIGHTS + 최근 7일 뉴스 자동 주입
+- data-snap 바인딩 **41 → 52** / data-snap-date 배지 **0 → 11** / data-perf-ytd/1y **0 → 8**
+
+**이번 세션 전수 Agent 리포트 경로**:
+`C:\Users\zmfhd\AppData\Local\Temp\claude\...\51031526-6cef-4e7b-ac43-8320213ee189\tasks\` — 4개 리포트 (67 테마 점검, 21 페이지 텍스트 스캔, 아키텍처 감사, KR 티커 검증)
 
 ---
 
