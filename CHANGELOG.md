@@ -6,7 +6,7 @@
 
 ---
 
-## v48.15 — P2-A 라우터 단일 진실 원천 + P2-B 중앙 로거 + 텍스트-B/C 동적 바인딩 (2026-04-18)
+## v48.15 — P2-A 라우터 + P2-B 로거 + P2-C 차트 지연초기화 + 텍스트-A/B/C 동적 바인딩 (2026-04-18)
 
 ### 트리거
 사용자 지시: "대규모 작업들도 순차적으로 진행해줘. 하나하나 완벽히. 왜 · 무엇 · 어떻게도 같이"
@@ -44,15 +44,46 @@ v48.14 Agent 4회 심층 감사에서 제안된 P2 후속 작업 중 "대규모(
 - warn/error rate 임계 돌파 시 `data-status-panel` 자동 경고
 - 기능 로직 불변, 출력 경로만 단일화
 
-### C. 텍스트-B — kr-macro 세부 지표 data-snap 바인딩
+### C. P2-C — 페이지 레벨 `_lazyInit` IntersectionObserver 래퍼
+
+**문제**: Chart.js 인스턴스 18개가 페이지 진입 시 **한 번에 전부 생성**. 사용자가 스크롤 하기 전에도 6개 sentiment 차트 + 2개 breadth + FRED 12개월 + yield curve가 즉시 생성. 메모리 수십 MB 점유.
+
+**해결**:
+- `_lazyInitChartPage(pageId, canvasId, initFn)` 공통 래퍼 추가
+- PAGES['breadth'].init: `bp-ad-ratio-chart` viewport 진입 시 init (2차트)
+- PAGES['sentiment'].init: `vix-chart` viewport 진입 시 initSentimentPage (6차트)
+- `_initMacroPage`: yield curve + FRED 차트를 각각 독립 `_lazyInit` (13차트 분할)
+- canvas 미발견 / IntersectionObserver 미지원 → 즉시 fallback (호환성 보장)
+
+**효과**: 4개 무거운 페이지(theme-detail 기존 + breadth/sentiment/macro 신규) 차트 지연. 각 `new Chart()` 개별 분리 리팩토링은 P3 스프린트로 이관 (200+줄 규모).
+
+### D. 텍스트-A — CP1~CP8 체크포인트 동적 생성기
+
+**문제**: 홈 "8가지 리스크 현황판" 각 셀(지정학/통화정책/거시경제/재정/유동성/원자재/기업실적/사이버)의 해설이 **정적 고정**. DATA_SNAPSHOT이 극단공포로 바뀌어도 해설은 그대로. 기존 `getDistributionDiagnosisText`·`getFGInternalStructureText` 동적 생성기 패턴이 CP 셀에 미확장.
+
+**해결**:
+- HTML 8개 `<div class="cp-detail">`에 `id="cp1-detail"` ~ `id="cp8-detail"` 부여
+- `NARRATIVE_ENGINE`에 `getCP1Text()` ~ `getCP8Text()` 8개 생성기 + `renderCPTexts()` 렌더러 추가
+- CP1 지정학: WTI 레짐별 4단계 문구 (재급등 / 고점권 / 안정화 / 완화 선반영)
+- CP2 통화정책: fedRate + VIX 레짐별 5단계 스트레스 라벨
+- CP3 거시경제: F&G 내부 구조(모멘텀/브레드쓰/주가강도/프리미엄트렌드) + MOVE×SKEW 역설 판정 + `checkDistributionDiagnosis` 체크리스트 연동
+- CP4/CP5: 현재 정적이되 `DS.tga` 등 필드 추가 시 자동 동적화 구조
+- CP6 원자재: WTI/Brent 레짐
+- CP7/CP8: 정적 기본 — 패턴 일관성 유지
+- `applyDataSnapshot` 말미에서 `NARRATIVE_ENGINE.renderCPTexts()` 자동 호출 (레짐 변경 시 실시간 갱신)
+- 에러 격리: 특정 CP 생성기 실패가 다른 셀 렌더를 막지 않음
+
+**효과**: DATA_SNAPSHOT 갱신 → 8개 CP 해설 자동 갱신 · 수동 동기화 불필요 · 향후 필드 추가 시 점진 확장 가능.
+
+### E. 텍스트-B — kr-macro 세부 지표 data-snap 바인딩
 
 kr-macro 페이지 9개 셀에 `data-snap` 속성 추가: CPI YoY, PPI YoY, 핵심 CPI, 기타공공서비스, 제조업 PMI, 서비스업 PMI, GDP QoQ, 한국 3Y 국채, 미국 10Y. `applyDataSnapshot` map에 5개 신규 키 추가 (`kr-cpi-yoy`, `kr-ppi-yoy`, `kr-manuf-pmi`, `kr-gdp-qoq`, `kr-bond-3y`) — 기존 DATA_SNAPSHOT 필드(`S.krCpi`/`S.krPpi`/`S.krPmi`/`S.krGdp`/`S.krBond3y`) 재사용.
 
-### D. 텍스트-C — page-options 스냅샷 배지
+### F. 텍스트-C — page-options 스냅샷 배지
 
 무료 옵션 API 부재로 Skew/GEX/IV Rank/Greeks는 동적화 불가 → `data-snap-date="option-snapshot"` 자동 경과일 표시로 신선도 가시화. 상단 데이터 안내 배너 + Section 4 Skew + Section 5 Flow + Section 6 Greeks + Section 8 개별 IV 테이블 **5개 섹션**에 배지. 주간 수동 갱신 정책 명시.
 
-### E. knowledge-lint 자동 수정
+### G. knowledge-lint 자동 수정
 
 - INDEX.md 유령 항목 제거 (`working-rules.md`, `voice-and-style.md` — 실파일 없음)
 - INDEX.md 버전 v46.5 → v48.15, last_verified 2026-04-11 → 2026-04-18
