@@ -6,6 +6,96 @@
 
 ---
 
+## v48.19 — 뉴스 파이프라인 심층 점검 + 버그 3개 수정 + KR_TICKER_MAP 대폭 확장 (2026-04-18)
+
+### 트리거
+사용자 피드백: "뉴스/소식 파이프라인 심층 점검. 시장 뉴스 페이지 기업/시장/카테고리 3분할 정상 동작, 외신 한국어 번역, 기업 뉴스 티커 자동 추가 등 뉴스/소식 밸류체인 전체 조사."
+
+### A. 중대 버그 3건 수정
+
+1. **`filterNewsByTelegramOnly` 빈 문자열 버그** (v34.9부터 존재)
+   - 기존: `src.includes('TG') || src.includes('') || it._tgChannel` — 가운데 `src.includes('')`는 빈 문자열이라 항상 `true` → **모든 뉴스가 통과**하는 버그
+   - 수정: `currentCountryFilter='tg'`로 일원화 + renderFeed 내부에서 명시적 텔레그램 판별 `(i._tgChannel === true || /^TG\s/i.test(i.source||'') || !!i.tgSlug)`
+
+2. **아시아 필터 매칭 제로** (UI 'asia' 클릭 시 모든 뉴스 사라짐)
+   - 기존: `(i.country||'').toLowerCase() === 'asia'` 단순 동등 비교 → 실제 NEWS_SOURCES의 country 값은 `jp/cn/hk/tw/sg/in/qa`로 분리되어 있어 **매칭 0건**
+   - 수정: `ASIA_COUNTRIES = ['jp','cn','hk','tw','sg','in','qa']` 그룹 매핑(일본/중국/홍콩/대만/싱가포르/인도/카타르 묶음)
+
+3. **EU 필터에서 uk 제외** (BBC/FT/The Economist 누락)
+   - 기존: country === 'eu' 단순 비교 → BBC Business/FT Markets/The Economist Finance는 `country:'eu', flag:'UK'`로 등록돼 있으나 UI 'eu' 필터와 어긋남
+   - 수정: `['eu','uk']` 그룹 매핑으로 영국 메이저 경제지 포함
+
+### B. KR_TICKER_MAP 24개+ 신규 매핑 (/integrate 35건 자료 기반)
+
+NAND/HDD 메모리 스토리지:
+- 샌디스크/sandisk → SNDK · 시게이트/seagate → STX · 웨스턴디지털/western digital → WDC · 넷앱/netapp → NTAP
+
+광학·인터커넥트·EMS·네트워킹:
+- 코닝/corning → GLW · 파브리넷/fabrinet → FN · 앰페놀/amphenol → APH · 크레도/credo → CRDO
+- 셀레스티카/celestica → CLS · 재빌/jabil → JBL · 플렉스/flex → FLEX · 시에나/ciena → CIEN
+
+테스트·계측·IT:
+- 테라다인/teradyne → TER · 키사이트/keysight → KEYS · 델/dell → DELL
+
+AI 인프라 / 네오클라우드:
+- 코어위브/coreweave → CRWV · 네비우스/nebius → NBIS
+
+위성통신 (v48.17 Globalstar 테마):
+- 글로벌스타/globalstar → GSAT
+
+맥락 키워드:
+- mtia/meta mtia → META (AVGO-Meta MTIA 파트너십 맥락)
+- 바르실라/wartsila → WRT1V.HE (핀란드 상장, DC 전력 테마 표시용)
+
+### C. 파이프라인 구조 검증 (정상 작동 확인)
+
+**UI → 필터 연결 체인**:
+- 정렬 `setNewsSortMode('time'|'score')` → `_newsSortMode` 전역 변수 → renderFeed + renderHomeFeed 호출 ✓
+- 탭 `setNewsTypeTab('all'|'market'|'company'|'category')` → `_newsTypeTab` → category 모드에서 토픽/국가/정렬 필터 자동 숨김 ✓
+- 지역 칩 `filterNewsByCountry('all'|'us'|'kr'|'asia'|'eu')` + `filterNewsByTelegramOnly()` → `currentCountryFilter` → renderFeed 필터 ✓
+- 토픽 칩 `filterNewsByTopic('all'|'macro'|'equity'|'energy'|'crypto')` → `currentTopicFilter` → renderFeed 필터 ✓
+
+**renderFeed 필터 6단계** (순서):
+1. 블랙리스트 2차 필터(번역 후 한국어 제목도 적용)
+2. 국가 필터(신규 그룹 매핑 적용)
+3. 토픽 필터
+4. 뉴스 유형 탭(`company`=isCompanyNews true / `market`=false / `category`=별도 그룹 뷰)
+5. 시간 필터(48h)
+6. score 30+ (브리핑 45+보다 낮지만 스팸 제거)
+
+**renderBriefingFeed 파이프라인**:
+- 8AM KST 앵커 윈도우(어제 8AM ~ 오늘 8AM) → 캐시 키 = 앵커 날짜 → 다음 8AM까지 HTML 캐시 재사용
+- score 45+ + 상위 40건 + 토픽별 그룹핑
+- 45초 타임아웃 폴백(v48.15 _initBriefingPage) + 재시도 버튼
+
+**자동 한국어 번역**:
+- Claude API(6건 배치) 우선 + Google Translate 무료 폴백
+- LRU 1000건 + sessionStorage 500건 저장(페이지 새로고침 시 복원)
+- 한국어 뉴스는 로컬 enrichment만(extractTickers 실행)
+
+**티커 자동 추출 3단계**:
+1. `$TICKER` 패턴 우선 (최대 5개)
+2. KNOWN_TICKERS Set 매칭 (1~2자 티커는 $접두사 필수, 영단어 overlap은 $접두사/괄호 필수)
+3. KR_TICKER_MAP 한국어/영문 평문 → 티커 (v48.19 24개+ 확장)
+
+### D. 시장 뉴스 페이지 3분할 탭 점검 결과
+
+| 탭 | 필터 로직 | UI 부작용 |
+|----|-----------|-----------|
+| 전체 (all) | 필터 없음(블랙리스트+시간+score만) | 토픽/국가/정렬 표시 |
+| 시장 뉴스 (market) | `!isCompanyNews(i)` | 토픽/국가/정렬 표시 |
+| 기업 뉴스 (company) | `isCompanyNews(i)` | 간결 불릿 형식 렌더(renderCompanyBullet) |
+| 카테고리별 (category) | 별도 `_renderCategoryGroupView` | 토픽/국가/정렬 **자동 숨김** |
+
+### E. 외신 번역 + 기업 뉴스 티커 검증
+
+- 외신 영어 뉴스 → Claude Haiku 4.5 배치 번역(6건/배치, 최대 60건) → ko_title + ko_desc + ko_summary + tickers 추출
+- API 키 없으면 Google Translate 무료 번역으로 자동 폴백
+- 기업 뉴스 티커: KR_TICKER_MAP 24개+ 확장으로 "Corning", "코닝", "Applied Materials" 같은 평문에서 GLW/AMAT 자동 추출
+- 매크로/지정학/정책/금리/채권/외환 토픽은 티커 숨김(R16 준수)
+
+---
+
 ## v48.18 — /integrate 35건 데일리 브리핑 + 뉴스 파이프라인 + 이벤트 캘린더 + §73 심화 전방위 (2026-04-18)
 
 ### 트리거
