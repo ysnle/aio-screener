@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.14 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.15 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2245,7 +2245,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.14</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.15</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9932,7 +9932,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.14';
+const APP_VERSION = 'v48.15';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -11218,29 +11218,145 @@ window._pageState = window._pageState || (function() {
 // 각 페이지의 init/destroy/deps를 중앙 선언. showPage는 이 테이블을 조회하여 실행.
 // 향후 showPage 내부 `if (id === 'xxx')` 분기 17+개를 PAGES[id].init() 호출로 교체 가능.
 // 현재는 기존 showPage 분기 + PAGES 테이블 병행 (점진 마이그레이션)
+// v48.15 (P2-A): 모든 페이지의 init 로직을 PAGES 테이블로 통합 (단일 진실 원천)
+// showPage · popstate 핸들러의 복제된 if-분기 전체를 이 테이블이 대체
 window.PAGES = {
   'home':           { label: '홈 대시보드',     init: null,                                          chatCtx: null },
   'signal':         { label: '매매 시그널',     init: function() { if (typeof initSignalDashboard === 'function') _safePageInitGlobal('signal', initSignalDashboard); }, chatCtx: 'signal' },
   'breadth':        { label: '시장 폭',          init: function() { if (typeof initBreadthPage === 'function') _safePageInitGlobal('breadth', initBreadthPage); if (typeof updateRallyQualityVerdict === 'function') setTimeout(updateRallyQualityVerdict, 500); }, chatCtx: null },
   'sentiment':      { label: '투자 심리',        init: function() { if (typeof initSentimentPage === 'function') _safePageInitGlobal('sentiment', initSentimentPage); }, chatCtx: null },
-  'briefing':       { label: '데일리 브리핑',    init: null, chatCtx: 'briefing' },
-  'technical':      { label: '차트·기술',        init: null, chatCtx: 'technical' },
-  'macro':          { label: '거시경제',         init: null, chatCtx: 'macro' },
+  'briefing':       { label: '데일리 브리핑',    init: function() { _initBriefingPage(); }, chatCtx: 'briefing' },
+  'technical':      { label: '차트·기술',        init: function() { _safePageInitGlobal('technical', _initTechnicalPage); }, chatCtx: 'technical' },
+  'macro':          { label: '거시경제',         init: function() { _safePageInitGlobal('macro', _initMacroPage); }, chatCtx: 'macro' },
   'fxbond':         { label: '환율·채권',        init: function() { if (typeof updateFxBondPage === 'function') _safePageInitGlobal('fxbond', updateFxBondPage); }, chatCtx: 'fxbond' },
-  'fundamental':    { label: '기업 분석',        init: null, chatCtx: 'fundamental' },
-  'themes':         { label: '테마/섹터',        init: function() { if (typeof _updatePerfTable === 'function') setTimeout(function() { _updatePerfTable().catch(function(){}); }, 300); }, chatCtx: 'themes' },
-  'theme-detail':   { label: '테마 상세',        init: function() { if (typeof _updatePerfTable === 'function') setTimeout(function() { _updatePerfTable().catch(function(){}); }, 300); }, chatCtx: 'theme-detail' },
+  'fundamental':    { label: '기업 분석',        init: function() { _safePageInitGlobal('fundamental', _initFundamentalPage); }, chatCtx: 'fundamental' },
+  'themes':         { label: '테마/섹터',        init: function() { _initThemePerfTable('themes'); }, chatCtx: 'themes' },
+  'theme-detail':   { label: '테마 상세',        init: function() { _initThemePerfTable('theme-detail'); }, chatCtx: 'theme-detail' },
   'portfolio':      { label: '포트폴리오',       init: null, chatCtx: 'portfolio' },
   'ticker':         { label: '티커 상세',        init: null, chatCtx: null },
-  'market-news':    { label: '시장 뉴스',        init: function() { if (typeof newsCache !== 'undefined' && newsCache.length > 0 && typeof renderFeed === 'function') renderFeed(newsCache); else if (typeof fetchAllNews === 'function') setTimeout(function(){ try { fetchAllNews().catch(function(){}); } catch(e){} }, 600); }, chatCtx: null },
-  'options':        { label: '옵션 분석',        init: null, chatCtx: null },
-  'kr-home':        { label: '한국 홈',          init: function() { setTimeout(function() { if (typeof renderKrIssues === 'function') renderKrIssues(); }, 500); }, chatCtx: null },
+  'market-news':    { label: '시장 뉴스',        init: function() { _initMarketNewsPage(); }, chatCtx: null },
+  'options':        { label: '옵션 분석',        init: function() { _safePageInitGlobal('options', _initOptionsPage); }, chatCtx: null },
+  'kr-home':        { label: '한국 홈',          init: function() { var tid = setTimeout(function() { try { if (typeof renderKrIssues === 'function') renderKrIssues(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'renderKrIssues failed: ' + e.message); } }, 500); if (window._pageState) window._pageState.get('kr-home').timers.push(tid); }, chatCtx: null },
   'kr-supply':      { label: '한국 공급망',      init: null, chatCtx: null },
   'kr-themes':      { label: '한국 테마',        init: null, chatCtx: 'kr-themes' },
   'kr-macro':       { label: '한국 거시',        init: null, chatCtx: 'kr-macro' },
   'kr-technical':   { label: '한국 기술',        init: null, chatCtx: 'kr-tech' },
   'guide':          { label: '사용 설명서',      init: null, chatCtx: null }
 };
+
+// v48.15 (P2-A): PAGES.init 지원 헬퍼 함수들 — showPage/popstate에서 추출된 단일 진실 원천
+function _initTechnicalPage() {
+  if (typeof computeMarketHealth === 'function') {
+    try {
+      var h = computeMarketHealth();
+      var hd = document.getElementById('health-score-display');
+      var hg = document.getElementById('health-grade-display');
+      var hr = document.getElementById('health-regime-display');
+      if (h && h.score > 0) {
+        if (hd) hd.textContent = h.score;
+        if (hg) { hg.textContent = h.grade; hg.style.color = h.score >= 60 ? '#3ddba5' : h.score >= 40 ? '#fbbf24' : '#f87171'; }
+        if (hr) hr.textContent = h.regime || '';
+      } else {
+        if (hd) hd.textContent = '대기';
+        if (hg) { hg.textContent = '시세 수신 중…'; hg.style.color = 'var(--text-muted)'; }
+      }
+    } catch(e) {}
+  }
+  if (typeof updatePatternSignals === 'function') { try { updatePatternSignals(); } catch(e) {} }
+  if (typeof updateTechIndicators === 'function') { try { updateTechIndicators(); } catch(e) {} }
+  var tvTechC = document.getElementById('tv-widget-technical');
+  if (tvTechC && !tvTechC.querySelector('iframe') && typeof loadTVChart === 'function') {
+    try { loadTVChart('technical'); } catch(e) {}
+  }
+}
+
+function _initMacroPage() {
+  if (typeof generateMacroStoryline === 'function') { try { generateMacroStoryline(); } catch(e) {} }
+  if (typeof renderEconCalendar === 'function') { try { renderEconCalendar(); } catch(e) {} }
+  if (typeof initYieldCurveChart === 'function') { try { initYieldCurveChart(); } catch(e) {} }
+  if (typeof _renderFredCharts === 'function') {
+    try { _renderFredCharts(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'FRED 차트 에러: ' + (e && e.message || e)); }
+  }
+}
+
+function _initFundamentalPage() {
+  if (typeof initFundamentalCards === 'function') { try { initFundamentalCards(); } catch(e) {} }
+  if (typeof _fundRecentSearches === 'function') { try { _fundRecentSearches(); } catch(e) {} }
+}
+
+function _initOptionsPage() {
+  if (typeof initOptionsPage === 'function') {
+    try { initOptionsPage(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'init', 'Options init error: ' + (e && e.message || e)); }
+  }
+}
+
+function _initMarketNewsPage() {
+  if (typeof newsCache !== 'undefined' && newsCache.length > 0 && typeof renderFeed === 'function') {
+    renderFeed(newsCache);
+  } else if (typeof fetchAllNews === 'function') {
+    setTimeout(function(){ try { fetchAllNews().catch(function(){}); } catch(e){} }, 600);
+  }
+}
+
+function _initBriefingPage() {
+  if (typeof renderBriefingFeed === 'function') {
+    if (typeof newsCache !== 'undefined' && newsCache.length > 0) {
+      renderBriefingFeed(newsCache);
+    } else {
+      var _bc = document.getElementById('briefing-live-news-list');
+      var _hasContent = _bc && (_bc.querySelector('.briefing-section') || _bc.querySelector('.ai-briefing-content'));
+      if (!_hasContent && typeof fetchAllNews === 'function') {
+        setTimeout(function() {
+          if (typeof isFetching === 'undefined' || !isFetching) {
+            fetchAllNews().then(function(){ renderBriefingFeed(newsCache); }).catch(function(e){ if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'Briefing fetch error: ' + (e && e.message || e)); });
+          }
+        }, 600);
+      }
+    }
+  }
+  var brBadge = document.getElementById('briefing-regime-badge');
+  if (brBadge && typeof classifyMarketRegime === 'function') {
+    try {
+      var rg = classifyMarketRegime();
+      var rgText = rg.regime || '분석중';
+      if (rgText.indexOf('BEAR') >= 0 || rgText.indexOf('DOWN') >= 0 || rgText.indexOf('하락') >= 0) { brBadge.textContent = ' ' + rgText; brBadge.className = 'status-pill sp-risk-off'; }
+      else if (rgText.indexOf('CORR') >= 0 || rgText.indexOf('조정') >= 0) { brBadge.textContent = ' ' + rgText; brBadge.className = 'status-pill sp-risk-off'; }
+      else if (rgText.indexOf('BULL') >= 0 || rgText.indexOf('상승') >= 0 || rgText.indexOf('UP') >= 0) { brBadge.textContent = ' ' + rgText; brBadge.className = 'status-pill sp-risk-on'; }
+    } catch(e) {}
+  }
+  setTimeout(function() {
+    var bc = document.getElementById('briefing-live-news-list');
+    if (!bc) return;
+    if (bc.querySelector('.briefing-section') || bc.querySelector('.ai-briefing-content')) return;
+    if (bc.innerHTML.indexOf('불러오는 중') !== -1 || bc.innerHTML.indexOf('로딩') !== -1 || bc.innerHTML.indexOf('AI 브리핑 생성 중') !== -1) {
+      var items = window._allNewsItems || (typeof newsCache !== 'undefined' ? newsCache : []) || [];
+      if (items.length > 0) {
+        if (typeof _briefingCacheKey !== 'undefined') _briefingCacheKey = null;
+        renderBriefingFeed(items);
+        if (typeof _aioLog === 'function') _aioLog('info', 'render', '브리핑 타임아웃 렌더: ' + items.length + '건');
+      } else {
+        bc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' +
+          '뉴스 로딩 시간 초과 — 네트워크 상태를 확인하세요.<br>' +
+          '<button onclick="_briefingCacheKey=null;isFetching=false;fetchAllNews(true)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
+          '</div>';
+      }
+    }
+  }, 45000);
+}
+
+// themes/theme-detail/kr-themes 공통: 성과 테이블 lazy-init (IntersectionObserver)
+function _initThemePerfTable(pageId) {
+  if (typeof _updatePerfTable !== 'function') return;
+  var perfTarget = document.querySelector('[data-perf-ytd]');
+  if (perfTarget && typeof _lazyInit === 'function') {
+    _lazyInit(pageId, perfTarget, function() {
+      _updatePerfTable().catch(function(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'perf table lazy-init: ' + e.message); });
+    });
+  } else {
+    var tid = setTimeout(function() { _updatePerfTable().catch(function(){}); }, 300);
+    if (window._pageState) window._pageState.get(pageId).timers.push(tid);
+  }
+}
 
 // v48.14: safeInit 글로벌 노출 (PAGES 라우터가 사용)
 function _safePageInitGlobal(pageId, fn) {
@@ -11304,145 +11420,11 @@ function showPage(id, navEl) {
   if (pg) { var pt = pg.querySelector('.page-title'); if (pt) { pt.setAttribute('tabindex', '-1'); pt.focus({preventScroll:true}); } }
   // Dispatch page shown event for lazy-init (v48.14: dedup guard)
   try { _firePageShown(id, 'showPage'); } catch(e) {}
-  // 시장 소식 페이지 진입 시 뉴스 자동 로드
-  // v30.14: rAF + setTimeout 폴백 — 비활성 탭에서도 차트 초기화 보장
-  // rAF는 비활성 탭에서 실행이 지연/중단될 수 있으므로 setTimeout(50ms) 폴백 병행
-  function _safePageInit(fn) {
-    var done = false;
-    var run = function() { if (!done) { done = true; fn(); } };
-    requestAnimationFrame(function() { requestAnimationFrame(run); });
-    setTimeout(run, 80);
-  }
-  if (id === 'breadth') {
-    _safePageInit(initBreadthPage);
-    setTimeout(updateRallyQualityVerdict, 500);
-  }
-  // v48.14: theme-detail 진입 시 ETF 성과 테이블 Yahoo API로 동적 갱신
-  // C3/P2-2: _lazyInit IntersectionObserver 적용 — 테이블 뷰포트 진입 시에만 API 호출
-  if (id === 'theme-detail' || id === 'themes') {
-    if (typeof _updatePerfTable === 'function') {
-      var perfTarget = document.querySelector('[data-perf-ytd]');
-      if (perfTarget && typeof _lazyInit === 'function') {
-        _lazyInit(id, perfTarget, function() {
-          _updatePerfTable().catch(function(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'perf table lazy-init: ' + e.message); });
-        });
-      } else {
-        // fallback: 즉시 호출
-        var tid = setTimeout(function() { _updatePerfTable().catch(function(){}); }, 300);
-        if (window._pageState) window._pageState.get(id).timers.push(tid);
-      }
-    }
-  }
-  // v48.14: kr-home 진입 시 주요 이슈 카드를 newsCache에서 자동 추출 (Agent P1-21)
-  // W6: setTimeout을 _pageState.timers 등록 → 페이지 전환 시 자동 정리
-  if (id === 'kr-home') {
-    var _krHomeTid = setTimeout(function() {
-      try { if (typeof renderKrIssues === 'function') renderKrIssues(); }
-      catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'renderKrIssues failed: ' + e.message); }
-    }, 500);
-    if (window._pageState) window._pageState.get('kr-home').timers.push(_krHomeTid);
-  }
-  if (id === 'signal') {
-    _safePageInit(initSignalDashboard);
-  }
-  if (id === 'sentiment') {
-    _safePageInit(initSentimentPage);
-  }
-  if (id === 'fxbond') {
-    _safePageInit(updateFxBondPage);
-  }
-  if (id === 'market-news') {
-    if (typeof newsCache !== 'undefined' && newsCache.length > 0) {
-      renderFeed(newsCache);
-    } else if (typeof fetchAllNews === 'function') {
-      setTimeout(() => { try { fetchAllNews().catch(()=>{}); } catch(e){} }, 600);
-    }
-  }
-  // ── v16: 브리핑 페이지 — 24h 뉴스 렌더 ──────────────────────
-  if (id === 'briefing') {
-    if (typeof renderBriefingFeed === 'function') {
-      if (typeof newsCache !== 'undefined' && newsCache.length > 0) {
-        renderBriefingFeed(newsCache);
-      } else {
-        // v46.6: 이미 조기 렌더가 완료된 경우 빈 캐시로 덮어쓰지 않음
-        var _bc = document.getElementById('briefing-live-news-list');
-        var _hasContent = _bc && (_bc.querySelector('.briefing-section') || _bc.querySelector('.ai-briefing-content'));
-        if (!_hasContent && typeof fetchAllNews === 'function') {
-          setTimeout(() => {
-            if (!isFetching) {
-              fetchAllNews().then(() => renderBriefingFeed(newsCache)).catch(e => _aioLog('warn', 'fetch', 'Briefing fetch error: ' + (e && e.message || e)));
-            }
-            // isFetching 중이면 fetchAllNews 완료 시 자동으로 renderBriefingFeed 호출됨
-          }, 600);
-        }
-      }
-    }
-    // v46.6: 브리핑 전용 로딩 타임아웃 45초 — "불러오는 중" 영구 고정 방지
-    setTimeout(function() {
-      var bc = document.getElementById('briefing-live-news-list');
-      if (!bc) return;
-      // 이미 뉴스가 렌더됐으면 스킵
-      if (bc.querySelector('.briefing-section') || bc.querySelector('.ai-briefing-content')) return;
-      // 아직 로딩 중 상태일 때만 처리
-      if (bc.innerHTML.indexOf('불러오는 중') !== -1 || bc.innerHTML.indexOf('로딩') !== -1 || bc.innerHTML.indexOf('AI 브리핑 생성 중') !== -1) {
-        var items = window._allNewsItems || newsCache || [];
-        if (items.length > 0) {
-          _briefingCacheKey = null;
-          renderBriefingFeed(items);
-          console.log('[AIO v46.6] 브리핑 타임아웃 렌더: ' + items.length + '건');
-        } else {
-          bc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' +
-            '뉴스 로딩 시간 초과 — 네트워크 상태를 확인하세요.<br>' +
-            '<button onclick="_briefingCacheKey=null;isFetching=false;fetchAllNews(true)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
-            '</div>';
-        }
-      }
-    }, 45000);
-  }
-  // ── v27 fix: 기술/매크로/펀더멘털 페이지 초기화 핸들러 ──
-  if (id === 'technical') {
-    _safePageInit(function() {
-      if (typeof computeMarketHealth === 'function') {
-        try {
-          var h = computeMarketHealth();
-          var hd = document.getElementById('health-score-display');
-          var hg = document.getElementById('health-grade-display');
-          var hr = document.getElementById('health-regime-display');
-          // v45.6: score가 0 또는 NaN이면 데이터 부족 — "대기" 표시
-          if (h && h.score > 0) {
-            if (hd) hd.textContent = h.score;
-            if (hg) { hg.textContent = h.grade; hg.style.color = h.score >= 60 ? '#3ddba5' : h.score >= 40 ? '#fbbf24' : '#f87171'; }
-            if (hr) hr.textContent = h.regime || '';
-          } else {
-            if (hd) hd.textContent = '대기';
-            if (hg) { hg.textContent = '시세 수신 중…'; hg.style.color = 'var(--text-muted)'; }
-          }
-        } catch(e) {}
-      }
-      if (typeof updatePatternSignals === 'function') { try { updatePatternSignals(); } catch(e) {} }
-      if (typeof updateTechIndicators === 'function') { try { updateTechIndicators(); } catch(e) {} }
-    });
-  }
-  if (id === 'macro') {
-    _safePageInit(function() {
-      if (typeof generateMacroStoryline === 'function') { try { generateMacroStoryline(); } catch(e) {} }
-      if (typeof renderEconCalendar === 'function') { try { renderEconCalendar(); } catch(e) {} }
-      // v30.14: macro 페이지에서도 Yield Curve 차트 초기화
-      if (typeof initYieldCurveChart === 'function') { try { initYieldCurveChart(); } catch(e) {} }
-      // v46.6: FRED 경제지표 시계열 차트
-      if (typeof _renderFredCharts === 'function') { try { _renderFredCharts(); } catch(e) { _aioLog('warn', 'chart', 'FRED 차트 에러: ' + (e && e.message || e)); } }
-    });
-  }
-  if (id === 'fundamental') {
-    _safePageInit(function() {
-      if (typeof initFundamentalCards === 'function') { try { initFundamentalCards(); } catch(e) {} }
-    });
-  }
-  // v31.9: 옵션 페이지 초기화 — 실시간 VIX/VVIX 연동 + 파생 지표 계산
-  if (id === 'options') {
-    _safePageInit(function() {
-      if (typeof initOptionsPage === 'function') { try { initOptionsPage(); } catch(e) { _aioLog('warn', 'init', 'Options init error: ' + (e && e.message || e)); } }
-    });
+  // v48.15 (P2-A): 13개 하드코딩 if-분기 → 단일 PAGES 라우터 호출로 교체
+  // 각 페이지의 init 로직은 window.PAGES[id].init 에서 중앙 관리 (단일 진실 원천)
+  if (window.PAGES && window.PAGES[id] && typeof window.PAGES[id].init === 'function') {
+    try { window.PAGES[id].init(); }
+    catch(e) { if (typeof _aioLog === 'function') _aioLog('error', 'page-init', 'showPage ' + id + ': ' + e.message); }
   }
 }
 
@@ -23362,59 +23344,11 @@ try { window.addEventListener('popstate', (e) => {
   if (_cEl) _cEl.scrollTop = 0;
   // v39.2: aio:pageShown 이벤트 발송 — v48.14 dedup guard 경유
   try { _firePageShown(id, 'popstate'); } catch(e) {}
-  // v30.14: rAF + setTimeout 폴백 (비활성 탭 대응)
-  var _done = false;
-  var _run = function(fn) { return function() { if (!_done) { _done = true; fn(); } }; };
-  var _safeInit = function(fn) {
-    _done = false;
-    var exec = _run(fn);
-    requestAnimationFrame(function() { requestAnimationFrame(exec); });
-    setTimeout(exec, 80);
-  };
-  // Re-init for ALL pages (v30.14: 기존 3개 → 9개)
-  if (id === 'breadth')     _safeInit(function() { initBreadthPage(); });
-  if (id === 'signal')      _safeInit(function() { if(typeof initSignalDashboard==='function') initSignalDashboard(); });
-  if (id === 'sentiment')   _safeInit(function() { initSentimentPage(); });
-  if (id === 'fxbond')      _safeInit(function() { if(typeof updateFxBondPage==='function') updateFxBondPage(); });
-  if (id === 'macro')       _safeInit(function() {
-    if(typeof generateMacroStoryline==='function') { try { generateMacroStoryline(); } catch(e) {} }
-    if(typeof initYieldCurveChart==='function') { try { initYieldCurveChart(); } catch(e) {} }
-  });
-  if (id === 'technical')   _safeInit(function() {
-    if(typeof computeMarketHealth==='function') { try { var h=computeMarketHealth(); var hd=document.getElementById('health-score-display'); var hg=document.getElementById('health-grade-display'); if(hd)hd.textContent=h.score; if(hg){hg.textContent=h.grade;hg.style.color=h.score>=60?'#3ddba5':h.score>=40?'#fbbf24':'#f87171';} } catch(e) {} }
-    if(typeof updatePatternSignals==='function') { try { updatePatternSignals(); } catch(e) {} }
-    if(typeof updateTechIndicators==='function') { try { updateTechIndicators(); } catch(e) {} }
-    // v40.4: TradingView 자동 로드 (SPY 기본)
-    var tvTechC = document.getElementById('tv-widget-technical');
-    if(tvTechC && !tvTechC.querySelector('iframe') && typeof loadTVChart==='function') { try { loadTVChart('technical'); } catch(e) {} }
-  });
-  if (id === 'fundamental') _safeInit(function() { if(typeof initFundamentalCards==='function') { try { initFundamentalCards(); } catch(e) {} } if(typeof _fundRecentSearches==='function') try{_fundRecentSearches();}catch(e){} });
-  if (id === 'market-news') {
-    if (typeof newsCache !== 'undefined' && newsCache.length > 0) { renderFeed(newsCache); }
-    else if (typeof fetchAllNews === 'function') { setTimeout(() => { try { fetchAllNews().catch(()=>{}); } catch(e){} }, 300); }
-  }
-  if (id === 'briefing') {
-    if (typeof renderBriefingFeed === 'function') {
-      if (typeof newsCache !== 'undefined' && newsCache.length > 0) { renderBriefingFeed(newsCache); }
-      else {
-        // v46.6: 이미 조기 렌더가 완료된 경우 빈 캐시로 덮어쓰지 않음
-        var _bc2 = document.getElementById('briefing-live-news-list');
-        var _has2 = _bc2 && (_bc2.querySelector('.briefing-section') || _bc2.querySelector('.ai-briefing-content'));
-        if (!_has2 && typeof fetchAllNews === 'function') { setTimeout(() => { if (!isFetching) fetchAllNews().then(() => renderBriefingFeed(newsCache)).catch(()=>{}); }, 300); }
-      }
-    }
-    // v34.5: 브리핑 국면 뱃지 동적 업데이트
-    var brBadge = document.getElementById('briefing-regime-badge');
-    if (brBadge && typeof classifyMarketRegime === 'function') {
-      try {
-        var rg = classifyMarketRegime();
-        var rgText = rg.regime || '분석중';
-        if (rgText.indexOf('BEAR') >= 0 || rgText.indexOf('DOWN') >= 0 || rgText.indexOf('하락') >= 0) { brBadge.textContent = ' ' + rgText; brBadge.className = 'status-pill sp-risk-off'; }
-        else if (rgText.indexOf('CORR') >= 0 || rgText.indexOf('조정') >= 0) { brBadge.textContent = ' ' + rgText; brBadge.className = 'status-pill sp-risk-off'; }
-        else if (rgText.indexOf('BULL') >= 0 || rgText.indexOf('상승') >= 0 || rgText.indexOf('UP') >= 0) { brBadge.textContent = ' ' + rgText; brBadge.className = 'status-pill sp-risk-on'; }
-        else { brBadge.textContent = ' ' + rgText; brBadge.className = 'status-pill sp-neutral'; }
-      } catch(e) {}
-    }
+  // v48.15 (P2-A): 9개 하드코딩 if-분기 → 단일 PAGES 라우터 호출로 교체
+  // showPage와 동일 경로 재사용 (_firePageShown dedup guard가 200ms 내 중복 발사 차단)
+  if (window.PAGES && window.PAGES[id] && typeof window.PAGES[id].init === 'function') {
+    try { window.PAGES[id].init(); }
+    catch(e) { if (typeof _aioLog === 'function') _aioLog('error', 'page-init', 'popstate ' + id + ': ' + e.message); }
   }
 });
 } catch(e) { /* sandboxed */ }

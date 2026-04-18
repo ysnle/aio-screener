@@ -6,6 +6,61 @@
 
 ---
 
+## v48.15 — P2-A 라우터 단일 진실 원천 + P2-B 중앙 로거 + 텍스트-B/C 동적 바인딩 (2026-04-18)
+
+### 트리거
+사용자 지시: "대규모 작업들도 순차적으로 진행해줘. 하나하나 완벽히. 왜 · 무엇 · 어떻게도 같이"
+
+v48.14 Agent 4회 심층 감사에서 제안된 P2 후속 작업 중 "대규모(2h+ 제외)" 범주를 제외한 나머지 전수. 아키텍처 완성도 한 단계 격상.
+
+### A. P2-A — showPage/popstate 라우터 단일 진실 원천 (22개 → 1개)
+
+**문제**: v48.14에서 `window.PAGES[id]` 라우터 테이블을 선언했으나 실제로는 `showPage` 내부 13개 `if (id === 'xxx')` 분기 + `popstate` 핸들러 9개 `if-분기` = **22개 하드코딩 분기**가 실제 init을 처리. 같은 `initBreadthPage`·`initSentimentPage` 등이 **두 함수에 완전히 복제**됐다. 페이지 추가 시 HTML+nav+showPage+popstate+PAGES 테이블 5곳 동기화 필요.
+
+**해결**:
+- `PAGES` 테이블의 `init: null` 5건(briefing/technical/macro/fundamental/options) 실제 로직으로 채움
+- 헬퍼 함수 7개 추출 (`_initTechnicalPage`, `_initMacroPage`, `_initFundamentalPage`, `_initOptionsPage`, `_initMarketNewsPage`, `_initBriefingPage`, `_initThemePerfTable`) — showPage/popstate 양쪽 로직 통합 (TradingView 로드 · briefing regime 뱃지 · 45초 타임아웃 등 모든 에지 케이스 포함)
+- `showPage` 내부 13개 `if` 분기 **전량 제거** → `PAGES[id].init()` 단일 호출
+- `popstate` 핸들러 9개 `if-분기` **전량 제거** → 동일 단일 호출
+- `_firePageShown` dedup guard(200ms)가 경로 간 중복 init 차단
+
+**효과**:
+- 페이지 추가 시 PAGES 테이블 **한 줄**만 → 관리 비용 80% 감축
+- init 로직 단일 진실 원천 확보 (두 경로 간 drift 불가능)
+- 파일 54줄 순감소 (+80 헬퍼 -134 분기)
+
+### B. P2-B — console.warn/error 178건 → _aioLog 중앙 로거
+
+**문제**: `console.warn`/`console.error` 183건이 `[AIO]`, `[AIO Vault]`, `[AIO:Chart]`, `[PriceStore]`, `[MacroStore]`, `[NARRATIVE_ENGINE]`, `[KR]`, `[SEC]`, `[FMP]`, `[Stooq]` 등 10여 개 태그로 분산. 브라우저 콘솔에서만 보여 사용자/개발자 환경 모두에서 문제 파악 불가. v48.14의 `_aioLog` ring-buffer 500건 + rate 임계 배너 인프라가 사실상 미사용.
+
+**해결**:
+- 178건을 `_aioLog(level, area, msg, meta?)` 호출로 치환
+- 태그 → `area` 파라미터로 정규화 (fetch/chart/render/fund/init/vault/translate/narrative/date/regime/breadth/price/macro/snap-date/fx-note/fire-page/debug 등 18개 카테고리)
+- 5건 의도 제외: Chart.js CDN 폴백(로거 정의 이전), `window.onerror`/`unhandledrejection` 레이트리미트 전역 핸들러, 기존 defensive fallback 2건
+
+**효과**:
+- `_aioLog` 호출 총 208건 (30 기존 + 178 신규)
+- `window._aioLogs.tail(50)` / `.byArea('fetch')` 등으로 실시간 조회 가능
+- warn/error rate 임계 돌파 시 `data-status-panel` 자동 경고
+- 기능 로직 불변, 출력 경로만 단일화
+
+### C. 텍스트-B — kr-macro 세부 지표 data-snap 바인딩
+
+kr-macro 페이지 9개 셀에 `data-snap` 속성 추가: CPI YoY, PPI YoY, 핵심 CPI, 기타공공서비스, 제조업 PMI, 서비스업 PMI, GDP QoQ, 한국 3Y 국채, 미국 10Y. `applyDataSnapshot` map에 5개 신규 키 추가 (`kr-cpi-yoy`, `kr-ppi-yoy`, `kr-manuf-pmi`, `kr-gdp-qoq`, `kr-bond-3y`) — 기존 DATA_SNAPSHOT 필드(`S.krCpi`/`S.krPpi`/`S.krPmi`/`S.krGdp`/`S.krBond3y`) 재사용.
+
+### D. 텍스트-C — page-options 스냅샷 배지
+
+무료 옵션 API 부재로 Skew/GEX/IV Rank/Greeks는 동적화 불가 → `data-snap-date="option-snapshot"` 자동 경과일 표시로 신선도 가시화. 상단 데이터 안내 배너 + Section 4 Skew + Section 5 Flow + Section 6 Greeks + Section 8 개별 IV 테이블 **5개 섹션**에 배지. 주간 수동 갱신 정책 명시.
+
+### E. knowledge-lint 자동 수정
+
+- INDEX.md 유령 항목 제거 (`working-rules.md`, `voice-and-style.md` — 실파일 없음)
+- INDEX.md 버전 v46.5 → v48.15, last_verified 2026-04-11 → 2026-04-18
+- RULES.md frontmatter target_version v48.15, 최종 수정 v42.1 → v48.15
+- NEXT-SESSION-v48.14.md를 인덱스에 추가
+
+---
+
 ## v48.14 — 월가 기관 수준 아키텍처 전면 보강 + 테마 DB 확장 + 텍스트 동적화 (2026-04-18)
 
 ### 트리거
