@@ -6,6 +6,60 @@
 
 ---
 
+## v48.18 — /integrate 35건 데일리 브리핑 + 뉴스 파이프라인 + 이벤트 캘린더 + §73 심화 전방위 (2026-04-18)
+
+### 트리거
+사용자 피드백: "구조/프레임워크/인사이트/분석력/글 스타일/전달력/정보 수준/데이터 퀄리티 등등 모두 분석하고 참고한거야?? 또한 시장 뉴스/소식과 데일리 브리핑으로 들어오는 파이프라인도 같이 점검하고 보강한거야?"
+
+v48.16/v48.17에서 제가 한 것은 **데이터 입력 수준**에 그쳤음을 솔직히 인정. 실제 "전방위 통합"을 위해 5개 Phase로 대규모 재작업.
+
+### A. 이벤트 캘린더 보강 (renderEconCalendar)
+9개 고정 이벤트 타임라인 추가 — 요일별 경제지표 + 특별 이벤트 뒤에 "예정 이벤트 (v48.18)" 섹션 신설:
+- 04/22-24 Google Cloud Next (GCP CEO 기조, TPU/Rubin/제미나이 3.5)
+- 04/28-29 FOMC (씨티 연말 -75bp 전망)
+- 04/29 GOOGL 1Q26 (Citi PT$405 90일 촉매)
+- 04/30 MSFT · 05/01 AMZN · 05/13 CPI+Brandcast
+- 05/19-20 Google I/O (Gemini 3.5) · 05/20 GML · 07월 TSMC 2Q
+
+### B. _generateAIBriefing 시스템 프롬프트 전면 재작성
+기존 v46.6 "Cantor+JPM+Citi $100B AI Shock" 블록을 **v48.18 8개 매크로 맥락**으로 교체:
+1. Fed 경로 씨티 4/18 재조정 + 2% 물가목표 구조적 붕괴 + Data Dependence 딜레마
+2. Citi 자산배분 전환 (미국 OW, EM 중립, 연말 지수 목표 7종, 베어마켓 18개 중 8개)
+3. 반도체/AI 인프라 공급 가시성 (AVGO-Meta MTIA 2029, TSMC 2026-2028 Capex $190-200B, ASML 가이던스 체계 전환, HBM+HBF 3계층, 메모리 LTA 역전, CRWV $58B+, Rubin CX9, MRVL TPU 설계)
+4. JPM 하드웨어/네트워킹 AI 밸류에이션 로테이션 (광→HDD/EMS/DELL)
+5. FactSet NVDA 제외 매그7 역전 + 긍정 서프라이즈 주가 반응 -0.2%
+6. DC 규제 전환 + 머스크 테라팹 = 반도체 장비 신수요
+7. OpenAI TAC + Anthropic Glasswing AI 보안 표준화
+8. 예정 이벤트 캘린더
+
+### C. 시장 뉴스 파이프라인 보강
+- **HOME_WEEKLY_NEWS 3개 전면 교체**: AVGO-Meta MTIA 2029년 / TSMC 30%+ 가이던스 / Citi 자산배분 이익 확산 균열
+- **scoreItem _PRIORITY_KW +50개+**: MTIA/Meta MTIA/LTA/long-term agreement/custom silicon/Vera Rubin/Rubin CPX/NVLink Fusion/CX9/Blackwell Ultra/HBF/high bandwidth flash/inference memory/3계층 메모리/메모리 LTA/data center ban/DC moratorium/Maine DC/grid connection delay/Wartsila/34sg engine/Terafab/Applied Materials/Tokyo Electron/Lam Research/Google Cloud Next/Google I/O/Marketing Live/Brandcast/Ask Maps/Gemini 3.5/Glasswing/OpenAI TAC/Trust Access/GPT-5.4 Cyber/Globalstar/Amazon LEO/Project Kuiper/D2D/LEO/Data Dependence/Forward Guidance Failure/2% Inflation Target/Mid-inflation/중물가/이익 확산/Quality Rotation 등
+- 효과: 35건 핵심 토픽 자동 +5~+15 점수 가중 → 홈/브리핑/시장뉴스 3곳 상단 노출
+
+### D. §73 Citi Geopolitics 원문 깊이 살려 심화 재작성
+기존 4줄 요약 → 원문 기관 리서치 톤으로 전면 재작성:
+- **연말 지수 목표 7종**: MSCI ACWI 1,380(+12%), S&P 500 7,700(+13%), Stoxx 600 640(+4%), Euro Stoxx 50 6,400(+9%), FTSE 100 10,700(+1%), 토픽스 4,200(+12%), MSCI EM 1,770(+16%)
+- **지역별 EPS 전망 분기**: 보텀업 +20% vs Citi 톱다운 +16%. 신흥국 +40% / +30-35%. 미국/영국 +18%. 유럽 +13% / +8%. 모든 지역 하향 조정 압력.
+- **밸류에이션 퍼센타일**: MSCI ACWI 18배(81퍼센타일), 미국 20배(80퍼센타일), 영국 13배(최저), 산업재 22배(98퍼센타일), 유틸 17배(97퍼센타일). 테크는 25년 대비 가장 저렴.
+- **베어마켓 체크리스트**: 글로벌 18개 중 8개 적신호(비싼 밸류에이션 주원인). 미국 9개, 유럽 4개.
+- **포지셔닝**: 레브코비치 모델 미국 심리 "유포리아" 재진입. 디리스킹→숏 구축 단계.
+- **AI 트레이드 진화**: 매그7 "퀄리티 매수" + "인에이블러→어답터" 이행(산업재/헬스케어/IT).
+
+### E. KNOWLEDGE-BASE 3건 추가 (패러다임 전환 축적)
+- **NVDA 제외 매그7 역전 — 이익 집중도 위험**: 매그7 6.4% < 493사 10.1% 역전. 긍정 서프라이즈 주가 반응 -0.2%. "매그7 = NVDA + 나머지 6" 분해 필요.
+- **AI 밸류에이션 로테이션 — 광학→HDD/EMS/DELL**: 광학 프리미엄 +83% 과열, 2028년 이익 봐야 정당화. HDD는 가격 인상↑ + COGS↓ 동시 진행. JPM Rank Order Top10 재편.
+- **DC 규제 전환 + 온사이트 발전**: Maine 미국 최초 주 단위 DC 금지(2027 가을까지 20MW+ 중단). 12개 주 유사 검토. Wartsila 34SG 오하이오 412MW(선박엔진 DC 첫 사례). 지난해 무산 DC 프로젝트 $1,520억.
+
+### 검증 — 파이프라인 실제 점검
+- Maine DC 뉴스 → Washington Post RSS(v48.17)+TOPIC_KEYWORDS.macro+_PRIORITY_KW 3중 매칭 → +15~+20 점수 → 브리핑·시장뉴스 상단 노출
+- 머스크 테라팹 → Bloomberg RSS+semi 토픽+_PRIORITY_KW → 상단 노출
+- Wartsila DC → Bloomberg+energy 토픽+_PRIORITY_KW → 상단
+- Google Cloud Next(예정) → renderEconCalendar에 고정 표시 + TOPIC_KEYWORDS.semi + _PRIORITY_KW
+- AVGO-Meta MTIA → HOME_WEEKLY_NEWS 1위 + SCREENER_DB AVGO 메모 + §74-§76 프레임워크 + _generateAIBriefing 맥락 = 5중 반영
+
+---
+
 ## v48.17 — /integrate 35건 전수 반영 (v48.16 누락 24건 완전 처리) (2026-04-18)
 
 ### 트리거

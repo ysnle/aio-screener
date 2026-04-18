@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.17 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.18 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2245,7 +2245,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.17</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.18</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9932,7 +9932,7 @@ window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.17';
+const APP_VERSION = 'v48.18';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -16395,6 +16395,27 @@ function scoreItem(item) {
     // 채권/금리
     'treasury','yield','bond','credit spread','yield curve','inversion',
     '국채','수익률','채권','크레딧 스프레드','수익률 곡선',
+    // v48.18 (integrate 2026-04-18): 35건 자료 핵심 토픽 우선 노출
+    // AI 인프라 공급 가시성
+    'mtia','meta mtia','tpu roadmap','lta','long-term agreement','custom silicon',
+    'vera rubin','rubin cpx','nvlink fusion','cx9','blackwell ultra',
+    // 메모리 패러다임
+    'hbf','high bandwidth flash','hbm+hbf','inference memory','3계층 메모리',
+    '메모리 lta','메모리 슈퍼사이클','hbm 점유',
+    // DC 규제 + 전력
+    'data center ban','dc moratorium','maine dc','grid connection delay','data center regulation',
+    '데이터센터 금지','전력망 부하','온사이트 발전','wartsila','34sg engine',
+    // 머스크 테라팹 + 장비주
+    'terafab','테라팹','applied materials','tokyo electron','lam research',
+    // Google 2026 이벤트
+    'google cloud next','google i/o','marketing live','brandcast','ask maps','gemini 3.5',
+    // AI 보안 표준화
+    'glasswing','project glasswing','openai tac','trust access for cyber','gpt-5.4 cyber',
+    // 위성 통신
+    'globalstar','amazon leo','project kuiper','d2d','direct-to-device','low earth orbit',
+    // 자산배분/로테이션
+    'data dependence','forward guidance failure','2% inflation target','mid-inflation',
+    '중물가','데이터 디펜던스','이익 확산','quality rotation',
   ];
   var priorityHits = 0;
   _PRIORITY_KW.forEach(kw => { if (text.includes(kw)) priorityHits++; });
@@ -17603,9 +17624,9 @@ function renderFeed(items) {
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
 // v40.4: 홈 핵심뉴스 — 시장 전체에 영향을 주는 핵심 뉴스 2~3개 (정적, 새 이벤트 발생 시 수동 교체)
 var HOME_WEEKLY_NEWS = [
-  { title: 'S&P 500 역사상 최초 7,000 돌파 — 7,022.95(+0.80%) 사상최고 마감. NASDAQ 24,016.02(+1.59%, 11일 연속 상승 역대 최장 랠리), Dow 48,463.72(-0.15% 내부 약화). 이란 2주 휴전 연장 협의(WSJ), MSFT Azure AI 돌파로 +5.23%. 그러나 내부 괴리 극단: UW 확장 F&G Market Breadth 35.9 + 주가강도 24.8 하위 25% vs 모멘텀 80.6 + 프리미엄 트렌드 100 상위 10%. ZBT(NYSE A/D 0.615 트리거) 부재(현 0.576). 2000.01·2007.10·2021.11 분배 단계 3/3 체크리스트 부합.', source: 'CNN/Bloomberg/Unusual Whales', date: '2026-04-15', sentiment: 'warn', topic: 'market' },
-  { title: '소프트웨어 강한 반등 + 반도체 동반 강세 — 지난주 -23% 역대 최악 SW-Semi 괴리 후, 소프트웨어(IGV) 강한 반등 시작. AI 예산 크라우딩아웃 우려 과도했다는 재평가. 반도체 10일+ 양봉 지속, TSMC Q1 사상최고 NT$1.134조(+35%YoY). NAND ASP QQ +70-75%(TrendForce). 양쪽 동반 강세는 시장 저변 확대 신호.', source: 'TrendForce/TSMC IR', date: '2026-04-14', sentiment: 'bull', topic: 'semi' },
-  { title: '3월 PPI 발표 완료 — 수요파괴 신호 포착. 헤드라인 MoM +1.0%, YoY 4.6% 상회. 그러나 무역마진 -1.4%(도매업체 마진 압축), 서비스 PPI +0.7%. 에너지→서비스 2차 파급 시작, 기업 가격 전가력 한계 도달. Fed 인상 논의 본격 점화(Warsh 4/21 청문회). CME 페드워치: 5월 인상 확률 42%로 급등(이전 18%).', source: 'BLS/CME/Bloomberg', date: '2026-04-15', sentiment: 'warn', topic: 'macro' },
+  { title: 'AVGO-META MTIA 다년간 GW 확장 약정(2029+) — 초기 1GW+, 학습/추론/네트워킹 통합. Hock Tan 메타이사회 퇴임→어드바이저 전환. 메타 커스텀 실리콘 지연 우려 불식. AVGO AI 매출 2027 $100B→$130B+(Citi $100B당 EPS +$1) · Bernstein PT$525/Citi PT$475. GOOG LTA 2031+Anthropic 3.5GW TPU 누적 = 공급 가시성 다층 확대. AI 인프라 공급사 멀티이어 수주잔고 구조적 재평가 국면.', source: 'Citi/Bernstein', date: '2026-04-16', sentiment: 'bull', topic: 'semi' },
+  { title: 'TSMC 2026 가이던스 "30%+" 상향 + 2026-2028 3년 Capex $190-200B(역대급, 전 3년 대비 2배) — 1Q26 매출 NT$1.134조(+35%YoY, 컨센 전면상회) GM 66.2%/OPM 58.1%. 선단 캐파 2027까지 타이트, N5 이하 CAGR 25%. 2027 가격 +4-5% like-for-like 인상 논의(2Q 콘콜 예정). C.C.Wei "차세대 LPU 고객과 긴밀 협력" = 삼성 Groq 수주 단기 경계. ASML도 조기 가이던스 상향(€365→€380억 중간값) — 1분기 조기 상향 = 수요 강도 신호.', source: 'TSMC IR/JPM/Citi', date: '2026-04-17', sentiment: 'bull', topic: 'semi' },
+  { title: 'Citi 자산배분 전환 — 미국 중립→OW 상향, EM 중립 하향("이익 확산 균열"). 매그7+ 지수 시총 40% + PEG 기준 GFC 후 저점 = 역설적 퀄리티 매수 기회. FactSet: S&P 500 Q1 EPS 서프라이즈 88%(5년 평균 78%) BUT 긍정 주가 반응 -0.2% = "이미 반영" 해석. NVDA 제외 시 매그7 성장률 6.4% < 나머지 493사 10.1% 역전. GS 한국 피드백: 미국 투자자 SEC>HXSCL 선호(HBM4 리더십+주주환원 임박), 메모리 LTA 레버리지 역전 논쟁. 연말 목표 S&P 7,700(+13%), MSCI ACWI 1,380(+12%).', source: 'Citi/FactSet/GS', date: '2026-04-18', sentiment: 'warn', topic: 'market' },
 ];
 
 function renderHomeFeed(items) {
@@ -17835,28 +17856,57 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
 
   var prompt = '당신은 전문 금융 애널리스트입니다. 아래는 ' + anchorStr + ' 08:00 KST ~ 24시간 동안 수집된 주요 뉴스입니다.\n\n' +
     newsText + '\n\n' +
-    '【현재 매크로 맥락 (2026.04)】\n' +
-    '• FOMC 듀얼 리스크: "vast majority" 고용 하방 + 인플레 상방 동시 경고. 비주거 서비스 끈적. "Some" 양방향 금리 시그널(인상 포함). H4L(Higher For Longer) 전환 신호.\n' +
-    '• Fed 정책 경로: 동결 55% / 인하 25% / 인상 20%. 재무부-연준 힘겨루기: 베센트(소로스 출신) 유동성 도구 + 감세(OBBBA $1,500~1,600억) + 바이백 재개. 2023년 교훈: 연준 브레이크 vs 재무부 액셀 → 액셀 승리(S&P +24%).\n' +
-    '• 4월 이벤트: ASML(4/15 수), TSM·NFLX(4/16 목), OPEX(4/17 금), FOMC(4/28-29), CPI(5/13).\n' +
-    '• 지정학(04/14): 4/12 이슬라마바드 21시간 협상 결렬 → 4/13 호르무즈 봉쇄 발효(이란 항구 출입 선박 대상). 트럼프 "접근 선박 격침" 경고. Brent $103(+8%), WTI $98. 봉쇄 장기화 시 공급갭 1,400만bbl/d. JPM: 항만 정상화 2개월+물류 4개월.\n' +
-    '• JP모건 뷰(04/11): 되돌림 비대칭 — 나스닥 114% > S&P 90% > 코스피 68%. 크레딧 가장 탄력적(분쟁 전보다 타이트). FX: 에너지수입국 통화 대비 달러롱 헤지 청산 → 수출국(AUD/NOK/BRL) 롱. EUR/USD 연말 1.20, USD/KRW 연말 1,440. 브렌트 연말 $55, 금 $6,300.\n' +
-    '• 인플레: 이란 전쟁 발 휘발유 가격 급등 → 인플레 2년 만의 최고 수준 전망(NPR). 금리 인하 기대 약화.\n' +
-    '• 생산성 갭: AI 생산성 기대(TFP 실질 0.32% vs 역사 1.23%) 미달 → 인플레 유지 + 성장↓ → Debt-to-GDP 악화.\n\n' +
-    '【반도체/AI 인프라 맥락 (v46.6 Cantor+JPM 통합)】\n' +
-    '• AI 인프라 패러다임 전환(Cantor): DC = "부동산 딸린 전력 인프라 프로젝트". 병목 = GPU가 아닌 time-to-power. NVDA 5년 39GW vs 미국 DC 21GW = 20GW 갭 → 네오클라우드(CRWV/CORZ/WULF/IREN) 구조적 기회.\n' +
-    '• TSMC(JPM 04/11): 1Q26 가이던스 상단(달러기준 $346-358억). GM 66.8%E(가이던스 63-65% 초과). N3/N5 100%초과 가동 + 긴급웨이퍼 프리미엄. 2Q26 QoQ +6-8% 예상. 4/16 실적콜.\n' +
-    '• CRWV-Anthropic 다년계약(04/11) + $35억 전환사채(전환가$119.6, 캡$230). Cantor 백로그 $668억.\n' +
-    '• EML 부족 현실(JPM 도쿄). Anthropic 자체 ASIC 모색(초기, AVGO/MRVL 파이프라인에서 증거 없음). Mythos NVL72 훈련 여부 주목.\n' +
-    '• Capex 효율화 사이클: 네트워크 패브릭(AVGO/MRVL)이 시스템 성능 병목. 메모리 ASP +75~85% QoQ. CoWoS 15~20% 초과.\n' +
-    '• AI 보안: Claude Mythos → 취약점 발견→무기화 "수개월→수분" 단축. CRWD/PANW 보안예산 확장.\n\n' +
-    '【소프트웨어 $100B AI Shock (Citi 04/11)】\n' +
-    '• AI 비상장 매출 $1,000억+가 전통 앱 SW 신규 ACV $500-600억 압도 → 좌석 기반 앱 구조적 위험.\n' +
-    '• 에이전틱 AI → 좁은 워크플로우 앱 우회. 시스템 오브 레코드/데이터 플랫폼 = 방어적. SMB(SHOP/KVYO/HUBS) 상대적 안전.\n' +
-    '• Oracle AI World Tour: OCI RoCE 네트워킹 해자(하이퍼스케일러 복제 불가), Fusion Agentic Apps 전 제품군, Agent Hub(Citi PT$320, 미즈호 PT$400).\n\n' +
-    '【스태그플레이션 플레이북 (Citi)】\n' +
-    '• 에너지 EPS↑가 헤드라인 EPS 방어(2022년 증거). 알파 원천 = 지수 방향 아닌 섹터·지역 배분.\n' +
-    '• 한국: 순매수 잔존(청산 하방) BUT AI·메모리 EPS EM 최대(반등 최강). 양날의 칼.\n\n' +
+    '【현재 매크로 맥락 — 씨티 4/18 재조정 + 2% 물가목표 붕괴 (v48.18)】\n' +
+    '• Fed 경로 극적 가격 오류 정상화: 호르무즈 재개통(유조선/상업선박 통행 재개) → Fed 정책금리 가격 재조정. 근원 PCE 끈적 + 안정적 노동시장 → 단기 동결 압박. BUT 근원 인플레 완화 + 노동시장 이완 시 **연말 -75bp 인하 전망(씨티 공식 뷰)**. Warsh 청문회 — 연말 인하 지지 가능성, 단기 관망.\n' +
+    '• FOMC 듀얼 리스크 지속: "vast majority" 고용 하방 + 인플레 상방 동시. 비주거 서비스 끈적. "Some" 양방향 금리 시그널.\n' +
+    '• 2% 물가목표 구조적 붕괴: 2% 목표 = 90년대 뉴질랜드 임의 출발 → 2010년대 중반 "싸게→착하게" 미덕 전환 = 중물가 시대. Forward Guidance 실패(2021-22) vs Data Dependence 역풍(현재). "2%가 정상" 가정 자체 검토 필요.\n' +
+    '• 분절화 리스크 3축: ① 세계화 효율 → 최소 선함(탈세계화) ② 코로나 충격 미회복 ③ 미국 주도 분절화("너희가 비싸도 우리만 싸면 됨"). 호르무즈 봉쇄 통념 붕괴 → 대체 수출경로(홍해 등) 비용 전이.\n' +
+    '• 재무부-연준 힘겨루기: 2023년 교훈 — 연준 브레이크(5%+QT) vs 재무부 액셀(TGA방출+T-bill) → 액셀 승리(S&P +24%). 2026년 베센트 유동성 도구 + 감세(OBBBA $1,500~1,600억) + 중간선거 7개월 전 = 정치적 유동성 인센티브.\n\n' +
+    '【Citi 자산배분 전환 — 이익 확산 균열 (v48.18)】\n' +
+    '• 지역: 미국 중립→OW 상향, EM OW→중립 하향. "이익 확산(broadening)" 논리 균열 확인 — 이익 성장이 다시 AI/테크로 재집중. 매그7+가 지수 시총 40% 점유하면서 **PEG 기준 GFC 후 저점** = 역설적 퀄리티 매수 기회.\n' +
+    '• 연말 목표: MSCI ACWI 1,380(+12%), S&P 500 7,700(+13%), 토픽스 4,200(+12%), MSCI EM 1,770(+16%). Stoxx 600 640(+4%), FTSE 100 10,700(+1%).\n' +
+    '• 섹터: IT/소재/헬스케어 OW, 커뮤니케이션/필수소비재 UW. 테크 내 반도체 > 소프트웨어.\n' +
+    '• 핵심 리스크: 시클리컬 컨센서스 2026 +20% 하향 조정 리스크. Citi 톱다운 +16%(보수적).\n' +
+    '• 베어마켓 체크리스트: 글로벌 18개 중 8개 적신호(비싼 밸류에이션 주원인). 미국 9개(다소 거품이나 매수 후 보유 가치 유지), 유럽 4개(양호).\n' +
+    '• 포지셔닝: 미국 제외 대다수 지수의 강세 포지션 이란 사태 이후 청산 완료 → 디리스킹→숏 구축 단계. 레브코비치 모델 미국 심리 "유포리아" 재진입.\n' +
+    '• 라틴아메리카 = EM 내 핵심 지정학 헤지.\n\n' +
+    '【반도체/AI 인프라 — 공급 가시성 확대 + 캐파 타이트 2027까지 (v48.18)】\n' +
+    '• AVGO-Meta MTIA 2029년 확장: 초기 1GW+, 학습/추론/네트워킹 통합, Hock Tan 메타이사회 퇴임 → 어드바이저. 커스텀 실리콘 지연 우려 불식. AVGO AI 매출 2027 $100B → $130B+ 상향 컨빅션. GOOG LTA 2031, Anthropic 3.5GW TPU 2027 누적.\n' +
+    '• TSMC 선단 캐파 2027까지 타이트: 2026-2028 3년 Capex $190~200B(역대급, 이전 3년 대비 2배). 2027 가격 +4-5% like-for-like 인상 논의(2Q26 콘콜). N5 이하 CAGR 25%. C.C.Wei "차세대 LPU 고객과 긴밀 협력" = 삼성 Groq 수주 단기 경계.\n' +
+    '• ASML 가이던스 체계 전환: 오더 비공시 이후 "연초 보수 → 연중 상향" 패턴. 1분기 조기 상향(€340-390→€360-400억 중간값 €380, +€15억) = 수요 강도 신호. 2027 Low NA EUV 최소 80대 공약(VA 컨센 72 상회).\n' +
+    '• HBM+HBF 3계층 패러다임: SanDisk HBF 일정 6개월 앞당김(26H2 파일럿, 27초 AI 추론 디바이스). 스택당 512GB 16레이어 = HBM 대비 동일비용 8-16배 용량. AI 훈련→추론 전환 = 용량 최적화 메모리 신카테고리.\n' +
+    '• 메모리 LTA 레버리지 역전(GS 한국 피드백): 기존 "LTA=정점 신호" → 신규 "고객 선제안=공급사 레버리지 확보". SEC 1Q OP만으로 역대 최강 2017-2018 연간평균 상회 = ROE/P/B 구조 전환. SEC > HXSCL 선호(미국 투자자), HBM4 고핀속도 11Gbps+ 램프업 문제 미보고 = SEC 점유 확대 수혜.\n' +
+    '• CoreWeave 프론티어 랩 독점: Meta $21B 신규(2032 Vera Rubin)+Meta $14B 기존+OpenAI $22B+Anthropic 수십억 = 합산 $58B+. NVIDIA 3중 관계(공급+고객+투자자)가 비NVDA 호스팅 차단. 2025말 가격 +20% 인상 보고(WSJ).\n' +
+    '• Nvidia Rubin 로드맵: CX9 NIC(포트당 800G→1.6Tb/s) 개발 과제로 일부 2026→2027 이월 가능(TrendForce). Citi 2026 Rubin 비중 31% 전망(TrendForce 수정치 22% 상회).\n' +
+    '• Marvell 역할 확장: Google TPU 신규 설계 벤더 승격(MediaTek급) + Google LPU(Groq 대응 LLM 전용 추론) 신규 아키텍처 논의. NVLink Fusion IP블록 제공으로 XPU 이진선택→스펙트럼 전환.\n\n' +
+    '【JPM 하드웨어/네트워킹 1Q26 — AI 밸류에이션 로테이션 (v48.18)】\n' +
+    '• 핵심 메시지: 이번 실적 시즌 펀더멘털 < **밸류에이션 드라이버**. AI 관련주 밸류에이션 프리미엄 과거 평균 +83%(직전 +79%). 광/T&M/HDD 프리미엄 쏠림, EMS/네트워킹/IT HW 프리미엄 완화.\n' +
+    '• 순위 재편 Top10: 1)ANET PT$200 2)APH PT$190 3)CLS 4)STX PT$600 Positive Catalyst 5)WDC PT$400 6)CRDO 7)CSCO 8)JBL 9)FLEX 10)COHR. HDD/EMS/DELL 상승, 광학주 하락.\n' +
+    '• 4건 OW→N 하향: GLW PT$175(NTM PE 50배+), FN PT$700+Negative Catalyst, NTAP PT$110(NAND 계약가 C4Q25 +36%→C2Q26 +73% 전례 없음 → FY27 GPM -200bps), QCOM PT$140+Negative Catalyst(ARM AGI CPU + Nvidia Groq LPX 경쟁).\n' +
+    '• HDD 가장 압도적 긍정: 완만한 가격 인상↑ + HAMR 전환 가속 COGS↓ 동시 진행. STX HAMR 주도권 F3Q/F4Q GPM 긍정 서프라이즈 여지.\n' +
+    '• 광학 vs 구리 논쟁: 시장의 광 대체 우려 과도. APH(AFL 2위) = 구리 최대 수혜. 광학은 2028년 이익 봐야 밸류에이션 정당화.\n\n' +
+    '【FactSet 어닝 인사이트 — NVDA 제외 매그7 역전 (v48.18)】\n' +
+    '• Q1 2026 EPS 서프라이즈 88%(5년 평균 78%). 매출 서프라이즈 84%(5년 평균 70%). S&P 500 Q1 혼합 EPS 성장률 13.2%(6분기 연속 두 자릿수).\n' +
+    '• **NVDA 제외 시 매그7 성장률 6.4% < 나머지 493개사 10.1%** — 이익 주도권이 NVDA 단독 집중. CY2026 전체로도 NVDA 제외 시 매그7 24.8%→13.2% 하락.\n' +
+    '• 긍정적 서프라이즈 주가 반응 -0.2%(5년 평균 +1.0% 대비) = "좋은 실적 이미 가격 반영" 해석.\n' +
+    '• 섹터: IT +45.1%(반도체 +95% 주도), 금융 +19.7%, 소재 +21.6% 강세. 에너지 -13.1%(Exxon EPS $1.83→$1.07), 헬스케어 -10.5%(Merck Cidara 일회성). 순이익률 IT 28.9% vs 에너지 6.8%.\n\n' +
+    '【DC 규제 전환 + 테라팹 신규 수요 (v48.18)】\n' +
+    '• Maine 주 20MW+ 신규 DC 2027 가을까지 모라토리엄 통과(미국 최초 주 단위). 최소 12개 주 유사 검토. 지난해 무산 DC 프로젝트 $1,520억.\n' +
+    '• 온사이트 발전 신수요: Wartsila 34SG 엔진 412MW 오하이오 하이퍼스케일 DC(선박 엔진 DC 전력 첫 사례). 전력망 연결 지연 회피 수요. 리드타임 2년.\n' +
+    '• 머스크 테라팹(TSLA+SpaceX JV): AMAT/TEL/LRCX에 "빛의 속도" 견적 요청 — 포토마스크/기판/식각/증착/세정/테스트 전방위. 삼성 테일러 팹 대안 요청 거절. 도쿄 일렉트론 +6% 급등, 어드반테스트/스크린HD/디스코 주가 견인.\n\n' +
+    '【AI 보안 정부 개입 표준화 (v48.18)】\n' +
+    '• OpenAI TAC(Trust Access for Cyber) 14개 초기 파트너: CRWD(양쪽 독점 — Glasswing+TAC 조기접근)+PANW(Glasswing)+ZS(TAC 신규 진입)+NVDA+ORCL+CSCO + 금융 7개 + 스타트업 2개. GPT-5.4 Cyber(원본 코드 없이 클로즈드 SW 취약점 분석).\n' +
+    '• 미국 CAISI/영국 AISI 연방기관 접근 제공 = 규제 표준화 경로. "AI 보안 ≠ 프론티어 모델 단독 해결" → 예산 촉매.\n\n' +
+    '【지정학(4/14 기준)】\n' +
+    '• 4/12 이슬라마바드 21시간 협상 결렬 → 4/13 호르무즈 봉쇄 발효 → 4/18 재개통 진행. 트럼프 "접근 선박 격침" 경고. Brent $103(+8%)→$95, WTI $98→$91. 봉쇄 장기화 시 공급갭 1,400만bbl/d.\n\n' +
+    '【주요 예정 이벤트 (v48.18 업데이트)】\n' +
+    '• 04/22-24 Google Cloud Next 라스베이거스 — 에이전트/인프라/고객 수주. 1일차 GCP CEO 기조연설(TPU/Rubin GPU/제미나이 3.5 가능성).\n' +
+    '• 04/28-29 FOMC — 듀얼 리스크 확인.\n' +
+    '• 04/29 GOOGL 1Q26 실적(Citi PT$405 90일 촉매).\n' +
+    '• 05/13 CPI + Brandcast.\n' +
+    '• 05/19-20 Google I/O — Gemini 3.5 예상.\n' +
+    '• 05/20 Google Marketing Live.\n' +
+    '• 어닝 시즌 진행 중: GS/JPM/TSM/NFLX/ASML 완료, MSFT/GOOGL/AMZN/META 예정.\n\n' +
     '위 뉴스와 매크로·반도체·스태그 맥락을 교차 분석하여 기관급 모닝 브리핑을 작성하세요.\n\n' +
     '=== 작성 원칙 ===\n' +
     '1. 뉴스를 "나열"하지 마라. 서사(narrative)로 엮어라. 마치 골드만삭스 CIO가 고객에게 보내는 데일리 노트처럼.\n' +
@@ -26215,11 +26265,16 @@ function _getChatRules() {
   '  [Q3 핵심 논쟁] Bull(GS): LTA 구속력 강화 → 메모리 이익 가시성 높아짐 → 밸류에이션 배수 재평가. Bear(미국 투자자): 과거 사례처럼 고객이 합의 파기 → 다운사이클. 26 하반기 가격 상승 둔화, 27년 초부터 순차 하락 가능성.\n' +
   '  [Q5 인접 파급] SEC(일반메모리 비중 레버리지 + HBM4 리더십) vs 하이닉스(HBM 점유 프리미엄 + P/B 대비 ROE 매력). LRCX/AMAT/ASML(2028 캐파 가동 전까지 장비 투자 지속). 리스크 축: 중국 DRAM/NAND 공급 위협 + 2028 신규 캐파 공급과잉 우려.\n' +
 
-  '73. 자산배분 — 미국 OW 상향, EM 중립 하향 — 씨티 (2026.04):\n' +
-  '  [Q2 패러다임 전환] 기존: "이익 확산(broadening)" = SMID/시클리컬이 메가캡 테크 격차 축소. 새: 이익 확산 논리 균열 확인 — 이익 성장이 다시 AI/테크로 재집중. 매그7+가 지수 시총 40% 점유하면서 PEG 기준 GFC 후 저점 부근 = 역설적으로 퀄리티 매수 기회로 전환.\n' +
-  '  [Q4 구조적 논리] 지정학 변동성 극대화(호르무즈 재개 후에도 통념 붕괴) → escalate-to-de-escalate 경로 → 퀄리티/디펜시브 쏠림. 중앙은행 Data Dependence 교훈 → Forward Guidance 실패 경계. 연말 Fed -75bp 전망 유지. Citi MSCI ACWI 연말 목표 1,380(+12%), S&P 500 7,700(+13%).\n' +
-  '  [Q3 핵심 논쟁] Bull: 휴전 지속 + 이익 상향 + 매그7 프리미엄 정당화 → 글로벌 두 자릿수 업사이드. Bear: EPS 상향 조정 이미 가격 반영, 시클리컬 컨센서스 2026 +20% 하향 조정 리스크, 스태그플레이션 충격 재연.\n' +
-  '  [Q5 인접 파급] 지역: 미국/영국 OW, EM 중립 하향(한국/대만 AI 시클리컬 유지), 일본 UW(에너지 충격 민감). 섹터: IT/소재/헬스케어 OW, 커뮤니케이션/필수소비재 UW. 테크 내: 반도체 > 소프트웨어. 헤지: 영국(디펜시브+원자재), 라틴아메리카(EM 내 헤지).\n' +
+  '73. Citi "Geopolitics in the Driver\'s Seat" — 자산배분 전환 심화 (2026.04.13):\n' +
+  '  [Q2 패러다임 전환] 기존: "이익 확산(broadening)" = SMID/시클리컬이 메가캡 테크 격차 축소. 새: 이익 확산 논리 **균열** 확인 — 이익 성장이 다시 AI/테크로 재집중. 매그7+가 지수 시총 40% 점유하면서 PEG 기준 GFC 후 저점 부근 = 역설적으로 **퀄리티 매수 기회**로 전환. 1월 비중확대→중립 하향 후 다시 OW.\n' +
+  '  [Q4 구조적 논리] ① 원자재 전략팀 기본 시나리오: "escalate to de-escalate" 경로 — 단기 유가 상승, 연말 하락. 에너지 인프라 파괴 테일 시나리오 낮음. ② 미국 중립→OW 상향 + 영국 OW 유지 = 비중확대 페어. EM OW→중립 하향. 일본 OW→UW(에너지 충격 민감). ③ 3가지 핵심 테마: (a) 지정학/스태그플레이션 리스크 (b) 이익 확산 논리 균열 (c) AI 트레이드 진화.\n' +
+  '  [Q4 세부 — 연말 지수 목표] MSCI ACWI 1,380(+12%) · S&P 500 7,700(+13%) · Stoxx 600 640(+4%) · Euro Stoxx 50 6,400(+9%) · FTSE 100 10,700(+1%) · 토픽스 4,200(+12%) · MSCI EM 1,770(+16%). 글로벌 벤치마크 기준 두 자릿수 상승 여력.\n' +
+  '  [Q4 세부 — 이익 전망 분기] 보텀업 2026 글로벌 EPS +20%(2025 +12%에서 가속). Citi 톱다운 +16%(보수). 지역별: 신흥국 +40%(bottom-up) / Citi +30-35% · 미국/영국 +18% / Citi 스콧 크로너트 S&P 500 EPS 320달러 연말 · 유럽 +13% / Citi +8%. 모든 지역 보텀업 하향 조정 압력. 글로벌 ERI 순하향 영역 진입(에너지·테크만 순상향).\n' +
+  '  [Q4 세부 — 밸류에이션] MSCI ACWI 12M 선행 PER 18배(25년 81퍼센타일). 미국 20배 절대 최고/80퍼센타일. 영국 13배 최저. 산업재 22배(98퍼센타일)/유틸 17배(97퍼센타일) 고평가, 테크는 25년 대비 가장 저렴. "What\'s Priced In" 모델: 신흥국 제외 대부분 EPS 상향 가격에 이미 반영 → 리스크 하방 기울어짐.\n' +
+  '  [Q4 세부 — 베어마켓 체크리스트] 글로벌 18개 중 **8개 적신호**(주로 비싼 밸류에이션). 유럽 4개(양호), 미국 9개(다소 거품이나 "매수 후 보유" 전략 측면 조정 시 매수 권고). 포지셔닝: 미국 제외 다수 지수 강세 포지션 이란 사태 후 청산 완료 → 디리스킹→숏 구축 단계, 레브코비치 모델 미국 심리 "유포리아" 재진입.\n' +
+  '  [Q3 핵심 논쟁] Bull: 휴전 지속 + 이익 상향 + 매그7 프리미엄 정당화 → 글로벌 두 자릿수 업사이드. 1995/1998 선례 — 인하→인상 전환해도 성장 유지 시 강세장 모멘텀 불변. Bear: EPS 상향 이미 가격 반영, 시클리컬 컨센서스 2026 +20% 하향 리스크, 2022년 우크라이나 사태 플레이북(미국/영국/호주 선방 vs EM/영국 외 유럽 부진) 재연 가능.\n' +
+  '  [Q5 인접 파급] 지역 세부: 미국 OW(스콧 크로너트 골디락스 후퇴 but 관리가능, 매그7 PEG GFC 후 저점). 영국 OW(원자재+디펜시브 효과적 지정학 헤지). 유럽 대륙 중립(재정 수혜 vs 에너지 리스크 상쇄, 헬스케어/은행 매력). EM 중립(물리적 에너지 부족+달러 강세 취약, 한국/대만 AI 시클리컬 유지, 라틴아메리카 = 핵심 지정학 헤지). 일본 UW(토픽스 16배 역사적 고점, 사카가미 FY26 EPS +9.0% 톱다운 vs 컨센 +12.9%). 호주 UW(바벨 전략 내 휴전 지속 시 상대 취약). 섹터: IT OW(이익 모멘텀+밸류에이션 최선호, 소프트웨어보다 반도체 선호)·소재 OW(금융 대체 선호 시클리컬)·헬스케어 OW(핵심 디펜시브). 커뮤니케이션 UW(모델 점수 최저), 필수소비재 UW.\n' +
+  '  [Q4 세부 — AI 트레이드 진화] 기존 광범위 AI 열기 → 선별적. 미국 SW 선행 PER S&P 500 대비 소폭 프리미엄, 유럽 AI 디스럽션 종목군 벤치마크 디스카운트. 기회 2종: ① 매그7 "퀄리티 매수" — EPS 상향 일관, 자체 역사 대비 저렴 ② AI "인에이블러→어답터" 이행 — 산업재/헬스케어/IT AI 기반 생산성 향상.\n' +
 
   '74. JPM 하드웨어/네트워킹 1Q26 프리뷰 — AI 밸류에이션 로테이션 (2026.04):\n' +
   '  [Q2 패러다임 전환] 기존: 실적 펀더멘털이 주가의 주된 동인. 새: 이번 실적 시즌은 펀더멘털보다 **밸류에이션 드라이버**가 더 큰 증분 변수. AI 관련주 밸류에이션 프리미엄이 과거 평균 대비 +83%(직전 분기 +79%)까지 확대 — 광/T&M/HDD로 쏠림. EMS/네트워킹/IT HW는 프리미엄 완화.\n' +
@@ -31212,6 +31267,18 @@ function renderEconCalendar() {
     {name:'GDP (분기)', dayRange:'last-week', impact:'HIGH', tip:'경제 성장률 = 큰 그림', impColor:'#f87171'},
     {name:'FOMC 회의', dayRange:'6-weeks', impact:'HIGH', tip:'기준금리 결정 = 시장 방향 결정', impColor:'#f87171'}
   ];
+  // v48.18 (integrate): 2026년 4-5월 주요 기업 이벤트 (날짜 지정형)
+  var pinnedEvents2026 = [
+    {date:'04/22-24', name:'Google Cloud Next (라스베이거스)', impact:'HIGH', tip:'에이전트/인프라/고객 수주 · TPU·Rubin GPU·제미나이 3.5 발표 가능 · GCP 자신감 톤 예상(BofA)', impColor:'#f87171'},
+    {date:'04/28-29', name:'FOMC 회의', impact:'HIGH', tip:'씨티 연말 -75bp 전망 · 호르무즈 재개통 후 가격 재조정 · 듀얼 리스크 재확인', impColor:'#f87171'},
+    {date:'04/29', name:'GOOGL 1Q26 실적 (장 마감 후)', impact:'HIGH', tip:'Citi PT$405 90일 상승 촉매 워치 · 검색 +16.5%/YouTube +11.5%/Cloud +57.5% 예상', impColor:'#f87171'},
+    {date:'04/30', name:'MSFT 1Q26 실적', impact:'HIGH', tip:'Azure 37-38%cc 가이던스 확인 · Fairwater DC 외부할당 언급 여부 주시', impColor:'#f87171'},
+    {date:'05/01', name:'AMZN 1Q26 실적', impact:'HIGH', tip:'AWS +28%/매출 $178.8B 예상 · Globalstar LEO 전략 · Prime Day 6월 이동 여부', impColor:'#f87171'},
+    {date:'05/13', name:'CPI + Brandcast (YouTube 광고주 행사)', impact:'HIGH', tip:'5월 CPI · YouTube 광고 전략 업데이트', impColor:'#f87171'},
+    {date:'05/19-20', name:'Google I/O', impact:'HIGH', tip:'Gemini 3.5 공개 예상 · 개발자 생태계 업데이트', impColor:'#f87171'},
+    {date:'05/20', name:'Google Marketing Live (GML)', impact:'MED', tip:'광고 제품 업데이트 — AI Max/에이전틱 커머스', impColor:'#fbbf24'},
+    {date:'07월', name:'TSMC 2Q26 실적', impact:'HIGH', tip:'2026-2028 3년 Capex $190-200B 계획 공시 예상 · 2026 가이던스 추가 상향 가능성', impColor:'#f87171'}
+  ];
   var now = new Date();
   var dow = now.getDay(); // 0=Sun
   var dayNames = ['일','월','화','수','목','금','토'];
@@ -31248,6 +31315,18 @@ function renderEconCalendar() {
     html += '<div style="font-size:9px;font-weight:700;color:#fbbf24;margin-bottom:4px;"> 이번 달 주요 이벤트</div>';
     upcomingMonthly.forEach(function(ev) {
       html += '<div style="font-size:9px;color:var(--text-muted);line-height:1.6;">• <b style="color:var(--text-secondary);">' + ev.name + '</b> — ' + ev.tip + '</div>';
+    });
+    html += '</div>';
+  }
+  // v48.18 (integrate): 고정 이벤트 타임라인 (4-5월 Google/어닝 시즌/FOMC)
+  if (pinnedEvents2026 && pinnedEvents2026.length > 0) {
+    html += '<div style="margin-top:8px;padding:8px;background:rgba(91,168,255,0.05);border-left:3px solid #60a5fa;border-radius:4px;">';
+    html += '<div style="font-size:9px;font-weight:700;color:#60a5fa;margin-bottom:6px;">예정 이벤트 (v48.18 · /integrate 35건 반영)</div>';
+    pinnedEvents2026.forEach(function(ev) {
+      html += '<div style="font-size:9px;color:var(--text-muted);line-height:1.7;display:grid;grid-template-columns:60px 1fr;gap:6px;margin-bottom:3px;">';
+      html += '<span style="color:#60a5fa;font-weight:700;font-family:var(--font-mono);">' + ev.date + '</span>';
+      html += '<span><b style="color:var(--text-secondary);">' + ev.name + '</b><span style="font-size:8px;color:' + ev.impColor + ';margin-left:6px;font-weight:700;">' + ev.impact + '</span> — ' + ev.tip + '</span>';
+      html += '</div>';
     });
     html += '</div>';
   }
