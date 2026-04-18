@@ -8894,7 +8894,7 @@ function showDataError(area, msg, severity) {
       }
     }, ttl);
   }
-  console.warn('[AIO:' + area + '] ' + msg);
+  _aioLog('warn', area, msg);
 }
 
 // ═══ v30.11: 차트 데이터 검증 게이트 (공통 유틸리티) ══════════════════
@@ -8983,7 +8983,7 @@ function chartDataGate(canvasId, labels, datasets, opts) {
       if (stddev > 0) {
         for (var k = 0; k < ds.length; k++) {
           if (ds[k] !== null && Math.abs(ds[k] - mean) > 5 * stddev) {
-            console.warn('[AIO:Chart:' + chartName + '] 극단값 감지 idx=' + k + ' val=' + ds[k] + ' (mean=' + mean.toFixed(2) + ' std=' + stddev.toFixed(2) + ')');
+            _aioLog('warn', 'chart', chartName + ': 극단값 감지 idx=' + k + ' val=' + ds[k] + ' (mean=' + mean.toFixed(2) + ' std=' + stddev.toFixed(2) + ')');
           }
         }
       }
@@ -9021,7 +9021,7 @@ function _showChartFallback(canvas, chartName, reason) {
     '<div style="font-size:9px;color:var(--text-muted);margin-top:4px;">데이터 갱신 시 자동 복구됩니다</div>' +
     '<button onclick="if(typeof fetchLiveQuotes===\'function\')fetchLiveQuotes()" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:8px;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:6px;">↻ 데이터 재시도</button>';
   parent.insertBefore(overlay, canvas);
-  console.warn('[AIO:Chart] ' + chartName + ': ' + reason);
+  _aioLog('warn', 'chart', chartName + ': ' + reason);
 }
 
 /**
@@ -9062,7 +9062,7 @@ function _parseYFChartResponse(raw) {
   // HTML 에러페이지 탐지
   if (typeof raw === 'string') {
     if (raw.trimStart().startsWith('<!DOCTYPE') || raw.trimStart().startsWith('<html')) {
-      console.warn('[AIO:Chart] Yahoo Finance HTML 에러 페이지 감지');
+      _aioLog('warn', 'chart', 'Yahoo Finance HTML 에러 페이지 감지');
       return null;
     }
   }
@@ -9286,7 +9286,7 @@ async function _retryAllFailedApis() {
       showDataError('재연결', stillDead + '개 소스가 여전히 응답하지 않습니다 — 네트워크 상태를 확인하세요', 'warn');
     }
   } catch(e) {
-    console.warn('[AIO] _retryAllFailedApis error:', e);
+    _aioLog('warn', 'fetch', '_retryAllFailedApis error: ' + (e && e.message || e));
     showDataError('재연결', '재연결 시도 중 오류 발생', 'warn');
   } finally {
     _retryAllInProgress = false;
@@ -9372,7 +9372,7 @@ async function safeLS(key, value) {
     } else {
       storage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
     }
-  } catch(e) { console.warn('[AIO Vault] safeLS error:', e.message); }
+  } catch(e) { _aioLog('warn', 'vault', 'safeLS error: ' + e.message); }
 }
 
 // 비동기 읽기 (복호화)
@@ -9385,7 +9385,7 @@ async function safeLSGet(key, def) {
       return (await _AioVault.decrypt(raw)) || def || '';
     }
     return raw;
-  } catch(e) { console.warn('[AIO Vault] safeLSGet error:', e.message); return def || ''; }
+  } catch(e) { _aioLog('warn', 'vault', 'safeLSGet error: ' + e.message); return def || ''; }
 }
 
 // 동기 읽기 (평문 호환 — PIN 미설정 시 기존 동작 유지)
@@ -9485,10 +9485,10 @@ async function _migrateToEncrypted() {
       console.log('[AIO Vault] 마이그레이션 성공: ' + Object.keys(plainKeys).length + '개 키 암호화됨');
     } else {
       for (var k in plainKeys) localStorage.setItem(k, plainKeys[k]);
-      console.error('[AIO Vault] 마이그레이션 실패 — 평문 복원됨');
+      _aioLog('error', 'vault', '마이그레이션 실패 — 평문 복원됨');
     }
   } catch(e) {
-    console.error('[AIO Vault] 마이그레이션 오류:', e);
+    _aioLog('error', 'vault', '마이그레이션 오류: ' + (e && e.message || e));
   }
 }
 
@@ -9499,7 +9499,7 @@ function _saveApiKey(lsKey, inputId, btnEl) {
   var val = el ? el.value : '';
   // v47.9: 마스킹된 값("abcd...xyz1") 저장 방지 — 사용자가 input에 입력한 원본만 허용
   if (val && val.indexOf('...') !== -1 && val.length < 30) {
-    console.warn('[AIO] 마스킹된 값 저장 거부:', lsKey);
+    _aioLog('warn', 'vault', '마스킹된 값 저장 거부: ' + lsKey);
     btnEl.textContent = '×';
     setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK || 1500);
     return;
@@ -9610,7 +9610,7 @@ async function _restoreDecryptedKeys() {
       }
     }
     console.log('[AIO Vault] _restoreDecryptedKeys: ' + Object.keys(_AioVault._keyRuntime).length + '개 키 캐시 복원');
-  } catch(e) { console.warn('[AIO Vault] _restoreDecryptedKeys error:', e.message); }
+  } catch(e) { _aioLog('warn', 'vault', '_restoreDecryptedKeys error: ' + e.message); }
 }
 
 function _updateVaultStatus() {
@@ -9789,7 +9789,7 @@ const PriceStore = {
     this._stats.rejected++;
     if (this._rejected.length >= 50) this._rejected.shift();
     this._rejected.push({ sym, price, source, reason, detail, ts: Date.now() });
-    console.warn(`[PriceStore] 거부: ${sym} = ${price} (${reason}: ${detail})`);
+    _aioLog('warn', 'price', '거부: ' + sym + ' = ' + price + ' (' + reason + ': ' + detail + ')');
   },
   health() {
     const now = Date.now();
@@ -9837,7 +9837,7 @@ const MacroStore = {
         this._reject(id, val, 'out_of_range', `${range.label}: ${val} (범위: ${range.min}~${range.max})`);
         return false;
       }
-      if (val > range.warnMax) console.warn(`[MacroStore] 경고: ${id}(${range.label}) = ${val} — 이상 고값`);
+      if (val > range.warnMax) _aioLog('warn', 'macro', '경고: ' + id + '(' + range.label + ') = ' + val + ' — 이상 고값');
     }
     const dataAge = date ? Math.floor((Date.now() - new Date(date).getTime()) / 86400000) : null;
     this._data[id] = { value: val, prevValue: prev, date, ts: Date.now(), dataAgeDays: dataAge, stale: false };
@@ -9851,7 +9851,7 @@ const MacroStore = {
     this._stats.rejected++;
     if (this._rejected.length >= 30) this._rejected.shift();
     this._rejected.push({ id, value, reason, detail, ts: Date.now() });
-    console.warn(`[MacroStore] 거부: ${id} = ${value} (${reason}: ${detail})`);
+    _aioLog('warn', 'macro', '거부: ' + id + ' = ' + value + ' (' + reason + ': ' + detail + ')');
   },
   health() {
     const now = Date.now();
@@ -9916,7 +9916,7 @@ const DataHealth = {
     console.log(`  시세: ${r.price.fresh} fresh / ${r.price.stale} stale / ${r.price.rejected} rejected (${r.price.rejectRate})`);
     console.log(`  매크로: ${r.macro.fresh} fresh / ${r.macro.stale} stale / ${r.macro.rejected} rejected`);
     console.log(`  뉴스: ${r.news.uniqueArticles} unique / ${r.news.duplicatesRemoved} dupes / ${r.news.deadFeeds.length} dead feeds`);
-    if (r.summary.issues.length > 0) console.warn('  이슈:', r.summary.issues.join(' | '));
+    if (r.summary.issues.length > 0) _aioLog('warn', 'debug', '이슈: ' + r.summary.issues.join(' | '));
     return r;
   }
 };
@@ -10323,7 +10323,7 @@ const NARRATIVE_ENGINE = (function() {
       if (skewBar) { skewBar.style.width = skewReg.bar + '%'; skewBar.style.background = skewReg.color; }
       const moveBar = document.querySelector('#rm-move-val ~ .rm-bar-wrap .rm-bar');
       if (moveBar) { moveBar.style.width = moveReg.bar + '%'; moveBar.style.background = moveReg.color; }
-    } catch(e) { console.warn('[NARRATIVE_ENGINE.renderTailRiskBoard]', e); }
+    } catch(e) { _aioLog('warn', 'narrative', 'renderTailRiskBoard: ' + (e && e.message || e)); }
   }
 
   // ── 6. 초기화 (DOMContentLoaded 훅) ─────────────────────
@@ -10416,7 +10416,7 @@ const NARRATIVE_ENGINE = (function() {
     init
   };
 })();
-try { NARRATIVE_ENGINE.init(); } catch(e) { console.warn('[NARRATIVE_ENGINE.init]', e); }
+try { NARRATIVE_ENGINE.init(); } catch(e) { _aioLog('warn', 'narrative', 'init: ' + (e && e.message || e)); }
 
 // ═══════════════════════════════════════════════════════════════════
 // v36: DATE_ENGINE — 동적 날짜/시간 시스템 (하드코딩 날짜 근본 해결)
@@ -10599,7 +10599,7 @@ const DATE_ENGINE = (function() {
 })();
 
 // 페이지 로드 시 즉시 실행 + 1시간마다 갱신
-try { DATE_ENGINE.applyToDOM(); } catch(e) { console.warn('[DATE_ENGINE] 초기화 실패:', e); }
+try { DATE_ENGINE.applyToDOM(); } catch(e) { _aioLog('warn', 'date', '초기화 실패: ' + (e && e.message || e)); }
 if (window._dateEngineInterval) clearInterval(window._dateEngineInterval);
 window._dateEngineInterval = setInterval(function() { try { DATE_ENGINE.applyToDOM(); } catch(e) {} }, T.DATE_REFRESH);
 
@@ -10744,7 +10744,7 @@ function applyDataSnapshot() {
           }
         }
       }
-    } catch(regErr) { console.warn('[AIO v48.14] regime auto-update 실패:', regErr.message); }
+    } catch(regErr) { _aioLog('warn', 'regime', 'auto-update 실패: ' + regErr.message); }
 
     // v48.14: Breadth 36px 카드 bar 너비·레이블·색상 동적 갱신 (Agent P1-04)
     try {
@@ -10766,7 +10766,7 @@ function applyDataSnapshot() {
           }
         });
       }
-    } catch(brErr) { console.warn('[AIO v48.14] breadth auto-update 실패:', brErr.message); }
+    } catch(brErr) { _aioLog('warn', 'breadth', 'auto-update 실패: ' + brErr.message); }
 
     // v48.14: data-snap-date 표준화 — 모든 스냅샷 배지에 경과일 자동 표시 (Agent 권장 아키텍처)
     // 사용: <span data-snap-date="briefing-archive">2026-04-15</span>
@@ -10793,7 +10793,7 @@ function applyDataSnapshot() {
           }
         }
       });
-    } catch(sdErr) { console.warn('[AIO v48.14] snap-date 처리 실패:', sdErr.message); }
+    } catch(sdErr) { _aioLog('warn', 'snap-date', '처리 실패: ' + sdErr.message); }
 
     // v48.14: FX 카드 fx-note 해설 동적 생성 (Agent P1-12)
     try {
@@ -10820,7 +10820,7 @@ function applyDataSnapshot() {
           }
         });
       }
-    } catch(fxErr) { console.warn('[AIO v48.14] FX note 자동 갱신 실패:', fxErr.message); }
+    } catch(fxErr) { _aioLog('warn', 'fx-note', '자동 갱신 실패: ' + fxErr.message); }
 
     // v30.11: 스냅샷 데이터를 _liveData에도 seed (아직 실시간 미연결 심볼용)
     // _dataSource를 'snapshot'으로 표기하여 실시간 구분
@@ -11082,7 +11082,7 @@ function destroyPageCharts(pageId) {
       if (rrgCanvas) { var ctx2d = rrgCanvas.getContext && rrgCanvas.getContext('2d'); if (ctx2d) ctx2d.clearRect(0, 0, rrgCanvas.width, rrgCanvas.height); }
       if (window._rrgRetry) window._rrgRetry = 0;
     }
-  } catch(e) { console.warn('[AIO] destroyPageCharts error:', e); }
+  } catch(e) { _aioLog('warn', 'chart', 'destroyPageCharts error: ' + (e && e.message || e)); }
 }
 
 // v48.14 (Agent C1/P1-3): _liveData 직접 쓰기 감지 헬퍼 — AIO_DEBUG 켰을 때만 경고
@@ -11253,7 +11253,7 @@ function _firePageShown(id, source) {
     }
     _lastPageShownFire[id] = now;
     document.dispatchEvent(new CustomEvent('aio:pageShown', { detail: id, source: source || 'unknown' }));
-  } catch(e) { console.warn('[AIO v48.14] _firePageShown failed:', e.message); }
+  } catch(e) { _aioLog('warn', 'fire-page', '_firePageShown failed: ' + e.message); }
 }
 
 function showPage(id, navEl) {
@@ -11358,7 +11358,7 @@ function showPage(id, navEl) {
         if (!_hasContent && typeof fetchAllNews === 'function') {
           setTimeout(() => {
             if (!isFetching) {
-              fetchAllNews().then(() => renderBriefingFeed(newsCache)).catch(e => console.warn('[AIO] Briefing fetch error:', e));
+              fetchAllNews().then(() => renderBriefingFeed(newsCache)).catch(e => _aioLog('warn', 'fetch', 'Briefing fetch error: ' + (e && e.message || e)));
             }
             // isFetching 중이면 fetchAllNews 완료 시 자동으로 renderBriefingFeed 호출됨
           }, 600);
@@ -11418,7 +11418,7 @@ function showPage(id, navEl) {
       // v30.14: macro 페이지에서도 Yield Curve 차트 초기화
       if (typeof initYieldCurveChart === 'function') { try { initYieldCurveChart(); } catch(e) {} }
       // v46.6: FRED 경제지표 시계열 차트
-      if (typeof _renderFredCharts === 'function') { try { _renderFredCharts(); } catch(e) { console.warn('[AIO] FRED 차트 에러:', e); } }
+      if (typeof _renderFredCharts === 'function') { try { _renderFredCharts(); } catch(e) { _aioLog('warn', 'chart', 'FRED 차트 에러: ' + (e && e.message || e)); } }
     });
   }
   if (id === 'fundamental') {
@@ -11429,7 +11429,7 @@ function showPage(id, navEl) {
   // v31.9: 옵션 페이지 초기화 — 실시간 VIX/VVIX 연동 + 파생 지표 계산
   if (id === 'options') {
     _safePageInit(function() {
-      if (typeof initOptionsPage === 'function') { try { initOptionsPage(); } catch(e) { console.warn('[AIO] Options init error:', e); } }
+      if (typeof initOptionsPage === 'function') { try { initOptionsPage(); } catch(e) { _aioLog('warn', 'init', 'Options init error: ' + (e && e.message || e)); } }
     });
   }
 }
@@ -13365,7 +13365,7 @@ function initFinnhubWebSocket() {
     return;
   }
   if (_finnhubReconnectAttempts === 10) {
-    console.warn('[AIO] Finnhub WS: 빠른 재연결 10회 실패 → 슬로우 모드 전환 (5분 간격)');
+    _aioLog('warn', 'fetch', 'Finnhub WS: 빠른 재연결 10회 실패 → 슬로우 모드 전환 (5분 간격)');
     if (typeof _aioLog === 'function') _aioLog('warn', 'finnhub', '빠른 재연결 10회 실패 → 슬로우 모드');
     const badge = document.querySelector('.freshness-badge.fb-live');
     if (badge) badge.innerHTML = '재연결 대기';
@@ -13420,13 +13420,13 @@ function initFinnhubWebSocket() {
             }
           });
         }
-      } catch(e) { console.warn('[AIO] Finnhub parse error:', e); }
+      } catch(e) { _aioLog('warn', 'fetch', 'Finnhub parse error: ' + (e && e.message || e)); }
     };
 
     _finnhubWS.onerror = (e) => {
       // Only log error once per connection attempt to avoid console spam
       if (!_finnhubErrorLogged) {
-        console.warn('[AIO] Finnhub WS error:', e.message || 'connection error');
+        _aioLog('warn', 'fetch', 'Finnhub WS error: ' + (e.message || 'connection error'));
         _finnhubErrorLogged = true;
         // v48.14 (W15): 서킷 브레이커 fail 카운트 증가
         if (window._finnhubCircuit) window._finnhubCircuit.failsInWindow++;
@@ -13445,7 +13445,7 @@ function initFinnhubWebSocket() {
       if (_finnhubReconnectTimer) clearTimeout(_finnhubReconnectTimer);
       _finnhubReconnectTimer = setTimeout(initFinnhubWebSocket, delay * 1000);
     };
-  } catch(e) { console.warn('[AIO] Finnhub WS init failed:', e); }
+  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub WS init failed: ' + (e && e.message || e)); }
 }
 
 // ═══ 2. Twelve Data — 기술적 지표 & 차트 데이터 ═══════════════
@@ -13485,7 +13485,7 @@ async function fetchTechnicalIndicators(symbol = 'SPY') {
         if (matched > 0) return results;
       }
     }
-  } catch(e) { console.warn('[AIO] Twelve Data complex_data error:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'Twelve Data complex_data error: ' + e.message); }
   // v47.11 폴백: 개별 순차 호출 (complex_data 미지원 시)
   try {
     const results = {};
@@ -13496,7 +13496,7 @@ async function fetchTechnicalIndicators(symbol = 'SPY') {
       await new Promise(ok => setTimeout(ok, 200));
     }
     return results;
-  } catch(e) { console.warn('[AIO] Twelve Data sequential fallback error:', e); return null; }
+  } catch(e) { _aioLog('warn', 'fetch', 'Twelve Data sequential fallback error: ' + (e && e.message || e)); return null; }
 }
 
 // v47.10: fetchChartData / fetchBreadthFromAV / fetchFundamentals 제거 — 정의만 있고 호출 0건 (dead code P112)
@@ -13586,7 +13586,7 @@ async function fetchNaverUSData(sym, includeFinance) {
     _naverUSCache[ck] = result;
     return result;
   } catch(e) {
-    console.warn('[AIO] Naver US error:', sym, e.message || e);
+    _aioLog('warn', 'fetch', 'Naver US error: ' + sym + ' ' + (e.message || e));
     return null;
   }
 }
@@ -13617,14 +13617,14 @@ async function fetchFredSeries(seriesId, limit = 30) {
   try {
     const r = await fetchWithTimeout(url, {}, 6000);
     if (r.ok) { return _extractObs(await r.json()); }
-    if (r.status === 429) { console.warn('[AIO] FRED rate limit hit — 60s 대기'); await new Promise(ok => setTimeout(ok, T.COOLDOWN)); return null; }
+    if (r.status === 429) { _aioLog('warn', 'fetch', 'FRED rate limit hit — 60s 대기'); await new Promise(ok => setTimeout(ok, T.COOLDOWN)); return null; }
     if (r.status === 403 || r.status === 400) { showDataError('FRED', 'API 키가 유효하지 않거나 한도 초과', 'error'); return null; }
   } catch(e) { /* CORS blocked — fallback to proxy */ }
   // 3차: CORS 프록시 경유 (corsproxy, allorigins 등)
   try {
     const r = await fetchViaProxy(url, 8000);
     if (r.ok) { return _extractObs(await r.json()); }
-  } catch(e) { console.warn('[AIO] FRED proxy error:', seriesId, e.message || e); }
+  } catch(e) { _aioLog('warn', 'fetch', 'FRED proxy error: ' + seriesId + ' ' + (e.message || e)); }
   return null;
 }
 
@@ -13680,7 +13680,7 @@ async function fetchAllFredData() {
   }
 
   window._fredData = results;
-  try { applyFredToUI(results); } catch(e) { console.warn('[AIO] applyFredToUI error:', e.message); }
+  try { applyFredToUI(results); } catch(e) { _aioLog('warn', 'render', 'applyFredToUI error: ' + e.message); }
   console.log('[AIO v20] FRED data loaded:', Object.keys(results).length, 'series (MacroStore 검증)');
   return results;
 }
@@ -13857,7 +13857,7 @@ async function _renderFredCharts() {
           plugins: { legend: { display: false } }
         }
       });
-    } catch(e) { console.warn('[AIO] FRED chart error:', s.id, e.message); }
+    } catch(e) { _aioLog('warn', 'chart', 'FRED chart error: ' + s.id + ' ' + e.message); }
   }
   if (statusEl) statusEl.textContent = '갱신: ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
 }
@@ -13873,7 +13873,7 @@ async function fetchFinnhubNews(category = 'general') {
       const data = await r.json();
       return Array.isArray(data) ? data : [];
     }
-  } catch(e) { console.warn('[AIO] Finnhub news error:', e.message || String(e)); }
+  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub news error: ' + (e.message || String(e))); }
   return [];
 }
 
@@ -13907,7 +13907,7 @@ async function fetchFinnhubCompanyNews(symbol, daysBack) {
         image: n.image || null
       };
     });
-  } catch(e) { console.warn('[AIO] Finnhub company-news error:', e.message); return []; }
+  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub company-news error: ' + e.message); return []; }
 }
 
 // v48.0: Finnhub 무료 티어 확장 활용 — /stock/metric (PE/PB/ROE/52W 통합), /stock/recommendation (애널리스트), /calendar/earnings
@@ -13921,7 +13921,7 @@ async function fetchFinnhubMetrics(symbol) {
     if (!r.ok) return null;
     const d = await r.json();
     return d && d.metric ? d.metric : null;  // {peBasicExclExtraTTM, pb, beta, 52WeekHigh, 52WeekLow, epsTTM, roeTTM, ...}
-  } catch(e) { console.warn('[AIO] Finnhub metric error:', e.message); return null; }
+  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub metric error: ' + e.message); return null; }
 }
 async function fetchFinnhubRecommendation(symbol) {
   const key = DATA_APIS.finnhub.key();
@@ -13932,7 +13932,7 @@ async function fetchFinnhubRecommendation(symbol) {
     if (!r.ok) return null;
     const arr = await r.json();
     return Array.isArray(arr) && arr.length > 0 ? arr[0] : null;  // {buy, hold, sell, strongBuy, strongSell, period}
-  } catch(e) { console.warn('[AIO] Finnhub recommendation error:', e.message); return null; }
+  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub recommendation error: ' + e.message); return null; }
 }
 async function fetchFinnhubEarningsCalendar(fromDate, toDate, symbol) {
   const key = DATA_APIS.finnhub.key();
@@ -13944,7 +13944,7 @@ async function fetchFinnhubEarningsCalendar(fromDate, toDate, symbol) {
     if (!r.ok) return [];
     const d = await r.json();
     return d && Array.isArray(d.earningsCalendar) ? d.earningsCalendar : [];
-  } catch(e) { console.warn('[AIO] Finnhub earnings calendar error:', e.message); return []; }
+  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub earnings calendar error: ' + e.message); return []; }
 }
 
 
@@ -13974,7 +13974,7 @@ async function fetchNewsDataIO(category = 'business') {
         _api: 'newsdata'
       })).filter(i => i.title.length > 10);
     }
-  } catch(e) { console.warn('[AIO] NewsData.io error:', e.message || String(e)); }
+  } catch(e) { _aioLog('warn', 'fetch', 'NewsData.io error: ' + (e.message || String(e))); }
   return [];
 }
 
@@ -14044,7 +14044,7 @@ async function fetchBreadthData() {
       });
     }
   } catch(e) {
-    console.warn('[AIO] Breadth data error:', e);
+    _aioLog('warn', 'breadth', 'Breadth data error: ' + (e && e.message || e));
     showDataError('시장폭', '시장 폭 데이터 로딩 실패 — 정적 데이터 사용 중', 'warn');
   }
 }
@@ -14083,7 +14083,7 @@ async function fetchSentimentHistory() {
     try { raw = await r.text(); } catch(e) { raw = ''; }
     // v30.11: HTML 에러페이지 탐지 (유령 차트 방지)
     if (raw.trimStart().startsWith('<!DOCTYPE') || raw.trimStart().startsWith('<html')) {
-      console.warn('[AIO] VIX chart: Yahoo returned HTML error page');
+      _aioLog('warn', 'chart', 'VIX chart: Yahoo returned HTML error page');
       showDataError('VIX차트', 'Yahoo Finance HTML 에러 — 프록시 전환 대기', 'warn');
       return;
     }
@@ -14094,7 +14094,7 @@ async function fetchSentimentHistory() {
       try { data = JSON.parse(data.contents); } catch(e) {}
       // v30.11: 이중 래핑된 경우도 HTML 체크
       if (typeof data === 'string' && data.trimStart().startsWith('<')) {
-        console.warn('[AIO] VIX chart: allorigins returned HTML inside JSON wrapper');
+        _aioLog('warn', 'chart', 'VIX chart: allorigins returned HTML inside JSON wrapper');
         return;
       }
     }
@@ -14111,11 +14111,11 @@ async function fetchSentimentHistory() {
       updateSentimentChart('vix', vixHistory);
       console.log('[AIO v20] VIX history loaded:', vixHistory.length, 'days');
     } else {
-      console.warn('[AIO] VIX chart: insufficient data points');
+      _aioLog('warn', 'chart', 'VIX chart: insufficient data points');
       showDataError('VIX차트', '데이터 포인트 부족 — 정적 차트 유지', 'warn');
     }
   } catch(e) {
-    console.warn('[AIO v20] VIX history fetch failed:', e.message);
+    _aioLog('warn', 'fetch', 'VIX history fetch failed: ' + e.message);
     showDataError('VIX', 'VIX 히스토리 로딩 실패 — 정적 차트 데이터 사용 중', 'warn');
   }
 }
@@ -14134,7 +14134,7 @@ function updateSentimentChart(type, data) {
     chart.data.labels = gated.labels;
     chart.data.datasets[0].data = gated.datasets[0];
     chart.update('none');
-  } catch(e) { console.warn('[AIO] Chart update error:', e); }
+  } catch(e) { _aioLog('warn', 'chart', 'Chart update error: ' + (e && e.message || e)); }
 }
 
 // ═══ 9. 데이터 갱신 스케줄러 (중앙 관리) ═══════════════════════
@@ -14335,7 +14335,7 @@ function applyTechIndicators(data) {
       }
     }
     console.log('[AIO v20] Technical indicators applied');
-  } catch(e) { console.warn('[AIO] Tech indicator apply error:', e); }
+  } catch(e) { _aioLog('warn', 'render', 'Tech indicator apply error: ' + (e && e.message || e)); }
 }
 
 // ═══ 10. 초기화 (마스터 부팅 시퀀스) ═══════════════════════════
@@ -16505,7 +16505,7 @@ async function googleTranslateFree(text, from='en', to='ko', _retry=0) {
   try {
     var result = await _gtBatchTranslate([text], from, to, _retry);
     return result[0];
-  } catch(e) { console.warn('[AIO] googleTranslateFree error:', e.message); return null; }
+  } catch(e) { _aioLog('warn', 'fetch', 'googleTranslateFree error: ' + e.message); return null; }
 }
 
 // v30.12: 배치 번역 — 최대 8건을 하나의 API 호출로 처리
@@ -16548,7 +16548,7 @@ async function _gtBatchTranslate(texts, from, to, _retry) {
           parts = [fullResult];
         } else {
           // v46.6: 배치 분리자 실패 → 개별 1건씩 재시도 (기존: 전부 null 반환)
-          console.warn('[AIO 번역] 배치 분리자 불일치 (' + parts.length + '/' + validMap.length + ') → 개별 번역 폴백');
+          _aioLog('warn', 'translate', '배치 분리자 불일치 (' + parts.length + '/' + validMap.length + ') → 개별 번역 폴백');
           var fallbackResults = new Array(texts.length);
           for (var fi = 0; fi < texts.length; fi++) fallbackResults[fi] = null;
           for (var si = 0; si < validMap.length; si++) {
@@ -16844,11 +16844,11 @@ ${prompt}`
                 translated++;
               }
             });
-          } catch(e) { console.warn('[AIO] 번역 JSON 파싱 에러:', e); }
+          } catch(e) { _aioLog('warn', 'translate', '번역 JSON 파싱 에러: ' + (e && e.message || e)); }
         }
       } else {
         const errText = await resp.text().catch(() => '');
-        console.warn('[AIO] 번역 API 응답 에러:', resp.status, errText.slice(0, 200));
+        _aioLog('warn', 'translate', '번역 API 응답 에러: ' + resp.status + ' ' + errText.slice(0, 200));
         // API 실패시 로컬 enrichment로 폴백
         batch.forEach(orig => {
           if (!_translationCache.has(_tcKey(orig.title))) {
@@ -16857,7 +16857,7 @@ ${prompt}`
         });
       }
     } catch(e) {
-      console.warn('[AIO] 번역 API 호출 에러:', e);
+      _aioLog('warn', 'translate', '번역 API 호출 에러: ' + (e && e.message || e));
       batch.forEach(orig => {
         if (!_translationCache.has(_tcKey(orig.title))) localEnrichSingle(orig);
       });
@@ -17739,7 +17739,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     _briefingCachedHtml = finalHtml;
     container.innerHTML = finalHtml;
   } catch(e) {
-    console.warn('[AIO] AI 브리핑 생성 실패:', e.message || e);
+    _aioLog('warn', 'fetch', 'AI 브리핑 생성 실패: ' + (e.message || e));
     // 폴백: 카테고리별 분석 글
     var errNote = '<div style="padding:8px 10px;font-size:9px;color:#fbbf24;background:rgba(251,191,36,0.08);border-radius:6px;margin-bottom:10px;">AI 분석 브리핑 생성 실패 (' + escHtml(e.message || '알 수 없는 오류') + ') — 카테고리별 뉴스 상세로 표시합니다.</div>'; // v42.5: XSS 방어
     var finalHtml = briefingHeader + errNote + fallbackHtml;
@@ -18363,14 +18363,14 @@ async function fetchTelegramDirect(channelSlug, sourceName) {
       _debugWarn(`[AIO TG] ${sourceName} proxy ${pi+1}/${proxies.length} 실패:`, e.message || e);
     }
   }
-  console.error(`[AIO TG] ${sourceName}: 모든 프록시(${proxies.length}개) 실패`, lastErr?.message || '');
+  _aioLog('error', 'fetch', sourceName + ': 모든 프록시(' + proxies.length + '개) 실패 ' + (lastErr?.message || ''));
   return [];
 }
 
 async function fetchAllNews(forceRefresh = false) {
   // v39.0: isFetching 안전장치 — 180초로 확장 (80소스 x 1.5초 딜레이 + 프록시 타임아웃 고려)
   if (isFetching && _fetchStartTime && Date.now() - _fetchStartTime > 180000) {
-    console.warn('[AIO] fetchAllNews isFetching 180s 초과 — 강제 리셋');
+    _aioLog('warn', 'fetch', 'fetchAllNews isFetching 180s 초과 — 강제 리셋');
     isFetching = false;
   }
   if (isFetching) return;
@@ -18631,7 +18631,7 @@ async function fetchAllNews(forceRefresh = false) {
       allItems = allItems.concat(newsDataItems.value);
       console.log(`[AIO v20+] NewsData.io: +${newsDataItems.value.length}건`);
     }
-  } catch(e) { console.warn('[AIO] Extra news API merge error:', e); }
+  } catch(e) { _aioLog('warn', 'fetch', 'Extra news API merge error: ' + (e && e.message || e)); }
 
   // v27.3: 강화된 중복 제거 (제목 유사도 기반 — 동일 뉴스 다중 소스 중복 방지)
   const seen = new Set();
@@ -18695,7 +18695,7 @@ async function fetchAllNews(forceRefresh = false) {
 
   // v21: 자동 한국어 번역 (뉴스 수집 완료 후 백그라운드 실행)
   // 먼저 원본으로 빠르게 보여주고, 번역 완료되면 자동으로 한국어로 갱신
-  autoTranslateNews(newsCache).catch(e => console.warn('[AIO] 자동 번역 에러:', e));
+  autoTranslateNews(newsCache).catch(e => _aioLog('warn', 'translate', '자동 번역 에러: ' + (e && e.message || e)));
 
   // v20: 뉴스 감성 바 업데이트
   try {
@@ -18749,7 +18749,7 @@ async function fetchAllNews(forceRefresh = false) {
     const riskLblEl = document.getElementById('news-risk-label');
     if (riskCntEl) { riskCntEl.textContent = risks.length; riskCntEl.style.color = risks.length >= 3 ? '#f87171' : risks.length >= 1 ? '#fbbf24' : '#3ddba5'; }
     if (riskLblEl) riskLblEl.textContent = risks.length > 0 ? risks.map(r => r.label).join(' · ') : '리스크 없음';
-  } catch(e) { console.warn('[AIO] News sentiment bar error:', e); }
+  } catch(e) { _aioLog('warn', 'render', 'News sentiment bar error: ' + (e && e.message || e)); }
 
   // v21: 45분 + 지터 자동 갱신 타이머 (5명 동시접속 최적화)
   if (refreshTimer) clearTimeout(refreshTimer);
@@ -18764,7 +18764,7 @@ async function fetchAllNews(forceRefresh = false) {
     if (pl) pl.textContent = '뉴스 소스 연결 실패 — 새로고침하거나 잠시 후 다시 시도하세요.';
   }
   } catch(fetchErr) {
-    console.error('[AIO] fetchAllNews 치명적 에러:', fetchErr);
+    _aioLog('error', 'fetch', 'fetchAllNews 치명적 에러: ' + (fetchErr && fetchErr.message || fetchErr));
     if (dot) { dot.style.background = '#f87171'; dot.style.boxShadow = '0 0 5px #f87171'; }
     if (lbl) lbl.textContent = '에러 발생 — 재시도';
     const pl = document.getElementById('news-progress-label');
@@ -19071,7 +19071,7 @@ async function fetchKrNaverQuotes() {
           _source: 'live:naver'
         });
       }
-    } catch(e) { console.warn('[KR-Naver] 지수 ' + idx.naver + ' 실패:', e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', 'KR-Naver 지수 ' + idx.naver + ' 실패: ' + e.message); }
   }));
 
   // ── 2. 전 종목 가격 (배치 요청) ──
@@ -19274,7 +19274,7 @@ async function fetchLiveQuotes() {
             const text = await r2.text();
             d = JSON.parse(text.trim());
           }
-        } catch(e2) { console.warn('[AIO] CoinGecko CF 프록시도 실패:', e2.message); }
+        } catch(e2) { _aioLog('warn', 'fetch', 'CoinGecko CF 프록시도 실패: ' + e2.message); }
       }
     }
     if (d) {
@@ -19302,7 +19302,7 @@ async function fetchLiveQuotes() {
       } catch(e) {}
       console.log('[AIO] CoinGecko 크립토 갱신:', Object.keys(d).length, '개');
     }
-  } catch(e) { console.warn('[AIO] CoinGecko 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'CoinGecko 실패: ' + e.message); }
 
   // v48.4: CoinGecko /global (정확한 BTC 도미넌스) + /coins/markets (상위 20 코인) — 무료 티어 확장
   // /simple/price가 끝나고 비동기 병렬 호출. 실패해도 기본 4종 시세에 영향 없음.
@@ -19361,7 +19361,7 @@ async function fetchLiveQuotes() {
       window._cgMarkets._updated = Date.now();
       console.log('[AIO] CoinGecko /coins/markets: 상위 ' + window._cgMarkets.length + '개 코인 수집');
     }
-  } catch(e) { console.warn('[AIO] CoinGecko /global·/coins/markets 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'CoinGecko /global·/coins/markets 실패: ' + e.message); }
 
   // ─── 2. 환율: 다중 API 폴백 체인 (v30.11: 전일 대비 변동률 계산) ───
   // v46.9: CAD/CHF → Yahoo 표준 심볼 수정 (CADUSD=X 비표준 → CAD=X)
@@ -19437,7 +19437,7 @@ async function fetchLiveQuotes() {
         }
       }
     }
-  } catch(e) { console.warn('[AIO] open.er-api 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'open.er-api 실패: ' + e.message); }
   // API 2: exchangerate-api.com (폴백)
   if (!fxLoaded) try {
     const r = await withTimeout(fetch('https://api.exchangerate-api.com/v4/latest/USD'), 5000);
@@ -19452,7 +19452,7 @@ async function fetchLiveQuotes() {
         }
       }
     }
-  } catch(e) { console.warn('[AIO] exchangerate-api 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'exchangerate-api 실패: ' + e.message); }
   // API 3: fawazahmed0 currency-api (최종 폴백)
   if (!fxLoaded) try {
     const r = await withTimeout(fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json'), 5000);
@@ -19468,7 +19468,7 @@ async function fetchLiveQuotes() {
         }
       }
     }
-  } catch(e) { console.warn('[AIO] 모든 환율 API 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', '모든 환율 API 실패: ' + e.message); }
 
   // ─── 2.5. 한국 시장: 네이버 파이낸스 1차 소스 (v36) ─────────────────
   // 네이버 성공 시 Yahoo Korean 배치 스킵 → 요청 수 절감 + 데이터 정확도 향상
@@ -19482,7 +19482,7 @@ async function fetchLiveQuotes() {
       // 네이버 데이터 즉시 반영 (체감 속도 향상)
       applyLiveQuotes(allQuotes);
     }
-  } catch(e) { console.warn('[AIO] 네이버 한국 시세 실패 — Yahoo 폴백 사용:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', '네이버 한국 시세 실패 — Yahoo 폴백 사용: ' + e.message); }
 
   // ─── 3. 주식·지수: Yahoo Finance v8/chart (단일 심볼, corsproxy 경유) ──
   // 핵심 심볼을 5개씩 나눠서 순차 요청 (빠른 것부터)
@@ -19673,7 +19673,7 @@ async function fetchLiveQuotes() {
           }
           _yfBatch[q.symbol] = out;
         });
-      } catch(e) { console.warn('[AIO] Yahoo v7 batch chunk error:', e.message); }
+      } catch(e) { _aioLog('warn', 'fetch', 'Yahoo v7 batch chunk error: ' + e.message); }
     }));
     if (Object.keys(_yfBatch).length > 0) {
       console.log('[AIO] Yahoo v7 배치: ' + Object.keys(_yfBatch).length + '/' + syms.length + '개 수신 (' + chunks.length + '청크)');
@@ -19683,7 +19683,7 @@ async function fetchLiveQuotes() {
   try {
     const _allSymsFlat = Array.from(new Set(PRIORITY_SYMS.flat()));
     await _yfBatchFetch(_allSymsFlat);
-  } catch(e) { console.warn('[AIO] v7 배치 초기화 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'init', 'v7 배치 초기화 실패: ' + e.message); }
 
   // v30.11 Task 11: _PROXY_REGISTRY에서 프록시 목록 가져옴 (단일 진실 원천)
   // v35.7: 매번 getRotated()에서 mkUrl을 가져와 부하 분산
@@ -19842,7 +19842,7 @@ async function fetchLiveQuotes() {
     }
     if (Math.abs(price - prev) / prev > rule.maxJump) {
       if (!window._priceWarnShown[symbol]) {
-        console.warn(`[AIO] Price out of range for ${symbol}: ${prev} → ${price} (limit: ±${(rule.maxJump*100)}%)`);
+        _aioLog('warn', 'price', 'Price out of range for ' + symbol + ': ' + prev + ' → ' + price + ' (limit: ±' + (rule.maxJump*100) + '%)');
         window._priceWarnShown[symbol] = true;
       }
       return false;
@@ -19878,7 +19878,7 @@ async function fetchLiveQuotes() {
 
     // 프록시 죽음 판정 후: 핵심 그룹 이후는 스킵
     if (groupFailStreak >= MAX_GROUP_FAILS && gi >= CRITICAL_GROUPS) {
-      console.warn('[AIO] 프록시 연속 실패 — 나머지 ' + (PRIORITY_SYMS.length - gi) + '개 그룹 스킵');
+      _aioLog('warn', 'fetch', '프록시 연속 실패 — 나머지 ' + (PRIORITY_SYMS.length - gi) + '개 그룹 스킵');
       showDataError('시세', '일부 종목 갱신 실패 — 프록시 불안정', 'warn');
       break;
     }
@@ -19998,7 +19998,7 @@ async function fetchLiveQuotes() {
           });
           console.log('[AIO-Stooq] 폴백 배치 ' + (sbi+1) + ':', stBatch.length + '개 시도');
         }
-      } catch(e) { console.warn('[AIO-Stooq] 폴백 실패:', e.message); }
+      } catch(e) { _aioLog('warn', 'fetch', 'Stooq 폴백 실패: ' + e.message); }
     }
   }
 
@@ -20106,7 +20106,7 @@ function applyStaticFallbacks() {
         return;
       }
     }
-  } catch(e) { console.warn('[AIO v35.8] localStorage 캐시 로드 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'init', 'localStorage 캐시 로드 실패: ' + e.message); }
 
   // ── 하드코딩 폴백 (localStorage 없거나 48시간 초과 시) ──
   // 2026-04-04(금) 종가 기준 폴백 (v40.7 업데이트)
@@ -21508,7 +21508,7 @@ async function autoUpdateMA() {
       if (typeof refreshHomeDashboard === 'function') refreshHomeDashboard();
     }
   } catch(e) {
-    console.warn('[AIO] MA auto-update failed:', e.message || e);
+    _aioLog('warn', 'render', 'MA auto-update failed: ' + (e.message || e));
   }
 }
 // v30.11: T7 _maAutoInterval 삭제 — REFRESH_SCHEDULE.maUpdate(6h)로 통합. 초기 5s 실행은 유지.
@@ -21750,7 +21750,7 @@ async function fetchHYSpread() {
 
     console.log('[AIO] HY Spread FRED:', spreadBp + 'bp (' + date + ')');
   } catch(e) {
-    console.warn('[AIO] HY Spread fetch 실패:', e.message);
+    _aioLog('warn', 'fetch', 'HY Spread fetch 실패: ' + e.message);
   }
 }
 
@@ -21801,7 +21801,7 @@ async function _refreshSentimentChartData() {
         hyChart.update('none');
       }
     }
-  } catch(e) { console.warn('[AIO] Sentiment chart refresh error:', e); }
+  } catch(e) { _aioLog('warn', 'chart', 'Sentiment chart refresh error: ' + (e && e.message || e)); }
 }
 
 function initSentimentPage(forceReinit) {
@@ -21812,7 +21812,7 @@ function initSentimentPage(forceReinit) {
     try { Object.values(sentPageCharts).forEach(c => c.resize()); } catch(e) {}
     return;
   }
-  Object.values(sentPageCharts).forEach(c => { try { c.destroy(); } catch(e){ console.warn('[AIO] Chart destroy error:', e); } });
+  Object.values(sentPageCharts).forEach(c => { try { c.destroy(); } catch(e){ _aioLog('warn', 'chart', 'Chart destroy error: ' + (e && e.message || e)); } });
   sentPageInitialized = true;
   sentChartsInitialized = false; // v30.13d: 차트 재생성 보장 — 기존 destroy 후 반드시 리셋
 
@@ -22211,7 +22211,7 @@ function initBreadthPage(forceReinit) {
     return;
   }
   // Destroy existing if reinit
-  Object.values(bpChartInstances).forEach(c => { try { c.destroy(); } catch(e){ console.warn('[AIO] BP chart destroy error:', e); } });
+  Object.values(bpChartInstances).forEach(c => { try { c.destroy(); } catch(e){ _aioLog('warn', 'chart', 'BP chart destroy error: ' + (e && e.message || e)); } });
   bpChartsInitialized = true;
 
   // Yahoo Finance SPY/QQQ 종가 기반 (v42.4: 2026-03-06 ~ 04-02, 20거래일. 4/3 Good Friday 휴장)
@@ -22493,7 +22493,7 @@ async function _refreshBreadthPriceChart() {
         badge.style.color = '#3ddba5';
       }
     }
-  } catch(e) { console.warn('[AIO] Breadth price chart refresh error:', e); }
+  } catch(e) { _aioLog('warn', 'chart', 'Breadth price chart refresh error: ' + (e && e.message || e)); }
 }
 
 // v41.2: bh-price 히스토리 차트도 Yahoo Finance 동적 교체
@@ -22519,7 +22519,7 @@ async function _refreshBreadthHistoryCharts() {
       priceChart.data.datasets[1].data = qqqCloses;
       priceChart.update('none');
     }
-  } catch(e) { console.warn('[AIO] Breadth history price chart refresh error:', e); }
+  } catch(e) { _aioLog('warn', 'chart', 'Breadth history price chart refresh error: ' + (e && e.message || e)); }
 }
 
 // ── Market Breadth Charts (Chart.js) ─────────────────────────────────
@@ -22722,9 +22722,9 @@ document.addEventListener('DOMContentLoaded', () => {
       _quoteFailCount = 0; // reset on success
     } catch(e) {
       _quoteFailCount++;
-      console.warn('[AIO v20] Quote fetch failed (attempt ' + _quoteFailCount + '):', e.message);
+      _aioLog('warn', 'fetch', 'Quote fetch failed (attempt ' + _quoteFailCount + '): ' + e.message);
       if (_quoteFailCount >= 5) {
-        console.warn('[AIO v20] Too many failures, extending refresh interval');
+        _aioLog('warn', 'fetch', 'Too many failures, extending refresh interval');
       }
     }
   };
@@ -22735,7 +22735,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 3000);
   // initBreadthCharts() 제거 — initBreadthPage()가 breadth 페이지 진입 시 초기화
   // v31.9: AAII/PC 차트 즉시 + 재시도 (Chart.js CDN 로딩 완료 보장)
-  try { initSentimentCharts(); } catch(e) { console.warn('[AIO] initSentimentCharts:', e.message); }
+  try { initSentimentCharts(); } catch(e) { _aioLog('warn', 'init', 'initSentimentCharts: ' + e.message); }
   // 2초 후 재시도 — Chart.js 미로드 시 대비 (canvas 빈 화면 방지)
   setTimeout(function() {
     if (typeof Chart !== 'undefined' && !sentPageCharts['aaii']) {
@@ -23461,7 +23461,7 @@ async function globalRefresh() {
     setTimeout(() => { btn.textContent = '↻ 새로고침'; }, 2000);
   }
   } catch(e) {
-    console.warn('[AIO] globalRefresh error:', e);
+    _aioLog('warn', 'fetch', 'globalRefresh error: ' + (e && e.message || e));
     showDataError('새로고침', '전체 새로고침 중 오류 — 일부 데이터가 갱신되지 않았을 수 있습니다', 'warn');
     if (btn) { btn.textContent = '↻ 새로고침'; btn.disabled = false; }
   }
@@ -23849,7 +23849,7 @@ async function fbSetStatus(id, newStatus) {
     await fbApiUpdate(boardEntries);
     closeBoardDetail();
     fbRenderBoard(boardEntries, boardCurrentFilter);
-  } catch(e) { console.warn('[AIO] fbSetStatus error:', e); showDataError('피드백', '상태 변경 실패', 'error'); }
+  } catch(e) { _aioLog('warn', 'render', 'fbSetStatus error: ' + (e && e.message || e)); showDataError('피드백', '상태 변경 실패', 'error'); }
 }
 
 function fbDeleteEntry(id) {
@@ -23859,7 +23859,7 @@ function fbDeleteEntry(id) {
       await fbApiUpdate(boardEntries);
       closeBoardDetail();
       fbRenderBoard(boardEntries, boardCurrentFilter);
-    } catch(e) { console.warn('[AIO] fbDeleteEntry error:', e); showDataError('피드백', '삭제 실패', 'error'); }
+    } catch(e) { _aioLog('warn', 'render', 'fbDeleteEntry error: ' + (e && e.message || e)); showDataError('피드백', '삭제 실패', 'error'); }
   }, '');
 }
 
@@ -23957,13 +23957,13 @@ function getApiKey() {
   const raw = localStorage.getItem(CLAUDE_KEY_LS) || '';
   // v47.7: 암호화된 키 감지 — Vault PIN 입력 필요
   if (raw.startsWith('aio_enc::')) {
-    console.warn('[AIO] Claude API 키가 Vault에 암호화되어 있음. 사이드바에서 PIN 입력으로 잠금 해제 필요.');
+    _aioLog('warn', 'vault', 'Claude API 키가 Vault에 암호화되어 있음. 사이드바에서 PIN 입력으로 잠금 해제 필요.');
     return '';
   }
   const clean = _sanitizeApiKey(raw);
   // v29: 마스킹/오염된 키 자동 감지 → 경고
   if (raw && !_isValidApiKey(clean)) {
-    console.warn('[AIO] 저장된 API 키가 손상됨 (마스킹 버전이 저장됨?). 키를 다시 입력하세요.');
+    _aioLog('warn', 'vault', '저장된 API 키가 손상됨 (마스킹 버전이 저장됨?). 키를 다시 입력하세요.');
     return '';
   }
   return clean;
@@ -23978,13 +23978,13 @@ function setApiKey(key) {
     }
     // v29: 마스킹된 키 저장 방지
     if (!_isValidApiKey(clean)) {
-      console.warn('[AIO] 유효하지 않은 API 키 — 저장 거부:', clean.slice(0, 15) + '...');
+      _aioLog('warn', 'vault', '유효하지 않은 API 키 — 저장 거부: ' + clean.slice(0, 15) + '...');
       return;
     }
     // v47.7: Vault 잠금 해제 상태면 암호화 저장(safeLS), 아니면 평문 저장
     if (typeof _AioVault !== 'undefined' && _AioVault.isUnlocked() && typeof safeLS === 'function') {
       safeLS(CLAUDE_KEY_LS, clean).catch(function(e) {
-        console.warn('[AIO] safeLS 실패 — 평문 폴백', e);
+        _aioLog('warn', 'vault', 'safeLS 실패 — 평문 폴백: ' + (e && e.message || e));
         try { localStorage.setItem(CLAUDE_KEY_LS, clean); } catch(_) {}
       });
       _AioVault._claudeKeyRuntime = clean;
@@ -23993,7 +23993,7 @@ function setApiKey(key) {
       if (typeof _AioVault !== 'undefined') _AioVault._claudeKeyRuntime = clean;
     }
   } catch(e) {
-    console.warn('[AIO] localStorage 저장 실패 (Safari 개인정보 보호 모드?)', e);
+    _aioLog('warn', 'vault', 'localStorage 저장 실패 (Safari 개인정보 보호 모드?): ' + (e && e.message || e));
     showToast('API 키 저장에 실패했습니다.\nSafari 개인정보 보호 모드에서는 데이터가 저장되지 않습니다.\n일반 모드 Chrome 사용을 권장합니다.');
   }
 }
@@ -24789,7 +24789,7 @@ function renderWatchlistContent() {
 // 포트폴리오 페이지 진입 시 워치리스트도 렌더
 document.addEventListener('aio:pageShown', function(e) {
   if (e.detail === 'portfolio') {
-    try { refreshWatchlistUI(); } catch(err) { console.warn('[AIO] Watchlist init error:', err); }
+    try { refreshWatchlistUI(); } catch(err) { _aioLog('warn', 'init', 'Watchlist init error: ' + (err && err.message || err)); }
   }
 });
 // 실시간 시세 갱신 시 워치리스트도 갱신
@@ -24849,7 +24849,7 @@ document.addEventListener('aio:liveQuotes', function() {
 // v31.9: Portfolio pageShown — 페이지 진입 시 즉시 렌더
 document.addEventListener('aio:pageShown', function(e) {
   if (e.detail === 'portfolio') {
-    try { renderPortfolio(); } catch(err) { console.warn('[AIO] Portfolio init error:', err); }
+    try { renderPortfolio(); } catch(err) { _aioLog('warn', 'init', 'Portfolio init error: ' + (err && err.message || err)); }
   }
 });
 
@@ -25240,7 +25240,7 @@ function renderKrIssues() {
     container.innerHTML = html;
     var statusEl = document.getElementById('kr-issues-status');
     if (statusEl) statusEl.innerHTML = '(뉴스 피드 자동 추출 · ' + top4.length + '건 · 48시간 이내 · ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) + ' 갱신)';
-  } catch(e) { console.warn('[AIO v48.14] renderKrIssues 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'render', 'renderKrIssues 실패: ' + e.message); }
 }
 
 // ═══ 테마별 최신 뉴스 자동 매칭 (newsCache에서 테마 구성종목·이름 기반 필터) ═══
@@ -25461,7 +25461,7 @@ function _buildMarketLeadersSnapshot() {
 
     return out;
   } catch(e) {
-    console.warn('[AIO] _buildMarketLeadersSnapshot 실패:', e.message);
+    _aioLog('warn', 'render', '_buildMarketLeadersSnapshot 실패: ' + e.message);
     return '';
   }
 }
@@ -25592,7 +25592,7 @@ function _buildKoreaLeadersSnapshot() {
 
     return out;
   } catch(e) {
-    console.warn('[AIO] _buildKoreaLeadersSnapshot 실패:', e.message);
+    _aioLog('warn', 'render', '_buildKoreaLeadersSnapshot 실패: ' + e.message);
     return '';
   }
 }
@@ -27165,7 +27165,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   var _totalChars = (system || '').length + messages.reduce(function(s,m){return s+(m.content||'').length;},0);
   console.log('[AIO] callClaude: system=' + Math.round((system||'').length/1000) + 'K + msgs=' + Math.round((_totalChars-(system||'').length)/1000) + 'K = ' + Math.round(_totalChars/1000) + 'K자 (' + modelCfg.label + ')');
   if (_totalChars > 100000) {
-    console.warn('[AIO] ⚠ 프롬프트 100K자 초과 — 토큰 비용 높음, 새 대화 권장');
+    _aioLog('warn', 'fetch', '⚠ 프롬프트 100K자 초과 — 토큰 비용 높음, 새 대화 권장');
   }
 
   // v30.5: AbortController — 연결 30초 + 청크 간 15초 타임아웃
@@ -27233,7 +27233,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     if (res.status === 400 && _claudeHeaders['anthropic-beta']) {
       var _errTxt = await res.text();
       if (/beta|cache.*control|invalid.*header/i.test(_errTxt)) {
-        console.warn('[AIO] anthropic-beta 헤더 호환성 오류 — beta 제거 후 재시도');
+        _aioLog('warn', 'fetch', 'anthropic-beta 헤더 호환성 오류 — beta 제거 후 재시도');
         delete _claudeHeaders['anthropic-beta'];
         res = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST', signal: ctrl.signal, headers: _claudeHeaders, body: JSON.stringify(reqBody)
@@ -27424,7 +27424,7 @@ async function _fetchSectorCompareData(stocks) {
         var batch = await rBatch.json();
         if (Array.isArray(batch)) batch.forEach(function(p){ if (p && p.symbol) profileMap[p.symbol] = p; });
       }
-    } catch(e) { console.warn('[AIO] FMP profile batch error:', e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', 'FMP profile batch error: ' + e.message); }
   }
 
   for (var i = 0; i < stocks.length; i++) {
@@ -27992,7 +27992,7 @@ async function _fetchDeepCompareData(tickers) {
         }
       } catch(e2) {}
     } catch(e) {
-      console.warn('[AIO] 심층 데이터 조회 실패:', t, e.message);
+      _aioLog('warn', 'fetch', '심층 데이터 조회 실패: ' + t + ' ' + e.message);
       results[t] = null;
     }
   }
@@ -28626,7 +28626,7 @@ async function _aiWebSearch(searchQuery) {
       pResult.engine = 'perplexity';
       return pResult;
     } catch(e) {
-      console.warn('[AIO] Perplexity 실패, Google 폴백 시도:', e.message);
+      _aioLog('warn', 'fetch', 'Perplexity 실패, Google 폴백 시도: ' + e.message);
     }
   }
 
@@ -28638,7 +28638,7 @@ async function _aiWebSearch(searchQuery) {
       var gResult = await _googleSearch(searchQuery);
       return gResult;
     } catch(e) {
-      console.warn('[AIO] Google Search 실패:', e.message);
+      _aioLog('warn', 'fetch', 'Google Search 실패: ' + e.message);
     }
   }
 
@@ -28746,7 +28746,7 @@ async function chatSend(ctxId) {
       try {
         var compareData = await _fetchSectorCompareData(sectorMatch.stocks);
         sectorCompareStr = _formatSectorComparePrompt(sectorMatch.sectorLabel, compareData);
-      } catch(e) { console.warn('[AIO] 섹터 비교 데이터 조회 실패:', e.message); }
+      } catch(e) { _aioLog('warn', 'fetch', '섹터 비교 데이터 조회 실패: ' + e.message); }
     }
   }
 
@@ -28761,7 +28761,7 @@ async function chatSend(ctxId) {
     try {
       var deepData = await _fetchDeepCompareData(deepTickers);
       if (deepData) deepCompareStr = _formatDeepComparePrompt(deepTickers, deepData);
-    } catch(e) { console.warn('[AIO] 기업 내부 비교 데이터 조회 실패:', e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', '기업 내부 비교 데이터 조회 실패: ' + e.message); }
   }
 
   // v34.5: 단일 기업 분석 — 티커 1개 감지 시 기본적으로 15개 관점 심층 분석 자동 적용
@@ -28776,7 +28776,7 @@ async function chatSend(ctxId) {
       try {
         var singleDeepData = await _fetchDeepCompareData(detectedTickers);
         if (singleDeepData) singleDeepStr = _formatSingleDeepPrompt(detectedTickers[0], singleDeepData);
-      } catch(e) { console.warn('[AIO] 단일 기업 심층 데이터 조회 실패:', e.message); }
+      } catch(e) { _aioLog('warn', 'fetch', '단일 기업 심층 데이터 조회 실패: ' + e.message); }
     }
   }
 
@@ -28790,7 +28790,7 @@ async function chatSend(ctxId) {
       webSearchStr = _formatSearchForPrompt(webSearchResult);
       console.log('[AIO] 웹검색 완료 [' + (webSearchResult.engine||'?') + ']:', searchQuery, '→', (webSearchResult.answer || '').length + '자');
     } catch(e) {
-      console.warn('[AIO] 웹검색 실패:', e.message);
+      _aioLog('warn', 'fetch', '웹검색 실패: ' + e.message);
       // 검색 실패해도 기존 답변은 정상 진행
     }
   }
@@ -29118,8 +29118,8 @@ function _bumpApiCounter(providerKey) {
     q.count = (q.count || 0) + 1;
     localStorage.setItem(lsKey, JSON.stringify(q));
     var warnAt = Math.floor(lim.daily * 0.8);
-    if (q.count === warnAt) console.warn('[AIO] ' + lim.label + ' 일일 한도(' + lim.daily + ') 80% 도달 — 남은 ' + (lim.daily - q.count) + '회');
-    if (q.count >= lim.daily) console.error('[AIO] ' + lim.label + ' 일일 한도 도달! ' + providerKey + ' 호출 스킵 — 24h 후 리셋');
+    if (q.count === warnAt) _aioLog('warn', 'fetch', lim.label + ' 일일 한도(' + lim.daily + ') 80% 도달 — 남은 ' + (lim.daily - q.count) + '회');
+    if (q.count >= lim.daily) _aioLog('error', 'fetch', lim.label + ' 일일 한도 도달! ' + providerKey + ' 호출 스킵 — 24h 후 리셋');
     return q.count;
   } catch(e) { return 0; }
 }
@@ -29147,7 +29147,7 @@ async function _fmpFetch(endpoint) {
       var q = JSON.parse(qRaw);
       var today = new Date().toISOString().slice(0,10);
       if (q.date === today && q.count >= 250) {
-        console.warn('[FMP] 일일 한도 도달 — 호출 스킵:', endpoint);
+        _aioLog('warn', 'fetch', 'FMP 일일 한도 도달 — 호출 스킵: ' + endpoint);
         return null;
       }
     }
@@ -29159,7 +29159,7 @@ async function _fmpFetch(endpoint) {
       _bumpFmpCounter();  // 성공 호출만 카운트
       return await r.json();
     }
-  } catch(e) { console.warn('[FMP]', endpoint, e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'FMP ' + endpoint + ': ' + e.message); }
   return null;
 }
 
@@ -29330,7 +29330,7 @@ function _validateFMPData(collected) {
   }
 
   collected._dataWarnings = warnings;
-  if (warnings.length > 0) console.warn('[FMP-Validate] ' + ticker + ':', warnings);
+  if (warnings.length > 0) _aioLog('warn', 'fund', 'FMP-Validate ' + ticker + ': ' + warnings.join(' | '));
   return warnings;
 }
 
@@ -29359,7 +29359,7 @@ async function fundamentalSearch() {
     if (progressEl) progressEl.innerHTML = '<div style="color:#3ddba5;">캐시 사용: ' + _ageMin + '분 전 분석 결과 (FMP 무료 250/day 보호)</div>';
     var collected = _cached.data;
     window._fundAnalysisData = collected;
-    try { _renderFundHeader(collected); _renderFundSEC(collected); _renderFundFinancials(collected); _renderFundStatements(collected); _renderFundValuation(collected); _renderFundPeers(collected); _renderFundEarnings(collected); if (typeof _renderFundNews === 'function') _renderFundNews(collected); _renderFundSources(collected); } catch(e) { console.warn('[AIO] fund 캐시 렌더 실패:', e.message); }
+    try { _renderFundHeader(collected); _renderFundSEC(collected); _renderFundFinancials(collected); _renderFundStatements(collected); _renderFundValuation(collected); _renderFundPeers(collected); _renderFundEarnings(collected); if (typeof _renderFundNews === 'function') _renderFundNews(collected); _renderFundSources(collected); } catch(e) { _aioLog('warn', 'fund', '캐시 렌더 실패: ' + e.message); }
     if (loadingEl) loadingEl.innerHTML = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">캐시 데이터 (' + _ageMin + '분 전) — ' + (collected.sources||[]).length + '개 소스</div><div style="font-size:9px;color:var(--text-muted);">' + ((collected.sources||[]).join(' · ')) + '</div>';
     // AI 채팅 입력창 세팅 (기존 동작 유지)
     var _chatInpC = document.getElementById('chat-fundamental-inp');
@@ -29444,7 +29444,7 @@ async function fundamentalSearch() {
         collected.sources.push('SEC Frames (섹터 백분위)');
       }
     }
-  } catch(e) { console.warn('[AIO] SEC Frames 조회 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'SEC Frames 조회 실패: ' + e.message); }
 
   // ─── 3. FMP API 데이터 (키가 있을 때만) ───
   // v47.12: 18개 엔드포인트 순차 await → Promise.allSettled 병렬화
@@ -29482,7 +29482,7 @@ async function fundamentalSearch() {
     for (var _fi = 0; _fi < fmpJobs.length; _fi += 6) _fmpChunks.push(fmpJobs.slice(_fi, _fi + 6));
     for (var _fc = 0; _fc < _fmpChunks.length; _fc++) {
       await Promise.allSettled(_fmpChunks[_fc].map(function(j){
-        return _fmpFetch(j.url).then(j.handler).catch(function(e){ console.warn('[AIO] FMP ' + j.url + ' error:', e.message); });
+        return _fmpFetch(j.url).then(j.handler).catch(function(e){ _aioLog('warn', 'fetch', 'FMP ' + j.url + ' error: ' + e.message); });
       }));
     }
   } else {
@@ -29534,7 +29534,7 @@ async function fundamentalSearch() {
         collected.sources.push('Finnhub (기업 뉴스)');
         updateProgress('기업 뉴스: ' + collected.finnhubNews.length + '건 (최근 14일)');
       }
-    } catch(e) { console.warn('[AIO] Finnhub 보조 조회 실패:', e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', 'Finnhub 보조 조회 실패: ' + e.message); }
   }
 
   // ─── 데이터 수집 완료 ───
@@ -32416,7 +32416,7 @@ function initKoreaHome() {
   // Check if Korean data is available, if not retry (max 12 attempts)
   if (!ld['^KS11'] || !ld['^KQ11'] || !ld['KRW=X']) {
     if (_krHomeRetry++ < 12) { _krHomeRetryTimer = setTimeout(initKoreaHome, Math.min(500 * Math.pow(1.3, _krHomeRetry), 3000)); return; }
-    console.warn('[AIO] initKoreaHome: 한국 데이터 로딩 타임아웃');
+    _aioLog('warn', 'init', 'initKoreaHome: 한국 데이터 로딩 타임아웃');
     return;
   }
   _krHomeRetry = 0;
@@ -32581,7 +32581,7 @@ function initKoreaSupply() {
   // Check if Korean data is available, if not retry (max 20 attempts = 10s)
   if (!ld['^KS11'] || !ld['^KQ11']) {
     if (_krSupplyRetry++ < 20) { _krSupplyRetryTimer = setTimeout(initKoreaSupply, 500); return; }
-    console.warn('[AIO] initKoreaSupply: 한국 데이터 로딩 타임아웃');
+    _aioLog('warn', 'init', 'initKoreaSupply: 한국 데이터 로딩 타임아웃');
     return;
   }
   _krSupplyRetry = 0;
@@ -33077,7 +33077,7 @@ async function fetchKrSupplyData() {
           window._krSupplyData = kospiData;
         }
       }
-    } catch(e) { console.warn('[KR] KOSPI 수급 fetch 실패 — 프록시 차단 가능:', e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', 'KR KOSPI 수급 fetch 실패 — 프록시 차단 가능: ' + e.message); }
 
     // KOSDAQ fetch — v38.7: 직접 fetch 먼저 시도
     try {
@@ -33092,7 +33092,7 @@ async function fetchKrSupplyData() {
           window._krSupplyDataKosdaq = kosdaqData;
         }
       }
-    } catch(e) { console.warn('[KR] KOSDAQ 수급 fetch 실패 — 프록시 차단 가능:', e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', 'KR KOSDAQ 수급 fetch 실패 — 프록시 차단 가능: ' + e.message); }
 
     if (kospiData || kosdaqData) {
       updateKrSupplyDOM(
@@ -33104,10 +33104,10 @@ async function fetchKrSupplyData() {
       return;
     }
 
-    console.warn('[KR] 프록시 차단으로 수급 데이터 수집 실패 — 폴백 데이터 사용 중');
+    _aioLog('warn', 'fetch', 'KR 프록시 차단으로 수급 데이터 수집 실패 — 폴백 데이터 사용 중');
     _showKrSupplyFallbackNotice();
   } catch(e) {
-    console.warn('[KR] 프록시 차단으로 수급 데이터 수집 실패 — 폴백 데이터 사용 중:', e.message);
+    _aioLog('warn', 'fetch', 'KR 프록시 차단으로 수급 데이터 수집 실패 — 폴백 데이터 사용 중: ' + e.message);
     _showKrSupplyFallbackNotice();
   }
 }
@@ -33364,7 +33364,7 @@ async function fetchVkospiDynamic() {
     // DATA_SNAPSHOT 동기화
     if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.vkospi = val;
     console.log('[KR] VKOSPI 동적 업데이트:', val);
-  } catch(e) { console.warn('[KR] VKOSPI fetch 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'KR VKOSPI fetch 실패: ' + e.message); }
 }
 
 // ── 2. KOSPI/KOSDAQ 거래대금 ──
@@ -33391,9 +33391,9 @@ async function fetchKrTradingVolume() {
           else el.textContent = Math.round(tv / 1e4).toLocaleString() + '만원';
         }
         console.log('[KR] ' + idx.code + ' 거래대금:', (tv / 1e12).toFixed(1) + '조');
-      } catch(e2) { console.warn('[KR] ' + idx.code + ' 거래대금 실패:', e2.message); }
+      } catch(e2) { _aioLog('warn', 'fetch', 'KR ' + idx.code + ' 거래대금 실패: ' + e2.message); }
     }
-  } catch(e) { console.warn('[KR] 거래대금 fetch 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'KR 거래대금 fetch 실패: ' + e.message); }
 }
 
 // ── 3. 외국인/기관 순매수 TOP 10 (종목별 trend API 기반) ──
@@ -33458,7 +33458,7 @@ async function fetchKrInvestorTop10() {
     }
 
     if (results.length === 0) {
-      console.warn('[KR] 투자자 TOP10: 유효 데이터 없음 — 프록시 폴백 시도');
+      _aioLog('warn', 'fetch', 'KR 투자자 TOP10: 유효 데이터 없음 — 프록시 폴백 시도');
       // 프록시 경유 폴백 (상위 30종목만)
       var top30 = top100.slice(0, 30);
       for (var pi = 0; pi < top30.length; pi += BATCH) {
@@ -33498,9 +33498,9 @@ async function fetchKrInvestorTop10() {
       _renderInvestorTop10(results);
       console.log('[KR] 투자자 TOP10 완료 (' + results.length + '종목 수집, 기준일: ' + (results[0].bizdate || '?') + ')');
     } else {
-      console.warn('[KR] 투자자 TOP10: 데이터 수집 실패');
+      _aioLog('warn', 'fetch', 'KR 투자자 TOP10: 데이터 수집 실패');
     }
-  } catch(e) { console.warn('[KR] fetchKrInvestorTop10 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'KR fetchKrInvestorTop10 실패: ' + e.message); }
 }
 
 // 네이버 숫자 문자열 파서: "+516,352" → 516352, "-1,400,484" → -1400484
@@ -33661,7 +33661,7 @@ async function fetchKrWeeklySupply() {
     }
 
     console.log('[KR] 주간 수급 트렌드 동적 업데이트 완료 (' + dayCount + '거래일)');
-  } catch(e) { console.warn('[KR] 주간 수급 fetch 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'KR 주간 수급 fetch 실패: ' + e.message); }
 }
 
 // ── 5. 시가총액 동적 추출 (fetchKrNaverQuotes 결과에서 확장) ──
@@ -33806,7 +33806,7 @@ async function fetchKrShortSelling() {
     }
 
     console.log('[KR] 공매도/거래대금 데이터 업데이트 완료');
-  } catch(e) { console.warn('[KR] fetchKrShortSelling 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'KR fetchKrShortSelling 실패: ' + e.message); }
 }
 
 // ── 7. 한국 시장 폭(Breadth) 동적 계산 ──
@@ -33851,7 +33851,7 @@ async function fetchKrBreadthData() {
     }
 
     console.log('[KR] 시장 폭 데이터 업데이트 (상승:' + advCount + ' 하락:' + decCount + ')');
-  } catch(e) { console.warn('[KR] fetchKrBreadthData 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'KR fetchKrBreadthData 실패: ' + e.message); }
 }
 
 // ── 8. 전체 한국 동적 데이터 통합 호출 ──
@@ -34415,7 +34415,7 @@ async function fetchSECFilings(ticker, formType) {
       var startDt = new Date(); startDt.setFullYear(startDt.getFullYear() - 1); var searchUrl = 'https://efts.sec.gov/LATEST/search-index?q=%22' + ticker + '%22&dateRange=custom&startdt=' + startDt.toISOString().slice(0,10) + '&forms=' + (formType || '10-K,10-Q,8-K');
       var r = await withTimeout(fetch(searchUrl, {headers:{'User-Agent':'AIO Dashboard contact@example.com'}}), 10000);
       if (r.ok) { var d = await r.json(); return d; }
-    } catch(e) { console.warn('[SEC] search error:', e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', 'SEC search error: ' + e.message); }
     return null;
   }
   var url = 'https://data.sec.gov/submissions/CIK' + cik + '.json';
@@ -34424,7 +34424,7 @@ async function fetchSECFilings(ticker, formType) {
   try {
     var r = await withTimeout(fetch(url, {headers:{'User-Agent':'AIO Dashboard contact@example.com','Accept':'application/json'}}), 10000);
     if (r.ok) data = await r.json();
-  } catch(e) { console.warn('[SEC] filing direct fetch failed:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'SEC filing direct fetch failed: ' + e.message); }
   // 2차: CORS 프록시 경유
   if (!data) {
     try {
@@ -34435,7 +34435,7 @@ async function fetchSECFilings(ticker, formType) {
           try { data = JSON.parse(data.contents); } catch(e2) { /* malformed */ }
         }
       }
-    } catch(e) { console.warn('[SEC] filing proxy fetch failed:', e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', 'SEC filing proxy fetch failed: ' + e.message); }
   }
   if (!data) return null;
   return {
@@ -34460,7 +34460,7 @@ async function fetchSECFinancials(ticker) {
   try {
     var r = await withTimeout(fetch(url, {headers:{'User-Agent':'AIO Dashboard contact@example.com','Accept':'application/json'}}), 12000);
     if (r.ok) data = await r.json();
-  } catch(e) { console.warn('[SEC] XBRL direct fetch failed (CORS):', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'SEC XBRL direct fetch failed (CORS): ' + e.message); }
   // 2차: CORS 프록시 경유
   if (!data) {
     try {
@@ -34471,7 +34471,7 @@ async function fetchSECFinancials(ticker) {
           try { data = JSON.parse(data.contents); } catch(e2) { /* malformed */ }
         }
       }
-    } catch(e) { console.warn('[SEC] XBRL proxy fetch failed:', e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', 'SEC XBRL proxy fetch failed: ' + e.message); }
   }
   if (!data || !data.facts) return null;
   // 원시 XBRL 데이터 그대로 반환 → _parseSECFinancials()에서 파싱
@@ -34516,7 +34516,7 @@ async function fetchSECFrame(concept, period, taxonomy) {
           try { data = JSON.parse(data.contents); } catch(pe) {}
         }
       }
-    } catch(e) { console.warn('[SEC Frame] ' + concept + '/' + period + ' proxy 실패:', e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', 'SEC Frame ' + concept + '/' + period + ' proxy 실패: ' + e.message); }
   }
   if (!data || !Array.isArray(data.data)) return null;
   // 캐시 저장 (크기 제한: 요소 5000개 이상이면 상위 5000개만 유지 → 메모리 보호)
@@ -34620,7 +34620,7 @@ async function fetchStooqData(ticker, days) {
       }
       return { ticker: ticker, source: 'stooq', data: data };
     }
-  } catch(e) { console.warn('[Stooq] fetch error for ' + ticker + ':', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'Stooq fetch error for ' + ticker + ': ' + e.message); }
   return null;
 }
 
@@ -34691,7 +34691,7 @@ async function dynamicTickerLookup(ticker) {
         }
       } catch(e) {}
     }
-  } catch(e) { console.warn('[Dynamic] lookup error:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'Dynamic lookup error: ' + e.message); }
 
   // v46.3: Stooq 폴백 — Yahoo 실패 시 미국 주식/ETF/원자재
   var _noStooq = {'^GSPC':1,'^DJI':1,'^IXIC':1,'^RUT':1,'^VIX':1,'^VVIX':1,'^TNX':1,'^TYX':1,'^IRX':1,'^FVX':1,'BTC-USD':1,'ETH-USD':1};
@@ -34772,7 +34772,7 @@ function initKoreaMacro() {
   // Check if required data is available, if not retry (max 20 attempts = 10s)
   if (!ld['KRW=X'] || !ld['^TNX']) {
     if (_krMacroRetry++ < 20) { _krMacroRetryTimer = setTimeout(initKoreaMacro, 500); return; }
-    console.warn('[AIO] initKoreaMacro: 한국 매크로 데이터 로딩 타임아웃');
+    _aioLog('warn', 'init', 'initKoreaMacro: 한국 매크로 데이터 로딩 타임아웃');
     return;
   }
   _krMacroRetry = 0;
@@ -36314,7 +36314,7 @@ function computeTradingScore(mode) {
     // 뉴스 리스크 시그널 반영
     const newsRisks = computeNewsRiskSignals();
     newsRisks.forEach(r => { compositeScore += r.impact; });
-  } catch(e) { console.warn('[AIO] News sentiment integration error:', e); }
+  } catch(e) { _aioLog('warn', 'render', 'News sentiment integration error: ' + (e && e.message || e)); }
 
   // 최소 5점 보장 — 0점은 "데이터 미수신"으로 오해되므로 바닥값 설정
   const total = Math.max(5, Math.min(100, compositeScore));
@@ -37262,10 +37262,10 @@ function refreshSignalDashboard() {
   if (ewLabel) { ewLabel.textContent = ew.label; ewLabel.style.color = ew.color; }
 
   // v20+: Execution Window 상세 계산 (셋업 실현율)
-  try { computeExecutionWindow(); } catch(e) { console.warn('[AIO] ExecutionWindow error:', e); }
+  try { computeExecutionWindow(); } catch(e) { _aioLog('warn', 'render', 'ExecutionWindow error: ' + (e && e.message || e)); }
 
   // v20+: 시장 국면 분류
-  try { classifyMarketRegime(); } catch(e) { console.warn('[AIO] MarketRegime error:', e); }
+  try { classifyMarketRegime(); } catch(e) { _aioLog('warn', 'regime', 'MarketRegime error: ' + (e && e.message || e)); }
 
   // Risk monitor
   updateRiskMonitor();
@@ -37824,7 +37824,7 @@ function generateFxBondCommentary() {
 var _origUpdateFxBond = updateFxBondPage;
 updateFxBondPage = function() {
   _origUpdateFxBond();
-  try { generateFxBondCommentary(); } catch(e) { console.warn('[AIO] FXBond commentary error:', e); }
+  try { generateFxBondCommentary(); } catch(e) { _aioLog('warn', 'render', 'FXBond commentary error: ' + (e && e.message || e)); }
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -37940,7 +37940,7 @@ async function initFundamentalCards() {
   loadEarningsCalendar();
   // v37.8: 동적 펀더멘털 분석
   if (typeof _generateFundamentalAnalysis === 'function') _generateFundamentalAnalysis(FUND_FALLBACK, window._liveData || {});
-  } catch(e) { console.warn('[AIO] initFundamentalCards error:', e.message); }
+  } catch(e) { _aioLog('warn', 'fund', 'initFundamentalCards error: ' + e.message); }
 }
 
 function loadEarningsSurprises() {
@@ -38006,7 +38006,7 @@ async function _fetchEarningsSurprisesFMP(body, fmpKey) {
     body.innerHTML = sHtml;
     console.log('[AIO] FMP 실적 서프라이즈 ' + results.length + '건 로드');
   } catch(e) {
-    console.warn('[AIO] FMP 서프라이즈 fetch 실패:', e.message);
+    _aioLog('warn', 'fetch', 'FMP 서프라이즈 fetch 실패: ' + e.message);
     body.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">실적 데이터 로딩 실패</div>';
   }
 }
@@ -38069,7 +38069,7 @@ async function _fetchEarningsCalendarFMP(body, fmpKey) {
     if (st) st.textContent = filtered.length + '건 · ' + from + '~' + to + ' (FMP 실시간)';
     console.log('[AIO] FMP 실적 캘린더 ' + filtered.length + '건 로드');
   } catch(e) {
-    console.warn('[AIO] FMP 캘린더 fetch 실패:', e.message);
+    _aioLog('warn', 'fetch', 'FMP 캘린더 fetch 실패: ' + e.message);
     body.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">실적 캘린더 로딩 실패 · FMP API 확인 필요</div>';
   }
 }
@@ -38902,7 +38902,7 @@ async function _loadSector20dChart() {
           borderColor: etf.color, borderWidth: 1.5, pointRadius: 0, tension: 0.3, fill: false
         });
       }
-    } catch(e) { console.warn('[AIO] Sector 20d error:', etf.sym, e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', 'Sector 20d error: ' + etf.sym + ' ' + e.message); }
   }
   if (!labels || datasets.length === 0) {
     if (statusEl) statusEl.textContent = '데이터 수집 실패';
@@ -39174,7 +39174,7 @@ function renderThemeHeatmap() {
       return;
     }
     // 30초 초과 — 폴백 데이터 사용
-    console.warn('[AIO v46.6] 테마 히트맵: 라이브 데이터 30초 초과 — 정적 데이터로 렌더');
+    _aioLog('warn', 'render', '테마 히트맵: 라이브 데이터 30초 초과 — 정적 데이터로 렌더');
   }
   var container = document.getElementById('theme-heatmap');
   if (!container) return;
@@ -40816,7 +40816,7 @@ function renderSubThemesGrid() {
       setTimeout(renderSubThemesGrid, 500);
       return;
     }
-    console.warn('[AIO v46.6] 세분화 테마: 라이브 데이터 30초 초과 — 정적 데이터로 렌더');
+    _aioLog('warn', 'render', '세분화 테마: 라이브 데이터 30초 초과 — 정적 데이터로 렌더');
   }
   var container = document.getElementById('sub-themes-grid');
   if (!container) return;
@@ -41196,7 +41196,7 @@ function initOptionsPage() {
 // Options 페이지 이벤트 리스너
 document.addEventListener('aio:pageShown', function(e) {
   if (e.detail === 'options') {
-    try { initOptionsPage(); } catch(err) { console.warn('[AIO] Options pageShown error:', err); }
+    try { initOptionsPage(); } catch(err) { _aioLog('warn', 'init', 'Options pageShown error: ' + (err && err.message || err)); }
   }
 });
 document.addEventListener('aio:liveQuotes', function() {
@@ -42433,9 +42433,9 @@ async function _updatePerfTable(forceTickers) {
             el.style.color = 'var(--text-muted)';
           }
         });
-      } catch(e) { console.warn('[AIO] _updatePerfTable ticker 실패:', sym, e.message); }
+      } catch(e) { _aioLog('warn', 'render', '_updatePerfTable ticker 실패: ' + sym + ' ' + e.message); }
     }
-  } catch(e) { console.warn('[AIO] _updatePerfTable 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'render', '_updatePerfTable 실패: ' + e.message); }
 }
 
 async function _fetchYahooChartData(ticker, range) {
@@ -42465,7 +42465,7 @@ async function _fetchYahooChartData(ticker, range) {
         var volumes = quote.volume || [];
         return { timestamps: timestamps, opens: opens, highs: highs, lows: lows, closes: closes, volumes: volumes };
       }
-    } catch(e) { console.warn('[AIO] _fetchYahooChartData proxy failed:', e.message); }
+    } catch(e) { _aioLog('warn', 'fetch', '_fetchYahooChartData proxy failed: ' + e.message); }
   }
   return null;
 }
@@ -42635,7 +42635,7 @@ async function analyzeTickerDeep(ticker) {
 
   resultEl.innerHTML = html;
   } catch(e) {
-    console.error('[AIO] analyzeTickerDeep error:', e);
+    _aioLog('error', 'fetch', 'analyzeTickerDeep error: ' + (e && e.message || e));
     if (resultEl) resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">기술적 분석 중 오류가 발생했습니다. 다시 시도해주세요.</div>';
   }
 }
@@ -42980,7 +42980,7 @@ async function analyzeKrIndex(ticker, targetId, label) {
 
   resultEl.innerHTML = html;
   } catch(e) {
-    console.error('[AIO] analyzeKrIndex error:', e);
+    _aioLog('error', 'fetch', 'analyzeKrIndex error: ' + (e && e.message || e));
     if (resultEl) resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' + label + ' 분석 중 오류가 발생했습니다.</div>';
   }
 }
@@ -43067,7 +43067,7 @@ async function analyzeKrTickerDeep(ticker) {
 
   resultEl.innerHTML = html;
   } catch(e) {
-    console.error('[AIO] analyzeKrTickerDeep error:', e);
+    _aioLog('error', 'fetch', 'analyzeKrTickerDeep error: ' + (e && e.message || e));
     if (resultEl) resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">기술적 분석 중 오류가 발생했습니다. 다시 시도해주세요.</div>';
   }
 }
@@ -44003,25 +44003,25 @@ function _appendAIMsg(role, html, id) {
 
 async function chatSendUnified() {
   console.log('[AIO] chatSendUnified 시작, ctx:', _aiCurrentCtx);
-  if (!_aiCurrentCtx) { console.warn('[AIO] _aiCurrentCtx null'); return; }
+  if (!_aiCurrentCtx) { _aioLog('warn', 'debug', '_aiCurrentCtx null'); return; }
   var ctx = CHAT_CONTEXTS[_aiCurrentCtx];
-  if (!ctx) { console.warn('[AIO] CHAT_CONTEXTS에 없음:', _aiCurrentCtx); return; }
+  if (!ctx) { _aioLog('warn', 'debug', 'CHAT_CONTEXTS에 없음: ' + _aiCurrentCtx); return; }
   var state = getChatState(_aiCurrentCtx);
   // v47.8: stale streaming 감지 — 60초+ 경과 시 강제 해제 (이전 요청 hang 방어)
   if (state.streaming) {
     if (state._streamStartedAt && (Date.now() - state._streamStartedAt) > 60000) {
-      console.warn('[AIO] streaming 60초+ 경과 — stale 해제');
+      _aioLog('warn', 'debug', 'streaming 60초+ 경과 — stale 해제');
       state.streaming = false;
       var _staleBtn = document.getElementById('ai-panel-btn');
       if (_staleBtn) { _staleBtn.disabled = false; _staleBtn.textContent = '전송 ▶'; }
     } else {
-      console.warn('[AIO] streaming 중복 방지 (경과:', state._streamStartedAt ? Math.round((Date.now()-state._streamStartedAt)/1000)+'s' : 'unknown', ')');
+      _aioLog('warn', 'debug', 'streaming 중복 방지 (경과: ' + (state._streamStartedAt ? Math.round((Date.now()-state._streamStartedAt)/1000)+'s' : 'unknown') + ')');
       return;
     }
   }
   var inp = document.getElementById('ai-panel-inp');
   var btn = document.getElementById('ai-panel-btn');
-  if (!inp) { console.warn('[AIO] ai-panel-inp 없음'); return; }
+  if (!inp) { _aioLog('warn', 'debug', 'ai-panel-inp 없음'); return; }
   var q = inp.value.trim();
   if (!q) return;
   // v46.4: 입력 길이 제한 (10000자) — API 비용 + 메모리 보호
@@ -44049,7 +44049,7 @@ async function chatSendUnified() {
   var aiBubble = null;
   var sysPrompt = '';
   try { sysPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system; }
-  catch(sysErr) { console.warn('[AIO] system prompt 생성 실패:', sysErr.message); sysPrompt = ''; }
+  catch(sysErr) { _aioLog('warn', 'debug', 'system prompt 생성 실패: ' + sysErr.message); sysPrompt = ''; }
 
   // v45.7+: chatSend()와 동일 7개 파이프라인 완전 이식
   var ctxId = _aiCurrentCtx;
@@ -44071,7 +44071,7 @@ async function chatSendUnified() {
       try {
         var tickerDataStr = await _withTimeout(_fetchTickerDataForChat(detectedTickers), 8000, 'ticker');
         if (tickerDataStr) { sysPrompt += tickerDataStr; _uniTickerData = true; }
-      } catch(te) { console.warn('[AIO] 티커 데이터 실패/타임아웃:', te.message); }
+      } catch(te) { _aioLog('warn', 'fetch', '티커 데이터 실패/타임아웃: ' + te.message); }
     }
 
     // 2. 섹터 비교 (8s 타임아웃)
@@ -44082,7 +44082,7 @@ async function chatSendUnified() {
           var compareData = await _withTimeout(_fetchSectorCompareData(sectorMatch.stocks), 8000, 'sector');
           if (compareData && typeof _formatSectorComparePrompt === 'function')
             sysPrompt += _formatSectorComparePrompt(sectorMatch.sectorLabel, compareData);
-        } catch(e) { console.warn('[AIO] 섹터 비교 실패/타임아웃:', e.message); }
+        } catch(e) { _aioLog('warn', 'fetch', '섹터 비교 실패/타임아웃: ' + e.message); }
       }
     }
 
@@ -44095,7 +44095,7 @@ async function chatSendUnified() {
           if (deepData && typeof _formatDeepComparePrompt === 'function') {
             sysPrompt += _formatDeepComparePrompt(deepTickers, deepData); _uniDeepData = true;
           }
-        } catch(e) { console.warn('[AIO] 심층 비교 실패/타임아웃:', e.message); }
+        } catch(e) { _aioLog('warn', 'fetch', '심층 비교 실패/타임아웃: ' + e.message); }
       }
     }
 
@@ -44110,7 +44110,7 @@ async function chatSendUnified() {
           if (singleDeepData && typeof _formatSingleDeepPrompt === 'function') {
             sysPrompt += _formatSingleDeepPrompt(detectedTickers[0], singleDeepData); _uniDeepData = true;
           }
-        } catch(e) { console.warn('[AIO] 단일 기업 실패/타임아웃:', e.message); }
+        } catch(e) { _aioLog('warn', 'fetch', '단일 기업 실패/타임아웃: ' + e.message); }
       }
     }
 
@@ -44124,10 +44124,10 @@ async function chatSendUnified() {
           var webResult;
           // v46.9: DeepSearch 예외 시 일반 검색 폴백 보장 (개별 try-catch)
           if (isComplex && typeof _aiDeepSearch === 'function') {
-            try { webResult = await _withTimeout(_aiDeepSearch(q, ctxId), 12000, 'deepsearch'); } catch(de) { console.warn('[AIO] DeepSearch 실패/타임아웃:', de.message); }
+            try { webResult = await _withTimeout(_aiDeepSearch(q, ctxId), 12000, 'deepsearch'); } catch(de) { _aioLog('warn', 'fetch', 'DeepSearch 실패/타임아웃: ' + de.message); }
           }
           if (!webResult) {
-            try { webResult = await _withTimeout(_aiWebSearch(searchQuery), 12000, 'websearch'); } catch(se) { console.warn('[AIO] WebSearch 실패/타임아웃:', se.message); }
+            try { webResult = await _withTimeout(_aiWebSearch(searchQuery), 12000, 'websearch'); } catch(se) { _aioLog('warn', 'fetch', 'WebSearch 실패/타임아웃: ' + se.message); }
           }
           if (webResult && typeof _formatSearchForPrompt === 'function') {
             sysPrompt += _formatSearchForPrompt(webResult); _uniWebResult = webResult;
@@ -44141,7 +44141,7 @@ async function chatSendUnified() {
       var newsCtx = _buildNewsContext(ctxId, q);
       if (newsCtx) { sysPrompt += newsCtx; _uniNewsCtx = true; }
     }
-  } catch(e) { console.warn('[AIO] chatSendUnified 데이터 주입 실패:', e.message); }
+  } catch(e) { _aioLog('warn', 'fetch', 'chatSendUnified 데이터 주입 실패: ' + e.message); }
 
   // sysPrompt 방어 — ctx.system() 실패 시 빈 문자열 폴백
   if (!sysPrompt) sysPrompt = '';
@@ -44224,7 +44224,7 @@ async function chatSendUnified() {
 
   console.log('[AIO] callClaude 호출, model:', selectedModelKey, 'sysPrompt:', (sysPrompt||'').length + '자');
   if (typeof callClaude !== 'function') {
-    console.error('[AIO] callClaude 함수 미정의!');
+    _aioLog('error', 'fetch', 'callClaude 함수 미정의!');
     if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
     _appendAIMsg('ai', '<span style="color:#f87171;">시스템 오류: callClaude 함수를 찾을 수 없습니다. 페이지를 새로고침해주세요.</span>');
     return;
@@ -44350,7 +44350,7 @@ async function chatSendUnified() {
   try {
     callClaude(sysPrompt, state.messages, _uniOnChunk, _uniOnDone, _uniOnError, modelOpts);
   } catch(callEx) {
-    console.error('[AIO] callClaude 동기 throw:', callEx.message);
+    _aioLog('error', 'fetch', 'callClaude 동기 throw: ' + callEx.message);
     state.streaming = false;
     state._streamStartedAt = null;
     if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
