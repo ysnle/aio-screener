@@ -6,6 +6,59 @@
 
 ---
 
+## v48.16 — /integrate 35건 리서치 자료 통합 (Citi/JPM/BofA/Mizuho/GS/DA Davidson/Bernstein/TD Cowen/WF) (2026-04-18)
+
+### 트리거
+사용자 지시: "내가 보내준 모든 글들 순차적으로 빠짐없이 분석 및 참고해서 스크리너에 반영시켜줘." — 2026-04-18 자정 근접 대규모 리서치 세트 (1Q26 실적 프리뷰 + 이벤트 프리뷰 + 매크로 + 지정학 + AI 보안).
+
+### A. 핵심 프레임워크 9건 추출
+
+1. **AVGO-Meta MTIA 2029년 약정** (Q4 구조적): 초기 1GW+ · 학습/추론/네트워킹 통합 · Hock Tan 메타이사회 퇴임→어드바이저 · 커스텀 실리콘 지연 우려 불식 · AI 매출 $100B→$130B+
+2. **ASML 가이던스 체계 전환** (Q2 패러다임): 기존 "반기 실적서 상향" → 신규 "1분기 조기 상향" · 오더 비공시 체제 이후 수요 강도 대체 신호
+3. **TSMC 선단 캐파 2027까지 타이트** (Q4 구조적): 2026-2028 3년 Capex $190~200B(역대급, 이전 3년의 2배) · 2027 가격 +4-5% like-for-like 인상 논의 · C.C.Wei "차세대 LPU 고객과 긴밀 협력" → 삼성 Groq 물량 이관 조기 경보
+4. **HBM+HBF 3계층 메모리 패러다임** (Q2 패러다임): 기존 HBM+SSD 2계층 → 신규 HBM(훈련)+HBF(추론)+SSD(아카이브) 3계층 · SanDisk HBF 일정 6개월 앞당김 · HBM 대비 동일비용 8-16배 용량
+5. **LTA 레버리지 역전** (Q2 패러다임): 기존 "LTA=사이클 정점 신호" → 신규 "고객이 선제안=공급사 레버리지 확보" · 선불금/공동투자/최저가 보장 포함 전망
+6. **CoreWeave 프론티어 랩 독점** (Q4 구조적): Meta $21B+Meta $14B+OpenAI $22B+Anthropic 수십억=$58B+ · NVIDIA 3중 관계(공급+고객+투자자)가 비NVDA 호스팅 차단
+7. **Nvidia LPU TSMC 이관** (Q4 구조적): 차세대 LPU = CX9 의존 + TSMC 3/2nm 필수 + CoWoS 독점 → 삼성 파운드리에서 TSMC로 회귀 유인
+8. **Citi 자산배분 전환** (Q4 구조적): 미국 중립→OW 상향, EM OW→중립 하향 · "이익 확산 균열" + 매그7+ PEG GFC 후 저점 = 역설적 퀄리티 매수 기회
+9. **OpenAI TAC / Anthropic Mythos** (Q4 구조적): AI 보안 = 프론티어 모델 단독 해결 불가 → 공식 파트너 지정 = 예산 촉매 · CRWD만 양쪽 선점, ZS TAC 진입
+
+### B. SCREENER_DB 11개 티커 메모 갱신
+
+| 티커 | 핵심 변경 |
+|------|-----------|
+| GOOGL | Citi PT$405↑ 90일 상승 촉매워치 · 1Q26 4/29 · Cloud Next 4/22-24 / I/O 5/19-20 / GML 5/20 / Brandcast 5/13 · Gemini Ask Maps/Personal Intelligence/Search Live 통합 확장 · Marvell TPU 설계 협력 논의 |
+| MSFT | Mizuho PT$515 (620→515) · YTD GOOGL/AMZN 대비 -21p/-25p · Copilot 3% 유료화 · E7 $99/월 + Cowork/Anthropic · Fairwater DC 외부할당 반등 촉매 · TAC OpenAI 파트너 |
+| AMZN | Citi PT$285 AWS +28% · Globalstar 인수 LEO D2D 2028+ 배포 · Apple 위성통신 인프라 인계 · Prime Day 6월 이동 · Rufus/Alexa+ 전환율 |
+| AVGO | Citi PT$475 Bernstein PT$525 · META MTIA 멀티GW 다년 2029년 · 2027 AI매출 $130B+ 컨빅션 · $100B당 EPS +$1 · 공급 가시성 확대 |
+| TSM | Citi PT NT$2875 JPM PT NT$2500 · 1Q26 매출 NT$1,134B(+35%YoY) · 2026-2028 Capex $190~200B · 선단 캐파 2027까지 타이트 · 가격 +4-5% 인상 논의 · 차세대 LPU 고객 협력 |
+| ASML | Citi PT €1600 JPM OW · 2026 €380억 상향(기존 €365억) · 2027 Low NA 80대 공약(VA 컨센 72) · 삼성 P5 EUV 20대 · 2Q26 의도적 보수 |
+| CRWV | DA Davidson PT$175 Mizuho PT$105 · 프론티어 랩 독점 $58B+ · 1Q26E 매출 $19.5B(+99%YoY) · 2026 $120-130B 가이던스 · DDTL 4.0 $85억 · Perplexity/Cline/HGX B300 |
+| CRDO | BofA PT$210↑(160→210) · DustPhotonics 인수 후속 · FY27 광학 $5억+ · EPS 창출력 $10-11 · CY27E PE 23배 vs 광학동종 40-50배 |
+| NET | Mizuho PT$235(255→235↓) · 4Q 매출 +33.5%YoY · 1Q 트래픽 +73%YoY · x402(코인베이스 Base 9,700만건+Stripe) · Anthropic 매니지드 에이전트 출시 후 -13% |
+| PLTR | Mizuho PT$185 Outperform · 1Q26E 매출 $1.58B(+79%YoY) · 골든돔 $1,850억 핵심 · Maven 공식 전력화 · NVIDIA 소버린 AI OS |
+| SNDK | HBF 일정 6개월 앞당김 · 26H2 파일럿 라인 · 27초 AI 추론 디바이스 · HBM 대비 동일비용 8-16배 용량 |
+
+### C. 키워드 확장
+
+- **TECH_KW 신규 30개+**: MTIA/Meta MTIA/MTIA v450/Arke, HBF/high bandwidth flash/HBM+HBF/inference memory, Glasswing/Project Glasswing/OpenAI TAC/Trust Access, 테라팹/Terafab/머스크 테라팹, DustPhotonics/ZR optical/x402/Dynamic Workers, Vera Rubin/Rubin CPX/CX9/NVLink Fusion, 네오클라우드/neocloud/frontier lab/Trainium chip, LTA/long-term agreement/메모리 LTA, Cloud Next/Google I/O/Marketing Live/Brandcast, Ask Maps/Personal Intelligence/Search Live
+- **MACRO_KW 신규 8개+**: escalate to de-escalate/고조 후 완화, quality rotation/퀄리티 로테이션, earnings broadening/이익 확산, defensive tilt/디펜시브 전환, bear market checklist/tactical overweight/전술적 비중확대, DC moratorium/data center ban/DC 금지법안, Wartsila/34SG engine/onsite power/온사이트 발전, data dependence/데이터 디펜던스/forward guidance 실패, 평균물가목표/2% 물가목표/중물가
+
+### D. CHAT_CONTEXTS 프레임워크 3건 추가 (§71-§73)
+
+- **§71 HBM+HBF 3계층 메모리 패러다임** — SanDisk 26H2 파일럿 + TSV 16레이어 + HBM 대비 8-16배 용량
+- **§72 메모리 LTA 레버리지 역전** — 고객 선제안 = 공급사 협상력 확보 + GS 한국 피드백
+- **§73 자산배분 전환** — Citi 미국 OW↑ EM 중립↓ + 매그7 역설적 퀄리티 매수 기회
+
+### E. KNOWLEDGE-BASE 인사이트 4건 축적
+
+- ASML 가이던스 체계 전환 (조기 상향 = 수요 자신감)
+- HBM+HBF 3계층 메모리 패러다임
+- LTA 레버리지 역전 메커니즘
+- CoreWeave 프론티어 랩 독점 메커니즘
+
+---
+
 ## v48.15 — P2-A 라우터 + P2-B 로거 + P2-C 차트 지연초기화 + 텍스트-A/B/C 동적 바인딩 (2026-04-18)
 
 ### 트리거
