@@ -11223,8 +11223,8 @@ window._pageState = window._pageState || (function() {
 window.PAGES = {
   'home':           { label: '홈 대시보드',     init: null,                                          chatCtx: null },
   'signal':         { label: '매매 시그널',     init: function() { if (typeof initSignalDashboard === 'function') _safePageInitGlobal('signal', initSignalDashboard); }, chatCtx: 'signal' },
-  'breadth':        { label: '시장 폭',          init: function() { if (typeof initBreadthPage === 'function') _safePageInitGlobal('breadth', initBreadthPage); if (typeof updateRallyQualityVerdict === 'function') setTimeout(updateRallyQualityVerdict, 500); }, chatCtx: null },
-  'sentiment':      { label: '투자 심리',        init: function() { if (typeof initSentimentPage === 'function') _safePageInitGlobal('sentiment', initSentimentPage); }, chatCtx: null },
+  'breadth':        { label: '시장 폭',          init: function() { _lazyInitChartPage('breadth', 'bp-ad-ratio-chart', function() { if (typeof initBreadthPage === 'function') _safePageInitGlobal('breadth', initBreadthPage); if (typeof updateRallyQualityVerdict === 'function') setTimeout(updateRallyQualityVerdict, 500); }); }, chatCtx: null },
+  'sentiment':      { label: '투자 심리',        init: function() { _lazyInitChartPage('sentiment', 'vix-chart', function() { if (typeof initSentimentPage === 'function') _safePageInitGlobal('sentiment', initSentimentPage); }); }, chatCtx: null },
   'briefing':       { label: '데일리 브리핑',    init: function() { _initBriefingPage(); }, chatCtx: 'briefing' },
   'technical':      { label: '차트·기술',        init: function() { _safePageInitGlobal('technical', _initTechnicalPage); }, chatCtx: 'technical' },
   'macro':          { label: '거시경제',         init: function() { _safePageInitGlobal('macro', _initMacroPage); }, chatCtx: 'macro' },
@@ -11271,12 +11271,19 @@ function _initTechnicalPage() {
 }
 
 function _initMacroPage() {
+  // storyline/달력은 즉시 (텍스트 — 초기 로드 가벼움)
   if (typeof generateMacroStoryline === 'function') { try { generateMacroStoryline(); } catch(e) {} }
   if (typeof renderEconCalendar === 'function') { try { renderEconCalendar(); } catch(e) {} }
-  if (typeof initYieldCurveChart === 'function') { try { initYieldCurveChart(); } catch(e) {} }
-  if (typeof _renderFredCharts === 'function') {
-    try { _renderFredCharts(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'FRED 차트 에러: ' + (e && e.message || e)); }
-  }
+  // v48.15 (P2-C): Chart.js 무거운 작업은 IntersectionObserver 기반 lazy
+  // yield curve 차트는 macro 페이지 중상단, FRED 12개월 시계열은 하단 — 각각 분리
+  _lazyInitChartPage('macro', 'yieldCurveChart', function() {
+    if (typeof initYieldCurveChart === 'function') { try { initYieldCurveChart(); } catch(e) {} }
+  });
+  _lazyInitChartPage('macro', 'fred-unrate-chart', function() {
+    if (typeof _renderFredCharts === 'function') {
+      try { _renderFredCharts(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'FRED 차트 에러: ' + (e && e.message || e)); }
+    }
+  });
 }
 
 function _initFundamentalPage() {
@@ -11355,6 +11362,17 @@ function _initThemePerfTable(pageId) {
   } else {
     var tid = setTimeout(function() { _updatePerfTable().catch(function(){}); }, 300);
     if (window._pageState) window._pageState.get(pageId).timers.push(tid);
+  }
+}
+
+// v48.15 (P2-C): Chart.js 페이지 공통 lazy-init 래퍼
+// 지정 canvas가 viewport에 진입할 때만 initFn 실행. canvas 없거나 observer 미지원 시 즉시 fallback.
+function _lazyInitChartPage(pageId, canvasId, initFn) {
+  var canvas = document.getElementById(canvasId);
+  if (canvas && typeof _lazyInit === 'function') {
+    _lazyInit(pageId, canvas, initFn);
+  } else {
+    try { initFn(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'lazyInit', pageId + ' fallback: ' + e.message); }
   }
 }
 
