@@ -6,6 +6,51 @@
 
 ---
 
+## v48.21 — v48.20 마지막 개선 여지 완전 해소 + CP 동적화 완성 (2026-04-19)
+
+### 트리거
+사용자 피드백: "추후 개선 여지 있는 부분들 뭐야? 보강 가능? 보강 해야 돼?"
+→ v48.20 말미에 언급한 3개 개선 여지 모두 실행(선택적 3건은 실익 낮아 후속으로 분류).
+
+### A. signal/theme-detail CHAT_CONTEXT 맥락 주입 (v48.20 누락분)
+
+v48.20에서 technical/fundamental/themes/fxbond/sentiment 5개만 주입했으나, signal/theme-detail 2개 누락 해소:
+- **signal**: `_buildMarketLeadersSnapshot() + _getV48IntegratedContext('signal') + _getChatRules()` 체인
+- **theme-detail**: `_getV48IntegratedContext('themes') + _getChatRules()` (themes focus 공유)
+
+**`_getV48IntegratedContext`에 signal focus 신규 추가**:
+- Citi 자산배분 전환 = 매그7 "퀄리티 매수" 우선(시클리컬 로테이션보다 소수 리더 집중)
+- 베어마켓 체크리스트 8/18 적신호 but 매수 후 보유 전략 측면 매수 권고
+- S&P 500 NTM PE 20.9배(5년 평균 19.9배 상회) → 진입 시 VCP 돌파 품질 선별
+- 긍정 서프라이즈 주가 반응 -0.2% → 어닝 서프라이즈 후 매수보다 가격 액션 관찰
+- 레브코비치 유포리아 영역 = 포지션 축소. 바닥 3/3 확인 후 풀 롱
+
+**효과**: 이제 7개 CHAT_CONTEXT(technical/fundamental/themes/fxbond/sentiment/signal/theme-detail) 전체가 35건 리서치 매크로 맥락 자동 인용. macro는 v48.16/v48.18에서 이미 업데이트됨.
+
+### B. CP4/CP5/CP7/CP8 정적 → 동적 전환 (v48.15 텍스트-A 완성)
+
+v48.15에 CP1/CP2/CP3/CP6 동적 생성기 구축, 나머지 4개는 정적 기본 반환이었음. v48.21에서 전부 동적화:
+
+- **CP4 재정**: DXY 레짐 4단계(강달러 스트레스↑→달러 약세↓) + 10Y 재발행 부담 4단계 → "달러·금리 조합이 재정 리스크 실체화 단계"
+- **CP5 유동성**: TGA 잔고 + 10Y 금리 래더(위기권/긴축 임계/중립/완화) + F&G 톤(탐욕 극단/중립/경계/공포)
+- **CP7 기업실적**: momentum × VIX 교차("서프라이즈 긍정반응 가능/실적 품질 선별/서프라이즈 무시 위험") + **FactSet 88% EPS 서프라이즈 + 긍정 주가 반응 -0.2%(5년 평균 +1.0%) + NVDA 제외 매그6 6.4% vs 493사 10.1% 역전** 반영
+- **CP8 사이버·시스템**: VVIX 4단계 시스템 리스크(극단/고조/중립/안정) + **OpenAI TAC 14개 파트너(CRWD 양쪽 독점)** 반영
+
+이제 8개 CP 전부가 DATA_SNAPSHOT 갱신 시 applyDataSnapshot → NARRATIVE_ENGINE.renderCPTexts()로 실시간 갱신.
+
+### C. SCREENER_DB + KNOWN_TICKERS 누락 보강
+
+- **JBL (Jabil)** 신규 진입: `[JPM 04/17 OW top10] EMS 제조 + AI 서버 조립 · 하이퍼스케일러 수주 · CLS/FLEX와 함께 광학 프리미엄 완화 수혜 그룹` · mcap:20 · NASDAQ
+- NBIS(Nebius)/TER(Teradyne)는 이미 SCREENER_DB에 존재 확인
+
+### D. 파이프라인 건전성 최종 확인
+
+- `_sectorRRGSeed` 4/14 기준 이미 최신: SMH Leading(TSMC +35% + NAND ASP +70%), IGV 반등(AI 크라우딩아웃 우려 과도 재평가), HACK/CIBR Improving(AI 위협 구조적), XLE Weakening(재협상→WTI $91)
+- `_SECTOR_PCT_FALLBACK` 4/14 섹터 % 폴백 유지
+- 홈 퀵액션/KR_SUB_THEME_INSIGHTS/번역 프롬프트 맥락 주입은 실익 낮아 후속 분류
+
+---
+
 ## v48.20 — /integrate + 뉴스 파이프라인 미반영 누락 완전 보강 (2026-04-19)
 
 ### 트리거
