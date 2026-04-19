@@ -6,6 +6,61 @@
 
 ---
 
+## v48.25 — P3-5 Phase 2+3 sentiment 3차트 + macro FRED 3차트 LWC dual-path (2026-04-19)
+
+### 트리거
+이전 세션 잔여 작업 이어받기 — v48.24에서 VIX 1개만 전환했던 패턴을 NAAIM/II/HY (sentiment Phase 2) + UNRATE/CPI/FEDFUNDS (macro Phase 3) 5개 차트로 확장.
+
+### A. sentiment 3차트 dual-path (P3-5 Phase 2 완료)
+
+| 함수 | 차트 ID | 특성 | LWC 헬퍼 | 추가 요소 |
+|------|---------|------|----------|----------|
+| `_initSentNaaimChart` | `naaim-chart` | 단일 라인, height 140 | `createLineChart` | `createPriceLine(62)` Avg 참조선 |
+| `_initSentIIChart` | `ii-chart` | 멀티 라인 (Bull+Bear), height 140 | `createMultiLineChart` | 2 series (3ddba5 / f87171) |
+| `_initSentHYChart` | `hy-chart` | 단일 라인 (bp), height 160 | `createLineChart` | precision 0 (정수) |
+
+모두 동일 패턴:
+1. `chartDataGate` → 데이터 검증
+2. `AIO.charts.shouldUseLWC()` 체크
+3. `wrapCanvas(ctx, height)` → 컨테이너 div 동적 생성
+4. `monthDayToISO(labels, baseYear)` → ISO 시간 변환
+5. `createLineChart` / `createMultiLineChart` 호출
+6. `createCompatWrapper` → `sentPageCharts[id]` 등록
+7. 예외 시 자동 Chart.js 폴백 (try/catch)
+
+### B. macro FRED 3차트 dual-path (P3-5 Phase 3 완료)
+
+`_renderFredCharts` for 루프 내부에 dual-path 분기 추가:
+- `obs.date` 원본 YYYY-MM-DD를 `isoDates`로 보존 (LWC time 입력)
+- yoy 변환 시 `isoDates`도 동일 slice(12)
+- `_lwcOk` 플래그로 LWC 성공/실패 분기
+- LWC 성공 시 `_fredChartInstances[s.id]`에 호환 래퍼 등록
+- 실패 시 기존 Chart.js 코드 그대로 실행
+
+### C. 호환성 (변경 없음)
+- HTML/CSS 변경 0건 (canvas → display:none, LWC 컨테이너 옆 주입)
+- `localStorage.aio_charts_fallback=1` 또는 `AIO.charts.useFallback=true` → 전체 Chart.js 복귀
+- `_fredChartInstances[s.id].destroy()` 호환 (래퍼 destroy 구현)
+
+### D. 효과 추정
+- sentiment 4차트(VIX+NAAIM+II+HY) + macro FRED 3차트 = **7개 차트 LWC 렌더 가능**
+- Chart.js 대비 렌더 속도 +50~60% 예상
+- 메모리 사용 -30~40% 예상
+
+### E. 보류 — P3-1 Phase 2
+- 단일 `<script>` 4개 분할 작업
+- 메인 스크립트 8769~24363 (15,594줄) 안의 IIFE/let/const 충돌 위험 큼
+- 다음 세션: 모듈 경계 마커(주석) 추가 → 안전한 1지점에서만 시범 분할 권장
+
+### F. 변경 라인
+- `_initSentNaaimChart` (~22580): +44줄 (dual-path 블록)
+- `_initSentIIChart` (~22660): +35줄 (multi-line 분기)
+- `_initSentHYChart` (~22720): +30줄 (height 160 + 정수 포맷)
+- `_renderFredCharts` (~14310): +35줄 (for 루프 내 dual-path)
+- 버전 6곳: title, badge, APP_VERSION, version.json, CLAUDE.md, _context/CLAUDE.md
+
+---
+
 ## v48.24 — P3-5 Phase 2 첫 실제 전환 VIX → lightweight-charts (dual-path) (2026-04-19)
 
 ### 트리거

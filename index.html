@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.24 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.25 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2245,7 +2245,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.24</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.25</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -10237,7 +10237,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.24';
+const APP_VERSION = 'v48.25';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -14331,6 +14331,7 @@ async function _renderFredCharts() {
       if (!obs || obs.length < 3) continue;
       obs = obs.reverse(); // 오래된 순
       var labels = obs.map(function(o) { return o.date.slice(5); }); // MM-DD
+      var isoDates = obs.map(function(o) { return o.date; }); // YYYY-MM-DD (LWC time)
       var values = obs.map(function(o) { return parseFloat(o.value) || 0; });
       // CPI는 YoY% 변환 (전년 동월 대비)
       if (s.transform === 'yoy' && values.length >= 13) {
@@ -14340,22 +14341,54 @@ async function _renderFredCharts() {
         }
         values = yoyVals;
         labels = labels.slice(12);
+        isoDates = isoDates.slice(12);
       }
       var canvas = document.getElementById(s.canvas);
       if (!canvas) continue;
-      if (_fredChartInstances[s.id]) _fredChartInstances[s.id].destroy();
-      _fredChartInstances[s.id] = new Chart(canvas, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{ label: s.label, data: values, borderColor: s.color, backgroundColor: s.color + '18', borderWidth: 2, pointRadius: 2, fill: true, tension: 0.3 }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0b4c8', font: { size: 8 } } }, x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 7 }, maxTicksLimit: 6 } } },
-          plugins: { legend: { display: false } }
+      if (_fredChartInstances[s.id]) { try { _fredChartInstances[s.id].destroy(); } catch(_){} }
+
+      // v48.25 (P3-5 Phase 3): lightweight-charts 경로 시도
+      var _lwcOk = false;
+      if (window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
+        try {
+          var container = window.AIO.charts.wrapCanvas(canvas, 120);
+          if (container) {
+            var lwcData = isoDates.map(function(d, i) { return { time: d, value: values[i] }; });
+            var precision = (s.id === 'CPIAUCSL') ? 2 : 2;
+            var minMove = 0.01;
+            var lwcResult = window.AIO.charts.createLineChart(container, lwcData, {
+              color: s.color,
+              lineWidth: 2,
+              height: 120,
+              priceFormat: { type: 'price', precision: precision, minMove: minMove }
+            });
+            if (lwcResult && lwcResult.series) {
+              _fredChartInstances[s.id] = window.AIO.charts.createCompatWrapper(lwcResult, canvas, container);
+              if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'FRED ' + s.id + ' chart: lightweight-charts 경로 사용');
+              _lwcOk = true;
+            }
+          }
+        } catch(e2) {
+          if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC FRED ' + s.id + ' 전환 실패, Chart.js 폴백: ' + (e2 && e2.message || e2));
         }
-      });
+      }
+
+      // Chart.js 경로 (폴백 or LWC 미지원)
+      if (!_lwcOk) {
+        if (typeof Chart === 'undefined') continue;
+        _fredChartInstances[s.id] = new Chart(canvas, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{ label: s.label, data: values, borderColor: s.color, backgroundColor: s.color + '18', borderWidth: 2, pointRadius: 2, fill: true, tension: 0.3 }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0b4c8', font: { size: 8 } } }, x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 7 }, maxTicksLimit: 6 } } },
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
     } catch(e) { _aioLog('warn', 'chart', 'FRED chart error: ' + s.id + ' ' + e.message); }
   }
   if (statusEl) statusEl.textContent = '갱신: ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
@@ -22538,14 +22571,53 @@ function _initSentVixChart() {
 }
 
 // ── v48.22: NAAIM Exposure Index (개별 함수)
+// ── v48.25: lightweight-charts dual-path (P3-5 Phase 2)
 function _initSentNaaimChart() {
   var naaimCtx = document.getElementById('naaim-chart');
-  if (!naaimCtx || typeof Chart === 'undefined') return;
+  if (!naaimCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
   var naaimLabels = ['1/22','1/29','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/1','4/8'];
   var naaimData = [82.1, 79.3, 72.8, 68.4, 64.2, 63.5, 67.1, 67.0, 60.2, 62.5, 68.36, 69.38];
   var _gNaaim = chartDataGate('naaim-chart', naaimLabels, [naaimData], { minPoints: 3, chartName: 'NAAIM' });
   if (!_gNaaim) return;
+
+  // v48.25 (P3-5 Phase 2): lightweight-charts 경로 시도
+  if (window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
+    try {
+      var container = window.AIO.charts.wrapCanvas(naaimCtx, 140);
+      if (container) {
+        var isoLabels = window.AIO.charts.monthDayToISO(naaimLabels, new Date().getFullYear());
+        var lwcData = naaimData.map(function(v, i) { return { time: isoLabels[i], value: v }; });
+        var lwcResult = window.AIO.charts.createLineChart(container, lwcData, {
+          color: '#5ba8ff',
+          lineWidth: 2,
+          height: 140,
+          priceFormat: { type: 'price', precision: 2, minMove: 0.01 }
+        });
+        if (lwcResult && lwcResult.series) {
+          // 62 (Avg) 참조선 추가
+          try {
+            lwcResult.series.createPriceLine({
+              price: 62,
+              color: 'rgba(255,255,255,0.3)',
+              lineWidth: 1,
+              lineStyle: 2, // dashed
+              axisLabelVisible: true,
+              title: 'Avg 62'
+            });
+          } catch(_){}
+          sentPageCharts['naaim'] = window.AIO.charts.createCompatWrapper(lwcResult, naaimCtx, container);
+          if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'NAAIM chart: lightweight-charts 경로 사용');
+          return;
+        }
+      }
+    } catch(e) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC NAAIM 전환 실패, Chart.js 폴백: ' + (e && e.message || e));
+    }
+  }
+
+  // Chart.js 경로 (폴백 or LWC 미지원)
+  if (typeof Chart === 'undefined') return;
   sentPageCharts['naaim'] = new Chart(naaimCtx, {
     type: 'line',
     data: {
@@ -22578,15 +22650,42 @@ function _initSentNaaimChart() {
 }
 
 // ── v48.22: Investors Intelligence Bull/Bear (개별 함수)
+// ── v48.25: lightweight-charts dual-path (P3-5 Phase 2) — multi-line
 function _initSentIIChart() {
   var iiCtx = document.getElementById('ii-chart');
-  if (!iiCtx || typeof Chart === 'undefined') return;
+  if (!iiCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
   var iiLabels = ['1/8','1/22','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/2','4/9'];
   var iiBull = [49.3, 46.7, 44.1, 40.8, 37.2, 33.5, 31.2, 29.4, 28.2, 26.5, 25.1, 24.0];
   var iiBear = [22.8, 25.3, 27.9, 30.4, 33.1, 36.8, 38.5, 40.2, 41.5, 43.2, 44.8, 46.0];
   var _gII = chartDataGate('ii-chart', iiLabels, [iiBull, iiBear], { minPoints: 3, chartName: 'II Bull/Bear' });
   if (!_gII) return;
+
+  // v48.25 (P3-5 Phase 2): lightweight-charts 경로 시도 — multi-line (Bull + Bear)
+  if (window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
+    try {
+      var container = window.AIO.charts.wrapCanvas(iiCtx, 140);
+      if (container) {
+        var isoLabels = window.AIO.charts.monthDayToISO(iiLabels, new Date().getFullYear());
+        var bullData = iiBull.map(function(v, i) { return { time: isoLabels[i], value: v }; });
+        var bearData = iiBear.map(function(v, i) { return { time: isoLabels[i], value: v }; });
+        var lwcResult = window.AIO.charts.createMultiLineChart(container, [
+          { name: 'Bulls', color: '#3ddba5', lineWidth: 2, data: bullData },
+          { name: 'Bears', color: '#f87171', lineWidth: 2, data: bearData }
+        ], { height: 140 });
+        if (lwcResult && lwcResult.series) {
+          sentPageCharts['ii'] = window.AIO.charts.createCompatWrapper(lwcResult, iiCtx, container);
+          if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'II chart: lightweight-charts 경로 사용 (multi-line)');
+          return;
+        }
+      }
+    } catch(e) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC II 전환 실패, Chart.js 폴백: ' + (e && e.message || e));
+    }
+  }
+
+  // Chart.js 경로 (폴백 or LWC 미지원)
+  if (typeof Chart === 'undefined') return;
   sentPageCharts['ii'] = new Chart(iiCtx, {
     type: 'line',
     data: {
@@ -22612,13 +22711,41 @@ function _initSentIIChart() {
 }
 
 // ── v48.22: HY Credit Spread (개별 함수)
+// ── v48.25: lightweight-charts dual-path (P3-5 Phase 2)
 function _initSentHYChart() {
   var hyCtx = document.getElementById('hy-chart');
-  if (!hyCtx || typeof Chart === 'undefined') return;
+  if (!hyCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
   var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284];
   var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' });
   if (!_gHY) return;
+
+  // v48.25 (P3-5 Phase 2): lightweight-charts 경로 시도
+  if (window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
+    try {
+      var container = window.AIO.charts.wrapCanvas(hyCtx, 160);
+      if (container) {
+        var isoLabels = window.AIO.charts.monthDayToISO(labels20, new Date().getFullYear());
+        var lwcData = hyData.map(function(v, i) { return { time: isoLabels[i], value: v }; });
+        var lwcResult = window.AIO.charts.createLineChart(container, lwcData, {
+          color: '#fb923c',
+          lineWidth: 2,
+          height: 160,
+          priceFormat: { type: 'price', precision: 0, minMove: 1 }
+        });
+        if (lwcResult && lwcResult.series) {
+          sentPageCharts['hy'] = window.AIO.charts.createCompatWrapper(lwcResult, hyCtx, container);
+          if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'HY chart: lightweight-charts 경로 사용');
+          return;
+        }
+      }
+    } catch(e) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC HY 전환 실패, Chart.js 폴백: ' + (e && e.message || e));
+    }
+  }
+
+  // Chart.js 경로 (폴백 or LWC 미지원)
+  if (typeof Chart === 'undefined') return;
   sentPageCharts['hy'] = new Chart(hyCtx, {
     type: 'line',
     data: {
