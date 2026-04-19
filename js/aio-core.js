@@ -126,6 +126,27 @@
   };
 })();
 
+// ═══ v48.31: safeHtml — DOMPurify 기반 innerHTML XSS sanitize ═══════════════
+// 용도: 외부 API 응답(뉴스 headline/summary, 종목 memo, AI 응답 등) innerHTML 주입 시 사용
+// 사용: element.innerHTML = safeHtml(externalString) — <script>, onerror 등 위험 태그 제거
+// DOMPurify 미로드 시 fallback: HTML entity escape (정적 대체)
+window.safeHtml = function(str, allowTags) {
+  if (str == null) return '';
+  try {
+    if (typeof DOMPurify !== 'undefined' && DOMPurify.sanitize) {
+      // 허용 태그: 기본 텍스트 서식 (b/i/strong/em/br/span/div/p/a/code/ul/ol/li)
+      var config = allowTags ? { ALLOWED_TAGS: allowTags } : {
+        ALLOWED_TAGS: ['b', 'i', 'strong', 'em', 'br', 'span', 'div', 'p', 'a', 'code', 'pre', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote'],
+        ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style', 'title'],
+        ALLOW_DATA_ATTR: false
+      };
+      return DOMPurify.sanitize(String(str), config);
+    }
+  } catch(_){}
+  // Fallback: HTML entity escape (DOMPurify 미로드 시)
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+};
+
 // ── v30.10: 글로벌 에러 표시 유틸리티 (사용자 피드백 제공) ─────────────
 // 에러 유형: 'api' | 'parse' | 'dom' | 'network'
 // 심각도: 'warn' (노란색, 자동 소멸) | 'error' (빨간색, 수동 닫기)
@@ -1492,7 +1513,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.30';
+const APP_VERSION = 'v48.31';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.30 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.31 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -18,7 +18,8 @@
   <meta name="twitter:title" content="AIO Screener — 올인원 투자 터미널">
   <meta name="twitter:description" content="실시간 시장 분석, 매매 시그널, 섹터 RRG, Fear&Greed, 포트폴리오 관리.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='12' fill='%230a0e14'/><text x='50' y='58' text-anchor='middle' font-family='Inter,sans-serif' font-weight='800' font-size='42' fill='%235ba8ff'>AIO</text></svg>" type="image/svg+xml">
-  <!-- manifest.json 제거 — PWA/SW 캐시 문제로 비활성화 (v38.4) -->
+  <!-- v48.31: manifest.json 재활성 — SW v48.22+ Cache-First 구조로 v38.4 비활성 사유(캐시 충돌) 해소. PWA 설치 promotion 재개. -->
+  <link rel="manifest" href="./manifest.json">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +30,10 @@
   <link rel="preload" as="script" href="./js/aio-data.js">
   <link rel="preload" as="script" href="./js/aio-ui.js">
   <link rel="preload" as="script" href="./js/aio-chat.js">
+  <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
+  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+  <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
+  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"></noscript>
   <style>
@@ -1388,13 +1393,14 @@ body { background: #0d1521 !important; }
 }
 .rm-status { font-size: 11px !important; }
 
-/* 시장 폭 바 라벨 — v42.2: 120px 컬럼 내 8px 기준 맞춤 (11px→8px 복원) */
+/* 시장 폭 바 라벨 — v48.31 WCAG AA: 8px → 11px 복원. letter-spacing 축소로 좁은 컬럼 보상 */
 .bb-label {
-  font-size: 8px !important;
+  font-size: 11px !important;
   color: var(--text-secondary) !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+  letter-spacing: -0.02em !important;
 }
 .bb-badge {
   font-size: 11px !important;
@@ -2251,7 +2257,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.30</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.31</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -8767,6 +8773,8 @@ body.light-theme canvas { filter:none; }
   <!-- v30.11 perf: Chart.js를 <head>에서 여기로 이동 — 초기 DOM 렌더링 차단 제거 -->
   <!-- v38.3: CDN 이중화 — jsDelivr 실패 시 cdnjs 자동 전환 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <!-- v48.31: DOMPurify CDN (~20KB gzip) — innerHTML 외부 데이터 XSS 방지 sanitize -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js" defer></script>
   <!-- v48.23 (P3-5): lightweight-charts 통합 — time series 차트 점진 전환용 (Chart.js와 혼합 사용) -->
   <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" defer></script>
   <script>
