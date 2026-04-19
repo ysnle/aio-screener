@@ -6,6 +6,102 @@
 
 ---
 
+## v48.42 — 전체 UI 디자인 시스템 재작성 (Figma × Bloomberg 통합) (2026-04-20)
+
+### 트리거
+사용자 지시: "A로 전체 시스템 재작성 진행. 중간에 미루지 말고 계속 순차. 보내준 이미지 3개(SnowUI + Charts light/purple/dark) UI와 느낌 반영. Figma 느낌을 Bloomberg와 합치는 거라고 생각."
+
+v48.41 R2까지의 부분적 적용을 철수하고 토큰/레이아웃/컴포넌트/페이지/차트/JS render 6 Phase 병행 재작성.
+
+### Phase 1 — 디자인 시스템 토큰 전면 재작성
+
+**배경 4단**: `--bg-base #080d1a` · `--bg-surface #0c1324` · `--bg-card #111a2f` · `--bg-elevated #172241`
+
+**Figma × Bloomberg 데이터 팔레트 6색**:
+- `--data-cyan #00d4ff` — 시세/정보 (Figma 대표)
+- `--data-magenta #ff4d97` — 포인트 강조 (Figma 핫)
+- `--data-purple #a855f7` — 심리/센티멘트
+- `--data-amber #ffa31a` — Bloomberg 시그니처
+- `--data-green #00e5a0` — 강세
+- `--data-red #ff5b50` — 약세
+
+**Typography**: `--fs-xs~4xl` 10단 스케일 · `--lh-tight/snug/body/relaxed` · `--ls-tight~widest` · Inter `font-feature cv11/ss01/ss03` + `tabular-nums` 전역
+
+**Spacing/Radius/Shadow**: `--space-1~12` (4/8 grid) · `--radius-sm~2xl` + `--radius-pill` · `--shadow-xs~lg + modal + glow-cyan/magenta`
+
+**Transitions**: `--ease-out/in-out` + `--dur-fast/base/slow`
+
+**차트**: `--chart-1~8` 시리즈 색 + `--chart-grid/axis`
+
+### Phase 2 — `.aio-*` 컴포넌트 라이브러리
+
+- **`.aio-card`**: `is-interactive/elevated/compact/flush` 변형 + `has-stripe-top/left` + `stripe-cyan/magenta/purple/amber/green/red`
+- **`.aio-btn`**: `primary/secondary/ghost/danger/warn` + `is-sm/lg`
+- **`.aio-input` / `.aio-select`**: focus ring (3px `--accent-soft`)
+- **`.aio-badge`**: `is-solid/cyan/magenta/purple/amber/green/red` + `aio-badge-dot`
+- **`.aio-table`**: sticky header, uppercase 라벨
+- **`.aio-modal-overlay` + `.aio-modal`**: `backdrop-filter: blur(8px)` (Figma 글래스)
+- **`.aio-metric-value/delta`**: `is-up/down/flat` 색 변형
+- **`.aio-legend/legend-dot`**: 차트 범례
+- **`.aio-stat-row`**: label/value 2-col
+- **`.aio-section-title`**: 앞에 3px accent 바 자동
+
+### Phase 3 — 레이아웃 재작성
+
+**사이드바**: 커스텀 scrollbar · 로고 아래 accent 바 underline · `.nav-item::before` 왼쪽 accent 슬라이드 (active 시 scaleY(1)) · nav-section 패딩 미세 증가
+
+**톱바**: `--topbar-h 52px` · 통합 테두리 (`--border`) · 콘텐츠 스크롤바 투명 → hover 시 표시
+
+**nav-icon**: 6px dot · hover box-shadow glow · active box-shadow 2배
+
+### Phase 4 — 기존 컴포넌트 전수 재스타일링
+
+`.page-title/subtitle` · `.data-widget` · `.page-tab` (active accent-soft) · `.search-bar` (focus ring) · `.tb-btn` (ghost 기본) · `.ai-badge/ai-dot` (glow) · `.metric-list/item` · `.mkt-status-card` (accent border-top) · `.snap-card` (cyan border-top) · `.freshness-badge` (pill) · `.sent-badge` (통합 톤) · `.breadth-kpi` (bad/warn/ok border-top 의미) · `.insight-box` (aio-card + 좌측 accent) · `.home-qnav-btn` · `.status-pill` (pill + Figma 톤)
+
+**홈 Section 2 KPI 4카드**: `.aio-card.has-stripe-top.stripe-cyan/purple/amber/magenta`
+**홈 Section 1 3카드**: `.aio-card.is-interactive`
+**홈 Section 0 배너**: `.aio-card.has-stripe-left`
+**범례**: `.aio-legend`
+
+### Phase 4 색 하드코딩 일괄 교체
+
+**`migrate_color_tokens.pl`** — index.html:
+- 1460개 hex 색상을 `var(--data-*)` 토큰으로 자동 치환
+- 14종 기존 색 (#3ddba5/#f87171/#fbbf24/#60a5fa/#5ba8ff/#a78bfa/#818cf8/#6366f1/#ff9900/#f97316/#f59e0b/#94a3b8/#7e8a9e/#a0aab8) 모두 치환
+- 남은 레거시 hex **0개**
+
+### Phase 5 — Chart.js 전역 defaults + LWC 팔레트
+
+**`window._aioApplyChartDefaults()`** (aio-core.js):
+- Chart 로드 감지 (5초 polling) 후 자동 적용
+- `Chart.defaults.color` / `borderColor` / `font.family` / `font.size` 토큰 기반
+- `tooltip.backgroundColor/titleColor/bodyColor/cornerRadius 8/borderColor/borderWidth` 통일
+- `legend.labels.color/font` 통일
+
+**`window.AIO_CHART_PALETTE`**: 11 key (cyan/magenta/purple/amber/green/red/yellow/blue/grid/axis + series 8 배열)
+
+### Phase 6 — JS render 하드코딩 교체
+
+**`migrate_js_colors.pl`** — 4 모듈:
+- `aio-core.js`: 70개
+- `aio-data.js`: 199개
+- `aio-ui.js`: 71개
+- `aio-chat.js`: 45개
+- **총 385개** hex 색상 새 팔레트로 치환
+
+### 누적 변화
+
+- **색상 통일**: 프로젝트 전체 ~1845개 하드코딩 색상 → 토큰/신팔레트로 교체
+- **이모지**: 이전 세션 추가했던 것 전수 제거 유지 (0개)
+- **그라디언트 장식**: 단색 카드 + 3px 띠 패턴으로 통일
+- **컴포넌트 class 라이브러리**: `.aio-*` prefix 16 컴포넌트 타입
+
+### 버전 6곳 동기화 (R1)
+
+index.html(title+badge) · js/aio-core.js(APP_VERSION) · version.json · CLAUDE.md · _context/CLAUDE.md · CHANGELOG.md
+
+---
+
 ## v48.40 — /data-refresh 스킬 대폭 확장 (22 → 30 카테고리) (2026-04-20)
 
 ### 트리거

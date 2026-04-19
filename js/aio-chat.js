@@ -2852,7 +2852,7 @@ async function chatSend(ctxId) {
 
   // v31.3: 사용 모델 표시
   var modelLabel = selectedModelCfg.label;
-  var modelColor = selectedModelKey === 'sonnet-thinking' ? '#a78bfa' : selectedModelKey === 'sonnet' ? '#60a5fa' : 'var(--text-muted)';
+  var modelColor = selectedModelKey === 'sonnet-thinking' ? '#a855f7' : selectedModelKey === 'sonnet' ? '#00d4ff' : 'var(--text-muted)';
   var modelBadge = '<div style="font-size:8px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:-4px 0 4px;opacity:0.7;">' + modelLabel + (selectedModelCfg.thinking ? ' (추론 중…)' : '') + '</div>';
 
   // v36.2: 웹검색 수행 시 검색 알림 배지
@@ -3558,7 +3558,7 @@ async function fundamentalSearch() {
 function _renderFundHeader(d) {
   var el = document.getElementById('fund-rpt-header');
   if (!el) return;
-  var pctColor = d.pct != null ? (d.pct >= 0 ? '#3ddba5' : '#f87171') : '#94a3b8';
+  var pctColor = d.pct != null ? (d.pct >= 0 ? '#00e5a0' : '#ff5b50') : '#7b8599';
   var p = d.fmpProfile || {};
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">';
   html += '<div><div style="font-size:22px;font-weight:800;color:var(--accent);">' + d.ticker + '</div>';
@@ -3600,7 +3600,7 @@ function _renderFundHeader(d) {
   if (d.price && _w52High && _w52Low && _w52High > _w52Low) {
     var _pos = ((d.price - _w52Low) / (_w52High - _w52Low)) * 100;
     _pos = Math.max(0, Math.min(100, _pos));
-    var _posColor = _pos > 75 ? '#3ddba5' : _pos < 25 ? '#f87171' : '#fbbf24';
+    var _posColor = _pos > 75 ? '#00e5a0' : _pos < 25 ? '#ff5b50' : '#ffa31a';
     var _posLabel = _pos > 90 ? '52주 고가 근접' : _pos > 75 ? '상단 구간' : _pos < 10 ? '52주 저가 근접' : _pos < 25 ? '하단 구간' : '중간 구간';
     html += '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">';
     html += '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;">';
@@ -3619,9 +3619,9 @@ function _renderFundHeader(d) {
     var _volRatio = _vol / _avgVol3M;
     var _volLabel, _volColor;
     if (_volRatio >= 2.0) { _volLabel = '거래량 폭증'; _volColor = '#ef4444'; }
-    else if (_volRatio >= 1.3) { _volLabel = '거래량 상승'; _volColor = '#fbbf24'; }
-    else if (_volRatio < 0.5) { _volLabel = '거래량 저조'; _volColor = '#94a3b8'; }
-    else { _volLabel = '거래량 정상'; _volColor = '#3ddba5'; }
+    else if (_volRatio >= 1.3) { _volLabel = '거래량 상승'; _volColor = '#ffa31a'; }
+    else if (_volRatio < 0.5) { _volLabel = '거래량 저조'; _volColor = '#7b8599'; }
+    else { _volLabel = '거래량 정상'; _volColor = '#00e5a0'; }
     var _vol10dRatio = (_avgVol10D && _avgVol10D > 0) ? (_vol / _avgVol10D) : null;
     html += '<div style="margin-top:8px;display:flex;gap:8px;font-size:11px;align-items:center;flex-wrap:wrap;">';
     html += '<span style="padding:3px 10px;background:' + _volColor + '22;border:1px solid ' + _volColor + ';color:' + _volColor + ';border-radius:12px;font-weight:700;">' + _volLabel + ' ' + _volRatio.toFixed(1) + 'x</span>';
@@ -3658,7 +3658,7 @@ function _renderFundSEC(d) {
       var date = s.filings.filingDate ? s.filings.filingDate[i] : '';
       var desc = s.filings.primaryDocDescription ? s.filings.primaryDocDescription[i] : '';
       var accession = s.filings.accessionNumber ? s.filings.accessionNumber[i] : '';
-      var formColor = form === '10-K' ? '#3ddba5' : form === '10-Q' ? '#60a5fa' : form === '8-K' ? '#fbbf24' : '#c084fc';
+      var formColor = form === '10-K' ? '#00e5a0' : form === '10-Q' ? '#00d4ff' : form === '8-K' ? '#ffa31a' : '#c084fc';
       html += '<div style="font-size:10px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;gap:8px;align-items:center;">';
       html += '<span style="color:' + formColor + ';font-weight:700;width:60px;font-family:var(--font-mono);">' + form + '</span>';
       html += '<span style="color:var(--text-muted);width:80px;">' + date + '</span>';
@@ -3739,16 +3739,16 @@ function _renderFundFinancials(d) {
 
   var html = '';
   html += card('시가총액', mktCap > 0 ? '$' + _fmtNum(mktCap) : 'N/A', p.sector || (isSEC ? 'SEC XBRL' : ''));
-  html += card('P/E (TTM)', peVal ? peVal.toFixed(1) + 'x' : 'N/A', peVal > 30 ? '고평가 영역' : peVal > 15 ? '적정' : (peVal ? '저평가 영역' : ''), peVal > 40 ? '#f87171' : peVal < 15 ? '#3ddba5' : '#fbbf24');
-  html += card('ROE', roeVal ? (roeVal * 100).toFixed(1) + '%' : 'N/A', roeVal > 0.2 ? '우수' : roeVal > 0.1 ? '양호' : (roeVal ? '주의' : ''), roeVal > 0.2 ? '#3ddba5' : roeVal > 0.1 ? '#fbbf24' : '#f87171');
+  html += card('P/E (TTM)', peVal ? peVal.toFixed(1) + 'x' : 'N/A', peVal > 30 ? '고평가 영역' : peVal > 15 ? '적정' : (peVal ? '저평가 영역' : ''), peVal > 40 ? '#ff5b50' : peVal < 15 ? '#00e5a0' : '#ffa31a');
+  html += card('ROE', roeVal ? (roeVal * 100).toFixed(1) + '%' : 'N/A', roeVal > 0.2 ? '우수' : roeVal > 0.1 ? '양호' : (roeVal ? '주의' : ''), roeVal > 0.2 ? '#00e5a0' : roeVal > 0.1 ? '#ffa31a' : '#ff5b50');
   html += card('EPS (TTM)', epsVal ? '$' + epsVal.toFixed(2) : 'N/A', '');
   html += card('매출', revVal ? '$' + _fmtNum(revVal) : 'N/A', revYear ? 'FY ' + revYear : '');
-  html += card('순이익', niVal ? '$' + _fmtNum(niVal) : 'N/A', '', (niVal || 0) >= 0 ? '#3ddba5' : '#f87171');
+  html += card('순이익', niVal ? '$' + _fmtNum(niVal) : 'N/A', '', (niVal || 0) >= 0 ? '#00e5a0' : '#ff5b50');
   html += card('Gross Margin', gmVal ? (gmVal * 100).toFixed(1) + '%' : 'N/A', '매출총이익률');
   html += card('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : (secFCF && mktCap > 0 ? ((secFCF / mktCap) * 100).toFixed(1) + '%' : 'N/A'), '잉여현금흐름 수익률');
   html += card('EV/EBITDA', m.enterpriseValueOverEBITDA ? m.enterpriseValueOverEBITDA.toFixed(1) + 'x' : 'N/A', '기업가치 대비');
   html += card('P/B', m.pbRatio ? m.pbRatio.toFixed(2) + 'x' : (secEquityVal && d.price && secEquityVal > 0 ? (mktCap / secEquityVal).toFixed(2) + 'x' : 'N/A'), '주가순자산비율');
-  html += card('부채비율', deVal ? deVal.toFixed(2) + 'x' : 'N/A', deVal > 2 ? '높음' : (deVal ? '안정' : ''), deVal > 2 ? '#f87171' : '#3ddba5');
+  html += card('부채비율', deVal ? deVal.toFixed(2) + 'x' : 'N/A', deVal > 2 ? '높음' : (deVal ? '안정' : ''), deVal > 2 ? '#ff5b50' : '#00e5a0');
   html += card('배당수익률', (p.lastDiv && d.price && d.price > 0) ? ((p.lastDiv / d.price) * 100).toFixed(2) + '%' : (p.lastDiv ? 'N/A' : '0%'), '연간 배당');
 
   if (isSEC) { html += '<div style="grid-column:1/-1;text-align:center;font-size:9px;color:var(--text-muted);padding:4px;">SEC EDGAR XBRL 기반 데이터 (FMP API 키 설정 시 더 풍부한 지표 제공)</div>'; }
@@ -3767,11 +3767,11 @@ function _renderFundFinancials(d) {
     var qHtml = '<div style="grid-column:1/-1;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text-secondary);font-weight:600;">SEC XBRL — 성장주 품질 & 운전자본 (v48.1 신규)</div>';
     if (lastRd && secRevVal) {
       var rdRatio = (lastRd / secRevVal) * 100;
-      qHtml += card('R&D 강도', rdRatio.toFixed(1) + '%', 'R&D / 매출' + (rdRatio > 15 ? ' · 고투자' : rdRatio > 5 ? ' · 양호' : ''), rdRatio > 15 ? '#60a5fa' : rdRatio > 5 ? '#3ddba5' : '#7e8a9e');
+      qHtml += card('R&D 강도', rdRatio.toFixed(1) + '%', 'R&D / 매출' + (rdRatio > 15 ? ' · 고투자' : rdRatio > 5 ? ' · 양호' : ''), rdRatio > 15 ? '#00d4ff' : rdRatio > 5 ? '#00e5a0' : '#7b8599');
     }
     if (lastSbc && secRevVal) {
       var sbcRatio = (lastSbc / secRevVal) * 100;
-      qHtml += card('SBC 희석', sbcRatio.toFixed(1) + '%', 'SBC / 매출' + (sbcRatio > 10 ? ' · 높은 희석' : sbcRatio > 3 ? ' · 중간' : ''), sbcRatio > 10 ? '#f87171' : sbcRatio > 3 ? '#fbbf24' : '#3ddba5');
+      qHtml += card('SBC 희석', sbcRatio.toFixed(1) + '%', 'SBC / 매출' + (sbcRatio > 10 ? ' · 높은 희석' : sbcRatio > 3 ? ' · 중간' : ''), sbcRatio > 10 ? '#ff5b50' : sbcRatio > 3 ? '#ffa31a' : '#00e5a0');
     }
     if (lastSga && secRevVal) qHtml += card('SG&A 비중', ((lastSga / secRevVal) * 100).toFixed(1) + '%', '판매관리비 / 매출');
     if (lastCash) qHtml += card('현금 포지션', '$' + _fmtNum(lastCash), 'Cash & Equivalents');
@@ -3793,7 +3793,7 @@ function _renderFundFinancials(d) {
     function _rankCard(title, rr, unit) {
       if (!rr || rr.myVal == null) return '';
       var topPct = rr.pctile != null ? (100 - rr.pctile) : null;
-      var topColor = topPct != null && topPct <= 5 ? '#10b981' : topPct != null && topPct <= 25 ? '#3ddba5' : topPct != null && topPct <= 50 ? '#fbbf24' : '#f87171';
+      var topColor = topPct != null && topPct <= 5 ? '#10b981' : topPct != null && topPct <= 25 ? '#00e5a0' : topPct != null && topPct <= 50 ? '#ffa31a' : '#ff5b50';
       var topLabel = topPct != null ? ('상위 ' + topPct.toFixed(1) + '%') : '';
       var rankLabel = rr.rank != null ? ('Rank ' + rr.rank + ' / ' + rr.n) : '';
       var myValStr = (unit === 'USD' || !unit) ? '$' + _fmtNum(rr.myVal) : rr.myVal.toFixed(2) + (unit||'');
@@ -3853,9 +3853,9 @@ function _renderFundFinancials(d) {
         var _bearish = _s + _ss;
         var _verdict, _verdictColor;
         if (_bullish / _total >= 0.6) { _verdict = '매수 우세'; _verdictColor = '#10b981'; }
-        else if (_bullish / _total >= 0.4) { _verdict = '완만 매수'; _verdictColor = '#3ddba5'; }
-        else if (_bearish / _total >= 0.4) { _verdict = '매도 우세'; _verdictColor = '#f87171'; }
-        else { _verdict = '중립'; _verdictColor = '#fbbf24'; }
+        else if (_bullish / _total >= 0.4) { _verdict = '완만 매수'; _verdictColor = '#00e5a0'; }
+        else if (_bearish / _total >= 0.4) { _verdict = '매도 우세'; _verdictColor = '#ff5b50'; }
+        else { _verdict = '중립'; _verdictColor = '#ffa31a'; }
         recHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px;">';
         recHtml += '<span style="color:var(--text-muted);">총 ' + _total + '명 애널리스트</span>';
         recHtml += '<span style="padding:3px 10px;background:' + _verdictColor + '22;border:1px solid ' + _verdictColor + ';color:' + _verdictColor + ';border-radius:12px;font-weight:700;">' + _verdict + '</span>';
@@ -3886,7 +3886,7 @@ function _renderFundFinancials(d) {
       var _tgtL = _ptC.targetLow != null ? _ptC.targetLow : null;
       if (_tgtC && d.price) {
         var _upside = ((_tgtC - d.price) / d.price * 100);
-        var _upColor = _upside >= 15 ? '#10b981' : _upside >= 0 ? '#3ddba5' : _upside >= -10 ? '#fbbf24' : '#f87171';
+        var _upColor = _upside >= 15 ? '#10b981' : _upside >= 0 ? '#00e5a0' : _upside >= -10 ? '#ffa31a' : '#ff5b50';
         recHtml += '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.08);display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11px;">';
         recHtml += '<span style="font-weight:700;color:var(--text-secondary);">FMP 목표가 컨센서스</span>';
         recHtml += '<span style="font-family:var(--font-mono);font-size:14px;font-weight:800;color:' + _upColor + ';">$' + _tgtC.toFixed(2) + '</span>';
@@ -3927,7 +3927,7 @@ function _renderFundStatements(d) {
       r += '<td style="padding:5px 6px;color:var(--text-secondary);">' + label + '</td>';
       years.forEach(function(y) {
         var v = y[key];
-        var color = v != null && v < 0 ? '#f87171' : 'var(--text-primary)';
+        var color = v != null && v < 0 ? '#ff5b50' : 'var(--text-primary)';
         r += '<td style="text-align:right;padding:5px 6px;color:' + color + ';font-family:var(--font-mono);">' + (isCurrency ? '$' : '') + _fmtNum(v) + '</td>';
       });
       r += '</tr>';
@@ -3949,7 +3949,7 @@ function _renderFundStatements(d) {
       var prev = years[i-1].revenue;
       var cur = y.revenue;
       var growth = prev ? ((cur - prev) / Math.abs(prev) * 100) : 0;
-      var gc = growth >= 0 ? '#3ddba5' : '#f87171';
+      var gc = growth >= 0 ? '#00e5a0' : '#ff5b50';
       html += '<td style="text-align:right;padding:5px 6px;color:' + gc + ';font-family:var(--font-mono);font-weight:700;">' + _fmtPct(growth) + '</td>';
     });
     html += '</tr>';
@@ -3969,7 +3969,7 @@ function _renderFundStatements(d) {
       r += '<td style="padding:5px 6px;color:var(--text-secondary);">' + label + '</td>';
       (arr||[]).forEach(function(v) {
         var val = v.val || v.value || 0;
-        var color = val < 0 ? '#f87171' : 'var(--text-primary)';
+        var color = val < 0 ? '#ff5b50' : 'var(--text-primary)';
         r += '<td style="text-align:right;padding:5px 6px;color:' + color + ';font-family:var(--font-mono);">$' + _fmtNum(val) + '</td>';
       });
       r += '</tr>';
@@ -4093,7 +4093,7 @@ function _renderFundEarnings(d) {
     d.fmpSurprises.forEach(function(s) {
       var diff = s.actualEarningResult - s.estimatedEarning;
       var pct = s.estimatedEarning ? (diff / Math.abs(s.estimatedEarning) * 100) : 0;
-      var c = diff >= 0 ? '#3ddba5' : '#f87171';
+      var c = diff >= 0 ? '#00e5a0' : '#ff5b50';
       var label = diff >= 0 ? 'Beat' : 'Miss';
       html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">';
       html += '<td style="padding:6px;color:var(--text-secondary);">' + (s.date||'') + '</td>';

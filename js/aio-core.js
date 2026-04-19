@@ -32,7 +32,7 @@
   var _buf = [];
   var _rateCounter = { warn: 0, error: 0, lastReset: Date.now() };
   var _consoleMap = { debug: 'log', info: 'log', warn: 'warn', error: 'error' };
-  var _colorMap = { debug: '#94a3b8', info: '#60a5fa', warn: '#fbbf24', error: '#f87171' };
+  var _colorMap = { debug: '#7b8599', info: '#00d4ff', warn: '#ffa31a', error: '#ff5b50' };
 
   function _resetRateIfNeeded() {
     var now = Date.now();
@@ -330,7 +330,7 @@ window._aioBriefingRetry = function() {
   if (typeof window.fetchAllNews === 'function') window.fetchAllNews(true);
 };
 window._aioAiFeedback = function(fbId, score, el) {
-  if (el) el.style.color = score > 0 ? '#3ddba5' : '#f87171';
+  if (el) el.style.color = score > 0 ? '#00e5a0' : '#ff5b50';
   if (typeof window._aiFeedback === 'function') window._aiFeedback(fbId, score);
 };
 window._aioGlossaryCat = function(cat) {
@@ -423,6 +423,68 @@ window._aioFetchAllNewsForce = function() {
   if (typeof window.fetchAllNews === 'function') window.fetchAllNews(true);
 };
 window._aioReload = function() { window.location.reload(); };
+
+// ═══ v48.42: Chart.js 전역 defaults — Figma × Bloomberg 팔레트 일괄 적용 ═══
+window._aioApplyChartDefaults = function() {
+  if (typeof Chart === 'undefined' || !Chart.defaults) return;
+  var rs = getComputedStyle(document.documentElement);
+  var get = function(name, fallback) {
+    var v = rs.getPropertyValue(name).trim();
+    return v || fallback;
+  };
+  try {
+    Chart.defaults.font.family = "'Inter', 'Noto Sans KR', -apple-system, sans-serif";
+    Chart.defaults.font.size = 11;
+    Chart.defaults.color = get('--text-muted', '#7b8599');
+    Chart.defaults.borderColor = get('--chart-grid', 'rgba(255,255,255,0.06)');
+    if (Chart.defaults.plugins && Chart.defaults.plugins.tooltip) {
+      Chart.defaults.plugins.tooltip.backgroundColor = get('--bg-card', '#111a2f');
+      Chart.defaults.plugins.tooltip.borderColor = get('--border-strong', 'rgba(255,255,255,0.12)');
+      Chart.defaults.plugins.tooltip.borderWidth = 1;
+      Chart.defaults.plugins.tooltip.titleColor = get('--text-secondary', '#a5b0c2');
+      Chart.defaults.plugins.tooltip.bodyColor = get('--text-primary', '#f0f4fc');
+      Chart.defaults.plugins.tooltip.padding = 10;
+      Chart.defaults.plugins.tooltip.cornerRadius = 8;
+      Chart.defaults.plugins.tooltip.titleFont = { size: 11, weight: '600' };
+      Chart.defaults.plugins.tooltip.bodyFont = { family: "'JetBrains Mono', monospace", size: 11 };
+      Chart.defaults.plugins.tooltip.boxPadding = 4;
+    }
+    if (Chart.defaults.plugins && Chart.defaults.plugins.legend && Chart.defaults.plugins.legend.labels) {
+      Chart.defaults.plugins.legend.labels.color = get('--text-secondary', '#a5b0c2');
+      Chart.defaults.plugins.legend.labels.font = { size: 11, weight: '500' };
+    }
+  } catch (e) {
+    if (window._aioLog) window._aioLog('warn', 'chart', 'defaults 설정 실패: ' + e.message);
+  }
+};
+if (typeof Chart !== 'undefined') {
+  window._aioApplyChartDefaults();
+} else {
+  var _chartWait = 0;
+  var _chartIv = setInterval(function() {
+    _chartWait += 200;
+    if (typeof Chart !== 'undefined') {
+      window._aioApplyChartDefaults();
+      clearInterval(_chartIv);
+    } else if (_chartWait > 5000) { clearInterval(_chartIv); }
+  }, 200);
+}
+
+// v48.42: 차트 데이터 색 팔레트 — 모든 코드에서 사용 가능
+window.AIO_CHART_PALETTE = {
+  cyan:    '#00d4ff',
+  magenta: '#ff4d97',
+  purple:  '#a855f7',
+  amber:   '#ffa31a',
+  green:   '#00e5a0',
+  red:     '#ff5b50',
+  yellow:  '#ffd93d',
+  blue:    '#4a9eff',
+  grid:    'rgba(255,255,255,0.06)',
+  axis:    'rgba(255,255,255,0.10)',
+  series:  ['#00d4ff', '#ff4d97', '#a855f7', '#00e5a0', '#ffa31a', '#ffd93d', '#4a9eff', '#ff5b50']
+};
+
 window._aioVaultPublicMode = function(el) {
   var lbl = document.getElementById('vault-public-label');
   if (el && el.checked) {
@@ -480,7 +542,7 @@ function showDataError(area, msg, severity) {
   var panel = document.getElementById('data-status-panel');
   if (panel) {
     var icon = severity === 'error' ? '<span class="sd sd-r"></span>' : severity === 'info' ? '<span class="sd sd-g"></span>' : '<span class="sd sd-y"></span>';
-    var color = severity === 'error' ? '#ef4444' : severity === 'info' ? '#3ddba5' : '#fbbf24';
+    var color = severity === 'error' ? '#ef4444' : severity === 'info' ? '#00e5a0' : '#ffa31a';
     panel.innerHTML = '<span style="color:' + color + ';font-size:10px;">' + icon + ' ' + escHtml(area) + ': ' + escHtml(msg) + '</span>';
     setTimeout(function() {
       if (panel.innerHTML.indexOf(msg) !== -1) {
@@ -824,7 +886,7 @@ function _checkAllDeadBanner() {
     banner.style.display = 'block';
     banner.style.background = 'rgba(220,38,38,0.15)';
     banner.style.borderColor = 'rgba(220,38,38,0.3)';
-    banner.style.color = '#f87171';
+    banner.style.color = '#ff5b50';
   } else if (deadCount >= 1 || warnCount >= 2) {
     banner.innerHTML = '일부 데이터 소스(' + deadCount + '개 실패, ' + warnCount + '개 불안정)가 응답하지 않습니다. 해당 항목은 마지막 수신 데이터를 표시합니다.' +
       (deadCount >= 1 ? ' <button id="btn-retry-all-apis" data-action="_retryAllFailedApis" style="' +
@@ -834,7 +896,7 @@ function _checkAllDeadBanner() {
     banner.style.display = 'block';
     banner.style.background = 'rgba(234,179,8,0.12)';
     banner.style.borderColor = 'rgba(234,179,8,0.3)';
-    banner.style.color = '#fbbf24';
+    banner.style.color = '#ffa31a';
   } else {
     banner.style.display = 'none';
   }
@@ -1126,9 +1188,9 @@ function _vaultSetPin() {
   var msg  = document.getElementById('vault-pin-msg');
   if (!pin1 || !pin2) return;
   var v1 = pin1.value.trim(), v2 = pin2.value.trim();
-  if (v1.length < 4) { msg.textContent = 'PIN은 4자리 이상'; msg.style.color = '#f87171'; return; }
-  if (v1 !== v2) { msg.textContent = 'PIN이 일치하지 않습니다'; msg.style.color = '#f87171'; return; }
-  msg.textContent = '암호화 중…'; msg.style.color = '#60a5fa';
+  if (v1.length < 4) { msg.textContent = 'PIN은 4자리 이상'; msg.style.color = '#ff5b50'; return; }
+  if (v1 !== v2) { msg.textContent = 'PIN이 일치하지 않습니다'; msg.style.color = '#ff5b50'; return; }
+  msg.textContent = '암호화 중…'; msg.style.color = '#00d4ff';
   _AioVault.unlock(v1).then(function() {
     return _migrateToEncrypted();
   }).then(function() {
@@ -1136,7 +1198,7 @@ function _vaultSetPin() {
     pin1.value = ''; pin2.value = '';
     _updateVaultStatus();
   }).catch(function(e) {
-    msg.textContent = '오류: ' + e.message; msg.style.color = '#f87171';
+    msg.textContent = '오류: ' + e.message; msg.style.color = '#ff5b50';
   });
 }
 
@@ -1145,8 +1207,8 @@ function _vaultUnlock() {
   var msg = document.getElementById('vault-unlock-msg');
   if (!pin) return;
   var v = pin.value.trim();
-  if (!v) { msg.textContent = 'PIN을 입력하세요'; msg.style.color = '#f87171'; return; }
-  msg.textContent = '잠금 해제 중…'; msg.style.color = '#60a5fa';
+  if (!v) { msg.textContent = 'PIN을 입력하세요'; msg.style.color = '#ff5b50'; return; }
+  msg.textContent = '잠금 해제 중…'; msg.style.color = '#00d4ff';
   _AioVault.unlock(v).then(function() {
     // 복호화된 키를 input 필드에 복원
     return _restoreDecryptedKeys();
@@ -1155,7 +1217,7 @@ function _vaultUnlock() {
     pin.value = '';
     _updateVaultStatus();
   }).catch(function(e) {
-    msg.textContent = 'PIN이 올바르지 않습니다'; msg.style.color = '#f87171';
+    msg.textContent = 'PIN이 올바르지 않습니다'; msg.style.color = '#ff5b50';
   });
 }
 
@@ -1215,7 +1277,7 @@ function _updateVaultStatus() {
   var hasSalt = !!localStorage.getItem('aio_vault_salt');
   var isUnlocked = _AioVault.isUnlocked();
   if (!hasSalt) {
-    badge.textContent = ' 미설정'; badge.style.color = '#94a3b8';
+    badge.textContent = ' 미설정'; badge.style.color = '#7b8599';
     if (setPanel) setPanel.style.display = 'block';
     if (unlockPanel) unlockPanel.style.display = 'none';
   } else if (isUnlocked) {
@@ -1223,7 +1285,7 @@ function _updateVaultStatus() {
     if (setPanel) setPanel.style.display = 'none';
     if (unlockPanel) unlockPanel.style.display = 'none';
   } else {
-    badge.textContent = ' 잠금'; badge.style.color = '#f59e0b';
+    badge.textContent = ' 잠금'; badge.style.color = '#ffa31a';
     if (setPanel) setPanel.style.display = 'none';
     if (unlockPanel) unlockPanel.style.display = 'block';
   }
@@ -1638,7 +1700,7 @@ window.AIO.charts = {
     try {
       // 다크 테마 기본 (AIO 전역 테마와 일치)
       var theme = options.theme || 'dark';
-      var bgColor = theme === 'dark' ? '#0d1117' : '#ffffff';
+      var bgColor = theme === 'dark' ? '#111a2f' : '#ffffff';
       var textColor = theme === 'dark' ? 'rgba(255,255,255,0.5)' : '#333';
       var gridColor = theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
 
@@ -1652,7 +1714,7 @@ window.AIO.charts = {
         crosshair: { mode: LightweightCharts.CrosshairMode.Normal }
       });
       var series = chart.addLineSeries({
-        color: options.color || '#60a5fa',
+        color: options.color || '#00d4ff',
         lineWidth: options.lineWidth || 2,
         priceFormat: options.priceFormat || { type: 'price', precision: 2, minMove: 0.01 }
       });
@@ -1697,7 +1759,7 @@ window.AIO.charts = {
     var container = typeof containerOrId === 'string' ? document.getElementById(containerOrId) : containerOrId;
     if (!container) return null;
     try {
-      var bgColor = '#0d1117';
+      var bgColor = '#111a2f';
       var gridColor = 'rgba(255,255,255,0.05)';
       var chart = LightweightCharts.createChart(container, {
         width: container.clientWidth || 300,
@@ -1709,7 +1771,7 @@ window.AIO.charts = {
       var seriesList = [];
       for (var i = 0; i < seriesConfig.length; i++) {
         var cfg = seriesConfig[i];
-        var s = chart.addLineSeries({ color: cfg.color || '#60a5fa', lineWidth: cfg.lineWidth || 2, title: cfg.name });
+        var s = chart.addLineSeries({ color: cfg.color || '#00d4ff', lineWidth: cfg.lineWidth || 2, title: cfg.name });
         if (Array.isArray(cfg.data)) s.setData(cfg.data);
         seriesList.push(s);
       }
@@ -1830,7 +1892,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.40';
+const APP_VERSION = 'v48.42';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -1946,9 +2008,9 @@ window.DATE_ENGINE = (function() {
     var a = ageMs(v);
     var threshold = STALE_THRESHOLDS[category] || STALE_THRESHOLDS.unknown;
     var icon, color;
-    if (a < threshold * 0.3) { icon = '🟢'; color = '#3ddba5'; }   // fresh (30% of threshold)
-    else if (a < threshold) { icon = '🟡'; color = '#fbbf24'; }    // aging
-    else { icon = '🔴'; color = '#f87171'; }                        // stale
+    if (a < threshold * 0.3) { icon = '🟢'; color = '#00e5a0'; }   // fresh (30% of threshold)
+    else if (a < threshold) { icon = '🟡'; color = '#ffa31a'; }    // aging
+    else { icon = '🔴'; color = '#ff5b50'; }                        // stale
     var label = formatRelative(v);
     if (opts.asHtml === false) return icon + ' ' + label;
     return '<span style="color:' + color + ';font-size:' + (opts.fontSize || '9px') + ';font-family:var(--font-mono);" title="' + formatAbsolute(v) + '">' + icon + ' ' + label + '</span>';
@@ -2548,48 +2610,48 @@ const NARRATIVE_ENGINE = (function() {
   // ── 1. 레짐 분류기 ──────────────────────────────
   function getSKEWRegime(v) {
     v = _snap.num(v, FB.skew);
-    if (v >= 150) return { level:'extreme',  label:'극단 꼬리헤지 비쌈', color:'#f87171', bar:95 };
-    if (v >= 140) return { level:'high',     label:'꼬리위험 고점',       color:'#f87171', bar:85 };
-    if (v >= 130) return { level:'elevated', label:'꼬리헤지 비쌈',       color:'#fbbf24', bar:70 };
-    if (v >= 120) return { level:'normal',   label:'정상 상단',           color:'#fbbf24', bar:50 };
-    return            { level:'low',      label:'정상',                color:'#3ddba5', bar:30 };
+    if (v >= 150) return { level:'extreme',  label:'극단 꼬리헤지 비쌈', color:'#ff5b50', bar:95 };
+    if (v >= 140) return { level:'high',     label:'꼬리위험 고점',       color:'#ff5b50', bar:85 };
+    if (v >= 130) return { level:'elevated', label:'꼬리헤지 비쌈',       color:'#ffa31a', bar:70 };
+    if (v >= 120) return { level:'normal',   label:'정상 상단',           color:'#ffa31a', bar:50 };
+    return            { level:'low',      label:'정상',                color:'#00e5a0', bar:30 };
   }
   function getMOVERegime(v) {
     v = _snap.num(v, FB.move);
-    if (v >= 200) return { level:'crisis',    label:'위기 수준',        color:'#f87171', bar:95 };
-    if (v >= 150) return { level:'stress',    label:'스트레스',          color:'#f87171', bar:80 };
-    if (v >= 100) return { level:'normal',    label:'정상',              color:'#fbbf24', bar:55 };
-    if (v >= 75)  return { level:'calm',      label:'저점(정상화 리스크)', color:'#3ddba5', bar:35 };
-    return            { level:'extreme_low', label:'극단 저점',         color:'#3ddba5', bar:20 };
+    if (v >= 200) return { level:'crisis',    label:'위기 수준',        color:'#ff5b50', bar:95 };
+    if (v >= 150) return { level:'stress',    label:'스트레스',          color:'#ff5b50', bar:80 };
+    if (v >= 100) return { level:'normal',    label:'정상',              color:'#ffa31a', bar:55 };
+    if (v >= 75)  return { level:'calm',      label:'저점(정상화 리스크)', color:'#00e5a0', bar:35 };
+    return            { level:'extreme_low', label:'극단 저점',         color:'#00e5a0', bar:20 };
   }
   function getVVIXRegime(v) {
     v = _snap.num(v, FB.vvix);
-    if (v >= 140) return { level:'extreme', label:'옵션 변동성 극단', color:'#f87171', bar:95 };
-    if (v >= 110) return { level:'warn',    label:'경고',             color:'#fbbf24', bar:75 };
-    if (v >= 90)  return { level:'normal',  label:'정상 상단',         color:'#fbbf24', bar:60 };
-    return            { level:'low',     label:'정상',             color:'#3ddba5', bar:40 };
+    if (v >= 140) return { level:'extreme', label:'옵션 변동성 극단', color:'#ff5b50', bar:95 };
+    if (v >= 110) return { level:'warn',    label:'경고',             color:'#ffa31a', bar:75 };
+    if (v >= 90)  return { level:'normal',  label:'정상 상단',         color:'#ffa31a', bar:60 };
+    return            { level:'low',     label:'정상',             color:'#00e5a0', bar:40 };
   }
   function getFGRegime(v) {
     v = _snap.num(v, FB.fg);
-    if (v >= 75) return { level:'extreme_greed', label:'극단 탐욕', color:'#f87171', bar:90 };
-    if (v >= 55) return { level:'greed',         label:'탐욕',      color:'#fbbf24', bar:70 };
-    if (v >= 45) return { level:'neutral',       label:'중립',      color:'#fbbf24', bar:50 };
-    if (v >= 25) return { level:'fear',          label:'공포',      color:'#3ddba5', bar:30 };
-    return          { level:'extreme_fear',  label:'극단 공포', color:'#3ddba5', bar:10 };
+    if (v >= 75) return { level:'extreme_greed', label:'극단 탐욕', color:'#ff5b50', bar:90 };
+    if (v >= 55) return { level:'greed',         label:'탐욕',      color:'#ffa31a', bar:70 };
+    if (v >= 45) return { level:'neutral',       label:'중립',      color:'#ffa31a', bar:50 };
+    if (v >= 25) return { level:'fear',          label:'공포',      color:'#00e5a0', bar:30 };
+    return          { level:'extreme_fear',  label:'극단 공포', color:'#00e5a0', bar:10 };
   }
   function getBreadthRegime(v) {
     v = _snap.num(v);
-    if (v >= 70) return { level:'broad',   label:'광폭 랠리',     color:'#3ddba5' };
-    if (v >= 55) return { level:'healthy', label:'건강',          color:'#fbbf24' };
-    if (v >= 40) return { level:'narrow',  label:'좁은 랠리',     color:'#fbbf24' };
-    return          { level:'fearful', label:'공포 영역',     color:'#f87171' };
+    if (v >= 70) return { level:'broad',   label:'광폭 랠리',     color:'#00e5a0' };
+    if (v >= 55) return { level:'healthy', label:'건강',          color:'#ffa31a' };
+    if (v >= 40) return { level:'narrow',  label:'좁은 랠리',     color:'#ffa31a' };
+    return          { level:'fearful', label:'공포 영역',     color:'#ff5b50' };
   }
   function getInsiderRegime(v) {
     v = _snap.num(v);
-    if (v <= 5)  return { level:'extreme_fear', label:'극단 공포(매도 일변도)', color:'#f87171' };
-    if (v <= 20) return { level:'fear',         label:'공포',                  color:'#fbbf24' };
-    if (v <= 50) return { level:'neutral',      label:'중립',                  color:'#fbbf24' };
-    return          { level:'buying',       label:'매수 우위',             color:'#3ddba5' };
+    if (v <= 5)  return { level:'extreme_fear', label:'극단 공포(매도 일변도)', color:'#ff5b50' };
+    if (v <= 20) return { level:'fear',         label:'공포',                  color:'#ffa31a' };
+    if (v <= 50) return { level:'neutral',      label:'중립',                  color:'#ffa31a' };
+    return          { level:'buying',       label:'매수 우위',             color:'#00e5a0' };
   }
 
   // ── 2. 분배 단계 진단 체크리스트 (3/3 동적 계산) ──────────
@@ -2739,7 +2801,7 @@ const NARRATIVE_ENGINE = (function() {
       '주가강도 ' + _snap.fixed(priceStr, 1) + ' · 프리미엄트렌드 ' + _snap.fixed(premTrend, 0) + ' · ' +
       'MOVE ' + _snap.fixed(move, 2) + '(' + moveReg.label + ') vs SKEW ' + _snap.fixed(skew, 2) +
       ' <b>' + (paradox ? '역설 심화' : '역설 일부 완화') + '</b> · VVIX ' + _snap.fixed(vvix, 2) + ' · ' +
-      '분배 체크리스트 <b style="color:' + (diag.confirmed ? '#f87171' : '#fbbf24') + ';">' +
+      '분배 체크리스트 <b style="color:' + (diag.confirmed ? '#ff5b50' : '#ffa31a') + ';">' +
       diag.passed + '/' + diag.total + '</b>' + (diag.confirmed ? ' = 2000·2007·2021 선례 부합' : ' — 추가 확증 필요')
     );
   }
@@ -2849,7 +2911,7 @@ const NARRATIVE_ENGINE = (function() {
     if (el) el.textContent = (fmt ? fmt(value) : value);
     if (el) el.style.color = regime.color;
     const st = document.getElementById(idStatus);
-    if (st) { st.textContent = regime.label; st.style.color = regime.color; st.style.background = `rgba(${regime.color==='#f87171'?'248,113,113':regime.color==='#3ddba5'?'61,219,165':'251,191,36'},0.1)`; }
+    if (st) { st.textContent = regime.label; st.style.color = regime.color; st.style.background = `rgba(${regime.color==='#ff5b50'?'248,113,113':regime.color==='#00e5a0'?'61,219,165':'251,191,36'},0.1)`; }
     const bar = document.getElementById(idBar);
     if (bar) { bar.style.width = regime.bar + '%'; bar.style.background = regime.color; }
   }
@@ -3291,8 +3353,8 @@ function applyDataSnapshot() {
           if (skewStatus && sreg) {
             skewStatus.textContent = sreg.label;
             skewStatus.style.color = sreg.color;
-            skewStatus.style.background = sreg.color === '#f87171' ? 'rgba(248,113,113,0.1)' :
-                                           sreg.color === '#fbbf24' ? 'rgba(251,191,36,0.1)' : 'rgba(61,219,165,0.1)';
+            skewStatus.style.background = sreg.color === '#ff5b50' ? 'rgba(248,113,113,0.1)' :
+                                           sreg.color === '#ffa31a' ? 'rgba(251,191,36,0.1)' : 'rgba(61,219,165,0.1)';
           }
           if (sreg) {
             _fireRegimeChange('skew', window._lastRegimes.skew, sreg.level, S.skew, sreg);
@@ -3339,13 +3401,13 @@ function applyDataSnapshot() {
         if (staleEl) {
           if (days <= 0) {
             staleEl.textContent = '오늘 갱신';
-            staleEl.style.color = '#3ddba5';
+            staleEl.style.color = '#00e5a0';
           } else if (days === 1) {
             staleEl.textContent = '1일 경과';
-            staleEl.style.color = '#fbbf24';
+            staleEl.style.color = '#ffa31a';
           } else {
             staleEl.textContent = days + '일 경과';
-            staleEl.style.color = days > 7 ? '#f87171' : (days > 3 ? '#fbbf24' : '#60a5fa');
+            staleEl.style.color = days > 7 ? '#ff5b50' : (days > 3 ? '#ffa31a' : '#00d4ff');
           }
         }
       });
@@ -3835,7 +3897,7 @@ function _initTechnicalPage() {
       var hr = document.getElementById('health-regime-display');
       if (h && h.score > 0) {
         if (hd) hd.textContent = h.score;
-        if (hg) { hg.textContent = h.grade; hg.style.color = h.score >= 60 ? '#3ddba5' : h.score >= 40 ? '#fbbf24' : '#f87171'; }
+        if (hg) { hg.textContent = h.grade; hg.style.color = h.score >= 60 ? '#00e5a0' : h.score >= 40 ? '#ffa31a' : '#ff5b50'; }
         if (hr) hr.textContent = h.regime || '';
       } else {
         if (hd) hd.textContent = '대기';
@@ -4171,7 +4233,7 @@ function showTicker(tkr) {
     }
 
     var total = checks.length;
-    var color = pass >= total - 1 ? '#3ddba5' : pass >= total / 2 ? '#fbbf24' : '#f87171';
+    var color = pass >= total - 1 ? '#00e5a0' : pass >= total / 2 ? '#ffa31a' : '#ff5b50';
     var verdict = pass >= total - 1 ? '진입 검토 가능' : pass >= total / 2 ? '선별적 검토' : '진입 자제';
 
     var html = '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;display:flex;justify-content:space-between;">' +

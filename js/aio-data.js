@@ -1347,11 +1347,11 @@ function renderScreenerResults() {
 
   var html = '';
   filtered.forEach(function(r) {
-    var sc = r.signal === 'BUY' ? '#3ddba5' : r.signal === 'SELL' ? '#f87171' : r.signal === 'WATCH' ? '#fbbf24' : '#94a3b8';
+    var sc = r.signal === 'BUY' ? '#00e5a0' : r.signal === 'SELL' ? '#ff5b50' : r.signal === 'WATCH' ? '#ffa31a' : '#7b8599';
     var sb = r.signal === 'BUY' ? 'rgba(61,219,165,0.15)' : r.signal === 'SELL' ? 'rgba(248,113,113,0.15)' : r.signal === 'WATCH' ? 'rgba(251,191,36,0.15)' : 'rgba(148,163,184,0.15)';
     var d = ld[r.sym];
     var chg = d && d.pct != null ? d.pct : null;
-    var cc = chg !== null ? (chg >= 0 ? '#3ddba5' : '#f87171') : '#94a3b8';
+    var cc = chg !== null ? (chg >= 0 ? '#00e5a0' : '#ff5b50') : '#7b8599';
     var chgDisplay = chg !== null ? ((chg >= 0 ? '+' : '') + chg.toFixed(2) + '%') : '—';
     var mcapStr = r.mcap >= 1000 ? '$' + (r.mcap/1000).toFixed(1) + 'T' : '$' + r.mcap + 'B';
     html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;" data-action="_aioScreenerTicker" data-arg="' + escHtml(r.sym) + '" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'none\'">' +
@@ -1361,7 +1361,7 @@ function renderScreenerResults() {
       '<td style="text-align:center;padding:6px 4px;"><canvas class="sparkline-mini" data-spark-ticker="' + escHtml(r.sym) + '" width="64" height="22" role="img" aria-label="' + escHtml(r.sym) + ' 스파크라인 차트" style="display:inline-block;vertical-align:middle;"></canvas></td>' +
       '<td style="text-align:center;padding:8px;"><span style="background:' + sb + ';color:' + sc + ';padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
       '<td style="text-align:right;padding:8px;font-family:var(--font-mono);">' + r.rsi + '</td>' +
-      '<td style="text-align:right;padding:8px;font-family:var(--font-mono);font-size:10px;color:' + (getAdrEstimate(r) >= 4 ? '#fbbf24' : getAdrEstimate(r) >= 2 ? '#94a3b8' : '#3ddba5') + ';">' + getAdrEstimate(r) + '%</td>' +
+      '<td style="text-align:right;padding:8px;font-family:var(--font-mono);font-size:10px;color:' + (getAdrEstimate(r) >= 4 ? '#ffa31a' : getAdrEstimate(r) >= 2 ? '#7b8599' : '#00e5a0') + ';">' + getAdrEstimate(r) + '%</td>' +
       '<td style="text-align:right;padding:8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
       '<td style="padding:8px;color:var(--text-muted);font-size:10px;">' + escHtml(r.memo) + '</td>' +
       '<td style="text-align:center;padding:4px;"><button data-action="addToWatchlistFromScreener" data-arg="' + escHtml(r.sym) + '" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.5;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5" title="관심 종목에 추가"></button></td></tr>';
@@ -1392,10 +1392,10 @@ function renderScreenerResults() {
       var sym = el.getAttribute('data-live-chg');
       var d = ld2[sym];
       if (!d) return;
-      if (d.pct == null) { el.textContent = '—'; el.style.color = '#94a3b8'; return; }
+      if (d.pct == null) { el.textContent = '—'; el.style.color = '#7b8599'; return; }
       var pct = d.pct;
       el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-      el.style.color = pct >= 0 ? '#3ddba5' : '#f87171';
+      el.style.color = pct >= 0 ? '#00e5a0' : '#ff5b50';
       el.style.fontWeight = '700';
     });
   }
@@ -1458,7 +1458,7 @@ function drawSparkline(canvas, data, ticker) {
 
   // 트렌드 색상 결정: 첫 값 vs 마지막 값
   var isUp = data[data.length - 1] >= data[0];
-  var color = isUp ? '#3ddba5' : '#f87171';
+  var color = isUp ? '#00e5a0' : '#ff5b50';
 
   // 영역 채우기 (gradient)
   ctx.beginPath();
@@ -2106,7 +2106,7 @@ function applyFredToUI(data) {
     const el = document.getElementById('hy-live-val');
     if (el) {
       el.textContent = '+' + bp + 'bp';
-      el.style.color = bp < 300 ? '#3ddba5' : bp < 450 ? '#fbbf24' : '#f87171';
+      el.style.color = bp < 300 ? '#00e5a0' : bp < 450 ? '#ffa31a' : '#ff5b50';
     }
     const sub = document.getElementById('hy-live-date');
     if (sub) sub.textContent = _fredSourceLabel(data['BAMLH0A0HYM2']);
@@ -2138,7 +2138,7 @@ function applyFredToUI(data) {
     const spread = data['T10Y2Y'].value;
     if (_spreadEl) {
       _spreadEl.textContent = (spread >= 0 ? '+' : '') + spread.toFixed(2) + '%';
-      _spreadEl.style.color = spread < 0 ? '#f87171' : '#3ddba5';
+      _spreadEl.style.color = spread < 0 ? '#ff5b50' : '#00e5a0';
       // v31.9: 소스 표시
       const spreadSub = document.getElementById('spread-2s10s-src');
       if (spreadSub) spreadSub.textContent = _fredSourceLabel(data['T10Y2Y']);
@@ -2150,7 +2150,7 @@ function applyFredToUI(data) {
     if (_tnxFb > 0) {
       var _s2s10 = _tnxFb - _y2Fb;
       _spreadEl.textContent = (_s2s10 >= 0 ? '+' : '') + _s2s10.toFixed(2) + '%';
-      _spreadEl.style.color = _s2s10 < 0 ? '#f87171' : '#3ddba5';
+      _spreadEl.style.color = _s2s10 < 0 ? '#ff5b50' : '#00e5a0';
     }
   }
 
@@ -2175,9 +2175,9 @@ function applyFredToUI(data) {
   if (data['DGS2']) {
     var rate2yVal = data['DGS2'].value;
     var yc2yEl = document.getElementById('yc-2y');
-    if (yc2yEl) { yc2yEl.textContent = rate2yVal.toFixed(2) + '%'; yc2yEl.style.color = rate2yVal > 4.5 ? '#f87171' : rate2yVal > 4.0 ? '#fbbf24' : '#3ddba5'; }
+    if (yc2yEl) { yc2yEl.textContent = rate2yVal.toFixed(2) + '%'; yc2yEl.style.color = rate2yVal > 4.5 ? '#ff5b50' : rate2yVal > 4.0 ? '#ffa31a' : '#00e5a0'; }
     var yc2yTrack = document.getElementById('yc-2y-track');
-    if (yc2yTrack) { yc2yTrack.textContent = rate2yVal.toFixed(2) + '%'; yc2yTrack.style.color = rate2yVal > 4.5 ? '#f87171' : rate2yVal > 4.0 ? '#fbbf24' : '#3ddba5'; }
+    if (yc2yTrack) { yc2yTrack.textContent = rate2yVal.toFixed(2) + '%'; yc2yTrack.style.color = rate2yVal > 4.5 ? '#ff5b50' : rate2yVal > 4.0 ? '#ffa31a' : '#00e5a0'; }
   }
 
   // v35.8: DXY 1개월 변화율 동적 연결 (Yahoo DX-Y.NYB에서 계산)
@@ -2189,7 +2189,7 @@ function applyFredToUI(data) {
       // 1개월 변화율은 정확한 30일 전 데이터가 필요하지만, 당일 변화율로 대체 표시
       var dxyDayPct = dxyPrev > 0 ? ((dxyLive - dxyPrev) / dxyPrev * 100) : 0;
       dxy1mEl.textContent = (dxyDayPct >= 0 ? '+' : '') + dxyDayPct.toFixed(1) + '%';
-      dxy1mEl.style.color = dxyDayPct > 0.5 ? '#f87171' : dxyDayPct < -0.5 ? '#3ddba5' : '#fbbf24';
+      dxy1mEl.style.color = dxyDayPct > 0.5 ? '#ff5b50' : dxyDayPct < -0.5 ? '#00e5a0' : '#ffa31a';
     }
   }
 
@@ -2198,7 +2198,7 @@ function applyFredToUI(data) {
     var pcrEl = document.getElementById('regime-pcr');
     if (pcrEl) {
       pcrEl.textContent = DATA_SNAPSHOT.pcr.toFixed(2);
-      pcrEl.style.color = DATA_SNAPSHOT.pcr > 1.2 ? '#f87171' : DATA_SNAPSHOT.pcr > 0.9 ? '#fbbf24' : '#3ddba5';
+      pcrEl.style.color = DATA_SNAPSHOT.pcr > 1.2 ? '#ff5b50' : DATA_SNAPSHOT.pcr > 0.9 ? '#ffa31a' : '#00e5a0';
     }
   }
 
@@ -2225,9 +2225,9 @@ async function _renderFredCharts() {
   }
   if (statusEl) statusEl.textContent = '데이터 수집 중...';
   var series = [
-    { id: 'UNRATE', canvas: 'fred-unrate-chart', color: '#f87171', label: '실업률 (%)' },
-    { id: 'CPIAUCSL', canvas: 'fred-cpi-chart', color: '#fbbf24', label: 'CPI (지수)', transform: 'yoy' },
-    { id: 'FEDFUNDS', canvas: 'fred-fedfunds-chart', color: '#60a5fa', label: '기준금리 (%)' }
+    { id: 'UNRATE', canvas: 'fred-unrate-chart', color: '#ff5b50', label: '실업률 (%)' },
+    { id: 'CPIAUCSL', canvas: 'fred-cpi-chart', color: '#ffa31a', label: 'CPI (지수)', transform: 'yoy' },
+    { id: 'FEDFUNDS', canvas: 'fred-fedfunds-chart', color: '#00d4ff', label: '기준금리 (%)' }
   ];
   for (var si = 0; si < series.length; si++) {
     var s = series[si];
@@ -2493,7 +2493,7 @@ function updateBreadthUI(data) {
     const el = document.getElementById('breadth-advance-ratio');
     if (el) {
       el.textContent = pct + '%';
-      el.style.color = data.advanceRatio > 0.5 ? '#3ddba5' : data.advanceRatio > 0.3 ? '#fbbf24' : '#f87171';
+      el.style.color = data.advanceRatio > 0.5 ? '#00e5a0' : data.advanceRatio > 0.3 ? '#ffa31a' : '#ff5b50';
     }
   }
   if (data.breadthSignal !== undefined) {
@@ -2501,7 +2501,7 @@ function updateBreadthUI(data) {
     if (el) {
       const txt = data.breadthSignal > 0.5 ? 'BROAD RALLY' : data.breadthSignal > -0.5 ? 'NEUTRAL' : 'NARROW MARKET';
       el.textContent = txt;
-      el.style.color = data.breadthSignal > 0.5 ? '#3ddba5' : data.breadthSignal > -0.5 ? '#fbbf24' : '#f87171';
+      el.style.color = data.breadthSignal > 0.5 ? '#00e5a0' : data.breadthSignal > -0.5 ? '#ffa31a' : '#ff5b50';
     }
   }
   // Update source badge
@@ -2707,8 +2707,8 @@ document.addEventListener('visibilitychange', () => {
 function updateDataStatusError(status, msg) {
   var panel = document.getElementById('data-status-panel');
   if (!panel) return;
-  var colors = {ok:'#3ddba5', warn:'#fbbf24', error:'#ef4444'};
-  panel.style.color = colors[status] || '#9ca3af';
+  var colors = {ok:'#00e5a0', warn:'#ffa31a', error:'#ef4444'};
+  panel.style.color = colors[status] || '#a5b0c2';
   panel.innerHTML = (status === 'ok' ? '<span class="sd sd-g"></span>' : status === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-r"></span>') + ' ' + escHtml(msg);
 }
 
@@ -2741,7 +2741,7 @@ function applyTechIndicators(data) {
       const el = document.getElementById('tech-rsi-val');
       if (el) {
         el.textContent = rsi.toFixed(1);
-        el.style.color = rsi > 70 ? '#f87171' : rsi < 30 ? '#3ddba5' : 'var(--text-primary)';
+        el.style.color = rsi > 70 ? '#ff5b50' : rsi < 30 ? '#00e5a0' : 'var(--text-primary)';
       }
     }
     // MACD
@@ -2750,7 +2750,7 @@ function applyTechIndicators(data) {
       const el = document.getElementById('tech-macd-val');
       if (el) {
         el.textContent = macd.toFixed(2);
-        el.style.color = macd > 0 ? '#3ddba5' : '#f87171';
+        el.style.color = macd > 0 ? '#00e5a0' : '#ff5b50';
       }
     }
     // Stochastic
@@ -2759,7 +2759,7 @@ function applyTechIndicators(data) {
       const el = document.getElementById('tech-stoch-val');
       if (el) {
         el.textContent = k.toFixed(1);
-        el.style.color = k > 80 ? '#f87171' : k < 20 ? '#3ddba5' : 'var(--text-primary)';
+        el.style.color = k > 80 ? '#ff5b50' : k < 20 ? '#00e5a0' : 'var(--text-primary)';
       }
     }
     // ADX
@@ -2768,7 +2768,7 @@ function applyTechIndicators(data) {
       const el = document.getElementById('tech-adx-val');
       if (el) {
         el.textContent = adx.toFixed(1);
-        el.style.color = adx > 25 ? '#3ddba5' : '#fbbf24';
+        el.style.color = adx > 25 ? '#00e5a0' : '#ffa31a';
       }
     }
     console.log('[AIO v20] Technical indicators applied');
@@ -5744,12 +5744,12 @@ function _renderTopicSection(icon, label, items) {
     var displayDesc = typeof getDisplayDesc === 'function' ? getDisplayDesc(item) : (item.desc || '');
     var displaySummary = typeof getDisplaySummary === 'function' ? getDisplaySummary(item) : '';
     var sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
-    var dotColor = sent === 'bull' ? '#3ddba5' : sent === 'bear' ? '#f87171' : sent === 'warn' ? '#fbbf24' : '#7e8a9e';
+    var dotColor = sent === 'bull' ? '#00e5a0' : sent === 'bear' ? '#ff5b50' : sent === 'warn' ? '#ffa31a' : '#7b8599';
     var _macroT = ['macro','geo','energy','bond','fx'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
     var tickers = !_macroT.includes(item.topic) ? getDisplayTickers(item) : [];
     var tickerStr = tickers.length > 0 ? tickers.map(function(t) { return '<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(91,168,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;">' + escHtml(t) + '</span>'; }).join('') : '';
     var source = escHtml(item.source || '');
-    var scoreStr = item.score > 0 ? '<span style="font-size:9px;color:' + (item.score > 50 ? '#3ddba5' : item.score > 30 ? '#fbbf24' : 'var(--text-muted)') + ';font-family:var(--font-mono);">■' + item.score + '</span>' : '';
+    var scoreStr = item.score > 0 ? '<span style="font-size:9px;color:' + (item.score > 50 ? '#00e5a0' : item.score > 30 ? '#ffa31a' : 'var(--text-muted)') + ';font-family:var(--font-mono);">■' + item.score + '</span>' : '';
     var descHtml = displayDesc ? '<div style="font-size:10px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">' + escHtml(displayDesc) + '</div>' : '';
     var summaryHtml = displaySummary ? '<div style="font-size:9px;color:#a78bfa;margin-top:2px;font-style:italic;line-height:1.3;">' + escHtml(displaySummary) + '</div>' : '';
     out += '<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 12px;cursor:pointer;border-radius:4px;transition:background 0.15s;" data-open-url="' + escHtml(escUrl(item.link)) + '" onmouseover="this.style.background=\'var(--bg-hover)\'" onmouseout="this.style.background=\'transparent\'">';
@@ -5887,7 +5887,7 @@ function renderFeed(items) {
 
     // 기존 카드 형식 (전체/시장 뉴스)
     const sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
-    const sentColor = sent === 'bull' ? '#3ddba5' : sent === 'bear' ? '#f87171' : sent === 'warn' ? '#fbbf24' : '#7e8a9e';
+    const sentColor = sent === 'bull' ? '#00e5a0' : sent === 'bear' ? '#ff5b50' : sent === 'warn' ? '#ffa31a' : '#7b8599';
     const topicBadge = getTopicBadge(item.topic || 'general');
     const unverifiedBadge = isUnverifiedClaim(item) ? '<span class="news-unverified-badge">⚠ 미확인</span>' : '';
 
@@ -5912,7 +5912,7 @@ function renderFeed(items) {
     const summaryHtml = displaySummary ? `<div style="font-size:9px;color:#a78bfa;margin-top:2px;font-style:italic;line-height:1.3;">${escHtml(displaySummary)}</div>` : '';
 
     // 스코어 바
-    const scoreBar = item.score > 0 ? `<span style="font-size:9px;color:${item.score > 50 ? '#3ddba5' : item.score > 30 ? '#fbbf24' : 'var(--text-muted)'};font-family:var(--font-mono);">■${item.score}</span>` : '';
+    const scoreBar = item.score > 0 ? `<span style="font-size:9px;color:${item.score > 50 ? '#00e5a0' : item.score > 30 ? '#ffa31a' : 'var(--text-muted)'};font-family:var(--font-mono);">■${item.score}</span>` : '';
 
     // 날짜 그룹 헤더 (시간순 정렬일 때만)
     let dateHeader = '';
@@ -6381,7 +6381,7 @@ function _markdownToHtml(md) {
       ? 'display:flex;gap:8px;padding:4px 8px;margin:2px 0;background:rgba(91,168,255,0.04);border-radius:5px;'
       : 'display:flex;gap:8px;padding:3px 0;';
     return '<div style="' + style + '">' +
-      '<span style="color:' + (hasChain ? '#a78bfa' : 'var(--accent)') + ';flex-shrink:0;font-size:8px;margin-top:3px;">' + (hasChain ? '⟶' : '●') + '</span>' +
+      '<span style="color:' + (hasChain ? '#a855f7' : 'var(--accent)') + ';flex-shrink:0;font-size:8px;margin-top:3px;">' + (hasChain ? '⟶' : '●') + '</span>' +
       '<span style="flex:1;line-height:1.6;">' + t + '</span></div>';
   });
   // 단락 간격
@@ -6410,7 +6410,7 @@ function _renderBriefingSection(icon, label, bulletsHtml, totalInGroup) {
 // v46.6: 브리핑 기사 아이템 렌더링 — 카드형 + 출처/시간 강조 + 점수 뱃지
 function _renderBriefingBullet(item) {
   var sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
-  var dotColor = sent === 'bull' ? '#3ddba5' : sent === 'bear' ? '#f87171' : sent === 'warn' ? '#fbbf24' : '#7e8a9e';
+  var dotColor = sent === 'bull' ? '#00e5a0' : sent === 'bear' ? '#ff5b50' : sent === 'warn' ? '#ffa31a' : '#7b8599';
   var sentLabel = sent === 'bull' ? '긍정' : sent === 'bear' ? '부정' : sent === 'warn' ? '주의' : '';
   var absTime = typeof getAbsoluteTime === 'function' ? getAbsoluteTime(item.pubDate) : '';
   var timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
@@ -6422,7 +6422,7 @@ function _renderBriefingBullet(item) {
   var tickerStr = tickers.length > 0 ? tickers.map(function(t) { return '<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(91,168,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;">' + escHtml(t) + '</span>'; }).join('') : '';
   var sentBadge = sentLabel ? '<span style="font-size:8px;font-weight:700;color:' + dotColor + ';background:' + dotColor + '15;padding:1px 5px;border-radius:3px;">' + sentLabel + '</span>' : '';
   var unverBadge = isUnverifiedClaim(item) ? '<span style="font-size:8px;font-weight:700;background:rgba(251,191,36,0.1);color:#fbbf24;padding:1px 5px;border-radius:3px;border:1px solid rgba(251,191,36,0.25);">미확인</span>' : '';
-  var scoreBadge = item.score ? '<span style="font-size:8px;font-weight:700;color:' + (item.score >= 80 ? '#f87171' : item.score >= 60 ? '#fbbf24' : '#7e8a9e') + ';font-family:var(--font-mono);">' + item.score + '</span>' : '';
+  var scoreBadge = item.score ? '<span style="font-size:8px;font-weight:700;color:' + (item.score >= 80 ? '#ff5b50' : item.score >= 60 ? '#ffa31a' : '#7b8599') + ';font-family:var(--font-mono);">' + item.score + '</span>' : '';
 
   var out = '<div class="briefing-news-card" style="padding:10px 12px;margin-bottom:8px;border-radius:8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:all 0.15s;" data-open-url="' + escHtml(escUrl(item.link)) + '" onmouseover="this.style.background=\'rgba(255,255,255,0.05)\';this.style.borderColor=\'rgba(91,168,255,0.15)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.025)\';this.style.borderColor=\'rgba(255,255,255,0.04)\'">';
   // 상단: 출처 + 시간 + 점수
@@ -7296,7 +7296,7 @@ async function fetchAllNews(forceRefresh = false) {
     const ns = computeNewsSentimentScore();
     const scoreEl = document.getElementById('news-sent-score');
     const labelEl = document.getElementById('news-sent-label');
-    if (scoreEl) { scoreEl.textContent = ns.score; scoreEl.style.color = ns.score > 55 ? '#3ddba5' : ns.score < 45 ? '#f87171' : '#fbbf24'; }
+    if (scoreEl) { scoreEl.textContent = ns.score; scoreEl.style.color = ns.score > 55 ? '#00e5a0' : ns.score < 45 ? '#ff5b50' : '#ffa31a'; }
     if (labelEl) labelEl.textContent = ns.label + ' (' + ns.bullCount + '↑ ' + ns.bearCount + '↓)';
 
     // v46.6: 뉴스 감성 시계열 히스토리 저장 + 차트 렌더
@@ -7308,7 +7308,7 @@ async function fetchAllNews(forceRefresh = false) {
     // 라이브 스코어 표시
     var _nsLiveScore = document.getElementById('news-sent-live-score');
     var _nsLiveLabel = document.getElementById('news-sent-live-label');
-    if (_nsLiveScore) { _nsLiveScore.textContent = ns.score; _nsLiveScore.style.color = ns.score > 55 ? '#3ddba5' : ns.score < 45 ? '#f87171' : '#fbbf24'; }
+    if (_nsLiveScore) { _nsLiveScore.textContent = ns.score; _nsLiveScore.style.color = ns.score > 55 ? '#00e5a0' : ns.score < 45 ? '#ff5b50' : '#ffa31a'; }
     if (_nsLiveLabel) _nsLiveLabel.textContent = ns.label;
     // 차트 렌더
     var _nsCanvas = document.getElementById('news-sentiment-chart');
@@ -7320,8 +7320,8 @@ async function fetchAllNews(forceRefresh = false) {
           labels: _nsh.map(function(h) { return h.time; }),
           datasets: [{
             label: '감성 점수', data: _nsh.map(function(h) { return h.score; }),
-            borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.1)',
-            borderWidth: 2, pointRadius: 3, pointBackgroundColor: _nsh.map(function(h) { return h.score > 55 ? '#3ddba5' : h.score < 45 ? '#f87171' : '#fbbf24'; }),
+            borderColor: '#ffa31a', backgroundColor: 'rgba(251,191,36,0.1)',
+            borderWidth: 2, pointRadius: 3, pointBackgroundColor: _nsh.map(function(h) { return h.score > 55 ? '#00e5a0' : h.score < 45 ? '#ff5b50' : '#ffa31a'; }),
             fill: true, tension: 0.3
           }]
         },
@@ -7341,7 +7341,7 @@ async function fetchAllNews(forceRefresh = false) {
     const risks = computeNewsRiskSignals();
     const riskCntEl = document.getElementById('news-risk-count');
     const riskLblEl = document.getElementById('news-risk-label');
-    if (riskCntEl) { riskCntEl.textContent = risks.length; riskCntEl.style.color = risks.length >= 3 ? '#f87171' : risks.length >= 1 ? '#fbbf24' : '#3ddba5'; }
+    if (riskCntEl) { riskCntEl.textContent = risks.length; riskCntEl.style.color = risks.length >= 3 ? '#ff5b50' : risks.length >= 1 ? '#ffa31a' : '#00e5a0'; }
     if (riskLblEl) riskLblEl.textContent = risks.length > 0 ? risks.map(r => r.label).join(' · ') : '리스크 없음';
   } catch(e) { _aioLog('warn', 'render', 'News sentiment bar error: ' + (e && e.message || e)); }
 
@@ -7359,7 +7359,7 @@ async function fetchAllNews(forceRefresh = false) {
   }
   } catch(fetchErr) {
     _aioLog('error', 'fetch', 'fetchAllNews 치명적 에러: ' + (fetchErr && fetchErr.message || fetchErr));
-    if (dot) { dot.style.background = '#f87171'; dot.style.boxShadow = '0 0 5px #f87171'; }
+    if (dot) { dot.style.background = '#ff5b50'; dot.style.boxShadow = '0 0 5px #f87171'; }
     if (lbl) lbl.textContent = '에러 발생 — 재시도';
     const pl = document.getElementById('news-progress-label');
     if (pl) pl.textContent = '뉴스 수집 중 에러 발생 — 새로고침 버튼을 눌러주세요.';
@@ -8650,12 +8650,12 @@ function vixToPercentile(vix) {
 }
 
 function vixRegime(vix) {
-  if (vix < 12) return { label: 'Subdued', color: '#3ddba5' };
-  if (vix < 16) return { label: 'Low', color: '#60a5fa' };
+  if (vix < 12) return { label: 'Subdued', color: '#00e5a0' };
+  if (vix < 16) return { label: 'Low', color: '#00d4ff' };
   if (vix < 20) return { label: 'Normal', color: '#a8b5c8' };
-  if (vix < 25) return { label: 'Elevated', color: '#fbbf24' };
-  if (vix < 30) return { label: 'Stressed', color: '#f97316' };
-  if (vix < 40) return { label: 'Crisis', color: '#f87171' };
+  if (vix < 25) return { label: 'Elevated', color: '#ffa31a' };
+  if (vix < 30) return { label: 'Stressed', color: '#ffa31a' };
+  if (vix < 40) return { label: 'Crisis', color: '#ff5b50' };
   return { label: 'Extreme', color: '#dc2626' };
 }
 
@@ -8668,19 +8668,19 @@ function _applyRiskMonitorFallbacks() {
   const rmRsp = document.getElementById('rm-rspratio-val');
   if (rmRsp && rmRsp.textContent === '—') {
     rmRsp.textContent = '0.291';
-    rmRsp.style.color = '#fbbf24';
+    rmRsp.style.color = '#ffa31a';
   }
   // Fear & Greed (극단적 공포 구간)
   const rmFg = document.getElementById('rm-fg-val');
   if (rmFg && rmFg.textContent === '—') {
     rmFg.textContent = '18';
-    rmFg.style.color = '#f87171';
+    rmFg.style.color = '#ff5b50';
   }
   // HY Spread 홈 카드 (FRED 미도착 시)
   const hySpread = document.getElementById('hy-spread-val');
   if (hySpread && hySpread.textContent === '—') {
     hySpread.textContent = '+342bp';
-    hySpread.style.color = '#fbbf24';
+    hySpread.style.color = '#ffa31a';
   }
 }
 
@@ -9172,7 +9172,7 @@ function applyLiveQuotes(quotes) {
         var _usS = (typeof _getUsSession === 'function') ? _getUsSession() : 'open';
         var extPctVal = q.extPct || 0;
         var extLabel = q.extSession === 'pre' ? 'Pre' : 'After';
-        var extColor = extPctVal >= 0 ? '#3ddba5' : '#f87171';
+        var extColor = extPctVal >= 0 ? '#00e5a0' : '#ff5b50';
         if (_usS === 'pre' || _usS === 'after') {
           _extHeroEl.innerHTML = '<span style="font-size:9px;color:#94a3b8;">종가 ' +
             price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>' +
@@ -9202,7 +9202,7 @@ function applyLiveQuotes(quotes) {
         if (_futD && _futD.price) {
           document.querySelectorAll(`[data-idx-futures="${q.symbol}"]`).forEach(el => {
             var fPct = _futD.pct != null ? _futD.pct : 0;
-            var fColor = fPct >= 0 ? '#3ddba5' : '#f87171';
+            var fColor = fPct >= 0 ? '#00e5a0' : '#ff5b50';
             var sessLabel = _usS2 === 'pre' ? '프리' : _usS2 === 'after' ? '애프터' : '시간외';
             el.innerHTML = '<span style="font-size:8px;color:#a78bfa;">선물(' + sessLabel + ')</span> ' +
               '<span style="font-size:9px;color:' + fColor + ';font-family:var(--font-mono);">' +
@@ -9227,7 +9227,7 @@ function applyLiveQuotes(quotes) {
       const hsVal = document.getElementById('hy-spread-val');
       const hsSub = document.getElementById('hy-spread-sub');
       if (hsVal) {
-        const hsCol = spreadBp < 300 ? '#3ddba5' : spreadBp < 450 ? '#fbbf24' : '#f87171';
+        const hsCol = spreadBp < 300 ? '#00e5a0' : spreadBp < 450 ? '#ffa31a' : '#ff5b50';
         hsVal.textContent = '+' + spreadBp + 'bp';
         hsVal.style.color = hsCol;
         if (hsSub) hsSub.textContent = spreadBp < 300 ? 'Tight' : spreadBp < 450 ? 'Elevated · 경계' : 'Distressed · 위험';
@@ -9237,7 +9237,7 @@ function applyLiveQuotes(quotes) {
     const cardId = snapMap[q.symbol];
     if (cardId) {
       const card = document.getElementById(cardId);
-      if (card) card.style.borderLeftColor = pct >= 0 ? '#3ddba5' : '#f87171';
+      if (card) card.style.borderLeftColor = pct >= 0 ? '#00e5a0' : '#ff5b50';
     }
   });
   // VIX 별도 처리 — v45.6: _liveData/DATA_SNAPSHOT 폴백 추가
@@ -9250,7 +9250,7 @@ function applyLiveQuotes(quotes) {
   if (vixQ) {
     const vp = vixQ.regularMarketPrice;
     const lvl = vp >= 30 ? '패닉 (매우 위험)' : vp >= 25 ? '공포 (경계)' : vp >= 20 ? '불안 (주의)' : vp >= 15 ? '안정' : '과도한 낙관';
-    const col = vp >= 30 ? '#dc2626' : vp >= 25 ? '#f97316' : vp >= 20 ? '#fbbf24' : '#3ddba5';
+    const col = vp >= 30 ? '#dc2626' : vp >= 25 ? '#ffa31a' : vp >= 20 ? '#ffa31a' : '#00e5a0';
     const vixLbl = document.getElementById('snap-vix-lbl');
     const vixVal = document.getElementById('snap-vix-val');
     if (vixLbl) vixLbl.textContent = lvl;
@@ -9376,21 +9376,21 @@ function generateDynamicBriefing() {
 
   // 시장 상태 판별
   var mktStatus, mktColor;
-  if (spxChg <= -2) { mktStatus = '급락'; mktColor = '#f87171'; }
-  else if (spxChg <= -1) { mktStatus = '하락'; mktColor = '#f87171'; }
-  else if (spxChg <= -0.3) { mktStatus = '약세'; mktColor = '#fbbf24'; }
-  else if (spxChg >= 2) { mktStatus = '급등'; mktColor = '#3ddba5'; }
-  else if (spxChg >= 1) { mktStatus = '상승'; mktColor = '#3ddba5'; }
-  else if (spxChg >= 0.3) { mktStatus = '강세'; mktColor = '#3ddba5'; }
+  if (spxChg <= -2) { mktStatus = '급락'; mktColor = '#ff5b50'; }
+  else if (spxChg <= -1) { mktStatus = '하락'; mktColor = '#ff5b50'; }
+  else if (spxChg <= -0.3) { mktStatus = '약세'; mktColor = '#ffa31a'; }
+  else if (spxChg >= 2) { mktStatus = '급등'; mktColor = '#00e5a0'; }
+  else if (spxChg >= 1) { mktStatus = '상승'; mktColor = '#00e5a0'; }
+  else if (spxChg >= 0.3) { mktStatus = '강세'; mktColor = '#00e5a0'; }
   else { mktStatus = '보합'; mktColor = 'var(--text-secondary)'; }
 
   // VIX 해석
   var vixLabel, vixColor;
-  if (vixPrice >= 35) { vixLabel = '극단공포'; vixColor = '#f87171'; }
-  else if (vixPrice >= 25) { vixLabel = '공포'; vixColor = '#f87171'; }
-  else if (vixPrice >= 20) { vixLabel = '경계'; vixColor = '#fbbf24'; }
-  else if (vixPrice >= 15) { vixLabel = '주의'; vixColor = '#fbbf24'; }
-  else { vixLabel = '안정'; vixColor = '#3ddba5'; }
+  if (vixPrice >= 35) { vixLabel = '극단공포'; vixColor = '#ff5b50'; }
+  else if (vixPrice >= 25) { vixLabel = '공포'; vixColor = '#ff5b50'; }
+  else if (vixPrice >= 20) { vixLabel = '경계'; vixColor = '#ffa31a'; }
+  else if (vixPrice >= 15) { vixLabel = '주의'; vixColor = '#ffa31a'; }
+  else { vixLabel = '안정'; vixColor = '#00e5a0'; }
 
   // 유가 상태
   var oilStatus;
@@ -9415,7 +9415,7 @@ function generateDynamicBriefing() {
   // F&G
   var fgVal = snap.fg || 0;
   var fgLabel = fgVal <= 25 ? '극단공포' : fgVal <= 45 ? '공포' : fgVal <= 55 ? '중립' : fgVal <= 75 ? '탐욕' : '극단탐욕';
-  var fgColor = fgVal <= 25 ? '#f87171' : fgVal <= 45 ? '#fbbf24' : fgVal <= 55 ? 'var(--text-secondary)' : fgVal <= 75 ? '#3ddba5' : '#10b981';
+  var fgColor = fgVal <= 25 ? '#ff5b50' : fgVal <= 45 ? '#ffa31a' : fgVal <= 55 ? 'var(--text-secondary)' : fgVal <= 75 ? '#00e5a0' : '#10b981';
 
   // 날짜
   var now = new Date();
@@ -9434,8 +9434,8 @@ function generateDynamicBriefing() {
   html += '<div style="font-size:10px;font-weight:700;color:#5ba8ff;margin-bottom:6px;">실시간 시장 요약 (' + dateStr + ' ' + timeStr + ' 기준)</div>';
   html += '<div style="font-size:9px;color:var(--text-secondary);line-height:1.8;">';
   html += '<div>① <b style="color:' + mktColor + ';">시장 ' + mktStatus + '</b> — S&P ' + fmt(spxPrice,0) + ' (' + fmtPct(spxChg) + '), VIX ' + fmt(vixPrice,1) + ' | F&G <span style="color:' + fgColor + ';">' + fmt(fgVal) + ' ' + fgLabel + '</span></div>';
-  html += '<div>② <b style="color:' + (wtiPrice >= 85 ? '#f87171' : '#3ddba5') + ';">에너지</b> — WTI $' + fmt(wtiPrice,1) + ', Brent $' + fmt(brentPrice,1) + ' | ' + oilStatus + '</div>';
-  html += '<div>③ <b style="color:' + (tnxPrice >= 4.5 ? '#fbbf24' : '#3ddba5') + ';">금리·달러</b> — ' + yieldStatus + ' | ' + dxyStatus + '</div>';
+  html += '<div>② <b style="color:' + (wtiPrice >= 85 ? '#ff5b50' : '#00e5a0') + ';">에너지</b> — WTI $' + fmt(wtiPrice,1) + ', Brent $' + fmt(brentPrice,1) + ' | ' + oilStatus + '</div>';
+  html += '<div>③ <b style="color:' + (tnxPrice >= 4.5 ? '#ffa31a' : '#00e5a0') + ';">금리·달러</b> — ' + yieldStatus + ' | ' + dxyStatus + '</div>';
   html += '<div>④ <b style="color:var(--text-secondary);">자산</b> — 금 $' + fmt(goldPrice,0) + ' | BTC $' + fmt(btcPrice,0) + ' | 원/달러 ' + fmt(krwPrice,0) + '원 | KOSPI ' + fmt(kospiPrice,0) + '</div>';
   html += '</div></div>';
 
@@ -9448,7 +9448,7 @@ function generateDynamicBriefing() {
   html += '<div style="font-size:22px;font-weight:900;font-family:var(--font-mono);color:' + mktColor + ';">' + fmt(spxPrice,0) + '</div>';
   html += '<div style="font-size:8px;color:' + mktColor + ';margin-top:3px;">' + fmtPct(spxChg) + ' · ' + mktStatus + '</div></div>';
   // WTI
-  var oilColor = wtiPrice >= 85 ? '#f87171' : '#3ddba5';
+  var oilColor = wtiPrice >= 85 ? '#ff5b50' : '#00e5a0';
   html += '<div style="background:var(--bg-card);border:1px solid ' + (wtiPrice >= 85 ? 'rgba(248,113,113,0.2)' : 'var(--border)') + ';border-radius:8px;padding:12px;text-align:center;">';
   html += '<div style="font-size:8px;color:var(--text-muted);margin-bottom:4px;">WTI 원유</div>';
   html += '<div style="font-size:22px;font-weight:900;font-family:var(--font-mono);color:' + oilColor + ';">$' + fmt(wtiPrice,1) + '</div>';
@@ -9464,11 +9464,11 @@ function generateDynamicBriefing() {
   var ndx = ld['^IXIC'] || {};
   var ndxPrice = ndx.price || 0;
   var ndxChg = (ndx.pct != null ? ndx.pct : 0);
-  var ndxColor = ndxChg < 0 ? '#f87171' : '#3ddba5';
+  var ndxColor = ndxChg < 0 ? '#ff5b50' : '#00e5a0';
   var goldChg = (gold.pct != null ? gold.pct : 0);
-  var goldColor2 = goldChg < 0 ? '#f87171' : '#fbbf24';
+  var goldColor2 = goldChg < 0 ? '#ff5b50' : '#ffa31a';
   var krwChg = (krw.pct != null ? krw.pct : 0);
-  var krwColor = krwPrice >= 1400 ? '#f87171' : krwPrice >= 1350 ? '#fbbf24' : '#3ddba5';
+  var krwColor = krwPrice >= 1400 ? '#ff5b50' : krwPrice >= 1350 ? '#ffa31a' : '#00e5a0';
   if (ndxPrice > 0 || goldPrice > 0 || krwPrice > 0) {
     html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">';
     // NASDAQ
@@ -9497,10 +9497,10 @@ function generateDynamicBriefing() {
       tsScore = tsResult.score || 50;
     }
   } catch(e) {}
-  if (tsScore >= 75) { tsLabel = '적극 매수 OK'; tsColor = '#3ddba5'; }
-  else if (tsScore >= 55) { tsLabel = '선별적 매수'; tsColor = '#60a5fa'; }
-  else if (tsScore >= 35) { tsLabel = '관망'; tsColor = '#fbbf24'; }
-  else { tsLabel = '방어 모드'; tsColor = '#f87171'; }
+  if (tsScore >= 75) { tsLabel = '적극 매수 OK'; tsColor = '#00e5a0'; }
+  else if (tsScore >= 55) { tsLabel = '선별적 매수'; tsColor = '#00d4ff'; }
+  else if (tsScore >= 35) { tsLabel = '관망'; tsColor = '#ffa31a'; }
+  else { tsLabel = '방어 모드'; tsColor = '#ff5b50'; }
   var tsPct = Math.min(100, Math.max(0, tsScore));
   html += '<div style="background:var(--bg-card);border:1px solid rgba(91,168,255,0.15);border-radius:8px;padding:10px 14px;margin-bottom:12px;">';
   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
@@ -9524,7 +9524,7 @@ function generateDynamicBriefing() {
       if (!d || d.pct == null) return;
       var p = d.pct;
       var bg = p > 1.5 ? 'rgba(61,219,165,0.25)' : p > 0 ? 'rgba(61,219,165,0.12)' : p > -1.5 ? 'rgba(248,113,113,0.12)' : 'rgba(248,113,113,0.25)';
-      var tc = p >= 0 ? '#3ddba5' : '#f87171';
+      var tc = p >= 0 ? '#00e5a0' : '#ff5b50';
       html += '<div style="background:' + bg + ';border-radius:4px;padding:3px 6px;text-align:center;min-width:44px;">';
       html += '<div style="font-size:9px;color:var(--text-muted);">' + e.n + '</div>';
       html += '<div style="font-size:9px;font-weight:700;font-family:var(--font-mono);color:' + tc + ';">' + (p>=0?'+':'') + p.toFixed(1) + '%</div>';
@@ -9546,7 +9546,7 @@ function generateDynamicBriefing() {
       var d = ld[t];
       if (!d || d.pct == null) return;
       if (d.pct > 0) m7UpCnt++;
-      var c2 = d.pct >= 0 ? '#3ddba5' : '#f87171';
+      var c2 = d.pct >= 0 ? '#00e5a0' : '#ff5b50';
       html += '<div style="text-align:center;min-width:36px;">';
       html += '<div style="font-size:9px;color:var(--text-muted);">' + t + '</div>';
       html += '<div style="font-size:9px;font-weight:700;font-family:var(--font-mono);color:' + c2 + ';">' + (d.pct>=0?'+':'') + d.pct.toFixed(1) + '%</div>';
@@ -9554,7 +9554,7 @@ function generateDynamicBriefing() {
     });
     html += '</div>';
     var m7Ratio = m7UpCnt + '/7 상승';
-    var m7RColor = m7UpCnt >= 5 ? '#3ddba5' : m7UpCnt >= 3 ? '#fbbf24' : '#f87171';
+    var m7RColor = m7UpCnt >= 5 ? '#00e5a0' : m7UpCnt >= 3 ? '#ffa31a' : '#ff5b50';
     html += '<div style="font-size:8px;color:' + m7RColor + ';margin-top:4px;font-weight:600;">' + m7Ratio + (m7UpCnt >= 5 ? ' — 리더십 건강' : m7UpCnt >= 3 ? ' — 혼조' : ' — 리더십 약화') + '</div>';
     html += '</div>';
   }
@@ -9653,7 +9653,7 @@ function _syncYahooToFred() {
     const spreadEl = document.getElementById('spread-2s10s-val');
     if (spreadEl) {
       spreadEl.textContent = (spread10y2y >= 0 ? '+' : '') + spread10y2y.toFixed(2) + '%';
-      spreadEl.style.color = spread10y2y < 0 ? '#f87171' : '#3ddba5';
+      spreadEl.style.color = spread10y2y < 0 ? '#ff5b50' : '#00e5a0';
     }
   }
 
@@ -9684,20 +9684,20 @@ function _getDataFreshness(symbol) {
   var ts  = (window._quoteTimestamps || {})[symbol];
   if (!src || !ts) {
     // 데이터 출처 없음 → 정적 폴백 사용 중
-    return { level: 'snapshot', label: '정적', color: '#7e8a9e', title: 'DATA_SNAPSHOT 정적 데이터 (API 미연결)' };
+    return { level: 'snapshot', label: '정적', color: '#7b8599', title: 'DATA_SNAPSHOT 정적 데이터 (API 미연결)' };
   }
   var age = Date.now() - ts;
   var srcLabel = src.source || 'unknown';
   if (age < 120000) {
-    return { level: 'live', label: '실시간', color: '#3ddba5', title: srcLabel + ' · ' + Math.round(age/1000) + '초 전' };
+    return { level: 'live', label: '실시간', color: '#00e5a0', title: srcLabel + ' · ' + Math.round(age/1000) + '초 전' };
   }
   if (age < 600000) {
     var mins = Math.floor(age / 60000);
-    return { level: 'recent', label: mins + '분전', color: '#fbbf24', title: srcLabel + ' · ' + mins + '분 전 갱신' };
+    return { level: 'recent', label: mins + '분전', color: '#ffa31a', title: srcLabel + ' · ' + mins + '분 전 갱신' };
   }
   var hrs = Math.floor(age / 3600000);
   var minR = Math.floor((age % 3600000) / 60000);
-  return { level: 'stale', label: (hrs > 0 ? hrs + '시간' : minR + '분') + '전', color: '#f87171', title: srcLabel + ' · 갱신 지연' };
+  return { level: 'stale', label: (hrs > 0 ? hrs + '시간' : minR + '분') + '전', color: '#ff5b50', title: srcLabel + ' · 갱신 지연' };
 }
 
 function _updateFreshnessBadges() {
@@ -9801,15 +9801,15 @@ function refreshHomeDashboard() {
   if (signalEl) {
     if (tradingScore > 70) {
       signalEl.textContent = 'YES';
-      signalEl.style.color = '#3ddba5';
+      signalEl.style.color = '#00e5a0';
       if (explanEl) explanEl.textContent = '시장 품질 우수. 매매 신호 강함. 변동성 안정적.' + (tradingScore >= 80 ? ' 참고: 과열 구간. 역사적으로 이 수준에서 차익실현이 유효했던 사례가 있음' : '');
     } else if (tradingScore > 50) {
       signalEl.textContent = 'CAUTION';
-      signalEl.style.color = '#fbbf24';
+      signalEl.style.color = '#ffa31a';
       if (explanEl) explanEl.textContent = '시장 품질 중립. 신호 혼합. 위험 관리 필수.';
     } else {
       signalEl.textContent = 'NO';
-      signalEl.style.color = '#f87171';
+      signalEl.style.color = '#ff5b50';
       if (explanEl) explanEl.textContent = '시장 품질 악화. 신호 약함. 포지션 축소 권장.' + (tradingScore <= 25 ? ' 참고: 극단적 약세 구간이나, 역사적으로 분할 매수 시작 시 높은 수익으로 이어진 사례가 있음' : '');
     }
   }
@@ -9820,18 +9820,18 @@ function refreshHomeDashboard() {
   const qualityLabelEl = document.getElementById('home-quality-label');
   if (qualityEl && qualityScoreEl) {
     qualityScoreEl.textContent = Math.round(tradingScore);
-    qualityScoreEl.style.color = tradingScore > 55 ? '#3ddba5' : tradingScore > 35 ? '#fbbf24' : '#f87171';
+    qualityScoreEl.style.color = tradingScore > 55 ? '#00e5a0' : tradingScore > 35 ? '#ffa31a' : '#ff5b50';
     const meterBar = qualityEl.querySelector('div');
     if (meterBar) {
       meterBar.style.width = tradingScore + '%';
-      const meterColor = tradingScore > 75 ? '#3ddba5' : tradingScore > 55 ? '#4ade80' : tradingScore > 40 ? '#fbbf24' : tradingScore > 25 ? '#f97316' : '#ef4444';
+      const meterColor = tradingScore > 75 ? '#00e5a0' : tradingScore > 55 ? '#4ade80' : tradingScore > 40 ? '#ffa31a' : tradingScore > 25 ? '#ffa31a' : '#ef4444';
       meterBar.style.background = meterColor;
     }
     if (qualityLabelEl) {
-      if (tradingScore > 75) { qualityLabelEl.textContent = '우수 (Excellent)'; qualityLabelEl.style.color = '#3ddba5'; }
+      if (tradingScore > 75) { qualityLabelEl.textContent = '우수 (Excellent)'; qualityLabelEl.style.color = '#00e5a0'; }
       else if (tradingScore > 55) { qualityLabelEl.textContent = '양호 (Good)'; qualityLabelEl.style.color = '#4ade80'; }
-      else if (tradingScore > 35) { qualityLabelEl.textContent = '중립 (Neutral)'; qualityLabelEl.style.color = '#fbbf24'; }
-      else if (tradingScore > 25) { qualityLabelEl.textContent = '악화 (Poor)'; qualityLabelEl.style.color = '#f97316'; }
+      else if (tradingScore > 35) { qualityLabelEl.textContent = '중립 (Neutral)'; qualityLabelEl.style.color = '#ffa31a'; }
+      else if (tradingScore > 25) { qualityLabelEl.textContent = '악화 (Poor)'; qualityLabelEl.style.color = '#ffa31a'; }
       else { qualityLabelEl.textContent = '위험 (Danger)'; qualityLabelEl.style.color = '#ef4444'; }
     }
   }
@@ -9843,10 +9843,10 @@ function refreshHomeDashboard() {
     const SPX_ATH = window._spxATH || 6947;  // v34.5: 동적 추적 우선, 폴백 6947 (2026-01-27)
     const spxPrice = spx.price || 6506;
     const pctFromATH = ((spxPrice - SPX_ATH) / SPX_ATH * 100);
-    let regime = 'UPTREND', regimeColor = '#3ddba5', regimeDesc = 'ATH 근처';
-    if (pctFromATH < -20) { regime = 'DOWNTREND'; regimeColor = '#f87171'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
-    else if (pctFromATH < -10) { regime = 'CORRECTION'; regimeColor = '#fbbf24'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
-    else if (pctFromATH < -5) { regime = 'PULLBACK'; regimeColor = '#fbbf24'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
+    let regime = 'UPTREND', regimeColor = '#00e5a0', regimeDesc = 'ATH 근처';
+    if (pctFromATH < -20) { regime = 'DOWNTREND'; regimeColor = '#ff5b50'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
+    else if (pctFromATH < -10) { regime = 'CORRECTION'; regimeColor = '#ffa31a'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
+    else if (pctFromATH < -5) { regime = 'PULLBACK'; regimeColor = '#ffa31a'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
     regimeEl.textContent = regime;
     regimeEl.style.color = regimeColor;
     // v35.4 B2: 국면별 역사적 참고 한 줄
@@ -9874,7 +9874,7 @@ function refreshHomeDashboard() {
     const vp = vix.price || DATA_SNAPSHOT.vix;
     vixValueEl.textContent = vp.toFixed(2);
     const vixLabel = vp >= 30 ? '극단공포' : vp >= 25 ? '공포' : vp >= 20 ? '경계' : vp >= 15 ? '주의' : '안정';
-    const vixCol = vp >= 30 ? '#dc2626' : vp >= 25 ? '#f97316' : vp >= 20 ? '#fbbf24' : '#3ddba5';
+    const vixCol = vp >= 30 ? '#dc2626' : vp >= 25 ? '#ffa31a' : vp >= 20 ? '#ffa31a' : '#00e5a0';
     vixValueEl.style.color = vixCol;
     if (vixStatusEl) vixStatusEl.textContent = vixLabel;
   }
@@ -9884,7 +9884,7 @@ function refreshHomeDashboard() {
   const fgLabelEl = document.getElementById('home-fg-label');
   if (fgScoreEl) {
     fgScoreEl.textContent = Math.round(fg);
-    const fgColor = fg <= 25 ? '#dc2626' : fg <= 45 ? '#f97316' : fg <= 55 ? '#7e8a9e' : fg <= 75 ? '#86efac' : '#16a34a';
+    const fgColor = fg <= 25 ? '#dc2626' : fg <= 45 ? '#ffa31a' : fg <= 55 ? '#7b8599' : fg <= 75 ? '#86efac' : '#16a34a';
     fgScoreEl.style.color = fgColor;
     const fgLabel = fg <= 25 ? '극단적 공포' : fg <= 45 ? '공포' : fg <= 55 ? '중립' : fg <= 75 ? '탐욕' : '극단적 탐욕';
     if (fgLabelEl) fgLabelEl.textContent = fgLabel;
@@ -9930,7 +9930,7 @@ function refreshHomeDashboard() {
       const top3 = window._newsItems.slice(0, 3);
       newsEl.innerHTML = top3.map(item => {
         const sent = typeof getSentimentFromText === 'function' ? getSentimentFromText(item.headline || '') : 'neut';
-        const sentColor = sent === 'bull' ? '#3ddba5' : sent === 'bear' ? '#f87171' : sent === 'warn' ? '#fbbf24' : '#7e8a9e';
+        const sentColor = sent === 'bull' ? '#00e5a0' : sent === 'bear' ? '#ff5b50' : sent === 'warn' ? '#ffa31a' : '#7b8599';
         const tickers = typeof getDisplayTickers === 'function' && item.title ? getDisplayTickers(item) : [];
         const tickerStr = tickers.length > 0 ? `<div style="margin-top:3px;">${tickers.map(t => `<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(91,168,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;">${escHtml(t)}</span>`).join('')}</div>` : '';
         return `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px;border-top:2px solid ${sentColor};">
@@ -9985,8 +9985,8 @@ function fgUpdateNeedle(score) {
 // F&G rating → color
 function fgColor(score) {
   if (score < 25)  return '#dc2626';
-  if (score < 45)  return '#f97316';
-  if (score < 55)  return '#7e8a9e';
+  if (score < 45)  return '#ffa31a';
+  if (score < 55)  return '#7b8599';
   if (score < 75)  return '#86efac';
   return '#16a34a';
 }
@@ -10037,7 +10037,7 @@ async function fetchFearGreed() {
     if (big) { big.textContent = score; big.style.color = col; }
     if (rat) { rat.textContent = fgRating(score); rat.style.color = col; }
     fgUpdateNeedle(score);
-    if (badge) { badge.textContent = '실시간 · CNN API'; badge.style.color = '#3ddba5'; }
+    if (badge) { badge.textContent = '실시간 · CNN API'; badge.style.color = '#00e5a0'; }
     // Historical
     if (prev && prev.length >= 4) {
       const h1 = document.getElementById('fg-h1');
@@ -10080,13 +10080,13 @@ async function fetchFearGreed() {
         var _fgLink = document.getElementById('fg-signal-link');
         if (_fgLink) _fgLink.style.display = (score2 <= 25 || score2 >= 75) ? 'block' : 'none';
         fgUpdateNeedle(score2);
-        if (badge) { badge.textContent = '실시간 (프록시)'; badge.style.color = '#fbbf24'; }
+        if (badge) { badge.textContent = '실시간 (프록시)'; badge.style.color = '#ffa31a'; }
       }
       // v37.8: 심리 복합 분석 갱신
       if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
       return true;
     } catch(e2) {
-      if (badge) { badge.textContent = '폴백 데이터 (과거 스냅샷)'; badge.style.color = '#7e8a9e'; }
+      if (badge) { badge.textContent = '폴백 데이터 (과거 스냅샷)'; badge.style.color = '#7b8599'; }
       fgUpdateNeedle((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 15);
       if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
       return false;
@@ -10151,7 +10151,7 @@ function _renderFGComponents() {
     if (!c || c.score == null) return;
     var score = c.score;
     var rating = c.rating || '';
-    var color = score <= 25 ? '#ef4444' : score <= 45 ? '#f87171' : score <= 55 ? '#fbbf24' : score <= 75 ? '#34d399' : '#10b981';
+    var color = score <= 25 ? '#ef4444' : score <= 45 ? '#ff5b50' : score <= 55 ? '#ffa31a' : score <= 75 ? '#34d399' : '#10b981';
     html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:7px 9px;">' +
       '<div style="font-size:9px;color:var(--text-muted);font-weight:600;">' + labels[k] + '</div>' +
       '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:2px;">' +
@@ -10197,7 +10197,7 @@ function _renderCryptoTempo() {
   if (g.btcDominance != null) {
     var bd = g.btcDominance;
     var bdSub = bd >= 55 ? '알트 약세 · BTC 피신 신호' : bd >= 48 ? '중립 상단' : bd >= 42 ? '중립 하단' : '알트시즌 임박';
-    var bdColor = bd >= 55 ? '#f87171' : bd >= 48 ? '#fbbf24' : bd >= 42 ? '#3ddba5' : '#60a5fa';
+    var bdColor = bd >= 55 ? '#ff5b50' : bd >= 48 ? '#ffa31a' : bd >= 42 ? '#00e5a0' : '#00d4ff';
     html += card('BTC 도미넌스', bd.toFixed(1) + '%', bdSub, bdColor);
   }
   // ETH 도미넌스
@@ -10213,7 +10213,7 @@ function _renderCryptoTempo() {
   // 24h 변동
   if (g.mcapChange24hPct != null) {
     var pc = g.mcapChange24hPct;
-    var pcColor = pc >= 3 ? '#10b981' : pc >= 0 ? '#3ddba5' : pc >= -3 ? '#fbbf24' : '#f87171';
+    var pcColor = pc >= 3 ? '#10b981' : pc >= 0 ? '#00e5a0' : pc >= -3 ? '#ffa31a' : '#ff5b50';
     html += card('24h 시총 변동', (pc >= 0 ? '+' : '') + pc.toFixed(2) + '%', pc >= 0 ? '상승' : '하락', pcColor);
   }
   // 24h 거래량
@@ -10252,10 +10252,10 @@ async function fetchPutCall() {
         if (big) big.textContent = parseFloat(pcr).toFixed(2);
         // v35.8: regime-pcr 동적 연결
         var regPcr = document.getElementById('regime-pcr');
-        if (regPcr) { regPcr.textContent = parseFloat(pcr).toFixed(2); regPcr.style.color = parseFloat(pcr) > 1.2 ? '#f87171' : parseFloat(pcr) > 0.9 ? '#fbbf24' : '#3ddba5'; }
+        if (regPcr) { regPcr.textContent = parseFloat(pcr).toFixed(2); regPcr.style.color = parseFloat(pcr) > 1.2 ? '#ff5b50' : parseFloat(pcr) > 0.9 ? '#ffa31a' : '#00e5a0'; }
         if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.pcr = parseFloat(pcr);
         window._putCallRatio = parseFloat(pcr); // v46.9: computeTradingScore/computeExecutionWindow 참조용 (P88)
-        if (badge) { badge.textContent = '실시간 · CBOE'; badge.style.color = '#3ddba5'; }
+        if (badge) { badge.textContent = '실시간 · CBOE'; badge.style.color = '#00e5a0'; }
         // Update needle position: (pcr - 0.4)/(1.2-0.4)*100
         const pct = Math.min(100, Math.max(0, (parseFloat(pcr) - 0.4) / 0.8 * 100));
         const needle = document.getElementById('pc-needle-pos');
@@ -10265,7 +10265,7 @@ async function fetchPutCall() {
     }
     throw new Error('no pcr data');
   } catch(e) {
-    if (badge) { badge.textContent = '폴백 데이터 (과거 스냅샷)'; badge.style.color = '#7e8a9e'; }
+    if (badge) { badge.textContent = '폴백 데이터 (과거 스냅샷)'; badge.style.color = '#7b8599'; }
     return false;
   }
 }
@@ -10332,7 +10332,7 @@ async function fetchHYSpread() {
     if (hyBadge) {
       hyBadge.textContent = 'FRED LIVE';
       hyBadge.style.background = 'rgba(61,219,165,0.15)';
-      hyBadge.style.color = '#3ddba5';
+      hyBadge.style.color = '#00e5a0';
     }
 
     // Update chart data if chart exists
@@ -10349,7 +10349,7 @@ async function fetchHYSpread() {
       const caution = spreadBp > 400;
       signalEl.textContent = caution ? 'SHORT' : spreadBp < 300 ? 'LONG' : 'CAUTION';
       signalEl.style.background = caution ? 'rgba(248,113,113,0.12)' : 'rgba(61,219,165,0.12)';
-      signalEl.style.color = caution ? 'var(--red)' : '#3ddba5';
+      signalEl.style.color = caution ? 'var(--red)' : '#00e5a0';
     }
 
     console.log('[AIO] HY Spread FRED:', spreadBp + 'bp (' + date + ')');
@@ -10364,7 +10364,7 @@ async function fetchHYSpread() {
       if (_hyBadgeEl) {
         _hyBadgeEl.textContent = '폴백 데이터';
         _hyBadgeEl.style.background = 'rgba(126,138,158,0.15)';
-        _hyBadgeEl.style.color = '#7e8a9e';
+        _hyBadgeEl.style.color = '#7b8599';
       }
     } catch(_){}
   }

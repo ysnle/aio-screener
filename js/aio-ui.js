@@ -31,7 +31,7 @@ async function _refreshSentimentChartData() {
         // 경고 배지 제거 (실시간 데이터 로드 성공)
         var badge = document.querySelector('#page-sentiment .stale-badge');
         if (badge) badge.textContent = 'VIX/HYG 실시간 차트 · ' + labels[labels.length - 1] + ' 기준';
-        if (badge) { badge.style.background = 'rgba(61,219,165,0.1)'; badge.style.borderColor = 'rgba(61,219,165,0.3)'; badge.style.color = '#3ddba5'; }
+        if (badge) { badge.style.background = 'rgba(61,219,165,0.1)'; badge.style.borderColor = 'rgba(61,219,165,0.3)'; badge.style.color = '#00e5a0'; }
       }
     }
     // HY OAS 프록시: HYG ETF 가격을 반전 사용 (HYG↓ = 스프레드↑)
@@ -58,8 +58,8 @@ async function _refreshSentimentChartData() {
 // v48.22 (P2-C 2단계): initSentimentPage 4개 차트 개별 분리 — 공통 상수 모듈 수준 승격
 var _SENT_COMMON = {
   tip: {
-    backgroundColor: '#0d1117', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-    titleColor: '#9ca3af', bodyColor: '#e8ecf4',
+    backgroundColor: '#111a2f', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+    titleColor: '#a5b0c2', bodyColor: '#f0f4fc',
     titleFont: { size: 9 }, bodyFont: { family: 'JetBrains Mono, monospace', size: 9 },
     padding: 8
   },
@@ -86,7 +86,7 @@ function _initSentVixChart() {
         var isoLabels = window.AIO.charts.monthDayToISO(labels20, new Date().getFullYear());
         var lwcData = vixData.map(function(v, i) { return { time: isoLabels[i], value: v }; });
         var lwcResult = window.AIO.charts.createLineChart(container, lwcData, {
-          color: '#f97316',
+          color: '#ffa31a',
           lineWidth: 2,
           height: 140,
           priceFormat: { type: 'price', precision: 2, minMove: 0.01 }
@@ -121,7 +121,7 @@ function _initSentVixChart() {
       labels: labels20,
       datasets: [{
         label: 'VIX', data: vixData,
-        borderColor: '#f97316',
+        borderColor: '#ffa31a',
         backgroundColor: function(ctx2) {
           var g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
           g.addColorStop(0, 'rgba(249,115,22,0.25)'); g.addColorStop(1, 'rgba(249,115,22,0)');
@@ -165,7 +165,7 @@ function _initSentNaaimChart() {
         var isoLabels = window.AIO.charts.monthDayToISO(naaimLabels, new Date().getFullYear());
         var lwcData = naaimData.map(function(v, i) { return { time: isoLabels[i], value: v }; });
         var lwcResult = window.AIO.charts.createLineChart(container, lwcData, {
-          color: '#5ba8ff',
+          color: '#00d4ff',
           lineWidth: 2,
           height: 140,
           priceFormat: { type: 'price', precision: 2, minMove: 0.01 }
@@ -200,7 +200,7 @@ function _initSentNaaimChart() {
       labels: naaimLabels,
       datasets: [{
         label: 'NAAIM', data: naaimData,
-        borderColor: '#5ba8ff',
+        borderColor: '#00d4ff',
         backgroundColor: function(ctx2) {
           var g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
           g.addColorStop(0, 'rgba(91,168,255,0.2)'); g.addColorStop(1, 'rgba(91,168,255,0)');
@@ -246,8 +246,8 @@ function _initSentIIChart() {
         var bullData = iiBull.map(function(v, i) { return { time: isoLabels[i], value: v }; });
         var bearData = iiBear.map(function(v, i) { return { time: isoLabels[i], value: v }; });
         var lwcResult = window.AIO.charts.createMultiLineChart(container, [
-          { name: 'Bulls', color: '#3ddba5', lineWidth: 2, data: bullData },
-          { name: 'Bears', color: '#f87171', lineWidth: 2, data: bearData }
+          { name: 'Bulls', color: '#00e5a0', lineWidth: 2, data: bullData },
+          { name: 'Bears', color: '#ff5b50', lineWidth: 2, data: bearData }
         ], { height: 140 });
         if (lwcResult && lwcResult.series) {
           sentPageCharts['ii'] = window.AIO.charts.createCompatWrapper(lwcResult, iiCtx, container);
@@ -268,10 +268,10 @@ function _initSentIIChart() {
       labels: iiLabels,
       datasets: [{
         label: 'Bulls', data: iiBull,
-        borderColor: '#3ddba5', borderWidth: 1.8, pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
+        borderColor: '#00e5a0', borderWidth: 1.8, pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
       }, {
         label: 'Bears', data: iiBear,
-        borderColor: '#f87171', borderWidth: 1.8, borderDash: [4,2], pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
+        borderColor: '#ff5b50', borderWidth: 1.8, borderDash: [4,2], pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
       }]
     },
     options: {
@@ -411,7 +411,7 @@ function initSentimentCharts() {
     var _regAaii = document.getElementById('regime-aaii');
     if (_regAaii) {
       _regAaii.textContent = latestBear.toFixed(1) + '%';
-      _regAaii.style.color = latestBear > 50 ? '#f87171' : latestBear > 40 ? '#fbbf24' : '#3ddba5';
+      _regAaii.style.color = latestBear > 50 ? '#ff5b50' : latestBear > 40 ? '#ffa31a' : '#00e5a0';
     }
     var _regAaiiSub = _regAaii ? _regAaii.nextElementSibling : null;
     if (_regAaiiSub) _regAaiiSub.textContent = latestBear > 50 ? '극단 비관 (역발상)' : latestBear > 40 ? '비관 우세' : '정상 범위';
@@ -441,8 +441,8 @@ function initSentimentCharts() {
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: '#0d1117', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-            titleColor: '#9ca3af', bodyColor: '#e8ecf4',
+            backgroundColor: '#111a2f', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+            titleColor: '#a5b0c2', bodyColor: '#f0f4fc',
             titleFont: { size: 9 }, bodyFont: { family: 'JetBrains Mono, monospace', size: 9 },
             callbacks: { label: i => ' ' + i.dataset.label + ': ' + i.formattedValue + '%' }
           }
@@ -477,7 +477,7 @@ function initSentimentCharts() {
           var _pcIso = window.AIO.charts.monthDayToISO(pcLabels, new Date().getFullYear());
           var _pcLwcData = pcData.map(function(v, i) { return { time: _pcIso[i], value: v }; });
           var _pcLwc = window.AIO.charts.createLineChart(_pcContainer, _pcLwcData, {
-            color: '#fbbf24',
+            color: '#ffa31a',
             lineWidth: 2,
             height: 160,
             priceFormat: { type: 'price', precision: 2, minMove: 0.01 }
@@ -508,7 +508,7 @@ function initSentimentCharts() {
         labels: pcLabels,
         datasets: [{
           label: 'P/C', data: pcData,
-          borderColor: '#fbbf24',
+          borderColor: '#ffa31a',
           backgroundColor: (ctx2) => {
             const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
             g.addColorStop(0, 'rgba(251,191,36,0.2)'); g.addColorStop(1, 'rgba(251,191,36,0)');
@@ -527,8 +527,8 @@ function initSentimentCharts() {
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: '#0d1117', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-            titleColor: '#9ca3af', bodyColor: '#e8ecf4',
+            backgroundColor: '#111a2f', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+            titleColor: '#a5b0c2', bodyColor: '#f0f4fc',
             titleFont: { size: 8 }, bodyFont: { family: 'JetBrains Mono, monospace', size: 9 },
             filter: i => i.datasetIndex === 0,
             callbacks: { label: i => ' P/C: ' + i.formattedValue }
@@ -559,16 +559,16 @@ function updateWSAnalysis() {
 
   var stage, color, advice;
   if (breadth > 65 && spyPct > 0) {
-    stage = 'Stage 2 (상승)'; color = '#3ddba5';
+    stage = 'Stage 2 (상승)'; color = '#00e5a0';
     advice = '건강한 상승 추세. 강한 RS 종목 매수 유지. 추세 추종 전략 유효.';
   } else if (breadth > 45 && breadth <= 65) {
-    stage = 'Stage 3 (천장 형성)'; color = '#fbbf24';
+    stage = 'Stage 3 (천장 형성)'; color = '#ffa31a';
     advice = '시장 폭 축소 중. 이익 실현 고려. 손절선 타이트하게 관리. 신규 매수 축소.';
   } else if (breadth > 25 && breadth <= 45) {
-    stage = 'Stage 4 (하락)'; color = '#f87171';
+    stage = 'Stage 4 (하락)'; color = '#ff5b50';
     advice = '약세 시장. 현금 비중 확대. 방어 섹터(유틸·헬스케어) 위주. 공격적 매수 자제.';
   } else {
-    stage = 'Stage 1 (바닥 형성)'; color = '#60a5fa';
+    stage = 'Stage 1 (바닥 형성)'; color = '#00d4ff';
     advice = '극단적 약세 후 바닥 탐색 중. 역발상 매수 기회 탐색. 소량 분할 매수 고려.';
   }
 
@@ -593,16 +593,16 @@ function updateRallyQualityVerdict() {
   var verdict = '', color = '', bg = '';
   if (b5 > 70 && b50 > 60) {
     verdict = ' <b>브레드스 쓰러스트 수준</b> — 5SMA ' + b5.toFixed(0) + '% · 50SMA ' + b50.toFixed(0) + '%. 극히 높은 참여율. 진짜 바닥 확인 가능성. 리더주 셋업 완성 시 적극 매수.';
-    color = '#3ddba5'; bg = 'rgba(61,219,165,0.08)';
+    color = '#00e5a0'; bg = 'rgba(61,219,165,0.08)';
   } else if (b5 > 50 && b20 > 40) {
     verdict = ' <b>고품질 랠리</b> — 5SMA ' + b5.toFixed(0) + '% · 20SMA ' + b20.toFixed(0) + '%. 광범위 참여. Follow-through 진행 중. 리테스트 대기하며 선별 매수 가능.';
-    color = '#60a5fa'; bg = 'rgba(96,165,250,0.08)';
+    color = '#00d4ff'; bg = 'rgba(96,165,250,0.08)';
   } else if (b5 > 30) {
     verdict = ' <b>품질 미확인 랠리</b> — 5SMA ' + b5.toFixed(0) + '%. 제한적 참여. 숏커버링 주도 가능성. 첫 며칠은 노이즈 — 후속 확인 필요. 관망 유지.';
-    color = '#fbbf24'; bg = 'rgba(251,191,36,0.08)';
+    color = '#ffa31a'; bg = 'rgba(251,191,36,0.08)';
   } else {
     verdict = ' <b>과매도/숏커버링</b> — 5SMA ' + b5.toFixed(0) + '%. 소수 종목만 반등. 가장 많이 빠진 종목이 가장 많이 오르는 저품질 패턴. 신규 매수 중단. RS 상위 종목 워치리스트만 구축.';
-    color = '#f87171'; bg = 'rgba(248,113,113,0.08)';
+    color = '#ff5b50'; bg = 'rgba(248,113,113,0.08)';
   }
   el.innerHTML = verdict;
   el.style.borderColor = color;
@@ -611,7 +611,7 @@ function updateRallyQualityVerdict() {
 
 // v42.4: 브레드쓰 바 동적 갱신 — signal 페이지 + breadth 페이지 NDX 카드
 function updateBreadthBars() {
-  function _bbColor(v) { return v >= 50 ? '#3ddba5' : v >= 30 ? '#fbbf24' : '#f87171'; }
+  function _bbColor(v) { return v >= 50 ? '#00e5a0' : v >= 30 ? '#ffa31a' : '#ff5b50'; }
   function _bbBg(v)    { return v >= 50 ? 'rgba(61,219,165,0.1)' : v >= 30 ? 'rgba(251,191,36,0.1)' : 'rgba(248,113,113,0.1)'; }
   function _bbLbl(v)   { return v >= 60 ? '강세' : v >= 50 ? '중립↑' : v >= 35 ? '중립↓' : '약세'; }
   var rows = [
@@ -683,8 +683,8 @@ function initBreadthPage(forceReinit) {
     border: { display: false }
   });
   const tip = {
-    backgroundColor: '#0d1117', borderColor: 'rgba(255,255,255,0.1)',
-    borderWidth: 1, titleColor: '#9ca3af', bodyColor: '#e8ecf4',
+    backgroundColor: '#111a2f', borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1, titleColor: '#a5b0c2', bodyColor: '#f0f4fc',
     padding: 8, titleFont: { size: 9 },
     bodyFont: { family: 'JetBrains Mono, monospace', size: 10 }
   };
@@ -752,7 +752,7 @@ function initBreadthPage(forceReinit) {
             },
             borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: true },
           // NDX (dashed red)
-          { label: 'NDX', data: ndxData, borderColor: '#f87171',
+          { label: 'NDX', data: ndxData, borderColor: '#ff5b50',
             borderWidth: 1.6, borderDash: [5,3], pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: false }
         ]
       },
@@ -809,8 +809,8 @@ function initBreadthPage(forceReinit) {
           var _bpSpyData = bpSPY.map(function(v, i) { return { time: _bpIso[i], value: v }; });
           var _bpQqqData = bpQQQ.map(function(v, i) { return { time: _bpIso[i], value: v }; });
           var _bpLwc = window.AIO.charts.createMultiLineChart(_bpContainer, [
-            { name: 'SPY', color: '#5ba8ff', lineWidth: 2, data: _bpSpyData },
-            { name: 'QQQ', color: '#f87171', lineWidth: 2, data: _bpQqqData }
+            { name: 'SPY', color: '#00d4ff', lineWidth: 2, data: _bpSpyData },
+            { name: 'QQQ', color: '#ff5b50', lineWidth: 2, data: _bpQqqData }
           ], { height: 180 });
           if (_bpLwc && _bpLwc.series) {
             bpChartInstances['price'] = window.AIO.charts.createCompatWrapper(_bpLwc, priceCtx, _bpContainer);
@@ -827,13 +827,13 @@ function initBreadthPage(forceReinit) {
       data: {
         labels: bpLabels,
         datasets: [
-          { label: 'SPY', data: bpSPY, borderColor: '#5ba8ff',
+          { label: 'SPY', data: bpSPY, borderColor: '#00d4ff',
             backgroundColor: (ctx2) => {
               const g = ctx2.chart.ctx.createLinearGradient(0,0,0,ctx2.chart.height);
               g.addColorStop(0,'rgba(91,168,255,0.2)'); g.addColorStop(1,'rgba(91,168,255,0)'); return g;
             },
             borderWidth: 2.2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: true },
-          { label: 'QQQ', data: bpQQQ, borderColor: '#f87171',
+          { label: 'QQQ', data: bpQQQ, borderColor: '#ff5b50',
             borderWidth: 1.6, borderDash: [5,3], pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: false }
         ]
       },
@@ -872,8 +872,8 @@ function initBreadthPage(forceReinit) {
   }
 
   // ─ Panels 1-3: Breadth ──────────────────────────────────────────
-  bpChartInstances['5ma']  = makeBreadthPanel('bp-5ma-chart',  bpSPX5,  bpNDX5,  '#5ba8ff', 0.18);
-  bpChartInstances['20ma'] = makeBreadthPanel('bp-20ma-chart', bpSPX20, bpNDX20, '#5ba8ff', 0.15);
+  bpChartInstances['5ma']  = makeBreadthPanel('bp-5ma-chart',  bpSPX5,  bpNDX5,  '#00d4ff', 0.18);
+  bpChartInstances['20ma'] = makeBreadthPanel('bp-20ma-chart', bpSPX20, bpNDX20, '#00d4ff', 0.15);
   bpChartInstances['50ma'] = makeBreadthPanel('bp-50ma-chart', bpSPX50, bpNDX50, '#fb923c', 0.15);
 
   // Update Weinstein analysis
@@ -890,7 +890,7 @@ function initBreadthPage(forceReinit) {
   if (adCanvas && bpSPX5 && bpLabels) {
     if (bpChartInstances['ad-ratio']) { try { bpChartInstances['ad-ratio'].destroy(); } catch(_){} }
     // A-D ratio = 5SMA above % (상승 비율과 동일 의미)
-    var adColors = bpSPX5.map(function(v) { return v >= 50 ? '#3ddba5' : v >= 35 ? '#fbbf24' : '#f87171'; });
+    var adColors = bpSPX5.map(function(v) { return v >= 50 ? '#00e5a0' : v >= 35 ? '#ffa31a' : '#ff5b50'; });
 
     // LWC 경로 시도
     var _adLwcOk = false;
@@ -901,7 +901,7 @@ function initBreadthPage(forceReinit) {
           var _adIso = window.AIO.charts.monthDayToISO(bpLabels, new Date().getFullYear());
           var _adLwcData = bpSPX5.map(function(v, i) { return { time: _adIso[i], value: v }; });
           var _adLwc = window.AIO.charts.createLineChart(_adContainer, _adLwcData, {
-            color: '#60a5fa',
+            color: '#00d4ff',
             lineWidth: 2,
             height: 140,
             priceFormat: { type: 'price', precision: 1, minMove: 0.1 }
@@ -933,7 +933,7 @@ function initBreadthPage(forceReinit) {
         labels: bpLabels,
         datasets: [{
           label: '상승 비율 (%)', data: bpSPX5,
-          borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.08)',
+          borderColor: '#00d4ff', backgroundColor: 'rgba(96,165,250,0.08)',
           borderWidth: 2, pointRadius: 3, pointBackgroundColor: adColors,
           fill: true, tension: 0.3
         }]
@@ -946,7 +946,7 @@ function initBreadthPage(forceReinit) {
         },
         plugins: {
           legend: { display: false },
-          annotation: { annotations: { fiftyLine: { type: 'line', yMin: 50, yMax: 50, borderColor: 'rgba(61,219,165,0.3)', borderWidth: 1, borderDash: [4,4], label: { display: true, content: '50%', position: 'end', color: '#3ddba5', font: { size: 8 } } } } }
+          annotation: { annotations: { fiftyLine: { type: 'line', yMin: 50, yMax: 50, borderColor: 'rgba(61,219,165,0.3)', borderWidth: 1, borderDash: [4,4], label: { display: true, content: '50%', position: 'end', color: '#00e5a0', font: { size: 8 } } } } }
         }
       }
     });
@@ -982,7 +982,7 @@ async function _refreshBreadthPriceChart() {
         badge.textContent = 'SPY/QQQ 실시간 차트 · ' + labels[labels.length - 1] + ' 기준';
         badge.style.background = 'rgba(61,219,165,0.1)';
         badge.style.borderColor = 'rgba(61,219,165,0.3)';
-        badge.style.color = '#3ddba5';
+        badge.style.color = '#00e5a0';
       }
     }
   } catch(e) { _aioLog('warn', 'chart', 'Breadth price chart refresh error: ' + (e && e.message || e)); }
@@ -1057,8 +1057,8 @@ function initBreadthCharts() {
   };
 
   const tipStyle = {
-    backgroundColor: '#0d1117', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-    titleColor: '#9ca3af', bodyColor: '#e8ecf4', padding: 8,
+    backgroundColor: '#111a2f', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+    titleColor: '#a5b0c2', bodyColor: '#f0f4fc', padding: 8,
     titleFont: { family: 'Inter', size: 9 }, bodyFont: { family: 'JetBrains Mono, monospace', size: 10 }
   };
 
@@ -1075,7 +1075,7 @@ function initBreadthCharts() {
           var _bhSpyData = bhSPY.map(function(v, i) { return { time: _bhIso[i], value: v }; });
           var _bhQqqData = bhQQQ.map(function(v, i) { return { time: _bhIso[i], value: v }; });
           var _bhLwc = window.AIO.charts.createMultiLineChart(_bhContainer, [
-            { name: 'SPY', color: '#5ba8ff', lineWidth: 2, data: _bhSpyData },
+            { name: 'SPY', color: '#00d4ff', lineWidth: 2, data: _bhSpyData },
             { name: 'QQQ', color: '#fb923c', lineWidth: 2, data: _bhQqqData }
           ], { height: 180 });
           if (_bhLwc && _bhLwc.series) {
@@ -1093,7 +1093,7 @@ function initBreadthCharts() {
       data: {
         labels: bhLabels,
         datasets: [
-          { label: 'SPY', data: bhSPY, borderColor: '#5ba8ff',
+          { label: 'SPY', data: bhSPY, borderColor: '#00d4ff',
             backgroundColor: (ctx) => {
               const g = ctx.chart.ctx.createLinearGradient(0,0,0,ctx.chart.height);
               g.addColorStop(0, 'rgba(91,168,255,0.15)'); g.addColorStop(1, 'rgba(91,168,255,0)');
@@ -1157,7 +1157,7 @@ function initBreadthCharts() {
             },
             borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.3, fill: true },
           // NDX
-          { label: 'NDX', data: ndxData, borderColor: '#f87171',
+          { label: 'NDX', data: ndxData, borderColor: '#ff5b50',
             borderWidth: 1.6, borderDash: [5,3], pointRadius: 0, pointHoverRadius: 4, tension: 0.3, fill: false }
         ]
       },
@@ -1173,8 +1173,8 @@ function initBreadthCharts() {
     });
   }
 
-  bhChartInstances['5ma']  = makeBreadthChart('bh-5ma-chart',   bhSPX5,   bhNDX5,   true, '#5ba8ff', 'rgba(91,168,255,');
-  bhChartInstances['20ma'] = makeBreadthChart('bh-20ma-chart',  bhSPX20,  bhNDX20,  true, '#5ba8ff', 'rgba(91,168,255,');
+  bhChartInstances['5ma']  = makeBreadthChart('bh-5ma-chart',   bhSPX5,   bhNDX5,   true, '#00d4ff', 'rgba(91,168,255,');
+  bhChartInstances['20ma'] = makeBreadthChart('bh-20ma-chart',  bhSPX20,  bhNDX20,  true, '#00d4ff', 'rgba(91,168,255,');
   bhChartInstances['50ma'] = makeBreadthChart('bh-50ma-chart',  bhSPX50,  bhNDX50,  true, '#60d394', 'rgba(96,211,148,');
 
   // v41.2: SPY/QQQ 히스토리 가격 차트 동적 교체 (Yahoo Finance)
@@ -1564,7 +1564,7 @@ function updateQuotaBadge() {
       ? '예산 초과 · +' + overBudget + '회'
       : model.label + ' · ' + remaining + '/' + dailyLimit;
     hdrBadge.textContent = hdrText;
-    hdrBadge.style.color = grade === 'green' ? '#5ba8ff' : grade === 'warn' ? '#f59e0b' : '#f87171';
+    hdrBadge.style.color = grade === 'green' ? '#00d4ff' : grade === 'warn' ? '#ffa31a' : '#ff5b50';
     hdrBadge.style.borderColor = grade === 'green' ? 'rgba(91,168,255,0.3)' : grade === 'warn' ? 'rgba(245,158,11,0.3)' : 'rgba(248,113,113,0.3)';
     hdrBadge.style.background  = grade === 'green' ? 'rgba(91,168,255,0.12)' : grade === 'warn' ? 'rgba(245,158,11,0.12)' : 'rgba(248,113,113,0.12)';
   }
@@ -1717,7 +1717,7 @@ async function ghPollOnce() {
   if (!repo) { setGhStatus('— 미설정', ''); return; }
 
   const url = getVersionUrl(repo);
-  if (!url) { setGhStatus('경로 오류', '#f59e0b'); return; }
+  if (!url) { setGhStatus('경로 오류', '#ffa31a'); return; }
 
   try {
     var _ghCtrl = new AbortController();
@@ -1731,7 +1731,7 @@ async function ghPollOnce() {
       const resetTs   = resp.headers.get('x-ratelimit-reset');
       if (remaining === '0' || remaining === 0) {
         const resetIn = resetTs ? Math.max(0, Math.ceil((Number(resetTs) * 1000 - Date.now()) / 60000)) : '?';
-        setGhStatus('Rate limit · ' + resetIn + '분 후 재시도', '#f59e0b');
+        setGhStatus('Rate limit · ' + resetIn + '분 후 재시도', '#ffa31a');
         _ghFailCount++;
         _rescheduleGhPoll();
         return;
@@ -1752,20 +1752,20 @@ async function ghPollOnce() {
       // 최초 로드 — 현재 버전 기록
       _ghCurrentVersion = ver;
       const built = data.built ? new Date(data.built).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false,month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
-      setGhStatus('✓ ' + ver + (built ? ' · ' + built : ''), '#3ddba5');
+      setGhStatus('✓ ' + ver + (built ? ' · ' + built : ''), '#00e5a0');
     } else if (ver !== _ghCurrentVersion) {
       // 버전 변경 감지!
-      setGhStatus(' ' + ver + ' (신규)', '#f59e0b');
+      setGhStatus(' ' + ver + ' (신규)', '#ffa31a');
       showUpdateBanner(ver, data.built);
     } else {
       // 최신 상태
-      setGhStatus('✓ ' + ver + ' 최신', '#3ddba5');
+      setGhStatus('✓ ' + ver + ' 최신', '#00e5a0');
     }
   } catch(e) {
     _ghFailCount++;
     const isOffline = !navigator.onLine;
     const errMsg = isOffline ? ' 오프라인' : (' 연결 실패 (' + _ghFailCount + ')');
-    setGhStatus(errMsg, '#f87171');
+    setGhStatus(errMsg, '#ff5b50');
     // v30.11: 지수 백오프 — 연속 실패 시 폴링 간격 증가
     _rescheduleGhPoll();
   }
@@ -1836,7 +1836,7 @@ window.addEventListener('online', () => {
   }
 });
 window.addEventListener('offline', () => {
-  setGhStatus(' 오프라인', '#f87171');
+  setGhStatus(' 오프라인', '#ff5b50');
 });
 
 
@@ -1996,7 +1996,7 @@ function submitFeedback() {
   link.href   = 'mailto:' + FEEDBACK_EMAIL + '?subject=' + subj + '&body=' + body;
   link.click();
   const s = document.getElementById('fb-status');
-  if (s) { s.style.color = '#3ddba5'; s.textContent = '메일 앱이 열립니다. 전송 후 창을 닫아주세요.'; }
+  if (s) { s.style.color = '#00e5a0'; s.textContent = '메일 앱이 열립니다. 전송 후 창을 닫아주세요.'; }
 }
 
 function copyFeedback() {
@@ -2008,7 +2008,7 @@ function copyFeedback() {
   }
   navigator.clipboard.writeText(buildFeedbackText()).then(() => {
     const s = document.getElementById('fb-status');
-    if (s) { s.style.color = '#3ddba5'; s.textContent = '클립보드에 복사됐습니다.'; }
+    if (s) { s.style.color = '#00e5a0'; s.textContent = '클립보드에 복사됐습니다.'; }
     saveFeedbackToHistory();
   }).catch(() => {
     const s = document.getElementById('fb-status');
