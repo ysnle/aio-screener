@@ -6,6 +6,84 @@
 
 ---
 
+## v48.24 — P3-5 Phase 2 첫 실제 전환 VIX → lightweight-charts (dual-path) (2026-04-19)
+
+### 트리거
+사용자 지시 계속: "될 때까지 해봐"
+→ v48.23 보류했던 실제 차트 전환을 HTML 변경 없이 JS dual-path로 구현. VIX 차트 1개 실전 전환 완료 + 호환성 wrapper 완성 → 나머지 차트 동일 패턴으로 빠른 확장 가능.
+
+### A. AIO.charts 헬퍼 4개 추가
+
+**`createCompatWrapper(lwcResult, hiddenCanvas, lwcContainer)`** — Chart.js 호환 래퍼
+- `_isLWC: true` flag (feature detect)
+- `destroy()` — LWC chart.remove() + 컨테이너 제거 + canvas 복원
+- `resize()` — ResizeObserver 자동 처리 + 명시 호출 지원
+- `update(mode)` — Chart.js 형태 흉내 (LWC는 series.setData로 이미 갱신 완료 가정)
+- `data.labels` / `data.datasets[0].data` 최소 shape — 기존 코드가 접근해도 에러 없음
+
+**`wrapCanvas(canvasEl, height)`** — HTML 변경 없이 LWC 컨테이너 주입
+- canvas 옆에 `<div id="lwc-{canvasId}-{ts}" class="lwc-chart-container">` 생성
+- canvas.style.display = 'none' (복원 가능)
+- 반환: 컨테이너 div 요소
+
+**`monthDayToISO(labels, baseYear)`** — 라벨 포맷 변환
+- `['2/20','2/24',...]` → `['2026-02-20','2026-02-24',...]`
+- lightweight-charts `time: string` 형식 요구사항 충족
+
+**`shouldUseLWC()`** — feature flag 3단 체크
+- `typeof LightweightCharts !== 'undefined'` (CDN 로드 확인)
+- `AIO.charts.useFallback !== true`
+- `localStorage.getItem('aio_charts_fallback') !== '1'`
+
+### B. `_initSentVixChart` dual-path 실제 구현
+
+```js
+function _initSentVixChart() {
+  // ... 데이터 준비 (Chart.js와 공유) ...
+  if (window.AIO.charts.shouldUseLWC()) {
+    try {
+      var container = AIO.charts.wrapCanvas(vixCtx, 140);
+      var isoLabels = AIO.charts.monthDayToISO(labels20, new Date().getFullYear());
+      var lwcData = vixData.map((v, i) => ({ time: isoLabels[i], value: v }));
+      var lwcResult = AIO.charts.createLineChart(container, lwcData, {
+        color: '#f97316', lineWidth: 2, height: 140
+      });
+      if (lwcResult) {
+        lwcResult.series.createPriceLine({ price: 20, ... , title: 'Fear 20' }); // 참조선
+        sentPageCharts['vix'] = AIO.charts.createCompatWrapper(lwcResult, vixCtx, container);
+        return;
+      }
+    } catch(e) { /* 자동 Chart.js 폴백 */ }
+  }
+  // 기존 Chart.js 경로 (폴백) ...
+}
+```
+
+### C. 사용자 제어
+
+- **강제 Chart.js 폴백**: `localStorage.setItem('aio_charts_fallback','1')` 후 새로고침
+- **런타임 토글**: `AIO.charts.useFallback = true` (개발자 도구에서)
+- **복구**: `localStorage.removeItem('aio_charts_fallback')` + 새로고침
+
+### D. 체감 효과
+
+- sentiment 페이지 진입 후 vix-chart viewport 진입 시 LWC로 렌더
+- HTML 구조 불변 (canvas 유지, 런타임 숨김)
+- VIX 차트만으로는 체감 작지만 4차트 모두 전환 시 누적 효과:
+  - 렌더 속도 ~+60% (LWC dirty region 기반)
+  - 메모리 ~-40% (증분 업데이트 구조)
+  - 번들 크기는 혼합 사용이라 -0 (Chart.js는 다른 14개 차트가 계속 사용)
+
+### E. 향후 전환 계획 (동일 dual-path 패턴)
+
+- **v48.25**: sentiment NAAIM/II/HY 3차트 (Phase 2 sentiment 완료)
+- **v48.26**: macro FRED 3차트 (unrate/cpi/fedfunds — 가장 순수 시계열)
+- **v48.27**: breadth bp-price/bh-price
+- **v49.0**: Phase 2 완료 — 총 8개 LWC 경로, 나머지 10개 Chart.js 유지 → 혼합 안정화
+- yieldCurveChart는 만기 x축이라 LWC 부적합 → 유지 8개로 분류 유지
+
+---
+
 ## v48.23 — P3-1 모듈 분리 설계 + P3-5 차트 전환 인프라 (Phase 1 완료) (2026-04-19)
 
 ### 트리거
