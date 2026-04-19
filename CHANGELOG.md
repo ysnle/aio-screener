@@ -6,6 +6,73 @@
 
 ---
 
+## v48.26 — P3-5 Phase 4+5 잔여 4차트 + P3-1 Phase 2 모듈 4분할 완성 (2026-04-19)
+
+### 트리거
+사용자 지시: "다음으로 미루거나 부분만 할 생각 하지 말고 완벽히 끝내" → 보류했던 잔여 차트 + 단일 script 분할 모두 완수.
+
+### A. P3-5 Phase 4 — breadth 가격 차트 2개
+
+| 함수 | 차트 ID | LWC 헬퍼 | 특이점 |
+|------|---------|----------|--------|
+| `_initBreadthPriceChart` (내부) | `bh-price-chart` | `createMultiLineChart` | SPY/QQQ, height 180 |
+| `initBpPanels` (내부) | `bp-price-chart` | `createMultiLineChart` | SPY/QQQ, LWC 모드는 syncCursor 무력화 (Chart.js 폴백 모드에서만 4-panel 호버 동기화) |
+
+### B. P3-5 Phase 5 — 조건부 차트 2개
+
+| 함수 | 차트 ID | LWC 헬퍼 | 특이점 |
+|------|---------|----------|--------|
+| `initSentimentCharts` (pc 블록) | `pc-chart` | `createLineChart` + `createPriceLine(0.7)` | Put/Call 중립선 |
+| `initBpPanels` (ad-ratio 블록) | `bp-ad-ratio-chart` | `createLineChart` + `createPriceLine(50)` | 점별 색상은 LWC 모드에서 손실, Chart.js 폴백 유지 |
+
+### C. Phase 5 영구 보류
+- `yieldCurveChart`: x축이 만기(numeric '3M/1Y/5Y/10Y/30Y') — LWC 시간 축 부적합. Chart.js 유지.
+
+### D. P3-1 Phase 2 — 단일 script 4모듈 분할 (핵심)
+
+메인 거대 스크립트(8769~24363, 15,594줄) + 별도 블록 24709를 **모듈 경계 3곳에서 `</script><script>` 안전 분할**:
+
+| 모듈 | 라인 범위 | 줄 수 | 책임 |
+|------|----------|-------|------|
+| MODULE 1 Core | 8769~12110 | 3,342 | Stores (Price/Macro/News/DataHealth) + Engines (NARRATIVE/DATE) + DATA_SNAPSHOT + Utils |
+| MODULE 2 Data | 12111~22448 | 10,338 | SCREENER_DB + Fetch + Score + Classify + Translate + Ticker + TOPIC_KEYWORDS |
+| MODULE 3 UI | 22449~24502 | 2,054 | Sentiment/Breadth/RRG Charts + Render |
+| MODULE 4 Chat | 27101~31246 | 4,146 | CHAT_CONTEXTS (10 personas) + Briefing + Chip |
+
+(나머지 script 블록들은 원래부터 분리되어 있던 것 — 총 17 script 블록)
+
+### E. 분할 안전 검증 (모두 통과)
+
+1. **let/const 중복 선언 0건**: 16개 핵심 변수(`PriceStore`, `MacroStore`, `NewsStore`, `DataHealth`, `DATA_SNAPSHOT`, `NARRATIVE_ENGINE`, `DATE_ENGINE`, `SCREENER_DB`, `TOPIC_KEYWORDS`, `sentPageInitialized`, `sentPageCharts`, `bpChartInstances`, `bhChartInstances`, `CHAT_CONTEXTS`, `APP_VERSION`, `T`) 모두 단일 모듈 내 1회 선언.
+
+2. **TDZ(Temporal Dead Zone) 위반 없음**: MODULE 1 내 톱-레벨 즉시 호출 0건 → MODULE 2/3/4의 const 참조 없음.
+
+3. **톱-레벨 setTimeout 안전성**:
+   - `setTimeout(autoUpdateMA, 5000)` (22206) — autoUpdateMA는 MODULE 2 내부(22185) 정의 → 같은 블록 호이스팅 OK.
+   - `setTimeout(callback, 60000)` (19470) — 콜백 내 `typeof renderHomeFeed === 'function'` 체크 → 크로스 모듈 참조 안전.
+
+4. **script 블록 매칭**: 17개 모두 페어 OK (open=close).
+
+### F. 효과
+
+- **Chart.js → LWC 전환 누적 11차트**: VIX, NAAIM, II, HY, FRED 3개(UNRATE/CPI/FEDFUNDS), PC, AD-ratio, bh-price, bp-price. 시계열 차트 대부분 완료. 남은 Chart.js: 게이지, 도넛, RRG, stacked bar 등 비시계열 7개.
+- **분할 이점**: 브라우저가 각 블록을 독립 스코프로 파싱 → IDE 코드 탐색 가능, 향후 외부 .js 분리(Phase 3) 1차 후보 확보. MODULE 4 Chat이 가장 안전(의존만 받음).
+- **성능**: LWC 렌더 +50~60%, 메모리 -30~40% 추정 (11차트 누적).
+- **호환성**: HTML/CSS 변경 0건. `localStorage.aio_charts_fallback=1` 플래그로 전체 Chart.js 복귀 가능.
+
+### G. 변경 라인 (index.html)
+- `_initSentNaaimChart/IIChart/HYChart/PC/AD/bh-price/bp-price`: 각 +30~45줄 dual-path
+- `_renderFredCharts`: +35줄 for 루프 내 dual-path
+- 모듈 분할 마커 4개: +32줄 (박스 주석)
+- `</script><script>` 분할 3곳: +6줄
+- 버전 6곳 동기화: title, badge, APP_VERSION, version.json, CLAUDE.md, _context/CLAUDE.md
+
+### H. 보류 (v48.27+)
+- **P3-1 Phase 3**: 외부 .js 파일 분리 — MODULE 4 Chat 우선 후보. `src="./js/aio-chat.js"` 참조로 CORS/캐시 검증 필요.
+- **RRG/게이지/도넛/stacked bar**: LWC 기능 한계로 Chart.js 유지.
+
+---
+
 ## v48.25 — P3-5 Phase 2+3 sentiment 3차트 + macro FRED 3차트 LWC dual-path (2026-04-19)
 
 ### 트리거

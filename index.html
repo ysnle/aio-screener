@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.25 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.26 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2245,7 +2245,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.25</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.26</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9744,6 +9744,13 @@ function _getKrxDataStatus(symbol) {
   }
 }
 
+// ╔═══════════════════════════════════════════════════════════════════════════╗
+// ║  P3-1 PHASE 2 MARKER ▸ MODULE 1: CORE START                               ║
+// ║  책임: Stores (Price/Macro/News/DataHealth) + Engines + Constants + Utils ║
+// ║  의존성: 없음 (최하위 레이어)                                              ║
+// ║  미래 분할 지점: 이 위치 직전에 </script><script> 추가하여 모듈 1 시작     ║
+// ║  상세: _context/MODULE-BOUNDARIES.md Phase 2                              ║
+// ╚═══════════════════════════════════════════════════════════════════════════╝
 // ═══════════════════════════════════════════════════════════════════
 // v31.8: DATA VALIDATION STORES — 데이터 정확성/최신성/신뢰성 검증 레이어
 // ═══════════════════════════════════════════════════════════════════
@@ -10237,7 +10244,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.25';
+const APP_VERSION = 'v48.26';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -12100,6 +12107,15 @@ function showTicker(tkr) {
   bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span style="cursor:pointer;" onclick="${escHtml(parentEl.getAttribute('onclick'))}">${escHtml(parentEl.textContent)}</span><span class="sep">/</span><span class="current">${escHtml(tkr)}</span>`;
 }
 
+  </script>
+  <script>
+// ╔═══════════════════════════════════════════════════════════════════════════╗
+// ║  P3-1 PHASE 2 ▸ MODULE 2: DATA START (실제 분할 적용 v48.26)              ║
+// ║  책임: SCREENER_DB + Fetch Pipeline + Score + Classify + Translate + Ticker║
+// ║  의존성: MODULE 1 (stores/engines/DATA_SNAPSHOT/utils — 모두 전역 var/const)║
+// ║  안전 근거: MODULE 1 const는 톱-레벨 선언으로 전역 lexical 환경 등록됨      ║
+// ║  분할 후 다음 블록에서 const PriceStore 등 접근 가능 (TDZ는 동일 블록에만 적용)║
+// ╚═══════════════════════════════════════════════════════════════════════════╝
 // ═══════════════ SCREENER DATABASE & FUNCTIONS ═══════════════
 var SCREENER_DB = [
   // ══════════════════════════════════════════════════════════════
@@ -22429,6 +22445,15 @@ async function fetchHYSpread() {
   }
 }
 
+  </script>
+  <script>
+// ╔═══════════════════════════════════════════════════════════════════════════╗
+// ║  P3-1 PHASE 2 ▸ MODULE 3: UI START (실제 분할 적용 v48.26)                ║
+// ║  책임: Render + Page Router + Charts (18개) + Filters + Gauges            ║
+// ║  의존성: MODULE 1 (stores) + MODULE 2 (data fetch/score/translate)        ║
+// ║  Chart instances: sentPageCharts/bpChartInstances/bhChartInstances 등 11개 ║
+// ║  주의: MODULE 1/2의 함수 호출은 모두 이벤트/타이머 콜백 내부 (즉시 호출 X) ║
+// ╚═══════════════════════════════════════════════════════════════════════════╝
 // AAII Chart.js stacked bar + P/C sparkline
 // ── Sentiment Page (dedicated) ────────────────────────────────────────
 let sentPageInitialized = false;
@@ -22886,13 +22911,46 @@ function initSentimentCharts() {
   }
 
   // ─ Put/Call 1M sparkline ─────────────────────────────────────────
+  // ── v48.26: lightweight-charts dual-path (P3-5 Phase 5) — priceLine 활용 (중립선 0.7)
   const pcCtx = document.getElementById('pc-chart');
   if (pcCtx) {
     // CBOE Equity P/C Ratio (추정치, 실거래일 기준)
     const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15']; // v47.3: 4/15 연장 (S&P 7000 돌파 동반 PCR 추가 하락)
     // v46.10: 4/14(0.58 재협상 기대→풋 감소 추정)
     const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58,0.55]; // v47.3: 4/15 PCR 0.55 (콜옵션 과매수 심화)
-    var _gPC = chartDataGate('pc-chart', pcLabels, [pcData], { minPoints: 3, chartName: 'Put/Call Ratio' }); if (_gPC)
+    var _gPC = chartDataGate('pc-chart', pcLabels, [pcData], { minPoints: 3, chartName: 'Put/Call Ratio' });
+    if (_gPC && window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
+      try {
+        var _pcContainer = window.AIO.charts.wrapCanvas(pcCtx, 160);
+        if (_pcContainer) {
+          var _pcIso = window.AIO.charts.monthDayToISO(pcLabels, new Date().getFullYear());
+          var _pcLwcData = pcData.map(function(v, i) { return { time: _pcIso[i], value: v }; });
+          var _pcLwc = window.AIO.charts.createLineChart(_pcContainer, _pcLwcData, {
+            color: '#fbbf24',
+            lineWidth: 2,
+            height: 160,
+            priceFormat: { type: 'price', precision: 2, minMove: 0.01 }
+          });
+          if (_pcLwc && _pcLwc.series) {
+            try {
+              _pcLwc.series.createPriceLine({
+                price: 0.7,
+                color: 'rgba(255,255,255,0.3)',
+                lineWidth: 1,
+                lineStyle: 2,
+                axisLabelVisible: true,
+                title: '중립 0.7'
+              });
+            } catch(_){}
+            sentPageCharts['pc'] = window.AIO.charts.createCompatWrapper(_pcLwc, pcCtx, _pcContainer);
+            if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'PC chart: lightweight-charts 경로 사용 (priceLine 0.7)');
+          }
+        }
+      } catch(_pcE) {
+        if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC PC 전환 실패, Chart.js 폴백: ' + (_pcE && _pcE.message || _pcE));
+      }
+    }
+    if (_gPC && !sentPageCharts['pc'])
     sentPageCharts['pc'] = new Chart(pcCtx, {
       type: 'line',
       data: {
@@ -23188,9 +23246,31 @@ function initBreadthPage(forceReinit) {
   }
 
   // ─ Panel 0: Price ────────────────────────────────────────────────
+  // ── v48.26: lightweight-charts dual-path (P3-5 Phase 4) — LWC 모드는 syncCursor 무력화
   const priceCtx = document.getElementById('bp-price-chart');
   if (priceCtx) {
-    var _gBpPrice = chartDataGate('bp-price-chart', bpLabels, [bpSPY, bpQQQ], { minPoints: 3, chartName: 'Breadth: SPY/QQQ' }); if (_gBpPrice)
+    var _gBpPrice = chartDataGate('bp-price-chart', bpLabels, [bpSPY, bpQQQ], { minPoints: 3, chartName: 'Breadth: SPY/QQQ' });
+    if (_gBpPrice && window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
+      try {
+        var _bpContainer = window.AIO.charts.wrapCanvas(priceCtx, 180);
+        if (_bpContainer) {
+          var _bpIso = window.AIO.charts.monthDayToISO(bpLabels, new Date().getFullYear());
+          var _bpSpyData = bpSPY.map(function(v, i) { return { time: _bpIso[i], value: v }; });
+          var _bpQqqData = bpQQQ.map(function(v, i) { return { time: _bpIso[i], value: v }; });
+          var _bpLwc = window.AIO.charts.createMultiLineChart(_bpContainer, [
+            { name: 'SPY', color: '#5ba8ff', lineWidth: 2, data: _bpSpyData },
+            { name: 'QQQ', color: '#f87171', lineWidth: 2, data: _bpQqqData }
+          ], { height: 180 });
+          if (_bpLwc && _bpLwc.series) {
+            bpChartInstances['price'] = window.AIO.charts.createCompatWrapper(_bpLwc, priceCtx, _bpContainer);
+            if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'bp-price chart: lightweight-charts 경로 사용 (multi-line, syncCursor 무력화)');
+          }
+        }
+      } catch(_bpE) {
+        if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC bp-price 전환 실패, Chart.js 폴백: ' + (_bpE && _bpE.message || _bpE));
+      }
+    }
+    if (_gBpPrice && !bpChartInstances['price'])
     bpChartInstances['price'] = new Chart(priceCtx, {
       type: 'line',
       data: {
@@ -23254,11 +23334,48 @@ function initBreadthPage(forceReinit) {
   // v40.4: SPY/QQQ 가격 차트 동적 교체 (Yahoo Finance)
   _refreshBreadthPriceChart();
   // v46.6: A-D ratio 시계열 차트 (bpSPX5 데이터 활용)
+  // ── v48.26: lightweight-charts dual-path (P3-5 Phase 5) — 점별 색상 손실 수용, priceLine 50%
   var adCanvas = document.getElementById('bp-ad-ratio-chart');
   if (adCanvas && bpSPX5 && bpLabels) {
-    if (bpChartInstances['ad-ratio']) bpChartInstances['ad-ratio'].destroy();
+    if (bpChartInstances['ad-ratio']) { try { bpChartInstances['ad-ratio'].destroy(); } catch(_){} }
     // A-D ratio = 5SMA above % (상승 비율과 동일 의미)
     var adColors = bpSPX5.map(function(v) { return v >= 50 ? '#3ddba5' : v >= 35 ? '#fbbf24' : '#f87171'; });
+
+    // LWC 경로 시도
+    var _adLwcOk = false;
+    if (window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
+      try {
+        var _adContainer = window.AIO.charts.wrapCanvas(adCanvas, 140);
+        if (_adContainer) {
+          var _adIso = window.AIO.charts.monthDayToISO(bpLabels, new Date().getFullYear());
+          var _adLwcData = bpSPX5.map(function(v, i) { return { time: _adIso[i], value: v }; });
+          var _adLwc = window.AIO.charts.createLineChart(_adContainer, _adLwcData, {
+            color: '#60a5fa',
+            lineWidth: 2,
+            height: 140,
+            priceFormat: { type: 'price', precision: 1, minMove: 0.1 }
+          });
+          if (_adLwc && _adLwc.series) {
+            try {
+              _adLwc.series.createPriceLine({
+                price: 50,
+                color: 'rgba(61,219,165,0.4)',
+                lineWidth: 1,
+                lineStyle: 2,
+                axisLabelVisible: true,
+                title: '50%'
+              });
+            } catch(_){}
+            bpChartInstances['ad-ratio'] = window.AIO.charts.createCompatWrapper(_adLwc, adCanvas, _adContainer);
+            if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'AD-ratio chart: lightweight-charts 경로 사용 (priceLine 50%, 점별 색상 손실)');
+            _adLwcOk = true;
+          }
+        }
+      } catch(_adE) {
+        if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC AD-ratio 전환 실패, Chart.js 폴백: ' + (_adE && _adE.message || _adE));
+      }
+    }
+    if (!_adLwcOk)
     bpChartInstances['ad-ratio'] = new Chart(adCanvas, {
       type: 'line',
       data: {
@@ -23395,9 +23512,31 @@ function initBreadthCharts() {
   };
 
   // ── Price chart ──────────────────────────────────────────────────────
+  // ── v48.26: lightweight-charts dual-path (P3-5 Phase 4) — multi-line SPY/QQQ
   const priceCtx = document.getElementById('bh-price-chart');
   if (priceCtx) {
-    var _gBhPrice = chartDataGate('bh-price-chart', bhLabels, [bhSPY, bhQQQ], { minPoints: 3, chartName: 'Breadth History: SPY/QQQ' }); if (_gBhPrice)
+    var _gBhPrice = chartDataGate('bh-price-chart', bhLabels, [bhSPY, bhQQQ], { minPoints: 3, chartName: 'Breadth History: SPY/QQQ' });
+    if (_gBhPrice && window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
+      try {
+        var _bhContainer = window.AIO.charts.wrapCanvas(priceCtx, 180);
+        if (_bhContainer) {
+          var _bhIso = window.AIO.charts.monthDayToISO(bhLabels, new Date().getFullYear());
+          var _bhSpyData = bhSPY.map(function(v, i) { return { time: _bhIso[i], value: v }; });
+          var _bhQqqData = bhQQQ.map(function(v, i) { return { time: _bhIso[i], value: v }; });
+          var _bhLwc = window.AIO.charts.createMultiLineChart(_bhContainer, [
+            { name: 'SPY', color: '#5ba8ff', lineWidth: 2, data: _bhSpyData },
+            { name: 'QQQ', color: '#fb923c', lineWidth: 2, data: _bhQqqData }
+          ], { height: 180 });
+          if (_bhLwc && _bhLwc.series) {
+            bhChartInstances['price'] = window.AIO.charts.createCompatWrapper(_bhLwc, priceCtx, _bhContainer);
+            if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'bh-price chart: lightweight-charts 경로 사용 (multi-line)');
+          }
+        }
+      } catch(_bhE) {
+        if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC bh-price 전환 실패, Chart.js 폴백: ' + (_bhE && _bhE.message || _bhE));
+      }
+    }
+    if (_gBhPrice && !bhChartInstances['price'])
     bhChartInstances['price'] = new Chart(priceCtx, {
       type: 'line',
       data: {
@@ -26958,6 +27097,15 @@ function _getV48IntegratedContext(pageFocus) {
   return common + focus;
 }
 
+  </script>
+  <script>
+// ╔═══════════════════════════════════════════════════════════════════════════╗
+// ║  P3-1 PHASE 2 ▸ MODULE 4: CHAT START (실제 분할 적용 v48.26)              ║
+// ║  책임: CHAT_CONTEXTS (10 personas) + Briefing + Chip + Helpers            ║
+// ║  의존성: MODULE 1 + MODULE 2 + MODULE 3 (전체 맥락 접근, 가장 상위 레이어)  ║
+// ║  분할 효과: 외부 .js 파일 분리 1차 후보 (Phase 3에서 활용)                  ║
+// ║  안전: 의존만 받고 의존 없음, 톱-레벨 즉시 호출 없음                       ║
+// ╚═══════════════════════════════════════════════════════════════════════════╝
 const CHAT_CONTEXTS = {
   // ── 차트/기술 분석 (enhanced version overridden later) ──
   technical: {
