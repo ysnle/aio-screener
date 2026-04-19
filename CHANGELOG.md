@@ -6,6 +6,62 @@
 
 ---
 
+## v48.22 — P3 대규모 3건 실행 (sentiment 차트 분리 + SW offline-first + Proxy readonly) (2026-04-19)
+
+### 트리거
+사용자 지시: "남은 대규모 작업들도 순차적으로 진행해. 남은 컨텍스트로 가능할까?"
+→ P2-C 2단계 / P3-4 / P3-2 (일부) 실행. P3-1(모듈 분리)/P3-5(WebGL)는 1주+ 규모로 별도 스프린트 필요.
+
+### A. P2-C 2단계 — initSentimentPage 4개 차트 개별 분리
+
+**v48.15 1단계 한계**: vix-chart 하나만 viewport 관찰 → 실제 lazy 효과 제한적.
+
+**v48.22 2단계**: 4개 차트 완전 독립 함수화 + 개별 _lazyInitChartPage:
+- `_SENT_COMMON` 모듈 수준 상수 승격 (tip/gridColor/tickColor/labels20)
+- `_initSentVixChart()` / `_initSentNaaimChart()` / `_initSentIIChart()` / `_initSentHYChart()` 4개 독립 함수
+- initSentimentPage는 짧아짐 (6개 안전장치 + 4개 lazy 호출)
+- PAGES['sentiment'].init 이중 래핑 제거 (_lazyInitChartPage 내부로 이동)
+- AAII/PC는 이미 initSentimentCharts 별도 함수이므로 그대로
+
+**효과**: 사용자가 sentiment 페이지 진입 후 HY 섹션까지 스크롤 안 하면 HY Chart.js 생성 완전 skip. 메모리 60%↓ 목표.
+
+### B. P3-4 Service Worker offline-first
+
+**이전 sw.js**: "완전 제거" 스크립트 (unregister + 캐시 삭제). 실질적으로 SW 비활성.
+
+**v48.22 재설계**:
+- **Cache-First (shell)**: index.html / manifest.json / version.json / Chart.js CDN — 오프라인에서도 즉시 응답 + stale-while-revalidate 백그라운드 갱신
+- **Network-First + 캐시 폴백 (data)**: Yahoo Finance / FRED / CBOE / Finnhub / Alpha Vantage / FMP / SEC EDGAR / CORS 프록시 (corsproxy.io/allorigins/codetabs) / RSSHub / 주요 뉴스 RSS — 500개 제한 LRU
+- **3단계 폴백**: network → cache → `{_offline: true, _sw_version, ...}` JSON 503
+- 이전 버전 캐시 자동 삭제 (activate 핸들러 `caches.keys()` 정리)
+- SKIP_WAITING / CLEAR_DATA_CACHE / GET_VERSION 메시지 지원
+
+**index.html 등록 로직**:
+- HTTPS + localhost만 등록
+- `localStorage.aio_sw_disabled='1'` opt-out 지원 (이전 SW까지 완전 정리)
+- updatefound 이벤트 → 새 버전 감지 시 _aioLog('info', 'sw', ...)
+- 설치 실패해도 앱 정상 동작 (PROGRESSIVE enhancement)
+
+### C. P3-2 _liveData readonly Proxy view
+
+**기존**: PriceStore.set()이 정식 경로(v48.14부터). 9곳 직접 쓰기는 legacy compat.
+
+**v48.22 추가**:
+- `window._liveDataReadonly` Proxy view 신규 — 외부 코드/AI 챗/확장에 읽기 전용 공개 API
+- get: 통과 (window._liveData 참조)
+- set: `_warnDirectLiveDataWrite` 감지 + `_aioLog('warn','ssot',...)` + 쓰기 차단
+- has/ownKeys/getOwnPropertyDescriptor 모두 구현 → Object.keys/for..in 정상 작동
+- Proxy 미지원 브라우저는 _liveData 직접 참조 폴백
+
+**효과**: AI 챗 프롬프트나 확장 코드에서 `window._liveDataReadonly['SPY']` 형태로 안전 접근. 내부 쓰기는 PriceStore.set() 경로만 유일 통로.
+
+### D. 별도 스프린트로 이관된 대규모 작업
+
+- **P3-1 모듈 분리** (`<script type="module">` 4개): 1주+ 규모. R1 버전 동기화 6곳 방식 재설계 필요(`<title>`/badge/APP_VERSION/version.json/CLAUDE.md/_context/CLAUDE.md가 단일 HTML 가정으로 작성됨). 분리 전 설계 스프린트에서 다음 결정 필요: (a) 각 모듈 간 글로벌 공유(window.PriceStore 등) 유지 여부 (b) PAGES 라우터가 동적 import() 사용 시 init 타이밍 재설계 (c) GitHub Pages 캐싱 정책(각 .js 파일 별도 요청)
+- **P3-5 Chart.js → WebGL**: 1주+ 규모. lightweight-charts 대체 검토 필요. 18개 Chart.js 인스턴스 전환 + Canvas 2D → WebGL API 전환 + 각 페이지 Chart.js 의존 코드(플러그인/옵션) 재작성.
+
+---
+
 ## v48.21 — v48.20 마지막 개선 여지 완전 해소 + CP 동적화 완성 (2026-04-19)
 
 ### 트리거

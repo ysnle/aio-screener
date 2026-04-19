@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.21 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.22 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2245,7 +2245,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.21</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.22</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9927,12 +9927,46 @@ const DataHealth = {
   }
 };
 window.PriceStore = PriceStore; window.MacroStore = MacroStore;
+
+// v48.22 (P3-2 1단계): _liveData readonly Proxy view — 외부 코드/AI 챗/확장 접근용 공개 API
+// 기존 window._liveData는 PriceStore.set 및 legacy fetch 경로에서 내부 쓰기 유지(역호환).
+// window._liveDataReadonly는 쓰기 시도를 감지 + 로깅 + 실제 쓰기 차단. PriceStore.set()이 정식 경로.
+try {
+  if (typeof Proxy !== 'undefined') {
+    window._liveDataReadonly = new Proxy({}, {
+      get: function(_t, prop) {
+        var d = window._liveData || {};
+        return d[prop];
+      },
+      set: function(_t, prop, _value) {
+        try {
+          if (typeof _warnDirectLiveDataWrite === 'function') _warnDirectLiveDataWrite(String(prop), 'readonly-proxy');
+          if (typeof _aioLog === 'function') _aioLog('warn', 'ssot', 'readonly view write blocked: ' + String(prop) + ' → use PriceStore.set()');
+        } catch(_e) {}
+        return true; // 쓰기 무시 (strict mode TypeError 회피)
+      },
+      has: function(_t, prop) { return prop in (window._liveData || {}); },
+      ownKeys: function(_t) { return Object.keys(window._liveData || {}); },
+      getOwnPropertyDescriptor: function(_t, prop) {
+        var d = window._liveData || {};
+        if (prop in d) return { value: d[prop], writable: false, enumerable: true, configurable: true };
+        return undefined;
+      }
+    });
+  } else {
+    // Proxy 미지원 브라우저 폴백: _liveData 직접 참조 허용 (기능 저하 허용)
+    window._liveDataReadonly = window._liveData || {};
+  }
+} catch(e) {
+  if (typeof _aioLog === 'function') _aioLog('warn', 'ssot', 'readonly Proxy init failed: ' + (e && e.message || e));
+  window._liveDataReadonly = window._liveData || {};
+}
 window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.21';
+const APP_VERSION = 'v48.22';
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -11404,7 +11438,7 @@ window.PAGES = {
   'home':           { label: '홈 대시보드',     init: null,                                          chatCtx: null },
   'signal':         { label: '매매 시그널',     init: function() { if (typeof initSignalDashboard === 'function') _safePageInitGlobal('signal', initSignalDashboard); }, chatCtx: 'signal' },
   'breadth':        { label: '시장 폭',          init: function() { _lazyInitChartPage('breadth', 'bp-ad-ratio-chart', function() { if (typeof initBreadthPage === 'function') _safePageInitGlobal('breadth', initBreadthPage); if (typeof updateRallyQualityVerdict === 'function') setTimeout(updateRallyQualityVerdict, 500); }); }, chatCtx: null },
-  'sentiment':      { label: '투자 심리',        init: function() { _lazyInitChartPage('sentiment', 'vix-chart', function() { if (typeof initSentimentPage === 'function') _safePageInitGlobal('sentiment', initSentimentPage); }); }, chatCtx: null },
+  'sentiment':      { label: '투자 심리',        init: function() { if (typeof initSentimentPage === 'function') _safePageInitGlobal('sentiment', initSentimentPage); }, chatCtx: null },  // v48.22: initSentimentPage 내부에서 4개 차트 개별 _lazyInit 호출 (이중 래핑 제거)
   'briefing':       { label: '데일리 브리핑',    init: function() { _initBriefingPage(); }, chatCtx: 'briefing' },
   'technical':      { label: '차트·기술',        init: function() { _safePageInitGlobal('technical', _initTechnicalPage); }, chatCtx: 'technical' },
   'macro':          { label: '거시경제',         init: function() { _safePageInitGlobal('macro', _initMacroPage); }, chatCtx: 'macro' },
@@ -22140,9 +22174,169 @@ async function _refreshSentimentChartData() {
   } catch(e) { _aioLog('warn', 'chart', 'Sentiment chart refresh error: ' + (e && e.message || e)); }
 }
 
+// v48.22 (P2-C 2단계): initSentimentPage 4개 차트 개별 분리 — 공통 상수 모듈 수준 승격
+var _SENT_COMMON = {
+  tip: {
+    backgroundColor: '#0d1117', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+    titleColor: '#9ca3af', bodyColor: '#e8ecf4',
+    titleFont: { size: 9 }, bodyFont: { family: 'JetBrains Mono, monospace', size: 9 },
+    padding: 8
+  },
+  gridColor: 'rgba(255,255,255,0.05)',
+  tickColor: 'rgba(255,255,255,0.3)',
+  labels20: ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15']
+};
+
+// ── v48.22: VIX sparkline (개별 함수 — _lazyInit 래핑 가능)
+function _initSentVixChart() {
+  var vixCtx = document.getElementById('vix-chart');
+  if (!vixCtx || typeof Chart === 'undefined') return;
+  var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
+  var vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36, 18.36];
+  var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' });
+  if (!_gVix) return;
+  sentPageCharts['vix'] = new Chart(vixCtx, {
+    type: 'line',
+    data: {
+      labels: labels20,
+      datasets: [{
+        label: 'VIX', data: vixData,
+        borderColor: '#f97316',
+        backgroundColor: function(ctx2) {
+          var g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
+          g.addColorStop(0, 'rgba(249,115,22,0.25)'); g.addColorStop(1, 'rgba(249,115,22,0)');
+          return g;
+        },
+        borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 3, tension: 0.3, fill: true
+      }, {
+        label: '20 (Fear)', data: Array(labels20.length).fill(20),
+        borderColor: 'rgba(248,113,113,0.3)', borderWidth: 1, borderDash: [3,3],
+        pointRadius: 0, fill: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' ' + i.dataset.label + ': ' + i.formattedValue; } } }) },
+      scales: {
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 }, maxTicksLimit: 6 }, border: { display: false } },
+        y: { min: 10, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 } }, border: { display: false } }
+      }
+    }
+  });
+}
+
+// ── v48.22: NAAIM Exposure Index (개별 함수)
+function _initSentNaaimChart() {
+  var naaimCtx = document.getElementById('naaim-chart');
+  if (!naaimCtx || typeof Chart === 'undefined') return;
+  var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
+  var naaimLabels = ['1/22','1/29','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/1','4/8'];
+  var naaimData = [82.1, 79.3, 72.8, 68.4, 64.2, 63.5, 67.1, 67.0, 60.2, 62.5, 68.36, 69.38];
+  var _gNaaim = chartDataGate('naaim-chart', naaimLabels, [naaimData], { minPoints: 3, chartName: 'NAAIM' });
+  if (!_gNaaim) return;
+  sentPageCharts['naaim'] = new Chart(naaimCtx, {
+    type: 'line',
+    data: {
+      labels: naaimLabels,
+      datasets: [{
+        label: 'NAAIM', data: naaimData,
+        borderColor: '#5ba8ff',
+        backgroundColor: function(ctx2) {
+          var g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
+          g.addColorStop(0, 'rgba(91,168,255,0.2)'); g.addColorStop(1, 'rgba(91,168,255,0)');
+          return g;
+        },
+        borderWidth: 1.8, pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: true
+      }, {
+        label: 'Avg (62)', data: Array(naaimLabels.length).fill(62),
+        borderColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderDash: [3,3],
+        pointRadius: 0, fill: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' ' + i.dataset.label + ': ' + i.formattedValue + '%'; } } }) },
+      scales: {
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 }, maxTicksLimit: 6 }, border: { display: false } },
+        y: { min: 0, max: 100, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 }, callback: function(v){ return v + '%'; } }, border: { display: false } }
+      }
+    }
+  });
+}
+
+// ── v48.22: Investors Intelligence Bull/Bear (개별 함수)
+function _initSentIIChart() {
+  var iiCtx = document.getElementById('ii-chart');
+  if (!iiCtx || typeof Chart === 'undefined') return;
+  var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
+  var iiLabels = ['1/8','1/22','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/2','4/9'];
+  var iiBull = [49.3, 46.7, 44.1, 40.8, 37.2, 33.5, 31.2, 29.4, 28.2, 26.5, 25.1, 24.0];
+  var iiBear = [22.8, 25.3, 27.9, 30.4, 33.1, 36.8, 38.5, 40.2, 41.5, 43.2, 44.8, 46.0];
+  var _gII = chartDataGate('ii-chart', iiLabels, [iiBull, iiBear], { minPoints: 3, chartName: 'II Bull/Bear' });
+  if (!_gII) return;
+  sentPageCharts['ii'] = new Chart(iiCtx, {
+    type: 'line',
+    data: {
+      labels: iiLabels,
+      datasets: [{
+        label: 'Bulls', data: iiBull,
+        borderColor: '#3ddba5', borderWidth: 1.8, pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
+      }, {
+        label: 'Bears', data: iiBear,
+        borderColor: '#f87171', borderWidth: 1.8, borderDash: [4,2], pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' ' + i.dataset.label + ': ' + i.formattedValue + '%'; } } }) },
+      scales: {
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 } }, border: { display: false } },
+        y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 }, callback: function(v){ return v + '%'; } }, border: { display: false } }
+      }
+    }
+  });
+}
+
+// ── v48.22: HY Credit Spread (개별 함수)
+function _initSentHYChart() {
+  var hyCtx = document.getElementById('hy-chart');
+  if (!hyCtx || typeof Chart === 'undefined') return;
+  var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
+  var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284];
+  var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' });
+  if (!_gHY) return;
+  sentPageCharts['hy'] = new Chart(hyCtx, {
+    type: 'line',
+    data: {
+      labels: labels20,
+      datasets: [{
+        label: 'HY OAS', data: hyData,
+        borderColor: '#fb923c',
+        backgroundColor: function(ctx2) {
+          var g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
+          g.addColorStop(0, 'rgba(251,146,60,0.2)'); g.addColorStop(1, 'rgba(251,146,60,0)');
+          return g;
+        },
+        borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 3, tension: 0.3, fill: true
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' HY OAS: ' + i.formattedValue + 'bp'; } } }) },
+      scales: {
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 }, maxTicksLimit: 6 }, border: { display: false } },
+        y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 }, callback: function(v){ return v + 'bp'; } }, border: { display: false } }
+      }
+    }
+  });
+}
+
 function initSentimentPage(forceReinit) {
   if (typeof Chart === 'undefined') return;
-  // v40.4: 날만 데이터 경고
   renderStaleWarning('page-sentiment');
   if (sentPageInitialized && !forceReinit) {
     try { Object.values(sentPageCharts).forEach(c => c.resize()); } catch(e) {}
@@ -22150,169 +22344,25 @@ function initSentimentPage(forceReinit) {
   }
   Object.values(sentPageCharts).forEach(c => { try { c.destroy(); } catch(e){ _aioLog('warn', 'chart', 'Chart destroy error: ' + (e && e.message || e)); } });
   sentPageInitialized = true;
-  sentChartsInitialized = false; // v30.13d: 차트 재생성 보장 — 기존 destroy 후 반드시 리셋
+  sentChartsInitialized = false;
 
-  // Also init legacy charts (AAII + P/C) which share canvas IDs
   initSentimentCharts();
 
-  // v38.3: 심리 복합 분석 텍스트 — 페이지 진입 시에도 생성 (F&G API 콜백 타이밍 문제 방어)
   if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 300);
 
-  // v40.4: 센티먼트 차트 동적 데이터 교체 (Yahoo Finance API)
   _refreshSentimentChartData();
 
-  const tip = {
-    backgroundColor: '#0d1117', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-    titleColor: '#9ca3af', bodyColor: '#e8ecf4',
-    titleFont: { size: 9 }, bodyFont: { family: 'JetBrains Mono, monospace', size: 9 },
-    padding: 8
-  };
-  const gridColor = 'rgba(255,255,255,0.05)';
-  const tickColor = 'rgba(255,255,255,0.3)';
-  const labels20 = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15']; // v47.3: 4/15 연장 (VIX 18.36 유지, HY OAS 추가 타이트)
-
-  // ── VIX sparkline ────────────────────────────────────────────────────
-  const vixCtx = document.getElementById('vix-chart');
-  if (vixCtx) {
-    // Yahoo Finance ^VIX 종가 (2026-02-20 ~ 2026-04-08) — v45.0: 4/7(25.78)→4/8(21.04) 연장 (investing.com 확인)
-    // v46.9: 4/13(29.80 이란 협상 결렬→호르무즈 봉쇄, S&P 장중 급락→회복) 연장
-    const vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36, 18.36]; // v47.3: 4/15 18.36 유지
-    var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' }); if (_gVix)
-    sentPageCharts['vix'] = new Chart(vixCtx, {
-      type: 'line',
-      data: {
-        labels: labels20,
-        datasets: [{
-          label: 'VIX', data: vixData,
-          borderColor: '#f97316',
-          backgroundColor: (ctx2) => {
-            const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-            g.addColorStop(0, 'rgba(249,115,22,0.25)'); g.addColorStop(1, 'rgba(249,115,22,0)');
-            return g;
-          },
-          borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 3, tension: 0.3, fill: true
-        }, {
-          label: '20 (Fear)', data: Array(labels20.length).fill(20),
-          borderColor: 'rgba(248,113,113,0.3)', borderWidth: 1, borderDash: [3,3],
-          pointRadius: 0, fill: false
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { display: false }, tooltip: { ...tip, callbacks: { label: i => ' ' + i.dataset.label + ': ' + i.formattedValue } } },
-        scales: {
-          x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 }, maxTicksLimit: 6 }, border: { display: false } },
-          y: { min: 10, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 } }, border: { display: false } }
-        }
-      }
-    });
+  // v48.22 (P2-C 2단계): 4개 차트 개별 _lazyInit — 뷰포트 진입 시에만 Chart.js 생성
+  // 뷰포트 진입 관찰 대상이 각 canvas 자체 → 섹션별로 개별 트리거 (스크롤 아래 차트는 진짜 lazy)
+  if (typeof _lazyInitChartPage === 'function') {
+    _lazyInitChartPage('sentiment', 'vix-chart', _initSentVixChart);
+    _lazyInitChartPage('sentiment', 'naaim-chart', _initSentNaaimChart);
+    _lazyInitChartPage('sentiment', 'ii-chart', _initSentIIChart);
+    _lazyInitChartPage('sentiment', 'hy-chart', _initSentHYChart);
+  } else {
+    _initSentVixChart(); _initSentNaaimChart(); _initSentIIChart(); _initSentHYChart();
   }
 
-  // ── NAAIM Exposure Index sparkline ───────────────────────────────────
-  const naaimCtx = document.getElementById('naaim-chart');
-  if (naaimCtx) {
-    const naaimLabels = ['1/22','1/29','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/1','4/8']; // v46.6: 4/8 추가
-    // NAAIM Exposure Index (naaim.org 주간 데이터, 2026년) — 4/8 최신: 69.38
-    const naaimData  = [82.1, 79.3, 72.8, 68.4, 64.2, 63.5, 67.1, 67.0, 60.2, 62.5, 68.36, 69.38];
-    var _gNaaim = chartDataGate('naaim-chart', naaimLabels, [naaimData], { minPoints: 3, chartName: 'NAAIM' }); if (_gNaaim)
-    sentPageCharts['naaim'] = new Chart(naaimCtx, {
-      type: 'line',
-      data: {
-        labels: naaimLabels,
-        datasets: [{
-          label: 'NAAIM', data: naaimData,
-          borderColor: '#5ba8ff',
-          backgroundColor: (ctx2) => {
-            const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-            g.addColorStop(0, 'rgba(91,168,255,0.2)'); g.addColorStop(1, 'rgba(91,168,255,0)');
-            return g;
-          },
-          borderWidth: 1.8, pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: true
-        }, {
-          label: 'Avg (62)', data: Array(naaimLabels.length).fill(62),
-          borderColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderDash: [3,3],
-          pointRadius: 0, fill: false
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { display: false }, tooltip: { ...tip, callbacks: { label: i => ' ' + i.dataset.label + ': ' + i.formattedValue + '%' } } },
-        scales: {
-          x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 }, maxTicksLimit: 6 }, border: { display: false } },
-          y: { min: 0, max: 100, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 }, callback: v => v + '%' }, border: { display: false } }
-        }
-      }
-    });
-  }
-
-  // ── Investors Intelligence Bull/Bear ratio ───────────────────────────
-  const iiCtx = document.getElementById('ii-chart');
-  if (iiCtx) {
-    const iiLabels = ['1/8','1/22','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/2','4/9']; // v46.6: 4/9 추가 (Yardeni 추세 외삽)
-    const iiBull   = [49.3, 46.7, 44.1, 40.8, 37.2, 33.5, 31.2, 29.4, 28.2, 26.5, 25.1, 24.0];
-    const iiBear   = [22.8, 25.3, 27.9, 30.4, 33.1, 36.8, 38.5, 40.2, 41.5, 43.2, 44.8, 46.0];
-    var _gII = chartDataGate('ii-chart', iiLabels, [iiBull, iiBear], { minPoints: 3, chartName: 'II Bull/Bear' }); if (_gII)
-    sentPageCharts['ii'] = new Chart(iiCtx, {
-      type: 'line',
-      data: {
-        labels: iiLabels,
-        datasets: [{
-          label: 'Bulls', data: iiBull,
-          borderColor: '#3ddba5', borderWidth: 1.8, pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
-        }, {
-          label: 'Bears', data: iiBear,
-          borderColor: '#f87171', borderWidth: 1.8, borderDash: [4,2], pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { display: false }, tooltip: { ...tip, callbacks: { label: i => ' ' + i.dataset.label + ': ' + i.formattedValue + '%' } } },
-        scales: {
-          x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 } }, border: { display: false } },
-          y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 }, callback: v => v + '%' }, border: { display: false } }
-        }
-      }
-    });
-  }
-
-  // ── HY Credit Spread ─────────────────────────────────────────────────
-  const hyCtx = document.getElementById('hy-chart');
-  if (hyCtx) {
-    // ICE BofA US HY OAS (FRED BAMLH0A0HYM2, 2026년 2~4월 추정치 bps) — v43.0: 3/19→4/2 연장
-    // v46.9: 4/13(308 협상결렬→크레딧 스프레드 재확대) 연장
-    const hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284]; // v47.4: 4/14 FRED 실측 284bp — v47.3 임의 282bp 정정. 여전히 타이트(~2024.11 저점 수준)하나 S&P ATH에도 불구 추가 타이트화 미발생
-    var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' }); if (_gHY)
-    sentPageCharts['hy'] = new Chart(hyCtx, {
-      type: 'line',
-      data: {
-        labels: labels20,
-        datasets: [{
-          label: 'HY OAS', data: hyData,
-          borderColor: '#fb923c',
-          backgroundColor: (ctx2) => {
-            const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-            g.addColorStop(0, 'rgba(251,146,60,0.2)'); g.addColorStop(1, 'rgba(251,146,60,0)');
-            return g;
-          },
-          borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 3, tension: 0.3, fill: true
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { display: false }, tooltip: { ...tip, callbacks: { label: i => ' HY OAS: ' + i.formattedValue + 'bp' } } },
-        scales: {
-          x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 }, maxTicksLimit: 6 }, border: { display: false } },
-          y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 }, callback: v => v + 'bp' }, border: { display: false } }
-        }
-      }
-    });
-  }
-
-  // Update Fear & Greed needle (uses IDs shared with old signal page)
   fgUpdateNeedle((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 15);
   fetchFearGreed();
   fetchPutCall();
@@ -43994,14 +44044,41 @@ function toggleTheme() {
   }
 })();
 
-// ── Phase 4-4: SW 완전 제거 (v38.4) ──
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(function(r) {
-    r.forEach(function(reg) { reg.unregister(); });
+// ── v48.22 (P3-4): offline-first Service Worker 등록 ──
+// 이전 v38.4 "완전 제거"에서 offline 지원으로 전환
+// 전략: shell(index.html/manifest/version.json/Chart.js CDN)=Cache-First,
+//       API(Yahoo/FRED/CBOE/CORS 프록시/RSS)=Network-First + 캐시 폴백
+// 설치 실패해도 앱 자체는 정상 동작(PROGRESSIVE enhancement)
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', function() {
+    // opt-out 플래그: localStorage.aio_sw_disabled = '1' 이면 SW 비활성
+    try {
+      if (localStorage.getItem('aio_sw_disabled') === '1') {
+        // 이전 SW까지 완전 정리
+        navigator.serviceWorker.getRegistrations().then(function(rs) { rs.forEach(function(r) { r.unregister(); }); });
+        if (typeof caches !== 'undefined') { caches.keys().then(function(n) { n.forEach(function(k) { caches.delete(k); }); }); }
+        return;
+      }
+    } catch(_e) {}
+    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      if (typeof _aioLog === 'function') _aioLog('info', 'sw', 'SW registered, scope=' + (reg.scope || '/'));
+      // 업데이트 감지
+      if (reg.addEventListener) {
+        reg.addEventListener('updatefound', function() {
+          var nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener('statechange', function() {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+              // 새 SW 설치 완료 — 다음 로드에서 활성화됨
+              if (typeof _aioLog === 'function') _aioLog('info', 'sw', '새 버전 설치됨 — 다음 새로고침 시 적용');
+            }
+          });
+        });
+      }
+    }).catch(function(e) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'sw', 'SW register failed: ' + (e && e.message || e));
+    });
   });
-  if (typeof caches !== 'undefined') {
-    caches.keys().then(function(n) { n.forEach(function(k) { caches.delete(k); }); });
-  }
 }
 
 // ── 주기적 업데이트 훅 ──
