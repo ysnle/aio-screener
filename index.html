@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.22 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.23 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2245,7 +2245,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.22</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.23</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -8755,6 +8755,8 @@ body.light-theme canvas { filter:none; }
   <!-- v30.11 perf: Chart.js를 <head>에서 여기로 이동 — 초기 DOM 렌더링 차단 제거 -->
   <!-- v38.3: CDN 이중화 — jsDelivr 실패 시 cdnjs 자동 전환 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- v48.23 (P3-5): lightweight-charts 통합 — time series 차트 점진 전환용 (Chart.js와 혼합 사용) -->
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" defer></script>
   <script>
   if (typeof Chart === 'undefined') {
     console.warn('[AIO] jsDelivr CDN 실패 — cdnjs 폴백 로드');
@@ -9964,9 +9966,210 @@ try {
 window.NewsStore = NewsStore; window.DataHealth = DataHealth;
 
 // ═══════════════════════════════════════════════════════════════════
+// v48.23 (P3-1 1단계): AIO 네임스페이스 — 모듈 분리 사전 설계
+// ─────────────────────────────────────────────────────────────────
+// 향후 <script type="module"> 4개 분리 시 각 모듈의 public API를 이 네임스페이스 아래로 통합.
+// 현재는 기존 window.XXX 직접 노출 유지(역호환), AIO.module.* 별칭으로 점진 이전 가능.
+// 모듈 경계는 _context/MODULE-BOUNDARIES.md 참조.
+window.AIO = window.AIO || {
+  version: null,            // APP_VERSION 정의 후 아래에서 할당
+  // 데이터 스토어 (core)
+  stores: {
+    price: null,            // PriceStore (이미 존재)
+    macro: null,            // MacroStore (이미 존재)
+    news:  null,            // NewsStore (이미 존재)
+    health: null            // DataHealth (이미 존재)
+  },
+  // 엔진 (domain)
+  engines: {
+    narrative: null,        // NARRATIVE_ENGINE
+    date: null              // DATE_ENGINE
+  },
+  // 이벤트 버스 (infra)
+  bus: null,                // AIOBus
+  // 관측성 (infra)
+  log: null,                // _aioLog
+  logs: null,               // _aioLogs
+  // 페이지 라우터 (ui)
+  pages: null,              // window.PAGES
+  // readonly 데이터 뷰 (api)
+  data: {
+    live: null              // _liveDataReadonly Proxy
+  }
+};
+// 바인딩 (다른 상수/객체 정의 이후에 최종 주입 — init 헬퍼로 통합)
+window.AIO._bindCore = function() {
+  try {
+    window.AIO.stores.price  = window.PriceStore  || null;
+    window.AIO.stores.macro  = window.MacroStore  || null;
+    window.AIO.stores.news   = window.NewsStore   || null;
+    window.AIO.stores.health = window.DataHealth  || null;
+    window.AIO.engines.narrative = (typeof NARRATIVE_ENGINE !== 'undefined' ? NARRATIVE_ENGINE : null);
+    window.AIO.engines.date      = (typeof DATE_ENGINE !== 'undefined' ? DATE_ENGINE : null);
+    window.AIO.bus               = window.AIOBus || null;
+    window.AIO.log               = window._aioLog || null;
+    window.AIO.logs              = window._aioLogs || null;
+    window.AIO.pages             = window.PAGES || null;
+    window.AIO.data.live         = window._liveDataReadonly || null;
+    if (window.AIO.log) window.AIO.log('info', 'bootstrap', 'AIO namespace bound', { modules: Object.keys(window.AIO) });
+  } catch(e) { /* silent */ }
+};
+// 즉시 가능한 부분만 바인딩 (후순위 정의는 DOMContentLoaded 시점 재시도)
+try { window.AIO.stores.price = window.PriceStore || null; window.AIO.stores.news = window.NewsStore || null; } catch(_){}
+
+// ═══════════════════════════════════════════════════════════════════
+// v48.23 (P3-5): lightweight-charts 통합 헬퍼 — Chart.js와 혼합 사용
+// ─────────────────────────────────────────────────────────────────
+// time series 전문 → VIX/NAAIM/II/HY/yieldCurve/FRED 등 약 8개 차트 점진 전환 가능
+// 복잡 차트(RRG 산점도, 게이지, 도넛, stacked bar)는 Chart.js 유지
+// API 차이: lightweight-charts는 container div 필요(canvas 아님) + 시계열 {time, value} 형식
+// ─────────────────────────────────────────────────────────────────
+window.AIO.charts = {
+  // 인스턴스 관리 (Chart.js의 sentPageCharts와 별개)
+  _lwc: {},  // lightweight-charts 인스턴스 pool
+
+  /** lightweight-charts time series 생성 헬퍼
+   * @param {string|Element} containerOrId - <div> 컨테이너 ID 또는 요소
+   * @param {Array<{time: number|string, value: number}>} data - 시계열 데이터
+   * @param {Object} options - {color, lineWidth, height, theme, tooltipFmt}
+   * @returns {{chart, series, destroy}|null}
+   */
+  createLineChart: function(containerOrId, data, options) {
+    options = options || {};
+    if (typeof LightweightCharts === 'undefined') {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'lightweight-charts not loaded, skipping ' + containerOrId);
+      return null;
+    }
+    var container = typeof containerOrId === 'string' ? document.getElementById(containerOrId) : containerOrId;
+    if (!container) return null;
+    try {
+      // 다크 테마 기본 (AIO 전역 테마와 일치)
+      var theme = options.theme || 'dark';
+      var bgColor = theme === 'dark' ? '#0d1117' : '#ffffff';
+      var textColor = theme === 'dark' ? 'rgba(255,255,255,0.5)' : '#333';
+      var gridColor = theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+
+      var chart = LightweightCharts.createChart(container, {
+        width: container.clientWidth || 300,
+        height: options.height || 200,
+        layout: { background: { color: bgColor }, textColor: textColor, fontSize: 10, fontFamily: 'JetBrains Mono, monospace' },
+        grid: { vertLines: { color: gridColor }, horzLines: { color: gridColor } },
+        rightPriceScale: { borderColor: gridColor },
+        timeScale: { borderColor: gridColor, timeVisible: true, secondsVisible: false },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Normal }
+      });
+      var series = chart.addLineSeries({
+        color: options.color || '#60a5fa',
+        lineWidth: options.lineWidth || 2,
+        priceFormat: options.priceFormat || { type: 'price', precision: 2, minMove: 0.01 }
+      });
+      if (Array.isArray(data) && data.length > 0) {
+        series.setData(data);
+      }
+      // 뷰포트 resize 자동 대응
+      var _ro = null;
+      if (typeof ResizeObserver !== 'undefined') {
+        _ro = new ResizeObserver(function(entries) {
+          for (var i = 0; i < entries.length; i++) {
+            var cr = entries[i].contentRect;
+            if (cr.width > 0) chart.resize(cr.width, options.height || 200);
+          }
+        });
+        _ro.observe(container);
+      }
+      return {
+        chart: chart,
+        series: series,
+        setData: function(d) { series.setData(d); },
+        update: function(point) { series.update(point); },
+        destroy: function() {
+          try { if (_ro) _ro.disconnect(); } catch(_){}
+          try { chart.remove(); } catch(_){}
+        }
+      };
+    } catch(e) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'createLineChart failed: ' + (e && e.message || e));
+      return null;
+    }
+  },
+
+  /** 다중 라인 차트 (Bull/Bear 비교 등)
+   * @param {string|Element} containerOrId
+   * @param {Array<{name, color, data: Array<{time,value}>}>} seriesConfig
+   * @param {Object} options
+   */
+  createMultiLineChart: function(containerOrId, seriesConfig, options) {
+    options = options || {};
+    if (typeof LightweightCharts === 'undefined') return null;
+    var container = typeof containerOrId === 'string' ? document.getElementById(containerOrId) : containerOrId;
+    if (!container) return null;
+    try {
+      var bgColor = '#0d1117';
+      var gridColor = 'rgba(255,255,255,0.05)';
+      var chart = LightweightCharts.createChart(container, {
+        width: container.clientWidth || 300,
+        height: options.height || 200,
+        layout: { background: { color: bgColor }, textColor: 'rgba(255,255,255,0.5)', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' },
+        grid: { vertLines: { color: gridColor }, horzLines: { color: gridColor } },
+        timeScale: { borderColor: gridColor, timeVisible: true, secondsVisible: false }
+      });
+      var seriesList = [];
+      for (var i = 0; i < seriesConfig.length; i++) {
+        var cfg = seriesConfig[i];
+        var s = chart.addLineSeries({ color: cfg.color || '#60a5fa', lineWidth: cfg.lineWidth || 2, title: cfg.name });
+        if (Array.isArray(cfg.data)) s.setData(cfg.data);
+        seriesList.push(s);
+      }
+      var _ro = null;
+      if (typeof ResizeObserver !== 'undefined') {
+        _ro = new ResizeObserver(function(entries) {
+          for (var j = 0; j < entries.length; j++) {
+            var cr = entries[j].contentRect;
+            if (cr.width > 0) chart.resize(cr.width, options.height || 200);
+          }
+        });
+        _ro.observe(container);
+      }
+      return {
+        chart: chart, series: seriesList,
+        destroy: function() { try { if (_ro) _ro.disconnect(); } catch(_){}
+                              try { chart.remove(); } catch(_){} }
+      };
+    } catch(e) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'createMultiLineChart failed: ' + (e && e.message || e));
+      return null;
+    }
+  },
+
+  /** YYYY-MM-DD → lightweight-charts time 형식 (문자열 그대로) */
+  toTimeStr: function(ymd) { return ymd; },
+  /** ms timestamp → {year, month, day} */
+  toTimeObj: function(tsMs) {
+    var d = new Date(tsMs);
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+  },
+
+  /** lightweight-charts 로드 대기 (CDN 비동기 로드 대응) */
+  whenReady: function(callback, maxWaitMs) {
+    maxWaitMs = maxWaitMs || 10000;
+    var start = Date.now();
+    var poll = function() {
+      if (typeof LightweightCharts !== 'undefined') { callback(); return; }
+      if (Date.now() - start > maxWaitMs) {
+        if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'lightweight-charts load timeout');
+        return;
+      }
+      setTimeout(poll, 100);
+    };
+    poll();
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.22';
+const APP_VERSION = 'v48.23';
+window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -23062,6 +23265,9 @@ document.addEventListener('DOMContentLoaded', () => {
     var vBadge = document.getElementById('app-version-badge');
     if (vBadge) vBadge.textContent = APP_VERSION;
   }
+
+  // v48.23 (P3-1): AIO 네임스페이스 최종 바인딩 — 모든 모듈 정의 후
+  try { if (window.AIO && typeof window.AIO._bindCore === 'function') window.AIO._bindCore(); } catch(_){}
 
   // 날짜 자동 업데이트
   const todayDisp = new Date().toISOString().slice(0,10).replace(/-/g,'.');
