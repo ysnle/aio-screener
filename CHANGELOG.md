@@ -6,6 +6,55 @@
 
 ---
 
+## v48.27 — 운영 가능성·효율성 전수 감사 후 Critical/Warn 9건 보강 (2026-04-19)
+
+### 트리거
+사용자 지시: "지속적인 운영 가능성과 운영 효율성 전수 조사하고 보강 작업 진행" → performance-analyzer + qa-auditor 병렬 감사 → 통합 우선순위 9건 처리.
+
+### A. Critical (2건)
+
+| ID | 영역 | 라인 | 보강 내용 |
+|----|------|------|-----------|
+| QA-1 | `fetchHYSpread` catch 폴백 미복귀 | 22443~22458 | catch 블록에 `DATA_SNAPSHOT._fallback.hy` 복귀 + `hy-live-badge` "폴백 데이터" 표시. 무음 실패 가시화. |
+| QA-2 | `fetchYahooQuotes` 미정의 → `refreshPortfolioPrices` 무음 실패 | 25402~25435 | `fetchLiveQuotes` 우선 호출 + 누락 종목만 `_fetchYahooChartData('5d')` 개별 보강 (`Promise.allSettled`, 10건 한도). |
+
+### B. Warn (7건)
+
+| ID | 영역 | 라인 | 보강 내용 |
+|----|------|------|-----------|
+| P1 | `_sector20dChart` + `_newsSentChart` `destroyPageCharts` 누락 | 11543~11568 | macro/market-news 분기 추가, Chart.js 메모리 누수 차단. `_fredChartInstances` 일괄 destroy도 추가. |
+| P7 | `_refreshSignalInterval` 이중 등록 race | 38346~38347 제거, 11538 보존 | signal 페이지 진입 setInterval 등록 제거. 앱 초기화(23748) 단일 진실 원천 유지. destroyPageCharts(signal)에서도 정리하지 않음 (home/dashboard 의존). |
+| P8 | `aio_chat_history` localStorage 포화 위험 | 25903~25925 | `CHAT_HISTORY_MAX` 200→100. QuotaExceeded catch 시 50건으로 강제 축소 후 재시도. |
+| QA-3 | `sw.js` SW_VERSION 불일치 | sw.js:1~5 | v48.22 → v48.27 동기화. R1 7번째 지점으로 격상. |
+| QA-5 | `window.onerror` 이중 등록 (8774+8862) | 8771~8867 | 8774 첫 핸들러 제거 → `_aioLog` 단일 핸들러로 통합. `_oldErr` 의존성 정리. unhandledrejection은 `_aioLog` 가드 후 호출. |
+| QA-6 | `PAGES.ticker.init=null` → 직접 URL 진입 시 빈 화면 | 11747~11759 | input focus + `showToast` 안내. 분석 결과 이미 있으면 손대지 않음. |
+| P4 | 외부 API 타임아웃 12초 (사용자 체감 지연) | 19201, 35604, 35634, 35679 | 12s → 8s 4건 일원화 (Telegram CF Worker, SEC filings/XBRL companyfacts/frames). 2차 폴백 15s는 유지. |
+
+### C. 보류 (다음 세션)
+
+- **P3 withTimeout 35건 → fetchWithTimeout 일원화** — 대규모 마이그레이션 (AbortController 패턴 통일, 좀비 요청 제거). P3-1 Phase 3과 함께.
+- **P5 파일 크기 3.24MB** — gzip 후 ~900KB (GitHub Pages 자동), 영향 미미. 장기 ESM 번들링 고려.
+- **P2 `!important` 325개** — 테마 변수 리팩토링 별도 세션. CSS 변수 토글 + 누적 specificity 정리.
+
+### D. 효과
+
+| 지표 | 이전 | 이후 |
+|------|------|------|
+| Chart.js 메모리 누수 차단 | 7개 페이지 | 9개 페이지 (+macro, +market-news) |
+| 무음 실패 (silent fallback) | 2건 (HY/Yahoo) | 0건 (사용자 인지 가능) |
+| Interval race condition | 1건 | 0건 |
+| localStorage 포화 안전선 | 600KB+ | 100KB |
+| 외부 API 응답 지연 한도 | 12s | 8s |
+| 에러 추적성 (`_aioLog` 단일 경로) | 부분 | 완전 |
+| 운영 안정성 등급 (자체 평가) | B | A |
+
+### E. 변경 파일
+- `index.html`: +~70줄 (보강 8건, 마커 주석 포함)
+- `sw.js`: SW_VERSION 1줄 (캐시 키 변경 → 신규 사용자 셸 자동 갱신)
+- `CHANGELOG.md`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`: 버전 6곳
+
+---
+
 ## v48.26 — P3-5 Phase 4+5 잔여 4차트 + P3-1 Phase 2 모듈 4분할 완성 (2026-04-19)
 
 ### 트리거

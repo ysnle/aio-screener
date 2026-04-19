@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.26 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.27 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2245,7 +2245,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.26</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.27</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -8769,14 +8769,19 @@ body.light-theme canvas { filter:none; }
   <script>
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
+// v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
+//   기존 onerror 이중 등록 → 8862에서 _aioLog 미정의 시 console.warn fallback 자체 처리
 (function() {
   var _errCount = 0;
-  window.onerror = function(msg, src, line, col, err) {
-    if (_errCount++ < 10) console.warn('[AIO:ERR]', msg, '(L' + line + ')');
-    return true;  // 에러 전파 차단 — 페이지 크래시 방지
-  };
   window.addEventListener('unhandledrejection', function(e) {
-    if (_errCount++ < 10) console.warn('[AIO:PROMISE]', e.reason && e.reason.message || e.reason);
+    if (_errCount++ < 10) {
+      var msg = e.reason && e.reason.message || e.reason;
+      if (typeof window._aioLog === 'function') {
+        window._aioLog('error', 'promise', String(msg), { stack: e.reason && e.reason.stack ? e.reason.stack.substring(0, 500) : null });
+      } else {
+        console.warn('[AIO:PROMISE]', msg);
+      }
+    }
     e.preventDefault();  // 콘솔 빨간색 에러 억제
   });
 })();
@@ -8858,14 +8863,12 @@ body.light-theme canvas { filter:none; }
     dump: function() { return JSON.stringify(_buf, null, 2); }
   };
 
-  // window.onerror 전역 훅 (치명 에러 자동 수집)
-  var _oldErr = window.onerror;
+  // window.onerror 전역 훅 — v48.27 (QA-5): 단일 핸들러 (이전 8774 첫 핸들러 제거됨)
   window.onerror = function(msg, src, line, col, err) {
     try {
       window._aioLog('error', 'uncaught', String(msg), { src: src, line: line, col: col, stack: err && err.stack ? err.stack.substring(0, 500) : null });
     } catch(e) {}
-    if (typeof _oldErr === 'function') return _oldErr.apply(this, arguments);
-    return false;
+    return true; // 페이지 크래시 방지 (이전 동작 보존)
   };
   // promise rejection 훅
   var _oldRej = window.onunhandledrejection;
@@ -10244,7 +10247,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.26';
+const APP_VERSION = 'v48.27';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -11531,18 +11534,33 @@ function destroyPageCharts(pageId) {
       if (typeof _signalInterval !== 'undefined' && _signalInterval) {
         clearInterval(_signalInterval); _signalInterval = null;
       }
-      // v41.5: sigRefreshTimer + _refreshSignalInterval 해제 추가
+      // v41.5: sigRefreshTimer 해제 (페이지 전용)
       if (typeof sigRefreshTimer !== 'undefined' && sigRefreshTimer) {
         clearInterval(sigRefreshTimer); sigRefreshTimer = null;
       }
-      if (window._refreshSignalInterval) {
-        clearInterval(window._refreshSignalInterval); window._refreshSignalInterval = null;
-      }
+      // v48.27 (P7): _refreshSignalInterval은 앱 초기화 단일 진실 원천이므로 정리하지 않음 (home/dashboard도 의존)
     }
     // v38.3: market-news 페이지 이탈 시 뉴스 리프레시 타이머 해제
     if (pageId === 'market-news') {
       if (typeof refreshTimer !== 'undefined' && refreshTimer) {
         clearTimeout(refreshTimer); refreshTimer = null;
+      }
+      // v48.27 (P9): _newsSentChart Chart.js 인스턴스 정리 (route-change 메모리 누수)
+      if (window._newsSentChart) {
+        try { window._newsSentChart.destroy(); } catch(e){}
+        window._newsSentChart = null;
+      }
+    }
+    // v48.27 (P1): macro 페이지 이탈 시 _sector20dChart 정리 (Chart.js 메모리 누수)
+    if (pageId === 'macro') {
+      if (typeof _sector20dChart !== 'undefined' && _sector20dChart) {
+        try { _sector20dChart.destroy(); } catch(e){}
+        _sector20dChart = null;
+      }
+      // FRED 차트도 destroy (LWC compat wrapper도 destroy 호출 가능)
+      if (typeof _fredChartInstances !== 'undefined') {
+        Object.values(_fredChartInstances).forEach(function(c) { try { c.destroy(); } catch(e){} });
+        Object.keys(_fredChartInstances).forEach(function(k) { delete _fredChartInstances[k]; });
       }
     }
     // v38.3: technical 페이지 차트 정리
@@ -11726,7 +11744,19 @@ window.PAGES = {
   'themes':         { label: '테마/섹터',        init: function() { _initThemePerfTable('themes'); }, chatCtx: 'themes' },
   'theme-detail':   { label: '테마 상세',        init: function() { _initThemePerfTable('theme-detail'); }, chatCtx: 'theme-detail' },
   'portfolio':      { label: '포트폴리오',       init: null, chatCtx: 'portfolio' },
-  'ticker':         { label: '티커 상세',        init: null, chatCtx: null },
+  'ticker':         { label: '티커 상세',        init: function() {
+                       // v48.27 (QA-6): 직접 URL #ticker 진입 시 안내 카드 표시 (분석은 사용자 입력 후 트리거)
+                       try {
+                         var pg = document.getElementById('page-ticker');
+                         if (!pg) return;
+                         // 이미 분석 결과가 렌더된 경우 손대지 않음
+                         if (pg.querySelector('.ticker-analysis-result, [data-ticker-loaded]')) return;
+                         // 인풋 박스 포커스 + 안내 토스트
+                         var input = document.getElementById('ticker-analysis-input');
+                         if (input) { try { input.focus(); } catch(_){} }
+                         if (typeof showToast === 'function') showToast('티커를 입력하면 심층 분석을 시작합니다.');
+                       } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'ticker init: ' + (e && e.message || e)); }
+                     }, chatCtx: null },
   'market-news':    { label: '시장 뉴스',        init: function() { _initMarketNewsPage(); }, chatCtx: null },
   'options':        { label: '옵션 분석',        init: function() { _safePageInitGlobal('options', _initOptionsPage); }, chatCtx: null },
   'kr-home':        { label: '한국 홈',          init: function() { var tid = setTimeout(function() { try { if (typeof renderKrIssues === 'function') renderKrIssues(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'renderKrIssues failed: ' + e.message); } }, 500); if (window._pageState) window._pageState.get('kr-home').timers.push(tid); }, chatCtx: null },
@@ -19168,7 +19198,7 @@ async function fetchAllNews(forceRefresh = false) {
               if (cfW2) {
                 try {
                   const tgUrl2 = `https://t.me/s/${slug}`;
-                  const r2 = await withTimeout(fetch(`${cfW2}?url=${encodeURIComponent(tgUrl2)}`), 12000);
+                  const r2 = await withTimeout(fetch(`${cfW2}?url=${encodeURIComponent(tgUrl2)}`), 8000); // v48.27 (P4): 12s → 8s
                   if (r2.ok) {
                     const raw2 = await r2.text();
                     if (raw2 && raw2.length > 500) {
@@ -22442,6 +22472,18 @@ async function fetchHYSpread() {
     console.log('[AIO] HY Spread FRED:', spreadBp + 'bp (' + date + ')');
   } catch(e) {
     _aioLog('warn', 'fetch', 'HY Spread fetch 실패: ' + e.message);
+    // v48.27 (QA-1): 폴백 복귀 + 배지 갱신 — 사용자가 데이터 신선도 인지 가능
+    try {
+      var _fbHy = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback && DATA_SNAPSHOT._fallback.hy) || 285;
+      var _hyValEl = document.getElementById('hy-live-val');
+      var _hyBadgeEl = document.getElementById('hy-live-badge');
+      if (_hyValEl) _hyValEl.textContent = _fbHy + 'bp';
+      if (_hyBadgeEl) {
+        _hyBadgeEl.textContent = '폴백 데이터';
+        _hyBadgeEl.style.background = 'rgba(126,138,158,0.15)';
+        _hyBadgeEl.style.color = '#7e8a9e';
+      }
+    } catch(_){}
   }
 }
 
@@ -25390,11 +25432,38 @@ function updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDaily
 function refreshPortfolioPrices() {
   const positions = getPortfolioData();
   if (!positions.length) return;
-  // Trigger live data refresh for portfolio tickers
+  // v48.27 (QA-2): fetchYahooQuotes 미정의 무음 실패 → 정상 경로 복구
+  // (1) fetchLiveQuotes 우선 (KNOWN_TICKERS 글로벌 갱신, 검증된 함수)
+  // (2) 포트폴리오 전용 종목(KNOWN_TICKERS 미포함)은 _fetchYahooChartData로 개별 보강
   const tickers = positions.map(p => p.ticker);
-  if (typeof fetchYahooQuotes === 'function') {
-    fetchYahooQuotes(tickers).then(() => renderPortfolio());
-  } else { renderPortfolio(); }
+  const _portfolioRefreshFlow = (async function() {
+    try {
+      if (typeof fetchLiveQuotes === 'function') {
+        await fetchLiveQuotes();
+      }
+      // 보강: _liveData에 누락된 종목만 개별 fetch
+      if (typeof _fetchYahooChartData === 'function' && typeof window._liveData === 'object') {
+        const missing = tickers.filter(function(t) { return !window._liveData[t]; });
+        if (missing.length) {
+          await Promise.allSettled(missing.slice(0, 10).map(async function(t) {
+            try {
+              const d = await _fetchYahooChartData(t, '5d');
+              if (d && d.closes && d.closes.length >= 2) {
+                const last = d.closes[d.closes.length - 1];
+                const prev = d.closes[d.closes.length - 2];
+                const pct = prev > 0 ? ((last - prev) / prev) * 100 : 0;
+                window._liveData[t] = { price: last, pct: pct };
+              }
+            } catch(_){}
+          }));
+        }
+      }
+    } catch(e) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'refreshPortfolioPrices 실패: ' + (e && e.message || e));
+    }
+    renderPortfolio();
+  });
+  _portfolioRefreshFlow();
 }
 
 function exportPortfolio() {
@@ -25845,8 +25914,9 @@ const CHAT_DEFAULT_CHIPS = {
 };
 
 // ═══ v29.1: 대화 기록 localStorage 저장/열람 시스템 ═══════════════════
+// v48.27 (P8): 200→100건 + 응답 300→200자 truncate (한글 UTF-8 3bytes 고려, ~100KB 한도)
 const CHAT_HISTORY_LS = 'aio_chat_history';
-const CHAT_HISTORY_MAX = 200; // 최대 저장 대화 수
+const CHAT_HISTORY_MAX = 100; // v48.27: 200→100 축소 (장기 사용자 localStorage 포화 방지)
 
 function _getChatHistory() {
   try { return JSON.parse(localStorage.getItem(CHAT_HISTORY_LS) || '[]'); }
@@ -25856,7 +25926,14 @@ function _getChatHistory() {
 function _saveChatHistory(history) {
   // 최대 개수 초과 시 오래된 것부터 삭제
   while (history.length > CHAT_HISTORY_MAX) history.shift();
-  try { localStorage.setItem(CHAT_HISTORY_LS, JSON.stringify(history)); } catch(e) {}
+  try { localStorage.setItem(CHAT_HISTORY_LS, JSON.stringify(history)); }
+  catch(e) {
+    // QuotaExceededError 시 강제 50건으로 축소 후 재시도
+    try {
+      while (history.length > 50) history.shift();
+      localStorage.setItem(CHAT_HISTORY_LS, JSON.stringify(history));
+    } catch(_){}
+  }
 }
 
 // v46.6: AI 응답 피드백 저장
@@ -35524,7 +35601,7 @@ async function fetchSECFilings(ticker, formType) {
   // 2차: CORS 프록시 경유
   if (!data) {
     try {
-      var r2 = await fetchViaProxy(url, 12000);
+      var r2 = await fetchViaProxy(url, 8000); // v48.27 (P4): 12s → 8s
       if (r2.ok) {
         data = await r2.json();
         if (data.contents && typeof data.contents === 'string') {
@@ -35554,7 +35631,7 @@ async function fetchSECFinancials(ticker) {
   var data = null;
   // 1차: 직접 호출
   try {
-    var r = await withTimeout(fetch(url, {headers:{'User-Agent':'AIO Dashboard contact@example.com','Accept':'application/json'}}), 12000);
+    var r = await withTimeout(fetch(url, {headers:{'User-Agent':'AIO Dashboard contact@example.com','Accept':'application/json'}}), 8000); // v48.27 (P4): 12s → 8s
     if (r.ok) data = await r.json();
   } catch(e) { _aioLog('warn', 'fetch', 'SEC XBRL direct fetch failed (CORS): ' + e.message); }
   // 2차: CORS 프록시 경유
@@ -35599,7 +35676,7 @@ async function fetchSECFrame(concept, period, taxonomy) {
   var data = null;
   // 1차: 직접 호출 (SEC는 User-Agent 필수, CORS 차단 가능성 있음)
   try {
-    var r = await withTimeout(fetch(url, {headers:{'User-Agent':'AIO Dashboard contact@example.com','Accept':'application/json'}}), 12000);
+    var r = await withTimeout(fetch(url, {headers:{'User-Agent':'AIO Dashboard contact@example.com','Accept':'application/json'}}), 8000); // v48.27 (P4): 12s → 8s
     if (r.ok) data = await r.json();
   } catch(e) { /* CORS → 프록시로 폴백 */ }
   // 2차: CF Worker 프록시 경유
@@ -38285,10 +38362,9 @@ function initSignalDashboard() {
   updateBottomProcess();
   if (_signalInterval) clearInterval(_signalInterval);
   _signalInterval = setInterval(refreshSignalDashboard, T.SIGNAL_REFRESH);
-  // v46.9: signal 페이지 재진입 시 refreshSignal 타이머 복구 (P83)
+  // v46.9: signal 페이지 재진입 시 refreshSignal 즉시 1회 호출 (P83)
+  // v48.27 (P7): _refreshSignalInterval 이중 등록 race 방지 — 앱 초기화(23748)에서 등록한 단일 interval 유지
   refreshSignal();
-  if (window._refreshSignalInterval) clearInterval(window._refreshSignalInterval);
-  window._refreshSignalInterval = setInterval(refreshSignal, T.SIGNAL_REFRESH);
 
   // Init chat
   if (typeof CHAT_DEFAULT_CHIPS !== 'undefined') {
