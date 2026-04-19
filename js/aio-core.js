@@ -423,6 +423,46 @@ window._aioFetchAllNewsForce = function() {
   if (typeof window.fetchAllNews === 'function') window.fetchAllNews(true);
 };
 window._aioReload = function() { window.location.reload(); };
+window._aioVaultPublicMode = function(el) {
+  var lbl = document.getElementById('vault-public-label');
+  if (el && el.checked) {
+    if (window._AioVault && typeof window._AioVault.enablePublicMode === 'function') window._AioVault.enablePublicMode();
+    if (lbl) lbl.textContent = '공용 PC 모드 ON';
+  } else {
+    if (window._AioVault) window._AioVault._publicMode = false;
+    if (lbl) lbl.textContent = '';
+  }
+};
+window._aioImportPortfolio = function(el, ev) {
+  if (typeof window.importPortfolio === 'function') window.importPortfolio(ev);
+};
+window._aioSaveCashPosition = function(el) {
+  if (typeof window.saveCashPosition === 'function') window.saveCashPosition(el ? el.value : '');
+};
+window._aioFilterGlossary = function(el) {
+  if (typeof window.filterGlossary === 'function') window.filterGlossary(el ? el.value : '');
+};
+// 확장: change/input 이벤트도 동일 디스패처로 위임
+(function() {
+  if (window.__aioChangeDelegate) return;
+  window.__aioChangeDelegate = true;
+  function dispatchChange(e) {
+    var el = e.target.closest && e.target.closest('[data-on-change]');
+    if (!el) return;
+    var fn = window[el.dataset.onChange];
+    if (typeof fn !== 'function') return;
+    try { fn(el, e); } catch(_){}
+  }
+  function dispatchInput(e) {
+    var el = e.target.closest && e.target.closest('[data-on-input]');
+    if (!el) return;
+    var fn = window[el.dataset.onInput];
+    if (typeof fn !== 'function') return;
+    try { fn(el, e); } catch(_){}
+  }
+  document.addEventListener('change', dispatchChange);
+  document.addEventListener('input', dispatchInput);
+})();
 
 // ── v30.10: 글로벌 에러 표시 유틸리티 (사용자 피드백 제공) ─────────────
 // 에러 유형: 'api' | 'parse' | 'dom' | 'network'
