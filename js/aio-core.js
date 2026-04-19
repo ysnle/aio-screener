@@ -1830,7 +1830,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.35';
+const APP_VERSION = 'v48.39';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -1856,13 +1856,488 @@ if (!AIO_DEBUG) {
     _origLog.apply(console, arguments);
   };
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// v48.36: DATE_ENGINE — 날짜 표준화 + Stale 감지 중앙 유틸
+// ─────────────────────────────────────────────────────────────────────────
+// 용도: DATA_SNAPSHOT · SCREENER_DB · _lastFetch · 뉴스 타임스탬프 등
+//       프로젝트 전체에서 **단일 진실의 원천**으로 사용.
+// 철학:
+//   - 하드코딩 날짜 문자열 금지 (DATE_ENGINE.now() / .isoNow() 사용)
+//   - stale 판정은 isStale(ts, maxAgeMs)로 통일
+//   - UI 배지는 staleBadge(ts)로 자동 생성 (🟢 실시간 · 🟡 N분 전 · 🔴 N일 전)
+//   - 애널리스트 리포트는 staleBadge(ts, 'report')로 7일 이상이면 경고
+// ═══════════════════════════════════════════════════════════════════════════
+window.DATE_ENGINE = (function() {
+  var MIN = 60000, HR = 3600000, DAY = 86400000;
+  var LOCALE = 'ko-KR';
+  var TZ_LABEL = 'Asia/Seoul';
+
+  // stale 임계값 (카테고리별) — 이 값을 기준으로 UI 배지 색상 결정
+  var STALE_THRESHOLDS = {
+    quote: 10 * MIN,          // 시세 10분
+    news: 60 * MIN,           // 뉴스 1시간
+    sentiment: 30 * MIN,      // 센티먼트 30분
+    macro: 7 * DAY,           // 거시지표 7일
+    report: 7 * DAY,          // 애널리스트 리포트 7일
+    earnings: 90 * DAY,       // 실적 분기
+    snapshot: 24 * HR,        // DATA_SNAPSHOT 24시간
+    unknown: 24 * HR
+  };
+
+  function now() { return Date.now(); }
+  function isoNow() { return new Date().toISOString(); }
+
+  function toTs(v) {
+    if (v == null) return 0;
+    if (typeof v === 'number') return v > 1e12 ? v : v * 1000;  // seconds vs ms auto
+    if (typeof v === 'string') {
+      var t = Date.parse(v);
+      return isNaN(t) ? 0 : t;
+    }
+    if (v instanceof Date) return v.getTime();
+    return 0;
+  }
+
+  function ageMs(v) {
+    var t = toTs(v);
+    if (!t) return Infinity;
+    return now() - t;
+  }
+
+  function isStale(v, category) {
+    var threshold = STALE_THRESHOLDS[category] || STALE_THRESHOLDS.unknown;
+    return ageMs(v) > threshold;
+  }
+
+  // "방금", "3분 전", "2시간 전", "3일 전"
+  function formatRelative(v) {
+    var a = ageMs(v);
+    if (a === Infinity) return '—';
+    if (a < 30000) return '방금';
+    if (a < HR) return Math.floor(a / MIN) + '분 전';
+    if (a < DAY) return Math.floor(a / HR) + '시간 전';
+    if (a < 30 * DAY) return Math.floor(a / DAY) + '일 전';
+    if (a < 365 * DAY) return Math.floor(a / (30 * DAY)) + '개월 전';
+    return Math.floor(a / (365 * DAY)) + '년 전';
+  }
+
+  // "2026-04-19 13:45" — 한국 로케일
+  function formatAbsolute(v, opts) {
+    var t = toTs(v);
+    if (!t) return '—';
+    var d = new Date(t);
+    opts = opts || {};
+    try {
+      if (opts.dateOnly) {
+        return d.toLocaleDateString(LOCALE, { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: TZ_LABEL });
+      }
+      return d.toLocaleString(LOCALE, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: TZ_LABEL });
+    } catch(_) {
+      return d.toISOString().slice(0, 16).replace('T', ' ');
+    }
+  }
+
+  // 🟢 실시간 · 🟡 3분 전 · 🔴 3일 전 (stale 여부 기반 색상)
+  function staleBadge(v, category, opts) {
+    opts = opts || {};
+    var t = toTs(v);
+    if (!t) return opts.emptyText || '';
+    var a = ageMs(v);
+    var threshold = STALE_THRESHOLDS[category] || STALE_THRESHOLDS.unknown;
+    var icon, color;
+    if (a < threshold * 0.3) { icon = '🟢'; color = '#3ddba5'; }   // fresh (30% of threshold)
+    else if (a < threshold) { icon = '🟡'; color = '#fbbf24'; }    // aging
+    else { icon = '🔴'; color = '#f87171'; }                        // stale
+    var label = formatRelative(v);
+    if (opts.asHtml === false) return icon + ' ' + label;
+    return '<span style="color:' + color + ';font-size:' + (opts.fontSize || '9px') + ';font-family:var(--font-mono);" title="' + formatAbsolute(v) + '">' + icon + ' ' + label + '</span>';
+  }
+
+  // 여러 타임스탬프 중 가장 오래된 것 기준 stale 판정 (데이터 일관성)
+  function oldest(vals) {
+    var min = Infinity;
+    for (var i = 0; i < vals.length; i++) {
+      var t = toTs(vals[i]);
+      if (t && t < min) min = t;
+    }
+    return min === Infinity ? 0 : min;
+  }
+
+  return {
+    now: now,
+    isoNow: isoNow,
+    toTs: toTs,
+    ageMs: ageMs,
+    isStale: isStale,
+    formatRelative: formatRelative,
+    formatAbsolute: formatAbsolute,
+    staleBadge: staleBadge,
+    oldest: oldest,
+    THRESHOLDS: STALE_THRESHOLDS
+  };
+})();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// v48.38: 통일된 캐시 레이어 — localStorage 기반, 명시적 TTL + 만료 감지
+// ─────────────────────────────────────────────────────────────────────────
+// 철학:
+//   - 모든 localStorage 캐시는 이 API 경유 (난립 방지)
+//   - TTL 초과 시 자동 만료 (get 반환 null)
+//   - 용량 초과 시 LRU-like 정리 (오래된 항목 자동 삭제)
+// ═══════════════════════════════════════════════════════════════════════════
+window.AIO_Cache = (function() {
+  var PREFIX = '_aioCache:';
+  var DEFAULT_TTL = 60 * 60 * 1000; // 1시간
+
+  function _key(k) { return PREFIX + k; }
+
+  function get(k) {
+    try {
+      var raw = localStorage.getItem(_key(k));
+      if (!raw) return null;
+      var obj = JSON.parse(raw);
+      if (!obj || !obj.v) return null;
+      if (obj.exp && Date.now() > obj.exp) {
+        localStorage.removeItem(_key(k));
+        return null;
+      }
+      return obj.v;
+    } catch(_) { return null; }
+  }
+
+  function set(k, v, ttlMs) {
+    try {
+      var ttl = typeof ttlMs === 'number' ? ttlMs : DEFAULT_TTL;
+      var obj = { v: v, exp: Date.now() + ttl, set: Date.now() };
+      localStorage.setItem(_key(k), JSON.stringify(obj));
+      return true;
+    } catch(e) {
+      // QuotaExceededError — LRU-like 정리 후 재시도
+      if (e && e.name && e.name.indexOf('Quota') !== -1) {
+        _prune();
+        try {
+          localStorage.setItem(_key(k), JSON.stringify({ v: v, exp: Date.now() + (ttlMs || DEFAULT_TTL), set: Date.now() }));
+          return true;
+        } catch(_) { return false; }
+      }
+      return false;
+    }
+  }
+
+  function del(k) { try { localStorage.removeItem(_key(k)); } catch(_){} }
+
+  function _prune() {
+    // 만료된 항목 먼저 정리 → 여전히 꽉 차면 오래된 20% 제거
+    var now = Date.now();
+    var entries = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (!key || key.indexOf(PREFIX) !== 0) continue;
+      try {
+        var obj = JSON.parse(localStorage.getItem(key));
+        if (obj && obj.exp && now > obj.exp) {
+          localStorage.removeItem(key); i--;
+        } else if (obj) {
+          entries.push({ key: key, set: obj.set || 0 });
+        }
+      } catch(_) { localStorage.removeItem(key); i--; }
+    }
+    if (entries.length > 10) {
+      entries.sort(function(a, b) { return a.set - b.set; });
+      var toRemove = Math.ceil(entries.length * 0.2);
+      for (var j = 0; j < toRemove; j++) localStorage.removeItem(entries[j].key);
+    }
+  }
+
+  function stats() {
+    var count = 0, totalBytes = 0, expired = 0;
+    var now = Date.now();
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (!key || key.indexOf(PREFIX) !== 0) continue;
+      count++;
+      var val = localStorage.getItem(key);
+      totalBytes += (val || '').length + key.length;
+      try {
+        var obj = JSON.parse(val);
+        if (obj && obj.exp && now > obj.exp) expired++;
+      } catch(_){}
+    }
+    return { count: count, bytes: totalBytes, kb: Math.round(totalBytes / 1024), expired: expired };
+  }
+
+  function clear() {
+    var keys = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf(PREFIX) === 0) keys.push(k);
+    }
+    keys.forEach(function(k) { localStorage.removeItem(k); });
+    return keys.length;
+  }
+
+  return { get: get, set: set, del: del, stats: stats, clear: clear, prune: _prune };
+})();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// v48.38: RSS/API 피드 헬스체크 — dead endpoint 자동 비활성화
+// ─────────────────────────────────────────────────────────────────────────
+// - 각 피드의 성공/실패 카운트 추적 (1시간 window + 24시간 window)
+// - 24h 내 3회+ 연속 실패 시 _disabled=true 자동 전환 (다음 fetch에서 skip)
+// - 1h window 내 성공 1회 이상 있으면 복구
+// - 상태는 localStorage 저장 (_aioFeedHealth), 세션 간 지속
+// ═══════════════════════════════════════════════════════════════════════════
+window._aioFeedHealth = (function() {
+  var KEY = '_aioFeedHealthV1';
+  var FAIL_THRESHOLD = 3;        // 연속 실패 N회 → disable
+  var WINDOW_24H = 24 * 3600 * 1000;
+  var RECOVER_AFTER = 2 * 3600 * 1000;   // 2시간 후 disabled 해제 재시도
+
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(_){ state = {}; }
+
+  function _save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(_){}
+  }
+
+  function _get(id) {
+    if (!state[id]) state[id] = { ok: 0, fail: 0, consecFail: 0, lastOk: 0, lastFail: 0, disabledUntil: 0 };
+    return state[id];
+  }
+
+  function reportOk(id) {
+    var s = _get(id);
+    s.ok++; s.consecFail = 0; s.lastOk = Date.now(); s.disabledUntil = 0;
+    _save();
+  }
+
+  function reportFail(id) {
+    var s = _get(id);
+    s.fail++; s.consecFail++; s.lastFail = Date.now();
+    if (s.consecFail >= FAIL_THRESHOLD) {
+      s.disabledUntil = Date.now() + RECOVER_AFTER;
+    }
+    _save();
+  }
+
+  function isDisabled(id) {
+    var s = state[id];
+    if (!s) return false;
+    if (s.disabledUntil && Date.now() < s.disabledUntil) return true;
+    if (s.disabledUntil && Date.now() >= s.disabledUntil) {
+      // Recovery: disabledUntil 지나면 재시도 허용 (하지만 consecFail 유지)
+      s.disabledUntil = 0;
+      _save();
+    }
+    return false;
+  }
+
+  function stats() {
+    var now = Date.now();
+    var summary = { total: 0, ok: 0, degraded: 0, disabled: 0, details: [] };
+    for (var id in state) {
+      summary.total++;
+      var s = state[id];
+      var status = 'ok';
+      if (s.disabledUntil && now < s.disabledUntil) { status = 'disabled'; summary.disabled++; }
+      else if (s.consecFail >= 2) { status = 'degraded'; summary.degraded++; }
+      else summary.ok++;
+      summary.details.push({ id: id, status: status, ok: s.ok, fail: s.fail, consecFail: s.consecFail, lastOk: s.lastOk });
+    }
+    return summary;
+  }
+
+  function reset(id) {
+    if (id) delete state[id];
+    else state = {};
+    _save();
+  }
+
+  return {
+    reportOk: reportOk,
+    reportFail: reportFail,
+    isDisabled: isDisabled,
+    stats: stats,
+    reset: reset,
+    _raw: function() { return state; }
+  };
+})();
+
+// v48.36: _lastFetch — API별 마지막 성공 타임스탬프 중앙 저장소
+// 각 fetch 함수가 성공 시 DATE_ENGINE.now() 값을 기록.
+// UI는 staleBadge(_lastFetch[apiName], category)로 freshness 표시.
+window._lastFetch = window._lastFetch || {};
+window._markFetch = function(apiName) {
+  window._lastFetch[apiName] = window.DATE_ENGINE.now();
+  // 신선도 패널이 열려 있으면 즉시 갱신
+  if (typeof window._aioRenderFreshness === 'function') {
+    try { window._aioRenderFreshness(); } catch(_){}
+  }
+};
+
+// v48.36: 신선도 패널 렌더 — 가이드 페이지 디버그 섹션에 표시
+window._aioRenderFreshness = function() {
+  var panel = document.getElementById('aio-freshness-panel');
+  if (!panel) return;
+  var DE = window.DATE_ENGINE;
+  if (!DE) { panel.innerHTML = '<div style="color:#f87171;">DATE_ENGINE 미로드</div>'; return; }
+  // 추적 대상 API: [display name, _lastFetch key, category]
+  var apis = [
+    ['시세 (Yahoo/CoinGecko)', 'quote', 'quote'],
+    ['뉴스 (RSS/Finnhub)', 'news', 'news'],
+    ['센티먼트 (CNN F&G)', 'fearGreed', 'sentiment'],
+    ['풋콜 (CBOE/UW)', 'putCall', 'sentiment'],
+    ['기술지표 (SPY RSI/MACD)', 'technicalSPY', 'sentiment'],
+    ['FRED 매크로', 'fred', 'macro'],
+    ['VIX 히스토리', 'vixHistory', 'sentiment'],
+    ['시장 폭 (Breadth)', 'breadth', 'sentiment']
+  ];
+  var html = '';
+  var lf = window._lastFetch || {};
+  apis.forEach(function(row) {
+    var label = row[0], key = row[1], cat = row[2];
+    var ts = lf[key];
+    if (!ts) {
+      html += '<div style="display:flex;justify-content:space-between;gap:8px;"><span>' + label + '</span><span style="color:#7e8a9e;">— 미수신</span></div>';
+    } else {
+      html += '<div style="display:flex;justify-content:space-between;gap:8px;"><span>' + label + '</span>' + DE.staleBadge(ts, cat) + '</div>';
+    }
+  });
+  // DATA_SNAPSHOT 폴백 상태
+  if (typeof window.DATA_SNAPSHOT !== 'undefined') {
+    var fb = window.DATA_SNAPSHOT._isFallback;
+    html += '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:4px;padding-top:4px;border-top:1px dashed rgba(255,255,255,0.08);">' +
+      '<span>폴백 스냅샷 상태</span>' +
+      (fb ? '<span style="color:#fbbf24;">⚠️ 사용 중</span>' : '<span style="color:#3ddba5;">✅ 실시간</span>') +
+      '</div>';
+  }
+  // v48.38: RSS 피드 헬스 요약
+  if (window._aioFeedHealth && typeof window._aioFeedHealth.stats === 'function') {
+    var fh = window._aioFeedHealth.stats();
+    if (fh.total > 0) {
+      html += '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:4px;">' +
+        '<span>RSS 피드 상태</span>' +
+        '<span>' + (fh.ok ? '<span style="color:#3ddba5;">✓ ' + fh.ok + '</span>' : '') +
+        (fh.degraded ? ' <span style="color:#fbbf24;">⚠ ' + fh.degraded + '</span>' : '') +
+        (fh.disabled ? ' <span style="color:#f87171;">✗ ' + fh.disabled + '</span>' : '') +
+        ' / ' + fh.total + '</span></div>';
+    }
+  }
+  // v48.38: AIO_Cache 통계
+  if (window.AIO_Cache && typeof window.AIO_Cache.stats === 'function') {
+    var cs = window.AIO_Cache.stats();
+    if (cs.count > 0) {
+      html += '<div style="display:flex;justify-content:space-between;gap:8px;">' +
+        '<span>localStorage 캐시</span>' +
+        '<span style="color:var(--text-muted);">' + cs.count + '건 · ' + cs.kb + ' KB' +
+        (cs.expired ? ' · 만료 ' + cs.expired : '') + '</span></div>';
+    }
+  }
+  panel.innerHTML = html;
+};
+
+// v48.36: 수동 새로고침 핸들러 (가이드 페이지 버튼)
+window._aioRefreshFreshness = function() {
+  if (typeof window._aioRenderFreshness === 'function') window._aioRenderFreshness();
+};
+
+// v48.37: SCREENER_DB memo 내부 날짜 파서 — 애널리스트 리포트 staleness 구조적 감지
+// 매칭 패턴: [Citi 04/17] · [JPM 04/17] · [GS 04/15 Buy] · [2026.04] · [2026-04-15]
+// 반환: { oldestTs: number, freshestTs: number, isStale: bool, badge: HTML }
+window._aioMemoStaleInfo = function(memo, opts) {
+  if (!memo || typeof memo !== 'string') return null;
+  opts = opts || {};
+  var category = opts.category || 'report';
+  var year = opts.year || new Date().getFullYear();
+  var dates = [];
+  // Pattern 1: [LABEL MM/DD] — 예: [Citi 04/17], [JPM 04/17], [GS 04/15 Buy]
+  var rx1 = /\[[A-Za-z0-9&]+(?:\s[A-Z][A-Za-z]*)?\s(\d{1,2})\/(\d{1,2})(?:\s[A-Za-z]+)?\]/g;
+  var m;
+  while ((m = rx1.exec(memo)) !== null) {
+    var mm = parseInt(m[1], 10), dd = parseInt(m[2], 10);
+    if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) {
+      var d = new Date(year, mm - 1, dd);
+      // 미래 날짜면 작년으로 (예: 12/28 in April → 전년 12월)
+      if (d.getTime() > Date.now() + 86400000) d.setFullYear(year - 1);
+      dates.push(d.getTime());
+    }
+  }
+  // Pattern 2: [YYYY.MM] — 예: [2026.04]
+  var rx2 = /\[(\d{4})\.(\d{1,2})\]/g;
+  while ((m = rx2.exec(memo)) !== null) {
+    var yr = parseInt(m[1], 10), mn = parseInt(m[2], 10);
+    if (yr >= 2020 && yr <= 2040 && mn >= 1 && mn <= 12) {
+      dates.push(new Date(yr, mn - 1, 15).getTime());
+    }
+  }
+  // Pattern 3: [YYYY-MM-DD] — 예: [2026-04-15]
+  var rx3 = /\[(\d{4})-(\d{1,2})-(\d{1,2})\]/g;
+  while ((m = rx3.exec(memo)) !== null) {
+    var y3 = parseInt(m[1], 10), m3 = parseInt(m[2], 10), d3 = parseInt(m[3], 10);
+    if (y3 >= 2020 && y3 <= 2040 && m3 >= 1 && m3 <= 12 && d3 >= 1 && d3 <= 31) {
+      dates.push(new Date(y3, m3 - 1, d3).getTime());
+    }
+  }
+  if (dates.length === 0) return null;
+  var freshest = Math.max.apply(null, dates);
+  var oldest = Math.min.apply(null, dates);
+  var DE = window.DATE_ENGINE;
+  return {
+    freshestTs: freshest,
+    oldestTs: oldest,
+    count: dates.length,
+    isStale: DE ? DE.isStale(freshest, category) : false,
+    badge: DE ? DE.staleBadge(freshest, category, opts.badgeOpts) : '',
+    label: DE ? DE.formatRelative(freshest) : ''
+  };
+};
+
+// v48.37: SCREENER_DB 특정 심볼 memo staleness 조회
+window._aioStockStaleInfo = function(sym) {
+  if (!Array.isArray(window.SCREENER_DB)) return null;
+  var entry = window.SCREENER_DB.find(function(r) { return r.sym === sym; });
+  if (!entry) return null;
+  // _asOf 필드 우선 (v48.37+ 수동 지정), memo 파싱 폴백
+  if (entry._asOf) {
+    var DE = window.DATE_ENGINE;
+    return {
+      freshestTs: DE ? DE.toTs(entry._asOf) : 0,
+      isStale: DE ? DE.isStale(entry._asOf, 'report') : false,
+      badge: DE ? DE.staleBadge(entry._asOf, 'report') : '',
+      label: DE ? DE.formatRelative(entry._asOf) : '',
+      source: '_asOf'
+    };
+  }
+  var info = window._aioMemoStaleInfo(entry.memo, { category: 'report' });
+  if (info) info.source = 'memo-parse';
+  return info;
+};
+
+// 자동 렌더: 가이드 페이지 진입 시 + 30초 주기
+document.addEventListener('aio:pageShown', function(e) {
+  if (e && e.detail && e.detail.id === 'guide') {
+    setTimeout(function() { if (window._aioRenderFreshness) window._aioRenderFreshness(); }, 100);
+  }
+});
+if (typeof window !== 'undefined') {
+  setInterval(function() {
+    var panel = document.getElementById('aio-freshness-panel');
+    if (panel && panel.offsetParent !== null && window._aioRenderFreshness) {
+      window._aioRenderFreshness();
+    }
+  }, 30000);
+}
 // DATA_SNAPSHOT — 단일 진실 원천 (Single Source of Truth)
 // ─────────────────────────────────────────────────────────────────
 //  데이터 업데이트 시 이 객체만 수정하면 전체 페이지에 반영됩니다.
 //    HTML 본문에 직접 숫자를 수정하지 마세요!
 // ─────────────────────────────────────────────────────────────────
 const DATA_SNAPSHOT = {
-  _updated: '2026-04-16T15:20:00+09:00',   // ISO 타임스탬프 — v47.4 /data-refresh 재검증: v47.3 "위험봇 3/30 이미지 값(VVIX 98/MOVE 68/SKEW 139)을 4/15로 오기재" 버그 P106 수정 + CNN F&G 중립 전환 분리(47) + UW F&G 68 별도 필드 + WTI/HY OAS 소량 정정
+  // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
+  // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
+  _updated: '2026-04-16T15:20:00+09:00',   // 폴백 스냅샷 작성일 (실시간 수신 시 _lastFetch로 자동 덮어씀)
+  _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
   _note: 'v47.4 — /data-refresh 재검증 (사용자 지적 후): v47.2-v47.3 핵심 버그 P106 수정 — 위험봇 3/30 이미지 값(VVIX 98/MOVE 68/SKEW 139)을 4/15 DATA_SNAPSHOT에 오기재. 4/15 실측: VVIX 90.10(-2.77%)/MOVE 62.36(-2.50%)/SKEW 141.86(-4.60%) → 꼬리위험 역설 **심화**(MOVE↓ SKEW↑) = 분배 진단 강화. CNN F&G 47 Neutral 전환(UW F&G 68 탐욕은 유지, fg_uw로 분리). WTI 91.62→91.29 정정. HY OAS 282→284bp. 주가지수/환율은 v47.3 확인 일치(SPX 7022.95 ATH, NASDAQ 24016 ATH, KOSPI 6091, VIX 18.36, DXY 98.05)',
 

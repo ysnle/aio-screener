@@ -6,6 +6,112 @@
 
 ---
 
+## v48.39 — 구조적 동적 전환 보강 (지속 운영 가능성) (2026-04-20)
+
+### 트리거
+사용자 지시: "지속적인 운영 가능성을 위해 전체 데이터/함수/텍스트 모두 동적전환으로 최신화를 항상 유지하게끔 되어 있는 지 전수 조사 + 구조적으로 최대한 모두 동적 전환하게끔 보강"
+→ v48.35 onclick 제거 후속. /data-refresh 스킬(콘텐츠 갱신)과 별개로 **인프라 수준의 동적 추적** 구축.
+
+### 배경 — 전수 감사 결과 (3 Agent 병렬)
+- `DATA_SNAPSHOT._updated` 하드코딩 (2026-04-16, 3일 경과) — 실제 갱신과 불일치
+- `SCREENER_DB` 500+ 메모에 `[Citi 04/17]`·`[JPM 04/15]` 애널리스트 리포트 **50+건** staleness 감지 부재
+- RSS 피드 80+ 중 3개 dead 확인되나 자동 비활성 메커니즘 부재
+- localStorage 캐시 분산 (quotes 24h 명시적, 나머지 암시적) → 디버깅 어려움
+- 날짜 포맷 표준 없음 — `toLocaleDateString` / 수동 `Date` 조합 난립
+
+### v48.36 — DATE_ENGINE + _lastFetch + _markFetch
+
+**DATE_ENGINE 모듈** ([aio-core.js:1871~](js/aio-core.js:1871)):
+```javascript
+window.DATE_ENGINE = {
+  now(), isoNow(), toTs(v), ageMs(v),
+  isStale(ts, category),      // 카테고리별 임계값 기반
+  formatRelative(ts),          // "3분 전", "2일 전"
+  formatAbsolute(ts, opts),   // "2026-04-19 13:45"
+  staleBadge(ts, category),   // 🟢/🟡/🔴 + HTML
+  oldest(arr)                  // 최오래 타임스탬프
+};
+STALE_THRESHOLDS = {
+  quote: 10min, news: 1h, sentiment: 30min,
+  macro: 7d, report: 7d, earnings: 90d, snapshot: 24h
+};
+```
+
+**중앙 타임스탬프 저장소**:
+- `window._lastFetch[apiName]` — API별 마지막 성공 타임스탬프
+- `window._markFetch(apiName)` — 헬퍼 (fetch 성공 시 호출)
+- 8개 주요 fetch에 주입: quote · news · sentiment · fearGreed · putCall · fred · breadth · vixHistory
+
+**DATA_SNAPSHOT._isFallback**: 초기 true, applyLiveQuotes 성공 시 false로 전환 → UI가 폴백/실시간 구분 가능.
+
+### v48.36 UI — 데이터 신선도 패널
+
+가이드 페이지 디버그 섹션에 `aio-freshness-panel` 신설:
+- 8개 API 최근 fetch 시점 (🟢 실시간 / 🟡 오래됨 / 🔴 stale)
+- DATA_SNAPSHOT 폴백 상태 (⚠️ 사용 중 / ✅ 실시간)
+- RSS 피드 헬스 (✓ ok / ⚠ degraded / ✗ disabled)
+- localStorage 캐시 통계 (건수 · KB · 만료 개수)
+- 30초 주기 자동 갱신 + `_markFetch` 시 즉시 갱신
+
+### v48.37 — SCREENER_DB memo 날짜 파서
+
+**`_aioMemoStaleInfo(memo)`** ([aio-core.js:2233~](js/aio-core.js:2233)):
+- 3종 패턴 매칭: `[Citi 04/17]` · `[2026.04]` · `[2026-04-15]`
+- 반환: `{ freshestTs, oldestTs, count, isStale, badge, label }`
+- 미래 날짜 자동 전년 처리 (12/28 in April → 전년 12월)
+
+**`_aioStockStaleInfo(sym)`**: `_asOf` 수동 필드 우선 + memo 파싱 폴백.
+
+**fundamental 페이지 통합**: `_renderFundHeader` ([aio-chat.js:3582~](js/aio-chat.js:3582))에 staleness 배지 — 7일 초과 시 "최신 정보 재검증 권장" 경고.
+
+### v48.38 — AIO_Cache 통일 레이어 + RSS 헬스체크
+
+**`window.AIO_Cache`** ([aio-core.js:1999~](js/aio-core.js:1999)):
+- `get(k) / set(k, v, ttlMs) / del(k) / stats() / clear() / prune()`
+- `_aioCache:` prefix 사용 (난립 방지)
+- 명시적 TTL + 자동 만료 판정
+- `QuotaExceededError` 자동 대응 — 만료 제거 + 오래된 20% LRU 정리 + 재시도
+
+**`window._aioFeedHealth`** ([aio-core.js:2092~](js/aio-core.js:2092)):
+- 각 RSS/API 피드별 `{ok, fail, consecFail, lastOk, lastFail, disabledUntil}`
+- 3회+ 연속 실패 → 2시간 `disabledUntil` 자동 비활성화
+- 시간 경과 후 재시도 복구 (recovery)
+- localStorage 영속 저장 (세션 간 지속)
+
+**RSS 통합** ([aio-data.js:6996~](js/aio-data.js:6996)):
+- `AIO_NEWS_SOURCES` → `activeSources` 필터링 (disabled 스킵)
+- `fetchOneFeed` .then에 `reportOk` · .catch에 `reportFail` 주입
+- 죽은 이데일리/아시아경제 등 자동 회피
+
+### v48.39 — 문서/버전 6곳 동기화 (R1)
+
+- `index.html` title `v48.39` + badge · `js/aio-core.js` APP_VERSION · `version.json`
+- `CLAUDE.md` + `_context/CLAUDE.md` 현재 버전
+- `CHANGELOG.md` (이 항목)
+- `_context/BUG-POSTMORTEM.md` P133 (Preventive Refactoring)
+- `_context/RULES.md` R33 (DATE_ENGINE + _markFetch + _aioFeedHealth 의무화)
+
+### 검증
+
+- **정적**: 새 심볼 aio-core 61회 · aio-data 16회 · aio-chat 3회 · index.html 8회 참조 확인
+- **파서 단위**: `_aioMemoStaleInfo('[Citi 04/17]...')` 정상 반환
+- **UI 배지**: 가이드 페이지 `aio-freshness-panel` DOM 주입 확인
+
+### 운영 기여
+
+| 영역 | Before | After |
+|------|--------|-------|
+| 데이터 신선도 시각화 | 없음 (DATA_SNAPSHOT._updated 하드코딩 문자열) | 🟢/🟡/🔴 배지 + 30초 자동 갱신 |
+| 애널리스트 리포트 stale 감지 | 없음 | memo 날짜 파싱 + fundamental 헤더 경고 |
+| RSS dead 피드 처리 | 수동 제거 필요 | 3회 실패 시 2h 자동 비활성화 |
+| localStorage 캐시 | 난립, 만료 암시적 | 통일 API, 명시적 TTL, 자동 LRU |
+| 날짜 포맷 | toLocale 수동 | DATE_ENGINE 표준 |
+| 폴백/실시간 구분 | 불가 | `_isFallback` 플래그 |
+
+**지속 운영성 향상**: 사용자가 오래된 데이터 즉시 인식 · 죽은 피드 자동 회피 · 캐시 용량 자동 관리 · 구조적 staleness 추적 → 수동 점검 필요성 대폭 축소.
+
+---
+
 ## v48.35 — onclick 인라인 핸들러 253건 전수 제거 + Event Delegation (2026-04-19)
 
 ### 트리거

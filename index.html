@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.35 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.39 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2257,7 +2257,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.35</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.39</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -8635,6 +8635,19 @@ body.light-theme canvas { filter:none; }
           <button data-action="_aioLogsDownload" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.3);color:#60a5fa;font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 JSON 파일로 다운로드">▼ 로그 다운로드 (JSON)</button>
           <button data-action="_aioLogsClear" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:#f87171;font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 초기화">로그 초기화</button>
           <span style="font-size:9px;color:var(--text-muted);">최근 500건 ring buffer · 문제 보고 시 첨부 권장</span>
+        </div>
+        <!-- v48.36: 데이터 신선도 패널 — API별 마지막 성공 시점 + stale 배지 자동 표시 -->
+        <div style="margin-top:12px;padding:8px 10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:6px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-secondary);">📡 데이터 신선도 (API별)</div>
+            <button data-action="_aioRefreshFreshness" style="background:rgba(91,168,255,0.08);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:9px;padding:3px 8px;border-radius:3px;cursor:pointer;">↻ 새로고침</button>
+          </div>
+          <div id="aio-freshness-panel" style="font-size:9px;color:var(--text-muted);font-family:var(--font-mono);line-height:1.7;">
+            <div>로딩 중...</div>
+          </div>
+          <div style="font-size:8px;color:var(--text-muted);margin-top:6px;opacity:0.7;">
+            🟢 실시간 (임계 30% 이내) · 🟡 오래됨 (임계 이내) · 🔴 stale (임계 초과, 폴백 데이터)
+          </div>
         </div>
       </div>
     </div>

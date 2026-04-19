@@ -3577,6 +3577,13 @@ function _renderFundHeader(d) {
   html += '<button data-action="_aioAddToPortfolio" data-arg="' + escHtml(d.ticker) + '" class="tb-btn" style="font-size:9px;">포트폴리오에 추가</button>';
   html += '<button data-action="_aioChartAnalyze" data-arg="' + escHtml(d.ticker) + '" class="tb-btn" style="font-size:9px;">차트 분석</button>';
   html += '</div>';
+  // v48.37: SCREENER_DB memo staleness 배지 (애널리스트 리포트 노화 경고)
+  if (typeof window._aioStockStaleInfo === 'function') {
+    var _staleInfo = window._aioStockStaleInfo(d.ticker);
+    if (_staleInfo && _staleInfo.badge) {
+      html += '<div style="margin-top:4px;font-size:9px;color:var(--text-muted);">리포트 코멘트: ' + _staleInfo.badge + (_staleInfo.isStale ? ' <span style="color:#f87171;">· 최신 정보 재검증 권장</span>' : '') + '</div>';
+    }
+  }
   html += '</div></div>';
 
   // v48.6: 52주 위치 프로그레스 바 + 거래량 스파이크 배지 (Yahoo v7 배치 수집 필드 활용)

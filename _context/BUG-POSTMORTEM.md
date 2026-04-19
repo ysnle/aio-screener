@@ -206,6 +206,38 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 
 ---
 
+## [2026-04-20] v48.39 — 구조적 동적 전환 보강 (Preventive Refactoring)
+
+### PR-P133: 데이터 Staleness 감지 부재 + 하드코딩 타임스탬프 (HIGH Latent)
+- **violated_rule**: 신규 P133 (freshness 추적 인프라 부재)
+- **잠재 위험**:
+  1. `DATA_SNAPSHOT._updated` 하드코딩 문자열 → 실제 갱신과 불일치, 사용자는 오래된 데이터를 "최신"으로 오인
+  2. SCREENER_DB 메모 `[Citi 04/17]` 같은 애널리스트 리포트가 10일+ 지나도 UI에 stale 경고 없음 → 투자 판단 오류 위험
+  3. RSS 피드 80+ 중 3개 dead (이데일리/아시아경제 등) 확인됨에도 매 fetch마다 재시도 → 시간·트래픽 낭비
+  4. localStorage 캐시 난립: `aio_*` 여러 프리픽스, TTL 암시적 → QuotaExceededError 시 전체 실패, 만료 판정 불가
+  5. 날짜 포맷 표준 없음: `toLocaleDateString` + 수동 `Date` 조합 → ko-KR/시간대 버그 가능성
+- **전수 감사 결과 (3 Agent 병렬)**:
+  - 하드코딩 데이터: DATA_SNAPSHOT 30+ 필드 · SCREENER_DB 500+ memo · _fallback 객체
+  - 동적 갱신 메커니즘: 폴백 체인 견고 · Visibility API 일시정지 · SW Cache-First 적용
+  - 텍스트 노화: 애널리스트 리포트 50+건 7일+ 경과 · DATE_ENGINE 부재
+- **수정 전략 (Structural Dynamic Tracking)**:
+  1. **DATE_ENGINE** (aio-core.js L1871~): `now/isoNow/toTs/ageMs/isStale/formatRelative/formatAbsolute/staleBadge/oldest` + 카테고리별 STALE_THRESHOLDS (quote 10m, news 1h, report 7d 등) + 이모지 색상 배지 (🟢/🟡/🔴)
+  2. **_lastFetch + _markFetch**: API별 마지막 성공 타임스탬프 중앙 저장소. 8 fetch에 주입 (quote/news/sentiment/fearGreed/putCall/fred/breadth/vixHistory)
+  3. **DATA_SNAPSHOT._isFallback**: 초기 true, applyLiveQuotes 성공 시 false → UI freshness 정확한 판정
+  4. **_aioMemoStaleInfo**: 3 정규식 (MM/DD · YYYY.MM · YYYY-MM-DD) → SCREENER_DB memo 애널리스트 날짜 자동 파싱
+  5. **_aioStockStaleInfo**: _asOf 수동 필드 우선 + memo 파싱 폴백 → fundamental 헤더에 stale 경고 배지
+  6. **AIO_Cache**: 통일 localStorage API (`_aioCache:` prefix) + 명시적 TTL + 자동 LRU 정리 + QuotaExceededError 자동 대응
+  7. **_aioFeedHealth**: RSS 피드별 {ok, fail, consecFail, disabledUntil} 추적 → 3회 연속 실패 시 2h 자동 비활성 + 복구 로직
+  8. **신선도 패널**: 가이드 페이지 `aio-freshness-panel` — 8 API 배지 + 폴백 상태 + RSS 헬스 + 캐시 통계 + 30초 자동 갱신
+- **검증**:
+  - 정적 grep: 새 심볼 aio-core 61 · aio-data 16 · aio-chat 3 · index.html 8
+  - 파서 단위: `_aioMemoStaleInfo('[Citi 04/17]...')` 정상 반환
+  - UI DOM: `aio-freshness-panel` 주입 확인
+- **예방**: **P133** — (1) 하드코딩 날짜 문자열 금지 → `DATE_ENGINE.now()`/`.isoNow()` 사용. (2) 새 fetch 추가 시 `window._markFetch(apiName)` 호출 의무. (3) 새 localStorage 캐시 직접 작성 금지 → `AIO_Cache` 경유. (4) RSS/API 피드 추가 시 id 부여 + `_aioFeedHealth.reportOk/reportFail` 통합. (5) SCREENER_DB memo에 날짜 포함 시 파서 호환 패턴 `[SRC MM/DD]`·`[YYYY.MM]`·`[YYYY-MM-DD]` 준수.
+- **참조**: RULES R33 (DATE_ENGINE + _markFetch + _aioFeedHealth 의무화)
+
+---
+
 ## [2026-04-19] v48.35 — onclick 인라인 핸들러 253건 전수 제거 (Preventive Refactoring)
 
 ### PR-P132: onclick 인라인 핸들러 CSP-strict 비호환 + ESM 블록 (CRITICAL Latent)

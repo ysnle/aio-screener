@@ -2796,22 +2796,23 @@ async function initV20DataEngine() {
       if (typeof fetchFearGreed === 'function') await fetchFearGreed();
       if (typeof fetchPutCall === 'function') await fetchPutCall();
       if(typeof _reportApiOk==='function') _reportApiOk('fear-greed','Phase3 성공');
+      if(typeof window._markFetch==='function') { window._markFetch('sentiment'); window._markFetch('fearGreed'); window._markFetch('putCall'); }
     } catch(e) { showDataError('심리지표', '공포탐욕/풋콜 로딩 실패 — 정적 데이터 사용 중', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fear-greed','Phase3 실패'); }
   }, 3000);
 
   // Phase 4: Heavy APIs (5-15s) — FRED, Breadth, News
   setTimeout(async () => {
-    try { await fetchAllFredData(); if(typeof _reportApiOk==='function') _reportApiOk('fred','FRED 로딩 성공'); }
+    try { await fetchAllFredData(); if(typeof _reportApiOk==='function') _reportApiOk('fred','FRED 로딩 성공'); if(typeof window._markFetch==='function') window._markFetch('fred'); }
     catch(e) { showDataError('FRED', 'FRED 매크로 데이터 로딩 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fred','FRED 실패'); }
-    try { await fetchBreadthData(); }
+    try { await fetchBreadthData(); if(typeof window._markFetch==='function') window._markFetch('breadth'); }
     catch(e) { showDataError('시장폭', 'Breadth 데이터 로딩 실패', 'warn'); }
-    try { await fetchSentimentHistory(); if(typeof _reportApiOk==='function') _reportApiOk('yahoo-chart','VIX 차트 성공'); }
+    try { await fetchSentimentHistory(); if(typeof _reportApiOk==='function') _reportApiOk('yahoo-chart','VIX 차트 성공'); if(typeof window._markFetch==='function') window._markFetch('vixHistory'); }
     catch(e) { showDataError('VIX', 'VIX 히스토리 로딩 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('yahoo-chart','VIX 차트 실패'); }
   }, 5000);
 
   // Phase 5: News & Content (8-20s)
   setTimeout(async () => {
-    try { if (typeof fetchAllNews === 'function') await fetchAllNews(false); if(typeof _reportApiOk==='function') _reportApiOk('rss-news','뉴스 로딩 성공'); }
+    try { if (typeof fetchAllNews === 'function') await fetchAllNews(false); if(typeof _reportApiOk==='function') _reportApiOk('rss-news','뉴스 로딩 성공'); if(typeof window._markFetch==='function') window._markFetch('news'); }
     catch(e) { showDataError('뉴스', '뉴스 피드 로딩 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('rss-news','뉴스 실패'); }
   }, 8000);
 
@@ -6991,7 +6992,15 @@ async function fetchAllNews(forceRefresh = false) {
       <div id="load-status" style="font-size:10px;color:var(--text-muted);margin-top:6px;"></div>
     </div>`;
 
-  const total = AIO_NEWS_SOURCES.length;
+  // v48.38: 헬스체크 — disabled 피드 자동 스킵 (dead RSS 자동 회피)
+  const activeSources = (window._aioFeedHealth && typeof window._aioFeedHealth.isDisabled === 'function')
+    ? AIO_NEWS_SOURCES.filter(function(s) { return !window._aioFeedHealth.isDisabled('rss:' + s.name); })
+    : AIO_NEWS_SOURCES;
+  const _skippedCount = AIO_NEWS_SOURCES.length - activeSources.length;
+  if (_skippedCount > 0) {
+    _aioLog('info', 'rss-health', _skippedCount + '개 RSS 소스 헬스체크로 자동 스킵');
+  }
+  const total = activeSources.length;
   let done = 0;
   const updateBar = (name) => {
     done++;
@@ -7012,8 +7021,8 @@ async function fetchAllNews(forceRefresh = false) {
   // v21: 배치 분할 (3개씩 순차 배치 → CF Worker 100req/분 rate limit 안전)
   const BATCH_SIZE = 3;
   const results = [];
-  for (let i = 0; i < AIO_NEWS_SOURCES.length; i += BATCH_SIZE) {
-    const batch = AIO_NEWS_SOURCES.slice(i, i + BATCH_SIZE);
+  for (let i = 0; i < activeSources.length; i += BATCH_SIZE) {
+    const batch = activeSources.slice(i, i + BATCH_SIZE);
     const batchResults = await Promise.allSettled(
       batch.map(s => {
         if (s.type === 'telegram') {
@@ -7158,7 +7167,19 @@ async function fetchAllNews(forceRefresh = false) {
             }
           })();
         }
-        return fetchOneFeed(s).then(items => { updateBar(s.name); return items; });
+        return fetchOneFeed(s).then(items => {
+          updateBar(s.name);
+          // v48.38: 헬스 리포트 — items.length > 0 이면 ok, 아니면 fail
+          if (window._aioFeedHealth) {
+            if (items && items.length > 0) window._aioFeedHealth.reportOk('rss:' + s.name);
+            else window._aioFeedHealth.reportFail('rss:' + s.name);
+          }
+          return items;
+        }).catch(err => {
+          // fetch 자체가 throw 하는 경우도 fail로 기록
+          if (window._aioFeedHealth) window._aioFeedHealth.reportFail('rss:' + s.name);
+          return [];
+        });
       })
     );
     results.push(...batchResults);
@@ -7177,13 +7198,13 @@ async function fetchAllNews(forceRefresh = false) {
         if (_earlyScored.length >= 5) {
           _briefingCacheKey = null; // 캐시 무효화 (최종 렌더에서 갱신)
           renderBriefingFeed(_earlyScored);
-          console.log('[AIO v46.6] 브리핑 조기 렌더: ' + _earlyScored.length + '건 (배치 ' + Math.ceil((i + BATCH_SIZE) / BATCH_SIZE) + '/' + Math.ceil(AIO_NEWS_SOURCES.length / BATCH_SIZE) + ')');
+          console.log('[AIO v46.6] 브리핑 조기 렌더: ' + _earlyScored.length + '건 (배치 ' + Math.ceil((i + BATCH_SIZE) / BATCH_SIZE) + '/' + Math.ceil(activeSources.length / BATCH_SIZE) + ')');
         }
       }
     }
 
     // v46.6: 배치 딜레이 1500→1000ms (프록시 타임아웃 단축과 함께 전체 속도 30%↑)
-    if (i + BATCH_SIZE < AIO_NEWS_SOURCES.length) {
+    if (i + BATCH_SIZE < activeSources.length) {
       await new Promise(r => setTimeout(r, 1000));
     }
   }
@@ -8586,6 +8607,9 @@ async function fetchLiveQuotes() {
   if (allQuotes.length > 0) {
     applyLiveQuotes(allQuotes);
     fetchLiveQuotes._failCount = 0;
+    // v48.36: 중앙 freshness 추적 — _lastFetch.quote + DATA_SNAPSHOT._isFallback 해제
+    if (typeof window._markFetch === 'function') window._markFetch('quote');
+    if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT._isFallback = false;
     updateDataStatusError('ok', 'API 연결 성공 · ' + allQuotes.length + '개 종목');
     if (typeof _reportApiOk === 'function') _reportApiOk('yahoo-quote', allQuotes.length + '개 종목');
     // v34.2: 실시간 데이터 수신 이벤트 발화 → staleness 배너 즉시 해제

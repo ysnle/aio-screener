@@ -284,6 +284,56 @@ Yahoo Finance가 가격을 반환해도 해당 기업이 실제 상장사인지 
 - onclick 인라인 핸들러에 사용자 데이터 삽입 시 escHtml 또는 data-* 속성 패턴 사용
 - 검증: `grep -n "innerHTML\|onclick.*'" index.html | grep "\${p\.\|'+t\.\|'+p\." | grep -v "escHtml"`
 
+### R33. 데이터 Freshness 추적 의무화 — DATE_ENGINE + _markFetch + _aioFeedHealth (v48.39 추가, P133 교훈)
+- **원칙**: 모든 fetch 함수는 성공 시 `window._markFetch('apiName')` 호출 의무. 모든 날짜/시간은 `DATE_ENGINE` 경유. 모든 피드(RSS/API)는 `_aioFeedHealth.reportOk/reportFail` 통합.
+- **이유**:
+  - 사용자가 현재 보는 데이터가 실시간인지 폴백인지 즉시 판단 가능
+  - 애널리스트 리포트(`[Citi 04/17]`)는 시간 경과 시 UI가 stale 경고 자동 표시 → 투자 판단 오류 방지
+  - 죽은 RSS 피드 자동 비활성화로 불필요한 트래픽/지연 제거
+  - localStorage 캐시 용량 자동 관리 (QuotaExceededError 대응)
+- **새 fetch 함수 작성 규칙**:
+  ```javascript
+  async function fetchXxx() {
+    try {
+      const data = await fetchWithTimeout(url, {}, 8000);
+      applyData(data);
+      window._markFetch('xxx');         // 필수
+      if (DATA_SNAPSHOT) DATA_SNAPSHOT._isFallback = false;
+      return data;
+    } catch(e) {
+      // 폴백 체인
+    }
+  }
+  ```
+- **새 피드(RSS/API) 추가 규칙**:
+  - 고유 id 부여 (예: `'rss:' + source.name`)
+  - `_aioFeedHealth.isDisabled(id)` 체크 후 스킵 판단
+  - 성공 시 `.reportOk(id)` · 실패 시 `.reportFail(id)` 호출
+- **새 localStorage 캐시 규칙**:
+  - `localStorage.setItem` 직접 사용 금지
+  - 반드시 `window.AIO_Cache.set(key, value, ttlMs)` 경유
+  - 읽기: `AIO_Cache.get(key)` (만료 자동 판정 후 null 반환)
+- **새 날짜 포맷 규칙**:
+  - 하드코딩 `"2026-04-19"` 등 절대 날짜 문자열 금지 → `DATE_ENGINE.isoNow()` 또는 동적 계산
+  - UI 상대 시간: `DATE_ENGINE.formatRelative(ts)` ("3분 전")
+  - UI 절대 시간: `DATE_ENGINE.formatAbsolute(ts)` ("2026-04-19 13:45")
+  - Stale 판정: `DATE_ENGINE.isStale(ts, category)` — 카테고리는 STALE_THRESHOLDS 참조
+  - UI 배지: `DATE_ENGINE.staleBadge(ts, category)` — HTML 반환
+- **SCREENER_DB memo 규칙** (v48.37):
+  - 애널리스트 리포트 표기: `[Citi 04/17]`, `[JPM 04/15 Buy]` 등 — `_aioMemoStaleInfo` 파서 호환
+  - 복합 날짜 표기: `[2026-04-15]` 또는 `[2026.04]`
+  - 가급적 `_asOf: '2026-04-17'` 필드 사용 (파서보다 정확)
+- **검증**:
+  ```bash
+  # 하드코딩 날짜 문자열 감지 (주석 제외)
+  grep -n "'\"[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}'\"" js/*.js | grep -v '^.*//'
+  # _markFetch 누락된 fetch 함수 감지
+  grep -l 'async function fetch' js/*.js | xargs grep -L '_markFetch'
+  ```
+  가이드 페이지 → 디버그 섹션 → 신선도 패널 → 모든 API에 🟢 배지 확인
+
+---
+
 ### R32. Event Delegation 의무화 — onclick 인라인 핸들러 금지 (v48.35 추가, P132 교훈)
 - **원칙**: HTML 및 JS 템플릿 리터럴 안에 `onclick=` / `onsubmit=` / `onchange=` / `onkeyup=` 등 인라인 이벤트 속성 **전면 금지**.
 - **이유**:
