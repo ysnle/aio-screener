@@ -6,6 +6,133 @@
 
 ---
 
+## v48.29 — MODULE 1/2/3/4 모두 외부 .js 분리 완성 (4모듈 100% 외부화) (2026-04-19)
+
+### 트리거
+사용자 지시: "남은 작업/부분 없이 완벽하게 계속 진행" → v48.28에서 MODULE 4만 외부 분리한 상태에서 MODULE 1/2/3도 모두 외부 .js로 분리 완성.
+
+### A. 4개 외부 .js 파일 분리
+
+| 파일 | 원본 라인 | 줄 수 | 책임 |
+|------|----------|-------|------|
+| `js/aio-core.js` | 8770~12139 | **3,370** | Stores + Engines + DATA_SNAPSHOT + Utils + APP_VERSION |
+| `js/aio-data.js` | 12142~22489 | **10,348** | SCREENER_DB + Fetch + Score + Classify + Translate + Ticker |
+| `js/aio-ui.js` | 22492~24543 | **2,052** | Sentiment/Breadth/RRG Charts + Render |
+| `js/aio-chat.js` | 27179~31322 (v48.28) | **4,144** | CHAT_CONTEXTS + Briefing + Chip |
+| **합계** | — | **19,914** | — |
+
+### B. index.html 변화
+
+| 지표 | v48.27 | v48.28 | v48.29 | 총 감축 |
+|------|--------|--------|--------|--------|
+| 줄 수 | 45,574 | 41,429 | **25,656** | -19,918 (-44%) |
+| 크기 | 3.24 MB | 2.95 MB | **~1.8 MB** | -1.44 MB (-44%) |
+| inline script 블록 | 17 | 14 | **11** | -6 |
+| external .js | 2 (Chart.js/LWC CDN) | 3 | **6** (CDN 2 + 모듈 4) | +4 |
+
+### C. HTML 구조 (8757~11405)
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" defer></script>
+<script src="./js/aio-core.js"></script>   <!-- MODULE 1 -->
+<script src="./js/aio-data.js"></script>   <!-- MODULE 2 -->
+<script src="./js/aio-ui.js"></script>     <!-- MODULE 3 -->
+<!-- ... 11 inline scripts ... -->
+<script src="./js/aio-chat.js"></script>   <!-- MODULE 4 -->
+```
+
+**로드 순서 보장**: 브라우저가 동기 `<script src>` 순차 실행. core → data → ui → (inline scripts) → chat. 의존성 그래프 선형이라 안전.
+
+### D. preload hint 추가
+
+```html
+<link rel="preload" as="script" href="./js/aio-core.js">
+<link rel="preload" as="script" href="./js/aio-data.js">
+<link rel="preload" as="script" href="./js/aio-ui.js">
+<link rel="preload" as="script" href="./js/aio-chat.js">
+```
+
+HTML 파싱 중 4개 모듈 다운로드 병렬화 (다운로드 hint). 실행은 본문 `<script src>` 위치 보장 순서.
+
+### E. sw.js SHELL_ASSETS
+
+```js
+const SHELL_ASSETS = [
+  './', './index.html', './manifest.json', './version.json',
+  './js/aio-core.js', './js/aio-data.js', './js/aio-ui.js', './js/aio-chat.js',
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+  'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js'
+];
+```
+
+총 10 pre-cache 자산. 4개 모듈 개별 캐시 → chat 변경 시 main/core/data/ui 캐시 재사용 (캐시 격리).
+
+### F. 버전 동기화 (이동)
+
+| 지점 | 위치 변경 |
+|------|----------|
+| `<title>` | index.html (유지) |
+| `#app-version-badge` | index.html (유지) |
+| `const APP_VERSION` | index.html → **js/aio-core.js** |
+| `version.json` | (유지) |
+| `CLAUDE.md` | (유지) |
+| `_context/CLAUDE.md` | (유지) |
+| `sw.js SW_VERSION` | (유지, R1 7번째) |
+
+### G. innerHTML XSS 진단 (보강 없음 — 별도 세션)
+
+| 영역 | 건수 |
+|------|------|
+| index.html innerHTML | 125 |
+| js/aio-core.js | 16 |
+| js/aio-data.js | 36 |
+| js/aio-ui.js | 7 |
+| js/aio-chat.js | 27 |
+| **합계** | **211** |
+| escHtml/escapeHtml 호출 | **83 (39%)** |
+
+대부분이 정적 HTML (변수 보간 없음) + escHtml 적용 동적 데이터. 자동 도구 없이 211건 수동 점검 어려워 별도 세션 권장. DOMPurify 도입 검토 가능하나 추가 의존성.
+
+### H. 검증
+
+| 항목 | 결과 |
+|------|------|
+| 4개 외부 .js 줄 수 합계 | 19,914 ✅ (core 3370 + data 10348 + ui 2052 + chat 4144) |
+| inline script 매칭 | 11 open + 11 close ✅ |
+| external src 매칭 | 6개 모두 위치 정상 (CDN 2 + 모듈 4) ✅ |
+| 로드 순서 | core → data → ui → inline → chat ✅ |
+| APP_VERSION 이동 | js/aio-core.js:1481 ✅ |
+| SW_VERSION 동기화 | sw.js v48.29 ✅ |
+| SHELL_ASSETS 10개 | ✅ |
+
+### I. 효과
+
+- **HTML 다운로드 -44%** (45,574 → 25,656줄, 3.24MB → ~1.8MB)
+- **병렬 다운로드**: 4개 모듈 동시 다운로드 (HTTP/2 multiplex)
+- **캐시 격리**: 모듈별 독립 캐시 → 단일 모듈 변경 시 나머지 재사용
+- **IDE 성능**: 단일 45K줄 파일 대신 5개 파일 (25K + 3.4K + 10.4K + 2.1K + 4.1K)
+- **코드 탐색성**: 모듈별 grep/find 가능
+- **배포 업데이트 최적화**: 코어 변경 없이 UI/Chat만 바뀌면 해당 .js만 캐시 무효화
+- 운영 등급 A+ 유지
+
+### J. 보류 (장기)
+
+- **innerHTML 211건 escape 전수 점검** — DOMPurify 도입 or 수동 감사
+- **ESM 전환** — `import`/`export` 문법 + 빌드 파이프라인 (Rollup/esbuild) — v50 고려
+- **Chart.js CDN 동적 로드** — 비시계열 7차트만 사용, 해당 페이지 진입 시 lazy load
+
+### K. 변경 파일
+
+- `index.html`: **-15,773줄** (MODULE 1/2/3 제거) + 버전 + preload 4줄
+- `js/aio-core.js`: **신규** 3,370줄
+- `js/aio-data.js`: **신규** 10,348줄
+- `js/aio-ui.js`: **신규** 2,052줄
+- `sw.js`: SHELL_ASSETS +3개 + SW_VERSION v48.28 → v48.29
+- `CHANGELOG.md`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`: 버전
+
+---
+
 ## v48.28 — 보류했던 대규모 3건 모두 처리 + 운영성 심화 보강 (2026-04-19)
 
 ### 트리거
