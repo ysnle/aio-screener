@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.29 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.30 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1140,9 +1140,10 @@ body { background: #0d1521 !important; }
 .market-pulse-bar{display:flex;align-items:center;gap:6px;padding:5px 14px;background:var(--bg-surface);border-bottom:1px solid var(--border);font-size:10px;overflow-x:auto;white-space:nowrap;}
 .pulse-seg{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;cursor:pointer;transition:background 0.15s,transform 0.1s;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
 .pulse-seg:hover{background:rgba(91,168,255,0.1);transform:translateY(-1px);}
-.pulse-seg .ps-label{font-size:8px;color:var(--text-muted);font-weight:700;letter-spacing:0.03em;}
+/* v48.30 (A11y WCAG AA): ps-label/ps-status 8px → 11px 강제 (인라인 style override 패턴 외라 명시 규칙 필요) */
+.pulse-seg .ps-label{font-size:11px !important;color:var(--text-muted);font-weight:700;letter-spacing:0.03em;}
 .pulse-seg .ps-val{font-weight:800;font-family:var(--font-mono);font-size:11px;}
-.pulse-seg .ps-status{font-size:8px;font-weight:600;}
+.pulse-seg .ps-status{font-size:11px !important;font-weight:600;}
 /* v42.1: 크로스링크 */
 .cross-link{font-size:9px;color:var(--accent);cursor:pointer;font-weight:600;opacity:0.85;transition:opacity 0.15s;}
 .cross-link:hover{opacity:1;text-decoration:underline;}
@@ -2214,22 +2215,22 @@ body.light-theme canvas { filter:none; }
       <div class="content" id="main-content" role="main">
         <!-- v42.1: 마켓 펄스 바 — 페이지 간 시장 상태 요약 -->
         <div class="market-pulse-bar" id="market-pulse-bar" style="display:none;">
-          <div class="pulse-seg" onclick="showPage('signal',null)" title="매매 시그널 상세">
+          <div class="pulse-seg" onclick="showPage('signal',null)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('signal',null);}" role="button" tabindex="0" title="매매 시그널 상세" aria-label="매매 시그널 페이지 이동">
             <span class="ps-label">시그널</span>
             <span class="ps-val" id="mp-signal-score" style="color:var(--text-muted);">—</span>
             <span class="ps-status" id="mp-signal-label" style="color:var(--text-muted);">로딩</span>
           </div>
-          <div class="pulse-seg" onclick="showPage('breadth',null)" title="시장 폭 상세">
+          <div class="pulse-seg" onclick="showPage('breadth',null)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('breadth',null);}" role="button" tabindex="0" title="시장 폭 상세" aria-label="시장 폭 페이지 이동">
             <span class="ps-label">시장폭</span>
             <span class="ps-val" id="mp-breadth-val" style="color:var(--text-muted);">—</span>
             <span class="ps-status" id="mp-breadth-label" style="color:var(--text-muted);">로딩</span>
           </div>
-          <div class="pulse-seg" onclick="showPage('sentiment',null)" title="투자 심리 상세">
+          <div class="pulse-seg" onclick="showPage('sentiment',null)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('sentiment',null);}" role="button" tabindex="0" title="투자 심리 상세" aria-label="투자 심리 페이지 이동">
             <span class="ps-label">심리</span>
             <span class="ps-val" id="mp-sentiment-val" style="color:var(--text-muted);">—</span>
             <span class="ps-status" id="mp-sentiment-label" style="color:var(--text-muted);">로딩</span>
           </div>
-          <div class="pulse-seg" onclick="showPage('macro',null)" title="거시경제 상세">
+          <div class="pulse-seg" onclick="showPage('macro',null)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('macro',null);}" role="button" tabindex="0" title="거시경제 상세" aria-label="거시경제 페이지 이동">
             <span class="ps-label">매크로</span>
             <span class="ps-val" id="mp-macro-icon" style="color:var(--text-muted);font-size:9px;">●</span>
             <span class="ps-status" id="mp-macro-val" style="color:var(--text-muted);">로딩</span>
@@ -2250,7 +2251,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.29</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.30</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4526,15 +4527,15 @@ body.light-theme canvas { filter:none; }
     <div id="fred-charts-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
       <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
         <div style="font-size:9px;font-weight:700;color:#f87171;margin-bottom:6px;">실업률 (UNRATE)</div>
-        <div style="position:relative;height:120px;"><canvas id="fred-unrate-chart"></canvas></div>
+        <div style="position:relative;height:120px;"><canvas id="fred-unrate-chart" role="img" aria-label="실업률 12개월 시계열 차트 (FRED UNRATE)"></canvas></div>
       </div>
       <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
         <div style="font-size:9px;font-weight:700;color:#fbbf24;margin-bottom:6px;">CPI 인플레이션 (YoY%)</div>
-        <div style="position:relative;height:120px;"><canvas id="fred-cpi-chart"></canvas></div>
+        <div style="position:relative;height:120px;"><canvas id="fred-cpi-chart" role="img" aria-label="CPI 인플레이션 전년 동월 대비 시계열 차트 (FRED CPIAUCSL)"></canvas></div>
       </div>
       <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;">
         <div style="font-size:9px;font-weight:700;color:#60a5fa;margin-bottom:6px;">기준금리 (Fed Funds)</div>
-        <div style="position:relative;height:120px;"><canvas id="fred-fedfunds-chart"></canvas></div>
+        <div style="position:relative;height:120px;"><canvas id="fred-fedfunds-chart" role="img" aria-label="연방기금 기준금리 12개월 시계열 차트 (FRED FEDFUNDS)"></canvas></div>
       </div>
     </div>
   </div>
@@ -8623,6 +8624,12 @@ body.light-theme canvas { filter:none; }
         <div style="font-size:9px;color:var(--text-muted);background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:4px;">
           문제 보고 시 디버그 모드를 켜고 콘솔 내용을 스크린샷으로 캡처하면 원인 파악이 빠릅니다.
         </div>
+        <!-- v48.30: 운영 관측성 — 로그 다운로드 버튼 (세션 종료 시 ring buffer 500건 소실 방지) -->
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+          <button onclick="if(window._aioLogs){var ok=window._aioLogs.download();if(typeof showToast==='function')showToast(ok?'로그 다운로드 완료':'다운로드 실패');}" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.3);color:#60a5fa;font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 JSON 파일로 다운로드">▼ 로그 다운로드 (JSON)</button>
+          <button onclick="if(window._aioLogs){window._aioLogs.clear();if(typeof showToast==='function')showToast('로그 버퍼 초기화');}" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:#f87171;font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 초기화">로그 초기화</button>
+          <span style="font-size:9px;color:var(--text-muted);">최근 500건 ring buffer · 문제 보고 시 첨부 권장</span>
+        </div>
       </div>
     </div>
 
@@ -8759,7 +8766,7 @@ body.light-theme canvas { filter:none; }
 
   <!-- v30.11 perf: Chart.js를 <head>에서 여기로 이동 — 초기 DOM 렌더링 차단 제거 -->
   <!-- v38.3: CDN 이중화 — jsDelivr 실패 시 cdnjs 자동 전환 -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
   <!-- v48.23 (P3-5): lightweight-charts 통합 — time series 차트 점진 전환용 (Chart.js와 혼합 사용) -->
   <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" defer></script>
   <script>

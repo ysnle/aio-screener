@@ -91,7 +91,21 @@
     byArea: function(ar) { return _buf.filter(function(e){ return e.area === ar; }); },
     rate: function() { _resetRateIfNeeded(); return Object.assign({}, _rateCounter); },
     clear: function() { _buf.length = 0; _rateCounter.warn=0; _rateCounter.error=0; _rateCounter.lastReset=Date.now(); },
-    dump: function() { return JSON.stringify(_buf, null, 2); }
+    dump: function() { return JSON.stringify(_buf, null, 2); },
+    // v48.30: 운영 관측성 — 사용자가 문제 보고 시 로그 파일 다운로드 (세션 종료 시 ring buffer 소실 방지)
+    download: function(filename) {
+      try {
+        var blob = new Blob([JSON.stringify({ version: (window.AIO && window.AIO.version) || '?', exported: new Date().toISOString(), userAgent: navigator.userAgent, rate: window._aioLogs.rate(), logs: _buf }, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename || ('aio-logs-' + new Date().toISOString().replace(/[:.]/g, '-') + '.json');
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() { try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch(_){} }, 100);
+        return true;
+      } catch(e) { console.warn('[AIO] log download failed:', e); return false; }
+    }
   };
 
   // window.onerror 전역 훅 — v48.27 (QA-5): 단일 핸들러 (이전 8774 첫 핸들러 제거됨)
@@ -1478,7 +1492,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.29';
+const APP_VERSION = 'v48.30';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거

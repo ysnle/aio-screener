@@ -2936,8 +2936,8 @@ async function chatSend(ctxId) {
         var _fbDiv = document.createElement('div');
         _fbDiv.style.cssText = 'display:flex;gap:6px;justify-content:flex-end;margin:2px 0;';
         var _fbId = 'fb-' + Date.now();
-        _fbDiv.innerHTML = '<button onclick="this.style.color=\'#3ddba5\';_aiFeedback(\'' + _fbId + '\',1)" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨">👍</button>' +
-          '<button onclick="this.style.color=\'#f87171\';_aiFeedback(\'' + _fbId + '\',-1)" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확">👎</button>';
+        _fbDiv.innerHTML = '<button onclick="this.style.color=\'#3ddba5\';_aiFeedback(\'' + _fbId + '\',1)" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨" aria-label="AI 응답이 도움됨으로 평가">👍</button>' +
+          '<button onclick="this.style.color=\'#f87171\';_aiFeedback(\'' + _fbId + '\',-1)" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확" aria-label="AI 응답이 부정확함으로 평가">👎</button>';
         aiBubble.parentNode.appendChild(_fbDiv);
       }
 
