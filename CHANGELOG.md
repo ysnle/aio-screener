@@ -6,6 +6,73 @@
 
 ---
 
+## v48.40 — /data-refresh 스킬 대폭 확장 (22 → 30 카테고리) (2026-04-20)
+
+### 트리거
+사용자 지시: "data-refresh 스킬도 업그레이드 · 전체 데이터에는 지표/차트/시세/함수/로직/기준/텍스트 등등 모두 포함되도록 되어 있지?"
+→ 기존 A~J 10그룹(핵심 지표/차트/시세/매크로/뉴스/상품/한국/엔드포인트/폴백체인)에 추가로 **K~T 10그룹** 보강.
+
+### 추가된 카테고리
+
+| 그룹 | 대상 | 주기 |
+|------|------|------|
+| **K** | 매매 시그널 로직/임계값 (스코어링 20점·VIX/F&G/Breadth 경계·2%룰·RSI/MACD 공식) | 6개월~연간 |
+| **L** | CHAT_CONTEXTS·해설 가이드·용어 사전·투자 패러다임 텍스트 | 월~분기 |
+| **M** | 섹터/테마 구성 (SCREENER_DB·mcap·RRG시드·KR_THEME_MAP·리밸런싱) | 분기 |
+| **N** | API 엔드포인트 URL drift (Yahoo/FMP/Finnhub/FRED/CoinGecko/네이버) | 반기 |
+| **O** | SCREENER_DB memo 내용 재검증 (v48.37 `_aioStockStaleInfo` 연동, 종목별) | 분기 실적 후 |
+| **P** | 투자 패러다임 / KNOWLEDGE-BASE / NARRATIVE_ENGINE 규칙 | 분기 |
+| **Q** | v48.36~39 인프라 헬스 (`_lastFetch`·`_aioFeedHealth`·`AIO_Cache`·`DATE_ENGINE.THRESHOLDS`) | 매번 |
+| **R** | UI 텍스트 시점 고정 감지 (절대 날짜·상대 시간·예시 수치) | 매번 |
+| **S** | earnings 캘린더 / FOMC 일정 | 분기 |
+| **T** | 종합 추이 (엔트리 수·커버리지·정적 데이터 라인 수) | 매번 |
+
+### Self-Eval 확장 (D1~D8 → D1~D18)
+
+신규 10건:
+- **D9**: K그룹 임계값 재검토 (regime 변화 시)
+- **D10**: L그룹 CHAT_CONTEXTS 갱신 (월 1회+)
+- **D11**: M그룹 섹터/테마 구성 (분기 리밸런싱)
+- **D12**: N그룹 API 엔드포인트 (403/429 비율)
+- **D13**: O그룹 SCREENER_DB memo (v48.37 파서 기준 7일+ stale)
+- **D14**: P그룹 투자 패러다임 (KNOWLEDGE-BASE Q[N] 최신)
+- **D15**: Q그룹 인프라 헬스 (`_lastFetch` 8+ 커버 · `_aioFeedHealth` disabled<5 · `AIO_Cache` kb<4000)
+- **D16**: R그룹 UI 텍스트 (절대 날짜 0건)
+- **D17**: S그룹 earnings 캘린더 정합성
+- **D18**: T그룹 종합 추이 로그
+
+### WebSearch 전략 테이블 (신규)
+
+19행 쿼리 템플릿 추가 — 그룹별 검색어 예시 (모두 연도 명시 의무). 예:
+- K2 VIX regime: `"VIX regime threshold fear historical [YYYY] 2026"`
+- L1 시나리오 확률: `"market regime current [month] 2026 base bull bear probability"`
+- M1 S&P 리밸런싱: `"S&P 500 additions removals Q1 Q2 2026"`
+- N1 Yahoo 변경: `"Yahoo Finance API deprecated [YYYY]"`
+- O2 SCREENER 갱신: `"[TICKER] earnings guidance analyst [YYYY-MM] 2026"`
+
+### commands/data-refresh.md 랩퍼 갱신
+
+- 트리거 조건 확장: v48.40 신규 3건 (SCREENER_DB stale 10+ · `_aioFeedHealth.disabled` 5+ · 분기 시작 월)
+- 실행 전 필수 읽기: RULES R32/R33 · BUG-POSTMORTEM P132/P133 · v48.36~39 인프라 API 이해 의무화
+
+### 철학
+
+**v48.36~39** = 구조적 **자동** 전환 (API 응답 시점마다 freshness 자동 추적 · 죽은 피드 자동 비활성 · 캐시 자동 관리)
+**v48.40 /data-refresh** = 구조적 **수동** 점검 + WebSearch 최신화 (자동이 닿지 못하는 정적 데이터 — 시그널 임계값·애널리스트 리포트·시나리오 확률·패러다임 텍스트)
+
+두 레이어가 **상호 보완**하여 "모든 데이터 항상 최신" 달성.
+
+### 버전 6곳 동기화 (R1)
+
+index.html(title+badge) · js/aio-core.js(APP_VERSION) · version.json · CLAUDE.md · _context/CLAUDE.md · CHANGELOG.md
+
+### 검증
+
+- SKILL.md 라인 수: 631줄 → 900줄+ (30 카테고리 + WebSearch 테이블 + D1~D18)
+- 스킬 description 갱신 → 다음 `/data-refresh` 호출 시 전체 범위 명확
+
+---
+
 ## v48.39 — 구조적 동적 전환 보강 (지속 운영 가능성) (2026-04-20)
 
 ### 트리거

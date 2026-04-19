@@ -1,12 +1,24 @@
 ---
 name: data-refresh
-description: 전체 하드코딩 데이터 전수 점검 + 최신화. DATA_SNAPSHOT, 심리지표, 브레드쓰, 뉴스, 매크로 등 22개 데이터 카테고리 대상.
+description: 전체 정적 데이터 전수 점검 + WebSearch 기반 최신화. 지표/차트/시세/함수/로직/기준/텍스트 모두 포함 — 22개 → 30개 카테고리(A~T 그룹). v48.40+ 확장.
 ---
 
-# /data-refresh -- 전체 하드코딩 데이터 최신화 워크플로우
+# /data-refresh — 전체 정적 데이터 최신화 워크플로우 (v48.40+)
 
 ## 목적
-index.html에 하드코딩된 **모든** 시장 데이터의 경과일을 전수 점검하고, 오늘 날짜 기준으로 최신화한다.
+프로젝트 전체의 **정적으로 작성된 모든 데이터**를 전수 점검하고, WebSearch 기반으로 오늘 기준 최신화한다.
+
+**대상 전 범위** (v48.40 확장):
+1. **지표 (Metrics)**: VIX·F&G·RSI·MACD·AAII·NAAIM·II·Put/Call·HY OAS·CPI·PCE·ISM 등
+2. **차트 (Charts)**: labels20/bpLabels/aaiiLabels 등 시계열 배열 + Chart.js/LWC 설정
+3. **시세 (Quotes)**: DATA_SNAPSHOT·_SNAP_FALLBACK·_SECTOR_PCT_FALLBACK·KR 폴백값
+4. **함수/로직 (Functions/Logic)**: 매매 시그널 공식·스코어링 임계값·포지션 사이징·Stop-loss 규칙·RRG 계산
+5. **기준 (Criteria)**: 섹터 가중치·시가총액 필터·PE 임계값·RSI 경계값·VIX panic line
+6. **텍스트 (Text)**: CHAT_CONTEXTS 시스템 프롬프트·해설 가이드·용어 사전·UI 라벨·브리핑 나레이션
+7. **API 엔드포인트**: Yahoo v8/v11·FMP·Finnhub·FRED URL drift 감지
+8. **인프라 상태** (v48.36~39): `_lastFetch`·`AIO_Cache.stats()`·`_aioFeedHealth.stats()` 헬스 점검
+
+**제외 (동적 자동)**: v48.36~39 인프라가 자동 처리 — `_markFetch` 주입된 8 API, RSS 헬스체크로 자동 비활성 피드, AIO_Cache TTL 자동 만료 등.
 
 ---
 
@@ -354,6 +366,34 @@ WebSearch: "한국 증시 뉴스 [YYYY-MM-DD] 2026"
 
 ---
 
+## v48.40 확장 카테고리별 WebSearch 전략
+
+모든 WebSearch는 **날짜 명시** + **2026년 연도 포함** 필수 (LLM 환각 방지).
+
+| 그룹 | 카테고리 | WebSearch 쿼리 예시 | 주기 |
+|------|---------|-------------------|-----|
+| **K1** | 시그널 스코어링 공식 | `"trading signal scoring 20 point system [YYYY]"` | 6개월 |
+| **K2** | VIX regime 임계값 | `"VIX regime threshold fear historical [YYYY] 2026"` | 분기 |
+| **K3** | 2% 포지션 사이징 룰 | `"position sizing risk 2 percent rule ATR stop [YYYY]"` | 연간 |
+| **L1** | 시나리오 확률 (macro) | `"market regime current [month] 2026 base bull bear probability"` | 월간 |
+| **L2** | 해설 가이드 예시 수치 | `"VIX 15 25 range current [YYYY]" "S&P PE ratio 22 normal [YYYY]"` | 분기 |
+| **L3** | 용어 사전 예시 | (정의는 불변, 예시 수치만 점검) | 반기 |
+| **L4** | 투자 패러다임 | `"Dalio All Weather 2026 allocation" "Weinstein Stage current market"` | 분기 |
+| **M1** | S&P 500 리밸런싱 | `"S&P 500 additions removals Q1 Q2 2026"` · `"NASDAQ 100 rebalance April 2026"` | 분기 |
+| **M2** | 시총 순위 변동 | `"largest market cap stocks [month] 2026"` | 분기 |
+| **M3** | 섹터 ETF 주간 | `"XLK XLE XLF weekly performance [week of] 2026"` | 주간 |
+| **M5** | KR 신규 테마 | `"한국 증시 신규 테마 [YYYY-Q] 2026 로봇 AI"` | 분기 |
+| **N1** | Yahoo Finance 변경 | `"Yahoo Finance API deprecated [YYYY]" "query1 query2 endpoint change"` | 반기 |
+| **N2** | FMP/Finnhub 무료 티어 | `"FMP free tier quota [YYYY]" "Finnhub free limit 2026"` | 반기 |
+| **N3** | FRED v2 변경 | `"FRED API v2 series [series_id] deprecated"` | 연간 |
+| **O2** | SCREENER_DB 갱신 | `"[TICKER] earnings guidance analyst [YYYY-MM] 2026"` | 분기 (종목별) |
+| **P1** | 패러다임 전환 | `"market paradigm shift [YYYY] disinflation reflation"` | 분기 |
+| **R1** | 절대 날짜 이전 | (grep + DATE_ENGINE 변환 자동) | 매번 |
+| **S1** | Earnings 캘린더 | `"earnings calendar Q[N] [YYYY] big tech"` | 분기 시작 |
+| **S2** | FOMC 일정 | `"FOMC meeting schedule [YYYY] 2026"` | 반기 |
+
+---
+
 ## 데이터 소스 참조
 
 | 데이터 | 소스 | 발표 주기 | URL/키워드 |
@@ -450,6 +490,308 @@ grep -n "KR_THEME_CATALYSTS" index.html | head -3
 
 ---
 
+## K그룹: 매매 시그널 로직/임계값 (v48.40 추가)
+
+> **핵심**: 시장 regime 변화 시 시그널 임계값이 현실과 괴리됨 (예: 고인플레 시대 VIX 20 = 저변동성, 저인플레 시대 VIX 20 = 고변동성).
+
+### K1. 트레이딩 스코어 스코어링 함수
+```bash
+# 20점 만점 시스템의 가중치/임계값 — 시장 regime 변경 시 재검증
+grep -n "tradingScore\|_tradingScore\|scoreCalc\|scoreGate" js/aio-*.js | head -10
+# PA-First v5.4 스코어링
+grep -n "PA-First\|SCORE_WEIGHTS\|signalWeight" js/aio-*.js | head -10
+```
+**갱신 트리거**: (a) 6개월+ 미변경 + regime 전환 (완화→긴축 등) (b) 명백한 오판정 사례 3건+
+
+### K2. VIX/F&G/Breadth 임계값
+```bash
+# VIX regime 경계 (15/20/25/30 등)
+grep -nE "vix\s*[<>]=?\s*[0-9]+|VIX.*>\s*[0-9]+" js/aio-*.js index.html | head -15
+# F&G 경계 (25/45/55/75)
+grep -nE "fg\s*[<>]=?\s*[0-9]+" js/aio-*.js | head -10
+# Breadth 경계 (30/50/70)
+grep -nE "breadth.*>\s*[0-9]+|b5\s*>\s*[0-9]+|b50\s*>\s*[0-9]+" js/aio-*.js index.html | head -10
+```
+**WebSearch**: "VIX regime historical threshold 2026" / "Fear Greed extreme levels historical"
+
+### K3. 포지션 사이징 / Stop-loss 규칙
+```bash
+# 2% 룰, 리스크 계산
+grep -n "positionSize\|stopLoss\|_sizing\|2%.*룰\|2.*rule" js/aio-*.js index.html | head -10
+# ATR 기반 stop
+grep -n "atrStop\|atrMult\|ATR\s*\*" js/aio-*.js | head -5
+```
+**갱신 트리거**: 사용자 피드백 · 백테스팅 결과 반영 · 업계 표준 변경
+
+### K4. RSI/MACD/Bollinger 공식
+```bash
+# 기술지표 계산 함수
+grep -n "function calcRSI\|function calcMACD\|function bollinger" js/aio-*.js | head -5
+```
+**보통 변경 없음** (수학 공식). 단, lookback 기간 조정(RSI 14→21 등)은 regime별 검토 가치 있음.
+
+---
+
+## L그룹: CHAT_CONTEXTS + 해설 텍스트 + 용어 사전 (v48.40 추가)
+
+> **핵심**: LLM이 참조하는 시스템 프롬프트 + 사용자가 읽는 해설 모두 시장 환경 반영 필요.
+
+### L1. CHAT_CONTEXTS 시스템 프롬프트
+```bash
+# 각 페이지별 AI 채팅 컨텍스트 — 시나리오/확률/기준값 포함
+grep -n "CHAT_CONTEXTS\[" js/aio-chat.js | head -15
+# 특히 시나리오 확률, regime 판단 근거 (macro/kr-themes 페이지)
+grep -nE "확률\s*[0-9]+%|시나리오[A-Z0-9]|regime|레짐" js/aio-chat.js | head -20
+```
+**갱신 주기**: 월 1회 + FOMC/CPI/지정학 이벤트 후
+**WebSearch**: "current market regime late cycle recession [YYYY-MM] 2026"
+
+### L2. 해설 가이드 텍스트 (tip-toggle 펼침 내용)
+```bash
+# 매크로/기술/펀더멘털 해석 가이드 — 예시 수치 포함
+grep -nE "insight-explain-title\|핵심 가이드|해석 가이드" index.html | head -10
+# 예시 수치가 stale한지 점검 (예: "VIX 18에서는")
+grep -nE "VIX\s*[0-9]+에서|현재\s*[0-9]+%" index.html | head -10
+```
+**갱신 트리거**: 예시 수치가 현재 시장 환경과 2배+ 괴리
+
+### L3. 용어 사전 (Glossary) 예시 값
+```bash
+# _glossaryData의 definition에 현재 수치 언급이 있는지
+grep -A2 "_glossaryData\|GLOSSARY_DATA" index.html js/aio-*.js | grep -E "현재|오늘|최근|예:.*[0-9]+" | head -10
+```
+**보통 변경 없음** (정의는 불변). 단, "예: VIX는 2026년 15-25" 같은 예시 수치는 업데이트.
+
+### L4. Weinstein Stage / Dalio 투자 패러다임 텍스트
+```bash
+# _context/KNOWLEDGE-BASE.md 기반 서술
+grep -nE "와인스타인|Stage\s*[1-4]|Dalio|달리오|All Weather" js/aio-chat.js index.html | head -10
+```
+**분기 단위 점검** — 투자 패러다임 참조 텍스트.
+
+---
+
+## M그룹: 섹터/테마 구성 + 시가총액 기준 (v48.40 추가)
+
+### M1. SCREENER_DB 종목 리스트 점검
+```bash
+# 종목 수 + index 분포
+grep -cE "sym:'[A-Z]" js/aio-data.js
+grep -oE "index:'[A-Z0-9]+'" js/aio-data.js | sort | uniq -c
+# IPO/상장폐지/편입 점검 필요 (분기별)
+```
+**WebSearch**: "S&P 500 recent additions removals [YYYY-Q] 2026" / "NASDAQ 100 rebalance [날짜]"
+**갱신 주기**: 분기별 (S&P/NDX 리밸런싱 발표 후)
+
+### M2. mcap(시가총액) 값
+```bash
+# SCREENER_DB mcap 필드 — 수동 갱신 대상 (동적 _liveData로 덮어쓸 수 있으나 정적 폴백)
+grep -oE "mcap:[0-9]+" js/aio-data.js | head -20
+```
+**갱신 트리거**: 시총 순위 변동 크거나 3개월+ 미갱신
+
+### M3. _SECTOR_PCT_FALLBACK 섹터 1일/1주 폴백
+```bash
+grep -n "_SECTOR_PCT_FALLBACK" js/aio-data.js index.html | head -5
+```
+**갱신 트리거**: 전쟁/휴전/CPI 서프라이즈 · 주간 실적 시즌 시작/종료
+
+### M4. _sectorRRGSeed — RRG 4사분면 초기 배치
+```bash
+grep -n "_sectorRRGSeed\|RRGSeed" js/aio-*.js | head -5
+```
+**갱신 주기**: 월 1회 (섹터 로테이션 포착)
+
+### M5. KR_THEME_MAP 구성 종목
+```bash
+# 한국 테마별 종목 매핑 — IPO/편입 시 수동 갱신
+grep -nE "KR_THEME_MAP\s*=|테마명:.*\[" js/aio-*.js | head -10
+```
+**갱신 트리거**: 신규 테마 부상 (예: 로봇AI, 휴머노이드 etc) · 주요 신규 IPO
+
+---
+
+## N그룹: API 엔드포인트 URL Drift 감지 (v48.40 추가)
+
+> **핵심**: API 제공자 URL 구조 변경 시 fetch 실패. 자동 감지 + WebSearch 확인.
+
+### N1. Yahoo Finance 엔드포인트
+```bash
+# v8 / v7 / query1.finance.yahoo.com 사용 여부
+grep -nE "query[0-9]\.finance\.yahoo\.com|yh-finance\|api/chart\?|api/quote\?" js/aio-data.js | head -10
+```
+**WebSearch 확인**: "Yahoo Finance API endpoint change [YYYY] deprecated"
+
+### N2. FMP / Finnhub / Alpha Vantage 엔드포인트
+```bash
+grep -nE "financialmodelingprep\.com\|finnhub\.io\|alphavantage\.co" js/aio-data.js | head -15
+# 무료 티어 limit 변경 감지 필요
+```
+**갱신 트리거**: console에 403/429 비율 증가 + `_aioFeedHealth.stats()` 확인
+
+### N3. CoinGecko / FRED / CBOE 엔드포인트
+```bash
+grep -nE "coingecko\.com\|api\.stlouisfed\.org\|cboe\.com" js/aio-data.js | head -10
+```
+**분기별 WebSearch**: "FRED API v2 deprecation [YYYY]"
+
+### N4. 한국 네이버/KRX 엔드포인트
+```bash
+grep -nE "finance\.naver\.com\|stock\.naver\.com\|data\.krx\.co\.kr" js/aio-data.js | head -10
+```
+**갱신 트리거**: 한국 수급 데이터 연속 실패 (3일+) 시 경로 재확인
+
+---
+
+## O그룹: SCREENER_DB memo 내용 재검증 (v48.40 추가, v48.37 파서 연동)
+
+> **핵심**: v48.37에서 도입된 `_aioMemoStaleInfo` 파서가 stale 판정한 종목은 **내용**도 갱신 필요.
+
+### O1. Stale 종목 리스트 추출
+```bash
+# 브라우저 콘솔에서:
+# Object.entries(SCREENER_DB).filter(([_,e]) => _aioStockStaleInfo(e.sym)?.isStale).map(([_,e]) => e.sym)
+# 또는 grep으로 memo 날짜 패턴 추출
+grep -oE "\[[A-Z][A-Za-z&]*\s[0-9]{2}/[0-9]{2}" js/aio-data.js | sort | uniq -c | sort -rn | head -20
+```
+
+### O2. Stale 종목 memo WebSearch 갱신
+각 stale 종목에 대해:
+```
+WebSearch: "[Ticker] earnings guidance analyst [YYYY-MM] 2026"
+WebSearch: "[Ticker] [최근 분기] 실적 전망"
+```
+**대상 수**: 30+ stale 종목 일괄 처리 시 **배치 당 10종목** 제한 (맥락 누수 방지)
+
+### O3. _asOf 필드 명시 도입
+- 새로 갱신한 memo는 `_asOf: 'YYYY-MM-DD'` 필드 추가 (v48.37 형식)
+- 기존 `[Citi MM/DD]` 패턴 유지하되 _asOf가 있으면 우선 사용
+
+---
+
+## P그룹: 투자 패러다임 / KNOWLEDGE-BASE (v48.40 추가)
+
+### P1. KNOWLEDGE-BASE.md Q2 이후 패러다임
+```bash
+# 분기별 패러다임 변화 기록
+grep -n "^### Q[0-9]\|^## 20[0-9]\{2\}" _context/KNOWLEDGE-BASE.md | head -15
+```
+**갱신 주기**: 분기 시작 월 (1/4/7/10월) + 주요 regime 전환 이벤트 후
+**WebSearch**: "market regime [current quarter] 2026" / "Dalio principles update [year]"
+
+### P2. 텍스트 내러티브 (NARRATIVE_ENGINE)
+```bash
+# 동적 해설 생성기 — 규칙 기반이라 보통 변경 불필요
+grep -n "NARRATIVE_ENGINE\|_generateNarrative" js/aio-*.js | head -10
+```
+**갱신 트리거**: 규칙 자체가 stale (예: VIX > 30 = panic이라는 규칙이 고인플레 시대엔 맞지 않음)
+
+---
+
+## Q그룹: v48.36~39 인프라 헬스체크 (v48.40 추가)
+
+> **핵심**: 동적 추적 인프라 자체가 정상 작동하는지 확인.
+
+### Q1. _lastFetch 커버리지
+브라우저 콘솔:
+```javascript
+Object.keys(window._lastFetch).length       // 8+ 기대 (quote/news/sentiment/.../fred/breadth/vixHistory)
+Object.entries(window._lastFetch).forEach(([k,ts]) => console.log(k, DATE_ENGINE.formatRelative(ts)))
+```
+**이상 시**: 해당 API의 fetch 함수에 `_markFetch` 누락 → 수정
+
+### Q2. _aioFeedHealth 상태
+```javascript
+window._aioFeedHealth.stats()
+// { total, ok, degraded, disabled, details }
+// disabled가 많으면 해당 피드 URL 재확인 + 영구 제거 검토
+```
+
+### Q3. AIO_Cache 용량
+```javascript
+window.AIO_Cache.stats()
+// { count, bytes, kb, expired }
+// kb > 4000이면 prune() 권장 (localStorage 5-10MB limit)
+```
+
+### Q4. DATE_ENGINE 카테고리별 임계값 재검토
+```javascript
+DATE_ENGINE.THRESHOLDS
+// { quote: 600000, news: 3600000, report: 604800000, ... }
+// regime 변화 시 조정 (예: 뉴스 중요성 증가 시 news 1h → 30min)
+```
+
+---
+
+## R그룹: UI 텍스트 시점 고정 감지 (v48.40 추가)
+
+### R1. 절대 날짜 하드코딩 감지
+```bash
+# 주석이 아닌 코드/텍스트 안의 YYYY-MM-DD 패턴
+grep -nE "['\"](20[0-9]{2}-[0-9]{2}-[0-9]{2})['\"]" js/aio-*.js index.html | grep -vE "^\s*//|^\s*\*" | head -20
+```
+**위반 시**: `DATE_ENGINE.isoNow()` 또는 동적 계산으로 전환
+
+### R2. 상대 시간 하드코딩 ("지난 주", "최근 3개월")
+```bash
+grep -nE "지난\s*[주월일]|최근\s*[0-9]+[주월일]|Q[1-4]\s*20[0-9]{2}" index.html js/aio-*.js | head -15
+```
+**점검**: 실제로 고정 시점 참조인지, 변수 기반인지 확인
+
+### R3. UI 라벨 예시 수치 ("연 ±5%", "변동성 15%")
+```bash
+grep -oE "연\s*[±+-]?[0-9]+%|변동성\s*[0-9]+%|목표\s*[0-9]+%" index.html | head -20
+```
+**갱신 트리거**: 시장 regime 변화 (목표 수익률이 현실과 괴리)
+
+---
+
+## S그룹: 기업 실적 분기 캘린더 (v48.40 추가)
+
+### S1. earnings 날짜 참조
+```bash
+grep -nE "Q[1-4]\s*'[0-9]{2}|[0-9]+Q[0-9]{2}|실적\s*발표" js/aio-data.js index.html | head -15
+# 예: "1Q26 실적 4/29" 같은 예상 날짜
+```
+**갱신 주기**: 분기 시작 월 (earnings calendar 공표 후)
+**WebSearch**: "[Ticker] earnings date Q[N] [YYYY]"
+
+### S2. FOMC / 경제지표 캘린더
+```bash
+grep -nE "FOMC\s*[0-9]/[0-9]|CPI\s*발표\s*[0-9]" index.html | head -10
+```
+**갱신 트리거**: 분기 시작 + 주요 발표 전 1주
+
+---
+
+## T그룹: 종합 검증 (v48.40 추가)
+
+### T1. 정적 데이터 총 라인 수 추이
+```bash
+# 시간 경과에 따른 정적 데이터 증감 추이
+wc -l js/aio-*.js index.html
+# SCREENER_DB 엔트리 수
+grep -c "sym:'" js/aio-data.js
+# CHAT_CONTEXTS 컨텍스트 수
+grep -c "CHAT_CONTEXTS\[" js/aio-chat.js
+```
+
+### T2. DATA_SNAPSHOT 필드 수
+```bash
+# 스냅샷 필드 증가 추이 (새 지표 도입 시)
+grep -cE "^\s+[a-zA-Z]+:" js/aio-core.js | head -1
+```
+
+### T3. 인프라 커버리지 체크
+```bash
+# _markFetch 호출 수 (v48.36 이후 증가해야 함)
+grep -c "_markFetch(" js/aio-data.js
+# _aioFeedHealth.reportOk 호출 수
+grep -c "_aioFeedHealth.reportOk" js/aio-data.js
+```
+
+---
+
 ## 주의사항 (Gotchas)
 
 1. **labels20 공유**: VIX 차트와 HY OAS 차트가 같은 `labels20` 배열 공유. 연장 시 `vixData` + `hyData` 동시 업데이트 안 하면 배열 길이 불일치 → 차트 렌더링 오류.
@@ -518,14 +860,24 @@ grep -n "KR_THEME_CATALYSTS" index.html | head -3
 
 | # | 평가 항목 | 기준 |
 |---|-----------|------|
-| **D1** | 전수 스캔 완수 | 22개 카테고리 전체(A~H 8그룹)에 대한 staleness 테이블이 출력되었는가? 22개 행 포함. |
-| **D2** | CRITICAL 처리 | CRITICAL 판정 항목이 모두 업데이트 or 명시적 SKIPPED 처리되었는가? (은닉 금지) |
-| **D3** | 배열 길이 일치 | labels20 / vixData / hyData 길이가 **동일**한가? (python3 검증 스크립트 통과) |
-| **D4** | 버전 6곳 동기화 | title / badge / APP_VERSION / version.json / _context/CLAUDE.md / CHANGELOG.md 6곳 모두 동일 버전 문자열인가? (R1) |
-| **D5** | 이벤트 텍스트 정합성 | WTI/VIX/지정학 이벤트 후 하드코딩 텍스트가 현재 상황과 일치하는가? (P61 — "전쟁發 급등" 잔존 0건) |
-| **D6** | _note/_updated 동기화 | DATA_SNAPSHOT._updated 타임스탬프 + _note 필드(버전+날짜)가 오늘 날짜로 갱신되었는가? |
-| **D7** | I그룹 24h 이벤트 서치 완료 | 5개 영역(글로벌/지정학/연준/AI/한국) WebSearch 실행 + 리포트 테이블 포함되었는가? |
-| **D8** | 한국 동적 파이프라인 정상 (H4) | fetchKrSupplyData/fetchKrNaverQuotes/renderKrThemePerfBars 정상 동작 확인? (프록시 차단 시 폴백 상태 기록) |
+| **D1** | 전수 스캔 완수 | 30개 카테고리 전체(A~T 20그룹)에 대한 staleness 테이블 출력 |
+| **D2** | CRITICAL 처리 | CRITICAL 항목이 모두 갱신 or SKIPPED 명시 (은닉 금지) |
+| **D3** | 배열 길이 일치 | labels20/vixData/hyData 등 공유 배열 길이 동일 (python3 검증 통과) |
+| **D4** | 버전 6곳 동기화 | title/badge/APP_VERSION/version.json/_context/CLAUDE.md/CHANGELOG.md 동일 (R1) |
+| **D5** | 이벤트 텍스트 정합성 | WTI/VIX/지정학 이벤트 후 하드코딩 텍스트가 현재 상황과 일치 (P61) |
+| **D6** | _note/_updated 동기화 | DATA_SNAPSHOT._updated + _note 오늘 날짜로 갱신 |
+| **D7** | I그룹 24h 이벤트 서치 | 5개 영역 WebSearch + 리포트 테이블 |
+| **D8** | 한국 동적 파이프라인 정상 (H4) | fetchKrSupplyData/fetchKrNaverQuotes/renderKrThemePerfBars 정상 |
+| **D9** | K그룹 임계값 재검토 (v48.40) | VIX/F&G/Breadth 임계값이 현재 regime과 일치? (K2) · 6개월+ 미변경 시 검토 기록 |
+| **D10** | L그룹 CHAT_CONTEXTS 갱신 (v48.40) | LLM 시스템 프롬프트의 시나리오 확률·regime 판단 근거가 최신인가? (월 1회+) |
+| **D11** | M그룹 섹터/테마 구성 (v48.40) | S&P 500 리밸런싱·NDX 편입/제외·KR 테마 IPO 반영 확인 (분기별) |
+| **D12** | N그룹 API 엔드포인트 (v48.40) | Yahoo/FMP/Finnhub/FRED URL drift 감지 — 403/429 비율 정상? |
+| **D13** | O그룹 SCREENER_DB memo (v48.40) | `_aioStockStaleInfo` 기준 7일+ stale 종목 메모 갱신 (분기 실적 후) |
+| **D14** | P그룹 투자 패러다임 (v48.40) | KNOWLEDGE-BASE Q[N] 엔트리 + NARRATIVE_ENGINE 규칙 현재 regime 반영 |
+| **D15** | Q그룹 인프라 헬스 (v48.40) | `_lastFetch` 8+ 커버 · `_aioFeedHealth.stats()` disabled<5 · `AIO_Cache.stats()` kb<4000 |
+| **D16** | R그룹 UI 텍스트 시점 (v48.40) | 하드코딩 절대 날짜 `'2026-...'` 0건 (주석 제외) · 상대 시간 표현 정합성 |
+| **D17** | S그룹 earnings 캘린더 (v48.40) | `1Q26 실적 4/29` 등 예상 발표일이 현재 기준 유효 (지나간 건 현재 분기로 이월) |
+| **D18** | T그룹 종합 추이 (v48.40) | SCREENER_DB 엔트리 수 · _markFetch 호출 수 · 정적 데이터 라인 수 추이 로그 |
 
 ### 판정 규칙
 - **전부 yes** → PASS ✓, 사용자에게 리포트 제출
