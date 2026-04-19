@@ -424,6 +424,31 @@ window._aioFetchAllNewsForce = function() {
 };
 window._aioReload = function() { window.location.reload(); };
 
+// ═══ v48.44: SVG Doughnut Gauge 렌더 헬퍼 — F&G/Quality/Device 등 ═══
+// 사용: window._aioRenderGauge('elId', percent, { value, caption, tone })
+window._aioRenderGauge = function(elId, pct, opts) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  opts = opts || {};
+  pct = Math.max(0, Math.min(100, pct || 0));
+  var tone = opts.tone || 'cyan';
+  var R = 42, C = 2 * Math.PI * R;
+  var off = C * (1 - pct / 100);
+  var value = opts.value != null ? opts.value : Math.round(pct);
+  var caption = opts.caption || '';
+  el.className = 'aio-gauge';
+  el.innerHTML =
+    '<svg class="aio-gauge-svg" viewBox="0 0 100 100">' +
+      '<circle class="aio-gauge-track" cx="50" cy="50" r="' + R + '"></circle>' +
+      '<circle class="aio-gauge-fill tone-' + tone + '" cx="50" cy="50" r="' + R + '" ' +
+        'stroke-dasharray="' + C.toFixed(2) + '" stroke-dashoffset="' + off.toFixed(2) + '"></circle>' +
+    '</svg>' +
+    '<div class="aio-gauge-label">' +
+      '<div class="aio-gauge-value">' + value + '</div>' +
+      (caption ? '<div class="aio-gauge-caption">' + caption + '</div>' : '') +
+    '</div>';
+};
+
 // ═══ v48.42: Chart.js 전역 defaults — Figma × Bloomberg 팔레트 일괄 적용 ═══
 window._aioApplyChartDefaults = function() {
   if (typeof Chart === 'undefined' || !Chart.defaults) return;
@@ -1892,7 +1917,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.42';
+const APP_VERSION = 'v48.44';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거

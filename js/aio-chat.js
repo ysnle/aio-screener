@@ -3560,12 +3560,18 @@ function _renderFundHeader(d) {
   if (!el) return;
   var pctColor = d.pct != null ? (d.pct >= 0 ? '#00e5a0' : '#ff5b50') : '#7b8599';
   var p = d.fmpProfile || {};
+  // v48.44: Ticker initial avatar (Figma profile chip 스타일)
+  var _initial = String(d.ticker || '?').slice(0, 2).toUpperCase();
+  var _avatarTone = (d.pct || 0) >= 0 ? 'tone-green' : 'tone-red';
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">';
-  html += '<div><div style="font-size:22px;font-weight:800;color:var(--accent);">' + d.ticker + '</div>';
-  html += '<div style="font-size:13px;color:var(--text-secondary);font-weight:600;">' + (d.name || '') + '</div>';
-  if (p.sector) html += '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">' + p.sector + ' · ' + (p.industry || '') + ' · ' + (p.country || 'US') + '</div>';
-  if (p.ceo) html += '<div style="font-size:10px;color:var(--text-muted);">CEO: ' + p.ceo + ' · 직원: ' + (p.fullTimeEmployees ? Number(p.fullTimeEmployees).toLocaleString() : 'N/A') + '명</div>';
-  html += '</div>';
+  html += '<div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">';
+  html += '<div class="aio-avatar is-lg ' + _avatarTone + '" style="font-family:var(--font-mono);">' + escHtml(_initial) + '</div>';
+  html += '<div style="min-width:0;flex:1;">';
+  html += '<div style="font-size:var(--fs-2xl);font-weight:800;color:var(--text-primary);letter-spacing:var(--ls-tight);font-family:var(--font-mono);">' + escHtml(d.ticker) + '</div>';
+  html += '<div style="font-size:var(--fs-md);color:var(--text-secondary);font-weight:600;">' + escHtml(d.name || '') + '</div>';
+  if (p.sector) html += '<div style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:3px;font-weight:500;">' + escHtml(p.sector) + ' · ' + escHtml(p.industry || '') + ' · ' + escHtml(p.country || 'US') + '</div>';
+  if (p.ceo) html += '<div style="font-size:var(--fs-xs);color:var(--text-muted);">CEO: ' + escHtml(p.ceo) + ' · 직원: ' + (p.fullTimeEmployees ? Number(p.fullTimeEmployees).toLocaleString() : 'N/A') + '명</div>';
+  html += '</div></div>';
   html += '<div style="text-align:right;">';
   if (d.price) {
     html += '<div style="font-size:24px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);">$' + d.price.toFixed(2) + '</div>';
