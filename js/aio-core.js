@@ -424,6 +424,16 @@ window._aioFetchAllNewsForce = function() {
 };
 window._aioReload = function() { window.location.reload(); };
 
+// v48.45: 교육 콘텐츠 아코디언 토글 (.aio-explain)
+window._aioToggleExplain = function(explainEl, el) {
+  // explainEl은 arg로 전달된 id 또는 closest 탐색
+  var target = null;
+  if (typeof explainEl === 'string') target = document.getElementById(explainEl);
+  if (!target && el) target = el.closest('.aio-explain');
+  if (!target) return;
+  target.classList.toggle('is-open');
+};
+
 // ═══ v48.44: SVG Doughnut Gauge 렌더 헬퍼 — F&G/Quality/Device 등 ═══
 // 사용: window._aioRenderGauge('elId', percent, { value, caption, tone })
 window._aioRenderGauge = function(elId, pct, opts) {
@@ -1917,7 +1927,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.44';
+const APP_VERSION = 'v48.45';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
