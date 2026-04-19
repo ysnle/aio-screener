@@ -675,7 +675,7 @@ function _showChartFallback(canvas, chartName, reason) {
     '<div style="font-size:11px;color:var(--text-muted);font-weight:600;">' + (chartName || '차트') + '</div>' +
     '<div class="aio-chart-fb-reason" style="font-size:10px;color:#f87171;margin-top:2px;">' + reason + '</div>' +
     '<div style="font-size:9px;color:var(--text-muted);margin-top:4px;">데이터 갱신 시 자동 복구됩니다</div>' +
-    '<button data-action="_aioFetchLiveQuotes" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:8px;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:6px;">↻ 데이터 재시도</button>';
+    '<button data-action="_aioFetchLiveQuotes" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);color:#60a5fa;font-size:8px;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:6px;">↻ 데이터 재시도</button>';
   parent.insertBefore(overlay, canvas);
   _aioLog('warn', 'chart', chartName + ': ' + reason);
 }
@@ -2911,7 +2911,7 @@ const NARRATIVE_ENGINE = (function() {
     if (el) el.textContent = (fmt ? fmt(value) : value);
     if (el) el.style.color = regime.color;
     const st = document.getElementById(idStatus);
-    if (st) { st.textContent = regime.label; st.style.color = regime.color; st.style.background = `rgba(${regime.color==='#ff5b50'?'248,113,113':regime.color==='#00e5a0'?'61,219,165':'251,191,36'},0.1)`; }
+    if (st) { st.textContent = regime.label; st.style.color = regime.color; st.style.background = `rgba(${regime.color==='#ff5b50'?'255,91,80':regime.color==='#00e5a0'?'0,229,160':'255,163,26'},0.1)`; }
     const bar = document.getElementById(idBar);
     if (bar) { bar.style.width = regime.bar + '%'; bar.style.background = regime.color; }
   }
@@ -3353,8 +3353,8 @@ function applyDataSnapshot() {
           if (skewStatus && sreg) {
             skewStatus.textContent = sreg.label;
             skewStatus.style.color = sreg.color;
-            skewStatus.style.background = sreg.color === '#ff5b50' ? 'rgba(248,113,113,0.1)' :
-                                           sreg.color === '#ffa31a' ? 'rgba(251,191,36,0.1)' : 'rgba(61,219,165,0.1)';
+            skewStatus.style.background = sreg.color === '#ff5b50' ? 'rgba(255,91,80,0.1)' :
+                                           sreg.color === '#ffa31a' ? 'rgba(255,163,26,0.1)' : 'rgba(0,229,160,0.1)';
           }
           if (sreg) {
             _fireRegimeChange('skew', window._lastRegimes.skew, sreg.level, S.skew, sreg);
@@ -3987,7 +3987,7 @@ function _initBriefingPage() {
       } else {
         bc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' +
           '뉴스 로딩 시간 초과 — 네트워크 상태를 확인하세요.<br>' +
-          '<button data-action="_aioBriefingRetry" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
+          '<button data-action="_aioBriefingRetry" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
           '</div>';
       }
     }
@@ -4242,7 +4242,7 @@ function showTicker(tkr) {
     html += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
     checks.forEach(function(c) {
       var icon = c.ok === true ? '' : c.ok === false ? '' : '—';
-      var bg = c.ok === true ? 'rgba(61,219,165,0.08)' : c.ok === false ? 'rgba(251,191,36,0.08)' : 'rgba(255,255,255,0.03)';
+      var bg = c.ok === true ? 'rgba(0,229,160,0.08)' : c.ok === false ? 'rgba(255,163,26,0.08)' : 'rgba(255,255,255,0.03)';
       html += '<div style="background:' + bg + ';border-radius:5px;padding:4px 8px;font-size:9px;display:flex;align-items:center;gap:4px;">' +
         '<span>' + icon + '</span><span style="font-weight:700;">' + c.label + '</span><span style="color:var(--text-muted);">' + c.note + '</span></div>';
     });

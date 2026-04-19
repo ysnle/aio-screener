@@ -31,7 +31,7 @@ async function _refreshSentimentChartData() {
         // 경고 배지 제거 (실시간 데이터 로드 성공)
         var badge = document.querySelector('#page-sentiment .stale-badge');
         if (badge) badge.textContent = 'VIX/HYG 실시간 차트 · ' + labels[labels.length - 1] + ' 기준';
-        if (badge) { badge.style.background = 'rgba(61,219,165,0.1)'; badge.style.borderColor = 'rgba(61,219,165,0.3)'; badge.style.color = '#00e5a0'; }
+        if (badge) { badge.style.background = 'rgba(0,229,160,0.1)'; badge.style.borderColor = 'rgba(0,229,160,0.3)'; badge.style.color = '#00e5a0'; }
       }
     }
     // HY OAS 프록시: HYG ETF 가격을 반전 사용 (HYG↓ = 스프레드↑)
@@ -96,7 +96,7 @@ function _initSentVixChart() {
           try {
             lwcResult.series.createPriceLine({
               price: 20,
-              color: 'rgba(248,113,113,0.5)',
+              color: 'rgba(255,91,80,0.5)',
               lineWidth: 1,
               lineStyle: 2, // dashed
               axisLabelVisible: true,
@@ -130,7 +130,7 @@ function _initSentVixChart() {
         borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 3, tension: 0.3, fill: true
       }, {
         label: '20 (Fear)', data: Array(labels20.length).fill(20),
-        borderColor: 'rgba(248,113,113,0.3)', borderWidth: 1, borderDash: [3,3],
+        borderColor: 'rgba(255,91,80,0.3)', borderWidth: 1, borderDash: [3,3],
         pointRadius: 0, fill: false
       }]
     },
@@ -203,7 +203,7 @@ function _initSentNaaimChart() {
         borderColor: '#00d4ff',
         backgroundColor: function(ctx2) {
           var g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-          g.addColorStop(0, 'rgba(91,168,255,0.2)'); g.addColorStop(1, 'rgba(91,168,255,0)');
+          g.addColorStop(0, 'rgba(0,212,255,0.2)'); g.addColorStop(1, 'rgba(0,212,255,0)');
           return g;
         },
         borderWidth: 1.8, pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: true
@@ -427,11 +427,11 @@ function initSentimentCharts() {
         labels: aaiiLabels,
         datasets: [
           { label: '강세', data: aaiiDatasets[0],
-            backgroundColor: 'rgba(61,219,165,0.7)', borderRadius: 2 },
+            backgroundColor: 'rgba(0,229,160,0.7)', borderRadius: 2 },
           { label: '중립', data: aaiiDatasets[1],
             backgroundColor: 'rgba(107,114,128,0.6)', borderRadius: 2 },
           { label: '약세', data: aaiiDatasets[2],
-            backgroundColor: 'rgba(248,113,113,0.75)', borderRadius: 2 },
+            backgroundColor: 'rgba(255,91,80,0.75)', borderRadius: 2 },
         ]
       },
       options: {
@@ -511,7 +511,7 @@ function initSentimentCharts() {
           borderColor: '#ffa31a',
           backgroundColor: (ctx2) => {
             const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-            g.addColorStop(0, 'rgba(251,191,36,0.2)'); g.addColorStop(1, 'rgba(251,191,36,0)');
+            g.addColorStop(0, 'rgba(255,163,26,0.2)'); g.addColorStop(1, 'rgba(255,163,26,0)');
             return g;
           },
           borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 3, tension: 0.3, fill: true,
@@ -593,16 +593,16 @@ function updateRallyQualityVerdict() {
   var verdict = '', color = '', bg = '';
   if (b5 > 70 && b50 > 60) {
     verdict = ' <b>브레드스 쓰러스트 수준</b> — 5SMA ' + b5.toFixed(0) + '% · 50SMA ' + b50.toFixed(0) + '%. 극히 높은 참여율. 진짜 바닥 확인 가능성. 리더주 셋업 완성 시 적극 매수.';
-    color = '#00e5a0'; bg = 'rgba(61,219,165,0.08)';
+    color = '#00e5a0'; bg = 'rgba(0,229,160,0.08)';
   } else if (b5 > 50 && b20 > 40) {
     verdict = ' <b>고품질 랠리</b> — 5SMA ' + b5.toFixed(0) + '% · 20SMA ' + b20.toFixed(0) + '%. 광범위 참여. Follow-through 진행 중. 리테스트 대기하며 선별 매수 가능.';
-    color = '#00d4ff'; bg = 'rgba(96,165,250,0.08)';
+    color = '#00d4ff'; bg = 'rgba(0,212,255,0.08)';
   } else if (b5 > 30) {
     verdict = ' <b>품질 미확인 랠리</b> — 5SMA ' + b5.toFixed(0) + '%. 제한적 참여. 숏커버링 주도 가능성. 첫 며칠은 노이즈 — 후속 확인 필요. 관망 유지.';
-    color = '#ffa31a'; bg = 'rgba(251,191,36,0.08)';
+    color = '#ffa31a'; bg = 'rgba(255,163,26,0.08)';
   } else {
     verdict = ' <b>과매도/숏커버링</b> — 5SMA ' + b5.toFixed(0) + '%. 소수 종목만 반등. 가장 많이 빠진 종목이 가장 많이 오르는 저품질 패턴. 신규 매수 중단. RS 상위 종목 워치리스트만 구축.';
-    color = '#ff5b50'; bg = 'rgba(248,113,113,0.08)';
+    color = '#ff5b50'; bg = 'rgba(255,91,80,0.08)';
   }
   el.innerHTML = verdict;
   el.style.borderColor = color;
@@ -612,7 +612,7 @@ function updateRallyQualityVerdict() {
 // v42.4: 브레드쓰 바 동적 갱신 — signal 페이지 + breadth 페이지 NDX 카드
 function updateBreadthBars() {
   function _bbColor(v) { return v >= 50 ? '#00e5a0' : v >= 30 ? '#ffa31a' : '#ff5b50'; }
-  function _bbBg(v)    { return v >= 50 ? 'rgba(61,219,165,0.1)' : v >= 30 ? 'rgba(251,191,36,0.1)' : 'rgba(248,113,113,0.1)'; }
+  function _bbBg(v)    { return v >= 50 ? 'rgba(0,229,160,0.1)' : v >= 30 ? 'rgba(255,163,26,0.1)' : 'rgba(255,91,80,0.1)'; }
   function _bbLbl(v)   { return v >= 60 ? '강세' : v >= 50 ? '중립↑' : v >= 35 ? '중립↓' : '약세'; }
   var rows = [
     { bar:'bb-5sma-bar',  val:'bb-5sma-val',  badge:'bb-5sma-badge',  v: window._breadth5 },
@@ -736,9 +736,9 @@ function initBreadthPage(forceReinit) {
         labels: bpLabels,
         datasets: [
           // Reference lines (hidden from tooltip)
-          { label: '_80', data: ref80, borderColor: 'rgba(61,219,165,0.2)',  borderWidth: 1, borderDash: [3,3], pointRadius: 0, fill: false, tension: 0 },
+          { label: '_80', data: ref80, borderColor: 'rgba(0,229,160,0.2)',  borderWidth: 1, borderDash: [3,3], pointRadius: 0, fill: false, tension: 0 },
           { label: '_50', data: ref50, borderColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderDash: [3,3], pointRadius: 0, fill: false, tension: 0 },
-          { label: '_20', data: ref20, borderColor: 'rgba(248,113,113,0.25)', borderWidth: 1, borderDash: [3,3], pointRadius: 0, fill: false, tension: 0 },
+          { label: '_20', data: ref20, borderColor: 'rgba(255,91,80,0.25)', borderWidth: 1, borderDash: [3,3], pointRadius: 0, fill: false, tension: 0 },
           // SPX (solid blue + fill)
           { label: 'SPX', data: spxData, borderColor: spxColor,
             backgroundColor: (ctx2) => {
@@ -830,7 +830,7 @@ function initBreadthPage(forceReinit) {
           { label: 'SPY', data: bpSPY, borderColor: '#00d4ff',
             backgroundColor: (ctx2) => {
               const g = ctx2.chart.ctx.createLinearGradient(0,0,0,ctx2.chart.height);
-              g.addColorStop(0,'rgba(91,168,255,0.2)'); g.addColorStop(1,'rgba(91,168,255,0)'); return g;
+              g.addColorStop(0,'rgba(0,212,255,0.2)'); g.addColorStop(1,'rgba(0,212,255,0)'); return g;
             },
             borderWidth: 2.2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: true },
           { label: 'QQQ', data: bpQQQ, borderColor: '#ff5b50',
@@ -910,7 +910,7 @@ function initBreadthPage(forceReinit) {
             try {
               _adLwc.series.createPriceLine({
                 price: 50,
-                color: 'rgba(61,219,165,0.4)',
+                color: 'rgba(0,229,160,0.4)',
                 lineWidth: 1,
                 lineStyle: 2,
                 axisLabelVisible: true,
@@ -933,7 +933,7 @@ function initBreadthPage(forceReinit) {
         labels: bpLabels,
         datasets: [{
           label: '상승 비율 (%)', data: bpSPX5,
-          borderColor: '#00d4ff', backgroundColor: 'rgba(96,165,250,0.08)',
+          borderColor: '#00d4ff', backgroundColor: 'rgba(0,212,255,0.08)',
           borderWidth: 2, pointRadius: 3, pointBackgroundColor: adColors,
           fill: true, tension: 0.3
         }]
@@ -946,7 +946,7 @@ function initBreadthPage(forceReinit) {
         },
         plugins: {
           legend: { display: false },
-          annotation: { annotations: { fiftyLine: { type: 'line', yMin: 50, yMax: 50, borderColor: 'rgba(61,219,165,0.3)', borderWidth: 1, borderDash: [4,4], label: { display: true, content: '50%', position: 'end', color: '#00e5a0', font: { size: 8 } } } } }
+          annotation: { annotations: { fiftyLine: { type: 'line', yMin: 50, yMax: 50, borderColor: 'rgba(0,229,160,0.3)', borderWidth: 1, borderDash: [4,4], label: { display: true, content: '50%', position: 'end', color: '#00e5a0', font: { size: 8 } } } } }
         }
       }
     });
@@ -980,8 +980,8 @@ async function _refreshBreadthPriceChart() {
       var badge = document.querySelector('#page-breadth .stale-badge');
       if (badge) {
         badge.textContent = 'SPY/QQQ 실시간 차트 · ' + labels[labels.length - 1] + ' 기준';
-        badge.style.background = 'rgba(61,219,165,0.1)';
-        badge.style.borderColor = 'rgba(61,219,165,0.3)';
+        badge.style.background = 'rgba(0,229,160,0.1)';
+        badge.style.borderColor = 'rgba(0,229,160,0.3)';
         badge.style.color = '#00e5a0';
       }
     }
@@ -1096,7 +1096,7 @@ function initBreadthCharts() {
           { label: 'SPY', data: bhSPY, borderColor: '#00d4ff',
             backgroundColor: (ctx) => {
               const g = ctx.chart.ctx.createLinearGradient(0,0,0,ctx.chart.height);
-              g.addColorStop(0, 'rgba(91,168,255,0.15)'); g.addColorStop(1, 'rgba(91,168,255,0)');
+              g.addColorStop(0, 'rgba(0,212,255,0.15)'); g.addColorStop(1, 'rgba(0,212,255,0)');
               return g;
             },
             borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.3, fill: true },
@@ -1173,8 +1173,8 @@ function initBreadthCharts() {
     });
   }
 
-  bhChartInstances['5ma']  = makeBreadthChart('bh-5ma-chart',   bhSPX5,   bhNDX5,   true, '#00d4ff', 'rgba(91,168,255,');
-  bhChartInstances['20ma'] = makeBreadthChart('bh-20ma-chart',  bhSPX20,  bhNDX20,  true, '#00d4ff', 'rgba(91,168,255,');
+  bhChartInstances['5ma']  = makeBreadthChart('bh-5ma-chart',   bhSPX5,   bhNDX5,   true, '#00d4ff', 'rgba(0,212,255,');
+  bhChartInstances['20ma'] = makeBreadthChart('bh-20ma-chart',  bhSPX20,  bhNDX20,  true, '#00d4ff', 'rgba(0,212,255,');
   bhChartInstances['50ma'] = makeBreadthChart('bh-50ma-chart',  bhSPX50,  bhNDX50,  true, '#60d394', 'rgba(96,211,148,');
 
   // v41.2: SPY/QQQ 히스토리 가격 차트 동적 교체 (Yahoo Finance)
@@ -1565,8 +1565,8 @@ function updateQuotaBadge() {
       : model.label + ' · ' + remaining + '/' + dailyLimit;
     hdrBadge.textContent = hdrText;
     hdrBadge.style.color = grade === 'green' ? '#00d4ff' : grade === 'warn' ? '#ffa31a' : '#ff5b50';
-    hdrBadge.style.borderColor = grade === 'green' ? 'rgba(91,168,255,0.3)' : grade === 'warn' ? 'rgba(245,158,11,0.3)' : 'rgba(248,113,113,0.3)';
-    hdrBadge.style.background  = grade === 'green' ? 'rgba(91,168,255,0.12)' : grade === 'warn' ? 'rgba(245,158,11,0.12)' : 'rgba(248,113,113,0.12)';
+    hdrBadge.style.borderColor = grade === 'green' ? 'rgba(0,212,255,0.3)' : grade === 'warn' ? 'rgba(245,158,11,0.3)' : 'rgba(255,91,80,0.3)';
+    hdrBadge.style.background  = grade === 'green' ? 'rgba(0,212,255,0.12)' : grade === 'warn' ? 'rgba(245,158,11,0.12)' : 'rgba(255,91,80,0.12)';
   }
 }
 

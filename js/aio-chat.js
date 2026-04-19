@@ -2533,7 +2533,7 @@ function _formatSearchForPrompt(sr) {
 /** 검색 출처 → UI HTML */
 function _searchCitationsHTML(sr) {
   if (!sr || !sr.citations || sr.citations.length === 0) return '';
-  var html = '<div style="margin-top:6px;padding:6px 8px;background:rgba(167,139,250,0.08);border-left:2px solid #a78bfa;border-radius:0 4px 4px 0;font-size:8px;">';
+  var html = '<div style="margin-top:6px;padding:6px 8px;background:rgba(168,85,247,0.08);border-left:2px solid #a78bfa;border-radius:0 4px 4px 0;font-size:8px;">';
   var engName = sr.engine === 'perplexity' ? 'Perplexity' : 'Google';
   html += '<div style="color:#a78bfa;font-weight:600;margin-bottom:3px;">' + engName + ' 검색 출처</div>';
   for (var i = 0; i < Math.min(sr.citations.length, 5); i++) {
@@ -2858,7 +2858,7 @@ async function chatSend(ctxId) {
   // v36.2: 웹검색 수행 시 검색 알림 배지
   if (webSearchResult) {
     var _engBadge = webSearchResult.engine === 'perplexity' ? 'Perplexity' : 'Google';
-    chatAppendMsg(ctxId, 'ai', '<div style="font-size:8px;color:#a78bfa;padding:4px 8px;background:rgba(167,139,250,0.08);border-radius:4px;margin-bottom:4px;">' + _engBadge + ' 검색 완료 — 최신 정보 ' + (webSearchResult.citations ? webSearchResult.citations.length : 0) + '건 수집</div>');
+    chatAppendMsg(ctxId, 'ai', '<div style="font-size:8px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">' + _engBadge + ' 검색 완료 — 최신 정보 ' + (webSearchResult.citations ? webSearchResult.citations.length : 0) + '건 수집</div>');
   }
 
   // remove stale loading if any, add fresh one
@@ -2972,9 +2972,9 @@ async function chatSend(ctxId) {
         // 2번째 재시도 → 하위 모델로 폴백
         if (_retried >= 1 && _currentIdx >= 0 && _currentIdx < _fallbackOrder.length - 1) {
           nextModel = _fallbackOrder[_currentIdx + 1];
-          chatAppendMsg(ctxId, 'ai', '<div style="font-size:9px;color:#fbbf24;padding:4px 8px;background:rgba(251,191,36,0.08);border-radius:4px;">⟳ 응답 지연 — ' + getModelConfig(nextModel).label + '로 재시도 중...</div>');
+          chatAppendMsg(ctxId, 'ai', '<div style="font-size:9px;color:#fbbf24;padding:4px 8px;background:rgba(255,163,26,0.08);border-radius:4px;">⟳ 응답 지연 — ' + getModelConfig(nextModel).label + '로 재시도 중...</div>');
         } else {
-          chatAppendMsg(ctxId, 'ai', '<div style="font-size:9px;color:#fbbf24;padding:4px 8px;background:rgba(251,191,36,0.08);border-radius:4px;">⟳ 재시도 중... (' + (_retried+1) + '/2)</div>');
+          chatAppendMsg(ctxId, 'ai', '<div style="font-size:9px;color:#fbbf24;padding:4px 8px;background:rgba(255,163,26,0.08);border-radius:4px;">⟳ 재시도 중... (' + (_retried+1) + '/2)</div>');
         }
         setTimeout(function() {
           callClaude(systemPrompt, state.messages,
@@ -3223,7 +3223,7 @@ function _fundRecentSearches(ticker) {
   if (!el) return;
   if (arr.length === 0) { el.innerHTML = ''; return; }
   el.innerHTML = '<span style="font-size:8px;color:var(--text-muted);">최근:</span>' + arr.map(function(t) {
-    return '<span data-action="fundSearchQuick" data-arg="' + escHtml(t) + '" style="font-size:9px;color:var(--accent);background:rgba(91,168,255,0.08);border:1px solid rgba(91,168,255,0.15);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.15s;" onmouseover="this.style.background=\'rgba(91,168,255,0.2)\'" onmouseout="this.style.background=\'rgba(91,168,255,0.08)\'">' + t + '</span>';
+    return '<span data-action="fundSearchQuick" data-arg="' + escHtml(t) + '" style="font-size:9px;color:var(--accent);background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.15s;" onmouseover="this.style.background=\'rgba(0,212,255,0.2)\'" onmouseout="this.style.background=\'rgba(0,212,255,0.08)\'">' + t + '</span>';
   }).join('');
 }
 
