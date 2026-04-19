@@ -284,6 +284,32 @@ Yahoo Finance가 가격을 반환해도 해당 기업이 실제 상장사인지 
 - onclick 인라인 핸들러에 사용자 데이터 삽입 시 escHtml 또는 data-* 속성 패턴 사용
 - 검증: `grep -n "innerHTML\|onclick.*'" index.html | grep "\${p\.\|'+t\.\|'+p\." | grep -v "escHtml"`
 
+### R32. Event Delegation 의무화 — onclick 인라인 핸들러 금지 (v48.35 추가, P132 교훈)
+- **원칙**: HTML 및 JS 템플릿 리터럴 안에 `onclick=` / `onsubmit=` / `onchange=` / `onkeyup=` 등 인라인 이벤트 속성 **전면 금지**.
+- **이유**:
+  - `Content-Security-Policy: script-src 'self'` 헤더 도입 시 인라인 핸들러 전부 차단 → UI 마비 위험
+  - ESM (`<script type="module">`) 전환 시 전역 함수 접근 불가
+  - HTML 속성 문자열 이스케이프 지옥 (3중 백슬래시 패턴)
+  - linter/IDE가 HTML 속성 안의 JS를 인식 못해 리팩토링 시 레퍼런스 추적 누락
+- **신규 요소 작성 규칙**:
+  - 정적 함수 호출: `<button data-action="fnName" data-arg="value">` (인자 3개까지 arg/arg2/arg3 지원)
+  - 엘리먼트 참조 필요: `data-pass-el="1"` (함수의 마지막 인자로 element 전달)
+  - 이벤트 참조 필요: `data-pass-event="1"` (마지막 인자로 MouseEvent 전달)
+  - 백드롭 클릭 닫기: `data-close-on-outside="closeFnName"` (event.target === el 자동 체크)
+  - 외부 링크 새탭: `data-open-url="https://..."` (`window.open` 대체, rel=noopener,noreferrer 자동)
+  - stopPropagation: `data-stop="1"`
+  - preventDefault: `data-prevent="1"`
+- **2-statement 패턴**: `onclick="a();b()"` 같은 복합 동작은 **단일 헬퍼 함수**로 이식 (`_aio*` 네임스페이스).
+  - 예: `onclick="prevPage='portfolio';showTicker(sym)"` → `_aioPortfolioTicker(sym)` 헬퍼 + `data-action="_aioPortfolioTicker" data-arg="sym"`
+- **A11y**: `role="button"` 또는 `tabindex="0"` 요소는 자동으로 Enter/Space 키보드 활성화 지원 (디스패처 내장).
+- **JS render 템플릿**: 템플릿 리터럴 안에도 `data-action` 패턴 적용 (escHtml로 arg wrapping).
+- **검증**:
+  ```bash
+  grep -c 'onclick=\|onsubmit=\|onchange=' index.html js/*.js  # 0 반환 기대
+  ```
+  브라우저 DOM: `document.querySelectorAll('[onclick]').length === 0`
+- **기존 코드 위반 발견 시**: 즉시 data-action 패턴으로 이식 (Perl 스크립트 `_context/scripts/migrate_onclick*.pl` 재활용 가능).
+
 ---
 
 ## 🟡 점검 시 주의사항 (과거 실수에서 배운 것)

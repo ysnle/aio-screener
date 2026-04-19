@@ -1081,7 +1081,7 @@ function chatRenderChips(ctxId, chips) {
   }
   el.innerHTML = chips.map(function(q) {
     var safeQ = escHtml(q).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    return '<div class="q-chip" onclick="chatFromChip(\'' + ctxId + '\',\'' + safeQ + '\')" title="' + escHtml(q) + '">' + escHtml(q) + '</div>';
+    return '<div class="q-chip" data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + safeQ + '" title="' + escHtml(q) + '">' + escHtml(q) + '</div>';
   }).join('');
 }
 
@@ -2936,8 +2936,8 @@ async function chatSend(ctxId) {
         var _fbDiv = document.createElement('div');
         _fbDiv.style.cssText = 'display:flex;gap:6px;justify-content:flex-end;margin:2px 0;';
         var _fbId = 'fb-' + Date.now();
-        _fbDiv.innerHTML = '<button onclick="this.style.color=\'#3ddba5\';_aiFeedback(\'' + _fbId + '\',1)" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨" aria-label="AI 응답이 도움됨으로 평가">👍</button>' +
-          '<button onclick="this.style.color=\'#f87171\';_aiFeedback(\'' + _fbId + '\',-1)" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확" aria-label="AI 응답이 부정확함으로 평가">👎</button>';
+        _fbDiv.innerHTML = '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨" aria-label="AI 응답이 도움됨으로 평가">👍</button>' +
+          '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="-1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확" aria-label="AI 응답이 부정확함으로 평가">👎</button>';
         aiBubble.parentNode.appendChild(_fbDiv);
       }
 
@@ -3223,7 +3223,7 @@ function _fundRecentSearches(ticker) {
   if (!el) return;
   if (arr.length === 0) { el.innerHTML = ''; return; }
   el.innerHTML = '<span style="font-size:8px;color:var(--text-muted);">최근:</span>' + arr.map(function(t) {
-    return '<span onclick="fundSearchQuick(\'' + t + '\')" style="font-size:9px;color:var(--accent);background:rgba(91,168,255,0.08);border:1px solid rgba(91,168,255,0.15);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.15s;" onmouseover="this.style.background=\'rgba(91,168,255,0.2)\'" onmouseout="this.style.background=\'rgba(91,168,255,0.08)\'">' + t + '</span>';
+    return '<span data-action="fundSearchQuick" data-arg="' + escHtml(t) + '" style="font-size:9px;color:var(--accent);background:rgba(91,168,255,0.08);border:1px solid rgba(91,168,255,0.15);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.15s;" onmouseover="this.style.background=\'rgba(91,168,255,0.2)\'" onmouseout="this.style.background=\'rgba(91,168,255,0.08)\'">' + t + '</span>';
   }).join('');
 }
 
@@ -3331,7 +3331,10 @@ async function fundamentalSearch() {
     var collected = _cached.data;
     window._fundAnalysisData = collected;
     try { _renderFundHeader(collected); _renderFundSEC(collected); _renderFundFinancials(collected); _renderFundStatements(collected); _renderFundValuation(collected); _renderFundPeers(collected); _renderFundEarnings(collected); if (typeof _renderFundNews === 'function') _renderFundNews(collected); _renderFundSources(collected); } catch(e) { _aioLog('warn', 'fund', '캐시 렌더 실패: ' + e.message); }
-    if (loadingEl) loadingEl.innerHTML = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">캐시 데이터 (' + _ageMin + '분 전) — ' + (collected.sources||[]).length + '개 소스</div><div style="font-size:9px;color:var(--text-muted);">' + ((collected.sources||[]).join(' · ')) + '</div>';
+    if (loadingEl) {
+      var _srcList = (collected.sources || []).map(function(s){ return escHtml(String(s || '')); });
+      loadingEl.innerHTML = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">캐시 데이터 (' + _ageMin + '분 전) — ' + _srcList.length + '개 소스</div><div style="font-size:9px;color:var(--text-muted);">' + _srcList.join(' · ') + '</div>';
+    }
     // AI 채팅 입력창 세팅 (기존 동작 유지)
     var _chatInpC = document.getElementById('chat-fundamental-inp');
     if (_chatInpC) _chatInpC.value = ticker + ' 종합 기업 분석해줘. 15개 관점 적용.';
@@ -3571,8 +3574,8 @@ function _renderFundHeader(d) {
   if (p.mktCap) html += '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">시가총액: $' + _fmtNum(p.mktCap) + '</div>';
   // v38.8: 포트폴리오 추가 + 차트분석 연결 버튼
   html += '<div style="display:flex;gap:6px;margin-top:6px;">';
-  html += '<button onclick="showPage(\'portfolio\');document.getElementById(\'pf-add-ticker\').value=\'' + d.ticker + '\'" class="tb-btn" style="font-size:9px;">포트폴리오에 추가</button>';
-  html += '<button onclick="showPage(\'technical\');setTimeout(function(){var inp=document.getElementById(\'deep-ticker-input\');if(inp){inp.value=\'' + d.ticker + '\'}},300)" class="tb-btn" style="font-size:9px;">차트 분석</button>';
+  html += '<button data-action="_aioAddToPortfolio" data-arg="' + escHtml(d.ticker) + '" class="tb-btn" style="font-size:9px;">포트폴리오에 추가</button>';
+  html += '<button data-action="_aioChartAnalyze" data-arg="' + escHtml(d.ticker) + '" class="tb-btn" style="font-size:9px;">차트 분석</button>';
   html += '</div>';
   html += '</div></div>';
 
@@ -4036,7 +4039,7 @@ function _renderFundPeers(d) {
   if (!el || !body || !d.peers || !d.peers.length) return;
   var html = '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
   d.peers.slice(0, 12).forEach(function(p) {
-    html += '<div style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-primary);cursor:pointer;font-weight:600;" onclick="document.getElementById(\'fund-search-input\').value=\'' + p + '\';fundamentalSearch();">' + p + '</div>';
+    html += '<div style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-primary);cursor:pointer;font-weight:600;" data-action="_aioFundSearchFill" data-arg="' + escHtml(p) + '">' + p + '</div>';
   });
   html += '</div>';
   html += '<div style="font-size:9px;color:var(--text-muted);margin-top:6px;">클릭하면 해당 기업 분석으로 이동합니다</div>';

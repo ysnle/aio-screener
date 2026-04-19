@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.31 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.35 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1975,9 +1975,9 @@ body.light-theme canvas { filter:none; }
 </head>
 <body>
   <!-- v34.9: 다크/라이트 테마 토글 -->
-  <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="다크/라이트 테마 전환" aria-label="테마 전환"></button>
+  <button class="theme-toggle-btn" id="theme-toggle" data-action="toggleTheme" title="다크/라이트 테마 전환" aria-label="테마 전환"></button>
   <a href="#main-content" class="skip-link">메인 콘텐츠로 건너뛰기</a>
-  <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
+  <div class="mobile-overlay" id="mobile-overlay" data-action="closeMobileMenu"></div>
   <div class="app">
     <nav class="sidebar" aria-label="메인 네비게이션">
       <div class="logo"><span class="logo-mark">AIO SCREENER</span><span class="logo-sub">주식 종합 분석 플랫폼</span></div>
@@ -1985,72 +1985,72 @@ body.light-theme canvas { filter:none; }
       <!-- 종합 -->
       <div class="nav-section">
         <div class="nav-label">종합</div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('home',this)"><span class="nav-icon"></span><span class="label">대시보드</span></div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('signal',this)"><span class="nav-icon"></span><span class="label">매매 시그널</span></div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('breadth',this)"><span class="nav-icon"></span><span class="label">시장 폭</span></div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('sentiment',this)"><span class="nav-icon"></span><span class="label">투자 심리</span></div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('briefing',this)"><span class="nav-icon"></span><span class="label">오늘의 브리핑</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="home" data-pass-el="1"><span class="nav-icon"></span><span class="label">대시보드</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="signal" data-pass-el="1"><span class="nav-icon"></span><span class="label">매매 시그널</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="breadth" data-pass-el="1"><span class="nav-icon"></span><span class="label">시장 폭</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="sentiment" data-pass-el="1"><span class="nav-icon"></span><span class="label">투자 심리</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="briefing" data-pass-el="1"><span class="nav-icon"></span><span class="label">오늘의 브리핑</span></div>
       </div>
 
       <!-- 시장 분석 -->
       <div class="nav-section">
         <div class="nav-label">시장 분석</div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('technical',this)"><span class="nav-icon"></span><span class="label">차트 · 기술 분석</span></div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('macro',this)"><span class="nav-icon"></span><span class="label">거시경제</span></div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('fxbond',this)"><span class="nav-icon"></span><span class="label">환율 · 채권</span></div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('fundamental',this)"><span class="nav-icon"></span><span class="label">기업 분석</span></div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('themes',this)"><span class="nav-icon"></span><span class="label">테마 · 트렌드</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="technical" data-pass-el="1"><span class="nav-icon"></span><span class="label">차트 · 기술 분석</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="macro" data-pass-el="1"><span class="nav-icon"></span><span class="label">거시경제</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="fxbond" data-pass-el="1"><span class="nav-icon"></span><span class="label">환율 · 채권</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="fundamental" data-pass-el="1"><span class="nav-icon"></span><span class="label">기업 분석</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="themes" data-pass-el="1"><span class="nav-icon"></span><span class="label">테마 · 트렌드</span></div>
       </div>
 
       <!-- 내 투자 -->
       <div class="nav-section">
         <div class="nav-label">내 투자</div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('portfolio',this)"><span class="nav-icon"></span><span class="label">포트폴리오</span></div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('market-news',this)"><span class="nav-icon"></span><span class="label">시장 뉴스</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="portfolio" data-pass-el="1"><span class="nav-icon"></span><span class="label">포트폴리오</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="market-news" data-pass-el="1"><span class="nav-icon"></span><span class="label">시장 뉴스</span></div>
       </div>
 
       <!-- 도구 -->
       <div class="nav-section">
         <div class="nav-label">도구</div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('guide',this)"><span class="nav-icon"></span><span class="label">사용 설명서</span></div>
-        <div class="nav-item" role="button" tabindex="0" onclick="openGlossary()"><span class="nav-icon"></span><span class="label">용어 사전</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="guide" data-pass-el="1"><span class="nav-icon"></span><span class="label">사용 설명서</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="openGlossary"><span class="nav-icon"></span><span class="label">용어 사전</span></div>
       </div>
 
       <!-- 고급 -->
       <div class="nav-section">
         <div class="nav-label">고급</div>
-        <div class="nav-item" role="button" tabindex="0" onclick="showPage('options',this)"><span class="nav-icon"></span><span class="label">옵션</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="options" data-pass-el="1"><span class="nav-icon"></span><span class="label">옵션</span></div>
       </div>
 
       <!-- 한국 시장 -->
       <div class="nav-section">
         <div class="nav-label kr-label">한국 시장</div>
-        <div class="nav-item kr-item" role="button" tabindex="0" onclick="showPage('kr-home',this)"><span class="nav-icon"></span><span class="label">한국장 홈</span></div>
-        <div class="nav-item kr-item" role="button" tabindex="0" onclick="showPage('kr-supply',this)"><span class="nav-icon"></span><span class="label">수급 분석</span></div>
-        <div class="nav-item kr-item" role="button" tabindex="0" onclick="showPage('kr-themes',this)"><span class="nav-icon"></span><span class="label">국내 테마</span></div>
-        <div class="nav-item kr-item" role="button" tabindex="0" onclick="showPage('kr-macro',this)"><span class="nav-icon"></span><span class="label">한국 매크로</span></div>
-        <div class="nav-item kr-item" role="button" tabindex="0" onclick="showPage('kr-technical',this)"><span class="nav-icon"></span><span class="label">차트 · 기술 분석 (KR)</span></div>
+        <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-home" data-pass-el="1"><span class="nav-icon"></span><span class="label">한국장 홈</span></div>
+        <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-supply" data-pass-el="1"><span class="nav-icon"></span><span class="label">수급 분석</span></div>
+        <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-themes" data-pass-el="1"><span class="nav-icon"></span><span class="label">국내 테마</span></div>
+        <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-macro" data-pass-el="1"><span class="nav-icon"></span><span class="label">한국 매크로</span></div>
+        <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-technical" data-pass-el="1"><span class="nav-icon"></span><span class="label">차트 · 기술 분석 (KR)</span></div>
       </div>
 
       <div class="nav-divider"></div>
 
       <!-- Feedback button -->
       <div style="padding:8px 12px 4px;">
-        <button onclick="openFeedback()" class="sidebar-action-btn btn-accent">
+        <button data-action="openFeedback" class="sidebar-action-btn btn-accent">
           <span>피드백</span>
         </button>
       </div>
 
       <!-- Board button -->
       <div style="padding:8px 12px 4px;">
-        <button onclick="openFeedbackBoard()" class="sidebar-action-btn btn-kr">
+        <button data-action="openFeedbackBoard" class="sidebar-action-btn btn-kr">
           <span>게시판</span>
         </button>
       </div>
 
       <!-- v40.6: 테마 토글 — 사이드바 하단에 통합 -->
       <div style="padding:4px 12px 8px;">
-        <button onclick="toggleTheme()" id="sidebar-theme-btn" class="sidebar-action-btn btn-ghost">
+        <button data-action="toggleTheme" id="sidebar-theme-btn" class="sidebar-action-btn btn-ghost">
           <span id="sidebar-theme-label">다크 모드</span>
         </button>
       </div>
@@ -2067,14 +2067,14 @@ body.light-theme canvas { filter:none; }
             <input type="text" id="gh-repo-url" class="llm-key-input"
               placeholder="username/repo-name"
               title="GitHub 저장소 경로 (예: lee/aio-screener)">
-            <button class="llm-key-save" onclick="saveGhRepo()" style="white-space:nowrap;">설정</button>
+            <button class="llm-key-save" data-action="saveGhRepo" style="white-space:nowrap;">설정</button>
           </div>
 
           <!-- 헤더: 제목 + ON/OFF 스위치 -->
           <div class="llm-panel-header">
             <span class="llm-panel-title">AI 도우미</span>
             <div class="llm-switch-wrap">
-              <div id="llm-switch-track" class="llm-switch-track on" onclick="toggleLLM()" title="AI 어시스턴트 ON/OFF">
+              <div id="llm-switch-track" class="llm-switch-track on" data-action="toggleLLM" title="AI 어시스턴트 ON/OFF">
                 <div class="llm-switch-thumb"></div>
               </div>
               <span id="llm-switch-label" class="llm-switch-label on">ON</span>
@@ -2086,7 +2086,7 @@ body.light-theme canvas { filter:none; }
             <input type="password" id="sidebar-api-key" class="llm-key-input"
               placeholder="sk-ant-api03-…"
               title="Anthropic Claude API 키 입력 후 저장">
-            <button class="llm-key-save" onclick="saveSidebarApiKey()">저장</button>
+            <button class="llm-key-save" data-action="saveSidebarApiKey">저장</button>
           </div>
           <div style="font-size:8px;color:var(--yellow);line-height:1.4;padding:2px 0;">API 키는 브라우저에 저장됩니다. 공용 PC에서는 사용하지 마세요.</div>
 
@@ -2115,7 +2115,7 @@ body.light-theme canvas { filter:none; }
             <div style="font-size:8px;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:3px;">RSS2JSON KEY <span style="color:#60a5fa;">(뉴스 한도 해제)</span></div>
             <div class="llm-key-row">
               <input type="password" id="rss2json-api-key" class="llm-key-input" placeholder="rss2json.com API Key" title="rss2json.com 무료 가입 → API Key 입력 시 뉴스 갱신 한도 1000→10000">
-              <button class="llm-key-save" onclick="saveRss2jsonKey()">저장</button>
+              <button class="llm-key-save" data-action="saveRss2jsonKey">저장</button>
             </div>
           </div>
           </div>
@@ -2123,7 +2123,7 @@ body.light-theme canvas { filter:none; }
           <!-- v29: 확장 API 키 설정 — 기본 펼침 -->
           <div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--border);">
             <!-- v30.11: Vault PIN 보안 설정 -->
-            <div style="font-size:9px;color:#a78bfa;font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:4px;text-align:center;" onclick="var t=this.nextElementSibling;t.style.display=t.style.display==='none'?'block':'none';this.querySelector('.arrow').textContent=t.style.display==='none'?'▼':'▲'">
+            <div style="font-size:9px;color:#a78bfa;font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:4px;text-align:center;" data-action="_aioNextSiblingToggle" data-pass-el="1">
                API 키 암호화 <span id="vault-status-badge" style="font-size:8px;margin-left:4px;"> 미설정</span> <span class="arrow">▼</span>
             </div>
             <div style="display:none;margin-bottom:6px;">
@@ -2134,14 +2134,14 @@ body.light-theme canvas { filter:none; }
                 </div>
                 <div class="llm-key-row" style="margin-bottom:2px;">
                   <input type="password" id="vault-pin-confirm" class="llm-key-input" placeholder="PIN 확인" style="font-size:9px;" maxlength="20">
-                  <button class="llm-key-save btn-vault" onclick="_vaultSetPin()">설정</button>
+                  <button class="llm-key-save btn-vault" data-action="_vaultSetPin">설정</button>
                 </div>
                 <div id="vault-pin-msg" style="font-size:9px;color:var(--text-muted);min-height:12px;"></div>
               </div>
               <div id="vault-unlock-panel" style="display:none;">
                 <div class="llm-key-row" style="margin-bottom:2px;">
                   <input type="password" id="vault-unlock-input" class="llm-key-input" placeholder="PIN 입력" style="font-size:9px;" maxlength="20">
-                  <button class="llm-key-save btn-vault" onclick="_vaultUnlock()">해제</button>
+                  <button class="llm-key-save btn-vault" data-action="_vaultUnlock">해제</button>
                 </div>
                 <div id="vault-unlock-msg" style="font-size:9px;color:var(--text-muted);min-height:12px;"></div>
               </div>
@@ -2151,38 +2151,38 @@ body.light-theme canvas { filter:none; }
               </div>
             </div>
 
-            <div style="font-size:9px;color:#60a5fa;font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(91,168,255,0.08);border:1px solid rgba(91,168,255,0.2);border-radius:4px;text-align:center;" onclick="var t=this.nextElementSibling;t.style.display=t.style.display==='none'?'block':'none';this.querySelector('.arrow').textContent=t.style.display==='none'?'▼':'▲'">
+            <div style="font-size:9px;color:#60a5fa;font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(91,168,255,0.08);border:1px solid rgba(91,168,255,0.2);border-radius:4px;text-align:center;" data-action="_aioNextSiblingToggle" data-pass-el="1">
                확장 API 키 설정 <span class="arrow">▲</span>
             </div>
             <div style="display:block;">
               <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">키는 브라우저 localStorage에 저장됩니다. PIN 설정 시 AES-256 암호화됩니다.<br><b style="color:#fbbf24;">유일한 과금: Claude API.</b> 나머지(FMP/Finnhub/FRED/Twelve Data/Alpha Vantage/NewsData)는 모두 무료 티어 지원.</div>
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_av_key_input" class="llm-key-input" placeholder="Alpha Vantage (선택 · 시장 폭)" title="alphavantage.co 무료 25회/일 · 선택적 (미설정 시 RSP/SPY 비율로 폴백)" style="font-size:9px;">
-                <button class="llm-key-save" onclick="_saveApiKey('aio_av_key','aio_av_key_input',this)">저장</button>
+                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_av_key" data-arg2="aio_av_key_input" data-pass-el="1">저장</button>
               </div>
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_finnhub_key_input" class="llm-key-input" placeholder="Finnhub (실시간 시세)" title="finnhub.io 무료 가입 → API 키" style="font-size:9px;">
-                <button class="llm-key-save" onclick="_saveApiKey('aio_finnhub_key','aio_finnhub_key_input',this)">저장</button>
+                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_finnhub_key" data-arg2="aio_finnhub_key_input" data-pass-el="1">저장</button>
               </div>
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_fred_key_input" class="llm-key-input" placeholder="FRED (매크로 지표)" title="fred.stlouisfed.org 무료 키" style="font-size:9px;">
-                <button class="llm-key-save" onclick="_saveApiKey('aio_fred_key','aio_fred_key_input',this)">저장</button>
+                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_fred_key" data-arg2="aio_fred_key_input" data-pass-el="1">저장</button>
               </div>
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_td_key_input" class="llm-key-input" placeholder="Twelve Data (차트/지표)" title="twelvedata.com 무료 키" style="font-size:9px;">
-                <button class="llm-key-save" onclick="_saveApiKey('aio_td_key','aio_td_key_input',this)">저장</button>
+                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_td_key" data-arg2="aio_td_key_input" data-pass-el="1">저장</button>
               </div>
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_fmp_key_input" class="llm-key-input" placeholder="FMP (재무제표 · 무료 250/일)" title="financialmodelingprep.com 무료 티어 250 req/day — 공유 키일 경우 4명 사용자 분산 소진 주의. v48.8 세션 캐시 30분으로 보호" style="font-size:9px;">
-                <button class="llm-key-save" onclick="_saveApiKey('aio_fmp_key','aio_fmp_key_input',this)">저장</button>
+                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_fmp_key" data-arg2="aio_fmp_key_input" data-pass-el="1">저장</button>
               </div>
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_newsdata_key_input" class="llm-key-input" placeholder="NewsData.io (뉴스 API)" title="newsdata.io 무료 가입 → API 키" style="font-size:9px;">
-                <button class="llm-key-save" onclick="_saveApiKey('aio_newsdata_key','aio_newsdata_key_input',this)">저장</button>
+                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_newsdata_key" data-arg2="aio_newsdata_key_input" data-pass-el="1">저장</button>
               </div>
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_cf_worker_input" class="llm-key-input" placeholder="CF Worker URL (자체 프록시)" title="Cloudflare Worker 프록시 URL" style="font-size:9px;">
-                <button class="llm-key-save" onclick="_saveApiKey('aio_cf_worker_url','aio_cf_worker_input',this)">저장</button>
+                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_cf_worker_url" data-arg2="aio_cf_worker_input" data-pass-el="1">저장</button>
               </div>
               <div style="font-size:9px;color:var(--accent);margin-top:3px;">모든 키는 무료. <a href='https://finnhub.io' target='_blank' style='color:#60a5fa;'>Finnhub</a> · <a href='https://fred.stlouisfed.org/docs/api/api_key.html' target='_blank' style='color:#60a5fa;'>FRED</a> · <a href='https://twelvedata.com' target='_blank' style='color:#60a5fa;'>TwelveData</a> · <a href='https://site.financialmodelingprep.com/developer' target='_blank' style='color:#60a5fa;'>FMP</a> · <a href='https://newsdata.io/register' target='_blank' style='color:#60a5fa;'>NewsData</a></div>
             </div>
@@ -2193,17 +2193,17 @@ body.light-theme canvas { filter:none; }
     </nav>
 
     <!-- ── GitHub Pages 자동 업데이트 배너 ──────────────── -->
-    <div id="update-banner" role="alert" onclick="window.location.href=window.location.pathname+'?v='+Date.now()" title="클릭하면 최신 버전으로 새로고침">
+    <div id="update-banner" role="alert" data-action="_aioForceReload" title="클릭하면 최신 버전으로 새로고침">
       <span class="banner-text"> 새 버전이 배포되었습니다</span>
       <span class="banner-sub">클릭하여 최신 버전으로 새로고침</span>
-      <button class="banner-close" aria-label="업데이트 배너 닫기" onclick="event.stopPropagation();document.getElementById('update-banner').classList.remove('show');">✕</button>
+      <button class="banner-close" aria-label="업데이트 배너 닫기" data-action="_aioUpdateBannerClose" data-stop="1">✕</button>
     </div>
 
     <div class="main">
       <header class="topbar" role="banner" style="justify-content:space-between;">
         <div style="display:flex;align-items:center;gap:8px;">
-          <button class="mobile-hamburger" onclick="toggleMobileMenu()" aria-label="메뉴 열기">☰</button>
-          <button onclick="toggleSidebar()" class="btn-icon" style="display:none;" id="sidebar-toggle-btn" title="사이드바 열기/닫기">☰</button>
+          <button class="mobile-hamburger" data-action="toggleMobileMenu" aria-label="메뉴 열기">☰</button>
+          <button data-action="toggleSidebar" class="btn-icon" style="display:none;" id="sidebar-toggle-btn" title="사이드바 열기/닫기">☰</button>
           <div id="breadcrumb"></div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
@@ -2213,30 +2213,30 @@ body.light-theme canvas { filter:none; }
           </div>
           <span id="live-quote-ts" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">연결 중...</span>
           <span data-vix-badge style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:4px;border:1px solid var(--border);">VIX —</span>
-          <button id="topbar-ai-btn" onclick="toggleAIPanel()" aria-label="AI 분석가 열기/닫기" title="AI 분석가 사이드바">AI 분석가</button>
-          <button id="topbar-refresh-btn" class="btn-accent --blue --lg" onclick="if(typeof globalRefresh==='function')globalRefresh();">↻ 새로고침</button>
+          <button id="topbar-ai-btn" data-action="toggleAIPanel" aria-label="AI 분석가 열기/닫기" title="AI 분석가 사이드바">AI 분석가</button>
+          <button id="topbar-refresh-btn" class="btn-accent --blue --lg" data-action="_aioGlobalRefresh">↻ 새로고침</button>
           <span id="data-status-panel" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:help;" title="연결된 API 상태"></span>
         </div>
       </header>
       <div class="content" id="main-content" role="main">
         <!-- v42.1: 마켓 펄스 바 — 페이지 간 시장 상태 요약 -->
         <div class="market-pulse-bar" id="market-pulse-bar" style="display:none;">
-          <div class="pulse-seg" onclick="showPage('signal',null)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('signal',null);}" role="button" tabindex="0" title="매매 시그널 상세" aria-label="매매 시그널 페이지 이동">
+          <div class="pulse-seg" data-action="showPage" data-arg="signal" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('signal',null);}" role="button" tabindex="0" title="매매 시그널 상세" aria-label="매매 시그널 페이지 이동">
             <span class="ps-label">시그널</span>
             <span class="ps-val" id="mp-signal-score" style="color:var(--text-muted);">—</span>
             <span class="ps-status" id="mp-signal-label" style="color:var(--text-muted);">로딩</span>
           </div>
-          <div class="pulse-seg" onclick="showPage('breadth',null)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('breadth',null);}" role="button" tabindex="0" title="시장 폭 상세" aria-label="시장 폭 페이지 이동">
+          <div class="pulse-seg" data-action="showPage" data-arg="breadth" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('breadth',null);}" role="button" tabindex="0" title="시장 폭 상세" aria-label="시장 폭 페이지 이동">
             <span class="ps-label">시장폭</span>
             <span class="ps-val" id="mp-breadth-val" style="color:var(--text-muted);">—</span>
             <span class="ps-status" id="mp-breadth-label" style="color:var(--text-muted);">로딩</span>
           </div>
-          <div class="pulse-seg" onclick="showPage('sentiment',null)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('sentiment',null);}" role="button" tabindex="0" title="투자 심리 상세" aria-label="투자 심리 페이지 이동">
+          <div class="pulse-seg" data-action="showPage" data-arg="sentiment" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('sentiment',null);}" role="button" tabindex="0" title="투자 심리 상세" aria-label="투자 심리 페이지 이동">
             <span class="ps-label">심리</span>
             <span class="ps-val" id="mp-sentiment-val" style="color:var(--text-muted);">—</span>
             <span class="ps-status" id="mp-sentiment-label" style="color:var(--text-muted);">로딩</span>
           </div>
-          <div class="pulse-seg" onclick="showPage('macro',null)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('macro',null);}" role="button" tabindex="0" title="거시경제 상세" aria-label="거시경제 페이지 이동">
+          <div class="pulse-seg" data-action="showPage" data-arg="macro" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('macro',null);}" role="button" tabindex="0" title="거시경제 상세" aria-label="거시경제 페이지 이동">
             <span class="ps-label">매크로</span>
             <span class="ps-val" id="mp-macro-icon" style="color:var(--text-muted);font-size:9px;">●</span>
             <span class="ps-status" id="mp-macro-val" style="color:var(--text-muted);">로딩</span>
@@ -2250,21 +2250,21 @@ body.light-theme canvas { filter:none; }
   <div id="snapshot-stale-warning" style="display:none;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);border-radius:8px;padding:8px 14px;margin-bottom:10px;font-size:10px;color:#fbbf24;font-weight:600;text-align:center;"></div>
   <!-- v46.10: 신규 사용자 API 키 미설정 안내 -->
   <div id="api-key-onboarding" style="display:none;background:rgba(91,168,255,0.08);border:1px solid rgba(91,168,255,0.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:10px;color:#60a5fa;text-align:center;line-height:1.6;">
-    실시간 시세·기업 분석·경제지표를 사용하려면 <b>API 키 설정</b>이 필요합니다. 사이드바 하단 → API 키 입력란에서 설정하세요. <a href="#" onclick="document.querySelector('.sidebar-api-section')?.scrollIntoView({behavior:'smooth'});return false;" style="color:#5ba8ff;text-decoration:underline;">설정하러 가기</a>
-    <button onclick="this.parentElement.style.display='none';try{localStorage.setItem('aio_onboard_dismissed','1')}catch(e){}" style="background:none;border:none;color:#5ba8ff;cursor:pointer;font-size:9px;margin-left:8px;">✕ 닫기</button>
+    실시간 시세·기업 분석·경제지표를 사용하려면 <b>API 키 설정</b>이 필요합니다. 사이드바 하단 → API 키 입력란에서 설정하세요. <a href="#" data-action="_aioScrollApiSection" data-prevent="1" style="color:#5ba8ff;text-decoration:underline;">설정하러 가기</a>
+    <button data-action="_aioHideParentOnboard" data-pass-el="1" style="background:none;border:none;color:#5ba8ff;cursor:pointer;font-size:9px;margin-left:8px;">✕ 닫기</button>
   </div>
 
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.31</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.35</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <span id="home-risk-regime-badge" class="status-pill sp-neutral">시장 국면 분석중</span>
       <span class="freshness-badge fb-live">● FINNHUB 실시간</span>
       <span id="live-quote-ts-topbar" class="freshness-badge fb-static" style="font-size:8px;" title="외부 API 연결 필요 — CORS 프록시 사용">시세 연결 중...</span>
-      <span id="llm-header-badge" onclick="toggleLLM()"
+      <span id="llm-header-badge" data-action="toggleLLM"
         role="button" aria-pressed="true" aria-label="AI 기능 켜기/끄기" style="background:rgba(91,168,255,0.12);border:1px solid rgba(91,168,255,0.3);color:#5ba8ff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font-mono);" title="AI ON/OFF 전환">AI ON</span>
       <span id="llm-quota" style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">10/10</span>
     </div>
@@ -2299,19 +2299,19 @@ body.light-theme canvas { filter:none; }
 
   <!-- ═══ 빠른 이동 (Quick Navigation) — 첫 화면에서 바로 접근 ═══ -->
   <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
-    <button onclick="showPage('signal',null)" class="home-qnav-btn" style="background:rgba(91,168,255,0.08);border:1px solid rgba(91,168,255,0.18);color:#60a5fa;">시그널</button>
-    <button onclick="showPage('briefing',null)" class="home-qnav-btn" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.18);color:#a78bfa;">브리핑</button>
-    <button onclick="showPage('macro',null)" class="home-qnav-btn" style="background:rgba(61,219,165,0.08);border:1px solid rgba(61,219,165,0.18);color:#3ddba5;">매크로</button>
-    <button onclick="showPage('market-news',null)" class="home-qnav-btn" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.18);color:#f87171;">뉴스</button>
-    <button onclick="showPage('portfolio',null)" class="home-qnav-btn" style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.18);color:#fbbf24;">포트폴리오</button>
-    <button onclick="showPage('kr-home',null)" class="home-qnav-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:#ef4444;">한국장</button>
-    <button onclick="showPage('guide',null)" class="home-qnav-btn" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.18);color:#818cf8;">시작 가이드</button>
+    <button data-action="showPage" data-arg="signal" class="home-qnav-btn" style="background:rgba(91,168,255,0.08);border:1px solid rgba(91,168,255,0.18);color:#60a5fa;">시그널</button>
+    <button data-action="showPage" data-arg="briefing" class="home-qnav-btn" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.18);color:#a78bfa;">브리핑</button>
+    <button data-action="showPage" data-arg="macro" class="home-qnav-btn" style="background:rgba(61,219,165,0.08);border:1px solid rgba(61,219,165,0.18);color:#3ddba5;">매크로</button>
+    <button data-action="showPage" data-arg="market-news" class="home-qnav-btn" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.18);color:#f87171;">뉴스</button>
+    <button data-action="showPage" data-arg="portfolio" class="home-qnav-btn" style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.18);color:#fbbf24;">포트폴리오</button>
+    <button data-action="showPage" data-arg="kr-home" class="home-qnav-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:#ef4444;">한국장</button>
+    <button data-action="showPage" data-arg="guide" class="home-qnav-btn" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.18);color:#818cf8;">시작 가이드</button>
   </div>
 
   <!-- ═══ SECTION 1: 매매 판단 대시보드 (Trading Decision Dashboard) ═══ -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
     <!-- 매매 신호 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('signal',null)" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="signal" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;margin-bottom:8px;text-transform:uppercase;">지금 매매해도 될까?</div>
       <div id="home-trading-signal" style="font-size:36px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);margin-bottom:6px;">• • •</div>
       <div id="home-trading-explanation" style="font-size:9px;color:var(--text-secondary);line-height:1.5;">
@@ -2344,35 +2344,35 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ SECTION 2: 핵심 지표 카드 (Key Metrics Cards) ═══ -->
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;">
     <!-- S&P 500 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #3ddba5;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('technical',null)" onmouseover="this.style.borderColor='#3ddba5'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #3ddba5;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="technical" onmouseover="this.style.borderColor='#3ddba5'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">S&P 500</div>
       <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);" data-live-price="^GSPC">6,967</div>
       <div style="font-size:11px;font-weight:600;margin-top:3px;" data-live-chg="^GSPC">—</div>
     </div>
 
     <!-- NASDAQ 100 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #a78bfa;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('technical',null)" onmouseover="this.style.borderColor='#a78bfa'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #a78bfa;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="technical" onmouseover="this.style.borderColor='#a78bfa'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">NASDAQ</div>
       <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);" data-live-price="^IXIC">—</div>
       <div style="font-size:11px;font-weight:600;margin-top:3px;" data-live-chg="^IXIC">—</div>
     </div>
 
     <!-- VIX 공포지수 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #f97316;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('sentiment',null)" onmouseover="this.style.borderColor='#f97316'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #f97316;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="sentiment" onmouseover="this.style.borderColor='#f97316'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">공포지수 VIX</div>
       <div id="home-vix-value" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:#3ddba5;" data-live-price="^VIX">18.36</div>
       <div id="home-vix-status" style="font-size:8px;color:var(--text-muted);margin-top:3px;">—</div>
     </div>
 
     <!-- Fear & Greed -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #fbbf24;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('sentiment',null)" onmouseover="this.style.borderColor='#fbbf24'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #fbbf24;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="sentiment" onmouseover="this.style.borderColor='#fbbf24'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">Fear & Greed</div>
       <div id="home-fg-score" style="font-size:16px;font-weight:800;font-family:var(--font-mono);">32</div>
       <div id="home-fg-label" style="font-size:11px;color:var(--text-muted);margin-top:3px;">공포 (Fear)</div>
     </div>
 
     <!-- 달러인덱스 DXY -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #60a5fa;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('fxbond',null)" onmouseover="this.style.borderColor='#60a5fa'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid #60a5fa;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="fxbond" onmouseover="this.style.borderColor='#60a5fa'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:4px;letter-spacing:0.05em;">달러인덱스</div>
       <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);" data-live-price="DX-Y.NYB">98.65</div>
       <div style="font-size:11px;font-weight:600;margin-top:3px;" data-live-chg="DX-Y.NYB">—</div>
@@ -2388,7 +2388,7 @@ body.light-theme canvas { filter:none; }
         <span id="gmo-update-time" style="font-size:8px;color:var(--text-muted);font-family:var(--font-mono);">—</span>
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <button onclick="toggleGmoExpand()" id="gmo-expand-btn" class="btn-accent --orange">EXPAND</button>
+        <button data-action="toggleGmoExpand" id="gmo-expand-btn" class="btn-accent --orange">EXPAND</button>
       </div>
     </div>
     <div id="gmo-table-wrap" style="overflow-x:auto;overflow-y:hidden;">
@@ -2444,8 +2444,8 @@ body.light-theme canvas { filter:none; }
         <div class="page-subtitle">변동성 25% · 모멘텀 25% · 추세 20% · 시장폭 20% · 거시경제 10%</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-        <button id="sig-sw-btn" class="tb-btn primary" onclick="toggleSignalMode('swing')" style="font-size:10px;">스윙</button>
-        <button id="sig-dy-btn" class="tb-btn" onclick="toggleSignalMode('day')" style="font-size:10px;">데이트레이딩</button>
+        <button id="sig-sw-btn" class="tb-btn primary" data-action="toggleSignalMode" data-arg="swing" style="font-size:10px;">스윙</button>
+        <button id="sig-dy-btn" class="tb-btn" data-action="toggleSignalMode" data-arg="day" style="font-size:10px;">데이트레이딩</button>
         <span id="sig-mode-desc" style="font-size:8px;color:var(--text-secondary);"></span>
         <span id="sig-ts" style="font-size:8px;color:var(--text-muted);font-family:var(--font-mono);">대기 중…</span>
       </div>
@@ -2483,37 +2483,37 @@ body.light-theme canvas { filter:none; }
 
   <!-- ─ 시장 스냅샷 카드 (Live Quotes Overlay) ─ -->
   <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px;">
-    <div id="snap-gspc" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #3ddba5;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('technical',null)" title="차트 분석 →">
+    <div id="snap-gspc" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #3ddba5;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="technical" title="차트 분석 →">
       <div style="font-size:8px;color:var(--text-muted);font-weight:700;">S&P 500</div>
       <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="^GSPC">—</div>
       <div style="font-size:10px;" data-live-chg="^GSPC">—</div>
       <div data-idx-futures="^GSPC" style="display:none;font-size:8px;margin-top:2px;"></div>
       <div id="mkt-regime-sub" style="font-size:9px;color:var(--text-muted);margin-top:3px;">ATH 계산 중…</div>
     </div>
-    <div id="snap-ixic" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #60a5fa;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('technical',null)" title="차트 분석 →">
+    <div id="snap-ixic" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #60a5fa;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="technical" title="차트 분석 →">
       <div style="font-size:8px;color:var(--text-muted);font-weight:700;">NASDAQ</div>
       <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="^IXIC">—</div>
       <div style="font-size:10px;" data-live-chg="^IXIC">—</div>
       <div data-idx-futures="^IXIC" style="display:none;font-size:8px;margin-top:2px;"></div>
     </div>
-    <div id="snap-vix" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #f97316;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('sentiment',null)" title="투자 심리 →">
+    <div id="snap-vix" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #f97316;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="sentiment" title="투자 심리 →">
       <div style="font-size:8px;color:var(--text-muted);font-weight:700;">VIX 공포지수</div>
       <div id="snap-vix-val" style="font-size:14px;font-weight:800;font-family:var(--font-mono);color:#f97316;">—</div>
       <div id="snap-vix-lbl" style="font-size:8px;color:var(--text-muted);">레벨 계산 중…</div>
       <div id="vol-regime-val" style="font-size:9px;font-weight:700;margin-top:3px;">—</div>
       <div id="vol-regime-sub" style="font-size:9px;color:var(--text-muted);">VIX %ile 계산 중…</div>
     </div>
-    <div id="snap-oil" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #a78bfa;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('macro',null)" title="거시경제 →">
+    <div id="snap-oil" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #a78bfa;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="macro" title="거시경제 →">
       <div style="font-size:8px;color:var(--text-muted);font-weight:700;">WTI 원유</div>
       <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="CL=F">—</div>
       <div style="font-size:10px;" data-live-chg="CL=F">—</div>
     </div>
-    <div id="snap-gold" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('macro',null)" title="거시경제 →">
+    <div id="snap-gold" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="macro" title="거시경제 →">
       <div style="font-size:8px;color:var(--text-muted);font-weight:700;">GOLD</div>
       <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="GC=F">—</div>
       <div style="font-size:10px;" data-live-chg="GC=F">—</div>
     </div>
-    <div id="snap-btc" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #f59e0b;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" onclick="showPage('fxbond',null)" title="환율·채권 →">
+    <div id="snap-btc" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #f59e0b;border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="fxbond" title="환율·채권 →">
       <div style="font-size:8px;color:var(--text-muted);font-weight:700;">Bitcoin</div>
       <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="BTC-USD">—</div>
       <div style="font-size:10px;" data-live-chg="BTC-USD">—</div>
@@ -3271,7 +3271,7 @@ body.light-theme canvas { filter:none; }
 
   <!-- SECTION 2: 해석 가이드 (신호등) — v42.1: 접기 가능 -->
   <div style="background:rgba(248,113,113,0.04);border:1px solid rgba(248,113,113,0.15);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;cursor:pointer;user-select:none;" onclick="var g=this.nextElementSibling;g.style.display=g.style.display==='none'?'grid':'none';this.textContent=g.style.display==='none'?'시장 폭 해석 가이드 ▶':'시장 폭 해석 가이드 ▼'">시장 폭 해석 가이드 ▶</div>
+    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;cursor:pointer;user-select:none;" data-action="_aioBreadthGuideToggle" data-pass-el="1">시장 폭 해석 가이드 ▶</div>
     <div style="display:none;grid-template-columns:repeat(3,1fr);gap:10px;">
       <div style="padding:10px;background:rgba(248,113,113,0.06);border-left:3px solid #f87171;border-radius:6px;">
         <div style="font-size:9px;color:var(--text-muted);font-weight:600;margin-bottom:3px;"> 30% 미만</div>
@@ -3314,7 +3314,7 @@ body.light-theme canvas { filter:none; }
     <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;padding:10px;background:rgba(0,0,0,0.2);border-radius:6px;border-left:3px solid #fbbf24;">
       <b style="color:#fbbf24;">핵심:</b> <span id="breadth-diag-text">휴전 후 5/20SMA 빠른 회복(68%/75%) BUT 50SMA 46% 미탈환 — 단기 반등 확인, 중기 추세 전환 미확인.
       미너비니 바닥: 1단계(랠리) 통과 → 2단계(리테스트) 관찰 중. 50일선 60%+ 돌파 시 Breadth Thrust 진입.</span>
-      <span style="display:flex;gap:8px;margin-top:6px;"><span class="cross-link" onclick="showPage('sentiment',null)">심리 지표 확인 →</span><span class="cross-link" onclick="showPage('signal',null)">매매 시그널 확인 →</span></span>
+      <span style="display:flex;gap:8px;margin-top:6px;"><span class="cross-link" data-action="showPage" data-arg="sentiment">심리 지표 확인 →</span><span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 확인 →</span></span>
     </div>
   </div>
 
@@ -3555,7 +3555,7 @@ body.light-theme canvas { filter:none; }
           <div style="font-size:9px;color:var(--text-secondary);">등급: <span id="fg-rating-text" style="color:#dc2626;">극단 공포 (Extreme Fear)</span></div>
           <div id="fg-live-badge" style="font-size:8px;color:var(--green);margin-top:4px;font-weight:700;">● LIVE</div>
           <div id="fg-historical-ref" style="font-size:9px;color:var(--text-muted);margin-top:2px;font-style:italic;"></div>
-          <div id="fg-signal-link" style="margin-top:6px;display:none;"><span class="cross-link" onclick="showPage('signal',null)">진입 체크리스트 확인 →</span></div>
+          <div id="fg-signal-link" style="margin-top:6px;display:none;"><span class="cross-link" data-action="showPage" data-arg="signal">진입 체크리스트 확인 →</span></div>
         </div>
         <!-- v48.1: CNN F&G 9개 서브컴포넌트 — "왜 이 수준인가?" 설명 -->
         <div id="fg-components-widget" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:none;">
@@ -3694,8 +3694,8 @@ body.light-theme canvas { filter:none; }
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
           <span id="briefing-regime-badge" class="status-pill sp-neutral">시장 국면 로딩중</span>
           <span style="font-size:9px;color:#a78bfa;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);padding:2px 8px;border-radius:4px;font-weight:700;">08:00 KST 기준</span>
-          <span class="cross-link" onclick="showPage('macro',null)">매크로 상세 →</span>
-          <span class="cross-link" onclick="showPage('signal',null)">매매 시그널 →</span>
+          <span class="cross-link" data-action="showPage" data-arg="macro">매크로 상세 →</span>
+          <span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 →</span>
         </div>
       </div>
     </div>
@@ -3722,7 +3722,7 @@ body.light-theme canvas { filter:none; }
       <div style="flex:1;">
         <div style="font-size:10px;font-weight:700;color:#fbbf24;">아래는 과거 참고 데이터 — 마지막 갱신: <span data-snap-date="briefing-archive">2026-04-15</span> (<span id="briefing-stale-days" style="color:#fbbf24;font-weight:800;">경과일 계산중...</span>) · 최신 시황은 위 실시간 뉴스 또는 AI 채팅 이용</div>
       </div>
-      <button onclick="var el=document.getElementById('briefing-static-archive');el.style.display=el.style.display==='none'?'block':'none';this.textContent=el.style.display==='none'?'펼치기 ▼':'접기 ▲'" style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;font-size:9px;padding:4px 12px;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;">접기 ▲</button>
+      <button data-action="_aioBriefingArchiveToggle" data-pass-el="1" style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;font-size:9px;padding:4px 12px;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;">접기 ▲</button>
     </div>
 
     <div id="briefing-static-archive" data-dynamic="true">
@@ -3899,7 +3899,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">TradingView 실시간 차트</div>
       <div style="display:flex;gap:6px;">
         <input id="tv-tech-sym" value="SPY" aria-label="TradingView 종목 코드 입력" style="width:80px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" />
-        <button onclick="loadTVChart('technical')" class="tb-btn" style="font-size:10px;">차트 로드</button>
+        <button data-action="loadTVChart" data-arg="technical" class="tb-btn" style="font-size:10px;">차트 로드</button>
       </div>
     </div>
     <div id="tv-widget-technical" style="height:400px;border-radius:8px;overflow:hidden;background:#131722;"></div>
@@ -3995,7 +3995,7 @@ body.light-theme canvas { filter:none; }
       <input id="ticker-analysis-input" type="text" placeholder="종목 입력 (AAPL, NVDA 등)"
              style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;"
              onkeydown="if(event.key==='Enter'){analyzeTickerDeep(this.value.toUpperCase());}"/>
-      <button onclick="analyzeTickerDeep(document.getElementById('ticker-analysis-input').value.toUpperCase())"
+      <button data-action="_aioTickerSubmit"
               style="padding:8px 16px;background:#60a5fa;color:white;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;transition:0.2s;"
               onmouseover="this.style.background='#3b82f6'" onmouseout="this.style.background='#60a5fa'">
         분석 
@@ -4111,7 +4111,7 @@ body.light-theme canvas { filter:none; }
                style="width:100%;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
       </div>
     </div>
-    <button onclick="calculateEntryQualityLocal()"
+    <button data-action="calculateEntryQualityLocal"
             style="width:100%;padding:8px;background:#60a5fa;color:white;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;margin-bottom:10px;">
       계산하기 
     </button>
@@ -4156,7 +4156,7 @@ body.light-theme canvas { filter:none; }
         <div style="font-size:8px;color:var(--text-muted);margin-bottom:3px;">투자금 ($)</div>
         <input id="rr-capital" type="number" step="100" placeholder="10000" value="10000" aria-label="투자금 입력" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:var(--radius-md);font-size:11px;font-family:var(--font-mono);">
       </div>
-      <button onclick="calculateRR()" class="btn-cta">계산 ▶</button>
+      <button data-action="calculateRR" class="btn-cta">계산 ▶</button>
     </div>
     <div id="rr-result" style="display:none;margin-top:12px;">
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
@@ -4198,7 +4198,7 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
     <div class="beginner-tip collapsed" style="margin-top:10px;">
-      <div class="insight-explain-title tip-toggle" onclick="this.parentElement.classList.toggle('collapsed')"> 2% 룰이란?</div>
+      <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 2% 룰이란?</div>
       <div class="insight-explain-body">
         프로 트레이더의 철칙: <b>한 번의 매매에서 총 자산의 2% 이상 잃지 마라!</b><br>
         예: 자산 $10,000 → 최대 손실 $200 → 손절폭이 $5면 → 최대 40주만 매수<br>
@@ -4284,7 +4284,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- 스코어링 시스템 설명 -->
     <div class="beginner-tip collapsed">
-      <div class="insight-explain-title tip-toggle" onclick="this.parentElement.classList.toggle('collapsed')"> 20점 만점 스코어링 시스템 (PA-First v5.4)</div>
+      <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 20점 만점 스코어링 시스템 (PA-First v5.4)</div>
       <div class="insight-explain-body">
         위 12가지 셋업이 발생하면, 다음 기준으로 0~20점 품질 점수를 매깁니다:<br><br>
          <b>이평선 정배열 (0~4점):</b> 5일>10일>20일>50일>100일>200일 순서대로 쌓여있나? 길이 깔끔하게 정렬될수록 높은 점수<br>
@@ -4321,7 +4321,7 @@ body.light-theme canvas { filter:none; }
 
   <!-- ══ SECTION 7: 핵심 분석 가이드 ═════════════════════════════ -->
   <div class="beginner-tip collapsed" style="margin-bottom:12px;">
-    <div class="insight-explain-title tip-toggle" onclick="this.parentElement.classList.toggle('collapsed')"> 기술적 분석 핵심 가이드 — 차트로 시장을 읽는 법</div>
+    <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 기술적 분석 핵심 가이드 — 차트로 시장을 읽는 법</div>
     <div class="insight-explain-body">
       기술적 분석은 "과거 가격과 거래량 패턴이 미래에도 반복된다"는 아이디어입니다. 내비게이션처럼, 차트 지표들이 주가의 방향과 속도를 알려줍니다.<br><br>
        <b>RSI (상대강도지수):</b> 속도계. 70 이상 = 과속 구간(과열, 조심), 30 이하 = 너무 느림(과매도, 반등 기회)<br>
@@ -4370,7 +4370,7 @@ body.light-theme canvas { filter:none; }
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
       <div style="font-size:12px;font-weight:700;color:var(--text-secondary);"> 매크로 인터커넥션 맵</div>
-      <button onclick="var d=document.getElementById('macro-intercon-detail');d.style.display=d.style.display==='none'?'block':'none';this.textContent=d.style.display==='none'?'설명 보기 ▼':'접기 ▲'" class="btn-accent --blue" style="font-size:10px;padding:3px 10px;">설명 보기 ▼</button>
+      <button data-action="_aioMacroInterconToggle" data-pass-el="1" class="btn-accent --blue" style="font-size:10px;padding:3px 10px;">설명 보기 ▼</button>
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
@@ -4637,7 +4637,7 @@ body.light-theme canvas { filter:none; }
   <div style="background:rgba(96,165,250,0.04);border:1px solid rgba(96,165,250,0.15);border-radius:9px;padding:12px 14px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:4px;">
       <span style="font-size:9px;font-weight:700;color:#60a5fa;">외환·채권 현황 요약</span>
-      <button onclick="showPage('fxbond',null)" class="btn-accent --blue">전체 대시보드 →</button>
+      <button data-action="showPage" data-arg="fxbond" class="btn-accent --blue">전체 대시보드 →</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(85px,1fr));gap:6px;">
       <div class="mfx-cell"><div class="mfx-l">DXY</div><div class="mfx-v" data-live-price="DX-Y.NYB">—</div><div class="mfx-c" data-live-chg="DX-Y.NYB">—</div></div>
@@ -4850,7 +4850,7 @@ body.light-theme canvas { filter:none; }
 
   <!-- ══ SECTION 7: 매크로 분석 핵심 가이드 ══════════════════════ -->
   <div class="beginner-tip collapsed" style="margin-bottom:12px;">
-    <div class="insight-explain-title tip-toggle" onclick="this.parentElement.classList.toggle('collapsed')"> 매크로 분석 핵심 가이드 — 거시경제가 주가에 미치는 경로</div>
+    <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 매크로 분석 핵심 가이드 — 거시경제가 주가에 미치는 경로</div>
     <div class="insight-explain-body">
       아무리 좋은 종목을 골라도, "바다의 방향"(매크로)이 반대면 돈을 잃을 수 있습니다. 매크로는 모든 주식이 함께 타는 배의 방향타입니다.<br><br>
        <b>금리가 오르면:</b> 미래 현금흐름의 가치가 줄어들어 성장주(기술주)가 타격. "돈의 가격"이 비싸지니까요.<br>
@@ -5012,7 +5012,7 @@ body.light-theme canvas { filter:none; }
 
     <!--  환율 분석 가이드 -->
     <div class="beginner-tip collapsed">
-      <div class="insight-explain-title tip-toggle" onclick="this.parentElement.classList.toggle('collapsed')"> 환율·달러 인덱스 분석 가이드 — FX가 자산에 미치는 영향</div>
+      <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 환율·달러 인덱스 분석 가이드 — FX가 자산에 미치는 영향</div>
       <div class="insight-explain-body">
         <b>달러 인덱스(DXY)</b> = 달러 vs 6개 주요 통화 강도 지표.<br><br>
          <b>DXY 100+:</b> 달러 강세 → 신흥국 자본유출↑<br>
@@ -5098,7 +5098,7 @@ body.light-theme canvas { filter:none; }
 
     <!--  수익률 곡선 분석 가이드 -->
     <div class="beginner-tip collapsed">
-      <div class="insight-explain-title tip-toggle" onclick="this.parentElement.classList.toggle('collapsed')"> 수익률 곡선 분석 가이드 — 경기 사이클 예측의 핵심 도구</div>
+      <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 수익률 곡선 분석 가이드 — 경기 사이클 예측의 핵심 도구</div>
       <div class="insight-explain-body">
         <b>수익률 곡선(Yield Curve)</b> = 국채 만기별 이자율 그래프.<br><br>
          <b>정상:</b> 3M < 2Y < 10Y < 30Y (성장 기대)<br>
@@ -5147,7 +5147,7 @@ body.light-theme canvas { filter:none; }
 
     <!--  스프레드 분석 가이드 -->
     <div class="beginner-tip collapsed" style="background:linear-gradient(135deg,rgba(248,113,113,0.06),rgba(251,191,36,0.04));border-color:rgba(248,113,113,0.2);">
-      <div class="insight-explain-title tip-toggle" onclick="this.parentElement.classList.toggle('collapsed')" style="color:#f87171;"> 스프레드 분석 가이드 — 신용 리스크와 경기 전환 시그널</div>
+      <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1" style="color:#f87171;"> 스프레드 분석 가이드 — 신용 리스크와 경기 전환 시그널</div>
       <div class="insight-explain-body">
         <b>스프레드(Spread)</b> = 두 금리의 차이. 경제 건강 상태 지표.<br><br>
          <b>2s10s:</b> 마이너스(역전)=경기침체 경고. 역전→정상화 구간이 가장 위험 (6-18개월 내 침체 진입률 92%)<br>
@@ -5552,7 +5552,7 @@ body.light-theme canvas { filter:none; }
     <div class="data-widget" style="margin-bottom:14px;">
       <div style="display:flex;gap:8px;align-items:center;">
         <input id="fund-search-input" aria-label="기업 분석 종목 티커 입력" style="flex:1;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-weight:600;" placeholder="종목 티커 입력 (예: NVDA, AAPL, TSLA, MSFT)..." onkeydown="if(event.key==='Enter')fundamentalSearch()"/>
-        <button class="tb-btn primary" style="padding:10px 20px;font-size:12px;font-weight:700;" onclick="fundamentalSearch()">기업 분석</button>
+        <button class="tb-btn primary" style="padding:10px 20px;font-size:12px;font-weight:700;" data-action="fundamentalSearch">기업 분석</button>
       </div>
       <div style="font-size:9px;color:var(--text-muted);margin-top:6px;">S&P 500 · NASDAQ · 다우 30 · Russell 2000 전 종목 | 검색 시 SEC 공시 + 재무제표 + 실시간 시세를 자동 수집하여 AI에 전달합니다</div>
       <!-- v33.4: 최근 검색 기록 -->
@@ -5694,9 +5694,9 @@ body.light-theme canvas { filter:none; }
         </div>
         <div style="display:flex;gap:4px;align-items:center;">
           <div style="display:flex;gap:3px;" id="rrg-view-tabs">
-            <button class="news-sort-btn active" onclick="setRRGView('sectors',this)">11섹터</button>
-            <button class="news-sort-btn" onclick="setRRGView('subsectors',this)">서브섹터</button>
-            <button class="news-sort-btn" onclick="setRRGView('all',this)">전체</button>
+            <button class="news-sort-btn active" data-action="setRRGView" data-arg="sectors" data-pass-el="1">11섹터</button>
+            <button class="news-sort-btn" data-action="setRRGView" data-arg="subsectors" data-pass-el="1">서브섹터</button>
+            <button class="news-sort-btn" data-action="setRRGView" data-arg="all" data-pass-el="1">전체</button>
           </div>
           <span id="rrg-chart-status" style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);margin-left:6px;">—</span>
         </div>
@@ -5718,12 +5718,12 @@ body.light-theme canvas { filter:none; }
         <span style="font-size:14px;font-weight:700;color:var(--text-secondary);">섹터 ETF 퍼포먼스 + RS 상태</span>
         <div style="display:flex;gap:4px;">
           <div style="display:flex;gap:3px;" id="sector-perf-view-tabs">
-            <button class="news-sort-btn active" onclick="setSectorPerfView('sectors',this)">11섹터</button>
-            <button class="news-sort-btn" onclick="setSectorPerfView('all',this)">+서브섹터</button>
+            <button class="news-sort-btn active" data-action="setSectorPerfView" data-arg="sectors" data-pass-el="1">11섹터</button>
+            <button class="news-sort-btn" data-action="setSectorPerfView" data-arg="all" data-pass-el="1">+서브섹터</button>
           </div>
           <div style="display:flex;gap:3px;" id="sector-perf-tabs">
-            <button class="news-sort-btn active" onclick="setSectorPerfMode('1d',this)">1일</button>
-            <button class="news-sort-btn" onclick="setSectorPerfMode('1w',this)">1주</button>
+            <button class="news-sort-btn active" data-action="setSectorPerfMode" data-arg="1d" data-pass-el="1">1일</button>
+            <button class="news-sort-btn" data-action="setSectorPerfMode" data-arg="1w" data-pass-el="1">1주</button>
           </div>
         </div>
       </div>
@@ -5744,7 +5744,7 @@ body.light-theme canvas { filter:none; }
       </div>
       <div style="position:relative;height:200px;"><canvas id="sector-20d-chart" role="img" aria-label="섹터 ETF 20일 시계열"></canvas></div>
       <div style="text-align:center;margin-top:8px;">
-        <button onclick="_loadSector20dChart()" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:9px;padding:4px 14px;border-radius:5px;cursor:pointer;">20일 시계열 로드 (상위 5개 섹터)</button>
+        <button data-action="_loadSector20dChart" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:9px;padding:4px 14px;border-radius:5px;cursor:pointer;">20일 시계열 로드 (상위 5개 섹터)</button>
       </div>
     </div>
 
@@ -5802,7 +5802,7 @@ body.light-theme canvas { filter:none; }
       </div>
       <!-- 테마 상세 패널 -->
       <div id="theme-detail-panel" style="display:none;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:9px;padding:16px;margin-top:12px;position:relative;">
-        <button onclick="closeThemeDetail()" class="btn-close" aria-label="닫기">✕</button>
+        <button data-action="closeThemeDetail" class="btn-close" aria-label="닫기">✕</button>
       </div>
     </div>
 
@@ -5815,7 +5815,7 @@ body.light-theme canvas { filter:none; }
       </div>
       <!-- v38.3: 세분화 테마 심층 분석 패널 -->
       <div id="sub-theme-detail-panel" style="display:none;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:9px;padding:16px;margin-top:12px;position:relative;">
-        <button onclick="closeSubThemeDetail()" class="btn-close" aria-label="닫기">✕</button>
+        <button data-action="closeSubThemeDetail" class="btn-close" aria-label="닫기">✕</button>
       </div>
     </div>
 
@@ -5835,7 +5835,7 @@ body.light-theme canvas { filter:none; }
   </div>
     <div class="mb-4">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <button id="ticker-back-btn" class="tb-btn" onclick="showPage('themes',null)">← 돌아가기</button>
+        <button id="ticker-back-btn" class="tb-btn" data-action="showPage" data-arg="themes">← 돌아가기</button>
         <span id="ticker-breadcrumb-parent" style="font-size:10px;color:var(--text-muted);">Themes > AI</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
@@ -5847,8 +5847,8 @@ body.light-theme canvas { filter:none; }
 
     <!-- Mode Toggle: ETF vs Subtheme -->
     <div style="display:flex;gap:8px;margin-bottom:14px;">
-      <button id="etf-btn" class="tb-btn primary" onclick="switchThemeMode('etf')">ETF 뷰</button>
-      <button id="sub-btn" class="tb-btn" onclick="switchThemeMode('subtheme')">부테마</button>
+      <button id="etf-btn" class="tb-btn primary" data-action="switchThemeMode" data-arg="etf">ETF 뷰</button>
+      <button id="sub-btn" class="tb-btn" data-action="switchThemeMode" data-arg="subtheme">부테마</button>
       <span id="theme-mode-desc" style="font-size:10px;color:var(--text-secondary);margin-left:12px;">AI 및 반도체 섹터 주요 ETF</span>
     </div>
 
@@ -5919,19 +5919,19 @@ body.light-theme canvas { filter:none; }
       <div class="acp-header">
         <span class="acp-title">Theme Deep Dive</span>
         <span style="margin-left:auto;font-size:8px;font-family:var(--font-mono);color:var(--text-muted);letter-spacing:0.06em;">Claude AI · 적응형</span>
-        <button class="acp-expand-btn" onclick="toggleChatExpand('theme-detail')" title="채팅 영역 확장/축소">↗ 확장</button><button class="acp-clear" onclick="chatClear('theme-detail')" title="대화 초기화">✕</button>
+        <button class="acp-expand-btn" data-action="toggleChatExpand" data-arg="theme-detail" title="채팅 영역 확장/축소">↗ 확장</button><button class="acp-clear" data-action="chatClear" data-arg="theme-detail" title="대화 초기화">✕</button>
       </div>
       <div class="acp-messages" id="chat-theme-detail-msgs"></div>
       <div class="acp-chips" id="chat-theme-detail-chips">
-        <div class="q-chip" onclick="chatFromChip('theme-detail',this.textContent.trim())">AI 트렌드</div>
-        <div class="q-chip" onclick="chatFromChip('theme-detail',this.textContent.trim())">경쟁 구도</div>
-        <div class="q-chip" onclick="chatFromChip('theme-detail',this.textContent.trim())">위험 요소</div>
-        <div class="q-chip" onclick="chatFromChip('theme-detail',this.textContent.trim())">포트폴리오 구성</div>
+        <div class="q-chip" data-action="_aioChatFromChipText" data-arg="theme-detail" data-pass-el="1">AI 트렌드</div>
+        <div class="q-chip" data-action="_aioChatFromChipText" data-arg="theme-detail" data-pass-el="1">경쟁 구도</div>
+        <div class="q-chip" data-action="_aioChatFromChipText" data-arg="theme-detail" data-pass-el="1">위험 요소</div>
+        <div class="q-chip" data-action="_aioChatFromChipText" data-arg="theme-detail" data-pass-el="1">포트폴리오 구성</div>
       </div>
       <div class="acp-input-row">
         <input id="chat-theme-detail-inp" placeholder="질문을 입력하세요..."
                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSend('theme-detail')}"/>
-        <button id="chat-theme-detail-btn" onclick="chatSend('theme-detail')">전송 ▶</button>
+        <button id="chat-theme-detail-btn" data-action="chatSend" data-arg="theme-detail">전송 ▶</button>
       </div>
     </div>
   </div>
@@ -5949,7 +5949,7 @@ body.light-theme canvas { filter:none; }
         </div>
         <div style="display:flex;gap:6px;align-items:center;">
           <span style="font-size:9px;color:var(--text-muted);font-family:var(--font-mono);"> 로컬 저장 · 서버 전송 없음</span>
-          <button class="tb-btn" onclick="exportPortfolio()" style="font-size:9px;"> 내보내기</button>
+          <button class="tb-btn" data-action="exportPortfolio" style="font-size:9px;"> 내보내기</button>
           <label class="tb-btn" style="font-size:11px;cursor:pointer;"> 가져오기<input type="file" accept=".json" aria-label="포트폴리오 JSON 파일 가져오기" style="display:none" onchange="importPortfolio(event)"></label>
         </div>
       </div>
@@ -5962,10 +5962,10 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:9px;color:var(--text-muted);margin-bottom:16px;">PIN 4자리를 입력하세요. 데이터는 브라우저에만 저장됩니다.</div>
       <input id="pf-pin-input" type="password" maxlength="4" aria-label="포트폴리오 PIN 입력" pattern="[0-9]*" inputmode="numeric" placeholder="••••" style="width:120px;text-align:center;font-size:20px;letter-spacing:8px;background:rgba(255,255,255,0.05);border:2px solid var(--accent-border);border-radius:8px;padding:10px;color:var(--text-primary);outline:none;" onkeydown="if(event.key==='Enter')unlockPortfolio()">
       <br>
-      <button class="tb-btn primary" onclick="unlockPortfolio()" style="margin-top:12px;font-size:10px;">잠금 해제</button>
+      <button class="tb-btn primary" data-action="unlockPortfolio" style="margin-top:12px;font-size:10px;">잠금 해제</button>
       <div style="margin-top:12px;">
-        <button class="tb-btn" onclick="setupPortfolioPin()" style="font-size:8px;color:var(--text-muted);">PIN 설정/변경</button>
-        <button class="tb-btn" onclick="resetPortfolioPin()" style="font-size:8px;color:var(--text-muted);">PIN 초기화</button>
+        <button class="tb-btn" data-action="setupPortfolioPin" style="font-size:8px;color:var(--text-muted);">PIN 설정/변경</button>
+        <button class="tb-btn" data-action="resetPortfolioPin" style="font-size:8px;color:var(--text-muted);">PIN 초기화</button>
       </div>
     </div>
 
@@ -6025,7 +6025,7 @@ body.light-theme canvas { filter:none; }
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">내 포트폴리오 vs SPY 수익률 비교</div>
-        <button onclick="updateBenchmarkChart()" class="tb-btn" style="font-size:9px;"> 새로고침</button>
+        <button data-action="updateBenchmarkChart" class="tb-btn" style="font-size:9px;"> 새로고침</button>
       </div>
       <canvas id="pf-benchmark-chart" style="width:100%;height:200px;" role="img" aria-label="포트폴리오 대 SPY 벤치마크 비교 차트"></canvas>
       <div style="margin-top:8px;font-size:9px;color:var(--text-muted);display:flex;gap:16px;align-items:center;">
@@ -6059,8 +6059,8 @@ body.light-theme canvas { filter:none; }
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">메모 (선택)</div>
           <input id="pf-add-memo" type="text" placeholder="매수 근거 (예: 실적 서프라이즈, 밸류에이션)" aria-label="메모" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box;">
         </div>
-        <button class="tb-btn primary" onclick="addPortfolioPosition()" style="font-size:12px;font-weight:700;padding:8px 18px;">추가 / 업데이트</button>
-        <button class="tb-btn" onclick="clearPortfolioForm()" style="font-size:11px;padding:8px 14px;">초기화</button>
+        <button class="tb-btn primary" data-action="addPortfolioPosition" style="font-size:12px;font-weight:700;padding:8px 18px;">추가 / 업데이트</button>
+        <button class="tb-btn" data-action="clearPortfolioForm" style="font-size:11px;padding:8px 14px;">초기화</button>
       </div>
     </div>
 
@@ -6069,8 +6069,8 @@ body.light-theme canvas { filter:none; }
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;">
         <div class="widget-title" style="margin:0;">보유 종목</div>
         <div style="display:flex;gap:6px;">
-          <button class="tb-btn" onclick="refreshPortfolioPrices()" style="font-size:8px;">⟳ 시세 갱신</button>
-          <button class="tb-btn" onclick="clearAllPositions()" style="font-size:8px;color:#f87171;">전체 삭제</button>
+          <button class="tb-btn" data-action="refreshPortfolioPrices" style="font-size:8px;">⟳ 시세 갱신</button>
+          <button class="tb-btn" data-action="clearAllPositions" style="font-size:8px;color:#f87171;">전체 삭제</button>
         </div>
       </div>
       <!-- v48.3: 테이블 헤더 폰트 8px→11px, 본문 10px→12px 상향 (P37/R17 준수 · 가독성 확보) -->
@@ -6102,9 +6102,9 @@ body.light-theme canvas { filter:none; }
           <select id="wl-select" aria-label="관심 종목 리스트 선택" onchange="switchWatchlist()" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-size:9px;padding:4px 8px;font-family:var(--font-mono);min-width:120px;">
             <option value="">리스트 선택...</option>
           </select>
-          <button class="tb-btn" onclick="createWatchlist()" style="font-size:8px;">+ 새 리스트</button>
-          <button class="tb-btn" onclick="renameWatchlist()" style="font-size:8px;" id="wl-rename-btn" disabled> 이름변경</button>
-          <button class="tb-btn" onclick="deleteWatchlist()" style="font-size:8px;color:#f87171;" id="wl-delete-btn" disabled> 삭제</button>
+          <button class="tb-btn" data-action="createWatchlist" style="font-size:8px;">+ 새 리스트</button>
+          <button class="tb-btn" data-action="renameWatchlist" style="font-size:8px;" id="wl-rename-btn" disabled> 이름변경</button>
+          <button class="tb-btn" data-action="deleteWatchlist" style="font-size:8px;color:#f87171;" id="wl-delete-btn" disabled> 삭제</button>
         </div>
       </div>
       <!-- 워치리스트 종목 추가 -->
@@ -6112,7 +6112,7 @@ body.light-theme canvas { filter:none; }
         <div style="display:flex;gap:6px;align-items:center;">
           <input id="wl-add-ticker" type="text" placeholder="티커 입력 (예: AAPL)" aria-label="관심종목 티커 입력" style="width:100px;padding:5px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;font-family:var(--font-mono);text-transform:uppercase;" onkeydown="if(event.key==='Enter')addToWatchlist()">
           <input id="wl-add-note" type="text" placeholder="메모 (선택)" aria-label="관심종목 메모 입력" style="width:140px;padding:5px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')addToWatchlist()">
-          <button class="tb-btn primary" onclick="addToWatchlist()" style="font-size:9px;padding:5px 12px;">추가</button>
+          <button class="tb-btn primary" data-action="addToWatchlist" style="font-size:9px;padding:5px 12px;">추가</button>
         </div>
       </div>
       <!-- 워치리스트 테이블 -->
@@ -6152,7 +6152,7 @@ body.light-theme canvas { filter:none; }
   </div>
     <div class="mb-4">
       <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <button id="ticker-back-btn-main" class="tb-btn" onclick="showPage('portfolio',null)">← 돌아가기</button>
+        <button id="ticker-back-btn-main" class="tb-btn" data-action="showPage" data-arg="portfolio">← 돌아가기</button>
         <span id="ticker-breadcrumb-main" style="font-size:10px;color:var(--text-muted);">Portfolio > NVDA</span>
       </div>
       <div style="display:flex;align-items:baseline;gap:12px;">
@@ -6174,9 +6174,9 @@ body.light-theme canvas { filter:none; }
 
     <!-- Tabs -->
     <div class="page-tabs">
-      <button class="page-tab tab active" onclick="switchTab('overview')">Overview</button>
-      <button class="page-tab tab" onclick="switchTab('chart')">Chart</button>
-      <button class="page-tab tab" onclick="switchTab('financials')">Financials</button>
+      <button class="page-tab tab active" data-action="switchTab" data-arg="overview">Overview</button>
+      <button class="page-tab tab" data-action="switchTab" data-arg="chart">Chart</button>
+      <button class="page-tab tab" data-action="switchTab" data-arg="financials">Financials</button>
     </div>
 
     <!-- Tab: Overview -->
@@ -6227,10 +6227,10 @@ body.light-theme canvas { filter:none; }
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div class="widget-title" style="margin-bottom:0;">Price Chart</div>
           <div style="display:flex;gap:4px;" id="ticker-chart-period-tabs">
-            <button class="news-sort-btn active" onclick="loadTickerChart('1m',this)">1M</button>
-            <button class="news-sort-btn" onclick="loadTickerChart('3m',this)">3M</button>
-            <button class="news-sort-btn" onclick="loadTickerChart('6m',this)">6M</button>
-            <button class="news-sort-btn" onclick="loadTickerChart('1y',this)">1Y</button>
+            <button class="news-sort-btn active" data-action="loadTickerChart" data-arg="1m" data-pass-el="1">1M</button>
+            <button class="news-sort-btn" data-action="loadTickerChart" data-arg="3m" data-pass-el="1">3M</button>
+            <button class="news-sort-btn" data-action="loadTickerChart" data-arg="6m" data-pass-el="1">6M</button>
+            <button class="news-sort-btn" data-action="loadTickerChart" data-arg="1y" data-pass-el="1">1Y</button>
           </div>
         </div>
         <div style="position:relative;height:300px;">
@@ -6294,7 +6294,7 @@ body.light-theme canvas { filter:none; }
         <span id="last-fetch-time" style="font-size:8px;color:var(--text-muted);font-family:var(--font-mono);">로딩 중...</span>
         <span id="market-news-count" style="font-size:8px;color:var(--text-muted);font-family:var(--font-mono);"></span>
         <span id="market-news-tw-label" style="font-size:8px;color:var(--yellow);font-family:var(--font-mono);background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:4px;padding:2px 8px;">48시간 이내</span>
-        <button id="news-refresh-btn" onclick="(function(){if(isFetching){isFetching=false;}fetchAllNews(true);})()" style="background:rgba(91,168,255,0.15);border:1px solid rgba(91,168,255,0.4);color:#60a5fa;font-size:9px;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.2s;hover:background:rgba(91,168,255,0.25);">↻ 새로고침</button>
+        <button id="news-refresh-btn" data-action="_aioFetchAllNewsForce" style="background:rgba(91,168,255,0.15);border:1px solid rgba(91,168,255,0.4);color:#60a5fa;font-size:9px;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.2s;hover:background:rgba(91,168,255,0.25);">↻ 새로고침</button>
       </div>
     </div>
 
@@ -6332,37 +6332,37 @@ body.light-theme canvas { filter:none; }
     <!-- 정렬 옵션 + 번역 상태 -->
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
       <span style="font-size:8px;color:var(--text-muted);margin-right:2px;">정렬:</span>
-      <button class="news-sort-btn active" id="sort-time-btn" onclick="setNewsSortMode('time',this)"> 최신순</button>
-      <button class="news-sort-btn" id="sort-score-btn" onclick="setNewsSortMode('score',this)"> 중요도순</button>
+      <button class="news-sort-btn active" id="sort-time-btn" data-action="setNewsSortMode" data-arg="time" data-pass-el="1"> 최신순</button>
+      <button class="news-sort-btn" id="sort-score-btn" data-action="setNewsSortMode" data-arg="score" data-pass-el="1"> 중요도순</button>
       <span style="width:1px;height:14px;background:var(--border);margin:0 4px;"></span>
       <span id="translate-status" style="font-size:8px;color:var(--green);font-family:var(--font-mono);">자동 한국어 번역</span>
     </div>
 
     <!-- 국가 필터 -->
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="news-country-chips">
-      <span class="chip" onclick="filterNewsByCountry('all',this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid var(--accent-border);border-radius:20px;background:var(--accent-dim);color:var(--accent);">전체</span>
-      <span class="chip" onclick="filterNewsByCountry('us',this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">🇺🇸 미국</span>
-      <span class="chip" onclick="filterNewsByCountry('kr',this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);"> 한국</span>
-      <span class="chip" onclick="filterNewsByCountry('asia',this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">아시아</span>
-      <span class="chip" onclick="filterNewsByCountry('eu',this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">🇪🇺 유럽</span>
-      <span class="chip" onclick="filterNewsByTelegramOnly(this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(91,168,255,0.3);border-radius:20px;color:#60a5fa;background:rgba(91,168,255,0.08);">텔레그램</span>
+      <span class="chip" data-action="filterNewsByCountry" data-arg="all" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid var(--accent-border);border-radius:20px;background:var(--accent-dim);color:var(--accent);">전체</span>
+      <span class="chip" data-action="filterNewsByCountry" data-arg="us" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">🇺🇸 미국</span>
+      <span class="chip" data-action="filterNewsByCountry" data-arg="kr" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);"> 한국</span>
+      <span class="chip" data-action="filterNewsByCountry" data-arg="asia" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">아시아</span>
+      <span class="chip" data-action="filterNewsByCountry" data-arg="eu" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">🇪🇺 유럽</span>
+      <span class="chip" data-action="filterNewsByTelegramOnly" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(91,168,255,0.3);border-radius:20px;color:#60a5fa;background:rgba(91,168,255,0.08);">텔레그램</span>
     </div>
 
     <!-- 토픽 필터 -->
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="news-topic-chips">
-      <span class="chip" onclick="filterNewsByTopic('all',this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid var(--accent-border);border-radius:20px;background:var(--accent-dim);color:var(--accent);">전체</span>
-      <span class="chip" onclick="filterNewsByTopic('macro',this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">매크로</span>
-      <span class="chip" onclick="filterNewsByTopic('equity',this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">주식</span>
-      <span class="chip" onclick="filterNewsByTopic('energy',this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">에너지</span>
-      <span class="chip" onclick="filterNewsByTopic('crypto',this)" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">크립토</span>
+      <span class="chip" data-action="filterNewsByTopic" data-arg="all" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid var(--accent-border);border-radius:20px;background:var(--accent-dim);color:var(--accent);">전체</span>
+      <span class="chip" data-action="filterNewsByTopic" data-arg="macro" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">매크로</span>
+      <span class="chip" data-action="filterNewsByTopic" data-arg="equity" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">주식</span>
+      <span class="chip" data-action="filterNewsByTopic" data-arg="energy" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">에너지</span>
+      <span class="chip" data-action="filterNewsByTopic" data-arg="crypto" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:9px;border:1px solid rgba(255,255,255,0.08);border-radius:20px;color:var(--text-secondary);">크립토</span>
     </div>
 
     <!-- v34.9: 뉴스 유형 탭 (전체/시장/기업) -->
     <div id="news-type-tabs" style="display:flex;gap:0;margin-bottom:10px;border-bottom:2px solid var(--border);">
-      <button class="news-type-tab active" data-type="all" onclick="setNewsTypeTab('all',this)" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--accent);border-bottom:2px solid var(--accent);margin-bottom:-2px;cursor:pointer;font-family:inherit;">전체</button>
-      <button class="news-type-tab" data-type="market" onclick="setNewsTypeTab('market',this)" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit;">시장 뉴스</button>
-      <button class="news-type-tab" data-type="company" onclick="setNewsTypeTab('company',this)" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit;">기업 뉴스</button>
-      <button class="news-type-tab" data-type="category" onclick="setNewsTypeTab('category',this)" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit;">카테고리별</button>
+      <button class="news-type-tab active" data-type="all" data-action="setNewsTypeTab" data-arg="all" data-pass-el="1" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--accent);border-bottom:2px solid var(--accent);margin-bottom:-2px;cursor:pointer;font-family:inherit;">전체</button>
+      <button class="news-type-tab" data-type="market" data-action="setNewsTypeTab" data-arg="market" data-pass-el="1" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit;">시장 뉴스</button>
+      <button class="news-type-tab" data-type="company" data-action="setNewsTypeTab" data-arg="company" data-pass-el="1" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit;">기업 뉴스</button>
+      <button class="news-type-tab" data-type="category" data-action="setNewsTypeTab" data-arg="category" data-pass-el="1" style="padding:8px 18px;font-size:11px;font-weight:700;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:inherit;">카테고리별</button>
     </div>
 
     <!-- 로딩 프로그레스 바 -->
@@ -7109,9 +7109,9 @@ body.light-theme canvas { filter:none; }
         <div class="page-subtitle">실시간 지수 · KOSPI · KOSDAQ · KRW/USD · 투자자 수급 · 한국 시장 요약</div>
       </div>
       <div class="page-actions">
-        <button class="tb-btn" onclick="showPage('kr-supply',null)">수급 분석 →</button>
-        <button class="tb-btn" onclick="showPage('kr-themes',null)">국내 테마 →</button>
-        <button class="tb-btn primary" onclick="showPage('kr-macro',null)">매크로 →</button>
+        <button class="tb-btn" data-action="showPage" data-arg="kr-supply">수급 분석 →</button>
+        <button class="tb-btn" data-action="showPage" data-arg="kr-themes">국내 테마 →</button>
+        <button class="tb-btn primary" data-action="showPage" data-arg="kr-macro">매크로 →</button>
       </div>
     </div>
 
@@ -7397,7 +7397,7 @@ body.light-theme canvas { filter:none; }
         <div class="page-subtitle">투자자별 순매수 · 프로그램 매매 · 공매도 현황 · 외인 보유 비중</div>
       </div>
       <div class="page-actions">
-        <button class="tb-btn" onclick="showPage('kr-home',null)">← 한국장 홈</button>
+        <button class="tb-btn" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
       </div>
     </div>
 
@@ -7422,10 +7422,10 @@ body.light-theme canvas { filter:none; }
 
     <!-- Tabs -->
     <div class="kr-tabs">
-      <div class="kr-tab active" onclick="krSupplyTab(this,'daily')">오늘 수급</div>
-      <div class="kr-tab" onclick="krSupplyTab(this,'weekly')">주간 트렌드</div>
-      <div class="kr-tab" onclick="krSupplyTab(this,'short')">공매도</div>
-      <div class="kr-tab" onclick="krSupplyTab(this,'foreign')">외인 보유</div>
+      <div class="kr-tab active" data-action="krSupplyTab" data-arg-first-el="1" data-arg="daily">오늘 수급</div>
+      <div class="kr-tab" data-action="krSupplyTab" data-arg-first-el="1" data-arg="weekly">주간 트렌드</div>
+      <div class="kr-tab" data-action="krSupplyTab" data-arg-first-el="1" data-arg="short">공매도</div>
+      <div class="kr-tab" data-action="krSupplyTab" data-arg-first-el="1" data-arg="foreign">외인 보유</div>
     </div>
 
     <!-- DAILY TAB -->
@@ -7593,7 +7593,7 @@ body.light-theme canvas { filter:none; }
       </div>
       <div class="page-actions" style="display:flex;gap:8px;align-items:center;">
         <a href="https://finance.naver.com/sise/theme.naver" target="_blank" rel="noopener noreferrer" rel="noopener" class="tb-btn" style="text-decoration:none;font-size:11px;">네이버 테마별 시세 ↗</a>
-        <button class="tb-btn" onclick="showPage('kr-home',null)">← 한국장 홈</button>
+        <button class="tb-btn" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
       </div>
     </div>
 
@@ -7601,19 +7601,19 @@ body.light-theme canvas { filter:none; }
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:14px;">
       <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:8px;letter-spacing:0.06em;">테마 필터</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="kr-tab active" onclick="filterKrThemes(this,'all')">전체</button>
-        <button class="kr-tab" onclick="filterKrThemes(this,'hot')">HOT</button>
-        <button class="kr-tab" onclick="filterKrThemes(this,'warm')">강세</button>
-        <button class="kr-tab" onclick="filterKrThemes(this,'cool')">중립</button>
-        <button class="kr-tab" onclick="filterKrThemes(this,'cold')">조정/부진</button>
+        <button class="kr-tab active" data-action="filterKrThemes" data-arg-first-el="1" data-arg="all">전체</button>
+        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="hot">HOT</button>
+        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="warm">강세</button>
+        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="cool">중립</button>
+        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="cold">조정/부진</button>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);">
         <span style="font-size:9px;color:var(--text-muted);margin-right:2px;line-height:24px;">섹터:</span>
-        <button class="kr-tab kr-sector-tab active" onclick="filterKrSector(this,'all')">전체</button>
-        <button class="kr-tab kr-sector-tab" onclick="filterKrSector(this,'tech')">IT/반도체</button>
-        <button class="kr-tab kr-sector-tab" onclick="filterKrSector(this,'industry')">산업/에너지</button>
-        <button class="kr-tab kr-sector-tab" onclick="filterKrSector(this,'consumer')">소비/문화</button>
-        <button class="kr-tab kr-sector-tab" onclick="filterKrSector(this,'finance')">금융/통신</button>
+        <button class="kr-tab kr-sector-tab active" data-action="filterKrSector" data-arg-first-el="1" data-arg="all">전체</button>
+        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="tech">IT/반도체</button>
+        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="industry">산업/에너지</button>
+        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="consumer">소비/문화</button>
+        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="finance">금융/통신</button>
       </div>
     </div>
 
@@ -7633,7 +7633,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- ═══ 테마 종목 상세 분석 패널 ═══ -->
     <div id="kr-theme-detail-panel" style="display:none;background:var(--bg-card);border:2px solid var(--accent);border-radius:12px;padding:18px;margin-bottom:14px;position:relative;">
-      <button onclick="document.getElementById('kr-theme-detail-panel').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;font-weight:700;">✕</button>
+      <button data-action="_aioCloseThemeDetailPanel" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;font-weight:700;">✕</button>
       <div id="kr-theme-detail-content"></div>
     </div>
 
@@ -7658,7 +7658,7 @@ body.light-theme canvas { filter:none; }
         <div class="page-subtitle">기준금리 · 물가 · 경기 · 환율 · 수출입 · 부동산</div>
       </div>
       <div class="page-actions">
-        <button class="tb-btn" onclick="showPage('kr-home',null)">← 한국장 홈</button>
+        <button class="tb-btn" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
       </div>
     </div>
 
@@ -7953,7 +7953,7 @@ body.light-theme canvas { filter:none; }
           <div class="page-subtitle">Weinstein 4단계 · 추세 위치 · 조정 판별 · 진입 등급 · RSI · MACD · 볼린저밴드</div>
         </div>
         <div style="display:flex;gap:6px;">
-          <button class="tb-btn" onclick="showPage('kr-home',null)">← 한국장 홈</button>
+          <button class="tb-btn" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
         </div>
       </div>
     </div>
@@ -7964,7 +7964,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">TradingView 한국 종목 차트</div>
       <div style="display:flex;gap:6px;">
         <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" style="width:120px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" onkeydown="if(event.key==='Enter')loadTVChart('kr')" />
-        <button onclick="loadTVChart('kr')" class="tb-btn" style="font-size:10px;">차트 로드</button>
+        <button data-action="loadTVChart" data-arg="kr" class="tb-btn" style="font-size:10px;">차트 로드</button>
       </div>
     </div>
     <div id="tv-widget-kr" style="height:400px;border-radius:8px;overflow:hidden;background:#131722;"></div>
@@ -8092,7 +8092,7 @@ body.light-theme canvas { filter:none; }
         <div id="kr-kospi-tech-result" style="min-height:60px;">
           <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:9px;">로딩 중…</div>
         </div>
-        <button onclick="analyzeKrTickerDeep('^KS11')" class="tb-btn" style="width:100%;margin-top:8px;font-size:9px;">KOSPI 분석 새로고침 </button>
+        <button data-action="analyzeKrTickerDeep" data-arg="^KS11" class="tb-btn" style="width:100%;margin-top:8px;font-size:9px;">KOSPI 분석 새로고침 </button>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -8102,7 +8102,7 @@ body.light-theme canvas { filter:none; }
         <div id="kr-kosdaq-tech-result" style="min-height:60px;">
           <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:9px;">로딩 중…</div>
         </div>
-        <button onclick="analyzeKrTickerDeep('^KQ11')" class="tb-btn" style="width:100%;margin-top:8px;font-size:9px;">KOSDAQ 분석 새로고침 </button>
+        <button data-action="analyzeKrTickerDeep" data-arg="^KQ11" class="tb-btn" style="width:100%;margin-top:8px;font-size:9px;">KOSDAQ 분석 새로고침 </button>
       </div>
     </div>
 
@@ -8113,21 +8113,21 @@ body.light-theme canvas { filter:none; }
         <input id="kr-ticker-analysis-input" type="text" placeholder="종목코드 입력 (005930, 000660, 035720 등)"
                style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;"
                onkeydown="if(event.key==='Enter'){var t=this.value.trim();if(/^\d{6}$/.test(t))t+='.KS';analyzeKrTickerDeep(t);}"/>
-        <button onclick="var t=document.getElementById('kr-ticker-analysis-input').value.trim();if(/^\d{6}$/.test(t))t+='.KS';analyzeKrTickerDeep(t);"
+        <button data-action="_aioKrTickerSubmit"
                 style="padding:8px 16px;background:#ef4444;color:white;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;">
           분석 
         </button>
       </div>
       <!-- 빠른 종목 버튼 -->
       <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;">
-        <button onclick="analyzeKrTickerDeep('005930.KS')" class="tb-btn" style="font-size:8px;">삼성전자</button>
-        <button onclick="analyzeKrTickerDeep('000660.KS')" class="tb-btn" style="font-size:8px;">SK하이닉스</button>
-        <button onclick="analyzeKrTickerDeep('035720.KS')" class="tb-btn" style="font-size:8px;">카카오</button>
-        <button onclick="analyzeKrTickerDeep('005380.KS')" class="tb-btn" style="font-size:8px;">현대차</button>
-        <button onclick="analyzeKrTickerDeep('006400.KS')" class="tb-btn" style="font-size:8px;">삼성SDI</button>
-        <button onclick="analyzeKrTickerDeep('035420.KS')" class="tb-btn" style="font-size:8px;">NAVER</button>
-        <button onclick="analyzeKrTickerDeep('051910.KS')" class="tb-btn" style="font-size:8px;">LG화학</button>
-        <button onclick="analyzeKrTickerDeep('247540.KQ')" class="tb-btn" style="font-size:8px;">에코프로비엠</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="005930.KS" class="tb-btn" style="font-size:8px;">삼성전자</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="000660.KS" class="tb-btn" style="font-size:8px;">SK하이닉스</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="035720.KS" class="tb-btn" style="font-size:8px;">카카오</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="005380.KS" class="tb-btn" style="font-size:8px;">현대차</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="006400.KS" class="tb-btn" style="font-size:8px;">삼성SDI</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="035420.KS" class="tb-btn" style="font-size:8px;">NAVER</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="051910.KS" class="tb-btn" style="font-size:8px;">LG화학</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="247540.KQ" class="tb-btn" style="font-size:8px;">에코프로비엠</button>
       </div>
       <div id="kr-ticker-analysis-result" style="min-height:80px;">
         <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:9px;">종목코드를 입력하거나 위 버튼을 클릭하면 Weinstein Stage, 추세 위치, 조정 판별, 진입 등급 등 종합 분석이 표시됩니다.</div>
@@ -8171,7 +8171,7 @@ body.light-theme canvas { filter:none; }
         <div class="page-title">AIO Screener 사용 설명서</div>
         <div class="page-subtitle">사용 방법 · 유의사항 · 투자 배경지식 · 용어 사전</div>
       </div>
-      <button onclick="openGlossary()" style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);color:#a78bfa;font-size:10px;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">용어 사전 열기</button>
+      <button data-action="openGlossary" style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);color:#a78bfa;font-size:10px;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">용어 사전 열기</button>
     </div>
 
     <!-- ═══ 섹션 0-A: 기기 및 브라우저 호환성 (v27.4) ═══ -->
@@ -8257,18 +8257,18 @@ body.light-theme canvas { filter:none; }
               <div style="font-size:10px;font-weight:700;color:#60a5fa;margin-bottom:4px;">Google Search API</div>
               <div style="margin-top:4px;">
                 <input type="password" id="aio_google_cse_key_input" class="llm-key-input" placeholder="Google Search API 키 (무료 100건/일)" title="console.cloud.google.com → API 키 발급" style="font-size:9px;">
-                <button class="llm-key-save" onclick="_saveApiKey('aio_google_cse_key','aio_google_cse_key_input',this)" style="font-size:9px;">저장</button>
+                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_google_cse_key" data-arg2="aio_google_cse_key_input" data-pass-el="1" style="font-size:9px;">저장</button>
               </div>
               <div style="margin-top:4px;">
                 <input type="text" id="aio_google_cse_cx_input" class="llm-key-input" placeholder="Google Search Engine ID (cx)" title="programmablesearchengine.google.com → 검색엔진 ID" style="font-size:9px;">
-                <button class="llm-key-save" onclick="_saveApiKey('aio_google_cse_cx','aio_google_cse_cx_input',this)" style="font-size:9px;">저장</button>
+                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_google_cse_cx" data-arg2="aio_google_cse_cx_input" data-pass-el="1" style="font-size:9px;">저장</button>
               </div>
             </div>
             <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:10px;">
               <div style="font-size:10px;font-weight:700;color:#60a5fa;margin-bottom:4px;">Perplexity API</div>
               <div style="margin-top:4px;">
                 <input type="password" id="aio_perplexity_key_input" class="llm-key-input" placeholder="Perplexity API 키 (프리미엄 AI검색)" title="perplexity.ai API 키 — AI 답변에 최신 웹 정보 주입" style="font-size:9px;">
-                <button class="llm-key-save" onclick="_saveApiKey('aio_perplexity_key','aio_perplexity_key_input',this)" style="font-size:9px;">저장</button>
+                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_perplexity_key" data-arg2="aio_perplexity_key_input" data-pass-el="1" style="font-size:9px;">저장</button>
               </div>
             </div>
           </div>
@@ -8632,8 +8632,8 @@ body.light-theme canvas { filter:none; }
         </div>
         <!-- v48.30: 운영 관측성 — 로그 다운로드 버튼 (세션 종료 시 ring buffer 500건 소실 방지) -->
         <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-          <button onclick="if(window._aioLogs){var ok=window._aioLogs.download();if(typeof showToast==='function')showToast(ok?'로그 다운로드 완료':'다운로드 실패');}" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.3);color:#60a5fa;font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 JSON 파일로 다운로드">▼ 로그 다운로드 (JSON)</button>
-          <button onclick="if(window._aioLogs){window._aioLogs.clear();if(typeof showToast==='function')showToast('로그 버퍼 초기화');}" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:#f87171;font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 초기화">로그 초기화</button>
+          <button data-action="_aioLogsDownload" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.3);color:#60a5fa;font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 JSON 파일로 다운로드">▼ 로그 다운로드 (JSON)</button>
+          <button data-action="_aioLogsClear" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:#f87171;font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 초기화">로그 초기화</button>
           <span style="font-size:9px;color:var(--text-muted);">최근 500건 ring buffer · 문제 보고 시 첨부 권장</span>
         </div>
       </div>
@@ -8708,23 +8708,23 @@ body.light-theme canvas { filter:none; }
   </div>
 
     <!-- Feedback Modal -->
-  <div id="feedback-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9000;align-items:center;justify-content:center;" onclick="if(event.target===this)closeFeedback()">
+  <div id="feedback-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9000;align-items:center;justify-content:center;" data-close-on-outside="closeFeedback">
     <div style="background:#0d1117;border:1px solid rgba(255,255,255,0.12);border-radius:12px;width:100%;max-width:480px;margin:20px;box-shadow:0 24px 48px rgba(0,0,0,0.5);">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);">
         <div>
           <div style="font-size:13px;font-weight:700;color:var(--text-primary);font-family:'Inter',var(--font-sans);">Feedback</div>
           <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">버그·데이터 오류·건의사항</div>
         </div>
-        <button onclick="closeFeedback()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:4px;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-muted)'">✕</button>
+        <button data-action="closeFeedback" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:4px;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-muted)'">✕</button>
       </div>
       <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
         <div>
           <label style="font-size:10px;font-weight:600;color:var(--text-muted);font-family:'Inter',var(--font-sans);display:block;margin-bottom:5px;">유형</label>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-            <button class="fb-type-btn active" data-type="bug" onclick="selectFBType(this)">버그</button>
-            <button class="fb-type-btn" data-type="data" onclick="selectFBType(this)">데이터</button>
-            <button class="fb-type-btn" data-type="realtime" onclick="selectFBType(this)">실시간</button>
-            <button class="fb-type-btn" data-type="feature" onclick="selectFBType(this)">기능</button>
+            <button class="fb-type-btn active" data-type="bug" data-action="selectFBType" data-pass-el="1">버그</button>
+            <button class="fb-type-btn" data-type="data" data-action="selectFBType" data-pass-el="1">데이터</button>
+            <button class="fb-type-btn" data-type="realtime" data-action="selectFBType" data-pass-el="1">실시간</button>
+            <button class="fb-type-btn" data-type="feature" data-action="selectFBType" data-pass-el="1">기능</button>
           </div>
         </div>
         <div>
@@ -8732,27 +8732,27 @@ body.light-theme canvas { filter:none; }
           <textarea id="fb-desc" aria-label="피드백 내용 입력" placeholder="내용을 입력하세요..." style="width:100%;height:110px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px;color:var(--text-primary);font-family:'Inter',var(--font-sans);font-size:11px;resize:vertical;box-sizing:border-box;outline:none;line-height:1.5;" onfocus="this.style.borderColor='rgba(91,168,255,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
         </div>
         <div style="display:flex;gap:8px;margin-top:4px;">
-          <button onclick="submitFeedback()" style="flex:1;padding:9px;background:rgba(91,168,255,0.15);border:1px solid rgba(91,168,255,0.35);border-radius:6px;color:#5ba8ff;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',var(--font-sans);" onmouseover="this.style.background='rgba(91,168,255,0.25)'" onmouseout="this.style.background='rgba(91,168,255,0.15)'"> 전송</button>
+          <button data-action="submitFeedback" style="flex:1;padding:9px;background:rgba(91,168,255,0.15);border:1px solid rgba(91,168,255,0.35);border-radius:6px;color:#5ba8ff;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',var(--font-sans);" onmouseover="this.style.background='rgba(91,168,255,0.25)'" onmouseout="this.style.background='rgba(91,168,255,0.15)'"> 전송</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Board Drawer -->
-  <div id="board-overlay" role="presentation" aria-label="피드백 보드 배경" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:8900;" onclick="if(event.target===this)closeFeedbackBoard()"></div>
+  <div id="board-overlay" role="presentation" aria-label="피드백 보드 배경" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:8900;" data-close-on-outside="closeFeedbackBoard"></div>
   <div id="board-drawer" role="dialog" aria-modal="true" aria-label="피드백 게시판">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
       <div>
         <div style="font-size:13px;font-weight:700;color:var(--text-primary);font-family:'Inter',var(--font-sans);">Feedback Board</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">제목은 모든 사용자 공개</div>
       </div>
-      <button onclick="closeFeedbackBoard()" aria-label="게시판 닫기" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:var(--radius-sm);">✕</button>
+      <button data-action="closeFeedbackBoard" aria-label="게시판 닫기" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:var(--radius-sm);">✕</button>
     </div>
     <div style="display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;overflow-x:auto;">
-      <button class="board-tab active" data-filter="all" onclick="setBoardFilter(this)">전체</button>
-      <button class="board-tab" data-filter="open" onclick="setBoardFilter(this)">미처리</button>
-      <button class="board-tab" data-filter="wip" onclick="setBoardFilter(this)">처리중</button>
-      <button class="board-tab" data-filter="done" onclick="setBoardFilter(this)">완료</button>
+      <button class="board-tab active" data-filter="all" data-action="setBoardFilter" data-pass-el="1">전체</button>
+      <button class="board-tab" data-filter="open" data-action="setBoardFilter" data-pass-el="1">미처리</button>
+      <button class="board-tab" data-filter="wip" data-action="setBoardFilter" data-pass-el="1">처리중</button>
+      <button class="board-tab" data-filter="done" data-action="setBoardFilter" data-pass-el="1">완료</button>
     </div>
     <div id="board-list" style="flex:1;overflow-y:auto;padding:8px 0;">
       <div style="padding:40px 20px;text-align:center;color:var(--text-muted);font-size:11px;font-family:'Inter',var(--font-sans);">로딩 중...</div>
@@ -8760,11 +8760,11 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- Board Detail Modal -->
-  <div id="board-detail-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9100;align-items:center;justify-content:center;" onclick="if(event.target===this)closeBoardDetail()">
+  <div id="board-detail-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9100;align-items:center;justify-content:center;" data-close-on-outside="closeBoardDetail">
     <div style="background:#0d1117;border:1px solid rgba(255,255,255,0.12);border-radius:10px;width:100%;max-width:460px;margin:20px;max-height:80vh;overflow-y:auto;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.08);position:sticky;top:0;background:#0d1117;">
         <div id="detail-header" style="font-size:12px;font-weight:700;color:var(--text-primary);font-family:'Inter',var(--font-sans);"></div>
-        <button onclick="closeBoardDetail()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;">✕</button>
+        <button data-action="closeBoardDetail" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;">✕</button>
       </div>
       <div id="detail-body" style="padding:18px;"></div>
     </div>
@@ -8984,7 +8984,7 @@ function fbRenderBoard(entries, filter) {
     const stCls  = e.status === 'done' ? 'status-done' : e.status === 'wip' ? 'status-wip' : 'status-open';
     const stLbl  = STATUS_LABEL[e.status] || e.status;
     const typeKo = TYPE_KO[e.type] || e.type;
-    return `<div class="board-entry" onclick="fbClickEntry('${escHtml(String(e.id).replace(/'/g,''))}')">
+    return `<div class="board-entry" data-action="fbClickEntry" data-arg="${escHtml(String(e.id).replace(/'/g,''))}">
       <div class="board-entry-type">${icon}</div>
       <div class="board-entry-info">
         <div class="board-entry-title">${escHtml(e.title || '(제목 없음)')}</div>
@@ -9022,10 +9022,10 @@ function fbClickEntry(id) {
       <div style="font-size:11px;color:var(--text-secondary);font-family:Inter,var(--font-sans);line-height:1.7;white-space:pre-wrap;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:12px;margin-bottom:14px;">${escHtml(entry.desc||'(내용 없음)')}</div>
       <div style="font-size:10px;color:var(--text-muted);font-family:Inter,var(--font-sans);margin-bottom:8px;">상태 변경:</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button onclick="fbSetStatus('${escHtml(String(id).replace(/'/g,''))}','open')"  style="padding:5px 10px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:5px;color:#ef4444;font-size:10px;cursor:pointer;font-family:Inter,var(--font-sans);">미처리</button>
-        <button onclick="fbSetStatus('${escHtml(String(id).replace(/'/g,''))}','wip')"   style="padding:5px 10px;background:rgba(234,179,8,0.12);border:1px solid rgba(234,179,8,0.3);border-radius:5px;color:#eab308;font-size:10px;cursor:pointer;font-family:Inter,var(--font-sans);">처리중</button>
-        <button onclick="fbSetStatus('${escHtml(String(id).replace(/'/g,''))}','done')"  style="padding:5px 10px;background:rgba(61,219,165,0.12);border:1px solid rgba(61,219,165,0.3);border-radius:5px;color:#3ddba5;font-size:10px;cursor:pointer;font-family:Inter,var(--font-sans);">완료</button>
-        <button onclick="fbDeleteEntry('${escHtml(String(id).replace(/'/g,''))}')" style="padding:5px 10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:5px;color:#ef4444;font-size:10px;cursor:pointer;font-family:Inter,var(--font-sans);margin-left:auto;"> 삭제</button>
+        <button data-action="fbSetStatus" data-arg="${escHtml(String(id).replace(/'/g,''))}" data-arg2="open"  style="padding:5px 10px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:5px;color:#ef4444;font-size:10px;cursor:pointer;font-family:Inter,var(--font-sans);">미처리</button>
+        <button data-action="fbSetStatus" data-arg="${escHtml(String(id).replace(/'/g,''))}" data-arg2="wip"   style="padding:5px 10px;background:rgba(234,179,8,0.12);border:1px solid rgba(234,179,8,0.3);border-radius:5px;color:#eab308;font-size:10px;cursor:pointer;font-family:Inter,var(--font-sans);">처리중</button>
+        <button data-action="fbSetStatus" data-arg="${escHtml(String(id).replace(/'/g,''))}" data-arg2="done"  style="padding:5px 10px;background:rgba(61,219,165,0.12);border:1px solid rgba(61,219,165,0.3);border-radius:5px;color:#3ddba5;font-size:10px;cursor:pointer;font-family:Inter,var(--font-sans);">완료</button>
+        <button data-action="fbDeleteEntry" data-arg="${escHtml(String(id).replace(/'/g,''))}" style="padding:5px 10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:5px;color:#ef4444;font-size:10px;cursor:pointer;font-family:Inter,var(--font-sans);margin-left:auto;"> 삭제</button>
       </div>`;
   } else {
     // Non-admin: title + type + status only (no content)
@@ -9129,7 +9129,7 @@ window.submitFeedback = async function() {
 
   const msg = postedRemote ? '게시판에 등록되었습니다 ✓' : '저장되었습니다 (JSONBin 미설정)';
   showToast(msg);
-  document.getElementById('fb-modal')?.querySelector('[onclick="closeFeedback()"]')?.click?.();
+  document.getElementById('fb-modal')?.querySelector('[data-action="closeFeedback"]')?.click?.();
 };
 
   </script>
@@ -9592,7 +9592,7 @@ function renderPortfolio() {
     // v48.3 CRITICAL FIX: 기존 return `<tr...>`; 세미콜론+닫기 backtick 조기 종료로 이하 <td> 라인이 JS SyntaxError
     //                     → <script> 블록 전체 로드 실패 → save/render/add/edit/remove 전부 undefined
     //                     → 사용자 체감 "저장 안 됨 / 초기화". 단일 template literal로 재구성 + font-size 9px→11px/12px (R17/P37).
-    return `<tr style="border-bottom:1px solid var(--border);cursor:pointer;" onclick="showTicker('${_eTk}')">
+    return `<tr style="border-bottom:1px solid var(--border);cursor:pointer;" data-action="showTicker" data-arg="${_eTk}">
       <td style="padding:8px 10px;font-size:12px;"><b style="color:var(--text-primary);">${escHtml(p.ticker)}</b>${p.memo ? '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">'+escHtml(p.memo)+'</div>' : ''}</td>
       <td style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">${p.qty}</td>
       <td style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">$${p.cost.toFixed(2)}</td>
@@ -9602,9 +9602,9 @@ function renderPortfolio() {
       <td style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">${p.target && p.target > 0 ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--green)' : 'var(--red)'; return '$'+p.target.toFixed(0)+'<div style="font-size:10px;color:'+uColor+';font-weight:600;">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : '<span style="color:var(--text-muted);font-size:10px;">미설정</span>'}</td>
       <td style="text-align:center;padding:8px 6px;font-size:11px;font-weight:700;" id="pf-weight-${_eTk}">—</td>
       <td style="text-align:center;padding:8px 6px;white-space:nowrap;">
-        <button onclick="event.stopPropagation();showPage('technical');setTimeout(function(){var inp=document.getElementById('deep-ticker-input');if(inp)inp.value='${_eTk}'},300)" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="차트 분석">📈</button>
-        <button onclick="event.stopPropagation();editPosition('${_eTk}')" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="수정">✏️</button>
-        <button onclick="event.stopPropagation();removePosition('${_eTk}')" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="삭제">🗑️</button>
+        <button data-action="_aioTechnicalTicker" data-arg="${_eTk}" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="차트 분석">📈</button>
+        <button data-action="_aioEditPosition" data-arg="${_eTk}" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="수정">✏️</button>
+        <button data-action="_aioRemovePosition" data-arg="${_eTk}" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="삭제">🗑️</button>
       </td>
     </tr>`;
   });
@@ -10006,14 +10006,14 @@ function renderWatchlistContent() {
     var nameStr = db ? db.name : '';
 
     var _eSym = escHtml(t.sym); // v46.9: XSS 방어
-    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;" onclick="prevPage=\'portfolio\';showTicker(\'' + _eSym + '\')" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'none\'">' +
+    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;" data-action="_aioPortfolioTicker" data-arg="' + escHtml(_eSym) + '" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'none\'">' +
       '<td style="padding:6px 8px;"><b style="color:var(--text-primary);font-family:var(--font-mono);font-size:11px;">' + _eSym + '</b>' + (nameStr ? '<div style="font-size:9px;color:var(--text-muted);">' + escHtml(nameStr) + '</div>' : '') + '</td>' +
       '<td style="text-align:right;padding:6px;font-family:var(--font-mono);font-weight:700;font-size:10px;">' + price + '</td>' +
       '<td style="text-align:right;padding:6px;font-family:var(--font-mono);font-weight:700;font-size:10px;color:' + cc + ';">' + chgStr + '</td>' +
       '<td style="text-align:center;padding:6px;">' + (signal !== '—' ? '<span style="background:' + sb + ';color:' + sc + ';padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;">' + signal + '</span>' : '<span style="color:var(--text-muted);font-size:9px;">—</span>') + '</td>' +
       '<td style="padding:6px;color:var(--text-muted);font-size:9px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(t.note || '') + '</td>' +
       '<td style="text-align:center;padding:6px;">' +
-        '<button onclick="event.stopPropagation();removeFromWatchlist(\'' + _eSym + '\')" style="background:none;border:none;cursor:pointer;font-size:10px;" title="삭제">✕</button>' +
+        '<button data-action="removeFromWatchlist" data-arg="' + escHtml(_eSym) + '" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:10px;" title="삭제">✕</button>' +
       '</td>' +
     '</tr>';
   });
@@ -10222,8 +10222,8 @@ function openChatHistory(ctxId) {
       <div class="ch-header">
         <span class="ch-title">대화 기록 (${ctxLabel}) - ${history.length}건</span>
         <div style="display:flex;gap:6px;">
-          ${history.length > 0 ? '<button onclick="showConfirmModal(\'대화 기록 전체 삭제\',\'모든 대화 기록이 영구 삭제됩니다. 계속하시겠습니까?\',function(){localStorage.removeItem(\'aio_chat_history\');document.querySelector(\'.chat-history-overlay\')&&document.querySelector(\'.chat-history-overlay\').remove();},\'\')" style="background:none;border:1px solid rgba(248,113,113,0.3);color:#f87171;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;">전체 삭제</button>' : ''}
-          <button class="ch-close" onclick="this.closest('.chat-history-overlay').remove()">X</button>
+          ${history.length > 0 ? '<button data-action="_aioChatHistoryClear" style="background:none;border:1px solid rgba(248,113,113,0.3);color:#f87171;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;">전체 삭제</button>' : ''}
+          <button class="ch-close" data-action="_aioChatHistoryClose" data-pass-el="1">X</button>
         </div>
       </div>
       <div class="ch-list">
@@ -10232,7 +10232,7 @@ function openChatHistory(ctxId) {
             const dt = new Date(h.ts);
             const timeStr = dt.toLocaleDateString('ko-KR', {month:'short',day:'numeric'}) + ' ' + dt.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
             const ctxBadge = h.ctx ? '<span style="font-size:8px;background:rgba(91,168,255,0.1);color:#60a5fa;padding:1px 5px;border-radius:3px;margin-right:6px;">' + (h.ctx) + '</span>' : '';
-            return '<div class="ch-item" onclick="this.querySelector(\'.ch-item-a\').style.whiteSpace=this.querySelector(\'.ch-item-a\').style.whiteSpace===\'normal\'?\'nowrap\':\'normal\'">' +
+            return '<div class="ch-item" data-action="_aioToggleWhiteSpace" data-pass-el="1">' +
               '<div class="ch-item-q">' + ctxBadge + h.q + '</div>' +
               '<div class="ch-item-a">' + (h.a || '(응답 없음)') + '</div>' +
               '<div class="ch-item-time">' + timeStr + '</div>' +
@@ -14109,7 +14109,7 @@ function renderKrThemePerfBars(ld) {
   var res=[];for(var tid in KR_THEME_MAP){var t=KR_THEME_MAP[tid],ws=0,vs=0;t.forEach(function(s){var d=ld[krTickerToYahoo(s.code)];if(d&&d.pct!==undefined&&s.w>0){vs+=d.pct*s.w;ws+=s.w;}});if(ws>0)res.push({id:tid,name:N[tid]||tid,perf:vs/ws});}
   if(!res.length)return;res.sort(function(a,b){return b.perf-a.perf;});var mx=Math.max.apply(null,res.map(function(r){return Math.abs(r.perf);}));if(mx<0.01)mx=1;
   var h='';res.forEach(function(r,i){var p=r.perf>=0,bw=Math.min(Math.abs(r.perf)/mx*100,100),cl=p?'#3ddba5':'#f87171',rk=i<3?'<b style="color:'+cl+';">'+(i+1)+'</b> ':'';
-    h+='<div style="display:grid;grid-template-columns:105px 1fr 58px;align-items:center;gap:5px;padding:4px 6px;border-radius:4px;background:rgba(255,255,255,'+(i%2===0?'0.015':'0')+');cursor:pointer;" onclick="showKrThemeDetail(\''+r.id+'\')"><div style="font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+rk+r.name+'</div><div style="height:12px;background:rgba(255,255,255,0.03);border-radius:3px;overflow:hidden;position:relative;">'+(p?'<div style="position:absolute;left:50%;height:100%;width:'+(bw/2)+'%;background:'+cl+';border-radius:0 3px 3px 0;opacity:0.7;"></div>':'<div style="position:absolute;right:50%;height:100%;width:'+(bw/2)+'%;background:'+cl+';border-radius:3px 0 0 3px;opacity:0.7;"></div>')+'<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.12);"></div></div><div style="font-size:11px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+cl+';">'+(p?'+':'')+r.perf.toFixed(2)+'%</div></div>';});
+    h+='<div style="display:grid;grid-template-columns:105px 1fr 58px;align-items:center;gap:5px;padding:4px 6px;border-radius:4px;background:rgba(255,255,255,'+(i%2===0?'0.015':'0')+');cursor:pointer;" data-action="showKrThemeDetail" data-arg="'+escHtml(r.id)+'"><div style="font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+rk+r.name+'</div><div style="height:12px;background:rgba(255,255,255,0.03);border-radius:3px;overflow:hidden;position:relative;">'+(p?'<div style="position:absolute;left:50%;height:100%;width:'+(bw/2)+'%;background:'+cl+';border-radius:0 3px 3px 0;opacity:0.7;"></div>':'<div style="position:absolute;right:50%;height:100%;width:'+(bw/2)+'%;background:'+cl+';border-radius:3px 0 0 3px;opacity:0.7;"></div>')+'<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.12);"></div></div><div style="font-size:11px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+cl+';">'+(p?'+':'')+r.perf.toFixed(2)+'%</div></div>';});
   c.innerHTML=h;var ts=document.getElementById('kr-theme-rank-ts');if(ts)ts.textContent=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 갱신';
 }
 function showKrThemeDetail(themeId) {
@@ -14197,10 +14197,10 @@ function showKrThemeDetail(themeId) {
 
     // AI 분석 버튼
     '<div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;">'+
-      '<button onclick="chatFromChip(\'kr-themes\',\''+tn+' 테마 심층 분석: 현재 모멘텀, 수급, 밸류에이션, 리스크 종합 판단해줘\')" class="tb-btn" style="font-size:10px;padding:6px 12px;">AI 심층 분석</button>'+
-      '<button onclick="chatFromChip(\'kr-themes\',\''+tn+' 테마 외국인·기관 수급 흐름과 향후 전망 분석해줘\')" class="tb-btn" style="font-size:10px;padding:6px 12px;">수급 분석</button>'+
-      '<button onclick="chatFromChip(\'kr-themes\',\''+tn+' 테마 대장주와 후발주 비교 분석하고 진입 전략 알려줘\')" class="tb-btn" style="font-size:10px;padding:6px 12px;">진입 전략</button>'+
-      '<button onclick="chatFromChip(\'kr-themes\',\''+tn+' 테마 리스크 요인과 주의할 점 분석해줘\')" class="tb-btn" style="font-size:10px;padding:6px 12px;">리스크</button>'+
+      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 심층 분석: 현재 모멘텀, 수급, 밸류에이션, 리스크 종합 판단해줘" class="tb-btn" style="font-size:10px;padding:6px 12px;">AI 심층 분석</button>'+
+      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 외국인·기관 수급 흐름과 향후 전망 분석해줘" class="tb-btn" style="font-size:10px;padding:6px 12px;">수급 분석</button>'+
+      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 대장주와 후발주 비교 분석하고 진입 전략 알려줘" class="tb-btn" style="font-size:10px;padding:6px 12px;">진입 전략</button>'+
+      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 리스크 요인과 주의할 점 분석해줘" class="tb-btn" style="font-size:10px;padding:6px 12px;">리스크</button>'+
     '</div>';
 
   panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
@@ -18215,7 +18215,7 @@ function renderScoreBars(scores) {
   container.innerHTML = components.map(function(c) {
     var color = c.score >= 70 ? '#3ddba5' : c.score >= 50 ? '#60a5fa' : c.score >= 35 ? '#fbbf24' : '#f87171';
     return '<div class="score-bar-row">' +
-      '<div class="sb-label cross-link" onclick="showPage(\'' + c.page + '\',null)" title="' + c.label + ' 상세 분석 →">' + c.label + ' →</div>' +
+      '<div class="sb-label cross-link" data-action="showPage" data-arg="' + escHtml(c.page) + '" title="' + c.label + ' 상세 분석 →">' + c.label + ' →</div>' +
       '<div class="sb-wrap"><div class="sb-fill" style="width:' + c.score + '%;background:' + color + ';"></div></div>' +
       '<div class="sb-val" style="color:' + color + ';">' + c.score + '</div>' +
       '<div class="sb-wt">' + c.weight + '%</div>' +
@@ -19126,7 +19126,7 @@ function buildFundCard(sym, data) {
   var peWidth = Math.min(90, Math.max(5, (peVal / 60) * 100));
   var peColor = peVal < 15 ? '#3ddba5' : peVal < 30 ? '#60a5fa' : peVal < 50 ? '#fbbf24' : '#f87171';
 
-  return '<div class="fund-ticker-card" onclick="fundamentalCardClick(\'' + sym + '\')">' +
+  return '<div class="fund-ticker-card" data-action="fundamentalCardClick" data-arg="' + escHtml(sym) + '">' +
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;">' +
       '<div><div class="ftc-symbol">' + sym + '</div><div class="ftc-name">' + (profile.companyName || sym) + '</div></div>' +
       '<div style="font-size:9px;color:var(--text-muted);text-align:right;">' + (profile.sector || '') + '</div>' +
@@ -19185,7 +19185,7 @@ async function initFundamentalCards() {
     var peColor = f.pe < 0 ? '#f87171' : f.pe < 20 ? '#3ddba5' : f.pe > 40 ? '#f87171' : '#fbbf24'; // v46.9: 음수 PE(적자)=빨강
     var roeColor = f.roe > 20 ? '#3ddba5' : f.roe > 10 ? '#fbbf24' : '#f87171';
 
-    html += '<div style="background:var(--bg-card);border-radius:10px;padding:14px;border:1px solid var(--border);cursor:pointer;" onclick="fundamentalCardClick(\'' + sym + '\')">';
+    html += '<div style="background:var(--bg-card);border-radius:10px;padding:14px;border:1px solid var(--border);cursor:pointer;" data-action="fundamentalCardClick" data-arg="' + escHtml(sym) + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
     html += '<div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">' + sym + '</div>';
     html += '<div style="font-size:11px;color:var(--text-muted);">' + f.sector + fundDataNote + '</div></div>';
@@ -20471,7 +20471,7 @@ function renderThemeHeatmap() {
     var qLabel = r.quadrant === 'Leading' ? '선도' : r.quadrant === 'Improving' ? '개선' : r.quadrant === 'Weakening' ? '약화' : '후행';
     var qColor = r.quadrant === 'Leading' ? '#3ddba5' : r.quadrant === 'Improving' ? '#60a5fa' : r.quadrant === 'Weakening' ? '#fbbf24' : '#f87171';
 
-    html += '<div onclick="showThemeDetail(\'' + theme.id + '\')" style="background:' + bgColor + ';border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform=\'scale(1.03)\'" onmouseout="this.style.transform=\'scale(1)\'">' +
+    html += '<div data-action="showThemeDetail" data-arg="' + escHtml(theme.id) + '" style="background:' + bgColor + ';border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform=\'scale(1.03)\'" onmouseout="this.style.transform=\'scale(1)\'">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">' +
         '<span style="font-size:10px;font-weight:800;">' + theme.nameKr + '</span>' +
         '<span style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:' + chgColor + ';">' + (isPos?'+':'') + chg.toFixed(2) + '%</span>' +
@@ -20933,7 +20933,7 @@ function renderAllEtfGrid() {
     var isPos = chg !== null ? chg >= 0 : true;
     var col = chg !== null ? (isPos ? '#3ddba5' : '#f87171') : '#94a3b8';
     var bg = isPos ? 'rgba(61,219,165,0.06)' : 'rgba(248,113,113,0.06)';
-    html += '<div style="background:' + bg + ';border:1px solid rgba(255,255,255,0.05);border-radius:5px;padding:5px;text-align:center;cursor:pointer;" onclick="showThemeByEtf(\'' + e.sym + '\')">' +
+    html += '<div style="background:' + bg + ';border:1px solid rgba(255,255,255,0.05);border-radius:5px;padding:5px;text-align:center;cursor:pointer;" data-action="showThemeByEtf" data-arg="' + escHtml(e.sym) + '">' +
       '<div style="font-size:12px;font-weight:800;font-family:var(--font-mono);">' + e.sym + '</div>' +
       '<div style="font-size:10px;color:var(--text-muted);">' + e.name + '</div>' +
       '<div style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:' + col + ';">' + (chg !== null ? ((isPos?'+':'') + chg.toFixed(2) + '%') : '—') + '</div>' +
@@ -22156,7 +22156,7 @@ function renderSubThemesGrid() {
     var barMax = 5; var barW = Math.min(Math.abs(chg) / barMax * 100, 100);
 
     // v38.3: onclick 핸들러 추가 — 세분화 테마 클릭 시 심층 분석
-    html += '<div style="background:' + bgColor + ';border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;transition:all 0.2s;cursor:pointer;" onclick="showSubThemeDetail(\'' + st.id + '\')" onmouseover="this.style.borderColor=\'' + st.color + '50\';this.style.transform=\'scale(1.02)\'" onmouseout="this.style.borderColor=\'rgba(255,255,255,0.06)\';this.style.transform=\'scale(1)\'">' +
+    html += '<div style="background:' + bgColor + ';border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;transition:all 0.2s;cursor:pointer;" data-action="showSubThemeDetail" data-arg="' + escHtml(st.id) + '" onmouseover="this.style.borderColor=\'' + st.color + '50\';this.style.transform=\'scale(1.02)\'" onmouseout="this.style.borderColor=\'rgba(255,255,255,0.06)\';this.style.transform=\'scale(1)\'">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
         '<div style="display:flex;align-items:center;gap:4px;"><span style="font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">' + st.name + '</span></div>' +
         '<span style="font-size:12px;font-weight:900;font-family:var(--font-mono);color:' + chgColor + ';">' + (isPos ? '+' : '') + chg.toFixed(2) + '%</span>' +
@@ -22263,7 +22263,7 @@ document.addEventListener('aio:liveQuotes', function() {
 
 <!-- ═══ GLOSSARY MODAL ═══ -->
 <!-- ═══ v34: Bloomberg-Style Keyboard Shortcuts Help Modal ═══ -->
-<div id="kbd-shortcuts-modal" role="dialog" aria-modal="true" aria-label="키보드 단축키" onclick="if(event.target===this)closeKbdHelp()">
+<div id="kbd-shortcuts-modal" role="dialog" aria-modal="true" aria-label="키보드 단축키" data-close-on-outside="closeKbdHelp">
   <div id="kbd-shortcuts-inner">
     <h2 style="font-size:inherit;margin:inherit;">⌨ KEYBOARD SHORTCUTS</h2>
     <div class="kbd-row"><span class="kbd-key">?</span><span class="kbd-desc">단축키 도움말 열기/닫기</span></div>
@@ -22280,7 +22280,7 @@ document.addEventListener('aio:liveQuotes', function() {
     <div class="kbd-row"><span class="kbd-key">G</span><span class="kbd-desc">글로벌 마켓 오버뷰 토글</span></div>
     <div class="kbd-row"><span class="kbd-key">R</span><span class="kbd-desc">데이터 새로고침</span></div>
     <div style="margin-top:12px;text-align:center;">
-      <button onclick="closeKbdHelp()" style="background:rgba(255,153,0,0.15);border:1px solid rgba(255,153,0,0.3);color:#ff9900;font-size:10px;padding:6px 20px;border-radius:4px;cursor:pointer;font-family:var(--font-mono);font-weight:700;">CLOSE (ESC)</button>
+      <button data-action="closeKbdHelp" style="background:rgba(255,153,0,0.15);border:1px solid rgba(255,153,0,0.3);color:#ff9900;font-size:10px;padding:6px 20px;border-radius:4px;cursor:pointer;font-family:var(--font-mono);font-weight:700;">CLOSE (ESC)</button>
     </div>
   </div>
 </div>
@@ -22290,7 +22290,7 @@ document.addEventListener('aio:liveQuotes', function() {
     <div style="padding:20px 24px 12px;border-bottom:1px solid rgba(255,255,255,0.08);">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <h2 style="margin:0;font-size:18px;color:#edf0f7;">투자 용어 · 배경지식 사전</h2>
-        <button onclick="document.getElementById('glossary-modal').style.display='none'" style="background:none;border:none;color:#a0aab8;font-size:22px;cursor:pointer;">&times;</button>
+        <button data-action="_aioCloseGlossary" style="background:none;border:none;color:#a0aab8;font-size:22px;cursor:pointer;">&times;</button>
       </div>
       <input id="glossary-search" type="text" aria-label="투자 용어 검색" placeholder="용어 검색..." oninput="filterGlossary(this.value)" style="width:100%;margin-top:12px;padding:10px 14px;background:#0d1117;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#edf0f7;font-size:14px;outline:none;">
       <div id="glossary-cats" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;"></div>
@@ -22482,12 +22482,12 @@ document.addEventListener('aio:liveQuotes', function() {
 // ═══════════════ END OPTIONS ═══════════════
 
 </script>
-<button id="scroll-top-btn" onclick="document.querySelector('.content').scrollTo({top:0,behavior:'smooth'})" aria-label="맨 위로 스크롤">↑</button>
+<button id="scroll-top-btn" data-action="_aioScrollContentTop" aria-label="맨 위로 스크롤">↑</button>
 
 <!-- Risk Warning Banner -->
 <div id="risk-banner" style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(90deg,#1e1b4b,#312e81);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#a5b4fc;border-top:1px solid rgba(99,102,241,0.3);">
   <span>투자 위험 고지: 본 스크리너는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자에는 원금 손실 위험이 있습니다. 투자 결정은 본인의 판단과 책임하에 이루어져야 합니다.</span>
-  <button onclick="this.parentElement.style.display='none'" style="background:none;border:none;color:#818cf8;cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
+  <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:#818cf8;cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
 <script>
@@ -22815,7 +22815,7 @@ function renderGlossaryCats() {
   var html = '';
   cats.forEach(function(c) {
     var active = c === _glossaryCat;
-    html += '<button onclick="_glossaryCat=\'' + c + '\';renderGlossaryCats();renderGlossaryItems(document.getElementById(\'glossary-search\').value)" style="padding:5px 12px;border-radius:20px;border:1px solid ' + (active ? '#6366f1' : 'rgba(255,255,255,0.1)') + ';background:' + (active ? 'rgba(99,102,241,0.2)' : 'transparent') + ';color:' + (active ? '#a5b4fc' : '#9ca3af') + ';font-size:12px;cursor:pointer;">' + (labels[c]||c) + '</button>';
+    html += '<button data-action="_aioGlossaryCat" data-arg="' + escHtml(c) + '" style="padding:5px 12px;border-radius:20px;border:1px solid ' + (active ? '#6366f1' : 'rgba(255,255,255,0.1)') + ';background:' + (active ? 'rgba(99,102,241,0.2)' : 'transparent') + ';color:' + (active ? '#a5b4fc' : '#9ca3af') + ';font-size:12px;cursor:pointer;">' + (labels[c]||c) + '</button>';
   });
   document.getElementById('glossary-cats').innerHTML = html;
 }
@@ -22879,7 +22879,7 @@ setTimeout(function() {
       el.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:10px;line-height:1.6;">' +
         '데이터를 불러오지 못했습니다.<br>' +
         '<span style="font-size:9px;">네트워크 연결을 확인하거나, <b>사용 설명서</b>에서 API 키 설정을 확인하세요.</span><br>' +
-        '<button onclick="location.reload()" style="margin-top:6px;padding:4px 12px;font-size:9px;background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.3);color:#60a5fa;border-radius:4px;cursor:pointer;"> 새로고침</button>' +
+        '<button data-action="_aioReload" style="margin-top:6px;padding:4px 12px;font-size:9px;background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.3);color:#60a5fa;border-radius:4px;cursor:pointer;"> 새로고침</button>' +
         '</div>';
     }
   });
@@ -24724,7 +24724,7 @@ function renderPriceAlerts() {
       '<span style="color:' + statusColor + ';">●</span> ' +
       '<span style="font-family:var(--font-mono);font-weight:700;">' + a.sym + '</span> ' +
       cLabel + ' $' + a.price.toFixed(2) +
-      ' <button onclick="removePriceAlert(' + i + ')" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:12px;margin-left:auto;" title="삭제">✕</button></div>';
+      ' <button data-action="removePriceAlert" data-arg="' + escHtml(i) + '" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:12px;margin-left:auto;" title="삭제">✕</button></div>';
   });
   el.innerHTML = html;
 }
@@ -24878,13 +24878,13 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="ai-ph">
     <span class="ai-ph-title" id="ai-panel-title">AI 분석가</span>
     <span class="ai-ph-badge" id="ai-panel-badge">AI 분석가</span>
-    <button class="ai-ph-close" onclick="toggleAIPanel()">✕</button>
+    <button class="ai-ph-close" data-action="toggleAIPanel">✕</button>
   </div>
   <div id="ai-panel-msgs"></div>
   <div id="ai-panel-chips" class="ai-chips"></div>
   <div class="ai-input-row">
     <input id="ai-panel-inp" aria-label="AI 분석가에게 질문" placeholder="질문하세요..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSendUnified();}"/>
-    <button id="ai-panel-btn" onclick="chatSendUnified()">전송 ▶</button>
+    <button id="ai-panel-btn" data-action="chatSendUnified">전송 ▶</button>
   </div>
 </div>
 
@@ -25091,15 +25091,15 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- ═══ Confirmation Modal ═══ -->
-<div id="aio-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="aio-confirm-title" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;" onclick="closeConfirmModal()">
-  <div style="background:var(--bg-card,#1a1a2e);border:1px solid rgba(248,113,113,0.3);border-radius:12px;padding:24px 28px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
+<div id="aio-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="aio-confirm-title" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;" data-action="closeConfirmModal">
+  <div style="background:var(--bg-card,#1a1a2e);border:1px solid rgba(248,113,113,0.3);border-radius:12px;padding:24px 28px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.5);" data-stop="1">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
       <span id="aio-confirm-icon" style="font-size:22px;"></span>
       <div id="aio-confirm-title" style="font-size:14px;font-weight:800;color:var(--text-primary,#fff);"></div>
     </div>
     <div id="aio-confirm-msg" style="font-size:11px;color:var(--text-secondary,#a0a0b0);line-height:1.6;margin-bottom:20px;"></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;">
-      <button onclick="closeConfirmModal()" style="padding:8px 18px;font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);border:1px solid var(--border,#333);border-radius:6px;color:var(--text-secondary,#a0a0b0);cursor:pointer;">취소</button>
+      <button data-action="closeConfirmModal" style="padding:8px 18px;font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);border:1px solid var(--border,#333);border-radius:6px;color:var(--text-secondary,#a0a0b0);cursor:pointer;">취소</button>
       <button id="aio-confirm-ok" style="padding:8px 18px;font-size:11px;font-weight:700;background:rgba(248,113,113,0.2);border:1px solid rgba(248,113,113,0.4);border-radius:6px;color:#f87171;cursor:pointer;">확인</button>
     </div>
   </div>
@@ -25282,7 +25282,7 @@ function updateAIPanelContext(pageId) {
   var chipsEl = document.getElementById('ai-panel-chips');
   if (chipsEl) {
     chipsEl.innerHTML = chips.map(function(c) {
-      return '<div class="ai-chip" onclick="aiChipClick(this)">' + c + '</div>';
+      return '<div class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + c + '</div>';
     }).join('');
   }
 }
@@ -25582,8 +25582,8 @@ async function chatSendUnified() {
       var _fbId = 'fb-' + Date.now();
       var _fbDiv = document.createElement('div');
       _fbDiv.style.cssText = 'display:flex;gap:6px;justify-content:flex-end;margin:2px 0;';
-      _fbDiv.innerHTML = '<button onclick="this.style.color=\'#3ddba5\';_aiFeedback(\'' + _fbId + '\',1)" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨">👍</button>' +
-        '<button onclick="this.style.color=\'#f87171\';_aiFeedback(\'' + _fbId + '\',-1)" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확">👎</button>';
+      _fbDiv.innerHTML = '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨">👍</button>' +
+        '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="-1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확">👎</button>';
       _bubbleParent.appendChild(_fbDiv);
     }
 
@@ -25603,7 +25603,7 @@ async function chatSendUnified() {
     var newChips = extractChips(fullText);
     if (newChips.length > 0) {
       var chipsEl = document.getElementById('ai-panel-chips');
-      if (chipsEl) chipsEl.innerHTML = newChips.map(function(c) { return '<div class="ai-chip" onclick="aiChipClick(this)">' + c + '</div>'; }).join('');
+      if (chipsEl) chipsEl.innerHTML = newChips.map(function(c) { return '<div class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + c + '</div>'; }).join('');
     }
   };
 

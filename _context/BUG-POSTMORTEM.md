@@ -206,6 +206,34 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 
 ---
 
+## [2026-04-19] v48.35 — onclick 인라인 핸들러 253건 전수 제거 (Preventive Refactoring)
+
+### PR-P132: onclick 인라인 핸들러 CSP-strict 비호환 + ESM 블록 (CRITICAL Latent)
+- **violated_rule**: 신규 P132 (CSP/ESM 준비 부재)
+- **잠재 위험**: 
+  1. `Content-Security-Policy: script-src 'self'` 헤더 도입 시 253개 onclick 모두 차단 → UI 전체 마비
+  2. ESM (`<script type="module">`) 전환 시 전역 함수 접근 불가 → 인라인 핸들러 전부 미동작
+  3. onclick 속성 문자열 이스케이프 지옥 — 3중 백슬래시 패턴 (`\\\'` 등) 유지 보수 어려움
+  4. 정적 분석 도구(linter/IDE 호버)가 HTML 속성 안의 JS 인식 못함 → 리팩토링 시 레퍼런스 추적 누락
+- **이전 판단**: v48.31에서 "onclick 251개 리팩토링은 단일 세션 위험" → v50 메이저 이관 결정
+- **사용자 지시**: "대규모 작업들 순차적으로 진행해. 다음 세션으로 미루거나 다음 버전으로 미루거나 하지 말고 무조건 작업 진행해" → 재평가 후 단일 세션 완료 가능성 확인
+- **수정 전략 (Event Delegation)**:
+  1. **인프라** (aio-core.js L149~208): window 단일 dispatcher — data-action/arg/arg2/arg3/pass-el/pass-event/stop/prevent/arg-first-el + data-open-url + data-close-on-outside 지원. Enter/Space 키보드 활성화 (A11y parity).
+  2. **42 전용 헬퍼** (aio-core.js L210~380): `_aio*` 네임스페이스. 2-statement 패턴(`a();b();`)·조건 패턴(`if(typeof X==='function')X()`)·DOM 조작 패턴(`this.parentElement.style.display='none'` 등)을 단일 함수로 이식.
+  3. **Perl 스크립트 3단계** (`_context/scripts/migrate_onclick{,_phase2,_phase3}.pl`):
+     - Phase 1: 정적 문자열 리터럴 9 regex — showPage/filter* 등 **188건** 자동 치환
+     - Phase 2: 복합 정적 패턴 27 regex — tip-toggle/backdrop close 등 **39건** 치환
+     - Phase 3: JS 템플릿 리터럴 19 regex — fb*/showTicker 등 **26건** 치환
+  4. **JS render 직접 수정**: 뉴스 카드 `window.open` → `data-open-url` 등 5곳.
+- **검증**: 
+  - 정적 grep: `onclick=` 0건 (index.html/js 모두)
+  - 동적 DOM: preview 측정 `querySelectorAll('[onclick]')` = 0
+  - 기능: showPage/toggleTheme/tip-toggle/modal backdrop 정상 동작 (preview 측정)
+- **예방**: **P132** — (1) HTML 인라인 이벤트 핸들러(`onclick`/`onsubmit`/`onchange` 등) 신규 도입 금지. (2) 신규 UI 요소는 `data-action="fnName"` + 헬퍼 함수 추가. (3) JS render 템플릿도 `data-action`/`data-open-url` 패턴 사용. (4) `window.open(url,'_blank')` 쓰지 말고 `data-open-url="url"`. (5) `<form onsubmit>` 쓰지 말고 addEventListener.
+- **참조**: RULES R30 (Event Delegation 의무화)
+
+---
+
 ### 부가 개선 (P 번호 없이 기록, v48.14에서 함께 배포)
 
 **인프라 16개 신설** — 월가 기관 수준 아키텍처 보강 (Agent 감사 기반):

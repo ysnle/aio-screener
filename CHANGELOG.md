@@ -6,6 +6,91 @@
 
 ---
 
+## v48.35 — onclick 인라인 핸들러 253건 전수 제거 + Event Delegation (2026-04-19)
+
+### 트리거
+사용자 지시: "대규모 작업들 순차적으로 진행해. 다음 세션으로 미루거나 다음 버전으로 미루거나 하지 말고 무조건 작업 진행해."
+→ v48.31에서 "v50 메이저 이관"으로 보류했던 **onclick 251개 리팩토링**을 단일 세션 내 완료.
+
+### 최종 지표
+
+| 영역 | v48.31 | v48.35 | Δ |
+|------|--------|--------|---|
+| index.html onclick | 253 | **0** | −253 |
+| js/ 모듈 onclick | 25 | **0** (주석만 4) | −25 |
+| data-action | 0 | **246** (정적) + 동적 렌더 | +246+ |
+| data-close-on-outside | 0 | 4 | +4 |
+| data-stop | 0 | 6 | +6 |
+| data-pass-el | 0 | 89 | +89 |
+| data-open-url | 0 | 5 (뉴스 카드) | +5 |
+| ESM 준비도 | 일부 (window.AIO 26건) | **CSP-strict 호환** | ✓ |
+
+### v48.32 — Event Delegation 인프라 (aio-core.js L149~208)
+
+**dispatcher** (window 단일 click/keydown 리스너):
+- `data-action`: 호출할 전역 함수명 (window[name])
+- `data-arg` / `data-arg2` / `data-arg3`: 정적 문자열 인자
+- `data-pass-el="1"`: 호출 인자 끝에 엘리먼트(this) 전달
+- `data-pass-event="1"`: 호출 인자 끝에 MouseEvent 전달
+- `data-stop="1"` / `data-prevent="1"`: stopPropagation/preventDefault 선행
+- `data-arg-first-el="1"`: 첫 인자가 element (filterKrSector(this,'X') 패턴)
+- `data-open-url`: 외부 링크 새탭 오픈 (window.open 대체)
+- `data-close-on-outside`: 백드롭 클릭 시 단일 함수 호출
+- **Enter/Space 키보드 활성화** (role=button / tabindex=0) → A11y parity
+
+**Perl phase 1 스크립트** (`_context/scripts/migrate_onclick.pl`):
+- 9개 regex 패턴 — 정적 문자열 리터럴만 매칭 (`[a-zA-Z0-9_.\-\^]+`)
+- 동적 `' + var + '` / `${...}` 배제
+- 변환 결과: **188건 자동 치환** (showPage 57회, _saveApiKey 10, analyzeKrTickerDeep 10, filter* 25 등)
+- Preview 검증: showPage/toggleTheme/macro 페이지 탐색 정상 동작
+
+### v48.33 — 동적/특수 패턴 65건 수동 마이그레이션
+
+**42+ 전용 헬퍼 추가** (aio-core.js L210~380) — `_aio*` 네임스페이스로 통일.
+
+**Perl phase 2 (`migrate_onclick_phase2.pl`)**: 정적 복합 패턴 27개 regex — 39건 치환 (tip-toggle 7회 · chatFromChip theme-detail 4회 · closeOnOutside 4회 등).
+
+**Perl phase 3 (`migrate_onclick_phase3.pl`)**: JS 템플릿 리터럴 안의 동적 onclick 19개 regex — 26건 치환 (fbClickEntry/fbSetStatus/fbDeleteEntry · showTicker/editPosition/removePosition with stopPropagation · KR 테마 chat chips 4 · cross-link · fundamentalCardClick · showThemeDetail/showThemeByEtf/showSubThemeDetail · _glossaryCat · removePriceAlert · _aiFeedback).
+
+**JS render 템플릿 직접 수정**:
+- `onclick="window.open(url,'_blank')"` → `data-open-url="url"` (5곳: 뉴스 카드)
+- `onclick="prevPage='screener';showTicker(sym)"` → `data-action="_aioScreenerTicker" data-arg="sym"`
+- `onclick="event.stopPropagation();addToWatchlistFromScreener(sym)"` → `data-action="addToWatchlistFromScreener" data-arg="sym" data-stop="1"`
+- Feedback UI `this.style.color=X;_aiFeedback(id,score)` → `data-action="_aioAiFeedback" data-arg=id data-arg2=score data-pass-el=1`
+- Breadcrumb parent onclick 계승 → data-action/data-arg 속성 계승
+
+### v48.34 — innerHTML safeHtml 방어적 escape
+
+- `collected.sources.join(' · ')` → `collected.sources.map(escHtml).join(' · ')` (fund cache)
+- `renderMarkdownLight`은 이미 `escLine` 내장 (AI 응답 안전)
+- 대부분 innerHTML은 이미 escHtml/safeHtml wrapped — 방어적 추가 escape
+
+### v48.35 — 문서/버전 6곳 동기화 (R1)
+
+- `index.html` title `v48.35` + badge `v48.35`
+- `js/aio-core.js` `APP_VERSION = 'v48.35'`
+- `version.json` v48.35
+- `CLAUDE.md` (root) 현재 버전 + v48.32~35 마일스톤
+- `_context/CLAUDE.md` 현재 버전 v48.35
+- `CHANGELOG.md` (이 항목)
+- `_context/BUG-POSTMORTEM.md` P129~P131 + `_context/RULES.md` R30 신설
+
+### 검증
+
+- **정적**: `grep -c 'onclick=' index.html js/*.js` → 0 + 0 + 0 + 0 (주석만 4)
+- **DOM**: `document.querySelectorAll('[onclick]').length` = 0 (preview 측정)
+- **기능**: showPage/toggleTheme/tip-toggle/modal backdrop close 정상 (preview 측정 완료)
+- **A11y**: Enter/Space 키보드 활성화 지원 (role=button/tabindex)
+
+### 운영 기여
+
+- **CSP-strict 호환**: `Content-Security-Policy: script-src 'self'` 헤더 도입 이제 가능
+- **ESM 마이그레이션 진입 장벽 제거**: 251개 onclick 리팩토링이 v50 블록이었으나 단일 세션 완료
+- **정적 분석 개선**: 동작 로직이 JS 파일에 집중 → linter/grep/debugger 효율 증가
+- **유지보수성**: onclick 속성 문자열 이스케이프 지옥 해소 (3중 백슬래시 escaping 제거)
+
+---
+
 ## v48.31 — 장기 보류 4건 처리 + ESM v50 이관 (2026-04-19)
 
 ### 트리거

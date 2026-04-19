@@ -1354,7 +1354,7 @@ function renderScreenerResults() {
     var cc = chg !== null ? (chg >= 0 ? '#3ddba5' : '#f87171') : '#94a3b8';
     var chgDisplay = chg !== null ? ((chg >= 0 ? '+' : '') + chg.toFixed(2) + '%') : '—';
     var mcapStr = r.mcap >= 1000 ? '$' + (r.mcap/1000).toFixed(1) + 'T' : '$' + r.mcap + 'B';
-    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;" onclick="prevPage=\'screener\';showTicker(\'' + escHtml(r.sym) + '\')" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'none\'">' +
+    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;" data-action="_aioScreenerTicker" data-arg="' + escHtml(r.sym) + '" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'none\'">' +
       '<td style="padding:8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:9px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
       '<td style="text-align:right;padding:8px;font-family:var(--font-mono);font-weight:700;" data-live-price="' + escHtml(r.sym) + '">—</td>' +
       '<td style="text-align:right;padding:8px;font-family:var(--font-mono);color:' + cc + ';" data-live-chg="' + escHtml(r.sym) + '">' + chgDisplay + '</td>' +
@@ -1364,7 +1364,7 @@ function renderScreenerResults() {
       '<td style="text-align:right;padding:8px;font-family:var(--font-mono);font-size:10px;color:' + (getAdrEstimate(r) >= 4 ? '#fbbf24' : getAdrEstimate(r) >= 2 ? '#94a3b8' : '#3ddba5') + ';">' + getAdrEstimate(r) + '%</td>' +
       '<td style="text-align:right;padding:8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
       '<td style="padding:8px;color:var(--text-muted);font-size:10px;">' + escHtml(r.memo) + '</td>' +
-      '<td style="text-align:center;padding:4px;"><button onclick="event.stopPropagation();addToWatchlistFromScreener(\'' + escHtml(r.sym) + '\')" style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.5;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5" title="관심 종목에 추가"></button></td></tr>';
+      '<td style="text-align:center;padding:4px;"><button data-action="addToWatchlistFromScreener" data-arg="' + escHtml(r.sym) + '" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.5;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5" title="관심 종목에 추가"></button></td></tr>';
   });
 
   document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
@@ -5252,7 +5252,7 @@ async function freeTranslateNews(items) {
   var statusMsg = '✓ ' + translated + '건 번역 완료 (무료)';
   if (failed > 0) statusMsg += ' · <span style="color:#f87171;">' + failed + '건 번역 실패</span>';
   statusMsg += ' · ';
-  if (statusEl) statusEl.innerHTML = statusMsg + '<span style="cursor:pointer;text-decoration:underline;color:#fbbf24;" onclick="openApiKeyConfig()">Claude 키 입력 시 AI 해석 추가</span>';
+  if (statusEl) statusEl.innerHTML = statusMsg + '<span style="cursor:pointer;text-decoration:underline;color:#fbbf24;" data-action="openApiKeyConfig">Claude 키 입력 시 AI 해석 추가</span>';
   // P4 수정: 번역 완료 후 캐시 저장
   _tcSaveToStorage();
   renderFeed(newsCache);
@@ -5671,7 +5671,7 @@ function renderCompanyBullet(item) {
   var displayTitle = escHtml(typeof getDisplayTitle === 'function' ? getDisplayTitle(item) : (item.title || ''));
   var source = escHtml(item.source || '');
 
-  return '<div class="company-news-bullet" onclick="window.open(\'' + escUrl(item.link) + '\',\'_blank\')" style="padding:5px 10px;cursor:pointer;border-radius:4px;transition:background 0.15s;" onmouseover="this.style.background=\'var(--bg-hover)\'" onmouseout="this.style.background=\'transparent\'">' +
+  return '<div class="company-news-bullet" data-open-url="' + escHtml(escUrl(item.link)) + '" style="padding:5px 10px;cursor:pointer;border-radius:4px;transition:background 0.15s;" onmouseover="this.style.background=\'var(--bg-hover)\'" onmouseout="this.style.background=\'transparent\'">' +
     '<span style="color:var(--text-muted);font-size:10px;font-family:var(--font-mono);margin-right:8px;">' + absTime + '</span>' +
     (tickerStr ? '<span style="margin-right:6px;">' + tickerStr + '</span><span style="color:var(--border);margin-right:6px;">|</span>' : '') +
     '<span style="font-size:11px;color:var(--text-primary);">' + displayTitle + '</span>' +
@@ -5751,7 +5751,7 @@ function _renderTopicSection(icon, label, items) {
     var scoreStr = item.score > 0 ? '<span style="font-size:9px;color:' + (item.score > 50 ? '#3ddba5' : item.score > 30 ? '#fbbf24' : 'var(--text-muted)') + ';font-family:var(--font-mono);">■' + item.score + '</span>' : '';
     var descHtml = displayDesc ? '<div style="font-size:10px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">' + escHtml(displayDesc) + '</div>' : '';
     var summaryHtml = displaySummary ? '<div style="font-size:9px;color:#a78bfa;margin-top:2px;font-style:italic;line-height:1.3;">' + escHtml(displaySummary) + '</div>' : '';
-    out += '<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 12px;cursor:pointer;border-radius:4px;transition:background 0.15s;" onclick="window.open(\'' + escUrl(item.link) + '\',\'_blank\')" onmouseover="this.style.background=\'var(--bg-hover)\'" onmouseout="this.style.background=\'transparent\'">';
+    out += '<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 12px;cursor:pointer;border-radius:4px;transition:background 0.15s;" data-open-url="' + escHtml(escUrl(item.link)) + '" onmouseover="this.style.background=\'var(--bg-hover)\'" onmouseout="this.style.background=\'transparent\'">';
     out += '<span style="flex-shrink:0;width:4px;height:4px;border-radius:50%;background:' + dotColor + ';margin-top:7px;"></span>';
     out += '<div style="flex:1;min-width:0;">';
     out += '<div style="font-size:11px;color:var(--text-primary);line-height:1.4;font-weight:600;">' + tickerStr + displayTitle + '</div>';
@@ -5923,7 +5923,7 @@ function renderFeed(items) {
       }
     }
 
-    return `${dateHeader}<div class="news-item-card" onclick="window.open('${escUrl(item.link)}','_blank')" title="${escHtml((item.title||'').slice(0,200))}">
+    return `${dateHeader}<div class="news-item-card" data-open-url="${escHtml(escUrl(item.link))}" title="${escHtml((item.title||'').slice(0,200))}">
       <div class="news-time-col">
         <span class="news-time-abs">${timeDisplay}</span>
         <span class="news-time-dot" style="background:${sentColor};"></span>
@@ -6034,7 +6034,7 @@ function renderHomeFeed(items) {
     const tickerStr = tickers.length > 0
       ? tickers.slice(0,2).map(t => `<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);">${escHtml(t.startsWith('$') ? t : '$'+t)}</span>`).join(' ') + ' '
       : '';
-    return `<div onclick="window.open('${escUrl(item.link)}','_blank')" style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.03);" onmouseenter="this.style.background='rgba(91,168,255,0.05)'" onmouseleave="this.style.background='transparent'">
+    return `<div data-open-url="${escHtml(escUrl(item.link))}" style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.03);" onmouseenter="this.style.background='rgba(91,168,255,0.05)'" onmouseleave="this.style.background='transparent'">
       <span style="flex-shrink:0;font-size:10px;line-height:1.6;">${sentIcon}</span>
       <div style="flex:1;min-width:0;">
         <div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">${tickerStr}${displayTitle}</div>
@@ -6423,7 +6423,7 @@ function _renderBriefingBullet(item) {
   var unverBadge = isUnverifiedClaim(item) ? '<span style="font-size:8px;font-weight:700;background:rgba(251,191,36,0.1);color:#fbbf24;padding:1px 5px;border-radius:3px;border:1px solid rgba(251,191,36,0.25);">미확인</span>' : '';
   var scoreBadge = item.score ? '<span style="font-size:8px;font-weight:700;color:' + (item.score >= 80 ? '#f87171' : item.score >= 60 ? '#fbbf24' : '#7e8a9e') + ';font-family:var(--font-mono);">' + item.score + '</span>' : '';
 
-  var out = '<div class="briefing-news-card" style="padding:10px 12px;margin-bottom:8px;border-radius:8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:all 0.15s;" onclick="window.open(\'' + escUrl(item.link) + '\',\'_blank\')" onmouseover="this.style.background=\'rgba(255,255,255,0.05)\';this.style.borderColor=\'rgba(91,168,255,0.15)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.025)\';this.style.borderColor=\'rgba(255,255,255,0.04)\'">';
+  var out = '<div class="briefing-news-card" style="padding:10px 12px;margin-bottom:8px;border-radius:8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:all 0.15s;" data-open-url="' + escHtml(escUrl(item.link)) + '" onmouseover="this.style.background=\'rgba(255,255,255,0.05)\';this.style.borderColor=\'rgba(91,168,255,0.15)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.025)\';this.style.borderColor=\'rgba(255,255,255,0.04)\'">';
   // 상단: 출처 + 시간 + 점수
   out += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap;">';
   out += '<span style="font-size:9px;font-weight:700;color:var(--accent);background:rgba(91,168,255,0.08);padding:1px 6px;border-radius:3px;">' + escHtml(item.source||'') + '</span>';
@@ -7332,7 +7332,7 @@ async function fetchAllNews(forceRefresh = false) {
   // v27.2: 뉴스 0건이면 홈 뉴스 섹션에 안내 메시지 표시
   if (allItems.length === 0) {
     const hn = document.getElementById('home-news-highlights');
-    if (hn) hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;grid-column:1/-1;">현재 뉴스를 불러올 수 없습니다. <button onclick="isFetching=false;fetchAllNews(true)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:9px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:6px;">↻ 다시 시도</button></div>';
+    if (hn) hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;grid-column:1/-1;">현재 뉴스를 불러올 수 없습니다. <button data-action="_aioRetryNews" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:9px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:6px;">↻ 다시 시도</button></div>';
     const pl = document.getElementById('news-progress-label');
     if (pl) pl.textContent = '뉴스 소스 연결 실패 — 새로고침하거나 잠시 후 다시 시도하세요.';
   }
@@ -7348,7 +7348,7 @@ async function fetchAllNews(forceRefresh = false) {
       feedEl.innerHTML = '<div style="background:var(--bg-card);border:1px solid rgba(248,113,113,0.2);border-radius:8px;padding:16px;text-align:center;color:var(--text-muted);font-size:10px;">' +
         '<div style="font-size:12px;color:#f87171;margin-bottom:6px;">뉴스 수집 실패</div>' +
         '<div>네트워크 상태를 확인하거나 잠시 후 다시 시도해주세요.</div>' +
-        '<button onclick="isFetching=false;fetchAllNews(true)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:10px;padding:5px 14px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button></div>';
+        '<button data-action="_aioRetryNews" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:10px;padding:5px 14px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button></div>';
     }
   } finally {
     isFetching = false; // v27.3: 어떤 에러가 나도 반드시 잠금 해제
@@ -7368,7 +7368,7 @@ setTimeout(function() {
       // 부분 결과 있으면 렌더
       if (typeof renderHomeFeed === 'function') renderHomeFeed(items);
     } else {
-      hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;">뉴스 로딩 시간 초과 (네트워크 지연). <button onclick="isFetching=false;fetchAllNews(true)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:9px;padding:3px 9px;border-radius:4px;cursor:pointer;margin-left:6px;font-weight:600;">↻ 다시 시도</button></div>';
+      hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;">뉴스 로딩 시간 초과 (네트워크 지연). <button data-action="_aioRetryNews" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:9px;padding:3px 9px;border-radius:4px;cursor:pointer;margin-left:6px;font-weight:600;">↻ 다시 시도</button></div>';
     }
   }
 }, 60000);

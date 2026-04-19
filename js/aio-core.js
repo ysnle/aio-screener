@@ -147,6 +147,283 @@ window.safeHtml = function(str, allowTags) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 };
 
+// ═══ v48.32: Event Delegation — onclick 인라인 핸들러 ESM 대체 ═══════════
+// 용도: CSP-strict 호환 + ESM 마이그레이션 준비. onclick="foo('bar')" 대신
+//   <button data-action="foo" data-arg="bar"> 패턴 사용.
+// 지원:
+//   - data-action: 호출할 전역 함수명 (window[name])
+//   - data-arg / data-arg2 / data-arg3: 정적 문자열 인자
+//   - data-pass-el="1": 호출 인자 끝에 엘리먼트(this) 전달
+//   - data-pass-event="1": 호출 인자 끝에 MouseEvent 전달
+//   - data-stop="1": event.stopPropagation() 선행 실행
+//   - data-prevent="1": event.preventDefault() 선행 실행
+// 한계: 복잡한 인라인 JS(여러 statement, 지역변수 참조)는 수동 이식 필요.
+(function() {
+  if (window.__aioDelegateInstalled) return;
+  window.__aioDelegateInstalled = true;
+  function dispatch(e) {
+    // data-open-url: 단축 패턴 — 외부 링크 새탭 오픈 (onclick="window.open(url,'_blank')" 대체)
+    var urlEl = e.target.closest && e.target.closest('[data-open-url]');
+    if (urlEl) {
+      if (urlEl.dataset.stop === '1') e.stopPropagation();
+      try { window.open(urlEl.dataset.openUrl, '_blank', 'noopener,noreferrer'); } catch(_){}
+      return;
+    }
+    // data-close-on-outside: 백드롭 클릭 시 단일 함수 호출 (onclick="if(event.target===this)closeX()" 대체)
+    var outEl = e.target.closest && e.target.closest('[data-close-on-outside]');
+    if (outEl && e.target === outEl) {
+      var fn = window[outEl.dataset.closeOnOutside];
+      if (typeof fn === 'function') { try { fn(); } catch(_){} }
+      return;
+    }
+    var el = e.target.closest && e.target.closest('[data-action]');
+    if (!el) return;
+    var ds = el.dataset;
+    var action = ds.action;
+    if (!action) return;
+    var fn = window[action];
+    if (typeof fn !== 'function') {
+      if (window._aioLog) window._aioLog('warn', 'delegate', 'missing: ' + action);
+      return;
+    }
+    if (ds.stop === '1') e.stopPropagation();
+    if (ds.prevent === '1') e.preventDefault();
+    var args = [];
+    // data-arg-first-el="1": 첫 인자가 element — filterKrSector(this,'X') 패턴
+    if (ds.argFirstEl === '1') args.push(el);
+    if ('arg' in ds) args.push(ds.arg);
+    if ('arg2' in ds) args.push(ds.arg2);
+    if ('arg3' in ds) args.push(ds.arg3);
+    if (ds.passEl === '1') args.push(el);
+    if (ds.passEvent === '1') args.push(e);
+    try { fn.apply(null, args); }
+    catch (err) {
+      if (window._aioLog) window._aioLog('error', 'delegate', 'dispatch failed: ' + action, { err: String(err && err.message || err) });
+    }
+  }
+  document.addEventListener('click', dispatch);
+  // Enter/Space keyboard activation for role=button (A11y parity with onclick)
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var el = e.target.closest && e.target.closest('[data-action]');
+    if (!el) return;
+    if (el.tagName === 'BUTTON' || el.tagName === 'A') return; // native handles
+    if (el.getAttribute('role') !== 'button' && !el.hasAttribute('tabindex')) return;
+    e.preventDefault();
+    dispatch(e);
+  });
+})();
+
+// ═══ v48.33: 이벤트 위임 헬퍼 — onclick 다중 문장/조합 패턴 대체 ═══════════
+// onclick="a();b();" 같은 2-statement 패턴을 단일 함수로 이식.
+// 디스패처에서 단일 data-action으로 호출 가능.
+window._aioRetryNews = function() {
+  if (typeof window.isFetching !== 'undefined') window.isFetching = false;
+  if (typeof window.fetchAllNews === 'function') window.fetchAllNews(true);
+};
+window._aioScreenerTicker = function(sym) {
+  if (typeof window.prevPage !== 'undefined') window.prevPage = 'screener';
+  if (typeof window.showTicker === 'function') window.showTicker(sym);
+};
+window._aioPortfolioTicker = function(sym) {
+  if (typeof window.prevPage !== 'undefined') window.prevPage = 'portfolio';
+  if (typeof window.showTicker === 'function') window.showTicker(sym);
+};
+window._aioHideEl = function(id) {
+  var el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+};
+window._aioHideSelf = function(el) {
+  if (el) el.style.display = 'none';
+};
+window._aioHideParent = function(el) {
+  if (el && el.parentElement) el.parentElement.style.display = 'none';
+};
+window._aioHideParentOnboard = function(el) {
+  if (el && el.parentElement) {
+    el.parentElement.style.display = 'none';
+    try { localStorage.setItem('aio_onboard_dismissed', '1'); } catch(_){}
+  }
+};
+window._aioToggleParentCollapsed = function(el) {
+  if (el && el.parentElement) el.parentElement.classList.toggle('collapsed');
+};
+window._aioRemoveClosest = function(el, selector) {
+  var t = el && el.closest ? el.closest(selector) : null;
+  if (t) t.remove();
+};
+window._aioToggleDetailById = function(id, showTxt, hideTxt, el) {
+  var d = document.getElementById(id);
+  if (!d) return;
+  var hidden = d.style.display === 'none';
+  d.style.display = hidden ? 'block' : 'none';
+  if (el && showTxt && hideTxt) el.textContent = hidden ? hideTxt : showTxt;
+};
+window._aioToggleNext = function(el, showTxt, hideTxt, displayWhenShown) {
+  if (!el) return;
+  var t = el.nextElementSibling;
+  if (!t) return;
+  var hidden = t.style.display === 'none';
+  t.style.display = hidden ? (displayWhenShown || 'block') : 'none';
+  if (showTxt && hideTxt) {
+    var arrow = el.querySelector('.arrow');
+    if (arrow) arrow.textContent = hidden ? '▲' : '▼';
+    else el.textContent = hidden ? hideTxt : showTxt;
+  }
+};
+window._aioForceReload = function() {
+  window.location.href = window.location.pathname + '?v=' + Date.now();
+};
+window._aioGlobalRefresh = function() {
+  if (typeof window.globalRefresh === 'function') window.globalRefresh();
+};
+window._aioLogsDownload = function() {
+  if (window._aioLogs) {
+    var ok = window._aioLogs.download();
+    if (typeof window.showToast === 'function') window.showToast(ok ? '로그 다운로드 완료' : '다운로드 실패');
+  }
+};
+window._aioLogsClear = function() {
+  if (window._aioLogs) {
+    window._aioLogs.clear();
+    if (typeof window.showToast === 'function') window.showToast('로그 버퍼 초기화');
+  }
+};
+window._aioKrTickerSubmit = function() {
+  var inp = document.getElementById('kr-ticker-analysis-input');
+  if (!inp) return;
+  var t = inp.value.trim();
+  if (/^\d{6}$/.test(t)) t += '.KS';
+  if (typeof window.analyzeKrTickerDeep === 'function') window.analyzeKrTickerDeep(t);
+};
+window._aioTickerSubmit = function() {
+  var inp = document.getElementById('ticker-analysis-input');
+  if (inp && typeof window.analyzeTickerDeep === 'function') {
+    window.analyzeTickerDeep(inp.value.toUpperCase());
+  }
+};
+window._aioAddToPortfolio = function(ticker) {
+  if (typeof window.showPage === 'function') window.showPage('portfolio');
+  setTimeout(function() {
+    var inp = document.getElementById('pf-add-ticker');
+    if (inp) inp.value = ticker;
+  }, 50);
+};
+window._aioChartAnalyze = function(ticker) {
+  if (typeof window.showPage === 'function') window.showPage('technical');
+  setTimeout(function() {
+    var inp = document.getElementById('deep-ticker-input');
+    if (inp) inp.value = ticker;
+  }, 300);
+};
+window._aioFundSearchFill = function(preset) {
+  var inp = document.getElementById('fund-search-input');
+  if (inp) inp.value = preset;
+  if (typeof window.fundamentalSearch === 'function') window.fundamentalSearch();
+};
+window._aioFetchLiveQuotes = function() {
+  if (typeof window.fetchLiveQuotes === 'function') window.fetchLiveQuotes();
+};
+window._aioBriefingRetry = function() {
+  if (typeof window._briefingCacheKey !== 'undefined') window._briefingCacheKey = null;
+  if (typeof window.isFetching !== 'undefined') window.isFetching = false;
+  if (typeof window.fetchAllNews === 'function') window.fetchAllNews(true);
+};
+window._aioAiFeedback = function(fbId, score, el) {
+  if (el) el.style.color = score > 0 ? '#3ddba5' : '#f87171';
+  if (typeof window._aiFeedback === 'function') window._aiFeedback(fbId, score);
+};
+window._aioGlossaryCat = function(cat) {
+  window._glossaryCat = cat;
+  if (typeof window.renderGlossaryCats === 'function') window.renderGlossaryCats();
+  if (typeof window.renderGlossaryItems === 'function') {
+    var s = document.getElementById('glossary-search');
+    window.renderGlossaryItems(s ? s.value : '');
+  }
+};
+window._aioEditPosition = function(tk) {
+  if (typeof window.editPosition === 'function') window.editPosition(tk);
+};
+window._aioRemovePosition = function(tk) {
+  if (typeof window.removePosition === 'function') window.removePosition(tk);
+};
+window._aioTechnicalTicker = function(tk) {
+  if (typeof window.showPage === 'function') window.showPage('technical');
+  setTimeout(function() {
+    var inp = document.getElementById('deep-ticker-input');
+    if (inp) inp.value = tk;
+  }, 300);
+};
+window._aioUpdateBannerClose = function() {
+  var b = document.getElementById('update-banner');
+  if (b) b.classList.remove('show');
+};
+window._aioToggleWhiteSpace = function(el) {
+  if (!el) return;
+  var t = el.querySelector('.ch-item-a');
+  if (!t) return;
+  t.style.whiteSpace = t.style.whiteSpace === 'normal' ? 'nowrap' : 'normal';
+};
+window._aioCloseOnOutside = function(el, fnName, e) {
+  if (!e || e.target !== el) return;
+  var fn = window[fnName];
+  if (typeof fn === 'function') fn();
+};
+window._aioScrollApiSection = function() {
+  var s = document.querySelector('.sidebar-api-section');
+  if (s) s.scrollIntoView({ behavior: 'smooth' });
+};
+window._aioScrollContentTop = function() {
+  var c = document.querySelector('.content');
+  if (c) c.scrollTo({ top: 0, behavior: 'smooth' });
+};
+window._aioChatFromChipText = function(ctxId, el) {
+  if (typeof window.chatFromChip === 'function' && el) {
+    window.chatFromChip(ctxId, (el.textContent || '').trim());
+  }
+};
+window._aioKrThemeChat = function(question, el) {
+  if (typeof window.chatFromChip !== 'function') return;
+  // question 프리픽스 포함한 "테마명 + 질문" → kr-themes 컨텍스트에서 호출
+  window.chatFromChip('kr-themes', (el && el.dataset.arg2) || question);
+};
+window._aioMacroInterconToggle = function(el) {
+  window._aioToggleDetailById('macro-intercon-detail', '설명 보기 ▼', '접기 ▲', el);
+};
+window._aioBriefingArchiveToggle = function(el) {
+  window._aioToggleDetailById('briefing-static-archive', '펼치기 ▼', '접기 ▲', el);
+};
+window._aioBreadthGuideToggle = function(el) {
+  window._aioToggleNext(el, '시장 폭 해석 가이드 ▶', '시장 폭 해석 가이드 ▼', 'grid');
+};
+window._aioNextSiblingToggle = function(el) {
+  window._aioToggleNext(el, '', '', 'block');
+};
+window._aioCloseThemeDetailPanel = function() {
+  window._aioHideEl('kr-theme-detail-panel');
+};
+window._aioCloseGlossary = function() {
+  window._aioHideEl('glossary-modal');
+};
+window._aioChatHistoryClear = function() {
+  if (typeof window.showConfirmModal !== 'function') return;
+  window.showConfirmModal('대화 기록 전체 삭제', '모든 대화 기록이 영구 삭제됩니다. 계속하시겠습니까?', function() {
+    try { localStorage.removeItem('aio_chat_history'); } catch(_){}
+    var ov = document.querySelector('.chat-history-overlay');
+    if (ov) ov.remove();
+  }, '');
+};
+window._aioChatHistoryClose = function(el) {
+  if (!el) return;
+  var ov = el.closest('.chat-history-overlay');
+  if (ov) ov.remove();
+};
+window._aioFetchAllNewsForce = function() {
+  if (typeof window.isFetching !== 'undefined') window.isFetching = false;
+  if (typeof window.fetchAllNews === 'function') window.fetchAllNews(true);
+};
+window._aioReload = function() { window.location.reload(); };
+
 // ── v30.10: 글로벌 에러 표시 유틸리티 (사용자 피드백 제공) ─────────────
 // 에러 유형: 'api' | 'parse' | 'dom' | 'network'
 // 심각도: 'warn' (노란색, 자동 소멸) | 'error' (빨간색, 수동 닫기)
@@ -296,7 +573,7 @@ function _showChartFallback(canvas, chartName, reason) {
     '<div style="font-size:11px;color:var(--text-muted);font-weight:600;">' + (chartName || '차트') + '</div>' +
     '<div class="aio-chart-fb-reason" style="font-size:10px;color:#f87171;margin-top:2px;">' + reason + '</div>' +
     '<div style="font-size:9px;color:var(--text-muted);margin-top:4px;">데이터 갱신 시 자동 복구됩니다</div>' +
-    '<button onclick="if(typeof fetchLiveQuotes===\'function\')fetchLiveQuotes()" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:8px;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:6px;">↻ 데이터 재시도</button>';
+    '<button data-action="_aioFetchLiveQuotes" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:8px;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:6px;">↻ 데이터 재시도</button>';
   parent.insertBefore(overlay, canvas);
   _aioLog('warn', 'chart', chartName + ': ' + reason);
 }
@@ -500,7 +777,7 @@ function _checkAllDeadBanner() {
     var nameStr = deadNames.slice(0, 4).join(', ') + (deadNames.length > 4 ? ' 외 ' + (deadNames.length - 4) + '개' : '');
     banner.innerHTML = '다수 데이터 소스 연결 실패 (' + deadCount + '/' + apis.length + '): ' + nameStr +
       ' — 캐시 데이터 표시 중 ' +
-      '<button id="btn-retry-all-apis" onclick="_retryAllFailedApis()" style="' +
+      '<button id="btn-retry-all-apis" data-action="_retryAllFailedApis" style="' +
       'background:rgba(220,38,38,0.25);border:1px solid rgba(220,38,38,0.5);color:#fca5a5;' +
       'font-size:9px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:8px;font-weight:600;' +
       'font-family:var(--font-mono);transition:all 0.2s;"> 수동 재연결</button>';
@@ -510,7 +787,7 @@ function _checkAllDeadBanner() {
     banner.style.color = '#f87171';
   } else if (deadCount >= 1 || warnCount >= 2) {
     banner.innerHTML = '일부 데이터 소스(' + deadCount + '개 실패, ' + warnCount + '개 불안정)가 응답하지 않습니다. 해당 항목은 마지막 수신 데이터를 표시합니다.' +
-      (deadCount >= 1 ? ' <button id="btn-retry-all-apis" onclick="_retryAllFailedApis()" style="' +
+      (deadCount >= 1 ? ' <button id="btn-retry-all-apis" data-action="_retryAllFailedApis" style="' +
       'background:rgba(234,179,8,0.2);border:1px solid rgba(234,179,8,0.4);color:#fbbf24;' +
       'font-size:9px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:8px;font-weight:600;' +
       'font-family:var(--font-mono);transition:all 0.2s;"> 재연결</button>' : '');
@@ -1513,7 +1790,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.31';
+const APP_VERSION = 'v48.35';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -3133,7 +3410,7 @@ function _initBriefingPage() {
       } else {
         bc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' +
           '뉴스 로딩 시간 초과 — 네트워크 상태를 확인하세요.<br>' +
-          '<button onclick="_briefingCacheKey=null;isFetching=false;fetchAllNews(true)" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
+          '<button data-action="_aioBriefingRetry" style="background:rgba(91,168,255,0.1);border:1px solid rgba(91,168,255,0.2);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
           '</div>';
       }
     }
@@ -3260,7 +3537,7 @@ function showTheme(themeId) {
     else n.classList.remove('active');
   });
   const bc=document.getElementById('breadcrumb');
-  bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span onclick="showPage('themes',null)" style="cursor:pointer;">테마</span><span class="sep">/</span><span class="current">${escHtml(t.name)}</span>`;
+  bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span data-action="showPage" data-arg="themes" style="cursor:pointer;">테마</span><span class="sep">/</span><span class="current">${escHtml(t.name)}</span>`;
 }
 
 const tickerData = {
@@ -3400,6 +3677,11 @@ function showTicker(tkr) {
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   switchTab(document.querySelector('#page-ticker .tab'), 'tab-overview');
   const bc=document.getElementById('breadcrumb');
-  bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span style="cursor:pointer;" onclick="${escHtml(parentEl.getAttribute('onclick'))}">${escHtml(parentEl.textContent)}</span><span class="sep">/</span><span class="current">${escHtml(tkr)}</span>`;
+  // v48.33: 부모 엘리먼트의 data-action 속성 계승 (onclick 대체)
+  var _pAction = parentEl ? (parentEl.getAttribute('data-action') || '') : '';
+  var _pArg = parentEl ? (parentEl.getAttribute('data-arg') || '') : '';
+  var _pArg2 = parentEl ? (parentEl.getAttribute('data-arg2') || '') : '';
+  var _pAttrs = _pAction ? ` data-action="${escHtml(_pAction)}" data-arg="${escHtml(_pArg)}"${_pArg2 ? ` data-arg2="${escHtml(_pArg2)}"` : ''}` : '';
+  bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span style="cursor:pointer;"${_pAttrs}>${escHtml(parentEl ? parentEl.textContent : '')}</span><span class="sep">/</span><span class="current">${escHtml(tkr)}</span>`;
 }
 
