@@ -9961,6 +9961,14 @@ window.showPage = function(pageId, ...args) {
   if (pageId === 'home') {
     setTimeout(refreshHomeDashboard, 100);
   }
+  // v48.51: Breadth 페이지 진입 시 9-canvas fallback 렌더러 실행
+  if (pageId === 'breadth') {
+    setTimeout(function(){
+      if (typeof window._aioBreadthCanvasRender === 'function') {
+        try { window._aioBreadthCanvasRender(); } catch(e) {}
+      }
+    }, 150);
+  }
   return result;
 };
 

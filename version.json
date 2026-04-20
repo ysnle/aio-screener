@@ -1,6 +1,6 @@
 {
-  "version": "v48.46",
-  "built": "2026-04-20T09:00:00+09:00",
-  "note": "v48.46: 나머지 페이지 기관급 심층 설명 확장 (Phase 33~38). 사용자 지시 '퀴즈/유치한 컨텐츠 금지, 추가 분석 열었다/닫았다 섹션, 기존 페이지 간소화 + 사용자 편의성 개선'. v48.45 11개 페이지 외 미커버 페이지에 .aio-explain 추가: 브리핑(아침 30분 루틴+뉴스 필터+Action Item 5카테고리), 시장 뉴스(스코어링 알고리즘+국가 필터), 옵션(IV/SKEW/Greeks/헤지 5전략), KR 수급(3대 주체+프로그램+공매도), KR 테마(대장주/후발주 패턴+2024~2026 주도 순환), KR 매크로(BOK 사이클+수출 Proxy), KR 기술분석(상하한가+시간외+호가 Tick), 가이드(10단계 매매 결정 루틴 + 밸류체인). 가이드 심화 해설만 .is-open 기본 펼침. 총 19개 .aio-explain — 전 페이지 커버. 기존 .insight-box와 .beginner-tip 접힘 구조 유지 + 추가 심화는 별도 아코디언에 배치하여 핵심 데이터 즉시 보임 + 심화 필요 시만 펼침. 버전 6곳 동기화.",
-  "versioning": "x.y (31→...→48.44→48.45→48.46)"
+  "version": "v48.52",
+  "built": "2026-04-21T09:00:00+09:00",
+  "note": "v48.47~v48.52: v49+ 잔존 16건 전수 보강 (Phase A~F). Phase A (v48.47) 캔들패턴+진입품질 → Ticker 페이지 이전 · R:R 계산기 → Portfolio 포지션 연동 · onkeydown 인라인 13건 → data-on-enter 데이터 속성 전환. Phase B (v48.48) .aio-table 신규 클래스 + .tb-btn → .aio-btn-ghost 별칭 통합 + --surface-1~5 투명 화이트 오버레이 표준 변수 5종 정의. Phase C (v48.49) 분산형 aio-tooltip 시스템 (? 인라인 버튼 + 팝오버 + ESC/외부 클릭 닫기) + 샘플 배치 3건. Phase D (v48.50) M7 리더십 + 섹터 히트맵 mirror → Themes 페이지 이전 · Cross-Asset 신호 매트릭스 4축 (DXY × 10Y × 스프레드 × HYG) + 자동 Risk-On/Off 판정. Phase E (v48.51) NARRATIVE_ENGINE 실시간 바인딩 (VIX/VVIX/MOVE/SPX + stale-days 자동 계산) · Breadth 9-canvas fallback 렌더러 경량 2D sparkline · CP5 BLOCKED 코드 미존재 확인. Phase F (v48.52) TradingView OHLC strip _liveData 동기화 · AAII/NAAIM/II/HY + Finnhub 어닝 = infrastructure TODO. 버전 6곳 동기화.",
+  "versioning": "x.y (31→...→48.46→48.47→...→48.52)"
 }

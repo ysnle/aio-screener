@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.46 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.52 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -57,6 +57,14 @@
   --border:         rgba(255,255,255,0.06);
   --border-strong:  rgba(255,255,255,0.11);
   --border-accent:  rgba(0,212,255,0.28);
+  --border-subtle:  rgba(255,255,255,0.04);
+
+  /* === v48.48: Surface 계층 (투명 화이트 오버레이 표준) === */
+  --surface-1: rgba(255,255,255,0.02);   /* 최하: 테이블 hover, 미약한 구분 */
+  --surface-2: rgba(255,255,255,0.03);   /* 기본: 빈 상태 안내, secondary 카드 */
+  --surface-3: rgba(255,255,255,0.04);   /* 중간: input 배경, chip 배경 */
+  --surface-4: rgba(255,255,255,0.05);   /* 강조: hover elevation */
+  --surface-5: rgba(255,255,255,0.08);   /* 최상: active, 강조 카드 */
 
   /* === 텍스트 계층 (Figma 스타일 명도 폭 확장) === */
   --text-primary:   #f0f4fc;
@@ -608,6 +616,82 @@ body {
 .aio-skeleton.is-text  { width: 120px; height: 12px; border-radius: var(--radius-pill); }
 .aio-skeleton.is-title { width: 180px; height: 18px; }
 .aio-skeleton.is-card  { width: 100%;  height: 80px; border-radius: var(--radius-lg); }
+
+/* ─── v48.49: 분산형 aio-tooltip — 섹션 옆 `?` 인라인 툴팁 ────────── */
+.aio-tooltip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  position: relative;
+  transition: background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast);
+}
+.aio-tooltip:hover,
+.aio-tooltip.is-open {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+.aio-tooltip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.aio-tooltip-body {
+  position: absolute;
+  z-index: 100;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  max-width: 340px;
+  padding: 10px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  letter-spacing: normal;
+  color: var(--text-secondary);
+  line-height: var(--lh-relaxed);
+  text-align: left;
+  display: none;
+  pointer-events: auto;
+}
+.aio-tooltip.is-open .aio-tooltip-body { display: block; }
+.aio-tooltip-body::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border-strong);
+  border-left: 1px solid var(--border-strong);
+}
+.aio-tooltip-body.is-right { left: auto; right: 0; transform: none; }
+.aio-tooltip-body.is-right::before { left: auto; right: 6px; transform: rotate(45deg); }
+.aio-tooltip-body strong { color: var(--text-primary); }
+.aio-tooltip-title {
+  display: block;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  font-size: var(--fs-sm);
+}
 
 /* ─── v48.45: Expandable Explanation System (기관급 교육 콘텐츠) ────────── */
 .aio-explain {
@@ -1573,8 +1657,8 @@ body {
 .desk-main { display: flex; flex-direction: column; }
 .desk-data { display: flex; flex-direction: column; }
 
-/* v48.42: 톱바 버튼 (tb-btn) — aio-btn-ghost 정렬 */
-.tb-btn {
+/* v48.48: .tb-btn = .aio-btn-ghost 별칭 통합 (CSS 중복 제거). DOM 마이그레이션 점진적. */
+.tb-btn, .aio-btn-ghost-legacy {
   padding: 6px 12px;
   background: transparent;
   border: 1px solid var(--border);
@@ -1590,13 +1674,46 @@ body {
   align-items: center;
   gap: var(--space-2);
 }
-.tb-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-strong); }
-.tb-btn.primary {
+.tb-btn:hover, .aio-btn-ghost-legacy:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-strong); }
+.tb-btn.primary, .aio-btn-ghost-legacy.primary {
   background: var(--accent-soft);
   border-color: var(--accent-border);
   color: var(--accent-text);
 }
-.tb-btn.primary:hover { background: var(--accent-dim); color: var(--accent); }
+.tb-btn.primary:hover, .aio-btn-ghost-legacy.primary:hover { background: var(--accent-dim); color: var(--accent); }
+
+/* v48.48: 공용 테이블 — .aio-table (Figma/Bloomberg 정렬) */
+.aio-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+  font-family: var(--font-sans);
+}
+.aio-table thead tr {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.aio-table thead th {
+  text-align: left;
+  padding: 10px 10px;
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+}
+.aio-table tbody td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+}
+.aio-table tbody tr:hover td { background: var(--surface-1); }
+.aio-table.is-mono tbody td { font-family: var(--font-mono); }
+.aio-table.is-compact thead th { padding: 7px 8px; }
+.aio-table.is-compact tbody td { padding: 6px 8px; }
+.aio-table .num-right { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+.aio-table .num-center { text-align: center; font-variant-numeric: tabular-nums; }
 
 .ai-badge { display: flex; align-items: center; gap: 5px; font-size: var(--fs-xs); color: var(--text-muted); font-weight: 600; }
 .ai-dot { width: 5px; height: 5px; background: var(--data-green); border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 6px var(--data-green); }
@@ -3492,22 +3609,22 @@ body.light-theme canvas { filter:none; }
       <div class="content" id="main-content" role="main">
         <!-- v42.1: 마켓 펄스 바 — 페이지 간 시장 상태 요약 -->
         <div class="market-pulse-bar" id="market-pulse-bar" style="display:none;">
-          <div class="pulse-seg" data-action="showPage" data-arg="signal" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('signal',null);}" role="button" tabindex="0" title="매매 시그널 상세" aria-label="매매 시그널 페이지 이동">
+          <div class="pulse-seg" data-action="showPage" data-arg="signal" role="button" tabindex="0" title="매매 시그널 상세" aria-label="매매 시그널 페이지 이동">
             <span class="ps-label">시그널</span>
             <span class="ps-val" id="mp-signal-score" style="color:var(--text-muted);">—</span>
             <span class="ps-status" id="mp-signal-label" style="color:var(--text-muted);">로딩</span>
           </div>
-          <div class="pulse-seg" data-action="showPage" data-arg="breadth" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('breadth',null);}" role="button" tabindex="0" title="시장 폭 상세" aria-label="시장 폭 페이지 이동">
+          <div class="pulse-seg" data-action="showPage" data-arg="breadth" role="button" tabindex="0" title="시장 폭 상세" aria-label="시장 폭 페이지 이동">
             <span class="ps-label">시장폭</span>
             <span class="ps-val" id="mp-breadth-val" style="color:var(--text-muted);">—</span>
             <span class="ps-status" id="mp-breadth-label" style="color:var(--text-muted);">로딩</span>
           </div>
-          <div class="pulse-seg" data-action="showPage" data-arg="sentiment" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('sentiment',null);}" role="button" tabindex="0" title="투자 심리 상세" aria-label="투자 심리 페이지 이동">
+          <div class="pulse-seg" data-action="showPage" data-arg="sentiment" role="button" tabindex="0" title="투자 심리 상세" aria-label="투자 심리 페이지 이동">
             <span class="ps-label">심리</span>
             <span class="ps-val" id="mp-sentiment-val" style="color:var(--text-muted);">—</span>
             <span class="ps-status" id="mp-sentiment-label" style="color:var(--text-muted);">로딩</span>
           </div>
-          <div class="pulse-seg" data-action="showPage" data-arg="macro" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('macro',null);}" role="button" tabindex="0" title="거시경제 상세" aria-label="거시경제 페이지 이동">
+          <div class="pulse-seg" data-action="showPage" data-arg="macro" role="button" tabindex="0" title="거시경제 상세" aria-label="거시경제 페이지 이동">
             <span class="ps-label">매크로</span>
             <span class="ps-val" id="mp-macro-icon" style="color:var(--text-muted);font-size:9px;">●</span>
             <span class="ps-status" id="mp-macro-val" style="color:var(--text-muted);">로딩</span>
@@ -3528,7 +3645,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.46</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.52</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5720,6 +5837,13 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
     <div id="tv-widget-technical" style="height:400px;border-radius:8px;overflow:hidden;background:#131722;"></div>
+    <!-- v48.52: TradingView fallback OHLC info strip (iframe 로딩 지연/차단 시 _liveData 표시) -->
+    <div id="tv-tech-ohlc" class="tv-ohlc-strip" style="display:flex;gap:12px;flex-wrap:wrap;padding:8px 10px;margin-top:6px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:6px;font-size:10px;font-family:var(--font-mono);color:var(--text-muted);">
+      <span>현재: <span data-tvohlc-sym>SPY</span></span>
+      <span>종가: <span data-tvohlc-close>—</span></span>
+      <span>변동: <span data-tvohlc-chg>—</span></span>
+      <span style="margin-left:auto;opacity:0.7;">TradingView iframe + _liveData 동기화</span>
+    </div>
   </div>
 
   <!-- ══ SECTION 1: 시장 건강도 대시보드 (Market Health Score) ══════ -->
@@ -5811,7 +5935,7 @@ body.light-theme canvas { filter:none; }
     <div style="display:flex;gap:8px;margin-bottom:12px;">
       <input id="ticker-analysis-input" type="text" placeholder="종목 입력 (AAPL, NVDA 등)"
              style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;"
-             onkeydown="if(event.key==='Enter'){analyzeTickerDeep(this.value.toUpperCase());}"/>
+             data-on-enter="analyzeTickerDeep:__value_upper"/>
       <button data-action="_aioTickerSubmit"
               style="padding:8px 16px;background:var(--data-cyan);color:white;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;transition:0.2s;"
               onmouseover="this.style.background='#3b82f6'" onmouseout="this.style.background='var(--data-cyan)'">
@@ -5868,161 +5992,7 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- ══ SECTION 4.5: 캔들 패턴 갤러리 (Candle Pattern Detection) ═══════ -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;"> 캔들 패턴 갤러리 (실시간 감지)</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
-      <div style="background:linear-gradient(135deg,rgba(0,229,160,0.05),rgba(0,229,160,0.02));border:1px solid rgba(0,229,160,0.2);border-radius:7px;padding:10px;text-align:center;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;">망치형</div>
-        <div style="font-size:12px;margin:8px 0;"></div>
-        <div style="font-size:9px;color:var(--text-muted);">하락 후 긴 아래꼬리. 반등 신호!</div>
-      </div>
-      <div style="background:linear-gradient(135deg,rgba(255,91,80,0.05),rgba(255,91,80,0.02));border:1px solid rgba(255,91,80,0.2);border-radius:7px;padding:10px;text-align:center;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:4px;">교수형</div>
-        <div style="font-size:12px;margin:8px 0;"></div>
-        <div style="font-size:9px;color:var(--text-muted);">상승 후 긴 아래꼬리. 조정 신호!</div>
-      </div>
-      <div style="background:linear-gradient(135deg,rgba(0,229,160,0.05),rgba(0,229,160,0.02));border:1px solid rgba(0,229,160,0.2);border-radius:7px;padding:10px;text-align:center;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;">강세장악형</div>
-        <div style="font-size:12px;margin:8px 0;"></div>
-        <div style="font-size:9px;color:var(--text-muted);">음봉을 큰 양봉이 감싸기</div>
-      </div>
-      <div style="background:linear-gradient(135deg,rgba(0,229,160,0.05),rgba(0,229,160,0.02));border:1px solid rgba(0,229,160,0.2);border-radius:7px;padding:10px;text-align:center;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;">샛별형</div>
-        <div style="font-size:12px;margin:8px 0;"></div>
-        <div style="font-size:9px;color:var(--text-muted);">3일 반전 (바닥)</div>
-      </div>
-      <div style="background:linear-gradient(135deg,rgba(255,91,80,0.05),rgba(255,91,80,0.02));border:1px solid rgba(255,91,80,0.2);border-radius:7px;padding:10px;text-align:center;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:4px;">석별형</div>
-        <div style="font-size:12px;margin:8px 0;"></div>
-        <div style="font-size:9px;color:var(--text-muted);">3일 반전 (천장)</div>
-      </div>
-      <div style="background:linear-gradient(135deg,rgba(168,85,247,0.05),rgba(168,85,247,0.02));border:1px solid rgba(168,85,247,0.2);border-radius:7px;padding:10px;text-align:center;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-purple);margin-bottom:4px;">실시간 감지</div>
-        <div id="realtime-pattern-indicator" style="font-size:18px;margin:6px 0;">종목을 입력하세요</div>
-        <div style="font-size:9px;color:var(--text-muted);">M7 중 패턴</div>
-      </div>
-    </div>
-    <div style="font-size:8px;color:var(--text-muted);padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;line-height:1.6;">
-       각 패턴은 특정 상황에서 강한 신호를 줍니다. 거래량과 이동평균 배열과 함께 확인하면 성공률이 높아집니다.
-    </div>
-  </div>
-
-  <!-- ══ SECTION 4.7: 진입 품질 계산기 (Entry Quality Calculator) ═════════ -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">진입 품질 계산기</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
-      <div>
-        <label for="eq-price" style="font-size:8px;color:var(--text-muted);display:block;margin-bottom:3px;">현재가</label>
-        <input id="eq-price" type="number" placeholder="450.00" step="0.01"
-               style="width:100%;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
-      </div>
-      <div>
-        <label for="eq-ema20" style="font-size:8px;color:var(--text-muted);display:block;margin-bottom:3px;">20일 EMA</label>
-        <input id="eq-ema20" type="number" placeholder="445.00" step="0.01"
-               style="width:100%;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
-      </div>
-      <div>
-        <label for="eq-rsi" style="font-size:8px;color:var(--text-muted);display:block;margin-bottom:3px;">RSI (14)</label>
-        <input id="eq-rsi" type="number" placeholder="55" min="0" max="100"
-               style="width:100%;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
-      </div>
-    </div>
-    <button data-action="calculateEntryQualityLocal"
-            style="width:100%;padding:8px;background:var(--data-cyan);color:white;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;margin-bottom:10px;">
-      계산하기 
-    </button>
-    <div id="entry-quality-result" style="display:none;">
-      <div style="margin-bottom:8px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-          <span style="font-size:9px;color:var(--text-muted);">진입 등급</span>
-          <span id="eq-grade-display" style="font-size:13px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);">입력 대기</span>
-        </div>
-        <div id="eq-grade-bar" style="height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;">
-          <div style="height:100%;background:var(--data-green);width:0%;transition:width 0.3s;"></div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:8px;color:var(--text-muted);">
-        <div style="background:rgba(0,229,160,0.08);padding:6px;border-radius:4px;">
-          <div style="color:var(--text-secondary);margin-bottom:2px;">Fibonacci 38.2%</div>
-          <div id="eq-fib-level" style="font-family:var(--font-mono);font-weight:700;">—</div>
-        </div>
-        <div style="background:rgba(0,212,255,0.08);padding:6px;border-radius:4px;">
-          <div style="color:var(--text-secondary);margin-bottom:2px;">손절가 추천</div>
-          <div id="eq-stoploss" style="font-family:var(--font-mono);font-weight:700;">—</div>
-        </div>
-      </div>
-      <div id="eq-explanation" style="font-size:8px;color:var(--text-muted);padding:8px;background:rgba(255,255,255,0.02);border-radius:4px;margin-top:8px;line-height:1.5;"></div>
-    </div>
-  </div>
-
-  <!-- ══ SECTION 4.8: 위험/보상 계산기 (Risk/Reward Calculator) ═════════ -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;"> 위험/보상 비율 계산기 (R:R Calculator)</div>
-    <div style="font-size:9px;color:var(--text-muted);margin-bottom:10px;">매수 전 반드시 체크! "얼마를 잃을 수 있고, 얼마를 벌 수 있는가?"를 미리 계산합니다</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;">
-      <div>
-        <div style="font-size:8px;color:var(--text-muted);margin-bottom:3px;">진입가 ($)</div>
-        <input id="rr-entry" type="number" step="0.01" placeholder="150.00" aria-label="진입가 입력" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:var(--radius-md);font-size:11px;font-family:var(--font-mono);">
-      </div>
-      <div>
-        <div style="font-size:8px;color:var(--text-muted);margin-bottom:3px;">손절가 ($)</div>
-        <input id="rr-stop" type="number" step="0.01" placeholder="145.00" aria-label="손절가 입력" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:var(--radius-md);font-size:11px;font-family:var(--font-mono);">
-      </div>
-      <div>
-        <div style="font-size:8px;color:var(--text-muted);margin-bottom:3px;">투자금 ($)</div>
-        <input id="rr-capital" type="number" step="100" placeholder="10000" value="10000" aria-label="투자금 입력" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:var(--radius-md);font-size:11px;font-family:var(--font-mono);">
-      </div>
-      <button data-action="calculateRR" class="btn-cta">계산 ▶</button>
-    </div>
-    <div id="rr-result" style="display:none;margin-top:12px;">
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
-        <div style="text-align:center;padding:8px;background:rgba(255,91,80,0.06);border:1px solid rgba(255,91,80,0.2);border-radius:6px;">
-          <div style="font-size:9px;color:var(--data-red);">위험 (1R)</div>
-          <div id="rr-risk" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);">—</div>
-        </div>
-        <div style="text-align:center;padding:8px;background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);border-radius:6px;">
-          <div style="font-size:9px;color:var(--data-green);">목표 1R</div>
-          <div id="rr-1r" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</div>
-        </div>
-        <div style="text-align:center;padding:8px;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.25);border-radius:6px;">
-          <div style="font-size:9px;color:var(--data-green);">목표 2R</div>
-          <div id="rr-2r" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</div>
-        </div>
-        <div style="text-align:center;padding:8px;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);border-radius:6px;">
-          <div style="font-size:9px;color:var(--data-green);">목표 3R</div>
-          <div id="rr-3r" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</div>
-        </div>
-      </div>
-      <!-- Visual R:R bar -->
-      <div style="position:relative;height:24px;background:rgba(255,255,255,0.03);border-radius:12px;overflow:hidden;margin-bottom:8px;">
-        <div id="rr-risk-bar" style="position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--data-red),#ef4444);border-radius:12px 0 0 12px;transition:width 0.3s;"></div>
-        <div id="rr-reward-bar" style="position:absolute;top:0;height:100%;background:linear-gradient(90deg,var(--data-green),#10b981);border-radius:0 12px 12px 0;transition:left 0.3s,width 0.3s;"></div>
-        <div style="position:absolute;width:100%;text-align:center;top:4px;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.5);" id="rr-ratio-text">—</div>
-      </div>
-      <!-- Position sizing -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:8px;">
-          <div style="font-size:8px;color:var(--text-muted);">포지션 사이즈 (2% 룰)</div>
-          <div id="rr-position" style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:var(--text-primary);">—</div>
-          <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">총 자산의 2%만 위험에 노출</div>
-        </div>
-        <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:8px;">
-          <div style="font-size:8px;color:var(--text-muted);">매수 수량</div>
-          <div id="rr-shares" style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:var(--text-primary);">—</div>
-          <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">손절 시 손실 = 투자금의 2%</div>
-        </div>
-      </div>
-    </div>
-    <div class="beginner-tip collapsed" style="margin-top:10px;">
-      <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 2% 룰이란?</div>
-      <div class="insight-explain-body">
-        프로 트레이더의 철칙: <b>한 번의 매매에서 총 자산의 2% 이상 잃지 마라!</b><br>
-        예: 자산 $10,000 → 최대 손실 $200 → 손절폭이 $5면 → 최대 40주만 매수<br>
-        이 규칙만 지키면 50번 연속 틀려도 자산의 64%가 남습니다. 생존이 최우선!
-      </div>
-    </div>
-  </div>
+  <!-- v48.47: SECTION 4.5 캔들 + 4.7 진입품질 → Ticker 페이지로 이동, 4.8 R:R → Portfolio 페이지로 이동 -->
 
   <!-- ══ SECTION 4: 12가지 매매 셋업 (screener_pro 통합) ══════════ -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
@@ -6811,6 +6781,54 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
+  <!-- ══ v48.50: CROSS-ASSET MATRIX — FX × Bond × Credit 유기적 통합 대시보드 ══ -->
+  <div style="background:linear-gradient(135deg,rgba(168,85,247,0.05),rgba(0,212,255,0.03));border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">
+        Cross-Asset 신호 매트릭스
+        <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="Cross-Asset 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">Cross-Asset이란?</span>달러(DXY) · 10Y 국채 · 하이일드 스프레드 3축이 <strong>같은 방향</strong>이면 강한 신호. 엇갈리면 레짐 전환 가능. 예: DXY↑ + 10Y↑ + HY스프레드↑ = <strong>Risk-Off 확정</strong>.</span></span>
+      </div>
+      <span style="font-size:9px;color:var(--text-muted);font-family:var(--font-mono);">4축 · _liveData 동기화</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;">
+        <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:3px;letter-spacing:0.08em;">달러 (DXY)</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <span id="cam-dxy-val" style="font-size:17px;font-weight:800;font-family:var(--font-mono);" data-live-price="DX-Y.NYB">—</span>
+          <span id="cam-dxy-chg" style="font-size:10px;font-weight:700;" data-live-chg="DX-Y.NYB">—</span>
+        </div>
+        <div id="cam-dxy-signal" style="font-size:9px;color:var(--text-muted);margin-top:3px;">판정: —</div>
+      </div>
+      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;">
+        <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:3px;letter-spacing:0.08em;">10Y 국채 수익률</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <span id="cam-10y-val" style="font-size:17px;font-weight:800;font-family:var(--font-mono);" data-live-price="^TNX">—</span>
+          <span id="cam-10y-chg" style="font-size:10px;font-weight:700;" data-live-chg="^TNX">—</span>
+        </div>
+        <div id="cam-10y-signal" style="font-size:9px;color:var(--text-muted);margin-top:3px;">판정: —</div>
+      </div>
+      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;">
+        <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:3px;letter-spacing:0.08em;">2Y-10Y 스프레드</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <span id="cam-yieldspread-val" style="font-size:17px;font-weight:800;font-family:var(--font-mono);">—</span>
+          <span style="font-size:10px;color:var(--text-muted);">bp</span>
+        </div>
+        <div id="cam-yieldspread-signal" style="font-size:9px;color:var(--text-muted);margin-top:3px;">곡선: —</div>
+      </div>
+      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;">
+        <div style="font-size:9px;color:var(--text-muted);font-weight:700;margin-bottom:3px;letter-spacing:0.08em;">크레딧 (HYG)</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <span id="cam-hyg-val" style="font-size:17px;font-weight:800;font-family:var(--font-mono);" data-live-price="HYG">—</span>
+          <span id="cam-hyg-chg" style="font-size:10px;font-weight:700;" data-live-chg="HYG">—</span>
+        </div>
+        <div id="cam-hyg-signal" style="font-size:9px;color:var(--text-muted);margin-top:3px;">판정: —</div>
+      </div>
+    </div>
+    <div id="cam-verdict" style="margin-top:10px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--text-secondary);line-height:1.6;">
+      <strong style="color:var(--data-amber);">통합 판정:</strong> <span id="cam-verdict-text">데이터 로딩 중 — 4축 정렬 확인 필요</span>
+    </div>
+  </div>
+
   <!-- ══ SECTION A: 달러 인덱스 & 주요 외환 ══════════════════════ -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
@@ -7534,7 +7552,7 @@ body.light-theme canvas { filter:none; }
     <!-- Ticker Search -->
     <div class="data-widget" style="margin-bottom:14px;">
       <div style="display:flex;gap:8px;align-items:center;">
-        <input id="fund-search-input" aria-label="기업 분석 종목 티커 입력" style="flex:1;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-weight:600;" placeholder="종목 티커 입력 (예: NVDA, AAPL, TSLA, MSFT)..." onkeydown="if(event.key==='Enter')fundamentalSearch()"/>
+        <input id="fund-search-input" aria-label="기업 분석 종목 티커 입력" style="flex:1;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-weight:600;" placeholder="종목 티커 입력 (예: NVDA, AAPL, TSLA, MSFT)..." data-on-enter="fundamentalSearch"/>
         <button class="tb-btn primary" style="padding:10px 20px;font-size:12px;font-weight:700;" data-action="fundamentalSearch">기업 분석</button>
       </div>
       <div style="font-size:9px;color:var(--text-muted);margin-top:6px;">S&P 500 · NASDAQ · 다우 30 · Russell 2000 전 종목 | 검색 시 SEC 공시 + 재무제표 + 실시간 시세를 자동 수집하여 AI에 전달합니다</div>
@@ -7745,6 +7763,49 @@ body.light-theme canvas { filter:none; }
         <span style="color:var(--data-cyan);"> 개선(Improving)</span>
         <span style="color:var(--data-amber);"> 약화(Weakening)</span>
         <span style="color:var(--data-red);"> 후행(Lagging)</span>
+      </div>
+    </div>
+
+    <!-- ══ v48.50: M7 리더십 + 섹터 ETF 라이브 히트맵 (technical/breadth 이전) ══ -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:12px;font-weight:700;color:var(--text-secondary);">
+          시장 리더십 라이브
+          <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="시장 리더십 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">리더십이란?</span>Magnificent 7(AAPL·MSFT·NVDA·GOOGL·AMZN·META·TSLA)의 일간 등락과 GICS 11섹터 ETF 히트맵. <strong>5/7 이상 상승</strong>이면 기술 주도, 섹터 분산도 ≥4 녹색이면 breadth 양호.</span></span>
+        </span>
+        <span style="font-size:9px;color:var(--text-muted);font-family:var(--font-mono);">실시간 _liveData 동기화</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px;">
+        <div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:5px;font-weight:600;">Magnificent 7 리더십</div>
+          <div id="themes-m7-mirror" class="m7-leadership-row" style="display:flex;gap:4px;flex-wrap:wrap;min-height:16px;"></div>
+          <div style="font-size:9px;color:var(--text-muted);margin-top:6px;line-height:1.5;"> 녹색: +0.5%↑ · 황색: 보합 · 적색: -0.5%↓</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:5px;font-weight:600;">마켓 폭 (섹터 상승 비율)</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="flex:1;height:8px;background:var(--surface-4);border-radius:4px;overflow:hidden;">
+              <div id="themes-breadth-bar" class="breadth-bar-sync" style="height:100%;background:var(--data-green);width:50%;transition:width 0.5s;"></div>
+            </div>
+            <div id="themes-breadth-pct" class="breadth-pct-sync" style="font-size:11px;font-weight:700;font-family:var(--font-mono);color:var(--text-secondary);width:40px;">—</div>
+          </div>
+          <div style="font-size:9px;color:var(--text-muted);margin-top:6px;line-height:1.5;">50MA 위 섹터 ETF 비율 · 60%↑ 건강, 30%↓ 경보</div>
+        </div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:5px;">섹터 ETF 라이브 등락</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;" id="themes-sector-mirror">
+        <div class="sec-tile" data-sym="XLK"><div class="sec-sym">XLK</div><div class="sec-name">기술주</div><div class="sec-chg" data-live-chg="XLK">—</div></div>
+        <div class="sec-tile" data-sym="XLF"><div class="sec-sym">XLF</div><div class="sec-name">금융</div><div class="sec-chg" data-live-chg="XLF">—</div></div>
+        <div class="sec-tile" data-sym="XLE"><div class="sec-sym">XLE</div><div class="sec-name">에너지</div><div class="sec-chg" data-live-chg="XLE">—</div></div>
+        <div class="sec-tile" data-sym="XLV"><div class="sec-sym">XLV</div><div class="sec-name">헬스케어</div><div class="sec-chg" data-live-chg="XLV">—</div></div>
+        <div class="sec-tile" data-sym="XLI"><div class="sec-sym">XLI</div><div class="sec-name">산업재</div><div class="sec-chg" data-live-chg="XLI">—</div></div>
+        <div class="sec-tile" data-sym="XLY"><div class="sec-sym">XLY</div><div class="sec-name">소비재</div><div class="sec-chg" data-live-chg="XLY">—</div></div>
+        <div class="sec-tile" data-sym="XLP"><div class="sec-sym">XLP</div><div class="sec-name">필수소비재</div><div class="sec-chg" data-live-chg="XLP">—</div></div>
+        <div class="sec-tile" data-sym="XLRE"><div class="sec-sym">XLRE</div><div class="sec-name">부동산</div><div class="sec-chg" data-live-chg="XLRE">—</div></div>
+        <div class="sec-tile" data-sym="XLB"><div class="sec-sym">XLB</div><div class="sec-name">원자재</div><div class="sec-chg" data-live-chg="XLB">—</div></div>
+        <div class="sec-tile" data-sym="XLU"><div class="sec-sym">XLU</div><div class="sec-name">유틸리티</div><div class="sec-chg" data-live-chg="XLU">—</div></div>
+        <div class="sec-tile" data-sym="XLC"><div class="sec-sym">XLC</div><div class="sec-name">통신서비스</div><div class="sec-chg" data-live-chg="XLC">—</div></div>
+        <div class="sec-tile" data-sym="GLD"><div class="sec-sym">GLD</div><div class="sec-name">금 (Gold)</div><div class="sec-chg" data-live-chg="GLD">—</div></div>
       </div>
     </div>
 
@@ -7966,7 +8027,7 @@ body.light-theme canvas { filter:none; }
       </div>
       <div class="acp-input-row">
         <input id="chat-theme-detail-inp" placeholder="질문을 입력하세요..."
-               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSend('theme-detail')}"/>
+               data-on-enter="chatSend:theme-detail"/>
         <button id="chat-theme-detail-btn" data-action="chatSend" data-arg="theme-detail">전송 ▶</button>
       </div>
     </div>
@@ -8056,7 +8117,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:32px;margin-bottom:12px;"></div>
       <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">포트폴리오 잠금</div>
       <div style="font-size:9px;color:var(--text-muted);margin-bottom:16px;">PIN 4자리를 입력하세요. 데이터는 브라우저에만 저장됩니다.</div>
-      <input id="pf-pin-input" type="password" maxlength="4" aria-label="포트폴리오 PIN 입력" pattern="[0-9]*" inputmode="numeric" placeholder="••••" style="width:120px;text-align:center;font-size:20px;letter-spacing:8px;background:rgba(255,255,255,0.05);border:2px solid var(--accent-border);border-radius:8px;padding:10px;color:var(--text-primary);outline:none;" onkeydown="if(event.key==='Enter')unlockPortfolio()">
+      <input id="pf-pin-input" type="password" maxlength="4" aria-label="포트폴리오 PIN 입력" pattern="[0-9]*" inputmode="numeric" placeholder="••••" style="width:120px;text-align:center;font-size:20px;letter-spacing:8px;background:rgba(255,255,255,0.05);border:2px solid var(--accent-border);border-radius:8px;padding:10px;color:var(--text-primary);outline:none;" data-on-enter="unlockPortfolio">
       <br>
       <button class="tb-btn primary" data-action="unlockPortfolio" style="margin-top:12px;font-size:10px;">잠금 해제</button>
       <div style="margin-top:12px;">
@@ -8112,7 +8173,7 @@ body.light-theme canvas { filter:none; }
       </div>
       <!-- 섹터 브레이크다운 -->
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
-        <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">섹터 배분</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">섹터 배분<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="섹터 배분 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">섹터 분산 기준</span>단일 섹터 &lt;40% 권장. <strong>Tech 50%+</strong>은 금리 민감도 과다. Defensive(헬스케어·생필품) 10~20% 혼합이 Sharpe 개선. 섹터 ETF 비교 → ETF는 별도 섹터로 간주.</span></span></div>
         <div id="pf-sector-breakdown" style="padding:4px 0;font-size:12px;">포지션을 추가하면 섹터별 비중이 표시됩니다</div>
       </div>
     </div>
@@ -8127,6 +8188,82 @@ body.light-theme canvas { filter:none; }
       <div style="margin-top:8px;font-size:9px;color:var(--text-muted);display:flex;gap:16px;align-items:center;">
         <span> 내 포트폴리오</span><span> SPY (S&P 500)</span>
         <span style="margin-left:auto;font-size:8px;color:var(--text-muted);opacity:0.7;">※ 현재 총수익률 기준 선형 추정 — 실제 일별 수익률과 다를 수 있음</span>
+      </div>
+    </div>
+
+    <!-- ══ v48.47: 위험/보상 계산기 (포지션 연동) — from technical ══ -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">
+          위험/보상 비율 계산기 (R:R Calculator)
+          <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="R:R 비율 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">R:R 비율이란?</span>진입가 대비 손절(위험)과 목표가(보상)의 비율. <strong>최소 1:2 이상</strong>을 추구. 승률 40%라도 R:R 3:1이면 기대값 양수. <strong>2% 룰</strong>과 함께 사용하면 파산 확률 최소화.</span></span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <select id="rr-position-select" aria-label="보유 포지션에서 가져오기" data-on-change="_aioRRFillFromPosition" style="background:var(--surface-4);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-size:9px;padding:4px 8px;font-family:var(--font-mono);min-width:120px;">
+            <option value="">포지션에서 자동 입력...</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--text-muted);margin-bottom:10px;">매수 전 반드시 체크! "얼마를 잃을 수 있고, 얼마를 벌 수 있는가?"를 미리 계산합니다. 보유 종목 선택 시 단가가 자동 입력됩니다.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;">
+        <div>
+          <div style="font-size:8px;color:var(--text-muted);margin-bottom:3px;">진입가 ($)</div>
+          <input id="rr-entry" type="number" step="0.01" placeholder="150.00" aria-label="진입가 입력" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:var(--radius-md);font-size:11px;font-family:var(--font-mono);">
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--text-muted);margin-bottom:3px;">손절가 ($)</div>
+          <input id="rr-stop" type="number" step="0.01" placeholder="145.00" aria-label="손절가 입력" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:var(--radius-md);font-size:11px;font-family:var(--font-mono);">
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--text-muted);margin-bottom:3px;">투자금 ($)</div>
+          <input id="rr-capital" type="number" step="100" placeholder="10000" value="10000" aria-label="투자금 입력" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:var(--radius-md);font-size:11px;font-family:var(--font-mono);">
+        </div>
+        <button data-action="calculateRR" class="btn-cta">계산 ▶</button>
+      </div>
+      <div id="rr-result" style="display:none;margin-top:12px;">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
+          <div style="text-align:center;padding:8px;background:rgba(255,91,80,0.06);border:1px solid rgba(255,91,80,0.2);border-radius:6px;">
+            <div style="font-size:9px;color:var(--data-red);">위험 (1R)</div>
+            <div id="rr-risk" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);">—</div>
+          </div>
+          <div style="text-align:center;padding:8px;background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);border-radius:6px;">
+            <div style="font-size:9px;color:var(--data-green);">목표 1R</div>
+            <div id="rr-1r" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</div>
+          </div>
+          <div style="text-align:center;padding:8px;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.25);border-radius:6px;">
+            <div style="font-size:9px;color:var(--data-green);">목표 2R</div>
+            <div id="rr-2r" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</div>
+          </div>
+          <div style="text-align:center;padding:8px;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);border-radius:6px;">
+            <div style="font-size:9px;color:var(--data-green);">목표 3R</div>
+            <div id="rr-3r" style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</div>
+          </div>
+        </div>
+        <div style="position:relative;height:24px;background:rgba(255,255,255,0.03);border-radius:12px;overflow:hidden;margin-bottom:8px;">
+          <div id="rr-risk-bar" style="position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--data-red),#ef4444);border-radius:12px 0 0 12px;transition:width 0.3s;"></div>
+          <div id="rr-reward-bar" style="position:absolute;top:0;height:100%;background:linear-gradient(90deg,var(--data-green),#10b981);border-radius:0 12px 12px 0;transition:left 0.3s,width 0.3s;"></div>
+          <div style="position:absolute;width:100%;text-align:center;top:4px;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.5);" id="rr-ratio-text">—</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:8px;">
+            <div style="font-size:8px;color:var(--text-muted);">포지션 사이즈 (2% 룰)</div>
+            <div id="rr-position" style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:var(--text-primary);">—</div>
+            <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">총 자산의 2%만 위험에 노출</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:8px;">
+            <div style="font-size:8px;color:var(--text-muted);">매수 수량</div>
+            <div id="rr-shares" style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:var(--text-primary);">—</div>
+            <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">손절 시 손실 = 투자금의 2%</div>
+          </div>
+        </div>
+      </div>
+      <div class="beginner-tip collapsed" style="margin-top:10px;">
+        <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 2% 룰이란?</div>
+        <div class="insight-explain-body">
+          프로 트레이더의 철칙: <b>한 번의 매매에서 총 자산의 2% 이상 잃지 마라!</b><br>
+          예: 자산 $10,000 → 최대 손실 $200 → 손절폭이 $5면 → 최대 40주만 매수<br>
+          이 규칙만 지키면 50번 연속 틀려도 자산의 64%가 남습니다. 생존이 최우선!
+        </div>
       </div>
     </div>
 
@@ -8206,8 +8343,8 @@ body.light-theme canvas { filter:none; }
       <!-- 워치리스트 종목 추가 -->
       <div id="wl-add-row" style="display:none;padding:6px 12px 8px;border-top:1px solid var(--border);">
         <div style="display:flex;gap:6px;align-items:center;">
-          <input id="wl-add-ticker" type="text" placeholder="티커 입력 (예: AAPL)" aria-label="관심종목 티커 입력" style="width:100px;padding:5px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;font-family:var(--font-mono);text-transform:uppercase;" onkeydown="if(event.key==='Enter')addToWatchlist()">
-          <input id="wl-add-note" type="text" placeholder="메모 (선택)" aria-label="관심종목 메모 입력" style="width:140px;padding:5px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;" onkeydown="if(event.key==='Enter')addToWatchlist()">
+          <input id="wl-add-ticker" type="text" placeholder="티커 입력 (예: AAPL)" aria-label="관심종목 티커 입력" style="width:100px;padding:5px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;font-family:var(--font-mono);text-transform:uppercase;" data-on-enter="addToWatchlist">
+          <input id="wl-add-note" type="text" placeholder="메모 (선택)" aria-label="관심종목 메모 입력" style="width:140px;padding:5px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;" data-on-enter="addToWatchlist">
           <button class="tb-btn primary" data-action="addToWatchlist" style="font-size:9px;padding:5px 12px;">추가</button>
         </div>
       </div>
@@ -8368,6 +8505,95 @@ body.light-theme canvas { filter:none; }
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ══ v48.47: 캔들 패턴 갤러리 (Ticker 전용 실시간 감지) — from technical ══ -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:12px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">캔들 패턴 갤러리 (<span id="ticker-candle-symbol" style="color:var(--data-cyan);font-family:var(--font-mono);">—</span> 실시간)</div>
+        <button class="tb-btn" data-action="_aioDetectTickerPattern" style="font-size:9px;">패턴 감지 ↻</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
+        <div style="background:linear-gradient(135deg,rgba(0,229,160,0.05),rgba(0,229,160,0.02));border:1px solid rgba(0,229,160,0.2);border-radius:7px;padding:10px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;">망치형</div>
+          <div style="font-size:9px;color:var(--text-muted);">하락 후 긴 아래꼬리. 반등 신호</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(255,91,80,0.05),rgba(255,91,80,0.02));border:1px solid rgba(255,91,80,0.2);border-radius:7px;padding:10px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:4px;">교수형</div>
+          <div style="font-size:9px;color:var(--text-muted);">상승 후 긴 아래꼬리. 조정 신호</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(0,229,160,0.05),rgba(0,229,160,0.02));border:1px solid rgba(0,229,160,0.2);border-radius:7px;padding:10px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;">강세장악형</div>
+          <div style="font-size:9px;color:var(--text-muted);">음봉을 큰 양봉이 감싸기</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(0,229,160,0.05),rgba(0,229,160,0.02));border:1px solid rgba(0,229,160,0.2);border-radius:7px;padding:10px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;">샛별형</div>
+          <div style="font-size:9px;color:var(--text-muted);">3일 반전 (바닥)</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(255,91,80,0.05),rgba(255,91,80,0.02));border:1px solid rgba(255,91,80,0.2);border-radius:7px;padding:10px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:var(--data-red);margin-bottom:4px;">석별형</div>
+          <div style="font-size:9px;color:var(--text-muted);">3일 반전 (천장)</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(168,85,247,0.05),rgba(168,85,247,0.02));border:1px solid rgba(168,85,247,0.2);border-radius:7px;padding:10px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:var(--data-purple);margin-bottom:4px;">실시간 감지</div>
+          <div id="realtime-pattern-indicator" style="font-size:13px;margin:6px 0;font-weight:700;color:var(--text-primary);">종목 검색 필요</div>
+          <div style="font-size:9px;color:var(--text-muted);">최근 3봉</div>
+        </div>
+      </div>
+      <div style="font-size:8px;color:var(--text-muted);padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;line-height:1.6;">
+        각 패턴은 특정 상황에서 강한 신호를 줍니다. 거래량과 이동평균 배열과 함께 확인하면 성공률이 높아집니다.
+      </div>
+    </div>
+
+    <!-- ══ v48.47: 진입 품질 계산기 — from technical ══ -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">진입 품질 계산기 (<span id="ticker-entry-symbol" style="color:var(--data-cyan);font-family:var(--font-mono);">—</span>)</div>
+        <button class="tb-btn" data-action="_aioFillEntryFromTicker" style="font-size:9px;">현재가 자동 입력 ↻</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
+        <div>
+          <label for="eq-price" style="font-size:8px;color:var(--text-muted);display:block;margin-bottom:3px;">현재가</label>
+          <input id="eq-price" type="number" placeholder="450.00" step="0.01"
+                 style="width:100%;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
+        </div>
+        <div>
+          <label for="eq-ema20" style="font-size:8px;color:var(--text-muted);display:block;margin-bottom:3px;">20일 EMA</label>
+          <input id="eq-ema20" type="number" placeholder="445.00" step="0.01"
+                 style="width:100%;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
+        </div>
+        <div>
+          <label for="eq-rsi" style="font-size:8px;color:var(--text-muted);display:block;margin-bottom:3px;">RSI (14)</label>
+          <input id="eq-rsi" type="number" placeholder="55" min="0" max="100"
+                 style="width:100%;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
+        </div>
+      </div>
+      <button data-action="calculateEntryQualityLocal"
+              style="width:100%;padding:8px;background:var(--data-cyan);color:white;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;margin-bottom:10px;">
+        계산하기
+      </button>
+      <div id="entry-quality-result" style="display:none;">
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:9px;color:var(--text-muted);">진입 등급</span>
+            <span id="eq-grade-display" style="font-size:13px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);">입력 대기</span>
+          </div>
+          <div id="eq-grade-bar" style="height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;background:var(--data-green);width:0%;transition:width 0.3s;"></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:8px;color:var(--text-muted);">
+          <div style="background:rgba(0,229,160,0.08);padding:6px;border-radius:4px;">
+            <div style="color:var(--text-secondary);margin-bottom:2px;">Fibonacci 38.2%</div>
+            <div id="eq-fib-level" style="font-family:var(--font-mono);font-weight:700;">—</div>
+          </div>
+          <div style="background:rgba(0,212,255,0.08);padding:6px;border-radius:4px;">
+            <div style="color:var(--text-secondary);margin-bottom:2px;">손절가 추천</div>
+            <div id="eq-stoploss" style="font-family:var(--font-mono);font-weight:700;">—</div>
+          </div>
+        </div>
+        <div id="eq-explanation" style="font-size:8px;color:var(--text-muted);padding:8px;background:rgba(255,255,255,0.02);border-radius:4px;margin-top:8px;line-height:1.5;"></div>
       </div>
     </div>
   </div>
@@ -10341,7 +10567,7 @@ body.light-theme canvas { filter:none; }
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">TradingView 한국 종목 차트</div>
       <div style="display:flex;gap:6px;">
-        <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" style="width:120px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" onkeydown="if(event.key==='Enter')loadTVChart('kr')" />
+        <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" style="width:120px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" data-on-enter="loadTVChart:kr" />
         <button data-action="loadTVChart" data-arg="kr" class="tb-btn" style="font-size:10px;">차트 로드</button>
       </div>
     </div>
@@ -10490,7 +10716,7 @@ body.light-theme canvas { filter:none; }
       <div style="display:flex;gap:8px;margin-bottom:8px;">
         <input id="kr-ticker-analysis-input" type="text" placeholder="종목코드 입력 (005930, 000660, 035720 등)"
                style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;"
-               onkeydown="if(event.key==='Enter'){var t=this.value.trim();if(/^\d{6}$/.test(t))t+='.KS';analyzeKrTickerDeep(t);}"/>
+               data-on-enter="analyzeKrTickerDeep:__value_kr"/>
         <button data-action="_aioKrTickerSubmit"
                 style="padding:8px 16px;background:#ef4444;color:white;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;">
           분석 
@@ -11981,6 +12207,8 @@ function renderPortfolio() {
   const ld = window._liveData || {};
   const tbody = document.getElementById('pf-positions-tbody');
   if (!tbody) return;
+  // v48.47: R:R 계산기 포지션 드롭다운 동기화
+  try { if (typeof window._aioRRPopulateSelect === 'function') window._aioRRPopulateSelect(); } catch(_){}
 
   if (positions.length === 0) {
     // v48.3: 빈 상태 안내 강화 — 폰트 크기 상향 + 명확한 3단계 가이드
@@ -20594,20 +20822,50 @@ function updateRiskMonitor() {
   }
 
   // v38.8: Risk Heatmap CP1/CP6 data-snap 동적 업데이트
+  // v48.51: NARRATIVE_ENGINE 실시간 바인딩 — CP1~CP8 stale 데이터 자동 갱신
   var wti = ld['CL=F'] ? ld['CL=F'].price : null;
   var brent = ld['BZ=F'] ? ld['BZ=F'].price : null;
   var gold = ld['GC=F'] ? ld['GC=F'].price : null;
+  var vix = ld['^VIX'] ? ld['^VIX'].price : null;
+  var vvix = ld['^VVIX'] ? ld['^VVIX'].price : null;
+  var move = ld['^MOVE'] ? ld['^MOVE'].price : null;
+  var spx = ld['^GSPC'] ? ld['^GSPC'].price : null;
   var snapWti = document.querySelectorAll('[data-snap="wti"]');
   var snapBrent = document.querySelectorAll('[data-snap="brent"]');
   var snapGold = document.querySelectorAll('[data-snap="gold"]');
   if (wti) snapWti.forEach(function(el) { el.textContent = '$' + wti.toFixed(0); });
   if (brent) snapBrent.forEach(function(el) { el.textContent = '$' + brent.toFixed(0); });
   if (gold) snapGold.forEach(function(el) { el.textContent = '$' + gold.toLocaleString('en-US', {maximumFractionDigits:0}); });
+  if (vix != null) document.querySelectorAll('[data-snap="vix"]').forEach(function(el){ el.textContent = vix.toFixed(1); });
+  if (vvix != null) document.querySelectorAll('[data-snap="vvix"]').forEach(function(el){ el.textContent = vvix.toFixed(1); });
+  if (move != null) document.querySelectorAll('[data-snap="move"]').forEach(function(el){ el.textContent = move.toFixed(1); });
+  if (spx != null) document.querySelectorAll('[data-snap="spx"]').forEach(function(el){ el.textContent = spx.toLocaleString('en-US', {maximumFractionDigits:0}); });
+
+  // 내러티브 stale 일수 자동 계산 (data-snap-date + sibling [id$="-stale-days"])
+  try {
+    var today = Date.now();
+    document.querySelectorAll('[data-snap-date]').forEach(function(sd) {
+      var dateStr = sd.textContent || sd.getAttribute('data-snap-date-value');
+      var key = sd.getAttribute('data-snap-date');
+      if (!dateStr || !key) return;
+      var parts = dateStr.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (!parts) return;
+      var d = new Date(+parts[1], +parts[2]-1, +parts[3]).getTime();
+      var days = Math.floor((today - d) / 86400000);
+      var targetId = key + '-stale-days';
+      var target = document.getElementById(targetId);
+      if (!target) return;
+      var warn = days > 30 ? ' ⚠' : days > 14 ? ' (확인 필요)' : '';
+      target.textContent = 'D+' + days + '일' + warn;
+      target.style.color = days > 30 ? 'var(--data-red)' : days > 14 ? 'var(--data-amber)' : 'var(--text-muted)';
+    });
+  } catch(_e){}
 }
 
 // ── Update Sector Heatmap Colors ──────────────────────────────────
+// v48.50: #sector-heatmap + #themes-sector-mirror 동시 업데이트
 function updateSectorHeatmap() {
-  document.querySelectorAll('#sector-heatmap .sec-tile').forEach(function(tile) {
+  document.querySelectorAll('#sector-heatmap .sec-tile, #themes-sector-mirror .sec-tile').forEach(function(tile) {
     var sym = tile.dataset.sym;
     var chgEl = tile.querySelector('.sec-chg');
     if (!chgEl) return;
@@ -21525,7 +21783,81 @@ var _origUpdateFxBond = updateFxBondPage;
 updateFxBondPage = function() {
   _origUpdateFxBond();
   try { generateFxBondCommentary(); } catch(e) { _aioLog('warn', 'render', 'FXBond commentary error: ' + (e && e.message || e)); }
+  try { updateCrossAssetMatrix(); } catch(e) { _aioLog('warn', 'render', 'CAM error: ' + (e && e.message || e)); }
 };
+
+// v48.50: Cross-Asset Matrix — 4축 정렬 판정 (FX × Yield × Credit)
+function updateCrossAssetMatrix() {
+  var ld = window._liveData || {};
+  var dxy = ld['DX-Y.NYB'] || {};
+  var y10 = ld['^TNX'] || {};
+  var y2 = ld['^IRX'] || ld['^FVX'] || {};
+  var hyg = ld['HYG'] || {};
+
+  // DXY 판정
+  var dxyPct = dxy.pct;
+  var dxySignalEl = document.getElementById('cam-dxy-signal');
+  if (dxySignalEl) {
+    if (dxyPct == null) dxySignalEl.textContent = '판정: —';
+    else if (dxyPct >= 0.3) { dxySignalEl.textContent = '판정: 달러 강세 (Risk-Off 압력)'; dxySignalEl.style.color = 'var(--data-red)'; }
+    else if (dxyPct <= -0.3) { dxySignalEl.textContent = '판정: 달러 약세 (Risk-On)'; dxySignalEl.style.color = 'var(--data-green)'; }
+    else { dxySignalEl.textContent = '판정: 중립 보합'; dxySignalEl.style.color = 'var(--text-muted)'; }
+  }
+
+  // 10Y 판정
+  var y10Val = y10.price;
+  var y10SigEl = document.getElementById('cam-10y-signal');
+  if (y10SigEl) {
+    if (y10Val == null) y10SigEl.textContent = '판정: —';
+    else if (y10Val >= 4.7) { y10SigEl.textContent = '판정: 금리 상방 (주식 압박)'; y10SigEl.style.color = 'var(--data-red)'; }
+    else if (y10Val <= 3.5) { y10SigEl.textContent = '판정: 금리 하방 (Growth 유리)'; y10SigEl.style.color = 'var(--data-green)'; }
+    else { y10SigEl.textContent = '판정: 레인지 중립'; y10SigEl.style.color = 'var(--text-muted)'; }
+  }
+
+  // 2Y-10Y 곡선 (장단 스프레드)
+  var spreadEl = document.getElementById('cam-yieldspread-val');
+  var spreadSigEl = document.getElementById('cam-yieldspread-signal');
+  var spreadBp = null;
+  if (y2.price != null && y10Val != null) {
+    spreadBp = Math.round((y10Val - y2.price) * 100);
+    if (spreadEl) spreadEl.textContent = (spreadBp >= 0 ? '+' : '') + spreadBp;
+    if (spreadSigEl) {
+      if (spreadBp < -20) { spreadSigEl.textContent = '곡선: 역전 (경기 침체 선행)'; spreadSigEl.style.color = 'var(--data-red)'; }
+      else if (spreadBp < 20) { spreadSigEl.textContent = '곡선: 평탄화 경계'; spreadSigEl.style.color = 'var(--data-amber)'; }
+      else { spreadSigEl.textContent = '곡선: 정상 (스티프닝)'; spreadSigEl.style.color = 'var(--data-green)'; }
+    }
+  } else if (spreadEl) {
+    spreadEl.textContent = '—';
+  }
+
+  // HYG 판정
+  var hygPct = hyg.pct;
+  var hygSigEl = document.getElementById('cam-hyg-signal');
+  if (hygSigEl) {
+    if (hygPct == null) hygSigEl.textContent = '판정: —';
+    else if (hygPct >= 0.3) { hygSigEl.textContent = '판정: 크레딧 확장 (Risk-On)'; hygSigEl.style.color = 'var(--data-green)'; }
+    else if (hygPct <= -0.3) { hygSigEl.textContent = '판정: 크레딧 위축 (Risk-Off)'; hygSigEl.style.color = 'var(--data-red)'; }
+    else { hygSigEl.textContent = '판정: 중립 보합'; hygSigEl.style.color = 'var(--text-muted)'; }
+  }
+
+  // 통합 판정
+  var verdictEl = document.getElementById('cam-verdict-text');
+  if (verdictEl) {
+    var bullScore = 0, bearScore = 0, available = 0;
+    if (dxyPct != null) { available++; if (dxyPct <= -0.3) bullScore++; else if (dxyPct >= 0.3) bearScore++; }
+    if (y10Val != null) { available++; if (y10Val <= 3.5) bullScore++; else if (y10Val >= 4.7) bearScore++; }
+    if (hygPct != null) { available++; if (hygPct >= 0.3) bullScore++; else if (hygPct <= -0.3) bearScore++; }
+    if (spreadBp != null) { available++; if (spreadBp >= 20) bullScore++; else if (spreadBp < -20) bearScore++; }
+    var txt;
+    if (available === 0) txt = '데이터 부족 — _liveData 로딩 대기';
+    else if (bullScore >= 3) txt = 'Risk-On 정렬 (' + bullScore + '/' + available + ') — Equity/Credit 비중 확대 유리';
+    else if (bearScore >= 3) txt = 'Risk-Off 정렬 (' + bearScore + '/' + available + ') — 방어형 · TLT/Cash/Gold 선호';
+    else if (bullScore > bearScore) txt = '약한 Risk-On 기조 — 선별 종목 위주, Beta 조절';
+    else if (bearScore > bullScore) txt = '약한 Risk-Off 압력 — Credit/FX 균열 관찰';
+    else txt = '혼조 — 단일 축 과잉 해석 금물, 단기 레인지';
+    verdictEl.textContent = txt;
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════
 //  FUNDAMENTAL PAGE — Live Data + Earnings Calendar 
@@ -25585,8 +25917,10 @@ document.addEventListener('keydown', function(e) {
       var title = chg !== null ? (t + ' ' + (chg > 0 ? '+' : '') + chg.toFixed(2) + '%') : (t + ' —');
       m7html += '<span title="' + title + '" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:' + dotColor + ';border:1px solid rgba(255,255,255,0.2);margin-right:4px;cursor:pointer;"></span>';
     });
-    var m7el = document.getElementById('m7-health-row');
-    if (m7el) m7el.innerHTML = m7html;
+    // v48.50: M7 리더십 technical + themes 미러 동시 업데이트
+    document.querySelectorAll('#m7-health-row, #themes-m7-mirror, .m7-leadership-row').forEach(function(el){
+      if (el) el.innerHTML = m7html;
+    });
 
     // Render Market Breadth
     var secUp = 0, secTot = 0;
@@ -25595,10 +25929,13 @@ document.addEventListener('keydown', function(e) {
       if (d) { secTot++; if ((d.pct != null ? d.pct : 0) > 0) secUp++; }
     });
     var above50ma = secTot > 0 ? Math.round((secUp / secTot) * 100) : 50;
-    var breadthEl = document.getElementById('breadth-bar');
-    if (breadthEl) breadthEl.style.width = above50ma + '%'; // v42.4: breadth-bar IS the bar (no child div)
-    var breadthPct = document.getElementById('breadth-pct');
-    if (breadthPct) breadthPct.textContent = above50ma + '%';
+    // v48.50: breadth-bar + themes-breadth-bar 동시 동기화
+    document.querySelectorAll('#breadth-bar, #themes-breadth-bar, .breadth-bar-sync').forEach(function(el){
+      if (el) el.style.width = above50ma + '%';
+    });
+    document.querySelectorAll('#breadth-pct, #themes-breadth-pct, .breadth-pct-sync').forEach(function(el){
+      if (el) el.textContent = above50ma + '%';
+    });
 
     return result;
   };
@@ -26861,19 +27198,22 @@ function calculateRR() {
 
 // ── Phase 2-1: TradingView 위젯 로드 ──
 function loadTVChart(page) {
-  var sym, containerId;
+  var sym, containerId, ohlcSym;
   if (page === 'technical') {
     sym = (document.getElementById('tv-tech-sym') || {}).value || 'SPY';
     containerId = 'tv-widget-technical';
+    ohlcSym = sym;
   } else if (page === 'fundamental') {
     sym = (document.getElementById('fund-search-input') || {}).value || 'AAPL';
     containerId = 'tv-widget-fundamental';
     var wrap = document.getElementById('tv-chart-fundamental');
     if (wrap) wrap.style.display = 'block';
+    ohlcSym = sym;
   } else if (page === 'kr') {
     var code = (document.getElementById('tv-kr-sym') || {}).value || '005930';
     sym = 'KRX:' + code.replace(/\.(KS|KQ)$/i, '');
     containerId = 'tv-widget-kr';
+    ohlcSym = code + '.KS';
   }
   var container = document.getElementById(containerId);
   if (!container) return;
@@ -26884,6 +27224,26 @@ function loadTVChart(page) {
     '&studies=MAExp%4020&studies=RSI%40defval&theme=dark&style=1&timezone=Asia%2FSeoul' +
     '&withdateranges=1&showpopupbutton=1&locale=kr" style="width:100%;height:100%;border:none;" allowtransparency="true"></iframe>';
   container.appendChild(widget.firstChild);
+
+  // v48.52: TradingView 하단 OHLC fallback strip 동기화 (_liveData 기반)
+  try {
+    var ld = window._liveData || {};
+    var live = ld[ohlcSym] || ld[sym] || {};
+    var strip = document.querySelector('#tv-tech-ohlc, .tv-ohlc-strip');
+    if (strip && page === 'technical') {
+      var symEl = strip.querySelector('[data-tvohlc-sym]');
+      var closeEl = strip.querySelector('[data-tvohlc-close]');
+      var chgEl = strip.querySelector('[data-tvohlc-chg]');
+      if (symEl) symEl.textContent = ohlcSym;
+      if (closeEl) closeEl.textContent = (live.price != null) ? ('$' + live.price.toFixed(2)) : '—';
+      if (chgEl) {
+        if (live.pct != null) {
+          chgEl.textContent = (live.pct >= 0 ? '+' : '') + live.pct.toFixed(2) + '%';
+          chgEl.style.color = live.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
+        } else chgEl.textContent = '—';
+      }
+    }
+  } catch(_e){}
 }
 
 // ── Phase 2-2: McClellan Oscillator 계산 ──
@@ -27309,7 +27669,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <div id="ai-panel-msgs"></div>
   <div id="ai-panel-chips" class="ai-chips"></div>
   <div class="ai-input-row">
-    <input id="ai-panel-inp" aria-label="AI 분석가에게 질문" placeholder="질문하세요..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSendUnified();}"/>
+    <input id="ai-panel-inp" aria-label="AI 분석가에게 질문" placeholder="질문하세요..." data-on-enter="chatSendUnified"/>
     <button id="ai-panel-btn" data-action="chatSendUnified">전송 ▶</button>
   </div>
 </div>

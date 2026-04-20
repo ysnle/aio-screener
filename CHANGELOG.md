@@ -6,6 +6,45 @@
 
 ---
 
+## v48.47~v48.52 — v49+ 잔존 16건 전수 보강 6 Phase 연속 (2026-04-21)
+
+### 트리거
+사용자 지시: "이전 세션에서 이어서 16개 남은 작업들 모두 순차적으로 보강 해줘. memory.md 랑 current-state.md 참고해"
+
+### Phase A (v48.47) · DOM 정합성 + UX 재분배
+- **캔들 패턴 갤러리 + 진입 품질 계산기** — Technical 페이지 → Ticker 페이지로 이전. Ticker 심볼 라벨 자동 동기화(`ticker-candle-symbol`, `ticker-entry-symbol`). `_aioDetectTickerPattern` heuristic 패턴 감지 + `_aioFillEntryFromTicker` 현재가 자동 입력.
+- **R:R 계산기** — Technical → Portfolio 페이지로 이전. `rr-position-select` 보유 포지션 드롭다운 신설, 선택 시 진입가 자동 입력 + 손절가 기본값(매수가 × 0.93). `renderPortfolio()` hook.
+- **onkeydown 인라인 13건 제거** → `data-on-enter` 전환. `aio-core.js` 키보드 델리게이터 확장: `:__value_upper / __value / __value_kr` 변형 args 지원.
+
+### Phase B (v48.48) · 디자인 시스템 v2 기반
+- `--surface-1~5` 투명 화이트 오버레이 표준 변수 5종 신설 + `--border-subtle`.
+- `.tb-btn` → `.aio-btn-ghost` 별칭 통합 (그룹 셀렉터).
+- `.aio-table` 신규 클래스: thead 대문자 + surface-2 배경, `.is-mono`/`.is-compact`/`.num-right`/`.num-center` modifier.
+
+### Phase C (v48.49) · 분산형 aio-tooltip
+- `.aio-tooltip` CSS (16x16 `?` 버튼 + 팝오버 220-340px + 화살표) + `.is-right` modifier.
+- `_aioTooltipToggle` JS: 외부 click/ESC 자동 닫기 + 단일 open 강제.
+- 샘플 배치: R:R 계산기, 섹터 배분, Themes 시장 리더십, Cross-Asset 매트릭스.
+
+### Phase D (v48.50) · 페이지 재분배 + Cross-Asset 통합
+- M7 리더십 + 섹터 히트맵 mirror → Themes 페이지. 렌더러 셀렉터 확장(`#themes-m7-mirror, .m7-leadership-row, .breadth-bar-sync, .breadth-pct-sync`).
+- **Cross-Asset 신호 매트릭스** — FX/채권 페이지 상단 신설. 4축 (DXY · 10Y · 2Y-10Y 스프레드 · HYG) 자동 판정 → `updateCrossAssetMatrix()` + 통합 verdict (Risk-On/Off/혼조).
+
+### Phase E (v48.51) · NARRATIVE_ENGINE 실시간 바인딩
+- CP1~CP8 `data-snap="vix|vvix|move|spx|wti|brent|gold|fed-rate"` 자동 갱신 (`_liveData` 기반).
+- Stale-days 자동 계산: `[data-snap-date]` + `${key}-stale-days` → "D+N일" · 14일↑ amber · 30일↑ red.
+- Breadth 9-canvas fallback 렌더러 `_aioBreadthCanvasRender()` — Chart.js 없이 2D sparkline + 그라디언트. `showPage('breadth')` hook.
+- CP5 "[BLOCKED: Cookie/query string data]" 코드 전수 검색 0건 확인 → 외부 런타임 artifact, 코드 수정 불필요.
+
+### Phase F (v48.52) · TradingView + 외부 API infra
+- TradingView 하단 `.tv-ohlc-strip` 신설 (`_liveData` 바인딩).
+- AAII/NAAIM/II/HY 공공 fetch + Finnhub 어닝 캘린더 = infrastructure TODO (다음 세션, CORS proxy 설계 필요).
+
+### 버전 6곳 동기화
+title · badge · APP_VERSION · version.json · _context/CLAUDE.md · CHANGELOG.md
+
+---
+
 ## v48.46 — 나머지 페이지 기관급 심층 설명 확장 (2026-04-20)
 
 ### 트리거

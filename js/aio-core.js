@@ -212,6 +212,34 @@ window.safeHtml = function(str, allowTags) {
     e.preventDefault();
     dispatch(e);
   });
+  // v48.47: data-on-enter — input 엔터 키 전용 디스패처 (onkeydown 인라인 대체)
+  // data-on-enter="funcName" 또는 data-on-enter="funcName:arg"
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter' || e.shiftKey) return;
+    var el = e.target;
+    if (!el || !el.hasAttribute || !el.hasAttribute('data-on-enter')) return;
+    var spec = el.getAttribute('data-on-enter');
+    if (!spec) return;
+    var colon = spec.indexOf(':');
+    var action = colon > 0 ? spec.substring(0, colon) : spec;
+    var arg = colon > 0 ? spec.substring(colon + 1) : null;
+    var handler = window[action];
+    if (typeof handler !== 'function') return;
+    e.preventDefault();
+    try {
+      if (arg === '__value_upper') handler(el.value.toUpperCase());
+      else if (arg === '__value') handler(el.value);
+      else if (arg === '__value_kr') {
+        var v = (el.value || '').trim();
+        if (/^\d{6}$/.test(v)) v += '.KS';
+        handler(v);
+      }
+      else if (arg != null) handler(arg);
+      else handler();
+    } catch (err) {
+      if (window._aioLog) window._aioLog('error', 'delegate', 'data-on-enter failed: ' + action, { err: String(err && err.message || err) });
+    }
+  });
 })();
 
 // ═══ v48.33: 이벤트 위임 헬퍼 — onclick 다중 문장/조합 패턴 대체 ═══════════
@@ -368,6 +396,188 @@ window._aioCloseOnOutside = function(el, fnName, e) {
   if (!e || e.target !== el) return;
   var fn = window[fnName];
   if (typeof fn === 'function') fn();
+};
+
+// v48.47: Ticker 페이지 — 현재 심볼 기반 캔들 패턴 감지 (heuristic)
+window._aioDetectTickerPattern = function() {
+  var sym = (document.getElementById('ticker-hero-name') || {}).textContent || '';
+  sym = (sym || '').trim();
+  var ind = document.getElementById('realtime-pattern-indicator');
+  if (!ind) return;
+  if (!sym || sym === '—') { ind.textContent = '종목 검색 필요'; return; }
+  var ld = window._liveData || {};
+  var live = ld[sym];
+  if (!live || !isFinite(live.pct)) { ind.textContent = sym + ' · 데이터 없음'; return; }
+  var p = live.pct;
+  var label = '중립';
+  if (p >= 3) label = '강세장악형 가능';
+  else if (p >= 1.5) label = '망치형 가능';
+  else if (p <= -3) label = '석별형 가능';
+  else if (p <= -1.5) label = '교수형 가능';
+  else if (Math.abs(p) < 0.3) label = '도지 · 관망';
+  ind.textContent = sym + ' · ' + label;
+};
+
+// v48.47: Ticker 페이지 — 진입 품질 계산기에 현재가 자동 입력
+window._aioFillEntryFromTicker = function() {
+  var sym = (document.getElementById('ticker-hero-name') || {}).textContent || '';
+  var ld = window._liveData || {};
+  var live = ld[(sym || '').trim()];
+  var pEl = document.getElementById('eq-price');
+  if (!pEl || !live || !isFinite(live.price)) return;
+  pEl.value = Number(live.price).toFixed(2);
+  // EMA20 추정: 현재가 ±1% 범위 (fallback)
+  var emaEl = document.getElementById('eq-ema20');
+  if (emaEl && !emaEl.value) emaEl.value = (live.price * 0.99).toFixed(2);
+  var rsiEl = document.getElementById('eq-rsi');
+  if (rsiEl && !rsiEl.value) {
+    var scr = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB.find(function(r){return r.sym===sym;}) : null;
+    if (scr && scr.rsi != null) rsiEl.value = scr.rsi;
+  }
+};
+
+// v48.47: Portfolio 페이지 — 보유 포지션 선택 시 R:R 계산기 진입가 자동 입력
+window._aioRRFillFromPosition = function(el) {
+  if (!el || !el.value) return;
+  var tk = el.value;
+  var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
+  var pos = positions.find(function(p){ return p.ticker === tk; });
+  if (!pos) return;
+  var ld = window._liveData || {};
+  var live = ld[tk];
+  var entryPrice = (live && isFinite(live.price)) ? live.price : pos.cost;
+  var rrEntry = document.getElementById('rr-entry');
+  if (rrEntry) rrEntry.value = Number(entryPrice).toFixed(2);
+  // 손절가: 매수가 -7% (Weinstein/O'Neil 기본값)
+  var rrStop = document.getElementById('rr-stop');
+  if (rrStop && !rrStop.value) rrStop.value = Number(entryPrice * 0.93).toFixed(2);
+};
+
+// v48.51: Breadth 9-canvas fallback 렌더러 — Chart.js 없이 2D 캔버스로 경량 sparkline
+window._aioBreadthCanvasRender = function() {
+  var ids = ['bp-ad-ratio-chart','bp-price-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart','bh-price-chart','bh-5ma-chart','bh-20ma-chart','bh-50ma-chart'];
+  var bld = window._breadthLiveData || {};
+  var bp200 = (typeof window._breadth200 === 'number') ? window._breadth200 : 50;
+  // 기본 시뮬레이션 시리즈 (fallback — 실제 fetch 실패 시 placeholder)
+  function gen(baseVal, amp, noise) {
+    var out = [];
+    for (var i = 0; i < 20; i++) {
+      out.push(baseVal + Math.sin(i * 0.4) * amp + (Math.random() - 0.5) * noise);
+    }
+    return out;
+  }
+  var seriesMap = {
+    'bp-ad-ratio-chart': bld.adSeries || gen(52, 8, 5),
+    'bp-price-chart':    bld.spxSeries || gen(5820, 40, 20),
+    'bp-5ma-chart':      bld.abv5Series || gen(55, 10, 6),
+    'bp-20ma-chart':     bld.abv20Series || gen(60, 12, 7),
+    'bp-50ma-chart':     bld.abv50Series || gen(bp200, 8, 5),
+    'bh-price-chart':    bld.qqqSeries || gen(485, 8, 4),
+    'bh-5ma-chart':      bld.ndx5Series || gen(58, 10, 6),
+    'bh-20ma-chart':     bld.ndx20Series || gen(62, 12, 7),
+    'bh-50ma-chart':     bld.ndx50Series || gen(65, 8, 5)
+  };
+  var colorMap = {
+    'bp-ad-ratio-chart': '#00d4ff',
+    'bp-price-chart':    '#a855f7',
+    'bp-5ma-chart':      '#00e5a0',
+    'bp-20ma-chart':     '#ffa31a',
+    'bp-50ma-chart':     '#ff5b50',
+    'bh-price-chart':    '#a855f7',
+    'bh-5ma-chart':      '#00e5a0',
+    'bh-20ma-chart':     '#ffa31a',
+    'bh-50ma-chart':     '#ff5b50'
+  };
+  ids.forEach(function(id) {
+    var cv = document.getElementById(id);
+    if (!cv || !cv.getContext) return;
+    // 이미 Chart.js로 렌더링되었으면 skip
+    if (cv.__rendered && cv.__rendered === 'chartjs') return;
+    var ctx = cv.getContext('2d');
+    var w = cv.width = cv.clientWidth || 280;
+    var h = cv.height = cv.clientHeight || 160;
+    ctx.clearRect(0, 0, w, h);
+    var s = seriesMap[id];
+    if (!s || s.length < 2) {
+      ctx.fillStyle = '#7b8599';
+      ctx.font = '11px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('데이터 로드 대기', w / 2, h / 2);
+      return;
+    }
+    var min = Math.min.apply(null, s), max = Math.max.apply(null, s);
+    var range = max - min || 1;
+    var padX = 6, padY = 10;
+    var stepX = (w - padX * 2) / (s.length - 1);
+    // 배경 그라디언트 영역
+    var grad = ctx.createLinearGradient(0, padY, 0, h - padY);
+    grad.addColorStop(0, colorMap[id] + '40');
+    grad.addColorStop(1, colorMap[id] + '08');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(padX, h - padY);
+    s.forEach(function(v, i) {
+      var x = padX + i * stepX;
+      var y = padY + (1 - (v - min) / range) * (h - padY * 2);
+      if (i === 0) ctx.lineTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.lineTo(padX + (s.length - 1) * stepX, h - padY);
+    ctx.closePath();
+    ctx.fill();
+    // 라인
+    ctx.strokeStyle = colorMap[id];
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    s.forEach(function(v, i) {
+      var x = padX + i * stepX;
+      var y = padY + (1 - (v - min) / range) * (h - padY * 2);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    // 현재값
+    ctx.fillStyle = '#f0f4fc';
+    ctx.font = 'bold 11px "JetBrains Mono", monospace';
+    ctx.textAlign = 'right';
+    var curr = s[s.length - 1];
+    var currText = id.indexOf('price') >= 0 ? curr.toFixed(0) : curr.toFixed(1) + '%';
+    ctx.fillText(currText, w - padX - 2, padY + 10);
+    cv.__rendered = 'fallback';
+  });
+};
+
+// v48.49: 분산형 aio-tooltip 토글 — `?` 버튼 클릭 시 팝오버 표시/숨김 + 외부 클릭으로 닫기
+window._aioTooltipToggle = function(el, e) {
+  if (!el) return;
+  if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+  var wasOpen = el.classList.contains('is-open');
+  // 다른 툴팁 모두 닫기
+  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); });
+  if (!wasOpen) el.classList.add('is-open');
+};
+// 외부 클릭/ESC 닫기
+document.addEventListener('click', function(e) {
+  var isTooltip = e.target && e.target.closest && e.target.closest('.aio-tooltip');
+  if (isTooltip) return;
+  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); });
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); });
+});
+
+// v48.47: Portfolio rr-position-select 드롭다운 재생성
+window._aioRRPopulateSelect = function() {
+  var sel = document.getElementById('rr-position-select');
+  if (!sel) return;
+  var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
+  var current = sel.value;
+  sel.innerHTML = '<option value="">포지션에서 자동 입력...</option>' +
+    positions.map(function(p){
+      return '<option value="' + p.ticker + '">' + p.ticker + ' · ' + p.qty + '주 @ $' + Number(p.cost).toFixed(2) + '</option>';
+    }).join('');
+  if (current && positions.some(function(p){return p.ticker===current;})) sel.value = current;
 };
 window._aioScrollApiSection = function() {
   var s = document.querySelector('.sidebar-api-section');
@@ -1927,7 +2137,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.46';
+const APP_VERSION = 'v48.52';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -4189,6 +4399,12 @@ function showTicker(tkr) {
   var chgCls = live ? (livePct >= 0 ? 'up' : 'down') : '';
   var _tdn = document.getElementById('ticker-hero-name');
   if (_tdn) _tdn.textContent = tkr;
+  // v48.47: 캔들/진입 섹션 심볼 라벨 동기화 + 자동 감지
+  var _tcs = document.getElementById('ticker-candle-symbol');
+  if (_tcs) _tcs.textContent = tkr;
+  var _tes = document.getElementById('ticker-entry-symbol');
+  if (_tes) _tes.textContent = tkr;
+  try { if (typeof window._aioDetectTickerPattern === 'function') window._aioDetectTickerPattern(); } catch(_){}
   var _thf = document.getElementById('ticker-hero-fullname');
   if (_thf) _thf.textContent = d.name;
   // v41.9: Naver 한국어명 비동기 보강
