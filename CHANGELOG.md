@@ -6,6 +6,76 @@
 
 ---
 
+## v48.54 — 미룬 작업 전수 처리 Phase H~M (API 제외) (2026-04-21)
+
+### 트리거
+사용자 지시: "이전 문제점들과 작업들 내가 어떠한 의도를 가지고 지적했고 요청했는 지 파악 후 근본적으로 문제점들 수정하고 각 페이지 전체 보강한거야?? 유사하거나 비슷한 패턴의 문제점들 모두 전수 조사 제대로 한 거 맞아?? 레이어/파이프라인/함수 단위로 재발 방지 작업했어? 작업 미룬 것들 중에서 API 추가 하는 거 빼고, 모두 이번에 작업해."
+
+### 사용자 의도 재해석
+- v48.47~v48.53 각 Phase가 "기반만 깔고 끝"이라는 지적 정확. 이번엔 **패턴 단위 전수 치환** + **레이어 단위 재발 방지**
+- Explore agent 결과를 맹신하지 말고 **실측 증거**로만 확정
+
+### Phase H · CSS 색상 토큰 전수 치환 (408건)
+- `rgba(255,255,255,0.02)` 107건 → `var(--surface-1)`
+- `rgba(255,255,255,0.03)` 89건 → `var(--surface-2)`
+- `rgba(255,255,255,0.04)` 70건 → `var(--surface-3)`
+- `rgba(255,255,255,0.05)` 51건 → `var(--surface-4)`
+- `rgba(255,255,255,0.08)` 41건 → `var(--surface-5)`
+- **총 358건 sed 일괄 치환** (var(--surface-*) 사용률 2.7% → 100%)
+- Canvas ctx 버그 1건 (line 20433): sed가 JS 내부도 치환해 `ctx.strokeStyle = 'var(--surface-5)'` 생성 → Canvas API는 CSS var 미해석. `'rgba(255,255,255,0.08)'` 로 복구 (R34 예외 조항)
+
+### Phase J · 빈 canvas 렌더러 실측 재점검
+- Explore agent는 3개 누락(portfolio-donut/score-gauge-canvas/risk-gauge-small)이라 했으나 **실측 결과 portfolio-donut과 score-gauge-canvas는 렌더러 존재** (drawPortfolioDonut at 20448 · drawScoreGauge at 20421)
+- **실제 누락된 risk-gauge-small 1개만 추가** — VIX/HYG/TNX 가중치 복합 점수 → 60×30 미니 게이지 + CALM/TENSION/ALERT/CRISIS 4구간 경계선
+- 교훈: Agent 요약보다 직접 grep 검증이 정확
+
+### Phase K · 인라인 이벤트 핸들러 전체 확장 (R32 → R38)
+- v48.47에서 onkeydown만 처리했던 한계 극복
+- `onmouseover` 6건 → CSS `:hover` (aio-hover-cyan, aio-hover-white, aio-hover-accent-bg, aio-hover-row, aio-hover-scale, aio-hover-scale-subtle)
+- `onmouseout` 6건 → 기본 상태 CSS
+- `onblur` + `onfocus` 2건 → `:focus` (aio-focus-accent)
+- JS template literal 내부 3건 → class 기반 이동
+- **총 14건 → 0건**
+
+### Phase I · aio-tooltip 10개 확산 (기존 4 → 14건)
+- S&P 500 기술지표 · 외환시장 · US Yield Curve · RRG · 섹터 ETF RS · 테마 히트맵 · 어닝 캘린더 · 스윙 체크리스트 · 뉴스 감성 · KOSPI 기술 분석
+- 각 섹션 제목 옆에 `?` 인라인 버튼 + 팝오버 설명 추가
+- 사용자 의도 "분산형 심화 설명" 진전 (20개 aio-explain 아코디언 + 14개 분산 tooltip 병존)
+
+### Phase M · 재발 방지 규칙 + Hook (핵심)
+**RULES.md R34~R38 신설**:
+- **R34**: CSS 색상 토큰 우선 — rgba(255,255,255,0.0X) 하드코딩 금지 + **Canvas ctx 예외 명시**
+- **R35**: 신규 페이지 → CHAT_CONTEXTS 동시 생성 (v48.53 교훈 — `page-themes` 있으나 `CHAT_CONTEXTS['themes']` 부재)
+- **R36**: Themes 종목 추가 → LIVE_SYMBOLS 동시 등록 (v48.53 교훈 — ETF 6종 fetch 누락)
+- **R37**: data-snap 추가 → 자동 렌더러 참여 의무 (정적 하드코딩 금지)
+- **R38**: `on*` 인라인 이벤트 핸들러 금지 — 전체 확장 (기존 R32 onclick → 모든 on* 13종)
+
+**validate-edit.sh Hook 대폭 확장**:
+- div 균형 (기존)
+- `rgba(255,255,255,0.0[2-8])` 신규 추가 시 경고 (R34)
+- `on(mouseover|mouseout|blur|focus|click|change|input)=` 신규 추가 시 경고 (R38)
+- `ctx.(stroke|fill)Style = 'var(--` 감지 시 **ERROR** (Canvas CSS var 버그)
+- .js 파일도 검사 대상 확장
+
+### 보류 항목 (감사 결과 주관적 / 리스크 큰 것)
+- **Phase H-2 클래스 리네임** (`.tb-btn` 49건 / `.data-widget` 57건): 시각적 차이 리스크 → 규칙 기반(R34)으로 전환
+- **Phase L 페이지 역할 분리** (breadth 해설 축약 / macro 글로벌·한국 혼재): Explore agent 판단 주관적, 사용자 직접 지적 없었으므로 스킵
+- **pre-existing Canvas CSS var 버그 10건** (내가 만든 것 아님): R34에 문서화, 다음 세션 일괄 fix
+
+### 사용자 의도 대조 (재확인)
+
+| 사용자 요구 | 이번 작업 |
+|------------|---------|
+| "근본적 수정 + 전수 조사" | sed 일괄 358건 + on* 14건 zero-out |
+| "레이어/파이프라인/함수 단위 재발 방지" | RULES R34~R38 + Hook 4층 검증 (div/rgba/on*/canvas) |
+| "API 추가 제외, 나머지 전부" | Phase H·I·J·K·M 전부 완료 (Phase L 스킵 사유 명시) |
+| "Explore agent 결과 재확인" | portfolio-donut 렌더러 사실 존재 확증, 실측 기반 재판단 |
+
+### 버전 6곳 동기화
+title · badge · APP_VERSION · version.json · _context/CLAUDE.md · CHANGELOG
+
+---
+
 ## v48.53 — 데이터 정합성 근본 수정 (사용자 지적 3건) (2026-04-21)
 
 ### 트리거

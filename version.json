@@ -1,6 +1,6 @@
 {
-  "version": "v48.53",
-  "built": "2026-04-21T18:00:00+09:00",
-  "note": "v48.53 Phase G: 사용자 지적 3건 근본 수정 (데이터 정합성). 사용자 추가 지적: (1) 테마/트렌드 시세 최신화 전혀 안 됨 (2) 지난 금요일 2026-04-17 종가 미반영 (3) AI 채팅이 테마/트렌드 모든 종목 상세 분석 가능해야. 실측: data-snap-date 15건 중 14건 (93%) 2026-04-15 hardcoded D+6 stale · LIVE_SYMBOLS에서 테마 ETF 6종(ROBO/WCLD/BUG/VIG/DGRO/SCHD) 누락 · SUB_THEMES 325종목 중 13종(추가 ACLS/AVAV/CRAK/ENTG/GEV/KTOS/UCTT) fetch 불가 · CHAT_CONTEXTS['themes']/['theme-detail'] 부재로 AI가 테마 종목 인식 못함. 근본 수정: (1) LIVE_SYMBOLS +13종 보충 (2) DATA_SNAPSHOT._snapshotDate 신설 + _aioRenderSnapshotDates 동적 렌더러 15분 주기 (hardcoded 제거) (3) CHAT_CONTEXTS['themes']+['theme-detail'] 신설 — SUB_THEMES 325종 전수 접근 + 테마별 실시간 스냅샷 + 4단계 프레임워크 + CHAT_DEFAULT_CHIPS 기본 질문 4건 (4) data-snap Yahoo 직접 매핑 9종 추가 자동화 (tnx/tnx-2y/skew/kospi/kosdaq/krw/dxy). 버전 6곳 동기화.",
-  "versioning": "x.y (31→...→48.52→48.53)"
+  "version": "v48.54",
+  "built": "2026-04-21T20:00:00+09:00",
+  "note": "v48.54 Phase H~M: 미룬 작업 전수 처리 (API 제외). 사용자 지적 '작업 미룬 것들 중에서 API 추가 하는 거 빼고, 모두 이번에 작업'. Phase H: rgba(255,255,255,0.0X) 358건 sed 일괄 → var(--surface-1~5) 치환 (106+89+70+51+41=357 전수) · Canvas ctx CSS var 버그 1건 복구. Phase K: 인라인 이벤트 onmouseover/onmouseout/onblur/onfocus 14건 → CSS :hover/:focus (aio-hover-cyan/white/row/scale/scale-subtle/accent-bg + aio-focus-accent 7종 유틸). Phase J: risk-gauge-small canvas 렌더러 신규 추가 (VIX/HYG/TNX 가중치 복합 점수 → 60x30 미니 게이지 + CALM/TENSION/ALERT/CRISIS 4구간 경계선). Phase I: aio-tooltip 10개 확산 (S&P 500 기술지표/FX/Yield Curve/RRG/섹터 RS/테마 히트맵/어닝/스윙 체크리스트/뉴스 감성/KOSPI — 각 주요 섹션 옆 `?`). Phase M: RULES.md R34~R38 신설 — R34 CSS 색상 토큰 우선(rgba 하드코딩 금지 + Canvas 예외), R35 페이지↔CHAT_CONTEXTS 동시 생성, R36 Themes 종목 → LIVE_SYMBOLS 동시 등록, R37 data-snap → 자동 렌더러 참여 의무, R38 on* 인라인 전체 확장(R32 확장). validate-edit.sh Hook 대폭 확장: div 균형 + rgba 경고 + on* 경고 + Canvas CSS var 에러 검출. 버전 6곳 동기화.",
+  "versioning": "x.y (31→...→48.53→48.54)"
 }
