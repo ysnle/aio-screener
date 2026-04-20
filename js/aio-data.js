@@ -5747,7 +5747,8 @@ function _renderTopicSection(icon, label, items) {
     var dotColor = sent === 'bull' ? '#00e5a0' : sent === 'bear' ? '#ff5b50' : sent === 'warn' ? '#ffa31a' : '#7b8599';
     var _macroT = ['macro','geo','energy','bond','fx'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
     var tickers = !_macroT.includes(item.topic) ? getDisplayTickers(item) : [];
-    var tickerStr = tickers.length > 0 ? tickers.map(function(t) { return '<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(0,212,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;">' + escHtml(t) + '</span>'; }).join('') : '';
+    // v48.55: 뉴스 티커 배지 → ticker 페이지 이동 액션 추가 (뉴스 → 기업 3-hop 네비게이션)
+    var tickerStr = tickers.length > 0 ? tickers.map(function(t) { var _sym = t.replace('$',''); return '<span data-action="_aioNewsTickerClick" data-arg="' + escHtml(_sym) + '" role="button" tabindex="0" style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(0,212,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;cursor:pointer;" title="' + escHtml(_sym) + ' 종목 분석">' + escHtml(t) + '</span>'; }).join('') : '';
     var source = escHtml(item.source || '');
     var scoreStr = item.score > 0 ? '<span style="font-size:9px;color:' + (item.score > 50 ? '#00e5a0' : item.score > 30 ? '#ffa31a' : 'var(--text-muted)') + ';font-family:var(--font-mono);">■' + item.score + '</span>' : '';
     var descHtml = displayDesc ? '<div style="font-size:10px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">' + escHtml(displayDesc) + '</div>' : '';
@@ -6032,8 +6033,9 @@ function renderHomeFeed(items) {
     // v39.0e: 티커는 매크로/지정학/정책 뉴스에서 숨김
     const _hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade'];
     const tickers = !_hMacroTopics.includes(item.topic) ? getDisplayTickers(item) : [];
+    // v48.55: 홈 피드 티커 클릭 → ticker 페이지 이동
     const tickerStr = tickers.length > 0
-      ? tickers.slice(0,2).map(t => `<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);">${escHtml(t.startsWith('$') ? t : '$'+t)}</span>`).join(' ') + ' '
+      ? tickers.slice(0,2).map(t => { const _s = t.replace('$',''); return `<span data-action="_aioNewsTickerClick" data-arg="${escHtml(_s)}" role="button" tabindex="0" style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);cursor:pointer;" title="${escHtml(_s)} 분석">${escHtml(t.startsWith('$') ? t : '$'+t)}</span>`; }).join(' ') + ' '
       : '';
     return `<div data-open-url="${escHtml(escUrl(item.link))}" style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.03);" onmouseenter="this.style.background='rgba(0,212,255,0.05)'" onmouseleave="this.style.background='transparent'">
       <span style="flex-shrink:0;font-size:10px;line-height:1.6;">${sentIcon}</span>
@@ -6419,7 +6421,8 @@ function _renderBriefingBullet(item) {
   var displaySummary = typeof getDisplaySummary === 'function' ? getDisplaySummary(item) : '';
   var _macroT = ['macro','geo','energy','bond','fx'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
   var tickers = !_macroT.includes(item.topic) ? getDisplayTickers(item) : [];
-  var tickerStr = tickers.length > 0 ? tickers.map(function(t) { return '<span style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(0,212,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;">' + escHtml(t) + '</span>'; }).join('') : '';
+  // v48.55: 브리핑 피드 티커 클릭 → ticker 페이지 이동
+  var tickerStr = tickers.length > 0 ? tickers.map(function(t) { var _s = t.replace('$',''); return '<span data-action="_aioNewsTickerClick" data-arg="' + escHtml(_s) + '" role="button" tabindex="0" style="font-size:8px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:rgba(0,212,255,0.1);padding:1px 4px;border-radius:3px;margin-right:2px;cursor:pointer;" title="' + escHtml(_s) + ' 분석">' + escHtml(t) + '</span>'; }).join('') : '';
   var sentBadge = sentLabel ? '<span style="font-size:8px;font-weight:700;color:' + dotColor + ';background:' + dotColor + '15;padding:1px 5px;border-radius:3px;">' + sentLabel + '</span>' : '';
   var unverBadge = isUnverifiedClaim(item) ? '<span style="font-size:8px;font-weight:700;background:rgba(255,163,26,0.1);color:#fbbf24;padding:1px 5px;border-radius:3px;border:1px solid rgba(255,163,26,0.25);">미확인</span>' : '';
   var scoreBadge = item.score ? '<span style="font-size:8px;font-weight:700;color:' + (item.score >= 80 ? '#ff5b50' : item.score >= 60 ? '#ffa31a' : '#7b8599') + ';font-family:var(--font-mono);">' + item.score + '</span>' : '';

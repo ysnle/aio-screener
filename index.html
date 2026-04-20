@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.54 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.55 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3661,7 +3661,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.54</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.55</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -16045,69 +16045,44 @@ document.addEventListener('aio:liveQuotes', function() {
     }
   };
 
-  // v48.53: CHAT_CONTEXTS['themes'] — Themes/SUB_THEMES 325종 전수 커버리지
-  // 사용자 지적: "AI 채팅에서 최소한 테마/트렌드에 있는 모든 종목들은 상세 분석 가능해야"
+  // v48.55: CHAT_CONTEXTS['themes'] — 메서드론 중심 (R40 준수, 종목 리스트 하드코딩 금지)
+  // 실질 데이터는 API 파이프라인 동적 수집: _extractTickers → Yahoo/Finnhub/FMP → 프롬프트 주입
+  // 이 system()은 persona + 분석 프레임워크만 정의. 종목 전수 나열은 _fetchTickerDataForChat이 담당.
   CHAT_CONTEXTS['themes'] = {
     title: 'AI 테마·트렌드 전략가 (Pro)',
     system: function() {
       var s = _liveSnap();
       var fresh = s._freshness;
-      // SUB_THEMES에서 모든 테마·리더·종목 추출 (안전: undefined fallback)
-      var subThemes = (typeof SUB_THEMES !== 'undefined' && Array.isArray(SUB_THEMES)) ? SUB_THEMES : [];
-      var themeMap = (typeof THEME_MAP !== 'undefined' && Array.isArray(THEME_MAP)) ? THEME_MAP : [];
-      // 테마별 라이브 데이터 스냅샷
-      var ld = window._liveData || {};
-      var themeLines = subThemes.slice(0, 30).map(function(t) {
-        var leaderPrices = (t.leaders || []).slice(0, 4).map(function(sym) {
-          var d = ld[sym];
-          if (!d || d.pct == null) return sym + ':—';
-          return sym + ' ' + (d.pct >= 0 ? '+' : '') + d.pct.toFixed(2) + '%';
-        }).join(', ');
-        var etfChg = t.etf && ld[t.etf] ? ld[t.etf].pct : null;
-        var etfStr = t.etf ? (t.etf + (etfChg != null ? ' ' + (etfChg >= 0 ? '+' : '') + etfChg.toFixed(2) + '%' : '')) : '(ETF없음)';
-        return '• [' + t.id + '] ' + t.name + ' — ETF: ' + etfStr + ' · 대장주: ' + leaderPrices;
-      }).join('\n');
-      // 전체 커버리지 종목 수
-      var allTickers = new Set();
-      subThemes.forEach(function(t) {
-        (t.leaders || []).forEach(function(s) { allTickers.add(s); });
-        (t.tickers || []).forEach(function(s) { allTickers.add(s); });
-        if (t.etf) allTickers.add(t.etf);
-      });
-      themeMap.forEach(function(t) { if (t.etf) allTickers.add(t.etf); });
-      var coverageCount = allTickers.size;
       return '당신은 테마·트렌드 투자 전문가입니다. "테마/섹터 로테이션" 페이지에서 대화하고 있습니다.\n\n' +
         '【실시간 시세 (신선도: ' + fresh + ')】\n' +
         '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) | NASDAQ: ' + (s.nasdaq || '—') + '\n' +
         '• VIX: ' + s.vix + ' | DXY: ' + s.dxy + ' | 10Y: ' + (s.tnx || '—') + '\n\n' +
-        '【커버리지 (v48.53)】\n' +
-        '• SUB_THEMES ' + subThemes.length + '개 테마, 전 ' + coverageCount + '종 종목 · 모든 ticker 상세 분석 가능\n' +
-        '• 각 테마: id · 대장주(leaders) · 구성종목(tickers) · 대표 ETF · 가중치\n\n' +
-        '【주요 테마 현황 (상위 30개)】\n' + themeMap +
-        '\n\n【테마별 실시간 (상위 30개 leaders)】\n' + themeLines + '\n\n' +
+        '【데이터 주입 파이프라인 (v48.55)】\n' +
+        '• 사용자 질문에서 티커 감지(_extractTickers) 시 Yahoo 실시간 + Finnhub(애널리스트 추천·어닝·뉴스) + FMP(profile·ratios·key-metrics TTM) 자동 수집 → 프롬프트 주입\n' +
+        '• SUB_THEMES/THEME_MAP/ALL_RRG_ETFS 전수 종목(325+)은 _liveData에 포함되어 있어 모두 커버\n' +
+        '• 뉴스 언급 티커는 별도 섹션 【뉴스 언급 티커】에서 구조화 참조 가능\n\n' +
         '【테마 분석 4단계 프레임워크】\n' +
-        '1. 사이클 포지셔닝: Early/Mid/Late/Recession 중 어디 — 섹터 로테이션 가이드 (Early=XLY/XLK, Mid=XLI/XLB, Late=XLE/XLP/XLV, Recession=XLU/XLP/XLV)\n' +
-        '2. 테마 내 상대강도: 대장주(leaders) vs 2차 수혜주(tickers) 등락 격차 — 격차 벌어지면 대장주 집중, 좁혀지면 확산 국면\n' +
-        '3. ETF 모멘텀: 테마 ETF (SMH/ICLN/LIT/TAN/ROBO/WCLD 등)의 RS 순위 — 추세 지속력 판단\n' +
-        '4. 카탈리스트 매핑: AI Capex(§58)/DC전력(§62)/이란 재협상/Fed 정책 등 매크로와 연결\n\n' +
-        '【핵심 테마별 매크로 체인 (2026-04 기준)】\n' +
-        '• AI 반도체(SMH/NVDA/AVGO/AMD): 하이퍼스케일 Capex 사이클 + HBM 공급부족 → 대장주 정배열 확인\n' +
-        '• Cloud/SaaS(WCLD/NOW/CRM/ADBE): 기업 IT 예산 정상화 + AI 에이전트 도입 초기\n' +
-        '• Cybersecurity(BUG/CRWD/PANW/ZS): 정부 규제 + 섀도AI 50%+ 비인가 → 구조적 수요\n' +
-        '• Robotics(ROBO/BOTZ): 휴머노이드 상용화 + 공장 자동화 — 초기 단계\n' +
-        '• Clean Energy(ICLN/TAN/LIT): ESG 역풍 + 관세 리스크 — 레인지 (저점 진입 기회 탐색)\n' +
-        '• Nuclear/SMR(URA/CCJ/VST/NRG/CEG): AI 전력 수요 + 미국 SMR 정책 법안 — HOT\n' +
-        '• Defense(ITA/LMT/RTX/NOC/GD): 이란 재협상 모드 → 단기 조정, 수주잔고 유효\n' +
+        '1. 사이클 포지셔닝: Early/Mid/Late/Recession 중 어디 — 섹터 로테이션 (Early=XLY/XLK, Mid=XLI/XLB, Late=XLE/XLP/XLV, Recession=XLU/XLP/XLV)\n' +
+        '2. 테마 내 상대강도: 대장주 vs 2차 수혜주 격차 — 격차 벌어지면 대장주 집중, 좁혀지면 확산 국면\n' +
+        '3. ETF 모멘텀: 테마 ETF(SMH/ICLN/LIT/TAN/ROBO/WCLD 등)의 RS 순위 — 추세 지속력\n' +
+        '4. 카탈리스트 매핑: AI Capex(§58)/DC전력(§62)/이란 재협상/Fed 정책 등 매크로 연결\n\n' +
+        '【핵심 테마 매크로 체인 (2026-04)】\n' +
+        '• AI 반도체(SMH): 하이퍼스케일 Capex + HBM 공급부족 → 대장주 정배열 확인\n' +
+        '• Cloud/SaaS(WCLD): IT 예산 정상화 + AI 에이전트 도입 초기\n' +
+        '• Cybersecurity(BUG): 정부 규제 + 섀도AI 50%+ 비인가 → 구조적 수요\n' +
+        '• Robotics(ROBO/BOTZ): 휴머노이드 상용화 + 공장 자동화 초기\n' +
+        '• Clean Energy(ICLN/TAN/LIT): ESG 역풍 + 관세 — 레인지 (저점 진입 탐색)\n' +
+        '• Nuclear/SMR(URA/CCJ/VST/NRG/CEG): AI 전력 + SMR 법안 — HOT\n' +
+        '• Defense(ITA): 이란 재협상 → 단기 조정, 수주잔고 유효\n' +
         '• Dividend Growth(VIG/DGRO/SCHD): 고금리 지속 시 방어형 배분 — Late-cycle 대비\n\n' +
         '【답변 규칙】\n' +
-        '• 사용자가 언급하는 모든 티커(SUB_THEMES의 ' + coverageCount + '종 전수)에 대해 상세 분석 가능\n' +
-        '• 모르는 티커 질문 시 "해당 종목은 테마 커버리지 외" 명시하고 유사 테마 대체 추천\n' +
-        '• 각 답변에 (1) 어느 테마 소속 (2) 대장주 대비 위치 (3) 매크로 카탈리스트 (4) 진입/손절 가이드 순서로 구성\n' +
-        '• 데이터는 _liveData 우선, 없으면 DATA_SNAPSHOT 폴백 + "폴백값 주의" 명시\n\n' +
+        '• 주입된 _fetchTickerDataForChat 결과(가격·추이·애널리스트·어닝) + _fetchDeepCompareData(FMP 재무) 우선 사용\n' +
+        '• 각 답변: (1) 어느 테마 소속 (2) 대장주 대비 위치 (3) 매크로 카탈리스트 (4) 진입/손절 가이드\n' +
+        '• 폴백값 사용 시 "폴백값 주의" 명시. API 데이터 없으면 추측 대신 "실측 데이터 필요"로 답변\n\n' +
         _getChatRules();
     }
   };
-  // v48.53: theme-detail은 themes와 동일 컨텍스트 + 현재 선택 테마 주입
+  // v48.55: theme-detail은 themes와 동일 persona (데이터 주입 파이프라인 공유)
   CHAT_CONTEXTS['theme-detail'] = CHAT_CONTEXTS['themes'];
 
   if (typeof CHAT_DEFAULT_CHIPS !== 'undefined') {

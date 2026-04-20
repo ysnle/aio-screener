@@ -604,6 +604,28 @@ document.addEventListener('keydown', function(e) {
   document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); });
 });
 
+// v48.55: 뉴스 티커 배지 클릭 → ticker 페이지 이동 + 심볼 자동 조회 (사용자 지적 "뉴스→기업" 연결)
+window._aioNewsTickerClick = function(sym) {
+  if (!sym) return;
+  sym = String(sym).toUpperCase().replace('$','').trim();
+  // 현재 페이지 저장 (breadcrumb용)
+  if (typeof window.prevPage !== 'undefined') {
+    var active = document.querySelector('.page.active');
+    window.prevPage = active ? active.id.replace('page-','') : 'briefing';
+  }
+  // Ticker 페이지 이동
+  if (typeof window.showTicker === 'function') {
+    window.showTicker(sym);
+  } else if (typeof window.showPage === 'function') {
+    window.showPage('ticker');
+    setTimeout(function() {
+      var inp = document.getElementById('ticker-analysis-input');
+      if (inp) inp.value = sym;
+      if (typeof window.analyzeTickerDeep === 'function') window.analyzeTickerDeep(sym);
+    }, 150);
+  }
+};
+
 // v48.47: Portfolio rr-position-select 드롭다운 재생성
 window._aioRRPopulateSelect = function() {
   var sel = document.getElementById('rr-position-select');
@@ -2174,7 +2196,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.54';
+const APP_VERSION = 'v48.55';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거

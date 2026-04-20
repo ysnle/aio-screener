@@ -2344,20 +2344,39 @@ function _buildNewsContext(ctxId, query) {
 
   // v48.12: 제목 + 본문 요약(desc 또는 summary) 120자까지 주입 — "왜 올랐나/내렸나" 맥락 제공
   //         기관 리서치처럼 '이유와 근거'를 AI가 설명하려면 헤드라인만으로 부족
+  // v48.55: 뉴스 언급 티커 배열 구조화 주입 (사용자 지적 "뉴스/소식 파이프라인에서 관련 기업 정보 있으면 가져오고")
+  var mentionedTickers = new Set();
   var lines = top.map(function(s, idx) {
     var it = s.item;
     var age = it.pubDate ? Math.round((now - new Date(it.pubDate).getTime()) / 3600000) : '?';
     var title = (it.title || '').substring(0, 100);
     var descRaw = (it.desc || it.summary || it.description || '').toString().replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
     var descShort = descRaw ? descRaw.substring(0, 140) + (descRaw.length > 140 ? '…' : '') : '';
-    var line = (idx + 1) + '. [' + (it.source || '?') + ' · ' + age + 'h전] ' + title;
+    // v48.55: 각 뉴스 item의 티커 수집 (extractTickers + cached 티커 병합)
+    var itemTickers = [];
+    try {
+      if (typeof getDisplayTickers === 'function') itemTickers = getDisplayTickers(it) || [];
+      else if (it.tickers && Array.isArray(it.tickers)) itemTickers = it.tickers;
+      else if (typeof extractTickers === 'function') itemTickers = (extractTickers(it) || []).map(function(t){ return '$' + t; });
+    } catch(_){}
+    itemTickers.forEach(function(t) { mentionedTickers.add(t.replace('$','').toUpperCase()); });
+    var tickerTag = itemTickers.length > 0 ? ' [' + itemTickers.slice(0, 3).join(' ') + ']' : '';
+    var line = (idx + 1) + '. [' + (it.source || '?') + ' · ' + age + 'h전]' + tickerTag + ' ' + title;
     if (descShort) line += '\n   └ ' + descShort;
     return line;
   });
 
+  // v48.55: 뉴스 언급 티커 집계 (별도 섹션으로 프롬프트 주입 → AI가 관련 종목 추적 가능)
+  var tickerSummary = '';
+  if (mentionedTickers.size > 0) {
+    var tkrList = Array.from(mentionedTickers).slice(0, 15).join(', ');
+    tickerSummary = '【뉴스 언급 티커 (상위 ' + Math.min(15, mentionedTickers.size) + ')】\n' + tkrList + '\n\n';
+  }
+
   return '\n\n【최근 시장 뉴스 (자동 수집, 24h 이내)】\n' +
-    '아래는 스크리너가 자동 수집한 관련 뉴스 헤드라인 + 요약이다. 각 뉴스의 시간(Nh전)을 확인하고, 주가 추이와 교차 검증 후 답변하라. 제목만으로 과도한 해석 금지, 단 요약의 사실 근거(숫자·기관명·인용)는 적극 활용.\n' +
-    lines.join('\n') + '\n';
+    '아래는 스크리너가 자동 수집한 관련 뉴스 헤드라인 + 요약이다. 각 뉴스의 시간(Nh전)을 확인하고, 주가 추이와 교차 검증 후 답변하라. 제목만으로 과도한 해석 금지, 단 요약의 사실 근거(숫자·기관명·인용)는 적극 활용. 각 뉴스의 [$TICKER] 태그로 관련 기업 식별 가능.\n' +
+    lines.join('\n') + '\n\n' +
+    tickerSummary;
 }
 
 function _needsWebSearch(query, ctxId) {
@@ -2736,10 +2755,14 @@ async function chatSend(ctxId) {
   }
 
   // v34.5: 단일 기업 분석 — 티커 1개 감지 시 기본적으로 15개 관점 심층 분석 자동 적용
-  // fundamental 컨텍스트에서는 키워드 없이도 자동 트리거 (사용자가 "엔비디아 어때?" 만 해도 15개 관점 분석)
+  // fundamental 컨텍스트에서는 키워드 없이도 자동 트리거
+  // v48.55: themes/theme-detail ctx에서도 FMP 심층 수집 활성화 — 사용자 지적 반영
+  //   "AI 채팅에서 테마/트렌드에 있는 모든 종목 상세 분석 가능해야" → 단일 티커 질의 시 재무 자동 포함
+  //   portfolio ctx도 보유 종목 분석 시 심층 필요 — 자동 확장
   var singleDeepStr = '';
   var _isFundCtx = (ctxId === 'fundamental');
-  var _shouldDeepAnalyze = detectedTickers.length === 1 && !deepCompareStr && (_isFundCtx || _hasDeepAnalysisKw(q));
+  var _isDeepCtx = _isFundCtx || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'portfolio';
+  var _shouldDeepAnalyze = detectedTickers.length === 1 && !deepCompareStr && (_isDeepCtx || _hasDeepAnalysisKw(q));
   if (_shouldDeepAnalyze) {
     var fd = window._fundAnalysisData;
     var alreadyHasData = fd && fd.ticker && fd.ticker === detectedTickers[0];

@@ -6,6 +6,83 @@
 
 ---
 
+## v48.55 — AI 채팅 데이터 파이프라인 근본 재설계 (Explore Agent 4개 감사) (2026-04-21)
+
+### 트리거
+사용자 지적 5차 (API 파이프라인 본질 의문):
+1. "AI 채팅에서 기존 컨텍스트 없으면 분석과 설명이 안 돼??"
+2. "데이터들은 API로 가져올텐데 왜 안 되지??"
+3. "외부 최신 데이터들을 내부 시스템과 구조에 맞춰서 가공 한 후 분석과 설명을 덧대어서 사용자에게 보여주는 거 아니야?"
+4. "기업 관련 모든 데이터들 가져오는 거 맞아??"
+5. "뉴스/소식 파이프라인에서 관련 기업 정보 있으면 가져오고"
+6. "지금 데이터 시세는 Stooq 추가로 5중 보강하지 않았나??"
+
+### 병렬 Explore Agent 4개 감사 (memory + CHANGELOG + BUG-POSTMORTEM 종합)
+
+**Agent 1 — callClaude 파이프라인**:
+- chatSend → _extractTickers → _fetchTickerDataForChat(Yahoo/Finnhub) → _fetchDeepCompareData(FMP) → _aiWebSearch → _buildNewsContext → callClaude
+- collected 16개 필드: fmpProfile/Income/Cashflow/Balance/MetricsTTM/RatiosTTM + finnhubMetrics/Recommendation/Earnings/News + SEC + Yahoo
+- **판정**: "AI 채팅이 API 파이프라인으로 동작" = **65% 타당**. 데이터 100% 동적, 단 persona/메서드론은 CHAT_CONTEXTS 하드코딩 (정상)
+
+**Agent 2 — 가격 fetch 체인**:
+- 실제 체인: Yahoo v7/v8 → Stooq (2중). Naver(한국)/FX(3중)/CoinGecko(크립토)는 **병렬 독립 소스**
+- "5중 보강" = 5개 소스 존재. Fallback depth는 2~3중
+- Stooq는 **v46.3부터 존재** (aio-data.js:8525)
+
+**Agent 3 — 뉴스 → 티커 파이프라인**:
+- _extractTickers(aio-chat.js:1685) + extractTickers(aio-data.js:5556) 이미 구현
+- renderer 4곳(_renderTopicSection/renderFeed/renderHomeFeed/_renderBriefingBullet) 모두 tickerStr 생성 후 HTML 삽입
+- **재검증 결과**: Agent 초기 "HTML 미삽입" 보고 오판 → 실측 5758라인에서 정상 렌더링 확인
+- 진짜 누락: (a) 뉴스 티커 배지 **클릭 액션 없음** (b) AI 프롬프트에 티커 배열 **구조화 주입 없음**
+
+**Agent 4 — memory/CHANGELOG/POSTMORTEM 종합**:
+- 사용자 의도 = "5명 운영 터미널 안정성을 위해 DOM·데이터·API·렌더·검증 레이어 불일치를 전수 제거하고 동기화 자동화"
+- P116/P121/P122/P125 = 수집-UI 불일치 반복 패턴
+- 5차 지적 메타: 표면(기능) → 근본(데이터) → 구조(아키텍처) → 파이프라인(동기화) → 시스템(재발 방지규칙)
+
+### 근본 수정 4건
+
+#### 1. themes/theme-detail/portfolio ctx에 FMP 심층 활성화 (aio-chat.js:2741)
+```js
+// Before: fundamental ctx만 심층
+var _shouldDeepAnalyze = detectedTickers.length === 1 && !deepCompareStr && (_isFundCtx || _hasDeepAnalysisKw(q));
+// After: 기업 분석 맥락 ctx 전원 확장
+var _isDeepCtx = _isFundCtx || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'portfolio';
+var _shouldDeepAnalyze = detectedTickers.length === 1 && !deepCompareStr && (_isDeepCtx || _hasDeepAnalysisKw(q));
+```
+→ Themes 페이지 "NVDA 분석해줘" 시 FMP profile/ratios/key-metrics TTM 15개 관점 자동 수집
+
+#### 2. AI 채팅 뉴스 컨텍스트에 티커 배열 구조화 주입 (aio-chat.js:_buildNewsContext)
+- 각 뉴스 item에서 `getDisplayTickers(it)` 호출 → `mentionedTickers` Set 집계
+- 각 뉴스 라인에 `[$NVDA $AVGO]` 태그 인라인 부착
+- 별도 섹션 `【뉴스 언급 티커 (상위 15)】` 구조화 주입 → AI가 관련 종목 추적 가능
+
+#### 3. 뉴스 티커 배지 클릭 → ticker 페이지 이동 (3개 renderer + 헬퍼)
+- `_renderTopicSection` / `renderHomeFeed` / `_renderBriefingBullet` tickerStr 3곳 모두 `data-action="_aioNewsTickerClick"` + `role="button"` + `cursor:pointer` 부여
+- `_aioNewsTickerClick(sym)` 헬퍼 신설 (aio-core.js): prevPage 저장 + showTicker(sym) 호출 → breadcrumb 자동 연결
+
+#### 4. CHAT_CONTEXTS['themes'] v48.53 과다 하드코딩 정리
+- 제거: `subThemes.slice(0, 30).map(...)` SUB_THEMES 325종 전수 나열 (토큰 낭비)
+- 제거: `allTickers` Set 계산 + `coverageCount` 라벨
+- 유지: persona + 데이터 주입 파이프라인 안내 + 테마 분석 4단계 프레임워크 + 8대 핵심 테마 매크로 체인 + 답변 규칙
+- 결과: system 함수 ~70줄 → ~30줄 (메서드론 중심, R40 준수)
+
+### 재발 방지 규칙 신설 (R39~R41)
+- **R39**: extractTickers/getDisplayTickers 호출 → UI 노출 경로 필수 (P116/P121/P122/P125 재발 방지). 프롬프트 주입 시 구조화 섹션 의무
+- **R40**: CHAT_CONTEXTS system()은 persona + 메서드론만. SUB_THEMES/THEME_MAP 종목 리스트 반복 렌더링 금지 (API 파이프라인이 동적 처리)
+- **R41**: 기업 분석 맥락 ctx(fundamental/themes/theme-detail/portfolio) 전원 단일 티커 감지 시 FMP 심층 자동 활성
+
+### validate-edit.sh Hook Layer 5~6 확장
+- **Layer 5**: CHAT_CONTEXTS system 함수 내 `SUB_THEMES|themeMap.(slice|map|forEach)` 6회+ 시 R40 경고
+- **Layer 6**: extractTickers/getDisplayTickers 호출 횟수 vs tickerStr/tickerTag/mentionedTickers 사용 횟수 불일치 시 R39 경고 (P125 재발 탐지)
+
+### Agent 오판 교정
+- Agent 3 초기 보고 "_renderTopicSection HTML 미삽입" → 실측 5758라인 `out += '...' + tickerStr + displayTitle` 정상 동작 확인. **재확인 교훈**: Agent 결과도 반드시 grep 교차검증.
+
+### 버전 6곳 동기화
+
+---
+
 ## v48.54 — 미룬 작업 전수 처리 Phase H~M (API 제외) (2026-04-21)
 
 ### 트리거
