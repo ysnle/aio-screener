@@ -604,6 +604,325 @@ document.addEventListener('keydown', function(e) {
   document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); });
 });
 
+// v48.58: Guide 페이지 점프 + 검색 (18K줄 탐색성 개선, TOC)
+window._aioGuideJump = function(targetId) {
+  var el = document.getElementById(targetId);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // 펼쳐진 상태로
+    if (el.classList && !el.classList.contains('is-open')) el.classList.add('is-open');
+  } else {
+    // 근사 매칭
+    var keyword = (targetId || '').replace(/^guide-/, '');
+    window._aioGuideSearch(keyword);
+  }
+};
+window._aioGuideSearchTrigger = function() {
+  var inp = document.getElementById('guide-search-input');
+  if (inp && inp.value) window._aioGuideSearch(inp.value);
+};
+window._aioGuideSearch = function(keyword) {
+  var result = document.getElementById('guide-search-result');
+  if (!result) return;
+  keyword = (keyword || '').trim().toLowerCase();
+  if (!keyword) { result.style.display = 'none'; return; }
+  var guidePage = document.getElementById('page-guide');
+  if (!guidePage) return;
+  // guide 페이지 내 모든 텍스트 노드 중 match
+  var matches = [];
+  var walker = document.createTreeWalker(guidePage, NodeFilter.SHOW_TEXT);
+  var node;
+  while ((node = walker.nextNode())) {
+    var text = (node.nodeValue || '').toLowerCase();
+    if (text.indexOf(keyword) >= 0 && text.trim().length > 2) {
+      var parent = node.parentElement;
+      if (!parent) continue;
+      // 상위 섹션 제목 찾기
+      var section = parent.closest('.explain-section, .aio-explain, [id]');
+      if (section && matches.length < 10 && !matches.some(function(m){ return m.el === section; })) {
+        matches.push({ el: section, text: node.nodeValue.trim().slice(0, 80) });
+      }
+    }
+  }
+  if (matches.length === 0) {
+    result.innerHTML = '<span style="color:var(--data-amber);">"' + keyword + '" 검색 결과 없음</span>';
+    result.style.display = 'block';
+    return;
+  }
+  var html = '<span style="color:var(--data-green);font-weight:700;">' + matches.length + '건 발견 — 클릭하여 이동:</span>';
+  matches.forEach(function(m, i) {
+    var labelEl = m.el.querySelector('.explain-label, .aio-explain-trigger-label span:last-child, h2, h3');
+    var label = labelEl ? labelEl.textContent.trim().slice(0, 60) : ('결과 ' + (i+1));
+    var ref = 'guide-match-' + i;
+    m.el.id = m.el.id || ref;
+    html += '<div style="margin-top:4px;padding:4px 8px;background:var(--surface-3);border-radius:4px;cursor:pointer;" data-action="_aioGuideJump" data-arg="' + m.el.id + '"><strong style="color:var(--data-cyan);">' + label + '</strong> <span style="color:var(--text-muted);margin-left:6px;">' + m.text.replace(new RegExp(keyword, 'gi'), function(mt){return '<mark style="background:var(--data-amber);color:#001018;padding:0 2px;">'+mt+'</mark>';}) + '…</span></div>';
+  });
+  result.innerHTML = html;
+  result.style.display = 'block';
+};
+
+// v48.58: options 페이지 선물 흐름 판정 (ES/NQ/YM/RTY 4지수 동행/분산)
+window._aioRenderFuturesFlow = function() {
+  var el = document.getElementById('futures-flow-text');
+  if (!el) return;
+  var ld = window._liveData || {};
+  var es = ld['ES=F'] ? ld['ES=F'].pct : null;
+  var nq = ld['NQ=F'] ? ld['NQ=F'].pct : null;
+  var ym = ld['YM=F'] ? ld['YM=F'].pct : null;
+  var rty = ld['RTY=F'] ? ld['RTY=F'].pct : null;
+  var pcts = [es, nq, ym, rty].filter(function(v){ return v != null && isFinite(v); });
+  if (pcts.length < 2) { el.textContent = '선물 데이터 수신 대기 중'; return; }
+  var upCount = pcts.filter(function(p){ return p > 0.1; }).length;
+  var downCount = pcts.filter(function(p){ return p < -0.1; }).length;
+  var avg = pcts.reduce(function(a,b){return a+b;},0) / pcts.length;
+  var spread = Math.max.apply(null, pcts) - Math.min.apply(null, pcts);
+  var text, color;
+  if (upCount === pcts.length && spread < 0.5) {
+    text = '4지수 동행 상승 (평균 +' + avg.toFixed(2) + '%, 편차 ' + spread.toFixed(2) + '%p) — 광범위 모멘텀. Risk-On 확증. 상승 갭오픈 가능성.';
+    color = 'var(--data-green)';
+  } else if (downCount === pcts.length && spread < 0.5) {
+    text = '4지수 동행 하락 (평균 ' + avg.toFixed(2) + '%, 편차 ' + spread.toFixed(2) + '%p) — 광범위 매도. Risk-Off 확증. 하락 갭오픈 경고.';
+    color = 'var(--data-red)';
+  } else if (spread > 1.0) {
+    text = '4지수 분산 (편차 ' + spread.toFixed(2) + '%p) — 섹터별 차등. 대형주 vs 중소형 다른 흐름 · 개별 포지션 중심.';
+    color = 'var(--data-amber)';
+  } else {
+    text = '혼조 (평균 ' + (avg >= 0 ? '+' : '') + avg.toFixed(2) + '%, 편차 ' + spread.toFixed(2) + '%p) — 방향성 부재. 이벤트 대기 구간.';
+    color = 'var(--text-muted)';
+  }
+  el.textContent = text;
+  var wrap = el.parentElement;
+  if (wrap) wrap.style.borderLeftColor = color;
+  var strong = wrap && wrap.querySelector('strong');
+  if (strong) strong.style.color = color;
+};
+if (typeof document !== 'undefined') {
+  document.addEventListener('aio:liveQuotes', function(){
+    var opt = document.getElementById('page-options');
+    if (opt && opt.classList.contains('active')) window._aioRenderFuturesFlow();
+  });
+  document.addEventListener('aio:pageShown', function(e){
+    if (e.detail === 'options') setTimeout(window._aioRenderFuturesFlow, 300);
+  });
+}
+
+// v48.58: VIX Term Structure 기간구조 판정 (sentiment 페이지)
+window._aioRenderVixTermRegime = function() {
+  var el = document.getElementById('vix-term-regime-text');
+  if (!el) return;
+  var ld = window._liveData || {};
+  var v9d = ld['^VIX9D'] ? ld['^VIX9D'].price : null;
+  var v30 = ld['^VIX'] ? ld['^VIX'].price : null;
+  var v3m = ld['^VIX3M'] ? ld['^VIX3M'].price : null;
+  var v6m = ld['^VIX6M'] ? ld['^VIX6M'].price : null;
+  if (!v30) { el.textContent = 'VIX 데이터 수신 대기 중'; return; }
+  var available = [v9d, v30, v3m, v6m].filter(function(v){ return v != null; });
+  if (available.length < 2) { el.textContent = '기간구조 산정 불가 (부족한 만기)'; return; }
+  // 정상(콘탱고): 단기<장기. 역전(백워데이션): 단기>장기.
+  var diff30_3m = (v3m != null) ? (v3m - v30) : 0;
+  var diff9d_30 = (v9d != null && v30 != null) ? (v30 - v9d) : 0;
+  var regime, color;
+  if (v9d != null && v9d > v30 * 1.02) { regime = '백워데이션 (패닉 신호) — VIX9D > VIX, 즉각적 공포 우세. 역사적으로 1~2주 내 바닥 반등 가능.'; color = 'var(--data-red)'; }
+  else if (diff30_3m < -1) { regime = '백워데이션 (조정 경보) — VIX > VIX3M. 중기 우려 누적, 포지션 방어 고려.'; color = 'var(--data-amber)'; }
+  else if (diff30_3m < 1 && diff30_3m > -1) { regime = '평탄화 — 콘탱고 붕괴 직전. 변동성 확대 가능, 헤지 강화 시점.'; color = 'var(--data-amber)'; }
+  else { regime = '정상 콘탱고 — 단기&lt;장기, 시장 안정 국면. 위험자산 비중 유지 가능.'; color = 'var(--data-green)'; }
+  el.innerHTML = regime;
+  // 색상 업데이트
+  var wrap = el.parentElement;
+  if (wrap) wrap.style.borderLeftColor = color;
+  var strong = wrap && wrap.querySelector('strong');
+  if (strong) strong.style.color = color;
+};
+if (typeof document !== 'undefined') {
+  document.addEventListener('aio:liveQuotes', function(){
+    var sent = document.getElementById('page-sentiment');
+    if (sent && sent.classList.contains('active')) window._aioRenderVixTermRegime();
+  });
+  document.addEventListener('aio:pageShown', function(e){
+    if (e.detail === 'sentiment') setTimeout(window._aioRenderVixTermRegime, 300);
+  });
+}
+
+// v48.58: home 페이지 테마 요약 렌더러 (상위 8개 RS 순)
+window._aioRenderHomeThemeSummary = function() {
+  var el = document.getElementById('home-theme-summary');
+  if (!el) return;
+  var subs = (typeof SUB_THEMES !== 'undefined' && Array.isArray(SUB_THEMES)) ? SUB_THEMES : [];
+  var ld = window._liveData || {};
+  if (subs.length === 0) return;
+  // 테마별 leaders 평균 등락률로 정렬
+  var ranked = subs.map(function(t) {
+    var pcts = (t.leaders || []).map(function(s) {
+      var d = ld[s];
+      return (d && d.pct != null && isFinite(d.pct)) ? d.pct : null;
+    }).filter(function(v){ return v != null; });
+    var avg = pcts.length > 0 ? pcts.reduce(function(a,b){return a+b;}, 0) / pcts.length : 0;
+    return { id: t.id, name: t.name, avg: avg, hasData: pcts.length > 0, color: t.color || 'var(--text-muted)', etf: t.etf };
+  });
+  // 데이터 있는 것만 + 정렬
+  var hasLive = ranked.filter(function(r){ return r.hasData; });
+  if (hasLive.length < 4) {
+    el.innerHTML = '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--text-muted);font-size:11px;">테마 시세 수신 대기 중… <span style="font-size:10px;opacity:0.7;">(약 30초 내 갱신)</span></div>';
+    return;
+  }
+  hasLive.sort(function(a,b){ return Math.abs(b.avg) - Math.abs(a.avg); });
+  var top = hasLive.slice(0, 8);
+  var html = top.map(function(r) {
+    var isUp = r.avg >= 0;
+    var bgColor = isUp ? 'rgba(0,229,160,0.08)' : 'rgba(255,91,80,0.08)';
+    var borderColor = isUp ? 'rgba(0,229,160,0.25)' : 'rgba(255,91,80,0.25)';
+    var pctColor = isUp ? 'var(--data-green)' : 'var(--data-red)';
+    var sign = isUp ? '+' : '';
+    return '<div class="aio-hover-scale" data-action="showThemeDetail" data-arg="' + escHtml(r.id) + '" role="button" tabindex="0" style="background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:6px;padding:7px 8px;cursor:pointer;transition:transform var(--dur-fast);">' +
+      '<div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;line-height:1.3;">' + escHtml(r.name) + '</div>' +
+      '<div style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:' + pctColor + ';">' + sign + r.avg.toFixed(2) + '%</div>' +
+      (r.etf ? '<div style="font-size:9px;color:var(--text-muted);margin-top:2px;">' + escHtml(r.etf) + '</div>' : '') +
+      '</div>';
+  }).join('');
+  el.innerHTML = html;
+};
+// _liveData 업데이트 시 + home 페이지 진입 시 자동 렌더
+if (typeof document !== 'undefined') {
+  document.addEventListener('aio:liveQuotes', function(){
+    var home = document.getElementById('page-home');
+    if (home && home.classList.contains('active')) window._aioRenderHomeThemeSummary();
+  });
+  document.addEventListener('aio:pageShown', function(e){
+    if (e.detail === 'home') setTimeout(window._aioRenderHomeThemeSummary, 300);
+  });
+}
+
+// v48.58: 첫 방문 온보딩 모달 (Blocker #1 해소 — API 키 선택 가이드)
+window._aioShowOnboarding = function() {
+  if (document.getElementById('aio-onboarding-modal')) return;
+  var dismissed = false;
+  try { dismissed = localStorage.getItem('aio_onboarding_dismissed') === '1'; } catch(_){}
+  if (dismissed) return;
+  var modal = document.createElement('div');
+  modal.id = 'aio-onboarding-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-labelledby', 'aio-onboard-title');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML = '' +
+    '<div class="aio-prompt-modal" style="background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:22px 26px;max-width:540px;width:100%;max-height:86vh;overflow-y:auto;box-shadow:var(--shadow-lg);">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">' +
+        '<h2 id="aio-onboard-title" style="margin:0;font-size:17px;font-weight:700;color:var(--text-primary);">AIO Screener에 오신 것을 환영합니다</h2>' +
+        '<button data-action="_aioOnboardDismiss" aria-label="온보딩 닫기" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:4px 8px;">✕</button>' +
+      '</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:16px;">' +
+        '본 터미널은 <strong>5개 무료 API</strong>를 조합하여 실시간 시장 분석 · 포트폴리오 · AI 채팅을 제공합니다. 아래 순서로 API 키를 설정하세요 (모두 무료, 신용카드 불필요).' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">' +
+        '<div style="padding:10px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:7px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--data-cyan);margin-bottom:4px;">' +
+            '<span style="background:var(--data-cyan);color:#001018;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">1</span>' +
+            '<span>Claude API (필수) — AI 채팅·분석</span>' +
+          '</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);padding-left:28px;line-height:1.6;"><a href="https://console.anthropic.com" target="_blank" rel="noopener" style="color:var(--data-cyan);">console.anthropic.com</a>에서 발급 · $5 무료 크레딧</div>' +
+        '</div>' +
+        '<div style="padding:10px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:7px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--data-amber);margin-bottom:4px;">' +
+            '<span style="background:var(--data-amber);color:#001018;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">2</span>' +
+            '<span>Finnhub (강력 권장) — 실시간 시세·어닝·뉴스</span>' +
+          '</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);padding-left:28px;line-height:1.6;"><a href="https://finnhub.io/register" target="_blank" rel="noopener" style="color:var(--data-amber);">finnhub.io/register</a> · 60 req/min 무료</div>' +
+        '</div>' +
+        '<div style="padding:10px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:7px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--data-green);margin-bottom:4px;">' +
+            '<span style="background:var(--data-green);color:#001018;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">3</span>' +
+            '<span>FMP (권장) — 기업 재무·밸류에이션</span>' +
+          '</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);padding-left:28px;line-height:1.6;"><a href="https://financialmodelingprep.com/developer" target="_blank" rel="noopener" style="color:var(--data-green);">financialmodelingprep.com</a> · 250 req/day 무료</div>' +
+        '</div>' +
+        '<div style="padding:10px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;">' +
+            '<span style="background:var(--text-muted);color:#001018;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">4</span>' +
+            '<span>FRED (선택) — 매크로 지표</span>' +
+          '</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);padding-left:28px;line-height:1.6;"><a href="https://fred.stlouisfed.org/docs/api/api_key.html" target="_blank" rel="noopener" style="color:var(--text-secondary);">fred.stlouisfed.org</a> · 무제한 무료</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="padding:10px 12px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.3);border-radius:7px;margin-bottom:14px;font-size:11px;color:var(--text-secondary);line-height:1.6;">' +
+        '<strong style="color:var(--data-cyan);">키 없이도 사용 가능</strong> — Yahoo/Stooq/Naver/CoinGecko 공개 시세 + 정적 스냅샷 데이터. 단 AI 채팅·기업 재무는 키 필요.' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
+        '<button data-action="_aioOnboardLater" class="tb-btn" style="font-size:12px;padding:8px 14px;">나중에</button>' +
+        '<button data-action="_aioOnboardGoKeys" class="tb-btn primary" style="font-size:12px;padding:8px 16px;font-weight:700;">API 키 설정 →</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(modal);
+};
+window._aioOnboardDismiss = function() {
+  try { localStorage.setItem('aio_onboarding_dismissed', '1'); } catch(_){}
+  var m = document.getElementById('aio-onboarding-modal');
+  if (m) m.remove();
+};
+window._aioOnboardLater = function() {
+  // "나중에": 3일 후 다시 표시 (dismissed 아님)
+  try { localStorage.setItem('aio_onboarding_later_until', String(Date.now() + 3 * 86400000)); } catch(_){}
+  var m = document.getElementById('aio-onboarding-modal');
+  if (m) m.remove();
+};
+window._aioOnboardGoKeys = function() {
+  window._aioOnboardDismiss();
+  // 사이드바 API 키 섹션으로 스크롤
+  var keySection = document.querySelector('.sidebar-api-section');
+  if (keySection) keySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  var firstKeyInput = document.querySelector('.llm-key-input');
+  if (firstKeyInput) setTimeout(function(){ firstKeyInput.focus(); }, 300);
+};
+// 첫 방문 감지 (2초 지연 — 로딩 완료 후)
+if (typeof document !== 'undefined') {
+  setTimeout(function() {
+    try {
+      var dismissed = localStorage.getItem('aio_onboarding_dismissed') === '1';
+      var laterUntil = parseInt(localStorage.getItem('aio_onboarding_later_until') || '0', 10);
+      var hasAnyKey = false;
+      ['aio_claude_api_key', 'aio_finnhub_key', 'aio_fmp_key', 'aio_fred_key'].forEach(function(k){
+        if (localStorage.getItem(k)) hasAnyKey = true;
+      });
+      // 키 하나라도 있으면 온보딩 불필요
+      if (hasAnyKey) { try { localStorage.setItem('aio_onboarding_dismissed', '1'); } catch(_){} return; }
+      if (dismissed) return;
+      if (laterUntil && Date.now() < laterUntil) return;
+      window._aioShowOnboarding();
+    } catch(_){}
+  }, 2500);
+}
+
+// v48.58: 포트폴리오 시세 신선도 UI 업데이터 (Blocker #2 해소)
+window._aioUpdateFreshness = function() {
+  var strip = document.getElementById('pf-freshness-strip');
+  if (!strip) return;
+  var dot = document.getElementById('pf-freshness-dot');
+  var label = document.getElementById('pf-freshness-label');
+  var time = document.getElementById('pf-freshness-time');
+  var now = Date.now();
+  var lastFetch = (window._lastFetch && window._lastFetch.liveQuotes) ? window._lastFetch.liveQuotes : null;
+  if (!lastFetch) {
+    if (dot) { dot.style.background = '#8896a8'; dot.style.boxShadow = 'none'; }
+    if (label) { label.textContent = '대기 중'; label.style.color = 'var(--text-muted)'; }
+    if (time) time.textContent = '갱신: 대기';
+    return;
+  }
+  var ageSec = Math.round((now - lastFetch) / 1000);
+  var ageMin = Math.round(ageSec / 60);
+  var state, color, src;
+  if (ageSec < 90) { state = '실시간'; color = 'var(--data-green)'; }
+  else if (ageSec < 300) { state = '지연'; color = 'var(--data-amber)'; }
+  else if (ageSec < 1800) { state = '스테일'; color = 'var(--data-amber)'; }
+  else { state = '연결 끊김'; color = 'var(--data-red)'; }
+  var source = (window._lastQuoteSource) ? window._lastQuoteSource : 'Yahoo';
+  if (dot) { dot.style.background = color; dot.style.boxShadow = '0 0 6px ' + color; }
+  if (label) { label.textContent = state + ' (' + source + ')'; label.style.color = 'var(--text-primary)'; }
+  if (time) time.textContent = '갱신: ' + (ageSec < 60 ? ageSec + '초 전' : ageMin + '분 전');
+};
+if (typeof document !== 'undefined') {
+  document.addEventListener('aio:liveQuotes', function(){ window._aioUpdateFreshness(); });
+  setInterval(function(){ window._aioUpdateFreshness(); }, 30 * 1000);
+}
+
 // v48.55: 뉴스 티커 배지 클릭 → ticker 페이지 이동 + 심볼 자동 조회 (사용자 지적 "뉴스→기업" 연결)
 window._aioNewsTickerClick = function(sym) {
   if (!sym) return;
@@ -2196,7 +2515,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.57';
+const APP_VERSION = 'v48.58';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거

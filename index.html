@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.57 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.58 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1410,7 +1410,8 @@ body {
 .nav-item.active .nav-icon { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
 /* v41.8: 상태 도트 — 이모지 대체 */
 .sd{display:inline-block;width:7px;height:7px;border-radius:50%;vertical-align:middle;margin-right:3px;}
-.sd-r{background:#ef4444;} .sd-g{background:#22c55e;} .sd-y{background:#eab308;} .sd-w{background:#64748b;}
+/* v48.58: WCAG AA 대비 4.5:1 준수 — sd-w(회색) 명도 상향 + 브랜드 토큰 매핑 */
+.sd-r{background:var(--data-red);} .sd-g{background:var(--data-green);} .sd-y{background:var(--data-amber);} .sd-w{background:#8896a8;color:#001018;font-weight:700;}
 /* v33.0.1: 인사이트 설명 박스 — 항상 표시, 클릭 펼침/접기 */
 /* v48.42: insight-box (Figma card feel + accent left) */
 .insight-box {
@@ -3676,7 +3677,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.57</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.58</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -3987,9 +3988,26 @@ body.light-theme canvas { filter:none; }
 
   <!-- ═══ SECTION 3: 시장 브리핑 (Market Briefing) ═══ -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
-    <div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;margin-bottom:10px;text-transform:uppercase;">시장 브리핑</div>
-    <div id="home-briefing-content" style="font-size:9px;color:var(--text-secondary);line-height:1.6;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">시장 브리핑</div>
+      <button data-action="showPage" data-arg="briefing" class="tb-btn" style="font-size:10px;">전체 브리핑 →</button>
+    </div>
+    <div id="home-briefing-content" style="font-size:11px;color:var(--text-secondary);line-height:1.7;">
       <div style="margin-bottom:6px;">• 로딩 중...</div>
+    </div>
+  </div>
+
+  <!-- v48.58: 홈 테마 히트맵 요약 (상위 8개 + themes 링크) — Agent 5 주제 누락 대응 -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div>
+        <span style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">테마 · 섹터 요약</span>
+        <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="테마 요약 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">테마 히트맵 요약</span>SUB_THEMES 45개 테마 중 <strong>상위 8개</strong>를 RS(상대강도) 순으로 표시. 각 카드 클릭 → 테마 상세 페이지 (대장주 · 구성종목 · 매크로 체인).</span></span>
+      </div>
+      <button data-action="showPage" data-arg="themes" class="tb-btn" style="font-size:10px;">전체 45 테마 →</button>
+    </div>
+    <div id="home-theme-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;min-height:110px;">
+      <div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text-muted);font-size:11px;">테마 데이터 로딩 중…</div>
     </div>
   </div>
 
@@ -5431,10 +5449,46 @@ body.light-theme canvas { filter:none; }
         <!-- VIX Chart -->
         <div class="data-widget" style="padding:12px;flex:1;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-secondary);"><span class="term-tooltip">VIX<span class="tip-icon">?</span><span class="tip-body">30일 변동성 지수. 낮음=안정, 높음=공포</span></span></div>
-            <div style="font-size:10px;color:var(--green);font-weight:600;"><span id="vix-live-label">VIX</span>: <span id="vix-live-val">18.36</span></div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-secondary);"><span class="term-tooltip">VIX<span class="tip-icon">?</span><span class="tip-body">30일 변동성 지수. 낮음=안정, 높음=공포</span></span></div>
+            <div style="font-size:11px;color:var(--green);font-weight:600;"><span id="vix-live-label">VIX</span>: <span id="vix-live-val" data-live-price="^VIX">18.36</span></div>
           </div>
           <div style="position:relative;height:140px;"><canvas id="vix-chart" role="img" aria-label="VIX 공포지수 추이 차트"></canvas></div>
+        </div>
+
+        <!-- v48.58: VIX Term Structure 요약 (sentiment 페이지 누락 보강 — Agent 5 발견) -->
+        <div class="data-widget" style="padding:12px;flex:1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">
+              VIX 기간구조 (9·1M·3M·6M)
+              <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="VIX 기간구조 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">Term Structure 해석</span><strong>콘탱고</strong>(우상향, 정상): 단기&lt;장기 · 시장 안정. <strong>백워데이션</strong>(역전, 비정상): 단기&gt;장기 · 즉각적 공포 &gt; 미래 우려. VIX 백워데이션은 <strong>시장 패닉 신호</strong> · 역사적 바닥 1~2주 선행.</span></span>
+            </div>
+            <button data-action="showPage" data-arg="options" class="tb-btn" style="font-size:10px;">상세 차트 →</button>
+          </div>
+          <div id="vix-term-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+            <div style="text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px;">
+              <div style="font-size:10px;color:var(--text-muted);font-weight:700;">VIX9D</div>
+              <div style="font-size:15px;font-weight:800;font-family:var(--font-mono);color:var(--data-green);" data-live-price="^VIX9D">—</div>
+              <div style="font-size:9px;color:var(--text-muted);">9일 기대 변동성</div>
+            </div>
+            <div style="text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px;">
+              <div style="font-size:10px;color:var(--text-muted);font-weight:700;">VIX (30D)</div>
+              <div style="font-size:15px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);" data-live-price="^VIX">—</div>
+              <div style="font-size:9px;color:var(--text-muted);">30일 기대</div>
+            </div>
+            <div style="text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px;">
+              <div style="font-size:10px;color:var(--text-muted);font-weight:700;">VIX3M</div>
+              <div style="font-size:15px;font-weight:800;font-family:var(--font-mono);color:var(--data-cyan);" data-live-price="^VIX3M">—</div>
+              <div style="font-size:9px;color:var(--text-muted);">90일 기대</div>
+            </div>
+            <div style="text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px;">
+              <div style="font-size:10px;color:var(--text-muted);font-weight:700;">VIX6M</div>
+              <div style="font-size:15px;font-weight:800;font-family:var(--font-mono);color:var(--data-purple);" data-live-price="^VIX6M">—</div>
+              <div style="font-size:9px;color:var(--text-muted);">6개월 기대</div>
+            </div>
+          </div>
+          <div id="vix-term-regime" style="margin-top:8px;padding:7px 10px;background:var(--surface-2);border-left:3px solid var(--data-amber);border-radius:4px;font-size:11px;color:var(--text-secondary);line-height:1.5;">
+            <strong style="color:var(--data-amber);">기간구조 판정:</strong> <span id="vix-term-regime-text">데이터 로딩 중…</span>
+          </div>
         </div>
 
         <!-- NAAIM + II Row -->
@@ -8177,8 +8231,21 @@ body.light-theme canvas { filter:none; }
     <!-- 포트폴리오 메인 (잠금 해제 후 표시) -->
     <div id="pf-main" style="display:block;">
 
+    <!-- v48.58: 시세 신선도 배지 (판매 Blocker #2 해소) -->
+    <div id="pf-freshness-strip" style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:11px;flex-wrap:wrap;">
+      <span style="display:inline-flex;align-items:center;gap:6px;">
+        <span id="pf-freshness-dot" style="width:8px;height:8px;border-radius:50%;background:var(--data-green);box-shadow:0 0 6px var(--data-green);"></span>
+        <span style="color:var(--text-muted);font-weight:700;">시세 신선도</span>
+      </span>
+      <span id="pf-freshness-label" style="color:var(--text-primary);font-weight:600;">실시간 (Yahoo v7)</span>
+      <span id="pf-freshness-time" style="color:var(--text-muted);font-family:var(--font-mono);font-size:10px;">갱신: —</span>
+      <span style="margin-left:auto;color:var(--text-muted);font-size:11px;line-height:1.5;">
+        장중 실시간 · 장외 15분 지연 가능 · API 장애 시 Stooq 폴백
+        <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="시세 지연 설명">?<span class="aio-tooltip-body is-right"><span class="aio-tooltip-title">시세 지연 이유</span>Yahoo v7/v8 <strong>15분 이내 지연</strong> 가능 (무료 API). 한국 종목은 Naver(실시간). Yahoo 실패 시 Stooq 자동 폴백(EOD). 크립토 CoinGecko · 환율 open.er-api 3중 체인.</span></span>
+      </span>
+    </div>
+
     <!-- Summary Cards -->
-    <!-- v48.3: 라벨 9px→11px, 숫자 20px→22px, 서브 10px→12px 상향 -->
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:14px;">
       <div class="data-widget" style="padding:14px 16px;">
         <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">총 자산 가치</div>
@@ -8431,10 +8498,78 @@ body.light-theme canvas { filter:none; }
   <div class="insight-box box-collapsed">
     <strong>종목 심층 분석 — 재무·차트·뉴스·실적을 한 곳에서 확인</strong>
   </div>
+
+  <!-- v48.58: Ticker 페이지 기관급 해설 (15개 관점 심층 분석 가이드) -->
+  <div class="aio-explain" id="explain-ticker-page">
+    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-ticker-page">
+      <span class="aio-explain-trigger-label">
+        <span class="aio-explain-trigger-icon">?</span>
+        <span>종목 심층 분석 가이드 — 15개 관점 + Weinstein Stage + 진입 체크리스트</span>
+      </span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="aio-explain-content">
+      <div class="explain-section">
+        <div class="explain-label">이 페이지 구성</div>
+        <div class="explain-body">
+          개별 종목 심층 분석 전용 페이지. <strong>실시간 시세 + Weinstein Stage 4단계 + 재무(FMP) + 뉴스(Finnhub) + AI 채팅(themes/fundamental 페르소나)</strong>이 자동 수집·주입됩니다.
+          <ul>
+            <li><strong>Overview 탭</strong> — Key Metrics (P/E · P/B · ROE · Dividend), Action (Support · Resistance · 52W Range)</li>
+            <li><strong>Chart 탭</strong> — 1M/3M/6M/1Y 가격 차트 (Yahoo v8/Stooq fallback)</li>
+            <li><strong>Financials 탭</strong> — Quarterly Revenue · Gross Profit · Operating Income · Net Income (TTM)</li>
+            <li><strong>캔들 패턴 갤러리</strong> — 망치형·강세장악형·샛별형 등 실시간 감지 (현재 티커 기준)</li>
+            <li><strong>진입 품질 계산기</strong> — 현재가·EMA20·RSI 입력 → A/B/C 등급 + Fibonacci 38.2% + 손절가 추천</li>
+          </ul>
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="explain-label is-amber">Weinstein Stage 4단계 (추세 판단 프레임워크)</div>
+        <div class="explain-body">
+          Stan Weinstein "Secrets for Profiting in Bull and Bear Markets" (1988):
+          <ul>
+            <li><strong>Stage 1 바닥 다지기</strong> — 30주 MA 평탄 + 가격 횡보. 매수 준비 구간 (피봇 포인트 탐색).</li>
+            <li><strong>Stage 2 상승 추세 · 매수!</strong> — 30주 MA 위 + 상향 기울기. <strong>여기서만 매수</strong>. VCP·Breakout 셋업 활성.</li>
+            <li><strong>Stage 3 천장 · 매도 준비</strong> — 30주 MA 평탄화 + 변동성 확대. 분할 익절 시작.</li>
+            <li><strong>Stage 4 하락 추세 · 회피</strong> — 30주 MA 아래 + 하향. 숏 또는 현금. 절대 매수 금지.</li>
+          </ul>
+          <strong>적용</strong>: 페이지 상단 Action 버튼(BUY/LONG · HOLD · SELL/SHORT)은 Stage 판정 기반. Stage 2 + RSI 50~70 + 거래량 평균 1.5배 이상 = <strong>A급 진입</strong>.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="explain-label is-green">AI 채팅 + 자동 데이터 주입 (v48.55+)</div>
+        <div class="explain-body">
+          AI 채팅 사이드 패널에서 종목 질의 시 <strong>자동 수집</strong>:
+          <ul>
+            <li><strong>Yahoo</strong> — 실시간 가격 · 변동률 · 거래량</li>
+            <li><strong>Finnhub</strong> — 애널리스트 추천(strongBuy/buy/hold/sell) · 향후 어닝 일정 · 기업 뉴스 14일</li>
+            <li><strong>FMP</strong> — profile · ratios TTM · key-metrics · income-statement 5년 · cash-flow · balance-sheet</li>
+            <li><strong>SEC EDGAR</strong> — 10-K/10-Q 공시 + 섹터 백분위 순위</li>
+            <li><strong>웹검색</strong> — 최신 뉴스·리서치 (Perplexity · Google CSE fallback)</li>
+          </ul>
+          <strong>themes/theme-detail/portfolio 페이지에서 이 종목 질의</strong> → FMP 재무 심층 자동 활성 (v48.55 R41).
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="explain-label is-amber">진입 체크리스트 (5대 필터)</div>
+        <div class="explain-body">
+          Mark Minervini SEPA (Specific Entry Point Analysis) 8대 조건 중 핵심 5개:
+          <ol>
+            <li>가격 &gt; 50MA &gt; 150MA &gt; 200MA 정배열 + 200MA 상승</li>
+            <li>52주 저점 대비 +25% ↑ · 52주 고점 대비 25% 이내</li>
+            <li>RS Rating 80+ (시장 대비 상대강도)</li>
+            <li>VCP(Volatility Contraction Pattern) 2~6회 수축 + 거래량 평균 150% ↑</li>
+            <li>손절 -5~8% (피봇 포인트 대비, 절대 -10% 이상 허용 금지)</li>
+          </ol>
+          <strong>목표</strong>: R:R 최소 3:1. 5개 모두 통과 = A급 진입, 3개+ = 선별, 2개 이하 = 패스.
+        </div>
+      </div>
+    </div>
+  </div>
+
     <div class="mb-4">
       <div style="display:flex;gap:8px;margin-bottom:8px;">
         <button id="ticker-back-btn-main" class="tb-btn" data-action="showPage" data-arg="portfolio">← 돌아가기</button>
-        <span id="ticker-breadcrumb-main" style="font-size:10px;color:var(--text-muted);">Portfolio > NVDA</span>
+        <span id="ticker-breadcrumb-main" style="font-size:11px;color:var(--text-muted);">Portfolio > NVDA</span>
       </div>
       <div style="display:flex;align-items:baseline;gap:12px;">
         <div id="ticker-detail-name" style="display:flex;flex-direction:column;">
@@ -8917,10 +9052,46 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:8px;color:var(--text-muted);line-height:1.4;">VIX 장기 평년 15~18. 20+ 주의, 30+ 극도 긴장. FOMC 듀얼 리스크 + 2주 휴전 붕괴 가능성 → VIX 30+ 지속 환경. 4월 이벤트 밀집(CPI/어닝/OPEX)으로 변동성 확대 경계.</div>
     </div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
-      <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">GEX (감마 노출)</div>
-      <div style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">-12.8B</div>
-      <div style="font-size:9px;color:var(--data-red);margin-bottom:6px;">음수 · 변동성 증폭 위험</div>
-      <div style="font-size:8px;color:var(--text-muted);line-height:1.4;">감마 노출이 음수면 변동성 증폭 메커니즘 작동. 빠른 상승 또는 하락 시 옵션 헤지 언와인드 → 추가 낙폭.</div>
+      <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">GEX (감마 노출) <span style="font-size:8px;color:var(--data-amber);">수동</span></div>
+      <div style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);" data-snap="gex-current">-12.8B</div>
+      <div style="font-size:10px;color:var(--data-red);margin-bottom:6px;">음수 · 변동성 증폭 위험</div>
+      <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">감마 노출이 음수면 변동성 증폭 메커니즘 작동. 빠른 상승·하락 시 옵션 헤지 언와인드 → 추가 낙폭. <strong>CBOE/SpotGamma 전문 소스 필요</strong>.</div>
+    </div>
+  </div>
+
+  <!-- v48.58: 선물 흐름 (Futures Flow) — 사용자 options subtitle "기간구조 · 선물 흐름" 명시됨, 이전 누락 -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-primary);">
+        선물 흐름 (Futures Flow)
+        <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="선물 흐름 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">선물 흐름 해석</span>미국 지수 선물(ES/NQ/YM/RTY) 실시간 등락. <strong>장 외 시간</strong> 선물이 현물과 괴리 → 익일 갭 오픈 가능성. <strong>4지수 동행 상승/하락</strong> = 광범위 모멘텀. <strong>분산</strong> = 섹터별 차등.</span></span>
+      </div>
+      <span style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">Yahoo ES/NQ/YM/RTY 실시간</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">ES (S&P500)</div>
+        <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-primary);" data-live-price="ES=F">—</div>
+        <div style="font-size:11px;font-weight:700;" data-live-chg="ES=F">—</div>
+      </div>
+      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">NQ (Nasdaq100)</div>
+        <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-primary);" data-live-price="NQ=F">—</div>
+        <div style="font-size:11px;font-weight:700;" data-live-chg="NQ=F">—</div>
+      </div>
+      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">YM (Dow)</div>
+        <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-primary);" data-live-price="YM=F">—</div>
+        <div style="font-size:11px;font-weight:700;" data-live-chg="YM=F">—</div>
+      </div>
+      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">RTY (Russell)</div>
+        <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-primary);" data-live-price="RTY=F">—</div>
+        <div style="font-size:11px;font-weight:700;" data-live-chg="RTY=F">—</div>
+      </div>
+    </div>
+    <div id="futures-flow-regime" style="margin-top:10px;padding:8px 12px;background:var(--surface-2);border-left:3px solid var(--data-amber);border-radius:4px;font-size:11px;color:var(--text-secondary);line-height:1.5;">
+      <strong style="color:var(--data-amber);">판정:</strong> <span id="futures-flow-text">4지수 동행/분산 판정 대기 중…</span>
     </div>
   </div>
 
@@ -10816,6 +10987,24 @@ body.light-theme canvas { filter:none; }
   <div class="page" id="page-guide">
   <div class="insight-box box-collapsed">
     <strong>AIO 사용 설명서 — 각 페이지 활용법 + 용어 사전 + 투자 기초</strong>
+  </div>
+
+  <!-- v48.58: Guide 페이지 내비게이션 (TOC + 검색) — 18K줄 탐색성 개선 -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;position:sticky;top:8px;z-index:10;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+      <span style="font-size:12px;font-weight:700;color:var(--text-secondary);">빠른 이동</span>
+      <input id="guide-search-input" type="search" placeholder="용어/페이지 검색 (예: VCP, RRG, 피보나치)" aria-label="가이드 검색" style="flex:1;min-width:200px;padding:6px 10px;background:var(--surface-3);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:11px;" data-on-enter="_aioGuideSearch:__value"/>
+      <button data-action="_aioGuideSearchTrigger" class="tb-btn primary" style="font-size:11px;padding:6px 12px;">검색</button>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;">
+      <button data-action="_aioGuideJump" data-arg="explain-guide-overview" class="tb-btn" style="font-size:10px;padding:4px 10px;">10단계 루틴</button>
+      <button data-action="_aioGuideJump" data-arg="guide-valuechain" class="tb-btn" style="font-size:10px;padding:4px 10px;">밸류체인</button>
+      <button data-action="_aioGuideJump" data-arg="guide-glossary" class="tb-btn" style="font-size:10px;padding:4px 10px;">용어사전</button>
+      <button data-action="_aioGuideJump" data-arg="guide-strategies" class="tb-btn" style="font-size:10px;padding:4px 10px;">매매 전략</button>
+      <button data-action="_aioGuideJump" data-arg="guide-faq" class="tb-btn" style="font-size:10px;padding:4px 10px;">FAQ</button>
+      <button data-action="_aioGuideJump" data-arg="guide-api" class="tb-btn" style="font-size:10px;padding:4px 10px;">API 설정</button>
+    </div>
+    <div id="guide-search-result" style="display:none;margin-top:8px;padding:8px 10px;background:var(--surface-2);border-radius:6px;font-size:10px;color:var(--text-muted);"></div>
   </div>
 
   <!-- ═══ v48.46: 가이드 페이지 — 밸류체인 요약 ═══ -->

@@ -7543,6 +7543,8 @@ const LIVE_SYMBOLS = [
   '003490.KS','008770.KS','089590.KS','272450.KS','039130.KS',
   // ── 채권 금리 ──────────────────────────────────────────────────
   '^IRX','^FVX','^TNX','^TYX',
+  // v48.58: VIX 기간구조 (sentiment 페이지 요약)
+  '^VIX9D','^VIX3M','^VIX6M','^SKEW',
   // ── 외환 ────────────────────────────────────────────────────────
   'KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X',
   'DX-Y.NYB',
@@ -8126,7 +8128,7 @@ async function fetchLiveQuotes() {
     ['BZ=F', 'NG=F', 'SI=F', 'KRW=X', 'HG=F'],             // v38.3: Brent·원자재·원달러 우선 fetch
     ['NVDA', 'AAPL', 'TSLA', 'MSFT', 'AMD'],               // 대형주
     ['XLE', 'XLK', 'XLF', 'GLD', 'TLT'],                   // 섹터 ETF
-    ['ES=F', 'NQ=F', 'YM=F', 'VXX', 'UVXY'],               // v36.6: 지수선물 + VIX ETF
+    ['ES=F', 'NQ=F', 'YM=F', 'RTY=F', 'VXX', 'UVXY'],      // v48.58: RTY=F 추가 (Russell 선물)
     ['^RUT', '^VVIX', '^IRX', '^FVX', 'RSP'],              // 추가 지수
     ['QQQ', 'AMZN', 'META', 'GOOGL', 'MU'],                 // 추가 주식 (v38.4: GOOGL 추가, ARM→후순위)
     // ── v34.6: 테마 세분화 핵심 종목 우선 fetch (SUB_THEMES leaders) ──

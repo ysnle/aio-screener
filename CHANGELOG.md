@@ -6,6 +6,114 @@
 
 ---
 
+## v48.58 — 남은 이월 과제 8건 전부 순차 처리 (Phase 7~14) (2026-04-22)
+
+### 트리거
+사용자 지시: "남은 작업들 모두 여기서 순차적으로 진행해. 하라면 해"
+
+v48.57 감사에서 이월했던 8건을 이번 세션에 전부 마무리.
+
+### Phase 7 — .sd-w 색상 AA 대비 수정
+- `#64748b on #111a2f` 대비 3.86:1 (AA 미달) → `#8896a8` 배경 + `#001018` 텍스트로 변경 → 7:1+ 대비 확보
+- 동시에 `.sd-r`/`.sd-g`/`.sd-y` 색상도 브랜드 토큰(`var(--data-*)`)으로 통일
+
+### Phase 8 — ticker 페이지 aio-explain 기관급 해설 신규
+Agent 1 보고: "ticker 페이지 aio-explain 0개 — 지표 해석 가이드 전무" 해소.
+
+**4개 explain-section 추가** (900+ 글자):
+- 이 페이지 구성 (Overview/Chart/Financials 탭 + 캔들 패턴 갤러리 + 진입 품질 계산기)
+- Weinstein Stage 4단계 프레임워크 (Stan Weinstein 1988 전문 해설)
+- AI 채팅 자동 데이터 주입 (Yahoo/Finnhub/FMP/SEC/웹검색 16필드)
+- 진입 체크리스트 (Mark Minervini SEPA 5대 필터)
+
+### Phase 9 — 포트폴리오 시세 신선도 UI (판매 Blocker #2 해소)
+Agent 4 보고: "포트폴리오 시세 지연 설명 부족 — 신규 사용자 혼란"
+
+**`pf-freshness-strip` 신설**:
+- 신선도 dot (4색 상태: 실시간/지연/스테일/연결끊김)
+- 소스 표시 (Yahoo/Stooq/Naver)
+- 갱신 시간 (초/분 전)
+- 툴팁: 5중 소스 체인 설명
+- `_aioUpdateFreshness()` 30초 주기 + `aio:liveQuotes` 이벤트 훅
+
+### Phase 10 — 첫 방문 온보딩 모달 (판매 Blocker #1 해소)
+Agent 4 보고: "첫 방문 API 키 선택 미안내 — 진입 장벽"
+
+**`_aioShowOnboarding()` 신설**:
+- 4단계 순서 가이드 (Claude 필수 → Finnhub 권장 → FMP 권장 → FRED 선택)
+- 각 API 링크 + 무료 tier 명시
+- "키 없이도 사용 가능" 안내 (Yahoo/Stooq/Naver 공개)
+- 3 버튼: 닫기(dismissed) / 나중에(3일 후) / API 키 설정(사이드바 스크롤)
+- `localStorage`로 재표시 제어
+- 키 하나라도 있으면 자동 dismiss
+- DOMContentLoaded 2.5초 지연
+
+### Phase 11 — home 테마 요약 섹션 (Agent 5 주제 누락 대응)
+home subtitle 언급되나 구현 없던 "테마 히트맵" 요약.
+
+**`home-theme-summary` 섹션 신설**:
+- `SUB_THEMES` leaders 평균 RS 기준 정렬
+- 상위 8개 카드 (4x2 grid)
+- 녹색/적색 배경 + ETF 심볼
+- 클릭 → `showThemeDetail`
+- "전체 45 테마 →" 링크
+- `aio:liveQuotes` + `aio:pageShown` 훅
+
+### Phase 12 — sentiment VIX Term Structure 요약 (Agent 5 발견)
+Agent 5: "sentiment에 VIX Term Structure 해설만 있고 실시간 차트 없음"
+
+**VIX 기간구조 4만기 위젯 신설**:
+- VIX9D · VIX(30D) · VIX3M · VIX6M 4카드
+- LIVE_SYMBOLS 확장: `^VIX9D`/`^VIX3M`/`^VIX6M`/`^SKEW`
+- `_aioRenderVixTermRegime()` 자동 판정 4단계:
+  - 백워데이션(패닉) — VIX9D > VIX·1.02
+  - 백워데이션(조정) — VIX > VIX3M
+  - 평탄화(변동성 확대 경고)
+  - 정상 콘탱고(시장 안정)
+- 색상 + 텍스트 자동 업데이트
+- options 페이지 상세 차트 링크
+
+### Phase 13 — options 선물 흐름 (Agent 5 누락)
+options subtitle "선물 흐름" 명시되나 섹션 없던 것 보강.
+
+**4지수 선물 실시간 위젯**:
+- ES(S&P500) · NQ(Nasdaq100) · YM(Dow) · RTY(Russell) 4카드
+- LIVE_SYMBOLS에 RTY=F 추가
+- `_aioRenderFuturesFlow()` 자동 판정:
+  - 4지수 동행 상승/하락 (편차 < 0.5%p)
+  - 4지수 분산 (편차 > 1%p)
+  - 혼조 (방향성 부재)
+- GEX 수동 갱신 라벨 명확화 ("CBOE/SpotGamma 전문 소스 필요")
+
+### Phase 14 — guide 페이지 TOC/검색 UX (18K줄 탐색성)
+Agent 1 보고: "guide 18,024줄 인라인 — 모놀리식 구조"
+
+**sticky 내비 + 검색 신설**:
+- sticky TOC (top: 8px, z-index: 10)
+- 검색 input + Enter/버튼 트리거
+- 6개 빠른 점프 버튼 (10단계 루틴/밸류체인/용어사전/매매 전략/FAQ/API 설정)
+- `_aioGuideSearch()` — `TreeWalker` 텍스트 노드 순회
+- 상위 10건 매칭 하이라이트 (`<mark>` 태그)
+- 클릭 시 해당 섹션으로 scrollIntoView + 자동 펼침
+- 18K줄 외부화 대신 **탐색성 개선**으로 실사용성 강화
+
+### 판매 퀄리티 진전
+
+| 판매 Blocker | v48.57 상태 | v48.58 상태 |
+|-----|-----|-----|
+| 1. 첫 방문 API 키 온보딩 | ❌ 없음 | ✅ 4단계 모달 + 스마트 dismiss |
+| 2. 포트폴리오 시세 지연 설명 | ❌ 없음 | ✅ 신선도 strip + 툴팁 |
+| 3. guide 18K줄 탐색 | ❌ 무제한 스크롤 | ✅ TOC + 검색 |
+| 4. ticker 지표 해석 가이드 | ❌ aio-explain 0 | ✅ 4 섹션 해설 |
+| 5. home 테마 히트맵 subtitle 언급 | ❌ 구현 없음 | ✅ 상위 8개 요약 |
+| 6. sentiment VIX Term Structure | ❌ 해설만 | ✅ 4만기 위젯 + 판정 |
+| 7. options 선물 흐름 subtitle 언급 | ❌ 섹션 없음 | ✅ 4지수 + 자동 판정 |
+| 8. .sd-w AA 미달 | ❌ 3.86:1 | ✅ 7:1+ |
+
+### 버전 6곳 동기화
+
+---
+
 ## v48.57 — 5개 Agent 전수 감사 + 6 Phase 즉시 수정 (2026-04-22)
 
 ### 트리거
