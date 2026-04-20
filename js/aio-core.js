@@ -2196,7 +2196,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.56';
+const APP_VERSION = 'v48.57';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -4365,8 +4365,9 @@ function showPage(id, navEl) {
   document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); n.removeAttribute('aria-current'); });
   if(navEl) { navEl.classList.add('active'); navEl.setAttribute('aria-current', 'page'); }
   else {
-    document.querySelectorAll('.nav-item').forEach(n=>{
-      if(n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) { n.classList.add('active'); n.setAttribute('aria-current', 'page'); }
+    // v48.57: onclick 0건(v48.32+) 대응 — data-arg 기반으로 전환
+    document.querySelectorAll('.nav-item').forEach(function(n){
+      if (n.dataset && n.dataset.arg === id) { n.classList.add('active'); n.setAttribute('aria-current', 'page'); }
     });
   }
   const parts = breadcrumbMap[id] || ['AIO', id];
@@ -4393,6 +4394,28 @@ function showPage(id, navEl) {
     try { window.PAGES[id].init(); }
     catch(e) { if (typeof _aioLog === 'function') _aioLog('error', 'page-init', 'showPage ' + id + ': ' + e.message); }
   }
+}
+
+// v48.57: 브라우저 뒤로가기/앞으로가기 대응 (popstate 이벤트 · 이전까지 무반응)
+if (typeof window !== 'undefined' && !window._aioPopstateRegistered) {
+  window.addEventListener('popstate', function(e) {
+    var pageId = null;
+    if (e.state && e.state.page) pageId = e.state.page;
+    else if (location.hash && location.hash.length > 1) pageId = location.hash.slice(1);
+    if (!pageId) pageId = 'home';
+    // 유효 페이지인지 확인
+    if (document.getElementById('page-' + pageId)) {
+      // pushState 없이 showPage — history 중복 방지 (try-catch로 pushState 우회)
+      var _orig = history.pushState;
+      try {
+        history.pushState = function(){};
+        showPage(pageId, null);
+      } finally {
+        history.pushState = _orig;
+      }
+    }
+  });
+  window._aioPopstateRegistered = true;
 }
 
 function showTheme(themeId) {

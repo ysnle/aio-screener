@@ -9401,13 +9401,18 @@ function generateDynamicBriefing() {
   var kospi = ld['^KS11'] || {};
   var tnx = ld['^TNX'] || {};
 
-  var spxPrice = spx.price || 0;
+  // v48.57: _liveData 전면 미수신 + DATA_SNAPSHOT 폴백도 없으면 "로딩 중" 유지 (0/$0 의미 없는 값 금지)
+  var spxPrice = spx.price || snap.spx || 0;
+  if (!spxPrice || spxPrice <= 0) {
+    el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:11px;line-height:1.6;">시세 데이터 수신 대기 중… <br><span style="font-size:10px;">(약 30초 내 자동 갱신)</span></div>';
+    return;
+  }
   var spxChg = (spx.pct != null ? spx.pct : 0);
-  var vixPrice = vix.price || 0;
+  var vixPrice = vix.price || snap.vix || 0;
   var vixChg = (vix.pct != null ? vix.pct : 0);
-  var wtiPrice = wti.price || (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.wti : 0) || 0;
-  var brentPrice = brent.price || (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.brent : 0) || 0;
-  var goldPrice = gold.price || 0;
+  var wtiPrice = wti.price || snap.wti || 0;
+  var brentPrice = brent.price || snap.brent || 0;
+  var goldPrice = gold.price || snap.gold || 0;
   var dxyPrice = dxy.price || 0;
   var krwPrice = krw.price || 0;
   var btcPrice = btc.price || 0;

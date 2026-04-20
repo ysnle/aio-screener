@@ -6,6 +6,74 @@
 
 ---
 
+## v48.57 — 5개 Agent 전수 감사 + 6 Phase 즉시 수정 (2026-04-22)
+
+### 트리거
+사용자 5차 압박:
+1. "여러 작업과 요청들 모두 확인/체크/작업 — 이번 세션 놓친 부분 없어?"
+2. "전수 실측 감사 진행 — 하나하나 꼼꼼하게 읽고/보고/느끼고/활용하고/클릭·입력"
+3. "외부 고객 판매 퀄리티 — 이런 퀄리티면 고소당해"
+4. "각 페이지 이름/주제 일치 감사 — 1번 요청 확장"
+5. "다음 버전/세션 미루지 말고 이번에 순차적으로 모두 작업 진행해"
+
+### 5개 Explore/QA Agent 병렬 감사 결과
+
+**Agent 1 (21 페이지 기능)**: Tier 1 치명적 7개 (guide 18K줄, signal 25/100, fxbond 47/100, kr-supply 62/100, home 품질점수 영구, kr-home 6개 로딩, ticker aio-explain 0개)
+
+**Agent 2 (WCAG 접근성)**: P37 위반 CSS 클래스 6개 + 하드코딩 색상 140+ + repeat(6,1fr) 미디어 미대응 4곳 + aria-label 누락 2건 + 64748b 대비 3.86:1 (AA 미달)
+
+**Agent 3 (데이터 QA)**: 영구 "로딩 중" DOM 10곳 (kr-investor 3개·earn-cal-status·risk-radar-status·kr-etf-price 6개·last-fetch-time), Dead UI (popstate 없음·showPage onclick 의존·renderAllEtfGrid 무한 재귀), P125 재발 후보 4건
+
+**Agent 4 (사용 흐름 7 시나리오)**: 판매 Blocker Top 5 (온보딩 부재·포트폴리오 지연 설명·320px 오버플로우·어닝 로고 전환·신선도 배지)
+
+**Agent 5 (페이지 주제 일치)**: 주제 침범 10건 (FOMC signal→macro, HY/10Y-2Y signal/sentiment→fxbond, 종목심화 technical→ticker) · 평균 주제일치 85.6/100
+
+### 6 Phase 즉시 수정
+
+#### Phase 1 — CSS/HTML 기본
+- P37 위반 CSS 클래스 6개 override (`.action-row`/`.cal-row`/`.sig-guide-grid`/`.cal-date`/`.action-tag`/`.news-unverified-badge` 8-9px → 11px)
+- 480px 미디어 쿼리에 `repeat(6,1fr)` · `repeat(5,1fr)` 인라인 그리드 자동 2열 대응
+- `.aio-prompt-modal` max-width 94vw (320px 대응)
+- ARIA aria-label 3건 추가 (watchlist/price-alert/portfolio 삭제 버튼, 심볼 동적 포함)
+- 어닝 캘린더 inline `repeat(5,1fr)` 중복 제거 (class 반응형 룰 복원)
+
+#### Phase 2 — 구조 버그
+- **popstate 핸들러 신설** — 브라우저 뒤로가기/앞으로 대응 (기존 무반응 버그)
+- **renderAllEtfGrid 무한 재귀 가드** — 최대 60회(30초) 재시도 후 폴백 메시지
+- **showPage active 설정 data-arg 기반 전환** — v48.32 onclick 0건 이후 nav active 잔존 버그
+
+#### Phase 3 — API fallback
+- `_renderInvestorFallback()` 신설 — kr-investor 3개 테이블(`kr-investor-foreign-buy`/`organ-buy`/`foreign-hold-top10`) API 실패 시 폴백 메시지
+- 워치독 범위 대폭 확장 (`earn-cal-body`/`risk-radar-body`/`kr-investor 3개`/`last-fetch-time`/`home-quality-label` 추가 + `계산중`·`분석 로딩` 패턴 추가 + status 스팬 별도 처리)
+- `generateDynamicBriefing` 0값 가드 — `spxPrice <= 0` 시 "시세 데이터 수신 대기" 표시 ($0 금지)
+- briefing 페이지 `loadRiskRadar` 불필요 실행 제거 (DOM 미존재)
+
+#### Phase 4 — 페이지 주제 정렬
+- **FOMC 경보 배너** signal → 제거 + macro 이동 안내 버튼
+- **HY + 10Y-2Y 스프레드 스냅** signal → 제거 + fxbond Cross-Asset 매트릭스 안내
+- **종목 심화 분석 도구** technical → "빠른 간이 분석" 리라벨 + ticker 페이지 전담 안내
+
+#### Phase 5 — 색상 토큰 통일
+브랜드 팔레트 외 하드코딩 7종 sed 일괄 치환:
+- `#fb923c` 15건 → `var(--data-amber)`
+- `#f472b6` 14건 → `var(--data-magenta)` (신규 토큰 활용)
+- `#c084fc` 8건 → `var(--data-purple)`
+- `#6ee7b7` · `#4aedc0` · `#a3e635` → `var(--data-green)`
+- `#eab308` → `var(--data-amber)`
+
+### 남은 감사 발견 (다음 세션 이월)
+- guide 페이지 18K줄 외부 JSON/마크다운 분리 (v48.58 후보)
+- sentiment에 VIX Term Structure 실시간 차트 추가
+- home에 테마 히트맵 실시간 섹션
+- options에 GEX/선물흐름 섹션 보강
+- ticker 페이지 aio-explain 기관급 해설 추가
+- 첫 방문 API 키 온보딩 플로우
+- `#64748b` 대비 AA 미달 확인
+
+### 버전 6곳 동기화
+
+---
+
 ## v48.56 — 어닝 캘린더 EH 스타일 재설계 + 리스크 레이더 신설 (2026-04-22)
 
 ### 트리거
