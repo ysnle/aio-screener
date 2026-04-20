@@ -453,6 +453,43 @@ window._aioRRFillFromPosition = function(el) {
   if (rrStop && !rrStop.value) rrStop.value = Number(entryPrice * 0.93).toFixed(2);
 };
 
+// v48.53: data-snap-date 전수 동적 렌더러 — hardcoded 14건 → DATA_SNAPSHOT._snapshotDate 참조
+// 실행 시점: applyDataSnapshot 성공 후 + setInterval 주기적 호출 (stale-days 자동 갱신)
+window._aioRenderSnapshotDates = function() {
+  try {
+    var snap = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : null;
+    if (!snap) return;
+    var defaultDate = snap._snapshotDate || (snap._updated ? snap._updated.slice(0, 10) : '2026-04-17');
+    // 데이터 종류별 세부 날짜 (필요 시 확장) — 현재는 동일 날짜
+    var dateByKey = {
+      'cp-narrative': defaultDate,
+      'briefing-archive': defaultDate,
+      'jensen-interview': '2026-04-15',   // 정적 인터뷰 — 별도 날짜
+      'tnx-2y': defaultDate,
+      'option-snapshot': defaultDate,
+      'kr-credit': defaultDate
+    };
+    document.querySelectorAll('[data-snap-date]').forEach(function(el) {
+      var key = el.getAttribute('data-snap-date');
+      if (!key) return;
+      var d = dateByKey[key] || defaultDate;
+      // 기존 텍스트가 이미 정확한 날짜면 skip
+      if ((el.textContent || '').trim() !== d) el.textContent = d;
+    });
+  } catch(e) {
+    if (window._aioLog) window._aioLog('warn', 'render', 'snapshotDates render error: ' + (e && e.message || e));
+  }
+};
+// 초기 실행 + 15분 주기 (stale-days 재계산 트리거)
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(window._aioRenderSnapshotDates, 500);
+  } else {
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(window._aioRenderSnapshotDates, 500); });
+  }
+  setInterval(window._aioRenderSnapshotDates, 15 * 60 * 1000);
+}
+
 // v48.51: Breadth 9-canvas fallback 렌더러 — Chart.js 없이 2D 캔버스로 경량 sparkline
 window._aioBreadthCanvasRender = function() {
   var ids = ['bp-ad-ratio-chart','bp-price-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart','bh-price-chart','bh-5ma-chart','bh-20ma-chart','bh-50ma-chart'];
@@ -2137,7 +2174,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.52';
+const APP_VERSION = 'v48.53';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -2643,7 +2680,9 @@ if (typeof window !== 'undefined') {
 const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
-  _updated: '2026-04-16T15:20:00+09:00',   // 폴백 스냅샷 작성일 (실시간 수신 시 _lastFetch로 자동 덮어씀)
+  // v48.53: _updated → 금요일 2026-04-17 장마감 시각 (4/15→4/17 간격은 4/16 휴장+4/17 금요일 종가 반영 · data-snap-date 동적 렌더러로 전 DOM 갱신)
+  _updated: '2026-04-17T16:00:00-04:00',   // 폴백 스냅샷 = 직전 영업일 장마감 (미동부 4PM)
+  _snapshotDate: '2026-04-17',               // v48.53: 정적 폴백 기준일 (data-snap-date 동적 바인딩 소스)
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
   _note: 'v47.4 — /data-refresh 재검증 (사용자 지적 후): v47.2-v47.3 핵심 버그 P106 수정 — 위험봇 3/30 이미지 값(VVIX 98/MOVE 68/SKEW 139)을 4/15 DATA_SNAPSHOT에 오기재. 4/15 실측: VVIX 90.10(-2.77%)/MOVE 62.36(-2.50%)/SKEW 141.86(-4.60%) → 꼬리위험 역설 **심화**(MOVE↓ SKEW↑) = 분배 진단 강화. CNN F&G 47 Neutral 전환(UW F&G 68 탐욕은 유지, fg_uw로 분리). WTI 91.62→91.29 정정. HY OAS 282→284bp. 주가지수/환율은 v47.3 확인 일치(SPX 7022.95 ATH, NASDAQ 24016 ATH, KOSPI 6091, VIX 18.36, DXY 98.05)',

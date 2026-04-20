@@ -7625,7 +7625,10 @@ const LIVE_SYMBOLS = [
   'T','VZ','TMUS',                                              // Telecom
   'EQIX','DLR','AMT','CCI','SBAC',                             // REITs
   'AEM','NEM','GOLD','WPM','FNV','GFI','KGC',                 // Gold mining
-  'FCX','LIN','APD','AA','MP','LAC','ALB','CTVA','ADM'         // Materials
+  'FCX','LIN','APD','AA','MP','LAC','ALB','CTVA','ADM',        // Materials
+  // ── v48.53: Themes/SUB_THEMES 전수 커버리지 누락 13종 보충 ──
+  'ROBO','WCLD','BUG','VIG','DGRO','SCHD',                    // 테마 ETF (aio-explain 언급 + renderAllEtfGrid 대상)
+  'ACLS','AVAV','CRAK','ENTG','GEV','KTOS','UCTT'             // SUB_THEMES 개별 종목 (반도체 장비/방산/정유/전력)
 ];
 
 // ── Global fetch helper (레거시 — AbortController 미사용, 새 코드는 fetchWithTimeout 권장) ──

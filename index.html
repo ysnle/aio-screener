@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.52 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.53 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3645,7 +3645,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.52</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.53</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -16030,9 +16030,76 @@ document.addEventListener('aio:liveQuotes', function() {
     }
   };
 
+  // v48.53: CHAT_CONTEXTS['themes'] — Themes/SUB_THEMES 325종 전수 커버리지
+  // 사용자 지적: "AI 채팅에서 최소한 테마/트렌드에 있는 모든 종목들은 상세 분석 가능해야"
+  CHAT_CONTEXTS['themes'] = {
+    title: 'AI 테마·트렌드 전략가 (Pro)',
+    system: function() {
+      var s = _liveSnap();
+      var fresh = s._freshness;
+      // SUB_THEMES에서 모든 테마·리더·종목 추출 (안전: undefined fallback)
+      var subThemes = (typeof SUB_THEMES !== 'undefined' && Array.isArray(SUB_THEMES)) ? SUB_THEMES : [];
+      var themeMap = (typeof THEME_MAP !== 'undefined' && Array.isArray(THEME_MAP)) ? THEME_MAP : [];
+      // 테마별 라이브 데이터 스냅샷
+      var ld = window._liveData || {};
+      var themeLines = subThemes.slice(0, 30).map(function(t) {
+        var leaderPrices = (t.leaders || []).slice(0, 4).map(function(sym) {
+          var d = ld[sym];
+          if (!d || d.pct == null) return sym + ':—';
+          return sym + ' ' + (d.pct >= 0 ? '+' : '') + d.pct.toFixed(2) + '%';
+        }).join(', ');
+        var etfChg = t.etf && ld[t.etf] ? ld[t.etf].pct : null;
+        var etfStr = t.etf ? (t.etf + (etfChg != null ? ' ' + (etfChg >= 0 ? '+' : '') + etfChg.toFixed(2) + '%' : '')) : '(ETF없음)';
+        return '• [' + t.id + '] ' + t.name + ' — ETF: ' + etfStr + ' · 대장주: ' + leaderPrices;
+      }).join('\n');
+      // 전체 커버리지 종목 수
+      var allTickers = new Set();
+      subThemes.forEach(function(t) {
+        (t.leaders || []).forEach(function(s) { allTickers.add(s); });
+        (t.tickers || []).forEach(function(s) { allTickers.add(s); });
+        if (t.etf) allTickers.add(t.etf);
+      });
+      themeMap.forEach(function(t) { if (t.etf) allTickers.add(t.etf); });
+      var coverageCount = allTickers.size;
+      return '당신은 테마·트렌드 투자 전문가입니다. "테마/섹터 로테이션" 페이지에서 대화하고 있습니다.\n\n' +
+        '【실시간 시세 (신선도: ' + fresh + ')】\n' +
+        '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) | NASDAQ: ' + (s.nasdaq || '—') + '\n' +
+        '• VIX: ' + s.vix + ' | DXY: ' + s.dxy + ' | 10Y: ' + (s.tnx || '—') + '\n\n' +
+        '【커버리지 (v48.53)】\n' +
+        '• SUB_THEMES ' + subThemes.length + '개 테마, 전 ' + coverageCount + '종 종목 · 모든 ticker 상세 분석 가능\n' +
+        '• 각 테마: id · 대장주(leaders) · 구성종목(tickers) · 대표 ETF · 가중치\n\n' +
+        '【주요 테마 현황 (상위 30개)】\n' + themeMap +
+        '\n\n【테마별 실시간 (상위 30개 leaders)】\n' + themeLines + '\n\n' +
+        '【테마 분석 4단계 프레임워크】\n' +
+        '1. 사이클 포지셔닝: Early/Mid/Late/Recession 중 어디 — 섹터 로테이션 가이드 (Early=XLY/XLK, Mid=XLI/XLB, Late=XLE/XLP/XLV, Recession=XLU/XLP/XLV)\n' +
+        '2. 테마 내 상대강도: 대장주(leaders) vs 2차 수혜주(tickers) 등락 격차 — 격차 벌어지면 대장주 집중, 좁혀지면 확산 국면\n' +
+        '3. ETF 모멘텀: 테마 ETF (SMH/ICLN/LIT/TAN/ROBO/WCLD 등)의 RS 순위 — 추세 지속력 판단\n' +
+        '4. 카탈리스트 매핑: AI Capex(§58)/DC전력(§62)/이란 재협상/Fed 정책 등 매크로와 연결\n\n' +
+        '【핵심 테마별 매크로 체인 (2026-04 기준)】\n' +
+        '• AI 반도체(SMH/NVDA/AVGO/AMD): 하이퍼스케일 Capex 사이클 + HBM 공급부족 → 대장주 정배열 확인\n' +
+        '• Cloud/SaaS(WCLD/NOW/CRM/ADBE): 기업 IT 예산 정상화 + AI 에이전트 도입 초기\n' +
+        '• Cybersecurity(BUG/CRWD/PANW/ZS): 정부 규제 + 섀도AI 50%+ 비인가 → 구조적 수요\n' +
+        '• Robotics(ROBO/BOTZ): 휴머노이드 상용화 + 공장 자동화 — 초기 단계\n' +
+        '• Clean Energy(ICLN/TAN/LIT): ESG 역풍 + 관세 리스크 — 레인지 (저점 진입 기회 탐색)\n' +
+        '• Nuclear/SMR(URA/CCJ/VST/NRG/CEG): AI 전력 수요 + 미국 SMR 정책 법안 — HOT\n' +
+        '• Defense(ITA/LMT/RTX/NOC/GD): 이란 재협상 모드 → 단기 조정, 수주잔고 유효\n' +
+        '• Dividend Growth(VIG/DGRO/SCHD): 고금리 지속 시 방어형 배분 — Late-cycle 대비\n\n' +
+        '【답변 규칙】\n' +
+        '• 사용자가 언급하는 모든 티커(SUB_THEMES의 ' + coverageCount + '종 전수)에 대해 상세 분석 가능\n' +
+        '• 모르는 티커 질문 시 "해당 종목은 테마 커버리지 외" 명시하고 유사 테마 대체 추천\n' +
+        '• 각 답변에 (1) 어느 테마 소속 (2) 대장주 대비 위치 (3) 매크로 카탈리스트 (4) 진입/손절 가이드 순서로 구성\n' +
+        '• 데이터는 _liveData 우선, 없으면 DATA_SNAPSHOT 폴백 + "폴백값 주의" 명시\n\n' +
+        _getChatRules();
+    }
+  };
+  // v48.53: theme-detail은 themes와 동일 컨텍스트 + 현재 선택 테마 주입
+  CHAT_CONTEXTS['theme-detail'] = CHAT_CONTEXTS['themes'];
+
   if (typeof CHAT_DEFAULT_CHIPS !== 'undefined') {
     CHAT_DEFAULT_CHIPS['technical'] = ['지금 S&P 몇 단계야?','VCP 셋업 찾는 법','NVDA 진입 타이밍은?','VIX 30 넘으면 어떡해?'];
     CHAT_DEFAULT_CHIPS['macro'] = ['유가 오르면 내 주식은?','경기침체 확률은?','금리 인하 시점 예상은?','달러 약세면 뭐 사?'];
+    CHAT_DEFAULT_CHIPS['themes'] = ['AI 반도체 대장주는?','Cloud SaaS 지금 진입?','방산 조정 언제 끝나?','원전/SMR 테마 ETF는?'];
+    CHAT_DEFAULT_CHIPS['theme-detail'] = ['이 테마 대장주 분석','같은 테마 2차 수혜주','매크로 카탈리스트 뭐?','진입·손절 가이드'];
   }
 })();
 
@@ -20840,6 +20907,26 @@ function updateRiskMonitor() {
   if (vvix != null) document.querySelectorAll('[data-snap="vvix"]').forEach(function(el){ el.textContent = vvix.toFixed(1); });
   if (move != null) document.querySelectorAll('[data-snap="move"]').forEach(function(el){ el.textContent = move.toFixed(1); });
   if (spx != null) document.querySelectorAll('[data-snap="spx"]').forEach(function(el){ el.textContent = spx.toLocaleString('en-US', {maximumFractionDigits:0}); });
+  // v48.53: Yahoo 직접 매핑 9종 추가 자동화 (tnx/tnx-2y/skew/kospi/kosdaq/krw/dxy)
+  var tnx = ld['^TNX'] ? ld['^TNX'].price : null;
+  var tnx2y = ld['^IRX'] ? ld['^IRX'].price : null;
+  var skew = ld['^SKEW'] ? ld['^SKEW'].price : null;
+  var kospi = ld['^KS11'] ? ld['^KS11'].price : null;
+  var kospiPct = ld['^KS11'] ? ld['^KS11'].pct : null;
+  var kosdaq = ld['^KQ11'] ? ld['^KQ11'].price : null;
+  var kosdaqPct = ld['^KQ11'] ? ld['^KQ11'].pct : null;
+  var krw = ld['KRW=X'] ? ld['KRW=X'].price : null;
+  var dxy = ld['DX-Y.NYB'] ? ld['DX-Y.NYB'].price : null;
+  if (tnx != null) document.querySelectorAll('[data-snap="tnx"]').forEach(function(el){ el.textContent = tnx.toFixed(2) + '%'; });
+  if (tnx2y != null) document.querySelectorAll('[data-snap="tnx-2y"]').forEach(function(el){ el.textContent = tnx2y.toFixed(2) + '%'; });
+  if (skew != null) document.querySelectorAll('[data-snap="skew"]').forEach(function(el){ el.textContent = skew.toFixed(1); });
+  if (kospi != null) document.querySelectorAll('[data-snap="kospi"]').forEach(function(el){ el.textContent = kospi.toLocaleString('en-US', {maximumFractionDigits:2}); });
+  if (kospiPct != null) document.querySelectorAll('[data-snap="kospi-pct"]').forEach(function(el){ el.textContent = (kospiPct >= 0 ? '+' : '') + kospiPct.toFixed(2) + '%'; });
+  if (kosdaq != null) document.querySelectorAll('[data-snap="kosdaq"]').forEach(function(el){ el.textContent = kosdaq.toLocaleString('en-US', {maximumFractionDigits:2}); });
+  if (kosdaqPct != null) document.querySelectorAll('[data-snap="kosdaq-pct"]').forEach(function(el){ el.textContent = (kosdaqPct >= 0 ? '+' : '') + kosdaqPct.toFixed(2) + '%'; });
+  if (krw != null) document.querySelectorAll('[data-snap="krw"]').forEach(function(el){ el.textContent = krw.toLocaleString('en-US', {maximumFractionDigits:0}); });
+  if (krw != null) document.querySelectorAll('[data-snap="krw-full"]').forEach(function(el){ el.textContent = krw.toFixed(2); });
+  if (dxy != null) document.querySelectorAll('[data-snap="dxy"]').forEach(function(el){ el.textContent = dxy.toFixed(2); });
 
   // 내러티브 stale 일수 자동 계산 (data-snap-date + sibling [id$="-stale-days"])
   try {

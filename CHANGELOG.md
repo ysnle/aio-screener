@@ -6,6 +6,60 @@
 
 ---
 
+## v48.53 — 데이터 정합성 근본 수정 (사용자 지적 3건) (2026-04-21)
+
+### 트리거
+사용자 지적 (2회 연속):
+1. "테마/트렌드에서 각 종목들 시세 최신화가 전혀 안 되어 있는데?"
+2. "제일 마지막 본장인 저번주 금요일 종가 데이터들 다 반영한거야?"
+3. "AI 채팅에서 최소한 테마/트렌드에 있는 모든 종목들은 상세 분석 가능해야 되는 거 아니야?"
+4. "데이터 정확성과 최신화 관련 문제가 너무 많네"
+
+### 실측 증거 (근본 원인)
+- `data-snap-date` 15건 중 **14건(93%)이 2026-04-15 hardcoded** (오늘 2026-04-21 기준 D+6 stale)
+- `LIVE_SYMBOLS` 606종 중 **Themes 페이지 ETF 6종 누락**: ROBO · WCLD · BUG · VIG · DGRO · SCHD
+- `SUB_THEMES` 325종 중 **7종 추가 누락**: ACLS · AVAV · CRAK · ENTG · GEV · KTOS · UCTT
+- `CHAT_CONTEXTS['themes']` / `['theme-detail']` **존재하지 않음** → AI 채팅이 Themes 페이지에서 기본 컨텍스트로만 작동
+
+### 근본 수정
+
+#### 1. LIVE_SYMBOLS +13종 보충 (aio-data.js)
+- 테마 ETF 6종: ROBO, WCLD, BUG, VIG, DGRO, SCHD
+- SUB_THEMES 개별 7종: ACLS, AVAV, CRAK, ENTG, GEV, KTOS, UCTT
+- 결과: 다음 `fetchLiveQuotes` 주기부터 `renderAllEtfGrid` · `renderSubThemesGrid` · `renderThemeHeatmap` 전부 live price 반영
+
+#### 2. DATA_SNAPSHOT 동적 날짜 바인딩 (aio-core.js)
+- `_snapshotDate: '2026-04-17'` 신설 (금요일 장마감 기준)
+- `_updated: '2026-04-17T16:00:00-04:00'` 갱신 (미동부 4PM)
+- `window._aioRenderSnapshotDates()` 동적 렌더러 — 전 DOM의 `[data-snap-date]` 스캔해서 `_snapshotDate` 참조로 갱신 (hardcoded 제거 준비)
+- DOMContentLoaded + 15분 주기 setInterval — stale-days 자동 재계산 트리거
+
+#### 3. CHAT_CONTEXTS['themes'] + ['theme-detail'] 신설 (index.html)
+- SUB_THEMES 전 **325종 종목 전수 커버리지** 명시
+- 테마별 실시간 스냅샷 (상위 30개 · leaders 등락률)
+- 4단계 프레임워크: (1) 사이클 포지셔닝 (2) 테마 내 상대강도 (3) ETF 모멘텀 (4) 카탈리스트 매핑
+- 핵심 테마별 매크로 체인 (AI 반도체 · Cloud · Cyber · Robotics · Clean Energy · Nuclear · Defense · Dividend Growth)
+- 답변 규칙: 전수 ticker 인식 + 유사 테마 대체 추천 + 진입/손절 가이드 포함
+- `CHAT_DEFAULT_CHIPS['themes']` / `['theme-detail']` 기본 질문 4건씩
+
+#### 4. data-snap Yahoo 직접 매핑 +9종 자동화 (index.html)
+- `^TNX` → tnx · `^IRX` → tnx-2y · `^SKEW` → skew
+- `^KS11` → kospi · kospi-pct · `^KQ11` → kosdaq · kosdaq-pct
+- `KRW=X` → krw · krw-full · `DX-Y.NYB` → dxy
+- Phase E 자동화 7종(wti/brent/gold/vix/vvix/move/spx) + 이번 9종 = **총 16종 자동화** (50종 중 32%, 이전 14%)
+
+### 남은 정적 snap 키 (34종, v49+ 과제)
+- FRED 필요: fed-rate · ecb-rate · cpi · housing · retail-sales · wage-growth
+- 한국 통계청 필요: kr-cpi · kr-cpi-yoy · kr-gdp · kr-gdp-qoq · kr-ppi-yoy · kr-core-cpi · kr-unemploy · kr-manuf-pmi · kr-service-pmi · kr-service-price · kr-bond-10y · kr-bond-3y · kr-credit · kr-deposit · kr-advance · kr-decline · kr-52w-high · kr-52w-low
+- BOK API: bok-rate · bok-next · bok-status
+- 캘린더: fomc · ecb-status
+- 기타: breadth-5sma/20sma/50sma · kospi-prev · cons-conf
+
+### 버전 6곳 동기화
+title · badge · APP_VERSION · version.json · _context/CLAUDE.md · CHANGELOG
+
+---
+
 ## v48.47~v48.52 — v49+ 잔존 16건 전수 보강 6 Phase 연속 (2026-04-21)
 
 ### 트리거

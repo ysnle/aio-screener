@@ -1,6 +1,6 @@
 {
-  "version": "v48.52",
-  "built": "2026-04-21T09:00:00+09:00",
-  "note": "v48.47~v48.52: v49+ 잔존 16건 전수 보강 (Phase A~F). Phase A (v48.47) 캔들패턴+진입품질 → Ticker 페이지 이전 · R:R 계산기 → Portfolio 포지션 연동 · onkeydown 인라인 13건 → data-on-enter 데이터 속성 전환. Phase B (v48.48) .aio-table 신규 클래스 + .tb-btn → .aio-btn-ghost 별칭 통합 + --surface-1~5 투명 화이트 오버레이 표준 변수 5종 정의. Phase C (v48.49) 분산형 aio-tooltip 시스템 (? 인라인 버튼 + 팝오버 + ESC/외부 클릭 닫기) + 샘플 배치 3건. Phase D (v48.50) M7 리더십 + 섹터 히트맵 mirror → Themes 페이지 이전 · Cross-Asset 신호 매트릭스 4축 (DXY × 10Y × 스프레드 × HYG) + 자동 Risk-On/Off 판정. Phase E (v48.51) NARRATIVE_ENGINE 실시간 바인딩 (VIX/VVIX/MOVE/SPX + stale-days 자동 계산) · Breadth 9-canvas fallback 렌더러 경량 2D sparkline · CP5 BLOCKED 코드 미존재 확인. Phase F (v48.52) TradingView OHLC strip _liveData 동기화 · AAII/NAAIM/II/HY + Finnhub 어닝 = infrastructure TODO. 버전 6곳 동기화.",
-  "versioning": "x.y (31→...→48.46→48.47→...→48.52)"
+  "version": "v48.53",
+  "built": "2026-04-21T18:00:00+09:00",
+  "note": "v48.53 Phase G: 사용자 지적 3건 근본 수정 (데이터 정합성). 사용자 추가 지적: (1) 테마/트렌드 시세 최신화 전혀 안 됨 (2) 지난 금요일 2026-04-17 종가 미반영 (3) AI 채팅이 테마/트렌드 모든 종목 상세 분석 가능해야. 실측: data-snap-date 15건 중 14건 (93%) 2026-04-15 hardcoded D+6 stale · LIVE_SYMBOLS에서 테마 ETF 6종(ROBO/WCLD/BUG/VIG/DGRO/SCHD) 누락 · SUB_THEMES 325종목 중 13종(추가 ACLS/AVAV/CRAK/ENTG/GEV/KTOS/UCTT) fetch 불가 · CHAT_CONTEXTS['themes']/['theme-detail'] 부재로 AI가 테마 종목 인식 못함. 근본 수정: (1) LIVE_SYMBOLS +13종 보충 (2) DATA_SNAPSHOT._snapshotDate 신설 + _aioRenderSnapshotDates 동적 렌더러 15분 주기 (hardcoded 제거) (3) CHAT_CONTEXTS['themes']+['theme-detail'] 신설 — SUB_THEMES 325종 전수 접근 + 테마별 실시간 스냅샷 + 4단계 프레임워크 + CHAT_DEFAULT_CHIPS 기본 질문 4건 (4) data-snap Yahoo 직접 매핑 9종 추가 자동화 (tnx/tnx-2y/skew/kospi/kosdaq/krw/dxy). 버전 6곳 동기화.",
+  "versioning": "x.y (31→...→48.52→48.53)"
 }
