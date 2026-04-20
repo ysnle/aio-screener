@@ -2435,7 +2435,7 @@ async function _renderFredCharts() {
           },
           options: {
             responsive: true, maintainAspectRatio: false,
-            scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0b4c8', font: { size: 8 } } }, x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 7 }, maxTicksLimit: 6 } } },
+            scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0b4c8', font: { size: 11 } } }, x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 11 }, maxTicksLimit: 6 } } },
             plugins: { legend: { display: false } }
           }
         });
@@ -7502,7 +7502,7 @@ async function fetchAllNews(forceRefresh = false) {
         },
         options: {
           responsive: true, maintainAspectRatio: false,
-          scales: { y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0b4c8', font: { size: 9 } } }, x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 8 } } } },
+          scales: { y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0b4c8', font: { size: 11 } } }, x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 11 } } } },
           plugins: { legend: { display: false }, annotation: { annotations: { neutralLine: { type: 'line', yMin: 50, yMax: 50, borderColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderDash: [4,4] } } } }
         }
       });

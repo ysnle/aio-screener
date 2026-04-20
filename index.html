@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.59 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.60 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3686,7 +3686,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.59</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.60</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4662,12 +4662,28 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- ─ 섹션 구분: 분석 도구 ─ -->
+  <!-- v48.60: signal 페이지 주제 정렬 — 시장 폭/RRG는 각 전용 페이지로 이전 -->
   <div class="section-divider"></div>
-  <div class="section-header">분석 도구</div>
+  <div class="section-header">연계 분석 — 전용 페이지로 이동</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+    <button data-action="showPage" data-arg="breadth" class="tb-btn" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
+      <span style="font-size:12px;font-weight:700;color:var(--data-cyan);">시장 폭 분석 →</span>
+      <span style="font-size:11px;color:var(--text-muted);">5/20/50SMA · A-D 비율 · McClellan · Weinstein</span>
+    </button>
+    <button data-action="showPage" data-arg="themes" class="tb-btn" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
+      <span style="font-size:12px;font-weight:700;color:var(--data-amber);">섹터 로테이션 RRG →</span>
+      <span style="font-size:11px;color:var(--text-muted);">11섹터 · 서브섹터 · 45 세분화 테마</span>
+    </button>
+    <button data-action="showPage" data-arg="sentiment" class="tb-btn" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
+      <span style="font-size:12px;font-weight:700;color:var(--data-purple);">투자 심리 →</span>
+      <span style="font-size:11px;color:var(--text-muted);">F&G · VIX · AAII · Put/Call · HY OAS</span>
+    </button>
+  </div>
 
-  <!-- ─ 시장 폭 + 섹터 RRG 2컬럼 ─ -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+  <!-- v48.60: 시장 폭 + RRG 섹션 signal → 제거 (주제 침범 · 전용 페이지로 이관)
+       제거된 DOM: bb-5sma-val/bb-20sma-val/bb-50sma-val · rrg 사분면 4개 · sector-heatmap
+       동적 렌더러 대상 ID는 breadth/themes 페이지에 이미 존재 (중복 렌더 방지 완료) -->
+  <div style="display:none;" aria-hidden="true" data-v48-60-signal-removed="1"><!-- 렌더러 호환 셸 -->
 
     <!-- 시장 폭 (Market Breadth) -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
@@ -4794,7 +4810,7 @@ body.light-theme canvas { filter:none; }
         <div class="sec-tile" data-sym="GLD"><div class="sec-sym">GLD</div><div class="sec-name">금 (Gold)</div><div class="sec-chg" data-live-chg="GLD">—</div></div>
       </div>
     </div>
-  </div>
+  </div><!-- /v48.60 signal 제거 셸 끝 (내부는 display:none + renderers 용 DOM 호환 유지) -->
 
   <!-- ─ 포트폴리오 배분 (v42.2: Pattern Scanner 제거 — 미구현 Dead 컬럼) ─ -->
   <div style="margin-bottom:12px;">
@@ -4873,8 +4889,8 @@ body.light-theme canvas { filter:none; }
   <!-- ─ 3-Scenario 그리드 ─ -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:10px;font-weight:700;color:var(--text-secondary);">시나리오 전망 (2~4주)</div>
-      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;"> 2026-04-04 기준 · 지정학 상황에 따라 변동</span>
+      <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">시나리오 전망 (2~4주)</div>
+      <span id="scenario-outlook-ts" style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">분석 대기 중 · 실시간 갱신</span>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
       <div style="background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.2);border-radius:8px;padding:12px;">
@@ -5522,7 +5538,7 @@ body.light-theme canvas { filter:none; }
         <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;">
           <div style="display:flex;justify-content:space-between;">
             <span>Live: <span id="hy-live-val" style="color:var(--green);font-weight:700;">289 bps</span></span>
-            <span style="color:var(--text-muted);" id="hy-live-date">2026-04-04</span>
+            <span style="color:var(--text-muted);" id="hy-live-date">—</span>
           </div>
           <div style="margin-top:4px;"><span id="hy-live-badge" style="font-size:11px;color:var(--green);font-weight:700;">● Tight</span> <span id="hy-signal-badge" style="font-size:11px;color:var(--accent);font-weight:700;">Risky</span></div>
         </div>
@@ -13212,6 +13228,26 @@ function _liveSnap() {
   // v36.8: 지수는 항상 현물(종가) 표시, 선물은 별도 참고
   var indexBasis = usSession === 'open' ? '정규장 실시간' : '종가 기준';
 
+  // v48.60: FRED/BOK/KOSIS 매크로 지표 AI 채팅 주입 (R37 준수 — 수집-AI 주입 페어링)
+  var fredD = window._fredData || {};
+  var bokD = window._bokData || {};
+  var kosisD = window._kosisData || {};
+  var macroBlock = {
+    fedRate: (fredD.FEDFUNDS && fredD.FEDFUNDS.value != null) ? _fmt(fredD.FEDFUNDS.value, 2) + '%' : '—',
+    unemployment: (fredD.UNRATE && fredD.UNRATE.value != null) ? _fmt(fredD.UNRATE.value, 1) + '%' : '—',
+    housing: (fredD.HOUST && fredD.HOUST.value != null) ? Math.round(fredD.HOUST.value) + 'K' : '—',
+    consConf: (fredD.UMCSENT && fredD.UMCSENT.value != null) ? _fmt(fredD.UMCSENT.value, 1) : '—',
+    retailSalesMoM: (fredD.RSAFS && fredD.RSAFS.value != null && fredD.RSAFS.prevValue) ? _fmt((fredD.RSAFS.value - fredD.RSAFS.prevValue) / fredD.RSAFS.prevValue * 100, 2) + '% MoM' : '—',
+    wageGrowth: (fredD.CES0500000003 && fredD.CES0500000003.value != null) ? '$' + _fmt(fredD.CES0500000003.value, 2) : '—',
+    t10y2y: (fredD.T10Y2Y && fredD.T10Y2Y.value != null) ? _fmt(fredD.T10Y2Y.value, 2) + '%' : '—',
+    hyOAS: (fredD.BAMLH0A0HYM2 && fredD.BAMLH0A0HYM2.value != null) ? '+' + Math.round(fredD.BAMLH0A0HYM2.value * 100) + 'bp' : '—',
+    // BOK 한국은행
+    bokRate: (bokD.bokRate && bokD.bokRate.value != null) ? _fmt(bokD.bokRate.value, 2) + '%' : '—',
+    bokStatus: (bokD.bokRate && bokD.bokRate.prev != null) ? (Math.abs(bokD.bokRate.value - bokD.bokRate.prev) < 0.01 ? '동결' : (bokD.bokRate.value > bokD.bokRate.prev ? '인상' : '인하')) : '—',
+    // KOSIS 통계청
+    krCpi: (kosisD.krCpi && kosisD.krCpi.value != null) ? _fmt(kosisD.krCpi.value, 1) : '—'
+  };
+
   return {
     spx: _fmt(_ld('^GSPC','price')), spxPct: _fmt(_ld('^GSPC','pct'),2),
     nasdaq: _fmt(_ld('^IXIC','price')), nasdaqPct: _fmt(_ld('^IXIC','pct'),2),
@@ -13227,6 +13263,15 @@ function _liveSnap() {
     esFut: _fmt(_ld('ES=F','price')), esPct: _fmt(_ld('ES=F','pct'),2),
     nqFut: _fmt(_ld('NQ=F','price')), nqPct: _fmt(_ld('NQ=F','pct'),2),
     ymFut: _fmt(_ld('YM=F','price')), ymPct: _fmt(_ld('YM=F','pct'),2),
+    rtyFut: _fmt(_ld('RTY=F','price')), rtyPct: _fmt(_ld('RTY=F','pct'),2),
+    // v48.58: VIX 기간구조 (sentiment 페이지 연동)
+    vix9d: _fmt(_ld('^VIX9D','price'),1),
+    vix3m: _fmt(_ld('^VIX3M','price'),1),
+    vix6m: _fmt(_ld('^VIX6M','price'),1),
+    skew: _fmt(_ld('^SKEW','price'),1),
+    // 한국 지수 (AI 채팅에 누락됐던 것)
+    kospi: _fmt(_ld('^KS11','price')), kospiPct: _fmt(_ld('^KS11','pct'),2),
+    kosdaq: _fmt(_ld('^KQ11','price')), kosdaqPct: _fmt(_ld('^KQ11','pct'),2),
     extHours: extInfo || '해당없음',
     vxx: _fmt(_ld('VXX','price'),2), vxxPct: _fmt(_ld('VXX','pct'),2),
     score: window._tradingScore || '계산중',
@@ -13234,6 +13279,8 @@ function _liveSnap() {
     spx200ma: (window._spxMA && window._spxMA[200]) || '데이터 없음',
     // 세션 상태
     usSession: usSession, krSession: krSession, futuresOpen: futOpen,
+    // v48.60: 매크로 지표 AI 주입 (FRED + BOK + KOSIS 전 소스)
+    macro: macroBlock,
     _stale: stale,
     _freshness: stale.length === 0 ? '실시간' : (stale.length <= 2 ? '부분 지연' : '대부분 폴백값')
   };
@@ -13749,8 +13796,25 @@ function _getChatRules() {
   var _krLastStr = (typeof DATE_ENGINE !== 'undefined') ? DATE_ENGINE.fmtYMD(DATE_ENGINE.lastKrTradingDay()) : _todayStr;
   var _usLastStr = (typeof DATE_ENGINE !== 'undefined') ? DATE_ENGINE.fmtYMD(DATE_ENGINE.lastUsTradingDay()) : _todayStr;
 
+  // v48.60: 모든 ctx 공통 매크로 블록 — FRED/BOK/KOSIS 자동 주입 (R37 준수)
+  var _macroTxt = '';
+  try {
+    var _s = (typeof _liveSnap === 'function') ? _liveSnap() : null;
+    if (_s && _s.macro) {
+      var m = _s.macro;
+      var hasMacro = (m.fedRate !== '—' || m.unemployment !== '—' || m.bokRate !== '—' || m.krCpi !== '—');
+      if (hasMacro) {
+        _macroTxt = '\n【공용 매크로 지표 (FRED · BOK · KOSIS 자동 수집)】\n' +
+          (m.fedRate !== '—' ? '• Fed Funds: ' + m.fedRate + ' · 실업률: ' + m.unemployment + ' · 2s10s: ' + m.t10y2y + ' · HY OAS: ' + m.hyOAS + '\n' : '') +
+          (m.housing !== '—' || m.retailSalesMoM !== '—' ? '• 주택착공: ' + m.housing + ' · 소매판매: ' + m.retailSalesMoM + ' · 소비자신뢰: ' + m.consConf + ' · 시간당임금: ' + m.wageGrowth + '\n' : '') +
+          (m.bokRate !== '—' ? '• BOK 기준금리: ' + m.bokRate + ' (' + m.bokStatus + ')' + (m.krCpi !== '—' ? ' · KOSIS CPI: ' + m.krCpi : '') + '\n' : '') +
+          '이 데이터는 전 페이지 채팅 공통. 필요 시 인용하되 "—"는 "데이터 미수신"으로 안내.\n';
+      }
+    }
+  } catch(_){}
+
   // v33.0: 통합 전문 분석 모드 — 레벨 분리 없이 항상 최고 수준 + 근거 기반 설명
-  return '\n\n【⏰ 현재 시점 정보 — 이 정보를 반드시 인식하고 답변에 반영하라】\n' +
+  return _macroTxt + '\n\n【⏰ 현재 시점 정보 — 이 정보를 반드시 인식하고 답변에 반영하라】\n' +
   '• 오늘 날짜: ' + _todayStr + '\n' +
   '• 현재 시각(KST): ' + _timeStr + '\n' +
   '• 한국 최근 거래일 종가: ' + _krLastStr + '\n' +
@@ -15647,11 +15711,11 @@ function renderYieldCurve() {
           beginAtZero: false,
           min: 2,
           max: 6,
-          ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } },
+          ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 11 } },
           grid: { color: 'var(--surface-4)' }
         },
         x: {
-          ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } },
+          ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 11 } },
           grid: { display: false }
         }
       }
@@ -16119,13 +16183,16 @@ document.addEventListener('aio:liveQuotes', function() {
       var s = _liveSnap();
       var c = _closeSnap();
       var fresh = s._freshness;
+      var m = s.macro || {};
       return '당신은 글로벌 매크로 전략가이자 "경제 스토리텔러"입니다. "매크로 분석" 페이지에서 대화하고 있습니다.\n\n' +
         '【매크로 데이터 — 실시간 (신선도: ' + fresh + ')】\n' +
-        '• Fed: 3.50~3.75% | 10Y: ' + s.tnx + '% | DXY: ' + s.dxy + '\n' +
+        '• Fed: ' + m.fedRate + ' | 10Y: ' + s.tnx + '% | 2s10s: ' + m.t10y2y + ' | DXY: ' + s.dxy + '\n' +
         '• WTI: $' + s.wti + ' | Brent: $' + s.brent + ' | Gold: $' + s.gold + '\n' +
-        '• VIX: ' + s.vix + ' | KRW: ' + s.krw + '\n' +
-        '【주요 지수 종가 (확정)】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
-        '주가·지수 분석 시 종가 기준. VIX·금리·환율·유가 등 시장환경은 위 실시간 값 사용.\n' +
+        '• VIX: ' + s.vix + ' | KRW: ' + s.krw + ' | HY OAS: ' + m.hyOAS + '\n' +
+        '【v48.60 FRED 지표 (자동 바인딩)】 실업률 ' + m.unemployment + ' · 주택착공 ' + m.housing + ' · 소매판매 ' + m.retailSalesMoM + ' · 미시건 신뢰 ' + m.consConf + ' · 시간당임금 ' + m.wageGrowth + '\n' +
+        '【v48.60 BOK 한국은행】 기준금리 ' + m.bokRate + ' (' + m.bokStatus + ') · 【KOSIS 통계청】 CPI ' + m.krCpi + '\n' +
+        '【주요 지수 종가 (확정)】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + ' | KOSPI: ' + s.kospi + '\n' +
+        '주가·지수 분석 시 종가 기준. VIX·금리·환율·유가·FRED·BOK·KOSIS 등 시장환경은 위 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '[' + s._stale.join(', ') + '] 폴백값일 수 있음. 확정 발언 자제.\n' : '') + '\n' +
         '【경제의 숨결 — 인터커넥션 맵】\n' +
         '유가↑ → 물가↑ → Fed 금리↑ → 달러↑ + 금리↑ → 주식↓ → 소비↓ → 수요파괴 → 유가↓ → 사이클 반복. 경제의 호흡.\n\n' +
@@ -21974,7 +22041,7 @@ function initYieldCurveChart() {
           grid: { color: 'var(--surface-3)' }
         },
         x: {
-          ticks: { color: '#64748b', font: { size: 9 } },
+          ticks: { color: '#64748b', font: { size: 11 } },
           grid: { color: 'var(--surface-3)' }
         }
       }
@@ -23538,11 +23605,11 @@ async function _loadSector20dChart() {
     options: {
       responsive: true, maintainAspectRatio: false,
       scales: {
-        y: { grid: { color: 'var(--surface-4)' }, ticks: { color: '#a0b4c8', font: { size: 8 }, callback: function(v) { return v.toFixed(1) + '%'; } } },
-        x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 7 }, maxTicksLimit: 8 } }
+        y: { grid: { color: 'var(--surface-4)' }, ticks: { color: '#a0b4c8', font: { size: 11 }, callback: function(v) { return v.toFixed(1) + '%'; } } },
+        x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 11 }, maxTicksLimit: 8 } }
       },
       plugins: {
-        legend: { display: true, position: 'bottom', labels: { color: '#b8c8d8', font: { size: 9 }, boxWidth: 12, padding: 8 } },
+        legend: { display: true, position: 'bottom', labels: { color: '#b8c8d8', font: { size: 11 }, boxWidth: 12, padding: 8 } },
         annotation: { annotations: { zeroLine: { type: 'line', yMin: 0, yMax: 0, borderColor: 'rgba(255,255,255,0.2)', borderWidth: 1, borderDash: [4,4] } } }
       }
     }
@@ -26641,8 +26708,8 @@ function loadTickerChart(period, btn) {
           }
         },
         scales: {
-          x: { display: true, grid: { color: 'var(--surface-3)' }, ticks: { color: '#8fa3b5', font: { size: 9 }, maxTicksLimit: 8 } },
-          y: { display: true, grid: { color: 'var(--surface-3)' }, ticks: { color: '#8fa3b5', font: { size: 9 }, callback: function(v) { return '$' + v; } } }
+          x: { display: true, grid: { color: 'var(--surface-3)' }, ticks: { color: '#8fa3b5', font: { size: 11 }, maxTicksLimit: 8 } },
+          y: { display: true, grid: { color: 'var(--surface-3)' }, ticks: { color: '#8fa3b5', font: { size: 11 }, callback: function(v) { return '$' + v; } } }
         },
         interaction: { mode: 'index', intersect: false }
       }
@@ -27365,8 +27432,8 @@ function initKrVkospiChart() {
         }
       },
       scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 }, maxTicksLimit: 8 }, border: { display: false } },
-        y: { min: 10, suggestedMax: Math.max.apply(null, vkData) * 1.1, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 } }, border: { display: false } }
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, maxTicksLimit: 8 }, border: { display: false } },
+        y: { min: 10, suggestedMax: Math.max.apply(null, vkData) * 1.1, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 } }, border: { display: false } }
       }
     }
   });

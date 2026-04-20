@@ -139,8 +139,8 @@ function _initSentVixChart() {
       interaction: { mode: 'index', intersect: false },
       plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' ' + i.dataset.label + ': ' + i.formattedValue; } } }) },
       scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 }, maxTicksLimit: 6 }, border: { display: false } },
-        y: { min: 10, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 } }, border: { display: false } }
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, maxTicksLimit: 6 }, border: { display: false } },
+        y: { min: 10, max: 50, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, stepSize: 10 }, border: { display: false } }
       }
     }
   });
@@ -218,8 +218,8 @@ function _initSentNaaimChart() {
       interaction: { mode: 'index', intersect: false },
       plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' ' + i.dataset.label + ': ' + i.formattedValue + '%'; } } }) },
       scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 }, maxTicksLimit: 6 }, border: { display: false } },
-        y: { min: 0, max: 100, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 }, callback: function(v){ return v + '%'; } }, border: { display: false } }
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, maxTicksLimit: 6 }, border: { display: false } },
+        y: { min: 0, max: 100, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, callback: function(v){ return v + '%'; } }, border: { display: false } }
       }
     }
   });
@@ -279,8 +279,8 @@ function _initSentIIChart() {
       interaction: { mode: 'index', intersect: false },
       plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' ' + i.dataset.label + ': ' + i.formattedValue + '%'; } } }) },
       scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 } }, border: { display: false } },
-        y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 }, callback: function(v){ return v + '%'; } }, border: { display: false } }
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 } }, border: { display: false } },
+        y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, callback: function(v){ return v + '%'; } }, border: { display: false } }
       }
     }
   });
@@ -342,8 +342,8 @@ function _initSentHYChart() {
       interaction: { mode: 'index', intersect: false },
       plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' HY OAS: ' + i.formattedValue + 'bp'; } } }) },
       scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 7 }, maxTicksLimit: 6 }, border: { display: false } },
-        y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 8 }, callback: function(v){ return v + 'bp'; } }, border: { display: false } }
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, maxTicksLimit: 6 }, border: { display: false } },
+        y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, callback: function(v){ return v + 'bp'; } }, border: { display: false } }
       }
     }
   });
@@ -450,11 +450,11 @@ function initSentimentCharts() {
         scales: {
           x: { stacked: true, max: 100,
                grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-               ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 8 }, callback: v => v + '%' },
+               ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 }, callback: v => v + '%' },
                border: { display: false } },
           y: { stacked: true,
                grid: { display: false },
-               ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 8 } },
+               ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 11 } },
                border: { display: false } }
         }
       }
@@ -535,10 +535,10 @@ function initSentimentCharts() {
           }
         },
         scales: {
-          x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 7 }, maxTicksLimit: 5 }, border: { display: false } },
+          x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 11 }, maxTicksLimit: 5 }, border: { display: false } },
           y: { min: 0.5, max: 1.2,
                grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-               ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 7 }, maxTicksLimit: 4 },
+               ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 11 }, maxTicksLimit: 4 },
                border: { display: false } }
         }
       }
@@ -678,7 +678,7 @@ function initBreadthPage(forceReinit) {
   // ─ Shared style helpers ──────────────────────────────────────────
   const xScale = (showLabels) => ({
     grid:   { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-    ticks:  { color: 'rgba(255,255,255,0.3)', font: { size: 8 },
+    ticks:  { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
               maxTicksLimit: 7, display: showLabels, maxRotation: 0 },
     border: { display: false }
   });
@@ -770,7 +770,7 @@ function initBreadthPage(forceReinit) {
           x: xScale(true),
           y: { min: 0, max: 100,
                grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-               ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 8 },
+               ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
                         callback: v => v + '%', stepSize: 20 },
                border: { display: false } }
         },
@@ -847,7 +847,7 @@ function initBreadthPage(forceReinit) {
         scales: {
           x: xScale(false),
           y: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-               ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 8 },
+               ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
                         callback: v => '$' + v, maxTicksLimit: 5 },
                border: { display: false } }
         },
@@ -941,12 +941,12 @@ function initBreadthPage(forceReinit) {
       options: {
         responsive: true, maintainAspectRatio: false,
         scales: {
-          y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0b4c8', font: { size: 8 }, callback: function(v) { return v + '%'; } } },
-          x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 7 }, maxTicksLimit: 8 } }
+          y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0b4c8', font: { size: 11 }, callback: function(v) { return v + '%'; } } },
+          x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 11 }, maxTicksLimit: 8 } }
         },
         plugins: {
           legend: { display: false },
-          annotation: { annotations: { fiftyLine: { type: 'line', yMin: 50, yMax: 50, borderColor: 'rgba(0,229,160,0.3)', borderWidth: 1, borderDash: [4,4], label: { display: true, content: '50%', position: 'end', color: '#00e5a0', font: { size: 8 } } } } }
+          annotation: { annotations: { fiftyLine: { type: 'line', yMin: 50, yMax: 50, borderColor: 'rgba(0,229,160,0.3)', borderWidth: 1, borderDash: [4,4], label: { display: true, content: '50%', position: 'end', color: '#00e5a0', font: { size: 11 } } } } }
         }
       }
     });
@@ -1052,7 +1052,7 @@ function initBreadthCharts() {
 
   const xScale = {
     grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-    ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 8 }, maxRotation: 0, maxTicksLimit: 7 },
+    ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 }, maxRotation: 0, maxTicksLimit: 7 },
     border: { display: false }
   };
 
@@ -1113,7 +1113,7 @@ function initBreadthCharts() {
         scales: {
           x: xScale,
           y: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-            ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 8 },
+            ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
               callback: v => '$' + v, maxTicksLimit: 5 },
             border: { display: false } }
         }
@@ -1125,7 +1125,7 @@ function initBreadthCharts() {
   function maScale(min, max) {
     return {
       grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-      ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 8 },
+      ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
         callback: v => v + '%', maxTicksLimit: 5 },
       border: { display: false }, min, max,
       afterDataLimits: scale => { scale.min = min; scale.max = max; }

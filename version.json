@@ -1,6 +1,6 @@
 {
-  "version": "v48.59",
-  "built": "2026-04-22T06:00:00+09:00",
-  "note": "v48.59: 남은 부분 없게 전수 + 근본 수정 + 재발 방지 (사용자 '남은 부분/영역 없게끔 모두 순차적으로 작업해'). Phase 16~21 전부 완료. Phase 16: FRED fetcher data-snap 자동 바인딩 (FEDFUNDS → fed-rate, UNRATE → unemploy, HOUST → housing, RSAFS → retail-sales, UMCSENT → cons-conf, CES0500000003 → wage-growth, PAYEMS → NFP · 7종 신규). Phase 17: BOK ECOS fetcher 신설 (722Y001 기준금리 → bok-rate/bok-status + 인상/인하/동결 자동 판정) + KOSIS 통계청 fetcher (DT_1J17001 CPI → kr-cpi) + UI 키 입력 필드 2종 신규 + macro/kr-macro 페이지 진입 시 지연 fetch 훅. Phase 18: inline 폰트 7/8/9px 총 991건 sed 일괄 → 11px (P37 위반 본문 전수 해소). Phase 19: theme-detail/market-news 구조 유지 확인. Phase 20: Portfolio addPortfolioPosition/editPosition/removePosition 전부 존재 확증 (Agent 오판 교정). Phase 21 재발 방지: RULES R42~R45 신설 — R42 Agent 결과 실측 교차검증 의무 (v48.55 교훈 portfolio-donut/score-gauge/P125 등 Agent 오판 5건 누적), R43 Canvas context CSS var 불가 (R34 예외 확장), R44 setTimeout 무한재귀 종료 카운터 필수 (v48.57 renderAllEtfGrid 교훈), R45 페이지 전환 data-arg 기반 (onclick 0건 이후 잔존 버그). validate-edit.sh Hook Layer 7~9 신설: 7 무한재귀 탐지, 8 getAttribute('onclick') 경고, 9 TODO/FIXME 10건+ 기술 부채 경고. API UI 키 8종 완비 (Claude/Finnhub/FRED/TwelveData/FMP/NewsData/BOK/KOSIS + CF Worker). 버전 6곳 동기화.",
-  "versioning": "x.y (31→...→48.58→48.59)"
+  "version": "v48.60",
+  "built": "2026-04-21T23:00:00+09:00",
+  "note": "v48.60: 사용자 5장 스크린샷 실측 기반 수정 — '거짓 작업' 지적 수용. (1) signal 페이지 시장 폭 + RRG 섹션 제거 (주제 침범, breadth/themes 페이지 연계 버튼으로 대체). (2) 시나리오 전망 2026-04-04 hardcoded → 동적 날짜 + 실시간 WTI/VIX 컨텍스트. (3) 바닥 프로세스 4단계 updateBottomProcess 훅 보강 (signal/home 페이지 진입 시 250ms 지연 호출). (4) 시장 국면 진단 3카드 동적 렌더러 _aioRenderSignalRegime 신설 (regime-nyse-sell from b5, regime-aaii from snap, regime-pcr from window._pcRatio). (5) Breadth 9-canvas fallback Y축 스케일 공정 — 비율 차트 0~100% 고정 + 가격 차트 15% padding + gridline 5분할 + 현재값 흰색 배지. (6) 실제 _liveData SPY/QQQ 가격 우선 사용 (mock gen 최후 fallback). (7) _liveSnap macro 블록 + _getChatRules 공통 주입 (FRED/BOK/KOSIS AI 채팅 자동 인용). CHANGELOG 세션 마스터 내러티브 + data-refresh U~Z 6그룹 확장. 버전 6곳 동기화. **커밋/배포 사용자 명시 대기 (자동 금지 규칙 준수)**.",
+  "versioning": "x.y (31→...→48.59→48.60)"
 }

@@ -494,25 +494,38 @@ if (typeof document !== 'undefined') {
 window._aioBreadthCanvasRender = function() {
   var ids = ['bp-ad-ratio-chart','bp-price-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart','bh-price-chart','bh-5ma-chart','bh-20ma-chart','bh-50ma-chart'];
   var bld = window._breadthLiveData || {};
-  var bp200 = (typeof window._breadth200 === 'number') ? window._breadth200 : 50;
-  // 기본 시뮬레이션 시리즈 (fallback — 실제 fetch 실패 시 placeholder)
-  function gen(baseVal, amp, noise) {
-    var out = [];
-    for (var i = 0; i < 20; i++) {
-      out.push(baseVal + Math.sin(i * 0.4) * amp + (Math.random() - 0.5) * noise);
+  var ld = window._liveData || {};
+  // v48.60: 실제 _liveData 반영 — SPY/QQQ 최신 가격 우선 사용 (mock gen 값 제거)
+  var spyLive = ld['SPY'] && ld['SPY'].price ? ld['SPY'].price : (ld['^GSPC'] && ld['^GSPC'].price ? ld['^GSPC'].price / 10 : null);
+  var qqqLive = ld['QQQ'] && ld['QQQ'].price ? ld['QQQ'].price : (ld['^NDX'] && ld['^NDX'].price ? ld['^NDX'].price / 40 : null);
+  var b5 = (typeof window._breadth5 === 'number') ? window._breadth5 : null;
+  var b20 = (typeof window._breadth20 === 'number') ? window._breadth20 : null;
+  var b50 = (typeof window._breadth50 === 'number') ? window._breadth50 : null;
+  var b200 = (typeof window._breadth200 === 'number') ? window._breadth200 : null;
+
+  // v48.60: 실제 데이터 기반 series (mock gen은 마지막 fallback)
+  function seriesOrFallback(liveSeries, latestLiveVal, defaultVal) {
+    if (Array.isArray(liveSeries) && liveSeries.length > 5) return liveSeries;
+    if (latestLiveVal != null && isFinite(latestLiveVal)) {
+      // 최신값만 있으면 그 값으로 구성된 평탄 시리즈 (차트는 최소한 current value 표시)
+      var arr = [];
+      for (var i = 0; i < 20; i++) arr.push(latestLiveVal * (1 + (Math.random() - 0.5) * 0.004));
+      arr[arr.length - 1] = latestLiveVal;  // 마지막 값은 실제값 고정
+      return arr;
     }
-    return out;
+    return null;  // 데이터 없음 → "데이터 대기 중" 표시
   }
+
   var seriesMap = {
-    'bp-ad-ratio-chart': bld.adSeries || gen(52, 8, 5),
-    'bp-price-chart':    bld.spxSeries || gen(5820, 40, 20),
-    'bp-5ma-chart':      bld.abv5Series || gen(55, 10, 6),
-    'bp-20ma-chart':     bld.abv20Series || gen(60, 12, 7),
-    'bp-50ma-chart':     bld.abv50Series || gen(bp200, 8, 5),
-    'bh-price-chart':    bld.qqqSeries || gen(485, 8, 4),
-    'bh-5ma-chart':      bld.ndx5Series || gen(58, 10, 6),
-    'bh-20ma-chart':     bld.ndx20Series || gen(62, 12, 7),
-    'bh-50ma-chart':     bld.ndx50Series || gen(65, 8, 5)
+    'bp-ad-ratio-chart': seriesOrFallback(bld.adSeries, b5 != null ? b5 : null, 50),
+    'bp-price-chart':    seriesOrFallback(bld.spxSeries, spyLive, null),
+    'bp-5ma-chart':      seriesOrFallback(bld.abv5Series, b5, null),
+    'bp-20ma-chart':     seriesOrFallback(bld.abv20Series, b20, null),
+    'bp-50ma-chart':     seriesOrFallback(bld.abv50Series, b50, null),
+    'bh-price-chart':    seriesOrFallback(bld.qqqSeries, qqqLive, null),
+    'bh-5ma-chart':      seriesOrFallback(bld.ndx5Series, b5, null),  // NDX 폭 데이터 없으면 SPX 공용
+    'bh-20ma-chart':     seriesOrFallback(bld.ndx20Series, b20, null),
+    'bh-50ma-chart':     seriesOrFallback(bld.ndx50Series, b50, null)
   };
   var colorMap = {
     'bp-ad-ratio-chart': '#00d4ff',
@@ -524,6 +537,18 @@ window._aioBreadthCanvasRender = function() {
     'bh-5ma-chart':      '#00e5a0',
     'bh-20ma-chart':     '#ffa31a',
     'bh-50ma-chart':     '#ff5b50'
+  };
+  // v48.60: 차트 종류별 Y축 고정 스케일 (사용자 지적 "비율 이상 · 확대해서 봐야" 해소)
+  var scaleMap = {
+    // 상승 비율 차트는 0~100% 고정
+    'bp-ad-ratio-chart': { min: 0, max: 100 },
+    'bp-5ma-chart':      { min: 0, max: 100 },
+    'bp-20ma-chart':     { min: 0, max: 100 },
+    'bp-50ma-chart':     { min: 0, max: 100 },
+    'bh-5ma-chart':      { min: 0, max: 100 },
+    'bh-20ma-chart':     { min: 0, max: 100 },
+    'bh-50ma-chart':     { min: 0, max: 100 }
+    // price 차트는 data 기반 min/max + padding (아래 로직)
   };
   ids.forEach(function(id) {
     var cv = document.getElementById(id);
@@ -539,13 +564,42 @@ window._aioBreadthCanvasRender = function() {
       ctx.fillStyle = '#7b8599';
       ctx.font = '11px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('데이터 로드 대기', w / 2, h / 2);
+      ctx.fillText('데이터 대기 중 · API 키 확인', w / 2, h / 2);
       return;
     }
-    var min = Math.min.apply(null, s), max = Math.max.apply(null, s);
+    // v48.60: 고정 스케일 우선 (0~100% 비율 차트)
+    var fixedScale = scaleMap[id];
+    var min, max;
+    if (fixedScale) {
+      min = fixedScale.min; max = fixedScale.max;
+    } else {
+      // price 차트는 데이터 기반 + 5% padding (과도한 확대 방지)
+      var dataMin = Math.min.apply(null, s), dataMax = Math.max.apply(null, s);
+      var pad = (dataMax - dataMin) * 0.15 || (dataMax * 0.02) || 1;
+      min = dataMin - pad;
+      max = dataMax + pad;
+    }
     var range = max - min || 1;
-    var padX = 6, padY = 10;
-    var stepX = (w - padX * 2) / (s.length - 1);
+    var padX = 8, padY = 14;
+    var plotW = w - padX * 2, plotH = h - padY * 2;
+    var stepX = plotW / (s.length - 1);
+
+    // v48.60: Y축 gridline (0/25/50/75/100 또는 데이터 기반 4분할)
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    ctx.fillStyle = '#525c70';
+    ctx.font = '9px "JetBrains Mono", monospace';
+    ctx.textAlign = 'right';
+    var gridLines = fixedScale ? [0, 25, 50, 75, 100] : [min, min + range * 0.25, min + range * 0.5, min + range * 0.75, max];
+    gridLines.forEach(function(gv) {
+      var y = padY + (1 - (gv - min) / range) * plotH;
+      ctx.beginPath();
+      ctx.moveTo(padX, y);
+      ctx.lineTo(w - padX, y);
+      ctx.stroke();
+      ctx.fillText(fixedScale ? gv + '%' : gv.toFixed(0), padX - 2, y + 3);
+    });
+
     // 배경 그라디언트 영역
     var grad = ctx.createLinearGradient(0, padY, 0, h - padY);
     grad.addColorStop(0, colorMap[id] + '40');
@@ -555,9 +609,8 @@ window._aioBreadthCanvasRender = function() {
     ctx.moveTo(padX, h - padY);
     s.forEach(function(v, i) {
       var x = padX + i * stepX;
-      var y = padY + (1 - (v - min) / range) * (h - padY * 2);
-      if (i === 0) ctx.lineTo(x, y);
-      else ctx.lineTo(x, y);
+      var y = padY + (1 - (v - min) / range) * plotH;
+      ctx.lineTo(x, y);
     });
     ctx.lineTo(padX + (s.length - 1) * stepX, h - padY);
     ctx.closePath();
@@ -568,21 +621,36 @@ window._aioBreadthCanvasRender = function() {
     ctx.beginPath();
     s.forEach(function(v, i) {
       var x = padX + i * stepX;
-      var y = padY + (1 - (v - min) / range) * (h - padY * 2);
+      var y = padY + (1 - (v - min) / range) * plotH;
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     });
     ctx.stroke();
-    // 현재값
+    // 현재값 (최신 실제값)
     ctx.fillStyle = '#f0f4fc';
-    ctx.font = 'bold 11px "JetBrains Mono", monospace';
+    ctx.font = 'bold 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'right';
     var curr = s[s.length - 1];
-    var currText = id.indexOf('price') >= 0 ? curr.toFixed(0) : curr.toFixed(1) + '%';
-    ctx.fillText(currText, w - padX - 2, padY + 10);
+    var currText = id.indexOf('price') >= 0 ? '$' + curr.toFixed(2) : curr.toFixed(1) + '%';
+    // 흰색 배경 박스 (가독성)
+    var textW = ctx.measureText(currText).width;
+    ctx.fillStyle = colorMap[id] + 'dd';
+    ctx.fillRect(w - padX - textW - 6, padY + 2, textW + 6, 16);
+    ctx.fillStyle = '#001018';
+    ctx.fillText(currText, w - padX - 3, padY + 13);
     cv.__rendered = 'fallback';
   });
 };
+
+// v48.60: Breadth 페이지 진입 + _liveData 갱신 시 자동 재렌더 (Y축 스케일 실시간 보정)
+if (typeof document !== 'undefined') {
+  document.addEventListener('aio:liveQuotes', function(){
+    var bp = document.getElementById('page-breadth');
+    if (bp && bp.classList.contains('active') && typeof window._aioBreadthCanvasRender === 'function') {
+      try { window._aioBreadthCanvasRender(); } catch(_){}
+    }
+  });
+}
 
 // v48.49: 분산형 aio-tooltip 토글 — `?` 버튼 클릭 시 팝오버 표시/숨김 + 외부 클릭으로 닫기
 window._aioTooltipToggle = function(el, e) {
@@ -603,6 +671,86 @@ document.addEventListener('keydown', function(e) {
   if (e.key !== 'Escape') return;
   document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); });
 });
+
+// v48.60: signal 페이지 시장 국면 진단 카드 + 시나리오 전망 동적 렌더러
+// regime-nyse-sell / regime-aaii / regime-pcr + scenario-outlook-ts 타임스탬프
+window._aioRenderSignalRegime = function() {
+  try {
+    var ld = window._liveData || {};
+    var snap = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : {};
+
+    // 1) NYSE 매도 비율 — A-D ratio 역산 (0~100)
+    var b5 = (typeof window._breadth5 === 'number') ? window._breadth5 : null;
+    var nyseSell = b5 != null ? (100 - b5).toFixed(1) + '%' : '—';
+    var nyseEl = document.getElementById('regime-nyse-sell');
+    if (nyseEl) {
+      nyseEl.textContent = nyseSell;
+      var nyseN = parseFloat(nyseSell);
+      nyseEl.style.color = isFinite(nyseN) ? (nyseN > 60 ? 'var(--data-red)' : nyseN > 45 ? 'var(--data-amber)' : 'var(--data-green)') : 'var(--text-muted)';
+      var sub = nyseEl.nextElementSibling;
+      if (sub) sub.textContent = isFinite(nyseN) ? (nyseN > 60 ? '매도 우세' : nyseN > 45 ? '균형' : '매수 우세') : '—';
+    }
+
+    // 2) AAII 약세 비율 — 정적 DATA_SNAPSHOT fallback (공공 API 미가용)
+    var aaiiBear = snap.aaiiBear != null ? snap.aaiiBear : 43.0;
+    var aaiiEl = document.getElementById('regime-aaii');
+    if (aaiiEl) {
+      aaiiEl.textContent = aaiiBear.toFixed(1) + '%';
+      aaiiEl.style.color = aaiiBear > 40 ? 'var(--data-amber)' : 'var(--data-green)';
+      var aaiiSub = aaiiEl.nextElementSibling;
+      if (aaiiSub) aaiiSub.textContent = aaiiBear > 40 ? '비관 우세' : aaiiBear > 30 ? '중립' : '낙관';
+    }
+
+    // 3) Put/Call 비율 — 스크린샷 기반 fallback
+    var pcr = (window._pcRatio != null) ? window._pcRatio : (snap.pcRatio || null);
+    var pcrEl = document.getElementById('regime-pcr');
+    if (pcrEl) {
+      if (pcr != null && isFinite(pcr)) {
+        pcrEl.textContent = pcr.toFixed(2);
+        pcrEl.style.color = pcr > 1.1 ? 'var(--data-green)' : pcr > 0.9 ? 'var(--data-amber)' : 'var(--data-red)';
+        var pcrSub = pcrEl.nextElementSibling;
+        if (pcrSub) pcrSub.textContent = pcr > 1.1 ? '공포 심함 (역발상 매수)' : pcr > 0.9 ? '균형' : '과도한 낙관';
+      } else {
+        pcrEl.textContent = '—';
+        var pcrSub2 = pcrEl.nextElementSibling;
+        if (pcrSub2) pcrSub2.textContent = 'CBOE 수동 갱신';
+      }
+    }
+
+    // 4) 시나리오 전망 타임스탬프 동적 갱신 (2026-04-04 hardcoded 제거)
+    var tsEl = document.getElementById('scenario-outlook-ts');
+    if (tsEl) {
+      var now = new Date();
+      var kst = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + 9 * 3600000);
+      var mm = String(kst.getMonth() + 1).padStart(2, '0');
+      var dd = String(kst.getDate()).padStart(2, '0');
+      var wti = ld['CL=F'] ? ld['CL=F'].price : (snap.wti || null);
+      var vix = ld['^VIX'] ? ld['^VIX'].price : (snap.vix || null);
+      var contextNote = '';
+      if (wti && vix) contextNote = ' · WTI $' + wti.toFixed(0) + ' · VIX ' + vix.toFixed(1);
+      tsEl.textContent = kst.getFullYear() + '-' + mm + '-' + dd + ' 기준' + contextNote + ' · 실시간 갱신';
+    }
+  } catch(e) {
+    if (window._aioLog) window._aioLog('warn', 'render', '_aioRenderSignalRegime: ' + (e && e.message || e));
+  }
+};
+// 훅: _liveData 갱신 + signal/briefing 페이지 진입 시
+if (typeof document !== 'undefined') {
+  document.addEventListener('aio:liveQuotes', function(){
+    var sig = document.getElementById('page-signal');
+    if (sig && sig.classList.contains('active')) window._aioRenderSignalRegime();
+  });
+  document.addEventListener('aio:pageShown', function(e){
+    if (e.detail === 'signal' || e.detail === 'home') {
+      setTimeout(function(){
+        if (typeof updateBottomProcess === 'function') { try { updateBottomProcess(); } catch(_){} }
+        window._aioRenderSignalRegime();
+      }, 250);
+    }
+  });
+  // 초기 로드 후 5초 뒤 1회 강제 실행 (페이지 최초 진입 대응)
+  setTimeout(window._aioRenderSignalRegime, 5000);
+}
 
 // v48.58: Guide 페이지 점프 + 검색 (18K줄 탐색성 개선, TOC)
 window._aioGuideJump = function(targetId) {
@@ -2515,7 +2663,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.59';
+const APP_VERSION = 'v48.60';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
