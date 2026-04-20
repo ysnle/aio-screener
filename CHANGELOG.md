@@ -6,6 +6,64 @@
 
 ---
 
+## v48.56 — 어닝 캘린더 EH 스타일 재설계 + 리스크 레이더 신설 (2026-04-22)
+
+### 트리거
+사용자 이미지 2건 기반 지적:
+1. EarningsHub 스타일 주간 어닝 캘린더 스크린샷 (Mon~Fri grid · Before Open/After Close · 로고+티커 카드 · IPO · +N overflow)
+2. TradeTheNews 리스크 레이더 메시지 (날짜별 FOMC/빅테크/중앙은행/정치/선거 이벤트 타임라인)
+
++ "각 페이지 쓸모없는 기능/내용 제거 또는 통합" · "API 추가는 무료만"
+
+### API 사용 판정 (사용자 질문 응답)
+- ✅ **Finnhub 어닝**: 무료 60 req/min `/calendar/earnings` (기존 fetcher 활용)
+- ✅ **Finnhub IPO**: 무료 60 req/min `/calendar/ipo` (신규)
+- ✅ **Finnhub Economic**: 무료 60 req/min `/calendar/economic` (신규, 리스크 레이더)
+- ⏸ **FRED / BOK / KOSIS**: 모두 무료 가능하나 UI 구축 별도 필요 (v49+ 처리)
+
+### 근본 구현
+
+#### 1. 어닝 캘린더 (주간 EH 스타일) — fundamental 페이지
+- **데이터**: Finnhub `/calendar/earnings` 우선, FMP 폴백, 무키 시 스냅샷 가이드
+- **IPO 섹션**: Finnhub `/calendar/ipo` 병합 (보라색 강조)
+- **UI**:
+  - 주간 5일 grid (Mon~Fri · 반응형 5→3→2 컬럼)
+  - 이전주/이번주/다음주 shift 네비게이션
+  - Before Open(☀ amber) / After Close(🌙 cyan) 섹션 분리
+  - 티커 카드 grid 3컬럼 · FMP 로고(`image-stock` API) + 티커 텍스트 + fallback
+  - **카드 클릭 → ticker 페이지 이동** (`_aioNewsTickerClick` 재사용)
+  - "+N" overflow badge
+  - "오늘" 하이라이트 (녹색)
+
+#### 2. 리스크 레이더 신설 — fundamental 페이지
+- **정적 17건 핵심 이벤트** (2026-04~11)
+  - Fed: FOMC 4/29, 파월 임기 5/15, Q2 스트레스 테스트, BOJ/ECB/BOE
+  - 빅테크 어닝: Big 4 (GOOGL/MSFT/META/AMZN) 4/29, Apple 4/30, NVIDIA 5/20
+  - 지정학: 미-이란 4/22, 이스라엘-레바논 4/26, G7 6/15, USMCA 7/1, 관세 7/20, 미-중 11/10
+  - 정치: 미국 중간선거 11/3, 브라질 총선 10/4
+- **Finnhub Economic Calendar 동적 병합** (CPI/PPI/NFP/GDP/PMI High+Medium Impact만)
+- **UI**:
+  - impact 색상 구분 (critical 적색 / high 황색 / medium muted)
+  - D-N 계산 (오늘/내일/D-N)
+  - 필터: 전체 / High Impact / Fed·중앙은행 / 빅테크 어닝 / 지정학·정치
+  - 국가 flag emoji + impact badge
+  - 스크롤 가능 (max-height 360px)
+
+#### 3. 자동 로드 Hook
+- `aio:pageShown` (fundamental / briefing) → `loadRiskRadar()` 200ms 지연
+- 기존 `loadEarningsCalendar()` 주간 shift 반영 자동 재호출
+
+### 남은 과제 (v49+)
+- FRED API 통합: fed-rate · CPI · GDP · 실업률 등 자동 갱신 (키 UI는 기존)
+- BOK ECOS API: 기준금리 · 원화 지표
+- KOSIS 통계청 API: 한국 CPI/GDP/수출입
+- 각 페이지 쓸모없는 기능 감사 + 통합 (별도 감사 세션 필요)
+- aio-explain 20개 → 섹션 분산 tooltip 마이그레이션 (현재 14건 중 50~70%)
+
+### 버전 6곳 동기화
+
+---
+
 ## v48.55 — AI 채팅 데이터 파이프라인 근본 재설계 (Explore Agent 4개 감사) (2026-04-21)
 
 ### 트리거

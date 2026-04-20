@@ -2384,6 +2384,32 @@ async function fetchFinnhubEarningsCalendar(fromDate, toDate, symbol) {
   } catch(e) { _aioLog('warn', 'fetch', 'Finnhub earnings calendar error: ' + e.message); return []; }
 }
 
+// v48.56: Finnhub IPO 캘린더 — 무료 tier 60 req/min
+async function fetchFinnhubIpoCalendar(fromDate, toDate) {
+  const key = DATA_APIS.finnhub.key();
+  if (!key) return [];
+  try {
+    const url = `${DATA_APIS.finnhub.base}/calendar/ipo?from=${fromDate}&to=${toDate}&token=${key}`;
+    const r = await fetchWithTimeout(url, {}, 6000);
+    if (!r.ok) return [];
+    const d = await r.json();
+    return d && Array.isArray(d.ipoCalendar) ? d.ipoCalendar : [];
+  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub IPO calendar error: ' + e.message); return []; }
+}
+
+// v48.56: Finnhub 경제 이벤트 캘린더 — 리스크 레이더 데이터 소스 (FOMC/CPI/GDP/PMI 등)
+async function fetchFinnhubEconomicCalendar(fromDate, toDate) {
+  const key = DATA_APIS.finnhub.key();
+  if (!key) return [];
+  try {
+    const url = `${DATA_APIS.finnhub.base}/calendar/economic?from=${fromDate}&to=${toDate}&token=${key}`;
+    const r = await fetchWithTimeout(url, {}, 7000);
+    if (!r.ok) return [];
+    const d = await r.json();
+    return d && Array.isArray(d.economicCalendar) ? d.economicCalendar : [];
+  } catch(e) { _aioLog('warn', 'fetch', 'Finnhub economic calendar error: ' + e.message); return []; }
+}
+
 
 // ═══ 6b. NewsData.io — CORS 지원 뉴스 API (무료 200건/일) ═══════
 async function fetchNewsDataIO(category = 'business') {

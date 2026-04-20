@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.55 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.56 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1656,6 +1656,16 @@ body {
 .desk-layout { display: grid; grid-template-columns: 1fr minmax(200px, 280px); gap: var(--space-3); }
 .desk-main { display: flex; flex-direction: column; }
 .desk-data { display: flex; flex-direction: column; }
+
+/* v48.56: 어닝 캘린더 EH 스타일 + 리스크 레이더 유틸 */
+.aio-earn-cal-grid { grid-template-columns: repeat(5, 1fr); }
+@media (max-width: 1100px) { .aio-earn-cal-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 700px) { .aio-earn-cal-grid { grid-template-columns: repeat(2, 1fr); } }
+.aio-earn-card { transition: border-color var(--dur-fast), transform var(--dur-fast); }
+.aio-earn-card:hover { border-color: var(--data-cyan); transform: translateY(-1px); }
+.aio-earn-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.aio-risk-event { transition: background var(--dur-fast); }
+.aio-risk-event:hover { background: var(--surface-3) !important; }
 
 /* v48.54: CSS hover 유틸리티 클래스 (onmouseover/onmouseout 인라인 대체 · R32 확장) */
 .aio-hover-cyan { background: var(--data-cyan); }
@@ -3661,7 +3671,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.55</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.56</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -7659,17 +7669,47 @@ body.light-theme canvas { filter:none; }
       <div id="fund-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">기업 카드 로딩 후 자동 분석됩니다</div>
     </div>
 
-    <!--  어닝 캘린더 (다가오는 실적 발표) -->
+    <!-- v48.56: 어닝 캘린더 — EarningsHub 스타일 주간 그리드 (Finnhub + FMP + IPO) -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
         <div>
-          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">어닝 캘린더 — 다가오는 실적 발표<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="어닝 캘린더 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">어닝 시즌 전략</span>실적 <strong>3일 전 매수 → 발표 당일 매도</strong> = 역사적 +0.5% 초과수익. 어닝 gap-up +5% + 거래량 2배 = 지속 상승 70% 확률. <strong>Pre-announcement 하향</strong> = 매도 신호. 후판매(비트) 반응이 실제 숫자보다 중요.</span></span></span>
-          <span style="font-size:8px;color:var(--text-muted);margin-left:6px;">주요 기업 실적 발표 일정</span>
+          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">어닝 캘린더 — 주간 실적 발표<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="어닝 캘린더 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">어닝 시즌 전략</span>실적 <strong>3일 전 매수 → 발표 당일 매도</strong> = 역사적 +0.5% 초과수익. 어닝 gap-up +5% + 거래량 2배 = 지속 상승 70% 확률. BMO(장전) vs AMC(장후) 발표 시간대에 따라 거래 전략 다름.</span></span></span>
+          <span style="font-size:8px;color:var(--text-muted);margin-left:6px;">이번 주 주요 기업 BMO/AMC + IPO</span>
         </div>
-        <span id="earn-cal-status" style="font-size:9px;color:var(--text-muted);font-family:var(--font-mono);">FMP API</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div style="display:flex;gap:3px;" id="earn-cal-week-nav">
+            <button class="tb-btn" data-action="_aioEarnCalWeekShift" data-arg="-1" style="font-size:9px;padding:3px 8px;">◀ 이전</button>
+            <button class="tb-btn" data-action="_aioEarnCalWeekShift" data-arg="0" style="font-size:9px;padding:3px 8px;">이번주</button>
+            <button class="tb-btn" data-action="_aioEarnCalWeekShift" data-arg="1" style="font-size:9px;padding:3px 8px;">다음 ▶</button>
+          </div>
+          <span id="earn-cal-status" style="font-size:9px;color:var(--text-muted);font-family:var(--font-mono);">데이터 로딩 중</span>
+        </div>
       </div>
-      <div id="earnings-calendar-body" style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;overflow:hidden;">
-        <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:9px;">어닝 캘린더 로딩 중…</div>
+      <div id="earnings-calendar-body" class="aio-earn-cal-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;min-height:240px;">
+        <div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text-muted);font-size:10px;">어닝 캘린더 로딩 중… (Finnhub 우선, FMP 폴백, 무키 시 스냅샷)</div>
+      </div>
+    </div>
+
+    <!-- v48.56: 리스크 레이더 (매크로 이벤트 타임라인) — 사용자 이미지 기반 구조 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+        <div>
+          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">리스크 레이더 — 매크로 이벤트 타임라인<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="리스크 레이더 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">리스크 레이더 사용법</span>향후 90일 간 <strong>FOMC · 빅테크 어닝 · 중앙은행 결정 · 정치/지정학 이벤트</strong>를 시간순 정렬. 빨강=High Impact · 노랑=Medium · 기본=정기 이벤트. 각 이벤트는 시장 변동성·섹터 로테이션 트리거 가능.</span></span></span>
+          <span style="font-size:8px;color:var(--text-muted);margin-left:6px;">FOMC · 빅테크 · 중앙은행 · 지정학 · 선거</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <select id="risk-radar-filter" aria-label="리스크 레이더 필터" data-on-change="_aioRiskRadarFilter" style="background:var(--surface-4);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-size:10px;padding:3px 8px;font-family:var(--font-mono);">
+            <option value="all">전체</option>
+            <option value="high">High Impact</option>
+            <option value="fomc">Fed/중앙은행</option>
+            <option value="earnings">빅테크 어닝</option>
+            <option value="geopolitical">지정학/정치</option>
+          </select>
+          <span id="risk-radar-status" style="font-size:9px;color:var(--text-muted);font-family:var(--font-mono);">데이터 로딩 중</span>
+        </div>
+      </div>
+      <div id="risk-radar-body" style="display:flex;flex-direction:column;gap:4px;max-height:360px;overflow-y:auto;padding-right:4px;">
+        <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">리스크 레이더 로딩 중…</div>
       </div>
     </div>
 
@@ -22149,18 +22189,257 @@ async function _fetchEarningsSurprisesFMP(body, fmpKey) {
   }
 }
 
+// v48.56: 어닝 캘린더 주간 shift 상태
+window._aioEarnCalWeekOffset = 0;
+window._aioEarnCalWeekShift = function(offset) {
+  window._aioEarnCalWeekOffset = parseInt(offset, 10) || 0;
+  loadEarningsCalendar();
+};
+
 async function loadEarningsCalendar() {
   var body = document.getElementById('earnings-calendar-body');
   if (!body) return;
 
-  // v35.8: FMP API 동적 호출
+  // 주간 범위 계산 (Mon~Fri + 주 shift)
+  var weekOffset = window._aioEarnCalWeekOffset || 0;
+  var now = new Date();
+  var dayOfWeek = now.getDay(); // 0=Sun, 1=Mon, ...
+  var daysToMon = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
+  var monday = new Date(now.getTime() + (daysToMon + weekOffset * 7) * 86400000);
+  var friday = new Date(monday.getTime() + 4 * 86400000);
+  var fromStr = monday.toISOString().slice(0, 10);
+  var toStr = friday.toISOString().slice(0, 10);
+
+  body.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text-muted);font-size:10px;"><span class="aio-spinner" style="margin-right:8px;"></span>어닝 캘린더 로딩 중… (' + fromStr + ' ~ ' + toStr + ')</div>';
+
+  var finnhubKey = _getApiKey('aio_finnhub_key');
   var fmpKey = _getApiKey('aio_fmp_key');
-  if (fmpKey) {
-    await _fetchEarningsCalendarFMP(body, fmpKey);
-    return;
+  var earnings = [], ipos = [];
+
+  try {
+    if (finnhubKey && typeof fetchFinnhubEarningsCalendar === 'function') {
+      earnings = await fetchFinnhubEarningsCalendar(fromStr, toStr);
+      if (typeof fetchFinnhubIpoCalendar === 'function') ipos = await fetchFinnhubIpoCalendar(fromStr, toStr);
+    } else if (fmpKey) {
+      await _fetchEarningsCalendarFMP(body, fmpKey);
+      return;
+    } else {
+      body.innerHTML = '<div style="grid-column:1/-1;padding:26px;text-align:center;color:var(--text-muted);font-size:10px;line-height:1.7;">Finnhub 또는 FMP API 키 설정 시 주간 어닝 캘린더 표시<br><span style="font-size:9px;">Settings → API Keys → Finnhub (60 req/min 무료) 권장</span></div>';
+      var st = document.getElementById('earn-cal-status'); if (st) st.textContent = 'API 키 필요';
+      return;
+    }
+    _renderEarningsCalendarWeekly(body, earnings, ipos, monday, friday);
+    var st = document.getElementById('earn-cal-status');
+    if (st) st.textContent = earnings.length + '건 어닝 + ' + ipos.length + 'IPO · ' + fromStr.slice(5) + '~' + toStr.slice(5) + ' (Finnhub)';
+  } catch(e) {
+    _aioLog('warn', 'fetch', 'earnings calendar error: ' + e.message);
+    body.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">어닝 캘린더 로딩 실패 · API 키 확인 필요</div>';
   }
-  body.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">FMP API 키 설정 시 실시간 실적 캘린더 표시<br><span style="font-size:9px;">Settings → API Keys → FMP Key</span></div>';
 }
+
+// v48.56: 주간 어닝 캘린더 렌더러 (EarningsHub 스타일)
+function _renderEarningsCalendarWeekly(body, earnings, ipos, monday, friday) {
+  // 정렬: 날짜 + BMO/AMC + marketCap
+  earnings.sort(function(a, b) {
+    if (a.date !== b.date) return a.date > b.date ? 1 : -1;
+    var tA = (a.hour || '').toLowerCase(), tB = (b.hour || '').toLowerCase();
+    if (tA !== tB) return tA === 'bmo' ? -1 : 1;
+    return (b.marketCap || 0) - (a.marketCap || 0);
+  });
+  // 요일별 그룹화
+  var dayLabels = ['일','월','화','수','목','금','토'];
+  var days = [];
+  for (var i = 0; i < 5; i++) {
+    var d = new Date(monday.getTime() + i * 86400000);
+    var ymd = d.toISOString().slice(0,10);
+    var dayEarn = earnings.filter(function(e) { return e.date === ymd; });
+    var dayIpo = ipos.filter(function(p) { return p.date === ymd; });
+    days.push({ date: d, ymd: ymd, bmo: dayEarn.filter(function(e){return (e.hour||'').toLowerCase()==='bmo';}),
+                amc: dayEarn.filter(function(e){return (e.hour||'').toLowerCase()==='amc';}),
+                ipos: dayIpo });
+  }
+
+  var MAX_VISIBLE = 9; // 섹션당 표시 개수
+  var html = '';
+  days.forEach(function(day, idx) {
+    var isToday = new Date().toISOString().slice(0,10) === day.ymd;
+    var dayColor = isToday ? 'var(--data-green)' : 'var(--text-muted)';
+    var dayLabel = dayLabels[day.date.getDay()] + ' ' + day.date.getDate();
+
+    html += '<div class="aio-earn-day" style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:6px;">';
+    html += '<div style="text-align:center;padding:4px 6px;background:' + (isToday ? 'rgba(0,229,160,0.1)' : 'var(--surface-2)') + ';border-radius:6px;font-size:10px;font-weight:700;color:' + dayColor + ';font-family:var(--font-mono);">' + dayLabel + (isToday ? ' · 오늘' : '') + '</div>';
+
+    // IPO 섹션 (있을 때만)
+    if (day.ipos.length > 0) {
+      html += '<div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.25);border-radius:6px;padding:4px 6px;">';
+      html += '<div style="font-size:9px;font-weight:700;color:var(--data-purple);margin-bottom:3px;">IPO · ' + day.ipos.length + '건</div>';
+      day.ipos.slice(0, 3).forEach(function(p) {
+        html += '<div style="font-size:9px;color:var(--text-primary);font-family:var(--font-mono);line-height:1.4;">' + escHtml(p.symbol || '?') + ' <span style="color:var(--text-muted);font-size:8px;">' + escHtml((p.name||'').slice(0,18)) + '</span></div>';
+      });
+      if (day.ipos.length > 3) html += '<div style="font-size:9px;color:var(--text-muted);">+' + (day.ipos.length - 3) + '</div>';
+      html += '</div>';
+    }
+
+    // BMO (Before Open)
+    if (day.bmo.length > 0) {
+      html += _renderEarnSection('☀', 'Before Open', day.bmo, MAX_VISIBLE, 'rgba(255,163,26,0.08)', 'rgba(255,163,26,0.25)', 'var(--data-amber)');
+    }
+    // AMC (After Close)
+    if (day.amc.length > 0) {
+      html += _renderEarnSection('🌙', 'After Close', day.amc, MAX_VISIBLE, 'rgba(0,212,255,0.08)', 'rgba(0,212,255,0.2)', 'var(--data-cyan)');
+    }
+    // 빈 날
+    if (day.bmo.length === 0 && day.amc.length === 0 && day.ipos.length === 0) {
+      html += '<div style="padding:20px 4px;text-align:center;color:var(--text-muted);font-size:9px;opacity:0.5;">(발표 없음)</div>';
+    }
+    html += '</div>';
+  });
+  body.innerHTML = html;
+}
+
+// v48.56: 어닝 섹션 (BMO/AMC) 렌더러
+function _renderEarnSection(icon, label, items, maxVisible, bgColor, borderColor, titleColor) {
+  var html = '<div style="background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:6px;padding:4px 5px;">';
+  html += '<div style="font-size:9px;font-weight:700;color:' + titleColor + ';margin-bottom:3px;">' + icon + ' ' + label + '</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;">';
+  items.slice(0, maxVisible).forEach(function(e) {
+    var sym = e.symbol || '?';
+    var logoUrl = 'https://financialmodelingprep.com/image-stock/' + encodeURIComponent(sym) + '.png';
+    var epsEst = e.epsEstimate != null ? '$' + parseFloat(e.epsEstimate).toFixed(2) : '';
+    html += '<div class="aio-earn-card" data-action="_aioNewsTickerClick" data-arg="' + escHtml(sym) + '" role="button" tabindex="0" style="background:var(--surface-4);border:1px solid var(--border);border-radius:4px;padding:3px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:border-color var(--dur-fast);" title="' + escHtml(sym) + ' 어닝 ' + epsEst + '">';
+    html += '<img src="' + escHtml(logoUrl) + '" alt="' + escHtml(sym) + '" loading="lazy" style="width:22px;height:22px;object-fit:contain;border-radius:3px;background:#ffffff;" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\';">';
+    html += '<span style="display:none;font-size:9px;font-weight:800;color:var(--text-primary);">' + escHtml(sym.slice(0,4)) + '</span>';
+    html += '<span style="font-size:8px;font-weight:700;color:var(--text-secondary);font-family:var(--font-mono);">' + escHtml(sym) + '</span>';
+    html += '</div>';
+  });
+  if (items.length > maxVisible) {
+    html += '<div style="background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--text-muted);">+' + (items.length - maxVisible) + '</div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+// v48.56: 리스크 레이더 렌더러 (Finnhub Economic Calendar + 정적 상위 이벤트)
+window._aioCurrentRiskFilter = 'all';
+window._aioRiskRadarFilter = function(el) {
+  window._aioCurrentRiskFilter = el && el.value || 'all';
+  loadRiskRadar();
+};
+
+async function loadRiskRadar() {
+  var body = document.getElementById('risk-radar-body');
+  if (!body) return;
+
+  var now = new Date();
+  var fromStr = now.toISOString().slice(0, 10);
+  var to = new Date(now.getTime() + 90 * 86400000);
+  var toStr = to.toISOString().slice(0, 10);
+
+  body.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:10px;"><span class="aio-spinner" style="margin-right:8px;"></span>이벤트 수집 중…</div>';
+
+  // 1. 정적 핵심 이벤트 (Fed/빅테크/정치)
+  var staticEvents = [
+    // 4월 말
+    { date: '2026-04-22', impact: 'high', category: 'geopolitical', event: '미-이란 휴전 협정 만료 예정', flag: '🇺🇸🇮🇷' },
+    { date: '2026-04-26', impact: 'medium', category: 'geopolitical', event: '이스라엘-레바논 휴전 협정 만료', flag: '🇮🇱🇱🇧' },
+    { date: '2026-04-27', impact: 'high', category: 'fomc', event: 'BOJ(일본은행) 결정', flag: '🇯🇵' },
+    { date: '2026-04-29', impact: 'critical', category: 'fomc', event: 'FOMC 결정 + Alphabet · Microsoft · Meta · Amazon 실적', flag: '🇺🇸' },
+    { date: '2026-04-30', impact: 'high', category: 'fomc', event: 'BOE · ECB 결정 + Apple 실적', flag: '🇬🇧🇪🇺' },
+    // 5월
+    { date: '2026-05-03', impact: 'medium', category: 'geopolitical', event: 'OPEC+ 회의', flag: '🛢' },
+    { date: '2026-05-15', impact: 'high', category: 'fomc', event: '파월 현 연준 의장 임기 종료 (Fed 이사회 잔류 여부 불확실)', flag: '🇺🇸' },
+    { date: '2026-05-20', impact: 'critical', category: 'earnings', event: 'NVIDIA 실적 발표', flag: '📈' },
+    // 6월
+    { date: '2026-06-11', impact: 'medium', category: 'geopolitical', event: '2026 FIFA 월드컵 개막', flag: '⚽' },
+    { date: '2026-06-15', impact: 'high', category: 'geopolitical', event: 'G7 정상회의 (15~17일)', flag: '🌐' },
+    { date: '2026-06-30', impact: 'high', category: 'fomc', event: '2026 Q2 말 연준 스트레스 테스트 결과 발표', flag: '🇺🇸' },
+    // 7월
+    { date: '2026-07-01', impact: 'medium', category: 'geopolitical', event: 'USMCA / CUSMA 공동 검토', flag: '🇺🇸🇲🇽🇨🇦' },
+    { date: '2026-07-04', impact: 'low', category: 'geopolitical', event: '미국 건국 250주년', flag: '🇺🇸' },
+    { date: '2026-07-20', impact: 'high', category: 'geopolitical', event: '15% 122조 관세 만료 예정', flag: '💼' },
+    // 하반기
+    { date: '2026-10-04', impact: 'medium', category: 'geopolitical', event: '브라질 총선', flag: '🇧🇷' },
+    { date: '2026-11-03', impact: 'critical', category: 'geopolitical', event: '미국 중간선거일 (하원 + 상원 1/3)', flag: '🇺🇸' },
+    { date: '2026-11-10', impact: 'high', category: 'geopolitical', event: '미-중 무역 협정 만료', flag: '🇺🇸🇨🇳' }
+  ];
+
+  // 2. Finnhub 경제 이벤트 (CPI/PPI/NFP/GDP/PMI 등) — API 키 있으면
+  var finnhubKey = _getApiKey('aio_finnhub_key');
+  var finnhubEvents = [];
+  if (finnhubKey && typeof fetchFinnhubEconomicCalendar === 'function') {
+    try {
+      var ecoRaw = await fetchFinnhubEconomicCalendar(fromStr, toStr);
+      // high/medium impact만 필터 (noise 제거)
+      finnhubEvents = (ecoRaw || []).filter(function(e) {
+        var imp = (e.impact || '').toLowerCase();
+        return imp === 'high' || imp === 'medium';
+      }).map(function(e) {
+        var country = (e.country || 'US').toUpperCase();
+        var flag = country === 'US' ? '🇺🇸' : country === 'EU' ? '🇪🇺' : country === 'CN' ? '🇨🇳' : country === 'JP' ? '🇯🇵' : country === 'KR' ? '🇰🇷' : '🌐';
+        return {
+          date: (e.time || '').slice(0, 10),
+          impact: (e.impact || '').toLowerCase() === 'high' ? 'high' : 'medium',
+          category: 'economic',
+          event: (e.event || '?') + (e.actual != null ? ' (실측: ' + e.actual + ')' : (e.estimate != null ? ' (예상: ' + e.estimate + ')' : '')),
+          flag: flag
+        };
+      });
+    } catch(e) { /* silent */ }
+  }
+
+  // 3. 병합 + 정렬
+  var allEvents = staticEvents.concat(finnhubEvents).filter(function(e) {
+    return e.date >= fromStr && e.date <= toStr;
+  });
+  allEvents.sort(function(a, b) { return a.date > b.date ? 1 : -1; });
+
+  // 4. 필터 적용
+  var filter = window._aioCurrentRiskFilter || 'all';
+  var filtered = allEvents;
+  if (filter === 'high') filtered = allEvents.filter(function(e) { return e.impact === 'critical' || e.impact === 'high'; });
+  else if (filter === 'fomc') filtered = allEvents.filter(function(e) { return e.category === 'fomc' || e.category === 'economic'; });
+  else if (filter === 'earnings') filtered = allEvents.filter(function(e) { return e.category === 'earnings'; });
+  else if (filter === 'geopolitical') filtered = allEvents.filter(function(e) { return e.category === 'geopolitical'; });
+
+  // 5. 렌더
+  if (filtered.length === 0) {
+    body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">해당 필터에 맞는 이벤트 없음</div>';
+  } else {
+    var html = '';
+    filtered.forEach(function(e) {
+      var d = new Date(e.date + 'T00:00:00');
+      var dow = ['일','월','화','수','목','금','토'][d.getDay()];
+      var mmdd = (d.getMonth()+1) + '월 ' + d.getDate() + '일';
+      var daysFromNow = Math.round((d.getTime() - new Date().setHours(0,0,0,0)) / 86400000);
+      var dStr = daysFromNow === 0 ? '오늘' : daysFromNow === 1 ? '내일' : 'D-' + daysFromNow;
+
+      var impactColor = e.impact === 'critical' ? 'var(--data-red)' : e.impact === 'high' ? 'var(--data-amber)' : 'var(--text-muted)';
+      var impactBg = e.impact === 'critical' ? 'rgba(255,91,80,0.08)' : e.impact === 'high' ? 'rgba(255,163,26,0.06)' : 'var(--surface-1)';
+      var impactLabel = e.impact === 'critical' ? 'CRITICAL' : e.impact === 'high' ? 'HIGH' : 'MED';
+
+      html += '<div class="aio-risk-event" style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:' + impactBg + ';border:1px solid var(--border-subtle);border-left:3px solid ' + impactColor + ';border-radius:6px;">';
+      html += '<span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);flex-shrink:0;min-width:70px;">' + mmdd + '(' + dow + ')</span>';
+      html += '<span style="font-size:9px;color:' + impactColor + ';font-weight:700;font-family:var(--font-mono);flex-shrink:0;min-width:40px;">' + dStr + '</span>';
+      html += '<span style="font-size:13px;flex-shrink:0;">' + e.flag + '</span>';
+      html += '<span style="font-size:11px;color:var(--text-primary);flex:1;line-height:1.5;">' + escHtml(e.event) + '</span>';
+      html += '<span style="font-size:8px;color:' + impactColor + ';font-weight:700;padding:2px 6px;background:' + impactBg + ';border:1px solid ' + impactColor + ';border-radius:3px;font-family:var(--font-mono);flex-shrink:0;">' + impactLabel + '</span>';
+      html += '</div>';
+    });
+    body.innerHTML = html;
+  }
+
+  var st = document.getElementById('risk-radar-status');
+  if (st) st.textContent = filtered.length + '건 · 정적 ' + staticEvents.length + ' + Finnhub ' + finnhubEvents.length + ' (' + fromStr.slice(5) + '~' + toStr.slice(5) + ')';
+}
+
+// 리스크 레이더 페이지 진입 시 자동 로드
+document.addEventListener('aio:pageShown', function(e) {
+  if (e.detail === 'fundamental' || e.detail === 'briefing') {
+    setTimeout(function() {
+      if (typeof loadRiskRadar === 'function') loadRiskRadar();
+    }, 200);
+  }
+});
 
 async function _fetchEarningsCalendarFMP(body, fmpKey) {
   try {
