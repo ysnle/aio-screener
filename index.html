@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.45 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.46 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3528,7 +3528,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.45</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.46</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5393,6 +5393,43 @@ body.light-theme canvas { filter:none; }
   <div class="page" id="page-briefing">
   <div class="insight-box box-collapsed">
     <strong>오늘 시장 핵심 정리 — AI가 뉴스·실적·경제지표를 종합 브리핑</strong>
+  </div>
+
+  <!-- ═══ v48.46: 브리핑 심층 해설 ═══ -->
+  <div class="aio-explain" id="explain-briefing-page">
+    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-briefing-page">
+      <span class="aio-explain-trigger-label">
+        <span class="aio-explain-trigger-icon">?</span>
+        <span>브리핑 활용 가이드 — 데일리 루틴 · 뉴스 필터 · Action Item 추출</span>
+      </span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="aio-explain-content">
+      <div class="explain-section">
+        <div class="explain-label">브리핑은 매일 아침 30분 루틴의 코어</div>
+        <div class="explain-body">
+          <strong>개념</strong> — 전일 미국장 · 유럽장 · 아시아장의 주요 이벤트를 뉴스 80+ 소스에서 수집 · 점수화 · 요약. <strong>score 90+만 핵심 뉴스</strong>로 상단 고정.
+          <ul>
+            <li><strong>아침 루틴</strong>: ① 브리핑 읽기(5분) → ② 시그널 스코어 확인(2분) → ③ 보유 종목 뉴스 스캔(5분) → ④ RRG로 섹터 방향(3분) → ⑤ 포지션 조정 체크리스트(5분).</li>
+            <li><strong>Action Item</strong>: 각 뉴스 하단 "지금(Now) · 관망(Watch) · 대기(Wait) · 회피(Avoid)" 태그. Now = 즉시 행동, Avoid = 회피 필요.</li>
+            <li><strong>뉴스 score 기준</strong>: 지정학(전쟁/제재) 95+ · FOMC/연준 90+ · 대형 실적 85+ · M&amp;A 80 · 단순 공시 60-70.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="explain-label is-amber">Filtering — 뉴스 홍수에서 신호 추출</div>
+        <div class="explain-body">
+          <strong>핵심 원칙</strong> — 시장 이동 뉴스(Market Moving)만 본다. 다음 5개 카테고리에 해당하지 않으면 무시:
+          <ul>
+            <li><strong>금리/통화정책</strong> (FOMC · ECB · BOJ · CPI · PCE)</li>
+            <li><strong>지정학</strong> (전쟁 · 제재 · 관세 · 선거)</li>
+            <li><strong>대형 실적</strong> (Mag7 · 업종 대표)</li>
+            <li><strong>공급망/에너지</strong> (OPEC · 반도체 · 원자재)</li>
+            <li><strong>규제/법안</strong> (반독점 · IRA · Chips Act)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 
     <!-- 헤더 -->
@@ -8339,6 +8376,43 @@ body.light-theme canvas { filter:none; }
   <div class="insight-box box-collapsed">
     <strong>80개 소스에서 핵심 뉴스만 — AI가 중요도 점수 매겨 정렬</strong>
   </div>
+
+  <!-- ═══ v48.46: 시장 뉴스 심층 해설 ═══ -->
+  <div class="aio-explain" id="explain-news-page">
+    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-news-page">
+      <span class="aio-explain-trigger-label">
+        <span class="aio-explain-trigger-icon">?</span>
+        <span>뉴스 활용 가이드 — Sentiment 스코어 · 티커 태깅 · 4국가 필터</span>
+      </span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="aio-explain-content">
+      <div class="explain-section">
+        <div class="explain-label">뉴스 스코어링 알고리즘</div>
+        <div class="explain-body">
+          <strong>구성</strong> — 각 뉴스 0~100점 계산. 소스 신뢰도(30) + 이벤트 유형(40) + 티커 영향력(20) + 최신성(10).
+          <ul>
+            <li><strong>&gt; 90</strong>: 시장 이동 이벤트 (FOMC · 대형 실적 서프라이즈 · 전쟁 · 제재)</li>
+            <li><strong>70~90</strong>: 주목할 공시 (대형 M&amp;A · 애널리스트 업그레이드 · 경제지표)</li>
+            <li><strong>50~70</strong>: 업종 레벨 이슈</li>
+            <li><strong>&lt; 50</strong>: 노이즈 (기본 필터에서 숨김)</li>
+          </ul>
+          <strong>Sentiment 분류</strong>: bull (호재) · bear (악재) · warn (경계) · neut (중립).
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="explain-label is-amber">국가 필터 (US · KR · EU · Asia · All)</div>
+        <div class="explain-body">
+          <strong>매매 적용</strong>:
+          <ul>
+            <li>미국장 주력 = US 필터로 집중. 아시아 시차 영향 고려하여 전일 마감 후 오전 뉴스 체크.</li>
+            <li>KR 주력 = KR + US 동시 보기 (미국 시가는 코스피 방향에 직접 영향).</li>
+            <li>지정학 리스크 시즌 = All로 전환, 중동/유럽 뉴스 놓치지 않음.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
     <!-- 헤더 -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
       <div>
@@ -8442,6 +8516,68 @@ body.light-theme canvas { filter:none; }
 <div class="page" id="page-options">
   <div class="insight-box box-collapsed">
     <strong>옵션으로 시장 방향 읽기 — IV·Skew·Put/Call 비율이 공포와 탐욕을 보여준다</strong>
+  </div>
+
+  <!-- ═══ v48.46: 옵션 페이지 심층 해설 ═══ -->
+  <div class="aio-explain" id="explain-options-page">
+    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-options-page">
+      <span class="aio-explain-trigger-label">
+        <span class="aio-explain-trigger-icon">?</span>
+        <span>옵션 심층 해설 — IV · Skew · Greeks · 헤지 전략 · Gamma Exposure</span>
+      </span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="aio-explain-content">
+      <div class="explain-section">
+        <div class="explain-label">Implied Volatility (IV) — 옵션 "가격"의 본질</div>
+        <div class="explain-body">
+          <strong>개념</strong> — 옵션 가격에 내재된 향후 변동성 기대치. 현물 가격보다 <strong>시장 심리를 더 정확하게 반영</strong>.
+          <ul>
+            <li><strong>IV Percentile (IVP)</strong>: 최근 1년 IV 구간에서 현재 위치. IVP &gt; 80 = 매도 유리 (IV 정점), IVP &lt; 20 = 매수 유리 (IV 저점).</li>
+            <li><strong>IV Rank (IVR)</strong>: IV를 (현재-최저)/(최고-최저)로 정규화. 70+ = 프리미엄 매도 시즌, 30- = 델타 매수 시즌.</li>
+            <li><strong>IV Crush</strong>: 실적 발표/FOMC 직후 IV 급락 현상. 이벤트 전 롱 스트래들 매수는 지양.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="explain-label is-amber">Skew — 공포의 비대칭 지표</div>
+        <div class="explain-body">
+          <strong>SKEW Index</strong>(^SKEW): OTM Put vs OTM Call IV 비율을 계산. <strong>꼬리 위험(Tail Risk)</strong>의 측정.
+          <ul>
+            <li>SKEW = 100 = 정규분포 (대칭적 리스크)</li>
+            <li>SKEW &gt; 135 = 헤지 수요 폭증, 왼쪽 꼬리 확대 (2020-02, 2022-09)</li>
+            <li>SKEW &gt; 150 = 극단적 경계 (자금 운용사 해지 집중)</li>
+          </ul>
+          <strong>매매 적용</strong> — SKEW &gt; 145 + VIX 낮음 조합 = "고요 속 큰 우려". 역사적으로 급락 선행.
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="explain-label is-green">Greeks — 옵션 위험 차원</div>
+        <div class="explain-body">
+          <strong>Delta</strong>: 가격 민감도 (현물 대비 0~1). ATM ≈ 0.5.
+          <br><strong>Gamma</strong>: Delta 변화율. ATM 최대, ITM/OTM 하락.
+          <br><strong>Theta</strong>: 시간 감소. ATM 최대, 만기 근접 가속.
+          <br><strong>Vega</strong>: IV 민감도. ATM 최대.
+          <br><br>
+          <strong>Gamma Exposure (GEX)</strong> — 딜러 net 감마 포지션. Positive GEX = 시장 자동 안정화 (딜러가 하락 시 매수/상승 시 매도로 헤지), Negative GEX = 자동 증폭 (하락 가속).
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="explain-label is-purple">대표 헤지 전략</div>
+        <div class="explain-body">
+          <ul>
+            <li><strong>Protective Put</strong>: 보유 주식 + OTM 풋 매수. 단순·비쌈.</li>
+            <li><strong>Collar</strong>: 보유 + 풋 매수 + 콜 매도. 비용 상쇄 (상단 제한).</li>
+            <li><strong>Put Spread</strong>: OTM 풋 매수 + 더 깊은 풋 매도. 비용 ↓ 보호 ↓.</li>
+            <li><strong>VIX Call</strong>: 시장 하락 헤지의 순수 베팅. 변동성만 집중 노출.</li>
+            <li><strong>SPX 0DTE</strong>: 당일 만기. 스캘핑 · 극단적 테타 소모. 초고난도.</li>
+          </ul>
+          <div class="explain-callout is-warn">
+            <strong>주의</strong> — 옵션은 레버리지 상품. 총 자본의 5% 이내 옵션 비중이 안전. 프리미엄 매도는 정의 상 최대 손실 무한 (체계적 리스크 관리 필수).
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- SECTION 1: HEADER + MARKET SENTIMENT STRIP -->
@@ -9502,6 +9638,43 @@ body.light-theme canvas { filter:none; }
   <div class="insight-box box-collapsed">
     <strong>외국인·기관·개인 누가 사고 파나? — 수급이 방향을 결정</strong>
   </div>
+
+  <!-- ═══ v48.46: KR 수급 페이지 심층 해설 ═══ -->
+  <div class="aio-explain" id="explain-kr-supply-page">
+    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-kr-supply-page">
+      <span class="aio-explain-trigger-label">
+        <span class="aio-explain-trigger-icon">?</span>
+        <span>한국 수급 심층 해설 — 프로그램 매매 · 공매도 · 외국인 보유비중 · 바스켓 매매</span>
+      </span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="aio-explain-content">
+      <div class="explain-section">
+        <div class="explain-label">3대 수급 주체 — 외국인 · 기관 · 개인</div>
+        <div class="explain-body">
+          <strong>외국인</strong> (33% 시총) — 지수 방향의 코어. MSCI · 글로벌 ETF 자금 유입/유출 + 패시브 리밸런싱. 수급 최우선 지표.
+          <br><strong>기관</strong> (28%) — 연기금 (NPS) · 자산운용사 · 금융투자 · 보험. 중장기 Defensive, 분기말 Window Dressing.
+          <br><strong>개인</strong> (39%) — 단기 변동성 제공. 양봉 강세장 = 개인 매수 과열 시 단기 고점 주의.
+          <br><br>
+          <strong>Key Signal</strong>:
+          <ul>
+            <li>외국인 5일 연속 순매수 = 추세 Bull (평균 +4% 2주간)</li>
+            <li>외국인 순매도 + 기관 순매수 = 기관 역매매 (자주 반전)</li>
+            <li>3주체 모두 매도 = 추세 Bear (Risk-Off)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="explain-label is-amber">프로그램 매매 — 차익/비차익</div>
+        <div class="explain-body">
+          <strong>차익 거래</strong> — 선물/현물 가격차 이용. 차익 매수가 +3000억 이상이면 지수 견인.
+          <br><strong>비차익 거래</strong> — 바스켓 주문. ETF 유입/유출 반영. 외국인 의지 직접 관찰.
+          <br>
+          <strong>공매도 잔고</strong> — 종목별 대차 잔고. 유의미 증가 = 하락 배팅. 단, 숏 스퀴즈 시 급등 가능.
+        </div>
+      </div>
+    </div>
+  </div>
     <div class="row mb-4" style="align-items:flex-start;">
       <div>
         <div class="page-title">수급 분석 <span class="kr-badge">KRX</span></div>
@@ -9697,6 +9870,38 @@ body.light-theme canvas { filter:none; }
   <div class="insight-box box-collapsed">
     <strong>한국 시장 28개 테마 — 실시간 등락률·강세/약세·대장주 한눈에</strong>
   </div>
+
+  <!-- ═══ v48.46: KR 테마 심층 해설 ═══ -->
+  <div class="aio-explain" id="explain-kr-themes-page">
+    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-kr-themes-page">
+      <span class="aio-explain-trigger-label">
+        <span class="aio-explain-trigger-icon">?</span>
+        <span>KR 테마 심층 — 대장주/후발주 패턴 · 테마 순환 주기 · 진입 전략</span>
+      </span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="aio-explain-content">
+      <div class="explain-section">
+        <div class="explain-label">대장주 · 후발주 구조</div>
+        <div class="explain-body">
+          <strong>대장주</strong> — 테마 내 시총 최상위 + 가장 먼저 움직이는 종목. 거래량 · 유동성 풍부. 테마 점화 → 상승 주도.
+          <br><strong>후발주</strong> — 대장주 급등 후 투자자 관심이 번지는 2선 종목. 대장주 대비 2~3일 지연. 높은 변동성.
+          <ul>
+            <li><strong>진입 순서</strong>: 대장주 돌파 확인 → 대장주 고점 대비 -10% 조정 시 후발주 진입 → 대장주 다시 상승 시 후발주 수익률 가속.</li>
+            <li><strong>리스크</strong>: 테마 종료 시 후발주가 먼저 무너진다. 대장주 10일선 이탈 시 후발주 전량 매도.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="explain-label is-amber">2024~2026 주도 테마 순환</div>
+        <div class="explain-body">
+          <strong>반도체 사이클</strong> → <strong>AI/HBM</strong> → <strong>2차전지</strong> → <strong>조선/방산</strong> → <strong>바이오</strong> → <strong>로봇/휴머노이드</strong> → <strong>우주/항공</strong> → 반복.
+          <br><br>
+          <strong>트리거 패턴</strong>: ① 미국 동종 업종 급등 (Catalytic) → ② 국내 대장주 + 거래량 + 뉴스 → ③ 후발주 순환 → ④ 개인 유입 피크 → ⑤ 익절 타이밍.
+        </div>
+      </div>
+    </div>
+  </div>
     <div class="row mb-4" style="align-items:flex-start;">
       <div>
         <div class="page-title">국내 테마 분석 <span class="kr-badge">KRX</span></div>
@@ -9761,6 +9966,41 @@ body.light-theme canvas { filter:none; }
   <div class="page" id="page-kr-macro">
   <div class="insight-box box-collapsed">
     <strong>한국 경제 환경 — 환율·금리·유가가 코스피에 미치는 영향</strong>
+  </div>
+
+  <!-- ═══ v48.46: KR 매크로 심층 해설 ═══ -->
+  <div class="aio-explain" id="explain-kr-macro-page">
+    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-kr-macro-page">
+      <span class="aio-explain-trigger-label">
+        <span class="aio-explain-trigger-icon">?</span>
+        <span>KR 매크로 심층 — 한국은행 · BOK 금리 · 수출입 · 반도체 사이클</span>
+      </span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="aio-explain-content">
+      <div class="explain-section">
+        <div class="explain-label">BOK (한국은행) 금리 사이클</div>
+        <div class="explain-body">
+          <strong>원칙</strong> — BOK는 Fed와 동조하되 <strong>3~6개월 지연</strong>. Fed 긴축 → 원화 약세 방어 위해 BOK도 따라감. Fed 완화 시 BOK도 완화 (단, CPI 2% 목표 내 유지 필요).
+          <ul>
+            <li>BOK ≥ 3.5% = 긴축 (부동산/성장 둔화)</li>
+            <li>BOK 2.5~3.0% = 중립</li>
+            <li>BOK ≤ 2.0% = 완화 (주식 우호)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="explain-section">
+        <div class="explain-label is-amber">수출 · 반도체 사이클 Proxy</div>
+        <div class="explain-body">
+          <strong>수출 증가율 YoY</strong> — 한국 GDP의 45%. 수출 +5% 이상 = 경기 확장 · -5% 이하 = 침체.
+          <br><strong>반도체 수출 비중</strong> — 한국 수출의 20%. 삼성전자 + SK하이닉스 실적에 직접 반영.
+          <ul>
+            <li>반도체 단가(NAND/DRAM) 상승 = 주가 선행.</li>
+            <li>PMI 50 이상 = 확장 · 48 이하 = 위축 경계.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 
     <div class="row mb-4" style="align-items:flex-start;">
@@ -10057,6 +10297,33 @@ body.light-theme canvas { filter:none; }
     <strong>한국 종목 차트 분석 — RSI·MACD·이동평균으로 매매 타이밍</strong>
   </div>
 
+  <!-- ═══ v48.46: KR 기술 분석 심층 해설 ═══ -->
+  <div class="aio-explain" id="explain-kr-technical-page">
+    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-kr-technical-page">
+      <span class="aio-explain-trigger-label">
+        <span class="aio-explain-trigger-icon">?</span>
+        <span>KR 종목 기술 분석 — 상/하한가 · 시간외 · 호가 틱 · 미국과 차이</span>
+      </span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="aio-explain-content">
+      <div class="explain-section">
+        <div class="explain-label">한국 시장 특수 구조</div>
+        <div class="explain-body">
+          <strong>상/하한가</strong> ±30% — 변동성 제한. 상한가 2일 연속 = 강한 재료 유입.
+          <br><strong>정규장</strong> 09:00~15:30 · <strong>시간외 종가</strong> 15:40~16:00 · <strong>시간외 단일가</strong> 16:00~18:00.
+          <br><br>
+          <strong>차트 분석 차이</strong>:
+          <ul>
+            <li>갭 시작 빈도 높음 (야간 뉴스 · 시간외 반영). 갭 메우기 확률 65%.</li>
+            <li>개인 과열 → 테마주 단기 급등락. 20일선 이탈 즉시 익절 권장.</li>
+            <li>공매도 재개 종목 단기 하방 압력 강함.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
     <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div>
@@ -10275,6 +10542,41 @@ body.light-theme canvas { filter:none; }
   <div class="page" id="page-guide">
   <div class="insight-box box-collapsed">
     <strong>AIO 사용 설명서 — 각 페이지 활용법 + 용어 사전 + 투자 기초</strong>
+  </div>
+
+  <!-- ═══ v48.46: 가이드 페이지 — 밸류체인 요약 ═══ -->
+  <div class="aio-explain is-open" id="explain-guide-overview">
+    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-guide-overview">
+      <span class="aio-explain-trigger-label">
+        <span class="aio-explain-trigger-icon">?</span>
+        <span>AIO Screener 전체 흐름 — 매매 결정까지의 10단계 루틴 (기본 펼침)</span>
+      </span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="aio-explain-content">
+      <div class="explain-section">
+        <div class="explain-label">10단계 매매 결정 루틴</div>
+        <div class="explain-body">
+          <strong>AIO Screener는 기관 리서치 프로세스를 개인 투자자가 그대로 재현할 수 있게 설계</strong>. 아래 순서로 확인하면 매매 판단 정확도 극대화.
+          <ul>
+            <li><strong>1. 오늘의 브리핑</strong> — 전일 이벤트 + Action Item 5개 확인 (5분)</li>
+            <li><strong>2. 홈 대시보드 KPI</strong> — SPX/NASDAQ/VIX/F&amp;G 수치 읽기 (1분)</li>
+            <li><strong>3. 매매 신호</strong> — 20점 스코어 확인 (75+ = 적극매수 · 45- = 주의)</li>
+            <li><strong>4. 시장 품질 + 국면</strong> — Broad/Narrow · UPTREND/TOPPING/DOWN/BOTTOM 확인</li>
+            <li><strong>5. 매크로</strong> — CPI/NFP/FOMC 일정 + Yield Curve (역전 여부)</li>
+            <li><strong>6. 센티먼트</strong> — F&amp;G + AAII + Put/Call 극단값 체크</li>
+            <li><strong>7. 시장 폭</strong> — % Above 50MA + Divergence 탐지</li>
+            <li><strong>8. 섹터 로테이션 (RRG)</strong> — Leading 사분면 섹터 선별</li>
+            <li><strong>9. 기업 분석</strong> — 15개 관점 통과 여부 + F-Score</li>
+            <li><strong>10. 포트폴리오</strong> — 2% 룰 사이즈 · ATR 스톱 · Pyramiding</li>
+          </ul>
+          <div class="explain-callout">
+            <strong>Value Chain</strong>: 연준 정책 → 금리 → DXY → 유동성 → 위험자산 Flow → 지수 → 섹터 → 개별주.
+            <br>이 흐름 중 한 단계라도 이탈 = 포지션 재검토 신호.
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);">
