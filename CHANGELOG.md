@@ -6,6 +6,86 @@
 
 ---
 
+## v48.46 — 나머지 페이지 기관급 심층 설명 확장 (2026-04-20)
+
+### 트리거
+사용자 지시: "퀴즈/유치한 컨텐츠 금지, 추가 분석 열었다/닫았다 섹션, 기존 페이지 간소화 + 사용자 편의성 개선."
+
+### v48.45에서 커버한 11개 페이지 외 8개 추가
+
+- **브리핑** — 아침 30분 루틴 · 뉴스 필터 · Action Item 5카테고리
+- **시장 뉴스** — 뉴스 스코어링 알고리즘 · 국가 필터 매매 적용
+- **옵션** — IV/IVP/IVR · SKEW 꼬리 위험 · Greeks 5종 · 헤지 5전략 · GEX
+- **KR 수급** — 3대 주체(외인33%/기관28%/개인39%) · 프로그램 · 공매도
+- **KR 테마** — 대장주/후발주 · 2024~2026 주도 순환 · 5단계 트리거
+- **KR 매크로** — BOK 금리 사이클 · 수출 YoY · 반도체 Proxy
+- **KR 기술분석** — 상하한가 ±30% · 시간외 · 호가 Tick
+- **가이드** — AIO 10단계 매매 결정 루틴 · 밸류체인 요약 (기본 펼침)
+
+총 **19개 .aio-explain 블록** — 프로젝트 전체 페이지 커버 완료.
+
+### 구조 원칙
+
+- 핵심 데이터(KPI/차트/시세/테이블) 즉시 보임
+- 심화 설명은 아코디언 기본 접힘 → 필요 시 펼침
+- 기존 .insight-box + .beginner-tip 접힘 구조 유지
+- 학술/실전 프레임워크 반영: Dalio · Minervini · Weinstein · Livermore · Piotroski · O'Neil · Elder · Kelly · Van Tharp
+
+---
+
+## v48.45 — 기관급 교육 콘텐츠 시스템 + 전 페이지 심층 해설 (2026-04-20)
+
+### 트리거
+"간소화 금지, 핵심 내용 유지+보강, 펼치기 아코디언으로 자세한 설명 추가, PRO/기관급 퀄리티로 밸류체인 설명."
+
+### Phase 23~32
+
+- **Phase 23**: `.aio-explain` 아코디언 시스템 + `_aioToggleExplain` 헬퍼. explain-section/label(4 tone)/body/table/callout 구성.
+- **Phase 24-26**: 홈 전체 — SPX/NASDAQ/VIX/F&G 4 KPI 심층 해설 · 매매 신호/Quality/Regime 3 Decision · GMO+6 서브 지표+밸류체인 흐름
+- **Phase 27**: 시그널 — PA-First v5.4 20점 스코어링 · 2% 룰 · ATR 스톱 · Pyramiding · 3단계 익절
+- **Phase 28**: 브레드쓰(McClellan+A/D+HY OAS 5구간) · 센티먼트(5대 심리+VIX Term Structure)
+- **Phase 29**: 매크로(Dalio Machine 4 cycle+CPI/PCE/NFP+FOMC) · FX/채권(Yield Curve+USD/KRW+TLT)
+- **Phase 30**: 펀더멘탈(15 관점+Piotroski F-Score) · 테마(RRG+사이클별 리더십) · 포트폴리오(Sharpe/Sortino+Kelly)
+- **Phase 31**: 기술(RSI/MACD/BB+Elder Triple Screen)
+- **Phase 32**: 한국장(KOSPI 구조+외인 수급 90%+섹터 5분류)
+
+---
+
+## v48.44 — Figma 컴포넌트 실제 DOM 적용 (2026-04-20)
+
+### Phase 16~22
+
+- **Phase 16**: `.content table` 전역 셀렉터 — inline style 15+ 테이블 자동 통일
+- **Phase 17**: `.kr-flow-table` 재작성 (uppercase + widest tracking)
+- **Phase 18**: Avatar/Profile 실제 배치 — 사이드바 로고 옆 `.aio-avatar.tone-cyan 'AI'` + fund 헤더 티커 initial avatar (pct 부호별 tone)
+- **Phase 19**: 홈 summary-text `.aio-skeleton.is-title` placeholder
+- **Phase 20**: SVG Doughnut Gauge helper `window._aioRenderGauge(elId, pct, opts)` — 5 tone + stroke-dasharray 애니메이션
+- **Phase 21-22**: 버전 6곳 동기화
+
+---
+
+## v48.43 — 디자인 시스템 세부 마감 (2026-04-19)
+
+### Phase 7~15
+
+- **Phase 7**: Sidebar LLM/API 패널 (llm-switch glow + accent focus ring)
+- **Phase 8**: 톱바 (LIVE .aio-badge.is-green + glow pulse, VIX mono, AI/새로고침 tb-btn primary)
+- **Phase 9**: GMO 테이블 (amber accent + uppercase)
+- **Phase 10**: RRG 캔버스 (cyan/green/amber/red 새 팔레트)
+- **Phase 11**: Chat UI (bubble radius-lg, focus ring 3px, primary cyan + glow)
+- **Phase 12**: 위젯 (cp-meter/bb-bar pill-shape, bb-badge/rrg-tag Figma chip)
+- **Phase 13**: 모달 (kbd backdrop-blur 8px + 키캡 느낌)
+- **Phase 14**: rgba() 하드코딩 정리 — HTML 739 + JS 70 = **809개** 교체
+- **Phase 15**: Figma 추가 요소 — Avatar 5 tone + Profile chip + Flash 애니메이션 + Skeleton + Doughnut Gauge
+
+### 누적 통계
+
+- 색상 토큰 교체: HTML 2199 + JS 455 ≈ **2654개**
+- rgba 교체: 809개
+- `.aio-*` 컴포넌트: 20+ 타입
+
+---
+
 ## v48.42 — 전체 UI 디자인 시스템 재작성 (Figma × Bloomberg 통합) (2026-04-20)
 
 ### 트리거
