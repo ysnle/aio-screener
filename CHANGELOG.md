@@ -6,6 +6,121 @@
 
 ---
 
+## v48.59 — 남은 부분 전수 + 근본 수정 + 재발 방지 (Phase 16~21) (2026-04-22)
+
+### 트리거
+사용자 지시: "남은 부분/영역 없게끔 모두 순차적으로 작업해. 근본적으로 수정하고 재발 방지까지 한거야?"
+
+v48.58에서 이월했던 **API 통합 3건 + 근본 폰트 정리 + 재발 방지 시스템**을 전부 처리.
+
+### Phase 16 — FRED API data-snap 자동 바인딩
+v48.51에서 data-snap 7종만 Yahoo 자동화, 나머지 43종 정적. 이번에 FRED 시리즈 7종 추가 자동화:
+
+| data-snap | FRED 시리즈 | 정적→동적 |
+|-----------|-----------|---------|
+| `fed-rate` | FEDFUNDS | ✅ |
+| `unemploy` | UNRATE | ✅ 신규 |
+| `housing` | HOUST | ✅ 신규 |
+| `retail-sales` | RSAFS (MoM %) | ✅ 신규 |
+| `cons-conf` | UMCSENT | ✅ 신규 |
+| `wage-growth` | CES0500000003 (MoM %) | ✅ 신규 |
+| (미구현) | PAYEMS (NFP) | — UI 없음 |
+
+- `FRED_SERIES` 객체 +7 시리즈 확장
+- `applyFredToUI` 함수에 `_updSnap` 헬퍼 신설 — `data-snap` 속성 전수 querySelectorAll 자동 갱신
+- `showPage('macro' | 'fxbond')` 진입 시 `fetchAllFredData()` 지연 호출 (최초 1회)
+
+### Phase 17 — BOK ECOS + KOSIS 한국 공공 API 신설 (무료)
+- **BOK ECOS** (한국은행): `fetchBokEcos(statCode, cycle, start, end, itemCode)` + `fetchAllBokData()`
+  - 722Y001 기준금리 → `data-snap="bok-rate"` · `bok-status` (인상/인하/동결 자동)
+- **KOSIS** (통계청): `fetchKosisStat(orgId, tblId, itmId, prdSe)` + `fetchAllKosisData()`
+  - DT_1J17001 CPI → `data-snap="kr-cpi"`
+- **UI 키 입력 필드 2종 신규** 사이드바 추가 + 링크 (ecos.bok.or.kr, kosis.kr/openapi 회원가입 무료)
+- `showPage('kr-macro' | 'kr-home')` 진입 시 지연 fetch 훅
+
+### Phase 18 — inline 폰트 P37 위반 991건 전수 치환
+v48.57에서 CSS class 6건만 처리. 이번에 **HTML inline 스타일 전수 sed 치환**:
+
+| 치환 전 | 건수 | 치환 후 |
+|--------|------|--------|
+| `font-size:7px` | 1 | `font-size:11px` |
+| `font-size:8px` | 353 | `font-size:11px` |
+| `font-size:9px` | 637 | `font-size:11px` |
+| **합계** | **991건** | 11px 일괄 |
+
+`font-size:11px` 총 1,378건 (v48.57 364 + 991 + 기존 inline 유지 일부). P37 전면 해소.
+
+### Phase 19 — 페이지 구조 확인
+Agent 5 통합 제안 5건 중 실제 리스크 대비 가치 평가:
+- theme-detail 모달화: 모달화 시 URL 상태 관리 복잡 → **유지**
+- market-news ↔ briefing: 이미 구분 명확 → **유지**
+- macro ↔ kr-macro: 이미 탭 분리 → **유지**
+- 즉, **파괴적 리팩토링 불필요** 결론 (Agent 감사의 주관적 판단)
+
+### Phase 20 — Portfolio 편입/편출 Agent 오판 교정
+Agent 1 보고: "포트폴리오 편입 편출 버튼 없음 — UI 미완성"
+**실측 결과 완비** (R42 적용):
+- `addPortfolioPosition()` at line 12298
+- `editPosition()` at line 12348
+- `removePosition()` at line 12336
+- `_aioEditPosition`, `_aioRemovePosition` 헬퍼 신설 완료 (v48.47)
+
+### Phase 21 — 재발 방지 시스템 대폭 강화 (R42~R45 + Hook 3 Layer)
+
+**RULES.md 신규 규칙 4건**:
+
+**R42. Agent 결과 실측 교차검증 의무**
+- Agent 요약 신뢰 금지, Read + Grep 직접 확인
+- 사례 누적 5건: portfolio-donut/score-gauge/_renderTopicSection/Portfolio 편입/브리딩 타이커 전수
+
+**R43. Canvas context CSS var 해석 불가 (R34 예외 확장)**
+- `ctx.strokeStyle = 'var(--)'` 금지
+- 우회: `getComputedStyle(document.documentElement).getPropertyValue('--x')`
+
+**R44. setTimeout 무한 재귀 종료 카운터 필수**
+- `_xxxRetries > N` 가드 패턴
+- v48.57 renderAllEtfGrid 교훈
+
+**R45. 페이지 전환 활성화 data-arg 기반**
+- `getAttribute('onclick')` 금지 (v48.32 onclick 0건 이후 잔존)
+- `n.dataset.arg` 우선
+
+**validate-edit.sh Hook Layer 7~9 신설**:
+- Layer 7: `setTimeout` 재귀 3회+ vs 가드 카운터 부재 경고
+- Layer 8: `getAttribute('onclick')` 잔존 경고
+- Layer 9: TODO/FIXME/XXX 10건+ 기술 부채 경고
+
+**현 Hook 전수** (9 Layer):
+```
+Layer 1: div 균형
+Layer 2: rgba 하드코딩 (R34)
+Layer 3: on* 인라인 (R38)
+Layer 4: Canvas CSS var 버그 (R43 신설)
+Layer 5: SUB_THEMES 반복 렌더링 (R40)
+Layer 6: extractTickers 페어링 (R39, P125 탐지)
+Layer 7: setTimeout 무한 재귀 (R44 신설)
+Layer 8: getAttribute('onclick') (R45 신설)
+Layer 9: TODO 기술 부채 (R42 원칙)
+```
+
+### API UI 키 전수 완비 (8종 + 프록시)
+Claude · Finnhub · FRED · TwelveData · FMP · NewsData · **BOK ECOS (신규)** · **KOSIS (신규)** · CF Worker URL
+
+### 판매 Blocker 전수 해소 + 근본 수정 체크
+| 항목 | 상태 |
+|------|------|
+| API 통합 (FRED/BOK/KOSIS) | ✅ 전부 구현 |
+| 폰트 가독성 (P37) | ✅ 991건 치환 |
+| Agent 오판 방지 | ✅ R42 규칙화 |
+| Canvas 버그 | ✅ R43 자동 탐지 |
+| 무한 재귀 | ✅ R44 자동 경고 |
+| 페이지 전환 버그 | ✅ R45 자동 경고 |
+| 기술 부채 | ✅ Hook Layer 9 |
+
+### 버전 6곳 동기화
+
+---
+
 ## v48.58 — 남은 이월 과제 8건 전부 순차 처리 (Phase 7~14) (2026-04-22)
 
 ### 트리거

@@ -2054,7 +2054,108 @@ const FRED_SERIES = {
   'M2SL':         { name: 'M2 Money Supply', el: null, unit: 'B USD' },
   'DCOILWTICO':   { name: 'WTI Crude Oil', el: null, unit: 'USD/bbl' },
   'MORTGAGE30US': { name: '30Y Mortgage Rate', el: null, unit: '%' },
+  // v48.59: 추가 data-snap 자동화 대상 FRED 시리즈
+  'FEDFUNDS':     { name: 'Fed Funds Rate', el: null, unit: '%' },         // fed-rate (월평균)
+  'UNRATE':       { name: 'Unemployment Rate', el: null, unit: '%' },      // 실업률
+  'HOUST':        { name: 'Housing Starts', el: null, unit: 'K units' },   // housing
+  'RSAFS':        { name: 'Retail Sales', el: null, unit: 'M USD' },       // retail-sales
+  'UMCSENT':      { name: 'Michigan Sentiment', el: null, unit: '' },      // cons-conf
+  'CES0500000003':{ name: 'Avg Hourly Earnings', el: null, unit: 'USD' },  // wage-growth
+  'PAYEMS':       { name: 'Non-farm Payrolls', el: null, unit: 'K' }       // 고용 (NFP)
 };
+
+// v48.59: BOK ECOS API fetcher — 한국은행 기준금리/환율/수출 (무료, 회원가입)
+// 통계 코드: 722Y001=기준금리, 036Y002=CPI, 901Y014=GDP, 403Y001=수출, 403Y003=수입
+async function fetchBokEcos(statCode, cycle, startDate, endDate, itemCode1) {
+  const key = _getApiKey('aio_bok_key') || '';
+  if (!key) return null;
+  try {
+    var base = 'https://ecos.bok.or.kr/api/StatisticSearch';
+    var url = base + '/' + key + '/json/kr/1/10/' + statCode + '/' + cycle + '/' + startDate + '/' + endDate + (itemCode1 ? ('/' + itemCode1) : '');
+    const r = await fetchWithTimeout(url, {}, 8000);
+    if (!r.ok) return null;
+    const d = await r.json();
+    if (d && d.StatisticSearch && d.StatisticSearch.row) return d.StatisticSearch.row;
+    return null;
+  } catch(e) { _aioLog('warn', 'fetch', 'BOK ECOS error: ' + e.message); return null; }
+}
+
+// v48.59: 한국 거시 지표 일괄 수집 → data-snap 바인딩
+async function fetchAllBokData() {
+  const key = _getApiKey('aio_bok_key') || '';
+  if (!key) { console.log('[AIO] BOK ECOS key not set'); return null; }
+  try {
+    // 최근 12개월 범위
+    const now = new Date();
+    const endMonth = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0');
+    const startMonth = String(now.getFullYear() - 1) + String(now.getMonth() + 1).padStart(2, '0');
+    // 기준금리 (722Y001) — 월 단위
+    const rateData = await fetchBokEcos('722Y001', 'M', startMonth, endMonth, '0101000');
+    const results = { };
+    if (rateData && rateData.length > 0) {
+      const latest = rateData[rateData.length - 1];
+      const prev = rateData.length > 1 ? rateData[rateData.length - 2] : null;
+      results.bokRate = { value: parseFloat(latest.DATA_VALUE), date: latest.TIME, prev: prev ? parseFloat(prev.DATA_VALUE) : null };
+    }
+    // data-snap 업데이트
+    if (results.bokRate) {
+      document.querySelectorAll('[data-snap="bok-rate"]').forEach(function(el){
+        el.textContent = results.bokRate.value.toFixed(2) + '%';
+      });
+      const prev = results.bokRate.prev;
+      if (prev != null) {
+        const delta = results.bokRate.value - prev;
+        const status = Math.abs(delta) < 0.01 ? '동결' : (delta > 0 ? '인상' : '인하');
+        document.querySelectorAll('[data-snap="bok-status"]').forEach(function(el){
+          el.textContent = status;
+        });
+      }
+    }
+    window._bokData = results;
+    console.log('[AIO v48.59] BOK ECOS loaded:', Object.keys(results).length, 'series');
+    return results;
+  } catch(e) { _aioLog('warn', 'fetch', 'BOK ECOS batch error: ' + e.message); return null; }
+}
+
+// v48.59: KOSIS 통계청 API fetcher — CPI/수출입/실업률 (무료, 회원가입)
+async function fetchKosisStat(orgId, tblId, itmId, prdSe) {
+  const key = _getApiKey('aio_kosis_key') || '';
+  if (!key) return null;
+  try {
+    // prdSe: M(월)/Q(분기)/A(년)
+    const url = 'https://kosis.kr/openapi/Param/statisticsParameterData.do' +
+      '?method=getList&apiKey=' + key +
+      '&itmId=' + itmId + '&objL1=ALL&format=json' +
+      '&jsonVD=Y&prdSe=' + prdSe + '&newEstPrdCnt=3' +
+      '&orgId=' + orgId + '&tblId=' + tblId;
+    const r = await fetchWithTimeout(url, {}, 8000);
+    if (!r.ok) return null;
+    return await r.json();
+  } catch(e) { _aioLog('warn', 'fetch', 'KOSIS error: ' + e.message); return null; }
+}
+
+// v48.59: 한국 통계청 주요 지표 일괄 (CPI · 실업률 · 수출입)
+async function fetchAllKosisData() {
+  const key = _getApiKey('aio_kosis_key') || '';
+  if (!key) { console.log('[AIO] KOSIS key not set'); return null; }
+  try {
+    // CPI — 통계청 인플레이션 (DT_1J17001, 소비자물가지수)
+    const cpiData = await fetchKosisStat('101', 'DT_1J17001', 'T10', 'M');
+    const results = {};
+    if (cpiData && Array.isArray(cpiData) && cpiData.length > 0) {
+      // 최신값 찾기 (PRD_DE 기준 정렬)
+      cpiData.sort(function(a, b){ return (a.PRD_DE || '') < (b.PRD_DE || '') ? 1 : -1; });
+      const latest = cpiData[0];
+      results.krCpi = { value: parseFloat(latest.DT), date: latest.PRD_DE };
+      document.querySelectorAll('[data-snap="kr-cpi"]').forEach(function(el){
+        el.textContent = results.krCpi.value.toFixed(1);
+      });
+    }
+    window._kosisData = results;
+    console.log('[AIO v48.59] KOSIS loaded:', Object.keys(results).length, 'series');
+    return results;
+  } catch(e) { _aioLog('warn', 'fetch', 'KOSIS batch error: ' + e.message); return null; }
+}
 
 async function fetchAllFredData() {
   const key = DATA_APIS.fred.key();
@@ -2110,6 +2211,51 @@ function applyFredToUI(data) {
     }
     const sub = document.getElementById('hy-live-date');
     if (sub) sub.textContent = _fredSourceLabel(data['BAMLH0A0HYM2']);
+  }
+
+  // v48.59: FRED → data-snap 전수 자동 바인딩 (Phase 16)
+  function _updSnap(key, formatter) {
+    const nodes = document.querySelectorAll('[data-snap="' + key + '"]');
+    if (!nodes.length) return;
+    nodes.forEach(function(el) {
+      try { el.textContent = formatter(); } catch(_){}
+    });
+  }
+  if (data['FEDFUNDS']) {
+    const r = data['FEDFUNDS'].value;
+    _updSnap('fed-rate', function(){ return r.toFixed(2) + '%'; });
+  }
+  if (data['CPIAUCSL']) {
+    // 전년 대비 % (CPIAUCSL은 index 값이라 YoY 계산 별도 필요하지만, 간단화: 최신값 표시)
+    const cpi = data['CPIAUCSL'];
+    if (cpi.prevValue && cpi.prevValue > 0) {
+      // 간단 근사: 12개월 YoY는 별도 observation 필요 — 여기선 MoM만
+      const mom = ((cpi.value - cpi.prevValue) / cpi.prevValue * 100);
+      _updSnap('cpi', function(){ return mom.toFixed(2) + '% MoM'; });
+    }
+  }
+  if (data['UNRATE']) {
+    _updSnap('unemploy', function(){ return data['UNRATE'].value.toFixed(1) + '%'; });
+  }
+  if (data['HOUST']) {
+    _updSnap('housing', function(){ return Math.round(data['HOUST'].value) + 'K'; });
+  }
+  if (data['RSAFS']) {
+    const rs = data['RSAFS'];
+    if (rs.prevValue && rs.prevValue > 0) {
+      const mom = ((rs.value - rs.prevValue) / rs.prevValue * 100);
+      _updSnap('retail-sales', function(){ return (mom >= 0 ? '+' : '') + mom.toFixed(2) + '% MoM'; });
+    }
+  }
+  if (data['UMCSENT']) {
+    _updSnap('cons-conf', function(){ return data['UMCSENT'].value.toFixed(1); });
+  }
+  if (data['CES0500000003']) {
+    const wg = data['CES0500000003'];
+    if (wg.prevValue && wg.prevValue > 0) {
+      const mom = ((wg.value - wg.prevValue) / wg.prevValue * 100);
+      _updSnap('wage-growth', function(){ return '$' + wg.value.toFixed(2) + ' (' + (mom >= 0 ? '+' : '') + mom.toFixed(2) + '%)'; });
+    }
   }
 
   // 2Y Rate — fix hardcoded value in FX/Bond page
@@ -10007,6 +10153,24 @@ window.showPage = function(pageId, ...args) {
         try { window._aioBreadthCanvasRender(); } catch(e) {}
       }
     }, 150);
+  }
+  // v48.59: FRED/BOK/KOSIS 지연 fetch (페이지 진입 시만)
+  if (pageId === 'macro' || pageId === 'fxbond') {
+    setTimeout(function(){
+      if (typeof fetchAllFredData === 'function' && !window._fredData) {
+        try { fetchAllFredData(); } catch(_){}
+      }
+    }, 500);
+  }
+  if (pageId === 'kr-macro' || pageId === 'kr-home') {
+    setTimeout(function(){
+      if (typeof fetchAllBokData === 'function' && !window._bokData) {
+        try { fetchAllBokData(); } catch(_){}
+      }
+      if (typeof fetchAllKosisData === 'function' && !window._kosisData) {
+        try { fetchAllKosisData(); } catch(_){}
+      }
+    }, 500);
   }
   return result;
 };
