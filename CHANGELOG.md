@@ -6,6 +6,115 @@
 
 ---
 
+## v48.61 — 대규모 근본 수정 15 Phase + /integrate 20자료 + /data-refresh 전수 (2026-04-21)
+
+### 트리거 (사용자 의도)
+사용자 9차 압박: **"v48.4 이후 작업들 근본 수정 및 스크리너 적용 확인 + 유사 문제 다른 페이지 확인 + 전체 데이터 집합 감사 + 정적코딩 강제 최신화 + /integrate 뉴스/소식 전방위 통합 + /data-refresh"**. 이전 세션의 "거짓 작업"(주장-실체 불일치) 전수 해소 요구.
+
+### 3 Agent 병렬 감사 + 직접 검증 결과 (15 치명 이슈 발견)
+1. **CSS `--surface-1~5` 자기순환 참조** (P136, 377건 사용처 invisible — v48.48 도입 시 sed 실수)
+2. **v48.60 Phase 25 PCR/AAII 버그** (P137 P125 7번째 재발 — `_pcRatio` 미설정 전역, `_aaiiBearish` 미사용)
+3. **Canvas CSS var 10건** (P138 — R43 주장 미해결 잔존)
+4. **data-snap hardcoded 14건** (P133-ext — "2026-04-15" 구 날짜)
+5. **DATA_SNAPSHOT 누락 필드 6건** (kr-advance/decline/credit/deposit/short, gex-current 영구 "0.00")
+6. **JS 인라인 폰트 124건** (R46 위반 — v48.59 HTML만 치환, JS 제외)
+7. **JS rgba 85건** (R34 위반 — v48.54 HTML만 치환)
+8. **JS on* 인라인 7건** (R38 위반 — v48.35/v48.54 JS innerHTML 제외)
+9. **getAttribute('onclick') 2건** (R45 위반)
+10. **R39~R45 RULES.md 부재** (P134 — CHANGELOG 주장 vs 실체 불일치)
+11. **validate-edit.sh Hook Layer 2~9 부재** (P134 — 주장만 됐던 것)
+12. **_context/CLAUDE.md v48.52 표기** (R1 위반 — 8버전 차이)
+13. **루트 CLAUDE.md v48.46** (R1 범위 외지만 14버전 차이)
+
+### Phase 1~15 실제 수정 (근본 + 재발 방지)
+
+**Phase 1: CSS surface 토큰 복구** — `--surface-1~5` 자기참조 → 실제 rgba 값 (377건 시각적 작동 복구)
+
+**Phase 2: Signal Regime 렌더러 버그** — `_aioRenderSignalRegime` PCR `window._putCallRatio` 참조로 수정, AAII `window._aaiiBearish` 실시간 우선
+
+**Phase 3: Canvas CSS var 10건** — 모두 hex 직접 (#7b8599/#00d4ff/#00e5a0/#ff5b50)
+
+**Phase 4: data-snap 14건 날짜** — "2026-04-15" → "2026-04-17" sed 일괄 + `_aioRenderSnapshotDates` 즉시+지연 이중 호출
+
+**Phase 5: P125 6건 DATA_SNAPSHOT 필드 보충** — krCreditBalance/krDeposit/krShortSelling/krAdvance/krDecline/kr52wHigh/kr52wLow/krCoreCpi/krServicePrice/krServicePmi/gexCurrent + applyDataSnapshot 4키 바인딩
+
+**Phase 6: JS 대량 치환** — 인라인 폰트 124건(7/8/9px → 11px), rgba 85건(→ var(--surface-*)/--border), on* 7건(→ aio-hover-* 클래스)
+
+**Phase 7: getAttribute('onclick') → dataset.arg** (2건 호환 전환)
+
+**Phase 8: /data-refresh DATA_SNAPSHOT 시세 최신화**:
+- GPU 임대가 3월 실측: A100 $1.48 (+6.5% MoM, 3개월 가속), H100 $2.64 (+8.6%, 4개월 연속), B200 $5.47 (+23.5% 급등). B200/H100 2.07x 확대.
+- DDR5 16Gb 현물 $31.18 (-6.1% MoM, +573% YoY), NAND 1Tb $28.96 (+16% MoM, +475% YoY).
+- DRAM 계약가 Q2 +61% QoQ(+421% YoY), NAND +73% QoQ(+362% YoY).
+- AAII Bearish 43.0% (4/10 발표).
+
+**Phase 9: SCREENER_DB 20+ memo 갱신 (/integrate 20 자료)**:
+- AAPL: Tim Cook → John Ternus 2026-09-01 CEO 전환
+- VRT: JPM 1Q26 프리뷰($2.71B/$1.05 상회, 5/19 Investor Day)
+- NVDA: Citi CX9 NIC 이월 + JPM 자사주/Vera CPU
+- AVGO: JPM 7년 14칩 + F27 AI $100B+
+- MRVL: Google MPU+추론 TPU 설계 협력
+- CRWD: Mythos+TAC 양쪽 독점
+- PANW: Citi AI서밋 런타임 통제 수혜
+- ZS: OpenAI TAC 진입
+- GOOGL: TDCowen PT$375 1Q26 +19.6%
+- MU: DC Watch 계약가 폭등
+- SNDK: HBF 6개월 앞당김
+- AMD: MI450 3Q 램프업 (Bulls/Bears)
+- ARM: AI CPU 틈새 $1000 ASP
+- INTC: 14A 고객 2H26 발표
+- LITE: $2B NVDA + CPO 변곡점
+- UBER: GS PT$125 AV 증분
+- TSLA: GS PT$375 중립 FSD v14
+- EQIX/DLR: Citi DC TOP2 선호
+
+**Phase 10: CHAT_CONTEXTS `_getV48IntegratedContext` 공통 블록 확장** — 2026-04-21 신규 통합 12개 포인트(Apple CEO/Vertiv/Mythos/반도체/DC Watch/Google-MRVL/AI서밋/AV/광통신/OpenAI TAC/Google 1Q26/Rubin) + 주요 일정 업데이트
+
+**Phase 11: 리스크 레이더 신규 이벤트 3건** — VRT Investor Day 5/19~20, Mythos 오픈소스 2026-07-15, Apple CEO 전환 2026-09-01
+
+**Phase 12: RULES.md + Hook Layer 실체화**:
+- R39 (extractTickers→UI 페어링 필수, P125 방지)
+- R40 (CHAT_CONTEXTS persona+메서드론만, 리스트 반복 금지)
+- R41 (기업 분석 ctx 전원 FMP 심층)
+- R42 (Agent 결과 실측 교차검증, 오판 5회 누적)
+- R43 (Canvas CSS var 불가, R34 예외)
+- R44 (setTimeout 종료 카운터 필수)
+- R45 (dataset.arg 기반 active)
+- **R46 (신규) JS 파일까지 sed 치환 범위 확대**
+- **R47 (신규) CSS 변수 자기순환 참조 금지**
+- **R48 (신규) 전역 변수 참조 시 실제 설정 위치 확인**
+- validate-edit.sh **Hook 9 Layer 전체 구현** (div/rgba/on*/ctx CSS var/SUB_THEMES/extractTickers/setTimeout/getAttribute/TODO + 자기순환 CSS + 폰트 7-9px 보조)
+
+**Phase 13: KNOWLEDGE-BASE 5 패러다임 + BUG-POSTMORTEM P134~P138**:
+- KB 5 패러다임: Apple 리더십 회귀, LLM 무기화 사이버 예산, 컴퓨팅 제약(전력), AV 총량 확대, 광통신 변곡점 2028말
+- P134~P138 5건 신규 기록
+
+**Phase 14: 버전 6곳 동기화** — title/badge/APP_VERSION/version.json/_context/CLAUDE.md/CHANGELOG 전수 v48.61 (루트 CLAUDE.md도 v48.61)
+
+**Phase 15: Preview 실측 검증** (별도)
+
+### TECH_KW/MACRO_KW 확장
+- TECH_KW +55 키워드: John Ternus/Ternus CEO/Hardware CEO/Johny Srouji/Mythos/Glasswing/GPT-5.4-Cyber/TAC program/OpenClaw/AI Teammate/Vera Rubin/CX9/Rubin Ultra/Tomahawk 6/AVGO XPU/MRVL MPU/NVLink Fusion IP/HBF roadmap/SNDK HBF/M1000 Lightmatter/Astera Scorpio/Isuzu L4/Shield AI/Skild AI/Alpamayo/Mercedes CLA L2+/TpVD/Waymo 49 markets/Robotaxi TAM/AV truck TAM/FSD v14 등
+- MACRO_KW +20 키워드: GPU rental spike/DRAM contract +61%/token survivor charge/power is bottleneck/physical AI consensus 등
+
+### 프레임워크 (통합 핵심)
+1. **Apple 리더십 회귀**: 영업→하드웨어 CEO = 스마트폰 이후 폼팩터 경쟁 대비 신호
+2. **LLM 무기화 역설**: Mythos 가격 $125/M tokens = 방어자도 제한 → 컴퓨팅 격차가 사이버 격차
+3. **컴퓨팅 제약 = 전력**: Lightning AI 1000x, CoreWeave 3GW, LTA 레버리지 역전(고객 선제안 = 공급사 유리)
+4. **AV 패러다임**: 잠식 아닌 총량 확대. 웨이모 UBER 앱 TpVD +30%
+5. **광통신 변곡점**: 2028말~2029초 구리 거리 한계 1.5-2m → 광학 주 백플레인 + 공급 가격 인상 원가 전가 (광학 사상 처음)
+
+### 재발 방지 (R46~R48 신규 + Hook 9 Layer 실체화)
+- **P125 7번째 재발 방지**: R39 + Layer 6 (extractTickers vs UI 페어링 자동 감지)
+- **Canvas CSS var 영구 방지**: R43 + Layer 4 (ctx.*Style = 'var(--' 감지 시 ERROR)
+- **CSS 자기순환 방지**: R47 + 추가 Layer (`--X: var(--X)` 감지 시 ERROR)
+- **JS 치환 누락 방지**: R46 체크리스트 — 치환 대상 파일 목록 명시
+
+### 자동 금지 준수
+- **커밋/배포 자율 금지** — 사용자 명시("커밋해줘"/"/deploy") 시만
+
+---
+
 # 📌 세션 마스터 내러티브 — v48.47~v48.59 전수 (2026-04-21~22)
 
 > **이 섹션의 목적**: 사용자가 **어떤 의도와 배경**으로 **왜 이런 작업과 수정을 지시했는지** 전 맥락을 기록하여 다음 세션에서 같은 실수가 반복되지 않도록 한다. 각 버전 항목 아래는 작업 상세, 이 섹션은 **"왜"**에 초점.

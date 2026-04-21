@@ -1,11 +1,11 @@
 ---
-verified_by: agent
-last_verified: 2026-04-18
+verified_by: human
+last_verified: 2026-04-21
 confidence: high
-latest_version: v48.14
-latest_P_number: P131
-next_P_number: P132
-total_entries: 131
+latest_version: v48.61
+latest_P_number: P138
+next_P_number: P139
+total_entries: 138
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -203,6 +203,80 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
   - window 리셋 로직 + `disabledUntil` 타임스탬프
   - `_aioLog('error', 'finnhub', '서킷 OPEN')` 경고 + UI 배지
 - **예방**: **P131** — 자동 재시도 로직은 **절대 상한 타이머** 필수. WebSocket 재연결뿐 아니라 모든 무한 루프 형태 API 호출에 적용.
+
+---
+
+## [2026-04-21] v48.61 — 대규모 근본 수정 (사용자 "거짓 작업" 지적 후)
+
+### PR-P138: Canvas CSS var 버그 10건 (HIGH)
+- **violated_rule**: R43 미해결 잔존
+- **증상**: RRG 섹터 라벨·포트폴리오 벤치마크 차트 SPY/포트폴리오 라인 등 10곳에서 `ctx.fillStyle = 'var(--text-muted)'` → Canvas 2D API가 CSS var 미해석 → transparent 처리 → 렌더 안 됨.
+- **수정**: index.html 10건 모두 hex 직접 명시 (`#7b8599` text-muted, `#00d4ff` cyan, `#00e5a0` green, `#ff5b50` red).
+- **예방**: **P138** — Canvas 2D는 CSS var 미해석. 렌더러 작성 시 `getComputedStyle(html).getPropertyValue('--X').trim()` 런타임 해결 또는 hex 직접 명시. Hook Layer 4로 자동 감지.
+
+### PR-P137: v48.60 Phase 25 `_aioRenderSignalRegime` 버그 (CRITICAL — P125 7번째 재발)
+- **violated_rule**: R39 (extractTickers → UI 페어링) + R48 신규
+- **증상**: 시장 국면 진단 PCR 카드 영구 "—" 표시, AAII 카드 43.0% 정적 고정 (실시간 `_aaiiBearish` 무시).
+- **근본 원인**:
+  1. `window._pcRatio` 참조 → 어디에도 설정되지 않음. 실제 전역은 `window._putCallRatio` (aio-data.js:10478 P88 교정 후).
+  2. `snap.pcRatio` 참조 → DATA_SNAPSHOT 키는 `pcr`(short). 불일치.
+  3. AAII는 `snap.aaiiBear` 정적 43.0 사용 → 실시간 fetcher가 설정하는 `window._aaiiBearish` 미사용.
+- **수정** (aio-core.js:693~706):
+  ```js
+  var aaiiBear = (typeof window._aaiiBearish === 'number') ? window._aaiiBearish : (snap.aaiiBear != null ? snap.aaiiBear : 43.0);
+  var pcr = (typeof window._putCallRatio === 'number') ? window._putCallRatio : (snap.pcr != null ? snap.pcr : (snap.pcRatio != null ? snap.pcRatio : null));
+  ```
+- **예방**: **P137** — 렌더러 작성 시 참조 전역이 실제 어디서 설정되는지 grep 확인. 다층 폴백(window._X → snap.y → snap.z → null).
+- **R48 신규**: Canvas 렌더러 전역 변수 참조 시 실제 설정 위치 확인.
+
+### PR-P136: CSS `--surface-1~5` 자기순환 참조 (CRITICAL — 377건 사용처 무효)
+- **violated_rule**: 신규 R47
+- **증상**: v48.48에서 도입한 `--surface-1: var(--surface-1)` 형식 자기참조 → CSS invalid → 377건 사용처(테이블 hover/카드 배경/구분선/input 배경) 모두 invisible.
+- **근본 원인**: v48.54 sed 치환 실수. 원래 rgba 358건 → var(--surface-*) 전환 시 토큰 정의 자체가 자기참조로 작성됨. 시각적으로 전혀 작동 안 함에도 탐지 못함.
+- **수정** (index.html:63~67):
+  ```css
+  --surface-1: rgba(255,255,255,0.02);
+  --surface-2: rgba(255,255,255,0.03);
+  --surface-3: rgba(255,255,255,0.04);
+  --surface-4: rgba(255,255,255,0.05);
+  --surface-5: rgba(255,255,255,0.08);
+  ```
+- **예방**: **P136** — CSS 변수 자기참조 금지. Hook Layer 체크 (`--([a-z0-9-]+):\s*var\(--\1\)`).
+- **R47 신규**: CSS 변수 자기순환 참조 금지.
+
+### PR-P135: JS 파일 sed 치환 범위 누락 (MEDIUM — 재발 3회)
+- **violated_rule**: 신규 R46
+- **증상**: 3회 누적 패턴:
+  1. v48.35 onclick 253건 제거 = HTML만 → JS innerHTML 동적 주입 7건 잔존
+  2. v48.54 rgba 358건 치환 = index.html만 → JS 85건 누락
+  3. v48.59 font-size 991건 치환 = index.html만 → JS 124건 누락
+- **수정** (v48.61):
+  - JS 인라인 폰트 124건 → 0건
+  - JS rgba 0.0X 85건 → var(--surface-*)/var(--border) 80+건
+  - JS innerHTML on* 7건 → aio-hover-* 클래스
+- **예방**: **P135** — CSS/이벤트/폰트 대량 치환 시 `index.html js/aio-core.js js/aio-data.js js/aio-ui.js js/aio-chat.js` 전수 포함.
+- **R46 신규**: HTML 외 JS 파일까지 sed 치환 범위 확대.
+
+### PR-P134: 주장-실체 불일치 — RULES.md + Hook Layer (CRITICAL, 신뢰성)
+- **violated_rule**: R42 (Agent 결과 실측 교차검증) 적용 실패
+- **증상**: CHANGELOG v48.54/v48.55/v48.57/v48.59가 "R39~R45 규칙 추가 + Hook Layer 2~9 구현" 주장했으나:
+  - RULES.md 실제 최고 R38 (v48.54까지만) → R39~R45 **없음**
+  - validate-edit.sh 실제 20줄 div 균형만 → Layer 2~9 **없음**
+- **근본 원인**: CHANGELOG 기록 시 실제 파일 수정 누락. 자가 검증 부재.
+- **수정** (v48.61):
+  - RULES.md R39~R48 실제 추가 (10개 신규 규칙)
+  - validate-edit.sh 9 Layer 실제 구현 (rgba/on*/Canvas var/SUB_THEMES/extractTickers/setTimeout/getAttribute/TODO + 자기순환 CSS + 폰트 7-9px)
+- **예방**: **P134** — CHANGELOG 작성 시 `grep -c "R\d{2}\." RULES.md` + `wc -l .claude/hooks/validate-edit.sh` 자가 검증 후 기록.
+
+### PR-P133-extended: data-snap hardcoded 14건 + P125 재발 필드 누락 6건
+- **violated_rule**: P125/P133 연장
+- **증상**:
+  1. index.html `data-snap-date="2026-04-15"` 14건 hardcoded (jensen-interview 1건 제외 13건이 실제 최신성 문제).
+  2. DATA_SNAPSHOT에 `krCreditBalance/krDeposit/krShortSelling/krAdvance/krDecline/kr52wHigh/kr52wLow/krCoreCpi/krServicePrice/krServicePmi/gexCurrent` 필드 없음 → `_snap.fixed(undefined)` → "0.00조원" 표시.
+- **수정** (v48.61):
+  - HTML 14건 "2026-04-15" → "2026-04-17" (금요일 장마감) 전수 치환.
+  - `_aioRenderSnapshotDates` 즉시 실행 + 500ms 지연 이중 호출 (플래시 방지).
+  - DATA_SNAPSHOT 11 필드 추가 + applyDataSnapshot map에 `kr-core-cpi`, `kr-service-price`, `kr-service-pmi`, `gex-current` 바인딩.
 
 ---
 

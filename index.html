@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.60 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.61 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -59,12 +59,12 @@
   --border-accent:  rgba(0,212,255,0.28);
   --border-subtle:  var(--surface-3);
 
-  /* === v48.48: Surface 계층 (투명 화이트 오버레이 표준) === */
-  --surface-1: var(--surface-1);   /* 최하: 테이블 hover, 미약한 구분 */
-  --surface-2: var(--surface-2);   /* 기본: 빈 상태 안내, secondary 카드 */
-  --surface-3: var(--surface-3);   /* 중간: input 배경, chip 배경 */
-  --surface-4: var(--surface-4);   /* 강조: hover elevation */
-  --surface-5: var(--surface-5);   /* 최상: active, 강조 카드 */
+  /* === v48.48: Surface 계층 (투명 화이트 오버레이 표준) — v48.61 자기순환 버그 수정 === */
+  --surface-1: rgba(255,255,255,0.02);  /* 최하: 테이블 hover, 미약한 구분 */
+  --surface-2: rgba(255,255,255,0.03);  /* 기본: 빈 상태 안내, secondary 카드 */
+  --surface-3: rgba(255,255,255,0.04);  /* 중간: input 배경, chip 배경 */
+  --surface-4: rgba(255,255,255,0.05);  /* 강조: hover elevation */
+  --surface-5: rgba(255,255,255,0.08);  /* 최상: active, 강조 카드 */
 
   /* === 텍스트 계층 (Figma 스타일 명도 폭 확장) === */
   --text-primary:   #f0f4fc;
@@ -1683,6 +1683,14 @@ body {
 .aio-hover-scale:hover { transform: scale(1.03); }
 .aio-hover-scale-subtle { transform: scale(1); border-color: var(--surface-4, rgba(255,255,255,0.06)); }
 .aio-hover-scale-subtle:hover { transform: scale(1.02); border-color: var(--hover-border-color, var(--accent-border)); }
+/* v48.61: on* 인라인 제거용 hover 유틸 3종 신설 (R38) */
+.aio-hover-news-item:hover { background: var(--bg-hover); }
+.aio-hover-fund-ticker { background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.15); transition: background 0.15s; }
+.aio-hover-fund-ticker:hover { background: rgba(0,212,255,0.2); }
+.aio-hover-fade { opacity: 0.5; transition: opacity 0.2s; }
+.aio-hover-fade:hover { opacity: 1; }
+.aio-hover-news-card { background: var(--surface-2); border: 1px solid var(--surface-3); transition: all 0.15s; }
+.aio-hover-news-card:hover { background: var(--surface-4); border-color: rgba(0,212,255,0.15); }
 
 /* v48.48: .tb-btn = .aio-btn-ghost 별칭 통합 (CSS 중복 제거). DOM 마이그레이션 점진적. */
 .tb-btn, .aio-btn-ghost-legacy {
@@ -3686,7 +3694,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.60</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.61</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4592,7 +4600,7 @@ body.light-theme canvas { filter:none; }
     <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <span>8가지 리스크 현황판</span>
       <span style="font-size:11px;color:var(--text-muted);font-weight:400;">— 복합 리스크 히트맵 · 라이브 평가 기준</span>
-      <span style="font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(255,163,26,0.12);color:var(--data-amber);border:1px solid rgba(255,163,26,0.3);margin-left:auto;">내러티브 갱신: <span data-snap-date="cp-narrative">2026-04-15</span> · <span id="cp-narrative-stale-days">경과 계산중</span></span>
+      <span style="font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(255,163,26,0.12);color:var(--data-amber);border:1px solid rgba(255,163,26,0.3);margin-left:auto;">내러티브 갱신: <span data-snap-date="cp-narrative">2026-04-17</span> · <span id="cp-narrative-stale-days">경과 계산중</span></span>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
       <!-- CP1 -->
@@ -5687,7 +5695,7 @@ body.light-theme canvas { filter:none; }
     <div style="background:rgba(255,163,26,0.12);border:1px solid rgba(255,163,26,0.3);border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:center;">
       <span style="font-size:18px;flex-shrink:0;">⚠</span>
       <div style="flex:1;">
-        <div style="font-size:10px;font-weight:700;color:var(--data-amber);">아래는 과거 참고 데이터 — 마지막 갱신: <span data-snap-date="briefing-archive">2026-04-15</span> (<span id="briefing-stale-days" style="color:var(--data-amber);font-weight:800;">경과일 계산중...</span>) · 최신 시황은 위 실시간 뉴스 또는 AI 채팅 이용</div>
+        <div style="font-size:10px;font-weight:700;color:var(--data-amber);">아래는 과거 참고 데이터 — 마지막 갱신: <span data-snap-date="briefing-archive">2026-04-17</span> (<span id="briefing-stale-days" style="color:var(--data-amber);font-weight:800;">경과일 계산중...</span>) · 최신 시황은 위 실시간 뉴스 또는 AI 채팅 이용</div>
       </div>
       <button data-action="_aioBriefingArchiveToggle" data-pass-el="1" style="background:rgba(255,163,26,0.15);border:1px solid rgba(255,163,26,0.3);color:var(--data-amber);font-size:11px;padding:4px 12px;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;">접기 ▲</button>
     </div>
@@ -7091,7 +7099,7 @@ body.light-theme canvas { filter:none; }
         <div class="yc-term">2년</div>
         <div class="yc-en">2Y Treasury</div>
         <div class="yc-rate" id="yc-2y" style="color:var(--data-amber);" data-snap="tnx-2y">3.88%</div>
-        <div class="yc-chg" style="color:var(--text-muted);font-size:11px;">스냅샷 · <span data-snap-date="tnx-2y">2026-04-15</span></div>
+        <div class="yc-chg" style="color:var(--text-muted);font-size:11px;">스냅샷 · <span data-snap-date="tnx-2y">2026-04-17</span></div>
         <div class="yc-bar-wrap"><div class="yc-bar" id="yc-bar-2y" style="height:58%;background:var(--data-amber);"></div></div>
         <div class="yc-note">시장 금리인하 기대 반영. 가장 민감.</div>
       </div>
@@ -9047,7 +9055,7 @@ body.light-theme canvas { filter:none; }
   <!-- v31.9: 데이터 소스 고지 배너 · v48.15: 스냅샷 경과일 자동 표시 (텍스트-C) -->
   <div id="opt-data-notice" style="padding:8px 12px;margin-bottom:12px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.2);border-radius:var(--radius);font-size:11px;color:var(--data-amber);line-height:1.5;">
     <strong>데이터 안내:</strong> VIX·VVIX는 실시간 (Yahoo Finance). IV Rank, Greeks, Skew, GEX, 옵션 흐름은 <strong>참고용 추정치 · 주간 수동 갱신</strong>입니다. 정확한 옵션 데이터는 CBOE, ThinkorSwim, Interactive Brokers 등 전문 플랫폼을 이용하세요.
-    <span id="opt-update-time" style="margin-left:8px;color:var(--text-muted);">스냅샷: <span data-snap-date="option-snapshot">2026-04-15</span> · <span id="option-snapshot-stale-days">경과 계산중</span></span>
+    <span id="opt-update-time" style="margin-left:8px;color:var(--text-muted);">스냅샷: <span data-snap-date="option-snapshot">2026-04-17</span> · <span id="option-snapshot-stale-days">경과 계산중</span></span>
   </div>
 
   <!-- SECTION 2: CORE METRICS DASHBOARD -->
@@ -9172,7 +9180,7 @@ body.light-theme canvas { filter:none; }
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <div style="font-size:12px;font-weight:700;color:var(--text-primary);">변동성 스큐 · 헤징 수요 분석</div>
-      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-15</span> · 실시간 아님</span>
+      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-17</span> · 실시간 아님</span>
     </div>
     <div style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:11px;">
@@ -9228,7 +9236,7 @@ body.light-theme canvas { filter:none; }
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <div style="font-size:12px;font-weight:700;color:var(--text-primary);">옵션 흐름 · 이상 활동 추적</div>
-      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-15</span> · 실제 흐름은 CBOE/TOS</span>
+      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-17</span> · 실제 흐름은 CBOE/TOS</span>
     </div>
     <div style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:10px;">
@@ -9319,7 +9327,7 @@ body.light-theme canvas { filter:none; }
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <div style="font-size:12px;font-weight:700;color:var(--text-primary);">Greeks 감도 패널 · 위험도 분석</div>
-      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-15</span></span>
+      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-17</span></span>
     </div>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px;">
       <!-- SPY ATM Options -->
@@ -9544,7 +9552,7 @@ body.light-theme canvas { filter:none; }
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <div style="font-size:12px;font-weight:700;color:var(--text-primary);">개별 종목 IV 현황 · 실적일정 · 크러시 위험</div>
-      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-15</span></span>
+      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-17</span></span>
     </div>
     <div style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:10px;">
@@ -9922,12 +9930,12 @@ body.light-theme canvas { filter:none; }
     <!-- ═══ 섹션 3: 한국 시장 대시보드 (신용·거래·공매도) ═══ -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">신용잔고 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-credit">2026-04-15</span> · <span id="kr-credit-stale-days">경과...</span>)</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">신용잔고 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-credit">2026-04-17</span> · <span id="kr-credit-stale-days">경과...</span>)</span></div>
         <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="kr-credit">31.7조원</div>
         <div style="font-size:11px;color:var(--text-muted);">전일: 31.5조원 (+0.6%)</div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">예탁금 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-deposit">2026-04-15</span>)</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">예탁금 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-deposit">2026-04-17</span>)</span></div>
         <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="kr-deposit">108.3조원</div>
         <div style="font-size:11px;color:var(--text-muted);">개인투자자 보유 (사상최대)</div>
       </div>
@@ -9958,17 +9966,17 @@ body.light-theme canvas { filter:none; }
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">52주 신고가 종목 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-52w-high">2026-04-15</span>)</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">52주 신고가 종목 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-52w-high">2026-04-17</span>)</span></div>
         <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="kr-52w-high">48개</div>
         <div style="font-size:11px;color:var(--text-muted);"><span data-date-ref="kr-last-basis">기준</span></div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">52주 신저가 종목 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-52w-low">2026-04-15</span>)</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">52주 신저가 종목 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-52w-low">2026-04-17</span>)</span></div>
         <div style="font-size:20px;font-weight:800;color:var(--red);font-family:var(--font-mono);margin-bottom:4px;" data-snap="kr-52w-low">72개</div>
         <div style="font-size:11px;color:var(--text-muted);"><span data-date-ref="kr-last-basis">기준</span></div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">상승/하락 종목수 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-advance">2026-04-15</span>)</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">상승/하락 종목수 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-advance">2026-04-17</span>)</span></div>
         <div style="font-size:18px;font-weight:800;color:var(--green);font-family:var(--font-mono);margin-bottom:4px;"><span data-snap="kr-advance">684</span> / <span data-snap="kr-decline">481</span></div>
         <div style="font-size:11px;color:var(--text-muted);"><span data-date-ref="kr-last-basis">기준</span> · 상승 우위</div>
       </div>
@@ -9976,7 +9984,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- ═══ 섹션 4: 오늘의 주요 이슈 ═══ -->
     <div class="data-widget" style="margin-bottom:12px;">
-      <div class="widget-title">주요 이슈 <span id="kr-issues-status" style="font-size:11px;color:var(--text-muted);font-weight:400;">(뉴스 피드 자동 추출 · 갱신: <span data-snap-date="kr-issues">2026-04-15</span> · <span id="kr-issues-stale-days">경과 계산중</span>)</span> <span class="kr-tag">KR</span></div>
+      <div class="widget-title">주요 이슈 <span id="kr-issues-status" style="font-size:11px;color:var(--text-muted);font-weight:400;">(뉴스 피드 자동 추출 · 갱신: <span data-snap-date="kr-issues">2026-04-17</span> · <span id="kr-issues-stale-days">경과 계산중</span>)</span> <span class="kr-tag">KR</span></div>
       <div id="kr-issues-container" style="display:flex;flex-direction:column;gap:6px;padding:4px 0;">
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;background:rgba(255,163,26,0.05);border:1px solid rgba(255,163,26,0.12);">
           <span style="width:8px;height:8px;border-radius:50%;background:var(--data-amber);display:inline-block;flex-shrink:0;margin-top:3px;"></span>
@@ -14304,19 +14312,32 @@ function _getChatRules() {
 // 35건 리서치 자료의 핵심 프레임워크를 모든 페이지 AI 챗에 일관되게 전달
 function _getV48IntegratedContext(pageFocus) {
   var common =
-    '【통합 매크로 맥락 (/integrate 35건 · 2026-04-18)】\n' +
+    '【통합 매크로 맥락 (/integrate 55건 · 2026-04-21 확장)】\n' +
     '• Citi 자산배분: 미국 중립→OW 상향, EM OW→중립 하향. 이익 확산 균열, 매그7+ 지수 시총 40% + PEG 기준 GFC 후 저점 = 역설적 퀄리티 매수 기회. 연말 S&P 7,700(+13%), MSCI ACWI 1,380(+12%).\n' +
     '• Fed 경로 씨티 4/18 재조정: 호르무즈 재개통 후 극적 가격 오류 정상화 → 연말 -75bp 인하 전망. 단기는 근원 PCE 끈적 + 안정적 노동시장 → 동결 압박.\n' +
     '• 2% 물가목표 구조적 붕괴: 90년대 뉴질랜드 임의 출발 → 2010년대 "싸게→착하게" 미덕 전환 = 중물가. Forward Guidance 실패 vs Data Dependence 역풍 딜레마.\n' +
     '• AI 인프라 공급 가시성 확대: AVGO-Meta MTIA 2029+ 약정(초기 1GW+), TSMC 2026-2028 Capex $190-200B(역대급), ASML 가이던스 조기 상향(€365→€380억), Anthropic 3.5GW TPU 2027.\n' +
-    '• HBM+HBF 3계층 메모리 패러다임: SanDisk 26H2 파일럿 + 27초 양산. HBM 대비 동일비용 8-16배 용량.\n' +
+    '• HBM+HBF 3계층 메모리 패러다임: SanDisk 26H2 파일럿 + 27초 양산. HBM 대비 동일비용 8-16배 용량. (2026-04-21 Citi: 6개월 앞당김).\n' +
     '• 메모리 LTA 레버리지 역전(GS 한국 피드백): 기존 "LTA=정점 신호" → 신규 "고객 선제안=공급사 레버리지". SEC > HXSCL 미국 투자자 선호(일반메모리 레버리지+HBM4 리더십+주주환원 임박).\n' +
     '• NVDA 제외 매그7 역전(FactSet): 매그7 성장률 6.4% < 493사 10.1%. 긍정 서프라이즈 주가 반응 -0.2%(5년 평균 +1.0% 대비) = "이미 반영" 해석.\n' +
     '• JPM 하드웨어 로테이션: 광(GLW/FN 하향) → HDD(STX Positive/WDC) + EMS(CLS) + DELL. NTAP OW→N(NAND 원가 +73% → FY27 GPM -200bps). QCOM OW→N.\n' +
     '• DC 규제 전환: Maine 주 20MW+ 모라토리엄 통과, 12개 주 유사 검토. 온사이트 발전 수요(Wartsila 34SG 412MW 오하이오). 머스크 테라팹 = 반도체 장비 신수요(AMAT/TEL/LRCX).\n' +
     '• AI 보안 표준화: OpenAI TAC 14개 파트너(CRWD 양쪽 독점), Anthropic Glasswing, 미국 CAISI/영국 AISI 연방기관 접근 → 예산 촉매.\n' +
     '• MRVL 역할 확장: Google TPU 신규 설계 벤더 승격(MediaTek급) + Google LPU 논의. 삼성 Groq 수주 단기 경계(C.C.Wei "차세대 LPU 고객과 긴밀 협력").\n' +
-    '• 주요 예정: 04/22-24 Cloud Next, 04/28-29 FOMC, 04/29 GOOGL 1Q26, 05/13 CPI+Brandcast, 05/19-20 Google I/O, 05/20 GML.\n';
+    '\n【2026-04-21 신규 통합 (20건)】\n' +
+    '• **Apple CEO 전환 (JPM 2026-04-21)**: Tim Cook → John Ternus(50세) 2026-09-01. 팀쿡 Executive Chairman 잔류(정책·관세). Johny Srouji Chief Hardware Officer 승격(A4 설계자). Arthur Levinson lead independent director. 하드웨어 중심(M시리즈 전환+비전프로 주역) = 스마트폰 이후 폼팩터+AI 매개체 대비. 관심: (1)실행력 지속 (2)서비스 우선순위 (3)AI전략 개인화 Siri WWDC.\n' +
+    '• **Vertiv 1Q26 프리뷰 (JPM 04/21)**: 매출·EPS 컨센 상회(JPM $2.71B/$1.05 vs 가이 상단), FY26 $14.55B/$6.75 vs 가이 $13.25-13.75B/$5.97-6.07. 수주 2025 $18B → 2026 $20B+. 2027 매출 $25B(낙관). DC 파이프라인 415GW 누적, 1Q +50GW. 투자자 데이 5/19-20 촉매. 낙관 EPS 2026 $8/2027 $13.\n' +
+    '• **Mythos/Opus 4.7 사이버 (Citi 04/21)**: Anthropic Mythos=LLM 무기화 시대 개막, 제한적 Project Glasswing 배포. Opus 4.7=의도적 사이버 축소(5배 저렴 $5/$25). 2026-07 CVE 대량공개 예상. 오픈소스 6-9개월 도달=위협자 손에. 수혜: PANW/CRWD/Google(Wiz-Mandiant)/AKAM/NET. 양자 컴퓨팅 IBM 강세.\n' +
+    '• **반도체 투자자 미팅 (JPM 04/21)**: AMD MI450 3Q 램프업 궤도. AVGO 7년 14칩 구글(AAPL WiFi 13년 연상) · F27 AI매출 $100B+(구글/앤스로픽 $80B+OpenAI $15B+META $5B+네트워킹 $45B) · Tomahawk 6 2nd foundry 삼성. MRVL TPU 부인, Grok LPU·광학 50%+. ARM AI CPU 틈새, $1000 ASP, GW당 $12-13B.\n' +
+    '• **DC Watch (JPM 04/21)**: GPU 임대가 3월 전체 상승 — B200 $5.47/h(+23.5% MoM, B200/H100 2.07x 확대), H100 $2.64(+8.6%, 4개월 연속), A100 $1.48(+6.5% 3개월 가속). DDR5 16Gb $31.18 +573% YoY. NAND 1Tb $28.96 +475% YoY. DRAM 계약가 Q2 +61% QoQ(+421% YoY), NAND +73% QoQ(+362% YoY).\n' +
+    '• **Google-MRVL (The Info 04/21)**: MPU(메모리 처리 장치)+차세대 추론 TPU 2종 설계. AVGO 고수수료·지배력 경계 → 공급망 다변화+단가 인하. MRVL 이미 Amazon Trainium+NVDA NVLink $2B 확장.\n' +
+    '• **AI 서밋 4대 테마 (Citi 04/21)**: (1)AI 가속=개발자 80% AI 코드+2-3 에이전트 병렬+"AI 팀메이트" 직무 붕괴 (2)Mythos 사이버 우려=오픈소스 도달 단계적 도약 (3)컴퓨팅 제약 2028+=전력이 병목(실리콘 아님), CoreWeave 850MW→3GW, 백만 에이전트=1000x 컴퓨팅 (4)피지컬 AI=최고 합의 투자 테마. Lumentum $2B NVDA+CPO 변곡점 2028말~2029초(구리 거리 1.5-2m). Broadcom $665B 하이퍼스케일러 Capex, XPU GPU 추월 2028.\n' +
+    '• **AV 이익풀 (Goldman 04/21)**: 글로벌 로보택시 2035 $4150억, 미국 AV 트럭 크로스오버 2028, 차량 2025 7천→2035 6백만대(CAGR 96%). 수혜 매수: GOOGL(Waymo)/UBER/AMZN(Zoox)/PONY/LYFT/TEL/Hesai/XPEV. 중립: TSLA(FSD v14 2천마일 vs 웨이모 10만)/AUR/RIVN/MBLY. UCAN 잠식 2030 5-16%.\n' +
+    '• **광통신 (Goldman 04/21)**: TAM 9배 확대 $1540억. Innolight 1.6T/3.2T 업그레이드 사이클. 구리 한계(3.2T @ 1.5-2m) → 광학 주 백플레인 변곡점 2028말. 매수: Innolight/Eoptolink/TFC/Landmark/VPEC/Sumitomo/Mitsubishi/Furukawa/Victory Giant/WUS/EMC/Shengyi/RoboTechnik.\n' +
+    '• **OpenAI TAC (WF 04/21)**: 14파트너 공개 — 금융 7+CSCO/CRWD/NVDA/ORCL/ZS+SpecterOps/iVerify. CRWD는 Mythos+TAC 양쪽, ZS는 TAC만. 미국 CAISI+영국 AISI 배포 = 정부 표준화 경로.\n' +
+    '• **Google 1Q26 (TDCowen PT$375 04/21)**: 매출 +19.6% OI/EPS +6.6%/+3.6% 상회 예상. 검색 +16%(4Q +16.7%), YouTube +10.4%(CTV+Shorts 가속), Cloud +50%(4Q +48%+Wiz 통합). 디지털광고 에이전시 1Q +14%. 26-31 매출 CAGR 13.6%.\n' +
+    '• **Rubin 램프 (Citi 04/21)**: CX9 NIC 800G→1.6Tb/s 개발 과제로 일부 2026 출하 2027 이월 가능(TrendForce). CX8 대체 불가(VR 서버 동서 트래픽 40x 필요). Citi 비중 31% 강세(TrendForce 22%).\n' +
+    '• 주요 예정: 04/22-24 Cloud Next, 04/28-29 FOMC+GOOG Big4 어닝, 04/29 GOOGL 1Q26, 05/13 CPI+Brandcast, 05/15 파월 임기 종료, 05/19-20 Google I/O+VRT Investor Day, 05/20 NVDA GML, 07경 Mythos 오픈소스 도달+CVE 대량공개, 09/01 Apple CEO Ternus 취임, 11/03 미국 중간선거.\n';
 
   var focus = '';
   switch (pageFocus) {
@@ -20833,7 +20854,7 @@ function drawPortfolioDonut() {
   ctx.textAlign = 'center';
   ctx.fillText(items.length + '종목', cx, cy - 2);
   ctx.font = '9px Inter, sans-serif';
-  ctx.fillStyle = 'var(--text-muted)';
+  ctx.fillStyle = '#7b8599'; /* v48.61: Canvas는 CSS var 미해석 — hex 직접 (R43) */
   ctx.fillText('$' + (totalVal >= 1e6 ? (totalVal/1e6).toFixed(1)+'M' : totalVal >= 1e3 ? (totalVal/1e3).toFixed(1)+'K' : totalVal.toFixed(0)), cx, cy + 12);
 
   // 범례 생성 (도넛 아래)
@@ -20957,7 +20978,7 @@ function drawPositionDonut() {
   ctx.textAlign = 'center';
   ctx.fillText(items.length + '종목', cx, cy - 3);
   ctx.font = '11px Inter, sans-serif';
-  ctx.fillStyle = 'var(--text-muted)';
+  ctx.fillStyle = '#7b8599'; /* v48.61: R43 Canvas hex */
   ctx.fillText('$' + (totalVal >= 1e6 ? (totalVal/1e6).toFixed(1)+'M' : totalVal >= 1e3 ? (totalVal/1e3).toFixed(1)+'K' : totalVal.toFixed(0)), cx, cy + 14);
 
   // Legend
@@ -22619,7 +22640,11 @@ async function loadRiskRadar() {
     // 5월
     { date: '2026-05-03', impact: 'medium', category: 'geopolitical', event: 'OPEC+ 회의', flag: '🛢' },
     { date: '2026-05-15', impact: 'high', category: 'fomc', event: '파월 현 연준 의장 임기 종료 (Fed 이사회 잔류 여부 불확실)', flag: '🇺🇸' },
+    { date: '2026-05-19', impact: 'high', category: 'earnings', event: 'Vertiv Investor Day (5/19~5/20, 2026 가이던스 재확인 촉매)', flag: '💼' },
     { date: '2026-05-20', impact: 'critical', category: 'earnings', event: 'NVIDIA 실적 발표', flag: '📈' },
+    // v48.61 추가 (2026-04-21 통합): Apple CEO 전환 + Mythos 오픈소스 도달 + 추가 이벤트
+    { date: '2026-07-15', impact: 'high', category: 'geopolitical', event: 'Mythos급 LLM 오픈소스 도달 예상 (Citi) + CVE 대량 공개 대비 (Project Glasswing 90일 후)', flag: '⚠️' },
+    { date: '2026-09-01', impact: 'critical', category: 'earnings', event: 'Apple CEO 전환 공식 (Tim Cook→John Ternus · 팀쿡 Executive Chairman 잔류)', flag: '🍎' },
     // 6월
     { date: '2026-06-11', impact: 'medium', category: 'geopolitical', event: '2026 FIFA 월드컵 개막', flag: '⚽' },
     { date: '2026-06-15', impact: 'high', category: 'geopolitical', event: 'G7 정상회의 (15~17일)', flag: '🌐' },
@@ -23401,8 +23426,8 @@ function drawRRG() {
     ctx.textAlign = 'center';
     ctx.fillText(sec.sym, pos.x, pos.y - 9);
     if (_rrgViewMode !== 'all') {
-      ctx.font = '9px system-ui';
-      ctx.fillStyle = 'var(--text-muted)';
+      ctx.font = '11px system-ui'; /* v48.61 P37: 9px→11px */
+      ctx.fillStyle = '#7b8599'; /* v48.61 R43 Canvas hex */
       ctx.fillText(sec.name, pos.x, pos.y + 14);
     }
   });
@@ -28005,8 +28030,8 @@ async function updateBenchmarkChart() {
   var H = canvas.height = 200;
   ctx.clearRect(0, 0, W, H);
 
-  // 로딩 표시
-  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = 'var(--text-muted)'; ctx.textAlign = 'center';
+  // 로딩 표시 — v48.61 R43 Canvas hex
+  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#7b8599'; ctx.textAlign = 'center';
   ctx.fillText('SPY 30일 실데이터 조회 중...', W/2, H/2);
 
   // 포트폴리오 데이터 수집 (v48.13: 실제 필드명 ticker/qty/cost 사용)
@@ -28038,7 +28063,7 @@ async function updateBenchmarkChart() {
   } catch(e) {}
   if (!spySeries || spySeries.length < 5) {
     ctx.clearRect(0, 0, W, H);
-    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = 'var(--data-red)'; ctx.textAlign = 'center';
+    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#ff5b50'; ctx.textAlign = 'center'; /* v48.61 R43 */
     ctx.fillText('SPY 시세 조회 실패 — 네트워크 확인', W/2, H/2);
     return;
   }
@@ -28128,9 +28153,9 @@ async function updateBenchmarkChart() {
   ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
   ctx.beginPath(); ctx.moveTo(0, yZero); ctx.lineTo(W, yZero); ctx.stroke(); ctx.setLineDash([]);
 
-  // SPY 선 (v48.13: --accent blue 계열 공통 팔레트)
+  // SPY 선 — v48.61 R43 Canvas hex (#00d4ff = data-cyan)
   var spyPlot = spyPct.slice(-L);
-  ctx.strokeStyle = 'var(--data-cyan)'; ctx.lineWidth = 2; ctx.beginPath();
+  ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 2; ctx.beginPath();
   for (var i = 0; i < L; i++) {
     var x = (i / (L - 1)) * W;
     var y = yZero - spyPlot[i] * yScale;
@@ -28138,8 +28163,8 @@ async function updateBenchmarkChart() {
   }
   ctx.stroke();
 
-  // 포트폴리오 선 (공통 녹색 팔레트)
-  ctx.strokeStyle = 'var(--data-green)'; ctx.lineWidth = 2.5; ctx.beginPath();
+  // 포트폴리오 선 — v48.61 R43 Canvas hex (#00e5a0 = data-green)
+  ctx.strokeStyle = '#00e5a0'; ctx.lineWidth = 2.5; ctx.beginPath();
   for (var i = 0; i < L; i++) {
     var x = (i / (L - 1)) * W;
     var y = yZero - pfPct[i] * yScale;
@@ -28151,17 +28176,17 @@ async function updateBenchmarkChart() {
   var pfFinal = pfPct[L-1];
   var spyFinal = spyPlot[L-1];
   var alpha = pfFinal - spyFinal;
-  var alphaColor = alpha >= 0 ? 'var(--data-green)' : 'var(--data-red)';
+  var alphaColor = alpha >= 0 ? '#00e5a0' : '#ff5b50'; /* v48.61 R43 */
   ctx.textAlign = 'left';
-  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = 'var(--data-green)';
+  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#00e5a0';
   ctx.fillText('내 포트폴리오: ' + (pfFinal>=0?'+':'') + pfFinal.toFixed(1) + '% (30일)', 10, 16);
-  ctx.fillStyle = 'var(--data-cyan)';
+  ctx.fillStyle = '#00d4ff';
   ctx.fillText('SPY: ' + (spyFinal>=0?'+':'') + spyFinal.toFixed(1) + '% (30일)', 10, 32);
   ctx.fillStyle = alphaColor;
   ctx.fillText('Alpha: ' + (alpha>=0?'+':'') + alpha.toFixed(1) + '%p', 10, 48);
 
-  // 커버리지 표시
-  ctx.font = '9px Inter, sans-serif'; ctx.fillStyle = 'var(--text-muted)'; ctx.textAlign = 'right';
+  // 커버리지 표시 — v48.61 P37+R43
+  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#7b8599'; ctx.textAlign = 'right';
   ctx.fillText('일별 실데이터 커버리지: ' + (coveredWeight * 100).toFixed(0) + '% · Yahoo 30일', W - 10, H - 8);
 }
 

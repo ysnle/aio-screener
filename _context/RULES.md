@@ -545,13 +545,111 @@ R32에서 `onclick` 금지 규칙을 **모든 on* 인라인 이벤트로 확장*
 - Hover/Focus 스타일: CSS `:hover` / `:focus` 클래스 (aio-hover-*, aio-focus-* 유틸)
 
 > **v48.54 교훈**: onkeydown만 처리했던 v48.47 이후 onmouseover 6건 · onmouseout 6건 · onblur/focus 2건 잔존 발견. 전체 on* 전수 점검.
+> **v48.61 교훈**: HTML만 점검했던 v48.54 이후 **JS innerHTML 동적 주입 7건 잔존**(aio-data.js 5건, aio-chat.js 1건 등). JS 파일도 전수 대상.
+
+### R39. extractTickers → UI 노출 경로 필수 페어링 (v48.55 추가, P116/P121/P122/P125 교훈)
+`extractTickers` · `getDisplayTickers` · `_extractTickers` 호출 결과는 반드시 UI 렌더러(innerHTML/append) 또는 AI 프롬프트에 구조화 주입되어야 함.
+- `tickerStr` 생성 → HTML 삽입 경로 확인
+- `mentionedTickers` Set 집계 → 시스템 프롬프트에 `【뉴스 언급 티커 (상위 N)】` 섹션 주입
+- 클릭 액션: `data-action="_aioNewsTickerClick"` 필수
+
+> **P125 6회 재발**: v48.1/v48.6/v48.7/v48.10/v48.53/v48.60 모두 "수집만 하고 UI 미노출". 신규 수집 데이터 PR에 UI 노출 체크리스트 필수.
+
+### R40. CHAT_CONTEXTS system() = persona + 메서드론만 (v48.55 추가)
+CHAT_CONTEXTS 시스템 함수는 **persona + 데이터 주입 파이프라인 안내 + 분석 프레임워크**만 포함. **SUB_THEMES/THEME_MAP/KR_TICKER_MAP 등 종목 리스트 반복 렌더링 금지** (토큰 낭비).
+- 데이터는 `_liveSnap()`/`_closeSnap()`/`window._fundAnalysisData` 동적 주입
+- 반복 리스트는 API 파이프라인이 담당
+
+> **v48.55 교훈**: v48.53 `CHAT_CONTEXTS['themes']` SUB_THEMES 325종 나열 = 중복 하드코딩 (토큰 낭비).
+
+### R41. 기업 분석 맥락 ctx 전원 FMP 심층 활성 (v48.55 추가)
+`fundamental` · `themes` · `theme-detail` · `portfolio` 4개 ctx는 **단일 티커 감지 시 자동으로 `_fetchDeepCompareData`(FMP 15관점) 활성**.
+```js
+var _isDeepCtx = _isFundCtx || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'portfolio';
+var _shouldDeepAnalyze = detectedTickers.length === 1 && (_isDeepCtx || _hasDeepAnalysisKw(q));
+```
+
+### R42. Agent 결과 실측 교차검증 의무 (v48.59 추가, Agent 오판 5회 누적)
+Explore/QA/성능 Agent 요약은 **반드시 Read/Grep 직접 확인**. Agent 보고와 실제 코드 상태 불일치 5회 누적:
+- portfolio-donut "렌더러 미존재" → 존재 확인 (drawPortfolioDonut at aio-core.js:20448)
+- score-gauge-canvas "렌더러 없음" → 존재 (drawScoreGauge at aio-core.js:20421)
+- _renderTopicSection "HTML 미삽입" → 정상 렌더 (aio-chat.js:5758)
+- Portfolio "편입/편출 버튼 없음" → 존재 (addPortfolioPosition/edit/remove)
+- 실제 누락은 risk-gauge-small 1개만 (v48.58에서 추가)
+
+**절차**: Agent 감사 보고 → `Grep` 교차 → 실측 승인된 것만 수정.
+
+### R43. Canvas context는 CSS var 미해석 (R34 예외, v48.59 추가)
+`ctx.strokeStyle = 'var(--data-cyan)'` **금지** — Canvas 2D API는 CSS var를 문자열로만 인식해서 **transparent 처리**(라벨/선 불렌더링).
+**대안**:
+- `getComputedStyle(document.documentElement).getPropertyValue('--data-cyan').trim()` (런타임 해결)
+- hex 직접 명시 (예: `#00d4ff = data-cyan`, `#00e5a0 = data-green`, `#ff5b50 = data-red`, `#7b8599 = text-muted`)
+
+> **v48.54~v48.61 교훈**: rgba 358건 → var(--surface-*) sed 치환 시 JS ctx.* 10건 오염. v48.61 전수 hex 교체.
+
+### R44. setTimeout 무한 재귀 종료 카운터 필수 (v48.59 추가, renderAllEtfGrid 교훈)
+재귀 `setTimeout(self, 500)` 패턴은 반드시 카운터 가드:
+```js
+window._fnRetries = (window._fnRetries || 0) + 1;
+if (window._fnRetries > 60) { renderFallback(); return; }
+setTimeout(fn, 500);
+```
+
+**현 적용 사례**: renderAllEtfGrid(60회) · drawRRG(40회) · renderThemeHeatmap(60회) · renderSubThemesGrid(60회) · initKoreaSupply(20회) · initKoreaMacro(20회).
+
+### R45. 페이지 전환 active 설정은 `dataset.arg` 기반 (v48.59 추가, v48.32 onclick 0건 후 잔존 버그)
+```js
+// 금지
+n.getAttribute('onclick').includes("'breadth'")
+// 권장
+n.dataset.arg === 'breadth'
+```
+
+> **v48.61 교훈**: v48.57 Phase 2에서 "data-arg 전환" 주장했으나 aio-ui.js:1861, aio-core.js:4934에 `getAttribute('onclick')` 잔존. v48.61에서 이중 조건(`arg === id || legacy.includes(...)`)으로 호환.
+
+### R46. HTML 외 JS 파일까지 sed 치환 범위 확대 (v48.61 추가)
+CSS/이벤트/폰트 관련 대량 치환 시 **js/*.js 4모듈(aio-core/data/ui/chat) 전수 포함 필수**.
+- v48.54 rgba 358건 치환 = index.html만 → JS 85건 누락
+- v48.59 font-size 991건 치환 = index.html만 → JS 124건 누락
+- v48.35 onclick 253건 제거 = HTML만 → JS innerHTML 동적 주입 7건 잔존
+
+**체크리스트**: sed 치환 대상 = `index.html js/aio-core.js js/aio-data.js js/aio-ui.js js/aio-chat.js`.
+
+### R47. CSS 변수 자기순환 참조 금지 (v48.61 추가, surface-1~5 교훈)
+```css
+/* 금지 - 자기 참조 → CSS invalid 값 → 모든 사용처 무효 */
+--surface-1: var(--surface-1);
+/* 권장 - 실제 값 할당 */
+--surface-1: rgba(255,255,255,0.02);
+```
+
+> **v48.61 교훈**: v48.48에서 `--surface-1: var(--surface-1)` 자기참조로 정의 → 377건 사용처 모두 invisible(테이블 hover/카드 배경/구분선/input 배경 전부). v48.54 rgba → var(--surface-*) 치환 작업이 시각적으로 전혀 작동 안 함. 판매 품질 직결.
+
+### R48. Canvas 렌더러 전역 변수 참조 시 실제 설정 위치 확인 (v48.61 추가, _pcRatio vs _putCallRatio 교훈)
+렌더러 작성 시 참조하는 `window._xxx` 전역이 **실제로 어디서 설정되는지** grep 확인.
+```js
+// 금지 — 설정 위치 확인 없이 가정
+var pcr = window._pcRatio; // 어디서 설정? 모름 → 항상 null
+// 권장 — 다층 폴백
+var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
+       || snap.pcr              // DATA_SNAPSHOT 키 (aio-core.js:3338)
+       || snap.pcRatio          // 다른 이름 가능성
+       || null;
+```
+
+> **v48.60 Phase 25 → v48.61 수정**: `_aioRenderSignalRegime`가 `window._pcRatio` 참조 → 실제 전역은 `window._putCallRatio` (P88 교정 후). PCR 카드 영구 "—" 표시. **P125 7번째 재발** (수집/설정-UI 렌더 불일치).
 
 ---
 
-## 🔧 Hook 자동화 (v48.54 확장)
+## 🔧 Hook 자동화 (v48.61 대폭 확장 — Layer 2~9 실제 구현)
 
-### validate-edit.sh 확장 사항
-1. div 균형 체크 (기존)
-2. **신규 `rgba(255,255,255,0.0[2-8])` 추가 시 경고** — R34 위반 감지
-3. **신규 `on(mouseover|mouseout|blur|focus|click|change|input)=` 추가 시 경고** — R38 위반 감지
-4. **신규 `ctx.(stroke|fill)Style = 'var(--` 추가 시 에러** — Canvas CSS var 버그 방지
+### validate-edit.sh Hook 9 Layer
+1. **Layer 1**: div 균형 (기존 v31+)
+2. **Layer 2**: `rgba(255,255,255,0.0[2-8])` 신규 추가 경고 — R34 위반 감지
+3. **Layer 3**: `on(mouseover|mouseout|blur|focus|click|change|input|keydown|keyup|submit)=` 신규 추가 경고 — R38 위반
+4. **Layer 4**: `ctx\.(stroke|fill)Style\s*=\s*['"]var\(--` 감지 — R43 Canvas 에러
+5. **Layer 5**: CHAT_CONTEXTS system 함수 내 `SUB_THEMES|themeMap\.(slice|map|forEach)` 6회+ 경고 — R40
+6. **Layer 6**: `extractTickers`/`getDisplayTickers` 호출 횟수 vs `tickerStr`/`tickerTag`/`mentionedTickers` 사용 불일치 경고 — R39 (P125 탐지)
+7. **Layer 7**: `setTimeout\([^,]+,\s*\d+\)` 재귀 3회+ vs `_xxxRetries > N` 가드 부재 경고 — R44
+8. **Layer 8**: `getAttribute\(['"]onclick['"]\)` 신규 추가 경고 — R45 위반
+9. **Layer 9**: TODO/FIXME/XXX 10건+ 증가 시 기술부채 경고 — R42 원칙

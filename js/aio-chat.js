@@ -999,7 +999,7 @@ function renderMarkdownLight(text) {
     // v31.1: 5컬럼 초과 시 테이블 대신 리스트로 변환 (가로 깨짐 방지)
     if (hdr.length > 5) {
       for (var r = 1; r < tableRows.length; r++) {
-        var item = '<div style="margin:6px 0;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:6px;border:1px solid rgba(255,255,255,0.06);">';
+        var item = '<div style="margin:6px 0;padding:8px 10px;background:var(--surface-2);border-radius:6px;border:1px solid var(--border);">';
         for (var c = 0; c < hdr.length; c++) {
           if (tableRows[r][c]) item += '<div style="margin:2px 0;"><strong style="color:var(--text-muted);font-size:0.9em;">' + hdr[c] + ':</strong> ' + tableRows[r][c] + '</div>';
         }
@@ -2552,7 +2552,7 @@ function _formatSearchForPrompt(sr) {
 /** 검색 출처 → UI HTML */
 function _searchCitationsHTML(sr) {
   if (!sr || !sr.citations || sr.citations.length === 0) return '';
-  var html = '<div style="margin-top:6px;padding:6px 8px;background:rgba(168,85,247,0.08);border-left:2px solid #a78bfa;border-radius:0 4px 4px 0;font-size:8px;">';
+  var html = '<div style="margin-top:6px;padding:6px 8px;background:rgba(168,85,247,0.08);border-left:2px solid #a78bfa;border-radius:0 4px 4px 0;font-size:11px;">';
   var engName = sr.engine === 'perplexity' ? 'Perplexity' : 'Google';
   html += '<div style="color:#a78bfa;font-weight:600;margin-bottom:3px;">' + engName + ' 검색 출처</div>';
   for (var i = 0; i < Math.min(sr.citations.length, 5); i++) {
@@ -2876,12 +2876,12 @@ async function chatSend(ctxId) {
   // v31.3: 사용 모델 표시
   var modelLabel = selectedModelCfg.label;
   var modelColor = selectedModelKey === 'sonnet-thinking' ? '#a855f7' : selectedModelKey === 'sonnet' ? '#00d4ff' : 'var(--text-muted)';
-  var modelBadge = '<div style="font-size:8px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:-4px 0 4px;opacity:0.7;">' + modelLabel + (selectedModelCfg.thinking ? ' (추론 중…)' : '') + '</div>';
+  var modelBadge = '<div style="font-size:11px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:-4px 0 4px;opacity:0.7;">' + modelLabel + (selectedModelCfg.thinking ? ' (추론 중…)' : '') + '</div>';
 
   // v36.2: 웹검색 수행 시 검색 알림 배지
   if (webSearchResult) {
     var _engBadge = webSearchResult.engine === 'perplexity' ? 'Perplexity' : 'Google';
-    chatAppendMsg(ctxId, 'ai', '<div style="font-size:8px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">' + _engBadge + ' 검색 완료 — 최신 정보 ' + (webSearchResult.citations ? webSearchResult.citations.length : 0) + '건 수집</div>');
+    chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">' + _engBadge + ' 검색 완료 — 최신 정보 ' + (webSearchResult.citations ? webSearchResult.citations.length : 0) + '건 수집</div>');
   }
 
   // remove stale loading if any, add fresh one
@@ -2938,13 +2938,13 @@ async function chatSend(ctxId) {
       // v31.3: 응답 완료 후 사용 모델 배지 삽입
       if (aiBubble && aiBubble.parentNode) {
         var badgeEl = document.createElement('div');
-        badgeEl.style.cssText = 'font-size:8px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:2px 0 0;opacity:0.6;';
+        badgeEl.style.cssText = 'font-size:11px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:2px 0 0;opacity:0.6;';
         badgeEl.textContent = modelLabel;
         aiBubble.parentNode.appendChild(badgeEl);
 
         // v46.6: 데이터 신뢰도 배지
         var _srcBadge = document.createElement('div');
-        _srcBadge.style.cssText = 'font-size:8px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:rgba(255,255,255,0.02);border-radius:4px;';
+        _srcBadge.style.cssText = 'font-size:11px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:var(--surface-1);border-radius:4px;';
         var _bItems = [];
         if (tickerDataStr) _bItems.push('<span style="color:#3ddba5;">📊 재무 ✓</span>');
         else _bItems.push('<span style="color:#7e8a9e;">📊 재무 ✗</span>');
@@ -2995,9 +2995,9 @@ async function chatSend(ctxId) {
         // 2번째 재시도 → 하위 모델로 폴백
         if (_retried >= 1 && _currentIdx >= 0 && _currentIdx < _fallbackOrder.length - 1) {
           nextModel = _fallbackOrder[_currentIdx + 1];
-          chatAppendMsg(ctxId, 'ai', '<div style="font-size:9px;color:#fbbf24;padding:4px 8px;background:rgba(255,163,26,0.08);border-radius:4px;">⟳ 응답 지연 — ' + getModelConfig(nextModel).label + '로 재시도 중...</div>');
+          chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#fbbf24;padding:4px 8px;background:rgba(255,163,26,0.08);border-radius:4px;">⟳ 응답 지연 — ' + getModelConfig(nextModel).label + '로 재시도 중...</div>');
         } else {
-          chatAppendMsg(ctxId, 'ai', '<div style="font-size:9px;color:#fbbf24;padding:4px 8px;background:rgba(255,163,26,0.08);border-radius:4px;">⟳ 재시도 중... (' + (_retried+1) + '/2)</div>');
+          chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#fbbf24;padding:4px 8px;background:rgba(255,163,26,0.08);border-radius:4px;">⟳ 재시도 중... (' + (_retried+1) + '/2)</div>');
         }
         setTimeout(function() {
           callClaude(systemPrompt, state.messages,
@@ -3245,8 +3245,8 @@ function _fundRecentSearches(ticker) {
   var el = document.getElementById('fund-recent-searches');
   if (!el) return;
   if (arr.length === 0) { el.innerHTML = ''; return; }
-  el.innerHTML = '<span style="font-size:8px;color:var(--text-muted);">최근:</span>' + arr.map(function(t) {
-    return '<span data-action="fundSearchQuick" data-arg="' + escHtml(t) + '" style="font-size:9px;color:var(--accent);background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.15s;" onmouseover="this.style.background=\'rgba(0,212,255,0.2)\'" onmouseout="this.style.background=\'rgba(0,212,255,0.08)\'">' + t + '</span>';
+  el.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">최근:</span>' + arr.map(function(t) {
+    return '<span class="aio-hover-fund-ticker" data-action="fundSearchQuick" data-arg="' + escHtml(t) + '" style="font-size:11px;color:var(--accent);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:var(--font-mono);font-weight:600;">' + t + '</span>';
   }).join('');
 }
 
@@ -3356,7 +3356,7 @@ async function fundamentalSearch() {
     try { _renderFundHeader(collected); _renderFundSEC(collected); _renderFundFinancials(collected); _renderFundStatements(collected); _renderFundValuation(collected); _renderFundPeers(collected); _renderFundEarnings(collected); if (typeof _renderFundNews === 'function') _renderFundNews(collected); _renderFundSources(collected); } catch(e) { _aioLog('warn', 'fund', '캐시 렌더 실패: ' + e.message); }
     if (loadingEl) {
       var _srcList = (collected.sources || []).map(function(s){ return escHtml(String(s || '')); });
-      loadingEl.innerHTML = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">캐시 데이터 (' + _ageMin + '분 전) — ' + _srcList.length + '개 소스</div><div style="font-size:9px;color:var(--text-muted);">' + _srcList.join(' · ') + '</div>';
+      loadingEl.innerHTML = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">캐시 데이터 (' + _ageMin + '분 전) — ' + _srcList.length + '개 소스</div><div style="font-size:11px;color:var(--text-muted);">' + _srcList.join(' · ') + '</div>';
     }
     // AI 채팅 입력창 세팅 (기존 동작 유지)
     var _chatInpC = document.getElementById('chat-fundamental-inp');
@@ -3537,7 +3537,7 @@ async function fundamentalSearch() {
   // ─── 데이터 수집 완료 ───
   if (loadingEl) {
     var loadHtml = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">데이터 수집 완료 — ' + collected.sources.length + '개 소스</div>';
-    loadHtml += '<div style="font-size:9px;color:var(--text-muted);">' + collected.sources.join(' · ') + '</div>';
+    loadHtml += '<div style="font-size:11px;color:var(--text-muted);">' + collected.sources.join(' · ') + '</div>';
     loadingEl.innerHTML = loadHtml;
   }
 
@@ -3603,14 +3603,14 @@ function _renderFundHeader(d) {
   if (p.mktCap) html += '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">시가총액: $' + _fmtNum(p.mktCap) + '</div>';
   // v38.8: 포트폴리오 추가 + 차트분석 연결 버튼
   html += '<div style="display:flex;gap:6px;margin-top:6px;">';
-  html += '<button data-action="_aioAddToPortfolio" data-arg="' + escHtml(d.ticker) + '" class="tb-btn" style="font-size:9px;">포트폴리오에 추가</button>';
-  html += '<button data-action="_aioChartAnalyze" data-arg="' + escHtml(d.ticker) + '" class="tb-btn" style="font-size:9px;">차트 분석</button>';
+  html += '<button data-action="_aioAddToPortfolio" data-arg="' + escHtml(d.ticker) + '" class="tb-btn" style="font-size:11px;">포트폴리오에 추가</button>';
+  html += '<button data-action="_aioChartAnalyze" data-arg="' + escHtml(d.ticker) + '" class="tb-btn" style="font-size:11px;">차트 분석</button>';
   html += '</div>';
   // v48.37: SCREENER_DB memo staleness 배지 (애널리스트 리포트 노화 경고)
   if (typeof window._aioStockStaleInfo === 'function') {
     var _staleInfo = window._aioStockStaleInfo(d.ticker);
     if (_staleInfo && _staleInfo.badge) {
-      html += '<div style="margin-top:4px;font-size:9px;color:var(--text-muted);">리포트 코멘트: ' + _staleInfo.badge + (_staleInfo.isStale ? ' <span style="color:#f87171;">· 최신 정보 재검증 권장</span>' : '') + '</div>';
+      html += '<div style="margin-top:4px;font-size:11px;color:var(--text-muted);">리포트 코멘트: ' + _staleInfo.badge + (_staleInfo.isStale ? ' <span style="color:#f87171;">· 최신 정보 재검증 권장</span>' : '') + '</div>';
     }
   }
   html += '</div></div>';
@@ -3637,7 +3637,7 @@ function _renderFundHeader(d) {
     html += '<span style="color:' + _posColor + ';font-weight:700;">' + _posLabel + ' · ' + _pos.toFixed(0) + '%</span>';
     html += '<span style="color:var(--text-muted);font-family:var(--font-mono);">52W고 $' + _w52High.toFixed(2) + '</span>';
     html += '</div>';
-    html += '<div style="height:10px;background:rgba(255,255,255,0.06);border-radius:5px;position:relative;overflow:visible;">';
+    html += '<div style="height:10px;background:var(--surface-5);border-radius:5px;position:relative;overflow:visible;">';
     html += '<div style="height:100%;width:100%;background:linear-gradient(90deg,#f87171 0%,#fbbf24 50%,#3ddba5 100%);border-radius:5px;opacity:0.35;"></div>';
     html += '<div style="position:absolute;top:-3px;left:' + _pos + '%;width:4px;height:16px;background:#fff;transform:translateX(-50%);box-shadow:0 0 6px rgba(255,255,255,0.8);border-radius:2px;"></div>';
     html += '</div>';
@@ -3674,9 +3674,9 @@ function _renderFundSEC(d) {
   if (!el || !body || !d.sec) return;
   var s = d.sec;
   var html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">';
-  html += '<div style="padding:6px 8px;background:rgba(255,255,255,0.02);border-radius:6px;font-size:10px;"><span style="color:var(--text-muted);">CIK:</span> ' + (s.cik||'N/A') + '</div>';
-  html += '<div style="padding:6px 8px;background:rgba(255,255,255,0.02);border-radius:6px;font-size:10px;"><span style="color:var(--text-muted);">SIC:</span> ' + (s.sicDescription||'N/A') + '</div>';
-  html += '<div style="padding:6px 8px;background:rgba(255,255,255,0.02);border-radius:6px;font-size:10px;"><span style="color:var(--text-muted);">거래소:</span> ' + ((s.exchanges||[]).join(', ')||'N/A') + '</div>';
+  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:6px;font-size:10px;"><span style="color:var(--text-muted);">CIK:</span> ' + (s.cik||'N/A') + '</div>';
+  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:6px;font-size:10px;"><span style="color:var(--text-muted);">SIC:</span> ' + (s.sicDescription||'N/A') + '</div>';
+  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:6px;font-size:10px;"><span style="color:var(--text-muted);">거래소:</span> ' + ((s.exchanges||[]).join(', ')||'N/A') + '</div>';
   html += '</div>';
   if (s.filings && s.filings.form) {
     html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">최근 주요 공시 (10-K/10-Q/8-K/DEF 14A)</div>';
@@ -3688,13 +3688,13 @@ function _renderFundSEC(d) {
       var desc = s.filings.primaryDocDescription ? s.filings.primaryDocDescription[i] : '';
       var accession = s.filings.accessionNumber ? s.filings.accessionNumber[i] : '';
       var formColor = form === '10-K' ? '#00e5a0' : form === '10-Q' ? '#00d4ff' : form === '8-K' ? '#ffa31a' : '#c084fc';
-      html += '<div style="font-size:10px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;gap:8px;align-items:center;">';
+      html += '<div style="font-size:10px;padding:4px 0;border-bottom:1px solid var(--surface-2);display:flex;gap:8px;align-items:center;">';
       html += '<span style="color:' + formColor + ';font-weight:700;width:60px;font-family:var(--font-mono);">' + form + '</span>';
       html += '<span style="color:var(--text-muted);width:80px;">' + date + '</span>';
       html += '<span style="color:var(--text-secondary);flex:1;">' + (desc||'') + '</span>';
       if (accession) {
         var secUrl = 'https://www.sec.gov/Archives/edgar/data/' + (s.cik||'').replace(/^0+/,'') + '/' + accession.replace(/-/g,'') + '/' + accession + '-index.htm';
-        html += '<a href="' + secUrl + '" target="_blank" style="color:var(--accent);font-size:9px;text-decoration:none;">SEC ↗</a>';
+        html += '<a href="' + secUrl + '" target="_blank" style="color:var(--accent);font-size:11px;text-decoration:none;">SEC ↗</a>';
       }
       html += '</div>';
       shown++;
@@ -3749,9 +3749,9 @@ function _renderFundFinancials(d) {
 
   function card(label, value, sub, color) {
     return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">' +
-      '<div style="font-size:9px;color:var(--text-muted);">' + label + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);">' + label + '</div>' +
       '<div style="font-size:16px;font-weight:800;color:' + (color||'var(--text-primary)') + ';font-family:var(--font-mono);margin-top:2px;">' + value + '</div>' +
-      (sub ? '<div style="font-size:9px;color:var(--text-muted);margin-top:2px;">' + sub + '</div>' : '') + '</div>';
+      (sub ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + sub + '</div>' : '') + '</div>';
   }
 
   // 값 선택: FMP 우선, SEC XBRL 폴백
@@ -3780,7 +3780,7 @@ function _renderFundFinancials(d) {
   html += card('부채비율', deVal ? deVal.toFixed(2) + 'x' : 'N/A', deVal > 2 ? '높음' : (deVal ? '안정' : ''), deVal > 2 ? '#ff5b50' : '#00e5a0');
   html += card('배당수익률', (p.lastDiv && d.price && d.price > 0) ? ((p.lastDiv / d.price) * 100).toFixed(2) + '%' : (p.lastDiv ? 'N/A' : '0%'), '연간 배당');
 
-  if (isSEC) { html += '<div style="grid-column:1/-1;text-align:center;font-size:9px;color:var(--text-muted);padding:4px;">SEC EDGAR XBRL 기반 데이터 (FMP API 키 설정 시 더 풍부한 지표 제공)</div>'; }
+  if (isSEC) { html += '<div style="grid-column:1/-1;text-align:center;font-size:11px;color:var(--text-muted);padding:4px;">SEC EDGAR XBRL 기반 데이터 (FMP API 키 설정 시 더 풍부한 지표 제공)</div>'; }
 
   // v48.1: SEC XBRL 신규 8필드 품질/건전성 카드 추가
   //   R&D Intensity (R&D/매출), SBC 희석 (SBC/매출), SG&A 비중, Cash 포지션, 운전자본(재고/매출채권/유동부채)
@@ -3835,7 +3835,7 @@ function _renderFundFinancials(d) {
       html += '<span style="font-size:11px;color:' + topColor + ';font-weight:700;">' + topLabel + '</span>';
       html += '</div>';
       html += '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">' + rankLabel + '</div>';
-      html += '<div style="display:flex;gap:8px;margin-top:6px;font-size:9px;color:var(--text-muted);">';
+      html += '<div style="display:flex;gap:8px;margin-top:6px;font-size:11px;color:var(--text-muted);">';
       html += '<span>평균 ' + avgStr + '</span>';
       html += '<span>중위수 ' + medStr + '</span>';
       html += '</div>';
@@ -3916,7 +3916,7 @@ function _renderFundFinancials(d) {
       if (_tgtC && d.price) {
         var _upside = ((_tgtC - d.price) / d.price * 100);
         var _upColor = _upside >= 15 ? '#10b981' : _upside >= 0 ? '#00e5a0' : _upside >= -10 ? '#ffa31a' : '#ff5b50';
-        recHtml += '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.08);display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11px;">';
+        recHtml += '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--surface-5);display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11px;">';
         recHtml += '<span style="font-weight:700;color:var(--text-secondary);">FMP 목표가 컨센서스</span>';
         recHtml += '<span style="font-family:var(--font-mono);font-size:14px;font-weight:800;color:' + _upColor + ';">$' + _tgtC.toFixed(2) + '</span>';
         recHtml += '<span style="padding:2px 8px;background:' + _upColor + '22;border:1px solid ' + _upColor + ';color:' + _upColor + ';border-radius:10px;font-weight:700;">' + (_upside >= 0 ? '+' : '') + _upside.toFixed(1) + '% upside</span>';
@@ -3952,7 +3952,7 @@ function _renderFundStatements(d) {
     html += '</tr>';
 
     function row(label, key, isCurrency) {
-      var r = '<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">';
+      var r = '<tr style="border-bottom:1px solid var(--surface-2);">';
       r += '<td style="padding:5px 6px;color:var(--text-secondary);">' + label + '</td>';
       years.forEach(function(y) {
         var v = y[key];
@@ -3994,7 +3994,7 @@ function _renderFundStatements(d) {
     html += '</tr>';
 
     function secRow(label, arr) {
-      var r = '<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">';
+      var r = '<tr style="border-bottom:1px solid var(--surface-2);">';
       r += '<td style="padding:5px 6px;color:var(--text-secondary);">' + label + '</td>';
       (arr||[]).forEach(function(v) {
         var val = v.val || v.value || 0;
@@ -4035,9 +4035,9 @@ function _renderFundValuation(d) {
 
   // 좌측: 밸류에이션 지표 (TTM 우선)
   html += '<div>';
-  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">핵심 배수' + (hasTTM ? ' <span style="color:#3ddba5;font-size:8px;">TTM</span>' : ' <span style="color:#f59e0b;font-size:8px;">Annual</span>') + '</div>';
+  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">핵심 배수' + (hasTTM ? ' <span style="color:#3ddba5;font-size:11px;">TTM</span>' : ' <span style="color:#f59e0b;font-size:11px;">Annual</span>') + '</div>';
   function valRow(label, val, bench) {
-    return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:10px;">' +
+    return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--surface-2);font-size:10px;">' +
       '<span style="color:var(--text-secondary);">' + label + '</span>' +
       '<span style="color:var(--text-primary);font-family:var(--font-mono);font-weight:600;">' + val + '</span></div>';
   }
@@ -4053,7 +4053,7 @@ function _renderFundValuation(d) {
 
   // 우측: 수익성 지표 (TTM 우선)
   html += '<div>';
-  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">수익성 & 효율성' + (hasTTM ? ' <span style="color:#3ddba5;font-size:8px;">TTM</span>' : ' <span style="color:#f59e0b;font-size:8px;">Annual</span>') + '</div>';
+  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">수익성 & 효율성' + (hasTTM ? ' <span style="color:#3ddba5;font-size:11px;">TTM</span>' : ' <span style="color:#f59e0b;font-size:11px;">Annual</span>') + '</div>';
   html += valRow('Gross Margin', (rt.grossProfitMarginTTM || ra.grossProfitMargin) ? ((rt.grossProfitMarginTTM || ra.grossProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
   html += valRow('Operating Margin', (rt.operatingProfitMarginTTM || ra.operatingProfitMargin) ? ((rt.operatingProfitMarginTTM || ra.operatingProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
   html += valRow('Net Margin', (rt.netProfitMarginTTM || ra.netProfitMargin) ? ((rt.netProfitMarginTTM || ra.netProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
@@ -4075,10 +4075,10 @@ function _renderFundPeers(d) {
   if (!el || !body || !d.peers || !d.peers.length) return;
   var html = '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
   d.peers.slice(0, 12).forEach(function(p) {
-    html += '<div style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-primary);cursor:pointer;font-weight:600;" data-action="_aioFundSearchFill" data-arg="' + escHtml(p) + '">' + p + '</div>';
+    html += '<div style="padding:6px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-primary);cursor:pointer;font-weight:600;" data-action="_aioFundSearchFill" data-arg="' + escHtml(p) + '">' + p + '</div>';
   });
   html += '</div>';
-  html += '<div style="font-size:9px;color:var(--text-muted);margin-top:6px;">클릭하면 해당 기업 분석으로 이동합니다</div>';
+  html += '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">클릭하면 해당 기업 분석으로 이동합니다</div>';
   body.innerHTML = html;
   el.style.display = 'block';
 }
@@ -4104,7 +4104,7 @@ function _renderFundEarnings(d) {
       html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:8px 10px;">';
       html += '<div style="display:flex;justify-content:space-between;align-items:baseline;">';
       html += '<span style="font-size:12px;font-weight:700;color:var(--accent);font-family:var(--font-mono);">' + (e.date || '-') + '</span>';
-      if (hourLabel) html += '<span style="font-size:9px;color:var(--text-muted);padding:2px 6px;background:rgba(255,255,255,0.04);border-radius:8px;">' + hourLabel + '</span>';
+      if (hourLabel) html += '<span style="font-size:11px;color:var(--text-muted);padding:2px 6px;background:var(--surface-3);border-radius:8px;">' + hourLabel + '</span>';
       html += '</div>';
       if (quarter) html += '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">' + quarter + '</div>';
       if (e.epsEstimate != null) html += '<div style="font-size:10px;color:var(--text-secondary);margin-top:3px;">예상 EPS $' + Number(e.epsEstimate).toFixed(2) + '</div>';
@@ -4124,7 +4124,7 @@ function _renderFundEarnings(d) {
       var pct = s.estimatedEarning ? (diff / Math.abs(s.estimatedEarning) * 100) : 0;
       var c = diff >= 0 ? '#00e5a0' : '#ff5b50';
       var label = diff >= 0 ? 'Beat' : 'Miss';
-      html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">';
+      html += '<tr style="border-bottom:1px solid var(--surface-2);">';
       html += '<td style="padding:6px;color:var(--text-secondary);">' + (s.date||'') + '</td>';
       html += '<td style="text-align:right;padding:6px;color:var(--text-primary);font-family:var(--font-mono);">$' + (s.actualEarningResult||0).toFixed(2) + '</td>';
       html += '<td style="text-align:right;padding:6px;color:var(--text-muted);font-family:var(--font-mono);">$' + (s.estimatedEarning||0).toFixed(2) + '</td>';
@@ -4152,7 +4152,7 @@ function _renderFundNews(d) {
     var summarySafe = n.summary ? escHtml(n.summary.substring(0, 180)) + (n.summary.length > 180 ? '…' : '') : '';
     var sourceSafe = escHtml(n.source || '');
     var urlSafe = n.url && /^https?:\/\//.test(n.url) ? n.url : '#';
-    html += '<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">';
+    html += '<div style="padding:8px 0;border-bottom:1px solid var(--surface-3);">';
     html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">';
     html += '<a href="' + escHtml(urlSafe) + '" target="_blank" rel="noopener" style="flex:1;font-size:12px;font-weight:700;color:var(--text-primary);text-decoration:none;line-height:1.4;">' + headlineSafe + '</a>';
     html += '<span style="font-size:10px;color:var(--text-muted);white-space:nowrap;font-family:var(--font-mono);">' + ageLabel + '</span>';
@@ -4160,7 +4160,7 @@ function _renderFundNews(d) {
     html += '<div style="display:flex;justify-content:space-between;gap:10px;margin-top:4px;">';
     html += '<span style="font-size:10px;color:var(--text-secondary);line-height:1.5;flex:1;">' + summarySafe + '</span>';
     html += '</div>';
-    html += '<div style="font-size:9px;color:var(--text-muted);margin-top:3px;">' + sourceSafe + ' · ' + (n.date || '') + '</div>';
+    html += '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">' + sourceSafe + ' · ' + (n.date || '') + '</div>';
     html += '</div>';
   });
   if (d.finnhubNews.length > 10) {

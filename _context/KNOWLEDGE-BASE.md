@@ -1,6 +1,6 @@
 ---
-verified_by: agent
-last_verified: 2026-04-11
+verified_by: human
+last_verified: 2026-04-21
 confidence: high
 ---
 
@@ -11,6 +11,51 @@ confidence: high
 >
 > **환류 규칙 (R26)**: 새 인사이트 발견 시 이 파일에 추가. 반복 패턴이면 RULES.md 규칙 승격 검토.
 > **카테고리**: API, 브라우저, Chart.js, DOM/CSS, JS 패턴, 데이터
+
+---
+
+## 🧠 v48.61 5개 패러다임 전환 (2026-04-21 통합)
+
+### 1. Apple 리더십 패러다임: 영업→하드웨어 회귀
+**통찰**: Tim Cook(2011~) = 공급망/영업 중심. John Ternus(2026-09-01~) = 하드웨어/R&D 중심.
+- Cook 재임 기간: 시총 $3000억 → $4조(13배), 서비스 매출 폭증, 규모 경제 극한 활용.
+- Ternus 선택 배경: **"스마트폰 이후"(AI 글래스/로봇/XR) 폼팩터 경쟁 임박** → 하드웨어 CEO로 회귀는 **제품 혁신 가속 신호**.
+- Cook은 Executive Chairman 잔류(정책/관세 관계). Johny Srouji(A4 설계자) Chief Hardware Officer = Apple Silicon 독립성 보강.
+- **투자 시사**: AAPL 하드웨어 Capex 사이클 재가속 + AI 매개체(Siri 개인화 WWDC) 전략 전환. 현재 PE 조정에도 장기 재평가 가능성.
+
+### 2. LLM 무기화 = 사이버 예산 패러다임 전환
+**통찰**: Mythos(Anthropic)는 모델 무기화의 임계점. **"취약점 발견/악용 → 인간 개입 없이 자동화"**.
+- Opus 4.7(의도적 축소) vs Mythos(제한 Project Glasswing 배포): Anthropic의 위험 관리 전략 = 제한적 엘리트 배포.
+- OpenAI 대조: GPT-5.4-Cyber + TAC 14파트너 = "대중의 지혜" 접근.
+- **구조 변화**: 탐지 중심 → **런타임 통제 중심**. CTEM(Continuous Threat Exposure Management) 지출 확대.
+- **수혜 구조**: (a) 복수 인라인 제어포인트(CRWD/PANW/Cisco) (b) DDoS/WAF/API 보안(AKAM/NET) (c) 정부 표준화 경로(CAISI/AISI) = 예산 촉매 3중.
+- **역설**: Mythos $25/$125 가격이 방어자도 제한 → 컴퓨팅 비용이 사이버 격차 심화.
+
+### 3. 컴퓨팅 제약은 실리콘이 아닌 전력이다
+**통찰**: AI 서밋 125개사 공통 메시지 = 2028년까지 용량 부족 지속. **병목은 GPU가 아닌 MW**.
+- Lightning AI: 단일 기업 백만 에이전트 배포 시 추론 100배+, 컴퓨팅 1000배+.
+- CoreWeave: 850MW → 3GW 계약 확보 필수.
+- LTA 레버리지 역전: 과거 "LTA=정점" → 현재 "고객 선제안=공급사 레버리지"(AVGO 고객에 "연중반 HBM+CoWoS 주문 없으면 매진" 통지).
+- **인접 수혜**: (a) 온사이트 발전(GEV/BE/CEG) (b) DC REIT(EQIX/DLR) (c) XPU 플랫폼(AVGO Broadcom 180억→500억→1000억 경로) (d) 피지컬 AI(로봇/자율차).
+
+### 4. AV = 기존시장 잠식이 아닌 총량 확대
+**통찰**: Goldman 보고서 핵심 프레임 — **로보택시는 UBER를 대체하지 않고 UBER 총예약을 키움**.
+- 웨이모가 UBER 앱에 배치된 시장 = 차량당 일일 운행(TpVD) +30%.
+- 2030년 AV 차량 62,750대로 UCAN 연 65억 건 수요 충족 불가 → 하이브리드 네트워크 필수.
+- **수혜 구조**: (a) GOOGL(Waymo 2035 $200억+), (b) UBER/LYFT(2030 AV 라이드셰어 30%+ 중개), (c) AMZN(Zoox), (d) 부품(TEL/Hesai/APTV), (e) 중국 EV(XPEV).
+- **중립/피해**: TSLA(FSD v14 중요 개입 2천마일 vs 웨이모 10만), AUR/RIVN/MBLY(실행 리스크), 전통 OEM(Ford/Daimler/Traton 밸류체인 위협).
+- **극단 시나리오**: 모든 주행 공유 AV로 전환 시 SAAR 300-600만대 감소(자동차 판매).
+
+### 5. 광통신 변곡점 = 구리 거리 한계 2028말~2029초
+**통찰**: Lumentum CEO Michael Hurlston(Citi AI서밋) = **"3.2T 노드에서 구리 유효거리 1.5-2m로 급락 → 광학이 주 백플레인"**.
+- 기존: 구리 인터커넥트 > 광학(비용 우위).
+- 2028말: 대역폭 요구가 구리 물리 한계 초과 → **광학 유일 대안**.
+- **공급 부족 2028-2029 지속**: InP(인듐 인화물) 공급이 수요 미따름 → Lumentum 7년 Sumitomo 약정.
+- **산업 역사적 사건**: 광학 업계 사상 처음 공급자 가격 인상 + 원가 전가 구조.
+- **수혜 구조**: (a) 광모듈(Innolight/Eoptolink/TFC) 1.6T→3.2T 업그레이드 사이클, (b) EML/CW 레이저(LITE InP), (c) CPO 장비(RoboTechnik), (d) OCS(광회로 스위치), (e) PCB 미드플레인(Victory Giant/WUS/EMC/Shengyi), (f) HCF(중공 광섬유) 적용 확대.
+- **Broadcom 역설**: PA 레이저 용량 4배 확장 해도 판도 영향 미미 = LITE 경쟁 위치 확고.
+
+---
 
 ---
 

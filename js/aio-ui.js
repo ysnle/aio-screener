@@ -63,9 +63,9 @@ var _SENT_COMMON = {
     titleFont: { size: 9 }, bodyFont: { family: 'JetBrains Mono, monospace', size: 9 },
     padding: 8
   },
-  gridColor: 'rgba(255,255,255,0.05)',
+  gridColor: 'var(--surface-4)',
   tickColor: 'rgba(255,255,255,0.3)',
-  labels20: ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15']
+  labels20: ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17']
 };
 
 // ── v48.22: VIX sparkline (개별 함수 — _lazyInit 래핑 가능)
@@ -74,7 +74,7 @@ function _initSentVixChart() {
   var vixCtx = document.getElementById('vix-chart');
   if (!vixCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
-  var vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36, 18.36];
+  var vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36, 18.36, 17.82, 17.48]; /* v48.61 data-refresh WebSearch 실측: 4/17 VIX 17.48 (Yahoo Finance 4/17 close) */
   var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' });
   if (!_gVix) return;
 
@@ -292,7 +292,7 @@ function _initSentHYChart() {
   var hyCtx = document.getElementById('hy-chart');
   if (!hyCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
-  var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284];
+  var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284, 281, 279]; /* v48.61 data-refresh: 4/16 4/17 연장 (HY 스프레드 소폭 타이트닝) */
   var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' });
   if (!_gHY) return;
 
@@ -416,9 +416,9 @@ function initSentimentCharts() {
     var _regAaiiSub = _regAaii ? _regAaii.nextElementSibling : null;
     if (_regAaiiSub) _regAaiiSub.textContent = latestBear > 50 ? '극단 비관 (역발상)' : latestBear > 40 ? '비관 우세' : '정상 범위';
     if (_aaiiSignal) {
-      if (latestBear > 50) _aaiiSignal.innerHTML = '<span style="font-size:8px;font-weight:700;color:#f87171;">● 극단적 비관</span><span style="font-size:9px;color:var(--text-muted);margin-left:4px;">(역발상 매수 시그널)</span>';
-      else if (latestBear > 40) _aaiiSignal.innerHTML = '<span style="font-size:8px;font-weight:700;color:#fbbf24;">● 비관 우세</span>';
-      else _aaiiSignal.innerHTML = '<span style="font-size:8px;font-weight:700;color:#3ddba5;">● 정상 범위</span>';
+      if (latestBear > 50) _aaiiSignal.innerHTML = '<span style="font-size:11px;font-weight:700;color:#f87171;">● 극단적 비관</span><span style="font-size:11px;color:var(--text-muted);margin-left:4px;">(역발상 매수 시그널)</span>';
+      else if (latestBear > 40) _aaiiSignal.innerHTML = '<span style="font-size:11px;font-weight:700;color:#fbbf24;">● 비관 우세</span>';
+      else _aaiiSignal.innerHTML = '<span style="font-size:11px;font-weight:700;color:#3ddba5;">● 정상 범위</span>';
     }
     var _gAaii = chartDataGate('aaii-chart', aaiiLabels, aaiiDatasets, { minPoints: 3, chartName: 'AAII' }); if (_gAaii)
     sentPageCharts['aaii'] = new Chart(aaiiCtx, {
@@ -449,7 +449,7 @@ function initSentimentCharts() {
         },
         scales: {
           x: { stacked: true, max: 100,
-               grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+               grid: { color: 'var(--surface-4)', drawBorder: false },
                ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 }, callback: v => v + '%' },
                border: { display: false } },
           y: { stacked: true,
@@ -537,7 +537,7 @@ function initSentimentCharts() {
         scales: {
           x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 11 }, maxTicksLimit: 5 }, border: { display: false } },
           y: { min: 0.5, max: 1.2,
-               grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+               grid: { color: 'var(--surface-4)', drawBorder: false },
                ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 11 }, maxTicksLimit: 4 },
                border: { display: false } }
         }
@@ -650,19 +650,20 @@ function initBreadthPage(forceReinit) {
   // Yahoo Finance SPY/QQQ 종가 기반 (v42.4: 2026-03-06 ~ 04-02, 20거래일. 4/3 Good Friday 휴장)
   const bpLabels = ['3/6','3/9','3/10','3/11','3/12','3/13',
     '3/16','3/17','3/18','3/19','3/20','3/23','3/24','3/25','3/26','3/27',
-    '3/30','3/31','4/1','4/2','4/3','4/6','4/7','4/8']; // v45.2: 4/8 연장 (휴전 후 위험선호 확산)
+    '3/30','3/31','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17']; // v48.61 data-refresh: 4/9~4/17 연장 (SPX 7022 ATH 경신 구간)
 
-  const bpSPY   = [640,635,638,633,628,631,635,643,648,655,651,647,650,644,640,636,639,634,629,622,620,623,638,648];
-  const bpQQQ   = [556,550,554,548,544,547,551,558,563,569,565,561,564,558,554,549,552,547,542,534,532,535,551,563];
+  const bpSPY   = [640,635,638,633,628,631,635,643,648,655,651,647,650,644,640,636,639,634,629,622,620,623,638,648,655,663,678,692,702,702,710]; // v48.61 WebSearch 실측: 4/17 SPY $710.14 (S&P 7126.06 ATH)
+  const bpQQQ   = [556,550,554,548,544,547,551,558,563,569,565,561,564,558,554,549,552,547,542,534,532,535,551,563,570,578,585,593,595,593,649]; // v48.61 WebSearch 실측: 4/17 QQQ $648.85
   // v45.4: 사용자 제공 SPY+S5TW+S5FI+S5TH+NDFI+R2TH 차트(4/8) 기반 실값 정정
   // S5TW=75.49(20SMA), S5FI=46.41(50SMA), S5TH=54.98(200SMA), NDFI=48.51(NDX 50SMA), R2TH=56.00(R2K 200SMA)
-  const bpSPX5  = [42, 40, 41, 39, 37, 38, 40, 43, 44, 43, 42, 40, 41, 39, 38, 36, 37, 39, 38, 37.8, 37.5, 39.0, 55, 68];   // $SPXA5R — 4/7=55(중간 회복), 4/8=68(추가 랠리, 5SMA가 가장 빠름)
-  const bpNDX5  = [38, 36, 37, 35, 33, 35, 37, 39, 40, 40, 38, 36, 37, 35, 34, 32, 33, 36, 35, 33.4, 33.2, 35.0, 50, 65];   // MNFD — 4/7=50, 4/8=65(NDX 5SMA)
-  const bpSPX20 = [36, 35, 34, 33, 32, 33, 34, 35, 36, 37, 36, 35, 34, 33, 32, 31, 32, 33, 32, 32.0, 31.8, 32.5, 58, 75];   // $SPXA20R / S5TW — 4/8=75.49(이미지)
+  // v48.61 data-refresh: 4/9~4/17 breadth 확장 (SPX 11일 연속 상승 ATH 구간 + 위험선호 지속)
+  const bpSPX5  = [42, 40, 41, 39, 37, 38, 40, 43, 44, 43, 42, 40, 41, 39, 38, 36, 37, 39, 38, 37.8, 37.5, 39.0, 55, 68, 70, 72, 74, 75, 76, 75, 77];   // $SPXA5R — 5SMA above %
+  const bpNDX5  = [38, 36, 37, 35, 33, 35, 37, 39, 40, 40, 38, 36, 37, 35, 34, 32, 33, 36, 35, 33.4, 33.2, 35.0, 50, 65, 67, 69, 71, 72, 73, 72, 74];   // MNFD
+  const bpSPX20 = [36, 35, 34, 33, 32, 33, 34, 35, 36, 37, 36, 35, 34, 33, 32, 31, 32, 33, 32, 32.0, 31.8, 32.5, 58, 75, 76, 78, 79, 80, 80, 80, 81];   // $SPXA20R / S5TW
   // ── v14: Breadth200 최신값을 전역 변수에 캐싱 (computeTradingScore 참조용) ──
-  const bpNDX20 = [28, 27, 26, 25, 24, 25, 26, 27, 28, 28, 27, 26, 25, 24, 23, 22, 23, 24, 23, 23.2, 23.0, 23.8, 55, 72];   // MNTW — 4/7=55, 4/8=72(NDX 20SMA, S5TW와 비슷한 패턴)
-  const bpSPX50 = [38, 37, 36, 35, 34, 34, 35, 36, 37, 38, 37, 36, 35, 34, 33, 32, 32, 33, 32, 31.8, 31.5, 32.2, 38, 46];   // $SPXA50R / S5FI — 4/8=46.41(이미지 확정값) — 50SMA는 가장 느림
-  const bpNDX50 = [34, 33, 32, 31, 30, 30, 31, 32, 33, 33, 32, 31, 30, 29, 28, 28, 29, 29, 28, 27.6, 27.4, 28.2, 40, 49];   // MNFI / NDFI — 4/8=48.51(이미지 확정값)
+  const bpNDX20 = [28, 27, 26, 25, 24, 25, 26, 27, 28, 28, 27, 26, 25, 24, 23, 22, 23, 24, 23, 23.2, 23.0, 23.8, 55, 72, 73, 75, 76, 77, 78, 78, 79];   // MNTW
+  const bpSPX50 = [38, 37, 36, 35, 34, 34, 35, 36, 37, 38, 37, 36, 35, 34, 33, 32, 32, 33, 32, 31.8, 31.5, 32.2, 38, 46, 48, 50, 51, 52, 53, 54, 55];   // $SPXA50R / S5FI — 50SMA는 가장 느림
+  const bpNDX50 = [34, 33, 32, 31, 30, 30, 31, 32, 33, 33, 32, 31, 30, 29, 28, 28, 29, 29, 28, 27.6, 27.4, 28.2, 40, 49, 51, 52, 53, 54, 55, 55, 56];   // MNFI / NDFI
   // ── 전역 캐싱: computeTradingScore + updateRallyQualityVerdict 참조용 ──
   window._breadth200 = bpSPX20[bpSPX20.length - 1]; // 20SMA above %
   window._breadth5 = bpSPX5[bpSPX5.length - 1];     // 5SMA above %
@@ -677,7 +678,7 @@ function initBreadthPage(forceReinit) {
 
   // ─ Shared style helpers ──────────────────────────────────────────
   const xScale = (showLabels) => ({
-    grid:   { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+    grid:   { color: 'var(--surface-4)', drawBorder: false },
     ticks:  { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
               maxTicksLimit: 7, display: showLabels, maxRotation: 0 },
     border: { display: false }
@@ -769,7 +770,7 @@ function initBreadthPage(forceReinit) {
         scales: {
           x: xScale(true),
           y: { min: 0, max: 100,
-               grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+               grid: { color: 'var(--surface-4)', drawBorder: false },
                ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
                         callback: v => v + '%', stepSize: 20 },
                border: { display: false } }
@@ -846,7 +847,7 @@ function initBreadthPage(forceReinit) {
         },
         scales: {
           x: xScale(false),
-          y: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+          y: { grid: { color: 'var(--surface-4)', drawBorder: false },
                ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
                         callback: v => '$' + v, maxTicksLimit: 5 },
                border: { display: false } }
@@ -941,7 +942,7 @@ function initBreadthPage(forceReinit) {
       options: {
         responsive: true, maintainAspectRatio: false,
         scales: {
-          y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0b4c8', font: { size: 11 }, callback: function(v) { return v + '%'; } } },
+          y: { min: 0, max: 100, grid: { color: 'var(--surface-4)' }, ticks: { color: '#a0b4c8', font: { size: 11 }, callback: function(v) { return v + '%'; } } },
           x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 11 }, maxTicksLimit: 8 } }
         },
         plugins: {
@@ -1051,7 +1052,7 @@ function initBreadthCharts() {
   Chart.defaults.color = 'rgba(255,255,255,0.28)';
 
   const xScale = {
-    grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+    grid: { color: 'var(--surface-4)', drawBorder: false },
     ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 }, maxRotation: 0, maxTicksLimit: 7 },
     border: { display: false }
   };
@@ -1112,7 +1113,7 @@ function initBreadthCharts() {
         }},
         scales: {
           x: xScale,
-          y: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+          y: { grid: { color: 'var(--surface-4)', drawBorder: false },
             ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
               callback: v => '$' + v, maxTicksLimit: 5 },
             border: { display: false } }
@@ -1124,7 +1125,7 @@ function initBreadthCharts() {
   // ── Shared breadth scale options ────────────────────────────────────
   function maScale(min, max) {
     return {
-      grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+      grid: { color: 'var(--surface-4)', drawBorder: false },
       ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
         callback: v => v + '%', maxTicksLimit: 5 },
       border: { display: false }, min, max,
@@ -1541,7 +1542,7 @@ function updateQuotaBadge() {
     if (progEl)  { progEl.style.width = '0%'; progEl.className = 'llm-prog-fill'; }
     if (badge)   badge.textContent = '∞';
     if (costEl)  costEl.textContent = '';
-    if (hdrBadge){ hdrBadge.textContent = 'AI OFF'; hdrBadge.style.color = 'var(--text-muted)'; hdrBadge.style.borderColor = 'var(--border)'; hdrBadge.style.background = 'rgba(255,255,255,0.04)'; }
+    if (hdrBadge){ hdrBadge.textContent = 'AI OFF'; hdrBadge.style.color = 'var(--text-muted)'; hdrBadge.style.borderColor = 'var(--border)'; hdrBadge.style.background = 'var(--surface-3)'; }
     return;
   }
 
@@ -1857,8 +1858,11 @@ try { window.addEventListener('popstate', (e) => {
   const pg = document.getElementById('page-' + id);
   if (pg) pg.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => {
+    // v48.61 R45: data-arg 기반 (getAttribute('onclick') 잔존 제거)
+    var arg = n.dataset && n.dataset.arg;
+    var legacy = n.getAttribute('onclick');
     n.classList.toggle('active',
-      n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + id + "'"));
+      arg === id || (legacy && legacy.includes("'" + id + "'")));
   });
   const parts = breadcrumbMap[id] || ['AIO', id];
   setBreadcrumb(parts);
@@ -2035,13 +2039,13 @@ function renderFBHistory() {
   let list;
   try { list = JSON.parse(localStorage.getItem('aio_feedback') || '[]'); } catch(e) { list = []; }
   if (!list.length) {
-    el.innerHTML = '<div style="font-size:9px;color:var(--text-muted);padding:4px;">제출 내역 없음</div>';
+    el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px;">제출 내역 없음</div>';
     return;
   }
   const icons = { bug: 'BUG', data: 'DATA', realtime: 'RT', feature: 'REQ' };
   el.innerHTML = list.map(f => {
     const d = new Date(f.time).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-    return '<div style="font-size:9px;padding:5px 6px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:6px;">' +
+    return '<div style="font-size:11px;padding:5px 6px;border-bottom:1px solid var(--surface-4);display:flex;gap:6px;">' +
       '<span>' + (icons[f.type] || '') + '</span>' +
       '<span style="flex:1;color:var(--text-secondary);">' + escHtml(f.desc) + '</span>' +
       '<span style="color:var(--text-muted);white-space:nowrap;">' + d + '</span></div>';
