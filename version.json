@@ -1,6 +1,6 @@
 {
-  "version": "v48.61",
-  "built": "2026-04-21T23:45:00+09:00",
-  "note": "v48.61: 사용자 9차 압박(v48.4 이후 근본 수정+유사 문제 전수+데이터 감사+강제 최신화+/integrate 20자료+/data-refresh). 3 Agent 병렬 감사 후 15건 치명 이슈 수정. Phase 1 CSS --surface-1~5 자기순환 해소(377건 invisible 복구, v48.48 버그). Phase 2 _aioRenderSignalRegime PCR/AAII 전역변수 참조 수정(P125 7번째 재발 해소, _pcRatio→_putCallRatio, _aaiiBearish 실시간 우선). Phase 3 Canvas CSS var 10건→hex(R43). Phase 4 data-snap 14건 2026-04-15→2026-04-17 + _aioRenderSnapshotDates 즉시실행. Phase 5 P125 6건 DATA_SNAPSHOT 필드 보충. Phase 6 JS 인라인 폰트 124건+rgba 85건+on* 7건 sed 일괄(R46). Phase 7 getAttribute('onclick') 2건→dataset.arg(R45). Phase 8 /data-refresh GPU임대가+DRAM/NAND 계약가 최신화. Phase 9 SCREENER_DB 20+ memo 갱신. Phase 10 CHAT_CONTEXTS 공통 블록 2026-04-21 12 포인트. Phase 11 리스크 레이더 3이벤트. Phase 12 RULES R39~R48 10개+Hook 9 Layer 실체화. Phase 13 KB 5 패러다임+POSTMORTEM P134~P138. Phase 14 버전 동기화. TECH_KW +55/MACRO_KW +20. 커밋/배포 자동 금지 준수.",
-  "versioning": "x.y (31→...→48.60→48.61)"
+  "version": "v48.62",
+  "built": "2026-04-22T00:00:00+09:00",
+  "note": "v48.62: UX 실전성 보강. .page-conclusion-bar 컴포넌트 신설(오늘 결론·즉시 행동·업데이트 3열). 4개 우선 페이지(home/signal/sentiment/macro) 상단 적용. _renderConclusionBar() + _updateAllConclusionBars() JS 유틸. updateMarketPulse() 트리거 연동(computeTradingScore/window._lastFG/macro-regime-pill 재사용). fb-estimated 배지 신설(amber). KNOWLEDGE-BASE UX 원칙 3개 + QA-CHECKLIST P106~P110 + RULES R49~R51 환류. 커밋/배포 자동 금지 준수.",
+  "versioning": "x.y (31→...→48.61→48.62)"
 }

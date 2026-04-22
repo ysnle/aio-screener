@@ -6,6 +6,18 @@
 
 ---
 
+## v48.62 — UX 실전성 보강: 결론 바 4페이지 + fb-estimated + R49~R51 (2026-04-22)
+
+### 변경 사항
+- **결론 바 컴포넌트 신설** (`page-conclusion-bar`): 오늘 결론·즉시 행동·업데이트 시각 3열 고정 바
+- **4개 우선 페이지 적용**: 대시보드(home) · 매매 시그널(signal) · 투자 심리(sentiment) · 거시경제(macro) 상단
+- **JS 유틸 추가**: `_renderConclusionBar()` · `_updateAllConclusionBars()` — `updateMarketPulse()` 트리거 연동
+- **배지 신설** `fb-estimated`: 모델 계산값·보간 추정치 amber 배지 (기존 live/static에 추가)
+- **지식 베이스 환류**: KNOWLEDGE-BASE UX 원칙 3개 · QA-CHECKLIST P106~P110 · RULES R49~R51
+- 참조 보고서: UX 정보 과밀도 분석 + 21페이지 실전성 평가 2개 (2026-04-22)
+
+---
+
 ## v48.61 — 대규모 근본 수정 15 Phase + /integrate 20자료 + /data-refresh 전수 (2026-04-21)
 
 ### 트리거 (사용자 의도)

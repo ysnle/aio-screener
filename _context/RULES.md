@@ -625,6 +625,20 @@ CSS/이벤트/폰트 관련 대량 치환 시 **js/*.js 4모듈(aio-core/data/ui
 
 > **v48.61 교훈**: v48.48에서 `--surface-1: var(--surface-1)` 자기참조로 정의 → 377건 사용처 모두 invisible(테이블 hover/카드 배경/구분선/input 배경 전부). v48.54 rgba → var(--surface-*) 치환 작업이 시각적으로 전혀 작동 안 함. 판매 품질 직결.
 
+### R49. 새 페이지 추가 시 결론 바 의무 (v48.62 추가)
+새 페이지(`<div class="page" id="page-xxx">`) 추가 시 `aio-explain` 아래, 헤더 위에 `<div id="xxx-conclusion-bar"></div>` 삽입 후 `_updateAllConclusionBars()`에 업데이트 블록 추가.
+- 배치 순서: 결론 바 → 핵심 카드 → aio-explain (설명 접힘)
+
+### R50. fb-estimated 배지 사용 기준 (v48.62 추가)
+하드코딩 데이터를 유형별로 구분:
+- `fb-static` : 특정 날짜 종가 기준 스냅샷 (날짜 명시 가능)
+- `fb-estimated` : 모델 계산값·보간값·추정치 (amber 색상 경고)
+새 하드코딩 차트/숫자 추가 시 반드시 둘 중 하나 선택.
+
+### R51. 콘텐츠 카드 본문 폰트 최소 12px (v48.62 추가)
+`.aio-card` 및 `.explain-body` 내부 텍스트는 12px 이상. 메타 UI(`.freshness-badge`, `.status-pill`, `.aio-tooltip`, `.pcb-label`)는 10~11px 허용.
+신규 카드 작성 시 `font-size:11px` 이하 인라인 스타일을 콘텐츠 영역에 사용 금지.
+
 ### R48. Canvas 렌더러 전역 변수 참조 시 실제 설정 위치 확인 (v48.61 추가, _pcRatio vs _putCallRatio 교훈)
 렌더러 작성 시 참조하는 `window._xxx` 전역이 **실제로 어디서 설정되는지** grep 확인.
 ```js

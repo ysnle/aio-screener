@@ -1961,3 +1961,10 @@ VIX 라벨 5단계(안정/주의/경계/공포/극단공포): 15/20/25/30 경계
 F&G 라벨: <= 연산자 통일 (25/45/55/75) — < vs <= 혼용 없는지
 VKOSPI 라벨: 15/25/35 기준 4단계(안정/경계/공포/극단공포) — 모든 함수에서 동일
 ```
+
+── v48.62: UX 실전성 — 결론 바·배지·폰트 (2026-04-22) ──
+P106: 4개 우선 페이지(home/signal/sentiment/macro) 상단에 `.page-conclusion-bar` 존재 여부 — `id="home-conclusion-bar"` 등 grep 확인
+P107: `_updateAllConclusionBars()` 호출 경로 — `updateMarketPulse()` 내 마지막 줄 및 `aio:liveQuotes` 이벤트 후 트리거 확인
+P108: `fb-estimated` 배지 색상 — amber(`rgba(255,163,26,...)`) 정상 렌더링 여부
+P109: 결론 바 "업데이트" 열 — 데이터 로드 후 "—" 에서 상대시간(예: "3분 전")으로 갱신되는지 확인
+P110: 새 페이지 추가 시 R49 준수 — 결론 바 div 삽입 여부 grep(`id=".*-conclusion-bar"`) 확인

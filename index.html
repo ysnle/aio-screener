@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.61 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.62 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1213,6 +1213,17 @@ body { background: var(--bg-base); }
 /* 상태 pill 통일 */
 .status-pill { font-size: 11px !important; padding: 3px 10px !important; }
 .freshness-badge { font-size: 11px !important; }
+.freshness-badge.fb-estimated { background: rgba(255,163,26,0.15); color: var(--data-amber); border: 1px solid rgba(255,163,26,0.3); }
+
+/* v48.62: 페이지 결론 바 — 결론·액션·업데이트 3열 */
+.page-conclusion-bar { display:flex; align-items:stretch; gap:0; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; margin-bottom:12px; overflow:hidden; }
+.pcb-conclusion { flex:2; padding:8px 12px; border-right:1px solid var(--border); min-width:0; }
+.pcb-action     { flex:1; padding:8px 12px; border-right:1px solid var(--border); min-width:0; }
+.pcb-updated    { width:110px; min-width:80px; padding:8px 12px; }
+.pcb-label  { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:3px; font-weight:600; }
+.pcb-value  { font-size:13px; font-weight:700; color:var(--text-primary); line-height:1.3; }
+.pcb-action .pcb-value  { font-size:12px; color:var(--data-cyan); }
+.pcb-updated .pcb-value { font-size:11px; color:var(--text-muted); font-family:var(--font-mono); }
 
 /* v33.0.1: 인사이트 설명 박스 (항상 표시) */
 .insight-explain-title { font-size: 14px !important; }
@@ -3694,7 +3705,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.61</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.62</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -3715,6 +3726,9 @@ body.light-theme canvas { filter:none; }
     <span class="aio-legend-item"><span class="aio-legend-dot" style="background:var(--data-amber);"></span>30-45 주의</span>
     <span class="aio-legend-item"><span class="aio-legend-dot" style="background:var(--data-red);"></span>30↓ 위험</span>
   </div>
+
+  <!-- v48.62: 페이지 결론 바 -->
+  <div id="home-conclusion-bar"></div>
 
   <!-- ═══ v48.42: SECTION 0 — 오늘의 시장 ═══ -->
   <div id="home-market-summary-banner" class="aio-card has-stripe-left">
@@ -4213,6 +4227,9 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
   </div>
+
+  <!-- v48.62: 페이지 결론 바 -->
+  <div id="signal-conclusion-bar"></div>
 
   <!-- ══════════════════════════════════════════════════════════
        AIO · "지금 거래해야 할까?" Bloomberg Terminal Dashboard
@@ -5392,6 +5409,9 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
+  <!-- v48.62: 페이지 결론 바 -->
+  <div id="sentiment-conclusion-bar"></div>
+
     <!-- 헤더 -->
     <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:6px;">
@@ -6291,6 +6311,9 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
   </div>
+
+  <!-- v48.62: 페이지 결론 바 -->
+  <div id="macro-conclusion-bar"></div>
 
   <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
@@ -21750,6 +21773,78 @@ function updateMarketPulse() {
     } else {
       if (elIcon) { elIcon.style.color = 'var(--text-muted)'; }
       if (elM)    { elM.textContent = '대기'; elM.style.color = 'var(--text-muted)'; }
+    }
+  } catch(e) {}
+
+  // v48.62: 결론 바 업데이트
+  try { _updateAllConclusionBars(); } catch(e) {}
+}
+
+// v48.62: 페이지 결론 바 렌더 유틸 — 결론·액션·업데이트 3열
+function _renderConclusionBar(id, opts) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var lf = window._lastFetch || {};
+  var ts = opts.fetchKey ? lf[opts.fetchKey] : null;
+  var DE = window.DATE_ENGINE;
+  var upd = (ts && DE) ? DE.formatRelative(ts) : '—';
+  el.innerHTML = '<div class="page-conclusion-bar">' +
+    '<div class="pcb-conclusion"><div class="pcb-label">오늘 결론</div>' +
+    '<div class="pcb-value" style="color:' + (opts.conclusionColor || 'var(--text-primary)') + '">' + (typeof escHtml === 'function' ? escHtml(opts.conclusion || '—') : (opts.conclusion || '—')) + '</div></div>' +
+    '<div class="pcb-action"><div class="pcb-label">즉시 행동</div>' +
+    '<div class="pcb-value">' + (typeof escHtml === 'function' ? escHtml(opts.action || '—') : (opts.action || '—')) + '</div></div>' +
+    '<div class="pcb-updated"><div class="pcb-label">업데이트</div>' +
+    '<div class="pcb-value">' + upd + '</div></div></div>';
+}
+
+// v48.62: 4개 우선 페이지 결론 바 일괄 업데이트
+function _updateAllConclusionBars() {
+  // 1) 시그널 (홈·시그널 공유)
+  try {
+    var sc = (typeof computeTradingScore === 'function') ? computeTradingScore('swing') : null;
+    var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : null;
+    if (t !== null) {
+      var sColor = t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
+      var sLabel = t >= 75 ? '적극매수' : t >= 60 ? '선별매수' : t >= 45 ? '관망' : t >= 30 ? '비중축소' : '매매자제';
+      var sAction = t >= 60 ? 'ATR 스톱 설정 후 2% 룰 적용, 신규 진입 가능' :
+                    t >= 45 ? '기존 포지션 유지, 신규 진입 자제' :
+                    '리스크 자산 비중 축소, 현금 확보';
+      var sOpts = { conclusion: t + '점 · ' + sLabel, conclusionColor: sColor, action: sAction, fetchKey: 'quote' };
+      _renderConclusionBar('home-conclusion-bar', sOpts);
+      _renderConclusionBar('signal-conclusion-bar', sOpts);
+    }
+  } catch(e) {}
+
+  // 2) 투자 심리 (Fear & Greed)
+  try {
+    var fv = window._lastFG;
+    if (fv == null && typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fg != null) fv = DATA_SNAPSHOT.fg;
+    if (fv != null && !isNaN(fv)) {
+      var fColor = fv <= 25 ? 'var(--data-red)' : fv <= 45 ? 'var(--data-amber)' : fv <= 55 ? 'var(--text-secondary)' : fv <= 75 ? 'var(--data-green)' : '#10b981';
+      var fLabel = fv <= 25 ? '극단 공포' : fv <= 45 ? '공포' : fv <= 55 ? '중립' : fv <= 75 ? '탐욕' : '극단 탐욕';
+      var fAction = fv <= 25 ? '역발상 매수 적극 검토, 분할 진입 시작' :
+                    fv <= 45 ? '현금 준비, 분할 매수 고려' :
+                    fv <= 55 ? '기존 전략 유지' :
+                    fv <= 75 ? '신규 진입 자제, 스톱 조이기' :
+                    '익절·비중 축소 실행';
+      _renderConclusionBar('sentiment-conclusion-bar', { conclusion: 'F&G ' + fv + ' · ' + fLabel, conclusionColor: fColor, action: fAction, fetchKey: 'fearGreed' });
+    }
+  } catch(e) {}
+
+  // 3) 거시경제 (레짐 pill 동기화)
+  try {
+    var mEl = document.getElementById('macro-regime-pill');
+    var mText = mEl ? mEl.textContent.trim().replace(/^—\s*/, '').replace(/\s*레짐\s*분석\s*중$/, '') : '';
+    if (mText && mText.length > 2) {
+      var mCls = mEl ? mEl.className : '';
+      var mColor = mCls.indexOf('sp-risk-on') > -1 ? 'var(--data-green)' :
+                   mCls.indexOf('sp-risk-off') > -1 ? 'var(--data-red)' : 'var(--data-amber)';
+      var mAction = (mText.indexOf('Early') > -1 || mText.indexOf('회복') > -1) ? '성장주·소형주 비중 확대 (Early Cycle)' :
+                    (mText.indexOf('Mid') > -1 || mText.indexOf('중반') > -1) ? '섹터 로테이션 주시, 기술→산업재 점검' :
+                    (mText.indexOf('Late') > -1 || mText.indexOf('후반') > -1) ? 'Defensive 섹터 이동, 비중 점진 축소' :
+                    (mText.indexOf('Recession') > -1 || mText.indexOf('침체') > -1) ? '현금·단기채·금 위주, 주식 최소화' :
+                    'FRED 데이터 로딩 후 재확인';
+      _renderConclusionBar('macro-conclusion-bar', { conclusion: mText, conclusionColor: mColor, action: mAction, fetchKey: 'fred' });
     }
   } catch(e) {}
 }
