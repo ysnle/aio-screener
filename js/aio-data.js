@@ -88,7 +88,7 @@ var SCREENER_DB = [
   { sym:'LOW', name:'Lowe\'s', sector:'Consumer', signal:'HOLD', memo:'주택 리모델링 · Home Depot 경쟁 · 주주환원', mcap:125, rsi:46, index:'SP500' },
   { sym:'SPGI', name:'S&P Global', sector:'Financials', signal:'HOLD', memo:'신용평가+데이터 · 금융 인프라 독점', mcap:150, rsi:52, index:'SP500' },
   { sym:'DE', name:'Deere & Co', sector:'Industrials', signal:'HOLD', memo:'정밀 농업 자동화 · AI 기반 농기계', mcap:151, rsi:50, index:'SP500' },
-  { sym:'NOC', name:'Northrop Grumman', sector:'Industrials', signal:'BUY', memo:'B-21 폭격기 · 우주방위 · ICBM 현대화', mcap:75, rsi:58, index:'SP500' },
+  { sym:'NOC', name:'Northrop Grumman', sector:'Industrials', signal:'BUY', memo:'[2026-04-25] B-21 Raider 생산 가속(FY26 업사이드) · Sentinel ICBM · SDA Tranche 3 $764M · Amazon Kuiper Gen63 모터 공급 · 백로그 $95.7B · 1년 수익률 +34% · YTD +21% 대형방산 최강세', mcap:94, rsi:58, index:'SP500' },
   { sym:'GD', name:'General Dynamics', sector:'Industrials', signal:'BUY', memo:'버지니아급 잠수함 건조 · FY2027 $1.5T 국방예산 수혜 · Gulfstream · 방산 수혜', mcap:80, rsi:57, index:'SP500' },
   { sym:'HII', name:'Huntington Ingalls', sector:'Industrials', signal:'BUY', memo:'미 해군 함정 독점 건조 · 버지니아급 잠수함 · FY2027 $1.5T 국방예산 최대수혜 · 핵잠수함', mcap:12, rsi:55, index:'SP500' },
   { sym:'WFC', name:'Wells Fargo', sector:'Financials', signal:'HOLD', memo:'소매 뱅킹 회복 중 · $1.95T 자산상한 해제 기대(2026 하반기?) → 성장 가속 촉매 · 순이자마진(NIM) 금리 민감 · 비용 절감 + 디지털 전환 · PER 11x 은행 섹터 평균 수준', mcap:195, rsi:50, index:'SP500' },
@@ -118,8 +118,8 @@ var SCREENER_DB = [
   { sym:'TTD', name:'The Trade Desk', sector:'Technology', signal:'HOLD', memo:'프로그래매틱 광고 · CTV · 리테일 미디어', mcap:40, rsi:40, index:'NASDAQ100' },
   { sym:'SMCI', name:'Super Micro Computer', sector:'Technology', signal:'WATCH', memo:'AI 서버 하드웨어 · 고성장 vs 회계 리스크', mcap:22, rsi:38, index:'NASDAQ100' },
   { sym:'IONQ', name:'IonQ', sector:'Technology', signal:'WATCH', memo:'양자컴퓨팅 상용화 · Forte Enterprise · 정부 계약', mcap:11, rsi:48, index:'NASDAQ100' },
-  { sym:'RKLB', name:'Rocket Lab USA', sector:'Industrials', signal:'BUY', memo:'Neutron 중형 로켓 · 소형위성 발사 1위', mcap:38, rsi:55, index:'NASDAQ100' },
-  { sym:'ASTS', name:'AST SpaceMobile', sector:'Technology', signal:'WATCH', memo:'위성직접통신(D2D) 상용화 · BlueBird 위성', mcap:34, rsi:58, index:'NASDAQ100' },
+  { sym:'RKLB', name:'Rocket Lab USA', sector:'Industrials', signal:'BUY', memo:'[2026-04-25] Electron 2025년 21회 무사고 · Neutron 중형로켓 Q4 2026 데뷔(탱크 테스트 실패로 재연기) · SDA Tranche 3 $805M · NSSL Lane 1 온램프 · Mynaric $155M 인수 완료(레이저 통신 수직계열화) · Q4 2025 매출 $179M(+36%) · Q1 2026 가이던스 $185-200M · 시총 $48.8B · PSR 44배', mcap:48, rsi:55, index:'NASDAQ100' },
+  { sym:'ASTS', name:'AST SpaceMobile', sector:'Technology', signal:'WATCH', memo:'[2026-04-25] BlueBird 7 2단 분리 실패·디오빗(2026-04-16) · 차세대 BlueBird 45기 연말 목표(월 1-2기) · D2D 50+ MNO 계약 · PSR 338배+연 $1.2B burn = 고위험 · Amazon-Globalstar $11.6B 인수(D2D 경쟁 격화) · 2026 YTD -30% 조정', mcap:26, rsi:50, index:'NASDAQ100' },
   // ══════════════════════════════════════════════════════════════
   // Russell 2000 — 주요 소형주
   // ══════════════════════════════════════════════════════════════
@@ -128,7 +128,7 @@ var SCREENER_DB = [
   { sym:'AMKR', name:'Amkor Technology', sector:'Technology', signal:'WATCH', memo:'[Perplexity 04/09 #2] OSAT 선두 · $54.97 · PE 36.6x · EV/EBITDA 8.4x · FCF Yield 1.96% · Q4 EPS $0.69 vs est $0.43(+60% beat) · 첨단패키징(HDFO) 매출 2026 3배↑ · CapEx $2.5-3.0B 3배 증가=실행 리스크 · CHIPS Act $2.85B · Arizona 메가팹 · Vietnam 손익분기 달성 · PT $51.57(Buy) 현재가 상회 · D/E 0.33', mcap:14, rsi:42, index:'NASDAQ' },
   { sym:'PLAB', name:'Photronics', sector:'Technology', signal:'WATCH', memo:'[Perplexity 04/09 #1 최저밸류] 포토마스크 전문 · $44.09 · PE 18.8x(그룹 최저) · EV/EBITDA 4.2x · FCF Yield 4.33%(최고) · 부채 제로 · 현금비율 4.57 · 영업마진 22-26% 안정 · AI 패키징/High-NA EUV 마스크 수요↑ · ⚠CEO 내부자 매도 55K주(6개월) · 중국 샤먼 JV ~50% 지정학 리스크 · PT $43.50(Str Buy) 애널리스트 2명', mcap:3, rsi:48, index:'NASDAQ' },
   { sym:'ASX', name:'ASE Technology', sector:'Technology', signal:'WATCH', memo:'[Perplexity 04/09 #6] 세계 최대 OSAT · $24.28 · PE 44.2x(+147% 프리미엄) · EV/EBITDA 10.8x · FCF Yield -2.0% · D/E 0.75(그룹 최고) · 마진 압축 ~340bps · 미국 애널리스트 커버리지 없음 · 대만 지정학 리스크 · 고위험-고보상 첨단패키징 플레이', mcap:53, rsi:45, index:'NYSE' },
-  { sym:'LUNR', name:'Intuitive Machines', sector:'Industrials', signal:'WATCH', memo:'달 착륙선 · NASA 계약 · 우주 인프라', mcap:5, rsi:60, index:'RUSSELL2000' },
+  { sym:'LUNR', name:'Intuitive Machines', sector:'Industrials', signal:'BUY', memo:'[2026-04-25] Lanteris(구 Maxar Space Systems) $800M 인수 완료 — 합산 매출 $850M·백로그 $943M · IM-3 Reiner Gamma 하반기 발사 예정 · NASA NSNS $4.82B IDIQ · LTVS $4.6B 결정 2026-11 · 시총 $5.1B · YTD +80%', mcap:5, rsi:60, index:'RUSSELL2000' },
   { sym:'SMR', name:'NuScale Power', sector:'Utilities', signal:'WATCH', memo:'소형모듈원전(SMR) · 최초 NRC 인증 · 상업화 준비', mcap:5, rsi:52, index:'RUSSELL2000' },
   { sym:'CLS', name:'Celestica', sector:'Technology', signal:'WATCH', memo:'[Perplexity 04/09 #4] AI서버/HW EMS · $319 · PE 44.5x(+181% 프리미엄) · EV/EBITDA 28.1x · FCF Yield 1.35% · 매출 YoY +30% · 애널리스트 업사이드 +15.9%(그룹 최고) · PT $369.89(Buy) · D/E 0.34 · Q2-Q3 마진 변동성 주의', mcap:37, rsi:55, index:'NYSE' },
   { sym:'FN', name:'Fabrinet', sector:'Technology', signal:'WATCH', memo:'[JPM 04/17: OW→N 하향 + Negative Catalyst Watch] PT$700(기존$530↑) · 단기 고객 램프업 불안정 + 신규 고객 가시성 제한 · 광학모듈/정밀제조 · PE 59.6x · FCF Yield -1.9% · Rowe Price +163% 포지션 · 광학 섹터 밸류에이션 쏠림(AI 프리미엄 +83%) · 2028년 이익 전제 필요', mcap:22, rsi:50, index:'NYSE' },
@@ -199,7 +199,20 @@ var SCREENER_DB = [
   { sym:'GM', name:'General Motors', sector:'Consumer', signal:'HOLD', memo:'EV 전환 + ICE 수익 · Cruise 자율주행 · 밸류에이션 매력', mcap:48, rsi:45, index:'SP500' },
   { sym:'F', name:'Ford Motor', sector:'Consumer', signal:'HOLD', memo:'F-150 Lightning · EV 투자 + 트럭 수익 · 고배당', mcap:42, rsi:42, index:'SP500' },
   // ── 우주 / 방산 확장 ──
-  { sym:'PL', name:'Planet Labs', sector:'Technology', signal:'WATCH', memo:'위성 이미지 · 지구 관측 · AI 분석', mcap:2, rsi:45, index:'RUSSELL2000' },
+  { sym:'PL', name:'Planet Labs', sector:'Technology', signal:'WATCH', memo:'[2026-04-25] SuperDove·SkySat·Pelican VHR·Tanager 하이퍼스펙트럴 포트폴리오 · Google Suncatcher 우주 AI 컴퓨팅 R&D · FY26 매출 $297-301M · RPO $672M(+361%) · 독일/NATO/파시픽 Pelican $230M · Defense+Intel 매출 +70% YoY · 1년 +93%', mcap:12, rsi:45, index:'RUSSELL2000' },
+  // ── 우주 순수 플레이 (2026 확장) ──
+  { sym:'NVTS', name:'Navitas Semiconductor', sector:'Technology', signal:'BUY', memo:'[2026-04-25] NVIDIA 800V HVDC 공식 파트너 — GaNFast+GeneSiC · GTC2026 800V→6V 단일스테이지 DC-DC 공개(피크 효율 96.5%, 2100W/in³) · 48V 중간버스 제거=TCO 절감 · 순수 GaN·SiC 플레이어로 800V HVDC 매출 발생 시 레버리지 최대 · 2026 1년 +100%+ · PSR 고밸류·적자 = 고베타 리스크', mcap:2, rsi:55, index:'NASDAQ' },
+  { sym:'WOLF', name:'Wolfspeed', sector:'Technology', signal:'WATCH', memo:'[2026-04-25] Chapter 11 구조조정 완료(2025-09-29) — 부채 70% 감축·신주 120대1 교환·기존주주 소각 · CEO EV→AI DC+산업+항공방산 피벗 선언 · AI DC 매출 QoQ +50% · 200mm 모호크밸리 fab 보유(북미 유일 수직계열화 SiC) · 순손실 지속·GAAP GPM -46% = 턴어라운드 베팅', mcap:1, rsi:38, index:'NYSE' },
+  { sym:'FLY', name:'Firefly Aerospace', sector:'Industrials', signal:'BUY', memo:'[2026-04-25] 2025-03 Blue Ghost 달착륙 완전 성공 — 민간 최초 역사 · 2025-08-07 IPO $45 · 백로그 $1.3B · Eclipse 중형로켓 2026 데뷔 · NSSL Lane 1 온램프 · 시총 $7B · $43.60', mcap:7, rsi:52, index:'NYSE' },
+  { sym:'VOYG', name:'Voyager Technologies', sector:'Industrials', signal:'WATCH', memo:'[2026-04-25] Starlab 우주정거장 CDR 완료 · NASA $50M+ 마일스톤 수령 · Defense QoQ +85% YoY · Next Gen Interceptor 직접 노출 · 2024 매출 $144M → 2026 가이던스 $225-255M · 현금 $700M+ 부채 제로 · 상업우주정거장 3파전 최저평가', mcap:2, rsi:48, index:'NYSE' },
+  { sym:'KRMN', name:'Karman Holdings', sector:'Industrials', signal:'BUY', memo:'[2026-04-25] 2025-02-13 IPO $22→현재 $83.85 (+281%) · FY25 매출 $471.5M(+37%) · 미사일/우주 발사체 추진+구조물 전문 · Seemann Composites $220M 인수 · Golden Dome 하드웨어 수혜 서사 · P/E 637배 = 과열 주의', mcap:11, rsi:60, index:'NYSE' },
+  { sym:'BKSY', name:'BlackSky', sector:'Technology', signal:'BUY', memo:'[2026-04-25] EO 3사 중 유일 EBITDA 흑자(FY25 +$0.9M) · Gen-3 35cm VHR 4호기 first light · AFRL $99M IDIQ · NGA Luno A · FY26 가이던스 $120-145M(+12-35%) · PSR 11배(Planet Labs의 절반) · 1년 +215%', mcap:1, rsi:52, index:'NYSE' },
+  { sym:'IRDM', name:'Iridium', sector:'Communication Services', signal:'WATCH', memo:'[2026-04-25] 66기 LEO L-band 컨스텔레이션 유일 보유 · FY25 매출 $872M · NTN Direct D2D 2026-01 첫 메시지 성공 · Vodafone IoT 파트너십 · 2026 가이던스 서비스 매출 플랫~+2% · Amazon-Globalstar 딜로 D2D 스펙트럼 재평가 1M +64% · 배당 +$0.60/연', mcap:4, rsi:52, index:'NASDAQ' },
+  { sym:'VSAT', name:'Viasat', sector:'Communication Services', signal:'WATCH', memo:'[2026-04-25] ViaSat-3 F2 발사 성공(2025-11)·2026-05 서비스 개시 · Ligado $420M → Inmarsat 텀론 조기상환 · FY26 3분기 연속 포지티브 FCF · Elliott Management DAT 세그먼트 분사 압박 · 1년 +600%(52주 저점 $7.95 대비 8배)', mcap:9, rsi:55, index:'NASDAQ' },
+  { sym:'SATS', name:'EchoStar', sector:'Communication Services', signal:'WATCH', memo:'[2026-04-25] 스펙트럼 대매각 $42.6B — AT&T $23B(50MHz)+SpaceX $20B(AWS-4)+SpaceX $2.6B(AWS-3) · EchoStar Capital "스펙트럼 지주회사"로 전환 · SpaceX 비상장 간접 노출 · FY25 순손실 -$14.5B(비현금 손상) · 1년 +375%', mcap:38, rsi:58, index:'NASDAQ' },
+  { sym:'GSAT', name:'Globalstar', sector:'Communication Services', signal:'HOLD', memo:'[2026-04-25] Amazon $11.57B 인수 합의(2026-04-14, 주당 $90 or 0.321 AMZN) · 2027 클로징 목표 · Apple 20% 지분 복잡성 · FY25 매출 $273M · C-3 17기 위성 제조 중 · 현재가 인수가 수준=업사이드 제한', mcap:10, rsi:55, index:'NYSE' },
+  { sym:'SPIR', name:'Spire Global', sector:'Technology', signal:'WATCH', memo:'[2026-04-25] Kpler 해양사업 $241M 매각→부채제로 전환(2025-04) · 2026-04 $70M 사모조달 · MDA SHIELD 선정 · FY26 가이던스 매출(ex-maritime) +50% · RF/AIS/기상 데이터 재가속 · 1년 +150%+', mcap:1, rsi:50, index:'NYSE' },
+  { sym:'SATL', name:'Satellogic', sector:'Technology', signal:'WATCH', memo:'[2026-04-25] FY25 매출 $17.7M(+38%) · 순손실 -$4.8M(2024 -$116.3M에서 급감) · 2026 가이던스 $30.9M · Merlin Constellation 1m 해상도 2027 배치 · ⚠ 중국 ABDAS 2033년 계약 지정학 리스크 · 1년 +450-500%', mcap:1, rsi:55, index:'NASDAQ' },
   // SPCE removed — Virgin Galactic defunct, replaced by LUNR/RDW (already in DB above)
   // ── 게임 / 엔터테인먼트 ──
   { sym:'EA', name:'Electronic Arts', sector:'Communication Services', signal:'HOLD', memo:'FIFA/EA Sports · 모바일 게임 · 라이브 서비스', mcap:38, rsi:48, index:'SP500' },
@@ -372,7 +385,7 @@ var SCREENER_DB = [
   { sym:'MPC', name:'Marathon Petroleum', sector:'Energy', signal:'HOLD', memo:'미국 정유 · 자사주매입', mcap:69, rsi:48, index:'SP500' },
   { sym:'WBD', name:'Warner Bros Discovery', sector:'Communication Services', signal:'WATCH', memo:'HBO · CNN · DC · 부채 리스크', mcap:68, rsi:42, index:'SP500' },
   { sym:'RSG', name:'Republic Services', sector:'Industrials', signal:'HOLD', memo:'폐기물 처리 2위 · ESG', mcap:67, rsi:52, index:'SP500' },
-  { sym:'LHX', name:'L3Harris Tech', sector:'Industrials', signal:'BUY', memo:'방산 전자 · 통신 · 우주', mcap:66, rsi:52, index:'SP500' },
+  { sym:'LHX', name:'L3Harris Tech', sector:'Industrials', signal:'BUY', memo:'[2026-04-25] Golden Dome 트럼프 브리핑 shout-out 1순위 수혜 · SHIELD IDIQ 프라임 벤더 · SDA Tranche 3 $843M · Virginia $1.27B 로켓모터 생산능력 2배 확장(2026-04) · RS-25 엔진(NASA SLS) + 고체로켓모터 보유 · P/E 41배 프리미엄', mcap:66, rsi:52, index:'SP500' },
   { sym:'APO', name:'Apollo Global', sector:'Financials', signal:'WATCH', memo:'대체투자 · 크레딧 · 보험 · $151억 사모대출펀드 Q1 환매 11.2% · 사모신용 디폴트율 5.8%(수년래 최고) · YTD -23%', mcap:65, rsi:42, index:'SP500' },
   { sym:'ELV', name:'Elevance Health', sector:'Healthcare', signal:'HOLD', memo:'헬스케어 보험 · Anthem', mcap:64, rsi:42, index:'SP500' },
   { sym:'COR', name:'Cencora', sector:'Healthcare', signal:'HOLD', memo:'의약품 유통 · AmerisourceBergen', mcap:63, rsi:52, index:'SP500' },
@@ -509,7 +522,7 @@ var SCREENER_DB = [
   { sym:'LKQ', name:'LKQ Corp', sector:'Consumer', signal:'HOLD', memo:'자동차 부품 애프터마켓', mcap:10, rsi:44, index:'SP500' },
   { sym:'FSLR', name:'First Solar', sector:'Technology', signal:'HOLD', memo:'태양광 패널 · 미국 제조 · IRA', mcap:18, rsi:42, index:'SP500' },
   { sym:'ENPH', name:'Enphase Energy', sector:'Technology', signal:'WATCH', memo:'태양광 인버터 · 가정용 에너지', mcap:10, rsi:38, index:'SP500' },
-  { sym:'ON', name:'ON Semiconductor', sector:'Technology', signal:'BUY', memo:'KeyBanc raised · 전력/센서 반도체 · EV · 산업 · 아날로그 전력반도체 가격인상 사이클 수혜', mcap:25, rsi:44, index:'SP500' },
+  { sym:'ON', name:'ON Semiconductor', sector:'Technology', signal:'BUY', memo:'[2026-04-25] AI DC 800V HVDC 파워 생태계 공식 파트너 · 전력/센서 반도체 EV+산업+AI DC 3중 노출 · Q1 2026 가이던스 $1.435-1.535B = 3년+ 다운사이클 이후 첫 YoY 성장 분기 예상 · FCF 14억(시총 4.9%) · Fwd P/FCF 18.1배 · AI DC 매출 2025 $2.5억 급성장 · 3년 $60억 자사주매입', mcap:25, rsi:44, index:'SP500' },
   { sym:'SWKS', name:'Skyworks Solutions', sector:'Technology', signal:'BUY', memo:'Citi 우선선택(vs QCOM) · KeyBanc mixed: iPhone 18 출시 지연→2H26 near-est 상방 but 중국 수요 악화·ARM 아키텍처 마이그레이션으로 royalty↑ · RF 반도체 · Apple 공급망 · CSS→ARM9 이전 시 royalty 비용 증가 우려', mcap:14, rsi:42, index:'SP500' },
   { sym:'JBHT', name:'JB Hunt Transport', sector:'Industrials', signal:'HOLD', memo:'트럭/물류 · 인터모달', mcap:18, rsi:46, index:'SP500' },
   { sym:'JBL', name:'Jabil Inc', sector:'Technology', signal:'BUY', memo:'[JPM 04/17 OW top10] EMS 제조 + AI 서버 조립 · 하이퍼스케일러 수주 · CLS/FLEX와 함께 광학 프리미엄 완화 수혜 그룹', mcap:20, rsi:52, index:'SP500' },
@@ -1689,35 +1702,41 @@ async function fetchViaProxy(url, timeout) {
   // v35.7: 라운드로빈으로 CF Worker 부하 분산
   var active = _PROXY_REGISTRY.getRotated();
   // v48.14 (Agent W7/P2-7): stale-cache degradation — 성공 응답을 localStorage에 저장
-  var cacheKey = 'aio_proxy_cache_' + btoa(url.slice(0, 150)).replace(/[^A-Za-z0-9]/g, '').substring(0, 64);
+  var _sensitiveUrlRe = /[?&](apikey|api_key|token|access_token|client_secret|url)=/i;
+  var _isSensitive = _sensitiveUrlRe.test(url);
+  var cacheKey = _isSensitive ? null : 'aio_proxy_cache_' + btoa(url.slice(0, 150)).replace(/[^A-Za-z0-9]/g, '').substring(0, 64);
   for (var i = 0; i < active.length; i++) {
     var proxy = active[i];
     try {
       var r = await fetchWithTimeout(proxy.mkUrl(url), {}, timeout);
       if (r.ok) {
         _PROXY_REGISTRY.markOk(proxy.id);
-        // 성공 응답 캐시 (stale 폴백용, clone body)
-        try {
-          var rClone = r.clone();
-          rClone.text().then(function(t) {
-            try { localStorage.setItem(cacheKey, JSON.stringify({ body: t, ts: Date.now() })); } catch(e) {}
-          }).catch(function() {});
-        } catch(e) {}
+        // 성공 응답 캐시 (stale 폴백용) — 민감 URL은 저장 안 함
+        if (cacheKey) {
+          try {
+            var rClone = r.clone();
+            rClone.text().then(function(t) {
+              try { localStorage.setItem(cacheKey, JSON.stringify({ body: t, ts: Date.now() })); } catch(e) {}
+            }).catch(function() {});
+          } catch(e) {}
+        }
         return r;
       }
       _PROXY_REGISTRY.markFail(proxy.id);
     } catch(e) { _PROXY_REGISTRY.markFail(proxy.id); }
   }
   if (typeof _reportApiError === 'function') _reportApiError('proxy-primary', '전체 프록시 실패');
-  // v48.14: stale-cache 폴백 — 전체 프록시 실패 시 localStorage last-good 응답 반환
+  // v48.14: stale-cache 폴백 — 전체 프록시 실패 시 localStorage last-good 응답 반환 (민감 URL 제외)
   try {
-    var cached = localStorage.getItem(cacheKey);
+    var cached = cacheKey ? localStorage.getItem(cacheKey) : null;
     if (cached) {
       var parsed = JSON.parse(cached);
       var ageH = (Date.now() - parsed.ts) / 3600000;
       if (ageH < 6 && parsed.body) { // 6시간 이내 캐시만 허용
         if (typeof _aioLog === 'function') _aioLog('warn', 'proxy', 'stale-cache 폴백 (' + Math.round(ageH*60) + '분 전) for ' + url.substring(0, 80));
-        return new Response(parsed.body, { status: 200, statusText: 'OK (stale-cache)', headers: { 'X-AIO-Stale': Math.round(ageH*60) + 'min' } });
+        window._aioProxyStaleSince = window._aioProxyStaleSince || Date.now();
+        window._aioProxyStaleAgeMin = Math.round(ageH * 60);
+        return new Response(parsed.body, { status: 200, statusText: 'OK (stale-cache)', headers: { 'X-AIO-Stale': Math.round(ageH*60) + 'min', 'X-AIO-Source': 'stale-cache' } });
       }
     }
   } catch(cacheErr) {}
@@ -2760,17 +2779,17 @@ function updateSentimentChart(type, data) {
 //   CoinGecko   : 10~30/분  → 60초 간격 × 5명 = 5/분 (안전)
 // ────────────────────────────────────────────────────
 const REFRESH_SCHEDULE = {
-  quotes:     { fn: null, interval: 180000,     label: '시세 (3분)',       timer: null },
-  news:       { fn: null, interval: 2700000,    label: '뉴스 (45분)',      timer: null },
-  sentiment:  { fn: null, interval: 600000,     label: '센티먼트 (10분)',   timer: null },
-  breadth:    { fn: null, interval: 600000,     label: '시장 폭 (10분)',    timer: null },
-  fred:       { fn: null, interval: 7200000,    label: 'FRED (2시간)',     timer: null },
-  technicals: { fn: null, interval: 900000,     label: '기술 지표 (15분)',  timer: null },
-  vixHistory: { fn: null, interval: 1800000,    label: 'VIX 히스토리 (30분)', timer: null },
-  hySpread:   { fn: null, interval: 21600000,   label: 'HY 스프레드 (6시간)', timer: null },
-  maUpdate:   { fn: null, interval: 21600000,   label: 'MA 갱신 (6시간)',    timer: null },
-  krSupply:   { fn: null, interval: 600000,     label: 'KR 수급 (10분)',     timer: null },
-  krDynamic:  { fn: null, interval: 1800000,    label: 'KR 동적 (30분)',     timer: null },
+  quotes:     { fn: null, interval: 180000,     label: '시세 (3분)',          timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+  news:       { fn: null, interval: 2700000,    label: '뉴스 (45분)',          timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+  sentiment:  { fn: null, interval: 600000,     label: '센티먼트 (10분)',       timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+  breadth:    { fn: null, interval: 600000,     label: '시장 폭 (10분)',        timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+  fred:       { fn: null, interval: 7200000,    label: 'FRED (2시간)',         timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+  technicals: { fn: null, interval: 900000,     label: '기술 지표 (15분)',      timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+  vixHistory: { fn: null, interval: 1800000,    label: 'VIX 히스토리 (30분)',   timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+  hySpread:   { fn: null, interval: 21600000,   label: 'HY 스프레드 (6시간)',   timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+  maUpdate:   { fn: null, interval: 21600000,   label: 'MA 갱신 (6시간)',       timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+  krSupply:   { fn: null, interval: 600000,     label: 'KR 수급 (10분)',        timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+  krDynamic:  { fn: null, interval: 1800000,    label: 'KR 동적 (30분)',        timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
 };
 
 // v30.11: Page Visibility API — 백그라운드 탭 타이머 절약
@@ -2814,8 +2833,11 @@ function startDataScheduler() {
         function scheduleNext() {
           const nextInterval = jitteredInterval(cfg.interval);
           cfg.timer = setTimeout(async () => {
-            try { await cfg.fn(); }
-            catch(e) { showDataError(cfg.label, '자동 갱신 실패 — 다음 주기에 재시도', 'warn'); }
+            if (_schedulerPaused || cfg._inFlight) { scheduleNext(); return; }
+            cfg._inFlight = true;
+            try { await cfg.fn(); cfg._lastOk = Date.now(); cfg._lastErr = ''; }
+            catch(e) { cfg._lastErr = e.message || String(e); showDataError(cfg.label, '자동 갱신 실패 — 다음 주기에 재시도', 'warn'); }
+            finally { cfg._inFlight = false; }
             scheduleNext();
           }, nextInterval);
         }
@@ -2840,8 +2862,11 @@ function restartScheduler() {
       function jit(base) { var j = base * 0.15; return base + Math.floor(Math.random() * j * 2 - j); }
       function scheduleNext() {
         cfg.timer = setTimeout(async () => {
-          if (_schedulerPaused) return;
-          try { await cfg.fn(); } catch(e) {}
+          if (_schedulerPaused || cfg._inFlight) { scheduleNext(); return; }
+          cfg._inFlight = true;
+          try { await cfg.fn(); cfg._lastOk = Date.now(); cfg._lastErr = ''; }
+          catch(e) { cfg._lastErr = e.message || String(e); }
+          finally { cfg._inFlight = false; }
           scheduleNext();
         }, jit(cfg.interval));
       }
@@ -2891,17 +2916,41 @@ function updateDataStatus() {
   // v38.3: stale 감지 — 마지막 시세 갱신이 10분 이상 경과하면 경고
   const lastQuoteTs = window._quoteTimestamps ? Math.max(0, ...Object.values(window._quoteTimestamps)) : 0;
   const staleMin = lastQuoteTs > 0 ? Math.floor((now - lastQuoteTs) / 60000) : -1;
+
+  // 프록시 stale 캐시 사용 중 표시
+  const proxyStale = window._aioProxyStaleSince
+    ? ' · <span style="color:#f59e0b;">⚠ stale ' + (window._aioProxyStaleAgeMin || '?') + '분</span>'
+    : '';
+
+  // SW 버전 툴팁용 — 비동기 쿼리이므로 마지막으로 수신한 값 캐시
+  const swVer = window._aioSWVersion || '';
+  const titleExtra = swVer ? ` · SW ${swVer}` : '';
+
   if (staleMin > 10) {
-    el.innerHTML = `<span style="font-size:11px;color:#fbbf24;font-weight:700;">시세 ${staleMin}분 전 갱신</span>`;
-    el.title = `마지막 시세 갱신: ${new Date(lastQuoteTs).toLocaleTimeString('ko-KR')} — ${staleMin}분 경과`;
+    el.innerHTML = `<span style="font-size:11px;color:#fbbf24;font-weight:700;">시세 ${staleMin}분 전 갱신</span>${proxyStale}`;
+    el.title = `마지막 시세 갱신: ${new Date(lastQuoteTs).toLocaleTimeString('ko-KR')} — ${staleMin}분 경과${titleExtra}`;
   } else if (staleMin >= 0) {
     const t = new Date(lastQuoteTs).toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
-    el.innerHTML = `<span style="font-size:11px;color:var(--text-muted);">시세 ${t} 갱신</span>`;
-    el.title = '정상 갱신 중';
+    el.innerHTML = `<span style="font-size:11px;color:var(--text-muted);">시세 ${t} 갱신</span>${proxyStale}`;
+    el.title = `정상 갱신 중${titleExtra}`;
   } else {
-    el.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">데이터 갱신 중...</span>';
+    el.innerHTML = `<span style="font-size:11px;color:var(--text-muted);">데이터 갱신 중...</span>${proxyStale}`;
+    el.title = `연결 중${titleExtra}`;
   }
 }
+
+// SW 버전을 비동기로 한 번만 조회 (updateDataStatus 툴팁에 표시)
+(function _querySWVersion() {
+  if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
+    setTimeout(_querySWVersion, 3000);
+    return;
+  }
+  try {
+    var mc = new MessageChannel();
+    mc.port1.onmessage = function(e) { if (e.data && e.data.version) window._aioSWVersion = e.data.version; };
+    navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' }, [mc.port2]);
+  } catch(e) {}
+})();
 
 // Apply technical indicators to UI
 function applyTechIndicators(data) {
@@ -2948,13 +2997,107 @@ function applyTechIndicators(data) {
 }
 
 // ═══ 10. 초기화 (마스터 부팅 시퀀스) ═══════════════════════════
+function cleanupProxyCache() {
+  // 6시간 초과 aio_proxy_cache_* 항목 삭제 (boot 시 1회)
+  try {
+    var cutoff = Date.now() - 6 * 3600000;
+    var toDelete = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.startsWith('aio_proxy_cache_')) {
+        try {
+          var val = JSON.parse(localStorage.getItem(k));
+          if (!val || !val.ts || val.ts < cutoff) toDelete.push(k);
+        } catch(e) { toDelete.push(k); }
+      }
+    }
+    toDelete.forEach(function(k) { try { localStorage.removeItem(k); } catch(e) {} });
+    if (toDelete.length) console.log('[AIO] proxy cache cleanup: ' + toDelete.length + '개 만료 항목 삭제');
+  } catch(e) {}
+}
+
+/* ── Phase D: IndexedDB 뉴스 캐시 (v48.63) ─────────────────────────────── */
+// 뉴스 원본을 IDB에 저장 → 새로고침 후 fetchAllNews 완료 전 즉시 렌더
+const _AIO_IDB_NAME = 'AIOScreenerDB';
+const _AIO_IDB_VER  = 1;
+
+function _idbOpen() {
+  return new Promise(function(resolve, reject) {
+    if (!window.indexedDB) { reject(new Error('IDB 미지원')); return; }
+    var req = indexedDB.open(_AIO_IDB_NAME, _AIO_IDB_VER);
+    req.onupgradeneeded = function(e) {
+      var db = e.target.result;
+      if (!db.objectStoreNames.contains('news')) {
+        var os = db.createObjectStore('news', { keyPath: '_idbKey' });
+        os.createIndex('ts', 'ts', { unique: false });
+      }
+    };
+    req.onsuccess = function(e) { resolve(e.target.result); };
+    req.onerror   = function()  { reject(req.error); };
+  });
+}
+
+async function _idbSaveNews(items) {
+  try {
+    if (!items || !items.length) return;
+    var db = await _idbOpen();
+    var tx = db.transaction('news', 'readwrite');
+    var os = tx.objectStore('news');
+    var ts = Date.now();
+    items.forEach(function(item) {
+      var key = String(item.link || item.title || '').slice(0, 200);
+      if (!key) return;
+      os.put(Object.assign({}, item, { _idbKey: key, ts: ts }));
+    });
+    // 7일 초과 항목 비동기 정리
+    var cutoff = ts - 7 * 24 * 3600000;
+    var delReq = os.index('ts').openCursor(IDBKeyRange.upperBound(cutoff));
+    delReq.onsuccess = function(e) {
+      var cursor = e.target.result;
+      if (cursor) { cursor.delete(); cursor.continue(); }
+    };
+  } catch(e) {} // 프라이빗 모드 등 IDB 비가용 환경 무시
+}
+
+async function _idbLoadNews(maxAgeMs) {
+  maxAgeMs = maxAgeMs || 4 * 3600000; // 기본 4시간
+  try {
+    var db = await _idbOpen();
+    return new Promise(function(resolve) {
+      var tx  = db.transaction('news', 'readonly');
+      var req = tx.objectStore('news').getAll();
+      req.onsuccess = function() {
+        var cutoff = Date.now() - maxAgeMs;
+        var items  = (req.result || []).filter(function(i) { return i.ts > cutoff; });
+        items.sort(function(a, b) { return (b.pubDate ? new Date(b.pubDate) : 0) - (a.pubDate ? new Date(a.pubDate) : 0); });
+        resolve(items.length > 0 ? items : null);
+      };
+      req.onerror = function() { resolve(null); };
+    });
+  } catch(e) { return null; }
+}
+
 async function initV20DataEngine() {
   console.log('[AIO v20] ═══════════════════════════════════════');
   console.log('[AIO v20] Data Engine v20 초기화 시작');
   console.log('[AIO v20] ═══════════════════════════════════════');
 
+  cleanupProxyCache();
+
   // Phase 1: Immediate (0-2s) — Show cached/fallback data
   if (typeof applyStaticFallbacks === 'function') applyStaticFallbacks();
+
+  // Phase 1b: IDB 캐시 뉴스 즉시 렌더 (fetchAllNews 완료 전 공백 제거)
+  _idbLoadNews().then(function(cached) {
+    if (cached && cached.length > 0 && newsCache.length === 0) {
+      newsCache = cached;
+      window._allNewsItems = cached;
+      if (typeof renderFeed === 'function') renderFeed(newsCache);
+      if (typeof renderHomeFeed === 'function') renderHomeFeed(newsCache);
+      if (typeof renderBriefingFeed === 'function') renderBriefingFeed(newsCache);
+      _aioLog('info', 'idb', 'IDB 캐시 뉴스 즉시 렌더: ' + cached.length + '건');
+    }
+  }).catch(function() {});
 
   // Phase 2: Fast APIs (2-5s) — CoinGecko, Exchange Rate
   setTimeout(async () => {
@@ -3465,6 +3608,17 @@ const MACRO_KW = [
   'rideshare AV cannibalization','라이드셰어 AV 잠식','5% 16% scenario',
   'SAAR 300-600만 감소','자동차 판매 극단 베어','US driver labor 350만',
   'CapEx 67% 2026','CapEx 16% 2027','hyperscaler 8000억',
+  // v48.65 (integrate 2026-04-25): 리스크 관리 프레임워크 + 우주 경제
+  'dual-scenario planning','scenario planning investing','양방향 시나리오 플래닝',
+  'risk calibration','portfolio concentration risk','personal black swan event',
+  'optimism tipping point','risk accumulation threshold','macro risk management tool',
+  '개인 블랙스완','포지션 쏠림','리스크 임계점','낙관 한계','낙관 붕괴',
+  '양방향 시나리오','매크로 리스크 도구','시나리오 분기',
+  'Golden Dome budget','SHIELD IDIQ defense','space defense budget',
+  'Artemis III lunar','Artemis IV crew landing','SpaceX IPO 2026',
+  'space economy 2026','commercial space station','Starlab station',
+  'Amazon Globalstar acquisition','D2D spectrum','satellite broadband M&A',
+  '골든돔 예산','아르테미스','스페이스X IPO','상업우주정거장','위성통신 M&A',
 ];
 // TECH_KW: 기술/AI 주요 이벤트 → 섹터 관련 (+15점)
 const TECH_KW = [
@@ -3906,6 +4060,50 @@ const TECH_KW = [
   // 기타
   'Manus acquisition','0→1억 ARR','Mercor 1B ARR','Cursor 3',
   'survivor charge','생존자 비용','Dell memory surcharge',
+  // v48.65 (integrate 2026-04-25): 우주·전력반도체·유리기판·패턴분석
+  // 전력반도체 800V HVDC 생태계
+  'GaNFast','GeneSiC','Navitas','NVTS GaN','800V HVDC rack','800V power semiconductor',
+  'Wolfspeed SiC','WOLF SiC turnaround','SiC MOSFETs','wide-bandgap semiconductor',
+  'Power Integrations','POWI GaN','PowiGaN','1MW rack power','Kyber 800V',
+  '800V HVDC AI','800V 데이터센터','GaN 전력반도체','SiC 800V','1MW 랙',
+  // 우주 경제 2026 확장
+  'Starlab','Voyager Starlab','commercial space station','orbital economy',
+  'Firefly Aerospace','Blue Ghost lunar','Firefly Eclipse','medium launch vehicle',
+  'Karman Holdings','KRMN space','space propulsion','launch vehicle propulsion',
+  'SHIELD IDIQ','SDA Tranche 3','Space Development Agency','space-based missile warning',
+  'Neutron rocket','Rocket Lab Neutron','Neutron first flight',
+  'direct-to-device satellite','D2D satellite','satellite direct to cell',
+  'BlueBird satellite','BlueBird AST','AST SpaceMobile BlueBird',
+  'Lanteris acquisition','Lanteris Intuitive Machines','LUNR Lanteris',
+  'LTVS lunar','lunar terrain vehicle','lunar service contract',
+  'Iridium NTN','NTN Direct','non-terrestrial network D2D',
+  'EchoStar spectrum','SATS spectrum sale','Globalstar Amazon',
+  'UFO space ETF','ROKT space ETF','space economy ETF',
+  '스타랩 우주정거장','상업우주정거장','파이어플라이 에어로스페이스','블루 고스트 달착륙',
+  '우주경제 2026','달착륙선','우주발사체','SDA 위성 방위','직접위성통신',
+  // 유리기판 심화
+  'through-glass via','TGV packaging','glass interposer AI',
+  'Corning glass substrate','GLW semiconductor glass','Absolics glass',
+  'Onto Innovation glass','ONTO TGV inspection','glass substrate inspection',
+  'glass substrate AMD MI400','glass core AI package',
+  '관통 유리 비아','TGV','유리기판 AMD','Absolics 조지아',
+  // 기술적 분석 패턴 (William O'Neil/Minervini 기반)
+  'cup with handle','cup handle pattern','double bottom pattern','flat base pattern',
+  'ascending base','high tight flag','3 tight closes','short stroke pattern',
+  'saucer base pattern','square box pattern','VCP pattern','volatility contraction',
+  'base breakout','buy point','pivot point TA','shakeout plus three',
+  'secondary buy point','handle buy point','base on base','base count reset',
+  'undercut base','base count','4th stage base','3rd stage base failure',
+  '컵위드핸들','이중바닥 패턴','플랫베이스','어센딩베이스','하이타이트플래그',
+  '3타이트클로즈','숏스트로크','베이스브레이크아웃','VCP 패턴','변동성수축패턴',
+  '매수포인트','피벗포인트','베이스카운트','언더컷베이스',
+  // 매크로 리스크 관리 프레임워크
+  'dual scenario planning','양방향 시나리오','risk calibration investing',
+  'macro risk tool','position concentration risk','personal black swan',
+  // OI 모멘텀 프레임워크 (선물/암호화폐 기술분석)
+  'open interest momentum','OI momentum','OI EMA crossover','OI breakout signal',
+  'open interest expansion','open interest contraction','OI reversal signal',
+  '미결제약정 모멘텀','미결제약정 EMA','OI 모멘텀','미결제약정 확장','미결제약정 수축',
 ];
 // MED_KW: 일반 기업/시장 이슈 → 보통 중요도 (+6점)
 const MED_KW = [
@@ -5210,6 +5408,7 @@ function _tcKey(title) {
   if (!title) return '';
   return title.trim().replace(/\s+/g, ' ').slice(0, 120).toLowerCase();
 }
+function _tcHas(title) { return _translationCache.has(_tcKey(title)); }
 
 // v30.12 P4: 캐시 LRU 삽입 + sessionStorage 연동
 function _tcPut(title, data) {
@@ -5223,7 +5422,7 @@ function _tcPut(title, data) {
   _translationCache.set(key, data);
 }
 
-// v30.12 P4: sessionStorage 저장 (탭 살아있는 동안 유지)
+// v30.12 P4 (v48.64): localStorage 저장 — 탭 닫아도 유지
 function _tcSaveToStorage() {
   try {
     var obj = {};
@@ -5234,14 +5433,14 @@ function _tcSaveToStorage() {
         count++;
       }
     });
-    sessionStorage.setItem('aio_tc', JSON.stringify(obj));
+    localStorage.setItem('aio_tc', JSON.stringify(obj));
   } catch(e) { /* storage full or unavailable */ }
 }
 
-// v30.12 P4: sessionStorage 로딩 (페이지 새로고침 시 복원)
+// v30.12 P4 (v48.64): localStorage 로딩 — 재방문 시에도 복원
 function _tcLoadFromStorage() {
   try {
-    var raw = sessionStorage.getItem('aio_tc');
+    var raw = localStorage.getItem('aio_tc');
     if (!raw) return 0;
     var obj = JSON.parse(raw);
     var loaded = 0;
@@ -5652,6 +5851,34 @@ ${prompt}`
   renderFeed(newsCache);
   renderHomeFeed(newsCache);
   renderBriefingFeed(newsCache);
+}
+
+/* ── Phase C: 뉴스 lazy 번역 — 뷰포트 진입 시 배치 번역 (v48.62) ── */
+function initLazyNewsTranslation(items) {
+  if (!window.IntersectionObserver) return;
+  if (window._newsLazyObserver) window._newsLazyObserver.disconnect();
+  var queue = [];
+  var timer = null;
+  var flush = function() {
+    clearTimeout(timer); timer = null;
+    var batch = queue.splice(0, 6);
+    if (!batch.length) return;
+    if (typeof autoTranslateNews === 'function') autoTranslateNews(batch).catch(function() {});
+  };
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (!e.isIntersecting) return;
+      var id = e.target.dataset.newsIdx;
+      var item = items[+id];
+      if (!item || _tcHas(item.title)) { obs.unobserve(e.target); return; }
+      queue.push(item);
+      obs.unobserve(e.target);
+      if (queue.length >= 6) flush();
+      else { clearTimeout(timer); timer = setTimeout(flush, 2000); }
+    });
+  }, { rootMargin: '200px' });
+  document.querySelectorAll('[data-news-idx]').forEach(function(el) { obs.observe(el); });
+  window._newsLazyObserver = obs;
 }
 
 /* ── v27.2: 로컬 뉴스 enrichment (API 없이 티커 추출 + 원본 유지) ── */
@@ -6166,7 +6393,7 @@ function renderFeed(items) {
       }
     }
 
-    return `${dateHeader}<div class="news-item-card" data-open-url="${escHtml(escUrl(item.link))}" title="${escHtml((item.title||'').slice(0,200))}">
+    return `${dateHeader}<div class="news-item-card" data-open-url="${escHtml(escUrl(item.link))}" data-news-idx="${idx}" title="${escHtml((item.title||'').slice(0,200))}">
       <div class="news-time-col">
         <span class="news-time-abs">${timeDisplay}</span>
         <span class="news-time-dot" style="background:${sentColor};"></span>
@@ -6182,6 +6409,7 @@ function renderFeed(items) {
   }).join('');
 
   container.innerHTML = html;
+  if (!useCompanyBulletFormat) initLazyNewsTranslation(filtered);
 
   // 카운트 업데이트
   const countEl = document.getElementById('market-news-count');
@@ -6803,8 +7031,6 @@ let isFetching = false;
 let _fetchStartTime = 0; // v29.3: isFetching 잠김 방지용 타임스탬프
 let currentCountryFilter = 'all';
 let currentTopicFilter = 'all';
-let refreshTimer = null;
-
 // ── RSS 파싱 ─────────────────────────────────────────────────────
 // v29.4: 죽은 프록시 제거 (corsproxy.app 503)
 // v30.11 Task 11: 하위 호환용 — 레거시 코드에서 참조하는 상수 유지 (_PROXY_REGISTRY가 진실 원천)
@@ -7209,7 +7435,7 @@ async function fetchAllNews(forceRefresh = false) {
   // v27.3: 새로고침 시 번역 캐시 클리어 (오래된 캐시가 새 뉴스에 잘못 매핑되는 것 방지)
   if (forceRefresh) {
     _translationCache.clear();
-    try { sessionStorage.removeItem('aio_tc'); } catch(e) {}
+    try { localStorage.removeItem('aio_tc'); } catch(e) {}
     // v46.6: 소스 헬스 리셋 — 3회 실패로 스킵된 소스에 재시도 기회
     Object.keys(_rssSourceHealth).forEach(function(k) { _rssSourceHealth[k] = { fails: 0, lastOk: 0 }; });
     _rss2jsonFailed = 0;
@@ -7239,7 +7465,9 @@ async function fetchAllNews(forceRefresh = false) {
   // v48.38: 헬스체크 — disabled 피드 자동 스킵 (dead RSS 자동 회피)
   const activeSources = (window._aioFeedHealth && typeof window._aioFeedHealth.isDisabled === 'function')
     ? AIO_NEWS_SOURCES.filter(function(s) { return !window._aioFeedHealth.isDisabled('rss:' + s.name); })
-    : AIO_NEWS_SOURCES;
+    : AIO_NEWS_SOURCES.slice();
+  // tier:1 소스를 앞으로 정렬 → 핵심 15~20개 먼저 렌더링
+  activeSources.sort(function(a, b) { return (a.tier || 9) - (b.tier || 9); });
   const _skippedCount = AIO_NEWS_SOURCES.length - activeSources.length;
   if (_skippedCount > 0) {
     _aioLog('info', 'rss-health', _skippedCount + '개 RSS 소스 헬스체크로 자동 스킵');
@@ -7511,6 +7739,7 @@ async function fetchAllNews(forceRefresh = false) {
   newsCache = filteredItems;
   window._allNewsItems = filteredItems;  // v29: 텔레그램 필터 등에서 참조
   lastFetchTime = Date.now();
+  _idbSaveNews(filteredItems); // IDB 저장 (비동기, 블로킹 없음)
   // isFetching = false; // v27.3: finally 블록으로 이동 (중복 방지)
 
   const progLabel = document.getElementById('news-progress-label');
@@ -7531,9 +7760,8 @@ async function fetchAllNews(forceRefresh = false) {
   _briefingCacheKey = null;
   renderBriefingFeed(newsCache);
 
-  // v21: 자동 한국어 번역 (뉴스 수집 완료 후 백그라운드 실행)
-  // 먼저 원본으로 빠르게 보여주고, 번역 완료되면 자동으로 한국어로 갱신
-  autoTranslateNews(newsCache).catch(e => _aioLog('warn', 'translate', '자동 번역 에러: ' + (e && e.message || e)));
+  // v21: 자동 한국어 번역 — 상위 6건 즉시, 나머지는 renderFeed 내 IntersectionObserver로 lazy 처리
+  autoTranslateNews(newsCache.slice(0, 6)).catch(e => _aioLog('warn', 'translate', '자동 번역 에러: ' + (e && e.message || e)));
 
   // v20: 뉴스 감성 바 업데이트
   try {
@@ -7588,11 +7816,6 @@ async function fetchAllNews(forceRefresh = false) {
     if (riskCntEl) { riskCntEl.textContent = risks.length; riskCntEl.style.color = risks.length >= 3 ? '#ff5b50' : risks.length >= 1 ? '#ffa31a' : '#00e5a0'; }
     if (riskLblEl) riskLblEl.textContent = risks.length > 0 ? risks.map(r => r.label).join(' · ') : '리스크 없음';
   } catch(e) { _aioLog('warn', 'render', 'News sentiment bar error: ' + (e && e.message || e)); }
-
-  // v21: 45분 + 지터 자동 갱신 타이머 (5명 동시접속 최적화)
-  if (refreshTimer) clearTimeout(refreshTimer);
-  const newsJitter = Math.floor(Math.random() * 300000); // 0~5분 랜덤
-  refreshTimer = setTimeout(() => fetchAllNews(true), 2700000 + newsJitter);
 
   // v27.2: 뉴스 0건이면 홈 뉴스 섹션에 안내 메시지 표시
   if (allItems.length === 0) {
@@ -8098,6 +8321,8 @@ async function fetchKrNaverQuotes() {
 }
 
 async function fetchLiveQuotes() {
+  if (window._aioQuoteInFlight) return;
+  window._aioQuoteInFlight = true;
   // ═══════════════════════════════════════════════════════════
   // v19: 소스별 전용 API 사용 — 단순하고 확실하게 작동
   // ═══════════════════════════════════════════════════════════
@@ -8529,6 +8754,23 @@ async function fetchLiveQuotes() {
       console.log('[AIO] Yahoo v7 배치: ' + Object.keys(_yfBatch).length + '/' + syms.length + '개 수신 (' + chunks.length + '청크)');
     }
   }
+  // Tier 0: 핵심 26개 심볼 선행 fetch → applyLiveQuotes() 즉시 호출로 체감 속도 개선
+  const TIER0_SYMS = [
+    'SPY','QQQ','DIA','IWM',
+    'GC=F','CL=F','NG=F','ZB=F','GLD','USO','TLT',
+    'BTC-USD','ETH-USD',
+    'AAPL','MSFT','NVDA','GOOGL','AMZN','META','TSLA',
+    'JPY=X','KRW=X','^VIX','HYG','LQD','DXY'
+  ];
+  try {
+    await _yfBatchFetch(TIER0_SYMS);
+    var _t0results = TIER0_SYMS.map(function(s) { return _yfBatch[s]; }).filter(Boolean);
+    if (_t0results.length > 0) {
+      applyLiveQuotes(_t0results);
+      _aioLog('info', 'fetch', 'Tier 0 선행 적용: ' + _t0results.length + '개');
+    }
+  } catch(e) {}
+
   // PRIORITY_SYMS 전체 평탄화 후 중복 제거 → 1회 배치 호출
   try {
     const _allSymsFlat = Array.from(new Set(PRIORITY_SYMS.flat()));
@@ -8875,6 +9117,7 @@ async function fetchLiveQuotes() {
     if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', '연결 실패 (시도 ' + fetchLiveQuotes._failCount + ')');
     setTimeout(fetchLiveQuotes, wait * 1000);
   }
+  window._aioQuoteInFlight = false;
 }
 
 

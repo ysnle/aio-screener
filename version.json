@@ -1,6 +1,6 @@
 {
-  "version": "v48.62",
-  "built": "2026-04-22T00:00:00+09:00",
-  "note": "v48.62: UX 실전성 보강. .page-conclusion-bar 컴포넌트 신설(오늘 결론·즉시 행동·업데이트 3열). 4개 우선 페이지(home/signal/sentiment/macro) 상단 적용. _renderConclusionBar() + _updateAllConclusionBars() JS 유틸. updateMarketPulse() 트리거 연동(computeTradingScore/window._lastFG/macro-regime-pill 재사용). fb-estimated 배지 신설(amber). KNOWLEDGE-BASE UX 원칙 3개 + QA-CHECKLIST P106~P110 + RULES R49~R51 환류. 커밋/배포 자동 금지 준수.",
-  "versioning": "x.y (31→...→48.61→48.62)"
+  "version": "v48.66",
+  "built": "2026-04-26T00:00:00+09:00",
+  "note": "v48.66: OI 모멘텀 프레임워크 통합 — technical CHAT_CONTEXT + TECH_KW(OI EMA crossover·미결제약정 모멘텀).",
+  "versioning": "x.y (31→...→48.65→48.66)"
 }

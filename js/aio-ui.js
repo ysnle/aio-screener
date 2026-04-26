@@ -2054,3 +2054,198 @@ function renderFBHistory() {
 
 
 
+// v30.11 (분리 v48.64): WCAG 2.1 AA 접근성 초기화
+document.addEventListener('DOMContentLoaded', function() {
+  // 1. 채팅 입력 필드에 aria-label 일괄 추가
+  document.querySelectorAll('.acp-input-row input').forEach(function(inp) {
+    if (!inp.getAttribute('aria-label')) {
+      inp.setAttribute('aria-label', inp.placeholder || 'AI 채팅 입력');
+    }
+  });
+
+  // 2. 채팅 전송 버튼에 aria-label 추가
+  document.querySelectorAll('.acp-input-row button').forEach(function(btn) {
+    if (!btn.getAttribute('aria-label')) {
+      btn.setAttribute('aria-label', '메시지 전송');
+    }
+  });
+
+  // 3. 채팅 초기화 버튼에 aria-label 추가
+  document.querySelectorAll('.acp-clear').forEach(function(btn) {
+    if (!btn.getAttribute('aria-label')) {
+      btn.setAttribute('aria-label', '대화 초기화');
+    }
+  });
+
+  // 4. 21개 페이지에 region landmark 추가
+  document.querySelectorAll('.page[id]').forEach(function(pg) {
+    pg.setAttribute('role', 'region');
+    var title = pg.querySelector('.page-title');
+    if (title) {
+      var labelId = pg.id + '-label';
+      title.id = labelId;
+      pg.setAttribute('aria-labelledby', labelId);
+    }
+  });
+
+  // 5. nav-item 키보드 접근성 보강 (Enter/Space 활성화)
+  document.querySelectorAll('.nav-item[role="button"]').forEach(function(nav) {
+    nav.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        nav.click();
+      }
+    });
+  });
+
+  // 6. icon-only 버튼에 aria-label 추가
+  document.querySelectorAll('button').forEach(function(btn) {
+    if (btn.getAttribute('aria-label')) return;
+    var text = btn.textContent.trim();
+    if (text === '✕' || text === '✕') btn.setAttribute('aria-label', '닫기');
+    else if (text === '☰') btn.setAttribute('aria-label', '메뉴 열기');
+    else if (text === '↻' || text.includes('새로고침')) btn.setAttribute('aria-label', '새로고침');
+  });
+
+  // 7. API 키 입력 필드에 aria-label 추가
+  document.querySelectorAll('input[type="password"]').forEach(function(inp) {
+    if (!inp.getAttribute('aria-label')) {
+      var label = inp.placeholder || 'API 키 입력';
+      inp.setAttribute('aria-label', label);
+    }
+  });
+
+  // 8. aria-live 영역 설정 (동적 업데이트 알림)
+  var liveEls = ['score-gauge-val', 'pf-total-value', 'pf-total-pnl'];
+  liveEls.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.setAttribute('aria-live', 'polite');
+  });
+
+  // 9~23: 모든 DOM이 구성된 뒤 실행 (AI 패널/모달이 이 스크립트 뒤에 위치)
+  setTimeout(function() {
+
+  // 9. nav-item에 aria-label 추가 (이모지 + 라벨 텍스트 정리)
+  document.querySelectorAll('.nav-item[role="button"]').forEach(function(nav) {
+    if (nav.getAttribute('aria-label')) return;
+    var label = nav.querySelector('.label');
+    if (label) nav.setAttribute('aria-label', label.textContent.trim() + ' 페이지');
+  });
+
+  // 10. 주요 액션 버튼에 aria-label 추가
+  var btnLabels = {
+    'sidebar-toggle-btn': '사이드바 열기/닫기',
+    'topbar-refresh-btn': '데이터 새로고침',
+    'mobile-menu-btn': '모바일 메뉴'
+  };
+  Object.keys(btnLabels).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && !el.getAttribute('aria-label')) el.setAttribute('aria-label', btnLabels[id]);
+  });
+
+  // 11. 사이드바 input에 aria-label 추가
+  document.querySelectorAll('.sidebar input:not([aria-label])').forEach(function(inp) {
+    inp.setAttribute('aria-label', inp.placeholder || inp.title || 'API 키 입력');
+  });
+
+  // 12. onclick div에 role="button" + tabindex 보강
+  document.querySelectorAll('[onclick]:not([role])').forEach(function(el) {
+    if (el.tagName === 'BUTTON' || el.tagName === 'A') return;
+    el.setAttribute('role', 'button');
+    if (!el.getAttribute('tabindex')) el.setAttribute('tabindex', '0');
+  });
+
+  // 13. 빈 텍스트 인터랙티브 요소에 명시적 aria-label 추가
+  var classLabels = {
+    'mobile-overlay': '모바일 메뉴 닫기',
+    'llm-switch-track': 'AI 도우미 전환',
+    'ai-ph-close': 'AI 패널 닫기',
+    'acp-history-btn': 'AI 대화 기록'
+  };
+  Object.keys(classLabels).forEach(function(cls) {
+    document.querySelectorAll('.' + cls).forEach(function(el) {
+      if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', classLabels[cls]);
+    });
+  });
+
+  // 14. skip-link: HTML에 .skip-link 하드코딩 완료 (L1942) — JS 중복 생성 제거 (v41.4)
+
+  // 15. v40.9: main landmark 설정
+  var contentEl = document.querySelector('.content');
+  if (contentEl && !contentEl.getAttribute('role')) {
+    contentEl.setAttribute('role', 'main');
+    contentEl.setAttribute('aria-label', 'AIO Screener 메인 콘텐츠');
+  }
+  var sidebarEl = document.querySelector('.sidebar');
+  if (sidebarEl) {
+    if (!sidebarEl.getAttribute('aria-label')) {
+      sidebarEl.setAttribute('aria-label', '메인 내비게이션');
+    }
+  }
+
+  // 16. v40.9: 동적 가격 업데이트 영역 aria-live 확장
+  document.querySelectorAll('[data-live-price]').forEach(function(el) {
+    if (!el.getAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+    if (!el.getAttribute('aria-atomic')) el.setAttribute('aria-atomic', 'true');
+  });
+
+  // 17. v41: 모든 [role="button"]에 Enter/Space 키보드 핸들링
+  document.querySelectorAll('[role="button"]:not(.nav-item)').forEach(function(el) {
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        el.click();
+      }
+    });
+    if (!el.getAttribute('tabindex')) el.setAttribute('tabindex', '0');
+  });
+
+  // 18. v41: 활성 nav-item에 aria-current="page" 설정
+  var activeNav = document.querySelector('.nav-item.active');
+  if (activeNav) activeNav.setAttribute('aria-current', 'page');
+
+  // 19. 모든 인터랙티브 요소에 aria-label 일괄 보강
+  var emojiLabel = {'Dark':'다크/라이트 테마 전환','Light':'다크/라이트 테마 전환','☰':'메뉴 열기','✕':'닫기','↻':'새로고침'};
+  document.querySelectorAll('button:not([aria-label]), [role="button"]:not([aria-label]), [onclick]:not([aria-label])').forEach(function(el) {
+    if (el.tagName === 'A') return;
+    var text = el.textContent.trim();
+    if (text.length <= 2 && emojiLabel[text]) { el.setAttribute('aria-label', emojiLabel[text]); return; }
+    if (text && text.length <= 40) { el.setAttribute('aria-label', text); return; }
+    if (text) el.setAttribute('aria-label', text.substring(0, 30));
+  });
+
+  // 20. v41.2: 문서 구조 h1 추가 (스크린리더 페이지 제목)
+  if (!document.querySelector('h1')) {
+    var h1 = document.createElement('h1');
+    h1.textContent = 'AIO Screener - 올인원 투자 터미널';
+    h1.className = 'sr-only';
+    h1.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+    var mc = document.getElementById('main-content');
+    if (mc) mc.insertBefore(h1, mc.firstChild);
+  }
+
+  // 21. v41.2: 동적 영역 aria-live 확장 (뉴스 티커, 상태 패널, 트레이딩 스코어)
+  ['snapshot-stale-warning','data-status-panel','home-risk-regime-badge','score-decision-sub'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && !el.getAttribute('aria-live')) { el.setAttribute('aria-live', 'polite'); el.setAttribute('aria-atomic', 'true'); }
+  });
+
+  // 22. v41.2: 모달 포커스 트랩 (dialog 열릴 때 내부에 포커스 가둠)
+  document.querySelectorAll('[role="dialog"]').forEach(function(dlg) {
+    dlg.addEventListener('keydown', function(e) {
+      if (e.key !== 'Tab') return;
+      var focusable = dlg.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (focusable.length === 0) return;
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
+      else { if (document.activeElement === last) { e.preventDefault(); first.focus(); } }
+    });
+  });
+
+  // 23. v41.2: 페이지 타이틀에 heading role 보강 (.page-title -> h2)
+  document.querySelectorAll('.page-title').forEach(function(pt) {
+    if (pt.tagName !== 'H2') { pt.setAttribute('role', 'heading'); pt.setAttribute('aria-level', '2'); }
+  });
+
+  }, 0);
+});

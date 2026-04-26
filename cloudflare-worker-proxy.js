@@ -1,6 +1,16 @@
-/**
+﻿/**
  * AIO Screener CORS 프록시 - Cloudflare Workers
- * v2.0: 보안 강화 — Origin 화이트리스트, URL 도메인 화이트리스트, SSRF 차단, 타임아웃
+ * v2.1: 보안 강화 — Origin 화이트리스트, URL 도메인 화이트리스트, SSRF 차단, 타임아웃,
+ *        봇/스캐너 UA 차단, 보안 응답 헤더
+ *
+ * ── Cloudflare WAF Rate Limiting Rules 설정 (권장 — 코드 외부) ──────────────
+ * Workers > Zone > Security > WAF > Rate Limiting Rules 에서 아래 규칙 추가:
+ *   규칙명: AIO Proxy Rate Limit
+ *   조건: (http.request.uri.path contains "/") AND (ip.src ne <allowlist>)
+ *   속도: 300 req/1 min per IP
+ *   동작: Block (429) / Challenge
+ * → 이 설정으로 isolate 간 공유 문제 없이 완전한 레이트 리밋 적용됨.
+ * ──────────────────────────────────────────────────────────────────────────
  *
  * 배포 방법:
  * 1. https://workers.cloudflare.com 접속 및 무료 계정 생성
@@ -68,6 +78,18 @@ const ALLOWED_DOMAINS = [
   'translate.google.com',
 ];
 
+// ── 봇/스캐너 User-Agent 차단 ────────────────────────────────────
+const BOT_UA_RE = /sqlmap|nikto|nmap|masscan|zgrab|nuclei|dirbuster|hydra|curl\/[0-9]|python-requests|go-http-client|java\/|wget\//i;
+function isBotUA(ua) { return BOT_UA_RE.test(ua || ''); }
+
+// ── 보안 응답 헤더 ────────────────────────────────────────────────
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'X-XSS-Protection': '1; mode=block',
+};
+
 // ── Private IP 차단 (SSRF 방지) ─────────────────────────────────
 function isPrivateHost(hostname) {
   // IP 패턴
@@ -111,9 +133,9 @@ function cleanupRateLimitMap() {
  * CORS 헤더 생성 — Origin 화이트리스트 적용
  */
 function getCorsHeaders(requestOrigin) {
-  const origin = ALLOWED_ORIGINS.some(o => requestOrigin && requestOrigin.startsWith(o))
-    ? requestOrigin
-    : ALLOWED_ORIGINS[0];
+  let normalizedOrigin;
+  try { normalizedOrigin = new URL(requestOrigin).origin; } catch { normalizedOrigin = ''; }
+  const origin = ALLOWED_ORIGINS.includes(normalizedOrigin) ? normalizedOrigin : ALLOWED_ORIGINS[0];
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
@@ -133,6 +155,7 @@ function errorResponse(message, status = 400, origin = '') {
       headers: {
         'Content-Type': 'application/json',
         ...getCorsHeaders(origin),
+        ...SECURITY_HEADERS,
         'X-AIO-Proxy': 'cloudflare-worker',
       },
     }
@@ -159,11 +182,16 @@ export default {
       return errorResponse('GET 요청만 지원됩니다', 405, requestOrigin);
     }
 
-    // 클라이언트 IP ���출
+    // 봇/스캐너 User-Agent 차단
+    const ua = request.headers.get('User-Agent') || '';
+    if (isBotUA(ua)) {
+      return errorResponse('Forbidden', 403, requestOrigin);
+    }
+
+    // 클라이언트 IP 추출
     const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
 
-    // Rate limit 체크 + 정리
-    cleanupRateLimitMap();
+    // Rate limit 체크 + 정리    cleanupRateLimitMap();
     if (!checkRateLimit(clientIp)) {
       return errorResponse('Too many requests', 429, requestOrigin);
     }
@@ -205,13 +233,20 @@ export default {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
+      // 원본 URL 패턴별 TTL: 뉴스/RSS 30분, FRED/MA 1시간, 시세/기타 2분
+      const _host = parsedUrl.hostname;
+      const _path = parsedUrl.pathname;
+      const _isNews = /\/rss|\/feed|\.xml|\.rss|reuters|cnbc|bloomberg|wsj|nikkei|digitimes/i.test(_path + _host);
+      const _isFred = /stlouisfed|fred/i.test(_host);
+      const _cacheTtl = _isNews ? 1800 : _isFred ? 3600 : 120;
+
       const response = await fetch(targetUrl, {
         method: 'GET',
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible)',
         },
         signal: controller.signal,
-        cf: { cacheTtl: 30 },
+        cf: { cacheTtl: _cacheTtl },
       });
 
       clearTimeout(timeoutId);
@@ -231,9 +266,11 @@ export default {
         status: response.status,
         headers: {
           'Content-Type': contentType,
-          'Cache-Control': 'public, max-age=30',
+          'Cache-Control': `public, max-age=${_cacheTtl}`,
           ...getCorsHeaders(requestOrigin),
+          ...SECURITY_HEADERS,
           'X-AIO-Proxy': 'cloudflare-worker',
+          'X-AIO-Cache-TTL': String(_cacheTtl),
         },
       });
     } catch (error) {

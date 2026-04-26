@@ -3,7 +3,7 @@
 // 제약: GitHub Pages HTTPS + 정적 호스팅 (POST 캐싱 불가, CORS 프록시는 제3자 도메인)
 // v48.27 (QA-3): SW_VERSION을 APP_VERSION과 동기화 — activate 시 신규 캐시로 전환 (R1 7번째 동기화 지점)
 
-const SW_VERSION = 'v48.31';
+const SW_VERSION = 'v48.66';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -18,6 +18,7 @@ const SHELL_ASSETS = [
   './js/aio-data.js',
   './js/aio-ui.js',
   './js/aio-chat.js',
+  './js/aio-glossary.js',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
   'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js',
   'https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js'
@@ -37,6 +38,29 @@ const DATA_URL_PATTERNS = [
   /corsproxy\.io|allorigins\.win|codetabs\.com/,  // CORS 프록시
   /rsshub\.app/,                          // RSSHub 텔레그램
 ];
+
+// 민감 URL 패턴 — API 키/토큰/중첩 proxy URL 포함 시 캐시 금지
+const SENSITIVE_QUERY_RE = /[?&](apikey|api_key|token|access_token|client_secret|url)=/i;
+function isSensitiveUrl(u) { return SENSITIVE_QUERY_RE.test(u); }
+
+// DATA_CACHE TTL 상수 (초)
+const DATA_CACHE_TTL = 900;   // 시세/API: 15분
+const NEWS_CACHE_TTL = 1800;  // 뉴스/RSS: 30분
+
+// TTL 만료된 DATA_CACHE 항목 정리 (비동기 논블로킹 — 매 저장 시 호출)
+async function purgeExpiredData(cache) {
+  try {
+    var keys = await cache.keys();
+    var now = Date.now();
+    for (var i = 0; i < keys.length; i++) {
+      var res = await cache.match(keys[i]);
+      if (!res) continue;
+      var t   = parseInt(res.headers.get('x-cache-time') || '0');
+      var ttl = parseInt(res.headers.get('x-cache-ttl')  || String(DATA_CACHE_TTL)) * 1000;
+      if (t > 0 && now - t > ttl) cache.delete(keys[i]);
+    }
+  } catch(e) {}
+}
 
 // RSS 뉴스 피드 URL 패턴 (별도 — 짧은 TTL)
 const NEWS_URL_PATTERNS = [
@@ -125,17 +149,25 @@ self.addEventListener('fetch', function(event) {
   if (isData || isNews) {
     event.respondWith(
       fetch(request).then(function(resp) {
-        if (resp && resp.ok && resp.status === 200) {
-          var clone = resp.clone();
-          caches.open(DATA_CACHE).then(function(c) {
-            // 데이터 캐시는 500개 제한 (오래된 것부터 제거)
-            c.put(request, clone);
-            c.keys().then(function(keys) {
-              if (keys.length > 500) {
-                c.delete(keys[0]);
-              }
-            });
-          });
+        if (resp && resp.ok && resp.status === 200 && !isSensitiveUrl(url)) {
+          var ttl = isNews ? NEWS_CACHE_TTL : DATA_CACHE_TTL;
+          var now = String(Date.now());
+          // TTL 헤더를 주입한 래핑 응답 저장 (body 복사 필요)
+          resp.clone().arrayBuffer().then(function(body) {
+            try {
+              var headers = new Headers(resp.headers);
+              headers.set('x-cache-time', now);
+              headers.set('x-cache-ttl', String(ttl));
+              var wrapped = new Response(body, { status: resp.status, statusText: resp.statusText, headers: headers });
+              caches.open(DATA_CACHE).then(function(c) {
+                c.put(request, wrapped);
+                purgeExpiredData(c); // TTL 만료 항목 비동기 정리
+                c.keys().then(function(keys) {
+                  if (keys.length > 500) c.delete(keys[0]); // FIFO 폴백
+                });
+              });
+            } catch(e) {}
+          }).catch(function() {});
         }
         return resp;
       }).catch(function() {
