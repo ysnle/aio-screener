@@ -6,6 +6,31 @@
 
 ---
 
+## v48.68 — P139 스크롤 scroll-chaining 버그 수정 (2026-04-27)
+
+### 변경 사항
+- **P139 scroll-chaining 수정**: `.content(overflow-y:auto)`가 scrollTop=0에서 스크롤 시 `body/app/main(overflow:hidden)` 부모로 이벤트 전파 → "스크롤 안 됨" 체감. `overscroll-behavior-y:contain` 추가로 전파 차단
+- **iOS 모멘텀 스크롤**: `-webkit-overflow-scrolling:touch` 추가
+- **영향 범위**: 테마·트렌드·fundamental 등 전 페이지 동시 해결 (`.content` 단일 지점 수정)
+- **유사 이슈 전수 점검**: `#risk-radar-body(overflow-y:auto)` — 의도적 독립 컨테이너. `.market-pulse-bar(overflow-x:auto)` — 수직 오버플로 없어 영향 없음. 추가 조치 불필요 확인
+
+---
+
+## v48.67 — /integrate 23개 IB 리서치 통합 (2026-04-26)
+
+### 변경 사항
+- **CHAT_CONTEXTS 신규 6개 §항목** (§73~§78): 추론 아키텍처 분화(PT-A) · LTA 메가트렌드(PT-B) · INTC 에이전틱 AI CPU(PT-C) · Anthropic ARR $30B+ · TSMC 기술 이원화 · Amazon-Anthropic-MRVL-ALAB 생태계
+- **SCREENER_DB 11개 갱신**: INTC/AVGO/MRVL/VRT/GEV/TSLA/AMD/AMZN/000660.KS + ALAB·LSCC 신규 추가
+- **TECH_KW +10개**: SparseCore · Boardfly · SOCAMM2 · LPDDR6 · CXL 2.0 · A12 · A13 · N2U · HW4+ · 321-layer NAND
+- **MACRO_KW +3개**: Hormuz blockade · shadow fleet · LTA agreement
+- **KR_THEME_CATALYSTS 갱신**: semi(추론 HBM 이중화·LTA) · power-grid(GEV/VRT Q1강세) · energy_kr(이란 호르무즈 봉쇄)
+- **시스템 프롬프트 업데이트**: themes(AI 반도체 추론 분화 §73~§74 참조) · macro(호르무즈 04/25 업데이트)
+- **LSCC KNOWN_TICKERS 신규 추가**
+- **KNOWLEDGE-BASE PT-A/B/C 패러다임 전환 3개 축적**
+- 출처: Citi·JPM·WF·Keybanc·Stiefel·BofA 2026-04-25
+
+---
+
 ## v48.62 — UX 실전성 보강: 결론 바 4페이지 + fb-estimated + R49~R51 (2026-04-22)
 
 ### 변경 사항

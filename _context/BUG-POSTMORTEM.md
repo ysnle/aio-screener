@@ -1,11 +1,11 @@
 ---
 verified_by: human
-last_verified: 2026-04-21
+last_verified: 2026-04-27
 confidence: high
-latest_version: v48.61
-latest_P_number: P138
-next_P_number: P139
-total_entries: 138
+latest_version: v48.68
+latest_P_number: P139
+next_P_number: P140
+total_entries: 139
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -143,6 +143,23 @@ total_entries: 138
 | P65 | v45.5 | 2026-04-09 | 토글/모드 변수는 렌더 함수 내부에서 실제로 분기 사용되는지 grep 검증 (UI에 버튼만 wired된 dead toggle 방지) |
 | P66 | v45.5 | 2026-04-09 | 데이터 미수신 상태에서 "로딩" 텍스트 영구 정체 금지 — 폴백 데이터 우선 사용, 그래도 없으면 "대기/—"로 명시 |
 | P67 | v45.5 | 2026-04-09 | 같은 동급 컴포넌트(pulse-seg/카드)는 동일 자식 구조 유지. 한쪽만 자식 누락 시 시각 정렬 깨짐 |
+| **P139** | **v48.68** | **2026-04-27** | **scroll-chaining 버그**: `.content(overflow-y:auto)`가 scrollTop=0에서 위/아래로 스크롤 시 부모(body·app·main, 모두 overflow:hidden)로 이벤트 전파 → 부모 스크롤 불가 → 사용자 "스크롤 안 됨" 체감. 테마/트렌드 페이지 포함 전 페이지 해당. `overscroll-behavior-y:contain` + `-webkit-overflow-scrolling:touch` 추가로 해결 |
+
+---
+
+## [2026-04-27] v48.68 — 스크롤 scroll-chaining 버그 P139
+
+### BUG-P139: 테마/트렌드 페이지 스크롤 불가 — scroll-chaining 전 페이지 (HIGH)
+- **violated_rule**: 신규 P139 (SPA scroll-chaining 무방어)
+- **증상**: 테마·트렌드 등 여러 페이지에서 마우스 휠/터치 스크롤이 동작하지 않음. 특히 페이지 최상단(scrollTop=0)에서 위로 스크롤 시 전혀 반응 없음. iOS에서 모멘텀 스크롤 미지원.
+- **근본 원인**: `body(overflow:hidden)→.app(overflow:hidden)→.main(overflow:hidden)→.content(overflow-y:auto)` 레이어 구조에서 `.content`가 scrollTop=0인 상태로 위로 스크롤하거나 scrollBottom에서 아래로 스크롤 시, 브라우저가 남은 델타를 부모 체인으로 전파(scroll-chaining). 부모 요소들이 모두 `overflow:hidden`이라 실제 스크롤은 불가하나 이벤트는 소비됨 → 사용자는 아무 반응이 없다고 체감. P74(v46.4)에서 `.page overflow-x:hidden` 제거로 이전 스크롤 버그는 해결했으나, `.content` 자체의 overscroll 전파 미차단은 잔존.
+- **수정**: `index.html` `.content` CSS에 두 속성 추가:
+  ```css
+  overscroll-behavior-y: contain; /* scrollTop=0/max 경계에서 부모로 전파 차단 */
+  -webkit-overflow-scrolling: touch; /* iOS 모멘텀 스크롤 보장 */
+  ```
+- **유사 패턴 점검 결과**: `#risk-radar-body { overflow-y:auto; max-height:360px }` — fundamental 페이지 내 독립 스크롤 컨테이너(의도적). `.market-pulse-bar { overflow-x:auto }` — CSS 명세상 overflow-y 암묵 auto 변환이나 수직 오버플로 없어 영향 없음. `.content` 단일 수정으로 전 페이지 해결됨.
+- **예방**: P139 — SPA에서 `overflow:hidden` 중첩 레이어로 스크롤을 제어할 때, 실제 스크롤 컨테이너(`.content` 등)에는 반드시 `overscroll-behavior-y:contain` 추가하여 scroll-chaining 원천 차단. 신규 페이지/컨테이너 추가 시 스크롤 레이어 구조 검토 필수.
 
 ---
 

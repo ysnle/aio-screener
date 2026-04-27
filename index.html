@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.66 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.68 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1354,6 +1354,8 @@ body {
   padding: var(--space-5);
   min-height: 0;
   background: var(--bg-base);
+  overscroll-behavior-y: contain; /* v48.68 P139: scroll-chaining 차단 — scrollTop=0에서 위로 스크롤 시 부모(body/app overflow:hidden)로 전파 방지 */
+  -webkit-overflow-scrolling: touch; /* iOS 모멘텀 스크롤 보장 */
 }
 .content::-webkit-scrollbar { width: 8px; }
 .content::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: var(--radius-pill); }
@@ -3705,7 +3707,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.66</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.68</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -16389,6 +16391,7 @@ document.addEventListener('aio:liveQuotes', function() {
         '[실질금리 붕괴] 기대 실질금리 0.25% 추락(전쟁 전 0.75~1.25%). 근원물가 3M 연율 4.4%(전쟁 전부터 가속). Warsh 5월 취임 시 인상 회피 → 실질금리 마이너스 전환. 역사적 선례: 1974-78→볼커 20%.\n' +
         '[2차 파급효과] 에너지→항공료(서비스 물가 전이). WGT 상승 + 미시간대 장기 기대인플레 3.4%. 단위노동비용 상승. S&P vs 소비자심리 괴리 역대 최대.\n' +
         '[핵심 논쟁] Bull: 이란 가격 올리기 전술→결국 복귀. Bear: 해군 봉쇄→$150+→수요파괴. 미국 순원유수입국(220만bbl/d), 셰일 반응 4-6개월 지연.\n' +
+        '[04/25 업데이트 — Citi/JPM] 호르무즈 정상 통과량 4% 수준 유지 · 저장 22일치(4천만 배럴)+해상 화물 1억4,200만 배럴 걸프 외부 · 16일 후 업스트림 감산 시작, 30일 근방 전면 중단 가능 · 봉쇄=협상 레버리지 단계(시간 제한적) · shadow fleet 이란 제재 우회 선박 활동 지속.\n' +
         '대시보드(매매 점수 10% 매크로)·투자심리 페이지 연결.\n\n' +
         '【§71 Mission Accomplished 괴리 + PPI 수요파괴 + 기대인플레 탈앵커링 + CTA 수급 (2026.04.16)】\n' +
         '[자산군 괴리 — "주식만 Mission Accomplished"] S&P +1.6% YTD(전쟁 전 회복), 나스닥 10일 연속 양봉(2021.11 이후 최장, 10일간 +12%). 그러나 유가 $90(전쟁 전 $60대 대비 +40%), 국채금리 전쟁 전보다 높음, 달러만 전쟁 전 수준. 주식-유가-채권 상관관계 붕괴. IEA 비롤: "현재 유가는 상황을 반영 못 함, 가격 더 오를 수 있다."\n' +
@@ -16397,7 +16400,28 @@ document.addEventListener('aio:liveQuotes', function() {
         '[베센트 스탠스 전환] 기존 금리인하 주장→현재 "관망이 옳다." Core 2.6% 관리 가능하나 헤드라인 3.3%(MoM +0.9% 4년 최대). 에너지 비용 구조적 상승: 공급망 차질 복구 수년, 수출국 갑 포지션(비축유 소진+AI 전력수요), 보험료/인건비 상승→전쟁 전 수준 복귀 어려움.\n' +
         '[CTA 기계적 매수 vs 펀더멘털 매도] GS 추정 CTA 이번 주 미국 $435억, 글로벌 $820억 매수. 그러나 롱온리/헤지펀드가 CTA에게 매도 중(IT·산업재·부동산). 펀더멘털 투자자들이 CTA 기계적 매수를 매도 기회로 활용. VIX/SPX 옵션 만기(4/17-18)→양의 감마 그립 해소→변동성 확대 가능.\n' +
         '[소프트웨어 vs 반도체 로테이션] GS SW vs Semi 바스켓 역대 최저. SW 넷 익스포저 7%→1.4%, 롱/숏 비율 2.0→1.14. 숏 스퀴즈 반등 후 Anthropic Claude 4.7 "AI 디자인 툴" 발표→AI가 SaaS 제로화 내러티브 재점화→피그마/어도비 급락. 구조적 문제(AI 디스인터미디에이션, 터미널밸류 압축) 미해소.\n' +
-        '[TD Cowen DC 채널체크] 1Q26 미국 DC 리싱 기록 ~9.4GW(YoY +5x). 파이프라인 ~11.0GW. AMZN 1위(+2.5GW), GOOG·META·OpenAI·MSFT(각 +1GW). Triple-net 구조+파워드쉘 딜 비중 증가. CY27 하이퍼스케일 Capex가 CY26 대폭 초과 전망.\n' +
+        '[TD Cowen DC 채널체크] 1Q26 미국 DC 리싱 기록 ~9.4GW(YoY +5x). 파이프라인 ~11.0GW. AMZN 1위(+2.5GW), GOOG·META·OpenAI·MSFT(각 +1GW). Triple-net 구조+파워드쉘 딜 비중 증가. CY27 하이퍼스케일 Capex가 CY26 대폭 초과 전망.\n\n' +
+        '【§73 추론 아키텍처 분화 패러다임 — Citi/JPM 2026-04-25】\n' +
+        '[Q2 패러다임 전환] 기존: 추론=학습 GPU 파생(더 작고 싼 버전). 새: TPU 8i(추론) HBM 288GB > TPU 8t(학습) 216GB — 추론이 독자 최적화 곡선 보유. 에이전틱 AI=수백만 동시 에이전트→저지연+대규모 처리량 필요→SRAM 3배+HBM 더 많이 탑재 정당화.\n' +
+        '[역학] HBM 수요 = "학습 수요" 단일구조 → "학습+추론 ASIC" 이중구조로 확대. NVDA 이외 HBM 수요처 다각화. AVGO가 TPU 8t+8i 모두 실리콘 파트너 확인 — 추론 아키텍처 복잡성 증가할수록 AVGO 구조적 수혜.\n' +
+        '[Bull] ASIC 추론 확산 → HBM TAM 이중화, ASIC 점유율 확대. [Bear] SRAM/소프트웨어 최적화로 메모리 소비 둔화. [인접] SKH/MU HBM 수요처 GPU→ASIC 추론 확대, AVGO 추론 ASIC 필수화.\n\n' +
+        '【§74 메모리 LTA 메가트렌드 — JPM/Citi/SKH 2026-04-25】\n' +
+        '[Q2 패러다임 전환] 기존: 메모리=분기 현물가 협상→사이클 리스크·사이클주 배수. 새: 3~5년 LTA(물량+가격+선불) = 수익 가시성 구조화 → 성장주 재분류 논쟁.\n' +
+        '[역학] 공급 희소성(HBM 팹 용량 3~4x 소진) × 고객 조달 리스크 상승 → 고객이 먼저 LTA 요청. MU 선두 발표 → SKH/삼성 2Q26 발표 예상. 핵심 쟁점: 기간/물량 믹스/목표가격/선불조건.\n' +
+        '[Bull] LTA = 하락 사이클 하한선 형성, 성장주 재분류. [Bear] LTA 조건이 최고점 가격 고정 아닐 수 있음. JPM: 높은 Capex에도 26E/27E DRAM B/G 제약 지속.\n\n' +
+        '【§75 Intel DCAI 에이전틱 AI CPU 부활 — Citi BUY $95 / Keybanc OW $110 — 2026-04-25】\n' +
+        '[컨센서스와의 차이] AI=GPU 독점이라는 컨센서스와 달리, INTC는 에이전틱 AI 오케스트레이션·제어 플레인·추론 관리 = CPU 필수재 논리.\n' +
+        '[역학] GPU:CPU 비율 1:8 → 1:4 → 대등 방향(INTC 경영진 가이던스). 18A 수율 내부 예상 초과, 14A 성숙도 18A 동시점 대비 앞서 추적. 2026E DCAI +22% YoY, 서버 두 자릿수 성장 2027 지속. Terafab 파운드리 신뢰성 제고.\n' +
+        '[WF 비중유지 이유] 2028 EPS $3+ 경로 미확인 = 밸류에이션 캡. [인접] 서버 DRAM(SOCAMM2) TAM 확대, INTC 파운드리 외부고객 → AMAT/LRCX 수혜 다변화.\n\n' +
+        '【§76 Anthropic ARR $30B+ 변곡점 — WF/BofA/JPM 2026-04-25】\n' +
+        '[역학] ARR $9B(2025.12) → $30B+(2026.04): 3배 가속. 2026년 추론 지출 $170억 > 학습 지출 $130억 첫 역전. 추론 확산=사용자 수×토큰 수 기하급수(분당 160억 토큰). AWS 5GW 다세대 Trainium+$100B 약정·Azure $30B·CoreWeave 병행. 2028 전체 Capex $840억.\n' +
+        '[수치] AWS 기여 매출 2026E $250억/2027E $525억 상향. GCP 외부 TPU 용량의 56% 앤스로픽 활용(2028E 3.7GW). [인접] MRVL(Trainium ASIC)+ALAB(Scorpio-X) 핵심 수혜.\n\n' +
+        '【§77 TSMC 기술 로드맵 이원화 — Citi/TSMC 심포지엄 2026-04-25】\n' +
+        '[이원화 전략] 클라이언트: 연 1 노드 (N2→A14→A13 2029). AI/HPC: 2년 주기 (A16 2027→A12 2029). A12 = A16 이후 후면전력(슈퍼파워레일) 채택. DTCO N2U 2028 양산(동일 전력 +3~5% 성능).\n' +
+        '[패키징] CoWoS 2028 14x 레티클→SoW 2029 40x+ 확장. 미국 애리조나 4nm 수율 본토 대등 달성. CoWoS+3D-IC 2029 이전 미국 패키징 팹 완공. ASML 하이-NA EUV 로드맵 미포함 → AMAT/LRCX 기존 패터닝 장비 수요 지속 긍정.\n\n' +
+        '【§78 Amazon-Anthropic-MRVL-ALAB 생태계 — JPM OW 2026-04-25】\n' +
+        '[구조] 앤스로픽이 AWS Trainium 다세대(T2→T3→T4) 5GW 용량 확보 → MRVL이 ASIC 설계 파트너, ALAB이 네트워킹 파트너.\n' +
+        '[역학] 하이퍼스케일러 ASIC 선택 = "NVDA 순정" vs "완전 자체제작" 이진 선택 아님 → MRVL NVLink IP블록=스펙트럼화. MRVL: T3 2H26 $20억 실행률→T4 Celestial CPO+NVLink Fusion+UALink CY27 +20%. ALAB: T3 Scorpio-X 2H26+T4 UALink/NVLink 스위치 기회. ALAB 워런트 GAAP 마진 압박 주의.\n' +
         // v47.6: F&G 내부 구조 + §72 분배 진단 — NARRATIVE_ENGINE 동적 생성 (DATA_SNAPSHOT 값이 바뀌면 자동 갱신)
         NARRATIVE_ENGINE.getFGInternalStructureText() + '\n\n' +
         NARRATIVE_ENGINE.getDistributionDiagnosisText(DATE_ENGINE.fmtYMD(DATE_ENGINE.nowKST())) +
@@ -16427,7 +16451,7 @@ document.addEventListener('aio:liveQuotes', function() {
         '3. ETF 모멘텀: 테마 ETF(SMH/ICLN/LIT/TAN/ROBO/WCLD 등)의 RS 순위 — 추세 지속력\n' +
         '4. 카탈리스트 매핑: AI Capex(§58)/DC전력(§62)/이란 재협상/Fed 정책 등 매크로 연결\n\n' +
         '【핵심 테마 매크로 체인 (2026-04)】\n' +
-        '• AI 반도체(SMH): 하이퍼스케일 Capex + HBM 공급부족 → 대장주 정배열 확인\n' +
+        '• AI 반도체(SMH): 하이퍼스케일 Capex + HBM 공급부족 → 대장주 정배열 확인 · 추론 특화 ASIC 수요 급증: TPU 8i(추론) HBM 288GB > TPU 8t(학습) — 추론=학습 파생 아님 확인(§73) · LTA 메가트렌드: 사이클주→성장주 재분류 논쟁(§74)\n' +
         '• Cloud/SaaS(WCLD): IT 예산 정상화 + AI 에이전트 도입 초기\n' +
         '• Cybersecurity(BUG): 정부 규제 + 섀도AI 50%+ 비인가 → 구조적 수요\n' +
         '• Robotics(ROBO/BOTZ): 휴머노이드 상용화 + 공장 자동화 초기\n' +
@@ -16700,10 +16724,10 @@ function filterKrThemes(btn, heat) {
 // v35.5: 카탈리스트 데이터 JS 분리 — 한 곳에서 업데이트 가능
 var KR_THEME_CATALYSTS = {
   'defense':     '수주 잔고 100조+ 실적 전환 · 한화에어로 NATO 수주 · 풍산 탄약 수출 · 이란 재협상 재개 전망→방산 프리미엄 축소 · 단 재협상 실패 시 재급등',
-  'semi':        '삼성전자 1Q26 OP 57.2조 역대 최고 · 메모리 충족률 65%(가격↑) · DRAM/NAND ASP +75~85% QoQ(2Q26E) · HBM4 수급 타이트 · SK하이닉스 HBM3E 12H 안정화 · GS 미국 투자자 SEC>HXSCL 선호(HBM4 리더십+주주환원 임박) · 메모리 LTA 레버리지 역전(고객 선제안) · TSMC C.C.Wei 차세대 LPU 고객 언급 = 삼성 Groq 수주 단기 경계',
+  'semi':        '[04/25] TPU 8i 추론 전용 HBM 288GB>학습 8t 216GB — 추론 ASIC HBM 수요 이중화 · LTA 메가트렌드: SKH 고객 요청 급증·3~5년 물량+선불 협의 · LPDDR6 SKH 업계 최초 개발 완료·2H26 공급 · SOCAMM2 양산개시(Vera Rubin 192GB) · NAND KV캐시 AI메모리 부상·321단 50% 전환 · 삼성전자 1Q26 OP 57.2조 역대 최고 · 메모리 충족률 65%(가격↑) · DRAM/NAND ASP +75~85% QoQ(2Q26E) · HBM4 수급 타이트 · SK하이닉스 HBM3E 12H 안정화 · GS 미국 투자자 SEC>HXSCL 선호(HBM4 리더십+주주환원 임박) · 메모리 LTA 레버리지 역전(고객 선제안) · TSMC C.C.Wei 차세대 LPU 고객 언급 = 삼성 Groq 수주 단기 경계',
   'shipbuilding':'LNG/암모니아 선박 고부가 수주 · 선가 상승 사이클 · 해군 함정 수출 본격화 · 수주 잔고 역대 최고',
   'ai-sw':       'NAVER HyperCLOVA X Agent · 삼성SDS AI플랫폼 Brity · 더존비즈온 AI ERP · 폴라리스오피스 글로벌 확산',
-  'power-grid':  'DC전력 워크로드별 분화(§62): 학습→왕복엔진, 추론→가스터빈 · 그리드 제약 15~20년 · BTM 수요 durable · 미국 그리드 노후화 교체 · 변압기 수출 호조 · Maine 주 20MW+ DC 모라토리엄 통과(최소 12개 주 검토) → 온사이트 발전(Wartsila 34SG 412MW 오하이오) 신수요',
+  'power-grid':  '[04/25] GEV Q1 전기화 수주 $71B(DC $24B = 작년 연간 초과) · 수주잔고 100GW → 110GW 상향 · VRT 1Q26 유기적 +23%·가이던스 상향·관세 실질 상쇄 · Anthropic 추론 지출 2026년 학습 추월(DC 전력 추론 워크로드 급증 신호) · DC전력 워크로드별 분화(§62): 학습→왕복엔진, 추론→가스터빈 · 그리드 제약 15~20년 · BTM 수요 durable · 미국 그리드 노후화 교체 · 변압기 수출 호조 · Maine 주 20MW+ DC 모라토리엄 통과(최소 12개 주 검토) → 온사이트 발전(Wartsila 34SG 412MW 오하이오) 신수요',
   'nuclear':     '체코 원전 수주 후속 · 두산에너빌리티 SMR 전용 공장 · 미국 원전 신규 건설 법안 통과',
   'battery':     '글로벌 EV 성장 둔화 · 중국 CATL 가격 경쟁 · 전고체 전환기 불확실성 · IRA 보조금 축소',
   'bio':         '알테오젠 SC 기술 글로벌 수출 · 삼성바이오 CDMO 4공장 · 셀트리온 미국 점유율 확대 · 한미약품 GLP-1',
@@ -16720,7 +16744,7 @@ var KR_THEME_CATALYSTS = {
   'steel_chem':  'POSCO 2차전지 수직계열화 · 현대제철 H-Form · 유가 $100 정유 마진 · LG화학 분리막',
   'logistics':   'CJ대한통운 합병 · 대한항공 아시아나 합병 · 현대글로비스 성장 · 항공화물 수요',
   'medtech_kr':  '삼천당제약 경구용 GLP-1 대량생산 → 코스닥 시총 1위 · 미래컴퍼니 수술로봇 레티아이 · 리가켐바이오 ADC 기술이전',
-  'energy_kr':   'S-Oil 샤힌프로젝트 · 유가 $91(재협상 기대 하락) · WTI $80대 복귀 시 정유 마진↓ · 재협상 실패 시 $110+ 재급등 · 구조적 공급 감소 잔존',
+  'energy_kr':   '[04/25] 이란 호르무즈 봉쇄: 정상 수출의 4% 수준·저장 22일치(4천만 배럴) · 16일 후 감산 시작·30일 근방 전면 중단 가능 · 봉쇄 장기화 시 WTI $110+ 재급등 시나리오 · 현재=협상 레버리지 단계(시간 제한적) · S-Oil 샤힌프로젝트 · 유가 $91(재협상 기대 하락) · WTI $80대 복귀 시 정유 마진↓ · 재협상 실패 시 $110+ 재급등 · 구조적 공급 감소 잔존',
   'photonics_kr':'Capex 효율화 사이클(§58): 네트워크 패브릭이 시스템 병목 · CPO/OCS 아키텍처 전환(§55) · InP EML 병목 · NVIDIA 광학 $12B 수혜 · JPM 광학 프리미엄 +83% 과열→2028년 이익 전제 필요(GLW/FN OW→N)'
 };
 
@@ -25901,7 +25925,7 @@ document.addEventListener('aio:liveQuotes', function() {
   btn.addEventListener('mousedown',onStart);
   btn.addEventListener('touchstart',onStart,{passive:false});
   document.addEventListener('mousemove',onMove);
-  document.addEventListener('touchmove',onMove,{passive:false});
+  document.addEventListener('touchmove',onMove,{passive:true}); /* v48.68 P139: 글로서리 버튼 display:none → isDragging 항상 false → preventDefault() 미호출 → passive:true 안전 (브라우저 터치 스크롤 최적화 허용) */
   document.addEventListener('mouseup',onEnd);
   document.addEventListener('touchend',onEnd);
 })();
