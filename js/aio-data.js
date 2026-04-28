@@ -7433,6 +7433,11 @@ async function fetchAllNews(forceRefresh = false) {
   if (isFetching && _fetchStartTime && Date.now() - _fetchStartTime > 180000) {
     _aioLog('warn', 'fetch', 'fetchAllNews isFetching 180s 초과 — 강제 리셋');
     isFetching = false;
+    // v48.69: P66 재발 방지 — 영구 로딩 대신 에러 메시지 표시
+    var _feedErr = document.getElementById('live-news-feed');
+    if (_feedErr && _feedErr.innerHTML.indexOf('⟳') !== -1) {
+      _feedErr.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">뉴스를 불러오지 못했습니다. <a href="#" onclick="window.isFetching=false;fetchAllNews(true);return false;" style="color:var(--accent);">다시 시도</a></div>';
+    }
   }
   if (isFetching) return;
   // v21: 캐시 유효 시간 10분 (5명 동시접속 시 불필요한 중복 호출 방지)
@@ -8826,9 +8831,9 @@ async function fetchLiveQuotes() {
             var _extHours = {};
             var _mState = (meta.marketState || '').toUpperCase();
             if (_mState === 'PRE' && meta.preMarketPrice > 0) {
-              _extHours = { extPrice: meta.preMarketPrice, extPct: meta.preMarketChangePercent || 0, extSession: 'pre' };
+              _extHours = { extPrice: meta.preMarketPrice, extPct: meta.preMarketChangePercent != null ? meta.preMarketChangePercent : null, extSession: 'pre' };
             } else if ((_mState === 'POST' || _mState === 'POSTPOST') && meta.postMarketPrice > 0) {
-              _extHours = { extPrice: meta.postMarketPrice, extPct: meta.postMarketChangePercent || 0, extSession: 'post' };
+              _extHours = { extPrice: meta.postMarketPrice, extPct: meta.postMarketChangePercent != null ? meta.postMarketChangePercent : null, extSession: 'post' };
             }
             return { symbol, ...meta, ..._extHours, regularMarketChangePercent: _dPct || 0, chartPreviousClose: _dPrev, _source: 'live:yahoo-direct' };
           }
@@ -9613,7 +9618,7 @@ function applyLiveQuotes(quotes) {
     // v36.6: 프리/애프터마켓 시세 저장 (미국장 마감 후 방향성 추적)
     if (q.extPrice && q.extSession) {
       window._extHoursData = window._extHoursData || {};
-      window._extHoursData[q.symbol] = { price: q.extPrice, pct: q.extPct || 0, session: q.extSession, ts: now };
+      window._extHoursData[q.symbol] = { price: q.extPrice, pct: q.extPct != null ? q.extPct : null, session: q.extSession, ts: now };
     }
     // v36.7: chartPreviousClose를 _liveData에 보존 (분석/해석용 종가 기준)
     if (q.chartPreviousClose && q.chartPreviousClose > 0) {
@@ -9689,9 +9694,9 @@ function applyLiveQuotes(quotes) {
       var _extHeroEl = document.getElementById('ticker-hero-ext');
       if (_extHeroEl && _currentTickerSym === q.symbol) {
         var _usS = (typeof _getUsSession === 'function') ? _getUsSession() : 'open';
-        var extPctVal = q.extPct || 0;
+        var extPctVal = q.extPct != null ? q.extPct : null;
         var extLabel = q.extSession === 'pre' ? 'Pre' : 'After';
-        var extColor = extPctVal >= 0 ? '#00e5a0' : '#ff5b50';
+        var extColor = extPctVal != null ? (extPctVal >= 0 ? '#00e5a0' : '#ff5b50') : 'var(--text-muted)';
         if (_usS === 'pre' || _usS === 'after') {
           _extHeroEl.innerHTML = '<span style="font-size:11px;color:#94a3b8;">종가 ' +
             price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>' +
@@ -9699,7 +9704,7 @@ function applyLiveQuotes(quotes) {
             '<span style="font-size:11px;color:#a78bfa;margin-right:3px;">' + extLabel + '</span>' +
             '<span style="font-size:10px;color:' + extColor + ';font-weight:700;font-family:var(--font-mono);">' +
             q.extPrice.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) +
-            ' (' + (extPctVal >= 0 ? '+' : '') + extPctVal.toFixed(2) + '%)</span>';
+            ' (' + (extPctVal != null ? (extPctVal >= 0 ? '+' : '') + extPctVal.toFixed(2) + '%' : '—') + ')</span>';
           _extHeroEl.style.display = '';
         } else {
           _extHeroEl.style.display = 'none';
@@ -9937,9 +9942,9 @@ function generateDynamicBriefing() {
   else yieldStatus = '10Y ' + tnxPrice.toFixed(2) + '% — 금리 하향, 성장주 우호적';
 
   // F&G
-  var fgVal = snap.fg || 0;
-  var fgLabel = fgVal <= 25 ? '극단공포' : fgVal <= 45 ? '공포' : fgVal <= 55 ? '중립' : fgVal <= 75 ? '탐욕' : '극단탐욕';
-  var fgColor = fgVal <= 25 ? '#ff5b50' : fgVal <= 45 ? '#ffa31a' : fgVal <= 55 ? 'var(--text-secondary)' : fgVal <= 75 ? '#00e5a0' : '#10b981';
+  var fgVal = snap.fg != null ? snap.fg : null;
+  var fgLabel = fgVal != null ? (fgVal <= 25 ? '극단공포' : fgVal <= 45 ? '공포' : fgVal <= 55 ? '중립' : fgVal <= 75 ? '탐욕' : '극단탐욕') : '—';
+  var fgColor = fgVal != null ? (fgVal <= 25 ? '#ff5b50' : fgVal <= 45 ? '#ffa31a' : fgVal <= 55 ? 'var(--text-secondary)' : fgVal <= 75 ? '#00e5a0' : '#10b981') : 'var(--text-muted)';
 
   // 날짜
   var now = new Date();

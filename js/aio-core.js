@@ -491,7 +491,8 @@ if (typeof document !== 'undefined') {
       setTimeout(window._aioRenderSnapshotDates, 500);
     });
   }
-  setInterval(window._aioRenderSnapshotDates, 15 * 60 * 1000);
+  if (window._aioSnapshotDatesTimer) clearInterval(window._aioSnapshotDatesTimer);
+  window._aioSnapshotDatesTimer = setInterval(window._aioRenderSnapshotDates, 15 * 60 * 1000);
 }
 
 // v48.51: Breadth 9-canvas fallback 렌더러 — Chart.js 없이 2D 캔버스로 경량 sparkline
@@ -1054,7 +1055,7 @@ window._aioUpdateFreshness = function() {
   var label = document.getElementById('pf-freshness-label');
   var time = document.getElementById('pf-freshness-time');
   var now = Date.now();
-  var lastFetch = (window._lastFetch && window._lastFetch.liveQuotes) ? window._lastFetch.liveQuotes : null;
+  var lastFetch = (window._lastFetch && (window._lastFetch.quote || window._lastFetch.liveQuotes)) ? (window._lastFetch.quote || window._lastFetch.liveQuotes) : null;
   if (!lastFetch) {
     if (dot) { dot.style.background = '#8896a8'; dot.style.boxShadow = 'none'; }
     if (label) { label.textContent = '대기 중'; label.style.color = 'var(--text-muted)'; }
@@ -1075,7 +1076,8 @@ window._aioUpdateFreshness = function() {
 };
 if (typeof document !== 'undefined') {
   document.addEventListener('aio:liveQuotes', function(){ window._aioUpdateFreshness(); });
-  setInterval(function(){ window._aioUpdateFreshness(); }, 30 * 1000);
+  if (window._aioFreshnessTimer) clearInterval(window._aioFreshnessTimer);
+  window._aioFreshnessTimer = setInterval(function(){ window._aioUpdateFreshness(); }, 30 * 1000);
 }
 
 // v48.55: 뉴스 티커 배지 클릭 → ticker 페이지 이동 + 심볼 자동 조회 (사용자 지적 "뉴스→기업" 연결)
@@ -2670,7 +2672,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.68';
+const APP_VERSION = 'v48.69';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -3161,7 +3163,8 @@ document.addEventListener('aio:pageShown', function(e) {
   }
 });
 if (typeof window !== 'undefined') {
-  setInterval(function() {
+  if (window._aioFreshnessPanelTimer) clearInterval(window._aioFreshnessPanelTimer);
+  window._aioFreshnessPanelTimer = setInterval(function() {
     var panel = document.getElementById('aio-freshness-panel');
     if (panel && panel.offsetParent !== null && window._aioRenderFreshness) {
       window._aioRenderFreshness();
@@ -4335,6 +4338,11 @@ function applyDataSnapshot() {
       }
     } catch(cpErr) {
       if (typeof _aioLog === 'function') _aioLog('warn', 'narrative', 'renderCPTexts in applyDataSnapshot: ' + cpErr.message);
+    }
+    // v48.69: R21 — 정적 스냅샷 패널에 신선도 경고 배지 (MOVE/SKEW/기타 스냅 데이터)
+    if (typeof renderStaleWarning === 'function') {
+      renderStaleWarning('risk-monitor-grid');
+      renderStaleWarning('risk-extra-grid');
     }
   } catch (e) {
     if (typeof _aioLog === 'function') _aioLog('error', 'render', 'applyDataSnapshot failed: ' + e.message); else console.warn('[AIO] applyDataSnapshot error:', e.message);

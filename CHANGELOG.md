@@ -6,6 +6,35 @@
 
 ---
 
+## v48.69 — 전수 보안·성능·데이터 보강 P140~P143 (2026-04-28)
+
+### 변경 사항
+
+**보안 (P140/R34)**
+- **CDN SRI 추가**: `index.html` chart.js@4.4.0 / dompurify@3.0.9 / lightweight-charts@4.2.0 CDN `<script>` 3개에 `integrity="sha384-..."` + `crossorigin="anonymous"` 추가 — supply chain attack 방어
+- **R34 신설**: 외부 CDN 스크립트 SRI + crossorigin 필수 규칙 (_context/RULES.md)
+
+**성능/안정성 (P141/R9)**
+- **setInterval ID 저장**: `js/aio-core.js:494` `window._aioSnapshotDatesTimer` + `:1078` `window._aioFreshnessTimer` 에 반환값 저장 + 재등록 전 clearInterval 선행 — 좀비 타이머 누적 방지
+- **Chart.js destroy 완결**: `js/aio-ui.js:391` AAII/PC 차트 destroy 후 `delete sentPageCharts[k]` 추가 — 좀비 참조 방지
+- **R9 4차 강화**: RULES.md에 명시적 코드 예시 추가
+
+**데이터 신뢰성 (P142/R15, P143)**
+- **R15 위반 5건 수정**: `js/aio-data.js:8829, 8831, 9616, 9692, 9940` — extPct·F&G 처리에서 `|| 0` → `!= null ? val : null` 패턴 전환. 프리마켓 미수신 시 "0.00%" → "—", F&G 미수신 시 "0 극단공포" → "—"
+- **_lastFetch 키 불일치 수정**: `js/aio-core.js:1058` — `_lastFetch.quote || _lastFetch.liveQuotes` 양방향 폴백으로 포트폴리오 신선도 "대기 중" 영구 표시 해결
+
+**신선도/UX**
+- **renderStaleWarning 호출**: `js/aio-core.js` applyDataSnapshot() 말미에 `risk-monitor-grid` / `risk-extra-grid` 신선도 배지 자동 호출 추가 — 함수가 정의만 되고 한 번도 호출 안 되던 문제 해결
+- **id="risk-extra-grid"**: `index.html` SKEW/딜러감마 그리드 컨테이너에 ID 추가 (renderStaleWarning 타겟)
+- **fetchAllNews 영구 로딩 방어**: `js/aio-data.js:7433` 180초 타임아웃 시 "뉴스를 불러오지 못했습니다. 다시 시도" 에러 UI 표시
+
+**규칙·지식 베이스 보강 (R35, P140~P143)**
+- **R35 신설**: 독립 병렬 fetch는 개별 `.catch(()=>null)` 필수 (Promise.allSettled 또는 동등 방어) — _context/RULES.md
+- **BUG-POSTMORTEM P140~P143**: 4건 사후 분석 추가 + frontmatter v48.69/P143/total_entries:143 업데이트
+- **QA-CHECKLIST v3.6**: QC9(CDN SRI) · QC10(setInterval ID) 게이트 신설, 20단계(grep 자동 검증 4항목) 추가
+
+---
+
 ## v48.68 — P139 스크롤 scroll-chaining 버그 수정 (2026-04-27)
 
 ### 변경 사항

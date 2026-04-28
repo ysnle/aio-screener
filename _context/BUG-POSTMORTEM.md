@@ -2,10 +2,10 @@
 verified_by: human
 last_verified: 2026-04-27
 confidence: high
-latest_version: v48.68
-latest_P_number: P139
-next_P_number: P140
-total_entries: 139
+latest_version: v48.69
+latest_P_number: P143
+next_P_number: P144
+total_entries: 143
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -144,6 +144,55 @@ total_entries: 139
 | P66 | v45.5 | 2026-04-09 | 데이터 미수신 상태에서 "로딩" 텍스트 영구 정체 금지 — 폴백 데이터 우선 사용, 그래도 없으면 "대기/—"로 명시 |
 | P67 | v45.5 | 2026-04-09 | 같은 동급 컴포넌트(pulse-seg/카드)는 동일 자식 구조 유지. 한쪽만 자식 누락 시 시각 정렬 깨짐 |
 | **P139** | **v48.68** | **2026-04-27** | **scroll-chaining 버그**: `.content(overflow-y:auto)`가 scrollTop=0에서 위/아래로 스크롤 시 부모(body·app·main, 모두 overflow:hidden)로 이벤트 전파 → 부모 스크롤 불가 → 사용자 "스크롤 안 됨" 체감. 테마/트렌드 페이지 포함 전 페이지 해당. `overscroll-behavior-y:contain` + `-webkit-overflow-scrolling:touch` 추가로 해결 |
+| **P140** | **v48.69** | **2026-04-28** | **CDN SRI 누락 → supply chain attack 위험**: index.html CDN `<script>` 3개(chart.js/dompurify/lightweight-charts)에 integrity/crossorigin 속성 없음 → 네트워크·CDN 오염 공격 시 임의 코드 실행 가능. sha384 해시 + crossorigin="anonymous" 추가 → R34 신설 |
+| **P141** | **v48.69** | **2026-04-28** | **setInterval ID 미저장 재발(aio-core.js:494/1078)**: _aioRenderSnapshotDates·_aioUpdateFreshness 두 타이머 반환값 미저장 → clearInterval 불가 → 탭 반복 전환 시 타이머 누적. window._aioSnapshotDatesTimer·_aioFreshnessTimer 저장 + 재등록 전 clearInterval 선행. R9 4차 강화 |
+| **P142** | **v48.69** | **2026-04-28** | **R15 위반 5건 재발(aio-data.js:8829/8831/9616/9692/9940)**: extPct·F&G 처리에 `\|\| 0` 패턴 → null 미수신 시 "0.00%"/"0 극단공포" 오표시. `!= null ? val : null` 패턴으로 전환. R15 5차 강화 |
+| **P143** | **v48.69** | **2026-04-28** | **_lastFetch 키 불일치 → 포트폴리오 신선도 항상 "대기 중"**: _aioUpdateFreshness()가 `.liveQuotes` 조회, _markFetch()는 `'quote'` 키 저장 → 영구 miss. aio-core.js:1058 — `_lastFetch.quote \|\| _lastFetch.liveQuotes` 양쪽 폴백 조회로 수정 |
+
+---
+
+## [2026-04-28] v48.69 — 전수 보안·성능·데이터 보강 P140~P143
+
+### BUG-P140: CDN SRI 누락 → supply chain attack 위험 (HIGH)
+- **violated_rule**: 신규 → R34 (CDN SRI 의무)
+- **증상**: chart.js/dompurify/lightweight-charts CDN에서 악의적으로 수정된 파일이 로드되어도 브라우저가 감지하지 못함. 네트워크 중간자 또는 CDN 오염 발생 시 사용자 세션에서 임의 JS 실행 가능.
+- **근본 원인**: index.html CDN `<script>` 3개에 `integrity`/`crossorigin` 속성이 없음. SRI는 브라우저가 다운로드한 리소스의 해시를 검증하여 변조를 막는 W3C 표준인데 적용하지 않은 상태.
+- **수정**: `index.html` CDN 3개에 sha384 해시 추가
+  ```html
+  integrity="sha384-..." crossorigin="anonymous"
+  ```
+  chart.js@4.4.0 / dompurify@3.0.9 / lightweight-charts@4.2.0 각각 적용.
+- **예방**: P140/R34 — 외부 CDN `<script>` 추가 시 integrity + crossorigin 속성 필수. 해시 생성: `curl -sL <URL> | openssl dgst -sha384 -binary | openssl base64 -A`
+
+### BUG-P141: setInterval ID 미저장 재발 (aio-core.js:494/1078) — R9 4차 강화 (MEDIUM)
+- **violated_rule**: R9 (setInterval 반환값 전역 저장 필수)
+- **증상**: 앱 최초 로드 후 DOMContentLoaded에서 등록된 두 setInterval이 ID 없이 실행됨. 탭/페이지를 반복 전환하거나 app 재초기화 시 새 타이머가 추가 등록되어 15분(스냅샷 날짜), 30초(신선도) 주기로 중복 실행 누적.
+- **근본 원인**: `aio-core.js:494` `setInterval(window._aioRenderSnapshotDates, 15*60*1000)` 와 `:1078` `setInterval(_aioUpdateFreshness, 30*1000)` 모두 반환값을 어디에도 저장하지 않음. R9는 v44.6 P63에서 명시적으로 선언된 규칙인데 재발.
+- **수정**: `js/aio-core.js`
+  - `:494` → `if (window._aioSnapshotDatesTimer) clearInterval(window._aioSnapshotDatesTimer);` + `window._aioSnapshotDatesTimer = setInterval(...)`
+  - `:1078` → `if (window._aioFreshnessTimer) clearInterval(window._aioFreshnessTimer);` + `window._aioFreshnessTimer = setInterval(...)`
+- **예방**: P141/R9 4차 강화 — `setInterval(` 추가 시 즉시 반환값을 `window._xxxTimer` 변수에 저장. 재등록 직전 `clearInterval` 선행 필수.
+
+### BUG-P142: R15 위반 5건 재발 (aio-data.js extPct/F&G) — R15 5차 강화 (HIGH)
+- **violated_rule**: R15 (데이터 미수신 vs 진짜 0% 구분)
+- **증상**: (1) 프리마켓/애프터마켓 시간대 extPct 미수신 시 시세 카드에 "0.00%" 표시 — 실제는 데이터 없음. (2) Fear & Greed 미수신 시 "0 극단공포" 오표시 — 실제는 지수 없음.
+- **근본 원인**: `aio-data.js:8829, 8831` extPct 저장 시 `q.extPct || 0`, `:9616` _extHoursData 빌드 시 `|| 0`, `:9692` 표시 시 `|| 0`, `:9940` F&G 처리 시 `snap.fg || 0` — 모두 R15 금지 패턴. null/undefined가 0으로 강제 변환되어 의미가 왜곡됨.
+- **수정**: `js/aio-data.js`
+  - 5곳 모두 `!= null ? val : null` 패턴으로 교체
+  - F&G: `fgVal = snap.fg != null ? snap.fg : null` → null이면 라벨 "—", 색상 `var(--text-muted)`
+- **예방**: P142/R15 5차 강화 — `||0`/`|| '—'` 패턴은 pct·score·price 필드에 절대 사용 금지. /qa 시 `grep '|| 0' js/aio-data.js | grep -i 'pct\|fg\|score\|price'` → 0건 확인 필수.
+
+### BUG-P143: _lastFetch 키 불일치 → 포트폴리오 신선도 항상 "대기 중" (MEDIUM)
+- **violated_rule**: R33 (AIO_Cache·_lastFetch 키 일관성)
+- **증상**: 포트폴리오 페이지 하단 신선도 스트립이 실시간 시세(liveQuotes) 수신 성공 후에도 "대기 중" 영구 표시. 마지막 갱신 시간이 전혀 업데이트되지 않음.
+- **근본 원인**: `_aioUpdateFreshness()`(aio-core.js:1058)가 `window._lastFetch.liveQuotes`를 조회하는데 `_markFetch()`가 시세 성공 시 `'quote'` 키로 저장함. 키가 다르므로 조회 결과가 항상 undefined → 조건 false → "대기 중" 영구 표시. 설계 초기 키 이름이 변경되었으나 소비 측이 업데이트되지 않은 것으로 추정.
+- **수정**: `js/aio-core.js:1058`
+  ```javascript
+  var lastFetch = (window._lastFetch && (window._lastFetch.quote || window._lastFetch.liveQuotes))
+    ? (window._lastFetch.quote || window._lastFetch.liveQuotes) : null;
+  ```
+  양쪽 키를 OR로 조회하여 이름 불일치 방어.
+- **예방**: P143 — `_markFetch(key)` 호출 시 key 이름과 소비 측 조회 키를 양방향 grep 검증 필수. `grep -n "_lastFetch\." js/aio-core.js` 결과로 저장/조회 키 대칭 확인.
 
 ---
 

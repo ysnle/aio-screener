@@ -173,6 +173,15 @@ Yahoo Finance가 가격을 반환해도 해당 기업이 실제 상장사인지 
 - 정적 페이지(guide)는 예외이나, 동적 데이터가 하나라도 있으면 반드시 적용
 - **[3회 위반 강화]** init 가드(`if (xxxInitialized) return;`) 사용 시 `destroyPageCharts()`에 반드시 `xxxInitialized = false` 리셋 추가. 누락 시 페이지 재진입 불가 (P28)
 - **[3회 위반 강화]** `setInterval` 추가 시 반드시 `destroyPageCharts()`에 대응 `clearInterval` 추가 (P27). 타이머 미해제 = 좀비 프로세스
+- **[v48.69 4차 강화]** 전역 연속 타이머(모듈 최상위 레벨)도 반드시 ID를 전역 변수에 저장할 것:
+  ```javascript
+  // 금지
+  setInterval(fn, 15*60*1000);
+  // 올바른 패턴
+  if (window._myTimer) clearInterval(window._myTimer);
+  window._myTimer = setInterval(fn, 15*60*1000);
+  ```
+- 검증: `grep -n 'setInterval(' js/*.js | grep -v 'clearInterval\|_.*=\s*setInterval\|window\._.*=\s*setInterval'` → 0건 기대
 
 ### R15. 데이터 미수신 vs 진짜 0% 구분 필수 (v38.3 추가, P25, v42.1 강화)
 - `d.pct || 0` 패턴은 **데이터 없음**과 **진짜 0% 변동**을 구분할 수 없으므로 금지
@@ -333,6 +342,20 @@ Yahoo Finance가 가격을 반환해도 해당 기업이 실제 상장사인지 
   가이드 페이지 → 디버그 섹션 → 신선도 패널 → 모든 API에 🟢 배지 확인
 
 ---
+
+### R34. 외부 CDN 스크립트 SRI 의무 (v48.69 추가, P140 교훈)
+- 모든 외부 CDN `<script src="...">` 태그에 반드시 `integrity="sha384-..."` + `crossorigin="anonymous"` 속성 필수
+- 이유: CDN 서버 해킹·MITM 시 악성 JS 주입 가능 (supply chain attack). SRI 없으면 브라우저가 변조 여부를 검증하지 않음
+- 해시 생성: `curl -sL <URL> | openssl dgst -sha384 -binary | openssl base64 -A` 로 취득 후 `sha384-<hash>` 형식 사용
+- 폴백 스크립트(document.createElement)는 SRI 적용 불가 — 검증된 CDN URL로 교체 고려
+- 검증: `grep -c 'integrity=' index.html` — CDN script 수와 일치 여부 확인
+
+### R35. 독립 병렬 fetch는 단일 실패 격리 (v48.69 추가, P143 교훈)
+- `Promise.all([f1, f2, f3])` 내 각 promise는 반드시 `.catch(()=>null)` 또는 `.catch(()=>FALLBACK)` 추가
+- 이유: 하나의 API 실패가 나머지 모든 결과를 폐기시킴 → 부분 실패 시에도 가능한 데이터 표시 필요
+- **권장 패턴**: 각 fetch에 개별 `.catch` 추가 방식 (현재 FMP 구현 방식 — 이미 올바름)
+- **대안**: `Promise.allSettled([f1, f2, f3]).then(results => results.map(r => r.status==='fulfilled' ? r.value : null))`
+- 검증: `grep -n 'Promise\.all\(' js/*.js | grep -v '\.catch\|allSettled'` — 각 fetch에 .catch 없는 경우 점검
 
 ### R32. Event Delegation 의무화 — onclick 인라인 핸들러 금지 (v48.35 추가, P132 교훈)
 - **원칙**: HTML 및 JS 템플릿 리터럴 안에 `onclick=` / `onsubmit=` / `onchange=` / `onkeyup=` 등 인라인 이벤트 속성 **전면 금지**.

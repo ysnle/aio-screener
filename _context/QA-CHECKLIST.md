@@ -2,20 +2,22 @@
 verified_by: agent
 last_verified: 2026-04-14
 confidence: high
-version: v3.5
-checklist_version: v46.8
-total_items: 252
-stages: 18
-latest_P_covered: P105
+version: v3.6
+checklist_version: v48.69
+total_items: 258
+stages: 20
+latest_P_covered: P143
 ---
 
-# AIO Screener — QA 체크리스트 v3.3
+# AIO Screener — QA 체크리스트 v3.6
 
 > **v3 배경**: v2는 브라우저 런타임·콘솔·차트·레이아웃에 강하지만, LLM 답변·뉴스 선별·포트폴리오·기업분석·번역·API 키·인터랙션·성능·접근성 등 스크리너 핵심 기능의 50%+가 QA 범위 밖이었음. v3는 22개 페이지 × 264개 클릭 핸들러 × 10개 기능 모듈을 전수 커버.
 > **v3.1 추가 (2026-04-06)**: v42.5~v42.7 전수 QA에서 발굴한 P56~P60 패턴 반영. init 중복 cleanup(P56), 그리드 모바일(P57), applyDataSnapshot 역방향(P58), API 전역 초기화 순서(P59), 크로스페이지 함수 연결(P60).
 > **v3.2 추가 (2026-04-08)**: v44.6 이벤트-드리븐 QA에서 발굴한 P61~P63 반영. 17단계 신설 — 이벤트 후 하드코딩 텍스트 퇴행 검증(P61), "구조적 한계" 거부 원칙(P62), 전역 타이머 추적 불가(P63).
 > **v3.3 추가 (2026-04-09)**: v44.9 /bug-fix QA에서 발굴한 P64 반영. 3F-0 신설 — SCREENER_DB 신규 종목 KNOWN_TICKERS 동시 등록 검증.
 > **v3.4 추가 (2026-04-09)**: v45.5 표면 점검 사각지대 QA에서 발굴한 P65~P67 반영. **신규 19단계: 사용자 인터랙션 결과 검증** — UI 토글/탭/모드 클릭 시 결과값이 실제로 바뀌는지(P65), 데이터 미수신 시 "로딩" 영구 정체 없는지(P66), 동급 컴포넌트 자식 구조 일관성(P67).
+> **v3.5 추가 (2026-04-17)**: v48.62 UX 실전성 보강(P106~P110) — 결론 바·fb-estimated 배지·신규 페이지 R49 준수.
+> **v3.6 추가 (2026-04-28)**: v48.69 보안·타이머·데이터 무결성 감사(P140~P143). **QC9·QC10 게이트 신설** — CDN SRI 완결성(R34/P140), setInterval ID 저장(R9/P141). **20단계** — grep 기반 자동 검증 4항목.
 > **핵심 원칙**: 코드 수정 → "고쳤다" 선언 금지. **브라우저에서 직접 확인한 증거**가 있어야 완료.
 > **반복 요청 분석 결과**: 6대 패턴 중 #1 "코드 고쳤다면서 브라우저에서 안 되잖아"가 최다 빈도 → 이 체크리스트의 존재 이유
 > **총 검증 항목**: 234개 (v3: 204개 + v3.1: 12개 + v3.2: 14개 + v3.3: 1개 + v3.4: 3개 신규)
@@ -36,6 +38,8 @@ latest_P_covered: P105
 | **QC6** | Dead Static HTML (P46) | `applyDataSnapshot` map의 모든 키가 HTML `data-snap` 속성과 1:1 매칭 | 13 |
 | **QC7** | 과거 버그 재발 없음 | BUG-POSTMORTEM P41~P64 패턴 grep 결과 재발 0건 | 15 |
 | **QC8** | 이벤트 정합성 (P61) | WTI/VIX/지정학 이벤트 후 하드코딩 서술 텍스트가 현재 상황과 일치 | 17 |
+| **QC9** | CDN SRI 완결성 (R34/P140) | `grep -c 'integrity=' index.html` ≥ 3 **AND** crossorigin="anonymous" 동반 | 20 |
+| **QC10** | setInterval ID 저장 (R9/P141) | `grep -En 'setInterval\(' js/aio-core.js js/aio-data.js \| grep -v 'window\._.*Timer\|clearInterval'` → 0건 | 20 |
 
 ### 판정 규칙
 - **전부 yes** → PASS ✓, 배포 가능 (사용자 명시 승인 시)
@@ -60,6 +64,8 @@ latest_P_covered: P105
 | QC6 | 13 | P45, P46, P58 |
 | QC7 | 15 | 전체 BUG-POSTMORTEM |
 | QC8 | 17 | P61, P62, P63 |
+| QC9 | 20 | R34, P140 |
+| QC10 | 20 | R9, P141, P143 |
 
 ---
 
@@ -1968,3 +1974,9 @@ P107: `_updateAllConclusionBars()` 호출 경로 — `updateMarketPulse()` 내 �
 P108: `fb-estimated` 배지 색상 — amber(`rgba(255,163,26,...)`) 정상 렌더링 여부
 P109: 결론 바 "업데이트" 열 — 데이터 로드 후 "—" 에서 상대시간(예: "3분 전")으로 갱신되는지 확인
 P110: 새 페이지 추가 시 R49 준수 — 결론 바 div 삽입 여부 grep(`id=".*-conclusion-bar"`) 확인
+
+── v48.69: 보안·타이머·데이터 무결성 검증 (2026-04-28) ──
+P140/R34: CDN SRI integrity 속성 존재 여부 — `grep -c 'integrity=' index.html` ≥ 3, 각 줄에 crossorigin="anonymous" 동반 확인
+P141/R9: setInterval ID 전역 저장 여부 — `grep -n 'setInterval(' js/aio-core.js | grep -v 'window\._.*Timer'` → 0건 (결과 있으면 ID 미저장 타이머)
+P142/R15: aio-data.js extPct/F&G `|| 0` 재발 검사 — `grep -n '|| 0' js/aio-data.js | grep -i 'pct\|fg\|score'` → 0건
+P143: _lastFetch 키 정합 — `grep -n '_lastFetch\.' js/aio-core.js` 결과에서 저장 키('quote')와 조회 키('quote'||'liveQuotes') 대칭 확인

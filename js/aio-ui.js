@@ -387,8 +387,8 @@ let sentChartsInitialized = false;
 function initSentimentCharts() {
   if (typeof Chart === 'undefined') return;
   if (sentChartsInitialized) return;
-  // v30.10: Destroy previous AAII/PC charts if any
-  ['aaii','pc'].forEach(k => { if (sentPageCharts[k]) { try { sentPageCharts[k].destroy(); } catch(e){} } });
+  // v30.10: Destroy previous AAII/PC charts if any (v48.69: delete after destroy — 좀비 참조 방지)
+  ['aaii','pc'].forEach(k => { if (sentPageCharts[k]) { try { sentPageCharts[k].destroy(); } catch(e){} delete sentPageCharts[k]; } });
   sentChartsInitialized = true;
 
   // ─ AAII stacked horizontal bar ─────────────────────────────────────
