@@ -1774,7 +1774,9 @@ const _AioVault = {
       for (var i = 0; i < r.length; i++) this._salt[i] = r.charCodeAt(i);
     } else {
       this._salt = crypto.getRandomValues(new Uint8Array(16));
-      localStorage.setItem('aio_vault_salt', btoa(String.fromCharCode.apply(null, this._salt)));
+      try {
+        localStorage.setItem('aio_vault_salt', btoa(String.fromCharCode.apply(null, this._salt)));
+      } catch(e) { _aioLog('warn', 'vault', 'salt 저장 실패 (개인정보 보호 모드?): ' + e.message); }
     }
     this._derivedKey = await this.deriveKey(pin, this._salt);
     return true;
