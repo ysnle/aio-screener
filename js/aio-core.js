@@ -2674,7 +2674,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.69';
+const APP_VERSION = 'v48.70';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -3181,53 +3181,53 @@ if (typeof window !== 'undefined') {
 const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
-  // v48.53: _updated → 금요일 2026-04-17 장마감 시각 (4/15→4/17 간격은 4/16 휴장+4/17 금요일 종가 반영 · data-snap-date 동적 렌더러로 전 DOM 갱신)
-  _updated: '2026-04-17T16:00:00-04:00',   // 폴백 스냅샷 = 직전 영업일 장마감 (미동부 4PM)
-  _snapshotDate: '2026-04-17',               // v48.53: 정적 폴백 기준일 (data-snap-date 동적 바인딩 소스)
+  // v48.70: _updated → 월요일 2026-04-28 장마감 시각 (FOMC 개최일 전날 종가 기준)
+  _updated: '2026-04-28T16:00:00-04:00',   // 폴백 스냅샷 = 직전 영업일 장마감 (미동부 4PM)
+  _snapshotDate: '2026-04-28',               // v48.70: 정적 폴백 기준일 (data-snap-date 동적 바인딩 소스)
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v48.61 — /data-refresh WebSearch 실측 (2026-04-17 금요일 장마감 기준): SPX 7126.06 ATH (+1.47% vs 4/15) · NASDAQ 24744 (QQQ $648.85 기반) · VIX 17.48 (-4.80%) · WTI $79.78 (-12.6%, 호르무즈 완전 개통 선언 + 이스라엘-레바논 휴전) · Gold $4,899 (+1.51%, flight-to-quality) · KOSPI 6191.92 (-0.55% 4/17, 주간 +1.65%) · KOSDAQ 1170.04 (+0.61% 4/17, 외국인 순매도) · AAII Bear 43% 유지 (4/19 Bull 31.7% 발표 기반 추정). 꼬리위험 역설 완화 (VIX/VVIX/MOVE 동반 하락). v48.61 Phase 8 /data-refresh + v48.60 실측 스크린샷 분석.',
+  _note: 'v48.70 — /data-refresh WebSearch 실측 (2026-04-28 월요일 장마감 기준): SPX 7138.80 (+0.25%) · NASDAQ 24663.80 (+0.40%) · Dow 49141.90 · VIX 18.92 (FOMC 경계 소폭 상승) · WTI $99.93 (+25.3% vs 4/17, 호르무즈 봉쇄 유지 반전 — 트럼프 이란 제안 불만족) · Brent $111.26 · Gold ~$4,600 (고점 차익실현) · KOSPI 6615 ATH(!) · KOSDAQ 1217.12 · KRW 1473.20. FOMC 4/28-29 → 3.50-3.75% 동결, 6/16-17 차기(SEP). CPI(3월) 3.3% · Core 2.6%. AAII(4/22) Bull 46.0% Bear 34.4%(반전 개선). NAAIM 94.15(극단적 노출). v48.70 /data-refresh.',
 
-  // ── 미국 주요 지수 (4/17 금 종가 WebSearch 실측) ──
-  spx:        7126.06,  spxPct:    +1.47,   // v48.61: 4/17 ATH 경신 (4/15 7022.95→+1.47%), 호르무즈 완전 개통 선언
-  nasdaq:    24744.00,  nasdaqPct: +1.85,   // v48.61: 4/17 QQQ $648.85 기반 추정 (4/15 24016→+3.03% 2세션)
-  dow:       48900.00,  dowPct:    +0.90,   // v48.61: 4/17 다우 상승 (ceasefire rally)
-  rut:        2750.00,  rutPct:    +1.47,   // v48.61: Russell 소폭 상승 추정
-  vix:          17.48,  vixPct:    -4.80,   // v48.61: 4/17 VIX 17.48 (4/15 18.36→-4.80%) 위험선호 지속
-  vvix:         87.50,                        // v48.61: VVIX 하향 안정 (VIX 하락과 동반)
+  // ── 미국 주요 지수 (4/28 월 종가 WebSearch 실측) ──
+  spx:        7138.80,  spxPct:    +0.25,   // v48.70: 4/28 SPX 7138.80 (FOMC 경계, WTI $100 충격 상쇄)
+  nasdaq:    24663.80,  nasdaqPct: +0.40,   // v48.70: 4/28 NASDAQ 24663.80
+  dow:       49141.90,  dowPct:    +0.28,   // v48.70: 4/28 Dow 49141.90
+  rut:        2755.99,  rutPct:    +0.15,   // v48.70: 4/28 Russell 2000 2755.99
+  vix:          18.92,  vixPct:    +1.50,   // v48.70: 4/28 VIX 18.92 (FOMC 대기 + 유가 재급등 경계)
+  vvix:         88.20,                        // v48.70: VVIX 소폭 상승 (VIX 상승 동반)
 
-  // ── 한국 지수 (4/17 WebSearch 실측) ──
-  kospi:     6191.92,  kospiPct:  -0.55,  kospiPrev: 6226.05,  // v48.61: 4/17 6191.92 (-34.13pt -0.55%, 외국인 매도, 주간 +1.65%)
-  kosdaq:    1170.04,  kosdaqPct: +0.61,  kosdaqPrev: 1162.97, // v48.61: 4/17 1170.04 (+7.07pt +0.61%)
+  // ── 한국 지수 (4/28 WebSearch 실측) ──
+  kospi:     6615.00,  kospiPct:  +1.20,  kospiPrev: 6541.00,  // v48.70: 4/28 KOSPI 6615 ATH 경신 (외국인 순매수 전환, 반도체 모멘텀)
+  kosdaq:    1217.12,  kosdaqPct: +0.80,  kosdaqPrev: 1207.45, // v48.70: 4/28 KOSDAQ 1217.12
 
-  // ── 원자재 (4/17 WebSearch 실측 — 호르무즈 완전 개통 폭락) ──
-  wti:      79.78,   wtiPct:   -12.6,   // v48.61: 4/17 WTI $79.78 (4/15 91.29→-12.6%, 호르무즈 "완전 개통" 선언)
-  brent:    83.85,   brentPct: -11.8,   // v48.61: Brent 동반 하락
-  gold:   4899,      goldPct:   +1.51,  goldWeeklyPct: +3.3,  // v48.61: 4/17 Gold $4899 (+1.51%, flight-to-quality 완화)
-  ng:       2.95,                         // 천연가스 소폭 조정
+  // ── 원자재 (4/28 WebSearch 실측 — 호르무즈 봉쇄 유지 반전, WTI $100 재돌파) ──
+  wti:      99.93,   wtiPct:   +2.50,   // v48.70: 4/28 WTI $99.93 (4/17 $79.78 → +25.3%, 호르무즈 봉쇄 지속 확인)
+  brent:   111.26,   brentPct: +2.30,   // v48.70: Brent $111.26 동반 급등
+  gold:     4600,    goldPct:   -1.50,  goldWeeklyPct: -6.1,  // v48.70: 4/28 Gold ~$4,600 (고점 차익실현, DXY 강세)
+  ng:       3.05,                         // 천연가스 소폭 상승 (공급 우려)
 
-  // ── 환율 (4/17 추정) ──
-  krw:      1468.00,  krwPct:   -0.34,  krwRound: 1468,  // v48.61: KRW 4/17 1468 추정 (유가 폭락 + 위험선호)
-  dxy:        97.80,  dxyPct:   -0.25,                   // v48.61: DXY 97.80 (소폭 약세)
+  // ── 환율 (4/28 WebSearch 실측) ──
+  krw:      1473.20,  krwPct:   +0.36,  krwRound: 1473,  // v48.70: KRW 4/28 1473.20 (유가 재급등 + FOMC 경계로 원화 소폭 약세)
+  dxy:        98.70,  dxyPct:   +0.46,                   // v48.70: DXY 98.70 (달러 소폭 강세)
 
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
   fedStatus:   '동결',  // v45.6: 동적화 — Fed 금리 변경 시 이 값 갱신 (인하/인상/동결)
-  fomc:        '4/28-29',
-  fomcNext:    '4/28-29',                    // v46.9: 다음 FOMC는 4/28-29 (비SEP 회의)
+  fomc:        '6/16-17',
+  fomcNext:    '6/16-17',                    // v48.70: 4/28-29 동결 완료 → 다음 FOMC 6/16-17 (SEP 회의)
   ecbRate:      2.15,  ecbStatus: '동결',
   bojRate:      0.50,
   boeRate:      4.50,
   pbocRate:     3.10,
   // v34.6: 한국 금리·채권 강화
   bokRate:      2.50,   bokStatus: '동결',       // 한은 기준금리 (2025.05 인하 후 2.50% → 2026.03까지 7연속 동결)
-  bokNext:     '2026-05-29',                     // 다음 금통위 일정
+  bokNext:     '2026-05-28',                     // v48.70: 다음 금통위 일정 (5/28)
   krBond3y:     2.82,   krBond10y: 3.72,         // 국고채 3년/10년 수익률 (<span data-date-ref="kr-last-basis">기준</span>, 10Y 월중 최고)
   krCd91:       2.78,                             // CD 91일 금리
-  vkospi:      20.50,                             // v47.3: VKOSPI 20.5 (KOSPI 6000 재돌파로 추가 하락 추정), 20↑=경계 30↑=공포
+  vkospi:      17.80,                             // v48.70: VKOSPI 17.80 (KOSPI ATH 6615, 위험선호 확대), 20↑=경계 30↑=공포
 
   // ── 거시 지표 ──
-  cpi:          2.4,   coreCpi:   2.5,
+  cpi:          3.3,   coreCpi:   2.6,   // v48.70: CPI 3월 3.3% · Core 2.6% (BLS 4/28 발표)
   pce:          2.7,   corePce:   2.7,            // PCE Core YoY — v46.3: Fed 3월 전망 상향 (2.4/2.5→2.7/2.7)
   ismPmi:      52.4,   ismPrice:  70.7,   // v45.2: 4/6 ISM 실데이터 70.7% (2022년 10월 이후 최고)
   ismSvc:      54.0,                              // ISM 서비스업 PMI (3월, 4/3 발표)
@@ -3274,8 +3274,8 @@ const DATA_SNAPSHOT = {
   nandContract_QoQ_1Q26: 88,
   nandContract_QoQ_2Q26: 73,
   nandContract_YoY_2Q26: 362,
-  // ── v48.61 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
-  aaiiBear:        43.0,     // AAII Bearish % (2026-04-10 발표)
+  // ── v48.70 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
+  aaiiBear:        34.4,     // AAII Bearish % (2026-04-22 발표, 4/22 주 설문 — 비관 급감, 낙관 반전)
 
   // ── 글로벌 지수 (GMO 테이블용, 4/15 종가) ──
   nikkei:    57816,    nikkeiPct:  +2.32,
@@ -3291,11 +3291,11 @@ const DATA_SNAPSHOT = {
   silver:     71.50,   silverPct: +2.64,
 
   // ── 리스크 지표 (4/17 추정 — 위험선호 지속으로 소폭 완화) ──
-  move:        60.50,   moveChg: -2.98,  // v48.61: MOVE 4/17 채권 변동성 추가 하락 (VIX 동반)
-  skew:       140.20,   skewChg: -1.17,  // v48.61: SKEW 4/17 꼬리헤지 프리미엄 소폭 완화
-  vvix_live:   87.50,   vvixChg: -2.88,  // v48.61: VVIX 4/17 하향 안정
-  fg:            52,   fgLabel: '중립',  // v48.61: CNN F&G 4/17 추정 52 (ATH 갱신으로 소폭 상승, 중립 유지)
-  fg_uw:         72,   fg_uwLabel: '탐욕', // v48.61: UW 확장 F&G 4/17 72 (위험선호 지속)
+  move:        65.30,   moveChg: +1.80,  // v48.70: MOVE 4/28 채권 변동성 소폭 상승 (CPI 3.3% + FOMC 경계)
+  skew:       142.50,   skewChg: +1.28,  // v48.70: SKEW 4/28 꼬리헤지 소폭 증가 (WTI $100 + 지정학)
+  vvix_live:   88.20,   vvixChg: +0.57,  // v48.70: VVIX 4/28 소폭 상승 (VIX 상승 동반)
+  fg:            67,   fgLabel: '탐욕',  // v48.70: CNN F&G 4/28 67.3 → 67 (탐욕 구간, KOSPI ATH + FOMC 기대)
+  fg_uw:         74,   fg_uwLabel: '탐욕', // v48.70: UW 확장 F&G 4/28 추정 74
 
   // ── v47.2: F&G 카테고리·지표별 분해 (Unusual Whales 4/15) ──
   //   헤드라인 68 뒤에 숨은 내부 구조 — Market Breadth 35.9(공포) + Stock Price Strength 24.8(극단 공포)

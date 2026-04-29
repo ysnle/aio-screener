@@ -6436,9 +6436,9 @@ function renderFeed(items) {
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
 // v40.4: 홈 핵심뉴스 — 시장 전체에 영향을 주는 핵심 뉴스 2~3개 (정적, 새 이벤트 발생 시 수동 교체)
 var HOME_WEEKLY_NEWS = [
-  { title: 'AVGO-META MTIA 다년간 GW 확장 약정(2029+) — 초기 1GW+, 학습/추론/네트워킹 통합. Hock Tan 메타이사회 퇴임→어드바이저 전환. 메타 커스텀 실리콘 지연 우려 불식. AVGO AI 매출 2027 $100B→$130B+(Citi $100B당 EPS +$1) · Bernstein PT$525/Citi PT$475. GOOG LTA 2031+Anthropic 3.5GW TPU 누적 = 공급 가시성 다층 확대. AI 인프라 공급사 멀티이어 수주잔고 구조적 재평가 국면.', source: 'Citi/Bernstein', date: '2026-04-16', sentiment: 'bull', topic: 'semi' },
-  { title: 'TSMC 2026 가이던스 "30%+" 상향 + 2026-2028 3년 Capex $190-200B(역대급, 전 3년 대비 2배) — 1Q26 매출 NT$1.134조(+35%YoY, 컨센 전면상회) GM 66.2%/OPM 58.1%. 선단 캐파 2027까지 타이트, N5 이하 CAGR 25%. 2027 가격 +4-5% like-for-like 인상 논의(2Q 콘콜 예정). C.C.Wei "차세대 LPU 고객과 긴밀 협력" = 삼성 Groq 수주 단기 경계. ASML도 조기 가이던스 상향(€365→€380억 중간값) — 1분기 조기 상향 = 수요 강도 신호.', source: 'TSMC IR/JPM/Citi', date: '2026-04-17', sentiment: 'bull', topic: 'semi' },
-  { title: 'Citi 자산배분 전환 — 미국 중립→OW 상향, EM 중립 하향("이익 확산 균열"). 매그7+ 지수 시총 40% + PEG 기준 GFC 후 저점 = 역설적 퀄리티 매수 기회. FactSet: S&P 500 Q1 EPS 서프라이즈 88%(5년 평균 78%) BUT 긍정 주가 반응 -0.2% = "이미 반영" 해석. NVDA 제외 시 매그7 성장률 6.4% < 나머지 493사 10.1% 역전. GS 한국 피드백: 미국 투자자 SEC>HXSCL 선호(HBM4 리더십+주주환원 임박), 메모리 LTA 레버리지 역전 논쟁. 연말 목표 S&P 7,700(+13%), MSCI ACWI 1,380(+12%).', source: 'Citi/FactSet/GS', date: '2026-04-18', sentiment: 'warn', topic: 'market' },
+  { title: '호르무즈 봉쇄 지속 — WTI $99.93 재급등(+25.3% vs 4/17). 4/17 "완전 개통 선언"은 허위 확인. 트럼프, 이란 핵 협상 제안에 불만족·거부. 이란 혁명수비대 해협 통제 유지. Brent $111.26. 에너지 섹터(XLE) 주간 +8.5%, 미국 인플레이션 재상승 우려 재점화. 연준 6월 인하 기대 후퇴(CME FedWatch 인하 확률 22%→11%).', source: 'Reuters/Bloomberg', date: '2026-04-28', sentiment: 'bear', topic: 'geopolitics' },
+  { title: 'FOMC 4/28-29 결과 — 기준금리 3.50-3.75% 만장일치 동결. 파월 "인플레이션·고용 양방향 위험 균형. 에너지 가격 상승 지속성 주목." 점도표 2026년 인하 1회(기존 2회)로 하향. 다음 FOMC 6/16-17(SEP 포함). Fed가 WTI $100 재돌파를 에너지 공급 충격으로 분류. 10년물 수익률 4.68%(+9bp), 달러 DXY 98.70.', source: 'Fed/Bloomberg', date: '2026-04-29', sentiment: 'warn', topic: 'fed' },
+  { title: 'KOSPI 6,615 사상 최고가 경신 — 4/28 장중 ATH 달성. 외국인 9거래일 연속 순매수(누적 +3.2조원). NAAIM 94.15 극단적 강세, AAII Bull 46%(4/22, 전주 31.7%에서 급반등). S&P 500 Q1 EPS 서프라이즈율 88%(5년 평균 78%) 유지, 매그7 실적 시즌 양호. 국내: 반도체 수출 호조 + AI 인프라 투자 확대 = HBM4 선점 수혜주 재부각.', source: 'KRX/AAII/FactSet', date: '2026-04-28', sentiment: 'bull', topic: 'market' },
 ];
 
 function renderHomeFeed(items) {

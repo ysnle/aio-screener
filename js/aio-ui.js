@@ -65,7 +65,7 @@ var _SENT_COMMON = {
   },
   gridColor: 'var(--surface-4)',
   tickColor: 'rgba(255,255,255,0.3)',
-  labels20: ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17']
+  labels20: ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17','4/21','4/22','4/23','4/24','4/25','4/28']  /* v48.70 /data-refresh: 4/21~4/28 6거래일 연장 */
 };
 
 // ── v48.22: VIX sparkline (개별 함수 — _lazyInit 래핑 가능)
@@ -74,7 +74,7 @@ function _initSentVixChart() {
   var vixCtx = document.getElementById('vix-chart');
   if (!vixCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
-  var vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36, 18.36, 17.82, 17.48]; /* v48.61 data-refresh WebSearch 실측: 4/17 VIX 17.48 (Yahoo Finance 4/17 close) */
+  var vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36, 18.36, 17.82, 17.48, 17.95, 18.40, 19.60, 20.10, 19.50, 18.92]; /* v48.70 /data-refresh: 4/21~4/28 연장 (호르무즈 봉쇄 재확인으로 VIX 재상승, 4/28=18.92 WebSearch 실측) */
   var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' });
   if (!_gVix) return;
 
@@ -292,7 +292,7 @@ function _initSentHYChart() {
   var hyCtx = document.getElementById('hy-chart');
   if (!hyCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
-  var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284, 281, 279]; /* v48.61 data-refresh: 4/16 4/17 연장 (HY 스프레드 소폭 타이트닝) */
+  var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284, 281, 279, 282, 286, 292, 297, 294, 291]; /* v48.70 /data-refresh: 4/21~4/28 연장 (WTI $100 재급등→HY 스프레드 소폭 확대, 4/28=291bp) */
   var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' });
   if (!_gHY) return;
 
@@ -394,10 +394,10 @@ function initSentimentCharts() {
   // ─ AAII stacked horizontal bar ─────────────────────────────────────
   const aaiiCtx = document.getElementById('aaii-chart');
   if (aaiiCtx) {
-    const aaiiLabels = ['4/8', '4/1', '3/25', '3/18']; // v46.6: 4/8(4/10 발표) 추가
+    const aaiiLabels = ['4/22', '4/15', '4/8', '4/1', '3/25', '3/18']; // v48.70: 4/22(4/24 발표) + 4/15(4/17 발표) 추가
     // Bull / Neutral / Bear — v45.0: aaii.com 실데이터 검증 완료 (3/25 중립 18.1→수정, 약세 49.8→수정)
-    // v46.6: 4/8(4/10 발표) Bull 35.7 Neutral 21.3 Bear 43.0
-    const aaiiDatasets = [[35.7, 33.6, 32.1, 30.4], [21.3, 15.0, 18.1, 17.6], [43.0, 51.4, 49.8, 52.0]];
+    // v48.70: 4/22 Bull 46.0 Neutral 19.6 Bear 34.4 (WebSearch 실측) | 4/15 Bull 31.7 Bear 44.6 (추정)
+    const aaiiDatasets = [[46.0, 31.7, 35.7, 33.6, 32.1, 30.4], [19.6, 23.7, 21.3, 15.0, 18.1, 17.6], [34.4, 44.6, 43.0, 51.4, 49.8, 52.0]];
     // v31.9: 텍스트 폴백 동적 업데이트
     var _aaiiBearEl = document.getElementById('aaii-bear-val');
     var _aaiiBullEl = document.getElementById('aaii-bull-val');
