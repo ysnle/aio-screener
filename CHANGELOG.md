@@ -6,6 +6,50 @@
 
 ---
 
+## v48.71 — /integrate 30개 IB 리포트 전방위 통합 (2026-05-02)
+
+### 변경 사항
+
+**SCREENER_DB (js/aio-data.js)**
+- SIMO(Silicon Motion) 신규: PT$260↑ BootDrive $30M→$160M/2027E $375M BlueField-4 탑재 ASP 2x+
+- MTK(MediaTek) 신규: FY26 DC ASIC $20억, FY27 TAM $700-800억, TPUv9 Humufish 참여
+- SNDK: GM78.4% 역대최고, F4Q GM79-81%, SCA RPO $42B+, Melius PT$1350 역SaaS
+- WDC: PT$530↑, GM50.5%, HAMR 4고객 인증, Citi PT$500
+- STX: PT$775↑, GM47%(+480bp), HAMR 75% 출하, Mozaic4+ 양산
+- MU: DA Davidson PT$1000 FY30 경로, Melius PT$700 G1-G4 위계
+- CRWV: Citi PT$155↑ 백로그+35-40%, Jane Street+META 신규계약
+- MSFT: Azure+39%CC, AI ARR $37B+123%YoY, CapEx $1,900억
+- GOOGL: Cloud $20B+63%, 백로그$4,620억, CY26 CapEx $1,800-1,900억
+- AMZN: AWS+28%, 백로그$3,640억, Bedrock+170% QoQ
+- META: JPM OW→N 하향, FCF 2026E -$40억 전환
+- TER: JPM PT$400, GPU 테스터 0%→50%, HBM TAM 삽입 3배
+- QCOM: signal HOLD→BUY, Q2 FY2026 어닝 $10.6B EPS$2.65 +16%, 핸드셋FQ3저점·FQ4반등, DC ASIC 12월출하, 자동차$1.326B(+38%YoY)
+
+**키워드 (js/aio-data.js)**
+- TECH_KW +26: BootDrive·BlueField-4·MonTitan·ICMS·SOCAMM2·BiCS8·G1-G4 메모리계층·역SaaS·RPO·CapEx $1T·AI ARR·QCOM ASIC 등
+- MACRO_KW +12: UAE OPEC exit·model distillation·gray market GPU·K자형소비·더블비트·관세민감도 등
+- KNOWN_TICKERS: SIMO·MTK 추가
+- HOME_WEEKLY_NEWS 3건 교체 (2026-04-29~05-01)
+
+**CHAT_CONTEXTS (index.html)**
+- §79 BootDrive 패러다임 (SIMO/JPM)
+- §80 역SaaS 거래·SCA 복리 구조 (Citi/Melius)
+- §81 CapEx $7,000억+ 메모리가격 유발 역학 (BofA/JPM)
+- §82 AI ARR 가속·CRWV 백로그 (Citi/JPM)
+- §83 MediaTek DC ASIC 등장 (JPM)
+- §84 xAI 모델 증류·중국 B300 그레이마켓 (Bloomberg)
+- §85 UAE OPEC+ 탈퇴·1Q26 어닝 결산 (Citi/FactSet)
+
+**KR_THEME_CATALYSTS (index.html)**
+- 'semi' 항목: SIMO/SNDK/WDC/STX 실적 + Melius 역SaaS + G1-G4 위계 추가
+
+**KNOWLEDGE-BASE.md (_context/)**
+- PT-D: 스토리지/메모리 역SaaS 재분류 (Melius/DA Davidson)
+- PT-E: BootDrive 독립 성장 카테고리 (JPM/SIMO)
+- PT-F: CapEx 1조 = 메모리가격 인상 유발 역학 (BofA/MSFT)
+
+---
+
 ## v48.70 — /data-refresh 2026-04-28 전수 최신화 (2026-04-29)
 
 ### 변경 사항
