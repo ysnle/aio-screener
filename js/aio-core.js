@@ -888,6 +888,31 @@ window._aioRenderVixTermRegime = function() {
   if (wrap) wrap.style.borderLeftColor = color;
   var strong = wrap && wrap.querySelector('strong');
   if (strong) strong.style.color = color;
+  // v48.71: 스파클라인 차트 (9D·1M·3M·6M 기간구조 곡선)
+  var canv = document.getElementById('vix-term-chart');
+  if (canv && typeof Chart !== 'undefined') {
+    var pts = [
+      { x: '9D', y: v9d }, { x: '1M', y: v30 }, { x: '3M', y: v3m }, { x: '6M', y: v6m }
+    ].filter(function(p){ return p.y != null; });
+    if (pts.length >= 2) {
+      var ptLabels = pts.map(function(p){ return p.x; });
+      var ptData = pts.map(function(p){ return p.y; });
+      var chartColor = (ptData[ptData.length-1] > ptData[0]) ? '#00e5a0' : '#ff5b50';
+      if (window._vixTermChart) { try { window._vixTermChart.destroy(); } catch(e){} delete window._vixTermChart; }
+      window._vixTermChart = new Chart(canv, {
+        type: 'line',
+        data: { labels: ptLabels, datasets: [{ data: ptData, borderColor: chartColor, backgroundColor: chartColor + '22', borderWidth: 2, pointRadius: 4, pointBackgroundColor: chartColor, fill: true, tension: 0.3 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: true, callbacks: { label: function(ctx){ return ctx.parsed.y.toFixed(2); } } } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 9 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 9 }, maxTicksLimit: 4 } }
+          }
+        }
+      });
+    }
+  }
 };
 if (typeof document !== 'undefined') {
   document.addEventListener('aio:liveQuotes', function(){
@@ -899,54 +924,6 @@ if (typeof document !== 'undefined') {
   });
 }
 
-// v48.58: home 페이지 테마 요약 렌더러 (상위 8개 RS 순)
-window._aioRenderHomeThemeSummary = function() {
-  var el = document.getElementById('home-theme-summary');
-  if (!el) return;
-  var subs = (typeof SUB_THEMES !== 'undefined' && Array.isArray(SUB_THEMES)) ? SUB_THEMES : [];
-  var ld = window._liveData || {};
-  if (subs.length === 0) return;
-  // 테마별 leaders 평균 등락률로 정렬
-  var ranked = subs.map(function(t) {
-    var pcts = (t.leaders || []).map(function(s) {
-      var d = ld[s];
-      return (d && d.pct != null && isFinite(d.pct)) ? d.pct : null;
-    }).filter(function(v){ return v != null; });
-    var avg = pcts.length > 0 ? pcts.reduce(function(a,b){return a+b;}, 0) / pcts.length : 0;
-    return { id: t.id, name: t.name, avg: avg, hasData: pcts.length > 0, color: t.color || 'var(--text-muted)', etf: t.etf };
-  });
-  // 데이터 있는 것만 + 정렬
-  var hasLive = ranked.filter(function(r){ return r.hasData; });
-  if (hasLive.length < 4) {
-    el.innerHTML = '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--text-muted);font-size:11px;">테마 시세 수신 대기 중… <span style="font-size:10px;opacity:0.7;">(약 30초 내 갱신)</span></div>';
-    return;
-  }
-  hasLive.sort(function(a,b){ return Math.abs(b.avg) - Math.abs(a.avg); });
-  var top = hasLive.slice(0, 8);
-  var html = top.map(function(r) {
-    var isUp = r.avg >= 0;
-    var bgColor = isUp ? 'rgba(0,229,160,0.08)' : 'rgba(255,91,80,0.08)';
-    var borderColor = isUp ? 'rgba(0,229,160,0.25)' : 'rgba(255,91,80,0.25)';
-    var pctColor = isUp ? 'var(--data-green)' : 'var(--data-red)';
-    var sign = isUp ? '+' : '';
-    return '<div class="aio-hover-scale" data-action="showThemeDetail" data-arg="' + escHtml(r.id) + '" role="button" tabindex="0" style="background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:6px;padding:7px 8px;cursor:pointer;transition:transform var(--dur-fast);">' +
-      '<div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;line-height:1.3;">' + escHtml(r.name) + '</div>' +
-      '<div style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:' + pctColor + ';">' + sign + r.avg.toFixed(2) + '%</div>' +
-      (r.etf ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + escHtml(r.etf) + '</div>' : '') +
-      '</div>';
-  }).join('');
-  el.innerHTML = html;
-};
-// _liveData 업데이트 시 + home 페이지 진입 시 자동 렌더
-if (typeof document !== 'undefined') {
-  document.addEventListener('aio:liveQuotes', function(){
-    var home = document.getElementById('page-home');
-    if (home && home.classList.contains('active')) window._aioRenderHomeThemeSummary();
-  });
-  document.addEventListener('aio:pageShown', function(e){
-    if (e.detail === 'home') setTimeout(window._aioRenderHomeThemeSummary, 300);
-  });
-}
 
 // v48.58: 첫 방문 온보딩 모달 (Blocker #1 해소 — API 키 선택 가이드)
 window._aioShowOnboarding = function() {
@@ -1003,8 +980,8 @@ window._aioShowOnboarding = function() {
         '<strong style="color:var(--data-cyan);">키 없이도 사용 가능</strong> — Yahoo/Stooq/Naver/CoinGecko 공개 시세 + 정적 스냅샷 데이터. 단 AI 채팅·기업 재무는 키 필요.' +
       '</div>' +
       '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
-        '<button data-action="_aioOnboardLater" class="tb-btn" style="font-size:12px;padding:8px 14px;">나중에</button>' +
-        '<button data-action="_aioOnboardGoKeys" class="tb-btn primary" style="font-size:12px;padding:8px 16px;font-weight:700;">API 키 설정 →</button>' +
+        '<button data-action="_aioOnboardLater" class="aio-btn-table" style="font-size:12px;padding:8px 14px;">나중에</button>' +
+        '<button data-action="_aioOnboardGoKeys" class="aio-btn-table primary" style="font-size:12px;padding:8px 16px;font-weight:700;">API 키 설정 →</button>' +
       '</div>' +
     '</div>';
   document.body.appendChild(modal);
@@ -2674,7 +2651,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.70';
+const APP_VERSION = 'v48.73';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -3181,34 +3158,34 @@ if (typeof window !== 'undefined') {
 const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
-  // v48.70: _updated → 월요일 2026-04-28 장마감 시각 (FOMC 개최일 전날 종가 기준)
-  _updated: '2026-04-28T16:00:00-04:00',   // 폴백 스냅샷 = 직전 영업일 장마감 (미동부 4PM)
-  _snapshotDate: '2026-04-28',               // v48.70: 정적 폴백 기준일 (data-snap-date 동적 바인딩 소스)
+  // v48.71: _updated → 목요일 2026-04-30 장마감 시각 (월말 종가 기준)
+  _updated: '2026-04-30T16:00:00-04:00',   // 폴백 스냅샷 = 직전 영업일 장마감 (미동부 4PM)
+  _snapshotDate: '2026-04-30',               // v48.71: 정적 폴백 기준일 (data-snap-date 동적 바인딩 소스)
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v48.70 — /data-refresh WebSearch 실측 (2026-04-28 월요일 장마감 기준): SPX 7138.80 (+0.25%) · NASDAQ 24663.80 (+0.40%) · Dow 49141.90 · VIX 18.92 (FOMC 경계 소폭 상승) · WTI $99.93 (+25.3% vs 4/17, 호르무즈 봉쇄 유지 반전 — 트럼프 이란 제안 불만족) · Brent $111.26 · Gold ~$4,600 (고점 차익실현) · KOSPI 6615 ATH(!) · KOSDAQ 1217.12 · KRW 1473.20. FOMC 4/28-29 → 3.50-3.75% 동결, 6/16-17 차기(SEP). CPI(3월) 3.3% · Core 2.6%. AAII(4/22) Bull 46.0% Bear 34.4%(반전 개선). NAAIM 94.15(극단적 노출). v48.70 /data-refresh.',
+  _note: 'v48.71 — /data-refresh WebSearch 실측 (2026-04-30 목요일 장마감 기준): SPX 7209.01 (+1.02%) · NASDAQ 24892.31 (+0.89%) · Dow 49652.14 (+1.62%) · VIX 17.83 (FOMC 동결 소화, 위험선호 회복) · WTI $105.07 (+5.1%, 호르무즈 에스컬레이션) · Brent $114.01 (장중 $126 전시 최고가 기록) · Gold ~$4,650 · KOSPI 6691 ATH 연속 경신 · KRW 1473.12. FOMC 4/28-29 → 3.50-3.75% 동결. AAII(4/29) Bull 38.1% Bear 39.7%(지정학 우려 급반전). BTC $76,316. Nikkei 59,284(-1.06%). v48.71 /data-refresh.',
 
-  // ── 미국 주요 지수 (4/28 월 종가 WebSearch 실측) ──
-  spx:        7138.80,  spxPct:    +0.25,   // v48.70: 4/28 SPX 7138.80 (FOMC 경계, WTI $100 충격 상쇄)
-  nasdaq:    24663.80,  nasdaqPct: +0.40,   // v48.70: 4/28 NASDAQ 24663.80
-  dow:       49141.90,  dowPct:    +0.28,   // v48.70: 4/28 Dow 49141.90
-  rut:        2755.99,  rutPct:    +0.15,   // v48.70: 4/28 Russell 2000 2755.99
-  vix:          18.92,  vixPct:    +1.50,   // v48.70: 4/28 VIX 18.92 (FOMC 대기 + 유가 재급등 경계)
-  vvix:         88.20,                        // v48.70: VVIX 소폭 상승 (VIX 상승 동반)
+  // ── 미국 주요 지수 (4/30 목 종가 WebSearch 실측) ──
+  spx:        7209.01,  spxPct:    +1.02,   // v48.71: 4/30 SPX 7209.01 (FOMC 동결 소화, 실적 랠리)
+  nasdaq:    24892.31,  nasdaqPct: +0.89,   // v48.71: 4/30 NASDAQ 24892.31
+  dow:       49652.14,  dowPct:    +1.62,   // v48.71: 4/30 Dow 49652.14
+  rut:        2755.99,  rutPct:    +0.15,   // v48.70: 4/28 Russell 2000 (미갱신)
+  vix:          17.83,  vixPct:    -5.78,   // v48.71: 4/30 VIX 17.83 (FOMC 동결 소화, 위험선호 회복)
+  vvix:         88.20,                        // v48.70: VVIX (미갱신)
 
-  // ── 한국 지수 (4/28 WebSearch 실측) ──
-  kospi:     6615.00,  kospiPct:  +1.20,  kospiPrev: 6541.00,  // v48.70: 4/28 KOSPI 6615 ATH 경신 (외국인 순매수 전환, 반도체 모멘텀)
-  kosdaq:    1217.12,  kosdaqPct: +0.80,  kosdaqPrev: 1207.45, // v48.70: 4/28 KOSDAQ 1217.12
+  // ── 한국 지수 (4/30 WebSearch 실측) ──
+  kospi:     6691.00,  kospiPct:  +1.15,  kospiPrev: 6615.00,  // v48.71: 4/30 KOSPI 6691 ATH 연속 경신 (외국인 순매수 지속)
+  kosdaq:    1217.12,  kosdaqPct: +0.80,  kosdaqPrev: 1207.45, // v48.70: 4/28 KOSDAQ (미갱신)
 
-  // ── 원자재 (4/28 WebSearch 실측 — 호르무즈 봉쇄 유지 반전, WTI $100 재돌파) ──
-  wti:      99.93,   wtiPct:   +2.50,   // v48.70: 4/28 WTI $99.93 (4/17 $79.78 → +25.3%, 호르무즈 봉쇄 지속 확인)
-  brent:   111.26,   brentPct: +2.30,   // v48.70: Brent $111.26 동반 급등
-  gold:     4600,    goldPct:   -1.50,  goldWeeklyPct: -6.1,  // v48.70: 4/28 Gold ~$4,600 (고점 차익실현, DXY 강세)
+  // ── 원자재 (4/30 WebSearch 실측 — 호르무즈 에스컬레이션, Brent 장중 $126 전시 최고가) ──
+  wti:     105.07,   wtiPct:   +5.10,   // v48.71: 4/30 WTI $105.07 (+5.1%, 이란 혁명수비대 봉쇄 무기화 격화)
+  brent:   114.01,   brentPct: +2.47,   // v48.71: 4/30 Brent $114.01 (장중 $126 전시 최고가 기록)
+  gold:     4650,    goldPct:  +1.09,  goldWeeklyPct: -6.1,  // v48.71: 4/30 Gold ~$4,650 (유가 급등 연동 반등)
   ng:       3.05,                         // 천연가스 소폭 상승 (공급 우려)
 
-  // ── 환율 (4/28 WebSearch 실측) ──
-  krw:      1473.20,  krwPct:   +0.36,  krwRound: 1473,  // v48.70: KRW 4/28 1473.20 (유가 재급등 + FOMC 경계로 원화 소폭 약세)
-  dxy:        98.70,  dxyPct:   +0.46,                   // v48.70: DXY 98.70 (달러 소폭 강세)
+  // ── 환율 (4/30 WebSearch 실측) ──
+  krw:      1473.12,  krwPct:   -0.01,  krwRound: 1473,  // v48.71: KRW 4/30 1473.12 (소폭 원화 강세, 코스피 ATH 외국인 유입)
+  dxy:        98.70,  dxyPct:   +0.46,                   // v48.70: DXY (미갱신)
 
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
@@ -3274,20 +3251,20 @@ const DATA_SNAPSHOT = {
   nandContract_QoQ_1Q26: 88,
   nandContract_QoQ_2Q26: 73,
   nandContract_YoY_2Q26: 362,
-  // ── v48.70 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
-  aaiiBear:        34.4,     // AAII Bearish % (2026-04-22 발표, 4/22 주 설문 — 비관 급감, 낙관 반전)
+  // ── v48.71 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
+  aaiiBear:        39.7,     // AAII Bearish % (2026-04-29 설문, 5/1 발표 — 지정학 우려로 비관 급반등)
 
-  // ── 글로벌 지수 (GMO 테이블용, 4/15 종가) ──
-  nikkei:    57816,    nikkeiPct:  +2.32,
+  // ── 글로벌 지수 (GMO 테이블용, 4/30 종가) ──
+  nikkei:    59284,    nikkeiPct:  -1.06,
   hangseng:  25947,    hangsengPct: +0.29,
   shanghai:   3420,    shanghaiPct: +1.20,
   dax:       23200,    daxPct:     +1.80,
   ftse:      10611,    ftsePct:    +0.01,
   cac:        7950,    cacPct:     +1.50,
 
-  // ── 크립토·추가 원자재 (4/15 종가) ──
-  btc:       74286,    btcPct:    -0.21,   // v47.3: BTC $74,286 (4/15 close, 횡보 조정 — $76K 돌파 실패 후)
-  eth:        2368,    ethPct:    -0.30,   // v47.3: ETH 소폭 조정
+  // ── 크립토·추가 원자재 (4/30 종가) ──
+  btc:       76316,    btcPct:    +2.73,   // v48.71: BTC $76,316 (4/30 close, 위험선호 회복 + 실적 랠리 동조)
+  eth:        2265,    ethPct:    -4.35,   // v48.71: ETH $2,265 (4/30 close, BTC 대비 상대 약세)
   silver:     71.50,   silverPct: +2.64,
 
   // ── 리스크 지표 (4/17 추정 — 위험선호 지속으로 소폭 완화) ──

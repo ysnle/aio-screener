@@ -2232,6 +2232,8 @@ function applyFredToUI(data) {
     }
     const sub = document.getElementById('hy-live-date');
     if (sub) sub.textContent = _fredSourceLabel(data['BAMLH0A0HYM2']);
+    // v48.72: data-snap="hy-spread" 자동 바인딩 (Phase 7)
+    _updSnap('hy-spread', function(){ return '+' + bp + 'bp'; });
   }
 
   // v48.59: FRED → data-snap 전수 자동 바인딩 (Phase 16)
@@ -6436,7 +6438,7 @@ function renderFeed(items) {
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
 // v40.4: 홈 핵심뉴스 — 시장 전체에 영향을 주는 핵심 뉴스 2~3개 (정적, 새 이벤트 발생 시 수동 교체)
 var HOME_WEEKLY_NEWS = [
-  { title: '호르무즈 봉쇄 지속 — WTI $99.93 재급등(+25.3% vs 4/17). 4/17 "완전 개통 선언"은 허위 확인. 트럼프, 이란 핵 협상 제안에 불만족·거부. 이란 혁명수비대 해협 통제 유지. Brent $111.26. 에너지 섹터(XLE) 주간 +8.5%, 미국 인플레이션 재상승 우려 재점화. 연준 6월 인하 기대 후퇴(CME FedWatch 인하 확률 22%→11%).', source: 'Reuters/Bloomberg', date: '2026-04-28', sentiment: 'bear', topic: 'geopolitics' },
+  { title: 'Brent $126 전시 고점 — 4/30 장중 역대 에너지 위기급 최고가. 이란 혁명수비대 호르무즈 봉쇄 무기화 격화 선언, WTI $105.07(+5.1% 일간) 종가. OPEC+ 긴급 원격 회의 개최 예정. 에너지 섹터(XLE) 주간 +12.4%. 미국 CPI 재상승 우려, 연준 6월 인하 확률 CME FedWatch 4%로 급락. S&P 500은 Q1 실적 호조(EPS 서프라이즈율 88%)로 상충 — 4/30 +1.02% 마감.', source: 'Reuters/Bloomberg/CBOE', date: '2026-04-30', sentiment: 'bear', topic: 'geopolitics' },
   { title: 'FOMC 4/28-29 결과 — 기준금리 3.50-3.75% 만장일치 동결. 파월 "인플레이션·고용 양방향 위험 균형. 에너지 가격 상승 지속성 주목." 점도표 2026년 인하 1회(기존 2회)로 하향. 다음 FOMC 6/16-17(SEP 포함). Fed가 WTI $100 재돌파를 에너지 공급 충격으로 분류. 10년물 수익률 4.68%(+9bp), 달러 DXY 98.70.', source: 'Fed/Bloomberg', date: '2026-04-29', sentiment: 'warn', topic: 'fed' },
   { title: 'KOSPI 6,615 사상 최고가 경신 — 4/28 장중 ATH 달성. 외국인 9거래일 연속 순매수(누적 +3.2조원). NAAIM 94.15 극단적 강세, AAII Bull 46%(4/22, 전주 31.7%에서 급반등). S&P 500 Q1 EPS 서프라이즈율 88%(5년 평균 78%) 유지, 매그7 실적 시즌 양호. 국내: 반도체 수출 호조 + AI 인프라 투자 확대 = HBM4 선점 수혜주 재부각.', source: 'KRX/AAII/FactSet', date: '2026-04-28', sentiment: 'bull', topic: 'market' },
 ];
@@ -10419,35 +10421,6 @@ function refreshHomeDashboard() {
     if (fgLabelEl) fgLabelEl.textContent = fgLabel;
   }
 
-  // SECTION 3: Market Briefing — v45.6: 실시간 섹터 데이터 기반 동적 생성
-  const briefingEl = document.getElementById('home-briefing-content');
-  if (briefingEl) {
-    var _sectorETFs = ['XLK','XLF','XLE','XLV','XLY','XLP','XLI','XLB','XLC','XLRE','XLU'];
-    var _sNames = {XLK:'기술',XLF:'금융',XLE:'에너지',XLV:'헬스케어',XLY:'경기소비재',XLP:'필수소비재',XLI:'산업재',XLB:'소재',XLC:'커뮤니케이션',XLRE:'부동산',XLU:'유틸리티'};
-    var _sPcts = [];
-    _sectorETFs.forEach(function(s) {
-      var d = _liveData[s];
-      if (d && d.pct != null) _sPcts.push({sym: s, name: _sNames[s] || s, pct: d.pct});
-    });
-    var topSector, bottomSector, breadthComment;
-    if (_sPcts.length >= 3) {
-      _sPcts.sort(function(a, b) { return b.pct - a.pct; });
-      topSector = _sPcts[0].name + ' (' + _sPcts[0].sym + ' ' + (_sPcts[0].pct > 0 ? '+' : '') + _sPcts[0].pct.toFixed(1) + '%)';
-      bottomSector = _sPcts[_sPcts.length - 1].name + ' (' + _sPcts[_sPcts.length - 1].sym + ' ' + (_sPcts[_sPcts.length - 1].pct > 0 ? '+' : '') + _sPcts[_sPcts.length - 1].pct.toFixed(1) + '%)';
-      var posCount = _sPcts.filter(function(s) { return s.pct > 0; }).length;
-      var ratio = posCount / _sPcts.length;
-      breadthComment = ratio >= 0.7 ? '넓음 (광범위 상승)' : ratio >= 0.4 ? '보통 (선별적 흐름)' : '좁음 (소수 섹터 집중)';
-    } else {
-      topSector = '데이터 수집 중…'; bottomSector = '데이터 수집 중…'; breadthComment = '데이터 대기';
-    }
-    var briefing = `
-      <div>• 최강 섹터: ${topSector}</div>
-      <div>• 최약 섹터: ${bottomSector}</div>
-      <div>• 시장 폭: ${breadthComment}</div>
-      <div>• 신호 강도: ${tradingScore > 70 ? '강함' : tradingScore > 50 ? '중립' : '약함'}</div>
-    `;
-    briefingEl.innerHTML = briefing;
-  }
 
   // v27.2: SECTION 4 — newsCache 기반으로 통합 (renderHomeFeed와 동일 메커니즘)
   // newsCache가 있으면 renderHomeFeed 호출, _newsItems 폴백은 유지
@@ -10466,7 +10439,7 @@ function refreshHomeDashboard() {
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:700;">${escHtml(item.source || 'NEWS')}</div>
           <div style="font-size:11px;font-weight:600;line-height:1.3;margin-bottom:4px;">${escHtml(item.headline || '뉴스 로딩 중...')}</div>
           ${tickerStr}
-          <div style="font-size:11px;color:var(--text-muted);">${item.timeAgo || '방금'}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${escHtml(item.timeAgo || '방금')}</div>
         </div>`;
       }).join('');
     }

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.70 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.73 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1145,7 +1145,7 @@ body { background: var(--bg-base); }
 /* v24 글로벌 가독성 대폭 개선 — 전체적인 줄 간격 및 카드 여백 + 폰트 스케일업 */
 /* v30.7: 줄간격 체계 통일 — 본문 1.6, 타이틀 1.3, 서브 1.5 */
 .page { line-height: var(--lh-body); }
-.data-widget { line-height: var(--lh-body); }
+.data-widget, .aio-widget { line-height: var(--lh-body); }
 .page-subtitle { line-height: 1.5; } /* v30.7: font-size는 아래 .page-subtitle 블록에서 정의 */
 
 /* ═══ v24 GLOBAL FONT SCALE-UP ═══════════════════════════════════
@@ -1238,7 +1238,7 @@ body { background: var(--bg-base); }
 
 /* 탭/버튼 통일 */
 .page-tab { font-size: 12px !important; padding: 7px 14px !important; }
-.tb-btn { font-size: 12px !important; }
+.tb-btn, .aio-btn-table { font-size: 12px !important; }
 .kr-tab { font-size: 12px !important; }
 .board-tab { font-size: 12px !important; }
 
@@ -1509,7 +1509,7 @@ body {
 .freshness-badge { text-shadow: 0 0 1px rgba(0,0,0,0.3); }
 /* v41.1: 스크롤바 — 전역 정의(line 815)로 통합, .content 전용 제거 */
 /* v30.6: 카드 호버 효과 + 섹션 구분 + 페이지 전환 */
-.data-widget:hover, .risk-mon-cell:hover, .cp-cell:hover { border-color: rgba(0,212,255,0.25); transition: border-color 0.2s; }
+.data-widget:hover, .aio-widget:hover, .risk-mon-cell:hover, .cp-cell:hover { border-color: rgba(0,212,255,0.25); transition: border-color 0.2s; }
 .page { animation: pageFadeIn 0.25s ease-out; }
 @keyframes pageFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 .section-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 18px 0; }
@@ -1601,7 +1601,7 @@ body {
 .mb-4 { margin-bottom: var(--space-4); }
 
 /* v48.42: data widget → aio-card 정렬 */
-.data-widget {
+.data-widget, .aio-widget {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -1705,8 +1705,8 @@ body {
 .aio-hover-news-card { background: var(--surface-2); border: 1px solid var(--surface-3); transition: all 0.15s; }
 .aio-hover-news-card:hover { background: var(--surface-4); border-color: rgba(0,212,255,0.15); }
 
-/* v48.48: .tb-btn = .aio-btn-ghost 별칭 통합 (CSS 중복 제거). DOM 마이그레이션 점진적. */
-.tb-btn, .aio-btn-ghost-legacy {
+/* v48.48: .tb-btn = .aio-btn-ghost 별칭 통합 (CSS 중복 제거). v48.71: .aio-btn-table 추가. */
+.tb-btn, .aio-btn-table, .aio-btn-ghost-legacy {
   padding: 6px 12px;
   background: transparent;
   border: 1px solid var(--border);
@@ -1722,13 +1722,13 @@ body {
   align-items: center;
   gap: var(--space-2);
 }
-.tb-btn:hover, .aio-btn-ghost-legacy:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-strong); }
-.tb-btn.primary, .aio-btn-ghost-legacy.primary {
+.tb-btn:hover, .aio-btn-table:hover, .aio-btn-ghost-legacy:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-strong); }
+.tb-btn.primary, .aio-btn-table.primary, .aio-btn-ghost-legacy.primary {
   background: var(--accent-soft);
   border-color: var(--accent-border);
   color: var(--accent-text);
 }
-.tb-btn.primary:hover, .aio-btn-ghost-legacy.primary:hover { background: var(--accent-dim); color: var(--accent); }
+.tb-btn.primary:hover, .aio-btn-table.primary:hover, .aio-btn-ghost-legacy.primary:hover { background: var(--accent-dim); color: var(--accent); }
 
 /* v48.48: 공용 테이블 — .aio-table (Figma/Bloomberg 정렬) */
 .aio-table {
@@ -2178,7 +2178,7 @@ body { font-size: 14px !important; }
 .page-subtitle { font-size: 12px !important; }
 
 /* 위젯 */
-.data-widget  { padding: 16px 18px !important; margin-bottom: 14px !important; }
+.data-widget, .aio-widget  { padding: 16px 18px !important; margin-bottom: 14px !important; }
 .widget-title { font-size: 13px !important; }
 .metric-item  { font-size: 12px !important; padding: 7px 0 !important; }
 
@@ -3186,7 +3186,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
 }
 
 /* ═══ v27.1: 전체 카드 간격 통일 ═══ */
-.page > .data-widget,
+.page > .data-widget, .page > .aio-widget,
 .page > div[style*="background:var(--bg-card)"] {
   margin-bottom: 12px;
 }
@@ -3198,7 +3198,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
 }
 
 /* ═══ v27.1: Ticker Chart tab — placeholder 스타일 개선 ═══ */
-#tab-chart .data-widget {
+#tab-chart .data-widget, #tab-chart .aio-widget {
   min-height: 200px;
 }
 
@@ -3306,10 +3306,10 @@ body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
   .page-title { font-size: 12px !important; }
   .page-subtitle { font-size: 11px !important; }
   .topbar .topbar-title { display: none; }
-  .data-widget { padding: 8px !important; border-radius: 6px !important; }
+  .data-widget, .aio-widget { padding: 8px !important; border-radius: 6px !important; }
   .widget-title { font-size: 11px !important; }
   .acp-input-row button { padding: 8px 10px !important; font-size: 11px !important; }
-  .tb-btn { padding: 5px 8px !important; font-size: 11px !important; }
+  .tb-btn, .aio-btn-table { padding: 5px 8px !important; font-size: 11px !important; }
   .insight-box { padding: 8px 10px !important; font-size: 11px !important; }
 }
 
@@ -3389,7 +3389,7 @@ body.light-theme canvas { filter:none; }
 .a11y-hold::before { content:'● '; font-size:0.7em; }
 /* ── v34.8: 인쇄 전용 스타일시트 ── */
 @media print {
-  .sidebar, .sidebar-toggle, .hamburger-btn, .tb-btn, .acp-panel,
+  .sidebar, .sidebar-toggle, .hamburger-btn, .tb-btn, .aio-btn-table, .acp-panel,
   .q-chip, .toast-msg, .update-banner, #chat-signal, .chat-expanded,
   button, input, [onclick] { display:none !important; }
   .page { display:block !important; position:static !important;
@@ -3662,9 +3662,9 @@ body.light-theme canvas { filter:none; }
           <!-- v48.43: VIX 톱바 배지 -->
           <span data-vix-badge class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;">VIX —</span>
           <!-- v48.43: AI 분석가 버튼 -->
-          <button id="topbar-ai-btn" class="tb-btn" data-action="toggleAIPanel" aria-label="AI 분석가 열기/닫기" title="AI 분석가 사이드바">AI 분석가</button>
+          <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 분석가 열기/닫기" title="AI 분석가 사이드바">AI 분석가</button>
           <!-- v48.43: 새로고침 (primary 강조) -->
-          <button id="topbar-refresh-btn" class="tb-btn primary" data-action="_aioGlobalRefresh">↻ 새로고침</button>
+          <button id="topbar-refresh-btn" class="aio-btn-table primary" data-action="_aioGlobalRefresh">↻ 새로고침</button>
           <span id="data-status-panel" style="font-size:var(--fs-xs);color:var(--text-muted);font-family:var(--font-sans);font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:help;" title="연결된 API 상태"></span>
         </div>
       </header>
@@ -3707,7 +3707,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.70</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.73</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4019,30 +4019,6 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- ═══ SECTION 3: 시장 브리핑 (Market Briefing) ═══ -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">시장 브리핑</div>
-      <button data-action="showPage" data-arg="briefing" class="tb-btn" style="font-size:10px;">전체 브리핑 →</button>
-    </div>
-    <div id="home-briefing-content" style="font-size:11px;color:var(--text-secondary);line-height:1.7;">
-      <div style="margin-bottom:6px;">• 로딩 중...</div>
-    </div>
-  </div>
-
-  <!-- v48.58: 홈 테마 히트맵 요약 (상위 8개 + themes 링크) — Agent 5 주제 누락 대응 -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div>
-        <span style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">테마 · 섹터 요약</span>
-        <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="테마 요약 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">테마 히트맵 요약</span>SUB_THEMES 45개 테마 중 <strong>상위 8개</strong>를 RS(상대강도) 순으로 표시. 각 카드 클릭 → 테마 상세 페이지 (대장주 · 구성종목 · 매크로 체인).</span></span>
-      </div>
-      <button data-action="showPage" data-arg="themes" class="tb-btn" style="font-size:10px;">전체 45 테마 →</button>
-    </div>
-    <div id="home-theme-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;min-height:110px;">
-      <div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text-muted);font-size:11px;">테마 데이터 로딩 중…</div>
-    </div>
-  </div>
 
   <!-- ═══ SECTION 4: 주요 뉴스 — SECTION 1.5로 이동됨 (v39.0) ═══ -->
 
@@ -4247,8 +4223,8 @@ body.light-theme canvas { filter:none; }
         <div class="page-subtitle">변동성 25% · 모멘텀 25% · 추세 20% · 시장폭 20% · 거시경제 10%</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-        <button id="sig-sw-btn" class="tb-btn primary" data-action="toggleSignalMode" data-arg="swing" style="font-size:10px;">스윙</button>
-        <button id="sig-dy-btn" class="tb-btn" data-action="toggleSignalMode" data-arg="day" style="font-size:10px;">데이트레이딩</button>
+        <button id="sig-sw-btn" class="aio-btn-table primary" data-action="toggleSignalMode" data-arg="swing" style="font-size:10px;">스윙</button>
+        <button id="sig-dy-btn" class="aio-btn-table" data-action="toggleSignalMode" data-arg="day" style="font-size:10px;">데이트레이딩</button>
         <span id="sig-mode-desc" style="font-size:11px;color:var(--text-secondary);"></span>
         <span id="sig-ts" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">대기 중…</span>
       </div>
@@ -4278,7 +4254,7 @@ body.light-theme canvas { filter:none; }
   <!-- 해당 정보는 이제 page-macro 상단 FOMC 섹션에서 참조 -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-amber);border-radius:var(--radius-md);padding:7px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;font-size:11px;">
     <span style="font-size:10px;font-weight:700;color:var(--data-amber);">FOMC 일정은 거시경제 페이지로 이전</span>
-    <button data-action="showPage" data-arg="macro" class="tb-btn" style="margin-left:auto;font-size:10px;">거시경제 →</button>
+    <button data-action="showPage" data-arg="macro" class="aio-btn-table" style="margin-left:auto;font-size:10px;">거시경제 →</button>
   </div>
 
   <!-- ─ 시장 스냅샷 카드 (Live Quotes Overlay) ─ -->
@@ -4323,7 +4299,7 @@ body.light-theme canvas { filter:none; }
   <!-- v48.57: HY + 10Y-2Y 스프레드 스냅 제거 — page-fxbond Cross-Asset 매트릭스로 주제 정렬 (중복 제거) -->
   <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;font-size:11px;">
     <span style="color:var(--text-muted);">크레딧·금리 스프레드는 환율·채권 페이지의 Cross-Asset 매트릭스에서 상세 분석</span>
-    <button data-action="showPage" data-arg="fxbond" class="tb-btn" style="margin-left:auto;font-size:10px;">환율·채권 →</button>
+    <button data-action="showPage" data-arg="fxbond" class="aio-btn-table" style="margin-left:auto;font-size:10px;">환율·채권 →</button>
   </div>
 
   <!-- ─ 시장 국면 진단 + 트레이딩 원칙 ─ -->
@@ -4693,15 +4669,15 @@ body.light-theme canvas { filter:none; }
   <div class="section-divider"></div>
   <div class="section-header">연계 분석 — 전용 페이지로 이동</div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
-    <button data-action="showPage" data-arg="breadth" class="tb-btn" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
+    <button data-action="showPage" data-arg="breadth" class="aio-btn-table" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
       <span style="font-size:12px;font-weight:700;color:var(--data-cyan);">시장 폭 분석 →</span>
       <span style="font-size:11px;color:var(--text-muted);">5/20/50SMA · A-D 비율 · McClellan · Weinstein</span>
     </button>
-    <button data-action="showPage" data-arg="themes" class="tb-btn" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
+    <button data-action="showPage" data-arg="themes" class="aio-btn-table" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
       <span style="font-size:12px;font-weight:700;color:var(--data-amber);">섹터 로테이션 RRG →</span>
       <span style="font-size:11px;color:var(--text-muted);">11섹터 · 서브섹터 · 45 세분화 테마</span>
     </button>
-    <button data-action="showPage" data-arg="sentiment" class="tb-btn" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
+    <button data-action="showPage" data-arg="sentiment" class="aio-btn-table" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
       <span style="font-size:12px;font-weight:700;color:var(--data-purple);">투자 심리 →</span>
       <span style="font-size:11px;color:var(--text-muted);">F&G · VIX · AAII · Put/Call · HY OAS</span>
     </button>
@@ -5455,7 +5431,7 @@ body.light-theme canvas { filter:none; }
     <!-- Fear & Greed Gauge + Top Row Charts -->
     <div style="display:grid;grid-template-columns:300px 1fr;gap:12px;margin-bottom:14px;">
       <!-- Fear & Greed SVG Gauge -->
-      <div class="data-widget" style="padding:16px;display:flex;flex-direction:column;align-items:center;">
+      <div class="aio-widget" style="padding:16px;display:flex;flex-direction:column;align-items:center;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">Fear & Greed Composite</div>
         <div id="fg-h1" style="font-size:11px;font-weight:700;margin-bottom:4px;color:#ef4444;">극단 공포 구간</div>
         <svg style="width:100%;max-width:220px;height:120px;" viewBox="0 0 240 140">
@@ -5502,7 +5478,7 @@ body.light-theme canvas { filter:none; }
       <!-- VIX + NAAIM + II in top row -->
       <div style="display:flex;flex-direction:column;gap:12px;">
         <!-- VIX Chart -->
-        <div class="data-widget" style="padding:12px;flex:1;">
+        <div class="aio-widget" style="padding:12px;flex:1;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <div style="font-size:11px;font-weight:700;color:var(--text-secondary);"><span class="term-tooltip">VIX<span class="tip-icon">?</span><span class="tip-body">30일 변동성 지수. 낮음=안정, 높음=공포</span></span></div>
             <div style="font-size:11px;color:var(--green);font-weight:600;"><span id="vix-live-label">VIX</span>: <span id="vix-live-val" data-live-price="^VIX">18.36</span></div>
@@ -5511,13 +5487,13 @@ body.light-theme canvas { filter:none; }
         </div>
 
         <!-- v48.58: VIX Term Structure 요약 (sentiment 페이지 누락 보강 — Agent 5 발견) -->
-        <div class="data-widget" style="padding:12px;flex:1;">
+        <div class="aio-widget" style="padding:12px;flex:1;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">
               VIX 기간구조 (9·1M·3M·6M)
               <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="VIX 기간구조 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">Term Structure 해석</span><strong>콘탱고</strong>(우상향, 정상): 단기&lt;장기 · 시장 안정. <strong>백워데이션</strong>(역전, 비정상): 단기&gt;장기 · 즉각적 공포 &gt; 미래 우려. VIX 백워데이션은 <strong>시장 패닉 신호</strong> · 역사적 바닥 1~2주 선행.</span></span>
             </div>
-            <button data-action="showPage" data-arg="options" class="tb-btn" style="font-size:10px;">상세 차트 →</button>
+            <button data-action="showPage" data-arg="options" class="aio-btn-table" style="font-size:10px;">상세 차트 →</button>
           </div>
           <div id="vix-term-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
             <div style="text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px;">
@@ -5541,6 +5517,10 @@ body.light-theme canvas { filter:none; }
               <div style="font-size:11px;color:var(--text-muted);">6개월 기대</div>
             </div>
           </div>
+          <!-- v48.71: VIX Term Structure 스파클라인 차트 (9D·1M·3M·6M 곡선) -->
+          <div style="position:relative;height:70px;margin-top:8px;">
+            <canvas id="vix-term-chart" role="img" aria-label="VIX 기간구조 스파클라인 차트"></canvas>
+          </div>
           <div id="vix-term-regime" style="margin-top:8px;padding:7px 10px;background:var(--surface-2);border-left:3px solid var(--data-amber);border-radius:4px;font-size:11px;color:var(--text-secondary);line-height:1.5;">
             <strong style="color:var(--data-amber);">기간구조 판정:</strong> <span id="vix-term-regime-text">데이터 로딩 중…</span>
           </div>
@@ -5548,11 +5528,11 @@ body.light-theme canvas { filter:none; }
 
         <!-- NAAIM + II Row -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;">
-          <div class="data-widget" style="padding:12px;">
+          <div class="aio-widget" style="padding:12px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;"><span class="term-tooltip">NAAIM 주식노출도<span class="tip-icon">?</span><span class="tip-body">전문 펀드매니저 주식 비중. 30↓=저점 신호.</span></span></div>
             <div style="position:relative;height:140px;"><canvas id="naaim-chart" role="img" aria-label="NAAIM 투자매니저 노출도 차트"></canvas></div>
           </div>
-          <div class="data-widget" style="padding:12px;">
+          <div class="aio-widget" style="padding:12px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;"><span class="term-tooltip">투자전문가 황소/곰 비율<span class="tip-icon">?</span><span class="tip-body">뉴스레터 강세/약세 비율. 하위20%=Buy신호, 상위20%=과열.</span></span></div>
             <div style="position:relative;height:140px;"><canvas id="ii-chart" role="img" aria-label="Investors Intelligence 강세/약세 차트"></canvas></div>
           </div>
@@ -5562,18 +5542,18 @@ body.light-theme canvas { filter:none; }
 
     <!-- Bottom Row: HY Spread, AAII, Put/Call -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-      <div class="data-widget" style="padding:12px;">
+      <div class="aio-widget" style="padding:12px;">
         <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;"><span class="term-tooltip">HY 스프레드<span class="tip-icon">?</span><span class="tip-body">300bp↓=안정(바닥 확인), 400+=주의, 500+=스트레스(추가 하락 가능), 600+=위기. 사모신용 잔존 리스크 주시</span></span></div>
         <div style="position:relative;height:160px;"><canvas id="hy-chart" role="img" aria-label="하이일드 스프레드 차트"></canvas></div>
         <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;">
           <div style="display:flex;justify-content:space-between;">
-            <span>Live: <span id="hy-live-val" style="color:var(--green);font-weight:700;">289 bps</span></span>
+            <span>Live: <span id="hy-live-val" data-snap="hy-spread" style="color:var(--green);font-weight:700;">289 bps</span></span>
             <span style="color:var(--text-muted);" id="hy-live-date">—</span>
           </div>
           <div style="margin-top:4px;"><span id="hy-live-badge" style="font-size:11px;color:var(--green);font-weight:700;">● Tight</span> <span id="hy-signal-badge" style="font-size:11px;color:var(--accent);font-weight:700;">Risky</span></div>
         </div>
       </div>
-      <div class="data-widget" style="padding:12px;">
+      <div class="aio-widget" style="padding:12px;">
         <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;"><span class="term-tooltip">AAII 심리<span class="tip-icon">?</span><span class="tip-body">개인투자자 극단비관=저점신호</span></span></div>
         <div style="position:relative;height:120px;"><canvas id="aaii-chart" role="img" aria-label="AAII 개인투자자 심리 차트"></canvas></div>
         <!-- v31.9: 차트 미렌더 시 텍스트 폴백 -->
@@ -5595,7 +5575,7 @@ body.light-theme canvas { filter:none; }
           </div>
         </div>
       </div>
-      <div class="data-widget" style="padding:12px;">
+      <div class="aio-widget" style="padding:12px;">
         <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;"><span class="term-tooltip">풋콜비율<span class="tip-icon">?</span><span class="tip-body">1.2↑=공포</span></span></div>
         <div style="position:relative;height:160px;"><canvas id="pc-chart" role="img" aria-label="풋/콜 비율 차트"></canvas></div>
         <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;">
@@ -5626,7 +5606,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- v37.8: 심리지표 복합 분석 -->
-    <div class="data-widget" style="margin-top:12px;">
+    <div class="aio-widget" style="margin-top:12px;">
       <div class="widget-title">시장 심리 복합 판단</div>
       <div id="sent-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">심리 지표 로딩 중...</div>
     </div>
@@ -5958,7 +5938,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">TradingView 실시간 차트</div>
       <div style="display:flex;gap:6px;">
         <input id="tv-tech-sym" value="SPY" aria-label="TradingView 종목 코드 입력" style="width:80px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" />
-        <button data-action="loadTVChart" data-arg="technical" class="tb-btn" style="font-size:10px;">차트 로드</button>
+        <button data-action="loadTVChart" data-arg="technical" class="aio-btn-table" style="font-size:10px;">차트 로드</button>
       </div>
     </div>
     <div id="tv-widget-technical" style="height:400px;border-radius:8px;overflow:hidden;background:#131722;"></div>
@@ -7680,10 +7660,10 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- Ticker Search -->
-    <div class="data-widget" style="margin-bottom:14px;">
+    <div class="aio-widget" style="margin-bottom:14px;">
       <div style="display:flex;gap:8px;align-items:center;">
         <input id="fund-search-input" aria-label="기업 분석 종목 티커 입력" style="flex:1;padding:10px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-weight:600;" placeholder="종목 티커 입력 (예: NVDA, AAPL, TSLA, MSFT)..." data-on-enter="fundamentalSearch"/>
-        <button class="tb-btn primary" style="padding:10px 20px;font-size:12px;font-weight:700;" data-action="fundamentalSearch">기업 분석</button>
+        <button class="aio-btn-table primary" style="padding:10px 20px;font-size:12px;font-weight:700;" data-action="fundamentalSearch">기업 분석</button>
       </div>
       <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">S&P 500 · NASDAQ · 다우 30 · Russell 2000 전 종목 | 검색 시 SEC 공시 + 재무제표 + 실시간 시세를 자동 수집하여 AI에 전달합니다</div>
       <!-- v33.4: 최근 검색 기록 -->
@@ -7769,7 +7749,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- v37.8: 펀더멘털 동적 분석 -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">기업 밸류에이션 스캔</div>
       <div id="fund-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">기업 카드 로딩 후 자동 분석됩니다</div>
     </div>
@@ -7783,9 +7763,9 @@ body.light-theme canvas { filter:none; }
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
           <div style="display:flex;gap:3px;" id="earn-cal-week-nav">
-            <button class="tb-btn" data-action="_aioEarnCalWeekShift" data-arg="-1" style="font-size:11px;padding:3px 8px;">◀ 이전</button>
-            <button class="tb-btn" data-action="_aioEarnCalWeekShift" data-arg="0" style="font-size:11px;padding:3px 8px;">이번주</button>
-            <button class="tb-btn" data-action="_aioEarnCalWeekShift" data-arg="1" style="font-size:11px;padding:3px 8px;">다음 ▶</button>
+            <button class="aio-btn-table" data-action="_aioEarnCalWeekShift" data-arg="-1" style="font-size:11px;padding:3px 8px;">◀ 이전</button>
+            <button class="aio-btn-table" data-action="_aioEarnCalWeekShift" data-arg="0" style="font-size:11px;padding:3px 8px;">이번주</button>
+            <button class="aio-btn-table" data-action="_aioEarnCalWeekShift" data-arg="1" style="font-size:11px;padding:3px 8px;">다음 ▶</button>
           </div>
           <span id="earn-cal-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">데이터 로딩 중</span>
         </div>
@@ -8092,7 +8072,7 @@ body.light-theme canvas { filter:none; }
   </div>
     <div class="mb-4">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <button id="ticker-back-btn" class="tb-btn" data-action="showPage" data-arg="themes">← 돌아가기</button>
+        <button id="ticker-back-btn" class="aio-btn-table" data-action="showPage" data-arg="themes">← 돌아가기</button>
         <span id="ticker-breadcrumb-parent" style="font-size:10px;color:var(--text-muted);">Themes > AI</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
@@ -8104,13 +8084,13 @@ body.light-theme canvas { filter:none; }
 
     <!-- Mode Toggle: ETF vs Subtheme -->
     <div style="display:flex;gap:8px;margin-bottom:14px;">
-      <button id="etf-btn" class="tb-btn primary" data-action="switchThemeMode" data-arg="etf">ETF 뷰</button>
-      <button id="sub-btn" class="tb-btn" data-action="switchThemeMode" data-arg="subtheme">부테마</button>
+      <button id="etf-btn" class="aio-btn-table primary" data-action="switchThemeMode" data-arg="etf">ETF 뷰</button>
+      <button id="sub-btn" class="aio-btn-table" data-action="switchThemeMode" data-arg="subtheme">부테마</button>
       <span id="theme-mode-desc" style="font-size:10px;color:var(--text-secondary);margin-left:12px;">AI 및 반도체 섹터 주요 ETF</span>
     </div>
 
     <!-- ETF View -->
-    <div id="etf-view" class="data-widget">
+    <div id="etf-view" class="aio-widget">
       <div class="widget-title">주요 AI ETF</div>
       <table style="width:100%;border-collapse:collapse;font-size:10px;">
         <thead>
@@ -8149,7 +8129,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- Subtheme View (hidden) -->
-    <div id="subtheme-view" style="display:none;" class="data-widget">
+    <div id="subtheme-view" style="display:none;" class="aio-widget">
       <div class="widget-title">AI 부테마</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px;">
         <div style="padding:8px;background:rgba(0,229,160,0.08);border-radius:5px;">
@@ -8266,8 +8246,8 @@ body.light-theme canvas { filter:none; }
         </div>
         <div style="display:flex;gap:6px;align-items:center;">
           <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);"> 로컬 저장 · 서버 전송 없음</span>
-          <button class="tb-btn" data-action="exportPortfolio" style="font-size:11px;"> 내보내기</button>
-          <label class="tb-btn" style="font-size:11px;cursor:pointer;"> 가져오기<input type="file" accept=".json" aria-label="포트폴리오 JSON 파일 가져오기" style="display:none" data-on-change="_aioImportPortfolio"></label>
+          <button class="aio-btn-table" data-action="exportPortfolio" style="font-size:11px;"> 내보내기</button>
+          <label class="aio-btn-table" style="font-size:11px;cursor:pointer;"> 가져오기<input type="file" accept=".json" aria-label="포트폴리오 JSON 파일 가져오기" style="display:none" data-on-change="_aioImportPortfolio"></label>
         </div>
       </div>
     </div>
@@ -8279,10 +8259,10 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;">PIN 4자리를 입력하세요. 데이터는 브라우저에만 저장됩니다.</div>
       <input id="pf-pin-input" type="password" maxlength="4" aria-label="포트폴리오 PIN 입력" pattern="[0-9]*" inputmode="numeric" placeholder="••••" style="width:120px;text-align:center;font-size:20px;letter-spacing:8px;background:var(--surface-4);border:2px solid var(--accent-border);border-radius:8px;padding:10px;color:var(--text-primary);outline:none;" data-on-enter="unlockPortfolio">
       <br>
-      <button class="tb-btn primary" data-action="unlockPortfolio" style="margin-top:12px;font-size:10px;">잠금 해제</button>
+      <button class="aio-btn-table primary" data-action="unlockPortfolio" style="margin-top:12px;font-size:10px;">잠금 해제</button>
       <div style="margin-top:12px;">
-        <button class="tb-btn" data-action="setupPortfolioPin" style="font-size:11px;color:var(--text-muted);">PIN 설정/변경</button>
-        <button class="tb-btn" data-action="resetPortfolioPin" style="font-size:11px;color:var(--text-muted);">PIN 초기화</button>
+        <button class="aio-btn-table" data-action="setupPortfolioPin" style="font-size:11px;color:var(--text-muted);">PIN 설정/변경</button>
+        <button class="aio-btn-table" data-action="resetPortfolioPin" style="font-size:11px;color:var(--text-muted);">PIN 초기화</button>
       </div>
     </div>
 
@@ -8305,22 +8285,22 @@ body.light-theme canvas { filter:none; }
 
     <!-- Summary Cards -->
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:14px;">
-      <div class="data-widget" style="padding:14px 16px;">
+      <div class="aio-widget" style="padding:14px 16px;">
         <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">총 자산 가치</div>
         <div id="pf-total-value" style="font-size:22px;font-weight:800;font-family:var(--font-mono);">$0</div>
         <div id="pf-holding-count" style="font-size:12px;color:var(--text-secondary);margin-top:6px;">0 종목</div>
       </div>
-      <div class="data-widget" style="padding:14px 16px;">
+      <div class="aio-widget" style="padding:14px 16px;">
         <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">총 손익</div>
         <div id="pf-total-pnl" style="font-size:22px;font-weight:800;font-family:var(--font-mono);">$0</div>
         <div id="pf-total-pnl-pct" style="font-size:12px;margin-top:6px;font-weight:600;">0%</div>
       </div>
-      <div class="data-widget" style="padding:14px 16px;">
+      <div class="aio-widget" style="padding:14px 16px;">
         <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">일간 변동</div>
         <div id="pf-daily-chg" style="font-size:22px;font-weight:800;font-family:var(--font-mono);">$0</div>
         <div id="pf-daily-pct" style="font-size:12px;margin-top:6px;font-weight:600;">0%</div>
       </div>
-      <div class="data-widget" style="padding:14px 16px;">
+      <div class="aio-widget" style="padding:14px 16px;">
         <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">자산 배분</div>
         <div id="pf-allocation" style="font-size:12px;margin-top:6px;line-height:1.7;">포지션을 추가하세요</div>
       </div>
@@ -8355,7 +8335,7 @@ body.light-theme canvas { filter:none; }
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">내 포트폴리오 vs SPY 수익률 비교</div>
-        <button data-action="updateBenchmarkChart" class="tb-btn" style="font-size:11px;"> 새로고침</button>
+        <button data-action="updateBenchmarkChart" class="aio-btn-table" style="font-size:11px;"> 새로고침</button>
       </div>
       <canvas id="pf-benchmark-chart" style="width:100%;height:200px;" role="img" aria-label="포트폴리오 대 SPY 벤치마크 비교 차트"></canvas>
       <div style="margin-top:8px;font-size:11px;color:var(--text-muted);display:flex;gap:16px;align-items:center;">
@@ -8465,18 +8445,18 @@ body.light-theme canvas { filter:none; }
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;">메모 (선택)</div>
           <input id="pf-add-memo" type="text" placeholder="매수 근거 (예: 실적 서프라이즈, 밸류에이션)" aria-label="메모" style="width:100%;padding:8px 10px;background:var(--surface-4);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box;">
         </div>
-        <button class="tb-btn primary" data-action="addPortfolioPosition" style="font-size:12px;font-weight:700;padding:8px 18px;">추가 / 업데이트</button>
-        <button class="tb-btn" data-action="clearPortfolioForm" style="font-size:11px;padding:8px 14px;">초기화</button>
+        <button class="aio-btn-table primary" data-action="addPortfolioPosition" style="font-size:12px;font-weight:700;padding:8px 18px;">추가 / 업데이트</button>
+        <button class="aio-btn-table" data-action="clearPortfolioForm" style="font-size:11px;padding:8px 14px;">초기화</button>
       </div>
     </div>
 
     <!-- 보유 종목 테이블 -->
-    <div class="data-widget" style="margin-bottom:14px;">
+    <div class="aio-widget" style="margin-bottom:14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;">
         <div class="widget-title" style="margin:0;">보유 종목</div>
         <div style="display:flex;gap:6px;">
-          <button class="tb-btn" data-action="refreshPortfolioPrices" style="font-size:11px;">⟳ 시세 갱신</button>
-          <button class="tb-btn" data-action="clearAllPositions" style="font-size:11px;color:var(--data-red);">전체 삭제</button>
+          <button class="aio-btn-table" data-action="refreshPortfolioPrices" style="font-size:11px;">⟳ 시세 갱신</button>
+          <button class="aio-btn-table" data-action="clearAllPositions" style="font-size:11px;color:var(--data-red);">전체 삭제</button>
         </div>
       </div>
       <!-- v48.3: 테이블 헤더 폰트 8px→11px, 본문 10px→12px 상향 (P37/R17 준수 · 가독성 확보) -->
@@ -8501,16 +8481,16 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 다중 워치리스트 시스템 ═══ -->
-    <div class="data-widget" style="margin-bottom:14px;">
+    <div class="aio-widget" style="margin-bottom:14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;">
         <div class="widget-title" style="margin:0;"> 관심 종목 리스트</div>
         <div style="display:flex;gap:6px;align-items:center;">
           <select id="wl-select" aria-label="관심 종목 리스트 선택" data-on-change="switchWatchlist" style="background:var(--surface-4);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-size:11px;padding:4px 8px;font-family:var(--font-mono);min-width:120px;">
             <option value="">리스트 선택...</option>
           </select>
-          <button class="tb-btn" data-action="createWatchlist" style="font-size:11px;">+ 새 리스트</button>
-          <button class="tb-btn" data-action="renameWatchlist" style="font-size:11px;" id="wl-rename-btn" disabled> 이름변경</button>
-          <button class="tb-btn" data-action="deleteWatchlist" style="font-size:11px;color:var(--data-red);" id="wl-delete-btn" disabled> 삭제</button>
+          <button class="aio-btn-table" data-action="createWatchlist" style="font-size:11px;">+ 새 리스트</button>
+          <button class="aio-btn-table" data-action="renameWatchlist" style="font-size:11px;" id="wl-rename-btn" disabled> 이름변경</button>
+          <button class="aio-btn-table" data-action="deleteWatchlist" style="font-size:11px;color:var(--data-red);" id="wl-delete-btn" disabled> 삭제</button>
         </div>
       </div>
       <!-- 워치리스트 종목 추가 -->
@@ -8518,7 +8498,7 @@ body.light-theme canvas { filter:none; }
         <div style="display:flex;gap:6px;align-items:center;">
           <input id="wl-add-ticker" type="text" placeholder="티커 입력 (예: AAPL)" aria-label="관심종목 티커 입력" style="width:100px;padding:5px 8px;background:var(--surface-4);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;font-family:var(--font-mono);text-transform:uppercase;" data-on-enter="addToWatchlist">
           <input id="wl-add-note" type="text" placeholder="메모 (선택)" aria-label="관심종목 메모 입력" style="width:140px;padding:5px 8px;background:var(--surface-4);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:10px;" data-on-enter="addToWatchlist">
-          <button class="tb-btn primary" data-action="addToWatchlist" style="font-size:11px;padding:5px 12px;">추가</button>
+          <button class="aio-btn-table primary" data-action="addToWatchlist" style="font-size:11px;padding:5px 12px;">추가</button>
         </div>
       </div>
       <!-- 워치리스트 테이블 -->
@@ -8543,7 +8523,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- v37.8: 포트폴리오 동적 진단 -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">포트폴리오 자동 진단</div>
       <div id="pf-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">포트폴리오를 추가하면 자동 분석됩니다</div>
     </div>
@@ -8626,7 +8606,7 @@ body.light-theme canvas { filter:none; }
 
     <div class="mb-4">
       <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <button id="ticker-back-btn-main" class="tb-btn" data-action="showPage" data-arg="portfolio">← 돌아가기</button>
+        <button id="ticker-back-btn-main" class="aio-btn-table" data-action="showPage" data-arg="portfolio">← 돌아가기</button>
         <span id="ticker-breadcrumb-main" style="font-size:11px;color:var(--text-muted);">Portfolio > NVDA</span>
       </div>
       <div style="display:flex;align-items:baseline;gap:12px;">
@@ -8656,7 +8636,7 @@ body.light-theme canvas { filter:none; }
     <!-- Tab: Overview -->
     <div id="tab-overview" class="tab-content">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-        <div class="data-widget">
+        <div class="aio-widget">
           <div class="widget-title">Key Metrics <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(종목 검색 시 FMP API로 자동 갱신)</span></div>
           <div class="metric-list">
             <div class="metric-item">
@@ -8681,7 +8661,7 @@ body.light-theme canvas { filter:none; }
             </div>
           </div>
         </div>
-        <div class="data-widget">
+        <div class="aio-widget">
           <div class="widget-title">Action</div>
           <div style="padding:12px;">
             <button id="ticker-action-btn" class="action-btn buy" style="width:100%;padding:10px;background:rgba(0,229,160,0.2);border:1px solid var(--green);color:var(--green);border-radius:6px;cursor:pointer;font-weight:700;font-size:11px;">BUY / LONG</button>
@@ -8697,7 +8677,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- Tab: Chart -->
     <div id="tab-chart" class="tab-content" style="display:none;">
-      <div class="data-widget">
+      <div class="aio-widget">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div class="widget-title" style="margin-bottom:0;">Price Chart</div>
           <div style="display:flex;gap:4px;" id="ticker-chart-period-tabs">
@@ -8718,7 +8698,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- Tab: Financials -->
     <div id="tab-financials" class="tab-content" style="display:none;">
-      <div class="data-widget">
+      <div class="aio-widget">
         <div class="widget-title">Quarterly Results (TTM)</div>
         <table style="width:100%;border-collapse:collapse;font-size:10px;">
           <thead>
@@ -8753,7 +8733,7 @@ body.light-theme canvas { filter:none; }
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:12px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">캔들 패턴 갤러리 (<span id="ticker-candle-symbol" style="color:var(--data-cyan);font-family:var(--font-mono);">—</span> 실시간)</div>
-        <button class="tb-btn" data-action="_aioDetectTickerPattern" style="font-size:11px;">패턴 감지 ↻</button>
+        <button class="aio-btn-table" data-action="_aioDetectTickerPattern" style="font-size:11px;">패턴 감지 ↻</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
         <div style="background:linear-gradient(135deg,rgba(0,229,160,0.05),rgba(0,229,160,0.02));border:1px solid rgba(0,229,160,0.2);border-radius:7px;padding:10px;text-align:center;">
@@ -8791,7 +8771,7 @@ body.light-theme canvas { filter:none; }
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">진입 품질 계산기 (<span id="ticker-entry-symbol" style="color:var(--data-cyan);font-family:var(--font-mono);">—</span>)</div>
-        <button class="tb-btn" data-action="_aioFillEntryFromTicker" style="font-size:11px;">현재가 자동 입력 ↻</button>
+        <button class="aio-btn-table" data-action="_aioFillEntryFromTicker" style="font-size:11px;">현재가 자동 입력 ↻</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
         <div>
@@ -9789,7 +9769,7 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- v37.8: 옵션 동적 분석 -->
-  <div class="data-widget" style="margin-top:12px;">
+  <div class="aio-widget" style="margin-top:12px;">
     <div class="widget-title">옵션 환경 자동 판단</div>
     <div id="opt-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">데이터 로딩 중...</div>
   </div>
@@ -9859,9 +9839,9 @@ body.light-theme canvas { filter:none; }
         <div class="page-subtitle">실시간 지수 · KOSPI · KOSDAQ · KRW/USD · 투자자 수급 · 한국 시장 요약</div>
       </div>
       <div class="page-actions">
-        <button class="tb-btn" data-action="showPage" data-arg="kr-supply">수급 분석 →</button>
-        <button class="tb-btn" data-action="showPage" data-arg="kr-themes">국내 테마 →</button>
-        <button class="tb-btn primary" data-action="showPage" data-arg="kr-macro">매크로 →</button>
+        <button class="aio-btn-table" data-action="showPage" data-arg="kr-supply">수급 분석 →</button>
+        <button class="aio-btn-table" data-action="showPage" data-arg="kr-themes">국내 테마 →</button>
+        <button class="aio-btn-table primary" data-action="showPage" data-arg="kr-macro">매크로 →</button>
       </div>
     </div>
 
@@ -10008,7 +9988,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 4: 오늘의 주요 이슈 ═══ -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">주요 이슈 <span id="kr-issues-status" style="font-size:11px;color:var(--text-muted);font-weight:400;">(뉴스 피드 자동 추출 · 갱신: <span data-snap-date="kr-issues">2026-04-17</span> · <span id="kr-issues-stale-days">경과 계산중</span>)</span> <span class="kr-tag">KR</span></div>
       <div id="kr-issues-container" style="display:flex;flex-direction:column;gap:6px;padding:4px 0;">
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;background:rgba(255,163,26,0.05);border:1px solid rgba(255,163,26,0.12);">
@@ -10031,7 +10011,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 5: KRX 섹터 ETF 성과 (v35.5: data-live-price 바인딩) ═══ -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">KRX 섹터 & 주요 ETF 성과 <span id="kr-etf-ts" style="font-size:11px;color:var(--text-muted);font-weight:400;">(실시간)</span></div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;" id="kr-etf-grid">
         <div class="kr-etf-card" data-live-price="091160.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
@@ -10080,7 +10060,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 5.5: 한국 시장 체감 온도 ═══ -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">시장 체감 온도 <span class="kr-tag" style="background:rgba(255,163,26,0.15);color:var(--data-amber);">LIVE</span></div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
         <div style="text-align:center;padding:10px 6px;background:rgba(255,91,80,0.08);border-radius:8px;border:1px solid rgba(255,91,80,0.2);">
@@ -10111,7 +10091,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- ═══ 섹션 6: 상위 모멘텀 ═══ -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div class="data-widget">
+      <div class="aio-widget">
         <div class="widget-title">KOSPI 상위 상승</div>
         <div class="kr-screener-grid" style="grid-template-columns:1fr;">
           <div class="kr-screen-card" data-live-price="000660.KS"><span class="kr-screen-ticker">000660</span><span class="kr-screen-name">SK하이닉스</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--green)">+3.24%</div><div class="kr-screen-cap">97조원</div></div></div>
@@ -10121,7 +10101,7 @@ body.light-theme canvas { filter:none; }
           <div class="kr-screen-card" data-live-price="298040.KS"><span class="kr-screen-ticker">298040</span><span class="kr-screen-name">효성중공업</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--green)">+1.84%</div><div class="kr-screen-cap">14조원</div></div></div>
         </div>
       </div>
-      <div class="data-widget">
+      <div class="aio-widget">
         <div class="widget-title">KOSPI 상위 하락</div>
         <div class="kr-screener-grid" style="grid-template-columns:1fr;">
           <div class="kr-screen-card" data-live-price="373220.KS"><span class="kr-screen-ticker">373220</span><span class="kr-screen-name">LG에너지솔루션</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--red)">-2.41%</div><div class="kr-screen-cap">89조원</div></div></div>
@@ -10184,12 +10164,12 @@ body.light-theme canvas { filter:none; }
         <div class="page-subtitle">투자자별 순매수 · 프로그램 매매 · 공매도 현황 · 외인 보유 비중</div>
       </div>
       <div class="page-actions">
-        <button class="tb-btn" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
+        <button class="aio-btn-table" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
       </div>
     </div>
 
     <!-- 동적 분석 컨테이너 -->
-    <div id="kr-supply-analysis" class="data-widget" style="margin-bottom:12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);">
+    <div id="kr-supply-analysis" class="aio-widget" style="margin-bottom:12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);">
       <div id="kr-supply-analysis-text" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">수급 데이터 로딩 중...</div>
     </div>
 
@@ -10289,14 +10269,14 @@ body.light-theme canvas { filter:none; }
         </span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="data-widget">
+        <div class="aio-widget">
           <div class="widget-title">외국인 순매수 TOP 10</div>
           <table class="kr-flow-table" id="kr-investor-foreign-buy">
             <tr><th>#</th><th>종목</th><th>순매수 금액</th><th>순매수 수량</th></tr>
             <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">데이터 로딩 중...</td></tr>
           </table>
         </div>
-        <div class="data-widget">
+        <div class="aio-widget">
           <div class="widget-title">기관 순매수 TOP 10</div>
           <table class="kr-flow-table" id="kr-investor-organ-buy">
             <tr><th>#</th><th>종목</th><th>순매수 금액</th><th>순매수 수량</th></tr>
@@ -10308,7 +10288,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- WEEKLY TAB (hidden) -->
     <div id="kr-supply-weekly" style="display:none;">
-      <div class="data-widget">
+      <div class="aio-widget">
         <div class="widget-title">주간 투자자별 순매수 트렌드 (최근 5거래일)</div>
         <table class="kr-flow-table" id="kr-weekly-supply-table">
           <tr><th>날짜</th><th>외국인</th><th>기관</th><th>개인</th><th>프로그램</th><th>KOSPI</th></tr>
@@ -10327,7 +10307,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- SHORT SELLING TAB (hidden) -->
     <div id="kr-supply-short" style="display:none;">
-      <div class="data-widget" style="margin-bottom:12px;">
+      <div class="aio-widget" style="margin-bottom:12px;">
         <div class="widget-title">공매도 현황 <span class="kr-tag">KR 전용</span></div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
           <div style="background:var(--surface-2);border-radius:8px;padding:10px 12px;text-align:center;">
@@ -10355,7 +10335,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- FOREIGN HOLDINGS TAB (hidden) -->
     <div id="kr-supply-foreign" style="display:none;">
-      <div class="data-widget">
+      <div class="aio-widget">
         <div class="widget-title">외국인 보유 비중 TOP 10 <span class="kr-tag">KR 전용</span></div>
         <table class="kr-flow-table" id="kr-foreign-hold-top10">
           <tr><th>#</th><th>종목</th><th>외인비중</th><th>순매수 금액</th></tr>
@@ -10411,8 +10391,8 @@ body.light-theme canvas { filter:none; }
         <div class="page-subtitle">한국 고유 투자 테마 · 대장주 수급·모멘텀 · 테마별 성과</div>
       </div>
       <div class="page-actions" style="display:flex;gap:8px;align-items:center;">
-        <a href="https://finance.naver.com/sise/theme.naver" target="_blank" rel="noopener noreferrer" rel="noopener" class="tb-btn" style="text-decoration:none;font-size:11px;">네이버 테마별 시세 ↗</a>
-        <button class="tb-btn" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
+        <a href="https://finance.naver.com/sise/theme.naver" target="_blank" rel="noopener noreferrer" rel="noopener" class="aio-btn-table" style="text-decoration:none;font-size:11px;">네이버 테마별 시세 ↗</a>
+        <button class="aio-btn-table" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
       </div>
     </div>
 
@@ -10457,7 +10437,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- v37.8: kr-themes 동적 테마 분석 -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">테마 동향 자동 분석</div>
       <div id="kr-themes-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">테마 데이터 로딩 중...</div>
     </div>
@@ -10512,12 +10492,12 @@ body.light-theme canvas { filter:none; }
         <div class="page-subtitle">기준금리 · 물가 · 경기 · 환율 · 수출입 · 부동산</div>
       </div>
       <div class="page-actions">
-        <button class="tb-btn" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
+        <button class="aio-btn-table" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
       </div>
     </div>
 
     <!-- ═══ 섹션 1: 기준금리 현황 ═══ -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">한국은행 기준금리 현황</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
@@ -10548,7 +10528,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- ═══ 섹션 2: 물가지표 ═══ -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-      <div class="data-widget">
+      <div class="aio-widget">
         <div class="widget-title">물가지표</div>
         <div style="display:grid;gap:8px;">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:6px;">
@@ -10573,7 +10553,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
 
-      <div class="data-widget">
+      <div class="aio-widget">
         <div class="widget-title">경기지표</div>
         <div style="display:grid;gap:8px;">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:6px;">
@@ -10600,7 +10580,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 3: 원/달러 환율 분석 ═══ -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">원/달러 환율 분석</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
@@ -10643,7 +10623,7 @@ body.light-theme canvas { filter:none; }
 
     
     <!-- ═══ 섹션 3B: 채권 금리 ═══ -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">주요 채권 금리</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
@@ -10661,7 +10641,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- ═══ 섹션 4: 수출입 동향 ═══ -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-      <div class="data-widget">
+      <div class="aio-widget">
         <div class="widget-title">주요 수출 동향</div>
         <table class="kr-flow-table">
           <tr><th>품목</th><th>2월 수출</th><th>YoY</th></tr>
@@ -10676,7 +10656,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
 
-      <div class="data-widget">
+      <div class="aio-widget">
         <div class="widget-title">주요 수입 동향</div>
         <table class="kr-flow-table">
           <tr><th>품목</th><th>2월 수입</th><th>YoY</th></tr>
@@ -10693,7 +10673,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 5: 부동산 & 건설 ═══ -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">부동산 / 건설 시장</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
         <div style="background:var(--surface-1);border-radius:8px;padding:10px;">
@@ -10718,13 +10698,13 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ v37.8: 한국 매크로 동적 분석 ═══ -->
-    <div class="data-widget" id="kr-macro-dynamic-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" id="kr-macro-dynamic-widget" style="margin-bottom:12px;">
       <div class="widget-title">매크로 환경 자동 판단</div>
       <div id="kr-macro-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">데이터 로딩 중...</div>
     </div>
 
     <!-- ═══ 섹션 6: 정책 일정 ═══ -->
-    <div class="data-widget">
+    <div class="aio-widget">
       <div class="widget-title">주요 경제 일정 <span style="font-size:11px;padding:2px 6px;background:rgba(255,163,26,0.15);border-radius:3px;color:var(--data-amber);margin-left:6px;">과거 스냅샷 — 최신 일정은 AI 채팅에서 확인</span></div>
       <table class="kr-flow-table">
         <tr><th>날짜</th><th>이벤트</th><th>영향</th></tr>
@@ -10737,7 +10717,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 6: 한국 경기 선행지수 ═══ -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">경기 선행·동행·후행 지수 <span class="kr-tag">통계청</span></div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
         <div style="background:var(--surface-2);border-radius:8px;padding:10px 12px;text-align:center;">
@@ -10765,7 +10745,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 7: 국제 비교 ═══ -->
-    <div class="data-widget" style="margin-bottom:12px;">
+    <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">글로벌 비교 — 한국 vs 주요국</div>
       <table class="kr-flow-table">
         <tr><th>지표</th><th>한국</th><th>미국</th><th>일본</th><th>중국</th></tr>
@@ -10834,7 +10814,7 @@ body.light-theme canvas { filter:none; }
           <div class="page-subtitle">Weinstein 4단계 · 추세 위치 · 조정 판별 · 진입 등급 · RSI · MACD · 볼린저밴드</div>
         </div>
         <div style="display:flex;gap:6px;">
-          <button class="tb-btn" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
+          <button class="aio-btn-table" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
         </div>
       </div>
     </div>
@@ -10845,7 +10825,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">TradingView 한국 종목 차트</div>
       <div style="display:flex;gap:6px;">
         <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" style="width:120px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" data-on-enter="loadTVChart:kr" />
-        <button data-action="loadTVChart" data-arg="kr" class="tb-btn" style="font-size:10px;">차트 로드</button>
+        <button data-action="loadTVChart" data-arg="kr" class="aio-btn-table" style="font-size:10px;">차트 로드</button>
       </div>
     </div>
     <div id="tv-widget-kr" style="height:400px;border-radius:8px;overflow:hidden;background:#131722;"></div>
@@ -10973,7 +10953,7 @@ body.light-theme canvas { filter:none; }
         <div id="kr-kospi-tech-result" style="min-height:60px;">
           <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">로딩 중…</div>
         </div>
-        <button data-action="analyzeKrTickerDeep" data-arg="^KS11" class="tb-btn" style="width:100%;margin-top:8px;font-size:11px;">KOSPI 분석 새로고침 </button>
+        <button data-action="analyzeKrTickerDeep" data-arg="^KS11" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSPI 분석 새로고침 </button>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -10983,7 +10963,7 @@ body.light-theme canvas { filter:none; }
         <div id="kr-kosdaq-tech-result" style="min-height:60px;">
           <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">로딩 중…</div>
         </div>
-        <button data-action="analyzeKrTickerDeep" data-arg="^KQ11" class="tb-btn" style="width:100%;margin-top:8px;font-size:11px;">KOSDAQ 분석 새로고침 </button>
+        <button data-action="analyzeKrTickerDeep" data-arg="^KQ11" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSDAQ 분석 새로고침 </button>
       </div>
     </div>
 
@@ -11001,14 +10981,14 @@ body.light-theme canvas { filter:none; }
       </div>
       <!-- 빠른 종목 버튼 -->
       <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;">
-        <button data-action="analyzeKrTickerDeep" data-arg="005930.KS" class="tb-btn" style="font-size:11px;">삼성전자</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="000660.KS" class="tb-btn" style="font-size:11px;">SK하이닉스</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="035720.KS" class="tb-btn" style="font-size:11px;">카카오</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="005380.KS" class="tb-btn" style="font-size:11px;">현대차</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="006400.KS" class="tb-btn" style="font-size:11px;">삼성SDI</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="035420.KS" class="tb-btn" style="font-size:11px;">NAVER</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="051910.KS" class="tb-btn" style="font-size:11px;">LG화학</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="247540.KQ" class="tb-btn" style="font-size:11px;">에코프로비엠</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="005930.KS" class="aio-btn-table" style="font-size:11px;">삼성전자</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="000660.KS" class="aio-btn-table" style="font-size:11px;">SK하이닉스</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="035720.KS" class="aio-btn-table" style="font-size:11px;">카카오</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="005380.KS" class="aio-btn-table" style="font-size:11px;">현대차</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="006400.KS" class="aio-btn-table" style="font-size:11px;">삼성SDI</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="035420.KS" class="aio-btn-table" style="font-size:11px;">NAVER</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="051910.KS" class="aio-btn-table" style="font-size:11px;">LG화학</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="247540.KQ" class="aio-btn-table" style="font-size:11px;">에코프로비엠</button>
       </div>
       <div id="kr-ticker-analysis-result" style="min-height:80px;">
         <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px;">종목코드를 입력하거나 위 버튼을 클릭하면 Weinstein Stage, 추세 위치, 조정 판별, 진입 등급 등 종합 분석이 표시됩니다.</div>
@@ -11052,15 +11032,15 @@ body.light-theme canvas { filter:none; }
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
       <span style="font-size:12px;font-weight:700;color:var(--text-secondary);">빠른 이동</span>
       <input id="guide-search-input" type="search" placeholder="용어/페이지 검색 (예: VCP, RRG, 피보나치)" aria-label="가이드 검색" style="flex:1;min-width:200px;padding:6px 10px;background:var(--surface-3);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:11px;" data-on-enter="_aioGuideSearch:__value"/>
-      <button data-action="_aioGuideSearchTrigger" class="tb-btn primary" style="font-size:11px;padding:6px 12px;">검색</button>
+      <button data-action="_aioGuideSearchTrigger" class="aio-btn-table primary" style="font-size:11px;padding:6px 12px;">검색</button>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:4px;">
-      <button data-action="_aioGuideJump" data-arg="explain-guide-overview" class="tb-btn" style="font-size:10px;padding:4px 10px;">10단계 루틴</button>
-      <button data-action="_aioGuideJump" data-arg="guide-valuechain" class="tb-btn" style="font-size:10px;padding:4px 10px;">밸류체인</button>
-      <button data-action="_aioGuideJump" data-arg="guide-glossary" class="tb-btn" style="font-size:10px;padding:4px 10px;">용어사전</button>
-      <button data-action="_aioGuideJump" data-arg="guide-strategies" class="tb-btn" style="font-size:10px;padding:4px 10px;">매매 전략</button>
-      <button data-action="_aioGuideJump" data-arg="guide-faq" class="tb-btn" style="font-size:10px;padding:4px 10px;">FAQ</button>
-      <button data-action="_aioGuideJump" data-arg="guide-api" class="tb-btn" style="font-size:10px;padding:4px 10px;">API 설정</button>
+      <button data-action="_aioGuideJump" data-arg="explain-guide-overview" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">10단계 루틴</button>
+      <button data-action="_aioGuideJump" data-arg="guide-valuechain" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">밸류체인</button>
+      <button data-action="_aioGuideJump" data-arg="guide-glossary" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">용어사전</button>
+      <button data-action="_aioGuideJump" data-arg="guide-strategies" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">매매 전략</button>
+      <button data-action="_aioGuideJump" data-arg="guide-faq" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">FAQ</button>
+      <button data-action="_aioGuideJump" data-arg="guide-api" class="aio-btn-table" style="font-size:10px;padding:4px 10px;">API 설정</button>
     </div>
     <div id="guide-search-result" style="display:none;margin-top:8px;padding:8px 10px;background:var(--surface-2);border-radius:6px;font-size:10px;color:var(--text-muted);"></div>
   </div>
@@ -11109,7 +11089,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 0-A: 기기 및 브라우저 호환성 (v27.4) ═══ -->
-    <div class="data-widget" style="border-left:3px solid var(--data-cyan);">
+    <div class="aio-widget" style="border-left:3px solid var(--data-cyan);">
       <div class="widget-title">기기 및 브라우저 호환성</div>
       <div style="font-size:11px;color:var(--text-secondary);line-height:1.7;">
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px;">
@@ -11137,7 +11117,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 0-B: API 키 설정 가이드 (v27.4 전면 개편) ═══ -->
-    <div class="data-widget" style="border-left:3px solid var(--data-red);">
+    <div class="aio-widget" style="border-left:3px solid var(--data-red);">
       <div class="widget-title"> 시작하기 — API 키 설정 가이드</div>
       <div style="font-size:11px;color:var(--text-secondary);line-height:1.7;">
 
@@ -11247,7 +11227,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 1: 대시보드별 사용법 ═══ -->
-    <div class="data-widget">
+    <div class="aio-widget">
       <div class="widget-title"> 대시보드별 사용법</div>
 
       <!-- HOME (종합) -->
@@ -11401,7 +11381,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 2: 공통 기능 사용법 ═══ -->
-    <div class="data-widget">
+    <div class="aio-widget">
       <div class="widget-title"> 공통 기능 사용법</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
@@ -11428,7 +11408,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 2-B: 한국 시장 페이지 안내 (v38.8) ═══ -->
-    <div class="data-widget" style="border-left:3px solid #ef4444;">
+    <div class="aio-widget" style="border-left:3px solid #ef4444;">
       <div class="widget-title"> 한국 시장 페이지 안내</div>
       <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
@@ -11456,7 +11436,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 3: 핵심 유의사항 ═══ -->
-    <div class="data-widget" style="border-left:3px solid var(--data-amber);">
+    <div class="aio-widget" style="border-left:3px solid var(--data-amber);">
       <div class="widget-title">반드시 읽어야 할 유의사항</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(255,91,80,0.06);border:1px solid rgba(255,91,80,0.15);border-radius:6px;">
@@ -11505,7 +11485,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 3-A: FAQ / 자주 묻는 질문 (v38.8) ═══ -->
-    <div class="data-widget" style="border-left:3px solid var(--data-cyan);">
+    <div class="aio-widget" style="border-left:3px solid var(--data-cyan);">
       <div class="widget-title"> 자주 묻는 질문 (FAQ)</div>
       <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
         <div style="display:flex;flex-direction:column;gap:8px;">
@@ -11538,7 +11518,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 3-B: 개발자/디버그 모드 ═══ -->
-    <div class="data-widget" style="border-left:3px solid var(--data-purple);">
+    <div class="aio-widget" style="border-left:3px solid var(--data-purple);">
       <div class="widget-title"> 문제 해결 및 디버그 모드</div>
       <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
         <div style="margin-bottom:8px;">데이터가 표시되지 않거나 오류가 발생할 때, 브라우저 개발자 도구(F12)의 콘솔에서 원인을 확인할 수 있습니다.</div>
@@ -11587,7 +11567,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 4: 투자 필수 배경지식 ═══ -->
-    <div class="data-widget">
+    <div class="aio-widget">
       <div class="widget-title">알아두면 좋은 투자 배경지식</div>
 
       <div style="background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);border-radius:8px;padding:12px;margin-bottom:10px;">
@@ -17293,10 +17273,10 @@ function showKrThemeDetail(themeId) {
 
     // AI 분석 버튼
     '<div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;">'+
-      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 심층 분석: 현재 모멘텀, 수급, 밸류에이션, 리스크 종합 판단해줘" class="tb-btn" style="font-size:10px;padding:6px 12px;">AI 심층 분석</button>'+
-      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 외국인·기관 수급 흐름과 향후 전망 분석해줘" class="tb-btn" style="font-size:10px;padding:6px 12px;">수급 분석</button>'+
-      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 대장주와 후발주 비교 분석하고 진입 전략 알려줘" class="tb-btn" style="font-size:10px;padding:6px 12px;">진입 전략</button>'+
-      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 리스크 요인과 주의할 점 분석해줘" class="tb-btn" style="font-size:10px;padding:6px 12px;">리스크</button>'+
+      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 심층 분석: 현재 모멘텀, 수급, 밸류에이션, 리스크 종합 판단해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">AI 심층 분석</button>'+
+      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 외국인·기관 수급 흐름과 향후 전망 분석해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">수급 분석</button>'+
+      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 대장주와 후발주 비교 분석하고 진입 전략 알려줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">진입 전략</button>'+
+      '<button data-action="chatFromChip" data-arg="kr-themes" data-arg2="'+escHtml(tn)+' 테마 리스크 요인과 주의할 점 분석해줘" class="aio-btn-table" style="font-size:10px;padding:6px 12px;">리스크</button>'+
     '</div>';
 
   panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});
@@ -26156,7 +26136,7 @@ document.querySelectorAll('.insight-box').forEach(function(el) {
 setTimeout(function() {
   var loadingPatterns = ['로딩 중', '생성 중', 'Loading', '계산중', '계산 중', '분석 로딩', '데이터 로딩'];
   var candidates = document.querySelectorAll(
-    '#macro-storyline, #earnings-calendar-body, #risk-radar-body, #home-briefing-content, #home-news-highlights, ' +
+    '#macro-storyline, #earnings-calendar-body, #risk-radar-body, #home-news-highlights, ' +
     '#kr-investor-foreign-buy, #kr-investor-organ-buy, #kr-foreign-hold-top10, ' +
     '#last-fetch-time, #home-quality-label'
   );

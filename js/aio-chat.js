@@ -1390,7 +1390,7 @@ async function _fetchSectorCompareData(stocks) {
     try {
       var syms = stocks.map(function(s){ return s.sym; }).join(',');
       var urlBatch = 'https://financialmodelingprep.com/api/v3/profile/' + encodeURIComponent(syms) + '?apikey=' + fmpKey;
-      var rBatch = await withTimeout(fetch(urlBatch), 8000);
+      var rBatch = await fetchWithTimeout(urlBatch, {}, 8000);
       if (rBatch.ok) {
         var batch = await rBatch.json();
         if (Array.isArray(batch)) batch.forEach(function(p){ if (p && p.symbol) profileMap[p.symbol] = p; });
@@ -1412,7 +1412,7 @@ async function _fetchSectorCompareData(stocks) {
       // 1. Ratios TTM (PER, PBR, PEG, PSR, ROE, ROA, 마진, 부채, 배당, FCF)
       try {
         var url = 'https://financialmodelingprep.com/api/v3/ratios-ttm/' + sym + '?apikey=' + fmpKey;
-        var r = await withTimeout(fetch(url), 6000);
+        var r = await fetchWithTimeout(url, {}, 6000);
         if (r.ok) {
           var d = await r.json();
           if (Array.isArray(d) && d[0]) {
@@ -1440,7 +1440,7 @@ async function _fetchSectorCompareData(stocks) {
       // 2. Key Metrics TTM (EV/EBITDA, EV/Revenue, FCF per share 보완)
       try {
         var urlKm = 'https://financialmodelingprep.com/api/v3/key-metrics-ttm/' + sym + '?apikey=' + fmpKey;
-        var rKm = await withTimeout(fetch(urlKm), 6000);
+        var rKm = await fetchWithTimeout(urlKm, {}, 6000);
         if (rKm.ok) {
           var km = await rKm.json();
           if (Array.isArray(km) && km[0]) {
@@ -1459,7 +1459,7 @@ async function _fetchSectorCompareData(stocks) {
       // 3. Income Statement (최근 2년 → 매출성장률 + EPS성장률 + 분기 실적)
       try {
         var urlInc = 'https://financialmodelingprep.com/api/v3/income-statement/' + sym + '?limit=3&apikey=' + fmpKey;
-        var rInc = await withTimeout(fetch(urlInc), 6000);
+        var rInc = await fetchWithTimeout(urlInc, {}, 6000);
         if (rInc.ok) {
           var inc = await rInc.json();
           if (Array.isArray(inc) && inc.length >= 2 && inc[1].revenue > 0) {
@@ -1491,7 +1491,7 @@ async function _fetchSectorCompareData(stocks) {
       } else {
         try {
           var urlProf = 'https://financialmodelingprep.com/api/v3/profile/' + sym + '?apikey=' + fmpKey;
-          var rProf = await withTimeout(fetch(urlProf), 6000);
+          var rProf = await fetchWithTimeout(urlProf, {}, 6000);
           if (rProf.ok) {
             var prof = await rProf.json();
             if (Array.isArray(prof) && prof[0]) {
@@ -1510,7 +1510,7 @@ async function _fetchSectorCompareData(stocks) {
       // 5. Analyst Consensus (목표가, 추천 등급)
       try {
         var urlAn = 'https://financialmodelingprep.com/api/v3/analyst-stock-recommendations/' + sym + '?limit=1&apikey=' + fmpKey;
-        var rAn = await withTimeout(fetch(urlAn), 6000);
+        var rAn = await fetchWithTimeout(urlAn, {}, 6000);
         if (rAn.ok) {
           var an = await rAn.json();
           if (Array.isArray(an) && an[0]) {
@@ -1524,7 +1524,7 @@ async function _fetchSectorCompareData(stocks) {
 
       try {
         var urlTgt = 'https://financialmodelingprep.com/api/v3/price-target-consensus/' + sym + '?apikey=' + fmpKey;
-        var rTgt = await withTimeout(fetch(urlTgt), 6000);
+        var rTgt = await fetchWithTimeout(urlTgt, {}, 6000);
         if (rTgt.ok) {
           var tgt = await rTgt.json();
           if (Array.isArray(tgt) && tgt[0]) {
@@ -1806,10 +1806,10 @@ async function _fetchTickerDataForChat(tickers) {
       if (fmpKey) {
         try {
           var [ratioRes, profRes, incRes, tgtRes] = await Promise.all([
-            withTimeout(fetch('https://financialmodelingprep.com/api/v3/ratios-ttm/' + t + '?apikey=' + fmpKey), 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
-            withTimeout(fetch('https://financialmodelingprep.com/api/v3/profile/' + t + '?apikey=' + fmpKey), 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
-            withTimeout(fetch('https://financialmodelingprep.com/api/v3/income-statement/' + t + '?limit=2&apikey=' + fmpKey), 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
-            withTimeout(fetch('https://financialmodelingprep.com/api/v3/price-target-consensus/' + t + '?apikey=' + fmpKey), 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+            fetchWithTimeout('https://financialmodelingprep.com/api/v3/ratios-ttm/' + t + '?apikey=' + fmpKey, {}, 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+            fetchWithTimeout('https://financialmodelingprep.com/api/v3/profile/' + t + '?apikey=' + fmpKey, {}, 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+            fetchWithTimeout('https://financialmodelingprep.com/api/v3/income-statement/' + t + '?limit=2&apikey=' + fmpKey, {}, 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+            fetchWithTimeout('https://financialmodelingprep.com/api/v3/price-target-consensus/' + t + '?apikey=' + fmpKey, {}, 5000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
           ]);
           var extras = [];
           if (ratioRes && Array.isArray(ratioRes) && ratioRes[0]) {
@@ -1910,7 +1910,7 @@ async function _fetchDeepCompareData(tickers) {
     var t = tickers[i];
     try {
       var _fmpUrl = 'https://financialmodelingprep.com/api/';
-      var _fmpGet = function(ep) { return withTimeout(fetch(_fmpUrl + ep + (ep.indexOf('?')>-1?'&':'?') + 'apikey=' + fmpKey), 6000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}); };
+      var _fmpGet = function(ep) { return fetchWithTimeout(_fmpUrl + ep + (ep.indexOf('?')>-1?'&':'?') + 'apikey=' + fmpKey, {}, 6000).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}); };
       var [profRes, revSegRes, revGeoRes, incRes, cfRes, growthRes, execRes, insiderRes, instRes, ratioRes,
            balRes, metricsRes, metricsTTMRes, peersRes, surprisesRes, evRes, estimatesRes, tgtRes, dcfRes] = await Promise.all([
         _fmpGet('v3/profile/' + t),
@@ -3148,7 +3148,7 @@ async function _fmpFetch(endpoint) {
   } catch(e) {}
   try {
     var url = 'https://financialmodelingprep.com/api/' + endpoint + (endpoint.indexOf('?') >= 0 ? '&' : '?') + 'apikey=' + key;
-    var r = await withTimeout(fetch(url), 10000);
+    var r = await fetchWithTimeout(url, {}, 10000);
     if (r.ok) {
       _bumpFmpCounter();  // 성공 호출만 카운트
       return await r.json();
@@ -3603,8 +3603,8 @@ function _renderFundHeader(d) {
   if (p.mktCap) html += '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">시가총액: $' + _fmtNum(p.mktCap) + '</div>';
   // v38.8: 포트폴리오 추가 + 차트분석 연결 버튼
   html += '<div style="display:flex;gap:6px;margin-top:6px;">';
-  html += '<button data-action="_aioAddToPortfolio" data-arg="' + escHtml(d.ticker) + '" class="tb-btn" style="font-size:11px;">포트폴리오에 추가</button>';
-  html += '<button data-action="_aioChartAnalyze" data-arg="' + escHtml(d.ticker) + '" class="tb-btn" style="font-size:11px;">차트 분석</button>';
+  html += '<button data-action="_aioAddToPortfolio" data-arg="' + escHtml(d.ticker) + '" class="aio-btn-table" style="font-size:11px;">포트폴리오에 추가</button>';
+  html += '<button data-action="_aioChartAnalyze" data-arg="' + escHtml(d.ticker) + '" class="aio-btn-table" style="font-size:11px;">차트 분석</button>';
   html += '</div>';
   // v48.37: SCREENER_DB memo staleness 배지 (애널리스트 리포트 노화 경고)
   if (typeof window._aioStockStaleInfo === 'function') {

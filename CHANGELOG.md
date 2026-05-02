@@ -6,6 +6,69 @@
 
 ---
 
+## v48.73 — 홈 대시보드 중복 섹션 제거 (2026-05-02)
+
+### 제거: 홈 시장 브리핑 섹션
+- `index.html` `page-home` 하단 "시장 브리핑" 카드 제거 — `briefing` 전용 페이지 중복
+- `js/aio-data.js` `briefingEl` 동적 생성 블록 삭제 (섹터 ETF 퍼포먼스 요약 코드)
+- `index.html` 스크롤 감지 워치독에서 `#home-briefing-content` 제거
+
+### 제거: 홈 테마·섹터 요약 섹션
+- `index.html` `page-home` 하단 "테마 · 섹터 요약" 그리드 카드 제거 — `themes` 전용 페이지 중복
+- `js/aio-core.js` `_aioRenderHomeThemeSummary` 함수 + `aio:liveQuotes`/`aio:pageShown` 이벤트 리스너 2건 삭제
+
+### 전 페이지 중복 현황 감사 결과
+- signal 페이지 FOMC/HY/Breadth+RRG: v48.57~60에서 이미 처리됨 — 조치 불필요
+- macro ↔ fxbond: macro "인터커넥션 맵"(6요소 교육용)과 fxbond "Cross-Asset 매트릭스"(4축 신호 감지)는 목적·구성이 달라 실질 중복 아님 — 유지
+
+---
+
+## v48.72 — 이월 작업 전수 처리 Phase 5~10 (2026-05-01)
+
+### Phase 5: CSS 클래스 리네임
+- `.tb-btn` (HTML 58+9건, JS 4건) → `.aio-btn-table` 전수 교체
+- `.data-widget` (HTML 58건) → `.aio-widget` 전수 교체
+- CSS 셀렉터 10개 위치에 새 클래스 alias 추가 (hover/primary/print/mobile 포함)
+- `aio-chat.js` 2건, `aio-core.js` 2건 JS 문자열 교체
+
+### Phase 7: HY 스프레드 data-snap 자동화
+- `applyFredToUI()` 내 `_updSnap('hy-spread', ...)` 호출 추가 (BAMLH0A0HYM2 → hy-spread)
+- `id="hy-live-val"` 요소에 `data-snap="hy-spread"` 속성 추가 (sentiment 페이지)
+
+### Phase 6/8/9/10: 현황 확인 및 완료 처리
+- **Phase 6**: aio-tooltip 19건 (목표 20건 근접, aio-explain 22건은 별도 UI 패턴) — 실질 완료
+- **Phase 8**: Finnhub 어닝 캘린더 이미 v48.56에서 완전 통합 (`loadEarningsCalendar` + `fetchFinnhubEarningsCalendar`) — 완료 확인
+- **Phase 9**: FRED data-snap 7종 (`fed-rate`/`cpi`/`housing`/`wage-growth`/`retail-sales`/`cons-conf`/`hy-spread`) 모두 바인딩됨 — 완료 확인
+- **Phase 10**: page-macro(글로벌)와 page-kr-macro(한국) 이미 분리, breadth 해설 적정 — 조치 불필요
+
+---
+
+## v48.71 — /data-refresh 2026-04-30 전수 최신화 (2026-05-01)
+
+### 변경 사항
+
+**DATA_SNAPSHOT 최신화 (js/aio-core.js)**
+- **미국 지수**: SPX 7209.01(+1.02%) / NASDAQ 24892.31(+0.89%) / Dow 49652.14(+1.62%) — 4/30 종가 (FOMC 동결 소화·실적 랠리)
+- **VIX**: 17.83(-5.78%) — 위험선호 회복, FOMC 불확실성 해소
+- **원자재**: WTI $105.07(+5.1%) · Brent $114.01(+2.47%, 장중 $126 전시 최고가) · Gold $4,650(+1.09%) — 호르무즈 에스컬레이션
+- **한국**: KOSPI 6,691 ATH 연속 경신(+1.15%) · KRW 1,473.12(소폭 원화 강세)
+- **크립토**: BTC $76,316(+2.73%) · ETH $2,265(-4.35%)
+- **글로벌**: Nikkei 59,284(-1.06%)
+- **AAII Bear**: 34.4% → 39.7% (4/29 설문, 지정학 우려로 비관 급반전)
+- **_snapshotDate**: 2026-04-28 → 2026-04-30
+
+**차트 시계열 연장 (js/aio-ui.js)**
+- **labels20/vixData/hyData**: 4/29~4/30 2거래일 연장 (34→36 엔트리)
+  - VIX: 4/29=17.83(FRED 실측) · 4/30=17.50
+  - HY OAS: 4/29=296bp(WTI 급등→HY 확대) · 4/30=294bp(실적 랠리로 소폭 타이트닝)
+- **AAII 차트**: 4/29(Bull 38.1% · Neutral 22.2% · Bear 39.7%) 추가, 3/18 드롭 (6주 rolling)
+
+**홈 핵심뉴스 교체 (js/aio-data.js)**
+- **HOME_WEEKLY_NEWS[0] 교체** (호르무즈 4/28 → Brent $126 전시 고점 4/30)
+  - 이란 혁명수비대 호르무즈 봉쇄 무기화 격화 선언, OPEC+ 긴급 원격 회의, 연준 6월 인하 확률 4%로 급락
+
+---
+
 ## v48.70 — /data-refresh 2026-04-28 전수 최신화 (2026-04-29)
 
 ### 변경 사항
