@@ -14,6 +14,28 @@ confidence: high
 
 ---
 
+## 🧠 v48.71 3개 패러다임 전환 (2026-05-02 /integrate)
+
+### PT-D. 스토리지/메모리 "역SaaS" 재분류 (Melius/DA Davidson 수렴)
+**통찰**: SaaS가 구독 모델로 PE 배수 10→25배 달성 → 메모리/스토리지 SCA(구독형 공급계약) 구조 도입 시 동일한 밸류에이션 방법론 적용 가능. "역SaaS"는 하드웨어가 소프트웨어 밸류에이션 방법론을 역으로 적용하는 현상.
+**파급**: SNDK RPO $42B+ = 잠금 수익. WDC/STX HAMR = 마진 성장주 수준. DA Davidson MU FY30 $393B 경로 = 5년 SCA 복리 성장. G1-G4 계층별 가격 차별화 = 수익성 제고.
+**관련**: PT-B(메모리 LTA), §74, §80, §83, SCREENER_DB MU/SNDK/WDC/STX
+**발견 버전**: v48.71
+
+### PT-E. BootDrive — AI 서버 OS 드라이브가 독립 성장 카테고리로 분리 (JPM/SIMO)
+**통찰**: AI DC 서버에서 NVMe OS 드라이브(BootDrive)가 eSSD와 별개의 독립 성장 슬롯으로 분리. NVIDIA BlueField-4 NIC에 내장 의무화 → 서버당 신규 소켓 + ASP 2배+. SIMO = 팹리스 구조로 운영 레버리지 극대화.
+**파급**: SIMO $30M → 2026E $160M/2027E $375M. DC SSD 비중 12%→19% 구조 전환 확인. "HDD vs SSD 제로섬" 프레임 폐기 — NL HDD(+16%YoY)와 eSSD(+134%YoY) 공존.
+**관련**: §79, SCREENER_DB SIMO, TECH_KW 'BootDrive', 'BlueField-4'
+**발견 버전**: v48.71
+
+### PT-F. CapEx 1조 = 메모리 가격 인상이 CapEx 상향을 유발하는 역학 (BofA/MSFT)
+**통찰**: CY27 $1조 CapEx의 일부는 순수 AI 수요 증가가 아닌 "메모리/스토리지 가격 상승에 따른 동일 용량 구매 비용 증가". MSFT $250억 명시. 메모리 회사 실적 상향 → CapEx 수치 상향 → 메모리 회사 재확인의 순환.
+**파급**: CapEx 1조 수혜: (1)메모리(MU/SNDK) (2)전력인프라(GEV/VRT) (3)네트워킹(ANET) (4)네오클라우드(CRWV). META OW→N 하향 = "CapEx 정점 기업"과 "CapEx 수혜 기업" 분리 판단 필요 신호.
+**관련**: §81, §82, SCREENER_DB META/AMZN/MSFT/GOOGL/CRWV
+**발견 버전**: v48.71
+
+---
+
 ## 🧠 v48.67 3개 패러다임 전환 (2026-04-26 /integrate)
 
 ### PT-A. 추론 칩 ≠ 학습 칩 파생
