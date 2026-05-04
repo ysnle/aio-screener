@@ -6475,10 +6475,11 @@ function renderFeed(items) {
 
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
 // v40.4: 홈 핵심뉴스 — 시장 전체에 영향을 주는 핵심 뉴스 2~3개 (정적, 새 이벤트 발생 시 수동 교체)
+// v48.74 (2026-05-04): 이번 주(05/04-05/10) 주요 이벤트 3건
 var HOME_WEEKLY_NEWS = [
-  { title: 'Brent $126 전시 고점 — 4/30 장중 역대 에너지 위기급 최고가. 이란 혁명수비대 호르무즈 봉쇄 무기화 격화 선언, WTI $105.07(+5.1% 일간) 종가. OPEC+ 긴급 원격 회의 개최 예정. 에너지 섹터(XLE) 주간 +12.4%. 미국 CPI 재상승 우려, 연준 6월 인하 확률 CME FedWatch 4%로 급락. S&P 500은 Q1 실적 호조(EPS 서프라이즈율 88%)로 상충 — 4/30 +1.02% 마감.', source: 'Reuters/Bloomberg/CBOE', date: '2026-04-30', sentiment: 'bear', topic: 'geopolitics' },
-  { title: 'FOMC 4/28-29 결과 — 기준금리 3.50-3.75% 만장일치 동결. 파월 "인플레이션·고용 양방향 위험 균형. 에너지 가격 상승 지속성 주목." 점도표 2026년 인하 1회(기존 2회)로 하향. 다음 FOMC 6/16-17(SEP 포함). Fed가 WTI $100 재돌파를 에너지 공급 충격으로 분류. 10년물 수익률 4.68%(+9bp), 달러 DXY 98.70.', source: 'Fed/Bloomberg', date: '2026-04-29', sentiment: 'warn', topic: 'fed' },
-  { title: 'KOSPI 6,615 사상 최고가 경신 — 4/28 장중 ATH 달성. 외국인 9거래일 연속 순매수(누적 +3.2조원). NAAIM 94.15 극단적 강세, AAII Bull 46%(4/22, 전주 31.7%에서 급반등). S&P 500 Q1 EPS 서프라이즈율 88%(5년 평균 78%) 유지, 매그7 실적 시즌 양호. 국내: 반도체 수출 호조 + AI 인프라 투자 확대 = HBM4 선점 수혜주 재부각.', source: 'KRX/AAII/FactSet', date: '2026-04-28', sentiment: 'bull', topic: 'market' },
+  { title: 'NFP 비농업고용지수 (5/8 금, 21:30 KST) — 이번 주 최대 이벤트. 실업률·임금 동반 발표. 고용 강하면 금리 부담, 약하면 경기 둔화 우려. 미시간 소비자심리(May) 동시 발표. 시장은 "좋은 뉴스가 진짜 좋은 뉴스인가" 재시험. FOMC 다음 회의 6/16-17(SEP 포함).', source: 'BLS/Fed/Bloomberg', date: '2026-05-08', sentiment: 'warn', topic: 'macro' },
+  { title: 'AMD 실적 (5/5 AMC) · DIS 실적 (5/6 BMO) — AMD: AI·데이터센터 수요 확인, E-Score 8.8/10(7/8 Beats). DIS: 스트리밍 수익성·파크 수요, E-Score 10/10(8/8 Beats +11.7%). UBER 5/6 BMO 모빌리티·딜리버리 체크. MCD 5/7 BMO. 빅테크 실적 시즌 후반부 핵심.', source: 'FactSet/Bloomberg', date: '2026-05-05', sentiment: 'bull', topic: 'earnings' },
+  { title: 'Fed 4인 동시 연설 (5/9 토, 08:30 KST) — Waller·Bowman·Goolsbee·Daly 연속 발언. 금리 정책 힌트, 시장 변동성 유발 가능. ISM 서비스 PMI (5/5 화, 23:00 KST) — 서비스 경기·물가 압력 확인. 현재 기준금리 3.50-3.75% 동결 기조.', source: 'Fed/Bloomberg', date: '2026-05-09', sentiment: 'warn', topic: 'fed' },
 ];
 
 function renderHomeFeed(items) {

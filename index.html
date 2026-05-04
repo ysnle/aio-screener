@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.73 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.74 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3707,7 +3707,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.73</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.74</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5801,50 +5801,112 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- ── 다음 주 주요 일정 ────────────────────────────────────────────── -->
+    <!-- ── 이번 주 주요 일정 (05/04-05/10) v48.74 ──────────────────────── -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:14px;">
-      <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        주요 일정 <span style="font-size:11px;padding:2px 6px;background:rgba(255,163,26,0.15);border-radius:3px;color:var(--data-amber);margin-left:4px;"> 정적 스냅샷</span> <span style="font-size:11px;color:var(--text-muted);margin-left:auto;font-family:var(--font-mono);" data-date-ref="week-range"></span>
+      <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+        📅 이번 주 주요 일정
+        <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">Week of May 4–10, 2026</span>
+        <span style="font-size:11px;padding:2px 6px;background:rgba(255,163,26,0.15);border-radius:3px;color:var(--data-amber);margin-left:auto;"> 정적 스냅샷</span>
+      </div>
+
+      <!-- ① Weekly Macro Calendar -->
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:5px;">🌐 Weekly Macro Calendar</div>
+      <div class="cal-row">
+        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">5/5</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:20px;">화</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">23:00 KST</span>
+        <span><b style="color:var(--data-amber);">ISM 서비스 PMI</b> — 서비스 경기·물가 압력 확인. 금리·달러·성장주 멀티플 동반 이동 가능.</span>
       </div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">4/7</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:28px;">월</span>
-        <span><b style="color:var(--text-primary);">소비자 신용 (2월)</b> — 소비 여력 가늠. 신용카드 연체율 상승 추세 모니터링.</span>
+        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">5/7</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:20px;">목</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">21:30 KST</span>
+        <span><b style="color:var(--text-primary);">신규 실업수당 청구</b> — 고용 냉각 여부. 2년물 금리·달러·성장주 민감.</span>
       </div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">4/9</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:28px;">수</span>
-        <span><b style="color:var(--data-amber);">FOMC 의사록 (3월)</b> — "Vast majority" 듀얼 리스크: 고용 하방+인플레 상방. "Some" 양방향 금리 시그널(인상 포함). H4L 전환 신호.</span>
+        <span style="font-family:var(--font-mono);color:var(--data-red);flex-shrink:0;min-width:32px;">5/8</span>
+        <span style="color:var(--data-red);flex-shrink:0;min-width:20px;">금</span>
+        <span style="color:var(--data-red);flex-shrink:0;min-width:68px;font-size:10px;">21:30 KST</span>
+        <span><b style="color:var(--data-red);">비농업고용(NFP) + 실업률 + 임금</b> — 이번 주 최대 이벤트. 고용 강하면 금리 부담, 약하면 경기 둔화 우려.</span>
       </div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-red);flex-shrink:0;min-width:32px;">4/10</span>
-        <span style="color:var(--data-red);flex-shrink:0;min-width:28px;">금</span>
-        <span><b style="color:var(--data-red);">CPI 소비자물가 (3월, 核心) + PPI 생산자물가</b> — 유가 급등 반영 여부 핵심. 주간 실업청구 동시. 미시간 소비자심리 예비치.</span>
+        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:32px;">5/8</span>
+        <span style="color:var(--data-amber);flex-shrink:0;min-width:20px;">금</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">23:00 KST</span>
+        <span><b style="color:var(--data-amber);">미시간 소비자심리 (5월) + 인플레 기대</b> — 5년·1년 기대인플레 동반. NFP 직후 추가 변동성.</span>
       </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-red);flex-shrink:0;min-width:32px;">4/13</span>
-        <span style="color:var(--data-red);flex-shrink:0;min-width:28px;">월</span>
-        <span><b style="color:var(--data-red);">GS 어닝 + 케빈 워시 청문회</b> — 바이백 블랙아웃 해제 후 첫 실적. 차기 연준 의장 통화정책 방향. 인준 불확실성(틸리스 반대 지속).</span>
+      <div class="cal-row" style="border-bottom:none;">
+        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:32px;">5/9</span>
+        <span style="color:var(--data-amber);flex-shrink:0;min-width:20px;">토</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">08:30 KST</span>
+        <span><b style="color:var(--data-amber);">Fed 4인 동시 연설</b> — Waller·Bowman·Goolsbee·Daly. 금리 정책 힌트 집중, 변동성 유발 가능.</span>
       </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:32px;">4/14</span>
-        <span style="color:var(--data-amber);flex-shrink:0;min-width:28px;">화</span>
-        <span><b style="color:var(--data-amber);">JPM 어닝</b> — 미국 최대 은행 "전술적 강세" 전환. ZHU 어닝.</span>
+
+      <!-- ② Earnings Spotlight -->
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">💰 Earnings Spotlight</div>
+      <div style="display:grid;grid-template-columns:44px 80px 72px 72px 1fr;gap:4px 8px;font-size:11px;padding:2px 0;border-bottom:1px solid var(--surface-2);">
+        <span style="color:var(--text-muted);font-weight:700;">티커</span>
+        <span style="color:var(--text-muted);">날짜·시기</span>
+        <span style="color:var(--text-muted);">EPS 예상</span>
+        <span style="color:var(--text-muted);">매출 예상</span>
+        <span style="color:var(--text-muted);">E-Score</span>
       </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">4/15</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:28px;">수</span>
-        <span><b style="color:var(--text-primary);">ASML 어닝</b> · <b style="color:var(--data-red);">세금 보고 마감</b> — TGA 유동성 축소(일시적). VIX 옵션 만기.</span>
+      <div style="display:grid;grid-template-columns:44px 80px 72px 72px 1fr;gap:4px 8px;font-size:11px;padding:4px 0;border-bottom:1px solid var(--surface-2);">
+        <span style="font-weight:700;color:var(--accent);">PFE</span>
+        <span style="color:var(--text-muted);">5/5 BMO</span>
+        <span style="color:var(--text-secondary);">$0.71</span>
+        <span style="color:var(--text-secondary);">$13.8B</span>
+        <span style="color:var(--data-green);font-weight:700;">10/10 🟢</span>
       </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:32px;">4/16</span>
-        <span style="color:var(--data-amber);flex-shrink:0;min-width:28px;">목</span>
-        <span><b style="color:var(--data-amber);">TSM·NFLX 어닝</b> — 반도체 AI 수요 확인. 넷플릭스 구독자 성장.</span>
+      <div style="display:grid;grid-template-columns:44px 80px 72px 72px 1fr;gap:4px 8px;font-size:11px;padding:4px 0;border-bottom:1px solid var(--surface-2);">
+        <span style="font-weight:700;color:var(--accent);">AMD</span>
+        <span style="color:var(--text-muted);">5/5 AMC</span>
+        <span style="color:var(--text-secondary);">$1.30</span>
+        <span style="color:var(--text-secondary);">$9.9B</span>
+        <span style="color:var(--data-amber);font-weight:700;">8.8/10 🟠</span>
       </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:32px;">4/17</span>
-        <span style="color:var(--data-amber);flex-shrink:0;min-width:28px;">금</span>
-        <span><b style="color:var(--data-amber);">4월 옵션 만기(OPEX)</b> — 변동성 확대 가능. PEP 어닝.</span>
+      <div style="display:grid;grid-template-columns:44px 80px 72px 72px 1fr;gap:4px 8px;font-size:11px;padding:4px 0;border-bottom:1px solid var(--surface-2);">
+        <span style="font-weight:700;color:var(--accent);">DIS</span>
+        <span style="color:var(--text-muted);">5/6 BMO</span>
+        <span style="color:var(--text-secondary);">$1.49</span>
+        <span style="color:var(--text-secondary);">$24.8B</span>
+        <span style="color:var(--data-green);font-weight:700;">10/10 🟢</span>
+      </div>
+      <div style="display:grid;grid-template-columns:44px 80px 72px 72px 1fr;gap:4px 8px;font-size:11px;padding:4px 0;border-bottom:1px solid var(--surface-2);">
+        <span style="font-weight:700;color:var(--accent);">UBER</span>
+        <span style="color:var(--text-muted);">5/6 BMO</span>
+        <span style="color:var(--text-muted);">—</span>
+        <span style="color:var(--text-muted);">—</span>
+        <span style="color:var(--text-muted);">모빌리티·딜리버리 경기 체감</span>
+      </div>
+      <div style="display:grid;grid-template-columns:44px 80px 72px 72px 1fr;gap:4px 8px;font-size:11px;padding:4px 0;">
+        <span style="font-weight:700;color:var(--accent);">MCD</span>
+        <span style="color:var(--text-muted);">5/7 BMO</span>
+        <span style="color:var(--text-secondary);">$2.75</span>
+        <span style="color:var(--text-secondary);">$6.5B</span>
+        <span style="color:var(--data-red);font-weight:700;">5.0/10 🔴</span>
+      </div>
+
+      <!-- ③ IPO Pipeline -->
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">🚀 IPO Pipeline (이번 주 상장 예정)</div>
+      <div style="display:grid;grid-template-columns:52px 1fr 90px 72px;gap:4px 8px;font-size:11px;">
+        <span style="color:var(--data-amber);font-weight:700;">SUJA</span><span style="color:var(--text-secondary);">SUJA Life, Inc.</span><span style="color:var(--text-muted);">2026-05-07</span><span style="color:var(--text-muted);">$21-24 NASDAQ</span>
+        <span style="color:var(--data-amber);font-weight:700;">HAWK</span><span style="color:var(--text-secondary);">Petrohawk Energy Corp.</span><span style="color:var(--text-muted);">2026-05-07</span><span style="color:var(--text-muted);">$24-26 NYSE</span>
+        <span style="color:var(--data-amber);font-weight:700;">REA</span><span style="color:var(--text-secondary);">Rare Earths Americas, Inc.</span><span style="color:var(--text-muted);">2026-05-06</span><span style="color:var(--text-muted);">$17-19 NYSE</span>
+        <span style="color:var(--data-amber);font-weight:700;">AYA</span><span style="color:var(--text-secondary);">Aya Gold &amp; Silver Inc.</span><span style="color:var(--text-muted);">2026-05-04</span><span style="color:var(--text-muted);">NASDAQ</span>
+      </div>
+
+      <!-- ④ 이번 주 3대 관전 포인트 -->
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">🧠 이번 주 3대 관전 포인트</div>
+      <div style="font-size:11px;line-height:1.6;color:var(--text-secondary);">
+        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-amber);">1. Fed 연설</b> — Waller 등 4인의 발언이 금리 정책 힌트를 주며, 시장 변동성을 유발할 수 있습니다.</div>
+        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-green);">2. 수익 발표</b> — AMD와 DIS의 수익 결과가 E-Score 높음으로 주가에 큰 영향을 미치며, tech·entertainment 섹터를 좌우할 수 있습니다.</div>
+        <div style="padding:3px 0;"><b style="color:var(--data-red);">3. 고용 지표</b> — NFP·실업률 발표가 고용 시장 상태를 보여주며, 예상치 초과 시 주식 시장 하락 압력을 초래할 수 있습니다.</div>
+      </div>
+
+      <!-- ⑤ 전략 제안 -->
+      <div style="margin-top:10px;padding:8px 10px;background:rgba(255,163,26,0.08);border-left:3px solid var(--data-amber);border-radius:3px;font-size:11px;color:var(--text-secondary);">
+        <b style="color:var(--data-amber);">📌 전략 제안</b> — 변동성 예상. 현금 비중 늘리고 Fed 이벤트 후 매수 기회 노리기. <span style="color:var(--text-muted);font-size:10px;">⚠️ 본 내용은 기술적 시그널이며 투자 판단의 책임은 본인에게 있습니다.</span>
       </div>
     </div>
 
@@ -15275,6 +15337,12 @@ function renderEconCalendar() {
   ];
   // v48.18 (integrate): 2026년 4-5월 주요 기업 이벤트 (날짜 지정형)
   var pinnedEvents2026 = [
+    // v48.74 (2026-05-04): 이번 주(05/04-05/10) 이벤트 추가
+    {date:'05/05', name:'AMD 실적 발표 (장 마감 후)', impact:'HIGH', tip:'AI·데이터센터 수요 확인. E-Score 8.8/10(7/8 Beats). 반도체 밸류에이션 재평가 포인트. EPS 예상 $1.30 · 매출 $9.9B', impColor:'var(--data-red)'},
+    {date:'05/06', name:'DIS + UBER 실적 발표 (장 시작 전)', impact:'HIGH', tip:'DIS E-Score 10/10(8/8 Beats +11.7%) 스트리밍 수익성·파크 수요. EPS $1.49 · Rev $24.8B. UBER 모빌리티·경기 체감.', impColor:'var(--data-red)'},
+    {date:'05/07', name:'MCD 실적 발표 (장 시작 전)', impact:'MED', tip:'MCD E-Score 5.0/10. EPS $2.75 · Rev $6.5B. 소비 심리·외식 수요 확인.', impColor:'var(--data-amber)'},
+    {date:'05/08', name:'NFP 비농업고용 + 실업률 (21:30 KST)', impact:'CRITICAL', tip:'이번 주 최대 이벤트. 고용·임금·실업률 동시. 미시간 소비자심리(May) 23:00 KST 동반. 금리·지수 방향 결정. 고용 강→금리 부담, 약→경기 둔화.', impColor:'var(--data-red)'},
+    {date:'05/09', name:'Fed 4인 연설 (Waller·Bowman·Goolsbee·Daly)', impact:'HIGH', tip:'08:30 KST 동시 진행. 금리 정책 힌트 집중. 변동성 유발 가능. FOMC 다음 회의 6/16-17(SEP 포함).', impColor:'var(--data-red)'},
     {date:'04/22-24', name:'Google Cloud Next (라스베이거스)', impact:'HIGH', tip:'에이전트/인프라/고객 수주 · TPU·Rubin GPU·제미나이 3.5 발표 가능 · GCP 자신감 톤 예상(BofA)', impColor:'var(--data-red)'},
     {date:'04/28-29', name:'FOMC 회의', impact:'HIGH', tip:'씨티 연말 -75bp 전망 · 호르무즈 재개통 후 가격 재조정 · 듀얼 리스크 재확인', impColor:'var(--data-red)'},
     {date:'04/29', name:'GOOGL 1Q26 실적 (장 마감 후)', impact:'HIGH', tip:'Citi PT$405 90일 상승 촉매 워치 · 검색 +16.5%/YouTube +11.5%/Cloud +57.5% 예상', impColor:'var(--data-red)'},
@@ -22792,8 +22860,15 @@ async function loadRiskRadar() {
     { date: '2026-04-30', impact: 'high', category: 'fomc', event: 'BOE · ECB 결정 + Apple 실적', flag: '🇬🇧🇪🇺' },
     // 5월
     { date: '2026-05-03', impact: 'medium', category: 'geopolitical', event: 'OPEC+ 회의', flag: '🛢' },
+    // v48.74 (2026-05-04): 이번 주 이벤트
+    { date: '2026-05-05', impact: 'high', category: 'earnings', event: 'AMD 실적 (AMC) — AI·DC 수요 확인, E-Score 8.8/10', flag: '📈' },
+    { date: '2026-05-06', impact: 'high', category: 'earnings', event: 'DIS + UBER 실적 (BMO) — 스트리밍 수익성·소비 경기 체크, DIS E-Score 10/10', flag: '🎬' },
+    { date: '2026-05-07', impact: 'medium', category: 'earnings', event: 'MCD 실적 (BMO) + 신규 실업수당 청구', flag: '📊' },
+    { date: '2026-05-08', impact: 'critical', category: 'economic', event: 'NFP 비농업고용 + 실업률 + 미시간 소비자심리 (5월) — 이번 주 최대 이벤트', flag: '🇺🇸' },
+    { date: '2026-05-09', impact: 'high', category: 'fomc', event: 'Fed 4인 동시 연설 (Waller·Bowman·Goolsbee·Daly) — 08:30 KST', flag: '🏛' },
     { date: '2026-05-15', impact: 'high', category: 'fomc', event: '파월 현 연준 의장 임기 종료 (Fed 이사회 잔류 여부 불확실)', flag: '🇺🇸' },
     { date: '2026-05-19', impact: 'high', category: 'earnings', event: 'Vertiv Investor Day (5/19~5/20, 2026 가이던스 재확인 촉매)', flag: '💼' },
+    { date: '2026-05-28', impact: 'high', category: 'fomc', event: '한국은행 금통위 결정 (기준금리 2.50% 동결 여부)', flag: '🇰🇷' },
     { date: '2026-05-20', impact: 'critical', category: 'earnings', event: 'NVIDIA 실적 발표', flag: '📈' },
     // v48.61 추가 (2026-04-21 통합): Apple CEO 전환 + Mythos 오픈소스 도달 + 추가 이벤트
     { date: '2026-07-15', impact: 'high', category: 'geopolitical', event: 'Mythos급 LLM 오픈소스 도달 예상 (Citi) + CVE 대량 공개 대비 (Project Glasswing 90일 후)', flag: '⚠️' },
