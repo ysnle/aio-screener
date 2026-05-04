@@ -2651,7 +2651,7 @@ window.AIO.charts = {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.75';
+const APP_VERSION = 'v48.76';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -3158,33 +3158,33 @@ if (typeof window !== 'undefined') {
 const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
-  // v48.71: _updated → 목요일 2026-04-30 장마감 시각 (월말 종가 기준)
-  _updated: '2026-04-30T16:00:00-04:00',   // 폴백 스냅샷 = 직전 영업일 장마감 (미동부 4PM)
-  _snapshotDate: '2026-04-30',               // v48.71: 정적 폴백 기준일 (data-snap-date 동적 바인딩 소스)
+  // v48.76: _updated → 금요일 2026-05-01 장마감 시각 (목요일 5/1 종가 기준, 미국 장 정상 운영)
+  _updated: '2026-05-01T16:00:00-04:00',   // 폴백 스냅샷 = 직전 영업일 장마감 (미동부 4PM)
+  _snapshotDate: '2026-05-01',               // v48.76: 정적 폴백 기준일 (data-snap-date 동적 바인딩 소스)
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v48.71 — /data-refresh WebSearch 실측 (2026-04-30 목요일 장마감 기준): SPX 7209.01 (+1.02%) · NASDAQ 24892.31 (+0.89%) · Dow 49652.14 (+1.62%) · VIX 17.83 (FOMC 동결 소화, 위험선호 회복) · WTI $105.07 (+5.1%, 호르무즈 에스컬레이션) · Brent $114.01 (장중 $126 전시 최고가 기록) · Gold ~$4,650 · KOSPI 6691 ATH 연속 경신 · KRW 1473.12. FOMC 4/28-29 → 3.50-3.75% 동결. AAII(4/29) Bull 38.1% Bear 39.7%(지정학 우려 급반전). BTC $76,316. Nikkei 59,284(-1.06%). v48.71 /data-refresh.',
+  _note: 'v48.76 — /data-refresh WebSearch 실측 (2026-05-01 목요일 장마감 기준): SPX 7230.12 (+0.29%) · NASDAQ 25114.44 (신고가+0.89%) · VIX 16.99(-4.71%, 위험선호 지속) · WTI $105.07 (상단 공고, 호르무즈 잔존) · Brent $114.01 · Gold ~$4,546 (지지, -2.2%) · KOSPI 6598.8(4/30 -1.38%, 장중 ATH 6750→급락. 5/1 노동절 휴장) · KOSDAQ 1192.35(4/30 -2.29%) · KRW 1471.02(원화 강세, -0.14%). AAII(4/29) Bull 38.1%/Bear 39.7%. NAAIM 94.15(4/22, 강세). F&G ~70(탐욕). v48.76 /data-refresh.',
 
   // ── 미국 주요 지수 (4/30 목 종가 WebSearch 실측) ──
-  spx:        7209.01,  spxPct:    +1.02,   // v48.71: 4/30 SPX 7209.01 (FOMC 동결 소화, 실적 랠리)
-  nasdaq:    24892.31,  nasdaqPct: +0.89,   // v48.71: 4/30 NASDAQ 24892.31
+  spx:        7230.12,  spxPct:    +0.29,   // v48.76: 5/1 SPX 7230.12 (실적 랠리 지속, NASDAQ 신고가)
+  nasdaq:    25114.44,  nasdaqPct: +0.89,   // v48.76: 5/1 NASDAQ 25114.44 (신고가, 5거래일 연속 상승)
   dow:       49652.14,  dowPct:    +1.62,   // v48.71: 4/30 Dow 49652.14
   rut:        2755.99,  rutPct:    +0.15,   // v48.70: 4/28 Russell 2000 (미갱신)
-  vix:          17.83,  vixPct:    -5.78,   // v48.71: 4/30 VIX 17.83 (FOMC 동결 소화, 위험선호 회복)
+  vix:          16.99,  vixPct:    -4.71,   // v48.76: 5/1 VIX 16.99 (위험선호 지속, 어닝 낙관)
   vvix:         88.20,                        // v48.70: VVIX (미갱신)
 
   // ── 한국 지수 (4/30 WebSearch 실측) ──
-  kospi:     6691.00,  kospiPct:  +1.15,  kospiPrev: 6615.00,  // v48.71: 4/30 KOSPI 6691 ATH 연속 경신 (외국인 순매수 지속)
-  kosdaq:    1217.12,  kosdaqPct: +0.80,  kosdaqPrev: 1207.45, // v48.70: 4/28 KOSDAQ (미갱신)
+  kospi:     6598.80,  kospiPct:  -1.38,  kospiPrev: 6691.00,  // v48.76: 4/30 KOSPI 6598.8(-1.38%, 장중 ATH 6750.27→급락. 5/1 노동절 휴장)
+  kosdaq:    1192.35,  kosdaqPct: -2.29,  kosdaqPrev: 1217.12, // v48.76: 4/30 KOSDAQ 1192.35(-2.29%, 과열 우려 차익실현)
 
   // ── 원자재 (4/30 WebSearch 실측 — 호르무즈 에스컬레이션, Brent 장중 $126 전시 최고가) ──
   wti:     105.07,   wtiPct:   +5.10,   // v48.71: 4/30 WTI $105.07 (+5.1%, 이란 혁명수비대 봉쇄 무기화 격화)
   brent:   114.01,   brentPct: +2.47,   // v48.71: 4/30 Brent $114.01 (장중 $126 전시 최고가 기록)
-  gold:     4650,    goldPct:  +1.09,  goldWeeklyPct: -6.1,  // v48.71: 4/30 Gold ~$4,650 (유가 급등 연동 반등)
+  gold:     4546,    goldPct:  -2.23,  goldWeeklyPct: -2.2,  // v48.76: 5/1 Gold ~$4,546 (기술적 지지선, 유가 하단 안정화 연동)
   ng:       3.05,                         // 천연가스 소폭 상승 (공급 우려)
 
   // ── 환율 (4/30 WebSearch 실측) ──
-  krw:      1473.12,  krwPct:   -0.01,  krwRound: 1473,  // v48.71: KRW 4/30 1473.12 (소폭 원화 강세, 코스피 ATH 외국인 유입)
+  krw:      1471.02,  krwPct:   -0.14,  krwRound: 1471,  // v48.76: KRW 5/1 1471.02 (원화 강세 지속, USD/KRW -0.21%)
   dxy:        98.70,  dxyPct:   +0.46,                   // v48.70: DXY (미갱신)
 
   // ── 금리·통화정책 ──
@@ -3271,7 +3271,7 @@ const DATA_SNAPSHOT = {
   move:        65.30,   moveChg: +1.80,  // v48.70: MOVE 4/28 채권 변동성 소폭 상승 (CPI 3.3% + FOMC 경계)
   skew:       142.50,   skewChg: +1.28,  // v48.70: SKEW 4/28 꼬리헤지 소폭 증가 (WTI $100 + 지정학)
   vvix_live:   88.20,   vvixChg: +0.57,  // v48.70: VVIX 4/28 소폭 상승 (VIX 상승 동반)
-  fg:            67,   fgLabel: '탐욕',  // v48.70: CNN F&G 4/28 67.3 → 67 (탐욕 구간, KOSPI ATH + FOMC 기대)
+  fg:            70,   fgLabel: '탐욕',  // v48.76: CNN F&G 5/1 ~70 (탐욕 구간, 실적 랠리·NASDAQ 신고가 동반)
   fg_uw:         74,   fg_uwLabel: '탐욕', // v48.70: UW 확장 F&G 4/28 추정 74
 
   // ── v47.2: F&G 카테고리·지표별 분해 (Unusual Whales 4/15) ──
