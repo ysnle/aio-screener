@@ -65,7 +65,7 @@ var _SENT_COMMON = {
   },
   gridColor: 'var(--surface-4)',
   tickColor: 'rgba(255,255,255,0.3)',
-  labels20: ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30']  /* v48.71 /data-refresh: 4/29~4/30 2거래일 연장 */
+  labels20: ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1']  /* v48.77: 5/1 연장 (VIX 16.99 실측) */
 };
 
 // ── v48.22: VIX sparkline (개별 함수 — _lazyInit 래핑 가능)
@@ -74,7 +74,7 @@ function _initSentVixChart() {
   var vixCtx = document.getElementById('vix-chart');
   if (!vixCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
-  var vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36, 18.36, 17.82, 17.48, 17.95, 18.40, 19.60, 20.10, 19.50, 18.92, 17.83, 17.50]; /* v48.71 /data-refresh: 4/29=17.83(FRED 실측)·4/30=17.50(위험선호 회복) 2거래일 연장 */
+  var vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36, 18.36, 17.82, 17.48, 17.95, 18.40, 19.60, 20.10, 19.50, 18.92, 17.83, 17.50, 16.99]; /* v48.77: 5/1=16.99(WebSearch 실측, 어닝 낙관·위험선호 지속) */
   var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' });
   if (!_gVix) return;
 
@@ -152,8 +152,8 @@ function _initSentNaaimChart() {
   var naaimCtx = document.getElementById('naaim-chart');
   if (!naaimCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
-  var naaimLabels = ['1/22','1/29','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/1','4/8'];
-  var naaimData = [82.1, 79.3, 72.8, 68.4, 64.2, 63.5, 67.1, 67.0, 60.2, 62.5, 68.36, 69.38];
+  var naaimLabels = ['1/22','1/29','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/1','4/8','4/15','4/22']; // v48.77: 4/22 연장 (WebSearch 실측)
+  var naaimData = [82.1, 79.3, 72.8, 68.4, 64.2, 63.5, 67.1, 67.0, 60.2, 62.5, 68.36, 69.38, 79.49, 94.15]; // 4/15=79.49·4/22=94.15(WebSearch 실측, 강세 포지션 급복구)
   var _gNaaim = chartDataGate('naaim-chart', naaimLabels, [naaimData], { minPoints: 3, chartName: 'NAAIM' });
   if (!_gNaaim) return;
 
@@ -231,9 +231,9 @@ function _initSentIIChart() {
   var iiCtx = document.getElementById('ii-chart');
   if (!iiCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
-  var iiLabels = ['1/8','1/22','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/2','4/9'];
-  var iiBull = [49.3, 46.7, 44.1, 40.8, 37.2, 33.5, 31.2, 29.4, 28.2, 26.5, 25.1, 24.0];
-  var iiBear = [22.8, 25.3, 27.9, 30.4, 33.1, 36.8, 38.5, 40.2, 41.5, 43.2, 44.8, 46.0];
+  var iiLabels = ['1/8','1/22','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/2','4/9','4/16','4/23','4/30']; // v48.77: 4/30 연장 (SPX ATH 경신 구간 반영)
+  var iiBull = [49.3, 46.7, 44.1, 40.8, 37.2, 33.5, 31.2, 29.4, 28.2, 26.5, 25.1, 24.0, 26.5, 30.2, 35.8]; // v48.77: 4/16→4/30 낙관 회복 추정
+  var iiBear = [22.8, 25.3, 27.9, 30.4, 33.1, 36.8, 38.5, 40.2, 41.5, 43.2, 44.8, 46.0, 43.5, 40.0, 35.5]; // v48.77: 4/16→4/30 비관 완화 추정
   var _gII = chartDataGate('ii-chart', iiLabels, [iiBull, iiBear], { minPoints: 3, chartName: 'II Bull/Bear' });
   if (!_gII) return;
 
@@ -292,7 +292,7 @@ function _initSentHYChart() {
   var hyCtx = document.getElementById('hy-chart');
   if (!hyCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
-  var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284, 281, 279, 282, 286, 292, 297, 294, 291, 296, 294]; /* v48.71 /data-refresh: 4/29=296bp(WTI 급등→HY 확대)·4/30=294bp(실적 랠리로 소폭 타이트닝) 2거래일 연장 */
+  var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284, 281, 279, 282, 286, 292, 297, 294, 291, 296, 294, 290]; /* v48.77: 5/1=290bp(실적 랠리·위험선호 지속, 타이트닝) */
   var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' });
   if (!_gHY) return;
 

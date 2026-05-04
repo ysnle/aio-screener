@@ -6,6 +6,18 @@
 
 ---
 
+## v48.77 — /data-refresh 잔여 차트 최신화 (2026-05-04)
+
+**변경 파일**: `js/aio-ui.js`, `version.json`
+
+### 차트 시계열 추가 연장
+- **VIX 차트** (labels20 + vixData + hyData 동시): 4/30 → 5/1 (+1거래일)
+  - VIX 5/1 = 16.99 (WebSearch 실측) · HY OAS 5/1 = 290bp (실적 랠리 타이트닝)
+- **NAAIM**: 4/8 → 4/22 (+2주): 4/15=79.49 · 4/22=94.15 (WebSearch 실측 확인)
+- **II Bull/Bear**: 4/9 → 4/30 (+3주, 추정): Bull 24.0→35.8% · Bear 46.0→35.5% (SPX ATH 경신 구간 반영)
+
+---
+
 ## v48.76 — /data-refresh 전체 데이터 최신화 (2026-05-04)
 
 **변경 파일**: `js/aio-core.js`, `js/aio-ui.js`, `version.json`
