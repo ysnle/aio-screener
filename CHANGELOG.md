@@ -6,6 +6,50 @@
 
 ---
 
+## v48.75 — 어닝 슈퍼위크 전면 확장 + 경제지표 보강 (2026-05-04)
+
+**변경 파일**: `js/aio-data.js`, `index.html`, `version.json`
+
+### 데이터 갱신
+- **HOME_WEEKLY_NEWS** 항목2 교체: PLTR 슈퍼위크 반영 (AMD→PLTR·AMD·ANET·ARM·APP·CRWV 슈퍼위크 40+ 종목)
+- **pinnedEvents2026** 9건 추가 (v48.74 5건 포함 총 14건):
+  - PLTR+BRKB(5/4), JOLTS+무역수지+ISM(5/5), SHOP+PYPL+PFE/AMD+ANET(5/5)
+  - 한국CPI+ADP(5/6), DIS+NVO+UBER/ARM+APP+AXON(5/6)
+  - CRWV+COIN+MELI+AFRM/DDOG+MCD(5/7), Challenger+실업청구+외환보유액(5/7)
+- **staticEvents** (Risk Radar) 9건 추가: PLTR·경제지표 3중·ARM+APP·CRWV+COIN+MELI 등
+
+### UI 개편
+- **브리핑 "이번 주 주요 일정"** 섹션 전면 확장:
+  - Macro Calendar: 5행 → 10행 (JOLTS·무역수지·한국CPI·ADP·Challenger·아시아휴장 추가)
+  - 어닝스 캘린더 Day by Day 섹션 신설: 월~금 BMO/AMC 9세션, 40+ 종목 전체 수록
+  - Earnings Spotlight: 5종목 → 7종목 (PLTR·CRWV 추가)
+  - 관전 포인트: 3대 → 5대 (PLTR·CRWV+COIN+MELI 추가)
+  - 전략 제안: PLTR·ARM·CRWV 실적 전후 변동성 대응 전략 업데이트
+
+---
+
+## v48.74 — 캘린더/일정 기능 대폭 보강 (2026-05-04)
+
+**변경 파일**: `js/aio-data.js`, `index.html`, `version.json`
+
+### 데이터 갱신
+- **HOME_WEEKLY_NEWS** 3건 교체 (4/28-4/30 stale → 05/04-05/10 주간):
+  - NFP 비농업고용 (5/8 금, 21:30 KST) — 이번 주 최대 이벤트
+  - AMD/DIS/UBER/MCD 실적 발표 (E-Score 포함)
+  - Fed 4인 동시 연설 (Waller·Bowman·Goolsbee·Daly, 5/9 토)
+- **pinnedEvents2026** 5건 추가: AMD(5/5)·DIS+UBER(5/6)·MCD(5/7)·NFP(5/8)·Fed4인(5/9)
+- **staticEvents** (Risk Radar) 6건 추가: AMD·DIS+UBER·MCD+실업청구·NFP·Fed4인·BOK금통위(5/28)
+
+### UI 개편
+- 브리핑 페이지 "주요 일정" 섹션 전면 교체 (4/7-4/17 obsolete → 05/04-05/10):
+  - ① 🌐 Weekly Macro Calendar (KST 시간·impact 색상 포함)
+  - ② 💰 Earnings Spotlight (5열 그리드: 티커·날짜·EPS·매출·E-Score)
+  - ③ 🚀 IPO Pipeline (SUJA·HAWK·REA·AYA 4건)
+  - ④ 🧠 이번 주 3대 관전 포인트 (Fed연설·실적·고용)
+  - ⑤ 📌 전략 제안 (변동성 예상, 현금 비중 권고)
+
+---
+
 ## v48.73 — 홈 대시보드 중복 섹션 제거 (2026-05-02)
 
 ### 제거: 홈 시장 브리핑 섹션

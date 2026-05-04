@@ -6475,11 +6475,11 @@ function renderFeed(items) {
 
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
 // v40.4: 홈 핵심뉴스 — 시장 전체에 영향을 주는 핵심 뉴스 2~3개 (정적, 새 이벤트 발생 시 수동 교체)
-// v48.74 (2026-05-04): 이번 주(05/04-05/10) 주요 이벤트 3건
+// v48.75 (2026-05-04): 이번 주(05/04-05/10) 주요 이벤트 3건 — PLTR 슈퍼위크 반영
 var HOME_WEEKLY_NEWS = [
-  { title: 'NFP 비농업고용지수 (5/8 금, 21:30 KST) — 이번 주 최대 이벤트. 실업률·임금 동반 발표. 고용 강하면 금리 부담, 약하면 경기 둔화 우려. 미시간 소비자심리(May) 동시 발표. 시장은 "좋은 뉴스가 진짜 좋은 뉴스인가" 재시험. FOMC 다음 회의 6/16-17(SEP 포함).', source: 'BLS/Fed/Bloomberg', date: '2026-05-08', sentiment: 'warn', topic: 'macro' },
-  { title: 'AMD 실적 (5/5 AMC) · DIS 실적 (5/6 BMO) — AMD: AI·데이터센터 수요 확인, E-Score 8.8/10(7/8 Beats). DIS: 스트리밍 수익성·파크 수요, E-Score 10/10(8/8 Beats +11.7%). UBER 5/6 BMO 모빌리티·딜리버리 체크. MCD 5/7 BMO. 빅테크 실적 시즌 후반부 핵심.', source: 'FactSet/Bloomberg', date: '2026-05-05', sentiment: 'bull', topic: 'earnings' },
-  { title: 'Fed 4인 동시 연설 (5/9 토, 08:30 KST) — Waller·Bowman·Goolsbee·Daly 연속 발언. 금리 정책 힌트, 시장 변동성 유발 가능. ISM 서비스 PMI (5/5 화, 23:00 KST) — 서비스 경기·물가 압력 확인. 현재 기준금리 3.50-3.75% 동결 기조.', source: 'Fed/Bloomberg', date: '2026-05-09', sentiment: 'warn', topic: 'fed' },
+  { title: 'NFP 비농업고용지수 (5/8 금, 21:30 KST) — 이번 주 최대 이벤트. 실업률·임금 동반 발표. 고용 강하면 금리 부담, 약하면 경기 둔화 우려. 미시간 소비자심리(May) 동시 발표. ADP(5/6) + JOLTS(5/5) 선행 지표 연속. FOMC 다음 회의 6/16-17(SEP 포함).', source: 'BLS/Fed/Bloomberg', date: '2026-05-08', sentiment: 'warn', topic: 'macro' },
+  { title: 'PLTR·AMD·ANET·ARM·APP·CRWV 슈퍼위크 — PLTR(5/4 AMC) AI 소프트웨어 수요 가속·가이던스 상향 여부; AMD(5/5 AMC) MI300X E-Score 8.8/10; ANET(5/5 AMC) DC 네트워크 강도; ARM+APP(5/6 AMC) AI 칩 생태계·모바일 수익화; DIS(5/6 BMO) E-Score 10/10; CRWV(5/7 AMC) AI 클라우드 인프라 신흥 플레이어 첫 실적. 빅테크 실적 시즌 최대 집중 주간.', source: 'FactSet/Bloomberg/EarningsWhispers', date: '2026-05-04', sentiment: 'bull', topic: 'earnings' },
+  { title: 'Fed 4인 동시 연설 (5/9 토, 08:30 KST) — Waller·Bowman·Goolsbee·Daly 연속 발언. 6월 FOMC 힌트 선취. ISM 서비스 PMI + JOLTS (5/5 화) — 서비스 경기·물가·고용 수요 삼중 확인. 한국 CPI(5/6 08:00 KST) + ADP(5/6 21:15 KST). 현재 기준금리 3.50-3.75% 동결 기조.', source: 'Fed/Bloomberg/BOK', date: '2026-05-09', sentiment: 'warn', topic: 'fed' },
 ];
 
 function renderHomeFeed(items) {
