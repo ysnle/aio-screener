@@ -3061,7 +3061,7 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.className = 'acp-history-btn';
     btn.textContent = '기록';
     btn.title = '이전 대화 기록 열람';
-    btn.onclick = function() { openChatHistory(ctxId); };
+    btn.addEventListener('click', function() { openChatHistory(ctxId); });
     // clear 버튼 앞에 삽입
     const clearBtn = header.querySelector('.acp-clear');
     if (clearBtn) header.insertBefore(btn, clearBtn);

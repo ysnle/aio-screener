@@ -17,6 +17,14 @@
   });
 })();
 
+document.addEventListener('error', function(e) {
+  var img = e && e.target;
+  if (!img || !img.matches || !img.matches('img[data-logo-fallback="1"]')) return;
+  img.style.display = 'none';
+  var fallback = img.nextElementSibling;
+  if (fallback) fallback.style.display = 'block';
+}, true);
+
 // ═══════════════════════════════════════════════════════════════════
 // v48.14: 중앙 로거 — _aioLog + ring-buffer 500건 + rate 임계 모니터 (Agent P2-3/W9)
 // ───────────────────────────────────────────────────────────────────

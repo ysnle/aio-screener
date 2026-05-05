@@ -34,7 +34,7 @@
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"></noscript>
   <style>
 :root {
@@ -1829,6 +1829,8 @@ body {
 
 /* v48.43: 추천 칩 영역 */
 .acp-chips{padding:var(--space-3) 16px 6px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;}
+.onboarding-actions{display:inline-flex;align-items:center;gap:8px;margin-left:6px;white-space:nowrap;}
+.onboarding-actions button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;padding:0;}
 
 /* v48.43: 입력 영역 — Figma 입력 + accent primary 버튼 */
 .acp-input-row{display:flex;gap:var(--space-2);padding:10px 16px 14px;flex-shrink:0;border-top:1px solid var(--border);}
@@ -3261,6 +3263,9 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   /* v30.11: 채팅 칩 가로 스크롤 */
   .acp-chips { overflow-x: auto; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; }
   .acp-chips .q-chip { flex-shrink: 0; }
+  #chat-theme-detail-chips { overflow-x: visible !important; flex-wrap: wrap !important; }
+  #chat-theme-detail-chips .q-chip { flex: 0 1 auto; white-space: normal; }
+  #api-key-onboarding .onboarding-actions { display:flex;justify-content:center;gap:10px;margin:6px 0 0;flex-wrap:wrap; }
   /* v30.11: home quick nav 2열 */
   .home-quick-nav { grid-template-columns: repeat(2, 1fr) !important; }
   /* v48.57: repeat(6,1fr) 인라인 그리드 4곳 480px 일괄 대응 */
@@ -3700,8 +3705,8 @@ body.light-theme canvas { filter:none; }
   <div id="snapshot-stale-warning" style="display:none;background:rgba(255,163,26,0.12);border:1px solid rgba(255,163,26,0.3);border-radius:8px;padding:8px 14px;margin-bottom:10px;font-size:10px;color:var(--data-amber);font-weight:600;text-align:center;"></div>
   <!-- v46.10: 신규 사용자 API 키 미설정 안내 -->
   <div id="api-key-onboarding" style="display:none;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:10px;color:var(--data-cyan);text-align:center;line-height:1.6;">
-    실시간 시세·기업 분석·경제지표를 사용하려면 <b>API 키 설정</b>이 필요합니다. 사이드바 하단 → API 키 입력란에서 설정하세요. <a href="#" data-action="_aioScrollApiSection" data-prevent="1" style="color:var(--accent);text-decoration:underline;">설정하러 가기</a>
-    <button data-action="_aioHideParentOnboard" data-pass-el="1" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;margin-left:8px;">✕ 닫기</button>
+    실시간 시세·기업 분석·경제지표를 사용하려면 <b>API 키 설정</b>이 필요합니다. 사이드바 하단 → API 키 입력란에서 설정하세요.
+    <span class="onboarding-actions"><a href="#" data-action="_aioScrollApiSection" data-prevent="1" style="color:var(--accent);text-decoration:underline;">설정하러 가기</a><button data-action="_aioHideParentOnboard" data-pass-el="1">✕ 닫기</button></span>
   </div>
 
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
@@ -12487,18 +12492,22 @@ function setupPortfolioPin() {
   pinInput.value = '';
   pinInput.placeholder = '새 PIN';
   pinInput.focus();
-  pinInput.onkeydown = function(e) {
+  if (pinInput._pfPinKeyHandler) pinInput.removeEventListener('keydown', pinInput._pfPinKeyHandler);
+  pinInput._pfPinKeyHandler = function(e) {
     if (e.key === 'Enter') {
       var newPin = pinInput.value.trim();
       if (/^\d{4}$/.test(newPin)) {
         try { localStorage.setItem(PF_PIN_KEY, newPin); } catch(ex) {}
         showToast('PIN이 설정되었습니다.');
         pinInput.placeholder = '••••';
-        pinInput.onkeydown = function(ev) { if (ev.key === 'Enter') unlockPortfolio(); };
+        pinInput.removeEventListener('keydown', pinInput._pfPinKeyHandler);
+        pinInput._pfPinKeyHandler = function(ev) { if (ev.key === 'Enter') unlockPortfolio(); };
+        pinInput.addEventListener('keydown', pinInput._pfPinKeyHandler);
         showPortfolioMain();
       } else { showToast('4자리 숫자만 입력하세요.'); pinInput.value = ''; }
     }
   };
+  pinInput.addEventListener('keydown', pinInput._pfPinKeyHandler);
 }
 function resetPortfolioPin() {
   showConfirmModal('PIN 초기화', 'PIN을 초기화하시겠습니까? 포트폴리오 데이터는 유지됩니다.', function() {
@@ -12600,7 +12609,9 @@ function showConfirmModal(title, msg, onConfirm, icon) {
   document.getElementById('aio-confirm-msg').textContent = msg;
   document.getElementById('aio-confirm-icon').textContent = icon || '';
   var okBtn = document.getElementById('aio-confirm-ok');
-  okBtn.onclick = function() { closeConfirmModal(); if (_confirmCallback) _confirmCallback(); };
+  if (okBtn._aioConfirmHandler) okBtn.removeEventListener('click', okBtn._aioConfirmHandler);
+  okBtn._aioConfirmHandler = function() { closeConfirmModal(); if (_confirmCallback) _confirmCallback(); };
+  okBtn.addEventListener('click', okBtn._aioConfirmHandler);
   var modal = document.getElementById('aio-confirm-modal');
   modal.style.display = 'flex';
   okBtn.focus();
@@ -12653,8 +12664,8 @@ function showPromptModal(title, label, defaultValue, onSubmit, opts) {
     else if (e.key === 'Enter') _close(input.value);
   }
   document.addEventListener('keydown', _esc);
-  document.getElementById('aio-prompt-cancel').onclick = function() { _close(null); };
-  document.getElementById('aio-prompt-ok').onclick = function() { _close(input.value); };
+  document.getElementById('aio-prompt-cancel').addEventListener('click', function() { _close(null); });
+  document.getElementById('aio-prompt-ok').addEventListener('click', function() { _close(input.value); });
   modal.addEventListener('click', function(e) { if (e.target === modal) _close(null); });
 }
 
@@ -12846,7 +12857,7 @@ function importPortfolio(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.addEventListener('load', function(e) {
     try {
       var data = JSON.parse(e.target.result);
       if (!Array.isArray(data)) throw new Error('Invalid format');
@@ -12867,7 +12878,7 @@ function importPortfolio(event) {
         showToast(data.length + '개 포지션 가져오기 완료');
       }, '');
     } catch(err) { showToast('파일 형식이 올바르지 않습니다.'); }
-  };
+  });
   reader.readAsText(file);
 }
 
@@ -13334,7 +13345,7 @@ function openChatHistory(ctxId) {
   overlay = document.createElement('div');
   overlay.id = 'chat-history-overlay';
   overlay.className = 'chat-history-overlay open';
-  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
 
   const ctxLabel = ctxId ? (CHAT_CONTEXTS[ctxId]?.label || ctxId) : '전체';
   overlay.innerHTML = `
@@ -22964,7 +22975,7 @@ function _renderEarnSection(icon, label, items, maxVisible, bgColor, borderColor
     var logoUrl = 'https://financialmodelingprep.com/image-stock/' + encodeURIComponent(sym) + '.png';
     var epsEst = e.epsEstimate != null ? '$' + parseFloat(e.epsEstimate).toFixed(2) : '';
     html += '<div class="aio-earn-card" data-action="_aioNewsTickerClick" data-arg="' + escHtml(sym) + '" role="button" tabindex="0" style="background:var(--surface-4);border:1px solid var(--border);border-radius:4px;padding:3px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:border-color var(--dur-fast);" title="' + escHtml(sym) + ' 어닝 ' + epsEst + '">';
-    html += '<img src="' + escHtml(logoUrl) + '" alt="' + escHtml(sym) + '" loading="lazy" style="width:22px;height:22px;object-fit:contain;border-radius:3px;background:#ffffff;" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\';">';
+    html += '<img src="' + escHtml(logoUrl) + '" alt="' + escHtml(sym) + '" loading="lazy" data-logo-fallback="1" style="width:22px;height:22px;object-fit:contain;border-radius:3px;background:#ffffff;">';
     html += '<span style="display:none;font-size:11px;font-weight:800;color:var(--text-primary);">' + escHtml(sym.slice(0,4)) + '</span>';
     html += '<span style="font-size:11px;font-weight:700;color:var(--text-secondary);font-family:var(--font-mono);">' + escHtml(sym) + '</span>';
     html += '</div>';
@@ -23960,6 +23971,31 @@ function fetchSectorWeeklyPerf() {
 
 // v46.6: 섹터 ETF 20일 시계열 차트
 var _sector20dChart = null;
+function _buildSector20dFallback(sectorETFs) {
+  var fallbackMoves = (typeof _SECTOR_PCT_FALLBACK !== 'undefined') ? _SECTOR_PCT_FALLBACK : {};
+  var labels = [];
+  for (var li = 19; li >= 0; li--) labels.push(li === 0 ? 'D' : 'D-' + li);
+  var datasets = sectorETFs.map(function(etf, idx) {
+    var end = fallbackMoves[etf.sym] != null ? fallbackMoves[etf.sym] : 0;
+    var start = end >= 0 ? -Math.min(1.2, Math.abs(end) * 0.45 + 0.25) : Math.min(1.2, Math.abs(end) * 0.35 + 0.15);
+    var data = labels.map(function(_, i) {
+      var t = i / (labels.length - 1);
+      var wave = Math.sin((i + idx) / 3.2) * 0.18;
+      return +(start + (end - start) * t + wave).toFixed(2);
+    });
+    return {
+      label: etf.name + '(' + etf.sym + ')',
+      data: data,
+      borderColor: etf.color,
+      borderWidth: 1.5,
+      pointRadius: 0,
+      tension: 0.3,
+      fill: false,
+      borderDash: [4, 3]
+    };
+  });
+  return { labels: labels, datasets: datasets };
+}
 async function _loadSector20dChart() {
   var statusEl = document.getElementById('sector-20d-status');
   if (statusEl) statusEl.textContent = '데이터 수집 중...';
@@ -23970,6 +24006,7 @@ async function _loadSector20dChart() {
   ];
   var datasets = [];
   var labels = null;
+  var fallbackUsed = false;
   for (var i = 0; i < sectorETFs.length; i++) {
     var etf = sectorETFs[i];
     try {
@@ -23995,7 +24032,11 @@ async function _loadSector20dChart() {
   }
   if (!labels || datasets.length === 0) {
     if (statusEl) statusEl.textContent = '데이터 수집 실패';
-    return;
+    var fallback = _buildSector20dFallback(sectorETFs);
+    labels = fallback.labels;
+    datasets = fallback.datasets;
+    fallbackUsed = true;
+    if (statusEl) statusEl.textContent = '실시간 수집 실패 · 정적 대체 곡선';
   }
   var canvas = document.getElementById('sector-20d-chart');
   if (!canvas) return;
@@ -24015,7 +24056,7 @@ async function _loadSector20dChart() {
       }
     }
   });
-  if (statusEl) statusEl.textContent = '갱신: ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+  if (statusEl) statusEl.textContent = (fallbackUsed ? '실시간 수집 실패 · 정적 대체 곡선 · ' : '갱신: ') + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
 }
 
 function renderSectorPerfBars() {
@@ -28384,9 +28425,6 @@ async function updateBenchmarkChart() {
     var vB = (ld_[b.ticker] && ld_[b.ticker].price ? ld_[b.ticker].price : b.cost) * b.qty;
     return vB - vA;
   }).slice(0, 10);
-  var topSymSet = {};
-  topTickers.forEach(function(p){ topSymSet[p.ticker] = true; });
-
   var seriesPromises = topTickers.map(function(p){
     var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(p.ticker) + '?interval=1d&range=1mo';
     return fetchViaProxy(url, 6000).then(function(rr){
@@ -28404,6 +28442,8 @@ async function updateBenchmarkChart() {
   });
   var tickerSeries = await Promise.all(seriesPromises);
   tickerSeries = tickerSeries.filter(function(s){ return s !== null; });
+  var coveredSymSet = {};
+  tickerSeries.forEach(function(s){ coveredSymSet[s.ticker] = true; });
 
   // 포트폴리오 현재가 기준 총 가치 (weight 계산용)
   var ld = window._liveData || {};
@@ -28412,6 +28452,7 @@ async function updateBenchmarkChart() {
     var cur = (ld[p.ticker] && ld[p.ticker].price > 0) ? ld[p.ticker].price : p.cost;
     totalCurrentValue += cur * p.qty;
   });
+  if (totalCurrentValue <= 0) return;
 
   // 30일 포트폴리오 수익률 = top 종목들의 weighted daily % 합산 + 나머지는 현재 수익률 선형 분포
   var L = Math.min(30, spySeries.length);
@@ -28433,7 +28474,7 @@ async function updateBenchmarkChart() {
   if (coveredWeight < 0.999) {
     var uncovTotal = 0, uncovInvested = 0;
     pfData.forEach(function(p){
-      if (topSymSet[p.ticker]) return;
+      if (coveredSymSet[p.ticker]) return;
       var cur = (ld[p.ticker] && ld[p.ticker].price > 0) ? ld[p.ticker].price : p.cost;
       uncovTotal += cur * p.qty;
       uncovInvested += p.cost * p.qty;
@@ -28690,7 +28731,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div id="aio-confirm-msg" style="font-size:11px;color:var(--text-secondary,#a0a0b0);line-height:1.6;margin-bottom:20px;"></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;">
-      <button data-action="closeConfirmModal" style="padding:8px 18px;font-size:11px;font-weight:700;background:var(--surface-5);border:1px solid var(--border,#333);border-radius:6px;color:var(--text-secondary,#a0a0b0);cursor:pointer;">취소</button>
+      <button id="aio-confirm-cancel" data-action="closeConfirmModal" style="padding:8px 18px;font-size:11px;font-weight:700;background:var(--surface-5);border:1px solid var(--border,#333);border-radius:6px;color:var(--text-secondary,#a0a0b0);cursor:pointer;">취소</button>
       <button id="aio-confirm-ok" style="padding:8px 18px;font-size:11px;font-weight:700;background:rgba(255,91,80,0.2);border:1px solid rgba(255,91,80,0.4);border-radius:6px;color:var(--data-red);cursor:pointer;">확인</button>
     </div>
   </div>

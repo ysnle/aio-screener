@@ -3,8 +3,8 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v48.77**
-- 메인 파일: `index.html` (~29,140줄, onclick 0건) + `js/` 4개 모듈 (aio-core 5,090 · aio-data 10,605 · aio-ui 2,055 · aio-chat 4,185 ≈ 21,935줄)
+- 현재 버전: **v48.79**
+- 메인 파일: `index.html` (~29,308줄, 인라인 onclick 0건) + `js/` 5개 모듈 (aio-core 5,210 · aio-data 10,983 · aio-ui 2,252 · aio-chat 4,183 · aio-glossary 304 ≈ 22,932줄)
 - **v48.32~35 마일스톤**: onclick 인라인 핸들러 253건 → 0건 (Event Delegation + data-action)
 - **v48.36~39 마일스톤**: 구조적 동적 전환 — DATE_ENGINE · _lastFetch · _aioFeedHealth · AIO_Cache 통일 · SCREENER_DB memo staleness 파서 · 신선도 UI 패널
 - **v48.47~v48.60 마일스톤**: DOM 재분배 · LIVE_SYMBOLS +13 · CHAT_CONTEXTS themes/theme-detail · AI 채팅 FMP 심층 · 5중 소스 체인 · 어닝 EH 스타일 · 리스크 레이더 · Phase 감사 + 수정
@@ -19,9 +19,9 @@ AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터
 |------|----------|
 | **index.html 수정** | `_context/CODE-MAP.md` → 해당 line 범위만 Read |
 | **버그 수정** | `_context/RULES.md` → `BUG-POSTMORTEM.md` → `QA-CHECKLIST.md` |
-| **새 기능** | `_context/RULES.md` → `working-rules.md` → `CODE-MAP.md` |
+| **새 기능** | `_context/RULES.md` → `_context/CODE-MAP.md` → `_context/WORKTREE-AUDIT.md`(워크트리/배포 영향 시) |
 | **QA/점검** | `_context/RULES.md` → `BUG-POSTMORTEM.md` → `QA-CHECKLIST.md` |
-| **자료 통합** | `/integrate` 스킬 (→ `working-rules.md` 자료 분류) |
+| **자료 통합** | `/integrate` 스킬 (→ `CHANGELOG.md` + `_context/KNOWLEDGE-BASE.md` 환류) |
 | **데이터 갱신** | `/data-refresh` 스킬 |
 | **지식 린팅** | `/knowledge-lint` 스킬 |
 
@@ -32,7 +32,7 @@ AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터
 ## 절대 규칙 (R1~R3만 — 나머지 R4~R27은 `_context/RULES.md`)
 
 **R1. 버전 동기화 6곳**: title · badge · APP_VERSION · version.json · _context/CLAUDE.md · CHANGELOG.md
-**R2. 버전 체계**: 소수점 1자리만 (31.9 → 32, **31.10 금지**)
+**R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (예: v48.76 → v48.77). 최신 실제 체계는 두 자리 patch 허용.
 **R3. 버그 수정 시 사후 분석**: `_context/BUG-POSTMORTEM.md`에 P번호 기록
 **R27. Commands↔Skills 동기화**: 새 스킬 시 command wrapper 동시 생성
 

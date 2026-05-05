@@ -45,6 +45,30 @@
 
 ---
 
+## Unreleased — Codex v48.79 deep QA follow-up (2026-05-05)
+
+> Pending commit/deploy. This entry records the Codex deep QA hardening applied on top of v48.79.
+
+### Worktree/GitHub traffic control
+- Added `_context/WORKTREE-AUDIT.md` to separate GitHub `origin/main`, live GitHub Pages, local Claude worktrees, and unpublished work.
+- Added `_context/DEEP-QA-2026-05-05.md` for the three-area deep QA matrix across UI/rendering, API pipeline, and page-level logic.
+- Rebuilt `_context/INDEX.md` around the current modular file structure instead of stale v48.14 assumptions.
+- Updated `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`, and `_context/CODE-MAP.md` to match the current modular repo.
+
+### Changelog backfill
+- Backfilled missing release notes for v48.11, v48.12, v48.13, v48.63, v48.64, v48.65, and v48.66.
+- Intentionally did not add v48.78 as a deployed release because it exists only in `claude/frosty-tharp-f7bf80`.
+
+### Bug fix
+- **P144**: Fixed portfolio benchmark coverage when a top holding Yahoo chart fetch fails. Only successfully resolved ticker series count as covered; failed top holdings now fall into the uncovered fallback bucket instead of disappearing from the return line.
+- **P145**: Replaced remaining inline/direct handler patterns: news failure fallback `onclick` now uses delegated `_aioRetryNews`, modal/chat UI direct `.onclick` assignments use `addEventListener`, Google Fonts no longer uses inline `onload`, and earnings logo fallback uses a captured `error` listener.
+- **P146**: Added the missing `aio-confirm-cancel` id required by AI quota confirmation cancel handling, preventing the over-budget prompt promise from hanging when the user cancels.
+- **P147**: Synchronized signal mode button classes with the active mode. `toggleSignalMode('day')` now adds `primary` to the day-trading button and removes it from swing, and vice versa.
+- **P148**: Added a deterministic fallback path for the sector ETF 20-day chart. If all Yahoo/proxy sector chart fetches fail, the chart now renders dashed fallback trend lines from existing sector fallback values instead of leaving a blank canvas.
+- **P149**: Fixed two mobile layout defects found by deep UI QA: the API onboarding link/cancel controls no longer overlap on narrow screens, and the theme detail chat chips wrap instead of clipping.
+
+---
+
 ## v48.77 — /data-refresh 잔여 차트 최신화 (2026-05-04)
 
 **변경 파일**: `js/aio-ui.js`, `version.json`
@@ -262,6 +286,46 @@
 - **LSCC KNOWN_TICKERS 신규 추가**
 - **KNOWLEDGE-BASE PT-A/B/C 패러다임 전환 3개 축적**
 - 출처: Citi·JPM·WF·Keybanc·Stiefel·BofA 2026-04-25
+
+---
+
+## v48.66 — OI 모멘텀 프레임워크 + 운영성 보강 (2026-04-26)
+
+### 변경 사항
+- **OI 모멘텀 프레임워크 통합**: technical 컨텍스트에 Open Interest fast EMA(60) + slow EMA(240) 해석을 추가해 Breakout, Breakdown, Reversal 환경을 구분.
+- **TECH_KW 확장**: `open interest momentum`, `OI EMA crossover`, `OI breakout signal`, `OI reversal signal`, `미결제약정 모멘텀` 등 옵션/선물 모멘텀 키워드 추가.
+- **운영 문서 보강**: CODE-MAP, KNOWLEDGE-BASE, CLAUDE 컨텍스트에 v48.64~v48.66 운영성 변경 흐름을 환류.
+
+---
+
+## v48.65 — AI 채팅 컨텍스트 6케이스 확장 + KNOWLEDGE-BASE 패러다임 3건 (2026-04-26)
+
+### 변경 사항
+- **`_getV48IntegratedContext` 6케이스 확장**: 이전 세션 Edit 실패 구간을 케이스별 개별 패치로 재적용.
+- **AI 채팅 컨텍스트 보강**: 페이지별 분석 의도와 최신 리서치/테마 맥락을 더 안정적으로 주입하도록 컨텍스트 분기 정리.
+- **KNOWLEDGE-BASE.md 업데이트**: 패러다임 전환 6~8번을 추가해 다음 `/integrate` 작업의 근거로 남김.
+
+---
+
+## v48.64 — 인라인 스크립트 분리 + 번역캐시 localStorage 전환 (2026-04-25)
+
+### 변경 사항
+- **WCAG 접근성 블록 분리**: `index.html` 내 인라인 WCAG 스크립트를 `js/aio-ui.js`의 `DOMContentLoaded` 흐름으로 이전.
+- **번역 캐시 영구 저장**: `_tcSaveToStorage`, `_tcLoadFromStorage`, clear 흐름을 `sessionStorage`에서 `localStorage`로 전환해 재방문 시에도 번역 캐시 유지.
+- **운영성 개선**: 인라인 스크립트 축소와 모듈 책임 분리로 후속 QA/부분 패치 범위를 좁힘.
+
+---
+
+## v48.63 — 테마/트렌드 개편 + 지속 운영성 보강 (2026-04-23~2026-04-25)
+
+### 변경 사항
+- **테마/트렌드 개편**: THEME_MAP 17→21개 테마, 11개 핵심 히트맵 필터, SUB_THEMES 보강, 한국 테마 코드 누락/오분류 수정, 신규 내러티브 추가.
+- **섹터 ETF 20일 추이 차트 복구**: Chart.js가 CSS var 색상을 해석하지 못하는 문제를 피하도록 차트 색상/높이/선 굵기를 조정.
+- **Service Worker TTL 보강**: 시세 15분, 뉴스 30분 TTL 헤더와 만료 캐시 정리 흐름 추가. 민감 URL/API 키 포함 요청은 캐시 제외.
+- **Tier 0 선행 fetch**: SPY, QQQ, BTC 등 핵심 심볼을 먼저 가져와 전체 심볼 완료 전에도 핵심 지표가 표시되도록 개선.
+- **뉴스 번역 lazy 처리 + IndexedDB 뉴스 캐시**: 상위 뉴스 즉시 번역, 나머지는 뷰포트 진입 시 번역. 새로고침 직후에도 캐시 뉴스 우선 렌더.
+- **GLOSSARY 외부 분리**: `js/aio-glossary.js` 신설 및 SW shell assets 등록.
+- **Cloudflare Worker 보안 강화**: 봇/스캐너 UA 차단, 보안 응답 헤더, WAF Rate Limiting 가이드 주석 추가.
 
 ---
 
@@ -3103,6 +3167,47 @@ kr-macro 페이지 9개 셀에 `data-snap` 속성 추가: CPI YoY, PPI YoY, 핵�
 - CP1~CP8 셀 `NARRATIVE_ENGINE.getCPText` 생성기
 - kr-macro 40+ 지표 `data-snap` 바인딩 추가
 - page-options Skew/IV/GEX 30+ 스냅샷 배지
+
+---
+
+## v48.13 — Finnhub 기업 뉴스 재도입 + 포트폴리오 벤치마크 차트 실데이터 (2026-04-17)
+
+### 트리거
+사용자 요청: "이전에 추천한 개선 후보들 중 무료 가능한 것 진행. 기존 스크리너와 잘 통합되어야".
+
+### P128 — 2건 수정
+- **Finnhub `/company-news` 재도입**: 무료 플랜에서 가능한 회사 뉴스 엔드포인트를 기업 분석 흐름에 다시 연결하고, 기존 뉴스/소식 파이프라인과 충돌하지 않도록 통합.
+- **포트폴리오 벤치마크 차트 실데이터화**: 정적/가짜 수익률 대신 보유 종목과 벤치마크 시계열을 기반으로 차트를 그리도록 개선.
+
+### 통합성 체크
+- 기존 Screener 구조, 기업 분석, 포트폴리오, 뉴스 파이프라인과의 중복/충돌 여부를 확인.
+- 무료 API 범위에서 가능한 개선만 반영.
+
+---
+
+## v48.12 — AI 채팅 기관 리서치 스타일 + 내러티브 강화 (2026-04-17)
+
+### 트리거
+사용자 지적: "최근 주식 관련 소식들/정보들, 최근 기업 관련 소식들/정보들 모두 가져와서 AI 채팅 답변에 반영? 기관·애널리스트 등급·목표주가? 논리적 이유·근거? 인사이트 핵심? 오염된 데이터 말하지는 않는지?"
+
+### P127 — 3건 보강
+- **기관 리서치 스타일 답변 구조**: 핵심 결론, 근거, 리스크, 확인 필요 데이터를 분리해 설명하도록 AI 채팅 톤과 구조를 강화.
+- **애널리스트/목표가/등급 맥락 반영**: 가능한 무료 데이터와 내부 컨텍스트를 결합해 기업별 해석 근거를 보강.
+- **인사이트 핵심 우선 제시**: "이 종목에서 지금 가장 중요한 한 가지"를 먼저 말하고, 이후 세부 근거를 붙이도록 개선.
+
+---
+
+## v48.11 — AI 채팅 환각 방지 5중 강화 (추세 전환 + 오늘 날짜 + 커트오프) (2026-04-17)
+
+### 트리거
+사용자 지적: "긍정 뉴스로 올랐던 종목이 최근 하락인데 AI가 여전히 추천하는 상황 있어선 안 됨. 최근 시장 소식·개별 기업 소식·종목 내러티브·주가 추이 종합해서 설명해야".
+
+### P126 — 5중 강화
+- **5D / 20D / 3M 변동률 주입**: 최근 추세가 바뀐 종목을 과거 긍정 뉴스만 보고 추천하지 않도록 가격 흐름을 함께 반영.
+- **추세 라벨 + 3M 범위 위치**: 단기/중기 추세와 3개월 저점~고점 내 위치를 답변 컨텍스트에 포함.
+- **실시간 시세 stale 체크**: `_quoteTimestamps` 기준으로 오래된 시세는 그대로 단정하지 않도록 방어.
+- **주가 추이 컨텍스트 없을 때 추세 언급 금지**: `[주가 추이]`가 주입되지 않으면 추세 판단을 제한.
+- **DATA_SNAPSHOT 72시간+ 경과 경고**: 정적 수치 인용을 제한하고 실시간/웹검색 기반 확인을 우선하도록 가드.
 
 ---
 

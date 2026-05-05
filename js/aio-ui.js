@@ -1599,7 +1599,7 @@ function consumeLLMQuery() {
         }, '');
       // Cancel case — modal close without confirm
       var cancelBtn = document.getElementById('aio-confirm-cancel');
-      if (cancelBtn) { var _orig = cancelBtn.onclick; cancelBtn.onclick = function() { if (_orig) _orig(); resolve(false); }; }
+      if (cancelBtn) cancelBtn.addEventListener('click', function() { resolve(false); }, { once: true });
     });
   }
   quota.used += 1;

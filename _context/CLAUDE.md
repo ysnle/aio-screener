@@ -4,7 +4,7 @@
 
 - **현재 버전**: v48.79
 
-## _context/ 문서 (9개 활성)
+## _context/ 문서 (9개 Git-tracked 활성)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
@@ -12,25 +12,25 @@
 | BUG-POSTMORTEM.md | 버그 사후 분석 P1~P82 (R25 역참조) | 버그 수정 후 |
 | QA-CHECKLIST.md | QA 14티어 체크리스트 v3.3 | /qa 발견 시 |
 | KNOWLEDGE-BASE.md | 기술 인사이트 축적 (R26) | 인사이트 발견 시 |
-| CODE-MAP.md | index.html ~38,500줄 line 범위 맵 | 리팩토링 ±500줄 |
+| CODE-MAP.md | index.html + js 모듈 line 범위 맵 | 리팩토링 ±500줄 |
 | INDEX.md | 지식 베이스 인덱스 + 백링크 (R24) | /knowledge-lint L6 |
-| working-rules.md | 작업 규칙 (백업, 자료 분류, 버전) | 운영 규칙 변경 시 |
-| voice-and-style.md | 코딩 스타일 (네이밍, 포맷) | 드물게 |
-| archive-reports/ | 과거 리포트 아카이브 (참조 전용) | — |
+| WORKTREE-AUDIT.md | GitHub/live/worktree 라우팅 + 미배포 작업 인벤토리 | 워크트리 병합/배포/감사 |
+| DEEP-QA-2026-05-05.md | UI/API/페이지 로직 심층 QA 결과 | 심층 QA 또는 live/local parity 변경 |
 
 ## 파일 구조
 
 ```
 AIO/
-├── index.html · version.json · CHANGELOG.md · CLAUDE.md
-├── _context/           ← 위키 (유일한 진실의 원천, 위 9개 문서)
-├── _backup/ · _archive/ · outputs/
+├── index.html · version.json · manifest.json · sw.js
+├── js/
+│   ├── aio-core.js · aio-data.js · aio-ui.js · aio-chat.js · aio-glossary.js
+├── CHANGELOG.md · CLAUDE.md · api_setup_guide.html · cloudflare-worker-proxy.js
+├── _context/           ← Git-tracked 위키 (위 9개 문서)
 ├── .claude/
-│   ├── hooks/          ← 4개: protect-files · block-dangerous · validate-edit · check-antipatterns
-│   ├── commands/       ← 9개: 슬래시 커맨드 진입점 (자동완성 표시용)
-│   └── skills/         ← 6개: 풀 스펙 SKILL.md (단일 진실의 원천)
-└── cloudflare-worker-proxy.js
+│   └── skills/         ← Git-tracked 3개: bug-fix · data-refresh · integrate
 ```
+
+> 참고: 일부 Claude 로컬 워크트리는 `.claude/commands`, `.claude/hooks`, 추가 skills/agents를 별도 운영 파일로 보유할 수 있다. GitHub 배포 기준 점검은 Git-tracked 파일을 우선한다.
 
 ## Commands ↔ Skills (R27: 새 스킬 시 wrapper 동시 생성)
 
@@ -47,6 +47,8 @@ AIO/
 | `/autoresearch` | autoresearch | — |
 
 ## Hook 시스템
+
+GitHub-tracked v48.77 체크아웃에는 hooks가 포함되어 있지 않다. Claude 로컬 운영 워크트리에 hooks가 있을 때만 아래 레이어를 적용한다.
 
 | Hook | 타이밍 | 역할 |
 |------|--------|------|

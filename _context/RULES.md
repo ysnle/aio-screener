@@ -1,45 +1,37 @@
 ---
 verified_by: agent
-last_verified: 2026-04-18
+last_verified: 2026-05-05
 confidence: high
-target_version: v48.14
+target_version: v48.79
 ---
 
 # AIO Screener — 마스터 룰 (RULES.md)
 # 모든 작업 전 이 파일을 먼저 읽고 시작할 것
 
 > **목적**: 반복되는 실수를 방지하고, 점검·QA·수정 작업의 품질을 보장하기 위한 최상위 규칙
-> **최종 수정**: v48.14 (2026-04-18) — knowledge-lint 자동 갱신
+> **최종 수정**: v48.79 (2026-05-05) — worktree/GitHub/live 기준 재정렬 + deep QA hardening
 
 ---
 
 ## 📋 작업 전 필수 체크
 
-### 1. 이 폴더 구조 확인 (v45.6+ Vault 정리 후)
+### 1. 이 폴더 구조 확인 (v48.79+ 모듈화 후)
 ```
 _context/                              ← 지식 베이스 (유일한 진실의 원천)
 ├── RULES.md                           ← 지금 이 파일 (마스터 룰, 가장 먼저 읽기)
 ├── BUG-POSTMORTEM.md                  ← 버그 사후 분석 누적 로그 (매 수정 후 기록)
 ├── QA-CHECKLIST.md                    ← 실행 가능한 QA 체크리스트 v3.3
 ├── KNOWLEDGE-BASE.md                  ← 기술 인사이트 축적 (R26)
-├── CODE-MAP.md                        ← index.html 38,251줄 line 범위 맵 (부분 읽기 가이드)
+├── CODE-MAP.md                        ← index.html + js 모듈 line 범위 맵 (부분 읽기 가이드)
+├── WORKTREE-AUDIT.md                  ← GitHub/live/worktree 라우팅 + 미배포 작업 인벤토리
 ├── INDEX.md                           ← 지식 베이스 자동 인덱스 (R24)
-├── CLAUDE.md                          ← _context/ 컨텍스트 + Hook + 파일 구조
-├── working-rules.md                   ← 작업 규칙 (백업, 자료 분류, 버전)
-├── voice-and-style.md                 ← 톤 & 스타일 가이드
-└── archive-reports/                   ← 과거 버전별 리포트 아카이브 (참조 전용)
-    ├── AUDIT_REPORT_v27.*, AUDIT_INDEX.md, AUDIT_QUICK_REFERENCE.md
-    ├── CRITICAL_FIXES_CHECKLIST.md, COMPLETE_IMPLEMENTATION_VERIFICATION_LIST.md
-    ├── QA-CHECKLIST-v2-archive.md, QA-FAILURE-ANALYSIS-v30.13d.md
-    ├── BROWSER-QA-REPORT-v30.13*.md, UX-AUDIT-v34.4.md
-    ├── CHAT_WORK_ANALYSIS.md, REPEAT-REQUEST-ANALYSIS.md
-    ├── 파이프라인/보안/성능/접근성 설계 문서
-    └── AIO_콘텐츠/매크로/UI 레퍼런스 (/integrate 원천)
+└── CLAUDE.md                          ← _context/ 컨텍스트 + 파일 구조
 
 루트/
-├── CLAUDE.md                          ← 프로젝트 가이드 (슬림 버전, v45.6+)
+├── CLAUDE.md                          ← 프로젝트 가이드
 ├── CHANGELOG.md                       ← 버전별 변경 이력
-└── index.html + version.json          ← 실제 코드 + 버전 메타
+├── index.html + version.json          ← HTML shell + 버전 메타
+└── js/                                ← aio-core/data/ui/chat/glossary 모듈
 ```
 
 ### 2. 작업 유형별 반드시 읽을 파일
@@ -48,10 +40,10 @@ _context/                              ← 지식 베이스 (유일한 진실의
 |-----------|-----------|
 | **index.html 수정** | **CODE-MAP.md → 해당 line 범위만 Read** |
 | 버그 수정 | RULES.md → BUG-POSTMORTEM.md → CODE-MAP.md → QA-CHECKLIST.md |
-| 새 기능 추가 | RULES.md → working-rules.md → CODE-MAP.md |
+| 새 기능 추가 | RULES.md → CODE-MAP.md → WORKTREE-AUDIT.md(배포/워크트리 영향 시) |
 | QA/점검 요청 | RULES.md → BUG-POSTMORTEM.md → QA-CHECKLIST.md |
 | 리팩토링/개편 | RULES.md → BUG-POSTMORTEM.md → CODE-MAP.md |
-| 버전 릴리스 | RULES.md(R1~R2) → working-rules.md |
+| 버전 릴리스 | RULES.md(R1~R2) → CHANGELOG.md → WORKTREE-AUDIT.md(배포 상태 기록) |
 | 지식 린팅 | RULES.md(R19~R20) → `/knowledge-lint` |
 
 ---
@@ -65,7 +57,7 @@ _context/                              ← 지식 베이스 (유일한 진실의
 3. `version.json` → `version` 필드
 4. `_context/CLAUDE.md` → `현재 버전:` 행
 5. `CHANGELOG.md` → 최상단 항목의 버전 번호
-6. **`const APP_VERSION`** — JS 상수 (이 값이 title과 badge를 JS에서 덮어씀. 놓치면 HTML은 v38.4인데 화면에 v38.3 표시)
+6. **`const APP_VERSION`** — JS 상수 (`js/aio-core.js`). 이 값이 title과 badge를 JS에서 덮어씀. 놓치면 HTML은 v38.4인데 화면에 v38.3 표시
 
 > ⚠️ **v38.4 사고**: APP_VERSION 상수를 놓쳐서 SW 캐시 문제로 오진, 수시간 낭비. 6번째 동기화 포인트는 절대 빠뜨리지 말 것.
 
@@ -73,7 +65,7 @@ _context/                              ← 지식 베이스 (유일한 진실의
 ```bash
 grep '<title>' index.html | head -1
 grep 'app-version-badge' index.html | grep -o '>v[^<]*<'
-grep 'APP_VERSION' index.html | head -1
+grep 'APP_VERSION' js/aio-core.js | head -1
 cat version.json | grep version
 grep '현재 버전' _context/CLAUDE.md
 head -20 CHANGELOG.md | grep '## v'
@@ -92,8 +84,8 @@ head -20 CHANGELOG.md | grep '## v'
 > - JS에서 `updateQuotaBadge()` 등이 badge 텍스트를 런타임에 덮어쓰는 경우
 
 ### R2. 버전 체계
-- 소수점 아래 1자리만: 31.1, 31.2, ..., 31.9, 32, 32.1, ...
-- 절대 31.10, 31.11 같은 2자리 금지
+- 현재 체계는 `v{major}.{patch}` 숫자 단조 증가: v48.77 → v48.78 → v48.79
+- patch는 한 자리/두 자리 모두 허용한다. 숫자 비교로만 최신 여부를 판단하고, 문자열 사전순 비교는 금지한다.
 
 ### R3. 버그 수정 시 사후 분석 필수
 모든 버그 수정 후 `BUG-POSTMORTEM.md`에 아래 형식으로 추가:

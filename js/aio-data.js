@@ -7517,7 +7517,7 @@ async function fetchAllNews(forceRefresh = false) {
     // v48.69: P66 재발 방지 — 영구 로딩 대신 에러 메시지 표시
     var _feedErr = document.getElementById('live-news-feed');
     if (_feedErr && _feedErr.innerHTML.indexOf('⟳') !== -1) {
-      _feedErr.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">뉴스를 불러오지 못했습니다. <a href="#" onclick="window.isFetching=false;fetchAllNews(true);return false;" style="color:var(--accent);">다시 시도</a></div>';
+      _feedErr.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">뉴스를 불러오지 못했습니다. <a href="#" data-action="_aioRetryNews" data-prevent="1" style="color:var(--accent);">다시 시도</a></div>';
     }
   }
   if (isFetching) return;
@@ -10344,10 +10344,14 @@ function toggleSignalMode(mode) {
   const dyBtn = document.getElementById('sig-dy-btn');
   const desc  = document.getElementById('sig-mode-desc');
   if (mode === 'swing') {
+    if (swBtn) swBtn.classList.add('primary');
+    if (dyBtn) dyBtn.classList.remove('primary');
     if (swBtn) { swBtn.style.background='var(--accent-dim)'; swBtn.style.color='var(--accent)'; }
     if (dyBtn) { dyBtn.style.background='transparent';       dyBtn.style.color='var(--text-muted)'; }
     if (desc)  desc.textContent = '스윙 트레이딩 모드 · 임계값 60점 · 자동 갱신 45초';
   } else {
+    if (dyBtn) dyBtn.classList.add('primary');
+    if (swBtn) swBtn.classList.remove('primary');
     if (dyBtn) { dyBtn.style.background='rgba(255,163,26,0.1)'; dyBtn.style.color='var(--yellow)'; }
     if (swBtn) { swBtn.style.background='transparent';           swBtn.style.color='var(--text-muted)'; }
     if (desc)  desc.textContent = '데이 트레이딩 모드 · 임계값 65점 (더 엄격) · 자동 갱신 45초';

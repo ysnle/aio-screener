@@ -1,11 +1,11 @@
 ---
 verified_by: human
-last_verified: 2026-04-27
+last_verified: 2026-05-05
 confidence: high
-latest_version: v48.69
-latest_P_number: P143
-next_P_number: P144
-total_entries: 143
+latest_version: v48.79
+latest_P_number: P149
+next_P_number: P150
+total_entries: 149
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -22,7 +22,7 @@ total_entries: 143
 
 ### P 번호 체계
 - **P 번호 = 패턴 번호** (예방 규칙 ID). 동일 근본 원인을 가진 버그는 같은 P 번호로 참조.
-- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P65**). 한번 부여된 번호는 재사용 금지.
+- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P150**). 한번 부여된 번호는 재사용 금지.
 - **P 번호 재강화**: 같은 패턴이 재발해도 번호는 유지. "P25 재강화" / "P25 강화" 같은 표현으로 body에 기록.
 - **날짜 구분 원칙**: 과거 중복 P 번호(P26~P33 일부 충돌 존재)는 "날짜 + 버전"으로 구분해서 참조.
 
@@ -148,6 +148,22 @@ total_entries: 143
 | **P141** | **v48.69** | **2026-04-28** | **setInterval ID 미저장 재발(aio-core.js:494/1078)**: _aioRenderSnapshotDates·_aioUpdateFreshness 두 타이머 반환값 미저장 → clearInterval 불가 → 탭 반복 전환 시 타이머 누적. window._aioSnapshotDatesTimer·_aioFreshnessTimer 저장 + 재등록 전 clearInterval 선행. R9 4차 강화 |
 | **P142** | **v48.69** | **2026-04-28** | **R15 위반 5건 재발(aio-data.js:8829/8831/9616/9692/9940)**: extPct·F&G 처리에 `\|\| 0` 패턴 → null 미수신 시 "0.00%"/"0 극단공포" 오표시. `!= null ? val : null` 패턴으로 전환. R15 5차 강화 |
 | **P143** | **v48.69** | **2026-04-28** | **_lastFetch 키 불일치 → 포트폴리오 신선도 항상 "대기 중"**: _aioUpdateFreshness()가 `.liveQuotes` 조회, _markFetch()는 `'quote'` 키 저장 → 영구 miss. aio-core.js:1058 — `_lastFetch.quote \|\| _lastFetch.liveQuotes` 양쪽 폴백 조회로 수정 |
+| **P144** | **v48.77 audit** | **2026-05-05** | **포트폴리오 벤치마크 일부 fetch 실패가 0%/과소 표시로 누락**: top 10 ticker를 먼저 covered로 간주해 fetch 실패 종목이 covered/uncovered 어디에도 포함되지 않음. 성공한 ticker만 `coveredSymSet`에 넣고, 실패 종목은 uncovered 선형 보정에 포함하도록 수정 |
+
+---
+
+## [2026-05-05] v48.77 audit — 포트폴리오 벤치마크 커버리지 P144
+
+### BUG-P144: top ticker chart fetch 실패 시 포트폴리오 수익률 누락 (HIGH)
+- **violated_rule**: R15 (데이터 미수신 vs 0% 구분)
+- **증상**: 포트폴리오 벤치마크 차트에서 상위 보유 종목의 Yahoo chart 조회가 실패하면 해당 종목이 실데이터 커버리지에도, 미커버 보정에도 포함되지 않았다. 보유 종목이 10개 이하이고 전부 fetch 실패하면 실제 현재 수익률 대신 평평한 0% 선이 그려질 수 있다.
+- **근본 원인**: `updateBenchmarkChart()`가 `topTickers`를 먼저 `topSymSet`에 넣고, `tickerSeries` 성공 여부와 무관하게 미커버 계산에서 제외했다. 즉 "조회 시도 대상"과 "실제 조회 성공 대상"을 같은 상태로 취급했다.
+- **수정**: `index.html` `updateBenchmarkChart()`
+  - `topSymSet` 제거
+  - `tickerSeries` 성공 결과로만 `coveredSymSet` 생성
+  - 미커버 계산은 `coveredSymSet`에 없는 모든 포지션을 포함
+  - `totalCurrentValue <= 0` 방어 추가
+- **예방**: 병렬 fetch 결과를 포트폴리오/비중 계산에 사용할 때는 "requested"와 "resolved" set을 분리한다. 실패한 항목은 명시적으로 fallback/uncorrected bucket에 들어가야 하며, 0%로 암묵 처리 금지.
 
 ---
 
@@ -1565,3 +1581,58 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 | P39 | 티커 rename 시 tickers/weights/leaders 부분 전파 | 1 | 높음 |
 | P40 | CSS Grid display:none 자식이 열 배치에서 제외되어 정렬 파괴 | 1 | 높음 |
 | P41 | 상폐위험/파산위험/유동성부족 종목 미제거 (SSNLF/LCID/STEM) | 1 | 중간 |
+
+---
+
+## [2026-05-05] v48.77 audit - generated news retry handler P145
+
+### BUG-P145: fallback news retry link kept inline onclick (MEDIUM)
+- **violated_rule**: R28 / no inline event handlers
+- **symptom**: Static QA found a dynamically rendered news failure fallback that inserted `<a onclick="window.isFetching=false;fetchAllNews(true);return false;">`. The initial live DOM can still report zero inline handlers because this path appears only after a specific news loading failure.
+- **root cause**: Most retry states had already moved to `_aioRetryNews`, but this older fallback string was missed.
+- **fix**: `js/aio-data.js` now renders `<a data-action="_aioRetryNews" data-prevent="1">`; modal/chat UI direct `.onclick` assignments now use `addEventListener`; Google Fonts no longer uses inline `onload`; earnings logo fallback uses `img[data-logo-fallback="1"]` plus a captured `error` listener.
+- **prevention**: Static QA must scan source strings for `onclick=` as well as the rendered DOM.
+
+---
+
+## [2026-05-05] v48.77 audit - AI quota cancel modal P146
+
+### BUG-P146: AI quota cancel button id mismatch can hang prompt promise (HIGH)
+- **violated_rule**: R28 / modal action wiring must be browser-tested and id references must match DOM.
+- **symptom**: `consumeLLMQuery()` waits for an over-budget confirmation promise and tries to attach a cancel resolver to `#aio-confirm-cancel`, but the confirm modal cancel button had no matching id.
+- **root cause**: The generic confirm modal was rendered with only `data-action="closeConfirmModal"` while the AI quota flow expected a specific cancel button id.
+- **fix**: Added `id="aio-confirm-cancel"` to the confirm modal cancel button.
+- **prevention**: Static QA must compare literal `getElementById()` references against actual DOM ids, then manually classify dynamic ids vs missing ids.
+
+---
+
+## [2026-05-05] v48.77 audit - signal mode active class P147
+
+### BUG-P147: signal mode toggle only changed inline colors, not active class (MEDIUM)
+- **violated_rule**: R28 / UI state must be verifiable by DOM state as well as visual styling.
+- **symptom**: Browser QA showed `toggleSignalMode('day')` did not make the day-trading button carry the active `primary` class, while swing restored `primary`. The mode changed visually through inline colors, but class-based state was stale.
+- **root cause**: `toggleSignalMode()` updated `style.background` and `style.color` only.
+- **fix**: `toggleSignalMode()` now adds/removes `primary` on `#sig-sw-btn` and `#sig-dy-btn` in sync with the selected mode.
+- **prevention**: For segmented controls, update both visual styling and semantic/class state so automated QA and CSS selectors agree.
+
+---
+
+## [2026-05-05] v48.77 audit - sector 20d chart fallback P148
+
+### BUG-P148: sector 20-day chart could stay blank when all proxy fetches fail (MEDIUM)
+- **violated_rule**: R6 / external data charts need an honest fallback path when proxy sources fail.
+- **symptom**: Browser QA showed `#sector-20d-chart` remained blank after sector page activation when every Yahoo chart proxy call failed.
+- **root cause**: `_loadSector20dChart()` set a failure status and returned before creating a chart when no live sector datasets were collected.
+- **fix**: `_loadSector20dChart()` now builds deterministic dashed fallback trend lines from `_SECTOR_PCT_FALLBACK` and renders them on the same canvas, while the status text marks that the live collection failed.
+- **prevention**: Canvas QA should force blocked-network/fetch-failure paths, not only happy-path live data.
+
+---
+
+## [2026-05-05] v48.77 audit - mobile layout deep QA P149
+
+### BUG-P149: mobile onboarding controls and theme chips could overlap or clip (LOW)
+- **violated_rule**: R28 / mobile visual QA must include narrow-width interaction controls.
+- **symptom**: Deep browser QA found the API onboarding "설정하러 가기" link and "닫기" button overlapped on mobile, and `#chat-theme-detail-chips` had slight horizontal clipping.
+- **root cause**: The onboarding controls were inline with a fixed left margin, and global mobile `.acp-chips` forced `nowrap` for horizontal scrolling even where the chip row naturally fits better as wrapped controls.
+- **fix**: Added `.onboarding-actions` with mobile wrapping and a page-specific mobile override so theme-detail chips wrap without horizontal clipping.
+- **prevention**: Run desktop/mobile clipping and interactive-overlap checks for every page after UI edits.

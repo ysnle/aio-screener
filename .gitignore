@@ -3,6 +3,7 @@
 
 # 프로젝트 관리 (로컬 전용)
 _context/
+!_context/
 _backup/
 _archive/
 outputs/
@@ -10,6 +11,8 @@ CHANGELOG.md
 CLAUDE.md
 *.md
 !README.md
+!_context/WORKTREE-AUDIT.md
+!_context/DEEP-QA-2026-05-05.md
 
 # 이전 버전 백업/스냅샷
 aio_ui_prototype_*.html
