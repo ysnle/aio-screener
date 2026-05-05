@@ -6,6 +6,25 @@
 
 ---
 
+## v48.78 — 심층 종목 기술 분석 패널 (2026-05-05)
+
+**추가 파일**: `js/aio-data.js`, `js/aio-core.js`, `index.html`
+
+- **심층 종목 기술 분석 섹션** (`#deep-analysis-section`): 차트·기술 분석 페이지 하단에 추가
+  - 종목 입력 → 월봉(1M) / 주봉(1W) / 일봉(1D) 캔들스틱 차트 3개 동시 렌더
+  - 각 차트에 MA5(주황) · MA20(파랑) · MA60(회색) 오버레이
+  - RSI(14) 패널 + Volume 패널 (각 타임프레임)
+  - 우측 핵심 기술 레벨 패널: 저항(MA/기간 고점) · 현재가 · 지지(MA/기간 저점)
+  - 하단 전략 요약: MA 배열 판단 + RSI 해석 + 핵심 한 줄 요약
+- **`fetchOHLCV(symbol, interval, bars)`** (aio-data.js): Twelve Data `/time_series` 호출 + in-memory 캐시
+- **`window._renderDeepChart()`** (aio-core.js): lightweight-charts 캔들스틱 + MA + RSI + Volume 렌더러
+- **`_daSMAFull()` / `_daRSIFull()`** (index.html): 클라이언트 측 SMA·RSI 풀 시계열 계산
+- **`_daKeyLevels()` / `_daLevelsHTML()` / `_daStrategyHTML()`** (index.html): 레벨 계산·렌더
+- **`initDeepAnalysisSection(symbol)`**: 메인 오케스트레이터 (Promise.all 3개 interval 병렬 fetch)
+- `_initTechnicalPage()` 호출 시 기본 SPY로 자동 실행
+
+---
+
 ## v48.77 — /data-refresh 잔여 차트 최신화 (2026-05-04)
 
 **변경 파일**: `js/aio-ui.js`, `version.json`

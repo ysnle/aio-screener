@@ -2648,10 +2648,108 @@ window.AIO.charts = {
   }
 };
 
+// ═══ v48.78: 심층 종목 기술 분석 캔들스틱 렌더러 ══════════════════════════════
+// wrapEl: .da-chart-col 컨테이너 (내부에 .da-candle / .da-rsi / .da-vol 자식 필요)
+window._deepChartInstances = [];
+window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
+  if (!wrapEl || typeof LightweightCharts === 'undefined' || !ohlcv || !ohlcv.length) return;
+  var w = wrapEl.clientWidth || 360;
+  var darkBg = '#090e1a';
+  var subBg  = '#080b13';
+  var gridC  = '#1e2d3f22';
+  var axisC  = '#1e2a3a';
+  var textC  = '#6b7fa3';
+  function baseOpts(h, showTime) {
+    return {
+      width: w, height: h,
+      layout: { background: { color: darkBg }, textColor: textC, fontSize: 10, fontFamily: 'JetBrains Mono,monospace' },
+      grid: { vertLines: { color: gridC }, horzLines: { color: gridC } },
+      rightPriceScale: { borderColor: axisC, minimumWidth: 52 },
+      timeScale: { borderColor: axisC, timeVisible: !!showTime, secondsVisible: false, visible: showTime !== false },
+      crosshair: { mode: showTime ? 1 : 0 },
+      handleScroll: false, handleScale: false
+    };
+  }
+  // 메인 캔들스틱 + MA
+  var candleDiv = wrapEl.querySelector('.da-candle');
+  if (candleDiv) {
+    candleDiv.innerHTML = '';
+    try {
+      var mc = LightweightCharts.createChart(candleDiv, baseOpts(200, true));
+      window._deepChartInstances.push(mc);
+      var cs = mc.addCandlestickSeries({
+        upColor: '#00e5a0', downColor: '#ff5b50',
+        borderUpColor: '#00e5a0', borderDownColor: '#ff5b50',
+        wickUpColor: '#00c48a', wickDownColor: '#c84040'
+      });
+      cs.setData(ohlcv);
+      var maColors = { 5: '#ff8c00', 20: '#4da6ff', 60: '#aaaaaa' };
+      (maLines || []).forEach(function(ma) {
+        if (!ma.data || !ma.data.length) return;
+        var ls = mc.addLineSeries({ color: maColors[ma.period] || '#888', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+        ls.setData(ma.data);
+      });
+      mc.timeScale().fitContent();
+      if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(function(en) {
+          var cw = en[0] && en[0].contentRect.width;
+          if (cw > 0) { try { mc.resize(cw, 200); } catch(_){} }
+        }).observe(candleDiv);
+      }
+    } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'chart', '_renderDeepChart candle error: ' + (e && e.message)); }
+  }
+  // RSI 패널
+  var rsiDiv = wrapEl.querySelector('.da-rsi');
+  if (rsiDiv && rsiData && rsiData.length) {
+    rsiDiv.innerHTML = '';
+    try {
+      var rc = LightweightCharts.createChart(rsiDiv, {
+        width: w, height: 70,
+        layout: { background: { color: subBg }, textColor: textC, fontSize: 9 },
+        grid: { vertLines: { color: 'transparent' }, horzLines: { color: gridC } },
+        rightPriceScale: { borderColor: axisC, minimumWidth: 52, scaleMargins: { top: 0.1, bottom: 0.1 } },
+        timeScale: { visible: false },
+        crosshair: { mode: 0 },
+        handleScroll: false, handleScale: false
+      });
+      window._deepChartInstances.push(rc);
+      var rl = rc.addLineSeries({ color: '#c084fc', lineWidth: 1, priceLineVisible: false, lastValueVisible: true });
+      rl.setData(rsiData);
+      rc.addLineSeries({ color: '#ff5b5055', lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false })
+        .setData(rsiData.map(function(d) { return { time: d.time, value: 70 }; }));
+      rc.addLineSeries({ color: '#00e5a055', lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false })
+        .setData(rsiData.map(function(d) { return { time: d.time, value: 30 }; }));
+      rc.timeScale().fitContent();
+    } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'chart', '_renderDeepChart RSI error: ' + (e && e.message)); }
+  }
+  // Volume 패널
+  var volDiv = wrapEl.querySelector('.da-vol');
+  if (volDiv) {
+    volDiv.innerHTML = '';
+    try {
+      var vc = LightweightCharts.createChart(volDiv, {
+        width: w, height: 55,
+        layout: { background: { color: subBg }, textColor: textC, fontSize: 9 },
+        grid: { vertLines: { color: 'transparent' }, horzLines: { color: 'transparent' } },
+        rightPriceScale: { borderColor: axisC, minimumWidth: 52 },
+        timeScale: { visible: false },
+        crosshair: { mode: 0 },
+        handleScroll: false, handleScale: false
+      });
+      window._deepChartInstances.push(vc);
+      var vs = vc.addHistogramSeries({ priceFormat: { type: 'volume' }, priceScaleId: '' });
+      vs.setData(ohlcv.map(function(d) {
+        return { time: d.time, value: d.volume, color: d.close >= d.open ? '#00e5a028' : '#ff5b5028' };
+      }));
+      vc.timeScale().fitContent();
+    } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'chart', '_renderDeepChart vol error: ' + (e && e.message)); }
+  }
+};
+
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.77';
+const APP_VERSION = 'v48.78';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -4712,6 +4810,12 @@ function _initTechnicalPage() {
   var tvTechC = document.getElementById('tv-widget-technical');
   if (tvTechC && !tvTechC.querySelector('iframe') && typeof loadTVChart === 'function') {
     try { loadTVChart('technical'); } catch(e) {}
+  }
+  // v48.78: 심층 분석 패널 초기화 (기본 SPY)
+  if (typeof initDeepAnalysisSection === 'function') {
+    var inp = document.getElementById('deep-sym-input');
+    var sym = (inp && inp.value.trim()) ? inp.value.trim().toUpperCase() : 'SPY';
+    try { initDeepAnalysisSection(sym); } catch(e) {}
   }
 }
 

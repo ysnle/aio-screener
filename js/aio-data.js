@@ -1928,6 +1928,46 @@ async function fetchTechnicalIndicators(symbol = 'SPY') {
 
 // v47.10: fetchChartData / fetchBreadthFromAV / fetchFundamentals 제거 — 정의만 있고 호출 0건 (dead code P112)
 
+// ═══ v48.78: OHLCV fetch — 심층 종목 기술 분석 패널용 ═══════════════════════
+var _ohlcvCache = {};
+
+async function fetchOHLCV(symbol, interval, bars) {
+  bars = bars || 120;
+  var ck = symbol + '_' + interval;
+  var ttl = interval === '1month' ? 86400000 : interval === '1week' ? 14400000 : 3600000;
+  if (_ohlcvCache[ck] && (Date.now() - _ohlcvCache[ck]._ts < ttl)) return _ohlcvCache[ck].data;
+  var key = DATA_APIS.twelveData.key();
+  if (!key) return null;
+  if (typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('twelveData')) return null;
+  try {
+    var url = DATA_APIS.twelveData.base + '/time_series?symbol=' + encodeURIComponent(symbol) +
+              '&interval=' + interval + '&outputsize=' + bars + '&apikey=' + key;
+    var r = await fetchWithTimeout(url, {}, 12000);
+    if (typeof _bumpApiCounter === 'function') _bumpApiCounter('twelveData');
+    if (typeof window._markFetch === 'function') window._markFetch('twelveData');
+    if (!r.ok) return null;
+    var json = await r.json();
+    if (!json || json.status !== 'ok' || !Array.isArray(json.values) || !json.values.length) return null;
+    // Twelve Data는 최신순(내림차순) — LWC용 오름차순으로 역순 변환
+    var data = json.values.slice().reverse().map(function(v) {
+      return {
+        time: v.datetime.substring(0, 10),
+        open: parseFloat(v.open),
+        high: parseFloat(v.high),
+        low: parseFloat(v.low),
+        close: parseFloat(v.close),
+        volume: parseInt(v.volume, 10) || 0
+      };
+    }).filter(function(d) { return !isNaN(d.open) && !isNaN(d.close); });
+    if (!data.length) return null;
+    _ohlcvCache[ck] = { _ts: Date.now(), data: data };
+    return data;
+  } catch(e) {
+    if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'fetchOHLCV error: ' + (e && e.message || e));
+    return null;
+  }
+}
+
 // ═══ 4-1. Naver — US 주식 재무/컨센서스/기업개요 (무료, 프록시 필요) ═══
 
 // NYSE 상장 종목 세트 (Reuters .N 코드) — 나머지는 NASDAQ(.O) 기본

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.77 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.78 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3707,7 +3707,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.77</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.78</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6334,6 +6334,72 @@ body.light-theme canvas { filter:none; }
     <div id="pattern-signals" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
       <!-- 동적: updatePatternSignals()에서 렌더 -->
       <div style="grid-column:span 2;text-align:center;padding:15px;color:var(--text-muted);font-size:11px;">라이브 데이터 대기 중…</div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 6.5: 심층 종목 기술 분석 (v48.78) ═════════════════════════ -->
+  <div id="deep-analysis-section" style="margin-bottom:12px;">
+    <!-- 헤더 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px 10px 0 0;padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div style="font-size:11px;font-weight:700;color:var(--text-secondary);white-space:nowrap;">심층 종목 기술 분석</div>
+      <input id="deep-sym-input" type="text" value="SPY" maxlength="10"
+             style="width:88px;padding:4px 9px;background:var(--surface-4);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:12px;font-family:var(--font-mono);text-transform:uppercase;"
+             data-on-enter="runDeepAnalysis:__value_upper" aria-label="심층 분석 종목 코드" />
+      <button data-action="runDeepAnalysis"
+              style="padding:4px 13px;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);border-radius:5px;color:var(--data-cyan);font-size:11px;font-weight:700;cursor:pointer;">
+        분석
+      </button>
+      <div id="deep-sym-label" style="font-size:10px;color:var(--text-muted);margin-left:auto;">Twelve Data · 캔들스틱 · MA(5/20/60) · RSI(14)</div>
+    </div>
+    <!-- 차트 그리드 + 레벨 패널 -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:10px;">
+      <div id="deep-charts-wrap" style="display:grid;grid-template-columns:1fr 1fr 1fr 210px;gap:8px;align-items:start;">
+        <!-- 월봉 -->
+        <div id="da-col-m" class="da-chart-col">
+          <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:3px;display:flex;justify-content:space-between;align-items:center;">
+            <span>월봉 (1M)</span>
+            <span style="font-size:9px;"><span style="color:#ff8c00;">●</span>MA5&nbsp;<span style="color:#4da6ff;">●</span>MA20&nbsp;<span style="color:#888;">●</span>MA60</span>
+          </div>
+          <div class="da-candle" style="height:200px;"></div>
+          <div style="font-size:9px;color:var(--text-muted);padding:2px 0 1px;">RSI(14)</div>
+          <div class="da-rsi" style="height:70px;"></div>
+          <div style="font-size:9px;color:var(--text-muted);padding:2px 0 1px;">Volume</div>
+          <div class="da-vol" style="height:55px;"></div>
+        </div>
+        <!-- 주봉 -->
+        <div id="da-col-w" class="da-chart-col">
+          <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:3px;display:flex;justify-content:space-between;align-items:center;">
+            <span>주봉 (1W)</span>
+            <span style="font-size:9px;"><span style="color:#ff8c00;">●</span>MA5&nbsp;<span style="color:#4da6ff;">●</span>MA20&nbsp;<span style="color:#888;">●</span>MA60</span>
+          </div>
+          <div class="da-candle" style="height:200px;"></div>
+          <div style="font-size:9px;color:var(--text-muted);padding:2px 0 1px;">RSI(14)</div>
+          <div class="da-rsi" style="height:70px;"></div>
+          <div style="font-size:9px;color:var(--text-muted);padding:2px 0 1px;">Volume</div>
+          <div class="da-vol" style="height:55px;"></div>
+        </div>
+        <!-- 일봉 -->
+        <div id="da-col-d" class="da-chart-col">
+          <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:3px;display:flex;justify-content:space-between;align-items:center;">
+            <span>일봉 (1D)</span>
+            <span style="font-size:9px;"><span style="color:#ff8c00;">●</span>MA5&nbsp;<span style="color:#4da6ff;">●</span>MA20&nbsp;<span style="color:#888;">●</span>MA60</span>
+          </div>
+          <div class="da-candle" style="height:200px;"></div>
+          <div style="font-size:9px;color:var(--text-muted);padding:2px 0 1px;">RSI(14)</div>
+          <div class="da-rsi" style="height:70px;"></div>
+          <div style="font-size:9px;color:var(--text-muted);padding:2px 0 1px;">Volume</div>
+          <div class="da-vol" style="height:55px;"></div>
+        </div>
+        <!-- 핵심 기술 레벨 패널 -->
+        <div id="deep-levels-panel" style="border-left:1px solid var(--border);padding-left:10px;">
+          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">핵심 기술 레벨</div>
+          <div id="deep-levels-content" style="font-size:10px;color:var(--text-muted);text-align:center;padding:20px 0;">분석 대기 중</div>
+        </div>
+      </div>
+      <!-- 전략 요약 -->
+      <div id="deep-strategy-panel" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
+        <div id="deep-strategy-content" style="font-size:11px;color:var(--text-muted);text-align:center;">종목을 입력하고 분석 버튼을 누르세요</div>
+      </div>
     </div>
   </div>
 
@@ -27460,6 +27526,238 @@ function initKrVkospiChart() {
     }
   });
 }
+
+// ═══ v48.78: 심층 종목 기술 분석 — 계산 + 렌더 함수 ═════════════════════════
+
+// OHLCV 배열 → SMA 시계열 [{time, value}] 반환 (lightweight-charts 형식)
+function _daSMAFull(ohlcv, period) {
+  if (!ohlcv || ohlcv.length < period) return [];
+  var result = [];
+  for (var si = period - 1; si < ohlcv.length; si++) {
+    var sum = 0;
+    for (var sj = 0; sj < period; sj++) sum += ohlcv[si - sj].close;
+    result.push({ time: ohlcv[si].time, value: sum / period });
+  }
+  return result;
+}
+
+// OHLCV 배열 → RSI(14) 시계열 [{time, value}] 반환 (Wilder smoothing)
+function _daRSIFull(ohlcv, period) {
+  period = period || 14;
+  if (!ohlcv || ohlcv.length < period + 1) return [];
+  var closes = ohlcv.map(function(d) { return d.close; });
+  var gAvg = 0, lAvg = 0;
+  for (var ri = 1; ri <= period; ri++) {
+    var rd = closes[ri] - closes[ri - 1];
+    if (rd > 0) gAvg += rd; else lAvg += -rd;
+  }
+  gAvg /= period; lAvg /= period;
+  var result = [];
+  var rsi0 = lAvg === 0 ? 100 : 100 - (100 / (1 + gAvg / lAvg));
+  result.push({ time: ohlcv[period].time, value: Math.round(rsi0 * 100) / 100 });
+  for (var ri2 = period + 1; ri2 < ohlcv.length; ri2++) {
+    var rd2 = closes[ri2] - closes[ri2 - 1];
+    gAvg = (gAvg * (period - 1) + (rd2 > 0 ? rd2 : 0)) / period;
+    lAvg = (lAvg * (period - 1) + (rd2 < 0 ? -rd2 : 0)) / period;
+    var rsiV = lAvg === 0 ? 100 : 100 - (100 / (1 + gAvg / lAvg));
+    result.push({ time: ohlcv[ri2].time, value: Math.round(rsiV * 100) / 100 });
+  }
+  return result;
+}
+
+// 일봉 OHLCV → 핵심 기술 레벨 계산
+function _daKeyLevels(ohlcv) {
+  if (!ohlcv || !ohlcv.length) return null;
+  var closes = ohlcv.map(function(d) { return d.close; });
+  var highs  = ohlcv.map(function(d) { return d.high; });
+  var lows   = ohlcv.map(function(d) { return d.low; });
+  var cur = closes[closes.length - 1];
+  function sma(n) {
+    if (closes.length < n) return null;
+    var s = 0; for (var ki = closes.length - n; ki < closes.length; ki++) s += closes[ki];
+    return s / n;
+  }
+  var ma5 = sma(5), ma20 = sma(20), ma60 = sma(60);
+  var h52 = Math.max.apply(null, highs);
+  var l52 = Math.min.apply(null, lows);
+  var resistance = [], support = [];
+  if (ma5  && ma5  > cur) resistance.push({ label: 'MA5',    value: ma5 });
+  if (ma20 && ma20 > cur) resistance.push({ label: 'MA20',   value: ma20 });
+  if (ma60 && ma60 > cur) resistance.push({ label: 'MA60',   value: ma60 });
+  if (h52 > cur * 1.001)  resistance.push({ label: '기간 고점', value: h52 });
+  if (ma5  && ma5  < cur) support.push({ label: 'MA5',    value: ma5 });
+  if (ma20 && ma20 < cur) support.push({ label: 'MA20',   value: ma20 });
+  if (ma60 && ma60 < cur) support.push({ label: 'MA60',   value: ma60 });
+  if (l52 < cur * 0.999)  support.push({ label: '기간 저점', value: l52 });
+  resistance.sort(function(a, b) { return a.value - b.value; });
+  support.sort(function(a, b) { return b.value - a.value; });
+  var lastRSI = (typeof _calcRSILast === 'function') ? _calcRSILast(closes, 14) : null;
+  return { cur: cur, resistance: resistance, support: support, ma5: ma5, ma20: ma20, ma60: ma60, rsi: lastRSI, h52: h52, l52: l52 };
+}
+
+// 핵심 레벨 패널 HTML 생성
+function _daLevelsHTML(levels) {
+  if (!levels) return '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:10px;">데이터 없음</div>';
+  var fmt = function(v) { return v != null ? v.toFixed(2) : '—'; };
+  var html = '';
+  // 저항
+  html += '<div style="font-size:9px;font-weight:700;color:var(--data-red);margin-bottom:3px;letter-spacing:.5px;">▲ 저항</div>';
+  if (levels.resistance.length) {
+    levels.resistance.forEach(function(r) {
+      var pct = '+' + ((r.value - levels.cur) / levels.cur * 100).toFixed(1) + '%';
+      html += '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border-subtle);">' +
+        '<span style="font-size:9px;color:var(--text-muted);">' + r.label + '</span>' +
+        '<span style="font-size:9px;font-family:var(--font-mono);color:#ff7c72;">' + fmt(r.value) +
+        ' <span style="font-size:8px;opacity:.65;">(' + pct + ')</span></span></div>';
+    });
+  } else {
+    html += '<div style="font-size:9px;color:var(--text-muted);padding:2px 0;">저항 돌파 상태</div>';
+  }
+  // 현재가 중심박스
+  html += '<div style="margin:6px 0;padding:6px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.2);border-radius:5px;text-align:center;">' +
+    '<div style="font-size:9px;color:var(--data-amber);">현재가</div>' +
+    '<div style="font-size:15px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);">' + fmt(levels.cur) + '</div>' +
+    (levels.rsi != null ? '<div style="font-size:8px;color:var(--text-muted);margin-top:1px;">RSI&nbsp;' + levels.rsi.toFixed(1) +
+      (levels.rsi > 70 ? '&nbsp;과매수' : levels.rsi < 30 ? '&nbsp;과매도' : '') + '</div>' : '') +
+  '</div>';
+  // 지지
+  html += '<div style="font-size:9px;font-weight:700;color:var(--data-green);margin-bottom:3px;letter-spacing:.5px;">▼ 지지</div>';
+  if (levels.support.length) {
+    levels.support.forEach(function(s) {
+      var pct = ((s.value - levels.cur) / levels.cur * 100).toFixed(1) + '%';
+      html += '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border-subtle);">' +
+        '<span style="font-size:9px;color:var(--text-muted);">' + s.label + '</span>' +
+        '<span style="font-size:9px;font-family:var(--font-mono);color:#4fd18a;">' + fmt(s.value) +
+        ' <span style="font-size:8px;opacity:.65;">(' + pct + ')</span></span></div>';
+    });
+  } else {
+    html += '<div style="font-size:9px;color:var(--text-muted);padding:2px 0;">지지 붕괴 상태</div>';
+  }
+  return html;
+}
+
+// 전략 요약 HTML 생성
+function _daStrategyHTML(levels, sym) {
+  if (!levels) return '';
+  var trend = '중립', tCol = 'var(--data-amber)';
+  if (levels.ma5 && levels.ma20 && levels.ma60) {
+    if (levels.ma5 > levels.ma20 && levels.ma20 > levels.ma60) { trend = '정배열 (상승 우세)'; tCol = 'var(--data-green)'; }
+    else if (levels.ma5 < levels.ma20 && levels.ma20 < levels.ma60) { trend = '역배열 (하락 우세)'; tCol = 'var(--data-red)'; }
+  }
+  var rsiLabel = '';
+  if (levels.rsi != null) {
+    if      (levels.rsi > 70) rsiLabel = 'RSI ' + levels.rsi.toFixed(0) + ' — 과매수, 단기 조정 경계';
+    else if (levels.rsi < 30) rsiLabel = 'RSI ' + levels.rsi.toFixed(0) + ' — 과매도, 반등 가능성';
+    else if (levels.rsi >= 50) rsiLabel = 'RSI ' + levels.rsi.toFixed(0) + ' — 상승 모멘텀 유지';
+    else                       rsiLabel = 'RSI ' + levels.rsi.toFixed(0) + ' — 하락 모멘텀 우세';
+  }
+  var r1 = levels.resistance.length ? levels.resistance[0] : null;
+  var s1 = levels.support.length    ? levels.support[0]    : null;
+  var summary = (sym || '') + ': MA ' + trend +
+    (rsiLabel ? ' · ' + rsiLabel : '') +
+    (r1 ? ' · 1차 저항 ' + r1.value.toFixed(2) : '') +
+    (s1 ? ' · 1차 지지 ' + s1.value.toFixed(2) : '');
+  return '<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">' +
+    '<div style="background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:5px;padding:4px 10px;">' +
+      '<div style="font-size:9px;color:var(--text-muted);">MA 배열</div>' +
+      '<div style="font-size:11px;font-weight:700;color:' + tCol + ';">' + trend + '</div>' +
+    '</div>' +
+    (levels.rsi != null ? '<div style="background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:5px;padding:4px 10px;">' +
+      '<div style="font-size:9px;color:var(--text-muted);">RSI(14)</div>' +
+      '<div style="font-size:11px;font-weight:700;font-family:var(--font-mono);color:' +
+        (levels.rsi > 70 ? 'var(--data-red)' : levels.rsi < 30 ? 'var(--data-green)' : 'var(--data-cyan)') + ';">' +
+        levels.rsi.toFixed(1) + '</div>' +
+    '</div>' : '') +
+    '<div style="flex:1;font-size:10px;color:var(--text-muted);padding:4px 8px;border:1px solid var(--border-subtle);border-radius:5px;min-width:180px;">' +
+      '<strong style="color:var(--text-secondary);">핵심 한 줄</strong>&nbsp;' + (typeof escHtml === 'function' ? escHtml(summary) : summary) +
+    '</div>' +
+  '</div>';
+}
+
+// 기존 deep chart 인스턴스 파괴 + 컨테이너 초기화
+function _daDestroyCharts() {
+  (window._deepChartInstances || []).forEach(function(c) { try { c.remove(); } catch(_){} });
+  window._deepChartInstances = [];
+}
+
+// 메인 오케스트레이터
+async function initDeepAnalysisSection(symbol) {
+  symbol = (symbol || 'SPY').toUpperCase().trim();
+  var labelEl  = document.getElementById('deep-sym-label');
+  var levelsEl = document.getElementById('deep-levels-content');
+  var stratEl  = document.getElementById('deep-strategy-content');
+
+  if (labelEl)  labelEl.textContent = symbol + ' — 로딩 중…';
+  if (levelsEl) levelsEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">분석 중…</div>';
+  if (stratEl)  stratEl.innerHTML  = '<div style="text-align:center;color:var(--text-muted);font-size:10px;">분석 중…</div>';
+
+  _daDestroyCharts();
+  ['da-col-m','da-col-w','da-col-d'].forEach(function(id) {
+    var col = document.getElementById(id);
+    if (!col) return;
+    var cc = col.querySelector('.da-candle');
+    if (cc) cc.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:10px;">로딩 중…</div>';
+  });
+
+  if (typeof fetchOHLCV !== 'function') {
+    if (labelEl) labelEl.textContent = 'fetchOHLCV 미로드 — 페이지를 새로고침하세요';
+    return;
+  }
+
+  var results = await Promise.all([
+    fetchOHLCV(symbol, '1month', 60),
+    fetchOHLCV(symbol, '1week',  104),
+    fetchOHLCV(symbol, '1day',   120)
+  ]);
+  var monthly = results[0], weekly = results[1], daily = results[2];
+
+  if (!monthly && !weekly && !daily) {
+    if (labelEl) labelEl.textContent = symbol + ' — 데이터 없음 (Twelve Data 키 확인)';
+    if (levelsEl) levelsEl.innerHTML = '<div style="padding:16px;text-align:center;color:var(--data-red);font-size:10px;">데이터를 가져올 수 없습니다.<br>설정에서 Twelve Data 키를 확인하세요.</div>';
+    if (stratEl) stratEl.innerHTML = '';
+    return;
+  }
+
+  var colMap = [
+    { id: 'da-col-m', data: monthly },
+    { id: 'da-col-w', data: weekly  },
+    { id: 'da-col-d', data: daily   }
+  ];
+  colMap.forEach(function(tf) {
+    if (!tf.data) return;
+    var col = document.getElementById(tf.id);
+    if (!col) return;
+    var ma5  = _daSMAFull(tf.data, 5);
+    var ma20 = _daSMAFull(tf.data, 20);
+    var ma60 = _daSMAFull(tf.data, 60);
+    var rsi  = _daRSIFull(tf.data, 14);
+    if (typeof window._renderDeepChart === 'function') {
+      window._renderDeepChart(col, tf.data, [
+        { period: 5,  data: ma5  },
+        { period: 20, data: ma20 },
+        { period: 60, data: ma60 }
+      ], rsi);
+    }
+  });
+
+  var baseData = daily || weekly;
+  var levels = _daKeyLevels(baseData);
+  if (levelsEl) levelsEl.innerHTML = _daLevelsHTML(levels);
+  if (stratEl)  stratEl.innerHTML  = _daStrategyHTML(levels, symbol);
+  if (labelEl)  labelEl.textContent = symbol + ' · Twelve Data · 캔들스틱 · MA(5/20/60) · RSI(14)';
+}
+
+window.runDeepAnalysis = function(sym) {
+  if (typeof sym !== 'string' || !sym.trim()) {
+    var inp = document.getElementById('deep-sym-input');
+    sym = inp ? inp.value.trim() : '';
+  }
+  sym = sym.toUpperCase().trim();
+  if (!sym) return;
+  var inp2 = document.getElementById('deep-sym-input');
+  if (inp2) inp2.value = sym;
+  initDeepAnalysisSection(sym);
+};
 
 // ── 한국 시장 건강 점수 동적 계산 ────────────────────────────────
 function calcKrHealthScore() {
