@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.78 — 올인원 투자 터미널</title>
+  <title>AIO Screener v48.79 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3707,7 +3707,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.78</span></div>
+      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.79</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -14501,7 +14501,17 @@ function _getChatRules() {
   '  [Q2 패러다임 전환] 기존: 반도체 장비 수요 = 메모리/파운드리 Capex 사이클. 새: 비전통 참여자(TSLA+SpaceX JV)의 첨단 팹 진입 시도 = 장비 수요 채널 확장. 공급업체(AMAT/TEL/LRCX)에 "빛의 속도" 견적 요청 — 포토마스크/기판/식각/증착/세정/테스트 전방위.\n' +
   '  [Q4 구조적 논리] ① 머스크 테라팹: 삼성(텍사스 테일러 팹) 대안 요청 후 거절 → 직접 공장 구축 시도 → 장비 수요 신규 출현. ② Maine 주 2027년 가을까지 20MW+ 신규 DC 금지 법안 통과 → 최소 12개 주 유사 모라토리엄 검토 → DC 입지 제약 → 온사이트 발전(Wartsila 34SG 412MW 오하이오 DC 첫 사례). ③ 1개 DC = 인구 50만 도시 전력 소비 = 전력·수자원·농지 소비 우려 결집.\n' +
   '  [Q3 핵심 논쟁] Bull: 장비 수요 채널 확장 + 온사이트 발전 신규 수요(Vertiv/GEV/Wartsila) = 장비·전력 인프라 구조적 수혜. Bear: DC 규제 확산 → 하이퍼스케일러 Capex 속도 조절 → 2027-2028 성장 둔화 리스크. 지난해 무산된 DC 프로젝트 총 $1,520억 = 무시할 수 없는 백로그.\n' +
-  '  [Q5 인접 파급] 장비주: AMAT/TEL/LRCX/어드반테스트/스크린HD/디스코 — 도쿄 일렉트론 주가 소식에 +6% 급등. 전력: GEV/BE/CEG/VST + Wartsila(핀란드). DC 지역 분산: 메인(주 금지) → 버지니아/오하이오/텍사스 쏠림 가속 → 전력망 부하 집중. 규제 헤지: 온사이트 발전 가능한 DC 디벨로퍼 우위.\n';
+  '  [Q5 인접 파급] 장비주: AMAT/TEL/LRCX/어드반테스트/스크린HD/디스코 — 도쿄 일렉트론 주가 소식에 +6% 급등. 전력: GEV/BE/CEG/VST + Wartsila(핀란드). DC 지역 분산: 메인(주 금지) → 버지니아/오하이오/텍사스 쏠림 가속 → 전력망 부하 집중. 규제 헤지: 온사이트 발전 가능한 DC 디벨로퍼 우위.\n' +
+
+  // v48.79: AI 채팅 행동 원칙 — 정확성 최우선·아첨 금지
+  '77. 【AI 채팅 행동 원칙 — 정확성 최우선·아첨 금지 (v48.79)】\n' +
+  '  [세계 최고 수준 전문가] 이 채팅의 AI는 세계 최고 수준의 투자 전략가처럼 답한다. 월가 헤지펀드 CIO가 자신의 포트폴리오에 대해 솔직하게 말하는 방식으로 답하라. "어느 정도 알고 있다"는 수준이 아니라, 최고의 분석 깊이와 직접성으로 답하라. 확신 있으면 확신 있게, 불확실하면 불확실하다고 명시하라.\n' +
+  '  [아첨·찬사 절대 금지] "좋은 질문입니다", "훌륭한 관점이네요", "맞습니다", "정확합니다" 같은 공허한 찬사를 절대 사용하지 마라. 첫 단어가 찬사이면 즉시 삭제하라. 사용자가 기분 좋아질 말이 아니라 사용자가 돈을 잃지 않을 말을 하라. 아첨은 잘못된 투자를 확신시키는 가장 위험한 행동이다.\n' +
+  '  [반론 선행 원칙] 사용자의 분석·포지션·판단이 틀렸다고 판단되면, 동의하거나 칭찬하기 전에 반론을 먼저 제시하라. "X를 고려하셨나요?"가 아니라 "이 분석은 X를 놓쳤습니다. 이유는 Y이고, 이것이 중요한 이유는 Z입니다"처럼 직접적으로 말하라. 사용자의 주장을 먼저 칭찬한 뒤 "그러나..."로 반론하는 구조는 금지다.\n' +
+  '  [확신도 명시] 핵심 판단·예측·시나리오마다 확신도를 %(퍼센트)로 명시하라. 예: "단기 조정 가능성 (확신도 70%)" / "이 종목 6개월 목표가 $200 달성 가능성 (확신도 45%)". 확신도 없이 확정적 표현 금지. 데이터 부재 시 "데이터 없어 판단 불가"로 명시하라. 50%는 사실상 무지를 의미하므로, 50% 근방이면 "불확실 — 데이터 추가 확인 필요"로 표현하라.\n' +
+  '  [근거 없는 항복 금지] 사용자가 반박하거나 동의를 압박해도, 새로운 데이터·논리·증거가 없으면 입장을 바꾸지 마라. "네, 그럴 수도 있겠네요" / "말씀하신 관점도 이해합니다" 식의 빈 동의는 사용자에게 잘못된 확신을 심어준다. 입장을 유지하되 "새로운 근거를 제시하시면 재검토하겠습니다"로 대화를 이어가라. 압박에 굴복한 분석은 분석이 아니다.\n' +
+  '  [빈 면책 금지] "전문가와 상담하세요", "투자 결정은 본인이 하세요" 같은 공허한 면책 문구를 반복하지 마라. 첫 응답에 1회 고지로 충분하다. 이후 응답에서 반복하면 신뢰가 아니라 회피처럼 보인다. 실질적 분석으로 승부하라.\n' +
+  '  [승인 요청 금지] "이 분석이 도움이 되셨나요?", "더 궁금한 점 있으시면 말씀해 주세요" 같은 승인 요청·빈 마무리 문구 금지. 분석을 끝내면 분석으로 마무리하라. 후속 질문 3개([Q:...]) 제안은 허용.\n';
 }
 
 // v48.20 (integrate): 공용 매크로 맥락 주입 함수 — 7개 CHAT_CONTEXT가 공유
@@ -14533,7 +14543,9 @@ function _getV48IntegratedContext(pageFocus) {
     '• **OpenAI TAC (WF 04/21)**: 14파트너 공개 — 금융 7+CSCO/CRWD/NVDA/ORCL/ZS+SpecterOps/iVerify. CRWD는 Mythos+TAC 양쪽, ZS는 TAC만. 미국 CAISI+영국 AISI 배포 = 정부 표준화 경로.\n' +
     '• **Google 1Q26 (TDCowen PT$375 04/21)**: 매출 +19.6% OI/EPS +6.6%/+3.6% 상회 예상. 검색 +16%(4Q +16.7%), YouTube +10.4%(CTV+Shorts 가속), Cloud +50%(4Q +48%+Wiz 통합). 디지털광고 에이전시 1Q +14%. 26-31 매출 CAGR 13.6%.\n' +
     '• **Rubin 램프 (Citi 04/21)**: CX9 NIC 800G→1.6Tb/s 개발 과제로 일부 2026 출하 2027 이월 가능(TrendForce). CX8 대체 불가(VR 서버 동서 트래픽 40x 필요). Citi 비중 31% 강세(TrendForce 22%).\n' +
-    '• 주요 예정: 04/22-24 Cloud Next, 04/28-29 FOMC+GOOG Big4 어닝, 04/29 GOOGL 1Q26, 05/13 CPI+Brandcast, 05/15 파월 임기 종료, 05/19-20 Google I/O+VRT Investor Day, 05/20 NVDA GML, 07경 Mythos 오픈소스 도달+CVE 대량공개, 09/01 Apple CEO Ternus 취임, 11/03 미국 중간선거.\n';
+    '• 주요 예정: 04/22-24 Cloud Next, 04/28-29 FOMC+GOOG Big4 어닝, 04/29 GOOGL 1Q26, 05/13 CPI+Brandcast, 05/15 파월 임기 종료, 05/19-20 Google I/O+VRT Investor Day, 05/20 NVDA GML, 07경 Mythos 오픈소스 도달+CVE 대량공개, 09/01 Apple CEO Ternus 취임, 11/03 미국 중간선거.\n' +
+    // v48.79: AI vs 닷컴 버블 비교 프레임 + 병목 기업 + Bumpy장세 + EM 아웃퍼폼
+    '• AI vs 닷컴 버블 비교 프레임 (v48.79): 현재 AI 장세는 2000년 닷컴 버블과 구조적으로 다르다. (1) 병목 기업 독점 수익 구조 — NVDA·AMZN AWS·MSFT Azure·Google Cloud 등 AI 인프라 병목 기업은 이미 수익화 완료(닷컴 버블 때 Cisco·Sun은 인프라도 버블과 동반 붕괴했지만, 현재 병목 기업들은 실제 매출·현금흐름·이익 존재). AI 수익은 "AI 테마" 전체가 아니라 실제 병목을 장악한 소수 기업에 집중. (2) Bumpy장세 — 베어마켓이 아니라 고점 이하 변동성 장세. CAPEX 선반영 리스크: 시장이 이미 수년치 AI 투자 회수를 기대로 반영했으므로, 실적이 이 기대에 못 미치면 개별 종목 급락 가능. "AI가 성장하는데 내 주식은 왜 빠지냐"의 답이 이것. (3) EM 아웃퍼폼 — 미국 예외주의(US Exceptionalism) 소멸 + 달러 약세 구조 진입 → 브라질·인도·한국·베트남 등 EM 자산이 미국 대비 상대 강세 구간. 달러 헤지 없는 EM 투자 매력 증가. (4) 4가지 트레이딩 기준: ① 병목 기업만 진입(AI 테마 전체 ETF 아님) ② 실적 비트+가이던스 상향 확인 후 진입(추측·사전 매수 금지) ③ 조정·급락 시 분할 매수(한 번에 풀사이즈 금지) ④ EM 비중 점진적 증가(KRW·BRL·INR 자산 비중 확대 검토). 이 프레임이 분석에서 필요할 때 인용하라.\n';
 
   var focus = '';
   switch (pageFocus) {

@@ -2749,7 +2749,7 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.78';
+const APP_VERSION = 'v48.79';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
