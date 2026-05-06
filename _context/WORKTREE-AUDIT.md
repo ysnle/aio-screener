@@ -1,8 +1,8 @@
 ---
 verified_by: codex
-last_verified: 2026-05-05
+last_verified: 2026-05-06
 confidence: high
-target_version: v48.79
+target_version: v48.80
 ---
 
 # Worktree Audit
@@ -64,6 +64,7 @@ v48.78 and v48.79 are now present as deployed release entries in the integrated 
 
 - **P144 portfolio benchmark coverage**: `updateBenchmarkChart()` treated requested top holdings as covered before Yahoo chart fetch success was known. If those fetches failed, weights disappeared from both the real-series and fallback buckets. The audit branch now builds coverage from resolved ticker series only.
 - **P145-P149 deep QA hardening**: inline/direct handler cleanup, AI quota cancel id, signal mode class state, sector 20d fallback chart, and mobile onboarding/theme-chip layout fixes are part of the Codex deploy candidate.
+- **P150 operations hardening**: v48.80 synchronizes `sw.js` cache versioning with the app, exposes SW health, and adds `AIO.getOperationalHealth()` for live self-diagnostics.
 
 ## Definition Of "Applied"
 

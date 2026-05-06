@@ -2757,7 +2757,7 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.79';
+const APP_VERSION = 'v48.80';
 window.AIO.version = APP_VERSION;
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
@@ -3168,6 +3168,73 @@ window._aioRenderFreshness = function() {
 window._aioRefreshFreshness = function() {
   if (typeof window._aioRenderFreshness === 'function') window._aioRenderFreshness();
 };
+
+// v48.80/P150: one-call operational readiness snapshot for live/self-operation checks.
+window.AIO.getOperationalHealth = function() {
+  var appVersion = (typeof APP_VERSION === 'string' ? APP_VERSION : window.AIO.version || null);
+  var storage = { localStorage: false, error: null };
+  try {
+    localStorage.setItem('_aio_health_test', '1');
+    localStorage.removeItem('_aio_health_test');
+    storage.localStorage = true;
+  } catch(e) {
+    storage.error = e && e.message || String(e);
+  }
+
+  var api = { total: 0, ok: 0, warn: 0, error: 0, unknown: 0, details: [] };
+  try {
+    Object.keys(window._apiHealth || {}).forEach(function(k) {
+      var h = window._apiHealth[k] || {};
+      var status = h.status || 'unknown';
+      api.total++;
+      api[status] = (api[status] || 0) + 1;
+      api.details.push({ id: k, label: h.label, status: status, errCount: h.errCount || 0, lastOk: h.lastOk || null, lastErr: h.lastErr || null, lastMsg: h.lastMsg || '' });
+    });
+  } catch(e) {
+    api.error++;
+    api.details.push({ id: 'api-health', status: 'error', lastMsg: e && e.message || String(e) });
+  }
+
+  var swVersion = window._aioSWVersion || null;
+  var sw = {
+    supported: !!(navigator && navigator.serviceWorker),
+    controlled: !!(navigator && navigator.serviceWorker && navigator.serviceWorker.controller),
+    version: swVersion,
+    checkedAt: window._aioSWCheckedAt || null,
+    matchesApp: !!(swVersion && appVersion && swVersion === appVersion)
+  };
+
+  var cache = null;
+  try { cache = window.AIO_Cache && typeof window.AIO_Cache.stats === 'function' ? window.AIO_Cache.stats() : null; } catch(_c) {}
+  var feed = null;
+  try { feed = window._aioFeedHealth && typeof window._aioFeedHealth.stats === 'function' ? window._aioFeedHealth.stats() : null; } catch(_f) {}
+  var logs = null;
+  try { logs = window._aioLogs && typeof window._aioLogs.rate === 'function' ? window._aioLogs.rate() : null; } catch(_l) {}
+
+  var issues = [];
+  if (!storage.localStorage) issues.push('localStorage unavailable');
+  if (navigator && navigator.onLine === false) issues.push('browser offline');
+  if (sw.version && appVersion && sw.version !== appVersion) issues.push('service worker version mismatch');
+  if (api.error > 0) issues.push(api.error + ' API source(s) in error');
+  if (api.warn > 0) issues.push(api.warn + ' API source(s) degraded');
+  if (feed && feed.disabled > 0) issues.push(feed.disabled + ' RSS source(s) disabled');
+
+  return {
+    status: issues.length === 0 ? 'ok' : (api.error > 0 || !storage.localStorage ? 'error' : 'warn'),
+    issues: issues,
+    appVersion: appVersion,
+    generatedAt: new Date().toISOString(),
+    online: !(navigator && navigator.onLine === false),
+    serviceWorker: sw,
+    storage: storage,
+    api: api,
+    feed: feed,
+    cache: cache,
+    lastFetch: Object.assign({}, window._lastFetch || {}),
+    logs: logs
+  };
+};
+window.AIO.operationalHealthSnapshot = window.AIO.getOperationalHealth;
 
 // v48.37: SCREENER_DB memo 내부 날짜 파서 — 애널리스트 리포트 staleness 구조적 감지
 // 매칭 패턴: [Citi 04/17] · [JPM 04/17] · [GS 04/15 Buy] · [2026.04] · [2026-04-15]

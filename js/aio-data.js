@@ -2972,6 +2972,17 @@ function updateDataStatus() {
   const swVer = window._aioSWVersion || '';
   const titleExtra = swVer ? ` · SW ${swVer}` : '';
 
+  const appVer = (typeof APP_VERSION === 'string' ? APP_VERSION : (window.AIO && window.AIO.version) || '');
+  const swMismatch = !!(swVer && appVer && swVer !== appVer);
+  const swBadge = swMismatch
+    ? ' · <span style="color:#f87171;">SW ' + escHtml(swVer) + '≠' + escHtml(appVer) + '</span>'
+    : (swVer ? ' · <span style="color:var(--text-muted);">SW ' + escHtml(swVer) + '</span>' : '');
+  if (swMismatch && window._aioSWMismatchLogged !== swVer + ':' + appVer) {
+    window._aioSWMismatchLogged = swVer + ':' + appVer;
+    if (typeof _aioLog === 'function') _aioLog('warn', 'sw', 'Service worker version mismatch: ' + swVer + ' vs app ' + appVer);
+    if (typeof showDataError === 'function') showDataError('SW', 'service worker version mismatch - refresh will rotate cache', 'warn');
+  }
+
   if (staleMin > 10) {
     el.innerHTML = `<span style="font-size:11px;color:#fbbf24;font-weight:700;">시세 ${staleMin}분 전 갱신</span>${proxyStale}`;
     el.title = `마지막 시세 갱신: ${new Date(lastQuoteTs).toLocaleTimeString('ko-KR')} — ${staleMin}분 경과${titleExtra}`;
@@ -2983,6 +2994,7 @@ function updateDataStatus() {
     el.innerHTML = `<span style="font-size:11px;color:var(--text-muted);">데이터 갱신 중...</span>${proxyStale}`;
     el.title = `연결 중${titleExtra}`;
   }
+  if (swBadge) el.innerHTML += swBadge;
 }
 
 // SW 버전을 비동기로 한 번만 조회 (updateDataStatus 툴팁에 표시)
@@ -2993,7 +3005,12 @@ function updateDataStatus() {
   }
   try {
     var mc = new MessageChannel();
-    mc.port1.onmessage = function(e) { if (e.data && e.data.version) window._aioSWVersion = e.data.version; };
+    mc.port1.onmessage = function(e) {
+      if (e.data && e.data.version) {
+        window._aioSWVersion = e.data.version;
+        window._aioSWCheckedAt = Date.now();
+      }
+    };
     navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' }, [mc.port2]);
   } catch(e) {}
 })();

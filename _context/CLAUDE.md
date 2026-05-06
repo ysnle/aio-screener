@@ -2,9 +2,9 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v48.79
+- **현재 버전**: v48.80
 
-## _context/ 문서 (9개 Git-tracked 활성)
+## _context/ 문서 (10개 Git-tracked 활성)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
@@ -16,6 +16,7 @@
 | INDEX.md | 지식 베이스 인덱스 + 백링크 (R24) | /knowledge-lint L6 |
 | WORKTREE-AUDIT.md | GitHub/live/worktree 라우팅 + 미배포 작업 인벤토리 | 워크트리 병합/배포/감사 |
 | DEEP-QA-2026-05-05.md | UI/API/페이지 로직 심층 QA 결과 | 심층 QA 또는 live/local parity 변경 |
+| OPERATIONS-AUDIT-2026-05-06.md | 운영 지속성/자체 진단/캐시 회전 점검 | 런타임 또는 배포 운영성 변경 |
 
 ## 파일 구조
 
@@ -25,7 +26,7 @@ AIO/
 ├── js/
 │   ├── aio-core.js · aio-data.js · aio-ui.js · aio-chat.js · aio-glossary.js
 ├── CHANGELOG.md · CLAUDE.md · api_setup_guide.html · cloudflare-worker-proxy.js
-├── _context/           ← Git-tracked 위키 (위 9개 문서)
+├── _context/           ← Git-tracked 위키 (위 10개 문서)
 ├── .claude/
 │   └── skills/         ← Git-tracked 3개: bug-fix · data-refresh · integrate
 ```

@@ -3,7 +3,10 @@
 // 제약: GitHub Pages HTTPS + 정적 호스팅 (POST 캐싱 불가, CORS 프록시는 제3자 도메인)
 // v48.27 (QA-3): SW_VERSION을 APP_VERSION과 동기화 — activate 시 신규 캐시로 전환 (R1 7번째 동기화 지점)
 
-const SW_VERSION = 'v48.66';
+// R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
+// v48.80/P150: operational hardening adds an explicit build marker and health message.
+const SW_VERSION = 'v48.80';
+const SW_BUILD = '2026-05-06T10:53:17+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -207,5 +210,21 @@ self.addEventListener('message', function(event) {
     });
   } else if (event.data.type === 'GET_VERSION') {
     event.ports[0] && event.ports[0].postMessage({ version: SW_VERSION });
+  } else if (event.data.type === 'GET_HEALTH') {
+    caches.keys().then(function(keys) {
+      event.ports[0] && event.ports[0].postMessage({
+        version: SW_VERSION,
+        build: SW_BUILD,
+        shellCache: SHELL_CACHE,
+        dataCache: DATA_CACHE,
+        cacheNames: keys
+      });
+    }).catch(function(e) {
+      event.ports[0] && event.ports[0].postMessage({
+        version: SW_VERSION,
+        build: SW_BUILD,
+        error: e && e.message || String(e)
+      });
+    });
   }
 });

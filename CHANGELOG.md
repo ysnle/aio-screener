@@ -6,6 +6,19 @@
 
 ---
 
+## v48.80 — 운영 지속성/자체 진단 보강 (2026-05-06)
+
+**변경 파일**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/INDEX.md`, `_context/BUG-POSTMORTEM.md`, `_context/OPERATIONS-AUDIT-2026-05-06.md`, `.gitignore`
+
+- **P150**: `sw.js`의 `SW_VERSION`이 앱 버전보다 뒤처져 stale shell/data cache가 유지될 수 있던 운영 리스크를 수정.
+- R1 버전 동기화 범위를 `sw.js SW_VERSION`까지 포함한 7곳으로 확장하고 v48.80으로 맞춤.
+- 서비스워커에 `GET_HEALTH` 메시지를 추가해 버전, build, shell/data cache 이름과 cache key 목록을 조회할 수 있게 함.
+- `data-status-panel`에 현재 SW 버전을 표시하고, 앱 버전과 SW 버전이 다르면 경고와 로그를 남기도록 보강.
+- `AIO.getOperationalHealth()` / `AIO.operationalHealthSnapshot()` 추가: 앱 버전, SW, localStorage, API health, RSS health, cache, last fetch, log-rate를 한 번에 점검.
+- `_context/OPERATIONS-AUDIT-2026-05-06.md` 추가: 운영 지속성/자체 운영 가능성 점검 결과와 배포 전 회귀 가드를 문서화.
+
+---
+
 ## v48.79 — AI 채팅 행동 원칙 + AI vs 닷컴 버블 프레임 통합 (2026-05-05)
 
 **변경 파일**: `index.html`, `js/aio-core.js`, `version.json`, `_context/CLAUDE.md`
@@ -45,9 +58,9 @@
 
 ---
 
-## Unreleased — Codex v48.79 deep QA follow-up (2026-05-05)
+## v48.79 Codex deep QA follow-up (2026-05-05)
 
-> Pending commit/deploy. This entry records the Codex deep QA hardening applied on top of v48.79.
+> Records the Codex deep QA hardening applied on top of v48.79.
 
 ### Worktree/GitHub traffic control
 - Added `_context/WORKTREE-AUDIT.md` to separate GitHub `origin/main`, live GitHub Pages, local Claude worktrees, and unpublished work.

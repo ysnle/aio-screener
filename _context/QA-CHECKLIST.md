@@ -30,7 +30,7 @@ latest_P_covered: P143
 
 | # | 게이트 | 기준 | 참조 단계 |
 |---|--------|------|-----------|
-| **QC1** | 구조 무결성 | div 열림/닫힘 일치 **AND** 버전 6곳 동기화 **AND** 콘솔 ERROR 0건 | 1A, 2A, 4A |
+| **QC1** | 구조 무결성 | div 열림/닫힘 일치 **AND** 버전 7곳 동기화 **AND** 콘솔 ERROR 0건 | 1A, 2A, 4A |
 | **QC2** | Dead Page 없음 | 22개 페이지 모두 3초 이내 콘텐츠 렌더링 + 차트 canvas에 픽셀 존재 | 1A, 11 |
 | **QC3** | 데이터 정합성 (R15) | `d.pct \|\| 0` 패턴 0건 **AND** `_SNAP_FALLBACK` ≥50 심볼 | 3C, 8 |
 | **QC4** | 네비게이션 사이클 | A→B→A / popstate / 해시 직접 접근 모두 정상 재렌더 | 1B |
@@ -894,10 +894,12 @@ UI 상태:
 
 ```
 [ ] APP_VERSION 상수 변경 시 title + #app-version-badge 자동 반영
+[ ] sw.js SW_VERSION과 APP_VERSION 일치 확인
 [ ] DATA_SNAPSHOT._updated가 24시간 이내일 때 노란 배너 미노출
 [ ] 라이브 데이터 수신 시 aio:liveDataReceived 이벤트로 배너 즉시 해제
 [ ] 5초 폴링 (최대 24회) → 2분 내 라이브 데이터 없으면 배너 유지
 [ ] version.json과 APP_VERSION 값 일치 확인
+[ ] 브라우저 콘솔에서 AIO.getOperationalHealth().serviceWorker 버전 확인
 ```
 
 ---

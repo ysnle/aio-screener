@@ -1,9 +1,9 @@
 ---
 verified_by: codex
-last_verified: 2026-05-05
+last_verified: 2026-05-06
 confidence: high
 auto_refresh: true
-target_version: v48.79
+target_version: v48.80
 ---
 
 # _context Index
@@ -22,12 +22,13 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `CODE-MAP.md` | Current `index.html` and `js/*.js` line map | Large edit or module movement |
 | `WORKTREE-AUDIT.md` | GitHub/live/worktree routing and unpublished work inventory | Worktree merge, deploy, or audit |
 | `DEEP-QA-2026-05-05.md` | Three-area deep QA: UI/rendering, API pipeline, page-level logic | Deep QA run or live/local parity change |
+| `OPERATIONS-AUDIT-2026-05-06.md` | Operational sustainability audit: version/cache/SW/API health | Runtime or deployment hardening |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
 ## Current Deployment Baseline
 
 - **Last observed live version**: v48.79 (browser QA, 2026-05-05)
-- **Local integration branch version**: v48.79
+- **Local integration branch version**: v48.80
 - **GitHub baseline**: not refreshed in this pass; previous local tracking baseline was `origin/main` at `920ba8b`
 - **Live site**: `https://ysnle.github.io/aio-screener/`
 - **Primary source of truth**: GitHub `origin/main` plus live asset parity, not stale local worktrees.
@@ -63,6 +64,7 @@ AIO/
 - `CODE-MAP.md` prevents partial patches from targeting stale line ranges.
 - `WORKTREE-AUDIT.md` prevents confusing unpublished Claude worktree changes with deployed GitHub state.
 - `DEEP-QA-2026-05-05.md` records the latest local-vs-live deep QA matrix.
+- `OPERATIONS-AUDIT-2026-05-06.md` records runtime/cache/API self-operation checks for deployed operations.
 
 ## Maintenance Rule
 

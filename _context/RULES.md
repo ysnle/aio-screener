@@ -50,22 +50,24 @@ _context/                              ← 지식 베이스 (유일한 진실의
 
 ## 🔴 절대 규칙 (위반 시 무조건 재작업)
 
-### R1. 버전 동기화 (6곳 필수)
-버전 변경 시 반드시 **6곳 모두** 동일한 버전 문자열인지 확인:
+### R1. 버전 동기화 (7곳 필수)
+버전 변경 시 반드시 **7곳 모두** 동일한 버전 문자열인지 확인:
 1. `<title>` 태그 — `AIO Screener v{버전} — 올인원 투자 터미널`
 2. `#app-version-badge` — HTML 내 인라인 텍스트
 3. `version.json` → `version` 필드
 4. `_context/CLAUDE.md` → `현재 버전:` 행
 5. `CHANGELOG.md` → 최상단 항목의 버전 번호
 6. **`const APP_VERSION`** — JS 상수 (`js/aio-core.js`). 이 값이 title과 badge를 JS에서 덮어씀. 놓치면 HTML은 v38.4인데 화면에 v38.3 표시
+7. **`SW_VERSION`** — Service Worker 캐시 네임스페이스 (`sw.js`). 놓치면 새 배포 후에도 구버전 shell/data cache가 남을 수 있음.
 
-> ⚠️ **v38.4 사고**: APP_VERSION 상수를 놓쳐서 SW 캐시 문제로 오진, 수시간 낭비. 6번째 동기화 포인트는 절대 빠뜨리지 말 것.
+> ⚠️ **v48.80 사고**: SW_VERSION이 v48.66에 머물러 stale cache 회전이 지연될 수 있었음. APP_VERSION과 SW_VERSION은 함께 동기화할 것.
 
 확인 명령:
 ```bash
 grep '<title>' index.html | head -1
 grep 'app-version-badge' index.html | grep -o '>v[^<]*<'
 grep 'APP_VERSION' js/aio-core.js | head -1
+grep 'SW_VERSION' sw.js | head -1
 cat version.json | grep version
 grep '현재 버전' _context/CLAUDE.md
 head -20 CHANGELOG.md | grep '## v'

@@ -1,11 +1,11 @@
 ---
 verified_by: human
-last_verified: 2026-05-05
+last_verified: 2026-05-06
 confidence: high
-latest_version: v48.79
-latest_P_number: P149
-next_P_number: P150
-total_entries: 149
+latest_version: v48.80
+latest_P_number: P150
+next_P_number: P151
+total_entries: 150
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -22,7 +22,7 @@ total_entries: 149
 
 ### P 번호 체계
 - **P 번호 = 패턴 번호** (예방 규칙 ID). 동일 근본 원인을 가진 버그는 같은 P 번호로 참조.
-- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P150**). 한번 부여된 번호는 재사용 금지.
+- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P151**). 한번 부여된 번호는 재사용 금지.
 - **P 번호 재강화**: 같은 패턴이 재발해도 번호는 유지. "P25 재강화" / "P25 강화" 같은 표현으로 body에 기록.
 - **날짜 구분 원칙**: 과거 중복 P 번호(P26~P33 일부 충돌 존재)는 "날짜 + 버전"으로 구분해서 참조.
 
@@ -1636,3 +1636,14 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **root cause**: The onboarding controls were inline with a fixed left margin, and global mobile `.acp-chips` forced `nowrap` for horizontal scrolling even where the chip row naturally fits better as wrapped controls.
 - **fix**: Added `.onboarding-actions` with mobile wrapping and a page-specific mobile override so theme-detail chips wrap without horizontal clipping.
 - **prevention**: Run desktop/mobile clipping and interactive-overlap checks for every page after UI edits.
+
+---
+
+## [2026-05-06] v48.80 operations audit - service worker drift P150
+
+### BUG-P150: service worker cache namespace lagged behind app version (HIGH)
+- **violated_rule**: R1 / `sw.js` is a deployment version sync point because it owns shell and data cache names.
+- **symptom**: The app and `version.json` were already at v48.79, but `sw.js` still declared `SW_VERSION = 'v48.66'`. A deployed browser could keep using stale `aio-shell-v48.66` and `aio-data-v48.66` caches while the visible app version looked current.
+- **root cause**: The post-release version checklist updated app-facing version points but did not treat the service worker as an operational release artifact.
+- **fix**: Bumped the release to v48.80, synchronized `SW_VERSION`, added a `GET_HEALTH` service-worker message, surfaced SW/app version mismatch in the data status panel, and exposed `AIO.getOperationalHealth()` for one-call live readiness checks.
+- **prevention**: Release QA must assert `APP_VERSION === version.json.version === SW_VERSION`; browser QA should also evaluate `AIO.getOperationalHealth()` after the service worker takes control.

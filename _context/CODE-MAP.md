@@ -1,13 +1,13 @@
 ---
 verified_by: agent
-last_verified: 2026-05-05
+last_verified: 2026-05-06
 confidence: high
-target_version: v48.79
+target_version: v48.80
 target_file: index.html + js/*.js
-target_lines: index.html 29308 + js modules 22932
+target_lines: index.html 29308 + js modules 23016
 ---
 
-# AIO v48.79 CODE-MAP
+# AIO v48.80 CODE-MAP
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `Select-String`/부분 Read로 한 번 더 확인한다.
@@ -19,8 +19,8 @@ target_lines: index.html 29308 + js modules 22932
 | 파일 | 줄 수 | 역할 |
 |------|------:|------|
 | `index.html` | 29,308 | HTML shell, CSS, 21개 페이지 DOM, 일부 inline runtime, 외부 모듈 로드 |
-| `js/aio-core.js` | 5,210 | 버전, 전역 상태, DATA_SNAPSHOT, 캐시, 페이지 라우터, LWC/Deep Chart 공통 유틸 |
-| `js/aio-data.js` | 10,983 | API fetcher, OHLCV, 뉴스 소스/스코어링/렌더, 키워드, 캘린더, 데이터 스케줄 |
+| `js/aio-core.js` | 5,277 | 버전, 전역 상태, DATA_SNAPSHOT, 캐시, 페이지 라우터, LWC/Deep Chart 공통 유틸 |
+| `js/aio-data.js` | 11,000 | API fetcher, OHLCV, 뉴스 소스/스코어링/렌더, 키워드, 캘린더, 데이터 스케줄 |
 | `js/aio-ui.js` | 2,252 | 심리/시장폭 차트, LLM quota UI, GitHub polling, feedback UI |
 | `js/aio-chat.js` | 4,183 | CHAT_CONTEXTS, Claude/Perplexity, 기업 분석, fundamentalSearch |
 | `js/aio-glossary.js` | 304 | 용어사전 검색/렌더 |
@@ -78,11 +78,12 @@ target_lines: index.html 29308 + js modules 22932
 | `chartDataGate` | 1361 | 차트 NaN/null 방어 |
 | `safeLS` / `safeLSGet` / `safeLSGetSync` | 1789 / 1802 / 1815 | 암호화 localStorage |
 | `APP_VERSION` | 2760 | R1 버전 단일 소스 |
-| `DATA_SNAPSHOT` | 3264 | 시장 데이터 SSOT |
-| `applyDataSnapshot` | 4121 | snapshot → DOM |
-| `_ldSafe` | 4483 | liveData + snapshot fallback |
-| `destroyPageCharts` | 4526 | 페이지 이탈 차트 정리 |
-| `showPage` | 4962 | SPA 페이지 전환 |
+| `AIO.getOperationalHealth` | 3173 | 운영/SW/API/cache 자체 진단 |
+| `DATA_SNAPSHOT` | 3331 | 시장 데이터 SSOT |
+| `applyDataSnapshot` | 4188 | snapshot → DOM |
+| `_ldSafe` | 4550 | liveData + snapshot fallback |
+| `destroyPageCharts` | 4593 | 페이지 이탈 차트 정리 |
+| `showPage` | 5029 | SPA 페이지 전환 |
 
 ### `js/aio-data.js`
 
@@ -92,19 +93,19 @@ target_lines: index.html 29308 + js modules 22932
 | `fetchOHLCV` | 1934 | v48.78 deep technical OHLCV |
 | `fetchFinnhubEarningsCalendar` | 2585 | 어닝 일정 |
 | `REFRESH_SCHEDULE` | 2827 | 자동 갱신 스케줄 |
-| `AIO_NEWS_SOURCES` | 3202 | RSS/뉴스 소스 |
-| `MACRO_KW` | 3345 | 매크로 키워드 |
-| `TECH_KW` | 3686 | 기술/AI 키워드 |
-| `KNOWN_TICKERS` | 4331 | 티커 Set |
-| `scoreItem` | 5055 | 뉴스 중요도 점수 |
-| `classifyTopic` | 5396 | 뉴스 토픽 분류 |
-| `renderFeed` | 6338 | 시장 뉴스 렌더 |
-| `renderHomeFeed` | 6525 | 홈 뉴스 렌더 |
-| `renderBriefingFeed` | 6639 | 브리핑 뉴스 렌더 |
-| `fetchOneFeed` | 7182 | 단일 피드 fetch |
-| `fetchAllNews` | 7512 | 뉴스 전체 수집 |
-| `fetchLiveQuotes` | 8426 | live quote pipeline |
-| `toggleSignalMode` | 10341 | signal UI mode state |
+| `AIO_NEWS_SOURCES` | 3219 | RSS/뉴스 소스 |
+| `MACRO_KW` | 3362 | 매크로 키워드 |
+| `TECH_KW` | 3703 | 기술/AI 키워드 |
+| `KNOWN_TICKERS` | 4348 | 티커 Set |
+| `scoreItem` | 5072 | 뉴스 중요도 점수 |
+| `classifyTopic` | 5413 | 뉴스 토픽 분류 |
+| `renderFeed` | 6355 | 시장 뉴스 렌더 |
+| `renderHomeFeed` | 6542 | 홈 뉴스 렌더 |
+| `renderBriefingFeed` | 6656 | 브리핑 뉴스 렌더 |
+| `fetchOneFeed` | 7199 | 단일 피드 fetch |
+| `fetchAllNews` | 7529 | 뉴스 전체 수집 |
+| `fetchLiveQuotes` | 8443 | live quote pipeline |
+| `toggleSignalMode` | 10358 | signal UI mode state |
 
 ### `js/aio-ui.js`
 
@@ -145,12 +146,12 @@ target_lines: index.html 29308 + js modules 22932
 
 | 작업 | 우선 파일/범위 |
 |------|----------------|
-| R1 버전 동기화 | `index.html:10`, `index.html:3715`, `js/aio-core.js:2760`, `version.json`, `_context/CLAUDE.md`, `CHANGELOG.md` |
-| DATA_SNAPSHOT 갱신 | `js/aio-core.js:3264~4121`, `js/aio-ui.js` chart arrays |
-| 뉴스 소스/키워드 | `js/aio-data.js:3202~4331` |
-| 뉴스 선별/렌더 | `js/aio-data.js:5055~6639` |
-| 뉴스 수집 안정성 | `js/aio-data.js:7182~7931` |
-| 페이지 전환/init 가드 | `js/aio-core.js:4526~5002`, 각 page init 함수 |
+| R1 버전 동기화 | `index.html:10`, `index.html:3715`, `js/aio-core.js:2760`, `version.json`, `sw.js:8`, `_context/CLAUDE.md`, `CHANGELOG.md` |
+| DATA_SNAPSHOT 갱신 | `js/aio-core.js:3331~4188`, `js/aio-ui.js` chart arrays |
+| 뉴스 소스/키워드 | `js/aio-data.js:3219~4348` |
+| 뉴스 선별/렌더 | `js/aio-data.js:5072~6656` |
+| 뉴스 수집 안정성 | `js/aio-data.js:7199~7948` |
+| 페이지 전환/init 가드 | `js/aio-core.js:4593~5069`, 각 page init 함수 |
 | sentiment/breadth 차트 | `js/aio-ui.js:1~1050` |
 | LLM 모델/쿼터 | `js/aio-ui.js:1293~1585` |
 | Claude 채팅/웹검색 | `js/aio-chat.js:1~3334` |

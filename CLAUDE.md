@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v48.79**
+- 현재 버전: **v48.80**
 - 메인 파일: `index.html` (~29,308줄, 인라인 onclick 0건) + `js/` 5개 모듈 (aio-core 5,210 · aio-data 10,983 · aio-ui 2,252 · aio-chat 4,183 · aio-glossary 304 ≈ 22,932줄)
 - **v48.32~35 마일스톤**: onclick 인라인 핸들러 253건 → 0건 (Event Delegation + data-action)
 - **v48.36~39 마일스톤**: 구조적 동적 전환 — DATE_ENGINE · _lastFetch · _aioFeedHealth · AIO_Cache 통일 · SCREENER_DB memo staleness 파서 · 신선도 UI 패널
@@ -31,7 +31,7 @@ AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터
 
 ## 절대 규칙 (R1~R3만 — 나머지 R4~R27은 `_context/RULES.md`)
 
-**R1. 버전 동기화 6곳**: title · badge · APP_VERSION · version.json · _context/CLAUDE.md · CHANGELOG.md
+**R1. 버전 동기화 7곳**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · _context/CLAUDE.md · CHANGELOG.md
 **R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (예: v48.76 → v48.77). 최신 실제 체계는 두 자리 patch 허용.
 **R3. 버그 수정 시 사후 분석**: `_context/BUG-POSTMORTEM.md`에 P번호 기록
 **R27. Commands↔Skills 동기화**: 새 스킬 시 command wrapper 동시 생성
