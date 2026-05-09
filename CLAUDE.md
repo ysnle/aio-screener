@@ -3,12 +3,27 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v48.80**
-- 메인 파일: `index.html` (~29,308줄, 인라인 onclick 0건) + `js/` 5개 모듈 (aio-core 5,210 · aio-data 10,983 · aio-ui 2,252 · aio-chat 4,183 · aio-glossary 304 ≈ 22,932줄)
+- 현재 버전: **v49.1**
+- 메인 파일: `index.html` (29,621줄, 인라인 onclick 0건) + `js/` 6개 모듈 (aio-core 6,369 · aio-data 11,157 · aio-ui 2,286 · aio-chat 4,577 · aio-tests 970 · aio-glossary 304 ≈ 25,663줄)
 - **v48.32~35 마일스톤**: onclick 인라인 핸들러 253건 → 0건 (Event Delegation + data-action)
 - **v48.36~39 마일스톤**: 구조적 동적 전환 — DATE_ENGINE · _lastFetch · _aioFeedHealth · AIO_Cache 통일 · SCREENER_DB memo staleness 파서 · 신선도 UI 패널
 - **v48.47~v48.60 마일스톤**: DOM 재분배 · LIVE_SYMBOLS +13 · CHAT_CONTEXTS themes/theme-detail · AI 채팅 FMP 심층 · 5중 소스 체인 · 어닝 EH 스타일 · 리스크 레이더 · Phase 감사 + 수정
 - **v48.61 마일스톤**: 근본 수정 15 Phase — CSS surface 자기순환 해소 · Canvas var 10건 → hex · P125 7번째 재발 해소 · JS 인라인 폰트/rgba/on* 전수 정리 · R39~R48 10개 규칙 실체화 · Hook 9 Layer 실체화 · /integrate 20자료 · /data-refresh GPU/DRAM/NAND 최신화
+- **v48.82 마일스톤**: `AIO.getDataPipelineAudit()` 추가 — API/소스, proxy/cache, scheduler, Price/Macro/News/DataHealth, 분석 함수, DOM/차트 렌더 sink를 한 번에 점검
+- **v48.83 마일스톤**: 사용자 제공 4개 시장 자료 통합 — melt-up 강세장 조건, 생산성-인플레 트리거, Fed 반응 함수, Nebius/Eigen AI 추론 최적화 레이어, 관세/Fed 대차대조표 논쟁을 전체 AI 채팅 공통 컨텍스트에 주입
+- **v48.85 마일스톤**: 함수·데이터 정합성 심층 QA 보강 — PriceStore/Yahoo/Naver/Stooq/FX/동적조회/포트폴리오 경로의 등락률 결측을 `null + pctMissing`으로 통일, KR health와 benchmark/sector chart 기준가 guard 보강, render sink 비대칭 감사 추가
+- **v48.88~90 마일스톤**: finance·data 플러그인 — 포트폴리오 리스크(VaR/Sharpe/MDD/상관계수) · 다기간 재무표 · 실적 분산 분석(EPS Beat·Chart.js)
+- **v48.91 마일스톤**: Engineering 1차 — `_safeSetHTML` DOMPurify 게이트웨이 · `_aioRegisterTimer` 타이머 레지스트리 · setInterval 13건 마이그레이션 · XSS 수정 4건(citations URL·fund desc·SEC 데이터). engineering:code-review+tech-debt 방법론
+- **v48.92 마일스톤**: Design 1차 — `--text-muted` WCAG AA 수정(3.1:1→4.6:1) · 폰트 스케일 +1px(xs:10→12, sm:11→13, base:12→14, md:13→15) · lh-tight 1.15→1.4 · Fund Analysis 3탭(개요/재무상세/외부정보) · `AIO.getColorContrastAudit()` · 모바일 브레이크포인트. frontend-design 방법론
+- **v48.93 마일스톤**: Engineering 2차 — `js/aio-tests.js` 신규(60건 단위 테스트) · `AIO.runTests()` / `AIO.getTestResults()` · 통계 함수 8개 × 9그룹 커버리지 · 엣지케이스 16건. engineering:testing-strategy 방법론
+- **v48.94 마일스톤**: Security & Resilience — `_aioSafeMD` DOMPurify 2차 게이트(P158) · `_fundDepth` 재귀 가드(P160) · Naver `Promise.allSettled`(P159) · `_aioSafeParseJSON` · `_aioRenderNum` NaN→'—'(P161) · 테스트 T61~T66(66건)
+- **v48.95 마일스톤**: Numerical Accuracy — VaR `_quantileR7` R7 선형보간(P162) · Pearson EPS 1e-12(P163) · Sharpe near-zero(P164) · `_wordHit` 한국어 단어경계(P165) · 2027 휴장일 · EOD grace `lastKrTradingDayEx`(P166) · 테스트 T67~T74(74건)
+- **v48.96 마일스톤**: Chart Robustness — `_aioChartRegistry` 중앙 관리(P167) · `_aioSetupCanvas` DPR(P168) · Fund탭 resize(P169) · `_aioModalTrap` ESC/Tab(P170) · 포트폴리오 테이블 th/td headers · print canvas 배경 · 한글 폰트 fallback · 테스트 T75~T79(79건)
+- **v48.97 마일스톤**: Infrastructure — `_aioProxyChain` CB+폴백(P171) · `_aioRetry` 지수백오프(P172) · `_aioRedactPII` IDB PII 마스킹(P173) · `_aioMaskKey/getApiKey/setApiKey`(P174) · `AIO.diag.proxyHealth/retryStats/lastNaverHealth` · 테스트 T80~T83(83건)
+- **v48.98 마일스톤**: Function Audit Infrastructure — `_aioPageBus` 단일 라우팅 허브(P175) · `_aioOnce`+`_aioGlobalRegistry` 멱등 가드(P176) · `_aioFiniteNum`+`_aioSafeDiv`(P177) · 테스트 T84~T88(88건)
+- **v48.99 마일스톤**: Listener Hygiene — `aio:pageShown` 17건+`aio:liveQuotes` 18건 `_aioPageBus` 마이그(P178~P180) · aio-core 9건+aio-data 4건+index.html 22건 · 테스트 T89~T92(92건)
+- **v49.0 마일스톤**: Critical Function Fortification — `applyDataSnapshot` 키별 try-catch(P181) · `_aioLRU`+scoreItem/tickerRegex 캐시 cap(P182) · Fund Valuation Infinity 가드(P183) · 테스트 T93~T97(97건)
+- **v49.1 마일스톤**: State Hygiene & Edge-Case — `window.AIO.state` namespace+6개 전역(P184) · `chartReady` 타이머 레지스트리(P185) · vixToPercentile 80+외삽+DST grace(P186) · `_aioInPopstate` flag+`_fmtNum` Inf가드(P187) · 통합 acceptance 보강(P188) · 브라우저 테스트 177/177 PASS
 - 스택: HTML5 + 인라인 CSS/JS · Chart.js(CDN) · AES-256 · GitHub Pages · 한국어 UI · 다크 테마 · WCAG AA
 
 ---
@@ -29,7 +44,7 @@ AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터
 
 ---
 
-## 절대 규칙 (R1~R3만 — 나머지 R4~R27은 `_context/RULES.md`)
+## 절대 규칙 (R1~R3만 — 나머지 R4~R53은 `_context/RULES.md`)
 
 **R1. 버전 동기화 7곳**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · _context/CLAUDE.md · CHANGELOG.md
 **R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (예: v48.76 → v48.77). 최신 실제 체계는 두 자리 patch 허용.

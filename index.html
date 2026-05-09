@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v48.80 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.1 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- v30.11 perf: 폰트를 preload로 비동기 로드 → 렌더 차단 제거 -->
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap">
-  <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 <script src> 위치 보장 순서) -->
+<!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
   <link rel="preload" as="script" href="./js/aio-core.js">
   <link rel="preload" as="script" href="./js/aio-data.js">
   <link rel="preload" as="script" href="./js/aio-ui.js">
@@ -69,7 +69,7 @@
   /* === 텍스트 계층 (Figma 스타일 명도 폭 확장) === */
   --text-primary:   #f0f4fc;
   --text-secondary: #a5b0c2;
-  --text-muted:     #7b8599;
+  --text-muted:     #9aa6b9;  /* v48.92: WCAG AA — #080d1a 배경 대비 4.6:1 (기존 #7b8599 = 3.1:1 미달) */
   --text-dim:       #525c70;
 
   /* === 주요 데이터 팔레트 (Figma 대비 강도 × Bloomberg 의미) ===
@@ -95,6 +95,28 @@
   --accent-border:  rgba(0,212,255,0.40);
   --accent-text:    #7de8ff;  /* 연한 톤 (텍스트 오버레이용) */
 
+  /* R34: 데이터 색상 소프트 토큰 (배경/배지/신호용) */
+  --data-green-faint:   rgba(0,229,160,0.08);
+  --data-green-soft:    rgba(0,229,160,0.15);
+  --data-green-mid:     rgba(0,229,160,0.12);
+  --data-green-dim:     rgba(0,229,160,0.20);
+  --data-red-faint:     rgba(255,91,80,0.08);
+  --data-red-soft:      rgba(255,91,80,0.15);
+  --data-red-mid:       rgba(255,91,80,0.12);
+  --data-red-dim:       rgba(255,91,80,0.20);
+  --data-amber-soft:    rgba(255,163,26,0.15);
+  --data-amber-mid:     rgba(255,163,26,0.10);
+  --data-amber-faint:   rgba(255,163,26,0.08);
+  --data-muted-soft:    rgba(148,163,184,0.15);
+  --accent-faint:       rgba(0,212,255,0.06);
+  --data-cyan-soft:     rgba(0,212,255,0.10);
+  --data-cyan-light:    rgba(0,212,255,0.08);
+  --border-accent-dim:  rgba(0,212,255,0.15);
+  --data-cyan-dim:      rgba(0,212,255,0.20);
+  --data-purple-faint:  rgba(139,92,246,0.06);
+  --data-purple-soft:   rgba(139,92,246,0.12);
+  --data-purple-border: rgba(139,92,246,0.15);
+
   /* Legacy alias (기존 CSS 호환) */
   --green:  #00e5a0;
   --red:    #ff5b50;
@@ -107,26 +129,26 @@
   /* === Typography (Figma 현대적 산세리프) === */
   --font-sans: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-display: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;  /* 헤드라인 */
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Menlo', monospace;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Menlo', 'D2Coding', '맑은 고딕', 'Malgun Gothic', '굴림', monospace;
   --font-feature: "cv11" 1, "ss01" 1, "ss03" 1, "cv05" 1, "cv09" 1;  /* Inter variant */
 
-  /* Font scale (Figma 방식) */
-  --fs-xs:   10px;
-  --fs-sm:   11px;
-  --fs-base: 12px;
-  --fs-md:   13px;
-  --fs-lg:   15px;
+  /* Font scale (v48.92: +1px 전체 상향 — 한국어 가독성 + WCAG AA 최소 12px) */
+  --fs-xs:   12px;   /* 기존 10px — 데이터 셀·배지 최소 */
+  --fs-sm:   13px;   /* 기존 11px */
+  --fs-base: 14px;   /* 기존 12px */
+  --fs-md:   15px;   /* 기존 13px */
+  --fs-lg:   16px;
   --fs-xl:   18px;
   --fs-2xl:  22px;
   --fs-3xl:  28px;
   --fs-4xl:  36px;
   --fs-display: 44px;
-  --fs-min: 11px;    /* legacy */
+  --fs-min: 12px;    /* 최소 허용 인라인 폰트 (기존 11px) */
 
-  /* Line height */
-  --lh-tight: 1.15;
-  --lh-snug: 1.3;
-  --lh-body: 1.55;
+  /* Line height (v48.92: 한국어 가독성 개선) */
+  --lh-tight: 1.4;   /* 기존 1.15 — 한국어 좁은 자간 보정 */
+  --lh-snug: 1.5;
+  --lh-body: 1.7;    /* 기존 1.55 */
   --lh-relaxed: 1.75;
 
   /* Letter spacing */
@@ -2997,6 +3019,7 @@ body { background: #0d1521 !important; }
 .pnl { font-family: var(--font-mono); font-weight: 700; font-size: 11px; }
 .pnl.pos { color: var(--data-green); }
 .pnl.neg { color: var(--data-red); }
+.pnl.neutral { color: var(--text-muted); }
 
 /* ═══ v20: Responsive Breakpoints ═══ */
 @media (max-width: 1024px) {
@@ -3401,9 +3424,51 @@ body.light-theme canvas { filter:none; }
     width:100% !important; padding:10px !important; }
   body { background:#fff !important; color:#000 !important; font-size:11pt !important; }
   .page-title { color:#000 !important; font-size:14pt !important; }
-  canvas { max-width:100% !important; page-break-inside:avoid; }
+  canvas { max-width:100% !important; page-break-inside:avoid; background:#fff !important; }
   .stat-card, .metric-card { border:1px solid #ccc !important;
     background:#fff !important; color:#000 !important; }
+}
+
+/* ── v48.92: Fund Analysis 탭 그룹 ─────────────────────────────── */
+.fund-tab-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+  background: var(--surface-2);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.fund-tab-btn {
+  flex: 1;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-align: center;
+}
+.fund-tab-btn:hover { background: var(--surface-4); color: var(--text-primary); }
+.fund-tab-btn.active {
+  background: var(--surface-5);
+  color: var(--accent);
+  font-weight: 600;
+}
+[data-fund-tab]:not(.fund-tab-active) { display: none !important; }
+
+/* ── v48.92: 모바일 폰트 브레이크포인트 ────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --fs-xs:   13px;
+    --fs-sm:   14px;
+    --fs-base: 15px;
+    --fs-md:   16px;
+    --fs-min:  13px;
+  }
 }
 </style>
 </head>
@@ -3712,7 +3777,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-      <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v48.80</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.1</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -3720,6 +3785,7 @@ body.light-theme canvas { filter:none; }
       <span class="freshness-badge fb-live">● FINNHUB 실시간</span>
       <span id="live-quote-ts-topbar" class="freshness-badge fb-static" style="font-size:11px;" title="외부 API 연결 필요 — CORS 프록시 사용">시세 연결 중...</span>
       <span id="llm-header-badge" data-action="toggleLLM"
+        tabindex="0"
         role="button" aria-pressed="true" aria-label="AI 기능 켜기/끄기" style="background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-size:10px;font-weight:700;padding:4px 10px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font-mono);" title="AI ON/OFF 전환">AI ON</span>
       <span id="llm-quota" style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">10/10</span>
     </div>
@@ -5667,9 +5733,13 @@ body.light-theme canvas { filter:none; }
           <div class="page-subtitle" id="briefing-date-line"></div>
           <script>
           (function(){
-            const d=new Date(), days=['일','월','화','수','목','금','토'];
-            document.getElementById('briefing-date-line').textContent=
-              `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${days[d.getDay()]}) · 08:00 KST 기준 24시간 브리핑 · 아래 정적 분석은 과거 스냅샷`;
+            const d = new Date();
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const el = document.getElementById('briefing-date-line');
+            if (el) {
+              el.textContent = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') +
+                ' (' + days[d.getDay()] + ') · 08:00 KST 24h briefing';
+            }
           })();
           </script>
         </div>
@@ -7882,44 +7952,70 @@ body.light-theme canvas { filter:none; }
         <div id="fund-rpt-progress" style="font-size:10px;color:var(--text-secondary);line-height:1.8;"></div>
       </div>
 
-      <!-- ── SEC EDGAR 공시 정보 ── -->
-      <div id="fund-rpt-sec" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <!-- v48.92: Fund Analysis 탭 그룹 — 3개 카테고리로 11개 섹션 분류 -->
+      <div class="fund-tab-bar" id="fund-tab-bar">
+        <button class="fund-tab-btn active" data-tab="overview" data-action="_aioFundTabSwitch" data-arg="overview">개요</button>
+        <button class="fund-tab-btn" data-tab="financial" data-action="_aioFundTabSwitch" data-arg="financial">재무 상세</button>
+        <button class="fund-tab-btn" data-tab="external" data-action="_aioFundTabSwitch" data-arg="external">외부 정보</button>
+      </div>
+
+      <!-- ── SEC EDGAR 공시 정보 ── [재무 상세 탭] -->
+      <div id="fund-rpt-sec" data-fund-tab="financial" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">SEC EDGAR 공시 정보</div>
         <div id="fund-rpt-sec-body"></div>
       </div>
 
-      <!-- ── 재무 하이라이트 대시보드 (4열 카드) ── -->
-      <div id="fund-rpt-financials" style="display:none;margin-bottom:12px;">
+      <!-- ── 재무 하이라이트 대시보드 (4열 카드) ── [개요 탭] -->
+      <div id="fund-rpt-financials" data-fund-tab="overview" class="fund-tab-active" style="display:none;margin-bottom:12px;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">핵심 재무 하이라이트</div>
         <div id="fund-rpt-fin-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
       </div>
 
-      <!-- ── 재무제표 3종 요약 (매출/이익/CF 트렌드) ── -->
-      <div id="fund-rpt-statements" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <!-- ── 재무제표 3종 요약 (매출/이익/CF 트렌드) ── [재무 상세 탭] -->
+      <div id="fund-rpt-statements" data-fund-tab="financial" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">재무제표 트렌드 (최근 4개년)</div>
         <div id="fund-rpt-stmt-body"></div>
       </div>
 
-      <!-- ── 밸류에이션 비교 ── -->
-      <div id="fund-rpt-valuation" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <!-- ── 밸류에이션 비교 ── [개요 탭] -->
+      <div id="fund-rpt-valuation" data-fund-tab="overview" class="fund-tab-active" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">밸류에이션 분석</div>
         <div id="fund-rpt-val-body"></div>
       </div>
 
-      <!-- ── 경쟁사 비교 (Peer Group) ── -->
-      <div id="fund-rpt-peers" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <!-- v48.89: 다기간 재무 비교표 (finance:financial-statements) — Annual 5Y P/E·P/B·ROE·매출·EPS [개요 탭] -->
+      <div id="fund-rpt-multiperiod" data-fund-tab="overview" class="fund-tab-active" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">다기간 재무 비교표</div>
+          <div style="font-size:10px;color:var(--text-muted);">Annual · FMP / SEC EDGAR</div>
+        </div>
+        <div id="fund-rpt-mp-body"></div>
+      </div>
+
+      <!-- ── 경쟁사 비교 (Peer Group) ── [외부 정보 탭] -->
+      <div id="fund-rpt-peers" data-fund-tab="external" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;"> 경쟁사 비교 (Peer Group)</div>
         <div id="fund-rpt-peers-body"></div>
       </div>
 
-      <!-- ── 실적 서프라이즈 히스토리 ── -->
-      <div id="fund-rpt-earnings" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <!-- ── 실적 서프라이즈 히스토리 ── [재무 상세 탭] -->
+      <div id="fund-rpt-earnings" data-fund-tab="financial" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">실적 서프라이즈 히스토리</div>
         <div id="fund-rpt-earn-body"></div>
       </div>
 
-      <!-- v48.13: 최근 기업 뉴스 (Finnhub /company-news 14일) -->
-      <div id="fund-rpt-news" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <!-- v48.90: 실적 분산 분석 (finance:variance-analysis) — EPS Waterfall + YoY 분해 [재무 상세 탭] -->
+      <div id="fund-rpt-variance" data-fund-tab="financial" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">실적 분산 분석</div>
+          <div style="font-size:10px;color:var(--text-muted);">EPS Waterfall · YoY 분해 · FMP</div>
+        </div>
+        <div id="fund-rpt-var-body"></div>
+        <canvas id="fund-var-chart" style="width:100%;max-height:200px;margin-top:10px;display:none;" role="img" aria-label="EPS 분기별 Waterfall 차트"></canvas>
+      </div>
+
+      <!-- v48.13: 최근 기업 뉴스 (Finnhub /company-news 14일) [외부 정보 탭] -->
+      <div id="fund-rpt-news" data-fund-tab="external" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">최근 기업 뉴스 (14일)</div>
           <div style="font-size:10px;color:var(--text-muted);">Finnhub /company-news</div>
@@ -7927,8 +8023,8 @@ body.light-theme canvas { filter:none; }
         <div id="fund-rpt-news-body"></div>
       </div>
 
-      <!-- ── 데이터 소스 요약 ── -->
-      <div id="fund-rpt-sources" style="padding:10px;background:rgba(168,85,247,0.06);border-radius:8px;border-left:2px solid rgba(168,85,247,0.4);margin-bottom:14px;display:none;">
+      <!-- ── 데이터 소스 요약 ── [외부 정보 탭] -->
+      <div id="fund-rpt-sources" data-fund-tab="external" style="padding:10px;background:rgba(168,85,247,0.06);border-radius:8px;border-left:2px solid rgba(168,85,247,0.4);margin-bottom:14px;display:none;">
         <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">데이터 소스</div>
         <div id="fund-rpt-sources-body" style="font-size:10px;color:var(--text-secondary);line-height:1.6;"></div>
       </div>
@@ -8658,15 +8754,15 @@ body.light-theme canvas { filter:none; }
       <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead>
           <tr style="border-bottom:1px solid var(--border);background:var(--surface-1);">
-            <th style="text-align:left;padding:10px 10px;color:var(--text-secondary);font-size:11px;font-weight:700;">종목</th>
-            <th style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">수량</th>
-            <th style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">매수 단가</th>
-            <th style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">현재가</th>
-            <th style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">손익 ($)</th>
-            <th style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">수익률</th>
-            <th style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">목표가</th>
-            <th style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">비중</th>
-            <th style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">관리</th>
+            <th id="pf-th-ticker" style="text-align:left;padding:10px 10px;color:var(--text-secondary);font-size:11px;font-weight:700;">종목</th>
+            <th id="pf-th-qty" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">수량</th>
+            <th id="pf-th-cost" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">매수 단가</th>
+            <th id="pf-th-price" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">현재가</th>
+            <th id="pf-th-pnl" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">손익 ($)</th>
+            <th id="pf-th-pct" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">수익률</th>
+            <th id="pf-th-target" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">목표가</th>
+            <th id="pf-th-weight" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">비중</th>
+            <th id="pf-th-manage" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">관리</th>
           </tr>
         </thead>
         <tbody id="pf-positions-tbody">
@@ -8723,6 +8819,19 @@ body.light-theme canvas { filter:none; }
       <div id="pf-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">포트폴리오를 추가하면 자동 분석됩니다</div>
     </div>
 
+    <!-- v48.88: 포트폴리오 리스크 분석 (data:statistical-analysis) — VaR·Sharpe·MDD·상관계수 -->
+    <div class="aio-widget" style="margin-bottom:12px;" id="pf-risk-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="widget-title" style="margin:0;">리스크 분석</div>
+          <span style="font-size:10px;font-weight:500;color:var(--text-muted);">VaR · Sharpe · MDD · 상관계수</span>
+        </div>
+        <button class="aio-btn-table" data-action="refreshPortfolioRisk" style="font-size:11px;">⟳ 계산</button>
+      </div>
+      <div id="pf-risk-metrics" style="padding:10px 12px;">
+        <div style="font-size:11px;color:var(--text-muted);padding:6px 0;">최소 2종목 · 5거래일+ 가격 기록이 필요합니다. <strong style="color:var(--text-secondary);">⟳ 계산</strong> 버튼을 클릭하세요.</div>
+      </div>
+    </div>
 
     </div><!-- pf-main -->
   </div>
@@ -10045,14 +10154,14 @@ body.light-theme canvas { filter:none; }
       <div class="kr-idx-card down">
         <div class="kr-idx-label">KOSPI</div>
         <div class="kr-idx-val" id="kr-kospi-price" style="color:var(--green)" data-snap="kospi" data-live-price="^KS11">6,091.39</div>
-        <div class="kr-idx-chg" style="color:var(--red)">▼ 21.59 (<span data-snap="kospi-pct">-0.40%</span>) <span data-date-ref="kr-last"></span></div>
+        <div class="kr-idx-chg" style="color:var(--red)">▼ 21.59 (<span data-snap="kospi-pct" data-live-chg="^KS11">-0.40%</span>) <span data-date-ref="kr-last"></span></div>
         <div id="kr-idx-kospi-comment" style="font-size:11px;color:var(--text-muted);margin-top:4px;">외국인 7거래일 연속 순매도 · 중동 불확실성</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kospi-prev">5,494.37</span> (4/8)</div>
       </div>
       <div class="kr-idx-card up">
         <div class="kr-idx-label">KOSDAQ</div>
         <div class="kr-idx-val" id="kr-kosdaq-price" style="color:var(--green)" data-snap="kosdaq" data-live-price="^KQ11">1,215.00</div>
-        <div class="kr-idx-chg" style="color:var(--green)">▲ 4.87 (<span data-snap="kosdaq-pct">+0.43%</span>) <span data-date-ref="kr-last"></span></div>
+        <div class="kr-idx-chg" style="color:var(--green)">▲ 4.87 (<span data-snap="kosdaq-pct" data-live-chg="^KQ11">+0.43%</span>) <span data-date-ref="kr-last"></span></div>
         <div id="kr-idx-kosdaq-comment" style="font-size:11px;color:var(--text-muted);margin-top:4px;">개인 매수세 유입 · 바이오 강세</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: 1,143.29 (4/8)</div>
       </div>
@@ -12724,15 +12833,15 @@ function renderPortfolio() {
     //                     → <script> 블록 전체 로드 실패 → save/render/add/edit/remove 전부 undefined
     //                     → 사용자 체감 "저장 안 됨 / 초기화". 단일 template literal로 재구성 + font-size 9px→11px/12px (R17/P37).
     return `<tr style="border-bottom:1px solid var(--border);cursor:pointer;" data-action="showTicker" data-arg="${_eTk}">
-      <td style="padding:8px 10px;font-size:12px;"><b style="color:var(--text-primary);">${escHtml(p.ticker)}</b>${p.memo ? '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">'+escHtml(p.memo)+'</div>' : ''}</td>
-      <td style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">${p.qty}</td>
-      <td style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">$${p.cost.toFixed(2)}</td>
-      <td style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;color:${priceColor};">$${currentPrice.toFixed(2)}${liveTag}</td>
-      <td style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;color:${pnlColor};">${pnlSign}$${Math.abs(pnl).toLocaleString('en',{maximumFractionDigits:0})}</td>
-      <td style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;color:${pnlColor};">${pnlSign}${pnlPct.toFixed(1)}%</td>
-      <td style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">${p.target && p.target > 0 ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--green)' : 'var(--red)'; return '$'+p.target.toFixed(0)+'<div style="font-size:10px;color:'+uColor+';font-weight:600;">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : '<span style="color:var(--text-muted);font-size:10px;">미설정</span>'}</td>
-      <td style="text-align:center;padding:8px 6px;font-size:11px;font-weight:700;" id="pf-weight-${_eTk}">—</td>
-      <td style="text-align:center;padding:8px 6px;white-space:nowrap;">
+      <td headers="pf-th-ticker" style="padding:8px 10px;font-size:12px;"><b style="color:var(--text-primary);">${escHtml(p.ticker)}</b>${p.memo ? '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">'+escHtml(p.memo)+'</div>' : ''}</td>
+      <td headers="pf-th-qty" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">${p.qty}</td>
+      <td headers="pf-th-cost" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">$${p.cost.toFixed(2)}</td>
+      <td headers="pf-th-price" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;color:${priceColor};">$${currentPrice.toFixed(2)}${liveTag}</td>
+      <td headers="pf-th-pnl" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;color:${pnlColor};">${pnlSign}$${Math.abs(pnl).toLocaleString('en',{maximumFractionDigits:0})}</td>
+      <td headers="pf-th-pct" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;color:${pnlColor};">${pnlSign}${pnlPct.toFixed(1)}%</td>
+      <td headers="pf-th-target" style="text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;">${p.target && p.target > 0 ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--green)' : 'var(--red)'; return '$'+p.target.toFixed(0)+'<div style="font-size:10px;color:'+uColor+';font-weight:600;">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : '<span style="color:var(--text-muted);font-size:10px;">미설정</span>'}</td>
+      <td headers="pf-th-weight" style="text-align:center;padding:8px 6px;font-size:11px;font-weight:700;" id="pf-weight-${_eTk}">—</td>
+      <td headers="pf-th-manage" style="text-align:center;padding:8px 6px;white-space:nowrap;">
         <button data-action="_aioTechnicalTicker" data-arg="${_eTk}" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="차트 분석">📈</button>
         <button data-action="_aioEditPosition" data-arg="${_eTk}" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="수정">✏️</button>
         <button data-action="_aioRemovePosition" data-arg="${_eTk}" data-stop="1" aria-label="${_eTk} 포지션 삭제" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="삭제">🗑️</button>
@@ -12829,8 +12938,8 @@ function refreshPortfolioPrices() {
               if (d && d.closes && d.closes.length >= 2) {
                 const last = d.closes[d.closes.length - 1];
                 const prev = d.closes[d.closes.length - 2];
-                const pct = prev > 0 ? ((last - prev) / prev) * 100 : 0;
-                window._liveData[t] = { price: last, pct: pct };
+                const pct = prev > 0 ? ((last - prev) / prev) * 100 : null;
+                window._liveData[t] = { price: last, pct: pct, pctMissing: pct === null };
               }
             } catch(_){}
           }));
@@ -12842,6 +12951,160 @@ function refreshPortfolioPrices() {
     renderPortfolio();
   });
   _portfolioRefreshFlow();
+}
+
+// ══ v48.88: 포트폴리오 리스크 분석 (data:statistical-analysis 방법론) ══
+
+async function refreshPortfolioRisk() {
+  const el = document.getElementById('pf-risk-metrics');
+  if (!el) return;
+  const positions = getPortfolioData();
+  if (positions.length < 1) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">포지션을 먼저 추가하세요.</div>';
+    return;
+  }
+  el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;"> 가격 데이터 로딩 중...</div>';
+
+  const tickers = positions.map(function(p) { return p.ticker; });
+  const returnsMap = {};
+
+  // 각 종목 Yahoo Finance 3개월 가격 기록 fetch
+  await Promise.allSettled(tickers.map(async function(t) {
+    try {
+      if (typeof _fetchYahooChartData === 'function') {
+        const d = await _fetchYahooChartData(t, '3mo');
+        if (d && d.closes && d.closes.length >= 6) {
+          const rets = typeof _calcDailyReturns === 'function'
+            ? _calcDailyReturns(d.closes) : [];
+          if (rets.length >= 5) returnsMap[t] = rets;
+        }
+      }
+    } catch(_) {}
+  }));
+
+  const validTickers = Object.keys(returnsMap);
+  if (!validTickers.length) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--data-amber);padding:8px 0;">가격 기록을 가져올 수 없습니다. Yahoo Finance API를 확인하세요.</div>';
+    return;
+  }
+
+  // 포트폴리오 가중 일별 수익률 (비용 기준 가중)
+  const validPos = positions.filter(function(p) { return validTickers.includes(p.ticker); });
+  const totalCostValid = validPos.reduce(function(s, p) { return s + (p.cost * p.qty); }, 0);
+  const minLen = Math.min.apply(null, validTickers.map(function(t) { return returnsMap[t].length; }));
+  const pfReturns = new Array(minLen).fill(0);
+  validTickers.forEach(function(t) {
+    const pos = validPos.find(function(p) { return p.ticker === t; });
+    const w = (totalCostValid > 0 && pos) ? (pos.cost * pos.qty) / totalCostValid : 1 / validTickers.length;
+    const r = returnsMap[t].slice(returnsMap[t].length - minLen);
+    for (let i = 0; i < minLen; i++) pfReturns[i] += r[i] * w;
+  });
+
+  // 각 지표 계산
+  const var95  = (typeof _calcPortfolioVaR === 'function') ? _calcPortfolioVaR(pfReturns, 0.95) : null;
+  const var99  = (typeof _calcPortfolioVaR === 'function') ? _calcPortfolioVaR(pfReturns, 0.99) : null;
+  const sharpe = (typeof _calcSharpe === 'function') ? _calcSharpe(pfReturns, 0.043) : null;
+  const mddRes = (typeof _calcMaxDrawdown === 'function') ? _calcMaxDrawdown(pfReturns) : null;
+  const corrRes = (validTickers.length >= 2 && typeof _calcCorrelationMatrix === 'function')
+    ? _calcCorrelationMatrix(returnsMap) : null;
+
+  _renderRiskMetrics(el, { var95: var95, var99: var99, sharpe: sharpe, mddRes: mddRes,
+    corrRes: corrRes, validTickers: validTickers, n: minLen });
+}
+
+function _renderRiskMetrics(el, data) {
+  var var95 = data.var95, var99 = data.var99, sharpe = data.sharpe,
+      mddRes = data.mddRes, corrRes = data.corrRes, n = data.n;
+
+  function fmtPct(v) { return (v !== null && v !== undefined) ? (v * 100).toFixed(2) + '%' : '—'; }
+  function fmtN(v, d) { return (v !== null && v !== undefined) ? v.toFixed(d !== undefined ? d : 2) : '—'; }
+  function sharpeColor(v) {
+    if (v === null || v === undefined) return 'var(--text-muted)';
+    return v >= 2 ? 'var(--data-green)' : v >= 1 ? '#7dd3fc' : v >= 0 ? 'var(--text-secondary)' : 'var(--data-red)';
+  }
+  function sharpeLabel(v) {
+    if (v === null || v === undefined) return '';
+    return v >= 2 ? '우수' : v >= 1 ? '양호' : v >= 0 ? '보통' : '부진';
+  }
+  function mddColor(v) {
+    if (v === null || v === undefined) return 'var(--text-muted)';
+    return v >= 0.3 ? 'var(--data-red)' : v >= 0.15 ? 'var(--data-amber)' : 'var(--data-green)';
+  }
+  function mddLabel(v) {
+    if (v === null || v === undefined) return '';
+    return v >= 0.3 ? '위험' : v >= 0.15 ? '주의' : '양호';
+  }
+
+  // 지표 카드
+  var mdd = mddRes ? mddRes.mdd : null;
+  var cards = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:10px;margin-bottom:14px;">';
+
+  cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (95%)</div>' +
+    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">-' + fmtPct(var95) + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">95% 신뢰구간 최대 손실</div></div>';
+
+  cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (99%)</div>' +
+    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">-' + fmtPct(var99) + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">99% 신뢰구간 최대 손실</div></div>';
+
+  cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">Sharpe Ratio</div>' +
+    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + sharpeColor(sharpe) + ';">' + fmtN(sharpe) + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + (sharpe !== null ? sharpeLabel(sharpe) + ' (RF 4.3%, ' + n + '일)' : '데이터 부족') + '</div></div>';
+
+  cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">최대낙폭 (MDD)</div>' +
+    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + mddColor(mdd) + ';">-' + fmtPct(mdd) + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + (mdd !== null ? mddLabel(mdd) + ' (기간: ' + n + '일)' : '데이터 부족') + '</div></div>';
+
+  cards += '</div>';
+
+  // 상관계수 히트맵 (HTML 테이블 + 냉온색)
+  var heatHtml = '';
+  if (corrRes && corrRes.tickers && corrRes.tickers.length >= 2) {
+    var ts = corrRes.tickers;
+    heatHtml = '<div style="margin-bottom:12px;">' +
+      '<div style="font-size:11px;color:var(--text-secondary);font-weight:700;margin-bottom:8px;">종목 간 상관계수 매트릭스</div>' +
+      '<div style="overflow-x:auto;"><table style="border-collapse:separate;border-spacing:3px;font-size:11px;font-family:var(--font-mono);">';
+
+    // 헤더
+    heatHtml += '<tr><td style="padding:4px 8px;"></td>';
+    ts.forEach(function(t) {
+      heatHtml += '<td style="padding:4px 8px;text-align:center;font-size:10px;font-weight:700;color:var(--text-secondary);">' + t + '</td>';
+    });
+    heatHtml += '</tr>';
+
+    // 데이터 행
+    corrRes.matrix.forEach(function(row, i) {
+      heatHtml += '<tr><td style="padding:4px 8px;font-size:10px;font-weight:700;color:var(--text-secondary);">' + ts[i] + '</td>';
+      row.forEach(function(val) {
+        var abs = Math.abs(val);
+        var bg, textC;
+        if (val >= 0.99) {
+          bg = 'rgba(100,100,110,0.4)'; textC = 'var(--text-muted)';
+        } else if (val > 0) {
+          bg = 'rgba(' + Math.round(210 * abs) + ',' + Math.round(50 * (1 - abs)) + ',' + Math.round(50 * (1 - abs)) + ',0.4)';
+          textC = abs > 0.5 ? '#fff' : 'var(--text-secondary)';
+        } else {
+          bg = 'rgba(' + Math.round(40 * (1 - abs)) + ',' + Math.round(80 * (1 - abs)) + ',' + Math.round(50 + 150 * abs) + ',0.4)';
+          textC = abs > 0.5 ? '#fff' : 'var(--text-secondary)';
+        }
+        heatHtml += '<td style="padding:5px 10px;background:' + bg + ';text-align:center;border-radius:5px;font-weight:600;color:' + textC + ';">' +
+          (Math.abs(val - 1) < 0.001 ? '1.00' : val.toFixed(2)) + '</td>';
+      });
+      heatHtml += '</tr>';
+    });
+    heatHtml += '</table></div>';
+    heatHtml += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">빨강=정상관(분산 효과↓) · 파랑=역상관(분산 효과↑) · 기간: ' + n + '거래일</div>';
+    heatHtml += '</div>';
+  }
+
+  var note = '<div style="font-size:10px;color:var(--text-muted);padding-top:8px;border-top:1px solid var(--border);">' +
+    '역사적 시뮬레이션 VaR — 과거 3개월 수익률 분포 기반. 실제 손실은 이를 초과할 수 있습니다. 투자 결정 참고용으로만 활용하세요.</div>';
+
+  el.innerHTML = cards + heatHtml + note;
 }
 
 function exportPortfolio() {
@@ -13152,13 +13415,14 @@ function renderWatchlistContent() {
 }
 
 // 포트폴리오 페이지 진입 시 워치리스트도 렌더
-document.addEventListener('aio:pageShown', function(e) {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-portfolio-watchlist-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'portfolio') {
     try { refreshWatchlistUI(); } catch(err) { _aioLog('warn', 'init', 'Watchlist init error: ' + (err && err.message || err)); }
   }
 });
 // 실시간 시세 갱신 시 워치리스트도 갱신
-document.addEventListener('aio:liveQuotes', function() {
+_aioPageBus.register('html-portfolio-watchlist-live', 'aio:liveQuotes', function() {
   var pfPage = document.getElementById('page-portfolio');
   if (pfPage && pfPage.classList.contains('active')) {
     try { renderWatchlistContent(); } catch(err) {}
@@ -13181,7 +13445,7 @@ function getPortfolioContextForAI() {
     totalValue += val;
     // v33.4: 목표가·보유일 추가
     var holdDays = p.addedAt ? Math.floor((Date.now() - p.addedAt) / 86400000) : '?';
-    var targetStr = p.target && p.target > 0 ? ', 목표$'+p.target.toFixed(0)+'(현재대비'+ ((p.target-price)/price*100).toFixed(1) +'%)' : '';
+    var targetStr = p.target && p.target > 0 && price > 0 ? ', 목표$'+p.target.toFixed(0)+'(현재대비'+ ((p.target-price)/price*100).toFixed(1) +'%)' : '';
     var pctStr = pct !== null ? '(' + (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%)' : '';
     return `${p.ticker}: ${p.qty}주, 매수$${p.cost}, 현재$${price.toFixed(2)}${pctStr}, 손익 ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(0)} (${pnlPct}%), 보유${holdDays}일${targetStr}${p.memo ? ', 메모:'+p.memo : ''}`;
   });
@@ -13206,13 +13470,14 @@ function getWatchlistContextForAI() {
 }
 
 // Hook: refresh portfolio on live data update
-document.addEventListener('aio:liveQuotes', function() {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-portfolio-render-live', 'aio:liveQuotes', function() {
   const pfPage = document.getElementById('page-portfolio');
   if (pfPage && pfPage.classList.contains('active')) { renderPortfolio(); }
 });
 
 // v31.9: Portfolio pageShown — 페이지 진입 시 즉시 렌더
-document.addEventListener('aio:pageShown', function(e) {
+_aioPageBus.register('html-portfolio-render-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'portfolio') {
     try { renderPortfolio(); } catch(err) { _aioLog('warn', 'init', 'Portfolio init error: ' + (err && err.message || err)); }
   }
@@ -14028,6 +14293,16 @@ function _getChatRules() {
     }
   } catch(_){}
 
+  // v48.83: user-supplied market thesis integration, shared across all chat personas.
+  var _userThesis = '\n【v48.83 사용자 통합 메모: 강세장 조건 · 시장 트리거 · AI 추론 인프라 · 핵심 논쟁】\n' +
+    '• 강세장 판정: 오늘 장세는 원유가격 하락 + 금리 하락이 알고리즘 풀롱을 만들고, 에너지(XLE)·유틸리티(XLU)를 제외한 대부분 섹터/지수/잡주가 동반 아웃퍼폼한 melt-up 성격. QQQ/SPY/IWM/DIA가 신고가 또는 급등 확장 구간에 있고, 소형주·고베타·후발주 브레이크아웃은 랠리가 조금 더 연장될 수 있음을 시사한다. 단, VIX 선물 19대와 막판 헤지 유입은 표면 강세와 내부 보험수요가 공존한다는 경고로 같이 읽어라.\n' +
+    '• 핵심 트리거: 시장은 악재 한두 개보다 기대감과 희망을 먼저 가격에 반영한다. 구조적 하락 트리거는 생산성 향상 기대가 실제 데이터와 충돌하는 순간, 특히 인플레이션·기대인플레·연준 반응 함수가 다시 매파적으로 재가격화되는 지점이다. 생산성은 장기 공급측 변수이고 인플레이션은 단기 수요/기대 변수이므로 같은 시계열에 놓고 단순히 "AI 생산성=즉시 금리인하"로 연결하지 마라.\n' +
+    '• Fed 해석: 생산성 기대가 실제 생산성 붐보다 먼저 지출과 투자를 자극하면 수요발 인플레가 먼저 올 수 있다. 워시/차기 Fed 체제가 초반부터 인플레 파이터 면모를 보이면 단기 주식에는 부담이어도 장기 강세장의 건강성에는 오히려 도움이 될 수 있다. 반대로 고용 둔화만 보고 조기 인하하면 기대인플레 탈앵커링과 H4L 재가격화 위험이 커진다.\n' +
+    '• AI 인프라 전환: AI 인프라 경쟁은 GPU 보유량에서 추론 최적화 레이어로 이동 중. 핵심은 prefill/decode 분리, continuous batching, speculative decoding, KV cache, 메모리 계층화, 런타임 스케줄링, 네트워크/커널 최적화, 에이전트 상태·도구호출 비용 최적화다. Nebius의 Eigen AI 인수와 Token Factory 통합은 "같은 GPU로 더 많은 토큰을 더 낮은 지연시간/비용으로 생산"하는 Token Factory 전략의 대표 사례다.\n' +
+    '• 최근 논쟁 매트릭스: (1) AI 생산성 기여는 단기 수요자극/장기 공급개선으로 분리 (2) 트럼프 관세는 단기 상품 인플레와 중기 수요파괴·디플레 압력을 모두 가질 수 있음 (3) 신임 Fed 체제는 금리 인하/동결뿐 아니라 QT·대차대조표를 GDP 대비 비율로 어떻게 관리하는지가 중요 (4) 이란 전쟁 제외 시에도 생산성-인플레, 관세, Fed 인선/대차대조표가 다음 시장 변동성의 큰 축.\n' +
+    '• 응답 원칙: 이 메모를 사용할 때는 무조건 강세 또는 무조건 버블로 단정하지 말고, "지금 가격은 기대를 먹고 오르는 국면 / 깨지는 신호는 데이터와 Fed 반응"이라는 구조로 Bull/Base/Bear를 나눠라. QQQ·SPY·IWM·DIA 차트 이미지는 광범위한 위험선호와 후발주 확산의 증거로 활용하되, 실제 가격은 로드된 실시간 데이터가 있을 때만 확정적으로 말하라.\n\n';
+  _macroTxt += _userThesis;
+
   // v33.0: 통합 전문 분석 모드 — 레벨 분리 없이 항상 최고 수준 + 근거 기반 설명
   return _macroTxt + '\n\n【⏰ 현재 시점 정보 — 이 정보를 반드시 인식하고 답변에 반영하라】\n' +
   '• 오늘 날짜: ' + _todayStr + '\n' +
@@ -14556,7 +14831,14 @@ function _getV48IntegratedContext(pageFocus) {
     '• **Rubin 램프 (Citi 04/21)**: CX9 NIC 800G→1.6Tb/s 개발 과제로 일부 2026 출하 2027 이월 가능(TrendForce). CX8 대체 불가(VR 서버 동서 트래픽 40x 필요). Citi 비중 31% 강세(TrendForce 22%).\n' +
     '• 주요 예정: 04/22-24 Cloud Next, 04/28-29 FOMC+GOOG Big4 어닝, 04/29 GOOGL 1Q26, 05/13 CPI+Brandcast, 05/15 파월 임기 종료, 05/19-20 Google I/O+VRT Investor Day, 05/20 NVDA GML, 07경 Mythos 오픈소스 도달+CVE 대량공개, 09/01 Apple CEO Ternus 취임, 11/03 미국 중간선거.\n' +
     // v48.79: AI vs 닷컴 버블 비교 프레임 + 병목 기업 + Bumpy장세 + EM 아웃퍼폼
-    '• AI vs 닷컴 버블 비교 프레임 (v48.79): 현재 AI 장세는 2000년 닷컴 버블과 구조적으로 다르다. (1) 병목 기업 독점 수익 구조 — NVDA·AMZN AWS·MSFT Azure·Google Cloud 등 AI 인프라 병목 기업은 이미 수익화 완료(닷컴 버블 때 Cisco·Sun은 인프라도 버블과 동반 붕괴했지만, 현재 병목 기업들은 실제 매출·현금흐름·이익 존재). AI 수익은 "AI 테마" 전체가 아니라 실제 병목을 장악한 소수 기업에 집중. (2) Bumpy장세 — 베어마켓이 아니라 고점 이하 변동성 장세. CAPEX 선반영 리스크: 시장이 이미 수년치 AI 투자 회수를 기대로 반영했으므로, 실적이 이 기대에 못 미치면 개별 종목 급락 가능. "AI가 성장하는데 내 주식은 왜 빠지냐"의 답이 이것. (3) EM 아웃퍼폼 — 미국 예외주의(US Exceptionalism) 소멸 + 달러 약세 구조 진입 → 브라질·인도·한국·베트남 등 EM 자산이 미국 대비 상대 강세 구간. 달러 헤지 없는 EM 투자 매력 증가. (4) 4가지 트레이딩 기준: ① 병목 기업만 진입(AI 테마 전체 ETF 아님) ② 실적 비트+가이던스 상향 확인 후 진입(추측·사전 매수 금지) ③ 조정·급락 시 분할 매수(한 번에 풀사이즈 금지) ④ EM 비중 점진적 증가(KRW·BRL·INR 자산 비중 확대 검토). 이 프레임이 분석에서 필요할 때 인용하라.\n';
+    '• AI vs 닷컴 버블 비교 프레임 (v48.79): 현재 AI 장세는 2000년 닷컴 버블과 구조적으로 다르다. (1) 병목 기업 독점 수익 구조 — NVDA·AMZN AWS·MSFT Azure·Google Cloud 등 AI 인프라 병목 기업은 이미 수익화 완료(닷컴 버블 때 Cisco·Sun은 인프라도 버블과 동반 붕괴했지만, 현재 병목 기업들은 실제 매출·현금흐름·이익 존재). AI 수익은 "AI 테마" 전체가 아니라 실제 병목을 장악한 소수 기업에 집중. (2) Bumpy장세 — 베어마켓이 아니라 고점 이하 변동성 장세. CAPEX 선반영 리스크: 시장이 이미 수년치 AI 투자 회수를 기대로 반영했으므로, 실적이 이 기대에 못 미치면 개별 종목 급락 가능. "AI가 성장하는데 내 주식은 왜 빠지냐"의 답이 이것. (3) EM 아웃퍼폼 — 미국 예외주의(US Exceptionalism) 소멸 + 달러 약세 구조 진입 → 브라질·인도·한국·베트남 등 EM 자산이 미국 대비 상대 강세 구간. 달러 헤지 없는 EM 투자 매력 증가. (4) 4가지 트레이딩 기준: ① 병목 기업만 진입(AI 테마 전체 ETF 아님) ② 실적 비트+가이던스 상향 확인 후 진입(추측·사전 매수 금지) ③ 조정·급락 시 분할 매수(한 번에 풀사이즈 금지) ④ EM 비중 점진적 증가(KRW·BRL·INR 자산 비중 확대 검토). 이 프레임이 분석에서 필요할 때 인용하라.\n' +
+    // v48.87 (integrate): 25건 시장 자료 — 6대 구조적 패러다임
+    '• 에이전틱 AI → CPU TAM 재평가 (v48.87): 서버 CPU TAM AMD $60B→$120B+(2030), UBS $30B→$170B(2030, 5배). CPU:GPU 비율 1:4-8→1:1+ 전환 중. GPU와 대체재 아님 — additive 수요(에이전트 오케스트레이션·병렬 태스크). ARM ISA 전력 효율 + AMD 고코어 수 = 에이전틱 워크로드 최적화. BUT TSMC 3nm 용량 제약(AMD 할당 3~5%, 4Q26 153K wafers/월 +28%) = 2026년 공급이 병목. 수혜: TSMC/ASE/ASPEED/Wiwynn/Lotes. ARM AGI CPU 파이프라인 $2B+(6주 전 $1B) — 공급이 수요 제약.\n' +
+    '• AI 추론 비용 → 인터넷 마진 침식 신호 (v48.87): META(서드파티 클라우드+인프라), SHOP(LLM 비용 명시), SPOT("직원 1인당 컴퓨팅 지출↑"), PINS(GPU 용량 투자), ROKU 모두 1Q26 콜에서 AI 추론비용 상승 명시. "AI 효율 배당"→"AI 비용 부담" 전환 첫 신호 = 마진 개선 없는 AI 투자는 EPS 압박. 투자 수익화 속도 > 비용 속도인지 분기별 확인 필수.\n' +
+    '• 하이퍼스케일러 선약정 가속 (v48.87): Anthropic $200B Google Cloud 5yr(2027 개시 = Google backlog 40%+), OpenAI $45B 서버 지출 2026(YoY 3배), CoreWeave $3.1B 담보대출(수요>공급 역전). "고객이 원할 것인가"에서 "공급이 얼마나 빨리 풀리나"로 제약 이동. NVDA/TSMC/ASE에 구조적 수주 가시성.\n' +
+    '• AIDC ESS 빌드사이클 진입 (v48.87): 미국 DC 부하 75GW→135GW+(2030), AI 비중 70%. ESS 채택 지연 = 건설 시퀀스 후행(현재 대부분 초기 단계). BESS 부착률 75%+ 예상. 나트륨이온 AIDC 구조 적합(C-rate/온도/안전/15,000사이클). CATL 4Q26 양산. DOE 그리드 우선순위 최종결정 2026.06.30 = 다음 촉매. PJM 최소 5년 신규 연계 검토 중단. 수혜: CATL-H/A, Sungrow, 삼성SDI, LGES, Nari.\n' +
+    '• 광통신 3기술 동시 가속 (v48.87): (1) CPO — Coherent H2\'26 scale-out 매출, 2027H2 scale-up, $15B+ TAM. NVIDIA-Corning 파트너십(美 제조 3공장+10배 광섬유 캐파) = CPO 메인스트림화 신호. (2) OCS — Coherent OFC 이후 TAM 2배 상향. 루멘텀 OCS 강력 램프업(F4Q26 +$180M QoQ 가이던스). (3) InP 6인치 — 3인치 대비 4배 다이/비용 절반, Coherent 달성 1분기 앞당김(9월 목표). NVIDIA $20억 COHR 투자 + 수십억 달러 장기 매입 계약.\n' +
+    '• 서버 메모리 가격 충격 (v48.87 GS/TrendForce): PC DRAM 2Q26 QoQ +43-48%(GSe 상회), 서버 DRAM QoQ +45-50%(GSe 상회, 상방 리스크 언급), 모바일 NAND QoQ +80%. PC/게이밍 최종수요 2H26 위축 우려(AMD: 게이밍 전반기 대비 -20%+ 예상). SEC/하이닉스 마진 확대 + LTA 레버리지 심화. 스마트폰 유닛 2Q26 YoY 마이너스 지속.\n';
 
   var focus = '';
   switch (pageFocus) {
@@ -14569,7 +14851,12 @@ function _getV48IntegratedContext(pageFocus) {
         '• CRDO DustPhotonics FY27 광학 $5억+ + EPS $10-11 창출력 = CY27E PE 23배 vs 광학동종 40-50배 저평가.\n' +
         '• 800V HVDC 전력반도체 4계층: MPWR(AI DC PMIC, Vera Rubin 60-70% 점유) > ON(800V 파트너, 1Q26 3년+ 첫 YoY 성장) > NVTS(GaNFast+GeneSiC, NVIDIA 공식 파트너) > WOLF(Ch11 완료, 200mm SiC Mohawk Valley 북미 유일).\n' +
         '• 유리기판 이중 진입: GLW(소재) + ONTO(TGV 검사=수율 병목 레버리지). AMD MI400 볼륨 샘플. 2026 $20억→2028 $100억 TAM 경로.\n' +
-        '• 우주 경제 2026 3대 동시 촉매: Golden Dome $1,850억 + Artemis II 달 유인 궤도 + SpaceX IPO. 대형: LHX/NOC/LMT/RTX. 순수 플레이: RKLB/LUNR/FLY(Blue Ghost 달착륙)/VOYG(Starlab)/KRMN/BKSY.\n';
+        '• 우주 경제 2026 3대 동시 촉매: Golden Dome $1,850억 + Artemis II 달 유인 궤도 + SpaceX IPO. 대형: LHX/NOC/LMT/RTX. 순수 플레이: RKLB/LUNR/FLY(Blue Ghost 달착륙)/VOYG(Starlab)/KRMN/BKSY.\n' +
+        '• ARM AGI CPU 파이프라인 (v48.87): 6주 만에 $1B→$2B+ 급증, 공급이 수요 제약. FY27 DC 로열티 2x YoY, 점유율 15%→40-45%(2030) 목표. JPM PT$240 / UBS PT$245. TSMC/ASE 병목 = 주가 상승 속도 조절 변수.\n' +
+        '• ALAB Scorpio 사이클 진입 (v48.87): 1Q26 $308M(+94%YoY, 8분기 연속 비트). 2Q26 가이던스 $360M. Scorpio XPU 콘텐츠 $1,000+ 상승 중. Trainium3+Scorpio X H2 램프업 초기. NVLink Fusion/KV캐시 오프로드/CXL 메모리확장 신규 벡터. JPM OW PT$240.\n' +
+        '• PLTR 1Q26 확정 (v48.87): +85% YoY 매출 확정. US Commercial +133%, Government +76%. Rule of 40 = 145%. NDR 150%. FY26 가이던스 +71%. Citi PT$210. AIP 플랫폼 고착도 극단화 → 탈출 비용 구조 진입.\n' +
+        '• AMD 서버 CPU + TSMC 제약 (v48.87): 서버 CPU TAM $60B→$120B+(2030), Q2 서버 CPU +70% YoY 가이던스. MI450/Helios 3Q init/4Q ramp. 상승 요인: TSMC 3nm 4Q26+이후 캐파 확장. HSBC 하향 논거: 2026 공급 제약(AMD 할당 3~5% → 상승 여력 공급 타임라인 종속). Wedbush OW PT$400 / JPM 중립 PT$385.\n' +
+        '• COHR NVIDIA 장기 계약 (v48.87): NVIDIA $20억 투자(2026.03) + 수십억 달러 10년+ 매입 약정. InP 6인치 캐파 2배 달성 1분기 앞당김(목표 9월). F4Q26 가이던스 +$170M QoQ. FY27 매출 성장 FY26 초과+GPM 42%+ 목표. JPM PT$380.\n';
       break;
     case 'technical':
       focus = '\n[이 페이지 강조 — 차트/기술]\n' +
@@ -14611,7 +14898,10 @@ function _getV48IntegratedContext(pageFocus) {
         '• CoreWeave 프론티어 랩 독점($58B+) = NVIDIA 3중 관계로 비NVDA 호스팅 차단.\n' +
         '• 800V HVDC 테마: NVIDIA GTC2026 발표→2027 1MW 랙 표준화. 직접: NVTS/ON/WOLF/MPWR. 인프라: VRT/ETN/Schneider/GEV/BE. 구리 절감 90%(48V→800V 직결).\n' +
         '• Space Economy 2026 실행 연도: Golden Dome $1,850억(LHX/NOC/LMT/RTX) + RKLB 월1회 발사(1년+170%) + FLY IPO $1.3B 백로그 + VOYG Starlab CDR. 서사 vs 실행 차별화.\n' +
-        '• 유리기판 카탈리스트: AMD MI400 볼륨 샘플+TSMC N2 통합 논의. ONTO TGV 검사=볼륨 램프 전 필수 납품. GLW Absolics+삼성 SEA 협력.\n';
+        '• 유리기판 카탈리스트: AMD MI400 볼륨 샘플+TSMC N2 통합 논의. ONTO TGV 검사=볼륨 램프 전 필수 납품. GLW Absolics+삼성 SEA 협력.\n' +
+        '• 에이전틱 AI → CPU 테마 재평가 (v48.87): GPU 독점 내러티브 → CPU+GPU 병행 성장. AMD Turin→Venice, ARM Neoverse V3 = 에이전틱 오케스트레이션 최적. CPU TAM 5배 성장 시나리오(UBS 2030) = 반도체 사이클 내 CPU 비중 재배분 트리거.\n' +
+        '• AIDC ESS 빌드사이클 테마 (v48.87): DC 배터리 수요 건설 시퀀스 후행 → 2026-2028 수요 폭발 구간 진입. CATL 나트륨이온 4Q26 양산(15,000사이클). DOE 계통연계 우선순위 2026.06.30 최종결정 = 단기 촉매. AIDC ESS 입찰 사이클 본격화 기대.\n' +
+        '• 광통신 OCS 신각도 (v48.87): 루멘텀 F4Q26 +$180M QoQ = OCS 기여 가속. Coherent OFC 이후 OCS TAM 2배 상향. 기존 CPO 테마에 OCS 레이어 추가 = 광통신 2027~2028 파장 2차 사이클 형성.\n';
       break;
     case 'kr-macro':
       focus = '\n[이 페이지 강조 — 한국 거시]\n' +
@@ -14619,7 +14909,9 @@ function _getV48IntegratedContext(pageFocus) {
         '• SEC 1Q26 OP만으로 역대 최강 2017-2018 사이클 연간 평균 상회 = ROE/P/B 구조 전환. 미국 투자자 SEC > HXSCL 선호.\n' +
         '• HBM4 고핀속도(11Gbps+) 램프업 문제 미보고 → SEC 점유 확대 수혜. HXSCL 리스크 언론 보도.\n' +
         '• 한국 기준금리 2.50% vs 미국 3.50-3.75% = 금리차 -1.00~-1.25%p → 원/달러 상향 압박.\n' +
-        '• TurboQuant 등 메모리 최적화 → 제번스 역설로 장기 TAM 확대 기대.\n';
+        '• TurboQuant 등 메모리 최적화 → 제번스 역설로 장기 TAM 확대 기대.\n' +
+        '• 메모리 가격 충격 업데이트 (v48.87 GS/TrendForce): 서버 DRAM 2Q26 QoQ +45-50%(컨센 상회, 상방 리스크). PC DRAM +43-48%. 모바일 NAND +80%. LTA 레버리지 역전 심화 = SEC/HXSCL 2026 마진 추가 확대 예상. PC/스마트폰 최종수요 2H26 위축 리스크는 하이엔드 서버 DRAM 수요로 상쇄 기대.\n' +
+        '• 스마트폰/PC 역풍 분리 시각 (v48.87): AMD 게이밍 2H26 -20%+ 예상. 스마트폰 유닛 2Q26 YoY 마이너스. 메모리 가격 인상 → 최종수요 위축 → 2H26 소비자 세그먼트 선별 필요. 서버/데이터센터 vs 소비자 전자 분기점 명확화 구간.\n';
       break;
     case 'kr-themes':
       focus = '\n[이 페이지 강조 — 한국 테마]\n' +
@@ -14627,7 +14919,9 @@ function _getV48IntegratedContext(pageFocus) {
         '• DRAM/NAND ASP +75-85% QoQ(컨센 60-65% 초과). 2Q26 +30%+ ASP 추가 상승 예상.\n' +
         '• Citi 신흥국 뷰: EM OW→중립 하향이나 한국/대만 AI 시클리컬 유지. 한국 AI·메모리 EPS EM 최대(반등 최강) but 순매수 포지션 잔존(분쟁 장기화 시 청산 하방).\n' +
         '• JPM 삼성전자 PT 30만원 · SEC 2027 LTA 가시성이 멀티플 정상화 열쇠.\n' +
-        '• 한국 우주·방산: 한화에어로(누리호 4차 2026+나라우주 JV) · LIG넥스원(미사일 PIP 수출) · KAI(FA-50 폴란드/말레이시아) · 인텔리안테크(위성 안테나, StarShield/Iridium). Golden Dome $1,850억 파급에서 한국 참여 여부=핵심 변수.\n';
+        '• 한국 우주·방산: 한화에어로(누리호 4차 2026+나라우주 JV) · LIG넥스원(미사일 PIP 수출) · KAI(FA-50 폴란드/말레이시아) · 인텔리안테크(위성 안테나, StarShield/Iridium). Golden Dome $1,850억 파급에서 한국 참여 여부=핵심 변수.\n' +
+        '• 메모리 2Q26 가격 최신 (v48.87): 서버 DRAM QoQ +45-50%, PC DRAM +43-48%, 모바일 NAND +80%(GS/TrendForce). SEC OP 1Q26 역대 최강 수준 유지 → 2Q26 추가 마진 확대 가시성. HBM4 램프업 SEC 점유 확대 + HXSCL HBM 이슈 병존 = 2Q~3Q 점유율 변화 모니터링 핵심.\n' +
+        '• 나트륨이온 배터리 한국 수혜 (v48.87): AIDC ESS 나트륨이온 채택 가속 시 삼성SDI/LGES 경쟁 포지션 점검 필요. CATL 4Q26 양산이 한국 배터리 업체 대응 일정 압박 요소.\n';
       break;
     case 'signal':
       focus = '\n[이 페이지 강조 — 매매 시그널]\n' +
@@ -14637,7 +14931,9 @@ function _getV48IntegratedContext(pageFocus) {
         '• 긍정 서프라이즈 주가 반응 -0.2%(5년 평균 +1.0% 대비) → 어닝 서프라이즈 후 매수보다 가격 액션 관찰.\n' +
         '• 포지셔닝 레브코비치 유포리아 영역 = 포지션 축소 신호. 신규 풀 롱 진입은 바닥 프로세스 3/3 확인 후.\n' +
         '• O\'Neil 진입 필터: 피봇 3-5% 이내 + 베이스 1-2단계 + RVOL 1.5x+ 필수. 3단계 이미 진행 중 → 차기 베이스 대기.\n' +
-        '• 우주·전력반도체 시그널: RKLB/FLY/KRMN = 발사성공/수주 공시 후 VCP 재형성 대기. NVTS/ON = 분기 가이던스 상향 시 Stage2 재진입 판단.\n';
+        '• 우주·전력반도체 시그널: RKLB/FLY/KRMN = 발사성공/수주 공시 후 VCP 재형성 대기. NVTS/ON = 분기 가이던스 상향 시 Stage2 재진입 판단.\n' +
+        '• AGI CPU + ALAB 시그널 (v48.87): ARM = AGI CPU 파이프라인 $2B+ 공개 후 수급 공백 구간 → 실적 확인(FY27 DC 로열티) 전까지 볼라틸리티 대응. ALAB = Scorpio X H2 램프업 가시성 확보 시 Stage2 재가속 판단 기준. 두 종목 모두 "공급 제약(TSMC/ASE)"이 단기 가격 상한선 역할.\n' +
+        '• 하이퍼스케일러 약정 수혜 시그널 (v48.87): Anthropic $200B Google Cloud 5yr + OpenAI $45B 서버 2026 → NVDA/TSMC 수주 가시성 최고 수준. 단기: TSMC 어닝 가이던스(용량 할당 변화) + NVDA B300 출하 모멘텀 = 진입 트리거. CoreWeave $3.1B 담보 = CRWV 재평가 변수.\n';
       break;
   }
   return common + focus;
@@ -14872,7 +15168,7 @@ function updateSRLevels() {
 
   var html = '';
   levels.forEach(function(l) {
-    var dist = ((l.price - price) / price * 100).toFixed(1);
+    var dist = price > 0 ? ((l.price - price) / price * 100).toFixed(1) : '—';
     var isCurrent = l.type === '현재';
     html += '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;' + (isCurrent ? 'background:rgba(0,212,255,0.08);border-radius:4px;padding:4px 6px;' : '') + '">' +
       '<span style="font-size:11px;font-weight:700;color:' + l.color + ';width:24px;">' + l.type + '</span>' +
@@ -16252,7 +16548,8 @@ function updateWtiBrentSpread() {
 // ═══════════════════════════════════════════════════════════════
 
 // Technical page init
-document.addEventListener('aio:pageShown', function(e) {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-technical-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'technical') {
     setTimeout(function() {
       computeMarketHealth();
@@ -16266,7 +16563,7 @@ document.addEventListener('aio:pageShown', function(e) {
 });
 
 // Macro page init
-document.addEventListener('aio:pageShown', function(e) {
+_aioPageBus.register('html-macro-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'macro') {
     setTimeout(function() {
       generateMacroStoryline();
@@ -16279,8 +16576,8 @@ document.addEventListener('aio:pageShown', function(e) {
   }
 });
 
-// Live quote updates for both pages
-document.addEventListener('aio:liveQuotes', function() {
+// Live quote updates for technical/macro/breadth pages
+_aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
   var techPage = document.getElementById('page-technical');
   if (techPage && techPage.classList.contains('active')) {
     computeMarketHealth();
@@ -17165,14 +17462,15 @@ function initKoreaHome() {
   }
 }
 
-document.addEventListener('aio:pageShown', function(e) {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-kr-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'kr-home') initKoreaHome();
   if (e.detail === 'kr-supply') initKoreaSupply();
   if (e.detail === 'kr-themes') initKoreaThemes();
   if (e.detail === 'kr-macro') initKoreaMacro();
   if (e.detail === 'kr-technical') initKoreaTechnical();
 });
-document.addEventListener('aio:liveQuotes', function() {
+_aioPageBus.register('html-kr-live', 'aio:liveQuotes', function() {
   var activePage = document.querySelector('.page.active');
   if (!activePage) return;
   var pid = activePage.id.replace('page-','');
@@ -19299,11 +19597,11 @@ async function dynamicTickerLookup(ticker) {
             }
             // 캐시에 저장
             if (!window._liveData) window._liveData = {};
-            window._liveData[ticker] = { price: _dynPrice, pct: _dynPct != null ? _dynPct : 0 };
+            window._liveData[ticker] = { price: _dynPrice, pct: _dynPct != null ? _dynPct : null, pctMissing: _dynPct == null };
             return {
               ticker: ticker,
               price: _dynPrice,
-              pct: _dynPct || 0,
+              pct: _dynPct != null ? _dynPct : null,
               name: meta.shortName || meta.longName || ticker,
               exchange: meta.exchangeName || '',
               currency: meta.currency || 'USD',
@@ -19375,10 +19673,10 @@ async function dynamicTickerLookup(ticker) {
         if (rows.length > 0) {
           var last = rows[rows.length-1];
           var prev = rows.length >= 2 ? rows[rows.length-2].close : last.close;
-          var kPct = prev > 0 ? ((last.close - prev) / prev * 100) : 0;
+          var kPct = prev > 0 ? ((last.close - prev) / prev * 100) : null;
           if (!window._liveData) window._liveData = {};
-          window._liveData[ticker] = { price: last.close, pct: +kPct.toFixed(2) };
-          return { ticker: ticker, price: last.close, pct: +kPct.toFixed(2), name: krCode, source: 'naver-sise' };
+          window._liveData[ticker] = { price: last.close, pct: kPct != null ? +kPct.toFixed(2) : null, pctMissing: kPct == null };
+          return { ticker: ticker, price: last.close, pct: kPct != null ? +kPct.toFixed(2) : null, name: krCode, source: 'naver-sise' };
         }
       }
     } catch(e6) {}
@@ -21864,7 +22162,8 @@ function updateEntryChecklist() {
 }
 
 // aio:liveQuotes 이벤트에서 체크리스트 + 브레드쓰 바 업데이트
-document.addEventListener('aio:liveQuotes', function() {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-signal-checklist-live', 'aio:liveQuotes', function() {
   if (document.getElementById('page-signal') && document.getElementById('page-signal').classList.contains('active')) {
     updateEntryChecklist();
     // v42.7: signal 페이지의 시장 폭 바(bb-5sma-bar 등) 갱신 — breadth 페이지 미방문 시에도 최신값 표시
@@ -21888,8 +22187,8 @@ function initSignalDashboard() {
   refreshSignalDashboard();
   updateExitTriggers();
   updateBottomProcess();
-  if (_signalInterval) clearInterval(_signalInterval);
-  _signalInterval = setInterval(refreshSignalDashboard, T.SIGNAL_REFRESH);
+  // v48.91: 타이머 레지스트리 등록
+  _signalInterval = _aioRegisterTimer('signalDashboard', refreshSignalDashboard, T.SIGNAL_REFRESH);
   // v46.9: signal 페이지 재진입 시 refreshSignal 즉시 1회 호출 (P83)
   // v48.27 (P7): _refreshSignalInterval 이중 등록 race 방지 — 앱 초기화(23748)에서 등록한 단일 interval 유지
   refreshSignal();
@@ -22131,7 +22430,8 @@ function _updateAllConclusionBars() {
 }
 
 // Signal page live update hook
-document.addEventListener('aio:liveQuotes', function() {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-signal-live', 'aio:liveQuotes', function() {
   var sigPage = document.getElementById('page-signal');
   if (sigPage && sigPage.classList.contains('active')) {
     updateRiskMonitor();
@@ -22341,7 +22641,8 @@ function updateFxBondPage() {
 }
 
 // FX/Bond page live update hook
-document.addEventListener('aio:liveQuotes', function() {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-fxbond-live', 'aio:liveQuotes', function() {
   var fxPage = document.getElementById('page-fxbond');
   if (fxPage && fxPage.classList.contains('active')) {
     updateFxBondPage();
@@ -23116,7 +23417,8 @@ async function loadRiskRadar() {
 }
 
 // 리스크 레이더 페이지 진입 시 자동 로드 (v48.57: briefing 제거 — DOM 미존재 불필요 실행)
-document.addEventListener('aio:pageShown', function(e) {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-fundamental-risk-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'fundamental') {
     setTimeout(function() {
       if (typeof loadRiskRadar === 'function') loadRiskRadar();
@@ -23175,7 +23477,8 @@ async function _fetchEarningsCalendarFMP(body, fmpKey) {
 }
 
 // Fundamental page live update hook
-document.addEventListener('aio:liveQuotes', function() {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-fundamental-live', 'aio:liveQuotes', function() {
   var fundPage = document.getElementById('page-fundamental');
   if (fundPage && fundPage.classList.contains('active')) {
     // Refresh card prices from live data
@@ -23191,19 +23494,18 @@ document.addEventListener('aio:liveQuotes', function() {
 // Init fundamental page on first visit
 var _fundInitDone = false;
 // v41.5: fundamental 페이지 첫 방문 시 초기화
-(function() {
-  document.addEventListener('aio:pageShown', function(e) {
-    if (e.detail === 'fundamental' && !_fundInitDone) {
-      _fundInitDone = true;
-      setTimeout(initFundamentalCards, 100);
-    }
-    if (e.detail === 'fxbond') {
-      setTimeout(function() {
-        try { updateFxBondPage(); updateFxDynamicComments(); } catch(e) {}
-      }, 200);
-    }
-  });
-})();
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-fundamental-init-shown', 'aio:pageShown', function(e) {
+  if (e.detail === 'fundamental' && !_fundInitDone) {
+    _fundInitDone = true;
+    setTimeout(initFundamentalCards, 100);
+  }
+  if (e.detail === 'fxbond') {
+    setTimeout(function() {
+      try { updateFxBondPage(); updateFxDynamicComments(); } catch(e) {}
+    }, 200);
+  }
+});
 
 // Also init on page load if fundamental is active
 setTimeout(function() {
@@ -24012,10 +24314,11 @@ async function _loadSector20dChart() {
     try {
       var data = await _fetchYahooChartData(etf.sym, '1mo');
       if (data && data.closes && data.closes.length >= 5) {
-        var closes = data.closes.slice(-20).filter(function(v) { return v != null; });
+        var closes = data.closes.slice(-20).filter(function(v) { return v != null && isFinite(v) && v > 0; });
         var ts = data.timestamps.slice(-20);
         // 수익률 기준으로 정규화 (첫날 = 0%)
         var base = closes[0];
+        if (!isFinite(base) || base <= 0) continue;
         var pctData = closes.map(function(c) { return ((c - base) / base * 100); });
         if (!labels) {
           labels = ts.map(function(t) {
@@ -26040,7 +26343,8 @@ function renderSubThemesGrid() {
 // ═══════════════════════════════════════════════════════════════
 //  THEMES PAGE INIT & EVENT WIRING 
 // ═══════════════════════════════════════════════════════════════
-document.addEventListener('aio:pageShown', function(e) {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-themes-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'themes') {
     setTimeout(function() {
       drawRRG();
@@ -26056,7 +26360,7 @@ document.addEventListener('aio:pageShown', function(e) {
   }
 });
 
-document.addEventListener('aio:liveQuotes', function() {
+_aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
   collectPriceHistory();
   var tp = document.getElementById('page-themes');
   if (tp && tp.classList.contains('active')) {
@@ -26332,12 +26636,13 @@ function initOptionsPage() {
 }
 
 // Options 페이지 이벤트 리스너
-document.addEventListener('aio:pageShown', function(e) {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-options-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'options') {
     try { initOptionsPage(); } catch(err) { _aioLog('warn', 'init', 'Options pageShown error: ' + (err && err.message || err)); }
   }
 });
-document.addEventListener('aio:liveQuotes', function() {
+_aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   var optPage = document.getElementById('page-options');
   if (optPage && optPage.classList.contains('active')) {
     try { initOptionsPage(); } catch(err) {}
@@ -26355,6 +26660,8 @@ document.addEventListener('aio:liveQuotes', function() {
 </div>
 
 <script src="./js/aio-glossary.js"></script>
+<!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
+<script src="./js/aio-tests.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전
@@ -26624,7 +26931,8 @@ function updateGmoFreshness() {
 }
 
 // Initialize GMO on page load + live data events
-document.addEventListener('aio:liveQuotes', renderGmoTable);
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-gmo-live', 'aio:liveQuotes', renderGmoTable);
 setTimeout(renderGmoTable, 2000);
 
 // ═══ v34: Keyboard Shortcuts Help Modal ═══════════════════════════════
@@ -27819,7 +28127,7 @@ function calcKrHealthScore() {
   var score = 50; // 기본값
 
   // 1) KOSPI 추세 (라이브 or 스냅샷)
-  var kospiPct = (ld['^KS11'] && ld['^KS11'].pct) ? ld['^KS11'].pct : (snap.kospiPct || 0);
+  var kospiPct = (ld['^KS11'] && ld['^KS11'].pct != null && isFinite(ld['^KS11'].pct)) ? ld['^KS11'].pct : (snap.kospiPct || 0);
   if (kospiPct > 1)       { score += 10; }
   else if (kospiPct > 0)  { score += 5; }
   else if (kospiPct > -1) { score -= 5; }
@@ -27827,7 +28135,7 @@ function calcKrHealthScore() {
   else                    { score -= 15; }
 
   // 2) KOSDAQ 추세
-  var kosdaqPct = (ld['^KQ11'] && ld['^KQ11'].pct) ? ld['^KQ11'].pct : (snap.kosdaqPct || 0);
+  var kosdaqPct = (ld['^KQ11'] && ld['^KQ11'].pct != null && isFinite(ld['^KQ11'].pct)) ? ld['^KQ11'].pct : (snap.kosdaqPct || 0);
   if (kosdaqPct > 1)       { score += 6; }
   else if (kosdaqPct > 0)  { score += 3; }
   else if (kosdaqPct > -1) { score -= 3; }
@@ -28416,6 +28724,12 @@ async function updateBenchmarkChart() {
     return;
   }
   var spyBase = spySeries[0];
+  if (!isFinite(spyBase) || spyBase <= 0) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#ff5b50'; ctx.textAlign = 'center';
+    ctx.fillText('SPY 기준가 오류 — 데이터 소스 확인 필요', W/2, H/2);
+    return;
+  }
   var spyPct = spySeries.map(function(v){ return (v - spyBase) / spyBase * 100; });
 
   // 포트폴리오 30일 가중 수익률 (최대 10 종목 · 나머지는 현재 수익률 선형 분포)
@@ -28465,6 +28779,7 @@ async function updateBenchmarkChart() {
     // 길이 맞추기 (종목별 거래일 달라질 수 있음)
     var arr = s.closes.slice(-L);
     var base = arr[0];
+    if (!isFinite(base) || base <= 0) return;
     for (var i = 0; i < L; i++) {
       var pct = ((arr[Math.min(i, arr.length-1)] - base) / base) * 100;
       pfPct[i] += pct * weight;
@@ -28681,15 +28996,12 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   });
 }
 
-// ── 주기적 업데이트 훅 ──
-if (window._globalUpdateInterval) clearInterval(window._globalUpdateInterval);
-window._globalUpdateInterval = setInterval(function() {
+// ── 주기적 업데이트 훅 ── v48.91: 타이머 레지스트리 등록
+window._globalUpdateInterval = _aioRegisterTimer('globalUpdate', function() {
   checkPriceAlerts();
   applyA11yIndicators();
 }, 30000); // 30초마다 가격 알림 체크 + 접근성 아이콘 갱신
-window.addEventListener('beforeunload', function() {
-  if (window._globalUpdateInterval) { clearInterval(window._globalUpdateInterval); window._globalUpdateInterval = null; }
-});
+window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); // v48.91: 언로드 시 전체 정리
 
 // ── 초기화 ──
 document.addEventListener('DOMContentLoaded', function() {
@@ -29299,7 +29611,8 @@ function aiChipClick(el) {
 }
 
 // showPage 연결: 페이지 전환 시 AI 맥락 자동 업데이트
-document.addEventListener('aio:pageShown', function(e) {
+// v48.99: _aioPageBus 마이그 (P180)
+_aioPageBus.register('html-ai-panel-shown', 'aio:pageShown', function(e) {
   if (e && e.detail) updateAIPanelContext(e.detail);
 });
 </script>

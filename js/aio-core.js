@@ -141,6 +141,9 @@ document.addEventListener('error', function(e) {
 window.safeHtml = function(str, allowTags) {
   if (str == null) return '';
   try {
+    var raw = String(str)
+      .replace(/\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+      .replace(/\s(?:href|src)\s*=\s*(?:"\s*javascript:[^"]*"|'\s*javascript:[^']*'|\s*javascript:[^\s>]+)/gi, '');
     if (typeof DOMPurify !== 'undefined' && DOMPurify.sanitize) {
       // 허용 태그: 기본 텍스트 서식 (b/i/strong/em/br/span/div/p/a/code/ul/ol/li)
       var config = allowTags ? { ALLOWED_TAGS: allowTags } : {
@@ -148,11 +151,496 @@ window.safeHtml = function(str, allowTags) {
         ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style', 'title'],
         ALLOW_DATA_ATTR: false
       };
-      return DOMPurify.sanitize(String(str), config);
+      return DOMPurify.sanitize(raw, config);
     }
   } catch(_){}
   // Fallback: HTML entity escape (DOMPurify 미로드 시)
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  return String(str)
+    .replace(/\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+    .replace(/\s(?:href|src)\s*=\s*(?:"\s*javascript:[^"]*"|'\s*javascript:[^']*'|\s*javascript:[^\s>]+)/gi, '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+};
+
+// ═══ v48.91: _safeSetHTML — innerHTML DOMPurify 게이트웨이 ══════════════════
+// 용도: 외부 API 데이터 → innerHTML 주입 시 단일 게이트웨이 (safeHtml 래퍼)
+// 사용: _safeSetHTML(el, html) — DOMPurify 통과 후 innerHTML 적용
+window._safeSetHTML = function(el, html) {
+  if (!el) return;
+  el.innerHTML = window.safeHtml(html || '');
+};
+
+// ═══ v48.94: _aioSafeMD — AI 마크다운 DOMPurify 2차 게이트웨이 ════════════════
+// 용도: AI 응답 renderMarkdownLight() 결과에 DOMPurify 2차 통과 (P158 XSS 방어)
+// 사용: element.innerHTML = _aioSafeMD(aiResponseText)
+// 주의: renderMarkdownLight는 aio-chat.js에서 전역 선언 — 런타임 조회 안전
+window._aioSafeMD = function(rawText) {
+  var text = String(rawText || '');
+  var rendered = (typeof renderMarkdownLight === 'function') ? renderMarkdownLight(text) : text;
+  return window.safeHtml(rendered);
+};
+
+// ═══ v48.94: _aioSafeParseJSON — JSON.parse 안전 래퍼 ══════════════════════
+// 용도: JSON.parse 실패 시 fallback 반환 + _aioLog 경고 (P161 NaN 방어)
+// 사용: var obj = _aioSafeParseJSON(raw, {}, 'scope-name')
+window._aioSafeParseJSON = function(raw, fallback, scope) {
+  try { return JSON.parse(raw); }
+  catch(e) {
+    if (typeof _aioLog === 'function') _aioLog('warn', scope || 'parse', 'JSON parse fail: ' + (e && e.message));
+    return fallback !== undefined ? fallback : null;
+  }
+};
+
+// ═══ v48.94: _aioRenderNum — 숫자 표시 NaN 가드 ════════════════════════════
+// 용도: tech indicator/포트폴리오 숫자 표시 시 NaN → '—' 대체 (P161)
+// 사용: _aioRenderNum(value, '%', 1) → '1.2%' 또는 '—'  (decimals 기본 2)
+window._aioRenderNum = function(v, suffix, decimals) {
+  var n = parseFloat(v);
+  var d = (typeof decimals === 'number' && decimals >= 0) ? decimals : 2;
+  return Number.isFinite(n) ? (n.toFixed(d) + (suffix || '')) : '—';
+};
+
+// ═══ v48.97: _aioRedactPII — IndexedDB 저장 전 PII 제거 (P1-7) ═════════════
+// 용도: 뉴스 기사에 유입된 이메일·전화번호·카드번호를 저장 전 마스킹
+// 사용: os.put(_aioRedactPII(Object.assign({}, item, { _idbKey: key, ts: ts })))
+var _PII_EMAIL_RX = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+var _PII_PHONE_RX = /(?:\+?82[\s\-]?)?0\d{1,2}[\s\-]?\d{3,4}[\s\-]?\d{4}|\b\d{3}[\s\-]\d{3,4}[\s\-]\d{4}\b/g;
+window._aioRedactPII = function(record) {
+  if (!record || typeof record !== 'object') return record;
+  var out = Object.assign({}, record);
+  ['title', 'description', 'content', 'summary'].forEach(function(f) {
+    if (typeof out[f] === 'string') {
+      out[f] = out[f].replace(_PII_EMAIL_RX, '[email]').replace(_PII_PHONE_RX, '[phone]');
+    }
+  });
+  return out;
+};
+
+// ═══ v48.97: API 키 편의 래퍼 + UI 마스킹 (P2-7) ═══════════════════════════
+// _aioMaskKey('sk-ant-abc12345') → '****-2345'
+window._aioMaskKey = function(raw) {
+  if (!raw || typeof raw !== 'string') return '****';
+  var s = raw.replace(/^aio_enc::/, ''); // 암호화 접두어 제거 후 마스킹
+  if (s.length < 8) return '****';
+  return '****-' + s.slice(-4);
+};
+// getApiKey(storageKey) — 평문 또는 복호화된 키 반환
+window.getApiKey = function(name) {
+  try { return (typeof safeLSGetSync === 'function') ? safeLSGetSync(name, '') : ''; } catch(e) { return ''; }
+};
+// setApiKey(storageKey, value) — 저장소에 저장 (Vault 암호화 우선)
+window.setApiKey = function(name, value) {
+  try {
+    if (typeof safeLSSet === 'function') { safeLSSet(name, value); }
+    else { (window.localStorage || window.sessionStorage).setItem(name, value); }
+  } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'apikey', 'setApiKey fail: ' + (e && e.message)); }
+};
+
+// ═══ v48.95: _wordHit — 유니코드 단어경계 키워드 매칭 ══════════════════════
+// 용도: P1-1 한국어 단글자 '금'.includes('금리') 오탐 방지
+//       .includes(kw) 대신 단어경계(\p{L}\p{N}) 기반 매칭
+// 사용: _wordHit('금리 상승', '금') → false,  _wordHit('금 상승', '금') → true
+// 성능: RegExp 컴파일 캐시 (_wordHitRxCache) — 고빈도 키워드 재컴파일 방지
+var _wordHitRxCache = {};
+window._wordHit = function(text, kw) {
+  if (!kw) return false;
+  var rx = _wordHitRxCache[kw];
+  if (!rx) {
+    try {
+      var esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      rx = _wordHitRxCache[kw] = new RegExp(
+        '(?:^|[^\\p{L}\\p{N}])' + esc + '(?=$|[^\\p{L}\\p{N}])', 'u'
+      );
+    } catch(e) {
+      // 'u' 플래그 미지원 환경 fallback → 기존 includes
+      rx = _wordHitRxCache[kw] = null;
+    }
+  }
+  if (!rx) return String(text).includes(kw);
+  return rx.test(String(text));
+};
+
+// ═══ v48.96: _aioChartRegistry — Chart.js 인스턴스 중앙 관리 ════════════════
+// 용도: 재렌더 전 destroy 보장 → 메모리 누수 방지 (P1-5)
+// 사용: _aioChartRegistry.register('fund-var', chartInst)
+//       _aioChartRegistry.destroyIfExists('fund-var')
+window._aioChartRegistry = {
+  _charts: {},
+  register: function(id, chart) {
+    if (!id || !chart) return;
+    this._charts[id] = chart;
+  },
+  destroyIfExists: function(id) {
+    if (this._charts[id]) {
+      try { this._charts[id].destroy(); } catch(e) {}
+      delete this._charts[id];
+    }
+  },
+  get: function(id) { return this._charts[id] || null; },
+  resizeAll: function() {
+    var keys = Object.keys(this._charts);
+    for (var i = 0; i < keys.length; i++) {
+      var c = this._charts[keys[i]];
+      if (c && typeof c.resize === 'function') { try { c.resize(); } catch(e) {} }
+    }
+  }
+};
+
+// ═══ v48.96: _aioSetupCanvas — devicePixelRatio 적용 캔버스 초기화 ══════════
+// 용도: 레티나/HiDPI 화면에서 차트 선명도 보장 (P2-3)
+// 사용: var ctx = _aioSetupCanvas(canvas, 600, 200)
+//       new Chart(ctx, {...})
+window._aioSetupCanvas = function(canvas, w, h) {
+  if (!canvas || !canvas.getContext) return null;
+  var dpr = Math.max(1, window.devicePixelRatio || 1);
+  canvas.width = Math.round(w * dpr);
+  canvas.height = Math.round(h * dpr);
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  var ctx = canvas.getContext('2d');
+  if (ctx && dpr > 1) ctx.scale(dpr, dpr);
+  return ctx;
+};
+
+// LightweightCharts는 내부 레이어 canvas를 동적으로 생성한다. 실제 차트 의미는
+// 컨테이너가 전달하고 내부 canvas는 스크린리더에서 숨겨 중복/무라벨 경고를 막는다.
+window._aioMarkChartCanvases = function(rootEl, label) {
+  if (!rootEl || !rootEl.querySelectorAll) return;
+  try {
+    if (label) {
+      rootEl.setAttribute('role', rootEl.getAttribute('role') || 'img');
+      rootEl.setAttribute('aria-label', rootEl.getAttribute('aria-label') || label);
+    }
+    rootEl.querySelectorAll('.tv-lightweight-charts canvas, canvas').forEach(function(canvas) {
+      if (!canvas.id && !canvas.getAttribute('aria-label') && !canvas.getAttribute('aria-labelledby') && !canvas.getAttribute('title')) {
+        canvas.setAttribute('aria-hidden', 'true');
+        canvas.setAttribute('tabindex', '-1');
+      }
+    });
+  } catch(_) {}
+};
+
+// ═══ v48.96: _aioModalTrap — 모달 키보드 포커스 순환 + ESC 닫기 (P2-9) ════════
+// 용도: WCAG 2.1 SC 2.1.2 — 모달 내 Tab/Shift+Tab 순환, ESC로 닫힘
+// 사용: var cleanup = _aioModalTrap(modalRootEl, onClose)
+//       cleanup() — 이벤트 제거 (모달 닫을 때 호출)
+window._aioModalTrap = function(rootEl, onClose) {
+  if (!rootEl) return function() {};
+  var FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+  function getFocusable() { return Array.prototype.slice.call(rootEl.querySelectorAll(FOCUSABLE)); }
+  function handleKey(e) {
+    var key = e.key || e.keyCode;
+    if (key === 'Escape' || key === 27) {
+      e.preventDefault();
+      if (typeof onClose === 'function') onClose();
+      return;
+    }
+    if (key !== 'Tab' && key !== 9) return;
+    var els = getFocusable();
+    if (!els.length) { e.preventDefault(); return; }
+    var first = els[0], last = els[els.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+  document.addEventListener('keydown', handleKey, true);
+  // 최초 포커스: 첫 포커서블 요소 or rootEl 자체
+  var first = getFocusable()[0];
+  if (first) { first.focus(); } else if (rootEl.tabIndex >= 0) { rootEl.focus(); }
+  return function() { document.removeEventListener('keydown', handleKey, true); };
+};
+
+// ═══ v48.97: _aioRetry — 지수 백오프 + jitter 자동 재시도 (P2-8) ═════════════
+// 용도: 일시적 네트워크·API 오류 자동 재시도 (Circuit Breaker와 함께 사용)
+// 사용: _aioRetry(function() { return fetch(url); }, {maxAttempts:3, baseMs:500})
+//       .then(response => ...).catch(err => /* 최종 실패 */)
+window._aioRetryStats = window._aioRetryStats || { total: 0, retried: 0, failed: 0 };
+window._aioRetry = function(fn, opts) {
+  var o = opts || {};
+  var maxAttempts = typeof o.maxAttempts === 'number' ? o.maxAttempts : 3;
+  var baseMs      = typeof o.baseMs      === 'number' ? o.baseMs      : 500;
+  var capMs       = typeof o.capMs       === 'number' ? o.capMs       : 8000;
+  var useJitter   = o.jitter !== false;
+  window._aioRetryStats.total++;
+  return new Promise(function(resolve, reject) {
+    var attempt = 0;
+    function run() {
+      attempt++;
+      Promise.resolve().then(fn).then(resolve, function(err) {
+        if (attempt >= maxAttempts) {
+          window._aioRetryStats.failed++;
+          reject(err); return;
+        }
+        window._aioRetryStats.retried++;
+        var delay = Math.min(baseMs * Math.pow(2, attempt - 1), capMs);
+        if (useJitter) delay = Math.round(delay * (0.5 + Math.random() * 0.5));
+        setTimeout(run, delay);
+      });
+    }
+    run();
+  });
+};
+
+// ═══ v48.97: _aioProxyChain — CORS 프록시 순차 폴백 + Circuit Breaker (P2-6) ══
+// 용도: 3개 프록시 URL 배열에서 순서대로 시도, 실패 시 다음으로 폴백
+// 사용: _aioProxyChain.try(['https://p1.example.com','https://p2.example.com'],
+//                          '/api/endpoint', {timeout:30000})
+//       .then(resp => resp.json())
+window._aioProxyChain = (function() {
+  var _h = {}; // proxyBase -> {fails, lastFail, open}
+  var COOLDOWN_MS = 60000, FAIL_THRESH = 3;
+  function isHealthy(u) {
+    var h = _h[u]; if (!h) return true; if (!h.open) return true;
+    if (Date.now() - h.lastFail > COOLDOWN_MS) { h.open = false; h.fails = 0; return true; }
+    return false;
+  }
+  function fail(u) {
+    var h = _h[u] || (_h[u] = { fails: 0, lastFail: 0, open: false });
+    h.fails++; h.lastFail = Date.now();
+    if (h.fails >= FAIL_THRESH) h.open = true;
+  }
+  function ok(u) { var h = _h[u]; if (h) { h.fails = 0; h.open = false; } }
+  return {
+    _health: _h,
+    try: function(proxies, path, opts) {
+      var timeout = (opts && typeof opts.timeout === 'number') ? opts.timeout : 30000;
+      var list = (proxies || []).filter(isHealthy);
+      if (!list.length) list = proxies || [];      var i = 0;
+      function next() {
+        if (i >= list.length) return Promise.reject(new Error('All proxies exhausted'));
+        var base = list[i++];
+        var url = base.replace(/\/$/, '') + '/' + path.replace(/^\//, '');
+        var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+        var tid = ctrl ? setTimeout(function() { ctrl.abort(); }, timeout) : null;
+        var fo = Object.assign({}, opts); delete fo.timeout;
+        if (ctrl) fo.signal = ctrl.signal;
+        return fetch(url, fo).then(function(r) {
+          if (tid) clearTimeout(tid);
+          if (!r.ok) { fail(base); return next(); }
+          ok(base); return r;
+        }, function() { if (tid) clearTimeout(tid); fail(base); return next(); });
+      }
+      return next();
+    },
+    health: function() {
+      return Object.keys(_h).map(function(u) {
+        return { url: u, fails: _h[u].fails, open: _h[u].open, lastFail: _h[u].lastFail };
+      });
+    }
+  };
+})();
+
+// ═══ v48.91: 타이머 레지스트리 — setInterval ID 중앙 관리 ════════════════════
+// tech-debt: 분산된 setInterval ID를 한 곳에서 추적/정리 (메모리 누수 방지)
+// 사용:
+//   _aioRegisterTimer('name', fn, ms) — 등록 (중복 시 기존 정리 후 재등록)
+//   _aioClearTimer('name')            — 특정 타이머 정리
+//   _aioClearAllTimers()              — 전체 정리 (페이지 언로드 / SW 업데이트 시)
+window._aioTimerRegistry = window._aioTimerRegistry || {};
+
+window._aioRegisterTimer = function(name, fn, ms) {
+  if (window._aioTimerRegistry[name]) clearInterval(window._aioTimerRegistry[name]);
+  window._aioTimerRegistry[name] = setInterval(fn, ms);
+  return window._aioTimerRegistry[name];
+};
+window._aioClearTimer = function(name) {
+  if (window._aioTimerRegistry[name]) {
+    clearInterval(window._aioTimerRegistry[name]);
+    delete window._aioTimerRegistry[name];
+  }
+};
+window._aioClearAllTimers = function() {
+  var keys = Object.keys(window._aioTimerRegistry || {});
+  for (var i = 0; i < keys.length; i++) {
+    if (window._aioTimerRegistry[keys[i]]) clearInterval(window._aioTimerRegistry[keys[i]]);
+  }
+  window._aioTimerRegistry = {};
+};
+
+// ═══ v48.98: _aioPageBus — 단일 이벤트 라우팅 허브 ══════════════════════════
+// 용도: aio:pageShown / aio:liveQuotes 리스너를 페이지별로 등록·해제
+//   register(pageId, eventName, fn)  → 페이지별 핸들러 등록 (동일 fn 중복 무시)
+//   unregister(pageId)               → 해당 페이지 모든 리스너 제거
+//   dispatch(eventName, detail)      → CustomEvent 발사 (테스트·진단용)
+//   AIO.diag.pageBus()               → 레지스트리 상태 반환
+// P175 — _context/BUG-POSTMORTEM.md
+(function() {
+  if (window._aioPageBus) return; // 멱등 가드
+
+  // registry: { pageId: { eventName: [{ fn, wrapped }, ...] } }
+  var _registry = {};
+
+  window._aioPageBus = {
+    register: function(pageId, eventName, fn) {
+      if (!pageId || !eventName || typeof fn !== 'function') return;
+      _registry[pageId] = _registry[pageId] || {};
+      _registry[pageId][eventName] = _registry[pageId][eventName] || [];
+      // 동일 fn 중복 체크
+      var bucket = _registry[pageId][eventName];
+      for (var i = 0; i < bucket.length; i++) {
+        if (bucket[i].fn === fn) return; // 이미 등록됨 — 무시
+      }
+      // 에러 격리 래퍼
+      var wrapped = (function(f, pid, ev) {
+        return function(e) {
+          try { f(e); }
+          catch (err) {
+            if (typeof _aioLog === 'function') _aioLog('warn', 'pagebus', pid + '/' + ev + ' handler failed: ' + err.message);
+          }
+        };
+      })(fn, pageId, eventName);
+      bucket.push({ fn: fn, wrapped: wrapped });
+      document.addEventListener(eventName, wrapped);
+      if (typeof _aioLog === 'function') _aioLog('debug', 'pagebus', 'register: ' + pageId + '/' + eventName);
+    },
+
+    unregister: function(pageId) {
+      if (!pageId || !_registry[pageId]) return;
+      var events = _registry[pageId];
+      var evNames = Object.keys(events);
+      for (var i = 0; i < evNames.length; i++) {
+        var handlers = events[evNames[i]];
+        for (var j = 0; j < handlers.length; j++) {
+          document.removeEventListener(evNames[i], handlers[j].wrapped);
+        }
+      }
+      delete _registry[pageId];
+      if (typeof _aioLog === 'function') _aioLog('debug', 'pagebus', 'unregister: ' + pageId);
+    },
+
+    dispatch: function(eventName, detail) {
+      try {
+        document.dispatchEvent(new CustomEvent(eventName, { detail: detail !== undefined ? detail : null, bubbles: false }));
+      } catch (e) {
+        if (typeof _aioLog === 'function') _aioLog('warn', 'pagebus', 'dispatch failed: ' + e.message);
+      }
+    },
+
+    _getRegistry: function() {
+      var out = {};
+      var pageIds = Object.keys(_registry);
+      for (var i = 0; i < pageIds.length; i++) {
+        out[pageIds[i]] = {};
+        var evNames = Object.keys(_registry[pageIds[i]]);
+        for (var j = 0; j < evNames.length; j++) {
+          out[pageIds[i]][evNames[j]] = _registry[pageIds[i]][evNames[j]].length;
+        }
+      }
+      return out;
+    }
+  };
+
+  // AIO.diag.pageBus() 진단 API
+  window.AIO = window.AIO || {};
+  window.AIO.diag = window.AIO.diag || {};
+  window.AIO.diag.pageBus = function() {
+    var reg = window._aioPageBus._getRegistry();
+    var totalListeners = 0;
+    var pageIds = Object.keys(reg);
+    for (var i = 0; i < pageIds.length; i++) {
+      var evNames = Object.keys(reg[pageIds[i]]);
+      for (var j = 0; j < evNames.length; j++) totalListeners += reg[pageIds[i]][evNames[j]];
+    }
+    return { pages: pageIds.length, totalListeners: totalListeners, registry: reg };
+  };
+})();
+
+// ═══ v48.98: _aioOnce + _aioGlobalRegistry ═══════════════════════════════
+// _aioOnce(name, fn)      — 동일 name 최초 1회만 fn 실행 (멱등 초기화 가드)
+// _aioGlobalRegistry      — 전역 변수 namespace 이전 시 사용하는 Map
+// P176 — _context/BUG-POSTMORTEM.md
+(function() {
+  // ── _aioOnce ─────────────────────────────────────────────────────────
+  var _onceDone = {};
+  window._aioOnce = function(name, fn) {
+    if (!name || typeof fn !== 'function') return;
+    if (_onceDone[name]) return; // 이미 실행됨
+    _onceDone[name] = true;
+    try { fn(); }
+    catch (e) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'once', name + ' failed: ' + e.message);
+    }
+  };
+
+  // ── _aioGlobalRegistry ───────────────────────────────────────────────
+  // 전역 변수 → AIO.state.* 이전(migration) 시 구 변수명 → 신 경로 매핑 보관
+  // { name: { get: fn, set: fn } } — D1(v49.1) shim 작성 시 활용
+  if (!window._aioGlobalRegistry) {
+    window._aioGlobalRegistry = {
+      _map: {},
+      register: function(name, getter, setter) {
+        if (!name) return;
+        this._map[name] = { get: getter || null, set: setter || null };
+      },
+      get: function(name) {
+        var entry = this._map[name];
+        if (entry && typeof entry.get === 'function') return entry.get();
+        return undefined;
+      },
+      set: function(name, val) {
+        var entry = this._map[name];
+        if (entry && typeof entry.set === 'function') entry.set(val);
+      },
+      list: function() { return Object.keys(this._map); }
+    };
+  }
+})();
+
+// ═══ v48.98: _aioFiniteNum + _aioSafeDiv — Infinity/NaN/분모 0 통합 가드 ════
+// _aioFiniteNum(v, fb)         — v가 NaN/Infinity/-Infinity이면 fb(기본 null) 반환
+// _aioSafeDiv(num, den, fb)    — den === 0 또는 결과 비유한 시 fb(기본 null) 반환
+// 적용: Fund 분모 0(P/E·P/B·PEG·EV/EBITDA), VaR 분위수, Sharpe near-zero
+// P177 — _context/BUG-POSTMORTEM.md
+window._aioFiniteNum = function(v, fb) {
+  var fallback = (fb !== undefined) ? fb : null;
+  if (typeof v !== 'number' || !isFinite(v)) return fallback;
+  return v;
+};
+
+window._aioSafeDiv = function(num, den, fb) {
+  var fallback = (fb !== undefined) ? fb : null;
+  if (typeof den !== 'number' || den === 0) return fallback;
+  var result = num / den;
+  if (typeof result !== 'number' || !isFinite(result)) return fallback;
+  return result;
+};
+
+// ═══ v49.0: _aioLRU — 용량 제한 LRU 캐시 헬퍼 ═══════════════════════════
+// _aioLRU(name, cap) → LRU 인스턴스. get/set/has/size/stats API
+// 적용: scoreItem 캐시 200건(P182) · _tickerRegexCache 무한성장 방지
+// P182 — _context/BUG-POSTMORTEM.md
+window._aioLRU = function(name, cap) {
+  var _map = new Map(); // 삽입 순서 보장 (가장 오래된 = 첫 항목)
+  var _cap = (typeof cap === 'number' && cap > 0) ? cap : 200;
+  var _name = name || 'unnamed';
+  var _stats = { hits: 0, misses: 0, evictions: 0 };
+
+  return {
+    name: _name,
+    get: function(key) {
+      if (!_map.has(key)) { _stats.misses++; return null; }
+      // LRU 갱신: delete + re-set → 맵 끝으로 이동
+      var val = _map.get(key);
+      _map.delete(key);
+      _map.set(key, val);
+      _stats.hits++;
+      return val;
+    },
+    set: function(key, val) {
+      if (_map.has(key)) _map.delete(key); // 위치 갱신
+      else if (_map.size >= _cap) {
+        // 가장 오래된 항목 제거 (Map 첫 항목)
+        _map.delete(_map.keys().next().value);
+        _stats.evictions++;
+      }
+      _map.set(key, val);
+    },
+    has: function(key) { return _map.has(key); },
+    size: function() { return _map.size; },
+    clear: function() { _map.clear(); },
+    stats: function() { return { name: _name, cap: _cap, size: _map.size, hits: _stats.hits, misses: _stats.misses, evictions: _stats.evictions }; }
+  };
 };
 
 // ═══ v48.32: Event Delegation — onclick 인라인 핸들러 ESM 대체 ═══════════
@@ -499,8 +987,8 @@ if (typeof document !== 'undefined') {
       setTimeout(window._aioRenderSnapshotDates, 500);
     });
   }
-  if (window._aioSnapshotDatesTimer) clearInterval(window._aioSnapshotDatesTimer);
-  window._aioSnapshotDatesTimer = setInterval(window._aioRenderSnapshotDates, 15 * 60 * 1000);
+  // v48.91: 타이머 레지스트리 등록 (메모리 누수 방지)
+  window._aioSnapshotDatesTimer = _aioRegisterTimer('snapshotDates', window._aioRenderSnapshotDates, 15 * 60 * 1000);
 }
 
 // v48.51: Breadth 9-canvas fallback 렌더러 — Chart.js 없이 2D 캔버스로 경량 sparkline
@@ -656,8 +1144,9 @@ window._aioBreadthCanvasRender = function() {
 };
 
 // v48.60: Breadth 페이지 진입 + _liveData 갱신 시 자동 재렌더 (Y축 스케일 실시간 보정)
+// v48.99: _aioPageBus 마이그 (P178)
 if (typeof document !== 'undefined') {
-  document.addEventListener('aio:liveQuotes', function(){
+  _aioPageBus.register('core-breadth', 'aio:liveQuotes', function(){
     var bp = document.getElementById('page-breadth');
     if (bp && bp.classList.contains('active') && typeof window._aioBreadthCanvasRender === 'function') {
       try { window._aioBreadthCanvasRender(); } catch(_){}
@@ -751,12 +1240,13 @@ window._aioRenderSignalRegime = function() {
   }
 };
 // 훅: _liveData 갱신 + signal/briefing 페이지 진입 시
+// v48.99: _aioPageBus 마이그 (P178)
 if (typeof document !== 'undefined') {
-  document.addEventListener('aio:liveQuotes', function(){
+  _aioPageBus.register('core-signal-live', 'aio:liveQuotes', function(){
     var sig = document.getElementById('page-signal');
     if (sig && sig.classList.contains('active')) window._aioRenderSignalRegime();
   });
-  document.addEventListener('aio:pageShown', function(e){
+  _aioPageBus.register('core-signal-shown', 'aio:pageShown', function(e){
     if (e.detail === 'signal' || e.detail === 'home') {
       setTimeout(function(){
         if (typeof updateBottomProcess === 'function') { try { updateBottomProcess(); } catch(_){} }
@@ -860,12 +1350,13 @@ window._aioRenderFuturesFlow = function() {
   var strong = wrap && wrap.querySelector('strong');
   if (strong) strong.style.color = color;
 };
+// v48.99: _aioPageBus 마이그 (P178)
 if (typeof document !== 'undefined') {
-  document.addEventListener('aio:liveQuotes', function(){
+  _aioPageBus.register('core-options-live', 'aio:liveQuotes', function(){
     var opt = document.getElementById('page-options');
     if (opt && opt.classList.contains('active')) window._aioRenderFuturesFlow();
   });
-  document.addEventListener('aio:pageShown', function(e){
+  _aioPageBus.register('core-options-shown', 'aio:pageShown', function(e){
     if (e.detail === 'options') setTimeout(window._aioRenderFuturesFlow, 300);
   });
 }
@@ -922,12 +1413,13 @@ window._aioRenderVixTermRegime = function() {
     }
   }
 };
+// v48.99: _aioPageBus 마이그 (P178)
 if (typeof document !== 'undefined') {
-  document.addEventListener('aio:liveQuotes', function(){
+  _aioPageBus.register('core-sentiment-live', 'aio:liveQuotes', function(){
     var sent = document.getElementById('page-sentiment');
     if (sent && sent.classList.contains('active')) window._aioRenderVixTermRegime();
   });
-  document.addEventListener('aio:pageShown', function(e){
+  _aioPageBus.register('core-sentiment-shown', 'aio:pageShown', function(e){
     if (e.detail === 'sentiment') setTimeout(window._aioRenderVixTermRegime, 300);
   });
 }
@@ -984,7 +1476,7 @@ window._aioShowOnboarding = function() {
           '<div style="font-size:11px;color:var(--text-muted);padding-left:28px;line-height:1.6;"><a href="https://fred.stlouisfed.org/docs/api/api_key.html" target="_blank" rel="noopener" style="color:var(--text-secondary);">fred.stlouisfed.org</a> · 무제한 무료</div>' +
         '</div>' +
       '</div>' +
-      '<div style="padding:10px 12px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.3);border-radius:7px;margin-bottom:14px;font-size:11px;color:var(--text-secondary);line-height:1.6;">' +
+      '<div style="padding:10px 12px;background:var(--data-cyan-light);border:1px solid var(--accent-border);border-radius:7px;margin-bottom:14px;font-size:11px;color:var(--text-secondary);line-height:1.6;">' +
         '<strong style="color:var(--data-cyan);">키 없이도 사용 가능</strong> — Yahoo/Stooq/Naver/CoinGecko 공개 시세 + 정적 스냅샷 데이터. 단 AI 채팅·기업 재무는 키 필요.' +
       '</div>' +
       '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
@@ -1059,10 +1551,11 @@ window._aioUpdateFreshness = function() {
   if (label) { label.textContent = state + ' (' + source + ')'; label.style.color = 'var(--text-primary)'; }
   if (time) time.textContent = '갱신: ' + (ageSec < 60 ? ageSec + '초 전' : ageMin + '분 전');
 };
+// v48.99: _aioPageBus 마이그 (P178)
 if (typeof document !== 'undefined') {
-  document.addEventListener('aio:liveQuotes', function(){ window._aioUpdateFreshness(); });
-  if (window._aioFreshnessTimer) clearInterval(window._aioFreshnessTimer);
-  window._aioFreshnessTimer = setInterval(function(){ window._aioUpdateFreshness(); }, 30 * 1000);
+  _aioPageBus.register('core-freshness', 'aio:liveQuotes', function(){ window._aioUpdateFreshness(); });
+  // v48.91: 타이머 레지스트리 등록
+  window._aioFreshnessTimer = _aioRegisterTimer('freshness', function(){ window._aioUpdateFreshness(); }, 30 * 1000);
 }
 
 // v48.55: 뉴스 티커 배지 클릭 → ticker 페이지 이동 + 심볼 자동 조회 (사용자 지적 "뉴스→기업" 연결)
@@ -1225,13 +1718,22 @@ window._aioApplyChartDefaults = function() {
 if (typeof Chart !== 'undefined') {
   window._aioApplyChartDefaults();
 } else {
+  // v49.1 P185: raw setInterval → _aioRegisterTimer (타이머 레지스트리 등록, 중복 방지)
   var _chartWait = 0;
-  var _chartIv = setInterval(function() {
+  window._aioRegisterTimer('chartReady', function() {
     _chartWait += 200;
     if (typeof Chart !== 'undefined') {
       window._aioApplyChartDefaults();
-      clearInterval(_chartIv);
-    } else if (_chartWait > 5000) { clearInterval(_chartIv); }
+      if (window._aioTimerRegistry && window._aioTimerRegistry['chartReady']) {
+        clearInterval(window._aioTimerRegistry['chartReady']);
+        delete window._aioTimerRegistry['chartReady'];
+      }
+    } else if (_chartWait > 5000) {
+      if (window._aioTimerRegistry && window._aioTimerRegistry['chartReady']) {
+        clearInterval(window._aioTimerRegistry['chartReady']);
+        delete window._aioTimerRegistry['chartReady'];
+      }
+    }
   }, 200);
 }
 
@@ -1335,13 +1837,15 @@ function showDataError(area, msg, severity) {
 function _sanitizeChartData(arr, fillMode) {
   if (!Array.isArray(arr) || arr.length === 0) return [];
   fillMode = fillMode || 'prev';
-  var lastValid = 0;
+  var lastValid = null;
+  var hasValid = false;
   return arr.map(function(v, i) {
     if (v == null || typeof v !== 'number' || !isFinite(v)) {
       if (fillMode === 'zero') return 0;
-      if (fillMode === 'prev') return lastValid;
+      if (fillMode === 'prev') return hasValid ? lastValid : null;
       return null; // 'skip'
     }
+    hasValid = true;
     lastValid = v;
     return v;
   });
@@ -1381,7 +1885,10 @@ function chartDataGate(canvasId, labels, datasets, opts) {
     var clean = _sanitizeChartData(datasets[i], fillMode);
     // 라벨과 길이 불일치 → 자르거나 패딩
     if (clean.length > labels.length) clean = clean.slice(0, labels.length);
-    while (clean.length < labels.length) clean.push(fillMode === 'zero' ? 0 : clean[clean.length - 1] || 0);
+    while (clean.length < labels.length) {
+      var prev = clean.length ? clean[clean.length - 1] : null;
+      clean.push(fillMode === 'zero' ? 0 : (prev != null ? prev : null));
+    }
     // 유효 포인트 수 확인
     var vCount = clean.filter(function(v) { return v !== null && !isNaN(v); }).length;
     if (vCount >= minPoints) validCount++;
@@ -1440,7 +1947,7 @@ function _showChartFallback(canvas, chartName, reason) {
     '<div style="font-size:11px;color:var(--text-muted);font-weight:600;">' + (chartName || '차트') + '</div>' +
     '<div class="aio-chart-fb-reason" style="font-size:10px;color:#f87171;margin-top:2px;">' + reason + '</div>' +
     '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">데이터 갱신 시 자동 복구됩니다</div>' +
-    '<button data-action="_aioFetchLiveQuotes" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);color:#60a5fa;font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:6px;">↻ 데이터 재시도</button>';
+    '<button data-action="_aioFetchLiveQuotes" style="background:var(--data-cyan-soft);border:1px solid var(--data-cyan-dim);color:#60a5fa;font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:6px;">↻ 데이터 재시도</button>';
   parent.insertBefore(overlay, canvas);
   _aioLog('warn', 'chart', chartName + ': ' + reason);
 }
@@ -2172,7 +2679,7 @@ function _getKrxDataStatus(symbol) {
 
 // ── 1. PriceStore — 시세 데이터 검증 저장소 ──
 const PriceStore = {
-  _data: {},        // sym → { price, pct, source, ts, stale }
+  _data: {},        // sym → { price, pct, source, ts, stale, pctMissing }
   _prev: {},        // sym → 이전 가격 (급변 감지용)
   _rejected: [],    // 최근 거부된 데이터 로그 (최대 50건)
   _stats: { accepted: 0, rejected: 0, staleCount: 0 },
@@ -2189,7 +2696,8 @@ const PriceStore = {
       this._reject(sym, price, source, 'invalid_price', '가격이 숫자가 아니거나 0 이하');
       return false;
     }
-    if (typeof pct !== 'number' || isNaN(pct)) pct = 0;
+    const pctMissing = (typeof pct !== 'number' || isNaN(pct) || !isFinite(pct));
+    if (pctMissing) pct = null;
     const age = Date.now() - this._sessionStart;
     if (this._prev[sym] && age > 180000) {
       const jump = Math.abs(price - this._prev[sym]) / this._prev[sym];
@@ -2198,15 +2706,23 @@ const PriceStore = {
         return false;
       }
     }
-    this._data[sym] = { price, pct, source: source || 'unknown', ts: Date.now(), stale: false };
+    const ts = Date.now();
+    this._data[sym] = { price, pct, source: source || 'unknown', ts: ts, stale: false, pctMissing: pctMissing };
     this._prev[sym] = price;
     this._stats.accepted++;
     window._liveData = window._liveData || {};
-    window._liveData[sym] = { price, pct };
+    window._liveData[sym] = Object.assign({}, window._liveData[sym] || {}, {
+      price: price,
+      pct: pct,
+      source: source || 'unknown',
+      ts: ts,
+      stale: false,
+      pctMissing: pctMissing
+    });
     window._quoteTimestamps = window._quoteTimestamps || {};
-    window._quoteTimestamps[sym] = Date.now();
+    window._quoteTimestamps[sym] = ts;
     window._dataSource = window._dataSource || {};
-    window._dataSource[sym] = { source: source || 'live:yahoo', ts: Date.now() };
+    window._dataSource[sym] = { source: source || 'live:yahoo', ts: ts, pctMissing: pctMissing };
     return true;
   },
   get(sym) {
@@ -2433,6 +2949,7 @@ window.AIO._bindCore = function() {
     window.AIO.logs              = window._aioLogs || null;
     window.AIO.pages             = window.PAGES || null;
     window.AIO.data.live         = window._liveDataReadonly || null;
+    window.AIO._timers           = window._aioTimerRegistry || {};  // v48.91: 타이머 레지스트리 바인딩
     if (window.AIO.log) window.AIO.log('info', 'bootstrap', 'AIO namespace bound', { modules: Object.keys(window.AIO) });
   } catch(e) { /* silent */ }
 };
@@ -2488,6 +3005,9 @@ window.AIO.charts = {
       if (Array.isArray(data) && data.length > 0) {
         series.setData(data);
       }
+      if (typeof window._aioMarkChartCanvases === 'function') {
+        window._aioMarkChartCanvases(container, options.ariaLabel || options.title || 'AIO line chart');
+      }
       // 뷰포트 resize 자동 대응
       var _ro = null;
       if (typeof ResizeObserver !== 'undefined') {
@@ -2541,6 +3061,9 @@ window.AIO.charts = {
         var s = chart.addLineSeries({ color: cfg.color || '#00d4ff', lineWidth: cfg.lineWidth || 2, title: cfg.name });
         if (Array.isArray(cfg.data)) s.setData(cfg.data);
         seriesList.push(s);
+      }
+      if (typeof window._aioMarkChartCanvases === 'function') {
+        window._aioMarkChartCanvases(container, options.ariaLabel || options.title || 'AIO multi-series chart');
       }
       var _ro = null;
       if (typeof ResizeObserver !== 'undefined') {
@@ -2685,6 +3208,7 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
     try {
       var mc = LightweightCharts.createChart(candleDiv, baseOpts(200, true));
       window._deepChartInstances.push(mc);
+      if (typeof window._aioMarkChartCanvases === 'function') window._aioMarkChartCanvases(candleDiv, '심층 기술 분석 캔들 차트');
       var cs = mc.addCandlestickSeries({
         upColor: '#00e5a0', downColor: '#ff5b50',
         borderUpColor: '#00e5a0', borderDownColor: '#ff5b50',
@@ -2721,6 +3245,7 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
         handleScroll: false, handleScale: false
       });
       window._deepChartInstances.push(rc);
+      if (typeof window._aioMarkChartCanvases === 'function') window._aioMarkChartCanvases(rsiDiv, '심층 기술 분석 RSI 차트');
       var rl = rc.addLineSeries({ color: '#c084fc', lineWidth: 1, priceLineVisible: false, lastValueVisible: true });
       rl.setData(rsiData);
       rc.addLineSeries({ color: '#ff5b5055', lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false })
@@ -2745,6 +3270,7 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
         handleScroll: false, handleScale: false
       });
       window._deepChartInstances.push(vc);
+      if (typeof window._aioMarkChartCanvases === 'function') window._aioMarkChartCanvases(volDiv, '심층 기술 분석 거래량 차트');
       var vs = vc.addHistogramSeries({ priceFormat: { type: 'volume' }, priceScaleId: '' });
       vs.setData(ohlcv.map(function(d) {
         return { time: d.time, value: d.volume, color: d.close >= d.open ? '#00e5a028' : '#ff5b5028' };
@@ -2757,8 +3283,31 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v48.80';
+const APP_VERSION = 'v49.1';
 window.AIO.version = APP_VERSION;
+
+// ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
+window.AIO.diag = window.AIO.diag || {};
+
+// AIO.diag.proxyHealth() — 각 CORS 프록시의 Circuit Breaker 상태 반환
+window.AIO.diag.proxyHealth = function() {
+  if (!window._aioProxyChain) return { error: '_aioProxyChain 미초기화' };
+  return {
+    entries: window._aioProxyChain.health(),
+    ts: new Date().toISOString()
+  };
+};
+
+// AIO.diag.retryStats() — 자동 재시도 누적 통계 반환
+window.AIO.diag.retryStats = function() {
+  var s = window._aioRetryStats || { total: 0, retried: 0, failed: 0 };
+  return { total: s.total, retried: s.retried, failed: s.failed, ts: new Date().toISOString() };
+};
+
+// AIO.diag.lastNaverHealth() — Naver 피드 최근 상태 반환 (v48.82 기존 인프라 활용)
+window.AIO.diag.lastNaverHealth = function() {
+  return (window._aioFeedHealth && window._aioFeedHealth.naver) || null;
+};
 
 // v41.1: 타이밍 상수 -- 매직 넘버 제거
 const T = {
@@ -3169,7 +3718,239 @@ window._aioRefreshFreshness = function() {
   if (typeof window._aioRenderFreshness === 'function') window._aioRenderFreshness();
 };
 
-// v48.80/P150: one-call operational readiness snapshot for live/self-operation checks.
+// v48.80/P150 + v48.81/P151 + v48.82/P152: one-call operational/data/pipeline snapshot for live checks.
+window.AIO.CORE_LIVE_SYMBOLS = ['^GSPC', '^IXIC', '^VIX', 'CL=F', 'GC=F', 'KRW=X', 'DX-Y.NYB', '^KS11', '^KQ11'];
+
+window.AIO.getLiveCoverage = function(requiredSymbols) {
+  var required = requiredSymbols || window.AIO.CORE_LIVE_SYMBOLS || [];
+  var sources = window._dataSource || {};
+  var live = [];
+  var missing = [];
+  var stale = [];
+  var now = Date.now();
+  required.forEach(function(sym) {
+    var s = sources[sym];
+    var isLive = !!(s && s.source && s.source !== 'snapshot' && s.source.indexOf('fallback') === -1);
+    if (isLive) {
+      live.push(sym);
+      if (s.ts && now - s.ts > 30 * 60 * 1000) stale.push(sym);
+    } else {
+      missing.push(sym);
+    }
+  });
+  var has = function(sym) { return live.indexOf(sym) !== -1; };
+  var coveragePct = required.length ? live.length / required.length : 0;
+  var coreOk = has('^GSPC') && has('^VIX') && coveragePct >= 0.5;
+  return {
+    required: required.slice(),
+    live: live,
+    missing: missing,
+    stale: stale,
+    coveragePct: coveragePct,
+    coreOk: coreOk
+  };
+};
+
+window.AIO.getDataFreshnessAudit = function() {
+  var snap = window.DATA_SNAPSHOT || {};
+  var updatedTs = snap._updated ? new Date(snap._updated).getTime() : 0;
+  var snapshotAgeHours = updatedTs ? Math.round((Date.now() - updatedTs) / 3600000) : null;
+  var liveCoverage = window.AIO.getLiveCoverage();
+  var priceHealth = null;
+  try { priceHealth = window.PriceStore && typeof window.PriceStore.health === 'function' ? window.PriceStore.health() : null; } catch(_p) {}
+  var macroHealth = null;
+  try { macroHealth = window.MacroStore && typeof window.MacroStore.health === 'function' ? window.MacroStore.health() : null; } catch(_m) {}
+  var effectiveFallback = (snap._isFallback !== false) && !(liveCoverage && liveCoverage.coreOk);
+  var issues = [];
+  if (snapshotAgeHours !== null && snapshotAgeHours > 24 && effectiveFallback) issues.push('fallback snapshot older than 24h');
+  if (!liveCoverage.coreOk) issues.push('core live quote coverage incomplete');
+  if (priceHealth && priceHealth.stale > 0) issues.push(priceHealth.stale + ' stale live price(s)');
+  if (macroHealth && macroHealth.stale > 0) issues.push(macroHealth.stale + ' stale macro series');
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issues: issues,
+    snapshotDate: snap._snapshotDate || null,
+    snapshotUpdated: snap._updated || null,
+    snapshotAgeHours: snapshotAgeHours,
+    snapshotIsFallback: snap._isFallback !== false,
+    effectiveFallback: effectiveFallback,
+    partialLive: !!snap._partialLive,
+    liveCoverage: liveCoverage,
+    priceHealth: priceHealth,
+    macroHealth: macroHealth,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getDataPipelineAudit = function() {
+  function exists(name) {
+    try { return typeof window[name] !== 'undefined'; } catch(_) { return false; }
+  }
+  function attrValues(selector, attr, root) {
+    try {
+      var out = {};
+      (root || document).querySelectorAll(selector).forEach(function(el) {
+        var v = el.getAttribute(attr);
+        if (v) out[v] = 1;
+      });
+      return Object.keys(out);
+    } catch(_) { return []; }
+  }
+  function dataApiSummary() {
+    var out = {};
+    try {
+      if (typeof DATA_APIS !== 'undefined') {
+        Object.keys(DATA_APIS).forEach(function(k) {
+          var cfg = DATA_APIS[k] || {};
+          var hasKey = false;
+          try { hasKey = !!(cfg.key && cfg.key()); } catch(_) {}
+          out[k] = { base: cfg.base || null, hasKey: hasKey, limit: cfg.limit || null };
+        });
+      }
+    } catch(_) {}
+    return out;
+  }
+  function schedulerSummary() {
+    var out = {};
+    try {
+      if (typeof REFRESH_SCHEDULE !== 'undefined') {
+        Object.keys(REFRESH_SCHEDULE).forEach(function(k) {
+          var cfg = REFRESH_SCHEDULE[k] || {};
+          out[k] = {
+            intervalMs: cfg.interval || 0,
+            hasFn: typeof cfg.fn === 'function',
+            inFlight: !!cfg._inFlight,
+            lastOk: cfg._lastOk || 0,
+            lastErr: cfg._lastErr || ''
+          };
+        });
+      }
+    } catch(_) {}
+    return out;
+  }
+  function sourceCounts() {
+    var counts = {};
+    try {
+      Object.keys(window._dataSource || {}).forEach(function(sym) {
+        var src = (window._dataSource[sym] && window._dataSource[sym].source) || 'unknown';
+        counts[src] = (counts[src] || 0) + 1;
+      });
+    } catch(_) {}
+    return counts;
+  }
+  function pctMissingSymbols() {
+    try {
+      return Object.keys(window._dataSource || {}).filter(function(sym) {
+        return !!(window._dataSource[sym] && window._dataSource[sym].pctMissing);
+      });
+    } catch(_) { return []; }
+  }
+  function canvasA11yGaps() {
+    try {
+      return Array.prototype.slice.call(document.querySelectorAll('canvas')).filter(function(el) {
+        if (el.getAttribute('aria-hidden') === 'true' || el.hidden) return false;
+        return !el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.getAttribute('title') && !el.getAttribute('role');
+      }).map(function(el) { return el.id || '(canvas-without-id)'; });
+    } catch(_) { return []; }
+  }
+
+  var activeRoot = document.querySelector('.page.active') || document;
+  var livePriceSymbols = attrValues('[data-live-price]', 'data-live-price');
+  var liveChangeSymbols = attrValues('[data-live-chg]', 'data-live-chg');
+  var activeLivePriceSymbols = attrValues('[data-live-price]', 'data-live-price', activeRoot);
+  var activeLiveChangeSymbols = attrValues('[data-live-chg]', 'data-live-chg', activeRoot);
+  var liveChangeSet = {};
+  var livePriceSet = {};
+  activeLiveChangeSymbols.forEach(function(sym) { liveChangeSet[sym] = 1; });
+  activeLivePriceSymbols.forEach(function(sym) { livePriceSet[sym] = 1; });
+  var snapKeys = attrValues('[data-snap]', 'data-snap');
+  var snapDateKeys = attrValues('[data-snap-date]', 'data-snap-date');
+  var liveData = window._liveData || {};
+  var missingLiveBindings = activeLivePriceSymbols.filter(function(sym) { return !liveData[sym]; });
+  var priceWithoutChange = activeLivePriceSymbols.filter(function(sym) { return !liveChangeSet[sym]; });
+  var changeWithoutPrice = activeLiveChangeSymbols.filter(function(sym) { return !livePriceSet[sym]; });
+  var missingPctSymbols = pctMissingSymbols();
+  var chartA11yGaps = canvasA11yGaps();
+  var requiredFns = [
+    'fetchWithTimeout', 'fetchViaProxy', 'fetchLiveQuotes', 'applyLiveQuotes',
+    'applyDataSnapshot', 'fetchAllNews', 'renderFeed', 'renderHomeFeed',
+    'renderBriefingFeed', 'computeTradingScore', 'computeMarketHealth',
+    'computeExecutionWindow', 'updateRiskMonitor', 'updateBenchmarkChart'
+  ];
+  var missingFns = requiredFns.filter(function(name) { return !exists(name); });
+  var freshness = null;
+  try { freshness = window.AIO.getDataFreshnessAudit(); } catch(_) {}
+  var stores = {
+    price: window.PriceStore && typeof window.PriceStore.health === 'function' ? window.PriceStore.health() : null,
+    macro: window.MacroStore && typeof window.MacroStore.health === 'function' ? window.MacroStore.health() : null,
+    news: window.NewsStore && typeof window.NewsStore.health === 'function' ? window.NewsStore.health() : null,
+    dataHealth: window.DataHealth && typeof window.DataHealth.report === 'function'
+  };
+  var issues = [];
+  if (missingFns.length) issues.push('missing pipeline function(s): ' + missingFns.join(', '));
+  if (freshness && freshness.liveCoverage && !freshness.liveCoverage.coreOk) issues.push('core live quote coverage incomplete');
+  if (stores.price && stores.price.rejected > 0) issues.push('price rejects present: ' + stores.price.rejected);
+  if (stores.macro && stores.macro.rejected > 0) issues.push('macro rejects present: ' + stores.macro.rejected);
+  if (missingLiveBindings.length > Math.max(20, livePriceSymbols.length * 0.5)) issues.push('many live DOM sinks are not backed by liveData yet');
+  if (missingPctSymbols.length > 10) issues.push('many live quotes have price but missing change percent');
+  if (chartA11yGaps.length > 0) issues.push('chart canvas accessibility labels missing: ' + chartA11yGaps.slice(0, 5).join(', '));
+
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issues: issues,
+    generatedAt: new Date().toISOString(),
+    layers: {
+      sources: {
+        dataApis: dataApiSummary(),
+        newsSourceCount: (typeof AIO_NEWS_SOURCES !== 'undefined' && Array.isArray(AIO_NEWS_SOURCES)) ? AIO_NEWS_SOURCES.length : null,
+        sourceCounts: sourceCounts()
+      },
+      transport: {
+        fetchWithTimeout: exists('fetchWithTimeout'),
+        fetchViaProxy: exists('fetchViaProxy'),
+        proxyRegistrySize: (typeof _PROXY_REGISTRY !== 'undefined' && _PROXY_REGISTRY.list) ? _PROXY_REGISTRY.list.length : null,
+        proxyActiveCount: (typeof _PROXY_REGISTRY !== 'undefined' && typeof _PROXY_REGISTRY.getActive === 'function') ? _PROXY_REGISTRY.getActive().length : null,
+        cache: window.AIO_Cache && typeof window.AIO_Cache.stats === 'function' ? window.AIO_Cache.stats() : null,
+        feedHealth: window._aioFeedHealth && typeof window._aioFeedHealth.stats === 'function' ? window._aioFeedHealth.stats() : null
+      },
+      scheduler: schedulerSummary(),
+      validationStores: stores,
+      state: {
+        liveDataCount: Object.keys(liveData).length,
+        dataSourceCount: Object.keys(window._dataSource || {}).length,
+        quoteTimestampCount: Object.keys(window._quoteTimestamps || {}).length,
+        lastFetch: Object.assign({}, window._lastFetch || {}),
+        snapshot: {
+          date: window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._snapshotDate || null,
+          updated: window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._updated || null,
+          isFallback: window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT._isFallback !== false : null,
+          partialLive: !!(window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._partialLive)
+        }
+      },
+      analysis: {
+        requiredFunctions: requiredFns,
+        missingFunctions: missingFns,
+        freshness: freshness
+      },
+      render: {
+        activePage: (document.querySelector('.page.active') || {}).id || null,
+        pageCount: document.querySelectorAll('.page').length,
+        livePriceSinkCount: livePriceSymbols.length,
+        liveChangeSinkCount: liveChangeSymbols.length,
+        snapSinkCount: snapKeys.length,
+        snapDateSinkCount: snapDateKeys.length,
+        chartCanvasCount: document.querySelectorAll('canvas').length,
+        missingLiveBindingsSample: missingLiveBindings.slice(0, 30),
+        priceWithoutChangeSample: priceWithoutChange.slice(0, 30),
+        changeWithoutPriceSample: changeWithoutPrice.slice(0, 30),
+        missingPctSymbolsSample: missingPctSymbols.slice(0, 30),
+        chartCanvasA11yGaps: chartA11yGaps.slice(0, 30),
+        bus: window.AIOBus && typeof window.AIOBus.stats === 'function' ? window.AIOBus.stats() : null
+      }
+    }
+  };
+};
+
 window.AIO.getOperationalHealth = function() {
   var appVersion = (typeof APP_VERSION === 'string' ? APP_VERSION : window.AIO.version || null);
   var storage = { localStorage: false, error: null };
@@ -3210,6 +3991,21 @@ window.AIO.getOperationalHealth = function() {
   try { feed = window._aioFeedHealth && typeof window._aioFeedHealth.stats === 'function' ? window._aioFeedHealth.stats() : null; } catch(_f) {}
   var logs = null;
   try { logs = window._aioLogs && typeof window._aioLogs.rate === 'function' ? window._aioLogs.rate() : null; } catch(_l) {}
+  var dataFreshness = null;
+  try { dataFreshness = window.AIO.getDataFreshnessAudit(); } catch(_d) {}
+  var dataPipeline = null;
+  try {
+    if (typeof window.AIO.getDataPipelineAudit === 'function') {
+      var pAudit = window.AIO.getDataPipelineAudit();
+      dataPipeline = {
+        status: pAudit.status,
+        issues: pAudit.issues,
+        liveDataCount: pAudit.layers && pAudit.layers.state ? pAudit.layers.state.liveDataCount : null,
+        livePriceSinkCount: pAudit.layers && pAudit.layers.render ? pAudit.layers.render.livePriceSinkCount : null,
+        snapSinkCount: pAudit.layers && pAudit.layers.render ? pAudit.layers.render.snapSinkCount : null
+      };
+    }
+  } catch(_dp) {}
 
   var issues = [];
   if (!storage.localStorage) issues.push('localStorage unavailable');
@@ -3218,6 +4014,8 @@ window.AIO.getOperationalHealth = function() {
   if (api.error > 0) issues.push(api.error + ' API source(s) in error');
   if (api.warn > 0) issues.push(api.warn + ' API source(s) degraded');
   if (feed && feed.disabled > 0) issues.push(feed.disabled + ' RSS source(s) disabled');
+  if (dataFreshness && dataFreshness.status !== 'ok') issues.push('data freshness degraded');
+  if (dataPipeline && dataPipeline.status !== 'ok') issues.push('data pipeline degraded');
 
   return {
     status: issues.length === 0 ? 'ok' : (api.error > 0 || !storage.localStorage ? 'error' : 'warn'),
@@ -3228,6 +4026,8 @@ window.AIO.getOperationalHealth = function() {
     serviceWorker: sw,
     storage: storage,
     api: api,
+    dataFreshness: dataFreshness,
+    dataPipeline: dataPipeline,
     feed: feed,
     cache: cache,
     lastFetch: Object.assign({}, window._lastFetch || {}),
@@ -3253,7 +4053,9 @@ window._aioMemoStaleInfo = function(memo, opts) {
     if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) {
       var d = new Date(year, mm - 1, dd);
       // 미래 날짜면 작년으로 (예: 12/28 in April → 전년 12월)
-      if (d.getTime() > Date.now() + 86400000) d.setFullYear(year - 1);
+      // v49.1 P186: 3월/11월 DST 전환 ±1h 보정 (fall-back 시 25h 허용)
+      var _dstGrace = ([3, 11].indexOf(new Date().getMonth() + 1) !== -1) ? 3600000 : 0;
+      if (d.getTime() > Date.now() + 86400000 + _dstGrace) d.setFullYear(year - 1);
       dates.push(d.getTime());
     }
   }
@@ -3309,14 +4111,15 @@ window._aioStockStaleInfo = function(sym) {
 };
 
 // 자동 렌더: 가이드 페이지 진입 시 + 30초 주기
-document.addEventListener('aio:pageShown', function(e) {
+// v48.99: _aioPageBus 마이그 (P178)
+_aioPageBus.register('core-guide-shown', 'aio:pageShown', function(e) {
   if (e && e.detail && e.detail.id === 'guide') {
     setTimeout(function() { if (window._aioRenderFreshness) window._aioRenderFreshness(); }, 100);
   }
 });
 if (typeof window !== 'undefined') {
-  if (window._aioFreshnessPanelTimer) clearInterval(window._aioFreshnessPanelTimer);
-  window._aioFreshnessPanelTimer = setInterval(function() {
+  // v48.91: 타이머 레지스트리 등록
+  window._aioFreshnessPanelTimer = _aioRegisterTimer('freshnessPanel', function() {
     var panel = document.getElementById('aio-freshness-panel');
     if (panel && panel.offsetParent !== null && window._aioRenderFreshness) {
       window._aioRenderFreshness();
@@ -3536,6 +4339,8 @@ const DATA_SNAPSHOT = {
 };
 
 // 편의 포맷터 (안전한 숫자 포맷 — undefined/NaN 방어)
+window.DATA_SNAPSHOT = DATA_SNAPSHOT;
+
 const _snap = {
   num(v, fallback) { const n = Number(v); return isNaN(n) ? (fallback ?? 0) : n; },
   comma(n) { return _snap.num(n).toLocaleString('en-US'); },
@@ -3876,7 +4681,7 @@ const NARRATIVE_ENGINE = (function() {
     if (el) el.textContent = (fmt ? fmt(value) : value);
     if (el) el.style.color = regime.color;
     const st = document.getElementById(idStatus);
-    if (st) { st.textContent = regime.label; st.style.color = regime.color; st.style.background = `rgba(${regime.color==='#ff5b50'?'255,91,80':regime.color==='#00e5a0'?'0,229,160':'255,163,26'},0.1)`; }
+    if (st) { st.textContent = regime.label; st.style.color = regime.color; st.style.background = regime.color==='#ff5b50' ? 'var(--data-red-mid)' : regime.color==='#00e5a0' ? 'var(--data-green-mid)' : 'var(--data-amber-mid)'; }
     const bar = document.getElementById(idBar);
     if (bar) { bar.style.width = regime.bar + '%'; bar.style.background = regime.color; }
   }
@@ -4036,6 +4841,34 @@ const DATE_ENGINE = (function() {
     '2026-12-25' // Christmas
   ];
 
+  // v48.95 P2-2: 2027년 공휴일 (한국·미국) ─────────────────────────
+  var KR_HOLIDAYS_2027 = [
+    '2027-01-01','2027-02-08','2027-02-09','2027-02-10', // 신정, 설연휴
+    '2027-03-01', // 삼일절
+    '2027-05-05','2027-05-13', // 어린이날, 석가탄신일
+    '2027-06-06', // 현충일
+    '2027-08-15','2027-08-16', // 광복절+대체
+    '2027-10-02','2027-10-04','2027-10-05', // 추석+대체
+    '2027-10-03', // 개천절
+    '2027-10-09','2027-10-11', // 한글날+대체
+    '2027-12-25' // 성탄절
+  ];
+  var US_HOLIDAYS_2027 = [
+    '2027-01-01','2027-01-18', // 신년, MLK
+    '2027-02-15', // 대통령의날
+    '2027-03-26', // Good Friday
+    '2027-05-31', // Memorial Day
+    '2027-06-19', // Juneteenth (토→금 대체 아님, 실제 금요일)
+    '2027-07-05', // Independence Day 대체(일→월)
+    '2027-09-06', // Labor Day
+    '2027-11-25', // Thanksgiving
+    '2027-12-24','2027-12-25' // Christmas Eve(금)+Christmas
+  ];
+
+  // 연도별 공휴일 조회 (2026/2027 지원, 미등록 연도는 빈 배열)
+  var _KR_HOLIDAYS_MAP = { 2026: KR_HOLIDAYS_2026, 2027: KR_HOLIDAYS_2027 };
+  var _US_HOLIDAYS_MAP = { 2026: US_HOLIDAYS_2026, 2027: US_HOLIDAYS_2027 };
+
   function _dateStr(d) {
     var y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
     return y + '-' + m + '-' + day;
@@ -4044,38 +4877,55 @@ const DATE_ENGINE = (function() {
   function isKrTradingDay(d) {
     var dow = d.getDay();
     if (dow === 0 || dow === 6) return false;
-    return KR_HOLIDAYS_2026.indexOf(_dateStr(d)) === -1;
+    var holidays = _KR_HOLIDAYS_MAP[d.getFullYear()] || KR_HOLIDAYS_2026;
+    return holidays.indexOf(_dateStr(d)) === -1;
   }
 
   function isUsTradingDay(d) {
     var dow = d.getDay();
     if (dow === 0 || dow === 6) return false;
-    return US_HOLIDAYS_2026.indexOf(_dateStr(d)) === -1;
+    var holidays = _US_HOLIDAYS_MAP[d.getFullYear()] || US_HOLIDAYS_2026;
+    return holidays.indexOf(_dateStr(d)) === -1;
   }
 
   // 가장 최근 거래일 (오늘 포함 가능 여부: 장시간 기준)
+  // v48.95 P2 EOD grace: 15:30(장마감)~16:00(데이터확정) 구간은 eodConfirmed=false
+  // 반환: Date (하위호환) — DATE_ENGINE.lastKrTradingDayEx() 호출 시 {date, eodConfirmed}
   function lastKrTradingDay() {
+    return lastKrTradingDayEx().date;
+  }
+  function lastKrTradingDayEx() {
     var kst = nowKST();
     var d = new Date(kst);
-    // 장 마감 전(15:30 이전)이면 전 거래일, 이후면 오늘
     var time = d.getHours() * 60 + d.getMinutes();
-    if (time < 930 || !isKrTradingDay(d)) { // 15:30 = 930분, 또는 비거래일
+    // 장 마감(15:30=930) 이전 또는 비거래일 → 전 거래일로
+    if (time < 930 || !isKrTradingDay(d)) {
       d.setDate(d.getDate() - 1);
     }
-    // 거래일 찾을 때까지 역추적 (최대 10일)
     for (var i = 0; i < 10; i++) {
-      if (isKrTradingDay(d)) return d;
+      if (isKrTradingDay(d)) {
+        // v48.95: 15:30~16:00 = EOD 데이터 미확정 grace window
+        var eodConfirmed = !(time >= 930 && time < 960 && isKrTradingDay(new Date(kst)));
+        return { date: d, eodConfirmed: eodConfirmed };
+      }
       d.setDate(d.getDate() - 1);
     }
-    return d;
+    return { date: d, eodConfirmed: true };
+  }
+
+  function nowInTimeZone(tz) {
+    try {
+      return new Date(new Date().toLocaleString('en-US', { timeZone: tz }));
+    } catch(e) {
+      return new Date();
+    }
   }
 
   function lastUsTradingDay() {
-    var now = new Date();
-    var d = new Date(now);
+    var et = nowInTimeZone('America/New_York');
+    var d = new Date(et);
     // EST 기준 16:00 이전이면 전일
-    var est = new Date(now.getTime() + now.getTimezoneOffset() * 60000 - 5 * 3600000);
-    var time = est.getHours() * 60 + est.getMinutes();
+    var time = et.getHours() * 60 + et.getMinutes();
     if (time < 960 || !isUsTradingDay(d)) { // 16:00 = 960분
       d.setDate(d.getDate() - 1);
     }
@@ -4163,6 +5013,7 @@ const DATE_ENGINE = (function() {
   return {
     nowKST: nowKST,
     lastKrTradingDay: lastKrTradingDay,
+    lastKrTradingDayEx: lastKrTradingDayEx,  // v48.95: {date, eodConfirmed}
     lastUsTradingDay: lastUsTradingDay,
     isKrTradingDay: isKrTradingDay,
     isUsTradingDay: isUsTradingDay,
@@ -4177,8 +5028,8 @@ const DATE_ENGINE = (function() {
 
 // 페이지 로드 시 즉시 실행 + 1시간마다 갱신
 try { DATE_ENGINE.applyToDOM(); } catch(e) { _aioLog('warn', 'date', '초기화 실패: ' + (e && e.message || e)); }
-if (window._dateEngineInterval) clearInterval(window._dateEngineInterval);
-window._dateEngineInterval = setInterval(function() { try { DATE_ENGINE.applyToDOM(); } catch(e) {} }, T.DATE_REFRESH);
+// v48.91: 타이머 레지스트리 등록
+window._dateEngineInterval = _aioRegisterTimer('dateEngine', function() { try { DATE_ENGINE.applyToDOM(); } catch(e) {} }, T.DATE_REFRESH);
 
 // ═══════════════════════════════════════════════════════════════════
 // applyDataSnapshot — DATA_SNAPSHOT → HTML 자동 매핑
@@ -4281,12 +5132,20 @@ function applyDataSnapshot() {
       'kr-service-pmi':   _snap.fixed(S.krServicePmi, 1),
       'gex-current':      (S.gexCurrent >= 0 ? '+' : '') + _snap.fixed(S.gexCurrent, 1) + 'B',
     };
-    document.querySelectorAll('[data-snap]').forEach(el => {
-      const key = el.getAttribute('data-snap');
-      if (key && map[key] !== undefined) {
-        el.textContent = String(map[key]);
+    // v48.99 P181: per-key try-catch — 개별 키 실패가 다른 키 렌더를 막지 않음
+    var _snapApplied = 0, _snapFailed = 0;
+    document.querySelectorAll('[data-snap]').forEach(function(el) {
+      var key = el.getAttribute('data-snap');
+      if (!key) return;
+      try {
+        var val = map[key];
+        if (val !== undefined) { el.textContent = String(val); _snapApplied++; }
+      } catch (snapKeyErr) {
+        _snapFailed++;
+        if (typeof _aioLog === 'function') _aioLog('warn', 'snap', 'key=' + key + ' apply failed: ' + (snapKeyErr && snapKeyErr.message));
       }
     });
+    if (_snapFailed > 0 && typeof _aioLog === 'function') _aioLog('warn', 'snap', 'applyDataSnapshot: ' + _snapFailed + ' key(s) failed / ' + _snapApplied + ' applied');
 
     // v48.14: 레짐 기반 설명 텍스트 자동 갱신 (NARRATIVE_ENGINE 활용 — Agent P1-16 대응)
     // VVIX/SKEW/Breadth 등 수치에 따라 설명문·색상 자동 분류
@@ -4323,8 +5182,8 @@ function applyDataSnapshot() {
           if (skewStatus && sreg) {
             skewStatus.textContent = sreg.label;
             skewStatus.style.color = sreg.color;
-            skewStatus.style.background = sreg.color === '#ff5b50' ? 'rgba(255,91,80,0.1)' :
-                                           sreg.color === '#ffa31a' ? 'rgba(255,163,26,0.1)' : 'rgba(0,229,160,0.1)';
+            skewStatus.style.background = sreg.color === '#ff5b50' ? 'var(--data-red-mid)' :
+                                           sreg.color === '#ffa31a' ? 'var(--data-amber-mid)' : 'var(--data-green-mid)';
           }
           if (sreg) {
             _fireRegimeChange('skew', window._lastRegimes.skew, sreg.level, S.skew, sreg);
@@ -4412,6 +5271,8 @@ function applyDataSnapshot() {
 
     // v30.11: 스냅샷 데이터를 _liveData에도 seed (아직 실시간 미연결 심볼용)
     // _dataSource를 'snapshot'으로 표기하여 실시간 구분
+    // v48.99 P181: 독립 try-catch — _liveData seed 실패가 staleness 체크를 막지 않음
+    try {
     window._dataSource = window._dataSource || {};
     const snapTs = S._updated ? new Date(S._updated).getTime() : Date.now();
     const snapSymMap = {
@@ -4438,16 +5299,18 @@ function applyDataSnapshot() {
       '^FTSE': { price: S.ftse, pct: S.ftsePct },
       '^FCHI': { price: S.cac, pct: S.cacPct },
       // v34.6: 한국 채권·변동성 fallback
-      'VKOSPI': { price: S.vkospi, pct: 0 },
+      'VKOSPI': { price: S.vkospi, pct: null },
     };
     window._liveData = window._liveData || {};
     for (const [sym, val] of Object.entries(snapSymMap)) {
       if (val.price != null && !window._dataSource[sym]) {
         // 실시간 데이터가 아직 없는 심볼만 seed
-        window._liveData[sym] = window._liveData[sym] || { price: val.price, pct: val.pct != null ? val.pct : 0 };
-        window._dataSource[sym] = { source: 'snapshot', ts: snapTs };
+        window._liveData[sym] = window._liveData[sym] || { price: val.price, pct: val.pct != null ? val.pct : null, pctMissing: val.pct == null };
+        window._dataSource[sym] = { source: 'snapshot', ts: snapTs, pctMissing: val.pct == null };
       }
     }
+
+    } catch(seedErr) { if (typeof _aioLog === 'function') _aioLog('warn', 'snap', '_liveData seed failed: ' + (seedErr && seedErr.message)); }
 
     // v34.2: Staleness 경고 — 스냅샷 기준이지만 실시간 데이터가 들어오면 자동 해제
     // 개선: 고정 12초 타이머 → 반복 폴링 + 이벤트 리스너로 확실히 해제
@@ -4464,7 +5327,12 @@ function applyDataSnapshot() {
         // v48.14 (Agent W11): 2분 폴링 루프 제거 — 순수 이벤트 구독으로 전환
         // aio:liveDataReceived + aio:liveQuotes 둘 다 구독해서 stale 해제
         // 첫 로드 후 45초 내 아무 이벤트 없으면 마지막 1회 확인 (만약 이벤트 누락)
-        var _onStaleLiveFire = function() {
+        var _onStaleLiveFire = function(ev) {
+          if (ev && ev.detail && ev.detail.coreCoverageOk === false) return;
+          try {
+            var audit = window.AIO && typeof window.AIO.getDataFreshnessAudit === 'function' ? window.AIO.getDataFreshnessAudit() : null;
+            if (audit && audit.liveCoverage && audit.liveCoverage.coreOk === false && window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._isFallback !== false) return;
+          } catch(_audit) {}
           if (staleEl) staleEl.style.display = 'none';
           window.removeEventListener('aio:liveDataReceived', _onStaleLiveFire);
           window.removeEventListener('aio:liveQuotes', _onStaleLiveFire);
@@ -4568,7 +5436,38 @@ const breadcrumbMap = {
   'theme-detail': ['AIO','테마','—'],
   ticker: ['AIO','—','—'],
 };
+
+// ═══ v49.1 P184: AIO.state — 전역 변수 namespace 초기화 ═══════════════════════
+// 11개 모듈 전역 변수의 중앙 집합소. 기존 변수명은 하위호환 shim으로 유지.
+// D1 6종: prevPage · _lastPageShownFire · _currentTickerSym ·
+//         _aioPopstateRegistered · _scrSortCol · _scrSortAsc
+window.AIO = window.AIO || {};
+if (!window.AIO.state) {
+  window.AIO.state = {
+    prevPage: 'home',
+    _lastPageShownFire: null,
+    _currentTickerSym: '',
+    _aioPopstateRegistered: false,
+    _scrSortCol: 'mcap',
+    _scrSortAsc: false
+  };
+}
 let prevPage = 'home';
+// v49.1 P184: prevPage ↔ AIO.state.prevPage 양방향 shim (window.prevPage 외부 접근 지원)
+window.AIO.state.prevPage = prevPage;
+try {
+  Object.defineProperty(window, 'prevPage', {
+    configurable: true, enumerable: true,
+    get: function() { return window.AIO.state.prevPage; },
+    set: function(v) { prevPage = v; window.AIO.state.prevPage = v; }
+  });
+} catch(e) { /* strict-mode iframe 등 defineProperty 불가 환경 무시 */ }
+if (window._aioGlobalRegistry) {
+  window._aioGlobalRegistry.register('prevPage',
+    function() { return window.AIO.state.prevPage; },
+    function(v) { prevPage = v; window.AIO.state.prevPage = v; }
+  );
+}
 
 // v29.4: XSS 방지 — innerHTML 대신 안전한 DOM 생성
 function setBreadcrumb(parts) {
@@ -4968,7 +5867,7 @@ function _initBriefingPage() {
       } else {
         bc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' +
           '뉴스 로딩 시간 초과 — 네트워크 상태를 확인하세요.<br>' +
-          '<button data-action="_aioBriefingRetry" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
+          '<button data-action="_aioBriefingRetry" style="background:var(--data-cyan-soft);border:1px solid var(--data-cyan-dim);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
           '</div>';
       }
     }
@@ -5013,6 +5912,14 @@ function _safePageInitGlobal(pageId, fn) {
 // v48.14: aio:pageShown dedup guard (Agent C2/P1-1 대응)
 // showPage() 또는 popstate 중 200ms 내 중복 발사 시 두 번째 무시
 var _lastPageShownFire = {};
+// v49.1 P184: AIO.state 참조 공유 (객체이므로 변이는 자동 반영)
+if (window.AIO && window.AIO.state) {
+  window.AIO.state._lastPageShownFire = _lastPageShownFire;
+  if (window._aioGlobalRegistry) window._aioGlobalRegistry.register('_lastPageShownFire',
+    function() { return window.AIO.state._lastPageShownFire; },
+    function(v) { _lastPageShownFire = v; window.AIO.state._lastPageShownFire = v; }
+  );
+}
 function _firePageShown(id, source) {
   try {
     if (!id) return;
@@ -5047,13 +5954,15 @@ function showPage(id, navEl) {
   }
   const parts = breadcrumbMap[id] || ['AIO', id];
   setBreadcrumb(parts);
-  // Browser history — enables native back/forward (skipped if sandboxed)
+  // Browser history — enables native back/forward (skipped if sandboxed or popstate)
+  // v49.1 P187: _aioInPopstate 플래그로 popstate 핸들러 내부에서 pushState 호출 방지
   try {
-    if (history.state?.page !== id) {
+    if (!_aioInPopstate && history.state?.page !== id) {
       history.pushState({ page: id }, '', '#' + id);
     }
   } catch(e) { /* sandboxed iframe — history API not available */ }
   prevPage = id;
+  if (window.AIO && window.AIO.state) window.AIO.state.prevPage = id; // v49.1 P184
   // v42.1: 마켓 펄스 바 — home에서는 숨기고 나머지 페이지에서 표시
   var _mpBar = document.getElementById('market-pulse-bar');
   if (_mpBar) _mpBar.style.display = (id === 'home' || id === 'guide' || id === 'glossary') ? 'none' : 'flex';
@@ -5072,6 +5981,8 @@ function showPage(id, navEl) {
 }
 
 // v48.57: 브라우저 뒤로가기/앞으로가기 대응 (popstate 이벤트 · 이전까지 무반응)
+// v49.1 P187: _aioInPopstate 플래그로 history.pushState 전역 hijack 제거
+var _aioInPopstate = false;
 if (typeof window !== 'undefined' && !window._aioPopstateRegistered) {
   window.addEventListener('popstate', function(e) {
     var pageId = null;
@@ -5080,17 +5991,12 @@ if (typeof window !== 'undefined' && !window._aioPopstateRegistered) {
     if (!pageId) pageId = 'home';
     // 유효 페이지인지 확인
     if (document.getElementById('page-' + pageId)) {
-      // pushState 없이 showPage — history 중복 방지 (try-catch로 pushState 우회)
-      var _orig = history.pushState;
-      try {
-        history.pushState = function(){};
-        showPage(pageId, null);
-      } finally {
-        history.pushState = _orig;
-      }
+      _aioInPopstate = true; // showPage 내 pushState 스킵 플래그
+      try { showPage(pageId, null); } finally { _aioInPopstate = false; }
     }
   });
   window._aioPopstateRegistered = true;
+  if (window.AIO && window.AIO.state) window.AIO.state._aioPopstateRegistered = true; // v49.1 P184
 }
 
 function showTheme(themeId) {
@@ -5151,6 +6057,7 @@ const actionClasses = {watch:'watch', hold:'neutral', buy:'buy', cut:'sell'};
 
 function showTicker(tkr) {
   _currentTickerSym = tkr; // v27.1: chart에서 사용할 현재 티커 저장
+  if (window.AIO && window.AIO.state) window.AIO.state._currentTickerSym = tkr; // v49.1 P184
   const d = tickerData[tkr] || {name:tkr, value:'—', action:'hold'};
   /* ── 동적 시세: _liveData에서 실시간 가격/변동률 가져오기 ── */
   var ld = window._liveData || {};
@@ -5255,7 +6162,7 @@ function showTicker(tkr) {
     html += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
     checks.forEach(function(c) {
       var icon = c.ok === true ? '' : c.ok === false ? '' : '—';
-      var bg = c.ok === true ? 'rgba(0,229,160,0.08)' : c.ok === false ? 'rgba(255,163,26,0.08)' : 'var(--surface-2)';
+      var bg = c.ok === true ? 'var(--data-green-faint)' : c.ok === false ? 'var(--data-amber-faint)' : 'var(--surface-2)';
       html += '<div style="background:' + bg + ';border-radius:5px;padding:4px 8px;font-size:11px;display:flex;align-items:center;gap:4px;">' +
         '<span>' + icon + '</span><span style="font-weight:700;">' + c.label + '</span><span style="color:var(--text-muted);">' + c.note + '</span></div>';
     });
@@ -5274,4 +6181,189 @@ function showTicker(tkr) {
   var _pAttrs = _pAction ? ` data-action="${escHtml(_pAction)}" data-arg="${escHtml(_pArg)}"${_pArg2 ? ` data-arg2="${escHtml(_pArg2)}"` : ''}` : '';
   bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span style="cursor:pointer;"${_pAttrs}>${escHtml(parentEl ? parentEl.textContent : '')}</span><span class="sep">/</span><span class="current">${escHtml(tkr)}</span>`;
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// v48.88: 포트폴리오 리스크 통계 함수 (data:statistical-analysis 방법론)
+// VaR(역사적 시뮬레이션) · Sharpe Ratio · 최대낙폭 · Pearson 상관계수
+// 참고: P153 — 과거 수익률 분포 기반, 정규분포 가정 없음
+// ══════════════════════════════════════════════════════════════════════
+
+/**
+ * 일별 수익률 계산 (종가 배열 → 수익률 배열)
+ * Yahoo Finance API는 공휴일에 null을 반환하므로 null/NaN 필터링 포함
+ * @param {number[]} prices - 종가 배열 (오름차순, 최소 2개)
+ * @returns {number[]} 일별 수익률 배열
+ */
+function _calcDailyReturns(prices) {
+  if (!prices || prices.length < 2) return [];
+  // null/undefined/NaN 제거 (공휴일 갭 처리)
+  var valid = prices.filter(function(p) { return p !== null && p !== undefined && !isNaN(p) && p > 0; });
+  if (valid.length < 2) return [];
+  var returns = [];
+  for (var i = 1; i < valid.length; i++) {
+    returns.push((valid[i] - valid[i - 1]) / valid[i - 1]);
+  }
+  return returns;
+}
+
+/** 산술 평균 */
+function _statMean(arr) {
+  if (!arr || !arr.length) return 0;
+  return arr.reduce(function(s, v) { return s + v; }, 0) / arr.length;
+}
+
+/** 표본 표준편차 */
+function _statStdDev(arr) {
+  if (!arr || arr.length < 2) return 0;
+  var mean = _statMean(arr);
+  var variance = arr.reduce(function(s, v) { return s + (v - mean) * (v - mean); }, 0) / (arr.length - 1);
+  return Math.sqrt(variance);
+}
+
+/**
+ * VaR — 역사적 시뮬레이션 (정규분포 가정 없음, 실제 분포 사용)
+ * @param {number[]} returns - 일별 수익률 배열 (최소 10개 권장)
+ * @param {number} confidence - 신뢰수준 (0.95 또는 0.99)
+ * @returns {number|null} VaR 손실률 (양수 표현, 0.035 = 3.5% 손실)
+ */
+/**
+ * R-7 선형보간 분위수 (R quantile type 7 — Excel PERCENTILE.INC 동일)
+ * @param {number[]} sorted - 오름차순 정렬 배열 (NaN 제거 후)
+ * @param {number} p - 확률 [0, 1]
+ */
+function _quantileR7(sorted, p) {
+  var n = sorted.length;
+  if (!n) return NaN;
+  if (n === 1) return sorted[0];
+  var h = (n - 1) * p;
+  var lo = Math.floor(h), hi = Math.ceil(h);
+  if (lo === hi) return sorted[lo];
+  return sorted[lo] + (h - lo) * (sorted[hi] - sorted[lo]);
+}
+
+function _calcPortfolioVaR(returns, confidence) {
+  if (!returns || returns.length < 10) return null;
+  var conf = (typeof confidence === 'number') ? confidence : 0.95;
+  // 보수적 historical VaR: 왼쪽 꼬리의 실제 관측 손실을 사용해
+  // 보간이 손실/이익 경계를 건너 음수 VaR을 만들지 않도록 한다.
+  var clean = returns.filter(function(v) { return typeof v === 'number' && isFinite(v); });
+  if (clean.length < 10) return null;
+  var sorted = clean.slice().sort(function(a, b) { return a - b; }); // 오름차순
+  var tailCount = Math.max(1, Math.ceil(sorted.length * (1 - conf) - 1e-9));
+  var quantile = sorted[Math.min(sorted.length - 1, tailCount - 1)];
+  return Math.max(0, -quantile); // 손실을 양수로 표현
+}
+
+/**
+ * Sharpe Ratio (연율화, 거래일 252일 기준)
+ * @param {number[]} returns - 일별 수익률 배열
+ * @param {number} rfRate - 연간 무위험수익률 (기본 0.043 = 4.3% US 3M T-bill)
+ * @returns {number|null}
+ */
+function _calcSharpe(returns, rfRate) {
+  if (!returns || returns.length < 10) return null;
+  var rfDaily = ((typeof rfRate === 'number') ? rfRate : 0.043) / 252;
+  var excess = returns.map(function(r) { return r - rfDaily; });
+  var mean = _statMean(excess);
+  var std = _statStdDev(excess);
+  if (std < 1e-10) return null;  // v48.95 P1-9: near-zero std → null (division-by-zero 방지)
+  return (mean / std) * Math.sqrt(252);
+}
+
+/**
+ * 최대낙폭 (Max Drawdown) — 누적 수익률 고점 대비 최대 하락폭
+ * @param {number[]} returns - 일별 수익률 배열
+ * @returns {{mdd: number, peakIdx: number, troughIdx: number}|null}
+ */
+function _calcMaxDrawdown(returns) {
+  if (!returns || returns.length < 2) return null;
+  var cum = [1];
+  for (var i = 0; i < returns.length; i++) {
+    cum.push(cum[cum.length - 1] * (1 + returns[i]));
+  }
+  var maxMdd = 0, peak = cum[0], peakIdx = 0, troughIdx = 0, tempPeak = 0;
+  for (var j = 1; j < cum.length; j++) {
+    if (cum[j] > peak) { peak = cum[j]; tempPeak = j; }
+    var dd = (peak - cum[j]) / peak;
+    if (dd > maxMdd) { maxMdd = dd; peakIdx = tempPeak; troughIdx = j; }
+  }
+  return { mdd: maxMdd, peakIdx: peakIdx, troughIdx: troughIdx };
+}
+
+/**
+ * Pearson 상관계수 (두 등길이 배열)
+ */
+function _pearsonCorr(a, b) {
+  if (!a || !b || a.length !== b.length || a.length < 2) return 0;
+  var n = a.length;
+  var mA = _statMean(a), mB = _statMean(b);
+  var num = 0, denA = 0, denB = 0;
+  for (var i = 0; i < n; i++) {
+    var da = a[i] - mA, db = b[i] - mB;
+    num += da * db; denA += da * da; denB += db * db;
+  }
+  if (denA < 1e-12 || denB < 1e-12) return 0;  // v48.95 P1-3: near-zero denom EPS → NaN 방지
+  return num / Math.sqrt(denA * denB);
+}
+
+/**
+ * 상관계수 매트릭스 (Pearson, n×n)
+ * @param {Object} returnsMap - { ticker: number[] } 수익률 맵
+ * @returns {{tickers: string[], matrix: number[][]}|null}
+ */
+function _calcCorrelationMatrix(returnsMap) {
+  var tickers = Object.keys(returnsMap);
+  if (tickers.length < 2) return null;
+  var matrix = tickers.map(function(t1) {
+    return tickers.map(function(t2) {
+      if (t1 === t2) return 1;
+      var r1 = returnsMap[t1], r2 = returnsMap[t2];
+      var minLen = Math.min(r1.length, r2.length);
+      return _pearsonCorr(r1.slice(r1.length - minLen), r2.slice(r2.length - minLen));
+    });
+  });
+  return { tickers: tickers, matrix: matrix };
+}
+
+// ═══ v48.92: AIO.getColorContrastAudit() — WCAG AA 명도비 진단 API ═══════
+// 용도: 핵심 색상 페어링의 명도비 자동 계산 · WCAG AA 준수 여부 보고
+// 사용: AIO.getColorContrastAudit() → { pairs: [{fg, bg, ratio, wcagAA, label}], allPass: bool }
+window.AIO.getColorContrastAudit = function() {
+  // sRGB luminance 계산 (WCAG 2.1 공식)
+  function _lum(hex) {
+    var r, g, b;
+    hex = hex.replace('#', '');
+    if (hex.length === 3) hex = hex.split('').map(function(c){ return c+c; }).join('');
+    r = parseInt(hex.substr(0,2),16)/255;
+    g = parseInt(hex.substr(2,2),16)/255;
+    b = parseInt(hex.substr(4,2),16)/255;
+    function _lin(c) { return c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4); }
+    return 0.2126 * _lin(r) + 0.7152 * _lin(g) + 0.0722 * _lin(b);
+  }
+  function _ratio(hex1, hex2) {
+    var l1 = _lum(hex1), l2 = _lum(hex2);
+    var lighter = Math.max(l1, l2), darker = Math.min(l1, l2);
+    return parseFloat(((lighter + 0.05) / (darker + 0.05)).toFixed(2));
+  }
+  // 핵심 색상 페어링 (v48.92 CSS 토큰 기준)
+  var bg = '#080d1a'; // AIO 다크 배경
+  var pairs = [
+    { label: '--text-muted (v48.92)', fg: '#9aa6b9', bg: bg },
+    { label: '--text-secondary',      fg: '#a5b0c2', bg: bg },
+    { label: '--text-primary',        fg: '#f0f4fc', bg: bg },
+    { label: '--data-green (bull)',    fg: '#00e5a0', bg: bg },
+    { label: '--data-red (bear)',      fg: '#ff5b50', bg: bg },
+    { label: '--accent (cyan)',        fg: '#00d4ff', bg: bg },
+    { label: '--data-amber',           fg: '#ffa31a', bg: bg },
+    { label: 'fund-tab active bg',     fg: '#00d4ff', bg: '#1a2035' },
+  ];
+  var results = pairs.map(function(p) {
+    var r = _ratio(p.fg, p.bg);
+    return { fg: p.fg, bg: p.bg, ratio: r, wcagAA: r >= 4.5, wcagAALarge: r >= 3.0, label: p.label };
+  });
+  var allPass = results.every(function(r) { return r.wcagAA; });
+  var failCount = results.filter(function(r) { return !r.wcagAA; }).length;
+  return { pairs: results, allPass: allPass, failCount: failCount,
+    summary: 'WCAG AA (' + (allPass ? '✓ 전체 통과' : '✗ ' + failCount + '건 미달') + ')' };
+};
 

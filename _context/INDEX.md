@@ -1,9 +1,9 @@
 ---
 verified_by: codex
-last_verified: 2026-05-06
+last_verified: 2026-05-09
 confidence: high
 auto_refresh: true
-target_version: v48.80
+target_version: v49.1
 ---
 
 # _context Index
@@ -23,13 +23,15 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `WORKTREE-AUDIT.md` | GitHub/live/worktree routing and unpublished work inventory | Worktree merge, deploy, or audit |
 | `DEEP-QA-2026-05-05.md` | Three-area deep QA: UI/rendering, API pipeline, page-level logic | Deep QA run or live/local parity change |
 | `OPERATIONS-AUDIT-2026-05-06.md` | Operational sustainability audit: version/cache/SW/API health | Runtime or deployment hardening |
+| `DATA-PIPELINE-AUDIT-2026-05-06.md` | End-to-end data pipeline map: source, transport, store, analysis, render | API/source, analysis, or render pipeline changes |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
 ## Current Deployment Baseline
 
 - **Last observed live version**: v48.79 (browser QA, 2026-05-05)
-- **Local integration branch version**: v48.80
-- **GitHub baseline**: not refreshed in this pass; previous local tracking baseline was `origin/main` at `920ba8b`
+- **Local integration branch version**: v49.1
+- **Claude integration source**: `.claude/worktrees/brave-curie-5c8b22` (`v49.1`, integrated 2026-05-09)
+- **GitHub baseline**: local tracking `origin/main` is `4f165f0` (`v48.80`); remote refresh was attempted on 2026-05-07 but blocked by local worktree permission/sandbox limits
 - **Live site**: `https://ysnle.github.io/aio-screener/`
 - **Primary source of truth**: GitHub `origin/main` plus live asset parity, not stale local worktrees.
 
@@ -46,6 +48,7 @@ AIO/
 │   ├── aio-data.js
 │   ├── aio-ui.js
 │   ├── aio-chat.js
+│   ├── aio-tests.js
 │   └── aio-glossary.js
 ├── CHANGELOG.md
 ├── CLAUDE.md
@@ -65,6 +68,7 @@ AIO/
 - `WORKTREE-AUDIT.md` prevents confusing unpublished Claude worktree changes with deployed GitHub state.
 - `DEEP-QA-2026-05-05.md` records the latest local-vs-live deep QA matrix.
 - `OPERATIONS-AUDIT-2026-05-06.md` records runtime/cache/API self-operation checks for deployed operations.
+- `DATA-PIPELINE-AUDIT-2026-05-06.md` records source-to-render data lineage and release QA commands.
 
 ## Maintenance Rule
 

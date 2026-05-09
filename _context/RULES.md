@@ -1,15 +1,15 @@
 ---
 verified_by: agent
-last_verified: 2026-05-05
+last_verified: 2026-05-09
 confidence: high
-target_version: v48.79
+target_version: v48.97
 ---
 
 # AIO Screener — 마스터 룰 (RULES.md)
 # 모든 작업 전 이 파일을 먼저 읽고 시작할 것
 
 > **목적**: 반복되는 실수를 방지하고, 점검·QA·수정 작업의 품질을 보장하기 위한 최상위 규칙
-> **최종 수정**: v48.79 (2026-05-05) — worktree/GitHub/live 기준 재정렬 + deep QA hardening
+> **최종 수정**: v48.97 (2026-05-09) — R34/R35 번호 충돌 수정 (CDN SRI→R52, 병렬fetch→R53) + KL5 FAIL 해소
 
 ---
 
@@ -208,7 +208,7 @@ Yahoo Finance가 가격을 반환해도 해당 기업이 실제 상장사인지 
 
 ### R19. _context/ 지식 정합성 린팅 (v40.4 추가)
 - 대규모 수정 또는 분기 1회 `/knowledge-lint` 실행하여 _context/ 문서 간 정합성 점검
-- 점검 5항목: (L1) 포스트모템 P→규칙 R 매핑, (L2) 규칙 R→QA 체크리스트 매핑, (L3) 코드 참조 실재성, (L4) 버전/날짜 최신성, (L5) 중복/모순 규칙
+- 점검 7항목: (L1) 포스트모템 P→규칙 R 매핑, (L2) 규칙 R→QA 체크리스트 매핑, (L3) 코드 참조 실재성, (L4) 버전/날짜 최신성, (L5) 중복/모순 규칙, (L6) INDEX.md 정합성 자동 갱신, (L7) violated_rule 위반 빈도 분석
 - 린팅 결과에서 오류 항목은 즉시 수정, 경고 항목은 다음 작업 시 검토
 
 ### R20. 에이전트 산출물 검증 상태 관리 (v40.4 추가)
@@ -337,14 +337,14 @@ Yahoo Finance가 가격을 반환해도 해당 기업이 실제 상장사인지 
 
 ---
 
-### R34. 외부 CDN 스크립트 SRI 의무 (v48.69 추가, P140 교훈)
+### R52. 외부 CDN 스크립트 SRI 의무 (v48.69 추가, P140 교훈, 구 R34 → R52 재번호)
 - 모든 외부 CDN `<script src="...">` 태그에 반드시 `integrity="sha384-..."` + `crossorigin="anonymous"` 속성 필수
 - 이유: CDN 서버 해킹·MITM 시 악성 JS 주입 가능 (supply chain attack). SRI 없으면 브라우저가 변조 여부를 검증하지 않음
 - 해시 생성: `curl -sL <URL> | openssl dgst -sha384 -binary | openssl base64 -A` 로 취득 후 `sha384-<hash>` 형식 사용
 - 폴백 스크립트(document.createElement)는 SRI 적용 불가 — 검증된 CDN URL로 교체 고려
 - 검증: `grep -c 'integrity=' index.html` — CDN script 수와 일치 여부 확인
 
-### R35. 독립 병렬 fetch는 단일 실패 격리 (v48.69 추가, P143 교훈)
+### R53. 독립 병렬 fetch는 단일 실패 격리 (v48.69 추가, P143 교훈, 구 R35 → R53 재번호)
 - `Promise.all([f1, f2, f3])` 내 각 promise는 반드시 `.catch(()=>null)` 또는 `.catch(()=>FALLBACK)` 추가
 - 이유: 하나의 API 실패가 나머지 모든 결과를 폐기시킴 → 부분 실패 시에도 가능한 데이터 표시 필요
 - **권장 패턴**: 각 fetch에 개별 `.catch` 추가 방식 (현재 FMP 구현 방식 — 이미 올바름)

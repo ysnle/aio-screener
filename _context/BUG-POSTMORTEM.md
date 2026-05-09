@@ -1,11 +1,11 @@
 ---
-verified_by: human
-last_verified: 2026-05-06
+verified_by: agent
+last_verified: 2026-05-09
 confidence: high
-latest_version: v48.80
-latest_P_number: P150
-next_P_number: P151
-total_entries: 150
+latest_version: v49.1
+latest_P_number: P188
+next_P_number: P189
+total_entries: 188
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -22,7 +22,7 @@ total_entries: 150
 
 ### P 번호 체계
 - **P 번호 = 패턴 번호** (예방 규칙 ID). 동일 근본 원인을 가진 버그는 같은 P 번호로 참조.
-- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P151**). 한번 부여된 번호는 재사용 금지.
+- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P189**). 한번 부여된 번호는 재사용 금지.
 - **P 번호 재강화**: 같은 패턴이 재발해도 번호는 유지. "P25 재강화" / "P25 강화" 같은 표현으로 body에 기록.
 - **날짜 구분 원칙**: 과거 중복 P 번호(P26~P33 일부 충돌 존재)는 "날짜 + 버전"으로 구분해서 참조.
 
@@ -55,6 +55,43 @@ total_entries: 150
 
 | P | 도입 버전 | 날짜 | 패턴 요약 |
 |---|-----------|------|-----------|
+| P188 | v49.1 | 2026-05-09 | Claude 통합 후 browser acceptance drift — `_aioLRU.get()` miss 계약(null)과 호출부(undefined check) 불일치로 `fetchAllNews` null.tm 치명 로그, VaR 꼬리 개수 부동소수 경계, DOMPurify 미로드 fallback 이벤트 속성 문자열 잔존, LightweightCharts 내부 canvas 접근성 감사 오탐 |
+| P187 | v49.1 | 2026-05-09 | history.pushState 전역 hijack(monkey-patch) + _fmtNum Infinity 비처리 — popstate 핸들러에서 showPage 중 history.pushState를 function(){}로 교체, finally로 복구. _aioInPopstate 플래그로 대체. _fmtNum(Infinity)→"InfinityT" 오표시. _aioFiniteNum 위임 |
+| P186 | v49.1 | 2026-05-09 | vixToPercentile 80이상 하드캡 99.5 — VIX=85/90 모두 99.5로 동일 표시, 단조증가 파괴. 로그외삽 적용. _aioMemoStaleInfo 3월/11월 DST ±1h 날짜 비교 오류 |
+| P185 | v49.1 | 2026-05-09 | _chartIv raw setInterval — Chart.js 로드 대기 setInterval이 타이머 레지스트리 외부에서 실행, 중복 등록 시 기존 정리 없음. _aioRegisterTimer('chartReady') 마이그 |
+| P184 | v49.1 | 2026-05-09 | 11개 전역 변수 window 직접 참조 산재 — prevPage·_lastPageShownFire·_currentTickerSym 등 namespace 없음. window.AIO.state 초기화 + Object.defineProperty shim + _aioGlobalRegistry 등록 |
+| P183 | v49.0 | 2026-05-09 | _renderFundValuation P/E·P/B·PEG·EV/EBITDA 등 API 비율에 || 0 패턴 — Infinity.toFixed()→"Infinityx" 렌더. _aioFiniteNum 가드로 교체 |
+| P182 | v49.0 | 2026-05-09 | scoreItem 캐시·_tickerRegexCache 무한 성장 — 뉴스 스코어 반복 호출 시 Map 증가 無제한. _aioLRU(200/600 cap) 교체 |
+| P181 | v49.0 | 2026-05-09 | applyDataSnapshot 100+ data-snap 단일 try-catch — 1건 throw 시 전체 snap 갱신 중단. 키별 독립 try-catch 분해 |
+| P180 | v48.99 | 2026-05-09 | index.html 22건 addEventListener 분산 — 페이지별 해제 불가. _aioPageBus B3 마이그 |
+| P179 | v48.99 | 2026-05-09 | aio-data.js 4건 addEventListener 분산 — _aioPageBus B2 마이그 |
+| P178 | v48.99 | 2026-05-09 | aio-core.js 9건 addEventListener 분산 — _aioPageBus B1 마이그 |
+| P177 | v48.98 | 2026-05-09 | aio-core.js 전반 NaN/Infinity/분모0 비가드 — Fund P/E·PEG·EV/EBITDA 분모 0 → Infinity 렌더 위험. _aioFiniteNum + _aioSafeDiv 추가 |
+| P176 | v48.98 | 2026-05-09 | 동일 초기화 함수 중복 호출 위험 + 11개 전역 변수 namespace 산재 — _aioOnce + _aioGlobalRegistry로 사전 인프라 구축 |
+| P175 | v48.98 | 2026-05-09 | aio:pageShown 17건 · aio:liveQuotes 18건 개별 addEventListener 분산 — 페이지 이탈 시 해제 불가, listener 누적 위험. _aioPageBus 단일 라우팅 허브 추가 |
+| P174 | v48.97 | 2026-05-08 | localStorage API 키 5개 직접 접근 분산 — 암호화/마스킹 일관성 없음, UI에 평문 노출 위험 |
+| P173 | v48.97 | 2026-05-08 | IndexedDB 뉴스 레코드에 이메일·전화번호 PII 평문 저장 — 로컬 브라우저 DB이지만 개발자도구/백업 경로 노출 |
+| P172 | v48.97 | 2026-05-08 | API 재시도 정책 미구현 — 일시적 502/503 에러 시 단순 return null, 지수 백오프 없음 |
+| P171 | v48.97 | 2026-05-08 | CORS 프록시 3개 동시 다운 시 silent fail — 단일 프록시 오류가 바로 null 반환, 폴백 없음 |
+| P170 | v48.96 | 2026-05-08 | 포트폴리오 테이블 th/td headers 미연결 — WCAG 1.3.1(정보·관계) 위반, 스크린리더 열 제목 미독 |
+| P169 | v48.96 | 2026-05-08 | Fund 탭 전환 시 lightweight-charts width=0 — 비활성 탭에서 차트 렌더 후 탭 전환 시 width 미복구 |
+| P168 | v48.96 | 2026-05-08 | canvas devicePixelRatio 미적용 — 레티나/HiDPI 화면에서 canvas 렌더 블러 |
+| P167 | v48.96 | 2026-05-08 | Chart.js 인스턴스 destroy 없이 재생성 — Fund waterfall 등 반복 재렌더 시 인스턴스 누적, 메모리 누수 |
+| P166 | v48.95 | 2026-05-08 | lastKrTradingDay: 15:30(장마감)~16:00(EOD 데이터 확정) grace window 미반영 — 미확정 시간대에 "오늘 종가" 표시 |
+| P165 | v48.95 | 2026-05-08 | scoreItem._kwHit: .includes(kw) 사용 — 단글자 '금'이 '금리','금융','비금속'에 오매칭 → 뉴스 스코어 왜곡 |
+| P164 | v48.95 | 2026-05-08 | _calcSharpe: std===0 비교 — 부동소수점 near-zero(1e-15 수준)에서 0 비교 실패 → Infinity 반환 |
+| P163 | v48.95 | 2026-05-08 | _pearsonCorr: denA===0 비교 — 부동소수점 near-zero(e.g. 1e-30) 분모에서 0 비교 실패 → NaN 반환 |
+| P162 | v48.95 | 2026-05-08 | _calcPortfolioVaR: Math.floor((1-conf)*n) nearest-neighbor 방식 — R-7 선형보간 대비 경계값에서 최대 1단계 오차 |
+| P161 | v48.94 | 2026-05-08 | applyTechIndicators: parseFloat() 결과를 NaN 검사 없이 .toFixed() 호출 → 지표 1개 NaN이면 전체 함수 throw |
+| P160 | v48.94 | 2026-05-08 | chatSend('fundamental'): fundamentalSearch() → chatSend 무한 재진입 가능 — _fundDepth 상한 2 미구현 |
+| P159 | v48.94 | 2026-05-08 | fetchNaverUSData: Promise.all 사용 — 3개 중 1개 reject 시 나머지 데이터 모두 손실 |
+| P158 | v48.94 | 2026-05-08 | AI chat: renderMarkdownLight() 결과를 DOMPurify 2차 없이 innerHTML 삽입 — AI 응답 XSS 잔여 경로 violated_rule: R31(XSS 방지) |
+| P157 | v48.91 | 2026-05-08 | SEC EDGAR API 응답(CIK·SIC·거래소·공시 form/date/desc) innerHTML 주입 시 escHtml() 누락 XSS 위험 |
+| P156 | v48.91 | 2026-05-08 | _renderFundHeader: FMP API 기업 설명(description) 300자 절단 후 escHtml() 없이 innerHTML 삽입 XSS |
+| P155 | v48.91 | 2026-05-08 | _searchCitationsHTML: 웹검색 API 응답 URL/domain을 escHtml() 없이 href·텍스트 삽입 → XSS 위험 |
+| P154 | v48.85 | 2026-05-07 | Price/percent pipeline must preserve missing percent semantics across PriceStore, Yahoo/Naver/Stooq/FX, KR health, and benchmark charts |
+| P153 | v48.84 | 2026-05-07 | Chart/quote render must distinguish missing data from zero: leading null chart values stay null, and price-only quotes show unknown change instead of +0.00% |
+| P152 | v48.82 | 2026-05-06 | Source/API-to-render lineage audit missing; use `AIO.getDataPipelineAudit()` to verify functions, stores, scheduler, and DOM/chart sinks |
 | P41 | v42.1 | 2026-04-05 | 뉴스 표시 컴포넌트 최소 5요소(제목/설명/요약/소스/시간) 렌더링 |
 | P42 | v42.1 | 2026-04-05 | 지표 중복 표시 방지 — 동일 데이터 여러 섹션 시 한쪽만 표시 |
 | P43 | v42.1 | 2026-04-05 | stale DOM reference — `getElementById` 결과 null이면 HTML에 해당 ID 실재 확인 |
@@ -144,10 +181,44 @@ total_entries: 150
 | P66 | v45.5 | 2026-04-09 | 데이터 미수신 상태에서 "로딩" 텍스트 영구 정체 금지 — 폴백 데이터 우선 사용, 그래도 없으면 "대기/—"로 명시 |
 | P67 | v45.5 | 2026-04-09 | 같은 동급 컴포넌트(pulse-seg/카드)는 동일 자식 구조 유지. 한쪽만 자식 누락 시 시각 정렬 깨짐 |
 | **P139** | **v48.68** | **2026-04-27** | **scroll-chaining 버그**: `.content(overflow-y:auto)`가 scrollTop=0에서 위/아래로 스크롤 시 부모(body·app·main, 모두 overflow:hidden)로 이벤트 전파 → 부모 스크롤 불가 → 사용자 "스크롤 안 됨" 체감. 테마/트렌드 페이지 포함 전 페이지 해당. `overscroll-behavior-y:contain` + `-webkit-overflow-scrolling:touch` 추가로 해결 |
-| **P140** | **v48.69** | **2026-04-28** | **CDN SRI 누락 → supply chain attack 위험**: index.html CDN `<script>` 3개(chart.js/dompurify/lightweight-charts)에 integrity/crossorigin 속성 없음 → 네트워크·CDN 오염 공격 시 임의 코드 실행 가능. sha384 해시 + crossorigin="anonymous" 추가 → R34 신설 |
+| **P140** | **v48.69** | **2026-04-28** | **CDN SRI 누락 → supply chain attack 위험**: index.html CDN `<script>` 3개(chart.js/dompurify/lightweight-charts)에 integrity/crossorigin 속성 없음 → 네트워크·CDN 오염 공격 시 임의 코드 실행 가능. sha384 해시 + crossorigin="anonymous" 추가 → R52 신설(구 R34, 2026-05-09 재번호) violated_rule: R52(CDN SRI 의무) |
 | **P141** | **v48.69** | **2026-04-28** | **setInterval ID 미저장 재발(aio-core.js:494/1078)**: _aioRenderSnapshotDates·_aioUpdateFreshness 두 타이머 반환값 미저장 → clearInterval 불가 → 탭 반복 전환 시 타이머 누적. window._aioSnapshotDatesTimer·_aioFreshnessTimer 저장 + 재등록 전 clearInterval 선행. R9 4차 강화 |
 | **P142** | **v48.69** | **2026-04-28** | **R15 위반 5건 재발(aio-data.js:8829/8831/9616/9692/9940)**: extPct·F&G 처리에 `\|\| 0` 패턴 → null 미수신 시 "0.00%"/"0 극단공포" 오표시. `!= null ? val : null` 패턴으로 전환. R15 5차 강화 |
 | **P143** | **v48.69** | **2026-04-28** | **_lastFetch 키 불일치 → 포트폴리오 신선도 항상 "대기 중"**: _aioUpdateFreshness()가 `.liveQuotes` 조회, _markFetch()는 `'quote'` 키 저장 → 영구 miss. aio-core.js:1058 — `_lastFetch.quote \|\| _lastFetch.liveQuotes` 양쪽 폴백 조회로 수정 |
+| **P188** | **v49.1** | **2026-05-09** | **통합 후 브라우저 acceptance drift**: Claude v49.1 통합 뒤 실제 Chrome `AIO.runTests()`가 173/177 PASS로 실패. 원인: `_aioLRU.get()` miss 반환 계약(null)과 `scoreItem`/ticker regex 호출부(undefined check) 불일치 → `fetchAllNews` null.tm 치명 로그, VaR 95% 꼬리 개수 `1-0.95` 부동소수 경계, `_aioSafeMD` fallback이 `onerror` 문자열을 escape만 하고 제거하지 않음, LightweightCharts 내부 canvas가 무라벨로 감사 경고. 수정: `_aioLRU` miss null 계약에 호출부 동기화, conservative historical VaR + epsilon, safeHtml fallback 이벤트/javascript 속성 제거, `_aioMarkChartCanvases` 및 active-page render audit 적용. 예방: 통합 후 실제 브라우저에서 `AIO.runTests()` all-pass, `AIO.getDataPipelineAudit().status === 'ok'`, 콘솔 error 0을 acceptance gate로 둔다. violated_rule: R32(수치 방어) R9(전역 상태) R17(접근성) |
+| **P187** | **v49.1** | **2026-05-09** | **history.pushState 전역 monkey-patch + _fmtNum Infinity**: popstate 핸들러에서 `showPage` 호출 시 `history.pushState = function(){}` 전역 교체 후 finally로 복구 — throw 미발생이지만 동기 전역 변경은 unsafe 패턴. `_aioInPopstate` 플래그로 교체. `_fmtNum(Infinity)`→`"InfinityT"` 오표시: `Math.abs(Infinity)>=1e12` 조건 통과 후 `.toFixed()` 호출. `_aioFiniteNum` 위임으로 수정. violated_rule: R32(수치 방어) R9(전역 상태) |
+| **P186** | **v49.1** | **2026-05-09** | **vixToPercentile 80+ 외삽 미구현 + DST 날짜 비교 오차**: `return 99.5`(하드캡) → VIX=82와 VIX=100이 동일 percentile. 로그외삽(`p=100-0.5*(80/vix)²`)으로 단조증가 구현. `_aioMemoStaleInfo`의 `d.getTime() > Date.now() + 86400000` — 11월 DST fall-back(25h 하루)에서 `25h > 24h`로 true가 되어 미래 날짜를 작년으로 롤백. 3월/11월 ±1h 허용 추가. violated_rule: R32(수치 정확성) |
+| **P185** | **v49.1** | **2026-05-09** | **_chartIv raw setInterval 타이머 레지스트리 누락**: Chart.js CDN 로드 대기 `setInterval`이 `_aioRegisterTimer` 외부에서 실행 — `clearInterval(_chartIv)` 직접 호출, 레지스트리 통계/dedupe 불가. `_aioRegisterTimer('chartReady', ...)` 마이그레이션. violated_rule: R9(타이머 관리) |
+| **P184** | **v49.1** | **2026-05-09** | **전역 변수 11개 namespace 부재**: `prevPage`(aio-core.js let), `_lastPageShownFire`, `_currentTickerSym`, `_aioPopstateRegistered`, `_scrSortCol`, `_scrSortAsc` 등이 window 직접 참조 산재 — 진단/디버그 불가, 다른 스크립트와 충돌 위험. `window.AIO.state` 초기화 블록 + `prevPage` `Object.defineProperty` shim + `_aioGlobalRegistry` 등록. violated_rule: R9(전역 상태) |
+| **P183** | **v49.0** | **2026-05-09** | **_renderFundValuation Infinity 렌더 버그**: `(mt.peRatioTTM \|\| ma.peRatio \|\| 0).toFixed(1)` 패턴 — FMP API가 EPS≈0 종목의 P/E·PEG를 `Infinity`로 반환 시 `.toFixed()` = "Infinity" → 화면에 "Infinityx" 표시. `_aioFiniteNum(_fn)` + `_fv/_fv3` 헬퍼로 대체, 모든 `\|\| 0` 패턴 제거. `_renderFundFinancials` P/E·ROE·EV/EBITDA·P/B·D/E도 동일 가드 적용. violated_rule: R32(수치 방어 코딩) |
+| **P182** | **v49.0** | **2026-05-09** | **scoreItem·_tickerRegexCache 무한 성장**: `scoreItem` 결과 캐시(plain Object)와 `_tickerRegexCache`(plain Object)에 상한 없음 — 뉴스 피드 반복 호출 시 항목 무한 누적, 메모리 누수. `_aioLRU('scoreItem', 200)` + `_aioLRU('tickerRegex', 600)`으로 교체, `AIO.diag.scoreCache()` 진단 API 등록. violated_rule: R9(메모리 관리) |
+| **P181** | **v49.0** | **2026-05-09** | **applyDataSnapshot 단일 try-catch 전체 차단**: 100+ `[data-snap]` 요소를 단일 try-catch로 감싸 — 1개 키 실패 시 이하 모든 snap 갱신 중단, silent fail 불명확. 키별 독립 try-catch + `_snapApplied/_snapFailed` 카운터 + `_aioLog('warn','snap')` 로깅으로 분해. violated_rule: R32(오류 격리) |
+| **P180** | **v48.99** | **2026-05-09** | **index.html 22건 addEventListener 분산**: portfolio(4건) · tech/macro(3건) · kr(2건) · signal(2건) · fxbond(1건) · fundamental(3건) · themes(2건) · options(2건) · gmo(1건) · ai-panel(1건) · home(1건) 모두 개별 `document.addEventListener` → 페이지 이탈 시 해제 불가. `_aioPageBus.register` 마이그 완료. violated_rule: R9(이벤트 관리) |
+| **P179** | **v48.99** | **2026-05-09** | **aio-data.js 4건 addEventListener 분산**: `data-home-live/shown` · `data-sentiment-fg-shown` · `data-sentiment-crypto-shown` → `_aioPageBus.register` 마이그 완료. violated_rule: R9(이벤트 관리) |
+| **P178** | **v48.99** | **2026-05-09** | **aio-core.js 9건 addEventListener 분산**: `core-breadth`(liveQuotes) · `core-signal-live/shown` · `core-options-live/shown` · `core-sentiment-live/shown` · `core-freshness`(liveQuotes) · `core-guide-shown` → `_aioPageBus.register` 마이그 완료. violated_rule: R9(이벤트 관리) |
+| **P177** | **v48.98** | **2026-05-09** | **Infinity/NaN/분모 0 비가드**: aio-core.js 및 aio-chat.js 전반에서 Fund P/E·P/B·PEG·EV/EBITDA·D/E 계산 시 분모가 0일 때 `Infinity` 렌더, VaR 분위수·Sharpe 계산 시 NaN 비검증 위험. `_aioFiniteNum(v, fb)` + `_aioSafeDiv(num, den, fb)` 통합 가드 추가 (aio-core.js). C3(v49.0) PR에서 Fund 렌더러에 적용 예정. violated_rule: R32(수치 방어 코딩) |
+| **P176** | **v48.98** | **2026-05-09** | **초기화 함수 중복 호출 + 전역 변수 namespace 산재**: 동일 설정/등록 함수가 여러 경로에서 반복 호출될 위험 + `prevPage`, `_lastPageShownFire`, `_currentTickerSym`, `sentPageCharts` 등 11개 전역 변수가 window 직접 참조 분산. `_aioOnce(name, fn)` 멱등 초기화 가드 + `_aioGlobalRegistry` 이전 Map 추가. D1(v49.1) PR에서 AIO.state.* 이전 예정. violated_rule: R9(전역 상태 관리) |
+| **P175** | **v48.98** | **2026-05-09** | **이벤트 listener 누적 위험**: `aio:pageShown` 17건 · `aio:liveQuotes` 18건이 개별 `document.addEventListener`로 분산 등록 — 페이지 이탈 시 해제 불가, SPA 탐색 반복 시 listener 중복 누적 가능. `_aioPageBus` 단일 라우팅 허브 추가: `register(pageId, eventName, fn)` 등록 / `unregister(pageId)` 전체 해제 / `dispatch(eventName, detail)` 발사. B1~B3(v48.99) PR에서 실제 마이그 예정. violated_rule: R9(이벤트 관리) |
+| **P174** | **v48.97** | **2026-05-08** | **API 키 UI 마스킹 미구현**: `safeLSGetSync(key)`로 가져온 API 키 값이 설정 UI에 평문 표시 가능. 또한 5개 localStorage 키(`aio_*_key`)에 대한 통일 get/set 인터페이스 없음 → 각 호출처마다 암호화 처리 여부 불균일. `_aioMaskKey(raw)` → `****-last4`, `getApiKey/setApiKey` 래퍼 추가. violated_rule: R34(PII 보호) |
+| **P173** | **v48.97** | **2026-05-08** | **IndexedDB 뉴스 PII 평문 저장**: `_idbSaveNews`에서 뉴스 기사 원문을 그대로 저장 → 기사 내 이메일/전화번호가 브라우저 IndexedDB에 평문 기록. 개발자도구·백업·확장에서 접근 가능. `_aioRedactPII(record)` 적용 — title/description/content/summary 내 이메일·전화 `[email]`/`[phone]`으로 치환 후 저장. violated_rule: R34(PII 보호) |
+| **P172** | **v48.97** | **2026-05-08** | **API 재시도 지수백오프 미구현**: 일시적 502/503 오류 시 즉시 null 반환, jitter 없음 → 동시 다중 사용자 환경에서 재시도 폭풍(thundering herd) 발생 가능. `_aioRetry(fn, {maxAttempts:3, baseMs:500, jitter:true, capMs:8000})` 추가 + `AIO.diag.retryStats()` 통계 API. violated_rule: R20(부분 실패 복원) |
+| **P171** | **v48.97** | **2026-05-08** | **CORS 프록시 단일 실패 시 폴백 없음**: corsproxy.io 등 단일 프록시 사용 → 해당 프록시 장애 시 silent null 반환, 2초 내 안내 없음. `_aioProxyChain.try(proxies, path)` 배열 순차 폴백 + Circuit Breaker(3회 실패 → 60s cooldown) 추가. `AIO.diag.proxyHealth()` CB 상태 조회. violated_rule: R20(부분 실패 복원) |
+| **P170** | **v48.96** | **2026-05-08** | **포트폴리오 테이블 `<th id>`/`<td headers>` 미연결**: 포트폴리오 포지션 테이블 9개 `<th>` 요소에 id 없음, JS 생성 `<td>` 행에 headers 속성 없음 → WCAG 1.3.1(정보·관계) 위반, 스크린리더가 열 제목 미독. `<th id="pf-th-*">` + `<td headers="pf-th-*">` 추가. violated_rule: WCAG 1.3.1(정보·관계) |
+| **P169** | **v48.96** | **2026-05-08** | **Fund 탭 전환 시 lightweight-charts width=0**: Fund 분석 탭을 비활성 상태에서 렌더링 후 전환하면 `[id$="-lw-chart"]` 컨테이너 clientWidth=0 → 차트 width=0 표시. `_aioFundTabSwitch` 50ms 딜레이 후 `applyOptions({width: el.clientWidth})` 적용으로 수정. violated_rule: R15(차트 렌더 정확성) |
+| **P168** | **v48.96** | **2026-05-08** | **Canvas devicePixelRatio 미적용으로 레티나 블러**: `canvas.width/height`를 CSS 크기와 동일 설정 → 레티나/HiDPI(dpr=2) 화면에서 canvas 픽셀 해상도 부족, 텍스트·선 블러. `_aioSetupCanvas(canvas, w, h)` — dpr 적용(canvas.width=w*dpr, ctx.scale(dpr)). violated_rule: R14(시각적 품질) |
+| **P167** | **v48.96** | **2026-05-08** | **Chart.js 인스턴스 destroy 없이 반복 재생성 → 메모리 누수**: `_renderFundVariance` 등이 동일 canvas에 `new Chart()` 재호출 — 이전 인스턴스 `.destroy()` 미호출 → 인스턴스 누적, 메모리·이벤트리스너 누수. `_aioChartRegistry.destroyIfExists(id)` 선행 후 `register(id, chart)` 패턴으로 수정. violated_rule: R9(메모리 누수 방지) |
+| **P166** | **v48.95** | **2026-05-08** | **lastKrTradingDay EOD grace window 미처리**: 한국 장마감(15:30) 직후~16:00 사이에는 API 종가 데이터가 미확정 상태임에도 `lastKrTradingDay()`는 오늘 날짜를 반환, "오늘 종가" 표시. `lastKrTradingDayEx()` 추가 → `{date, eodConfirmed}` 반환. 15:30~16:00 구간 `eodConfirmed=false`. violated_rule: R15(미확정 데이터 표시 금지) |
+| **P165** | **v48.95** | **2026-05-08** | **scoreItem 한국어 단글자 키워드 오탐**: `_kwHit()`에서 `.includes('금')` → "금리" 텍스트에서 '금' 매칭됨. 금리/금융/비금속 관련 뉴스가 '금(gold)' 점수 부여받아 스코어 왜곡. `_wordHit(text, kw)` 유니코드 단어경계 함수 신규 + RegExp 캐시. violated_rule: R15(NLP 오탐 방지) |
+| **P164** | **v48.95** | **2026-05-08** | **_calcSharpe std===0 비교 실패**: `_statStdDev`가 매우 작은 값(1e-15 수준)을 반환할 때 `std===0` 비교 실패 → `(mean/1e-15)*√252 = Infinity` 반환. `std < 1e-10 → null` 조건으로 수정. violated_rule: R15(NaN/Infinity 표시 금지) |
+| **P163** | **v48.95** | **2026-05-08** | **_pearsonCorr 분모 near-zero NaN**: `denA`(Σ(a_i-mean)²) 또는 `denB`가 상수 배열에서 부동소수점 오차로 ~1e-30 수준이 될 때 `=== 0` 비교 실패 → `Math.sqrt(denA*denB)` = 극소값 → `num/극소값 = Infinity` 또는 NaN. `< 1e-12` EPS 비교로 수정. violated_rule: R15(NaN 방지) |
+| **P162** | **v48.95** | **2026-05-08** | **_calcPortfolioVaR nearest-neighbor 정확도**: `Math.floor((1-conf)*n)` 방식은 경계 인덱스에서 인접 분위수 보간 없이 하위 단계를 반환. n=100, conf=0.99 → 기대 VaR=0.01이지만 `Math.floor(0.01*100)=1` → sorted[1] 반환. R-7 선형보간(`_quantileR7`)으로 교체. violated_rule: R10(수치 정확성) |
+| **P161** | **v48.94** | **2026-05-08** | **applyTechIndicators NaN 미처리 → 지표 전체 렌더 중단**: RSI/MACD/Stoch/ADX가 각자 `if (data.xxx?.values?.[0])` 가드를 통과해도 `parseFloat()`가 NaN을 반환하면 `.toFixed()` 호출 시 TypeError 발생 → 외부 try/catch가 전체 함수를 중단시켜 이후 지표 미렌더. `_aioRenderNum(v,'',decimals)` NaN 가드로 수정. violated_rule: R15(NaN 표시 금지) |
+| **P160** | **v48.94** | **2026-05-08** | **chatSend fundamental 재귀 상한 미구현**: `fundamentalSearch()` → `chatSend('fundamental')` → AI가 chip을 통해 또는 자동으로 `fundamentalSearch()`를 재귀 호출할 수 있는 경로 존재. `state._fundDepth` 카운터로 상한 2 구현, 초과 시 경고 메시지 표시 후 return. violated_rule: R10(무한 루프 방지) |
+| **P159** | **v48.94** | **2026-05-08** | **fetchNaverUSData Promise.all → 단일 실패 시 전체 데이터 손실**: basic/integration/finance 3개 요청 중 1개가 reject되면 `Promise.all` 전체 reject → catch로 `return null` → 나머지 2개 응답도 버림. 각 Promise에 `.catch(() => null)` 있었으나 Promise.all 수준에서 추가 실패 경로 존재. `Promise.allSettled` + 개별 `.status === 'fulfilled'` 추출로 수정. violated_rule: R20(부분 실패 보존) |
+| **P158** | **v48.94** | **2026-05-08** | **AI chat renderMarkdownLight DOMPurify 2차 누락**: `chatSend` onChunk/onDone에서 `aiBubble.innerHTML = renderMarkdownLight(visible)` 패턴 사용 — `renderMarkdownLight()`는 마크다운을 HTML로 변환하나 DOMPurify sanitize 없음. Anthropic API 응답이 `<img onerror=...>` 등 XSS payload 포함 시 실행 가능. `_aioSafeMD()`로 교체(renderMarkdownLight + DOMPurify 2차). 4곳(onChunk·onDone·retry·error) 전부 수정. violated_rule: R34(XSS 방지) |
+| **P157** | **v48.91** | **2026-05-08** | **SEC EDGAR API 응답 escHtml 누락 XSS**: `_renderFundSEC()` — CIK·sicDescription·exchanges 및 공시 form/date/primaryDocDescription을 escHtml 없이 innerHTML 삽입. SEC EDGAR 응답이 오염되거나 악의적 데이터를 포함 시 XSS 실행 가능. 4개 필드 모두 `escHtml()` 래핑으로 수정. violated_rule: R34(XSS 방지) |
+| **P156** | **v48.91** | **2026-05-08** | **_renderFundHeader FMP 기업 설명 escHtml 누락 XSS**: `p.description`(FMP API 응답)을 300자 슬라이스 후 escHtml 없이 innerHTML 삽입. `escHtml(desc)` 적용으로 수정. violated_rule: R34(XSS 방지) |
+| **P155** | **v48.91** | **2026-05-08** | **_searchCitationsHTML 웹검색 URL/도메인 escHtml 누락 XSS**: `sr.citations[i]`(Perplexity/Google 검색 API 응답 URL)을 href 속성에 직접, `domain`(URL 파싱값)을 텍스트에 직접 삽입. 악의적 URL(`javascript:alert(1)`) 또는 XSS payload가 포함된 도메인명 주입 가능. `escHtml(url)`·`escHtml(domain)` 적용으로 수정. violated_rule: R34(XSS 방지) |
 | **P144** | **v48.77 audit** | **2026-05-05** | **포트폴리오 벤치마크 일부 fetch 실패가 0%/과소 표시로 누락**: top 10 ticker를 먼저 covered로 간주해 fetch 실패 종목이 covered/uncovered 어디에도 포함되지 않음. 성공한 ticker만 `coveredSymSet`에 넣고, 실패 종목은 uncovered 선형 보정에 포함하도록 수정 |
 
 ---
@@ -170,7 +241,7 @@ total_entries: 150
 ## [2026-04-28] v48.69 — 전수 보안·성능·데이터 보강 P140~P143
 
 ### BUG-P140: CDN SRI 누락 → supply chain attack 위험 (HIGH)
-- **violated_rule**: 신규 → R34 (CDN SRI 의무)
+- **violated_rule**: 신규 → R52 (CDN SRI 의무, 구 R34 → 2026-05-09 재번호)
 - **증상**: chart.js/dompurify/lightweight-charts CDN에서 악의적으로 수정된 파일이 로드되어도 브라우저가 감지하지 못함. 네트워크 중간자 또는 CDN 오염 발생 시 사용자 세션에서 임의 JS 실행 가능.
 - **근본 원인**: index.html CDN `<script>` 3개에 `integrity`/`crossorigin` 속성이 없음. SRI는 브라우저가 다운로드한 리소스의 해시를 검증하여 변조를 막는 W3C 표준인데 적용하지 않은 상태.
 - **수정**: `index.html` CDN 3개에 sha384 해시 추가
@@ -178,7 +249,7 @@ total_entries: 150
   integrity="sha384-..." crossorigin="anonymous"
   ```
   chart.js@4.4.0 / dompurify@3.0.9 / lightweight-charts@4.2.0 각각 적용.
-- **예방**: P140/R34 — 외부 CDN `<script>` 추가 시 integrity + crossorigin 속성 필수. 해시 생성: `curl -sL <URL> | openssl dgst -sha384 -binary | openssl base64 -A`
+- **예방**: P140/R52 — 외부 CDN `<script>` 추가 시 integrity + crossorigin 속성 필수. 해시 생성: `curl -sL <URL> | openssl dgst -sha384 -binary | openssl base64 -A`
 
 ### BUG-P141: setInterval ID 미저장 재발 (aio-core.js:494/1078) — R9 4차 강화 (MEDIUM)
 - **violated_rule**: R9 (setInterval 반환값 전역 저장 필수)
@@ -1638,6 +1709,48 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **prevention**: Run desktop/mobile clipping and interactive-overlap checks for every page after UI edits.
 
 ---
+
+## [2026-05-07] v48.85 price/percent pipeline semantics P154
+
+### BUG-P154: quote, FX, KR, and chart paths still normalized missing percent to zero (MEDIUM)
+- **violated_rule**: R15 / missing data must not be rendered or analyzed as a true 0% move.
+- **symptom**: After the first chart/quote fix, several side paths could still convert unavailable percent change into `0`: `PriceStore.set()` normalized non-numeric pct to 0, Finnhub trade ticks supplied price-only updates as 0%, Yahoo/Naver/Stooq fallback constructors used 0 for missing or invalid percent, FX rates without a prior close returned 0%, and KR health used truthy pct checks that treated real 0.00% as fallback.
+- **root cause**: Percent semantics were fixed at the render edge first, but the store and fallback constructors still had older “safe number” defaults. That made different pages disagree about whether a symbol was unchanged or simply missing change data.
+- **fix**: `PriceStore.set()` now stores `pct: null` plus `pctMissing` metadata for missing/invalid pct and propagates it into `_liveData` and `_dataSource`. Yahoo, Finnhub, Naver, Stooq, FX, dynamic ticker lookup, and portfolio fallback paths now preserve `null` rather than synthesizing zero. KOSPI/KOSDAQ live change bindings and KR health pct checks were tightened, and benchmark/sector charts now guard invalid base prices before building percent series.
+- **prevention**: Any quote or indicator constructor must treat `price` and `pct` as separate fields. Use `pct != null && isFinite(pct)` for logic; use `pctMissing` in audits; only write numeric `0` when the upstream explicitly reported an unchanged move.
+
+---
+
+## [2026-05-07] v48.84 chart/quote missing-data semantics P153
+
+### BUG-P153: missing chart/quote data could be displayed as a real zero or flat move (MEDIUM)
+- **violated_rule**: R15 / missing data must be visibly distinct from a true 0% or unchanged market reading.
+- **symptom**: Chart arrays using `fillMode: 'prev'` could turn leading null/NaN values into `0`, making a partial dataset look like a valid flat zero line. Separately, live quote rows with price but no `regularMarketChangePercent` were skipped entirely or risked being normalized as `+0.00%`.
+- **root cause**: `_sanitizeChartData()` initialized `lastValid` to `0`, and `chartDataGate()` padded missing tail values with `clean[clean.length - 1] || 0`. `applyLiveQuotes()` also treated price and percent as a single all-or-nothing pair.
+- **fix**: Leading chart gaps now remain `null` until the first real value; padding keeps `null` if no prior value exists. `applyLiveQuotes()` accepts valid price-only quotes but renders change as `—`, stores `pctMissing`, and exposes missing-percent samples in `AIO.getDataPipelineAudit()`.
+- **prevention**: QA for charts, indicators, and quote tables must assert that “missing/unknown” is `null`, `—`, or a warning state, never a synthetic zero unless the domain explicitly defines zero as the fallback.
+
+---
+
+## [2026-05-06] v48.82 data pipeline audit - source-to-render observability P152
+
+### BUG-P152: source-to-render data lineage was not inspectable in one place (MEDIUM)
+- **violated_rule**: R49 / data QA must verify the whole pipeline, not only final UI values or one successful fetch.
+- **symptom**: API/source checks, proxy/cache status, refresh scheduler state, validation-store health, analysis function presence, and DOM/chart render sinks had to be inspected separately. During multi-worktree integration this made it too easy to miss a broken middle layer while the page still showed fallback values.
+- **root cause**: Operational health and freshness audits covered app/SW/API/fallback status, but there was no source-to-render lineage snapshot that joined transport, stores, analysis functions, events, and render bindings.
+- **fix**: Added `AIO.getDataPipelineAudit()` with `sources`, `transport`, `scheduler`, `validationStores`, `state`, `analysis`, and `render` layers; linked it into `AIO.getOperationalHealth()` and documented the layer map in `_context/DATA-PIPELINE-AUDIT-2026-05-06.md`.
+- **prevention**: After API/source, analysis, or render changes, run `AIO.getDataPipelineAudit()` and check for missing functions, rejected store values, zero live/snapshot sink counts, and missing live bindings before deploy.
+
+---
+
+## [2026-05-06] v48.81 data freshness audit - partial live coverage P151
+
+### BUG-P151: partial live quote success could hide stale snapshot data (HIGH)
+- **violated_rule**: R49 / live data success must be evaluated by required coverage, not by any single API response.
+- **symptom**: If crypto, FX, or a small subset of quotes loaded while core market symbols such as `^GSPC` and `^VIX` failed, `DATA_SNAPSHOT._isFallback` could be cleared and the stale snapshot banner could disappear even though major analysis, charts, and indicators were still driven by fallback data.
+- **root cause**: `fetchLiveQuotes()` treated `allQuotes.length > 0` as full freshness, and `PriceStore.set()` flattened `_liveData` metadata so downstream logic had weaker source/timestamp evidence.
+- **fix**: Added `AIO.getLiveCoverage()` and `AIO.getDataFreshnessAudit()`, preserved source/timestamp metadata in `_liveData`, kept fallback active on partial core coverage, passed coverage details through `aio:liveDataReceived`, and prevented the snapshot stale banner from hiding on partial live data. Also aligned US market-hour staleness checks to `America/New_York` and stopped reporting FRED as successful when no key/data is available.
+- **prevention**: Quote pipeline QA must assert core coverage (`^GSPC`, `^VIX`, at least 50% of core symbols) before marking static snapshots as replaced; operational health snapshots must include data freshness, not only app/SW/API status.
 
 ## [2026-05-06] v48.80 operations audit - service worker drift P150
 

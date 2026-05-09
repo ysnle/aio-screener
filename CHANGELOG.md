@@ -6,6 +6,324 @@
 
 ---
 
+## v49.1 — State Hygiene & Edge-Case Coverage (2026-05-09)
+
+**변경 파일**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`
+
+- **PR-D1 (aio-core.js + aio-data.js)**: `window.AIO.state` namespace 초기화 — 6개 전역 변수(`prevPage`, `_lastPageShownFire`, `_currentTickerSym`, `_aioPopstateRegistered`, `_scrSortCol`, `_scrSortAsc`) 등록. `prevPage ↔ AIO.state.prevPage` `Object.defineProperty` shim + `_aioGlobalRegistry` 등록 (P184)
+- **PR-D2 (aio-core.js)**: `_chartIv setInterval` → `_aioRegisterTimer('chartReady', ...)` 마이그. 타이머 레지스트리에 등록, 완료 시 clearInterval+delete (P185)
+- **PR-D3 (aio-data.js + aio-core.js)**: `vixToPercentile` 80+ 하드캡(99.5) → 로그 외삽(`p=100-0.5*(80/vix)²`) 단조 증가. `AIO.diag.vixDistFit()` 진단 API 추가. `_aioMemoStaleInfo` 3월/11월 DST ±1h 보정 (P186)
+- **PR-D4 (aio-core.js + aio-chat.js)**: `history.pushState` 전역 hijack(monkey-patch) → `_aioInPopstate` 플래그로 교체 (P187). `_fmtNum` NaN/Infinity → `_aioFiniteNum` 위임 → `'—'` 반환
+- **Codex 통합 QA 보강 (P188)**: 실제 Chrome acceptance에서 발견된 잔여 4건+콘솔 에러 수정. `_aioLRU.get()` miss 계약(null)과 `scoreItem`/ticker regex 호출부 동기화, conservative historical VaR + 부동소수 epsilon, `_aioSafeMD` fallback 이벤트/javascript 속성 제거, LightweightCharts 내부 canvas `aria-hidden` 처리 + active-page render audit 적용.
+- **테스트**: T98~T102 추가 (총 102건) — T98 AIO.state.prevPage shim·T99 chartReady timer·T100 vix단조증가·T101 memo DST grace·T102 _aioFiniteNum NaN/Inf→null
+- **브라우저 QA**: Chrome 실측 `AIO.runTests()` 177/177 PASS, `AIO.getDataPipelineAudit().status === 'ok'`, 21개 페이지 `showPage()` 스모크 실패 0, 콘솔 error/exception 0.
+
+---
+
+## v49.0 — Critical Function Fortification (2026-05-09)
+
+**변경 파일**: `js/aio-chat.js`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`
+
+- **PR-C1 (aio-core.js)**: `applyDataSnapshot` 100+ `[data-snap]` 단일 try-catch → 키별 독립 try-catch 분해. `_snapApplied/_snapFailed` 카운터 + `_aioLog('warn','snap')` 로깅 추가 (P181)
+- **PR-C2 (aio-core.js + aio-data.js)**: `_aioLRU(name, cap)` 신규 헬퍼 — Map 기반 LRU, cap 초과 시 가장 오래된 항목 퇴거. `scoreItem` 캐시 → `_aioLRU('scoreItem', 200)`, `_tickerRegexCache` → `_aioLRU('tickerRegex', 600)`. `AIO.diag.scoreCache()` 진단 API 추가 (P182)
+- **PR-C3 (aio-chat.js)**: `_renderFundFinancials` P/E·ROE·EV/EBITDA·P/B·D/E + `_renderFundValuation` 전 비율 — API `Infinity` 반환 시 `.toFixed()="Infinity"` 렌더 버그 수정. `_aioFiniteNum` 기반 `_fn/_fv/_fv3` 헬퍼 도입, `|| 0` 패턴 제거 (P183)
+- **테스트**: T93~T97 추가 (총 97건) — T93 snap 키별 격리·T94 LRU cap·T95 scoreItem 캐시 hit·T96 SafeDiv Fund 맥락·T97 PEG Infinity→'—'
+
+---
+
+## v48.99 — Listener Hygiene & Page Lifecycle: PageBus 마이그레이션 (2026-05-09)
+
+**변경 파일**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- **PR-B1 (aio-core.js)**: 9건 리스너 → `_aioPageBus.register` 마이그. `core-breadth`(liveQuotes) · `core-signal-live/shown` · `core-options-live/shown` · `core-sentiment-live/shown` · `core-freshness`(liveQuotes) · `core-guide-shown` (P178)
+- **PR-B2 (aio-data.js)**: 4건 리스너 → `_aioPageBus.register` 마이그. `data-home-live/shown` · `data-sentiment-fg-shown` · `data-sentiment-crypto-shown` (P179)
+- **PR-B3 (index.html)**: 22건 리스너 → `_aioPageBus.register` 마이그. portfolio(4건) · technical/macro(3건) · kr pages(2건) · signal(2건) · fxbond(1건) · fundamental(3건) · themes(2건) · options(2건) · gmo(1건) · ai-panel(1건) · home(1건) (P180)
+- **테스트 T89~T92** (aio-tests.js): Group 15 — dispatch 1회실행 · unregister registry소거 · diag.pageBus() 반환검증 · multi-event 독립실행 = 총 92건
+
+## v48.98 — Function Audit Infrastructure: PageBus·Once·SafeDiv·FiniteNum (2026-05-09)
+
+**변경 파일**: `js/aio-core.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- **`_aioPageBus`** (aio-core.js): 단일 이벤트 라우팅 허브. `register(pageId, eventName, fn)` 페이지별 핸들러 등록 (동일 fn 중복 무시) / `unregister(pageId)` 전체 리스너 제거 / `dispatch(eventName, detail)` CustomEvent 발사 / `AIO.diag.pageBus()` 레지스트리 상태 반환. aio:pageShown(17건)·aio:liveQuotes(18건) 마이그 사전 인프라 (P175)
+- **`_aioOnce(name, fn)`** (aio-core.js): 동일 name 최초 1회만 fn 실행하는 멱등 초기화 가드 (P176)
+- **`_aioGlobalRegistry`** (aio-core.js): 전역 변수 → AIO.state.* 이전 시 사용하는 Map 레지스트리. `register/get/set/list` API (P176)
+- **`_aioFiniteNum(v, fb)`** (aio-core.js): NaN/Infinity/-Infinity → fallback 반환 통합 가드 (P177)
+- **`_aioSafeDiv(num, den, fb)`** (aio-core.js): 분모 0 또는 비유한 결과 → fallback 반환. Fund P/E·PEG·EV/EBITDA 0 분모 수정 사전 인프라 (P177)
+- **테스트 T84~T88** (aio-tests.js): Group 14 — PageBus 등록/해제·dedupe·_aioOnce 멱등·_aioSafeDiv 분모0·_aioFiniteNum NaN = 총 88건
+
+## v48.97 — Infrastructure: 프록시 폴백·재시도·PII 정제·API 키 마스킹 (2026-05-08)
+
+**변경 파일**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`
+
+- **`_aioRetry(fn, opts)`** (aio-core.js): 지수 백오프 + jitter 자동 재시도. maxAttempts/baseMs/capMs/jitter 설정. `window._aioRetryStats` 누적 통계 (P172)
+- **`_aioProxyChain`** (aio-core.js): CORS 프록시 배열 순차 폴백 + Circuit Breaker(3회 실패→60s cooldown). `_aioProxyChain.try(proxies, path, opts)` + `health()` (P171)
+- **`AIO.diag.*`** (aio-core.js): `proxyHealth()` · `retryStats()` · `lastNaverHealth()` — 운영 진단 API 3종
+- **`_aioRedactPII(record)`** (aio-core.js): title/description/content/summary 내 이메일→`[email]`, 전화→`[phone]` 치환 (P173)
+- **`_idbSaveNews` PII 적용** (aio-data.js): `os.put(_aioRedactPII(rec))` — IndexedDB 저장 전 PII 제거
+- **`_aioMaskKey` / `getApiKey` / `setApiKey`** (aio-core.js): `****-last4` UI 마스킹 + 통일 localStorage 래퍼 (P174)
+- **테스트 T80~T83** (aio-tests.js): Group 13 — 프록시 CB 2건 + 재시도 통계 1건 + PII 마스킹 3건 + 키 마스킹 3건 = 총 83건
+
+**P171·P172·P173·P174 등록** → `_context/BUG-POSTMORTEM.md`
+
+---
+
+## v48.96 — Chart Robustness: 차트 레지스트리·DPR·모달 트랩·테이블 접근성 (2026-05-08)
+
+**변경 파일**: `js/aio-core.js`, `js/aio-chat.js`, `js/aio-ui.js`, `js/aio-data.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`
+
+- **`_aioChartRegistry`** (aio-core.js): Chart.js 인스턴스 중앙 관리 — `register/destroyIfExists/get/resizeAll`. `_renderFundVariance` 적용 (P167)
+- **`_aioSetupCanvas(canvas, w, h)`** (aio-core.js): devicePixelRatio 적용 캔버스 초기화 — canvas.width=w*dpr, ctx.scale(dpr) (P168)
+- **`_aioModalTrap(rootEl, onClose)`** (aio-core.js): WCAG 2.1 SC 2.1.2 모달 키보드 트랩 — ESC 닫힘 + Tab/Shift-Tab 포커스 순환 + cleanup 반환 (P2-9)
+- **Fund 탭 resize** (aio-ui.js): `_aioFundTabSwitch` 탭 전환 후 50ms 딜레이 → `_aioChartRegistry.resizeAll()` + lightweight-charts `applyOptions({width})` (P169)
+- **applyTechIndicators stale 마킹** (aio-data.js): 진입 시 `dataset.stale='1'`, 성공 시 삭제 — 비정상 종료 시 UI에 스테일 표시 유지
+- **포트폴리오 테이블 접근성** (index.html): `<th id="pf-th-*">` + `<td headers="pf-th-*">` — WCAG 1.3.1 준수 (P170)
+- **print canvas 배경** (index.html @media print): `canvas { background:#fff !important }` — 다크 테마 인쇄 시 흰 배경
+- **한글 폰트 fallback** (index.html `--font-mono`): `'D2Coding','맑은 고딕','Malgun Gothic','굴림'` 추가 — Windows 환경 한글 코드 폰트 보장
+- **테스트 T75~T79** (aio-tests.js): Group 12 — 차트 레지스트리 3건 + DPR canvas 1건 + modal ESC 1건 = 총 79건
+
+**P167·P168·P169·P170 등록** → `_context/BUG-POSTMORTEM.md`
+
+---
+
+## v48.95 — Numerical Accuracy: VaR R7·Sharpe/Pearson EPS·키워드 단어경계·2027 휴장일 (2026-05-08)
+
+**변경 파일**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`
+
+- **`_quantileR7(sorted, p)`** (aio-core.js): R-7 선형보간 분위수 — VaR 계산 nearest-neighbor → 정밀 보간 (P162)
+- **`_calcPortfolioVaR`**: `Math.floor` → `_quantileR7(sorted, 1-conf)` + NaN 필터링 (P162)
+- **`_calcSharpe`**: `std===0` → `std < 1e-10` (P164)
+- **`_pearsonCorr`**: `denA===0` → `denA < 1e-12` (P163)
+- **`_wordHit(text, kw)`** (aio-core.js): 유니코드 단어경계 매칭 (`\p{L}\p{N}` 'u' 플래그) + RegExp 캐시. `_kwHit` + `_FINANCE_RELEVANCE_KW.filter` 모두 적용 (P165)
+- **2027 휴장일**: `KR_HOLIDAYS_2027` · `US_HOLIDAYS_2027` 추가. `isKrTradingDay/isUsTradingDay` 연도별 맵 지원 (P2-2)
+- **`lastKrTradingDayEx()`** (aio-core.js): `{date, eodConfirmed}` 반환 — 15:30~16:00 EOD grace window (P166)
+- **테스트 T67~T74** (aio-tests.js): Group 11 — VaR 보간 2건 + Pearson/Sharpe EPS 2건 + 단어경계 4건 + DST/휴장일 2건 = 총 74건
+
+**P162·P163·P164·P165·P166 등록** → `_context/BUG-POSTMORTEM.md`
+
+---
+
+## v48.94 — Security & Resilience: XSS·재귀·NaN 보강 (2026-05-08)
+
+**변경 파일**: `js/aio-core.js`, `js/aio-chat.js`, `js/aio-data.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`
+
+- **`_aioSafeMD(rawText)`** (aio-core.js): AI 응답 `renderMarkdownLight()` 결과에 DOMPurify 2차 통과 게이트웨이. `aio-chat.js` 4곳(onChunk·onDone·retry·error) 패치 (P158)
+- **`_fundDepth` 재귀 가드** (aio-chat.js): `chatSend('fundamental')` 진입 시 카운터 증가 → 상한 2 초과 시 경고 + return. onDone/onError 시 리셋 (P160)
+- **`Promise.allSettled`** (aio-data.js:2003): `fetchNaverUSData` — 3개 API 중 1개 실패해도 나머지 보존 (P159)
+- **`_aioSafeParseJSON(raw, fallback, scope)`** (aio-core.js): JSON.parse 안전 래퍼 + `_aioLog` 경고
+- **`_aioRenderNum(v, suffix, decimals)`** (aio-core.js): NaN→'—' 가드 + decimals 파라미터. `applyTechIndicators` RSI/MACD/Stoch/ADX 전체 적용 (P161)
+- **테스트 T61~T66** (aio-tests.js): Group 10 — XSS 방어 2건 + 재귀 로직 1건 + JSON 파싱 2건 + NaN 가드 4건 = 총 66건
+
+**P158·P159·P160·P161 등록** → `_context/BUG-POSTMORTEM.md`
+
+---
+
+## v48.93 — Engineering 2차: 단위 테스트 (engineering:testing-strategy) (2026-05-08)
+
+**변경 파일**: `js/aio-tests.js`(신규), `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- **`js/aio-tests.js` 신규** (~320줄, 60건 테스트 · 9개 그룹):
+  - **Group 1** `_calcDailyReturns` — 7건: 기본계산·빈배열·1원소·null필터·선형상승·동일가격·음수제거
+  - **Group 2** `_statMean/_statStdDev` — 6건: mean/stdDev 기본·엣지케이스
+  - **Group 3** `_calcPortfolioVaR` — 6건: 95%/99%·빈배열·최소·양수수익률·default
+  - **Group 4** `_calcSharpe` — 6건: 분산=0→null·최소미달·양수/음수·연율화
+  - **Group 5** `_calcMaxDrawdown` — 6건: 낙폭·지속상승·빈배열·1원소·범위·peak<trough
+  - **Group 6** `_pearsonCorr` — 7건: 자기상관=1·역상관=-1·상수·빈배열·길이불일치·범위·양의관계
+  - **Group 7** `_calcCorrelationMatrix` — 6건: 2×2·대각선·대칭·단일→null·빈→null·3×3
+  - **Group 8** 통합 — 6건: 가격→수익률→VaR/Sharpe/MDD 체인·다종목 매트릭스
+  - **Group 9** 엣지케이스 방어 — 10건: NaN·극단값·null/undefined·경계값·자기상관
+- **`AIO.runTests()`** — 전체 실행 API (결과: {pass, fail, total, allPass, summary})
+- **`AIO.getTestResults()`** — 마지막 결과 재조회 API
+- **`index.html`**: `<script src="./js/aio-tests.js">` 추가 (glossary 다음)
+- **`sw.js` SHELL_ASSETS**: `./js/aio-tests.js` 추가 (오프라인 캐시)
+- **R1 버전 7곳 동기화**
+
+---
+
+## v48.92 — Design 1차: 가독성 + 접근성 (frontend-design) (2026-05-08)
+
+**변경 파일**: `index.html`, `js/aio-core.js`, `js/aio-ui.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- **WCAG AA 색상 대비 수정**: `--text-muted: #7b8599` → `#9aa6b9` — `#080d1a` 배경 기준 3.1:1 → 4.6:1 (WCAG AA 4.5:1 기준 충족)
+- **폰트 스케일 +1px 전체 상향** (한국어 가독성):
+  - `--fs-xs: 10px` → `12px` / `--fs-sm: 11px` → `13px` / `--fs-base: 12px` → `14px` / `--fs-md: 13px` → `15px` / `--fs-min: 11px` → `12px`
+- **행간 개선**: `--lh-tight: 1.15` → `1.4` (한국어 자간 보정) / `--lh-body: 1.55` → `1.7`
+- **Fund Analysis 3탭 UI**: 11개 섹션을 개요/재무상세/외부정보 탭으로 분류
+  - `개요`: 핵심재무 · 밸류에이션 · 다기간비교표
+  - `재무상세`: SEC EDGAR · 재무제표 · 실적분산 · 실적서프라이즈
+  - `외부정보`: 경쟁사비교 · 뉴스 · 데이터소스
+  - `data-fund-tab` 속성 + `.fund-tab-active` CSS 클래스 기반 (JS 로딩 상태와 독립)
+- **`_aioFundTabSwitch(tab)` 핸들러** 추가 (`js/aio-ui.js`): data-action 이벤트 위임 연결
+- **`AIO.getColorContrastAudit()`** 추가 (`js/aio-core.js`): WCAG 2.1 luminance 공식 기반 핵심 8개 색상 페어링 명도비 자동 진단
+- **모바일 브레이크포인트** `@media (max-width: 768px)` 추가: 폰트 +1px 추가 상향
+- **R1 버전 7곳 동기화**: title · badge · APP_VERSION · version.json · sw.js · CLAUDE.md · _context/CLAUDE.md
+
+---
+
+## v48.91 — Engineering 1차: 보안 + 안정성 (engineering:code-review+tech-debt) (2026-05-08)
+
+**변경 파일**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-chat.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- **`_safeSetHTML(el, html)` 추가** (`js/aio-core.js`): DOMPurify 기반 innerHTML 게이트웨이 — `safeHtml()` 래퍼
+- **타이머 레지스트리 추가** (`js/aio-core.js`): `window._aioTimerRegistry` + `_aioRegisterTimer(name, fn, ms)` / `_aioClearTimer(name)` / `_aioClearAllTimers()` — `window.AIO._timers` 바인딩 포함
+- **setInterval 13건 레지스트리 마이그레이션** (engineering:tech-debt):
+  - `aio-core.js` 4건: snapshotDates · freshness · freshnessPanel · dateEngine
+  - `aio-data.js` 3건: dataStatus(×2) · sigRefresh
+  - `aio-ui.js` 4건: refreshSignal · quotaBadge · ghPoll(×2)
+  - `index.html` 2건: signalDashboard · globalUpdate (+ beforeunload에서 `_aioClearAllTimers()` 전체 정리)
+- **XSS 수정 4건** (engineering:code-review):
+  - `_searchCitationsHTML`: `url`/`domain` → `escHtml()` 적용 (P83)
+  - `_renderFundHeader`: `p.description` → `escHtml()` 적용 (P84)
+  - `_renderFundSEC`: CIK · sicDescription · exchanges · 공시 form/date/desc → `escHtml()` 적용 (P85)
+- **R1 버전 7곳 동기화**: title · badge · APP_VERSION · version.json · sw.js · CLAUDE.md · _context/CLAUDE.md
+
+---
+
+## v48.90 — 실적 분산 분석 (finance:variance-analysis) (2026-05-08)
+
+**변경 파일**: `index.html`, `js/aio-chat.js`, `js/aio-core.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
+
+- **`_renderFundVariance(d)` 함수 추가** (`js/aio-chat.js` 끝):
+  - **Beat 요약 카드 3개**: EPS Beat율(%) · 평균 서프라이즈(%) · 최근 분기 Beat/Miss 결과
+  - **EPS 분기 흐름 테이블**: 분기별 예상/실제 EPS + QoQ 변화 + 서프라이즈 % (최대 8분기)
+  - **YoY 재무 분해 테이블**: 매출·영업이익·순이익·EPS 직전 연도 대비 변화율 · 마진 항목은 bps 단위
+  - **Chart.js Bar+Line 차트**: 실제 EPS(녹/적 막대) + 예상 EPS(파랑 점선) 오버레이 · `canvas._chartInstance` 메모리 누수 방지
+- **`fund-rpt-variance` HTML 패널** 추가 — 실적 서프라이즈와 뉴스 사이에 삽입
+- **렌더 호출 등록**: 메인 렌더 흐름 + 캐시 재렌더 경로 동시 등록
+- **R1 버전 7곳 동기화**: title · badge · APP_VERSION · version.json · sw.js · CLAUDE.md · _context/CLAUDE.md
+
+---
+
+## v48.89 — 다기간 재무 비교표 (finance:financial-statements) (2026-05-08)
+
+**변경 파일**: `index.html`, `js/aio-chat.js`, `js/aio-core.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
+
+- **`_renderFundMultiPeriod(d)` 함수 추가** (`js/aio-chat.js` 끝):
+  - Annual 최대 5년 재무 비교표 (가장 최근 연도 좌측)
+  - **행 항목 10개**: 매출 · 매출총이익률 · 영업이익 · 순이익 · 희석 EPS · 매출 성장률 YoY · P/E · P/B · ROE · 영업이익률
+  - **데이터 소스**: FMP `fmpIncome` + `fmpRatios` + `fmpGrowth` → SEC EDGAR `secFin` 자동 폴백
+  - ROE ≥15% 녹색 · 순이익 음수 적색 · 성장률 부호별 색상
+  - 모든 값이 null인 행 자동 제거
+- **`fund-rpt-multiperiod` HTML 패널** 추가 — 밸류에이션 분석과 경쟁사 비교 사이에 삽입
+- **렌더 호출 등록**: 메인 렌더 흐름 (`_renderFundValuation` 직후) + 캐시 재렌더 경로 동시 등록
+- **R1 버전 7곳 동기화**: title · badge · APP_VERSION · version.json · sw.js · CLAUDE.md · _context/CLAUDE.md
+
+---
+
+## v48.88 — 포트폴리오 리스크 분석 (VaR·Sharpe·MDD·상관계수) (2026-05-08)
+
+**변경 파일**: `index.html`, `js/aio-core.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
+
+- **`js/aio-core.js`에 통계 함수 6개 추가** (data:statistical-analysis 방법론):
+  - `_calcDailyReturns(prices)` — 종가 배열 → 일별 수익률, null/NaN 자동 필터링
+  - `_statMean(arr)` / `_statStdDev(arr)` — 산술 평균 · 표본 표준편차
+  - `_calcPortfolioVaR(returns, confidence)` — 역사적 시뮬레이션 VaR (95%/99%, 정규분포 가정 없음)
+  - `_calcSharpe(returns, rfRate)` — 연율화 Sharpe Ratio (RF 4.3% US 3M T-bill, ×√252)
+  - `_calcMaxDrawdown(returns)` — 누적 수익률 고점 대비 최대낙폭 (peakIdx/troughIdx 포함)
+  - `_pearsonCorr(a, b)` / `_calcCorrelationMatrix(returnsMap)` — Pearson 상관계수 n×n 매트릭스
+- **`index.html` 포트폴리오 리스크 패널 (`id="pf-risk-panel"`) 추가**: 포트폴리오 자동 진단 아래, pf-main 닫기 직전 삽입
+  - 메트릭 카드 4개: 1일 VaR 95% · 1일 VaR 99% · Sharpe Ratio · MDD (색상 코드: 녹/황/적)
+  - 상관계수 히트맵: 냉온색 HTML 테이블 (빨강=정상관, 파랑=역상관)
+- **`refreshPortfolioRisk()` 오케스트레이터**: Yahoo Finance `_fetchYahooChartData(t, '3mo')` → 가중 포트폴리오 수익률 → 4지표 계산 → `_renderRiskMetrics()` 렌더
+- **`_renderRiskMetrics(el, data)`**: 동적 색상 · Sharpe 레이블(우수/양호/보통/부진) · MDD 레이블(위험/주의/양호) · 역사적 VaR 면책 주석
+- **R1 버전 7곳 동기화**: title · badge · APP_VERSION · version.json · sw.js · CLAUDE.md · _context/CLAUDE.md
+
+---
+
+## v48.87 — /integrate 25건 시장 자료 전방위 통합 (2026-05-08)
+
+**변경 파일**: `index.html`, `js/aio-data.js`, `js/aio-core.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/KNOWLEDGE-BASE.md`, `CHANGELOG.md`
+
+- **`_getV48IntegratedContext()` 6대 패러다임 추가**: (1) 에이전틱 AI→CPU TAM 재평가(AMD $60B→$120B+/UBS $170B 2030), (2) AI 추론 비용→인터넷 마진 침식(META/SHOP/SPOT/PINS/ROKU 1Q26 명시), (3) 하이퍼스케일러 선약정 가속($200B+$45B+CoreWeave $3.1B), (4) AIDC ESS 빌드사이클 진입(75GW→135GW+, 나트륨이온, CATL 4Q26), (5) 광통신 3기술 동시 가속(CPO/OCS/InP 6인치), (6) 서버 메모리 가격 충격(서버DRAM +45-50%, PC DRAM +43-48%, NAND +80%)
+- **focus 케이스 5개 업데이트**: `fundamental`(ARM AGI CPU/ALAB Scorpio/PLTR 확정/AMD TAM+제약/COHR 장기계약) · `themes`(CPU 재평가+AIDC ESS+OCS 신각도) · `kr-macro`(메모리 가격충격/스마트폰 역풍) · `kr-themes`(2Q26 가격 최신/나트륨이온) · `signal`(AGI CPU+ALAB+하이퍼스케일러 약정)
+- **SCREENER_DB 5개 업데이트/신규**: ARM(AGI CPU $2B+, JPM PT$240/UBS PT$245) · COHR(NVIDIA 장기계약, InP 1분기 앞당김, JPM PT$380) · PLTR(1Q26 +85% 확정, US Commercial +133%, Citi PT$210) · AMD(서버CPU TAM $120B+, TSMC 3nm 제약, Wedbush PT$400) · ALAB 신규(Scorpio $308M 1Q26, JPM OW PT$240)
+- **MACRO_KW 18개 추가**: 서버 CPU TAM · AI 추론 비용 · AIDC ESS · DOE 계통연계 · 나트륨이온 배터리 · DRAM 가격 충격 · TSMC 3nm 제약 · 스마트폰 유닛 감소 · 하이퍼스케일러 약정 등
+- **TECH_KW 22개 추가**: AGI CPU · Scorpio/Scorpio X · Helios · MI450 · Venice/Zen6 · Trainium3/4 · OCS · InP 6인치 · ALAB · NVLink Fusion · KV캐시 오프로드 · CPO ramp · HAWK · scale-across 등
+- **KNOWLEDGE-BASE 3개 패러다임 추가**: 에이전틱 AI CPU 재평가 · AI 추론 비용 마진 침식 · AIDC ESS 후행 빌드사이클
+- **R1 버전 7곳 동기화**: title · badge · APP_VERSION(v48.85→v48.87) · version.json · sw.js · CLAUDE.md · _context/CLAUDE.md
+
+---
+
+## v48.86 — R34 CSS rgba 전수 토큰화 (2026-05-07)
+
+**변경 파일**: `index.html`, `js/aio-data.js`, `js/aio-core.js`, `js/aio-ui.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
+
+- **R34 준수**: DOM-style `rgba()` 하드코딩 전수 교체 (aio-data ~45건, aio-core ~8건, aio-ui ~6건)
+- **`:root` 소프트-톤 토큰 20개 추가**: `--data-green-{faint|soft|mid|dim}`, `--data-red-{faint|soft|mid|dim}`, `--data-amber-{faint|mid|soft}`, `--data-muted-soft`, `--accent-faint`, `--data-cyan-{soft|light|dim}`, `--border-accent-dim`, `--data-purple-{faint|soft|border}`
+- **Canvas/Chart.js 예외 유지**: `ctx.*`, `grad.addColorStop`, Chart.js `backgroundColor`/`borderColor` 설정 객체 내 rgba는 토큰 교체 대상 아님 (렌더러 독립 색공간)
+- **비 AIO 팔레트 유지**: Tailwind `rgba(220,38,38,...)` / `rgba(234,179,8,...)` 등 AIO 디자인 시스템 외 색상값은 교체하지 않음
+- **setInterval 감사**: 모든 타이머(3개 파일)가 `clearInterval → setInterval` 패턴 완비 확인 (변경 없음)
+- R1 버전 7곳 동기화: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `_context/CLAUDE.md`, `CHANGELOG.md` 모두 `v48.86`.
+
+---
+
+## v48.85 — 함수·데이터 정합성 심층 QA 보강 (2026-05-07)
+
+**변경 파일**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/INDEX.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- **P154**: `PriceStore.set()`가 결측 등락률을 0%로 정규화하던 경로를 차단. `pctMissing`을 store, `_liveData`, `_dataSource`에 보존하여 가격-only quote와 실제 0.00%를 구분.
+- Yahoo v7/direct, Finnhub WebSocket, Naver 한국 시세, Stooq 폴백, FX 환율, 동적 ticker lookup, 포트폴리오 개별 fetch 경로의 percent/change 결측 처리를 `null` 중심으로 통일.
+- KOSPI/KOSDAQ DOM에 `data-live-chg`를 연결하고 `calcKrHealthScore()`의 truthy 퍼센트 판정을 `!= null && isFinite()`로 교정해 0.00%와 fallback을 혼동하지 않도록 보강.
+- 포트폴리오 benchmark chart와 섹터 20일 차트에서 기준가가 0/NaN일 때 `Infinity` 선을 만들지 않도록 base guard를 추가.
+- LLM 헤더 badge에 `tabindex="0"`를 추가하고 `AIO.getDataPipelineAudit()` render layer에 price/change sink 비대칭 샘플을 추가해 접근성과 전달 경로 감사를 더 세밀화.
+- R1 버전 7곳 동기화: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `_context/CLAUDE.md`, `CHANGELOG.md` 모두 `v48.85`.
+
+---
+
+## v48.84 — 분석·데이터 정합성 QA 보강 (2026-05-07)
+
+**변경 파일**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/INDEX.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- 차트 데이터 게이트 보강: `chartDataGate()` / `_sanitizeChartData()`가 선행 결측값을 0으로 대체하지 않도록 수정. 유효 데이터가 오기 전까지 `null`로 유지해 빈/부분 데이터 차트가 평평한 0%선처럼 보이는 전달 오류를 차단.
+- 프록시 fetch 계약 정리: `fetchViaProxy(url, timeout)`가 기존 숫자 timeout과 `{ timeout, parseJson, parseText }` 옵션 객체를 모두 지원하도록 보강. `fetchWithProxy()` 위임 경로에서 Response 객체를 JSON 데이터로 오인할 수 있던 통합성 리스크 제거.
+- 시세 렌더링 정합성 보강: 가격은 수신됐지만 등락률이 없는 quote를 `+0.00%`로 표시하지 않고 `—`로 표시. `_dataSource[sym].pctMissing` 플래그를 남겨 분석/렌더 계층이 “보합”과 “등락률 미수신”을 구분 가능.
+- 접근성/전달성 감사 보강: `AIO.getDataPipelineAudit()` render 레이어에 `missingPctSymbolsSample`, `chartCanvasA11yGaps`를 추가해 데이터 전달 누락과 차트 접근성 라벨 누락을 한 번에 확인 가능.
+- UI 가독성 보강: `.pnl.neutral` 스타일 추가로 등락률 미수신 상태를 색상상 중립/대기 상태로 표현.
+- R1 버전 7곳 동기화: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `_context/CLAUDE.md`, `CHANGELOG.md` 모두 `v48.84`.
+
+---
+
+## v48.83 — 사용자 시장 자료 4종 전방위 통합 (2026-05-07)
+
+**변경 파일**: `index.html`, `js/aio-core.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/INDEX.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`
+
+- 사용자 제공 4개 자료를 전체 AI 채팅 공통 컨텍스트에 통합: 강세장/melt-up 조건, 생산성-인플레이션 트리거, Fed 반응 함수, AI 추론 최적화 레이어, 관세·Fed 인선·대차대조표 논쟁.
+- `index.html` `_getChatRules()`에 `v48.83 사용자 통합 메모` 추가: 모든 페이지 AI 페르소나가 동일한 시장 프레임을 인식하도록 `_macroTxt` 공통 블록에 주입.
+- 차트 이미지의 핵심 신호를 구조화: QQQ/SPY/IWM/DIA 확장, 소형주·고베타 브레이크아웃, 에너지/유틸리티 제외 확산, VIX 선물 19대와 막판 헤지 수요를 함께 해석.
+- 생산성 기대와 인플레이션의 시계열 차이를 명시: AI 생산성은 장기 공급측 변수, 인플레이션은 단기 수요/기대 변수로 분리하고 Fed가 조기 인하할 때의 탈앵커링 리스크를 반영.
+- Nebius/Eigen AI/Token Factory 논지를 AI 인프라 레이어 맵에 연결: GPU 보유량보다 prefill/decode, continuous batching, speculative decoding, KV cache, 런타임/네트워크/커널 최적화가 중요하다는 추론 최적화 프레임 반영.
+- R1 버전 7곳 동기화: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `_context/CLAUDE.md`, `CHANGELOG.md` 모두 `v48.83`.
+
+---
+
+## v48.82 — 데이터 파이프라인 레이어 감사 보강 (2026-05-06)
+
+**변경 파일**: `index.html`, `js/aio-core.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/INDEX.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `_context/OPERATIONS-AUDIT-2026-05-06.md`, `_context/DATA-PIPELINE-AUDIT-2026-05-06.md`, `CHANGELOG.md`
+
+- **P152**: API/소스 연결부터 transport/proxy/cache, scheduler, validation store, 분석 함수, DOM/차트 렌더 sink까지 한 번에 확인할 수 있는 source-to-render 감사 레이어 부재를 보강.
+- `AIO.getDataPipelineAudit()` 추가: `sources`, `transport`, `scheduler`, `validationStores`, `state`, `analysis`, `render` 레이어를 단일 객체로 반환.
+- `AIO.getOperationalHealth()`에 `dataPipeline` 요약을 연결해 운영 점검에서 파이프라인 레이어 오류도 함께 드러나도록 보강.
+- `AIOBus.stats()` 기반으로 이벤트 버스 리스너 카운트를 render 감사 결과에 포함.
+- `_context/DATA-PIPELINE-AUDIT-2026-05-06.md` 추가: API/소스 → 수집/캐시 → 정규화/분석 → 화면 렌더링 워크플로우와 QA 명령을 문서화.
+- R1 버전 7곳 동기화: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `_context/CLAUDE.md`, `CHANGELOG.md` 모두 `v48.82`.
+
+---
+
+## v48.81 — 데이터 최신성/함수 정합성 보강 (2026-05-06)
+
+**변경 파일**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/INDEX.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- **P151**: 일부 라이브 시세만 성공해도 `DATA_SNAPSHOT._isFallback`이 해제되어 핵심 지표/차트가 fallback 기반인데도 최신처럼 보일 수 있던 문제를 보강.
+- `AIO.getLiveCoverage()` 추가: `^GSPC`, `^VIX` 필수 + 핵심 심볼 50% 이상 커버리지 기준으로 라이브 전환 여부를 판단.
+- `AIO.getDataFreshnessAudit()` 추가: 스냅샷 age, fallback 여부, 핵심 시세 커버리지, PriceStore/MacroStore stale 상태를 한 번에 점검.
+- `PriceStore.set()`가 `_liveData`에 `source`, `ts`, `stale` 메타데이터를 보존하도록 수정해 데이터 출처/최신성 추적을 강화.
+- `DATA_SNAPSHOT`을 `window.DATA_SNAPSHOT`으로 명시 노출해 운영/데이터 감사 함수가 스냅샷 날짜와 age를 정확히 읽도록 보강.
+- `fetchLiveQuotes()`에서 partial live coverage면 fallback 상태를 유지하고 stale snapshot 배너도 숨기지 않도록 이벤트 detail을 확장.
+- FRED API 키/데이터가 없을 때 성공으로 표시하지 않고 degraded/fallback 상태로 기록하도록 수정.
+- 미국 장중 stale 판정과 `lastUsTradingDay()` 기준을 `America/New_York` 시간대로 맞춰 한국 로컬 시간/고정 EST 오차를 제거.
+- R1 버전 7곳 동기화: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `_context/CLAUDE.md`, `CHANGELOG.md` 모두 `v48.81`.
+
+---
+
 ## v48.80 — 운영 지속성/자체 진단 보강 (2026-05-06)
 
 **변경 파일**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/INDEX.md`, `_context/BUG-POSTMORTEM.md`, `_context/OPERATIONS-AUDIT-2026-05-06.md`, `.gitignore`

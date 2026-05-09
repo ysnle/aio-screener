@@ -31,7 +31,7 @@ async function _refreshSentimentChartData() {
         // 경고 배지 제거 (실시간 데이터 로드 성공)
         var badge = document.querySelector('#page-sentiment .stale-badge');
         if (badge) badge.textContent = 'VIX/HYG 실시간 차트 · ' + labels[labels.length - 1] + ' 기준';
-        if (badge) { badge.style.background = 'rgba(0,229,160,0.1)'; badge.style.borderColor = 'rgba(0,229,160,0.3)'; badge.style.color = '#00e5a0'; }
+        if (badge) { badge.style.background = 'var(--data-green-mid)'; badge.style.borderColor = 'var(--data-green-dim)'; badge.style.color = '#00e5a0'; }
       }
     }
     // HY OAS 프록시: HYG ETF 가격을 반전 사용 (HYG↓ = 스프레드↑)
@@ -593,16 +593,16 @@ function updateRallyQualityVerdict() {
   var verdict = '', color = '', bg = '';
   if (b5 > 70 && b50 > 60) {
     verdict = ' <b>브레드스 쓰러스트 수준</b> — 5SMA ' + b5.toFixed(0) + '% · 50SMA ' + b50.toFixed(0) + '%. 극히 높은 참여율. 진짜 바닥 확인 가능성. 리더주 셋업 완성 시 적극 매수.';
-    color = '#00e5a0'; bg = 'rgba(0,229,160,0.08)';
+    color = '#00e5a0'; bg = 'var(--data-green-faint)';
   } else if (b5 > 50 && b20 > 40) {
     verdict = ' <b>고품질 랠리</b> — 5SMA ' + b5.toFixed(0) + '% · 20SMA ' + b20.toFixed(0) + '%. 광범위 참여. Follow-through 진행 중. 리테스트 대기하며 선별 매수 가능.';
-    color = '#00d4ff'; bg = 'rgba(0,212,255,0.08)';
+    color = '#00d4ff'; bg = 'var(--data-cyan-light)';
   } else if (b5 > 30) {
     verdict = ' <b>품질 미확인 랠리</b> — 5SMA ' + b5.toFixed(0) + '%. 제한적 참여. 숏커버링 주도 가능성. 첫 며칠은 노이즈 — 후속 확인 필요. 관망 유지.';
-    color = '#ffa31a'; bg = 'rgba(255,163,26,0.08)';
+    color = '#ffa31a'; bg = 'var(--data-amber-faint)';
   } else {
     verdict = ' <b>과매도/숏커버링</b> — 5SMA ' + b5.toFixed(0) + '%. 소수 종목만 반등. 가장 많이 빠진 종목이 가장 많이 오르는 저품질 패턴. 신규 매수 중단. RS 상위 종목 워치리스트만 구축.';
-    color = '#ff5b50'; bg = 'rgba(255,91,80,0.08)';
+    color = '#ff5b50'; bg = 'var(--data-red-faint)';
   }
   el.innerHTML = verdict;
   el.style.borderColor = color;
@@ -612,7 +612,7 @@ function updateRallyQualityVerdict() {
 // v42.4: 브레드쓰 바 동적 갱신 — signal 페이지 + breadth 페이지 NDX 카드
 function updateBreadthBars() {
   function _bbColor(v) { return v >= 50 ? '#00e5a0' : v >= 30 ? '#ffa31a' : '#ff5b50'; }
-  function _bbBg(v)    { return v >= 50 ? 'rgba(0,229,160,0.1)' : v >= 30 ? 'rgba(255,163,26,0.1)' : 'rgba(255,91,80,0.1)'; }
+  function _bbBg(v)    { return v >= 50 ? 'var(--data-green-mid)' : v >= 30 ? 'var(--data-amber-mid)' : 'var(--data-red-mid)'; }
   function _bbLbl(v)   { return v >= 60 ? '강세' : v >= 50 ? '중립↑' : v >= 35 ? '중립↓' : '약세'; }
   var rows = [
     { bar:'bb-5sma-bar',  val:'bb-5sma-val',  badge:'bb-5sma-badge',  v: window._breadth5 },
@@ -982,8 +982,8 @@ async function _refreshBreadthPriceChart() {
       var badge = document.querySelector('#page-breadth .stale-badge');
       if (badge) {
         badge.textContent = 'SPY/QQQ 실시간 차트 · ' + labels[labels.length - 1] + ' 기준';
-        badge.style.background = 'rgba(0,229,160,0.1)';
-        badge.style.borderColor = 'rgba(0,229,160,0.3)';
+        badge.style.background = 'var(--data-green-mid)';
+        badge.style.borderColor = 'var(--data-green-dim)';
         badge.style.color = '#00e5a0';
       }
     }
@@ -1269,8 +1269,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Trading Signal 45초 자동 갱신 타이머 (페이지가 활성일 때 경과 시간 카운터 시작)
   refreshSignal();
-  if (window._refreshSignalInterval) clearInterval(window._refreshSignalInterval);
-  window._refreshSignalInterval = setInterval(refreshSignal, T.SIGNAL_REFRESH);
+  // v48.91: 타이머 레지스트리 등록
+  window._refreshSignalInterval = _aioRegisterTimer('refreshSignal', refreshSignal, T.SIGNAL_REFRESH);
 
   // v20: Initialize data engine with all real-time integrations
   initV20DataEngine();
@@ -1567,8 +1567,8 @@ function updateQuotaBadge() {
       : model.label + ' · ' + remaining + '/' + dailyLimit;
     hdrBadge.textContent = hdrText;
     hdrBadge.style.color = grade === 'green' ? '#00d4ff' : grade === 'warn' ? '#ffa31a' : '#ff5b50';
-    hdrBadge.style.borderColor = grade === 'green' ? 'rgba(0,212,255,0.3)' : grade === 'warn' ? 'rgba(245,158,11,0.3)' : 'rgba(255,91,80,0.3)';
-    hdrBadge.style.background  = grade === 'green' ? 'rgba(0,212,255,0.12)' : grade === 'warn' ? 'rgba(245,158,11,0.12)' : 'rgba(255,91,80,0.12)';
+    hdrBadge.style.borderColor = grade === 'green' ? 'var(--accent-border)' : grade === 'warn' ? 'rgba(245,158,11,0.3)' : 'var(--data-red-soft)';
+    hdrBadge.style.background  = grade === 'green' ? 'var(--data-cyan-soft)' : grade === 'warn' ? 'rgba(245,158,11,0.12)' : 'var(--data-red-mid)';
   }
 }
 
@@ -1639,8 +1639,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // v30.11: Vault 상태 배지 초기화
   if (typeof _updateVaultStatus === 'function') _updateVaultStatus();
   // Auto-reset check every minute (for midnight rollover)
-  if (window._quotaBadgeInterval) clearInterval(window._quotaBadgeInterval);
-  window._quotaBadgeInterval = setInterval(updateQuotaBadge, T.COOLDOWN);
+  // v48.91: 타이머 레지스트리 등록
+  window._quotaBadgeInterval = _aioRegisterTimer('quotaBadge', updateQuotaBadge, T.COOLDOWN);
 
 // ── Dynamic date labels ─────────────────────────────────────────
 (function updateDateLabels() {
@@ -1775,9 +1775,9 @@ async function ghPollOnce() {
 
 // v30.11: 지수 백오프 폴링 간격 재조정
 function _rescheduleGhPoll() {
-  if (_ghPollTimer) clearInterval(_ghPollTimer);
   const backoff = Math.min(GH_POLL_MS * Math.pow(2, _ghFailCount), GH_POLL_MAX);
-  _ghPollTimer = setInterval(ghPollOnce, backoff);
+  // v48.91: 타이머 레지스트리 등록 (_aioRegisterTimer가 기존 ID 정리 포함)
+  _ghPollTimer = _aioRegisterTimer('ghPoll', ghPollOnce, backoff);
   if (_ghFailCount > 0) {
     console.log('[AIO] GH poll backoff: ' + Math.round(backoff/1000) + 's (fails=' + _ghFailCount + ')');
   }
@@ -1805,14 +1805,14 @@ function forceRefresh() {
 
 // ── 폴링 시작/재시작 ─────────────────────────────────────
 function startGhPolling() {
-  if (_ghPollTimer) clearInterval(_ghPollTimer);
   _ghCurrentVersion = null; // 저장소 바뀌면 버전 초기화
 
   const repo = loadGhRepo();
   if (!repo) { setGhStatus('— 미설정', ''); return; }
 
   ghPollOnce(); // 즉시 1회 실행
-  _ghPollTimer = setInterval(ghPollOnce, GH_POLL_MS);
+  // v48.91: 타이머 레지스트리 등록 (_aioRegisterTimer가 기존 ID 정리 포함)
+  _ghPollTimer = _aioRegisterTimer('ghPoll', ghPollOnce, GH_POLL_MS);
 }
 
 // ── DOMContentLoaded 시 초기화 ───────────────────────────
@@ -2250,3 +2250,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
   }, 0);
 });
+
+// ── v48.92: Fund Analysis 탭 전환 핸들러 ─────────────────────────────────────
+// 기업 분석 페이지 섹션 11개를 3개 탭으로 분류 (개요/재무상세/외부정보)
+// data-fund-tab 속성으로 탭 그룹 지정, fund-tab-active 클래스로 가시성 제어
+window._aioFundTabSwitch = function(tab) {
+  if (!tab) return;
+  // 1. 모든 섹션의 fund-tab-active 제거 (비활성)
+  var allSections = document.querySelectorAll('[data-fund-tab]');
+  allSections.forEach(function(el) { el.classList.remove('fund-tab-active'); });
+  // 2. 선택된 탭의 섹션에 fund-tab-active 추가 (활성)
+  var targetSections = document.querySelectorAll('[data-fund-tab="' + tab + '"]');
+  targetSections.forEach(function(el) { el.classList.add('fund-tab-active'); });
+  // 3. 탭 버튼 active 상태 갱신
+  var allBtns = document.querySelectorAll('.fund-tab-btn');
+  allBtns.forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  // 4. 현재 탭 기억 (페이지 재진입 시 복원용)
+  window._aioFundActiveTab = tab;
+  // 5. v48.96 P1-6: 숨김 상태에서 초기화된 차트 width=0 → resize 보정
+  //    Chart.js: _aioChartRegistry.resizeAll(), lightweight-charts: applyOptions({width})
+  setTimeout(function() {
+    if (window._aioChartRegistry) { window._aioChartRegistry.resizeAll(); }
+    // lightweight-charts 인스턴스 재조정 (fund 섹션 내 lw-chart 컨테이너)
+    var lwContainers = document.querySelectorAll('[data-fund-tab="' + tab + '"] [id$="-lw-chart"]');
+    lwContainers.forEach(function(container) {
+      var chart = container._lwChart;
+      if (chart && typeof chart.applyOptions === 'function') {
+        var w = container.clientWidth;
+        if (w > 0) { try { chart.applyOptions({ width: w }); } catch(e) {} }
+      }
+    });
+  }, 50);
+};

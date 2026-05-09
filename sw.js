@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v48.80';
-const SW_BUILD = '2026-05-06T10:53:17+09:00';
+const SW_VERSION = 'v49.1';
+const SW_BUILD = '2026-05-09T00:00:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -22,6 +22,7 @@ const SHELL_ASSETS = [
   './js/aio-ui.js',
   './js/aio-chat.js',
   './js/aio-glossary.js',
+  './js/aio-tests.js',    // v48.93: 단위 테스트 모듈
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
   'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js',
   'https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js'
