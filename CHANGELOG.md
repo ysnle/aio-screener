@@ -6,6 +6,45 @@
 
 ---
 
+## v49.4 - Data Freshness Governance & Static Fallback Refresh (2026-05-10)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `_context/DATA-FRESHNESS-AUDIT-2026-05-10.md`, `CHANGELOG.md`
+
+- **P191**: Added `FRESHNESS_POLICY`, `makeMetric()`, `evaluateMetric()`, `SnapshotStore`, `_aioSetLiveData()`, and `AIO.auditAllFreshness(pageId)` so live, fallback, static, manual, stale, and hard-stale data are consistently classified.
+- Routed DATA_SNAPSHOT, Yahoo-chart, Stooq, and Naver fallback writes through explicit source/policy metadata instead of bare `_liveData` writes.
+- Extended `REFRESH_SCHEDULE` with `nextDue`, run timestamps, duration, retry count, priority, timeout, and policy key telemetry.
+- Refreshed static fallback seeds from WebSearch/public sources as of 2026-05-08 close; values remain fallback-only and live stores override them.
+- Added tests T116~T124 for freshness policy, metric envelopes, SnapshotStore, `_aioSetLiveData`, `auditAllFreshness`, and scheduler metadata.
+- R1 version sync: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `CLAUDE.md`, `_context/CLAUDE.md` all `v49.4`.
+
+## v49.3 - Architecture Reinforcement & Data Quality Layer (2026-05-10)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- **P190**: Implemented the audit-report architecture reinforcement layer: `calcDataQuality`, `calcAIInfraHeat`, `calcPositionTechnicalRisk`, and `calcPortfolioTechnicalRisk` now standardize freshness/source confidence, AI infrastructure heat, and position-level technical exit risk.
+- `fetchOHLCVWithFallback()` now attaches `dataQuality` to normalized OHLCV arrays and `fetchOHLCVBundleWithFallback()` returns `{ data, dataQuality }` for callers that need an explicit bundle while preserving array compatibility.
+- Added `calcNewsImpactVector()` and news impact badges so market news carries `factor`, `technicalImpact`, `portfolioImpact`, `urgency`, and ticker impact instead of only a headline score.
+- Portfolio risk panel now adds a technical position-risk section combining OHLCV sell pressure, ATR/MA violations, P/L, and concentration with the existing VaR/Sharpe/MDD/correlation layer.
+- Institutional Technical Brief now shows data quality, adds AI infrastructure heat context alongside semiconductor heat, and keeps beginner/pro labels in the same action ladder.
+- Added tests T108~T115 for DataQuality, ATR aliases/stage, AIInfraHeat, position/portfolio technical risk, NewsImpactVector, data-quality rendering, and technical prompt action-ladder consistency.
+- R1 version sync: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `CLAUDE.md`, `_context/CLAUDE.md` all `v49.3`.
+
+---
+
+## v49.2 - Institutional Technical Risk & Exit Engine (2026-05-09)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- **P189**: Added OHLCV-based institutional technical snapshot engine: SMA/EMA/ATR/RSI/MACD/Bollinger/RVOL/close-position plus `calcTechnicalSnapshot`, `calcSellPressure`, `calcSemiHeatMap`, and `calcExitPlan`.
+- Sell pressure now produces `HOLD_CORE`, `NO_ADD_RAISE_STOP`, `TRIM_25_33`, `TRIM_50`, or `EXIT_OR_HEDGE` using ATR extension, RVOL, weak-close climax risk, Bollinger re-entry, and 10EMA/21EMA/50SMA violations.
+- Added `fetchOHLCVWithFallback()` so the technical page works without a Twelve Data key by falling back to Yahoo chart data and normalizing OHLCV rows.
+- Added the Institutional Technical Brief panel with ticker input, four chart slots, key levels, sell pressure, exit plan, beginner explanation, and semiconductor heat module.
+- AI technical prompt now explains that RSI 70+ is not an automatic sell in lockout rallies and must finish with an actionable exit/hold decision.
+- Added tests T103~T107 for snapshot validity, climax/extension, Bollinger re-entry, MA violation escalation, and semiconductor heat detection.
+- R1 version sync: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `CLAUDE.md`, `_context/CLAUDE.md` all `v49.2`.
+
+---
+
 ## v49.1 — State Hygiene & Edge-Case Coverage (2026-05-09)
 
 **변경 파일**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`

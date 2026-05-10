@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.1 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.4 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3777,7 +3777,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.1</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.4</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6199,6 +6199,36 @@ body.light-theme canvas { filter:none; }
       <div class="dc-title">시장 건강도란?</div>
       <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">SPY/QQQ 이평 + 골든크로스 + RSI + VIX 종합 점수. 80+=강상승장, 30-=약세장. 높을수록 공격적 매매.</div>
     </div>
+  </div>
+
+  <!-- ══ SECTION 1.5: Institutional Technical Brief (v49.4) ══════════════ -->
+  <div id="institutional-technical-brief" style="background:#080d1a;border:1px solid rgba(0,212,255,0.22);border-radius:10px;padding:14px 16px;margin-bottom:12px;box-shadow:0 0 0 1px rgba(255,255,255,0.02) inset;">
+    <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px;">
+      <div>
+        <div style="font-size:11px;font-weight:900;color:var(--text-secondary);letter-spacing:.02em;">Institutional Technical Brief</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">ATR extension · RVOL · close position · Bollinger re-entry · 10/21/50 line risk</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <input id="tech-brief-symbol" type="text" value="NVDA" maxlength="12" data-on-enter="runInstitutionalTechnicalBrief:__value_upper" aria-label="Institutional technical brief ticker"
+               style="width:92px;padding:6px 9px;background:var(--surface-4);border:1px solid var(--border);border-radius:5px;color:var(--text-primary);font-size:12px;font-family:var(--font-mono);text-transform:uppercase;" />
+        <button id="tech-brief-run" data-action="runInstitutionalTechnicalBrief" style="padding:6px 12px;background:rgba(0,212,255,0.14);border:1px solid rgba(0,212,255,0.35);border-radius:5px;color:var(--data-cyan);font-size:11px;font-weight:800;cursor:pointer;">Run</button>
+      </div>
+    </div>
+    <div id="tech-brief-data-quality" style="min-height:20px;margin-bottom:8px;"></div>
+    <div id="tech-brief-regime-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;"></div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;">
+      <div class="itb-chart-slot" id="tech-brief-chart-monthly" style="height:190px;background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:7px;overflow:hidden;"></div>
+      <div class="itb-chart-slot" id="tech-brief-chart-weekly" style="height:190px;background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:7px;overflow:hidden;"></div>
+      <div class="itb-chart-slot" id="tech-brief-chart-daily" style="height:190px;background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:7px;overflow:hidden;"></div>
+      <div class="itb-chart-slot" id="tech-brief-chart-zoom" style="height:190px;background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:7px;overflow:hidden;"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+      <div id="tech-brief-key-levels" style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:10px;min-height:120px;"></div>
+      <div id="tech-brief-sell-pressure" style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:10px;min-height:120px;"></div>
+      <div id="tech-brief-exit-plan" style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:10px;min-height:120px;"></div>
+      <div id="tech-brief-semi-heat" style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:10px;min-height:120px;"></div>
+    </div>
+    <div id="tech-brief-beginner" style="margin-top:8px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.16);border-radius:7px;padding:9px 10px;font-size:11px;color:var(--text-secondary);line-height:1.6;"></div>
   </div>
 
   <!-- ══ SECTION 2: S&P 500 라이브 기술 지표 ══════════════════════ -->
@@ -8830,6 +8860,18 @@ body.light-theme canvas { filter:none; }
       </div>
       <div id="pf-risk-metrics" style="padding:10px 12px;">
         <div style="font-size:11px;color:var(--text-muted);padding:6px 0;">최소 2종목 · 5거래일+ 가격 기록이 필요합니다. <strong style="color:var(--text-secondary);">⟳ 계산</strong> 버튼을 클릭하세요.</div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding:10px 12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div>
+            <div style="font-size:11px;font-weight:800;color:var(--text-secondary);">기술적 포지션 리스크</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">ATR 과열 · 이동평균 이탈 · 보유 비중을 포지션 단위로 결합</div>
+          </div>
+          <button class="aio-btn-table" data-action="refreshPortfolioTechnicalRisk" style="font-size:11px;">기술 리스크</button>
+        </div>
+        <div id="pf-technical-risk">
+          <div style="font-size:11px;color:var(--text-muted);padding:8px 0;">포지션별 기술 리스크를 계산하려면 버튼을 클릭하세요.</div>
+        </div>
       </div>
     </div>
 
@@ -12939,7 +12981,11 @@ function refreshPortfolioPrices() {
                 const last = d.closes[d.closes.length - 1];
                 const prev = d.closes[d.closes.length - 2];
                 const pct = prev > 0 ? ((last - prev) / prev) * 100 : null;
-                window._liveData[t] = { price: last, pct: pct, pctMissing: pct === null };
+                if (typeof window._aioSetLiveData === 'function') {
+                  window._aioSetLiveData(t, { price: last, pct: pct }, { source: 'fallback:yahoo-chart', policyKey: 'quote_afterhours', reason: 'portfolio missing quote chart fallback' });
+                } else {
+                  window._liveData[t] = { price: last, pct: pct, pctMissing: pct === null };
+                }
               }
             } catch(_){}
           }));
@@ -13010,7 +13056,44 @@ async function refreshPortfolioRisk() {
 
   _renderRiskMetrics(el, { var95: var95, var99: var99, sharpe: sharpe, mddRes: mddRes,
     corrRes: corrRes, validTickers: validTickers, n: minLen });
+  try { refreshPortfolioTechnicalRisk(); } catch(_) {}
 }
+
+async function refreshPortfolioTechnicalRisk() {
+  var el = document.getElementById('pf-technical-risk');
+  if (!el) return;
+  var positions = getPortfolioData();
+  if (!positions.length) {
+    if (typeof renderPortfolioTechnicalRisk === 'function') renderPortfolioTechnicalRisk({ items: [] });
+    return;
+  }
+  var ld = window._liveData || {};
+  var enriched = positions.map(function(p) {
+    var live = ld[p.ticker] || {};
+    var price = live && isFinite(live.price) && live.price > 0 ? live.price : p.cost;
+    return Object.assign({}, p, { price: price, value: price * p.qty });
+  });
+  var totalValue = enriched.reduce(function(s, p) { return s + (Number(p.value) || 0); }, 0);
+  var tickers = enriched.slice().sort(function(a, b) { return (b.value || 0) - (a.value || 0); }).slice(0, 12);
+  el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">포지션별 OHLCV와 기술 리스크를 계산 중입니다...</div>';
+  var settled = await Promise.allSettled(tickers.map(async function(p) {
+    var data = [];
+    try {
+      data = (typeof fetchOHLCVWithFallback === 'function') ? await fetchOHLCVWithFallback(p.ticker, '1day', 260) : [];
+    } catch(_) { data = []; }
+    var item = (typeof calcPositionTechnicalRisk === 'function')
+      ? calcPositionTechnicalRisk(Object.assign({}, p, { dataQuality: data && data.dataQuality }), data, { totalValue: totalValue })
+      : { ticker: p.ticker, score: 0, action: 'HOLD_CORE', weightPct: totalValue > 0 ? (p.value / totalValue) * 100 : 0 };
+    return item;
+  }));
+  var items = settled.map(function(r) { return r.status === 'fulfilled' ? r.value : null; }).filter(Boolean);
+  var result = (typeof calcPortfolioTechnicalRisk === 'function')
+    ? calcPortfolioTechnicalRisk(enriched, items, { totalValue: totalValue })
+    : { state: 'PORTFOLIO_HEAT_UNKNOWN', heatScore: 0, action: 'HOLD_CORE', items: items, totalValue: totalValue };
+  window._lastPortfolioTechnicalRisk = { result: result, ts: Date.now() };
+  if (typeof renderPortfolioTechnicalRisk === 'function') renderPortfolioTechnicalRisk(result);
+}
+window.refreshPortfolioTechnicalRisk = refreshPortfolioTechnicalRisk;
 
 function _renderRiskMetrics(el, data) {
   var var95 = data.var95, var99 = data.var99, sharpe = data.sharpe,
@@ -15074,33 +15157,46 @@ function computeMarketHealth() {
 }
 
 // ── Technical Indicators Table (S&P 500) ──
-function updateTechIndicators() {
+async function updateTechIndicators() {
   var ld = window._liveData || {};
   var spx = ld['^GSPC'];
   if (!spx) return;
   var price = spx.price || 0;
   var chg = (spx.pct != null ? spx.pct : 0);
 
-  // Simulated indicators based on live price dynamics
-  // In production these would come from historical data; here we approximate from live changes
-  var rsi14 = 50 + (chg * 5); // approximate
-  rsi14 = Math.max(10, Math.min(90, rsi14));
+  var snapshot = null;
+  try {
+    if (typeof fetchOHLCVWithFallback === 'function' && typeof calcTechnicalSnapshot === 'function') {
+      var ohlcv = await fetchOHLCVWithFallback('SPY', '1day', 260);
+      snapshot = calcTechnicalSnapshot(ohlcv || []);
+    }
+  } catch(e) {
+    if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'updateTechIndicators OHLCV failed: ' + (e && e.message || e));
+  }
+
+  var rsi14 = snapshot && snapshot.ok && snapshot.rsi14 !== null ? snapshot.rsi14 : Math.max(10, Math.min(90, 50 + (chg * 5)));
+  var macdHist = snapshot && snapshot.ok && snapshot.macd ? snapshot.macd.hist : null;
+  var bb = snapshot && snapshot.ok ? snapshot.bb20 : null;
+  var bbValue = bb ? (snapshot.bbReentry ? '상단 재진입' : snapshot.bbOutsideUpper ? '상단 돌파' : bb.pctB > 0.8 ? '상단권' : bb.pctB < 0.2 ? '하단권' : '밴드 내') : (Math.abs(chg) < 0.3 ? '스퀴즈' : chg > 1 ? '상단돌파' : chg < -1 ? '하단이탈' : '밴드 내');
+  var bbSignal = bb ? (snapshot.bbReentry ? '소진주의' : snapshot.bbOutsideUpper ? '추세강세' : '중립') : (Math.abs(chg) < 0.3 ? '변동성↓' : chg > 1 ? '강세' : chg < -1 ? '약세' : '중립');
+  var bbColor = bb ? (snapshot.bbReentry ? 'var(--data-amber)' : snapshot.bbOutsideUpper ? 'var(--data-green)' : 'var(--data-cyan)') : (Math.abs(chg) < 0.3 ? 'var(--data-purple)' : chg > 1 ? 'var(--data-green)' : chg < -1 ? 'var(--data-red)' : 'var(--data-amber)');
+  var macdValue = macdHist !== null ? (macdHist > 0 ? '상승 모멘텀' : '하락 모멘텀') : (chg > 0.3 ? '상향교차' : chg < -0.3 ? '하향교차' : '수렴중');
+  var macdSignal = macdHist !== null ? (macdHist > 0 ? '매수우위' : '매도우위') : (chg > 0.3 ? '매수' : chg < -0.3 ? '매도' : '관망');
+  var macdColor = macdHist !== null ? (macdHist > 0 ? 'var(--data-green)' : 'var(--data-red)') : (chg > 0.3 ? 'var(--data-green)' : chg < -0.3 ? 'var(--data-red)' : 'var(--data-amber)');
+  var trendValue = snapshot && snapshot.ok ? (snapshot.above10EMA && snapshot.above21EMA && snapshot.above50SMA ? '정배열' : snapshot.above50SMA === false ? '50선 이탈' : '혼조') : (chg > 0 ? '상승' : '하락');
+  var trendSignal = snapshot && snapshot.ok ? ('50SMA ' + (snapshot.dist50Atr !== null ? snapshot.dist50Atr.toFixed(1) + 'ATR' : '—')) : (Math.abs(chg) > 0.5 ? '강함' : '약함');
+  var trendColor = snapshot && snapshot.ok ? (snapshot.above50SMA === false ? 'var(--data-red)' : snapshot.dist50Atr >= 4 ? 'var(--data-amber)' : 'var(--data-green)') : (chg > 0 ? 'var(--data-green)' : 'var(--data-red)');
 
   var indicators = [
     { name: 'RSI (14)', value: rsi14.toFixed(1), signal: rsi14 > 70 ? '과매수' : rsi14 < 30 ? '과매도' : '중립',
       color: rsi14 > 70 ? 'var(--data-red)' : rsi14 < 30 ? 'var(--data-green)' : 'var(--data-amber)',
       explain: rsi14 > 70 ? ' 체온 높음! 과열 상태. 조정 가능성↑' : rsi14 < 30 ? ' 저체온! 반등 기회 탐색' : ' 정상 체온. 추세 방향에 따라 매매' },
-    { name: 'MACD', value: chg > 0.3 ? '상향교차' : chg < -0.3 ? '하향교차' : '수렴중',
-      signal: chg > 0.3 ? '매수' : chg < -0.3 ? '매도' : '관망',
-      color: chg > 0.3 ? 'var(--data-green)' : chg < -0.3 ? 'var(--data-red)' : 'var(--data-amber)',
-      explain: chg > 0.3 ? ' 맥박 빨라짐! 상승 모멘텀 증가' : chg < -0.3 ? ' 맥박 느려짐. 하락 모멘텀' : ' 맥박 안정. 방향 미정' },
-    { name: '볼린저밴드', value: Math.abs(chg) < 0.3 ? '스퀴즈' : chg > 1 ? '상단돌파' : chg < -1 ? '하단이탈' : '밴드 내',
-      signal: Math.abs(chg) < 0.3 ? '변동성↓' : chg > 1 ? '강세' : chg < -1 ? '약세' : '중립',
-      color: Math.abs(chg) < 0.3 ? 'var(--data-purple)' : chg > 1 ? 'var(--data-green)' : chg < -1 ? 'var(--data-red)' : 'var(--data-amber)',
-      explain: Math.abs(chg) < 0.3 ? '혈압 범위 좁아짐. 곧 큰 움직임 예고!' : '밴드 내 정상 변동' },
-    { name: '거래 추세', value: chg > 0 ? '상승' : '하락', signal: Math.abs(chg) > 0.5 ? '강함' : '약함',
-      color: chg > 0 ? 'var(--data-green)' : 'var(--data-red)',
-      explain: chg > 0 ? '오늘 매수세가 우위. 추세 유지 확인 필요' : '오늘 매도세가 우위. 지지선 주시' },
+    { name: 'MACD', value: macdValue, signal: macdSignal, color: macdColor,
+      explain: macdHist !== null ? ('히스토그램 ' + macdHist.toFixed(2) + ': 모멘텀 방향을 OHLCV로 계산') : ' 맥박 안정. 방향 미정' },
+    { name: '볼린저밴드', value: bbValue, signal: bbSignal, color: bbColor,
+      explain: snapshot && snapshot.ok && snapshot.bbReentry ? '상단 밖 마감 후 밴드 안 재진입: 단기 소진/익절 압력 주시' : '20일 종가 표준편차 기반 실제 밴드 위치' },
+    { name: '거래 추세', value: trendValue, signal: trendSignal, color: trendColor,
+      explain: snapshot && snapshot.ok ? '10EMA/21EMA/50SMA와 ATR 이격으로 추세 품질 평가' : (chg > 0 ? '오늘 매수세가 우위. 추세 유지 확인 필요' : '오늘 매도세가 우위. 지지선 주시') },
     { name: 'VIX 공포', value: (ld['^VIX'] ? ld['^VIX'].price.toFixed(1) : '—'),
       signal: (ld['^VIX'] && ld['^VIX'].price > 25) ? '경고' : (ld['^VIX'] && ld['^VIX'].price > 20) ? '주의' : '안정',
       color: (ld['^VIX'] && ld['^VIX'].price > 25) ? 'var(--data-red)' : (ld['^VIX'] && ld['^VIX'].price > 20) ? 'var(--data-amber)' : 'var(--data-green)',
@@ -15121,7 +15217,7 @@ function updateTechIndicators() {
       '<td style="padding:5px 4px;color:var(--text-muted);font-size:11px;line-height:1.4;">' + ind.explain + '</td></tr>';
   });
   html += '</table>';
-  html += '<div style="margin-top:8px;padding:6px 10px;background:rgba(255,163,26,0.08);border-radius:6px;border-left:3px solid var(--data-amber);font-size:11px;color:var(--data-amber);line-height:1.5;">RSI·MACD·볼린저밴드는 당일 시세 변동 기반 <b>간이 추정치</b>입니다. 정확한 기술 지표는 TradingView·증권사 차트를 참고하세요. VIX·거래 추세는 실시간 데이터입니다.</div>';
+  html += '<div style="margin-top:8px;padding:6px 10px;background:' + (snapshot && snapshot.ok ? 'rgba(0,229,160,0.08)' : 'rgba(255,163,26,0.08)') + ';border-radius:6px;border-left:3px solid ' + (snapshot && snapshot.ok ? 'var(--data-green)' : 'var(--data-amber)') + ';font-size:11px;color:' + (snapshot && snapshot.ok ? 'var(--data-green)' : 'var(--data-amber)') + ';line-height:1.5;">' + (snapshot && snapshot.ok ? 'RSI·MACD·볼린저밴드·이평/ATR은 SPY 일봉 OHLCV 기반 실제 계산값입니다.' : 'OHLCV가 없을 때만 당일 시세 변동 기반 간이 추정치로 폴백합니다.') + ' VIX는 실시간 데이터입니다.</div>';
 
   var container = document.getElementById('tech-indicators-live');
   if (container) container.innerHTML = html;
@@ -16704,6 +16800,13 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '• 멀티 인디케이터 크로스체크 전략: 1차 필터(추세: MA 정배열) → 2차 필터(모멘텀: MACD+RSI) → 3차 필터(거래량: OBV+VWAP) → 4차 확인(시장환경: 스코어55+) → 모두 정렬 시만 진입\n' +
         '• 상관관계 분석: 주가-VIX 음의 상관 붕괴 시 = 구조적 변화, 섹터간 상관관계 급등 = 시스템 리스크, 크로스에셋(주식-채권-달러-금) 동시 움직임 해석\n' +
         '• 백테스트 사고법: "이 전략을 최근 5년 다양한 시장 환경(강세/약세/횡보)에서 적용하면 어떤 결과?" 승률, 평균 수익/손실, 최대 드로다운, 샤프비율 관점으로 평가\n\n' +
+        '【v49.4 Institutional Technical Risk & Exit Engine】\n' +
+        '모든 종목 기술 질문의 결론은 반드시 HOLD_CORE / NO_ADD_RAISE_STOP / TRIM_25_33 / TRIM_50 / EXIT_OR_HEDGE 중 하나로 끝낸다.\n' +
+        'RSI 70+는 Lockout Rally와 반도체 주도 랠리에서 자동 매도 신호가 아니다. RSI는 체온계이고, 실제 매도 판단은 ATR 이격+거래량+종가 품질+핵심 이평 훼손으로 한다.\n' +
+        '청산/축소 규칙: 50SMA 대비 +3ATR 경고, +4ATR 신규매수 금지/일부 축소 후보, +6ATR 강한 축소·헤지 후보. 21EMA 대비 +2.5ATR는 단기 과확장. RSI 80은 과열, 85는 극단 과열.\n' +
+        '클라이맥스 위험: 당일 +6% 이상, RVOL 2.5x 이상, 종가 위치가 일중 범위 50% 미만이면 강한 되돌림/분배 위험. 볼린저 상단 밖 마감 후 밴드 안 재진입은 소진 경고.\n' +
+        '실행 규칙: 10EMA 종가 이탈=트레이딩 물량 축소, 21EMA 종가 이탈=스윙 물량 축소, 50SMA 종가 이탈=스윙 thesis 훼손. 초보자에게는 “왜 줄이는지/왜 보유하는지”를 전문 해석 밑에 쉬운 말로 덧붙인다.\n' +
+        '반도체/AI 인프라 과열 모듈: SMH·SOXX를 QQQ·SPY와 비교하고, NVDA·AVGO·AMD·MU·TSM·ASML·MRVL·ARM·ALAB·CRDO 바스켓의 AI_INFRA_HEATED/AI_INFRA_MANIA도 함께 본다. 데이터 품질 라벨, 뉴스 impactVector, 포트폴리오 기술 리스크가 낮은 신뢰도이면 단정하지 말고 보수적으로 설명한다.\n\n' +
         '【응답 프레임워크 — 종목 질문 시 반드시 이 순서】\n' +
         '핵심 원칙: 사용자가 특정 종목을 물으면 해당 종목 분석부터 바로 시작하라. 시장 전체 상황(VIX, SPX 등)은 맥락으로 1~2문장만 언급. 종목이 주인공이다.\n' +
         '1. 종목 현재 상태부터: "【종목 실시간 데이터】 섹션의 실제 가격·변화율을 인용. 없으면 "현재 실시간 데이터 로딩 중"이라고 말하라.\n' +
@@ -19595,9 +19698,12 @@ async function dynamicTickerLookup(ticker) {
             if (_dynPct == null && _dynPrev > 0) {
               _dynPct = ((_dynPrice - _dynPrev) / _dynPrev) * 100;
             }
-            // 캐시에 저장
-            if (!window._liveData) window._liveData = {};
-            window._liveData[ticker] = { price: _dynPrice, pct: _dynPct != null ? _dynPct : null, pctMissing: _dynPct == null };
+            if (typeof window._aioSetLiveData === 'function') {
+              window._aioSetLiveData(ticker, { price: _dynPrice, pct: _dynPct != null ? _dynPct : null }, { source: 'fallback:yahoo-quote-summary', policyKey: 'quote_afterhours', reason: 'ticker detail dynamic lookup' });
+            } else {
+              if (!window._liveData) window._liveData = {};
+              window._liveData[ticker] = { price: _dynPrice, pct: _dynPct != null ? _dynPct : null, pctMissing: _dynPct == null };
+            }
             return {
               ticker: ticker,
               price: _dynPrice,
@@ -19643,8 +19749,12 @@ async function dynamicTickerLookup(ticker) {
               var stOpen = parseFloat(cols[3]) || parseFloat(cols[4]);  // Open 우선, High 폴백
               if (stPrice > 0) {
                 var stPct = stOpen > 0 ? ((stPrice - stOpen) / stOpen * 100) : 0;
-                if (!window._liveData) window._liveData = {};
-                window._liveData[ticker] = { price: stPrice, pct: +stPct.toFixed(2) };
+                if (typeof window._aioSetLiveData === 'function') {
+                  window._aioSetLiveData(ticker, { price: stPrice, pct: +stPct.toFixed(2) }, { source: 'fallback:stooq', policyKey: 'quote_afterhours', reason: 'ticker detail Stooq fallback' });
+                } else {
+                  if (!window._liveData) window._liveData = {};
+                  window._liveData[ticker] = { price: stPrice, pct: +stPct.toFixed(2) };
+                }
                 return { ticker: ticker, price: stPrice, pct: +stPct.toFixed(2), name: ticker, source: 'stooq' };
               }
             }
@@ -19674,8 +19784,12 @@ async function dynamicTickerLookup(ticker) {
           var last = rows[rows.length-1];
           var prev = rows.length >= 2 ? rows[rows.length-2].close : last.close;
           var kPct = prev > 0 ? ((last.close - prev) / prev * 100) : null;
-          if (!window._liveData) window._liveData = {};
-          window._liveData[ticker] = { price: last.close, pct: kPct != null ? +kPct.toFixed(2) : null, pctMissing: kPct == null };
+          if (typeof window._aioSetLiveData === 'function') {
+            window._aioSetLiveData(ticker, { price: last.close, pct: kPct != null ? +kPct.toFixed(2) : null }, { source: 'fallback:naver-sise', policyKey: 'quote_afterhours', reason: 'KR ticker detail fallback' });
+          } else {
+            if (!window._liveData) window._liveData = {};
+            window._liveData[ticker] = { price: last.close, pct: kPct != null ? +kPct.toFixed(2) : null, pctMissing: kPct == null };
+          }
           return { ticker: ticker, price: last.close, pct: kPct != null ? +kPct.toFixed(2) : null, name: krCode, source: 'naver-sise' };
         }
       }
@@ -27175,7 +27289,7 @@ function loadTickerChart(period, btn) {
 // ═══════════════════════════════════════════════════════════════════════
 
 // Helper: Calculate SMA
-function _calcSMA(prices, period) {
+function _legacyCalcSMA(prices, period) {
   if (prices.length < period) return null;
   var sum = 0;
   for (var i = 0; i < period; i++) sum += prices[prices.length - 1 - i];
@@ -27183,7 +27297,7 @@ function _calcSMA(prices, period) {
 }
 
 // Helper: Calculate EMA (last value only) — v46.9: 인덱스 오류 수정 (P90)
-function _calcEMA(prices, period) {
+function _legacyCalcEMA(prices, period) {
   if (prices.length < period) return null;
   var k = 2 / (period + 1);
   var ema = 0;
@@ -27196,7 +27310,7 @@ function _calcEMA(prices, period) {
 }
 
 // Better EMA calculation
-function _calcEMAFull(prices, period) {
+function _legacyCalcEMAFull(prices, period) {
   if (prices.length < period) return null;
   var k = 2 / (period + 1);
   var ema = 0;
@@ -27212,7 +27326,7 @@ function _calcEMAFull(prices, period) {
 
 // RSI calculation (Wilder smoothing, last bar)
 // v46.9: Wilder Smoothed Moving Average RSI (표준 구현)
-function _calcRSILast(prices, period) {
+function _legacyCalcRSILast(prices, period) {
   if (prices.length < period + 1) return null; // v46.9: 50→null (데이터 부족 명시)
   // 1단계: 초기 period개 평균
   var initGain = 0, initLoss = 0;
@@ -27234,7 +27348,7 @@ function _calcRSILast(prices, period) {
 }
 
 // Helper: Calculate MACD
-function _calcMACD(prices) {
+function _legacyCalcMACD(prices) {
   if (prices.length < 26) return null;
   var ema12 = _calcEMAFull(prices, 12);
   var ema26 = _calcEMAFull(prices, 26);
@@ -27254,7 +27368,7 @@ function _calcMACD(prices) {
 }
 
 // Helper: Calculate Bollinger Bands
-function _calcBB(prices, period, stdDev) {
+function _legacyCalcBB(prices, period, stdDev) {
   if (prices.length < period) return null;
   var ma = _calcSMA(prices, period);
   if (!ma) return null;
@@ -28060,15 +28174,16 @@ async function initDeepAnalysisSection(symbol) {
     if (cc) cc.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:10px;">로딩 중…</div>';
   });
 
-  if (typeof fetchOHLCV !== 'function') {
-    if (labelEl) labelEl.textContent = 'fetchOHLCV 미로드 — 페이지를 새로고침하세요';
+  var deepFetchOHLCV = (typeof fetchOHLCVWithFallback === 'function') ? fetchOHLCVWithFallback : (typeof fetchOHLCV === 'function' ? fetchOHLCV : null);
+  if (!deepFetchOHLCV) {
+    if (labelEl) labelEl.textContent = 'OHLCV fetcher 미로드 — 페이지를 새로고침하세요';
     return;
   }
 
   var results = await Promise.all([
-    fetchOHLCV(symbol, '1month', 60),
-    fetchOHLCV(symbol, '1week',  104),
-    fetchOHLCV(symbol, '1day',   120)
+    deepFetchOHLCV(symbol, '1month', 60),
+    deepFetchOHLCV(symbol, '1week',  104),
+    deepFetchOHLCV(symbol, '1day',   120)
   ]);
   var monthly = results[0], weekly = results[1], daily = results[2];
 
