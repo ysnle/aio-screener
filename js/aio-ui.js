@@ -2284,3 +2284,276 @@ window._aioFundTabSwitch = function(tab) {
     });
   }, 50);
 };
+
+// v49.2: Institutional Technical Brief renderers
+window._techBriefChartInstances = window._techBriefChartInstances || [];
+
+function _itbEsc(v) {
+  if (typeof escHtml === 'function') return escHtml(v);
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); });
+}
+
+function _itbNum(v, digits) {
+  if (v === null || v === undefined || !isFinite(Number(v))) return '--';
+  return Number(v).toFixed(digits == null ? 2 : digits);
+}
+
+function _itbBadge(label, tone) {
+  var color = tone === 'risk' ? 'var(--data-red)' : tone === 'warn' ? 'var(--data-amber)' : tone === 'bull' ? 'var(--data-green)' : 'var(--data-cyan)';
+  return '<span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;background:' + color + '1f;color:' + color + ';border:1px solid ' + color + '55;font-size:10px;font-weight:800;">' + _itbEsc(label) + '</span>';
+}
+
+function _itbActionTone(action) {
+  if (action === 'EXIT_OR_HEDGE' || action === 'TRIM_50') return 'risk';
+  if (action === 'TRIM_25_33' || action === 'NO_ADD_RAISE_STOP') return 'warn';
+  return 'bull';
+}
+
+function renderDataQualityBadge(quality) {
+  quality = quality || {};
+  if ((quality.policyKey || quality.value !== undefined) && window.calcDataQuality) {
+    try { quality = window.calcDataQuality(quality); } catch(_) {}
+  }
+  var confNum = typeof quality.confidence === 'number' ? quality.confidence : (quality.confidence === 'high' ? 90 : quality.confidence === 'medium' ? 65 : quality.confidence === 'low' ? 35 : null);
+  var label = quality.label || (confNum >= 80 ? 'HIGH' : confNum >= 55 ? 'MEDIUM' : confNum >= 30 ? 'LOW' : 'UNKNOWN');
+  var tone = label === 'HIGH' ? 'bull' : label === 'MEDIUM' ? 'warn' : 'risk';
+  var conf = confNum !== null ? ' ' + _itbNum(confNum, 0) + '%' : '';
+  var source = quality.source ? ' · ' + quality.source : '';
+  return _itbBadge('Data ' + label + conf, tone) + '<span style="font-size:10px;color:var(--text-muted);margin-left:6px;">' + _itbEsc((quality.freshness || 'UNKNOWN') + source) + '</span>';
+}
+
+function renderNewsImpactBadge(vector) {
+  vector = vector || {};
+  var urgency = Number(vector.urgency || 0);
+  var tone = urgency >= 70 || vector.technicalImpact === 'EXIT_RISK' ? 'risk' : urgency >= 45 ? 'warn' : 'bull';
+  return _itbBadge((vector.factor || 'GENERAL') + ' ' + Math.round(urgency), tone);
+}
+
+function renderPortfolioTechnicalRisk(result) {
+  var el = document.getElementById('pf-technical-risk');
+  if (!el) return;
+  result = result || {};
+  if (!result.items || !result.items.length) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">포지션별 OHLCV가 확보되면 기술적 매도압력과 집중 리스크를 함께 계산합니다.</div>';
+    return;
+  }
+  var tone = result.heatScore >= 58 ? 'risk' : result.heatScore >= 38 ? 'warn' : 'bull';
+  var rows = result.items.slice().sort(function(a, b) { return (b.score || 0) - (a.score || 0); }).map(function(item) {
+    var rowTone = _itbActionTone(item.action);
+    return '<tr style="border-top:1px solid rgba(255,255,255,0.06);">' +
+      '<td style="padding:6px 4px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbEsc(item.ticker || '-') + '</td>' +
+      '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);">' + _itbNum(item.weightPct, 1) + '%</td>' +
+      '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);color:' + ((item.pnlPct || 0) >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + _itbNum(item.pnlPct, 1) + '%</td>' +
+      '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);font-weight:900;">' + _itbNum(item.score, 0) + '</td>' +
+      '<td style="padding:6px 4px;">' + _itbBadge(item.action || 'HOLD_CORE', rowTone) + '</td>' +
+    '</tr>';
+  }).join('');
+  el.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">' +
+    '<div>' + _itbBadge(result.state || 'PORTFOLIO_HEAT_NORMAL', tone) + '<span style="margin-left:8px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(result.heatScore, 0) + '/100</span></div>' +
+    _itbBadge(result.action || 'HOLD_CORE', _itbActionTone(result.action)) + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">통계 리스크(VaR/Sharpe/MDD)에 10EMA/21EMA/50SMA 이탈, ATR 과열, 보유 비중을 결합한 포지션 단위 기술 리스크입니다.</div>' +
+    '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--text-muted);text-align:left;"><th style="padding:4px;">Ticker</th><th style="padding:4px;text-align:right;">Weight</th><th style="padding:4px;text-align:right;">P/L</th><th style="padding:4px;text-align:right;">Risk</th><th style="padding:4px;">Action</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+
+function _itbRenderMiniChart(slotId, label, ohlcv) {
+  var el = document.getElementById(slotId);
+  if (!el) return;
+  el.innerHTML = '<div style="height:22px;padding:5px 7px;font-size:10px;font-weight:800;color:var(--text-muted);display:flex;justify-content:space-between;"><span>' + _itbEsc(label) + '</span><span>OHLCV</span></div><div class="itb-chart-body" style="height:166px;"></div>';
+  var body = el.querySelector('.itb-chart-body');
+  var bars = (ohlcv || []).slice(-160);
+  if (!body || !bars.length) {
+    el.innerHTML += '<div style="padding:18px 8px;font-size:11px;color:var(--text-muted);">Chart data unavailable</div>';
+    return;
+  }
+  if (typeof LightweightCharts === 'undefined') {
+    var w = Math.max(240, body.clientWidth || 260), h = 166, pad = 10;
+    var closes = bars.map(function(d) { return d.close; });
+    var min = Math.min.apply(null, bars.map(function(d) { return d.low; }));
+    var max = Math.max.apply(null, bars.map(function(d) { return d.high; }));
+    var span = Math.max(0.0001, max - min);
+    function x(i) { return pad + (i / Math.max(1, bars.length - 1)) * (w - pad * 2); }
+    function y(v) { return h - pad - ((v - min) / span) * (h - pad * 2); }
+    var line = closes.map(function(v, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1); }).join(' ');
+    var step = Math.max(2, (w - pad * 2) / bars.length);
+    var candles = bars.filter(function(_, i) { return i % Math.ceil(bars.length / 60) === 0 || i === bars.length - 1; }).map(function(d, i) {
+      var idx = bars.indexOf(d), cx = x(idx), yo = y(d.open), yc = y(d.close), yh = y(d.high), yl = y(d.low);
+      var up = d.close >= d.open, color = up ? '#00e5a0' : '#ff5b50';
+      var top = Math.min(yo, yc), height = Math.max(1, Math.abs(yo - yc));
+      return '<line x1="' + cx.toFixed(1) + '" y1="' + yh.toFixed(1) + '" x2="' + cx.toFixed(1) + '" y2="' + yl.toFixed(1) + '" stroke="' + color + '" stroke-opacity=".65"/>' +
+        '<rect x="' + (cx - step * 0.35).toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + (step * 0.7).toFixed(1) + '" height="' + height.toFixed(1) + '" fill="' + color + '" opacity=".85"/>';
+    }).join('');
+    body.innerHTML = '<svg role="img" aria-label="' + _itbEsc(label) + ' fallback OHLC chart" viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="166" style="display:block;background:#0b1222;">' +
+      '<path d="' + line + '" fill="none" stroke="#00d4ff" stroke-width="1.4" opacity=".75"/>' + candles +
+      '<text x="10" y="158" fill="#8fa3b5" font-size="10">SVG fallback</text></svg>';
+    return;
+  }
+  try {
+    var chart = LightweightCharts.createChart(body, {
+      width: body.clientWidth || 260,
+      height: 166,
+      layout: { background: { color: '#0b1222' }, textColor: '#8fa3b5' },
+      grid: { vertLines: { color: 'rgba(255,255,255,0.04)' }, horzLines: { color: 'rgba(255,255,255,0.05)' } },
+      rightPriceScale: { borderColor: 'rgba(255,255,255,0.08)', scaleMargins: { top: 0.08, bottom: 0.18 } },
+      timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: false },
+      crosshair: { mode: 0 }
+    });
+    window._techBriefChartInstances.push(chart);
+    var cs = chart.addCandlestickSeries({ upColor: '#00e5a0', downColor: '#ff5b50', borderUpColor: '#00e5a0', borderDownColor: '#ff5b50', wickUpColor: '#00e5a0', wickDownColor: '#ff5b50' });
+    cs.setData(bars.map(function(d) { return { time: d.time, open: d.open, high: d.high, low: d.low, close: d.close }; }));
+    var closes = bars.map(function(d) { return d.close; });
+    var ema10 = _calcEMAFull(closes, 10) || [];
+    var ema21 = _calcEMAFull(closes, 21) || [];
+    var l10 = chart.addLineSeries({ color: '#ffa31a', lineWidth: 1, priceLineVisible: false });
+    var l21 = chart.addLineSeries({ color: '#4da6ff', lineWidth: 1, priceLineVisible: false });
+    l10.setData(ema10.map(function(v, i) { return v ? { time: bars[i].time, value: v } : null; }).filter(Boolean));
+    l21.setData(ema21.map(function(v, i) { return v ? { time: bars[i].time, value: v } : null; }).filter(Boolean));
+    chart.timeScale().fitContent();
+    if (typeof window._aioMarkChartCanvases === 'function') window._aioMarkChartCanvases(el, label + ' technical brief chart');
+  } catch(e) {
+    if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'ITB chart failed: ' + (e && e.message || e));
+  }
+}
+
+function renderTechnicalRegimeRow(result) {
+  var el = document.getElementById('tech-brief-regime-row');
+  if (!el || !result) return;
+  var s = result.snapshot || {};
+  var sp = result.sellPressure || {};
+  var heat = result.semiHeat || {};
+  var regimeTone = s.above50SMA === false ? 'risk' : sp.score >= 38 ? 'warn' : 'bull';
+  el.innerHTML =
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:8px;">' +
+      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Action</div><div style="margin-top:4px;">' + _itbBadge(sp.action || 'HOLD_CORE', _itbActionTone(sp.action)) + '</div></div>' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:8px;">' +
+      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Sell Pressure</div><div style="font-size:18px;font-weight:900;color:var(--text-primary);font-family:var(--font-mono);">' + _itbNum(sp.score, 0) + '/100</div></div>' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:8px;">' +
+      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Trend Regime</div><div style="margin-top:4px;">' + _itbBadge((s.above50SMA === false ? 'Below 50SMA' : 'Above key MAs'), regimeTone) + '</div></div>' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:8px;">' +
+      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Semi Heat</div><div style="margin-top:4px;">' + _itbBadge(heat.state || 'DATA', heat.state === 'SEMI_MANIA' ? 'risk' : heat.state === 'SEMI_HEATED' ? 'warn' : 'bull') + '</div></div>';
+}
+
+function renderKeyLevelsPanel(snapshot) {
+  var el = document.getElementById('tech-brief-key-levels');
+  if (!el) return;
+  if (!snapshot || !snapshot.ok) { el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">Key levels unavailable</div>'; return; }
+  var rows = [
+    ['Price', snapshot.price],
+    ['10EMA', snapshot.ema10],
+    ['21EMA', snapshot.ema21],
+    ['50SMA', snapshot.sma50],
+    ['20D High', snapshot.recentHigh20],
+    ['20D Low', snapshot.recentLow20],
+    ['ATR(14)', snapshot.atr14]
+  ];
+  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Key Levels</div>' +
+    rows.map(function(r) { return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.05);padding:3px 0;font-size:11px;"><span style="color:var(--text-muted);">' + r[0] + '</span><span style="font-family:var(--font-mono);font-weight:800;color:var(--text-primary);">' + _itbNum(r[1], 2) + '</span></div>'; }).join('');
+}
+
+function renderSellPressurePanel(sellPressure) {
+  var el = document.getElementById('tech-brief-sell-pressure');
+  if (!el) return;
+  sellPressure = sellPressure || {};
+  var tone = _itbActionTone(sellPressure.action);
+  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Sell Pressure</div>' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;"><span style="font-size:22px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(sellPressure.score, 0) + '</span>' + _itbBadge(sellPressure.action || 'HOLD_CORE', tone) + '</div>' +
+    '<div style="display:flex;gap:4px;flex-wrap:wrap;">' + (sellPressure.flags || []).slice(0, 6).map(function(f) { return _itbBadge(f.replace(/_/g, ' '), f.indexOf('DAMAGED') >= 0 || f.indexOf('CLIMAX') >= 0 ? 'risk' : 'warn'); }).join('') + '</div>';
+}
+
+function renderExitPlanPanel(plan) {
+  var el = document.getElementById('tech-brief-exit-plan');
+  if (!el) return;
+  plan = plan || {};
+  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Exit Plan</div>' +
+    '<div style="font-size:11px;color:var(--text-primary);line-height:1.5;font-weight:700;margin-bottom:7px;">' + _itbEsc(plan.primary || 'No plan available') + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;">' + _itbEsc(plan.tradingLot || '') + '<br>' + _itbEsc(plan.swingLot || '') + '<br>' + _itbEsc(plan.thesisLine || '') + '</div>';
+}
+
+function renderBeginnerExplanation(result) {
+  var el = document.getElementById('tech-brief-beginner');
+  if (!el || !result) return;
+  var s = result.snapshot || {}, sp = result.sellPressure || {}, plan = result.exitPlan || {};
+  el.innerHTML = '<b style="color:var(--data-cyan);">Beginner translation:</b> RSI 70+ 자체는 매도 버튼이 아닙니다. 강한 장에서는 과열이 오래 유지될 수 있습니다. 지금 엔진은 50일선 대비 ATR 이격(' + _itbNum(s.dist50Atr, 1) + 'x), RVOL(' + _itbNum(s.rvol20, 1) + 'x), 종가 위치(' + _itbNum((s.closePosition || 0) * 100, 0) + '%), 볼린저 재진입, 10/21/50선 이탈을 함께 보고 <b>' + _itbEsc(sp.action || 'HOLD_CORE') + '</b>로 결론냅니다. ' + _itbEsc(plan.beginner || '');
+}
+
+function _renderSemiHeatPanel(heat) {
+  var el = document.getElementById('tech-brief-semi-heat');
+  if (!el) return;
+  heat = heat || {};
+  var tone = heat.state === 'SEMI_MANIA' ? 'risk' : heat.state === 'SEMI_HEATED' ? 'warn' : 'bull';
+  var ai = heat && heat.aiInfraHeat ? heat.aiInfraHeat : null;
+  var aiTone = ai && ai.state === 'AI_INFRA_MANIA' ? 'risk' : ai && ai.state === 'AI_INFRA_HEATED' ? 'warn' : 'bull';
+  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Semiconductor Heat</div>' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">' + _itbBadge(heat.state || 'DATA', tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(heat.score, 0) + '</span></div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;">RS vs SPY/QQQ: ' + _itbNum(heat.relativeStrengthPct, 2) + '%<br>Max 50SMA extension: ' + _itbNum(heat.maxDist50Atr, 1) + ' ATR<br>Max RSI: ' + _itbNum(heat.maxRsi, 1) + '</div>' +
+    (ai ? '<div style="margin-top:9px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;"><span style="font-size:10px;font-weight:900;color:var(--text-secondary);">AI Infra Heat</span>' + _itbBadge(ai.state || 'DATA', aiTone) + '</div><div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:5px;">Basket: ' + _itbNum(ai.score, 0) + '/100 · overheated ' + _itbNum(ai.overheatCount, 0) + '/' + _itbNum(ai.count, 0) + '</div>' : '');
+}
+
+function renderTechnicalBrief(symbol, result) {
+  result = result || {};
+  var s = result.snapshot;
+  renderTechnicalRegimeRow(result);
+  var qEl = document.getElementById('tech-brief-data-quality');
+  if (qEl) qEl.innerHTML = renderDataQualityBadge(result.dataQuality || (s && s.raw && s.raw.dataQuality));
+  renderKeyLevelsPanel(s);
+  renderSellPressurePanel(result.sellPressure);
+  renderExitPlanPanel(result.exitPlan);
+  _renderSemiHeatPanel(result.semiHeat);
+  renderBeginnerExplanation(result);
+  window._techBriefChartInstances.forEach(function(c) { try { c.remove(); } catch(e) {} });
+  window._techBriefChartInstances = [];
+  _itbRenderMiniChart('tech-brief-chart-monthly', symbol + ' Monthly', result.monthly || []);
+  _itbRenderMiniChart('tech-brief-chart-weekly', symbol + ' Weekly', result.weekly || []);
+  _itbRenderMiniChart('tech-brief-chart-daily', symbol + ' Daily', result.daily || []);
+  _itbRenderMiniChart('tech-brief-chart-zoom', symbol + ' Zoom', (result.daily || []).slice(-50));
+}
+
+async function runInstitutionalTechnicalBrief(arg) {
+  var symbol = (typeof arg === 'string' ? arg : '').trim().toUpperCase();
+  if (!symbol) {
+    var input = document.getElementById('tech-brief-symbol');
+    symbol = (input && input.value ? input.value : 'NVDA').trim().toUpperCase();
+  }
+  if (!symbol || symbol === '[OBJECT HTMLBUTTONELEMENT]') symbol = 'NVDA';
+  var row = document.getElementById('tech-brief-regime-row');
+  if (row) row.innerHTML = '<div style="grid-column:1/-1;padding:10px;color:var(--text-muted);font-size:11px;">Loading institutional technical brief for ' + _itbEsc(symbol) + '...</div>';
+  try {
+    var fetcher = window.fetchOHLCVWithFallback || window.fetchOHLCV;
+    var data = await Promise.all([
+      fetcher(symbol, '1month', 80),
+      fetcher(symbol, '1week', 160),
+      fetcher(symbol, '1day', 260),
+      fetcher('SPY', '1day', 220),
+      fetcher('QQQ', '1day', 220),
+      fetcher('SMH', '1day', 220),
+      fetcher('SOXX', '1day', 220)
+    ]);
+    var aiSymbols = ['NVDA','AVGO','AMD','MU','TSM','ASML','MRVL','ARM','ALAB','CRDO'];
+    var aiSettled = await Promise.allSettled(aiSymbols.map(function(t) { return fetcher(t, '1day', 160); }));
+    var aiSnaps = {};
+    aiSettled.forEach(function(r, i) { aiSnaps[aiSymbols[i]] = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(r.status === 'fulfilled' ? (r.value || []) : []) : { ok: false }; });
+    var daily = data[2] || [];
+    var snapshot = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(daily) : { ok: false };
+    var semiHeat = window.calcSemiHeatMap ? window.calcSemiHeatMap(window.calcTechnicalSnapshot(data[3] || []), window.calcTechnicalSnapshot(data[4] || []), window.calcTechnicalSnapshot(data[5] || []), window.calcTechnicalSnapshot(data[6] || [])) : null;
+    if (semiHeat && window.calcAIInfraHeat) semiHeat.aiInfraHeat = window.calcAIInfraHeat(aiSnaps, window.calcTechnicalSnapshot(data[4] || []), window.calcTechnicalSnapshot(data[3] || []));
+    var sellPressure = window.calcSellPressure ? window.calcSellPressure(snapshot, { semiHeat: semiHeat }) : null;
+    var regime = snapshot && snapshot.above50SMA === false ? 'TREND_DAMAGED' : semiHeat && semiHeat.state === 'SEMI_MANIA' ? 'LOCKOUT_RALLY_RISK' : 'TREND_FOLLOW';
+    var exitPlan = window.calcExitPlan ? window.calcExitPlan(snapshot, sellPressure, regime) : null;
+    var result = { monthly: data[0] || [], weekly: data[1] || [], daily: daily, snapshot: snapshot, semiHeat: semiHeat, sellPressure: sellPressure, exitPlan: exitPlan, dataQuality: daily.dataQuality || null };
+    window._lastTechnicalBrief = { symbol: symbol, result: result, ts: Date.now() };
+    renderTechnicalBrief(symbol, result);
+  } catch(e) {
+    if (typeof _aioLog === 'function') _aioLog('error', 'render', 'runInstitutionalTechnicalBrief failed: ' + (e && e.message || e));
+    if (row) row.innerHTML = '<div style="grid-column:1/-1;padding:10px;color:var(--data-red);font-size:11px;">Technical brief failed gracefully. Try another ticker.</div>';
+  }
+}
+
+window.renderTechnicalBrief = renderTechnicalBrief;
+window.renderTechnicalRegimeRow = renderTechnicalRegimeRow;
+window.renderSellPressurePanel = renderSellPressurePanel;
+window.renderExitPlanPanel = renderExitPlanPanel;
+window.renderKeyLevelsPanel = renderKeyLevelsPanel;
+window.renderBeginnerExplanation = renderBeginnerExplanation;
+window.renderDataQualityBadge = renderDataQualityBadge;
+window.renderNewsImpactBadge = renderNewsImpactBadge;
+window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
+window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;

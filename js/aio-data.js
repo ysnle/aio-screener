@@ -1839,9 +1839,13 @@ function initFinnhubWebSocket() {
               if (window.PriceStore) {
                 PriceStore.set(sym, price, null, 'live:finnhub');
               } else {
-                window._liveData = window._liveData || {};
-                if (window._liveData[sym]) { window._liveData[sym].price = price; }
-                else { window._liveData[sym] = { price, pct: null, pctMissing: true }; }
+                if (typeof window._aioSetLiveData === 'function') {
+                  window._aioSetLiveData(sym, { price: price, pct: null }, { source: 'live:finnhub', bypassPriceStore: true, policyKey: 'quote', reason: 'PriceStore unavailable' });
+                } else {
+                  window._liveData = window._liveData || {};
+                  if (window._liveData[sym]) { window._liveData[sym].price = price; }
+                  else { window._liveData[sym] = { price, pct: null, pctMissing: true }; }
+                }
                 window._quoteTimestamps = window._quoteTimestamps || {};
                 window._quoteTimestamps[sym] = Date.now();
               }
@@ -1981,6 +1985,74 @@ async function fetchOHLCV(symbol, interval, bars) {
 // ═══ 4-1. Naver — US 주식 재무/컨센서스/기업개요 (무료, 프록시 필요) ═══
 
 // NYSE 상장 종목 세트 (Reuters .N 코드) — 나머지는 NASDAQ(.O) 기본
+function _normalizeOHLCVRows(rows, bars) {
+  var out = (rows || []).map(function(d) {
+    if (!d) return null;
+    var close = parseFloat(d.close);
+    if (!isFinite(close) || close <= 0) return null;
+    var open = parseFloat(d.open); if (!isFinite(open) || open <= 0) open = close;
+    var high = parseFloat(d.high); if (!isFinite(high) || high <= 0) high = Math.max(open, close);
+    var low = parseFloat(d.low); if (!isFinite(low) || low <= 0) low = Math.min(open, close);
+    var volume = parseInt(d.volume, 10); if (!isFinite(volume) || volume < 0) volume = 0;
+    return { time: d.time || d.datetime || d.date || null, open: open, high: Math.max(high, open, close), low: Math.min(low, open, close), close: close, volume: volume };
+  }).filter(Boolean);
+  return bars ? out.slice(-bars) : out;
+}
+
+function _attachOHLCVQuality(rows, quality) {
+  var out = Array.isArray(rows) ? rows : [];
+  var q = (typeof window.calcDataQuality === 'function')
+    ? window.calcDataQuality(Object.assign({ rows: out.length }, quality || {}))
+    : Object.assign({ rows: out.length, label: out.length ? 'MEDIUM' : 'FALLBACK', confidence: out.length ? 60 : 10 }, quality || {});
+  try { Object.defineProperty(out, 'dataQuality', { value: q, enumerable: false, configurable: true }); }
+  catch(e) { out.dataQuality = q; }
+  return out;
+}
+
+function _yahooRangeForOHLCV(interval, bars) {
+  bars = bars || 120;
+  if (interval === '1month') return bars > 120 ? '10y' : '5y';
+  if (interval === '1week') return bars > 220 ? '5y' : '2y';
+  if (bars > 420) return '2y';
+  if (bars > 160) return '1y';
+  if (bars > 80) return '6mo';
+  return '3mo';
+}
+
+async function fetchOHLCVWithFallback(symbol, interval, bars) {
+  symbol = (symbol || 'SPY').toString().trim().toUpperCase();
+  interval = interval || '1day';
+  bars = bars || 120;
+  try {
+    var td = await fetchOHLCV(symbol, interval, bars);
+    var norm = _normalizeOHLCVRows(td, bars);
+    if (norm && norm.length >= Math.min(20, bars)) return _attachOHLCVQuality(norm, { source: 'twelvedata-or-primary', timestamp: Date.now() });
+  } catch(e) {
+    if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'fetchOHLCV primary failed: ' + (e && e.message || e));
+  }
+  try {
+    if (typeof window._fetchYahooChartData !== 'function') return _attachOHLCVQuality([], { source: 'fallback-empty', missing: true });
+    var y = await window._fetchYahooChartData(symbol, _yahooRangeForOHLCV(interval, bars));
+    if (!y || !Array.isArray(y.closes)) return _attachOHLCVQuality([], { source: 'yahoo-fallback', missing: true });
+    var rows = y.closes.map(function(c, i) {
+      var ts = y.timestamps && y.timestamps[i];
+      var dt = ts ? new Date(ts * 1000).toISOString().substring(0, 10) : null;
+      return { time: dt, open: y.opens && y.opens[i], high: y.highs && y.highs[i], low: y.lows && y.lows[i], close: c, volume: y.volumes && y.volumes[i] };
+    });
+    return _attachOHLCVQuality(_normalizeOHLCVRows(rows, bars), { source: 'yahoo-fallback', timestamp: Date.now() });
+  } catch(e2) {
+    if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'fetchOHLCV yahoo fallback failed: ' + (e2 && e2.message || e2));
+    return _attachOHLCVQuality([], { source: 'fallback-empty', error: true });
+  }
+}
+window.fetchOHLCVWithFallback = fetchOHLCVWithFallback;
+
+async function fetchOHLCVBundleWithFallback(symbol, interval, bars) {
+  var data = await fetchOHLCVWithFallback(symbol, interval, bars);
+  return { data: Array.isArray(data) ? data : [], dataQuality: data && data.dataQuality ? data.dataQuality : (typeof window.calcDataQuality === 'function' ? window.calcDataQuality({ source: 'unknown', missing: true }) : null) };
+}
+window.fetchOHLCVBundleWithFallback = fetchOHLCVBundleWithFallback;
+
 var _NAVER_NYSE = 'JPM V XOM MA UNH JNJ HD PG ABBV MRK CVX BAC DIS WMT KO PEP MCD TMO LLY GS MS BMY RTX HON CAT DE UPS IBM GE NKE VZ T PM AXP C WFC PFE ABT DHR LOW SYK BDX ZTS CME ICE APD SHW ECL EMR ETN ITW NSC UNP LMT NOC GD BA F GM SO NEE DUK SPGI MCO BLK MMC AON CL WMB KMI MPC VLO PSX SLB HAL FCX NUE URI DD HCA SYY YUM WM PLD SPG PSA O AEP EXC SRE WEC DOW COP OXY EOG BKR COF BK MET PRU AIG AFL TRV CB RSG TFC PNC USB HUBB GPN OTIS STE VRSK EFX NRG PCAR KHC MCK MAR IQV STZ CNC CI MDLZ BSX TJX GEV VRT DELL HPE GLW CCJ PGR TDG RMD TRGP ROP CARR WELL TSM BABA NVO NVS AZN HSBC TM SHEL RIO BHP UBS UL BUD TTE BP TD RY SONY HUM A'.split(' ').reduce(function(s,t){s[t]=1;return s;},{});
 
 var _naverUSCache = {};
@@ -2868,8 +2940,46 @@ const REFRESH_SCHEDULE = {
 };
 
 // v30.11: Page Visibility API — 백그라운드 탭 타이머 절약
+window.REFRESH_SCHEDULE = REFRESH_SCHEDULE;
+_normalizeRefreshSchedule();
+
 let _schedulerPaused = false;
 let _lastVisibleTime = Date.now();
+
+function _normalizeRefreshSchedule() {
+  Object.entries(REFRESH_SCHEDULE || {}).forEach(([key, cfg]) => {
+    cfg.key = cfg.key || key;
+    cfg.priority = cfg.priority || (key === 'quotes' ? 'high' : key === 'news' || key === 'sentiment' ? 'medium' : 'normal');
+    cfg.timeoutMs = cfg.timeoutMs || Math.min(Math.max(Math.round((cfg.interval || 60000) * 0.35), 8000), 60000);
+    cfg.retryCount = cfg.retryCount || 0;
+    cfg.nextDue = cfg.nextDue || 0;
+    cfg.lastRunStart = cfg.lastRunStart || 0;
+    cfg.lastRunEnd = cfg.lastRunEnd || 0;
+    cfg.lastDurationMs = cfg.lastDurationMs || 0;
+    cfg.policyKey = cfg.policyKey || (key === 'quotes' ? 'quote' : key === 'news' ? 'news' : key === 'fred' ? 'macro_daily' : key === 'krSupply' ? 'kr_supply' : key === 'technicals' ? 'technical' : 'sentiment');
+  });
+}
+
+async function _runScheduledTask(key, cfg, showError) {
+  if (!cfg || typeof cfg.fn !== 'function') return;
+  if (_schedulerPaused || cfg._inFlight) return;
+  cfg._inFlight = true;
+  cfg.lastRunStart = Date.now();
+  try {
+    await cfg.fn();
+    cfg._lastOk = Date.now();
+    cfg._lastErr = '';
+    cfg.retryCount = 0;
+  } catch(e) {
+    cfg._lastErr = e && e.message || String(e);
+    cfg.retryCount = (cfg.retryCount || 0) + 1;
+    if (showError) showDataError(cfg.label, 'auto refresh failed; retrying on next cycle', 'warn');
+  } finally {
+    cfg.lastRunEnd = Date.now();
+    cfg.lastDurationMs = cfg.lastRunEnd - cfg.lastRunStart;
+    cfg._inFlight = false;
+  }
+}
 
 function startDataScheduler() {
   console.log('[AIO v21] ═══ Data Scheduler Starting (5명 동시접속 최적화) ═══');
@@ -2897,6 +3007,8 @@ function startDataScheduler() {
   REFRESH_SCHEDULE.maUpdate.fn   = () => { if (typeof autoUpdateMA === 'function') autoUpdateMA(); };
   REFRESH_SCHEDULE.krSupply.fn   = () => { if (typeof fetchKrSupplyData === 'function') fetchKrSupplyData(); };
   REFRESH_SCHEDULE.krDynamic.fn  = () => { if (typeof fetchKrDynamicData === 'function') fetchKrDynamicData(); };
+  window.REFRESH_SCHEDULE = REFRESH_SCHEDULE;
+  _normalizeRefreshSchedule();
 
   // v21: 지터가 적용된 타이머 시작 (5명이 동시 호출하는 것 방지)
   Object.entries(REFRESH_SCHEDULE).forEach(([key, cfg]) => {
@@ -2907,12 +3019,9 @@ function startDataScheduler() {
         // setInterval 대신 재귀 setTimeout으로 매번 지터 적용
         function scheduleNext() {
           const nextInterval = jitteredInterval(cfg.interval);
+          cfg.nextDue = Date.now() + nextInterval;
           cfg.timer = setTimeout(async () => {
-            if (_schedulerPaused || cfg._inFlight) { scheduleNext(); return; }
-            cfg._inFlight = true;
-            try { await cfg.fn(); cfg._lastOk = Date.now(); cfg._lastErr = ''; }
-            catch(e) { cfg._lastErr = e.message || String(e); showDataError(cfg.label, '자동 갱신 실패 — 다음 주기에 재시도', 'warn'); }
-            finally { cfg._inFlight = false; }
+            await _runScheduledTask(key, cfg, true);
             scheduleNext();
           }, nextInterval);
         }
@@ -2936,14 +3045,12 @@ function restartScheduler() {
     if (cfg.fn && cfg.interval > 0 && !cfg.timer) {
       function jit(base) { var j = base * 0.15; return base + Math.floor(Math.random() * j * 2 - j); }
       function scheduleNext() {
+        var delay = jit(cfg.interval);
+        cfg.nextDue = Date.now() + delay;
         cfg.timer = setTimeout(async () => {
-          if (_schedulerPaused || cfg._inFlight) { scheduleNext(); return; }
-          cfg._inFlight = true;
-          try { await cfg.fn(); cfg._lastOk = Date.now(); cfg._lastErr = ''; }
-          catch(e) { cfg._lastErr = e.message || String(e); }
-          finally { cfg._inFlight = false; }
+          await _runScheduledTask(key, cfg, false);
           scheduleNext();
-        }, jit(cfg.interval));
+        }, delay);
       }
       scheduleNext();
     }
@@ -2966,7 +3073,7 @@ document.addEventListener('visibilitychange', () => {
     // stale 데이터만 즉시 갱신
     Object.entries(REFRESH_SCHEDULE).forEach(([key, cfg]) => {
       if (cfg.fn && elapsed >= cfg.interval) {
-        try { cfg.fn(); } catch(e) {}
+        try { setTimeout(() => { _runScheduledTask(key, cfg, false); }, 0); } catch(e) {}
       }
     });
     restartScheduler();
@@ -5154,6 +5261,9 @@ function _scoreItemKey(item) {
   return (item.title || '') + '|' + (item.source || '') + '|' + (item.pubDate || '');
 }
 function _scoreItemCachePut(item, score) {
+  if (item && !item.impactVector && typeof calcNewsImpactVector === 'function') {
+    item.impactVector = calcNewsImpactVector(item);
+  }
   if (_scoreItemCache) {
     _scoreItemCache.set(_scoreItemKey(item), { s: score, tm: item._tickerMentions || 0, bl: !!item._blacklisted });
   }
@@ -5171,6 +5281,48 @@ function _scoreItemCachePut(item, score) {
   };
 })();
 
+function calcNewsImpactVector(item) {
+  item = item || {};
+  var text = ((item.title || '') + ' ' + (item.desc || '') + ' ' + (item.summary || '')).toLowerCase();
+  var topic = item.topic || (typeof classifyTopic === 'function' ? classifyTopic(item) : 'general');
+  var sent = typeof getSentimentFromText === 'function' ? getSentimentFromText(text) : 'neut';
+  var tickers = [];
+  try {
+    tickers = (typeof extractTickers === 'function') ? extractTickers(item) : (item.tickers || []);
+  } catch(e) { tickers = item.tickers || []; }
+  var factor = 'GENERAL';
+  var urgency = 20;
+  var technicalImpact = 'NEUTRAL';
+  var portfolioImpact = tickers.length ? 'CHECK_POSITION_EXPOSURE' : 'BROAD_MARKET';
+  if (/(fed|fomc|rate|yield|inflation|cpi|pce|goolsbee|musalem|wash|금리|물가|인플레|연준)/i.test(text)) {
+    factor = 'RATES_INFLATION'; urgency += 25;
+  } else if (/(gpu|semiconductor|hbm|ai infrastructure|inference|token|data center|nebius|eigen|반도체|추론|데이터센터)/i.test(text)) {
+    factor = 'AI_INFRA_SEMI'; urgency += 22;
+  } else if (/(tariff|trade|export control|sanction|관세|수출통제|제재)/i.test(text)) {
+    factor = 'POLICY_TRADE'; urgency += 20;
+  } else if (/(earnings|guidance|revenue|margin|실적|가이던스)/i.test(text)) {
+    factor = 'EARNINGS'; urgency += 18;
+  } else if (/(oil|crude|energy|원유|에너지)/i.test(text)) {
+    factor = 'ENERGY'; urgency += 14;
+  }
+  if (/(breakout|new high|melt.?up|rally|surge|신고가|돌파|급등)/i.test(text)) technicalImpact = 'MOMENTUM_UP';
+  if (/(sell.?off|breakdown|below|plunge|급락|이탈|붕괴)/i.test(text)) technicalImpact = 'DOWNSIDE_RISK';
+  if (/(overheat|mania|climax|bubble|과열|버블|헤지|trim)/i.test(text)) technicalImpact = 'EXIT_RISK';
+  if (sent === 'bear' || sent === 'warn') urgency += 10;
+  if (item.tier === 1) urgency += 10;
+  urgency = Math.max(0, Math.min(100, urgency));
+  return {
+    tickerImpact: tickers.slice(0, 8),
+    factor: factor,
+    technicalImpact: technicalImpact,
+    portfolioImpact: portfolioImpact,
+    urgency: urgency,
+    sentiment: sent,
+    topic: topic
+  };
+}
+window.calcNewsImpactVector = calcNewsImpactVector;
+
 function scoreItem(item) {
   // LRU 캐시 체크
   if (_scoreItemCache) {
@@ -5179,6 +5331,7 @@ function scoreItem(item) {
     if (_cached !== null && _cached !== undefined) {
       item._tickerMentions = _cached.tm;
       if (_cached.bl) item._blacklisted = true;
+      item.impactVector = calcNewsImpactVector(item);
       return _cached.s;
     }
   }
@@ -6597,6 +6750,10 @@ function renderFeed(items) {
     const sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
     const sentColor = sent === 'bull' ? '#00e5a0' : sent === 'bear' ? '#ff5b50' : sent === 'warn' ? '#ffa31a' : '#7b8599';
     const topicBadge = getTopicBadge(item.topic || 'general');
+    const impact = item.impactVector || calcNewsImpactVector(item);
+    const impactHtml = (typeof window.renderNewsImpactBadge === 'function')
+      ? window.renderNewsImpactBadge(impact)
+      : `<span style="font-size:10px;font-weight:800;color:#7dd3fc;border:1px solid rgba(125,211,252,.35);border-radius:3px;padding:1px 4px;margin-left:4px;">${escHtml(impact.factor || 'GENERAL')}</span>`;
     const unverifiedBadge = isUnverifiedClaim(item) ? '<span class="news-unverified-badge">⚠ 미확인</span>' : '';
 
     // 시간 표시: "14:32" 형태 + 상대시간
@@ -6641,7 +6798,7 @@ function renderFeed(items) {
         <div class="news-item-headline">${tickerHtml}${displayTitle}</div>
         ${descHtml}
         ${summaryHtml}
-        <div class="news-item-meta">${item._tgChannel ? '<span style="background:var(--data-purple-border);color:#a78bfa;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">TG</span>' : ''}${unverifiedBadge}${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo} ${scoreBar}</div>
+        <div class="news-item-meta">${item._tgChannel ? '<span style="background:var(--data-purple-border);color:#a78bfa;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">TG</span>' : ''}${unverifiedBadge}${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo} ${scoreBar} ${impactHtml}</div>
       </div>
       ${topicBadge}
     </div>`;

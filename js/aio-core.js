@@ -2707,7 +2707,8 @@ const PriceStore = {
       }
     }
     const ts = Date.now();
-    this._data[sym] = { price, pct, source: source || 'unknown', ts: ts, stale: false, pctMissing: pctMissing };
+    var metric = (typeof makeMetric === 'function') ? makeMetric(price, source || 'unknown', ts, 'quote', { pct: pct, pctMissing: pctMissing }) : null;
+    this._data[sym] = { price, pct, source: source || 'unknown', ts: ts, stale: false, pctMissing: pctMissing, metric: metric, quality: metric };
     this._prev[sym] = price;
     this._stats.accepted++;
     window._liveData = window._liveData || {};
@@ -2717,18 +2718,22 @@ const PriceStore = {
       source: source || 'unknown',
       ts: ts,
       stale: false,
-      pctMissing: pctMissing
+      pctMissing: pctMissing,
+      metric: metric,
+      quality: metric
     });
     window._quoteTimestamps = window._quoteTimestamps || {};
     window._quoteTimestamps[sym] = ts;
     window._dataSource = window._dataSource || {};
-    window._dataSource[sym] = { source: source || 'live:yahoo', ts: ts, pctMissing: pctMissing };
+    window._dataSource[sym] = { source: source || 'live:yahoo', ts: ts, pctMissing: pctMissing, policyKey: 'quote', metric: metric };
     return true;
   },
   get(sym) {
     const d = this._data[sym];
     if (!d) return null;
-    d.stale = (Date.now() - d.ts) > 300000;
+    var evaluated = (typeof evaluateMetric === 'function') ? evaluateMetric(d.metric || { value: d.price, source: d.source, ts: d.ts, policyKey: 'quote' }) : null;
+    d.quality = evaluated || d.quality || null;
+    d.stale = evaluated ? evaluated.stale : (Date.now() - d.ts) > 300000;
     return d;
   },
   _reject(sym, price, source, reason, detail) {
@@ -2743,7 +2748,9 @@ const PriceStore = {
     const sources = {};
     for (const [sym, d] of Object.entries(this._data)) {
       total++;
-      if ((now - d.ts) > 300000) { stale++; d.stale = true; } else fresh++;
+      var q = (typeof evaluateMetric === 'function') ? evaluateMetric(d.metric || { value: d.price, source: d.source, ts: d.ts, policyKey: 'quote' }, now) : null;
+      if (q) { d.quality = q; d.stale = q.stale; }
+      if (d.stale || (!q && (now - d.ts) > 300000)) { stale++; d.stale = true; } else fresh++;
       sources[d.source] = (sources[d.source] || 0) + 1;
     }
     this._stats.staleCount = stale;
@@ -2786,13 +2793,15 @@ const MacroStore = {
       if (val > range.warnMax) _aioLog('warn', 'macro', '경고: ' + id + '(' + range.label + ') = ' + val + ' — 이상 고값');
     }
     const dataAge = date ? Math.floor((Date.now() - new Date(date).getTime()) / 86400000) : null;
-    this._data[id] = { value: val, prevValue: prev, date, ts: Date.now(), dataAgeDays: dataAge, stale: false };
+    var policyKey = ['CPIAUCSL','UNRATE','ICSA','FEDFUNDS'].indexOf(id) >= 0 ? 'macro_monthly' : 'macro_daily';
+    var metric = (typeof makeMetric === 'function') ? makeMetric(val, 'fred', Date.now(), policyKey, { seriesId: id, dataDate: date, prevValue: prev }) : null;
+    this._data[id] = { value: val, prevValue: prev, date, ts: Date.now(), dataAgeDays: dataAge, stale: false, policyKey: policyKey, metric: metric, quality: metric };
     this._stats.accepted++;
     window._fredData = window._fredData || {};
     window._fredData[id] = { value: val, prevValue: prev, date };
     return true;
   },
-  get(id) { const d = this._data[id]; if (!d) return null; d.stale = (Date.now() - d.ts) > 7200000; return d; },
+  get(id) { const d = this._data[id]; if (!d) return null; var q = (typeof evaluateMetric === 'function') ? evaluateMetric(d.metric || { value: d.value, source: 'fred', ts: d.ts, policyKey: d.policyKey || 'macro_daily' }) : null; d.quality = q || d.quality || null; d.stale = q ? q.stale : (Date.now() - d.ts) > 7200000; return d; },
   _reject(id, value, reason, detail) {
     this._stats.rejected++;
     if (this._rejected.length >= 30) this._rejected.shift();
@@ -2802,7 +2811,12 @@ const MacroStore = {
   health() {
     const now = Date.now();
     let total = 0, stale = 0, fresh = 0;
-    for (const [id, d] of Object.entries(this._data)) { total++; if ((now - d.ts) > 7200000) { stale++; d.stale = true; } else fresh++; }
+    for (const [id, d] of Object.entries(this._data)) {
+      total++;
+      var q = (typeof evaluateMetric === 'function') ? evaluateMetric(d.metric || { value: d.value, source: 'fred', ts: d.ts, policyKey: d.policyKey || 'macro_daily' }, now) : null;
+      if (q) { d.quality = q; d.stale = q.stale; }
+      if (d.stale || (!q && (now - d.ts) > 7200000)) { stale++; d.stale = true; } else fresh++;
+    }
     return { total, fresh, stale, accepted: this._stats.accepted, rejected: this._stats.rejected,
       lastRejects: this._rejected.slice(-5),
       series: Object.fromEntries(Object.entries(this._data).map(([k,v]) => [k, { value: v.value, date: v.date, ageDays: v.dataAgeDays }])) };
@@ -2867,6 +2881,70 @@ const DataHealth = {
   }
 };
 window.PriceStore = PriceStore; window.MacroStore = MacroStore;
+
+const SnapshotStore = {
+  _data: {},
+  set(sym, price, pct, ts, meta) {
+    if (!sym || price == null || !isFinite(Number(price))) return false;
+    var metric = (typeof makeMetric === 'function') ? makeMetric(Number(price), 'snapshot', ts || Date.now(), 'static_snapshot', Object.assign({ pct: pct, pctMissing: pct == null }, meta || {})) : null;
+    this._data[sym] = { price: Number(price), pct: pct != null ? Number(pct) : null, pctMissing: pct == null, source: 'snapshot', ts: metric ? metric.ts : (ts || Date.now()), metric: metric, quality: metric };
+    return true;
+  },
+  get(sym) {
+    var d = this._data[sym];
+    if (!d) return null;
+    if (typeof evaluateMetric === 'function') d.quality = evaluateMetric(d.metric || { value: d.price, source: 'snapshot', ts: d.ts, policyKey: 'static_snapshot' });
+    return d;
+  },
+  seedFromMap(map, ts, meta) {
+    var count = 0;
+    Object.entries(map || {}).forEach(([sym, val]) => {
+      if (val && val.price != null && this.set(sym, val.price, val.pct, ts, meta)) count++;
+    });
+    return count;
+  },
+  health() {
+    var total = 0, stale = 0, hardStale = 0;
+    Object.keys(this._data).forEach((sym) => {
+      var d = this.get(sym);
+      if (!d) return;
+      total++;
+      if (d.quality && d.quality.stale) stale++;
+      if (d.quality && d.quality.hardStale) hardStale++;
+    });
+    return { total: total, stale: stale, hardStale: hardStale };
+  }
+};
+window.SnapshotStore = SnapshotStore;
+
+window._aioSetLiveData = function(sym, data, meta) {
+  data = data || {};
+  meta = meta || {};
+  var source = meta.source || data.source || data._source || 'unknown';
+  var price = Number(data.price != null ? data.price : data.regularMarketPrice);
+  var pct = data.pct != null ? data.pct : data.regularMarketChangePercent;
+  if (!sym || !isFinite(price) || price <= 0) return false;
+  if (source.indexOf('live:') === 0 && !meta.bypassPriceStore && window.PriceStore && typeof window.PriceStore.set === 'function') {
+    return window.PriceStore.set(sym, price, pct, source);
+  }
+  var policyKey = meta.policyKey || (source === 'snapshot' ? 'static_snapshot' : source.indexOf('fallback') >= 0 ? 'static_snapshot' : 'quote');
+  var ts = meta.ts || data.ts || Date.now();
+  var metric = (typeof makeMetric === 'function') ? makeMetric(price, source, ts, policyKey, { pct: pct, pctMissing: pct == null, reason: meta.reason || data.reason || null }) : null;
+  window._liveData = window._liveData || {};
+  window._liveData[sym] = Object.assign({}, window._liveData[sym] || {}, {
+    price: price,
+    pct: pct != null && isFinite(Number(pct)) ? Number(pct) : null,
+    source: source,
+    ts: metric ? metric.ts : ts,
+    stale: metric ? metric.stale : !!meta.stale,
+    pctMissing: pct == null || !isFinite(Number(pct)),
+    metric: metric,
+    quality: metric
+  });
+  window._dataSource = window._dataSource || {};
+  window._dataSource[sym] = { source: source, ts: metric ? metric.ts : ts, pctMissing: pct == null || !isFinite(Number(pct)), policyKey: policyKey, metric: metric, reason: meta.reason || null };
+  return true;
+};
 
 // v48.22 (P3-2 1단계): _liveData readonly Proxy view — 외부 코드/AI 챗/확장 접근용 공개 API
 // 기존 window._liveData는 PriceStore.set 및 legacy fetch 경로에서 내부 쓰기 유지(역호환).
@@ -3283,7 +3361,472 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-const APP_VERSION = 'v49.1';
+// Institutional Technical Risk & Exit Engine (v49.4)
+function _aioCleanNums(values) {
+  return (values || []).map(function(v) { var n = Number(v); return isFinite(n) ? n : null; });
+}
+
+function _aioCleanOHLCV(ohlcv) {
+  return (ohlcv || []).map(function(d) {
+    if (!d) return null;
+    var close = Number(d.close);
+    if (!isFinite(close) || close <= 0) return null;
+    var open = Number(d.open); if (!isFinite(open) || open <= 0) open = close;
+    var high = Number(d.high); if (!isFinite(high) || high <= 0) high = Math.max(open, close);
+    var low = Number(d.low); if (!isFinite(low) || low <= 0) low = Math.min(open, close);
+    var volume = Number(d.volume); if (!isFinite(volume) || volume < 0) volume = 0;
+    return { time: d.time || d.datetime || d.date || null, open: open, high: Math.max(high, open, close), low: Math.min(low, open, close), close: close, volume: volume };
+  }).filter(Boolean);
+}
+
+function _calcSMA(values, period) {
+  var nums = _aioCleanNums(values).filter(function(v) { return v !== null; });
+  period = period || 20;
+  if (nums.length < period || period <= 0) return null;
+  var sum = 0;
+  for (var i = nums.length - period; i < nums.length; i++) sum += nums[i];
+  return sum / period;
+}
+
+function _calcEMAFull(values, period) {
+  var nums = _aioCleanNums(values).filter(function(v) { return v !== null; });
+  period = period || 20;
+  if (nums.length < period || period <= 0) return null;
+  var k = 2 / (period + 1);
+  var ema = 0;
+  for (var i = 0; i < period; i++) ema += nums[i];
+  ema = ema / period;
+  var out = [];
+  for (var j = 0; j < nums.length; j++) {
+    if (j < period - 1) out.push(null);
+    else if (j === period - 1) out.push(ema);
+    else {
+      ema = nums[j] * k + ema * (1 - k);
+      out.push(ema);
+    }
+  }
+  return out;
+}
+
+function _calcEMA(values, period) {
+  var series = _calcEMAFull(values, period);
+  return series ? series[series.length - 1] : null;
+}
+
+function _calcATR(ohlcv, period) {
+  var bars = _aioCleanOHLCV(ohlcv);
+  period = period || 14;
+  if (bars.length < period + 1) return null;
+  var trs = [];
+  for (var i = 1; i < bars.length; i++) {
+    var prevClose = bars[i - 1].close;
+    trs.push(Math.max(bars[i].high - bars[i].low, Math.abs(bars[i].high - prevClose), Math.abs(bars[i].low - prevClose)));
+  }
+  if (trs.length < period) return null;
+  var atr = 0;
+  for (var j = 0; j < period; j++) atr += trs[j];
+  atr = atr / period;
+  for (var k = period; k < trs.length; k++) atr = ((atr * (period - 1)) + trs[k]) / period;
+  return atr;
+}
+
+function _calcRSILast(closes, period) {
+  var nums = _aioCleanNums(closes).filter(function(v) { return v !== null && v > 0; });
+  period = period || 14;
+  if (nums.length < period + 1) return null;
+  var gain = 0, loss = 0;
+  for (var i = 1; i <= period; i++) {
+    var d = nums[i] - nums[i - 1];
+    if (d >= 0) gain += d; else loss -= d;
+  }
+  var avgGain = gain / period;
+  var avgLoss = loss / period;
+  for (var j = period + 1; j < nums.length; j++) {
+    var diff = nums[j] - nums[j - 1];
+    avgGain = ((avgGain * (period - 1)) + Math.max(diff, 0)) / period;
+    avgLoss = ((avgLoss * (period - 1)) + Math.max(-diff, 0)) / period;
+  }
+  if (avgLoss === 0) return 100;
+  var rs = avgGain / avgLoss;
+  return 100 - (100 / (1 + rs));
+}
+
+function _calcMACD(closes, fast, slow, signal) {
+  fast = fast || 12; slow = slow || 26; signal = signal || 9;
+  var nums = _aioCleanNums(closes).filter(function(v) { return v !== null && v > 0; });
+  if (nums.length < slow + signal) return null;
+  var fastEma = _calcEMAFull(nums, fast);
+  var slowEma = _calcEMAFull(nums, slow);
+  if (!fastEma || !slowEma) return null;
+  var macdLine = [];
+  for (var i = 0; i < nums.length; i++) macdLine.push(fastEma[i] !== null && slowEma[i] !== null ? fastEma[i] - slowEma[i] : null);
+  var cleanMacd = macdLine.filter(function(v) { return v !== null; });
+  var signalClean = _calcEMAFull(cleanMacd, signal);
+  if (!signalClean) return null;
+  var sig = signalClean[signalClean.length - 1];
+  var macd = cleanMacd[cleanMacd.length - 1];
+  var prevMacd = cleanMacd.length > 1 ? cleanMacd[cleanMacd.length - 2] : macd;
+  var prevSig = signalClean.length > 1 ? signalClean[signalClean.length - 2] : sig;
+  return {
+    macd: macd,
+    signal: sig,
+    hist: macd - sig,
+    prevHist: prevMacd - prevSig,
+    macdLine: cleanMacd,
+    signalLine: signalClean.filter(function(v) { return v !== null; }),
+    histogram: cleanMacd.map(function(v, idx) {
+      var s = signalClean[idx - (cleanMacd.length - signalClean.length)];
+      return isFinite(s) ? v - s : null;
+    }).filter(function(v) { return v !== null; })
+  };
+}
+
+function _calcBB(closes, period, mult) {
+  period = period || 20; mult = mult || 2;
+  var nums = _aioCleanNums(closes).filter(function(v) { return v !== null && v > 0; });
+  if (nums.length < period) return null;
+  var slice = nums.slice(-period);
+  var mid = _calcSMA(nums, period);
+  var variance = slice.reduce(function(s, v) { return s + Math.pow(v - mid, 2); }, 0) / period;
+  var sd = Math.sqrt(variance);
+  var upper = mid + mult * sd;
+  var lower = mid - mult * sd;
+  var width = upper - lower;
+  var close = nums[nums.length - 1];
+  return { mid: mid, middle: mid, upper: upper, lower: lower, width: width, pctB: width > 0 ? (close - lower) / width : 0.5 };
+}
+
+function _calcRVOL(volumes, period) {
+  var nums = _aioCleanNums(volumes).filter(function(v) { return v !== null && v >= 0; });
+  period = period || 20;
+  if (nums.length < 2) return null;
+  var current = nums[nums.length - 1];
+  var base = nums.slice(Math.max(0, nums.length - period - 1), nums.length - 1);
+  if (!base.length) return null;
+  var avg = base.reduce(function(s, v) { return s + v; }, 0) / base.length;
+  return avg > 0 ? current / avg : null;
+}
+
+function _calcClosePosition(bar) {
+  if (!bar) return null;
+  var h = Number(bar.high), l = Number(bar.low), c = Number(bar.close);
+  if (!isFinite(h) || !isFinite(l) || !isFinite(c) || h <= l) return 0.5;
+  return Math.max(0, Math.min(1, (c - l) / (h - l)));
+}
+
+function _calcRecentLevel(values, lookback, fn) {
+  var nums = _aioCleanNums(values).filter(function(v) { return v !== null; }).slice(-(lookback || 20));
+  if (!nums.length) return null;
+  return fn.apply(null, nums);
+}
+
+function calcTechnicalSnapshot(ohlcv) {
+  var bars = _aioCleanOHLCV(ohlcv);
+  if (bars.length < 20) return { ok: false, reason: 'insufficient_ohlcv', bars: bars.length };
+  var closes = bars.map(function(d) { return d.close; });
+  var highs = bars.map(function(d) { return d.high; });
+  var lows = bars.map(function(d) { return d.low; });
+  var volumes = bars.map(function(d) { return d.volume; });
+  var last = bars[bars.length - 1], prev = bars[bars.length - 2] || last;
+  var atr14 = _calcATR(bars, 14);
+  var sma10 = _calcSMA(closes, 10), sma20 = _calcSMA(closes, 20), sma50 = _calcSMA(closes, 50), sma200 = _calcSMA(closes, 200);
+  var ema10 = _calcEMA(closes, 10), ema21 = _calcEMA(closes, 21);
+  var rsi14 = _calcRSILast(closes, 14);
+  var macd = _calcMACD(closes, 12, 26, 9);
+  var bb20 = _calcBB(closes, 20, 2);
+  var prevBB20 = closes.length > 20 ? _calcBB(closes.slice(0, -1), 20, 2) : null;
+  var dayGainPct = prev.close > 0 ? ((last.close - prev.close) / prev.close) * 100 : 0;
+  var closePosition = _calcClosePosition(last);
+  var safeAtr = atr14 && atr14 > 0 ? atr14 : null;
+  var dist50Atr = safeAtr && sma50 ? (last.close - sma50) / safeAtr : null;
+  var dist21Atr = safeAtr && ema21 ? (last.close - ema21) / safeAtr : null;
+  var dist10Atr = safeAtr && ema10 ? (last.close - ema10) / safeAtr : null;
+  var bbReentry = !!(prevBB20 && bb20 && prev.close > prevBB20.upper && last.close <= bb20.upper);
+  return {
+    ok: true, bars: bars.length, time: last.time, price: last.close, prevClose: prev.close, dayGainPct: dayGainPct,
+    closePosition: closePosition, atr14: atr14, rsi14: rsi14, macd: macd, bb20: bb20, rvol20: _calcRVOL(volumes, 20),
+    sma10: sma10, sma20: sma20, sma50: sma50, sma200: sma200, ema10: ema10, ema21: ema21,
+    dist10Atr: dist10Atr, dist21Atr: dist21Atr, dist50Atr: dist50Atr,
+    dist10ATR: dist10Atr, dist21ATR: dist21Atr, dist50ATR: dist50Atr,
+    dist50Pct: sma50 ? ((last.close - sma50) / sma50) * 100 : null,
+    dist21Pct: ema21 ? ((last.close - ema21) / ema21) * 100 : null,
+    above10EMA: ema10 ? last.close >= ema10 : null, above21EMA: ema21 ? last.close >= ema21 : null,
+    above50SMA: sma50 ? last.close >= sma50 : null, above200SMA: sma200 ? last.close >= sma200 : null,
+    bbOutsideUpper: !!(bb20 && last.close > bb20.upper), bbReentry: bbReentry,
+    recentHigh20: _calcRecentLevel(highs, 20, Math.max), recentLow20: _calcRecentLevel(lows, 20, Math.min),
+    recentHigh50: _calcRecentLevel(highs, 50, Math.max), recentLow50: _calcRecentLevel(lows, 50, Math.min),
+    trendState: sma50 && sma200 && last.close >= sma50 && sma50 >= sma200 ? 'UPTREND' : sma50 && last.close < sma50 ? 'TREND_DAMAGED' : 'MIXED',
+    stageEstimate: sma50 && sma200 && last.close >= sma50 && sma50 >= sma200 ? 'STAGE_2_ADVANCE' : sma50 && last.close < sma50 ? 'STAGE_4_OR_BASE_REPAIR' : 'STAGE_1_3_TRANSITION',
+    lastBar: last, raw: bars
+  };
+}
+
+function calcSellPressure(ohlcvOrSnapshot, context) {
+  context = context || {};
+  var snapshot = ohlcvOrSnapshot && ohlcvOrSnapshot.ok !== undefined ? ohlcvOrSnapshot : calcTechnicalSnapshot(ohlcvOrSnapshot);
+  var flags = [], score = 0;
+  function add(points, flag) { score += points; flags.push(flag); }
+  if (!snapshot || !snapshot.ok) return { score: 0, action: 'HOLD_CORE', flags: ['DATA_INSUFFICIENT'], snapshot: snapshot };
+  if (snapshot.dist50Atr !== null && snapshot.dist50Atr >= 3) add(12, 'DIST_50SMA_PLUS_3ATR_WARNING');
+  if (snapshot.dist50Atr !== null && snapshot.dist50Atr >= 4) add(12, 'DIST_50SMA_PLUS_4ATR_NO_ADD_TRIM_CANDIDATE');
+  if (snapshot.dist50Atr !== null && snapshot.dist50Atr >= 6) add(20, 'DIST_50SMA_PLUS_6ATR_STRONG_TRIM_HEDGE');
+  if (snapshot.dist21Atr !== null && snapshot.dist21Atr >= 2.5) add(10, 'DIST_21EMA_PLUS_2_5ATR_SHORT_TERM_EXTENSION');
+  if (snapshot.rsi14 !== null && snapshot.rsi14 >= 80) add(8, 'RSI_80_OVERHEAT_NOT_AUTO_SELL');
+  if (snapshot.rsi14 !== null && snapshot.rsi14 >= 85) add(10, 'RSI_85_EXTREME_OVERHEAT');
+  if (snapshot.dayGainPct >= 6 && snapshot.rvol20 !== null && snapshot.rvol20 >= 2.5 && snapshot.closePosition !== null && snapshot.closePosition < 0.5) add(25, 'CLIMAX_REVERSAL_RISK_DAY_GAIN_RVOL_WEAK_CLOSE');
+  if (snapshot.bbReentry) add(15, 'UPPER_BOLLINGER_REENTRY_EXHAUSTION');
+  if (snapshot.above10EMA === false) add(14, 'CLOSE_BELOW_10EMA_TRIM_TRADING_LOT');
+  if (snapshot.above21EMA === false) add(18, 'CLOSE_BELOW_21EMA_REDUCE_SWING_LOT');
+  if (snapshot.above50SMA === false) add(28, 'CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED');
+  if (context.semiHeat && context.semiHeat.state === 'SEMI_HEATED') add(6, 'SEMI_HEATED_CONTEXT');
+  if (context.semiHeat && context.semiHeat.state === 'SEMI_MANIA') add(12, 'SEMI_MANIA_CONTEXT');
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  var action = score >= 75 ? 'EXIT_OR_HEDGE' : score >= 58 ? 'TRIM_50' : score >= 38 ? 'TRIM_25_33' : score >= 18 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
+  return { score: score, action: action, flags: flags.length ? flags : ['TREND_HEALTHY_NO_EXIT_SIGNAL'], snapshot: snapshot };
+}
+
+function calcSemiHeatMap(spySnap, qqqSnap, smhSnap, soxxSnap) {
+  var snaps = { SPY: spySnap, QQQ: qqqSnap, SMH: smhSnap, SOXX: soxxSnap };
+  var semi = [smhSnap, soxxSnap].filter(function(s) { return s && s.ok; });
+  var bases = [spySnap, qqqSnap].filter(function(s) { return s && s.ok; });
+  if (!semi.length || !bases.length) return { state: 'DATA_INSUFFICIENT', score: 0, flags: [], snapshots: snaps };
+  var semiGain = _statMean(semi.map(function(s) { return s.dayGainPct || 0; }));
+  var baseGain = _statMean(bases.map(function(s) { return s.dayGainPct || 0; }));
+  var semiExt = Math.max.apply(null, semi.map(function(s) { return s.dist50Atr === null ? -999 : s.dist50Atr; }));
+  var semiRsi = Math.max.apply(null, semi.map(function(s) { return s.rsi14 === null ? 0 : s.rsi14; }));
+  var semiRvol = Math.max.apply(null, semi.map(function(s) { return s.rvol20 === null ? 0 : s.rvol20; }));
+  var score = 0, flags = [];
+  if (semiGain - baseGain >= 1) { score += 15; flags.push('SEMI_RS_OUTPERFORMING_INDEXES'); }
+  if (semiExt >= 3) { score += 18; flags.push('SEMI_50SMA_PLUS_3ATR'); }
+  if (semiExt >= 4) { score += 20; flags.push('SEMI_50SMA_PLUS_4ATR'); }
+  if (semiExt >= 6) { score += 22; flags.push('SEMI_50SMA_PLUS_6ATR_MANIA'); }
+  if (semiRsi >= 80) { score += 15; flags.push('SEMI_RSI_80_PLUS'); }
+  if (semiRsi >= 85) { score += 12; flags.push('SEMI_RSI_85_PLUS'); }
+  if (semiRvol >= 2) { score += 10; flags.push('SEMI_RVOL_2_PLUS'); }
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return { state: score >= 70 ? 'SEMI_MANIA' : score >= 40 ? 'SEMI_HEATED' : 'NORMAL', score: score, flags: flags, relativeStrengthPct: semiGain - baseGain, semiGainPct: semiGain, baseGainPct: baseGain, maxDist50Atr: semiExt === -999 ? null : semiExt, maxRsi: semiRsi, maxRvol: semiRvol, snapshots: snaps };
+}
+
+function calcExitPlan(snapshot, sellPressure, regime) {
+  snapshot = snapshot || {};
+  sellPressure = sellPressure || { action: 'HOLD_CORE', score: 0, flags: [] };
+  var action = sellPressure.action || 'HOLD_CORE';
+  var atr = snapshot.atr14 || 0;
+  var price = snapshot.price || 0;
+  var stopTrading = snapshot.ema10 || (atr ? price - atr * 1.5 : null);
+  var stopSwing = snapshot.ema21 || (atr ? price - atr * 2.5 : null);
+  var thesis = snapshot.sma50 || (atr ? price - atr * 4 : null);
+  var map = { HOLD_CORE: 'Core keeps riding. No forced sell signal; keep normal position sizing.', NO_ADD_RAISE_STOP: 'Do not add here. Raise stops and let the extended trend prove itself.', TRIM_25_33: 'Trim the trading lot by 25-33% or harvest enough to reduce emotional risk.', TRIM_50: 'Reduce roughly half of the swing/trading exposure unless a fresh base forms.', EXIT_OR_HEDGE: 'Exit the tactical lot or hedge. Core exposure only if thesis and timeframe justify it.' };
+  return {
+    action: action, score: sellPressure.score || 0, regime: regime || 'REGIME_UNKNOWN', primary: map[action],
+    tradingLot: stopTrading ? 'Trading stop: close below 10EMA near ' + stopTrading.toFixed(2) : 'Trading stop unavailable',
+    swingLot: stopSwing ? 'Swing stop: close below 21EMA near ' + stopSwing.toFixed(2) : 'Swing stop unavailable',
+    thesisLine: thesis ? 'Thesis line: 50SMA near ' + thesis.toFixed(2) : 'Thesis line unavailable',
+    levels: [{ label: 'Current', value: price || null }, { label: '10EMA', value: snapshot.ema10 || null }, { label: '21EMA', value: snapshot.ema21 || null }, { label: '50SMA', value: snapshot.sma50 || null }, { label: '20D high', value: snapshot.recentHigh20 || null }, { label: '20D low', value: snapshot.recentLow20 || null }],
+    beginner: 'RSI 70+ can stay hot in lockout rallies. The sell decision comes from extension plus failed closes: weak close after high-volume surge, upper-band re-entry, or 10/21/50-day line breaks.'
+  };
+}
+
+var FRESHNESS_POLICY = {
+  quote: { freshMs: 2 * 60 * 1000, staleMs: 10 * 60 * 1000, hardStaleMs: 30 * 60 * 1000, label: 'Live quote' },
+  quote_afterhours: { freshMs: 10 * 60 * 1000, staleMs: 60 * 60 * 1000, hardStaleMs: 24 * 60 * 60 * 1000, label: 'After-hours quote' },
+  macro_daily: { freshMs: 24 * 60 * 60 * 1000, staleMs: 7 * 24 * 60 * 60 * 1000, hardStaleMs: 30 * 24 * 60 * 60 * 1000, label: 'Daily macro' },
+  macro_monthly: { freshMs: 7 * 24 * 60 * 60 * 1000, staleMs: 45 * 24 * 60 * 60 * 1000, hardStaleMs: 90 * 24 * 60 * 60 * 1000, label: 'Monthly macro' },
+  news: { freshMs: 15 * 60 * 1000, staleMs: 4 * 60 * 60 * 1000, hardStaleMs: 24 * 60 * 60 * 1000, label: 'News' },
+  technical: { freshMs: 15 * 60 * 1000, staleMs: 60 * 60 * 1000, hardStaleMs: 24 * 60 * 60 * 1000, label: 'Technical' },
+  breadth: { freshMs: 15 * 60 * 1000, staleMs: 60 * 60 * 1000, hardStaleMs: 24 * 60 * 60 * 1000, label: 'Breadth' },
+  sentiment: { freshMs: 30 * 60 * 1000, staleMs: 6 * 60 * 60 * 1000, hardStaleMs: 24 * 60 * 60 * 1000, label: 'Sentiment' },
+  option: { freshMs: 30 * 60 * 1000, staleMs: 24 * 60 * 60 * 1000, hardStaleMs: 7 * 24 * 60 * 60 * 1000, label: 'Options' },
+  kr_supply: { freshMs: 15 * 60 * 1000, staleMs: 2 * 60 * 60 * 1000, hardStaleMs: 24 * 60 * 60 * 1000, label: 'KR supply' },
+  static_snapshot: { freshMs: 24 * 60 * 60 * 1000, staleMs: 72 * 60 * 60 * 1000, hardStaleMs: 7 * 24 * 60 * 60 * 1000, label: 'Static snapshot' },
+  static_memo: { freshMs: 7 * 24 * 60 * 60 * 1000, staleMs: 30 * 24 * 60 * 60 * 1000, hardStaleMs: 90 * 24 * 60 * 60 * 1000, label: 'Static memo' },
+  manual: { freshMs: 24 * 60 * 60 * 1000, staleMs: 7 * 24 * 60 * 60 * 1000, hardStaleMs: 30 * 24 * 60 * 60 * 1000, label: 'Manual' },
+  estimated: { freshMs: 0, staleMs: 0, hardStaleMs: 0, label: 'Estimated' },
+  unknown: { freshMs: 60 * 60 * 1000, staleMs: 24 * 60 * 60 * 1000, hardStaleMs: 7 * 24 * 60 * 60 * 1000, label: 'Unknown' }
+};
+
+function _aioMetricTs(ts) {
+  if (ts == null) return Date.now();
+  if (typeof ts === 'number') return ts > 1e12 ? ts : ts * 1000;
+  var parsed = Date.parse(ts);
+  return isFinite(parsed) ? parsed : Date.now();
+}
+
+function evaluateMetric(metric, now) {
+  metric = metric || {};
+  now = now || Date.now();
+  var policyKey = metric.policyKey || 'unknown';
+  var policy = FRESHNESS_POLICY[policyKey] || FRESHNESS_POLICY.unknown;
+  var ts = _aioMetricTs(metric.ts || metric.timestamp || metric.updatedAt);
+  var source = (metric.source || 'unknown').toString();
+  var ageMs = Math.max(0, now - ts);
+  var freshness = 'fresh';
+  var reason = [];
+  if (/snapshot|static/i.test(source) || policyKey === 'static_snapshot' || policyKey === 'static_memo') { freshness = 'static'; reason.push('static_source'); }
+  else if (/manual/i.test(source) || policyKey === 'manual') { freshness = 'manual'; reason.push('manual_source'); }
+  else if (/estimated/i.test(source) || policyKey === 'estimated') { freshness = 'estimated'; reason.push('estimated_value'); }
+  else if (/fallback/i.test(source)) { freshness = 'fallback'; reason.push('fallback_source'); }
+  else if (ageMs <= policy.freshMs) freshness = 'live';
+  else if (ageMs <= policy.staleMs) freshness = 'delayed';
+  else if (ageMs <= policy.hardStaleMs) freshness = 'stale';
+  else freshness = 'hard_stale';
+  if (metric.error || metric.missing) { freshness = 'fallback'; reason.push('error_or_missing'); }
+  var confidence = 'high';
+  if (freshness === 'delayed' || freshness === 'static' || freshness === 'manual') confidence = 'medium';
+  if (freshness === 'stale' || freshness === 'fallback' || freshness === 'estimated') confidence = 'low';
+  if (freshness === 'hard_stale') confidence = 'low';
+  return Object.assign({}, metric, { ts: ts, policyKey: policyKey, ageMs: ageMs, freshness: freshness, confidence: confidence, stale: freshness === 'stale' || freshness === 'hard_stale', hardStale: freshness === 'hard_stale', reason: reason.length ? reason : (metric.reason ? [].concat(metric.reason) : []) });
+}
+
+function makeMetric(value, source, ts, policyKey, meta) {
+  var metric = Object.assign({}, meta || {}, { value: value, source: source || 'unknown', ts: _aioMetricTs(ts), policyKey: policyKey || 'unknown' });
+  return evaluateMetric(metric);
+}
+
+function calcDataQuality(input) {
+  var q = (input && typeof input === 'object') ? Object.assign({}, input) : { source: input };
+  if (q && (q.value !== undefined || q.policyKey)) {
+    var evaluated = evaluateMetric(q);
+    return {
+      source: evaluated.source || 'unknown',
+      timestamp: evaluated.ts,
+      ageMs: evaluated.ageMs,
+      freshness: String(evaluated.freshness || 'unknown').toUpperCase(),
+      confidence: evaluated.confidence === 'high' ? 90 : evaluated.confidence === 'medium' ? 65 : 35,
+      label: evaluated.confidence === 'high' ? 'HIGH' : evaluated.confidence === 'medium' ? 'MEDIUM' : 'LOW',
+      stale: !!evaluated.stale,
+      reason: evaluated.reason || []
+    };
+  }
+  var source = (q.source || q.provider || q.name || 'unknown').toString();
+  var now = Date.now();
+  var ts = q.timestamp || q.ts || q.updatedAt || q.asOf || null;
+  var ageMs = null;
+  if (ts) {
+    var t = typeof ts === 'number' ? ts : Date.parse(ts);
+    if (isFinite(t)) ageMs = Math.max(0, now - t);
+  }
+  var rows = Number(q.rows || q.bars || q.count || 0);
+  var stale = q.stale === true || q.isStale === true;
+  var lower = source.toLowerCase();
+  var confidence = 70;
+  var freshness = 'UNKNOWN';
+  var reason = [];
+  if (lower.indexOf('static') >= 0 || lower.indexOf('demo') >= 0 || lower.indexOf('fallback-empty') >= 0) {
+    confidence = 25; freshness = 'FALLBACK'; reason.push('fallback_source');
+  } else if (lower.indexOf('fallback') >= 0 || lower.indexOf('yahoo') >= 0 || lower.indexOf('stooq') >= 0 || lower.indexOf('naver') >= 0) {
+    confidence = 62; freshness = 'DELAYED_OR_FALLBACK'; reason.push('secondary_source');
+  } else if (lower.indexOf('twelve') >= 0 || lower.indexOf('finnhub') >= 0 || lower.indexOf('fmp') >= 0) {
+    confidence = 82; freshness = 'PRIMARY'; reason.push('primary_source');
+  }
+  if (rows > 0 && rows < 20) { confidence -= 25; reason.push('thin_history'); }
+  if (rows >= 120) { confidence += 6; reason.push('deep_history'); }
+  if (ageMs !== null) {
+    if (ageMs > 24 * 60 * 60 * 1000) { confidence -= 20; freshness = 'STALE'; stale = true; reason.push('stale_age'); }
+    else if (ageMs > 20 * 60 * 1000 && freshness === 'PRIMARY') { confidence -= 8; freshness = 'DELAYED'; reason.push('delayed_age'); }
+    else if (freshness === 'UNKNOWN') freshness = 'FRESH';
+  }
+  if (q.error || q.missing) { confidence -= 30; reason.push('error_or_missing'); }
+  confidence = Math.max(0, Math.min(100, Math.round(confidence)));
+  var label = confidence >= 80 ? 'HIGH' : confidence >= 55 ? 'MEDIUM' : confidence >= 30 ? 'LOW' : 'FALLBACK';
+  return { source: source, timestamp: ts || null, ageMs: ageMs, freshness: freshness, confidence: confidence, label: label, stale: stale, reason: reason };
+}
+
+window.FRESHNESS_POLICY = FRESHNESS_POLICY;
+window.makeMetric = makeMetric;
+window.evaluateMetric = evaluateMetric;
+
+function calcAIInfraHeat(basketSnaps, qqqSnap, spySnap) {
+  var snaps = basketSnaps || {};
+  if (Array.isArray(snaps)) {
+    snaps = snaps.reduce(function(acc, s, i) { acc['AI' + i] = s; return acc; }, {});
+  }
+  var vals = Object.keys(snaps).map(function(k) {
+    var s = snaps[k];
+    return s && s.ok ? Object.assign({ symbol: k }, s) : null;
+  }).filter(Boolean);
+  if (!vals.length) return { state: 'DATA_INSUFFICIENT', score: 0, flags: [], count: 0 };
+  var base = [qqqSnap, spySnap].filter(function(s) { return s && s.ok; });
+  var baseGain = base.length ? _statMean(base.map(function(s) { return s.dayGainPct || 0; })) : 0;
+  var avgGain = _statMean(vals.map(function(s) { return s.dayGainPct || 0; }));
+  var maxExt = Math.max.apply(null, vals.map(function(s) { return s.dist50Atr === null ? -999 : s.dist50Atr; }));
+  var maxRsi = Math.max.apply(null, vals.map(function(s) { return s.rsi14 === null ? 0 : s.rsi14; }));
+  var maxRvol = Math.max.apply(null, vals.map(function(s) { return s.rvol20 === null ? 0 : s.rvol20; }));
+  var overheatCount = vals.filter(function(s) { return (s.dist50Atr || 0) >= 3 || (s.rsi14 || 0) >= 80; }).length;
+  var score = 0, flags = [];
+  if (avgGain - baseGain >= 1) { score += 15; flags.push('AI_INFRA_RS_OUTPERFORMING_INDEXES'); }
+  if (maxExt >= 3) { score += 16; flags.push('AI_INFRA_50SMA_PLUS_3ATR'); }
+  if (maxExt >= 4) { score += 16; flags.push('AI_INFRA_50SMA_PLUS_4ATR'); }
+  if (maxExt >= 6) { score += 20; flags.push('AI_INFRA_50SMA_PLUS_6ATR_MANIA'); }
+  if (maxRsi >= 80) { score += 12; flags.push('AI_INFRA_RSI_80_PLUS'); }
+  if (maxRsi >= 85) { score += 10; flags.push('AI_INFRA_RSI_85_PLUS'); }
+  if (maxRvol >= 2) { score += 8; flags.push('AI_INFRA_RVOL_2_PLUS'); }
+  if (overheatCount >= Math.max(2, Math.ceil(vals.length * 0.35))) { score += 12; flags.push('AI_INFRA_BREADTH_OVERHEATED'); }
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return { state: score >= 70 ? 'AI_INFRA_MANIA' : score >= 40 ? 'AI_INFRA_HEATED' : 'NORMAL', score: score, flags: flags, count: vals.length, overheatCount: overheatCount, relativeStrengthPct: avgGain - baseGain, avgGainPct: avgGain, baseGainPct: baseGain, maxDist50Atr: maxExt === -999 ? null : maxExt, maxRsi: maxRsi, maxRvol: maxRvol, snapshots: snaps };
+}
+
+function calcPositionTechnicalRisk(position, ohlcvOrSnapshot, portfolioContext) {
+  position = position || {};
+  portfolioContext = portfolioContext || {};
+  var snapshot = ohlcvOrSnapshot && ohlcvOrSnapshot.ok !== undefined ? ohlcvOrSnapshot : calcTechnicalSnapshot(ohlcvOrSnapshot || []);
+  var sellPressure = calcSellPressure(snapshot, portfolioContext);
+  var qty = Number(position.qty || position.shares || 0);
+  var cost = Number(position.cost || position.avgCost || 0);
+  var px = Number(position.price || position.currentPrice || (snapshot && snapshot.price) || 0);
+  var value = qty * (px || cost || 0);
+  var totalValue = Number(portfolioContext.totalValue || 0);
+  var weightPct = totalValue > 0 ? (value / totalValue) * 100 : Number(position.weightPct || 0);
+  var pnlPct = cost > 0 && px > 0 ? ((px - cost) / cost) * 100 : null;
+  var concentrationPenalty = weightPct >= 25 ? 18 : weightPct >= 15 ? 10 : weightPct >= 10 ? 5 : 0;
+  var score = Math.max(0, Math.min(100, Math.round((sellPressure.score || 0) + concentrationPenalty)));
+  var action = score >= 75 ? 'EXIT_OR_HEDGE' : score >= 58 ? 'TRIM_50' : score >= 38 ? 'TRIM_25_33' : score >= 18 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
+  var flags = (sellPressure.flags || []).slice();
+  if (concentrationPenalty) flags.push('POSITION_CONCENTRATION_' + Math.round(weightPct) + 'PCT');
+  return { ticker: (position.ticker || position.symbol || '').toString().toUpperCase(), score: score, action: action, weightPct: weightPct, pnlPct: pnlPct, value: value, snapshot: snapshot, sellPressure: sellPressure, flags: flags, dataQuality: position.dataQuality || null };
+}
+
+function calcPortfolioTechnicalRisk(positions, riskItems, context) {
+  positions = positions || [];
+  riskItems = riskItems || [];
+  context = context || {};
+  if (!positions.length) return { state: 'EMPTY', heatScore: 0, action: 'HOLD_CORE', items: [] };
+  var totalValue = Number(context.totalValue || positions.reduce(function(s, p) {
+    return s + Number(p.value || (Number(p.qty || 0) * Number(p.price || p.cost || 0)) || 0);
+  }, 0));
+  var items = riskItems.map(function(item) {
+    if (item && item.action && item.score !== undefined) return item;
+    return calcPositionTechnicalRisk(item, item && item.snapshot, { totalValue: totalValue });
+  });
+  var avg = items.length ? _statMean(items.map(function(i) { return i.score || 0; })) : 0;
+  var max = items.length ? Math.max.apply(null, items.map(function(i) { return i.score || 0; })) : 0;
+  var topWeight = items.length ? Math.max.apply(null, items.map(function(i) { return i.weightPct || 0; })) : 0;
+  var heatScore = Math.max(0, Math.min(100, Math.round(avg * 0.45 + max * 0.35 + Math.min(100, topWeight * 2) * 0.20)));
+  var action = heatScore >= 75 ? 'EXIT_OR_HEDGE' : heatScore >= 58 ? 'TRIM_50' : heatScore >= 38 ? 'TRIM_25_33' : heatScore >= 18 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
+  var state = heatScore >= 75 ? 'PORTFOLIO_HEAT_EXTREME' : heatScore >= 58 ? 'PORTFOLIO_HEAT_HIGH' : heatScore >= 38 ? 'PORTFOLIO_HEAT_ELEVATED' : 'PORTFOLIO_HEAT_NORMAL';
+  return { state: state, heatScore: heatScore, action: action, items: items, totalValue: totalValue, topWeightPct: topWeight, avgSellPressure: avg, maxSellPressure: max };
+}
+
+window._calcSMA = _calcSMA;
+window._calcEMA = _calcEMA;
+window._calcEMAFull = _calcEMAFull;
+window._calcATR = _calcATR;
+window._calcRSILast = _calcRSILast;
+window._calcMACD = _calcMACD;
+window._calcBB = _calcBB;
+window._calcRVOL = _calcRVOL;
+window._calcClosePosition = _calcClosePosition;
+window.calcTechnicalSnapshot = calcTechnicalSnapshot;
+window.calcSellPressure = calcSellPressure;
+window.calcSemiHeatMap = calcSemiHeatMap;
+window.calcSemiHeat = calcSemiHeatMap;
+window.calcAIInfraHeat = calcAIInfraHeat;
+window.calcExitPlan = calcExitPlan;
+window.calcDataQuality = calcDataQuality;
+window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
+window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
+
+const APP_VERSION = 'v49.4';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -3351,13 +3894,13 @@ window.DATE_ENGINE = (function() {
 
   // stale 임계값 (카테고리별) — 이 값을 기준으로 UI 배지 색상 결정
   var STALE_THRESHOLDS = {
-    quote: 10 * MIN,          // 시세 10분
-    news: 60 * MIN,           // 뉴스 1시간
-    sentiment: 30 * MIN,      // 센티먼트 30분
-    macro: 7 * DAY,           // 거시지표 7일
+    quote: (window.FRESHNESS_POLICY && window.FRESHNESS_POLICY.quote && window.FRESHNESS_POLICY.quote.staleMs) || 10 * MIN,
+    news: (window.FRESHNESS_POLICY && window.FRESHNESS_POLICY.news && window.FRESHNESS_POLICY.news.staleMs) || 60 * MIN,
+    sentiment: (window.FRESHNESS_POLICY && window.FRESHNESS_POLICY.sentiment && window.FRESHNESS_POLICY.sentiment.staleMs) || 30 * MIN,
+    macro: (window.FRESHNESS_POLICY && window.FRESHNESS_POLICY.macro_daily && window.FRESHNESS_POLICY.macro_daily.staleMs) || 7 * DAY,
     report: 7 * DAY,          // 애널리스트 리포트 7일
     earnings: 90 * DAY,       // 실적 분기
-    snapshot: 24 * HR,        // DATA_SNAPSHOT 24시간
+    snapshot: (window.FRESHNESS_POLICY && window.FRESHNESS_POLICY.static_snapshot && window.FRESHNESS_POLICY.static_snapshot.staleMs) || 72 * HR,
     unknown: 24 * HR
   };
 
@@ -3730,10 +4273,12 @@ window.AIO.getLiveCoverage = function(requiredSymbols) {
   var now = Date.now();
   required.forEach(function(sym) {
     var s = sources[sym];
-    var isLive = !!(s && s.source && s.source !== 'snapshot' && s.source.indexOf('fallback') === -1);
+    var metric = s && (s.metric || { value: null, source: s.source, ts: s.ts, policyKey: s.policyKey || 'quote' });
+    var q = (typeof evaluateMetric === 'function' && metric) ? evaluateMetric(metric) : null;
+    var isLive = !!(s && s.source && s.source !== 'snapshot' && s.source.indexOf('fallback') === -1 && (!q || q.freshness !== 'hard_stale'));
     if (isLive) {
       live.push(sym);
-      if (s.ts && now - s.ts > 30 * 60 * 1000) stale.push(sym);
+      if ((q && q.stale) || (!q && s.ts && now - s.ts > 30 * 60 * 1000)) stale.push(sym);
     } else {
       missing.push(sym);
     }
@@ -3760,12 +4305,15 @@ window.AIO.getDataFreshnessAudit = function() {
   try { priceHealth = window.PriceStore && typeof window.PriceStore.health === 'function' ? window.PriceStore.health() : null; } catch(_p) {}
   var macroHealth = null;
   try { macroHealth = window.MacroStore && typeof window.MacroStore.health === 'function' ? window.MacroStore.health() : null; } catch(_m) {}
+  var snapshotHealth = null;
+  try { snapshotHealth = window.SnapshotStore && typeof window.SnapshotStore.health === 'function' ? window.SnapshotStore.health() : null; } catch(_s) {}
   var effectiveFallback = (snap._isFallback !== false) && !(liveCoverage && liveCoverage.coreOk);
   var issues = [];
   if (snapshotAgeHours !== null && snapshotAgeHours > 24 && effectiveFallback) issues.push('fallback snapshot older than 24h');
   if (!liveCoverage.coreOk) issues.push('core live quote coverage incomplete');
   if (priceHealth && priceHealth.stale > 0) issues.push(priceHealth.stale + ' stale live price(s)');
   if (macroHealth && macroHealth.stale > 0) issues.push(macroHealth.stale + ' stale macro series');
+  if (snapshotHealth && snapshotHealth.hardStale > 0 && effectiveFallback) issues.push(snapshotHealth.hardStale + ' hard-stale snapshot seed(s)');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -3778,6 +4326,58 @@ window.AIO.getDataFreshnessAudit = function() {
     liveCoverage: liveCoverage,
     priceHealth: priceHealth,
     macroHealth: macroHealth,
+    snapshotHealth: snapshotHealth,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.auditAllFreshness = function(pageId) {
+  var pageSymbols = {
+    home: ['^GSPC','^IXIC','^VIX','CL=F','GC=F','KRW=X'],
+    signals: ['SPY','QQQ','IWM','^VIX'],
+    breadth: ['^GSPC','^IXIC','^RUT'],
+    sentiment: ['^VIX','SPY','QQQ'],
+    briefing: ['^GSPC','^IXIC','^VIX','CL=F','GC=F','KRW=X','^KS11'],
+    technical: ['SPY','QQQ','SMH','SOXX','^VIX'],
+    macro: ['DX-Y.NYB','^TNX','^VIX'],
+    fx: ['KRW=X','DX-Y.NYB','^TNX'],
+    fundamental: ['SPY','QQQ'],
+    themes: ['SMH','SOXX','QQQ','SPY'],
+    portfolio: [],
+    detail: [],
+    options: ['SPY','QQQ','^VIX'],
+    korea: ['^KS11','^KQ11','KRW=X'],
+    glossary: []
+  };
+  var required = pageSymbols[pageId] || window.AIO.CORE_LIVE_SYMBOLS || [];
+  var coverage = window.AIO.getLiveCoverage(required);
+  var freshness = window.AIO.getDataFreshnessAudit();
+  var metrics = [];
+  Object.keys(window._dataSource || {}).forEach(function(sym) {
+    var s = window._dataSource[sym] || {};
+    var q = (typeof evaluateMetric === 'function') ? evaluateMetric(s.metric || { source: s.source, ts: s.ts, policyKey: s.policyKey || 'quote' }) : s;
+    metrics.push({ symbol: sym, source: s.source || 'unknown', freshness: q && q.freshness || 'unknown', stale: !!(q && q.stale), hardStale: !!(q && q.hardStale), pctMissing: !!s.pctMissing });
+  });
+  var stale = metrics.filter(function(m) { return m.stale || m.hardStale; });
+  var missingPct = metrics.filter(function(m) { return m.pctMissing; });
+  var scheduler = {};
+  try {
+    if (typeof REFRESH_SCHEDULE !== 'undefined') {
+      Object.keys(REFRESH_SCHEDULE).forEach(function(k) {
+        var cfg = REFRESH_SCHEDULE[k] || {};
+        scheduler[k] = { nextDue: cfg.nextDue || 0, lastRunStart: cfg.lastRunStart || 0, lastRunEnd: cfg.lastRunEnd || 0, lastDurationMs: cfg.lastDurationMs || 0, retryCount: cfg.retryCount || 0, priority: cfg.priority || 'normal', timeoutMs: cfg.timeoutMs || 0, policyKey: cfg.policyKey || null, inFlight: !!cfg._inFlight, lastErr: cfg._lastErr || '' };
+      });
+    }
+  } catch(_) {}
+  return {
+    pageId: pageId || 'all',
+    status: (coverage.coreOk && !stale.length) ? 'ok' : 'warn',
+    requiredSymbols: required.slice(),
+    coverage: coverage,
+    freshness: freshness,
+    staleMetrics: stale,
+    pctMissingSymbols: missingPct.map(function(m) { return m.symbol; }),
+    scheduler: scheduler,
     generatedAt: new Date().toISOString()
   };
 };
@@ -4135,33 +4735,33 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v48.76: _updated → 금요일 2026-05-01 장마감 시각 (목요일 5/1 종가 기준, 미국 장 정상 운영)
-  _updated: '2026-05-01T16:00:00-04:00',   // 폴백 스냅샷 = 직전 영업일 장마감 (미동부 4PM)
-  _snapshotDate: '2026-05-01',               // v48.76: 정적 폴백 기준일 (data-snap-date 동적 바인딩 소스)
+  _updated: '2026-05-08T16:00:00-04:00',   // v49.4 static fallback snapshot, US close
+  _snapshotDate: '2026-05-08',
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v48.76 — /data-refresh WebSearch 실측 (2026-05-01 목요일 장마감 기준): SPX 7230.12 (+0.29%) · NASDAQ 25114.44 (신고가+0.89%) · VIX 16.99(-4.71%, 위험선호 지속) · WTI $105.07 (상단 공고, 호르무즈 잔존) · Brent $114.01 · Gold ~$4,546 (지지, -2.2%) · KOSPI 6598.8(4/30 -1.38%, 장중 ATH 6750→급락. 5/1 노동절 휴장) · KOSDAQ 1192.35(4/30 -2.29%) · KRW 1471.02(원화 강세, -0.14%). AAII(4/29) Bull 38.1%/Bear 39.7%. NAAIM 94.15(4/22, 강세). F&G ~70(탐욕). v48.76 /data-refresh.',
+  _note: 'v49.4 WebSearch refresh (2026-05-08 close): SPX 7398.93 (+0.8%) · NASDAQ 26247.08 (+1.7%) · Dow 49609.16 (+0.0%) · Russell 2000 2861.21 (+0.8%) · VIX spot 17.19 (+0.64%) / front future ~19.15 · WTI 97.66 (+2.71%) · Gold 4696.00 (+0.04%) · KOSPI 6719.81 (+0.68%) · KOSDAQ 1250.15 (+0.77%) · USD/KRW 1406.65 (-0.20%) · CNN F&G 68 greed · AAII latest reported Bull 38.3% / Bear 33.0%. Static fallback only; live stores override when available.',
 
   // ── 미국 주요 지수 (4/30 목 종가 WebSearch 실측) ──
-  spx:        7230.12,  spxPct:    +0.29,   // v48.76: 5/1 SPX 7230.12 (실적 랠리 지속, NASDAQ 신고가)
-  nasdaq:    25114.44,  nasdaqPct: +0.89,   // v48.76: 5/1 NASDAQ 25114.44 (신고가, 5거래일 연속 상승)
-  dow:       49652.14,  dowPct:    +1.62,   // v48.71: 4/30 Dow 49652.14
-  rut:        2755.99,  rutPct:    +0.15,   // v48.70: 4/28 Russell 2000 (미갱신)
-  vix:          16.99,  vixPct:    -4.71,   // v48.76: 5/1 VIX 16.99 (위험선호 지속, 어닝 낙관)
+  spx:        7398.93,  spxPct:    +0.84,   // v49.4: AP 2026-05-08 close
+  nasdaq:    26247.08,  nasdaqPct: +1.71,   // v49.4: AP 2026-05-08 close
+  dow:       49609.16,  dowPct:    +0.02,   // v49.4: AP 2026-05-08 close
+  rut:        2861.21,  rutPct:    +0.76,   // v49.4: AP 2026-05-08 close
+  vix:          17.19,  vixPct:    +0.64,   // v49.4: Cboe 2026-05-08 spot
   vvix:         88.20,                        // v48.70: VVIX (미갱신)
 
   // ── 한국 지수 (4/30 WebSearch 실측) ──
-  kospi:     6598.80,  kospiPct:  -1.38,  kospiPrev: 6691.00,  // v48.76: 4/30 KOSPI 6598.8(-1.38%, 장중 ATH 6750.27→급락. 5/1 노동절 휴장)
-  kosdaq:    1192.35,  kosdaqPct: -2.29,  kosdaqPrev: 1217.12, // v48.76: 4/30 KOSDAQ 1192.35(-2.29%, 과열 우려 차익실현)
+  kospi:     6719.81,  kospiPct:  +0.68,  kospiPrev: 6674.72,  // v49.4: Finhacker 2026-05-08 close
+  kosdaq:    1250.15,  kosdaqPct: +0.77,  kosdaqPrev: 1240.65, // v49.4: Finhacker 2026-05-08 close
 
   // ── 원자재 (4/30 WebSearch 실측 — 호르무즈 에스컬레이션, Brent 장중 $126 전시 최고가) ──
-  wti:     105.07,   wtiPct:   +5.10,   // v48.71: 4/30 WTI $105.07 (+5.1%, 이란 혁명수비대 봉쇄 무기화 격화)
-  brent:   114.01,   brentPct: +2.47,   // v48.71: 4/30 Brent $114.01 (장중 $126 전시 최고가 기록)
-  gold:     4546,    goldPct:  -2.23,  goldWeeklyPct: -2.2,  // v48.76: 5/1 Gold ~$4,546 (기술적 지지선, 유가 하단 안정화 연동)
+  wti:      97.66,   wtiPct:   +2.71,   // v49.4: Yahoo Finance delayed snapshot
+  brent:   103.40,   brentPct: +2.10,   // v49.4: static fallback estimate; live quote preferred
+  gold:     4696,    goldPct:  +0.04,  goldWeeklyPct: +3.2,  // v49.4: Yahoo Finance delayed snapshot
   ng:       3.05,                         // 천연가스 소폭 상승 (공급 우려)
 
   // ── 환율 (4/30 WebSearch 실측) ──
-  krw:      1471.02,  krwPct:   -0.14,  krwRound: 1471,  // v48.76: KRW 5/1 1471.02 (원화 강세 지속, USD/KRW -0.21%)
-  dxy:        98.70,  dxyPct:   +0.46,                   // v48.70: DXY (미갱신)
+  krw:      1406.65,  krwPct:   -0.20,  krwRound: 1407,  // v49.4: MarketWatch USD/KRW snapshot
+  dxy:       110.29,  dxyPct:   +0.16,                   // v49.4: Yahoo Finance DXY delayed snapshot
 
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
@@ -4228,7 +4828,7 @@ const DATA_SNAPSHOT = {
   nandContract_QoQ_2Q26: 73,
   nandContract_YoY_2Q26: 362,
   // ── v48.71 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
-  aaiiBear:        39.7,     // AAII Bearish % (2026-04-29 설문, 5/1 발표 — 지정학 우려로 비관 급반등)
+  aaiiBear:        33.0,     // v49.4: AAII/MarketWatch latest weekly report
 
   // ── 글로벌 지수 (GMO 테이블용, 4/30 종가) ──
   nikkei:    59284,    nikkeiPct:  -1.06,
@@ -4239,15 +4839,15 @@ const DATA_SNAPSHOT = {
   cac:        7950,    cacPct:     +1.50,
 
   // ── 크립토·추가 원자재 (4/30 종가) ──
-  btc:       76316,    btcPct:    +2.73,   // v48.71: BTC $76,316 (4/30 close, 위험선호 회복 + 실적 랠리 동조)
-  eth:        2265,    ethPct:    -4.35,   // v48.71: ETH $2,265 (4/30 close, BTC 대비 상대 약세)
+  btc:       79893,    btcPct:    -2.02,   // v49.4: Yahoo Finance delayed snapshot
+  eth:        2390,    ethPct:    -1.80,   // v49.4: static fallback estimate; live crypto source preferred
   silver:     71.50,   silverPct: +2.64,
 
   // ── 리스크 지표 (4/17 추정 — 위험선호 지속으로 소폭 완화) ──
   move:        65.30,   moveChg: +1.80,  // v48.70: MOVE 4/28 채권 변동성 소폭 상승 (CPI 3.3% + FOMC 경계)
   skew:       142.50,   skewChg: +1.28,  // v48.70: SKEW 4/28 꼬리헤지 소폭 증가 (WTI $100 + 지정학)
   vvix_live:   88.20,   vvixChg: +0.57,  // v48.70: VVIX 4/28 소폭 상승 (VIX 상승 동반)
-  fg:            70,   fgLabel: '탐욕',  // v48.76: CNN F&G 5/1 ~70 (탐욕 구간, 실적 랠리·NASDAQ 신고가 동반)
+  fg:            68,   fgLabel: 'Greed',  // v49.4: CNN/Finhacker 2026-05-07 current value
   fg_uw:         74,   fg_uwLabel: '탐욕', // v48.70: UW 확장 F&G 4/28 추정 74
 
   // ── v47.2: F&G 카테고리·지표별 분해 (Unusual Whales 4/15) ──
@@ -5301,12 +5901,19 @@ function applyDataSnapshot() {
       // v34.6: 한국 채권·변동성 fallback
       'VKOSPI': { price: S.vkospi, pct: null },
     };
+    if (window.SnapshotStore && typeof window.SnapshotStore.seedFromMap === 'function') {
+      window.SnapshotStore.seedFromMap(snapSymMap, snapTs, { snapshotDate: S._snapshotDate, note: S._note });
+    }
     window._liveData = window._liveData || {};
     for (const [sym, val] of Object.entries(snapSymMap)) {
       if (val.price != null && !window._dataSource[sym]) {
         // 실시간 데이터가 아직 없는 심볼만 seed
-        window._liveData[sym] = window._liveData[sym] || { price: val.price, pct: val.pct != null ? val.pct : null, pctMissing: val.pct == null };
-        window._dataSource[sym] = { source: 'snapshot', ts: snapTs, pctMissing: val.pct == null };
+        if (typeof window._aioSetLiveData === 'function') {
+          window._aioSetLiveData(sym, val, { source: 'snapshot', ts: snapTs, policyKey: 'static_snapshot', reason: 'DATA_SNAPSHOT fallback seed' });
+        } else {
+          window._liveData[sym] = window._liveData[sym] || { price: val.price, pct: val.pct != null ? val.pct : null, pctMissing: val.pct == null, source: 'snapshot', ts: snapTs };
+          window._dataSource[sym] = { source: 'snapshot', ts: snapTs, pctMissing: val.pct == null, policyKey: 'static_snapshot' };
+        }
       }
     }
 
@@ -5781,6 +6388,9 @@ function _initTechnicalPage() {
   }
   if (typeof updatePatternSignals === 'function') { try { updatePatternSignals(); } catch(e) {} }
   if (typeof updateTechIndicators === 'function') { try { updateTechIndicators(); } catch(e) {} }
+  if (typeof runInstitutionalTechnicalBrief === 'function' && !window._lastTechnicalBrief) {
+    try { runInstitutionalTechnicalBrief(); } catch(e) {}
+  }
   var tvTechC = document.getElementById('tv-widget-technical');
   if (tvTechC && !tvTechC.querySelector('iframe') && typeof loadTVChart === 'function') {
     try { loadTVChart('technical'); } catch(e) {}

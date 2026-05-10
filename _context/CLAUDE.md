@@ -2,15 +2,15 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v49.1
+- **현재 버전**: v49.4
 
-## _context/ 문서 (11개 Git-tracked 활성)
+## _context/ 문서 (13개 Git-tracked 활성)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
 | CLAUDE.md | 이 파일: 구조, hooks, skills, 복리 루프 | 구조 또는 워크플로 변경 시 |
 | RULES.md | 마스터 룰 R1~R29 | 새 규칙/패턴 발견 시 |
-| BUG-POSTMORTEM.md | 버그 사후 분석 P1~P188 (R25 역참조) | 버그 수정 후 |
+| BUG-POSTMORTEM.md | 버그 사후 분석 P1~P191 (R25 역참조) | 버그 수정 후 |
 | QA-CHECKLIST.md | QA 14티어 체크리스트 v3.3 | /qa 발견 시 |
 | KNOWLEDGE-BASE.md | 기술 인사이트 축적 (R26) | 인사이트 발견 시 |
 | CODE-MAP.md | index.html + js 모듈 line 범위 맵 | 리팩토링 ±500줄 |
@@ -19,6 +19,8 @@
 | DEEP-QA-2026-05-05.md | UI/API/페이지 로직 심층 QA 결과 | 심층 QA 또는 live/local parity 변경 |
 | OPERATIONS-AUDIT-2026-05-06.md | 운영 지속성/자체 진단/캐시 회전 점검 | 런타임 또는 배포 운영성 변경 |
 | DATA-PIPELINE-AUDIT-2026-05-06.md | API/소스부터 렌더 sink까지 데이터 파이프라인 레이어 맵 | API/분석/렌더 파이프라인 변경 |
+| ARCHITECTURE-AUDIT-2026-05-10.md | v49.3 전수감사 보고서 기반 아키텍처 보강 요약 | 데이터/함수/리스크 레이어 변경 |
+| DATA-FRESHNESS-AUDIT-2026-05-10.md | v49.4 데이터 최신성/자동 갱신 보강 요약 | freshness policy/source/stale 기준 변경 |
 
 ## 파일 구조
 

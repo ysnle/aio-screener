@@ -1,11 +1,11 @@
 ---
 verified_by: agent
-last_verified: 2026-05-09
+last_verified: 2026-05-10
 confidence: high
-latest_version: v49.1
-latest_P_number: P188
-next_P_number: P189
-total_entries: 188
+latest_version: v49.4
+latest_P_number: P191
+next_P_number: P192
+total_entries: 191
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -22,7 +22,7 @@ total_entries: 188
 
 ### P 번호 체계
 - **P 번호 = 패턴 번호** (예방 규칙 ID). 동일 근본 원인을 가진 버그는 같은 P 번호로 참조.
-- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P189**). 한번 부여된 번호는 재사용 금지.
+- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P192**). 한번 부여된 번호는 재사용 금지.
 - **P 번호 재강화**: 같은 패턴이 재발해도 번호는 유지. "P25 재강화" / "P25 강화" 같은 표현으로 body에 기록.
 - **날짜 구분 원칙**: 과거 중복 P 번호(P26~P33 일부 충돌 존재)는 "날짜 + 버전"으로 구분해서 참조.
 
@@ -55,6 +55,9 @@ total_entries: 188
 
 | P | 도입 버전 | 날짜 | 패턴 요약 |
 |---|-----------|------|-----------|
+| P191 | v49.4 | 2026-05-10 | 데이터 최신성/자동 갱신 거버넌스 부재 — 정적 DATA_SNAPSHOT, live quote, fallback, macro/news stale 기준이 분산되어 폴백값이 실시간처럼 보일 수 있었다. `FRESHNESS_POLICY`, `makeMetric`, `evaluateMetric`, `SnapshotStore`, `_aioSetLiveData`, `AIO.auditAllFreshness()`와 scheduler telemetry, T116~T124 테스트 도입 |
+| P190 | v49.3 | 2026-05-10 | 전수감사 보고서 기준 아키텍처 레이어 부재 — 데이터 품질, 뉴스 영향, 포트폴리오 기술 리스크, AI 인프라 과열이 서로 다른 표준으로 처리되어 화면/AI/리스크 전달성이 떨어짐. `calcDataQuality`/`calcAIInfraHeat`/`calcPositionTechnicalRisk`/`calcPortfolioTechnicalRisk`/`calcNewsImpactVector` 도입 |
+| P189 | v49.2 | 2026-05-09 | 기술분석 모듈 OHLCV 단일 스냅샷 부재 — 메인 기술표는 당일 등락률 간이값, 딥분석은 OHLCV 실제값을 사용해 판단 일관성/청산 실행성이 낮음. `calcTechnicalSnapshot`/`calcSellPressure`/`calcSemiHeatMap`/`calcExitPlan` 도입 |
 | P188 | v49.1 | 2026-05-09 | Claude 통합 후 browser acceptance drift — `_aioLRU.get()` miss 계약(null)과 호출부(undefined check) 불일치로 `fetchAllNews` null.tm 치명 로그, VaR 꼬리 개수 부동소수 경계, DOMPurify 미로드 fallback 이벤트 속성 문자열 잔존, LightweightCharts 내부 canvas 접근성 감사 오탐 |
 | P187 | v49.1 | 2026-05-09 | history.pushState 전역 hijack(monkey-patch) + _fmtNum Infinity 비처리 — popstate 핸들러에서 showPage 중 history.pushState를 function(){}로 교체, finally로 복구. _aioInPopstate 플래그로 대체. _fmtNum(Infinity)→"InfinityT" 오표시. _aioFiniteNum 위임 |
 | P186 | v49.1 | 2026-05-09 | vixToPercentile 80이상 하드캡 99.5 — VIX=85/90 모두 99.5로 동일 표시, 단조증가 파괴. 로그외삽 적용. _aioMemoStaleInfo 3월/11월 DST ±1h 날짜 비교 오류 |
@@ -185,6 +188,8 @@ total_entries: 188
 | **P141** | **v48.69** | **2026-04-28** | **setInterval ID 미저장 재발(aio-core.js:494/1078)**: _aioRenderSnapshotDates·_aioUpdateFreshness 두 타이머 반환값 미저장 → clearInterval 불가 → 탭 반복 전환 시 타이머 누적. window._aioSnapshotDatesTimer·_aioFreshnessTimer 저장 + 재등록 전 clearInterval 선행. R9 4차 강화 |
 | **P142** | **v48.69** | **2026-04-28** | **R15 위반 5건 재발(aio-data.js:8829/8831/9616/9692/9940)**: extPct·F&G 처리에 `\|\| 0` 패턴 → null 미수신 시 "0.00%"/"0 극단공포" 오표시. `!= null ? val : null` 패턴으로 전환. R15 5차 강화 |
 | **P143** | **v48.69** | **2026-04-28** | **_lastFetch 키 불일치 → 포트폴리오 신선도 항상 "대기 중"**: _aioUpdateFreshness()가 `.liveQuotes` 조회, _markFetch()는 `'quote'` 키 저장 → 영구 miss. aio-core.js:1058 — `_lastFetch.quote \|\| _lastFetch.liveQuotes` 양쪽 폴백 조회로 수정 |
+| **P190** | **v49.3** | **2026-05-10** | **전수감사 아키텍처 레이어 불일치**: 함수/데이터 파이프라인/화면/차트/프롬프트/포트폴리오 감사 기준에서 데이터 품질, 뉴스 영향도, AI 인프라 과열, 포지션 기술 리스크가 각각 따로 움직여 최종 화면과 AI 답변의 신뢰도/행동성이 약했다. 수정: `calcDataQuality`, `calcAIInfraHeat`, `calcPositionTechnicalRisk`, `calcPortfolioTechnicalRisk`, `calcNewsImpactVector`를 추가하고 OHLCV fallback에 dataQuality를 붙였으며, 뉴스 impact badge와 포트폴리오 기술 리스크 패널, T108~T115 테스트를 추가했다. 예방: 새 데이터/분석/렌더 기능은 source confidence, stale/fallback, action ladder, portfolio impact를 같은 표준으로 연결한다. violated_rule: R42(실측 교차검증) R32(수치 방어) R1(버전 동기화) |
+| **P189** | **v49.2** | **2026-05-09** | **기술분석 계산 레이어 불일치**: 기술 페이지의 메인 표는 당일 등락률 기반 RSI/MACD/볼린저 간이 추정값을 사용하고, 딥분석은 OHLCV 기반 실제 캔들/MA/RSI를 사용해 같은 페이지 안에서도 판단 근거가 달랐다. 기관형 스크리너 관점의 청산/축소 결론도 부재. 수정: `aio-core.js`에 OHLCV 기반 순수 계산 함수와 `calcTechnicalSnapshot`/`calcSellPressure`/`calcSemiHeatMap`/`calcExitPlan`을 추가하고, `fetchOHLCVWithFallback()`으로 Twelve Data 미연결 시 Yahoo chart fallback을 제공. 기술 페이지 `Institutional Technical Brief`와 AI 프롬프트/action ladder, T103~T107 테스트 추가. 예방: 기술 지표 UI는 가능한 경우 항상 동일 snapshot 엔진을 사용하고, 데이터 미수신 시 graceful fallback과 명시 라벨을 둔다. violated_rule: R32(수치 방어) R42(실측 교차검증) R1(버전 동기화) |
 | **P188** | **v49.1** | **2026-05-09** | **통합 후 브라우저 acceptance drift**: Claude v49.1 통합 뒤 실제 Chrome `AIO.runTests()`가 173/177 PASS로 실패. 원인: `_aioLRU.get()` miss 반환 계약(null)과 `scoreItem`/ticker regex 호출부(undefined check) 불일치 → `fetchAllNews` null.tm 치명 로그, VaR 95% 꼬리 개수 `1-0.95` 부동소수 경계, `_aioSafeMD` fallback이 `onerror` 문자열을 escape만 하고 제거하지 않음, LightweightCharts 내부 canvas가 무라벨로 감사 경고. 수정: `_aioLRU` miss null 계약에 호출부 동기화, conservative historical VaR + epsilon, safeHtml fallback 이벤트/javascript 속성 제거, `_aioMarkChartCanvases` 및 active-page render audit 적용. 예방: 통합 후 실제 브라우저에서 `AIO.runTests()` all-pass, `AIO.getDataPipelineAudit().status === 'ok'`, 콘솔 error 0을 acceptance gate로 둔다. violated_rule: R32(수치 방어) R9(전역 상태) R17(접근성) |
 | **P187** | **v49.1** | **2026-05-09** | **history.pushState 전역 monkey-patch + _fmtNum Infinity**: popstate 핸들러에서 `showPage` 호출 시 `history.pushState = function(){}` 전역 교체 후 finally로 복구 — throw 미발생이지만 동기 전역 변경은 unsafe 패턴. `_aioInPopstate` 플래그로 교체. `_fmtNum(Infinity)`→`"InfinityT"` 오표시: `Math.abs(Infinity)>=1e12` 조건 통과 후 `.toFixed()` 호출. `_aioFiniteNum` 위임으로 수정. violated_rule: R32(수치 방어) R9(전역 상태) |
 | **P186** | **v49.1** | **2026-05-09** | **vixToPercentile 80+ 외삽 미구현 + DST 날짜 비교 오차**: `return 99.5`(하드캡) → VIX=82와 VIX=100이 동일 percentile. 로그외삽(`p=100-0.5*(80/vix)²`)으로 단조증가 구현. `_aioMemoStaleInfo`의 `d.getTime() > Date.now() + 86400000` — 11월 DST fall-back(25h 하루)에서 `25h > 24h`로 true가 되어 미래 날짜를 작년으로 롤백. 3월/11월 ±1h 허용 추가. violated_rule: R32(수치 정확성) |

@@ -42,6 +42,11 @@ const CHAT_CONTEXTS = {
         '• DXY 108+: 다국적 기업 차트 약세 가속(환율 역풍). 내수 기업 상대 우위.\n' +
         '• 미너비니 바닥 3단계(§46): 과매도→랠리(광범위?) → 리테스트(성공?) → Breadth Thrust(확인?) = "진짜 바닥"인지 판별.\n' +
         '→ 현재 VIX ' + s.vix + ' / 10Y ' + s.tnx + '% / DXY ' + s.dxy + ' 환경에서 기술적 패턴 신뢰도를 가감하여 분석.' +
+        '\n\n[Institutional Technical Risk & Exit Engine v49.3]\n' +
+        'Always conclude ticker technical answers with one action: HOLD_CORE / NO_ADD_RAISE_STOP / TRIM_25_33 / TRIM_50 / EXIT_OR_HEDGE.\n' +
+        'RSI 70+ is not an automatic sell in lockout rallies. Use ATR extension, RVOL, close position, Bollinger upper-band re-entry, and 10EMA/21EMA/50SMA violations for sell logic.\n' +
+        'Rules: +3ATR over 50SMA warning; +4ATR no new buys/partial trim candidate; +6ATR strong trim/hedge candidate; +2.5ATR over 21EMA short-term extension; RSI 80 overheat, 85 extreme; day gain 6%+ with RVOL 2.5x and weak close = climax reversal risk; close below 10EMA trims trading lot, below 21EMA reduces swing lot, below 50SMA damages swing thesis.\n' +
+        'For semiconductor leaders, compare SMH/SOXX against QQQ/SPY and call out SEMI_HEATED or SEMI_MANIA when relative strength, ATR extension, RSI, and RVOL line up. Also account for AI_INFRA_HEATED/AI_INFRA_MANIA, portfolio technical risk, news impact vectors, and data-quality labels before sounding confident. Provide professional interpretation plus beginner translation.\n' +
         _getV48IntegratedContext('technical') +
         _getChatRules();
     }

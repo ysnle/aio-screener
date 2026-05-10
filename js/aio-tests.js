@@ -1,4 +1,4 @@
-// AIO Screener — 단위 테스트 모듈 (v49.1)
+// AIO Screener — 단위 테스트 모듈 (v49.4)
 // 사용: 브라우저 콘솔에서 AIO.runTests() 실행 → OK/FAIL 결과 출력
 // 대상: 통계 함수 6개 (_calcDailyReturns / _statMean / _statStdDev /
 //        _calcPortfolioVaR / _calcSharpe / _calcMaxDrawdown / _pearsonCorr / _calcCorrelationMatrix)
@@ -906,6 +906,105 @@
   // ══════════════════════════════════════════════════════════════════════
   // 공개 API
   // ══════════════════════════════════════════════════════════════════════
+  // Group18: Institutional Technical Risk & Exit Engine (T103~T107)
+  function _makeTechBars(n, step) {
+    var bars = [], price = 100;
+    for (var i = 0; i < n; i++) {
+      price += step || 0.25;
+      bars.push({ time: '2026-01-' + String((i % 28) + 1).padStart(2, '0'), open: price - 0.3, high: price + 0.8, low: price - 0.8, close: price, volume: 1000000 + i * 1000 });
+    }
+    return bars;
+  }
+
+  function _testInstitutionalTechnicalEngine() {
+    var bars = _makeTechBars(260, 0.2);
+    var snap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(bars) : null;
+    _assert('T103 tech_snapshot: ok', snap && snap.ok === true, 'snap=' + !!snap);
+    _assertRange('T103 tech_snapshot: RSI valid', snap && snap.rsi14, 0, 100);
+    _assert('T103 tech_snapshot: ATR/MA valid', snap && snap.atr14 > 0 && snap.sma50 > 0 && snap.ema21 > 0, 'atr=' + (snap && snap.atr14));
+
+    var climax = _makeTechBars(80, 0.05);
+    var prev = climax[climax.length - 1].close;
+    climax.push({ time: '2026-04-30', open: prev, high: prev * 1.15, low: prev * 0.995, close: prev * 1.065, volume: 4000000 });
+    var sp = window.calcSellPressure ? window.calcSellPressure(climax) : null;
+    _assert('T104 sell_pressure: overextended/climax detected', sp && sp.score >= 25 && sp.flags.join('|').indexOf('CLIMAX') >= 0, sp && sp.flags.join(','));
+
+    var reentrySnap = Object.assign({}, snap, { bbReentry: true, above10EMA: true, above21EMA: true, above50SMA: true, dist50Atr: 1, dist21Atr: 1, rsi14: 60, dayGainPct: 0.5, rvol20: 1, closePosition: 0.7 });
+    var reentrySP = window.calcSellPressure ? window.calcSellPressure(reentrySnap) : null;
+    _assert('T105 sell_pressure: upper BB reentry flag', reentrySP && reentrySP.flags.indexOf('UPPER_BOLLINGER_REENTRY_EXHAUSTION') >= 0, reentrySP && reentrySP.flags.join(','));
+
+    var brokenSnap = Object.assign({}, snap, { above10EMA: false, above21EMA: false, above50SMA: false, dist50Atr: -1, dist21Atr: -1, rsi14: 45, bbReentry: false, dayGainPct: -2, rvol20: 1.2, closePosition: 0.2 });
+    var brokenSP = window.calcSellPressure ? window.calcSellPressure(brokenSnap) : null;
+    _assert('T106 sell_pressure: MA violations escalate', brokenSP && (brokenSP.action === 'TRIM_50' || brokenSP.action === 'EXIT_OR_HEDGE'), brokenSP && brokenSP.action);
+    _assert('T106 sell_pressure: 50SMA thesis damaged flag', brokenSP && brokenSP.flags.indexOf('CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED') >= 0, brokenSP && brokenSP.flags.join(','));
+
+    var baseSnap = Object.assign({}, snap, { dayGainPct: 0.4, dist50Atr: 1, rsi14: 55, rvol20: 1 });
+    var semiSnap = Object.assign({}, snap, { dayGainPct: 3.0, dist50Atr: 4.5, rsi14: 82, rvol20: 2.2 });
+    var heat = window.calcSemiHeatMap ? window.calcSemiHeatMap(baseSnap, baseSnap, semiSnap, semiSnap) : null;
+    _assert('T107 semi_heat: heated or mania', heat && (heat.state === 'SEMI_HEATED' || heat.state === 'SEMI_MANIA'), heat && heat.state);
+  }
+
+  // Group19: Architecture Reinforcement (T108~T115)
+  function _testArchitectureReinforcement() {
+    var bars = _makeTechBars(260, 0.18);
+    var snap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(bars) : null;
+    var q = window.calcDataQuality ? window.calcDataQuality({ source: 'yahoo-fallback', rows: 260, timestamp: Date.now() }) : null;
+    _assert('T108 data_quality: fallback classified', q && q.confidence >= 50 && q.label !== 'FALLBACK', q && JSON.stringify(q));
+    _assert('T109 tech_snapshot: ATR aliases', snap && snap.dist50ATR === snap.dist50Atr && snap.stageEstimate, snap && snap.stageEstimate);
+
+    var aiHot = Object.assign({}, snap, { dayGainPct: 3.2, dist50Atr: 4.5, rsi14: 83, rvol20: 2.4 });
+    var ai = window.calcAIInfraHeat ? window.calcAIInfraHeat({ NVDA: aiHot, AVGO: aiHot, AMD: aiHot }, snap, snap) : null;
+    _assert('T110 ai_infra_heat: heated or mania', ai && (ai.state === 'AI_INFRA_HEATED' || ai.state === 'AI_INFRA_MANIA'), ai && ai.state);
+
+    var pos = window.calcPositionTechnicalRisk ? window.calcPositionTechnicalRisk({ ticker: 'NVDA', qty: 10, cost: 100, price: 150 }, aiHot, { totalValue: 1500 }) : null;
+    _assert('T111 position_technical_risk: action + score', pos && pos.ticker === 'NVDA' && pos.score >= (pos.sellPressure && pos.sellPressure.score || 0), pos && JSON.stringify({ score: pos.score, action: pos.action }));
+
+    var pf = window.calcPortfolioTechnicalRisk ? window.calcPortfolioTechnicalRisk([{ ticker: 'NVDA', qty: 10, cost: 100, price: 150 }], [pos], { totalValue: 1500 }) : null;
+    _assert('T112 portfolio_technical_risk: aggregate', pf && pf.items && pf.items.length === 1 && pf.heatScore >= 0, pf && pf.state);
+
+    var news = window.calcNewsImpactVector ? window.calcNewsImpactVector({ title: 'Nebius buys Eigen AI inference optimization for GPU token factory', desc: 'AI infrastructure and data center demand', topic: 'semi', tier: 1 }) : null;
+    _assert('T113 news_impact_vector: AI infra factor', news && news.factor === 'AI_INFRA_SEMI' && news.urgency >= 40, news && JSON.stringify(news));
+
+    var badge = window.renderDataQualityBadge ? window.renderDataQualityBadge(q) : '';
+    _assert('T114 render_data_quality_badge: html', typeof badge === 'string' && badge.indexOf('Data') >= 0, badge);
+
+    var promptOk = false;
+    try {
+      var ctx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.technical;
+      promptOk = !!ctx && /HOLD_CORE|TRIM_25_33|EXIT_OR_HEDGE/.test(String(ctx.system || ctx.prompt || ctx));
+    } catch(_) {}
+    _assert('T115 prompt_consistency: action ladder present', promptOk, 'technical prompt missing action ladder');
+  }
+
+  // Group20: Data Freshness & Auto Refresh Governance (T116~T124)
+  function _testFreshnessGovernance() {
+    var policies = window.FRESHNESS_POLICY || {};
+    _assert('T116 freshness_policy: core keys exist', !!(policies.quote && policies.news && policies.static_snapshot && policies.manual), Object.keys(policies).join(','));
+    var live = window.makeMetric ? window.makeMetric(100, 'live:yahoo', Date.now(), 'quote') : null;
+    _assert('T117 makeMetric: live quote high confidence', live && live.freshness === 'live' && live.confidence === 'high', live && JSON.stringify(live));
+    var old = window.makeMetric ? window.makeMetric(100, 'live:yahoo', Date.now() - 60 * 60 * 1000, 'quote') : null;
+    _assert('T118 evaluateMetric: old quote hard stale', old && old.freshness === 'hard_stale' && old.hardStale === true, old && JSON.stringify(old));
+    var snapMetric = window.makeMetric ? window.makeMetric(100, 'snapshot', Date.now(), 'static_snapshot') : null;
+    _assert('T119 static_snapshot: explicitly static not live', snapMetric && snapMetric.freshness === 'static' && snapMetric.confidence === 'medium', snapMetric && JSON.stringify(snapMetric));
+    var q = window.calcDataQuality ? window.calcDataQuality(snapMetric) : null;
+    _assert('T120 calcDataQuality: metric envelope normalized', q && q.label === 'MEDIUM' && q.freshness === 'STATIC', q && JSON.stringify(q));
+    if (window.SnapshotStore) {
+      window.SnapshotStore.set('TST-SNAP', 123, 1.2, Date.now(), { test: true });
+      var s = window.SnapshotStore.get('TST-SNAP');
+      var h = window.SnapshotStore.health();
+      _assert('T121 SnapshotStore: set/get/health', s && s.price === 123 && h.total >= 1, s && JSON.stringify(h));
+    } else {
+      _assert('T121 SnapshotStore: set/get/health', false, 'SnapshotStore missing');
+    }
+    var wrote = window._aioSetLiveData ? window._aioSetLiveData('TST-LD', { price: 45, pct: null }, { source: 'snapshot', ts: Date.now(), policyKey: 'static_snapshot', reason: 'test' }) : false;
+    var ds = window._dataSource && window._dataSource['TST-LD'];
+    _assert('T122 _aioSetLiveData: snapshot metadata retained', wrote && ds && ds.source === 'snapshot' && ds.policyKey === 'static_snapshot', ds && JSON.stringify(ds));
+    var audit = window.AIO && window.AIO.auditAllFreshness ? window.AIO.auditAllFreshness('technical') : null;
+    _assert('T123 auditAllFreshness: page audit shape', audit && audit.pageId === 'technical' && audit.coverage && audit.scheduler, audit && JSON.stringify({ pageId: audit.pageId, status: audit.status }));
+    var sched = window.REFRESH_SCHEDULE && window.REFRESH_SCHEDULE.quotes;
+    _assert('T124 REFRESH_SCHEDULE: operational metadata', sched && sched.priority && sched.timeoutMs >= 8000 && sched.policyKey === 'quote', sched && JSON.stringify({ priority: sched.priority, timeoutMs: sched.timeoutMs, policyKey: sched.policyKey }));
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -915,7 +1014,7 @@
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.1 단위 테스트 실행');
+    console.group('[AIO TEST] v49.4 단위 테스트 실행');
     console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
 
     try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
@@ -935,6 +1034,10 @@
     try { _testPageBusMigration();    } catch(e) { console.error('Group15 오류:', e); }
     try { _testFundFortification();   } catch(e) { console.error('Group16 오류:', e); }
     try { _testStateHygiene();        } catch(e) { console.error('Group17 오류:', e); }
+
+    try { _testInstitutionalTechnicalEngine(); } catch(e) { console.error('Group18 error:', e); }
+    try { _testArchitectureReinforcement(); } catch(e) { console.error('Group19 error:', e); }
+    try { _testFreshnessGovernance(); } catch(e) { console.error('Group20 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -965,6 +1068,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.1 로드 완료 — AIO.runTests() 으로 실행 (T1~T102)');
+  console.log('[AIO] aio-tests.js v49.4 로드 완료 — AIO.runTests() 으로 실행 (T1~T124)');
 
 })();
