@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.5 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.6 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3777,7 +3777,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.5</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.6</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6216,7 +6216,7 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- ══ SECTION 1.5: Institutional Technical Brief (v49.5) ══════════════ -->
+  <!-- ══ SECTION 1.5: Institutional Technical Brief (v49.6) ══════════════ -->
   <div id="institutional-technical-brief" style="background:#080d1a;border:1px solid rgba(0,212,255,0.22);border-radius:10px;padding:14px 16px;margin-bottom:12px;box-shadow:0 0 0 1px rgba(255,255,255,0.02) inset;">
     <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px;">
       <div>
@@ -16822,7 +16822,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '• 멀티 인디케이터 크로스체크 전략: 1차 필터(추세: MA 정배열) → 2차 필터(모멘텀: MACD+RSI) → 3차 필터(거래량: OBV+VWAP) → 4차 확인(시장환경: 스코어55+) → 모두 정렬 시만 진입\n' +
         '• 상관관계 분석: 주가-VIX 음의 상관 붕괴 시 = 구조적 변화, 섹터간 상관관계 급등 = 시스템 리스크, 크로스에셋(주식-채권-달러-금) 동시 움직임 해석\n' +
         '• 백테스트 사고법: "이 전략을 최근 5년 다양한 시장 환경(강세/약세/횡보)에서 적용하면 어떤 결과?" 승률, 평균 수익/손실, 최대 드로다운, 샤프비율 관점으로 평가\n\n' +
-        '【v49.5 Institutional Technical Risk, Lockout Rally & OPEX Engine】\n' +
+        '【v49.6 Institutional Technical Risk, Lockout Rally & OPEX Engine】\n' +
         '모든 종목 기술 질문의 결론은 반드시 HOLD_CORE / NO_ADD_RAISE_STOP / TRIM_25_33 / TRIM_50 / EXIT_OR_HEDGE 중 하나로 끝낸다.\n' +
         'RSI 70+는 Lockout Rally와 반도체 주도 랠리에서 자동 매도 신호가 아니다. 과열은 경고이지 매도 버튼이 아니며, 진짜 매도/축소 근거는 수요 약화, 실패한 돌파/리테스트, 5·10·21·50일선 훼손, OPEX 이후 감마 지지 약화, 폭 확장 실패다.\n' +
         'Lockout 모듈: 20MA_ATR_EXTENSION, 20MA_ADR_EXTENSION, CLOSE_POSITION, UPPER_WICK_PCT, RVOL20, GAP_UP_PCT, terminal candle type, OPEX/Gamma regime, Breadth/Rotation regime을 함께 본다.\n' +

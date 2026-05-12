@@ -6,6 +6,16 @@
 
 ---
 
+## v49.6 - Full Static Fallback Data Refresh (2026-05-12)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- **P193**: Refreshed the app-wide static fallback market seeds from WebSearch/public sources so no-key, quota, cache, and offline states do not show stale default market context.
+- Updated `DATA_SNAPSHOT` fallback values for 2026-05-11 US close, 2026-05-12 KR close, USD/KRW, DXY, WTI/Brent, Cboe put-call ratios, CNN Fear & Greed, and AAII sentiment.
+- Kept the freshness architecture rule intact: live stores/API fetchers override these seeds when available; fallback values now explicitly carry source/date notes.
+- Rotated `APP_VERSION`, title/badge, service worker cache version, `version.json`, and context docs to `v49.6` so GitHub Pages does not retain a stale `v49.5` runtime shell.
+- No feature logic was intentionally changed in this release; institutional technical/OPEX engines remain from `v49.5`.
+
 ## v49.5 - Lockout Rally / OPEX Strategy Engine (2026-05-12)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`

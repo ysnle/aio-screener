@@ -2,10 +2,10 @@
 verified_by: agent
 last_verified: 2026-05-12
 confidence: high
-latest_version: v49.5
-latest_P_number: P192
-next_P_number: P193
-total_entries: 192
+latest_version: v49.6
+latest_P_number: P193
+next_P_number: P194
+total_entries: 193
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -22,7 +22,7 @@ total_entries: 192
 
 ### P 번호 체계
 - **P 번호 = 패턴 번호** (예방 규칙 ID). 동일 근본 원인을 가진 버그는 같은 P 번호로 참조.
-- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P193**). 한번 부여된 번호는 재사용 금지.
+- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P194**). 한번 부여된 번호는 재사용 금지.
 - **P 번호 재강화**: 같은 패턴이 재발해도 번호는 유지. "P25 재강화" / "P25 강화" 같은 표현으로 body에 기록.
 - **날짜 구분 원칙**: 과거 중복 P 번호(P26~P33 일부 충돌 존재)는 "날짜 + 버전"으로 구분해서 참조.
 
@@ -55,6 +55,7 @@ total_entries: 192
 
 | P | 도입 버전 | 날짜 | 패턴 요약 |
 |---|-----------|------|-----------|
+| P193 | v49.6 | 2026-05-12 | 정적 fallback seed 최신성 드리프트 — 라이브 API가 실패/쿼터/캐시 상태일 때 기본 화면이 오래된 F&G·PCR·한국시장·FX 값을 실시간처럼 전달할 위험. `DATA_SNAPSHOT` 및 `_fallback`의 US/KR 지수, USD/KRW, DXY, oil, Cboe put-call, CNN/AAII seed를 2026-05-12 기준으로 갱신하고 live store override 원칙을 note에 명시 |
 | P192 | v49.5 | 2026-05-12 | Lockout Rally/OPEX 전략 로직 부재 — RSI/과열만으로 초보자가 매도 판단을 오해할 수 있고, OPEX 감마 지지 약화·폭 확장 실패·말단 캔들·20MA ATR/ADR 확장을 하나의 행동 사다리로 통합하지 못했다. `calcExtensionHeat`, `classifyTerminalCandle`, `calcOpexGammaRisk`, `calcBreadthRotation`, `calcLockoutAction`, Lockout Control UI, T125~T132 테스트 도입 |
 | P191 | v49.4 | 2026-05-10 | 데이터 최신성/자동 갱신 거버넌스 부재 — 정적 DATA_SNAPSHOT, live quote, fallback, macro/news stale 기준이 분산되어 폴백값이 실시간처럼 보일 수 있었다. `FRESHNESS_POLICY`, `makeMetric`, `evaluateMetric`, `SnapshotStore`, `_aioSetLiveData`, `AIO.auditAllFreshness()`와 scheduler telemetry, T116~T124 테스트 도입 |
 | P190 | v49.3 | 2026-05-10 | 전수감사 보고서 기준 아키텍처 레이어 부재 — 데이터 품질, 뉴스 영향, 포트폴리오 기술 리스크, AI 인프라 과열이 서로 다른 표준으로 처리되어 화면/AI/리스크 전달성이 떨어짐. `calcDataQuality`/`calcAIInfraHeat`/`calcPositionTechnicalRisk`/`calcPortfolioTechnicalRisk`/`calcNewsImpactVector` 도입 |

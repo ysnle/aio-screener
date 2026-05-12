@@ -3361,7 +3361,7 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-// Institutional Technical Risk & Exit Engine (v49.5)
+// Institutional Technical Risk & Exit Engine (v49.6)
 function _aioCleanNums(values) {
   return (values || []).map(function(v) { var n = Number(v); return isFinite(n) ? n : null; });
 }
@@ -4000,7 +4000,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.5';
+const APP_VERSION = 'v49.6';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -4909,33 +4909,33 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v48.76: _updated → 금요일 2026-05-01 장마감 시각 (목요일 5/1 종가 기준, 미국 장 정상 운영)
-  _updated: '2026-05-11T16:00:00-04:00',   // v49.5 static fallback snapshot, US close
-  _snapshotDate: '2026-05-11',
+  _updated: '2026-05-12T16:00:00+09:00',   // v49.6 static fallback snapshot, KR close + latest US close
+  _snapshotDate: '2026-05-12',
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v49.5 WebSearch refresh (2026-05-11 close): SPX 7412.84 (+0.19%) / NASDAQ 26274.13 (+0.10%) / Dow 49704.47 (+0.19%) / Russell 2000 2870.64 (+0.33%) / VIX spot 18.38 (+6.92%) / WTI 98.07 (+2.78%) / Brent 104.21 (+2.88%) / CBOE equity PCR 0.53 (2026-05-08) / index PCR 0.71 / total PCR 0.67 (2026-05-06 latest available via YCharts). Static fallback only; live stores override when available.',
+  _note: 'v49.6 WebSearch refresh (2026-05-12 KST): US close 2026-05-11 SPX 7412.84 (+0.19%) / NASDAQ 26274.13 (+0.10%) / Dow 49704.47 (+0.19%) / Russell 2000 2870.64 (+0.33%) / VIX 18.38 (+6.92%). KR close 2026-05-12 KOSPI 7643.15 (-2.29%) / KOSDAQ 1179.29 (-2.32%) / USDKRW 1489.9 (+17.5 won). DXY 98.16 (+0.2%) intraday; WTI 98.07 (+2.78%) / Brent 104.21 (+2.88%). CBOE latest daily stats: total PCR 0.74 / index PCR 1.03 / equity PCR 0.53. CNN F&G latest public 68~69 Greed; AAII May 7 bull 38.3 / neutral 28.7 / bear 33.0. Static fallback only; live stores override when available.',
 
   // ── 미국 주요 지수 (4/30 목 종가 WebSearch 실측) ──
-  spx:        7412.84,  spxPct:    +0.19,   // v49.5: AP 2026-05-11 close
-  nasdaq:    26274.13,  nasdaqPct: +0.10,   // v49.5: AP 2026-05-11 close
-  dow:       49704.47,  dowPct:    +0.19,   // v49.5: AP 2026-05-11 close
-  rut:        2870.64,  rutPct:    +0.33,   // v49.5: AP 2026-05-11 close
-  vix:          18.38,  vixPct:    +6.92,   // v49.5: AA/AP 2026-05-11 spot
+  spx:        7412.84,  spxPct:    +0.19,   // v49.6: AP 2026-05-11 close
+  nasdaq:    26274.13,  nasdaqPct: +0.10,   // v49.6: AP 2026-05-11 close
+  dow:       49704.47,  dowPct:    +0.19,   // v49.6: AP 2026-05-11 close
+  rut:        2870.64,  rutPct:    +0.33,   // v49.6: AP 2026-05-11 close
+  vix:          18.38,  vixPct:    +6.92,   // v49.6: AA/AP 2026-05-11 spot
   vvix:         88.20,                        // v48.70: VVIX (미갱신)
 
   // ── 한국 지수 (4/30 WebSearch 실측) ──
-  kospi:     6719.81,  kospiPct:  +0.68,  kospiPrev: 6674.72,  // v49.4: Finhacker 2026-05-08 close
-  kosdaq:    1250.15,  kosdaqPct: +0.77,  kosdaqPrev: 1240.65, // v49.4: Finhacker 2026-05-08 close
+  kospi:     7643.15,  kospiPct:  -2.29,  kospiPrev: 7822.24,  // v49.6: KRX/Newsis 2026-05-12 close
+  kosdaq:    1179.29,  kosdaqPct: -2.32,  kosdaqPrev: 1207.34, // v49.6: KRX/Newsis 2026-05-12 close
 
   // ── 원자재 (4/30 WebSearch 실측 — 호르무즈 에스컬레이션, Brent 장중 $126 전시 최고가) ──
-  wti:      98.07,   wtiPct:   +2.78,   // v49.5: TheStreet 2026-05-11 settlement
-  brent:   104.21,   brentPct: +2.88,   // v49.5: TheStreet/AP 2026-05-11 settlement
+  wti:      98.07,   wtiPct:   +2.78,   // v49.6: WSJ 2026-05-11 settlement
+  brent:   104.21,   brentPct: +2.88,   // v49.6: WSJ/AP 2026-05-11 settlement
   gold:     4696,    goldPct:  +0.04,  goldWeeklyPct: +3.2,  // v49.4: Yahoo Finance delayed snapshot
   ng:       3.05,                         // 천연가스 소폭 상승 (공급 우려)
 
   // ── 환율 (4/30 WebSearch 실측) ──
-  krw:      1406.65,  krwPct:   -0.20,  krwRound: 1407,  // v49.4: MarketWatch USD/KRW snapshot
-  dxy:       110.29,  dxyPct:   +0.16,                   // v49.4: Yahoo Finance DXY delayed snapshot
+  krw:      1489.90,  krwPct:   +1.19,  krwRound: 1490,  // v49.6: Seoul FX close 2026-05-12
+  dxy:        98.16,  dxyPct:   +0.20,                   // v49.6: WSJ/Barron's intraday 2026-05-12
 
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
@@ -5002,7 +5002,7 @@ const DATA_SNAPSHOT = {
   nandContract_QoQ_2Q26: 73,
   nandContract_YoY_2Q26: 362,
   // ── v48.71 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
-  aaiiBear:        33.0,     // v49.4: AAII/MarketWatch latest weekly report
+  aaiiBear:        33.0,     // v49.6: AAII/MarketWatch latest weekly report (week ended 2026-05-07)
 
   // ── 글로벌 지수 (GMO 테이블용, 4/30 종가) ──
   nikkei:    59284,    nikkeiPct:  -1.06,
@@ -5021,7 +5021,7 @@ const DATA_SNAPSHOT = {
   move:        65.30,   moveChg: +1.80,  // v48.70: MOVE 4/28 채권 변동성 소폭 상승 (CPI 3.3% + FOMC 경계)
   skew:       142.50,   skewChg: +1.28,  // v48.70: SKEW 4/28 꼬리헤지 소폭 증가 (WTI $100 + 지정학)
   vvix_live:   88.20,   vvixChg: +0.57,  // v48.70: VVIX 4/28 소폭 상승 (VIX 상승 동반)
-  fg:            68,   fgLabel: 'Greed',  // v49.4: CNN/Finhacker 2026-05-07 current value
+  fg:            69,   fgLabel: 'Greed',  // v49.6: CNN latest public reading 68~69 Greed
   fg_uw:         74,   fg_uwLabel: '탐욕', // v48.70: UW 확장 F&G 4/28 추정 74
 
   // ── v47.2: F&G 카테고리·지표별 분해 (Unusual Whales 4/15) ──
@@ -5052,10 +5052,10 @@ const DATA_SNAPSHOT = {
     insiderSentiment: 0.1   // 내부자 매수/매도 3개월 비율 (극단 공포! 2021.11 고점 선례)
   },
 
-  // v49.5: OPEX/gamma fallback seeds; live CBOE/option data overrides when available.
-  pcr: 0.67,
+  // v49.6: OPEX/gamma fallback seeds; live CBOE/option data overrides when available.
+  pcr: 0.74,
   equityPutCall: 0.53,
-  indexPutCall: 0.71,
+  indexPutCall: 1.03,
 
   // ── v47.2: 위험봇 3/30 12:49 STABLE 역사 스냅샷 (Tail Risk Board) ──
   //   4/15 현재와 별개 — "관세 쇼크 저점 직후 STABLE 판정" 시점의 꼬리위험 구조
@@ -5096,24 +5096,24 @@ const DATA_SNAPSHOT = {
   // /data-refresh 실행 시 이 값들을 DATA_SNAPSHOT과 함께 갱신.
   // 모든 computeTradingScore/computeMarketHealth/computeExecutionWindow가 여기서 읽음.
   _fallback: {
-    fg: 47,              // v47.4: CNN F&G Neutral 47 (4/15 실측) — v47.3의 68은 UW F&G 였음(오기재)
+    fg: 69,              // v49.6: CNN F&G Greed latest public reading; live fetch overrides
     fg_uw: 68,           // v47.4 신설: Unusual Whales 확장 F&G 68 탐욕 (4/16 KST 04:36 실측)
-    vix: 18,             // VIX (4/15: 18.36)
+    vix: 18.38,          // v49.6: VIX 2026-05-11 close
     breadth200: 75,      // 20SMA Above % (bpSPX20 마지막 값과 동기화)
     breadth5: 68,        // 5SMA Above %
     breadth50: 46,       // 50SMA Above %
-    pcr: 0.72,           // Put/Call Ratio
-    aaiiBear: 43,        // AAII Bearish % (4/10 발표: 43.0%)
+    pcr: 0.74,           // v49.6: Cboe total put/call ratio
+    aaiiBear: 33.0,      // v49.6: AAII Bearish % (week ended 2026-05-07)
     spx50ma: 6820,       // v47.4: SPX 50일 이동평균 (4/15 기준 근사)
     spx200ma: 6720,      // v47.4: SPX 200일 이동평균 (4/15 기준 근사)
     spxATH: 7022,        // v47.4: SPX 사상 최고가 (4/15 종가 7022.95 — ATH 경신)
-    dxy: 98,             // v47.4: 달러 인덱스 (4/15: 98.05)
+    dxy: 98.16,          // v49.6: DXY intraday reference (2026-05-12)
     tnx: 4.3,            // 10년 금리
     hyg: 80,             // HYG ETF 가격 (신용 스프레드 완화)
     vvix: 90,            // v47.4: VVIX (4/15 실측 90.10, v47.3 오기재 95 정정)
     move: 62,            // v47.4 신설: MOVE 4/15 실측 62.36 (채권 변동성 극단 저점)
     skew: 142,           // v47.4 신설: SKEW 4/15 실측 141.86 (꼬리헤지 고점)
-    _syncDate: '2026-04-15'  // v47.4: 마지막 동기화 날짜
+    _syncDate: '2026-05-12'  // v49.6: static fallback sync date
   }
 };
 

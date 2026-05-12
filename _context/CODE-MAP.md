@@ -2,12 +2,12 @@
 verified_by: agent
 last_verified: 2026-05-12
 confidence: high
-target_version: v49.5
+target_version: v49.6
 target_file: index.html + js/*.js
-target_lines: index.html 29758 + js modules 26916
+target_lines: index.html 29758 + js modules 27220
 ---
 
-# AIO v49.5 CODE-MAP
+# AIO v49.6 CODE-MAP
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `Select-String`/부분 Read로 한 번 더 확인한다.
@@ -85,14 +85,14 @@ target_lines: index.html 29758 + js modules 26916
 | `_aioMarkChartCanvases` | 306 | LightweightCharts 내부 canvas `aria-hidden` 처리 |
 | `chartDataGate` | 1865 | 차트 NaN/null 방어 |
 | `safeLS` / `safeLSGet` / `safeLSGetSync` | 2296 / 2309 / 2322 | 암호화 localStorage |
-| Institutional technical engine | 3286 ~ 3560 | OHLCV snapshot, sell pressure, semiconductor heat, exit plan |
-| `APP_VERSION` | 3562 | R1 버전 단일 소스 |
-| `AIO.getLiveCoverage` / `getDataFreshnessAudit` | 4000 / 4030 | core live quote coverage + freshness audit |
-| `AIO.getDataPipelineAudit` | 4061 | source/API → transport/cache → scheduler → store → analysis → render audit |
-| `AIO.getOperationalHealth` | 4230 | 운영/SW/API/cache/data freshness/data pipeline 자체 진단 |
-| `DATA_SNAPSHOT` | 4410 | 시장 데이터 SSOT (`window.DATA_SNAPSHOT` exposed at 4618) |
-| `applyDataSnapshot` | 5315 | snapshot → DOM, 키별 오류 격리 |
-| `_ldSafe` | 5694 | liveData + snapshot fallback |
+| Institutional technical engine | 3286 ~ 3982 | OHLCV snapshot, sell pressure, semiconductor heat, lockout/OPEX, exit plan |
+| `APP_VERSION` | 4003 | R1 버전 단일 소스 |
+| `AIO.getLiveCoverage` / `getDataFreshnessAudit` | 4441 / 4473 | core live quote coverage + freshness audit |
+| `AIO.getDataPipelineAudit` | 4559 | source/API → transport/cache → scheduler → store → analysis → render audit |
+| `AIO.getOperationalHealth` | 4728 | 운영/SW/API/cache/data freshness/data pipeline 자체 진단 |
+| `DATA_SNAPSHOT` | 4908 | 시장 데이터 SSOT (`window.DATA_SNAPSHOT` exposed below block) |
+| `applyDataSnapshot` | 5818 | snapshot → DOM, 키별 오류 격리 |
+| `_ldSafe` | 6204 | liveData + snapshot fallback |
 | `destroyPageCharts` | 5768 | 페이지 이탈 차트 정리 |
 | `showPage` | 6215 | SPA 페이지 전환 |
 | `_calcPortfolioVaR` | 6523 | 보수적 historical VaR |
@@ -163,8 +163,8 @@ target_lines: index.html 29758 + js modules 26916
 
 | 작업 | 우선 파일/범위 |
 |------|----------------|
-| R1 버전 동기화 | `index.html:10`, `index.html:3780`, `js/aio-core.js:3562`, `version.json`, `sw.js:8`, `_context/CLAUDE.md`, `CHANGELOG.md` |
-| DATA_SNAPSHOT 갱신 | `js/aio-core.js:4134~5039`, `js/aio-core.js:3724~3954` freshness/pipeline audit, `js/aio-ui.js` chart arrays |
+| R1 버전 동기화 | `index.html:10`, `index.html:3780`, `js/aio-core.js:4003`, `version.json`, `sw.js:8`, `_context/CLAUDE.md`, `CHANGELOG.md` |
+| DATA_SNAPSHOT 갱신 | `js/aio-core.js:4908~5155`, `js/aio-core.js:4441~4810` freshness/pipeline audit, `js/aio-ui.js` chart arrays |
 | 뉴스 소스/키워드 | `js/aio-data.js:3262~4427` |
 | 뉴스 선별/렌더 | `js/aio-data.js:5174~6781` |
 | 뉴스 수집 안정성 | `js/aio-data.js:7324~8080` |
@@ -177,13 +177,14 @@ target_lines: index.html 29758 + js modules 26916
 | 포트폴리오 benchmark chart | `index.html:28663~28827` |
 | 옵션 분석 DOM | `index.html:9267~10082` |
 | 한국 페이지 DOM | `index.html:10083~11328` |
-| browser unit tests | `js/aio-tests.js:1~1021`, `index.html:26693` |
+| browser unit tests | `js/aio-tests.js:1~1112`, `index.html:26693` |
 | glossary | `js/aio-glossary.js`, `index.html:26670~29260` |
 
 ---
 
 ## 5. 검증 메모
 
+- v49.6은 v49.5 Lockout Rally/OPEX 엔진 위에 2026-05-12 WebSearch/public-source 기준 정적 fallback seed를 최신화한 기준.
 - v49.5는 v49.4 데이터 최신성 거버넌스 위에 Lockout Rally/OPEX 전략 엔진, terminal candle, breadth rotation, action ladder UI/tests를 추가한 기준.
 - v49.4는 v49.3 아키텍처 보강 위에 freshness policy, SnapshotStore, scheduler telemetry, auditAllFreshness, WebSearch fallback refresh를 추가한 기준.
 - HTML inline `onclick=` attribute는 0건. JS property assignment `.onclick =`는 modal/prompt overlay 내부에서 4건 존재.

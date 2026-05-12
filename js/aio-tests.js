@@ -1,4 +1,4 @@
-// AIO Screener — 단위 테스트 모듈 (v49.5)
+// AIO Screener — 단위 테스트 모듈 (v49.6)
 // 사용: 브라우저 콘솔에서 AIO.runTests() 실행 → OK/FAIL 결과 출력
 // 대상: 통계 함수 6개 (_calcDailyReturns / _statMean / _statStdDev /
 //        _calcPortfolioVaR / _calcSharpe / _calcMaxDrawdown / _pearsonCorr / _calcCorrelationMatrix)
@@ -1052,7 +1052,7 @@
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.5 단위 테스트 실행');
+    console.group('[AIO TEST] v49.6 단위 테스트 실행');
     console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
 
     try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
@@ -1107,6 +1107,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.5 로드 완료 — AIO.runTests() 으로 실행 (T1~T132)');
+  console.log('[AIO] aio-tests.js v49.6 로드 완료 — AIO.runTests() 으로 실행 (T1~T132)');
 
 })();

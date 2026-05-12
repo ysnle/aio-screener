@@ -3,8 +3,8 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v49.5**
-- 메인 파일: `index.html` (29,721줄, 인라인 onclick 0건) + `js/` 6개 모듈 (aio-core 6,762 · aio-data 11,275 · aio-ui 2,555 · aio-chat 4,582 · aio-tests 1,021 · aio-glossary 304 ≈ 26,499줄)
+- 현재 버전: **v49.6**
+- 메인 파일: `index.html` (29,758줄, 인라인 onclick 0건) + `js/` 6개 모듈 (aio-core 7,158 · aio-data 11,374 · aio-ui 2,688 · aio-chat 4,584 · aio-tests 1,112 · aio-glossary 304 ≈ 27,220줄)
 - **v48.32~35 마일스톤**: onclick 인라인 핸들러 253건 → 0건 (Event Delegation + data-action)
 - **v48.36~39 마일스톤**: 구조적 동적 전환 — DATE_ENGINE · _lastFetch · _aioFeedHealth · AIO_Cache 통일 · SCREENER_DB memo staleness 파서 · 신선도 UI 패널
 - **v48.47~v48.60 마일스톤**: DOM 재분배 · LIVE_SYMBOLS +13 · CHAT_CONTEXTS themes/theme-detail · AI 채팅 FMP 심층 · 5중 소스 체인 · 어닝 EH 스타일 · 리스크 레이더 · Phase 감사 + 수정
@@ -24,6 +24,7 @@ AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터
 - **v48.99 마일스톤**: Listener Hygiene — `aio:pageShown` 17건+`aio:liveQuotes` 18건 `_aioPageBus` 마이그(P178~P180) · aio-core 9건+aio-data 4건+index.html 22건 · 테스트 T89~T92(92건)
 - **v49.0 마일스톤**: Critical Function Fortification — `applyDataSnapshot` 키별 try-catch(P181) · `_aioLRU`+scoreItem/tickerRegex 캐시 cap(P182) · Fund Valuation Infinity 가드(P183) · 테스트 T93~T97(97건)
 - **v49.3 마일스톤**: Architecture Reinforcement — DataQuality · NewsImpactVector · AIInfraHeat · PortfolioTechnicalRisk(P190) · OHLCV quality bundle · technical brief data confidence · T108~T115 tests
+- **v49.6 마일스톤**: Full Static Fallback Data Refresh — US/KR 지수 · FX/DXY · oil · Cboe put-call · CNN/AAII sentiment fallback seed 최신화(P193)
 - **v49.5 마일스톤**: Lockout Rally / OPEX Strategy Engine — 20MA ATR/ADR extension · terminal candle risk · OPEX gamma decay · IWM/RSP/KRE/XBI breadth rotation · final action ladder(P192) · T125~T132 tests
 - **v49.4 마일스톤**: Data Freshness Governance — FRESHNESS_POLICY · SnapshotStore · auditAllFreshness(P191) · scheduler telemetry · static fallback WebSearch refresh · T116~T124 tests
 - 스택: HTML5 + 인라인 CSS/JS · Chart.js(CDN) · AES-256 · GitHub Pages · 한국어 UI · 다크 테마 · WCAG AA
