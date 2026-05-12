@@ -1,4 +1,4 @@
-// AIO Screener — 단위 테스트 모듈 (v49.4)
+// AIO Screener — 단위 테스트 모듈 (v49.5)
 // 사용: 브라우저 콘솔에서 AIO.runTests() 실행 → OK/FAIL 결과 출력
 // 대상: 통계 함수 6개 (_calcDailyReturns / _statMean / _statStdDev /
 //        _calcPortfolioVaR / _calcSharpe / _calcMaxDrawdown / _pearsonCorr / _calcCorrelationMatrix)
@@ -1005,6 +1005,44 @@
     _assert('T124 REFRESH_SCHEDULE: operational metadata', sched && sched.priority && sched.timeoutMs >= 8000 && sched.policyKey === 'quote', sched && JSON.stringify({ priority: sched.priority, timeoutMs: sched.timeoutMs, policyKey: sched.policyKey }));
   }
 
+  // Group21: Lockout Rally / OPEX / Breadth Strategy Engine (T125~T132)
+  function _testLockoutOpexStrategyEngine() {
+    var bars = _makeTechBars(120, 0.45);
+    var snap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(bars) : null;
+    _assert('T125 lockout_snapshot: 20MA/ADR metrics', snap && snap.ok && snap.dist20ATR !== undefined && snap.adr20Pct !== undefined, snap && JSON.stringify({ dist20: snap.dist20ATR, adr: snap.adr20Pct }));
+
+    var hotSnap = Object.assign({}, snap, { ok: true, dist20Atr: 4.5, dist20Adr: 5.5, dist21Atr: 2.8, dist50Atr: 5.0 });
+    var ext = window.calcExtensionHeat ? window.calcExtensionHeat(hotSnap) : null;
+    _assert('T126 extension_heat: extreme extension detected', ext && ext.score >= 40 && /20MA_PLUS_4ATR/.test(ext.flags.join('|')), ext && JSON.stringify(ext));
+
+    var prev = { open: 100, high: 103, low: 98, close: 100, volume: 1000000 };
+    var thrust = { open: 101, high: 107, low: 100, close: 106.5, volume: 1800000 };
+    var thrustRisk = window.classifyTerminalCandle ? window.classifyTerminalCandle(thrust, prev, Object.assign({}, hotSnap, { rvol20: 1.8 })) : null;
+    _assert('T127 candle: momentum thrust is hold-friendly', thrustRisk && thrustRisk.type === 'MOMENTUM_THRUST', thrustRisk && thrustRisk.type);
+
+    var exhaustion = { open: 103, high: 112, low: 101, close: 104, volume: 3200000 };
+    var exRisk = window.classifyTerminalCandle ? window.classifyTerminalCandle(exhaustion, prev, Object.assign({}, hotSnap, { rvol20: 3.0 })) : null;
+    _assert('T128 candle: gap-up exhaustion escalates', exRisk && (exRisk.type === 'GAP_UP_EXHAUSTION' || exRisk.type === 'SHOOTING_STAR_RISK') && exRisk.score >= 40, exRisk && JSON.stringify(exRisk));
+
+    var opex = window.calcOpexGammaRisk ? window.calcOpexGammaRisk({ daysToOpex: 2, equityPutCall: 0.5, indexPutCall: 1.2, priceNearCallWall: true, closeAboveCallWall: false }) : null;
+    _assert('T129 opex_gamma: decay/unwind risk', opex && opex.score >= 40 && opex.regime !== 'GAMMA_SUPPORT', opex && JSON.stringify(opex));
+
+    var breadthGood = window.calcBreadthRotation ? window.calcBreadthRotation({ iwmUp: true, rspUp: true, kreUp: true, xbiUp: true, iwmVsQqqRS_5d: 1.2, rspVsSpyRS_5d: 0.5 }) : null;
+    var breadthBad = window.calcBreadthRotation ? window.calcBreadthRotation({ qqqUpButBreadthDown: true, iwmFailedBreakout: true, rspLaggingSpy: true, kreDown: true, xbiDown: true }) : null;
+    _assert('T130 breadth_rotation: broadening and failed rotation', breadthGood && breadthGood.regime === 'BREADTH_BROADENING' && breadthBad && breadthBad.regime === 'FAILED_ROTATION', JSON.stringify({ good: breadthGood, bad: breadthBad }));
+
+    var action = window.calcLockoutAction ? window.calcLockoutAction({ extension: ext, candle: exRisk, opexGamma: opex, breadth: breadthBad, portfolioExposure: { score: 45, flags: ['TEST_PORTFOLIO_HEAT'] } }) : null;
+    _assert('T131 lockout_action: final action escalates', action && ['TRIM_25_33','TRIM_50','EXIT_OR_HEDGE'].indexOf(action.action) >= 0 && action.regime, action && JSON.stringify(action));
+
+    var promptOk = false;
+    try {
+      var ctx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.technical;
+      var txt = ctx && typeof ctx.system === 'function' ? ctx.system() : String(ctx && (ctx.system || ctx.prompt || ctx) || '');
+      promptOk = /OPEX|Lockout|LOCKOUT_CONTINUATION|EXIT_OR_HEDGE/.test(txt);
+    } catch(_) {}
+    _assert('T132 prompt_consistency: lockout/OPEX action ladder present', promptOk, 'technical prompt missing lockout/OPEX rules');
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -1014,7 +1052,7 @@
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.4 단위 테스트 실행');
+    console.group('[AIO TEST] v49.5 단위 테스트 실행');
     console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
 
     try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
@@ -1038,6 +1076,7 @@
     try { _testInstitutionalTechnicalEngine(); } catch(e) { console.error('Group18 error:', e); }
     try { _testArchitectureReinforcement(); } catch(e) { console.error('Group19 error:', e); }
     try { _testFreshnessGovernance(); } catch(e) { console.error('Group20 error:', e); }
+    try { _testLockoutOpexStrategyEngine(); } catch(e) { console.error('Group21 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -1068,6 +1107,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.4 로드 완료 — AIO.runTests() 으로 실행 (T1~T124)');
+  console.log('[AIO] aio-tests.js v49.5 로드 완료 — AIO.runTests() 으로 실행 (T1~T132)');
 
 })();

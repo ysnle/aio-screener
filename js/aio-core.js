@@ -3361,7 +3361,7 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-// Institutional Technical Risk & Exit Engine (v49.4)
+// Institutional Technical Risk & Exit Engine (v49.5)
 function _aioCleanNums(values) {
   return (values || []).map(function(v) { var n = Number(v); return isFinite(n) ? n : null; });
 }
@@ -3514,6 +3514,38 @@ function _calcClosePosition(bar) {
   return Math.max(0, Math.min(1, (c - l) / (h - l)));
 }
 
+function _calcADRPercent(ohlcv, period) {
+  var bars = _aioCleanOHLCV(ohlcv);
+  period = period || 20;
+  if (bars.length < 2) return null;
+  var slice = bars.slice(-Math.min(period, bars.length));
+  var vals = [];
+  for (var i = 0; i < slice.length; i++) {
+    var b = slice[i];
+    var base = b.open > 0 ? b.open : b.close;
+    if (base > 0 && b.high >= b.low) vals.push(((b.high - b.low) / base) * 100);
+  }
+  return vals.length ? vals.reduce(function(s, v) { return s + v; }, 0) / vals.length : null;
+}
+
+function _calcCandleMetrics(bar, prevBar) {
+  if (!bar) return { closePosition: null, upperWickPct: null, bodyPct: null, gapUpPct: null, dayPct: null };
+  var open = Number(bar.open), high = Number(bar.high), low = Number(bar.low), close = Number(bar.close);
+  var range = high - low;
+  var prevClose = prevBar && Number(prevBar.close) > 0 ? Number(prevBar.close) : open;
+  var upperWickPct = range > 0 ? (high - Math.max(open, close)) / range : 0;
+  var lowerWickPct = range > 0 ? (Math.min(open, close) - low) / range : 0;
+  var bodyPct = range > 0 ? Math.abs(close - open) / range : 1;
+  return {
+    closePosition: _calcClosePosition(bar),
+    upperWickPct: Math.max(0, Math.min(1, upperWickPct)),
+    lowerWickPct: Math.max(0, Math.min(1, lowerWickPct)),
+    bodyPct: Math.max(0, Math.min(1, bodyPct)),
+    gapUpPct: prevClose > 0 ? ((open - prevClose) / prevClose) * 100 : 0,
+    dayPct: prevClose > 0 ? ((close - prevClose) / prevClose) * 100 : 0
+  };
+}
+
 function _calcRecentLevel(values, lookback, fn) {
   var nums = _aioCleanNums(values).filter(function(v) { return v !== null; }).slice(-(lookback || 20));
   if (!nums.length) return null;
@@ -3537,17 +3569,24 @@ function calcTechnicalSnapshot(ohlcv) {
   var prevBB20 = closes.length > 20 ? _calcBB(closes.slice(0, -1), 20, 2) : null;
   var dayGainPct = prev.close > 0 ? ((last.close - prev.close) / prev.close) * 100 : 0;
   var closePosition = _calcClosePosition(last);
+  var candle = _calcCandleMetrics(last, prev);
+  var adr20Pct = _calcADRPercent(bars, 20);
   var safeAtr = atr14 && atr14 > 0 ? atr14 : null;
+  var dist20Atr = safeAtr && sma20 ? (last.close - sma20) / safeAtr : null;
   var dist50Atr = safeAtr && sma50 ? (last.close - sma50) / safeAtr : null;
   var dist21Atr = safeAtr && ema21 ? (last.close - ema21) / safeAtr : null;
   var dist10Atr = safeAtr && ema10 ? (last.close - ema10) / safeAtr : null;
+  var dist20Pct = sma20 ? ((last.close - sma20) / sma20) * 100 : null;
+  var dist20Adr = adr20Pct && dist20Pct !== null ? dist20Pct / adr20Pct : null;
   var bbReentry = !!(prevBB20 && bb20 && prev.close > prevBB20.upper && last.close <= bb20.upper);
   return {
     ok: true, bars: bars.length, time: last.time, price: last.close, prevClose: prev.close, dayGainPct: dayGainPct,
-    closePosition: closePosition, atr14: atr14, rsi14: rsi14, macd: macd, bb20: bb20, rvol20: _calcRVOL(volumes, 20),
+    closePosition: closePosition, upperWickPct: candle.upperWickPct, lowerWickPct: candle.lowerWickPct, bodyPct: candle.bodyPct, gapUpPct: candle.gapUpPct,
+    atr14: atr14, adr20Pct: adr20Pct, rsi14: rsi14, macd: macd, bb20: bb20, rvol20: _calcRVOL(volumes, 20),
     sma10: sma10, sma20: sma20, sma50: sma50, sma200: sma200, ema10: ema10, ema21: ema21,
-    dist10Atr: dist10Atr, dist21Atr: dist21Atr, dist50Atr: dist50Atr,
-    dist10ATR: dist10Atr, dist21ATR: dist21Atr, dist50ATR: dist50Atr,
+    dist10Atr: dist10Atr, dist20Atr: dist20Atr, dist21Atr: dist21Atr, dist50Atr: dist50Atr,
+    dist10ATR: dist10Atr, dist20ATR: dist20Atr, dist21ATR: dist21Atr, dist50ATR: dist50Atr,
+    dist20Pct: dist20Pct, dist20Adr: dist20Adr, dist20ADR: dist20Adr,
     dist50Pct: sma50 ? ((last.close - sma50) / sma50) * 100 : null,
     dist21Pct: ema21 ? ((last.close - ema21) / ema21) * 100 : null,
     above10EMA: ema10 ? last.close >= ema10 : null, above21EMA: ema21 ? last.close >= ema21 : null,
@@ -3555,10 +3594,137 @@ function calcTechnicalSnapshot(ohlcv) {
     bbOutsideUpper: !!(bb20 && last.close > bb20.upper), bbReentry: bbReentry,
     recentHigh20: _calcRecentLevel(highs, 20, Math.max), recentLow20: _calcRecentLevel(lows, 20, Math.min),
     recentHigh50: _calcRecentLevel(highs, 50, Math.max), recentLow50: _calcRecentLevel(lows, 50, Math.min),
+    prevLow: prev.low, prevHigh: prev.high,
     trendState: sma50 && sma200 && last.close >= sma50 && sma50 >= sma200 ? 'UPTREND' : sma50 && last.close < sma50 ? 'TREND_DAMAGED' : 'MIXED',
     stageEstimate: sma50 && sma200 && last.close >= sma50 && sma50 >= sma200 ? 'STAGE_2_ADVANCE' : sma50 && last.close < sma50 ? 'STAGE_4_OR_BASE_REPAIR' : 'STAGE_1_3_TRANSITION',
-    lastBar: last, raw: bars
+    lastBar: last, prevBar: prev, raw: bars
   };
+}
+
+function calcExtensionHeat(snapshot) {
+  snapshot = snapshot || {};
+  if (!snapshot.ok) return { state: 'DATA_INSUFFICIENT', score: 0, flags: ['DATA_INSUFFICIENT'], snapshot: snapshot };
+  var score = 0, flags = [];
+  function add(points, flag) { score += points; flags.push(flag); }
+  var d20 = snapshot.dist20Atr, d50 = snapshot.dist50Atr, d21 = snapshot.dist21Atr, adr = snapshot.dist20Adr;
+  if (d20 !== null && d20 >= 3) add(18, '20MA_PLUS_3ATR_WARNING');
+  if (d20 !== null && d20 >= 4) add(18, '20MA_PLUS_4ATR_TRIM_ZONE');
+  if (d20 !== null && d20 >= 6) add(24, '20MA_PLUS_6ATR_BLOWOFF_RISK');
+  if (adr !== null && adr >= 4) add(12, '20MA_PLUS_4ADR_EXTENDED');
+  if (adr !== null && adr >= 6) add(16, '20MA_PLUS_6ADR_EXTREME');
+  if (d21 !== null && d21 >= 2.5) add(10, '21EMA_PLUS_2_5ATR_SHORT_EXTENSION');
+  if (d50 !== null && d50 >= 6) add(12, '50SMA_PLUS_6ATR_MANIA_CONTEXT');
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  var state = score >= 75 ? 'BLOW_OFF_RISK' : score >= 50 ? 'EXTREME_EXTENSION' : score >= 25 ? 'EXTENDED' : 'NORMAL';
+  return { state: state, score: score, flags: flags.length ? flags : ['EXTENSION_NORMAL'], snapshot: snapshot, dist20Atr: d20, dist20Adr: adr, dist50Atr: d50 };
+}
+
+function classifyTerminalCandle(bar, prevBar, snapshot) {
+  snapshot = snapshot || {};
+  bar = bar || snapshot.lastBar || null;
+  prevBar = prevBar || snapshot.prevBar || null;
+  var metrics = _calcCandleMetrics(bar, prevBar);
+  var dist20 = snapshot.dist20Atr !== undefined ? snapshot.dist20Atr : null;
+  var rvol = snapshot.rvol20 !== undefined ? snapshot.rvol20 : null;
+  var score = 0, flags = [], type = 'NEUTRAL';
+  function set(nextType, points, flag) {
+    if (points >= score) type = nextType;
+    score = Math.max(score, points);
+    flags.push(flag);
+  }
+  if (!bar) return { type: 'DATA_INSUFFICIENT', score: 0, flags: ['DATA_INSUFFICIENT'], metrics: metrics };
+  if (metrics.dayPct > 2 && metrics.closePosition >= 0.8 && metrics.upperWickPct < 0.2) set('MOMENTUM_THRUST', 8, 'STRONG_CLOSE_MOMENTUM_THRUST');
+  if (metrics.gapUpPct >= 2 && metrics.upperWickPct >= 0.35 && metrics.closePosition < 0.6 && dist20 !== null && dist20 >= 4) set('GAP_UP_EXHAUSTION', 45, 'GAP_UP_UPPER_WICK_EXHAUSTION');
+  if (metrics.upperWickPct >= 0.45 && metrics.bodyPct <= 0.35 && dist20 !== null && dist20 >= 4) set('SHOOTING_STAR_RISK', 42, 'SHOOTING_STAR_AFTER_EXTENSION');
+  if (prevBar && Number(bar.close) < Number(prevBar.low) && rvol !== null && rvol >= 2) set('BEARISH_CONFIRMATION', 68, 'CLOSE_BELOW_PREV_LOW_ON_RVOL');
+  if (snapshot.failedRetest) set('FAILED_RETEST', 58, 'FAILED_RETEST_OF_PRIOR_HIGH');
+  if (metrics.closePosition < 0.4 && metrics.upperWickPct >= 0.35) set(type === 'NEUTRAL' ? 'WEAK_CLOSE_WARNING' : type, Math.max(score, 25), 'WEAK_CLOSE_WITH_SUPPLY');
+  return { type: type, score: Math.max(0, Math.min(100, Math.round(score))), flags: flags.length ? flags : ['NO_TERMINAL_CANDLE'], metrics: metrics, snapshot: snapshot };
+}
+
+function _aioThirdFriday(year, monthIndex) {
+  var d = new Date(year, monthIndex, 1);
+  var firstFriday = 1 + ((5 - d.getDay() + 7) % 7);
+  return new Date(year, monthIndex, firstFriday + 14);
+}
+
+function _aioNextMonthlyOpex(referenceDate) {
+  var ref = referenceDate ? new Date(referenceDate) : new Date();
+  var candidate = _aioThirdFriday(ref.getFullYear(), ref.getMonth());
+  var refDay = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate()).getTime();
+  if (candidate.getTime() < refDay) candidate = _aioThirdFriday(ref.getMonth() === 11 ? ref.getFullYear() + 1 : ref.getFullYear(), (ref.getMonth() + 1) % 12);
+  var days = Math.ceil((candidate.getTime() - refDay) / (24 * 60 * 60 * 1000));
+  return { nextOpexDate: candidate.toISOString().slice(0, 10), daysToOpex: days };
+}
+
+function calcOpexGammaRisk(ctx) {
+  ctx = ctx || {};
+  var cal = ctx.daysToOpex !== undefined ? { daysToOpex: Number(ctx.daysToOpex), nextOpexDate: ctx.nextOpexDate || null } : _aioNextMonthlyOpex(ctx.referenceDate);
+  var days = isFinite(cal.daysToOpex) ? cal.daysToOpex : null;
+  var equityPutCall = Number(ctx.equityPutCall);
+  var indexPutCall = Number(ctx.indexPutCall);
+  var totalPutCall = Number(ctx.totalPutCall);
+  var score = 0, flags = [];
+  function add(points, flag) { score += points; flags.push(flag); }
+  if (days !== null && days <= 3) add(14, 'OPEX_WITHIN_3_SESSIONS');
+  if (isFinite(equityPutCall) && equityPutCall < 0.55) add(18, 'EQUITY_PUT_CALL_COMPLACENCY');
+  if (isFinite(indexPutCall) && indexPutCall > 1.0 && isFinite(equityPutCall) && equityPutCall < 0.6) add(14, 'INDEX_HEDGE_EQUITY_CALL_CHASE_SPLIT');
+  if (isFinite(totalPutCall) && totalPutCall < 0.75) add(8, 'TOTAL_PUT_CALL_LOW');
+  if (ctx.priceNearCallWall && !ctx.closeAboveCallWall) add(14, 'PINNED_BELOW_CALL_WALL');
+  if (ctx.afterOpex && ctx.callVolumeDecelerating) add(18, 'POST_OPEX_CALL_DECAY');
+  if (ctx.vixRisingWhileIndexUp) add(16, 'VIX_RISING_WHILE_INDEX_UP');
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  var regime = score >= 60 ? 'GAMMA_UNWIND_RISK' : score >= 30 ? 'GAMMA_DECAY_WATCH' : 'GAMMA_SUPPORT';
+  return { regime: regime, score: score, flags: flags.length ? flags : ['NO_OPEX_GAMMA_STRESS'], daysToOpex: days, nextOpexDate: cal.nextOpexDate || null, equityPutCall: isFinite(equityPutCall) ? equityPutCall : null, indexPutCall: isFinite(indexPutCall) ? indexPutCall : null, totalPutCall: isFinite(totalPutCall) ? totalPutCall : null, dataQuality: ctx.dataQuality || null };
+}
+
+function calcBreadthRotation(ctx) {
+  ctx = ctx || {};
+  var score = 0, flags = [];
+  function add(points, flag) { score += points; flags.push(flag); }
+  if (ctx.iwmUp || Number(ctx.iwmVsQqqRS_5d) > 0) add(18, 'IWM_PARTICIPATION');
+  if (ctx.rspUp || Number(ctx.rspVsSpyRS_5d) > 0) add(16, 'EQUAL_WEIGHT_CONFIRMATION');
+  if (ctx.kreUp) add(10, 'KRE_CYCLICAL_CONFIRMATION');
+  if (ctx.xbiUp) add(10, 'XBI_SPEC_GROWTH_CONFIRMATION');
+  if (ctx.industrialsUp) add(8, 'INDUSTRIALS_CONFIRMATION');
+  if (ctx.qqqUpButBreadthDown) add(-28, 'QQQ_UP_BREADTH_DOWN');
+  if (ctx.iwmFailedBreakout) add(-22, 'IWM_FAILED_BREAKOUT');
+  if (ctx.rspLaggingSpy) add(-16, 'RSP_LAGGING_SPY');
+  if (ctx.kreDown && ctx.xbiDown) add(-14, 'CYCLICAL_SPEC_ROTATION_FAILED');
+  if (ctx.smhSidewaysNotDown && score > 0) flags.push('SEMI_DIGESTING_WHILE_BREADTH_BROADENS');
+  score = Math.max(-100, Math.min(100, Math.round(score)));
+  var regime = score >= 30 ? 'BREADTH_BROADENING' : score <= -25 ? 'FAILED_ROTATION' : 'NARROW_LEADERSHIP';
+  return { regime: regime, score: score, flags: flags.length ? flags : ['BREADTH_NEUTRAL_OR_INSUFFICIENT'], iwmVsQqqRS_5d: Number(ctx.iwmVsQqqRS_5d) || 0, rspVsSpyRS_5d: Number(ctx.rspVsSpyRS_5d) || 0 };
+}
+
+function calcLockoutRegime(modules) {
+  modules = modules || {};
+  var candle = modules.candle || {};
+  var opex = modules.opexGamma || {};
+  var breadth = modules.breadth || {};
+  var extension = modules.extension || {};
+  if (candle.type === 'BEARISH_CONFIRMATION' || candle.type === 'FAILED_RETEST') return 'DISTRIBUTION_REVERSAL';
+  if (opex.regime === 'GAMMA_UNWIND_RISK') return 'OPEX_PIN_OR_DECAY';
+  if (breadth.regime === 'FAILED_ROTATION') return 'FAILED_ROTATION';
+  if (extension.state === 'BLOW_OFF_RISK' || extension.state === 'EXTREME_EXTENSION') return 'LATE_STAGE_GAMMA_CHASE';
+  if (breadth.regime === 'BREADTH_BROADENING') return 'BREADTH_BROADENING';
+  return 'LOCKOUT_CONTINUATION';
+}
+
+function calcLockoutAction(modules) {
+  modules = modules || {};
+  var extension = modules.extension || { score: 0, flags: [] };
+  var candle = modules.candle || { score: 0, flags: [] };
+  var opexGamma = modules.opexGamma || { score: 0, flags: [] };
+  var breadth = modules.breadth || { score: 0, flags: [] };
+  var portfolio = modules.portfolioExposure || { score: 0, flags: [] };
+  var breadthPenalty = Math.max(0, -(Number(breadth.score) || 0));
+  var risk = (Number(extension.score) || 0) * 0.25 + (Number(candle.score) || 0) * 0.25 + (Number(opexGamma.score) || 0) * 0.20 + breadthPenalty * 0.15 + (Number(portfolio.score) || 0) * 0.15;
+  var score = Math.max(0, Math.min(100, Math.round(risk)));
+  var action = score >= 75 ? 'EXIT_OR_HEDGE' : score >= 55 ? 'TRIM_50' : score >= 35 ? 'TRIM_25_33' : score >= 15 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
+  var regime = calcLockoutRegime({ extension: extension, candle: candle, opexGamma: opexGamma, breadth: breadth });
+  var flags = [].concat(extension.flags || [], candle.flags || [], opexGamma.flags || [], breadth.flags || [], portfolio.flags || []);
+  return { score: score, action: action, regime: regime, flags: flags.length ? flags : ['LOCKOUT_ACTION_NEUTRAL'], extension: extension, candle: candle, opexGamma: opexGamma, breadth: breadth, portfolioExposure: portfolio };
 }
 
 function calcSellPressure(ohlcvOrSnapshot, context) {
@@ -3580,6 +3746,7 @@ function calcSellPressure(ohlcvOrSnapshot, context) {
   if (snapshot.above50SMA === false) add(28, 'CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED');
   if (context.semiHeat && context.semiHeat.state === 'SEMI_HEATED') add(6, 'SEMI_HEATED_CONTEXT');
   if (context.semiHeat && context.semiHeat.state === 'SEMI_MANIA') add(12, 'SEMI_MANIA_CONTEXT');
+  if (context.lockoutAction && context.lockoutAction.score >= 35) add(Math.min(18, Math.round(context.lockoutAction.score / 4)), 'LOCKOUT_ACTION_' + context.lockoutAction.action);
   score = Math.max(0, Math.min(100, Math.round(score)));
   var action = score >= 75 ? 'EXIT_OR_HEDGE' : score >= 58 ? 'TRIM_50' : score >= 38 ? 'TRIM_25_33' : score >= 18 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
   return { score: score, action: action, flags: flags.length ? flags : ['TREND_HEALTHY_NO_EXIT_SIGNAL'], snapshot: snapshot };
@@ -3816,7 +3983,14 @@ window._calcMACD = _calcMACD;
 window._calcBB = _calcBB;
 window._calcRVOL = _calcRVOL;
 window._calcClosePosition = _calcClosePosition;
+window._calcADRPercent = _calcADRPercent;
 window.calcTechnicalSnapshot = calcTechnicalSnapshot;
+window.calcExtensionHeat = calcExtensionHeat;
+window.classifyTerminalCandle = classifyTerminalCandle;
+window.calcOpexGammaRisk = calcOpexGammaRisk;
+window.calcBreadthRotation = calcBreadthRotation;
+window.calcLockoutRegime = calcLockoutRegime;
+window.calcLockoutAction = calcLockoutAction;
 window.calcSellPressure = calcSellPressure;
 window.calcSemiHeatMap = calcSemiHeatMap;
 window.calcSemiHeat = calcSemiHeatMap;
@@ -3826,7 +4000,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.4';
+const APP_VERSION = 'v49.5';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -4735,18 +4909,18 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v48.76: _updated → 금요일 2026-05-01 장마감 시각 (목요일 5/1 종가 기준, 미국 장 정상 운영)
-  _updated: '2026-05-08T16:00:00-04:00',   // v49.4 static fallback snapshot, US close
-  _snapshotDate: '2026-05-08',
+  _updated: '2026-05-11T16:00:00-04:00',   // v49.5 static fallback snapshot, US close
+  _snapshotDate: '2026-05-11',
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v49.4 WebSearch refresh (2026-05-08 close): SPX 7398.93 (+0.8%) · NASDAQ 26247.08 (+1.7%) · Dow 49609.16 (+0.0%) · Russell 2000 2861.21 (+0.8%) · VIX spot 17.19 (+0.64%) / front future ~19.15 · WTI 97.66 (+2.71%) · Gold 4696.00 (+0.04%) · KOSPI 6719.81 (+0.68%) · KOSDAQ 1250.15 (+0.77%) · USD/KRW 1406.65 (-0.20%) · CNN F&G 68 greed · AAII latest reported Bull 38.3% / Bear 33.0%. Static fallback only; live stores override when available.',
+  _note: 'v49.5 WebSearch refresh (2026-05-11 close): SPX 7412.84 (+0.19%) / NASDAQ 26274.13 (+0.10%) / Dow 49704.47 (+0.19%) / Russell 2000 2870.64 (+0.33%) / VIX spot 18.38 (+6.92%) / WTI 98.07 (+2.78%) / Brent 104.21 (+2.88%) / CBOE equity PCR 0.53 (2026-05-08) / index PCR 0.71 / total PCR 0.67 (2026-05-06 latest available via YCharts). Static fallback only; live stores override when available.',
 
   // ── 미국 주요 지수 (4/30 목 종가 WebSearch 실측) ──
-  spx:        7398.93,  spxPct:    +0.84,   // v49.4: AP 2026-05-08 close
-  nasdaq:    26247.08,  nasdaqPct: +1.71,   // v49.4: AP 2026-05-08 close
-  dow:       49609.16,  dowPct:    +0.02,   // v49.4: AP 2026-05-08 close
-  rut:        2861.21,  rutPct:    +0.76,   // v49.4: AP 2026-05-08 close
-  vix:          17.19,  vixPct:    +0.64,   // v49.4: Cboe 2026-05-08 spot
+  spx:        7412.84,  spxPct:    +0.19,   // v49.5: AP 2026-05-11 close
+  nasdaq:    26274.13,  nasdaqPct: +0.10,   // v49.5: AP 2026-05-11 close
+  dow:       49704.47,  dowPct:    +0.19,   // v49.5: AP 2026-05-11 close
+  rut:        2870.64,  rutPct:    +0.33,   // v49.5: AP 2026-05-11 close
+  vix:          18.38,  vixPct:    +6.92,   // v49.5: AA/AP 2026-05-11 spot
   vvix:         88.20,                        // v48.70: VVIX (미갱신)
 
   // ── 한국 지수 (4/30 WebSearch 실측) ──
@@ -4754,8 +4928,8 @@ const DATA_SNAPSHOT = {
   kosdaq:    1250.15,  kosdaqPct: +0.77,  kosdaqPrev: 1240.65, // v49.4: Finhacker 2026-05-08 close
 
   // ── 원자재 (4/30 WebSearch 실측 — 호르무즈 에스컬레이션, Brent 장중 $126 전시 최고가) ──
-  wti:      97.66,   wtiPct:   +2.71,   // v49.4: Yahoo Finance delayed snapshot
-  brent:   103.40,   brentPct: +2.10,   // v49.4: static fallback estimate; live quote preferred
+  wti:      98.07,   wtiPct:   +2.78,   // v49.5: TheStreet 2026-05-11 settlement
+  brent:   104.21,   brentPct: +2.88,   // v49.5: TheStreet/AP 2026-05-11 settlement
   gold:     4696,    goldPct:  +0.04,  goldWeeklyPct: +3.2,  // v49.4: Yahoo Finance delayed snapshot
   ng:       3.05,                         // 천연가스 소폭 상승 (공급 우려)
 
@@ -4877,6 +5051,11 @@ const DATA_SNAPSHOT = {
     putCall:          47.2, // Put/Call F&G 환산치 (중립)
     insiderSentiment: 0.1   // 내부자 매수/매도 3개월 비율 (극단 공포! 2021.11 고점 선례)
   },
+
+  // v49.5: OPEX/gamma fallback seeds; live CBOE/option data overrides when available.
+  pcr: 0.67,
+  equityPutCall: 0.53,
+  indexPutCall: 0.71,
 
   // ── v47.2: 위험봇 3/30 12:49 STABLE 역사 스냅샷 (Tail Risk Board) ──
   //   4/15 현재와 별개 — "관세 쇼크 저점 직후 STABLE 판정" 시점의 꼬리위험 구조

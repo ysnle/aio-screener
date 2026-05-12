@@ -1,13 +1,13 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-05-10
+last_verified: 2026-05-12
 confidence: high
-target_version: v49.4
+target_version: v49.5
 target_file: index.html + js/*.js
-target_lines: index.html 29736 + js modules 26784
+target_lines: index.html 29758 + js modules 26916
 ---
 
-# AIO v49.4 CODE-MAP
+# AIO v49.5 CODE-MAP
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `Select-String`/부분 Read로 한 번 더 확인한다.
@@ -18,12 +18,12 @@ target_lines: index.html 29736 + js modules 26784
 
 | 파일 | 줄 수 | 역할 |
 |------|------:|------|
-| `index.html` | 29,736 | HTML shell, CSS, 21개 페이지 DOM, Institutional Technical Brief DOM, portfolio technical risk runtime, 일부 inline runtime, 외부 모듈 로드 |
-| `js/aio-core.js` | 6,977 | 버전, 전역 상태, DATA_SNAPSHOT, 캐시, technical snapshot/sell pressure engine, DataQuality/AIInfraHeat/PortfolioTechnicalRisk, freshness policy/SnapshotStore/auditAllFreshness, data pipeline audit, 페이지 라우터 |
-| `js/aio-data.js` | 11,311 | API fetcher, OHLCV + Yahoo fallback + quality bundle, live coverage guard, 뉴스 소스/스코어링/impact vector/렌더, 키워드, 캘린더, 데이터 스케줄 + scheduler telemetry |
-| `js/aio-ui.js` | 2,559 | 심리/시장폭 차트, Institutional Technical Brief renderers, data-quality/news-impact/portfolio-risk renderers, LLM quota UI, GitHub polling, feedback UI |
-| `js/aio-chat.js` | 4,582 | CHAT_CONTEXTS, Claude/Perplexity, 기업 분석, fundamentalSearch |
-| `js/aio-tests.js` | 1,051 | 브라우저 단위 테스트 T1~T124, `AIO.runTests()` / `AIO.getTestResults()` |
+| `index.html` | 29,758 | HTML shell, CSS, 21개 페이지 DOM, Institutional Technical Brief + Lockout/OPEX Control DOM, portfolio technical risk runtime, 일부 inline runtime, 외부 모듈 로드 |
+| `js/aio-core.js` | 7,158 | 버전, 전역 상태, DATA_SNAPSHOT, 캐시, technical snapshot/sell pressure engine, Lockout/OPEX strategy engine, DataQuality/AIInfraHeat/PortfolioTechnicalRisk, freshness policy/SnapshotStore/auditAllFreshness, data pipeline audit, 페이지 라우터 |
+| `js/aio-data.js` | 11,374 | API fetcher, OHLCV + Yahoo fallback + quality bundle, OPEX/put-call/lockout bundle fetchers, live coverage guard, 뉴스 소스/스코어링/impact vector/렌더, 키워드, 캘린더, 데이터 스케줄 + scheduler telemetry |
+| `js/aio-ui.js` | 2,688 | 심리/시장폭 차트, Institutional Technical Brief + Lockout/OPEX renderers, data-quality/news-impact/portfolio-risk renderers, LLM quota UI, GitHub polling, feedback UI |
+| `js/aio-chat.js` | 4,584 | CHAT_CONTEXTS, Lockout/OPEX technical prompt, Claude/Perplexity, 기업 분석, fundamentalSearch |
+| `js/aio-tests.js` | 1,112 | 브라우저 단위 테스트 T1~T132, `AIO.runTests()` / `AIO.getTestResults()` |
 | `js/aio-glossary.js` | 304 | 용어사전 검색/렌더 |
 
 ---
@@ -34,14 +34,14 @@ target_lines: index.html 29736 + js modules 26784
 |------|------|
 | 1 ~ 38 | head meta, title, preload |
 | 39 ~ 3472 | 메인 CSS |
-| 3473 ~ 11993 | body shell + 21개 page DOM |
-| 11994 ~ 12012 | CDN + `aio-core/data/ui` 로드 |
-| 12014 ~ 14753 | inline runtime block 1 |
-| 14754 | `js/aio-chat.js` 로드 |
-| 14756 ~ 26687 | inline runtime block 2 |
-| 26693 | `js/aio-tests.js` 로드 |
-| 26699 | `js/aio-glossary.js` 로드 |
-| 26700 ~ 29721 | glossary/service worker/deep analysis/update helpers + closing HTML |
+| 3473 ~ 12084 | body shell + 21개 page DOM |
+| 12085 ~ 12103 | CDN + `aio-core/data/ui` 로드 |
+| 12105 ~ 15047 | inline runtime block 1 |
+| 15048 | `js/aio-chat.js` 로드 |
+| 15050 ~ 26790 | inline runtime block 2 |
+| 26798 | `js/aio-glossary.js` 로드 |
+| 26800 | `js/aio-tests.js` 로드 |
+| 26801 ~ 29758 | glossary/service worker/deep analysis/update helpers + closing HTML |
 
 ### 21개 페이지 DOM 시작점
 
@@ -49,10 +49,10 @@ target_lines: index.html 29736 + js modules 26784
 |--------|----|----------:|
 | 홈 대시보드 | `page-home` | 3767 |
 | 매매 시그널 | `page-signal` | 4187 |
-| 시장 폭 | `page-breadth` | 5008 |
-| 투자 심리 | `page-sentiment` | 5403 |
-| 데일리 브리핑 | `page-briefing` | 5686 |
-| 차트·기술 | `page-technical` | 6054 |
+| 시장 폭 | `page-breadth` | 5023 |
+| 투자 심리 | `page-sentiment` | 5418 |
+| 데일리 브리핑 | `page-briefing` | 5701 |
+| 차트·기술 | `page-technical` | 6069 |
 | 거시경제 | `page-macro` | 6525 |
 | 환율·채권 | `page-fxbond` | 7119 |
 | 기업 분석 | `page-fundamental` | 7881 |
@@ -184,6 +184,7 @@ target_lines: index.html 29736 + js modules 26784
 
 ## 5. 검증 메모
 
+- v49.5는 v49.4 데이터 최신성 거버넌스 위에 Lockout Rally/OPEX 전략 엔진, terminal candle, breadth rotation, action ladder UI/tests를 추가한 기준.
 - v49.4는 v49.3 아키텍처 보강 위에 freshness policy, SnapshotStore, scheduler telemetry, auditAllFreshness, WebSearch fallback refresh를 추가한 기준.
 - HTML inline `onclick=` attribute는 0건. JS property assignment `.onclick =`는 modal/prompt overlay 내부에서 4건 존재.
 - `.claude/commands`와 `.claude/hooks`는 GitHub-tracked checkout에는 없음. Claude 로컬 운영 워크트리에만 존재할 수 있으므로 배포 검증과 운영 검증을 구분한다.

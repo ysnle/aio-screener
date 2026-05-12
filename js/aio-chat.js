@@ -42,11 +42,13 @@ const CHAT_CONTEXTS = {
         '• DXY 108+: 다국적 기업 차트 약세 가속(환율 역풍). 내수 기업 상대 우위.\n' +
         '• 미너비니 바닥 3단계(§46): 과매도→랠리(광범위?) → 리테스트(성공?) → Breadth Thrust(확인?) = "진짜 바닥"인지 판별.\n' +
         '→ 현재 VIX ' + s.vix + ' / 10Y ' + s.tnx + '% / DXY ' + s.dxy + ' 환경에서 기술적 패턴 신뢰도를 가감하여 분석.' +
-        '\n\n[Institutional Technical Risk & Exit Engine v49.3]\n' +
+        '\n\n[Institutional Technical Risk, Lockout Rally & OPEX Engine v49.5]\n' +
         'Always conclude ticker technical answers with one action: HOLD_CORE / NO_ADD_RAISE_STOP / TRIM_25_33 / TRIM_50 / EXIT_OR_HEDGE.\n' +
-        'RSI 70+ is not an automatic sell in lockout rallies. Use ATR extension, RVOL, close position, Bollinger upper-band re-entry, and 10EMA/21EMA/50SMA violations for sell logic.\n' +
-        'Rules: +3ATR over 50SMA warning; +4ATR no new buys/partial trim candidate; +6ATR strong trim/hedge candidate; +2.5ATR over 21EMA short-term extension; RSI 80 overheat, 85 extreme; day gain 6%+ with RVOL 2.5x and weak close = climax reversal risk; close below 10EMA trims trading lot, below 21EMA reduces swing lot, below 50SMA damages swing thesis.\n' +
-        'For semiconductor leaders, compare SMH/SOXX against QQQ/SPY and call out SEMI_HEATED or SEMI_MANIA when relative strength, ATR extension, RSI, and RVOL line up. Also account for AI_INFRA_HEATED/AI_INFRA_MANIA, portfolio technical risk, news impact vectors, and data-quality labels before sounding confident. Provide professional interpretation plus beginner translation.\n' +
+        'RSI 70+ is not an automatic sell in lockout rallies. Overheat is a warning, not a sell trigger. Real sell/trim evidence is demand weakening, failed breakout/retest, 5/10/21/50-day line violations, OPEX gamma support decay, or breadth expansion failure.\n' +
+        'Use the lockout modules: 20MA_ATR_EXTENSION, 20MA_ADR_EXTENSION, CLOSE_POSITION, UPPER_WICK_PCT, RVOL20, GAP_UP_PCT, terminal candle type, OPEX/Gamma regime, and Breadth/Rotation regime.\n' +
+        'Regimes to name when relevant: LOCKOUT_CONTINUATION, LATE_STAGE_GAMMA_CHASE, OPEX_PIN_OR_DECAY, BREADTH_BROADENING, FAILED_ROTATION, DISTRIBUTION_REVERSAL. Do not predict tops; give conditional position management: no chasing, hold core when demand persists, trim trading lots when supply appears, hedge/exit tactical exposure only on confirmation.\n' +
+        'Rules: 20MA +3ATR warning, +4~6ATR extreme/trim zone; close position >=0.8 bullish, 0.4~0.6 caution, <0.4 risk; upper wick >=35% warning, >=45% risk; RVOL >=2.5 climax context. MOMENTUM_THRUST supports core hold; GAP_UP_EXHAUSTION or SHOOTING_STAR_RISK raises trim risk; BEARISH_CONFIRMATION can force TRIM_50. Close below 10EMA trims trading lot, below 21EMA reduces swing lot, below 50SMA damages swing thesis.\n' +
+        'For semiconductor leaders, compare SMH/SOXX against QQQ/SPY and call out SEMI_HEATED or SEMI_MANIA when relative strength, ATR extension, RSI, and RVOL line up. Also account for IWM/RSP/KRE/XBI breadth rotation, AI_INFRA_HEATED/AI_INFRA_MANIA, portfolio technical risk, news impact vectors, and data-quality labels before sounding confident. Provide professional interpretation plus beginner translation.\n' +
         _getV48IntegratedContext('technical') +
         _getChatRules();
     }

@@ -2047,6 +2047,66 @@ async function fetchOHLCVWithFallback(symbol, interval, bars) {
 }
 window.fetchOHLCVWithFallback = fetchOHLCVWithFallback;
 
+function _aioDataThirdFriday(year, monthIndex) {
+  var d = new Date(year, monthIndex, 1);
+  var firstFriday = 1 + ((5 - d.getDay() + 7) % 7);
+  return new Date(year, monthIndex, firstFriday + 14);
+}
+
+function _aioDataNextOpex(referenceDate) {
+  var ref = referenceDate ? new Date(referenceDate) : new Date();
+  var refDay = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
+  var next = _aioDataThirdFriday(ref.getFullYear(), ref.getMonth());
+  if (next.getTime() < refDay.getTime()) next = _aioDataThirdFriday(ref.getMonth() === 11 ? ref.getFullYear() + 1 : ref.getFullYear(), (ref.getMonth() + 1) % 12);
+  return { nextOpexDate: next.toISOString().slice(0, 10), daysToOpex: Math.ceil((next.getTime() - refDay.getTime()) / 86400000) };
+}
+
+async function fetchOpexCalendar(referenceDate) {
+  var cal = _aioDataNextOpex(referenceDate);
+  var metric = window.makeMetric ? window.makeMetric(cal.nextOpexDate, 'calendar-derived-monthly-opex', Date.now(), 'option', { daysToOpex: cal.daysToOpex }) : null;
+  return { nextOpexDate: cal.nextOpexDate, daysToOpex: cal.daysToOpex, dataQuality: metric };
+}
+window.fetchOpexCalendar = fetchOpexCalendar;
+
+async function fetchPutCallRatios() {
+  var snap = window.DATA_SNAPSHOT || {};
+  var total = Number(window._putCallRatio || snap.pcr || snap.putCallRatio);
+  var equity = Number(snap.equityPutCall || snap.equityPcr);
+  var index = Number(snap.indexPutCall || snap.indexPcr);
+  var source = 'snapshot-or-live-put-call';
+  if (!isFinite(total)) total = null;
+  if (!isFinite(equity)) equity = total !== null ? Math.max(0.35, total * 0.72) : null;
+  if (!isFinite(index)) index = total !== null ? Math.min(1.8, total * 1.18) : null;
+  var q = window.makeMetric ? window.makeMetric(total, source, Date.now(), 'option', { estimated: equity !== null || index !== null }) : null;
+  return { totalPutCall: total, equityPutCall: equity, indexPutCall: index, dataQuality: q };
+}
+window.fetchPutCallRatios = fetchPutCallRatios;
+
+async function fetchOptionSentiment() {
+  var out = await Promise.allSettled([fetchOpexCalendar(), fetchPutCallRatios()]);
+  return {
+    opex: out[0].status === 'fulfilled' ? out[0].value : { nextOpexDate: null, daysToOpex: null, dataQuality: null },
+    putCall: out[1].status === 'fulfilled' ? out[1].value : { totalPutCall: null, equityPutCall: null, indexPutCall: null, dataQuality: null }
+  };
+}
+window.fetchOptionSentiment = fetchOptionSentiment;
+
+async function fetchLockoutMarketBundle(symbols) {
+  symbols = symbols && symbols.length ? symbols : ['SPY', 'QQQ', 'SMH', 'SOXX', 'IWM', 'RSP', 'KRE', 'XBI'];
+  var rows = await Promise.allSettled(symbols.map(function(sym) { return fetchOHLCVWithFallback(sym, '1day', 180); }));
+  var snapshots = {};
+  var dataQuality = {};
+  rows.forEach(function(r, i) {
+    var sym = symbols[i];
+    var bars = r.status === 'fulfilled' && Array.isArray(r.value) ? r.value : [];
+    snapshots[sym] = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(bars) : { ok: false, reason: 'calc_missing', bars: bars.length };
+    dataQuality[sym] = bars && bars.dataQuality ? bars.dataQuality : (window.calcDataQuality ? window.calcDataQuality({ source: 'lockout-bundle', rows: bars.length, missing: !bars.length }) : null);
+  });
+  var optionSentiment = await fetchOptionSentiment();
+  return { symbols: symbols, snapshots: snapshots, dataQuality: dataQuality, optionSentiment: optionSentiment };
+}
+window.fetchLockoutMarketBundle = fetchLockoutMarketBundle;
+
 async function fetchOHLCVBundleWithFallback(symbol, interval, bars) {
   var data = await fetchOHLCVWithFallback(symbol, interval, bars);
   return { data: Array.isArray(data) ? data : [], dataQuality: data && data.dataQuality ? data.dataQuality : (typeof window.calcDataQuality === 'function' ? window.calcDataQuality({ source: 'unknown', missing: true }) : null) };

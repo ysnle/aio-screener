@@ -6,6 +6,19 @@
 
 ---
 
+## v49.5 - Lockout Rally / OPEX Strategy Engine (2026-05-12)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- **P192**: Integrated the Lockout Rally/OPEX report into the institutional technical engine: 20MA ATR/ADR extension heat, terminal candle classification, OPEX/gamma decay risk, IWM/RSP/KRE/XBI breadth rotation, and a final action ladder.
+- Added `calcExtensionHeat()`, `classifyTerminalCandle()`, `calcOpexGammaRisk()`, `calcBreadthRotation()`, `calcLockoutRegime()`, and `calcLockoutAction()` as pure functions in `aio-core.js`.
+- Added option/opex helper fetchers and `fetchLockoutMarketBundle()` in `aio-data.js`, while preserving no-key fallback behavior.
+- Refreshed static fallback market seeds to 2026-05-11 US close for SPX/NASDAQ/Dow/Russell/VIX/oil and added CBOE put-call fallback fields for OPEX/gamma context.
+- Added Lockout Rally/OPEX Control panels to the technical page and trading signal page; the technical brief now renders extension heat, terminal candle, OPEX/gamma, breadth/rotation, and final action.
+- Updated the technical AI prompt so RSI 70+ is never treated as an automatic sell; answers must explain no-chase/core-hold/trading-lot trim/hedge logic and end with `HOLD_CORE`, `NO_ADD_RAISE_STOP`, `TRIM_25_33`, `TRIM_50`, or `EXIT_OR_HEDGE`.
+- Added tests T125~T132 for lockout snapshot metrics, extension heat, candle classification, OPEX/gamma risk, breadth rotation, final action aggregation, and prompt consistency.
+- R1 version sync: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `CLAUDE.md`, `_context/CLAUDE.md` all `v49.5`.
+
 ## v49.4 - Data Freshness Governance & Static Fallback Refresh (2026-05-10)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `_context/DATA-FRESHNESS-AUDIT-2026-05-10.md`, `CHANGELOG.md`

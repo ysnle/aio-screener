@@ -2488,6 +2488,83 @@ function _renderSemiHeatPanel(heat) {
     (ai ? '<div style="margin-top:9px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;"><span style="font-size:10px;font-weight:900;color:var(--text-secondary);">AI Infra Heat</span>' + _itbBadge(ai.state || 'DATA', aiTone) + '</div><div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:5px;">Basket: ' + _itbNum(ai.score, 0) + '/100 · overheated ' + _itbNum(ai.overheatCount, 0) + '/' + _itbNum(ai.count, 0) + '</div>' : '');
 }
 
+function _renderFlagList(flags, riskWords) {
+  flags = flags || [];
+  riskWords = riskWords || /RISK|FAILED|BELOW|UNWIND|EXHAUSTION|BLOWOFF|TRIM|EXIT/i;
+  return '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:7px;">' +
+    flags.slice(0, 8).map(function(f) {
+      var tone = riskWords.test(String(f)) ? 'risk' : /WARNING|DECAY|EXTENDED|WATCH|PIN/i.test(String(f)) ? 'warn' : 'bull';
+      return _itbBadge(String(f).replace(/_/g, ' '), tone);
+    }).join('') + '</div>';
+}
+
+function renderLockoutDashboard(result) {
+  result = result || {};
+  var lock = result.lockoutAction || {};
+  var ext = result.extensionHeat || {};
+  var candle = result.candleRisk || {};
+  var opex = result.opexGammaRisk || {};
+  var breadth = result.breadthRotation || {};
+  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;">' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Lockout Action</div><div style="margin-top:5px;">' + _itbBadge(lock.action || 'HOLD_CORE', _itbActionTone(lock.action)) + '</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Regime</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + _itbEsc(lock.regime || 'LOCKOUT_CONTINUATION') + '</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Risk</div><div style="font-size:18px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(lock.score, 0) + '/100</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">OPEX</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + _itbEsc(opex.daysToOpex == null ? 'n/a' : ('D-' + opex.daysToOpex)) + '</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Candle</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + _itbEsc(candle.type || 'NEUTRAL') + '</div></div>' +
+  '</div>' +
+  '<div style="font-size:10px;color:var(--text-muted);line-height:1.55;margin-top:8px;">Lockout rallies do not end because RSI is hot. Risk rises when demand weakens, breakouts fail, OPEX gamma support decays, or price loses the 10/21/50-day lines.</div>' +
+  _renderFlagList([].concat(lock.flags || [], ext.flags || [], breadth.flags || []).slice(0, 10));
+  ['tech-lockout-dashboard', 'signal-lockout-dashboard'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  });
+}
+
+function renderExtensionHeatPanel(extensionHeat) {
+  var el = document.getElementById('tech-lockout-extension');
+  if (!el) return;
+  extensionHeat = extensionHeat || {};
+  var tone = extensionHeat.score >= 50 ? 'risk' : extensionHeat.score >= 25 ? 'warn' : 'bull';
+  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Extension Heat</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(extensionHeat.state || 'NORMAL', tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(extensionHeat.score, 0) + '</span></div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:7px;">20MA ATR: ' + _itbNum(extensionHeat.dist20Atr, 1) + 'x<br>20MA ADR: ' + _itbNum(extensionHeat.dist20Adr, 1) + 'x<br>50SMA ATR: ' + _itbNum(extensionHeat.dist50Atr, 1) + 'x</div>' +
+    _renderFlagList(extensionHeat.flags);
+}
+
+function renderOpexGammaPanel(opexGamma) {
+  var el = document.getElementById('tech-lockout-opex');
+  if (!el) return;
+  opexGamma = opexGamma || {};
+  var tone = opexGamma.regime === 'GAMMA_UNWIND_RISK' ? 'risk' : opexGamma.regime === 'GAMMA_DECAY_WATCH' ? 'warn' : 'bull';
+  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">OPEX / Gamma</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(opexGamma.regime || 'GAMMA_SUPPORT', tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(opexGamma.score, 0) + '</span></div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:7px;">Next OPEX: ' + _itbEsc(opexGamma.nextOpexDate || '--') + '<br>Equity PCR: ' + _itbNum(opexGamma.equityPutCall, 2) + '<br>Index PCR: ' + _itbNum(opexGamma.indexPutCall, 2) + '</div>' +
+    _renderFlagList(opexGamma.flags);
+}
+
+function renderBreadthRotationPanel(breadthRotation) {
+  var el = document.getElementById('tech-lockout-breadth');
+  if (!el) return;
+  breadthRotation = breadthRotation || {};
+  var tone = breadthRotation.regime === 'FAILED_ROTATION' ? 'risk' : breadthRotation.regime === 'BREADTH_BROADENING' ? 'bull' : 'warn';
+  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Breadth / Rotation</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(breadthRotation.regime || 'NARROW_LEADERSHIP', tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(breadthRotation.score, 0) + '</span></div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:7px;">IWM vs QQQ: ' + _itbNum(breadthRotation.iwmVsQqqRS_5d, 2) + '%<br>RSP vs SPY: ' + _itbNum(breadthRotation.rspVsSpyRS_5d, 2) + '%</div>' +
+    _renderFlagList(breadthRotation.flags);
+}
+
+function renderCandleRiskBadge(candleRisk) {
+  var el = document.getElementById('tech-lockout-candle');
+  if (!el) return;
+  candleRisk = candleRisk || {};
+  var m = candleRisk.metrics || {};
+  var tone = candleRisk.score >= 55 ? 'risk' : candleRisk.score >= 25 ? 'warn' : 'bull';
+  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Terminal Candle</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(candleRisk.type || 'NEUTRAL', tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(candleRisk.score, 0) + '</span></div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:7px;">Close position: ' + _itbNum((m.closePosition || 0) * 100, 0) + '%<br>Upper wick: ' + _itbNum((m.upperWickPct || 0) * 100, 0) + '%<br>Gap: ' + _itbNum(m.gapUpPct, 2) + '%</div>' +
+    _renderFlagList(candleRisk.flags);
+}
+
 function renderTechnicalBrief(symbol, result) {
   result = result || {};
   var s = result.snapshot;
@@ -2498,6 +2575,11 @@ function renderTechnicalBrief(symbol, result) {
   renderSellPressurePanel(result.sellPressure);
   renderExitPlanPanel(result.exitPlan);
   _renderSemiHeatPanel(result.semiHeat);
+  renderLockoutDashboard(result);
+  renderExtensionHeatPanel(result.extensionHeat);
+  renderOpexGammaPanel(result.opexGammaRisk);
+  renderBreadthRotationPanel(result.breadthRotation);
+  renderCandleRiskBadge(result.candleRisk);
   renderBeginnerExplanation(result);
   window._techBriefChartInstances.forEach(function(c) { try { c.remove(); } catch(e) {} });
   window._techBriefChartInstances = [];
@@ -2511,34 +2593,76 @@ async function runInstitutionalTechnicalBrief(arg) {
   var symbol = (typeof arg === 'string' ? arg : '').trim().toUpperCase();
   if (!symbol) {
     var input = document.getElementById('tech-brief-symbol');
-    symbol = (input && input.value ? input.value : 'NVDA').trim().toUpperCase();
+    var signalInput = document.getElementById('signal-lockout-symbol');
+    var techVal = input && input.value ? input.value : '';
+    var signalVal = signalInput && signalInput.value ? signalInput.value : '';
+    symbol = ((signalVal && (!techVal || techVal.toUpperCase() === 'NVDA')) ? signalVal : (techVal || signalVal || 'NVDA')).trim().toUpperCase();
   }
   if (!symbol || symbol === '[OBJECT HTMLBUTTONELEMENT]') symbol = 'NVDA';
   var row = document.getElementById('tech-brief-regime-row');
   if (row) row.innerHTML = '<div style="grid-column:1/-1;padding:10px;color:var(--text-muted);font-size:11px;">Loading institutional technical brief for ' + _itbEsc(symbol) + '...</div>';
   try {
     var fetcher = window.fetchOHLCVWithFallback || window.fetchOHLCV;
-    var data = await Promise.all([
+    var settled = await Promise.allSettled([
       fetcher(symbol, '1month', 80),
       fetcher(symbol, '1week', 160),
       fetcher(symbol, '1day', 260),
       fetcher('SPY', '1day', 220),
       fetcher('QQQ', '1day', 220),
       fetcher('SMH', '1day', 220),
-      fetcher('SOXX', '1day', 220)
+      fetcher('SOXX', '1day', 220),
+      fetcher('IWM', '1day', 220),
+      fetcher('RSP', '1day', 220),
+      fetcher('KRE', '1day', 220),
+      fetcher('XBI', '1day', 220)
     ]);
+    var data = settled.map(function(r) { return r.status === 'fulfilled' ? (r.value || []) : []; });
     var aiSymbols = ['NVDA','AVGO','AMD','MU','TSM','ASML','MRVL','ARM','ALAB','CRDO'];
     var aiSettled = await Promise.allSettled(aiSymbols.map(function(t) { return fetcher(t, '1day', 160); }));
     var aiSnaps = {};
     aiSettled.forEach(function(r, i) { aiSnaps[aiSymbols[i]] = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(r.status === 'fulfilled' ? (r.value || []) : []) : { ok: false }; });
     var daily = data[2] || [];
     var snapshot = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(daily) : { ok: false };
-    var semiHeat = window.calcSemiHeatMap ? window.calcSemiHeatMap(window.calcTechnicalSnapshot(data[3] || []), window.calcTechnicalSnapshot(data[4] || []), window.calcTechnicalSnapshot(data[5] || []), window.calcTechnicalSnapshot(data[6] || [])) : null;
-    if (semiHeat && window.calcAIInfraHeat) semiHeat.aiInfraHeat = window.calcAIInfraHeat(aiSnaps, window.calcTechnicalSnapshot(data[4] || []), window.calcTechnicalSnapshot(data[3] || []));
-    var sellPressure = window.calcSellPressure ? window.calcSellPressure(snapshot, { semiHeat: semiHeat }) : null;
+    var spySnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[3] || []) : { ok: false };
+    var qqqSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[4] || []) : { ok: false };
+    var smhSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[5] || []) : { ok: false };
+    var soxxSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[6] || []) : { ok: false };
+    var iwmSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[7] || []) : { ok: false };
+    var rspSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[8] || []) : { ok: false };
+    var kreSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[9] || []) : { ok: false };
+    var xbiSnap = window.calcTechnicalSnapshot ? window.calcTechnicalSnapshot(data[10] || []) : { ok: false };
+    var semiHeat = window.calcSemiHeatMap ? window.calcSemiHeatMap(spySnap, qqqSnap, smhSnap, soxxSnap) : null;
+    if (semiHeat && window.calcAIInfraHeat) semiHeat.aiInfraHeat = window.calcAIInfraHeat(aiSnaps, qqqSnap, spySnap);
+    var extensionHeat = window.calcExtensionHeat ? window.calcExtensionHeat(snapshot) : null;
+    var candleRisk = window.classifyTerminalCandle ? window.classifyTerminalCandle(snapshot && snapshot.lastBar, snapshot && snapshot.prevBar, snapshot) : null;
+    var optionSentiment = window.fetchOptionSentiment ? await window.fetchOptionSentiment() : { opex: {}, putCall: {} };
+    var opexGammaRisk = window.calcOpexGammaRisk ? window.calcOpexGammaRisk({
+      daysToOpex: optionSentiment.opex && optionSentiment.opex.daysToOpex,
+      nextOpexDate: optionSentiment.opex && optionSentiment.opex.nextOpexDate,
+      equityPutCall: optionSentiment.putCall && optionSentiment.putCall.equityPutCall,
+      indexPutCall: optionSentiment.putCall && optionSentiment.putCall.indexPutCall,
+      totalPutCall: optionSentiment.putCall && optionSentiment.putCall.totalPutCall,
+      vixRisingWhileIndexUp: false,
+      dataQuality: optionSentiment.putCall && optionSentiment.putCall.dataQuality
+    }) : null;
+    var breadthRotation = window.calcBreadthRotation ? window.calcBreadthRotation({
+      iwmUp: !!(iwmSnap && iwmSnap.ok && iwmSnap.dayGainPct > 0),
+      rspUp: !!(rspSnap && rspSnap.ok && rspSnap.dayGainPct > 0),
+      kreUp: !!(kreSnap && kreSnap.ok && kreSnap.dayGainPct > 0),
+      xbiUp: !!(xbiSnap && xbiSnap.ok && xbiSnap.dayGainPct > 0),
+      kreDown: !!(kreSnap && kreSnap.ok && kreSnap.dayGainPct < 0),
+      xbiDown: !!(xbiSnap && xbiSnap.ok && xbiSnap.dayGainPct < 0),
+      qqqUpButBreadthDown: !!(qqqSnap && qqqSnap.ok && qqqSnap.dayGainPct > 0 && iwmSnap && iwmSnap.ok && iwmSnap.dayGainPct < 0 && rspSnap && rspSnap.ok && rspSnap.dayGainPct < 0),
+      iwmVsQqqRS_5d: (iwmSnap.dayGainPct || 0) - (qqqSnap.dayGainPct || 0),
+      rspVsSpyRS_5d: (rspSnap.dayGainPct || 0) - (spySnap.dayGainPct || 0),
+      smhSidewaysNotDown: !!(smhSnap && smhSnap.ok && smhSnap.dayGainPct > -1)
+    }) : null;
+    var portfolioExposure = { score: semiHeat ? Math.min(100, (semiHeat.score || 0) + (semiHeat.aiInfraHeat ? (semiHeat.aiInfraHeat.score || 0) * 0.35 : 0)) : 0, flags: semiHeat && semiHeat.state ? ['SEMI_CONTEXT_' + semiHeat.state] : [] };
+    var lockoutAction = window.calcLockoutAction ? window.calcLockoutAction({ extension: extensionHeat, candle: candleRisk, opexGamma: opexGammaRisk, breadth: breadthRotation, portfolioExposure: portfolioExposure }) : null;
+    var sellPressure = window.calcSellPressure ? window.calcSellPressure(snapshot, { semiHeat: semiHeat, lockoutAction: lockoutAction }) : null;
     var regime = snapshot && snapshot.above50SMA === false ? 'TREND_DAMAGED' : semiHeat && semiHeat.state === 'SEMI_MANIA' ? 'LOCKOUT_RALLY_RISK' : 'TREND_FOLLOW';
     var exitPlan = window.calcExitPlan ? window.calcExitPlan(snapshot, sellPressure, regime) : null;
-    var result = { monthly: data[0] || [], weekly: data[1] || [], daily: daily, snapshot: snapshot, semiHeat: semiHeat, sellPressure: sellPressure, exitPlan: exitPlan, dataQuality: daily.dataQuality || null };
+    var result = { monthly: data[0] || [], weekly: data[1] || [], daily: daily, snapshot: snapshot, semiHeat: semiHeat, extensionHeat: extensionHeat, candleRisk: candleRisk, opexGammaRisk: opexGammaRisk, breadthRotation: breadthRotation, lockoutAction: lockoutAction, sellPressure: sellPressure, exitPlan: exitPlan, dataQuality: daily.dataQuality || null, optionSentiment: optionSentiment };
     window._lastTechnicalBrief = { symbol: symbol, result: result, ts: Date.now() };
     renderTechnicalBrief(symbol, result);
   } catch(e) {
@@ -2553,6 +2677,11 @@ window.renderSellPressurePanel = renderSellPressurePanel;
 window.renderExitPlanPanel = renderExitPlanPanel;
 window.renderKeyLevelsPanel = renderKeyLevelsPanel;
 window.renderBeginnerExplanation = renderBeginnerExplanation;
+window.renderLockoutDashboard = renderLockoutDashboard;
+window.renderExtensionHeatPanel = renderExtensionHeatPanel;
+window.renderOpexGammaPanel = renderOpexGammaPanel;
+window.renderBreadthRotationPanel = renderBreadthRotationPanel;
+window.renderCandleRiskBadge = renderCandleRiskBadge;
 window.renderDataQualityBadge = renderDataQualityBadge;
 window.renderNewsImpactBadge = renderNewsImpactBadge;
 window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
