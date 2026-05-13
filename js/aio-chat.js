@@ -957,6 +957,10 @@ const CHAT_CONTEXTS = {
   }
 };
 
+if (typeof window !== 'undefined') {
+  window.CHAT_CONTEXTS = CHAT_CONTEXTS;
+}
+
 // ── Per-context state ──────────────────────────────────────────────────
 const chatState = {};
 function getChatState(ctxId) {
@@ -1084,7 +1088,7 @@ function chatRenderChips(ctxId, chips) {
   var el = document.getElementById('chat-' + ctxId + '-chips');
   if (!el) return;
   if (!chips || chips.length === 0) {
-    chips = CHAT_DEFAULT_CHIPS[ctxId] || [];
+    chips = (window.CHAT_DEFAULT_CHIPS && window.CHAT_DEFAULT_CHIPS[ctxId]) || [];
   }
   el.innerHTML = chips.map(function(q) {
     var safeQ = escHtml(q).replace(/\\/g, '\\\\').replace(/'/g, "\\'");

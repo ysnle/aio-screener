@@ -1,13 +1,13 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-05-12
+last_verified: 2026-05-13
 confidence: high
-target_version: v49.6
+target_version: v49.8
 target_file: index.html + js/*.js
-target_lines: index.html 29758 + js modules 27220
+target_lines: index.html 29914 + js modules 27645
 ---
 
-# AIO v49.6 CODE-MAP
+# AIO v49.8 CODE-MAP
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `Select-String`/부분 Read로 한 번 더 확인한다.
@@ -18,12 +18,12 @@ target_lines: index.html 29758 + js modules 27220
 
 | 파일 | 줄 수 | 역할 |
 |------|------:|------|
-| `index.html` | 29,758 | HTML shell, CSS, 21개 페이지 DOM, Institutional Technical Brief + Lockout/OPEX Control DOM, portfolio technical risk runtime, 일부 inline runtime, 외부 모듈 로드 |
-| `js/aio-core.js` | 7,158 | 버전, 전역 상태, DATA_SNAPSHOT, 캐시, technical snapshot/sell pressure engine, Lockout/OPEX strategy engine, DataQuality/AIInfraHeat/PortfolioTechnicalRisk, freshness policy/SnapshotStore/auditAllFreshness, data pipeline audit, 페이지 라우터 |
-| `js/aio-data.js` | 11,374 | API fetcher, OHLCV + Yahoo fallback + quality bundle, OPEX/put-call/lockout bundle fetchers, live coverage guard, 뉴스 소스/스코어링/impact vector/렌더, 키워드, 캘린더, 데이터 스케줄 + scheduler telemetry |
+| `index.html` | 29,914 | HTML shell, CSS, Page Focus Brief + explain summary styles, 21개 페이지 DOM, Institutional Technical Brief + Lockout/OPEX Control DOM, portfolio technical risk runtime, 일부 inline runtime, 외부 모듈 로드 |
+| `js/aio-core.js` | 7,495 | 버전, 전역 상태, DATA_SNAPSHOT, 캐시, Page Focus Brief UX, beginner explain summaries, technical snapshot/sell pressure engine, Lockout/OPEX strategy engine, DataQuality/AIInfraHeat/PortfolioTechnicalRisk, freshness policy/SnapshotStore/auditAllFreshness, data pipeline audit, 페이지 라우터 |
+| `js/aio-data.js` | 11,398 | API fetcher, OHLCV + Yahoo fallback + quality bundle, OPEX/put-call/lockout bundle fetchers, live coverage guard, 뉴스 소스/스코어링/impact vector/렌더, HOME stale-event filter, 키워드, 캘린더, 데이터 스케줄 + scheduler telemetry |
 | `js/aio-ui.js` | 2,688 | 심리/시장폭 차트, Institutional Technical Brief + Lockout/OPEX renderers, data-quality/news-impact/portfolio-risk renderers, LLM quota UI, GitHub polling, feedback UI |
-| `js/aio-chat.js` | 4,584 | CHAT_CONTEXTS, Lockout/OPEX technical prompt, Claude/Perplexity, 기업 분석, fundamentalSearch |
-| `js/aio-tests.js` | 1,112 | 브라우저 단위 테스트 T1~T132, `AIO.runTests()` / `AIO.getTestResults()` |
+| `js/aio-chat.js` | 4,588 | CHAT_CONTEXTS, Lockout/OPEX technical prompt, Claude/Perplexity, 기업 분석, fundamentalSearch |
+| `js/aio-tests.js` | 1,172 | 브라우저 단위 테스트 T1~T142, `AIO.runTests()` / `AIO.getTestResults()` |
 | `js/aio-glossary.js` | 304 | 용어사전 검색/렌더 |
 
 ---
@@ -85,14 +85,15 @@ target_lines: index.html 29758 + js modules 27220
 | `_aioMarkChartCanvases` | 306 | LightweightCharts 내부 canvas `aria-hidden` 처리 |
 | `chartDataGate` | 1865 | 차트 NaN/null 방어 |
 | `safeLS` / `safeLSGet` / `safeLSGetSync` | 2296 / 2309 / 2322 | 암호화 localStorage |
-| Institutional technical engine | 3286 ~ 3982 | OHLCV snapshot, sell pressure, semiconductor heat, lockout/OPEX, exit plan |
-| `APP_VERSION` | 4003 | R1 버전 단일 소스 |
-| `AIO.getLiveCoverage` / `getDataFreshnessAudit` | 4441 / 4473 | core live quote coverage + freshness audit |
-| `AIO.getDataPipelineAudit` | 4559 | source/API → transport/cache → scheduler → store → analysis → render audit |
-| `AIO.getOperationalHealth` | 4728 | 운영/SW/API/cache/data freshness/data pipeline 자체 진단 |
-| `DATA_SNAPSHOT` | 4908 | 시장 데이터 SSOT (`window.DATA_SNAPSHOT` exposed below block) |
-| `applyDataSnapshot` | 5818 | snapshot → DOM, 키별 오류 격리 |
-| `_ldSafe` | 6204 | liveData + snapshot fallback |
+| Page Focus Brief UX | 1660 ~ 1985 | 페이지별 목적/3단계 루틴/관련 페이지 동선, 상세 해설 라벨 간소화, 초보자 요약 주입, `AIO.getPageUXAudit()` |
+| Institutional technical engine | 3563 ~ 4259 | OHLCV snapshot, sell pressure, semiconductor heat, lockout/OPEX, exit plan |
+| `APP_VERSION` | 4340 | R1 버전 단일 소스 |
+| `AIO.getLiveCoverage` / `getDataFreshnessAudit` | 4718 / 4750 | core live quote coverage + freshness audit |
+| `AIO.getDataPipelineAudit` | 4836 | source/API → transport/cache → scheduler → store → analysis → render audit |
+| `AIO.getOperationalHealth` | 5005 | 운영/SW/API/cache/data freshness/data pipeline 자체 진단 |
+| `DATA_SNAPSHOT` | 5245 | 시장 데이터 SSOT (`window.DATA_SNAPSHOT` exposed below block) |
+| `applyDataSnapshot` | 6095 | snapshot → DOM, 키별 오류 격리 |
+| `_ldSafe` | 6481 | liveData + snapshot fallback |
 | `destroyPageCharts` | 5768 | 페이지 이탈 차트 정리 |
 | `showPage` | 6215 | SPA 페이지 전환 |
 | `_calcPortfolioVaR` | 6523 | 보수적 historical VaR |
@@ -113,7 +114,8 @@ target_lines: index.html 29758 + js modules 27220
 | `scoreItem` | 5226 | 뉴스 중요도 점수 + LRU 캐시 |
 | `classifyTopic` | 5584 | 뉴스 토픽 분류 |
 | `renderFeed` | 6532 | 시장 뉴스 렌더 |
-| `renderHomeFeed` | 6719 | 홈 뉴스 렌더 |
+| `_aioGetCurrentHomeWeeklyNews` | 6892 | HOME 고정 뉴스 72시간 freshness filter |
+| `renderHomeFeed` | 6904 | 홈 뉴스 렌더 |
 | `renderBriefingFeed` | 6833 | 브리핑 뉴스 렌더 |
 | `fetchOneFeed` | 7376 | 단일 피드 fetch |
 | `fetchAllNews` | 7706 | 뉴스 전체 수집 |
@@ -163,8 +165,9 @@ target_lines: index.html 29758 + js modules 27220
 
 | 작업 | 우선 파일/범위 |
 |------|----------------|
-| R1 버전 동기화 | `index.html:10`, `index.html:3780`, `js/aio-core.js:4003`, `version.json`, `sw.js:8`, `_context/CLAUDE.md`, `CHANGELOG.md` |
-| DATA_SNAPSHOT 갱신 | `js/aio-core.js:4908~5155`, `js/aio-core.js:4441~4810` freshness/pipeline audit, `js/aio-ui.js` chart arrays |
+| R1 버전 동기화 | `index.html:10`, `index.html:3897`, `js/aio-core.js:4237`, `version.json`, `sw.js:8`, `_context/CLAUDE.md`, `CHANGELOG.md` |
+| 페이지 핵심화/간소화 | `index.html:780~915`, `js/aio-core.js:1660~1932` |
+| DATA_SNAPSHOT 갱신 | `js/aio-core.js:5245~5453`, `js/aio-core.js:4718~5087` freshness/pipeline audit, `js/aio-ui.js` chart arrays |
 | 뉴스 소스/키워드 | `js/aio-data.js:3262~4427` |
 | 뉴스 선별/렌더 | `js/aio-data.js:5174~6781` |
 | 뉴스 수집 안정성 | `js/aio-data.js:7324~8080` |
@@ -177,13 +180,15 @@ target_lines: index.html 29758 + js modules 27220
 | 포트폴리오 benchmark chart | `index.html:28663~28827` |
 | 옵션 분석 DOM | `index.html:9267~10082` |
 | 한국 페이지 DOM | `index.html:10083~11328` |
-| browser unit tests | `js/aio-tests.js:1~1112`, `index.html:26693` |
+| browser unit tests | `js/aio-tests.js:1~1172`, `index.html:26956` |
 | glossary | `js/aio-glossary.js`, `index.html:26670~29260` |
 
 ---
 
 ## 5. 검증 메모
 
+- v49.8은 실제 사이트 최신성 감사 기준으로 HOME 핵심 뉴스 stale-event filter, 2026-05-13 fallback snapshot, T141~T142 재발 방지 테스트를 추가한 기준.
+- v49.7은 페이지별 Page Focus Brief로 초보자용 3단계 루틴과 관련 페이지 동선을 표준화한 기준.
 - v49.6은 v49.5 Lockout Rally/OPEX 엔진 위에 2026-05-12 WebSearch/public-source 기준 정적 fallback seed를 최신화한 기준.
 - v49.5는 v49.4 데이터 최신성 거버넌스 위에 Lockout Rally/OPEX 전략 엔진, terminal candle, breadth rotation, action ladder UI/tests를 추가한 기준.
 - v49.4는 v49.3 아키텍처 보강 위에 freshness policy, SnapshotStore, scheduler telemetry, auditAllFreshness, WebSearch fallback refresh를 추가한 기준.

@@ -6,6 +6,37 @@
 
 ---
 
+## v49.8 - Live Site Freshness Guardrail (2026-05-13)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- **P197**: Live-site QA found HOME still pinned 5/4~5/9 events and the static fallback snapshot remained on the 2026-05-11/12 market context. Refreshed `DATA_SNAPSHOT` to the latest confirmed completed-session context: AP 2026-05-12 US close, 2026-05-13 KOSPI close, current oil shock context, latest public Cboe put/call, CNN F&G, and AAII sentiment.
+- Replaced stale HOME weekly news pins with current 2026-05-13 market-moving context and added `_aioGetCurrentHomeWeeklyNews()` so static HOME news older than 72 hours is automatically hidden from the default dashboard.
+- Added tests T141~T142 to prevent old `NFP 5/8`, `PLTR/AMD 5/4`, `Fed 4인 5/9`, `PCE(4/30)`, and `VIX Spot 18.36` style live-like stale wording from returning to HOME.
+- Changed HOME static VIX/F&G placeholders to loading dashes so stale values do not flash before `DATA_SNAPSHOT` or live stores render.
+- Extended `AIO.getPageUXAudit()` stale wording detection to include the old HOME event pins.
+- R1 version sync: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `CLAUDE.md`, `_context/CLAUDE.md` all `v49.8`.
+
+## v49.7 - Page Focus Brief UX Simplification (2026-05-13)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- **P194**: Added a compact Page Focus Brief layer so each major page starts with the same beginner-friendly structure: purpose, three-step usage routine, key interpretation, and related-page navigation.
+- **P195**: Fixed Page Focus Brief route coverage for actual detail routes and removed live-like stale option table wording that could mislead beginners.
+- **P196**: Chrome QA found `window.CHAT_CONTEXTS` was not exposed, causing technical prompt consistency tests T115/T132 to miss the institutional action ladder; `aio-chat.js` now publishes the chat context contract explicitly.
+- Simplified visible education accordion labels from long “institutional deep explanation” copy into short `상세 해설` labels, while preserving the existing deeper content behind the collapsed panels.
+- Connected duplicated page concepts into explicit workflows, for example Dashboard → Signal → Technical/Portfolio, Macro → FX/Bond, Themes → Fundamental/Technical, and KR Home → Supply/Themes/Macro.
+- Added responsive desk-style UI for the brief cards without changing page data pipelines or existing analysis functions.
+- Added tests T133~T140 for required page brief configs, actionable config shape, render/simplify hook exposure, beginner summaries, stale/live-like options wording prevention, past-event calendar filtering, and reusable page UX self-audit.
+- Default-collapsed the stale briefing archive and replaced outdated option-page event/VIX wording with dynamic, source-aware interpretation text.
+- Fixed Page Focus Brief route coverage for the actual `ticker` page and added missing `theme-detail` coverage so detailed ticker/theme pages receive the beginner workflow.
+- Reworked the individual-options IV section from live-like “current” wording into an explicit education snapshot, removed the duplicate AAPL placeholder row, and replaced stale earnings dates with “확인 필요”.
+- Fixed the economic-calendar pinned-event renderer so old April/early-May catalysts no longer appear under “upcoming events”.
+- Corrected stale `DATA_SNAPSHOT` comments that still referenced 4/30/5/1 even though the fallback values were already refreshed to the v49.6 May 11/12 snapshot.
+- Chrome-rendered page sweep found narrow brief action chips on several pages; chip layout now flexes and wraps text instead of clipping.
+- Added `AIO.getPageUXAudit()` so live/local pages can self-report missing briefs, stale live-like wording, text overflow, controls, charts, and explanation-section counts.
+- R1 version sync: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `CLAUDE.md`, `_context/CLAUDE.md` all `v49.7`.
+
 ## v49.6 - Full Static Fallback Data Refresh (2026-05-12)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`

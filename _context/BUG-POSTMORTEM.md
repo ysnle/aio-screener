@@ -1,11 +1,11 @@
 ---
 verified_by: agent
-last_verified: 2026-05-12
+last_verified: 2026-05-13
 confidence: high
-latest_version: v49.6
-latest_P_number: P193
-next_P_number: P194
-total_entries: 193
+latest_version: v49.8
+latest_P_number: P197
+next_P_number: P198
+total_entries: 197
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -22,7 +22,7 @@ total_entries: 193
 
 ### P 번호 체계
 - **P 번호 = 패턴 번호** (예방 규칙 ID). 동일 근본 원인을 가진 버그는 같은 P 번호로 참조.
-- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P194**). 한번 부여된 번호는 재사용 금지.
+- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P198**). 한번 부여된 번호는 재사용 금지.
 - **P 번호 재강화**: 같은 패턴이 재발해도 번호는 유지. "P25 재강화" / "P25 강화" 같은 표현으로 body에 기록.
 - **날짜 구분 원칙**: 과거 중복 P 번호(P26~P33 일부 충돌 존재)는 "날짜 + 버전"으로 구분해서 참조.
 
@@ -55,6 +55,10 @@ total_entries: 193
 
 | P | 도입 버전 | 날짜 | 패턴 요약 |
 |---|-----------|------|-----------|
+| P197 | v49.8 | 2026-05-13 | 실제 사이트 최신성 감사에서 HOME 핵심 뉴스가 5/4~5/9 지난 이벤트를 현재 촉매처럼 고정 노출하고, 정적 fallback snapshot도 2026-05-11/12 기준에 머물러 초보자가 오래된 데이터로 매매 판단할 위험이 있었다. `DATA_SNAPSHOT`을 2026-05-13 기준 최신 확인값으로 갱신하고, `_aioGetCurrentHomeWeeklyNews()` 72시간 필터와 T141~T142 테스트를 추가해 과거 이벤트가 기본 HOME에 재등장하지 못하게 함 |
+| P196 | v49.7 | 2026-05-13 | Chrome 실측 테스트에서 technical prompt consistency 실패 — `CHAT_CONTEXTS`가 lexical global `const`로만 존재하고 `window.CHAT_CONTEXTS`에 노출되지 않아 T115/T132가 action ladder/Lockout OPEX 프롬프트를 찾지 못했다. `js/aio-chat.js`에서 `window.CHAT_CONTEXTS = CHAT_CONTEXTS`를 명시해 브라우저 진단/AI 컨텍스트 계약을 복구 |
+| P195 | v49.7 | 2026-05-13 | 페이지 핵심화 보강 연결 누락 — 실제 라우트는 `ticker`/`theme-detail`인데 브리프 설정은 `ticker-detail`만 갖고 있어 일부 상세 페이지에서 초보자 활용 루틴이 렌더되지 않았다. 옵션 IV 표도 오래된 실적일과 중복 AAPL 행이 최신 데이터처럼 보일 수 있었고, 경제 캘린더 고정 이벤트는 지난 촉매를 예정처럼 렌더링했다. 실제 라우트 키를 보강하고 옵션 표를 교육용 예시로 재라벨링, past-event 필터와 stale 이벤트 문구 테스트 T137~T139 추가 |
+| P194 | v49.7 | 2026-05-13 | 페이지별 설명/기능 동선 과밀 — 여러 페이지에 긴 해설과 중복 개념이 섞여 초보자가 첫 화면에서 무엇을 먼저 보고 어떤 페이지로 이어가야 하는지 판단하기 어려움. `AIO_PAGE_BRIEFS`, `_aioRenderPageBrief`, `_aioSimplifyExplainLabels`로 페이지 목적·3단계 루틴·관련 페이지 이동을 표준화하고 긴 해설은 접힌 상세 패널로 후순위화 |
 | P193 | v49.6 | 2026-05-12 | 정적 fallback seed 최신성 드리프트 — 라이브 API가 실패/쿼터/캐시 상태일 때 기본 화면이 오래된 F&G·PCR·한국시장·FX 값을 실시간처럼 전달할 위험. `DATA_SNAPSHOT` 및 `_fallback`의 US/KR 지수, USD/KRW, DXY, oil, Cboe put-call, CNN/AAII seed를 2026-05-12 기준으로 갱신하고 live store override 원칙을 note에 명시 |
 | P192 | v49.5 | 2026-05-12 | Lockout Rally/OPEX 전략 로직 부재 — RSI/과열만으로 초보자가 매도 판단을 오해할 수 있고, OPEX 감마 지지 약화·폭 확장 실패·말단 캔들·20MA ATR/ADR 확장을 하나의 행동 사다리로 통합하지 못했다. `calcExtensionHeat`, `classifyTerminalCandle`, `calcOpexGammaRisk`, `calcBreadthRotation`, `calcLockoutAction`, Lockout Control UI, T125~T132 테스트 도입 |
 | P191 | v49.4 | 2026-05-10 | 데이터 최신성/자동 갱신 거버넌스 부재 — 정적 DATA_SNAPSHOT, live quote, fallback, macro/news stale 기준이 분산되어 폴백값이 실시간처럼 보일 수 있었다. `FRESHNESS_POLICY`, `makeMetric`, `evaluateMetric`, `SnapshotStore`, `_aioSetLiveData`, `AIO.auditAllFreshness()`와 scheduler telemetry, T116~T124 테스트 도입 |

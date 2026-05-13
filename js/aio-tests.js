@@ -1,4 +1,4 @@
-// AIO Screener — 단위 테스트 모듈 (v49.6)
+// AIO Screener — 단위 테스트 모듈 (v49.8)
 // 사용: 브라우저 콘솔에서 AIO.runTests() 실행 → OK/FAIL 결과 출력
 // 대상: 통계 함수 6개 (_calcDailyReturns / _statMean / _statStdDev /
 //        _calcPortfolioVaR / _calcSharpe / _calcMaxDrawdown / _pearsonCorr / _calcCorrelationMatrix)
@@ -1043,6 +1043,65 @@
     _assert('T132 prompt_consistency: lockout/OPEX action ladder present', promptOk, 'technical prompt missing lockout/OPEX rules');
   }
 
+  function _testPageFocusBriefUX() {
+    var briefs = window.AIO_PAGE_BRIEFS || {};
+    var required = ['home','signal','technical','macro','portfolio','market-news','options','ticker','theme-detail','kr-home','guide'];
+    var missing = required.filter(function(id) { return !briefs[id]; });
+    _assert('T133 page_focus_brief: required page configs exist', missing.length === 0, missing.join(','));
+
+    var malformed = Object.keys(briefs).filter(function(id) {
+      var b = briefs[id];
+      return !b || !b.title || !b.use || !b.focus || !Array.isArray(b.steps) || b.steps.length < 3 || !Array.isArray(b.links) || b.links.length < 2;
+    });
+    _assert('T134 page_focus_brief: configs are actionable', malformed.length === 0, malformed.join(','));
+
+    var labelsOk = typeof window._aioSimplifyExplainLabels === 'function' && typeof window._aioRenderPageBrief === 'function';
+    _assert('T135 page_focus_brief: render/simplify hooks exposed', labelsOk, 'page focus hooks missing');
+
+    var summaries = window.AIO_EXPLAIN_SUMMARIES || {};
+    var summaryOk = typeof window._aioInjectExplainSummaries === 'function' && summaries['explain-technical-page'] && summaries['explain-options-page'];
+    _assert('T136 explain_summaries: beginner summaries exist for detailed sections', !!summaryOk, 'explain summary hooks missing');
+
+    var optionText = '';
+    var optionPage = document.getElementById('page-options');
+    if (optionPage) optionText = optionPage.textContent || '';
+    _assert('T137 option_ux: individual IV section marked as example', !/개별 종목 IV 현황/.test(optionText) && /개별 종목 IV 예시/.test(optionText), 'options IV table still reads like live current data');
+
+    var staleEventLanguageOk = !/PCE\(4\/30\)|PCE 4\/30|VIX Spot 18\.36/.test(optionText);
+    _assert('T138 option_ux: stale event wording removed from options page', staleEventLanguageOk, 'stale option event wording remains');
+
+    var calText = '';
+    var cal = document.getElementById('macro-econ-calendar');
+    if (cal && typeof window.renderEconCalendar === 'function') {
+      window.renderEconCalendar();
+      calText = cal.textContent || '';
+    }
+    _assert('T139 briefing_ux: past pinned events are not rendered as upcoming', !/04\/29|04\/30|05\/04|05\/05|05\/06|05\/07|05\/08|05\/09/.test(calText), 'past pinned events still render as upcoming');
+
+    var uxAudit = window.AIO && typeof window.AIO.getPageUXAudit === 'function' ? window.AIO.getPageUXAudit() : null;
+    _assert('T140 page_ux_audit: self audit available and clean', uxAudit && uxAudit.totalPages >= 20 && uxAudit.issueCount === 0, uxAudit && JSON.stringify({ total: uxAudit.totalPages, issues: uxAudit.issues }));
+
+    var currentHomeNews = typeof window._aioGetCurrentHomeWeeklyNews === 'function'
+      ? window._aioGetCurrentHomeWeeklyNews(new Date('2026-05-13T12:00:00+09:00').getTime())
+      : [];
+    var homeNewsText = currentHomeNews.map(function(n) { return [n.title, n.source, n.date].join(' '); }).join(' ');
+    var oldHomeNewsRe = /NFP 비농업|PLTR·AMD|Fed 4인|05\/04|05\/08|05\/09|5\/4|5\/5|5\/8 금|5\/9 토|PCE\(4\/30\)|VIX Spot 18\.36/;
+    _assert('T141 home_freshness: default HOME news excludes past live-like events', currentHomeNews.length > 0 && !oldHomeNewsRe.test(homeNewsText), homeNewsText);
+
+    var savedWeeklyNews = window.HOME_WEEKLY_NEWS;
+    var staleFilterOk = false;
+    try {
+      window.HOME_WEEKLY_NEWS = [
+        { title: 'NFP 비농업고용지수 (5/8 금, 21:30 KST)', source: 'BLS', date: '2026-05-08', sentiment: 'warn', topic: 'macro' }
+      ];
+      staleFilterOk = typeof window._aioGetCurrentHomeWeeklyNews === 'function'
+        && window._aioGetCurrentHomeWeeklyNews(new Date('2026-05-13T12:00:00+09:00').getTime()).length === 0;
+    } finally {
+      window.HOME_WEEKLY_NEWS = savedWeeklyNews;
+    }
+    _assert('T142 home_freshness: stale static weekly events are filtered by age', staleFilterOk, 'stale HOME_WEEKLY_NEWS was still treated as current');
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -1052,7 +1111,7 @@
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.6 단위 테스트 실행');
+    console.group('[AIO TEST] v49.8 단위 테스트 실행');
     console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
 
     try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
@@ -1077,6 +1136,7 @@
     try { _testArchitectureReinforcement(); } catch(e) { console.error('Group19 error:', e); }
     try { _testFreshnessGovernance(); } catch(e) { console.error('Group20 error:', e); }
     try { _testLockoutOpexStrategyEngine(); } catch(e) { console.error('Group21 error:', e); }
+    try { _testPageFocusBriefUX(); } catch(e) { console.error('Group22 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -1107,6 +1167,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.6 로드 완료 — AIO.runTests() 으로 실행 (T1~T132)');
+  console.log('[AIO] aio-tests.js v49.8 로드 완료 — AIO.runTests() 으로 실행 (T1~T142)');
 
 })();

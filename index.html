@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.6 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.8 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -776,6 +776,155 @@ body {
   display: none;
 }
 .aio-explain.is-open .aio-explain-content { display: block; }
+
+/* v49.7: Page Focus Brief — 페이지별 핵심 루틴/동선 요약 */
+.aio-page-brief {
+  margin: 0 0 var(--space-3);
+  padding: 10px 12px;
+  border: 1px solid rgba(0,212,255,0.18);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(0,212,255,0.055), rgba(255,255,255,0.018));
+  box-shadow: var(--shadow-xs);
+}
+.aio-page-brief-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: 8px;
+}
+.aio-page-brief-kicker {
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.aio-page-brief-title {
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+  font-weight: 800;
+  line-height: 1.35;
+}
+.aio-page-brief-use {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  line-height: var(--lh-body);
+  max-width: 420px;
+  text-align: right;
+}
+.aio-page-brief-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, .95fr);
+  gap: var(--space-2);
+}
+.aio-page-brief-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.aio-page-brief-step {
+  min-height: 58px;
+  padding: 7px 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.026);
+}
+.aio-page-brief-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+.aio-page-brief-step-text {
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+.aio-page-brief-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+  padding: 7px 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm);
+  background: rgba(0,0,0,0.12);
+}
+.aio-page-brief-chip {
+  display: inline-flex;
+  align-items: center;
+  flex: 1 1 112px;
+  justify-content: center;
+  min-height: 26px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.025);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.aio-page-brief-chip:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+}
+.aio-page-brief .aio-page-brief-focus {
+  width: 100%;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+  margin-bottom: 2px;
+}
+.aio-explain-summary {
+  margin-top: 12px;
+  padding: 9px 10px;
+  border: 1px solid rgba(0,229,160,0.18);
+  border-left: 3px solid var(--data-green);
+  border-radius: var(--radius-sm);
+  background: rgba(0,229,160,0.045);
+}
+.aio-explain-summary-title {
+  color: var(--data-green);
+  font-size: var(--fs-xs);
+  font-weight: 900;
+  letter-spacing: var(--ls-wide);
+  margin-bottom: 5px;
+}
+.aio-explain-summary-body {
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+}
+.aio-explain-summary-body strong { color: var(--text-primary); }
+@media (max-width: 860px) {
+  .aio-page-brief-head,
+  .aio-page-brief-grid { display: block; }
+  .aio-page-brief-use { max-width: none; text-align: left; margin-top: 6px; }
+  .aio-page-brief-steps { grid-template-columns: 1fr; margin-bottom: 8px; }
+}
 
 .explain-section {
   margin-top: 14px;
@@ -3777,7 +3926,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.6</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.8</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -3945,7 +4094,7 @@ body.light-theme canvas { filter:none; }
     <!-- Cyan 띠: S&P 500 -->
     <div class="aio-card is-interactive has-stripe-top stripe-cyan" data-action="showPage" data-arg="technical" role="button" tabindex="0" title="S&P 500 · 미국 대표 지수">
       <div class="aio-card-title">S&P 500</div>
-      <div class="aio-metric-value" data-live-price="^GSPC">6,967</div>
+      <div class="aio-metric-value" data-live-price="^GSPC">7,401</div>
       <div class="aio-metric-delta" data-live-chg="^GSPC">—</div>
     </div>
     <!-- Purple 띠: NASDAQ -->
@@ -3957,20 +4106,20 @@ body.light-theme canvas { filter:none; }
     <!-- Amber 띠: VIX -->
     <div class="aio-card is-interactive has-stripe-top stripe-amber" data-action="showPage" data-arg="sentiment" role="button" tabindex="0" title="VIX · 공포지수">
       <div class="aio-card-title">공포지수 VIX</div>
-      <div class="aio-metric-value" id="home-vix-value" data-live-price="^VIX">18.36</div>
+      <div class="aio-metric-value" id="home-vix-value" data-live-price="^VIX">—</div>
       <div class="aio-metric-delta" id="home-vix-status">—</div>
     </div>
     <!-- Magenta 띠: Fear & Greed -->
     <div class="aio-card is-interactive has-stripe-top stripe-magenta" data-action="showPage" data-arg="sentiment" role="button" tabindex="0" title="Fear & Greed · 시장 심리 종합">
       <div class="aio-card-title">Fear & Greed</div>
-      <div class="aio-metric-value" id="home-fg-score">32</div>
-      <div class="aio-metric-delta" id="home-fg-label">공포 (Fear)</div>
+      <div class="aio-metric-value" id="home-fg-score">—</div>
+      <div class="aio-metric-delta" id="home-fg-label">갱신 대기</div>
     </div>
   </div>
 
   <!-- v48.41 R2: 서브 지표 — 이모지 제거, 단색 통일 -->
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
-    <span class="pill-chip" data-action="showPage" data-arg="fxbond" title="달러 인덱스">DXY <b style="color:var(--text-primary);margin-left:4px;font-family:var(--font-mono);" data-live-price="DX-Y.NYB">98.65</b></span>
+    <span class="pill-chip" data-action="showPage" data-arg="fxbond" title="달러 인덱스">DXY <b style="color:var(--text-primary);margin-left:4px;font-family:var(--font-mono);" data-live-price="DX-Y.NYB">98.16</b></span>
     <span class="pill-chip" data-action="showPage" data-arg="fxbond" title="10년 국채 수익률">10Y <b style="color:var(--text-primary);margin-left:4px;font-family:var(--font-mono);" data-live-price="^TNX">4.3%</b></span>
     <span class="pill-chip" data-action="showPage" data-arg="macro" title="금 가격">Gold <b style="color:var(--text-primary);margin-left:4px;font-family:var(--font-mono);" data-live-price="GC=F">$4,826</b></span>
     <span class="pill-chip" data-action="showPage" data-arg="macro" title="WTI 원유">WTI <b style="color:var(--text-primary);margin-left:4px;font-family:var(--font-mono);" data-live-price="CL=F">$91.29</b></span>
@@ -5242,8 +5391,8 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
     <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;padding:10px;background:rgba(0,0,0,0.2);border-radius:6px;border-left:3px solid var(--data-amber);">
-      <b style="color:var(--data-amber);">핵심:</b> <span id="breadth-diag-text">휴전 후 5/20SMA 빠른 회복(68%/75%) BUT 50SMA 46% 미탈환 — 단기 반등 확인, 중기 추세 전환 미확인.
-      미너비니 바닥: 1단계(랠리) 통과 → 2단계(리테스트) 관찰 중. 50일선 60%+ 돌파 시 Breadth Thrust 진입.</span>
+      <b style="color:var(--data-amber);">핵심:</b> <span id="breadth-diag-text">5/20SMA는 단기 반등 속도, 50SMA는 중기 추세 전환 여부를 봅니다.
+      단기선은 회복됐는데 50일선 비율이 낮으면 “지수만 강한 장”일 수 있으므로 신규 매수는 섹터 확산 확인 후 진행합니다.</span>
       <span style="display:flex;gap:8px;margin-top:6px;"><span class="cross-link" data-action="showPage" data-arg="sentiment">심리 지표 확인 →</span><span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 확인 →</span></span>
     </div>
   </div>
@@ -5302,7 +5451,7 @@ body.light-theme canvas { filter:none; }
           <div id="bp-ndx50-val" style="color:var(--data-amber);font-weight:700;margin-top:2px;">49%</div>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);">S&P와 동일 패턴: 5/20SMA 회복, 50SMA 미탈환. 4/8 기준.</div>
+      <div style="font-size:11px;color:var(--text-muted);">판단법: 5/20SMA 회복은 단기 힘, 50SMA 회복은 추세 확산입니다. 둘이 엇갈리면 추격보다 확인이 우선입니다.</div>
     </div>
 
     <!-- Weinstein Stage -->
@@ -5789,10 +5938,10 @@ body.light-theme canvas { filter:none; }
       <div style="flex:1;">
         <div style="font-size:10px;font-weight:700;color:var(--data-amber);">아래는 과거 참고 데이터 — 마지막 갱신: <span data-snap-date="briefing-archive">2026-04-17</span> (<span id="briefing-stale-days" style="color:var(--data-amber);font-weight:800;">경과일 계산중...</span>) · 최신 시황은 위 실시간 뉴스 또는 AI 채팅 이용</div>
       </div>
-      <button data-action="_aioBriefingArchiveToggle" data-pass-el="1" style="background:rgba(255,163,26,0.15);border:1px solid rgba(255,163,26,0.3);color:var(--data-amber);font-size:11px;padding:4px 12px;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;">접기 ▲</button>
+      <button data-action="_aioBriefingArchiveToggle" data-pass-el="1" style="background:rgba(255,163,26,0.15);border:1px solid rgba(255,163,26,0.3);color:var(--data-amber);font-size:11px;padding:4px 12px;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;">과거 참고 펼치기 ▼</button>
     </div>
 
-    <div id="briefing-static-archive" data-dynamic="true">
+    <div id="briefing-static-archive" data-dynamic="true" style="display:none;">
 
     <!-- v35.8: 동적 브리핑 — 라이브 데이터 기반 자동 생성 -->
     <div id="dynamic-briefing-content">
@@ -5891,10 +6040,10 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- ── 이번 주 주요 일정 (05/04-05/10) v48.75 ──────────────────────── -->
+    <!-- ── 과거 참고 일정 (05/04-05/10) v48.75 ──────────────────────── -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:14px;">
       <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
-        📅 이번 주 주요 일정
+        📅 과거 참고 일정
         <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">Week of May 4–10, 2026</span>
         <span style="font-size:11px;padding:2px 6px;background:rgba(255,163,26,0.15);border-radius:3px;color:var(--data-amber);margin-left:auto;"> 정적 스냅샷</span>
       </div>
@@ -7354,7 +7503,7 @@ body.light-theme canvas { filter:none; }
       <div class="fx-card fx-dxy-card" id="fx-dxy-card">
         <div class="fx-flag">🇺🇸</div>
         <div class="fx-pair">DXY Index</div>
-        <div class="fx-rate" data-live-price="DX-Y.NYB">98.65</div>
+        <div class="fx-rate" data-live-price="DX-Y.NYB">98.16</div>
         <div class="fx-chg" data-live-chg="DX-Y.NYB">—</div>
         <div class="fx-note">달러 강세 = 신흥국 압박 · 원자재 하락 요인</div>
         <div id="dxy-card-signal" class="fx-signal fx-warn">강달러 경고</div>
@@ -7711,7 +7860,7 @@ body.light-theme canvas { filter:none; }
             <td style="text-align:center;padding:7px 10px;"><b style="color:var(--data-amber);font-family:var(--font-mono);">2.50%</b></td>
             <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);">3.48%</td>
             <td style="text-align:center;padding:7px 10px;"><span style="background:rgba(255,163,26,0.1);color:var(--data-amber);border-radius:4px;padding:2px 7px;font-size:11px;">인하 관망</span></td>
-            <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);">5/29</td>
+            <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);">5/28</td>
             <td style="padding:7px 10px;font-size:11px;color:var(--text-muted);">원화 약세로 선제 인하 제약. 수출 호조 vs 내수 부진</td>
           </tr>
         </tbody>
@@ -7768,7 +7917,7 @@ body.light-theme canvas { filter:none; }
       <div style="margin-bottom:16px;">
         <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:6px;"> Chapter 1: 달러의 두 얼굴</div>
         <p style="margin:0;color:var(--text-muted);font-size:11px;line-height:1.9;">
-          달러 인덱스(DXY)가 <b style="color:var(--data-cyan);" data-live-price="DX-Y.NYB">98.65</b>을 기록하고 있습니다.
+          달러 인덱스(DXY)가 <b style="color:var(--data-cyan);" data-live-price="DX-Y.NYB">98.16</b>을 기록하고 있습니다.
           달러가 강해지면 미국 다국적 기업의 해외 수익이 환산 시 줄어들어 실적에 부담이 됩니다.
           반면 한국 수출기업은 원화 약세 덕분에 달러로 받는 수출 대금의 원화 환산 가치가 높아져 수혜를 받습니다.
           현재 원/달러 환율 <b style="color:var(--data-amber);" data-live-price="KRW=X">1,508</b>원대는 수출기업에겐 호재,
@@ -7816,7 +7965,7 @@ body.light-theme canvas { filter:none; }
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;">
       <div style="background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);border-radius:8px;padding:10px;text-align:center;">
         <div style="font-size:11px;color:var(--text-muted);font-weight:700;">DXY 달러인덱스</div>
-        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:var(--data-cyan);margin:4px 0;" data-live-price="DX-Y.NYB">98.65</div>
+        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:var(--data-cyan);margin:4px 0;" data-live-price="DX-Y.NYB">98.16</div>
         <div style="font-size:11px;" data-live-chg="DX-Y.NYB">—</div>
       </div>
       <div style="background:rgba(255,163,26,0.05);border:1px solid rgba(255,163,26,0.15);border-radius:8px;padding:10px;text-align:center;">
@@ -9791,7 +9940,7 @@ body.light-theme canvas { filter:none; }
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
       <!-- IV High -->
       <div style="padding:12px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.25);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:8px;">IV 높을 때 (현재)</div>
+        <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:8px;">IV 높을 때</div>
         <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
           <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Covered Call — 보유 주식 수익화</div>
           <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Cash-Secured Put — 낮은 가격 주식 매수</div>
@@ -9819,12 +9968,12 @@ body.light-theme canvas { filter:none; }
 
       <!-- Event-Specific -->
       <div style="padding:12px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.25);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:8px;">이벤트 대비 (4/30 PCE)</div>
+        <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:8px;">이벤트 대비 (다음 고변동 이벤트)</div>
         <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
           <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Straddle — 양방향 베팅</div>
           <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Iron Butterfly — 범위 제한 베팅</div>
           <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Vertical Spread — 방향 + 위험 제한</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> 현금 비중 확대 → 발표 후 진입</div>
+          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> 포지션 축소 → 발표 후 재평가</div>
           <div style="margin-bottom:6px;"><span style="color:var(--data-red);"></span> 무방향 전략 진입 금지 (IV Crush)</div>
           <div style="margin-bottom:6px;"><span style="color:var(--data-red);"></span> 포지션 50% 축소 (발표 전)</div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--surface-5);">수익: 발표 후 큰 변동성 포착, IV Crush 피하기</div>
@@ -9860,12 +10009,12 @@ body.light-theme canvas { filter:none; }
         </div>
         <!-- Trade 3 -->
         <div style="padding:10px;background:var(--surface-3);border-radius:6px;">
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">3⃣ QQQ Straddle (PCE 이벤트)</div>
+          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">3⃣ QQQ Straddle (고변동 이벤트 예시)</div>
           <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
             <strong>설정:</strong> 410 Call + Put 매수<br>
             <strong>진입:</strong> 총 $3.15 비용<br>
             <strong>목표:</strong> ±2.5% 이상 움직임<br>
-            <strong>만기:</strong> 5/2 (PCE 후)<br>
+            <strong>만기:</strong> 이벤트 직후 만기 선택<br>
             <strong>확률:</strong> 55% (큰 수익 가능)
           </div>
         </div>
@@ -9924,8 +10073,11 @@ body.light-theme canvas { filter:none; }
   <!-- SECTION 8: INDIVIDUAL STOCK IV TABLE (ENHANCED) -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-primary);">개별 종목 IV 현황 · 실적일정 · 크러시 위험</div>
-      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-04-17</span></span>
+      <div style="font-size:12px;font-weight:700;color:var(--text-primary);">개별 종목 IV 예시 · 실적 전 변동성 판단법</div>
+      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">교육용 스냅샷 · 최신 거래 전 체인 확인</span>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin:-2px 0 10px;">
+      아래 값은 실시간 옵션 체인이 아니라 IV Rank, Skew, 실적 이벤트가 전략을 어떻게 바꾸는지 보여주는 예시입니다. 실제 진입 전에는 브로커/TOS/CBOE의 최신 IV와 실적일을 반드시 다시 확인하세요.
     </div>
     <div style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:10px;">
@@ -9945,28 +10097,19 @@ body.light-theme canvas { filter:none; }
             <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">NVDA</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">78</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-red);font-weight:700;">+7.4</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">5/22</td>
+            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">18-22%</td>
             <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Covered Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">AI 하강세, 높은 IV</td>
+            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">AI 과열 후 고IV 예시</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">AMD</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">71</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-red);font-weight:700;">+6.2</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">4/29</td>
+            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">15-18%</td>
             <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Iron Condor</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">비상 활동 (AMD Call)</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">AAPL</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">—</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);font-weight:700;">—</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">—</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">—</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:var(--surface-4);color:var(--text-muted);padding:2px 6px;border-radius:3px;font-size:11px;">대기 중</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">라이브 데이터 대기 중</td>
+            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">콜 수요 급증 예시</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">TSLA</td>
@@ -9975,43 +10118,43 @@ body.light-theme canvas { filter:none; }
             <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">—</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">16-20%</td>
             <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Call Spread</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">주간 반발 기대</td>
+            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">단기 반등 베팅 예시</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">AAPL</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">62</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-red);font-weight:700;">+5.1</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">5/2</td>
+            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">14-17%</td>
             <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Covered Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">방어 필요, 중간 IV</td>
+            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">보유분 프리미엄 수취 예시</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">MSFT</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">58</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">+4.8</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">4/30</td>
+            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">13-16%</td>
             <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(0,229,160,0.15);color:var(--data-green);padding:2px 6px;border-radius:3px;font-size:11px;">Long Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">낮은 IV · 매수 기회</td>
+            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">저IV 방향성 베팅 예시</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">META</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">69</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-red);font-weight:700;">+5.3</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">5/1</td>
+            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">15-19%</td>
             <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Covered Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">상승 포지션 but Call 매도 고려</td>
+            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">상승 보유분 콜매도 예시</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">AMZN</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">55</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">+4.2</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">5/6</td>
+            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">12-15%</td>
             <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(0,229,160,0.15);color:var(--data-green);padding:2px 6px;border-radius:3px;font-size:11px;">Long Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">저 IV · 매수 기회</td>
+            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">저IV 방향성 베팅 예시</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">SPY</td>
@@ -10020,7 +10163,7 @@ body.light-theme canvas { filter:none; }
             <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">—</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">17-21%</td>
             <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Covered Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">PCE 4/30 전 관망</td>
+            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">다음 CPI/FOMC/실적 전 관망</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">QQQ</td>
@@ -10029,7 +10172,7 @@ body.light-theme canvas { filter:none; }
             <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">—</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">18-23%</td>
             <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,91,80,0.15);color:var(--data-red);padding:2px 6px;border-radius:3px;font-size:11px;">Put Spread</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">기술주 약세, 높은 위험</td>
+            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">기술주 헤지 예시</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">GLD</td>
@@ -10038,7 +10181,7 @@ body.light-theme canvas { filter:none; }
             <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">—</td>
             <td style="text-align:center;padding:7px 8px;color:var(--data-green);">8-10%</td>
             <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(0,229,160,0.15);color:var(--data-green);padding:2px 6px;border-radius:3px;font-size:11px;">Long Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">매우 낮은 IV · 매수 우위</td>
+            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">저IV 안전자산 베팅 예시</td>
           </tr>
           <tr>
             <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">TLT</td>
@@ -10096,12 +10239,11 @@ body.light-theme canvas { filter:none; }
       <div style="padding:12px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.3);border-radius:8px;">
         <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:8px;">Spot vs 30일물 해석</div>
         <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
-          <div style="margin-bottom:6px;"><strong>현재:</strong> VIX Spot 18.36 (재협상 기대로 급락, 기간구조 동적 갱신)</div>
-          <div style="margin-bottom:6px;"><strong>의미:</strong> 백워데이션 (공포 상황 — Spot이 선물보다 높음)</div>
-          <div style="margin-bottom:6px;"><strong>신호:</strong> 단기(1주) 변동성 >> 중기(1개월) → 시장 공포 확대</div>
-          <div style="margin-bottom:6px;"><strong>기대:</strong> 단기 이벤트 해소 시 Spot이 빠르게 하락할 수 있음</div>
-          <div style="margin-bottom:6px;"><strong>거래:</strong> 근월 프리미엄 높아 매도 전략 유리, 단 급등 리스크 관리 필수</div>
-          <div style="margin-bottom:6px;"><strong>주의:</strong> PCE(4/30)까지 변동성 지속 가능</div>
+          <div style="margin-bottom:6px;"><strong>현재:</strong> 위 VIX 현물·선물·VVIX 실시간/스냅샷 값을 먼저 확인합니다.</div>
+          <div style="margin-bottom:6px;"><strong>콘탱고:</strong> 선물이 현물보다 높으면 시장이 안정적이고 보험료가 정상화된 상태입니다.</div>
+          <div style="margin-bottom:6px;"><strong>백워데이션:</strong> 현물이 선물보다 높으면 단기 공포가 큰 상태라 헤지 비용과 급등락 위험이 커집니다.</div>
+          <div style="margin-bottom:6px;"><strong>거래:</strong> IV가 높으면 프리미엄 수취 후보, IV가 낮으면 옵션 매수 후보가 될 수 있습니다.</div>
+          <div style="margin-bottom:6px;"><strong>주의:</strong> 이벤트 날짜는 고정 문구가 아니라 브리핑/매크로 일정에서 최신값을 확인하세요.</div>
         </div>
       </div>
     </div>
@@ -10131,7 +10273,7 @@ body.light-theme canvas { filter:none; }
         <strong style="color:var(--data-green);">1. 프리미엄 수취 기회:</strong> VIX가 높을수록 옵션 프리미엄 상승. Covered Call, CSP, Iron Condor 수익성 ↑<br><br>
         <strong style="color:var(--data-green);">2. 헤징 비용 상승:</strong> 하락 헤지 (Put 매수)의 프리미엘이 비쌈. 대신 Put 매도 유리.<br><br>
         <strong style="color:var(--data-green);">3. 백워데이션 활용:</strong> 근월 프리미엄 과대 상태. Calendar Spread (매도 근월 / 매수 원월)로 정상화 수익 추구.<br><br>
-        <strong style="color:var(--data-green);">4. PCE 이벤트 전략:</strong> 다음 PCE(4/30)까지 변동성 지속. 이벤트 후 IV Crush 예상. Straddle 진입 고려.
+        <strong style="color:var(--data-green);">4. 이벤트 전략:</strong> CPI/FOMC/대형 실적 전에는 IV가 높아질 수 있습니다. 이벤트 직후에는 IV Crush가 날 수 있으므로 방향성보다 프리미엄 변화까지 함께 봅니다.
       </div>
     </div>
   </div>
@@ -13660,6 +13802,7 @@ const CHAT_DEFAULT_CHIPS = {
     '내 종목들 중 어닝 시즌에 가장 리스크 높은 포지션은?'
   ]
 };
+window.CHAT_DEFAULT_CHIPS = CHAT_DEFAULT_CHIPS;
 
 // ═══ v29.1: 대화 기록 localStorage 저장/열람 시스템 ═══════════════════
 // v48.27 (P8): 200→100건 + 응답 300→200자 truncate (한글 UTF-8 3bytes 고려, ~100KB 한도)
@@ -13717,7 +13860,7 @@ function openChatHistory(ctxId) {
   overlay.className = 'chat-history-overlay open';
   overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
 
-  const ctxLabel = ctxId ? (CHAT_CONTEXTS[ctxId]?.label || ctxId) : '전체';
+  const ctxLabel = ctxId ? ((window.CHAT_CONTEXTS && window.CHAT_CONTEXTS[ctxId] && window.CHAT_CONTEXTS[ctxId].label) || ctxId) : '전체';
   overlay.innerHTML = `
     <div class="chat-history-panel">
       <div class="ch-header">
@@ -15902,7 +16045,7 @@ function renderEconCalendar() {
   ];
   // v48.18 (integrate): 2026년 4-5월 주요 기업 이벤트 (날짜 지정형)
   var pinnedEvents2026 = [
-    // v48.75 (2026-05-04): 이번 주(05/04-05/10) 이벤트 추가·확장
+    // v49.7: 과거 이벤트는 렌더 단계에서 제외하고 향후 촉매만 표시
     {date:'05/04', name:'PLTR 실적 발표 (장 마감 후) ★', impact:'HIGH', tip:'AI 소프트웨어 대장주. 정부·기업 AIP 수요 가속 여부. 가이던스 상향 시 AI 전체 밸류에이션 재평가 촉매. BRKB 주총 — 그렉 아벨 신임 CEO 첫 주주 대면.', impColor:'var(--data-red)'},
     {date:'05/05', name:'JOLTS + 무역수지 + ISM 서비스 PMI', impact:'HIGH', tip:'JOLTS 구인이직보고서(3월, 23:00 KST) + 무역수지(3월, 21:30 KST) + ISM 서비스 PMI(23:00 KST). 한국·일본·중국 휴장. 아시아 유동성 저조.', impColor:'var(--data-red)'},
     {date:'05/05', name:'SHOP + PYPL + PFE / AMD + ANET 실적', impact:'HIGH', tip:'장전: SHOP·PYPL(핀테크 소비), PFE(E-Score 10/10). 장후: AMD MI300X E-Score 8.8/10($1.30/$9.9B), ANET DC 네트워크 강도. 반도체·핀테크 동시 점검.', impColor:'var(--data-red)'},
@@ -15961,11 +16104,25 @@ function renderEconCalendar() {
     });
     html += '</div>';
   }
-  // v48.18 (integrate): 고정 이벤트 타임라인 (4-5월 Google/어닝 시즌/FOMC)
-  if (pinnedEvents2026 && pinnedEvents2026.length > 0) {
+  function _eventEndDate2026(dateStr) {
+    var txt = String(dateStr || '').trim();
+    var m = txt.match(/^(\d{2})\/(\d{2})(?:-(\d{2}))?/);
+    if (m) return new Date(2026, parseInt(m[1], 10) - 1, parseInt(m[3] || m[2], 10), 23, 59, 59);
+    var monthOnly = txt.match(/^(\d{2})월/);
+    if (monthOnly) return new Date(2026, parseInt(monthOnly[1], 10), 0, 23, 59, 59);
+    return null;
+  }
+  // v49.7: 고정 이벤트는 현재일 기준 지난 항목을 예정으로 렌더링하지 않는다.
+  var todayStart = new Date(now);
+  todayStart.setHours(0, 0, 0, 0);
+  var upcomingPinned = (pinnedEvents2026 || []).filter(function(ev) {
+    var endDate = _eventEndDate2026(ev.date);
+    return !endDate || endDate >= todayStart;
+  }).slice(0, 8);
+  if (upcomingPinned.length > 0) {
     html += '<div style="margin-top:8px;padding:8px;background:rgba(0,212,255,0.05);border-left:3px solid var(--data-cyan);border-radius:4px;">';
-    html += '<div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:6px;">예정 이벤트 (v48.18 · /integrate 35건 반영)</div>';
-    pinnedEvents2026.forEach(function(ev) {
+    html += '<div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:6px;">다가오는 고정 이벤트</div>';
+    upcomingPinned.forEach(function(ev) {
       html += '<div style="font-size:11px;color:var(--text-muted);line-height:1.7;display:grid;grid-template-columns:60px 1fr;gap:6px;margin-bottom:3px;">';
       html += '<span style="color:var(--data-cyan);font-weight:700;font-family:var(--font-mono);">' + ev.date + '</span>';
       html += '<span><b style="color:var(--text-secondary);">' + ev.name + '</b><span style="font-size:11px;color:' + ev.impColor + ';margin-left:6px;font-weight:700;">' + ev.impact + '</span> — ' + ev.tip + '</span>';
@@ -16724,7 +16881,8 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
 //  ENHANCED CHAT CONTEXTS for Technical & Macro (Pro) 
 // ═══════════════════════════════════════════════════════════════
 (function() {
-  CHAT_CONTEXTS['technical'] = {
+  window.CHAT_CONTEXTS = window.CHAT_CONTEXTS || {};
+  window.CHAT_CONTEXTS['technical'] = {
     title: 'AI 기술적 분석가 (Pro)',
     system: function() {
       var s = _liveSnap();
@@ -16867,7 +17025,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
     }
   };
 
-  CHAT_CONTEXTS['macro'] = {
+  window.CHAT_CONTEXTS['macro'] = {
     title: 'AI 매크로 전략가 (Pro)',
     system: function() {
       var s = _liveSnap();
@@ -17093,7 +17251,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
   // v48.55: CHAT_CONTEXTS['themes'] — 메서드론 중심 (R40 준수, 종목 리스트 하드코딩 금지)
   // 실질 데이터는 API 파이프라인 동적 수집: _extractTickers → Yahoo/Finnhub/FMP → 프롬프트 주입
   // 이 system()은 persona + 분석 프레임워크만 정의. 종목 전수 나열은 _fetchTickerDataForChat이 담당.
-  CHAT_CONTEXTS['themes'] = {
+  window.CHAT_CONTEXTS['themes'] = {
     title: 'AI 테마·트렌드 전략가 (Pro)',
     system: function() {
       var s = _liveSnap();
@@ -17128,13 +17286,13 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
     }
   };
   // v48.55: theme-detail은 themes와 동일 persona (데이터 주입 파이프라인 공유)
-  CHAT_CONTEXTS['theme-detail'] = CHAT_CONTEXTS['themes'];
+  window.CHAT_CONTEXTS['theme-detail'] = window.CHAT_CONTEXTS['themes'];
 
-  if (typeof CHAT_DEFAULT_CHIPS !== 'undefined') {
-    CHAT_DEFAULT_CHIPS['technical'] = ['지금 S&P 몇 단계야?','VCP 셋업 찾는 법','NVDA 진입 타이밍은?','VIX 30 넘으면 어떡해?'];
-    CHAT_DEFAULT_CHIPS['macro'] = ['유가 오르면 내 주식은?','경기침체 확률은?','금리 인하 시점 예상은?','달러 약세면 뭐 사?'];
-    CHAT_DEFAULT_CHIPS['themes'] = ['AI 반도체 대장주는?','Cloud SaaS 지금 진입?','방산 조정 언제 끝나?','원전/SMR 테마 ETF는?'];
-    CHAT_DEFAULT_CHIPS['theme-detail'] = ['이 테마 대장주 분석','같은 테마 2차 수혜주','매크로 카탈리스트 뭐?','진입·손절 가이드'];
+  if (window.CHAT_DEFAULT_CHIPS) {
+    window.CHAT_DEFAULT_CHIPS['technical'] = ['지금 S&P 몇 단계야?','VCP 셋업 찾는 법','NVDA 진입 타이밍은?','VIX 30 넘으면 어떡해?'];
+    window.CHAT_DEFAULT_CHIPS['macro'] = ['유가 오르면 내 주식은?','경기침체 확률은?','금리 인하 시점 예상은?','달러 약세면 뭐 사?'];
+    window.CHAT_DEFAULT_CHIPS['themes'] = ['AI 반도체 대장주는?','Cloud SaaS 지금 진입?','방산 조정 언제 끝나?','원전/SMR 테마 ETF는?'];
+    window.CHAT_DEFAULT_CHIPS['theme-detail'] = ['이 테마 대장주 분석','같은 테마 2차 수혜주','매크로 카탈리스트 뭐?','진입·손절 가이드'];
   }
 })();
 
@@ -17147,7 +17305,8 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
   // kr-themes, kr-macro, kr-tech만 유지
 
 
-  CHAT_CONTEXTS['kr-themes'] = {
+  window.CHAT_CONTEXTS = window.CHAT_CONTEXTS || {};
+  window.CHAT_CONTEXTS['kr-themes'] = {
     title: 'AI 국내 테마 전략가',
     system: function() {
       var s = _liveSnap();
@@ -17209,7 +17368,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         _getChatRules();
     }
   };
-  CHAT_CONTEXTS['kr-macro'] = {
+  window.CHAT_CONTEXTS['kr-macro'] = {
     title: 'AI 한국 경제 전문가',
     system: function() {
       var s = _liveSnap();
@@ -17300,7 +17459,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
     }
   };
   // v34.6: kr-tech 차트/기술 분석 컨텍스트 추가
-  CHAT_CONTEXTS['kr-tech'] = {
+  window.CHAT_CONTEXTS['kr-tech'] = {
     title: 'AI 한국장 기술 분석가',
     system: function() {
       var s = _liveSnap();
@@ -17365,9 +17524,11 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         _getChatRules();
     }
   };
-  CHAT_DEFAULT_CHIPS['kr-themes'] = ['K-방산 더 오를까?','2차전지 반등 시점은?','조선주 진입해도 될까?','반도체 수출 지속될까?'];
-  CHAT_DEFAULT_CHIPS['kr-macro'] = ['한은 금리 인하 언제?','원/달러 1,500원 돌파하면?','코리아 디스카운트 해소 가능?','반도체가 KOSPI에 미치는 영향은?'];
-  CHAT_DEFAULT_CHIPS['kr-tech'] = ['삼성전자 Weinstein 단계는?','KOSPI 20일선 이탈, 조정 vs 하락?','SK하이닉스 RSI 다이버전스?','한화에어로 진입 타이밍?'];
+  if (window.CHAT_DEFAULT_CHIPS) {
+    window.CHAT_DEFAULT_CHIPS['kr-themes'] = ['K-방산 더 오를까?','2차전지 반등 시점은?','조선주 진입해도 될까?','반도체 수출 지속될까?'];
+    window.CHAT_DEFAULT_CHIPS['kr-macro'] = ['한은 금리 인하 언제?','원/달러 1,500원 돌파하면?','코리아 디스카운트 해소 가능?','반도체가 KOSPI에 미치는 영향은?'];
+    window.CHAT_DEFAULT_CHIPS['kr-tech'] = ['삼성전자 Weinstein 단계는?','KOSPI 20일선 이탈, 조정 vs 하락?','SK하이닉스 RSI 다이버전스?','한화에어로 진입 타이밍?'];
+  }
   // v47.8: kr-supply dead chips 제거 (페이지 AI 미지원)
 })();
 function filterKrThemes(btn, heat) {
@@ -22330,8 +22491,8 @@ function initSignalDashboard() {
   refreshSignal();
 
   // Init chat
-  if (typeof CHAT_DEFAULT_CHIPS !== 'undefined') {
-    chatRenderChips('signal', CHAT_DEFAULT_CHIPS['signal']);
+  if (window.CHAT_DEFAULT_CHIPS) {
+    chatRenderChips('signal', window.CHAT_DEFAULT_CHIPS['signal']);
   }
   // Fetch fresh quotes for signal page
   if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes();
@@ -26520,17 +26681,17 @@ _aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
 
 // themes 기본 칩만 업데이트 (메인 CHAT_CONTEXTS['themes']는 동적 함수 유지)
 (function() {
-  if (typeof CHAT_CONTEXTS !== 'undefined') {
-    if (typeof CHAT_DEFAULT_CHIPS !== 'undefined') {
-      CHAT_DEFAULT_CHIPS['themes'] = ['지금 주도 섹터는?','섹터 순환 어디쯤?','에너지 아직 탈만해?','기술주 바닥 언제?'];
+  if (window.CHAT_CONTEXTS) {
+    if (window.CHAT_DEFAULT_CHIPS) {
+      window.CHAT_DEFAULT_CHIPS['themes'] = ['지금 주도 섹터는?','섹터 순환 어디쯤?','에너지 아직 탈만해?','기술주 바닥 언제?'];
     }
 
     // ── v27 data-fix CHAT_CONTEXTS: 이제 메인 정의에 통합됨 (중복 제거) ──
     // 모든 CHAT_CONTEXTS는 메인 정의 + enhanced overrides에서 관리합니다.
     // fxbond만 추가 데이터 보강 (메인에 없는 JPY, TYX, IRX, HYG, TLT)
-    if (typeof CHAT_CONTEXTS !== 'undefined' && CHAT_CONTEXTS['fxbond']) {
-      var _origFx = CHAT_CONTEXTS['fxbond'].system;
-      CHAT_CONTEXTS['fxbond'].system = function() {
+    if (window.CHAT_CONTEXTS['fxbond']) {
+      var _origFx = window.CHAT_CONTEXTS['fxbond'].system;
+      window.CHAT_CONTEXTS['fxbond'].system = function() {
         var base = typeof _origFx === 'function' ? _origFx() : _origFx;
         var ld = window._liveData || {};
         var extra = '\n【추가 FX·채권 데이터】\n' +
@@ -29322,9 +29483,10 @@ function toggleAIPanel() {
 
 function updateAIPanelContext(pageId) {
   var ctxId = _aiCtxMap[pageId];
+  var chatContexts = window.CHAT_CONTEXTS || {};
   var aiInp = document.getElementById('ai-panel-inp');
   var aiBtn = document.getElementById('ai-panel-btn');
-  if (!ctxId || !CHAT_CONTEXTS[ctxId]) {
+  if (!ctxId || !chatContexts[ctxId]) {
     // AI 미지원 페이지 전환 시
     _aiCurrentCtx = null;
     if (aiInp) aiInp.disabled = true;
@@ -29346,7 +29508,7 @@ function updateAIPanelContext(pageId) {
   _aiCurrentCtx = ctxId;
   var titleEl = document.getElementById('ai-panel-title');
   var badgeEl = document.getElementById('ai-panel-badge');
-  if (titleEl) titleEl.textContent = CHAT_CONTEXTS[ctxId].title || 'AI';
+  if (titleEl) titleEl.textContent = chatContexts[ctxId].title || 'AI';
   if (badgeEl) badgeEl.textContent = pageId;
   // 메시지 이력 복원
   var msgsEl = document.getElementById('ai-panel-msgs');
@@ -29386,7 +29548,7 @@ function _appendAIMsg(role, html, id) {
 async function chatSendUnified() {
   console.log('[AIO] chatSendUnified 시작, ctx:', _aiCurrentCtx);
   if (!_aiCurrentCtx) { _aioLog('warn', 'debug', '_aiCurrentCtx null'); return; }
-  var ctx = CHAT_CONTEXTS[_aiCurrentCtx];
+  var ctx = (window.CHAT_CONTEXTS || {})[_aiCurrentCtx];
   if (!ctx) { _aioLog('warn', 'debug', 'CHAT_CONTEXTS에 없음: ' + _aiCurrentCtx); return; }
   var state = getChatState(_aiCurrentCtx);
   // v47.8: stale streaming 감지 — 60초+ 경과 시 강제 해제 (이전 요청 hang 방어)

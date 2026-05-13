@@ -1657,6 +1657,344 @@ window._aioToggleExplain = function(explainEl, el) {
   target.classList.toggle('is-open');
 };
 
+// v49.7: 각 페이지의 목적/사용 순서/다음 이동을 한 번에 보여주는 상단 요약 레이어.
+// 긴 교육 텍스트는 그대로 보존하되, 초보자가 먼저 볼 3단계 루틴을 페이지마다 통일한다.
+var AIO_PAGE_BRIEFS = {
+  home: {
+    title: '오늘은 시장을 열어도 되는 날인지 먼저 판단',
+    use: '신호, 품질, 국면만 확인한 뒤 세부 페이지로 내려갑니다.',
+    steps: ['매매 신호로 공격/방어 모드 결정', '시장 품질과 VIX로 리스크 확인', '뉴스·브리핑에서 오늘의 트리거 확인'],
+    focus: '처음에는 여기서 결론을 잡고, 이유는 시그널·브리핑·뉴스 페이지에서 확인하세요.',
+    links: [['signal','시그널'], ['briefing','브리핑'], ['market-news','뉴스'], ['portfolio','포트폴리오']]
+  },
+  signal: {
+    title: '신규 진입, 보유, 축소를 한 화면에서 결정',
+    use: '점수보다 행동 사다리가 우선입니다.',
+    steps: ['Trading Score로 시장 허용치 확인', 'Lockout/OPEX로 추격매수 위험 확인', '포지션 크기와 스톱을 정한 뒤 실행'],
+    focus: '강세장에서는 RSI 과열만으로 팔지 말고, ATR 확장·거래량·종가 위치를 같이 보세요.',
+    links: [['technical','기술 분석'], ['portfolio','포트폴리오'], ['options','옵션'], ['briefing','브리핑']]
+  },
+  breadth: {
+    title: '지수 상승이 소수 대형주인지, 시장 전체인지 확인',
+    use: '브레드쓰는 추세의 내구성 체크용입니다.',
+    steps: ['5/20/50/200일선 위 종목 비율 확인', '섹터·RRG로 확산 또는 이탈 확인', '지수와 폭이 갈라지면 신규 매수 축소'],
+    focus: '지수는 신고가인데 폭이 약하면 랠리 품질이 낮아진 상태입니다.',
+    links: [['signal','시그널'], ['themes','테마'], ['technical','기술 분석']]
+  },
+  sentiment: {
+    title: '사람들이 너무 탐욕적인지, 너무 겁먹었는지 확인',
+    use: '심리는 타이밍 보조 지표입니다.',
+    steps: ['Fear & Greed와 Put/Call 확인', 'AAII·VIX로 군중 쏠림 확인', '극단값은 반대로, 중간값은 추세와 함께 해석'],
+    focus: '탐욕은 즉시 매도 신호가 아니라 추격매수 금지 신호에 가깝습니다.',
+    links: [['signal','시그널'], ['options','옵션'], ['breadth','시장 폭']]
+  },
+  briefing: {
+    title: '오늘 시장을 움직일 이벤트와 행동만 압축 확인',
+    use: '매일 장 시작 전 체크리스트입니다.',
+    steps: ['오늘의 리스크와 이벤트 확인', '관심 섹터·종목 트리거 확인', '실행/대기/회피 항목만 남기기'],
+    focus: '긴 설명보다 오늘 포지션을 바꿀 수 있는 변수만 보세요.',
+    links: [['market-news','뉴스'], ['macro','매크로'], ['signal','시그널']]
+  },
+  technical: {
+    title: '추세는 유지할지, 일부 줄일지, 헤지할지 판단',
+    use: '기관형 Technical Brief가 메인입니다.',
+    steps: ['티커 입력 후 월/주/일/줌 차트 확인', 'Sell Pressure와 Exit Plan 확인', '10EMA·21EMA·50SMA 이탈별 행동 적용'],
+    focus: 'RSI 70+는 과열 경고일 뿐이며, ATR 확장·RVOL·종가 위치가 매도 판단의 핵심입니다.',
+    links: [['signal','시그널'], ['portfolio','포트폴리오'], ['options','옵션']]
+  },
+  macro: {
+    title: '금리, 인플레, 성장 중 무엇이 시장을 지배하는지 확인',
+    use: '매크로는 시장 국면의 배경 설명입니다.',
+    steps: ['FOMC·CPI·PCE·고용의 방향 확인', '달러·유가·금리와 연결', '주식에 우호/비우호인지 결론만 남기기'],
+    focus: '좋은 뉴스인지보다 연준 반응 함수와 금리 방향을 먼저 보세요.',
+    links: [['fxbond','환율·채권'], ['briefing','브리핑'], ['themes','테마']]
+  },
+  fxbond: {
+    title: '달러와 금리로 위험자산의 압박 정도 확인',
+    use: '주식 밸류에이션과 글로벌 자금 흐름의 입력값입니다.',
+    steps: ['DXY와 USD/KRW로 달러 스트레스 확인', '2Y·10Y·커브로 금리 압박 확인', 'HY/OAS가 벌어지면 리스크 축소'],
+    focus: '주식 차트가 좋아도 달러와 금리가 동시에 올라가면 추격매수 품질이 떨어집니다.',
+    links: [['macro','매크로'], ['signal','시그널'], ['kr-home','한국장']]
+  },
+  fundamental: {
+    title: '좋은 회사인지보다 지금 가격에 살 이유가 있는지 확인',
+    use: '재무, 밸류, 실적, 뉴스 리스크를 한 번에 봅니다.',
+    steps: ['티커 입력 후 핵심 재무와 밸류 확인', '실적·가이던스·뉴스 리스크 확인', '기술적 exit risk와 함께 최종 판단'],
+    focus: '펀더멘털이 좋아도 차트가 무너지면 신규 진입은 늦추는 쪽이 안전합니다.',
+    links: [['technical','기술 분석'], ['portfolio','포트폴리오'], ['market-news','뉴스']]
+  },
+  themes: {
+    title: '어떤 테마가 실제 돈을 끌어오는지 확인',
+    use: '테마 이름보다 구성 종목과 상대강도가 중요합니다.',
+    steps: ['테마별 성과와 주도주 확인', '밸류체인에서 병목 위치 확인', '개별 종목은 기업분석/기술분석으로 검증'],
+    focus: '같은 AI 테마라도 인프라, 반도체, 전력, 소프트웨어는 사이클과 리스크가 다릅니다.',
+    links: [['fundamental','기업 분석'], ['technical','기술 분석'], ['market-news','뉴스']]
+  },
+  portfolio: {
+    title: '내 계좌가 시장 충격에 얼마나 취약한지 확인',
+    use: '보유 종목 관리와 리밸런싱 페이지입니다.',
+    steps: ['종목·수량·평단을 입력', '집중도·섹터·VaR·MDD 확인', '기술적 exit risk로 줄일 순서 결정'],
+    focus: '수익률보다 먼저 단일 종목/섹터 집중과 손실 허용치를 확인하세요.',
+    links: [['technical','기술 분석'], ['signal','시그널'], ['fundamental','기업 분석']]
+  },
+  'market-news': {
+    title: '뉴스를 가격에 영향을 주는 변수로 분류',
+    use: '헤드라인을 읽는 곳이 아니라 영향도를 걸러내는 곳입니다.',
+    steps: ['긴급/중요 뉴스만 먼저 확인', '영향 섹터와 티커 연결', '브리핑·테마·포트폴리오에서 행동으로 변환'],
+    focus: '뉴스가 많을수록 가격에 반영될 뉴스와 소음 뉴스를 분리해야 합니다.',
+    links: [['briefing','브리핑'], ['themes','테마'], ['portfolio','포트폴리오']]
+  },
+  options: {
+    title: '변동성, 헤지 비용, OPEX 리스크 확인',
+    use: '옵션 가격은 시장의 보험료입니다.',
+    steps: ['VIX·term structure로 공포/안정 확인', 'Put/Call과 gamma/OPEX 확인', '헤지·프리미엄 전략 가능성 판단'],
+    focus: 'VIX가 높으면 공포이면서 동시에 옵션 매도 프리미엄이 높아진 상태입니다.',
+    links: [['signal','시그널'], ['technical','기술 분석'], ['macro','매크로']]
+  },
+  ticker: {
+    title: '선택한 종목을 가격·재무·뉴스로 한 번 더 검증',
+    use: '다른 페이지에서 고른 종목의 최종 확인 화면입니다.',
+    steps: ['가격 추세와 핵심 지표 확인', '뉴스와 실적 리스크 확인', '매수/보유/축소 결론으로 연결'],
+    focus: '한 종목은 반드시 시장 국면, 섹터, 기술적 위치와 같이 봐야 합니다.',
+    links: [['technical','기술 분석'], ['fundamental','기업 분석'], ['portfolio','포트폴리오']]
+  },
+  'theme-detail': {
+    title: '테마가 실제 주도주와 수익으로 이어지는지 확인',
+    use: '테마 이름이 아니라 대장주, 2차 수혜주, 촉매, 깨지는 신호를 한 화면에서 연결합니다.',
+    steps: ['대장주와 2차 수혜주 성과 차이 확인', '뉴스·실적·수급 촉매가 실제인지 확인', '차트 과열·이탈 신호로 추격 여부 판단'],
+    focus: '강한 테마일수록 “좋은 이야기”보다 대장주의 상대강도와 후발 확산 여부가 더 중요합니다.',
+    links: [['themes','테마'], ['technical','기술 분석'], ['market-news','뉴스']]
+  },
+  'kr-home': {
+    title: '한국장은 외국인 수급, 환율, 반도체를 먼저 확인',
+    use: 'KOSPI/KOSDAQ의 당일 방향성을 빠르게 봅니다.',
+    steps: ['KOSPI·KOSDAQ과 외국인 수급 확인', 'USD/KRW와 미국 반도체 영향 확인', '국내 테마/수급 페이지로 세부 확인'],
+    focus: '한국장은 환율과 외국인 수급이 지수 방향을 크게 좌우합니다.',
+    links: [['kr-supply','수급'], ['kr-themes','국내 테마'], ['kr-macro','한국 매크로']]
+  },
+  'kr-supply': {
+    title: '외국인·기관·개인의 실제 매수 주체 확인',
+    use: '가격보다 누가 사고 파는지 보는 페이지입니다.',
+    steps: ['시장별 순매수 주체 확인', '업종·종목 수급 집중 확인', '가격 추세와 함께 진입 가능성 판단'],
+    focus: '수급이 좋지만 가격이 약하면 아직 확인이 부족한 상태입니다.',
+    links: [['kr-home','한국장'], ['kr-themes','국내 테마'], ['kr-technical','KR 기술']]
+  },
+  'kr-themes': {
+    title: '국내 테마 중 실제 주도 테마만 선별',
+    use: '단기 테마 순환을 정리하는 페이지입니다.',
+    steps: ['상승 테마와 대장주 확인', '뉴스/수급이 붙었는지 확인', '차트 위치로 추격 여부 판단'],
+    focus: '테마주는 대장주와 2등주의 차이가 크므로 상대강도를 꼭 보세요.',
+    links: [['kr-supply','수급'], ['kr-technical','KR 기술'], ['market-news','뉴스']]
+  },
+  'kr-macro': {
+    title: '한국 금리, 환율, 수출 사이클을 확인',
+    use: '국내 증시의 배경 체력을 보는 페이지입니다.',
+    steps: ['BOK·국채금리·환율 확인', '수출/반도체 사이클 확인', '외국인 수급과 함께 결론 내리기'],
+    focus: '한국 매크로는 원화와 반도체 수출이 동시에 중요합니다.',
+    links: [['kr-home','한국장'], ['fxbond','환율·채권'], ['kr-supply','수급']]
+  },
+  'kr-technical': {
+    title: '국내 종목도 같은 exit/trim 기준으로 판단',
+    use: '한국 종목의 추세와 과열을 점검합니다.',
+    steps: ['티커/지수 차트 위치 확인', '이평선·RSI·거래량 확인', '추격/보유/축소 결론으로 연결'],
+    focus: '급등주는 거래량이 꺼지는 순간부터 리스크 관리가 먼저입니다.',
+    links: [['kr-home','한국장'], ['kr-supply','수급'], ['technical','미국 기술']]
+  },
+  guide: {
+    title: '처음 쓰는 순서만 익히면 됩니다',
+    use: '모든 설명을 읽기보다 루틴을 먼저 잡으세요.',
+    steps: ['대시보드에서 오늘 모드 결정', '시그널/기술/포트폴리오로 행동 결정', '뉴스/매크로/테마로 이유 확인'],
+    focus: '처음에는 대시보드 → 시그널 → 포트폴리오 3개만 반복해도 충분합니다.',
+    links: [['home','대시보드'], ['signal','시그널'], ['portfolio','포트폴리오']]
+  }
+};
+window.AIO_PAGE_BRIEFS = AIO_PAGE_BRIEFS;
+
+function _aioBriefEsc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function(ch) {
+    return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[ch];
+  });
+}
+
+window._aioRenderPageBrief = function(pageId) {
+  var cfg = AIO_PAGE_BRIEFS[pageId];
+  if (!cfg) return;
+  var page = document.getElementById('page-' + pageId);
+  if (!page) return;
+  if (page.querySelector('.aio-page-brief')) return;
+  var steps = (cfg.steps || []).slice(0, 3).map(function(step, idx) {
+    return '<div class="aio-page-brief-step"><span class="aio-page-brief-num">' + (idx + 1) + '</span><div class="aio-page-brief-step-text">' + _aioBriefEsc(step) + '</div></div>';
+  }).join('');
+  var links = (cfg.links || []).map(function(pair) {
+    return '<button class="aio-page-brief-chip" data-action="showPage" data-arg="' + _aioBriefEsc(pair[0]) + '">' + _aioBriefEsc(pair[1]) + '</button>';
+  }).join('');
+  var html =
+    '<section class="aio-page-brief" aria-label="페이지 핵심 사용법">' +
+      '<div class="aio-page-brief-head">' +
+        '<div><div class="aio-page-brief-kicker">Page Routine</div><div class="aio-page-brief-title">' + _aioBriefEsc(cfg.title) + '</div></div>' +
+        '<div class="aio-page-brief-use">' + _aioBriefEsc(cfg.use) + '</div>' +
+      '</div>' +
+      '<div class="aio-page-brief-grid">' +
+        '<div class="aio-page-brief-steps">' + steps + '</div>' +
+        '<div class="aio-page-brief-actions"><div class="aio-page-brief-focus">' + _aioBriefEsc(cfg.focus) + '</div>' + links + '</div>' +
+      '</div>' +
+    '</section>';
+  var box = document.createElement('div');
+  box.innerHTML = html;
+  var brief = box.firstElementChild;
+  var anchor = page.querySelector('.insight-box');
+  if (anchor && anchor.parentNode === page) {
+    anchor.insertAdjacentElement('afterend', brief);
+  } else {
+    page.insertBefore(brief, page.firstElementChild);
+  }
+};
+
+window._aioSimplifyExplainLabels = function() {
+  var labels = {
+    'explain-decision-dash': '상세 해설: 대시보드 신호 읽는 법',
+    'explain-top-indicators': '상세 해설: 핵심 지표 읽는 법',
+    'explain-gmo-and-flow': '상세 해설: 자금 흐름 읽는 법',
+    'explain-signal-page': '상세 해설: 매매 시그널과 리스크',
+    'explain-breadth-page': '상세 해설: 시장 폭과 확산',
+    'explain-sentiment-page': '상세 해설: 투자 심리',
+    'explain-briefing-page': '상세 해설: 브리핑 활용법',
+    'explain-technical-page': '상세 해설: 기술 지표와 exit 기준',
+    'explain-macro-page': '상세 해설: 매크로 연결 구조',
+    'explain-fxbond-page': '상세 해설: 환율과 채권',
+    'explain-fundamental-page': '상세 해설: 기업 분석',
+    'explain-themes-page': '상세 해설: 테마와 밸류체인',
+    'explain-portfolio-page': '상세 해설: 포트폴리오 리스크',
+    'explain-ticker-page': '상세 해설: 티커 상세',
+    'explain-news-page': '상세 해설: 뉴스 영향도',
+    'explain-options-page': '상세 해설: 옵션과 변동성',
+    'explain-kr-page': '상세 해설: 한국장 핵심',
+    'explain-kr-supply-page': '상세 해설: 수급 분석',
+    'explain-kr-themes-page': '상세 해설: 국내 테마',
+    'explain-kr-macro-page': '상세 해설: 한국 매크로',
+    'explain-kr-technical-page': '상세 해설: KR 기술 분석',
+    'explain-guide-overview': '상세 해설: 사용 루틴'
+  };
+  Object.keys(labels).forEach(function(id) {
+    var root = document.getElementById(id);
+    if (!root) return;
+    var label = root.querySelector('.aio-explain-trigger-label span:last-child');
+    if (label) label.textContent = labels[id] + ' (펼치기)';
+  });
+};
+
+var AIO_EXPLAIN_SUMMARIES = {
+  'explain-decision-dash': '초보자는 <strong>매매 신호 → 시장 품질 → 시장 국면</strong> 순서로만 보세요. 셋 중 2개 이상이 위험이면 신규 매수보다 현금/관망이 우선입니다.',
+  'explain-top-indicators': '상단 지표는 시장 체온계입니다. <strong>지수 방향, VIX, F&G</strong>가 서로 같은 말을 하는지 확인하고, 서로 다르면 세부 페이지로 내려갑니다.',
+  'explain-gmo-and-flow': '자금 흐름은 “돈이 어디로 이동하는가”를 보는 영역입니다. 초보자는 주도 섹터와 방어 섹터가 바뀌는지만 먼저 확인하세요.',
+  'explain-signal-page': '이 페이지의 결론은 점수가 아니라 <strong>신규 매수/보유/축소/헤지</strong>입니다. 점수가 좋아도 과열·OPEX·폭 부진이 있으면 추격은 줄입니다.',
+  'explain-breadth-page': '시장 폭은 상승의 품질입니다. 지수만 오르고 참여 종목이 줄면 초보자는 신규 매수를 늦추고 보유 종목 방어선을 확인하세요.',
+  'explain-sentiment-page': '심리는 반대로만 쓰지 않습니다. 탐욕은 “바로 매도”가 아니라 <strong>추격 금지</strong>, 공포는 “바로 매수”가 아니라 <strong>분할 확인</strong> 신호입니다.',
+  'explain-briefing-page': '브리핑은 오늘 행동을 정하는 페이지입니다. 모든 뉴스를 읽지 말고 <strong>시장 국면을 바꿀 뉴스, 내 보유 종목 뉴스, 오늘 일정</strong>만 남기세요.',
+  'explain-technical-page': '기술 분석은 매도/축소 기준을 정하는 도구입니다. RSI보다 <strong>ATR 확장, 거래량, 종가 위치, 10/21/50일선 이탈</strong>을 우선합니다.',
+  'explain-macro-page': '매크로는 배경입니다. 초보자는 CPI/PCE/고용 숫자 자체보다 <strong>연준이 금리를 올릴지, 내릴지, 오래 유지할지</strong>를 판단하세요.',
+  'explain-fxbond-page': '환율·채권은 주식의 압박 게이지입니다. 달러와 금리가 동시에 오르면 성장주 추격매수는 보수적으로 봅니다.',
+  'explain-fundamental-page': '기업 분석은 “좋은 회사”와 “지금 살 자리”를 분리합니다. 재무가 좋아도 차트와 뉴스 리스크가 나쁘면 진입은 늦춥니다.',
+  'explain-themes-page': '테마는 스토리가 아니라 돈의 흐름입니다. 테마명보다 <strong>대장주, 상대강도, 밸류체인 병목</strong>을 먼저 확인하세요.',
+  'explain-portfolio-page': '포트폴리오는 수익률보다 생존이 먼저입니다. 단일 종목/섹터 집중과 최대 손실 가능성을 확인한 뒤 줄일 순서를 정하세요.',
+  'explain-ticker-page': '티커 상세는 최종 확인용입니다. 가격 추세, 실적/뉴스, 포트폴리오 비중이 모두 맞을 때만 행동으로 옮깁니다.',
+  'explain-news-page': '뉴스는 많을수록 위험합니다. 초보자는 <strong>가격에 영향 줄 뉴스</strong>와 단순 소음을 분리하고, 영향 섹터/종목만 추적하세요.',
+  'explain-options-page': '옵션은 방향보다 보험료를 보는 페이지입니다. IV가 높으면 프리미엄 매도 후보, IV가 낮으면 옵션 매수 후보를 검토하되 손실 한도를 먼저 정합니다.',
+  'explain-kr-page': '한국장은 환율과 외국인 수급이 핵심입니다. KOSPI/KOSDAQ보다 <strong>외국인 순매수, USD/KRW, 반도체</strong>를 먼저 보세요.',
+  'explain-kr-supply-page': '수급 분석은 누가 사고 파는지 확인합니다. 가격 상승과 외국인/기관 순매수가 동시에 나올 때 신뢰도가 높습니다.',
+  'explain-kr-themes-page': '국내 테마는 순환이 빠릅니다. 대장주가 살아 있고 후발주가 따라오는지 확인하고, 급등 후 거래량 감소는 조심하세요.',
+  'explain-kr-macro-page': '한국 매크로는 원화, 금리, 수출입니다. 원화 약세와 금리 상승이 동시에 나오면 외국인 수급이 약해질 수 있습니다.',
+  'explain-kr-technical-page': 'KR 기술 분석도 원칙은 같습니다. 급등주는 거래량과 10/20일선 이탈을 먼저 보고, 상한가 이후 추격은 특히 조심합니다.',
+  'explain-guide-overview': '가이드는 전부 읽는 문서가 아닙니다. 처음에는 <strong>대시보드 → 시그널 → 포트폴리오</strong> 3개 루틴만 반복하세요.'
+};
+window.AIO_EXPLAIN_SUMMARIES = AIO_EXPLAIN_SUMMARIES;
+
+window._aioInjectExplainSummaries = function() {
+  Object.keys(AIO_EXPLAIN_SUMMARIES).forEach(function(id) {
+    var root = document.getElementById(id);
+    if (!root || root.querySelector('.aio-explain-summary')) return;
+    var content = root.querySelector('.aio-explain-content');
+    if (!content) return;
+    var summary = document.createElement('div');
+    summary.className = 'aio-explain-summary';
+    summary.innerHTML =
+      '<div class="aio-explain-summary-title">초보자 핵심만 먼저</div>' +
+      '<div class="aio-explain-summary-body">' + AIO_EXPLAIN_SUMMARIES[id] + '</div>';
+    content.insertBefore(summary, content.firstChild);
+  });
+};
+
+window.AIO = window.AIO || {};
+window.AIO.getPageUXAudit = function() {
+  var ids = Object.keys(AIO_PAGE_BRIEFS);
+  var staleRe = /PCE\(4\/30\)|PCE 4\/30|VIX Spot 18\.36|5\/2 \(PCE|4\/8 기준|이번 주\(05\/04|예정 이벤트 \(v48/;
+  var homeStaleRe = /NFP 비농업고용지수 \(5\/8|PLTR·AMD·ANET|Fed 4인 동시 연설|5\/8 금|5\/9 토/;
+  var pages = ids.map(function(id) {
+    if (typeof window._aioRenderPageBrief === 'function') window._aioRenderPageBrief(id);
+    var page = document.getElementById('page-' + id);
+    var text = page ? (page.innerText || '').replace(/\s+/g, ' ').trim() : '';
+    var overflow = [];
+    if (page) {
+      var targets = page.querySelectorAll('button,.aio-page-brief-chip,.aio-page-brief-step-text,td,th,input,select,.q-chip');
+      Array.prototype.forEach.call(targets, function(el) {
+        if (overflow.length >= 6) return;
+        if (el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 3) {
+          overflow.push({
+            tag: el.tagName,
+            text: ((el.textContent || el.value || '').trim()).slice(0, 80),
+            clientWidth: el.clientWidth,
+            scrollWidth: el.scrollWidth
+          });
+        }
+      });
+    }
+    return {
+      id: id,
+      pageExists: !!page,
+      briefConfig: !!AIO_PAGE_BRIEFS[id],
+      briefRendered: !!(page && page.querySelector('.aio-page-brief')),
+      textChars: text.length,
+      controls: page ? page.querySelectorAll('button,[data-action],input,select,textarea').length : 0,
+      charts: page ? page.querySelectorAll('canvas,iframe,[id*="chart"],[class*="chart"]').length : 0,
+      explainSections: page ? page.querySelectorAll('.aio-explain,.aio-explain-content,details').length : 0,
+      staleLiveLike: staleRe.test(text) || (id === 'home' && homeStaleRe.test(text)),
+      overflow: overflow
+    };
+  });
+  var issues = [];
+  pages.forEach(function(p) {
+    if (!p.pageExists) issues.push(p.id + ': page missing');
+    if (!p.briefRendered) issues.push(p.id + ': brief missing');
+    if (p.staleLiveLike) issues.push(p.id + ': stale live-like wording');
+    if (p.overflow.length) issues.push(p.id + ': text overflow');
+  });
+  return {
+    version: window.AIO.version || (typeof APP_VERSION === 'string' ? APP_VERSION : null),
+    generatedAt: new Date().toISOString(),
+    totalPages: pages.length,
+    issueCount: issues.length,
+    issues: issues,
+    pages: pages
+  };
+};
+
+_aioPageBus.register('core-page-brief-render', 'aio:pageShown', function(e) {
+  window._aioRenderPageBrief(e.detail);
+});
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    window._aioSimplifyExplainLabels();
+    window._aioInjectExplainSummaries();
+    var active = document.querySelector('.page.active');
+    if (active && active.id) window._aioRenderPageBrief(active.id.replace(/^page-/, ''));
+  });
+} else {
+  window._aioSimplifyExplainLabels();
+  window._aioInjectExplainSummaries();
+  var _briefActive = document.querySelector('.page.active');
+  if (_briefActive && _briefActive.id) window._aioRenderPageBrief(_briefActive.id.replace(/^page-/, ''));
+}
+
 // ═══ v48.44: SVG Doughnut Gauge 렌더 헬퍼 — F&G/Quality/Device 등 ═══
 // 사용: window._aioRenderGauge('elId', percent, { value, caption, tone })
 window._aioRenderGauge = function(elId, pct, opts) {
@@ -3361,7 +3699,7 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
 // ═══════════════════════════════════════════════════════════════════
 // APP_VERSION — 버전 단일 진실 원천 (이 값만 바꾸면 title + 배지 자동 반영)
 // ─────────────────────────────────────────────────────────────────
-// Institutional Technical Risk & Exit Engine (v49.6)
+// Institutional Technical Risk & Exit Engine (v49.7)
 function _aioCleanNums(values) {
   return (values || []).map(function(v) { var n = Number(v); return isFinite(n) ? n : null; });
 }
@@ -4000,7 +4338,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.6';
+const APP_VERSION = 'v49.8';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -4908,32 +5246,32 @@ if (typeof window !== 'undefined') {
 const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
-  // v48.76: _updated → 금요일 2026-05-01 장마감 시각 (목요일 5/1 종가 기준, 미국 장 정상 운영)
-  _updated: '2026-05-12T16:00:00+09:00',   // v49.6 static fallback snapshot, KR close + latest US close
-  _snapshotDate: '2026-05-12',
+  // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
+  _updated: '2026-05-13T12:00:00+09:00',   // v49.8 static fallback snapshot, live stores override when available
+  _snapshotDate: '2026-05-13',
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v49.6 WebSearch refresh (2026-05-12 KST): US close 2026-05-11 SPX 7412.84 (+0.19%) / NASDAQ 26274.13 (+0.10%) / Dow 49704.47 (+0.19%) / Russell 2000 2870.64 (+0.33%) / VIX 18.38 (+6.92%). KR close 2026-05-12 KOSPI 7643.15 (-2.29%) / KOSDAQ 1179.29 (-2.32%) / USDKRW 1489.9 (+17.5 won). DXY 98.16 (+0.2%) intraday; WTI 98.07 (+2.78%) / Brent 104.21 (+2.88%). CBOE latest daily stats: total PCR 0.74 / index PCR 1.03 / equity PCR 0.53. CNN F&G latest public 68~69 Greed; AAII May 7 bull 38.3 / neutral 28.7 / bear 33.0. Static fallback only; live stores override when available.',
+  _note: 'v49.8 WebSearch refresh (2026-05-13 KST): US close 2026-05-12 AP snapshot SPX 7400.96 (-0.20%) / NASDAQ 26088.20 (-0.70%) / Dow 49760.56 (+0.10%) / Russell 2000 2842.83 (-1.00%); VIX latest public morning indication 18.70 (+0.32 pts). KR close 2026-05-13 KOSPI 7844.01 (+2.63%); KOSDAQ fallback remains stale until live/KRX override. Oil shock context WTI 102.18 (+4.2%) / Brent 107.77 (+3.4%). Cboe latest public daily stats: total PCR 0.67 / index PCR 0.71 / equity PCR 0.51. CNN F&G latest public 68~69 Greed; AAII May 9 bull 38.3 / neutral 28.7 / bear 33.0. Static fallback only; Delayed/Fallback/Stale labels must remain visible until live stores override.',
 
-  // ── 미국 주요 지수 (4/30 목 종가 WebSearch 실측) ──
-  spx:        7412.84,  spxPct:    +0.19,   // v49.6: AP 2026-05-11 close
-  nasdaq:    26274.13,  nasdaqPct: +0.10,   // v49.6: AP 2026-05-11 close
-  dow:       49704.47,  dowPct:    +0.19,   // v49.6: AP 2026-05-11 close
-  rut:        2870.64,  rutPct:    +0.33,   // v49.6: AP 2026-05-11 close
-  vix:          18.38,  vixPct:    +6.92,   // v49.6: AA/AP 2026-05-11 spot
+  // ── 미국 주요 지수 (2026-05-12 종가 AP 확인, 실시간 수신 시 교체) ──
+  spx:        7400.96,  spxPct:    -0.20,   // v49.8: AP 2026-05-12 close
+  nasdaq:    26088.20,  nasdaqPct: -0.70,   // v49.8: AP 2026-05-12 close
+  dow:       49760.56,  dowPct:    +0.10,   // v49.8: AP 2026-05-12 close
+  rut:        2842.83,  rutPct:    -1.00,   // v49.8: AP 2026-05-12 close
+  vix:          18.70,  vixPct:    +1.74,   // v49.8: MarketWatch 2026-05-12 morning public indication
   vvix:         88.20,                        // v48.70: VVIX (미갱신)
 
-  // ── 한국 지수 (4/30 WebSearch 실측) ──
-  kospi:     7643.15,  kospiPct:  -2.29,  kospiPrev: 7822.24,  // v49.6: KRX/Newsis 2026-05-12 close
+  // ── 한국 지수 (KOSPI 2026-05-13 보도 확인, KOSDAQ은 stale fallback; 실시간 수신 시 교체) ──
+  kospi:     7844.01,  kospiPct:  +2.63,  kospiPrev: 7643.15,  // v49.8: KRX/SEDaily 2026-05-13 close
   kosdaq:    1179.29,  kosdaqPct: -2.32,  kosdaqPrev: 1207.34, // v49.6: KRX/Newsis 2026-05-12 close
 
-  // ── 원자재 (4/30 WebSearch 실측 — 호르무즈 에스컬레이션, Brent 장중 $126 전시 최고가) ──
-  wti:      98.07,   wtiPct:   +2.78,   // v49.6: WSJ 2026-05-11 settlement
-  brent:   104.21,   brentPct: +2.88,   // v49.6: WSJ/AP 2026-05-11 settlement
+  // ── 원자재 (2026-05-12 정적 폴백, 실시간 수신 시 교체) ──
+  wti:      102.18,  wtiPct:   +4.20,   // v49.8: WSJ/Barron's 2026-05-12 settlement
+  brent:   107.77,   brentPct: +3.40,   // v49.8: WSJ/Barron's 2026-05-12 settlement
   gold:     4696,    goldPct:  +0.04,  goldWeeklyPct: +3.2,  // v49.4: Yahoo Finance delayed snapshot
   ng:       3.05,                         // 천연가스 소폭 상승 (공급 우려)
 
-  // ── 환율 (4/30 WebSearch 실측) ──
+  // ── 환율 (2026-05-12 정적 폴백, 실시간 수신 시 교체) ──
   krw:      1489.90,  krwPct:   +1.19,  krwRound: 1490,  // v49.6: Seoul FX close 2026-05-12
   dxy:        98.16,  dxyPct:   +0.20,                   // v49.6: WSJ/Barron's intraday 2026-05-12
 
@@ -5004,7 +5342,7 @@ const DATA_SNAPSHOT = {
   // ── v48.71 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
   aaiiBear:        33.0,     // v49.6: AAII/MarketWatch latest weekly report (week ended 2026-05-07)
 
-  // ── 글로벌 지수 (GMO 테이블용, 4/30 종가) ──
+  // ── 글로벌 지수 (GMO 테이블용 정적 폴백, 실시간 수신 시 교체) ──
   nikkei:    59284,    nikkeiPct:  -1.06,
   hangseng:  25947,    hangsengPct: +0.29,
   shanghai:   3420,    shanghaiPct: +1.20,
@@ -5012,7 +5350,7 @@ const DATA_SNAPSHOT = {
   ftse:      10611,    ftsePct:    +0.01,
   cac:        7950,    cacPct:     +1.50,
 
-  // ── 크립토·추가 원자재 (4/30 종가) ──
+  // ── 크립토·추가 원자재 (정적 폴백, 실시간 수신 시 교체) ──
   btc:       79893,    btcPct:    -2.02,   // v49.4: Yahoo Finance delayed snapshot
   eth:        2390,    ethPct:    -1.80,   // v49.4: static fallback estimate; live crypto source preferred
   silver:     71.50,   silverPct: +2.64,
@@ -5052,10 +5390,10 @@ const DATA_SNAPSHOT = {
     insiderSentiment: 0.1   // 내부자 매수/매도 3개월 비율 (극단 공포! 2021.11 고점 선례)
   },
 
-  // v49.6: OPEX/gamma fallback seeds; live CBOE/option data overrides when available.
-  pcr: 0.74,
-  equityPutCall: 0.53,
-  indexPutCall: 1.03,
+  // v49.8: OPEX/gamma fallback seeds; live CBOE/option data overrides when available.
+  pcr: 0.67,
+  equityPutCall: 0.51,
+  indexPutCall: 0.71,
 
   // ── v47.2: 위험봇 3/30 12:49 STABLE 역사 스냅샷 (Tail Risk Board) ──
   //   4/15 현재와 별개 — "관세 쇼크 저점 직후 STABLE 판정" 시점의 꼬리위험 구조
@@ -5096,24 +5434,24 @@ const DATA_SNAPSHOT = {
   // /data-refresh 실행 시 이 값들을 DATA_SNAPSHOT과 함께 갱신.
   // 모든 computeTradingScore/computeMarketHealth/computeExecutionWindow가 여기서 읽음.
   _fallback: {
-    fg: 69,              // v49.6: CNN F&G Greed latest public reading; live fetch overrides
+    fg: 69,              // v49.8: CNN F&G Greed latest public reading; live fetch overrides
     fg_uw: 68,           // v47.4 신설: Unusual Whales 확장 F&G 68 탐욕 (4/16 KST 04:36 실측)
-    vix: 18.38,          // v49.6: VIX 2026-05-11 close
+    vix: 18.70,          // v49.8: VIX latest public 2026-05-12 indication
     breadth200: 75,      // 20SMA Above % (bpSPX20 마지막 값과 동기화)
     breadth5: 68,        // 5SMA Above %
     breadth50: 46,       // 50SMA Above %
-    pcr: 0.74,           // v49.6: Cboe total put/call ratio
-    aaiiBear: 33.0,      // v49.6: AAII Bearish % (week ended 2026-05-07)
+    pcr: 0.67,           // v49.8: Cboe total put/call ratio
+    aaiiBear: 33.0,      // v49.8: AAII Bearish % (May 9 public survey)
     spx50ma: 6820,       // v47.4: SPX 50일 이동평균 (4/15 기준 근사)
     spx200ma: 6720,      // v47.4: SPX 200일 이동평균 (4/15 기준 근사)
-    spxATH: 7022,        // v47.4: SPX 사상 최고가 (4/15 종가 7022.95 — ATH 경신)
-    dxy: 98.16,          // v49.6: DXY intraday reference (2026-05-12)
+    spxATH: 7412.84,     // v49.8: SPX ATH fallback reference, 2026-05-11 close before 5/12 pullback
+    dxy: 98.16,          // v49.8: DXY intraday reference (2026-05-12)
     tnx: 4.3,            // 10년 금리
     hyg: 80,             // HYG ETF 가격 (신용 스프레드 완화)
     vvix: 90,            // v47.4: VVIX (4/15 실측 90.10, v47.3 오기재 95 정정)
     move: 62,            // v47.4 신설: MOVE 4/15 실측 62.36 (채권 변동성 극단 저점)
     skew: 142,           // v47.4 신설: SKEW 4/15 실측 141.86 (꼬리헤지 고점)
-    _syncDate: '2026-05-12'  // v49.6: static fallback sync date
+    _syncDate: '2026-05-13'  // v49.8: static fallback sync date
   }
 };
 
@@ -6179,7 +6517,7 @@ const _SNAP_FALLBACK = {
   'GC=F':     { price: () => DATA_SNAPSHOT.gold },
   'KRW=X':    { price: () => DATA_SNAPSHOT.krw },
   'HYG':      { price: () => 78.92 },
-  'SPY':      { price: () => 648.57, pct: () => DATA_SNAPSHOT.spxPct },
+  'SPY':      { price: () => 740.10, pct: () => DATA_SNAPSHOT.spxPct },
   // v36.6: 지수 선물 + VIX 선물 ETF + VVIX
   'ES=F':     { price: () => DATA_SNAPSHOT.spx },
   'NQ=F':     { price: () => DATA_SNAPSHOT.nasdaq },

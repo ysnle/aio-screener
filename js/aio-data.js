@@ -6873,23 +6873,44 @@ function renderFeed(items) {
 }
 
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
-// v40.4: 홈 핵심뉴스 — 시장 전체에 영향을 주는 핵심 뉴스 2~3개 (정적, 새 이벤트 발생 시 수동 교체)
-// v48.75 (2026-05-04): 이번 주(05/04-05/10) 주요 이벤트 3건 — PLTR 슈퍼위크 반영
+// v49.8: HOME 핵심 뉴스는 최근 72시간 안의 시장 충격도 높은 맥락만 기본 노출한다.
+// 지나간 이벤트는 예정/핵심 뉴스처럼 고정하지 않고, 실시간 뉴스 수집 성공 시 자동 교체한다.
 var HOME_WEEKLY_NEWS = [
-  { title: 'NFP 비농업고용지수 (5/8 금, 21:30 KST) — 이번 주 최대 이벤트. 실업률·임금 동반 발표. 고용 강하면 금리 부담, 약하면 경기 둔화 우려. 미시간 소비자심리(May) 동시 발표. ADP(5/6) + JOLTS(5/5) 선행 지표 연속. FOMC 다음 회의 6/16-17(SEP 포함).', source: 'BLS/Fed/Bloomberg', date: '2026-05-08', sentiment: 'warn', topic: 'macro' },
-  { title: 'PLTR·AMD·ANET·ARM·APP·CRWV 슈퍼위크 — PLTR(5/4 AMC) AI 소프트웨어 수요 가속·가이던스 상향 여부; AMD(5/5 AMC) MI300X E-Score 8.8/10; ANET(5/5 AMC) DC 네트워크 강도; ARM+APP(5/6 AMC) AI 칩 생태계·모바일 수익화; DIS(5/6 BMO) E-Score 10/10; CRWV(5/7 AMC) AI 클라우드 인프라 신흥 플레이어 첫 실적. 빅테크 실적 시즌 최대 집중 주간.', source: 'FactSet/Bloomberg/EarningsWhispers', date: '2026-05-04', sentiment: 'bull', topic: 'earnings' },
-  { title: 'Fed 4인 동시 연설 (5/9 토, 08:30 KST) — Waller·Bowman·Goolsbee·Daly 연속 발언. 6월 FOMC 힌트 선취. ISM 서비스 PMI + JOLTS (5/5 화) — 서비스 경기·물가·고용 수요 삼중 확인. 한국 CPI(5/6 08:00 KST) + ADP(5/6 21:15 KST). 현재 기준금리 3.50-3.75% 동결 기조.', source: 'Fed/Bloomberg/BOK', date: '2026-05-09', sentiment: 'warn', topic: 'fed' },
+  { title: 'AI 주도주 조정과 Nasdaq -0.7%: 과열 랠리 이후 반도체·소프트웨어 추격매수보다 10EMA/21EMA 이탈과 거래량을 먼저 확인해야 합니다.', source: 'AP market wrap', date: '2026-05-13', sentiment: 'warn', topic: 'earnings' },
+  { title: 'WTI +4.2%·Brent +3.4%: 유가 급등은 인플레이션·금리 경로를 다시 흔들 수 있어 에너지 제외 섹터 강세의 지속성을 점검해야 합니다.', source: 'WSJ/Barron\'s', date: '2026-05-13', sentiment: 'warn', topic: 'macro' },
+  { title: 'KOSPI +2.63% 반등: 한국장은 전일 급락 뒤 되돌림이 강했지만, 환율·외국인 수급·반도체 대형주 확인 전에는 fallback 라벨을 유지합니다.', source: 'KRX/Seoul Economic Daily', date: '2026-05-13', sentiment: 'neutral', topic: 'kr' },
 ];
+window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
+
+function _aioHomeNewsDateMs(n) {
+  if (!n || !n.date) return null;
+  var d = new Date(String(n.date) + 'T23:59:59+09:00');
+  var t = d.getTime();
+  return isNaN(t) ? null : t;
+}
+
+function _aioGetCurrentHomeWeeklyNews(nowMs) {
+  var now = Number(nowMs || Date.now());
+  var maxAgeMs = 72 * 60 * 60 * 1000;
+  var src = window.HOME_WEEKLY_NEWS || HOME_WEEKLY_NEWS || [];
+  return src.filter(function(n) {
+    var t = _aioHomeNewsDateMs(n);
+    if (!t) return false;
+    return t >= now - maxAgeMs;
+  });
+}
+window._aioGetCurrentHomeWeeklyNews = _aioGetCurrentHomeWeeklyNews;
 
 function renderHomeFeed(items) {
   const container = document.getElementById('home-news-highlights');
   if (!container) return;
 
   // v40.4: 정적 주간 큐레이션 우선 표시
-  if (HOME_WEEKLY_NEWS && HOME_WEEKLY_NEWS.length > 0) {
+  var currentWeeklyNews = _aioGetCurrentHomeWeeklyNews();
+  if (currentWeeklyNews && currentWeeklyNews.length > 0) {
     const sentIcons = { bull: '<span class="sd sd-g"></span>', bear: '<span class="sd sd-r"></span>', warn: '<span class="sd sd-y"></span>', neutral: '<span class="sd sd-w"></span>' };
     container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">핵심 뉴스</div>' +
-      HOME_WEEKLY_NEWS.map(function(n) {
+      currentWeeklyNews.map(function(n) {
         // v46.4: 필드 누락 방어
         if (!n) return '';
         n.title = n.title || ''; n.source = n.source || ''; n.date = n.date || ''; n.sentiment = n.sentiment || 'neutral';
@@ -6901,6 +6922,9 @@ function renderHomeFeed(items) {
           '<div style="font-size:11px;color:var(--text-muted);margin-top:1px;">' + escHtml(n.source) + ' · ' + n.date + '</div>' +
           '</div></div>';
       }).join('');
+    return;
+  } else if (HOME_WEEKLY_NEWS && HOME_WEEKLY_NEWS.length > 0 && (!items || items.length === 0)) {
+    container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);line-height:1.55;">최근 72시간 안의 핵심 뉴스만 표시합니다. 지난 이벤트는 기본 화면에서 숨기며, 실시간 뉴스 수집이 성공하면 자동으로 교체됩니다.</div>';
     return;
   }
 
@@ -9694,7 +9718,7 @@ function applyStaticFallbacks() {
   // 실시간 데이터 도착 시 자동 교체됨 — 최대 10초 내 라이브 데이터로 전환
   const FALLBACK_QUOTES = [
     // ── 미국 주요 지수 (2026-04-15 화 종가 — v47.5: DATA_SNAPSHOT 정합) ──
-    { symbol:'^GSPC',   regularMarketPrice:7022.95,     regularMarketChangePercent:+0.80 },   // v47.5: 7000 돌파 ATH
+    { symbol:'^GSPC',   regularMarketPrice:7400.96,     regularMarketChangePercent:-0.20 },   // v49.8: AP 2026-05-12 close
     { symbol:'^IXIC',   regularMarketPrice:24016.02,    regularMarketChangePercent:+1.59 },   // v47.5: 11일 연속 상승 ATH
     { symbol:'^DJI',    regularMarketPrice:48820.00,    regularMarketChangePercent:+1.15 },
     { symbol:'^RUT',    regularMarketPrice:2710.00,     regularMarketChangePercent:+1.30 },
@@ -9716,7 +9740,7 @@ function applyStaticFallbacks() {
     { symbol:'SOL-USD', regularMarketPrice:82.00,       regularMarketChangePercent:-3.80 },
     { symbol:'BNB-USD', regularMarketPrice:610.00,      regularMarketChangePercent:-2.50 },
     // ── 환율 (4/14) ──
-    { symbol:'DX-Y.NYB', regularMarketPrice:98.65,       regularMarketChangePercent:-1.53 },
+    { symbol:'DX-Y.NYB', regularMarketPrice:98.16,       regularMarketChangePercent:+0.20 },
     { symbol:'KRW=X',   regularMarketPrice:1485.00,     regularMarketChangePercent:-1.70 },
     { symbol:'JPY=X',   regularMarketPrice:160.50,      regularMarketChangePercent:+0.45 },
     { symbol:'EURUSD=X', regularMarketPrice:1.1520,      regularMarketChangePercent:-0.20 },
@@ -9736,7 +9760,7 @@ function applyStaticFallbacks() {
     { symbol:'SHY',     regularMarketPrice:82.31,       regularMarketChangePercent:-0.22 },
     { symbol:'EMB',     regularMarketPrice:93.15,       regularMarketChangePercent:-1.56 },
     // ── 주요 ETF ──
-    { symbol:'SPY',     regularMarketPrice:648.57,      regularMarketChangePercent:-1.43 },
+    { symbol:'SPY',     regularMarketPrice:740.10,      regularMarketChangePercent:-0.20 },
     { symbol:'RSP',     regularMarketPrice:190.48,      regularMarketChangePercent:-1.47 },
     { symbol:'QQQ',     regularMarketPrice:582.06,      regularMarketChangePercent:-1.85 },
     { symbol:'GLD',     regularMarketPrice:413.38,      regularMarketChangePercent:-3.06 },
@@ -10104,7 +10128,7 @@ function applyLiveQuotes(quotes) {
     const cls    = hasPct ? (pct >= 0 ? 'pnl pos' : 'pnl neg') : 'pnl neutral';
     // Track SPX vs ATH for Market Regime display
     if (q.symbol === '^GSPC') {
-      window._spxATH = Math.max(window._spxATH || 6947, q.regularMarketPrice);
+      window._spxATH = Math.max(window._spxATH || 7412.84, q.regularMarketPrice);
       const SPX_ATH = window._spxATH;
       const spxPrice = q.regularMarketPrice;
       const pctFromATH = ((spxPrice - SPX_ATH) / SPX_ATH * 100).toFixed(1);
@@ -10841,7 +10865,7 @@ function refreshHomeDashboard() {
   const regimeEl = document.getElementById('home-market-regime');
   const regimeExplEl = document.getElementById('home-regime-explanation');
   if (regimeEl) {
-    const SPX_ATH = window._spxATH || 6947;  // v34.5: 동적 추적 우선, 폴백 6947 (2026-01-27)
+    const SPX_ATH = window._spxATH || 7412.84;  // v49.8: 동적 추적 우선, 폴백 2026-05-11 ATH 근접 종가
     const spxPrice = spx.price || 6506;
     const pctFromATH = ((spxPrice - SPX_ATH) / SPX_ATH * 100);
     let regime = 'UPTREND', regimeColor = '#00e5a0', regimeDesc = 'ATH 근처';
