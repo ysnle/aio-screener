@@ -1810,11 +1810,91 @@ var AIO_PAGE_BRIEFS = {
 };
 window.AIO_PAGE_BRIEFS = AIO_PAGE_BRIEFS;
 
+var AIO_PAGE_CORE_GUIDES = {
+  home: { watch: '매매 신호, VIX, 핵심 뉴스만 먼저 확인', decide: '공격 / 관망 / 방어 중 하나로 오늘 모드 결정', next: '이유는 시그널, 브리핑, 뉴스에서만 추가 확인' },
+  signal: { watch: 'Trading Score와 Lockout/OPEX 위험을 함께 확인', decide: '신규 매수, 보유, 일부 축소 중 하나만 선택', next: '기술 페이지에서 손절/익절 기준을 숫자로 고정' },
+  breadth: { watch: '지수 상승이 많은 종목으로 확산되는지 확인', decide: '폭이 약하면 추격보다 보유 종목 방어', next: '강한 섹터는 테마 페이지에서 대장주만 추림' },
+  sentiment: { watch: 'F&G, Put/Call, VIX가 과열인지 공포인지 확인', decide: '과열은 추격 금지, 공포는 분할 확인', next: '옵션 페이지에서 변동성 비용을 재확인' },
+  briefing: { watch: '오늘 가격을 움직일 뉴스와 일정만 남김', decide: '내 보유 종목에 직접 영향이 있으면 행동', next: '관련 티커는 티커 상세 또는 AI 질문으로 이동' },
+  technical: { watch: 'ATR 이격, RVOL, 종가 위치, 10/21/50선 이탈', decide: 'HOLD / NO ADD / TRIM / EXIT 중 하나로 결론', next: '포트폴리오 비중과 연결해 줄일 수량 결정' },
+  macro: { watch: '금리, 물가, 고용, 달러가 같은 방향인지 확인', decide: '주식에 우호 / 중립 / 압박 중 하나로 해석', next: '환율·채권 페이지에서 실제 압력 확인' },
+  fxbond: { watch: 'DXY, USD/KRW, 10Y, HY spread 방향', decide: '위험자산에 바람인지 역풍인지 판단', next: '한국장과 성장주 노출을 함께 조절' },
+  fundamental: { watch: '성장, 마진, 밸류, 실적 리스크 네 가지', decide: '좋은 기업인지보다 지금 살 가격인지 판단', next: '기술 exit risk와 결합해 진입/보유 결정' },
+  themes: { watch: '테마 수익률보다 대장주 상대강도 확인', decide: '확산 중인지 소수 종목만 가는지 구분', next: '테마 상세에서 깨지는 신호 확인' },
+  'theme-detail': { watch: '대장주, 후발주, 촉매, 깨지는 신호', decide: 'ETF로 볼지 대장주만 볼지 결정', next: '개별 종목은 기술/기업 분석으로 검증' },
+  portfolio: { watch: '집중도, 손실 허용치, 기술적 exit risk', decide: '무엇을 먼저 줄일지 순서 결정', next: '고위험 종목은 티커 상세로 내려가 확인' },
+  ticker: { watch: '가격 추세, 뉴스, 실적, 내 포지션 영향', decide: '매수 / 보유 / 축소 / 제외 중 하나', next: '결정이 애매하면 AI에게 반대 시나리오 질문' },
+  'market-news': { watch: '가격 영향, 관련 섹터, 신뢰 가능한 출처', decide: '뉴스인지 소음인지 먼저 분리', next: '영향받는 테마와 보유 종목만 추적' },
+  options: { watch: 'VIX, term structure, put/call, OPEX', decide: '보험 비용이 싼지 비싼지 판단', next: '기술 페이지의 exit plan과 함께 사용' },
+  'kr-home': { watch: '외국인 수급, USD/KRW, 반도체 방향', decide: '한국장 추격 / 관망 / 방어 판단', next: '수급과 테마 페이지에서 세부 확인' },
+  'kr-supply': { watch: '외국인·기관 동시 매수와 업종 집중', decide: '수급이 가격을 지지하는지 판단', next: 'KR 기술 페이지에서 진입 위치 확인' },
+  'kr-themes': { watch: '국내 테마 대장주와 수급 동행 여부', decide: '순환매인지 진짜 주도 테마인지 구분', next: '대장주만 KR 기술 분석으로 검증' },
+  'kr-macro': { watch: '원화, 국고채, 수출, 반도체 사이클', decide: '한국장 배경이 우호적인지 판단', next: '외국인 수급과 함께 최종 확인' },
+  'kr-technical': { watch: '이평선, 거래량, 급등 후 종가 위치', decide: '추격 / 보유 / 축소 기준을 숫자로 결정', next: '수급 페이지에서 매수 주체 확인' },
+  guide: { watch: '대시보드, 시그널, 포트폴리오 3개 루틴', decide: '처음에는 모든 페이지를 쓰지 않아도 됨', next: '익숙해지면 기술, 뉴스, 매크로를 추가' }
+};
+window.AIO_PAGE_CORE_GUIDES = AIO_PAGE_CORE_GUIDES;
+
 function _aioBriefEsc(v) {
   return String(v == null ? '' : v).replace(/[&<>"']/g, function(ch) {
     return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[ch];
   });
 }
+
+function _aioCoreViewOn() {
+  try { return localStorage.getItem('aio_full_view') !== '1'; } catch(_) { return true; }
+}
+
+function _aioCoreGuideHtml(pageId) {
+  var g = AIO_PAGE_CORE_GUIDES[pageId] || {};
+  var cards = [
+    ['먼저 볼 것', g.watch || '핵심 지표와 최신성 배지를 먼저 확인'],
+    ['판단', g.decide || '매수 / 보유 / 축소 / 관망 중 하나로 결론'],
+    ['다음 행동', g.next || '관련 페이지에서 이유와 리스크만 추가 확인']
+  ];
+  return '<div class="aio-page-brief-decision">' + cards.map(function(c) {
+    return '<div class="aio-page-brief-decision-card"><div class="aio-page-brief-decision-label">' + _aioBriefEsc(c[0]) + '</div><div class="aio-page-brief-decision-text">' + _aioBriefEsc(c[1]) + '</div></div>';
+  }).join('') + '</div>';
+}
+
+window._aioApplyContentSimplification = function(pageId) {
+  var page = document.getElementById('page-' + pageId);
+  if (!page) return null;
+  var core = _aioCoreViewOn();
+  page.classList.toggle('aio-core-view', core);
+  var secondary = [];
+  try {
+    secondary = Array.prototype.slice.call(page.querySelectorAll('.beginner-tip,.aio-explain,details,[id*="archive"],[id*="Archive"]'));
+    secondary.forEach(function(el) {
+      if (!el || el.classList.contains('aio-page-brief')) return;
+      if (pageId !== 'guide' && /archive/i.test(el.id || '')) el.classList.add('aio-secondary-hard');
+      if (el.classList.contains('beginner-tip')) el.classList.add('collapsed');
+      if (!el.querySelector || el.querySelector('.aio-secondary-badge')) return;
+      var title = el.querySelector('.insight-explain-title,.aio-explain-trigger,summary,h3,h4');
+      if (title) {
+        var badge = document.createElement('span');
+        badge.className = 'aio-secondary-badge';
+        badge.textContent = /archive/i.test(el.id || '') ? '참고' : '상세';
+        title.appendChild(badge);
+      }
+    });
+  } catch(_) {}
+  var btn = page.querySelector('.aio-page-brief-mode');
+  if (btn) {
+    btn.classList.toggle('is-core', core);
+    btn.textContent = core ? '핵심 보기 ON' : '전체 보기';
+    btn.setAttribute('aria-pressed', core ? 'true' : 'false');
+  }
+  return { pageId: pageId, coreView: core, secondaryCount: secondary.length };
+};
+
+window._aioToggleCoreView = function(pageId) {
+  try {
+    var nextFull = _aioCoreViewOn() ? '1' : '0';
+    localStorage.setItem('aio_full_view', nextFull);
+  } catch(_) {}
+  Object.keys(AIO_PAGE_BRIEFS).forEach(function(id) { window._aioApplyContentSimplification(id); });
+};
 
 window._aioRenderPageBrief = function(pageId) {
   var cfg = AIO_PAGE_BRIEFS[pageId];
@@ -1828,16 +1908,18 @@ window._aioRenderPageBrief = function(pageId) {
   var links = (cfg.links || []).map(function(pair) {
     return '<button class="aio-page-brief-chip" data-action="showPage" data-arg="' + _aioBriefEsc(pair[0]) + '">' + _aioBriefEsc(pair[1]) + '</button>';
   }).join('');
+  var modeBtn = '<button class="aio-page-brief-mode" data-action="_aioToggleCoreView" data-arg="' + _aioBriefEsc(pageId) + '" aria-pressed="' + (_aioCoreViewOn() ? 'true' : 'false') + '">' + (_aioCoreViewOn() ? '핵심 보기 ON' : '전체 보기') + '</button>';
   var html =
     '<section class="aio-page-brief" aria-label="페이지 핵심 사용법">' +
       '<div class="aio-page-brief-head">' +
         '<div><div class="aio-page-brief-kicker">Page Routine</div><div class="aio-page-brief-title">' + _aioBriefEsc(cfg.title) + '</div></div>' +
-        '<div class="aio-page-brief-use">' + _aioBriefEsc(cfg.use) + '</div>' +
+        '<div class="aio-page-brief-use">' + _aioBriefEsc(cfg.use) + modeBtn + '</div>' +
       '</div>' +
       '<div class="aio-page-brief-grid">' +
         '<div class="aio-page-brief-steps">' + steps + '</div>' +
         '<div class="aio-page-brief-actions"><div class="aio-page-brief-focus">' + _aioBriefEsc(cfg.focus) + '</div>' + links + '</div>' +
       '</div>' +
+      _aioCoreGuideHtml(pageId) +
     '</section>';
   var box = document.createElement('div');
   box.innerHTML = html;
@@ -1848,6 +1930,7 @@ window._aioRenderPageBrief = function(pageId) {
   } else {
     page.insertBefore(brief, page.firstElementChild);
   }
+  window._aioApplyContentSimplification(pageId);
 };
 
 window._aioSimplifyExplainLabels = function() {
@@ -1979,7 +2062,7 @@ window.AIO.getPageUXAudit = function() {
 };
 
 window.AIO_STATIC_DATA_GOVERNANCE = {
-  version: 'v49.11',
+  version: 'v49.12',
   defaultMaxAgeDays: 3,
   hardStaleDays: 7,
   rules: {
@@ -4641,7 +4724,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.11';
+const APP_VERSION = 'v49.12';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

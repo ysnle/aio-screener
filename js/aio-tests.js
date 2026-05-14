@@ -1,4 +1,4 @@
-// AIO Screener — 단위 테스트 모듈 (v49.11)
+// AIO Screener — 단위 테스트 모듈 (v49.12)
 // 사용: 브라우저 콘솔에서 AIO.runTests() 실행 → OK/FAIL 결과 출력
 // 대상: 통계 함수 6개 (_calcDailyReturns / _statMean / _statStdDev /
 //        _calcPortfolioVaR / _calcSharpe / _calcMaxDrawdown / _pearsonCorr / _calcCorrelationMatrix)
@@ -1174,6 +1174,37 @@
     _assert('T151 force_refresh: manual refresh entry point exists', window.AIO && typeof window.AIO.forceRefreshAllData === 'function' && typeof window.AIO.runScheduledRefresh === 'function');
   }
 
+  function _testContentSimplificationUX() {
+    var briefs = window.AIO_PAGE_BRIEFS || {};
+    var guides = window.AIO_PAGE_CORE_GUIDES || {};
+    var ids = Object.keys(briefs);
+    var missingGuides = ids.filter(function(id) {
+      var g = guides[id];
+      return !g || !g.watch || !g.decide || !g.next;
+    });
+    _assert('T152 content_core_guides: every page has watch/decide/next copy', missingGuides.length === 0, missingGuides.join(','));
+
+    ids.forEach(function(id) {
+      if (typeof window._aioRenderPageBrief === 'function') window._aioRenderPageBrief(id);
+      if (typeof window._aioApplyContentSimplification === 'function') window._aioApplyContentSimplification(id);
+    });
+    var missingDecision = ids.filter(function(id) {
+      var page = document.getElementById('page-' + id);
+      return !page || !page.querySelector('.aio-page-brief-decision') || page.querySelectorAll('.aio-page-brief-decision-card').length < 3;
+    });
+    _assert('T153 page_brief_decision_cards: rendered for all configured pages', missingDecision.length === 0, missingDecision.join(','));
+
+    var modeButtons = Array.prototype.slice.call(document.querySelectorAll('.aio-page-brief-mode'));
+    _assert('T154 core_view_toggle: compact/full toggle rendered', modeButtons.length >= ids.length && typeof window._aioToggleCoreView === 'function', 'buttons=' + modeButtons.length + ', pages=' + ids.length);
+
+    var home = document.getElementById('page-home');
+    var applied = window._aioApplyContentSimplification ? window._aioApplyContentSimplification('home') : null;
+    _assert('T155 content_simplification: page receives core-view contract', applied && typeof applied.coreView === 'boolean' && home && home.classList.contains('aio-core-view') === applied.coreView, applied && JSON.stringify(applied));
+
+    var badges = document.querySelectorAll('.aio-secondary-badge');
+    _assert('T156 secondary_content: detailed/reference sections are labeled', badges.length >= 5, 'badges=' + badges.length);
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -1183,7 +1214,7 @@
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.11 단위 테스트 실행');
+    console.group('[AIO TEST] v49.12 단위 테스트 실행');
     console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
 
     try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
@@ -1211,6 +1242,7 @@
     try { _testPageFocusBriefUX(); } catch(e) { console.error('Group22 error:', e); }
     try { _testEventLiquidityPipeline(); } catch(e) { console.error('Group23 error:', e); }
     try { _testAutoOpsGovernance(); } catch(e) { console.error('Group24 error:', e); }
+    try { _testContentSimplificationUX(); } catch(e) { console.error('Group25 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -1241,6 +1273,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.11 loaded - run AIO.runTests() (T1~T151)');
+  console.log('[AIO] aio-tests.js v49.12 loaded - run AIO.runTests() (T1~T156)');
 
 })();

@@ -6,6 +6,14 @@
 
 ---
 
+## v49.12 - Page Content Simplification UX (2026-05-14)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`
+
+- **P201**: Strengthened page-level accessibility for beginner users without removing institutional detail. Each configured page now has a `watch / decide / next` core guide and a rendered “먼저 볼 것 / 판단 / 다음 행동” decision strip.
+- Added a global core-view toggle (`_aioToggleCoreView`) and `_aioApplyContentSimplification()` so dense detail/archive sections are labeled as secondary and stay out of the first-read path unless the user switches to full view.
+- Added T152~T156 to prevent pages from losing core guide copy, decision cards, compact/full toggle, core-view contract, or secondary-section labels.
+
 ## v49.11 - Auto-Ops Static Data Governance (2026-05-14)
 
 **Changed files**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`

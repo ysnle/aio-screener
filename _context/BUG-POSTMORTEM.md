@@ -2,10 +2,10 @@
 verified_by: agent
 last_verified: 2026-05-14
 confidence: high
-latest_version: v49.11
-latest_P_number: P200
-next_P_number: P201
-total_entries: 200
+latest_version: v49.12
+latest_P_number: P201
+next_P_number: P202
+total_entries: 201
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -22,7 +22,7 @@ total_entries: 200
 
 ### P 번호 체계
 - **P 번호 = 패턴 번호** (예방 규칙 ID). 동일 근본 원인을 가진 버그는 같은 P 번호로 참조.
-- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P201**). 한번 부여된 번호는 재사용 금지.
+- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P202**). 한번 부여된 번호는 재사용 금지.
 - **P 번호 재강화**: 같은 패턴이 재발해도 번호는 유지. "P25 재강화" / "P25 강화" 같은 표현으로 body에 기록.
 - **날짜 구분 원칙**: 과거 중복 P 번호(P26~P33 일부 충돌 존재)는 "날짜 + 버전"으로 구분해서 참조.
 
@@ -55,6 +55,7 @@ total_entries: 200
 
 | P | 도입 버전 | 날짜 | 패턴 요약 |
 |---|-----------|------|-----------|
+| P201 | v49.12 | 2026-05-14 | 기관급 분석 화면의 정보량이 많아 초보자가 “먼저 볼 것/판단/다음 행동”을 놓치면 기능은 많아도 실제 매매 루틴으로 연결되지 않는 문제가 있었다. 21개 페이지에 `AIO_PAGE_CORE_GUIDES` watch/decide/next 계약을 추가하고, Page Focus Brief에 decision strip, 핵심 보기 토글, 상세/참고 보조 섹션 라벨, T152~T156 테스트를 도입해 복잡한 전문 분석을 첫 화면에서는 행동 카드로 압축 |
 | P200 | v49.11 | 2026-05-14 | Persistent auto-ops gap: static `DATA_SNAPSHOT`/`data-snap-date`/pinned event text could age while still looking live-like. Added `AIO.getStaticDataGovernanceAudit()`, `AIO.auditStaticTextFreshness()`, `AIO.renderStaticDataGovernanceBadges()`, `AIO.getAutoOpsReadiness()`, `AIO.getRefreshSchedulerAudit()`, `AIO.runScheduledRefresh()`, `AIO.forceRefreshAllData()`, and T146~T151 so stale static data, scheduler health, freshness, and pipeline status are continuously inspectable and manually refreshable. |
 | P199 | v49.10 | 2026-05-14 | Blow-off Top/OPEX/이벤트 소진 분석이 기존 technical exit engine과 분리되어 있으면 CPI 확인 이후에도 “CPI 예정” 같은 stale 맥락이나 Telegram 2차 소스가 확정 뉴스처럼 답변될 위험이 있었다. `calcBlowoffTopChecklist()`, Technical Brief 체크리스트 UI, sell-pressure 연결, CPI/H2 liquidity prompt guardrail, Aether Telegram pipeline audit, T144~T145 테스트로 과열 랠리 판단을 조건부 포지션 관리와 뉴스 검증 정책에 묶음 |
 | P198 | v49.9 | 2026-05-13 | 실제 사이트 페이지별 sweep에서 모바일 포트폴리오 워치리스트 select 텍스트가 컨트롤 폭을 넘고, 티커 상세 breadcrumb/back 버튼이 런타임에 `onclick` 속성을 다시 생성해 v48.32 이벤트 위임 원칙이 깨질 수 있었다. 워치리스트 컨트롤을 줄바꿈/폭 제한/짧은 기본 문구로 정리하고, `showTicker()`의 뒤로가기 경로를 `data-action="showPage"` + `data-arg`로 통일했으며 T143으로 런타임 `onclick` 재발을 막음 |

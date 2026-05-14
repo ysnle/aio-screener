@@ -3,8 +3,8 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v49.11**
-- 메인 파일: `index.html` (29,926줄, 인라인 onclick 0건) + `js/` 6개 모듈 (aio-core 7,806 · aio-data 11,525 · aio-ui 2,751 · aio-chat 4,592 · aio-tests 1,246 · aio-glossary 304 ≈ 28,224줄)
+- 현재 버전: **v49.12**
+- 메인 파일: `index.html` (집계는 `_context/CODE-MAP.md` 기준 유지, 인라인 onclick 0건) + `js/` 6개 모듈
 - **v48.32~35 마일스톤**: onclick 인라인 핸들러 253건 → 0건 (Event Delegation + data-action)
 - **v48.36~39 마일스톤**: 구조적 동적 전환 — DATE_ENGINE · _lastFetch · _aioFeedHealth · AIO_Cache 통일 · SCREENER_DB memo staleness 파서 · 신선도 UI 패널
 - **v48.47~v48.60 마일스톤**: DOM 재분배 · LIVE_SYMBOLS +13 · CHAT_CONTEXTS themes/theme-detail · AI 채팅 FMP 심층 · 5중 소스 체인 · 어닝 EH 스타일 · 리스크 레이더 · Phase 감사 + 수정
@@ -24,6 +24,7 @@ AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터
 - **v48.99 마일스톤**: Listener Hygiene — `aio:pageShown` 17건+`aio:liveQuotes` 18건 `_aioPageBus` 마이그(P178~P180) · aio-core 9건+aio-data 4건+index.html 22건 · 테스트 T89~T92(92건)
 - **v49.0 마일스톤**: Critical Function Fortification — `applyDataSnapshot` 키별 try-catch(P181) · `_aioLRU`+scoreItem/tickerRegex 캐시 cap(P182) · Fund Valuation Infinity 가드(P183) · 테스트 T93~T97(97건)
 - **v49.3 마일스톤**: Architecture Reinforcement — DataQuality · NewsImpactVector · AIInfraHeat · PortfolioTechnicalRisk(P190) · OHLCV quality bundle · technical brief data confidence · T108~T115 tests
+- **v49.12 마일스톤**: Page Content Simplification UX — 21페이지 watch/decide/next 핵심 카드 · 핵심 보기 토글 · 상세/참고 보조 섹션 라벨 · T152~T156 tests(P201)
 - **v49.11 마일스톤**: Auto-Ops Static Data Governance — `AIO.getStaticDataGovernanceAudit()` · `AIO.getAutoOpsReadiness()` · `AIO.forceRefreshAllData()` · T146~T151 tests(P200)
 - **v49.10 마일스톤**: Blow-off Top / Event Exhaustion integration — CPI-confirmed context · H2 liquidity regime guardrail · Aether Telegram pipeline audit · T144~T145 tests(P199)
 - **v49.9 마일스톤**: Live Site QA Cleanup — mobile watchlist control fit · ticker navigation event delegation · T143 runtime onclick regression test(P198)
