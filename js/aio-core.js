@@ -1978,8 +1978,223 @@ window.AIO.getPageUXAudit = function() {
   };
 };
 
+window.AIO_STATIC_DATA_GOVERNANCE = {
+  version: 'v49.11',
+  defaultMaxAgeDays: 3,
+  hardStaleDays: 7,
+  rules: {
+    archive: { maxAgeDays: 3650, liveLike: false },
+    staticSnapshot: { maxAgeDays: 7, liveLike: false },
+    marketSnapshot: { maxAgeDays: 3, liveLike: true },
+    krSnapshot: { maxAgeDays: 2, liveLike: true },
+    optionSnapshot: { maxAgeDays: 7, liveLike: false },
+    newsPipeline: { maxAgeDays: 2, liveLike: true }
+  }
+};
+
+function _aioParseStaticDate(raw, nowTs) {
+  if (!raw) return null;
+  var s = String(raw).trim();
+  var ymd = s.match(/\b(20\d{2})[-/.](\d{1,2})[-/.](\d{1,2})\b/);
+  if (ymd) return new Date(+ymd[1], +ymd[2] - 1, +ymd[3]).getTime();
+  var md = s.match(/\b(1[0-2]|0?[1-9])\/([0-3]?\d)\b/);
+  if (md) {
+    var base = nowTs ? new Date(nowTs) : new Date();
+    return new Date(base.getFullYear(), +md[1] - 1, +md[2]).getTime();
+  }
+  var t = new Date(s).getTime();
+  return isNaN(t) ? null : t;
+}
+
+function _aioStaticDayStart(ts) {
+  var d = new Date(ts || Date.now());
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+
+function _aioDaysBetween(aTs, bTs) {
+  if (!aTs || !bTs) return null;
+  return Math.floor((_aioStaticDayStart(bTs) - _aioStaticDayStart(aTs)) / 86400000);
+}
+
+window.AIO.classifyStaticDateKey = function(key, contextText) {
+  key = String(key || '').toLowerCase();
+  var text = String(contextText || '').toLowerCase();
+  if (/archive|jensen|interview|narrative|memo|research/.test(key) || /archive|past reference|static summary|knowledge base/.test(text)) return 'archive';
+  if (/option|iv|gex|gamma|max-pain/.test(key)) return 'optionSnapshot';
+  if (/kr-|kospi|kosdaq|korea|bok|vkospi/.test(key)) return /issue|news|feed/.test(key + ' ' + text) ? 'newsPipeline' : 'krSnapshot';
+  if (/issue|news|feed|headline|calendar/.test(key)) return 'newsPipeline';
+  if (/tnx|yield|macro|fx|bond|credit|deposit|advance|decline/.test(key)) return 'marketSnapshot';
+  return 'staticSnapshot';
+};
+
+window.AIO.auditStaticTextFreshness = function(text, opts) {
+  opts = opts || {};
+  var nowTs = opts.nowTs || Date.now();
+  var maxPastDays = opts.maxPastDays == null ? 2 : opts.maxPastDays;
+  var source = String(text || '');
+  var issues = [];
+  var matches = [];
+  var liveLikeRe = /(live|current|today|tonight|this week|upcoming|calendar|key news|updated|auto extract|latest|snapshot|핵심|뉴스|오늘|이번|예정|발표|갱신|자동|최신|실시간|현재|스냅샷)/i;
+  var nonLiveRe = /(archive|past reference|static summary|not live|snapshot only|education|example|reference only|과거|참고|정적|요약|실시간 아님|교육|예시)/i;
+  var hardPatterns = [/PCE\(4\/30\)/i, /VIX Spot 18\.36/i, /05\/04|05\/05|05\/08|05\/09/i];
+  hardPatterns.forEach(function(re) {
+    var m = source.match(re);
+    if (m && !nonLiveRe.test(source)) {
+      issues.push({ type: 'hardcoded-stale-token', token: m[0], pageId: opts.pageId || null });
+    }
+  });
+  var re = /\b(20\d{2}[-/.]\d{1,2}[-/.]\d{1,2}|(?:1[0-2]|0?[1-9])\/(?:[0-3]?\d))\b/g;
+  var match;
+  while ((match = re.exec(source))) {
+    var token = match[1];
+    var ts = _aioParseStaticDate(token, nowTs);
+    var ageDays = _aioDaysBetween(ts, nowTs);
+    if (ageDays == null) continue;
+    var around = source.slice(Math.max(0, match.index - 120), Math.min(source.length, match.index + 160));
+    var looksLive = opts.forceLiveLike || (liveLikeRe.test(around) && !nonLiveRe.test(around));
+    var item = { token: token, ageDays: ageDays, liveLike: !!looksLive, context: around.slice(0, 180), pageId: opts.pageId || null };
+    matches.push(item);
+    if (ageDays > maxPastDays && looksLive) {
+      issues.push({ type: 'stale-live-like-date', token: token, ageDays: ageDays, pageId: opts.pageId || null, context: item.context });
+    }
+  }
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    issues: issues,
+    matches: matches,
+    generatedAt: new Date(nowTs).toISOString()
+  };
+};
+
+window.AIO.getStaticDataGovernanceAudit = function() {
+  var nowTs = Date.now();
+  var cfg = window.AIO_STATIC_DATA_GOVERNANCE;
+  var items = [];
+  var issues = [];
+  var liveLikeStaticText = [];
+  try {
+    document.querySelectorAll('[data-snap-date]').forEach(function(el) {
+      var key = el.getAttribute('data-snap-date') || '';
+      var dateText = (el.textContent || el.getAttribute('data-snap-date-value') || '').trim();
+      var parentText = '';
+      try {
+        var p = el.closest('.widget,.card,.panel,.section,.page,div') || el.parentElement;
+        parentText = p ? (p.textContent || '').replace(/\s+/g, ' ').slice(0, 360) : '';
+      } catch(_) {}
+      var category = window.AIO.classifyStaticDateKey(key, parentText);
+      var rule = (cfg.rules && cfg.rules[category]) || { maxAgeDays: cfg.defaultMaxAgeDays, liveLike: true };
+      var ts = _aioParseStaticDate(dateText, nowTs);
+      var ageDays = _aioDaysBetween(ts, nowTs);
+      var nonLive = /(archive|past reference|static summary|not live|snapshot only|education|example|reference only|과거|참고|정적|요약|실시간 아님|교육|예시)/i.test(parentText);
+      var liveLike = !!(rule.liveLike && !nonLive);
+      var stale = ageDays != null && ageDays > rule.maxAgeDays;
+      var hardStale = ageDays != null && ageDays > cfg.hardStaleDays && liveLike;
+      var item = {
+        key: key,
+        date: dateText,
+        category: category,
+        ageDays: ageDays,
+        maxAgeDays: rule.maxAgeDays,
+        liveLike: liveLike,
+        stale: stale,
+        hardStale: hardStale,
+        visible: !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length),
+        sample: parentText.slice(0, 180)
+      };
+      items.push(item);
+      if (stale && liveLike) {
+        issues.push({ type: hardStale ? 'hard-stale-live-like-snapshot' : 'stale-live-like-snapshot', key: key, date: dateText, ageDays: ageDays, category: category });
+      }
+    });
+  } catch(e) {
+    issues.push({ type: 'audit-error', message: e && e.message || String(e) });
+  }
+  try {
+    Object.keys(window.AIO_PAGE_BRIEFS || {}).forEach(function(id) {
+      var page = document.getElementById('page-' + id);
+      if (!page) return;
+      var textAudit = window.AIO.auditStaticTextFreshness(page.textContent || '', { pageId: id, nowTs: nowTs });
+      if (textAudit && textAudit.issueCount) {
+        liveLikeStaticText.push({ pageId: id, issueCount: textAudit.issueCount, issues: textAudit.issues.slice(0, 5) });
+      }
+    });
+  } catch(_) {}
+  var staleItems = items.filter(function(x) { return x.stale; });
+  var hardItems = items.filter(function(x) { return x.hardStale; });
+  return {
+    status: issues.length || liveLikeStaticText.length ? 'warn' : 'ok',
+    issueCount: issues.length + liveLikeStaticText.reduce(function(n, x) { return n + x.issueCount; }, 0),
+    issues: issues,
+    items: items,
+    staleCount: staleItems.length,
+    hardStaleCount: hardItems.length,
+    liveLikeStaticText: liveLikeStaticText,
+    schedulerPresent: !!window.REFRESH_SCHEDULE,
+    snapshotDate: window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._snapshotDate || null,
+    generatedAt: new Date(nowTs).toISOString()
+  };
+};
+
+window.AIO.renderStaticDataGovernanceBadges = function() {
+  var audit = window.AIO.getStaticDataGovernanceAudit();
+  try {
+    var nodes = Array.prototype.slice.call(document.querySelectorAll('[data-snap-date]'));
+    nodes.forEach(function(el, idx) {
+      var item = audit.items[idx];
+      if (!item) return;
+      el.setAttribute('data-static-category', item.category);
+      el.setAttribute('data-static-age-days', item.ageDays == null ? '' : String(item.ageDays));
+      var badge = el.nextElementSibling;
+      if (!badge || !badge.classList || !badge.classList.contains('aio-static-data-badge')) {
+        badge = document.createElement('span');
+        badge.className = 'aio-static-data-badge';
+        badge.style.cssText = 'margin-left:4px;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:800;letter-spacing:0;border:1px solid rgba(255,255,255,.18);';
+        el.parentNode && el.parentNode.insertBefore(badge, el.nextSibling);
+      }
+      var label = item.hardStale ? 'STALE' : item.stale ? 'STATIC' : item.liveLike ? 'OK' : 'REF';
+      var color = item.hardStale ? '#ff5b50' : item.stale ? '#ffa31a' : item.liveLike ? '#00e5a0' : '#7b8599';
+      badge.textContent = label;
+      badge.style.color = color;
+      badge.style.background = item.hardStale ? 'rgba(255,91,80,.12)' : item.stale ? 'rgba(255,163,26,.12)' : 'rgba(123,133,153,.10)';
+      badge.title = item.category + ' / age ' + (item.ageDays == null ? '?' : item.ageDays) + 'd / ' + (item.liveLike ? 'live-like' : 'reference');
+    });
+  } catch(_) {}
+  return audit;
+};
+
+window.AIO.getAutoOpsReadiness = function() {
+  var freshness = window.AIO.getDataFreshnessAudit ? window.AIO.getDataFreshnessAudit() : null;
+  var pipeline = window.AIO.getDataPipelineAudit ? window.AIO.getDataPipelineAudit() : null;
+  var statics = window.AIO.getStaticDataGovernanceAudit ? window.AIO.getStaticDataGovernanceAudit() : null;
+  var scheduler = window.AIO.getRefreshSchedulerAudit ? window.AIO.getRefreshSchedulerAudit() : null;
+  var issues = [];
+  if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
+  if (statics && statics.issueCount) issues.push(statics.issueCount + ' static/live-like freshness issue(s)');
+  if (!scheduler || !scheduler.totalTasks) issues.push('refresh scheduler audit unavailable');
+  else if (scheduler.tasksWithoutFn && scheduler.tasksWithoutFn.length) issues.push('scheduler task(s) without function: ' + scheduler.tasksWithoutFn.join(','));
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issues: issues,
+    commands: {
+      audit: 'AIO.getAutoOpsReadiness()',
+      forceRefresh: 'AIO.forceRefreshAllData()',
+      staticAudit: 'AIO.getStaticDataGovernanceAudit()',
+      freshnessAudit: 'AIO.getDataFreshnessAudit()'
+    },
+    freshness: freshness,
+    pipelineStatus: pipeline && pipeline.status || null,
+    staticGovernance: statics,
+    scheduler: scheduler,
+    generatedAt: new Date().toISOString()
+  };
+};
+
 _aioPageBus.register('core-page-brief-render', 'aio:pageShown', function(e) {
   window._aioRenderPageBrief(e.detail);
+  if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') {
+    setTimeout(function() { window.AIO.renderStaticDataGovernanceBadges(); }, 0);
+  }
 });
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
@@ -1987,12 +2202,18 @@ if (document.readyState === 'loading') {
     window._aioInjectExplainSummaries();
     var active = document.querySelector('.page.active');
     if (active && active.id) window._aioRenderPageBrief(active.id.replace(/^page-/, ''));
+    if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') {
+      setTimeout(function() { window.AIO.renderStaticDataGovernanceBadges(); }, 0);
+    }
   });
 } else {
   window._aioSimplifyExplainLabels();
   window._aioInjectExplainSummaries();
   var _briefActive = document.querySelector('.page.active');
   if (_briefActive && _briefActive.id) window._aioRenderPageBrief(_briefActive.id.replace(/^page-/, ''));
+  if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') {
+    setTimeout(function() { window.AIO.renderStaticDataGovernanceBadges(); }, 0);
+  }
 }
 
 // ═══ v48.44: SVG Doughnut Gauge 렌더 헬퍼 — F&G/Quality/Device 등 ═══
@@ -4420,7 +4641,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.10';
+const APP_VERSION = 'v49.11';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

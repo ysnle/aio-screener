@@ -3041,6 +3041,25 @@ async function _runScheduledTask(key, cfg, showError) {
   }
 }
 
+function _assignRefreshScheduleFunctions() {
+  REFRESH_SCHEDULE.quotes.fn     = () => { if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes(); };
+  REFRESH_SCHEDULE.news.fn       = () => { if (typeof fetchAllNews === 'function') fetchAllNews(false); };
+  REFRESH_SCHEDULE.sentiment.fn  = () => {
+    if (typeof fetchFearGreed === 'function') fetchFearGreed();
+    if (typeof fetchPutCall === 'function') fetchPutCall();
+  };
+  REFRESH_SCHEDULE.breadth.fn    = fetchBreadthData;
+  REFRESH_SCHEDULE.fred.fn       = fetchAllFredData;
+  REFRESH_SCHEDULE.technicals.fn = () => fetchTechnicalIndicators('SPY').then(d => { if (d) applyTechIndicators(d); });
+  REFRESH_SCHEDULE.vixHistory.fn = fetchSentimentHistory;
+  REFRESH_SCHEDULE.hySpread.fn   = () => { if (typeof fetchHYSpread === 'function') fetchHYSpread(); };
+  REFRESH_SCHEDULE.maUpdate.fn   = () => { if (typeof autoUpdateMA === 'function') autoUpdateMA(); };
+  REFRESH_SCHEDULE.krSupply.fn   = () => { if (typeof fetchKrSupplyData === 'function') fetchKrSupplyData(); };
+  REFRESH_SCHEDULE.krDynamic.fn  = () => { if (typeof fetchKrDynamicData === 'function') fetchKrDynamicData(); };
+  window.REFRESH_SCHEDULE = REFRESH_SCHEDULE;
+  _normalizeRefreshSchedule();
+}
+
 function startDataScheduler() {
   console.log('[AIO v21] ═══ Data Scheduler Starting (5명 동시접속 최적화) ═══');
 
@@ -3052,16 +3071,7 @@ function startDataScheduler() {
   }
 
   // Assign functions
-  REFRESH_SCHEDULE.quotes.fn     = () => { if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes(); };
-  REFRESH_SCHEDULE.news.fn       = () => { if (typeof fetchAllNews === 'function') fetchAllNews(false); };
-  REFRESH_SCHEDULE.sentiment.fn  = () => {
-    if (typeof fetchFearGreed === 'function') fetchFearGreed();
-    if (typeof fetchPutCall === 'function') fetchPutCall();
-  };
-  REFRESH_SCHEDULE.breadth.fn    = fetchBreadthData;
-  REFRESH_SCHEDULE.fred.fn       = fetchAllFredData;
-  REFRESH_SCHEDULE.technicals.fn = () => fetchTechnicalIndicators('SPY').then(d => { if (d) applyTechIndicators(d); });
-  REFRESH_SCHEDULE.vixHistory.fn = fetchSentimentHistory;
+  _assignRefreshScheduleFunctions();
   // v30.11: 중앙 스케줄러 편입 (T3, T7 독립 타이머 → 여기로 통합)
   REFRESH_SCHEDULE.hySpread.fn   = () => { if (typeof fetchHYSpread === 'function') fetchHYSpread(); };
   REFRESH_SCHEDULE.maUpdate.fn   = () => { if (typeof autoUpdateMA === 'function') autoUpdateMA(); };
@@ -3142,6 +3152,97 @@ document.addEventListener('visibilitychange', () => {
     console.log('[AIO] Tab visible — scheduler resumed (elapsed ' + Math.round(elapsed/1000) + 's)');
   }
 });
+
+window.AIO = window.AIO || {};
+
+window.AIO.getRefreshSchedulerAudit = function() {
+  _assignRefreshScheduleFunctions();
+  _normalizeRefreshSchedule();
+  var now = Date.now();
+  var tasks = {};
+  var tasksWithoutFn = [];
+  var inFlight = [];
+  var staleOk = [];
+  Object.entries(REFRESH_SCHEDULE || {}).forEach(function(entry) {
+    var key = entry[0];
+    var cfg = entry[1] || {};
+    var hasFn = typeof cfg.fn === 'function';
+    if (!hasFn) tasksWithoutFn.push(key);
+    if (cfg._inFlight) inFlight.push(key);
+    if (cfg._lastOk && now - cfg._lastOk <= Math.max(cfg.interval || 0, 60000) * 2) staleOk.push(key);
+    tasks[key] = {
+      label: cfg.label || key,
+      intervalMs: cfg.interval || 0,
+      priority: cfg.priority || 'normal',
+      policyKey: cfg.policyKey || null,
+      hasFn: hasFn,
+      inFlight: !!cfg._inFlight,
+      lastOk: cfg._lastOk || 0,
+      lastErr: cfg._lastErr || '',
+      retryCount: cfg.retryCount || 0,
+      nextDue: cfg.nextDue || 0,
+      overdueMs: cfg.nextDue && cfg.nextDue < now ? now - cfg.nextDue : 0,
+      timeoutMs: cfg.timeoutMs || 0,
+      lastDurationMs: cfg.lastDurationMs || 0
+    };
+  });
+  return {
+    status: tasksWithoutFn.length ? 'warn' : 'ok',
+    paused: !!_schedulerPaused,
+    totalTasks: Object.keys(tasks).length,
+    tasksWithoutFn: tasksWithoutFn,
+    inFlight: inFlight,
+    recentlyOk: staleOk,
+    tasks: tasks,
+    generatedAt: new Date(now).toISOString()
+  };
+};
+
+window.AIO.runScheduledRefresh = async function(keys) {
+  _assignRefreshScheduleFunctions();
+  _normalizeRefreshSchedule();
+  var list = Array.isArray(keys) && keys.length ? keys : Object.keys(REFRESH_SCHEDULE || {});
+  var out = [];
+  var wasPaused = _schedulerPaused;
+  _schedulerPaused = false;
+  try {
+    for (var i = 0; i < list.length; i++) {
+      var key = list[i];
+      var cfg = REFRESH_SCHEDULE && REFRESH_SCHEDULE[key];
+      var started = Date.now();
+      if (!cfg) {
+        out.push({ key: key, ok: false, skipped: true, error: 'unknown scheduler key' });
+        continue;
+      }
+      if (typeof cfg.fn !== 'function') {
+        out.push({ key: key, ok: false, skipped: true, error: 'scheduler function not assigned' });
+        continue;
+      }
+      await _runScheduledTask(key, cfg, true);
+      out.push({ key: key, ok: !cfg._lastErr, skipped: false, error: cfg._lastErr || '', durationMs: Date.now() - started, lastOk: cfg._lastOk || 0 });
+    }
+  } finally {
+    _schedulerPaused = wasPaused;
+  }
+  return {
+    status: out.some(function(x) { return !x.ok && !x.skipped; }) ? 'warn' : 'ok',
+    results: out,
+    scheduler: window.AIO.getRefreshSchedulerAudit(),
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.forceRefreshAllData = async function(keys) {
+  var result = await window.AIO.runScheduledRefresh(keys);
+  try { if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
+  try { if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') window.AIO.renderStaticDataGovernanceBadges(); } catch(_) {}
+  return {
+    status: result.status,
+    refresh: result,
+    readiness: window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null,
+    generatedAt: new Date().toISOString()
+  };
+};
 
 function updateDataStatusError(status, msg) {
   var panel = document.getElementById('data-status-panel');

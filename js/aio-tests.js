@@ -1,4 +1,4 @@
-// AIO Screener — 단위 테스트 모듈 (v49.10)
+// AIO Screener — 단위 테스트 모듈 (v49.11)
 // 사용: 브라우저 콘솔에서 AIO.runTests() 실행 → OK/FAIL 결과 출력
 // 대상: 통계 함수 6개 (_calcDailyReturns / _statMean / _statStdDev /
 //        _calcPortfolioVaR / _calcSharpe / _calcMaxDrawdown / _pearsonCorr / _calcCorrelationMatrix)
@@ -1152,6 +1152,28 @@
     _assert('T145 telegram_pipeline: Aether source audited as secondary pipeline', !!aetherOk, audit && JSON.stringify(audit.aether));
   }
 
+  function _testAutoOpsGovernance() {
+    var textAudit = window.AIO && typeof window.AIO.auditStaticTextFreshness === 'function'
+      ? window.AIO.auditStaticTextFreshness('key news updated 5/4 PLTR earnings upcoming', { nowTs: new Date('2026-05-14T12:00:00+09:00').getTime(), forceLiveLike: true })
+      : null;
+    _assert('T146 static_text_freshness: stale live-like date detected', textAudit && textAudit.issueCount >= 1, textAudit && JSON.stringify(textAudit.issues));
+
+    var staticAudit = window.AIO && typeof window.AIO.getStaticDataGovernanceAudit === 'function' ? window.AIO.getStaticDataGovernanceAudit() : null;
+    _assert('T147 static_data_governance: audit shape', staticAudit && Array.isArray(staticAudit.items) && typeof staticAudit.issueCount === 'number', staticAudit && JSON.stringify({ items: staticAudit.items && staticAudit.items.length, issues: staticAudit.issueCount }));
+
+    var badgeAudit = window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function' ? window.AIO.renderStaticDataGovernanceBadges() : null;
+    var hasBadge = !!document.querySelector('.aio-static-data-badge');
+    _assert('T148 static_data_governance: badges render without breaking DOM', badgeAudit && hasBadge, badgeAudit && JSON.stringify({ items: badgeAudit.items && badgeAudit.items.length }));
+
+    var sched = window.AIO && typeof window.AIO.getRefreshSchedulerAudit === 'function' ? window.AIO.getRefreshSchedulerAudit() : null;
+    _assert('T149 auto_refresh_scheduler: public audit exposed', sched && sched.totalTasks >= 5 && sched.tasks && sched.tasks.quotes, sched && JSON.stringify({ total: sched.totalTasks, missing: sched.tasksWithoutFn }));
+
+    var readiness = window.AIO && typeof window.AIO.getAutoOpsReadiness === 'function' ? window.AIO.getAutoOpsReadiness() : null;
+    _assert('T150 auto_ops_readiness: unified diagnostic contract', readiness && readiness.commands && readiness.commands.forceRefresh && readiness.staticGovernance && readiness.scheduler, readiness && JSON.stringify({ status: readiness.status, issues: readiness.issues && readiness.issues.length }));
+
+    _assert('T151 force_refresh: manual refresh entry point exists', window.AIO && typeof window.AIO.forceRefreshAllData === 'function' && typeof window.AIO.runScheduledRefresh === 'function');
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -1161,7 +1183,7 @@
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.10 단위 테스트 실행');
+    console.group('[AIO TEST] v49.11 단위 테스트 실행');
     console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
 
     try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
@@ -1188,6 +1210,7 @@
     try { _testLockoutOpexStrategyEngine(); } catch(e) { console.error('Group21 error:', e); }
     try { _testPageFocusBriefUX(); } catch(e) { console.error('Group22 error:', e); }
     try { _testEventLiquidityPipeline(); } catch(e) { console.error('Group23 error:', e); }
+    try { _testAutoOpsGovernance(); } catch(e) { console.error('Group24 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -1218,6 +1241,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.10 로드 완료 — AIO.runTests() 으로 실행 (T1~T145)');
+  console.log('[AIO] aio-tests.js v49.11 loaded - run AIO.runTests() (T1~T151)');
 
 })();

@@ -6,6 +6,15 @@
 
 ---
 
+## v49.11 - Auto-Ops Static Data Governance (2026-05-14)
+
+**Changed files**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`
+
+- **P200**: Added a persistent auto-ops layer so old static data cannot silently look like live/current market data. `AIO.getStaticDataGovernanceAudit()` scans every `data-snap-date`, classifies archive/static/KR/options/news-pipeline snapshots, and separates stale reference data from stale live-like data.
+- Added `AIO.auditStaticTextFreshness()`, `AIO.renderStaticDataGovernanceBadges()`, and `AIO.getAutoOpsReadiness()` so operators can see freshness, scheduler, static-data, and pipeline status from one command.
+- Exposed `AIO.getRefreshSchedulerAudit()`, `AIO.runScheduledRefresh()`, and `AIO.forceRefreshAllData()` for manual “refresh now” operation without editing embedded values.
+- Added T146~T151 covering stale live-like text detection, static governance audit shape, governance badges, scheduler audit, unified readiness, and force-refresh entry points. R1 version sync: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, docs all `v49.11`.
+
 ## v49.10 - Blow-off Top Event Risk & Aether Pipeline (2026-05-14)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
