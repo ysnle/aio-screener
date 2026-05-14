@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.8 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.10 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3926,7 +3926,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.8</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.10</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6381,6 +6381,7 @@ body.light-theme canvas { filter:none; }
     <div id="tech-brief-data-quality" style="min-height:20px;margin-bottom:8px;"></div>
     <div id="tech-brief-regime-row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-bottom:10px;"></div>
     <div id="tech-lockout-dashboard" style="background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.13);border-radius:7px;padding:9px 10px;margin-bottom:10px;min-height:76px;"></div>
+    <div id="tech-blowoff-top-panel" style="background:#0b111c;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:10px;margin-bottom:10px;min-height:120px;"></div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:10px;">
       <div class="itb-chart-slot" id="tech-brief-chart-monthly" style="height:190px;background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:7px;overflow:hidden;"></div>
       <div class="itb-chart-slot" id="tech-brief-chart-weekly" style="height:190px;background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:7px;overflow:hidden;"></div>
@@ -8976,9 +8977,9 @@ body.light-theme canvas { filter:none; }
     <div class="aio-widget" style="margin-bottom:14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;">
         <div class="widget-title" style="margin:0;"> 관심 종목 리스트</div>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <select id="wl-select" aria-label="관심 종목 리스트 선택" data-on-change="switchWatchlist" style="background:var(--surface-4);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-size:11px;padding:4px 8px;font-family:var(--font-mono);min-width:120px;">
-            <option value="">리스트 선택...</option>
+        <div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap;">
+          <select id="wl-select" aria-label="관심 종목 리스트 선택" data-on-change="switchWatchlist" style="background:var(--surface-4);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-size:11px;padding:4px 8px;font-family:var(--font-mono);min-width:136px;max-width:180px;">
+            <option value="">리스트 선택</option>
           </select>
           <button class="aio-btn-table" data-action="createWatchlist" style="font-size:11px;">+ 새 리스트</button>
           <button class="aio-btn-table" data-action="renameWatchlist" style="font-size:11px;" id="wl-rename-btn" disabled> 이름변경</button>
@@ -13582,7 +13583,7 @@ function refreshWatchlistUI() {
   if (!sel) return;
   var lists = getWatchlists();
   var activeId = getActiveWatchlistId();
-  sel.innerHTML = '<option value="">리스트 선택... (' + lists.length + '개)</option>';
+  sel.innerHTML = '<option value="">리스트 ' + lists.length + '개</option>';
   lists.forEach(function(l) {
     var opt = document.createElement('option');
     opt.value = l.id;
@@ -16987,6 +16988,11 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         'Regime 명칭: LOCKOUT_CONTINUATION, LATE_STAGE_GAMMA_CHASE, OPEX_PIN_OR_DECAY, BREADTH_BROADENING, FAILED_ROTATION, DISTRIBUTION_REVERSAL. 꼭대기를 예측하지 말고 조건부 포지션 관리로 말한다: 추격매수 금지, 수요 유지 시 core hold, 공급 출현 시 trading lot trim, 확인 신호에서만 hedge/exit.\n' +
         '실행 규칙: 20MA +3ATR 경고, +4~6ATR 극단/축소 후보. 종가 위치 80% 이상은 강한 수요, 40~60%는 주의, 40% 미만은 위험. 윗꼬리 35% 이상 경고, 45% 이상 위험. RVOL 2.5x 이상은 클라이맥스 맥락. MOMENTUM_THRUST는 core hold, GAP_UP_EXHAUSTION/SHOOTING_STAR_RISK는 축소 위험, BEARISH_CONFIRMATION은 TRIM_50까지 격상 가능. 10EMA 이탈=트레이딩 물량 축소, 21EMA 이탈=스윙 물량 축소, 50SMA 이탈=스윙 thesis 훼손.\n' +
         '반도체/AI 인프라 과열 모듈: SMH·SOXX를 QQQ·SPY와 비교하고, IWM·RSP·KRE·XBI 폭/로테이션과 NVDA·AVGO·AMD·MU·TSM·ASML·MRVL·ARM·ALAB·CRDO 바스켓의 AI_INFRA_HEATED/AI_INFRA_MANIA도 함께 본다. 데이터 품질 라벨, 뉴스 impactVector, 포트폴리오 기술 리스크가 낮은 신뢰도이면 단정하지 말고 보수적으로 설명한다. 전문 해석 밑에는 초보자용 번역을 붙인다.\n\n' +
+        '【v49.10 Blow-off Top / 이벤트 소진 / H2 유동성 레짐】\n' +
+        'CPI는 더 이상 예정 이벤트가 아니다. BLS 2026-05-12 Apr CPI 기준 headline +0.6% MoM/+3.8% YoY, core +0.4% MoM/+2.8% YoY, energy +3.8% MoM/+17.9% YoY로 확인된 상태이므로 "오늘밤 CPI 예정"처럼 답하지 않는다.\n' +
+        '과열 랠리 판단 시 price/20MA 117~120, 개별 반도체/AI 종목의 20MA 이격 147~150, 20MA/50SMA ATR extension, RVOL climax, weak close position, Bollinger re-entry, OPEX gamma decay, 미중정상회담/OPEX/NVDA/한국 반도체 ETF 이벤트 소진을 함께 본다.\n' +
+        'Bessent/Warsh 정책 믹스, 은행 규제/eSLR 완화, TGA drawdown, fiscal impulse, eventual cuts 같은 H2 liquidity thesis는 중기 지지 배경이다. CPI·유가·금리가 같이 상승하면 추격매수 명분이 아니라 "버틸 수 있는 배경 vs 단기 과열 리스크"로 분리해서 설명한다.\n' +
+        'Telegram/Aether Japan Research는 빠른 2차 뉴스 파이프라인이다. 기업·정책·수급 소식은 primary source 또는 시장 데이터로 교차확인 전까지 실시간 확정 사실처럼 말하지 않는다.\n\n' +
         '【응답 프레임워크 — 종목 질문 시 반드시 이 순서】\n' +
         '핵심 원칙: 사용자가 특정 종목을 물으면 해당 종목 분석부터 바로 시작하라. 시장 전체 상황(VIX, SPX 등)은 맥락으로 1~2문장만 언급. 종목이 주인공이다.\n' +
         '1. 종목 현재 상태부터: "【종목 실시간 데이터】 섹션의 실제 가격·변화율을 인용. 없으면 "현재 실시간 데이터 로딩 중"이라고 말하라.\n' +

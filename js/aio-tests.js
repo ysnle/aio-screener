@@ -1,4 +1,4 @@
-// AIO Screener — 단위 테스트 모듈 (v49.8)
+// AIO Screener — 단위 테스트 모듈 (v49.10)
 // 사용: 브라우저 콘솔에서 AIO.runTests() 실행 → OK/FAIL 결과 출력
 // 대상: 통계 함수 6개 (_calcDailyReturns / _statMean / _statStdDev /
 //        _calcPortfolioVaR / _calcSharpe / _calcMaxDrawdown / _pearsonCorr / _calcCorrelationMatrix)
@@ -1100,6 +1100,56 @@
       window.HOME_WEEKLY_NEWS = savedWeeklyNews;
     }
     _assert('T142 home_freshness: stale static weekly events are filtered by age', staleFilterOk, 'stale HOME_WEEKLY_NEWS was still treated as current');
+
+    var eventDelegationOk = true;
+    var eventDelegationDetail = '';
+    try {
+      if (typeof window.showTicker === 'function') {
+        window.showTicker('NVDA');
+      }
+      var inlineHandlers = Array.prototype.slice.call(document.querySelectorAll('[onclick]'));
+      var tickerBack = document.getElementById('ticker-back-btn-main');
+      var tickerCrumb = document.getElementById('ticker-breadcrumb-main');
+      var tickerNavOk = [tickerBack, tickerCrumb].every(function(el) {
+        return !el || (!el.getAttribute('onclick') && el.getAttribute('data-action') === 'showPage' && !!el.getAttribute('data-arg'));
+      });
+      eventDelegationOk = inlineHandlers.length === 0 && tickerNavOk;
+      eventDelegationDetail = 'inlineHandlers=' + inlineHandlers.length + ', tickerNavOk=' + tickerNavOk;
+    } catch(e) {
+      eventDelegationOk = false;
+      eventDelegationDetail = e && e.message ? e.message : String(e);
+    }
+    _assert('T143 event_delegation: ticker nav does not create runtime onclick', eventDelegationOk, eventDelegationDetail);
+  }
+
+  function _testEventLiquidityPipeline() {
+    var hotSnap = {
+      ok: true,
+      price: 120,
+      dist20Pct: 18,
+      dist20Atr: 4.8,
+      dist50Atr: 5.2,
+      dist21Atr: 3.0,
+      rsi14: 82,
+      rvol20: 3.0,
+      closePosition: 0.42,
+      bbReentry: true,
+      above10EMA: true,
+      above21EMA: true,
+      above50SMA: true,
+      dayGainPct: 4
+    };
+    var blow = window.calcBlowoffTopChecklist ? window.calcBlowoffTopChecklist(hotSnap, {
+      semiHeat: { state: 'SEMI_HEATED' },
+      opexGammaRisk: { regime: 'GAMMA_DECAY_WATCH' },
+      breadthRotation: { regime: 'BREADTH_BROADENING' },
+      referenceDate: '2026-05-14'
+    }) : null;
+    _assert('T144 blowoff_top: hot event setup escalates', blow && blow.score >= 25 && ['NO_ADD_RAISE_STOP','TRIM_25_33','TRIM_50','EXIT_OR_HEDGE'].indexOf(blow.action) >= 0, blow && JSON.stringify({ score: blow.score, action: blow.action, state: blow.state }));
+
+    var audit = window.AIO && typeof window.AIO.getTelegramPipelineAudit === 'function' ? window.AIO.getTelegramPipelineAudit() : null;
+    var aetherOk = audit && audit.aether && audit.aether.publicMirror === 'https://t.me/s/aetherjapanresearch' && audit.verificationPolicy;
+    _assert('T145 telegram_pipeline: Aether source audited as secondary pipeline', !!aetherOk, audit && JSON.stringify(audit.aether));
   }
 
   window.AIO = window.AIO || {};
@@ -1111,7 +1161,7 @@
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.8 단위 테스트 실행');
+    console.group('[AIO TEST] v49.10 단위 테스트 실행');
     console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
 
     try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
@@ -1137,6 +1187,7 @@
     try { _testFreshnessGovernance(); } catch(e) { console.error('Group20 error:', e); }
     try { _testLockoutOpexStrategyEngine(); } catch(e) { console.error('Group21 error:', e); }
     try { _testPageFocusBriefUX(); } catch(e) { console.error('Group22 error:', e); }
+    try { _testEventLiquidityPipeline(); } catch(e) { console.error('Group23 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -1167,6 +1218,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.8 로드 완료 — AIO.runTests() 으로 실행 (T1~T142)');
+  console.log('[AIO] aio-tests.js v49.10 로드 완료 — AIO.runTests() 으로 실행 (T1~T145)');
 
 })();

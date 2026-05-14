@@ -4065,6 +4065,83 @@ function calcLockoutAction(modules) {
   return { score: score, action: action, regime: regime, flags: flags.length ? flags : ['LOCKOUT_ACTION_NEUTRAL'], extension: extension, candle: candle, opexGamma: opexGamma, breadth: breadth, portfolioExposure: portfolio };
 }
 
+var AIO_EVENT_RISK_CONTEXT = {
+  asOf: '2026-05-14',
+  title: 'CPI hot print + Trump-Xi summit + OPEX/NVDA event runway',
+  cpi: {
+    releaseDate: '2026-05-12',
+    headlineMoM: 0.6,
+    headlineYoY: 3.8,
+    coreMoM: 0.4,
+    coreYoY: 2.8,
+    energyMoM: 3.8,
+    energyYoY: 17.9,
+    interpretation: 'CPI was hotter than the benign-risk scenario; treat lower rates as a later liquidity thesis, not an immediate green light.'
+  },
+  liquidityThesis: {
+    label: 'H2 liquidity optionality',
+    drivers: ['eSLR/bank regulation relief', 'possible TGA drawdown', 'fiscal impulse', 'eventual rate cuts'],
+    caveat: 'Hot CPI and energy shock can delay or cap the liquidity impulse; use it as medium-term backdrop, not a reason to chase extended candles.'
+  },
+  timeline: [
+    { date: '2026-05-14', label: 'Trump-Xi summit begins', tone: 'hope', note: 'trade/AI/Iran headlines can keep risk appetite alive, but headline risk is two-sided.' },
+    { date: '2026-05-15', label: 'Monthly OPEX / summit window', tone: 'risk', note: 'gamma support can decay after event/expiry; watch close position and RVOL.' },
+    { date: '2026-05-20', label: 'NVDA earnings after close', tone: 'hope', note: 'AI leadership catalyst; avoid assuming good news is not already priced.' },
+    { date: '2026-05-27', label: 'Korea semi ETF/event window', tone: 'risk', note: 'after the visible catalyst runway, event exhaustion and profit-taking risk rise.' }
+  ],
+  telegramPipeline: {
+    channel: 'aetherjapanresearch',
+    publicMirror: 'https://t.me/s/aetherjapanresearch',
+    purpose: 'Japan/US cross-market news, supply-chain alerts, broker notes, and Asia semiconductor flow context.',
+    handling: 'Public Telegram messages are treated as fast secondary sources: tag, dedupe, score, and require confirmation before promoting to live-like conclusions.'
+  }
+};
+
+function _aioEventDays(dateStr, refDate) {
+  var ref = refDate ? new Date(refDate) : new Date();
+  var d = new Date(dateStr + 'T00:00:00');
+  if (isNaN(d.getTime())) return null;
+  var r = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
+  return Math.round((d.getTime() - r.getTime()) / 86400000);
+}
+
+function calcBlowoffTopChecklist(snapshot, context) {
+  context = context || {};
+  snapshot = snapshot || {};
+  var eventCtx = context.eventContext || AIO_EVENT_RISK_CONTEXT;
+  var checks = [], supports = [];
+  function push(list, ok, label, detail, severity) {
+    list.push({ ok: !!ok, label: label, detail: detail || '', severity: severity || (ok ? 'risk' : 'watch') });
+  }
+  function fin(v) { var n = Number(v); return isFinite(n) ? n : null; }
+  var dist20Pct = fin(snapshot.dist20Pct);
+  var dist20Atr = fin(snapshot.dist20Atr);
+  var rsi14 = fin(snapshot.rsi14);
+  var rvol20 = fin(snapshot.rvol20);
+  var closePosition = fin(snapshot.closePosition);
+  var price20Ratio = dist20Pct !== null ? 100 + dist20Pct : null;
+  push(checks, price20Ratio !== null && price20Ratio >= 117, '20MA distance near heat band', price20Ratio === null ? '20MA ratio unavailable' : ('price/20MA ' + price20Ratio.toFixed(1) + ' / heat 120'), price20Ratio >= 120 ? 'risk' : 'warn');
+  push(checks, dist20Atr !== null && dist20Atr >= 4, 'ATR extension trim zone', dist20Atr === null ? 'ATR extension unavailable' : ('20MA +' + dist20Atr.toFixed(1) + ' ATR'), dist20Atr !== null && dist20Atr >= 6 ? 'risk' : 'warn');
+  push(checks, rsi14 !== null && rsi14 >= 80, 'RSI overheat', rsi14 === null ? 'RSI unavailable' : ('RSI ' + rsi14.toFixed(1) + ' - not automatic sell'), rsi14 !== null && rsi14 >= 85 ? 'risk' : 'warn');
+  push(checks, rvol20 !== null && rvol20 >= 2.5 && closePosition !== null && closePosition < 0.55, 'Climax supply candle', 'RVOL ' + (rvol20 === null ? '--' : rvol20.toFixed(1)) + 'x / close position ' + (closePosition === null ? '--' : Math.round(closePosition * 100) + '%'), 'risk');
+  push(checks, !!snapshot.bbReentry, 'Upper Bollinger re-entry', snapshot.bbReentry ? 'outside upper band then closed back inside' : 'no exhaustion re-entry yet', 'warn');
+  push(checks, context.opexGammaRisk && context.opexGammaRisk.regime !== 'GAMMA_SUPPORT', 'OPEX/gamma decay watch', context.opexGammaRisk ? context.opexGammaRisk.regime : 'option context unavailable', 'warn');
+  push(checks, eventCtx && eventCtx.cpi && eventCtx.cpi.coreMoM >= 0.4, 'Hot CPI macro trigger', eventCtx.cpi ? ('core CPI +' + eventCtx.cpi.coreMoM.toFixed(1) + '% MoM / headline ' + eventCtx.cpi.headlineYoY.toFixed(1) + '% YoY') : 'CPI context unavailable', 'risk');
+
+  push(supports, snapshot.above10EMA !== false && snapshot.above21EMA !== false, '10/21 EMA trend alive', snapshot.above10EMA === false || snapshot.above21EMA === false ? 'short/swing line already violated' : 'short-term trend not broken', 'bull');
+  push(supports, context.breadthRotation && context.breadthRotation.regime === 'BREADTH_BROADENING', 'Breadth broadening', context.breadthRotation ? context.breadthRotation.regime : 'breadth context unavailable', 'bull');
+  push(supports, context.semiHeat && context.semiHeat.state !== 'SEMI_MANIA', 'Semi heat not full mania', context.semiHeat ? context.semiHeat.state : 'semi context unavailable', 'bull');
+  push(supports, eventCtx && eventCtx.timeline && eventCtx.timeline.some(function(e) { return e.tone === 'hope' && _aioEventDays(e.date, context.referenceDate) >= 0; }), 'Catalyst runway still open', 'summit/NVDA/event window can keep dip demand alive', 'bull');
+  push(supports, eventCtx && eventCtx.liquidityThesis, 'H2 liquidity backdrop', eventCtx.liquidityThesis ? eventCtx.liquidityThesis.drivers.join(' / ') : '', 'bull');
+
+  var riskScore = checks.reduce(function(s, c) { return s + (c.ok ? (c.severity === 'risk' ? 16 : 10) : 0); }, 0);
+  var supportScore = supports.reduce(function(s, c) { return s + (c.ok ? 7 : 0); }, 0);
+  var score = Math.max(0, Math.min(100, Math.round(riskScore - supportScore * 0.45)));
+  var state = score >= 70 ? 'BLOW_OFF_TOP_RISK' : score >= 45 ? 'EVENT_EXHAUSTION_WATCH' : score >= 25 ? 'NO_CHASE_DIGESTION' : 'LOCKOUT_CAN_CONTINUE';
+  var action = score >= 70 ? 'TRIM_50' : score >= 45 ? 'TRIM_25_33' : score >= 25 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
+  return { state: state, score: score, action: action, checks: checks, supports: supports, eventContext: eventCtx };
+}
+
 function calcSellPressure(ohlcvOrSnapshot, context) {
   context = context || {};
   var snapshot = ohlcvOrSnapshot && ohlcvOrSnapshot.ok !== undefined ? ohlcvOrSnapshot : calcTechnicalSnapshot(ohlcvOrSnapshot);
@@ -4085,6 +4162,9 @@ function calcSellPressure(ohlcvOrSnapshot, context) {
   if (context.semiHeat && context.semiHeat.state === 'SEMI_HEATED') add(6, 'SEMI_HEATED_CONTEXT');
   if (context.semiHeat && context.semiHeat.state === 'SEMI_MANIA') add(12, 'SEMI_MANIA_CONTEXT');
   if (context.lockoutAction && context.lockoutAction.score >= 35) add(Math.min(18, Math.round(context.lockoutAction.score / 4)), 'LOCKOUT_ACTION_' + context.lockoutAction.action);
+  if (context.blowoffTop && context.blowoffTop.score >= 25) {
+    add(Math.min(18, Math.round(context.blowoffTop.score / 4)), 'BLOWOFF_TOP_' + context.blowoffTop.action);
+  }
   score = Math.max(0, Math.min(100, Math.round(score)));
   var action = score >= 75 ? 'EXIT_OR_HEDGE' : score >= 58 ? 'TRIM_50' : score >= 38 ? 'TRIM_25_33' : score >= 18 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
   return { score: score, action: action, flags: flags.length ? flags : ['TREND_HEALTHY_NO_EXIT_SIGNAL'], snapshot: snapshot };
@@ -4329,6 +4409,8 @@ window.calcOpexGammaRisk = calcOpexGammaRisk;
 window.calcBreadthRotation = calcBreadthRotation;
 window.calcLockoutRegime = calcLockoutRegime;
 window.calcLockoutAction = calcLockoutAction;
+window.AIO_EVENT_RISK_CONTEXT = AIO_EVENT_RISK_CONTEXT;
+window.calcBlowoffTopChecklist = calcBlowoffTopChecklist;
 window.calcSellPressure = calcSellPressure;
 window.calcSemiHeatMap = calcSemiHeatMap;
 window.calcSemiHeat = calcSemiHeatMap;
@@ -4338,7 +4420,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.8';
+const APP_VERSION = 'v49.10';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -7221,21 +7303,28 @@ function showTicker(tkr) {
   if (ab) { ab.textContent = actionLabels[d.action] || d.action; ab.className = 'action-btn ' + (actionClasses[d.action]||'neutral'); }
   const backBtn = document.getElementById('ticker-back-btn-main');
   const parentEl = document.getElementById('ticker-breadcrumb-main');
+  function setTickerNavTarget(targetPage) {
+    [backBtn, parentEl].forEach(function(el) {
+      if (!el) return;
+      el.removeAttribute('onclick');
+      el.setAttribute('data-action', 'showPage');
+      el.setAttribute('data-arg', targetPage);
+      el.setAttribute('role', el.getAttribute('role') || 'button');
+      el.setAttribute('tabindex', el.getAttribute('tabindex') || '0');
+    });
+  }
   if(prevPage === 'themes' || prevPage === 'theme-detail') {
     backBtn.textContent = '← 테마 분석';
-    backBtn.setAttribute('onclick', "showPage('themes',null)");
     parentEl.textContent = '테마 분석';
-    parentEl.setAttribute('onclick', "showPage('themes',null)");
+    setTickerNavTarget('themes');
   } else if(prevPage === 'fundamental') {
     backBtn.textContent = '← 펀더멘탈';
-    backBtn.setAttribute('onclick', "showPage('fundamental',null)");
     parentEl.textContent = '펀더멘탈';
-    parentEl.setAttribute('onclick', "showPage('fundamental',null)");
+    setTickerNavTarget('fundamental');
   } else {
     backBtn.textContent = '← 포트폴리오';
-    backBtn.setAttribute('onclick', "showPage('portfolio',null)");
     parentEl.textContent = '포트폴리오';
-    parentEl.setAttribute('onclick', "showPage('portfolio',null)");
+    setTickerNavTarget('portfolio');
   }
   // ── 진입 적합성 판단 (Jeff Sun CFTe Hard Rules 기반) ──
   var ecDiv = document.getElementById('ticker-entry-check');

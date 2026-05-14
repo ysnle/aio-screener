@@ -3464,7 +3464,7 @@ const AIO_NEWS_SOURCES = [
   {name:'TG Insider Tracking',       url:'https://rsshub.app/telegram/channel/insidertracking',       country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'insidertracking'},
   {name:'TG BornLupin',              url:'https://rsshub.app/telegram/channel/bornlupin',             country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'bornlupin'},
   {name:'TG WalterBloomberg',       url:'https://rsshub.app/telegram/channel/walterbloomberg',       country:'us', tier:1, flag:'TG', topics:['macro','equity','earnings'],        type:'telegram', tgSlug:'walterbloomberg'},
-  {name:'TG Aether Japan Research',  url:'https://rsshub.app/telegram/channel/aetherjapanresearch',   country:'jp', tier:1, flag:'TG', topics:['macro','equity','semi','geo'],      type:'telegram', tgSlug:'aetherjapanresearch'},
+  {name:'TG Aether Japan Research',  url:'https://rsshub.app/telegram/channel/aetherjapanresearch',   country:'jp', tier:1, flag:'TG', topics:['macro','equity','semi','geo','japan'], type:'telegram', tgSlug:'aetherjapanresearch', publicMirror:'https://t.me/s/aetherjapanresearch', pipelineRole:'asia-semi-flow'},
   // v37.2: 속보·지정학·매크로 텔레그램 채널 추가 (v39.0: FirstSquawk/FinancialJuice 공개 미리보기 비활성 — 코드에서 자동 스킵)
   {name:'TG FirstSquawk',           url:'https://rsshub.app/telegram/channel/firstsquawk',           country:'us', tier:1, flag:'TG', topics:['macro','geo','energy','defense'],  type:'telegram', tgSlug:'firstsquawk'},
   {name:'TG FinancialJuice',        url:'https://rsshub.app/telegram/channel/financialjuicechannel', country:'us', tier:1, flag:'TG', topics:['macro','geo','energy'],            type:'telegram', tgSlug:'financialjuicechannel'},
@@ -3553,6 +3553,8 @@ const AIO_NEWS_SOURCES = [
   // 이데일리: edaily_news/stock/economy.xml 전부 홈페이지 리다이렉트
   // 아시아경제: all.xml(연예·스포츠 혼입), economy/stock/finance.xml 전부 404
 ];
+
+window.AIO_NEWS_SOURCES = AIO_NEWS_SOURCES;
 
 // ── Global HTML escape ─────────────────────────────────────────
 function escHtml(s) {
@@ -7512,6 +7514,26 @@ let isFetching = false;
 let _fetchStartTime = 0; // v29.3: isFetching 잠김 방지용 타임스탬프
 let currentCountryFilter = 'all';
 let currentTopicFilter = 'all';
+
+window.AIO = window.AIO || {};
+window.AIO.getTelegramPipelineAudit = function() {
+  var sources = (window.AIO_NEWS_SOURCES || AIO_NEWS_SOURCES || []).filter(function(s) { return s && s.type === 'telegram'; });
+  var all = (window._allNewsItems || newsCache || []).filter(function(it) { return it && (it._tgChannel || /TG|Telegram/i.test(String(it.feed || it.source || ''))); });
+  var aetherSource = sources.find(function(s) { return s.tgSlug === 'aetherjapanresearch'; }) || null;
+  var aetherItems = all.filter(function(it) { return it._tgChannel === 'aetherjapanresearch' || /Aether Japan/i.test(String(it.feed || it.source || '')); });
+  return {
+    status: aetherSource ? 'OK' : 'MISSING_AETHER_SOURCE',
+    telegramSourceCount: sources.length,
+    sources: sources.map(function(s) {
+      return { name: s.name, slug: s.tgSlug || null, tier: s.tier, topics: s.topics || [], publicMirror: s.publicMirror || ('https://t.me/s/' + (s.tgSlug || '')), pipelineRole: s.pipelineRole || 'telegram-fast-secondary' };
+    }),
+    aether: aetherSource ? { url: aetherSource.url, publicMirror: aetherSource.publicMirror, role: aetherSource.pipelineRole, topics: aetherSource.topics } : null,
+    recentTelegramItems: all.length,
+    recentAetherItems: aetherItems.length,
+    verificationPolicy: 'Telegram items are fast secondary inputs. Confirm with primary source or market data before presenting as live trade facts.'
+  };
+};
+
 // ── RSS 파싱 ─────────────────────────────────────────────────────
 // v29.4: 죽은 프록시 제거 (corsproxy.app 503)
 // v30.11 Task 11: 하위 호환용 — 레거시 코드에서 참조하는 상수 유지 (_PROXY_REGISTRY가 진실 원천)
@@ -7877,6 +7899,8 @@ async function fetchTelegramDirect(channelSlug, sourceName) {
           tier: 1,
           flag: '',
           _tgChannel: channelSlug,
+          _pipeline: channelSlug === 'aetherjapanresearch' ? 'asia-semi-flow' : 'telegram-fast-secondary',
+          _verification: channelSlug === 'aetherjapanresearch' ? 'secondary-source-confirm-before-live-like-use' : 'secondary-source',
         });
       });
       if (items.length) {
@@ -7993,6 +8017,8 @@ async function fetchAllNews(forceRefresh = false) {
               if (origSrc) it.source = `${origSrc} (TG)`;
               it.feed = s.name;
               it._tgChannel = slug;
+              it._pipeline = s.pipelineRole || 'telegram-fast-secondary';
+              it._verification = slug === 'aetherjapanresearch' ? 'secondary-source-confirm-before-live-like-use' : 'secondary-source';
             });
             return items.filter(it => isTelegramMsgRelevant((it.title||'') + ' ' + (it.desc||'')));
           };

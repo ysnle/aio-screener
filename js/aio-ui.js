@@ -2520,6 +2520,61 @@ function renderLockoutDashboard(result) {
   });
 }
 
+function renderBlowoffTopPanel(blowoffTop) {
+  var el = document.getElementById('tech-blowoff-top-panel');
+  if (!el) return;
+  blowoffTop = blowoffTop || {};
+  var tone = blowoffTop.action === 'TRIM_50' || blowoffTop.action === 'EXIT_OR_HEDGE'
+    ? 'risk'
+    : blowoffTop.action === 'TRIM_25_33' || blowoffTop.action === 'NO_ADD_RAISE_STOP'
+      ? 'warn'
+      : 'bull';
+  var checks = blowoffTop.checks || [];
+  var supports = blowoffTop.supports || [];
+  var eventCtx = blowoffTop.eventContext || {};
+  function renderLine(item, positive) {
+    var ok = !!(item && item.ok);
+    var color = positive ? (ok ? '#5cff95' : '#8fa3b5') : (ok ? '#ff6b6b' : '#8fa3b5');
+    var dot = positive ? (ok ? '●' : '○') : (ok ? '●' : '○');
+    return '<div style="display:flex;gap:7px;align-items:flex-start;font-size:11px;line-height:1.55;margin:6px 0;color:var(--text-secondary);">' +
+      '<span aria-hidden="true" style="color:' + color + ';font-size:12px;line-height:1.3;">' + dot + '</span>' +
+      '<span><b style="color:' + color + ';">' + _itbEsc(item && item.label || '--') + '</b><br><span style="color:var(--text-muted);">' + _itbEsc(item && item.detail || '') + '</span></span>' +
+    '</div>';
+  }
+  var timeline = (eventCtx.timeline || []).map(function(e) {
+    var etone = e.tone === 'risk' ? 'risk' : e.tone === 'hope' ? 'bull' : 'warn';
+    return '<div style="border-left:2px solid ' + (etone === 'risk' ? '#ff5b50' : etone === 'bull' ? '#5cff95' : '#f6c85f') + ';padding:4px 0 5px 8px;">' +
+      '<div style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);">' + _itbEsc(e.date || '') + '</div>' +
+      '<div style="font-size:11px;font-weight:800;color:var(--text-primary);">' + _itbEsc(e.label || '') + '</div>' +
+    '</div>';
+  }).join('');
+  el.innerHTML =
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
+      '<div><div style="font-size:10px;font-weight:900;color:var(--data-cyan);letter-spacing:.18em;">BLOW-OFF TOP CHECKLIST</div>' +
+      '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">이격 과열, CPI/유가, OPEX, 이벤트 소진을 한 화면에서 확인합니다.</div></div>' +
+      '<div style="display:flex;gap:6px;align-items:center;">' + _itbBadge(blowoffTop.state || 'DATA', tone) + _itbBadge(blowoffTop.action || 'HOLD_CORE', tone) + '<span style="font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(blowoffTop.score, 0) + '/100</span></div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">' +
+      '<div style="background:#0e1622;border:1px solid rgba(255,91,80,0.28);border-radius:6px;padding:10px;border-left:3px solid #ff5b50;">' +
+        '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:5px;">현재 충족 조건 (위험 신호)</div>' +
+        checks.map(function(c) { return renderLine(c, false); }).join('') +
+      '</div>' +
+      '<div style="background:#0e1622;border:1px solid rgba(92,255,149,0.24);border-radius:6px;padding:10px;border-left:3px solid #5cff95;">' +
+        '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:5px;">아직 미충족 조건 (상승 유지 근거)</div>' +
+        supports.map(function(c) { return renderLine(c, true); }).join('') +
+      '</div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px;">' +
+      '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:10px;">' +
+        '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:7px;">Event Runway</div>' + (timeline || '<div style="font-size:11px;color:var(--text-muted);">No event context</div>') +
+      '</div>' +
+      '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:10px;">' +
+        '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:7px;">Beginner Translation</div>' +
+        '<div style="font-size:11px;color:var(--text-secondary);line-height:1.65;">상승장이 강해도 가격이 20일선·50일선에서 너무 멀고, 거래량 급증 뒤 종가가 약하거나 이벤트가 끝나면 추격매수보다 스탑 상향과 일부 익절이 먼저입니다. 반대로 10/21EMA와 수급 확산이 살아 있으면 전량 매도 신호로 보지 않습니다.</div>' +
+      '</div>' +
+    '</div>';
+}
+
 function renderExtensionHeatPanel(extensionHeat) {
   var el = document.getElementById('tech-lockout-extension');
   if (!el) return;
@@ -2576,6 +2631,7 @@ function renderTechnicalBrief(symbol, result) {
   renderExitPlanPanel(result.exitPlan);
   _renderSemiHeatPanel(result.semiHeat);
   renderLockoutDashboard(result);
+  renderBlowoffTopPanel(result.blowoffTop);
   renderExtensionHeatPanel(result.extensionHeat);
   renderOpexGammaPanel(result.opexGammaRisk);
   renderBreadthRotationPanel(result.breadthRotation);
@@ -2659,10 +2715,16 @@ async function runInstitutionalTechnicalBrief(arg) {
     }) : null;
     var portfolioExposure = { score: semiHeat ? Math.min(100, (semiHeat.score || 0) + (semiHeat.aiInfraHeat ? (semiHeat.aiInfraHeat.score || 0) * 0.35 : 0)) : 0, flags: semiHeat && semiHeat.state ? ['SEMI_CONTEXT_' + semiHeat.state] : [] };
     var lockoutAction = window.calcLockoutAction ? window.calcLockoutAction({ extension: extensionHeat, candle: candleRisk, opexGamma: opexGammaRisk, breadth: breadthRotation, portfolioExposure: portfolioExposure }) : null;
-    var sellPressure = window.calcSellPressure ? window.calcSellPressure(snapshot, { semiHeat: semiHeat, lockoutAction: lockoutAction }) : null;
+    var blowoffTop = window.calcBlowoffTopChecklist ? window.calcBlowoffTopChecklist(snapshot, {
+      semiHeat: semiHeat,
+      opexGammaRisk: opexGammaRisk,
+      breadthRotation: breadthRotation,
+      referenceDate: window.AIO_EVENT_RISK_CONTEXT && window.AIO_EVENT_RISK_CONTEXT.asOf
+    }) : null;
+    var sellPressure = window.calcSellPressure ? window.calcSellPressure(snapshot, { semiHeat: semiHeat, lockoutAction: lockoutAction, blowoffTop: blowoffTop }) : null;
     var regime = snapshot && snapshot.above50SMA === false ? 'TREND_DAMAGED' : semiHeat && semiHeat.state === 'SEMI_MANIA' ? 'LOCKOUT_RALLY_RISK' : 'TREND_FOLLOW';
     var exitPlan = window.calcExitPlan ? window.calcExitPlan(snapshot, sellPressure, regime) : null;
-    var result = { monthly: data[0] || [], weekly: data[1] || [], daily: daily, snapshot: snapshot, semiHeat: semiHeat, extensionHeat: extensionHeat, candleRisk: candleRisk, opexGammaRisk: opexGammaRisk, breadthRotation: breadthRotation, lockoutAction: lockoutAction, sellPressure: sellPressure, exitPlan: exitPlan, dataQuality: daily.dataQuality || null, optionSentiment: optionSentiment };
+    var result = { monthly: data[0] || [], weekly: data[1] || [], daily: daily, snapshot: snapshot, semiHeat: semiHeat, extensionHeat: extensionHeat, candleRisk: candleRisk, opexGammaRisk: opexGammaRisk, breadthRotation: breadthRotation, lockoutAction: lockoutAction, blowoffTop: blowoffTop, sellPressure: sellPressure, exitPlan: exitPlan, dataQuality: daily.dataQuality || null, optionSentiment: optionSentiment };
     window._lastTechnicalBrief = { symbol: symbol, result: result, ts: Date.now() };
     renderTechnicalBrief(symbol, result);
   } catch(e) {
@@ -2678,6 +2740,7 @@ window.renderExitPlanPanel = renderExitPlanPanel;
 window.renderKeyLevelsPanel = renderKeyLevelsPanel;
 window.renderBeginnerExplanation = renderBeginnerExplanation;
 window.renderLockoutDashboard = renderLockoutDashboard;
+window.renderBlowoffTopPanel = renderBlowoffTopPanel;
 window.renderExtensionHeatPanel = renderExtensionHeatPanel;
 window.renderOpexGammaPanel = renderOpexGammaPanel;
 window.renderBreadthRotationPanel = renderBreadthRotationPanel;

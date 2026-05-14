@@ -6,6 +6,26 @@
 
 ---
 
+## v49.10 - Blow-off Top Event Risk & Aether Pipeline (2026-05-14)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- **P199**: Integrated the user-supplied blow-off top / OPEX / event-exhaustion framework into the institutional technical engine rather than leaving it as a separate narrative layer.
+- Added `calcBlowoffTopChecklist()` with CPI-confirmed context, H2 liquidity backdrop, event runway, 20MA/ATR heat checks, OPEX gamma decay, and support-condition separation.
+- Added the Technical Brief `BLOW-OFF TOP CHECKLIST` panel with risk conditions, still-alive support conditions, event runway, and beginner translation styled like an institutional dark terminal report.
+- Hardened the Telegram/Aether Japan Research pipeline as a fast secondary source with `AIO.getTelegramPipelineAudit()` and explicit confirmation policy before live-like trade conclusions.
+- Updated technical AI prompts so CPI is treated as a confirmed 2026-05-12 BLS release, H2 liquidity is a medium-term backdrop, and Telegram items require primary/data confirmation.
+- Added T144~T145 for blow-off escalation and Aether pipeline audit. R1 version sync: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `CLAUDE.md`, `_context/CLAUDE.md` all `v49.10`.
+
+## v49.9 - Live Site QA Cleanup (2026-05-13)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- **P198**: Live page sweep found a mobile portfolio watchlist select overflow and ticker-detail navigation recreating runtime `onclick` attributes after the static `onclick=0` migration. Tightened the watchlist control layout with wrapping, a bounded select width, and shorter default copy.
+- Replaced ticker-detail back/breadcrumb runtime `onclick` mutation with the existing delegated `data-action="showPage"` + `data-arg` contract.
+- Added T143 to `AIO.runTests()` so runtime ticker navigation cannot reintroduce inline handlers.
+- R1 version sync: title, badge, `APP_VERSION`, `version.json`, `sw.js SW_VERSION`, `CLAUDE.md`, `_context/CLAUDE.md` all `v49.9`.
+
 ## v49.8 - Live Site Freshness Guardrail (2026-05-13)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
