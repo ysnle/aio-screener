@@ -1,4 +1,4 @@
-// AIO Screener — 단위 테스트 모듈 (v49.12)
+// AIO Screener — 단위 테스트 모듈 (v49.13)
 // 사용: 브라우저 콘솔에서 AIO.runTests() 실행 → OK/FAIL 결과 출력
 // 대상: 통계 함수 6개 (_calcDailyReturns / _statMean / _statStdDev /
 //        _calcPortfolioVaR / _calcSharpe / _calcMaxDrawdown / _pearsonCorr / _calcCorrelationMatrix)
@@ -1060,7 +1060,7 @@
 
     var summaries = window.AIO_EXPLAIN_SUMMARIES || {};
     var summaryOk = typeof window._aioInjectExplainSummaries === 'function' && summaries['explain-technical-page'] && summaries['explain-options-page'];
-    _assert('T136 explain_summaries: beginner summaries exist for detailed sections', !!summaryOk, 'explain summary hooks missing');
+    _assert('T136 explain_summaries: available but not forced into core view', !!summaryOk, 'explain summary hooks missing');
 
     var optionText = '';
     var optionPage = document.getElementById('page-options');
@@ -1176,33 +1176,29 @@
 
   function _testContentSimplificationUX() {
     var briefs = window.AIO_PAGE_BRIEFS || {};
-    var guides = window.AIO_PAGE_CORE_GUIDES || {};
     var ids = Object.keys(briefs);
-    var missingGuides = ids.filter(function(id) {
-      var g = guides[id];
-      return !g || !g.watch || !g.decide || !g.next;
+    var verboseBriefs = ids.filter(function(id) {
+      var b = briefs[id] || {};
+      return String(b.title || '').length > 80 || String(b.use || '').length > 80 || String(b.focus || '').length > 150 || !Array.isArray(b.steps) || b.steps.length !== 3;
     });
-    _assert('T152 content_core_guides: every page has watch/decide/next copy', missingGuides.length === 0, missingGuides.join(','));
+    _assert('T152 content_brief: page briefs stay compact', verboseBriefs.length === 0, verboseBriefs.join(','));
 
     ids.forEach(function(id) {
       if (typeof window._aioRenderPageBrief === 'function') window._aioRenderPageBrief(id);
       if (typeof window._aioApplyContentSimplification === 'function') window._aioApplyContentSimplification(id);
     });
-    var missingDecision = ids.filter(function(id) {
-      var page = document.getElementById('page-' + id);
-      return !page || !page.querySelector('.aio-page-brief-decision') || page.querySelectorAll('.aio-page-brief-decision-card').length < 3;
-    });
-    _assert('T153 page_brief_decision_cards: rendered for all configured pages', missingDecision.length === 0, missingDecision.join(','));
+    _assert('T153 content_simplification: no additive decision cards in compact view', document.querySelectorAll('.aio-page-brief-decision,.aio-page-brief-decision-card').length === 0);
 
     var modeButtons = Array.prototype.slice.call(document.querySelectorAll('.aio-page-brief-mode'));
     _assert('T154 core_view_toggle: compact/full toggle rendered', modeButtons.length >= ids.length && typeof window._aioToggleCoreView === 'function', 'buttons=' + modeButtons.length + ', pages=' + ids.length);
 
     var home = document.getElementById('page-home');
     var applied = window._aioApplyContentSimplification ? window._aioApplyContentSimplification('home') : null;
-    _assert('T155 content_simplification: page receives core-view contract', applied && typeof applied.coreView === 'boolean' && home && home.classList.contains('aio-core-view') === applied.coreView, applied && JSON.stringify(applied));
+    _assert('T155 content_simplification: page receives compact contract', applied && typeof applied.coreView === 'boolean' && home && home.classList.contains('aio-content-compact') === applied.coreView, applied && JSON.stringify(applied));
 
-    var badges = document.querySelectorAll('.aio-secondary-badge');
-    _assert('T156 secondary_content: detailed/reference sections are labeled', badges.length >= 5, 'badges=' + badges.length);
+    var additiveBadges = document.querySelectorAll('.aio-secondary-badge');
+    var summariesInCore = document.querySelectorAll('.aio-core-view .aio-explain-summary');
+    _assert('T156 content_simplification: no extra explanatory badges/summaries in core view', additiveBadges.length === 0 && summariesInCore.length === 0, 'badges=' + additiveBadges.length + ', summaries=' + summariesInCore.length);
   }
 
   window.AIO = window.AIO || {};
@@ -1214,7 +1210,7 @@
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.12 단위 테스트 실행');
+    console.group('[AIO TEST] v49.13 단위 테스트 실행');
     console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
 
     try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
@@ -1273,6 +1269,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.12 loaded - run AIO.runTests() (T1~T156)');
+  console.log('[AIO] aio-tests.js v49.13 loaded - run AIO.runTests() (T1~T156)');
 
 })();

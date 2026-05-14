@@ -6,6 +6,14 @@
 
 ---
 
+## v49.13 - Intrinsic Content Simplification Correction (2026-05-14)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`
+
+- **P202**: Corrected the simplification direction after user feedback. v49.12 added too much explanatory scaffolding; v49.13 removes the additive decision-card layer and secondary explanation badges from compact view.
+- Compact/core view now works by reducing the visible weight of existing dense content: detailed explain summaries are not injected by default, beginner/detail blocks stay collapsed, and archive/reference sections stay out of the first-read path.
+- Updated T152~T156 so future “simplification” work must keep page briefs compact and must not reintroduce additive decision cards, explanatory badges, or forced summaries in core view.
+
 ## v49.12 - Page Content Simplification UX (2026-05-14)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`
