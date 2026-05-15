@@ -1,4 +1,4 @@
-// AIO Screener — 단위 테스트 모듈 (v49.16)
+// AIO Screener — 단위 테스트 모듈 (v49.17)
 // 사용: 브라우저 콘솔에서 AIO.runTests() 실행 → OK/FAIL 결과 출력
 // 대상: 통계 함수 6개 (_calcDailyReturns / _statMean / _statStdDev /
 //        _calcPortfolioVaR / _calcSharpe / _calcMaxDrawdown / _pearsonCorr / _calcCorrelationMatrix)
@@ -1269,6 +1269,19 @@
 
     var sectorFallbackDisabled = (typeof window._SECTOR_PCT_FALLBACK === 'object') ? Object.keys(window._SECTOR_PCT_FALLBACK).length === 0 : true;
     _assert('T169 sector_current_rankings: static pct fallback disabled', sectorFallbackDisabled, typeof window._SECTOR_PCT_FALLBACK);
+
+    var critical = window.AIO && typeof window.AIO.getCritical10PageFreshnessAudit === 'function' ? window.AIO.getCritical10PageFreshnessAudit({ symbolLimit:999 }) : null;
+    _assert('T170 critical10_audit: comprehensive + market analysis pages are audited', critical && critical.pagesChecked === 10 && critical.groups.comprehensive.length === 5 && critical.groups.marketAnalysis.length === 5, critical && JSON.stringify({ pages: critical.pagesChecked, issues: critical.issueCount }));
+
+    var fxbondProfile = window.AIO && typeof window.AIO.getDataRequirementProfile === 'function' ? window.AIO.getDataRequirementProfile({ pageId:'fxbond', symbolLimit:999 }) : null;
+    _assert('T171 fxbond_profile: FX/bond page covers currencies, yields, credit, and duration', fxbondProfile && ['KRW=X','JPY=X','EURUSD=X','^TNX','^IRX','HYG','LQD','TLT'].every(function(s){ return fxbondProfile.symbols.indexOf(s) >= 0; }), fxbondProfile && fxbondProfile.symbols.join(','));
+
+    var tenPages = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+    var thin = tenPages.filter(function(id) {
+      var p = window.AIO.getDataRequirementProfile({ pageId:id, symbolLimit:999 });
+      return !p || !p.tasks.length || p.symbols.length < 5;
+    });
+    _assert('T172 critical10_profiles: no thin data profile among top 10 pages', thin.length === 0, thin.join(','));
   }
 
   window.AIO = window.AIO || {};
@@ -1280,7 +1293,7 @@
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.16 단위 테스트 실행');
+    console.group('[AIO TEST] v49.17 단위 테스트 실행');
     console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
 
     try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
@@ -1340,6 +1353,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.16 loaded - run AIO.runTests() (T1~T169)');
+  console.log('[AIO] aio-tests.js v49.17 loaded - run AIO.runTests() (T1~T172)');
 
 })();

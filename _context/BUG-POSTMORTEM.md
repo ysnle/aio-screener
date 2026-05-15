@@ -2,10 +2,10 @@
 verified_by: agent
 last_verified: 2026-05-15
 confidence: high
-latest_version: v49.16
-latest_P_number: P205
-next_P_number: P206
-total_entries: 205
+latest_version: v49.17
+latest_P_number: P206
+next_P_number: P207
+total_entries: 206
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -22,7 +22,7 @@ total_entries: 205
 
 ### P 번호 체계
 - **P 번호 = 패턴 번호** (예방 규칙 ID). 동일 근본 원인을 가진 버그는 같은 P 번호로 참조.
-- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P206**). 한번 부여된 번호는 재사용 금지.
+- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P207**). 한번 부여된 번호는 재사용 금지.
 - **P 번호 재강화**: 같은 패턴이 재발해도 번호는 유지. "P25 재강화" / "P25 강화" 같은 표현으로 body에 기록.
 - **날짜 구분 원칙**: 과거 중복 P 번호(P26~P33 일부 충돌 존재)는 "날짜 + 버전"으로 구분해서 참조.
 
@@ -55,6 +55,7 @@ total_entries: 205
 
 | P | 도입 버전 | 날짜 | 패턴 요약 |
 |---|-----------|------|-----------|
+| P206 | v49.17 | 2026-05-15 | The previous freshness work strengthened Theme/Trend, but there was no explicit operational proof that the 10 top-level pages the user cares about most — comprehensive `home/signal/breadth/sentiment/briefing` and market-analysis `technical/macro/fxbond/fundamental/themes` — were audited as a fixed set. Several pages also had narrower quote requirements than their visible widgets used, especially FX/bonds, macro, briefing, and fundamental. Added `AIO.CRITICAL_PAGE_GROUPS`, `AIO.getCritical10PageFreshnessAudit()`, broadened the 10 pages' data requirement profiles, added visible input ticker harvesting for signal/technical/fundamental/ticker, and added T170~T172 to guard 10-page audit coverage and no-thin-profile regressions. |
 | P205 | v49.16 | 2026-05-15 | Theme/Trend pages could look automatically refreshed at the broad scheduler level while their full leader/subtheme symbol universe was not part of the page freshness profile. Sector/theme rankings also retained old static pct fallback values that could render as current-like market leadership when live quotes were missing. Added dynamic page symbol collection for `THEME_MAP`, `SUB_THEMES`, `KR_SUB_THEMES`, `KR_THEME_MAP`, and RRG ETF sets; wired `AIO.ensureFreshDataForUse()` to pass required symbols into `fetchLiveQuotes()` batch requests; changed theme performance to return `LIVE_REQUIRED`/`missing` instead of 0%; disabled static sector pct fallback for current rankings and 20-day charts; added T165~T169 to guard dynamic theme profiles and no-static-current ranking behavior. |
 | P204 | v49.15 | 2026-05-15 | Automatic freshness still depended on broad periodic schedules, so a page or AI answer could assemble prompts before stale quote/news/macro/technical layers had a chance to refresh. Added page/chat-level data requirement profiles, `AIO.getAutoFreshnessPlan()`, `AIO.getAutoDataContinuityAudit()`, and `AIO.ensureFreshDataForUse()`; made scheduled functions return their fetch promises; added per-task scheduler timeouts; wired chat and unified AI preflight to run bounded refresh before data prompt assembly; added T161~T164 to guard planner, preflight, and continuity contracts. |
 | P203 | v49.14 | 2026-05-14 | AI chat used the current session messages but did not inject saved recent chat summaries into the next prompt, so similar questions could repeat the same explanation. The unified AI panel also limited single-ticker deep collection mostly to `fundamental` or explicit deep-analysis keywords, weakening `themes`, `theme-detail`, and `portfolio` ticker questions. Added `_classifyChatIntent`, `_buildChatMemoryContext`, `_buildChatIntentContext`, and `_shouldSingleDeepAnalyzeChat`; wired them into both `chatSend` and `chatSendUnified`; added T157~T160 to guard intent detection, repetition suppression, explicit missing-data labeling, and theme-context deep data collection. |

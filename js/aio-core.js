@@ -2023,7 +2023,7 @@ window.AIO.getPageUXAudit = function() {
 };
 
 window.AIO_STATIC_DATA_GOVERNANCE = {
-  version: 'v49.16',
+  version: 'v49.17',
   defaultMaxAgeDays: 3,
   hardStaleDays: 7,
   rules: {
@@ -2239,20 +2239,20 @@ window.AIO.getAutoOpsReadiness = function() {
   };
 };
 
-// v49.16: automatic data continuity planner.
+// v49.17: automatic data continuity planner.
 // The app cannot force every third-party API to succeed, but it can know exactly
 // which data each page/chat answer needs and proactively refresh stale layers.
 window.AIO.DATA_REQUIREMENT_PROFILES = {
-  home:        { tasks: ['quotes','news','sentiment','breadth','technicals'], symbols: ['^GSPC','^IXIC','^VIX','CL=F','GC=F','KRW=X','DX-Y.NYB'] },
-  signal:      { tasks: ['quotes','sentiment','breadth','technicals'], symbols: ['SPY','QQQ','IWM','DIA','^VIX'] },
+  home:        { tasks: ['quotes','news','sentiment','breadth','technicals'], symbols: ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB'] },
+  signal:      { tasks: ['quotes','sentiment','breadth','technicals','vixHistory','hySpread'], symbols: ['SPY','QQQ','IWM','DIA','RSP','SMH','SOXX','HYG','LQD','TLT','^VIX'] },
   signals:     { alias: 'signal' },
-  breadth:     { tasks: ['quotes','breadth','technicals'], symbols: ['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP'] },
-  sentiment:   { tasks: ['quotes','sentiment','vixHistory','hySpread'], symbols: ['^VIX','SPY','QQQ','HYG','LQD'] },
-  briefing:    { tasks: ['quotes','news','sentiment','breadth','fred'], symbols: ['^GSPC','^IXIC','^VIX','CL=F','GC=F','KRW=X','DX-Y.NYB','^KS11'] },
-  technical:   { tasks: ['quotes','technicals','breadth','sentiment'], symbols: ['SPY','QQQ','SMH','SOXX','IWM','RSP','^VIX'] },
-  macro:       { tasks: ['quotes','fred','news'], symbols: ['DX-Y.NYB','^TNX','^VIX','CL=F','GC=F','KRW=X'] },
-  fxbond:      { tasks: ['quotes','fred'], symbols: ['KRW=X','DX-Y.NYB','^TNX','^FVX','^IRX','CL=F'] },
-  fundamental: { tasks: ['quotes','news'], symbols: ['SPY','QQQ'] },
+  breadth:     { tasks: ['quotes','breadth','technicals'], symbols: ['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC'] },
+  sentiment:   { tasks: ['quotes','sentiment','vixHistory','hySpread'], symbols: ['^VIX','^VVIX','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT'] },
+  briefing:    { tasks: ['quotes','news','sentiment','breadth','fred','technicals'], symbols: ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11'] },
+  technical:   { tasks: ['quotes','technicals','breadth','sentiment','vixHistory'], symbols: ['SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX'] },
+  macro:       { tasks: ['quotes','fred','news','sentiment'], symbols: ['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X'] },
+  fxbond:      { tasks: ['quotes','fred','hySpread','news'], symbols: ['KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X','DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','ZB=F','TLT','HYG','LQD','CL=F','GC=F'] },
+  fundamental: { tasks: ['quotes','news','technicals'], symbols: ['SPY','QQQ','AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','AVGO','AMD','PLTR'] },
   themes:      { tasks: ['quotes','news','technicals'], symbols: ['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY'] },
   'theme-detail': { tasks: ['quotes','news','technicals'], symbols: ['SMH','SOXX','QQQ','SPY'] },
   portfolio:   { tasks: ['quotes','technicals'], symbols: ['SPY','QQQ','IWM','^VIX'] },
@@ -2302,10 +2302,26 @@ function _aioPushThemeSymbols(out, theme) {
   Object.keys(theme.weights || {}).forEach(function(sym) { _aioPushSymbol(out, sym); });
 }
 
+function _aioPushInputSymbol(out, id) {
+  try {
+    var el = document.getElementById(id);
+    if (el && el.value) _aioPushSymbol(out, el.value);
+  } catch(_) {}
+}
+
 function _aioCollectDynamicPageSymbols(pageId, scope) {
   var id = String(pageId || '').replace(/^page-/, '') || 'home';
   var out = [];
   var limit = (scope && scope.symbolLimit) || (id.indexOf('kr') === 0 || id === 'korea' ? 180 : 260);
+  if (id === 'signal') {
+    _aioPushInputSymbol(out, 'signal-lockout-symbol');
+  }
+  if (id === 'technical') {
+    ['tech-brief-symbol', 'tv-tech-sym', 'ticker-analysis-input'].forEach(function(inputId) { _aioPushInputSymbol(out, inputId); });
+  }
+  if (id === 'fundamental' || id === 'ticker') {
+    ['fund-search-input', 'ticker-analysis-input'].forEach(function(inputId) { _aioPushInputSymbol(out, inputId); });
+  }
   if (id === 'themes' || id === 'theme-detail') {
     (window.RRG_SECTORS || []).forEach(function(sec) { _aioPushSymbol(out, sec && sec.sym); });
     (window.RRG_SUBSECTORS || []).forEach(function(sec) { _aioPushSymbol(out, sec && sec.sym); });
@@ -2326,6 +2342,55 @@ function _aioCollectDynamicPageSymbols(pageId, scope) {
 window.AIO.collectPageDataSymbols = function(pageId, scope) {
   var base = _aioResolveRequirementProfile(pageId);
   return _aioUniq((base.symbols || []).concat(_aioCollectDynamicPageSymbols(pageId, scope || {})));
+};
+
+window.AIO.CRITICAL_PAGE_GROUPS = {
+  comprehensive: ['home','signal','breadth','sentiment','briefing'],
+  marketAnalysis: ['technical','macro','fxbond','fundamental','themes']
+};
+
+window.AIO.getCritical10PageFreshnessAudit = function(opts) {
+  opts = opts || {};
+  var groups = window.AIO.CRITICAL_PAGE_GROUPS;
+  var ids = groups.comprehensive.concat(groups.marketAnalysis);
+  var staleTokenRe = /PCE\(4\/30\)|VIX Spot 18\.36|4\/14 daily|4\/9 종가|5\/4|5\/5|5\/8|5\/9|2026-04-17/;
+  var pages = ids.map(function(id) {
+    var profile = window.AIO.getDataRequirementProfile({ pageId: id, reason: 'critical10-audit', symbolLimit: opts.symbolLimit || 999 });
+    var plan = window.AIO.getAutoFreshnessPlan ? window.AIO.getAutoFreshnessPlan({ pageId: id, reason: 'critical10-audit', symbolLimit: opts.symbolLimit || 999 }) : null;
+    var el = null;
+    try { el = document.getElementById('page-' + id); } catch(_) {}
+    var text = el ? String(el.innerText || el.textContent || '') : '';
+    var liveSinks = el ? el.querySelectorAll('[data-live-price],[data-live-pct],[data-live-field],[data-snap],[data-snap-date]').length : 0;
+    var charts = el ? el.querySelectorAll('canvas,[id*="chart"],[id*="widget"]').length : 0;
+    var controls = el ? el.querySelectorAll('button,input,select,[data-action]').length : 0;
+    var issue = [];
+    if (!el) issue.push('missing page DOM');
+    if (!profile.tasks.length && id !== 'guide') issue.push('no required tasks');
+    if (profile.symbols.length < 3 && ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'].indexOf(id) >= 0) issue.push('thin symbol coverage');
+    if (staleTokenRe.test(text)) issue.push('stale live-like token in page text');
+    return {
+      pageId: id,
+      group: groups.comprehensive.indexOf(id) >= 0 ? 'comprehensive' : 'marketAnalysis',
+      status: issue.length ? 'warn' : (plan && plan.status || 'ok'),
+      issues: issue,
+      tasks: profile.tasks,
+      symbols: profile.symbols,
+      symbolCount: profile.symbols.length,
+      liveSinkCount: liveSinks,
+      chartLikeCount: charts,
+      controlCount: controls,
+      refreshTasks: plan ? plan.tasks : []
+    };
+  });
+  var issues = pages.filter(function(p) { return p.issues.length; });
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    groups: groups,
+    pagesChecked: pages.length,
+    pages: pages,
+    generatedAt: new Date().toISOString()
+  };
 };
 
 function _aioLooksFreshIntent(query) {
@@ -4902,7 +4967,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.16';
+const APP_VERSION = 'v49.17';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

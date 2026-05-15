@@ -6,6 +6,14 @@
 
 ---
 
+## v49.17 - Critical 10-Page Freshness Audit (2026-05-15)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`
+
+- **P206**: Added explicit fixed-set audit coverage for the 10 primary pages: comprehensive `home/signal/breadth/sentiment/briefing` and market-analysis `technical/macro/fxbond/fundamental/themes`.
+- Broadened automatic refresh symbols for HOME, Signal, Breadth, Sentiment, Briefing, Technical, Macro, FX/Bonds, and Fundamental so visible widgets and AI prompts do not depend on thin default quote coverage.
+- Added visible input ticker harvesting for signal/technical/fundamental/ticker profiles and T170~T172 to guard 10-page audit coverage, FX/bond symbol completeness, and no-thin-profile regressions. R1 version sync to `v49.17`.
+
 ## v49.16 - Theme/Trend Freshness Closure (2026-05-15)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`
