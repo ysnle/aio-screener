@@ -2023,7 +2023,7 @@ window.AIO.getPageUXAudit = function() {
 };
 
 window.AIO_STATIC_DATA_GOVERNANCE = {
-  version: 'v49.15',
+  version: 'v49.16',
   defaultMaxAgeDays: 3,
   hardStaleDays: 7,
   rules: {
@@ -2239,7 +2239,7 @@ window.AIO.getAutoOpsReadiness = function() {
   };
 };
 
-// v49.15: automatic data continuity planner.
+// v49.16: automatic data continuity planner.
 // The app cannot force every third-party API to succeed, but it can know exactly
 // which data each page/chat answer needs and proactively refresh stale layers.
 window.AIO.DATA_REQUIREMENT_PROFILES = {
@@ -2286,6 +2286,48 @@ function _aioResolveRequirementProfile(pageId) {
   return p || { tasks: ['quotes'], symbols: [] };
 }
 
+function _aioPushSymbol(out, sym) {
+  sym = String(sym || '').trim().toUpperCase();
+  if (!sym || sym === 'NULL' || sym === 'N/A') return;
+  out.push(sym);
+}
+
+function _aioPushThemeSymbols(out, theme) {
+  if (!theme) return;
+  _aioPushSymbol(out, theme.etf);
+  _aioPushSymbol(out, theme.compositeBase);
+  ['leaders', 'leaderHighlight', 'tickers'].forEach(function(key) {
+    (theme[key] || []).forEach(function(sym) { _aioPushSymbol(out, sym); });
+  });
+  Object.keys(theme.weights || {}).forEach(function(sym) { _aioPushSymbol(out, sym); });
+}
+
+function _aioCollectDynamicPageSymbols(pageId, scope) {
+  var id = String(pageId || '').replace(/^page-/, '') || 'home';
+  var out = [];
+  var limit = (scope && scope.symbolLimit) || (id.indexOf('kr') === 0 || id === 'korea' ? 180 : 260);
+  if (id === 'themes' || id === 'theme-detail') {
+    (window.RRG_SECTORS || []).forEach(function(sec) { _aioPushSymbol(out, sec && sec.sym); });
+    (window.RRG_SUBSECTORS || []).forEach(function(sec) { _aioPushSymbol(out, sec && sec.sym); });
+    (window.ALL_RRG_ETFS || []).forEach(function(sec) { _aioPushSymbol(out, sec && sec.sym); });
+    (window.THEME_MAP || []).forEach(function(theme) { _aioPushThemeSymbols(out, theme); });
+    (window.SUB_THEMES || []).forEach(function(theme) { _aioPushThemeSymbols(out, theme); });
+  }
+  if (id === 'korea' || id === 'kr-home' || id === 'kr-themes' || id === 'kr-tech') {
+    (window.KR_SUB_THEMES || []).forEach(function(theme) { _aioPushThemeSymbols(out, theme); });
+    var krMap = window.KR_THEME_MAP || {};
+    Object.keys(krMap).forEach(function(key) {
+      (krMap[key] || []).forEach(function(item) { _aioPushSymbol(out, item && (item.yahoo || item.sym || item.code)); });
+    });
+  }
+  return _aioUniq(out).slice(0, limit);
+}
+
+window.AIO.collectPageDataSymbols = function(pageId, scope) {
+  var base = _aioResolveRequirementProfile(pageId);
+  return _aioUniq((base.symbols || []).concat(_aioCollectDynamicPageSymbols(pageId, scope || {})));
+};
+
 function _aioLooksFreshIntent(query) {
   var q = String(query || '').toLowerCase();
   return /latest|recent|today|now|this week|news|current|fresh|earnings|guidance|cpi|fomc|fed|rate|tariff|최신|최근|오늘|지금|현재|뉴스|소식|상황|발표|실적|가이던스|금리|관세/.test(q);
@@ -2297,6 +2339,7 @@ window.AIO.getDataRequirementProfile = function(scope) {
   var base = _aioResolveRequirementProfile(pageId);
   var tasks = (base.tasks || []).slice();
   var symbols = (base.symbols || []).slice();
+  symbols = symbols.concat(_aioCollectDynamicPageSymbols(pageId, scope));
   var tickers = Array.isArray(scope.tickers) ? scope.tickers : [];
   tickers.forEach(function(t) { symbols.push(String(t || '').toUpperCase()); });
   if (scope.reason === 'chat') {
@@ -4859,7 +4902,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.15';
+const APP_VERSION = 'v49.16';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

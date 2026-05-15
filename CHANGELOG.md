@@ -6,6 +6,14 @@
 
 ---
 
+## v49.16 - Theme/Trend Freshness Closure (2026-05-15)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`
+
+- **P205**: Closed the Theme/Trend freshness gap: dynamic `THEME_MAP`, `SUB_THEMES`, `KR_SUB_THEMES`, `KR_THEME_MAP`, and RRG ETF constituents are now included in page/chat data requirement profiles and passed into quote batch refreshes.
+- Disabled old static sector pct fallback values for current rankings and 20-day sector charts. Missing live/delayed data now renders as `LIVE_REQUIRED`/`—` instead of `0%` or stale current-like leadership.
+- Added T165~T169 to guard dynamic US/KR theme profile coverage, quote refresh planning, missing-data theme performance, and static sector fallback disablement. R1 version sync to `v49.16`.
+
 ## v49.15 - Automatic Freshness Planner & AI Data Preflight (2026-05-15)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`

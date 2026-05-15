@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.15 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.16 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3958,7 +3958,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.15</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.16</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -24238,12 +24238,13 @@ function classifyRRG(rsRatio, rsMom) {
 // 주의: 단순 가격 합산 아님! 기준일 대비 정규화 수익률(normalized returns) 사용
 
 function calcCompositePerf(tickers, weights) {
+  tickers = tickers || [];
   var ld = window._liveData || {};
   var total = 0, count = 0, weighted = 0, totalWeight = 0;
   tickers.forEach(function(t) {
     var d = ld[t];
-    if (!d || !d.price) return;
-    var chg = (d.pct != null ? d.pct : 0);
+    if (!d || !d.price || d.pct == null || !isFinite(d.pct)) return;
+    var chg = d.pct;
     var w;
     if (weights && weights[t]) {
       // v36.4: ETF 추종 정적 비중 (정확한 섹터 대표성)
@@ -24258,24 +24259,43 @@ function calcCompositePerf(tickers, weights) {
     count++;
   });
   return {
-    chgPct: totalWeight > 0 ? weighted / totalWeight : 0,
+    chgPct: totalWeight > 0 ? weighted / totalWeight : null,
     count: count,
     total: tickers.length
   };
 }
 
+function _isCurrentQuoteData(sym) {
+  var d = (window._liveData || {})[sym];
+  var s = (window._dataSource || {})[sym];
+  if (!d || d.price == null || d.pct == null || !isFinite(d.pct)) return false;
+  if (!s || !s.source) return true;
+  var src = String(s.source || '').toLowerCase();
+  if (src === 'snapshot' || src.indexOf('fallback') >= 0 || src.indexOf('stale-cache') >= 0) return false;
+  if (s.metric && typeof evaluateMetric === 'function') {
+    var q = evaluateMetric(s.metric);
+    if (q && q.hardStale) return false;
+  }
+  return true;
+}
+
 // 테마별 퍼포먼스 계산
 function getThemePerf(theme) {
   var ld = window._liveData || {};
-  if (theme.etf && ld[theme.etf]) {
-    return { chgPct: (ld[theme.etf].pct != null ? ld[theme.etf].pct : 0), source: theme.etf };
+  var totalCandidates = (theme.leaders || theme.tickers || []).length || 1;
+  if (theme.etf && _isCurrentQuoteData(theme.etf)) {
+    return { chgPct: ld[theme.etf].pct, source: theme.etf, count: 1, total: 1, quality: 'live' };
   }
-  if (theme.compositeBase && ld[theme.compositeBase]) {
-    return { chgPct: (ld[theme.compositeBase].pct != null ? ld[theme.compositeBase].pct : 0), source: theme.compositeBase };
+  if (theme.compositeBase && _isCurrentQuoteData(theme.compositeBase)) {
+    return { chgPct: ld[theme.compositeBase].pct, source: theme.compositeBase, count: 1, total: 1, quality: 'live' };
   }
   // 커스텀 합산 (정규화) — v36.4: weights 전달
-  var comp = calcCompositePerf(theme.leaders, theme.weights);
-  return { chgPct: comp.chgPct, source: theme.weights ? 'ETF가중(' + comp.count + ')' : 'composite(' + comp.count + ')' };
+  var sourceTickers = theme.tickers && theme.tickers.length ? theme.tickers : theme.leaders;
+  var comp = calcCompositePerf(sourceTickers || [], theme.weights);
+  if (comp.count <= 0 || comp.chgPct == null) {
+    return { chgPct: null, source: 'LIVE_REQUIRED', count: 0, total: totalCandidates, quality: 'missing' };
+  }
+  return { chgPct: comp.chgPct, source: theme.weights ? 'live-weighted(' + comp.count + '/' + comp.total + ')' : 'live-composite(' + comp.count + '/' + comp.total + ')', count: comp.count, total: comp.total, quality: comp.count / Math.max(1, comp.total) >= 0.5 ? 'live' : 'partial' };
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -24303,15 +24323,17 @@ function detectHotThemes() {
   THEME_MAP.forEach(function(theme) {
     var perf = getThemePerf(theme);
     var breadth = calcSectorBreadth(theme.leaders);
-    var rs = theme.etf ? calcLiveRS(theme.etf) : { rsRatio: 100 + perf.chgPct * 5, rsMom: 100, quadrant: perf.chgPct > 0 ? 'Improving' : 'Lagging' };
+    var hasPerf = perf.chgPct != null && isFinite(perf.chgPct);
+    var rs = theme.etf ? calcLiveRS(theme.etf) : { rsRatio: hasPerf ? 100 + perf.chgPct * 5 : 100, rsMom: 100, quadrant: hasPerf ? (perf.chgPct > 0 ? 'Improving' : 'Lagging') : 'unknown' };
     results.push({
       theme: theme,
       perf: perf.chgPct,
+      perfMeta: perf,
       breadth: breadth,
       rsRatio: rs.rsRatio,
       rsMom: rs.rsMom,
       quadrant: rs.quadrant,
-      score: perf.chgPct * 2 + (breadth - 50) * 0.05 + (rs.rsRatio - 100) * 0.3
+      score: hasPerf ? perf.chgPct * 2 + (breadth - 50) * 0.05 + (rs.rsRatio - 100) * 0.3 : -999
     });
   });
   results.sort(function(a,b) { return b.score - a.score; });
@@ -24483,18 +24505,9 @@ var _sectorWeeklyCache = {}; // sym -> pct
 var _sectorWeeklyFetching = false;
 var _sectorWeeklyTs = 0;
 
-// v45.5: 섹터 ETF pct 폴백 (FALLBACK_QUOTES와 동기화)
-// 사용처: _liveData에 d.pct가 없을 때 정적 폴백 (v45.5 4/4 종가)
-// v46.3: 4/9 종가 기준 — 휴전 후 7일 연속 상승 반영
-var _SECTOR_PCT_FALLBACK = {
-  // 11 메인 섹터 (4/14 daily % chg — 이란 재협상 기대, 기술↑ 에너지↓)
-  XLK:+1.80, XLF:+1.50, XLE:-3.50, XLV:+0.80, XLI:+1.00, XLY:+1.20,
-  XLP:+0.40, XLRE:+0.60, XLB:+0.50, XLU:-0.20, XLC:+1.30,
-  // 서브섹터
-  ITA:-1.50, OIH:-4.00, SOXX:+2.00, GDX:+0.80, SMH:+2.20, IGV:+2.50,
-  XBI:+0.90, AMLP:-2.00, URA:+0.30, XOP:-4.50, HACK:+1.00, CIBR:+0.90,
-  BOTZ:+0.50, ICLN:-0.30, LIT:+0.20, JETS:+1.50
-};
+// Current sector/theme rankings must be live/delayed only. Static fallback pct values
+// are intentionally disabled so old market snapshots cannot look tradable.
+var _SECTOR_PCT_FALLBACK = {};
 
 function setSectorPerfMode(mode, btn) {
   _sectorPerfMode = mode;
@@ -24669,12 +24682,12 @@ async function _loadSector20dChart() {
     } catch(e) { _aioLog('warn', 'fetch', 'Sector 20d error: ' + etf.sym + ' ' + e.message); }
   }
   if (!labels || datasets.length === 0) {
-    if (statusEl) statusEl.textContent = '데이터 수집 실패';
-    var fallback = _buildSector20dFallback(sectorETFs);
-    labels = fallback.labels;
-    datasets = fallback.datasets;
-    fallbackUsed = true;
-    if (statusEl) statusEl.textContent = '실시간 수집 실패 · 정적 대체 곡선';
+    if (statusEl) statusEl.textContent = '실시간 수집 실패 · 정적 대체 곡선 미사용';
+    var emptyCanvas = document.getElementById('sector-20d-chart');
+    if (emptyCanvas && typeof _showChartFallback === 'function') {
+      _showChartFallback(emptyCanvas, 'Sector 20D', '라이브 차트 데이터 부족 · 정적 곡선은 현재 분석에 쓰지 않음');
+    }
+    return;
   }
   var canvas = document.getElementById('sector-20d-chart');
   if (!canvas) return;
@@ -24694,7 +24707,7 @@ async function _loadSector20dChart() {
       }
     }
   });
-  if (statusEl) statusEl.textContent = (fallbackUsed ? '실시간 수집 실패 · 정적 대체 곡선 · ' : '갱신: ') + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+  if (statusEl) statusEl.textContent = '갱신: ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
 }
 
 function renderSectorPerfBars() {
@@ -24708,26 +24721,27 @@ function renderSectorPerfBars() {
     var d = ld[sec.sym];
     var chg;
     if (isWeekly) {
-      // v45.5: 1주 모드 — weekly 캐시 → 라이브 daily → 정적 폴백 순
+      // 1주 모드: weekly 캐시 → 라이브 daily 임시. 정적 fallback은 현재 랭킹에 쓰지 않는다.
       if (_sectorWeeklyCache[sec.sym] != null) {
         chg = _sectorWeeklyCache[sec.sym];
       } else if (d && d.pct != null) {
         chg = d.pct; // fetch 미완료 — 라이브 daily로 임시 표시
-      } else if (_SECTOR_PCT_FALLBACK[sec.sym] != null) {
-        chg = _SECTOR_PCT_FALLBACK[sec.sym]; // 최종 — 정적 daily 폴백
       } else {
         chg = null;
       }
     } else {
-      // v45.5: 1일 모드 — 라이브 → 정적 폴백 순
-      chg = (d && d.pct != null) ? d.pct :
-            (_SECTOR_PCT_FALLBACK[sec.sym] != null ? _SECTOR_PCT_FALLBACK[sec.sym] : null);
+      chg = (d && d.pct != null) ? d.pct : null;
     }
     var rs = calcLiveRS(sec.sym);
     return { sym: sec.sym, name: sec.name, chg: chg, color: sec.color, q: rs.quadrant };
   });
 
-  sectors.sort(function(a,b) { return (b.chg||0) - (a.chg||0); });
+  sectors.sort(function(a,b) {
+    if (a.chg == null && b.chg == null) return 0;
+    if (a.chg == null) return 1;
+    if (b.chg == null) return -1;
+    return b.chg - a.chg;
+  });
 
   var maxAbs = Math.max.apply(null, sectors.map(function(s){ return Math.abs(s.chg||0); }));
   if (maxAbs < 0.5) maxAbs = 0.5;
@@ -24738,7 +24752,8 @@ function renderSectorPerfBars() {
     var isPos = chgVal >= 0;
     var barColor = s.chg != null ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
     var barWidth = Math.abs(chgVal) / maxAbs * 45;
-    var qBadge = s.q === 'Leading' ? '<span style="color:var(--data-green);font-size:10px;">●선도</span>' :
+    var qBadge = s.chg == null ? '<span style="color:var(--text-muted);font-size:10px;">●대기</span>' :
+                 s.q === 'Leading' ? '<span style="color:var(--data-green);font-size:10px;">●선도</span>' :
                  s.q === 'Improving' ? '<span style="color:var(--data-cyan);font-size:10px;">●개선</span>' :
                  s.q === 'Weakening' ? '<span style="color:var(--data-amber);font-size:10px;">●약화</span>' :
                  '<span style="color:var(--data-red);font-size:10px;">●후행</span>';
@@ -24763,9 +24778,14 @@ function renderSectorPerfBars() {
 function generateSectorAnalysis(sectors) {
   var el = document.getElementById('sector-perf-analysis');
   if (!el || !sectors || sectors.length === 0) return; // v46.9: 빈 배열 방어
+  var validSectors = sectors.filter(function(s) { return s && s.chg != null && isFinite(s.chg); });
+  if (validSectors.length === 0) {
+    el.innerHTML = '섹터 시세가 아직 최신으로 수신되지 않았습니다. 정적 fallback 수익률은 현재 랭킹/판단에 쓰지 않습니다.';
+    return;
+  }
 
-  var best = sectors[0];
-  var worst = sectors[sectors.length-1];
+  var best = validSectors[0];
+  var worst = validSectors[validSectors.length-1];
   var defensive = ['XLE','XLP','XLU','XLV'];
   var cyclical = ['XLK','XLY','XLF','XLI','XLRE'];
   // v38.5: 경기 사이클 매핑 (섹터 → 사이클 국면)
@@ -24776,7 +24796,7 @@ function generateSectorAnalysis(sectors) {
 
   var defCount = 0, cycCount = 0;
   var leadingSectors = [], improvingSectors = [], weakeningSectors = [], laggingSectors = [];
-  sectors.slice(0, 4).forEach(function(s) {
+  validSectors.slice(0, 4).forEach(function(s) {
     if (defensive.indexOf(s.sym) !== -1) defCount++;
     if (cyclical.indexOf(s.sym) !== -1) cycCount++;
   });
@@ -24815,7 +24835,7 @@ function generateSectorAnalysis(sectors) {
 
   // v38.5: 섹터 로테이션 시계 (경기 사이클 위치 추정)
   var earlyScore = 0, expScore = 0, lateScore = 0, recScore = 0;
-  sectors.slice(0, 5).forEach(function(s) {
+  validSectors.slice(0, 5).forEach(function(s) {
     if (earlyRecovery.indexOf(s.sym) !== -1) earlyScore++;
     if (expansion.indexOf(s.sym) !== -1) expScore++;
     if (lateCycle.indexOf(s.sym) !== -1) lateScore++;
@@ -24937,12 +24957,11 @@ function renderThemeHeatmap() {
   var ld = window._liveData || {};
   if (Object.keys(ld).length < 5) {
     _themeHeatmapRetries++;
-    if (_themeHeatmapRetries < 60) { // v46.6: 최대 30초(60x500ms) 대기 후 폴백 데이터로 렌더
+    if (_themeHeatmapRetries < 60) {
       setTimeout(renderThemeHeatmap, 500);
       return;
     }
-    // 30초 초과 — 폴백 데이터 사용
-    _aioLog('warn', 'render', '테마 히트맵: 라이브 데이터 30초 초과 — 정적 데이터로 렌더');
+    _aioLog('warn', 'render', '테마 히트맵: 라이브 데이터 30초 초과 — 정적 현재값 대체 금지');
   }
   var container = document.getElementById('theme-heatmap');
   if (!container) return;
@@ -24958,20 +24977,23 @@ function renderThemeHeatmap() {
   results.forEach(function(r) {
     var theme = r.theme;
     var chg = r.perf;
-    var isPos = chg >= 0;
-    var bgIntensity = Math.min(Math.abs(chg) * 8, 30);
-    var bgColor = isPos ? 'rgba(0,229,160,' + (bgIntensity/100) + ')' : 'rgba(255,91,80,' + (bgIntensity/100) + ')';
-    var chgColor = isPos ? 'var(--data-green)' : 'var(--data-red)';
-    var qLabel = r.quadrant === 'Leading' ? '선도' : r.quadrant === 'Improving' ? '개선' : r.quadrant === 'Weakening' ? '약화' : '후행';
-    var qColor = r.quadrant === 'Leading' ? 'var(--data-green)' : r.quadrant === 'Improving' ? 'var(--data-cyan)' : r.quadrant === 'Weakening' ? 'var(--data-amber)' : 'var(--data-red)';
+    var hasPerf = chg != null && isFinite(chg);
+    var isPos = hasPerf && chg >= 0;
+    var bgIntensity = hasPerf ? Math.min(Math.abs(chg) * 8, 30) : 0;
+    var bgColor = hasPerf ? (isPos ? 'rgba(0,229,160,' + (bgIntensity/100) + ')' : 'rgba(255,91,80,' + (bgIntensity/100) + ')') : 'rgba(123,133,153,0.08)';
+    var chgColor = hasPerf ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+    var qLabel = !hasPerf ? '대기' : r.quadrant === 'Leading' ? '선도' : r.quadrant === 'Improving' ? '개선' : r.quadrant === 'Weakening' ? '약화' : '후행';
+    var qColor = !hasPerf ? 'var(--text-muted)' : r.quadrant === 'Leading' ? 'var(--data-green)' : r.quadrant === 'Improving' ? 'var(--data-cyan)' : r.quadrant === 'Weakening' ? 'var(--data-amber)' : 'var(--data-red)';
+    var perfMeta = r.perfMeta || {};
+    var coverageLabel = perfMeta.count != null && perfMeta.total ? perfMeta.count + '/' + perfMeta.total : '';
 
     html += '<div class="aio-hover-scale" data-action="showThemeDetail" data-arg="' + escHtml(theme.id) + '" style="background:' + bgColor + ';border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px;cursor:pointer;transition:transform var(--dur-fast);">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">' +
         '<span style="font-size:10px;font-weight:800;">' + theme.nameKr + '</span>' +
-        '<span style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:' + chgColor + ';">' + (isPos?'+':'') + chg.toFixed(2) + '%</span>' +
+        '<span style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:' + chgColor + ';">' + (hasPerf ? ((isPos?'+':'') + chg.toFixed(2) + '%') : 'LIVE') + '</span>' +
       '</div>' +
       '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-        '<span style="font-size:11px;color:var(--text-muted);">' + (theme.etf || '합산') + '</span>' +
+        '<span style="font-size:11px;color:var(--text-muted);">' + (hasPerf ? (theme.etf || '합산') : '수집 대기') + (coverageLabel ? ' · ' + coverageLabel : '') + '</span>' +
         '<span style="font-size:10px;color:' + qColor + ';font-weight:700;">● ' + qLabel + '</span>' +
       '</div>' +
       '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
@@ -24994,16 +25016,17 @@ function showThemeDetail(themeId) {
   var ld = window._liveData || {};
 
   var perf = getThemePerf(theme);
-  var isPos = perf.chgPct >= 0;
-  var chgColor = isPos ? 'var(--data-green)' : 'var(--data-red)';
+  var hasPerf = perf.chgPct != null && isFinite(perf.chgPct);
+  var isPos = hasPerf && perf.chgPct >= 0;
+  var chgColor = hasPerf ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
 
   var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
     '<div><span style="font-size:13px;font-weight:900;">' + theme.nameKr + '</span>' +
     (theme.etf ? ' <span style="font-size:13px;font-family:var(--font-mono);color:var(--text-muted);">' + theme.etf + '</span>' : '') +
     '</div>' +
     '<div style="text-align:right;">' +
-      '<span style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:' + chgColor + ';">' + (isPos?'+':'') + perf.chgPct.toFixed(2) + '%</span>' +
-      '<div style="font-size:11px;color:var(--text-muted);">via ' + perf.source + '</div>' +
+      '<span style="font-size:14px;font-weight:900;font-family:var(--font-mono);color:' + chgColor + ';">' + (hasPerf ? ((isPos?'+':'') + perf.chgPct.toFixed(2) + '%') : 'LIVE REQUIRED') + '</span>' +
+      '<div style="font-size:11px;color:var(--text-muted);">via ' + perf.source + (perf.count != null && perf.total ? ' · ' + perf.count + '/' + perf.total : '') + '</div>' +
     '</div>' +
   '</div>';
 

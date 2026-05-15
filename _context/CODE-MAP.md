@@ -2,12 +2,12 @@
 verified_by: agent
 last_verified: 2026-05-15
 confidence: high
-target_version: v49.15
+target_version: v49.16
 target_file: index.html + js/*.js
-target_lines: index.html 29978 + js modules 28665
+target_lines: index.html 28156 + js modules 27128
 ---
 
-# AIO v49.15 CODE-MAP
+# AIO v49.16 CODE-MAP
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `Select-String`/부분 Read로 한 번 더 확인한다.
@@ -18,12 +18,12 @@ target_lines: index.html 29978 + js modules 28665
 
 | 파일 | 줄 수 | 역할 |
 |------|------:|------|
-| `index.html` | 29,978 | HTML shell, CSS, compact Page Focus Brief styles, explain summary styles, 21개 페이지 DOM, Institutional Technical Brief + Lockout/OPEX/Blow-off Top Control DOM, portfolio technical risk runtime, unified AI panel runtime, AI freshness preflight hook, 일부 inline runtime, 외부 모듈 로드 |
-| `js/aio-core.js` | 8,024 | 버전, 전역 상태, DATA_SNAPSHOT, 캐시, Page Focus Brief UX, compact content simplification, beginner explain summaries, static data governance/auto-ops readiness, automatic freshness planner/continuity audit, technical snapshot/sell pressure engine, Lockout/OPEX/Blow-off Top strategy engine, DataQuality/AIInfraHeat/PortfolioTechnicalRisk, freshness policy/SnapshotStore/auditAllFreshness, data pipeline audit, 페이지 라우터 |
-| `js/aio-data.js` | 11,567 | API fetcher, OHLCV + Yahoo fallback + quality bundle, OPEX/put-call/lockout bundle fetchers, live coverage guard, 뉴스 소스/스코어링/impact vector/렌더, HOME stale-event filter, Telegram/Aether pipeline audit, 키워드, 캘린더, 데이터 스케줄 + scheduler telemetry + force refresh + `ensureFreshDataForUse` |
-| `js/aio-ui.js` | 2,751 | 심리/시장폭 차트, Institutional Technical Brief + Lockout/OPEX/Blow-off Top renderers, data-quality/news-impact/portfolio-risk renderers, LLM quota UI, GitHub polling, feedback UI |
-| `js/aio-chat.js` | 4,697 | CHAT_CONTEXTS, intent/memory/data-coverage prompt governance, AI freshness preflight hook, Lockout/OPEX/Blow-off Top technical prompt, Claude/Perplexity, 기업 분석, fundamentalSearch |
-| `js/aio-tests.js` | 1,322 | 브라우저 단위 테스트 T1~T164, `AIO.runTests()` / `AIO.getTestResults()` |
+| `index.html` | 28,156 | HTML shell, CSS, compact Page Focus Brief styles, explain summary styles, 21개 페이지 DOM, Institutional Technical Brief + Lockout/OPEX/Blow-off Top Control DOM, portfolio technical risk runtime, theme/trend no-static-current rendering, unified AI panel runtime, AI freshness preflight hook, 일부 inline runtime, 외부 모듈 로드 |
+| `js/aio-core.js` | 7,679 | 버전, 전역 상태, DATA_SNAPSHOT, 캐시, Page Focus Brief UX, compact content simplification, beginner explain summaries, static data governance/auto-ops readiness, automatic freshness planner/continuity audit, dynamic page symbol collection, technical snapshot/sell pressure engine, Lockout/OPEX/Blow-off Top strategy engine, DataQuality/AIInfraHeat/PortfolioTechnicalRisk, freshness policy/SnapshotStore/auditAllFreshness, data pipeline audit, 페이지 라우터 |
+| `js/aio-data.js` | 10,995 | API fetcher, OHLCV + Yahoo fallback + quality bundle, OPEX/put-call/lockout bundle fetchers, live coverage guard, 뉴스 소스/스코어링/impact vector/렌더, HOME stale-event filter, Telegram/Aether pipeline audit, 키워드, 캘린더, 데이터 스케줄 + scheduler telemetry + force refresh + `ensureFreshDataForUse`, requested-symbol quote batch refresh |
+| `js/aio-ui.js` | 2,556 | 심리/시장폭 차트, Institutional Technical Brief + Lockout/OPEX/Blow-off Top renderers, data-quality/news-impact/portfolio-risk renderers, LLM quota UI, GitHub polling, feedback UI |
+| `js/aio-chat.js` | 4,330 | CHAT_CONTEXTS, intent/memory/data-coverage prompt governance, AI freshness preflight hook, Lockout/OPEX/Blow-off Top technical prompt, Claude/Perplexity, 기업 분석, fundamentalSearch |
+| `js/aio-tests.js` | 1,164 | 브라우저 단위 테스트 T1~T169, `AIO.runTests()` / `AIO.getTestResults()` |
 | `js/aio-glossary.js` | 304 | 용어사전 검색/렌더 |
 
 ---

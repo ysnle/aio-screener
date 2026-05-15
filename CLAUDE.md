@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v49.15**
+- 현재 버전: **v49.16**
 - 메인 파일: `index.html` (집계는 `_context/CODE-MAP.md` 기준 유지, 인라인 onclick 0건) + `js/` 6개 모듈
 - **v48.32~35 마일스톤**: onclick 인라인 핸들러 253건 → 0건 (Event Delegation + data-action)
 - **v48.36~39 마일스톤**: 구조적 동적 전환 — DATE_ENGINE · _lastFetch · _aioFeedHealth · AIO_Cache 통일 · SCREENER_DB memo staleness 파서 · 신선도 UI 패널
@@ -24,7 +24,7 @@ AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터
 - **v48.99 마일스톤**: Listener Hygiene — `aio:pageShown` 17건+`aio:liveQuotes` 18건 `_aioPageBus` 마이그(P178~P180) · aio-core 9건+aio-data 4건+index.html 22건 · 테스트 T89~T92(92건)
 - **v49.0 마일스톤**: Critical Function Fortification — `applyDataSnapshot` 키별 try-catch(P181) · `_aioLRU`+scoreItem/tickerRegex 캐시 cap(P182) · Fund Valuation Infinity 가드(P183) · 테스트 T93~T97(97건)
 - **v49.3 마일스톤**: Architecture Reinforcement — DataQuality · NewsImpactVector · AIInfraHeat · PortfolioTechnicalRisk(P190) · OHLCV quality bundle · technical brief data confidence · T108~T115 tests
-- **v49.15 마일스톤**: Automatic Freshness Planner — 페이지/AI 질문별 데이터 요구사항, stale repair plan, `AIO.ensureFreshDataForUse()` preflight, continuity audit 보강(P204)
+- **v49.16 마일스톤**: Theme/Trend Freshness Closure — 테마/트렌드·한국 테마의 동적 구성 종목을 freshness profile과 실제 quote batch에 연결하고, 정적 섹터 pct fallback이 현재 랭킹처럼 보이는 경로 차단(P205)
 - **v49.13 마일스톤**: Intrinsic Content Simplification Correction — additive decision cards/secondary badges 제거 · core view는 기존 상세/참고 콘텐츠 접기 중심 · T152~T156 재정의(P202)
 - **v49.12 마일스톤**: Page Content Simplification UX — 21페이지 watch/decide/next 핵심 카드 · 핵심 보기 토글 · 상세/참고 보조 섹션 라벨 · T152~T156 tests(P201)
 - **v49.11 마일스톤**: Auto-Ops Static Data Governance — `AIO.getStaticDataGovernanceAudit()` · `AIO.getAutoOpsReadiness()` · `AIO.forceRefreshAllData()` · T146~T151 tests(P200)

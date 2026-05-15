@@ -3274,6 +3274,10 @@ window.AIO.ensureFreshDataForUse = async function(scope) {
   }
   window._aioEnsureFreshInFlight[key] = true;
   window._aioEnsureFreshLast[key] = now;
+  var prevQuoteRequestSymbols = window._aioQuoteRequestSymbols;
+  if (plan.profile && Array.isArray(plan.profile.symbols) && plan.profile.symbols.length) {
+    window._aioQuoteRequestSymbols = plan.profile.symbols.slice();
+  }
   try {
     var refresh = await window.AIO.runScheduledRefresh(plan.tasks);
     try { if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
@@ -3282,6 +3286,8 @@ window.AIO.ensureFreshDataForUse = async function(scope) {
   } catch(e) {
     return { status: 'warn', plan: plan, refresh: null, error: e && e.message || String(e), generatedAt: new Date().toISOString() };
   } finally {
+    if (prevQuoteRequestSymbols == null) delete window._aioQuoteRequestSymbols;
+    else window._aioQuoteRequestSymbols = prevQuoteRequestSymbols;
     delete window._aioEnsureFreshInFlight[key];
   }
 };
@@ -8975,7 +8981,7 @@ async function fetchKrNaverQuotes() {
   return results;
 }
 
-async function fetchLiveQuotes() {
+async function fetchLiveQuotes(requestedSymbols) {
   if (window._aioQuoteInFlight) return;
   window._aioQuoteInFlight = true;
   // ═══════════════════════════════════════════════════════════
@@ -8983,6 +8989,10 @@ async function fetchLiveQuotes() {
   // ═══════════════════════════════════════════════════════════
 
   const allQuotes = [];
+  const _requestedQuoteSyms = Array.from(new Set([].concat(
+    Array.isArray(requestedSymbols) ? requestedSymbols : [],
+    Array.isArray(window._aioQuoteRequestSymbols) ? window._aioQuoteRequestSymbols : []
+  ).map(function(sym) { return String(sym || '').trim().toUpperCase(); }).filter(Boolean)));
 
   // ─── 1. 암호화폐: CoinGecko (완전 무료) → CF Worker 프록시 폴백 ────
   // v48.2: include_market_cap + include_24hr_vol 추가 — 거래량 스파이크 감지 + BTC 도미넌스 판단 가능
@@ -9428,7 +9438,7 @@ async function fetchLiveQuotes() {
 
   // PRIORITY_SYMS 전체 평탄화 후 중복 제거 → 1회 배치 호출
   try {
-    const _allSymsFlat = Array.from(new Set(PRIORITY_SYMS.flat()));
+    const _allSymsFlat = Array.from(new Set(PRIORITY_SYMS.flat().concat(_requestedQuoteSyms)));
     await _yfBatchFetch(_allSymsFlat);
   } catch(e) { _aioLog('warn', 'init', 'v7 배치 초기화 실패: ' + e.message); }
 

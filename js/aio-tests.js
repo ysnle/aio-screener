@@ -1,4 +1,4 @@
-// AIO Screener — 단위 테스트 모듈 (v49.15)
+// AIO Screener — 단위 테스트 모듈 (v49.16)
 // 사용: 브라우저 콘솔에서 AIO.runTests() 실행 → OK/FAIL 결과 출력
 // 대상: 통계 함수 6개 (_calcDailyReturns / _statMean / _statStdDev /
 //        _calcPortfolioVaR / _calcSharpe / _calcMaxDrawdown / _pearsonCorr / _calcCorrelationMatrix)
@@ -1246,6 +1246,29 @@
 
     var continuity = window.AIO && typeof window.AIO.getAutoDataContinuityAudit === 'function' ? window.AIO.getAutoDataContinuityAudit({ dryRun:true }) : null;
     _assert('T164 continuity_audit: page-level data flow contract', continuity && continuity.pagesChecked >= 20 && Array.isArray(continuity.pages), continuity && JSON.stringify({ pages: continuity.pagesChecked, issues: continuity.issueCount }));
+
+    var themeProfile = window.AIO && typeof window.AIO.getDataRequirementProfile === 'function'
+      ? window.AIO.getDataRequirementProfile({ pageId:'themes', symbolLimit:999 })
+      : null;
+    _assert('T165 theme_fresh_profile: dynamic US theme leaders included', themeProfile && themeProfile.symbols.indexOf('NVDA') >= 0 && themeProfile.symbols.indexOf('PLTR') >= 0 && themeProfile.symbols.indexOf('VRT') >= 0, themeProfile && themeProfile.symbols.slice(0, 30).join(','));
+
+    var krThemeProfile = window.AIO && typeof window.AIO.getDataRequirementProfile === 'function'
+      ? window.AIO.getDataRequirementProfile({ pageId:'kr-themes', symbolLimit:999 })
+      : null;
+    _assert('T166 kr_theme_fresh_profile: dynamic KR theme leaders included', krThemeProfile && krThemeProfile.symbols.indexOf('005930.KS') >= 0 && krThemeProfile.symbols.indexOf('000660.KS') >= 0, krThemeProfile && krThemeProfile.symbols.slice(0, 30).join(','));
+
+    var themePlan = window.AIO && typeof window.AIO.getAutoFreshnessPlan === 'function'
+      ? window.AIO.getAutoFreshnessPlan({ pageId:'themes', symbolLimit:999 })
+      : null;
+    _assert('T167 theme_fresh_plan: quotes refresh sees theme symbol universe', themePlan && themePlan.profile && themePlan.profile.symbols.indexOf('NVDA') >= 0 && themePlan.tasks.indexOf('quotes') >= 0, themePlan && JSON.stringify({ tasks: themePlan.tasks, symbols: themePlan.profile.symbols.length }));
+
+    var syntheticPerf = typeof window.getThemePerf === 'function'
+      ? window.getThemePerf({ id:'test_missing', nameKr:'Test', leaders:['ZZZ_TEST_MISSING'], tickers:['ZZZ_TEST_MISSING'], weights:{ ZZZ_TEST_MISSING:100 } })
+      : null;
+    _assert('T168 theme_perf: missing live data does not become 0%', syntheticPerf && syntheticPerf.chgPct === null && syntheticPerf.quality === 'missing', syntheticPerf && JSON.stringify(syntheticPerf));
+
+    var sectorFallbackDisabled = (typeof window._SECTOR_PCT_FALLBACK === 'object') ? Object.keys(window._SECTOR_PCT_FALLBACK).length === 0 : true;
+    _assert('T169 sector_current_rankings: static pct fallback disabled', sectorFallbackDisabled, typeof window._SECTOR_PCT_FALLBACK);
   }
 
   window.AIO = window.AIO || {};
@@ -1257,7 +1280,7 @@
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.15 단위 테스트 실행');
+    console.group('[AIO TEST] v49.16 단위 테스트 실행');
     console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
 
     try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
@@ -1317,6 +1340,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.15 loaded - run AIO.runTests() (T1~T164)');
+  console.log('[AIO] aio-tests.js v49.16 loaded - run AIO.runTests() (T1~T169)');
 
 })();
