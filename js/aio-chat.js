@@ -2394,6 +2394,94 @@ function _buildNewsContext(ctxId, query) {
     tickerSummary;
 }
 
+function _aioChatTokens(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣$.\s]/g, ' ')
+    .split(/\s+/)
+    .filter(function(w) { return w && w.length >= 2; })
+    .slice(0, 80);
+}
+
+function _classifyChatIntent(query, ctxId) {
+  var q = String(query || '').toLowerCase();
+  var intents = [];
+  function hit(name, re) { if (re.test(q)) intents.push(name); }
+  hit('ACTION_DECISION', /매수|매도|보유|손절|익절|추가매수|비중|trim|exit|hold|buy|sell|hedge|entry|stop/);
+  hit('LATEST_CHECK', /최신|최근|오늘|지금|방금|이번\s*주|현재|상황|뉴스|소식|latest|recent|today|now|this week/);
+  hit('DEEP_RESEARCH', /심층|자세|상세|분석|리서치|기관|펀드|bull|bear|시나리오|카탈리스트|리스크|valuation|밸류|재무|moat|해자/);
+  hit('COMPARE_SCREEN', /비교|추천|골라|찾아|스크리닝|순위|top|best|compare|screen|rank|undervalued|overvalued/);
+  hit('EXPLAIN_BEGINNER', /초보|쉽게|설명|무슨 뜻|뭐야|개념|용어|how to|explain|beginner/);
+  if (!intents.length) intents.push(ctxId === 'technical' ? 'TECHNICAL_READ' : 'GENERAL_ANALYSIS');
+  return {
+    primary: intents[0],
+    intents: intents.slice(0, 4),
+    wantsFresh: intents.indexOf('LATEST_CHECK') >= 0 || /전망|어때|어떻게/.test(q),
+    wantsAction: intents.indexOf('ACTION_DECISION') >= 0,
+    wantsDeep: intents.indexOf('DEEP_RESEARCH') >= 0,
+    wantsCompare: intents.indexOf('COMPARE_SCREEN') >= 0
+  };
+}
+
+function _buildChatMemoryContext(ctxId, query) {
+  try {
+    if (typeof _getChatHistory !== 'function') return '';
+    var history = _getChatHistory().filter(function(h) { return h && (!ctxId || h.ctx === ctxId); }).slice(-8);
+    if (!history.length) return '';
+    var qTokens = _aioChatTokens(query);
+    var qSet = {};
+    qTokens.forEach(function(t) { qSet[t] = true; });
+    var scored = history.map(function(h) {
+      var text = (h.q || '') + ' ' + (h.a || '');
+      var overlap = _aioChatTokens(text).reduce(function(n, t) { return n + (qSet[t] ? 1 : 0); }, 0);
+      return { item: h, overlap: overlap };
+    }).filter(function(x) { return x.overlap >= 2; });
+    scored.sort(function(a, b) { return b.overlap - a.overlap || (b.item.ts || 0) - (a.item.ts || 0); });
+    var picked = (scored.length ? scored : history.map(function(h) { return { item: h, overlap: 0 }; }).slice(-3)).slice(0, 3);
+    if (!picked.length) return '';
+    var lines = picked.map(function(x, idx) {
+      var h = x.item;
+      var ageMin = h.ts ? Math.max(0, Math.round((Date.now() - h.ts) / 60000)) : null;
+      return (idx + 1) + '. Q: ' + String(h.q || '').slice(0, 120) +
+        ' | A요지: ' + String(h.a || '').replace(/\s+/g, ' ').slice(0, 160) +
+        (ageMin != null ? ' | ' + ageMin + '분 전' : '');
+    });
+    return '\n\n【이전 대화 중복 방지 메모】\n' +
+      '아래는 같은 맥락의 최근 질문/답변 요지다. 사용자가 반복 설명을 요구하지 않았다면 같은 문장을 되풀이하지 말고, 새 데이터·새 판단·바뀐 조건만 보강하라.\n' +
+      lines.join('\n') + '\n';
+  } catch(e) { return ''; }
+}
+
+function _buildChatIntentContext(ctxId, query, flags) {
+  var intent = _classifyChatIntent(query, ctxId);
+  flags = flags || {};
+  var tickers = flags.tickers || [];
+  var missing = [];
+  if (tickers.length && !flags.tickerData) missing.push('ticker quote/trend');
+  if (intent.wantsFresh && !flags.webSearch) missing.push('web search');
+  if ((intent.wantsDeep || intent.wantsCompare) && !flags.deepData) missing.push('deep fundamentals');
+  if (!flags.news) missing.push('fresh news context');
+  return '\n\n【질문 의도·답변 범위】\n' +
+    '의도: ' + intent.intents.join(', ') + ' | 페이지맥락: ' + ctxId + (tickers.length ? ' | 감지티커: ' + tickers.join(', ') : '') + '\n' +
+    '답변 규칙: 사용자의 질문 범위에 맞춰 바로 결론부터 말하고, 이미 말한 내용은 반복하지 말며, 새 판단에 필요한 데이터만 사용하라. ' +
+    (intent.wantsAction ? '행동 결론(보유/추가매수 금지/비중축소/헤지/관망)을 명시하라. ' : '') +
+    (intent.wantsCompare ? '비교 질문이면 표는 짧게, 최종 우선순위와 제외 사유를 함께 제시하라. ' : '') +
+    (intent.wantsFresh ? '최신성 질문이면 기준시각·출처·미수집 항목을 먼저 분리하라. ' : '') + '\n' +
+    '데이터 커버리지: ' +
+    ['tickerData','deepData','webSearch','news'].map(function(k) { return k + '=' + (flags[k] ? 'OK' : 'MISS'); }).join(' · ') +
+    (missing.length ? '\n미수집/제한: ' + missing.join(', ') + ' — 이 항목은 추측하지 말고 제한사항으로 밝혀라.' : '') + '\n';
+}
+
+function _shouldSingleDeepAnalyzeChat(ctxId, query, detectedTickers, deepCompareStr) {
+  if (!detectedTickers || detectedTickers.length !== 1 || deepCompareStr) return false;
+  var deepCtx = ctxId === 'fundamental' || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'portfolio';
+  return deepCtx || (typeof _hasDeepAnalysisKw === 'function' && _hasDeepAnalysisKw(query));
+}
+window._classifyChatIntent = _classifyChatIntent;
+window._buildChatMemoryContext = _buildChatMemoryContext;
+window._buildChatIntentContext = _buildChatIntentContext;
+window._shouldSingleDeepAnalyzeChat = _shouldSingleDeepAnalyzeChat;
+
 function _needsWebSearch(query, ctxId) {
   var pKey = _getApiKey('aio_perplexity_key') || '';
   var gKey = _getApiKey('aio_google_cse_key') || '';
@@ -2748,6 +2836,14 @@ async function chatSend(ctxId) {
 
   // v30.15: 티커 감지 → 실시간 데이터 조회 → 시스템 프롬프트에 주입
   var detectedTickers = _extractTickers(q);
+  if (window.AIO && typeof window.AIO.ensureFreshDataForUse === 'function') {
+    try {
+      await Promise.race([
+        window.AIO.ensureFreshDataForUse({ ctxId: ctxId, query: q, tickers: detectedTickers, reason: 'chat' }),
+        new Promise(function(resolve) { setTimeout(function(){ resolve(null); }, 4500); })
+      ]);
+    } catch(_freshErr) {}
+  }
   var tickerDataStr = '';
   if (detectedTickers.length > 0) {
     try { tickerDataStr = await _fetchTickerDataForChat(detectedTickers); } catch(e) {}
@@ -2787,8 +2883,7 @@ async function chatSend(ctxId) {
   //   portfolio ctx도 보유 종목 분석 시 심층 필요 — 자동 확장
   var singleDeepStr = '';
   var _isFundCtx = (ctxId === 'fundamental');
-  var _isDeepCtx = _isFundCtx || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'portfolio';
-  var _shouldDeepAnalyze = detectedTickers.length === 1 && !deepCompareStr && (_isDeepCtx || _hasDeepAnalysisKw(q));
+  var _shouldDeepAnalyze = _shouldSingleDeepAnalyzeChat(ctxId, q, detectedTickers, deepCompareStr);
   if (_shouldDeepAnalyze) {
     var fd = window._fundAnalysisData;
     var alreadyHasData = fd && fd.ticker && fd.ticker === detectedTickers[0];
@@ -2817,9 +2912,19 @@ async function chatSend(ctxId) {
 
   // v37.2: 뉴스 컨텍스트 주입 — newsCache에서 관련 뉴스 자동 추출
   var newsContextStr = _buildNewsContext(ctxId, q);
+  var intentContextStr = _buildChatIntentContext(ctxId, q, {
+    tickers: detectedTickers,
+    tickerData: !!tickerDataStr,
+    deepData: !!(deepCompareStr || singleDeepStr || sectorCompareStr),
+    webSearch: !!webSearchStr,
+    news: !!newsContextStr
+  });
+  var memoryContextStr = _buildChatMemoryContext(ctxId, q);
 
   // v20+: dynamic system prompts (portfolio injects live data)
   var systemPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
+  if (intentContextStr) systemPrompt += intentContextStr;
+  if (memoryContextStr) systemPrompt += memoryContextStr;
   if (tickerDataStr) systemPrompt += tickerDataStr;
   if (sectorCompareStr) systemPrompt += sectorCompareStr;
   if (deepCompareStr) systemPrompt += deepCompareStr;

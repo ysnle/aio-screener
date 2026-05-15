@@ -1,11 +1,11 @@
 ---
 verified_by: agent
-last_verified: 2026-05-14
+last_verified: 2026-05-15
 confidence: high
-latest_version: v49.13
-latest_P_number: P202
-next_P_number: P203
-total_entries: 202
+latest_version: v49.15
+latest_P_number: P204
+next_P_number: P205
+total_entries: 204
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -22,7 +22,7 @@ total_entries: 202
 
 ### P 번호 체계
 - **P 번호 = 패턴 번호** (예방 규칙 ID). 동일 근본 원인을 가진 버그는 같은 P 번호로 참조.
-- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P203**). 한번 부여된 번호는 재사용 금지.
+- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P205**). 한번 부여된 번호는 재사용 금지.
 - **P 번호 재강화**: 같은 패턴이 재발해도 번호는 유지. "P25 재강화" / "P25 강화" 같은 표현으로 body에 기록.
 - **날짜 구분 원칙**: 과거 중복 P 번호(P26~P33 일부 충돌 존재)는 "날짜 + 버전"으로 구분해서 참조.
 
@@ -55,6 +55,8 @@ total_entries: 202
 
 | P | 도입 버전 | 날짜 | 패턴 요약 |
 |---|-----------|------|-----------|
+| P204 | v49.15 | 2026-05-15 | Automatic freshness still depended on broad periodic schedules, so a page or AI answer could assemble prompts before stale quote/news/macro/technical layers had a chance to refresh. Added page/chat-level data requirement profiles, `AIO.getAutoFreshnessPlan()`, `AIO.getAutoDataContinuityAudit()`, and `AIO.ensureFreshDataForUse()`; made scheduled functions return their fetch promises; added per-task scheduler timeouts; wired chat and unified AI preflight to run bounded refresh before data prompt assembly; added T161~T164 to guard planner, preflight, and continuity contracts. |
+| P203 | v49.14 | 2026-05-14 | AI chat used the current session messages but did not inject saved recent chat summaries into the next prompt, so similar questions could repeat the same explanation. The unified AI panel also limited single-ticker deep collection mostly to `fundamental` or explicit deep-analysis keywords, weakening `themes`, `theme-detail`, and `portfolio` ticker questions. Added `_classifyChatIntent`, `_buildChatMemoryContext`, `_buildChatIntentContext`, and `_shouldSingleDeepAnalyzeChat`; wired them into both `chatSend` and `chatSendUnified`; added T157~T160 to guard intent detection, repetition suppression, explicit missing-data labeling, and theme-context deep data collection. |
 | P202 | v49.13 | 2026-05-14 | “핵심화/간소화”를 추가 설명 레이어로 해결하면 기존 페이지 자체는 여전히 복잡한 채 안내문만 늘어나는 문제가 있었다. v49.12의 decision strip, secondary badges, forced explain summaries를 compact view에서 제거하고, 기존 상세/참고/아카이브 콘텐츠를 접어 첫 판단 흐름에서 밀어내는 방식으로 수정. T152~T156을 재정의해 향후 간소화 작업이 추가 설명을 덧붙이는 방향으로 회귀하지 않게 함 |
 | P201 | v49.12 | 2026-05-14 | 기관급 분석 화면의 정보량이 많아 초보자가 “먼저 볼 것/판단/다음 행동”을 놓치면 기능은 많아도 실제 매매 루틴으로 연결되지 않는 문제가 있었다. 21개 페이지에 `AIO_PAGE_CORE_GUIDES` watch/decide/next 계약을 추가하고, Page Focus Brief에 decision strip, 핵심 보기 토글, 상세/참고 보조 섹션 라벨, T152~T156 테스트를 도입해 복잡한 전문 분석을 첫 화면에서는 행동 카드로 압축 |
 | P200 | v49.11 | 2026-05-14 | Persistent auto-ops gap: static `DATA_SNAPSHOT`/`data-snap-date`/pinned event text could age while still looking live-like. Added `AIO.getStaticDataGovernanceAudit()`, `AIO.auditStaticTextFreshness()`, `AIO.renderStaticDataGovernanceBadges()`, `AIO.getAutoOpsReadiness()`, `AIO.getRefreshSchedulerAudit()`, `AIO.runScheduledRefresh()`, `AIO.forceRefreshAllData()`, and T146~T151 so stale static data, scheduler health, freshness, and pipeline status are continuously inspectable and manually refreshable. |

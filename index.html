@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.13 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.15 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3958,7 +3958,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.13</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.15</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -29649,6 +29649,11 @@ async function chatSendUnified() {
   try {
     // 1. 티커 감지 + 실시간 시세 (8s 타임아웃)
     var detectedTickers = typeof _extractTickers === 'function' ? _extractTickers(q) : [];
+    if (window.AIO && typeof window.AIO.ensureFreshDataForUse === 'function') {
+      try {
+        await _withTimeout(window.AIO.ensureFreshDataForUse({ ctxId: ctxId, query: q, tickers: detectedTickers, reason: 'chat' }), 4500, 'freshness');
+      } catch(fe) { _aioLog('warn', 'fetch', 'AI freshness preflight 실패/타임아웃: ' + fe.message); }
+    }
     if (detectedTickers.length > 0 && typeof _fetchTickerDataForChat === 'function') {
       try {
         var tickerDataStr = await _withTimeout(_fetchTickerDataForChat(detectedTickers), 8000, 'ticker');
@@ -29683,7 +29688,10 @@ async function chatSendUnified() {
 
     // 4. 단일 기업 15관점 심층 분석 (10s 타임아웃)
     var _isFundCtx = (ctxId === 'fundamental');
-    if (detectedTickers.length === 1 && typeof _hasDeepAnalysisKw === 'function' && (_isFundCtx || _hasDeepAnalysisKw(q))) {
+    var _shouldSingleDeep = typeof _shouldSingleDeepAnalyzeChat === 'function'
+      ? _shouldSingleDeepAnalyzeChat(ctxId, q, detectedTickers, '')
+      : (detectedTickers.length === 1 && typeof _hasDeepAnalysisKw === 'function' && (_isFundCtx || _hasDeepAnalysisKw(q)));
+    if (_shouldSingleDeep) {
       var fd = window._fundAnalysisData;
       var alreadyHasData = fd && fd.ticker && fd.ticker === detectedTickers[0];
       if (!alreadyHasData && (_getApiKey('aio_fmp_key') || '') && typeof _fetchDeepCompareData === 'function') {
@@ -29722,6 +29730,18 @@ async function chatSendUnified() {
     if (typeof _buildNewsContext === 'function') {
       var newsCtx = _buildNewsContext(ctxId, q);
       if (newsCtx) { sysPrompt += newsCtx; _uniNewsCtx = true; }
+    }
+    if (typeof _buildChatIntentContext === 'function') {
+      sysPrompt += _buildChatIntentContext(ctxId, q, {
+        tickers: detectedTickers,
+        tickerData: _uniTickerData,
+        deepData: _uniDeepData,
+        webSearch: !!_uniWebResult,
+        news: _uniNewsCtx
+      });
+    }
+    if (typeof _buildChatMemoryContext === 'function') {
+      sysPrompt += _buildChatMemoryContext(ctxId, q);
     }
   } catch(e) { _aioLog('warn', 'fetch', 'chatSendUnified 데이터 주입 실패: ' + e.message); }
 

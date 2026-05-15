@@ -6,6 +6,22 @@
 
 ---
 
+## v49.15 - Automatic Freshness Planner & AI Data Preflight (2026-05-15)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`
+
+- **P204**: Added page/chat-level data requirement profiles, `AIO.getAutoFreshnessPlan()`, `AIO.getAutoDataContinuityAudit()`, and `AIO.ensureFreshDataForUse()` so stale/missing quote/news/macro/technical layers can be detected and selectively refreshed before page use or AI answers.
+- Hardened `REFRESH_SCHEDULE` by returning fetch promises from scheduled functions and wrapping scheduled tasks with per-task timeouts, preventing stale/in-flight hangs from looking successful.
+- Wired both `chatSend()` and unified AI panel preflight to run a bounded freshness refresh before ticker/deep/news prompt assembly. Added T161~T164 for automatic freshness profile, plan, dry-run preflight, and continuity audit contracts. R1 version sync to `v49.15`.
+
+## v49.14 - AI Chat Intent & Data Coverage Governance (2026-05-14)
+
+**Changed files**: `index.html`, `js/aio-chat.js`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`
+
+- **P203**: Strengthened AI chat answer governance without adding more UI surface. Added compact intent classification, recent-history memory injection, explicit data coverage labels, and missing-data instructions so the assistant avoids repeating old answers and does not treat unavailable latest data as fact.
+- Unified the single-ticker deep-analysis trigger so `themes`, `theme-detail`, and `portfolio` contexts can request deeper FMP/Finnhub/Naver-backed data, not only `fundamental` or manually deep-worded prompts.
+- Added T157~T160 covering action/freshness intent detection, theme-context single-ticker deep analysis, explicit missing data coverage, and recent-history repetition suppression.
+
 ## v49.13 - Intrinsic Content Simplification Correction (2026-05-14)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/CODE-MAP.md`, `CHANGELOG.md`

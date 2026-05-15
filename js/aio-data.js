@@ -3026,7 +3026,16 @@ async function _runScheduledTask(key, cfg, showError) {
   cfg._inFlight = true;
   cfg.lastRunStart = Date.now();
   try {
-    await cfg.fn();
+    var taskResult = cfg.fn();
+    if (taskResult && typeof taskResult.then === 'function') {
+      var timeoutMs = Math.max(3000, cfg.timeoutMs || 30000);
+      await Promise.race([
+        taskResult,
+        new Promise(function(_, reject) {
+          setTimeout(function() { reject(new Error('scheduler timeout: ' + key + ' (' + timeoutMs + 'ms)')); }, timeoutMs);
+        })
+      ]);
+    }
     cfg._lastOk = Date.now();
     cfg._lastErr = '';
     cfg.retryCount = 0;
@@ -3042,20 +3051,22 @@ async function _runScheduledTask(key, cfg, showError) {
 }
 
 function _assignRefreshScheduleFunctions() {
-  REFRESH_SCHEDULE.quotes.fn     = () => { if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes(); };
-  REFRESH_SCHEDULE.news.fn       = () => { if (typeof fetchAllNews === 'function') fetchAllNews(false); };
+  REFRESH_SCHEDULE.quotes.fn     = () => { return (typeof fetchLiveQuotes === 'function') ? fetchLiveQuotes() : null; };
+  REFRESH_SCHEDULE.news.fn       = () => { return (typeof fetchAllNews === 'function') ? fetchAllNews(false) : null; };
   REFRESH_SCHEDULE.sentiment.fn  = () => {
-    if (typeof fetchFearGreed === 'function') fetchFearGreed();
-    if (typeof fetchPutCall === 'function') fetchPutCall();
+    var jobs = [];
+    if (typeof fetchFearGreed === 'function') jobs.push(fetchFearGreed());
+    if (typeof fetchPutCall === 'function') jobs.push(fetchPutCall());
+    return Promise.allSettled(jobs);
   };
   REFRESH_SCHEDULE.breadth.fn    = fetchBreadthData;
   REFRESH_SCHEDULE.fred.fn       = fetchAllFredData;
   REFRESH_SCHEDULE.technicals.fn = () => fetchTechnicalIndicators('SPY').then(d => { if (d) applyTechIndicators(d); });
   REFRESH_SCHEDULE.vixHistory.fn = fetchSentimentHistory;
-  REFRESH_SCHEDULE.hySpread.fn   = () => { if (typeof fetchHYSpread === 'function') fetchHYSpread(); };
-  REFRESH_SCHEDULE.maUpdate.fn   = () => { if (typeof autoUpdateMA === 'function') autoUpdateMA(); };
-  REFRESH_SCHEDULE.krSupply.fn   = () => { if (typeof fetchKrSupplyData === 'function') fetchKrSupplyData(); };
-  REFRESH_SCHEDULE.krDynamic.fn  = () => { if (typeof fetchKrDynamicData === 'function') fetchKrDynamicData(); };
+  REFRESH_SCHEDULE.hySpread.fn   = () => { return (typeof fetchHYSpread === 'function') ? fetchHYSpread() : null; };
+  REFRESH_SCHEDULE.maUpdate.fn   = () => { return (typeof autoUpdateMA === 'function') ? autoUpdateMA() : null; };
+  REFRESH_SCHEDULE.krSupply.fn   = () => { return (typeof fetchKrSupplyData === 'function') ? fetchKrSupplyData() : null; };
+  REFRESH_SCHEDULE.krDynamic.fn  = () => { return (typeof fetchKrDynamicData === 'function') ? fetchKrDynamicData() : null; };
   window.REFRESH_SCHEDULE = REFRESH_SCHEDULE;
   _normalizeRefreshSchedule();
 }
@@ -3073,10 +3084,10 @@ function startDataScheduler() {
   // Assign functions
   _assignRefreshScheduleFunctions();
   // v30.11: 중앙 스케줄러 편입 (T3, T7 독립 타이머 → 여기로 통합)
-  REFRESH_SCHEDULE.hySpread.fn   = () => { if (typeof fetchHYSpread === 'function') fetchHYSpread(); };
-  REFRESH_SCHEDULE.maUpdate.fn   = () => { if (typeof autoUpdateMA === 'function') autoUpdateMA(); };
-  REFRESH_SCHEDULE.krSupply.fn   = () => { if (typeof fetchKrSupplyData === 'function') fetchKrSupplyData(); };
-  REFRESH_SCHEDULE.krDynamic.fn  = () => { if (typeof fetchKrDynamicData === 'function') fetchKrDynamicData(); };
+  REFRESH_SCHEDULE.hySpread.fn   = () => { return (typeof fetchHYSpread === 'function') ? fetchHYSpread() : null; };
+  REFRESH_SCHEDULE.maUpdate.fn   = () => { return (typeof autoUpdateMA === 'function') ? autoUpdateMA() : null; };
+  REFRESH_SCHEDULE.krSupply.fn   = () => { return (typeof fetchKrSupplyData === 'function') ? fetchKrSupplyData() : null; };
+  REFRESH_SCHEDULE.krDynamic.fn  = () => { return (typeof fetchKrDynamicData === 'function') ? fetchKrDynamicData() : null; };
   window.REFRESH_SCHEDULE = REFRESH_SCHEDULE;
   _normalizeRefreshSchedule();
 
@@ -3242,6 +3253,37 @@ window.AIO.forceRefreshAllData = async function(keys) {
     readiness: window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null,
     generatedAt: new Date().toISOString()
   };
+};
+
+window.AIO.ensureFreshDataForUse = async function(scope) {
+  scope = scope || {};
+  var plan = window.AIO.getAutoFreshnessPlan ? window.AIO.getAutoFreshnessPlan(scope) : null;
+  if (!plan || !plan.tasks || !plan.tasks.length || scope.dryRun) {
+    return { status: plan && plan.status || 'fresh_enough', plan: plan, refresh: null, skipped: !!(scope && scope.dryRun), generatedAt: new Date().toISOString() };
+  }
+  var key = plan.tasks.slice().sort().join('|') + '::' + (plan.profile && plan.profile.symbols || []).slice(0, 12).join(',');
+  var now = Date.now();
+  window._aioEnsureFreshLast = window._aioEnsureFreshLast || {};
+  window._aioEnsureFreshInFlight = window._aioEnsureFreshInFlight || {};
+  if (window._aioEnsureFreshInFlight[key]) {
+    return { status: 'in_flight', plan: plan, refresh: null, generatedAt: new Date(now).toISOString() };
+  }
+  var minGap = scope.reason === 'chat' ? 45000 : 15000;
+  if (window._aioEnsureFreshLast[key] && now - window._aioEnsureFreshLast[key] < minGap) {
+    return { status: 'recently_refreshed', plan: plan, refresh: null, generatedAt: new Date(now).toISOString() };
+  }
+  window._aioEnsureFreshInFlight[key] = true;
+  window._aioEnsureFreshLast[key] = now;
+  try {
+    var refresh = await window.AIO.runScheduledRefresh(plan.tasks);
+    try { if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
+    try { if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') window.AIO.renderStaticDataGovernanceBadges(); } catch(_) {}
+    return { status: refresh && refresh.status || 'ok', plan: plan, refresh: refresh, generatedAt: new Date().toISOString() };
+  } catch(e) {
+    return { status: 'warn', plan: plan, refresh: null, error: e && e.message || String(e), generatedAt: new Date().toISOString() };
+  } finally {
+    delete window._aioEnsureFreshInFlight[key];
+  }
 };
 
 function updateDataStatusError(status, msg) {

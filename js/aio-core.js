@@ -2023,7 +2023,7 @@ window.AIO.getPageUXAudit = function() {
 };
 
 window.AIO_STATIC_DATA_GOVERNANCE = {
-  version: 'v49.13',
+  version: 'v49.15',
   defaultMaxAgeDays: 3,
   hardStaleDays: 7,
   rules: {
@@ -2212,24 +2212,198 @@ window.AIO.getAutoOpsReadiness = function() {
   var pipeline = window.AIO.getDataPipelineAudit ? window.AIO.getDataPipelineAudit() : null;
   var statics = window.AIO.getStaticDataGovernanceAudit ? window.AIO.getStaticDataGovernanceAudit() : null;
   var scheduler = window.AIO.getRefreshSchedulerAudit ? window.AIO.getRefreshSchedulerAudit() : null;
+  var continuity = window.AIO.getAutoDataContinuityAudit ? window.AIO.getAutoDataContinuityAudit({ dryRun: true }) : null;
   var issues = [];
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
   if (statics && statics.issueCount) issues.push(statics.issueCount + ' static/live-like freshness issue(s)');
   if (!scheduler || !scheduler.totalTasks) issues.push('refresh scheduler audit unavailable');
   else if (scheduler.tasksWithoutFn && scheduler.tasksWithoutFn.length) issues.push('scheduler task(s) without function: ' + scheduler.tasksWithoutFn.join(','));
+  if (continuity && continuity.issueCount) issues.push(continuity.issueCount + ' data continuity repair candidate(s)');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
     commands: {
       audit: 'AIO.getAutoOpsReadiness()',
       forceRefresh: 'AIO.forceRefreshAllData()',
+      ensureFresh: 'AIO.ensureFreshDataForUse({ pageId:"home" })',
       staticAudit: 'AIO.getStaticDataGovernanceAudit()',
-      freshnessAudit: 'AIO.getDataFreshnessAudit()'
+      freshnessAudit: 'AIO.getDataFreshnessAudit()',
+      continuityAudit: 'AIO.getAutoDataContinuityAudit()'
     },
     freshness: freshness,
     pipelineStatus: pipeline && pipeline.status || null,
     staticGovernance: statics,
     scheduler: scheduler,
+    continuity: continuity,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// v49.15: automatic data continuity planner.
+// The app cannot force every third-party API to succeed, but it can know exactly
+// which data each page/chat answer needs and proactively refresh stale layers.
+window.AIO.DATA_REQUIREMENT_PROFILES = {
+  home:        { tasks: ['quotes','news','sentiment','breadth','technicals'], symbols: ['^GSPC','^IXIC','^VIX','CL=F','GC=F','KRW=X','DX-Y.NYB'] },
+  signal:      { tasks: ['quotes','sentiment','breadth','technicals'], symbols: ['SPY','QQQ','IWM','DIA','^VIX'] },
+  signals:     { alias: 'signal' },
+  breadth:     { tasks: ['quotes','breadth','technicals'], symbols: ['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP'] },
+  sentiment:   { tasks: ['quotes','sentiment','vixHistory','hySpread'], symbols: ['^VIX','SPY','QQQ','HYG','LQD'] },
+  briefing:    { tasks: ['quotes','news','sentiment','breadth','fred'], symbols: ['^GSPC','^IXIC','^VIX','CL=F','GC=F','KRW=X','DX-Y.NYB','^KS11'] },
+  technical:   { tasks: ['quotes','technicals','breadth','sentiment'], symbols: ['SPY','QQQ','SMH','SOXX','IWM','RSP','^VIX'] },
+  macro:       { tasks: ['quotes','fred','news'], symbols: ['DX-Y.NYB','^TNX','^VIX','CL=F','GC=F','KRW=X'] },
+  fxbond:      { tasks: ['quotes','fred'], symbols: ['KRW=X','DX-Y.NYB','^TNX','^FVX','^IRX','CL=F'] },
+  fundamental: { tasks: ['quotes','news'], symbols: ['SPY','QQQ'] },
+  themes:      { tasks: ['quotes','news','technicals'], symbols: ['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY'] },
+  'theme-detail': { tasks: ['quotes','news','technicals'], symbols: ['SMH','SOXX','QQQ','SPY'] },
+  portfolio:   { tasks: ['quotes','technicals'], symbols: ['SPY','QQQ','IWM','^VIX'] },
+  ticker:      { tasks: ['quotes','news','technicals'], symbols: ['SPY','QQQ','^VIX'] },
+  options:     { tasks: ['quotes','sentiment','vixHistory'], symbols: ['SPY','QQQ','^VIX'] },
+  korea:       { tasks: ['quotes','krSupply','krDynamic','news'], symbols: ['^KS11','^KQ11','KRW=X'] },
+  'kr-home':   { tasks: ['quotes','krSupply','krDynamic','news'], symbols: ['^KS11','^KQ11','KRW=X'] },
+  'kr-supply': { tasks: ['quotes','krSupply','krDynamic'], symbols: ['^KS11','^KQ11','KRW=X'] },
+  'kr-themes': { tasks: ['quotes','krDynamic','news'], symbols: ['^KS11','^KQ11','KRW=X'] },
+  'kr-macro':  { tasks: ['quotes','fred','krDynamic'], symbols: ['KRW=X','^KS11','^KQ11'] },
+  'kr-tech':   { tasks: ['quotes','technicals','krDynamic'], symbols: ['^KS11','^KQ11','KRW=X'] },
+  glossary:    { tasks: [], symbols: [] },
+  guide:       { tasks: [], symbols: [] }
+};
+
+function _aioUniq(arr) {
+  var seen = {};
+  return (arr || []).filter(function(x) {
+    x = String(x || '').trim();
+    if (!x || seen[x]) return false;
+    seen[x] = 1;
+    return true;
+  });
+}
+
+function _aioResolveRequirementProfile(pageId) {
+  var map = window.AIO.DATA_REQUIREMENT_PROFILES || {};
+  var id = String(pageId || '').replace(/^page-/, '') || 'home';
+  var p = map[id] || map[id.replace(/^kr-technical$/, 'kr-tech')] || null;
+  if (p && p.alias) p = map[p.alias] || p;
+  return p || { tasks: ['quotes'], symbols: [] };
+}
+
+function _aioLooksFreshIntent(query) {
+  var q = String(query || '').toLowerCase();
+  return /latest|recent|today|now|this week|news|current|fresh|earnings|guidance|cpi|fomc|fed|rate|tariff|최신|최근|오늘|지금|현재|뉴스|소식|상황|발표|실적|가이던스|금리|관세/.test(q);
+}
+
+window.AIO.getDataRequirementProfile = function(scope) {
+  scope = scope || {};
+  var pageId = scope.pageId || scope.ctxId || scope.context || 'home';
+  var base = _aioResolveRequirementProfile(pageId);
+  var tasks = (base.tasks || []).slice();
+  var symbols = (base.symbols || []).slice();
+  var tickers = Array.isArray(scope.tickers) ? scope.tickers : [];
+  tickers.forEach(function(t) { symbols.push(String(t || '').toUpperCase()); });
+  if (scope.reason === 'chat') {
+    tasks.push('quotes');
+    if (_aioLooksFreshIntent(scope.query)) tasks.push('news');
+    if (/technical|chart|차트|기술|rsi|macd|atr|exit|trim|매도|손절|익절/i.test(String(scope.query || '') + ' ' + pageId)) tasks.push('technicals');
+    if (/macro|fed|fomc|cpi|pce|rate|yield|dollar|oil|금리|물가|달러|유가|매크로/i.test(String(scope.query || '') + ' ' + pageId)) tasks.push('fred');
+  }
+  return {
+    pageId: pageId,
+    reason: scope.reason || 'page',
+    query: scope.query || '',
+    tasks: _aioUniq(tasks),
+    symbols: _aioUniq(symbols),
+    tickers: _aioUniq(tickers.map(function(t) { return String(t || '').toUpperCase(); })),
+    wantsFresh: !!(scope.forceFresh || _aioLooksFreshIntent(scope.query))
+  };
+};
+
+function _aioTaskAgeMs(taskKey) {
+  var lf = window._lastFetch || {};
+  var keys = {
+    quotes: ['quote','liveQuotes','quotes'],
+    news: ['news'],
+    sentiment: ['fearGreed','putCall','sentiment'],
+    breadth: ['breadth'],
+    fred: ['fred','macro'],
+    technicals: ['technical','technicals'],
+    vixHistory: ['vixHistory','sentimentHistory'],
+    hySpread: ['hySpread'],
+    maUpdate: ['maUpdate'],
+    krSupply: ['krSupply'],
+    krDynamic: ['krDynamic']
+  }[taskKey] || [taskKey];
+  var latest = 0;
+  keys.forEach(function(k) { if (lf[k] && lf[k] > latest) latest = lf[k]; });
+  return latest ? Date.now() - latest : Infinity;
+}
+
+function _aioTaskPolicyKey(taskKey) {
+  var map = {
+    quotes: 'quote',
+    news: 'news',
+    sentiment: 'sentiment',
+    breadth: 'breadth',
+    fred: 'macro_daily',
+    technicals: 'technical',
+    vixHistory: 'sentiment',
+    hySpread: 'macro_daily',
+    maUpdate: 'technical',
+    krSupply: 'kr_supply',
+    krDynamic: 'kr_supply'
+  };
+  return map[taskKey] || 'unknown';
+}
+
+window.AIO.getAutoFreshnessPlan = function(scope) {
+  var profile = window.AIO.getDataRequirementProfile(scope || {});
+  var tasks = {};
+  var reasons = {};
+  function addTask(k, reason) {
+    if (!k) return;
+    tasks[k] = 1;
+    if (!reasons[k]) reasons[k] = [];
+    if (reason) reasons[k].push(reason);
+  }
+  var coverage = window.AIO.getLiveCoverage ? window.AIO.getLiveCoverage(profile.symbols) : null;
+  if (coverage) {
+    if ((coverage.missing || []).length || (coverage.stale || []).length) addTask('quotes', 'required symbols missing/stale: ' + (coverage.missing || []).concat(coverage.stale || []).slice(0, 12).join(','));
+  }
+  profile.tasks.forEach(function(taskKey) {
+    var policyKey = _aioTaskPolicyKey(taskKey);
+    var policy = (window.FRESHNESS_POLICY && window.FRESHNESS_POLICY[policyKey]) || null;
+    var maxAge = policy ? policy.staleMs : 30 * 60 * 1000;
+    var age = _aioTaskAgeMs(taskKey);
+    if (age === Infinity) addTask(taskKey, 'never fetched');
+    else if (age > maxAge) addTask(taskKey, 'stale ' + Math.round(age / 60000) + 'm > ' + Math.round(maxAge / 60000) + 'm');
+  });
+  if (profile.wantsFresh) addTask('news', 'freshness-sensitive request');
+  var taskList = Object.keys(tasks);
+  return {
+    status: taskList.length ? 'refresh_needed' : 'fresh_enough',
+    profile: profile,
+    tasks: taskList,
+    reasons: reasons,
+    coverage: coverage,
+    command: taskList.length ? 'AIO.ensureFreshDataForUse(' + JSON.stringify({ pageId: profile.pageId, reason: profile.reason }) + ')' : null,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getAutoDataContinuityAudit = function(opts) {
+  opts = opts || {};
+  var profiles = window.AIO.DATA_REQUIREMENT_PROFILES || {};
+  var ids = Object.keys(profiles).filter(function(id) { return !(profiles[id] && profiles[id].alias); });
+  var pages = ids.map(function(id) {
+    var plan = window.AIO.getAutoFreshnessPlan({ pageId: id, reason: 'audit' });
+    return { pageId: id, status: plan.status, tasks: plan.tasks, symbols: plan.profile.symbols, coveragePct: plan.coverage ? plan.coverage.coveragePct : null };
+  });
+  var needsRepair = pages.filter(function(p) { return p.tasks && p.tasks.length; });
+  return {
+    status: needsRepair.length ? 'warn' : 'ok',
+    issueCount: needsRepair.length,
+    pagesChecked: pages.length,
+    repairCandidates: needsRepair,
+    pages: pages,
+    dryRun: !!opts.dryRun,
     generatedAt: new Date().toISOString()
   };
 };
@@ -4685,7 +4859,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.13';
+const APP_VERSION = 'v49.15';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

@@ -1,4 +1,4 @@
-// AIO Screener — 단위 테스트 모듈 (v49.13)
+// AIO Screener — 단위 테스트 모듈 (v49.15)
 // 사용: 브라우저 콘솔에서 AIO.runTests() 실행 → OK/FAIL 결과 출력
 // 대상: 통계 함수 6개 (_calcDailyReturns / _statMean / _statStdDev /
 //        _calcPortfolioVaR / _calcSharpe / _calcMaxDrawdown / _pearsonCorr / _calcCorrelationMatrix)
@@ -1201,6 +1201,53 @@
     _assert('T156 content_simplification: no extra explanatory badges/summaries in core view', additiveBadges.length === 0 && summariesInCore.length === 0, 'badges=' + additiveBadges.length + ', summaries=' + summariesInCore.length);
   }
 
+  function _testChatAnswerGovernance() {
+    var cls = typeof window._classifyChatIntent === 'function' ? window._classifyChatIntent('NVDA 지금 매수해도 돼? 최신 뉴스까지 봐줘', 'technical') : null;
+    _assert('T157 chat_intent: action and freshness detected', cls && cls.wantsAction && cls.wantsFresh && cls.intents.indexOf('ACTION_DECISION') >= 0, cls && JSON.stringify(cls));
+
+    var deepOk = typeof window._shouldSingleDeepAnalyzeChat === 'function'
+      ? window._shouldSingleDeepAnalyzeChat('themes', 'NVDA 어때?', ['NVDA'], '')
+      : false;
+    _assert('T158 chat_single_deep: themes/portfolio single ticker can trigger deep data', deepOk === true);
+
+    var intentCtx = typeof window._buildChatIntentContext === 'function'
+      ? window._buildChatIntentContext('technical', 'AAPL 최신 분석', { tickers:['AAPL'], tickerData:false, deepData:false, webSearch:false, news:false })
+      : '';
+    _assert('T159 chat_data_coverage: missing data is explicit', /tickerData=MISS/.test(intentCtx) && /미수집|제한/.test(intentCtx), intentCtx);
+
+    var before = null;
+    try { before = localStorage.getItem('aio_chat_history'); } catch(_) {}
+    try {
+      localStorage.setItem('aio_chat_history', JSON.stringify([
+        { ctx:'technical', q:'NVDA 지금 매수해도 돼?', a:'추격매수보다 10EMA와 거래량 확인이 우선입니다.', ts:Date.now() - 60000 }
+      ]));
+    } catch(_) {}
+    var mem = typeof window._buildChatMemoryContext === 'function' ? window._buildChatMemoryContext('technical', 'NVDA 매수 판단 다시 봐줘') : '';
+    _assert('T160 chat_memory: recent overlapping answer is injected to reduce repetition', /이전 대화/.test(mem) && /NVDA/.test(mem), mem);
+    try {
+      if (before == null) localStorage.removeItem('aio_chat_history');
+      else localStorage.setItem('aio_chat_history', before);
+    } catch(_) {}
+
+    var profile = window.AIO && typeof window.AIO.getDataRequirementProfile === 'function'
+      ? window.AIO.getDataRequirementProfile({ ctxId:'technical', query:'NVDA latest technical exit risk', tickers:['NVDA'], reason:'chat' })
+      : null;
+    _assert('T161 auto_fresh_profile: chat maps to required tasks/symbols', profile && profile.tasks.indexOf('quotes') >= 0 && profile.tasks.indexOf('news') >= 0 && profile.symbols.indexOf('NVDA') >= 0, profile && JSON.stringify(profile));
+
+    var plan = window.AIO && typeof window.AIO.getAutoFreshnessPlan === 'function'
+      ? window.AIO.getAutoFreshnessPlan({ pageId:'home', query:'latest market news', tickers:['SPY'], reason:'chat' })
+      : null;
+    _assert('T162 auto_fresh_plan: exposes plan shape', plan && Array.isArray(plan.tasks) && plan.profile && plan.coverage, plan && JSON.stringify({ status: plan.status, tasks: plan.tasks, command: plan.command }));
+
+    var dry = window.AIO && typeof window.AIO.ensureFreshDataForUse === 'function'
+      ? window.AIO.ensureFreshDataForUse({ pageId:'home', query:'latest market news', dryRun:true })
+      : null;
+    _assert('T163 ensure_fresh_data: dry-run returns a Promise', dry && typeof dry.then === 'function', typeof dry);
+
+    var continuity = window.AIO && typeof window.AIO.getAutoDataContinuityAudit === 'function' ? window.AIO.getAutoDataContinuityAudit({ dryRun:true }) : null;
+    _assert('T164 continuity_audit: page-level data flow contract', continuity && continuity.pagesChecked >= 20 && Array.isArray(continuity.pages), continuity && JSON.stringify({ pages: continuity.pagesChecked, issues: continuity.issueCount }));
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -1210,7 +1257,7 @@
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.13 단위 테스트 실행');
+    console.group('[AIO TEST] v49.15 단위 테스트 실행');
     console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
 
     try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
@@ -1239,6 +1286,7 @@
     try { _testEventLiquidityPipeline(); } catch(e) { console.error('Group23 error:', e); }
     try { _testAutoOpsGovernance(); } catch(e) { console.error('Group24 error:', e); }
     try { _testContentSimplificationUX(); } catch(e) { console.error('Group25 error:', e); }
+    try { _testChatAnswerGovernance(); } catch(e) { console.error('Group26 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -1269,6 +1317,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.13 loaded - run AIO.runTests() (T1~T156)');
+  console.log('[AIO] aio-tests.js v49.15 loaded - run AIO.runTests() (T1~T164)');
 
 })();
