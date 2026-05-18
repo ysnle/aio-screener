@@ -5,17 +5,17 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v49.42';
-const SW_BUILD = '2026-05-18T21:00:00+09:00';
+const SW_VERSION = 'v49.43';
+const SW_BUILD = '2026-05-18T23:00:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
 // 앱 셸 — 최초 설치 시 pre-cache
 // v48.29: 4개 모듈 모두 외부 분리 (MODULE 1/2/3/4 = core/data/ui/chat)
+// v49.43 P310 hotfix: manifest.json 제거 (GitHub UI 29af1f3 삭제) — cache.add 404 차단 + SW install 실패 방지
 const SHELL_ASSETS = [
   './',
   './index.html',
-  './manifest.json',
   './version.json',
   './js/aio-core.js',
   './js/aio-data.js',

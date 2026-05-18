@@ -2,10 +2,10 @@
 verified_by: agent
 last_verified: 2026-05-18
 confidence: high
-latest_version: v49.42
-latest_P_number: P309
-next_P_number: P310
-total_entries: 308
+latest_version: v49.43
+latest_P_number: P310
+next_P_number: P311
+total_entries: 309
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -2616,6 +2616,53 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **근본 해결**: subSections 8 → 15 재 enumerate + `findings[]` 배열 추가 (점검 결과 누적 저장)
 - **재발 방지**: R93 page sequential audit 의무 강화 — 1차 enumerate는 모든 sub-section 빠짐 없이 등록 + 점검 시 findings에 결과 누적
 - **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.home
+
+---
+
+## P310 · v49.43 · [CRITICAL HOTFIX] manifest.json GitHub UI 삭제 → SW shell cache.add 404 → 데이터 파이프라인 전체 마비
+
+- **사용자 보고 (2026-05-18 22:30)**: "지금 데이터 연결 안 되는 것 같은데? 누군가는 API 키 모두 날라갔다던데?" → 스크린샷: 모든 가격 카드 "—", "데이터를 불러오지 못했습니다", "데이터 연결 지연 — 새로고침(R키) 시도".
+- **2차 보고**: "커밋/배포 과정에서 문제 생긴 거 아니야? 지금 내가 Github에서 시간 며칠 지난 파일들은 모두 삭제했거든?"
+- **근본 원인** (직접 조사로 발견):
+  1. 사용자가 GitHub UI에서 v49.42 push 직후 23 파일을 일괄 삭제 (커밋 9628942 등 직전 5 커밋):
+     - **`manifest.json`** (29af1f3) ← **핵심 원인**
+     - 루트 모놀리식 백업 JS 6개 (aio-chat/core/data/glossary/tests/ui.js — 더 이상 사용 안 함)
+     - 루트 wiki .md 12개 (_context/에 동일 파일 존재)
+     - `.gitignore`, `api_setup_guide.html`, `cloudflare-worker-proxy.js`, `local-v48.81-home-qa.png`
+  2. **`sw.js` SHELL_ASSETS L18에 `'./manifest.json'` 잔존** — SW install 시 `cache.add('./manifest.json')` 호출 → 404
+     - 다행히 `Promise.allSettled`로 처리되어 SW install 자체 실패는 회피
+     - 그러나 콘솔에 manifest.json 404 + Service Worker install 부분 실패 에러 발생
+  3. **`index.html` L22 `<link rel="manifest" href="./manifest.json">` 잔존** → 모든 페이지 로드 시 404 콘솔 에러
+  4. 캐시된 이전 SW가 신규 v49.42 활성화 시 `caches.delete(k)` 호출 — 이전 데이터 캐시 삭제 + 새 캐시 채우기 중 manifest 404로 일부 클라이언트 일시 stale.
+- **"API 키 날아감" 메커니즘** (추정):
+  - 코드에 API 키(`aio_finnhub_key` 등) 직접 삭제 호출 0건 → 자동 삭제 아님
+  - **가능 시나리오**: 일부 사용자가 콘솔의 manifest.json 404 + 데이터 미수신 보고 "캐시 클리어" 시도 → 브라우저 데이터 일괄 삭제 → localStorage(API 키 포함) 삭제 + IndexedDB(_aioApiKeys 저장소) 삭제
+  - 또는 시크릿 모드/다른 브라우저 사용
+- **근본 해결** (v49.43 hotfix):
+  1. `index.html` L22 `<link rel="manifest">` 주석 처리 (PWA 비활성 — 사용자 의도 반영)
+  2. `sw.js` SHELL_ASSETS에서 `'./manifest.json'` 라인 제거 + hotfix 코멘트 명시
+  3. `SW_VERSION` v49.42 → **v49.43 강제 회전** — 모든 클라이언트가 신규 캐시 빌드 + 이전 v49.42 캐시 (manifest 시도 포함) 폐기
+  4. APP_VERSION + R1 7곳 동기화 v49.43
+- **재발 방지**:
+  - **R98 신규 (검토)**: `sw.js` SHELL_ASSETS의 모든 자산이 실제 파일로 존재하는지 빌드 시 자동 검증 (현재 없음). 신규 빌드 step or pre-push hook.
+  - **R99 신규 (검토)**: GitHub UI 직접 파일 삭제 시 사용자가 의도 명시 — `_context/WORKTREE-AUDIT.md`에 "삭제된 자산 영향 매트릭스" 의무 추가.
+  - **단기 검증 명령**:
+    ```js
+    // 콘솔에 입력
+    fetch('./manifest.json').then(r => console.log('manifest', r.status));  // 200 이어야 함, 404면 sw.js/index.html 추가 정리 필요
+    navigator.serviceWorker.getRegistration().then(r => console.log('SW state', r && r.active && r.active.state));  // 'activated'
+    ```
+- **파일**: `sw.js` L15~28 + `index.html` L21~22 + 버전 R1 7곳
+- **violated_rule**: 없음 (외부 변경에 의한 cascading 영향)
+- **사용자에게 안내**:
+  1. **Ctrl+Shift+R** 강력 새로고침 → 신규 SW v49.43 활성화 + 이전 캐시 폐기
+  2. 콘솔(F12)에 `AIO.forceRefreshAllData()` 입력 → 모든 외부 API 재 fetch
+  3. API 키 (`aio_finnhub_key` 등) localStorage 확인:
+     ```js
+     ['aio_finnhub_key','aio_fmp_key','aio_av_key','aio_fred_key','aio_claude_api_key']
+       .map(k => ({key:k, has: !!localStorage.getItem(k)}))
+     ```
+  4. 키가 모두 빈 경우 사이드바 ⚙️ 설정에서 재입력
 
 ---
 

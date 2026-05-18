@@ -6,6 +6,43 @@
 
 ---
 
+## v49.43 - HOTFIX: manifest.json 참조 제거 + SW 캐시 강제 회전 (2026-05-18)
+
+**Changed files**: `index.html`, `sw.js`, `js/aio-core.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
+
+- **사용자 보고 (2026-05-18 22:30)**: "데이터 연결 다 날라간 것 같은데? 전체 데이터 레이어/파이프라인 정밀 조사 해야겠는데?"
+- **근본 원인 (P310)**:
+  - v49.42 push (`206c795`) 직후 사용자가 GitHub UI에서 23 파일 일괄 삭제 (5 commits: `9628942` `.gitignore` / `29af1f3` `manifest.json` / `a9dc39d` 스크린샷 / `825d3c5` `cloudflare-worker-proxy.js` / `82a94f1` `api_setup_guide.html` + 18 wiki/JS 백업)
+  - 핵심: **`manifest.json` 삭제** + `sw.js` L18 `SHELL_ASSETS`에 `'./manifest.json'` 잔존 + `index.html` L22 `<link rel="manifest">` 잔존 → SW install 시 `cache.add` 404 + 페이지 로드마다 manifest 404 콘솔 에러
+  - 사용자가 콘솔에 산재한 404 에러 + "데이터 미수신" 보고 "캐시 클리어" 시도 → localStorage(API 키) 함께 삭제된 것으로 추정 ("키 날아갔다" 메커니즘)
+
+- **HOTFIX 시정**:
+  - `index.html` L22 `<link rel="manifest" href="./manifest.json">` 주석 처리 (PWA 비활성 — 사용자 의도 반영)
+  - `sw.js` `SHELL_ASSETS`에서 `'./manifest.json'` 라인 제거
+  - **SW_VERSION v49.42 → v49.43 강제 회전** — 모든 클라이언트가 install 시 신규 `aio-shell-v49.43` + `aio-data-v49.43` 캐시 생성 + 이전 v49.42 캐시 (manifest 404 시도 포함) `caches.delete()` 폐기
+
+- **API 키 자동 삭제 코드 0건 검증**:
+  - `aio_finnhub_key` / `aio_fmp_key` / `aio_av_key` / `aio_fred_key` / `aio_claude_api_key` 대상 `localStorage.removeItem` grep 0 match
+  - 코드가 키를 자동 삭제하지 않음 — 사용자의 캐시 클리어/시크릿 모드/다른 브라우저 사용 등으로 추정
+
+- **검증 (배포 후 사용자 콘솔)**:
+  ```js
+  fetch('./manifest.json').then(r => console.log('manifest 404 expected:', r.status))  // 404 OK (참조 제거됨)
+  navigator.serviceWorker.getRegistration().then(r => console.log('SW state', r.active.state))  // 'activated' (v49.43)
+  fetch('./version.json', {cache:'no-cache'}).then(r=>r.json()).then(j => console.log(j))  // v49.43
+  ['aio_finnhub_key','aio_fmp_key','aio_av_key','aio_fred_key','aio_claude_api_key']
+    .map(k => ({key:k, has: !!localStorage.getItem(k)}))  // 키 보유 여부 확인
+  AIO.forceRefreshAllData()  // 외부 API 재 fetch
+  ```
+
+- **R1 7곳 동기화**: title + badge + APP_VERSION + SW_VERSION + SW_BUILD + version.json + CLAUDE.md + _context/CLAUDE.md
+- **사용자 단기 액션**:
+  1. **Ctrl+Shift+R** 강력 새로고침 → 신규 SW v49.43 activate
+  2. API 키 boilerplate 확인 (사이드바 ⚙️) — 빈 경우 재입력
+  3. 콘솔 `AIO.forceRefreshAllData()` 입력 → 외부 데이터 즉시 fetch
+
+---
+
 ## v49.42 - sentiment/briefing/technical/macro 1차+2차 일괄 (2026-05-18)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `_context/BUG-POSTMORTEM.md`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
