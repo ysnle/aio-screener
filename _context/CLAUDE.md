@@ -2,7 +2,7 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v49.17
+- **현재 버전**: v49.42
 
 ## _context/ 문서 (13개 Git-tracked 활성)
 
@@ -10,7 +10,7 @@
 |------|------|-----------|
 | CLAUDE.md | 이 파일: 구조, hooks, skills, 복리 루프 | 구조 또는 워크플로 변경 시 |
 | RULES.md | 마스터 룰 R1~R29 | 새 규칙/패턴 발견 시 |
-| BUG-POSTMORTEM.md | 버그 사후 분석 P1~P206 (R25 역참조) | 버그 수정 후 |
+| BUG-POSTMORTEM.md | 버그 사후 분석 P1~P293 (R25 역참조) | 버그 수정 후 |
 | QA-CHECKLIST.md | QA 14티어 체크리스트 v3.3 | /qa 발견 시 |
 | KNOWLEDGE-BASE.md | 기술 인사이트 축적 (R26) | 인사이트 발견 시 |
 | CODE-MAP.md | index.html + js 모듈 line 범위 맵 | 리팩토링 ±500줄 |

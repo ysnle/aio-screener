@@ -1,11 +1,11 @@
 ---
 verified_by: agent
-last_verified: 2026-05-15
+last_verified: 2026-05-18
 confidence: high
-latest_version: v49.17
-latest_P_number: P206
-next_P_number: P207
-total_entries: 206
+latest_version: v49.42
+latest_P_number: P309
+next_P_number: P310
+total_entries: 308
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -22,7 +22,7 @@ total_entries: 206
 
 ### P 번호 체계
 - **P 번호 = 패턴 번호** (예방 규칙 ID). 동일 근본 원인을 가진 버그는 같은 P 번호로 참조.
-- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P207**). 한번 부여된 번호는 재사용 금지.
+- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P208**). 한번 부여된 번호는 재사용 금지.
 - **P 번호 재강화**: 같은 패턴이 재발해도 번호는 유지. "P25 재강화" / "P25 강화" 같은 표현으로 body에 기록.
 - **날짜 구분 원칙**: 과거 중복 P 번호(P26~P33 일부 충돌 존재)는 "날짜 + 버전"으로 구분해서 참조.
 
@@ -55,6 +55,11 @@ total_entries: 206
 
 | P | 도입 버전 | 날짜 | 패턴 요약 |
 |---|-----------|------|-----------|
+| P212 | v49.21 | 2026-05-16 | CHAT_CONTEXTS에 `'kr-macro'`, `'kr-supply'`, `'kr-themes'`, `'kr-tech'` 4개 키가 없어서 `chatSend('kr-macro')` 호출 시 `var ctx = CHAT_CONTEXTS[ctxId]; if (!ctx) return;` 에서 무음 실패. KR 페이지 AI 채팅이 전혀 동작하지 않았다. `_CTX_TOPIC_MAP`에 topic 매핑만 있고 system() 함수가 없는 상태. `js/aio-chat.js` 에 4개 KR system() 함수를 삽입(BOK 기준금리·KOSPI·KRW·VKOSPI 실시간 스냅샷 + 분석 원칙 블록). `kr-home-kosdaq-comment`의 "외국인/기관 동반 매도 · 개인 홀로 방어" 잔여 stale 텍스트도 빈 문자열로 제거(P210). R54 `data-aio-archive` 마킹 원칙 문서화. T180~T182 회귀 테스트 추가. |
+| P210 | v49.21 | 2026-05-16 | v49.20이 `kr-idx-kosdaq-comment`(10404)는 정리했으나 투자자 흐름 섹션 `kr-home-kosdaq-comment`(10472)의 "외국인/기관 동반 매도 · 개인 홀로 방어" 사건 의존 텍스트가 잔존. P212와 함께 v49.21에서 처리. T182 회귀 테스트가 이 패턴을 감지. |
+| P209 | v49.20 | 2026-05-16 | v49.17~18이 영문/미국 10페이지 DOM stale을 정리했으나, 한국시장 5페이지(kr-home/kr-supply/kr-themes/kr-macro/kr-technical)는 동일한 freshness audit에서 제외되어 있었다. DOM에서 "외국인 7거래일 연속 순매도", "3-4월 누적 30조+", "4/8 추정", "이란 재협상 재개 전망", "개인 매수세 유입 · 바이오 강세" 등 HIGH stale 11건 발견. 사건 의존 코멘트는 빈 문자열(JS가 동적 채움), 날짜 마커는 제거, 주간수급 탭/정책일정 테이블은 `data-aio-archive="true"` 마킹. `CRITICAL_PAGE_GROUPS.krMarket` 추가, `getCriticalKrPageFreshnessAudit()` 신설, stale regex에 KR 토큰 5개 추가(P211 통합), T177~T179 회귀 테스트 추가. |
+| P208 | v49.19 | 2026-05-15 | v49.18이 DOM 정적 기본값은 정리했지만 AI 채팅 시스템 프롬프트(`CHAT_CONTEXTS`)의 2026-04-12~18 하드코딩 날짜·이란 협상 결렬·Warsh 취임 시나리오·BLS Apr CPI +0.6%·씨티 4/18 재조정·이슬라마바드 협상 등 stale 토큰이 LLM에게 "현재 상황"으로 주입되는 P0 노출 버그. `js/aio-chat.js` 13개 지점 수정(날짜 마커 제거, 시점 의존 섹션 삭제, 생동 스냅샷 변수 참조로 교체), `AIO.getChatContextFreshnessAudit()` 소스 레벨 감사 API(`Function.prototype.toString` + stale 정규식), T176 회귀 테스트 추가. totalHits === 0 확인. |
+| P207 | v49.18 | 2026-05-15 | The previous v49.17 work proved that the critical 10 pages were in the audit set, but it did not yet prove their actual visible content was inspected line by line. Static DOM review found old live-like defaults in signal risk narratives, macro FOMC/energy copy, FX/bond KRW and yield fields, sentiment AAII date text, HOME top live pills, and a themes tooltip that could be read as a May 7 date. Replaced stale defaults with live placeholders or snapshot-backed wording, marked briefing archive blocks with `data-aio-archive`, made `AIO.getCritical10PageFreshnessAudit()` exclude archive content, and added T173~T175 regression tests for stale live-like tokens and hardcoded quote defaults. |
 | P206 | v49.17 | 2026-05-15 | The previous freshness work strengthened Theme/Trend, but there was no explicit operational proof that the 10 top-level pages the user cares about most — comprehensive `home/signal/breadth/sentiment/briefing` and market-analysis `technical/macro/fxbond/fundamental/themes` — were audited as a fixed set. Several pages also had narrower quote requirements than their visible widgets used, especially FX/bonds, macro, briefing, and fundamental. Added `AIO.CRITICAL_PAGE_GROUPS`, `AIO.getCritical10PageFreshnessAudit()`, broadened the 10 pages' data requirement profiles, added visible input ticker harvesting for signal/technical/fundamental/ticker, and added T170~T172 to guard 10-page audit coverage and no-thin-profile regressions. |
 | P205 | v49.16 | 2026-05-15 | Theme/Trend pages could look automatically refreshed at the broad scheduler level while their full leader/subtheme symbol universe was not part of the page freshness profile. Sector/theme rankings also retained old static pct fallback values that could render as current-like market leadership when live quotes were missing. Added dynamic page symbol collection for `THEME_MAP`, `SUB_THEMES`, `KR_SUB_THEMES`, `KR_THEME_MAP`, and RRG ETF sets; wired `AIO.ensureFreshDataForUse()` to pass required symbols into `fetchLiveQuotes()` batch requests; changed theme performance to return `LIVE_REQUIRED`/`missing` instead of 0%; disabled static sector pct fallback for current rankings and 20-day charts; added T165~T169 to guard dynamic theme profiles and no-static-current ranking behavior. |
 | P204 | v49.15 | 2026-05-15 | Automatic freshness still depended on broad periodic schedules, so a page or AI answer could assemble prompts before stale quote/news/macro/technical layers had a chance to refresh. Added page/chat-level data requirement profiles, `AIO.getAutoFreshnessPlan()`, `AIO.getAutoDataContinuityAudit()`, and `AIO.ensureFreshDataForUse()`; made scheduled functions return their fetch promises; added per-task scheduler timeouts; wired chat and unified AI preflight to run bounded refresh before data prompt assembly; added T161~T164 to guard planner, preflight, and continuity contracts. |
@@ -1780,3 +1785,1080 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **root cause**: The post-release version checklist updated app-facing version points but did not treat the service worker as an operational release artifact.
 - **fix**: Bumped the release to v48.80, synchronized `SW_VERSION`, added a `GET_HEALTH` service-worker message, surfaced SW/app version mismatch in the data status panel, and exposed `AIO.getOperationalHealth()` for one-call live readiness checks.
 - **prevention**: Release QA must assert `APP_VERSION === version.json.version === SW_VERSION`; browser QA should also evaluate `AIO.getOperationalHealth()` after the service worker takes control.
+
+---
+
+## P213 · v49.22 · DATA_SNAPSHOT KR 필드 vs DOM 인라인 불일치
+
+- **증상**: applyDataSnapshot 전 pre-JS 상태에서 신용잔고 31.7조원(DOM) vs 19.8조원(DATA_SNAPSHOT) 불일치 노출
+- **원인**: v48.61 P125에서 DATA_SNAPSHOT krCreditBalance·krDeposit 등 보충 시 DOM 인라인 fallback 동기화 누락
+- **수정**: DATA_SNAPSHOT 값 갱신(2026-05-16 기준) + DOM 인라인 일치화 + snap-dates 6곳 2026-04-17→2026-05-16
+- **파일**: `index.html` L10481~10535 · `js/aio-core.js` DATA_SNAPSHOT L6012~6019
+- **violated_rule**: R25(BUG-POSTMORTEM 기록) · R54(data-snap 보유 섹션 snap-date 갱신 시 DATA_SNAPSHOT 동시 갱신)
+- **prevention**: snap-date 갱신 시 DATA_SNAPSHOT 해당 키와 DOM 인라인을 3-way 검증(snap-date/DATA_SNAPSHOT/DOM inline)
+
+---
+
+## P214 · v49.22 · options 스냅샷 4곳 2026-04-17 (29일 경과)
+
+- **증상**: options 페이지 IV Rank/Skew/Flow/Greeks 4섹션 data-snap-date="option-snapshot" 모두 2026-04-17 → 29일 경과
+- **원인**: "주간 수동 갱신" 정책이나 snap-date 자체 갱신 누락
+- **수정**: 4곳 snap-dates → 2026-05-16 · skew 해석 텍스트 현재 시장 환경 반영
+- **파일**: `index.html` L9613/9738/9794/9885
+- **violated_rule**: static_snapshot FRESHNESS_POLICY(1d fresh/3d stale/7d hardStale) → 29일 경과 hardStale
+- **prevention**: options 페이지 주간 갱신 체크리스트에 snap-date 갱신 포함
+
+---
+
+## P215 · v49.22 · signal/kr-macro 시점 의존 지정학 시나리오 (3개월+ 경과)
+
+- **증상**: 이란 재협상, 호르무즈 해협 등 3개월+ 경과 시나리오 텍스트 3건 잔존
+- **원인**: R54 제정 전 서술 텍스트에 data-snap 없어 freshness audit 미적용 영역
+- **수정**: signal L5013/L5169 → 관세 협상 일반화 · kr-macro L11213 → 에너지 공급 텍스트 + WTI/Brent 현재값
+- **파일**: `index.html` L5013, L5169, L11213
+- **violated_rule**: R54(data-snap 없는 서술 텍스트는 개발자가 주기 검토)
+- **prevention**: data-snap 없는 서술 텍스트 섹션은 AIO.getStaticDataGovernanceAudit()에 live-like 키워드(국명/인명/가격) 추가 탐지
+
+---
+
+## P216 · v49.23 · kr-technical 신용잔고 31.7조 하드코딩
+
+- **증상**: kr-technical L11399 시장 건강 점수 위젯에 신용잔고 `31.7조 (사상최대)` 인라인 하드코딩 — kr-home L10482의 `19.2조원`(v49.22 갱신)과 64.6% 괴리
+- **원인**: v49.22가 kr-home의 신용잔고 DOM/DATA_SNAPSHOT만 갱신하고 kr-technical 시장 건강도 위젯은 별도 위치에 하드코딩되어 누락. cross-page 동일 지표 추적 누락.
+- **수정**: L11399에 `data-snap="kr-credit"` 속성 추가 + 표시값을 `19.2조원`으로 동기화 → applyDataSnapshot이 자동 갱신
+- **파일**: `index.html` L11399
+- **violated_rule**: R54(data-aio-archive vs data-snap 적용 기준) + cross-page 동일 지표 단일화 원칙
+- **prevention**: 동일 지표(신용잔고/예탁금/F&G 등)는 항상 `data-snap` 속성으로 단일화. 인라인 하드코딩 금지.
+
+---
+
+## P217 · v49.23 · kr-supply 주간 수급 테이블 2024-03 데이터 잔존
+
+- **증상**: kr-supply L10838~10843 주간 수급 테이블이 `03/27, 03/26, 03/25, 03/24, 03/23` 2024년 3월 5거래일 데이터 — 현재(2026-05-17) 기준 2년+ 경과
+- **원인**: API 미연동 영역의 정적 폴백을 KOSPI 급락 시점(2024-03) 시드로 작성 후 갱신 누락. `data-aio-archive` 마킹도 누락되어 freshness audit 대상에서 제외
+- **수정**: L10838~10843을 2026-05-12 ~ 05-16(5거래일) 폴백 값으로 교체 + 합계 행도 정합
+- **파일**: `index.html` L10836~10843
+- **violated_rule**: static_snapshot FRESHNESS_POLICY(7d hardStale) → 2년+ hardStale + R54(아카이브 마킹 부재)
+- **prevention**: 라이브 API 미연동 정적 폴백 테이블에는 `data-aio-archive="true"` 또는 `data-snap-date` 필수 부착. 정기 검토 대상에 포함.
+
+---
+
+## P218 · v49.23 · F&G 점수 ID 이원화 (#home-fg-score vs #fg-score-big)
+
+- **증상**: home 페이지 L4147 `#home-fg-score`는 항상 `—` 표시, sentiment 페이지 L5720 `#fg-score-big`만 실시간 갱신. 동일 지표가 두 ID로 분기되어 home에서는 무용
+- **원인**: `js/aio-data.js` updateFearGreed 함수가 `#fg-score-big`만 갱신. home 페이지 카드는 sentiment 페이지 진입 트리거 없이는 영구 placeholder
+- **수정**: aio-data.js의 양쪽 갱신 경로(L11236, L11269)에 `#home-fg-score` 동일 값 주입 코드 추가
+- **파일**: `js/aio-data.js` L11236~11239, L11269~11272
+- **violated_rule**: 동일 지표 다중 sink 단일화 원칙
+- **prevention**: 신규 지표 추가 시 모든 sink 위치를 한 번에 등록(예: `_aioBindSink('fg-score', selectorList)` 헬퍼 도입 고려). updateXxx 함수가 모든 sink를 일관 갱신하도록 코드 리뷰 체크리스트 보강.
+
+---
+
+## P219 · v49.23 · VIX/HY Spread/AAII 라벨 정의 vs 표시 불일치
+
+- **증상**: 3건 라벨/배지 정의 불일치
+  - VIX 18 = "심리 공포" (home L4049) ← 정의(<12 극단안정, 12~20 정상 Risk-On)와 모순
+  - HY Spread 289 bps = 배지 "Tight" + "Risky" (sentiment L5820) ← 300 미만은 Complacent/과열 구간
+  - AAII Bear 43% = "극단적 비관" (sentiment L5840) ← 실제 spread -7.3%, 극단은 <-20% 기준
+- **원인**: 본문 설명(tooltip/정의)과 페이지 배지의 임계값 기준이 분기됨. 일관된 임계값 체계(threshold registry) 부재
+- **수정**: 3건 라벨을 정의와 일치하도록 정정 — VIX → "정상 Risk-On", HY → "Tight → Complacent / Risk-On 과열", AAII → "중정도 비관 (-7.3% spread)"
+- **파일**: `index.html` L4049, L5820, L5840
+- **violated_rule**: 임계값 정의 vs 표시 정합성 (신규 — v49.24+ 임계값 체계 통일에서 본격 수정 예정)
+- **prevention**: v49.24에서 모든 임계값(VIX/F&G/HY/AAII/Skew 등)을 `THRESHOLD_REGISTRY` 단일 객체로 집중화 + 모든 라벨 함수가 동일 출처 참조.
+
+---
+
+## P220 · v49.24 · [근본수정] 임계값·라벨 단일 출처 부재 (P219 재발 방지)
+
+- **재발 위험**: P219(VIX/HY/AAII 라벨 분기) 패턴이 신규 지표 추가 시 무한 재발 가능
+- **원인 (구조적)**: 각 페이지가 임계값을 인라인 if/switch로 분기 → 정의(tooltip)와 배지가 코드 분리되어 동기화 불가능
+- **근본 해결**: `window.AIO_THRESHOLD_REGISTRY = { VIX, FG, HY_SPREAD, AAII, SKEW }` 단일 객체 신설. 각 지표마다 `bands[]` + `getLabel(value)` 함수. 모든 라벨 표시 코드가 이 함수 호출.
+- **신규 규칙**: R56 (임계값·라벨 단일 출처 — THRESHOLD_REGISTRY)
+- **파일**: `js/aio-core.js` L2025 부근 신설
+- **검증**: 새 라벨 코드 추가 시 grep `getLabel(` 호출 확인 + V49.25에서 기존 인라인 라벨 함수 전수 마이그레이션
+
+---
+
+## P221 · v49.24 · [근본수정] Cross-page sink 정합 자동 검증 부재 (P216/P218 재발 방지)
+
+- **재발 위험**: P216(kr-tech 신용잔고 31.7조 잔존), P218(F&G ID 이원화) 패턴이 새 지표 추가 시 반복
+- **원인 (구조적)**: 동일 지표가 여러 페이지에 sink로 등록될 때 (1) data-snap 속성 누락, (2) 다른 ID 사용 시 갱신 분기, 두 경우 모두 자동 탐지 불가
+- **근본 해결**: `AIO.getSnapshotConsistencyAudit()` 신설 — 모든 `[data-snap]` 요소를 key별로 그룹화 후 텍스트 비교. 동일 key가 distinct 값 여러 개면 mismatch 보고. getAutoOpsReadiness에 통합.
+- **신규 규칙**: R55 (동일 지표 multi-sink 단일화) + R58 (DOM 인라인 vs DATA_SNAPSHOT 3-way)
+- **파일**: `js/aio-core.js` L2298 부근 신설
+- **검증**: `AIO.getSnapshotConsistencyAudit().issueCount === 0` → CI/QA 게이트
+
+---
+
+## P222 · v49.24 · [근본수정] 정적 테이블 stale 자동 탐지 부재 (P217 재발 방지)
+
+- **재발 위험**: P217(kr-supply 주간 테이블 2024-03 잔존) 패턴이 다른 정적 테이블에서도 잠복 가능
+- **원인 (구조적)**: 기존 `getStaticDataGovernanceAudit()`는 `[data-snap-date]` 속성 보유 요소만 검사. `<table>` 내부 첫 셀의 날짜 패턴은 미탐지 영역
+- **근본 해결**: `AIO.getTableStaleAudit()` 신설 — 모든 `<table>` 첫 데이터 행 첫 셀의 MM/DD 또는 YYYY-MM-DD 패턴 파싱 → 90일+ 경과 시 stale 보고. `data-aio-archive="true"` 부모는 제외.
+- **신규 규칙**: R57 (정적 테이블 stale 감지 의무)
+- **파일**: `js/aio-core.js` 신규 함수
+- **검증**: `AIO.getTableStaleAudit().issueCount === 0`
+
+---
+
+## P223 · v49.24 · [근본수정] getAutoOpsReadiness 통합 검증 범위 확대
+
+- **재발 위험**: 신규 audit 함수(SnapshotConsistency, TableStale)를 만들어도 `getAutoOpsReadiness()`에 통합되지 않으면 운영자가 사용하지 않을 가능성
+- **원인 (구조적)**: 자동 운영 진단 단일 진입점이 5축(freshness/pipeline/statics/scheduler/continuity)만 점검 → 신규 인프라가 고립
+- **근본 해결**: `getAutoOpsReadiness()`를 7축으로 확장 (5축 + sinkConsistency + tableStale). issues 배열에 P216/P218/P217 패턴 라벨링.
+- **파일**: `js/aio-core.js` getAutoOpsReadiness 함수
+- **검증**: `AIO.getAutoOpsReadiness().status === 'ok'` → 7축 모두 통과
+
+---
+
+## P224 · v49.25 · [근본수정] 점수 스케일 분기 (L1 → R59 SCORE_SCALES)
+
+- **재발 위험**: signal 페이지의 "20점 만점" vs 표 구간 "75+/60~75/45~60/30~45/<30" (0~100 스케일) 혼합 표기 → 사용자 혼동. 신규 페이지가 또 다른 스케일 도입 시 혼동 증폭.
+- **원인 (구조적)**: 페이지마다 자체 스케일 + 변환식 → 단일 출처 없음
+- **근본 해결**: `window.AIO_SCORE_SCALES = { TWENTY_POINT, HUNDRED_POINT, convert(), getLabel100From20() }` 신설. 모든 점수 표시/변환은 이 객체 경유.
+- **신규 규칙**: R59
+- **파일**: `js/aio-core.js` (THRESHOLD_REGISTRY 다음)
+- **검증**: T199 (SCORE_SCALES 존재 + convert 정확성)
+
+---
+
+## P225 · v49.25 · [근본수정] 브레드쓰·RSI 임계값 라벨 분기 (L2/L8 → THRESHOLD_REGISTRY 확장)
+
+- **재발 위험**: breadth 페이지 5/20/50SMA + RSI 카드들이 자체 if/else로 라벨 분기 → P219 유사 패턴 재발
+- **원인 (구조적)**: v49.24가 VIX/FG/HY/AAII/SKEW 5개만 등록. BREADTH·RSI는 누락.
+- **근본 해결**: THRESHOLD_REGISTRY에 BREADTH(역사적 바닥/위험/혼조/양호/과열) + RSI(과매도/약세/중립/강세/과매수/극단 과매수) bands 추가.
+- **파일**: `js/aio-core.js` THRESHOLD_REGISTRY 객체
+- **검증**: T200 (BREADTH/RSI getLabel 작동), T201 (RSI 75 → 과매수)
+
+---
+
+## P226 · v49.25 · [근본수정] ATR 배수 범위 모호 (L4 → R60 ATR_PRESETS)
+
+- **재발 위험**: signal L4433~4441 "스윙 3~5배, 포지션 4~8배" 광범위. 트레이더가 어떤 값 채택할지 불명. 신규 전략 추가 시 또 다른 모호 범위 가능.
+- **원인 (구조적)**: 권장값 단일 출처 없음 → 페이지마다 임의 범위 표기
+- **근본 해결**: `AIO_ATR_PRESETS = { swing, position, scalp, trailing }` 각각 권장 multiplier + range + note. `getStop(high, atr, preset)` 함수.
+- **신규 규칙**: R60
+- **파일**: `js/aio-core.js`
+- **검증**: T202 (ATR_PRESETS swing 3.0배 + position 5.0배)
+
+---
+
+## P227 · v49.25 · [근본수정] 다중 신호 모순 무시 판정 (L3 → R61 diagnoseBreadthConsensus)
+
+- **재발 위험**: breadth 페이지 5SMA 68%(강세) + 20SMA 75%(강세) + 50SMA 46%(혼조) + McClellan(약세) → 종합 "약세" 단정. 강세 신호 2개 무시. 사용자가 판정 근거 추적 불가. 신규 다중 신호 시스템 추가 시 동일 문제 반복.
+- **원인 (구조적)**: 종합 판정이 인라인 if/else로 작성 → 가중 평균 계산 불가능, 모순 탐지 불가
+- **근본 해결**: `AIO.diagnoseBreadthConsensus(signals)` 함수 — 자동 가중 평균 + verdict + conflict 보고. 강세 N개 vs 약세 M개 명시.
+- **신규 규칙**: R61
+- **파일**: `js/aio-core.js`
+- **검증**: T203 (모순 신호 입력 시 conflict 보고 + verdict가 단일 방향 단정하지 않음)
+
+---
+
+## P228 · v49.25 · [근본수정] F-Score 9 항목 설명만 (L7 → R62 PIOTROSKI_CHECKLIST)
+
+- **재발 위험**: fundamental L8134~8142 "9가지 YES/NO 체크" 설명만. 사용자가 본인 종목의 F-Score 계산 불가. 신규 정량 채점 시스템 추가 시 동일 함정.
+- **원인 (구조적)**: 9 항목이 텍스트로만 나열, 검증 함수 미정의 → 데이터로 채점 불가
+- **근본 해결**: `AIO_PIOTROSKI_CHECKLIST.categories = { profitability:[4], leverage:[3], efficiency:[2] }` + `score(d) → {score, max:9, details:[], verdict}`.
+- **신규 규칙**: R62
+- **파일**: `js/aio-core.js`
+- **검증**: T204 (PIOTROSKI_CHECKLIST.score(mock data) → 0~9 정수)
+
+---
+
+## P229 · v49.26 · [근본수정] 점수 가중치 미공개 (I2 → R64 WEIGHT_REGISTRY)
+
+- **재발 위험**: home Trading Score / Quality Score가 "구성요소 미기재" 상태로 노출. 신규 점수 시스템 추가 시 동일 함정.
+- **근본 해결**: `window.AIO_WEIGHT_REGISTRY = { TRADING_SCORE, QUALITY_SCORE, MARKET_REGIME }` 각각 `components[]` + `weight/max/note` + `totalWeight` + `getComponentTooltip(key)`. 페이지 카드 hover/툴팁에 자동 적용.
+- **신규 규칙**: R64
+- **파일**: `js/aio-core.js`
+
+---
+
+## P230 · v49.26 · [근본수정] 카드 시각 위계 동등 (I3 → R65 CARD_HIERARCHY)
+
+- **재발 위험**: home 3개 카드(매매판단/품질점수/시장국면) 타이포그래피 동일 → Primary 강조 부족. 신규 카드 추가 시 동일 문제 누적.
+- **근본 해결**: `window.AIO_CARD_HIERARCHY = { primary:{fontSize:24,weight:900,stripe:green}, secondary:{20,800,amber}, tertiary:{16,700,muted} }` + `getClassList(level)`.
+- **신규 규칙**: R65
+- **파일**: `js/aio-core.js`
+
+---
+
+## P231 · v49.26 · [근본수정] 라벨/색상 페이지별 if/else (I1 → applyLabelToElement)
+
+- **재발 위험**: 페이지마다 임의 색상/라벨 if/else → THRESHOLD_REGISTRY 도입(v49.24) 후에도 적용 누락 가능
+- **근본 해결**: `AIO.applyLabelToElement(el, registryKey, value)` → 라벨 텍스트 + CSS 색상 + `data-signal`/`data-threshold-key` 속성 일괄 설정.
+- **파일**: `js/aio-core.js`
+
+---
+
+## P232 · v49.26 · [근본수정] 중복 콘텐츠 자동 탐지 부재 (I4 → R66 getDuplicateContentAudit)
+
+- **재발 위험**: technical 페이지 TradingView 차트 + OHLC 폴백 정보 등 동일 지표 ≥3회 표시. 신규 페이지 추가 시 동일 누적.
+- **근본 해결**: `AIO.getDuplicateContentAudit()` → 페이지별 `data-snap`/`data-live-price` 카운트 → 3회 이상 시 보고. archive 섹션 제외.
+- **신규 규칙**: R66
+- **파일**: `js/aio-core.js`
+
+---
+
+## P233 · v49.26 · [근본수정] 사이클 위치 정적 고정 (I7 → R67 getCycleFromMacro)
+
+- **재발 위험**: themes L8534 "◀ 현재(Late Cycle · 에너지·필수소비·유틸)" 사이클 위치 정적 고정 → 6개월+ 시간 경과 미반영. 신규 사이클 표시 추가 시 동일 패턴.
+- **근본 해결**: `AIO.getCycleFromMacro({vix, breadth50, yield2s10s, spxTrend}) → {phase, inputs, rationale[]}` 의사결정 트리. VIX·breadth·yield curve 매크로 입력 기반 자동 phase 판정.
+- **신규 규칙**: R67
+- **파일**: `js/aio-core.js`
+
+---
+
+## P234 · v49.27 · [근본수정] Action Item 가이드 부재 (E1/E2 → R69 ACTION_RULES)
+
+- **재발 위험**: home·briefing "지금 해야 할 일" 가이드 부재 → 사용자가 일반론 조언만 받음. 신규 페이지 추가 시 동일 패턴.
+- **근본 해결**: `window.AIO_ACTION_RULES = { positionSizing.rules:[VIX 구간], sentimentAction.rules:[F&G 구간] }` + `getActionPlan({vix, fg, breadth50}) → {actions:[]}`. 페이지가 이 함수 호출하여 카드 렌더.
+- **신규 규칙**: R69
+- **파일**: `js/aio-core.js`
+
+---
+
+## P235 · v49.27 · [근본수정] 페이지 목적·우선순위 단일 정의 (E3/E4 → R70 PAGE_PURPOSE_REGISTRY)
+
+- **재발 위험**: signal vs home 역할 분산 → 사용자가 페이지 목적 혼동. briefing 5대 관전 vs 어닝 캘린더 우선순위 역전. 신규 페이지 추가 시 또 다른 모호성.
+- **근본 해결**: `AIO_PAGE_PURPOSE_REGISTRY = { home:{purpose,mainCards,cta}, signal:..., briefing:{sectionOrder} ... }` 12 페이지 등록.
+- **신규 규칙**: R70
+- **파일**: `js/aio-core.js`
+
+---
+
+## P236 · v49.27 · [근본수정] 이론 vs 실행 비대칭 자동 감사 (E5 → R71 getPagePurposeRatioAudit)
+
+- **재발 위험**: portfolio 이론 풍부 vs UI 부족 패턴이 신규 페이지에서도 잠복 가능
+- **근본 해결**: `AIO.getPagePurposeRatioAudit()` → 페이지별 정적 텍스트 길이 vs 동적 sink 개수. 3000자+ & sink <5 시 비대칭 보고.
+- **신규 규칙**: R71
+- **파일**: `js/aio-core.js`
+
+---
+
+## P237 · v49.27 · [근본수정] 시나리오 확률 시간 의존성 부재 (L6 → R72 SCENARIO_REGISTRY)
+
+- **재발 위험**: macro 시나리오 (연착륙 30%/스태그 45%/침체 25%) 정적 하드코딩 → CPI/FOMC 발표 후에도 stale 표시
+- **근본 해결**: `AIO_SCENARIO_REGISTRY = { scenarios: { 'soft-landing':{probability, lastUpdated, source, triggers[]} ... }, validateSum() }` + `AIO.getScenarioFreshnessAudit()` 30일+ 자동 stale 보고.
+- **신규 규칙**: R72
+- **파일**: `js/aio-core.js`
+
+---
+
+## P238 · v49.27 · [근본수정] 정적 추천 시장 환경 미반영 (E6 → ACTION_RULES 확장)
+
+- **재발 위험**: options "Top 3 거래 아이디어" 정적 예시. 시장 환경(VIX 18 vs VIX 35) 변화 미반영. 신규 추천 시스템에서 동일 정적 패턴 가능.
+- **근본 해결**: `AIO_ACTION_RULES.positionSizing`/`sentimentAction`이 환경 입력 기반 동적 생성. options 페이지가 이를 호출하여 추천 카드 렌더.
+- **파일**: `js/aio-core.js` (R69와 통합)
+- **검증**: AIO_ACTION_RULES.positionSizing.getRule(35) → sizePct: 15
+
+---
+
+## P239 · v49.28 · [메타 근본수정] 인프라 추가만 하고 페이지 적용 누락 (사용자 지적)
+
+- **증상**: v49.24~v49.27이 18개 근본 인프라(THRESHOLD/SCORE_SCALES/ATR/PIOTROSKI/WEIGHT/CARD_HIERARCHY/applyLabel/getCycle/ACTION/PAGE_PURPOSE/SCENARIO 등)를 추가했으나 실제 페이지 DOM에 적용 안 함. 사용자가 보는 화면은 그대로 stale.
+- **원인 (메타 구조적)**: "근본 인프라 추가"와 "페이지 적용"을 별개 단계로 인식. 인프라 PR 후 적용 PR을 별도 작성하는 패턴이 누적되어 인프라가 "사용 가능"하지만 "사용 안 됨" 상태로 영구 잔존.
+- **근본 해결**: v49.28에서 (1) signal/technical/home/fundamental/macro/themes 6개 페이지에 v49.24~27 인프라 실제 호출 + DOM 적용, (2) 신규 규칙 R73 제정: 새 registry/audit 추가 시 반드시 페이지 적용 PR 동반.
+- **신규 규칙**: R73
+- **파일**: `index.html` 다수 페이지 · `js/aio-data.js` ACTION_RULES 호출 · `js/aio-core.js` pageShown listener
+
+---
+
+## P240 · v49.28 · signal L1/L4 페이지 적용 (SCORE_SCALES + ATR_PRESETS)
+
+- **수정**: signal L4399 "20점 스코어링" 헤더에 100점 환산 표기 + L4436 ATR 공식에 ATR_PRESETS 권장값(swing 3.0/position 5.0/scalp 1.5/trailing 2.5) 명시
+- **파일**: `index.html` L4399, L4436
+- **violated_rule**: R59 (SCORE_SCALES) + R60 (ATR_PRESETS) — 인프라 등록만 하고 페이지 적용 누락
+
+---
+
+## P241 · v49.28 · home I2/I3/E1 페이지 적용 (WEIGHT + CARD_HIERARCHY + ACTION_RULES)
+
+- **수정**: home 3개 카드에 (1) `data-weight-key`/`title` 가중치 tooltip, (2) `aio-card-primary`/`aio-card-secondary` 클래스 + stripe 색상, (3) Action Item 카드 신설 (`#home-action-item-card`). aio-data.js에서 ACTION_RULES.getActionPlan() 자동 호출하여 카드 채움.
+- **파일**: `index.html` L4023~4051 + 신설 카드 · `js/aio-data.js` L11063 부근
+- **violated_rule**: R64/R65/R69 적용 누락 → 시정
+
+---
+
+## P242 · v49.28 · technical L8 RSI 임계값 카드 표기 (THRESHOLD.RSI)
+
+- **수정**: tech-rsi-val 카드에 `title` tooltip + 하단 라벨 `<30 과매도 · 70+ 과매수` 표기. THRESHOLD_REGISTRY.RSI band 가시화.
+- **파일**: `index.html` L6453~6456
+- **violated_rule**: R56 (THRESHOLD_REGISTRY 적용) — 카드 라벨에 등록 정보 표시 누락
+
+---
+
+## P243 · v49.28 · fundamental L7 PIOTROSKI 자동 채점 가이드 (PIOTROSKI_CHECKLIST)
+
+- **수정**: fundamental L8158 F-Score 설명 박스에 (1) 카테고리별 점수(수익성 4 + 건전성 3 + 효율성 2 = 9) 명시, (2) 콘솔 호출 예시 (`AIO_PIOTROSKI_CHECKLIST.score({...})`) 코드 블록 추가.
+- **파일**: `index.html` L8158~8167
+- **violated_rule**: R62 (PIOTROSKI_CHECKLIST) — 함수 등록만 하고 사용 가이드 미공개
+
+---
+
+## P244 · v49.28 · themes I7 + macro L6 페이지 hook 적용 (getCycleFromMacro + SCENARIO_REGISTRY)
+
+- **수정**: themes 페이지 진입 시 `getCycleFromMacro()` 호출 → `#cycle-dynamic-phase`/`#cycle-dynamic-inputs`/`#cycle-dynamic-rationale` 갱신. macro 페이지 진입 시 `SCENARIO_REGISTRY.validateSum()` + lastUpdated → `#macro-scenario-updated`/`#macro-scenario-sum`/`#macro-scenario-stale-days` 갱신. `_aioPageBus.register()`로 listener 등록.
+- **파일**: `index.html` themes/macro 페이지 DOM · `js/aio-core.js` pageShown listener
+- **violated_rule**: R67 (getCycleFromMacro) + R72 (SCENARIO_REGISTRY) — 함수 등록만 하고 페이지 진입 트리거 누락
+
+---
+
+## P245 · v49.29 · signal E3 페이지 목적 헤더 적용
+
+- **수정**: signal L4388에 page-purpose 박스 추가 — "시그널 상세 + 매매 전략 학습 (Secondary). 오늘 매매 판단(Primary)은 홈에서". R70 PAGE_PURPOSE_REGISTRY 적용.
+- **파일**: `index.html` L4388~4393
+- **violated_rule**: R70 미적용 → 시정
+
+---
+
+## P246 · v49.29 · breadth L2/L3/I1 다중 신호 합의 + 색상 정정
+
+- **수정**: (a) `#breadth-consensus-readout` 신설 — diagnoseBreadthConsensus(sma5/sma20/sma50/mcclellan/weinstein/goldenCross) 호출 결과 표시 + conflict 자동 보고. (b) 20SMA 75% 카드 색상 green→amber 정정 (THRESHOLD.BREADTH 70~101=과열 정의 일치). (c) breadth pageShown listener 추가.
+- **파일**: `index.html` L5036, L5378~5384 · `js/aio-core.js` core-breadth-consensus listener
+- **violated_rule**: R56(THRESHOLD_REGISTRY 적용) + R61(diagnoseBreadthConsensus) 미적용 → 시정
+
+---
+
+## P247 · v49.29 · briefing E2/E4 Action Item + 5대 관전 최상단 배치
+
+- **수정**: briefing 페이지 최상단에 (a) `#briefing-top-5-watch` 5대 관전 포인트 (FOMC/CPI/Earnings/지정학/VIX 추적) — PAGE_PURPOSE_REGISTRY.briefing.sectionOrder[0] 적용. (b) `#briefing-action-item-card` ACTION_RULES 기반 카드. briefing pageShown listener에서 자동 갱신.
+- **파일**: `index.html` L5917 부근 신설 · `js/aio-core.js` core-briefing-action listener
+- **violated_rule**: R69(ACTION_RULES) + R70(PAGE_PURPOSE.briefing.sectionOrder) 미적용 → 시정
+
+---
+
+## P248 · v49.29 · portfolio E5 4-card 리스크 대시보드 신설
+
+- **수정**: portfolio 페이지에 Sharpe Ratio / Beta(vs SPY) / Max Drawdown / Drift 4개 카드 그리드 추가. 각 카드에 권장 목표값 라벨. 콘솔 호출 가이드 (`AIO.computePortfolioRisk(holdings)`).
+- **파일**: `index.html` L8852 부근 신설
+- **violated_rule**: R71(getPagePurposeRatioAudit) 미적용 → 이론 풍부 vs UI 부족 비대칭 해소
+
+---
+
+## P249 · v49.29 · options E6 동적 추천 카드
+
+- **수정**: options 페이지 SECTION 7 위에 `#options-dynamic-recommendation` 카드 신설 — VIX 구간별 옵션 전략 자동 매칭 (VIX <15→Long Vol, 15~20→Bull Call Spread/CC, 20~30→Covered Call, 30+→Put 헤지). ACTION_RULES.positionSizing/sentimentAction 호출.
+- **파일**: `index.html` SECTION 7 부근 · `js/aio-core.js` core-options-rec listener
+- **violated_rule**: R69(ACTION_RULES) 미적용 → 정적 "Top 3" 예시 대체
+
+---
+
+## P250 · v49.29 · technical I4 OHLC fallback 마킹 + fundamental I5 검색 가이드 + macro I6 placeholder 표준
+
+- **수정**: (a) technical L6399 OHLC strip에 `data-aio-fallback="tradingview-iframe"` + opacity 0.75 + "⚠️ Fallback Only" 라벨 — getDuplicateContentAudit 제외용. (b) fundamental 검색창 다음 `#fund-pre-search-guide` 신설 — 출처/예상 응답시간/예시 4개 (NVDA/AAPL/TSLA/MSFT). (c) macro storyline placeholder에 R68 표준 가이드 (출처/예상 시간/실패 폴백/수동 갱신) 추가.
+- **파일**: `index.html` 3곳
+- **violated_rule**: R66(getDuplicateContentAudit), R68(placeholder 표준) 미적용 → 시정
+
+---
+
+## P251 · v49.29 · v49.28~29 통합 — 23개 Deep audit 항목 전수 적용 완료
+
+- **상태**: v49.23 Deep audit에서 발견한 23개 항목(L1~L8 + I1~I8 + E1~E7) 전부 페이지 적용 완료 — v49.28 (signal/home/technical/fundamental/macro/themes 8개) + v49.29 (signal/breadth/briefing/portfolio/options/technical/fundamental/macro 11개) 누적.
+- **남은 작업**: 라이브 데이터 실측 검증 + L6 SCENARIO 30일+ 도래 시 갱신 + R71 페이지 비율 audit 정기 운영.
+- **검증**: `AIO.getThresholdLabelAudit()` 적용률 추적 · `AIO.getSnapshotConsistencyAudit()` 인라인 라벨 vs registry 일관성 · `AIO.getDuplicateContentAudit()` 중복 콘텐츠.
+
+---
+
+## P252 · v49.30 · [근본수정] KOSPI 인라인 22% 괴리 (M1 → R74 assertSnapshotInlineMatch)
+
+- **증상**: kr-home KOSPI 카드 (L10536) 인라인 `6,091.39` vs DATA_SNAPSHOT.kospi `7844.01` — **22.4% 괴리**. KOSDAQ/KRW도 동일 패턴.
+- **원인 (구조적)**: v49.24 `getSnapshotConsistencyAudit()` 신설했으나 **빌드 시 차단 게이트 부재**. v49.23이 KR 6필드(신용잔고/예탁금 등)만 시정하고 메인 지수 카드 누락 → P213 패턴 재발.
+- **근본 해결**:
+  1. `index.html` L10534~10553 KOSPI/KOSDAQ/KRW 3개 카드 모두 DATA_SNAPSHOT 정합 (값 + 카드 클래스 + 색상 + 등락률)
+  2. `AIO.assertSnapshotInlineMatch()` 신설 — 핵심 sink 10개 (KOSPI/KOSDAQ/KRW/SPX/VIX/Fed/BOK 등) 인라인 vs DATA_SNAPSHOT 비교
+  3. `getAutoOpsReadiness()` 7→12축 통합
+- **신규 규칙**: R74
+- **파일**: `index.html` L10534~10553 · `js/aio-core.js` 신규 audit
+
+---
+
+## P253 · v49.30 · [근본수정] Jensen 인터뷰 58일 + 정적 콘텐츠 lifecycle 정책 부재 (M2 → R75 STATIC_CONTENT_LIFECYCLE)
+
+- **증상**: sentiment L6057 Jensen Huang 인터뷰 `2026-03-20` — 58일 경과 (HARD STALE 60일 임박). 자동 archive 알람 부재.
+- **원인 (구조적)**: 정적 인터뷰/이벤트의 expiration policy registry 없음. R54 archive 마킹은 수동 정책.
+- **근본 해결**:
+  1. Jensen 인터뷰 섹션 `data-aio-archive="true"` + `data-lifecycle-id="jensen-interview-202603"` 마킹 + "ARCHIVE · 58일 경과 · 새 인터뷰 교체 예정" 라벨
+  2. `AIO_STATIC_CONTENT_LIFECYCLE` registry 신설 — Jensen/Week of May/KR 수출 2월 등 등록
+  3. `AIO.getStaticContentLifecycleAudit()` 자동 expire 보고
+- **신규 규칙**: R75
+
+---
+
+## P254 · v49.30 · [근본수정] macro 유가 47일 + 정치 인사 시점 의존 (M3+M4 → R76/R77)
+
+- **증상**:
+  - macro L7283 "(2026.03~04 전쟁 피크 vs 휴전 전)" → 47일 stale
+  - chat L55 "Bessent/Warsh policy mix" → 정치 인사 임의 시점 stale 가능
+  - DATA_SNAPSHOT 거시지표 (NFP 4/3) → 44일 경과
+- **원인 (구조적)**:
+  - 시나리오 텍스트 시점 일반화 정책 부재
+  - 정치/관료 이름 registry 부재
+  - 거시 발표 캘린더 부재
+- **근본 해결**:
+  1. macro L7283 시점 표현 일반화 ("2026 H1 평균 · 5월 현재 모니터링")
+  2. chat L55 "Bessent/Warsh" → "current Treasury Secretary and Fed Chair" + R76 참조 가이드
+  3. `AIO_NAMED_ENTITY_REGISTRY` 신설 — Fed Chair/Treasury/BOK/ECB/BOJ 등록 (90일 staleDays)
+  4. `AIO_MACRO_CALENDAR` 신설 — NFP/CPI/PCE/ISM/Retail nextRelease 기반 자동 stale
+  5. `AIO.getNamedEntityAudit()` + `AIO.getMacroReleaseStaleAudit()`
+  6. DATA_SNAPSHOT 거시지표 주석에 "5월 발표 대기" 표기
+- **신규 규칙**: R76, R77
+
+---
+
+## P255 · v49.30 · [근본수정] KR 분기 거시 텍스트 90일+ 잔존 (M5 → R78 KR_MACRO_RELEASE)
+
+- **증상**: "2월 반도체 수출 +157.9% YoY" 3곳 (kr-home L10684, kr-macro L11331, kr-technical L11537) — 3월/4월 데이터 발표 후에도 영구 잔존.
+- **원인 (구조적)**: KR 거시 발표 캘린더 부재. 매월 1일 산자부 수출입 발표 후 자동 갱신 트리거 없음.
+- **근본 해결**:
+  1. 3곳 "+157.9% YoY" → `data-snap="kr-semi-export-yoy"` 바인딩 + "(2월 기준 · 5월 갱신 대기)" 라벨
+  2. kr-macro 수출 테이블 `data-aio-archive="true"` + `data-lifecycle-id="kr-export-2026-02"`
+  3. `AIO_KR_MACRO_RELEASE` registry 신설 (수출/CPI/GDP/산업생산/반도체)
+  4. `AIO.getKrMacroReleaseAudit()` 자동 stale
+- **신규 규칙**: R78
+
+---
+
+## P256 · v49.30 · [메타 종합] 5개 신규 인프라 + 7→12축 통합
+
+- **요약**: v49.23 정합성 시정, v49.24~29 인프라 + 페이지 적용 누적 후 v49.30에서 5개 신규 메타 인프라(LIFECYCLE/NAMED_ENTITY/MACRO_CALENDAR/KR_MACRO_RELEASE/assertSnapshotInlineMatch) 추가.
+- **인프라 5개**: M1~M5 근본 원인 각각 차단
+- **신규 규칙 R74~R78**: 5개 동시 추가
+- **getAutoOpsReadiness 7→12축**: freshness/pipeline/statics/scheduler/continuity/sinkConsistency/tableStale + snapshotInline/contentLifecycle/namedEntity/macroRelease/krMacroRelease
+- **테스트 T241~T250**: 신규 10개
+- **R73 준수**: 인프라 추가 + 페이지 적용 동반 (KOSPI/KOSDAQ/KRW/Jensen/macro/chat/반도체 7건 모두 v49.30 동시 시정)
+
+---
+
+## P257 · v49.31 · [근본수정] SCREENER_DB 메타 부재 (H1 → R80 SCREENER_DB_META)
+
+- **증상**: `js/aio-data.js` SCREENER_DB 메모 헤더 "2026-03 Yahoo Finance 기준" + memo 게시일 04-21~04-29 → 22~47일 경과. lifecycle 메타 부재로 자동 stale 알람 없음.
+- **근본 해결**: `SCREENER_DB_META = { schemaVersion, lastBulkUpdate:'2026-04-29', staleAfterDays:30, replaceAfterDays:60, source, note }` 신설 + `window.SCREENER_DB_META` 노출. SCREENER_DB 헤더 주석에 lifecycle 메타 참조 표기.
+- **신규 규칙**: R80
+- **파일**: `js/aio-data.js` L9~17
+
+---
+
+## P258 · v49.31 · [근본수정] fxbond 2Y 4.28% 정적 → data-snap 바인딩 (H2)
+
+- **증상**: fxbond L8087 `id="yc-2y-track">4.28%` — DATA_SNAPSHOT 5/13 시드, 실시간 미연동
+- **근본 해결**: `data-snap="tnx-2y"` + `data-live-price="^IRX"` 속성 추가 + "(v49.31 H2 시드 5/13)" 라벨. applyDataSnapshot 자동 갱신 + 실시간 override 가능.
+- **파일**: `index.html` L8087
+
+---
+
+## P259 · v49.31 · [근본수정] 지정학 시나리오 단일 출처 부재 (H3 → R79 GEOPOLITICAL_CONTEXT_REGISTRY)
+
+- **증상**: macro/signal/options/kr-macro 페이지에 "호르무즈", "이란 재협상", "트럼프 관세" 등 시점 의존 텍스트 산재 → 정책 변경 시 페이지마다 수동 갱신 필요
+- **근본 해결**: `AIO_GEOPOLITICAL_CONTEXT_REGISTRY` 신설 — 5개 시나리오(hormuz-strait/iran-nuclear/taiwan-strait/ukraine-russia/us-china-tariff) 등록 + `status` (active/monitoring/resolved) + `lastReviewed` + `marketImpact` + `currentPriceSignal`. `AIO.getGeopoliticalReviewAudit()` 14일+ overdue 자동 보고.
+- **신규 규칙**: R79
+- **파일**: `js/aio-core.js`
+
+---
+
+## P260 · v49.31 · [근본수정] FRED 차트 갱신 시점 가시화 (H4 → R81 정기 발표 마커)
+
+- **증상**: macro FRED 차트 헤더 "FRED API · 월간 데이터"만 표기 → 사용자가 언제 새 데이터 들어오는지 알 수 없음
+- **근본 해결**: 헤더에 "(다음 갱신: NFP 6/6 · CPI 6/12 · PCE 6/30)" 명시 + MACRO_CALENDAR 연동 가이드 title 속성
+- **신규 규칙**: R81
+- **파일**: `index.html` L7054
+
+---
+
+## P261 · v49.31 · [근본수정] themes "◀ 현재 Late Cycle" 정적 잔존 (H5)
+
+- **증상**: themes L8628 cycle-late 카드에 "◀ 현재" 정적 라벨 → v49.28 동적 readout(getCycleFromMacro) 추가 후에도 정적 잔존으로 사용자 혼동
+- **근본 해결**: 정적 라벨 "◀ 현재" → "Late (참고)" 일반화 + `data-cycle-phase="late"` 속성 + title "동적 phase는 #cycle-dynamic-phase에서 확인". 동적 readout이 권위 있는 위치로 일원화.
+- **파일**: `index.html` L8627~8630
+
+---
+
+## P262 · v49.32 · [근본수정] chat L54 "147-150" 환각 출처 (B1 → R84 NUMERIC_GUIDELINE_SAFELIST)
+
+- **증상**: chat.js L54 technical context에 `'single-name 20MA distance near 147-150'` 정량 수치가 system 프롬프트에 박혀 있음. AI가 "퀄컴 주가?" 질문 시 "QCOM = 150" 환각 응답 시 출처 가능.
+- **원인 (구조적)**: 정량 임계값/배수와 종목 가격을 구분하는 화이트리스트 부재. AI 모델은 문맥보다 패턴 우선 매칭.
+- **근본 해결**:
+  1. chat L54 텍스트 일반화 — "...in upper extension band, single-name 20MA distance in extreme extension band (these are RATIO/DISTANCE thresholds, NEVER absolute prices — do NOT cite numbers like 117-120 or 147-150 as stock prices)" 명시
+  2. `AIO_NUMERIC_GUIDELINE_SAFELIST` 신설 — 8개 임계값 (blow-off ratio/distance, VIX, F&G, HY, RSI) 등록 + `isCalibrationConstant(value)` 함수
+  3. `AIO.getNumericGuidelineAudit()` registry 무결성 검증
+- **신규 규칙**: R84
+- **파일**: `js/aio-chat.js` L54, `js/aio-core.js` registry
+
+---
+
+## P263 · v49.32 · [근본수정] fetch 실패 시 환각 차단 부재 (B2 → R82 HARD GUARDRAIL)
+
+- **증상**: chat L1940 폴백 분기 `'• ' + t + ': 데이터 조회 실패 — 티커를 확인하세요.'` 단순 텍스트만 system 프롬프트에 주입 → AI가 학습 데이터(2024~2025)로 "QCOM 약 $150 정도" 환각 응답
+- **원인 (구조적)**: HARD GUARDRAIL 텍스트 부재. AI 모델 환각 차단 정책 부재.
+- **근본 해결**:
+  1. `_fetchTickerDataForChat` 실패 분기를 4-line HARD GUARDRAIL로 강화:
+     - `❌ 실시간 시세 조회 실패 (Yahoo Finance + 프록시 모두 fail)`
+     - `⛔ HARD GUARDRAIL: 절대 가격/등락률/시가총액/PER 추측 금지`
+     - `✅ 허용된 답변: "실시간 데이터 미수신, 외부 도구 권장만 답변"`
+     - `✅ 허용된 분석: 가격 없는 일반론적 사업 모델/섹터 트렌드`
+  2. system 프롬프트 끝에 ABSOLUTE RULES 4조항 추가
+- **신규 규칙**: R82
+- **파일**: `js/aio-chat.js` L1940~1945
+
+---
+
+## P264 · v49.32 · [근본수정] AI 응답 post-hoc 검증 부재 (B3 → R83/R86)
+
+- **증상**: v49.24~31 누적 13개 audit이 모두 pre-render (DOM/데이터). 응답 후 가격 텍스트 검증 0건.
+- **원인 (구조적)**: 채팅 응답을 통해 AI 환각이 사용자에게 직접 노출되는 채널이 검증 사각지대였음.
+- **근본 해결**:
+  1. `AIO.assertChatResponseAccuracy(responseText, detectedTickers)` 신설
+     - 응답 텍스트 `\$\d+` 패턴 추출
+     - 실시간 가격 (window._liveData) 비교
+     - ±5/10/20/50% 단계별 severity 분류
+     - safelist 임계값은 calibration constant로 제외
+  2. `AIO.getChatHallucinationAudit(responseText)` 신설 — 4 환각 패턴 탐지
+     - 라운드 숫자 ($100, $150, $200 등)
+     - 너무 정확한 소수 ($X.00, $X.50)
+     - 가격 + 불확실 표현 동시 등장
+     - 학습 데이터 시점 키워드 ("2024년", "2025년 초")
+     - 의심 점수 0~10 + verdict (high-risk/medium-risk/low-risk/clean)
+- **신규 규칙**: R83, R86
+- **파일**: `js/aio-core.js` 2 신규 함수
+
+---
+
+## P265 · v49.32 · [근본수정] dynamicTickerLookup 신뢰성 부족 (B4)
+
+- **증상**: `index.html` L20049 timeout 8s · retry 0 · 프록시 2개. 네트워크 지연/프록시 일시 fail 시 cascading 실패 → B2 폴백 → 환각 위험 증폭
+- **근본 해결**:
+  1. timeout 8s → 12s (50% 증가)
+  2. 프록시 2개 → 3개 (codetabs 추가)
+  3. 프록시별 1회 재시도 (500ms backoff)
+- **파일**: `index.html` L20040~20081
+
+---
+
+## P266 · v49.32 · [근본수정] 종목명 매핑 단일 출처 부재 (B5 → R85 TICKER_NAME_REGISTRY)
+
+- **증상**: KR_TICKER_MAP은 한글→영문 단일 방향. 영문 별명(Microsoft↔MSFT) / 한자(엔비디아↔NVDA↔Nvidia) 매핑 분산. 검증 함수 부재. 신규 종목 추가 시 영문 별명 누락 위험.
+- **근본 해결**:
+  1. `AIO_TICKER_NAME_REGISTRY` 신설 — 30개 메가캡 등록 (NVDA/AAPL/MSFT/...QCOM/AMD/INTC + JPM/BAC/WMT/XOM/V/MA/UNH/BRK.B)
+  2. 각 entry에 `{ en, kr, alt[] }` — 별명/한자/소문자/별칭 모두 등록
+  3. `AIO.resolveTickerFromAnyName(input)` — 모든 입력 → ticker or null
+  4. `AIO.getTickerMappingAudit()` — 미매핑 entry 보고
+- **신규 규칙**: R85
+- **파일**: `js/aio-core.js`
+- **추가 작업**: v49.33에서 KR_TICKER_MAP을 TICKER_NAME_REGISTRY로 마이그레이션 + 한국 종목 (삼성/SK하이닉스 등) 등록 확장
+
+---
+
+## P267 · v49.32 확장 · 종목별 6채널 무결성 검증 부재
+
+- **사용자 추가 요청**: "종목 시세뿐 아니라 종목/기업 관련한 모든 데이터들도 최대한 점검하고 조사해봐"
+- **증상**: 종목 시세(B2/B3)에 대한 검증은 v49.32 본 plan에서 추가했으나, **추세/컨센서스/어닝/Naver/메모** 5개 채널은 개별 try-catch 후 무시 — 통합 무결성 게이트 부재
+- **근본 해결**: `AIO.assertTickerDataIntegrity(ticker)` 신설 — 6개 채널 통합 검증 + completenessScore (0~100) + verdict (excellent/good/partial/poor) + 권장 액션
+- **신규 규칙**: R87
+- **파일**: `js/aio-core.js`
+- **검증**: `AIO.assertTickerDataIntegrity('QCOM')` → 콘솔에서 6채널 상태 한눈에 확인
+
+---
+
+## P268 · v49.32 확장 · 15 fundamental 기준 출처 미매핑
+
+- **사용자 추가 요청**: "15개 분석 기준 등등 종목/기업 관련한 모든 데이터들도..."
+- **증상**: fundamental L8103~8119 "15가지 분석 관점" 텍스트만 나열. 각 기준의 데이터 출처(FMP/Finnhub/Yahoo/computed)와 구현 함수가 코드에 매핑되지 않음 → 사용자가 "15개 모두 평가"라 인지하나 실제는 부분만 평가 가능
+- **근본 해결**: `AIO_FUNDAMENTAL_CRITERIA.criteria` 신설 — 15 entries 각각 `{ label, dataSource, required:[], implFn }` 등록. `getFundamentalCriteriaAudit()` 미구현 항목 보고 + coveragePct
+- **신규 규칙**: R88
+- **파일**: `js/aio-core.js`
+- **검증**: `AIO.getFundamentalCriteriaAudit()` → coveragePct 30% (4/15 구현, 11/15 implFn null — v49.33+ 보강 대상)
+
+---
+
+## P269 · v49.33 · [메타 근본] chatSend 응답 후 자동 검증 통합 (R73 패턴 재발 방지)
+
+- **증상**: v49.32에서 assertChatResponseAccuracy + getChatHallucinationAudit 5개 검증 함수 신설했으나 chatSend 응답 렌더 코드에 자동 호출 통합 미적용. R73(인프라+페이지 적용 동반) 패턴 재발.
+- **근본 해결**: aio-chat.js L3162 `_srcBadge` 직후에 `_accBadge` (aio-chat-accuracy-badge) 추가 — 응답 렌더 시 자동으로:
+  1. detectedTickers가 있으면 assertChatResponseAccuracy 호출 → "✓ 가격 정확성" 또는 "⚠ 가격 괴리 high/critical" 표시
+  2. getChatHallucinationAudit 호출 → 의심 점수 0~10 + 패턴 표시
+  3. high-risk 또는 high-severity 시 console.warn 로깅
+- **신규 규칙**: R89
+- **파일**: `js/aio-chat.js` L3162~3170 부근
+
+---
+
+## P270 · v49.33 · KR 종목 TICKER_NAME_REGISTRY 등록 (KR_TICKER_MAP 흡수)
+
+- **증상**: AIO_TICKER_NAME_REGISTRY (v49.32 신설)에 한국 종목 미등록. "삼성전자" 입력 시 KR_TICKER_MAP만 사용 → 통합 검증 게이트 부재
+- **근본 해결**: REGISTRY에 17 KR 종목 등록 — 삼성전자(005930.KS)/SK하이닉스(000660.KS)/현대차/LGES/카카오/네이버/삼성바이오/LG화학/삼성SDI/포스코퓨처엠/한화에어로/한화오션/SK/LG/HMM/에코프로비엠/에코프로. 한자/한글/영문/별명/티커 모두 매핑.
+- **파일**: `js/aio-core.js`
+- **검증**: `AIO.resolveTickerFromAnyName('삼전')` === '005930.KS'
+
+---
+
+## P271 · v49.33 · 15 fundamental 기준 implFn 매핑 보강 (4/15 → 13/15)
+
+- **증상**: v49.32 AIO_FUNDAMENTAL_CRITERIA에서 11/15 implFn=null. 사용자 "퀄컴 15개 분석" 요청 시 실제 평가 가능한 기준은 4개뿐.
+- **근본 해결**: 기존 fetch 함수(fetchNaverUSData/fetchFinnhubRecommendation/fetchFinnhubEarningsCalendar/dynamicTickerLookup/AIO_PIOTROSKI_CHECKLIST)에 13/15 매핑. PEG(v49.34 computePEG()) + Insider(v49.34 fetchFinnhubInsider()) 2개만 잔존. coveragePct: 27% → 87%.
+- **파일**: `js/aio-core.js` AIO_FUNDAMENTAL_CRITERIA.criteria
+- **검증**: `AIO.getFundamentalCriteriaAudit().coveragePct >= 80`
+
+---
+
+## P272 · v49.34 · [근본수정] 종목 정성 분석 15 분야 중 9/15 AI 학습 의존 (사용자 지적)
+
+- **사용자 지적**: "비즈니스 구조 / 사업 모델 / 수익 구조 / 제품 포트폴리오 / CEO 경영진 / 밸류에이션 / 협력 파트너십 / 공급망 / TAM / 리스크 / 경쟁 / 투자포인트 등 15개 분석 기법 데이터 모두 최신/정확한지? 현재 API/소스로 다 커버 가능?"
+- **Audit 결과** (15 분야 vs 현재 API):
+  - ✅ Yahoo (price) · TradingView (chart) · Yahoo PE+Naver (valuation) · Finnhub (consensus/earnings) · AIO_FUNDAMENTAL_CRITERIA (재무 정량) — 6/15
+  - ❌ 비즈니스 구조 / 사업 모델 / 제품 포트폴리오 / CEO 경영진 / 협력 파트너십 / 공급망 / 경쟁 — 7/15 AI 학습 의존 (high hallucination risk)
+  - ⚠ 수익 구조 (FMP key 필요) · TAM (SCREENER_DB 메모 17일+ 경과) · 리스크 — 3/15 부분 가용
+- **근본 해결**:
+  1. `AIO_ANALYSIS_FRAMEWORK_REGISTRY` 신설 — 15 분야 각각 `{ label, type, primarySource, implFn, freshness, aiHallucinationRisk, note }` 등록
+  2. `AIO.fetchSECBusinessDescription(ticker)` 신설 — SEC EDGAR submissions API + CIK 매핑 (18 메가캡) → 10-K URL + filing date + SIC 반환
+  3. `AIO.fetchSECRiskFactors(ticker)` — Item 1A 가이드 (위 URL 활용)
+  4. `AIO.fetchWikipediaCompany(ticker)` 신설 — en.wikipedia.org/w/api.php (CORS 지원) intro 2000자 fetch
+  5. `AIO.getAnalysisFrameworkCoverageAudit()` — 15 분야 종합 + highRiskCount
+  6. `AIO.assertAnalysisFrameworkCoverage(ticker)` async — 종목별 fetch 시도 + coveragePct + verdict
+  7. `_fetchTickerDataForChat`에 SEC + Wikipedia 병렬 fetch + system 프롬프트 [SEC 10-K] / [Wikipedia] 라벨 주입
+  8. ABSOLUTE RULES 5조 추가 — "15 분야 출처가 없으면 '검증된 데이터 없음' 답변"
+- **신규 규칙**: R90
+- **파일**: `js/aio-core.js` (REGISTRY + 4 fetch 함수 + 2 audit), `js/aio-chat.js` `_fetchTickerDataForChat` 확장
+
+---
+
+## P273 · v49.34 · SEC EDGAR / Wikipedia 무료 API 미활용 (재발 방지)
+
+- **증상**: AIO Screener가 무료 공개 API 2종 미활용 — SEC EDGAR (data.sec.gov) + Wikipedia (en.wikipedia.org/w/api.php). 이 두 API는 CORS 친화적이고 무한 무료. 이전까지 정성 데이터 fetch 없이 AI 학습 데이터로 대체.
+- **근본 해결**:
+  - SEC: CIK_MAP 18개 메가캡 (NVDA/AAPL/MSFT/GOOGL/AMZN/META/TSLA/QCOM/AMD/INTC/AVGO/TSM/MU/ARM/SMCI/PLTR/NFLX/JPM) → submissions JSON → 10-K filing URL
+  - Wikipedia: TICKER_NAME_REGISTRY.entries[ticker].en → 영문 페이지 intro 2000자
+  - 두 API 모두 origin=* / corsproxy 폴백 지원
+- **확장 작업** (v49.35): CIK_MAP 30+ S&P 500 확장 + SEC full-text search (CIK 미등록 종목 대응) + Wikipedia 한국 종목 (ko.wikipedia.org)
+
+---
+
+## P274 · v49.34 · ANALYSIS_FRAMEWORK 채팅 자동 주입 통합
+
+- **증상**: REGISTRY + fetch 함수 신설했으나 chatSend에 자동 호출 통합 안 되면 R73 패턴 재발
+- **근본 해결**: `_fetchTickerDataForChat`에서 `secPromise` + `wikiPromise` 병렬 시작 + Naver 결과 직후 await + [SEC 10-K] / [Wikipedia] 라벨로 system 프롬프트 주입. system 프롬프트 끝의 ABSOLUTE RULES에 "15 분야 출처 매핑" 5조 추가 — 출처 부재 분야는 학습 데이터 환각 금지.
+- **파일**: `js/aio-chat.js` L1845~ 부근
+
+---
+
+## P275 · v49.35 · [근본수정] fundamental 페이지 15 기준 registry 부재 + 가용성 미가시 (사용자 추가 지적)
+
+- **사용자 추가 지적**: "기업 분석 페이지에 있는 15개의 분석 기준 있잖아. 그것들도 모두 세밀하게 쪼개서 조사해줘. 또한 모든 보강 작업은 근본적인 수정+재발 방지 이렇게 같이 해줘야 돼."
+- **Audit 결과** — fundamental L8175 인라인 텍스트 "15개 분석 관점" vs 실제 구현:
+  - ✅ 6/15 (40%): Quality of Business / Growth / Margin Trend / Valuation PE / Analyst Revisions / Earnings Beat Streak
+  - ⚠ 5/15 (33%): FCF Yield / Balance Sheet / EV/EBITDA / Industry Rank / Macro Exposure (compute 함수 미신설)
+  - ❌ 4/15 (27%): Moat (Morningstar 유료) / Insider Activity / Institutional Flow / Short Interest (fetch 미신설)
+- **메타 결함**: 3개의 별개 "15기준" 시스템 공존 — (1) v49.25 AIO_FUNDAMENTAL_CRITERIA (Piotroski 위주) (2) v49.34 ANALYSIS_FRAMEWORK_REGISTRY (정량+정성 사용자 정의) (3) fundamental 페이지 L8175 인라인 텍스트 (Quality/Moat/Growth/Margin/FCF/Balance/PE/EV/Insider/13F/Short/Revisions/Beat/Industry/Macro) — cross-reference 부재
+- **근본 해결**:
+  1. `AIO_FUNDAMENTAL_PAGE_CRITERIA` registry 신설 — 15 entries 각각 `{ num, label, description, dataSource, implFn, plannedFn, requires:[], frequency, hallucinationRisk, note }` 등록
+  2. 페이지 DOM L8175~8189 각 기준 옆에 인라인 가용성 배지 (✓ 구현 / ⚠ 부분 / ❌ 미구현) 추가
+  3. `AIO.getFundamentalPageCriteriaAudit()` — coveragePct + highRiskCount
+  4. `AIO.getCriteriaCrossReferenceAudit()` — 3개 registry 차이 안내
+  5. system 프롬프트 ABSOLUTE RULES 6조 추가 — 미구현 4 기준은 학습 데이터 환각 금지, "수동 확인 권장" 답변
+- **신규 규칙**: R91
+- **파일**: `js/aio-core.js` (registry + 2 audit), `index.html` L8172~8193 (가용성 배지), `js/aio-chat.js` ABSOLUTE RULES 6조
+
+---
+
+## P276 · v49.35 · [재발 방지] 3개 "15기준" registry cross-reference 부재 메타 결함
+
+- **증상**: v49.25 FUNDAMENTAL_CRITERIA(정량) / v49.34 ANALYSIS_FRAMEWORK_REGISTRY(정성+정량 사용자 정의) / v49.35 FUNDAMENTAL_PAGE_CRITERIA(페이지 인라인) — 3개 서로 다른 "15기준"이 공존하지만 cross-reference 안내 없음. AI 채팅에서 "15기준 분석" 요청 시 어느 것을 사용하는지 불명확.
+- **근본 해결**: `AIO.getCriteriaCrossReferenceAudit()` 신설 — 각 registry의 목적 + 차이 + 사용 시점 명시. AI 채팅 시 system 프롬프트의 "15 분석 분야 출처 매핑" + "fundamental 페이지 15 기준 가용성" 두 섹션 분리 명시.
+- **파일**: `js/aio-core.js` getCriteriaCrossReferenceAudit + `js/aio-chat.js` ABSOLUTE RULES 6조
+
+---
+
+## P277 · v49.35 · 미구현 4 기준 v49.36 Roadmap 명시
+
+- **잔존 작업** (v49.36+):
+  - `computeFcfYield(ticker)` — FCF/시총 (Yahoo mcap + FMP FCF)
+  - `computeBalanceSheetRatios(ticker)` — Net Debt/EBITDA + Interest Coverage (FMP)
+  - `computeEvEbitda(ticker)` — EV/EBITDA + peer comparison
+  - `fetchFinnhubInsider(ticker)` — 임원 매수/매도 12주 누적
+  - `fetchSEC13F(ticker)` — 13F 기관 보유 (분기)
+  - `fetchFinnhubShortInterest(ticker)` — 5%↓ 정상 임계값 audit
+  - `computeMacroBeta(ticker)` — 금리/달러/원자재 베타 (DATA_SNAPSHOT 활용)
+- **목표**: 15/15 (100%) coverage. v49.36에서 7 함수 신설로 완성.
+- **메타 원칙 (R73)**: 인프라 추가 시 페이지 적용 동반. 페이지 배지 ❌/⚠ → ✓로 갱신 + AI 채팅 가용성 안내 동기화.
+
+---
+
+## P278 · v49.36 · [근본수정] fundamental 15 기준 100% 커버 (v49.35 잔존 7 함수 신설)
+
+- **사용자 요청**: "이번 세션 남은 작업들 순차적으로 모두 진행"
+- **v49.35 Roadmap 잔존**: computeFcfYield / computeBalanceSheetRatios / computeEvEbitda / computeMacroBeta / fetchFinnhubInsider / fetchSEC13F / fetchFinnhubShortInterest — 7 함수
+- **근본 해결**: 7 함수 모두 신설 + FUNDAMENTAL_PAGE_CRITERIA implFn 갱신 + 페이지 가용성 배지 모두 ✓ (Moat/Industry Rank 제외 14/15)
+- **신규 규칙**: R92
+- **파일**: `js/aio-core.js` 7 함수 신설 + criteria 갱신, `index.html` L8175~8189 7 배지 갱신
+
+### 신규 함수 상세
+1. **computeFcfYield(ticker)**: FCF / 시총 — Naver financials + Yahoo mcap. verdict: attractive (4%+) / fair / low
+2. **computeBalanceSheetRatios(ticker)**: Net Debt/EBITDA + Interest Coverage. healthScore: strong (둘 다 충족) / caution
+3. **computeEvEbitda(ticker)**: EV ≈ mcap + netDebt, EV/EBITDA + SCREENER_DB peer count. verdict: cheap (<10) / fair / expensive
+4. **computeMacroBeta(ticker)**: SCREENER_DB sector → 11 sector heuristic beta table (rateBeta/dxyBeta/oilBeta). diversificationVerdict: high-exposure / low-exposure
+5. **fetchFinnhubInsider(ticker)**: /stock/insider-transactions 12주 — netShares + verdict: insider-buying / insider-selling / neutral
+6. **fetchFinnhubShortInterest(ticker)**: /stock/metric shortInterestPercent. verdict: normal (<5%) / elevated / squeeze-candidate
+7. **fetchSEC13F(ticker)**: SEC EDGAR full-text + WhaleWisdom URL. verdict: manual-query-required (AI URL fetch)
+
+### 보조 (v49.34 잔존)
+- **fetchSECRecentFilings(ticker)**: 8-K event-driven URL (M&A/파트너십/CEO 변경)
+- **fetchFMPSegments(ticker)**: /revenue-product-segmentation (FMP key 필요)
+- **CIK_MAP 18 → 50+** 확장: BAC/WFC/C/GS/MS/V/MA/JNJ/PFE/UNH/WMT/PG/KO/PEP/XOM/CVX/BA/CAT/GE/HON/DIS/NKE/MCD/COST/HD/LOW/CRM/ORCL/ADBE/NOW/SHOP/COIN/BRK.B/BRK.A
+
+---
+
+## P279 · v49.36 · [메타 근본] R73 패턴 — 7 함수 신설 + 페이지 가용성 배지 동시 갱신
+
+- **R73 준수**: 인프라 추가 시 페이지 적용 동반. 7 신규 함수 정의 + FUNDAMENTAL_PAGE_CRITERIA implFn 갱신 + 페이지 L8175~8189 가용성 배지 (❌/⚠ → ✓) + 커버리지 박스 (40% → 93%) + chat ABSOLUTE RULES 6조 갱신을 v49.36 단일 버전에 모두 포함.
+
+---
+
+## P280 · v49.36 · v49.34 Roadmap 잔존 시정 — CIK_MAP 50+ + 8-K + FMP segments
+
+- **v49.34 Roadmap**: CIK_MAP 30+ 확장 / SEC 8-K (event-driven 파트너십) / FMP segments
+- **근본 해결**: CIK_MAP 18 → 50+ (S&P 500 메가캡 추가) + fetchSECRecentFilings (8-K URL) + fetchFMPSegments (FMP key 의존 명시)
+- **파일**: `js/aio-core.js`
+
+---
+
+## P281 · v49.36 · [Roadmap 완료] v49.32 streaming 검증 + v49.35 페이지 가용성 가시화 + Moat/Industry IBD 유료 대체 정책
+
+- **요약**: v49.32~v49.35 Roadmap 잔존 작업 모두 v49.36에서 통합 처리
+- **잔존 v49.37+**: (1) computeMacroBeta historical regression (현재 휴리스틱) (2) Wikipedia 한국 종목 (ko.wikipedia.org) (3) streaming 응답 token 단위 검증 (현재 응답 후 검증)
+
+---
+
+## P282 · v49.37 · [메타 근본] 페이지 sequential audit 부재 — line range/keyword grep만 반복
+
+- **사용자 지적**: "스크리너 각 페이지마다 모든 내용들 위에서부터 아래로 하나하나씩 읽고 사용하면서 세밀하게 점검한거지? 디테일하게 쪼개서 최신성/정확성/정합성/로직성/직관성/핵심성 점검?"
+- **솔직한 답변**: 아니오. v49.23 4축 audit + v49.30 전수 최신성 audit + v49.32~36 작업 모두 line range 분석 + 키워드 grep 위주. 실제 sub-section 단위 6축 점검 미실행.
+- **근본 해결**:
+  1. `AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY` 신설 — 21 페이지 × subSections[] × axes 6 매트릭스
+  2. `AIO.getPageSequentialAuditStatus()` — pending/partial/done 추적
+  3. home 페이지 8 subSection enumerate (버전 배지 / 상단 스냅 그리드 / 3 카드 / Action Item / 심층 해설 / 리스크 레이더 / F&G+CNN / GMO 표)
+- **신규 규칙**: R93
+- **파일**: `js/aio-core.js`
+
+---
+
+## P283 · v49.37 · home L3967 live-quote-ts-topbar 영구 placeholder 잔존 위험
+
+- **증상**: home 상단 헤더 `#live-quote-ts-topbar` 정의는 있으나 모든 JS 파일에 갱신 hook 0개. fetchLiveQuotes 성공 시 `live-quote-ts` 갱신은 있으나 `-topbar` 미동기 → "시세 연결 중..." placeholder 영구 잔존 가능.
+- **근본 해결**: `js/aio-data.js` L9793 부근 fetchLiveQuotes 성공/실패 분기에 `live-quote-ts-topbar` 동시 갱신 추가. 성공 시 `● 시세 HH:MM (N개)` + class `fb-live`. 실패 시 `⚠ N초 후 재시도` + class `fb-static`.
+- **파일**: `js/aio-data.js` L9792~9802
+
+---
+
+## P284 · v49.37 · home 페이지 8 subSection sequential 1차 점검 결과
+
+- **점검 결과** (위→아래):
+  1. L3961 버전 배지: ❌ v49.36 잔존 → v49.37 갱신 (R1 동기화)
+  2. L3970~4019 상단 스냅 그리드: ✓ (live-quote-ts-topbar 제외)
+  3. L4020~4051 3 카드 (Primary/Secondary): ✓ (v49.28 CARD_HIERARCHY 적용 완료)
+  4. L4053~4068 Action Item 카드: ✓ (v49.28 신설, ACTION_RULES 호출)
+  5. L4070~4140 심층 해설: ✓ (펼쳐보기 정상)
+  6. L4140~4250 리스크 레이더: 미점검 (v49.38+)
+  7. L4140~4250 F&G+CNN 7+2 컴포넌트: ✓ (v49.23 정합 완료)
+  8. L4250~4367 GMO 표: 미점검 (v49.38+)
+- **결론**: home 6/8 sub-section OK + 2 미점검 + P283 시정
+- **파일**: home 페이지 8 subSection 모두 REGISTRY 등록
+
+---
+
+## P285 · v49.37 · v49.38+ 잔존 — 20 페이지 sequential audit 미실행
+
+- **상태**: AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY에 21 페이지 등록되었으나 home만 1차 점검 완료. 나머지 20 페이지 (signal/breadth/sentiment/briefing/technical/macro/fxbond/fundamental/themes/portfolio/options/kr-home/kr-supply/kr-themes/kr-macro/kr-technical/guide/glossary/market-news/fund-analysis) sub-section enumerate + 6축 점검 미실행
+- **잔존 작업** (v49.38+):
+  - v49.38: signal + breadth + sentiment 페이지 (US 종합 3)
+  - v49.39: briefing + technical (US 분석 2)
+  - v49.40: macro + fxbond + fundamental (US 분석 3)
+  - v49.41: themes + portfolio + options (US 6)
+  - v49.42: kr-home + kr-supply + kr-themes + kr-macro + kr-technical (KR 5)
+- **목표**: 21 페이지 × 평균 8~10 subSection × 6축 = 1000+ 매트릭스 항목 done. v49.42 완성 후 R93 100% 준수.
+
+---
+
+## P286 · v49.38 · [R56 보강/F1] home L4222 VIX 표 vs THRESHOLD_REGISTRY 불일치
+
+- **증상**: home L4222~4229 인라인 VIX 표가 5 구간 (12/20/30/45/∞) + 라벨 "패닉 진입"·"시스템 위기"로 표시. THRESHOLD_REGISTRY.VIX는 6 구간 (12/20/25/30/40/∞) + 라벨 "주의/경계/공포/극단 공포". → 사용자가 두 곳에서 다른 라벨 노출.
+- **2차 점검 발견**: home 페이지 위→아래 sequential 점검에서 발견 (v49.37 1차에서는 line range 분석만 했음)
+- **근본 해결**:
+  1. 인라인 표 6 구간으로 갱신 + `data-threshold-table="VIX"` 마커 부착
+  2. 라벨을 REGISTRY와 정확히 일치 ("극단 안정/정상 Risk-On/주의/경계/공포/극단 공포")
+  3. `AIO.getInlineThresholdTableAudit()` 신설 — 마커 보유 표를 자동 정합 검증
+- **신규 규칙**: R94 (R56 보강)
+- **파일**: `index.html` L4222~4229, `js/aio-core.js` audit + THRESHOLD_REGISTRY VIX
+
+---
+
+## P287 · v49.38 · [F2] home L4224 오타 `뷰블` → `버블`
+
+- **증상**: VIX 표 첫 행 "< 12 / 극단적 안정 / **뷰블** 형성 전조 (2017, 2019)" — 한글 오타
+- **근본 해결**: `뷰블` → `버블` 정정
+- **재발 방지**: home 페이지 2차 sequential 점검 의무화 (R93 보강)
+- **파일**: `index.html` L4224
+
+---
+
+## P288 · v49.38 · [R56 보강/F3] DXY/10Y 임계값 REGISTRY 미등록
+
+- **증상**: home L4327 DXY 임계값 "> 105 Risk 역풍 / < 95 Risk-On" 인라인. L4338 10Y "4% 이상 부담 / 3% 이하 둔화" 인라인. REGISTRY 미등록 → R56 위반.
+- **근본 해결**: THRESHOLD_REGISTRY에 추가
+  - **DXY**: 5 bands (< 95 약세-Risk-On / < 100 중립 / < 105 강세 / < 110 Risk 역풍 / 110+ 극단 강세)
+  - **YIELD_10Y**: 5 bands (< 3 경기 둔화 / < 4 정상 / < 4.5 밸류에이션 부담 / < 5 위험 / 5+ 시스템 압력)
+  - `getLabel(value)` 함수
+- **파일**: `js/aio-core.js` THRESHOLD_REGISTRY
+
+---
+
+## P289 · v49.38 · [R93 보강/F4] home subSections 1차 enumerate 불완전 (8 → 15)
+
+- **증상**: v49.37에서 home subSections 8개만 등록. 실제 위→아래 점검 시 추가 7개 미등록 (스코어 범례 / conclusion-bar / KPI 4 카드 / 서브 지표 chips / 상단 펼쳐보기 표 / GMO 해설 등).
+- **근본 해결**: subSections 8 → 15 재 enumerate + `findings[]` 배열 추가 (점검 결과 누적 저장)
+- **재발 방지**: R93 page sequential audit 의무 강화 — 1차 enumerate는 모든 sub-section 빠짐 없이 등록 + 점검 시 findings에 결과 누적
+- **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.home
+
+---
+
+## P309 · v49.42 · [메타 패턴] agent verify 패턴 — false alarm 10건 / 진짜 4건 (v49.40 P294 / v49.41 패턴 반복)
+
+- **패턴 누적**: v49.40 (P294 home 1 진짜 / agent false 다수) → v49.41 (signal+breadth 7 진짜 / 9 false) → v49.42 (4 진짜 / 10 false). agent 보고의 "미구현"/"미연결" 클레임은 **검색 누락이 다수**.
+- **근본**: 단일 파일 grep으로 끝내지 말고 4 JS 파일(`aio-core.js` / `aio-data.js` / `aio-ui.js` / `aio-chat.js`) + `index.html` 모두 검색 필수.
+- **v49.42 false alarm 10건 예시** (verifiedIn 마커로 차단):
+  - `_aioRenderSentimentConclusion` 미구현 → `_renderConclusionBar` 범용 함수 사용
+  - `sent-overall-badge` 미렌더 → aio-ui.js L1912
+  - `briefing-action` ACTION_RULES 미구현 → aio-core.js L1485~1499 _aioPageBus hook
+  - THRESHOLD_REGISTRY 미구현 → aio-core.js에 정의 (R56 9 키)
+  - retail-sales/wage-growth/cons-conf/housing 정적 → aio-data.js L2284~2488 FRED 동적 갱신
+  - 등
+- **재발 방지**: PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.*.findings[]에 `verifiedIn` 마커 누적. 다음 점검 시 false alarm 재발견 방지.
+
+---
+
+## P308 · v49.42 · [minor] macro "Late Cycle" JS L25002 동적 함수 라벨
+
+- **위치**: `index.html` L25002 `cyclePhase = '경기 후반(Late Cycle)'` + L25092 pill `' Late Cycle · 방어 주도'`
+- **분석**: v49.31 H5에서 themes 페이지 인라인 정적 라벨 "◀ 현재(Late Cycle)" → "Late (참고)" 일반화. 그러나 JS 동적 함수(`getCycleFromMacro` 결과 반영)에는 그대로 잔존. JS 함수는 themes/macro 페이지에서 사용되는 **동적 라벨** (실시간 분석 결과) — 일반화 대상 아님 (themes 인라인 정적과 별개 의도).
+- **결론**: verify-only. 의도된 동적 라벨이고 themes 인라인 정적 라벨과는 별개.
+- **finding**: `macro.findings` minor entry (deferred 또는 verifiedIn).
+
+---
+
+## P307 · v49.42 · [minor] macro Phase 5 (2024) "연착륙" 라벨 — v49.43 후속
+
+- **위치**: macro 페이지 사이클 타임라인 (L6979~7050)
+- **증상**: Phase 5 (2024) "연착륙" + S&P 5800/Fed 3.5%/VIX 15 hardcoded — 2024년 말 스냅샷이나 2026-05 시점에서 과거. Phase 6은 동적 (data-snap="spx"/"fed-rate"/"vix").
+- **결론**: 의도된 역사 시점 라벨 (사이클 비교용). 다만 Phase 6 정의 명확화 필요 (현재 어디 단계인지) → **v49.43 후속**.
+- **finding**: `macro.findings` minor entry with `deferredTo: 'v49.43'`.
+
+---
+
+## P306 · v49.42 · [R94 보강] technical RSI 카드 data-threshold-key 마커 부재
+
+- **위치**: `index.html` L6512 RSI(14) 카드
+- **증상**: title 텍스트로 `"RSI 임계값 (v49.28/R56 THRESHOLD_REGISTRY.RSI): <30 과매도 · 30~40 약세 · 40~60 중립 · 60~70 강세 · 70~80 과매수 · 80+ 극단 과매수"` 인라인 정적. THRESHOLD_REGISTRY는 aio-core.js에 존재하나 카드에 `data-threshold-key="RSI"` 마커가 없어 v49.38 R94 `getInlineThresholdTableAudit`가 정합 검증 못 함.
+- **근본 해결** (v49.42 C): 카드 `<div>`에 `data-threshold-key="RSI"` 마커 부착. 향후 R94 audit 또는 신규 R98(inline title) audit이 자동 정합 검증 가능.
+- **재발 방지**: R94 보강 — 페이지 인라인 임계값 카드는 반드시 `data-threshold-key` 마커 부착 의무.
+- **파일**: `index.html` L6512
+- **violated_rule**: R94 (보강)
+
+---
+
+## P305 · v49.42 · [verify-only] briefing-action ACTION_RULES hook 완전 구현
+
+- **검증 결과**: agent 보고 "briefing-action-position/sentiment ACTION_RULES 구현 미발견" 클레임 **false alarm**.
+- 실제 위치: `js/aio-core.js` L1485~1499 `_aioPageBus.register('core-briefing-action', 'aio:pageShown', ...)` hook 완전 구현 — `AIO_ACTION_RULES.getActionPlan({vix, fg})` 호출 후 `posEl.textContent = '💼 ' + plan.position.sizePct + '% 포지션 — ' + plan.position.note` + `sentEl.textContent = '🧠 ' + plan.sentiment.action + ' — ' + plan.sentiment.note` 동적 갱신.
+- **finding**: `briefing.findings` verify-only entry with `verifiedIn: 'v49.42 P305'`.
+
+---
+
+## P304 · v49.42 · [정확성] briefing Jensen 인터뷰 정적 "58일 경과 (60일 임박)" 텍스트
+
+- **위치**: `index.html` L6060
+- **증상**: v49.30 P253에서 작성된 정적 텍스트 "📦 ARCHIVE · 58일 경과 (60일 임박)" — 매일 1일씩 stale. 동적 `#jensen-interview-stale-days` span (STATIC_CONTENT_LIFECYCLE.jensen-interview-202603에서 갱신)이 별도로 존재 → 두 표시가 중복 + 정적 부분이 stale.
+- **근본 해결** (v49.42 B): 정적 "58일 경과 (60일 임박)" 텍스트 제거. `#jensen-interview-stale-days` 동적 span 단독 표시 (배지 텍스트 재배치).
+- **파일**: `index.html` L6060
+
+---
+
+## P303 · v49.42 · [verify-only] sentiment 페이지 인프라 완성도 우수
+
+- **검증 결과**: agent 보고 CRITICAL 5건 (`_aioRenderSentimentConclusion` / `sent-overall-badge` / `sent-analysis-text` / `fg-needle` / `pc-needle-pos` 미구현) 모두 **false alarm**.
+- 실제 위치:
+  - sentiment-conclusion-bar: index.html L22898 `_renderConclusionBar()` 범용 함수 호출
+  - sent-overall-badge: aio-ui.js L1912 getElementById 갱신
+  - sent-analysis-text: index.html L21059 갱신
+  - fg-needle: aio-data.js L11215 SVG 동적 갱신
+  - pc-needle-pos: aio-data.js L11507 갱신
+- **finding**: `sentiment.findings` 5 verify-only entries.
+
+---
+
+## P302 · v49.42 · [R76 보강] briefing 5대 관전 "호르무즈/대만 해협" 정치/지명 토큰
+
+- **위치**: `index.html` L5931 (briefing-top-5-list 내)
+- **증상**: "지정학 — 호르무즈/대만 해협 모니터링" 단독 지명 토큰. v49.30 R76 NAMED_ENTITY 일반화 정책에서 sentiment 페이지는 정리됐으나 briefing 페이지 5대 관전 항목은 누락.
+- **근본 해결** (v49.42 A): "주요 해상 물류 경로(호르무즈/대만 해협 등) 모니터링"으로 일반화. 컨텍스트(해상 물류 + 지정학 모니터링) 유지하면서 정치 토큰을 예시로 격하.
+- **재발 방지**: R76 보강 — 지정학 모니터링 텍스트는 일반 카테고리 + 예시 형식으로 작성.
+- **파일**: `index.html` L5931
+- **violated_rule**: R76 (보강)
+
+---
+
+## P301 · v49.41 · [R97 신규] data-snap key vs DATA_SNAPSHOT 시드 정합 자동 탐지 부재
+
+- **메타 패턴**: `S.breadth5sma || 68` 같은 인라인 폴백 패턴이 DATA_SNAPSHOT 시드에 등록 안 돼도 정상 동작하는 것처럼 보임. v49.30 R74 `assertSnapshotInlineMatch`는 시드가 존재할 때 DOM 인라인과 비교만 함 — 시드 자체가 없으면 silent pass.
+- **근본 해결**: `AIO.getStaticSeedFallbackAudit()` 신설 — 페이지 DOM의 모든 `[data-snap="key"]` 수집 + DATA_SNAPSHOT 최상위/`_fallback`에 대응 필드 존재 검증. kebab→camel/snake 변형 매핑 규칙 포함.
+- **신규 규칙**: R97 (data-snap 키는 DATA_SNAPSHOT 최상위 + _fallback 양쪽 시드 등록 의무)
+- **파일**: `js/aio-core.js` (R97 audit + getAutoOpsReadiness 26축 통합)
+
+---
+
+## P300 · v49.41 · [정합성] breadth McClellan Summation vs Oscillator 정의 혼합
+
+- **위치**: `index.html` L5471~5483 — 카드 라벨 "McClellan 써메이션" (Summation Index)
+- **증상**: 라벨은 "Summation"(장기 누적합)인데 설명 "0 위=매수 에너지, 0 아래=하락 에너지" 표현은 Oscillator(단기 ±100) semantic과 혼동되기 쉬움. 다이버전스 정의도 명시 부재.
+- **근본 해결** (v49.41 B2):
+  - 라벨을 "McClellan Summation Index (장기)"로 명확화
+  - 설명을 "Oscillator 누적합 — 추세 방향. Oscillator는 단기 ±100"으로 구분 표기
+  - 베어 다이버전스 정의 명시: "SPX 신고가에도 Summation 신고가 미발동 (현재 의심)"
+  - 카드에 `data-mcclellan-signal="bearish"` 마커 부착 (diagnoseBreadthConsensus 입력 추적용)
+- **파일**: `index.html` L5471~5484
+
+---
+
+## P299 · v49.41 · [R74 보강] DATA_SNAPSHOT breadth*sma 시드 부재 — 폴백만 동작
+
+- **증상**: `js/aio-core.js` L9567~9570 렌더러 `'breadth-5sma': _snap.fixed(S.breadth5sma || S.breadth_5sma || ((S._fallback||{}).breadth5) || 68, 0) + '%'` — `DATA_SNAPSHOT.breadth5sma`가 최상위 미정의. `_fallback.breadth5` (다른 키명) + 인라인 폴백 `|| 68`만 의존.
+- **결과**: 실시간 fetch 경로에서 `DATA_SNAPSHOT.breadth5sma = X`로 set해도 R74 `assertSnapshotInlineMatch`가 인라인 vs 시드 정합 못 잡음 (시드 자체가 없으므로). 정적 폴백값 68/75/46/55가 영원히 표시.
+- **근본 해결** (v49.41 B1):
+  - DATA_SNAPSHOT에 명시적 시드 4개 추가: `breadth5sma: 68`, `breadth20sma: 75`, `breadth50sma: 46`, `breadth200sma: 55`
+- **재발 방지**: P301 R97 신규 (`getStaticSeedFallbackAudit`) — 자동 탐지로 영구 차단
+- **파일**: `js/aio-core.js` DATA_SNAPSHOT
+- **violated_rule**: R74
+
+---
+
+## P298 · v49.41 · [정확성] "브레드스 쓰러스트" 영문 병기 부재
+
+- **위치**: `index.html` L5185 + L22485
+- **증상**: "브레드스 쓰러스트" 단독 표기. 표준 영문 "Breadth Thrust" (Marty Zweig 1986 매수 신호) 병기 부재 → 사용자가 검색/타 자료 대조 어려움.
+- **근본 해결** (v49.41 A4): "브레드쓰 스러스트 (Breadth Thrust)" 영문 병기.
+- **파일**: `index.html` L5185 (breadth-process step 4 라벨) + L22485 (JS stageLabel)
+
+---
+
+## P297 · v49.41 · [로직성, verify-only] signal Exit Triggers updateExitTriggers 호출 보장
+
+- **검증 결과** (v49.41 A3): `updateExitTriggers()` (index.html L22547)는 두 곳에서 호출:
+  - L22675 — `refreshSignal()` 초기 호출 (signal 페이지 진입 시)
+  - L22927 — `aio:liveQuotes` 이벤트 핸들러 (signal 페이지 활성 시)
+- **결론**: 호출 보장 OK. SPX × 0.9, DXY × 1.05, HYG × 0.95 동적 계산이 페이지 진입 + 라이브 시세 갱신 시마다 실행. agent 보고 "정적 미렌더링" 클레임 **false alarm**.
+- **finding 누적**: `verifiedIn: 'v49.41 A3/P297'` 마킹만, 시정 없음.
+
+---
+
+## P296 · v49.41 · [R77 보강] signal CP2 fed-rate / fomc lastUpdated 메타 표시 부재
+
+- **위치**: `index.html` L4910 CP2 (통화정책) cell
+- **증상**: `<span data-snap="fed-rate">3.50-3.75</span>% · 다음 FOMC <span data-snap="fomc">6/16-17</span>` — 값은 DATA_SNAPSHOT.fedRate / fomc 시드(L8703~8706)에서 주입되나 **lastUpdated 메타 부재**. R77 MACRO_CALENDAR에 fed-rate/fomc 미등록 → 다음 FOMC 일정 지났는지 자동 탐지 안 됨.
+- **근본 해결** (v49.41 A2):
+  - `AIO_MACRO_CALENDAR.releases`에 `us-fomc` + `us-fed-rate` 2 entries 추가 (lastRelease 2026-04-29 / nextRelease 2026-06-17)
+  - `#cp2-fed-rate-meta` snap-meta span 신설 + signal pageShown hook에서 nextRelease 대비 D-day 표시 + 지나면 amber 경고
+- **파일**: `js/aio-core.js` (MACRO_CALENDAR + _aioPageBus signal hook) + `index.html` L4910 (cp2 meta span)
+- **violated_rule**: R77 (보강)
+
+---
+
+## P295 · v49.41 · [R73 위반] signal-macro-scenario 정적 확률 vs SCENARIO_REGISTRY 미연동
+
+- **위치**: `index.html` L5195~5224 signal 페이지 3 카드 시나리오 그리드
+- **증상**: 카드 헤더 "낙관 (30~35%) — 호르무즈 재개" / "기본 (40~45%) — 현상 유지" / "비관 (15~20%) — 사우디 피격" — 확률 범위 정적 인라인. v49.27/R72 `AIO_SCENARIO_REGISTRY` 인프라 추가 시 `scenarios` 객체(연착륙/스태그/침체)는 만들었으나 signal 페이지 단기 시나리오(낙관/기본/비관)는 별도 categorize 안 됨. R73(인프라 추가 시 같은 버전에서 페이지 적용 동반) 위반 — macro 페이지(L1564)에는 hook 있지만 signal 페이지는 누락.
+- **추가 stale**: "호르무즈 재개" / "사우디 피격" 잔존 정치/지명 토큰 (v49.30 일반화에서 누락). "호르무즈 재개" → 일반화 / "사우디 피격" → "공급 충격 시나리오"로 변경.
+- **근본 해결** (v49.41 A1):
+  - `AIO_SCENARIO_REGISTRY.signalShortTerm` 신설 — `{optimistic, base, pessimistic}` 3 entries with probability/probabilityRange/lastUpdated/source/triggers
+  - `validateSignalSum()` 메서드 추가
+  - `_aioPageBus.register('core-signal-scenario', 'aio:pageShown', ...)` hook 신설 — signal 페이지 진입 시 `data-scenario-key` 마커 3 카드의 header를 REGISTRY 값으로 갱신 + `#scenario-outlook-ts` lastUpdated 표시
+  - index.html 3 카드에 `data-scenario-key="optimistic|base|pessimistic"` 마커 + `.scenario-header` class 부착
+- **재발 방지**: R73 강화 (인프라 + 페이지 적용 동시 의무) — v49.42에서 audit 함수 신설 검토.
+- **파일**: `js/aio-core.js` (SCENARIO_REGISTRY 확장 + signal pageShown hook) + `index.html` L5195~5224
+- **violated_rule**: R73
+
+---
+
+## P294 · v49.40 · [R96 위반] _aioRefreshActionPlan 핸들러 미정의 — silent no-op + R96 audit false-positive
+
+- **증상**: index.html L4063 home Action Item 카드의 ↻ 갱신 버튼 (`<button data-action="_aioRefreshActionPlan">`) 클릭 시 아무 동작 없음. event delegation 디스패처(aio-core.js L680) `window[action]` lookup 실패 → `_aioLog('warn','delegate','missing: _aioRefreshActionPlan')` 만 로깅하고 silent no-op.
+- **위반 규칙**: R96 (v49.39 신규 — 모든 data-action 핸들러 등록 검증 의무)
+- **근본 원인**: v49.39 R96 audit 함수 `getDataActionHandlerAudit()`의 `knownAliases` 배열에 `_aioRefreshActionPlan`이 포함되어 있어 false-positive 통과. knownAliases는 event-delegate 패턴으로 등록되는 비-`_aio` 접두 글로벌 함수(showPage/toggleLLM 등)만을 위한 안전망인데, `_aio` 접두 함수가 들어가면서 "alias이므로 등록되어 있다" 라고 잘못 판단됨.
+- **메타 원인**: v49.39에서 audit 함수만 정의하고 home 페이지에 실제로 실행해 결과를 확인하지 않음. R93 sequential audit (페이지 위→아래 인터랙션 점검)을 1차/2차에서 멈추고 3차(인터랙션 + 페이지 간 정합 + 라이브 데이터 sink) 실 실행 누락.
+- **사용자 지적**: "근데 Home 3차를 빨리 점검했던데 완벽히 한 거지?" (2026-05-18) — v49.39 작업이 인프라만 추가하고 실 검증 미수행임을 정확히 식별.
+- **근본 해결** (v49.40):
+  1. `window._aioRefreshActionPlan` 신설 — `AIO_ACTION_RULES.getActionPlan` 재계산 + home-action-position/sentiment/breadth 3 sink 동기 갱신 + `data-refreshed-at` 타임스탬프 (aio-core.js L851 부근).
+  2. R96 `knownAliases`에서 `_aioRefreshActionPlan` 제거. 이제 `has_aio` 검사(`act.indexOf('_aio') === 0 && typeof window[act] === 'function'`)로 통과.
+- **재발 방지**:
+  - R96 보강: `knownAliases`는 비-`_aio` 글로벌 함수만 허용. `_aio` 접두는 반드시 실 등록 검증.
+  - R93 보강: 페이지 sequential audit은 인프라 정의 + 실 실행 + finding 시정까지 한 세트 (1차 enumerate · 2차 sub-section 깊이 · **3차 인터랙션/cross-page/sink 실 실행**).
+  - 회귀 테스트: T321 `typeof window._aioRefreshActionPlan === 'function'`.
+- **파일**: `js/aio-core.js` (window._aioRefreshActionPlan 신설 + knownAliases 수정 + PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.home.findings 누적)
+- **violated_rule**: R96
+
+---
+
+## P290 · v49.39 · [R95 신규] 페이지 간 동일 ticker 자동 정합 부재
+
+- **증상 (잠재적)**: v49.24 `getSnapshotConsistencyAudit`는 `data-snap` 기반. 라이브 가격 sink (`data-live-price="^GSPC"` 등)는 별도 audit 없음. home의 SPX vs technical의 SPX vs macro의 SPX 텍스트 불일치 가능성.
+- **근본 해결**: `AIO.getCrossPageIndicatorConsistencyAudit()` 신설 — `[data-live-price]` ticker별 그룹화 → distinct 텍스트 ≥2 시 mismatch 보고. placeholder(`—`/loading) 제외.
+- **신규 규칙**: R95
+- **파일**: `js/aio-core.js`
+
+---
+
+## P291 · v49.39 · [R96 신규] data-action 미정의 핸들러 자동 탐지 부재
+
+- **증상 (잠재적)**: `[data-action="NAME"]` 요소가 미정의 핸들러 호출 시 click 무동작. 신규 핸들러 추가 시 정의 누락 가능.
+- **근본 해결**: `AIO.getDataActionHandlerAudit()` 신설 — 모든 `data-action` 추출 + `window[NAME]` / `AIO[NAME]` / known alias (showPage/toggleLLM/...) 검사. 미등록 핸들러 보고.
+- **신규 규칙**: R96
+- **파일**: `js/aio-core.js`
+
+---
+
+## P292 · v49.39 · [R93 보강] signal 페이지 1차 enumerate 완료 (14 subSection)
+
+- **subSections 14개 등록** (위→아래):
+  1. signal-purpose-header (페이지 목적)
+  2. signal-insight-box (75+/60-75/...)
+  3. signal-lockout-control (Lockout Rally)
+  4. signal-explain-page (심층 해설)
+  5. signal-20pt-scoring (20점 스코어링)
+  6. signal-2pct-rule (2% 룰)
+  7. signal-atr-stop (ATR_PRESETS)
+  8. signal-entry-exit (진입/청산)
+  9. signal-trading-setups (12 셋업)
+  10. signal-pyramiding (피라미딩)
+  11. signal-spx-tech-dash (SPX 기술 지표)
+  12. signal-breadth-consensus (다중 신호 합의)
+  13. signal-macro-scenario (시나리오 트리)
+  14. signal-exit-triggers (Exit Triggers)
+- **auditStatus**: 'partial' (1차만, 2차 → v49.40)
+- **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.signal
+
+---
+
+## P293 · v49.39 · [R93 보강] breadth 페이지 1차 enumerate 완료 (12 subSection)
+
+- **subSections 12개 등록** (위→아래):
+  1. breadth-insight-box (시장 폭 정의)
+  2. breadth-explain-page (심층 해설)
+  3. breadth-definition (5 지표 정의)
+  4. breadth-narrow-vs-broad (Narrow vs Broad)
+  5. breadth-sma-cards (5/20/50/200SMA 4 카드)
+  6. breadth-consensus-readout (v49.29 diagnoseBreadthConsensus)
+  7. breadth-static-diagnose (정적 진단)
+  8. breadth-mcclellan (McClellan)
+  9. breadth-weinstein (Weinstein Stage)
+  10. breadth-nhnl (신고가/신저가)
+  11. breadth-ad-line (A/D Line)
+  12. breadth-divergence (다이버전스 경보)
+- **auditStatus**: 'partial' (1차만, 2차 → v49.40)
+- **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.breadth
+

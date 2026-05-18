@@ -1,5 +1,5 @@
 {
-  "version": "v49.17",
-  "built": "2026-05-15T00:00:00+09:00",
-  "note": "v49.17: critical 10-page freshness audit and broader auto-refresh symbol coverage"
+  "version": "v49.42",
+  "built": "2026-05-18T21:00:00+09:00",
+  "note": "v49.42: sentiment/briefing/technical/macro 1차+2차 일괄 점검 — 4 페이지 47 subSections enumerate + 6축 깊이 점검. v49.40~41 P294 패턴 (agent 보고 verify) 적용 — Explore agent CRITICAL 14건 verify → false alarm 10건 + 진짜 issue 4건. sentiment: 12 subSection, 0 시정, 5 verify-only (인프라 완성도 우수). briefing: 12 subSection, 2 시정 (P302 호르무즈/대만 일반화/R76 보강, P304 Jensen 정적 텍스트 제거), 1 verify-only (P305 ACTION_RULES hook). technical: 11 subSection, 1 시정 (P306 RSI 카드 data-threshold-key 마커/R94 보강), 2 verify-only. macro: 12 subSection, 0 시정, 5 verify-only (P303 sentiment-equivalent) + 1 minor deferred (P307 Phase 5 라벨 v49.43). 모든 페이지 auditStatus 6축 객체. PAGE_SEQUENTIAL_AUDIT_REGISTRY total subSection 28+47=75. T330~T337 (Group49) 8 신규. R1 버전 7곳."
 }

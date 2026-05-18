@@ -50,9 +50,9 @@ const CHAT_CONTEXTS = {
         'Rules: 20MA +3ATR warning, +4~6ATR extreme/trim zone; close position >=0.8 bullish, 0.4~0.6 caution, <0.4 risk; upper wick >=35% warning, >=45% risk; RVOL >=2.5 climax context. MOMENTUM_THRUST supports core hold; GAP_UP_EXHAUSTION or SHOOTING_STAR_RISK raises trim risk; BEARISH_CONFIRMATION can force TRIM_50. Close below 10EMA trims trading lot, below 21EMA reduces swing lot, below 50SMA damages swing thesis.\n' +
         'For semiconductor leaders, compare SMH/SOXX against QQQ/SPY and call out SEMI_HEATED or SEMI_MANIA when relative strength, ATR extension, RSI, and RVOL line up. Also account for IWM/RSP/KRE/XBI breadth rotation, AI_INFRA_HEATED/AI_INFRA_MANIA, portfolio technical risk, news impact vectors, and data-quality labels before sounding confident. Provide professional interpretation plus beginner translation.\n' +
         '\n[Blow-off Top / Event Exhaustion / H2 Liquidity Context v49.10]\n' +
-        'CPI is no longer pending: BLS Apr CPI was headline +0.6% MoM/+3.8% YoY, core +0.4% MoM/+2.8% YoY, energy +3.8% MoM/+17.9% YoY. Do not describe it as unresolved.\n' +
-        'Use the blow-off checklist when markets or semiconductor leaders are extended: price/20MA near 117-120, single-name 20MA distance near 147-150, 20MA/50SMA ATR extension, RVOL climax, weak close position, Bollinger re-entry, OPEX gamma decay, and event exhaustion after summit/OPEX/NVDA/Korea semi catalysts.\n' +
-        'The H2 liquidity thesis (bank regulation/eSLR relief, possible TGA drawdown, fiscal impulse, eventual cuts, Bessent/Warsh policy mix) is a medium-term support backdrop, not a reason to chase if CPI/oil/rates are rising. Treat Telegram/Aether Japan Research as a fast secondary pipeline; confirm with primary sources or market data before presenting it as a live trading fact.\n' +
+        'For CPI/PCE data, use live snapshot values where available; do not treat any previously hardcoded figures as current.\n' +
+        'Use the blow-off checklist when markets or semiconductor leaders are extended: index price/20MA ratio in upper extension band, single-name 20MA distance in extreme extension band (these are RATIO/DISTANCE thresholds, NEVER absolute prices — do NOT cite numbers like 117-120 or 147-150 as stock prices), 20MA/50SMA ATR extension, RVOL climax, weak close position, Bollinger re-entry, OPEX gamma decay, and event exhaustion after summit/OPEX/NVDA/Korea semi catalysts. For exact thresholds refer to AIO_NUMERIC_GUIDELINE_SAFELIST (R84) — they are calibration constants, not price quotes.\n' +
+        'The H2 liquidity thesis (bank regulation/eSLR relief, possible TGA drawdown, fiscal impulse, eventual cuts, current Treasury Secretary and Fed Chair policy mix) is a medium-term support backdrop, not a reason to chase if CPI/oil/rates are rising. For current named officials, refer to AIO_NAMED_ENTITY_REGISTRY (R76). Treat Telegram/Aether Japan Research as a fast secondary pipeline; confirm with primary sources or market data before presenting it as a live trading fact.\n' +
         _getV48IntegratedContext('technical') +
         _getChatRules();
     }
@@ -110,12 +110,12 @@ const CHAT_CONTEXTS = {
         '최신 데이터가 "—"이면 확정 발언 자제.\n\n' +
 
         // v46.3: Fed 정책 경로 시나리오 — FOMC 의사록(2026.04) 듀얼 리스크 반영
-        '【Fed 정책 경로 시나리오 (v48.16 4/18 씨티 재조정 반영)】\n' +
-        '• 호르무즈 재개통 후 극적 가격 오류 정상화 (씨티 4/18): 유조선/상업선박 통행 재개 → Fed 경로 가격 재조정 완료. 근원 PCE 끈적(' + (DATA_SNAPSHOT.corePce || '2.6') + '%) + 안정적 노동시장 데이터 → 단기 동결 압박. BUT 근원 인플레 완화 + 노동시장 이완 진행 시 연말 -75bp 인하 전망(씨티 공식 뷰). Warsh 화요일 인사청문회 — 연말 인하 지지하되 단기 관망적 자세 가능.\n' +
+        '【Fed 정책 경로 시나리오】\n' +
+        '• 현재 판단: 근원 PCE ' + (DATA_SNAPSHOT.corePce || '—') + '% + 노동시장 데이터 → 단기 동결 압박. 근원 인플레 완화 + 노동시장 이완 시 인하 경로 재개. 에너지 가격 재급등 시 동결 연장 가능.\n' +
         '• 기본(60%): 2026 연말까지 3.50-3.75%에서 약 275-300bp로 -75bp 인하(Higher For Longer→점진 완화). 근원 PCE 완만한 하락 + 실업률 상승 시 트리거.\n' +
         '• 동결(25%): 유가 재급등 or 기대인플레 불안정화 지속 시. FOMC "vast majority" 듀얼 리스크 이미 반영 — 비주거 서비스 끈적 + 유가발 기대인플레 상승.\n' +
         '• 인상(15%): 유가 $120+ 지속 → 투입비용→근원물가 전이. "Some"이 인상 논의. 2026년은 2022년보다 취약(고금리 누적 + 가계 버퍼 소진 + 밸류에이션 비쌈).\n' +
-        '• 핵심 변수: ① 근원 PCE + 고용(5-6월 발표) — Data Dependence 기준 실측 ② 워시 청문회 — 차기 의장 통화정책 방향 ③ 어닝 시즌 — 기업 실적 방어 여부.\n' +
+        '• 핵심 변수: ① 근원 PCE + 고용 — Data Dependence 기준 실측 ② Fed 의장 통화정책 방향 ③ 어닝 시즌 — 기업 실적 방어 여부.\n' +
         '• 재무부-연준 힘겨루기: 2023년 증거 — 연준 브레이크(5%+QT) vs 재무부 액셀(TGA방출+T-bill) → 액셀 승리(S&P+24%). 2026년 베센트(소로스 출신) = 유동성 조절 도구 보유. 감세(OBBBA $1,500~1,600억) + 중간선거 7개월 전 = 정치적 유동성 공급 인센티브.\n' +
         '→ "Fed가 다음에 할 수 있는 행동"과 "그에 따른 자산별 반응" + "재무부 유동성 대응"을 동시 시나리오로 제시.\n\n' +
 
@@ -130,7 +130,7 @@ const CHAT_CONTEXTS = {
         '• 정책 조정으로 물가 잡아도 코로나 이전 안정적 물가흐름 회복 불확실. 2% 목표 자체 구조적 재평가 필요 시점.\n' +
         '→ 매크로 분석 시 "2%가 정상"이라는 가정 자체를 검토. 중물가 환경에서 자산배분·리스크관리가 어떻게 달라지는가 제시.\n\n' +
 
-        '【JP모건 유가 에스컬레이션 래더 (2026.04)】\n' +
+        '【JP모건 유가 에스컬레이션 래더】\n' +
         '• $100/bbl(기본): 2Q 유지. 인플레 관리 가능. Fed 동결.\n' +
         '• $120-130/bbl(리스크): 가솔린 $4+/gal = 소비자 한계점. K자형 심화.\n' +
         '• $150+/bbl(테일): 강제적 수요 파괴 + 경기 침체. 에너지 압박 장기화 시 기업 방어적 고용.\n' +
@@ -144,13 +144,6 @@ const CHAT_CONTEXTS = {
         '• 수축(Contraction): ISM↓ + 금리↓ + 실업↑ → 채권/금/방어주/현금\n' +
         '→ 현재 매크로 데이터 조합으로 사이클 위치를 판단하고, 해당 국면에 유리한 자산군을 제시.\n\n' +
 
-        '【§70 이란 협상 결렬 + 호르무즈 물리적 현실 + 실질금리 붕괴 (돈스/부산아재 2026.04.10~12 종합)】\n' +
-        '[구조적 논리: 군사적 패배 ≠ 전략적 승리] 이란 해군·공군 파괴됐으나 IRGC가 호르무즈 통제 유지. 하루 15척 검증 선박만 통과(평시 135척의 11%). 해협 기뢰 산재 → 1991년 걸프전 기뢰 제거에도 수개월. 미 해군 봉쇄 카드 시사했으나 이란은 베네수엘라 아님(호르무즈 보유).\n' +
-        '[물리적 공급 데이터(JPM Kavanagh)] 걸프 7개국 총 생산량 3,270만bbl/d 중 가동중단 1,300만. 사우디 동서 파이프라인 700만bbl/d 복구해도 600만 부족. 원유+정유 합산 ~1,400만bbl/d 갭. 60+시설 피해, 정유 240만bbl/d 중단. 해협 정상화→항만 2개월+물류 4개월+미국 도착 42일.\n' +
-        '[실질금리 붕괴 신호] 기대 실질금리 0.25% 근처로 추락(전쟁 전 0.75~1.25%). 근원물가 3M 연율 4.4%(전쟁 전부터 가속). Warsh 5월 취임 시 인상 회피 → 실질금리 마이너스 전환 리스크. 역사적 마이너스 실질금리: 1950-53, 1974-78(→볼커 20%).\n' +
-        '[2차 파급효과] 에너지→연료비→항공료(서비스 물가 전이 시작). WGT(임금추적지수) 상승 + 미시간대 장기 기대인플레 3.2→3.4%. Inverse-L 필립스: V/U<1 구간에서도 기대인플레 반응함수 불확실. 단위노동비용 상승. S&P vs 소비자심리 괴리 역대 최대.\n' +
-        '[핵심 논쟁] Bull: 이란 가격 올리기 전술 → 결국 복귀 + 해협 점진 정상화. Bear: 해군 봉쇄 → 나머지 15척마저 0 → $150+ → 강제적 수요파괴. 미국은 순원유수입국(220만bbl/d) — 셰일 반응 4-6개월 지연.\n' +
-        '[시간 = 이란 편] 중간선거 7개월, 디젤 $8, 감세 효과 주유비에 잠식. 이란이 협상 복귀 안 하는 건 미국이 더 절박해지길 기다리는 전술. OECD 상업재고 5월 초 운영 최저선.\n\n' +
         '【핵심 분석 프레임】\n' +
         '• 상수/변수 분리: 이미 반영된 뉴스(상수)와 미반영 불확실성(변수) 구분.\n' +
         '• 에스컬레이션 래더: 유가·금리·달러 각각의 단계별 임팩트.\n' +
@@ -552,12 +545,12 @@ const CHAT_CONTEXTS = {
         '• 후기/스태그(GDP↓+인플레↑): 에너지 EPS↑가 헤드라인 방어(2022 증거: 에너지가 다른 섹터 하향 상쇄 → 글로벌 EPS +7.9%). 헬스케어/유틸리티(방어) > 경기소비재/통신(EPS↓). 알파 원천 = 지수 방향 아닌 섹터·지역 배분.\n' +
         '• Capex 효율화 사이클(§58): 2026~2027 = GPU 추가 구매 경쟁→기존 인프라 최대 활용 효율 중심. 네트워크·패브릭·메모리·전력 효율이 시스템 성능 결정 = "데이터 흐름이 병목". AVGO/MRVL(네트워크 패브릭) > VRT(냉각) > NVDA(추론) 우선.\n' +
         '→ 종목 분석 시 해당 종목이 현재 사이클에서 유리/불리한 위치인지 명시.\n' +
-        '【§69 SW→Semi 역대급 로테이션 + AMZN Mispriced 테시스 + NOW AI 크라우딩 (2026.04.12 10건 통합)】\n' +
+        '【§69 SW→Semi 역대급 로테이션 + AMZN Mispriced 테시스 + NOW AI 크라우딩】\n' +
         '[패러다임 전환] 기존: AI 투자=SaaS 수혜(클라우드 지출↑→SW 확장). 새 틀: AI 예산이 비AI SW를 크라우딩아웃. 주간 IGV-SMH 성과차 -23%(역대 최악). UBS NOW 하향(AI가 SW 장기가치 잠식 + 기업 AI 예산↑→비AI 시트↓/모듈축소/벤더통합). Goldman: "2/27 전 플레이 재실행 — AI 인프라 > asset-light SW."\n' +
         '[Jefferies AMZN "Mispriced Not Broken"] 11x NTM EV/EBITDA = WMT 대비 ~10턴↓(10년 저점). AI capex $200B는 타이밍 이슈(구조적 아님): 백로그↑+장기계약+엔터프라이즈 믹스 개선 → AWS 가속 전환 임박. SOTP ~46%↑. 핵심 반론: "agentic commerce"가 리테일 내구성 보장 — 실행/풀필먼트/라스트마일은 AI가 대체 불가.\n' +
         '[핵심 논쟁] Bull: SW 크라우딩은 일시적 + AI 예산 정상화 후 SW 반등. Bear: 구조적 디스인터미디에이션 — AI 에이전트가 SaaS 시트 자체를 대체. NOW/CRM/WDAY 등 밸류에이션 영구 하향.\n' +
         '[인접 파급] IGV(SW ETF) 약세 지속 시 → 사모신용 시장 스트레스(SW 담보 가치↓). 반도체(SMH) 9일 연속 양봉. 반대: AMZN/GOOGL = SW+인프라 양면 포지셔닝 가능.\n' +
-        '【§74 NAND SCA 패러다임 + HDD 멀티플 재평가 + 광고 패권 역전 + 기업 AI 3파전 (Citi/Evercore/WSJ/CNBC 2026.04.14)】\n' +
+        '【§74 NAND SCA 패러다임 + HDD 멀티플 재평가 + 광고 패권 역전 + 기업 AI 3파전 (Citi/Evercore/WSJ/CNBC)】\n' +
         '[NAND SCA 패러다임 전환 — Citi+Evercore SNDK 수렴] 기존: NAND=사이클주(가격 정점→하락→마진 압축 반복). 새 틀: SCA(전략적 계약합의)=가격 하한선+선급현금 보장→사이클 변동성 구조적 완화. NAND ASP QQ +70-75%(TrendForce, 정점 미도달). Citi: 가격 추가 상승 여지. Evercore: FY27E $130+ EPS 경로(컨센 $94.49 대비 +38%). TurboQuant 역학: 시장 "압축=수요↓" vs 경영진 "효율↑→AI 채택 가속→추론↑→스토리지↑"(DeepSeek 역설의 스토리지 버전). Nanya $10억=eSSD DRAM 확보. 인접: MU/WDC/STX(NAND/HDD SCA) > 005930.KS(삼성 절제).\n' +
         '[HDD 멀티플 재평가 — Citi STX+WDC 동시 상향] 멀티플 18x→21x. 근거: "내구적 가격+수요 데이터." HAMR(Mozaic4+ 44TB)+100-140TB 로드맵. WDC 장기: GM50%+/OM40%+/FCF30%+/EPS$20+. STX FY26E $117억(+29%). HDD가 성장주 밸류에이션 정당화.\n' +
         '[META 광고 패권 역전 — WSJ] 2026 순광고 $243B > GOOGL $239B(사상 첫 역전). AI 추천→릴스 시청 YoY+30%. AI 비디오 도구 ARR $10B. 릴스 12M $50B. GOOGL 검색 점유율 48.5%(10년 만에 50%↓). 핵심: AI 추천 알고리즘이 광고 수익을 재분배하는 구조적 전환.\n' +
@@ -648,16 +641,16 @@ const CHAT_CONTEXTS = {
         '• 추론(점차 안정): 가스터빈+전통백업 → 175MW 백업(클라우드급)\n' +
         '• 학습→추론 믹스 전환 = 백업MW↑ + 발전원 전환 + 입지 이동(TX→남동부) 3중 구조 변화.\n' +
         '수혜 계층: WMB(BTM 2GW) > NEE(올오브더어보브) > SRE/SO/FE/PPL(추론DC 입지) > CAT/CMI(발전) > ETN/VRT(하이브리드전력).\n' +
-        '【§71 광자 양자컴퓨팅 테마 + 양자-암호 위협 + 사모신용 스트레스 (2026.04.12)】\n' +
+        '【§71 광자 양자컴퓨팅 테마 + 양자-암호 위협 + 사모신용 스트레스】\n' +
         '[광자 양자컴퓨팅 — Xanadu(XNDU) Nature 3편 분석(PhotonCap)] 광자(photonic) QC = 빛으로 양자연산. Borealis(2022, 벌크 양자우위) → Aurora(2025, 35칩 모듈형, 864억 모드) → GKP(2025, 결함허용 큐빗 생성). 핵심 과제: optical loss 현재 56% → 목표 <1% (40배 개선 필요). 3종 칩 플랫폼(SiN 광원+TFLN 정제+Si QPU). 테마 단계: 1단계 발견(Nature 논문 단계, 상용화 5~10년). 관련: XNDU/IONQ/RGTI/QBTS. 파운드리 연결: GlobalFoundries/AIM Photonics.\n' +
         '[Google 양자-BTC 위협(돈스/Bernstein)] Google 논문: BTC 자물쇠 해독 리소스 5000배↓(큐빗 1K+게이트 20M). 전문가 50% "10년 내 CRQC 가능". P2PK 취약주소 690만개(사토시 100만 BTC 포함). 공격 성공률 41%(9분 vs 블록 10분). Bernstein MSTR PT $450 유지 — "BTC는 죽었다 살아나는 역사" + 프로토콜 업그레이드 기대. 핵심 논쟁: 커뮤니티 합의 속도 vs 양자 발전 속도.\n' +
-        '[사모신용 스트레스 — 돈스] 연준 사모신용 점검 시작. 블랙스톤 BCRED 환매제한 + 블루오울 OBDC II 환매중단. CDX Financials(사모신용 CDS 벤치마크) 4/13 거래 개시. SW 담보 가치 하락 = 사모신용 포트폴리오 추가 스트레스. 전쟁과 무관한 구조적 문제.\n' +
-        '【§72 AI 보안 군비경쟁 심화 + ASML 수요 검증 + 대만 AI 출하 호조 (2026.04.12~13)】\n' +
+        '[사모신용 스트레스 — 돈스] 연준 사모신용 점검 시작. 블랙스톤 BCRED 환매제한 + 블루오울 OBDC II 환매중단. CDX Financials(사모신용 CDS 벤치마크) 거래 개시. SW 담보 가치 하락 = 사모신용 포트폴리오 추가 스트레스. 전쟁과 무관한 구조적 문제.\n' +
+        '【§72 AI 보안 군비경쟁 심화 + ASML 수요 검증 + 대만 AI 출하 호조】\n' +
         '[CRWD Project Glasswing — Citi SVP 대화] 패러다임 전환: 기존 사이버보안=탐지+차단 → 새 틀: "퍼징 가속 공격 vs 에이전틱 방어" 비대칭 군비경쟁. 퍼징(20년 방법론)에 AI=완벽한 가속자. 완전 자율 에이전틱 패칭은 해답 아님(시스템 종료/보안 우회 리스크)→인간-AI 협업 유일 해법. Anthropic Glasswing: CRWD에 사전출시+테스트하네스+$100M 토큰 → "CRWD 스킬" 에이전트 생태계 진입 경로. 오버워치 6.5조/일 텔레메트리=데이터 해자. 인접: PANW/ZS(보안 플랫폼 경쟁) > MSFT(Copilot Security) > OKTA/FTNT.\n' +
         '[JPM ASML 1Q26 프리뷰] 오더 비공시 전환에도 수요 지표 강세 전망. 삼성 P5 EUV 20기 오더=핵심 뉴스플로우. 하이닉스/삼성 강력 수주 + 메모리 공급부족 → TSMC 2027+ 정기 수요. FY27-28 추정치 상당한 상향 여지. 상향 요인: DUV 조기수령 + 중국 + 설치기반 업그레이드(용량 제약 고객의 기존장비 최적화). PT €1813.\n' +
         '[대만 AI 3대장 출하 호조] 위스트론/콴다/폭스콘/인베텍 3월 사상 최고 매출. GB200/GB300/B300 순차 인도→2Q>1Q 확실. 랙(L11) QoQ 두 자릿수. 연간 AI서버 2x 성장. ASIC 배수 성장. ⚠3Q 루빈 전환기 변동성.\n' +
         '[소프트뱅크 일본 AI 주권] Sovereign AI 일본판 — NEC/혼다/소니/메가뱅크 8개사 출자. 1조 파라미터 멀티모달. 샤프 사카이 LCD→DC 전환. NEDO 1조엔/5년. 2030 피지컬 AI.\n' +
-        '【§73 광학 수직계열화 + 온사이트 전력 패러다임 + NAND 구조적 타이트 + 네오클라우드 수렴 (2026.04.14)】\n' +
+        '【§73 광학 수직계열화 + 온사이트 전력 패러다임 + NAND 구조적 타이트 + 네오클라우드 수렴】\n' +
         '[Credo-DustPhotonics 인수] 구조적 논리: SerDes/DSP+SiPho PIC = 광학 연결 스택 수직 계열화 완성. 800G→1.6T→3.2T. $7.5억+주식+Earn-out. FY27 광학 $5억+ 목표. 인접: LITE/COHR(경쟁 심화) > AVGO(CPO 통합 경쟁) > NVDA(광학 내재화 트렌드 가속).\n' +
         '[Bloom-Oracle 2.8GW] 패러다임 전환: 기존=전력망 의존 DC. 새=온사이트 모듈형 연료전지 발전. 55일 가동(예상 90일) = time-to-power가 경쟁 우위. 800V DC AI 고밀도 워크로드 최적화. 초기 1.2GW 배치 중. 인접: VRT/ETN(DC전력) > CAT/CMI(발전) > CEG/VST(경쟁).\n' +
         '[Evercore SNDK — 사이클주→구조적 AI수혜 전환] 패러다임: 기존=NAND 가격 정점→하락→마진 압축 사이클. 새=SCA(전략적 계약합의)가 가격 하한선+선급현금 보장 → 2028년까지 공급 제약 지속. DC 매출 15%미만→가속. 순현금→자사주매입. Bull $2600. 인접: MU/WDC(NAND SCA 수혜) > 005930.KS(삼성 NAND 절제).\n' +
@@ -686,8 +679,8 @@ const CHAT_CONTEXTS = {
         '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
         '주가·지수 분석 시 위 종가 기준. VIX·금리·유가 등 시장환경은 실시간 값 사용.\n' +
         (s._stale.length > 0 ? '[' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
-        '【지정학 컨텍스트 (2026.04.15 — 이란 재협상 재개 전망)】\n' +
-        '4/12 이슬라마바드 협상 결렬 → 4/13 봉쇄 발효 → 4/14 트럼프 "이란 협상 재개" 시사 + 파키스탄 중재 재협상 곧 재개. 시장 재협상 기대 선반영: VIX 18↓(-38%), WTI $' + s.wti + '(-8%), Brent $' + s.brent + '(-5%). 봉쇄 지속 중이나 완화 기대. 재협상 실패 시 유가 재급등 + VIX 30+ 복귀 리스크. 에너지·방산 비중 축소 검토 vs 헤지 유지 판단 필요.\n\n' +
+        '【지정학·에너지 리스크 컨텍스트】\n' +
+        '현재 WTI: $' + s.wti + ' | Brent: $' + s.brent + ' | VIX: ' + s.vix + '. 유가·VIX 급변 시 에너지·방산 비중 및 헤지 유지 여부를 재검토하세요.\n\n' +
         '【포트폴리오 비유】\n' +
         '분산투자 = 건물의 기둥 여러 개 (하나가 부러져도 안 무너짐)\n' +
         '섹터 편중 = 기둥이 한쪽에만 몰려있음 (지진 나면 위험)\n' +
@@ -923,8 +916,8 @@ const CHAT_CONTEXTS = {
         '• F&G 10↓(극단 공포): 역사적 3개월 후 평균 +12~15% 수익률. 단, 2008/2020처럼 추가 하락 후 반등 = 타이밍보다 분할 매수.\n' +
         '• F&G 85+(극단 탐욕): 3개월 후 평균 -3~5%. 상승이 끝났다는 뜻이 아니라 "기대수익률 낮아짐".\n' +
         '• F&G 구성요소 괴리 분석(v47.1): 헤드라인 F&G보다 내부 구조가 중요. 모멘텀·옵션(80+)이 탐욕인데 브레드쓰(35↓)·주가강도(25↓)가 공포 = "좁은 랠리" 경고. Premium Trend/Ratio 90+ = 옵션 자만(complacency). 모멘텀 vs 브레드쓰 갭 40pt+ = 2021.11 나스닥 고점 직전 유사. 헤드라인만 보지 말고 카테고리별 분해를 기반으로 판단할 것.\n' +
-        '• Unusual Whales 확장 5지표 해석(v47.2, 4/15 실측 — DATA_SNAPSHOT.fg_extended): ① Junk Bond Demand(HY vs IG 스프레드, 채권쟁이 심리 프록시. 주식 F&G와 ≥20pt 괴리 시 채권 우위) ② Safe Haven Demand(주식 vs 채권 20일 수익률 차이 — 툴팁 "Extreme Greed" 확인됨: 높을수록 주식 편애. 90+ 극단 시 숏감마 청산→급반전 리스크. ※ "안전자산 수요"로 직역하면 역해석 오해 발생) ③ Fifty Two Week Sentiment(52주 범위 내 상대 위치. 91+ 시 대형주가 끌어올린 착시) vs Stock Price Strength(절대 신고가/신저가 비율. 25↓ 시 좁은 랠리 확증) — 두 지표 동시 체크로 교차 검증 ④ Put/Call(F&G 환산치, PCR 실측과 별개) ⑤ Insider Sentiment(경영진 매수/매도 3개월 비율, 0~5 극단 공포 = 천장 신호. 2021.11 고점 직전 선례). F&G 헤드라인 60+ 동안 Insider Sentiment <10 지속 = 분배(distribution) 단계 확증.\n' +
-        '• 위험봇 Tail Risk Board 6지표(v47.2→v47.4 4/15 실측 반영): SKEW 141.86(-4.60%) · VVIX 90.10(-2.77%) · VIX Structure Slope · 9D-VIX · MOVE 62.36(-2.50%, 역사적 저점 유지) · DXY 98.05. 3/30 STABLE 판정 시점(DATA_SNAPSHOT.tail_risk_snapshot_0330) 대비 MOVE 추가 하락(68→62.36) + SKEW 추가 상승(139→141.86) = "겉은 평온, 내부는 헤지로 무장" 역설 **심화**. 9D-VIX는 스크리너 직접 추적 안 되나 VIX 단기 기울기(VX1/VX2 비율)로 근사.\n' +
+        '• Unusual Whales 확장 5지표 해석(v47.2, DATA_SNAPSHOT.fg_extended 기반): ① Junk Bond Demand(HY vs IG 스프레드, 채권쟁이 심리 프록시. 주식 F&G와 ≥20pt 괴리 시 채권 우위) ② Safe Haven Demand(주식 vs 채권 20일 수익률 차이 — 툴팁 "Extreme Greed" 확인됨: 높을수록 주식 편애. 90+ 극단 시 숏감마 청산→급반전 리스크. ※ "안전자산 수요"로 직역하면 역해석 오해 발생) ③ Fifty Two Week Sentiment(52주 범위 내 상대 위치. 91+ 시 대형주가 끌어올린 착시) vs Stock Price Strength(절대 신고가/신저가 비율. 25↓ 시 좁은 랠리 확증) — 두 지표 동시 체크로 교차 검증 ④ Put/Call(F&G 환산치, PCR 실측과 별개) ⑤ Insider Sentiment(경영진 매수/매도 3개월 비율, 0~5 극단 공포 = 천장 신호. 2021.11 고점 직전 선례). F&G 헤드라인 60+ 동안 Insider Sentiment <10 지속 = 분배(distribution) 단계 확증.\n' +
+        '• 위험봇 Tail Risk Board 6지표(v47.2→v47.4 실측 반영): SKEW 141.86(-4.60%) · VVIX 90.10(-2.77%) · VIX Structure Slope · 9D-VIX · MOVE 62.36(-2.50%, 역사적 저점 유지) · DXY 98.05. 3/30 STABLE 판정 시점(DATA_SNAPSHOT.tail_risk_snapshot_0330) 대비 MOVE 추가 하락(68→62.36) + SKEW 추가 상승(139→141.86) = "겉은 평온, 내부는 헤지로 무장" 역설 **심화**. 9D-VIX는 스크리너 직접 추적 안 되나 VIX 단기 기울기(VX1/VX2 비율)로 근사.\n' +
         '• ZBT(Zweig Breadth Thrust) 부재 = 비정상 랠리(v47.2, DATA_SNAPSHOT.zbt): NYSE 상승/하락비 10거래일 내 0.40→0.615 돌파 = 강세장 개시. 2025.4 선례(0.38→0.617) 후 Lock-out Rally. 2026.3-4 랠리는 ZBT 없이 상승(현재 0.5756) = 브레드쓰 부실, 대형주 독식. ZBT 0.615+ 돌파 시 새 Lock-out Rally 가능성, 미돌파 시 분배 진단 유지.\n' +
         '• VIX 40+: 패닉 구간. 역사적으로 VIX 40+ 진입 후 3개월 내 평균 -15%→+20% (V자 반등 패턴 다수).\n' +
         '• VIX 15↓: 안일(complacency). "낮은 VIX는 폭발 대기 중인 변동성" — 옵션 프리미엄 싸게 헤지 기회.\n' +
@@ -956,6 +949,85 @@ const CHAT_CONTEXTS = {
         '테마 타이밍: 초기(인지도 낮음+밸류 저렴) → 가속(뉴스 폭증+급등) → 과열(P/E 비정상) → 조정(테마 피로) 4단계.\n' +
         '테마 분석·섹터 로테이션(RRG) 페이지 연결.' +
         _getV48IntegratedContext('themes') +
+        _getChatRules();
+    }
+  }
+,
+  // P212: KR 시장 컨텍스트 (v49.21) — CHAT_CONTEXTS에 추가
+  'kr-macro': {
+    label: '한국 거시경제',
+    icon: '🇰🇷',
+    system: function() {
+      var s = _liveSnap();
+      var kospi = _ld('^KS11','price') || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.kospi) || '—';
+      var bokRate = (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.bokRate) || '2.75';
+      return '당신은 한국 거시경제 분석가입니다. KOSPI·KOSDAQ·원화·BOK 정책을 전문으로 분석합니다.\n\n' +
+        '## 실시간 한국시장 스냅샷\n' +
+        '- KOSPI: ' + kospi + '\n' +
+        '- USD/KRW: ' + (s.krw || '—') + '\n' +
+        '- BOK 기준금리: ' + bokRate + '%\n' +
+        '- WTI/Brent: ' + (s.wti||'—') + '/' + (s.brent||'—') + '\n' +
+        _closeSnap(s) +
+        '\n## 분석 원칙\n' +
+        '- BOK 정책 방향은 가계부채·원화 안정·글로벌 연준 사이클을 종합 판단\n' +
+        '- 외국인 수급과 원화 방향의 상관관계 강조\n' +
+        '- 지정학 리스크 언급 시 데이터 기반 한정\n' +
+        _getChatRules();
+    }
+  },
+  'kr-supply': {
+    label: '한국 수급분석',
+    icon: '📊',
+    system: function() {
+      var s = _liveSnap();
+      var kospi = _ld('^KS11','price') || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.kospi) || '—';
+      return '당신은 한국 주식시장 수급 전문가입니다.\n\n' +
+        '## 실시간 스냅샷\n' +
+        '- KOSPI: ' + kospi + '\n' +
+        '- USD/KRW: ' + (s.krw || '—') + '\n' +
+        _closeSnap(s) +
+        '\n## 수급 해석 프레임\n' +
+        '- 외국인/기관/개인 3주체 수급 방향과 주가 움직임의 연관성 분석\n' +
+        '- 프로그램 매매(차익·비차익) 및 ETF 플로우 고려\n' +
+        '- 장기 추세와 당일 수급 노이즈 구분\n' +
+        _getChatRules();
+    }
+  },
+  'kr-themes': {
+    label: '한국 테마/섹터',
+    icon: '🔄',
+    system: function() {
+      var s = _liveSnap();
+      var vkospi = (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.vkospi) || '—';
+      return '당신은 KRX 테마 및 섹터 로테이션 전문가입니다.\n\n' +
+        '## 실시간 스냅샷\n' +
+        '- USD/KRW: ' + (s.krw || '—') + '\n' +
+        '- VKOSPI(변동성): ' + vkospi + '\n' +
+        _closeSnap(s) +
+        '\n## 섹터 로테이션 원칙\n' +
+        '- KRX 섹터(반도체·자동차·바이오·금융·에너지)의 상대강도 분석\n' +
+        '- 테마 과열 신호(거래량 급증, PER 확장)와 순환매 전환 신호 구분\n' +
+        '- RRG 차트 기반 리더/약화/라거/개선 사이클 해석\n' +
+        _getChatRules();
+    }
+  },
+  'kr-tech': {
+    label: '한국 기술분석',
+    icon: '📈',
+    system: function() {
+      var s = _liveSnap();
+      var kospi = _ld('^KS11','price') || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.kospi) || '—';
+      var vkospi = (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.vkospi) || '—';
+      return '당신은 한국 주식시장 기술분석가입니다.\n\n' +
+        '## 실시간 스냅샷\n' +
+        '- KOSPI: ' + kospi + '\n' +
+        '- VKOSPI: ' + vkospi + '\n' +
+        '- USD/KRW: ' + (s.krw || '—') + '\n' +
+        _closeSnap(s) +
+        '\n## 기술분석 원칙\n' +
+        '- Weinstein Stage: Stage 1(바닥 형성) → 2(상승) → 3(고점) → 4(하락)\n' +
+        '- VKOSPI > 25 시 공포 과잉(저가매수 신호), < 15 시 안주 경계\n' +
+        '- 주요 지지/저항: KOSPI 이동평균(20MA, 60MA, 120MA, 200MA) 기준\n' +
         _getChatRules();
     }
   }
@@ -1781,6 +1853,10 @@ async function _fetchTickerDataForChat(tickers) {
       // 2. 실시간 Yahoo 조회
       try { data = await dynamicTickerLookup(t); } catch(e) {}
     }
+    // v49.34 신규: SEC 10-K + Wikipedia 사전 fetch (병렬)
+    var secPromise = window.AIO && window.AIO.fetchSECBusinessDescription ? window.AIO.fetchSECBusinessDescription(t).catch(function(){return null;}) : null;
+    var wikiPromise = window.AIO && window.AIO.fetchWikipediaCompany ? window.AIO.fetchWikipediaCompany(t).catch(function(){return null;}) : null;
+
     if (data) {
       var line = '• ' + data.ticker + (data.name ? ' (' + data.name + ')' : '') + ': $' + Number(data.price).toFixed(2) + (data.pct != null ? (' (' + (data.pct >= 0 ? '+' : '') + Number(data.pct).toFixed(2) + '%)') : '');
       if (data.exchange) line += ' [' + data.exchange + ']';
@@ -1864,12 +1940,32 @@ async function _fetchTickerDataForChat(tickers) {
           if (ne.length > 0) results.push(ne.join('\n'));
         }
       } catch(e) {}
+
+      // v49.34 신규: SEC 10-K Item 1 + Wikipedia intro 통합 (15 분석 분야 정성 출처)
+      try {
+        var sec = secPromise ? await secPromise : null;
+        if (sec && sec.available) {
+          results.push('  [SEC 10-K] ' + (sec.companyName || t) + ' · SIC: ' + (sec.sicDescription || sec.sic || 'N/A') + ' · Filed: ' + (sec.latest10K && sec.latest10K.filingDate) + ' · ' + (sec.businessDescriptionUrl || ''));
+          results.push('  [SEC 10-K 사용 가이드] Item 1 (Business) + Item 1A (Risk Factors)는 위 URL에서 직접 fetch 가능. 비즈니스 구조/사업 모델/공급망/리스크/경쟁 등 정성 분석은 이 출처를 인용하여 답변. AI 학습 데이터로 환각 금지.');
+        }
+      } catch(_secErr) {}
+      try {
+        var wiki = wikiPromise ? await wikiPromise : null;
+        if (wiki && wiki.available && wiki.extract) {
+          results.push('  [Wikipedia] ' + wiki.url);
+          results.push('  [기업 개요 (Wiki intro)] ' + wiki.extract.substring(0, 600));
+        }
+      } catch(_wikiErr) {}
     } else {
-      results.push('• ' + t + ': 데이터 조회 실패 — 티커를 확인하세요.');
+      // v49.32 B2/R82 HARD GUARDRAIL — fetch 실패 시 환각 절대 차단
+      results.push('• ' + t + ': ❌ 실시간 시세 조회 실패 (Yahoo Finance + 프록시 모두 fail)');
+      results.push('  ⛔ HARD GUARDRAIL: 이 종목에 대해 절대로 가격/등락률/시가총액/PER 등 정량 수치를 추측하거나 인용하지 마세요. 학습 데이터(2024~2025)의 과거 수치는 이미 stale 입니다.');
+      results.push('  ✅ 허용된 답변: "현재 ' + t + ' 실시간 데이터를 받아오지 못했습니다. Yahoo Finance(finance.yahoo.com/quote/' + t + ') 또는 Finnhub 등 외부 도구로 직접 확인을 권장합니다."');
+      results.push('  ✅ 허용된 분석: 가격을 인용하지 않는 일반론적 사업 모델/경쟁사 비교/섹터 트렌드 (수치 없이) 만 답변하세요.');
     }
   }
   if (results.length === 0) return '';
-  return '\n\n【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n위 실시간 데이터(가격·밸류에이션·재무)를 반드시 인용하여 분석하라. 학습 데이터의 과거 수치 사용 금지.\n';
+  return '\n\n【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±20% 이상 괴리 시 차단됨.\n\n📋 15 분석 분야 출처 매핑 (v49.34 R90 — 정성+정량):\n- 시세/등락률/시총/PER: 위 실시간 데이터 블록 (Yahoo/Naver/Finnhub)\n- 비즈니스 구조/사업 모델/공급망/리스크/경쟁: [SEC 10-K] 링크 직접 fetch + 인용 (Item 1, 1A, 1C)\n- CEO/경영진/제품 포트폴리오/회사 개요: [Wikipedia] 인용 (학습 데이터 환각 금지)\n- 애널리스트 컨센서스/투자포인트: [애널리스트 컨센서스] + [Naver 컨센서스] 인용\n- 어닝 일정/실적: [향후 어닝] 인용\n- TAM/시장 크기: SCREENER_DB 메모\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 15 기준 가용성 (v49.35 R91 — index.html L8175 기준):\n- ✓ 구현 6개: Quality of Business(ROE) / Growth(CAGR) / Margin Trend / Valuation PE / Analyst Revisions / Earnings Beat Streak\n- ⚠ 부분/계획 5개: FCF Yield / Balance Sheet (Net Debt/EBITDA) / EV/EBITDA / Industry Rank / Macro Exposure\n- ❌ 미구현 4개: Moat (Morningstar 유료) / Insider Activity / Institutional Flow (13F) / Short Interest\n- 미구현 기준 분석 요청 시: "이 기준은 현재 시스템에서 자동 평가 불가, [수동 확인 출처]에서 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
 }
 
 // ── v34.2: 기업 내부 비교 분석 — 비즈니스 모델·수익 구조·해자 심층 데이터 ──
@@ -3085,6 +3181,45 @@ async function chatSend(ctxId) {
         if (singleDeepStr || deepCompareStr) _bItems.push('<span style="color:#60a5fa;">🔬 심층 ✓</span>');
         _srcBadge.innerHTML = _bItems.join('');
         aiBubble.parentNode.appendChild(_srcBadge);
+
+        // v49.33 R83/R86 자동 검증 통합 — 응답 정확성 + 환각 패턴
+        try {
+          var _accBadge = document.createElement('div');
+          _accBadge.className = 'aio-chat-accuracy-badge';
+          _accBadge.style.cssText = 'font-size:10px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:3px 0;padding:3px 6px;background:var(--surface-1);border-radius:4px;';
+          var _accItems = [];
+          // 1. 응답 정확성 (detectedTickers 사용)
+          if (typeof window.AIO !== 'undefined' && window.AIO.assertChatResponseAccuracy && Array.isArray(detectedTickers) && detectedTickers.length > 0) {
+            var _acc = window.AIO.assertChatResponseAccuracy(visible, detectedTickers);
+            if (_acc.priceCitations && _acc.priceCitations.length > 0) {
+              if (_acc.accurate) {
+                _accItems.push('<span style="color:#3ddba5;" title="모든 인용 가격이 실시간 ±20% 이내">✓ 가격 정확성</span>');
+              } else {
+                _accItems.push('<span style="color:#ff5b50;" title="severity=' + _acc.severity + ', max deviation ' + (_acc.deviation ? _acc.deviation.toFixed(1) : '?') + '%">⚠ 가격 괴리 ' + _acc.severity + '</span>');
+                if (typeof console !== 'undefined' && console.warn) {
+                  console.warn('[AIO/R83] Chat response price inaccuracy:', _acc);
+                }
+              }
+            }
+          }
+          // 2. 환각 패턴
+          if (typeof window.AIO !== 'undefined' && window.AIO.getChatHallucinationAudit) {
+            var _hall = window.AIO.getChatHallucinationAudit(visible);
+            if (_hall.suspicionScore > 0) {
+              var _hColor = _hall.verdict === 'high-risk' ? '#ff5b50' : _hall.verdict === 'medium-risk' ? '#ffa31a' : '#7e8a9e';
+              _accItems.push('<span style="color:' + _hColor + ';" title="패턴: ' + _hall.patterns.join(', ') + '">🧠 환각 ' + _hall.suspicionScore + '/10</span>');
+              if (_hall.suspicionScore >= 7 && typeof console !== 'undefined' && console.warn) {
+                console.warn('[AIO/R86] High hallucination risk:', _hall);
+              }
+            } else {
+              _accItems.push('<span style="color:#3ddba5;" title="환각 패턴 0">🧠 클린</span>');
+            }
+          }
+          if (_accItems.length > 0) {
+            _accBadge.innerHTML = '<span style="color:var(--text-muted);font-weight:600;">v49.33 검증:</span> ' + _accItems.join('');
+            aiBubble.parentNode.appendChild(_accBadge);
+          }
+        } catch(_validateErr) { /* validation 실패해도 응답 렌더는 차단 X */ }
 
         // v46.6: 피드백 버튼
         var _fbDiv = document.createElement('div');

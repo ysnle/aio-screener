@@ -684,3 +684,526 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 7. **Layer 7**: `setTimeout\([^,]+,\s*\d+\)` 재귀 3회+ vs `_xxxRetries > N` 가드 부재 경고 — R44
 8. **Layer 8**: `getAttribute\(['"]onclick['"]\)` 신규 추가 경고 — R45 위반
 9. **Layer 9**: TODO/FIXME/XXX 10건+ 증가 시 기술부채 경고 — R42 원칙
+
+
+## R54. `data-aio-archive` 마킹 원칙 (v49.21 추가)
+
+**적용 기준**: 역사적/아카이브 데이터를 담는 DOM 섹션에만 `data-aio-archive="true"` 를 추가한다.
+`getCritical10PageFreshnessAudit()` 및 `getCriticalKrPageFreshnessAudit()` 는 이 속성 하위 DOM을 clone 후 제거하고 textContent를 검사한다.
+
+**적용 O**: 과거 날짜 하드코딩 정책 일정표, 지정학 시나리오 아카이브, 주간 수급 스냅샷 히스토리 탭
+**적용 X**: `data-snap` / `data-snap-date` / `data-live-price` 속성 보유 동적 갱신 예정 섹션
+**위반 시**: 실제 stale 데이터가 감사에서 제외되어 P209/P211 타입 stale 탐지 불능 상태 재발
+
+---
+
+## R55. 동일 지표 multi-sink 단일화 (v49.24 추가, P216/P218 근본)
+
+**원칙**: 동일 지표(신용잔고·F&G·VIX·KOSPI 등)가 여러 페이지에 표시되는 경우 **반드시** `data-snap="key"` 또는 `data-live-price` 속성을 사용한다. 인라인 텍스트 하드코딩 금지.
+
+**근거**:
+- **P216 (v49.22)**: kr-home은 `data-snap="kr-credit">19.2조원` 사용했으나 kr-technical은 `<span>31.7조 (사상최대)</span>` 하드코딩 → cross-page 64.6% 괴리
+- **P218**: home의 `#home-fg-score`와 sentiment의 `#fg-score-big`이 다른 ID로 분기 → home은 영구 placeholder
+
+**검증**: `AIO.getSnapshotConsistencyAudit()` → `mismatches.length === 0` 보장
+**위반 시**: 동일 지표가 페이지별로 다른 값 표시되어 사용자 신뢰 훼손, freshness audit 누락
+
+---
+
+## R56. 임계값·라벨 단일 출처 — THRESHOLD_REGISTRY (v49.24 추가, P219 근본)
+
+**원칙**: VIX/F&G/HY Spread/AAII/Skew 등 임계값 기반 라벨(`"공포"`, `"Tight"`, `"극단 비관"` 등)은 **반드시** `window.AIO_THRESHOLD_REGISTRY[지표].getLabel(value)` 호출로 생성한다.
+
+**근거 (P219)**:
+- VIX 18 → home에서 `"심리 공포"` 라벨 vs 정의(`12~20 정상 Risk-On`) 모순
+- HY 289 bps → 배지 `"Tight"+"Risky"` 동시 표시 vs 정의(`<300 = 과열`)
+- AAII Bear 43% → `"극단적 비관"` vs 임계값(`spread < -20% = 극단`)
+
+**구조**: `window.AIO_THRESHOLD_REGISTRY = { VIX:{bands:[...], getLabel:fn}, FG:{...}, HY_SPREAD:{...}, AAII:{...}, SKEW:{...} }`
+**검증**: 새 라벨 표시 코드 추가 시 grep으로 `getLabel(` 호출 확인. 인라인 if/switch 분기 금지.
+
+---
+
+## R57. 정적 테이블 stale 감지 의무 (v49.24 추가, P217 근본)
+
+**원칙**: 3행 이상 정적 데이터를 담는 `<table>` 첫 데이터 행 첫 셀에는 **반드시** 날짜(MM/DD 또는 YYYY-MM-DD) 패턴을 포함하거나 부모 컨테이너에 `data-aio-archive="true"` 또는 `data-snap-date` 부착한다.
+
+**근거 (P217)**: kr-supply 주간 수급 테이블이 `03/27 03/26 03/25 03/24 03/23` 2024년 데이터를 2년+ 잔존. `data-aio-archive` 마킹 부재로 freshness audit 누락.
+
+**검증**: `AIO.getTableStaleAudit()` → `issueCount === 0` 보장 (90일+ 경과 자동 탐지)
+**적용**: 주간/월간 수급 테이블, BOK/Fed 회의 일정표, 어닝 캘린더 등
+
+---
+
+## R58. DOM 인라인 vs DATA_SNAPSHOT 3-way 정합 (v49.24 추가, P213 근본)
+
+**원칙**: `data-snap="key"` 속성을 가진 DOM 요소의 **인라인 텍스트(pre-JS fallback)는 반드시 DATA_SNAPSHOT[key] 출력값과 일치**해야 한다.
+
+**근거 (P213)**: v48.61 P125 해소 시 DATA_SNAPSHOT.krCreditBalance = 19.8 추가했으나 DOM 인라인은 `<span data-snap="kr-credit">31.7조원</span>` 그대로 잔존. JS 실행 전 사용자에게 19.8 ≠ 31.7 노출 가능.
+
+**검증**: `AIO.getSnapshotConsistencyAudit()` → 동일 key의 모든 sink가 같은 텍스트 보유
+**프로세스**: DATA_SNAPSHOT 값 갱신 시 → 같은 key의 모든 DOM 인라인 텍스트도 동시 갱신 (Edit 또는 grep replace)
+
+---
+
+## R59. 점수 스케일 단일 정의 — SCORE_SCALES (v49.25 추가, L1 근본)
+
+**원칙**: 점수 시스템(20점 만점, 0~100 스케일 등)을 사용하는 모든 페이지는 **반드시** `window.AIO_SCORE_SCALES` 객체를 참조한다. 스케일 변환은 `convert(score, fromScale, toScale)` 함수만 사용.
+
+**근거 (L1)**: signal 페이지가 "20점 만점" 명시 + 표 구간 "75+/60~75/45~60/30~45/<30" (0~100 스케일) 혼합 표기 → 사용자 혼동
+**구조**: `TWENTY_POINT { min:0, max:20, components:{trend:8, rs:4, ...} }` + `HUNDRED_POINT { bands:[{min:75, label:'적극 매수'}, ...] }` + `convert()` + `getLabel100From20()`
+**위반 시**: 페이지마다 임의 변환식 사용 → 같은 점수가 다른 라벨로 표시될 위험
+
+---
+
+## R60. 매매 전략 권장값 단일 출처 — ATR_PRESETS (v49.25 추가, L4 근본)
+
+**원칙**: ATR 배수·스톱·트레일링 등 매매 전략의 권장값은 **반드시** `window.AIO_ATR_PRESETS[preset]` 참조. 페이지마다 임의 범위 표기 금지.
+
+**근거 (L4)**: signal L4433~4441 "스윙 3~5배, 포지션 4~8배" 광범위 모호. 트레이더가 어떤 값을 채택할지 알 수 없음.
+**구조**: `swing {multiplier:3.0, range:[2.5,3.5]}` · `position {multiplier:5.0, range:[4.0,6.0]}` · `scalp` · `trailing` + `getStop()` + `getDescription()`
+**위반 시**: 동일 전략이 페이지별로 다른 권장값 표기 → 실행 일관성 훼손
+
+---
+
+## R61. 다중 신호 합의 알고리즘 — diagnoseBreadthConsensus (v49.25 추가, L3 근본)
+
+**원칙**: 3개 이상 신호(5SMA/20SMA/50SMA/McClellan/Weinstein 등)를 종합하는 판정은 **반드시** `AIO.diagnoseBreadthConsensus(signals)` 호출. 인라인 if/else 종합 금지.
+
+**근거 (L3)**: breadth 페이지 5SMA 68%(강세) + 20SMA 75%(강세) + 50SMA 46%(혼조) + McClellan(약세) → 종합 "약세"라 단정. 근거 불명확. 강세 2개 + 약세 1개 + 혼조 1개 → 가중 평균으로는 "혼조" 또는 "약세 우위"가 정확.
+**구조**: 가중치 자동 (sma5:0.1, sma20:0.2, sma50:0.3, mcclellan:0.2, weinstein:0.1, goldenCross:0.1) + 합의 점수 → verdict + conflict 보고
+**위반 시**: 모순 신호 무시 판정 → 사용자 신뢰 훼손, P219 유사 패턴 재발
+
+---
+
+## R62. 정량 지표 자동 채점 — PIOTROSKI_CHECKLIST (v49.25 추가, L7 근본)
+
+**원칙**: F-Score 등 정량 채점 시스템은 **반드시** 체크 항목과 검증 함수를 단일 객체에 등록. 페이지마다 9가지 체크 텍스트만 나열 금지.
+
+**근거 (L7)**: fundamental L8134~8142 "9가지 YES/NO 체크" 설명만 있고 데이터로 분류하지 않음. 사용자가 자기 종목 F-Score 계산 불가.
+**구조**: `AIO_PIOTROSKI_CHECKLIST.categories = { profitability:[4 items], leverage:[3 items], efficiency:[2 items] }` + `score(d) → {score:0~9, details:[], verdict:'우수/양호/주의/위험'}`
+**위반 시**: 설명만 있고 실행 안 됨 → 정량 분석의 의미 상실
+
+---
+
+## R63. 라벨 인라인 사용 자동 audit — getThresholdLabelAudit (v49.25 추가, R56 자동화)
+
+**원칙**: THRESHOLD_REGISTRY에 등록된 라벨(`'극단 공포'`, `'Tight'` 등)이 페이지 텍스트에 직접 작성된 위치는 **반드시** `getLabel()` 경유 여부 확인. 인라인 하드코딩 발견 시 마이그레이션.
+
+**근거**: R56(THRESHOLD_REGISTRY) 신설만으로는 기존 인라인 라벨 코드가 자동 마이그레이션되지 않음. 신규 인프라 적용률 추적 필요.
+**검증**: `AIO.getThresholdLabelAudit()` → `inlineHits` 배열. 페이지별 라벨 출현 위치 보고. 합법(tooltip/정의문)과 불법(라벨 표시) 구분은 코드 리뷰.
+
+---
+
+## R64. 점수 가중치 단일 정의 — WEIGHT_REGISTRY (v49.26 추가, I2 근본)
+
+**원칙**: Trading Score / Quality Score / Market Regime 등 복합 점수의 구성요소별 가중치는 **반드시** `window.AIO_WEIGHT_REGISTRY[scoreKey]` 등록 후 페이지에서 `getComponentTooltip(key)` 호출로 표시.
+
+**근거 (I2)**: home Trading Score "20점 만점" + Quality Score "0~100"라 명시하나, 구성요소 가중치(50일선 비율 ? 점, A/D ? 점, NHNL ? 점) 미공개 → 사용자가 점수 의미 파악 불가
+**구조**: `TRADING_SCORE.components = [{id, label, weight, max, note}, ...]` + `totalWeight` + `getComponentTooltip(key)` 자동 생성
+**위반 시**: 점수 시스템이 "블랙박스"로 보여 신뢰도 하락. 사용자가 자기 종목 점수 검증 불가.
+
+---
+
+## R65. 시각 위계 단일 정의 — CARD_HIERARCHY (v49.26 추가, I3 근본)
+
+**원칙**: 카드(매매판단/품질점수/시장국면 등)는 **반드시** `window.AIO_CARD_HIERARCHY` 의 `primary` / `secondary` / `tertiary` 레벨로 분류하여 `getClassList(level)` 호출로 클래스 적용. 페이지 직접 fontSize 인라인 금지.
+
+**근거 (I3)**: home 3개 카드 (`is-interactive has-stripe-top stripe-amber`)가 동일 타이포그래피 → Primary(매매신호) 시각 강조 부족
+**구조**: `primary {fontSize:'24px', fontWeight:'900', stripeColor:'data-green'}` · `secondary {fontSize:'20px', fontWeight:'800'}` · `tertiary {fontSize:'16px'}`
+**위반 시**: 우선순위 불명확, 사용자 시선 흐름 혼란
+
+---
+
+## R66. 중복 콘텐츠 자동 감사 — getDuplicateContentAudit (v49.26 추가, I4 근본)
+
+**원칙**: 한 페이지에 동일 지표(`data-snap` 또는 `data-live-price` 키)가 3회 이상 표시되면 **반드시** 의도 명시 또는 `data-aio-archive` 마킹.
+
+**근거 (I4)**: technical 페이지 TradingView 차트 + OHLC 폴백 정보 표시 비중 균등(중복). breadth 페이지도 같은 지표 3곳 이상 표시.
+**검증**: `AIO.getDuplicateContentAudit()` → `duplicates[].count >= 3` 위치 보고
+**위반 시**: 사용자가 "어디를 봐야 하나" 혼동, 인지 부하 증가
+
+---
+
+## R67. 동적 판정 함수 단일화 — getCycleFromMacro (v49.26 추가, I7 근본)
+
+**원칙**: 경기 사이클 위치(Early/Mid/Late/Recession) 등 매크로 기반 판정은 **반드시** `AIO.getCycleFromMacro(macroInputs)` 호출. 페이지에 "◀ 현재" 위치 정적 하드코딩 금지.
+
+**근거 (I7)**: themes L8534 "◀ 현재(Late Cycle · 에너지·필수소비·유틸)" 사이클 위치 정적 고정. 시간 경과·매크로 변화 미반영.
+**구조**: `getCycleFromMacro({vix, breadth50, yield2s10s, spxTrend}) → {phase, inputs, rationale[]}`
+**위반 시**: 사이클 판정이 6개월+ 정적으로 고정 → 신뢰도 훼손
+
+---
+
+## R68. 페이지 placeholder 표준 — 동적 검색 가이드 (v49.26 추가, I5/I6 근본)
+
+**원칙**: 검색·동적 콘텐츠 영역의 초기 상태("스토리라인 생성 중..." 등 placeholder)는 **반드시** 사용자 가이드 텍스트(검색 예시·데이터 출처·예상 응답 시간) 포함.
+
+**근거**:
+- I5: fundamental 검색 전 예시 카드 부재 → 사용자가 어떤 종목 입력해야 할지 가이드 부족
+- I6: macro "스토리라인 생성 중..." 플레이스홀더 → 실제 생성 로직/예상 결과 불명
+
+**기본 패턴**: `<placeholder> + <sample-cta> + <data-source-note> + <expected-latency>`
+**위반 시**: 동적 영역이 영구 placeholder로 보일 위험. 사용자 신뢰 훼손.
+
+---
+
+## R69. Action Item 단일 출처 — ACTION_RULES (v49.27 추가, E1/E2 근본)
+
+**원칙**: "지금 해야 할 일" 가이드는 **반드시** `window.AIO_ACTION_RULES.getActionPlan({vix, fg, breadth50})` 호출로 생성. 페이지별 일반론 텍스트 ("AI 모멘텀 변동성 대비") 금지.
+
+**근거 (E1/E2)**: home·briefing에 구체 포지션 조정 규칙 부재. 사용자가 "VIX 25에서 포지션을 얼마로?" 답을 얻지 못함.
+**구조**: `positionSizing.rules = [{vixMax, sizePct, note}, ...]` + `sentimentAction.rules` + `getActionPlan(env)` → `{actions:[], position, sentiment}`
+**위반 시**: 페이지마다 일반론적 조언 → 실행 가이드 누락
+
+---
+
+## R70. 페이지 목적 단일 정의 — PAGE_PURPOSE_REGISTRY (v49.27 추가, E3/E4 근본)
+
+**원칙**: 각 페이지의 목적·주요 카드·CTA는 **반드시** `window.AIO_PAGE_PURPOSE_REGISTRY[pageKey]` 등록. signal vs home 역할 분리 명확화.
+
+**근거**:
+- **E3**: 매매신호 핵심이 home·signal 두 페이지에 분산 → 사용자가 page 본 목적 혼동
+- **E4**: briefing의 5대 관전 포인트가 어닝 캘린더보다 아래 → 우선순위 역전
+
+**구조**: `home {purpose, mainCards, cta}` · `briefing {purpose, sectionOrder, cta}` · 12 페이지 모두 등록
+**위반 시**: 페이지 구조 변경 시 일관성 추적 불가, 정보 우선순위 깨짐
+
+---
+
+## R71. 이론 vs 실행 비율 audit — getPagePurposeRatioAudit (v49.27 추가, E5 근본)
+
+**원칙**: 한 페이지의 정적 텍스트 글자수 vs 동적 sink 개수 비율을 자동 점검. 텍스트 3000자+ & sink <5개면 이론 우위 (E5 패턴) 경고.
+
+**근거 (E5)**: portfolio L8716~8763 이론(Sharpe/Sortino/Kelly/Beta/IR) 풍부 vs UI L8767~8780 5개 미만 → 비대칭
+**검증**: `AIO.getPagePurposeRatioAudit()` → 페이지별 `textLen`, `sinkCount` 보고. 비대칭 시 issueCount 증가.
+**위반 시**: 사용자가 이론만 보고 실행 못 함
+
+---
+
+## R72. 시나리오 확률 시간 의존 — SCENARIO_REGISTRY (v49.27 추가, L6 근본)
+
+**원칙**: 시나리오 확률(연착륙/스태그/침체)은 **반드시** `window.AIO_SCENARIO_REGISTRY` 등록 + `lastUpdated`/`source`/`triggers` 필수 메타데이터. 30일+ 경과 시 자동 stale 보고.
+
+**근거 (L6)**: macro L7244~7295 시나리오 트리 확률 (30%/45%/25%) 하드코딩. 시간 경과·매크로 변화 미반영.
+**구조**: `scenarios { 'soft-landing':{probability, lastUpdated, source, triggers[]} ... }` + `validateSum()` (확률 합 1.0 검증)
+**검증**: `AIO.getScenarioFreshnessAudit()` → staleScenarios + probabilitySum
+**위반 시**: 시나리오가 분기점(FOMC/CPI 발표) 후에도 stale로 표시되어 잘못된 의사결정 유도
+
+---
+
+## R73. 인프라 추가 시 페이지 적용 동반 의무 (v49.28 추가, P239 메타 근본)
+
+**원칙**: 신규 `*_REGISTRY` 객체나 `AIO.get*Audit()`/`AIO.applyXxxToElement()` 함수를 추가할 때 **반드시 같은 버전에서 해당 인프라를 실제 페이지에 적용**해야 한다. 인프라 등록 PR과 페이지 적용 PR을 분리하면 인프라가 "사용 가능"하지만 "사용 안 됨" 상태로 영구 잔존.
+
+**근거 (P239)**: v49.24~v49.27이 18개 근본 인프라(THRESHOLD/SCORE_SCALES/ATR/PIOTROSKI/WEIGHT/CARD_HIERARCHY/applyLabel/getCycle/ACTION/PAGE_PURPOSE/SCENARIO 등)를 추가했으나 실제 페이지 DOM에 적용 안 함. 사용자가 보는 화면은 그대로 stale. v49.28에서 시정.
+
+**적용 체크리스트**:
+1. 인프라 객체/함수 등록 (`aio-core.js`)
+2. 최소 1개 페이지에 적용 (DOM 마커 + JS 호출)
+3. `_aioPageBus.register()` 또는 `applyDataSnapshot` 통합 (페이지 진입 시 자동 호출)
+4. 회귀 테스트 추가 — 페이지에 인프라 호출 결과 표시 확인 (단순 인프라 함수 존재 여부 X, 실제 DOM 결과 검증)
+
+**위반 시**: 새 인프라가 "코드는 있는데 화면에 없음" 패턴으로 누적 → 디버깅 어려움, 사용자 신뢰 훼손
+**자동 감사**: `AIO.getThresholdLabelAudit()` + `AIO.getSnapshotConsistencyAudit()` 호출 결과 + getDuplicateContentAudit를 정기 점검하여 적용률 추적
+
+---
+
+## R74. DOM 인라인 폴백 vs DATA_SNAPSHOT 동시 갱신 의무 (v49.30 추가, P252/M1 근본)
+
+**원칙**: `data-snap="key"` 속성을 가진 DOM 요소의 인라인 폴백 텍스트는 **반드시** DATA_SNAPSHOT[key] 갱신 시 동시 갱신. `AIO.assertSnapshotInlineMatch()`가 핵심 sink (KOSPI/KOSDAQ/KRW/SPX/VIX/Fed/BOK 등)의 인라인 vs DATA_SNAPSHOT 비교.
+
+**근거 (P252)**: KOSPI 인라인 `6,091.39` vs DATA_SNAPSHOT.kospi `7844.01` 22% 괴리. v49.23이 KR 6필드만 시정하고 메인 카드 누락 → P213 패턴 재발.
+**검증**: `AIO.assertSnapshotInlineMatch()` → `mismatchCount === 0`. throwOnFail 옵션으로 개발 모드 차단 가능.
+**위반 시**: pre-JS 상태에서 사용자에게 22% 괴리 가격 노출 → 의사결정 오류
+
+---
+
+## R75. 정적 콘텐츠 lifecycle 메타 필수 (v49.30 추가, P253/M2 근본)
+
+**원칙**: 인터뷰/이벤트/주간 캘린더 등 시점 의존 정적 콘텐츠는 **반드시** `AIO_STATIC_CONTENT_LIFECYCLE.contents[id]`에 등록 (`createdAt` + `archiveAfterDays` + `replaceAfterDays`). DOM에는 `data-lifecycle-id="id"` 속성 부착.
+
+**근거 (P253)**: Jensen 인터뷰(2026-03-20) 58일 잔존 — 정적 메모 lifecycle 정책 부재로 60일 임박 자동 알람 없음
+**구조**: `{ jensen-interview-202603: { type:'interview', createdAt, archiveAfterDays:30, replaceAfterDays:60 } }`
+**검증**: `AIO.getStaticContentLifecycleAudit()` → `expiredCount === 0`
+**위반 시**: 정적 콘텐츠가 영구 잔존 → 1~2개월 시간 경과 후 stale 신뢰도 훼손
+
+---
+
+## R76. 정치/관료 이름 NAMED_ENTITY_REGISTRY 경유 의무 (v49.30 추가, P254/M3 근본)
+
+**원칙**: Fed Chair/Treasury Sec/BOK 총재 등 정치·관료 이름은 페이지·CHAT_CONTEXTS·메모에 직접 하드코딩 금지. `AIO_NAMED_ENTITY_REGISTRY.entities[key].name` 참조 (또는 alt 배열).
+
+**근거 (P254)**: chat L55 "Bessent/Warsh policy mix" — 인사 임명·교체 시점 의존. 검증 함수 부재로 임의 시점 stale 가능.
+**구조**: `{ us-fed-chair: { name:'Powell', alt:[...], role, currentAs:'2026-05-17', source } }`
+**검증**: `AIO.getNamedEntityAudit()` → `unverifiedCount === 0` (90일+ 미검증 인사 보고)
+**위반 시**: 임명 변경 후 페이지가 구 인사 이름 영구 표시
+
+---
+
+## R77. 거시지표 MACRO_CALENDAR 등록 + 자동 stale (v49.30 추가, P254/M4 근본)
+
+**원칙**: NFP/CPI/PCE/ISM 등 정기 발표 거시지표 데이터는 **반드시** `AIO_MACRO_CALENDAR.releases[key]`에 등록 (`lastRelease` + `nextRelease` + `dataField`). `getMacroReleaseStaleAudit()`가 nextRelease 경과 시 자동 stale 보고.
+
+**근거 (P254)**: NFP 4/3 데이터 (`usUnemploy: 4.30`) → 44일 경과. 5월 발표 (5/3) 후에도 폴백 그대로. 자동 stale 트리거 부재.
+**구조**: `{ us-nfp: { frequency:'monthly-first-friday', lastRelease, nextRelease, dataField:'usUnemploy' } }`
+**검증**: `AIO.getMacroReleaseStaleAudit()` → `staleReleaseCount === 0`
+**위반 시**: 발표 후에도 한 달 이상 stale 데이터 노출
+
+---
+
+## R78. KR 거시 KR_MACRO_RELEASE 등록 + 발표 캘린더 의무 (v49.30 추가, P255/M5 근본)
+
+**원칙**: 산자부 수출입(매월 1일), 통계청 CPI/산업생산, BOK GDP(분기) 등 KR 거시 데이터는 **반드시** `AIO_KR_MACRO_RELEASE.releases[key]`에 등록. `monthData` 필드로 정확한 기준 월 명시.
+
+**근거 (P255)**: "2월 반도체 수출 +157.9%" (kr-home L10684, kr-macro 등 3곳) → 3월/4월 데이터 발표 후에도 영구 잔존. KR 발표 캘린더 부재.
+**구조**: `{ kr-semi-export: { frequency:'monthly-first', lastRelease:'2026-03-01', nextRelease:'2026-04-01', dataField:'krSemiExport', monthData:'2026-02' } }`
+**검증**: `AIO.getKrMacroReleaseAudit()` → `krStaleReleaseCount === 0`
+**위반 시**: KR 분기 거시 텍스트가 영구 stale → 정책 결정 오해
+
+---
+
+## R79. 지정학 시나리오 단일 출처 — GEOPOLITICAL_CONTEXT_REGISTRY (v49.31 추가, H3 근본)
+
+**원칙**: 호르무즈/이란/대만/우크라/미중 관세 등 시점 의존 지정학 시나리오는 **반드시** `window.AIO_GEOPOLITICAL_CONTEXT_REGISTRY.scenarios[id]` 등록. 페이지 텍스트에 인라인 시나리오 작성 금지.
+
+**근거 (H3)**: macro/signal 페이지에 "호르무즈", "이란 재협상", "트럼프 관세" 등 시점 의존 텍스트 산재 → 정책 변경 시 페이지마다 수동 갱신 필요. lastReviewed 추적 부재로 1~2개월 stale 가능.
+**구조**: `{ hormuz-strait: { name, region, status:'active/monitoring/resolved', lastReviewed, marketImpact, currentPriceSignal } }`
+**검증**: `AIO.getGeopoliticalReviewAudit()` → `overdueCount === 0` (14일 defaultReviewDays)
+**위반 시**: 시나리오가 정책 변경 후에도 stale 노출 → 사용자 잘못된 투자 결정
+
+---
+
+## R80. 정적 데이터베이스 메타 의무 — SCREENER_DB_META (v49.31 추가, H1 근본)
+
+**원칙**: SCREENER_DB 등 메모/분석을 포함하는 정적 데이터베이스는 **반드시** `*_META` 객체 (schemaVersion + lastBulkUpdate + staleAfterDays + replaceAfterDays + source + note) 부착. 메모 게시일 추적.
+
+**근거 (H1)**: SCREENER_DB 메모 헤더 "2026-03 Yahoo Finance 기준" + memo 게시일 04-21/04-25 → 22~47일 경과. lifecycle 메타 부재로 자동 stale 알람 없음.
+**구조**: `SCREENER_DB_META = { lastBulkUpdate, staleAfterDays:30, replaceAfterDays:60, source, note }` + `window.SCREENER_DB_META` 노출
+**검증**: 콘솔에서 `window.SCREENER_DB_META.lastBulkUpdate` 확인 가능
+**위반 시**: 분기 실적 시즌 후에도 EPS/PER 변경 미반영 → 종목 분석 오류
+
+---
+
+## R81. 정기 발표 데이터 사용자 가시 마커 (v49.31 추가, H4 근본)
+
+**원칙**: FRED/KRX/산자부 등 정기 발표 데이터의 차트/카드 헤더에 **반드시** `다음 갱신: NFP 6/6` 등 다음 발표일 표시. MACRO_CALENDAR/KR_MACRO_RELEASE 등록 데이터 자동 연동.
+
+**근거 (H4)**: macro FRED 차트 헤더 "FRED API · 월간 데이터"만 표기 → 사용자가 언제 새 데이터 들어오는지 알 수 없음. 시간 경과 시 stale 신뢰도 훼손.
+**구조**: 차트 헤더에 `<span title="MACRO_CALENDAR 연동">(다음 갱신: NFP 6/6 · CPI 6/12 · PCE 6/30)</span>`
+**검증**: 발표일 자동 도래 시 라벨 색상 변경 (amber → red)
+**위반 시**: 사용자가 데이터 stale을 인지하지 못함
+
+---
+
+## R82. AI 채팅 가격 fetch 실패 시 Hard Guard 의무 (v49.32 추가, P263 근본)
+
+**원칙**: 종목 시세 fetch 실패 시 system 프롬프트에 **반드시** HARD GUARDRAIL 텍스트 ("절대 가격 추측 금지. 학습 데이터 사용 금지. 외부 도구 권장만 답변") 주입. soft signal ("데이터 조회 실패") 금지.
+
+**근거 (P263)**: chat L1940 폴백 분기가 "데이터 조회 실패 — 티커를 확인하세요" 단순 텍스트만 주입 → AI가 학습 데이터(2024~2025 stale)로 "QCOM 약 $150" 환각 응답
+**구조**: results에 ⛔ 절대 금지 + ✅ 허용 답변 + ✅ 허용 분석 3종 명시 + ABSOLUTE RULES 4조항
+**검증**: T260 — _fetchTickerDataForChat 실패 시 HARD GUARDRAIL 텍스트 포함 확인
+**위반 시**: 사용자에게 잘못된 가격 응답 → 잘못된 투자 결정
+
+---
+
+## R83. 채팅 응답 post-hoc 가격 검증 의무 (v49.32 추가, P264 근본)
+
+**원칙**: AI 응답 생성 후 **반드시** `AIO.assertChatResponseAccuracy(responseText, detectedTickers)` 호출. 응답 텍스트의 가격 패턴(`$\d+`) 추출 + 실시간 가격과 비교. ±20% 이상 괴리 시 응답 차단/재요청.
+
+**근거 (P264)**: v49.24~31 누적 13개 audit이 모두 pre-render (DOM/데이터). 응답 후 가격 검증 0건.
+**구조**: `{ accurate: boolean, deviation: pct, severity: 'critical/high/medium/low/none', issues: [], priceCitations: [] }`
+**검증**: T263 — assertChatResponseAccuracy 호출 + mock 응답 비교
+**위반 시**: 환각 응답이 사용자에게 그대로 노출
+
+---
+
+## R84. System 프롬프트 정량 수치 화이트리스트 (v49.32 추가, P262 근본)
+
+**원칙**: chat system 프롬프트에 박힌 정량 수치 (147-150 같은 임계값/배수)는 **반드시** `AIO_NUMERIC_GUIDELINE_SAFELIST.thresholds[id]` 등록. AI에게 "calibration constant이지 stock price 아님" 명시.
+
+**근거 (P262)**: chat L54 "147-150" (blow-off top 20MA distance band)이 AI가 "QCOM = 150" 환각 응답 시 환각 출처 가능
+**구조**: `{ 'blowoff-singlename-20ma-distance': { value: '147-150', meaning: '...NOT stock price', context: '...' } }`
+**검증**: T262 — SAFELIST 등록 + 147-150 포함 + isCalibrationConstant() 작동
+**위반 시**: AI가 정량 임계값을 종목 가격으로 오인용 → 환각
+
+---
+
+## R85. 종목명-티커 단일 출처 — TICKER_NAME_REGISTRY (v49.32 추가, P266 근본)
+
+**원칙**: 한글/영문/별명/한자 → 표준 ticker 매핑은 **반드시** `window.AIO_TICKER_NAME_REGISTRY.entries[ticker]` 단일 출처. 기존 KR_TICKER_MAP은 신규 종목 추가 시 영문 별명 미반영 위험.
+
+**근거 (P266)**: KR_TICKER_MAP은 한글→영문 단일 방향. 영문 별명(Microsoft↔MSFT) / 한자(엔비디아↔NVDA↔Nvidia) 매핑 분산. 검증 함수 부재.
+**구조**: `{ NVDA: { en:'NVIDIA', kr:'엔비디아', alt:['nvidia', 'nvda'] } }` + `resolveTickerFromAnyName(input)` → ticker or null + `getTickerMappingAudit()` 미매핑 보고
+**검증**: T265 (resolveTickerFromAnyName('퀄컴') === 'QCOM'), T266 (getTickerMappingAudit unmappedCount === 0)
+**위반 시**: 사용자 입력 매핑 실패 → 미매핑 종목에 대한 AI 환각
+
+---
+
+## R86. 환각 패턴 자동 탐지 + 의심 점수 (v49.32 추가, P264 보강)
+
+**원칙**: 채팅 응답 텍스트에 대해 **반드시** `AIO.getChatHallucinationAudit(responseText)` 호출. 4 패턴 탐지 — 라운드 숫자 / 너무 정확한 소수 / 가격+불확실 표현 동시 등장 / 학습 데이터 시점 키워드.
+
+**근거 (P264 보강)**: assertChatResponseAccuracy는 실시간 가격이 있어야 비교 가능. 가격이 없거나 fetch 실패 종목은 환각 패턴 탐지로 보완.
+**구조**: `{ suspicionScore: 0~10, patterns: [...], verdict: 'high-risk/medium-risk/low-risk/clean' }`
+**검증**: T264 — 의심 점수 0~10 + verdict 분류
+**위반 시**: 환각 패턴 가진 응답이 차단 없이 노출
+
+---
+
+## R87. 종목별 데이터 무결성 통합 검증 (v49.32 확장, 사용자 추가 요청)
+
+**원칙**: 종목/기업 관련 답변 시 **반드시** `AIO.assertTickerDataIntegrity(ticker)` 호출로 6개 데이터 채널 무결성 확인 — 시세(PriceStore) + 추세(`_fetchTickerTrend`) + 컨센서스(Finnhub) + 어닝(Finnhub) + Naver(KR) + SCREENER_DB 메모.
+
+**근거**: 시세 fetch만 검증해도 어닝 일정/컨센서스/메모는 별도 채널이라 누락 시 환각 가능. 종목별 다중 데이터 채널 통합 게이트가 필요.
+**구조**: `{ ticker, sources: {6 channels with available/age/fresh}, completenessScore: 0~100, verdict: 'excellent/good/partial/poor', recommendation }`
+**검증**: `AIO.assertTickerDataIntegrity('QCOM')` → completenessScore ≥ 70 권장
+**위반 시**: 일부 채널만 동작하는데 AI가 "전체 분석"으로 답변 → 부분 환각
+
+---
+
+## R88. Fundamental 15 분석 기준 데이터 출처 매핑 (v49.32 확장)
+
+**원칙**: 종목 fundamental 분석 답변 시 15개 기준 (Quality/Growth/Profitability/Margin/Cashflow/Balance/Valuation/F-Score/Moat/Insider/Analyst/PEG 등)이 어떤 데이터 출처에서 오는지 **반드시** `AIO_FUNDAMENTAL_CRITERIA.criteria[id]`에 등록. `implFn`이 null인 항목은 답변 시 "데이터 부재" 명시 필수.
+
+**근거**: 15개 기준 중 일부는 FMP/Finnhub API가 없으면 평가 불가능. 사용자가 "퀄컴 15개 분석 해줘"라고 물어도 실제로는 8~10개만 평가 가능한데 AI가 환각으로 채울 수 있음.
+**구조**: `{ key: { label, dataSource, required:[fields], implFn: 'AIO_PIOTROSKI_CHECKLIST' or null } }`
+**검증**: `AIO.getFundamentalCriteriaAudit()` → `coveragePct` 80% 이상 권장
+**위반 시**: 일부 기준이 환각으로 채워짐
+
+---
+
+## R89. AI 채팅 응답 자동 검증 통합 의무 (v49.33 추가, P269 근본)
+
+**원칙**: chatSend 응답 렌더 시 **반드시** AIO.assertChatResponseAccuracy + AIO.getChatHallucinationAudit 자동 호출 + 사용자에게 검증 배지 가시화. 함수만 정의하고 호출 안 하면 무의미.
+
+**근거 (P269)**: v49.32에서 5개 검증 함수 신설했으나 chatSend 응답 렌더 코드에 자동 호출 통합 미적용 → 함수는 있는데 사용 안 됨 (R73 패턴)
+**구조**: 응답 렌더 직후 `_srcBadge` 다음에 `_accBadge` 추가 — 가격 정확성 + 환각 의심도 표시. high-risk/high-deviation 시 console.warn.
+**검증**: T273 — 채팅 응답 후 DOM에 `.aio-chat-accuracy-badge` 클래스 존재
+**위반 시**: 검증 함수가 있어도 사용자에게 환각 응답이 차단 없이 노출
+
+---
+
+## R90. 종목 정성 분석 출처 의무 — ANALYSIS_FRAMEWORK_REGISTRY (v49.34 추가, 사용자 지적)
+
+**원칙**: 종목/기업 분석 답변 시 15 분야 (비즈니스 구조/사업 모델/수익 구조/제품 포트폴리오/CEO 경영진/밸류에이션/협력 파트너십/공급망/TAM/리스크/경쟁/투자포인트/시세/차트/재무지표) 각각 **반드시** `AIO_ANALYSIS_FRAMEWORK_REGISTRY.fields[id].primarySource` 등록된 출처에서 데이터 fetch. AI 학습 데이터(2024~2025)로 정성 분야 채우기 금지.
+
+**근거 (P272 ~ P274)**: 9/15 분야가 AI 학습 데이터 의존 (high hallucination risk). 사용자 "퀄컴 사업 모델/공급망/CEO 분석"에 환각 응답 가능. 무료 SEC EDGAR/Wikipedia API 미활용.
+**구조**:
+- `fields.business-structure`: SEC 10-K Item 1 → `fetchSECBusinessDescription`
+- `fields.ceo-management`: Wikipedia API → `fetchWikipediaCompany`
+- `fields.risk-factors`: SEC 10-K Item 1A → `fetchSECRiskFactors`
+- `fields.investment-thesis`: Finnhub + Naver → `fetchFinnhubRecommendation` + `fetchNaverUSData`
+- `fields.partnership`: SEC 8-K (v49.35 미구현)
+
+**Hard guards**:
+- `_fetchTickerDataForChat` 시 SEC + Wikipedia 병렬 fetch + system 프롬프트 주입
+- ABSOLUTE RULES 5조 추가: "15 분야 출처가 위 데이터 블록에 없으면 '검증된 데이터 없음' 답변"
+- `AIO.assertAnalysisFrameworkCoverage(ticker)` async — 종목별 가용성 매트릭스
+
+**검증**: T279~T284 — 신규 fetch 함수 + REGISTRY 15 fields + coverage audit
+**위반 시**: AI가 환각으로 사업 모델/CEO/공급망/리스크 답변 → 잘못된 투자 판단
+
+---
+
+## R91. 페이지 표시 분석 기준 registry 등록 + 가용성 가시화 의무 (v49.35 추가, P275 근본)
+
+**원칙**: index.html에 텍스트로 명시된 분석 기준 (예: fundamental 페이지 L8175 "15개 분석 관점")은 **반드시** 코드 registry로 등록 + 각 기준 옆에 가용성 배지 (✓/⚠/❌) 표시 + 채팅 시 system 프롬프트에 가용성 매트릭스 주입.
+
+**근거 (P275)**: fundamental 페이지가 "15개 분석 관점"을 텍스트로 자랑하나, 실제 구현은 6/15 (40%)뿐. 사용자가 "15개 모두 분석"이라 인지하나 AI가 미구현 9개를 학습 데이터로 환각 답변. 또한 v49.25 FUNDAMENTAL_CRITERIA / v49.34 ANALYSIS_FRAMEWORK_REGISTRY와 별개라 cross-reference 부재.
+
+**구조**:
+- `AIO_FUNDAMENTAL_PAGE_CRITERIA.criteria[id]`: { num:1~15, label, description, dataSource, implFn, plannedFn, requires:[], frequency, hallucinationRisk, note }
+- 페이지 DOM 각 기준 옆 `[✓ 출처]` / `[⚠ 계획됨]` / `[❌ 미구현 - 환각 위험]` 배지 인라인
+- `AIO.getFundamentalPageCriteriaAudit()` → 구현/미구현/highRisk + coveragePct
+- `AIO.getCriteriaCrossReferenceAudit()` → 3개 "15기준" registry 매핑 안내
+
+**검증**: T285~T290 — registry 15 entries / 페이지 가용성 배지 / coverage audit / cross-ref
+**위반 시**: 페이지 텍스트는 "15개" 자랑하나 AI는 9개를 환각으로 채워 답변 → 사용자 잘못된 투자 결정
+
+---
+
+## R92. 페이지 표시 분석 기준 100% 커버 의무 (v49.36 추가, P278 근본)
+
+**원칙**: 페이지 인라인에 "N개 분석 관점"을 표시하면 **반드시** N개 모두 구현 또는 명시적 대체 출처 제공. 미구현 시 hard guard로 환각 차단. coveragePct < 100% 시 페이지 헤더에 가용성 매트릭스 표시 의무.
+
+**근거 (P278~P281)**: v49.35에서 fundamental 페이지 15기준 6/15(40%)만 구현. 사용자가 "15개 모두 분석" 인지하나 AI가 9개를 학습 데이터로 환각. v49.36에서 7 신규 함수 (computeFcfYield/BalanceSheetRatios/EvEbitda/MacroBeta + fetchFinnhubInsider/FinnhubShortInterest/SEC13F) 신설 → 14/15 (93%) 달성. Moat는 Morningstar 유료라 SEC 10-K AI 분석으로 대체. Industry Rank는 IBD 유료라 SCREENER_DB.rsi 대체.
+
+**검증**: T291~T298 — 7 신규 함수 정의 + PAGE_CRITERIA implFn 갱신 + 페이지 가용성 배지 갱신 + coverage 93%
+**위반 시**: 페이지 자랑하는 N개 vs 실제 구현 N-m개 차이 → 사용자 환각 답변 위험
+
+---
+
+## R93. 페이지 sequential audit 의무 (v49.37 추가, P282 메타 근본)
+
+**원칙**: 21 페이지 각각 위→아래 sequential 점검 + 모든 sub-section을 6축 (최신성/정확성/정합성/로직성/직관성/핵심성)으로 매트릭스화. **반드시** `AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages[pageId].subSections[]` 등록 + `auditStatus` 추적.
+
+**근거 (P282 메타 결함)**: v49.23 4축 audit + v49.30 최신성 audit + v49.32~36 작업이 모두 **line range 분석 + 키워드 grep** 위주였음. 실제로 "위에서 아래로 한 줄씩 읽으며 각 카드/위젯/차트/표/버튼 개별 점검"은 안 함. 21페이지 × 8~10 sub-section × 6축 = 1000+ 점검 매트릭스 미실행.
+
+**구조**:
+- `AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages[pageId]`: { lineRange, subSections:[{id, order, topic, lines}], auditStatus }
+- `subSections[]`: top-down 순서로 enumerate (home L3961 버전 배지 → L3970 스냅 그리드 → L4020 3 카드 → L4053 Action Item → ...)
+- `auditStatus`: 'pending' / 'partial' / 'done' 또는 axis별 객체
+
+**검증**: T299~T304 — REGISTRY 정의 / home 페이지 subSections 등록 / live-quote-ts-topbar 갱신 hook / 페이지 chip 정합 / sub-section axis 매트릭스
+**위반 시**: line-range/keyword 표면 audit만 반복 → 페이지 내 영구 placeholder/모순/stale 영역 잠복
+
+---
+
+## R94. 페이지 인라인 임계값 표 REGISTRY 정합 의무 (v49.38 추가, P286 근본)
+
+**원칙**: 페이지 인라인 `<table class="explain-table">` 또는 임계값 표는 **반드시** `data-threshold-table="KEY"` 마커 부착 + REGISTRY의 bands 수/라벨과 정합. R56 보강.
+
+**근거 (P286)**: home L4222 VIX 인라인 표가 5 구간 (12/20/30/45/∞)으로 표시되나 THRESHOLD_REGISTRY.VIX는 6 구간 (12/20/25/30/40/∞). 라벨도 "패닉 진입" vs "공포" 등 불일치. 사용자가 두 곳에서 다른 라벨 노출.
+
+**구조**:
+- DOM: `<tbody data-threshold-table="VIX">...</tbody>` 마커
+- 각 row의 두 번째 column = REGISTRY bands[idx].label과 정확히 일치
+- 행 수 = REGISTRY bands.length
+
+**검증**: `AIO.getInlineThresholdTableAudit()` → `issueCount === 0`
+**위반 시**: 페이지 표와 REGISTRY 라벨 불일치 → R56 단일 출처 원칙 위반 + 사용자 혼동
+
+---
+
+## R95. 페이지 간 동일 ticker 정합 의무 (v49.39 추가, P290 근본)
+
+**원칙**: 동일 ticker(`data-live-price="^GSPC"` 등)가 여러 페이지에 표시되는 경우 **반드시** 동일 텍스트를 보유. `AIO.getCrossPageIndicatorConsistencyAudit()`가 자동 검증.
+
+**근거 (P290)**: v49.24 sinkConsistency는 `data-snap` 기반. 라이브 가격 sink (`data-live-price`)는 별도 audit 없음 → home의 SPX vs technical의 SPX vs macro의 SPX가 다른 텍스트 보일 수 있음.
+
+**구조**: 모든 `[data-live-price]` ticker별 그룹화 → distinct 텍스트 ≥2 시 mismatch. placeholder(`—`/loading) 제외.
+**검증**: `AIO.getCrossPageIndicatorConsistencyAudit()` → issueCount === 0
+**위반 시**: 사용자가 페이지 간 이동 시 동일 지표가 다른 값 노출 → 신뢰 훼손
+
+---
+
+## R96. data-action 핸들러 등록 검증 (v49.39 추가, P291 근본)
+
+**원칙**: 모든 `[data-action="NAME"]` 요소의 NAME은 **반드시** `window[NAME]` / `window.AIO[NAME]` / event-delegate 등록 함수 / known alias 중 하나로 등록.
+
+**근거 (P291)**: data-action이 미정의 함수 호출 시 click 무동작 → 사용자 혼동. 신규 핸들러 추가 시 정의 누락 가능성 자동 차단 필요.
+
+**구조**: `AIO.getDataActionHandlerAudit()` → 모든 `data-action` 추출 + 등록 위치 (window/AIO/event-delegate/alias) 확인
+**검증**: missing actions 0
+**위반 시**: 사용자 click이 무반응 → "버튼이 동작 안 함" 신고
+
+**v49.40 P294 보강**: `knownAliases`는 비-`_aio` 접두 글로벌 함수(showPage/toggleLLM 등)만 허용. `_aio*` 접두 함수는 반드시 실제 `window` 등록을 거쳐 `has_aio` 검사로 통과해야 함. alias 의존 false-positive 차단.
+
+---
+
+## R97. data-snap 키 vs DATA_SNAPSHOT 시드 정합 (v49.41 추가, P301 근본)
+
+**원칙**: 페이지 DOM에 `[data-snap="key"]` 추가 시 **반드시** `window.DATA_SNAPSHOT` 최상위 또는 `_fallback`에 대응 시드 필드 등록.
+
+**근거 (P301/P299)**: `S.breadth5sma || 68` 같은 인라인 폴백 패턴이 시드 없이도 정상 동작 — R74 `assertSnapshotInlineMatch`는 시드가 있어야 비교 가능 → 시드 부재 silent pass. 실시간 fetch 경로가 `DATA_SNAPSHOT.key = X` set해도 시드가 없으면 다음 fetch 사이클에 다시 폴백값으로 회귀할 위험.
+
+**구조**: `AIO.getStaticSeedFallbackAudit()`
+- 페이지의 모든 `[data-snap]` 키 수집
+- 각 키에 대응하는 `DATA_SNAPSHOT[key]` / `DATA_SNAPSHOT[toCamel(key)]` / `DATA_SNAPSHOT[toSnake(key)]` / `_fallback[key]` 검사
+- 미등록 키 보고
+
+**검증**: `getStaticSeedFallbackAudit().issueCount === 0` + `getAutoOpsReadiness().staticSeedFallback.issueCount === 0`
+
+**위반 시**: 실시간 갱신이 외관상 정상이지만 정적 폴백값이 영원히 표시 (sticky stale).
+

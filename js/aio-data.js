@@ -6,9 +6,20 @@
 // ║  분할 후 다음 블록에서 const PriceStore 등 접근 가능 (TDZ는 동일 블록에만 적용)║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 // ═══════════════ SCREENER DATABASE & FUNCTIONS ═══════════════
+// v49.31 H1/R75: SCREENER_DB 메타 — 메모 게시일 4월 중순~말. Q2 실적 시즌 진행 중. /data-refresh 정기 갱신 필요.
+var SCREENER_DB_META = {
+  schemaVersion: 'v49.31',
+  lastBulkUpdate: '2026-04-29',  // 마지막 메모 일괄 게시일 (memo 헤더 04/21~04/29 기준)
+  staleAfterDays: 30,            // R75 lifecycle: 30일 경과 시 archive due (현재 17일 경과 — fresh)
+  replaceAfterDays: 60,          // 60일 경과 시 replace due
+  source: 'JPM/Citi/TDCowen/Mizuho 04/21~04/29 게시',
+  note: 'Q2 실적 시즌 (5/17~) 진행 중 — 컨센 변경 시 /data-refresh 권장'
+};
+try { window.SCREENER_DB_META = SCREENER_DB_META; } catch(_) {}
 var SCREENER_DB = [
   // ══════════════════════════════════════════════════════════════
-  // S&P 500 — 메가캡 & 대형주 (2026-03 Yahoo Finance 기준)
+  // S&P 500 — 메가캡 & 대형주 (2026-03 Yahoo Finance 기준 mcap · 메모 4월 말 시점)
+  // v49.31 H1: lifecycle 메타는 SCREENER_DB_META 참조. 30일 staleAfter / 60일 replaceAfter.
   // ══════════════════════════════════════════════════════════════
   { sym:'NVDA', name:'NVIDIA', sector:'Technology', signal:'BUY', memo:'[Citi+JPM 04/21] CX9 NIC 2026 출하 일부 2027 이월 가능(CX8 대체 불가, 1.6Tb/s 필수) · JPM 투자자 미팅 논쟁: 자사주 매입 부족(FCF 50%만 환원)·생태계 투자 의문 vs Vera CPU 2H 마진·토큰당 총이익 3-10x↓·CPO 순풍·Rubin 루빈 Ultra→회복 · AVGO/MRVL 커스텀 ASIC 달러당 성능 차별화 위험 · F27 Capex 가시성 하반기 · Alpamayo 오픈소스(Mercedes CLA L2+) AV 확산', mcap:4197, rsi:48, index:'SP500' },
   { sym:'AAPL', name:'Apple', sector:'Technology', signal:'HOLD', memo:'[JPM 04/21] CEO 전환 Tim Cook→John Ternus(50세) 2026-09-01 · 하드웨어 중심 리더십(아이폰/맥/에어팟/비전프로 총괄, M시리즈 전환 주역) · 팀쿡 Executive Chairman 잔류(정책·관세) · Johny Srouji CHO 승격(A4 설계자) · Arthur Levinson lead independent director · 긍정 평가(스마트폰 이후 폼팩터+AI 매개체 대비) · 투자자 관심: (1)팀쿡급 실행력 지속 (2)서비스 우선순위 (3)AI 전략·개인화 Siri WWDC 주목', mcap:3645, rsi:52, index:'SP500' },
@@ -9780,12 +9791,18 @@ async function fetchLiveQuotes(requestedSymbols) {
     if (!coreCoverageOk) updateDataStatusError('warn', 'API connected but core market coverage is partial - fallback still active');
     const lqTs = document.getElementById('live-quote-ts');
     if (lqTs) lqTs.textContent = '시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' 갱신 (' + allQuotes.length + '개)';
+    // v49.37 P282: live-quote-ts-topbar 동시 갱신 (영구 placeholder 잔존 차단)
+    const lqTsTop = document.getElementById('live-quote-ts-topbar');
+    if (lqTsTop) { lqTsTop.textContent = '● 시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' (' + allQuotes.length + '개)'; lqTsTop.className = 'freshness-badge fb-live'; }
   } else {
     fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount||0) + 1;
     // v46.4: 지수적 백오프 (선형 30×N → 지수 15×2^N, 최대 300초)
     const wait = Math.min(300, 15 * Math.pow(2, fetchLiveQuotes._failCount - 1));
     const lqTs = document.getElementById('live-quote-ts');
     if (lqTs) lqTs.textContent = wait + '초 후 재시도...';
+    // v49.37 P282: live-quote-ts-topbar 동시 갱신 (실패 상태)
+    const lqTsTopErr = document.getElementById('live-quote-ts-topbar');
+    if (lqTsTopErr) { lqTsTopErr.textContent = '⚠ ' + wait + '초 후 재시도'; lqTsTopErr.className = 'freshness-badge fb-static'; }
     updateDataStatusError('error', 'API 연결 실패 — ' + wait + '초 후 재시도');
     if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', '연결 실패 (시도 ' + fetchLiveQuotes._failCount + ')');
     setTimeout(fetchLiveQuotes, wait * 1000);
@@ -11061,6 +11078,24 @@ function refreshHomeDashboard() {
       'DOWNTREND': ' · 참고: 항복 매도(거래량 폭증+VIX 스파이크) 이후 12개월 수익률이 역사적으로 양(+)인 경우가 많음'
     };
     if (regimeExplEl) regimeExplEl.textContent = regimeDesc + (_regimeRef[regime] || '');
+
+    // v49.28 E1 적용: ACTION_RULES 호출로 home Action Item 카드 갱신
+    try {
+      if (window.AIO_ACTION_RULES && window.AIO_ACTION_RULES.getActionPlan) {
+        var ld = window._liveData || {};
+        var vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
+        var fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
+        var breadth50Val = window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.breadth50sma : NaN;
+        var plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal, breadth50: breadth50Val });
+        var posEl = document.getElementById('home-action-position');
+        var sentActEl = document.getElementById('home-action-sentiment');
+        var brActEl = document.getElementById('home-action-breadth');
+        if (posEl && plan.position) posEl.textContent = '💼 포지션 사이즈: ' + plan.position.sizePct + '% — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
+        if (sentActEl && plan.sentiment) sentActEl.textContent = '🧠 센티먼트 행동: ' + plan.sentiment.action + ' — ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
+        if (brActEl && plan.actions && plan.actions.length > 2) brActEl.textContent = '📊 ' + plan.actions[plan.actions.length - 1];
+      }
+    } catch(actErr) { /* Action Item 실패해도 home 렌더 차단 X */ }
+
     // v34.5: 홈 상단 리스크 뱃지 동적 업데이트
     var riskBadge = document.getElementById('home-risk-regime-badge');
     if (riskBadge) {
@@ -11238,6 +11273,9 @@ async function fetchFearGreed() {
     const col = fgColor(score);
     if (big) { big.textContent = score; big.style.color = col; }
     if (rat) { rat.textContent = fgRating(score); rat.style.color = col; }
+    // v49.23 P218: home의 F&G 점수도 동일 소스로 갱신 (ID 이원화 해소)
+    const homeFG = document.getElementById('home-fg-score');
+    if (homeFG) { homeFG.textContent = score; homeFG.style.color = col; }
     fgUpdateNeedle(score);
     if (badge) { badge.textContent = '실시간 · CNN API'; badge.style.color = '#00e5a0'; }
     // Historical
@@ -11271,6 +11309,9 @@ async function fetchFearGreed() {
         const col2   = fgColor(score2);
         if (big2) { big2.textContent = score2; big2.style.color = col2; }
         if (rat2) { rat2.textContent = fgRating(score2); rat2.style.color = col2; }
+        // v49.23 P218: home F&G 점수도 동일 소스 (proxy 폴백 경로)
+        const homeFG2 = document.getElementById('home-fg-score');
+        if (homeFG2) { homeFG2.textContent = score2; homeFG2.style.color = col2; }
         // v35.4 B3: 극단 구간 역사적 참고
         var _fgRef = document.getElementById('fg-historical-ref');
         if (_fgRef) {
