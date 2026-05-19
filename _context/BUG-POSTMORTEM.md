@@ -2,10 +2,10 @@
 verified_by: agent
 last_verified: 2026-05-19
 confidence: high
-latest_version: v49.45
-latest_P_number: P312
-next_P_number: P313
-total_entries: 311
+latest_version: v49.47
+latest_P_number: P315
+next_P_number: P316
+total_entries: 314
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -2616,6 +2616,61 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **근본 해결**: subSections 8 → 15 재 enumerate + `findings[]` 배열 추가 (점검 결과 누적 저장)
 - **재발 방지**: R93 page sequential audit 의무 강화 — 1차 enumerate는 모든 sub-section 빠짐 없이 등록 + 점검 시 findings에 결과 누적
 - **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.home
+
+---
+
+## P315 · v49.47 · [라이브 정밀 진단] sentiment 3 + theme-detail 1 placeholder — VIX 기간구조 미응답 + XSD ticker LIVE_SYMBOLS 미등록
+
+- **사용자 요청 (2026-05-19)**: "지금 브라우저 사이트 연결된김에 각각의 페이지 전체 데이터 하나하나씩 정합성/최신성/로직성 세밀하게 조사"
+- **Chrome MCP 진단 결과**:
+  - sentiment 페이지 3 placeholder: `^VIX9D / ^VIX3M / ^VIX6M` — LIVE_SYMBOLS L8657에 이미 등록되어 있으나 Yahoo Finance 응답 가변 (특정 시간대 미응답)
+  - theme-detail 페이지 1 placeholder: `XSD` (SPDR S&P Semiconductor ETF) — LIVE_SYMBOLS **미등록**
+- **시정**:
+  - `XSD` ticker LIVE_SYMBOLS L8731에 추가 (`'SMH','SOXX','XSD','XBI'`)
+  - VIX 기간구조는 의도적 미시정 (이미 등록, 응답 가변)
+- **파일**: `js/aio-data.js` LIVE_SYMBOLS L8731
+
+---
+
+## P314 · v49.47 · [R75 보강] Jensen 인터뷰 34일 overdue — STATIC_CONTENT_LIFECYCLE 동적 갱신 hook 부재
+
+- **Chrome MCP 진단**: `jensen-interview` snap-date `2026-04-15` → 오늘 2026-05-19 = **34일 경과**. `STATIC_CONTENT_LIFECYCLE.jensen-interview-202603 archiveAfterDays:30` 초과.
+- **근본 원인**: v49.42 P304에서 정적 텍스트 "58일 경과 (60일 임박)" 제거하고 동적 `#jensen-interview-stale-days` span 단독 표시로 변경했으나 **그 span을 채우는 hook 코드 누락** → 영구 "경과 계산중" 표시.
+- **시정** (v49.47 A2):
+  - `_aioPageBus 'core-briefing-action'` hook 안에 `STATIC_CONTENT_LIFECYCLE.getStatus('jensen-interview-202603')` 호출 + #jensen-interview-stale-days 동적 갱신
+  - archiveDue → "📦 archive 단계 (30일+ 초과)" amber 표시
+  - replaceDue → "⚠️ 새 인터뷰 교체 권장 (60일+ 초과)" red 표시
+  - fresh → "{N}일 경과 (fresh)"
+- **재발 방지**: R75 보강 — STATIC_CONTENT_LIFECYCLE 등록 콘텐츠는 반드시 페이지 진입 시 getStatus 동적 갱신 hook 필수.
+- **파일**: `js/aio-core.js` L1497~1525 (briefing pageShown hook)
+
+---
+
+## P313 · v49.47 · [R74/R97 보강] data-snap 키 14건 시드 부재 — aliasMap 매핑 누락
+
+- **Chrome MCP 진단 (v49.46 R98 v2 + 신규 audit 일괄 호출)**:
+  - R96 dataActionHandler: ok / 102 actions / 0 missing ✓ (P294 시정 효과)
+  - R97 staticSeedFallback: **warn / 14건 미시드**
+  - R98 v2 varHoist: ok / 0 conflicts ✓
+  - R99 shellAsset: ok / 9 local 200 OK ✓
+- **R97 14건 미시드** (Chrome MCP 직접 확인):
+  - sentiment: hy-spread
+  - macro: wage-growth, housing
+  - fxbond: tnx-2y
+  - kr-home: krw-full, vkospi-chg, kr-credit, kr-semi-export-yoy-label
+  - kr-macro: kr-cpi-yoy, kr-ppi-yoy, kr-manuf-pmi, kr-gdp-qoq, kr-semi-export-feb, kr-semi-export-yoy
+- **근본 원인**: R97 audit의 kebab→camel 변환만으로는 부족 — DS 필드명에 prefix(us/kr) 또는 suffix(Balance/Starts) 있어 매칭 실패.
+- **시정 2-tier**:
+  1. **R97 audit aliasMap 14 entries 추가** (js/aio-core.js L3032~3048) — `wage-growth→usWageGrowth`, `housing→housingStarts`, `kr-credit→krCreditBalance` 등. **다수 키가 alias 매핑으로 자동 해결**.
+  2. **진짜 누락 시드 5개 DS 추가**:
+     - `hySpread: 289` (sentiment HY 스프레드 bps)
+     - `tnx2y: 4.28` (fxbond 2Y Treasury yield)
+     - `vkospiPct: -1.20` (kr-home VKOSPI 변동률)
+     - `krPpi: 1.5` (kr-macro PPI YoY)
+     - `krManufPmi: 51.5` (kr-macro 제조업 PMI)
+- **재발 방지**: R74 보강 — `data-snap` 키 추가 시 aliasMap 또는 DS 직접 시드 등록 의무.
+- **파일**: `js/aio-core.js` getStaticSeedFallbackAudit aliasMap + DATA_SNAPSHOT 5 시드
+- **violated_rule**: R74 (보강)
 
 ---
 

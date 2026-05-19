@@ -8728,7 +8728,7 @@ const LIVE_SYMBOLS = [
   'FBTC','ARKB','BITB','HODL','IBIT','BITO',                  // BTC 현물 ETF
   'FLNC','BE','PLUG','FCEL',                                  // 수소/ESS
   'NU','XYZ','HOOD','SOFI','AFRM','PYPL','MSTR','COIN',       // 핀테크/크립토
-  'DRIV','IYZ','ICLN','URA','HACK','BOTZ','SMH','SOXX','XBI',  // ETF
+  'DRIV','IYZ','ICLN','URA','HACK','BOTZ','SMH','SOXX','XSD','XBI',  // ETF (v49.47 P315: XSD 추가 — theme-detail 페이지 placeholder)
   'FSLR','ENPH','RUN','SEDG',                                 // 태양광
   'TSM','UMC','GFS','INTC',                                    // 파운드리
   'ASML','AMAT','LRCX','KLAC','TER','ONTO','CDNS','SNPS',      // 반도체 장비/EDA

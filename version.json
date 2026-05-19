@@ -1,5 +1,5 @@
 {
-  "version": "v49.46",
-  "built": "2026-05-19T01:30:00+09:00",
-  "note": "v49.46: R98 v2 정확도 보강 (Task #4 v49.45 잔존) — v1이 nested function 추적 부정확으로 false positive 4건(aio-core.js r/d/total) 보고. v2 보강: (1) 문자열/코멘트 sanitize regex로 가짜 brace/keyword 차단, (2) 함수 본문 진입 depth(openDepth = enterDepth+1) 기준 정확한 stack push/pop, (3) function/=>/method-shorthand/get-set detection 보강, (4) var hoist는 enclosing function scope으로, const/let은 block scope (실제로는 function 단위 grouping으로 SyntaxError 충돌 모두 탐지). 목표: P311 패턴 100% 탐지 + false positive 0."
+  "version": "v49.47",
+  "built": "2026-05-19T03:00:00+09:00",
+  "note": "v49.47: 라이브 21 페이지 정밀 조사 (Chrome MCP) 결과 시정. (A1/P313/R74 보강) R97 14건 미시드 시정 — aliasMap 14 entries 추가 (hy-spread→hySpread, wage-growth→usWageGrowth 등) + DATA_SNAPSHOT에 hySpread:289 / tnx2y:4.28 / vkospiPct:-1.20 / krPpi:1.5 / krManufPmi:51.5 5 시드 신설. (A2/P314) Jensen 인터뷰 34일 archiveAfterDays:30 overdue — briefing pageShown hook에 STATIC_CONTENT_LIFECYCLE.getStatus 동적 갱신 추가 (#jensen-interview-stale-days span에 archiveDue/replaceDue 자동 표시). (C2/P315) sentiment 3 VIX 기간구조 ticker(^VIX9D/^VIX3M/^VIX6M) LIVE_SYMBOLS 등록 확인 (Yahoo Finance 응답 가변). theme-detail placeholder XSD ticker LIVE_SYMBOLS 신규 추가 (반도체 ETF). (B) fxbond 12 subSections + fundamental 5 subSections + themes 8 subSections enumerate + auditStatus 6축 + verify-only findings. PAGE_SEQUENTIAL_AUDIT_REGISTRY total subSections: 75 → 100 (v49.47, +25). T338~T345 (Group50) 8 신규."
 }

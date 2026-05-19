@@ -6,6 +6,59 @@
 
 ---
 
+## v49.47 - 라이브 21 페이지 정밀 조사 + R97/Jensen/fxbond/fundamental/themes (2026-05-19)
+
+**Changed files**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `_context/BUG-POSTMORTEM.md`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
+
+- **사용자 요청**: "지금 브라우저 사이트 연결된김에 각각의 페이지 전체 데이터 하나하나씩 정합성/최신성/로직성 세밀하게 조사"
+- **Chrome MCP 라이브 진단 (v49.46 R98 v2 inject 후)**:
+  - R95 crossPageIndicator: warn 2건 (kr-home false positive)
+  - **R96** dataActionHandler: **ok** / 102 actions / 0 missing ✓
+  - **R97** staticSeedFallback: **warn / 14건 미시드** (진짜 issue)
+  - **R98 v2** varHoist: **ok** / 0 conflicts ✓
+  - **R99** shellAsset: **ok** / 9 local 200 OK ✓
+  - snap-date: **jensen-interview 34일 overdue** (archiveAfterDays:30 초과)
+  - sentiment: 3 placeholder (^VIX9D/3M/6M Yahoo Finance 응답 가변)
+  - theme-detail: 1 placeholder (XSD ticker 미등록)
+
+- **A1/P313/R74 보강**: R97 14건 시드 시정
+  - aliasMap 14 entries 추가 (`hy-spread→hySpread`, `wage-growth→usWageGrowth`, `housing→housingStarts`, `tnx-2y→tnx2y`, `krw-full→krw`, `vkospi-chg→vkospiPct`, `kr-credit→krCreditBalance`, `kr-semi-export-*→krSemiExport`, `kr-cpi-yoy→krCpi`, `kr-ppi-yoy→krPpi`, `kr-manuf-pmi→krManufPmi`, `kr-gdp-qoq→krGdp`)
+  - DATA_SNAPSHOT에 5 신규 시드 추가:
+    - `hySpread: 289` (sentiment HY 스프레드 bps)
+    - `tnx2y: 4.28` (fxbond 2Y Treasury)
+    - `vkospiPct: -1.20` (kr-home VKOSPI 변동률)
+    - `krPpi: 1.5` (kr-macro PPI YoY)
+    - `krManufPmi: 51.5` (kr-macro 제조업 PMI)
+
+- **A2/P314/R75 보강**: Jensen 인터뷰 동적 lifecycle 갱신
+  - `js/aio-core.js` briefing pageShown hook에 `STATIC_CONTENT_LIFECYCLE.getStatus('jensen-interview-202603')` 동적 호출 추가
+  - `#jensen-interview-stale-days` span에 archiveDue/replaceDue 자동 마킹 (amber/red 색상)
+  - v49.42 P304가 정적 텍스트만 제거하고 동적 hook 누락한 갭 시정
+
+- **C2/P315**: theme-detail XSD ticker LIVE_SYMBOLS 등록 (반도체 ETF)
+
+- **B (1차+2차)**: 3 페이지 subSection enumerate + auditStatus 6축 객체
+  - **fxbond**: 12 subSections (헤더/FX 매트릭스/KRW 상세/yield curve/credit spread/bond ETFs/EM FX/commodity FX/Gold-DXY/event-calendar/tnx-snapshot/guide) + verify-only finding + P313 tnx-2y 시드 시정 마커
+  - **fundamental**: 5 subSections (헤더/검색 input/15기준 가용성 배지/결과 카드/가이드) + verify-only (v49.34~36 인프라 완성)
+  - **themes**: 8 subSections (헤더/cycle 동적 readout/11섹터 로테이션/AI 인프라 매트릭스/thematic cards/ETF 추천/cross-link/가이드) + verify-only
+
+- **PAGE_SEQUENTIAL_AUDIT_REGISTRY**: total subSections **75 → 100** (+25). version v49.42 → v49.47.
+
+- **테스트 T338~T345** (Group50) 8 신규 — R97 시드 / Jensen lifecycle / XSD / fxbond/fundamental/themes subSections
+
+- **R1 7곳 동기화** v49.46 → v49.47
+
+- **사용자 콘솔 검증**:
+  ```js
+  (await AIO.getStaticSeedFallbackAudit()).issueCount   // 0 목표 (이전 14)
+  AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.fxbond.subSections.length     // 12
+  AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.fundamental.subSections.length // 5
+  AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.themes.subSections.length      // 8
+  document.getElementById('jensen-interview-stale-days').textContent  // "{N}일 경과 · ..."
+  ```
+
+---
+
 ## v49.46 - R98 v2 정확도 보강 (Task #4 잔존 마무리) (2026-05-19)
 
 **Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`

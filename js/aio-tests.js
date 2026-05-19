@@ -1469,6 +1469,53 @@
       ' tech=' + (techF ? techF.length : '?') + ' mac=' + (macF ? macF.length : '?'));
   }
 
+  // ── Group50: v49.47 R97 시드 + Jensen 마킹 + fxbond/fundamental/themes ──
+  function _testV4947FxbondFundamentalThemesAudit() {
+    var DS = window.DATA_SNAPSHOT || {};
+    // T338 (P313): R97 14건 시드 alias map 보강
+    _assert('T338 r97_seeds_critical: hySpread + tnx2y + vkospiPct + krPpi + krManufPmi 5 신규 시드',
+      DS.hySpread != null && DS.tnx2y != null && DS.vkospiPct != null && DS.krPpi != null && DS.krManufPmi != null,
+      'hySpread=' + DS.hySpread + ' tnx2y=' + DS.tnx2y + ' vkospiPct=' + DS.vkospiPct);
+
+    // T339 (P313): R97 audit issueCount === 0 (alias map 적용 후)
+    var sf = window.AIO && window.AIO.getStaticSeedFallbackAudit && window.AIO.getStaticSeedFallbackAudit();
+    _assert('T339 r97_after_alias: getStaticSeedFallbackAudit issueCount 0',
+      sf && sf.issueCount === 0, 'issueCount=' + (sf ? sf.issueCount : '?'));
+
+    // T340 (P315): XSD ticker LIVE_SYMBOLS 등록 (theme-detail placeholder 시정)
+    var ls = window.LIVE_SYMBOLS;
+    _assert('T340 xsd_in_live_symbols: XSD ticker registered',
+      Array.isArray(ls) && ls.indexOf('XSD') !== -1, 'len=' + (ls ? ls.length : '?'));
+
+    // T341 (P314): STATIC_CONTENT_LIFECYCLE Jensen entry + getStatus 동작
+    var lc = window.AIO_STATIC_CONTENT_LIFECYCLE;
+    var st = lc && lc.getStatus && lc.getStatus('jensen-interview-202603');
+    _assert('T341 jensen_lifecycle_status: getStatus 동작 + archiveDue/replaceDue 계산',
+      st && st.exists && typeof st.archiveDue === 'boolean' && typeof st.replaceDue === 'boolean',
+      'st=' + JSON.stringify(st));
+
+    var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
+    var pages = pageReg && pageReg.pages;
+    // T342: fxbond subSections 12 enumerate
+    _assert('T342 fxbond_subsections_12: enumerate',
+      pages && pages.fxbond && Array.isArray(pages.fxbond.subSections) && pages.fxbond.subSections.length === 12,
+      'count=' + (pages && pages.fxbond && pages.fxbond.subSections ? pages.fxbond.subSections.length : '?'));
+
+    // T343: fundamental subSections 5 enumerate
+    _assert('T343 fundamental_subsections_5: enumerate',
+      pages && pages.fundamental && Array.isArray(pages.fundamental.subSections) && pages.fundamental.subSections.length === 5,
+      'count=' + (pages && pages.fundamental && pages.fundamental.subSections ? pages.fundamental.subSections.length : '?'));
+
+    // T344: themes subSections 8 enumerate
+    _assert('T344 themes_subsections_8: enumerate',
+      pages && pages.themes && Array.isArray(pages.themes.subSections) && pages.themes.subSections.length === 8,
+      'count=' + (pages && pages.themes && pages.themes.subSections ? pages.themes.subSections.length : '?'));
+
+    // T345: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.47
+    _assert('T345 page_seq_audit_v4947: version v49.47',
+      pageReg && pageReg.version === 'v49.47', 'ver=' + (pageReg ? pageReg.version : '?'));
+  }
+
   // ── Group46: v49.38 home 2차 깊이 점검 + 인라인 임계값 표 audit ─────────
   function _testV4938HomeDeepAudit() {
     // T305: home VIX 표 행 수 6 (REGISTRY 6 bands 정합)
@@ -2534,6 +2581,7 @@
     try { _testV4939Audit(); } catch(e) { console.error('Group47 error:', e); }
     try { _testV4941SignalBreadthDeepAudit(); } catch(e) { console.error('Group48 error:', e); }
     try { _testV4942FourPagesAudit(); } catch(e) { console.error('Group49 error:', e); }
+    try { _testV4947FxbondFundamentalThemesAudit(); } catch(e) { console.error('Group50 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -2564,6 +2612,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.42 loaded - run AIO.runTests() (T1~T337)');
+  console.log('[AIO] aio-tests.js v49.47 loaded - run AIO.runTests() (T1~T345)');
 
 })();
