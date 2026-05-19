@@ -1,5 +1,5 @@
 {
-  "version": "v49.51",
-  "built": "2026-05-19T06:45:00+09:00",
-  "note": "v49.51: Sustained freshness ops hardening. Blocks stale hardcoded quote fallback, guards hard-stale DATA_SNAPSHOT fallback, adds deployment gate audit, and extends regression tests for ongoing freshness governance."
+  "version": "v49.52",
+  "built": "2026-05-19T17:20:00+09:00",
+  "note": "v49.52: Dynamic market regime operations. Preserves per-domain snapshot dates, adds data-quality/date-source deployment audits, removes stale KR temperature labels, and links market narratives to live-first regime engines."
 }

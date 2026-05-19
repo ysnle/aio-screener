@@ -1615,8 +1615,8 @@
       enumeratedPages.length + '/' + allPages.length);
 
     // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.49
-    _assert('T362 page_seq_v4951: version v49.51',
-      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.51',
+    _assert('T362 page_seq_v4952: version v49.52',
+      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.52',
       'ver=' + (window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY ? window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version : '?'));
   }
 
@@ -1658,6 +1658,35 @@
     _assert('T372 autoops_sustained_freshness_axes',
       ops && ops.hardcodedQuoteFallback && ops.snapshotFallbackGuard && ops.commands && /DeploymentGate|deploymentGate/i.test(JSON.stringify(ops.commands)),
       ops ? 'has hardcoded=' + !!ops.hardcodedQuoteFallback + ' guard=' + !!ops.snapshotFallbackGuard : 'missing');
+
+    var dateAudit = window.AIO && window.AIO.getSnapshotDateSourceAudit ? window.AIO.getSnapshotDateSourceAudit() : null;
+    _assert('T373 snapshot_date_sources_do_not_collapse',
+      dateAudit && dateAudit.status === 'ok',
+      dateAudit ? JSON.stringify(dateAudit.issues) : 'missing');
+
+    var bond2y = document.getElementById('yc-2y-track');
+    _assert('T374 fxbond_2y_not_mapped_to_irx',
+      bond2y && bond2y.getAttribute('data-live-price') !== '^IRX',
+      bond2y ? 'live=' + bond2y.getAttribute('data-live-price') : 'missing');
+
+    var krTempOk = document.getElementById('kr-temp-sentiment-score') &&
+      document.getElementById('kr-temp-retail-score') &&
+      document.getElementById('kr-temp-foreign-score') &&
+      document.getElementById('kr-temp-momentum-score');
+    _assert('T375 kr_market_temperature_dynamic_slots',
+      !!krTempOk && !/4\/3/.test((document.getElementById('page-kr-home') || {}).textContent || ''),
+      'slots=' + !!krTempOk);
+
+    var regime = window.AIO && window.AIO.getCurrentMarketRegime ? window.AIO.getCurrentMarketRegime() : null;
+    var krTemp = window.AIO && window.AIO.getKrMarketTemperature ? window.AIO.getKrMarketTemperature() : null;
+    _assert('T376_dynamic_regime_engines_available',
+      regime && typeof regime.riskScore === 'number' && krTemp && typeof krTemp.momentum === 'number',
+      'regime=' + JSON.stringify(regime) + ' kr=' + JSON.stringify(krTemp));
+
+    var dq = window.AIO && window.AIO.getDataQualityIssueAudit ? window.AIO.getDataQualityIssueAudit() : null;
+    _assert('T377_data_quality_audit_available',
+      dq && Array.isArray(dq.issues) && ops && ops.commands && /dataQuality/.test(JSON.stringify(ops.commands)),
+      dq ? JSON.stringify(dq) : 'missing');
   }
 
   function _testV4938HomeDeepAudit() {

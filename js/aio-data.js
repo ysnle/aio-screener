@@ -8914,8 +8914,23 @@ async function fetchKrNaverQuotes() {
   // ── 3차/4차 폴백: api.finance.naver.com / fchart.stock.naver.com (v46.3) ──
   // 1차(배치)+2차(개별) 완료 후 아직 데이터 없는 종목에 대해 siseJson 엔드포인트 시도
   var allCodesFlat = [];
+  function _aioCollectKrCodes(src) {
+    if (!src) return;
+    if (Array.isArray(src)) {
+      src.forEach(_aioCollectKrCodes);
+      return;
+    }
+    if (typeof src === 'object') {
+      if (src.code) allCodesFlat.push(src.code);
+      else if (src.symbol && /^[0-9]{6}$/.test(String(src.symbol))) allCodesFlat.push(src.symbol);
+      else Object.keys(src).forEach(function(k) { _aioCollectKrCodes(src[k]); });
+    }
+  }
   if (typeof KR_STOCK_DB !== 'undefined') {
-    KR_STOCK_DB.forEach(function(s) { if (s.code) allCodesFlat.push(s.code); });
+    _aioCollectKrCodes(KR_STOCK_DB);
+  }
+  if (!allCodesFlat.length && window.AIO && window.AIO.recordDataQualityIssue) {
+    window.AIO.recordDataQualityIssue({ source: 'kr-stock-db', severity: 'warn', message: 'KR_STOCK_DB code extraction returned 0 codes' });
   }
   var gotSyms = {};
   results.forEach(function(r) { gotSyms[r.symbol] = true; });
@@ -11389,7 +11404,12 @@ async function autoUpdateMA() {
   try {
     const url = 'https://query1.finance.yahoo.com/v8/finance/chart/^GSPC?range=1y&interval=1d';
     const r = await fetchViaProxy(url, 8000);
-    const json = typeof r.json === 'function' ? await r.json() : JSON.parse(r);
+    const rawText = typeof r.text === 'function' ? await r.text() : String(r);
+    const trimmed = rawText.trim();
+    if (!/^[\[{]/.test(trimmed)) {
+      throw new Error('Yahoo chart returned non-JSON: ' + trimmed.slice(0, 80));
+    }
+    const json = JSON.parse(trimmed);
     const closes = (json?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || [])
       .filter(function(v) { return typeof v === 'number' && isFinite(v) && v > 0; });
     if (closes.length >= 200) {
@@ -11403,6 +11423,9 @@ async function autoUpdateMA() {
       if (typeof refreshHomeDashboard === 'function') refreshHomeDashboard();
     }
   } catch(e) {
+    if (window.AIO && window.AIO.recordDataQualityIssue) {
+      window.AIO.recordDataQualityIssue({ source: 'ma-auto-update', severity: 'warn', message: e.message || String(e) });
+    }
     _aioLog('warn', 'render', 'MA auto-update failed: ' + (e.message || e));
   }
 }

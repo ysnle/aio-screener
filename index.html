@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.51 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.52 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3958,7 +3958,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.51</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.52</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -7968,7 +7968,7 @@ body.light-theme canvas { filter:none; }
             <td style="text-align:center;padding:7px 10px;"><b style="color:var(--data-amber);font-family:var(--font-mono);">2.50%</b></td>
             <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);">3.48%</td>
             <td style="text-align:center;padding:7px 10px;"><span style="background:rgba(255,163,26,0.1);color:var(--data-amber);border-radius:4px;padding:2px 7px;font-size:11px;">인하 관망</span></td>
-            <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);">5/28</td>
+            <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);" data-snap="bok-next">공식 일정 확인</td>
             <td style="padding:7px 10px;font-size:11px;color:var(--text-muted);">원화 약세로 선제 인하 제약. 수출 호조 vs 내수 부진</td>
           </tr>
         </tbody>
@@ -8022,6 +8022,9 @@ body.light-theme canvas { filter:none; }
 
     <div id="fxbond-narrative" style="font-size:12px;color:var(--text-secondary);line-height:2.0;">
       <!-- 이 섹션은 JS에서 동적으로 채워짐 -->
+      <div id="fxbond-dynamic-thesis" style="margin-bottom:14px;padding:10px 12px;border-radius:8px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.16);color:var(--text-primary);font-size:11px;line-height:1.8;">
+        라이브 금리·달러·변동성 데이터를 수신하면 현재 시장 국면 문장이 자동으로 갱신됩니다.
+      </div>
       <div style="margin-bottom:16px;">
         <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:6px;"> Chapter 1: 달러의 두 얼굴</div>
         <p style="margin:0;color:var(--text-muted);font-size:11px;line-height:1.9;">
@@ -8087,9 +8090,9 @@ body.light-theme canvas { filter:none; }
         <div style="font-size:11px;" data-live-chg="^TNX">—</div>
       </div>
       <div style="background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.15);border-radius:8px;padding:10px;text-align:center;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;">2Y 미국채 <span style="font-size:9px;color:var(--data-amber);">(v49.31 H2 시드 5/13)</span></div>
-        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);margin:4px 0;" id="yc-2y-track" data-snap="tnx-2y" data-live-price="^IRX" title="DATA_SNAPSHOT.tnx2y 동기 + 실시간 가능">4.28%</div>
-        <div style="font-size:11px;color:var(--text-muted);">Fed 기대 반영</div>
+        <div style="font-size:11px;color:var(--text-muted);font-weight:700;">2Y 미국채 <span style="font-size:9px;color:var(--data-amber);">(FRED/DGS2 스냅샷)</span></div>
+        <div style="font-size:20px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);margin:4px 0;" id="yc-2y-track" data-snap="tnx-2y" title="2Y Treasury snapshot; do not map to ^IRX 13-week bill">4.28%</div>
+        <div style="font-size:11px;color:var(--text-muted);">Fed 기대 반영 · 실시간 13W와 혼동 금지</div>
       </div>
       <div style="background:rgba(168,181,200,0.05);border:1px solid rgba(168,181,200,0.15);border-radius:8px;padding:10px;text-align:center;">
         <div style="font-size:11px;color:var(--text-muted);font-weight:700;">HYG 하이일드</div>
@@ -10757,23 +10760,23 @@ body.light-theme canvas { filter:none; }
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
         <div style="text-align:center;padding:10px 6px;background:rgba(255,91,80,0.08);border-radius:8px;border:1px solid rgba(255,91,80,0.2);">
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">투자심리</div>
-          <div style="font-size:22px;font-weight:800;color:var(--red);">25</div>
-          <div style="font-size:11px;color:var(--red);">공포 (4/3)</div>
+          <div id="kr-temp-sentiment-score" style="font-size:22px;font-weight:800;color:var(--red);">—</div>
+          <div id="kr-temp-sentiment-label" style="font-size:11px;color:var(--red);">라이브 산출 대기</div>
         </div>
         <div style="text-align:center;padding:10px 6px;background:rgba(0,229,160,0.08);border-radius:8px;border:1px solid rgba(0,229,160,0.2);">
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">개인 매매동향</div>
-          <div style="font-size:22px;font-weight:800;color:var(--green);">72</div>
-          <div style="font-size:11px;color:var(--green);">적극 매수 (4/3)</div>
+          <div id="kr-temp-retail-score" style="font-size:22px;font-weight:800;color:var(--green);">—</div>
+          <div id="kr-temp-retail-label" style="font-size:11px;color:var(--green);">라이브 산출 대기</div>
         </div>
         <div style="text-align:center;padding:10px 6px;background:rgba(255,91,80,0.08);border-radius:8px;border:1px solid rgba(255,91,80,0.2);">
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">외인 수급 강도</div>
-          <div style="font-size:22px;font-weight:800;color:var(--red);">15</div>
-          <div style="font-size:11px;color:var(--red);">극약세 (4/3)</div>
+          <div id="kr-temp-foreign-score" style="font-size:22px;font-weight:800;color:var(--red);">—</div>
+          <div id="kr-temp-foreign-label" style="font-size:11px;color:var(--red);">라이브 산출 대기</div>
         </div>
         <div style="text-align:center;padding:10px 6px;background:rgba(255,91,80,0.08);border-radius:8px;border:1px solid rgba(255,91,80,0.2);">
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">시장 모멘텀</div>
-          <div style="font-size:22px;font-weight:800;color:var(--red);">30</div>
-          <div style="font-size:11px;color:var(--red);">약세 (4/3)</div>
+          <div id="kr-temp-momentum-score" style="font-size:22px;font-weight:800;color:var(--red);">—</div>
+          <div id="kr-temp-momentum-label" style="font-size:11px;color:var(--red);">라이브 산출 대기</div>
         </div>
       </div>
       <div id="kr-supply-alert-banner" style="font-size:10px;color:var(--red);padding:8px 10px;background:rgba(255,91,80,0.06);border-radius:6px;font-weight:600;">

@@ -981,20 +981,28 @@ window._aioRenderSnapshotDates = function() {
   try {
     var snap = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : null;
     if (!snap) return;
-    var defaultDate = snap._snapshotDate || (snap._updated ? snap._updated.slice(0, 10) : '2026-04-17');
+    var staticDates = snap._staticDates || {};
     // 데이터 종류별 세부 날짜 (필요 시 확장) — 현재는 동일 날짜
     var dateByKey = {
-      'cp-narrative': defaultDate,
-      'briefing-archive': defaultDate,
-      'jensen-interview': '2026-04-15',   // 정적 인터뷰 — 별도 날짜
-      'tnx-2y': defaultDate,
-      'option-snapshot': defaultDate,
-      'kr-credit': defaultDate
+      'cp-narrative': snap._snapshotDate || (snap._updated ? snap._updated.slice(0, 10) : null),
+      'briefing-archive': staticDates.briefingArchive || '2026-04-17',
+      'jensen-interview': staticDates.jensenInterview || '2026-03-20',
+      'tnx-2y': staticDates.tnx2y || snap._snapshotDate || null,
+      'option-snapshot': staticDates.optionSnapshot || null,
+      'kr-credit': staticDates.krMarket || null,
+      'kr-deposit': staticDates.krMarket || null,
+      'kr-52w-high': staticDates.krMarket || null,
+      'kr-52w-low': staticDates.krMarket || null,
+      'kr-advance': staticDates.krMarket || null,
+      'kr-decline': staticDates.krMarket || null,
+      'kr-issues': staticDates.krIssues || staticDates.krMarket || null
     };
     document.querySelectorAll('[data-snap-date]').forEach(function(el) {
       var key = el.getAttribute('data-snap-date');
       if (!key) return;
-      var d = dateByKey[key] || defaultDate;
+      var explicit = el.getAttribute('data-snap-date-value');
+      var d = explicit || dateByKey[key] || null;
+      if (!d) return;
       // 기존 텍스트가 이미 정확한 날짜면 skip
       if ((el.textContent || '').trim() !== d) el.textContent = d;
     });
@@ -2485,7 +2493,7 @@ window.AIO.getChatHallucinationAudit = function(responseText) {
 // R93 신규 (페이지 sequential audit 의무화)
 // ─────────────────────────────────────────────────────────────────
 window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
-  version: 'v49.51',
+  version: 'v49.52',
   axes: ['최신성', '정확성', '정합성', '로직성', '직관성', '핵심성'],
   // 페이지별 sub-section 정의 (top-down 순서)
   pages: {
@@ -5659,6 +5667,8 @@ window.AIO.getAutoOpsReadiness = function() {
   var liveSymbolsCoverage = window.AIO.getLiveSymbolsCoverageAudit ? window.AIO.getLiveSymbolsCoverageAudit() : null;
   var hardcodedQuoteFallback = window.AIO.getHardcodedQuoteFallbackAudit ? window.AIO.getHardcodedQuoteFallbackAudit() : null;
   var snapshotFallbackGuard = window.AIO.getSnapshotFallbackGuard ? window.AIO.getSnapshotFallbackGuard() : null;
+  var dataQuality = window.AIO.getDataQualityIssueAudit ? window.AIO.getDataQualityIssueAudit() : null;
+  var snapshotDateSources = window.AIO.getSnapshotDateSourceAudit ? window.AIO.getSnapshotDateSourceAudit() : null;
   var issues = [];
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
   if (statics && statics.issueCount) issues.push(statics.issueCount + ' static/live-like freshness issue(s)');
@@ -5688,6 +5698,8 @@ window.AIO.getAutoOpsReadiness = function() {
   if (liveSymbolsCoverage && liveSymbolsCoverage.issueCount) issues.push(liveSymbolsCoverage.issueCount + ' DOM ticker(s) missing in LIVE_SYMBOLS [v49.48/R101]');
   if (hardcodedQuoteFallback && hardcodedQuoteFallback.issueCount) issues.push('hardcoded quote fallback reachable [v49.51/R103]');
   if (snapshotFallbackGuard && snapshotFallbackGuard.usable === false) issues.push('DATA_SNAPSHOT hard-stale; snapshot fallback disabled [v49.51/R104]');
+  if (dataQuality && dataQuality.issueCount) issues.push(dataQuality.issueCount + ' data quality issue(s) [v49.52/R105]');
+  if (snapshotDateSources && snapshotDateSources.issueCount) issues.push(snapshotDateSources.issueCount + ' snapshot date source issue(s) [v49.52/R106]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -5728,6 +5740,10 @@ window.AIO.getAutoOpsReadiness = function() {
       cellLevelData: 'AIO.getCellLevelDataAudit(pageId)',
       hardcodedQuoteFallback: 'AIO.getHardcodedQuoteFallbackAudit()',
       snapshotFallbackGuard: 'AIO.getSnapshotFallbackGuard()',
+      dataQuality: 'AIO.getDataQualityIssueAudit()',
+      snapshotDateSources: 'AIO.getSnapshotDateSourceAudit()',
+      marketRegime: 'AIO.getCurrentMarketRegime()',
+      krMarketTemperature: 'AIO.getKrMarketTemperature()',
       deploymentGate: 'AIO.getDeploymentGateAudit({ strict: true })'
     },
     freshness: freshness,
@@ -5756,6 +5772,72 @@ window.AIO.getAutoOpsReadiness = function() {
     liveSymbolsCoverage: liveSymbolsCoverage,
     hardcodedQuoteFallback: hardcodedQuoteFallback,
     snapshotFallbackGuard: snapshotFallbackGuard,
+    dataQuality: dataQuality,
+    snapshotDateSources: snapshotDateSources,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.recordDataQualityIssue = function(issue) {
+  try {
+    window._aioDataQualityIssues = window._aioDataQualityIssues || [];
+    var item = Object.assign({
+      ts: Date.now(),
+      severity: 'warn',
+      source: 'unknown',
+      message: 'data quality issue'
+    }, issue || {});
+    window._aioDataQualityIssues.push(item);
+    if (window._aioDataQualityIssues.length > 120) window._aioDataQualityIssues = window._aioDataQualityIssues.slice(-120);
+    if (typeof _aioLog === 'function') _aioLog(item.severity === 'error' ? 'error' : 'warn', 'data-quality', item.source + ': ' + item.message);
+  } catch(_) {}
+};
+
+window.AIO.getDataQualityIssueAudit = function(opts) {
+  opts = opts || {};
+  var horizonMs = opts.horizonMs || 6 * 3600000;
+  var now = Date.now();
+  var issues = (window._aioDataQualityIssues || []).filter(function(x) {
+    return x && (!x.ts || now - x.ts <= horizonMs);
+  });
+  var blocking = issues.filter(function(x) { return x.severity === 'error' || x.blocking === true; });
+  return {
+    status: blocking.length ? 'fail' : (issues.length ? 'warn' : 'ok'),
+    issueCount: issues.length,
+    blockingCount: blocking.length,
+    issues: issues,
+    generatedAt: new Date(now).toISOString()
+  };
+};
+
+window.AIO.getSnapshotDateSourceAudit = function() {
+  var issues = [];
+  var items = [];
+  try {
+    document.querySelectorAll('[data-snap-date]').forEach(function(el) {
+      var key = el.getAttribute('data-snap-date') || '';
+      var val = (el.textContent || '').trim();
+      var explicit = el.getAttribute('data-snap-date-value') || '';
+      var hasRegistry = !!(window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._staticDates && (
+        key === 'cp-narrative' || key === 'tnx-2y' ||
+        key === 'briefing-archive' || key === 'jensen-interview' ||
+        key === 'option-snapshot' || key === 'kr-credit' || key === 'kr-deposit' ||
+        key === 'kr-52w-high' || key === 'kr-52w-low' || key === 'kr-advance' ||
+        key === 'kr-decline' || key === 'kr-issues'
+      ));
+      items.push({ key: key, value: val, explicit: explicit, registered: hasRegistry });
+      if (key === 'option-snapshot' && val === (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._snapshotDate)) {
+        issues.push({ type: 'date-source-collapsed-to-global-snapshot', key: key, value: val });
+      }
+    });
+  } catch(e) {
+    issues.push({ type: 'audit-error', message: e && e.message || String(e) });
+  }
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    issues: issues,
+    items: items,
     generatedAt: new Date().toISOString()
   };
 };
@@ -5768,6 +5850,8 @@ window.AIO.getDeploymentGateAudit = function(opts) {
   var snapGuard = window.AIO.getSnapshotFallbackGuard ? window.AIO.getSnapshotFallbackGuard() : null;
   var macro = window.AIO.getMacroReleaseStaleAudit ? window.AIO.getMacroReleaseStaleAudit() : null;
   var krMacro = window.AIO.getKrMacroReleaseAudit ? window.AIO.getKrMacroReleaseAudit() : null;
+  var dataQuality = window.AIO.getDataQualityIssueAudit ? window.AIO.getDataQualityIssueAudit() : null;
+  var dateSources = window.AIO.getSnapshotDateSourceAudit ? window.AIO.getSnapshotDateSourceAudit() : null;
   var blocking = [];
   var warnings = [];
 
@@ -5778,6 +5862,9 @@ window.AIO.getDeploymentGateAudit = function(opts) {
   if (readiness && readiness.dataActionHandler && readiness.dataActionHandler.issueCount) blocking.push('missing data-action handler');
   if (macro && macro.staleReleaseCount) warnings.push(macro.staleReleaseCount + ' stale US macro release(s)');
   if (krMacro && krMacro.krStaleReleaseCount) warnings.push(krMacro.krStaleReleaseCount + ' stale KR macro release(s)');
+  if (dataQuality && dataQuality.blockingCount) blocking.push(dataQuality.blockingCount + ' blocking data quality issue(s)');
+  if (dataQuality && dataQuality.issueCount && !dataQuality.blockingCount) warnings.push(dataQuality.issueCount + ' data quality warning(s)');
+  if (dateSources && dateSources.issueCount) warnings.push(dateSources.issueCount + ' snapshot date source issue(s)');
   if (strict && warnings.length) blocking = blocking.concat(warnings);
 
   return {
@@ -5791,6 +5878,8 @@ window.AIO.getDeploymentGateAudit = function(opts) {
     snapshotFallbackGuard: snapGuard,
     macroRelease: macro,
     krMacroRelease: krMacro,
+    dataQuality: dataQuality,
+    snapshotDateSources: dateSources,
     generatedAt: new Date().toISOString()
   };
 };
@@ -8735,7 +8824,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.51';
+const APP_VERSION = 'v49.52';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -9646,6 +9735,14 @@ const DATA_SNAPSHOT = {
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
   _updated: '2026-05-13T12:00:00+09:00',   // v49.8 static fallback snapshot, live stores override when available
   _snapshotDate: '2026-05-13',
+  _staticDates: {
+    briefingArchive: '2026-04-17',
+    jensenInterview: '2026-03-20',
+    optionSnapshot: '2026-05-16',
+    krMarket: '2026-05-16',
+    krIssues: '2026-05-16',
+    tnx2y: '2026-05-13'
+  },
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
   _note: 'v49.8 WebSearch refresh (2026-05-13 KST): US close 2026-05-12 AP snapshot SPX 7400.96 (-0.20%) / NASDAQ 26088.20 (-0.70%) / Dow 49760.56 (+0.10%) / Russell 2000 2842.83 (-1.00%); VIX latest public morning indication 18.70 (+0.32 pts). KR close 2026-05-13 KOSPI 7844.01 (+2.63%); KOSDAQ fallback remains stale until live/KRX override. Oil shock context WTI 102.18 (+4.2%) / Brent 107.77 (+3.4%). Cboe latest public daily stats: total PCR 0.67 / index PCR 0.71 / equity PCR 0.51. CNN F&G latest public 68~69 Greed; AAII May 9 bull 38.3 / neutral 28.7 / bear 33.0. Static fallback only; Delayed/Fallback/Stale labels must remain visible until live stores override.',
@@ -10981,6 +11078,126 @@ function _ldSafe(sym, prop, hardFallback) {
     if (v != null && isFinite(Number(v))) return Number(v);
   }
   return hardFallback !== undefined ? hardFallback : null;
+}
+
+function _aioClampScore(v) {
+  v = Number(v);
+  if (!isFinite(v)) return 50;
+  return Math.max(0, Math.min(100, Math.round(v)));
+}
+function _aioScoreLabel(score, positiveLabel, neutralLabel, weakLabel, dangerLabel) {
+  if (score >= 70) return positiveLabel || '강함';
+  if (score >= 45) return neutralLabel || '중립';
+  if (score >= 25) return weakLabel || '약함';
+  return dangerLabel || '위험';
+}
+function _aioScoreColor(score) {
+  return score >= 70 ? 'var(--data-green)' : score >= 45 ? 'var(--data-amber)' : 'var(--data-red)';
+}
+
+window.AIO.getCurrentMarketRegime = function() {
+  var snap = window.DATA_SNAPSHOT || {};
+  var spxPct = _ldSafe('^GSPC', 'pct', snap.spxPct);
+  var nasPct = _ldSafe('^IXIC', 'pct', snap.nasdaqPct);
+  var vix = _ldSafe('^VIX', 'price', snap.vix);
+  var dxy = _ldSafe('DX-Y.NYB', 'price', snap.dxy);
+  var tnx = _ldSafe('^TNX', 'price', snap.tnx);
+  var krw = _ldSafe('KRW=X', 'price', snap.krw);
+  var hygPct = _ldSafe('HYG', 'pct', null);
+  var riskScore = 50;
+  if (isFinite(spxPct)) riskScore += spxPct * 8;
+  if (isFinite(nasPct)) riskScore += nasPct * 4;
+  if (isFinite(vix)) riskScore -= Math.max(0, vix - 18) * 2.2;
+  if (isFinite(hygPct)) riskScore += hygPct * 5;
+  riskScore = _aioClampScore(riskScore);
+  var rateStress = 0;
+  if (isFinite(tnx)) rateStress += Math.max(0, tnx - 4.25) * 30;
+  if (isFinite(dxy)) rateStress += Math.max(0, dxy - 102) * 2;
+  if (isFinite(krw)) rateStress += Math.max(0, krw - 1450) / 8;
+  rateStress = _aioClampScore(rateStress);
+  var regime = riskScore >= 65 && rateStress < 55 ? 'risk-on' : riskScore <= 35 || rateStress >= 70 ? 'risk-off' : 'mixed';
+  return {
+    regime: regime,
+    riskScore: riskScore,
+    rateStress: rateStress,
+    inputs: { spxPct: spxPct, nasPct: nasPct, vix: vix, dxy: dxy, tnx: tnx, krw: krw, hygPct: hygPct },
+    source: (window._liveData && Object.keys(window._liveData).length) ? 'live-first' : 'snapshot-guarded',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getKrMarketTemperature = function() {
+  var snap = window.DATA_SNAPSHOT || {};
+  var kospiPct = _ldSafe('^KS11', 'pct', snap.kospiPct);
+  var kosdaqPct = _ldSafe('^KQ11', 'pct', snap.kosdaqPct);
+  var krwPct = _ldSafe('KRW=X', 'pct', snap.krwPct);
+  var vkospi = snap.vkospi;
+  var adv = Number(snap.krAdvance);
+  var dec = Number(snap.krDecline);
+  var breadth = isFinite(adv) && isFinite(dec) && adv + dec > 0 ? (adv / (adv + dec) - 0.5) * 100 : 0;
+  var sentiment = _aioClampScore(50 + (kospiPct || 0) * 8 + (kosdaqPct || 0) * 3 - Math.max(0, (vkospi || 18) - 20) * 1.5);
+  var retail = _aioClampScore(50 + ((Number(snap.krDeposit) || 0) - 60) * 1.2 - Math.max(0, (Number(snap.krCreditBalance) || 0) - 20) * 2);
+  var foreign = _aioClampScore(50 + (kospiPct || 0) * 8 - (krwPct || 0) * 6);
+  var momentum = _aioClampScore(50 + (kospiPct || 0) * 9 + (kosdaqPct || 0) * 5 + breadth * 0.5);
+  return {
+    sentiment: sentiment,
+    retail: retail,
+    foreign: foreign,
+    momentum: momentum,
+    labels: {
+      sentiment: _aioScoreLabel(sentiment, '위험선호', '중립', '공포', '극단 공포'),
+      retail: _aioScoreLabel(retail, '매수 우위', '중립', '관망', '위축'),
+      foreign: _aioScoreLabel(foreign, '수급 우호', '중립', '약세', '이탈 경고'),
+      momentum: _aioScoreLabel(momentum, '강세', '중립', '약세', '극약세')
+    },
+    source: (window._liveData && (window._liveData['^KS11'] || window._liveData['^KQ11'])) ? 'live-first' : 'snapshot-guarded',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.renderDynamicMarketNarratives = function() {
+  try {
+    var reg = window.AIO.getCurrentMarketRegime ? window.AIO.getCurrentMarketRegime() : null;
+    var fx = document.getElementById('fxbond-dynamic-thesis');
+    if (fx && reg) {
+      var i = reg.inputs || {};
+      var fmtNum = function(v, d, suffix) { return typeof v === 'number' && isFinite(v) ? v.toFixed(d) + (suffix || '') : 'n/a'; };
+      var tone = reg.regime === 'risk-on' ? '위험선호가 우세합니다.' : reg.regime === 'risk-off' ? '방어적 해석이 우세합니다.' : '신호가 엇갈리는 혼합 국면입니다.';
+      fx.textContent = tone + ' VIX ' + fmtNum(i.vix, 1) + ', 10Y ' + fmtNum(i.tnx, 2, '%') + ', DXY ' + fmtNum(i.dxy, 1) + ' 기준으로 금리/달러 스트레스 ' + reg.rateStress + ', 위험선호 점수 ' + reg.riskScore + '입니다. 이 문장은 라이브 지표 갱신 때 재계산됩니다.';
+    }
+    var kr = window.AIO.getKrMarketTemperature ? window.AIO.getKrMarketTemperature() : null;
+    if (kr) {
+      [
+        ['kr-temp-sentiment-score', 'kr-temp-sentiment-label', kr.sentiment, kr.labels.sentiment],
+        ['kr-temp-retail-score', 'kr-temp-retail-label', kr.retail, kr.labels.retail],
+        ['kr-temp-foreign-score', 'kr-temp-foreign-label', kr.foreign, kr.labels.foreign],
+        ['kr-temp-momentum-score', 'kr-temp-momentum-label', kr.momentum, kr.labels.momentum]
+      ].forEach(function(row) {
+        var scoreEl = document.getElementById(row[0]);
+        var labelEl = document.getElementById(row[1]);
+        if (scoreEl) { scoreEl.textContent = row[2]; scoreEl.style.color = _aioScoreColor(row[2]); }
+        if (labelEl) { labelEl.textContent = row[3] + ' · ' + (kr.source === 'live-first' ? '라이브 연동' : '스냅샷 경계'); labelEl.style.color = _aioScoreColor(row[2]); }
+      });
+    }
+  } catch(e) {
+    if (window._aioLog) window._aioLog('warn', 'narrative', 'renderDynamicMarketNarratives: ' + (e && e.message || e));
+  }
+};
+
+if (typeof document !== 'undefined') {
+  _aioPageBus.register('core-dynamic-narratives-live', 'aio:liveQuotes', function() {
+    if (window.AIO && window.AIO.renderDynamicMarketNarratives) window.AIO.renderDynamicMarketNarratives();
+  });
+  _aioPageBus.register('core-dynamic-narratives-shown', 'aio:pageShown', function() {
+    if (window.AIO && window.AIO.renderDynamicMarketNarratives) window.AIO.renderDynamicMarketNarratives();
+  });
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(function(){ if (window.AIO && window.AIO.renderDynamicMarketNarratives) window.AIO.renderDynamicMarketNarratives(); }, 800);
+  } else {
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(function(){ if (window.AIO && window.AIO.renderDynamicMarketNarratives) window.AIO.renderDynamicMarketNarratives(); }, 800);
+    });
+  }
 }
 
 const breadcrumbMap = {

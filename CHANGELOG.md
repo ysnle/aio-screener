@@ -6,6 +6,16 @@
 
 ---
 
+## v49.52 - Dynamic market regime operations (2026-05-19)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- Reworked `data-snap-date` rendering so page-specific dates are not collapsed into the global `DATA_SNAPSHOT._snapshotDate`; per-domain dates now come from `_staticDates` or explicit DOM values.
+- Added `AIO.getCurrentMarketRegime()` and `AIO.getKrMarketTemperature()` so market-facing text can render from live-first inputs instead of fixed labels.
+- Replaced stale KR home `4/3` temperature labels with dynamic slots and added a live-linked FX/bond thesis sentence.
+- Removed the misleading `^IRX` live binding from the 2Y Treasury card; 2Y remains a guarded FRED/DGS2 snapshot instead of being confused with 13-week bills.
+- Added data-quality and snapshot-date-source audits into the deployment gate, plus T373~T377 regression coverage.
+
 ## v49.51 - Sustained freshness ops hardening (2026-05-19)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
