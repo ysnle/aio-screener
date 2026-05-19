@@ -11080,9 +11080,9 @@ function refreshHomeDashboard() {
     if (regimeExplEl) regimeExplEl.textContent = regimeDesc + (_regimeRef[regime] || '');
 
     // v49.28 E1 적용: ACTION_RULES 호출로 home Action Item 카드 갱신
+    // v49.44 P311 hotfix: 'var ld = window._liveData || {}' 삭제 — refreshHomeDashboard top L10989의 'const ld'와 hoist 충돌(SyntaxError: Identifier 'ld' has already been declared) → 전체 aio-data.js parse 실패 → home 데이터 마비. outer const ld 그대로 사용.
     try {
       if (window.AIO_ACTION_RULES && window.AIO_ACTION_RULES.getActionPlan) {
-        var ld = window._liveData || {};
         var vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
         var fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
         var breadth50Val = window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.breadth50sma : NaN;

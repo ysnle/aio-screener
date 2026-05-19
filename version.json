@@ -1,5 +1,5 @@
 {
-  "version": "v49.43",
-  "built": "2026-05-18T23:00:00+09:00",
-  "note": "v49.43 HOTFIX: manifest.json 참조 제거 — GitHub UI에서 manifest.json + 22 파일 일괄 삭제(29af1f3) 후 sw.js SHELL_ASSETS의 './manifest.json' cache.add 404 발생 + index.html <link rel='manifest'> 404 콘솔 에러. 사용자 보고: '데이터 다 안 보임 + API 키 모두 날아간 듯'. P310: sw.js + index.html에서 manifest.json 참조 제거 (사용자 의도 PWA 비활성 반영). SW_VERSION 강제 회전 v49.42→v49.43으로 모든 클라이언트 신규 캐시 강제 + 이전 캐시 삭제."
+  "version": "v49.44",
+  "built": "2026-05-18T23:45:00+09:00",
+  "note": "v49.44 CRITICAL HOTFIX: aio-data.js refreshHomeDashboard() const ld + var ld hoist 충돌(SyntaxError) → 전체 파일 parse 실패 → 데이터 파이프라인 마비 시정. P311: L11085 'var ld = window._liveData || {}' 라인 삭제 (outer L10989 const ld 그대로 사용). 라이브 콘솔 에러 1번('Identifier ld has already been declared') cascading 4건(_tcLoadFromStorage/computeNewsSentimentScore/refreshHomeDashboard ReferenceError) 일거에 해결. v49.42 push 시점부터 잠재된 버그가 v49.43 SW 캐시 회전으로 노출됨. SW_VERSION v49.43→v49.44 강제 회전 + R1 7곳 동기화."
 }
