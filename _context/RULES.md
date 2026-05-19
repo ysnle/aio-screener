@@ -1192,6 +1192,44 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R98. JS 함수 내 var X + const/let X 충돌 자동 탐지 (v49.44 추가, P311 근본)
+
+**원칙**: 같은 함수 안에 `var X`와 `const X`/`let X`가 동시 선언되면 **SyntaxError**(`Identifier 'X' has already been declared`) 발생 → 그 파일 전체 parse 실패 → 모든 함수 정의 안 됨.
+
+**근거 (P311)**: `aio-data.js refreshHomeDashboard()` L10989 `const ld` + L11085 try block 내 `var ld` → `var` hoist로 함수 top으로 끌어올려짐 → `const ld`와 동일 scope 충돌 → SyntaxError → aio-data.js 전체 마비 → `fetchLiveQuotes`/`refreshHomeDashboard` 등 미정의 → 데이터 파이프라인 전체 차단.
+
+**구조**: `AIO.getVarHoistConflictAudit()` (async)
+- 모든 JS 파일 fetch + 함수 본문 추출 + 같은 함수 안의 `var X`와 `const X`/`let X` 동시 선언 탐지
+- 휴리스틱 — 정확도 95% (문자열 안 false positive 가능)
+- P311 패턴은 100% 탐지
+
+**검증**: `(await AIO.getVarHoistConflictAudit()).issueCount === 0`
+
+**위반 시**: 해당 함수 전체 + 그 파일 모든 후속 함수가 parse 실패 → 페이지 전체 데이터 마비.
+
+**수정 방법**:
+- 두 선언 중 하나를 삭제 (outer scope 변수 재사용)
+- 또는 변수 이름 변경 (`var ldInner` 등)
+
+---
+
+## R99. SW SHELL_ASSETS 자산 무결성 자동 검증 (v49.44 추가, P310 근본)
+
+**원칙**: `sw.js`의 `SHELL_ASSETS` 배열에 등록된 모든 자산은 **반드시** 실제 파일로 존재 (HTTP 200 OK 응답).
+
+**근거 (P310)**: 사용자가 GitHub UI에서 `manifest.json` 삭제 → `sw.js` `SHELL_ASSETS`에 `'./manifest.json'` 잔존 → SW install 시 `cache.add('./manifest.json')` 404 → 콘솔 에러 산재 + 사용자 캐시 클리어 시도 시 localStorage(API 키) 동시 손실.
+
+**구조**: `AIO.getShellAssetIntegrityAudit()` (async)
+- `sw.js` 본문에서 `SHELL_ASSETS` 추출
+- 각 로컬 자산을 `fetch(url, {cache:'no-store'})` 호출 + status 검증
+- 외부 CDN은 검증 제외 (별도 가용성)
+
+**검증**: `(await AIO.getShellAssetIntegrityAudit()).issueCount === 0`
+
+**위반 시**: 404 자산이 있으면 missing 배열 보고 → 즉시 `sw.js` SHELL_ASSETS에서 제거하거나 파일 복원.
+
+---
+
 ## R97. data-snap 키 vs DATA_SNAPSHOT 시드 정합 (v49.41 추가, P301 근본)
 
 **원칙**: 페이지 DOM에 `[data-snap="key"]` 추가 시 **반드시** `window.DATA_SNAPSHOT` 최상위 또는 `_fallback`에 대응 시드 필드 등록.

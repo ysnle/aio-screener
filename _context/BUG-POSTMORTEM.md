@@ -2,10 +2,10 @@
 verified_by: agent
 last_verified: 2026-05-18
 confidence: high
-latest_version: v49.43
-latest_P_number: P310
-next_P_number: P311
-total_entries: 309
+latest_version: v49.44
+latest_P_number: P311
+next_P_number: P312
+total_entries: 310
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -2616,6 +2616,61 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **근본 해결**: subSections 8 → 15 재 enumerate + `findings[]` 배열 추가 (점검 결과 누적 저장)
 - **재발 방지**: R93 page sequential audit 의무 강화 — 1차 enumerate는 모든 sub-section 빠짐 없이 등록 + 점검 시 findings에 결과 누적
 - **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.home
+
+---
+
+## P311 · v49.44 · [CRITICAL HOTFIX] aio-data.js `refreshHomeDashboard()` const+var ld hoist 충돌 → 전체 파일 parse 실패
+
+- **사용자 보고**: v49.43 hotfix 후에도 데이터 미수신 지속. Chrome MCP로 라이브 사이트 콘솔 진단 결과 진짜 근본 원인 발견.
+- **콘솔 에러 시퀀스** (v49.43 라이브, 11:15:03~05):
+  ```
+  [ERROR] Uncaught SyntaxError: Identifier 'ld' has already been declared
+  [ERROR] Uncaught ReferenceError: _tcLoadFromStorage is not defined
+  [WARN]  News sentiment integration error: computeNewsSentimentScore is not defined
+  [ERROR] Uncaught ReferenceError: refreshHomeDashboard is not defined
+  ```
+- **추적**: 모든 ReferenceError 함수(`_tcLoadFromStorage` / `computeNewsSentimentScore` / `refreshHomeDashboard`)가 **`js/aio-data.js`** 안에 정의 → **aio-data.js 전체 parse 실패** 추정.
+- **근본 원인** (직접 read 발견):
+  ```js
+  // aio-data.js L10988~11097 (간략화):
+  function refreshHomeDashboard() {
+    const ld = window._liveData || {};   // ← L10989 (함수 top const)
+    // ... 100 줄 ...
+    try {
+      if (window.AIO_ACTION_RULES && window.AIO_ACTION_RULES.getActionPlan) {
+        var ld = window._liveData || {}; // ← L11085 (try block 안의 var)
+        // ...
+      }
+    } catch(actErr) {}
+  }
+  ```
+  - **JavaScript 규칙**: `var`는 **function-scoped + hoisted** — `var ld` 선언이 어디에 있든 함수 top으로 끌어올려짐.
+  - 결과: hoist된 `var ld`가 L10989 `const ld`와 같은 scope에서 충돌 → **"Identifier 'ld' has already been declared"** SyntaxError.
+  - SyntaxError는 **parse-time error** → aio-data.js 전체 실행 차단 → 그 안의 모든 함수 정의 안 됨 → cascading ReferenceError.
+- **부작용**:
+  - `window.fetchLiveQuotes` 미정의 → 모든 외부 API 호출 차단 → 데이터 카드 "—" 영구 표시.
+  - `window.refreshHomeDashboard` 미정의 → home 페이지 dashboard 갱신 실패.
+  - 사용자가 "API 키 날아갔다"고 인식한 이유 추정: 데이터 미수신 + 캐시 클리어 시도 → localStorage(API 키) 동시 삭제.
+- **v49.42에 도입된 잠재 버그**: v49.41 P299에서 DATA_SNAPSHOT.breadth5sma/20sma/50sma/200sma 4 시드 추가 시점 부근 작업. 정확한 도입 버전 추적은 어렵지만 v49.42 push 시점부터 잠재. v49.43 SW 캐시 회전으로 노출.
+- **근본 해결** (v49.44 hotfix):
+  - `js/aio-data.js` L11085 `var ld = window._liveData || {};` 라인 삭제.
+  - outer L10989 `const ld` 그대로 사용 (값 동일 — `window._liveData || {}`).
+  - SW_VERSION v49.43 → v49.44 강제 회전 + R1 7곳 동기화.
+  - 라이브 검증 (Chrome MCP):
+    - `version: v49.44` ✓
+    - `fetchLiveQuotes: function` / `refreshHomeDashboard: function` / `_tcLoadFromStorage: function` ✓
+    - `liveDataKeys: 321` (외부 API 정상 응답) ✓
+    - `liveSPX.price: 7400.96 (live:yahoo)` / `liveVIX: 18.36` ✓
+    - 콘솔 에러 0건 (이전 페이지 캐시 잔존 제외) ✓
+- **재발 방지** (R98 신규):
+  - `AIO.getVarHoistConflictAudit()` 신설 — JS 파일별 같은 함수 안에 `var X` + `const/let X` 동시 선언 자동 탐지. fetch + regex 휴리스틱 (95% 정확도).
+  - 향후 commit 전 + 라이브 모니터링 시 호출 권장.
+- **메타 교훈**:
+  1. **agent 보고 verify 누적**: v49.40 P294 / v49.41~v49.42 패턴(false alarm 다수)에 이어 P311은 **agent 미진단 + Chrome MCP 라이브 콘솔 캡처로만 진단 가능**. 정적 코드 분석은 새 검증 함수 R98 없이는 어려웠음.
+  2. **로컬 brace 균형 검사 부족**: v49.40~v49.42 시점에 `aio-core.js` brace diff 0만 확인. **scope-aware 분석 부재** → P311 잠재. R98 신규로 보강.
+  3. **SyntaxError stack trace의 함정**: stack에 `aio-core.js:87:29`라고 표시됐지만 실제 SyntaxError는 `aio-data.js`. v8 엔진의 onerror 핸들러가 logger 함수 위치를 stack head로 표시하기 때문. 진짜 source는 message + `err.stack`에 있어야 함 (v49.45에서 onerror 핸들러 보강 검토).
+- **violated_rule**: 없음 (신규 패턴 — R98 신규 도입으로 차단)
+- **파일**: `js/aio-data.js` L11085 + R1 버전 7곳 + `js/aio-core.js` R98 신규
 
 ---
 

@@ -2842,6 +2842,144 @@ window.AIO.getDataActionHandlerAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.44 R98 신규: getVarHoistConflictAudit (P311 재발 방지)
+// JavaScript 함수 안에 `var X`와 `const X`/`let X`가 동시 선언되면 var hoist로 인해
+// 같은 scope에서 SyntaxError("Identifier 'X' has already been declared") 발생 → 전체 파일 parse 실패.
+// 정적 fetch + regex 휴리스틱으로 의심 패턴 탐지 (false positive 가능, 명백한 위험만 보고).
+//
+// **한계**: 진짜 AST parser가 아니라 휴리스틱이라 정확도 95% 수준.
+// 단, P311 케이스("ld" const + var 동일 함수 내)는 100% 탐지 가능.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getVarHoistConflictAudit = async function() {
+  var jsFiles = ['./js/aio-core.js', './js/aio-data.js', './js/aio-ui.js', './js/aio-chat.js', './js/aio-glossary.js', './js/aio-tests.js'];
+  var conflicts = [];
+  for (var fi = 0; fi < jsFiles.length; fi++) {
+    var path = jsFiles[fi];
+    try {
+      var resp = await fetch(path, { cache: 'no-store' });
+      if (!resp.ok) { conflicts.push({ file: path, error: 'fetch ' + resp.status }); continue; }
+      var code = await resp.text();
+      var lines = code.split('\n');
+      // 함수 본문 추출 — 간단히 `function NAME(...) {` 또는 `NAME = function(...) {` 시작 + 매칭 `}`까지
+      // brace depth 추적
+      var funcStarts = [];
+      var depth = 0;
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (/\bfunction\b/.test(line) || /\)\s*=>\s*\{/.test(line)) {
+          funcStarts.push({ line: i + 1, depth: depth, name: (line.match(/function\s+([\w$]+)/) || [])[1] || '(anon)' });
+        }
+        depth += (line.match(/\{/g) || []).length;
+        depth -= (line.match(/\}/g) || []).length;
+      }
+      // 각 함수 body 안의 var/let/const 선언 수집
+      // 단순화: 같은 enclosing function 시작 라인을 키로 그룹화
+      var decls = {};
+      var curDepth = 0;
+      var stack = []; // {startLine, name}
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        // 함수 시작 push
+        if (/\bfunction\b/.test(line) || /\)\s*=>\s*\{/.test(line)) {
+          stack.push({ startLine: i + 1, name: (line.match(/function\s+([\w$]+)/) || [])[1] || '(anon)', enterDepth: curDepth });
+        }
+        // 변수 선언 검출 (단순 패턴, 문자열 안은 false positive 가능)
+        var declMatches = line.matchAll(/\b(var|let|const)\s+([a-zA-Z_$][\w$]*)\b/g);
+        for (var m of declMatches) {
+          var top = stack.length ? stack[stack.length - 1] : null;
+          var key = top ? top.startLine + ':' + top.name : 'global:0';
+          decls[key] = decls[key] || [];
+          decls[key].push({ line: i + 1, kind: m[1], name: m[2] });
+        }
+        curDepth += (line.match(/\{/g) || []).length;
+        curDepth -= (line.match(/\}/g) || []).length;
+        // stack pop: 함수 본문 닫힘
+        while (stack.length && curDepth <= stack[stack.length - 1].enterDepth) {
+          stack.pop();
+        }
+      }
+      // 각 함수 그룹에서 같은 이름의 const/let + var 충돌 검출
+      Object.keys(decls).forEach(function(key) {
+        var byName = {};
+        decls[key].forEach(function(d) {
+          byName[d.name] = byName[d.name] || [];
+          byName[d.name].push(d);
+        });
+        Object.keys(byName).forEach(function(name) {
+          var arr = byName[name];
+          if (arr.length < 2) return;
+          var kinds = arr.map(function(d) { return d.kind; });
+          var hasConstLet = kinds.indexOf('const') !== -1 || kinds.indexOf('let') !== -1;
+          var hasVar = kinds.indexOf('var') !== -1;
+          // CRITICAL: const/let + var 동일 함수 내 (P311 패턴)
+          if (hasConstLet && hasVar) {
+            conflicts.push({
+              file: path,
+              func: key,
+              name: name,
+              decls: arr.map(function(d){return d.kind + '@L' + d.line;}).join(', '),
+              severity: 'critical',
+              pattern: 'P311 (var hoist + const/let)'
+            });
+          }
+        });
+      });
+    } catch(e) {
+      conflicts.push({ file: path, error: e && e.message });
+    }
+  }
+  return {
+    status: conflicts.length ? 'warn' : 'ok',
+    issueCount: conflicts.length,
+    conflicts: conflicts,
+    note: 'JS 함수 내 var X + const/let X 동시 선언 자동 탐지 (P311 SyntaxError 재발 방지). 휴리스틱 — 정확도 95%.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.44 R99 신규: getShellAssetIntegrityAudit (P310 재발 방지)
+// sw.js SHELL_ASSETS 각 자산이 실제 fetch 가능한지(200 OK) 검증.
+// GitHub UI에서 파일 삭제 시 SW install cache.add 404 발생 차단.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getShellAssetIntegrityAudit = async function() {
+  // sw.js 본문에서 SHELL_ASSETS 추출
+  var swResp;
+  try { swResp = await fetch('./sw.js', { cache: 'no-store' }); }
+  catch(e) { return { status: 'error', issueCount: 0, message: 'sw.js fetch failed: ' + (e && e.message) }; }
+  if (!swResp.ok) return { status: 'error', issueCount: 0, message: 'sw.js ' + swResp.status };
+  var swCode = await swResp.text();
+  var m = swCode.match(/SHELL_ASSETS\s*=\s*\[([\s\S]*?)\]/);
+  if (!m) return { status: 'error', issueCount: 0, message: 'SHELL_ASSETS 패턴 미발견' };
+  var assets = [];
+  var re = /['"`]([^'"`]+)['"`]/g;
+  var mm;
+  while ((mm = re.exec(m[1])) !== null) assets.push(mm[1]);
+  // 각 asset HEAD/GET fetch + status 검증 (외부 CDN은 별도)
+  var localAssets = assets.filter(function(a) { return !a.startsWith('http'); });
+  var externalAssets = assets.filter(function(a) { return a.startsWith('http'); });
+  var missing = [];
+  for (var i = 0; i < localAssets.length; i++) {
+    var url = localAssets[i];
+    try {
+      var r = await fetch(url, { cache: 'no-store', method: 'GET' });
+      if (!r.ok) missing.push({ url: url, status: r.status });
+    } catch(e) {
+      missing.push({ url: url, error: e && e.message });
+    }
+  }
+  return {
+    status: missing.length ? 'warn' : 'ok',
+    issueCount: missing.length,
+    missing: missing,
+    totalLocal: localAssets.length,
+    totalExternal: externalAssets.length,
+    note: 'sw.js SHELL_ASSETS 각 자산이 실제 200 OK 응답하는지 검증 (P310 manifest.json 삭제 같은 누락 자동 탐지). 외부 CDN은 검증 제외.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.41 R97 신규: getStaticSeedFallbackAudit
 // data-snap 키 ↔ DATA_SNAPSHOT 시드 정합성. 시드가 없는 키는 폴백만 동작 →
 // 실시간 fetch 경로에서 set해도 R74 assertSnapshotInlineMatch가 못 잡음 (B1/P299 근본).

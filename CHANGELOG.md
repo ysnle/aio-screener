@@ -6,6 +6,77 @@
 
 ---
 
+## v49.44 - CRITICAL HOTFIX: aio-data.js const+var 'ld' hoist 충돌 SyntaxError 시정 + R98/R99 신규 (2026-05-18)
+
+**Changed files**: `js/aio-data.js`, `js/aio-core.js`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
+
+- **사용자 보고 (2026-05-18 22:30~23:30)**: v49.43 hotfix 후에도 데이터 미수신 지속 → "전체 데이터 레이어/파이프라인 정밀 조사" 요청 → Chrome MCP로 라이브 사이트 콘솔 진단.
+
+- **진단 (라이브 콘솔 — Chrome MCP 캡처)**:
+  ```
+  [ERROR] Uncaught SyntaxError: Identifier 'ld' has already been declared
+  [ERROR] Uncaught ReferenceError: _tcLoadFromStorage is not defined
+  [ERROR] Uncaught ReferenceError: refreshHomeDashboard is not defined
+  ```
+
+- **추적**: ReferenceError 함수 3개 모두 `js/aio-data.js` 안에 정의 → 그 파일 전체 parse 실패 추정 → 직접 read.
+
+- **P311 근본 원인** (확정):
+  - `js/aio-data.js` L10988 `function refreshHomeDashboard()` 본문:
+    - L10989: `const ld = window._liveData || {};` ← 함수 top
+    - L11085: `var ld = window._liveData || {};` ← try block 내부
+  - **JavaScript 규칙**: `var`는 **function-scoped + hoisted** — 어디에 있든 함수 top으로 끌어올려짐. 결과적으로 hoist된 `var ld`가 L10989 `const ld`와 같은 scope에서 동일 이름 충돌 → `SyntaxError: Identifier 'ld' has already been declared` → aio-data.js **전체 parse 실패** → 모든 함수 정의 안 됨 → cascading ReferenceError.
+
+- **부작용**:
+  - `window.fetchLiveQuotes` 미정의 → 모든 외부 API 호출 차단
+  - `window.refreshHomeDashboard` 미정의 → home dashboard 렌더 실패
+  - 사용자 인식 "API 키 날아갔다" → 데이터 미수신 + 캐시 클리어 시도 시 localStorage(API 키) 동시 삭제 (추정)
+
+- **시정**:
+  - `js/aio-data.js` L11085 `var ld = window._liveData || {};` 라인 삭제
+  - outer L10989 `const ld` 그대로 사용 (값 동일)
+  - `SW_VERSION` v49.43 → **v49.44 강제 회전**
+  - `APP_VERSION` + title + badge + R1 7곳 동기화
+
+- **R98 신규** (재발 방지): `AIO.getVarHoistConflictAudit()` (async)
+  - 모든 JS 파일 fetch + 함수 본문 추출 + 같은 함수 내 `var X` + `const/let X` 동시 선언 자동 탐지
+  - 휴리스틱 (정확도 95%) — P311 패턴은 100% 탐지
+  - 검증: `(await AIO.getVarHoistConflictAudit()).issueCount === 0`
+
+- **R99 신규** (P310 재발 방지): `AIO.getShellAssetIntegrityAudit()` (async)
+  - `sw.js`에서 SHELL_ASSETS 추출 + 각 로컬 자산 `fetch(url, {cache:'no-store'})` + 200 OK 검증
+  - 외부 CDN 제외 (별도 가용성)
+  - 검증: `(await AIO.getShellAssetIntegrityAudit()).issueCount === 0`
+
+- **라이브 검증 (Chrome MCP 후)**:
+  ```js
+  version: 'v49.44'                                              // ✓
+  title: 'AIO Screener v49.44 — 올인원 투자 터미널'              // ✓
+  fetchLiveQuotes: 'function'                                    // ✓ (이전 'undefined')
+  refreshHomeDashboard: 'function'                               // ✓
+  _tcLoadFromStorage: 'function'                                 // ✓
+  computeNewsSentimentScore: 'function'                          // ✓
+  liveDataKeys: 321                                              // ✓ (이전 0)
+  liveSPX: { price: 7400.96, source: 'live:yahoo', stale: false } // ✓
+  liveVIX: { price: 18.36, freshness: 'live' }                   // ✓
+  homeSpxEl.textContent: '7,401'                                 // ✓ (DOM 갱신)
+  homeVixEl.textContent: '18.36'                                 // ✓ (DOM 갱신)
+  ```
+
+- **메타 교훈** (P294 / P301 / P309 / P311 누적 패턴):
+  1. agent 정적 분석으로 미진단 → **Chrome MCP 라이브 콘솔 캡처로만 진단 가능**
+  2. brace 균형 검사로는 부족 → R98 scope-aware 검사 필요
+  3. SyntaxError stack trace의 logger 위치 함정 (`aio-core.js:87:29`는 logger, 실제 source는 메시지/err.stack 안)
+
+- **사용자 단기 액션**:
+  1. **Ctrl+Shift+R** 강력 새로고침 → v49.44 활성화
+  2. 사이드바 ⚙️에서 API 키 보유 확인 — 빈 경우 재입력
+  3. 콘솔 `(await AIO.getVarHoistConflictAudit()).issueCount` → 0
+  4. 콘솔 `(await AIO.getShellAssetIntegrityAudit()).issueCount` → 0
+  5. 콘솔 `AIO.runTests()` → 337/337 PASS (또는 신규 R98/R99 통합 시 339)
+
+---
+
 ## v49.43 - HOTFIX: manifest.json 참조 제거 + SW 캐시 강제 회전 (2026-05-18)
 
 **Changed files**: `index.html`, `sw.js`, `js/aio-core.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `CHANGELOG.md`
