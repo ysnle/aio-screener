@@ -6,6 +6,22 @@
 
 ---
 
+## v49.46 - R98 v2 정확도 보강 (Task #4 잔존 마무리) (2026-05-19)
+
+**Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
+
+- **사용자 요청**: "남은 작업 모두 진행해" → Task #4 (R98 휴리스틱 정확도 보강) 완료.
+- **v1 한계 (v49.44 / v49.45 시점)**: aio-core.js에 4건 false positive (`r`/`d`/`total`) — line-by-line 단일 lookahead로 nested function/IIFE 추적 부정확. 모두 다른 함수의 변수를 같은 scope로 잘못 그룹화.
+- **R98 v2 보강 4가지**:
+  1. **문자열/코멘트 sanitize** — `//` `/* */` 한 줄 코멘트 + single/double/template 문자열 리터럴 stripping → 문자열 안의 가짜 `{`/`}`/`function` 키워드 차단
+  2. **정확한 함수 stack push/pop** — 함수 본문 진입 depth(`openDepth = enterDepth + 1`) 기준. `curDepth < top.openDepth` 시점에 stack pop (함수 종료)
+  3. **함수 detection 보강** — `function NAME(args) {` + `(args) => {` + `get/set NAME(args) {` + `name(args) {` (object method shorthand) 모두 매칭
+  4. **var hoist 모델 정확 적용** — var는 enclosing function scope으로 hoist (block scope 통과) → const/let 동일 이름과 충돌 정확 탐지. global 선언도 별도 그룹.
+- **목표**: P311 패턴 100% 탐지 + false positive 0
+- **R1 7곳 동기화 v49.45 → v49.46**
+
+---
+
 ## v49.45 - API 키 저장 시스템 근본 보강 (P312 / R100 신규) (2026-05-19)
 
 **Changed files**: `js/aio-core.js`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
