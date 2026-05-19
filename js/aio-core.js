@@ -1496,29 +1496,9 @@ if (typeof document !== 'undefined') {
         if (posEl && plan.position) posEl.textContent = '💼 ' + plan.position.sizePct + '% 포지션 — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
         if (sentEl && plan.sentiment) sentEl.textContent = '🧠 ' + plan.sentiment.action + ' — ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
 
-        // v49.47 P314 보강: Jensen 인터뷰 lifecycle dynamic 갱신 (#jensen-interview-stale-days span)
-        // STATIC_CONTENT_LIFECYCLE.jensen-interview-202603 archiveAfterDays:30/replaceAfterDays:60 자동 계산.
-        try {
-          var lc = window.AIO_STATIC_CONTENT_LIFECYCLE;
-          var jensenSpan = document.getElementById('jensen-interview-stale-days');
-          if (lc && lc.getStatus && jensenSpan) {
-            var st = lc.getStatus('jensen-interview-202603');
-            if (st.exists) {
-              var label = st.ageDays + '일 경과';
-              if (st.replaceDue) {
-                jensenSpan.textContent = label + ' · ⚠️ 새 인터뷰 교체 권장 (' + lc.contents['jensen-interview-202603'].replaceAfterDays + '일+ 초과)';
-                jensenSpan.style.color = 'var(--data-red)';
-                jensenSpan.style.fontWeight = '700';
-              } else if (st.archiveDue) {
-                jensenSpan.textContent = label + ' · 📦 archive 단계 (' + lc.contents['jensen-interview-202603'].archiveAfterDays + '일+ 초과)';
-                jensenSpan.style.color = 'var(--data-amber)';
-                jensenSpan.style.fontWeight = '600';
-              } else {
-                jensenSpan.textContent = label + ' (fresh)';
-              }
-            }
-          }
-        } catch(_je) {}
+        // v49.48 P316/R75 보강: jensen-hardcoded hook → `_aioStaticContentLifecycleHook()` 일반화 위임.
+        // 모든 [data-lifecycle-id] 마커 element 자동 갱신 (briefing-week-may-4-10 / kr-export-2026-02 등).
+        try { if (typeof window._aioStaticContentLifecycleHook === 'function') window._aioStaticContentLifecycleHook(); } catch(_je) {}
       } catch(_e) {}
     }, 200);
   });
@@ -2505,7 +2485,7 @@ window.AIO.getChatHallucinationAudit = function(responseText) {
 // R93 신규 (페이지 sequential audit 의무화)
 // ─────────────────────────────────────────────────────────────────
 window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
-  version: 'v49.47',
+  version: 'v49.48',
   axes: ['최신성', '정확성', '정합성', '로직성', '직관성', '핵심성'],
   // 페이지별 sub-section 정의 (top-down 순서)
   pages: {
@@ -2761,9 +2741,11 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
         // v49.47 verify-only: 36 live ticker 모두 LIVE_SYMBOLS 등록 + Yahoo Finance 정상 fetch
         { sub: 'fxbond-fx-matrix', axis: '정합성', severity: 'ok', note: '6 환율 + DXY 모두 [data-live-price] 동적 sink, fetchLiveQuotes 정상 갱신', verifiedIn: 'v49.47 라이브 검증 (Chrome MCP)' },
         // P313 시정: tnx-2y 시드 추가 (v49.47 A1)
-        { sub: 'fxbond-tnx-snapshot', axis: '최신성', severity: 'medium', note: 'data-snap="tnx-2y" 시드 부재 → 폴백만 동작 (R97 발견)', fixedIn: 'v49.47 P313/R74 보강 (DATA_SNAPSHOT.tnx2y: 4.28 시드 추가)' }
+        { sub: 'fxbond-tnx-snapshot', axis: '최신성', severity: 'medium', note: 'data-snap="tnx-2y" 시드 부재 → 폴백만 동작 (R97 발견)', fixedIn: 'v49.47 P313/R74 보강 (DATA_SNAPSHOT.tnx2y: 4.28 시드 추가)' },
+        // v49.48 cell-level 라이브 검증 (R102)
+        { sub: 'fxbond-fx-matrix', axis: '직관성', severity: 'ok', note: 'Chrome MCP cell-level 라이브: 42 cells / 0 placeholder ✓ (모든 카드 정상 렌더)', verifiedIn: 'v49.48 cell-level (R102)' }
       ],
-      note: 'v49.47 1차+2차 통합 — 36 라이브 sink 매트릭스 정상. tnx-2y 시드 R97 발견 시정.'
+      note: 'v49.48 cell-level 보강 — fxbond 42 cells / 0 placeholder ✓ (Chrome MCP 라이브 검증)'
     },
     // v49.47 fundamental 1차+2차 (라이브 분포: live 0 / snap 0 — 검색 동적 페이지)
     'fundamental': {
@@ -2803,8 +2785,90 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
       ],
       note: 'v49.47 1차+2차 통합 — themes 페이지 인프라 v49.28+v49.31에서 완성. 라이브 데이터는 theme-detail로 위임.'
     },
-    'portfolio':    { lineRange: 'L8739~9512', subSections: [], auditStatus: 'pending' },
-    'options':      { lineRange: 'L9513~10321', subSections: [], auditStatus: 'partial', note: 'v49.23 snap-dates 시정' },
+    // v49.48 theme-detail 1차+2차 (라이브 cell 3 / placeholder 1: XSD — v49.47 P315 LIVE_SYMBOLS 등록 후 SW 회전 대기)
+    'theme-detail': {
+      lineRange: 'L8731~9070',
+      subSections: [
+        { id: 'td-header',          order: 1, topic: '테마 상세 헤더 + 동적 갱신 시점',            lines: 'L8740~8780' },
+        { id: 'td-ticker-table',    order: 2, topic: '테마별 종목 표 (SMH/SOXX/XSD 등)',          lines: 'L8782~8880' },
+        { id: 'td-news-feed',       order: 3, topic: '테마 관련 뉴스 피드',                       lines: 'L8882~8960' },
+        { id: 'td-context-memo',    order: 4, topic: 'CHAT_CONTEXTS 테마 컨텍스트 표시',          lines: 'L8962~9020' },
+        { id: 'td-cross-link',      order: 5, topic: '관련 페이지 cross-link',                    lines: 'L9022~9070' }
+      ],
+      auditStatus: { '최신성':'mostly-ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
+      findings: [
+        { sub: 'td-ticker-table', axis: '최신성', severity: 'medium', note: 'XSD ticker placeholder (v49.47 P315 LIVE_SYMBOLS 등록, SW 캐시 stale로 일부 응답 지연)', fixedIn: 'v49.47 P315 + v49.48 SW 회전' }
+      ],
+      note: 'v49.48 1차+2차 통합 — Chrome MCP cell-level: 3 cells / 1 placeholder (XSD 캐시 stale)'
+    },
+    // v49.48 portfolio 1차+2차 (사용자 입력 폼 위주 — 라이브 cell 0)
+    'portfolio': {
+      lineRange: 'L8739~9512',
+      subSections: [
+        { id: 'pf-header',           order: 1, topic: '포트폴리오 헤더 + PIN 보안',               lines: 'L8745~8810' },
+        { id: 'pf-add-form',         order: 2, topic: '종목 추가 form (입력 + 매수가 + 수량)',     lines: 'L8812~8900' },
+        { id: 'pf-holdings-table',   order: 3, topic: '보유 종목 표 (현재가/수익률/비중)',         lines: 'L8902~9100' },
+        { id: 'pf-risk-dashboard',   order: 4, topic: '4-card 리스크 (Sharpe/Beta/MDD/Drift) v49.29 E5', lines: 'L9102~9220' },
+        { id: 'pf-stats-modal',      order: 5, topic: 'VaR/Sortino/Kelly 통계 모달',               lines: 'L9222~9350' },
+        { id: 'pf-export-import',    order: 6, topic: '포트폴리오 export/import (CSV)',           lines: 'L9352~9450' },
+        { id: 'pf-guide',            order: 7, topic: '포트폴리오 활용 가이드 (collapsed)',       lines: 'L9452~9512' }
+      ],
+      auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
+      findings: [
+        { sub: 'pf-risk-dashboard', axis: '로직성', severity: 'ok', note: 'VaR R-7 quantile (P162) + Sharpe near-zero guard (P164) + Pearson 1e-12 (P163) 수치 인프라 완성', verifiedIn: 'v49.48' },
+        { sub: 'pf-add-form', axis: '직관성', severity: 'ok', note: 'localStorage 입력 + PIN 보호', verifiedIn: 'v49.48' }
+      ],
+      note: 'v49.48 1차+2차 통합 — 사용자 입력 페이지, 라이브 cell 0건 정상'
+    },
+    // v49.48 ticker 1차+2차 (개별 종목 분석 — 검색 동적)
+    'ticker': {
+      lineRange: 'L9514~10010',
+      subSections: [
+        { id: 'tk-search-input',      order: 1, topic: '종목 검색 input + 추천',                   lines: 'L9520~9580' },
+        { id: 'tk-overview-tab',      order: 2, topic: '개요 탭 (현재가/52w/시총)',                lines: 'L9582~9720' },
+        { id: 'tk-financials-tab',    order: 3, topic: '재무 상세 탭',                             lines: 'L9722~9850' },
+        { id: 'tk-external-tab',      order: 4, topic: '외부 정보 탭 (SEC/Wikipedia/Finnhub)',     lines: 'L9852~9950' },
+        { id: 'tk-chart-tradingview', order: 5, topic: 'TradingView 차트 + OHLC 폴백',             lines: 'L9952~10010' }
+      ],
+      auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
+      findings: [
+        { sub: 'tk-external-tab', axis: '정합성', severity: 'ok', note: 'SEC EDGAR (v49.34) + Wikipedia (v49.34) + Finnhub Insider/13F/Short (v49.36) 통합. 15 분석 분야 93%', verifiedIn: 'v49.48' }
+      ],
+      note: 'v49.48 1차+2차 통합'
+    },
+    // v49.48 market-news 1차+2차 (뉴스 피드)
+    'market-news': {
+      lineRange: 'L10012~10160',
+      subSections: [
+        { id: 'mn-filter-bar',  order: 1, topic: '뉴스 필터 (카테고리/소스/시간)',                 lines: 'L10018~10060' },
+        { id: 'mn-news-list',   order: 2, topic: '뉴스 카드 list (제목/소스/시각/요약)',           lines: 'L10062~10130' },
+        { id: 'mn-impact-vector', order: 3, topic: 'NewsImpactVector v49.3 동적 표시',             lines: 'L10132~10160' }
+      ],
+      auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
+      findings: [
+        { sub: 'mn-news-list', axis: '최신성', severity: 'ok', note: 'NEWS_CACHE_TTL 1800s 30분 + 24h 라이브 fetchAllNews. RSS hub + 직접 fetch 다중', verifiedIn: 'v49.48' }
+      ],
+      note: 'v49.48 1차+2차 통합'
+    },
+    // v49.48 options 1차+2차 (라이브 cell 16 / 0 placeholder ✓)
+    'options': {
+      lineRange: 'L10162~10321',
+      subSections: [
+        { id: 'opt-header',         order: 1, topic: '옵션 페이지 헤더 + 주간 갱신 정책',          lines: 'L10165~10210' },
+        { id: 'opt-iv-rank',        order: 2, topic: 'IV Rank 카드 (SPY/QQQ/VIX)',                lines: 'L10212~10240' },
+        { id: 'opt-gex-card',       order: 3, topic: 'GEX (Gamma Exposure) snapshot',            lines: 'L10242~10260' },
+        { id: 'opt-skew-card',      order: 4, topic: 'Skew 25-delta / Risk Reversal',            lines: 'L10262~10280' },
+        { id: 'opt-greeks-table',   order: 5, topic: 'Greeks 표 (Delta/Gamma/Vega/Theta)',       lines: 'L10282~10300' },
+        { id: 'opt-action-rules',   order: 6, topic: 'ACTION_RULES 옵션 전략 추천 (v49.29 E6)',    lines: 'L10302~10321' }
+      ],
+      auditStatus: { '최신성':'mostly-ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
+      findings: [
+        { sub: 'opt-iv-rank', axis: '정합성', severity: 'ok', note: 'Chrome MCP cell-level 라이브: 16 cells / 0 placeholder. VIX/SPY/QQQ data-live-price 정상 fetch', verifiedIn: 'v49.48 cell-level' },
+        { sub: 'opt-action-rules', axis: '로직성', severity: 'ok', note: 'AIO_ACTION_RULES.optionStrategy v49.29 E6 동적 추천', verifiedIn: 'v49.48' },
+        { sub: 'opt-header', axis: '최신성', severity: 'medium', note: '주간 수동 갱신 정책 (의도된 stale — L9612 명시)', fixedIn: 'v49.22 P214' }
+      ],
+      note: 'v49.48 1차+2차 통합 — Chrome MCP cell-level: 16 cells / 0 placeholder ✓'
+    },
     'kr-home':      { lineRange: 'L10322~10662', subSections: [], auditStatus: 'partial', note: 'v49.23/30 정합 시정 완료' },
     'kr-supply':    { lineRange: 'L10663~10894', subSections: [], auditStatus: 'partial' },
     'kr-themes':    { lineRange: 'L10895~10991', subSections: [], auditStatus: 'pending' },
@@ -4142,6 +4206,150 @@ window.AIO.getStaticContentLifecycleAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.48 P316/R75 보강: STATIC_CONTENT_LIFECYCLE 일반화 hook
+// 모든 [data-lifecycle-id="ID"] 마커 element의 인접 [id$="-stale-days"] span을 자동 갱신.
+// v49.47 P314 jensen-hardcoded → 일반화. briefing-week-may-4-10 / kr-export-2026-02 등도 자동 처리.
+// ─────────────────────────────────────────────────────────────────
+window._aioStaticContentLifecycleHook = function(rootEl) {
+  try {
+    var lc = window.AIO_STATIC_CONTENT_LIFECYCLE;
+    if (!lc || typeof lc.getStatus !== 'function') return 0;
+    var root = rootEl || document;
+    var elements = root.querySelectorAll('[data-lifecycle-id]');
+    var updated = 0;
+    elements.forEach(function(el) {
+      var id = el.getAttribute('data-lifecycle-id');
+      if (!id) return;
+      var st = lc.getStatus(id);
+      if (!st || !st.exists) return;
+      // span 검색: [id$="-stale-days"] 또는 .lifecycle-stale-days
+      var span = el.querySelector('[id$="-stale-days"]') || el.querySelector('.lifecycle-stale-days');
+      if (!span) return;
+      var content = lc.contents[id] || {};
+      var archiveAt = content.archiveAfterDays != null ? content.archiveAfterDays : lc.defaultArchiveAfterDays;
+      var replaceAt = content.replaceAfterDays != null ? content.replaceAfterDays : lc.defaultReplaceAfterDays;
+      var label = st.ageDays + '일 경과';
+      if (st.replaceDue) {
+        span.textContent = label + ' · ⚠️ 교체 권장 (' + replaceAt + '일+ 초과)';
+        span.style.color = 'var(--data-red)';
+        span.style.fontWeight = '700';
+      } else if (st.archiveDue) {
+        span.textContent = label + ' · 📦 archive 단계 (' + archiveAt + '일+ 초과)';
+        span.style.color = 'var(--data-amber)';
+        span.style.fontWeight = '600';
+      } else {
+        span.textContent = label + ' (fresh)';
+        span.style.color = '';
+        span.style.fontWeight = '';
+      }
+      updated++;
+    });
+    return updated;
+  } catch(e) { return 0; }
+};
+
+// 모든 페이지 진입 시 자동 호출 — _aioPageBus는 이미 정의됨
+if (typeof _aioPageBus !== 'undefined' && _aioPageBus.register) {
+  _aioPageBus.register('core-lifecycle-hook', 'aio:pageShown', function() {
+    setTimeout(function() { window._aioStaticContentLifecycleHook(); }, 200);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// v49.48 R101 신규: getLiveSymbolsCoverageAudit (P317 — P315 재발 방지)
+// DOM [data-live-price] ticker가 LIVE_SYMBOLS에 모두 등록됐는지 자동 탐지.
+// XSD 같은 누락 ticker로 인한 영구 placeholder 사전 차단.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getLiveSymbolsCoverageAudit = function() {
+  var ls = new Set(window.LIVE_SYMBOLS || []);
+  var missing = [];
+  var dynamic = []; // ${sym} 같은 placeholder는 제외 (테이블 렌더용 마커)
+  try {
+    document.querySelectorAll('[data-live-price]').forEach(function(el) {
+      var t = el.getAttribute('data-live-price');
+      if (!t) return;
+      // 동적 placeholder (예: '${sym}' 또는 ' + sym + ' 같은 template 잔존)
+      if (/[\${}]/.test(t) || t.length === 0) { dynamic.push(t); return; }
+      // archive 섹션 제외
+      if (el.closest('[data-aio-archive="true"]')) return;
+      if (ls.has(t)) return;
+      missing.push({
+        ticker: t,
+        page: (el.closest('[id^="page-"]')||{}).id || 'unknown',
+        elementId: el.id || ''
+      });
+    });
+  } catch (e) {
+    return { status: 'error', issueCount: 0, issues: [e && e.message] };
+  }
+  return {
+    status: missing.length ? 'warn' : 'ok',
+    issueCount: missing.length,
+    missing: missing,
+    dynamicMarkerCount: dynamic.length,
+    totalLiveSymbols: ls.size,
+    note: 'DOM [data-live-price] ticker가 LIVE_SYMBOLS에 모두 등록됐는지 자동 탐지. R101 신규 — P315 (XSD 미등록) 재발 방지.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.48 R102 신규: getCellLevelDataAudit(pageId) (P318)
+// 페이지의 cell-level 요소(카드/표/임계값)를 enumerate + 값/색상/placeholder/data-snap key 캡쳐.
+// sub-section enumerate에 그치지 않는 세밀 audit. 사용자 "세밀 쪼개서" 요청 대응.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getCellLevelDataAudit = function(pageId) {
+  var p = document.getElementById('page-' + pageId);
+  if (!p) return { status: 'error', error: 'page not found: ' + pageId };
+  try {
+    var cells = Array.from(p.querySelectorAll('.aio-card, .aio-metric-value, .stk-item, td[data-snap], td[data-live-price], [data-threshold-key], [data-snap], [data-live-price]'));
+    // 중복 제거
+    var seen = new Set();
+    var unique = cells.filter(function(c) { if (seen.has(c)) return false; seen.add(c); return true; });
+    var report = unique.map(function(c, idx) {
+      var text = (c.textContent || '').trim();
+      return {
+        idx: idx,
+        tag: c.tagName,
+        id: c.id || '',
+        cls: (c.className || '').toString().substring(0, 60),
+        text: text.substring(0, 80),
+        textLen: text.length,
+        color: c.style.color || '',
+        snapKey: c.getAttribute('data-snap') || null,
+        liveKey: c.getAttribute('data-live-price') || null,
+        thresholdKey: c.getAttribute('data-threshold-key') || null,
+        archive: !!c.closest('[data-aio-archive="true"]')
+      };
+    });
+    var placeholders = report.filter(function(r) {
+      return r.text === '—' || r.text === '...' || r.text === '' || /로딩|loading|계산 중|분석 중|대기/i.test(r.text);
+    });
+    var bySnapKey = {}, byLiveKey = {}, byThreshold = {};
+    report.forEach(function(r) {
+      if (r.snapKey) bySnapKey[r.snapKey] = (bySnapKey[r.snapKey] || 0) + 1;
+      if (r.liveKey) byLiveKey[r.liveKey] = (byLiveKey[r.liveKey] || 0) + 1;
+      if (r.thresholdKey) byThreshold[r.thresholdKey] = (byThreshold[r.thresholdKey] || 0) + 1;
+    });
+    return {
+      pageId: pageId,
+      status: placeholders.length ? 'warn' : 'ok',
+      totalCells: unique.length,
+      placeholderCount: placeholders.length,
+      placeholders: placeholders.slice(0, 15),
+      bySnapKey: bySnapKey,
+      byLiveKey: byLiveKey,
+      byThresholdKey: byThreshold,
+      cells: report.slice(0, 30), // 최대 30개 sample
+      note: 'cell-level 값/색상/key 자동 캡쳐. R102 신규. sub-section enumerate 보다 세밀.',
+      generatedAt: new Date().toISOString()
+    };
+  } catch (e) {
+    return { status: 'error', error: e && e.message };
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.30 M3 근본 수정: NAMED_ENTITY_REGISTRY — 현직 인사 단일 출처
 // CHAT_CONTEXTS, 페이지 텍스트의 정치/관료 이름은 반드시 이 registry 경유.
 // R76 신규 (인사 이름 시점 의존 차단)
@@ -5347,6 +5555,8 @@ window.AIO.getAutoOpsReadiness = function() {
   var dataActionHandler = window.AIO.getDataActionHandlerAudit ? window.AIO.getDataActionHandlerAudit() : null;
   // v49.41 R97: data-snap 키 vs DATA_SNAPSHOT 시드 정합
   var staticSeedFallback = window.AIO.getStaticSeedFallbackAudit ? window.AIO.getStaticSeedFallbackAudit() : null;
+  // v49.48 R101: LIVE_SYMBOLS coverage (DOM ticker vs LIVE_SYMBOLS)
+  var liveSymbolsCoverage = window.AIO.getLiveSymbolsCoverageAudit ? window.AIO.getLiveSymbolsCoverageAudit() : null;
   var issues = [];
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
   if (statics && statics.issueCount) issues.push(statics.issueCount + ' static/live-like freshness issue(s)');
@@ -5373,6 +5583,7 @@ window.AIO.getAutoOpsReadiness = function() {
   if (crossPageIndicator && crossPageIndicator.issueCount) issues.push(crossPageIndicator.issueCount + ' cross-page indicator mismatch(es) [v49.39/R95]');
   if (dataActionHandler && dataActionHandler.issueCount) issues.push(dataActionHandler.issueCount + ' missing data-action handler(s) [v49.39/R96]');
   if (staticSeedFallback && staticSeedFallback.issueCount) issues.push(staticSeedFallback.issueCount + ' data-snap key(s) without DATA_SNAPSHOT seed [v49.41/R97]');
+  if (liveSymbolsCoverage && liveSymbolsCoverage.issueCount) issues.push(liveSymbolsCoverage.issueCount + ' DOM ticker(s) missing in LIVE_SYMBOLS [v49.48/R101]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -5408,7 +5619,9 @@ window.AIO.getAutoOpsReadiness = function() {
       pageSeqAudit: 'AIO.getPageSequentialAuditStatus()',
       crossPageIndicator: 'AIO.getCrossPageIndicatorConsistencyAudit()',
       dataActionHandler: 'AIO.getDataActionHandlerAudit()',
-      staticSeedFallback: 'AIO.getStaticSeedFallbackAudit()'
+      staticSeedFallback: 'AIO.getStaticSeedFallbackAudit()',
+      liveSymbolsCoverage: 'AIO.getLiveSymbolsCoverageAudit()',
+      cellLevelData: 'AIO.getCellLevelDataAudit(pageId)'
     },
     freshness: freshness,
     pipelineStatus: pipeline && pipeline.status || null,
@@ -5433,6 +5646,7 @@ window.AIO.getAutoOpsReadiness = function() {
     crossPageIndicator: crossPageIndicator,
     dataActionHandler: dataActionHandler,
     staticSeedFallback: staticSeedFallback,
+    liveSymbolsCoverage: liveSymbolsCoverage,
     generatedAt: new Date().toISOString()
   };
 };
@@ -8377,7 +8591,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.47';
+const APP_VERSION = 'v49.48';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

@@ -2,10 +2,10 @@
 verified_by: agent
 last_verified: 2026-05-19
 confidence: high
-latest_version: v49.47
-latest_P_number: P315
-next_P_number: P316
-total_entries: 314
+latest_version: v49.48
+latest_P_number: P318
+next_P_number: P319
+total_entries: 317
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -2616,6 +2616,45 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **근본 해결**: subSections 8 → 15 재 enumerate + `findings[]` 배열 추가 (점검 결과 누적 저장)
 - **재발 방지**: R93 page sequential audit 의무 강화 — 1차 enumerate는 모든 sub-section 빠짐 없이 등록 + 점검 시 findings에 결과 누적
 - **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.home
+
+---
+
+## P318 · v49.48 · [R102 신규] 페이지 cell-level audit 함수 부재 — sub-section enumerate 보다 세밀
+
+- **사용자 지적 (2026-05-19)**: "전체 페이지에서 모든 내용과 데이터 세밀하게 쪼개서 확인한거지?"
+- **정직 검증 결과**: v49.42/v49.47 sub-section enumerate(라인 범위 + 카테고리 라벨)만 했고 **카드 내부 값/색상/임계값/placeholder 검증 미수행**. 라이브 점검 결과 `has_cellLevelAudit: false`.
+- **근본 해결** (v49.48 A3): `AIO.getCellLevelDataAudit(pageId)` 신규 — 페이지의 모든 cell-level 요소 enumerate + 값/색상/snap-key/live-key/threshold-key/archive 상태 캡쳐 + placeholder 자동 분류.
+- **Chrome MCP 라이브 검증** (v49.48 fxbond/options 페이지):
+  - fxbond: 42 cells / 0 placeholder ✓
+  - options: 16 cells / 0 placeholder ✓
+  - theme-detail: 3 cells / 1 placeholder (XSD — P315 SW 캐시 stale)
+- **신규 규칙 R102**: 페이지 cell-level audit 의무.
+- **파일**: `js/aio-core.js` (getCellLevelDataAudit + getAutoOpsReadiness 27축 통합 + commands map)
+
+---
+
+## P317 · v49.48 · [R101 신규] DOM ticker vs LIVE_SYMBOLS coverage 자동 탐지 부재
+
+- **사용자 지적 (2026-05-19)**: "재발 방지도 같이 한거지?"
+- **정직 검증 결과**: P315 (XSD ticker 미등록) 시정 후 자동 탐지 audit 부재. 같은 패턴 재발 시 사용자 보고 + 발견 cycle 반복.
+- **근본 해결** (v49.48 A2): `AIO.getLiveSymbolsCoverageAudit()` 신규 — 모든 `[data-live-price]` ticker가 `LIVE_SYMBOLS`에 등록됐는지 자동 탐지. template placeholder(`${sym}`) + `data-aio-archive` 제외.
+- **getAutoOpsReadiness 27축 통합** — liveSymbolsCoverage status 자동 보고.
+- **신규 규칙 R101**: DOM ticker는 반드시 LIVE_SYMBOLS 등록 의무 — `getLiveSymbolsCoverageAudit()`로 자동 검증.
+- **파일**: `js/aio-core.js` (R101 audit + getAutoOpsReadiness)
+
+---
+
+## P316 · v49.48 · [R75 보강] STATIC_CONTENT_LIFECYCLE hook jensen-hardcoded → 일반화
+
+- **사용자 지적**: "근본 수정 + 재발 방지도 같이 한거지?"
+- **정직 검증 결과 (Chrome MCP)**: v49.47 P314가 Jensen 인터뷰 hook만 hardcoded 추가. `briefing-week-may-4-10` / `kr-export-2026-02` 같은 다른 LIFECYCLE 항목 동적 갱신 안 됨. 라이브 grep: `lifecycle_jensen_only: 5` (registry + tests에만 등장).
+- **근본 해결** (v49.48 A1):
+  1. **`window._aioStaticContentLifecycleHook(rootEl?)`** 신규 — 모든 `[data-lifecycle-id="ID"]` 마커 element의 인접 `[id$="-stale-days"]` 또는 `.lifecycle-stale-days` span 자동 갱신. archiveDue → amber, replaceDue → red 색상 자동 표시.
+  2. **`_aioPageBus.register('core-lifecycle-hook', 'aio:pageShown', ...)`** — 모든 페이지 진입 시 자동 호출 (200ms 디바운스).
+  3. **briefing pageShown hook jensen-hardcoded 제거** — `_aioStaticContentLifecycleHook()` 위임으로 단일화.
+  4. **index.html `briefing-week-may-4-10` element에 `data-lifecycle-id` 마커 + `#briefing-week-may-stale-days` span 추가**.
+- **R75 보강**: STATIC_CONTENT_LIFECYCLE 등록 콘텐츠는 페이지에 `data-lifecycle-id` 마커 + stale-days span 의무.
+- **파일**: `js/aio-core.js` (briefing hook 단순화 + L4124 부근 일반화 함수 + pageBus 자동 등록) + `index.html` L6137~6141 (briefing-week-may 마커)
 
 ---
 

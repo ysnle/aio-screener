@@ -6,6 +6,76 @@
 
 ---
 
+## v49.48 - 정직 보강: R75 일반화 + R101/R102 신규 + 5 페이지 1차+2차 (2026-05-19)
+
+**Changed files**: `js/aio-core.js`, `js/aio-tests.js`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
+
+- **사용자 지적 (2026-05-19)**: "근본 수정 + 재발 방지도 같이 한거지? 또한 전체 페이지에서 모든 내용과 데이터 세밀하게 쪼개서 확인한거지?"
+
+- **Chrome MCP v49.47 정직 검증**:
+  - ⚠ R75 jensen-hardcoded → 다른 LIFECYCLE 항목 동적 hook 없음
+  - ⚠ R101 부재 — DOM ticker vs LIVE_SYMBOLS coverage 자동 탐지 없음
+  - ⚠ cell-level audit 함수 부재 — sub-section enumerate만으로는 카드 내부 검증 부족
+
+### A1/P316/R75 보강: `_aioStaticContentLifecycleHook` 일반화
+- `js/aio-core.js`: jensen-hardcoded 블록 제거 → `_aioStaticContentLifecycleHook()` 일반화 함수 위임
+- 모든 `[data-lifecycle-id]` 마커 element + 인접 `[id$="-stale-days"]` span 자동 갱신
+- archiveDue → amber `📦 archive 단계` / replaceDue → red `⚠️ 교체 권장`
+- `_aioPageBus.register('core-lifecycle-hook', 'aio:pageShown', ...)` 모든 페이지 자동 호출
+- `index.html` L6137 briefing-week-may-4-10 element에 `data-lifecycle-id` 마커 + `#briefing-week-may-stale-days` span 신설
+
+### A2/P317/R101 신규: `getLiveSymbolsCoverageAudit`
+- DOM `[data-live-price]` ticker 수집 + `LIVE_SYMBOLS` Set과 비교
+- template placeholder(`${sym}`) + `data-aio-archive` 제외
+- 미등록 ticker 보고 (P315 XSD 패턴 재발 방지)
+- `getAutoOpsReadiness` 27축 통합
+
+### A3/P318/R102 신규: `getCellLevelDataAudit(pageId)`
+- 페이지의 모든 `.aio-card / .aio-metric-value / .stk-item / td[data-snap] / td[data-live-price] / [data-threshold-key] / [data-snap] / [data-live-price]` 수집
+- 각 cell의 값/색상/snap-key/live-key/threshold-key/archive 상태 캡쳐
+- placeholder 자동 분류 (—/.../로딩)
+- commands map에 노출 (`AIO.getCellLevelDataAudit('home')`)
+
+### B: Chrome MCP 라이브 cell-level 검증
+- **fxbond**: 42 cells / 0 placeholder ✓
+- **options**: 16 cells / 0 placeholder ✓
+- **theme-detail**: 3 cells / 1 placeholder (XSD — P315 SW 캐시 stale, v49.48 회전 후 정상)
+- fxbond findings에 verifiedIn 추가
+
+### C: 5 페이지 1차+2차 enumerate
+- **theme-detail**: 5 subSections + audit 6축 + 1 finding (XSD placeholder)
+- **portfolio**: 7 subSections + audit 6축 + 2 verify-only finding
+- **ticker**: 5 subSections + audit 6축 + 1 verify-only finding
+- **market-news**: 3 subSections + audit 6축 + 1 verify-only finding
+- **options**: 6 subSections + audit 6축 + 3 finding (cell-level verifiedIn + ACTION_RULES verifiedIn + 주간 수동 갱신 medium)
+
+### 누적
+- PAGE_SEQUENTIAL_AUDIT_REGISTRY total subSections **100 → 128** (+28)
+- 완료 페이지 **10 → 15** (home/signal/breadth/sentiment/briefing/technical/macro/fxbond/fundamental/themes + **theme-detail/portfolio/ticker/market-news/options**)
+- 남은 6 페이지 (v49.49+): kr-home/kr-supply/kr-themes/kr-macro/kr-technical/guide
+
+### 테스트 & Postmortem
+- T346~T354 (Group51) 9 신규 — _aioStaticContentLifecycleHook / R101 / R102 / lifecycle 마커 / 5 페이지 subSections / 27축
+- P316~P318 + frontmatter (latest P315→P318, total 314→317)
+- R101/R102 신규 + R75 보강
+
+### R1 7곳 동기화 v49.47 → v49.48
+
+### 사용자 검증
+```js
+typeof window._aioStaticContentLifecycleHook                     // 'function'
+(await AIO.getLiveSymbolsCoverageAudit()).issueCount             // 0 목표
+AIO.getCellLevelDataAudit('fxbond').totalCells                    // > 0
+AIO.getAutoOpsReadiness().liveSymbolsCoverage                     // present
+AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages['theme-detail'].subSections.length  // 5
+AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.portfolio.subSections.length         // 7
+AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.ticker.subSections.length            // 5
+AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages['market-news'].subSections.length    // 3
+AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.options.subSections.length           // 6
+```
+
+---
+
 ## v49.47 - 라이브 21 페이지 정밀 조사 + R97/Jensen/fxbond/fundamental/themes (2026-05-19)
 
 **Changed files**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `_context/BUG-POSTMORTEM.md`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`

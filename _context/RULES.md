@@ -1213,6 +1213,54 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R102. 페이지 cell-level audit 의무 (v49.48 추가, P318 근본)
+
+**원칙**: sub-section enumerate(라인 범위 + 카테고리 라벨)에 그치지 않고, 페이지의 모든 카드/표/임계값 cell-level **값/색상/placeholder/key** 검증 의무.
+
+**근거 (P318)**: 사용자 "각각의 페이지에서 모든 내용과 데이터 세밀하게 쪼개서 확인" 요구. v49.42/v49.47 sub-section enumerate만으로는 카드 내부 검증 부족 — placeholder 영구 표시, 색상 vs 임계값 모순, snap-key 등록 누락이 sub-section 단위로 잡히지 않음.
+
+**구조**: `AIO.getCellLevelDataAudit(pageId)`
+- 페이지의 모든 `.aio-card / .aio-metric-value / .stk-item / td[data-snap] / td[data-live-price] / [data-threshold-key] / [data-snap] / [data-live-price]` 요소 수집
+- 각 cell의 값/색상/snap-key/live-key/threshold-key/archive 상태 캡쳐
+- placeholder (—/.../로딩 등) 자동 분류
+
+**검증**: `AIO.getCellLevelDataAudit('home').placeholderCount === 0`
+
+**위반 시**: 사용자가 영구 placeholder를 보거나 임계값과 색상 모순 발견.
+
+---
+
+## R101. DOM ticker vs LIVE_SYMBOLS coverage 의무 (v49.48 추가, P317 근본)
+
+**원칙**: 페이지에 `[data-live-price="TICKER"]` 추가 시 **반드시** `LIVE_SYMBOLS`에 등록.
+
+**근거 (P317/P315)**: theme-detail의 `XSD` ticker가 LIVE_SYMBOLS 미등록 상태로 인해 영구 `—` placeholder. P315 시정(LIVE_SYMBOLS 등록)했으나 자동 탐지 audit 부재로 사전 차단 못함.
+
+**구조**: `AIO.getLiveSymbolsCoverageAudit()`
+- 모든 `[data-live-price]` ticker 수집
+- `LIVE_SYMBOLS` Set과 비교
+- 미등록 ticker (template placeholder `${sym}` 제외, `data-aio-archive` 제외) 보고
+
+**검증**: `AIO.getLiveSymbolsCoverageAudit().issueCount === 0` + `getAutoOpsReadiness().liveSymbolsCoverage.issueCount === 0`
+
+**위반 시**: 사용자가 페이지에서 영구 `—` placeholder 표시.
+
+---
+
+## R75 보강 (v49.48, P316 근본 — Jensen hardcoded → 일반화)
+
+**기존 R75 (v49.30)**: 정적 콘텐츠 lifecycle 메타 부착 의무 (`createdAt` + `archiveAfterDays` + `replaceAfterDays`).
+
+**v49.48 보강**: lifecycle 콘텐츠는 페이지에 `data-lifecycle-id="ID"` 마커 부착 + `[id$="-stale-days"]` 또는 `.lifecycle-stale-days` span 신설. `_aioStaticContentLifecycleHook()`이 모든 페이지 진입 시 자동 갱신.
+
+**근거 (P316)**: v49.42 P304 시정 후 Jensen 인터뷰 `#jensen-interview-stale-days` span을 채우는 hook이 페이지 진입 시 호출되지 않아 v49.47 P314까지 영구 "경과 계산중" 표시. v49.47에서 Jensen 전용 hardcoded hook 추가했으나 `briefing-week-may-4-10` / `kr-export-2026-02` 같은 다른 LIFECYCLE 항목은 여전히 갱신 안 됨.
+
+**시정**: v49.48 P316 — `_aioStaticContentLifecycleHook()` 일반화 + `_aioPageBus 'aio:pageShown'` 모든 페이지 자동 호출.
+
+**위반 시**: STATIC_CONTENT_LIFECYCLE 등록 콘텐츠가 페이지에 표시되지만 동적 갱신 안 됨 (영구 stale label).
+
+---
+
 ## R100. API 키 저장 2중화 + 백업/복원 UX 의무 (v49.45 추가, P312 근본)
 
 **원칙**: API 키 저장은 **반드시** 다음 모두 만족:

@@ -1511,9 +1511,59 @@
       pages && pages.themes && Array.isArray(pages.themes.subSections) && pages.themes.subSections.length === 8,
       'count=' + (pages && pages.themes && pages.themes.subSections ? pages.themes.subSections.length : '?'));
 
-    // T345: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.47
-    _assert('T345 page_seq_audit_v4947: version v49.47',
-      pageReg && pageReg.version === 'v49.47', 'ver=' + (pageReg ? pageReg.version : '?'));
+    // T345: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.47+
+    _assert('T345 page_seq_audit_version: v49.47 또는 신규',
+      pageReg && /v49\.(4[7-9]|[5-9]\d)/.test(pageReg.version), 'ver=' + (pageReg ? pageReg.version : '?'));
+  }
+
+  // ── Group51: v49.48 인프라 일반화 (R75/R101/R102) + 5 페이지 1차+2차 ─────
+  function _testV4948InfraGeneralization() {
+    // T346 (R75 보강): _aioStaticContentLifecycleHook 일반화 함수 정의
+    _assert('T346 lifecycle_hook_generalized: window._aioStaticContentLifecycleHook function',
+      typeof window._aioStaticContentLifecycleHook === 'function',
+      'typeof=' + typeof window._aioStaticContentLifecycleHook);
+
+    // T347 (R101 신규): getLiveSymbolsCoverageAudit 호출 가능 + 구조
+    var lcv = window.AIO && window.AIO.getLiveSymbolsCoverageAudit && window.AIO.getLiveSymbolsCoverageAudit();
+    _assert('T347 r101_live_coverage_audit: 호출 가능 + structure',
+      lcv && typeof lcv.issueCount === 'number' && Array.isArray(lcv.missing) && typeof lcv.totalLiveSymbols === 'number',
+      lcv ? 'issueCount=' + lcv.issueCount + ' total=' + lcv.totalLiveSymbols : 'missing');
+
+    // T348 (R102 신규): getCellLevelDataAudit 호출 가능 + fxbond cells > 0
+    var cl = window.AIO && window.AIO.getCellLevelDataAudit && window.AIO.getCellLevelDataAudit('fxbond');
+    _assert('T348 r102_cell_level_audit: fxbond cells > 0',
+      cl && typeof cl.totalCells === 'number' && cl.totalCells > 0,
+      cl ? 'totalCells=' + cl.totalCells + ' placeholders=' + cl.placeholderCount : 'missing');
+
+    // T349 (P316 일반화): briefing-week-may-4-10 element data-lifecycle-id 마커
+    var brWeekEl = document.querySelector('[data-lifecycle-id="briefing-week-may-4-10"]');
+    _assert('T349 briefing_week_lifecycle_marker: data-lifecycle-id 마커',
+      !!brWeekEl, brWeekEl ? 'OK' : 'marker missing');
+
+    // T350~T354: 5 페이지 subSections enumerate
+    var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
+    var pgs = pageReg && pageReg.pages;
+    _assert('T350 theme_detail_subsections_5: enumerate',
+      pgs && pgs['theme-detail'] && Array.isArray(pgs['theme-detail'].subSections) && pgs['theme-detail'].subSections.length === 5,
+      'count=' + (pgs && pgs['theme-detail'] && pgs['theme-detail'].subSections ? pgs['theme-detail'].subSections.length : '?'));
+
+    _assert('T351 portfolio_subsections_7: enumerate',
+      pgs && pgs.portfolio && Array.isArray(pgs.portfolio.subSections) && pgs.portfolio.subSections.length === 7,
+      'count=' + (pgs && pgs.portfolio && pgs.portfolio.subSections ? pgs.portfolio.subSections.length : '?'));
+
+    _assert('T352 ticker_subsections_5: enumerate',
+      pgs && pgs.ticker && Array.isArray(pgs.ticker.subSections) && pgs.ticker.subSections.length === 5,
+      'count=' + (pgs && pgs.ticker && pgs.ticker.subSections ? pgs.ticker.subSections.length : '?'));
+
+    _assert('T353 options_subsections_6: enumerate',
+      pgs && pgs.options && Array.isArray(pgs.options.subSections) && pgs.options.subSections.length === 6,
+      'count=' + (pgs && pgs.options && pgs.options.subSections ? pgs.options.subSections.length : '?'));
+
+    // T354 getAutoOpsReadiness 27축 (liveSymbolsCoverage 통합)
+    var ops = window.AIO.getAutoOpsReadiness();
+    _assert('T354 autoOps_27_axes: liveSymbolsCoverage 통합',
+      ops && ops.liveSymbolsCoverage && typeof ops.liveSymbolsCoverage.issueCount === 'number',
+      ops && ops.liveSymbolsCoverage ? 'has=true' : 'missing');
   }
 
   // ── Group46: v49.38 home 2차 깊이 점검 + 인라인 임계값 표 audit ─────────
@@ -2582,6 +2632,7 @@
     try { _testV4941SignalBreadthDeepAudit(); } catch(e) { console.error('Group48 error:', e); }
     try { _testV4942FourPagesAudit(); } catch(e) { console.error('Group49 error:', e); }
     try { _testV4947FxbondFundamentalThemesAudit(); } catch(e) { console.error('Group50 error:', e); }
+    try { _testV4948InfraGeneralization(); } catch(e) { console.error('Group51 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -2612,6 +2663,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.47 loaded - run AIO.runTests() (T1~T345)');
+  console.log('[AIO] aio-tests.js v49.48 loaded - run AIO.runTests() (T1~T354)');
 
 })();
