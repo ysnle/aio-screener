@@ -1845,7 +1845,7 @@ window.addEventListener('offline', () => {
 // ── Browser back/forward support ──────────────────────────────────────
 // popstate only available outside sandboxed iframes
 // v30.14: popstate 핸들러 — 전체 9개 페이지 reinit (기존 3개만 있어서 6개 누락 수정)
-try { window.addEventListener('popstate', (e) => {
+try { if (!window._aioPopstateRegistered) window.addEventListener('popstate', (e) => {
   var id = e.state?.page || (location.hash.slice(1)) || 'home';
   // v34.5: 해시 별칭 매핑
   var _ha = { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'kr-home', 'kr-theme': 'kr-themes' };
@@ -1885,7 +1885,7 @@ try { window.addEventListener('popstate', (e) => {
 (function initFromHash() {
   const hash = location.hash.slice(1);
   if (hash) {
-    const navEl = document.querySelector(`[onclick*="'${hash}'"]`);
+    const navEl = document.querySelector(`[data-action="showPage"][data-arg="${hash}"]`);
     showPage(hash, navEl);
   } else {
     // Push initial state so popstate fires correctly on first back press

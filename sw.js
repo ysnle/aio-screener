@@ -1,12 +1,12 @@
 // AIO Screener Service Worker — offline-first v48.27 (P3-4 1단계)
-// 전략: shell (index.html/manifest/version.json)은 Cache-First, API는 Network-First + 캐시 폴백
+// 전략: shell (index.html/version.json/js)은 Network-First, API는 Network-First + 캐시 폴백
 // 제약: GitHub Pages HTTPS + 정적 호스팅 (POST 캐싱 불가, CORS 프록시는 제3자 도메인)
 // v48.27 (QA-3): SW_VERSION을 APP_VERSION과 동기화 — activate 시 신규 캐시로 전환 (R1 7번째 동기화 지점)
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v49.49';
-const SW_BUILD = '2026-05-19T05:00:00+09:00';
+const SW_VERSION = 'v49.51';
+const SW_BUILD = '2026-05-19T06:00:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -120,9 +120,33 @@ self.addEventListener('fetch', function(event) {
   }
 
   // 1) 앱 셸 — Cache-First (네트워크 실패 시에도 즉시 응답)
+  const reqUrl = new URL(url);
+  const scopeUrl = new URL(self.registration.scope);
   const isShell = SHELL_ASSETS.some(function(asset) {
-    return url.endsWith(asset.replace('./','')) || url === asset;
+    if (/^https?:\/\//.test(asset)) return url === asset;
+    const rel = asset.replace(/^\.\//, '');
+    if (!rel) {
+      return reqUrl.origin === scopeUrl.origin &&
+        (reqUrl.pathname === scopeUrl.pathname || reqUrl.pathname === scopeUrl.pathname.replace(/\/$/, ''));
+    }
+    return reqUrl.origin === scopeUrl.origin && reqUrl.pathname.endsWith('/' + rel);
   });
+  if (isShell) {
+    event.respondWith(
+      fetch(request, { cache: 'no-store' }).then(function(resp) {
+        if (resp && resp.ok) {
+          var clone = resp.clone();
+          caches.open(SHELL_CACHE).then(function(c) { c.put(request, clone); });
+        }
+        return resp;
+      }).catch(function() {
+        return caches.match(request).then(function(cached) {
+          return cached || new Response('Offline shell asset unavailable', { status: 503, statusText: 'Service Unavailable' });
+        });
+      })
+    );
+    return;
+  }
   if (isShell) {
     event.respondWith(
       caches.match(request).then(function(cached) {

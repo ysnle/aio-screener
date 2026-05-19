@@ -8594,8 +8594,10 @@ function triggerNewsRefresh() {
 const LIVE_SYMBOLS = [
   // ── 주요 지수 ──────────────────────────────────────────────────
   '^GSPC','^IXIC','^VIX','^VVIX','^RUT','^DJI','^FTSE','^N225','^HSI',
+  'ES=F','NQ=F','YM=F','RTY=F','VXX',
   // ── 한국 지수 ──────────────────────────────────────────────────
   '^KS11','^KQ11',
+  '091160.KS','305720.KS','091220.KS','244580.KS',
   // ── 한국 KR_SUB_THEMES 전수 커버 (.KS = KOSPI, .KQ = KOSDAQ 정식 분리) ──
   // 반도체/HBM — KOSPI 2 + KOSDAQ 6 + KOSPI 1
   '005930.KS','000660.KS',                                     // 삼성전자·SK하이닉스 (KOSPI)
@@ -8997,6 +8999,7 @@ async function fetchKrNaverQuotes() {
 async function fetchLiveQuotes(requestedSymbols) {
   if (window._aioQuoteInFlight) return;
   window._aioQuoteInFlight = true;
+  try {
   // ═══════════════════════════════════════════════════════════
   // v19: 소스별 전용 API 사용 — 단순하고 확실하게 작동
   // ═══════════════════════════════════════════════════════════
@@ -9809,7 +9812,14 @@ async function fetchLiveQuotes(requestedSymbols) {
     if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', '연결 실패 (시도 ' + fetchLiveQuotes._failCount + ')');
     setTimeout(fetchLiveQuotes, wait * 1000);
   }
-  window._aioQuoteInFlight = false;
+  } catch (e) {
+    fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount || 0) + 1;
+    if (typeof _aioLog === 'function') _aioLog('error', 'fetch', 'fetchLiveQuotes fatal: ' + (e && e.message ? e.message : e));
+    updateDataStatusError('error', 'quote refresh failed - next refresh remains enabled');
+    if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', 'fatal refresh error');
+  } finally {
+    window._aioQuoteInFlight = false;
+  }
 }
 
 
@@ -9914,6 +9924,23 @@ function applyStaticFallbacks() {
   // ── 하드코딩 폴백 (localStorage 없거나 48시간 초과 시) ──
   // 2026-04-04(금) 종가 기준 폴백 (v40.7 업데이트)
   // 실시간 데이터 도착 시 자동 교체됨 — 최대 10초 내 라이브 데이터로 전환
+  // v49.51: stale hardcoded quote seeds are no longer allowed to populate live quote sinks.
+  // DATA_SNAPSHOT is still seeded through applyDataSnapshot() with source='snapshot'; this path
+  // only keeps non-price risk monitor placeholders from hanging forever.
+  try {
+    var tsElBlocked = document.getElementById('live-quote-ts');
+    if (tsElBlocked) tsElBlocked.textContent = '실시간 시세 대기 중 · 오래된 하드코딩 가격 fallback 차단됨';
+    window.AIO = window.AIO || {};
+    window.AIO._lastStaticQuoteFallbackBlocked = {
+      blocked: true,
+      reason: 'hardcoded quote fallback disabled; wait for live/cache/snapshot source metadata',
+      at: new Date().toISOString()
+    };
+  } catch(_blockedMeta) {}
+  _applyRiskMonitorFallbacks();
+  if (typeof _aioLog === 'function') _aioLog('warn', 'data', 'Hardcoded quote fallback blocked by v49.51 guard');
+  return;
+
   const FALLBACK_QUOTES = [
     // ── 미국 주요 지수 (2026-04-15 화 종가 — v47.5: DATA_SNAPSHOT 정합) ──
     { symbol:'^GSPC',   regularMarketPrice:7400.96,     regularMarketChangePercent:-0.20 },   // v49.8: AP 2026-05-12 close
@@ -10281,6 +10308,24 @@ function applyStaticFallbacks() {
 
   console.log('[AIO v35.8] 정적 기본값 적용 완료 — API 성공 시 자동 교체됩니다');
 }
+
+window.AIO = window.AIO || {};
+window.AIO.getHardcodedQuoteFallbackAudit = function() {
+  var src = '';
+  try { src = String(applyStaticFallbacks); } catch(e) {}
+  var hasLegacyTable = /const\s+FALLBACK_QUOTES\s*=\s*\[/.test(src);
+  var blockedBeforeLegacy = /Hardcoded quote fallback blocked by v49\.51 guard/.test(src) &&
+    /return;\s*[\r\n\s]*const\s+FALLBACK_QUOTES\s*=\s*\[/.test(src);
+  return {
+    status: blockedBeforeLegacy ? 'ok' : 'fail',
+    issueCount: blockedBeforeLegacy ? 0 : 1,
+    legacyTablePresent: hasLegacyTable,
+    blockedBeforeLegacy: blockedBeforeLegacy,
+    note: blockedBeforeLegacy
+      ? 'Legacy hardcoded quote table is unreachable; live/cache/snapshot metadata paths must be used.'
+      : 'Hardcoded quote fallback can still populate live quote sinks.'
+  };
+};
 
 function applyLiveQuotes(quotes) {
   if (!Array.isArray(quotes)) return;

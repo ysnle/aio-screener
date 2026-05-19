@@ -2485,7 +2485,7 @@ window.AIO.getChatHallucinationAudit = function(responseText) {
 // R93 신규 (페이지 sequential audit 의무화)
 // ─────────────────────────────────────────────────────────────────
 window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
-  version: 'v49.49',
+  version: 'v49.51',
   axes: ['최신성', '정확성', '정합성', '로직성', '직관성', '핵심성'],
   // 페이지별 sub-section 정의 (top-down 순서)
   pages: {
@@ -4355,6 +4355,7 @@ if (typeof _aioPageBus !== 'undefined' && _aioPageBus.register) {
 // ─────────────────────────────────────────────────────────────────
 window.AIO.getLiveSymbolsCoverageAudit = function() {
   var ls = new Set(window.LIVE_SYMBOLS || []);
+  var derivedLiveKeys = new Set(['PCR']);
   var missing = [];
   var dynamic = []; // ${sym} 같은 placeholder는 제외 (테이블 렌더용 마커)
   try {
@@ -4362,7 +4363,8 @@ window.AIO.getLiveSymbolsCoverageAudit = function() {
       var t = el.getAttribute('data-live-price');
       if (!t) return;
       // 동적 placeholder (예: '${sym}' 또는 ' + sym + ' 같은 template 잔존)
-      if (/[\${}]/.test(t) || t.length === 0) { dynamic.push(t); return; }
+      if (/[\${}]/.test(t) || /\+\s*sym\s*\+/.test(t) || t.length === 0) { dynamic.push(t); return; }
+      if (derivedLiveKeys.has(t)) return;
       // archive 섹션 제외
       if (el.closest('[data-aio-archive="true"]')) return;
       if (ls.has(t)) return;
@@ -5655,6 +5657,8 @@ window.AIO.getAutoOpsReadiness = function() {
   var staticSeedFallback = window.AIO.getStaticSeedFallbackAudit ? window.AIO.getStaticSeedFallbackAudit() : null;
   // v49.48 R101: LIVE_SYMBOLS coverage (DOM ticker vs LIVE_SYMBOLS)
   var liveSymbolsCoverage = window.AIO.getLiveSymbolsCoverageAudit ? window.AIO.getLiveSymbolsCoverageAudit() : null;
+  var hardcodedQuoteFallback = window.AIO.getHardcodedQuoteFallbackAudit ? window.AIO.getHardcodedQuoteFallbackAudit() : null;
+  var snapshotFallbackGuard = window.AIO.getSnapshotFallbackGuard ? window.AIO.getSnapshotFallbackGuard() : null;
   var issues = [];
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
   if (statics && statics.issueCount) issues.push(statics.issueCount + ' static/live-like freshness issue(s)');
@@ -5682,6 +5686,8 @@ window.AIO.getAutoOpsReadiness = function() {
   if (dataActionHandler && dataActionHandler.issueCount) issues.push(dataActionHandler.issueCount + ' missing data-action handler(s) [v49.39/R96]');
   if (staticSeedFallback && staticSeedFallback.issueCount) issues.push(staticSeedFallback.issueCount + ' data-snap key(s) without DATA_SNAPSHOT seed [v49.41/R97]');
   if (liveSymbolsCoverage && liveSymbolsCoverage.issueCount) issues.push(liveSymbolsCoverage.issueCount + ' DOM ticker(s) missing in LIVE_SYMBOLS [v49.48/R101]');
+  if (hardcodedQuoteFallback && hardcodedQuoteFallback.issueCount) issues.push('hardcoded quote fallback reachable [v49.51/R103]');
+  if (snapshotFallbackGuard && snapshotFallbackGuard.usable === false) issues.push('DATA_SNAPSHOT hard-stale; snapshot fallback disabled [v49.51/R104]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -5719,7 +5725,10 @@ window.AIO.getAutoOpsReadiness = function() {
       dataActionHandler: 'AIO.getDataActionHandlerAudit()',
       staticSeedFallback: 'AIO.getStaticSeedFallbackAudit()',
       liveSymbolsCoverage: 'AIO.getLiveSymbolsCoverageAudit()',
-      cellLevelData: 'AIO.getCellLevelDataAudit(pageId)'
+      cellLevelData: 'AIO.getCellLevelDataAudit(pageId)',
+      hardcodedQuoteFallback: 'AIO.getHardcodedQuoteFallbackAudit()',
+      snapshotFallbackGuard: 'AIO.getSnapshotFallbackGuard()',
+      deploymentGate: 'AIO.getDeploymentGateAudit({ strict: true })'
     },
     freshness: freshness,
     pipelineStatus: pipeline && pipeline.status || null,
@@ -5745,6 +5754,43 @@ window.AIO.getAutoOpsReadiness = function() {
     dataActionHandler: dataActionHandler,
     staticSeedFallback: staticSeedFallback,
     liveSymbolsCoverage: liveSymbolsCoverage,
+    hardcodedQuoteFallback: hardcodedQuoteFallback,
+    snapshotFallbackGuard: snapshotFallbackGuard,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getDeploymentGateAudit = function(opts) {
+  opts = opts || {};
+  var strict = opts.strict !== false;
+  var readiness = window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null;
+  var hardcoded = window.AIO.getHardcodedQuoteFallbackAudit ? window.AIO.getHardcodedQuoteFallbackAudit() : null;
+  var snapGuard = window.AIO.getSnapshotFallbackGuard ? window.AIO.getSnapshotFallbackGuard() : null;
+  var macro = window.AIO.getMacroReleaseStaleAudit ? window.AIO.getMacroReleaseStaleAudit() : null;
+  var krMacro = window.AIO.getKrMacroReleaseAudit ? window.AIO.getKrMacroReleaseAudit() : null;
+  var blocking = [];
+  var warnings = [];
+
+  if (!readiness) blocking.push('auto-ops readiness unavailable');
+  if (!hardcoded || hardcoded.status !== 'ok') blocking.push('hardcoded quote fallback reachable');
+  if (snapGuard && snapGuard.usable === false) blocking.push('DATA_SNAPSHOT hard-stale; refresh snapshot before deploy');
+  if (readiness && readiness.liveSymbolsCoverage && readiness.liveSymbolsCoverage.issueCount) blocking.push('LIVE_SYMBOLS coverage mismatch');
+  if (readiness && readiness.dataActionHandler && readiness.dataActionHandler.issueCount) blocking.push('missing data-action handler');
+  if (macro && macro.staleReleaseCount) warnings.push(macro.staleReleaseCount + ' stale US macro release(s)');
+  if (krMacro && krMacro.krStaleReleaseCount) warnings.push(krMacro.krStaleReleaseCount + ' stale KR macro release(s)');
+  if (strict && warnings.length) blocking = blocking.concat(warnings);
+
+  return {
+    status: blocking.length ? 'fail' : (warnings.length ? 'warn' : 'ok'),
+    deployable: blocking.length === 0,
+    strict: strict,
+    blocking: blocking,
+    warnings: warnings,
+    readinessStatus: readiness && readiness.status || null,
+    hardcodedQuoteFallback: hardcoded,
+    snapshotFallbackGuard: snapGuard,
+    macroRelease: macro,
+    krMacroRelease: krMacro,
     generatedAt: new Date().toISOString()
   };
 };
@@ -8689,7 +8735,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.49';
+const APP_VERSION = 'v49.51';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -10604,7 +10650,7 @@ function applyDataSnapshot() {
       // v48.15: kr-macro 페이지 세부 지표 data-snap 바인딩 (텍스트-B)
       'kr-cpi-yoy':    (S.krCpi > 0 ? '+' : '') + _snap.fixed(S.krCpi, 1) + '% YoY',
       'kr-ppi-yoy':    (S.krPpi > 0 ? '+' : '') + _snap.fixed(S.krPpi, 1) + '% YoY',
-      'kr-manuf-pmi':  _snap.fixed(S.krPmi, 1),
+      'kr-manuf-pmi':  _snap.fixed(S.krManufPmi, 1),
       'kr-gdp-qoq':    (S.krGdp > 0 ? '+' : '') + _snap.fixed(S.krGdp, 1) + '%',
       'kr-bond-3y':    _snap.fixed(S.krBond3y, 2) + '%',
       // v48.61 P125 해소: 누락 data-snap 키 바인딩
@@ -10871,44 +10917,70 @@ function _safeDate(iso) {
 const _SNAP_FALLBACK = {
   '^VIX':     { price: () => DATA_SNAPSHOT.vix,     pct: () => DATA_SNAPSHOT.vixPct },
   '^GSPC':    { price: () => DATA_SNAPSHOT.spx,     pct: () => DATA_SNAPSHOT.spxPct },
-  '^TNX':     { price: () => 4.31 },
-  '^FVX':     { price: () => 4.08 },
-  '^TYX':     { price: () => 4.96 },
-  '^IRX':     { price: () => 3.62 },
+  '^TNX':     { price: () => DATA_SNAPSHOT.tnx || (DATA_SNAPSHOT._fallback || {}).tnx },
+  '^FVX':     { price: () => DATA_SNAPSHOT.fvx },
+  '^TYX':     { price: () => DATA_SNAPSHOT.tyx },
+  '^IRX':     { price: () => DATA_SNAPSHOT.irx },
   'DX-Y.NYB': { price: () => DATA_SNAPSHOT.dxy },
   'CL=F':     { price: () => DATA_SNAPSHOT.wti },
   'BZ=F':     { price: () => DATA_SNAPSHOT.brent },
   'GC=F':     { price: () => DATA_SNAPSHOT.gold },
   'KRW=X':    { price: () => DATA_SNAPSHOT.krw },
-  'HYG':      { price: () => 78.92 },
-  'SPY':      { price: () => 740.10, pct: () => DATA_SNAPSHOT.spxPct },
+  'HYG':      { price: () => DATA_SNAPSHOT.hyg || (DATA_SNAPSHOT._fallback || {}).hyg },
+  'SPY':      { price: () => DATA_SNAPSHOT.spy || (DATA_SNAPSHOT.spx ? DATA_SNAPSHOT.spx / 10 : null), pct: () => DATA_SNAPSHOT.spxPct },
   // v36.6: 지수 선물 + VIX 선물 ETF + VVIX
   'ES=F':     { price: () => DATA_SNAPSHOT.spx },
   'NQ=F':     { price: () => DATA_SNAPSHOT.nasdaq },
   'YM=F':     { price: () => DATA_SNAPSHOT.dow },
-  '^VVIX':    { price: () => DATA_SNAPSHOT.vvix || 135 },
-  'VXX':      { price: () => 45.0 },
-  'UVXY':     { price: () => 28.0 },
-  '^KS11':    { price: () => DATA_SNAPSHOT.kospi || 2500 },
-  '^KQ11':    { price: () => DATA_SNAPSHOT.kosdaq || 700 },
-  'BTC-USD':  { price: () => DATA_SNAPSHOT.btc || 85000 },
+  '^VVIX':    { price: () => DATA_SNAPSHOT.vvix },
+  'VXX':      { price: () => DATA_SNAPSHOT.vxx },
+  'UVXY':     { price: () => DATA_SNAPSHOT.uvxy },
+  '^KS11':    { price: () => DATA_SNAPSHOT.kospi },
+  '^KQ11':    { price: () => DATA_SNAPSHOT.kosdaq },
+  'BTC-USD':  { price: () => DATA_SNAPSHOT.btc },
   // v46.9: 홈 화면/시그널 표시 종목 폴백 확장 (M19)
   '^DJI':     { price: () => DATA_SNAPSHOT.dow,    pct: () => DATA_SNAPSHOT.dowPct },
   '^IXIC':    { price: () => DATA_SNAPSHOT.nasdaq,  pct: () => DATA_SNAPSHOT.nasdaqPct },
   '^RUT':     { price: () => DATA_SNAPSHOT.rut,     pct: () => DATA_SNAPSHOT.rutPct },
-  'QQQ':      { price: () => (DATA_SNAPSHOT.nasdaq || 25448) / 40 },
-  'ETH-USD':  { price: () => DATA_SNAPSHOT.eth || 2054 },
-  'NG=F':     { price: () => DATA_SNAPSHOT.ng || 3.0 },
-  'SI=F':     { price: () => DATA_SNAPSHOT.silver || 69.66 },
-  'GLD':      { price: () => (DATA_SNAPSHOT.gold || 4750) / 10 },
-  'TLT':      { price: () => 85.0 },
+  'QQQ':      { price: () => DATA_SNAPSHOT.qqq || (DATA_SNAPSHOT.nasdaq ? DATA_SNAPSHOT.nasdaq / 45 : null) },
+  'ETH-USD':  { price: () => DATA_SNAPSHOT.eth },
+  'NG=F':     { price: () => DATA_SNAPSHOT.ng },
+  'SI=F':     { price: () => DATA_SNAPSHOT.silver },
+  'GLD':      { price: () => DATA_SNAPSHOT.gld || (DATA_SNAPSHOT.gold ? DATA_SNAPSHOT.gold / 10 : null) },
+  'TLT':      { price: () => DATA_SNAPSHOT.tlt },
+};
+function _aioSnapshotAgeMs() {
+  try {
+    var snap = window.DATA_SNAPSHOT || {};
+    var raw = snap._updated || snap._snapshotDate;
+    var ts = raw ? new Date(raw).getTime() : NaN;
+    return isFinite(ts) ? Date.now() - ts : Infinity;
+  } catch(e) { return Infinity; }
+}
+function _aioIsSnapshotUsableForFallback() {
+  var pol = window.FRESHNESS_POLICY && window.FRESHNESS_POLICY.static_snapshot;
+  var maxAge = pol && pol.hardStaleMs ? pol.hardStaleMs : 7 * 24 * 60 * 60 * 1000;
+  return _aioSnapshotAgeMs() <= maxAge;
+}
+window.AIO = window.AIO || {};
+window.AIO.getSnapshotFallbackGuard = function() {
+  var ageMs = _aioSnapshotAgeMs();
+  return {
+    usable: _aioIsSnapshotUsableForFallback(),
+    ageMs: ageMs,
+    ageHours: isFinite(ageMs) ? +(ageMs / 3600000).toFixed(1) : null,
+    hardStaleMs: (window.FRESHNESS_POLICY && window.FRESHNESS_POLICY.static_snapshot && window.FRESHNESS_POLICY.static_snapshot.hardStaleMs) || 7 * 24 * 60 * 60 * 1000
+  };
 };
 function _ldSafe(sym, prop, hardFallback) {
   var ld = window._liveData || {};
   if (ld[sym] && ld[sym][prop] != null) return ld[sym][prop];
   var sf = _SNAP_FALLBACK[sym];
-  if (sf && sf[prop]) return sf[prop]();
-  return hardFallback ?? 0;
+  if (sf && sf[prop] && _aioIsSnapshotUsableForFallback()) {
+    var v = sf[prop]();
+    if (v != null && isFinite(Number(v))) return Number(v);
+  }
+  return hardFallback !== undefined ? hardFallback : null;
 }
 
 const breadcrumbMap = {
@@ -11470,6 +11542,7 @@ function showPage(id, navEl) {
     catch(e) { if (typeof _aioLog === 'function') _aioLog('error', 'page-init', 'showPage ' + id + ': ' + e.message); }
   }
 }
+window.showPage = showPage;
 
 // v48.57: 브라우저 뒤로가기/앞으로가기 대응 (popstate 이벤트 · 이전까지 무반응)
 // v49.1 P187: _aioInPopstate 플래그로 history.pushState 전역 hijack 제거

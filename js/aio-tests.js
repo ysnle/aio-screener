@@ -403,7 +403,7 @@
       var sanitized61 = window._aioSafeMD(malImg);
       _assert('T61 xss_md_img_onerror: onerror 제거', !sanitized61.includes('onerror'));
     } else {
-      _assert('T61 xss_md_img_onerror: _aioSafeMD 미존재 (skip)', true);
+      _assert('T61 xss_md_img_onerror: _aioSafeMD must exist', false);
     }
 
     // T62: _aioSafeMD — script 태그 XSS 차단
@@ -412,7 +412,7 @@
       var sanitized62 = window._aioSafeMD(malScript);
       _assert('T62 xss_md_script: script 태그 제거', !sanitized62.toLowerCase().includes('<script'));
     } else {
-      _assert('T62 xss_md_script: _aioSafeMD 미존재 (skip)', true);
+      _assert('T62 xss_md_script: _aioSafeMD must exist', false);
     }
 
     // T63: chat_recursion_cap — _fundDepth 가드 상한 2 로직 검증
@@ -434,7 +434,7 @@
       var parsed64 = window._aioSafeParseJSON('{"a":1,"b":2}', null, 'test');
       _assert('T64 parse_fallback_object: 정상 파싱', parsed64 !== null && parsed64.a === 1 && parsed64.b === 2);
     } else {
-      _assert('T64 parse_fallback_object: _aioSafeParseJSON 미존재 (skip)', true);
+      _assert('T64 parse_fallback_object: _aioSafeParseJSON must exist', false);
     }
 
     // T65: _aioSafeParseJSON — 잘못된 JSON → fallback 반환 (비충돌)
@@ -443,7 +443,7 @@
       var result65 = window._aioSafeParseJSON('{invalid json}', fallback65, 'test');
       _assert('T65 naver_partial_ok: 파싱 실패 시 fallback 반환', result65 === fallback65);
     } else {
-      _assert('T65 naver_partial_ok: _aioSafeParseJSON 미존재 (skip)', true);
+      _assert('T65 naver_partial_ok: _aioSafeParseJSON must exist', false);
     }
 
     // T66: _aioRenderNum — NaN 입력 시 '—' 반환
@@ -453,7 +453,7 @@
       _assert('T66 nan_dash_render: 유효값 1.23', window._aioRenderNum(1.234, '', 2) === '1.23');
       _assert('T66 nan_dash_render: decimals=1 적용', window._aioRenderNum(1.567, '%', 1) === '1.6%');
     } else {
-      _assert('T66 nan_dash_render: _aioRenderNum 미존재 (skip)', true);
+      _assert('T66 nan_dash_render: _aioRenderNum must exist', false);
     }
   }
 
@@ -1615,12 +1615,51 @@
       enumeratedPages.length + '/' + allPages.length);
 
     // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.49
-    _assert('T362 page_seq_v4949: version v49.49',
-      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.49',
+    _assert('T362 page_seq_v4951: version v49.51',
+      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.51',
       'ver=' + (window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY ? window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version : '?'));
   }
 
   // ── Group46: v49.38 home 2차 깊이 점검 + 인라인 임계값 표 audit ─────────
+  function _testV4950AuditRemediation() {
+    var ls = window.LIVE_SYMBOLS || [];
+    ['ES=F','NQ=F','YM=F','RTY=F','VXX','091160.KS','305720.KS','091220.KS','244580.KS'].forEach(function(sym) {
+      _assert('T363 live_symbol_coverage_' + sym, ls.indexOf(sym) !== -1, sym + ' missing');
+    });
+    var r101 = window.AIO && window.AIO.getLiveSymbolsCoverageAudit && window.AIO.getLiveSymbolsCoverageAudit();
+    _assert('T364 live_symbols_coverage_zero_missing', r101 && r101.issueCount === 0, 'issueCount=' + (r101 ? r101.issueCount : '?'));
+    _assert('T365 kr_manuf_pmi_snapshot_mapping', typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.krManufPmi === 51.5, 'krManufPmi=' + (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.krManufPmi : '?'));
+    var vk = document.getElementById('kr-vkospi-chart');
+    _assert('T366 kr_vkospi_canvas_height_guard', vk && (vk.style.height === '160px' || vk.getAttribute('height') === '160'), 'height=' + (vk ? (vk.style.height || vk.getAttribute('height')) : '?'));
+    _assert('T367 showPage_global_binding', typeof window.showPage === 'function', 'typeof=' + typeof window.showPage);
+  }
+
+  function _testV4951SustainedFreshnessOps() {
+    var hardcoded = window.AIO && window.AIO.getHardcodedQuoteFallbackAudit ? window.AIO.getHardcodedQuoteFallbackAudit() : null;
+    _assert('T368 hardcoded_quote_fallback_blocked',
+      hardcoded && hardcoded.status === 'ok' && hardcoded.blockedBeforeLegacy === true,
+      hardcoded ? JSON.stringify(hardcoded) : 'missing');
+
+    var guard = window.AIO && window.AIO.getSnapshotFallbackGuard ? window.AIO.getSnapshotFallbackGuard() : null;
+    _assert('T369 snapshot_fallback_guard_runtime_age',
+      guard && typeof guard.usable === 'boolean' && typeof guard.hardStaleMs === 'number',
+      guard ? JSON.stringify(guard) : 'missing');
+
+    var gate = window.AIO && window.AIO.getDeploymentGateAudit ? window.AIO.getDeploymentGateAudit({ strict: false }) : null;
+    _assert('T370 deployment_gate_available',
+      gate && typeof gate.deployable === 'boolean' && Array.isArray(gate.blocking) && Array.isArray(gate.warnings),
+      gate ? JSON.stringify(gate) : 'missing');
+
+    _assert('T371 ldsafe_no_default_zero',
+      typeof _ldSafe === 'function' && _ldSafe('__NO_SUCH_SYMBOL__', 'price') === null,
+      'value=' + (typeof _ldSafe === 'function' ? _ldSafe('__NO_SUCH_SYMBOL__', 'price') : 'missing'));
+
+    var ops = window.AIO && window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null;
+    _assert('T372 autoops_sustained_freshness_axes',
+      ops && ops.hardcodedQuoteFallback && ops.snapshotFallbackGuard && ops.commands && /DeploymentGate|deploymentGate/i.test(JSON.stringify(ops.commands)),
+      ops ? 'has hardcoded=' + !!ops.hardcodedQuoteFallback + ' guard=' + !!ops.snapshotFallbackGuard : 'missing');
+  }
+
   function _testV4938HomeDeepAudit() {
     // T305: home VIX 표 행 수 6 (REGISTRY 6 bands 정합)
     var vixTable = document.querySelector('[data-threshold-table=\"VIX\"]');
@@ -2688,6 +2727,8 @@
     try { _testV4947FxbondFundamentalThemesAudit(); } catch(e) { console.error('Group50 error:', e); }
     try { _testV4948InfraGeneralization(); } catch(e) { console.error('Group51 error:', e); }
     try { _testV4949KrPagesAndGuide(); } catch(e) { console.error('Group52 error:', e); }
+    try { _testV4950AuditRemediation(); } catch(e) { console.error('Group53 error:', e); }
+    try { _testV4951SustainedFreshnessOps(); } catch(e) { console.error('Group54 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

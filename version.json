@@ -1,5 +1,5 @@
 {
-  "version": "v49.49",
-  "built": "2026-05-19T05:00:00+09:00",
-  "note": "v49.49: 21 페이지 1차+2차 매트릭스 완성 인증 — KR 5 + guide + R101 버그 fix + R102 휴리스틱 보강. (P319 R101 fix) aio-data.js L8774 window.LIVE_SYMBOLS = LIVE_SYMBOLS 노출 — top-level const가 window property 아니라 R101 audit이 false positive 131건 보고하던 버그. (P319 R102 보강) placeholder 휴리스틱 false positive 차단 — text.length >= 25면 본문성 텍스트 제외 + '^로딩|^계산 중' 같이 시작 매칭 (kr-semi-export-yoy '대기' 단어 본문 매칭 false positive 해소). (KR 5 페이지) kr-home(6)/kr-supply(4)/kr-themes(3)/kr-macro(6)/kr-technical(5) subSections + audit 6축 + findings. (guide) 5 subSections + audit 6축 (정적 N/A). Chrome MCP 라이브 cell-level: kr-home 32/0, kr-macro 23/0, kr-technical 5/0 (false positive 해소 후). PAGE_SEQUENTIAL_AUDIT_REGISTRY total subSections 128 → 157 (+29). **21 페이지 모두 1차+2차 enumerate 완료 ✓**. T355~T362 (Group52) 8 신규. P319."
+  "version": "v49.51",
+  "built": "2026-05-19T06:45:00+09:00",
+  "note": "v49.51: Sustained freshness ops hardening. Blocks stale hardcoded quote fallback, guards hard-stale DATA_SNAPSHOT fallback, adds deployment gate audit, and extends regression tests for ongoing freshness governance."
 }

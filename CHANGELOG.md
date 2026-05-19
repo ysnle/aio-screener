@@ -6,6 +6,27 @@
 
 ---
 
+## v49.51 - Sustained freshness ops hardening (2026-05-19)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- Blocked the legacy hardcoded `FALLBACK_QUOTES` path from populating live quote sinks; it now leaves live/cache/snapshot metadata paths in charge and records `AIO._lastStaticQuoteFallbackBlocked`.
+- Added `AIO.getHardcodedQuoteFallbackAudit()` so re-enabling stale quote seeds becomes detectable.
+- Added runtime snapshot fallback aging via `AIO.getSnapshotFallbackGuard()` and changed `_ldSafe()` to return `null` instead of silent `0`/magic-number prices when fallback data is hard-stale.
+- Added `AIO.getDeploymentGateAudit({ strict })`; strict mode turns stale US/KR macro release calendars into deployment blockers, so the system ages with real time rather than a fixed audit date.
+- Added T368~T372 regression checks and rotated title/badge/APP/SW/version docs to `v49.51`.
+
+## v49.50 - Codex live/code audit remediation (2026-05-19)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`
+
+- Fixed live-symbol coverage gaps for US futures, `VXX`, and KR ETF tickers observed on the live site.
+- Hardened `fetchLiveQuotes()` with `try/catch/finally` so one fatal quote error cannot leave `_aioQuoteInFlight` locked.
+- Fixed KR supply loading fallback, KR manufacturing PMI snapshot mapping, and VKOSPI canvas height guard.
+- Made `showPage` explicitly global, guarded duplicate `popstate` handling, and moved initial hash lookup to `data-action` selectors.
+- Changed shell service-worker handling to Network-First and rotated version to `v49.50`.
+- Strengthened tests so missing security helpers fail instead of pass-as-skip, and added v49.50 regression checks.
+
 ## v49.49 - 21 페이지 매트릭스 완성 + R101 버그 fix + R102 휴리스틱 보강 (2026-05-19)
 
 **Changed files**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `_context/BUG-POSTMORTEM.md`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
