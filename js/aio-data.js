@@ -8771,6 +8771,8 @@ const LIVE_SYMBOLS = [
   'ROBO','WCLD','BUG','VIG','DGRO','SCHD',                    // 테마 ETF (aio-explain 언급 + renderAllEtfGrid 대상)
   'ACLS','AVAV','CRAK','ENTG','GEV','KTOS','UCTT'             // SUB_THEMES 개별 종목 (반도체 장비/방산/정유/전력)
 ];
+// v49.49 P319/R101 buf fix: LIVE_SYMBOLS를 window.LIVE_SYMBOLS로 노출 — R101 getLiveSymbolsCoverageAudit이 const top-level 변수에 접근 못해 R101_total: 0 보고 (false positive 131 미등록). top-level const는 module scope이므로 window property 아님 — 명시 노출.
+window.LIVE_SYMBOLS = LIVE_SYMBOLS;
 
 // ── Global fetch helper (레거시 — AbortController 미사용, 새 코드는 fetchWithTimeout 권장) ──
 function withTimeout(p, ms) {

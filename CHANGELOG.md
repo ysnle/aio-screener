@@ -6,6 +6,62 @@
 
 ---
 
+## v49.49 - 21 페이지 매트릭스 완성 + R101 버그 fix + R102 휴리스틱 보강 (2026-05-19)
+
+**Changed files**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `_context/BUG-POSTMORTEM.md`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
+
+- **사용자 요청**: "마저 못 한 라이브 점검과 작업들도 진행해줘"
+
+- **Chrome MCP 라이브 v49.48 진단**:
+  - ⚠ R101 false positive 131건 (`R101_total: 0`) — `window.LIVE_SYMBOLS` 비어있음
+  - ⚠ kr-technical placeholder 1건 (kr-semi-export-yoy "대기" 단어 본문 매칭 false positive)
+
+- **P319 R101 버그 fix** (`js/aio-data.js` L8774):
+  - `aio-data.js` L8594 `const LIVE_SYMBOLS = [...]` top-level const는 module scope이고 **window property 아님** → R101 audit이 `new Set(window.LIVE_SYMBOLS || [])`에서 빈 Set 생성 → 131 ticker 모두 미등록 false report
+  - **시정**: L8774 `window.LIVE_SYMBOLS = LIVE_SYMBOLS;` 한 줄 추가
+
+- **P319 R102 휴리스틱 보강** (`js/aio-core.js` getCellLevelDataAudit):
+  - 이전 휴리스틱 `/로딩|loading|계산 중|분석 중|대기/i.test(r.text)` — 본문 "(...대기)" 매칭 false positive
+  - **보강**: `text.length >= 25`면 placeholder 제외 (본문성 텍스트 보호) + `^로딩|^계산\s*중` 시작 매칭으로 변경
+
+- **KR 5 페이지 1차+2차 subSections + findings**:
+  - **kr-home**: 6 subSections + audit 6축 + 2 finding (cell-level 32/0 ✓ + v49.22 P213 정합)
+  - **kr-supply**: 4 subSections + audit 6축 + 1 finding (v49.22 P217 정합)
+  - **kr-themes**: 3 subSections + audit 6축 + 1 finding (renderKrThemeCardsFromMap 28 cards)
+  - **kr-macro**: 6 subSections + audit 6축 + 3 finding (cell-level 23/0 ✓ + v49.47 P313 시드 + R75 일반화 hook)
+  - **kr-technical**: 5 subSections + audit 6축 + 2 finding (P319 false positive 해소)
+
+- **guide 1차+2차**: 5 subSections + audit 6축 (정적 N/A) + 1 finding (교육 자료)
+
+- **누적**:
+  - PAGE_SEQUENTIAL_AUDIT_REGISTRY total subSections **128 → 157** (+29)
+  - **21 페이지 모두 1차+2차 enumerate 완료 ✓**
+    - home/signal/breadth/sentiment/briefing/technical/macro (7)
+    - fxbond/fundamental/themes (3)
+    - theme-detail/portfolio/ticker/market-news/options (5)
+    - kr-home/kr-supply/kr-themes/kr-macro/kr-technical (5)
+    - guide (1) = **21 ✓**
+
+- **테스트**: T355~T362 (Group52) 8 신규 — LIVE_SYMBOLS exposure / R101 fix / KR 5 페이지 + guide subSections / 21 페이지 enumerate / version v49.49
+
+- **Postmortem**: P319 — frontmatter (latest P318→P319, total 317→318)
+
+- **R1 7곳 동기화** v49.48 → v49.49
+
+- **라이브 검증** (사용자 콘솔):
+  ```js
+  AIO.runTests()                                              // 362/362 PASS 목표
+  window.LIVE_SYMBOLS.length                                  // > 100 (이전 0)
+  (await AIO.getLiveSymbolsCoverageAudit()).issueCount        // < 20 (이전 131 false positive)
+  AIO.getCellLevelDataAudit('kr-technical').placeholderCount  // 0 (이전 1 false positive)
+  Object.keys(AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages).length // 21
+  // 모든 페이지 subSections.length > 0:
+  Object.entries(AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages)
+    .every(([k,p]) => Array.isArray(p.subSections) && p.subSections.length > 0)  // true
+  ```
+
+---
+
 ## v49.48 - 정직 보강: R75 일반화 + R101/R102 신규 + 5 페이지 1차+2차 (2026-05-19)
 
 **Changed files**: `js/aio-core.js`, `js/aio-tests.js`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`

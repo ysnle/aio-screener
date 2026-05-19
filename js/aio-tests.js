@@ -1566,6 +1566,60 @@
       ops && ops.liveSymbolsCoverage ? 'has=true' : 'missing');
   }
 
+  // ── Group52: v49.49 KR 5 페이지 + guide 1차+2차 + R101 bug fix ──────
+  function _testV4949KrPagesAndGuide() {
+    // T355 (P319): window.LIVE_SYMBOLS exposure 검증 (R101 false positive 131 → 0 fix)
+    _assert('T355 live_symbols_window_exposure: window.LIVE_SYMBOLS Array > 100',
+      Array.isArray(window.LIVE_SYMBOLS) && window.LIVE_SYMBOLS.length > 100,
+      'len=' + (window.LIVE_SYMBOLS ? window.LIVE_SYMBOLS.length : '?'));
+
+    // T356: R101 issueCount 0 또는 적음 (window.LIVE_SYMBOLS 정상 노출 후)
+    var r101 = window.AIO && window.AIO.getLiveSymbolsCoverageAudit && window.AIO.getLiveSymbolsCoverageAudit();
+    _assert('T356 r101_after_bugfix: issueCount < 20 (R101 false positive 131 → 정상)',
+      r101 && r101.issueCount < 20,
+      'issueCount=' + (r101 ? r101.issueCount : '?'));
+
+    // T357: kr-home subSections 6 enumerate
+    var pgs = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages;
+    _assert('T357 kr_home_subsections_6: enumerate',
+      pgs && pgs['kr-home'] && Array.isArray(pgs['kr-home'].subSections) && pgs['kr-home'].subSections.length === 6,
+      'count=' + (pgs && pgs['kr-home'] && pgs['kr-home'].subSections ? pgs['kr-home'].subSections.length : '?'));
+
+    // T358: kr-supply subSections 4
+    _assert('T358 kr_supply_subsections_4',
+      pgs && pgs['kr-supply'] && pgs['kr-supply'].subSections.length === 4,
+      'count=' + (pgs && pgs['kr-supply'] && pgs['kr-supply'].subSections ? pgs['kr-supply'].subSections.length : '?'));
+
+    // T359: kr-themes 3 + kr-macro 6 + kr-technical 5
+    _assert('T359 kr_remaining_pages: themes/macro/technical subSections',
+      pgs && pgs['kr-themes'] && pgs['kr-themes'].subSections.length === 3 &&
+      pgs['kr-macro'] && pgs['kr-macro'].subSections.length === 6 &&
+      pgs['kr-technical'] && pgs['kr-technical'].subSections.length === 5,
+      'themes=' + (pgs['kr-themes']?pgs['kr-themes'].subSections.length:'?') +
+      ' macro=' + (pgs['kr-macro']?pgs['kr-macro'].subSections.length:'?') +
+      ' tech=' + (pgs['kr-technical']?pgs['kr-technical'].subSections.length:'?'));
+
+    // T360: guide subSections 5
+    _assert('T360 guide_subsections_5',
+      pgs && pgs.guide && pgs.guide.subSections.length === 5,
+      'count=' + (pgs && pgs.guide && pgs.guide.subSections ? pgs.guide.subSections.length : '?'));
+
+    // T361: 21 페이지 모두 enumerate 완료 — auditStatus 객체 (6축) 또는 'na' 보유
+    var allPages = Object.keys(pgs || {});
+    var enumeratedPages = allPages.filter(function(k) {
+      var p = pgs[k];
+      return p && Array.isArray(p.subSections) && p.subSections.length > 0;
+    });
+    _assert('T361 all_21_pages_enumerated: subSections.length > 0',
+      enumeratedPages.length >= 21,
+      enumeratedPages.length + '/' + allPages.length);
+
+    // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.49
+    _assert('T362 page_seq_v4949: version v49.49',
+      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.49',
+      'ver=' + (window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY ? window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version : '?'));
+  }
+
   // ── Group46: v49.38 home 2차 깊이 점검 + 인라인 임계값 표 audit ─────────
   function _testV4938HomeDeepAudit() {
     // T305: home VIX 표 행 수 6 (REGISTRY 6 bands 정합)
@@ -2633,6 +2687,7 @@
     try { _testV4942FourPagesAudit(); } catch(e) { console.error('Group49 error:', e); }
     try { _testV4947FxbondFundamentalThemesAudit(); } catch(e) { console.error('Group50 error:', e); }
     try { _testV4948InfraGeneralization(); } catch(e) { console.error('Group51 error:', e); }
+    try { _testV4949KrPagesAndGuide(); } catch(e) { console.error('Group52 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -2663,6 +2718,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.48 loaded - run AIO.runTests() (T1~T354)');
+  console.log('[AIO] aio-tests.js v49.49 loaded - run AIO.runTests() (T1~T362)');
 
 })();

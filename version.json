@@ -1,5 +1,5 @@
 {
-  "version": "v49.48",
-  "built": "2026-05-19T04:00:00+09:00",
-  "note": "v49.48: v49.47 정직 보강 (R75 일반화 + R101 신규 + R102 신규 + 5 페이지 1차+2차). 사용자 지적 '근본 수정/재발 방지/세밀 cell-level 모두 했는가?' 정직 답변. (A1/P316/R75 보강) `_aioStaticContentLifecycleHook` 일반화 + briefing hook jensen-hardcoded 제거 + index.html briefing-week-may data-lifecycle-id 마커 + _aioPageBus 모든 페이지 자동 호출. (A2/P317/R101 신규) `getLiveSymbolsCoverageAudit` — DOM ticker vs LIVE_SYMBOLS 자동 정합 검증 (P315 재발 방지). (A3/P318/R102 신규) `getCellLevelDataAudit(pageId)` — 페이지 cell-level 값/색상/key 자동 캡쳐 + placeholder 분류. (B) Chrome MCP 라이브 검증: fxbond 42 cells/0 placeholder, options 16/0, theme-detail 3/1(XSD 캐시 stale). (C) theme-detail/portfolio/ticker/market-news/options 5 페이지 1차+2차 enumerate. PAGE_SEQUENTIAL_AUDIT_REGISTRY total: 100 → 128 (+28). getAutoOpsReadiness 26→27축 (liveSymbolsCoverage 통합). T346~T354 (Group51) 9 신규. P316~P318 + R101/R102 신규 + R75 보강."
+  "version": "v49.49",
+  "built": "2026-05-19T05:00:00+09:00",
+  "note": "v49.49: 21 페이지 1차+2차 매트릭스 완성 인증 — KR 5 + guide + R101 버그 fix + R102 휴리스틱 보강. (P319 R101 fix) aio-data.js L8774 window.LIVE_SYMBOLS = LIVE_SYMBOLS 노출 — top-level const가 window property 아니라 R101 audit이 false positive 131건 보고하던 버그. (P319 R102 보강) placeholder 휴리스틱 false positive 차단 — text.length >= 25면 본문성 텍스트 제외 + '^로딩|^계산 중' 같이 시작 매칭 (kr-semi-export-yoy '대기' 단어 본문 매칭 false positive 해소). (KR 5 페이지) kr-home(6)/kr-supply(4)/kr-themes(3)/kr-macro(6)/kr-technical(5) subSections + audit 6축 + findings. (guide) 5 subSections + audit 6축 (정적 N/A). Chrome MCP 라이브 cell-level: kr-home 32/0, kr-macro 23/0, kr-technical 5/0 (false positive 해소 후). PAGE_SEQUENTIAL_AUDIT_REGISTRY total subSections 128 → 157 (+29). **21 페이지 모두 1차+2차 enumerate 완료 ✓**. T355~T362 (Group52) 8 신규. P319."
 }

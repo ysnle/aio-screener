@@ -2,10 +2,10 @@
 verified_by: agent
 last_verified: 2026-05-19
 confidence: high
-latest_version: v49.48
-latest_P_number: P318
-next_P_number: P319
-total_entries: 317
+latest_version: v49.49
+latest_P_number: P319
+next_P_number: P320
+total_entries: 318
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -2616,6 +2616,22 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **근본 해결**: subSections 8 → 15 재 enumerate + `findings[]` 배열 추가 (점검 결과 누적 저장)
 - **재발 방지**: R93 page sequential audit 의무 강화 — 1차 enumerate는 모든 sub-section 빠짐 없이 등록 + 점검 시 findings에 결과 누적
 - **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.home
+
+---
+
+## P319 · v49.49 · [R101 버그 + R102 휴리스틱 보강] LIVE_SYMBOLS const top-level이 window 노출 안 됨 + R102 '대기' 단어 false positive
+
+- **사용자 요청 (2026-05-19)**: "마저 못 한 라이브 점검과 작업들도 진행해줘"
+- **Chrome MCP 라이브 v49.48 진단**:
+  - **R101_total: 0** + **R101_issueCount: 131** ← 모든 DOM ticker 미등록 false report
+  - kr-technical placeholder `kr-semi-export-yoy` false positive (값 "+157.9% YoY (...5월 갱신 대기)"의 "대기" 단어 매칭)
+- **근본 원인 1 (R101 버그)**: `aio-data.js` L8594 `const LIVE_SYMBOLS = [...]` top-level const는 **module scope**이고 **window property 아님** → R101 audit이 `new Set(window.LIVE_SYMBOLS || [])` 호출 시 빈 Set 생성 → 131 ticker 모두 미등록 false report.
+- **근본 원인 2 (R102 false positive)**: R102 placeholder 휴리스틱 `/로딩|loading|계산 중|분석 중|대기/i.test(r.text)` — 본문 텍스트 안의 "대기" 단어 매칭. "+157.9% YoY (2월 기준 · 5월 갱신 대기)" 같은 정상 값에 stale 라벨이 붙은 경우도 placeholder로 오인.
+- **근본 해결** (v49.49):
+  1. **R101 fix**: `js/aio-data.js` L8774 `window.LIVE_SYMBOLS = LIVE_SYMBOLS;` 노출 한 줄 추가.
+  2. **R102 보강**: placeholder 판정 휴리스틱 강화 — `text.length >= 25`면 placeholder 제외 (본문성 텍스트 보호) + `^로딩|^계산\s*중` 같이 텍스트 시작/단어 경계 매칭으로 변경.
+- **재발 방지** (R101 보강): 신규 const top-level 변수는 R101 같은 audit에서 사용 시 반드시 `window.X = X` 노출 명시.
+- **파일**: `js/aio-data.js` L8774 + `js/aio-core.js` getCellLevelDataAudit placeholder 패턴
 
 ---
 
