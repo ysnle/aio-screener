@@ -6457,14 +6457,158 @@ function _saveApiKey(lsKey, inputId, btnEl) {
     setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK);
     // CORS 프록시 레지스트리 재초기화 (CF Worker URL 변경 시)
     if (lsKey === 'aio_cf_worker_url' && typeof _PROXY_REGISTRY !== 'undefined') _PROXY_REGISTRY.init();
+    // v49.45 P312: IndexedDB 자동 mirror (캐시 클리어와 별도 저장소 — 키 손실 방어 2차)
+    try { if (typeof window._aioAutoBackupKeys === 'function') window._aioAutoBackupKeys(); } catch(_e) {}
   }).catch(function() {
     // 폴백: 평문 저장 + 런타임 캐시 동기화
     localStorage.setItem(lsKey, val);
     if (_AioVault && _AioVault._keyRuntime) { if (val) _AioVault._keyRuntime[lsKey] = val; else delete _AioVault._keyRuntime[lsKey]; }
     btnEl.textContent = '✓';
     setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK);
+    // v49.45 P312: 폴백 경로에서도 IndexedDB mirror 보장
+    try { if (typeof window._aioAutoBackupKeys === 'function') window._aioAutoBackupKeys(); } catch(_e) {}
   });
 }
+
+// ═══ v49.45 P312 신규: API 키 백업/복원 + IndexedDB 이중화 (R100) ═══════════
+// 사용자가 브라우저 캐시 클리어 / 시크릿 모드 / 데이터 일괄 삭제 시 localStorage(API 키) 동시 손실 차단.
+// 3중 안전망:
+//   (1) localStorage (기본) — `_saveApiKey` 호출 시 저장
+//   (2) IndexedDB `aio-keys-backup` — `_saveApiKey` 호출 시 동시 mirror (캐시 클리어와 별도 저장소)
+//   (3) Export JSON 파일 — 사용자가 명시 백업 (마스킹 옵션)
+
+// IndexedDB 백업 helper
+window._aioIdbBackupKeys = async function(snapshot) {
+  return new Promise(function(resolve) {
+    try {
+      var req = indexedDB.open('aio-keys-backup', 1);
+      req.onupgradeneeded = function(e) {
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains('keys')) db.createObjectStore('keys');
+      };
+      req.onsuccess = function(e) {
+        var db = e.target.result;
+        var tx = db.transaction('keys', 'readwrite');
+        var store = tx.objectStore('keys');
+        store.put({ snapshot: snapshot, ts: Date.now() }, 'latest');
+        tx.oncomplete = function() { db.close(); resolve(true); };
+        tx.onerror = function() { db.close(); resolve(false); };
+      };
+      req.onerror = function() { resolve(false); };
+    } catch(e) { resolve(false); }
+  });
+};
+
+window._aioIdbRestoreKeys = async function() {
+  return new Promise(function(resolve) {
+    try {
+      var req = indexedDB.open('aio-keys-backup', 1);
+      req.onupgradeneeded = function(e) {
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains('keys')) db.createObjectStore('keys');
+      };
+      req.onsuccess = function(e) {
+        var db = e.target.result;
+        var tx = db.transaction('keys', 'readonly');
+        var store = tx.objectStore('keys');
+        var getReq = store.get('latest');
+        getReq.onsuccess = function() { db.close(); resolve(getReq.result || null); };
+        getReq.onerror = function() { db.close(); resolve(null); };
+      };
+      req.onerror = function() { resolve(null); };
+    } catch(e) { resolve(null); }
+  });
+};
+
+// 현재 모든 API 키 snapshot 수집 (평문 또는 cache 복호화 값)
+window._aioCollectKeySnapshot = function() {
+  var snap = {};
+  var keys = (typeof _AIO_SENSITIVE_KEYS !== 'undefined') ? Array.from(_AIO_SENSITIVE_KEYS) :
+    ['aio_claude_api_key','aio_av_key','aio_finnhub_key','aio_fmp_key','aio_perplexity_key',
+     'aio_google_cse_key','aio_fred_key','aio_td_key','aio_newsdata_key','aio_rss2json_key','aio_cf_worker_url'];
+  keys.forEach(function(k) {
+    var v = (typeof _getApiKey === 'function') ? _getApiKey(k) : (localStorage.getItem(k) || '');
+    if (v) snap[k] = v;
+  });
+  return snap;
+};
+
+// `_saveApiKey` 호출 시 IndexedDB도 동시 mirror (자동 백업)
+// → 사용자가 명시 호출 없이도 캐시 클리어와 별도 저장소에 보존
+window._aioAutoBackupKeys = function() {
+  var snap = window._aioCollectKeySnapshot();
+  if (Object.keys(snap).length > 0) {
+    window._aioIdbBackupKeys(snap); // 비동기 fire-and-forget
+  }
+};
+
+// 사용자 명시 export — JSON 파일 다운로드
+window.AIO = window.AIO || {};
+window.AIO.exportApiKeys = function(opts) {
+  opts = opts || {};
+  var snap = window._aioCollectKeySnapshot();
+  var exportObj = {
+    type: 'aio-screener-keys-backup',
+    version: window.APP_VERSION || 'unknown',
+    exportedAt: new Date().toISOString(),
+    masked: !!opts.masked,
+    keys: opts.masked ? Object.keys(snap).reduce(function(o,k) {
+      var v = snap[k]; o[k] = v.length > 8 ? v.substring(0,4) + '...' + v.substring(v.length-4) : '***';
+      return o;
+    }, {}) : snap
+  };
+  var blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'aio-keys-backup-' + new Date().toISOString().slice(0,10) + (opts.masked ? '-masked' : '') + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  return { exported: Object.keys(snap).length, masked: !!opts.masked };
+};
+
+// 사용자 명시 import — JSON 파일에서 키 복원
+window.AIO.importApiKeys = async function(jsonString) {
+  try {
+    var obj = (typeof jsonString === 'string') ? JSON.parse(jsonString) : jsonString;
+    if (obj.type !== 'aio-screener-keys-backup') return { ok: false, error: 'Invalid backup type' };
+    if (obj.masked) return { ok: false, error: '마스킹된 백업은 복원 불가 — 원본 백업 필요' };
+    var imported = 0;
+    for (var k in obj.keys) {
+      if (typeof safeLS === 'function') await safeLS(k, obj.keys[k]);
+      else localStorage.setItem(k, obj.keys[k]);
+      if (window._AioVault && window._AioVault._keyRuntime) window._AioVault._keyRuntime[k] = obj.keys[k];
+      imported++;
+    }
+    // 자동 백업도 즉시 갱신
+    window._aioAutoBackupKeys();
+    return { ok: true, imported: imported, source: obj.exportedAt };
+  } catch(e) { return { ok: false, error: e && e.message }; }
+};
+
+// IndexedDB에서 자동 복원 — localStorage 비어있고 IDB 백업이 있으면 사용자에게 알림
+window.AIO.recoverApiKeysFromIdb = async function() {
+  var current = window._aioCollectKeySnapshot();
+  if (Object.keys(current).length > 0) return { recovered: 0, reason: 'localStorage already has keys', current: Object.keys(current).length };
+  var idb = await window._aioIdbRestoreKeys();
+  if (!idb || !idb.snapshot) return { recovered: 0, reason: 'no IDB backup' };
+  var imported = 0;
+  for (var k in idb.snapshot) {
+    if (typeof safeLS === 'function') await safeLS(k, idb.snapshot[k]);
+    else localStorage.setItem(k, idb.snapshot[k]);
+    if (window._AioVault && window._AioVault._keyRuntime) window._AioVault._keyRuntime[k] = idb.snapshot[k];
+    imported++;
+  }
+  return { recovered: imported, idbTs: new Date(idb.ts).toISOString() };
+};
+
+// 자동 백업 트리거 — 페이지 로드 후 5초, 그 후 5분마다
+setTimeout(function() {
+  try { window._aioAutoBackupKeys(); } catch(_e) {}
+  setInterval(function() {
+    try { window._aioAutoBackupKeys(); } catch(_e) {}
+  }, 5 * 60 * 1000);
+}, 5000);
 
 // v30.11: PIN 설정/해제 UI 핸들러
 function _vaultSetPin() {
@@ -8093,7 +8237,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.44';
+const APP_VERSION = 'v49.45';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

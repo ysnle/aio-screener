@@ -1,5 +1,5 @@
 {
-  "version": "v49.44",
-  "built": "2026-05-18T23:45:00+09:00",
-  "note": "v49.44 CRITICAL HOTFIX: aio-data.js refreshHomeDashboard() const ld + var ld hoist 충돌(SyntaxError) → 전체 파일 parse 실패 → 데이터 파이프라인 마비 시정. P311: L11085 'var ld = window._liveData || {}' 라인 삭제 (outer L10989 const ld 그대로 사용). 라이브 콘솔 에러 1번('Identifier ld has already been declared') cascading 4건(_tcLoadFromStorage/computeNewsSentimentScore/refreshHomeDashboard ReferenceError) 일거에 해결. v49.42 push 시점부터 잠재된 버그가 v49.43 SW 캐시 회전으로 노출됨. SW_VERSION v49.43→v49.44 강제 회전 + R1 7곳 동기화."
+  "version": "v49.45",
+  "built": "2026-05-19T00:30:00+09:00",
+  "note": "v49.45: API 키 저장 시스템 근본 보강 (P312) — 사용자 보고 '캐시 클리어 시 API 키 모두 손실' 위험에 대응. R100 신규 3중 안전망: (1) localStorage (기존), (2) IndexedDB aio-keys-backup 자동 mirror (캐시 클리어와 별도 저장소), (3) AIO.exportApiKeys/importApiKeys/recoverApiKeysFromIdb 3 신규 함수. _saveApiKey 호출 시 IndexedDB도 즉시 동기화 + 5분마다 자동 백업. 사용자 명시 백업: AIO.exportApiKeys({masked:false}) → JSON 다운로드. 복원: AIO.importApiKeys(json) 또는 자동 AIO.recoverApiKeysFromIdb(). SW_VERSION v49.44→v49.45 강제 회전. R98 false positive 4건 (aio-core.js r/d/total) 직접 verify 결과 모두 nested function 추적 부정확 — 진짜 충돌 아님 (v49.46에서 정확도 보강 예정)."
 }

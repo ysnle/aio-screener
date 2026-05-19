@@ -1,11 +1,11 @@
 ---
 verified_by: agent
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 confidence: high
-latest_version: v49.44
-latest_P_number: P311
-next_P_number: P312
-total_entries: 310
+latest_version: v49.45
+latest_P_number: P312
+next_P_number: P313
+total_entries: 311
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -2616,6 +2616,48 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **근본 해결**: subSections 8 → 15 재 enumerate + `findings[]` 배열 추가 (점검 결과 누적 저장)
 - **재발 방지**: R93 page sequential audit 의무 강화 — 1차 enumerate는 모든 sub-section 빠짐 없이 등록 + 점검 시 findings에 결과 누적
 - **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.home
+
+---
+
+## P312 · v49.45 · [R100 신규] API 키 저장 시스템 단일 저장소 + 백업/복원 UX 부재 → 사용자 키 손실 위험
+
+- **사용자 보고 (2026-05-18 22:30)**: "누군가는 API 키 모두 날라갔다던데?" → P310/P311 cascading 시 일부 사용자가 콘솔 에러 + 데이터 미수신 보고 캐시 클리어 시도 → localStorage 일괄 삭제 → API 키 동반 손실 추정.
+- **정밀 점검 결과** (Task #6):
+  - **저장 위치**: `localStorage` 단일 (aio-core.js L6292 `_AioVault.getStorage()`). public mode 시 `sessionStorage` (탭 종료 자동 삭제).
+  - **암호화**: PIN 설정 시 AES-GCM 256 + PBKDF2 100k (L6249~6269). PIN 미설정 시 평문.
+  - **CRITICAL 결함 3건**:
+    1. **단일 저장소** — IndexedDB 이중화 없음. 브라우저 "쿠키 및 사이트 데이터 삭제" 시 100% 손실.
+    2. **백업/복원 UX 부재** — export/import 함수 없음. 키 손실 시 사용자가 11개 키 모두 재입력.
+    3. **사용자 경고 없음** — 캐시 클리어 = 키 손실 인지 부재.
+  - **자동 삭제 코드 검증**: `aio_finnhub_key` / `aio_fmp_key` 등 명시 `localStorage.removeItem` 0건 — 코드는 자동 삭제하지 않음. 외부 요인(사용자 캐시 클리어, 시크릿 모드, 다른 브라우저)에 의한 손실.
+- **근본 해결** (v49.45 R100 신규 — 3중 안전망):
+  1. **`_aioIdbBackupKeys(snapshot)`** — IndexedDB `aio-keys-backup` DB의 `keys` store에 `{snapshot, ts}` mirror. 브라우저 캐시 클리어 시 일부 모드(예: "쿠키만 삭제")에서 IndexedDB 보존.
+  2. **`_aioIdbRestoreKeys()`** — IndexedDB에서 최근 백업 read.
+  3. **`_aioCollectKeySnapshot()`** — 현재 11 SENSITIVE_KEYS 평문/캐시 값 수집.
+  4. **`_aioAutoBackupKeys()`** — `_saveApiKey` 호출 시 + 페이지 로드 후 5초 + 5분마다 자동 IndexedDB mirror (fire-and-forget).
+  5. **`AIO.exportApiKeys({masked: bool})`** — JSON 파일 다운로드 (마스킹 옵션). 사용자 명시 백업.
+  6. **`AIO.importApiKeys(jsonString)`** — JSON 파일 또는 객체에서 복원. masked 백업은 거부.
+  7. **`AIO.recoverApiKeysFromIdb()`** — localStorage 비어있을 시 IndexedDB에서 자동 복원.
+- **재발 방지** (R100 신규): API 키 저장은 반드시 2중 이상 저장소 + 명시 백업/복원 UX 제공 의무.
+- **사용자 안내 (콘솔 명령)**:
+  ```js
+  // 백업 (마스킹 안 함 — 완전 복원 가능, 안전 보관 필수)
+  AIO.exportApiKeys({masked: false})
+
+  // 마스킹 백업 (확인용 — 복원 불가)
+  AIO.exportApiKeys({masked: true})
+
+  // 복원 (파일 내용을 string으로 붙여넣기)
+  AIO.importApiKeys(`{...}`)
+
+  // 자동 복원 (캐시 클리어 후 IndexedDB에서)
+  await AIO.recoverApiKeysFromIdb()
+  ```
+- **사용자 운영 권장**:
+  1. API 키 입력 후 즉시 `AIO.exportApiKeys({masked:false})` 호출하여 백업 파일 안전 보관
+  2. 캐시 클리어 후 `AIO.recoverApiKeysFromIdb()` 자동 복원 시도 → 실패 시 백업 import
+- **파일**: `js/aio-core.js` L6469~ 부근 7 함수 + `_saveApiKey` 자동 IDB mirror hook
+- **violated_rule**: 없음 (신규 패턴 — R100 신규로 차단)
 
 ---
 

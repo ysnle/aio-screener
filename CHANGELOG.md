@@ -6,6 +6,47 @@
 
 ---
 
+## v49.45 - API 키 저장 시스템 근본 보강 (P312 / R100 신규) (2026-05-19)
+
+**Changed files**: `js/aio-core.js`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`
+
+- **사용자 보고 (2026-05-18 22:30 + 23:50)**: "누군가는 API 키 모두 날라갔다던데?" + "API 저장 시스템도 확인했어?"
+- **정밀 점검 결과**:
+  - 저장 위치: `localStorage` 단일 (`_AioVault.getStorage()` aio-core.js L6292). public mode 시 sessionStorage.
+  - 암호화: PIN 시 AES-GCM 256 + PBKDF2 100k. 미설정 시 평문.
+  - **CRITICAL 결함 3건**: (1) 단일 저장소 IndexedDB 이중화 없음 (2) export/import UX 부재 (3) 캐시 클리어 = 키 손실 경고 없음
+  - **자동 삭제 코드 검증**: `aio_*_key` 명시 removeItem 0건 — 외부 요인(캐시 클리어)에 의한 손실
+
+- **P312 / R100 신규 3중 안전망** (`js/aio-core.js` L6469~ 부근 7 함수 신설):
+  - `_aioIdbBackupKeys(snapshot)` / `_aioIdbRestoreKeys()` — IndexedDB `aio-keys-backup` DB I/O
+  - `_aioCollectKeySnapshot()` — 11 SENSITIVE_KEYS 평문/캐시 수집
+  - `_aioAutoBackupKeys()` — `_saveApiKey` 호출 시 + 페이지 로드 후 5초 + 5분마다 자동 mirror (fire-and-forget)
+  - `AIO.exportApiKeys({masked})` — JSON 파일 다운로드 (마스킹 옵션)
+  - `AIO.importApiKeys(jsonString)` — JSON 복원 (masked 거부)
+  - `AIO.recoverApiKeysFromIdb()` — localStorage 비어있을 시 IndexedDB 자동 복원
+  - `_saveApiKey` 호출 경로(success + catch 폴백) 양쪽에 `_aioAutoBackupKeys()` hook 추가
+
+- **R98 false positive 4건 직접 verify 결과** (Task #5):
+  - aio-core.js L6138/6605/6620/6746/6767/6780의 r/d/total — 모두 다른 함수의 다른 변수를 같은 scope로 잘못 그룹화 (휴리스틱 line offset 부정확)
+  - 진짜 P311 같은 충돌 아님
+  - R98 휴리스틱 정확도 보강은 v49.46 (nested function/IIFE 추적)
+
+- **사용자 운영 명령**:
+  ```js
+  // 백업 (즉시 권장)
+  AIO.exportApiKeys({masked: false})
+
+  // 캐시 클리어 후 복원 시도
+  await AIO.recoverApiKeysFromIdb()
+
+  // 백업 파일에서 복원
+  AIO.importApiKeys('{...JSON 내용...}')
+  ```
+
+- **R1 7곳 동기화 v49.45**
+
+---
+
 ## v49.44 - CRITICAL HOTFIX: aio-data.js const+var 'ld' hoist 충돌 SyntaxError 시정 + R98/R99 신규 (2026-05-18)
 
 **Changed files**: `js/aio-data.js`, `js/aio-core.js`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`

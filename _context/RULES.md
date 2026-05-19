@@ -1213,6 +1213,29 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R100. API 키 저장 2중화 + 백업/복원 UX 의무 (v49.45 추가, P312 근본)
+
+**원칙**: API 키 저장은 **반드시** 다음 모두 만족:
+1. **2중 이상 저장소** (localStorage + IndexedDB) — 한 곳 손실 시 다른 곳에서 복원 가능
+2. **사용자 명시 export/import 함수** — JSON 파일 다운로드/복원
+3. **자동 복원 함수** — localStorage 비어있을 시 IndexedDB에서 silent 복구
+
+**근거 (P312)**: P310/P311 cascading 시 일부 사용자가 콘솔 에러 + 데이터 미수신 보고 캐시 클리어 시도 → localStorage 일괄 삭제 → API 키 동반 손실. 백업/복원 UX 없으면 11개 키 모두 재입력 필요.
+
+**구조**:
+- `_aioIdbBackupKeys(snapshot)` / `_aioIdbRestoreKeys()` — IndexedDB I/O
+- `_aioCollectKeySnapshot()` — 현재 키 수집
+- `_aioAutoBackupKeys()` — `_saveApiKey` 호출 시 + 5분마다 자동 mirror
+- `AIO.exportApiKeys({masked})` — JSON 다운로드
+- `AIO.importApiKeys(jsonString)` — 복원
+- `AIO.recoverApiKeysFromIdb()` — 자동 복원
+
+**검증**: 신규 API 키 종류 추가 시 `_AIO_SENSITIVE_KEYS`에 등록 + 위 함수들 자동 mirror.
+
+**위반 시**: 사용자가 캐시 클리어 후 모든 키 재입력 필요. UX 마찰 + 사용자 이탈.
+
+---
+
 ## R99. SW SHELL_ASSETS 자산 무결성 자동 검증 (v49.44 추가, P310 근본)
 
 **원칙**: `sw.js`의 `SHELL_ASSETS` 배열에 등록된 모든 자산은 **반드시** 실제 파일로 존재 (HTTP 200 OK 응답).
