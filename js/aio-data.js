@@ -11549,7 +11549,7 @@ _aioPageBus.register('data-sentiment-crypto-shown', 'aio:pageShown', function(e)
 });
 
 // CBOE Put/Call Ratio Fetch
-async function fetchPutCall() {
+async function _fetchPutCallLegacy() {
   const badge  = document.getElementById('pc-live-badge');
   const cboeUrl = 'https://cdn.cboe.com/api/global/us_options_volume/options_volume.json';
   try {
@@ -11587,6 +11587,142 @@ async function fetchPutCall() {
 }
 
 // ── HY Credit Spread auto-fetch via FRED (free, no API key needed) ───
+function _aioPickNumber(row, keys) {
+  row = row || {};
+  for (var i = 0; i < keys.length; i++) {
+    var raw = row[keys[i]];
+    if (raw == null || raw === '') continue;
+    var n = Number(String(raw).replace(/,/g, ''));
+    if (isFinite(n)) return n;
+  }
+  return null;
+}
+
+function _aioPutCallTone(pcr) {
+  if (pcr >= 1.2) return { color: 'var(--data-red)', label: '방어 심리 우세', narrative: '풋 수요가 강해 단기 위험 회피가 우세합니다.' };
+  if (pcr >= 0.9) return { color: 'var(--data-amber)', label: '중립 상단', narrative: '중립권 상단으로 약간의 방어 포지셔닝이 섞여 있습니다.' };
+  if (pcr >= 0.7) return { color: 'var(--data-green)', label: '중립 범위', narrative: '콜/풋 수요가 균형권에 있어 방향성 과열 신호는 제한적입니다.' };
+  return { color: 'var(--data-cyan)', label: '콜 수요 우세', narrative: '콜 선호가 강해 위험 선호 또는 단기 낙관이 우세합니다.' };
+}
+
+function _aioUpdatePutCallDom(payload) {
+  payload = payload || {};
+  var pcr = Number(payload.totalPutCall);
+  if (!isFinite(pcr)) return false;
+  var text = pcr.toFixed(2);
+  var tone = _aioPutCallTone(pcr);
+  var sourceKind = payload.sourceKind || 'snapshot';
+  var sourceLabel = payload.sourceLabel || (sourceKind === 'live' ? 'CBOE' : 'DATA_SNAPSHOT');
+  var asOf = payload.asOf || new Date().toISOString();
+  var metric = window.AIO && window.AIO.makeOperationalMetric
+    ? window.AIO.makeOperationalMetric('putCallRatioTotal', pcr, sourceKind, asOf, sourceLabel, { domain: 'options' })
+    : { name: 'putCallRatioTotal', value: pcr, sourceKind: sourceKind, sourceLabel: sourceLabel, ts: asOf, allowedUse: sourceKind === 'live' };
+
+  ['pc-score-big', 'regime-pcr', 'opt-pcr-val', 'opt-pcr-val-secondary'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.style.color = tone.color;
+    el.setAttribute('data-source-kind', sourceKind);
+    el.setAttribute('data-operational-use', metric.allowedUse ? 'decision' : 'reference-only');
+  });
+
+  Array.prototype.slice.call(document.querySelectorAll('[data-live-price="PCR"]')).forEach(function(el) {
+    el.textContent = text;
+    el.style.color = tone.color;
+    el.setAttribute('data-source-kind', sourceKind);
+    el.setAttribute('data-operational-use', metric.allowedUse ? 'decision' : 'reference-only');
+  });
+
+  ['opt-pcr-desc', 'opt-pcr-desc-secondary'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = tone.label;
+    el.style.color = tone.color;
+  });
+
+  var detail = document.getElementById('opt-pcr-text');
+  if (detail) {
+    var mode = metric.allowedUse ? '현재 의사결정 사용 가능' : '참고용 표시';
+    var parts = ['CBOE Total P/C ' + text, tone.narrative, sourceLabel + ' · ' + mode];
+    if (payload.equityPutCall != null) parts.push('Equity P/C ' + Number(payload.equityPutCall).toFixed(2));
+    detail.textContent = parts.join(' · ');
+  }
+
+  if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.pcr = pcr;
+  window._putCallRatio = pcr;
+  window._lastPutCallPayload = Object.assign({}, payload, {
+    totalPutCall: pcr,
+    sourceKind: sourceKind,
+    sourceLabel: sourceLabel,
+    metric: metric,
+    tone: tone
+  });
+
+  var badge = document.getElementById('pc-live-badge');
+  if (badge) {
+    badge.textContent = metric.allowedUse ? (sourceKind === 'delayed' ? 'DELAYED · CBOE' : 'LIVE · CBOE') : 'SNAPSHOT · reference';
+    badge.style.color = metric.allowedUse ? '#00e5a0' : '#7b8599';
+    badge.setAttribute('data-source-kind', sourceKind);
+  }
+
+  var pct = Math.min(100, Math.max(0, (pcr - 0.4) / 0.8 * 100));
+  var needle = document.getElementById('pc-needle-pos');
+  if (needle) needle.style.left = pct.toFixed(1) + '%';
+  return true;
+}
+
+async function fetchPutCall() {
+  const badge = document.getElementById('pc-live-badge');
+  const cboeUrl = 'https://cdn.cboe.com/api/global/us_options_volume/options_volume.json';
+  try {
+    const proxy = CORS_PROXY + encodeURIComponent(cboeUrl);
+    const resp = await fetchWithTimeout(proxy, {}, 8000);
+    const w = await resp.json();
+    var raw;
+    try { raw = typeof w.contents === 'string' ? JSON.parse(w.contents || '{}') : w; } catch(pe) { raw = {}; }
+    const rows = raw.data || raw.results || [];
+    if (rows.length > 0) {
+      const latest = rows[rows.length - 1];
+      const pcr = _aioPickNumber(latest, ['total_pcr', 'totalPcr', 'totalPCR', 'total_put_call_ratio', 'put_call_ratio', 'pcr_total', 'pcr_vol']);
+      if (pcr != null) {
+        _aioUpdatePutCallDom({
+          totalPutCall: pcr,
+          equityPutCall: _aioPickNumber(latest, ['equity_pcr', 'equityPcr', 'equityPCR', 'equity_put_call_ratio', 'pcr_equity']),
+          sourceKind: 'delayed',
+          sourceLabel: 'CBOE options volume daily',
+          asOf: latest.date || latest.tradeDate || latest.trade_date || latest.bizdate || new Date().toISOString()
+        });
+        return true;
+      }
+    }
+    throw new Error('no pcr data');
+  } catch(e) {
+    var snap = (typeof DATA_SNAPSHOT !== 'undefined') ? Number(DATA_SNAPSHOT.pcr) : NaN;
+    if (isFinite(snap)) {
+      _aioUpdatePutCallDom({
+        totalPutCall: snap,
+        sourceKind: 'snapshot',
+        sourceLabel: 'DATA_SNAPSHOT',
+        asOf: (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._snapshotDate) || new Date().toISOString(),
+        staleReason: e && e.message || 'CBOE unavailable'
+      });
+    } else if (badge) {
+      badge.textContent = 'CBOE unavailable';
+      badge.style.color = '#7b8599';
+    }
+    if (window.AIO && window.AIO.recordDataQualityIssue) {
+      window.AIO.recordDataQualityIssue({
+        source: 'CBOE put/call',
+        severity: 'warn',
+        message: 'Put/Call ratio live fetch failed; operational use downgraded to snapshot',
+        error: e && e.message || String(e)
+      });
+    }
+    return false;
+  }
+}
+
 let hyLastFetch = 0;
 async function fetchHYSpread() {
   const CACHE_MS = 6 * 60 * 60 * 1000; // 6-hour cache (FRED updates daily)

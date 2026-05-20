@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.52 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.54 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3958,7 +3958,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.52</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.54</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9738,13 +9738,13 @@ body.light-theme canvas { filter:none; }
     </div>
     <div style="background:rgba(255,163,26,0.1);border:1px solid rgba(255,163,26,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">Put/Call Ratio (CBOE Total)</div>
-      <div style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);" data-live-price="PCR">0.90</div>
-      <div style="font-size:11px;color:var(--data-amber);">중립~약간 방어적</div>
+      <div id="opt-pcr-val" style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);" data-live-price="PCR" data-source-kind="pending">—</div>
+      <div id="opt-pcr-desc" style="font-size:11px;color:var(--data-amber);">CBOE 수신 대기</div>
     </div>
     <div style="background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:3px;"><span class="term-tooltip">GEX (감마 노출)<span class="tip-icon">?</span><span class="tip-body">Gamma Exposure. 옵션 딜러들의 감마 포지션 총합. 양수면 시장 안정(딜러가 역추세 매매), 음수면 변동성 증폭(딜러가 추세 추종)</span></span></div>
-      <div id="opt-gex-val" style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:var(--data-green);">—</div>
-      <div id="opt-gex-desc" style="font-size:11px;color:var(--data-green);">실시간 API 미제공 · 참고용</div>
+      <div id="opt-gex-val" style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:var(--data-green);" data-operational-use="reference-only">—</div>
+      <div id="opt-gex-desc" style="font-size:11px;color:var(--data-green);">실시간 API 미제공 · 의사결정 제외</div>
     </div>
   </div>
 
@@ -9770,9 +9770,9 @@ body.light-theme canvas { filter:none; }
     </div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
       <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">Put/Call Ratio (CBOE Total)</div>
-      <div style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);" data-live-price="PCR">0.90</div>
-      <div style="font-size:11px;color:var(--data-amber);margin-bottom:6px;">0.7~1.0 중립 범위</div>
-      <div style="font-size:11px;color:var(--text-muted);line-height:1.4;">CBOE Total P/C 0.90 — 중립 범위 상단. 약간의 방어적 포지셔닝. Equity P/C 0.58은 정상 범위.</div>
+      <div id="opt-pcr-val-secondary" style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);" data-live-price="PCR" data-source-kind="pending">—</div>
+      <div id="opt-pcr-desc-secondary" style="font-size:11px;color:var(--data-amber);margin-bottom:6px;">CBOE 수신 대기</div>
+      <div id="opt-pcr-text" style="font-size:11px;color:var(--text-muted);line-height:1.4;">CBOE Total P/C 수신 대기 · 실패 시 DATA_SNAPSHOT은 참고용으로만 표시합니다.</div>
     </div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
       <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">VIX (실시간)</div>
@@ -9782,9 +9782,9 @@ body.light-theme canvas { filter:none; }
     </div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
       <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">GEX (감마 노출) <span style="font-size:11px;color:var(--data-amber);">수동</span></div>
-      <div style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);" data-snap="gex-current">-12.8B</div>
-      <div style="font-size:10px;color:var(--data-red);margin-bottom:6px;">음수 · 변동성 증폭 위험</div>
-      <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">감마 노출이 음수면 변동성 증폭 메커니즘 작동. 빠른 상승·하락 시 옵션 헤지 언와인드 → 추가 낙폭. <strong>CBOE/SpotGamma 전문 소스 필요</strong>.</div>
+      <div id="opt-gex-snapshot-val" style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);" data-snap="gex-current" data-operational-use="reference-only">-12.8B</div>
+      <div style="font-size:10px;color:var(--data-red);margin-bottom:6px;">수동 스냅샷 · 참고용</div>
+      <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">감마 노출 해석은 변동성 구조 참고로만 표시합니다. 현재 의사결정에는 CBOE/SpotGamma 등 최신 전문 소스 확인이 필요합니다.</div>
     </div>
   </div>
 
@@ -12408,9 +12408,9 @@ body.light-theme canvas { filter:none; }
   }
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js"></script>
-  <script src="./js/aio-data.js"></script>
-  <script src="./js/aio-ui.js"></script>
+  <script src="./js/aio-core.js?v=49.54"></script>
+  <script src="./js/aio-data.js?v=49.54"></script>
+  <script src="./js/aio-ui.js?v=49.54"></script>
 
   <script>
 
@@ -15372,7 +15372,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-  <script src="./js/aio-chat.js"></script>
+<script src="./js/aio-chat.js?v=49.54"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17960,10 +17960,19 @@ var _krSupplyRetry = 0;
 var _krSupplyRetryTimer = null; // v46.9: 페이지 이탈 시 clearTimeout용 (P84)
 function initKoreaSupply() {
   var ld = window._liveData || {};
+  // v49.54: supply data fetch must not be blocked by index quote availability.
+  if (!window._krSupplyLoaded) {
+    window._krSupplyLoaded = true;
+    fetchKrSupplyData();
+    if (typeof fetchKrDynamicData === 'function') fetchKrDynamicData();
+  }
   // Check if Korean data is available, if not retry (max 20 attempts = 10s)
   if (!ld['^KS11'] || !ld['^KQ11']) {
     if (_krSupplyRetry++ < 20) { _krSupplyRetryTimer = setTimeout(initKoreaSupply, 500); return; }
     _aioLog('warn', 'init', 'initKoreaSupply: 한국 데이터 로딩 타임아웃');
+    _ensureKrSupplyAnalysisResolved('KOSPI/KOSDAQ 지수 시세가 지연되어 수급 데이터는 별도 폴백 상태로 표시합니다.');
+    _renderInvestorFallback();
+    _renderKrWeeklySupplyFallback('KR index quote timeout');
     return;
   }
   _krSupplyRetry = 0;
@@ -18489,9 +18498,13 @@ async function fetchKrSupplyData() {
 
     _aioLog('warn', 'fetch', 'KR 프록시 차단으로 수급 데이터 수집 실패 — 폴백 데이터 사용 중');
     _showKrSupplyFallbackNotice();
+    _renderInvestorFallback();
+    _renderKrWeeklySupplyFallback('KR index investorTrend unavailable');
   } catch(e) {
     _aioLog('warn', 'fetch', 'KR 프록시 차단으로 수급 데이터 수집 실패 — 폴백 데이터 사용 중: ' + e.message);
     _showKrSupplyFallbackNotice();
+    _renderInvestorFallback();
+    _renderKrWeeklySupplyFallback(e && e.message || 'KR supply fetch failed');
   }
   _ensureKrSupplyAnalysisResolved('실시간 수급 데이터를 불러오지 못해 정적 스냅샷을 표시합니다.');
 }
@@ -18981,7 +18994,7 @@ function _fillInvestorTable(tableId, items, investorType, direction) {
   var label = isForeign ? '순매수 금액' : '순매수 금액';
   var rows = '<tr><th>#</th><th>종목</th><th>' + label + '</th><th>순매수 수량</th></tr>';
   if (items.length === 0) {
-    rows += '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">데이터 로딩 중...</td></tr>';
+    rows += '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">실시간 순매수 데이터 없음 또는 수신 실패</td></tr>';
   }
   items.forEach(function(item, idx) {
     var amt = isForeign ? item.fAmt : item.oAmt;
@@ -18997,15 +19010,57 @@ function _fillInvestorTable(tableId, items, investorType, direction) {
   tbl.innerHTML = rows;
 }
 
+function _renderKrWeeklySupplyFallback(reason) {
+  var tbl = document.getElementById('kr-weekly-supply-table');
+  if (tbl) {
+    tbl.setAttribute('data-runtime-state', 'fallback');
+    tbl.innerHTML = '<tr><th>날짜</th><th>외국인</th><th>기관</th><th>개인</th><th>프로그램</th><th>KOSPI</th></tr>'
+      + '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;line-height:1.6;">주간 수급 데이터 수신 실패<br><span style="font-size:10px;opacity:.72;">' + escHtml(reason || 'API unavailable') + ' · 최신 Naver/거래소 데이터 확인 필요</span></td></tr>';
+  }
+  var weeklyComment = document.getElementById('kr-weekly-supply-comment');
+  if (weeklyComment) {
+    weeklyComment.textContent = '주간 수급 API 수신 실패 · 정적 판단에 사용하지 않음';
+    weeklyComment.style.color = 'var(--text-muted)';
+    weeklyComment.style.background = 'rgba(123,133,153,0.08)';
+  }
+}
+
+window.AIO = window.AIO || {};
+window.AIO.getKrSupplyRuntimeAudit = function() {
+  var issues = [];
+  var targets = ['kr-supply-analysis-text', 'kr-investor-foreign-buy', 'kr-investor-organ-buy', 'kr-foreign-hold-top10', 'kr-weekly-supply-table'];
+  targets.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) {
+      issues.push({ type: 'missing-kr-supply-target', id: id });
+      return;
+    }
+    var txt = el.textContent || '';
+    if (/데이터 로딩 중|로딩 중/.test(txt)) issues.push({ type: 'perpetual-loading-text', id: id });
+  });
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    issues: issues,
+    generatedAt: new Date().toISOString()
+  };
+};
+
 // ── 4. 주간 수급 트렌드 (최근 5거래일) ──
 async function fetchKrWeeklySupply() {
   try {
     var url = 'https://m.stock.naver.com/api/index/KOSPI/investorTrend';
     var r = await fetchViaProxy(url, 8000);
-    if (!r || !r.ok) return;
+    if (!r || !r.ok) {
+      _renderKrWeeklySupplyFallback('KOSPI investorTrend HTTP unavailable');
+      return;
+    }
     var d = await r.json();
     var trends = d.investorTrends || [];
-    if (trends.length < 2) return;
+    if (trends.length < 2) {
+      _renderKrWeeklySupplyFallback('KOSPI investorTrend empty');
+      return;
+    }
 
     var tbl = document.getElementById('kr-weekly-supply-table');
     if (!tbl) return;
@@ -19067,7 +19122,10 @@ async function fetchKrWeeklySupply() {
     }
 
     console.log('[KR] 주간 수급 트렌드 동적 업데이트 완료 (' + dayCount + '거래일)');
-  } catch(e) { _aioLog('warn', 'fetch', 'KR 주간 수급 fetch 실패: ' + e.message); }
+  } catch(e) {
+    _aioLog('warn', 'fetch', 'KR 주간 수급 fetch 실패: ' + e.message);
+    _renderKrWeeklySupplyFallback(e && e.message || 'KR weekly supply failed');
+  }
 }
 
 // ── 5. 시가총액 동적 추출 (fetchKrNaverQuotes 결과에서 확장) ──
@@ -19271,6 +19329,7 @@ async function fetchKrDynamicData() {
     fetchKrShortSelling(),
     fetchKrBreadthData()
   ]);
+  _ensureKrSupplyAnalysisResolved('KR 수급 API 일부가 지연되어 수신 가능한 데이터와 폴백 상태를 함께 표시합니다.');
   console.log('[KR] 한국 동적 데이터 일괄 fetch 완료');
 }
 
@@ -27137,12 +27196,22 @@ function initOptionsPage() {
 
   // v38.8: PCR 동적 연결 — data-live-price="PCR" 요소에 실시간 값 반영
   var pcrVal = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.pcr) ? DATA_SNAPSHOT.pcr : null;
-  if (pcrVal) {
+  if (pcrVal && !(window._lastPutCallPayload && window._lastPutCallPayload.metric && window._lastPutCallPayload.metric.allowedUse)) {
+    if (typeof _aioUpdatePutCallDom === 'function') {
+      _aioUpdatePutCallDom({
+        totalPutCall: pcrVal,
+        sourceKind: 'snapshot',
+        sourceLabel: 'DATA_SNAPSHOT',
+        asOf: (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._snapshotDate) || new Date().toISOString()
+      });
+    } else {
     var pcrEls = document.querySelectorAll('#page-options [data-live-price="PCR"]');
     pcrEls.forEach(function(el) {
       el.textContent = parseFloat(pcrVal).toFixed(2);
       el.style.color = pcrVal > 1.2 ? 'var(--data-red)' : pcrVal > 0.9 ? 'var(--data-amber)' : 'var(--data-green)';
+      el.setAttribute('data-operational-use', 'reference-only');
     });
+    }
   }
 
   // v38.8: GEX 스냅샷 명시
@@ -27152,7 +27221,7 @@ function initOptionsPage() {
     gexEl.dataset.marked = '1';
   }
   if (gexDesc && !gexDesc.dataset.marked) {
-    gexDesc.textContent = '실시간 API 미제공 · 참고용 스냅샷';
+    gexDesc.textContent = '실시간 API 미제공 · 참고용 스냅샷 · 의사결정 제외';
     gexDesc.dataset.marked = '1';
   }
 
@@ -27185,9 +27254,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js"></script>
+<script src="./js/aio-glossary.js?v=49.54"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js"></script>
+<script src="./js/aio-tests.js?v=49.54"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전
@@ -27269,6 +27338,7 @@ setTimeout(function() {
   var loadingPatterns = ['로딩 중', '생성 중', 'Loading', '계산중', '계산 중', '분석 로딩', '데이터 로딩'];
   var candidates = document.querySelectorAll(
     '#macro-storyline, #earnings-calendar-body, #risk-radar-body, #home-news-highlights, ' +
+    '#kr-supply-analysis-text, ' +
     '#kr-investor-foreign-buy, #kr-investor-organ-buy, #kr-foreign-hold-top10, ' +
     '#last-fetch-time, #home-quality-label'
   );
@@ -27289,6 +27359,10 @@ setTimeout(function() {
     var s = document.getElementById(id);
     if (s && /로딩 중|데이터 로딩/.test(s.textContent || '')) s.textContent = '연결 실패 · API 키 확인';
   });
+  var krSupplyAnalysis = document.getElementById('kr-supply-analysis-text');
+  if (krSupplyAnalysis && /로딩 중|데이터 로딩|데이터를 불러오지 못했습니다/.test(krSupplyAnalysis.textContent || '')) {
+    krSupplyAnalysis.textContent = 'KR 수급 데이터 수신 지연 · 폴백 상태로 표시하며 현재 의사결정에는 사용하지 않음';
+  }
 }, 15000);
 
 // ═══ v27: Mobile Menu Toggle ═══

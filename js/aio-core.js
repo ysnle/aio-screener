@@ -2493,7 +2493,7 @@ window.AIO.getChatHallucinationAudit = function(responseText) {
 // R93 신규 (페이지 sequential audit 의무화)
 // ─────────────────────────────────────────────────────────────────
 window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
-  version: 'v49.52',
+  version: 'v49.54',
   axes: ['최신성', '정확성', '정합성', '로직성', '직관성', '핵심성'],
   // 페이지별 sub-section 정의 (top-down 순서)
   pages: {
@@ -5669,6 +5669,8 @@ window.AIO.getAutoOpsReadiness = function() {
   var snapshotFallbackGuard = window.AIO.getSnapshotFallbackGuard ? window.AIO.getSnapshotFallbackGuard() : null;
   var dataQuality = window.AIO.getDataQualityIssueAudit ? window.AIO.getDataQualityIssueAudit() : null;
   var snapshotDateSources = window.AIO.getSnapshotDateSourceAudit ? window.AIO.getSnapshotDateSourceAudit() : null;
+  var operationalDataContract = window.AIO.getOperationalDataContractAudit ? window.AIO.getOperationalDataContractAudit() : null;
+  var krSupplyRuntime = window.AIO.getKrSupplyRuntimeAudit ? window.AIO.getKrSupplyRuntimeAudit() : null;
   var issues = [];
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
   if (statics && statics.issueCount) issues.push(statics.issueCount + ' static/live-like freshness issue(s)');
@@ -5700,6 +5702,8 @@ window.AIO.getAutoOpsReadiness = function() {
   if (snapshotFallbackGuard && snapshotFallbackGuard.usable === false) issues.push('DATA_SNAPSHOT hard-stale; snapshot fallback disabled [v49.51/R104]');
   if (dataQuality && dataQuality.issueCount) issues.push(dataQuality.issueCount + ' data quality issue(s) [v49.52/R105]');
   if (snapshotDateSources && snapshotDateSources.issueCount) issues.push(snapshotDateSources.issueCount + ' snapshot date source issue(s) [v49.52/R106]');
+  if (operationalDataContract && operationalDataContract.issueCount) issues.push(operationalDataContract.issueCount + ' operational data contract issue(s) [v49.54/R107]');
+  if (krSupplyRuntime && krSupplyRuntime.issueCount) issues.push(krSupplyRuntime.issueCount + ' KR supply runtime issue(s) [v49.54/R108]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -5742,6 +5746,8 @@ window.AIO.getAutoOpsReadiness = function() {
       snapshotFallbackGuard: 'AIO.getSnapshotFallbackGuard()',
       dataQuality: 'AIO.getDataQualityIssueAudit()',
       snapshotDateSources: 'AIO.getSnapshotDateSourceAudit()',
+      operationalDataContract: 'AIO.getOperationalDataContractAudit()',
+      krSupplyRuntime: 'AIO.getKrSupplyRuntimeAudit()',
       marketRegime: 'AIO.getCurrentMarketRegime()',
       krMarketTemperature: 'AIO.getKrMarketTemperature()',
       deploymentGate: 'AIO.getDeploymentGateAudit({ strict: true })'
@@ -5774,6 +5780,8 @@ window.AIO.getAutoOpsReadiness = function() {
     snapshotFallbackGuard: snapshotFallbackGuard,
     dataQuality: dataQuality,
     snapshotDateSources: snapshotDateSources,
+    operationalDataContract: operationalDataContract,
+    krSupplyRuntime: krSupplyRuntime,
     generatedAt: new Date().toISOString()
   };
 };
@@ -8824,7 +8832,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.52';
+const APP_VERSION = 'v49.54';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -11182,6 +11190,107 @@ window.AIO.renderDynamicMarketNarratives = function() {
   } catch(e) {
     if (window._aioLog) window._aioLog('warn', 'narrative', 'renderDynamicMarketNarratives: ' + (e && e.message || e));
   }
+};
+
+window.AIO_OPERATIONAL_DATA_CONTRACT = {
+  version: 'v49.54',
+  policies: {
+    live: { maxAgeMs: 15 * 60 * 1000, decisionUse: true, confidence: 'high' },
+    delayed: { maxAgeMs: 72 * 60 * 60 * 1000, decisionUse: true, confidence: 'medium' },
+    snapshot: { maxAgeMs: 72 * 60 * 60 * 1000, decisionUse: false, confidence: 'reference' },
+    manual_snapshot: { maxAgeMs: 7 * 24 * 60 * 60 * 1000, decisionUse: false, confidence: 'reference' },
+    reference_only: { maxAgeMs: Infinity, decisionUse: false, confidence: 'reference' },
+    archive: { maxAgeMs: Infinity, decisionUse: false, confidence: 'archive' }
+  },
+  classifySource: function(sourceKind) {
+    var s = String(sourceKind || '').toLowerCase().replace(/[\s-]+/g, '_');
+    if (/manual|hand|spotgamma|estimate|weekly/.test(s)) return 'manual_snapshot';
+    if (/reference|educational|estimate_only/.test(s)) return 'reference_only';
+    if (/archive|history/.test(s)) return 'archive';
+    if (/snapshot|seed|fallback/.test(s)) return 'snapshot';
+    if (/delay|daily|fred|close/.test(s)) return 'delayed';
+    if (/live|realtime|real_time|cboe|yahoo|naver/.test(s)) return 'live';
+    return s && this.policies[s] ? s : 'snapshot';
+  },
+  evaluateMetric: function(metric) {
+    metric = metric || {};
+    var kind = this.classifySource(metric.sourceKind || metric.source || metric.sourceType);
+    var policy = this.policies[kind] || this.policies.snapshot;
+    var ts = metric.ts || metric.timestamp || metric.generatedAt || metric.asOf || null;
+    var ageMs = null;
+    if (ts) {
+      var parsed = typeof ts === 'number' ? ts : new Date(ts).getTime();
+      if (isFinite(parsed)) ageMs = Date.now() - parsed;
+    }
+    var stale = ageMs != null && isFinite(policy.maxAgeMs) && ageMs > policy.maxAgeMs;
+    var allowedUse = !!policy.decisionUse && stale !== true;
+    return {
+      status: allowedUse ? 'ok' : 'reference_only',
+      sourceKind: kind,
+      sourceLabel: metric.sourceLabel || metric.source || '',
+      confidence: policy.confidence,
+      decisionUse: !!policy.decisionUse,
+      allowedUse: allowedUse,
+      stale: !!stale,
+      ageMs: ageMs,
+      maxAgeMs: policy.maxAgeMs,
+      reason: allowedUse ? 'fresh operational source' : (stale ? 'stale source' : 'non-operational source')
+    };
+  }
+};
+
+window.AIO.makeOperationalMetric = function(name, value, sourceKind, ts, sourceLabel, extra) {
+  var metric = Object.assign({
+    name: name,
+    value: value,
+    sourceKind: sourceKind || 'snapshot',
+    sourceLabel: sourceLabel || '',
+    ts: ts || Date.now()
+  }, extra || {});
+  metric.contract = window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric(metric);
+  metric.allowedUse = metric.contract.allowedUse;
+  return metric;
+};
+
+window.AIO.canDriveCurrentDecision = function(metric) {
+  return !!(window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric(metric || {}).allowedUse);
+};
+
+window.AIO.getOperationalDataContractAudit = function() {
+  var issues = [];
+  var pcrValues = [];
+  try {
+    Array.prototype.slice.call(document.querySelectorAll('[data-live-price="PCR"]')).forEach(function(el) {
+      var txt = (el.textContent || '').trim();
+      if (txt && txt !== '—') pcrValues.push(txt);
+    });
+    var pcrUnique = {};
+    pcrValues.forEach(function(v) { pcrUnique[v] = true; });
+    var pcrDistinct = Object.keys(pcrUnique);
+    if (pcrDistinct.length > 1) {
+      issues.push({ type: 'pcr-dom-mismatch', values: pcrDistinct });
+    }
+    var gex = document.querySelector('[data-snap="gex-current"], #opt-gex-val');
+    if (gex && gex.getAttribute('data-operational-use') !== 'reference-only') {
+      issues.push({ type: 'manual-gex-not-reference-only', value: (gex.textContent || '').trim() });
+    }
+    if (window._lastPutCallPayload && window._lastPutCallPayload.metric) {
+      var pcrEval = window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric(window._lastPutCallPayload.metric);
+      if (!pcrEval.allowedUse && /^(live|delayed)$/.test(window._lastPutCallPayload.sourceKind || '')) {
+        issues.push({ type: 'pcr-operational-source-not-usable', reason: pcrEval.reason });
+      }
+    }
+  } catch(e) {
+    issues.push({ type: 'audit-error', message: e && e.message || String(e) });
+  }
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    issues: issues,
+    policyVersion: window.AIO_OPERATIONAL_DATA_CONTRACT.version,
+    pcrSinkCount: pcrValues.length,
+    generatedAt: new Date().toISOString()
+  };
 };
 
 if (typeof document !== 'undefined') {

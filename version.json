@@ -1,5 +1,5 @@
 {
-  "version": "v49.52",
-  "built": "2026-05-19T17:20:00+09:00",
-  "note": "v49.52: Dynamic market regime operations. Preserves per-domain snapshot dates, adds data-quality/date-source deployment audits, removes stale KR temperature labels, and links market narratives to live-first regime engines."
+  "version": "v49.54",
+  "built": "2026-05-20T12:11:27+09:00",
+  "note": "v49.54: Operational data contract hardening. Separates live/delayed/snapshot/manual/reference sources, blocks stale/manual metrics from current-market decisions, unifies CBOE Total P/C rendering, and gives KR supply failures terminal fallback states."
 }

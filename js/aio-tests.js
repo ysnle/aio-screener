@@ -1614,9 +1614,9 @@
       enumeratedPages.length >= 21,
       enumeratedPages.length + '/' + allPages.length);
 
-    // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.49
-    _assert('T362 page_seq_v4952: version v49.52',
-      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.52',
+    // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.54
+    _assert('T362 page_seq_v4954: version v49.54',
+      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.54',
       'ver=' + (window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY ? window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version : '?'));
   }
 
@@ -1687,6 +1687,47 @@
     _assert('T377_data_quality_audit_available',
       dq && Array.isArray(dq.issues) && ops && ops.commands && /dataQuality/.test(JSON.stringify(ops.commands)),
       dq ? JSON.stringify(dq) : 'missing');
+  }
+
+  function _testV4954OperationalHardening() {
+    var contract = window.AIO_OPERATIONAL_DATA_CONTRACT;
+    _assert('T378_operational_contract_v4954_available',
+      contract && contract.version === 'v49.54' && typeof contract.evaluateMetric === 'function',
+      contract ? contract.version : 'missing');
+
+    var manualOk = window.AIO && typeof window.AIO.canDriveCurrentDecision === 'function'
+      ? window.AIO.canDriveCurrentDecision({ name: 'gex', value: -12.8, sourceKind: 'manual_snapshot', ts: Date.now() })
+      : true;
+    _assert('T379_manual_snapshot_cannot_drive_current_decision',
+      manualOk === false,
+      'manualOk=' + manualOk);
+
+    _assert('T380_options_pcr_single_source_dom_hooks',
+      !!document.getElementById('opt-pcr-val') && !!document.getElementById('opt-pcr-val-secondary') && !!document.getElementById('opt-pcr-text'),
+      'primary=' + !!document.getElementById('opt-pcr-val') + ' secondary=' + !!document.getElementById('opt-pcr-val-secondary'));
+
+    var pcrTexts = Array.prototype.slice.call(document.querySelectorAll('[data-live-price="PCR"]'))
+      .map(function(el) { return (el.textContent || '').trim(); })
+      .filter(function(v) { return v && v !== '—'; });
+    var pcrUnique = {};
+    pcrTexts.forEach(function(v) { pcrUnique[v] = true; });
+    _assert('T381_options_pcr_sinks_match',
+      Object.keys(pcrUnique).length <= 1,
+      'values=' + Object.keys(pcrUnique).join(','));
+
+    var gex = document.querySelector('[data-snap="gex-current"], #opt-gex-val');
+    _assert('T382_gex_reference_only_contract',
+      gex && gex.getAttribute('data-operational-use') === 'reference-only',
+      gex ? 'use=' + gex.getAttribute('data-operational-use') : 'missing');
+
+    _assert('T383_kr_supply_fallback_and_runtime_audit',
+      typeof _renderKrWeeklySupplyFallback === 'function' && window.AIO && typeof window.AIO.getKrSupplyRuntimeAudit === 'function',
+      'weeklyFallback=' + typeof _renderKrWeeklySupplyFallback);
+
+    var ops = window.AIO && window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null;
+    _assert('T384_autoops_contract_and_kr_runtime_axes',
+      ops && ops.operationalDataContract && ops.krSupplyRuntime && ops.commands && ops.commands.operationalDataContract && ops.commands.krSupplyRuntime,
+      ops ? JSON.stringify(ops.commands) : 'missing');
   }
 
   function _testV4938HomeDeepAudit() {
@@ -2758,6 +2799,7 @@
     try { _testV4949KrPagesAndGuide(); } catch(e) { console.error('Group52 error:', e); }
     try { _testV4950AuditRemediation(); } catch(e) { console.error('Group53 error:', e); }
     try { _testV4951SustainedFreshnessOps(); } catch(e) { console.error('Group54 error:', e); }
+    try { _testV4954OperationalHardening(); } catch(e) { console.error('Group55 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -2788,6 +2830,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.49 loaded - run AIO.runTests() (T1~T362)');
+  console.log('[AIO] aio-tests.js v49.54 loaded - run AIO.runTests() (T1~T384)');
 
 })();

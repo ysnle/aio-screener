@@ -6,6 +6,24 @@
 
 ---
 
+## v49.54 - Operational data contract hardening (2026-05-20)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- Added `AIO_OPERATIONAL_DATA_CONTRACT`, `AIO.makeOperationalMetric()`, `AIO.canDriveCurrentDecision()`, and `AIO.getOperationalDataContractAudit()` so live/delayed/snapshot/manual/reference sources have explicit decision-use policy.
+- Replaced contradictory static Put/Call Ratio text with one CBOE Total P/C rendering path; all PCR sinks now update from `_aioUpdatePutCallDom()` and snapshot fallback is marked reference-only.
+- Marked GEX/manual option data as `reference-only` and excluded it from current-market decision use unless a true operational source is available.
+- Hardened KR supply failure handling so TOP10/weekly tables end in visible fallback states instead of perpetual loading, with `AIO.getKrSupplyRuntimeAudit()` integrated into `AIO.getAutoOpsReadiness()`.
+- Added T378~T384 recurrence tests for operational data contract, PCR sink consistency, manual snapshot blocking, KR fallback audit, and readiness command coverage.
+
+## v49.53 - Cache-coherent dynamic operations (2026-05-19)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- Added release-version query strings to all local JS module tags so GitHub Pages/service-worker cache cannot mix a fresh HTML shell with stale runtime modules.
+- Bumped app/SW/version metadata to `v49.53` after live deployment verification exposed a `v49.51` JS cache collision.
+- Kept the v49.52 dynamic market-regime, date-source, and data-quality audit hardening intact.
+
 ## v49.52 - Dynamic market regime operations (2026-05-19)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
