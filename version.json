@@ -1,5 +1,5 @@
 {
-  "version": "v49.54",
-  "built": "2026-05-20T12:11:27+09:00",
-  "note": "v49.54: Operational data contract hardening. Separates live/delayed/snapshot/manual/reference sources, blocks stale/manual metrics from current-market decisions, unifies CBOE Total P/C rendering, and gives KR supply failures terminal fallback states."
+  "version": "v49.55",
+  "built": "2026-05-20T16:57:29+09:00",
+  "note": "v49.55: Market currentness hardening. Adds runtime audits and guards so visible live sinks, narrative text, and stale snapshot banners cannot present loading, unavailable, or stale reference data as current-market analysis."
 }

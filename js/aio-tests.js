@@ -1614,9 +1614,9 @@
       enumeratedPages.length >= 21,
       enumeratedPages.length + '/' + allPages.length);
 
-    // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.54
-    _assert('T362 page_seq_v4954: version v49.54',
-      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.54',
+    // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.55
+    _assert('T362 page_seq_v4955: version v49.55',
+      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.55',
       'ver=' + (window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY ? window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version : '?'));
   }
 
@@ -1691,8 +1691,8 @@
 
   function _testV4954OperationalHardening() {
     var contract = window.AIO_OPERATIONAL_DATA_CONTRACT;
-    _assert('T378_operational_contract_v4954_available',
-      contract && contract.version === 'v49.54' && typeof contract.evaluateMetric === 'function',
+    _assert('T378_operational_contract_v4955_available',
+      contract && contract.version === 'v49.55' && typeof contract.evaluateMetric === 'function',
       contract ? contract.version : 'missing');
 
     var manualOk = window.AIO && typeof window.AIO.canDriveCurrentDecision === 'function'
@@ -1728,6 +1728,77 @@
     _assert('T384_autoops_contract_and_kr_runtime_axes',
       ops && ops.operationalDataContract && ops.krSupplyRuntime && ops.commands && ops.commands.operationalDataContract && ops.commands.krSupplyRuntime,
       ops ? JSON.stringify(ops.commands) : 'missing');
+
+    _assert('T385_market_currentness_audit_available',
+      window.AIO && typeof window.AIO.getMarketCurrentnessAudit === 'function',
+      'typeof=' + (window.AIO && typeof window.AIO.getMarketCurrentnessAudit));
+
+    _assert('T386_market_currentness_guard_available',
+      window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'function' && typeof window.AIO.updateSnapshotStaleBanner === 'function',
+      'guard=' + (window.AIO && typeof window.AIO.applyMarketCurrentnessGuard));
+
+    var tempLive = document.createElement('span');
+    tempLive.setAttribute('data-live-price', '__AIO_TEST__');
+    tempLive.textContent = '데이터 로딩 중';
+    document.body.appendChild(tempLive);
+    var currentAudit = window.AIO.getMarketCurrentnessAudit({ root: document.body, includeHidden: true });
+    tempLive.remove();
+    _assert('T387_market_currentness_detects_visible_loading',
+      currentAudit && currentAudit.issues && currentAudit.issues.some(function(x) { return x.key === '__AIO_TEST__'; }),
+      currentAudit ? JSON.stringify(currentAudit.issues.slice(-3)) : 'missing');
+
+    var ops2 = window.AIO && window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null;
+    _assert('T388_autoops_market_currentness_axis',
+      ops2 && ops2.marketCurrentness && ops2.commands && ops2.commands.marketCurrentness && ops2.commands.applyMarketCurrentnessGuard,
+      ops2 ? JSON.stringify(ops2.commands) : 'missing');
+
+    _assert('T389_snapshot_banner_guard_command',
+      typeof window.AIO.updateSnapshotStaleBanner === 'function',
+      'typeof=' + (window.AIO && typeof window.AIO.updateSnapshotStaleBanner));
+
+    var pcrPrimary = document.getElementById('opt-pcr-val');
+    var pcrDetail = document.getElementById('opt-pcr-text');
+    _assert('T390_options_pcr_narrative_operational_use_matches_value',
+      pcrPrimary && pcrDetail &&
+      pcrDetail.getAttribute('data-operational-use') === pcrPrimary.getAttribute('data-operational-use') &&
+      pcrDetail.getAttribute('data-source-kind') === pcrPrimary.getAttribute('data-source-kind'),
+      'value=' + (pcrPrimary && pcrPrimary.getAttribute('data-operational-use')) +
+      ' detail=' + (pcrDetail && pcrDetail.getAttribute('data-operational-use')));
+
+    var tempLineage = document.createElement('span');
+    tempLineage.setAttribute('data-live-price', '__AIO_LINEAGE__');
+    tempLineage.textContent = '123.45';
+    document.body.appendChild(tempLineage);
+    var lineageAudit = window.AIO.getMarketCurrentnessAudit({ root: document.body, includeHidden: true });
+    window.AIO.applyMarketCurrentnessGuard({ includeHidden: true });
+    var lineageGuarded = tempLineage.getAttribute('data-operational-use') === 'reference-only' &&
+      tempLineage.getAttribute('data-source-kind') === 'unknown';
+    tempLineage.remove();
+    _assert('T391_live_price_without_lineage_is_reference_only',
+      lineageAudit && lineageAudit.issues && lineageAudit.issues.some(function(x) { return x.type === 'visible-live-sink-missing-lineage' && x.key === '__AIO_LINEAGE__'; }) && lineageGuarded,
+      lineageAudit ? JSON.stringify(lineageAudit.issues.slice(-3)) : 'missing');
+
+    var narrative = document.getElementById('opt-analysis-text');
+    var oldNarrUse = narrative && narrative.getAttribute('data-operational-use');
+    var oldNarrKind = narrative && narrative.getAttribute('data-source-kind');
+    var oldNarrTitle = narrative && narrative.title;
+    if (narrative) {
+      narrative.removeAttribute('data-operational-use');
+      narrative.removeAttribute('data-source-kind');
+      window.AIO.applyMarketCurrentnessGuard({ includeHidden: true });
+    }
+    var narrativeGuarded = !narrative || (
+      narrative.getAttribute('data-operational-use') === 'reference-only' &&
+      !!narrative.getAttribute('data-source-kind')
+    );
+    if (narrative) {
+      if (oldNarrUse) narrative.setAttribute('data-operational-use', oldNarrUse); else narrative.removeAttribute('data-operational-use');
+      if (oldNarrKind) narrative.setAttribute('data-source-kind', oldNarrKind); else narrative.removeAttribute('data-source-kind');
+      narrative.title = oldNarrTitle || '';
+    }
+    _assert('T392_analysis_text_without_lineage_is_reference_only',
+      narrativeGuarded,
+      narrative ? 'use=' + narrative.getAttribute('data-operational-use') + ' kind=' + narrative.getAttribute('data-source-kind') : 'no opt-analysis-text');
   }
 
   function _testV4938HomeDeepAudit() {
@@ -2830,6 +2901,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.54 loaded - run AIO.runTests() (T1~T384)');
+  console.log('[AIO] aio-tests.js v49.55 loaded - run AIO.runTests() (T1~T392)');
 
 })();

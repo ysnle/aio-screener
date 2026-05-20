@@ -6,6 +6,18 @@
 
 ---
 
+## v49.55 - Market currentness audit and guard (2026-05-20)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- Added `AIO.getMarketCurrentnessAudit()` to detect visible live sinks and analysis text that still show loading, unavailable, or stale snapshot states without being marked reference-only.
+- Added `AIO.applyMarketCurrentnessGuard()` and `AIO.updateSnapshotStaleBanner()` so unavailable live fields and stale snapshot banners are explicitly downgraded from current-market use.
+- Added DOM-level lineage enforcement for live quote sinks: visible numeric values now need source kind, source label, timestamp, and operational-use metadata or they are downgraded to reference-only.
+- Added narrative lineage enforcement so visible analysis text without operational-use metadata is treated as mixed-source reference analysis instead of an unqualified current-market verdict.
+- Integrated market-currentness checks into `AIO.getAutoOpsReadiness()` and live quote refresh handling.
+- Added T385~T392 recurrence tests for market-currentness audit, guard availability, loading detection, auto-ops integration, snapshot banner guard coverage, PCR narrative/value operational-use alignment, live-quote lineage enforcement, and analysis-text lineage enforcement.
+- Bumped app/SW/script cache keys to `v49.55` so GitHub Pages cannot keep the earlier v49.54 runtime.
+
 ## v49.54 - Operational data contract hardening (2026-05-20)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`

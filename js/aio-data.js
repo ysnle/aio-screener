@@ -9814,6 +9814,7 @@ async function fetchLiveQuotes(requestedSymbols) {
     // v49.37 P282: live-quote-ts-topbar 동시 갱신 (영구 placeholder 잔존 차단)
     const lqTsTop = document.getElementById('live-quote-ts-topbar');
     if (lqTsTop) { lqTsTop.textContent = '● 시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' (' + allQuotes.length + '개)'; lqTsTop.className = 'freshness-badge fb-live'; }
+    try { if (window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'function') window.AIO.applyMarketCurrentnessGuard({ reason: 'live-quotes' }); } catch(_mcg) {}
   } else {
     fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount||0) + 1;
     // v46.4: 지수적 백오프 (선형 30×N → 지수 15×2^N, 최대 300초)
@@ -10381,7 +10382,8 @@ function applyLiveQuotes(quotes) {
       }
     }
     // v30.11: 데이터 출처 기록
-    window._dataSource[q.symbol] = { source: q._source || 'live:yahoo', ts: now, pctMissing: !hasPct };
+    var _storedMetric = window._liveData && window._liveData[q.symbol] && window._liveData[q.symbol].metric;
+    window._dataSource[q.symbol] = { source: q._source || 'live:yahoo', ts: now, pctMissing: !hasPct, policyKey: 'quote', metric: _storedMetric || null };
     const pctStr = hasPct ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '—';
     const cls    = hasPct ? (pct >= 0 ? 'pnl pos' : 'pnl neg') : 'pnl neutral';
     // Track SPX vs ATH for Market Regime display
@@ -10419,6 +10421,15 @@ function applyLiveQuotes(quotes) {
         var _pp = el.querySelector('.pill-price') || el.querySelector('.kr-etf-price');
         if (_pp) _pp.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       } else { el.textContent = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+      var _contract = null;
+      try {
+        _contract = _storedMetric && _storedMetric.contract ? _storedMetric.contract :
+          (window.AIO_OPERATIONAL_DATA_CONTRACT ? window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric({ source: q._source || 'live:yahoo', ts: now, policyKey: 'quote' }) : null);
+      } catch(_qContract) {}
+      el.setAttribute('data-source-kind', _contract && _contract.sourceKind ? _contract.sourceKind : 'live');
+      el.setAttribute('data-operational-use', _contract && _contract.allowedUse ? 'decision' : 'reference-only');
+      el.setAttribute('data-source-label', q._source || 'live:yahoo');
+      el.setAttribute('data-source-ts', String(now));
       // v48.43: flash 애니메이션 트리거 (유의미한 변화 시)
       if (isFinite(_prevNum) && _prevNum > 0 && Math.abs(price - _prevNum) / _prevNum > 0.0001) {
         el.classList.remove('aio-flash-up', 'aio-flash-down');
@@ -10575,6 +10586,16 @@ function applyLiveQuotes(quotes) {
         var _pp = el.querySelector('.pill-price') || el.querySelector('.kr-etf-price');
         if (_pp) _pp.textContent = fmt;
       } else { el.textContent = fmt; }
+      var ds = (window._dataSource && window._dataSource[sym]) || d || {};
+      var contract = null;
+      try {
+        contract = ds.metric && ds.metric.contract ? ds.metric.contract :
+          (window.AIO_OPERATIONAL_DATA_CONTRACT ? window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric({ source: ds.source || d.source || 'unknown', ts: ds.ts || d.ts, policyKey: ds.policyKey || 'quote' }) : null);
+      } catch(_bulkContract) {}
+      el.setAttribute('data-source-kind', contract && contract.sourceKind ? contract.sourceKind : 'unknown');
+      el.setAttribute('data-operational-use', contract && contract.allowedUse ? 'decision' : 'reference-only');
+      el.setAttribute('data-source-label', ds.source || d.source || 'unknown');
+      if (ds.ts || d.ts) el.setAttribute('data-source-ts', String(ds.ts || d.ts));
     }
   });
   document.querySelectorAll('[data-live-chg]').forEach(function(el) {
@@ -11647,6 +11668,8 @@ function _aioUpdatePutCallDom(payload) {
     var parts = ['CBOE Total P/C ' + text, tone.narrative, sourceLabel + ' · ' + mode];
     if (payload.equityPutCall != null) parts.push('Equity P/C ' + Number(payload.equityPutCall).toFixed(2));
     detail.textContent = parts.join(' · ');
+    detail.setAttribute('data-source-kind', sourceKind);
+    detail.setAttribute('data-operational-use', metric.allowedUse ? 'decision' : 'reference-only');
   }
 
   if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.pcr = pcr;
@@ -11664,6 +11687,7 @@ function _aioUpdatePutCallDom(payload) {
     badge.textContent = metric.allowedUse ? (sourceKind === 'delayed' ? 'DELAYED · CBOE' : 'LIVE · CBOE') : 'SNAPSHOT · reference';
     badge.style.color = metric.allowedUse ? '#00e5a0' : '#7b8599';
     badge.setAttribute('data-source-kind', sourceKind);
+    badge.setAttribute('data-operational-use', metric.allowedUse ? 'decision' : 'reference-only');
   }
 
   var pct = Math.min(100, Math.max(0, (pcr - 0.4) / 0.8 * 100));

@@ -2493,7 +2493,7 @@ window.AIO.getChatHallucinationAudit = function(responseText) {
 // R93 신규 (페이지 sequential audit 의무화)
 // ─────────────────────────────────────────────────────────────────
 window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
-  version: 'v49.54',
+  version: 'v49.55',
   axes: ['최신성', '정확성', '정합성', '로직성', '직관성', '핵심성'],
   // 페이지별 sub-section 정의 (top-down 순서)
   pages: {
@@ -5671,6 +5671,7 @@ window.AIO.getAutoOpsReadiness = function() {
   var snapshotDateSources = window.AIO.getSnapshotDateSourceAudit ? window.AIO.getSnapshotDateSourceAudit() : null;
   var operationalDataContract = window.AIO.getOperationalDataContractAudit ? window.AIO.getOperationalDataContractAudit() : null;
   var krSupplyRuntime = window.AIO.getKrSupplyRuntimeAudit ? window.AIO.getKrSupplyRuntimeAudit() : null;
+  var marketCurrentness = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit() : null;
   var issues = [];
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
   if (statics && statics.issueCount) issues.push(statics.issueCount + ' static/live-like freshness issue(s)');
@@ -5704,6 +5705,7 @@ window.AIO.getAutoOpsReadiness = function() {
   if (snapshotDateSources && snapshotDateSources.issueCount) issues.push(snapshotDateSources.issueCount + ' snapshot date source issue(s) [v49.52/R106]');
   if (operationalDataContract && operationalDataContract.issueCount) issues.push(operationalDataContract.issueCount + ' operational data contract issue(s) [v49.54/R107]');
   if (krSupplyRuntime && krSupplyRuntime.issueCount) issues.push(krSupplyRuntime.issueCount + ' KR supply runtime issue(s) [v49.54/R108]');
+  if (marketCurrentness && marketCurrentness.issueCount) issues.push(marketCurrentness.issueCount + ' market currentness issue(s) [v49.55/R109]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -5748,6 +5750,8 @@ window.AIO.getAutoOpsReadiness = function() {
       snapshotDateSources: 'AIO.getSnapshotDateSourceAudit()',
       operationalDataContract: 'AIO.getOperationalDataContractAudit()',
       krSupplyRuntime: 'AIO.getKrSupplyRuntimeAudit()',
+      marketCurrentness: 'AIO.getMarketCurrentnessAudit({ includeHidden: true })',
+      applyMarketCurrentnessGuard: 'AIO.applyMarketCurrentnessGuard()',
       marketRegime: 'AIO.getCurrentMarketRegime()',
       krMarketTemperature: 'AIO.getKrMarketTemperature()',
       deploymentGate: 'AIO.getDeploymentGateAudit({ strict: true })'
@@ -5782,6 +5786,7 @@ window.AIO.getAutoOpsReadiness = function() {
     snapshotDateSources: snapshotDateSources,
     operationalDataContract: operationalDataContract,
     krSupplyRuntime: krSupplyRuntime,
+    marketCurrentness: marketCurrentness,
     generatedAt: new Date().toISOString()
   };
 };
@@ -8832,7 +8837,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.54';
+const APP_VERSION = 'v49.55';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -11193,7 +11198,7 @@ window.AIO.renderDynamicMarketNarratives = function() {
 };
 
 window.AIO_OPERATIONAL_DATA_CONTRACT = {
-  version: 'v49.54',
+  version: 'v49.55',
   policies: {
     live: { maxAgeMs: 15 * 60 * 1000, decisionUse: true, confidence: 'high' },
     delayed: { maxAgeMs: 72 * 60 * 60 * 1000, decisionUse: true, confidence: 'medium' },
@@ -11293,18 +11298,191 @@ window.AIO.getOperationalDataContractAudit = function() {
   };
 };
 
+window.AIO.getMarketCurrentnessAudit = function(opts) {
+  opts = opts || {};
+  var root = opts.root || document;
+  var includeHidden = opts.includeHidden === true;
+  var issues = [];
+  var liveSinks = [];
+  var narrativeIssues = [];
+  var unavailableRe = /(로딩 중|데이터 로딩|수신 대기|불러오지 못했습니다|Loading|unavailable|^—$)/i;
+  var isVisible = function(el) {
+    if (includeHidden) return true;
+    return !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length));
+  };
+  var clean = function(s) { return String(s || '').replace(/\s+/g, ' ').trim(); };
+  try {
+    Array.prototype.slice.call(root.querySelectorAll('[data-live-price], [data-live-kr]')).forEach(function(el) {
+      var visible = isVisible(el);
+      var txt = clean(el.textContent);
+      var key = el.getAttribute('data-live-price') || el.getAttribute('data-live-kr') || '';
+      var unavailable = !txt || unavailableRe.test(txt);
+      var use = el.getAttribute('data-operational-use') || '';
+      var sourceKind = el.getAttribute('data-source-kind') || '';
+      var referenceOnly = use === 'reference-only' || /snapshot|unavailable|reference/.test(sourceKind);
+      var hasLineage = !!(use && sourceKind);
+      var item = {
+        key: key,
+        id: el.id || '',
+        pageId: (function() { var p = el.closest && el.closest('.page[id]'); return p ? p.id : null; })(),
+        text: txt.slice(0, 120),
+        visible: visible,
+        unavailable: unavailable,
+        operationalUse: use || null,
+        sourceKind: sourceKind || null
+      };
+      liveSinks.push(item);
+      if (visible && unavailable && !referenceOnly) {
+        issues.push({ type: 'visible-live-sink-unavailable', key: key, id: item.id, pageId: item.pageId, text: item.text });
+      }
+      if (visible && !unavailable && !hasLineage) {
+        issues.push({ type: 'visible-live-sink-missing-lineage', key: key, id: item.id, pageId: item.pageId, text: item.text });
+      }
+    });
+    ['snapshot-stale-warning','opt-pcr-text','kr-supply-analysis-text','mkt-regime-sub','vol-regime-sub','cam-verdict-text','opt-analysis-text'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el || !isVisible(el)) return;
+      var txt = clean(el.textContent);
+      if (/로딩 중|데이터 로딩|수신 대기|계산중/.test(txt)) {
+        var issue = { type: 'visible-narrative-loading', id: id, text: txt.slice(0, 160) };
+        issues.push(issue);
+        narrativeIssues.push(issue);
+      }
+      if (txt && !el.getAttribute('data-operational-use')) {
+        var lineageIssue = { type: 'visible-narrative-missing-lineage', id: id, text: txt.slice(0, 160) };
+        issues.push(lineageIssue);
+        narrativeIssues.push(lineageIssue);
+      }
+    });
+  } catch(e) {
+    issues.push({ type: 'audit-error', message: e && e.message || String(e) });
+  }
+  var snap = window.DATA_SNAPSHOT || {};
+  var updatedTs = snap._updated ? new Date(snap._updated).getTime() : 0;
+  var snapshotAgeHours = updatedTs ? Math.round((Date.now() - updatedTs) / 3600000) : null;
+  var freshness = null;
+  try { freshness = window.AIO.getDataFreshnessAudit ? window.AIO.getDataFreshnessAudit() : null; } catch(_) {}
+  var coreLiveOk = !!(freshness && freshness.liveCoverage && freshness.liveCoverage.coreOk);
+  if (snapshotAgeHours != null && snapshotAgeHours > 72 && !coreLiveOk) {
+    issues.push({ type: 'hard-stale-snapshot-without-core-live', snapshotAgeHours: snapshotAgeHours });
+  }
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    issues: issues,
+    visibleUnavailableCount: issues.filter(function(x) { return x.type === 'visible-live-sink-unavailable'; }).length,
+    narrativeIssueCount: narrativeIssues.length,
+    snapshotAgeHours: snapshotAgeHours,
+    coreLiveOk: coreLiveOk,
+    liveSinkCount: liveSinks.length,
+    liveSinks: liveSinks,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.updateSnapshotStaleBanner = function() {
+  var el = document.getElementById('snapshot-stale-warning');
+  if (!el) return null;
+  var snap = window.DATA_SNAPSHOT || {};
+  var updatedTs = snap._updated ? new Date(snap._updated).getTime() : 0;
+  if (!updatedTs || isNaN(updatedTs)) return null;
+  var hrs = Math.floor((Date.now() - updatedTs) / 3600000);
+  if (hrs <= 24) {
+    el.style.display = 'none';
+    return { status: 'fresh', hours: hrs };
+  }
+  var currentness = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit() : null;
+  var coreLiveOk = !!(currentness && currentness.coreLiveOk);
+  el.style.display = 'block';
+  el.setAttribute('data-operational-use', 'reference-only');
+  el.setAttribute('data-source-kind', 'snapshot');
+  if (coreLiveOk) {
+    el.textContent = '핵심 실시간 시세 반영 중 · 정적 보조 스냅샷은 ' + hrs + '시간 전 자료라 현재 판단에서 제외됩니다.';
+    el.style.background = 'rgba(0,212,255,0.08)';
+    el.style.borderColor = 'rgba(0,212,255,0.25)';
+    el.style.color = 'var(--data-cyan)';
+  } else {
+    el.textContent = '정적 스냅샷 기준 ' + hrs + '시간 전 · 핵심 실시간 시세가 완전하지 않아 현재 시장 판단에 사용하지 마세요.';
+    el.style.background = 'rgba(255,91,80,0.10)';
+    el.style.borderColor = 'rgba(255,91,80,0.30)';
+    el.style.color = 'var(--data-red)';
+  }
+  return { status: coreLiveOk ? 'reference-only' : 'warn', hours: hrs, coreLiveOk: coreLiveOk };
+};
+
+window.AIO.applyMarketCurrentnessGuard = function(opts) {
+  opts = opts || {};
+  var audit = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit(opts) : null;
+  try {
+    Array.prototype.slice.call(document.querySelectorAll('[data-live-price], [data-live-kr]')).forEach(function(el) {
+      var visible = !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length));
+      if (!visible && opts.includeHidden !== true) return;
+      var txt = String(el.textContent || '').replace(/\s+/g, ' ').trim();
+      if (!txt || /(로딩 중|데이터 로딩|수신 대기|불러오지 못했습니다|Loading|unavailable|^—$)/i.test(txt)) {
+        el.setAttribute('data-operational-use', 'reference-only');
+        el.setAttribute('data-source-kind', 'unavailable');
+        el.title = '실시간 데이터 미수신 · 현재 시장 판단 제외';
+        if (/로딩 중|데이터 로딩|수신 대기/.test(txt) && txt.length <= 24) {
+          el.textContent = '수신 실패 · 판단 제외';
+        }
+      } else if (!el.getAttribute('data-source-kind') || !el.getAttribute('data-operational-use')) {
+        el.setAttribute('data-operational-use', 'reference-only');
+        el.setAttribute('data-source-kind', 'unknown');
+        el.title = '출처 메타데이터 미확인 · 현재 시장 판단 제외';
+      }
+    });
+    ['opt-pcr-text','kr-supply-analysis-text','mkt-regime-sub','vol-regime-sub','cam-verdict-text','opt-analysis-text'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var visible = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+      if (!visible && opts.includeHidden !== true) return;
+      var txt = String(el.textContent || '').replace(/\s+/g, ' ').trim();
+      if (/로딩 중|데이터 로딩|수신 대기|계산중/.test(txt)) {
+        el.setAttribute('data-operational-use', 'reference-only');
+        el.setAttribute('data-source-kind', 'unavailable');
+        el.title = '분석 데이터 미수신 · 현재 시장 판단 제외';
+      } else if (txt && !el.getAttribute('data-operational-use')) {
+        el.setAttribute('data-operational-use', 'reference-only');
+        el.setAttribute('data-source-kind', 'mixed');
+        el.title = '혼합 출처 분석 · 보조 참고용';
+      }
+    });
+    window.AIO.updateSnapshotStaleBanner && window.AIO.updateSnapshotStaleBanner();
+  } catch(e) {
+    if (window.AIO && window.AIO.recordDataQualityIssue) {
+      window.AIO.recordDataQualityIssue({ source: 'market-currentness-guard', severity: 'warn', message: e && e.message || String(e) });
+    }
+  }
+  return audit;
+};
+
 if (typeof document !== 'undefined') {
+  var _aioScheduleMarketCurrentnessGuard = function(delay) {
+    setTimeout(function() {
+      try {
+        if (window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'function') {
+          window.AIO.applyMarketCurrentnessGuard();
+        }
+      } catch(_) {}
+    }, delay || 0);
+  };
   _aioPageBus.register('core-dynamic-narratives-live', 'aio:liveQuotes', function() {
     if (window.AIO && window.AIO.renderDynamicMarketNarratives) window.AIO.renderDynamicMarketNarratives();
+    _aioScheduleMarketCurrentnessGuard(400);
   });
   _aioPageBus.register('core-dynamic-narratives-shown', 'aio:pageShown', function() {
     if (window.AIO && window.AIO.renderDynamicMarketNarratives) window.AIO.renderDynamicMarketNarratives();
+    _aioScheduleMarketCurrentnessGuard(1200);
   });
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     setTimeout(function(){ if (window.AIO && window.AIO.renderDynamicMarketNarratives) window.AIO.renderDynamicMarketNarratives(); }, 800);
+    _aioScheduleMarketCurrentnessGuard(6000);
+    _aioScheduleMarketCurrentnessGuard(18000);
   } else {
     document.addEventListener('DOMContentLoaded', function(){
       setTimeout(function(){ if (window.AIO && window.AIO.renderDynamicMarketNarratives) window.AIO.renderDynamicMarketNarratives(); }, 800);
+      _aioScheduleMarketCurrentnessGuard(6000);
+      _aioScheduleMarketCurrentnessGuard(18000);
     });
   }
 }
