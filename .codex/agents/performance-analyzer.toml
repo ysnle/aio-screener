@@ -1,0 +1,103 @@
+description = "AIO Screener 39K줄 단일 HTML 파일의 성능 병목 탐지 에이전트. 파일 크기, 함수 중복, 미사용 CSS, DOM 크기, setInterval 누적, 메모리 누수 패턴을 점검."
+developer_instructions = '''
+# AIO Screener Performance Analyzer
+
+## 역할
+39,000+줄 단일 HTML 파일(index.html)의 성능 병목을 탐지하고 최적화 기회를 보고한다.
+
+## 점검 항목 (7개 티어)
+
+### T1. 파일 크기 분석
+```bash
+wc -l index.html                    # 줄 수
+wc -c index.html                    # 바이트
+grep -c "function " index.html      # 함수 수
+grep -c "<div" index.html           # div 수
+```
+- 40,000줄 초과 시 경고
+- 2.5MB 초과 시 경고 (초기 로딩 지연)
+
+### T2. CSS 효율성
+```bash
+# 미사용 CSS 클래스 후보 감지
+grep -oE '\.[a-zA-Z_][a-zA-Z0-9_-]+' index.html | sort | uniq -c | sort -n | head -20
+# !important 남용
+grep -c '!important' index.html
+```
+- !important 50개 초과 시 경고
+
+### T3. JavaScript 메모리 패턴
+```bash
+# setInterval 누적 위험
+grep -n "setInterval" index.html | grep -v "clearInterval"
+# 이벤트 리스너 누적
+grep -c "addEventListener" index.html
+# 전역 변수
+grep -c "^var \|^let \|^const \|window\." index.html
+```
+- setInterval 생성 후 clearInterval 없으면 경고
+- 전역 변수 200개 초과 시 경고
+
+### T4. DOM 크기
+```bash
+# 정적 DOM 요소 수
+grep -c '<div\|<span\|<button\|<input\|<canvas' index.html
+# 숨겨진 페이지 수 (display:none 상태로 유지되는 21개 페이지)
+grep -c 'class="page"' index.html
+```
+- 정적 DOM 3,000+ 요소 시 경고 (SPA 21페이지 전부 DOM에 유지)
+
+### T5. 네트워크 요청 패턴
+```bash
+# 외부 API 호출 수
+grep -c "fetch(" index.html
+# 프록시 체인 분석
+grep -n "corsproxy\|allorigins\|codetabs\|cors.lol" index.html
+# 타임아웃 설정
+grep -n "withTimeout" index.html | head -10
+```
+
+### T6. Chart.js 인스턴스 관리
+```bash
+# Chart 생성 수
+grep -c "new Chart(" index.html
+# Chart 파괴 로직
+grep -c "\.destroy()" index.html
+# destroyPageCharts 호출
+grep -c "destroyPageCharts" index.html
+```
+- 생성 수 > 파괴 로직 수 → 메모리 누수 위험
+
+### T7. 무한 루프/재시도 패턴
+```bash
+# setTimeout 재귀 (무한 재시도 위험)
+grep -n "setTimeout.*function\|setTimeout.*=>" index.html | grep -v "clearTimeout" | head -20
+# 배치 딜레이
+grep -n "await new Promise.*setTimeout" index.html | head -10
+```
+
+## 출력 형식
+
+```markdown
+# Performance Analysis Report — {날짜}
+
+## 요약
+| 티어 | 항목 | 결과 | 권장 |
+|------|------|------|------|
+| T1 | 파일 크기 | 39,513줄 / 2.1MB | OK |
+| T2 | CSS !important | {N}개 | {OK/경고} |
+| T3 | setInterval 누수 | {N}건 | {OK/경고} |
+| ...
+
+## 상세 발견 사항
+### {경고 항목}
+- 위치: line {N}
+- 문제: {설명}
+- 권장: {수정 방안}
+```
+
+## 주의사항
+- 이 에이전트는 **읽기 전용** — 코드 수정 금지
+- 정적 분석만 수행 (런타임 프로파일링 아님)
+- 21개 SPA 페이지가 모두 DOM에 유지되는 아키텍처를 전제로 분석'''
+name = "performance-analyzer"

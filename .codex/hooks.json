@@ -1,0 +1,64 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\protect-files.sh'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\block-dangerous.sh'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\validate-edit.sh'",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\check-antipatterns.sh'",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\check-version-sync.sh'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\":\"[세션 종료 전 체크] 코드 수정이 있었다면 반드시 /deploy 실행 후 종료하세요. /deploy 없이 종료 시 이번 세션 작업이 origin/main에 반영되지 않습니다. 메모리 업데이트가 필요하면 /session-save도 실행하세요.\"}'",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\auto-commit-on-stop.sh'",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

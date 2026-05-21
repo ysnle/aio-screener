@@ -6,6 +6,206 @@
 
 ---
 
+## v48.13 — Finnhub 기업 뉴스 재도입 + 포트폴리오 벤치마크 차트 실데이터 (2026-04-17)
+
+### 트리거
+사용자: "이전에 추천한 개선 후보들 중 무료 가능한 것 진행. 기존 스크리너와 잘 통합되어야".
+
+후보 5건 중 **기존 구조 통합도 최고 2건** 선정:
+- ✅ Finnhub /company-news 재도입 (기업 분석 페이지 기존 _renderFund* 패턴 확장)
+- ✅ 포트폴리오 SPY 벤치마크 차트 실데이터 연결 (기존 DOM 이미 있음, 버그 수정 + 실데이터)
+- ⏸ CoinGecko 상위 20 코인 UI · SEC Frames 섹터 페이지 · Claude tool_use — 구조 충돌 가능성으로 연기
+
+### P128 — 2건 수정
+
+**1. Finnhub `/company-news` 재도입**
+
+v47.10에서 "정의만 있고 호출 0건" dead code로 제거된 `fetchFinnhubCompanyNews` 재도입:
+- `fetchFinnhubCompanyNews(symbol, daysBack=14)` — from=-14d&to=today 호출
+- 최신순 정렬 + headline 중복 제거 + 상위 15건 반환
+- `fundamentalSearch` Finnhub Promise.allSettled에 4번째 job 편입(`_fhResults[3]`)
+- `collected.finnhubNews` 저장 + sources 'Finnhub (기업 뉴스)' 추가
+- `_renderFundNews(d)` 신설 — 헤드라인 140자 + 요약 180자 + N시간/일 전 + source/date
+- 기존 `_renderFund*` 패턴 100% 준수 (CSS 변수, 폰트, 색상, 카드 구조)
+- `fund-rpt-news` DOM은 `fund-rpt-earnings` 뒤 · `fund-rpt-sources` 앞 자연 삽입
+- XSS `escHtml` 전수 적용
+
+**2. 포트폴리오 `updateBenchmarkChart` 실데이터 연결**
+
+기존 stub 2가지 문제:
+- 필드명 오표기: `p.sym/p.avgCost/p.shares` → `getPortfolioData()` 실제 필드는 `ticker/cost/qty` → 항상 0% 표시
+- SPY 실데이터 없음 — `spxPct * i/days` 선형 보간만
+
+수정:
+- 필드명 교정 (ticker/cost/qty)
+- SPY 30일 실데이터: `Yahoo chart range=1mo` 1회 fetch
+- 포트폴리오 상위 10종목 (보유 가치 기준) Yahoo chart 병렬 fetch → 가중 일별 수익률 계산
+- 미커버 종목(11+ 또는 fetch 실패)은 현재 누적 수익률 선형 분포로 폴백
+- 색상 공통 팔레트: SPY `#60a5fa`(accent 블루) / 포트폴리오 `#3ddba5`(녹색) / Alpha `#3ddba5|#f87171` 티어
+- 0% 기준선 dashed + 레이블 상단 (내 포트폴리오 / SPY / Alpha %p)
+- 커버리지 % 하단 표시 ("일별 실데이터 커버리지: 85% · Yahoo 30일")
+- 포트폴리오 빈 상태 안내 메시지
+
+### 통합성 체크
+- ✅ 기존 CSS 변수: `var(--bg-card)` / `var(--border)` / `var(--text-secondary)` / `var(--text-muted)` / `var(--accent)` / `var(--font-mono)`
+- ✅ 공통 색상 팔레트: #3ddba5 녹, #60a5fa 파랑, #f87171 빨강
+- ✅ 폰트 11px+ R17/P37 준수
+- ✅ 기존 `_renderFund*` 섹션 패턴 · `pf-*` 네이밍 규약
+- ✅ escHtml XSS 방어
+- ✅ 새 UI 패턴 도입 없음 — 완전 자연 통합
+
+### 무료 비용
+- Finnhub `/company-news`: 무료 60/min, 기업 검색 1회당 1 req
+- Yahoo chart: 무료 무제한, 포트폴리오 벤치마크 1회당 최대 11 req (SPY + 10 종목)
+- v48.8 _fundCache 30분 세션 캐시 + v48.9 쿼터 가드로 4명 공유 환경 안정
+
+### R1 6곳 동기화
+title / badge / APP_VERSION / version.json / _context/CLAUDE.md / CHANGELOG / 루트 CLAUDE.md 모두 `v48.13`
+
+---
+
+## v48.12 — AI 채팅 기관 리서치 스타일 + 내러티브 강화 (2026-04-17)
+
+### 트리거
+사용자 보고: "최근 주식 관련 소식들/정보들, 최근 기업 관련 소식들/정보들 모두 가져와서 AI 채팅 답변에 반영? 기관·애널리스트 등급·목표주가? 논리적 이유·근거? 인사이트 핵심? 오염된 데이터 말하지는 않는지?"
+
+### P127 — 3건 보강
+
+**1. Finnhub recommendation + 어닝 일정 `_fetchTickerDataForChat` 자동 주입**
+
+기존: `fundamentalSearch`(기업분석 페이지 검색) 경로만 `collected.finnhubRecommendation` 주입 → 일반 AI 채팅(`chatSendUnified`/`chatSend` 티커 감지)은 누락.
+
+변경: `_fetchTickerDataForChat` 루프 내부에서 각 티커마다 `fetchFinnhubRecommendation(ticker)` + `fetchFinnhubEarningsCalendar(today, +60d, ticker)` 자동 호출:
+
+```
+[애널리스트 컨센서스] 25명 · StrongBuy 12/Buy 8/Hold 3/Sell 1/StrongSell 1 → 매수 우세 (Finnhub · 2026-04)
+[다음 어닝] 2026-05-14 장후 · 예상 EPS $2.15 · 예상 매출 $12.4B
+```
+
+**2. `_buildNewsContext` 뉴스 본문 요약 포함**
+
+기존: 헤드라인 80자만 → "왜 올랐나/내렸나" 맥락 부족.
+
+변경: `desc`/`summary`/`description` 필드 HTML 스트립 후 **140자 요약 + `└` 인덴트**. 기관명·숫자·인용구 등 사실 근거를 AI가 답변에 활용 가능.
+
+```
+1. [Bloomberg · 3h전] NVDA H100 Q3 선주문 30% 상향, 메타·MS가 주도
+   └ Bloomberg에 따르면 Meta가 $10B, Microsoft가 $8B 추가 주문… (중략)
+```
+
+**3. 기관 애널리스트 스타일 답변 구조 6단계**
+
+시스템 프롬프트에 **골드만·JP모건·버핏·ARK 스타일** 지시:
+
+```
+① 현재 상황 — 가격 · [주가 추이] · 최근 변화
+② 투자 스토리/내러티브 — 성장 동력 · 해자(moat 5유형) · 테마
+③ 재무·밸류에이션 — 섹터 평균 대비 "왜 그 수준인가"
+④ Bull Case — 목표가 상단 + 달성 조건(구체적 KPI)
+⑤ Bear Case — 하락 트리거
+⑥ 카탈리스트 + 리스크 + 깨지는 신호 3~5개
+```
+
+공통 규칙:
+- 주입된 **모든 데이터 교차 참조** ([실시간 시세] · [주가 추이] · [뉴스] · [애널리스트 컨센서스] · [다음 어닝] · [재무 FMP] · [웹검색])
+- 항상 **숫자·시점·출처**로 근거 제시
+- **인사이트의 핵심** ("이 종목에서 지금 가장 중요한 한 가지") 먼저 명시
+- "카더라"·"일반적으로" 두루뭉실 금지
+- 데이터 ✗ 항목은 생략 + 솔직히 표기
+
+`chatSendUnified` + `chatSend` 양쪽 일관 적용.
+
+### 기대 효과
+
+**Before (v48.11)**: "NVDA는 AI 반도체 대장주로 성장세입니다. 매수 추천."
+**After (v48.12)**:
+> **핵심**: 3M +22% 상승이나 5D -4% 조정 — 단기 피로 신호.
+> ① 현재 $182 · [주가 추이] 강세 유지 · 5D -4% 단기 조정
+> ② 내러티브: H100 공급 부족, CUDA 해자(전환비용·개발자 락인). AI 인프라 테마 주도주
+> ③ 밸류: PER 58x — S&P 평균 21x 대비 프리미엄. PEG 1.2로 성장 반영
+> ④ Bull: 목표 $220 (애널리스트 컨센서스 상단). Q2 어닝 10% 상회 + 데이터센터 매출 YoY +150% 지속 시
+> ⑤ Bear: $140까지 -23%. 중국 수출 규제 강화 + AMD MI300 점유율 탈환
+> ⑥ 카탈리스트: 5/14 어닝 · GTC 컨퍼런스 · 리스크: 경쟁(AMD/Intel), 규제. 깨지는 신호: 데이터센터 매출 YoY +100% 미만
+
+### R1 6곳 동기화
+title / badge / APP_VERSION / version.json / _context/CLAUDE.md / CHANGELOG / 루트 CLAUDE.md 모두 `v48.12`
+
+---
+
+## v48.11 — AI 채팅 환각 방지 5중 강화 (추세 전환 + 오늘 날짜 + 커트오프) (2026-04-17)
+
+### 트리거
+사용자 보고: "긍정 뉴스로 올랐던 종목이 최근 하락인데 AI가 여전히 추천하는 상황 있어선 안 됨. 최근 시장 소식·개별 기업 소식·종목 내러티브·주가 추이 종합해서 설명해야".
+
+### P126 — 5중 강화
+
+**1. `_fetchTickerTrend(ticker)` 신설 — 주가 추이 자동 주입**
+
+Yahoo chart `range=3mo&interval=1d` 1회 호출로 추세 핵심 지표:
+- **5D / 20D / 3M 변동률** (%)
+- **추세 라벨**:
+  - `단기·중기 상승 추세` · `반등 초기 (중기는 하락)`
+  - `단기·중기 하락 추세` · `조정 중 (중기는 상승)`
+  - `횡보` · `강세 유지` · `약세 지속` · `혼조`
+- **3M 범위 내 위치 %** (저점~고점 기준)
+- `window._tickerTrendCache` 10분 TTL (4명 공유 시 부하 분산)
+
+`_fetchTickerDataForChat` 루프에서 각 티커마다 `[주가 추이]` 라인 자동 주입.
+
+**2. 오늘 날짜 + Claude 학습 커트오프 경고 블록**
+
+`chatSendUnified` + `chatSend` 양쪽 system prompt 상단:
+```
+【오늘 날짜 + 학습 데이터 커트오프】
+• 오늘: 2026-04-17 (KST)
+• 네 학습 데이터 커트오프는 약 2025년 초. 그 이후 정보는 주입된 실시간 데이터·뉴스·웹검색 결과만 신뢰.
+• 네 기억 속 "최근"이 오늘 기준 얼마나 과거인지 반드시 의식.
+```
+
+**3. 추세 해석 필수 규칙 6개 (종목 추천/매수·매도 판단 시)**
+
+```
+1. 긍정 뉴스 + [주가 추이] 하락 추세 → 호재 이미 반영/다른 부정 요인. 뉴스만으로 추천 금지.
+2. 반드시 [주가 추이] 라벨(상승/횡보/하락/조정/반등) 먼저 확인 후 답변.
+3. 애널리스트 목표가는 "발표 시점" 확인 — 오래된 목표가는 참고용.
+4. "최근 상승세" 표현은 주입된 추이 데이터로 검증 후에만 사용.
+5. 시간 불일치 탐지: 긍정 뉴스일 이후 주가 급락이면 "재료 소진/후속 악재" 가능성 언급.
+6. 네 기억 속 주가/실적 수치는 거의 100% 오래된 값. [주가 추이]/[실시간]/[웹검색]만 현재값.
+```
+
+**4. 데이터 검증 태그 강화**
+
+- **실시간 시세 분 단위 stale 체크** (`_quoteTimestamps` 활용)
+  - 5분 미만: ✓ 정상
+  - 5~10분: ⚠ 지연 주의
+  - 10분+: ⚠ "N분 전 데이터 — 가격 인용 시 N분 지연 명시 필수"
+  - 미수신: ✗ **가격 수치 인용 자체 금지**
+- **`[주가 추이]` 주입 여부 별도 항목** — 없으면 "추세 언급 자체 금지"
+- **DATA_SNAPSHOT 72시간+ 경과** → ⚠⚠ "정적 수치 인용 자체 금지. 실시간/웹검색만 사용"
+
+**5. Perplexity `search_recency_filter` 동적**
+
+쿼리 키워드 기반:
+- "오늘/지금/금일/방금/현재/당일/today/now" 포함 → `'day'`
+- 그 외 → `'week'` (기본 유지)
+
+당일 최신 질문 시 1주일 결과 대신 **당일 최신만** 우선 반환.
+
+### 기대 효과
+- "긍정 뉴스로 올랐지만 최근 하락" → [주가 추이]에 "단기·중기 하락 추세 (5D -8% · 20D -15%)" 주입 → Claude가 뉴스와 추이 시간 불일치 인식 → "호재는 이미 반영됐고 최근 하락 중 — 재료 소진 또는 후속 악재 가능" 해석
+- "엔비디아 오늘 주가" → recency 'day' → 당일 최신 기사 우선
+- DATA_SNAPSHOT 3일+ 구버전 → 수치 인용 금지 → AI가 학습 데이터 기억으로 답 못함 → 웹검색 필수 유도
+
+### 적용 범위
+- `chatSendUnified` (글로벌 AI 패널, 9개 지정 페이지)
+- `chatSend` (theme-detail 페이지 내장 — 일관성)
+- `_fetchTickerDataForChat` 호출되는 모든 경로 자동 적용
+
+### R1 6곳 동기화
+title / badge / APP_VERSION / version.json / _context/CLAUDE.md / CHANGELOG 모두 `v48.11`
+
+---
+
 ## v48.10 — 세션 전수 점검 + 누락 UI 3건 통합 + /deploy 대상 (2026-04-17)
 
 ### 트리거

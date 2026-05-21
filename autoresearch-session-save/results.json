@@ -1,0 +1,21 @@
+{
+  "skill_name": "session-save",
+  "status": "completed",
+  "current_experiment": 3,
+  "baseline_score": 83.3,
+  "best_score": 100.0,
+  "experiments": [
+    {"id": 0, "score": 15, "max_score": 18, "pass_rate": 83.3, "status": "baseline", "description": "원본 session-save v0 — 변경 없음"},
+    {"id": 1, "score": 17, "max_score": 18, "pass_rate": 94.4, "status": "kept", "description": "저장 제외 표에 스킬/인프라 패턴·통합 자료 2행 추가"},
+    {"id": 2, "score": 18, "max_score": 18, "pass_rate": 100.0, "status": "kept", "description": "feedback 정의에 버그수정/코드패턴 제외 명시"},
+    {"id": 3, "score": 18, "max_score": 18, "pass_rate": 100.0, "status": "converged", "description": "변경 없음 — 3회 연속 100% 수렴 확인"}
+  ],
+  "eval_breakdown": [
+    {"name": "E1 저장 대상 적합성", "pass_count": 12, "total": 12},
+    {"name": "E2 제외 범주 침범 없음", "pass_count": 9, "total": 12},
+    {"name": "E3 중복 체크", "pass_count": 12, "total": 12},
+    {"name": "E4 절대 날짜", "pass_count": 12, "total": 12},
+    {"name": "E5 MEMORY.md 200줄 이하", "pass_count": 12, "total": 12},
+    {"name": "E6 frontmatter 정합성", "pass_count": 12, "total": 12}
+  ]
+}

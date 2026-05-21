@@ -1,0 +1,5 @@
+experiment	score	max_score	pass_rate	status	description
+0	15	18	83.3%	baseline	원본 session-save v0 — 변경 없음
+1	17	18	94.4%	kept	저장 제외 표에 스킬/인프라 패턴·통합 자료 2행 추가
+2	18	18	100.0%	kept	2단계 feedback 정의에 버그수정/코드패턴 명시적 제외
+3	18	18	100.0%	converged	변경 없음 — 3회 연속 100% 수렴 확인
