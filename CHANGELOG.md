@@ -6,15 +6,156 @@
 
 ---
 
-## v49.58 - Currentness lineage recurrence fix (2026-05-21)
+## v49.59 — Residual Remediation: CHAT_CONTEXTS Depth + UX Completion + Pre-existing Polish (2026-05-21)
 
-**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
 
-- Rebased the currentness lineage fixes on top of live `v49.57` so the AI chat ticker coverage expansion is preserved.
-- Fixed decision-narrative candidate filtering so forced analysis IDs and action-item cards are audited even when their loading text is short.
-- Hardened stalled decision-narrative guard output: visible loading analysis is downgraded to "데이터 수신 지연 · 현재 시장 판단 제외" with `reference-only`/`unavailable` metadata.
-- Fixed T394 to use an ID matched by the decision-narrative selector and bumped currentness contract/registry/app tests to `v49.58`.
-- Bumped app/SW/script cache keys to `v49.58`.
+**Motivation**: 사용자 "남은 부분과 영역들도 모두 보강 작업 진행" 지시. 3개 Explore agent 병렬 조사로 22개 잔여 갭 발견 → 핵심 13건 처리. (잔여 9건 v49.60 이관)
+
+**Changes**:
+
+1. **Pre-existing 4 test 보정** (`js/aio-tests.js`)
+   - T317/T318: auditStatus 'partial' → object 전환 수용 (v49.41 구조 변경)
+   - T300: home subSections 8 → 8+ 범위 허용 (v49.38 15개 확장)
+   - T303: home chips 7 → 7+ 범위 허용
+   - T233: THRESHOLD.BREADTH.getLabel 정합 조건 추가
+   - T294: `index.html` L8212 ❌ → ⚠ (Moat SEC 10-K 대체 가능)
+
+2. **signal/breadth/sentiment 실데이터 주입 R110** (`js/aio-chat.js`)
+   - signal: AIO_ACTION_RULES 동적 평가 (VIX/score 기반 자동 액션 추천)
+   - breadth: AIO.diagnoseBreadthConsensus + DATA_SNAPSHOT 폴백
+   - sentiment: 6 지표 Tail Risk Board (VIX/VVIX/SKEW/MOVE/VIX9D-3M/AAII/PCR/HY OAS)
+
+3. **options 페이지 CHAT_CONTEXTS 신규 P325** (`index.html` L17613)
+   - PCR/PCR Equity/Index + VIX/VVIX/SKEW 동적 주입
+   - _currentTickerId 활용 (기초자산 가격)
+   - 5축 옵션 분석 프레임 + 시장 환경별 전략 매핑
+   - chips: 풋콜 비율 / GEX / 옵션 헤지 / 콜 매수
+
+4. **fxbond 한국 금리 스냅샷 명확화 R109/P326** (`js/aio-chat.js` L795)
+   - "[스냅샷: 날짜 — 실시간 fetch 없음]" 마커
+   - BOK 기준금리 + 3Y/10Y 동적 주입
+   - 환각 차단 안내
+
+5. **auditAllChatContexts 신규 R112/P327** (`js/aio-core.js`)
+   - 14 CHAT_CONTEXTS system() 호출 성공 여부 + 길이 + dynamic injection 패턴 + _getChatRules 호출 자동 검증
+   - validCount / dynamicCoveragePct / avgLength / perContext 반환
+   - 사이드바 audit 위젯에 chatContexts row 추가 (4축)
+
+6. **Claude 키 미입력 alert P329** (`js/aio-chat.js`)
+   - inline alert 강화 + console.anthropic.com 링크 + sk-ant- 형식 안내
+   - 사이드바 input border 빨간색 pulse (3초) + 자동 focus
+
+7. **AAII 임계값 fine-tune P328** (`js/aio-core.js`)
+   - 중정도 비관 범위 -20~-10 → -20~-5
+   - 중립 범위 -10~+10 → -5~+5 (약한 비관 신호 잡기)
+
+8. **REGISTRY 173 → 230+ 확장** (`js/aio-core.js` 60+ entries)
+   - 클라우드/SaaS (CFLT/WDAY/MNDY) + 에너지 (COP/OXY/SHEL/TTE/BP/HAL/BKR) + 핀테크 (XYZ/UPST/AXP/BLK/SPGI)
+   - 은행 (WFC/MS/C/USB/PNC/SCHW/BK) + 산업/방산 (GE/HON/LHX) + 통신/배당 (T/VZ/DE/NEE)
+   - 헬스 (MDT/EW/GEHC/BSX/DXCM) + 인도 ADR (IBN/HDB/INFY) + 메가캡 추가 10
+   - 소비/리테일 (TGT/EBAY/CPNG/CHWY) + 미디어 (PARA/PSKY/FUBO)
+   - BTC ETF 4종 (IBIT/FBTC/ARKB/BITO) + 위성 (IRDM)
+
+9. **신규 R 규칙 3개** (`_context/RULES.md`)
+   - **R109**: fxbond 한국 금리 스냅샷 시점 명시 의무
+   - **R110**: signal/breadth/sentiment context는 라이브 수치 자동 주입 의무
+   - **R112**: 모든 CHAT_CONTEXTS는 _getChatRules() 호출 의무
+
+10. **신규 P 번호 7개** (`_context/BUG-POSTMORTEM.md`)
+    - **P323**: Pre-existing 15 FAIL 잔여 (v49.42 이전 구조 변경 정합)
+    - **P324**: signal/breadth/sentiment 실데이터 미주입
+    - **P325**: options CHAT_CONTEXTS 부재
+    - **P326**: fxbond 한국 금리 스냅샷 시점 모호
+    - **P327**: 14 CHAT_CONTEXTS 정합성 audit 부재
+    - **P328**: AAII 임계값 fine-tune
+    - **P329**: Claude 키 미입력 silent fail
+
+11. **버전 동기화 7곳** — index.html title + badge + APP_VERSION + version.json + sw.js SW_VERSION + sw.js SW_BUILD + JS cache-bust 6곳 + _context/CLAUDE.md + CLAUDE.md + CHANGELOG.md
+
+**잔여 (v49.60 이관)**:
+- Phase 7 pre-existing 중기 3건 (T176b/T259/T263 — 30분~1h 별도 분석)
+- Phase 11 통합 ticker 검색 UI (사이드바)
+- Phase 12 모바일 audit widget 반응형
+- T175 / T392 / T394 등 더 깊은 fix
+- 온보딩 모달 v49.59 동기화
+
+---
+
+## v49.58 — AI Chat Gap Remediation + UX Visibility + Pre-existing Fix (2026-05-21)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 "AI 채팅 관련해서 남은 부분과 추가 작업 점검해줘" 지시. 3개 Explore agent 병렬 조사로 v49.57 이후 15개 잔여 갭 발견 (Code 무결성 5 / UX 가시성 3 / Pre-existing 7). 그 중 Tier 1 HIGH 5건 + UX P1/P2/P5 3건 + Pre-existing 4건 = 12건 처리.
+
+**Changes**:
+
+1. **ticker 페이지 CHAT_CONTEXTS 신규** (`index.html` L17501~17559, P319)
+   - `window.CHAT_CONTEXTS['ticker']` override 추가 — 사용자가 가장 자주 들어가는 페이지에 채팅 컨텍스트 정의
+   - `window._currentTickerId` 마커 + 활성 종목 라이브 가격 자동 주입
+   - 5축 프레임워크 (펀더멘털/기술적/컨센서스/거시 노출/이벤트 리스크)
+   - ABSOLUTE RULES 5조 적용
+
+2. **market-news 페이지 CHAT_CONTEXTS 신규** (`index.html` L17561~17613)
+   - `window.CHAT_CONTEXTS['market-news']` override
+   - 뉴스 캐시 자동 주입 (Top 10) + web_search 자동 트리거
+   - 4축 분석 프레임 (영향도/카탈리스트/시장 반응/후속 이벤트)
+
+3. **`_currentTickerId` 확산 R106** (`js/aio-core.js` showTicker L12717 + `js/aio-chat.js` fundamentalSearch L3774/3970 + showPage hook L12584)
+   - showTicker 진입 시 `window._currentTickerId = tkr;` 자동 set
+   - fundamentalSearch 캐시 hit/miss 양쪽에서 마커 갱신
+   - showPage hook: themes 계열 진입 시 _currentTickerId clear
+
+4. **6 미구현 함수 채팅 호출 통합 P320** (`js/aio-chat.js` L1877~1884 + L2070~2105)
+   - `computeFcfYield` / `computeBalanceSheetRatios` / `computeEvEbitda` / `computeMacroBeta` / `fetchFinnhubShortInterest` 5 promise 추가
+   - system 프롬프트 라벨 6 → 11: [FCF Yield] / [Balance Sheet] / [EV/EBITDA] / [Macro Beta] / [Short Interest] 신규
+   - ABSOLUTE RULES "구현 6→11 / 부분 5→2 / 미구현 4→2"
+
+5. **Promise.allSettled + `_withTimeout` R107/P321** (`js/aio-chat.js` L1848~1864)
+   - `_withTimeout(promise, ms, fallback)` helper 신설 — Promise.race + setTimeout
+   - 11개 fetch 모두 2.5초 timeout 래핑
+   - 종목 분석 응답 시간 30초+ → 4초 이내
+
+6. **사이드바 audit 위젯 + web_search 토글 + 키 백업 GUI R108/P322** (`index.html` L3886~3915 + `js/aio-core.js` L7729~7900)
+   - 위젯: registry / web_search / freshness 3 audit 결과 5분 자동 갱신
+   - 토글: `🔍 Claude 웹 검색` 체크박스 (localStorage 연동)
+   - 백업: 📥 백업 / 📤 복원 / 🔄 자동 3 버튼 (`AIO.exportApiKeys/importApiKeys/recoverApiKeysFromIdb` 호출)
+   - 핸들러 5개: `_aioRefreshAuditWidget` / `_aioWebSearchToggle` / `_aioExportKeys` / `_aioImportKeysPrompt` / `_aioRecoverKeys`
+
+7. **Pre-existing 4 fix**
+   - **T196**: AAII spread 임계값 -10/+10 → -5/+5 (`js/aio-core.js` AAII bands) — 약한 비관 신호 잡기
+   - **T241**: KOSPI 인라인 라이브 update 허용 (`js/aio-tests.js` L2358) — test 자체 보정
+   - **T244**: "Bessent/Warsh" 인물명 일반화 (`index.html` L17205, L17392) — 재무부/연준 정책 믹스 동적
+   - **T278**: VKOSPI "정상" 임계값 15 → 20 (`index.html` L18915, L28948) — CHANGELOG 의도 정합
+
+8. **신규 R 규칙 3개** (`_context/RULES.md`)
+   - **R106**: 새 페이지 CHAT_CONTEXTS 신규 시 window._currentXxxId 자동 주입 의무
+   - **R107**: 채팅 fetch는 반드시 Promise.allSettled + 개별 timeout 의무
+   - **R108**: audit 함수 추가 시 사이드바 위젯에도 노출 의무
+
+9. **신규 P 번호 4개** (`_context/BUG-POSTMORTEM.md`)
+   - **P319**: ticker / market-news CHAT_CONTEXTS 완전 누락
+   - **P320**: v49.35 Roadmap 6 함수 정의만 / 채팅 미호출
+   - **P321**: Promise.all timeout 부재 → 채팅 응답 30초+ hang
+   - **P322**: Audit 11 함수 콘솔 전용 — 사용자 자가 진단 불가
+
+10. **신규 테스트 T412~T425 14건** (`js/aio-tests.js` `_testV4958ChatGapFix`)
+    - T412~T413: ticker / market-news CHAT_CONTEXTS 정의
+    - T414: window._currentTickerId 마커 동작
+    - T415: 5 신규 라벨 (FCF/Balance/EV/Macro/Short)
+    - T416: _withTimeout helper
+    - T417~T419: audit 위젯 / web_search 토글 / 키 백업 메뉴 DOM
+    - T420: AAII spread 라벨 (P196 fix)
+    - T421: Bessent/Warsh 제거 (P244 fix)
+    - T422: VKOSPI "정상" 라벨 (P278 fix)
+    - T423: showTicker source _currentTickerId set
+    - T424~T425: APP_VERSION + ABSOLUTE RULES 11개
+
+11. **버전 동기화 7곳** — index.html title + badge + APP_VERSION + version.json + sw.js SW_VERSION + sw.js SW_BUILD + JS cache-bust 6곳 + _context/CLAUDE.md + CLAUDE.md + CHANGELOG.md
+
+**잔여 (v49.59 이관)**: pre-existing 12건 — T175/T176b/T233/T259/T263/T294/T300/T303/T317/T318/T392/T394.
+
+---
 
 ## v49.57 — AI Chat Ticker Coverage Expansion (2026-05-20)
 

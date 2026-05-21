@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.58 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.59 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3885,6 +3885,35 @@ body.light-theme canvas { filter:none; }
             </div>
           </div>
 
+          <!-- ═══ v49.58 P322/R108: 시스템 자가 진단 위젯 + web_search 토글 + 키 백업 ═══ -->
+          <div class="aio-audit-widget" id="aio-audit-widget" style="margin-top:8px;padding:8px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.18);border-radius:6px;">
+            <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+              <span>🔍 시스템 자가 진단 (v49.58)</span>
+              <button data-action="_aioRefreshAuditWidget" style="background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.3);color:var(--data-cyan);font-size:10px;padding:2px 6px;border-radius:3px;cursor:pointer;" title="audit 다시 실행">↻</button>
+            </div>
+            <div id="aio-audit-widget-content" style="font-size:11px;line-height:1.6;color:var(--text-muted);">
+              <div data-audit-key="registry">⏳ ticker 등록 점검…</div>
+              <div data-audit-key="webSearch">⏳ web_search 상태…</div>
+              <div data-audit-key="freshness">⏳ 컨텍스트 신선도…</div>
+              <div data-audit-key="chatContexts">⏳ CHAT_CONTEXTS 정합성…</div>
+            </div>
+            <!-- v49.58 P322 R108: web_search 토글 GUI -->
+            <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,212,255,0.15);display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:11px;color:var(--text-muted);">🔍 Claude 웹 검색</span>
+              <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;">
+                <input type="checkbox" id="aio-web-search-toggle" data-on-change="_aioWebSearchToggle" checked style="cursor:pointer;">
+                <span id="aio-web-search-status" style="color:var(--data-green);font-size:10px;">ON</span>
+              </label>
+            </div>
+            <!-- v49.58 P322 R108: 키 백업/복원 메뉴 -->
+            <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,212,255,0.15);display:flex;gap:4px;flex-wrap:wrap;">
+              <button class="aio-key-backup-menu" data-action="_aioExportKeys" style="flex:1;font-size:10px;padding:4px 6px;background:rgba(61,219,165,0.12);border:1px solid rgba(61,219,165,0.3);color:var(--data-green);border-radius:3px;cursor:pointer;" title="모든 API 키를 JSON 파일로 다운로드">📥 백업</button>
+              <button class="aio-key-restore-menu" data-action="_aioImportKeysPrompt" style="flex:1;font-size:10px;padding:4px 6px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:var(--data-purple);border-radius:3px;cursor:pointer;" title="JSON 파일에서 키 복원">📤 복원</button>
+              <button class="aio-key-recover-menu" data-action="_aioRecoverKeys" style="flex:1;font-size:10px;padding:4px 6px;background:rgba(255,163,26,0.12);border:1px solid rgba(255,163,26,0.3);color:var(--data-amber);border-radius:3px;cursor:pointer;" title="IndexedDB 자동 백업에서 복원">🔄 자동</button>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.4;">캐시 클리어 시 키 손실 방지 — 키 입력 후 1회 백업 권장</div>
+          </div>
+
         </div>
       </div>
     </nav>
@@ -3958,7 +3987,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.58</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.59</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -7530,7 +7559,7 @@ body.light-theme canvas { filter:none; }
       <div>
         <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:4px;">달러 인덱스 (DXY)</div>
         <div style="display:flex;align-items:baseline;gap:8px;">
-          <span style="font-size:32px;font-weight:900;font-family:var(--font-mono);color:var(--data-cyan);" data-live-price="DX-Y.NYB">103.68</span>
+          <span style="font-size:32px;font-weight:900;font-family:var(--font-mono);color:var(--data-cyan);" data-live-price="DX-Y.NYB">—</span>
           <span style="font-size:14px;font-weight:700;" data-live-chg="DX-Y.NYB">—</span>
         </div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">EUR 57.6% · JPY 13.6% · GBP 11.9% · CAD 9.1% · SEK 4.2% · CHF 3.6%</div>
@@ -8181,7 +8210,7 @@ body.light-theme canvas { filter:none; }
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;padding:6px 8px;background:rgba(0,212,255,0.04);border-radius:4px;">📊 가용성: <span style="color:var(--data-green);">✓ 구현</span> · <span style="color:var(--data-amber);">⚠ 부분/계획됨</span> · <span style="color:var(--data-red);">❌ 미구현 — AI 학습 의존 환각 위험</span></div>
         <div class="explain-body">
           <strong>(1) Quality of Business</strong> <span style="color:var(--data-green);font-size:10px;">[✓ FMP+Naver]</span> — ROE &gt; 15% 3년+ 지속? 자본 효율성.
-          <br><strong>(2) Moat</strong> <span style="color:var(--data-red);font-size:10px;">[❌ Morningstar 유료 — SEC 10-K AI 분석으로 대체]</span> — 경제적 해자 (브랜드·네트워크·전환비용·규제·원가 우위 중 2개+).
+          <br><strong>(2) Moat</strong> <span style="color:var(--data-amber);font-size:10px;">[⚠ SEC 10-K AI 분석 대체 — Morningstar 유료 미사용]</span> — 경제적 해자 (브랜드·네트워크·전환비용·규제·원가 우위 중 2개+).
           <br><strong>(3) Growth</strong> <span style="color:var(--data-green);font-size:10px;">[✓ FMP+Naver]</span> — 매출 5년 CAGR &gt; 10%? 조정 EPS 성장 &gt; 12%?
           <br><strong>(4) Margin Trend</strong> <span style="color:var(--data-green);font-size:10px;">[✓ Naver]</span> — Gross Margin 확장 중? OPM 3년 상승? 인플레 전가력.
           <br><strong>(5) FCF Yield</strong> <span style="color:var(--data-green);font-size:10px;">[✓ computeFcfYield() v49.36]</span> — FCF/시총 &gt; 4%? Buyback+배당.
@@ -12408,9 +12437,9 @@ body.light-theme canvas { filter:none; }
   }
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.58"></script>
-  <script src="./js/aio-data.js?v=49.58"></script>
-  <script src="./js/aio-ui.js?v=49.58"></script>
+  <script src="./js/aio-core.js?v=49.59"></script>
+  <script src="./js/aio-data.js?v=49.59"></script>
+  <script src="./js/aio-ui.js?v=49.59"></script>
 
   <script>
 
@@ -15372,7 +15401,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.58"></script>
+<script src="./js/aio-chat.js?v=49.59"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17174,7 +17203,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '【v49.10 Blow-off Top / 이벤트 소진 / H2 유동성 레짐】\n' +
         'CPI는 더 이상 예정 이벤트가 아니다. BLS 2026-05-12 Apr CPI 기준 headline +0.6% MoM/+3.8% YoY, core +0.4% MoM/+2.8% YoY, energy +3.8% MoM/+17.9% YoY로 확인된 상태이므로 "오늘밤 CPI 예정"처럼 답하지 않는다.\n' +
         '과열 랠리 판단 시 price/20MA 117~120, 개별 반도체/AI 종목의 20MA 이격 147~150, 20MA/50SMA ATR extension, RVOL climax, weak close position, Bollinger re-entry, OPEX gamma decay, 미중정상회담/OPEX/NVDA/한국 반도체 ETF 이벤트 소진을 함께 본다.\n' +
-        'Bessent/Warsh 정책 믹스, 은행 규제/eSLR 완화, TGA drawdown, fiscal impulse, eventual cuts 같은 H2 liquidity thesis는 중기 지지 배경이다. CPI·유가·금리가 같이 상승하면 추격매수 명분이 아니라 "버틸 수 있는 배경 vs 단기 과열 리스크"로 분리해서 설명한다.\n' +
+        '재무부/연준 정책 믹스(현직자 / 후보자 — AIO_NAMED_ENTITY_REGISTRY), 은행 규제/eSLR 완화, TGA drawdown, fiscal impulse, eventual cuts 같은 H2 liquidity thesis는 중기 지지 배경이다. CPI·유가·금리가 같이 상승하면 추격매수 명분이 아니라 "버틸 수 있는 배경 vs 단기 과열 리스크"로 분리해서 설명한다.\n' +
         'Telegram/Aether Japan Research는 빠른 2차 뉴스 파이프라인이다. 기업·정책·수급 소식은 primary source 또는 시장 데이터로 교차확인 전까지 실시간 확정 사실처럼 말하지 않는다.\n\n' +
         '【응답 프레임워크 — 종목 질문 시 반드시 이 순서】\n' +
         '핵심 원칙: 사용자가 특정 종목을 물으면 해당 종목 분석부터 바로 시작하라. 시장 전체 상황(VIX, SPX 등)은 맥락으로 1~2문장만 언급. 종목이 주인공이다.\n' +
@@ -17361,7 +17390,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '【§70 이란 협상 결렬 + 호르무즈 물리적 현실 + 실질금리 붕괴 (돈스/부산아재 2026.04.10~12 종합)】\n' +
         '[구조적 논리: 군사적 패배 ≠ 전략적 승리] 이란 해군·공군 파괴됐으나 IRGC가 호르무즈 통제 유지. 하루 15척 검증 선박만 통과(평시 135척의 11%). 해협 기뢰 산재. 미 해군 봉쇄 카드 시사.\n' +
         '[물리적 공급 데이터(JPM Kavanagh)] 걸프 7개국 가동중단 1,300만bbl/d. 사우디 파이프라인 700만bbl/d로도 600만 부족. 합산 ~1,400만bbl/d 갭. 60+시설 피해. 해협 정상화→항만 2개월+물류 4개월+미국 도착 42일.\n' +
-        '[실질금리 붕괴] 기대 실질금리 0.25% 추락(전쟁 전 0.75~1.25%). 근원물가 3M 연율 4.4%(전쟁 전부터 가속). Warsh 5월 취임 시 인상 회피 → 실질금리 마이너스 전환. 역사적 선례: 1974-78→볼커 20%.\n' +
+        '[실질금리 붕괴] 기대 실질금리 0.25% 추락(전쟁 전 0.75~1.25%). 근원물가 3M 연율 4.4%(전쟁 전부터 가속). Fed 부의장 후보(AIO_NAMED_ENTITY_REGISTRY 동적) 취임 시 인상 회피 → 실질금리 마이너스 전환. 역사적 선례: 1974-78→볼커 20%.\n' +
         '[2차 파급효과] 에너지→항공료(서비스 물가 전이). WGT 상승 + 미시간대 장기 기대인플레 3.4%. 단위노동비용 상승. S&P vs 소비자심리 괴리 역대 최대.\n' +
         '[핵심 논쟁] Bull: 이란 가격 올리기 전술→결국 복귀. Bear: 해군 봉쇄→$150+→수요파괴. 미국 순원유수입국(220만bbl/d), 셰일 반응 4-6개월 지연.\n' +
         '[04/25 업데이트 — Citi/JPM] 호르무즈 정상 통과량 4% 수준 유지 · 저장 22일치(4천만 배럴)+해상 화물 1억4,200만 배럴 걸프 외부 · 16일 후 업스트림 감산 시작, 30일 근방 전면 중단 가능 · 봉쇄=협상 레버리지 단계(시간 제한적) · shadow fleet 이란 제재 우회 선박 활동 지속.\n' +
@@ -17500,12 +17529,161 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
   // v48.55: theme-detail은 themes와 동일 persona (데이터 주입 파이프라인 공유)
   window.CHAT_CONTEXTS['theme-detail'] = window.CHAT_CONTEXTS['themes'];
 
+  // ─────────────────────────────────────────────────────────────────
+  // v49.58 P319/R106 신규: ticker 페이지 CHAT_CONTEXTS override
+  // 사용자가 가장 자주 들어가는 ticker 상세 페이지에 채팅 컨텍스트 정의 부재 시정.
+  // window._currentTickerId (Phase 2에서 showTicker 진입 시 설정) 기반 자동 종목 주입.
+  // ─────────────────────────────────────────────────────────────────
+  window.CHAT_CONTEXTS['ticker'] = {
+    title: 'AI 종목 심층 분석가',
+    system: function() {
+      var s = _liveSnap();
+      var fresh = s._freshness;
+      return '당신은 종목 심층 분석 전문가입니다. "기업 분석" / "종목 상세" 페이지에서 대화하고 있습니다.\n\n' +
+        // v49.58 R106: 활성 종목 라이브 가격 동적 주입 (themes 패턴 미러)
+        (function() {
+          var ticker = window._currentTickerId || null;
+          if (!ticker) return '【현재 종목】 페이지 진입 ticker 없음. 사용자 메시지의 ticker로 분석.\n\n';
+          var ld = (window._liveData || {})[ticker] || {};
+          var price = ld.price ? '$' + Number(ld.price).toFixed(2) : '—';
+          var pct = ld.pct != null ? (' (' + (ld.pct>=0?'+':'') + Number(ld.pct).toFixed(2) + '%)') : '';
+          var nameInfo = '';
+          var reg = window.AIO_TICKER_NAME_REGISTRY;
+          if (reg && reg.entries && reg.entries[ticker]) {
+            var e = reg.entries[ticker];
+            nameInfo = ' (' + (e.kr || '') + ' · ' + (e.en || '') + ')';
+          }
+          return '【현재 종목: ' + ticker + nameInfo + ' · ' + price + pct + '】\n' +
+            '※ 위 가격은 라이브 fetch. 분석 시 학습 데이터 환각 절대 금지 (ABSOLUTE RULES 5조).\n' +
+            '※ 사용자 질문에서 다른 ticker 감지 시 _fetchTickerDataForChat이 자동 6 소스 fetch 추가.\n\n';
+        })() +
+        '【시장 환경 (신선도: ' + fresh + ')】\n' +
+        '• S&P 500: ' + s.spx + ' | VIX: ' + s.vix + ' | DXY: ' + s.dxy + ' | 10Y: ' + (s.tnx || '—') + '%\n\n' +
+        '【종목 분석 5축 프레임워크】\n' +
+        '1. 펀더멘털: PER/PBR/PEG/EV/EBITDA + FCF Yield + Net Debt/EBITDA + 매출/EPS YoY (FMP/Naver)\n' +
+        '2. 기술적: Weinstein Stage + ATR% from 50-MA + RSI + 20MA distance + lockout rally 위험\n' +
+        '3. 컨센서스/모멘텀: 애널리스트 Buy/Hold/Sell + 목표가 업사이드 + EPS revision\n' +
+        '4. 거시 노출: rate beta / dxy beta / oil beta + 산업 사이클 위치\n' +
+        '5. 이벤트/리스크: 최근 8-K (M&A/CEO 변경) + 임원 매매 12주 + 종목 뉴스 14일\n\n' +
+        '【답변 규칙】\n' +
+        '• _fetchTickerDataForChat 결과 (가격/SEC 10-K/Wikipedia/SEC 8-K/News/Insider/13F + FCF/Balance/EV/Macro/Short) 우선 인용\n' +
+        '• 위 데이터 미포함된 정량 수치는 학습 데이터 환각 가능 → 인용 금지\n' +
+        '• 매매 추천 시 진입가/손절가/목표가 명시 + RR비율 + 시장 환경 (VIX) 고려\n' +
+        '• 기술적 페이지·차트 페이지·기업 분석 페이지 연동 안내\n' +
+        _getChatRules();
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────────
+  // v49.58 P319/R106 신규: market-news 페이지 CHAT_CONTEXTS override
+  // 뉴스 분석 페이지 진입 시 채팅 컨텍스트 정의 부재 시정 + web_search 자동 트리거.
+  // ─────────────────────────────────────────────────────────────────
+  window.CHAT_CONTEXTS['market-news'] = {
+    title: 'AI 시장 뉴스 분석가',
+    system: function() {
+      var s = _liveSnap();
+      var fresh = s._freshness;
+      // 뉴스 캐시 자동 주입 (최근 10건)
+      var newsBlock = (function() {
+        try {
+          var cache = window._aioFeedHealth || window._newsCache || null;
+          // fetchAllNews 결과 또는 latest news state
+          var news = window._latestNews || (cache && cache.recent) || null;
+          if (!Array.isArray(news) || news.length === 0) return '【최근 뉴스】 캐시 로딩 중 — Claude web_search로 보강 가능.\n\n';
+          var lines = '【최근 뉴스 헤드라인 (캐시 ' + news.length + '건 · Top 10)】\n';
+          news.slice(0, 10).forEach(function(n) {
+            var t = n.title || n.headline || '';
+            var src = n.source || n.publisher || '';
+            var dt = n.date || n.datetime || n.published || '';
+            lines += '• [' + src + '] ' + t.substring(0, 100) + (dt ? ' (' + dt + ')' : '') + '\n';
+          });
+          return lines + '\n';
+        } catch(e) { return ''; }
+      })();
+      return '당신은 시장 뉴스 분석 전문가입니다. "시장 뉴스" 페이지에서 대화하고 있습니다.\n\n' +
+        newsBlock +
+        '【시장 환경 (신선도: ' + fresh + ')】\n' +
+        '• S&P 500: ' + s.spx + ' | VIX: ' + s.vix + ' | DXY: ' + s.dxy + ' | 10Y: ' + (s.tnx || '—') + '%\n\n' +
+        '【뉴스 분석 4축 프레임워크】\n' +
+        '1. 영향도 평가: 시장 전체 vs 특정 섹터 vs 단일 종목 — 영향 범위와 지속성 판단\n' +
+        '2. 카탈리스트 분류: 펀더멘털 (실적/가이던스), 매크로 (Fed/지정학), 미시 (M&A/규제), 센티멘트 (서프라이즈/공포)\n' +
+        '3. 시장 반응 정합성: 뉴스 직후 시세 반응이 합리적인가 — 과민/과소 반응 식별\n' +
+        '4. 후속 이벤트 추적: 어닝 컨센서스 변경, 애널리스트 리포트, 옵션 IV 변화\n\n' +
+        '【web_search 통합 (v49.57)】\n' +
+        '• "오늘/최신/방금" 키워드 감지 시 Claude 네이티브 web_search 자동 활성화 (max_uses 3)\n' +
+        '• 검색 결과 + 위 뉴스 캐시 + Finnhub 종목 뉴스 (14일) 3중 교차\n' +
+        '• 학습 데이터로 "방금 발표한 사건" 환각 절대 금지\n\n' +
+        '【답변 규칙】\n' +
+        '• 뉴스 인용 시 [출처] + 날짜 명시 — 위 캐시 또는 web_search 결과만 사용\n' +
+        '• 시장 영향 추론은 데이터 기반 (시세 반응 vs 환각 추측 구분)\n' +
+        '• 종목 거론 시 _fetchTickerDataForChat 자동 trigger — 실시간 가격으로 보강' +
+        _getChatRules();
+    }
+  };
+
   if (window.CHAT_DEFAULT_CHIPS) {
     window.CHAT_DEFAULT_CHIPS['technical'] = ['지금 S&P 몇 단계야?','VCP 셋업 찾는 법','NVDA 진입 타이밍은?','VIX 30 넘으면 어떡해?'];
     window.CHAT_DEFAULT_CHIPS['macro'] = ['유가 오르면 내 주식은?','경기침체 확률은?','금리 인하 시점 예상은?','달러 약세면 뭐 사?'];
     window.CHAT_DEFAULT_CHIPS['themes'] = ['AI 반도체 대장주는?','Cloud SaaS 지금 진입?','방산 조정 언제 끝나?','원전/SMR 테마 ETF는?'];
     window.CHAT_DEFAULT_CHIPS['theme-detail'] = ['이 테마 대장주 분석','같은 테마 2차 수혜주','매크로 카탈리스트 뭐?','진입·손절 가이드'];
+    // v49.58 신규 chips
+    window.CHAT_DEFAULT_CHIPS['ticker'] = ['이 종목 매수 타이밍?','펀더멘털 강점/약점','경쟁사 비교','최근 8-K 이벤트 정리'];
+    window.CHAT_DEFAULT_CHIPS['market-news'] = ['오늘 시장 핵심 뉴스','어닝 시즌 정리','Fed 관련 최신','지정학 영향 종목'];
+    // v49.59 신규 chips
+    window.CHAT_DEFAULT_CHIPS['options'] = ['지금 풋콜 비율 어때?','GEX 의미 알려줘','이 종목 옵션 헤지','콜 매수 시점 판단'];
   }
+
+  // ─────────────────────────────────────────────────────────────────
+  // v49.59 P325/R106 신규: options 페이지 CHAT_CONTEXTS override
+  // 옵션 체인 페이지 진입 시 채팅 컨텍스트 정의 부재 시정. PCR/GEX/Max Pain/IV 동적 주입.
+  // ─────────────────────────────────────────────────────────────────
+  window.CHAT_CONTEXTS['options'] = {
+    title: 'AI 옵션 분석가',
+    system: function() {
+      var s = _liveSnap();
+      var snap = window.DATA_SNAPSHOT || {};
+      var ld = window._liveData || {};
+      // 옵션 페이지 핵심 지표 동적 수집
+      var pcr = snap.putCallRatio || snap.pcr || null;
+      var pcrEquity = snap.pcrEquity || null;
+      var pcrIndex = snap.pcrIndex || null;
+      var vix = s.vix;
+      var vvix = (ld['^VVIX'] && ld['^VVIX'].price) || snap.vvix || null;
+      var skew = (ld['^SKEW'] && ld['^SKEW'].price) || snap.skew || null;
+      var ticker = window._currentTickerId || null;
+      var tickerBlock = '';
+      if (ticker) {
+        var tld = ld[ticker] || {};
+        tickerBlock = '【현재 종목: ' + ticker + ' · 옵션 분석 대상】\n' +
+          '• 기초자산 가격: $' + (tld.price ? Number(tld.price).toFixed(2) : '—') + (tld.pct != null ? ' (' + (tld.pct>=0?'+':'') + Number(tld.pct).toFixed(2) + '%)' : '') + '\n' +
+          '※ 옵션 체인 상세 (Strike별 OI/Volume/IV) 사용자가 명시 입력 필요. 실시간 옵션 체인 fetch는 페이지 데이터 의존.\n\n';
+      }
+      return '당신은 옵션 전략 전문가입니다. "옵션 분석" 페이지에서 대화하고 있습니다.\n\n' +
+        tickerBlock +
+        '【시장 옵션 지표 (v49.59 동적)】\n' +
+        '• VIX: ' + vix + (vvix != null ? ' | VVIX: ' + Number(vvix).toFixed(1) : '') + (skew != null ? ' | SKEW: ' + Number(skew).toFixed(1) : '') + '\n' +
+        (pcr != null ? '• Put/Call Ratio: ' + Number(pcr).toFixed(2) + (pcr >= 1.2 ? ' (헷지 우세 — 단기 바닥 가능)' : pcr <= 0.7 ? ' (탐욕 — 단기 천장 경고)' : ' (중립)') + '\n' : '') +
+        (pcrEquity != null ? '• PCR Equity: ' + Number(pcrEquity).toFixed(2) + '\n' : '') +
+        (pcrIndex != null ? '• PCR Index: ' + Number(pcrIndex).toFixed(2) + '\n' : '') +
+        '\n【옵션 분석 5축 프레임워크】\n' +
+        '1. IV Surface: ATM IV vs Historical Vol (HV) 비교 — 옵션 비싼가 싼가\n' +
+        '2. IV Percentile/Rank: 1년 IV 분포 중 현재 위치 — 50%+ 매도 우호, 30%↓ 매수 우호\n' +
+        '3. Skew: 25D Put IV vs Call IV — Skew 큼 = 헷지 수요 ↑\n' +
+        '4. Term Structure: 1M/3M/6M IV 곡선 — Backwardation = 단기 공포, Contango = 정상\n' +
+        '5. GEX (Gamma Exposure): 양수 GEX = MM 매도 압력 (변동성 ↓), 음수 = 매수 압력 (변동성 ↑)\n\n' +
+        '【주요 옵션 전략 (시장 환경별)】\n' +
+        '• VIX < 15 (저변동성): Short Strangle / Iron Condor (프리미엄 매도)\n' +
+        '• VIX 15~25 (중간): Vertical Spread / Calendar Spread\n' +
+        '• VIX > 25 (고변동성): Long Put Spread (Tail Risk Hedge), 매도 자제\n' +
+        '• 어닝 직전: IV 급등 → Pre-earnings IV crush 전략 (Buy 자제)\n' +
+        '• Max Pain: 만기일 OI 최대 손실 가격 → 만기일 종가 수렴 경향\n\n' +
+        '【답변 규칙】\n' +
+        '• 옵션 추천 시 만기/Strike/Net Debit-Credit/Max Profit-Loss/BE/Greeks 모두 명시\n' +
+        '• "현재 옵션 시장" 답변 시 위 VIX/VVIX/SKEW/PCR 데이터만 인용 — 학습 데이터 환각 금지\n' +
+        '• 종목별 옵션 분석은 _fetchTickerDataForChat 결과 (실시간 가격 + 어닝일정) 우선 참조' +
+        _getChatRules();
+    }
+  };
 })();
 
   </script>
@@ -18789,7 +18967,8 @@ async function fetchVkospiDynamic() {
     var vEl = document.getElementById('kr-vkospi-val');
     if (vEl) { vEl.textContent = val.toFixed(2); vEl.style.color = val >= 35 ? 'var(--red)' : val >= 25 ? 'var(--data-amber)' : val >= 15 ? 'var(--data-amber)' : 'var(--green)'; }
     var hEl = document.getElementById('kr-health-vkospi');
-    if (hEl) { var label = val >= 35 ? '극단공포' : val >= 25 ? '공포' : val >= 15 ? '경계' : '안정'; hEl.textContent = val.toFixed(1) + ' (' + label + ')'; hEl.style.color = val >= 35 ? 'var(--red)' : val >= 25 ? 'var(--data-red)' : val >= 15 ? 'var(--data-amber)' : 'var(--green)'; }
+    // v49.58 P278: 임계값 표준화 (정상<20 / 경계 20~25 / 공포 25~35 / 극단공포 35+) — calcKrHealth 정합
+    if (hEl) { var label = val >= 35 ? '극단공포' : val >= 25 ? '공포' : val >= 20 ? '경계' : '정상'; hEl.textContent = val.toFixed(2) + ' (' + label + ')'; hEl.style.color = val >= 35 ? 'var(--red)' : val >= 25 ? 'var(--data-red)' : val >= 20 ? 'var(--data-amber)' : 'var(--green)'; }
     // DATA_SNAPSHOT 동기화
     if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.vkospi = val;
     console.log('[KR] VKOSPI 동적 업데이트:', val);
@@ -27277,9 +27456,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.58"></script>
+<script src="./js/aio-glossary.js?v=49.59"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.58"></script>
+<script src="./js/aio-tests.js?v=49.59"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전
@@ -28820,11 +28999,13 @@ function calcKrHealthScore() {
   if (lblEl) { lblEl.textContent = grade + ' — ' + label; lblEl.style.color = color; }
 
   // VKOSPI 서브 표시
+  // v49.58 P278 보정: 임계값 표준화 — 정상(<20) / 경계(20~25) / 공포(25~35) / 극단공포(35+)
+  // CHANGELOG L748 "VKOSPI 17.80 정상" 의도 반영 (이전 15 임계값 → 20)
   var vkEl = document.getElementById('kr-health-vkospi');
   if (vkEl) {
-    var vkLabel = vkospi >= 35 ? '극단공포' : vkospi >= 25 ? '공포' : vkospi >= 15 ? '경계' : '안정';
-    vkEl.textContent = vkospi.toFixed(1) + ' (' + vkLabel + ')';
-    vkEl.style.color = vkospi >= 25 ? 'var(--red)' : vkospi >= 15 ? 'var(--yellow)' : 'var(--green)';
+    var vkLabel = vkospi >= 35 ? '극단공포' : vkospi >= 25 ? '공포' : vkospi >= 20 ? '경계' : '정상';
+    vkEl.textContent = vkospi.toFixed(2) + ' (' + vkLabel + ')';
+    vkEl.style.color = vkospi >= 25 ? 'var(--red)' : vkospi >= 20 ? 'var(--yellow)' : 'var(--green)';
   }
 
   return { score: score, grade: grade, label: label };

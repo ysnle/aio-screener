@@ -1213,6 +1213,111 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R112. 모든 CHAT_CONTEXTS는 _getChatRules() 호출 의무 (v49.59 추가, P327 근본)
+
+**원칙**: 14개 CHAT_CONTEXTS의 모든 system() 함수는 마지막에 `_getChatRules()` 호출 + ABSOLUTE RULES 일관성 유지 의무.
+
+**근거 (P327)**: 14 CHAT_CONTEXTS 정합성 자동 검증 부재로 신규 페이지 추가 시 _getChatRules 호출 누락 회귀 미감지.
+
+**구조**: `AIO.auditAllChatContexts()` 자동 검증
+- system() 호출 성공 여부 + 길이 + dynamic injection 패턴 (`_currentTickerId/_liveData/DATA_SNAPSHOT`) + `_getChatRules` 호출 여부 검증
+- 사이드바 audit 위젯에 chatContexts row 자동 노출 (registry/web_search/freshness/chatContexts 4축)
+
+**검증**: `AIO.auditAllChatContexts().validCount === totalContexts`.
+
+**위반 시**: 사용자가 일부 페이지에서 환각 차단 규칙 없는 답변 받음.
+
+---
+
+## R110. signal/breadth/sentiment context는 라이브 수치 자동 주입 의무 (v49.59 추가, P324 근본)
+
+**원칙**: signal context는 `AIO_ACTION_RULES` 동적 평가, breadth context는 `AIO.diagnoseBreadthConsensus()` 결과 + DATA_SNAPSHOT 폴백, sentiment context는 6 지표 Tail Risk Board (VIX/VVIX/SKEW/MOVE/VIX9D/3M structure/AAII/PCR/HY OAS) 동적 주입 의무.
+
+**근거 (P324)**: 이전 정의는 프레임만 있고 실제 수치 부재 → "현재 시그널 점수?" 질문에 환각 답변.
+
+**구조**: 각 context system() 함수 안에 IIFE 또는 직접 변수 정의:
+```js
+// signal
+var ar = window.AIO_ACTION_RULES;
+if (vix >= 30) lines += '⛔ EXIT_OR_HEDGE';
+// breadth
+var consensus = window.AIO.diagnoseBreadthConsensus();
+// sentiment
+var vvix = ld['^VVIX'].price || snap.vvix;
+```
+
+**검증**: `CHAT_CONTEXTS.signal.system().includes('실시간 매매 액션 가이드')`.
+
+**위반 시**: 사용자가 페이지 전용 채팅에서 추상적 답변만 받음.
+
+---
+
+## R109. fxbond 한국 금리 스냅샷 시점 명시 의무 (v49.59 추가, P326 근본)
+
+**원칙**: 한국 금리 (krBond3y/krBond10y/bokRate)는 정기 발표 (BOK MPC/KRX) 스냅샷이므로 채팅 컨텍스트에서 "[스냅샷: 날짜 — 실시간 fetch 없음]" 마커 의무.
+
+**근거 (P326)**: 사용자가 "지금 한국 10Y 금리?" 질문 시 → 미국 10Y만 실시간, 한국은 정기 발표 스냅샷인데 시점 불명확하여 환각 위험.
+
+**구조**: fxbond context system()에 IIFE — `snap.built || lastUpdated` 시점 명시 + BOK 기준금리 + 3Y/10Y 동적 주입 + "한국 금리는 정기 발표 스냅샷. '현재' 답변 시 스냅샷 시점 명시 의무" 가이드.
+
+**검증**: `CHAT_CONTEXTS.fxbond.system().includes('[스냅샷:')`.
+
+**위반 시**: AI가 실시간으로 인식하여 stale 한국 금리 답변.
+
+---
+
+## R108. Audit 함수 추가 시 사이드바 위젯에도 노출 의무 (v49.58 추가, P322 근본)
+
+**원칙**: 신규 `AIO.get*Audit()` / `AIO.assert*()` 함수 추가 시 핵심 3축 (정합성/가용성/신선도)에 해당하면 사이드바 audit 위젯에도 노출 의무.
+
+**근거 (P322)**: 11개 audit 함수가 콘솔 전용으로만 노출되어 사용자 자가 진단 불가. 시스템 건강도 확인을 위해 F12 → Console 진입 필요 — UX 저하.
+
+**구조**:
+- 사이드바 `#aio-audit-widget-content` 안에 `[data-audit-key="X"]` row 추가
+- `_aioRefreshAuditWidget()`에 신규 함수 호출 + DOM 갱신 분기 추가
+- 5분 자동 + 토글 변경 시 즉시 + 사용자 수동 ↻ 버튼
+
+**검증**: 사이드바에서 시스템 건강도 3개 라인 가시 (`✓ ticker 173/543 (32%)` / `🔍 web_search ON · 호출 0회` / `✓ 컨텍스트 신선도 96%`)
+
+**위반 시**: audit 함수가 추가됐는데 사용자가 그 존재를 모름.
+
+---
+
+## R107. 채팅 fetch는 반드시 Promise.allSettled + 개별 timeout 의무 (v49.58 추가, P321 근본)
+
+**원칙**: `_fetchTickerDataForChat` 또는 채팅 system 프롬프트에 데이터를 주입하는 모든 fetch는 (1) `Promise.allSettled` 패턴으로 일부 실패 허용 (2) `_withTimeout(promise, 2500, null)` 개별 timeout 의무.
+
+**근거 (P321)**: 종목당 11+ fetch 병렬 시 일부 hang (Yahoo CORS 차단/SEC EDGAR 응답 지연/Finnhub rate limit) → 전체 응답 30초 대기. 사용자 경험 저하.
+
+**구조**: `_withTimeout(promise, ms, fallback)` — Promise.race로 timeout 후 fallback 반환. Promise.allSettled로 array of {status, value/reason} 반환.
+
+```js
+var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()=>null), 2500, null);
+```
+
+**검증**: 종목 분석 응답 시간 ≤ 4초.
+
+**위반 시**: 하나의 fetch가 hang하면 전체 채팅 응답 hang.
+
+---
+
+## R106. 새 페이지 CHAT_CONTEXTS 신규 시 window._currentXxxId 자동 주입 의무 (v49.58 추가, P319 근본)
+
+**원칙**: 새 페이지에 채팅 컨텍스트를 정의할 때 (1) 활성 식별자 (`_currentTickerId` / `_currentThemeId` / `_currentXxxId`) 전역 마커 도입 (2) `showXxx` / `showPage` 진입 hook에서 마커 자동 set (3) system() IIFE가 마커 기반 라이브 데이터 주입.
+
+**근거 (P319)**: ticker 페이지가 14개 CHAT_CONTEXTS 중 가장 자주 사용되는데 컨텍스트 자체가 부재. v49.57 R105 (themes _currentThemeId 패턴)이 ticker/fundamental/options에 미확산.
+
+**구조**:
+- 마커: `window._currentTickerId = ticker;` (showTicker / fundamentalSearch 진입 시)
+- system(): `var ticker = window._currentTickerId || null;` 후 라이브 가격 + 분석 컨텍스트 동적 주입
+- showPage hook에서 페이지 전환 시 적절한 clear (themes 계열 진입 시 _currentTickerId clear 등)
+
+**검증**: ticker 페이지 진입 → `window._currentTickerId === sym`. 채팅 system 프롬프트에 자동 ticker block 포함.
+
+**위반 시**: 사용자가 보고 있는 페이지를 채팅이 인식 못하고 일반 답변만 함.
+
+---
+
 ## R105. 테마 페이지 진입 시 채팅 컨텍스트에 활성 테마 ticker 라이브 가격 주입 의무 (v49.57 추가, P316/P317 근본)
 
 **원칙**: themes/theme-detail 페이지 진입 시 `window._currentThemeId`를 set하여 CHAT_CONTEXTS의 `themes`/`theme-detail` system 프롬프트가 자동으로 해당 테마의 ticker 라이브 가격을 주입.

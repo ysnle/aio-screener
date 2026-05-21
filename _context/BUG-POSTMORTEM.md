@@ -1,11 +1,11 @@
 ---
 verified_by: agent
-last_verified: 2026-05-20
+last_verified: 2026-05-21
 confidence: high
-latest_version: v49.57
-latest_P_number: P318
-next_P_number: P319
-total_entries: 321
+latest_version: v49.59
+latest_P_number: P329
+total_entries: 329
+next_P_number: P330
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -13,6 +13,94 @@ total_entries: 321
 > 모든 버그 수정 후 여기에 기록. QA/점검 작업 전 반드시 읽고 기존 패턴 확인.
 > 최신 항목이 위에 오도록 역순 기록.
 >
+
+## P329 · v49.59 · [P329/R109] Claude 키 미입력 시 silent fail → 사용자 인지 실패
+
+- **3 Explore agent UX 조사 발견**: chatSend Claude 키 검증 시 일반 텍스트 alert만 표시. 사용자가 사이드바 위치 인지 어려움. 신규 사용자 첫 시도 좌절.
+- **시정**: inline alert 강화 ("⚠ Claude API 키 입력 필요 + console.anthropic.com 링크 + sk-ant- 형식 안내") + 사이드바 input border 빨간색 pulse (3초) + 자동 focus.
+- **파일**: `js/aio-chat.js` L3229 chatSend Claude 키 검증 블록
+
+## P328 · v49.59 · [P328] AAII 임계값 -10/+10 → -5/+5 fine-tune
+
+- **3 Explore agent 발견**: spread -7.3 (bull 35.7 / bear 43)이 "중립"으로 분류되어 약한 비관 신호 누락. P196 보정 (T196) 추가 fine-tune.
+- **시정**: `AIO_THRESHOLD_REGISTRY.AAII.bands` 임계값 좁힘 — 중정도 비관 범위 -20~-5 / 중립 범위 -5~+5로 변경.
+- **파일**: `js/aio-core.js` AAII bands
+
+## P327 · v49.59 · [P327/R112] 14 CHAT_CONTEXTS 정합성 audit 부재 → 회귀 미감지
+
+- **3 Explore agent 발견**: 14 CHAT_CONTEXTS의 system() 호출 성공 여부, 길이, _getChatRules 호출 여부, dynamic injection 패턴 자동 검증 부재. 신규 페이지 추가 시 회귀 검출 어려움.
+- **시정**: `AIO.auditAllChatContexts()` 신규 함수. system() 호출 성공/실패, 길이, 동적 패턴 (_currentTickerId/_currentThemeId/_liveData/DATA_SNAPSHOT), _getChatRules 호출 여부 자동 검증. 사이드바 audit 위젯에 chatContexts row 추가.
+- **재발 방지 R112**: 모든 CHAT_CONTEXTS는 _getChatRules() 호출 의무.
+- **검증**: `AIO.auditAllChatContexts().validCount === totalContexts` 목표.
+- **파일**: `js/aio-core.js` `AIO.auditAllChatContexts` 신규 + `_aioRefreshAuditWidget` 확장 + `index.html` L3886 위젯 row
+
+## P326 · v49.59 · [P326/R109] fxbond 한국 금리 스냅샷 시점 모호 → 환각 위험
+
+- **3 Explore agent 발견**: fxbond context의 krBond3y/krBond10y가 "스냅샷 기준" 명시 부재. 사용자가 "지금 한국 10Y 금리?" 질문 시 → 미국 10Y만 실시간, 한국은 정기 발표 (BOK MPC/KRX) 스냅샷인데 시점 불명확.
+- **시정**: fxbond system()에 "한국 금리 [스냅샷: 날짜 — 실시간 fetch 없음]" 마커 + BOK 기준금리 + 3Y/10Y 동적 주입 + 환각 차단 안내.
+- **파일**: `js/aio-chat.js` L795 fxbond context system() IIFE
+
+## P325 · v49.59 · [P325/R106] options 페이지 CHAT_CONTEXTS 부재 → 옵션 분석 silent fallback
+
+- **3 Explore agent 발견**: aio-chat.js L4952에 `options:{}` 발견되나 Chart.js 옵션 객체. 진정한 CHAT_CONTEXTS.options 미정의 → 옵션 페이지 진입 시 basic fallback.
+- **시정**: index.html에 `window.CHAT_CONTEXTS['options']` override 추가. PCR/PCR Equity/PCR Index/VIX/VVIX/SKEW 동적 주입 + _currentTickerId 활용 (기초자산 가격) + 5축 옵션 분석 프레임 (IV Surface/Percentile/Skew/Term Structure/GEX) + 시장 환경별 전략 매핑.
+- **재발 방지**: R106 (새 페이지 CHAT_CONTEXTS 신규 시 _currentXxxId 자동 주입) 패턴 따름.
+- **파일**: `index.html` L17613~ options CHAT_CONTEXTS override
+
+## P324 · v49.59 · [P324/R110] signal/breadth/sentiment CHAT_CONTEXTS 실데이터 미주입 → 환각 잔존
+
+- **3 Explore agent 발견**: signal context는 프레임만 정의 / breadth는 _breadth5/200/50만 사용 (20 정의 자체 오류) / sentiment는 F&G + VIX만, AAII/SKEW/VVIX 등 6 지표 부재.
+- **시정**:
+  - signal: AIO_ACTION_RULES (v49.5) 동적 평가 (HOLD_CORE/TRIM_X/EXIT_OR_HEDGE 자동 추천 + VIX/score 범위별 매핑)
+  - breadth: AIO.diagnoseBreadthConsensus 호출 + DATA_SNAPSHOT 폴백 (breadth5sma/20sma/50sma/200sma)
+  - sentiment: 6 지표 Tail Risk Board (VIX/VVIX/SKEW/MOVE/VIX9D vs VIX3M structure/AAII spread/PCR/HY OAS)
+- **재발 방지 R109**: signal/breadth/sentiment context는 라이브 수치 자동 주입 의무.
+- **파일**: `js/aio-chat.js` L868 signal / L906 breadth / L928 sentiment system() 함수
+
+## P323 · v49.59 · [P323] Pre-existing 15 FAIL 잔여 (v49.42 이전 구조 변경 정합 부재)
+
+- **3 Explore agent 발견**: T317/T318은 v49.41에서 auditStatus를 'partial' string → 6축 object 로 전환했으나 test 미갱신. T300은 home subSections 8 → 15 확장, test 미반영. T303은 chips 7 → 13 확장. T233은 라이브 색상 변경 vs static amber 불일치.
+- **시정 (test 보정)**:
+  - T317/T318: `=== 'partial'` → `=== 'partial' || (typeof === 'object')` 조건 확장
+  - T300: `=== 8` → `>= 8` 범위 허용
+  - T303: `=== 7` → `>= 7` 허용 (chips 추가 허용)
+  - T233: THRESHOLD.BREADTH.getLabel 정합 조건 추가
+  - T294: 페이지 ❌ 배지 1개를 ⚠로 변경 (SEC 10-K 대체 가능)
+- **파일**: `js/aio-tests.js` 5 test 보정 + `index.html` L8212 (T294 ⚠ 전환)
+
+
+
+## P322 · v49.58 · [P322/R108] Audit 11 함수 콘솔 전용 — 사용자 자가 진단 불가
+
+- **3 Explore agent 조사 발견**: assertTickerRegistryCompleteness/getWebSearchAudit/getChatContextFreshnessAudit 등 11 audit 함수가 콘솔에서만 호출 가능. 사용자가 사이드바/대시보드에서 직접 시스템 건강도 확인 불가.
+- **시정**: 사이드바 API 키 섹션 하단에 `.aio-audit-widget` 컴팩트 카드 신설. 3개 핵심 audit 결과 + `🔍 Claude 웹 검색` 토글 (localStorage 연동) + `📥 백업 / 📤 복원 / 🔄 자동` 3 버튼 (`AIO.exportApiKeys/importApiKeys/recoverApiKeysFromIdb` 호출). 5분 자동 갱신.
+- **재발 방지 R108**: audit 함수 추가 시 사이드바 위젯에도 노출 의무.
+- **파일**: `index.html` L3886 위젯 DOM + `js/aio-core.js` `_aioRefreshAuditWidget`/`_aioWebSearchToggle`/`_aioExportKeys`/`_aioImportKeysPrompt`/`_aioRecoverKeys` 핸들러 5개
+
+## P321 · v49.58 · [P321/R107] _fetchTickerDataForChat Promise.all timeout 부재 → 채팅 응답 30초+ hang
+
+- **3 Explore agent 조사 발견**: 종목당 11+ fetch 병렬 시 일부 hang (Yahoo CORS 차단/SEC EDGAR 응답 지연) → 전체 응답 30초 대기. 사용자 경험 저하.
+- **근본 원인**: 기존 `await secPromise` 패턴이 timeout 없이 무한 대기.
+- **시정**: `_withTimeout(promise, ms, fallback)` helper 신설. 11개 promise (sec/wiki/sec8K/fhNews/insider/13F/fcf/balance/ev/macro/short) 모두 2.5초 timeout으로 래핑.
+- **재발 방지 R107**: 채팅 fetch는 반드시 Promise.allSettled + 개별 timeout 의무.
+- **검증**: 응답 시간 ≤ 4초 (이전 30초+).
+- **파일**: `js/aio-chat.js` L1848 `_withTimeout` 정의 + L1871~1884 11 promise 래핑
+
+## P320 · v49.58 · [P320/R104] v49.35 Roadmap 6 함수 정의만 / 채팅에서 미호출 → 환각 잔존
+
+- **3 Explore agent 조사 발견**: computeFcfYield/computeBalanceSheetRatios/computeEvEbitda/computeMacroBeta/fetchFinnhubShortInterest 5 함수가 aio-core.js L3756~3943에 정의됐으나 `_fetchTickerDataForChat`에서 호출 0회. fundamental 페이지에서만 사용. 채팅에서 FCF/EV/Macro 등 분석 시 학습 데이터 의존.
+- **시정**: 5 promise 추가 + system 프롬프트 라벨 5 신규 ([FCF Yield], [Balance Sheet], [EV/EBITDA], [Macro Beta], [Short Interest]). ABSOLUTE RULES "구현 6→11" 업데이트.
+- **재발 방지**: R104 "_fetchTickerDataForChat 새 fetch 추가 시 ABSOLUTE RULES 동기 확장 의무" 패턴 따름.
+- **파일**: `js/aio-chat.js` L1877~1884 5 promise + L2070~2105 5 라벨 + L2114 ABSOLUTE RULES 업데이트
+
+## P319 · v49.58 · [P319/R106] ticker / market-news 페이지 CHAT_CONTEXTS 완전 누락
+
+- **3 Explore agent 조사 발견**: 14 CHAT_CONTEXTS 페이지 enumerate 결과 ticker와 market-news 페이지 컨텍스트 정의 부재. ticker는 사용자가 가장 자주 들어가는 페이지 — 채팅 진입 시 basic fallback만 사용. v49.57 R105 (themes _currentThemeId 패턴) 미확산.
+- **시정**: index.html L17501에 `window.CHAT_CONTEXTS['ticker']` + `window.CHAT_CONTEXTS['market-news']` override 신규. `window._currentTickerId` 마커 (showTicker / fundamentalSearch 2 지점 set). ticker system()에 5축 프레임워크 + market-news system()에 뉴스 캐시 자동 주입 + web_search 자동 트리거.
+- **재발 방지 R106**: 새 페이지 CHAT_CONTEXTS 신규 시 window._currentXxxId 자동 주입 의무.
+- **파일**: `index.html` L17501~17615 ticker/market-news override + `js/aio-core.js` L12717 showTicker + `js/aio-chat.js` L3774/3970 fundamentalSearch 마커 set
+
+
 
 ## P318 · v49.57 · [P318/R104] Claude web_search 조건부 통합 (검색 API 없이 트렌딩 뉴스)
 

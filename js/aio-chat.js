@@ -794,6 +794,23 @@ const CHAT_CONTEXTS = {
         '【데이터 (신선도: ' + fresh + ')】\n' +
         '• USD/KRW: ' + s.krw + '원 [실시간] | DXY: ' + s.dxy + ' [실시간]\n' +
         '• 10Y 미국 국채: ' + s.tnx + '% [실시간] | Gold: $' + s.gold + ' [실시간]\n' +
+        // v49.59 P326 R109: 한국 금리 스냅샷 시점 명확화 — 사용자 환각 차단
+        (function() {
+          try {
+            var snap = window.DATA_SNAPSHOT || {};
+            var kr3y = snap.krBond3y;
+            var kr10y = snap.krBond10y;
+            var bokRate = snap.bokRate;
+            var snapDate = snap.built || snap.lastUpdated || (window._buildDate) || '최근 발표일';
+            if (kr3y == null && kr10y == null && bokRate == null) return '';
+            var line = '• 한국 금리 [스냅샷: ' + String(snapDate).substring(0, 10) + ' — 실시간 fetch 없음]: ';
+            var parts = [];
+            if (bokRate != null) parts.push('BOK 기준금리 ' + bokRate + '%');
+            if (kr3y != null) parts.push('3Y ' + kr3y + '%');
+            if (kr10y != null) parts.push('10Y ' + kr10y + '%');
+            return line + parts.join(' / ') + '\n  ※ 한국 금리는 정기 발표 (BOK MPC/KRX) 스냅샷. "현재" 답변 시 스냅샷 시점 명시 의무. 환각 차단.\n';
+          } catch(e) { return ''; }
+        })() +
         '• WTI: $' + s.wti + ' | Brent: $' + s.brent + ' | VIX: ' + s.vix + '\n' +
         '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) [' + s.indexBasis + '] | 트레이딩 스코어: ' + s.score + '/100\n' +
         '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + '\n' +
@@ -874,6 +891,33 @@ const CHAT_CONTEXTS = {
         '• 시장 품질 스코어: ' + s.score + '/100 | VIX: ' + s.vix + ' | F&G: ' + s.fg + '\n' +
         '• SPX: ' + c.spx + ' [종가] | 10Y: ' + s.tnx + '% | DXY: ' + s.dxy + '\n' +
         (s._stale.length > 0 ? '[' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
+        // v49.59 R109 신규: ACTION_RULES 결과 동적 주입 (signal 점수 → 액션 가이드)
+        (function() {
+          try {
+            var ar = window.AIO_ACTION_RULES;
+            if (!ar) return '';
+            // VIX/F&G 기반 액션 자동 평가
+            var vix = parseFloat(s.vix) || null;
+            var fg = parseInt(s.fg) || null;
+            var score = parseInt(s.score) || null;
+            var lines = '【실시간 매매 액션 가이드 (v49.5 AIO_ACTION_RULES)】\n';
+            if (vix != null) {
+              if (vix >= 30) lines += '• VIX ' + vix + ' ≥ 30 → ⛔ EXIT_OR_HEDGE (현금화 또는 헤지)\n';
+              else if (vix >= 25) lines += '• VIX ' + vix + ' (25~30) → ⚠ TRIM_50 (50% 익절)\n';
+              else if (vix >= 20) lines += '• VIX ' + vix + ' (20~25) → ⚠ NO_ADD_RAISE_STOP (추가 매수 금지)\n';
+              else if (vix >= 15) lines += '• VIX ' + vix + ' (15~20) → ➡ HOLD_CORE (코어 보유)\n';
+              else lines += '• VIX ' + vix + ' < 15 → ✅ ACCUMULATE (분할 매수 가능)\n';
+            }
+            if (score != null) {
+              if (score >= 75) lines += '• 시장 품질 ' + score + '/100 → 적극 매수 환경\n';
+              else if (score >= 60) lines += '• 시장 품질 ' + score + '/100 → 매수 우호\n';
+              else if (score >= 45) lines += '• 시장 품질 ' + score + '/100 → 중립 (신중)\n';
+              else if (score >= 30) lines += '• 시장 품질 ' + score + '/100 → 주의 (방어)\n';
+              else lines += '• 시장 품질 ' + score + '/100 → 위험 (현금화)\n';
+            }
+            return lines + '※ 위 액션은 AIO_ACTION_RULES 휴리스틱 기반. 사용자 자산/리스크 허용도 별도 고려.\n\n';
+          } catch(e) { return ''; }
+        })() +
         '【매매 시그널 페이지 분석 요소】\n' +
         '종합 트레이딩 스코어(0~100), 5개 서브스코어(변동성·모멘텀·추세·시장폭·매크로), 국면 판단(UPTREND/PULLBACK/DOWNTREND/CRASH), 진입 체크리스트(5항목), 바닥 프로세스 3단계, FOMC 일정 카운트다운\n\n' +
         '【5개 서브스코어 해석 (각 20점 만점)】\n' +
@@ -908,12 +952,28 @@ const CHAT_CONTEXTS = {
     system: function() {
       var s = _liveSnap();
       var b5 = typeof window._breadth5 === 'number' ? window._breadth5 : null;
-      var b20 = typeof window._breadth200 === 'number' ? window._breadth200 : null;
+      var b20 = typeof window._breadth20 === 'number' ? window._breadth20 : (typeof window._breadth200 === 'number' ? window._breadth200 : null);
       var b50 = typeof window._breadth50 === 'number' ? window._breadth50 : null;
+      var b200 = typeof window._breadth200 === 'number' ? window._breadth200 : null;
+      // v49.59 R109: DATA_SNAPSHOT 폴백 + AIO.diagnoseBreadthConsensus 동적 주입
+      try {
+        var snap = window.DATA_SNAPSHOT || {};
+        if (b5 == null && snap.breadth5sma != null) b5 = snap.breadth5sma;
+        if (b20 == null && snap.breadth20sma != null) b20 = snap.breadth20sma;
+        if (b50 == null && snap.breadth50sma != null) b50 = snap.breadth50sma;
+        if (b200 == null && snap.breadth200sma != null) b200 = snap.breadth200sma;
+      } catch(_) {}
+      var consensus = null;
+      try {
+        if (window.AIO && typeof window.AIO.diagnoseBreadthConsensus === 'function') {
+          consensus = window.AIO.diagnoseBreadthConsensus();
+        }
+      } catch(_) {}
       return '당신은 시장 내부 구조(Market Internals) 전문가입니다. "시장 폭" 페이지에서 대화하고 있습니다.\n\n' +
-        '【브레드쓰 데이터】\n' +
-        '• 5SMA Above: ' + (b5 != null ? b5 + '%' : '대기') + ' | 20SMA Above: ' + (b20 != null ? b20 + '%' : '대기') + ' | 50SMA Above: ' + (b50 != null ? b50 + '%' : '대기') + '\n' +
-        '• VIX: ' + s.vix + ' | F&G: ' + s.fg + ' | 시장 품질: ' + s.score + '/100\n\n' +
+        '【브레드쓰 데이터 (v49.59 동적 주입)】\n' +
+        '• 5SMA Above: ' + (b5 != null ? b5 + '%' : '대기') + ' | 20SMA Above: ' + (b20 != null ? b20 + '%' : '대기') + ' | 50SMA Above: ' + (b50 != null ? b50 + '%' : '대기') + ' | 200SMA Above: ' + (b200 != null ? b200 + '%' : '대기') + '\n' +
+        '• VIX: ' + s.vix + ' | F&G: ' + s.fg + ' | 시장 품질: ' + s.score + '/100\n' +
+        (consensus ? '• 다중 신호 합의: ' + (consensus.verdict || consensus.label || JSON.stringify(consensus).substring(0,80)) + '\n' : '') + '\n' +
         '【분석 프레임워크】\n' +
         '50SMA Above 70%+ = 건강한 상승장. 50%~70% = 중립. 50%↓ = 약세 경고. 5SMA가 50SMA보다 빠르게 회복 = 단기 반등, 느리게 = 추세 전환 의심.\n' +
         '브레드쓰 확인(Breadth Thrust) = 10거래일 내 10%→50%+ 급등 시 역사적 강세 신호.\n' +
@@ -929,10 +989,43 @@ const CHAT_CONTEXTS = {
     title: 'AI 투자 심리 분석가',
     system: function() {
       var s = _liveSnap();
+      // v49.59 R109: 6 지표 Tail Risk Board 동적 주입 (VIX/VVIX/SKEW/MOVE/VIX9D/VIX3M/AAII)
+      var snap = window.DATA_SNAPSHOT || {};
+      var ld = window._liveData || {};
+      var vvix = (ld['^VVIX'] && ld['^VVIX'].price) || snap.vvix || null;
+      var skew = (ld['^SKEW'] && ld['^SKEW'].price) || snap.skew || null;
+      var vix9d = (ld['^VIX9D'] && ld['^VIX9D'].price) || null;
+      var vix3m = (ld['^VIX3M'] && ld['^VIX3M'].price) || null;
+      var move = snap.move || null;
+      var aaiiBull = snap.aaiiBull || null;
+      var aaiiBear = snap.aaiiBear || null;
+      var pcr = snap.putCallRatio || snap.pcr || null;
+      var hyOas = snap.hySpread || snap.hyOas || null;
+      var tailRisk = '【6 지표 Tail Risk Board (v49.59 동적)】\n';
+      tailRisk += '• VIX: ' + s.vix + (vvix != null ? ' | VVIX: ' + Number(vvix).toFixed(1) + ' (vol-of-vol)' : '') + '\n';
+      if (skew != null) tailRisk += '• SKEW: ' + Number(skew).toFixed(1) + ' (tail risk hedging 수요)\n';
+      if (vix9d != null && vix3m != null) {
+        var struct = Number(vix9d) - Number(vix3m);
+        tailRisk += '• VIX 기간구조: 9D ' + Number(vix9d).toFixed(2) + ' / 3M ' + Number(vix3m).toFixed(2) + ' → ' + (struct < 0 ? 'contango (정상)' : 'backwardation (단기 공포)') + '\n';
+      }
+      if (move != null) tailRisk += '• MOVE: ' + Number(move).toFixed(1) + ' (채권 변동성)\n';
+      if (aaiiBull != null && aaiiBear != null) {
+        var spread = Number(aaiiBull) - Number(aaiiBear);
+        var aaiLabel = '—';
+        if (window.AIO_THRESHOLD_REGISTRY && window.AIO_THRESHOLD_REGISTRY.AAII) {
+          var bl = window.AIO_THRESHOLD_REGISTRY.AAII.getLabel(spread);
+          aaiLabel = bl && bl.label;
+        }
+        tailRisk += '• AAII Bull/Bear: ' + aaiiBull + '/' + aaiiBear + ' (spread ' + spread.toFixed(1) + ' → ' + aaiLabel + ')\n';
+      }
+      if (pcr != null) tailRisk += '• Put/Call Ratio: ' + Number(pcr).toFixed(2) + (pcr >= 1.2 ? ' (헷지 우세)' : pcr <= 0.7 ? ' (탐욕)' : ' (중립)') + '\n';
+      if (hyOas != null) tailRisk += '• HY OAS: ' + Number(hyOas) + 'bps (신용 스프레드)\n';
+      tailRisk += '\n';
       return '당신은 행동 재무학(Behavioral Finance) 전문가입니다. "투자 심리" 페이지에서 대화하고 있습니다.\n\n' +
         '【심리 데이터 (신선도: ' + s._freshness + ')】\n' +
         '• Fear & Greed: ' + s.fg + ' | VIX: ' + s.vix + '\n' +
         '• 시장 품질: ' + s.score + '/100\n\n' +
+        tailRisk +
         '【투자 심리 페이지 분석 요소】\n' +
         'Fear & Greed Index, VIX(공포지수), AAII Bull/Bear(개인 투자 심리), NAAIM(기관 노출도), Put/Call Ratio, HY OAS(신용 스프레드)\n\n' +
         '【분석 프레임워크 (§41 역사적 데이터 기반)】\n' +
@@ -1889,6 +1982,24 @@ async function _fetchTickerTrend(ticker) {
   } catch(e) { return null; }
 }
 
+// ─────────────────────────────────────────────────────────────────
+// v49.58 P321 R107 신규: _withTimeout — promise를 N ms 후 강제 fallback
+// 채팅 fetch가 hang 시 응답 30초+ 지연 차단. 11 fetch 모두 graceful degradation.
+// 사용: _withTimeout(promise, 2500, null) — 2.5초 내 미해결 시 null 반환
+// ─────────────────────────────────────────────────────────────────
+function _withTimeout(promise, ms, fallback) {
+  if (!promise || typeof promise.then !== 'function') return Promise.resolve(fallback);
+  var to;
+  var timeoutPromise = new Promise(function(resolve) {
+    to = setTimeout(function() { resolve(fallback); }, ms || 2500);
+  });
+  return Promise.race([
+    promise.then(function(v) { clearTimeout(to); return v; }).catch(function() { clearTimeout(to); return fallback; }),
+    timeoutPromise
+  ]);
+}
+window._withTimeout = _withTimeout;
+
 async function _fetchTickerDataForChat(tickers) {
   if (!tickers || tickers.length === 0) return '';
   var _f = function(v, dec) { return v != null && !isNaN(v) ? Number(v).toFixed(dec || 1) : 'N/A'; };
@@ -1909,12 +2020,21 @@ async function _fetchTickerDataForChat(tickers) {
     }
     // v49.34 신규: SEC 10-K + Wikipedia 사전 fetch (병렬)
     // v49.57 P317 R104 보강: SEC 8-K + Finnhub news + Insider + 13F 추가 — 6 소스 병렬
-    var secPromise         = window.AIO && window.AIO.fetchSECBusinessDescription ? window.AIO.fetchSECBusinessDescription(t).catch(function(){return null;}) : null;
-    var wikiPromise        = window.AIO && window.AIO.fetchWikipediaCompany      ? window.AIO.fetchWikipediaCompany(t).catch(function(){return null;}) : null;
-    var sec8KPromise       = window.AIO && window.AIO.fetchSECRecentFilings      ? window.AIO.fetchSECRecentFilings(t).catch(function(){return null;}) : null;
-    var fhNewsPromise      = window.AIO && window.AIO.fetchFinnhubCompanyNews    ? window.AIO.fetchFinnhubCompanyNews(t, 14).catch(function(){return null;}) : null;
-    var insiderPromise     = window.AIO && window.AIO.fetchFinnhubInsider        ? window.AIO.fetchFinnhubInsider(t).catch(function(){return null;}) : null;
-    var thirteenFPromise   = window.AIO && window.AIO.fetchSEC13F                ? window.AIO.fetchSEC13F(t).catch(function(){return null;}) : null;
+    // v49.58 P320 R104 보강: FCF/Balance/EV/Macro/Short 5 신규 — 11 소스 병렬
+    // v49.58 P321 R107 보강: 모든 fetch에 _withTimeout 2.5초 — hang 시 graceful degradation
+    var _T = 2500; // 개별 fetch timeout
+    var secPromise         = window.AIO && window.AIO.fetchSECBusinessDescription ? _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(function(){return null;}), _T, null) : null;
+    var wikiPromise        = window.AIO && window.AIO.fetchWikipediaCompany      ? _withTimeout(window.AIO.fetchWikipediaCompany(t).catch(function(){return null;}), _T, null) : null;
+    var sec8KPromise       = window.AIO && window.AIO.fetchSECRecentFilings      ? _withTimeout(window.AIO.fetchSECRecentFilings(t).catch(function(){return null;}), _T, null) : null;
+    var fhNewsPromise      = window.AIO && window.AIO.fetchFinnhubCompanyNews    ? _withTimeout(window.AIO.fetchFinnhubCompanyNews(t, 14).catch(function(){return null;}), _T, null) : null;
+    var insiderPromise     = window.AIO && window.AIO.fetchFinnhubInsider        ? _withTimeout(window.AIO.fetchFinnhubInsider(t).catch(function(){return null;}), _T, null) : null;
+    var thirteenFPromise   = window.AIO && window.AIO.fetchSEC13F                ? _withTimeout(window.AIO.fetchSEC13F(t).catch(function(){return null;}), _T, null) : null;
+    // v49.58 신규 5: v49.35 Roadmap 미연결 함수 채팅 통합
+    var fcfPromise         = window.AIO && window.AIO.computeFcfYield            ? _withTimeout(window.AIO.computeFcfYield(t).catch(function(){return null;}), _T, null) : null;
+    var balancePromise     = window.AIO && window.AIO.computeBalanceSheetRatios  ? _withTimeout(window.AIO.computeBalanceSheetRatios(t).catch(function(){return null;}), _T, null) : null;
+    var evEbitdaPromise    = window.AIO && window.AIO.computeEvEbitda            ? _withTimeout(window.AIO.computeEvEbitda(t).catch(function(){return null;}), _T, null) : null;
+    var macroBetaPromise   = window.AIO && window.AIO.computeMacroBeta           ? _withTimeout(window.AIO.computeMacroBeta(t).catch(function(){return null;}), _T, null) : null;
+    var shortPromise       = window.AIO && window.AIO.fetchFinnhubShortInterest  ? _withTimeout(window.AIO.fetchFinnhubShortInterest(t).catch(function(){return null;}), _T, null) : null;
 
     if (data) {
       var line = '• ' + data.ticker + (data.name ? ' (' + data.name + ')' : '') + ': $' + Number(data.price).toFixed(2) + (data.pct != null ? (' (' + (data.pct >= 0 ? '+' : '') + Number(data.pct).toFixed(2) + '%)') : '');
@@ -2055,6 +2175,59 @@ async function _fetchTickerDataForChat(tickers) {
           results.push('  [13F 가이드] 분기 발표 (45일 lag). 종목별 정밀 institutional holdings는 WhaleWisdom 또는 위 SEC full-text URL 직접 조회. 학습 데이터로 "버크셔/타이거글로벌 보유" 등 환각 절대 금지.');
         }
       } catch(_13fErr) {}
+
+      // v49.58 P320 R104 신규: FCF Yield (Free Cash Flow / Market Cap)
+      try {
+        var fcf = fcfPromise ? await fcfPromise : null;
+        if (fcf && fcf.available && fcf.fcfYieldPct != null) {
+          results.push('  [FCF Yield] ' + Number(fcf.fcfYieldPct).toFixed(2) + '% · ' + fcf.verdict + ' (' + fcf.source + ') — ' + fcf.note);
+        }
+      } catch(_fcfErr) {}
+
+      // v49.58 P320 R104 신규: Balance Sheet (Net Debt/EBITDA + Interest Coverage)
+      try {
+        var bal = balancePromise ? await balancePromise : null;
+        if (bal && bal.available) {
+          var bLine = '  [Balance Sheet]';
+          if (bal.netDebtToEbitda != null) bLine += ' Net Debt/EBITDA ' + Number(bal.netDebtToEbitda).toFixed(2) + 'x';
+          if (bal.interestCoverage != null) bLine += ' · Interest Coverage ' + Number(bal.interestCoverage).toFixed(1) + 'x';
+          bLine += ' · ' + bal.healthScore;
+          results.push(bLine);
+          if (bal.note) results.push('  [Balance 가이드] ' + bal.note);
+        }
+      } catch(_balErr) {}
+
+      // v49.58 P320 R104 신규: EV/EBITDA + sector peer comparison
+      try {
+        var ev = evEbitdaPromise ? await evEbitdaPromise : null;
+        if (ev && ev.available && ev.evEbitda != null) {
+          var evLine = '  [EV/EBITDA] ' + Number(ev.evEbitda).toFixed(1) + 'x';
+          if (ev.sectorMedian != null) evLine += ' (sector median ' + Number(ev.sectorMedian).toFixed(1) + 'x)';
+          if (ev.verdict) evLine += ' · ' + ev.verdict;
+          results.push(evLine);
+        }
+      } catch(_evErr) {}
+
+      // v49.58 P320 R104 신규: Macro Beta (rate / dxy / oil 회귀)
+      try {
+        var mb = macroBetaPromise ? await macroBetaPromise : null;
+        if (mb && mb.available) {
+          var mbLine = '  [Macro Beta]';
+          if (mb.rateBeta != null) mbLine += ' rate ' + Number(mb.rateBeta).toFixed(2);
+          if (mb.dxyBeta != null) mbLine += ' · dxy ' + Number(mb.dxyBeta).toFixed(2);
+          if (mb.oilBeta != null) mbLine += ' · oil ' + Number(mb.oilBeta).toFixed(2);
+          if (mb.diversificationVerdict) mbLine += ' → ' + mb.diversificationVerdict;
+          results.push(mbLine);
+        }
+      } catch(_mbErr) {}
+
+      // v49.58 P320 R104 신규: Short Interest (% float)
+      try {
+        var sh = shortPromise ? await shortPromise : null;
+        if (sh && sh.available && sh.shortInterestPct != null) {
+          results.push('  [Short Interest] ' + Number(sh.shortInterestPct).toFixed(2) + '% float · ' + sh.verdict + (sh.note ? ' (' + sh.note + ')' : ''));
+        }
+      } catch(_shErr) {}
     } else {
       // v49.32 B2/R82 HARD GUARDRAIL — fetch 실패 시 환각 절대 차단
       results.push('• ' + t + ': ❌ 실시간 시세 조회 실패 (Yahoo Finance + 프록시 모두 fail)');
@@ -2064,7 +2237,7 @@ async function _fetchTickerDataForChat(tickers) {
     }
   }
   if (results.length === 0) return '';
-  return '\n\n【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±20% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n\n📋 15 분석 분야 출처 매핑 (v49.34 R90 — 정성+정량):\n- 시세/등락률/시총/PER: 위 실시간 데이터 블록 (Yahoo/Naver/Finnhub)\n- 비즈니스 구조/사업 모델/공급망/리스크/경쟁: [SEC 10-K] 링크 직접 fetch + 인용 (Item 1, 1A, 1C)\n- CEO/경영진/제품 포트폴리오/회사 개요: [Wikipedia] 인용 (학습 데이터 환각 금지)\n- 애널리스트 컨센서스/투자포인트: [애널리스트 컨센서스] + [Naver 컨센서스] 인용\n- 어닝 일정/실적: [향후 어닝] 인용\n- 최근 이벤트/M&A/CEO 변경/사이버 사고: [SEC 8-K] 인용 (Items 코드 해석)\n- 최근 뉴스/헤드라인/실적 발표: [News] 인용 (Finnhub 14일)\n- 임원 매수/매도 신호: [Insider] 인용 (12주 누적)\n- 기관 보유 (헤지펀드/뮤추얼펀드): [13F] URL 사용자 안내 (분기 lag)\n- TAM/시장 크기: SCREENER_DB 메모\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 15 기준 가용성 (v49.35 R91 — index.html L8175 기준):\n- ✓ 구현 6개: Quality of Business(ROE) / Growth(CAGR) / Margin Trend / Valuation PE / Analyst Revisions / Earnings Beat Streak\n- ⚠ 부분/계획 5개: FCF Yield / Balance Sheet (Net Debt/EBITDA) / EV/EBITDA / Industry Rank / Macro Exposure\n- ❌ 미구현 4개: Moat (Morningstar 유료) / Insider Activity (v49.57 [Insider] 블록으로 보강) / Institutional Flow 13F (v49.57 [13F] 블록으로 보강) / Short Interest\n- 미구현 기준 분석 요청 시: "이 기준은 현재 시스템에서 자동 평가 불가, [수동 확인 출처]에서 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
+  return '\n\n【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±20% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n\n📋 15 분석 분야 출처 매핑 (v49.34 R90 — 정성+정량):\n- 시세/등락률/시총/PER: 위 실시간 데이터 블록 (Yahoo/Naver/Finnhub)\n- 비즈니스 구조/사업 모델/공급망/리스크/경쟁: [SEC 10-K] 링크 직접 fetch + 인용 (Item 1, 1A, 1C)\n- CEO/경영진/제품 포트폴리오/회사 개요: [Wikipedia] 인용 (학습 데이터 환각 금지)\n- 애널리스트 컨센서스/투자포인트: [애널리스트 컨센서스] + [Naver 컨센서스] 인용\n- 어닝 일정/실적: [향후 어닝] 인용\n- 최근 이벤트/M&A/CEO 변경/사이버 사고: [SEC 8-K] 인용 (Items 코드 해석)\n- 최근 뉴스/헤드라인/실적 발표: [News] 인용 (Finnhub 14일)\n- 임원 매수/매도 신호: [Insider] 인용 (12주 누적)\n- 기관 보유 (헤지펀드/뮤추얼펀드): [13F] URL 사용자 안내 (분기 lag)\n- TAM/시장 크기: SCREENER_DB 메모\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 15 기준 가용성 (v49.58 R91/R104 — v49.57 6 소스 + v49.58 5 함수 통합):\n- ✓ 구현 11개: Quality of Business(ROE) / Growth(CAGR) / Margin Trend / Valuation PE / Analyst Revisions / Earnings Beat Streak / FCF Yield (v49.58 [FCF Yield]) / Balance Sheet (v49.58 [Balance Sheet]) / EV/EBITDA (v49.58 [EV/EBITDA]) / Insider Activity (v49.57 [Insider]) / Institutional Flow 13F (v49.57 [13F])\n- ⚠ 부분/계획 2개: Industry Rank / Macro Exposure (v49.58 [Macro Beta] sector heuristic)\n- ❌ 유료 필수 2개: Moat (Morningstar) / Short Interest (Finnhub 무료 부분 제공 — [Short Interest])\n- 위 11개 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 \"데이터 fetch 실패 — 외부 직접 확인 권장\" 답변. AI 학습 데이터로 채우기 금지.\n';
 }
 
 // ── v34.2: 기업 내부 비교 분석 — 비즈니스 모델·수익 구조·해자 심층 데이터 ──
@@ -3053,8 +3226,24 @@ async function chatSend(ctxId) {
   }
 
   // v29: API 키 확인 먼저 (횟수 차감 전에 체크)
+  // v49.59 P329 R109: 키 미입력 시 사이드바 input 강조 + inline alert 강화
   if (!getApiKey()) {
-    chatAppendMsg(ctxId, 'ai', '<div style="color:#f87171;">Claude API 키가 설정되지 않았거나 손상되었습니다.<br>사이드바 → Claude API 키 입력란에 <code>sk-ant-...</code> 형식의 키를 다시 입력해주세요.</div>');
+    chatAppendMsg(ctxId, 'ai', '<div style="color:#f87171;padding:8px 12px;background:rgba(248,113,113,0.1);border-left:3px solid #f87171;border-radius:4px;">' +
+      '<b>⚠ Claude API 키 입력 필요</b><br>' +
+      '사이드바 → "Claude API 키" 입력란에 <code>sk-ant-...</code> 형식 키 입력 후 저장.<br>' +
+      '<a href="https://console.anthropic.com" target="_blank" style="color:#00d4ff;">→ console.anthropic.com에서 무료 발급 ($5 크레딧)</a>' +
+      '</div>');
+    // 사이드바 input 강조 (1회 pulse)
+    try {
+      var keyInput = document.getElementById('sidebar-api-key');
+      if (keyInput) {
+        var origBorder = keyInput.style.border;
+        keyInput.style.transition = 'border 0.3s';
+        keyInput.style.border = '2px solid #f87171';
+        keyInput.focus();
+        setTimeout(function(){ keyInput.style.border = origBorder; }, 3000);
+      }
+    } catch(_) {}
     return;
   }
 
@@ -3770,6 +3959,8 @@ async function fundamentalSearch() {
     if (progressEl) progressEl.innerHTML = '<div style="color:#3ddba5;">캐시 사용: ' + _ageMin + '분 전 분석 결과 (FMP 무료 250/day 보호)</div>';
     var collected = _cached.data;
     window._fundAnalysisData = collected;
+    // v49.58 R106: 채팅 컨텍스트가 활성 종목 자동 인지 (CHAT_CONTEXTS['ticker'] / .fundamental)
+    if (collected && collected.ticker) window._currentTickerId = collected.ticker;
     try { _renderFundHeader(collected); _renderFundSEC(collected); _renderFundFinancials(collected); _renderFundStatements(collected); _renderFundValuation(collected); if (typeof _renderFundMultiPeriod === 'function') _renderFundMultiPeriod(collected); _renderFundPeers(collected); _renderFundEarnings(collected); if (typeof _renderFundVariance === 'function') _renderFundVariance(collected); if (typeof _renderFundNews === 'function') _renderFundNews(collected); _renderFundSources(collected); } catch(e) { _aioLog('warn', 'fund', '캐시 렌더 실패: ' + e.message); }
     if (loadingEl) {
       var _srcList = (collected.sources || []).map(function(s){ return escHtml(String(s || '')); });
@@ -3963,6 +4154,8 @@ async function fundamentalSearch() {
 
   // 글로벌에 저장 (LLM 프롬프트 주입용)
   window._fundAnalysisData = collected;
+  // v49.58 R106: 채팅 컨텍스트가 활성 종목 자동 인지 (CHAT_CONTEXTS['ticker'] / .fundamental)
+  if (collected && collected.ticker) window._currentTickerId = collected.ticker;
   // v48.8: 세션 캐시 저장 (30분 TTL) — 같은 티커 재검색 시 FMP 18 req 절약
   try {
     window._fundCache[ticker] = { data: collected, _ts: Date.now() };

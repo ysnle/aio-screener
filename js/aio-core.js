@@ -2574,7 +2574,87 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '006260.KS': { en: 'LS',                 kr: 'LS',            alt: ['ls corp', '006260', 'ls전선'] },
     '161890.KS': { en: 'Kolmar Korea',       kr: '한국콜마',       alt: ['kolmar korea', 'kolmar', '161890'] },
     '000080.KS': { en: 'HiteJinro',          kr: '하이트진로',     alt: ['hitejinro', '000080', '하이트'] },
-    '323410.KQ': { en: 'Kakao Bank',         kr: '카카오뱅크',     alt: ['kakao bank', 'kakaobank', '323410'] }
+    '323410.KQ': { en: 'Kakao Bank',         kr: '카카오뱅크',     alt: ['kakao bank', 'kakaobank', '323410'] },
+
+    // ── v49.59 신규 카테고리별 확장 60개 (REGISTRY 173→230+ 32%→50%+) ──
+    // 클라우드/SaaS 추가 (3)
+    'CFLT':  { en: 'Confluent',        kr: '컨플루언트',   alt: ['confluent', 'cflt', 'kafka'] },
+    'WDAY':  { en: 'Workday',          kr: '워크데이',     alt: ['workday', 'wday', 'hr'] },
+    'MNDY':  { en: 'Monday.com',       kr: '먼데이닷컴',   alt: ['monday', 'mndy'] },
+    // 에너지 추가 (7)
+    'COP':   { en: 'ConocoPhillips',   kr: '코노코필립스', alt: ['conoco', 'cop'] },
+    'OXY':   { en: 'Occidental',       kr: '옥시덴탈',     alt: ['occidental', 'oxy'] },
+    'SHEL':  { en: 'Shell',            kr: '쉘',           alt: ['shell', 'shel'] },
+    'TTE':   { en: 'TotalEnergies',    kr: '토탈에너지스', alt: ['total', 'tte'] },
+    'BP':    { en: 'BP',               kr: 'BP',           alt: ['bp', 'british petroleum'] },
+    'HAL':   { en: 'Halliburton',      kr: '핼리버튼',     alt: ['halliburton', 'hal'] },
+    'BKR':   { en: 'Baker Hughes',     kr: '베이커휴즈',   alt: ['baker hughes', 'bkr'] },
+    // 핀테크 추가 (5)
+    'XYZ':   { en: 'Block',            kr: '블록',         alt: ['block', 'xyz', 'square', 'sq'] },
+    'UPST':  { en: 'Upstart',          kr: '업스타트',     alt: ['upstart', 'upst'] },
+    'AXP':   { en: 'American Express', kr: '아메리칸익스프레스', alt: ['american express', 'amex', 'axp'] },
+    'BLK':   { en: 'BlackRock',        kr: '블랙록',       alt: ['blackrock', 'blk'] },
+    'SPGI':  { en: 'S&P Global',       kr: 'S&P글로벌',    alt: ['s&p global', 'spgi'] },
+    // 은행 추가 (7)
+    'WFC':   { en: 'Wells Fargo',      kr: '웰스파고',     alt: ['wells fargo', 'wfc'] },
+    'MS':    { en: 'Morgan Stanley',   kr: '모건스탠리',   alt: ['morgan stanley', 'ms', '모스'] },
+    'C':     { en: 'Citigroup',        kr: '씨티그룹',     alt: ['citi', 'citigroup', 'c'] },
+    'USB':   { en: 'US Bancorp',       kr: 'US뱅코프',     alt: ['us bancorp', 'usb'] },
+    'PNC':   { en: 'PNC Financial',    kr: 'PNC',          alt: ['pnc'] },
+    'SCHW':  { en: 'Charles Schwab',   kr: '찰스슈왑',     alt: ['schwab', 'schw'] },
+    'BK':    { en: 'BNY Mellon',       kr: 'BNY멜론',      alt: ['bny mellon', 'bk'] },
+    // 산업/방산 추가 (3)
+    'GE':    { en: 'GE Aerospace',     kr: 'GE에어로스페이스', alt: ['ge', 'general electric', 'aerospace'] },
+    'HON':   { en: 'Honeywell',        kr: '하니웰',       alt: ['honeywell', 'hon'] },
+    'LHX':   { en: 'L3Harris',         kr: 'L3해리스',     alt: ['l3harris', 'lhx'] },
+    // 원전 추가 (1)
+    'TLN':   { en: 'Talen Energy',     kr: '탤런에너지',   alt: ['talen', 'tln'] },
+    // 통신/배당주 추가 (4)
+    'T':     { en: 'AT&T',             kr: 'AT&T',         alt: ['at&t', 'att'] },
+    'VZ':    { en: 'Verizon',          kr: '버라이즌',     alt: ['verizon', 'vz'] },
+    'DE':    { en: 'Deere',            kr: '디어',         alt: ['deere', 'john deere', 'de'] },
+    'NEE':   { en: 'NextEra Energy',   kr: '넥스테라에너지', alt: ['nextera', 'nee'] },
+    // 헬스케어 추가 (5)
+    'MDT':   { en: 'Medtronic',        kr: '메드트로닉',   alt: ['medtronic', 'mdt'] },
+    'EW':    { en: 'Edwards Lifesciences', kr: '에드워즈라이프사이언스', alt: ['edwards', 'ew'] },
+    'GEHC':  { en: 'GE Healthcare',    kr: 'GE헬스케어',   alt: ['ge healthcare', 'gehc'] },
+    'BSX':   { en: 'Boston Scientific', kr: '보스턴사이언티픽', alt: ['boston scientific', 'bsx'] },
+    'DXCM':  { en: 'Dexcom',           kr: '덱스콤',       alt: ['dexcom', 'dxcm'] },
+    // 인도 ADR 추가 (3)
+    'IBN':   { en: 'ICICI Bank',       kr: 'ICICI은행',    alt: ['icici', 'ibn'] },
+    'HDB':   { en: 'HDFC Bank',        kr: 'HDFC은행',     alt: ['hdfc', 'hdb'] },
+    'INFY':  { en: 'Infosys',          kr: '인포시스',     alt: ['infosys', 'infy'] },
+    // 게임 추가 (1)
+    'NTDOY': { en: 'Nintendo',         kr: '닌텐도',       alt: ['nintendo', 'ntdoy'] },
+    // 추가 메가캡 (10)
+    'TMUS':  { en: 'T-Mobile',         kr: 'T모바일',      alt: ['t-mobile', 'tmus'] },
+    'ADI':   { en: 'Analog Devices',   kr: '아날로그디바이스', alt: ['analog devices', 'adi'] },
+    'INTU':  { en: 'Intuit',           kr: '인튜이트',     alt: ['intuit', 'intu'] },
+    'ADBE':  { en: 'Adobe',            kr: '어도비',       alt: ['adobe', 'adbe'] },
+    'AMT':   { en: 'American Tower',   kr: '아메리칸타워', alt: ['american tower', 'amt'] },
+    'CCI':   { en: 'Crown Castle',     kr: '크라운캐슬',   alt: ['crown castle', 'cci'] },
+    'CME':   { en: 'CME Group',        kr: 'CME그룹',      alt: ['cme', 'cme group'] },
+    'ICE':   { en: 'Intercontinental Exchange', kr: 'ICE', alt: ['intercontinental', 'ice'] },
+    'MMM':   { en: '3M',               kr: '3M',           alt: ['3m', 'mmm'] },
+    'CAT':   { en: 'Caterpillar',      kr: '캐터필러',     alt: ['caterpillar', 'cat'] },
+    // 추가 소비/리테일 (5)
+    'TGT':   { en: 'Target',           kr: '타겟',         alt: ['target', 'tgt'] },
+    'EBAY':  { en: 'eBay',             kr: '이베이',       alt: ['ebay'] },
+    'CPNG':  { en: 'Coupang',          kr: '쿠팡',         alt: ['coupang', 'cpng'] },
+    'CHWY':  { en: 'Chewy',            kr: '츄이',         alt: ['chewy', 'chwy'] },
+    'PINS_dup': { en: '_skip', kr: '_skip', alt: ['_skip'] }, // duplicate placeholder skip
+    // 미디어/엔터 (3)
+    'PARA':  { en: 'Paramount',        kr: '파라마운트',   alt: ['paramount', 'para'] },
+    'PSKY':  { en: 'Paramount Skydance', kr: '파라마운트스카이댄스', alt: ['paramount skydance', 'psky'] },
+    'FUBO':  { en: 'fuboTV',           kr: 'fuboTV',       alt: ['fubo', 'fubotv'] },
+    // 위성/우주 추가 (2)
+    'IRDM':  { en: 'Iridium',          kr: '이리듐',       alt: ['iridium', 'irdm'] },
+    'GE_VRN': { en: 'GE Vernova',      kr: 'GE버노바',     alt: ['ge vernova', 'gev'] },
+    // BTC 현물 ETF (4)
+    'IBIT':  { en: 'iShares Bitcoin ETF', kr: '아이셰어즈비트코인ETF', alt: ['ibit', 'bitcoin etf'] },
+    'FBTC':  { en: 'Fidelity Bitcoin ETF', kr: '피델리티비트코인ETF', alt: ['fbtc'] },
+    'ARKB':  { en: 'ARK 21Shares Bitcoin', kr: 'ARK비트코인', alt: ['arkb'] },
+    'BITO':  { en: 'ProShares BTC Strategy ETF', kr: '프로셰어즈BTC', alt: ['bito'] }
   }
 };
 
@@ -2658,6 +2738,56 @@ window.AIO.assertTickerRegistryCompleteness = function() {
     missingTickers: missing.slice(0, 30),
     coveragePct: pct,
     note: missing.length > 0 ? '미등록 ticker는 한글/별명 인식 안 됨 — REGISTRY entries에 추가 필요' : 'all clear',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.59 P327/R112 신규: auditAllChatContexts — 14 CHAT_CONTEXTS 정합성 자동 검증
+// 새 페이지 추가 시 회귀 방지 + 사이드바 audit 위젯에 노출.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.auditAllChatContexts = function() {
+  var ctx = window.CHAT_CONTEXTS;
+  if (!ctx) return { status: 'error', error: 'CHAT_CONTEXTS undefined', validCount: 0 };
+  var keys = Object.keys(ctx);
+  var results = {};
+  var validCount = 0;
+  var invalidContexts = [];
+  var contextsWithDynamic = [];
+  var totalLength = 0;
+  keys.forEach(function(k) {
+    var c = ctx[k];
+    if (!c || typeof c.system !== 'function') {
+      invalidContexts.push({ key: k, reason: 'system function missing' });
+      results[k] = { ok: false, reason: 'no system' };
+      return;
+    }
+    try {
+      var text = c.system();
+      var len = text ? text.length : 0;
+      var hasDynamic = /\【|live|실시간|동적|_currentTickerId|_currentThemeId|_liveData|DATA_SNAPSHOT|getActionRules|diagnoseBreadth/.test(text);
+      var hasRules = /_getChatRules|ABSOLUTE RULES|환각/.test(text);
+      var hasTitle = !!c.title;
+      results[k] = { ok: len > 200, length: len, hasDynamic: hasDynamic, hasRules: hasRules, hasTitle: hasTitle };
+      if (len > 200) validCount++;
+      else invalidContexts.push({ key: k, reason: 'too short (' + len + ' chars)' });
+      if (hasDynamic) contextsWithDynamic.push(k);
+      totalLength += len;
+    } catch(e) {
+      invalidContexts.push({ key: k, reason: 'system() throw: ' + (e && e.message || e) });
+      results[k] = { ok: false, reason: 'throw' };
+    }
+  });
+  return {
+    status: invalidContexts.length === 0 ? 'ok' : (invalidContexts.length < 3 ? 'warn' : 'error'),
+    totalContexts: keys.length,
+    validCount: validCount,
+    invalidContexts: invalidContexts,
+    contextsWithDynamic: contextsWithDynamic,
+    dynamicCoveragePct: keys.length > 0 ? Math.round(contextsWithDynamic.length / keys.length * 100) : 0,
+    avgLength: keys.length > 0 ? Math.round(totalLength / keys.length) : 0,
+    perContext: results,
+    note: '14 CHAT_CONTEXTS 정합성 자동 검증 (v49.59 P327). validCount === totalContexts 목표',
     generatedAt: new Date().toISOString()
   };
 };
@@ -5196,11 +5326,13 @@ window.AIO_THRESHOLD_REGISTRY = {
     }
   },
   AAII: {
-    // Bull-Bear Spread (%). spread = bull% - bear%. <-20 극단 비관, -20~-10 중정도 비관, -10~+10 중립, +10~+20 낙관, >+20 극단 낙관
+    // v49.58 P196 보정: Bull-Bear Spread (%). spread = bull% - bear%.
+    // <-20 극단 비관, -20~-5 중정도 비관, -5~+5 중립, +5~+20 중정도 낙관, >+20 극단 낙관
+    // 약한 비관 신호도 잡기 위해 -10/+10 → -5/+5로 좁힘 (P219 의도 반영)
     bands: [
       { max: -20, label: '극단 비관',  color: 'data-green', signal: 'buy-opportunity' },
-      { max: -10, label: '중정도 비관', color: 'data-amber', signal: 'caution-bullish' },
-      { max:  10, label: '중립',       color: 'text-secondary', signal: 'neutral' },
+      { max:  -5, label: '중정도 비관', color: 'data-amber', signal: 'caution-bullish' },
+      { max:   5, label: '중립',       color: 'text-secondary', signal: 'neutral' },
       { max:  20, label: '중정도 낙관', color: 'data-amber', signal: 'caution-bearish' },
       { max: Infinity, label: '극단 낙관', color: 'data-red', signal: 'sell-opportunity' }
     ],
@@ -7727,6 +7859,170 @@ setTimeout(function() {
   }, 5 * 60 * 1000);
 }, 5000);
 
+// ─────────────────────────────────────────────────────────────────
+// v49.58 P322/R108 신규: 사이드바 Audit 위젯 + web_search 토글 + 키 백업 GUI 핸들러
+// 사용자가 콘솔 없이 self-check + 토글 + 백업 조작 가능. 11 audit 함수 GUI 노출.
+// ─────────────────────────────────────────────────────────────────
+window._aioRefreshAuditWidget = function() {
+  try {
+    var container = document.getElementById('aio-audit-widget-content');
+    if (!container) return;
+    var rows = container.querySelectorAll('[data-audit-key]');
+    // (1) Registry completeness
+    var regEl = container.querySelector('[data-audit-key="registry"]');
+    if (regEl) {
+      try {
+        var r = window.AIO && window.AIO.assertTickerRegistryCompleteness && window.AIO.assertTickerRegistryCompleteness();
+        if (r) {
+          var icon = r.coveragePct >= 80 ? '✓' : r.coveragePct >= 30 ? '⚠' : '✗';
+          var color = r.coveragePct >= 80 ? 'var(--data-green)' : r.coveragePct >= 30 ? 'var(--data-amber)' : 'var(--data-red)';
+          regEl.innerHTML = '<span style="color:' + color + ';">' + icon + '</span> ticker <b>' + r.registeredCount + '</b>/' + r.uniqueTickers + ' (' + r.coveragePct + '%)';
+        } else {
+          regEl.innerHTML = '<span style="color:var(--text-muted);">— ticker registry 미가용</span>';
+        }
+      } catch(e) { regEl.textContent = '⚠ registry audit error'; }
+    }
+    // (2) web_search status
+    var wsEl = container.querySelector('[data-audit-key="webSearch"]');
+    if (wsEl) {
+      try {
+        var ws = window.AIO && window.AIO.getWebSearchAudit && window.AIO.getWebSearchAudit();
+        if (ws) {
+          var statusIcon = ws.enabled ? '🔍' : '⊘';
+          var statusColor = ws.enabled ? 'var(--data-cyan)' : 'var(--text-muted)';
+          wsEl.innerHTML = '<span style="color:' + statusColor + ';">' + statusIcon + '</span> web_search ' + (ws.enabled ? '<b>ON</b>' : 'OFF') + ' · 호출 ' + ws.calls + '회';
+        } else {
+          wsEl.innerHTML = '<span style="color:var(--text-muted);">— web_search 미가용</span>';
+        }
+      } catch(e) { wsEl.textContent = '⚠ web_search audit error'; }
+    }
+    // (3) Context freshness
+    var fEl = container.querySelector('[data-audit-key="freshness"]');
+    if (fEl) {
+      try {
+        var f = window.AIO && window.AIO.getChatContextFreshnessAudit && window.AIO.getChatContextFreshnessAudit();
+        if (f) {
+          var pct = f.freshnessPct != null ? f.freshnessPct : (f.totalContexts ? Math.round((f.totalContexts - (f.staleCount || 0)) / f.totalContexts * 100) : null);
+          if (pct != null) {
+            var icon3 = pct >= 95 ? '✓' : pct >= 80 ? '⚠' : '✗';
+            var color3 = pct >= 95 ? 'var(--data-green)' : pct >= 80 ? 'var(--data-amber)' : 'var(--data-red)';
+            fEl.innerHTML = '<span style="color:' + color3 + ';">' + icon3 + '</span> 컨텍스트 신선도 <b>' + pct + '%</b>';
+          } else {
+            fEl.innerHTML = '<span style="color:var(--text-muted);">— freshness 측정 불가</span>';
+          }
+        } else {
+          fEl.innerHTML = '<span style="color:var(--text-muted);">— freshness audit 미가용</span>';
+        }
+      } catch(e) { fEl.textContent = '⚠ freshness audit error'; }
+    }
+    // (4) v49.59 P327 신규: CHAT_CONTEXTS 정합성 (auditAllChatContexts)
+    var ccEl = container.querySelector('[data-audit-key="chatContexts"]');
+    if (ccEl) {
+      try {
+        var cc = window.AIO && window.AIO.auditAllChatContexts && window.AIO.auditAllChatContexts();
+        if (cc) {
+          var icon4 = cc.status === 'ok' ? '✓' : cc.status === 'warn' ? '⚠' : '✗';
+          var color4 = cc.status === 'ok' ? 'var(--data-green)' : cc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          ccEl.innerHTML = '<span style="color:' + color4 + ';">' + icon4 + '</span> 채팅 컨텍스트 <b>' + cc.validCount + '/' + cc.totalContexts + '</b> · 동적 ' + cc.dynamicCoveragePct + '%';
+        } else {
+          ccEl.innerHTML = '<span style="color:var(--text-muted);">— CHAT_CONTEXTS audit 미가용</span>';
+        }
+      } catch(e) { ccEl.textContent = '⚠ chatContexts audit error'; }
+    }
+  } catch(e) { /* 위젯 갱신 실패는 silent */ }
+};
+// 페이지 로드 후 자동 1회 + 5분마다 갱신
+setTimeout(function() {
+  try { window._aioRefreshAuditWidget(); } catch(_e) {}
+  setInterval(function() {
+    try { window._aioRefreshAuditWidget(); } catch(_e) {}
+  }, 5 * 60 * 1000);
+}, 3000);
+
+window._aioWebSearchToggle = function(checked, el) {
+  // checkbox change event — el이 input element
+  var enabled = (el && typeof el.checked === 'boolean') ? el.checked : !!checked;
+  try {
+    if (enabled) localStorage.removeItem('aio_web_search_enabled');
+    else localStorage.setItem('aio_web_search_enabled', 'off');
+  } catch(_e) {}
+  var statusEl = document.getElementById('aio-web-search-status');
+  if (statusEl) {
+    statusEl.textContent = enabled ? 'ON' : 'OFF';
+    statusEl.style.color = enabled ? 'var(--data-green)' : 'var(--text-muted)';
+  }
+  // 위젯 새로고침
+  try { window._aioRefreshAuditWidget(); } catch(_e) {}
+  if (typeof showToast === 'function') {
+    showToast(enabled ? '🔍 Claude 웹 검색 활성화' : '⊘ 웹 검색 비활성화 — 학습 데이터만 사용');
+  }
+};
+// 페이지 로드 시 토글 초기 상태 동기화
+setTimeout(function() {
+  try {
+    var t = document.getElementById('aio-web-search-toggle');
+    var status = document.getElementById('aio-web-search-status');
+    if (t) {
+      var disabled = (localStorage.getItem('aio_web_search_enabled') === 'off');
+      t.checked = !disabled;
+      if (status) {
+        status.textContent = disabled ? 'OFF' : 'ON';
+        status.style.color = disabled ? 'var(--text-muted)' : 'var(--data-green)';
+      }
+    }
+  } catch(_e) {}
+}, 2000);
+
+window._aioExportKeys = function() {
+  try {
+    var r = window.AIO.exportApiKeys({ masked: false });
+    if (typeof showToast === 'function') showToast('📥 키 백업 완료 — ' + r.exported + '개 다운로드');
+  } catch(e) {
+    if (typeof showToast === 'function') showToast('⚠ 백업 실패: ' + (e && e.message));
+  }
+};
+
+window._aioImportKeysPrompt = function() {
+  // 파일 선택 후 JSON 파싱 + 복원
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = function(e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = async function(ev) {
+      try {
+        var r = await window.AIO.importApiKeys(ev.target.result);
+        if (r.ok) {
+          if (typeof showToast === 'function') showToast('📤 키 복원 완료 — ' + r.imported + '개 (백업: ' + (r.source || 'unknown') + ')');
+          setTimeout(function(){ window.location.reload(); }, 1500); // 키 반영 위해 리로드
+        } else {
+          if (typeof showToast === 'function') showToast('⚠ 복원 실패: ' + (r.error || 'unknown'));
+        }
+      } catch(err) {
+        if (typeof showToast === 'function') showToast('⚠ 파일 파싱 실패: ' + (err && err.message));
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+};
+
+window._aioRecoverKeys = async function() {
+  try {
+    var r = await window.AIO.recoverApiKeysFromIdb();
+    if (r.recovered > 0) {
+      if (typeof showToast === 'function') showToast('🔄 IDB 자동 복원 — ' + r.recovered + '개 (백업: ' + r.idbTs + ')');
+      setTimeout(function(){ window.location.reload(); }, 1500);
+    } else {
+      if (typeof showToast === 'function') showToast('ℹ ' + (r.reason || 'no backup found'));
+    }
+  } catch(e) {
+    if (typeof showToast === 'function') showToast('⚠ 복원 실패: ' + (e && e.message));
+  }
+};
+
 // v30.11: PIN 설정/해제 UI 핸들러
 function _vaultSetPin() {
   var pin1 = document.getElementById('vault-pin-input');
@@ -9354,7 +9650,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.58';
+const APP_VERSION = 'v49.59';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -11232,7 +11528,8 @@ function applyDataSnapshot() {
       'skew':          _snap.fixed(S.skew, 2),
       'skew-pct':      _snap.pct(S.skewChg || 0),
       'pcr':           _snap.fixed(S.putCallRatio || S.pcr, 2),
-      'vkospi':        _snap.fixed(S.vkospi, 2),
+      // v49.58 P278: VKOSPI 라벨 자동 부착 (정상<20 / 경계 20~25 / 공포 25~35 / 극단공포 35+)
+      'vkospi':        _snap.fixed(S.vkospi, 2) + ' (' + (S.vkospi >= 35 ? '극단공포' : S.vkospi >= 25 ? '공포' : S.vkospi >= 20 ? '경계' : '정상') + ')',
       // 금리 (폴백값용 — data-live-price 실시간이 우선)
       'tnx':           _snap.fixed(S.tnx || 4.31, 2) + '%',
       'tnx-2y':        _snap.fixed(S.tnx2y || 3.88, 2) + '%',
@@ -12588,6 +12885,18 @@ function showPage(id, navEl) {
   // v34.5: 해시 별칭 매핑 — 잘못된 해시로 진입 시 올바른 페이지로 리다이렉트
   var _hashAlias = { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'kr-home', 'kr-theme': 'kr-themes' };
   if (_hashAlias[id]) id = _hashAlias[id];
+  // v49.58 R106: 페이지 진입 시 ticker-related 마커 자동 sync — ticker/fundamental/options/portfolio 등
+  // CHAT_CONTEXTS가 활성 종목 자동 인지하여 환각 차단
+  try {
+    if (id !== 'ticker' && id !== 'fundamental' && id !== 'options') {
+      // ticker context를 벗어나면 _currentTickerId clear (themes/macro 등에서 잔존 방지)
+      // ticker/fundamental/options 진입은 showTicker 또는 fundamentalSearch에서 별도 set
+      if (id === 'themes' || id === 'theme-detail' || id === 'kr-themes') {
+        // themes 계열은 _currentThemeId만 유지, ticker는 clear
+        window._currentTickerId = null;
+      }
+    }
+  } catch(_markerErr) {}
   // v30.10: 이전 페이지 차트 정리 (메모리 누수 방지)
   if (typeof prevPage !== 'undefined' && prevPage && prevPage !== id) {
     destroyPageCharts(prevPage);
@@ -12712,6 +13021,9 @@ const actionClasses = {watch:'watch', hold:'neutral', buy:'buy', cut:'sell'};
 function showTicker(tkr) {
   _currentTickerSym = tkr; // v27.1: chart에서 사용할 현재 티커 저장
   if (window.AIO && window.AIO.state) window.AIO.state._currentTickerSym = tkr; // v49.1 P184
+  // v49.58 R106: 채팅 컨텍스트가 활성 종목 라이브 가격을 자동 주입하도록 전역 마커
+  // CHAT_CONTEXTS['ticker'].system() / CHAT_CONTEXTS.fundamental.system()이 읽음
+  window._currentTickerId = tkr;
   const d = tickerData[tkr] || {name:tkr, value:'—', action:'hold'};
   /* ── 동적 시세: _liveData에서 실시간 가격/변동률 가져오기 ── */
   var ld = window._liveData || {};
