@@ -6,6 +6,99 @@
 
 ---
 
+## v49.57 — AI Chat Ticker Coverage Expansion (2026-05-20)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `_context/QA-CHECKLIST.md`
+
+**Motivation**: 사용자 요청 — "AI 채팅에서 종목과 기업들 관련해서 데이터 커버리지 대폭 확장. 지금 들어가 있는 종목과 기업들 분석 후에 테마/트렌드에 있는 종목들은 모두 들어가 있는 지 확인. 또한 각 종목들과 기업들의 최신 정보와 데이터들을 가져오고 있는 지 세밀하게 조사. 검색 API 없으면 기업들/종목들 양질의 최신 데이터 못 가져와?"
+
+**Audit (Phase 1 조사)**:
+- AIO_TICKER_NAME_REGISTRY 47개 / SCR_KEYWORD_ALIASES 259 테마 · 543 ticker → **133개(24%) 한글 인식 갭**
+- `_fetchTickerDataForChat` SEC 10-K + Wikipedia 2 소스만 — 8-K/News/Insider/13F 누락 → 환각 위험
+- themes/theme-detail 채팅 컨텍스트 정적 — 활성 테마 ticker 라이브 가격 미주입
+- 검색 API 없이도 정량 80% + 정성 70% 커버 (SEC/Finnhub/FMP/Yahoo/Naver/Wikipedia) — 부족분은 트렌딩 뉴스/애널 리포트/소셜 sentiment
+
+**Changes**:
+
+1. **AIO_TICKER_NAME_REGISTRY 47 → 152 entries** (`js/aio-core.js` L2316~2540)
+   - 반도체 장비 8 (AMAT/LRCX/KLAC/SNPS/CDNS/MRVL/MCHP/ON)
+   - 클라우드/SaaS/Cyber 12 (NET/ESTC/DDOG/SNOW/MDB/GTLB/CRWD/ZS/OKTA/FTNT/PANW/NOW/IBM)
+   - GLP-1/Biotech 8 (LLY/NVO/VKTX/MRNA/REGN/VRTX/AMGN/ABBV)
+   - 원전/전력 8 (CEG/VST/CCJ/NRG/OKLO/SMR/NNE/BWXT)
+   - 우주 5 (RKLB/ASTS/LUNR/PL/RDW)
+   - 양자 4 (IONQ/RGTI/QUBT/QBTS)
+   - 크립토/핀테크 8 (MSTR/RIOT/MARA/HOOD/PYPL/SOFI/AFRM/NU)
+   - 광통신 8 (LITE/COHR/CIEN/AAOI/GLW/ANET/POET/VIAV)
+   - EV/Auto 8 (RIVN/LCID/GM/F/MBLY/APTV/XPEV)
+   - Robotics 4 (SYM/PATH/ISRG/FANUY)
+   - 데이터센터/Neocloud 10 (EQIX/DLR/VRT/ETN/CRWV/NBIS/IREN/CIFR/WULF/DELL)
+   - 솔라/수소 8 (FSLR/ENPH/RUN/SEDG/NXT/BE/PLUG/FCEL)
+   - 미디어 6 (DIS/WBD/SPOT/ROKU/TTD/APP)
+   - 에너지 8 (SLB/EOG/FANG/DVN/MPC/VLO/PSX/CVX)
+   - 방산 8 (RTX/LMT/NOC/GD/HII/LDOS/HWM/BA)
+   - 소비/리테일 10 (COST/PEP/KO/MCD/NKE/SBUX/PG/HD/LOW/LULU)
+   - 여행 7 (BKNG/ABNB/UBER/DASH/DAL/UAL/CCL)
+   - 헬스케어 5 (MRK/PFE/TMO/ABT/GILD)
+   - 게임/소셜 6 (EA/TTWO/RBLX/SNAP/PINS/RDDT)
+   - AI/IT 5 (AI/TEM/SOUN/IBM/CSCO)
+   - 국제 ADR 12 (BABA/PDD/JD/BIDU/NTES/TCEHY/NIO/LI/TM/SONY/SAP/SHOP)
+   - **KR 신규 5** (267250.KS HD현대중공업, 006260.KS LS, 161890.KS 한국콜마, 000080.KS 하이트진로, 323410.KQ 카카오뱅크)
+
+2. **CIK_MAP 50 → 134 entries** (`js/aio-core.js` L3828~3920) — SEC EDGAR 10-K/8-K fetch 가능 종목 확장
+
+3. **`_fetchTickerDataForChat` 2 → 6 소스 병렬** (`js/aio-chat.js` L1857~2002)
+   - 신규 4 fetch: `fetchSECRecentFilings` (8-K 5건) + `fetchFinnhubCompanyNews` (14일 Top 5) + `fetchFinnhubInsider` (12주 매수/매도) + `fetchSEC13F` (URL)
+   - system 프롬프트 6 라벨: `[SEC 10-K]` / `[Wikipedia]` / `[SEC 8-K]` / `[News]` / `[Insider]` / `[13F]`
+   - ABSOLUTE RULES 5조: "위 [SEC 8-K]/[News]/[Insider] 블록 데이터만 인용. 학습 데이터 환각 금지"
+
+4. **fetchSECRecentFilings 강화** (`js/aio-core.js` L3859~3935) — URL placeholder → 실제 raw.filings.recent에서 form==='8-K' 인덱스 추출 + filingDate/items/accession 파싱 + 5분 캐시
+
+5. **fetchFinnhubCompanyNews 신설** (`js/aio-core.js` L3936~3996) — /company-news?symbol=X&from=Y&to=Z 호출 + topHeadlines 5건 + 30분 캐시
+
+6. **themes/theme-detail 동적 ticker 주입 R105** (`js/aio-chat.js` L566~593 + L948~975)
+   - `showTheme(themeId)` 진입 시 `window._currentThemeId = themeId` (aio-core.js L12522)
+   - system() IIFE가 `SCR_KEYWORD_ALIASES[themeId]` 평면 ticker 배열 + `window._liveData[t].price` 라이브 주입
+   - "【현재 테마: ai · 등록 15종목 라이브 가격】" 블록 + 환각 차단 안내
+
+7. **신규 audit 함수 3개** (`js/aio-core.js`)
+   - `AIO.assertTickerRegistryCompleteness()` — SCR_KEYWORD_ALIASES vs REGISTRY 정합 + missingTickers + coveragePct
+   - `AIO.getThemeFetchCoverageAudit(themeId)` — ticker × 5채널(SEC/Wiki/Finnhub/FMP/Naver) 매트릭스 + API key 가용성
+   - `AIO.getWebSearchAudit()` — 사용 통계 + 비용 추정 + opt-out 상태
+
+8. **Claude `web_search_20250305` 조건부 통합 P318** (`js/aio-chat.js`)
+   - `_shouldUseClaudeWebSearch(q, ctxId, detectedTickers)` 휴리스틱 (시점 키워드 / 페이지 컨텍스트 / 티커+이벤트 / 검색 API 키 없을 때 폴백)
+   - `callClaude` reqBody.tools 조건부 주입 (`max_uses:3`)
+   - `localStorage.aio_web_search_enabled='off'` opt-out 토글
+   - chatSend에 🔍 활성화 배지 표시
+   - 검색 API 도입 없이 트렌딩 뉴스/breaking news 환각 차단
+
+9. **신규 R 규칙 3개** (`_context/RULES.md`)
+   - **R103**: SCR_KEYWORD_ALIASES 신규 테마 추가 시 REGISTRY 등록 의무
+   - **R104**: `_fetchTickerDataForChat` 신규 fetch 추가 시 ABSOLUTE RULES 동기 확장 의무
+   - **R105**: themes 페이지 진입 시 채팅 컨텍스트에 활성 테마 ticker 라이브 가격 주입 의무
+
+10. **신규 P 번호 3개** (`_context/BUG-POSTMORTEM.md`)
+    - **P316**: REGISTRY 갭 133개 — 한글 인식 실패
+    - **P317**: `_fetchTickerDataForChat` 8-K/News/Insider/13F 누락 → 환각
+    - **P318**: Claude web_search 조건부 통합 — 검색 API 없이 트렌딩 뉴스 보강
+
+11. **테스트 T395~T411 17건** (`js/aio-tests.js`) — `_testV4957ChatCoverageExpansion`
+    - REGISTRY length / 핵심 신규 ticker / coveragePct / fetch coverage / showTheme / CIK_MAP / dynamic theme injection / web_search heuristic / APP_VERSION
+
+12. **버전 동기화 7곳** — index.html title + badge + APP_VERSION + version.json + sw.js SW_VERSION + sw.js SW_BUILD + _context/CLAUDE.md + CLAUDE.md + CHANGELOG.md
+
+---
+
+## v49.56 - Page currentness lineage guard (2026-05-20)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- Extended market-currentness audit and guard coverage from `data-live-price`/`data-live-kr` to `data-live-chg`, closing the visible change-percent lineage gap found during the live page sweep.
+- Added decision-narrative discovery for briefing/action/analysis/verdict/thesis blocks while excluding page-routine educational copy and archived static blocks from current-market judgment checks.
+- Updated live quote rendering so every visible change value gets source kind, source label, timestamp, and operational-use metadata; missing percent-change values are explicitly marked `reference-only`/`unavailable`.
+- Added T393~T394 recurrence tests for live-change lineage downgrade and decision-narrative lineage downgrade.
+- Bumped app/SW/script cache keys to `v49.56`.
+
 ## v49.55 - Market currentness audit and guard (2026-05-20)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`

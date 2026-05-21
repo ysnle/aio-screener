@@ -2314,9 +2314,11 @@ window.AIO.getNumericGuidelineAudit = function() {
 // 기존 KR_TICKER_MAP (aio-data.js)을 흡수 + 영문 별명 보강
 // ─────────────────────────────────────────────────────────────────
 window.AIO_TICKER_NAME_REGISTRY = {
-  version: 'v49.32',
+  version: 'v49.57',
   // 표준 형식: { ticker: { en: '...', kr: '...', alt: [...] } }
+  // v49.57 확장 (R103): 47 → 150+ — 테마/트렌드 543 ticker 한글 인식 갭 해소.
   entries: {
+    // ── 메가캡 코어 (v49.32 기존 30개) ──
     'NVDA':  { en: 'NVIDIA',           kr: '엔비디아',     alt: ['nvidia', 'nvda'] },
     'AAPL':  { en: 'Apple',            kr: '애플',         alt: ['apple', 'aapl'] },
     'MSFT':  { en: 'Microsoft',        kr: '마이크로소프트', alt: ['microsoft', 'msft', 'ms'] },
@@ -2347,7 +2349,208 @@ window.AIO_TICKER_NAME_REGISTRY = {
     'MA':    { en: 'Mastercard',       kr: '마스터카드',   alt: ['mastercard'] },
     'UNH':   { en: 'UnitedHealth',     kr: '유나이티드헬스', alt: ['unitedhealth', 'unh'] },
     'BRK.B': { en: 'Berkshire Hathaway', kr: '버크셔해서웨이', alt: ['berkshire', 'brk', 'brk.b'] },
-    // v49.33 KR 종목 등록 (KR_TICKER_MAP 흡수 + 한자/일본어 별명 보강)
+
+    // ── v49.57 신규: 반도체 장비/EDA (8) ──
+    'AMAT':  { en: 'Applied Materials', kr: '어플라이드머티어리얼즈', alt: ['applied materials', 'amat'] },
+    'LRCX':  { en: 'Lam Research',     kr: '램리서치',     alt: ['lam research', 'lrcx', '램'] },
+    'KLAC':  { en: 'KLA',              kr: 'KLA',         alt: ['kla', 'klac'] },
+    'SNPS':  { en: 'Synopsys',         kr: '시놉시스',     alt: ['synopsys', 'snps'] },
+    'CDNS':  { en: 'Cadence',          kr: '케이던스',     alt: ['cadence', 'cdns'] },
+    'MRVL':  { en: 'Marvell',          kr: '마벨',         alt: ['marvell', 'mrvl'] },
+    'MCHP':  { en: 'Microchip',        kr: '마이크로칩',   alt: ['microchip', 'mchp'] },
+    'ON':    { en: 'ON Semi',          kr: '온세미컨덕터', alt: ['onsemi', 'on semi'] },
+
+    // ── v49.57 신규: 클라우드/SaaS/Cyber (12) ──
+    'NET':   { en: 'Cloudflare',       kr: '클라우드플레어', alt: ['cloudflare', 'net'] },
+    'ESTC':  { en: 'Elastic',          kr: '일래스틱',     alt: ['elastic', 'estc'] },
+    'DDOG':  { en: 'Datadog',          kr: '데이터독',     alt: ['datadog', 'ddog'] },
+    'SNOW':  { en: 'Snowflake',        kr: '스노우플레이크', alt: ['snowflake', 'snow'] },
+    'MDB':   { en: 'MongoDB',          kr: '몽고DB',       alt: ['mongodb', 'mongo', 'mdb'] },
+    'GTLB':  { en: 'GitLab',           kr: '깃랩',         alt: ['gitlab', 'gtlb'] },
+    'CRWD':  { en: 'CrowdStrike',      kr: '크라우드스트라이크', alt: ['crowdstrike', 'crwd'] },
+    'ZS':    { en: 'Zscaler',          kr: '지스케일러',   alt: ['zscaler', 'zs'] },
+    'OKTA':  { en: 'Okta',             kr: '옥타',         alt: ['okta'] },
+    'FTNT':  { en: 'Fortinet',         kr: '포티넷',       alt: ['fortinet', 'ftnt'] },
+    'PANW':  { en: 'Palo Alto Networks', kr: '팔로알토네트웍스', alt: ['palo alto', 'panw'] },
+    'NOW':   { en: 'ServiceNow',       kr: '서비스나우',   alt: ['servicenow', 'now'] },
+
+    // ── v49.57 신규: GLP-1/Biotech (8) ──
+    'LLY':   { en: 'Eli Lilly',        kr: '일라이릴리',   alt: ['eli lilly', 'lilly', 'lly'] },
+    'NVO':   { en: 'Novo Nordisk',     kr: '노보노디스크', alt: ['novo nordisk', 'novo', 'nvo'] },
+    'VKTX':  { en: 'Viking Therapeutics', kr: '바이킹테라퓨틱스', alt: ['viking', 'vktx'] },
+    'MRNA':  { en: 'Moderna',          kr: '모더나',       alt: ['moderna', 'mrna'] },
+    'REGN':  { en: 'Regeneron',        kr: '리제네론',     alt: ['regeneron', 'regn'] },
+    'VRTX':  { en: 'Vertex',           kr: '버텍스',       alt: ['vertex', 'vrtx'] },
+    'AMGN':  { en: 'Amgen',            kr: '암젠',         alt: ['amgen', 'amgn'] },
+    'ABBV':  { en: 'AbbVie',           kr: '애브비',       alt: ['abbvie', 'abbv'] },
+
+    // ── v49.57 신규: 원전/전력 (8) ──
+    'CEG':   { en: 'Constellation Energy', kr: '컨스텔레이션에너지', alt: ['constellation', 'ceg'] },
+    'VST':   { en: 'Vistra',           kr: '비스트라',     alt: ['vistra', 'vst'] },
+    'CCJ':   { en: 'Cameco',           kr: '카메코',       alt: ['cameco', 'ccj'] },
+    'NRG':   { en: 'NRG Energy',       kr: 'NRG에너지',    alt: ['nrg energy', 'nrg'] },
+    'OKLO':  { en: 'Oklo',             kr: '오클로',       alt: ['oklo'] },
+    'SMR':   { en: 'NuScale',          kr: '뉴스케일파워', alt: ['nuscale', 'smr'] },
+    'NNE':   { en: 'Nano Nuclear',     kr: '나노뉴클리어', alt: ['nano nuclear', 'nne'] },
+    'BWXT':  { en: 'BWX Technologies', kr: 'BWX테크놀로지', alt: ['bwx', 'bwxt'] },
+
+    // ── v49.57 신규: 우주/위성 (5) ──
+    'RKLB':  { en: 'Rocket Lab',       kr: '로켓랩',       alt: ['rocket lab', 'rklb'] },
+    'ASTS':  { en: 'AST SpaceMobile',  kr: 'AST스페이스모바일', alt: ['ast spacemobile', 'asts'] },
+    'LUNR':  { en: 'Intuitive Machines', kr: '인튜이티브머신', alt: ['intuitive machines', 'lunr'] },
+    'PL':    { en: 'Planet Labs',      kr: '플래닛랩',     alt: ['planet labs', 'planet', 'pl'] },
+    'RDW':   { en: 'Redwire',          kr: '레드와이어',   alt: ['redwire', 'rdw'] },
+
+    // ── v49.57 신규: 양자컴퓨팅 (4) ──
+    'IONQ':  { en: 'IonQ',             kr: '아이온큐',     alt: ['ionq'] },
+    'RGTI':  { en: 'Rigetti Computing', kr: '리게티',      alt: ['rigetti', 'rgti'] },
+    'QUBT':  { en: 'Quantum Computing', kr: '퀀텀컴퓨팅',  alt: ['quantum computing', 'qubt'] },
+    'QBTS':  { en: 'D-Wave',           kr: '디웨이브',     alt: ['d-wave', 'dwave', 'qbts'] },
+
+    // ── v49.57 신규: 크립토/핀테크 (8) ──
+    'MSTR':  { en: 'MicroStrategy',    kr: '마이크로스트래티지', alt: ['microstrategy', 'mstr'] },
+    'RIOT':  { en: 'Riot Platforms',   kr: '라이엇플랫폼', alt: ['riot platforms', 'riot'] },
+    'MARA':  { en: 'Marathon Digital', kr: '마라톤디지털', alt: ['marathon', 'mara'] },
+    'HOOD':  { en: 'Robinhood',        kr: '로빈후드',     alt: ['robinhood', 'hood'] },
+    'PYPL':  { en: 'PayPal',           kr: '페이팔',       alt: ['paypal', 'pypl'] },
+    'SOFI':  { en: 'SoFi',             kr: '소파이',       alt: ['sofi'] },
+    'AFRM':  { en: 'Affirm',           kr: '어펌',         alt: ['affirm', 'afrm'] },
+    'NU':    { en: 'Nu Holdings',      kr: '누홀딩스',     alt: ['nu holdings', 'nu', 'nubank'] },
+
+    // ── v49.57 신규: 광통신/네트워킹 (8) ──
+    'LITE':  { en: 'Lumentum',         kr: '루멘텀',       alt: ['lumentum', 'lite'] },
+    'COHR':  { en: 'Coherent',         kr: '코히어런트',   alt: ['coherent', 'cohr'] },
+    'CIEN':  { en: 'Ciena',            kr: '시에나',       alt: ['ciena', 'cien'] },
+    'AAOI':  { en: 'Applied Optoelectronics', kr: 'AAOI', alt: ['applied optoelectronics', 'aaoi'] },
+    'GLW':   { en: 'Corning',          kr: '코닝',         alt: ['corning', 'glw'] },
+    'ANET':  { en: 'Arista Networks',  kr: '아리스타네트워크', alt: ['arista', 'anet'] },
+    'POET':  { en: 'POET Technologies', kr: 'POET테크',    alt: ['poet'] },
+    'VIAV':  { en: 'Viavi Solutions',  kr: '비아비',       alt: ['viavi', 'viav'] },
+
+    // ── v49.57 신규: EV/자율주행 (8) ──
+    'RIVN':  { en: 'Rivian',           kr: '리비안',       alt: ['rivian', 'rivn'] },
+    'LCID':  { en: 'Lucid',            kr: '루시드',       alt: ['lucid', 'lcid'] },
+    'GM':    { en: 'General Motors',   kr: 'GM',           alt: ['general motors', 'gm'] },
+    'F':     { en: 'Ford',             kr: '포드',         alt: ['ford'] },
+    'MBLY':  { en: 'Mobileye',         kr: '모빌아이',     alt: ['mobileye', 'mbly'] },
+    'APTV':  { en: 'Aptiv',            kr: '앱티브',       alt: ['aptiv', 'aptv'] },
+    'TSLA_AUTOPILOT': { en: 'Tesla FSD', kr: '테슬라FSD', alt: ['fsd', 'autopilot'] },
+    'XPEV':  { en: 'XPeng',            kr: '샤오펑',       alt: ['xpeng', 'xpev'] },
+
+    // ── v49.57 신규: 로보틱스 (4) ──
+    'SYM':   { en: 'Symbotic',         kr: '심보틱',       alt: ['symbotic', 'sym'] },
+    'PATH':  { en: 'UiPath',           kr: '유아이패스',   alt: ['uipath', 'path'] },
+    'ISRG':  { en: 'Intuitive Surgical', kr: '인튜이티브서지컬', alt: ['intuitive surgical', 'isrg'] },
+    'FANUY': { en: 'Fanuc',            kr: '화낙',         alt: ['fanuc', 'fanuy'] },
+
+    // ── v49.57 신규: 데이터센터/Neocloud (10) ──
+    'EQIX':  { en: 'Equinix',          kr: '에퀴닉스',     alt: ['equinix', 'eqix'] },
+    'DLR':   { en: 'Digital Realty',   kr: '디지털리얼티', alt: ['digital realty', 'dlr'] },
+    'VRT':   { en: 'Vertiv',           kr: '버티브',       alt: ['vertiv', 'vrt'] },
+    'ETN':   { en: 'Eaton',            kr: '이튼',         alt: ['eaton', 'etn'] },
+    'CRWV':  { en: 'CoreWeave',        kr: '코어위브',     alt: ['coreweave', 'crwv'] },
+    'NBIS':  { en: 'Nebius',           kr: '네비우스',     alt: ['nebius', 'nbis'] },
+    'IREN':  { en: 'Iris Energy',      kr: '아이리스에너지', alt: ['iris energy', 'iren'] },
+    'CIFR':  { en: 'Cipher Mining',    kr: '사이퍼마이닝', alt: ['cipher mining', 'cifr'] },
+    'WULF':  { en: 'TeraWulf',         kr: '테라울프',     alt: ['terawulf', 'wulf'] },
+    'DELL':  { en: 'Dell Technologies', kr: '델테크놀로지스', alt: ['dell', 'dell technologies'] },
+
+    // ── v49.57 신규: 태양광/ESS/수소 (8) ──
+    'FSLR':  { en: 'First Solar',      kr: '퍼스트솔라',   alt: ['first solar', 'fslr'] },
+    'ENPH':  { en: 'Enphase',          kr: '엔페이즈',     alt: ['enphase', 'enph'] },
+    'RUN':   { en: 'Sunrun',           kr: '선런',         alt: ['sunrun', 'run'] },
+    'SEDG':  { en: 'SolarEdge',        kr: '솔라엣지',     alt: ['solaredge', 'sedg'] },
+    'NXT':   { en: 'NEXTracker',       kr: '넥스트래커',   alt: ['nextracker', 'nxt'] },
+    'BE':    { en: 'Bloom Energy',     kr: '블룸에너지',   alt: ['bloom energy', 'be'] },
+    'PLUG':  { en: 'Plug Power',       kr: '플러그파워',   alt: ['plug power', 'plug'] },
+    'FCEL':  { en: 'FuelCell',         kr: '퓨얼셀',       alt: ['fuelcell', 'fcel'] },
+
+    // ── v49.57 신규: 스트리밍/미디어/광고 (6) ──
+    'DIS':   { en: 'Disney',           kr: '디즈니',       alt: ['disney', 'dis'] },
+    'WBD':   { en: 'Warner Bros Discovery', kr: '워너브로스', alt: ['warner bros', 'wbd'] },
+    'SPOT':  { en: 'Spotify',          kr: '스포티파이',   alt: ['spotify', 'spot'] },
+    'ROKU':  { en: 'Roku',             kr: '로쿠',         alt: ['roku'] },
+    'TTD':   { en: 'The Trade Desk',   kr: '트레이드데스크', alt: ['trade desk', 'ttd'] },
+    'APP':   { en: 'AppLovin',         kr: '앱러빈',       alt: ['applovin', 'app'] },
+
+    // ── v49.57 신규: 에너지/석유 (8) ──
+    'SLB':   { en: 'SLB',              kr: '슐럼버거',     alt: ['slb', 'schlumberger', '슐럼버거'] },
+    'EOG':   { en: 'EOG Resources',    kr: 'EOG리소스',    alt: ['eog resources', 'eog'] },
+    'FANG':  { en: 'Diamondback Energy', kr: '다이아몬드백', alt: ['diamondback', 'fang'] },
+    'DVN':   { en: 'Devon Energy',     kr: '데본에너지',   alt: ['devon', 'dvn'] },
+    'MPC':   { en: 'Marathon Petroleum', kr: '마라톤페트롤리엄', alt: ['marathon petroleum', 'mpc'] },
+    'VLO':   { en: 'Valero',           kr: '발레로',       alt: ['valero', 'vlo'] },
+    'PSX':   { en: 'Phillips 66',      kr: '필립스66',     alt: ['phillips 66', 'psx'] },
+    'CVX':   { en: 'Chevron',          kr: '셰브론',       alt: ['chevron', 'cvx'] },
+
+    // ── v49.57 신규: 방산/항공우주 (8) ──
+    'RTX':   { en: 'RTX',              kr: 'RTX',          alt: ['rtx', 'raytheon'] },
+    'LMT':   { en: 'Lockheed Martin',  kr: '록히드마틴',   alt: ['lockheed martin', 'lmt'] },
+    'NOC':   { en: 'Northrop Grumman', kr: '노스럽그루먼', alt: ['northrop grumman', 'noc'] },
+    'GD':    { en: 'General Dynamics', kr: '제너럴다이내믹스', alt: ['general dynamics', 'gd'] },
+    'HII':   { en: 'Huntington Ingalls', kr: '헌팅턴인갈스', alt: ['huntington ingalls', 'hii'] },
+    'LDOS':  { en: 'Leidos',           kr: '레이도스',     alt: ['leidos', 'ldos'] },
+    'HWM':   { en: 'Howmet Aerospace', kr: '하우멧',       alt: ['howmet', 'hwm'] },
+    'BA':    { en: 'Boeing',           kr: '보잉',         alt: ['boeing', 'ba'] },
+
+    // ── v49.57 신규: 소비/리테일/패션 (10) ──
+    'COST':  { en: 'Costco',           kr: '코스트코',     alt: ['costco', 'cost'] },
+    'PEP':   { en: 'PepsiCo',          kr: '펩시코',       alt: ['pepsico', 'pep', '펩시'] },
+    'KO':    { en: 'Coca-Cola',        kr: '코카콜라',     alt: ['coca-cola', 'coca cola', 'ko'] },
+    'MCD':   { en: 'McDonalds',        kr: '맥도날드',     alt: ['mcdonald', 'mcd'] },
+    'NKE':   { en: 'Nike',             kr: '나이키',       alt: ['nike', 'nke'] },
+    'SBUX':  { en: 'Starbucks',        kr: '스타벅스',     alt: ['starbucks', 'sbux'] },
+    'PG':    { en: 'Procter & Gamble', kr: 'P&G',          alt: ['procter gamble', 'p&g', 'pg'] },
+    'HD':    { en: 'Home Depot',       kr: '홈디포',       alt: ['home depot', 'hd'] },
+    'LOW':   { en: 'Lowes',            kr: '로우스',       alt: ['lowes', 'low'] },
+    'LULU':  { en: 'Lululemon',        kr: '룰루레몬',     alt: ['lululemon', 'lulu'] },
+
+    // ── v49.57 신규: 여행/배달/숙박 (7) ──
+    'BKNG':  { en: 'Booking Holdings', kr: '부킹홀딩스',   alt: ['booking', 'bkng'] },
+    'ABNB':  { en: 'Airbnb',           kr: '에어비앤비',   alt: ['airbnb', 'abnb'] },
+    'UBER':  { en: 'Uber',             kr: '우버',         alt: ['uber'] },
+    'DASH':  { en: 'DoorDash',         kr: '도어대시',     alt: ['doordash', 'dash'] },
+    'DAL':   { en: 'Delta Airlines',   kr: '델타항공',     alt: ['delta airlines', 'dal'] },
+    'UAL':   { en: 'United Airlines',  kr: '유나이티드항공', alt: ['united airlines', 'ual'] },
+    'CCL':   { en: 'Carnival',         kr: '카니발크루즈', alt: ['carnival', 'ccl'] },
+
+    // ── v49.57 신규: 헬스케어/제약 (5) ──
+    'MRK':   { en: 'Merck',            kr: '머크',         alt: ['merck', 'mrk'] },
+    'PFE':   { en: 'Pfizer',           kr: '화이자',       alt: ['pfizer', 'pfe'] },
+    'TMO':   { en: 'Thermo Fisher',    kr: '써모피셔',     alt: ['thermo fisher', 'tmo'] },
+    'ABT':   { en: 'Abbott',           kr: '애보트',       alt: ['abbott', 'abt'] },
+    'GILD':  { en: 'Gilead Sciences',  kr: '길리어드',     alt: ['gilead', 'gild'] },
+
+    // ── v49.57 신규: 게임/소셜 (6) ──
+    'EA':    { en: 'Electronic Arts',  kr: '일렉트로닉아츠', alt: ['electronic arts', 'ea'] },
+    'TTWO':  { en: 'Take-Two',         kr: '테이크투',     alt: ['take-two', 'ttwo'] },
+    'RBLX':  { en: 'Roblox',           kr: '로블록스',     alt: ['roblox', 'rblx'] },
+    'SNAP':  { en: 'Snap',             kr: '스냅챗',       alt: ['snap', 'snapchat'] },
+    'PINS':  { en: 'Pinterest',        kr: '핀터레스트',   alt: ['pinterest', 'pins'] },
+    'RDDT':  { en: 'Reddit',           kr: '레딧',         alt: ['reddit', 'rddt'] },
+
+    // ── v49.57 신규: AI 소프트웨어 (5) ──
+    'AI':    { en: 'C3.ai',            kr: 'C3AI',         alt: ['c3.ai', 'c3 ai'] },
+    'TEM':   { en: 'Tempus AI',        kr: '템퍼스AI',     alt: ['tempus ai', 'tem'] },
+    'SOUN':  { en: 'SoundHound',       kr: '사운드하운드', alt: ['soundhound', 'soun'] },
+    'IBM':   { en: 'IBM',              kr: 'IBM',          alt: ['ibm'] },
+    'CSCO':  { en: 'Cisco',            kr: '시스코',       alt: ['cisco', 'csco'] },
+
+    // ── v49.57 신규: International ADR — 한국 매체 표기 (12) ──
+    'BABA':  { en: 'Alibaba',          kr: '알리바바',     alt: ['alibaba', 'baba'] },
+    'PDD':   { en: 'PDD Holdings',     kr: '핀둬둬',       alt: ['pdd', 'pinduoduo', 'temu'] },
+    'JD':    { en: 'JD.com',           kr: '징둥닷컴',     alt: ['jd', 'jd.com'] },
+    'BIDU':  { en: 'Baidu',            kr: '바이두',       alt: ['baidu', 'bidu'] },
+    'NTES':  { en: 'NetEase',          kr: '넷이즈',       alt: ['netease', 'ntes'] },
+    'TCEHY': { en: 'Tencent',          kr: '텐센트',       alt: ['tencent', 'tcehy'] },
+    'NIO':   { en: 'NIO',              kr: '니오',         alt: ['nio'] },
+    'LI':    { en: 'Li Auto',          kr: '리오토',       alt: ['li auto', 'li'] },
+    'TM':    { en: 'Toyota',           kr: '도요타',       alt: ['toyota', 'tm'] },
+    'SONY':  { en: 'Sony',             kr: '소니',         alt: ['sony'] },
+    'SAP':   { en: 'SAP',              kr: 'SAP',          alt: ['sap'] },
+    'SHOP':  { en: 'Shopify',          kr: '쇼피파이',     alt: ['shopify', 'shop'] },
+
+    // ── 한국 종목 (v49.32 기존 17개) ──
     '005930.KS': { en: 'Samsung Electronics', kr: '삼성전자',     alt: ['samsung', 'samsung electronics', '005930', '삼전'] },
     '000660.KS': { en: 'SK Hynix',           kr: 'SK하이닉스',    alt: ['hynix', 'sk hynix', '000660', '하이닉스'] },
     '005380.KS': { en: 'Hyundai Motor',      kr: '현대차',         alt: ['hyundai', 'hyundai motor', '005380', '현대자동차'] },
@@ -2364,7 +2567,14 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '003550.KS': { en: 'LG',                 kr: 'LG',            alt: ['lg corp', '003550'] },
     '011200.KS': { en: 'HMM',                kr: 'HMM',           alt: ['hmm', '011200', '현대상선'] },
     '247540.KQ': { en: 'EcoPro BM',          kr: '에코프로비엠',    alt: ['ecopro bm', '247540'] },
-    '086520.KQ': { en: 'EcoPro',             kr: '에코프로',       alt: ['ecopro', '086520'] }
+    '086520.KQ': { en: 'EcoPro',             kr: '에코프로',       alt: ['ecopro', '086520'] },
+
+    // ── v49.57 신규: 한국 종목 5종 (사용자 요청) ──
+    '267250.KS': { en: 'HD Hyundai Heavy',   kr: 'HD현대중공업',   alt: ['hd hyundai heavy', '267250', '현대중공업'] },
+    '006260.KS': { en: 'LS',                 kr: 'LS',            alt: ['ls corp', '006260', 'ls전선'] },
+    '161890.KS': { en: 'Kolmar Korea',       kr: '한국콜마',       alt: ['kolmar korea', 'kolmar', '161890'] },
+    '000080.KS': { en: 'HiteJinro',          kr: '하이트진로',     alt: ['hitejinro', '000080', '하이트'] },
+    '323410.KQ': { en: 'Kakao Bank',         kr: '카카오뱅크',     alt: ['kakao bank', 'kakaobank', '323410'] }
   }
 };
 
@@ -2403,6 +2613,135 @@ window.AIO.getTickerMappingAudit = function() {
     unmappedCount: issues.length,
     issues: issues,
     totalEntries: Object.keys(reg.entries).length,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.57 R103 신규: assertTickerRegistryCompleteness — SCR_KEYWORD_ALIASES vs REGISTRY 정합
+// 새 테마/티커 추가 시 한글 인식 갭 즉시 감지. 미등록 ticker 일괄 리포트.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertTickerRegistryCompleteness = function() {
+  var reg = window.AIO_TICKER_NAME_REGISTRY;
+  var aliases = window.SCR_KEYWORD_ALIASES;
+  if (!reg || !aliases) {
+    return { status: 'error', error: 'REGISTRY 또는 SCR_KEYWORD_ALIASES 미정의', missingTickers: [], coveragePct: 0 };
+  }
+  var registered = {};
+  Object.keys(reg.entries).forEach(function(t) { registered[t.toUpperCase()] = true; });
+  // SCR_KEYWORD_ALIASES는 한글/영문 모두 키로 존재 — 중복 방지 위해 ticker별 unique 집계
+  var allTickers = {};
+  var themeCount = 0;
+  Object.keys(aliases).forEach(function(themeKey) {
+    var arr = aliases[themeKey];
+    if (!Array.isArray(arr)) return;
+    themeCount++;
+    arr.forEach(function(t) {
+      var key = String(t).toUpperCase();
+      if (!allTickers[key]) allTickers[key] = [];
+      allTickers[key].push(themeKey);
+    });
+  });
+  var missing = [];
+  Object.keys(allTickers).forEach(function(t) {
+    if (!registered[t]) missing.push({ ticker: t, themes: allTickers[t].slice(0, 3) });
+  });
+  var total = Object.keys(allTickers).length;
+  var covered = total - missing.length;
+  var pct = total > 0 ? Math.round(covered / total * 100) : 0;
+  return {
+    status: missing.length === 0 ? 'ok' : (pct >= 80 ? 'mostly-ok' : 'warn'),
+    totalThemeKeys: themeCount,
+    uniqueTickers: total,
+    registeredCount: covered,
+    missingCount: missing.length,
+    missingTickers: missing.slice(0, 30),
+    coveragePct: pct,
+    note: missing.length > 0 ? '미등록 ticker는 한글/별명 인식 안 됨 — REGISTRY entries에 추가 필요' : 'all clear',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.57 P318 신규: getWebSearchAudit — Claude web_search 사용 통계 + 토글 상태
+// 트리거 조건 + 누적 호출 횟수 + 사용자 opt-out 상태 검증
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getWebSearchAudit = function() {
+  var stats = window._aioWebSearchStats || { calls: 0, lastUsedAt: null };
+  var optOut = false;
+  try { optOut = localStorage.getItem('aio_web_search_enabled') === 'off'; } catch(e) {}
+  return {
+    status: 'ok',
+    enabled: !optOut,
+    optOut: optOut,
+    calls: stats.calls,
+    lastUsedAt: stats.lastUsedAt,
+    maxUsesPerCall: 3,
+    estimatedCostUsd: stats.calls * 0.03, // $10/1000 searches * 3 uses
+    helperAvailable: typeof window._shouldUseClaudeWebSearch === 'function',
+    note: '사용자 비활성화: localStorage.setItem("aio_web_search_enabled","off"). 활성화 되돌리기: removeItem 또는 "on"',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.57 R103 신규: getThemeFetchCoverageAudit — 테마별 ticker × 5채널 fetch 가능성
+// 각 ticker가 SEC/Wiki/Finnhub/FMP/Naver 중 몇 개에서 fetch 가능한지 매트릭스.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getThemeFetchCoverageAudit = function(themeId) {
+  var aliases = window.SCR_KEYWORD_ALIASES;
+  if (!aliases) return { status: 'error', error: 'SCR_KEYWORD_ALIASES 미정의' };
+  var hasFinnhub = (typeof _getApiKey === 'function' && !!_getApiKey('aio_finnhub_key')) || (window._getApiKey && !!window._getApiKey('aio_finnhub_key'));
+  var hasFMP     = (typeof _getApiKey === 'function' && !!_getApiKey('aio_fmp_key'))     || (window._getApiKey && !!window._getApiKey('aio_fmp_key'));
+  // CIK_MAP은 fetchSECBusinessDescription 내부 — 휴리스틱으로 REGISTRY 등록 여부로 대리 (CIK 있을 가능성 high)
+  var reg = window.AIO_TICKER_NAME_REGISTRY;
+  var registered = {};
+  if (reg && reg.entries) Object.keys(reg.entries).forEach(function(t) { registered[t.toUpperCase()] = true; });
+  function evalTicker(t) {
+    var up = String(t).toUpperCase();
+    var isKR = /\.(KS|KQ)$/i.test(up);
+    return {
+      ticker: up,
+      yahoo: true, // 모든 ticker 가능 (LIVE_SYMBOLS or dynamicTickerLookup)
+      sec: !isKR && registered[up], // 미국 종목 + REGISTRY 등록 → CIK_MAP에 있을 가능성
+      wiki: !isKR, // 영문 위키 — 미국 종목 우선
+      finnhub: !isKR && hasFinnhub,
+      fmp: !isKR && hasFMP,
+      naver: true, // KR/US 모두 Naver 페이지 존재
+      registered: !!registered[up]
+    };
+  }
+  function aggregate(tickers) {
+    var fetchable = { yahoo: 0, sec: 0, wiki: 0, finnhub: 0, fmp: 0, naver: 0 };
+    var perTicker = [];
+    tickers.forEach(function(t) {
+      var e = evalTicker(t);
+      perTicker.push(e);
+      ['yahoo','sec','wiki','finnhub','fmp','naver'].forEach(function(k) { if (e[k]) fetchable[k]++; });
+    });
+    var total = tickers.length;
+    var avgChannels = total > 0 ? Math.round((fetchable.yahoo+fetchable.sec+fetchable.wiki+fetchable.finnhub+fetchable.fmp+fetchable.naver) / total * 10) / 10 : 0;
+    return { tickers: total, fetchable: fetchable, avgChannelsPerTicker: avgChannels, coveragePct: total > 0 ? Math.round(fetchable.yahoo / total * 100) : 0, perTicker: perTicker.slice(0, 10) };
+  }
+  // 특정 테마 또는 전체
+  if (themeId) {
+    var arr = aliases[themeId];
+    if (!Array.isArray(arr)) return { status: 'error', error: 'theme ' + themeId + ' not found' };
+    return Object.assign({ status: 'ok', themeId: themeId }, aggregate(arr), { generatedAt: new Date().toISOString() });
+  }
+  // 전체 매트릭스 (상위 30 테마만 — 토큰 절약)
+  var themes = {};
+  var keys = Object.keys(aliases).slice(0, 30);
+  keys.forEach(function(k) {
+    var arr = aliases[k];
+    if (!Array.isArray(arr) || arr.length === 0) return;
+    themes[k] = aggregate(arr);
+  });
+  return {
+    status: 'ok',
+    apiKeys: { finnhub: !!hasFinnhub, fmp: !!hasFMP },
+    sampleThemes: themes,
+    note: '특정 테마 정밀 조회는 AIO.getThemeFetchCoverageAudit("ai") 등으로 호출',
     generatedAt: new Date().toISOString()
   };
 };
@@ -2493,7 +2832,7 @@ window.AIO.getChatHallucinationAudit = function(responseText) {
 // R93 신규 (페이지 sequential audit 의무화)
 // ─────────────────────────────────────────────────────────────────
 window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
-  version: 'v49.55',
+  version: 'v49.56',
   axes: ['최신성', '정확성', '정합성', '로직성', '직관성', '핵심성'],
   // 페이지별 sub-section 정의 (top-down 순서)
   pages: {
@@ -3647,18 +3986,129 @@ window.AIO.fetchSEC13F = async function(ticker) {
 };
 
 // 보조 (8): fetchSECRecentFilings — 최근 8-K (event-driven 파트너십/M&A)
+// v49.57 P317 보강: URL 제공 → 실제 8-K 최근 5건 fetch+parse (filingDate, items, accession)
+// raw.filings.recent에서 form==='8-K' 인덱스 추출. 학습 데이터 환각 차단 (M&A/CEO 변경 등 이벤트)
 window.AIO.fetchSECRecentFilings = async function(ticker, opts) {
   opts = opts || {};
   if (!ticker) return null;
+  ticker = ticker.toUpperCase().trim();
+  // 캐시 5분
+  window._secFilingsCache = window._secFilingsCache || {};
+  var cached = window._secFilingsCache[ticker];
+  if (cached && (Date.now() - cached.ts < 5 * 60 * 1000)) return cached.data;
   var biz = await window.AIO.fetchSECBusinessDescription(ticker);
-  if (!biz || !biz.available) return { ticker: ticker, available: false, reason: 'CIK 미등록 또는 SEC fetch 실패' };
-  return {
-    ticker: ticker,
-    available: true,
-    source: 'SEC EDGAR /cgi-bin/browse-edgar',
-    recent8KUrl: 'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=' + biz.cik + '&type=8-K&dateb=&owner=include&count=20',
-    note: '8-K는 event-driven 공시 (M&A/파트너십/CEO 변경 등). AI가 URL 접근 후 최근 20건 fetch 가능.'
-  };
+  if (!biz || !biz.available) {
+    var failResp = { ticker: ticker, available: false, reason: 'CIK 미등록 또는 SEC fetch 실패' };
+    window._secFilingsCache[ticker] = { data: failResp, ts: Date.now() };
+    return failResp;
+  }
+  // CIK 기반 직접 raw fetch — fetchSECBusinessDescription와 동일 endpoint
+  try {
+    var url = 'https://data.sec.gov/submissions/CIK' + biz.cik + '.json';
+    var proxies = [
+      function(u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); },
+      function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }
+    ];
+    for (var i = 0; i < proxies.length; i++) {
+      try {
+        var r = await (typeof fetchWithTimeout === 'function' ? fetchWithTimeout(proxies[i](url), {}, 10000) : fetch(proxies[i](url)));
+        if (r && r.ok) {
+          var raw = await r.json();
+          if (raw.contents) try { raw = JSON.parse(raw.contents); } catch(_) {}
+          if (raw && raw.filings && raw.filings.recent) {
+            var rec = raw.filings.recent;
+            var forms = rec.form || [];
+            var recent8K = [];
+            for (var j = 0; j < forms.length && recent8K.length < 5; j++) {
+              if (forms[j] === '8-K') {
+                recent8K.push({
+                  filingDate: rec.filingDate[j],
+                  reportDate: rec.reportDate ? rec.reportDate[j] : null,
+                  accession: rec.accessionNumber[j],
+                  primaryDoc: rec.primaryDocument[j],
+                  items: rec.items ? rec.items[j] : null,
+                  url: 'https://www.sec.gov/Archives/edgar/data/' + parseInt(biz.cik, 10) + '/' + (rec.accessionNumber[j] || '').replace(/-/g, '') + '/' + (rec.primaryDocument[j] || '')
+                });
+              }
+            }
+            var resp = {
+              ticker: ticker,
+              available: true,
+              source: 'SEC EDGAR /submissions',
+              cik: biz.cik,
+              companyName: biz.companyName,
+              recent8KList: recent8K,
+              recent8KCount: recent8K.length,
+              browseUrl: 'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=' + biz.cik + '&type=8-K&dateb=&owner=include&count=20',
+              note: '8-K는 event-driven 공시 (M&A/파트너십/CEO 변경/사이버 사고/실적 사전 공시 등). Items 코드: 1.01=계약/2.02=실적/5.02=임원변경/7.01=Reg FD/8.01=기타.'
+            };
+            window._secFilingsCache[ticker] = { data: resp, ts: Date.now() };
+            return resp;
+          }
+        }
+      } catch(_proxyErr) {}
+    }
+  } catch(e) {}
+  var failResp2 = { ticker: ticker, available: false, reason: 'SEC 8-K fetch 실패 — 프록시 모두 fail' };
+  window._secFilingsCache[ticker] = { data: failResp2, ts: Date.now() };
+  return failResp2;
+};
+
+// (10) fetchFinnhubCompanyNews — 종목별 최근 N일 뉴스 (v49.57 P317 신설)
+// Finnhub /company-news?symbol=X&from=Y&to=Z — 무료 60req/min
+// 반환: { articleCount, topHeadlines: [{datetime, headline, source, url, summary, category}, ...max 5] }
+window.AIO.fetchFinnhubCompanyNews = async function(ticker, daysBack) {
+  if (!ticker) return null;
+  ticker = ticker.toUpperCase().trim();
+  daysBack = daysBack || 14;
+  // 캐시 30분
+  window._fhNewsCache = window._fhNewsCache || {};
+  var cacheKey = ticker + '_' + daysBack;
+  var cached = window._fhNewsCache[cacheKey];
+  if (cached && (Date.now() - cached.ts < 30 * 60 * 1000)) return cached.data;
+  var key = (typeof _getApiKey === 'function') ? _getApiKey('aio_finnhub_key') : (typeof window._getApiKey === 'function' ? window._getApiKey('aio_finnhub_key') : '');
+  if (!key) {
+    var noKey = { ticker: ticker, available: false, reason: 'Finnhub API key 필요 (aio_finnhub_key)' };
+    window._fhNewsCache[cacheKey] = { data: noKey, ts: Date.now() };
+    return noKey;
+  }
+  var now = Date.now();
+  var fromDate = new Date(now - daysBack * 86400000).toISOString().slice(0, 10);
+  var toDate = new Date(now).toISOString().slice(0, 10);
+  try {
+    var url = 'https://finnhub.io/api/v1/company-news?symbol=' + encodeURIComponent(ticker) + '&from=' + fromDate + '&to=' + toDate + '&token=' + key;
+    var r = await (typeof fetchWithTimeout === 'function' ? fetchWithTimeout(url, {}, 10000) : fetch(url));
+    if (r && r.ok) {
+      var raw = await r.json();
+      if (Array.isArray(raw)) {
+        // 최신 순으로 5개
+        var sorted = raw.slice().sort(function(a, b) { return (b.datetime || 0) - (a.datetime || 0); });
+        var top = sorted.slice(0, 5).map(function(n) {
+          return {
+            datetime: n.datetime ? new Date(n.datetime * 1000).toISOString().slice(0, 16).replace('T', ' ') : null,
+            headline: n.headline || '',
+            source: n.source || '',
+            url: n.url || '',
+            summary: (n.summary || '').substring(0, 240),
+            category: n.category || ''
+          };
+        });
+        var resp = {
+          ticker: ticker,
+          available: true,
+          source: 'Finnhub /company-news',
+          period: fromDate + ' ~ ' + toDate,
+          articleCount: raw.length,
+          topHeadlines: top
+        };
+        window._fhNewsCache[cacheKey] = { data: resp, ts: Date.now() };
+        return resp;
+      }
+    }
+  } catch(e) {}
+  var failResp = { ticker: ticker, available: false, reason: 'Finnhub company-news fetch 실패' };
+  window._fhNewsCache[cacheKey] = { data: failResp, ts: Date.now() };
+  return failResp;
 };
 
 // 보조 (9): fetchFMPSegments — 매출 세그먼트 (FMP key 필요)
@@ -3846,7 +4296,74 @@ window.AIO.fetchSECBusinessDescription = async function(ticker, opts) {
     'COST': '0000909832', 'HD':   '0000354950', 'LOW':  '0000060667',
     'CRM':  '0001108524', 'ORCL': '0001341439', 'ADBE': '0000796343',
     'NOW':  '0001373715', 'SHOP': '0001594805', 'COIN': '0001679788',
-    'BRK.B': '0001067983', 'BRK.A': '0001067983'
+    'BRK.B': '0001067983', 'BRK.A': '0001067983',
+    // ── v49.57 확장: 반도체 장비/EDA (8) ──
+    'AMAT': '0000006951', 'LRCX': '0000707549', 'KLAC': '0000319201',
+    'SNPS': '0000883241', 'CDNS': '0000813672', 'MRVL': '0001835632',
+    'MCHP': '0000827054', 'ON':   '0001097864',
+    // ── v49.57 확장: 클라우드/SaaS/Cyber (12) ──
+    'NET':  '0001477333', 'ESTC': '0001707753', 'DDOG': '0001561550',
+    'SNOW': '0001640147', 'MDB':  '0001441816', 'GTLB': '0001653482',
+    'CRWD': '0001535527', 'ZS':   '0001713683', 'OKTA': '0001660134',
+    'FTNT': '0001262039', 'PANW': '0001327567', 'IBM':  '0000051143',
+    // ── v49.57 확장: Biotech/GLP-1 (8) ──
+    'LLY':  '0000059478', 'VKTX': '0001607678', 'MRNA': '0001682852',
+    'REGN': '0000872589', 'VRTX': '0000875320', 'AMGN': '0000318154',
+    'ABBV': '0001551152', 'MRK':  '0000310158',
+    // ── v49.57 확장: 원전/전력 (7) ──
+    'CEG':  '0001868275', 'VST':  '0001692819', 'NRG':  '0001013871',
+    'BWXT': '0001581809', 'EXC':  '0001109357', 'AEP':  '0000004904',
+    'DUK':  '0000017797',
+    // ── v49.57 확장: 우주/위성 (5) ──
+    'RKLB': '0001819994', 'ASTS': '0001780312', 'LUNR': '0001844507',
+    'PL':   '0001801169', 'RDW':  '0001819810',
+    // ── v49.57 확장: 양자컴퓨팅 (4) ──
+    'IONQ': '0001824920', 'RGTI': '0001838359', 'QUBT': '0001758009',
+    'QBTS': '0001907982',
+    // ── v49.57 확장: 크립토/핀테크 (8) ──
+    'MSTR': '0001050446', 'RIOT': '0001167419', 'MARA': '0001507605',
+    'HOOD': '0001783879', 'PYPL': '0001633917', 'SOFI': '0001818874',
+    'AFRM': '0001820302', 'NU':   '0001691493',
+    // ── v49.57 확장: 광통신/네트워킹 (6) ──
+    'LITE': '0001633978', 'CIEN': '0000936395', 'AAOI': '0001070235',
+    'GLW':  '0000024741', 'ANET': '0001596532', 'VIAV': '0000912093',
+    // ── v49.57 확장: EV/Auto (6) ──
+    'RIVN': '0001874178', 'LCID': '0001811210', 'GM':   '0001467858',
+    'F':    '0000037996', 'MBLY': '0001910139', 'APTV': '0001521332',
+    // ── v49.57 확장: Robotics (3) ──
+    'SYM':  '0001837240', 'PATH': '0001734722', 'ISRG': '0001035267',
+    // ── v49.57 확장: 데이터센터/Neocloud (9) ──
+    'EQIX': '0001101239', 'DLR':  '0001297996', 'VRT':  '0001674101',
+    'ETN':  '0001551182', 'IREN': '0001878685', 'CIFR': '0001819989',
+    'WULF': '0001083301', 'DELL': '0001571996', 'HPE':  '0001645590',
+    // ── v49.57 확장: 태양광/수소 (8) ──
+    'FSLR': '0001274494', 'ENPH': '0001463101', 'RUN':  '0001469367',
+    'SEDG': '0001419612', 'NXT':  '0001948544', 'BE':   '0001664703',
+    'PLUG': '0001093691', 'FCEL': '0000886128',
+    // ── v49.57 확장: 스트리밍/광고 (6) ──
+    'WBD':  '0001437107', 'SPOT': '0001639920', 'ROKU': '0001428439',
+    'TTD':  '0001671933', 'APP':  '0001823144', 'SNAP': '0001564408',
+    // ── v49.57 확장: 에너지/석유 (7) ──
+    'SLB':  '0000087347', 'EOG':  '0000821189', 'FANG': '0001539838',
+    'DVN':  '0001090012', 'MPC':  '0001510295', 'VLO':  '0001035002',
+    'PSX':  '0001534701',
+    // ── v49.57 확장: 방산 (7) ──
+    'RTX':  '0000101829', 'LMT':  '0000936468', 'NOC':  '0001133421',
+    'GD':   '0000040533', 'HII':  '0001501585', 'LDOS': '0001336920',
+    'HWM':  '0001645590',
+    // ── v49.57 확장: 소비/리테일/여행 (10) ──
+    'SBUX': '0000829224', 'LULU': '0001397187', 'BKNG': '0001075531',
+    'ABNB': '0001559720', 'UBER': '0001543151', 'DASH': '0001792789',
+    'DAL':  '0000027904', 'UAL':  '0000100517', 'CCL':  '0000815097',
+    'TMUS': '0001283699',
+    // ── v49.57 확장: 헬스케어 (4) ──
+    'TMO':  '0000097745', 'ABT':  '0000001800', 'GILD': '0000882095',
+    'BMY':  '0000014272',
+    // ── v49.57 확장: 게임/소셜 (5) ──
+    'EA':   '0000712515', 'TTWO': '0000946581', 'RBLX': '0001315098',
+    'PINS': '0001506293', 'RDDT': '0001713445',
+    // ── v49.57 확장: AI/IT (3) ──
+    'AI':   '0001577526', 'SOUN': '0001840856', 'CSCO': '0000858877'
   };
   var cik = CIK_MAP[ticker];
   if (!cik) return { ticker: ticker, available: false, reason: 'CIK_MAP에 미등록 — v49.35에서 EDGAR full-text search 통합 예정' };
@@ -5705,7 +6222,7 @@ window.AIO.getAutoOpsReadiness = function() {
   if (snapshotDateSources && snapshotDateSources.issueCount) issues.push(snapshotDateSources.issueCount + ' snapshot date source issue(s) [v49.52/R106]');
   if (operationalDataContract && operationalDataContract.issueCount) issues.push(operationalDataContract.issueCount + ' operational data contract issue(s) [v49.54/R107]');
   if (krSupplyRuntime && krSupplyRuntime.issueCount) issues.push(krSupplyRuntime.issueCount + ' KR supply runtime issue(s) [v49.54/R108]');
-  if (marketCurrentness && marketCurrentness.issueCount) issues.push(marketCurrentness.issueCount + ' market currentness issue(s) [v49.55/R109]');
+  if (marketCurrentness && marketCurrentness.issueCount) issues.push(marketCurrentness.issueCount + ' market currentness issue(s) [v49.56/R110]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -8837,7 +9354,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.55';
+const APP_VERSION = 'v49.57';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -11198,7 +11715,7 @@ window.AIO.renderDynamicMarketNarratives = function() {
 };
 
 window.AIO_OPERATIONAL_DATA_CONTRACT = {
-  version: 'v49.55',
+  version: 'v49.56',
   policies: {
     live: { maxAgeMs: 15 * 60 * 1000, decisionUse: true, confidence: 'high' },
     delayed: { maxAgeMs: 72 * 60 * 60 * 1000, decisionUse: true, confidence: 'medium' },
@@ -11298,6 +11815,69 @@ window.AIO.getOperationalDataContractAudit = function() {
   };
 };
 
+var AIO_CURRENTNESS_LIVE_SELECTOR = '[data-live-price], [data-live-kr], [data-live-chg]';
+var AIO_CURRENTNESS_NARRATIVE_IDS = [
+  'snapshot-stale-warning',
+  'opt-pcr-text',
+  'kr-supply-analysis-text',
+  'mkt-regime-sub',
+  'vol-regime-sub',
+  'cam-verdict-text',
+  'opt-analysis-text',
+  'briefing-top-5-watch',
+  'briefing-top-5-list',
+  'briefing-action-item-card',
+  'pf-analysis-dashboard',
+  'kr-macro-analysis-text',
+  'fxbond-dynamic-thesis',
+  'risk-radar-body',
+  'sent-analysis-text',
+  'fund-analysis-text',
+  'rally-quality-verdict'
+];
+var AIO_CURRENTNESS_NARRATIVE_SELECTOR = [
+  '[data-aio-current-narrative]',
+  '[data-currentness-narrative]',
+  '[id$="-analysis-text"]',
+  '[id*="analysis-dashboard"]',
+  '[id*="verdict"]',
+  '[id*="thesis"]',
+  '[id*="action-item"]',
+  '[id*="briefing-top"]',
+  '[id*="score-decision-sub"]',
+  '[id*="risk-radar-body"]'
+].join(', ');
+function _aioCurrentnessLiveKey(el) {
+  return (el && (el.getAttribute('data-live-price') || el.getAttribute('data-live-kr') || el.getAttribute('data-live-chg'))) || '';
+}
+function _aioIsDecisionNarrativeCandidate(el) {
+  if (!el || !el.id) return false;
+  if (el.closest && el.closest('.aio-page-brief, [data-aio-archive="true"], nav, aside, .sidebar')) return false;
+  if (/chart|canvas|input|button|badge|pill|chip|ts|time|date|stale-days/i.test(el.id)) return false;
+  var txt = String(el.textContent || '').replace(/\s+/g, ' ').trim();
+  if (!txt || txt.length < 12) return false;
+  return true;
+}
+function _aioCollectDecisionNarratives(root) {
+  var out = [];
+  var seen = {};
+  var add = function(el) {
+    if (!_aioIsDecisionNarrativeCandidate(el)) return;
+    var key = el.id || el.getAttribute('data-aio-current-narrative') || el.getAttribute('data-currentness-narrative');
+    if (!key || seen[key]) return;
+    seen[key] = true;
+    out.push(el);
+  };
+  AIO_CURRENTNESS_NARRATIVE_IDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && (!root || root === document || root === document.body || (root.contains && root.contains(el)))) add(el);
+  });
+  if (root && root.querySelectorAll) {
+    Array.prototype.slice.call(root.querySelectorAll(AIO_CURRENTNESS_NARRATIVE_SELECTOR)).forEach(add);
+  }
+  return out;
+}
+
 window.AIO.getMarketCurrentnessAudit = function(opts) {
   opts = opts || {};
   var root = opts.root || document;
@@ -11312,10 +11892,10 @@ window.AIO.getMarketCurrentnessAudit = function(opts) {
   };
   var clean = function(s) { return String(s || '').replace(/\s+/g, ' ').trim(); };
   try {
-    Array.prototype.slice.call(root.querySelectorAll('[data-live-price], [data-live-kr]')).forEach(function(el) {
+    Array.prototype.slice.call(root.querySelectorAll(AIO_CURRENTNESS_LIVE_SELECTOR)).forEach(function(el) {
       var visible = isVisible(el);
       var txt = clean(el.textContent);
-      var key = el.getAttribute('data-live-price') || el.getAttribute('data-live-kr') || '';
+      var key = _aioCurrentnessLiveKey(el);
       var unavailable = !txt || unavailableRe.test(txt);
       var use = el.getAttribute('data-operational-use') || '';
       var sourceKind = el.getAttribute('data-source-kind') || '';
@@ -11339,17 +11919,17 @@ window.AIO.getMarketCurrentnessAudit = function(opts) {
         issues.push({ type: 'visible-live-sink-missing-lineage', key: key, id: item.id, pageId: item.pageId, text: item.text });
       }
     });
-    ['snapshot-stale-warning','opt-pcr-text','kr-supply-analysis-text','mkt-regime-sub','vol-regime-sub','cam-verdict-text','opt-analysis-text'].forEach(function(id) {
-      var el = document.getElementById(id);
+    _aioCollectDecisionNarratives(root).forEach(function(el) {
+      var id = el.id || '';
       if (!el || !isVisible(el)) return;
       var txt = clean(el.textContent);
       if (/로딩 중|데이터 로딩|수신 대기|계산중/.test(txt)) {
-        var issue = { type: 'visible-narrative-loading', id: id, text: txt.slice(0, 160) };
+        var issue = { type: 'visible-decision-narrative-loading', id: id, text: txt.slice(0, 160) };
         issues.push(issue);
         narrativeIssues.push(issue);
       }
       if (txt && !el.getAttribute('data-operational-use')) {
-        var lineageIssue = { type: 'visible-narrative-missing-lineage', id: id, text: txt.slice(0, 160) };
+        var lineageIssue = { type: 'visible-decision-narrative-missing-lineage', id: id, text: txt.slice(0, 160) };
         issues.push(lineageIssue);
         narrativeIssues.push(lineageIssue);
       }
@@ -11414,7 +11994,7 @@ window.AIO.applyMarketCurrentnessGuard = function(opts) {
   opts = opts || {};
   var audit = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit(opts) : null;
   try {
-    Array.prototype.slice.call(document.querySelectorAll('[data-live-price], [data-live-kr]')).forEach(function(el) {
+    Array.prototype.slice.call(document.querySelectorAll(AIO_CURRENTNESS_LIVE_SELECTOR)).forEach(function(el) {
       var visible = !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length));
       if (!visible && opts.includeHidden !== true) return;
       var txt = String(el.textContent || '').replace(/\s+/g, ' ').trim();
@@ -11431,8 +12011,7 @@ window.AIO.applyMarketCurrentnessGuard = function(opts) {
         el.title = '출처 메타데이터 미확인 · 현재 시장 판단 제외';
       }
     });
-    ['opt-pcr-text','kr-supply-analysis-text','mkt-regime-sub','vol-regime-sub','cam-verdict-text','opt-analysis-text'].forEach(function(id) {
-      var el = document.getElementById(id);
+    _aioCollectDecisionNarratives(document).forEach(function(el) {
       if (!el) return;
       var visible = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
       if (!visible && opts.includeHidden !== true) return;
@@ -12068,6 +12647,8 @@ if (typeof window !== 'undefined' && !window._aioPopstateRegistered) {
 }
 
 function showTheme(themeId) {
+  // v49.57 R105 신규: 채팅 컨텍스트가 활성 테마 ticker를 라이브 가격으로 주입하도록 전역 마커
+  window._currentThemeId = themeId;
   const themes = {
     ai: {name:'AI · 반도체', icon:''},
     defense: {name:'방산 · 우주', icon:''},

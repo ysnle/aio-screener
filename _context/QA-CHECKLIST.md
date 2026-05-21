@@ -1,15 +1,45 @@
 ---
 verified_by: agent
-last_verified: 2026-04-14
+last_verified: 2026-05-20
 confidence: high
-version: v3.6
-checklist_version: v48.69
-total_items: 258
-stages: 20
-latest_P_covered: P143
+version: v3.7
+checklist_version: v49.57
+total_items: 275
+stages: 21
+latest_P_covered: P318
 ---
 
-# AIO Screener — QA 체크리스트 v3.6
+## v49.57 — AI Chat 종목 데이터 커버리지 확장 (T395~T411)
+
+- [ ] **T395**: `AIO_TICKER_NAME_REGISTRY.entries`.length >= 132 (v49.32 47 → v49.57 152)
+- [ ] **T396**: 핵심 신규 등록 — NVO / VKTX / FANUY / SNPS / CDNS / NET / EQIX / RKLB / IONQ / MSTR / LITE / RIVN / SYM / FSLR / LMT + KR 5 (267250.KS HD현대중공업, 323410.KQ 카카오뱅크, 161890.KS 한국콜마, 000080.KS 하이트진로, 006260.KS LS)
+- [ ] **T397**: `AIO.assertTickerRegistryCompleteness().coveragePct >= 30` — SCR_KEYWORD_ALIASES 543 ticker vs REGISTRY 정합. v49.57 라이브 측정: **32%** (47/543 8.6% → 173/543 32%, 3.7× 확장). v49.58+ 추가 ticker 등록 시 80% 목표.
+- [ ] **T398**: `AIO.getThemeFetchCoverageAudit('ai')` — `{ status:'ok', tickers, fetchable:{yahoo,sec,wiki,finnhub,fmp,naver} }`
+- [ ] **T399**: `AIO.fetchFinnhubCompanyNews` 함수 정의 (신규 v49.57)
+- [ ] **T400**: `AIO.fetchSECRecentFilings` 강화 — `recent8KList[{filingDate,items,accession,url}]` 파싱 + form==='8-K' 인덱스 추출
+- [ ] **T401**: `_fetchTickerDataForChat` 4 신규 라벨 ([SEC 8-K] / [News] / [Insider] / [13F])
+- [ ] **T402**: ABSOLUTE RULES 5조 ([SEC 8-K]/[News]/[Insider] 학습 데이터 환각 금지)
+- [ ] **T403**: `_shouldUseClaudeWebSearch` 함수 정의
+- [ ] **T404**: `_shouldUseClaudeWebSearch('오늘 NVDA 뉴스', 'ticker', ['NVDA'])` === true
+- [ ] **T405**: `_shouldUseClaudeWebSearch('PER이 뭐야', 'ticker', [])` === false
+- [ ] **T406**: `AIO.getWebSearchAudit()` — `{ enabled, calls, maxUsesPerCall:3, estimatedCostUsd }`
+- [ ] **T407**: `showTheme(themeId)` 진입 시 `window._currentThemeId` 설정
+- [ ] **T408**: CIK_MAP 확장 — AMAT '0000006951' + LITE + RKLB + CEG 포함 (+84 entries)
+- [ ] **T409**: `CHAT_CONTEXTS.themes.system()` 소스에 `_currentThemeId` + `SCR_KEYWORD_ALIASES`
+- [ ] **T410**: `CHAT_CONTEXTS['theme-detail'].system()` 동일 dynamic 주입
+- [ ] **T411**: APP_VERSION === 'v49.57'
+
+### 수동 검증 (Chrome MCP)
+1. themes 페이지 → "AI · 반도체" 카드 클릭 → 채팅 → "현재 테마의 NVDA 상황 분석"
+2. system 프롬프트 확인 → `【현재 테마: ai · 등록 15종목 라이브 가격】` 블록 + 6개 데이터 라벨 + ABSOLUTE RULES 5조
+3. "오늘 엔비디아 발표 뉴스" → 🔍 Claude 웹 검색 배지 + 검색 결과 인용
+4. 콘솔: `AIO.assertTickerRegistryCompleteness().coveragePct >= 80`
+5. 콘솔: `AIO.getThemeFetchCoverageAudit('ai').tickers > 10`
+6. opt-out: `localStorage.setItem('aio_web_search_enabled','off')` → 배지 없음
+
+---
+
+# AIO Screener — QA 체크리스트 v3.7 (구 v3.6 본문)
 
 > **v3 배경**: v2는 브라우저 런타임·콘솔·차트·레이아웃에 강하지만, LLM 답변·뉴스 선별·포트폴리오·기업분석·번역·API 키·인터랙션·성능·접근성 등 스크리너 핵심 기능의 50%+가 QA 범위 밖이었음. v3는 22개 페이지 × 264개 클릭 핸들러 × 10개 기능 모듈을 전수 커버.
 > **v3.1 추가 (2026-04-06)**: v42.5~v42.7 전수 QA에서 발굴한 P56~P60 패턴 반영. init 중복 cleanup(P56), 그리드 모바일(P57), applyDataSnapshot 역방향(P58), API 전역 초기화 순서(P59), 크로스페이지 함수 연결(P60).

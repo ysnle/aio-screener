@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.55 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.57 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3958,7 +3958,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.55</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.57</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12408,9 +12408,9 @@ body.light-theme canvas { filter:none; }
   }
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.55"></script>
-  <script src="./js/aio-data.js?v=49.55"></script>
-  <script src="./js/aio-ui.js?v=49.55"></script>
+  <script src="./js/aio-core.js?v=49.57"></script>
+  <script src="./js/aio-data.js?v=49.57"></script>
+  <script src="./js/aio-ui.js?v=49.57"></script>
 
   <script>
 
@@ -15372,7 +15372,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.55"></script>
+<script src="./js/aio-chat.js?v=49.57"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17449,6 +17449,29 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '【실시간 시세 (신선도: ' + fresh + ')】\n' +
         '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) | NASDAQ: ' + (s.nasdaq || '—') + '\n' +
         '• VIX: ' + s.vix + ' | DXY: ' + s.dxy + ' | 10Y: ' + (s.tnx || '—') + '\n\n' +
+        // v49.57 R105 신규: 활성 테마 종목 라이브 가격 동적 주입 (환각 차단)
+        // SCR_KEYWORD_ALIASES 평면 구조: { themeKey: [ticker, ticker, ...] }
+        (function() {
+          var themeId = window._currentThemeId || null;
+          if (!themeId) return '';
+          var ld = window._liveData || {};
+          var aliases = window.SCR_KEYWORD_ALIASES || {};
+          var raw = aliases[themeId];
+          var tickers = Array.isArray(raw) ? raw.slice(0, 15) : [];
+          if (tickers.length === 0) return '';
+          var lines = '【현재 테마: ' + themeId + ' · 등록 ' + tickers.length + '종목 라이브 가격】\n';
+          var hasData = false;
+          tickers.forEach(function(t) {
+            var d = ld[t];
+            if (d && d.price) {
+              hasData = true;
+              var pct = d.pct != null ? d.pct : null;
+              lines += '• ' + t + ': $' + Number(d.price).toFixed(2) + (pct !== null ? (' (' + (pct>=0?'+':'') + Number(pct).toFixed(2) + '%)') : '') + '\n';
+            }
+          });
+          if (!hasData) return '【현재 테마: ' + themeId + '】 등록 ' + tickers.length + '종목 — 라이브 가격 fetch 대기. ABSOLUTE RULES 5조 적용 (학습 데이터 환각 금지).\n\n';
+          return lines + '※ 위 가격은 라이브 fetch. 분석 시 학습 데이터 환각 절대 금지 (ABSOLUTE RULES 5조).\n\n';
+        })() +
         '【데이터 주입 파이프라인 (v48.55)】\n' +
         '• 사용자 질문에서 티커 감지(_extractTickers) 시 Yahoo 실시간 + Finnhub(애널리스트 추천·어닝·뉴스) + FMP(profile·ratios·key-metrics TTM) 자동 수집 → 프롬프트 주입\n' +
         '• SUB_THEMES/THEME_MAP/ALL_RRG_ETFS 전수 종목(325+)은 _liveData에 포함되어 있어 모두 커버\n' +
@@ -27254,9 +27277,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.55"></script>
+<script src="./js/aio-glossary.js?v=49.57"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.55"></script>
+<script src="./js/aio-tests.js?v=49.57"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전

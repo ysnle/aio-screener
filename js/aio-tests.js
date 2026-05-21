@@ -1614,9 +1614,9 @@
       enumeratedPages.length >= 21,
       enumeratedPages.length + '/' + allPages.length);
 
-    // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.55
-    _assert('T362 page_seq_v4955: version v49.55',
-      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.55',
+    // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.56
+    _assert('T362 page_seq_v4956: version v49.56',
+      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.56',
       'ver=' + (window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY ? window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version : '?'));
   }
 
@@ -1691,8 +1691,8 @@
 
   function _testV4954OperationalHardening() {
     var contract = window.AIO_OPERATIONAL_DATA_CONTRACT;
-    _assert('T378_operational_contract_v4955_available',
-      contract && contract.version === 'v49.55' && typeof contract.evaluateMetric === 'function',
+    _assert('T378_operational_contract_v4956_available',
+      contract && contract.version === 'v49.56' && typeof contract.evaluateMetric === 'function',
       contract ? contract.version : 'missing');
 
     var manualOk = window.AIO && typeof window.AIO.canDriveCurrentDecision === 'function'
@@ -1799,6 +1799,123 @@
     _assert('T392_analysis_text_without_lineage_is_reference_only',
       narrativeGuarded,
       narrative ? 'use=' + narrative.getAttribute('data-operational-use') + ' kind=' + narrative.getAttribute('data-source-kind') : 'no opt-analysis-text');
+
+    var tempChg = document.createElement('span');
+    tempChg.setAttribute('data-live-chg', '__AIO_CHG_LINEAGE__');
+    tempChg.textContent = '+1.23%';
+    document.body.appendChild(tempChg);
+    var chgAudit = window.AIO.getMarketCurrentnessAudit({ root: document.body, includeHidden: true });
+    window.AIO.applyMarketCurrentnessGuard({ includeHidden: true });
+    var chgGuarded = tempChg.getAttribute('data-operational-use') === 'reference-only' &&
+      tempChg.getAttribute('data-source-kind') === 'unknown';
+    tempChg.remove();
+    _assert('T393_live_change_without_lineage_is_reference_only',
+      chgAudit && chgAudit.issues && chgAudit.issues.some(function(x) { return x.type === 'visible-live-sink-missing-lineage' && x.key === '__AIO_CHG_LINEAGE__'; }) && chgGuarded,
+      chgAudit ? JSON.stringify(chgAudit.issues.slice(-5)) : 'missing');
+
+    var tempDecision = document.createElement('div');
+    tempDecision.id = 'briefing-action-test-card';
+    tempDecision.textContent = 'Action item test: position sizing and market signal must carry source lineage.';
+    document.body.appendChild(tempDecision);
+    var decisionAudit = window.AIO.getMarketCurrentnessAudit({ root: document.body, includeHidden: true });
+    window.AIO.applyMarketCurrentnessGuard({ includeHidden: true });
+    var decisionGuarded = tempDecision.getAttribute('data-operational-use') === 'reference-only' &&
+      tempDecision.getAttribute('data-source-kind') === 'mixed';
+    tempDecision.remove();
+    _assert('T394_decision_narrative_without_lineage_is_reference_only',
+      decisionAudit && decisionAudit.issues && decisionAudit.issues.some(function(x) { return x.type === 'visible-decision-narrative-missing-lineage' && x.id === 'briefing-action-test-card'; }) && decisionGuarded,
+      decisionAudit ? JSON.stringify(decisionAudit.issues.slice(-5)) : 'missing');
+  }
+
+  // v49.57 P316~P318 + R103~R105: AI 채팅 종목 데이터 커버리지 확장 회귀 방지
+  function _testV4957ChatCoverageExpansion() {
+    // T395: TICKER_NAME_REGISTRY entries >= 132 (v49.32 47 → v49.57 152)
+    var reg = window.AIO_TICKER_NAME_REGISTRY;
+    var entriesCount = reg && reg.entries ? Object.keys(reg.entries).length : 0;
+    _assert('T395 registry_entries_expanded_v4957: REGISTRY.entries.length >= 132',
+      entriesCount >= 132, 'entries=' + entriesCount);
+
+    // T396: 핵심 신규 ticker 등록 검증 (NVO/VKTX/FANUY/SNPS/CDNS/NET/267250.KS)
+    var criticalNew = ['NVO','VKTX','FANUY','SNPS','CDNS','NET','EQIX','RKLB','IONQ','MSTR','LITE','RIVN','SYM','FSLR','LMT','267250.KS','323410.KQ','161890.KS','000080.KS','006260.KS'];
+    var missing = criticalNew.filter(function(t) { return !(reg && reg.entries && reg.entries[t]); });
+    _assert('T396 registry_critical_new_tickers: NVO/VKTX/FANUY/SNPS/CDNS/NET + 5 KR 등록',
+      missing.length === 0, 'missing=' + missing.join(','));
+
+    // T397: assertTickerRegistryCompleteness 동작 + coveragePct >= 30 (v49.57 8.6% → 32% 3.7× 확장 완료. v49.58 80% 목표)
+    var audit = window.AIO && window.AIO.assertTickerRegistryCompleteness ? window.AIO.assertTickerRegistryCompleteness() : null;
+    _assert('T397 assertTickerRegistryCompleteness_coverage_30: SCR_KEYWORD_ALIASES 정합 30%+ (v49.57)',
+      audit && audit.coveragePct >= 30, 'pct=' + (audit ? audit.coveragePct : '?'));
+
+    // T398: getThemeFetchCoverageAudit 동작 ('ai' 테마)
+    var fetchAudit = window.AIO && window.AIO.getThemeFetchCoverageAudit ? window.AIO.getThemeFetchCoverageAudit('ai') : null;
+    _assert('T398 themeFetchCoverageAudit_ai: ai 테마 ticker × 5채널 매트릭스',
+      fetchAudit && fetchAudit.status === 'ok' && fetchAudit.tickers > 0 && fetchAudit.fetchable && typeof fetchAudit.fetchable.yahoo === 'number',
+      fetchAudit ? 'tickers=' + fetchAudit.tickers : 'missing');
+
+    // T399: fetchFinnhubCompanyNews 신설 검증
+    _assert('T399 fetchFinnhubCompanyNews_defined: window.AIO.fetchFinnhubCompanyNews function',
+      typeof window.AIO.fetchFinnhubCompanyNews === 'function',
+      typeof (window.AIO && window.AIO.fetchFinnhubCompanyNews));
+
+    // T400: fetchSECRecentFilings 강화 — recent8KList 반환 capability
+    var srcRecent = window.AIO && window.AIO.fetchSECRecentFilings ? window.AIO.fetchSECRecentFilings.toString() : '';
+    _assert('T400 fetchSECRecentFilings_parses_8k: recent8KList 파싱 로직 포함',
+      /recent8KList/.test(srcRecent) && /forms\[j\]\s*===\s*'8-K'/.test(srcRecent),
+      'recent8KList=' + /recent8KList/.test(srcRecent) + ' / 8K_check=' + /forms\[j\]\s*===\s*'8-K'/.test(srcRecent));
+
+    // T401: _fetchTickerDataForChat에 [SEC 8-K] / [News] / [Insider] / [13F] 라벨 + ABSOLUTE RULES 5조
+    var fnSrc = window._fetchTickerDataForChat ? window._fetchTickerDataForChat.toString() : '';
+    var hasAll = /\[SEC 8-K/.test(fnSrc) && /\[News /.test(fnSrc) && /\[Insider /.test(fnSrc) && /\[13F/.test(fnSrc);
+    _assert('T401 chat_fetch_4_new_labels: SEC 8-K / News / Insider / 13F 라벨 포함',
+      hasAll, '4 labels present=' + hasAll);
+    _assert('T402 chat_absolute_rules_5_clause: ABSOLUTE RULES 5조 (학습 데이터 환각 금지)',
+      /5\.\s*\[SEC 8-K\]/.test(fnSrc) || /5\..*SEC 8-K.*News.*Insider/.test(fnSrc),
+      '5조 present');
+
+    // T403: _shouldUseClaudeWebSearch 휴리스틱 동작
+    var fnWS = window._shouldUseClaudeWebSearch;
+    _assert('T403 shouldUseClaudeWebSearch_defined: function 정의',
+      typeof fnWS === 'function', typeof fnWS);
+    if (typeof fnWS === 'function') {
+      _assert('T404 shouldUseClaudeWebSearch_temporal: "오늘 NVDA 뉴스" → true',
+        fnWS('오늘 NVDA 뉴스', 'ticker', ['NVDA']) === true, 'temporal trigger');
+      _assert('T405 shouldUseClaudeWebSearch_concept: "PER이 뭐야" → false (정의 질문)',
+        fnWS('PER이 뭐야', 'ticker', []) === false, 'concept false');
+    }
+
+    // T406: getWebSearchAudit 동작
+    var wsAudit = window.AIO && window.AIO.getWebSearchAudit ? window.AIO.getWebSearchAudit() : null;
+    _assert('T406 webSearchAudit_structure: enabled + calls + maxUsesPerCall',
+      wsAudit && typeof wsAudit.enabled === 'boolean' && typeof wsAudit.calls === 'number' && wsAudit.maxUsesPerCall === 3,
+      wsAudit ? 'enabled=' + wsAudit.enabled : 'missing');
+
+    // T407: showTheme이 window._currentThemeId 설정
+    var showThemeSrc = typeof showTheme === 'function' ? showTheme.toString() : (typeof window.showTheme === 'function' ? window.showTheme.toString() : '');
+    _assert('T407 showTheme_sets_currentThemeId: window._currentThemeId 할당',
+      /_currentThemeId\s*=/.test(showThemeSrc), '_currentThemeId set check');
+
+    // T408: CIK_MAP 확장 검증 — fetchSECBusinessDescription source에 AMAT/LITE/RKLB/CEG 포함
+    var bizSrc = window.AIO && window.AIO.fetchSECBusinessDescription ? window.AIO.fetchSECBusinessDescription.toString() : '';
+    _assert('T408 cik_map_v4957_expanded: AMAT + LITE + RKLB + CEG CIK 등록',
+      /'AMAT'\s*:\s*'0000006951'/.test(bizSrc) && /'LITE'/.test(bizSrc) && /'RKLB'/.test(bizSrc) && /'CEG'/.test(bizSrc),
+      'CIK_MAP expansion check');
+
+    // T409/T410: themes/theme-detail dynamic theme ticker injection 로직 존재
+    // 주의: index.html L17443가 CHAT_CONTEXTS['themes']와 ['theme-detail']을 override → runtime에서는 index.html 정의가 활성
+    var themesCtx = (window.CHAT_CONTEXTS && window.CHAT_CONTEXTS['themes'] && window.CHAT_CONTEXTS['themes'].system) ? window.CHAT_CONTEXTS['themes'].system.toString() : '';
+    var themeDetailCtx = (window.CHAT_CONTEXTS && window.CHAT_CONTEXTS['theme-detail'] && window.CHAT_CONTEXTS['theme-detail'].system) ? window.CHAT_CONTEXTS['theme-detail'].system.toString() : '';
+    _assert('T409 themes_ctx_dynamic_injection: _currentThemeId + SCR_KEYWORD_ALIASES 사용 (index.html override 포함)',
+      /_currentThemeId/.test(themesCtx) && /SCR_KEYWORD_ALIASES/.test(themesCtx),
+      'themes dynamic _currentThemeId=' + /_currentThemeId/.test(themesCtx) + ' aliases=' + /SCR_KEYWORD_ALIASES/.test(themesCtx));
+    // theme-detail = themes (line 17478에서 동일 객체 참조 — 같은 system 함수 공유)
+    _assert('T410 theme_detail_ctx_dynamic_injection: theme-detail이 themes 객체 참조 (동일 dynamic 주입)',
+      /_currentThemeId/.test(themeDetailCtx) && /SCR_KEYWORD_ALIASES/.test(themeDetailCtx),
+      'theme-detail dynamic check');
+
+    // T411: APP_VERSION === 'v49.57'
+    _assert('T411 app_version_v4957: APP_VERSION === "v49.57"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.57',
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
   function _testV4938HomeDeepAudit() {
@@ -2871,6 +2988,7 @@
     try { _testV4950AuditRemediation(); } catch(e) { console.error('Group53 error:', e); }
     try { _testV4951SustainedFreshnessOps(); } catch(e) { console.error('Group54 error:', e); }
     try { _testV4954OperationalHardening(); } catch(e) { console.error('Group55 error:', e); }
+    try { _testV4957ChatCoverageExpansion(); } catch(e) { console.error('Group56 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -2901,6 +3019,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.55 loaded - run AIO.runTests() (T1~T392)');
+  console.log('[AIO] aio-tests.js v49.56 loaded - run AIO.runTests() (T1~T394)');
 
 })();

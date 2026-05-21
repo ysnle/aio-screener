@@ -570,6 +570,29 @@ const CHAT_CONTEXTS = {
       const c = _closeSnap();
       var fresh = s._freshness;
       return '당신은 테마 투자 전문가입니다. 현재 "테마 분석" 페이지를 보고 있습니다.\n\n' +
+        // v49.57 R105 신규: 활성 테마 종목 라이브 가격 동적 주입 (환각 차단)
+        // SCR_KEYWORD_ALIASES 실제 구조: { themeKey: [ticker, ticker, ...] } 평면
+        (function() {
+          var themeId = window._currentThemeId || null;
+          if (!themeId) return '';
+          var ld = window._liveData || {};
+          var aliases = window.SCR_KEYWORD_ALIASES || {};
+          var raw = aliases[themeId];
+          var tickers = Array.isArray(raw) ? raw.slice(0, 15) : [];
+          if (tickers.length === 0) return '';
+          var lines = '【현재 테마: ' + themeId + ' · 등록 ' + tickers.length + '종목 라이브 가격】\n';
+          var hasData = false;
+          tickers.forEach(function(t) {
+            var d = ld[t];
+            if (d && d.price) {
+              hasData = true;
+              var pct = d.pct != null ? d.pct : null;
+              lines += '• ' + t + ': $' + Number(d.price).toFixed(2) + (pct !== null ? (' (' + (pct>=0?'+':'') + Number(pct).toFixed(2) + '%)') : '') + '\n';
+            }
+          });
+          if (!hasData) return '【현재 테마: ' + themeId + '】 등록 종목 ' + tickers.length + '개 — 라이브 가격 fetch 대기 중. AI는 이 테마 종목 분석 시 ABSOLUTE RULES 5조에 따라 학습 데이터 환각 절대 금지.\n\n';
+          return lines + '※ 위 가격은 라이브 fetch. 분석 시 학습 데이터 환각 절대 금지 (ABSOLUTE RULES 5조).\n\n';
+        })() +
         // v34.4: 테마 ETF 실시간 데이터 주입
         (function() {
           var ld = window._liveData || {};
@@ -944,6 +967,29 @@ const CHAT_CONTEXTS = {
       return '당신은 테마 투자 심층 분석 전문가입니다. "테마 상세" 페이지에서 대화하고 있습니다.\n\n' +
         '【시장 데이터 (신선도: ' + s._freshness + ')】\n' +
         '• SPX: ' + c.spx + ' | VIX: ' + s.vix + ' | DXY: ' + s.dxy + '\n\n' +
+        // v49.57 R105 신규: 활성 테마 종목 라이브 가격 동적 주입 (theme-detail 진입 시)
+        // SCR_KEYWORD_ALIASES 실제 구조: { themeKey: [ticker, ticker, ...] } 평면
+        (function() {
+          var themeId = window._currentThemeId || null;
+          if (!themeId) return '';
+          var ld = window._liveData || {};
+          var aliases = window.SCR_KEYWORD_ALIASES || {};
+          var raw = aliases[themeId];
+          var tickers = Array.isArray(raw) ? raw.slice(0, 20) : [];
+          if (tickers.length === 0) return '';
+          var lines = '【현재 테마 상세: ' + themeId + ' · 등록 ' + tickers.length + '종목 라이브】\n';
+          var hasData = false;
+          tickers.forEach(function(t) {
+            var d = ld[t];
+            if (d && d.price) {
+              hasData = true;
+              var pct = d.pct != null ? d.pct : null;
+              lines += '• ' + t + ': $' + Number(d.price).toFixed(2) + (pct !== null ? (' (' + (pct>=0?'+':'') + Number(pct).toFixed(2) + '%)') : '') + '\n';
+            }
+          });
+          if (!hasData) return '【현재 테마 상세: ' + themeId + '】 등록 ' + tickers.length + '종목 — 라이브 가격 대기. ABSOLUTE RULES 5조 적용.\n\n';
+          return lines + '※ 학습 데이터로 가격/실적/M&A 환각 절대 금지 (ABSOLUTE RULES 5조).\n\n';
+        })() +
         '【분석 원칙】\n' +
         '테마 내 종목 비교 시: ① 시가총액/유동성 ② 테마 노출도(매출 비중) ③ 밸류에이션(PER/PSR) ④ 모멘텀(RSI/상대강도) 4축 교차 분석.\n' +
         '테마 타이밍: 초기(인지도 낮음+밸류 저렴) → 가속(뉴스 폭증+급등) → 과열(P/E 비정상) → 조정(테마 피로) 4단계.\n' +
@@ -1265,6 +1311,14 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
       type: 'enabled',
       budget_tokens: modelCfg.thinkingBudget || 5000
     };
+  }
+  // v49.57 P318: Claude web_search 조건부 활성화 — opts.webSearch === true 일 때만
+  if (opts.webSearch === true) {
+    reqBody.tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 }];
+    // 통계 추적
+    window._aioWebSearchStats = window._aioWebSearchStats || { calls: 0, lastUsedAt: null };
+    window._aioWebSearchStats.calls++;
+    window._aioWebSearchStats.lastUsedAt = new Date().toISOString();
   }
 
   // v48.8: anthropic-beta 헤더 호환성 — 2024년 11월 이후 prompt caching이 정식 기능으로 승격되어
@@ -1854,8 +1908,13 @@ async function _fetchTickerDataForChat(tickers) {
       try { data = await dynamicTickerLookup(t); } catch(e) {}
     }
     // v49.34 신규: SEC 10-K + Wikipedia 사전 fetch (병렬)
-    var secPromise = window.AIO && window.AIO.fetchSECBusinessDescription ? window.AIO.fetchSECBusinessDescription(t).catch(function(){return null;}) : null;
-    var wikiPromise = window.AIO && window.AIO.fetchWikipediaCompany ? window.AIO.fetchWikipediaCompany(t).catch(function(){return null;}) : null;
+    // v49.57 P317 R104 보강: SEC 8-K + Finnhub news + Insider + 13F 추가 — 6 소스 병렬
+    var secPromise         = window.AIO && window.AIO.fetchSECBusinessDescription ? window.AIO.fetchSECBusinessDescription(t).catch(function(){return null;}) : null;
+    var wikiPromise        = window.AIO && window.AIO.fetchWikipediaCompany      ? window.AIO.fetchWikipediaCompany(t).catch(function(){return null;}) : null;
+    var sec8KPromise       = window.AIO && window.AIO.fetchSECRecentFilings      ? window.AIO.fetchSECRecentFilings(t).catch(function(){return null;}) : null;
+    var fhNewsPromise      = window.AIO && window.AIO.fetchFinnhubCompanyNews    ? window.AIO.fetchFinnhubCompanyNews(t, 14).catch(function(){return null;}) : null;
+    var insiderPromise     = window.AIO && window.AIO.fetchFinnhubInsider        ? window.AIO.fetchFinnhubInsider(t).catch(function(){return null;}) : null;
+    var thirteenFPromise   = window.AIO && window.AIO.fetchSEC13F                ? window.AIO.fetchSEC13F(t).catch(function(){return null;}) : null;
 
     if (data) {
       var line = '• ' + data.ticker + (data.name ? ' (' + data.name + ')' : '') + ': $' + Number(data.price).toFixed(2) + (data.pct != null ? (' (' + (data.pct >= 0 ? '+' : '') + Number(data.pct).toFixed(2) + '%)') : '');
@@ -1956,6 +2015,46 @@ async function _fetchTickerDataForChat(tickers) {
           results.push('  [기업 개요 (Wiki intro)] ' + wiki.extract.substring(0, 600));
         }
       } catch(_wikiErr) {}
+
+      // v49.57 P317 R104 신규: SEC 8-K (최근 5건 event-driven)
+      try {
+        var sec8k = sec8KPromise ? await sec8KPromise : null;
+        if (sec8k && sec8k.available && sec8k.recent8KList && sec8k.recent8KList.length > 0) {
+          var _8kLines = sec8k.recent8KList.map(function(f) {
+            return '    · ' + (f.filingDate || '?') + ' · Items: ' + (f.items || 'N/A') + ' · ' + (f.url || '');
+          }).join('\n');
+          results.push('  [SEC 8-K (최근 ' + sec8k.recent8KCount + '건 · event-driven)]\n' + _8kLines);
+          results.push('  [SEC 8-K 가이드] Items 코드 — 1.01=신규계약 · 2.02=실적사전공시 · 5.02=임원변경 · 7.01=Reg FD · 8.01=기타. M&A/CEO변경/사이버사고 등 환각 차단용. URL 직접 fetch 가능.');
+        }
+      } catch(_8kErr) {}
+
+      // v49.57 P317 R104 신규: Finnhub 종목 뉴스 (최근 14일)
+      try {
+        var fhNews = fhNewsPromise ? await fhNewsPromise : null;
+        if (fhNews && fhNews.available && fhNews.topHeadlines && fhNews.topHeadlines.length > 0) {
+          var _newsLines = fhNews.topHeadlines.map(function(n) {
+            return '    · ' + (n.datetime || '?') + ' [' + (n.source || 'unknown') + '] ' + (n.headline || '');
+          }).join('\n');
+          results.push('  [News (' + fhNews.period + ' · 총 ' + fhNews.articleCount + '건 · Top ' + fhNews.topHeadlines.length + ')]\n' + _newsLines);
+        }
+      } catch(_newsErr) {}
+
+      // v49.57 P317 R104 신규: Finnhub 임원 매수/매도 (12주)
+      try {
+        var insider = insiderPromise ? await insiderPromise : null;
+        if (insider && insider.available) {
+          results.push('  [Insider (12주 · ' + insider.period + ')] 거래 ' + insider.transactionCount + '건 · 매수 ' + insider.buyCount + ' / 매도 ' + insider.sellCount + ' · Net ' + (insider.netShares >= 0 ? '+' : '') + insider.netShares + '주 → ' + insider.verdict + ' (' + insider.note + ')');
+        }
+      } catch(_inErr) {}
+
+      // v49.57 P317 R104 신규: SEC 13F 기관 보유 URL
+      try {
+        var f13 = thirteenFPromise ? await thirteenFPromise : null;
+        if (f13 && f13.available) {
+          results.push('  [13F 기관 보유] ' + (f13.queryUrl || '') + ' · WhaleWisdom: ' + (f13.whaleWisdomUrl || ''));
+          results.push('  [13F 가이드] 분기 발표 (45일 lag). 종목별 정밀 institutional holdings는 WhaleWisdom 또는 위 SEC full-text URL 직접 조회. 학습 데이터로 "버크셔/타이거글로벌 보유" 등 환각 절대 금지.');
+        }
+      } catch(_13fErr) {}
     } else {
       // v49.32 B2/R82 HARD GUARDRAIL — fetch 실패 시 환각 절대 차단
       results.push('• ' + t + ': ❌ 실시간 시세 조회 실패 (Yahoo Finance + 프록시 모두 fail)');
@@ -1965,7 +2064,7 @@ async function _fetchTickerDataForChat(tickers) {
     }
   }
   if (results.length === 0) return '';
-  return '\n\n【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±20% 이상 괴리 시 차단됨.\n\n📋 15 분석 분야 출처 매핑 (v49.34 R90 — 정성+정량):\n- 시세/등락률/시총/PER: 위 실시간 데이터 블록 (Yahoo/Naver/Finnhub)\n- 비즈니스 구조/사업 모델/공급망/리스크/경쟁: [SEC 10-K] 링크 직접 fetch + 인용 (Item 1, 1A, 1C)\n- CEO/경영진/제품 포트폴리오/회사 개요: [Wikipedia] 인용 (학습 데이터 환각 금지)\n- 애널리스트 컨센서스/투자포인트: [애널리스트 컨센서스] + [Naver 컨센서스] 인용\n- 어닝 일정/실적: [향후 어닝] 인용\n- TAM/시장 크기: SCREENER_DB 메모\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 15 기준 가용성 (v49.35 R91 — index.html L8175 기준):\n- ✓ 구현 6개: Quality of Business(ROE) / Growth(CAGR) / Margin Trend / Valuation PE / Analyst Revisions / Earnings Beat Streak\n- ⚠ 부분/계획 5개: FCF Yield / Balance Sheet (Net Debt/EBITDA) / EV/EBITDA / Industry Rank / Macro Exposure\n- ❌ 미구현 4개: Moat (Morningstar 유료) / Insider Activity / Institutional Flow (13F) / Short Interest\n- 미구현 기준 분석 요청 시: "이 기준은 현재 시스템에서 자동 평가 불가, [수동 확인 출처]에서 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
+  return '\n\n【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±20% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n\n📋 15 분석 분야 출처 매핑 (v49.34 R90 — 정성+정량):\n- 시세/등락률/시총/PER: 위 실시간 데이터 블록 (Yahoo/Naver/Finnhub)\n- 비즈니스 구조/사업 모델/공급망/리스크/경쟁: [SEC 10-K] 링크 직접 fetch + 인용 (Item 1, 1A, 1C)\n- CEO/경영진/제품 포트폴리오/회사 개요: [Wikipedia] 인용 (학습 데이터 환각 금지)\n- 애널리스트 컨센서스/투자포인트: [애널리스트 컨센서스] + [Naver 컨센서스] 인용\n- 어닝 일정/실적: [향후 어닝] 인용\n- 최근 이벤트/M&A/CEO 변경/사이버 사고: [SEC 8-K] 인용 (Items 코드 해석)\n- 최근 뉴스/헤드라인/실적 발표: [News] 인용 (Finnhub 14일)\n- 임원 매수/매도 신호: [Insider] 인용 (12주 누적)\n- 기관 보유 (헤지펀드/뮤추얼펀드): [13F] URL 사용자 안내 (분기 lag)\n- TAM/시장 크기: SCREENER_DB 메모\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 15 기준 가용성 (v49.35 R91 — index.html L8175 기준):\n- ✓ 구현 6개: Quality of Business(ROE) / Growth(CAGR) / Margin Trend / Valuation PE / Analyst Revisions / Earnings Beat Streak\n- ⚠ 부분/계획 5개: FCF Yield / Balance Sheet (Net Debt/EBITDA) / EV/EBITDA / Industry Rank / Macro Exposure\n- ❌ 미구현 4개: Moat (Morningstar 유료) / Insider Activity (v49.57 [Insider] 블록으로 보강) / Institutional Flow 13F (v49.57 [13F] 블록으로 보강) / Short Interest\n- 미구현 기준 분석 요청 시: "이 기준은 현재 시스템에서 자동 평가 불가, [수동 확인 출처]에서 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
 }
 
 // ── v34.2: 기업 내부 비교 분석 — 비즈니스 모델·수익 구조·해자 심층 데이터 ──
@@ -2637,6 +2736,45 @@ function _needsWebSearch(query, ctxId) {
   return null;
 }
 
+// ─────────────────────────────────────────────────────────────────
+// v49.57 P318 신규: Claude web_search_20250305 조건부 활성화
+// Perplexity/Google CSE 키 없이도 Anthropic API의 native web search 활용.
+// 휴리스틱: 최근/오늘/뉴스/발표/실적/M&A/breaking 관련 질문일 때만 tool enable.
+// 비용 가드: max_uses:3 + 사용자 토글 (localStorage.aio_web_search_enabled = 'off')
+// ─────────────────────────────────────────────────────────────────
+function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers) {
+  if (!query) return false;
+  // 사용자 명시 opt-out
+  try {
+    if (localStorage.getItem('aio_web_search_enabled') === 'off') return false;
+  } catch(e) {}
+  var q = String(query).toLowerCase();
+  // A: 시점 키워드
+  if (/최근|최신|오늘|어제|이번\s*주|이번\s*달|금주|지난주|방금|지금|현재|latest|recent|today|just now|breaking/.test(q)) return true;
+  // B: 페이지 컨텍스트
+  if (ctxId === 'market-news' || ctxId === 'briefing' || ctxId === 'macro') {
+    if (/뉴스|news|소식|발표|상황|동향/.test(q)) return true;
+  }
+  // C: 티커 + 이벤트
+  if (Array.isArray(detectedTickers) && detectedTickers.length > 0) {
+    if (/뉴스|news|발표|announce|실적|earnings|어닝|M&A|인수|합병|파트너십|partnership|소송|lawsuit|CEO|이사회|board|guidance|가이던스|investor\s*day|analyst\s*day/i.test(q)) return true;
+  }
+  // D: 기존 _needsWebSearch가 true면 폴백으로 함께 (Perplexity 키 없을 때 보완)
+  try {
+    if (typeof _needsWebSearch === 'function') {
+      var pKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_perplexity_key') : '';
+      var gKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_google_cse_key') : '';
+      // Perplexity/Google 키가 없을 때만 폴백 (둘 다 있으면 _needsWebSearch가 처리)
+      if (!pKey && !gKey) {
+        // 위 A/B/C에 안 잡힌 패턴이라도 검색 의도 강하면 trigger
+        if (/검색|찾아|search|look\s*up|알아봐|조사/i.test(q)) return true;
+      }
+    }
+  } catch(e) {}
+  return false;
+}
+window._shouldUseClaudeWebSearch = _shouldUseClaudeWebSearch;
+
 /** 검색 쿼리 최적화 — v36.5: 내러티브/이벤트 컨텍스트 강화 */
 function _buildSearchQuery(query, ctxId) {
   var tickers = typeof _extractTickers === 'function' ? _extractTickers(query) : [];
@@ -3118,6 +3256,15 @@ async function chatSend(ctxId) {
 
   var aiBubble = null;
 
+  // v49.57 P318: Claude web_search 조건부 활성화 휴리스틱 평가
+  var _useClaudeWebSearch = false;
+  try {
+    _useClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers);
+  } catch(_wsErr) { _useClaudeWebSearch = false; }
+  if (_useClaudeWebSearch) {
+    chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">🔍 Claude 네이티브 웹 검색 활성화 — 최신 정보 보강 중 (max 3회)</div>');
+  }
+
   callClaude(
     systemPrompt,
     state.messages,
@@ -3271,7 +3418,7 @@ async function chatSend(ctxId) {
             function(ft) { /* onChunk 동일 */ if (!aiBubble) aiBubble = chatAppendMsg(ctxId,'ai','','chat-'+ctxId+'-streaming'); var v=stripChips(ft); if(aiBubble) aiBubble.innerHTML=_aioSafeMD(v)+'<span class="chat-cursor">▌</span>'; },  // v48.94 P158
             function(ft) { state.streaming=false; state._retryCount=0; if(ctxId==='fundamental') state._fundDepth=0; if(btn){btn.disabled=false;btn.textContent='전송 ▶';} var v=stripChips(ft); if(aiBubble) aiBubble.innerHTML=_aioSafeMD(v); state.messages.push({role:'assistant',content:ft}); saveChatEntry(ctxId,q,v); chatRenderChips(ctxId,extractChips(ft)); },  // v48.94 P158+P160
             function(e2) { state.streaming=false; state._retryCount=0; if(ctxId==='fundamental') state._fundDepth=0; if(btn){btn.disabled=false;btn.textContent='전송 ▶';} chatAppendMsg(ctxId,'ai',''+_aioSafeMD(e2)); },  // v48.94 P158+P160
-            { modelKey: nextModel }
+            { modelKey: nextModel, webSearch: _useClaudeWebSearch }
           );
         }, 2000);
         return;
@@ -3286,8 +3433,8 @@ async function chatSend(ctxId) {
 
       chatAppendMsg(ctxId, 'ai', '' + _aioSafeMD(errMsg));  // v48.94 P158
     },
-    // opts — v31.3 적응형 모델 선택 + v34.5 심층 분석 토큰 확장
-    { modelKey: selectedModelKey, maxTokens: (singleDeepStr || deepCompareStr || _shouldDeepAnalyze) ? 16000 : undefined }
+    // opts — v31.3 적응형 모델 선택 + v34.5 심층 분석 토큰 확장 + v49.57 P318 web_search
+    { modelKey: selectedModelKey, maxTokens: (singleDeepStr || deepCompareStr || _shouldDeepAnalyze) ? 16000 : undefined, webSearch: _useClaudeWebSearch }
   );
 }
 

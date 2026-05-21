@@ -1,11 +1,11 @@
 ---
 verified_by: agent
-last_verified: 2026-05-19
+last_verified: 2026-05-20
 confidence: high
-latest_version: v49.49
-latest_P_number: P319
-next_P_number: P320
-total_entries: 318
+latest_version: v49.57
+latest_P_number: P318
+next_P_number: P319
+total_entries: 321
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
@@ -13,6 +13,35 @@ total_entries: 318
 > 모든 버그 수정 후 여기에 기록. QA/점검 작업 전 반드시 읽고 기존 패턴 확인.
 > 최신 항목이 위에 오도록 역순 기록.
 >
+
+## P318 · v49.57 · [P318/R104] Claude web_search 조건부 통합 (검색 API 없이 트렌딩 뉴스)
+
+- **사용자 보고**: "검색 API 없으면 기업들/종목들 양질의 최신 데이터 못 가져와?"
+- **근본 원인**: AIO Screener는 SEC/Finnhub/Yahoo/Naver/Wikipedia 정량 80% + 정성 70% 커버하나, breaking 뉴스/트렌딩 토픽/애널 리포트 본문은 정적 무료 API로 못 가져옴. Perplexity/Google CSE는 유료/키 필요.
+- **시정**: `_shouldUseClaudeWebSearch(q, ctxId, detectedTickers)` 휴리스틱 신설 (시점 키워드/페이지 컨텍스트/티커+이벤트/키 없을 때 폴백) + `reqBody.tools = [{type:'web_search_20250305', max_uses:3}]` 조건부 주입 + `localStorage.aio_web_search_enabled='off'` opt-out + `AIO.getWebSearchAudit()` 통계
+- **재발 방지**: `localStorage.setItem('aio_web_search_enabled','off')` 명시적 비활성. max_uses 3 제한으로 비용 가드. 휴리스틱 strict (단순 정의 질문은 안 발동)
+- **검증**: `_shouldUseClaudeWebSearch('오늘 NVDA 뉴스', 'ticker', ['NVDA'])` === true. `AIO.getWebSearchAudit().enabled === true && calls >= 0`
+- **파일**: `js/aio-chat.js` `_shouldUseClaudeWebSearch` + `callClaude` reqBody.tools + chatSend webSearch opts 전달. `js/aio-core.js` `AIO.getWebSearchAudit`
+
+## P317 · v49.57 · [P317/R104] _fetchTickerDataForChat 깊이 부족 — 8-K/News/Insider/13F 누락 → 환각
+
+- **사용자 보고**: "각 종목들과 기업들의 최신 정보와 데이터들을 가져오고 있는 지 세밀하게 조사"
+- **근본 원인**: v49.34에서 SEC 10-K + Wikipedia 2 소스만 주입. AI가 "최근 NVDA 인수 발표" 같은 질문에 학습 데이터(2024~2025) 의존 → 환각 위험. Items 5.02 CEO 변경/Items 2.02 실적 사전 공시 같은 event-driven 8-K, Finnhub 14일 뉴스, 임원 매수/매도, 13F 보유 등 누락
+- **시정**: 4개 fetch 추가 — `AIO.fetchSECRecentFilings` (placeholder → 실제 8-K 5건 파싱), `AIO.fetchFinnhubCompanyNews` 신설 (Top 5 14일), `AIO.fetchFinnhubInsider` (기존 함수 활성), `AIO.fetchSEC13F` (URL 안내). system 프롬프트 라벨 6개로 확장
+- **재발 방지**: ABSOLUTE RULES 5조 추가 — "위 [SEC 8-K]/[News]/[Insider]/[13F] 블록 데이터만 인용. 학습 데이터 거시 사건 환각 절대 금지. 블록 비어 있으면 '데이터 없음 — 직접 확인 권장'"
+- **검증**: `await _fetchTickerDataForChat(['NVDA'])` 응답에 `[SEC 8-K]`, `[News]`, `[Insider]` 라벨 포함
+- **파일**: `js/aio-chat.js` L1857~1862 (4 신규 promise) + L1953 이후 (4 라벨 push). `js/aio-core.js` `fetchSECRecentFilings` 강화 + `fetchFinnhubCompanyNews` 신설
+
+## P316 · v49.57 · [P316/R103] AIO_TICKER_NAME_REGISTRY 47개 → SCR_KEYWORD_ALIASES 543 ticker 한글 인식 갭 133개
+
+- **사용자 보고**: "지금 들어가 있는 종목과 기업들 분석 후에 테마/트렌드에 있는 종목들은 모두 들어가 있는 지 확인"
+- **근본 원인**: v49.32에서 AIO_TICKER_NAME_REGISTRY 47개 (메가캡 30 + KR 17)만 등록. SCR_KEYWORD_ALIASES 259 테마 / 543 unique ticker 중 133개(24%)가 미등록 → 한글/별명 검색 실패 ("바이킹 테라퓨틱스" → VKTX 변환 안 됨)
+- **시정**: REGISTRY 47 → 152 entries 일괄 확장 (US 80 + KR 5 + ADR 12). 반도체장비 8 / 클라우드 12 / GLP-1 8 / 원전 8 / 우주 5 / 양자 4 / 크립토 8 / 광통신 8 / EV 8 / 로보틱스 4 / 데이터센터 10 / 솔라 8 / 미디어 6 / 에너지 8 / 방산 8 / 소비 10 / 여행 7 / 헬스 5 / 게임 6 / AI 5 추가. CIK_MAP 50 → 134 entries 동시 확장 (SEC EDGAR fetch 가능 종목 확대)
+- **재발 방지**: `AIO.assertTickerRegistryCompleteness()` 신설 — SCR_KEYWORD_ALIASES vs REGISTRY 정합 자동 검증 + missingTickers 30개까지 리포트 + coveragePct. R103 규칙 등록. `AIO.getThemeFetchCoverageAudit(themeId)` 신설 — ticker × 5채널(SEC/Wiki/Finnhub/FMP/Naver) 매트릭스
+- **검증**: `AIO.assertTickerRegistryCompleteness().coveragePct >= 80`. `Object.keys(AIO_TICKER_NAME_REGISTRY.entries).length === 152`
+- **파일**: `js/aio-core.js` L2316~2540 REGISTRY 확장 + L3828~3920 CIK_MAP 확장 + L2410~2510 신규 audit 2개
+
+
 > **역참조 태그**: 각 버그 항목에 `violated_rule: R{N}` 태그를 기록하여 규칙→버그 역추적 가능.
 > `/knowledge-lint` L7 단계에서 "R5 위반 3회 → 규칙 강화 필요" 같은 빈도 분석 자동 수행.
 
@@ -3115,4 +3144,5 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
   12. breadth-divergence (다이버전스 경보)
 - **auditStatus**: 'partial' (1차만, 2차 → v49.40)
 - **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.breadth
+
 

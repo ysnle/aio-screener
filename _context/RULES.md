@@ -1213,6 +1213,54 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R105. 테마 페이지 진입 시 채팅 컨텍스트에 활성 테마 ticker 라이브 가격 주입 의무 (v49.57 추가, P316/P317 근본)
+
+**원칙**: themes/theme-detail 페이지 진입 시 `window._currentThemeId`를 set하여 CHAT_CONTEXTS의 `themes`/`theme-detail` system 프롬프트가 자동으로 해당 테마의 ticker 라이브 가격을 주입.
+
+**근거 (P316)**: 테마 채팅에서 AI가 학습 데이터로 가격/실적 환각. 활성 테마를 시스템 프롬프트가 인지하지 못함.
+
+**구조**:
+- `showTheme(themeId)` 함수 진입 시 `window._currentThemeId = themeId;` 즉시 설정
+- `CHAT_CONTEXTS.themes.system()` / `CHAT_CONTEXTS['theme-detail'].system()` 함수가 IIFE로 active theme 평면 ticker 배열 `aliases[themeId]` 조회 + `window._liveData[t].price` 라이브 주입
+- 라이브 가격이 fetch 안 되면 "ABSOLUTE RULES 5조 적용" 안내만 표시
+
+**검증**: `showTheme('ai'); CHAT_CONTEXTS.themes.system().includes('현재 테마: ai')` === true
+
+---
+
+## R104. _fetchTickerDataForChat 신규 fetch 추가 시 ABSOLUTE RULES 동기 확장 의무 (v49.57 추가, P317 근본)
+
+**원칙**: `_fetchTickerDataForChat`에 신규 데이터 블록 라벨([SEC 8-K]/[News]/[Insider]/[13F] 등) 추가 시 system 프롬프트 말미 ABSOLUTE RULES에도 해당 라벨의 사용 가이드/환각 차단 조항을 동기 추가.
+
+**근거 (P317)**: v49.34에서 [SEC 10-K]/[Wikipedia] 추가했으나 ABSOLUTE RULES에 가이드가 없어 AI가 라벨을 무시하거나 다른 데이터로 답변. 라벨이 존재해도 AI에게 "이걸 우선 인용해야 함"이 명시 안 되면 학습 데이터 환각.
+
+**구조**:
+- 라벨 추가: `results.push('  [신규 라벨] ...')` (chat.js _fetchTickerDataForChat)
+- ABSOLUTE RULES 갱신: "N조. 위 [신규 라벨] 블록 데이터만 인용. 학습 데이터 환각 금지" (chat.js 마지막 return 문)
+- 분석 분야 출처 매핑 갱신: "- 신규 분야: [신규 라벨] 인용" (R90 매핑 표)
+
+**검증**: `(_fetchTickerDataForChat.toString()).match(/\[SEC 8-K\]/)` && (마지막 return 문에 5조 포함)
+
+---
+
+## R103. SCR_KEYWORD_ALIASES 신규 테마 추가 시 AIO_TICKER_NAME_REGISTRY 등록 의무 (v49.57 추가, P316 근본)
+
+**원칙**: `js/aio-data.js` SCR_KEYWORD_ALIASES에 새 테마/ticker 추가 시 **반드시** `js/aio-core.js` AIO_TICKER_NAME_REGISTRY.entries에도 한글/영문/별명 alias와 함께 등록.
+
+**근거 (P316)**: v49.32에서 47 entries만 등록. 이후 v49.33~v49.56에서 SCR_KEYWORD_ALIASES 259 테마 / 543 ticker 추가했으나 REGISTRY 동기화 안 됨 → 사용자가 "바이킹 테라퓨틱스 분석해줘" 입력 시 한글 → 티커 변환 실패 → AI가 다른 종목 답변하거나 거부.
+
+**구조**: `AIO.assertTickerRegistryCompleteness()` 자동 audit
+- SCR_KEYWORD_ALIASES 모든 ticker 수집 (중복 제거)
+- REGISTRY.entries와 cross-check
+- 미등록 ticker 30개까지 + 어느 테마에서 발견됐는지 리포트
+- coveragePct 반환
+
+**검증**: 정기 콘솔 `AIO.assertTickerRegistryCompleteness().coveragePct >= 80` (커버리지 80% 이상)
+
+**위반 시**: 새 테마 추가했는데 한글 검색 안 됨. AI가 종목 인식 못함.
+
+---
+
 ## R102. 페이지 cell-level audit 의무 (v49.48 추가, P318 근본)
 
 **원칙**: sub-section enumerate(라인 범위 + 카테고리 라벨)에 그치지 않고, 페이지의 모든 카드/표/임계값 cell-level **값/색상/placeholder/key** 검증 의무.

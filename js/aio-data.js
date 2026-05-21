@@ -10448,6 +10448,15 @@ function applyLiveQuotes(quotes) {
     document.querySelectorAll(`[data-live-chg="${q.symbol}"]`).forEach(el => {
       el.textContent = pctStr;
       el.className = cls;
+      var _chgContract = null;
+      try {
+        _chgContract = _storedMetric && _storedMetric.contract ? _storedMetric.contract :
+          (window.AIO_OPERATIONAL_DATA_CONTRACT ? window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric({ source: q._source || 'live:yahoo', ts: now, policyKey: hasPct ? 'quote' : 'quote_change_missing' }) : null);
+      } catch(_chgContractErr) {}
+      el.setAttribute('data-source-kind', hasPct ? (_chgContract && _chgContract.sourceKind ? _chgContract.sourceKind : 'live') : 'unavailable');
+      el.setAttribute('data-operational-use', hasPct && _chgContract && _chgContract.allowedUse ? 'decision' : 'reference-only');
+      el.setAttribute('data-source-label', q._source || 'live:yahoo');
+      el.setAttribute('data-source-ts', String(now));
     });
     // v36.8: 개별 종목 시간외 표시 — 기업분석(ticker-detail) 화면 전용
     if (q.extPrice && q.extSession) {
@@ -10601,10 +10610,25 @@ function applyLiveQuotes(quotes) {
   document.querySelectorAll('[data-live-chg]').forEach(function(el) {
     var sym = el.getAttribute('data-live-chg');
     var d = _ld[sym];
-    if (d && d.pct != null && !isNaN(d.pct)) {
-      var pctStr = (d.pct >= 0 ? '+' : '') + d.pct.toFixed(2) + '%';
-      el.textContent = pctStr;
-      el.className = d.pct >= 0 ? 'pnl pos' : 'pnl neg';
+    if (d) {
+      var ds = (window._dataSource && window._dataSource[sym]) || d || {};
+      var contract = null;
+      try {
+        contract = ds.metric && ds.metric.contract ? ds.metric.contract :
+          (window.AIO_OPERATIONAL_DATA_CONTRACT ? window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric({ source: ds.source || d.source || 'unknown', ts: ds.ts || d.ts, policyKey: d.pct != null && !isNaN(d.pct) ? (ds.policyKey || 'quote') : 'quote_change_missing' }) : null);
+      } catch(_bulkChgContract) {}
+      if (d.pct != null && !isNaN(d.pct)) {
+        var pctStr = (d.pct >= 0 ? '+' : '') + d.pct.toFixed(2) + '%';
+        el.textContent = pctStr;
+        el.className = d.pct >= 0 ? 'pnl pos' : 'pnl neg';
+        el.setAttribute('data-source-kind', contract && contract.sourceKind ? contract.sourceKind : 'unknown');
+        el.setAttribute('data-operational-use', contract && contract.allowedUse ? 'decision' : 'reference-only');
+      } else {
+        el.setAttribute('data-source-kind', 'unavailable');
+        el.setAttribute('data-operational-use', 'reference-only');
+      }
+      el.setAttribute('data-source-label', ds.source || d.source || 'unknown');
+      if (ds.ts || d.ts) el.setAttribute('data-source-ts', String(ds.ts || d.ts));
     }
   });
 
