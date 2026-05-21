@@ -1614,9 +1614,9 @@
       enumeratedPages.length >= 21,
       enumeratedPages.length + '/' + allPages.length);
 
-    // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.56
-    _assert('T362 page_seq_v4956: version v49.56',
-      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.56',
+    // T362: PAGE_SEQUENTIAL_AUDIT_REGISTRY version v49.58
+    _assert('T362 page_seq_v4958: version v49.58',
+      window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version === 'v49.58',
       'ver=' + (window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY ? window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.version : '?'));
   }
 
@@ -1691,8 +1691,8 @@
 
   function _testV4954OperationalHardening() {
     var contract = window.AIO_OPERATIONAL_DATA_CONTRACT;
-    _assert('T378_operational_contract_v4956_available',
-      contract && contract.version === 'v49.56' && typeof contract.evaluateMetric === 'function',
+    _assert('T378_operational_contract_v4958_available',
+      contract && contract.version === 'v49.58' && typeof contract.evaluateMetric === 'function',
       contract ? contract.version : 'missing');
 
     var manualOk = window.AIO && typeof window.AIO.canDriveCurrentDecision === 'function'
@@ -1814,7 +1814,7 @@
       chgAudit ? JSON.stringify(chgAudit.issues.slice(-5)) : 'missing');
 
     var tempDecision = document.createElement('div');
-    tempDecision.id = 'briefing-action-test-card';
+    tempDecision.id = 'briefing-action-item-test-card';
     tempDecision.textContent = 'Action item test: position sizing and market signal must carry source lineage.';
     document.body.appendChild(tempDecision);
     var decisionAudit = window.AIO.getMarketCurrentnessAudit({ root: document.body, includeHidden: true });
@@ -1823,7 +1823,7 @@
       tempDecision.getAttribute('data-source-kind') === 'mixed';
     tempDecision.remove();
     _assert('T394_decision_narrative_without_lineage_is_reference_only',
-      decisionAudit && decisionAudit.issues && decisionAudit.issues.some(function(x) { return x.type === 'visible-decision-narrative-missing-lineage' && x.id === 'briefing-action-test-card'; }) && decisionGuarded,
+      decisionAudit && decisionAudit.issues && decisionAudit.issues.some(function(x) { return x.type === 'visible-decision-narrative-missing-lineage' && x.id === 'briefing-action-item-test-card'; }) && decisionGuarded,
       decisionAudit ? JSON.stringify(decisionAudit.issues.slice(-5)) : 'missing');
   }
 
@@ -1912,9 +1912,9 @@
       /_currentThemeId/.test(themeDetailCtx) && /SCR_KEYWORD_ALIASES/.test(themeDetailCtx),
       'theme-detail dynamic check');
 
-    // T411: APP_VERSION === 'v49.57'
-    _assert('T411 app_version_v4957: APP_VERSION === "v49.57"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.57',
+    // T411: APP_VERSION === 'v49.58'
+    _assert('T411 app_version_v4958: APP_VERSION === "v49.58"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.58',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -3019,6 +3019,6 @@
     };
   };
 
-  console.log('[AIO] aio-tests.js v49.56 loaded - run AIO.runTests() (T1~T394)');
+  console.log('[AIO] aio-tests.js v49.58 loaded - run AIO.runTests() (T1~T411)');
 
 })();

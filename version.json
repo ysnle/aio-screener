@@ -1,5 +1,5 @@
 {
-  "version": "v49.57",
-  "built": "2026-05-20T20:30:00+09:00",
-  "note": "v49.57: AI chat ticker coverage expansion. REGISTRY 47→152, CIK_MAP 50→134, _fetchTickerDataForChat 2→6 sources (SEC 8-K/News/Insider/13F), themes dynamic ticker injection, Claude web_search conditional, assertTickerRegistryCompleteness + getThemeFetchCoverageAudit + getWebSearchAudit audits."
+  "version": "v49.58",
+  "built": "2026-05-21T13:48:56+09:00",
+  "note": "v49.58: Currentness lineage recurrence fix on top of v49.57. Preserves AI chat ticker coverage while forcing live-change and decision-narrative guard coverage, stalled analysis fallback text, and v49.58 cache/test version alignment."
 }

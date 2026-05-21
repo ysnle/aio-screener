@@ -2832,7 +2832,7 @@ window.AIO.getChatHallucinationAudit = function(responseText) {
 // R93 신규 (페이지 sequential audit 의무화)
 // ─────────────────────────────────────────────────────────────────
 window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
-  version: 'v49.56',
+  version: 'v49.58',
   axes: ['최신성', '정확성', '정합성', '로직성', '직관성', '핵심성'],
   // 페이지별 sub-section 정의 (top-down 순서)
   pages: {
@@ -6222,7 +6222,7 @@ window.AIO.getAutoOpsReadiness = function() {
   if (snapshotDateSources && snapshotDateSources.issueCount) issues.push(snapshotDateSources.issueCount + ' snapshot date source issue(s) [v49.52/R106]');
   if (operationalDataContract && operationalDataContract.issueCount) issues.push(operationalDataContract.issueCount + ' operational data contract issue(s) [v49.54/R107]');
   if (krSupplyRuntime && krSupplyRuntime.issueCount) issues.push(krSupplyRuntime.issueCount + ' KR supply runtime issue(s) [v49.54/R108]');
-  if (marketCurrentness && marketCurrentness.issueCount) issues.push(marketCurrentness.issueCount + ' market currentness issue(s) [v49.56/R110]');
+  if (marketCurrentness && marketCurrentness.issueCount) issues.push(marketCurrentness.issueCount + ' market currentness issue(s) [v49.58/R111]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -9354,7 +9354,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.57';
+const APP_VERSION = 'v49.58';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -11715,7 +11715,7 @@ window.AIO.renderDynamicMarketNarratives = function() {
 };
 
 window.AIO_OPERATIONAL_DATA_CONTRACT = {
-  version: 'v49.56',
+  version: 'v49.58',
   policies: {
     live: { maxAgeMs: 15 * 60 * 1000, decisionUse: true, confidence: 'high' },
     delayed: { maxAgeMs: 72 * 60 * 60 * 1000, decisionUse: true, confidence: 'medium' },
@@ -11853,9 +11853,11 @@ function _aioCurrentnessLiveKey(el) {
 function _aioIsDecisionNarrativeCandidate(el) {
   if (!el || !el.id) return false;
   if (el.closest && el.closest('.aio-page-brief, [data-aio-archive="true"], nav, aside, .sidebar')) return false;
-  if (/chart|canvas|input|button|badge|pill|chip|ts|time|date|stale-days/i.test(el.id)) return false;
+  if (/chart|canvas|input|button|badge|pill|chip/i.test(el.id)) return false;
+  if (/(^|[-_])(ts|time|date|stale-days)([-_]|$)/i.test(el.id)) return false;
   var txt = String(el.textContent || '').replace(/\s+/g, ' ').trim();
-  if (!txt || txt.length < 12) return false;
+  var forced = AIO_CURRENTNESS_NARRATIVE_IDS.indexOf(el.id) >= 0;
+  if (!txt || (!forced && txt.length < 12)) return false;
   return true;
 }
 function _aioCollectDecisionNarratives(root) {
@@ -12020,6 +12022,9 @@ window.AIO.applyMarketCurrentnessGuard = function(opts) {
         el.setAttribute('data-operational-use', 'reference-only');
         el.setAttribute('data-source-kind', 'unavailable');
         el.title = '분석 데이터 미수신 · 현재 시장 판단 제외';
+        if (txt.length <= 180) {
+          el.textContent = '데이터 수신 지연 · 현재 시장 판단 제외';
+        }
       } else if (txt && !el.getAttribute('data-operational-use')) {
         el.setAttribute('data-operational-use', 'reference-only');
         el.setAttribute('data-source-kind', 'mixed');

@@ -6,6 +6,16 @@
 
 ---
 
+## v49.58 - Currentness lineage recurrence fix (2026-05-21)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- Rebased the currentness lineage fixes on top of live `v49.57` so the AI chat ticker coverage expansion is preserved.
+- Fixed decision-narrative candidate filtering so forced analysis IDs and action-item cards are audited even when their loading text is short.
+- Hardened stalled decision-narrative guard output: visible loading analysis is downgraded to "데이터 수신 지연 · 현재 시장 판단 제외" with `reference-only`/`unavailable` metadata.
+- Fixed T394 to use an ID matched by the decision-narrative selector and bumped currentness contract/registry/app tests to `v49.58`.
+- Bumped app/SW/script cache keys to `v49.58`.
+
 ## v49.57 — AI Chat Ticker Coverage Expansion (2026-05-20)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `_context/QA-CHECKLIST.md`
