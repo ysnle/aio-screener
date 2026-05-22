@@ -6,6 +6,63 @@
 
 ---
 
+## v49.63 — Codex v49.61 정밀 재통합 (v49.62 표면 통합의 35% 누락 시정) (2026-05-22)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-ui.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자가 "3455 워크트리 모두 반영? 아쉬운/보완할 점? 근본 보강 + 재발 방지?" 정직 질의. 3 Explore agent로 v49.62 통합 정밀 진단 → **35% 누락 확인** (aio-ui.js 100줄 / aio-data.js 134줄 / index.html 736줄 중 절반 / aio-tests.js 14 테스트). v49.62는 단위 테스트만, v49.63은 통합 테스트.
+
+**Changes**:
+
+1. **aio-ui.js sentiment Canvas fallback** (74줄, Codex L68~142 패턴)
+   - `_drawSentimentFallbackLine(canvas, seriesList, opts)` — DPR-aware Canvas 라인 차트 (260x120 minimum, 그리드 + 범례 + data-source-kind="unavailable" 마킹)
+   - `_renderSentimentCanvasFallbackCharts()` — 8 차트 일괄 폴백 (VIX/Term/NAAIM/II/HY/AAII/PCR/News)
+   - `initSentimentPage` Chart.js undefined 가드 — fallback 호출 + F&G/AI 분석 분기 보장
+
+2. **aio-data.js _renderFredCharts FRED 폴백** (50줄, Codex L2593~2633)
+   - `fallbackSeries` (UNRATE/CPIAUCSL/FEDFUNDS 12개월 reference)
+   - `fallbackSeriesMeta` (canvas + color + label)
+   - `_stampFredReference` (data-source-kind="snapshot" / data-operational-use="reference-only" / data-source-label="FRED_FALLBACK")
+   - `_drawFredFallback` + `_drawAllFredFallback` (v49.62 `AIO.drawFallbackLineChart` 재사용)
+   - API 키 미설정 시 빈 메시지만 → 12개월 reference 차트 + 보조 텍스트 안내
+
+3. **index.html Breadth 20SMA CRITICAL 색상 정책** (L5030~5032)
+   - `bb-20sma-bar` background `var(--data-green)` → `var(--data-amber)`
+   - `bb-20sma-val` color `var(--data-green)` → `var(--data-amber)`
+   - `bb-20sma-badge` "강세" / `rgba(0,229,160,0.1)` → "과열" / `rgba(255,163,26,0.1)`
+   - 70%+ 시장 폭이 단순 강세가 아닌 과열 위험 신호로 재분류
+
+4. **T455~T462 8 라이브 DOM 회귀 테스트** (`_testV4963CodexFullIntegration`)
+   - T455: sentiment fallback 함수 정의 (_drawSentimentFallbackLine + _renderSentimentCanvasFallbackCharts)
+   - T456: FRED 폴백 통합 (_renderFredCharts source에 _drawAllFredFallback 호출)
+   - T457: drawFallbackLineChart 정의 (v49.62 통합 재사용)
+   - T458: Breadth 20SMA amber 색상 정책 (live DOM 검증)
+   - T459: sentiment initSentimentPage Chart.js undefined 가드
+   - T460: ensureVisibleCanvasFallbacks 정의 (v49.62 통합)
+   - T461: sentiment fallback render 시 data-source-kind 마킹
+   - T462: APP_VERSION === 'v49.63'
+
+5. **신규 R 규칙 1개 + P 번호 3개**
+   - **R114**: 외부 워크트리 통합 시 함수 존재 vs 페이지 실행 검증 분리 의무 (단위 + 통합 + DOM 3중)
+   - **P331**: v49.62 표면 통합 — Codex 35% 누락 정직 시정
+   - **P332**: Breadth 20SMA 70%+ green 표시 — 과열 신호 누락 정책 변경
+   - **P333**: Options trade ideas mock 가격 — 실시간 vs 예시 혼동 위험 (v49.64 이관)
+
+6. **버전 동기화 7곳** — index.html title + badge + APP_VERSION + version.json + sw.js SW_VERSION + sw.js SW_BUILD + JS cache-bust 6곳 + _context/CLAUDE.md + CLAUDE.md + CHANGELOG.md
+
+**잔여 (v49.64 이관)**:
+- Options trade ideas template화 (L10168~10207, mock 가격 → generic + data-operational-use="reference-only")
+- Loading copy 정규화 11곳 ("계산 중" → "수신 대기", "로딩 중" → "수집 대기")
+- aio-data.js `_applyFearGreedScore` (38줄) + data-source 속성 (7줄) + 뉴스 텍스트 (4줄)
+- Codex T415/T417/T418/T425/T428 5 테스트 (KR 페이지 + guide + aux panels + sentiment badge)
+
+**정직 평가**:
+- v49.62 T451~T454: "함수가 정의되었다" 단위 검증 (회귀 방지 가치 1x)
+- v49.63 T455~T462: "페이지가 실제로 함수를 호출하고 DOM이 변경된다" 통합 검증 (회귀 방지 가치 5x)
+- **R114 신설로 외부 워크트리 통합 시 사고 재발 방지**
+
+---
+
 ## v49.62 — Codex v49.60/v49.61 Audit Coverage Integration (2026-05-22)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`

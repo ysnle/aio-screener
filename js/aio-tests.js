@@ -2016,6 +2016,56 @@
       /구현 11개/.test(fnSrc), 'absolute rules 11 check');
   }
 
+  // v49.63 통합 (Codex v49.61): 8 라이브 DOM 회귀 테스트
+  function _testV4963CodexFullIntegration() {
+    // T455: sentiment fallback 함수 정의 (Chart.js 미로드 시 8 canvas polyfill)
+    _assert('T455 sentiment_chart_fallback_defined: _drawSentimentFallbackLine + _renderSentimentCanvasFallbackCharts 함수 정의',
+      typeof window._drawSentimentFallbackLine === 'function' && typeof window._renderSentimentCanvasFallbackCharts === 'function',
+      'draw=' + typeof window._drawSentimentFallbackLine + ' render=' + typeof window._renderSentimentCanvasFallbackCharts);
+
+    // T456: FRED 폴백 함수 — _renderFredCharts source에 _drawAllFredFallback 호출
+    var fredSrc = (typeof _renderFredCharts === 'function') ? _renderFredCharts.toString() : '';
+    _assert('T456 fred_fallback_integrated: _renderFredCharts에 _drawAllFredFallback 호출 (FRED 키 없을 때 폴백)',
+      /_drawAllFredFallback/.test(fredSrc) && /fallbackSeriesMeta/.test(fredSrc),
+      'fallback integrated=' + /_drawAllFredFallback/.test(fredSrc));
+
+    // T457: drawFallbackLineChart 함수 (v49.62 통합) — sentiment + FRED 공통
+    _assert('T457 fallback_line_chart_function: AIO.drawFallbackLineChart 함수 정의 (v49.62 통합 + v49.63 활용)',
+      typeof (window.AIO && window.AIO.drawFallbackLineChart) === 'function',
+      typeof (window.AIO && window.AIO.drawFallbackLineChart));
+
+    // T458: breadth 20SMA amber 색상 정합 (Codex v49.61 CRITICAL)
+    var b20bar = document.getElementById('bb-20sma-bar');
+    var b20val = document.getElementById('bb-20sma-val');
+    var b20badge = document.getElementById('bb-20sma-badge');
+    var amberOk = b20bar && /data-amber|255,\s*163/.test(b20bar.style.background || '');
+    var labelOk = b20badge && /과열/.test(b20badge.textContent || '');
+    _assert('T458 breadth_20sma_amber_policy: 20SMA 75% amber 색상 + "과열" 라벨 (v49.63 정책 변경)',
+      amberOk && labelOk,
+      'amber=' + amberOk + ' label=' + (b20badge && b20badge.textContent));
+
+    // T459: sentiment initSentimentPage Chart.js undefined 가드
+    var initSrc = (typeof initSentimentPage === 'function') ? initSentimentPage.toString() : '';
+    _assert('T459 sentiment_init_guard: initSentimentPage에서 Chart.js undefined 시 _renderSentimentCanvasFallbackCharts 호출',
+      /typeof\s+Chart\s*===\s*['"]undefined['"]/.test(initSrc) && /_renderSentimentCanvasFallbackCharts/.test(initSrc),
+      'undefined check + fallback render');
+
+    // T460: ensureVisibleCanvasFallbacks 통합 (v49.62 패턴)
+    _assert('T460 ensure_visible_canvas_fallbacks: AIO.ensureVisibleCanvasFallbacks 정의 (v49.62 통합)',
+      typeof (window.AIO && window.AIO.ensureVisibleCanvasFallbacks) === 'function',
+      typeof (window.AIO && window.AIO.ensureVisibleCanvasFallbacks));
+
+    // T461: sentiment fallback render 시 data-source-kind="unavailable" 마킹
+    _assert('T461 sentiment_fallback_reference_marker: _drawSentimentFallbackLine source에 data-source-kind 설정',
+      typeof window._drawSentimentFallbackLine === 'function' && /data-source-kind/.test(window._drawSentimentFallbackLine.toString()),
+      'reference-only marker check');
+
+    // T462: APP_VERSION === 'v49.63'
+    _assert('T462 app_version_v4963_codex_integration: APP_VERSION === "v49.63"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.63',
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지
   function _testV4962CodexAuditCoverageIntegration() {
     var reg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
@@ -3140,6 +3190,7 @@
     try { _testV4957ChatCoverageExpansion(); } catch(e) { console.error('Group56 error:', e); }
     try { _testV4958ChatGapFix(); } catch(e) { console.error('Group57 error:', e); }
     try { _testV4962CodexAuditCoverageIntegration(); } catch(e) { console.error('Group58 error:', e); }
+    try { _testV4963CodexFullIntegration(); } catch(e) { console.error('Group59 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

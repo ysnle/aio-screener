@@ -1213,6 +1213,23 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R114. 외부 워크트리 통합 시 함수 존재 vs 페이지 실행 검증 분리 의무 (v49.63 추가, P331 근본)
+
+**원칙**: Codex/다른 워크트리에서 통합 시 (1) `typeof fn === 'function'` 단위 검증 + (2) 실제 페이지가 fn을 호출하고 DOM이 변경되는지 통합 검증 양쪽 모두 필수.
+
+**근거 (P331)**: v49.62 통합 시 4개 영역 함수 존재만 cherry-pick (T451~T454: "함수가 정의되었다"). Codex의 실제 의도 (T412~T429: "페이지가 실제로 함수를 호출하고 DOM이 변경된다")의 35%를 누락. 회귀 방지 가치 5배 차이.
+
+**구조**:
+- 단위 검증: `_assert('T_xxx_defined: fn 정의', typeof window.xxx === 'function')`
+- 통합 검증: `_assert('T_xxx_integrated: page가 fn 호출', /xxx\(\)/.test(window.targetPageInit.toString()))`
+- DOM 검증: `_assert('T_xxx_dom: element 속성 변경', el.getAttribute('data-source-kind') === 'unavailable')`
+
+**검증**: AIO.runTests() 통과 시 단위 + 통합 + DOM 3중 보장.
+
+**위반 시**: 외부 워크트리 변경의 35% 누락 같은 사고 재발 (v49.62 → v49.63 정직 시정 선례).
+
+---
+
 ## R112. 모든 CHAT_CONTEXTS는 _getChatRules() 호출 의무 (v49.59 추가, P327 근본)
 
 **원칙**: 14개 CHAT_CONTEXTS의 모든 system() 함수는 마지막에 `_getChatRules()` 호출 + ABSOLUTE RULES 일관성 유지 의무.

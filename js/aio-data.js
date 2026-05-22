@@ -2593,11 +2593,59 @@ function applyFredToUI(data) {
 var _fredChartInstances = {};
 async function _renderFredCharts() {
   var statusEl = document.getElementById('fred-chart-status');
+  // v49.63 통합 (Codex v49.61): FRED 폴백 시스템 — API 키 미설정 시 12개월 reference 차트 표시
+  var fallbackSeries = {
+    UNRATE: [3.7, 3.8, 3.9, 4.0, 4.0, 4.1, 4.1, 4.2, 4.1, 4.0, 4.0, 4.1],
+    CPIAUCSL: [3.1, 3.0, 2.9, 3.0, 3.2, 3.3, 3.1, 2.9, 2.8, 2.7, 2.8, 2.9],
+    FEDFUNDS: [4.75, 4.75, 4.50, 4.50, 4.25, 4.25, 4.00, 4.00, 3.75, 3.75, 3.50, 3.50]
+  };
+  var fallbackSeriesMeta = [
+    { id: 'UNRATE', canvas: 'fred-unrate-chart', color: '#ff5b50', label: 'Unemployment (%)' },
+    { id: 'CPIAUCSL', canvas: 'fred-cpi-chart', color: '#ffa31a', label: 'CPI YoY (%)' },
+    { id: 'FEDFUNDS', canvas: 'fred-fedfunds-chart', color: '#00d4ff', label: 'Fed Funds (%)' }
+  ];
+  function _stampFredReference(canvas, label) {
+    if (!canvas || !canvas.setAttribute) return;
+    var ts = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT && DATA_SNAPSHOT._updated) ? DATA_SNAPSHOT._updated : new Date().toISOString();
+    canvas.setAttribute('data-source-kind', 'snapshot');
+    canvas.setAttribute('data-operational-use', 'reference-only');
+    canvas.setAttribute('data-source-label', label || 'FRED_FALLBACK');
+    canvas.setAttribute('data-source', label || 'FRED_FALLBACK');
+    canvas.setAttribute('data-source-ts', ts);
+  }
+  function _drawFredFallback(s, values, reason) {
+    var canvas = document.getElementById(s.canvas);
+    if (!canvas || !window.AIO || typeof window.AIO.drawFallbackLineChart !== 'function') return false;
+    var data = (values && values.length ? values : fallbackSeries[s.id] || []).map(Number).filter(function(v) { return isFinite(v); });
+    if (data.length < 2) data = (fallbackSeries[s.id] || []).slice();
+    var ok = window.AIO.drawFallbackLineChart(canvas, [{ data: data, color: s.color, width: 2 }], {
+      label: (s.label || s.id) + ' · ' + (reason || 'reference'),
+      name: 'fred-reference',
+      fill: true
+    });
+    if (ok) _stampFredReference(canvas, 'FRED_FALLBACK');
+    return !!ok;
+  }
+  function _drawAllFredFallback(reason) {
+    var drawn = 0;
+    for (var fi = 0; fi < fallbackSeriesMeta.length; fi++) {
+      drawn += _drawFredFallback(fallbackSeriesMeta[fi], fallbackSeries[fallbackSeriesMeta[fi].id], reason) ? 1 : 0;
+    }
+    if (statusEl) statusEl.textContent = 'FRED live unavailable · reference chart shown';
+    return drawn;
+  }
   var fredKey = (typeof DATA_APIS !== 'undefined' && DATA_APIS.fred) ? DATA_APIS.fred.key() : '';
   if (!fredKey) {
-    if (statusEl) statusEl.textContent = 'FRED API 키 미설정';
+    // v49.63: 키 미설정 시 폴백 차트 + 텍스트 안내 병행
+    _drawAllFredFallback('missing FRED key');
     var grid = document.getElementById('fred-charts-grid');
-    if (grid) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted);font-size:10px;">설정에서 FRED API 키를 등록하면 12개월 경제지표 시계열 차트를 표시합니다.<br><span style="font-size:11px;color:var(--accent);">fred.stlouisfed.org → My Account → API Keys (무료)</span></div>';
+    if (grid && !grid.querySelector('.fred-key-hint')) {
+      var hint = document.createElement('div');
+      hint.className = 'fred-key-hint';
+      hint.style.cssText = 'grid-column:1/-1;text-align:center;padding:10px;color:var(--text-muted);font-size:10px;';
+      hint.innerHTML = 'FRED API 키를 등록하면 라이브 데이터로 갱신됩니다. 현재는 12개월 참고용 차트 표시.<br><span style="font-size:11px;color:var(--accent);">fred.stlouisfed.org → My Account → API Keys (무료)</span>';
+      grid.appendChild(hint);
+    }
     return;
   }
   if (statusEl) statusEl.textContent = '데이터 수집 중...';

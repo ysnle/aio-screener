@@ -1,5 +1,5 @@
 {
-  "version": "v49.62",
-  "built": "2026-05-22T18:00:00+09:00",
-  "note": "v49.62: Integrates ChatGPT Codex v49.60/v49.61 audit coverage improvements on top of wizardly v49.59 AI chat depth. (1) Non-route glossary modal added to AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY with 5 subSections + 6-axis auditStatus. (2) isAuditStatusComplete + getPendingPages now object-aware (6 axes 모두 ok면 done++). (3) getPageSequentialAuditStatus done counts object axes correctly. (4) drawFallbackLineChart + drawFallbackMessageCanvas + ensureVisibleCanvasFallbacks 신규 (canvas pixel visibility — blank canvas detection + reference-only fallback rendering on pageShown). (5) _aioPageBus pageShown hook (600/1600/3500/7000ms) for visible canvas fallback. T451~T454 4 신규 회귀 테스트."
+  "version": "v49.63",
+  "built": "2026-05-22T20:00:00+09:00",
+  "note": "v49.63: ChatGPT Codex v49.61 정밀 재통합 — v49.62 표면 통합의 35% 누락 시정. (1) aio-ui.js sentiment Canvas fallback (Chart.js CDN 실패 시 8 차트 polyfill) — _drawSentimentFallbackLine + _renderSentimentCanvasFallbackCharts. (2) initSentimentPage Chart.js undefined 가드 + F&G/AI 분석 분기 보장. (3) aio-data.js _renderFredCharts FRED 폴백 (50줄, _stampFredReference + _drawFredFallback + _drawAllFredFallback) — API 키 미설정 시 12개월 reference 차트 + data-source-kind=snapshot/data-operational-use=reference-only 마킹. (4) index.html Breadth 20SMA CRITICAL 색상 정책 (green → amber, '강세' → '과열' 라벨, 70%+ 과열 신호). (5) T455~T462 8 신규 라이브 DOM 회귀 테스트. 잔여: Options template화 + Loading copy 11곳 정규화는 v49.64 이관."
 }

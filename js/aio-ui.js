@@ -68,6 +68,97 @@ var _SENT_COMMON = {
   labels20: ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1']  /* v48.77: 5/1 연장 (VIX 16.99 실측) */
 };
 
+// ─────────────────────────────────────────────────────────────────
+// v49.63 통합 (Codex v49.61): sentiment Canvas fallback — Chart.js CDN 실패 시 8 차트 polyfill
+// _drawSentimentFallbackLine: DPR-aware Canvas 라인 차트 (260x120 minimum, 그리드 + 범례)
+// _renderSentimentCanvasFallbackCharts: 8 sentiment 차트 (VIX/Term/NAAIM/II/HY/AAII/PCR/News) 일괄 폴백
+// ─────────────────────────────────────────────────────────────────
+function _drawSentimentFallbackLine(canvas, seriesList, opts) {
+  if (!canvas || !seriesList || !seriesList.length) return false;
+  opts = opts || {};
+  var rect = canvas.getBoundingClientRect();
+  var width = Math.max(260, Math.round(rect.width || canvas.clientWidth || 300));
+  var height = Math.max(120, Math.round(rect.height || canvas.clientHeight || 150));
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(width * dpr);
+  canvas.height = Math.round(height * dpr);
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return false;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, width, height);
+  var padL = 28, padR = 10, padT = 14, padB = 22;
+  var plotW = Math.max(1, width - padL - padR);
+  var plotH = Math.max(1, height - padT - padB);
+  var vals = [];
+  seriesList.forEach(function(s) { (s.data || []).forEach(function(v) { v = Number(v); if (isFinite(v)) vals.push(v); }); });
+  if (!vals.length) return false;
+  var min = opts.min != null ? Number(opts.min) : Math.min.apply(null, vals);
+  var max = opts.max != null ? Number(opts.max) : Math.max.apply(null, vals);
+  if (!isFinite(min) || !isFinite(max) || min === max) { min -= 1; max += 1; }
+  var yFor = function(v) { return padT + (max - v) / (max - min) * plotH; };
+  ctx.strokeStyle = 'rgba(148,163,184,0.18)';
+  ctx.lineWidth = 1;
+  for (var g = 0; g < 4; g++) {
+    var gy = padT + (plotH * g / 3);
+    ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(width - padR, gy); ctx.stroke();
+  }
+  seriesList.forEach(function(s, si) {
+    var data = (s.data || []).map(Number).filter(function(v) { return isFinite(v); });
+    if (!data.length) return;
+    ctx.strokeStyle = s.color || '#00d4ff';
+    ctx.lineWidth = s.width || 2;
+    ctx.beginPath();
+    data.forEach(function(v, i) {
+      var x = padL + (data.length === 1 ? plotW : i / (data.length - 1) * plotW);
+      var y = yFor(v);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    var last = data[data.length - 1];
+    ctx.fillStyle = s.color || '#00d4ff';
+    ctx.beginPath(); ctx.arc(width - padR - 3, yFor(last), 3, 0, Math.PI * 2); ctx.fill();
+    if (si === 0 && opts.fill !== false) {
+      ctx.lineTo(width - padR, padT + plotH);
+      ctx.lineTo(padL, padT + plotH);
+      ctx.closePath();
+      ctx.globalAlpha = 0.08;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  });
+  ctx.fillStyle = 'rgba(226,232,240,0.72)';
+  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.fillText(opts.label || 'fallback', padL, 10);
+  ctx.fillStyle = 'rgba(148,163,184,0.55)';
+  ctx.fillText(String(Math.round(max * 10) / 10), 2, padT + 3);
+  ctx.fillText(String(Math.round(min * 10) / 10), 2, padT + plotH);
+  canvas.setAttribute('data-fallback-rendered', 'sentiment');
+  canvas.setAttribute('data-source-kind', 'unavailable');
+  canvas.setAttribute('data-operational-use', 'reference-only');
+  return true;
+}
+
+function _renderSentimentCanvasFallbackCharts() {
+  // 폴백 데이터 — 정적 시계열 (라이브 미수신 시 참고용 표시)
+  var vixData = [19.09,19.55,18.63,19.86,23.57,23.75,29.49,24.93,27.29,27.19,22.37,24.06,25.50,26.95,30.20,34.10,23.87,23.87,24.17,25.78,21.04,31.50,31.10,29.80,18.36,18.36,17.82,17.48,17.95,18.40,19.60,20.10,19.50,18.92,17.83,17.50,16.99];
+  var hyData = [278,285,282,290,305,312,340,325,335,338,310,328,335,348,362,385,316,316,317,324,301,310,294,308,285,284,281,279,282,286,292,297,294,291,296,294,290];
+  var pcData = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58,0.55,0.52,0.54,0.57,0.60,0.62,0.59,0.57,0.61,0.64,0.69,0.78,0.60];
+  _drawSentimentFallbackLine(document.getElementById('vix-chart'), [{ data: vixData, color: '#ffa31a' }], { label: 'VIX fallback', min: 10, max: 50 });
+  _drawSentimentFallbackLine(document.getElementById('vix-term-chart'), [{ data: [2.4,2.1,1.8,1.4,0.9,0.6,0.3,0.1,-0.1,0.2,0.5,0.7], color: '#a78bfa' }], { label: 'Term structure' });
+  _drawSentimentFallbackLine(document.getElementById('naaim-chart'), [{ data: [82.1,79.3,72.8,68.4,64.2,63.5,67.1,67.0,60.2,62.5,68.36,69.38,79.49,94.15], color: '#00d4ff' }], { label: 'NAAIM', min: 0, max: 100 });
+  _drawSentimentFallbackLine(document.getElementById('ii-chart'), [{ data: [49.3,46.7,44.1,40.8,37.2,33.5,31.2,29.4,28.2,26.5,25.1,24.0,26.5,30.2,35.8], color: '#00e5a0', fill: false }, { data: [22.8,25.3,27.9,30.4,33.1,36.8,38.5,40.2,41.5,43.2,44.8,46.0,43.5,40.0,35.5], color: '#ff5b50', fill: false }], { label: 'II bull/bear', min: 0, max: 60, fill: false });
+  _drawSentimentFallbackLine(document.getElementById('hy-chart'), [{ data: hyData, color: '#fb923c' }], { label: 'HY OAS', min: 250, max: 420 });
+  _drawSentimentFallbackLine(document.getElementById('aaii-chart'), [{ data: [38.1,46.0,31.7,35.7,33.6,32.1], color: '#00e5a0', fill: false }, { data: [39.7,34.4,44.6,43.0,51.4,49.8], color: '#ff5b50', fill: false }], { label: 'AAII bull/bear', min: 0, max: 60, fill: false });
+  _drawSentimentFallbackLine(document.getElementById('pc-chart'), [{ data: pcData, color: '#ffa31a' }], { label: 'Put/Call', min: 0.45, max: 1.15 });
+  _drawSentimentFallbackLine(document.getElementById('news-sentiment-chart'), [{ data: [42,46,51,55,49,57,61,58,54,59,63,60], color: '#2dd4bf' }], { label: 'News tone', min: 0, max: 100 });
+}
+window._renderSentimentCanvasFallbackCharts = _renderSentimentCanvasFallbackCharts;
+window._drawSentimentFallbackLine = _drawSentimentFallbackLine;
+
 // ── v48.22: VIX sparkline (개별 함수 — _lazyInit 래핑 가능)
 // ── v48.24: lightweight-charts dual-path — AIO.charts.shouldUseLWC()이 true이면 LWC 경로, 아니면 Chart.js
 function _initSentVixChart() {
@@ -350,7 +441,17 @@ function _initSentHYChart() {
 }
 
 function initSentimentPage(forceReinit) {
-  if (typeof Chart === 'undefined') return;
+  // v49.63 통합 (Codex v49.61): Chart.js CDN 실패 시 Canvas fallback 렌더
+  if (typeof Chart === 'undefined') {
+    try {
+      if (typeof _renderSentimentCanvasFallbackCharts === 'function') _renderSentimentCanvasFallbackCharts();
+    } catch(_) {}
+    // F&G + AI 분석은 Chart.js 무관하게 계속
+    try { if (typeof fgUpdateNeedle === 'function') fgUpdateNeedle((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 15); } catch(_) {}
+    try { if (typeof fetchFearGreed === 'function') fetchFearGreed(); } catch(_) {}
+    try { if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 300); } catch(_) {}
+    return;
+  }
   renderStaleWarning('page-sentiment');
   if (sentPageInitialized && !forceReinit) {
     try { Object.values(sentPageCharts).forEach(c => c.resize()); } catch(e) {}

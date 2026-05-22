@@ -1,11 +1,40 @@
 ---
 verified_by: agent
-last_verified: 2026-05-21
+last_verified: 2026-05-22
 confidence: high
-latest_version: v49.59
-latest_P_number: P329
-total_entries: 329
-next_P_number: P330
+latest_version: v49.63
+latest_P_number: P333
+total_entries: 333
+next_P_number: P334
+---
+
+## P333 · v49.63 · [P333/R114] Options trade ideas mock 가격 — 실시간 vs 예시 혼동 위험
+
+- **Codex v49.61 발견**: index.html L10168~10207 옵션 거래 아이디어 섹션에 "SPY 550 Call 매도 (4/18)" / "프리미엄 $2.40" 같은 mock 가격이 실시간처럼 표시.
+- **시정 (v49.64 이관)**: generic template ("보유 ETF 위 OTM Call 매도" / "변동성 프리미엄 수취") + `data-operational-use="reference-only"` / `data-source-kind="template"` 속성. wizardly v49.63은 시간상 보류.
+- **재발 방지**: R114 (외부 워크트리 통합 시 페이지 실행 검증 의무) 적용.
+
+## P332 · v49.63 · [P332/R114] Breadth 20SMA 70%+ green 표시 — 과열 신호 누락 정책 변경
+
+- **Codex v49.61 발견**: index.html L5030~5032 `bb-20sma-bar` width 75% 상태에서 background green + "강세" 라벨 → 과열 위험 신호 누락. THRESHOLD.BREADTH 70%+ amber band와 불일치.
+- **시정 (v49.63)**: bar background `var(--data-green)` → `var(--data-amber)`, val color 동일 변경, badge "강세" / `rgba(0,229,160,0.1)` → "과열" / `rgba(255,163,26,0.1)`.
+- **재발 방지**: T458 라이브 DOM 회귀 테스트 (amber + "과열" 라벨 검증).
+- **파일**: `index.html` L5030~5032
+
+## P331 · v49.63 · [P331/R114] v49.62 표면 통합 — Codex 35% 누락 정직 시정
+
+- **사용자 정직 질의**: "3455 워크트리 모두 반영? 아쉬운 점? 근본 보강 + 재발 방지?"
+- **3 Explore agent 진단 결과**: v49.62 통합 시 4 영역 stub만 cherry-pick (T451~T454 "함수가 정의되었다"). Codex 실제 의도 (T412~T429 "페이지가 실제로 함수를 호출하고 DOM이 변경된다") 14 테스트 누락. aio-ui.js 100줄 / aio-data.js 134줄 / index.html 736줄 중 절반 / aio-tests.js 14 테스트 미통합 = **35% 누락**.
+- **격차 본질**: 단위 테스트 (함수 존재) vs 통합 테스트 (페이지 실행) — 회귀 방지 가치 5배 차이.
+- **시정 (v49.63)**:
+  - sentiment Canvas fallback 74줄 (Chart.js 미로드 시 8 차트 polyfill + initSentimentPage guard)
+  - FRED 폴백 50줄 (_stampFredReference + _drawFredFallback + _drawAllFredFallback, API 키 미설정 시 reference-only)
+  - Breadth 20SMA CRITICAL 색상 정책 (green → amber + "과열" 라벨)
+  - T455~T462 8 라이브 DOM 회귀 테스트 (`_testV4963CodexFullIntegration`)
+- **재발 방지 R114 신설**: 외부 워크트리 통합 시 함수 존재 + 페이지 실행 + DOM 변경 3중 검증 의무. v49.62 → v49.63 정직 시정 선례를 R114 핵심 근거로 인용.
+- **잔여 (v49.64 이관)**: Options template화 + Loading copy 11곳 정규화 + aio-data.js _applyFearGreedScore 38줄 + data-source 속성 7줄.
+- **파일**: `js/aio-ui.js` L69~150 sentiment fallback + L443~ initSentimentPage guard · `js/aio-data.js` L2592~2655 FRED fallback · `index.html` L5030~5032 Breadth amber · `js/aio-tests.js` _testV4963CodexFullIntegration + Group59 등록 · `_context/RULES.md` R114
+
 ---
 
 # AIO Screener — 버그 사후 분석 로그 (Bug Postmortem)
