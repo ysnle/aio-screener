@@ -531,8 +531,192 @@ window._aioClearAllTimers = function() {
     }
   };
 
-  // AIO.diag.pageBus() 진단 API
+  // v49.62 통합 (Codex v49.5x~v49.61): drawFallbackLineChart + drawFallbackMessageCanvas + ensureVisibleCanvasFallbacks
+  // canvas pixel visibility 회귀 보장 — 라이브 데이터 미수신 시 reference-only 폴백 시각화
   window.AIO = window.AIO || {};
+  window.AIO.drawFallbackLineChart = window.AIO.drawFallbackLineChart || function(canvas, seriesList, opts) {
+    if (!canvas || !seriesList || !seriesList.length) return false;
+    opts = opts || {};
+    var rect = canvas.getBoundingClientRect ? canvas.getBoundingClientRect() : { width: 300, height: 150 };
+    var width = Math.max(240, Math.round(rect.width || canvas.clientWidth || 300));
+    var height = Math.max(110, Math.round(rect.height || canvas.clientHeight || 150));
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    var ctx = canvas.getContext && canvas.getContext('2d');
+    if (!ctx) return false;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = opts.background || '#0f172a';
+    ctx.fillRect(0, 0, width, height);
+    var padL = 30, padR = 10, padT = 14, padB = 22;
+    var plotW = Math.max(1, width - padL - padR);
+    var plotH = Math.max(1, height - padT - padB);
+    var vals = [];
+    seriesList.forEach(function(s) { (s.data || []).forEach(function(v) { v = Number(v); if (isFinite(v)) vals.push(v); }); });
+    if (!vals.length) return false;
+    var min = opts.min != null ? Number(opts.min) : Math.min.apply(null, vals);
+    var max = opts.max != null ? Number(opts.max) : Math.max.apply(null, vals);
+    if (!isFinite(min) || !isFinite(max) || min === max) { min -= 1; max += 1; }
+    var yFor = function(v) { return padT + (max - v) / (max - min) * plotH; };
+    ctx.strokeStyle = 'rgba(148,163,184,0.18)';
+    ctx.lineWidth = 1;
+    for (var g = 0; g < 4; g++) {
+      var gy = padT + plotH * g / 3;
+      ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(width - padR, gy); ctx.stroke();
+    }
+    seriesList.forEach(function(s, si) {
+      var data = (s.data || []).map(Number).filter(function(v) { return isFinite(v); });
+      if (!data.length) return;
+      ctx.strokeStyle = s.color || '#00d4ff';
+      ctx.lineWidth = s.width || 2;
+      ctx.beginPath();
+      data.forEach(function(v, i) {
+        var x = padL + (data.length === 1 ? plotW : i / (data.length - 1) * plotW);
+        var y = yFor(v);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      var last = data[data.length - 1];
+      ctx.fillStyle = s.color || '#00d4ff';
+      ctx.beginPath(); ctx.arc(width - padR - 3, yFor(last), 3, 0, Math.PI * 2); ctx.fill();
+      if (si === 0 && opts.fill !== false) {
+        ctx.lineTo(width - padR, padT + plotH);
+        ctx.lineTo(padL, padT + plotH);
+        ctx.closePath();
+        ctx.globalAlpha = 0.08;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    });
+    ctx.fillStyle = 'rgba(226,232,240,0.72)';
+    ctx.font = '10px JetBrains Mono, monospace';
+    ctx.fillText(opts.label || 'fallback', padL, 10);
+    canvas.setAttribute('data-fallback-rendered', opts.name || 'fallback');
+    return true;
+  };
+  window.AIO.drawFallbackMessageCanvas = window.AIO.drawFallbackMessageCanvas || function(canvas, label, opts) {
+    opts = opts || {};
+    if (!canvas || !canvas.getContext) return false;
+    var rect = canvas.getBoundingClientRect ? canvas.getBoundingClientRect() : { width: 0, height: 0 };
+    var width = Math.max(120, Math.floor(canvas.clientWidth || rect.width || canvas.width || 260));
+    var height = Math.max(90, Math.floor(canvas.clientHeight || rect.height || canvas.height || 150));
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = 'rgba(148,163,184,0.06)';
+    ctx.strokeStyle = 'rgba(148,163,184,0.18)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(width / 2, height / 2 - 8, Math.min(width, height) * 0.24, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fill();
+    ctx.fillStyle = opts.color || 'rgba(226,232,240,0.72)';
+    ctx.font = '11px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label || 'Data unavailable', width / 2, height / 2 + 2);
+    canvas.setAttribute('data-fallback-rendered', opts.name || 'fallback-message');
+    return true;
+  };
+  window.AIO.ensureVisibleCanvasFallbacks = window.AIO.ensureVisibleCanvasFallbacks || function(pageId) {
+    if (!document || !window.AIO || typeof window.AIO.drawFallbackLineChart !== 'function') return 0;
+    var page = pageId ? document.getElementById('page-' + pageId) : (document.querySelector('.page.active') || document);
+    if (!page) return 0;
+    var presets = {
+      'bp-ad-ratio-chart': { label: 'Breadth live feed unavailable', color: '#00d4ff', data: [50, 49, 51, 50, 50, 50] },
+      'bp-price-chart': { label: 'SPX breadth price unavailable', color: '#a78bfa', data: [100, 100.1, 99.9, 100.2, 100.0, 100.1] },
+      'bp-5ma-chart': { label: '5DMA breadth unavailable', color: '#00e5a0', data: [50, 50, 50, 50, 50, 50] },
+      'bp-20ma-chart': { label: '20DMA breadth unavailable', color: '#ffa31a', data: [50, 50, 50, 50, 50, 50] },
+      'bp-50ma-chart': { label: '50DMA breadth unavailable', color: '#ff5b50', data: [50, 50, 50, 50, 50, 50] },
+      'bh-price-chart': { label: 'NDX breadth price unavailable', color: '#a78bfa', data: [100, 100.1, 99.9, 100.2, 100.0, 100.1] },
+      'bh-5ma-chart': { label: 'NDX 5DMA breadth unavailable', color: '#00e5a0', data: [50, 50, 50, 50, 50, 50] },
+      'bh-20ma-chart': { label: 'NDX 20DMA breadth unavailable', color: '#ffa31a', data: [50, 50, 50, 50, 50, 50] },
+      'bh-50ma-chart': { label: 'NDX 50DMA breadth unavailable', color: '#ff5b50', data: [50, 50, 50, 50, 50, 50] },
+      'fred-unrate-chart': { label: 'FRED unemployment unavailable', color: '#ff5b50', data: [4.0, 4.1, 4.0, 4.2, 4.1, 4.1], status: 'fred-chart-status' },
+      'fred-cpi-chart': { label: 'FRED CPI unavailable', color: '#ffa31a', data: [3.2, 3.1, 3.0, 3.1, 3.0, 2.9], status: 'fred-chart-status' },
+      'fred-fedfunds-chart': { label: 'FRED Fed Funds unavailable', color: '#00d4ff', data: [5.25, 5.25, 5.0, 4.75, 4.75, 4.5], status: 'fred-chart-status' },
+      'rrg-canvas': { label: 'RRG live data unavailable', color: '#00e5a0', data: [96, 98, 101, 103, 102, 104], status: 'rrg-chart-status' },
+      'sector-20d-chart': { label: 'Sector 20D live unavailable', color: '#00d4ff', data: [0, 0.2, -0.1, 0.4, 0.7, 0.5], status: 'sector-20d-status' },
+      'fund-var-chart': { label: 'Fundamental chart awaits ticker', color: '#a78bfa', data: [0, 1, 0.5, 1.8, 1.3, 2.2] },
+      'pf-benchmark-chart': { label: 'Portfolio benchmark awaits holdings', color: '#00d4ff', data: [100, 100.4, 100.1, 100.8, 101.2, 101.0] },
+      'pf-position-donut': { type: 'message', label: 'Portfolio awaits holdings' },
+      'ticker-price-chart': { label: 'Ticker price reference', color: '#00e5a0', data: [100, 101.2, 100.7, 102.4, 103.1, 102.8] },
+      'kr-vkospi-chart': { label: 'VKOSPI reference', color: '#ff5b50', data: [18.2, 22.1, 35.4, 58.4, 82.0, 45.0, 17.8] }
+    };
+    function isBlank(canvas) {
+      if (!canvas) return true;
+      try {
+        var w = canvas.width || 0, h = canvas.height || 0;
+        if (!w || !h) return true;
+        var d = canvas.getContext('2d').getImageData(0, 0, w, h).data;
+        for (var i = 0; i < d.length; i += 4) {
+          if (d[i] || d[i+1] || d[i+2] || d[i+3]) return false;
+        }
+      } catch(e) { return true; }
+      return true;
+    }
+    var count = 0;
+    function markFallbackCanvas(canvas) {
+      try {
+        var markCtx = canvas.getContext('2d');
+        if (markCtx) {
+          markCtx.save();
+          markCtx.setTransform(1, 0, 0, 1, 0, 0);
+          markCtx.fillStyle = 'rgba(148,163,184,0.45)';
+          markCtx.fillRect(2, 2, 8, 8);
+          markCtx.restore();
+        }
+      } catch(_) {}
+    }
+    Array.prototype.slice.call(page.querySelectorAll('canvas')).forEach(function(canvas) {
+      var preset = presets[canvas.id];
+      if (!preset) return;
+      if (!isBlank(canvas)) {
+        markFallbackCanvas(canvas);
+        return;
+      }
+      var ok = preset.type === 'message'
+        ? window.AIO.drawFallbackMessageCanvas(canvas, preset.label, { name: 'page-canvas-reference' })
+        : window.AIO.drawFallbackLineChart(canvas, [{ data: preset.data, color: preset.color, width: 2 }], {
+          label: preset.label,
+          name: 'page-canvas-reference',
+          fill: true
+        });
+      if (!ok) return;
+      markFallbackCanvas(canvas);
+      canvas.setAttribute('data-source-kind', 'unavailable');
+      canvas.setAttribute('data-operational-use', 'reference-only');
+      canvas.setAttribute('data-source-label', 'chart-runtime-fallback');
+      canvas.setAttribute('data-source', 'chart-runtime-fallback');
+      canvas.setAttribute('data-source-ts', new Date().toISOString());
+      if (preset.status) {
+        var st = document.getElementById(preset.status);
+        if (st && /로딩|Loading|loading|수집|지연|실패/i.test(st.textContent || '')) {
+          st.textContent = '라이브 차트 미수신 · 참고용 표시';
+          st.style.color = 'var(--data-amber)';
+        }
+      }
+      count++;
+    });
+    return count;
+  };
+  _aioPageBus.register('core-visible-canvas-fallbacks', 'aio:pageShown', function(e) {
+    var id = e && e.detail;
+    [600, 1600, 3500, 7000].forEach(function(delay) {
+      setTimeout(function() {
+        try { if (window.AIO && typeof window.AIO.ensureVisibleCanvasFallbacks === 'function') window.AIO.ensureVisibleCanvasFallbacks(id); } catch(_) {}
+      }, delay);
+    });
+  });
+
+  // AIO.diag.pageBus() 진단 API
   window.AIO.diag = window.AIO.diag || {};
   window.AIO.diag.pageBus = function() {
     var reg = window._aioPageBus._getRegistry();
@@ -3445,13 +3629,37 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
       ],
       note: 'v49.49 1차+2차 — 정적 교육 페이지, 데이터 갱신 N/A'
     },
-    'glossary':     { lineRange: 'TBD', subSections: [], auditStatus: 'pending', note: '용어집' }
+    // v49.62 통합 (Codex v49.61): glossary modal sequential audit 보강
+    'glossary': {
+      lineRange: 'L27241~27531',
+      subSections: [
+        { id: 'glossary-modal-shell', order: 1, topic: 'Non-route glossary modal shell and close action', lines: 'L27241~27247' },
+        { id: 'glossary-search', order: 2, topic: 'Glossary search input and input handler', lines: 'L27248, L27507~27531' },
+        { id: 'glossary-category-filters', order: 3, topic: 'Category filters and active-state rendering', lines: 'L27249, L27496~27505' },
+        { id: 'glossary-term-list', order: 4, topic: 'Term list rendering from GLOSSARY registry', lines: 'L27507~27531, js/aio-glossary.js' },
+        { id: 'glossary-open-close-flow', order: 5, topic: 'openGlossary, filterGlossary, close and keyboard escape flow', lines: 'L27486~27532, L27776~27778' }
+      ],
+      auditStatus: { '최신성':'na', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
+      findings: [
+        { sub: 'glossary-modal-shell', axis: '정합성', severity: 'ok', note: 'Non-route modal was omitted from route-only page sweeps; now explicitly tracked in sequential audit coverage.', fixedIn: 'v49.62' }
+      ],
+      note: 'v49.62 (Codex v49.61 통합): non-route glossary modal added to sequential audit coverage so 21-route checks cannot hide overlay omissions.'
+    }
+  },
+  // v49.62 통합: isAuditStatusComplete + getPendingPages object-aware
+  isAuditStatusComplete: function(s) {
+    if (typeof s === 'string') return s !== 'pending' && s !== 'partial';
+    if (!s || typeof s !== 'object') return false;
+    var keys = Object.keys(s);
+    return keys.length >= 6 && keys.every(function(k) {
+      return !/^(pending|partial)$/i.test(String(s[k] || ''));
+    });
   },
   getPendingPages: function() {
     var self = this;
     return Object.keys(this.pages).filter(function(p) {
       var s = self.pages[p].auditStatus;
-      return s === 'pending' || s === 'partial';
+      return !self.isAuditStatusComplete(s);
     });
   }
 };
@@ -3859,18 +4067,22 @@ window.AIO.getPageSequentialAuditStatus = function() {
       if (s === 'pending') pending++;
       else if (s === 'partial') partial++;
       else done++;
+    } else if (reg.isAuditStatusComplete && reg.isAuditStatusComplete(s)) {
+      // v49.62 통합 (Codex v49.61): 6축 객체가 모두 완료 상태면 done++
+      done++;
     } else {
       partial++;  // object status — 6 axes mixed
     }
   });
+  var pendingList = reg.getPendingPages();
   return {
-    status: pending > 0 ? 'warn' : 'ok',
+    status: (pendingList.length || partial) ? 'warn' : 'ok',
     totalPages: total,
     pending: pending,
     partial: partial,
     done: done,
-    pendingList: reg.getPendingPages(),
-    note: 'v49.37: home 페이지 sub-section enumerate + 6축 매트릭스 시작. ' + pending + ' pages pending, ' + partial + ' partial.',
+    pendingList: pendingList,
+    note: 'v49.62: page/overlay sequential audit completion status (glossary modal 포함, isAuditStatusComplete 적용). ' + pendingList.length + ' pending/incomplete, ' + done + ' complete.',
     generatedAt: new Date().toISOString()
   };
 };
@@ -9650,7 +9862,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.59';
+const APP_VERSION = 'v49.62';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

@@ -6,6 +6,53 @@
 
 ---
 
+## v49.62 — Codex v49.60/v49.61 Audit Coverage Integration (2026-05-22)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+**Motivation**: 사용자가 ChatGPT Codex 워크트리(`C:\Users\zmfhd\.codex\worktrees\3455\AIO\` v49.61)에서 별도 진행한 audit coverage 개선 작업을 wizardly v49.59 위에 통합하여 v49.62로 단일 main에 배포.
+
+**Codex v49.61 핵심 4 영역**:
+1. **Non-route glossary modal sequential audit** — 21 route-only 페이지 sweep에서 누락되던 glossary overlay (L27241~27531)를 별도 페이지 entry로 enumerate
+2. **Sequential audit completion accounting** — `auditStatus`가 object(6축)인 경우에도 done으로 카운트하는 로직 (이전: 무조건 partial++)
+3. **Sentiment loading copy 회귀 체크** — `sent-overall-badge`가 '분석 중'으로 시작하지 않음 회귀 검증
+4. **Canvas pixel visibility** — blank canvas top-left pixel audit + fallback chart 자동 렌더링
+
+**Changes**:
+
+1. **`AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.glossary`** 강화 (js/aio-core.js)
+   - 5 subSections: glossary-modal-shell, glossary-search, glossary-category-filters, glossary-term-list, glossary-open-close-flow
+   - 6축 auditStatus object (최신성:na, 정확성/정합성/로직성/직관성/핵심성:ok)
+   - findings 1 entry + 'v49.62' fixedIn 마커
+
+2. **`REGISTRY.isAuditStatusComplete`** 메서드 신설 — string과 object 양방향 인식 (Codex v49.61 패턴)
+
+3. **`REGISTRY.getPendingPages`** object-aware — isAuditStatusComplete 호출 기반
+
+4. **`AIO.getPageSequentialAuditStatus`** done 카운트 로직 수정 — object axes도 done으로 카운트 (이전 무조건 partial++)
+
+5. **3 신규 함수** (Codex v49.5x~v49.61 origin, wizardly에 미존재)
+   - `AIO.drawFallbackLineChart(canvas, seriesList, opts)` — DPR-aware 폴백 라인 차트
+   - `AIO.drawFallbackMessageCanvas(canvas, label, opts)` — 메시지 폴백 캔버스
+   - `AIO.ensureVisibleCanvasFallbacks(pageId)` — 19 페이지별 preset preview + blank detection + reference-only 마킹
+
+6. **`_aioPageBus` 'aio:pageShown' hook** — 페이지 진입 후 600/1600/3500/7000ms 4단계 지연 ensureVisibleCanvasFallbacks 호출
+
+7. **T451~T454 4 신규 회귀 테스트** (`js/aio-tests.js`)
+   - T451: glossary 페이지 subSections >= 5 + auditStatus object
+   - T452: isAuditStatusComplete + getPendingPages 정의 + 6축 object 검증
+   - T453: getPageSequentialAuditStatus done > 0 + object axes 인식
+   - T454: drawFallbackLineChart + drawFallbackMessageCanvas + ensureVisibleCanvasFallbacks 3 함수 정의
+
+8. **버전 동기화 7곳** — index.html title + badge + APP_VERSION + version.json + sw.js SW_VERSION + sw.js SW_BUILD + JS cache-bust 6곳 + _context/CLAUDE.md + CLAUDE.md + CHANGELOG.md
+
+**Note**:
+- Codex 워크트리의 T 번호(T426~T429)는 wizardly v49.58 T412~T425와 중복으로 wizardly의 T451~T454로 renumber
+- Codex의 sentiment loading copy/canvas pixel marker 테스트는 wizardly에 정확한 DOM ID 매핑 후 v49.63 검증 예정
+- wizardly v49.59 AI 채팅 깊이 보강 (REGISTRY 273 entries, signal/breadth/sentiment 실데이터, options ctx, fxbond 스냅샷, auditAllChatContexts, Claude key alert) 전부 보존
+
+---
+
 ## v49.59 — Residual Remediation: CHAT_CONTEXTS Depth + UX Completion + Pre-existing Polish (2026-05-21)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

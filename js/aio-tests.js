@@ -2016,6 +2016,39 @@
       /구현 11개/.test(fnSrc), 'absolute rules 11 check');
   }
 
+  // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지
+  function _testV4962CodexAuditCoverageIntegration() {
+    var reg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
+    var pages = reg && reg.pages;
+    var glossary = pages && pages.glossary;
+    var status = window.AIO && window.AIO.getPageSequentialAuditStatus ? window.AIO.getPageSequentialAuditStatus() : null;
+
+    // T451: glossary 페이지 sub-sections + auditStatus object
+    _assert('T451 glossary_modal_sequential_audit: non-route glossary overlay enumerated 5 subSections (Codex v49.61)',
+      !!(glossary && Array.isArray(glossary.subSections) && glossary.subSections.length >= 5 &&
+        glossary.auditStatus && typeof glossary.auditStatus === 'object'),
+      glossary ? ('subSections=' + (glossary.subSections || []).length + ' status=' + JSON.stringify(glossary.auditStatus)) : 'missing');
+
+    // T452: isAuditStatusComplete + getPendingPages object-aware
+    _assert('T452 page_seq_isAuditStatusComplete: REGISTRY.isAuditStatusComplete + getPendingPages object-aware',
+      !!(reg && typeof reg.isAuditStatusComplete === 'function' && typeof reg.getPendingPages === 'function' &&
+        reg.isAuditStatusComplete({'최신성':'ok','정확성':'ok','정합성':'ok','로직성':'ok','직관성':'ok','핵심성':'ok'}) === true),
+      reg ? 'fns present' : 'missing');
+
+    // T453: getPageSequentialAuditStatus done counts object axes (no hidden pending/partial)
+    _assert('T453 page_seq_status_done_counts_axis_objects: object axes도 done 카운트 (v49.62 통합)',
+      !!(status && status.done > 0 && typeof status.partial === 'number' && Array.isArray(status.pendingList)),
+      status ? JSON.stringify({ total: status.totalPages, pending: status.pending, partial: status.partial, done: status.done, pendingList: status.pendingList.length }) : 'missing');
+
+    // T454: ensureVisibleCanvasFallbacks + drawFallbackLineChart 정의
+    _assert('T454 visible_canvas_fallbacks_defined: drawFallbackLineChart + ensureVisibleCanvasFallbacks 함수 정의 (canvas pixel visibility)',
+      !!(window.AIO && typeof window.AIO.drawFallbackLineChart === 'function' &&
+        typeof window.AIO.drawFallbackMessageCanvas === 'function' &&
+        typeof window.AIO.ensureVisibleCanvasFallbacks === 'function'),
+      'drawFallbackLineChart=' + typeof (window.AIO && window.AIO.drawFallbackLineChart) +
+      ' / ensureVisibleCanvasFallbacks=' + typeof (window.AIO && window.AIO.ensureVisibleCanvasFallbacks));
+  }
+
   function _testV4938HomeDeepAudit() {
     // T305: home VIX 표 행 수 6 (REGISTRY 6 bands 정합)
     var vixTable = document.querySelector('[data-threshold-table=\"VIX\"]');
@@ -3106,6 +3139,7 @@
     try { _testV4954OperationalHardening(); } catch(e) { console.error('Group55 error:', e); }
     try { _testV4957ChatCoverageExpansion(); } catch(e) { console.error('Group56 error:', e); }
     try { _testV4958ChatGapFix(); } catch(e) { console.error('Group57 error:', e); }
+    try { _testV4962CodexAuditCoverageIntegration(); } catch(e) { console.error('Group58 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

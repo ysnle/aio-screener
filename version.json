@@ -1,5 +1,5 @@
 {
-  "version": "v49.59",
-  "built": "2026-05-21T13:48:56+09:00",
-  "note": "v49.59: AI chat residual remediation on top of v49.58 currentness lineage guard. signal/breadth/sentiment dynamic injection (ACTION_RULES/diagnoseBreadthConsensus/Tail Risk Board 6 indicators), options CHAT_CONTEXTS new (PCR/GEX/IV), fxbond Korean rate snapshot label, auditAllChatContexts function (sidebar widget extended), REGISTRY 173→273 (+60 entries), Claude key missing alert with sidebar input pulse, AAII threshold fine-tune, T317/T318/T300/T303/T233/T294 test boundaries updated. v49.58 currentness lineage recurrence guard preserved."
+  "version": "v49.62",
+  "built": "2026-05-22T18:00:00+09:00",
+  "note": "v49.62: Integrates ChatGPT Codex v49.60/v49.61 audit coverage improvements on top of wizardly v49.59 AI chat depth. (1) Non-route glossary modal added to AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY with 5 subSections + 6-axis auditStatus. (2) isAuditStatusComplete + getPendingPages now object-aware (6 axes 모두 ok면 done++). (3) getPageSequentialAuditStatus done counts object axes correctly. (4) drawFallbackLineChart + drawFallbackMessageCanvas + ensureVisibleCanvasFallbacks 신규 (canvas pixel visibility — blank canvas detection + reference-only fallback rendering on pageShown). (5) _aioPageBus pageShown hook (600/1600/3500/7000ms) for visible canvas fallback. T451~T454 4 신규 회귀 테스트."
 }
