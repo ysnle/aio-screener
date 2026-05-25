@@ -2786,6 +2786,167 @@ window.AIO.getDeepReviewAudit = function(opts) {
   };
 };
 
+// v49.70 Codex P360/R126: fourth/fifth-pass institutional goal audit.
+// Pass 4 ties the page inventory to data truth/freshness governance; pass 5
+// scores every route against the three product goals.
+window.AIO.getFourthFifthPassAudit = function(opts) {
+  opts = opts || {};
+  var root = opts.root || document;
+  var issues = [];
+  var warnings = [];
+
+  function safe(fn, fallback) {
+    try { return fn(); } catch(_) { return fallback; }
+  }
+  function qsa(base, selector) {
+    try { return Array.prototype.slice.call((base || root).querySelectorAll(selector)); }
+    catch(_) { return []; }
+  }
+  function clamp(v) {
+    v = Math.round(Number(v) || 0);
+    return Math.max(0, Math.min(100, v));
+  }
+  function avg(items, key) {
+    if (!items.length) return 0;
+    return clamp(items.reduce(function(sum, item) { return sum + (Number(item[key]) || 0); }, 0) / items.length);
+  }
+  function auditIssueCount(audit) {
+    if (!audit) return 0;
+    if (typeof audit.issueCount === 'number') return audit.issueCount;
+    if (typeof audit.mismatchCount === 'number') return audit.mismatchCount;
+    if (typeof audit.staleCount === 'number') return audit.staleCount;
+    if (Array.isArray(audit.issues)) return audit.issues.length;
+    return audit.status === 'fail' ? 1 : 0;
+  }
+
+  var surface = safe(function() { return window.AIO.getFullSurfaceAudit ? window.AIO.getFullSurfaceAudit(opts) : null; }, null);
+  var deep = safe(function() { return window.AIO.getDeepReviewAudit ? window.AIO.getDeepReviewAudit(opts) : null; }, null);
+  var seed = safe(function() { return window.AIO.getStaticSeedFallbackAudit ? window.AIO.getStaticSeedFallbackAudit() : null; }, null);
+  var live = safe(function() { return window.AIO.getLiveSymbolsCoverageAudit ? window.AIO.getLiveSymbolsCoverageAudit() : null; }, null);
+  var snapshot = safe(function() { return window.AIO.getSnapshotConsistencyAudit ? window.AIO.getSnapshotConsistencyAudit() : null; }, null);
+  var cross = safe(function() { return window.AIO.getCrossPageIndicatorConsistencyAudit ? window.AIO.getCrossPageIndicatorConsistencyAudit() : null; }, null);
+  var market = safe(function() { return window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit({ includeHidden: true }) : null; }, null);
+  var action = safe(function() { return window.AIO.getDataActionHandlerAudit ? window.AIO.getDataActionHandlerAudit() : null; }, null);
+  var essence = safe(function() { return window.AIO.getEssenceAlignmentAudit ? window.AIO.getEssenceAlignmentAudit(opts) : null; }, null);
+
+  var hardAudits = [
+    { key: 'staticSeedFallback', audit: seed, tag: 'DATA_SNAPSHOT seed fallback' },
+    { key: 'liveSymbolsCoverage', audit: live, tag: 'LIVE_SYMBOLS coverage' },
+    { key: 'snapshotConsistency', audit: snapshot, tag: 'cross-page snapshot consistency' },
+    { key: 'crossPageIndicator', audit: cross, tag: 'indicator consistency' },
+    { key: 'dataActionHandler', audit: action, tag: 'data-action handler' }
+  ];
+  hardAudits.forEach(function(item) {
+    var count = auditIssueCount(item.audit);
+    if (count) issues.push(item.tag + ': ' + count + ' issue(s)');
+  });
+  if (deep && deep.status === 'fail') warnings.push('deep review still has ' + deep.issueCount + ' issue(s)');
+  if (market && auditIssueCount(market)) warnings.push('market currentness has ' + auditIssueCount(market) + ' warning(s)');
+
+  var sourceSelector = '[data-source-kind],[data-operational-use],[data-snap-date],.source,.source-note,.aio-source,.aio-data-lineage,[data-provider],[data-freshness]';
+  var pageRows = (surface && Array.isArray(surface.pages) ? surface.pages : qsa(root, '.page[id]').map(function(el) {
+    return {
+      id: String(el.id || '').replace(/^page-/, ''),
+      briefRendered: !!el.querySelector('.aio-page-brief'),
+      sections: qsa(el, 'section,.section,[class*="section"],.card,[class*="card"],[style*="border"]').length,
+      dataSinks: qsa(el, '[data-live-price],[data-live-kr],[data-live-chg],[data-snap],[data-source-kind],[data-operational-use],[data-runtime-state],[data-score-scale],[data-threshold-table],[data-scenario-key],[data-cycle-phase]').length,
+      controls: qsa(el, 'button,[data-action],input,select,textarea').length,
+      tables: qsa(el, 'table').length,
+      charts: qsa(el, 'canvas,iframe,[id*="chart"],[class*="chart"]').length,
+      explainers: qsa(el, '.aio-explain,.aio-explain-content,details,.aio-page-brief-step,.aio-page-brief-focus').length,
+      visibleLoadingText: 0,
+      riskFlags: []
+    };
+  })).map(function(p) {
+    var pageEl = document.getElementById('page-' + p.id);
+    var lineage = pageEl ? qsa(pageEl, sourceSelector).length : 0;
+    var dataHeavy = (p.dataSinks || 0) >= 8 || ((p.tables || 0) + (p.charts || 0)) >= 3;
+    var interactionHeavy = (p.controls || 0) >= 12;
+    var dataTruthFlags = [];
+    if (dataHeavy && lineage === 0 && (p.explainers || 0) < 2) dataTruthFlags.push('dataHeavyNeedsLineage');
+    if ((p.dataSinks || 0) >= 12 && ((p.tables || 0) + (p.charts || 0)) === 0) dataTruthFlags.push('dataDenseNoTableOrChart');
+    if (p.visibleLoadingText) dataTruthFlags.push('visibleLoadingText');
+    if (p.riskFlags && p.riskFlags.indexOf('emptyTablesOnly') >= 0) dataTruthFlags.push('emptyTablesOnly');
+
+    var beginnerFlags = [];
+    if (!p.briefRendered) beginnerFlags.push('missingBrief');
+    if (interactionHeavy && (p.explainers || 0) < 2) beginnerFlags.push('manyControlsLowGuidance');
+
+    var institutional = clamp(38 + Math.min(24, (p.dataSinks || 0) * 2) + Math.min(18, ((p.tables || 0) + (p.charts || 0)) * 4) + Math.min(15, (p.sections || 0) / 6) + Math.min(5, (p.explainers || 0)) + (p.briefRendered ? 5 : 0));
+    var freshOps = clamp(55 + (lineage ? Math.min(20, lineage * 3) : ((p.dataSinks || 0) ? -8 : 12)) + (p.visibleLoadingText ? -18 : 6) - (dataTruthFlags.length * 5));
+    var beginner = clamp(48 + (p.briefRendered ? 18 : -8) + Math.min(24, (p.explainers || 0) * 4) - Math.min(14, Math.max(0, (p.controls || 0) - ((p.explainers || 0) * 4) - 10)) - beginnerFlags.length * 4);
+    var combined = clamp((institutional + freshOps + beginner) / 3);
+
+    return Object.assign({}, p, {
+      lineageMarkers: lineage,
+      dataHeavy: dataHeavy,
+      dataTruthFlags: dataTruthFlags,
+      beginnerFlags: beginnerFlags,
+      scores: {
+        institutional: institutional,
+        freshOps: freshOps,
+        beginner: beginner,
+        combined: combined
+      }
+    });
+  });
+
+  var dataWeakPages = pageRows.filter(function(p) { return p.dataTruthFlags.length > 0; });
+  var weakPages = pageRows.filter(function(p) { return p.scores.combined < 62; }).sort(function(a, b) { return a.scores.combined - b.scores.combined; });
+  if (dataWeakPages.length > 3) warnings.push(dataWeakPages.length + ' page(s) need stronger data lineage/explainer coverage');
+  if (weakPages.length > 5) warnings.push(weakPages.length + ' page(s) score below 62 on three-goal fit');
+
+  var overallScore = clamp((avg(pageRows, 'scores') || 0));
+  var institutionalScore = avg(pageRows.map(function(p) { return { v: p.scores.institutional }; }), 'v');
+  var freshOpsScore = avg(pageRows.map(function(p) { return { v: p.scores.freshOps }; }), 'v');
+  var beginnerScore = avg(pageRows.map(function(p) { return { v: p.scores.beginner }; }), 'v');
+  overallScore = clamp((institutionalScore + freshOpsScore + beginnerScore) / 3);
+  if (essence && typeof essence.overallScore === 'number') {
+    overallScore = clamp((overallScore + essence.overallScore) / 2);
+  }
+
+  return {
+    version: window.AIO.version || (typeof APP_VERSION === 'string' ? APP_VERSION : null),
+    generatedAt: new Date().toISOString(),
+    status: issues.length ? 'fail' : (warnings.length ? 'warn' : 'ok'),
+    score: overallScore,
+    issueCount: issues.length,
+    warningCount: warnings.length,
+    issues: issues,
+    warnings: warnings,
+    passes: {
+      dataTruth: {
+        pageCount: pageRows.length,
+        dataPageCount: pageRows.filter(function(p) { return (p.dataSinks || 0) > 0; }).length,
+        weakPageCount: dataWeakPages.length,
+        weakPages: dataWeakPages.slice(0, 12).map(function(p) {
+          return { id: p.id, flags: p.dataTruthFlags, dataSinks: p.dataSinks, lineageMarkers: p.lineageMarkers, explainers: p.explainers };
+        }),
+        audits: {
+          staticSeedFallback: seed,
+          liveSymbolsCoverage: live,
+          snapshotConsistency: snapshot,
+          crossPageIndicator: cross,
+          marketCurrentness: market,
+          dataActionHandler: action
+        }
+      },
+      goalFit: {
+        overallScore: overallScore,
+        institutionalScore: institutionalScore,
+        freshOpsScore: freshOpsScore,
+        beginnerScore: beginnerScore,
+        weakPageCount: weakPages.length,
+        weakestPages: weakPages.slice(0, 12).map(function(p) {
+          return { id: p.id, scores: p.scores, flags: (p.dataTruthFlags || []).concat(p.beginnerFlags || []) };
+        }),
+        essenceAlignment: essence
+      }
+    },
+    pages: pageRows
+  };
+};
+
 // v49.65 Codex hardening: product essence alignment audit.
 // Tracks the three north-star goals as user-facing, repeatable checks instead of
 // one-off narrative review.
@@ -5741,6 +5902,59 @@ window.AIO.getAnalysisFrameworkCoverageAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.70 P375 R132~R134: assertChatAdvancedFeaturesAudit — 사용자 프로필 + 알람 + 다운로드 + 금액/% 시뮬레이션 자동 진단
+// 사용자 정직 요구 "전체 세션 남은 영역과 부분 모두 보강"
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertChatAdvancedFeaturesAudit = function() {
+  var fnChecks = {
+    userProfileGet: typeof window._aioGetUserProfile === 'function',
+    userProfileSet: typeof window._aioSetUserProfile === 'function',
+    buildUserProfileContext: typeof window._buildUserProfileContext === 'function',
+    alertGet: typeof window._aioGetAlerts === 'function',
+    alertAdd: typeof window._aioAddAlert === 'function',
+    alertParse: typeof window._aioParseAlertIntent === 'function',
+    alertCheck: typeof window._aioCheckAlerts === 'function',
+    exportChatData: typeof window._aioExportChatData === 'function',
+    exportFromBtn: typeof window._aioExportFromBtn === 'function',
+    simulateAmount: typeof window._aioSimulateAmountOrPct === 'function'
+  };
+  var chatSendSrc = (typeof window.chatSend === 'function') ? window.chatSend.toString() : '';
+  var v48Src = (typeof window._getV48IntegratedContext === 'function') ? window._getV48IntegratedContext.toString() : '';
+  var integrations = {
+    profileInV48: v48Src.indexOf('_buildUserProfileContext') >= 0,
+    alertInChatSend: chatSendSrc.indexOf('_aioParseAlertIntent') >= 0,
+    amountSimInChatSend: chatSendSrc.indexOf('_aioSimulateAmountOrPct') >= 0,
+    downloadBtnInChatSend: chatSendSrc.indexOf('_aioExportFromBtn') >= 0,
+    notificationApi: typeof Notification !== 'undefined'
+  };
+  var apiChecks = {
+    aioGetAlerts: typeof (window.AIO && window.AIO.getAlerts) === 'function',
+    aioAddAlert: typeof (window.AIO && window.AIO.addAlert) === 'function',
+    aioGetUserProfile: typeof (window.AIO && window.AIO.getUserProfile) === 'function',
+    aioSetUserProfile: typeof (window.AIO && window.AIO.setUserProfile) === 'function',
+    aioExportChatData: typeof (window.AIO && window.AIO.exportChatData) === 'function'
+  };
+  var fnCount = Object.values(fnChecks).filter(Boolean).length;
+  var integCount = Object.values(integrations).filter(Boolean).length;
+  var apiCount = Object.values(apiChecks).filter(Boolean).length;
+  var total = Object.keys(fnChecks).length + Object.keys(integrations).length + Object.keys(apiChecks).length;
+  var pass = fnCount + integCount + apiCount;
+  var coveragePct = Math.round(pass / total * 100);
+  return {
+    status: coveragePct === 100 ? 'ok' : coveragePct >= 80 ? 'warn' : 'fail',
+    coveragePct: coveragePct,
+    fnCount: fnCount, fnTotal: Object.keys(fnChecks).length,
+    integCount: integCount, integTotal: Object.keys(integrations).length,
+    apiCount: apiCount, apiTotal: Object.keys(apiChecks).length,
+    fnChecks: fnChecks, integrations: integrations, apiChecks: apiChecks,
+    activeAlerts: (typeof window._aioGetAlerts === 'function') ? window._aioGetAlerts().length : 0,
+    userProfileSet: (typeof window._aioGetUserProfile === 'function') ? (window._aioGetUserProfile().riskTolerance !== 'medium' || (window._aioGetUserProfile().preferredAssets || []).length > 0) : false,
+    note: 'v49.70 신규 4 영역 (사용자 프로필 / 알람 / 다운로드 / 금액 시뮬레이션) 자동 진단 — 100% = 완전 통합.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.69 P370 R129~R131: assertChatInteractivityAudit — 6 인터랙티브 기능 자동 진단
 // (후속 질문 / 자동 페이지 이동 / 포트폴리오 시뮬레이션 / 거시 시나리오 / fuzzy 매칭 / 응답 시각 단서)
 // 사용자 정직 요구 "AI 채팅에서 활용할 수 있는 모든 답변/기능"
@@ -7952,6 +8166,7 @@ window.AIO.getAutoOpsReadiness = function() {
   var essenceAlignment = window.AIO.getEssenceAlignmentAudit ? window.AIO.getEssenceAlignmentAudit() : null;
   var fullSurfaceAudit = window.AIO.getFullSurfaceAudit ? window.AIO.getFullSurfaceAudit() : null;
   var deepReviewAudit = window.AIO.getDeepReviewAudit ? window.AIO.getDeepReviewAudit() : null;
+  var fourthFifthPass = window.AIO.getFourthFifthPassAudit ? window.AIO.getFourthFifthPassAudit() : null;
   var issues = [];
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
   if (statics && statics.issueCount) issues.push(statics.issueCount + ' static/live-like freshness issue(s)');
@@ -7989,6 +8204,7 @@ window.AIO.getAutoOpsReadiness = function() {
   if (essenceAlignment && essenceAlignment.status === 'fail') issues.push('3대 본질 정렬 fail: ' + essenceAlignment.overallScore + '점 [v49.65/R119]');
   if (fullSurfaceAudit && fullSurfaceAudit.status === 'fail') issues.push(fullSurfaceAudit.issueCount + ' full surface audit issue(s) [P358/R124]');
   if (deepReviewAudit && deepReviewAudit.status === 'fail') issues.push(deepReviewAudit.issueCount + ' deep review issue(s) [P359/R125]');
+  if (fourthFifthPass && fourthFifthPass.status === 'fail') issues.push(fourthFifthPass.issueCount + ' fourth/fifth pass issue(s) [P360/R126]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -8037,6 +8253,7 @@ window.AIO.getAutoOpsReadiness = function() {
       essenceAlignment: 'AIO.getEssenceAlignmentAudit()',
       fullSurfaceAudit: 'AIO.getFullSurfaceAudit()',
       deepReviewAudit: 'AIO.getDeepReviewAudit()',
+      fourthFifthPass: 'AIO.getFourthFifthPassAudit()',
       applyMarketCurrentnessGuard: 'AIO.applyMarketCurrentnessGuard()',
       marketRegime: 'AIO.getCurrentMarketRegime()',
       krMarketTemperature: 'AIO.getKrMarketTemperature()',
@@ -8076,6 +8293,7 @@ window.AIO.getAutoOpsReadiness = function() {
     essenceAlignment: essenceAlignment,
     fullSurfaceAudit: fullSurfaceAudit,
     deepReviewAudit: deepReviewAudit,
+    fourthFifthPass: fourthFifthPass,
     generatedAt: new Date().toISOString()
   };
 };
@@ -8157,6 +8375,7 @@ window.AIO.getDeploymentGateAudit = function(opts) {
   var essence = (!opts.skipEssence && window.AIO.getEssenceAlignmentAudit) ? window.AIO.getEssenceAlignmentAudit() : null;
   var fullSurface = window.AIO.getFullSurfaceAudit ? window.AIO.getFullSurfaceAudit() : null;
   var deepReview = window.AIO.getDeepReviewAudit ? window.AIO.getDeepReviewAudit() : null;
+  var fourthFifth = window.AIO.getFourthFifthPassAudit ? window.AIO.getFourthFifthPassAudit() : null;
   var blocking = [];
   var warnings = [];
 
@@ -8176,6 +8395,8 @@ window.AIO.getDeploymentGateAudit = function(opts) {
   else if (fullSurface && fullSurface.status !== 'ok') warnings.push('full surface audit warn: ' + fullSurface.issueCount + ' issue(s)');
   if (deepReview && deepReview.status === 'fail') blocking.push('deep review audit fail: ' + deepReview.issueCount + ' issue(s)');
   else if (deepReview && deepReview.status !== 'ok') warnings.push('deep review audit warn: ' + deepReview.warningCount + ' warning(s)');
+  if (fourthFifth && fourthFifth.status === 'fail') blocking.push('fourth/fifth pass audit fail: ' + fourthFifth.issueCount + ' issue(s)');
+  else if (fourthFifth && fourthFifth.status !== 'ok') warnings.push('fourth/fifth pass audit warn: ' + fourthFifth.warningCount + ' warning(s)');
   if (strict && warnings.length) blocking = blocking.concat(warnings);
 
   return {
@@ -8194,6 +8415,7 @@ window.AIO.getDeploymentGateAudit = function(opts) {
     essenceAlignment: essence,
     fullSurfaceAudit: fullSurface,
     deepReviewAudit: deepReview,
+    fourthFifthPass: fourthFifth,
     generatedAt: new Date().toISOString()
   };
 };
@@ -9670,6 +9892,22 @@ window._aioRefreshAuditWidget = function() {
         }
       } catch(e) { drEl.textContent = '? deepReview audit error'; }
     }
+    var ffEl = container.querySelector('[data-audit-key="fourthFifth"]');
+    if (ffEl) {
+      try {
+        var ff = window.AIO && window.AIO.getFourthFifthPassAudit && window.AIO.getFourthFifthPassAudit();
+        if (ff) {
+          var iconFf = ff.status === 'ok' ? '✓' : ff.status === 'warn' ? '!' : '✗';
+          var colorFf = ff.status === 'ok' ? 'var(--data-green)' : ff.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var dt = ff.passes && ff.passes.dataTruth ? ff.passes.dataTruth : {};
+          var gf = ff.passes && ff.passes.goalFit ? ff.passes.goalFit : {};
+          ffEl.title = (ff.issues || []).concat(ff.warnings || []).slice(0, 3).join(' | ') || 'Fourth/fifth pass audit passed';
+          ffEl.innerHTML = '<span style="color:' + colorFf + ';">' + iconFf + '</span> 4/5 pass data <b>' + (dt.dataPageCount || 0) + '</b>p · goal ' + (gf.overallScore || ff.score || 0) + '점 · weak ' + ((dt.weakPageCount || 0) + (gf.weakPageCount || 0)) + ' · issues ' + ff.issueCount;
+        } else {
+          ffEl.innerHTML = '<span style="color:var(--text-muted);">? fourth/fifth audit missing</span>';
+        }
+      } catch(e) { ffEl.textContent = '? fourthFifth audit error'; }
+    }
     var cfcEl = container.querySelector('[data-audit-key="chatFunctionCoverage"]');
     if (cfcEl) {
       try {
@@ -9730,6 +9968,22 @@ window._aioRefreshAuditWidget = function() {
           ciaEl.innerHTML = '<span style="color:var(--text-muted);">— chatInteractivity audit 미가용</span>';
         }
       } catch(e) { ciaEl.textContent = '⚠ chatInteractivity error'; }
+    }
+    // v49.70 P375 R132~R134: AI 채팅 고급 기능 (사용자 프로필 + 알람 + 다운로드 + 금액 시뮬레이션)
+    var cafEl = container.querySelector('[data-audit-key="chatAdvanced"]');
+    if (cafEl) {
+      try {
+        var caf = window.AIO && window.AIO.assertChatAdvancedFeaturesAudit && window.AIO.assertChatAdvancedFeaturesAudit();
+        if (caf) {
+          var iconB = caf.status === 'ok' ? '✓' : caf.status === 'warn' ? '⚠' : '✗';
+          var colorB = caf.status === 'ok' ? 'var(--data-green)' : caf.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var alertStr = caf.activeAlerts > 0 ? ' · 🔔' + caf.activeAlerts : '';
+          var profileStr = caf.userProfileSet ? ' · 👤 ✓' : ' · 👤 default';
+          cafEl.innerHTML = '<span style="color:' + colorB + ';">' + iconB + '</span> 고급 기능 <b>' + caf.coveragePct + '%</b> · 함수 ' + caf.fnCount + '/' + caf.fnTotal + alertStr + profileStr;
+        } else {
+          cafEl.innerHTML = '<span style="color:var(--text-muted);">— chatAdvanced audit 미가용</span>';
+        }
+      } catch(e) { cafEl.textContent = '⚠ chatAdvanced error'; }
     }
   } catch(e) { /* 위젯 갱신 실패는 silent */ }
 };
@@ -11452,7 +11706,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.69';
+const APP_VERSION = 'v49.70';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -14616,7 +14870,7 @@ function _initBriefingPage() {
         if (typeof _aioLog === 'function') _aioLog('info', 'render', '브리핑 타임아웃 렌더: ' + items.length + '건');
       } else {
         bc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' +
-          '뉴스 로딩 시간 초과 — 네트워크 상태를 확인하세요.<br>' +
+          '뉴스 수신 시간 초과 — 네트워크 상태를 확인하세요.<br>' +
           '<button data-action="_aioBriefingRetry" style="background:var(--data-cyan-soft);border:1px solid var(--data-cyan-dim);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
           '</div>';
       }

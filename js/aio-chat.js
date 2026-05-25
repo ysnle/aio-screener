@@ -3421,6 +3421,318 @@ async function _aiDeepSearch(query, ctxId) {
 }
 
 // ── Send message ───────────────────────────────────────────────────────
+// v49.70 P373 R134: 답변 데이터 다운로드 (CSV/JSON/Markdown export) + 클립보드 복사
+// AI 응답 텍스트 + 종목 데이터 + 시뮬레이션 결과를 사용자가 직접 활용 가능
+function _aioExportChatData(ctxId, fullText, detectedTickers, format) {
+  format = (format || 'markdown').toLowerCase();
+  var ld = window._liveData || {};
+  var timestamp = new Date().toISOString();
+  var payload = {
+    version: 'v49.70',
+    context: ctxId,
+    exportedAt: timestamp,
+    detectedTickers: detectedTickers || [],
+    marketSnapshot: {},
+    aiResponse: fullText || ''
+  };
+  // 시장 스냅샷 (라이브 데이터)
+  ['^GSPC', '^VIX', '^TNX', 'DX-Y.NYB', 'CL=F', 'GC=F', 'BTC-USD', '^KS11', 'KRW=X'].forEach(function(sym) {
+    if (ld[sym] && ld[sym].price) payload.marketSnapshot[sym] = { price: ld[sym].price, pct: ld[sym].pct };
+  });
+  if (window._lastFG != null) payload.marketSnapshot['CNN_FG'] = window._lastFG;
+  if (window._tradingScore != null) payload.marketSnapshot['TradingScore'] = window._tradingScore;
+  // 종목 라이브 데이터
+  payload.tickerData = {};
+  (detectedTickers || []).forEach(function(t) {
+    if (ld[t]) payload.tickerData[t] = ld[t];
+  });
+  var content = '', mime = 'text/plain', filename = 'aio-chat-' + ctxId + '-' + timestamp.slice(0, 19).replace(/[:T]/g, '-') + '.';
+  if (format === 'json') {
+    content = JSON.stringify(payload, null, 2);
+    mime = 'application/json';
+    filename += 'json';
+  } else if (format === 'csv') {
+    var rows = ['key,value'];
+    rows.push('context,' + payload.context);
+    rows.push('exportedAt,' + payload.exportedAt);
+    rows.push('detectedTickers,"' + payload.detectedTickers.join(';') + '"');
+    Object.keys(payload.marketSnapshot).forEach(function(k) {
+      var v = payload.marketSnapshot[k];
+      rows.push('market_' + k + ',"' + (typeof v === 'object' ? JSON.stringify(v).replace(/"/g, '""') : v) + '"');
+    });
+    Object.keys(payload.tickerData).forEach(function(k) {
+      rows.push('ticker_' + k + ',"' + JSON.stringify(payload.tickerData[k]).replace(/"/g, '""') + '"');
+    });
+    rows.push('aiResponse,"' + String(payload.aiResponse).replace(/"/g, '""').replace(/\n/g, '\\n') + '"');
+    content = rows.join('\n');
+    mime = 'text/csv';
+    filename += 'csv';
+  } else { // markdown
+    content = '# AIO Screener Chat Export\n\n';
+    content += '- **Context**: ' + payload.context + '\n';
+    content += '- **Exported**: ' + payload.exportedAt + '\n';
+    content += '- **Tickers**: ' + (payload.detectedTickers.join(', ') || 'none') + '\n\n';
+    content += '## Market Snapshot\n\n';
+    Object.keys(payload.marketSnapshot).forEach(function(k) {
+      var v = payload.marketSnapshot[k];
+      content += '- **' + k + '**: ' + (typeof v === 'object' ? JSON.stringify(v) : v) + '\n';
+    });
+    if (Object.keys(payload.tickerData).length > 0) {
+      content += '\n## Ticker Data\n\n```json\n' + JSON.stringify(payload.tickerData, null, 2) + '\n```\n';
+    }
+    content += '\n## AI Response\n\n' + payload.aiResponse + '\n';
+    mime = 'text/markdown';
+    filename += 'md';
+  }
+  // 다운로드 트리거
+  try {
+    var blob = new Blob([content], { type: mime + ';charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 500);
+    return { success: true, filename: filename, format: format };
+  } catch(e) {
+    // 클립보드 폴백
+    try { navigator.clipboard.writeText(content); return { success: true, fallback: 'clipboard', format: format }; } catch(_) {}
+    return { success: false, error: e && e.message };
+  }
+}
+window._aioExportChatData = _aioExportChatData;
+window.AIO = window.AIO || {};
+window.AIO.exportChatData = _aioExportChatData;
+// 다운로드 버튼 핸들러 (data-action에서 호출)
+window._aioExportFromBtn = function(dlId, format) {
+  var ctx = window['_aioDlCtx_' + dlId];
+  if (!ctx) return;
+  _aioExportChatData(ctx.ctxId, ctx.fullText, ctx.tickers, format || 'markdown');
+};
+
+// v49.70 P374 R134: 금액 시뮬레이션 + SPX % 시나리오 — "1억 투자" / "SPX -5%" / "포트폴리오 +10%"
+function _aioSimulateAmountOrPct(q, detectedTickers) {
+  if (!q || typeof q !== 'string') return null;
+  var lower = q.toLowerCase();
+  var result = null;
+  // 금액 시뮬레이션 (예: "1억 투자 시", "5000만원 분산")
+  var amountMatch = q.match(/(\d+(?:,\d{3})*(?:\.\d+)?)\s*(억|천만|백만|만|원|usd|달러|\$)/i);
+  if (amountMatch && /(투자|할당|매수|invest|allocate|buy)/i.test(lower)) {
+    var rawAmount = Number(amountMatch[1].replace(/,/g, ''));
+    var unit = amountMatch[2].toLowerCase();
+    var krwAmount = 0;
+    if (unit === '억') krwAmount = rawAmount * 1e8;
+    else if (unit === '천만') krwAmount = rawAmount * 1e7;
+    else if (unit === '백만') krwAmount = rawAmount * 1e6;
+    else if (unit === '만' || unit === '원') krwAmount = rawAmount * (unit === '만' ? 1e4 : 1);
+    else if (unit === 'usd' || unit === '달러' || unit === '$') krwAmount = rawAmount * 1380; // 대략 환율 1380원/달러
+    if (krwAmount >= 1e5) {
+      var usdAmount = Math.round(krwAmount / 1380);
+      result = result || {};
+      result.amount = {
+        krw: Math.round(krwAmount),
+        usd: usdAmount,
+        note: krwAmount.toLocaleString() + '원 ≈ $' + usdAmount.toLocaleString() + ' (환율 1380원/달러)',
+        allocation: {
+          conservative: 'Bridgewater All Weather 4-Quadrant: SPX/QQQ 40% + 국채 30% + 금 15% + 단기채/현금 15%',
+          balanced: 'GS GIR 균형: SPX 50% + 글로벌 ex-US 15% + 채권 25% + 원자재/대체 10%',
+          aggressive: 'Ackman 집중: AAA 종목 5~7개 각 12~18% + 현금 10~15% (Margin of Safety 확보 시)'
+        }
+      };
+    }
+  }
+  // SPX % 시나리오 (예: "SPX -5% 시", "SPX +10% 시")
+  var spxPctMatch = q.match(/(spx|s&?p|코스피|kospi).*?([\+\-])?\s*(\d+\.?\d*)\s*(%|퍼센트)/i);
+  if (spxPctMatch) {
+    var index = /코스피|kospi/i.test(spxPctMatch[1]) ? 'KOSPI' : 'SPX';
+    var sign = spxPctMatch[2] === '-' ? '-' : '+';
+    var pct = Number(spxPctMatch[3]);
+    if (pct >= 1 && pct <= 50) {
+      result = result || {};
+      result.indexScenario = {
+        index: index,
+        sign: sign,
+        pct: pct,
+        direction: sign === '-' ? '하락' : '상승',
+        impacts: sign === '-' ? {
+          VIX: '+' + Math.round(pct * 2.5) + '% (변동성 spike)',
+          '10Y': '-' + Math.round(pct * 8) + 'bp (안전자산 도피)',
+          Gold: '+' + Math.round(pct * 0.5) + '% (역상관)',
+          Sector: 'Staples/Healthcare OW · Cyclicals UW (방어 로테이션)',
+          Position: '확신도 낮으면 현금 비중 50%+ / Buffett Margin of Safety 매수 검토 (pct ' + pct + '% 이상이면 Bull case)'
+        } : {
+          VIX: '-' + Math.round(pct * 1.5) + '% (변동성 진정)',
+          '10Y': '+' + Math.round(pct * 4) + 'bp (위험자산 선호)',
+          Gold: '-' + Math.round(pct * 0.3) + '% (역상관)',
+          Sector: 'Cyclicals/Tech OW · Defensive UW (위험자산 로테이션)',
+          Position: 'FOMO 경계 — Howard Marks Pendulum 탐욕 극단 진입 확인 + Marks "Sell into strength"'
+        }
+      };
+    }
+  }
+  return result;
+}
+window._aioSimulateAmountOrPct = _aioSimulateAmountOrPct;
+
+// v49.70 P372 R133: 알람/임계값 트리거 — VIX/F&G/종목 가격 자동 모니터링 + 브라우저 Notification
+// "VIX 30 도달 시 알림" / "NVDA $150 도달 시" 등 자연어 의도 감지 + localStorage 영속 + 페이지 로드 시 자동 점검
+function _aioGetAlerts() {
+  try {
+    var raw = localStorage.getItem('aio_alerts_v1');
+    if (raw) return JSON.parse(raw);
+  } catch(_) {}
+  return [];
+}
+function _aioSetAlerts(alerts) {
+  try { localStorage.setItem('aio_alerts_v1', JSON.stringify(alerts || [])); return true; } catch(_) { return false; }
+}
+function _aioAddAlert(alert) {
+  if (!alert || !alert.metric || alert.threshold == null) return null;
+  var alerts = _aioGetAlerts();
+  var id = 'alert_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+  var newAlert = Object.assign({ id: id, createdAt: Date.now(), triggered: false, triggerCount: 0 }, alert);
+  alerts.push(newAlert);
+  _aioSetAlerts(alerts);
+  return newAlert;
+}
+function _aioRemoveAlert(id) {
+  var alerts = _aioGetAlerts().filter(function(a) { return a.id !== id; });
+  return _aioSetAlerts(alerts);
+}
+function _aioParseAlertIntent(q) {
+  if (!q || typeof q !== 'string') return null;
+  var lower = q.toLowerCase();
+  if (!/(알림|알람|알려|notify|alert|notification)/i.test(lower)) return null;
+  // VIX 임계값
+  var vixMatch = lower.match(/vix.*?(\d+\.?\d*)\s*(이상|넘|도달|over|above|>=?)/i);
+  if (vixMatch) return { metric: 'vix', tickerOrIndex: '^VIX', threshold: Number(vixMatch[1]), direction: 'above', label: 'VIX ≥ ' + vixMatch[1] };
+  var vixBelow = lower.match(/vix.*?(\d+\.?\d*)\s*(이하|아래|미만|under|below|<=?)/i);
+  if (vixBelow) return { metric: 'vix', tickerOrIndex: '^VIX', threshold: Number(vixBelow[1]), direction: 'below', label: 'VIX ≤ ' + vixBelow[1] };
+  // F&G
+  var fgMatch = lower.match(/(f&g|fear.?greed|공포.?탐욕).*?(\d+)\s*(이상|넘|over)/i);
+  if (fgMatch) return { metric: 'fg', tickerOrIndex: 'CNN_FG', threshold: Number(fgMatch[2]), direction: 'above', label: 'F&G ≥ ' + fgMatch[2] };
+  var fgBelow = lower.match(/(f&g|fear.?greed|공포.?탐욕).*?(\d+)\s*(이하|미만|under)/i);
+  if (fgBelow) return { metric: 'fg', tickerOrIndex: 'CNN_FG', threshold: Number(fgBelow[2]), direction: 'below', label: 'F&G ≤ ' + fgBelow[2] };
+  // 종목 가격 (예: "NVDA $150 도달" / "AAPL 200 이상")
+  var tickerPriceMatch = q.match(/([A-Z]{1,5}(?:\.[A-Z]{2})?)\s*\$?(\d+\.?\d*)\s*(이상|넘|도달|over|above|>=?)/);
+  if (tickerPriceMatch) return { metric: 'price', tickerOrIndex: tickerPriceMatch[1], threshold: Number(tickerPriceMatch[2]), direction: 'above', label: tickerPriceMatch[1] + ' ≥ $' + tickerPriceMatch[2] };
+  var tickerPriceBelow = q.match(/([A-Z]{1,5}(?:\.[A-Z]{2})?)\s*\$?(\d+\.?\d*)\s*(이하|아래|미만|under|below|<=?)/);
+  if (tickerPriceBelow) return { metric: 'price', tickerOrIndex: tickerPriceBelow[1], threshold: Number(tickerPriceBelow[2]), direction: 'below', label: tickerPriceBelow[1] + ' ≤ $' + tickerPriceBelow[2] };
+  return null;
+}
+function _aioCheckAlerts() {
+  var alerts = _aioGetAlerts();
+  if (alerts.length === 0) return [];
+  var ld = window._liveData || {};
+  var triggered = [];
+  alerts.forEach(function(a) {
+    var current = null;
+    if (a.metric === 'vix') current = (ld['^VIX'] && ld['^VIX'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.vix);
+    else if (a.metric === 'fg') current = window._lastFG;
+    else if (a.metric === 'price' && a.tickerOrIndex) current = (ld[a.tickerOrIndex] && ld[a.tickerOrIndex].price);
+    if (current == null) return;
+    var hit = a.direction === 'above' ? Number(current) >= Number(a.threshold) : Number(current) <= Number(a.threshold);
+    if (hit && !a.triggered) {
+      a.triggered = true;
+      a.triggerCount = (a.triggerCount || 0) + 1;
+      a.lastTriggeredAt = Date.now();
+      a.currentValueAtTrigger = current;
+      triggered.push(a);
+    } else if (!hit && a.triggered) {
+      // 조건 미충족 → reset (다음 도달 시 재 알림)
+      a.triggered = false;
+    }
+  });
+  if (triggered.length > 0) {
+    _aioSetAlerts(alerts);
+    // 브라우저 Notification (권한 있을 때)
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      triggered.forEach(function(a) {
+        try {
+          new Notification('AIO Screener 알림', {
+            body: a.label + ' 도달! 현재: ' + a.currentValueAtTrigger,
+            icon: '/favicon.ico',
+            tag: a.id
+          });
+        } catch(_) {}
+      });
+    }
+  }
+  return triggered;
+}
+window._aioGetAlerts = _aioGetAlerts;
+window._aioAddAlert = _aioAddAlert;
+window._aioRemoveAlert = _aioRemoveAlert;
+window._aioParseAlertIntent = _aioParseAlertIntent;
+window._aioCheckAlerts = _aioCheckAlerts;
+window.AIO = window.AIO || {};
+window.AIO.getAlerts = _aioGetAlerts;
+window.AIO.addAlert = _aioAddAlert;
+window.AIO.removeAlert = _aioRemoveAlert;
+window.AIO.checkAlerts = _aioCheckAlerts;
+window.AIO.getUserProfile = _aioGetUserProfile;
+window.AIO.setUserProfile = _aioSetUserProfile;
+// 자동 1분마다 점검 (페이지 로드 후 30초 지연)
+if (typeof setTimeout !== 'undefined' && typeof window !== 'undefined') {
+  setTimeout(function() {
+    try { _aioCheckAlerts(); } catch(_) {}
+    setInterval(function() { try { _aioCheckAlerts(); } catch(_) {} }, 60 * 1000);
+  }, 30000);
+}
+
+// v49.70 P371 R132: 사용자 투자 프로필 — 위험성향 + 시간축 + 선호 자산 (localStorage 영속)
+// 14 CHAT_CONTEXTS의 system prompt에 자동 주입 → AI가 개인화된 답변 제공
+function _aioGetUserProfile() {
+  var defaults = { riskTolerance: 'medium', timeHorizon: '1y', preferredAssets: [], excludedAssets: [], note: 'v49.70 신규 — 사용자 프로필 미설정 시 default' };
+  try {
+    var raw = localStorage.getItem('aio_user_profile_v1');
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      return Object.assign({}, defaults, parsed);
+    }
+  } catch(_) {}
+  return defaults;
+}
+function _aioSetUserProfile(profile) {
+  try {
+    var merged = Object.assign({}, _aioGetUserProfile(), profile || {});
+    localStorage.setItem('aio_user_profile_v1', JSON.stringify(merged));
+    return merged;
+  } catch(e) {
+    return null;
+  }
+}
+window._aioGetUserProfile = _aioGetUserProfile;
+window._aioSetUserProfile = _aioSetUserProfile;
+
+// 14 CHAT_CONTEXTS system prompt에 자동 주입할 사용자 프로필 텍스트
+function _buildUserProfileContext() {
+  var p = _aioGetUserProfile();
+  var riskLabel = p.riskTolerance === 'low' ? '🟢 보수적 (위험 최소화 + 자본 보존 우선)' :
+                  p.riskTolerance === 'high' ? '🔴 공격적 (높은 변동성 수용 + 성장 추구)' :
+                  '🟡 중립 (균형 잡힌 위험/수익)';
+  var horizonLabel = p.timeHorizon === '1d' ? '단기 (1일~1주 — 데이트레이딩/스윙)' :
+                     p.timeHorizon === '1m' ? '단기 (1개월 — 모멘텀/이벤트)' :
+                     p.timeHorizon === '1y' ? '중기 (1년 — 자산 배분)' :
+                     p.timeHorizon === '5y' ? '장기 (5년 — 본질가치/복리)' :
+                     p.timeHorizon === '10y' ? '초장기 (10년+ — Buffett 스타일)' :
+                     '중기 (default)';
+  var prefAssets = Array.isArray(p.preferredAssets) && p.preferredAssets.length > 0 ? p.preferredAssets.join(', ') : '미설정';
+  var excAssets = Array.isArray(p.excludedAssets) && p.excludedAssets.length > 0 ? p.excludedAssets.join(', ') : '없음';
+  return '\n\n【사용자 투자 프로필 (v49.70 R132 — 답변 시 자동 반영)】\n' +
+    '• 위험 성향: ' + riskLabel + '\n' +
+    '• 투자 시간축: ' + horizonLabel + '\n' +
+    '• 선호 자산/섹터: ' + prefAssets + '\n' +
+    '• 제외 자산/섹터: ' + excAssets + '\n' +
+    '⚠️ 답변 의무 (R132): 위 프로필에 맞춰 (1) 위험 성향과 맞는 포지션 사이즈/레버리지 추천 (2) 시간축에 맞는 진입 전략 + 보유 기간 (3) 선호 자산 우선 + 제외 자산 회피 + (4) 프로필과 충돌 시 명시 ("프로필이 보수적이라 이 종목은 비중 제한 권장").\n';
+}
+window._buildUserProfileContext = _buildUserProfileContext;
+
 // v49.69 P368 R131: 거시 시나리오 동적 시뮬레이션 — "Fed 50bp 인하 시" / "VIX 30 도달 시" 등 의도 감지 + 자산 영향 정량 추산
 // Bridgewater All Weather + Druckenmiller Macro Overlay 휴리스틱 기반 (정확 회귀 아닌 정성+정량 가이드)
 function _simulateMacroScenario(userQuery) {
@@ -4132,6 +4444,66 @@ async function chatSend(ctxId) {
         _fbDiv.innerHTML = '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨" aria-label="AI 응답이 도움됨으로 평가">👍</button>' +
           '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="-1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확" aria-label="AI 응답이 부정확함으로 평가">👎</button>';
         aiBubble.parentNode.appendChild(_fbDiv);
+
+        // v49.70 P374 R134: 금액/SPX % 시나리오 시뮬레이션 ("1억 투자" / "SPX -5% 시")
+        try {
+          var _amtSim = (typeof _aioSimulateAmountOrPct === 'function') ? _aioSimulateAmountOrPct(q, detectedTickers) : null;
+          if (_amtSim) {
+            var _asDiv = document.createElement('div');
+            _asDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(168,85,247,0.06);border-left:3px solid #a855f7;border-radius:4px;font-size:11px;color:var(--text-primary);';
+            var _asHTML = '';
+            if (_amtSim.amount) {
+              _asHTML += '<div style="font-weight:700;color:#a855f7;margin-bottom:6px;">💰 금액 시뮬레이션</div>';
+              _asHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">' + escHtml(_amtSim.amount.note) + '</div>';
+              _asHTML += '<div style="display:grid;gap:3px;font-size:10px;">';
+              _asHTML += '<div><strong>🟢 보수적</strong>: ' + escHtml(_amtSim.amount.allocation.conservative) + '</div>';
+              _asHTML += '<div><strong>🟡 균형</strong>: ' + escHtml(_amtSim.amount.allocation.balanced) + '</div>';
+              _asHTML += '<div><strong>🔴 공격적</strong>: ' + escHtml(_amtSim.amount.allocation.aggressive) + '</div>';
+              _asHTML += '</div>';
+            }
+            if (_amtSim.indexScenario) {
+              _asHTML += '<div style="font-weight:700;color:#a855f7;margin-top:6px;margin-bottom:6px;">📊 ' + escHtml(_amtSim.indexScenario.index) + ' ' + _amtSim.indexScenario.sign + _amtSim.indexScenario.pct + '% 시나리오 (' + _amtSim.indexScenario.direction + ')</div>';
+              _asHTML += '<div style="display:grid;grid-template-columns:1fr 2fr;gap:3px;font-size:10px;">';
+              Object.keys(_amtSim.indexScenario.impacts).forEach(function(k) {
+                _asHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div>' + escHtml(_amtSim.indexScenario.impacts[k]) + '</div>';
+              });
+              _asHTML += '</div>';
+            }
+            _asDiv.innerHTML = _asHTML;
+            aiBubble.parentNode.appendChild(_asDiv);
+          }
+        } catch(_asErr) {}
+
+        // v49.70 P373 R134: 답변 데이터 다운로드 버튼 (CSV/JSON/MD)
+        try {
+          var _dlDiv = document.createElement('div');
+          _dlDiv.style.cssText = 'display:flex;gap:6px;justify-content:flex-end;margin:4px 0;font-size:10px;';
+          var _dlId = 'dl-' + Date.now();
+          window['_aioDlCtx_' + _dlId] = { ctxId: ctxId, fullText: fullText, tickers: detectedTickers };
+          _dlDiv.innerHTML = '<span style="color:var(--text-muted);">💾 다운로드:</span>' +
+            '<button data-action="_aioExportFromBtn" data-arg="' + _dlId + '" data-arg2="markdown" style="cursor:pointer;background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:2px 6px;font-size:10px;color:var(--text-primary);" title="Markdown 다운로드">MD</button>' +
+            '<button data-action="_aioExportFromBtn" data-arg="' + _dlId + '" data-arg2="json" style="cursor:pointer;background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:2px 6px;font-size:10px;color:var(--text-primary);" title="JSON 다운로드">JSON</button>' +
+            '<button data-action="_aioExportFromBtn" data-arg="' + _dlId + '" data-arg2="csv" style="cursor:pointer;background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:2px 6px;font-size:10px;color:var(--text-primary);" title="CSV 다운로드">CSV</button>';
+          aiBubble.parentNode.appendChild(_dlDiv);
+        } catch(_dlErr) {}
+
+        // v49.70 P372 R133: 알람 의도 감지 + localStorage 영속 + 사용자 확인 chip
+        try {
+          var _alertIntent = (typeof _aioParseAlertIntent === 'function') ? _aioParseAlertIntent(q) : null;
+          if (_alertIntent) {
+            var _newAlert = _aioAddAlert(_alertIntent);
+            if (_newAlert) {
+              // 브라우저 Notification 권한 요청 (없을 때)
+              if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+                try { Notification.requestPermission(); } catch(_) {}
+              }
+              var _alDiv = document.createElement('div');
+              _alDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:4px;font-size:11px;color:var(--text-primary);';
+              _alDiv.innerHTML = '🔔 <strong>알람 등록 완료</strong>: ' + escHtml(_newAlert.label) + ' · 1분마다 자동 점검 + 브라우저 알림 (권한 필요).<br><span style="font-size:10px;color:var(--text-muted);">콘솔: AIO.getAlerts() 확인 / AIO.removeAlert("' + escHtml(_newAlert.id) + '") 삭제</span>';
+              aiBubble.parentNode.appendChild(_alDiv);
+            }
+          }
+        } catch(_alErr) {}
 
         // v49.69 P368 R131: 거시 시나리오 동적 시뮬레이션 — "Fed 50bp 인하 시" / "VIX 30 도달" 등
         try {

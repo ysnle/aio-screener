@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.69 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.70 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3900,10 +3900,12 @@ body.light-theme canvas { filter:none; }
               <div data-audit-key="essence">⏳ 3대 본질 정렬…</div>
               <div data-audit-key="fullSurface">⏳ 전체 표면 전수 감사…</div>
               <div data-audit-key="deepReview">⏳ 텍스트·기능·데이터 2/3차 감사…</div>
+              <div data-audit-key="fourthFifth">⏳ 4/5차 데이터·본질 적합성…</div>
               <div data-audit-key="chatFunctionCoverage">⏳ AI 채팅 함수 통합…</div>
               <div data-audit-key="tickerFetchHealth">⏳ 시세 fetch 건강도…</div>
               <div data-audit-key="chatContextConsistency">⏳ 14 컨텍스트 기관급…</div>
               <div data-audit-key="chatInteractivity">⏳ AI 채팅 인터랙티브…</div>
+              <div data-audit-key="chatAdvanced">⏳ AI 채팅 고급 기능…</div>
             </div>
             <!-- v49.58 P322 R108: web_search 토글 GUI -->
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,212,255,0.15);display:flex;justify-content:space-between;align-items:center;">
@@ -3962,22 +3964,22 @@ body.light-theme canvas { filter:none; }
           <div class="pulse-seg" data-action="showPage" data-arg="signal" role="button" tabindex="0" title="매매 시그널 상세" aria-label="매매 시그널 페이지 이동">
             <span class="ps-label">시그널</span>
             <span class="ps-val" id="mp-signal-score" style="color:var(--text-muted);">—</span>
-            <span class="ps-status" id="mp-signal-label" style="color:var(--text-muted);">로딩</span>
+            <span class="ps-status" id="mp-signal-label" style="color:var(--text-muted);">수신 대기</span>
           </div>
           <div class="pulse-seg" data-action="showPage" data-arg="breadth" role="button" tabindex="0" title="시장 폭 상세" aria-label="시장 폭 페이지 이동">
             <span class="ps-label">시장폭</span>
             <span class="ps-val" id="mp-breadth-val" style="color:var(--text-muted);">—</span>
-            <span class="ps-status" id="mp-breadth-label" style="color:var(--text-muted);">로딩</span>
+            <span class="ps-status" id="mp-breadth-label" style="color:var(--text-muted);">수신 대기</span>
           </div>
           <div class="pulse-seg" data-action="showPage" data-arg="sentiment" role="button" tabindex="0" title="투자 심리 상세" aria-label="투자 심리 페이지 이동">
             <span class="ps-label">심리</span>
             <span class="ps-val" id="mp-sentiment-val" style="color:var(--text-muted);">—</span>
-            <span class="ps-status" id="mp-sentiment-label" style="color:var(--text-muted);">로딩</span>
+            <span class="ps-status" id="mp-sentiment-label" style="color:var(--text-muted);">수신 대기</span>
           </div>
           <div class="pulse-seg" data-action="showPage" data-arg="macro" role="button" tabindex="0" title="거시경제 상세" aria-label="거시경제 페이지 이동">
             <span class="ps-label">매크로</span>
             <span class="ps-val" id="mp-macro-icon" style="color:var(--text-muted);font-size:11px;">●</span>
-            <span class="ps-status" id="mp-macro-val" style="color:var(--text-muted);">로딩</span>
+            <span class="ps-status" id="mp-macro-val" style="color:var(--text-muted);">수신 대기</span>
           </div>
         </div>
         <!-- All pages will be inserted here -->
@@ -3995,7 +3997,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.69</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.70</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4797,7 +4799,7 @@ body.light-theme canvas { filter:none; }
   <div class="section-header"> 리스크 모니터링</div>
 
   <!-- ─ 리스크 모니터 보드 (리스크봇 스타일) ─ -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
+  <div data-aio-archive="true" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
       <div>
         <span style="font-size:10px;font-weight:700;color:var(--text-secondary);">리스크 모니터</span>
@@ -6055,7 +6057,7 @@ body.light-theme canvas { filter:none; }
         <span id="briefing-24h-ts" style="font-size:11px;color:var(--text-muted);margin-left:auto;font-family:var(--font-mono);">갱신 대기중</span>
       </div>
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;padding:5px 8px;background:var(--surface-1);border-radius:5px;">
-        매일 오전 8시(KST) 기준 지난 24시간 주요 뉴스를 수집 → 테마별 분류 → AI 분석·해석·설명까지 생성합니다. 처음 로딩 시 30초~1분 소요될 수 있습니다.
+        매일 오전 8시(KST) 기준 지난 24시간 주요 뉴스를 수집 → 테마별 분류 → AI 분석·해석·설명까지 생성합니다. 처음 수집 시 30초~1분 소요될 수 있습니다.
       </div>
       <div id="briefing-live-news-list" style="display:flex;flex-direction:column;gap:6px;">
         <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">뉴스 수집 대기...</div>
@@ -6420,7 +6422,7 @@ body.light-theme canvas { filter:none; }
         <div class="page-subtitle">RSI · MACD · 이동평균 · 볼린저밴드 · Weinstein 4단계 · 12가지 매매 셋업</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;">
-        <span id="tech-health-pill" class="status-pill sp-neutral">— 시장 건강도 로딩</span>
+        <span id="tech-health-pill" class="status-pill sp-neutral">— 시장 건강도 수신 대기</span>
         <span class="freshness-badge fb-live">● LIVE</span>
       </div>
     </div>
@@ -8327,7 +8329,7 @@ body.light-theme canvas { filter:none; }
 
       <!-- ── 데이터 수집 상태 표시 ── -->
       <div id="fund-rpt-loading" style="background:var(--bg-card);border:1px solid rgba(168,85,247,0.3);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
-        <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px;">데이터 수집 중...</div>
+        <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px;">데이터 요청 준비 중...</div>
         <div id="fund-rpt-progress" style="font-size:10px;color:var(--text-secondary);line-height:1.8;"></div>
       </div>
 
@@ -9422,7 +9424,7 @@ body.light-theme canvas { filter:none; }
         <div style="position:relative;height:300px;">
           <canvas id="ticker-price-chart" role="img" aria-label="종목 가격 차트" style="width:100%;height:100%;"></canvas>
           <div id="ticker-chart-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:12px;">
-            <span class="aio-spinner" style="margin-right:8px;"></span> 차트 데이터 수신 대기...
+            <span class="aio-spinner" style="margin-right:8px;"></span> 차트 데이터 요청 준비 중...
           </div>
         </div>
       </div>
@@ -12178,7 +12180,7 @@ body.light-theme canvas { filter:none; }
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 차트가 비어 있어요 / 안 나와요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. Chart.js CDN 로딩 실패일 수 있습니다. 회사/학교 네트워크에서 CDN이 차단된 경우 발생합니다. VPN을 사용하거나, 개인 네트워크에서 다시 시도하세요.</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. Chart.js CDN 수신 실패일 수 있습니다. 회사/학교 네트워크에서 CDN이 차단된 경우 발생합니다. VPN을 사용하거나, 개인 네트워크에서 다시 시도하세요.</div>
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. AI 채팅이 작동하지 않아요</div>
@@ -12397,9 +12399,9 @@ body.light-theme canvas { filter:none; }
   }
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.69"></script>
-  <script src="./js/aio-data.js?v=49.69"></script>
-  <script src="./js/aio-ui.js?v=49.69"></script>
+  <script src="./js/aio-core.js?v=49.70"></script>
+  <script src="./js/aio-data.js?v=49.70"></script>
+  <script src="./js/aio-ui.js?v=49.70"></script>
 
   <script>
 
@@ -12543,7 +12545,7 @@ async function fbLoadBoard() {
   if (!list) return;
   if (boardLoading) return;
   boardLoading = true;
-  list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:11px;font-family:Inter,var(--font-sans);">⏳ 로딩 중...</div>';
+  list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:11px;font-family:Inter,var(--font-sans);">게시글 요청 중...</div>';
 
   if (!boardConfig.binId || !boardConfig.accessKey) {
     // Fallback: show localStorage entries only
@@ -13346,7 +13348,7 @@ async function refreshPortfolioRisk() {
     el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">포지션을 먼저 추가하세요.</div>';
     return;
   }
-  el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;"> 가격 데이터 로딩 중...</div>';
+  el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">가격 데이터 요청 중...</div>';
 
   const tickers = positions.map(function(p) { return p.ticker; });
   const returnsMap = {};
@@ -13412,7 +13414,7 @@ async function refreshPortfolioTechnicalRisk() {
   });
   var totalValue = enriched.reduce(function(s, p) { return s + (Number(p.value) || 0); }, 0);
   var tickers = enriched.slice().sort(function(a, b) { return (b.value || 0) - (a.value || 0); }).slice(0, 12);
-  el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">포지션별 OHLCV와 기술 리스크를 계산 중입니다...</div>';
+  el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">포지션별 OHLCV와 기술 리스크를 산출하는 중입니다...</div>';
   var settled = await Promise.allSettled(tickers.map(async function(p) {
     var data = [];
     try {
@@ -14405,7 +14407,7 @@ function _buildMarketLeadersSnapshot() {
         out += '  ' + (i+1) + '. ' + s.name + '(' + s.sym + '): ' + (s.pct>=0?'+':'') + s.pct.toFixed(2) + '%' + tag + '\n';
       });
     } else {
-      out += '\n▶ 섹터 ETF 데이터 로딩 중 — 실시간 연결 후 재질문\n';
+      out += '\n▶ 섹터 ETF 데이터 요청 중 — 실시간 연결 후 재질문\n';
     }
 
     // 2) 45개 세분화 테마 가중평균 랭킹 (ETF 없는 순수 테마까지 커버)
@@ -14674,7 +14676,7 @@ function _buildKoreaLeadersSnapshot() {
           }
         }
       } else {
-        out += '\n▶ 한국 테마 데이터 로딩 중 — 실시간 연결 후 재질문\n';
+        out += '\n▶ 한국 테마 데이터 요청 중 — 실시간 연결 후 재질문\n';
       }
     }
 
@@ -14778,7 +14780,7 @@ function _getChatRules() {
   '10. 투자 결정은 본인 책임. AI 분석은 참고용임을 첫 응답에 1회 고지.\n' +
   '11. 응답 마지막에 반드시 [Q:후속질문1||후속질문2||후속질문3] 형식으로 후속 질문 3개 추가.\n' +
   '12. 이 스크리너의 다른 페이지 데이터를 자연스럽게 언급하며 페이지 간 연결 안내.\n' +
-  '13. 환각 방지: 제공된 데이터에 "—" 또는 "계산중"이 있으면 해당 지표를 확정적으로 언급하지 마라. "현재 데이터 로딩 중이므로 최신 수치 확인 후 판단 필요"라고 안내. 폴백값일 수 있는 수치를 "실시간"이라 단정하지 마라.\n' +
+  '13. 환각 방지: 제공된 데이터에 "—" 또는 "계산중"이 있으면 해당 지표를 확정적으로 언급하지 마라. "현재 데이터 수신 대기 상태이므로 최신 수치 확인 후 판단 필요"라고 안내. 폴백값일 수 있는 수치를 "실시간"이라 단정하지 마라.\n' +
   '14. 범위 밖 질문 안내: 이 스크리너에 로드된 데이터(시세, 뉴스, 차트, 지표) 범위 밖의 질문이 들어오면 솔직하게 한계를 알려라. 예: "이 질문은 현재 스크리너에 로드된 데이터만으로는 정확한 답변이 어렵습니다. 최신 정보가 필요한 질문은 ChatGPT, Perplexity 등 웹 검색이 가능한 AI를 활용해 보세요." 단, 아래 15~19번에 해당하는 일반 금융 지식은 학습 데이터로 답변 가능하므로 적극 답변하라.\n' +
   '15.  포괄적 금융 지식 커버리지 — 아래 주제는 학습 데이터 기반으로 적극 답변 가능:\n' +
   '  [투자 용어/지표] PER, PBR, EV/EBITDA, ROE, ROA, FCF, 배당수익률, 시가총액, 베타, 샤프비율, 알파, 정보비율, 유동비율, 부채비율 등 모든 재무·투자 지표\n' +
@@ -15412,11 +15414,13 @@ function _getV48IntegratedContext(pageFocus) {
   }
   // v49.68 P360 R126: 기관급 분석 프레임워크 자동 통합 — 14 CHAT_CONTEXTS 공통 주입
   var instFw = (typeof _getInstitutionalFrameworkContext === 'function') ? _getInstitutionalFrameworkContext(pageFocus) : '';
-  return common + focus + instFw;
+  // v49.70 P371 R132: 사용자 투자 프로필 자동 주입 (위험 성향 + 시간축 + 선호/제외 자산)
+  var userProfile = (typeof _buildUserProfileContext === 'function') ? _buildUserProfileContext() : '';
+  return common + focus + instFw + userProfile;
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.69"></script>
+<script src="./js/aio-chat.js?v=49.70"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17222,7 +17226,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         'Telegram/Aether Japan Research는 빠른 2차 뉴스 파이프라인이다. 기업·정책·수급 소식은 primary source 또는 시장 데이터로 교차확인 전까지 실시간 확정 사실처럼 말하지 않는다.\n\n' +
         '【응답 프레임워크 — 종목 질문 시 반드시 이 순서】\n' +
         '핵심 원칙: 사용자가 특정 종목을 물으면 해당 종목 분석부터 바로 시작하라. 시장 전체 상황(VIX, SPX 등)은 맥락으로 1~2문장만 언급. 종목이 주인공이다.\n' +
-        '1. 종목 현재 상태부터: "【종목 실시간 데이터】 섹션의 실제 가격·변화율을 인용. 없으면 "현재 실시간 데이터 로딩 중"이라고 말하라.\n' +
+        '1. 종목 현재 상태부터: "【종목 실시간 데이터】 섹션의 실제 가격·변화율을 인용. 없으면 "현재 실시간 데이터 수신 대기"라고 말하라.\n' +
         '2. Weinstein Stage 판단 + 핵심 가격 3개: **피봇포인트** **손절** **1차 목표** + RR비율.\n' +
         '3. SEPA 8대 조건 체크 — 서사적으로 풀되 간결하게.\n' +
         '4. Bull/Bear 시나리오 + 깨지는 신호.\n' +
@@ -17604,7 +17608,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
           var cache = window._aioFeedHealth || window._newsCache || null;
           // fetchAllNews 결과 또는 latest news state
           var news = window._latestNews || (cache && cache.recent) || null;
-          if (!Array.isArray(news) || news.length === 0) return '【최근 뉴스】 캐시 로딩 중 — Claude web_search로 보강 가능.\n\n';
+          if (!Array.isArray(news) || news.length === 0) return '【최근 뉴스】 캐시 수신 대기 — Claude web_search로 보강 가능.\n\n';
           var lines = '【최근 뉴스 헤드라인 (캐시 ' + news.length + '건 · Top 10)】\n';
           news.slice(0, 10).forEach(function(n) {
             var t = n.title || n.headline || '';
@@ -23247,7 +23251,7 @@ function _updateAllConclusionBars() {
                     (mText.indexOf('Mid') > -1 || mText.indexOf('중반') > -1) ? '섹터 로테이션 주시, 기술→산업재 점검' :
                     (mText.indexOf('Late') > -1 || mText.indexOf('후반') > -1) ? 'Defensive 섹터 이동, 비중 점진 축소' :
                     (mText.indexOf('Recession') > -1 || mText.indexOf('침체') > -1) ? '현금·단기채·금 위주, 주식 최소화' :
-                    'FRED 데이터 로딩 후 재확인';
+                    'FRED 데이터 수신 후 재확인';
       _renderConclusionBar('macro-conclusion-bar', { conclusion: mText, conclusionColor: mColor, action: mAction, fetchKey: 'fred' });
     }
   } catch(e) {}
@@ -23962,7 +23966,7 @@ async function _fetchEarningsSurprisesFMP(body, fmpKey) {
     // 서프라이즈 크기순 정렬
     results.sort(function(a, b) { return Math.abs(parseFloat(b.surprise)) - Math.abs(parseFloat(a.surprise)); });
     if (results.length === 0) {
-      body.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">실적 데이터 로딩 실패 · 잠시 후 재시도</div>';
+      body.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">실적 데이터 수신 실패 · 잠시 후 재시도</div>';
       return;
     }
     var sHtml = '';
@@ -23978,7 +23982,7 @@ async function _fetchEarningsSurprisesFMP(body, fmpKey) {
     console.log('[AIO] FMP 실적 서프라이즈 ' + results.length + '건 로드');
   } catch(e) {
     _aioLog('warn', 'fetch', 'FMP 서프라이즈 fetch 실패: ' + e.message);
-    body.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">실적 데이터 로딩 실패</div>';
+    body.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">실적 데이터 수신 실패</div>';
   }
 }
 
@@ -24003,7 +24007,7 @@ async function loadEarningsCalendar() {
   var fromStr = monday.toISOString().slice(0, 10);
   var toStr = friday.toISOString().slice(0, 10);
 
-  body.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text-muted);font-size:10px;"><span class="aio-spinner" style="margin-right:8px;"></span>어닝 캘린더 로딩 중… (' + fromStr + ' ~ ' + toStr + ')</div>';
+  body.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text-muted);font-size:10px;"><span class="aio-spinner" style="margin-right:8px;"></span>어닝 캘린더 요청 중… (' + fromStr + ' ~ ' + toStr + ')</div>';
 
   var finnhubKey = _getApiKey('aio_finnhub_key');
   var fmpKey = _getApiKey('aio_fmp_key');
@@ -24026,7 +24030,7 @@ async function loadEarningsCalendar() {
     if (st) st.textContent = earnings.length + '건 어닝 + ' + ipos.length + 'IPO · ' + fromStr.slice(5) + '~' + toStr.slice(5) + ' (Finnhub)';
   } catch(e) {
     _aioLog('warn', 'fetch', 'earnings calendar error: ' + e.message);
-    body.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">어닝 캘린더 로딩 실패 · API 키 확인 필요</div>';
+    body.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">어닝 캘린더 수신 실패 · API 키 확인 필요</div>';
   }
 }
 
@@ -24304,7 +24308,7 @@ async function _fetchEarningsCalendarFMP(body, fmpKey) {
     console.log('[AIO] FMP 실적 캘린더 ' + filtered.length + '건 로드');
   } catch(e) {
     _aioLog('warn', 'fetch', 'FMP 캘린더 fetch 실패: ' + e.message);
-    body.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">실적 캘린더 로딩 실패 · FMP API 확인 필요</div>';
+    body.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">실적 캘린더 수신 실패 · FMP API 확인 필요</div>';
   }
 }
 
@@ -24852,7 +24856,7 @@ function drawRRG() {
   // v45.5: SPY가 없으면 시드 기반 RRG 그리기 불가 → 로딩 상태 표시 + 짧은 재시도
   if (!ld['SPY']) {
     var stWait = document.getElementById('rrg-chart-status');
-    if (stWait) stWait.textContent = '시세 로딩 중... (' + Object.keys(ld).length + '개 수신)';
+    if (stWait) stWait.textContent = '시세 수신 대기... (' + Object.keys(ld).length + '개 수신)';
     window._rrgRetry++;
     if (window._rrgRetry < 40) { // 최대 20초 (500ms x 40)
       setTimeout(drawRRG, 500);
@@ -27324,7 +27328,7 @@ _aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
 
 <!-- v27.2: Draggable glossary floating button -->
 <!-- v40.6: 용어 사전 플로팅 버튼 제거 — 사이드바 '용어 사전' 페이지와 중복 -->
-<button id="glossary-btn" style="display:none;"></button>
+<button id="glossary-btn" aria-label="용어 사전 열기" title="용어 사전 열기" style="display:none;"></button>
 <script>
 (function(){
   var btn=document.getElementById('glossary-btn');
@@ -27524,9 +27528,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.69"></script>
+<script src="./js/aio-glossary.js?v=49.70"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.69"></script>
+<script src="./js/aio-tests.js?v=49.70"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전
@@ -28510,7 +28514,7 @@ async function analyzeTickerDeep(ticker) {
   var resultEl = document.getElementById('ticker-analysis-result');
   if (!resultEl) return;
 
-  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">로딩 중: ' + escHtml(ticker) + ' 기술적 분석...</div></div>';
+  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">분석 준비: ' + escHtml(ticker) + ' 기술적 분석...</div></div>';
 
   try {
   // Fetch chart data
@@ -28923,7 +28927,7 @@ async function initDeepAnalysisSection(symbol) {
   var levelsEl = document.getElementById('deep-levels-content');
   var stratEl  = document.getElementById('deep-strategy-content');
 
-  if (labelEl)  labelEl.textContent = symbol + ' — 로딩 중…';
+  if (labelEl)  labelEl.textContent = symbol + ' — 데이터 요청 중…';
   if (levelsEl) levelsEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">분석 중…</div>';
   if (stratEl)  stratEl.innerHTML  = '<div style="text-align:center;color:var(--text-muted);font-size:10px;">분석 중…</div>';
 
@@ -28932,7 +28936,7 @@ async function initDeepAnalysisSection(symbol) {
     var col = document.getElementById(id);
     if (!col) return;
     var cc = col.querySelector('.da-candle');
-    if (cc) cc.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:10px;">로딩 중…</div>';
+    if (cc) cc.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:10px;">데이터 요청 중…</div>';
   });
 
   var deepFetchOHLCV = (typeof fetchOHLCVWithFallback === 'function') ? fetchOHLCVWithFallback : (typeof fetchOHLCV === 'function' ? fetchOHLCV : null);
@@ -29143,7 +29147,7 @@ function initKoreaTechnical() {
 async function analyzeKrIndex(ticker, targetId, label) {
   var resultEl = document.getElementById(targetId);
   if (!resultEl) return;
-  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">로딩 중: ' + label + ' 기술적 분석...</div></div>';
+  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">분석 준비: ' + label + ' 기술적 분석...</div></div>';
 
   try {
   var chartData = await _fetchYahooChartData(ticker);
@@ -29266,7 +29270,7 @@ async function analyzeKrTickerDeep(ticker) {
   if (!resultEl) resultEl = document.getElementById('ticker-analysis-result');
   if (!resultEl) return;
 
-  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">로딩 중: ' + escHtml(ticker) + ' 기술적 분석...</div></div>';
+  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">분석 준비: ' + escHtml(ticker) + ' 기술적 분석...</div></div>';
 
   try {
   // Fetch chart data for Korean ticker

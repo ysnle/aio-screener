@@ -1213,6 +1213,54 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R134. AI 채팅 데이터 다운로드 + 금액/% 시뮬레이션 의무 (v49.70 추가, P373~P374 근본)
+
+**원칙**: AI 채팅 응답은 (1) Markdown/JSON/CSV 3 format 다운로드 버튼 자동 삽입 + (2) "1억 투자 시" / "SPX -5% 시나리오" 등 금액·지수 % 자연어 의도 감지 + 자산별 정량 영향 추산 의무.
+
+**근거 (P373~P374)**: v49.69까지 답변 데이터 외부 활용 불가 (사용자가 수동 복사) + 금액/% 시뮬레이션 부재 → 사용자 질의 silent.
+
+**구조**:
+- `_aioExportChatData(ctxId, fullText, tickers, format)`: 3 format + 시장 스냅샷 + 종목 데이터 + AI 응답 + 클립보드 폴백
+- `_aioSimulateAmountOrPct(q, tickers)`: 금액 5 단위 (억/천만/백만/만/USD) + 지수 % 양방향 + 자산별 영향
+- chatSend 응답 직후 다운로드 버튼 (MD/JSON/CSV) + 시뮬레이션 chip 자동 삽입
+
+**검증**: `AIO.runTests()` T545 (export 함수) + T546 (1억 + SPX -5% 정확 추산) + `AIO.assertChatAdvancedFeaturesAudit()` 100%.
+
+---
+
+## R133. AI 채팅 알람/임계값 트리거 의무 (v49.70 추가, P372 근본)
+
+**원칙**: AI 채팅은 "VIX 30 이상 알림" / "F&G 75 넘으면" / "NVDA $200 도달" 자연어 의도 감지 → localStorage 알람 등록 + 1분마다 자동 점검 + 브라우저 Notification API 의무.
+
+**근거 (P372)**: v49.69까지 사용자 알림 요청 silent 무시 → 임계값 도달 시 수동 모니터링 필요.
+
+**구조**:
+- `_aioParseAlertIntent(q)`: VIX/F&G/종목 가격 × above/below × 한글+영문 4 변형 패턴 매칭
+- `_aioAddAlert(alert)` + `localStorage.aio_alerts_v1` 영속
+- `_aioCheckAlerts()` 1분마다 setInterval + Notification API 권한 있을 때 자동 푸시
+- chatSend 응답 직후 시안색 chip 안내 + 권한 요청
+
+**검증**: `AIO.runTests()` T543 (5 알람 함수) + T544 (VIX 30+ / F&G 75+ 정확 파싱).
+
+---
+
+## R132. AI 채팅 사용자 투자 프로필 메모리 의무 (v49.70 추가, P371 근본)
+
+**원칙**: AI 채팅은 사용자 위험 성향 (low/medium/high) + 투자 시간축 (1d/1m/1y/5y/10y) + 선호/제외 자산을 localStorage에 영속 저장 + 14 CHAT_CONTEXTS의 system prompt에 자동 주입 의무.
+
+**근거 (P371)**: v49.69까지 사용자 프로필 미지원 → AI가 모든 사용자에게 동일 답변 → 개인화 부재.
+
+**구조**:
+- `_aioGetUserProfile()` / `_aioSetUserProfile(profile)`: localStorage `aio_user_profile_v1` 영속
+- `_buildUserProfileContext()`: system prompt 텍스트 생성 (이모지 표준 + 시간축 라벨 + 자산 매핑)
+- `_getV48IntegratedContext` 자동 호출 → 14 CHAT_CONTEXTS 모두 통합
+- AI 답변 의무: (1) 위험 성향 맞는 포지션 사이즈 + (2) 시간축 맞는 진입 전략 + (3) 선호 자산 우선 + (4) 제외 자산 회피
+- AIO.getUserProfile / setUserProfile 콘솔 API
+
+**검증**: `AIO.runTests()` T541 (3 프로필 함수) + T542 (v48 자동 통합) + `AIO.assertChatAdvancedFeaturesAudit().fnChecks.userProfileGet`.
+
+---
+
 ## R131. AI 채팅 거시 시나리오 동적 시뮬레이션 + 약어/별명 fuzzy 매칭 의무 (v49.69 추가, P368~P369 근본)
 
 **원칙**: AI 채팅은 (1) 사용자 거시 시나리오 질의 ("Fed 50bp 인하 시" / "VIX 30 도달") → 6+ 시나리오 패턴 자동 감지 + 자산별 정량 영향 추산 + (2) 약어/별명 입력 (엔비/삼전/테슬라/유가/위안 등) → fuzzy 매핑으로 ticker 자동 변환 의무.

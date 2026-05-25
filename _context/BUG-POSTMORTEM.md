@@ -2,11 +2,43 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.69
-latest_P_number: P370
-total_entries: 370
-next_P_number: P371
+latest_version: v49.70
+latest_P_number: P376
+total_entries: 376
+next_P_number: P377
 ---
+
+## P376 · v49.70 · [P376/R132~R134] AI 채팅 고급 기능 자동 진단 audit + 사이드바 10축
+- **시정**: `AIO.assertChatAdvancedFeaturesAudit()` 신설 (10 함수 + 5 통합 + 5 API 자동 진단 + coveragePct 100%). 사이드바 audit row 10번째 (chatAdvanced) — "고급 기능 X% · 함수 X/10 · 🔔X · 👤✓".
+- **재발 방지**: T548 (audit 100%) + T549 (사이드바 row).
+
+## P375 · v49.70 · [P375/R132~R134] AI 채팅 신규 고급 기능 통합 자동 회귀 방지 부재
+- **문제**: v49.70 신규 4 영역 (프로필/알람/다운로드/시뮬레이션) 통합 회귀 자동 진단 부재.
+- **시정**: assertChatAdvancedFeaturesAudit + 사이드바 row 통합 (P376과 함께).
+
+## P374 · v49.70 · [P374/R134] AI 채팅 금액/SPX % 시나리오 시뮬레이션 부재
+- **문제**: v49.69까지 "1억 투자 시" / "SPX -5%" 자연어 의도 silent → 사용자 정량 시뮬레이션 불가.
+- **시정**: `_aioSimulateAmountOrPct(q, tickers)` 신설 — 금액 5 단위 (억/천만/백만/만/USD) + 지수 % 양방향 + 3 자산 배분 (보수적/균형/공격적) + 시나리오 영향 (VIX/10Y/Gold/Sector/Position). Bridgewater All Weather + GS GIR + Ackman + Marks 프레임 적용.
+- **재발 방지**: T546 (1억 + SPX -5% 정확 추산).
+- **파일**: `js/aio-chat.js` _aioSimulateAmountOrPct + chatSend chip 삽입
+
+## P373 · v49.70 · [P373/R134] AI 채팅 답변 데이터 다운로드 부재
+- **문제**: v49.69까지 사용자가 AI 답변 외부 활용 시 수동 복사 → 불편 + 데이터 손실.
+- **시정**: `_aioExportChatData(ctxId, fullText, tickers, format)` 신설 — Markdown/JSON/CSV 3 format + 시장 스냅샷 + 종목 데이터 + AI 응답 통합 + 클립보드 폴백. chatSend 응답 직후 다운로드 버튼 (MD/JSON/CSV) 자동 삽입. AIO.exportChatData 콘솔 API.
+- **재발 방지**: T545 (함수 정의).
+- **파일**: `js/aio-chat.js` _aioExportChatData + _aioExportFromBtn + chatSend 버튼
+
+## P372 · v49.70 · [P372/R133] AI 채팅 알람/임계값 트리거 부재
+- **문제**: v49.69까지 "VIX 30 도달 시 알림" / "NVDA $200" 사용자 요청 silent → 수동 모니터링.
+- **시정**: `_aioParseAlertIntent(q)` 자연어 의도 감지 (VIX/F&G/종목가격 × above/below × 한글+영문 4 변형) + `_aioAddAlert()` localStorage 영속 + `_aioCheckAlerts()` 1분마다 자동 점검 + 브라우저 Notification API. chatSend 응답 직후 시안색 chip 안내 + 권한 요청. AIO.getAlerts/addAlert/removeAlert/checkAlerts 콘솔 API.
+- **재발 방지**: T543 (5 알람 함수) + T544 (의도 파싱 정확도).
+- **파일**: `js/aio-chat.js` 알람 5함수 + chatSend chip 삽입
+
+## P371 · v49.70 · [P371/R132] AI 채팅 사용자 투자 프로필 메모리 부재 (개인화 답변 불가)
+- **문제**: v49.69까지 모든 사용자에게 동일 답변 → 보수적/공격적 사용자 구분 안 됨, 단기/장기 시간축 무시.
+- **시정**: `_aioGetUserProfile()`/`_aioSetUserProfile()` localStorage `aio_user_profile_v1` 영속 (riskTolerance + timeHorizon + preferredAssets + excludedAssets). `_buildUserProfileContext()` system prompt 생성 (이모지 표준 + 시간축 라벨). `_getV48IntegratedContext` 자동 호출 → 14 CHAT_CONTEXTS 모두 통합. AIO.getUserProfile/setUserProfile 콘솔 API.
+- **재발 방지**: T541 (3 함수) + T542 (v48 자동 통합).
+- **파일**: `js/aio-chat.js` 3 프로필 함수 + `index.html` _getV48IntegratedContext 통합
 
 ## P370 · v49.69 · [P370/R129~R131] AI 채팅 인터랙티브 기능 자동 진단 audit 부재
 - **문제**: v49.68까지 후속 질문/자동 페이지 이동/시뮬레이션/fuzzy 매칭 등 인터랙티브 기능 통합 여부 자동 검증 audit 없음. 신규 기능 추가 시 통합 누락 silent.

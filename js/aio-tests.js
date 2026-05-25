@@ -2576,9 +2576,82 @@
       _assert('T539 follow_up_fn_exists_v4969', false, 'function missing');
     }
 
-    // T540: APP_VERSION === 'v49.69'
-    _assert('T540 app_version_v4969_final: APP_VERSION === "v49.69"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.69',
+    // T540: APP_VERSION === 'v49.70' (v49.70 고급 기능)
+    _assert('T540 app_version_v4970_advanced: APP_VERSION === "v49.70"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.70',
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
+  // v49.70 P371~P376 R132~R134: AI 채팅 고급 기능 (사용자 프로필 + 알람 + 다운로드 + 시뮬레이션) 회귀 방지
+  function _testV4970Advanced() {
+    // T541: 사용자 프로필 (get/set/buildContext) 함수 정의
+    _assert('T541 user_profile_fns_v4970: _aioGetUserProfile + _aioSetUserProfile + _buildUserProfileContext 모두 정의',
+      typeof window._aioGetUserProfile === 'function' && typeof window._aioSetUserProfile === 'function' && typeof window._buildUserProfileContext === 'function',
+      'get=' + typeof window._aioGetUserProfile + ' set=' + typeof window._aioSetUserProfile + ' build=' + typeof window._buildUserProfileContext);
+
+    // T542: _buildUserProfileContext가 _getV48IntegratedContext에 자동 통합
+    var v48Src = typeof window._getV48IntegratedContext === 'function' ? window._getV48IntegratedContext.toString() : '';
+    _assert('T542 user_profile_v48_integration_v4970: _getV48IntegratedContext에서 _buildUserProfileContext 호출',
+      v48Src.indexOf('_buildUserProfileContext') >= 0,
+      'integrated=' + (v48Src.indexOf('_buildUserProfileContext') >= 0));
+
+    // T543: 알람 함수 (get/add/remove/parse/check) 5개 정의 + 1분 자동 점검
+    var alertFns = ['_aioGetAlerts', '_aioAddAlert', '_aioRemoveAlert', '_aioParseAlertIntent', '_aioCheckAlerts'];
+    var alertMissing = alertFns.filter(function(fn) { return typeof window[fn] !== 'function'; });
+    _assert('T543 alert_fns_v4970: 5 알람 함수 모두 정의 (get/add/remove/parse/check)',
+      alertMissing.length === 0,
+      'missing=' + alertMissing.join(','));
+
+    // T544: 알람 의도 파싱 — "VIX 30 이상 알림" / "NVDA $200 도달 알림" 정확 매칭
+    if (typeof window._aioParseAlertIntent === 'function') {
+      var p1 = window._aioParseAlertIntent('VIX 30 이상 도달 시 알림');
+      var p2 = window._aioParseAlertIntent('F&G 75 넘으면 알려줘');
+      _assert('T544 alert_parse_intent_v4970: VIX 30+ / F&G 75+ 의도 정확 파싱',
+        p1 && p1.metric === 'vix' && p1.threshold === 30 && p1.direction === 'above' &&
+        p2 && p2.metric === 'fg' && p2.threshold === 75 && p2.direction === 'above',
+        'p1=' + JSON.stringify(p1) + ' p2=' + JSON.stringify(p2));
+    } else {
+      _assert('T544 alert_parse_fn_missing', false, 'fn missing');
+    }
+
+    // T545: 데이터 다운로드 (CSV/JSON/MD) + 클립보드 폴백
+    _assert('T545 export_chat_data_v4970: _aioExportChatData + _aioExportFromBtn 정의',
+      typeof window._aioExportChatData === 'function' && typeof window._aioExportFromBtn === 'function',
+      'export=' + typeof window._aioExportChatData + ' btn=' + typeof window._aioExportFromBtn);
+
+    // T546: 금액/% 시뮬레이션 — "1억 투자" / "SPX -5%"
+    if (typeof window._aioSimulateAmountOrPct === 'function') {
+      var amt = window._aioSimulateAmountOrPct('1억 투자 시 어떻게', []);
+      var pct = window._aioSimulateAmountOrPct('SPX -5% 시나리오', []);
+      _assert('T546 simulate_amount_pct_v4970: 1억 + SPX -5% 정확 추산',
+        amt && amt.amount && amt.amount.krw === 100000000 &&
+        pct && pct.indexScenario && pct.indexScenario.sign === '-' && pct.indexScenario.pct === 5,
+        'amt=' + (amt && amt.amount && amt.amount.krw) + ' pct=' + (pct && pct.indexScenario && pct.indexScenario.pct));
+    } else {
+      _assert('T546 simulate_fn_missing', false, 'fn missing');
+    }
+
+    // T547: AIO API 노출 (getAlerts/addAlert/getUserProfile/setUserProfile/exportChatData)
+    var aioFns = ['getAlerts', 'addAlert', 'getUserProfile', 'setUserProfile', 'exportChatData', 'assertChatAdvancedFeaturesAudit'];
+    var missingApi = aioFns.filter(function(fn) { return typeof (window.AIO && window.AIO[fn]) !== 'function'; });
+    _assert('T547 aio_api_exposed_v4970: 6 AIO 콘솔 API 모두 노출',
+      missingApi.length === 0,
+      'missing=' + missingApi.join(','));
+
+    // T548: assertChatAdvancedFeaturesAudit + coveragePct 100%
+    var caf = window.AIO && typeof window.AIO.assertChatAdvancedFeaturesAudit === 'function' && window.AIO.assertChatAdvancedFeaturesAudit();
+    _assert('T548 chat_advanced_audit_v4970: assertChatAdvancedFeaturesAudit + coveragePct 100',
+      caf && caf.coveragePct === 100,
+      caf ? ('cov=' + caf.coveragePct + ' fn=' + caf.fnCount + ' integ=' + caf.integCount + ' api=' + caf.apiCount) : 'audit missing');
+
+    // T549: 사이드바 audit row 10번째 (chatAdvanced) DOM 존재
+    var cafEl = document.querySelector('[data-audit-key="chatAdvanced"]');
+    _assert('T549 sidebar_chat_advanced_row_v4970: 사이드바 audit row [data-audit-key="chatAdvanced"] DOM 존재',
+      !!cafEl, 'cafEl=' + (!!cafEl));
+
+    // T550: APP_VERSION === 'v49.70'
+    _assert('T550 app_version_v4970_final: APP_VERSION === "v49.70"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.70',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -3713,6 +3786,7 @@
     try { _testV4967UxQuality(); } catch(e) { console.error('Group63 error:', e); }
     try { _testV4968InstitutionalQuality(); } catch(e) { console.error('Group64 error:', e); }
     try { _testV4969Interactive(); } catch(e) { console.error('Group65 error:', e); }
+    try { _testV4970Advanced(); } catch(e) { console.error('Group66 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

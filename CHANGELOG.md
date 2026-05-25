@@ -6,6 +6,42 @@
 
 ---
 
+## v49.70 — AI 채팅 고급 기능 (사용자 프로필 + 알람 + 다운로드 + 금액/% 시뮬레이션) (2026-05-26)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 요구 "전체 세션 남은 영역과 부분 모두 보강" → v49.69 인터랙티브 → v49.70 사용자 메모리 + 자동 트리거 + 데이터 export + 시뮬레이션 확장 (4 신규 영역 + audit 1개).
+
+**Changes**:
+
+**Phase 1 — 사용자 투자 프로필 (P371/R132)**:
+- `_aioGetUserProfile()` / `_aioSetUserProfile()` — localStorage 영속 (riskTolerance + timeHorizon + preferredAssets + excludedAssets)
+- `_buildUserProfileContext()` — system prompt 자동 생성 + `_getV48IntegratedContext` 자동 호출 → 14 CHAT_CONTEXTS 통합
+- AIO.getUserProfile / setUserProfile 콘솔 API
+
+**Phase 2 — 알람/임계값 트리거 (P372/R133)**:
+- `_aioParseAlertIntent()` — VIX/F&G/종목가격 × above/below × 한글+영문 4 변형 자연어 의도 감지
+- `_aioAddAlert()` + localStorage 영속 + `_aioCheckAlerts()` 1분마다 자동 점검 + Notification API
+- chatSend 응답 직후 시안색 chip 안내 + 권한 요청
+
+**Phase 3 — 데이터 다운로드 + 금액/% 시뮬레이션 (P373~P374/R134)**:
+- `_aioExportChatData()` — Markdown/JSON/CSV 3 format + 시장 스냅샷 + 종목 데이터 + AI 응답 + 클립보드 폴백
+- `_aioSimulateAmountOrPct()` — 1억 투자 (5 단위 억/천만/백만/만/USD) + SPX -5% (양방향) + 3 자산 배분 + 시나리오 영향
+
+**Phase 4 — AIO.assertChatAdvancedFeaturesAudit (P375~P376)**:
+- 10 함수 + 5 통합 + 5 API 자동 진단 + coveragePct 100%
+- 사이드바 audit row 10번째 (chatAdvanced)
+
+**Phase 5+6 — T541~T550 10 신규 (Group66) + 동기화 7곳**:
+- T541 프로필 함수 / T542 v48 통합 / T543 알람 5함수 / T544 알람 의도 / T545 export / T546 시뮬레이션 / T547 6 API / T548 audit 100% / T549 사이드바 row / T550 APP_VERSION
+
+**신규 P 번호 6개**: P371~P376
+**신규 R 규칙 3개**: R132 (사용자 프로필) + R133 (알람 트리거) + R134 (다운로드 + 시뮬레이션)
+
+**정직 평가**: 답변 유형 커버리지 19/20 → 20/20 (백테스트만 구조적 한계로 v49.71 이관).
+
+---
+
 ## v49.69 — AI 채팅 인터랙티브 + 시뮬레이션 + fuzzy 매칭 + 자동 진단 (2026-05-26)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

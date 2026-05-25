@@ -2939,7 +2939,7 @@ async function fetchBreadthData() {
     }
   } catch(e) {
     _aioLog('warn', 'breadth', 'Breadth data error: ' + (e && e.message || e));
-    showDataError('시장폭', '시장 폭 데이터 로딩 실패 — 정적 데이터 사용 중', 'warn');
+    showDataError('시장폭', '시장 폭 데이터 수신 실패 — 정적 데이터 사용 중', 'warn');
   }
 }
 
@@ -3010,7 +3010,7 @@ async function fetchSentimentHistory() {
     }
   } catch(e) {
     _aioLog('warn', 'fetch', 'VIX history fetch failed: ' + e.message);
-    showDataError('VIX', 'VIX 히스토리 로딩 실패 — 정적 차트 데이터 사용 중', 'warn');
+    showDataError('VIX', 'VIX 히스토리 수신 실패 — 정적 차트 데이터 사용 중', 'warn');
   }
 }
 
@@ -3575,7 +3575,7 @@ async function initV20DataEngine() {
   // Phase 2: Fast APIs (2-5s) — CoinGecko, Exchange Rate
   setTimeout(async () => {
     try { if (typeof fetchLiveQuotes === 'function') await fetchLiveQuotes(); }
-    catch(e) { showDataError('시세', '실시간 시세 로딩 실패 — 정적 데이터 사용 중', 'warn'); if(typeof _reportApiError==='function') _reportApiError('yahoo-quote','Phase2 실패'); }
+    catch(e) { showDataError('시세', '실시간 시세 수신 실패 — 정적 데이터 사용 중', 'warn'); if(typeof _reportApiError==='function') _reportApiError('yahoo-quote','Phase2 실패'); }
   }, 500);
 
   // Phase 3: Sentiment APIs (3-8s)
@@ -3585,7 +3585,7 @@ async function initV20DataEngine() {
       if (typeof fetchPutCall === 'function') await fetchPutCall();
       if(typeof _reportApiOk==='function') _reportApiOk('fear-greed','Phase3 성공');
       if(typeof window._markFetch==='function') { window._markFetch('sentiment'); window._markFetch('fearGreed'); window._markFetch('putCall'); }
-    } catch(e) { showDataError('심리지표', '공포탐욕/풋콜 로딩 실패 — 정적 데이터 사용 중', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fear-greed','Phase3 실패'); }
+    } catch(e) { showDataError('심리지표', '공포탐욕/풋콜 수신 실패 — 정적 데이터 사용 중', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fear-greed','Phase3 실패'); }
   }, 3000);
 
   // Phase 4: Heavy APIs (5-15s) — FRED, Breadth, News
@@ -3599,17 +3599,17 @@ async function initV20DataEngine() {
         if(typeof _reportApiError==='function') _reportApiError('fred','FRED fallback/no key');
       }
     }
-    catch(e) { showDataError('FRED', 'FRED 매크로 데이터 로딩 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fred','FRED 실패'); }
+    catch(e) { showDataError('FRED', 'FRED 매크로 데이터 수신 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fred','FRED 실패'); }
     try { await fetchBreadthData(); if(typeof window._markFetch==='function') window._markFetch('breadth'); }
-    catch(e) { showDataError('시장폭', 'Breadth 데이터 로딩 실패', 'warn'); }
+    catch(e) { showDataError('시장폭', 'Breadth 데이터 수신 실패', 'warn'); }
     try { await fetchSentimentHistory(); if(typeof _reportApiOk==='function') _reportApiOk('yahoo-chart','VIX 차트 성공'); if(typeof window._markFetch==='function') window._markFetch('vixHistory'); }
-    catch(e) { showDataError('VIX', 'VIX 히스토리 로딩 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('yahoo-chart','VIX 차트 실패'); }
+    catch(e) { showDataError('VIX', 'VIX 히스토리 수신 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('yahoo-chart','VIX 차트 실패'); }
   }, 5000);
 
   // Phase 5: News & Content (8-20s)
   setTimeout(async () => {
     try { if (typeof fetchAllNews === 'function') await fetchAllNews(false); if(typeof _reportApiOk==='function') _reportApiOk('rss-news','뉴스 로딩 성공'); if(typeof window._markFetch==='function') window._markFetch('news'); }
-    catch(e) { showDataError('뉴스', '뉴스 피드 로딩 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('rss-news','뉴스 실패'); }
+    catch(e) { showDataError('뉴스', '뉴스 피드 수신 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('rss-news','뉴스 실패'); }
   }, 8000);
 
   // Phase 6: WebSocket (if key available)
@@ -8162,7 +8162,7 @@ async function fetchAllNews(forceRefresh = false) {
   const dot  = document.getElementById('live-dot');
   const lbl  = document.getElementById('live-btn-label');
   if (dot) { dot.style.background = 'var(--yellow)'; dot.style.boxShadow = '0 0 5px var(--yellow)'; }
-  if (lbl) lbl.textContent = '불러오는 중...';
+  if (lbl) lbl.textContent = '뉴스 요청 중...';
   try { // v27.3: try-finally로 isFetching 영구 잠김 방지
 
   if (feed) feed.innerHTML = `
@@ -8576,7 +8576,7 @@ setTimeout(function() {
       // 부분 결과 있으면 렌더
       if (typeof renderHomeFeed === 'function') renderHomeFeed(items);
     } else {
-      hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;">뉴스 로딩 시간 초과 (네트워크 지연). <button data-action="_aioRetryNews" style="background:var(--data-cyan-soft);border:1px solid var(--border-accent-dim);color:#60a5fa;font-size:11px;padding:3px 9px;border-radius:4px;cursor:pointer;margin-left:6px;font-weight:600;">↻ 다시 시도</button></div>';
+      hn.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--text-muted);font-size:10px;">뉴스 수신 시간 초과 (네트워크 지연). <button data-action="_aioRetryNews" style="background:var(--data-cyan-soft);border:1px solid var(--border-accent-dim);color:#60a5fa;font-size:11px;padding:3px 9px;border-radius:4px;cursor:pointer;margin-left:6px;font-weight:600;">↻ 다시 시도</button></div>';
     }
   }
 }, 60000);
