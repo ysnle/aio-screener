@@ -2364,6 +2364,37 @@
     _assert('T520 deep_review_input_binding_shape_v4967: data-on-enter/input handler audit is included',
       deep && deep.tiers.interaction && typeof deep.tiers.interaction.inputBindingIssueCount === 'number',
       deep ? 'inputIssues=' + deep.tiers.interaction.inputBindingIssueCount : 'missing deep review audit');
+
+    var fourthFifth = window.AIO && window.AIO.getFourthFifthPassAudit && window.AIO.getFourthFifthPassAudit();
+    _assert('T521 fourth_fifth_pass_audit_shape_v4970: 4/5차 데이터·본질 감사 API shape',
+      fourthFifth && fourthFifth.passes && fourthFifth.passes.dataTruth && fourthFifth.passes.goalFit && typeof fourthFifth.issueCount === 'number',
+      fourthFifth ? JSON.stringify({ status: fourthFifth.status, score: fourthFifth.score, issues: fourthFifth.issueCount }) : 'missing fourth/fifth audit');
+
+    _assert('T522 fourth_pass_covers_data_pages_v4970: 4차 감사가 데이터 페이지를 직접 집계',
+      fourthFifth && fourthFifth.passes.dataTruth.pageCount === domPageCount && fourthFifth.passes.dataTruth.dataPageCount >= 8,
+      fourthFifth ? 'pages=' + fourthFifth.passes.dataTruth.pageCount + ' dataPages=' + fourthFifth.passes.dataTruth.dataPageCount : 'missing fourth/fifth audit');
+
+    _assert('T523 fifth_pass_goal_fit_scores_v4970: 5차 감사가 3대 목표 점수를 페이지별 산출',
+      fourthFifth && fourthFifth.passes.goalFit && typeof fourthFifth.passes.goalFit.overallScore === 'number' && Array.isArray(fourthFifth.passes.goalFit.weakestPages),
+      fourthFifth ? 'overall=' + fourthFifth.passes.goalFit.overallScore + ' weak=' + fourthFifth.passes.goalFit.weakPageCount : 'missing fourth/fifth audit');
+
+    var ffRow = document.querySelector('[data-audit-key="fourthFifth"]');
+    _assert('T524 sidebar_fourth_fifth_row_v4970: sidebar audit row [data-audit-key="fourthFifth"] exists',
+      !!ffRow, 'fourthFifth row=' + !!ffRow);
+
+    var opsFf = window.AIO && window.AIO.getAutoOpsReadiness && window.AIO.getAutoOpsReadiness();
+    _assert('T525 auto_ops_includes_fourth_fifth_v4970: getAutoOpsReadiness includes fourthFifthPass',
+      opsFf && opsFf.fourthFifthPass && opsFf.commands && opsFf.commands.fourthFifthPass === 'AIO.getFourthFifthPassAudit()',
+      opsFf ? 'hasFourthFifth=' + !!opsFf.fourthFifthPass : 'missing ops');
+
+    var gateFf = window.AIO && window.AIO.getDeploymentGateAudit && window.AIO.getDeploymentGateAudit({ strict: false });
+    _assert('T526 deployment_gate_includes_fourth_fifth_v4970: deployment gate includes fourthFifthPass',
+      gateFf && Object.prototype.hasOwnProperty.call(gateFf, 'fourthFifthPass'),
+      gateFf ? 'hasFourthFifth=' + Object.prototype.hasOwnProperty.call(gateFf, 'fourthFifthPass') : 'missing gate');
+
+    _assert('T527 direct_loading_copy_reduced_v4970: 직접 점검에서 초기 로딩 문구가 deepReview fail로 남지 않음',
+      deep && deep.issueCount === 0,
+      deep ? 'issues=' + deep.issueCount + ' title=' + (deep.issues || []).slice(0, 2).join('|') : 'missing deep review audit');
   }
 
   // v49.66 P348~P351 R121: AI 채팅 시스템 dead code / partial integration / silent fail 회귀 방지
