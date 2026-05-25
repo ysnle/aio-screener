@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.64 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.65 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2225,7 +2225,7 @@ h3.chat-h{font-size:14px;}h4.chat-h{font-size:12.5px;}h5.chat-h{font-size:11.5px
 .kr-theme-catalyst::after{content:"";font-size:11px;color:var(--text-muted);font-style:italic;}
 /* v36: 날짜는 DATE_ENGINE에서 동적 주입 — CSS content 하드코딩 제거 */
 
-  
+
 /* ═══════════════ TACTICAL INTELLIGENCE (X-OUTSIDE style) ═══════════════ */
 .tac-score-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;}
 @media(max-width:1100px){.tac-score-grid{grid-template-columns:repeat(3,1fr);}}
@@ -3896,6 +3896,8 @@ body.light-theme canvas { filter:none; }
               <div data-audit-key="webSearch">⏳ web_search 상태…</div>
               <div data-audit-key="freshness">⏳ 컨텍스트 신선도…</div>
               <div data-audit-key="chatContexts">⏳ CHAT_CONTEXTS 정합성…</div>
+              <div data-audit-key="analysisFramework">⏳ 분석 프레임워크 17 관점…</div>
+              <div data-audit-key="essence">⏳ 3대 본질 정렬…</div>
             </div>
             <!-- v49.58 P322 R108: web_search 토글 GUI -->
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,212,255,0.15);display:flex;justify-content:space-between;align-items:center;">
@@ -3987,7 +3989,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.64</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.65</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4054,7 +4056,7 @@ body.light-theme canvas { filter:none; }
       <div class="aio-card-title">🎯 지금 매매해도 될까? <span style="font-size:9px;color:var(--data-green);font-weight:700;">[PRIMARY]</span></div>
       <div class="aio-metric-value is-lg" id="home-trading-signal" style="color:var(--text-muted);margin-bottom:4px;font-size:24px;font-weight:900;">• • •</div>
       <div id="home-trading-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">
-        데이터 로딩 중...
+        데이터 수신 대기...
       </div>
       <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">가중치: Trend 8 + RS 4 + Vol 3 + IV 3 + Breakout 2 = 20</div>
     </div>
@@ -4092,7 +4094,7 @@ body.light-theme canvas { filter:none; }
       <button data-action="_aioRefreshActionPlan" style="font-size:10px;padding:3px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:4px;color:var(--text-secondary);cursor:pointer;">↻ 갱신</button>
     </div>
     <div id="home-action-position" style="font-size:12px;color:var(--text-primary);margin-bottom:6px;font-weight:600;">VIX 기반 포지션 사이즈 계산 중...</div>
-    <div id="home-action-sentiment" style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;line-height:1.5;">F&amp;G 기반 센티먼트 가이드 로딩 중...</div>
+    <div id="home-action-sentiment" style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;line-height:1.5;">F&amp;G 기반 센티먼트 입력 수신 대기...</div>
     <div id="home-action-breadth" style="font-size:11px;color:var(--text-muted);line-height:1.5;"></div>
     <div style="font-size:10px;color:var(--text-muted);margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
       📐 <strong>규칙</strong>: VIX <15→100%/15~20→80%/20~25→50%/25~30→30%/30+→15%. F&amp;G ≤25→역발상 매수 · 26~45→관심종목 1차 · 46~75→중립/추격자제 · 75+→차익실현.
@@ -4701,7 +4703,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
       <div id="score-decision-badge" style="padding:6px 18px;border-radius:20px;font-size:13px;font-weight:900;letter-spacing:0.05em;background:rgba(0,229,160,0.15);border:2px solid rgba(0,229,160,0.4);color:var(--data-green);">—</div>
-      <div id="score-decision-sub" style="font-size:11px;color:var(--text-muted);text-align:center;line-height:1.4;max-width:150px;">점수 계산 중…</div>
+      <div id="score-decision-sub" style="font-size:11px;color:var(--text-muted);text-align:center;line-height:1.4;max-width:150px;">점수 입력 수신 대기…</div>
       <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);" id="score-ts">—</div>
     </div>
 
@@ -4710,7 +4712,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;padding-left:2px;">점수 구성 상세 (가중 평균)</div>
       <div id="score-bars-container" style="display:flex;flex-direction:column;gap:6px;">
         <!-- JS로 렌더링 -->
-        <div style="font-size:11px;color:var(--text-muted);padding:10px;">라이브 데이터 로딩 중…</div>
+        <div style="font-size:11px;color:var(--text-muted);padding:10px;">라이브 데이터 수신 대기…</div>
       </div>
       <!-- 실행 타이밍 점수 (Enhanced) -->
       <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:10px 12px;">
@@ -5070,7 +5072,7 @@ body.light-theme canvas { filter:none; }
       <!-- v49.29 L2/L3/R61 적용: diagnoseBreadthConsensus 동적 합의 표시 -->
       <div id="breadth-consensus-readout" style="margin-top:10px;padding:8px 10px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.25);border-radius:5px;font-size:11px;color:var(--text-secondary);">
         <strong style="color:var(--accent);">🔀 다중 신호 합의 (R61 diagnoseBreadthConsensus):</strong>
-        <span id="breadth-consensus-verdict" style="color:var(--data-amber);font-weight:700;">계산 중...</span>
+        <span id="breadth-consensus-verdict" style="color:var(--data-amber);font-weight:700;">판정 입력 대기...</span>
         <div id="breadth-consensus-conflict" style="font-size:10px;color:var(--data-red);margin-top:3px;line-height:1.5;"></div>
         <div id="breadth-consensus-details" style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.4;"></div>
       </div>
@@ -5856,7 +5858,7 @@ body.light-theme canvas { filter:none; }
             <canvas id="vix-term-chart" role="img" aria-label="VIX 기간구조 스파클라인 차트"></canvas>
           </div>
           <div id="vix-term-regime" style="margin-top:8px;padding:7px 10px;background:var(--surface-2);border-left:3px solid var(--data-amber);border-radius:4px;font-size:11px;color:var(--text-secondary);line-height:1.5;">
-            <strong style="color:var(--data-amber);">기간구조 판정:</strong> <span id="vix-term-regime-text">데이터 로딩 중…</span>
+            <strong style="color:var(--data-amber);">기간구조 판정:</strong> <span id="vix-term-regime-text">데이터 수신 대기…</span>
           </div>
         </div>
 
@@ -5942,7 +5944,7 @@ body.light-theme canvas { filter:none; }
     <!-- v37.8: 심리지표 복합 분석 -->
     <div class="aio-widget" style="margin-top:12px;">
       <div class="widget-title">시장 심리 복합 판단</div>
-      <div id="sent-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">심리 지표 로딩 중...</div>
+      <div id="sent-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">심리 지표 수신 대기...</div>
     </div>
   </div>
     <!-- ═══════════════ PAGE: BRIEFING (데일리 브리핑) ═══════════════ -->
@@ -5966,8 +5968,8 @@ body.light-theme canvas { filter:none; }
   <!-- v49.29 E2/R69 Action Items — briefing에도 ACTION_RULES 적용 -->
   <div id="briefing-action-item-card" style="margin-bottom:12px;padding:12px 14px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.25);border-radius:10px;">
     <div style="font-size:12px;font-weight:800;color:var(--accent);margin-bottom:6px;">📋 오늘 시장 환경 기반 Action Item (R69 ACTION_RULES)</div>
-    <div id="briefing-action-position" style="font-size:11px;color:var(--text-primary);margin-bottom:4px;font-weight:600;">포지션 사이즈 계산 중...</div>
-    <div id="briefing-action-sentiment" style="font-size:11px;color:var(--text-secondary);">센티먼트 가이드 로딩 중...</div>
+    <div id="briefing-action-position" style="font-size:11px;color:var(--text-primary);margin-bottom:4px;font-weight:600;">포지션 입력 수신 대기...</div>
+    <div id="briefing-action-sentiment" style="font-size:11px;color:var(--text-secondary);">센티먼트 입력 수신 대기...</div>
   </div>
 
   <div class="insight-box box-collapsed">
@@ -6068,7 +6070,7 @@ body.light-theme canvas { filter:none; }
     <!-- v35.8: 동적 브리핑 — 라이브 데이터 기반 자동 생성 -->
     <div id="dynamic-briefing-content">
       <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px;">
-        시장 데이터 로딩 중...
+        시장 데이터 수신 대기...
       </div>
     </div>
 
@@ -6621,7 +6623,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
 
-      <div id="ws-analysis" style="font-size:11px;color:var(--text-muted);line-height:1.6;padding:8px;background:var(--surface-1);border-radius:6px;">분석 로딩 중…</div>
+      <div id="ws-analysis" style="font-size:11px;color:var(--text-muted);line-height:1.6;padding:8px;background:var(--surface-1);border-radius:6px;">분석 입력 수신 대기…</div>
     </div>
   </div>
 
@@ -7538,7 +7540,7 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
     <div id="cam-verdict" style="margin-top:10px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--text-secondary);line-height:1.6;">
-      <strong style="color:var(--data-amber);">통합 판정:</strong> <span id="cam-verdict-text">데이터 로딩 중 — 4축 정렬 확인 필요</span>
+      <strong style="color:var(--data-amber);">통합 판정:</strong> <span id="cam-verdict-text">4축 데이터 수신 대기 — 정렬 확인 필요</span>
     </div>
   </div>
 
@@ -7660,10 +7662,10 @@ body.light-theme canvas { filter:none; }
     <div class="fxb-dynamic-comment" id="fx-dynamic-comment">
       <div class="dc-title">외환시장 실시간 분석</div>
       <div class="dc-grid" id="fx-dynamic-grid">
-        <div><b style="color:var(--text-secondary);">달러 강세 배경:</b> <span id="fx-dc-dxy">분석 로딩 중…</span></div>
-        <div><b style="color:var(--text-secondary);">원화 동향:</b> <span id="fx-dc-krw">분석 로딩 중…</span></div>
-        <div><b style="color:var(--text-secondary);">엔화 시사점:</b> <span id="fx-dc-jpy">분석 로딩 중…</span></div>
-        <div><b style="color:var(--text-secondary);">위안화 리스크:</b> <span id="fx-dc-cny">분석 로딩 중…</span></div>
+        <div><b style="color:var(--text-secondary);">달러 강세 배경:</b> <span id="fx-dc-dxy">분석 입력 수신 대기…</span></div>
+        <div><b style="color:var(--text-secondary);">원화 동향:</b> <span id="fx-dc-krw">분석 입력 수신 대기…</span></div>
+        <div><b style="color:var(--text-secondary);">엔화 시사점:</b> <span id="fx-dc-jpy">분석 입력 수신 대기…</span></div>
+        <div><b style="color:var(--text-secondary);">위안화 리스크:</b> <span id="fx-dc-cny">분석 입력 수신 대기…</span></div>
       </div>
     </div>
 
@@ -7744,7 +7746,7 @@ body.light-theme canvas { filter:none; }
     <div class="yc-chart-wrap">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">수익률 곡선 그래프 (실시간)</span>
-        <span id="yc-chart-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">로딩 중…</span>
+        <span id="yc-chart-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수집 대기…</span>
       </div>
       <canvas id="koreaCurveChart" role="img" aria-label="한국 국채 수익률 곡선 차트"></canvas>
       <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--text-muted);">
@@ -7795,10 +7797,10 @@ body.light-theme canvas { filter:none; }
     <div class="fxb-dynamic-comment" id="bond-dynamic-comment" style="border-color:rgba(255,91,80,0.15);background:rgba(255,91,80,0.04);">
       <div class="dc-title" style="color:var(--data-red);">수익률 곡선 실시간 해석</div>
       <div class="dc-grid" id="bond-dynamic-grid">
-        <div><b style="color:var(--text-secondary);">곡선 상태:</b> <span id="bond-dc-curve">분석 로딩 중…</span></div>
-        <div><b style="color:var(--text-secondary);">10Y 금리 영향:</b> <span id="bond-dc-10y">분석 로딩 중…</span></div>
-        <div><b style="color:var(--text-secondary);">크레딧 상태:</b> <span id="bond-dc-credit">분석 로딩 중…</span></div>
-        <div><b style="color:var(--text-secondary);">투자 시사점:</b> <span id="bond-dc-implication">분석 로딩 중…</span></div>
+        <div><b style="color:var(--text-secondary);">곡선 상태:</b> <span id="bond-dc-curve">분석 입력 수신 대기…</span></div>
+        <div><b style="color:var(--text-secondary);">10Y 금리 영향:</b> <span id="bond-dc-10y">분석 입력 수신 대기…</span></div>
+        <div><b style="color:var(--text-secondary);">크레딧 상태:</b> <span id="bond-dc-credit">분석 입력 수신 대기…</span></div>
+        <div><b style="color:var(--text-secondary);">투자 시사점:</b> <span id="bond-dc-implication">분석 입력 수신 대기…</span></div>
       </div>
     </div>
 
@@ -8226,7 +8228,11 @@ body.light-theme canvas { filter:none; }
           <br><strong>(15) Macro Exposure</strong> <span style="color:var(--data-green);font-size:10px;">[✓ computeMacroBeta() v49.36 — 휴리스틱]</span> — 금리/달러/원자재 민감도.
         </div>
         <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;padding:6px 10px;background:rgba(0,229,160,0.08);border-radius:4px;">
-          <strong style="color:var(--data-green);">v49.36 커버리지: 구현 14/15 (93%)</strong> · Moat (Morningstar 유료) → SEC 10-K AI 분석 대체 · Industry Rank (IBD 유료) → SCREENER_DB.rsi 대체. 콘솔: <code>AIO.getFundamentalPageCriteriaAudit()</code>
+          <strong style="color:var(--data-green);">v49.65 커버리지: 17 관점 출처/함수 매핑 완료</strong> · 단, Supply Chain은 10-K 링크+키워드 가이드, TAM/Platform/Moat/FMP Segments는 confidence/키 의존 한계 고지 필수. 사이드바 Audit 위젯에서 커버리지와 3대 본질 정렬 상태를 확인할 수 있음.
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:6px;padding:6px 10px;background:rgba(168,85,247,0.06);border-radius:4px;">
+          <strong style="color:var(--text-primary);">사용자 요청 17 관점 분석 매트릭스 (v49.65 신규):</strong><br>
+          1) 기업 개요 <span style="color:var(--data-green);">✓ [SEC 10-K + Wiki]</span> · 2) 창립/성장 <span style="color:var(--data-green);">✓ [Wiki + News]</span> · 3) CEO/경영진 <span style="color:var(--data-green);">✓ [Wiki + Insider]</span> · 4) 비즈니스 모델 <span style="color:var(--data-green);">✓ [SEC + Wiki]</span> · 5) 사업 구조 <span style="color:var(--data-green);">✓ [Segments + SEC]</span> · 6) 제품 포트폴리오 <span style="color:var(--data-green);">✓ [FMP Segments]</span> · 7) 기술력/해자 <span style="color:var(--data-green);">✓ [Moat Score]</span> · 8) 수익 구조 <span style="color:var(--data-green);">✓ [Segments + Naver]</span> · 9) 재무제표 <span style="color:var(--data-green);">✓ [FMP + Balance + FCF]</span> · 10) 밸류에이션 <span style="color:var(--data-green);">✓ [PE + EV/EBITDA + 목표가]</span> · 11) TAM/시장 <span style="color:var(--data-amber);">⚠ [SIC + memo, confidence:low]</span> · 12) 공급망 <span style="color:var(--data-green);">✓ [SEC Item 1+1C]</span> · 13) 플랫폼/생태계 <span style="color:var(--data-amber);">⚠ [3-source synthesis, confidence:low]</span> · 14) 협력/파트너십 <span style="color:var(--data-green);">✓ [SEC 8-K 1.01+7.01]</span> · 15) 경쟁 구조 <span style="color:var(--data-green);">✓ [SEC + Wiki + peers]</span> · 16) 리스크 <span style="color:var(--data-green);">✓ [SEC 1A + Short]</span> · 17) 투자 포인트 <span style="color:var(--data-green);">✓ [컨센서스 + 종합]</span>
         </div>
       </div>
       <div class="explain-section">
@@ -8425,11 +8431,11 @@ body.light-theme canvas { filter:none; }
             <button class="aio-btn-table" data-action="_aioEarnCalWeekShift" data-arg="0" style="font-size:11px;padding:3px 8px;">이번주</button>
             <button class="aio-btn-table" data-action="_aioEarnCalWeekShift" data-arg="1" style="font-size:11px;padding:3px 8px;">다음 ▶</button>
           </div>
-          <span id="earn-cal-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">데이터 로딩 중</span>
+          <span id="earn-cal-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">데이터 수신 대기</span>
         </div>
       </div>
       <div id="earnings-calendar-body" class="aio-earn-cal-grid" style="display:grid;gap:8px;min-height:240px;">
-        <div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text-muted);font-size:10px;">어닝 캘린더 로딩 중… (Finnhub 우선, FMP 폴백, 무키 시 스냅샷)</div>
+        <div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text-muted);font-size:10px;">어닝 캘린더 수집 대기… (Finnhub 우선, FMP 폴백, 무키 시 스냅샷)</div>
       </div>
     </div>
 
@@ -8460,7 +8466,7 @@ body.light-theme canvas { filter:none; }
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
       <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">최근 실적 서프라이즈 현황</div>
       <div id="earnings-surprise-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-        <div style="grid-column:1/-1;text-align:center;padding:15px;color:var(--text-muted);font-size:11px;">데이터 로딩 중…</div>
+        <div style="grid-column:1/-1;text-align:center;padding:15px;color:var(--text-muted);font-size:11px;">데이터 수신 대기…</div>
       </div>
     </div>
 
@@ -8627,7 +8633,7 @@ body.light-theme canvas { filter:none; }
       </div>
       <div class="fxb-dynamic-comment" id="sector-perf-comment" style="margin-top:12px;">
         <div class="dc-title">섹터 흐름 분석</div>
-        <div id="sector-perf-analysis" style="font-size:12px;color:var(--text-muted);line-height:1.7;">분석 로딩 중…</div>
+        <div id="sector-perf-analysis" style="font-size:12px;color:var(--text-muted);line-height:1.7;">분석 입력 수신 대기…</div>
       </div>
     </div>
 
@@ -8676,8 +8682,8 @@ body.light-theme canvas { filter:none; }
       </div>
       <div id="cycle-dynamic-readout" style="margin-bottom:8px;padding:8px 10px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.25);border-radius:6px;font-size:11px;color:var(--text-secondary);">
         <strong style="color:var(--accent);">🔄 동적 사이클 판정 (v49.28/R67 getCycleFromMacro):</strong>
-        <span id="cycle-dynamic-phase" style="color:var(--data-amber);font-weight:700;">계산 중...</span> ·
-        <span id="cycle-dynamic-inputs" style="font-size:10px;color:var(--text-muted);">매크로 입력 로딩 중</span>
+        <span id="cycle-dynamic-phase" style="color:var(--data-amber);font-weight:700;">판정 입력 대기...</span> ·
+        <span id="cycle-dynamic-inputs" style="font-size:10px;color:var(--text-muted);">매크로 입력 수신 대기</span>
         <div id="cycle-dynamic-rationale" style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.5;"></div>
       </div>
       <div id="cycle-analysis" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;color:var(--text-muted);line-height:1.7;">
@@ -8699,7 +8705,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
       <div id="theme-heatmap" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-        <div style="grid-column:span 4;text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">테마 데이터 로딩 중…</div>
+        <div style="grid-column:span 4;text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">테마 데이터 수집 대기…</div>
       </div>
       <!-- 테마 상세 패널 -->
       <div id="theme-detail-panel" style="display:none;background:var(--surface-1);border:1px solid var(--border);border-radius:9px;padding:16px;margin-top:12px;position:relative;">
@@ -8712,7 +8718,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:14px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">세분화 테마 — 시장 전체 테마별 분류 & 대장주</div>
       <div id="sub-themes-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
         <!-- 동적: renderSubThemesGrid() -->
-        <div style="grid-column:span 4;text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">세분화 테마 로딩 중…</div>
+        <div style="grid-column:span 4;text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">세분화 테마 수집 대기…</div>
       </div>
       <!-- v38.3: 세분화 테마 심층 분석 패널 -->
       <div id="sub-theme-detail-panel" style="display:none;background:var(--surface-1);border:1px solid var(--border);border-radius:9px;padding:16px;margin-top:12px;position:relative;">
@@ -9410,7 +9416,7 @@ body.light-theme canvas { filter:none; }
         <div style="position:relative;height:300px;">
           <canvas id="ticker-price-chart" role="img" aria-label="종목 가격 차트" style="width:100%;height:100%;"></canvas>
           <div id="ticker-chart-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:12px;">
-            <span class="aio-spinner" style="margin-right:8px;"></span> 차트 로딩 중...
+            <span class="aio-spinner" style="margin-right:8px;"></span> 차트 데이터 수신 대기...
           </div>
         </div>
       </div>
@@ -9591,7 +9597,7 @@ body.light-theme canvas { filter:none; }
           <span id="live-dot" style="width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;display:inline-block;"></span>
           <span id="live-btn-label">LIVE RSS</span>
         </span>
-        <span id="last-fetch-time" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">로딩 중...</span>
+        <span id="last-fetch-time" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수신 대기...</span>
         <span id="market-news-count" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);"></span>
         <span id="market-news-tw-label" style="font-size:11px;color:var(--yellow);font-family:var(--font-mono);background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.2);border-radius:4px;padding:2px 8px;">48시간 이내</span>
         <button id="news-refresh-btn" data-action="_aioFetchAllNewsForce" style="background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.4);color:var(--data-cyan);font-size:11px;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.2s;hover:background:rgba(0,212,255,0.25);">↻ 새로고침</button>
@@ -9667,7 +9673,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- 로딩 프로그레스 바 -->
     <div id="news-progress-wrap" style="display:none;margin-bottom:8px;">
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;" id="news-progress-label">뉴스 로딩 중...</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px;" id="news-progress-label">뉴스 수집 대기...</div>
       <div style="height:3px;background:var(--surface-4);border-radius:2px;">
         <div id="news-progress-bar" style="height:3px;background:#3b82f6;border-radius:2px;width:0%;transition:width 0.3s;"></div>
       </div>
@@ -9896,7 +9902,7 @@ body.light-theme canvas { filter:none; }
     </div>
     <div id="vix-term-interp" style="margin-top:10px;padding:10px;background:rgba(255,163,26,0.08);border-left:3px solid var(--data-amber);border-radius:4px;">
       <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">
-        <strong style="color:var(--data-amber);">해석:</strong> <span id="vix-term-interp-text">실시간 데이터 로딩 중...</span>
+      <strong style="color:var(--data-amber);">해석:</strong> <span id="vix-term-interp-text">실시간 데이터 수신 대기...</span>
       </div>
     </div>
   </div>
@@ -10443,7 +10449,7 @@ body.light-theme canvas { filter:none; }
   <!-- v37.8: 옵션 동적 분석 -->
   <div class="aio-widget" style="margin-top:12px;">
     <div class="widget-title">옵션 환경 자동 판단</div>
-    <div id="opt-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">데이터 로딩 중...</div>
+    <div id="opt-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">데이터 수신 대기...</div>
   </div>
 
 </div>
@@ -10842,7 +10848,7 @@ body.light-theme canvas { filter:none; }
 
     <!-- 동적 분석 컨테이너 -->
     <div id="kr-supply-analysis" class="aio-widget" style="margin-bottom:12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);">
-      <div id="kr-supply-analysis-text" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">수급 데이터 로딩 중...</div>
+      <div id="kr-supply-analysis-text" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">수급 데이터 수신 대기...</div>
     </div>
 
     <!-- 지수 현황 카드 -->
@@ -10933,7 +10939,7 @@ body.light-theme canvas { filter:none; }
 
       <!-- 외국인/기관 순매수 TOP 10 종목 -->
       <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:11px;color:var(--text-muted);">기준일: <span id="kr-investor-top10-date" style="font-family:var(--font-mono);">로딩 중</span> · 시총 상위 100종목 대상</div>
+        <div style="font-size:11px;color:var(--text-muted);">기준일: <span id="kr-investor-top10-date" style="font-family:var(--font-mono);">수신 대기</span> · 시총 상위 100종목 대상</div>
         <span style="font-size:10px;">
           <a href="https://finance.naver.com/sise/sise_deal_rank.naver" target="_blank" rel="noopener noreferrer" rel="noopener" style="color:var(--blue);text-decoration:none;opacity:0.8;">외국인 순매매 ↗</a>
           <span style="color:var(--text-muted);margin:0 4px;">|</span>
@@ -10945,14 +10951,14 @@ body.light-theme canvas { filter:none; }
           <div class="widget-title">외국인 순매수 TOP 10</div>
           <table class="kr-flow-table" id="kr-investor-foreign-buy">
             <tr><th>#</th><th>종목</th><th>순매수 금액</th><th>순매수 수량</th></tr>
-            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">데이터 로딩 중...</td></tr>
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">데이터 수신 대기...</td></tr>
           </table>
         </div>
         <div class="aio-widget">
           <div class="widget-title">기관 순매수 TOP 10</div>
           <table class="kr-flow-table" id="kr-investor-organ-buy">
             <tr><th>#</th><th>종목</th><th>순매수 금액</th><th>순매수 수량</th></tr>
-            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">데이터 로딩 중...</td></tr>
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">데이터 수신 대기...</td></tr>
           </table>
         </div>
       </div>
@@ -10984,17 +10990,17 @@ body.light-theme canvas { filter:none; }
           <div style="background:var(--surface-2);border-radius:8px;padding:10px 12px;text-align:center;">
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">KOSPI 공매도 비중</div>
             <div id="kr-short-kospi-ratio" style="font-size:18px;font-weight:800;font-family:var(--font-mono);" data-live-kr="short-kospi-ratio">—</div>
-            <div id="kr-short-kospi-chg" style="font-size:10px;color:var(--text-muted);" data-live-kr="short-kospi-chg">데이터 로딩 중</div>
+            <div id="kr-short-kospi-chg" style="font-size:10px;color:var(--text-muted);" data-live-kr="short-kospi-chg">데이터 수신 대기</div>
           </div>
           <div style="background:var(--surface-2);border-radius:8px;padding:10px 12px;text-align:center;">
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">KOSDAQ 공매도 비중</div>
             <div id="kr-short-kosdaq-ratio" style="font-size:18px;font-weight:800;font-family:var(--font-mono);" data-live-kr="short-kosdaq-ratio">—</div>
-            <div id="kr-short-kosdaq-chg" style="font-size:10px;color:var(--text-muted);" data-live-kr="short-kosdaq-chg">데이터 로딩 중</div>
+            <div id="kr-short-kosdaq-chg" style="font-size:10px;color:var(--text-muted);" data-live-kr="short-kosdaq-chg">데이터 수신 대기</div>
           </div>
           <div style="background:var(--surface-2);border-radius:8px;padding:10px 12px;text-align:center;">
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">공매도 잔고 (코스피)</div>
             <div id="kr-short-balance" style="font-size:18px;font-weight:800;font-family:var(--font-mono);" data-live-kr="short-balance">—</div>
-            <div id="kr-short-balance-sub" style="font-size:10px;color:var(--text-muted);">데이터 로딩 중</div>
+            <div id="kr-short-balance-sub" style="font-size:10px;color:var(--text-muted);">데이터 수신 대기</div>
           </div>
         </div>
         <table class="kr-flow-table" id="kr-short-stock-table">
@@ -11010,7 +11016,7 @@ body.light-theme canvas { filter:none; }
         <div class="widget-title">외국인 보유 비중 TOP 10 <span class="kr-tag">KR 전용</span></div>
         <table class="kr-flow-table" id="kr-foreign-hold-top10">
           <tr><th>#</th><th>종목</th><th>외인비중</th><th>순매수 금액</th></tr>
-          <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">데이터 로딩 중...</td></tr>
+          <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">데이터 수신 대기...</td></tr>
         </table>
       </div>
     </div>
@@ -11096,7 +11102,7 @@ body.light-theme canvas { filter:none; }
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <span style="font-size:13px;font-weight:700;color:var(--text-secondary);">테마별 일간 퍼포먼스 랭킹</span>
-        <span id="kr-theme-rank-ts" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">로딩 중…</span>
+        <span id="kr-theme-rank-ts" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수집 대기…</span>
       </div>
       <div id="kr-theme-perf-bars" style="display:flex;flex-direction:column;gap:3px;"><div style="text-align:center;padding:12px;color:var(--text-muted);font-size:11px;">실시간 데이터 수신 후 자동 표시</div></div>
     </div>
@@ -11110,7 +11116,7 @@ body.light-theme canvas { filter:none; }
     <!-- v37.8: kr-themes 동적 테마 분석 -->
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">테마 동향 자동 분석</div>
-      <div id="kr-themes-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">테마 데이터 로딩 중...</div>
+      <div id="kr-themes-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">테마 데이터 수집 대기...</div>
     </div>
 
   </div><!-- /page-kr-themes -->
@@ -11292,7 +11298,7 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    
+
     <!-- ═══ 섹션 3B: 채권 금리 ═══ -->
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">주요 채권 금리</div>
@@ -11371,7 +11377,7 @@ body.light-theme canvas { filter:none; }
     <!-- ═══ v37.8: 한국 매크로 동적 분석 ═══ -->
     <div class="aio-widget" id="kr-macro-dynamic-widget" style="margin-bottom:12px;">
       <div class="widget-title">매크로 환경 자동 판단</div>
-      <div id="kr-macro-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">데이터 로딩 중...</div>
+      <div id="kr-macro-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">데이터 수신 대기...</div>
     </div>
 
     <!-- ═══ 섹션 6: 정책 일정 ═══ -->
@@ -11622,7 +11628,7 @@ body.light-theme canvas { filter:none; }
           <span style="font-size:14px;font-weight:900;font-family:var(--font-mono);" data-live-price="^KS11">—</span>
         </div>
         <div id="kr-kospi-tech-result" style="min-height:60px;">
-          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">로딩 중…</div>
+          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">수집 대기…</div>
         </div>
         <button data-action="analyzeKrTickerDeep" data-arg="^KS11" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSPI 분석 새로고침 </button>
       </div>
@@ -11632,7 +11638,7 @@ body.light-theme canvas { filter:none; }
           <span style="font-size:14px;font-weight:900;font-family:var(--font-mono);" data-live-price="^KQ11">—</span>
         </div>
         <div id="kr-kosdaq-tech-result" style="min-height:60px;">
-          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">로딩 중…</div>
+          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">수집 대기…</div>
         </div>
         <button data-action="analyzeKrTickerDeep" data-arg="^KQ11" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSDAQ 분석 새로고침 </button>
       </div>
@@ -11647,7 +11653,7 @@ body.light-theme canvas { filter:none; }
                data-on-enter="analyzeKrTickerDeep:__value_kr"/>
         <button data-action="_aioKrTickerSubmit"
                 style="padding:8px 16px;background:#ef4444;color:white;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;">
-          분석 
+          분석
         </button>
       </div>
       <!-- 빠른 종목 버튼 -->
@@ -12161,7 +12167,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 데이터가 "로딩 중..."에서 멈춰요</div>
+            <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 데이터가 "수신 대기"에서 멈춰요</div>
             <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 네트워크 연결 확인 → Ctrl+Shift+R로 강제 새로고침 → API 키 설정 확인 (사이드바  아이콘). Finnhub 키가 없으면 실시간 시세가 제한됩니다.</div>
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
@@ -12228,7 +12234,7 @@ body.light-theme canvas { filter:none; }
             <button data-action="_aioRefreshFreshness" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--data-cyan);font-size:11px;padding:3px 8px;border-radius:3px;cursor:pointer;">↻ 새로고침</button>
           </div>
           <div id="aio-freshness-panel" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);line-height:1.7;">
-            <div>로딩 중...</div>
+            <div>수신 대기...</div>
           </div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:6px;opacity:0.7;">
             🟢 실시간 (임계 30% 이내) · 🟡 오래됨 (임계 이내) · 🔴 stale (임계 초과, 폴백 데이터)
@@ -12353,7 +12359,7 @@ body.light-theme canvas { filter:none; }
       <button class="board-tab" data-filter="done" data-action="setBoardFilter" data-pass-el="1">완료</button>
     </div>
     <div id="board-list" style="flex:1;overflow-y:auto;padding:8px 0;">
-      <div style="padding:40px 20px;text-align:center;color:var(--text-muted);font-size:11px;font-family:'Inter',var(--font-sans);">로딩 중...</div>
+      <div style="padding:40px 20px;text-align:center;color:var(--text-muted);font-size:11px;font-family:'Inter',var(--font-sans);">수신 대기...</div>
     </div>
   </div>
 
@@ -12385,9 +12391,9 @@ body.light-theme canvas { filter:none; }
   }
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.64"></script>
-  <script src="./js/aio-data.js?v=49.64"></script>
-  <script src="./js/aio-ui.js?v=49.64"></script>
+  <script src="./js/aio-core.js?v=49.65"></script>
+  <script src="./js/aio-data.js?v=49.65"></script>
+  <script src="./js/aio-ui.js?v=49.65"></script>
 
   <script>
 
@@ -15349,11 +15355,11 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.64"></script>
+<script src="./js/aio-chat.js?v=49.65"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
-//  TECHNICAL ANALYSIS & MACRO — DYNAMIC JS ENGINE 
+//  TECHNICAL ANALYSIS & MACRO — DYNAMIC JS ENGINE
 // ═══════════════════════════════════════════════════════════════
 
 // ── Market Health Score (screener_pro compute_market_health 방법론) ──
@@ -16980,7 +16986,7 @@ function updateWtiBrentSpread() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  EVENT LISTENERS: Technical & Macro Pages 
+//  EVENT LISTENERS: Technical & Macro Pages
 // ═══════════════════════════════════════════════════════════════
 
 // Technical page init
@@ -17039,7 +17045,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
 });
 
 // ═══════════════════════════════════════════════════════════════
-//  ENHANCED CHAT CONTEXTS for Technical & Macro (Pro) 
+//  ENHANCED CHAT CONTEXTS for Technical & Macro (Pro)
 // ═══════════════════════════════════════════════════════════════
 (function() {
   window.CHAT_CONTEXTS = window.CHAT_CONTEXTS || {};
@@ -17950,7 +17956,7 @@ function initKoreaHome() {
     return;
   }
   _krHomeRetry = 0;
-  
+
   // Helper: safe number display
   function _krNum(v) { var n = Number(v); return isNaN(n) ? 0 : n; }
   function _krUpdateIdx(idPrice, sym) {
@@ -18125,7 +18131,7 @@ function initKoreaSupply() {
     return;
   }
   _krSupplyRetry = 0;
-  
+
   // Update any data-live-price elements in kr-supply page
   var els = document.querySelectorAll('#page-kr-supply [data-live-price]');
   els.forEach(function(el) {
@@ -18140,7 +18146,7 @@ function initKoreaSupply() {
       }
     }
   });
-  
+
   // Also update direct kr-supply page elements using KOSPI/KOSDAQ
   var kospi = ld['^KS11'];
   if (kospi && kospi.price !== undefined) {
@@ -18154,7 +18160,7 @@ function initKoreaSupply() {
       }
     }
   }
-  
+
   var kosdaq = ld['^KQ11'];
   if (kosdaq && kosdaq.price !== undefined) {
     var el = document.getElementById('kr-supply-kosdaq-price');
@@ -20408,7 +20414,7 @@ function initKoreaMacro() {
     return;
   }
   _krMacroRetry = 0;
-  
+
   // Update KRW exchange rate
   var krw = ld['KRW=X'];
   if (krw && krw.price !== undefined) {
@@ -20422,7 +20428,7 @@ function initKoreaMacro() {
       }
     }
   }
-  
+
   // Update US 10Y bond yield
   var tnx = ld['^TNX'];
   if (tnx && tnx.price !== undefined) {
@@ -20436,7 +20442,7 @@ function initKoreaMacro() {
       }
     }
   }
-  
+
   // Update Korea 3Y bond yield (using mock data if not available from API)
   // In production, this would come from Korea Bond Exchange or similar source
   var kr3y = ld['^KR3Y'] || (DATA_SNAPSHOT.krBond3y ? {price: DATA_SNAPSHOT.krBond3y} : null); // v46.9: DATA_SNAPSHOT 폴백
@@ -23362,7 +23368,7 @@ _aioPageBus.register('html-fxbond-live', 'aio:liveQuotes', function() {
 });
 
 // ═══════════════════════════════════════════════════════════════
-//  YIELD CURVE CHART (Chart.js Canvas) 
+//  YIELD CURVE CHART (Chart.js Canvas)
 // ═══════════════════════════════════════════════════════════════
 var _ycChart = null;
 function initYieldCurveChart() {
@@ -23469,7 +23475,7 @@ function initYieldCurveChart() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  DYNAMIC FX/BOND COMMENTARY (라이브 데이터 기반 자동 해설) 
+//  DYNAMIC FX/BOND COMMENTARY (라이브 데이터 기반 자동 해설)
 // ═══════════════════════════════════════════════════════════════
 function generateFxBondCommentary() {
   var ld = window._liveData || {};
@@ -23687,7 +23693,7 @@ function updateCrossAssetMatrix() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  FUNDAMENTAL PAGE — Live Data + Earnings Calendar 
+//  FUNDAMENTAL PAGE — Live Data + Earnings Calendar
 // ═══════════════════════════════════════════════════════════════
 var FUND_TICKERS = ['NVDA','AAPL','MSFT','TSLA','AMD','AVGO','TSM','INTC'];
 var _fundData = {};
@@ -24242,7 +24248,7 @@ setTimeout(function() {
 }, 2000);
 
 // ═══════════════════════════════════════════════════════════════
-//  COMPREHENSIVE THEME & SECTOR SYSTEM (screener_pro.py 통합) 
+//  COMPREHENSIVE THEME & SECTOR SYSTEM (screener_pro.py 통합)
 // ═══════════════════════════════════════════════════════════════
 
 // ── GICS 11 섹터 ETF (RRG 기본) ─────────────────────────────────
@@ -24504,7 +24510,7 @@ THEME_MAP.forEach(function(t, i){ THEME_INDEX[t.id] = i; });
 var ALL_RRG_ETFS = RRG_SECTORS.concat(RRG_SUBSECTORS);
 
 // ══════════════════════════════════════════════════════════════════
-//  RS (Relative Strength) 계산 시스템 — screener_pro.py 방법론 
+//  RS (Relative Strength) 계산 시스템 — screener_pro.py 방법론
 // ══════════════════════════════════════════════════════════════════
 // 스크리너 공식: rs_comp = 0.40×rs252 + 0.20×rs126 + 0.20×rs63 + 0.20×rs21
 // RRG: RS_Ratio = 100 × (Sector/SPY) / MA(Sector/SPY, 13wk)
@@ -24618,7 +24624,7 @@ function classifyRRG(rsRatio, rsMom) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  커스텀 테마 합산 (ETF 없는 테마: 정규화 수익률 기반) 
+//  커스텀 테마 합산 (ETF 없는 테마: 정규화 수익률 기반)
 // ══════════════════════════════════════════════════════════════════
 // 주의: 단순 가격 합산 아님! 기준일 대비 정규화 수익률(normalized returns) 사용
 
@@ -24684,7 +24690,7 @@ function getThemePerf(theme) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  시장 브레드스 (Market Breadth) — screener compute_breadth 기반 
+//  시장 브레드스 (Market Breadth) — screener compute_breadth 기반
 // ══════════════════════════════════════════════════════════════════
 function calcSectorBreadth(tickers) {
   // v36.9: 종가 기준 pct 사용 (장중 변동으로 폭 흔들림 방지)
@@ -24701,7 +24707,7 @@ function calcSectorBreadth(tickers) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  핫/이머징 테마 감지 
+//  핫/이머징 테마 감지
 // ══════════════════════════════════════════════════════════════════
 function detectHotThemes() {
   var results = [];
@@ -25335,7 +25341,7 @@ function generateSectorAnalysis(sectors) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  테마 히트맵 & 핫 테마 패널 동적 렌더 
+//  테마 히트맵 & 핫 테마 패널 동적 렌더
 // ═══════════════════════════════════════════════════════════════
 var _themeHeatmapRetries = 0;
 function renderThemeHeatmap() {
@@ -25390,7 +25396,7 @@ function renderThemeHeatmap() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  테마 상세 패널 (서브테마 + 대장주 + 라이브 가격) 
+//  테마 상세 패널 (서브테마 + 대장주 + 라이브 가격)
 // ═══════════════════════════════════════════════════════════════
 function showThemeDetail(themeId) {
   var idx = THEME_INDEX[themeId];
@@ -25588,7 +25594,7 @@ function closeThemeDetail() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  v38.3: 세분화 테마(SUB_THEMES) 심층 분석 
+//  v38.3: 세분화 테마(SUB_THEMES) 심층 분석
 // ═══════════════════════════════════════════════════════════════
 function showSubThemeDetail(subThemeId) {
   var idx = SUB_THEME_INDEX[subThemeId];
@@ -25801,7 +25807,7 @@ function closeSubThemeDetail() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  누적 히스토리 수집 (RS 정밀도 향상) 
+//  누적 히스토리 수집 (RS 정밀도 향상)
 // ═══════════════════════════════════════════════════════════════
 function collectPriceHistory() {
   var ld = window._liveData || {};
@@ -25816,7 +25822,7 @@ function collectPriceHistory() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  ALL-ETF GRID 렌더 (섹터+서브 ETF 전체 시세) 
+//  ALL-ETF GRID 렌더 (섹터+서브 ETF 전체 시세)
 // ═══════════════════════════════════════════════════════════════
 // v48.57: 무한 재귀 가드 — 60회(30초) 재시도 후 폴백 메시지
 window._renderAllEtfGridRetries = 0;
@@ -25862,7 +25868,7 @@ function showThemeByEtf(etfSym) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  세분화 테마 (Sub-Themes) — 시장 핵심 트렌드 & 대장주 
+//  세분화 테마 (Sub-Themes) — 시장 핵심 트렌드 & 대장주
 // ═══════════════════════════════════════════════════════════════
 // 각 세분화 테마: 고유 색상, 대장주(리더), 관련 종목, 커스텀 합산
 var SUB_THEMES = [
@@ -25979,7 +25985,7 @@ var KR_INSIGHT_MAP = {
 };
 
 // ═══════════════════════════════════════════════════════════════
-//  v38.3: 테마별 맞춤 인사이트 데이터 (레퍼런스 기반) 
+//  v38.3: 테마별 맞춤 인사이트 데이터 (레퍼런스 기반)
 // ═══════════════════════════════════════════════════════════════
 var THEME_INSIGHTS = {
   defense:{macro:'지정학 위험 확대(중동·대만) + 국방 예산 증액이 필수.',breakSignals:['중동 분쟁 급격한 완화','미국 국방 예산 감액','위성/우주 프로젝트 지연'],paradox:null,chainEffect:'방산 수요↑ → 항공우주 부품 부족 → 산업재 비용↑',sentiment:'전쟁공포 급등 후 지속성 낮음. 실제 발주 6~12개월 소요.'},
@@ -27084,7 +27090,7 @@ function renderSubThemesGrid() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  THEMES PAGE INIT & EVENT WIRING 
+//  THEMES PAGE INIT & EVENT WIRING
 // ═══════════════════════════════════════════════════════════════
 // v48.99: _aioPageBus 마이그 (P180)
 _aioPageBus.register('html-themes-shown', 'aio:pageShown', function(e) {
@@ -27412,9 +27418,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.64"></script>
+<script src="./js/aio-glossary.js?v=49.65"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.64"></script>
+<script src="./js/aio-tests.js?v=49.65"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전

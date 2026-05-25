@@ -1213,6 +1213,92 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R119. 3대 본질 정렬 감사 의무 (v49.65 추가, P346 근본)
+
+**원칙**: 주요 기능/데이터/UX 변경은 항상 AIO의 3대 본질에 맞는지 자동 감사되어야 한다.
+1. 기관급 기능과 내용을 초보자가 접근 가능한 All-in-one 스크리너
+2. 정확한 최신 데이터를 지속 제공하고 자동 업데이트하는 운영 시스템
+3. 직관적으로 사용 및 이해 가능한 스크리너
+
+**구조**:
+- `AIO.getEssenceAlignmentAudit()`는 `institutionalAllInOne`, `accurateFreshAutoOps`, `intuitiveBeginnerUse` 3개 goal 점수와 `overallScore`를 반환해야 한다.
+- 사이드바 audit widget에는 `[data-audit-key="essence"]` row가 존재해야 하며 3개 goal 점수를 사용자가 바로 볼 수 있어야 한다.
+- `AIO.getAutoOpsReadiness()`는 `essenceAlignment` 결과와 `AIO.getEssenceAlignmentAudit()` 명령을 포함해야 한다.
+- `AIO.getDeploymentGateAudit()`는 `essenceAlignment`를 포함하고, 전체 점수 70 미만은 배포 blocker로 취급해야 한다.
+
+**근거 (P346)**: v49.65 Codex 감사에서 이전 "전수 조사"가 정적/문서 중심이면 다음 변경 때 본질 정렬이 다시 빠질 수 있음을 확인. 페이지 안내, live 데이터 lineage, refresh scheduler, analysis framework, 배포 게이트를 하나의 제품 목표 감사로 묶어야 회귀를 막을 수 있다.
+
+**검증**: `AIO.runTests()` T486 (essence audit API shape) / T487 (sidebar essence row) / T488 (AutoOps 통합) / T489 (deployment gate 통합) / T490 (모든 page brief registry 커버).
+
+---
+
+## R120. 초보자 초기 상태 문구는 보이는 DOM 기준으로만 감사 (v49.65 추가, P347 근본)
+
+**원칙**: "로딩 중/계산 중/분석 로딩 중/데이터 로딩 중"은 사용자에게 오류인지 대기인지 모호하므로 초기 화면 문구로 쓰지 않는다. 대체 문구는 "수신 대기", "수집 대기", "판정 입력 대기", "분석 입력 수신 대기"를 사용한다.
+
+**감사 방식**:
+- `AIO.getEssenceAlignmentAudit()`의 텍스트 카운트는 보이는 DOM 텍스트만 대상으로 한다.
+- `SCRIPT`, `STYLE`, `NOSCRIPT`, `TEMPLATE` 내부 문자열/주석은 사용자 화면 문구가 아니므로 직관성 벌점에 포함하지 않는다.
+- 실제 화면의 초기 문구에서 `로딩 중|데이터 로딩|분석 로딩|계산 중` 카운트는 0이어야 한다.
+
+**근거 (P347)**: v49.65 최초 3대 본질 감사에서 `document.body.textContent`가 script 문자열까지 세어 오탐을 만들었고, 실제 화면에도 29건의 모호한 초기 로딩 문구가 남아 있었다. 브라우저 기준으로 visible loading count 0건까지 정규화.
+
+**검증**: `AIO.runTests()` T491 (`loadingTextCount === 0`) + 브라우저 sidebar essence row의 직관성 점수 확인.
+
+---
+
+## R118. REGISTRY coveragePct와 실등록 카운트 분리 감사 의무 (v49.65 추가, P339 근본)
+
+**원칙**: REGISTRY 확장 평가는 `AIO.assertTickerRegistryCompleteness().coveragePct`와 `AIO.getTickerRegistryEntryAudit().realEntries`를 함께 본다. `_dup`/`_skip` placeholder는 coverage와 실등록 카운트에서 제외해야 한다.
+
+**근거 (P339)**: v49.59에서 REGISTRY 173 → 230+ (32% → 50%)으로 확장 했지만 이후 SCR_KEYWORD_ALIASES 추가 시 audit threshold 미상향. KOSDAQ 200+ / 인도 ADR / 유럽 ADR 미등록 여전. 사용자가 "현대중공업 검색" 안되면 silent fail.
+
+**구조**:
+- `getAudit().coveragePct >= 60` → green ✓ 정상
+- `>= 30 && < 60` → amber ⚠ 확장 권장
+- `< 30` → red ✗ 긴급 확장 필요
+
+**검증**: `AIO.runTests()` T471 (realEntries >= 380 + placeholderCount <= 8) / T472 (coveragePct >= 40) + 사이드바 위젯 시각.
+
+---
+
+## R117. dataConfidence:low 분야 환각 차단 알림 의무 (v49.65 추가, P340 근본)
+
+**원칙**: AI 답변에서 `dataConfidence: "low"` 또는 `"low-medium"` 분야 (Supply Chain #12, Platform/Ecosystem #13, TAM #11, Moat #7 일부)는 응답에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지.
+
+**근거 (P340)**: v49.65에서 17 관점 미구현 3개 (#12 공급망 / #13 플랫폼 / #14 파트너십)에 신규 fetch 함수를 추가했으나, 외부 API가 없는 #13 Platform/Ecosystem은 3-source 합성 score만 산출. AI가 "이 회사는 대규모 플랫폼/생태계를 가진다" 단정 환각 위험.
+
+**구조**:
+- 신규 fetch (`fetchSECSupplyChain` / `fetchPlatformEcosystem` / `computeMoatScore` / `computeTAMEstimate`) 모두 `dataConfidence` 필드 반환 의무
+- 링크+키워드 가이드만 제공하는 함수는 `sourceMode`/`requiresManualFetch`를 반환해 자동 추출과 구분
+- ABSOLUTE RULES 7조 (`_getChatRules`) — "dataConfidence: low 분야는 답변에 '정성 분석 한계' 경고 필수"
+- AI 학습 데이터 추정 절대 금지
+
+**검증**: `AIO.runTests()` T478 (fetchPlatformEcosystem source에 dataConfidence 분기 존재) + T483 (ABSOLUTE RULES 7조에 dataConfidence 의무 텍스트).
+
+---
+
+## R116. 새 분석 관점 추가 시 4축 동시 갱신 의무 (v49.65 추가, P340 근본)
+
+**원칙**: AIO_ANALYSIS_FRAMEWORK_REGISTRY에 새 관점 (entry) 추가 시 다음 4축을 동시 갱신:
+1. **REGISTRY entry**: `fields.{key}` 추가 (num/label/type/primarySource/implFn/freshness/aiHallucinationRisk)
+2. **implFn 함수**: 실제 fetch/compute 함수 정의 (없으면 plannedFn 명시 + R117 dataConfidence:low)
+3. **_fetchTickerDataForChat promise**: 채팅 통합 (`_withTimeout` 2.5초 + 일부 실패 graceful fallback)
+4. **ABSOLUTE RULES**: `_getChatRules` 또는 `_fetchTickerDataForChat` 반환 텍스트에 라벨 인용 의무 (학습 데이터 환각 차단)
+
+**근거 (P340)**: v49.34 ANALYSIS_FRAMEWORK_REGISTRY 15 entries에서 partnership #14는 `implFn: null, plannedFn: 'fetchSECRecentFilings'`로 1년+ 잔존. supply-chain #12는 implFn 있으나 채팅 통합 안 됨. 4축 동시 갱신 미의무로 갭 누적.
+
+**구조**:
+- v49.65 신규 entry "platform-ecosystem" #13 → 4축 모두 완성 사례:
+  - REGISTRY entry ✓
+  - implFn `fetchPlatformEcosystem` ✓
+  - _fetchTickerDataForChat `platformPromise` + `[Platform Eco]` 라벨 ✓
+  - ABSOLUTE RULES 6조 (R116 17 라벨 인용 의무) + 7조 (R117 dataConfidence) ✓
+
+**검증**: `AIO.runTests()` T482 (17 user perspectives + support fields/partialFields) + T481 (6 신규 promise + 6 신규 라벨) + T483 (R116/R117 rules 텍스트).
+
+---
+
 ## R115. 사용자 가시 placeholder 텍스트 표준 의무 (v49.64 추가, P334 근본)
 
 **원칙**: 모든 사용자 가시 "대기 중" 상태 placeholder는 "수신 대기" (incoming) / "수집 대기" (collecting) 표준 사용. "계산 중" / "로딩 중" / "분석 중" 금지.

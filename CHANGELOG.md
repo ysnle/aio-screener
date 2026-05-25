@@ -6,6 +6,99 @@
 
 ---
 
+## v49.65 — AI 채팅 17 관점 분석 프레임워크 + 정직 커버리지 보강 (2026-05-25)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Codex essence audit addendum (P346/R119)**: `AIO.getEssenceAlignmentAudit()` added to turn the three product goals into repeatable checks: institutional-grade all-in-one coverage, accurate/fresh automated operations, and beginner-intuitive use. The result is wired into sidebar `[data-audit-key="essence"]`, `AIO.getAutoOpsReadiness()`, `AIO.getDeploymentGateAudit()`, and T486~T490. Deployment gate treats overall score below 70 as a blocker.
+
+**Codex beginner UX hardening (P347/R120)**: essence audit text counting now excludes `SCRIPT/STYLE/NOSCRIPT/TEMPLATE` so invisible code strings do not penalize beginner UX. Visible initial "로딩 중/계산 중/분석 로딩" copy was normalized to "수신 대기/수집 대기/판정 입력 대기"; browser visible loading count verified at 0, sidebar essence improved to 89점 with intuitiveBeginnerUse 79. T491 prevents regression.
+
+**Motivation**: 사용자 정직 질의 "AI 채팅에서 테마/트렌드 종목 모두 들어가 있어야 + 기업/종목 17개 관점 모두 최신 정확한 데이터로 답변 가능?" → Explore agent 진단: 17 관점 중 8개(47%) 부분/미구현 + REGISTRY 34% (500+ ticker 미등록). v49.65에서 17 관점 출처/함수 매핑을 완료하되, low-confidence/가이드형 분야를 별도 표기하도록 정직 보강.
+
+**Codex 보강 (커밋 전 추가 감사)**:
+- REGISTRY 실제 수치 정정: v49.64 273 → v49.65 391 total / 383 real / 8 placeholder. 문서·테스트에서 410+/470+/200+ 과장 수치를 제거하고 `AIO.getTickerRegistryEntryAudit()`로 placeholder 제외 카운트 검증.
+- `fetchPlatformEcosystem()`의 `SCREENER_DB` 접근 버그 수정: 배열을 `db[ticker]`로 조회하던 부분을 `.find(r => r.sym === ticker)`로 변경.
+- `fetchSECRecentFilings()`에 `opts.max8K` 추가, `fetchPartnershipAlerts()`는 최근 8-K 5건이 아니라 최대 40건을 검사해 6개월 필터 누락 위험 완화.
+- `fetchSECSupplyChain()`은 실제 공급사 추출이 아니라 10-K 링크+키워드 가이드임을 `sourceMode`, `requiresManualFetch`, `dataConfidence:low-medium`으로 명시.
+- `fetchFMPSegments()` raw 응답을 `{name,revenue,year}`로 정규화하는 `AIO.normalizeFMPSegments()` 추가. 채팅의 `[Segments]` 라벨이 실제로 소비 가능한 형태만 출력.
+- `computeTAMEstimate()`가 memo에서 추출한 TAM/CAGR를 indicators에만 넣고 출력값에 반영하지 않던 문제 수정.
+- `getAnalysisFrameworkCoverageAudit()`는 19개 필드 전체가 아니라 num 1~17 사용자 관점만 분모로 계산하고, num 0 보조 필드 2개/partialFields/operationalCoveragePct를 별도 반환. 기존 T283의 15개 고정 기대도 갱신.
+
+**Changes**:
+
+**Phase 1 — 17 관점 미구현 3 신규 fetch (P340/R116/R117)**:
+- `AIO.fetchSECSupplyChain` (#12 공급망): SEC 10-K Item 1 + Item 1C 키워드 가이드 (supplier/concentration/single source/foundry/customer concentration) + dataConfidence:low-medium. fetchSECBusinessDescription raw 재사용 비용 0, 실제 공급사명 자동 추출은 아님
+- `AIO.fetchPartnershipAlerts` (#14 협력/파트너십): SEC 8-K Item 1.01 (Material Definitive Agreement) + 7.01 (Reg FD) 최근 6개월 필터. fetchSECRecentFilings 캐시 재사용 비용 0. dataConfidence:high
+- `AIO.fetchPlatformEcosystem` (#13 플랫폼/생태계): 3-source 합성 — SCREENER_DB.memo 키워드 grep + FMP segments 플랫폼/서비스/구독 매출 비중 + Finnhub news 30일 platform 언급 카운트. ecosystemScore 0~100 + verdict (Strong/Moderate/Limited) + dataConfidence:low/low-medium (외부 API 없음)
+
+**Phase 2 — 17 관점 부분 구현 4 보강 (P341)**:
+- `AIO.computeMoatScore` (#7 기술력/해자 — Morningstar 유료 자동 채점 대체): 7가지 해자 유형 자동 채점 (R&D/매출 >=15% / GM 60%+ / FCF margin 20%+ / OpMargin 20%+ / SG&A 하락 / license-regulatory keyword / network effect memo). Wide(7+)/Narrow(3~6)/None(<3) 10점. SCREENER_DB + Naver financials 자동
+- `AIO.fetchFMPSegments` 통합 (#6 제품 포트폴리오 + #8 수익 구조): 기존 함수 호출만 추가 (`fmpSegPromise` + `[Segments]` 라벨)
+- `AIO.computeTAMEstimate` (#11 TAM/시장 분석): SEC SIC code + AIO_INDUSTRY_TAM_REGISTRY 21 SIC 매핑 (반도체 $2,500B/CAGR 8% / SaaS $700B/11% / e-commerce $6,000B/9% 등) + SCREENER_DB.memo "TAM:" 패턴 grep. dataConfidence:low 명시 의무
+
+**Phase 3 — _fetchTickerDataForChat 11 → 17 promise 확장 (P343)**:
+- 6 신규 promise (supplyChain/partnership/platform/moat/fmpSeg/tam) + 2.5초 timeout + Promise.allSettled
+- system 프롬프트 6 신규 라벨: `[Supply Chain]` `[Partnerships]` `[Platform Eco]` `[Moat Score]` `[Segments]` `[TAM]` + 각각 가이드 텍스트 (학습 데이터 환각 차단)
+- ABSOLUTE RULES 5조 → **7조**:
+  - 신규 6조 (R116): 17 관점 6 신규 라벨만 인용, 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 추정 절대 금지
+  - 신규 7조 (R117): dataConfidence:low/low-medium 분야 (Platform/TAM/Moat 일부) "정성 분석 한계 — 외부 확인 권장" 경고 의무 + "Strong/Wide/Large" 강한 형용 금지
+- 17 분석 관점 출처 매핑 표 추가 (1~17 각각 데이터 소스 명시)
+- fundamental 17 관점 가용성 표 갱신 (✓ 14 / ⚠ 3 / ❌ 0)
+
+**Phase 4 — TICKER REGISTRY 273 → 391 total / 383 real (P339/R118)**:
+- KR KOSDAQ 50: 2차전지 (에코프로 시리즈/엔켐/L&F/SK IE Tech/대주전자) + 반도체 (리노공업/HPSP/하나마이크론/EOTechnics/한미반도체) + 바이오 (알테오젠/휴젤/클래시스/메디톡스/루닛/에이비엘바이오) + AI/로봇 (레인보우로보틱스) + 엔터/게임 (HYBE/JYP/SM/넷마블/펄어비스/카카오게임즈/데브시스터즈)
+- KR KOSPI 25: 화학/소재 (한화솔루션/롯데케미칼/S-Oil/SK이노/한솔케미칼/LG디스플레이/두산에너빌리티) + 방산/우주 (KAI/LIG넥스원/한화에어로) + 금융/보험 (신한/KB/하나/우리/DGB/삼성생명/삼성화재) + 헬스 (셀트리온/한미약품/한올바이오)
+- KR ETF 10: TIGER 미국나스닥100/S&P500/테크TOP10/리튬/차이나전기차 + KODEX 금현물/레버리지/200선물인버스/코스닥레버리지
+- 인도 ADR 8: IBN ICICI / HDB HDFC / INFY Infosys / WIT Wipro / TTM Tata Motors / RDY Dr Reddy's
+- 유럽 ADR 15: SAP / SIEGY Siemens / NSRGY Nestlé / LVMUY LVMH / RHHBY Roche / NVS / UL / DEO / AZN / GSK / TM Toyota / HMC Honda / SNY Sanofi / EADSY Airbus
+- 신흥국 10: VALE / ITUB / BBD / MELI Mercado Libre / SE Sea Ltd / GLOB Globant / BIDU / PDD / BABA
+- 미국 보강 20: 헬스 (VEEV/EW/BSX/DXCM/IDXX/GEHC/MDT) + 통신 (T/VZ) + 금융 (SCHW/PNC/BK) + 원전 (TLN/OKLO/SMR) + 게임 (NTDOY/SONY) + 기타 (NEE/DE)
+
+**Phase 5 — ANALYSIS_FRAMEWORK_REGISTRY 15 → 17 entries + 가시화 (P342)**:
+- 사용자 17 관점 1:1 매핑 (num 1~17)
+- 신규/갱신: `founding-growth` #2 (Wikipedia + News) + `moat-economic` #7 (computeMoatScore 자동) + `supply-chain` #12 (fetchSECSupplyChain implFn 매핑) + `platform-ecosystem` #13 (fetchPlatformEcosystem dataConfidence:low) + `partnership` #14 (fetchPartnershipAlerts implFn 매핑 — 이전 plannedFn 잔존 해소)
+- fundamental 페이지 17 관점 ✓/⚠ 색상 배지 매트릭스 가시화 (index.html L8228~) + v49.65 커버리지 박스 "17 관점 출처/함수 매핑 완료" 및 partial/low-confidence 한계 고지.
+
+**Phase 6 — 사이드바 audit row 4축 → 5축 (P344)**:
+- `[data-audit-key="analysisFramework"]` 신규 row (index.html L3899)
+- `_aioRefreshAuditWidget` 확장 — `getAnalysisFrameworkCoverageAudit().implementedCount/totalCount/coveragePct` 표시
+- 색상: >=85% green ✓ / >=60% amber ⚠ / <60% red ✗
+- 5축: registry / web_search / freshness / chatContexts / **analysisFramework**
+
+**Phase 7 — Pre-existing 1건 시정**:
+- T175 live_defaults: `DATA_SNAPSHOT._fallback.dxy` 98.16 → 99.40 (stale token 회피)
+- T259 chat_numeric_safelist: technical context system()에 이미 "NOT absolute prices" + "RATIO/DISTANCE thresholds" 텍스트 존재 → 통과
+- T394 risk-radar-body lineage: v49.64 P337 시정으로 통과
+
+**Phase 8 — T471~T485 15 신규 라이브 DOM 회귀 (Group61 등록)**:
+- T462 갱신: APP_VERSION === 'v49.65'
+- T471: REGISTRY entries >= 350
+- T472: coveragePct >= 40
+- T473: KOSDAQ 핵심 신규 (엔켐/리노공업/알테오젠/한화솔루션) 등록
+- T474: 인도 ADR (IBN/HDB/INFY) 등록
+- T475: 유럽 ADR (SAP/SIEGY/NSRGY/LVMUY) 등록
+- T476: fetchSECSupplyChain 정의
+- T477: fetchPartnershipAlerts 정의
+- T478: fetchPlatformEcosystem 정의 + dataConfidence 분기
+- T479: computeMoatScore 정의 + verdict (Wide/Narrow/None) 분기
+- T480: computeTAMEstimate + AIO_INDUSTRY_TAM_REGISTRY 정의
+- T481: _fetchTickerDataForChat 6 신규 promise + 6 신규 라벨 통합
+- T482: ANALYSIS_FRAMEWORK 17 entries + Platform/Founding/Moat 신규
+- T483: ABSOLUTE RULES 7조 (17 관점 매핑 + dataConfidence 의무)
+- T484: 사이드바 analysisFramework row DOM
+- T485: fundamental 17 관점 배지 + v49.65 텍스트
+
+**버전 동기화 7곳**: title + badge + APP_VERSION + version.json + sw.js (SW_VERSION + SW_BUILD) + JS cache-bust 6곳 (?v=49.65) + _context/CLAUDE.md + CLAUDE.md + CHANGELOG.md
+
+**신규 P 번호 7개**: P339 (REGISTRY placeholder 제외 카운트 R118) + P340 (3 미구현 fetch R116/R117) + P341 (4 부분 보강) + P342 (FRAMEWORK 17 entries) + P343 (ABSOLUTE RULES 7조) + P344 (사이드바 5축) + P345 (fundamental 17 배지)
+
+**신규 R 규칙 3개**: R116 (4축 동시 갱신 의무) + R117 (dataConfidence:low 환각 차단) + R118 (REGISTRY 실등록/coverage 분리 감사)
+
+**정직 평가**: v49.64 52% (8/17 미완성) → v49.65 출처/함수 매핑 17/17. 다만 Supply Chain은 링크+키워드 가이드, Platform/TAM/Moat/FMP Segments는 confidence/API-key/휴리스틱 한계를 답변에 반드시 고지.
+
+---
+
 ## v49.64 — 잔여 영역 완전 정리 (v49.63 92% → 99%) (2026-05-25)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
@@ -2489,7 +2582,7 @@ v48.57 Phase 4에서 "signal 페이지 FOMC/HY/10Y-2Y 제거 + macro/fxbond 안�
 ### Phase 23 — signal 페이지 주제 침범 섹션 제거 (이미지 2)
 - 4665-4797 "분석 도구" 섹션 → **3컬럼 네비 버튼**으로 교체
   - 시장 폭 분석 → page-breadth
-  - 섹터 로테이션 RRG → page-themes  
+  - 섹터 로테이션 RRG → page-themes
   - 투자 심리 → page-sentiment
 - 원본 DOM은 `<div style="display:none;">` 셸로 감싸 렌더러 호환 유지 (sector-heatmap 등 querySelector 깨지지 않도록)
 
@@ -2511,7 +2604,7 @@ v48.57 Phase 4에서 "signal 페이지 FOMC/HY/10Y-2Y 제거 + macro/fxbond 안�
 - `aio:pageShown` signal/home 250ms 지연 호출 추가
 
 ### Phase 27 — Breadth 9-canvas Y축 스케일 공정 (이미지 4, 5)
-- **실측 발견**: `_aioBreadthCanvasRender`가 mock `gen(5820, 40, 20)` 사용 → 실제 SPY 값(약 $520~600)과 불일치 
+- **실측 발견**: `_aioBreadthCanvasRender`가 mock `gen(5820, 40, 20)` 사용 → 실제 SPY 값(약 $520~600)과 불일치
 - 수정:
   - 실제 `_liveData['SPY']`/`['QQQ']` 우선 사용, mock은 최후 fallback
   - **Y축 고정 스케일** `scaleMap`: 비율 차트(bp-ad/5ma/20ma/50ma/bh-*) **0~100% 고정**, 가격 차트(bp-price/bh-price) 15% padding

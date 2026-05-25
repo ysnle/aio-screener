@@ -2,11 +2,92 @@
 verified_by: agent
 last_verified: 2026-05-25
 confidence: high
-latest_version: v49.64
-latest_P_number: P338
-total_entries: 338
-next_P_number: P339
+latest_version: v49.65
+latest_P_number: P347
+total_entries: 347
+next_P_number: P348
 ---
+
+## P347 · v49.65 · [P347/R120] 3대 본질 감사가 script 텍스트까지 세는 오탐 + 초보자 초기 문구 잔존
+
+- **문제**: `AIO.getEssenceAlignmentAudit()`의 초기 구현이 `document.body.textContent`를 그대로 사용해 `<script>` 내부 문자열/주석의 "로딩 중"까지 초보자 직관성 벌점으로 계산. 동시에 실제 화면에도 "데이터 로딩 중/분석 로딩 중/계산 중" 초기 문구가 다수 남아 사용자가 데이터 미수신과 오류를 구분하기 어려움.
+- **시정 (v49.65 Codex 보강)**: 감사 함수의 `textCount()`를 TreeWalker 기반으로 변경해 `SCRIPT/STYLE/NOSCRIPT/TEMPLATE` 텍스트를 제외. 실제 보이는 DOM의 초기 문구 29건을 "수신 대기/수집 대기/판정 입력 대기/분석 입력 수신 대기"로 정규화.
+- **재발 방지**: T491 추가 — `AIO.getEssenceAlignmentAudit().goals.intuitiveBeginnerUse.loadingTextCount === 0` 검증. 브라우저 런타임 확인 기준 visible loading count 0건, sidebar essence row `89점 · 직관 79`.
+- **파일**: `js/aio-core.js`, `index.html`, `js/aio-tests.js`
+
+## P346 · v49.65 · [P346/R119] 3대 본질 전수 점검이 문서 감사에 머무르는 문제
+
+- **문제**: "기관급 All-in-one / 정확한 최신 자동운영 / 초보자 직관성" 3대 목표를 사람이 한 번 읽고 평가하는 방식만으로는 다음 변경에서 회귀를 자동 감지할 수 없음. 특히 페이지 수, 초보자 안내, live 데이터 출처, refresh scheduler, 배포 게이트가 서로 분리되어 있으면 "좋아 보이는 기능"은 늘어나도 본질 정렬은 약해질 수 있음.
+- **시정 (v49.65 Codex 보강)**: `AIO.getEssenceAlignmentAudit()` 추가. 3개 목표를 `institutionalAllInOne`, `accurateFreshAutoOps`, `intuitiveBeginnerUse` 점수로 분해하고, `getPageUXAudit`/`getAnalysisFrameworkCoverageAudit`/`getRefreshSchedulerAudit`/`getDataFreshnessAudit`/`getMarketCurrentnessAudit`/`getDataActionHandlerAudit` 결과를 묶어 종합 점수와 조치 항목을 반환.
+- **재발 방지**: 사이드바 audit row `[data-audit-key="essence"]`, `AIO.getAutoOpsReadiness()`, `AIO.getDeploymentGateAudit()`에 연결. 전체 점수 70 미만은 배포 게이트 blocker, warn 상태는 배포 경고로 노출. T486~T490으로 API shape, 사이드바 row, AutoOps 통합, 배포 게이트 통합, 모든 page brief 커버리지를 회귀 검증.
+- **파일**: `js/aio-core.js`, `index.html`, `js/aio-tests.js`, `_context/RULES.md`
+
+## P345 · v49.65 · [P345/R116] fundamental 페이지 17 관점 자동화 매트릭스 가시화 부재
+
+- **문제**: v49.64까지 fundamental 페이지는 v49.36 "15 기준 100% 매핑" 박스만 표시. 사용자 요청 17 관점 (#13 플랫폼/생태계 신설)이 페이지에 없음 → 사용자가 "이 종목 17 관점 자동 분석 가능?" 인지 불가.
+- **시정 (v49.65)**: index.html L8228~ 인라인 박스를 17 관점 매트릭스로 갱신 — ✓/⚠ 색상 배지 + 각 관점별 데이터 소스 표시 ([SEC]/[FMP]/[Moat Score]/[TAM]/[Supply Chain] 등). Codex 보강으로 "100% 매핑" 과장 표현을 제거하고 "17 관점 출처/함수 매핑 완료 + partial/low-confidence 한계 고지"로 정정.
+- **재발 방지**: T485 라이브 DOM 회귀 (page-fundamental textContent에 "17 관점" + "v49.65" + partial/한계/confidence 고지 포함 검증).
+- **파일**: `index.html` L8228~8232
+
+## P344 · v49.65 · [P344/R116/R118] 사이드바 audit row 4축 → 5축 (analysisFramework 신규)
+
+- **문제**: v49.59 4축 (registry/web_search/freshness/chatContexts)에서 17 관점 분석 프레임워크 자동화 수준이 사이드바에 없음. 사용자가 "17 관점 중 몇 개 자동화?" 콘솔 명령으로만 확인.
+- **시정 (v49.65)**: index.html L3899에 `[data-audit-key="analysisFramework"]` row 추가. `_aioRefreshAuditWidget` (aio-core.js L8660~)에 5번째 분기 추가 — `getAnalysisFrameworkCoverageAudit()` 호출 결과 `implementedCount/totalCount/coveragePct` 표시 (>=85% green / >=60% amber / <60% red).
+- **재발 방지**: T484 라이브 DOM 회귀 (analysisFramework row 존재).
+- **파일**: `index.html` L3899 + `js/aio-core.js` L8674~ widget 갱신
+
+## P343 · v49.65 · [P343/R116/R117] ABSOLUTE RULES 5조 → 7조 (17 관점 라벨 인용 + dataConfidence 의무)
+
+- **문제**: v49.57 ABSOLUTE RULES 5조 ([SEC 8-K]/[News]/[Insider]/[13F] 4 라벨). v49.65 신규 6 라벨 ([Supply Chain]/[Partnerships]/[Platform Eco]/[Moat Score]/[Segments]/[TAM]) 인용 의무 미명시 → AI가 학습 데이터에서 추정 가능.
+- **시정 (v49.65)**: `js/aio-chat.js` `_fetchTickerDataForChat` 반환 텍스트의 ABSOLUTE RULES 갱신:
+  - 신규 6조 (R116): 6 신규 라벨 데이터만 인용 + 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 추정 절대 금지
+  - 신규 7조 (R117): dataConfidence:low/low-medium 분야 (Platform/TAM/Moat 일부)는 "정성 분석 한계 — 외부 확인 권장" 경고 의무 + "Strong/Wide/Large" 강한 형용 금지
+  - 17 분석 관점 출처 매핑 표 추가 (1~17 각각 데이터 소스 명시)
+  - fundamental 17 관점 가용성 표 갱신 (✓ 14 / ⚠ 3 / ❌ 0)
+- **재발 방지**: T483 라이브 DOM 회귀 (chat fn source에 "17 분석 관점 출처 매핑" + "R116/R117" + "dataConfidence" 정규식 검증).
+- **파일**: `js/aio-chat.js` `_fetchTickerDataForChat` 반환 텍스트 끝부분
+
+## P342 · v49.65 · [P342/R116] AIO_ANALYSIS_FRAMEWORK_REGISTRY 15 → 17 entries (사용자 요청 17 관점 1:1 매핑)
+
+- **문제**: v49.34 ANALYSIS_FRAMEWORK_REGISTRY는 15 entries만 정의. 사용자 요청 17 관점 (#13 플랫폼/생태계 + #2 창립/성장 별도 분리)이 매핑 안 됨.
+- **시정 (v49.65)**: REGISTRY 15 → 17 entries 재구조 — `founding-growth` #2 신설 (Wikipedia + News 기반) · `moat-economic` #7 신설 (computeMoatScore 자동 채점, Morningstar 대체) · `supply-chain` #12 implFn fetchSECSupplyChain 매핑 완성 · `platform-ecosystem` #13 신설 (fetchPlatformEcosystem 3-source 합성) · `partnership` #14 implFn fetchPartnershipAlerts 매핑 완성 (이전 plannedFn 잔존). 각 entry에 num 1~17 필드 추가 (사용자 17 관점 정합).
+- **재발 방지**: T482 라이브 DOM 회귀 (fields.length >= 17 + platform-ecosystem/founding-growth/moat-economic 신규 검증).
+- **파일**: `js/aio-core.js` AIO_ANALYSIS_FRAMEWORK_REGISTRY L5078~
+
+## P341 · v49.65 · [P341/R116] 17 관점 부분 구현 4건 — Moat/Segments/TAM 자동화 보강
+
+- **문제**: v49.64까지 #6 제품 포트폴리오 / #7 기술력 해자 / #8 수익 구조 / #11 TAM 모두 부분/계획만 (Wiki 학습 데이터 단독 의존 또는 Morningstar 유료 필수).
+- **시정 (v49.65)**:
+  - **`AIO.computeMoatScore`** (#7): SCREENER_DB + Naver financials 자동 채점 — 7가지 해자 유형 (R&D/매출 >=15% / GM 60%+ / FCF margin 20%+ / OpMargin 20%+ / SG&A 하락 / license-regulatory / network effect memo). Wide(7+)/Narrow(3~6)/None(<3) 10점 verdict.
+  - **`AIO.fetchFMPSegments` 통합** (#6/#8): `AIO.normalizeFMPSegments()`로 raw 응답을 `{name,revenue,year}`로 정규화 후 `[Segments]` 라벨에 주입. Wiki 학습 데이터로 신규 제품 환각 금지.
+  - **`AIO.computeTAMEstimate`** (#11): SEC SIC code + AIO_INDUSTRY_TAM_REGISTRY 21 SIC 매핑 + SCREENER_DB.memo "TAM:"/"CAGR:" 패턴 grep. Codex 보강으로 memo 추출값이 indicators뿐 아니라 `tamEstimate`/`cagrEstimate`에도 반영되도록 수정.
+- **재발 방지**: T479 (computeMoatScore + verdict 분기) / T480 (computeTAMEstimate + TAM_REGISTRY 정의) / T481 (6 신규 promise + 6 라벨 통합).
+- **파일**: `js/aio-core.js` (computeMoatScore + computeTAMEstimate + AIO_INDUSTRY_TAM_REGISTRY) + `js/aio-chat.js` _fetchTickerDataForChat
+
+## P340 · v49.65 · [P340/R116/R117] 17 관점 미구현 3건 — Supply Chain/Partnership/Platform Ecosystem 신규 fetch
+
+- **문제**: v49.64까지 사용자 요청 17 관점 중 #12 밸류체인/공급망 / #13 플랫폼/생태계 / #14 협력/파트너십 3건 미구현. AI가 학습 데이터에서 환각 답변 위험.
+- **시정 (v49.65)**:
+  - **`AIO.fetchSECSupplyChain`** (#12): SEC 10-K Item 1 (Business) + Item 1C 키워드 가이드. Codex 보강으로 실제 공급사 추출이 아니라 `sourceMode:'filing-link+keyword-guide'`, `requiresManualFetch:true`, `dataConfidence:'low-medium'`임을 명시.
+  - **`AIO.fetchPartnershipAlerts`** (#14): SEC 8-K Item 1.01 + 7.01 최근 6개월 필터. Codex 보강으로 `fetchSECRecentFilings(opts.max8K)`를 추가하고 partnership 경로는 최근 8-K 40건을 검사.
+  - **`AIO.fetchPlatformEcosystem`** (#13): 3-source 합성. Codex 보강으로 `SCREENER_DB` 배열을 `db[ticker]`로 잘못 조회하던 버그를 `.find(r => r.sym === ticker)`로 수정.
+- **재발 방지**: T476/T477/T478 라이브 DOM 회귀 + R116 (4축 동시 갱신 의무) + R117 (dataConfidence:low 환각 차단 의무) 신규.
+- **파일**: `js/aio-core.js` L4459~ 3 신규 함수
+
+## P339 · v49.65 · [P339/R118] TICKER REGISTRY 34% 갭 정직 시정 + placeholder 제외 카운트
+
+- **사용자 정직 질의**: "AI 채팅에서 테마/트렌드 종목 모두 들어가 있어야 돼" — v49.64 진단 결과 REGISTRY 273 entries / SCR_KEYWORD_ALIASES ~800 ticker = **34% coverage**, 500+ 미등록.
+- **미등록 카테고리 Top 5**: 한국 KOSDAQ 200+ (카카오/네이버 외) / 인도 ADR 대형주 (ICICI/HDFC/Kotak) / 유럽 ADR (Siemens/Nestlé/LVMH) / 한국 2차전지·소재 / 신흥국 e-commerce.
+- **시정 (v49.65)**: REGISTRY 273 → 391 total / 383 real / 8 placeholder (118개 순증). Codex 보강으로 `AIO.getTickerRegistryEntryAudit()`를 추가해 `_dup/_skip` placeholder를 coverage에서 제외:
+  - KR KOSDAQ 50: 2차전지 (에코프로/엔켐/L&F/SK IE Tech) + 반도체 (리노공업/HPSP/하나마이크론) + 바이오 (알테오젠/휴젤/루닛) + AI (레인보우로보틱스) + 엔터/게임 (HYBE/JYP/펄어비스)
+  - KR KOSPI 25: 화학 (한화솔루션/롯데/SKI/하이브) + 방산 (KAI/LIG넥스원) + 금융 (신한/KB/하나/우리) + 헬스 (셀트리온/한미약품)
+  - KR ETF 10: TIGER 미국나스닥100/S&P500/테크 + KODEX 금현물/레버리지/인버스
+  - 인도 ADR 8: IBN ICICI / HDB HDFC / INFY / WIT / TTM / RDY
+  - 유럽 ADR 15: SAP / SIEGY / NSRGY / LVMUY / RHHBY / NVS / UL / DEO / AZN / GSK / TM / HMC / SNY / EADSY
+  - 신흥국 10: VALE / ITUB / BBD / MELI / SE / GLOB / BIDU / PDD / BABA
+  - 미국 보강 20: 헬스 (VEEV/EW/BSX/DXCM/MDT/GEHC) + 통신 (T/VZ) + 금융 (SCHW/PNC/BK) + 원전 (TLN/OKLO/SMR) + 게임 (NTDOY/SONY)
+- **재발 방지**: T471/T472/T473/T474/T475 라이브 DOM 회귀 + R118 (placeholder 제외 카운트와 coveragePct 분리) 신규.
+- **파일**: `js/aio-core.js` AIO_TICKER_NAME_REGISTRY L2841~ 신규 카테고리
 
 ## P338 · v49.64 · [P338/R115] Options mock 가격 (NVDA $130/SPY $550) → template + reference-only (혼동 차단)
 
@@ -679,7 +760,7 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 
 ### PR-P132: onclick 인라인 핸들러 CSP-strict 비호환 + ESM 블록 (CRITICAL Latent)
 - **violated_rule**: 신규 P132 (CSP/ESM 준비 부재)
-- **잠재 위험**: 
+- **잠재 위험**:
   1. `Content-Security-Policy: script-src 'self'` 헤더 도입 시 253개 onclick 모두 차단 → UI 전체 마비
   2. ESM (`<script type="module">`) 전환 시 전역 함수 접근 불가 → 인라인 핸들러 전부 미동작
   3. onclick 속성 문자열 이스케이프 지옥 — 3중 백슬래시 패턴 (`\\\'` 등) 유지 보수 어려움
@@ -694,7 +775,7 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
      - Phase 2: 복합 정적 패턴 27 regex — tip-toggle/backdrop close 등 **39건** 치환
      - Phase 3: JS 템플릿 리터럴 19 regex — fb*/showTicker 등 **26건** 치환
   4. **JS render 직접 수정**: 뉴스 카드 `window.open` → `data-open-url` 등 5곳.
-- **검증**: 
+- **검증**:
   - 정적 grep: `onclick=` 0건 (index.html/js 모두)
   - 동적 DOM: preview 측정 `querySelectorAll('[onclick]')` = 0
   - 기능: showPage/toggleTheme/tip-toggle/modal backdrop 정상 동작 (preview 측정)

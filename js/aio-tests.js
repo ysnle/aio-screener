@@ -2060,9 +2060,9 @@
       typeof window._drawSentimentFallbackLine === 'function' && /data-source-kind/.test(window._drawSentimentFallbackLine.toString()),
       'reference-only marker check');
 
-    // T462: APP_VERSION === 'v49.64' (v49.64 residual integration)
-    _assert('T462 app_version_v4964_residual_integration: APP_VERSION === "v49.64"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.64',
+    // T462: APP_VERSION === 'v49.65' (v49.65 17 perspectives completion)
+    _assert('T462 app_version_v4965_17_perspectives: APP_VERSION === "v49.65"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.65',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -2155,6 +2155,138 @@
     _assert('T470 risk_radar_body_initial_lineage_v4964: #risk-radar-body 초기 data-operational-use 마킹',
       !!rrb && (rrb.getAttribute('data-operational-use') === 'reference-only' || rrb.getAttribute('data-operational-use') === 'decision'),
       'use=' + (rrb && rrb.getAttribute('data-operational-use')));
+  }
+
+  // v49.65 17 관점 분석 프레임워크 보강 + REGISTRY 실등록 카운트 + 6 신규 fetch 회귀 방지
+  function _testV4965Coverage17Perspectives() {
+    // T471: REGISTRY real entries 380+ (v49.64 273 → v49.65 383 real + 8 placeholders)
+    var reg = window.AIO_TICKER_NAME_REGISTRY;
+    var entryAudit = window.AIO && window.AIO.getTickerRegistryEntryAudit && window.AIO.getTickerRegistryEntryAudit();
+    var entriesCount = entryAudit ? entryAudit.realEntries : (reg && reg.entries ? Object.keys(reg.entries).length : 0);
+    _assert('T471 registry_entries_expanded_v4965: real REGISTRY entries >= 380 + placeholders excluded',
+      entriesCount >= 380 && (!entryAudit || entryAudit.placeholderCount <= 8), 'realEntries=' + entriesCount + ' placeholders=' + (entryAudit && entryAudit.placeholderCount));
+
+    // T472: assertTickerRegistryCompleteness coveragePct >= 40 (placeholder 제외)
+    var coverage = window.AIO && window.AIO.assertTickerRegistryCompleteness && window.AIO.assertTickerRegistryCompleteness();
+    _assert('T472 registry_coverage_pct_v4965: coveragePct >= 40 (placeholder 제외)',
+      coverage && coverage.coveragePct >= 40,
+      'coverage=' + (coverage && coverage.coveragePct) + '%');
+
+    // T473: KOSDAQ 핵심 신규 등록 (에코프로비엠/리노공업/알테오젠)
+    var krNew = ['348370.KQ', '058470.KQ', '196170.KQ', '009830.KS'];
+    var krMissing = krNew.filter(function(t) { return !(reg && reg.entries && reg.entries[t]); });
+    _assert('T473 registry_kr_new_entries_v4965: 엔켐/리노공업/알테오젠/한화솔루션 4개 등록',
+      krMissing.length === 0, 'missing=' + krMissing.join(','));
+
+    // T474: 인도 ADR 신규 (IBN/HDB/INFY)
+    var indianAdr = ['IBN', 'HDB', 'INFY'];
+    var indianMissing = indianAdr.filter(function(t) { return !(reg && reg.entries && reg.entries[t]); });
+    _assert('T474 registry_indian_adr_v4965: IBN/HDB/INFY 인도 ADR 3개 등록',
+      indianMissing.length === 0, 'missing=' + indianMissing.join(','));
+
+    // T475: 유럽 ADR 신규 (SAP/SIEGY/NSRGY/LVMUY)
+    var euAdr = ['SAP', 'SIEGY', 'NSRGY', 'LVMUY'];
+    var euMissing = euAdr.filter(function(t) { return !(reg && reg.entries && reg.entries[t]); });
+    _assert('T475 registry_european_adr_v4965: SAP/Siemens/Nestle/LVMH 4개 등록',
+      euMissing.length === 0, 'missing=' + euMissing.join(','));
+
+    // T476: fetchSECSupplyChain (#12 공급망)
+    _assert('T476 fetch_sec_supply_chain_v4965: AIO.fetchSECSupplyChain 함수 정의',
+      typeof (window.AIO && window.AIO.fetchSECSupplyChain) === 'function',
+      typeof (window.AIO && window.AIO.fetchSECSupplyChain));
+
+    // T477: fetchPartnershipAlerts (#14 협력/파트너십)
+    _assert('T477 fetch_partnership_alerts_v4965: AIO.fetchPartnershipAlerts 함수 정의',
+      typeof (window.AIO && window.AIO.fetchPartnershipAlerts) === 'function',
+      typeof (window.AIO && window.AIO.fetchPartnershipAlerts));
+
+    // T478: fetchPlatformEcosystem (#13 플랫폼/생태계) — dataConfidence 의무 (R117)
+    _assert('T478 fetch_platform_ecosystem_v4965: AIO.fetchPlatformEcosystem 함수 정의 + dataConfidence 분기',
+      typeof (window.AIO && window.AIO.fetchPlatformEcosystem) === 'function' &&
+      /dataConfidence/.test(window.AIO.fetchPlatformEcosystem.toString()) &&
+      /find\(function\(r\)/.test(window.AIO.fetchPlatformEcosystem.toString()),
+      typeof (window.AIO && window.AIO.fetchPlatformEcosystem));
+
+    // T479: computeMoatScore (#7 기술력/해자 — Morningstar 대체)
+    _assert('T479 compute_moat_score_v4965: AIO.computeMoatScore 함수 정의 + verdict (Wide/Narrow/None)',
+      typeof (window.AIO && window.AIO.computeMoatScore) === 'function' &&
+      /Wide|Narrow|None/.test(window.AIO.computeMoatScore.toString()),
+      typeof (window.AIO && window.AIO.computeMoatScore));
+
+    // T480: computeTAMEstimate + AIO_INDUSTRY_TAM_REGISTRY 정의
+    _assert('T480 compute_tam_estimate_v4965: AIO.computeTAMEstimate + AIO_INDUSTRY_TAM_REGISTRY 정의',
+      typeof (window.AIO && window.AIO.computeTAMEstimate) === 'function' &&
+      window.AIO_INDUSTRY_TAM_REGISTRY && typeof window.AIO_INDUSTRY_TAM_REGISTRY === 'object',
+      'fn=' + typeof (window.AIO && window.AIO.computeTAMEstimate) + ' reg=' + typeof window.AIO_INDUSTRY_TAM_REGISTRY);
+
+    // T481: _fetchTickerDataForChat source에 6 신규 promise + 6 신규 라벨 포함
+    var chatFn = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
+    var sixNewPromises = ['supplyChainPromise', 'partnershipPromise', 'platformPromise', 'moatPromise', 'fmpSegPromise', 'tamPromise'];
+    var sixNewLabels = ['[Supply Chain]', '[Partnerships', '[Platform Eco]', '[Moat Score]', '[Segments]', '[TAM]'];
+    var promiseHits = sixNewPromises.filter(function(p) { return chatFn.indexOf(p) >= 0; }).length;
+    var labelHits = sixNewLabels.filter(function(l) { return chatFn.indexOf(l) >= 0; }).length;
+    _assert('T481 chat_fetch_17_promises_v4965: 6 신규 promise + 6 신규 라벨 _fetchTickerDataForChat 통합',
+      promiseHits === 6 && labelHits === 6,
+      'promiseHits=' + promiseHits + '/6 labelHits=' + labelHits + '/6');
+
+    // T482: ANALYSIS_FRAMEWORK_REGISTRY 17 entries + Platform/Ecosystem 신규
+    var afReg = window.AIO_ANALYSIS_FRAMEWORK_REGISTRY;
+    var afFields = afReg && afReg.fields ? Object.keys(afReg.fields) : [];
+    var hasPlatform = afFields.indexOf('platform-ecosystem') >= 0;
+    var hasFoundingGrowth = afFields.indexOf('founding-growth') >= 0;
+    var hasMoatScore = afFields.indexOf('moat-economic') >= 0;
+    var afAudit = window.AIO && window.AIO.getAnalysisFrameworkCoverageAudit && window.AIO.getAnalysisFrameworkCoverageAudit();
+    _assert('T482 analysis_framework_17_entries_v4965: 17 user perspectives + 2 support fields + partialFields exposed',
+      afAudit && afAudit.totalCount === 17 && afAudit.supportFieldCount === 2 && afAudit.partialCount >= 1 && hasPlatform && hasFoundingGrowth && hasMoatScore,
+      'total=' + (afAudit && afAudit.totalCount) + ' support=' + (afAudit && afAudit.supportFieldCount) + ' partial=' + (afAudit && afAudit.partialCount));
+
+    // T483: ABSOLUTE RULES 7조 + 17 관점 라벨 인용 의무 (R116/R117)
+    var rules17 = chatFn.indexOf('17 분석 관점 출처 매핑') >= 0 || chatFn.indexOf('R116/R117') >= 0;
+    var dataConfRule = /dataConfidence:\s*["\']?(low|medium)/.test(chatFn);
+    _assert('T483 absolute_rules_17_perspectives_v4965: 17 관점 매핑 + dataConfidence 의무 텍스트 (R116/R117)',
+      rules17 && dataConfRule,
+      'rules17=' + rules17 + ' dataConf=' + dataConfRule);
+
+    // T484: 사이드바 audit row 5축 (analysisFramework 추가)
+    var afEl = document.querySelector('[data-audit-key="analysisFramework"]');
+    _assert('T484 sidebar_audit_5_axes_v4965: analysisFramework row DOM 존재',
+      !!afEl, 'analysisFramework row=' + !!afEl);
+
+    // T485: fundamental 페이지 17 관점 배지 가시화 (text에 "17 관점" 포함)
+    var fundPage = document.getElementById('page-fundamental');
+    var fundText = fundPage ? (fundPage.textContent || '') : '';
+    _assert('T485 fundamental_17_perspectives_badges_v4965: 17 관점 출처 매핑 + 부분 한계 고지 가시화',
+      /17 관점/.test(fundText) && /v49\.65/.test(fundText) && /부분|한계|confidence/.test(fundText),
+      'fundText length=' + fundText.length + ' contains17=' + /17 관점/.test(fundText));
+
+    // T486~T490: 3대 본질 alignment audit — "기관급+자동운영+초보직관" 목표를 자동 점검
+    var essence = window.AIO && window.AIO.getEssenceAlignmentAudit && window.AIO.getEssenceAlignmentAudit();
+    _assert('T486 essence_alignment_audit_v4965: 3대 본질 감사 API shape',
+      essence && typeof essence.overallScore === 'number' &&
+      essence.goals && essence.goals.institutionalAllInOne && essence.goals.accurateFreshAutoOps && essence.goals.intuitiveBeginnerUse,
+      essence ? JSON.stringify({ status: essence.status, score: essence.overallScore }) : 'missing');
+
+    var essenceEl = document.querySelector('[data-audit-key="essence"]');
+    _assert('T487 sidebar_essence_row_v4965: 3대 본질 row DOM 존재',
+      !!essenceEl, 'essence row=' + !!essenceEl);
+
+    var ops = window.AIO && window.AIO.getAutoOpsReadiness && window.AIO.getAutoOpsReadiness();
+    _assert('T488 auto_ops_includes_essence_v4965: getAutoOpsReadiness에 essenceAlignment 통합',
+      ops && ops.essenceAlignment && ops.commands && ops.commands.essenceAlignment === 'AIO.getEssenceAlignmentAudit()',
+      ops ? 'hasEssence=' + !!ops.essenceAlignment : 'missing ops');
+
+    var gate = window.AIO && window.AIO.getDeploymentGateAudit && window.AIO.getDeploymentGateAudit({ strict: false });
+    _assert('T489 deployment_gate_includes_essence_v4965: 배포 게이트가 3대 본질 점수 포함',
+      gate && Object.prototype.hasOwnProperty.call(gate, 'essenceAlignment'),
+      gate ? 'status=' + gate.status : 'missing gate');
+
+    _assert('T490 beginner_briefs_all_pages_v4965: page brief registry가 모든 page를 커버',
+      essence && essence.goals.intuitiveBeginnerUse.pagesWithBriefRegistry >= document.querySelectorAll('.page[id]').length,
+      essence ? 'briefs=' + essence.goals.intuitiveBeginnerUse.pagesWithBriefRegistry + ' pages=' + document.querySelectorAll('.page[id]').length : 'missing essence');
+
+    _assert('T491 beginner_visible_loading_zero_v4965: 보이는 초기 로딩/계산 문구 0건',
+      essence && essence.goals.intuitiveBeginnerUse.loadingTextCount === 0,
+      essence ? 'loadingText=' + essence.goals.intuitiveBeginnerUse.loadingTextCount : 'missing essence');
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지
@@ -2403,7 +2535,7 @@
     // T283: getAnalysisFrameworkCoverageAudit
     var afAudit = window.AIO.getAnalysisFrameworkCoverageAudit ? window.AIO.getAnalysisFrameworkCoverageAudit() : null;
     _assert('T283 analysis_framework_audit: coveragePct + byType',
-      afAudit && typeof afAudit.coveragePct === 'number' && afAudit.byType && afAudit.totalCount === 15,
+      afAudit && typeof afAudit.coveragePct === 'number' && afAudit.byType && afAudit.totalCount >= 15,
       afAudit ? 'coverage=' + afAudit.coveragePct + '% total=' + afAudit.totalCount : 'missing');
 
     // T284: REGISTRY의 핵심 fields 확인
@@ -3283,6 +3415,7 @@
     try { _testV4962CodexAuditCoverageIntegration(); } catch(e) { console.error('Group58 error:', e); }
     try { _testV4963CodexFullIntegration(); } catch(e) { console.error('Group59 error:', e); }
     try { _testV4964CodexResidualIntegration(); } catch(e) { console.error('Group60 error:', e); }
+    try { _testV4965Coverage17Perspectives(); } catch(e) { console.error('Group61 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
