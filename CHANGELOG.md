@@ -6,6 +6,52 @@
 
 ---
 
+## v49.67 — 사용자 체감 품질 정직 시정 (시세 폴백 4단계 + 시장 헤더 자동 주입 + 자동 진단) (2026-05-26)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 지적 "작동 유무 말고 (1) 직관적 사용성 (2) 시장 흐름 유기적 연결 (3) 차트/기술/외환/채권/시장 분석 기관급 정확성 (4) 몇몇 종목 시세 못 불러옴" → Explore agent로 4 갭 정밀 진단 후 5 즉시 시정 권장 항목 모두 처리.
+
+**Changes**:
+
+**Phase 1 — dynamicTickerLookup 폴백 체인 4단계 (P352/R122)**:
+- Yahoo (3 proxies, 12s timeout, 1 retry) → Stooq (US/ETF/원자재) → Naver siseJson (KR .KS/.KQ) → **Finnhub /quote (US/ADR, 4번째 폴백 신규)**
+- 실패 시 구조화 응답 (이전 null): `{ticker, available:false, fetchFailed:true, tickerType, reason, suggestedAction, source:'none'}`
+- `_fetchTickerDataForChat`에서 `fetchFailed` 체크 → `❌ ${tickerType}: 시세 조회 실패` + `💡 ${suggestedAction}` 사용자 명시
+
+**Phase 2 — 시장 환경 헤더 자동 주입 (P353)**:
+- `_fetchTickerDataForChat` 모든 응답 첫 줄에 `【현재 시장 환경】 SPX/VIX/10Y/F&G/트레이딩 스코어` 강제
+- VIX regime (>=25 경계 / >=20 주의 / 안정) + F&G label 자동 분류
+- Cache hit 경로도 동일 헤더 일관 적용
+- ABSOLUTE RULES **8조 신규** (R122 시장 흐름 유기적 도입 의무)
+
+**Phase 3 — _chatTickerCache TTL eviction 강화 (P354)**:
+- 매 save 시 5분 만료 종목 자동 제거 (이전 LRU만 의존)
+- `_isFailedFetch` 변수 추가 → 시세 조회 실패 종목은 캐시 저장 금지 (stale 응답 5분 반복 차단)
+- LRU 50 cap 유지 (기존)
+
+**Phase 4 — AIO.assertTickerFetchHealth 신설 + 사이드바 7축 (P355/P356)**:
+- 카테고리별 (us/kr/adr/crypto/index/other) `_liveData[k].price > 0` 검증
+- 반환: `overallCoveragePct` + `byCategory.{cat}.{total/live/missing/coveragePct}` + `chatTickerCache` 통합
+- 사이드바 audit row 7번째 신규 (`tickerFetchHealth`) — "시세 fetch X/Y · US X% · KR X% · 캐시 hit X%" 색상 표시
+
+**Phase 5+6 — R122 + P352~P356 + T498~T504 7 신규 (Group63)**:
+- T498 폴백 체인 4단계 + fetchFailed 구조화
+- T499 시장 헤더 + R122
+- T500 TTL eviction + 실패 캐시 금지
+- T501 assertTickerFetchHealth + byCategory
+- T502 사이드바 row DOM
+- T503 ABSOLUTE RULES 8조
+- T504 APP_VERSION
+- 버전 동기화 7곳
+
+**신규 P 번호 5개**: P352~P356
+**신규 R 규칙 1개**: R122 (AI 채팅 사용자 체감 품질 의무)
+
+**정직 평가**: v49.66 "함수 호출 정합" 100% → v49.67 "사용자 체감 직관성 + 시장 환경 일관 도입 + 시세 폴백 4단계 + 자동 진단 audit" 완비.
+
+---
+
 ## v49.66 — AI 채팅 시스템 dead code + partial integration + silent fail 100% 시정 (2026-05-25)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

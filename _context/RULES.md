@@ -1213,6 +1213,26 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R122. AI 채팅 사용자 체감 품질 의무 (v49.67 추가, P352~P356 근본)
+
+**원칙**: AI 채팅 응답은 (1) 시세 fetch 폴백 4단계 (Yahoo→Stooq→Naver→Finnhub) 의무 + (2) 모든 종목 답변 첫 줄에 "현재 시장 환경" 헤더 자동 주입 의무 + (3) 시세 조회 실패 종목은 캐시 저장 금지 (stale 응답 5분 반복 차단) + (4) `AIO.assertTickerFetchHealth()` 카테고리별 coverage 자동 감지.
+
+**근거 (P352~P356)**: v49.66까지 "함수 호출 정합" 100% 달성했으나 사용자 체감 품질 4 갭 잔존 — KR 종목 시세 fetch 실패 silent / 종목 답변에 시장 환경 도입 안 됨 / `_chatTickerCache`가 실패 응답도 5분 캐시 / 카테고리별 fetch 성공률 자동 점검 부재. 사용자 정직 지적 "몇몇 종목 시세 못 불러옴" + "시장 흐름 유기적 연결 안 됨" 정확 매핑.
+
+**구조**:
+- `dynamicTickerLookup` 4단계 폴백: Yahoo 3 proxies → Stooq (US/암호화폐 미지원 제외) → Naver siseJson (KR .KS/.KQ) → Finnhub /quote (US/ADR — Finnhub key 있을 때) → fetchFailed:true 구조화 응답
+- `_fetchTickerDataForChat` 응답 헤더: `【현재 시장 환경】 SPX/VIX/10Y/F&G/트레이딩 스코어` + ABSOLUTE RULES 8조 ("지금 VIX X · F&G Y 환경에서 [종목]은..." 패턴)
+- `_chatTickerCache` TTL eviction: 매 save 시 5분 만료 자동 제거 + `_isFailedFetch` 시 캐시 저장 거부
+- `AIO.assertTickerFetchHealth()`: REGISTRY 391 entries × 6 category (us/kr/adr/crypto/index/other) × `_liveData[k].price > 0` 검증
+
+**검증**: `AIO.runTests()` T498 (폴백 4단계) + T499 (시장 헤더) + T500 (TTL eviction) + T501 (assertTickerFetchHealth byCategory) + T502 (사이드바 row) + T503 (ABSOLUTE RULES 8조).
+
+**위반 시**: 사용자 종목 질의에 silent fail (시세 못 불러옴 표시 없음) + 시장 환경과 무관한 정적 답변 + 실패 응답 5분 캐시로 반복 stale + 카테고리별 fetch 갭 미감지.
+
+**Lineage 보완**: API key 부재로 Finnhub 폴백 미사용 시 `suggestedAction`에 "Finnhub API key 등록 권장" 명시.
+
+---
+
 ## R121. AI 채팅 시스템 정의-호출 정합 의무 (v49.66 추가, P348~P351 근본)
 
 **원칙**: `window.AIO.fetch*` 또는 `compute*` 접두 함수는 모두 의무적으로 (1) `_fetchTickerDataForChat` 통합 또는 (2) `knownExempt` 리스트에 명시. 14 CHAT_CONTEXTS는 모두 `_getV48IntegratedContext` 호출 의무. `_chatTickerCache`는 save + load + LRU eviction 3축 모두 구현 의무.

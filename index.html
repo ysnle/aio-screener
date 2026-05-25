@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.66 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.67 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3899,6 +3899,7 @@ body.light-theme canvas { filter:none; }
               <div data-audit-key="analysisFramework">⏳ 분석 프레임워크 17 관점…</div>
               <div data-audit-key="essence">⏳ 3대 본질 정렬…</div>
               <div data-audit-key="chatFunctionCoverage">⏳ AI 채팅 함수 통합…</div>
+              <div data-audit-key="tickerFetchHealth">⏳ 시세 fetch 건강도…</div>
             </div>
             <!-- v49.58 P322 R108: web_search 토글 GUI -->
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,212,255,0.15);display:flex;justify-content:space-between;align-items:center;">
@@ -3990,7 +3991,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.66</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.67</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12392,9 +12393,9 @@ body.light-theme canvas { filter:none; }
   }
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.66"></script>
-  <script src="./js/aio-data.js?v=49.66"></script>
-  <script src="./js/aio-ui.js?v=49.66"></script>
+  <script src="./js/aio-core.js?v=49.67"></script>
+  <script src="./js/aio-data.js?v=49.67"></script>
+  <script src="./js/aio-ui.js?v=49.67"></script>
 
   <script>
 
@@ -15356,7 +15357,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.66"></script>
+<script src="./js/aio-chat.js?v=49.67"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -20401,7 +20402,52 @@ async function dynamicTickerLookup(ticker) {
     } catch(e6) {}
   }
 
-  return null;
+  // v49.67 P352 R122: Finnhub /quote 4번째 폴백 (US/ADR 종목 — Yahoo+Stooq 실패 시)
+  var _isUSorADR = !ticker.endsWith('.KS') && !ticker.endsWith('.KQ') && !ticker.includes('=X') && !ticker.includes('=F') && !ticker.startsWith('^') && !ticker.includes('-USD');
+  if (_isUSorADR) {
+    try {
+      var _fhKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_finnhub_key') : '';
+      if (_fhKey) {
+        var fhUrl = 'https://finnhub.io/api/v1/quote?symbol=' + encodeURIComponent(ticker) + '&token=' + _fhKey;
+        var fhR = await fetchWithTimeout(fhUrl, {}, 5000);
+        if (fhR && fhR.ok) {
+          var fhData = await fhR.json();
+          if (fhData && fhData.c > 0) {
+            var fhPct = fhData.dp != null ? fhData.dp : (fhData.pc > 0 ? ((fhData.c - fhData.pc) / fhData.pc * 100) : null);
+            if (typeof window._aioSetLiveData === 'function') {
+              window._aioSetLiveData(ticker, { price: fhData.c, pct: fhPct != null ? +Number(fhPct).toFixed(2) : null }, { source: 'fallback:finnhub-quote', policyKey: 'quote_afterhours', reason: 'ticker detail Finnhub 4th fallback' });
+            } else {
+              if (!window._liveData) window._liveData = {};
+              window._liveData[ticker] = { price: fhData.c, pct: fhPct != null ? +Number(fhPct).toFixed(2) : null, pctMissing: fhPct == null };
+            }
+            return { ticker: ticker, price: fhData.c, pct: fhPct != null ? +Number(fhPct).toFixed(2) : null, name: ticker, source: 'finnhub' };
+          }
+        }
+      }
+    } catch(_fhErr) {}
+  }
+
+  // v49.67 P352 R122: 모든 폴백 실패 → 구조화된 진단 응답 반환 (이전 null → reason/suggestedAction 명시)
+  var _ftType = ticker.endsWith('.KS') || ticker.endsWith('.KQ') ? 'KR 종목 (.KS/.KQ)' :
+                ticker.includes('=X') ? '환율' :
+                ticker.includes('=F') ? '선물' :
+                ticker.startsWith('^') ? '지수' :
+                ticker.includes('-USD') ? '암호화폐' :
+                ticker.length <= 5 ? '미국/ADR' : '국제';
+  var _suggestion = _ftType === 'KR 종목 (.KS/.KQ)'
+    ? 'Naver 금융 (finance.naver.com/item/main.naver?code=' + ticker.replace(/\.(KS|KQ)$/, '') + ') 직접 확인 권장'
+    : _ftType === '미국/ADR'
+    ? 'Yahoo Finance (finance.yahoo.com/quote/' + ticker + ') 또는 Finnhub API key 등록 후 재시도 권장'
+    : '외부 도구로 직접 확인 권장';
+  return {
+    ticker: ticker,
+    available: false,
+    fetchFailed: true,
+    tickerType: _ftType,
+    reason: 'Yahoo 3 프록시 + Stooq + Naver + Finnhub 4단계 폴백 모두 실패',
+    suggestedAction: _suggestion,
+    source: 'none'
+  };
 }
 
 var _krMacroRetry = 0;
@@ -27419,9 +27465,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.66"></script>
+<script src="./js/aio-glossary.js?v=49.67"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.66"></script>
+<script src="./js/aio-tests.js?v=49.67"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전

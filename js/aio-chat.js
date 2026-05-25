@@ -2057,7 +2057,18 @@ async function _fetchTickerDataForChat(tickers) {
   }
   // 전부 cache hit이면 즉시 반환 (수신/취합 완전 회피)
   if (cacheMissTickers.length === 0 && cachedBlocks.length > 0) {
-    return '\n\n【사용자가 물어본 종목 실시간 데이터 (cache hit)】\n' + cachedBlocks.join('\n') + '\n\n⚠️ ABSOLUTE RULES: 위 데이터는 5분 이내 캐시. cache TTL 만료 시 자동 재 fetch.\n';
+    // v49.67 P353: cache hit 경로에도 시장 환경 헤더 주입 (R122 일관성)
+    var _ccHeader = '';
+    try {
+      var _ccS = (typeof _liveSnap === 'function') ? _liveSnap() : null;
+      if (_ccS) {
+        var _ccVix = _ccS.vix || '—';
+        var _ccFg = _ccS.fg != null ? _ccS.fg : '—';
+        var _ccFgL = _ccFg === '—' ? '—' : (_ccFg <= 25 ? '극단 공포' : _ccFg <= 45 ? '공포' : _ccFg <= 55 ? '중립' : _ccFg <= 75 ? '탐욕' : '극단 탐욕');
+        _ccHeader = '【현재 시장 환경】 VIX ' + _ccVix + ' · F&G ' + _ccFg + ' (' + _ccFgL + ') · 트레이딩 스코어 ' + (_ccS.score != null ? _ccS.score : '—') + '/100\n\n';
+      }
+    } catch(_) {}
+    return '\n\n' + _ccHeader + '【사용자가 물어본 종목 실시간 데이터 (cache hit · 5분 이내)】\n' + cachedBlocks.join('\n') + '\n\n⚠️ ABSOLUTE RULES (R122): 종목 답변은 위 "현재 시장 환경" 인용으로 시작. 데이터는 5분 이내 캐시이나 시세 자체는 실시간 비교 권장.\n';
   }
   // miss만 처리 (기존 흐름 유지)
   tickers = cacheMissTickers;
@@ -2071,8 +2082,16 @@ async function _fetchTickerDataForChat(tickers) {
     if (ld && ld.price) {
       data = { ticker: t, price: ld.price, pct: ld.pct != null ? ld.pct : null, source: 'cache' };
     } else {
-      // 2. 실시간 Yahoo 조회
+      // 2. 실시간 Yahoo 조회 (v49.67: 폴백 체인 4단계 후 fetchFailed:true 구조화 응답)
       try { data = await dynamicTickerLookup(t); } catch(e) {}
+      // v49.67 P352: dynamicTickerLookup가 fetchFailed 객체 반환하면 data = null로 변환 (HARD GUARDRAIL 경로 진입)
+      if (data && data.fetchFailed) {
+        var _failData = data;
+        data = null;
+        // 진단 정보 추가 push — 사용자가 왜 실패했는지 즉시 인지
+        results.push('• ' + t + ' (' + _failData.tickerType + '): ❌ 시세 조회 실패 — ' + _failData.reason);
+        results.push('  💡 ' + _failData.suggestedAction);
+      }
     }
     // v49.34 신규: SEC 10-K + Wikipedia 사전 fetch (병렬)
     // v49.57 P317 R104 보강: SEC 8-K + Finnhub news + Insider + 13F 추가 — 6 소스 병렬
@@ -2385,12 +2404,22 @@ async function _fetchTickerDataForChat(tickers) {
       results.push('  ✅ 허용된 답변: "현재 ' + t + ' 실시간 데이터를 받아오지 못했습니다. Yahoo Finance(finance.yahoo.com/quote/' + t + ') 또는 Finnhub 등 외부 도구로 직접 확인을 권장합니다."');
       results.push('  ✅ 허용된 분석: 가격을 인용하지 않는 일반론적 사업 모델/경쟁사 비교/섹터 트렌드 (수치 없이) 만 답변하세요.');
     }
-    // v49.66 P350: 이 종목 처리 결과를 5분 TTL 캐시에 저장 (다음 동일 종목 질의 시 즉시 응답)
+    // v49.66 P350 + v49.67 P354: 이 종목 처리 결과를 5분 TTL 캐시에 저장 (실패 fetch는 캐시 금지)
     try {
       var _tickerLines = results.slice(_tickerBlockStart);
-      if (_tickerLines.length > 0) {
+      // v49.67 P354 R122: 시세 조회 실패 종목 (data === null 경로 — ❌ 표시 포함)은 캐시 저장 금지 (stale 응답 5분 반복 방지)
+      var _isFailedFetch = !data || (_tickerLines.length > 0 && /❌\s*시세 조회 실패/.test(_tickerLines[0]));
+      if (_tickerLines.length > 0 && !_isFailedFetch) {
         window._chatTickerCache[t] = { block: _tickerLines.join('\n'), ts: Date.now() };
-        // LRU eviction — 50 종목 초과 시 가장 오래된 10개 삭제
+        // v49.67 P354: TTL-based eviction 강화 — 매 save 시 만료 종목 자동 제거 (이전 LRU만 의존)
+        var _now = Date.now();
+        Object.keys(window._chatTickerCache).forEach(function(k) {
+          if (_now - window._chatTickerCache[k].ts >= _CC_TTL) {
+            delete window._chatTickerCache[k];
+            window._chatTickerCacheStats.evictions++;
+          }
+        });
+        // LRU eviction — 50 종목 초과 시 가장 오래된 10개 삭제 (TTL 후에도 50 초과 시)
         var _ckeys = Object.keys(window._chatTickerCache);
         if (_ckeys.length > _CC_MAX) {
           _ckeys.sort(function(a, b) { return window._chatTickerCache[a].ts - window._chatTickerCache[b].ts; })
@@ -2405,7 +2434,24 @@ async function _fetchTickerDataForChat(tickers) {
   // v49.66 P350: 캐시된 종목 결과를 신규 fetch 결과와 병합
   if (cachedBlocks.length > 0) results = cachedBlocks.concat(results);
   if (results.length === 0) return '';
-  return '\n\n【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n\n📋 17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- ⚠ 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
+  // v49.67 P353 R122: 응답 첫 줄에 "현재 시장 환경" 자동 헤더 주입 — 모든 종목 답변에 시장 흐름 유기적 도입 의무
+  var _mktHeader = '';
+  try {
+    var _s = (typeof _liveSnap === 'function') ? _liveSnap() : null;
+    if (_s) {
+      var _vix = _s.vix || '—';
+      var _fg = _s.fg != null ? _s.fg : '—';
+      var _spx = _s.spx || '—';
+      var _tnx = _s.tnx || '—';
+      var _score = _s.score != null ? _s.score : '—';
+      var _regime = _s.regime || (_vix !== '—' && Number(_vix) >= 25 ? '경계' : _vix !== '—' && Number(_vix) >= 20 ? '주의' : '안정');
+      var _fgLabel = _fg === '—' ? '—' : (_fg <= 25 ? '극단 공포' : _fg <= 45 ? '공포' : _fg <= 55 ? '중립' : _fg <= 75 ? '탐욕' : '극단 탐욕');
+      _mktHeader = '【현재 시장 환경 (v49.67 자동 헤더 — 종목 분석은 이 환경에서 해석)】\n' +
+        '• SPX: ' + _spx + ' · VIX: ' + _vix + ' (' + _regime + ') · 10Y: ' + _tnx + '% · F&G: ' + _fg + ' (' + _fgLabel + ') · 트레이딩 스코어: ' + _score + '/100\n' +
+        '⚠️ 종목 답변 시 위 시장 환경을 도입에 인용 후 분석. "지금 VIX ' + _vix + '/F&G ' + _fg + ' 환경에서 이 종목은..." 패턴 사용 (R122 시장 흐름 유기적 도입 의무).\n\n';
+    }
+  } catch(_hdrErr) {}
+  return '\n\n' + _mktHeader + '【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n8. 종목 답변 도입은 반드시 위 【현재 시장 환경】 헤더 인용 — "지금 VIX X · F&G Y 환경에서 [종목]은..." 패턴 사용. 시장 환경과 무관한 정적 분석 금지 (R122 시장 흐름 유기적 도입 의무). 시세 조회 실패 종목은 ❌ 표시 + suggestedAction 인용 후 "실시간 데이터 미수신 — 일반론적 분석만 가능" 답변.\n\n📋 17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- ⚠ 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
 }
 
 // ── v34.2: 기업 내부 비교 분석 — 비즈니스 모델·수익 구조·해자 심층 데이터 ──

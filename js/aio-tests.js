@@ -2319,9 +2319,55 @@
     _assert('T496 sidebar_chat_function_coverage_row_v4966: 사이드바 audit row [data-audit-key="chatFunctionCoverage"] DOM 존재',
       !!cfcEl, 'cfcEl=' + (!!cfcEl));
 
-    // T497: APP_VERSION === 'v49.66'
-    _assert('T497 app_version_v4966_chat_completeness: APP_VERSION === "v49.66"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.66',
+    // T497: APP_VERSION === 'v49.67' (v49.67 사용자 체감 품질 시정)
+    _assert('T497 app_version_v4967_ux_quality: APP_VERSION === "v49.67"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.67',
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
+  // v49.67 P352~P356 R122: AI 채팅 사용자 체감 품질 (시세 폴백 강화 + 시장 헤더 + TTL eviction + audit) 회귀 방지
+  function _testV4967UxQuality() {
+    // T498: dynamicTickerLookup 폴백 체인 4단계 (Yahoo → Stooq → Naver → Finnhub) + 실패 시 fetchFailed 구조화 응답
+    var dynSrc = typeof window.dynamicTickerLookup === 'function' ? window.dynamicTickerLookup.toString() : '';
+    var hasFinnhubFallback = /finnhub\.io\/api\/v1\/quote/.test(dynSrc);
+    var hasFetchFailed = /fetchFailed:\s*true/.test(dynSrc) && /suggestedAction/.test(dynSrc);
+    _assert('T498 dynamic_ticker_lookup_fallback_chain_v4967: Yahoo+Stooq+Naver+Finnhub 4단계 폴백 + fetchFailed 구조화 응답',
+      hasFinnhubFallback && hasFetchFailed,
+      'finnhub=' + hasFinnhubFallback + ' failResp=' + hasFetchFailed);
+
+    // T499: _fetchTickerDataForChat 응답 첫 줄 시장 환경 헤더 자동 주입 (모든 종목 답변)
+    var chatFn = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
+    var hasMktHeader = chatFn.indexOf('현재 시장 환경') >= 0 && chatFn.indexOf('R122') >= 0;
+    _assert('T499 chat_market_header_auto_inject_v4967: "현재 시장 환경" 헤더 + R122 시장 흐름 유기적 도입 의무',
+      hasMktHeader,
+      'header=' + (chatFn.indexOf('현재 시장 환경') >= 0) + ' R122=' + (chatFn.indexOf('R122') >= 0));
+
+    // T500: _chatTickerCache TTL-based auto eviction + 실패 fetch 캐시 금지
+    var hasTtlEvict = /_now\s*-\s*window\._chatTickerCache\[k\]\.ts\s*>=\s*_CC_TTL/.test(chatFn);
+    var hasFailGuard = chatFn.indexOf('_isFailedFetch') >= 0 && /시세 조회 실패/.test(chatFn);
+    _assert('T500 chat_ticker_cache_ttl_eviction_v4967: TTL-based auto eviction + 실패 fetch 캐시 금지 (stale 응답 방지)',
+      hasTtlEvict && hasFailGuard,
+      'ttl=' + hasTtlEvict + ' failGuard=' + hasFailGuard);
+
+    // T501: AIO.assertTickerFetchHealth 함수 정의 + 카테고리별 coverage (us/kr/adr/crypto/index)
+    var tfh = window.AIO && typeof window.AIO.assertTickerFetchHealth === 'function' && window.AIO.assertTickerFetchHealth();
+    _assert('T501 assert_ticker_fetch_health_v4967: AIO.assertTickerFetchHealth + byCategory us/kr/adr/crypto/index',
+      tfh && tfh.byCategory && tfh.byCategory.us && tfh.byCategory.kr && tfh.byCategory.adr && tfh.byCategory.crypto && tfh.byCategory.index,
+      tfh ? ('overall=' + tfh.overallCoveragePct + '% categories=' + Object.keys(tfh.byCategory).length) : 'fn missing');
+
+    // T502: 사이드바 audit row 7번째 (tickerFetchHealth) DOM 존재
+    var tfhEl = document.querySelector('[data-audit-key="tickerFetchHealth"]');
+    _assert('T502 sidebar_ticker_fetch_health_row_v4967: 사이드바 audit row [data-audit-key="tickerFetchHealth"] DOM 존재',
+      !!tfhEl, 'tfhEl=' + (!!tfhEl));
+
+    // T503: ABSOLUTE RULES 8조 추가 (R122 시장 흐름 유기적 도입 의무)
+    var hasRule8 = chatFn.indexOf('8. 종목 답변 도입은 반드시 위 【현재 시장 환경】') >= 0;
+    _assert('T503 absolute_rules_market_flow_v4967: ABSOLUTE RULES 8조 (R122 시장 흐름 유기적 도입 의무)',
+      hasRule8, 'rule8=' + hasRule8);
+
+    // T504: APP_VERSION === 'v49.67'
+    _assert('T504 app_version_v4967_final: APP_VERSION === "v49.67"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.67',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -3453,6 +3499,7 @@
     try { _testV4964CodexResidualIntegration(); } catch(e) { console.error('Group60 error:', e); }
     try { _testV4965Coverage17Perspectives(); } catch(e) { console.error('Group61 error:', e); }
     try { _testV4966ChatCompleteness(); } catch(e) { console.error('Group62 error:', e); }
+    try { _testV4967UxQuality(); } catch(e) { console.error('Group63 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

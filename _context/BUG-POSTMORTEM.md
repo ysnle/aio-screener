@@ -1,12 +1,64 @@
 ---
 verified_by: agent
-last_verified: 2026-05-25
+last_verified: 2026-05-26
 confidence: high
-latest_version: v49.66
-latest_P_number: P351
-total_entries: 351
-next_P_number: P352
+latest_version: v49.67
+latest_P_number: P356
+total_entries: 356
+next_P_number: P357
 ---
+
+## P356 · v49.67 · [P356/R122] AI 채팅 사이드바 audit row 6 → 7축 (tickerFetchHealth 미가시화)
+
+- **문제**: v49.66까지 사이드바 audit 위젯 6축 (registry/web_search/freshness/chatContexts/analysisFramework/essence/chatFunctionCoverage)에 시세 fetch 실제 성공률 row 부재. 사용자가 "몇몇 종목 시세 못 불러옴" 지적 시 자가 진단 불가.
+- **시정 (v49.67)**: index.html L3902 `[data-audit-key="tickerFetchHealth"]` row 추가. `_aioRefreshAuditWidget` 7번째 분기 추가 — `AIO.assertTickerFetchHealth()` 결과 "시세 fetch X/Y · US X% · KR X% · 캐시 hit X%" 색상 표시 (>=30% green / >=15% amber / <15% red).
+- **재발 방지**: T502 라이브 DOM 회귀 (`[data-audit-key="tickerFetchHealth"]` DOM 존재).
+- **파일**: `index.html` L3902 + `js/aio-core.js` _aioRefreshAuditWidget tfhEl 분기
+
+## P355 · v49.67 · [P355/R122] AI 채팅 카테고리별 시세 fetch 성공률 자동 진단 부재
+
+- **문제**: v49.66까지 REGISTRY 391 entries 중 어떤 카테고리(US/KR/ADR/암호화폐/지수)가 시세 fetch 실패율 높은지 자동 진단 부재. 사용자가 "에코프로비엠 시세 안 나옴" 지적 시 개발자가 KR ticker 폴백 체인 점검 필요한지 즉시 판단 불가.
+- **시정 (v49.67)**: `AIO.assertTickerFetchHealth()` 신설 (`js/aio-core.js` 5402~5460). 6 카테고리 분류 + `_liveData[k].price > 0` 검증 + 카테고리별 missing 샘플 5개 + chatTickerCache hit rate 통합. 반환: `{status, totalRegistry, liveDataHit, overallCoveragePct, byCategory: {us/kr/adr/crypto/index/other × {total, live, missing, coveragePct}}, chatTickerCache, fallbackChain, note}`.
+- **재발 방지**: T501 라이브 DOM 회귀 (`byCategory` 5 카테고리 존재 검증) + 사이드바 7번째 row 가시화.
+- **파일**: `js/aio-core.js` L5402~5460 assertTickerFetchHealth
+
+## P354 · v49.67 · [P354/R122] _chatTickerCache 실패 fetch 5분 캐시 (stale 응답 반복)
+
+- **문제**: v49.66 P350 cache 구현 시 모든 fetch 결과를 5분 TTL 저장. **시세 조회 실패 종목 (❌ 표시 + suggestedAction)도 캐시** → 사용자가 5분 내 재질의 시 "❌ 실패" 응답 반복 + 외부 API 복구 후에도 stale "실패" 응답 5분 잔존. TTL eviction 단순 LRU 50 cap만 의존 (만료 만료 + 50 미만이면 무한 잔존).
+- **시정 (v49.67)**:
+  - `_fetchTickerDataForChat` cache save 직전 `_isFailedFetch` 변수 추가 (`data === null` 또는 첫 라인이 ❌ 시세 조회 실패 포함 시 true)
+  - 실패 시 `window._chatTickerCache[t] = ...` 저장 거부 → 다음 질의 시 즉시 재 fetch (외부 API 복구 즉시 반영)
+  - TTL eviction 강화: 매 save 시 `Object.keys` 순회 → `_now - ts >= _CC_TTL` 종목 자동 삭제 + LRU 50 cap (기존)
+- **재발 방지**: T500 라이브 DOM 회귀 (TTL eviction + `_isFailedFetch` 가드 정규식 검증).
+- **파일**: `js/aio-chat.js` L2380~2410 cache save 블록
+
+## P353 · v49.67 · [P353/R122] AI 채팅 응답에 시장 환경 헤더 자동 주입 부재 (사용자 체감 흐름 단절)
+
+- **문제**: v49.66까지 `_fetchTickerDataForChat` 응답 텍스트가 종목 데이터 + ABSOLUTE RULES만 포함. **현재 시장 환경 (VIX/F&G/트레이딩 점수)을 종목 분석 도입에 강제하지 않음** → AI가 종목별 정적 분석만 제공 + 사용자가 "지금 시장 상황에서 이 종목 어떻게?" 질의 시 매크로 컨텍스트 누락 답변. 사용자 정직 지적 "시장 흐름 유기적으로 흐르는지" 부재.
+- **시정 (v49.67)**:
+  - `_fetchTickerDataForChat` 응답 첫 줄에 `【현재 시장 환경 (v49.67 자동 헤더)】 SPX/VIX/10Y/F&G/트레이딩 스코어` 자동 주입 (모든 종목 답변)
+  - VIX regime 판정 (>=25 경계 / >=20 주의 / 그 외 안정) + F&G label (극단 공포/공포/중립/탐욕/극단 탐욕) 함께
+  - Cache hit 경로도 동일 헤더 적용 (일관성)
+  - ABSOLUTE RULES **8조 신규** (R122): "종목 답변 도입은 반드시 위 【현재 시장 환경】 헤더 인용 — '지금 VIX X · F&G Y 환경에서 [종목]은...' 패턴 강제. 시장 환경과 무관한 정적 분석 금지."
+- **재발 방지**: T499 라이브 DOM 회귀 (`현재 시장 환경` 텍스트 + `R122` 마커 정규식).
+- **파일**: `js/aio-chat.js` L2367~2395 (헤더 주입) + L2330~2340 (cache hit 헤더) + L2347 (ABSOLUTE RULES 8조)
+
+## P352 · v49.67 · [P352/R122] dynamicTickerLookup 폴백 체인 부족 + 실패 시 null 반환 (silent fail)
+
+- **사용자 정직 지적**: "몇몇 종목 시세 잘 못 불러오고 있다."
+- **문제 진단**:
+  - v49.66까지 `dynamicTickerLookup` 폴백 체인: Yahoo (3 proxies) → Stooq (US만) → Naver siseJson (KR만) → **null 반환**
+  - KR ticker (.KS/.KQ): Yahoo 미지원 + Naver siseJson 1단계 폴백만 → Naver 실패 시 silent fail
+  - 신규 IPO (RDDT/CRWV 등) / 인도/유럽 ADR: Yahoo 지원하나 데이터 지연 빈번 → Stooq US 폴백도 부정확
+  - 실패 시 `null` 반환 → `_fetchTickerDataForChat`에서 HARD GUARDRAIL 메시지만 출력 + 사용자가 **왜** 실패했는지 인지 불가
+- **시정 (v49.67)**:
+  - **Finnhub /quote 4번째 폴백 추가** (`index.html` L20404~20425): US/ADR ticker (KR 제외, =F/=X/^ 제외, -USD 제외)에 한해 Finnhub API key 있을 때 호출 → c (현재가) + dp (등락률) 또는 pc (전일 종가) 기반 폴백 계산. 성공 시 `_liveData` 저장 + `source:'finnhub'` 반환
+  - **실패 시 구조화 응답** (이전 null): `{ticker, available:false, fetchFailed:true, tickerType, reason, suggestedAction, source:'none'}` 반환
+    - tickerType: 'KR 종목 (.KS/.KQ)' / '환율' / '선물' / '지수' / '암호화폐' / '미국/ADR' / '국제'
+    - suggestedAction: KR → "Naver 금융 finance.naver.com/item/main.naver?code=XXXXXX 직접 확인" / US → "Yahoo Finance + Finnhub API key 등록 권장" / 기타 → "외부 도구로 직접 확인 권장"
+  - `_fetchTickerDataForChat`에서 `data.fetchFailed === true` 체크 + `data = null`로 변환 후 `❌ ${tickerType}: 시세 조회 실패 — ${reason}` + `💡 ${suggestedAction}` 출력
+- **재발 방지**: T498 라이브 DOM 회귀 (Finnhub URL 패턴 + `fetchFailed:true` + `suggestedAction` 정규식 검증) + R122 신규.
+- **파일**: `index.html` L20404~20440 dynamicTickerLookup 폴백 강화 + `js/aio-chat.js` L2023~2032 fetchFailed 처리
 
 ## P351 · v49.66 · [P351/R121] AI 채팅 정의-호출 정합 자동 회귀 방지 audit 부재
 

@@ -5399,6 +5399,63 @@ window.AIO.getAnalysisFrameworkCoverageAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.67 P355 R122: assertTickerFetchHealth — REGISTRY 샘플링 fetch 성공률 측정
+// _liveData 캐시 hit + REGISTRY 카테고리별 (US/KR/ADR/암호화폐/지수) coverage 정합
+// 사용자 체감 "몇몇 종목 시세 안 나옴" 자동 진단
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertTickerFetchHealth = function() {
+  var reg = window.AIO_TICKER_NAME_REGISTRY;
+  var entries = (reg && reg.entries) || {};
+  var liveData = window._liveData || {};
+  var keys = Object.keys(entries).filter(function(k) {
+    var e = entries[k];
+    return e && e.en !== '_skip' && k.indexOf('_dup') < 0;
+  });
+  var byCategory = {
+    us: { total: 0, live: 0, missing: [] },
+    kr: { total: 0, live: 0, missing: [] },
+    adr: { total: 0, live: 0, missing: [] },
+    crypto: { total: 0, live: 0, missing: [] },
+    index: { total: 0, live: 0, missing: [] },
+    other: { total: 0, live: 0, missing: [] }
+  };
+  keys.forEach(function(k) {
+    var cat = k.endsWith('.KS') || k.endsWith('.KQ') ? 'kr' :
+              k.includes('-USD') ? 'crypto' :
+              k.startsWith('^') ? 'index' :
+              k.includes('=X') || k.includes('=F') ? 'other' :
+              /^(IBN|HDB|INFY|WIT|TTM|RDY|SIFY|YY|SAP|SIEGY|NSRGY|LVMUY|RHHBY|NVS|UL|DEO|AZN|GSK|TM|HMC|SNY|EADSY|VALE|ITUB|BBD|MELI|PAGS|SE|GLOB|BIDU|PDD|BABA|TSM|ASML|NVO|FANUY|NTDOY|SONY)$/.test(k) ? 'adr' :
+              'us';
+    byCategory[cat].total++;
+    if (liveData[k] && liveData[k].price > 0) {
+      byCategory[cat].live++;
+    } else {
+      if (byCategory[cat].missing.length < 5) byCategory[cat].missing.push(k);
+    }
+  });
+  var totalLive = 0, totalAll = 0;
+  Object.keys(byCategory).forEach(function(c) {
+    totalLive += byCategory[c].live;
+    totalAll += byCategory[c].total;
+    byCategory[c].coveragePct = byCategory[c].total > 0 ? Math.round(byCategory[c].live / byCategory[c].total * 100) : 0;
+  });
+  var overallPct = totalAll > 0 ? Math.round(totalLive / totalAll * 100) : 0;
+  // _chatTickerCache hit rate
+  var ccStats = (window.AIO && window.AIO.getChatTickerCacheStats) ? window.AIO.getChatTickerCacheStats() : null;
+  return {
+    status: overallPct >= 30 ? 'ok' : overallPct >= 15 ? 'warn' : 'low',
+    totalRegistry: totalAll,
+    liveDataHit: totalLive,
+    overallCoveragePct: overallPct,
+    byCategory: byCategory,
+    chatTickerCache: ccStats,
+    fallbackChain: 'Yahoo (3 proxies) → Stooq → Naver (KR) → Finnhub (US/ADR)',
+    note: 'overallCoveragePct는 REGISTRY ' + totalAll + '개 중 _liveData 캐시 hit 종목 비율. 30% 이상 정상 (메가캡+테마 우선 로드 보장). KR ticker는 Naver siseJson 폴백 필수 — coverage 낮으면 fetchWithTimeout 점검. 카테고리별 missing 5개 샘플은 사용자가 직접 fetch 시도해 폴백 체인 확인 가능.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.66 P351 R121: assertChatFunctionCoverage — Dead code/Partial Integration/Silent Fail 자동 회귀 방지
 // AI 채팅 시스템에 정의된 fetch/compute 함수가 실제로 _fetchTickerDataForChat에 통합되었는지
 // + 14 CHAT_CONTEXTS가 _getV48IntegratedContext 호출했는지 + _chatTickerCache save 로직 존재 자동 검증
@@ -9084,6 +9141,23 @@ window._aioRefreshAuditWidget = function() {
         }
       } catch(e) { cfcEl.textContent = '⚠ chatFunctionCoverage error'; }
     }
+    // v49.67 P355 R122: 시세 fetch 건강도 — REGISTRY 카테고리별 _liveData hit 비율 + chatTickerCache 통계
+    var tfhEl = container.querySelector('[data-audit-key="tickerFetchHealth"]');
+    if (tfhEl) {
+      try {
+        var tfh = window.AIO && window.AIO.assertTickerFetchHealth && window.AIO.assertTickerFetchHealth();
+        if (tfh) {
+          var icon8 = tfh.status === 'ok' ? '✓' : tfh.status === 'warn' ? '⚠' : '✗';
+          var color8 = tfh.status === 'ok' ? 'var(--data-green)' : tfh.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var usPct = tfh.byCategory && tfh.byCategory.us ? tfh.byCategory.us.coveragePct : '—';
+          var krPct = tfh.byCategory && tfh.byCategory.kr ? tfh.byCategory.kr.coveragePct : '—';
+          var ccHits = tfh.chatTickerCache ? tfh.chatTickerCache.hitRatePct : '—';
+          tfhEl.innerHTML = '<span style="color:' + color8 + ';">' + icon8 + '</span> 시세 fetch <b>' + tfh.liveDataHit + '/' + tfh.totalRegistry + '</b> (' + tfh.overallCoveragePct + '%) · US ' + usPct + '% · KR ' + krPct + '% · 캐시 hit ' + ccHits + '%';
+        } else {
+          tfhEl.innerHTML = '<span style="color:var(--text-muted);">— tickerFetchHealth audit 미가용</span>';
+        }
+      } catch(e) { tfhEl.textContent = '⚠ tickerFetchHealth error'; }
+    }
   } catch(e) { /* 위젯 갱신 실패는 silent */ }
 };
 // 페이지 로드 후 자동 1회 + 5분마다 갱신
@@ -10805,7 +10879,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.66';
+const APP_VERSION = 'v49.67';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
