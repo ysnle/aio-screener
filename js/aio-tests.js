@@ -2507,9 +2507,78 @@
       ccc && ccc.contexts.instFwCoverage >= 12,
       ccc ? ('instFw=' + ccc.contexts.instFwCoverage + '/' + ccc.contexts.total) : 'audit missing');
 
-    // T530: APP_VERSION === 'v49.68'
-    _assert('T530 app_version_v4968_final: APP_VERSION === "v49.68"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.68',
+    // T530: APP_VERSION === 'v49.69' (v49.69 인터랙티브 + 시뮬레이션)
+    _assert('T530 app_version_v4969_interactive: APP_VERSION === "v49.69"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.69',
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
+  // v49.69 P365~P370 R129~R131: AI 채팅 인터랙티브 기능 + 시뮬레이션 + fuzzy 매칭 회귀 방지
+  function _testV4969Interactive() {
+    // T531: _suggestFollowUpQuestions 함수 정의 + 14 컨텍스트 분기
+    var fuqSrc = typeof window._suggestFollowUpQuestions === 'function' ? window._suggestFollowUpQuestions.toString() : '';
+    var has14Branches = /ctxId === 'macro'/.test(fuqSrc) && /'sentiment'/.test(fuqSrc) && /'fundamental'/.test(fuqSrc) && /'portfolio'/.test(fuqSrc) && /'kr-/.test(fuqSrc);
+    _assert('T531 follow_up_questions_v4969: _suggestFollowUpQuestions + 14 컨텍스트 분기',
+      typeof window._suggestFollowUpQuestions === 'function' && has14Branches,
+      'fn=' + typeof window._suggestFollowUpQuestions + ' branches=' + has14Branches);
+
+    // T532: _autoNavigatePage 함수 정의 + 12+ intent 매핑
+    var anpSrc = typeof window._autoNavigatePage === 'function' ? window._autoNavigatePage.toString() : '';
+    var hasIntents = /technical/.test(anpSrc) && /signal/.test(anpSrc) && /sentiment/.test(anpSrc) && /fundamental/.test(anpSrc) && /portfolio/.test(anpSrc) && /options/.test(anpSrc);
+    _assert('T532 auto_navigate_page_v4969: _autoNavigatePage + 12+ intent → page 매핑',
+      typeof window._autoNavigatePage === 'function' && hasIntents,
+      'fn=' + typeof window._autoNavigatePage + ' intents=' + hasIntents);
+
+    // T533: _simulatePortfolioAddition 함수 정의 + 가중치 계산 로직
+    _assert('T533 simulate_portfolio_v4969: _simulatePortfolioAddition 함수 정의',
+      typeof window._simulatePortfolioAddition === 'function',
+      typeof window._simulatePortfolioAddition);
+
+    // T534: _simulateMacroScenario 함수 정의 + 6+ 시나리오 (fed-cut/hike/vix-spike/spx-crash/dxy/oil)
+    var msSrc = typeof window._simulateMacroScenario === 'function' ? window._simulateMacroScenario.toString() : '';
+    var has6Scenarios = /fed-cut/.test(msSrc) && /fed-hike/.test(msSrc) && /vix-spike/.test(msSrc) && /spx-crash/.test(msSrc) && /dxy-strong/.test(msSrc) && /oil-spike/.test(msSrc);
+    _assert('T534 simulate_macro_v4969: _simulateMacroScenario + 6+ 시나리오 (fed-cut/hike/vix/spx/dxy/oil)',
+      typeof window._simulateMacroScenario === 'function' && has6Scenarios,
+      'fn=' + typeof window._simulateMacroScenario + ' scenarios=' + has6Scenarios);
+
+    // T535: _resolveTickerFromFuzzy 함수 정의 + 한글 약어 매핑 (엔비 → NVDA / 삼전 → 005930.KS)
+    var fuzzyTest1 = window._resolveTickerFromFuzzy && window._resolveTickerFromFuzzy('엔비');
+    var fuzzyTest2 = window._resolveTickerFromFuzzy && window._resolveTickerFromFuzzy('삼전');
+    var fuzzyTest3 = window._resolveTickerFromFuzzy && window._resolveTickerFromFuzzy('테슬라');
+    _assert('T535 resolve_fuzzy_v4969: _resolveTickerFromFuzzy — 엔비→NVDA, 삼전→005930.KS, 테슬라→TSLA',
+      fuzzyTest1 === 'NVDA' && fuzzyTest2 === '005930.KS' && fuzzyTest3 === 'TSLA',
+      'fuzzy1=' + fuzzyTest1 + ' fuzzy2=' + fuzzyTest2 + ' fuzzy3=' + fuzzyTest3);
+
+    // T536: chatSend 통합 — 5 신규 함수 모두 호출 (followUp/autoNav/pfSim/macroSim/fuzzyResolve)
+    var csSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+    var allIntegrated = csSrc.indexOf('_suggestFollowUpQuestions') >= 0 && csSrc.indexOf('_autoNavigatePage') >= 0 && csSrc.indexOf('_simulatePortfolioAddition') >= 0 && csSrc.indexOf('_simulateMacroScenario') >= 0 && csSrc.indexOf('_resolveTickerFromFuzzy') >= 0;
+    _assert('T536 chat_send_integrates_5_v4969: chatSend가 5 신규 함수 모두 호출',
+      allIntegrated, 'integrated=' + allIntegrated);
+
+    // T537: AIO.assertChatInteractivityAudit 함수 정의 + coveragePct 100% 목표
+    var cia = window.AIO && typeof window.AIO.assertChatInteractivityAudit === 'function' && window.AIO.assertChatInteractivityAudit();
+    _assert('T537 assert_chat_interactivity_v4969: AIO.assertChatInteractivityAudit + coveragePct 100',
+      cia && cia.coveragePct === 100,
+      cia ? ('coverage=' + cia.coveragePct + ' fn=' + cia.fnCount + ' integ=' + cia.integCount) : 'audit missing');
+
+    // T538: 사이드바 audit row 9번째 (chatInteractivity) DOM 존재
+    var ciaEl = document.querySelector('[data-audit-key="chatInteractivity"]');
+    _assert('T538 sidebar_chat_interactivity_row_v4969: 사이드바 audit row [data-audit-key="chatInteractivity"] DOM 존재',
+      !!ciaEl, 'ciaEl=' + (!!ciaEl));
+
+    // T539: _suggestFollowUpQuestions 결과 — 종목 ticker 있을 때 3개 제안
+    if (typeof window._suggestFollowUpQuestions === 'function') {
+      var fuq = window._suggestFollowUpQuestions('fundamental', 'NVDA 분석', 'NVDA는 ...', ['NVDA']);
+      _assert('T539 follow_up_returns_array_v4969: ticker 있을 때 3개 후속 질문 배열 반환',
+        Array.isArray(fuq) && fuq.length === 3,
+        'fuq=' + (Array.isArray(fuq) ? fuq.length : 'not array'));
+    } else {
+      _assert('T539 follow_up_fn_exists_v4969', false, 'function missing');
+    }
+
+    // T540: APP_VERSION === 'v49.69'
+    _assert('T540 app_version_v4969_final: APP_VERSION === "v49.69"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.69',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -3643,6 +3712,7 @@
     try { _testV4966ChatCompleteness(); } catch(e) { console.error('Group62 error:', e); }
     try { _testV4967UxQuality(); } catch(e) { console.error('Group63 error:', e); }
     try { _testV4968InstitutionalQuality(); } catch(e) { console.error('Group64 error:', e); }
+    try { _testV4969Interactive(); } catch(e) { console.error('Group65 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

@@ -3421,6 +3421,342 @@ async function _aiDeepSearch(query, ctxId) {
 }
 
 // ── Send message ───────────────────────────────────────────────────────
+// v49.69 P368 R131: 거시 시나리오 동적 시뮬레이션 — "Fed 50bp 인하 시" / "VIX 30 도달 시" 등 의도 감지 + 자산 영향 정량 추산
+// Bridgewater All Weather + Druckenmiller Macro Overlay 휴리스틱 기반 (정확 회귀 아닌 정성+정량 가이드)
+function _simulateMacroScenario(userQuery) {
+  if (!userQuery || typeof userQuery !== 'string') return null;
+  var q = userQuery.toLowerCase();
+  var scenario = null;
+  // 패턴 감지
+  var fedCutMatch = q.match(/fed.*?(\d+)\s*(bp|basis|베이시스)?\s*(인하|cut|하락)/i) || q.match(/(\d+)\s*(bp|basis|베이시스)?\s*(인하|cut)/i);
+  var fedHikeMatch = q.match(/fed.*?(\d+)\s*(bp|basis|베이시스)?\s*(인상|hike|상승)/i) || q.match(/(\d+)\s*(bp|basis|베이시스)?\s*(인상|hike)/i);
+  var vixSpikeMatch = q.match(/vix.*?(\d+)\s*(이상|넘|over|spike|도달)/i);
+  var spxCrashMatch = q.match(/(s&?p|spx|spy).*?-?(\d+)\s*(%|퍼센트)?\s*(하락|크래시|crash|drop)/i);
+  var dxyMatch = q.match(/(dxy|달러|dollar).*?(\d+)\s*(이상|넘|over|돌파)/i);
+  var oilMatch = q.match(/(유가|oil|wti|brent).*?\$?(\d+)\s*(이상|넘|over|돌파)/i);
+  if (fedCutMatch) {
+    var cutBp = Number(fedCutMatch[1]);
+    if (cutBp >= 10 && cutBp <= 200) scenario = { type: 'fed-cut', magnitude: cutBp, framework: 'Druckenmiller Macro Overlay (유동성 시그널)' };
+  } else if (fedHikeMatch) {
+    var hikeBp = Number(fedHikeMatch[1]);
+    if (hikeBp >= 10 && hikeBp <= 200) scenario = { type: 'fed-hike', magnitude: hikeBp, framework: 'Druckenmiller + Bridgewater 4-Quadrant' };
+  } else if (vixSpikeMatch) {
+    var vixLv = Number(vixSpikeMatch[1]);
+    if (vixLv >= 15 && vixLv <= 80) scenario = { type: 'vix-spike', magnitude: vixLv, framework: 'Howard Marks Pendulum + Soros Reflexivity' };
+  } else if (spxCrashMatch) {
+    var spxPct = Number(spxCrashMatch[2]);
+    if (spxPct >= 3 && spxPct <= 30) scenario = { type: 'spx-crash', magnitude: spxPct, framework: 'Marks Pendulum + Buffett Margin of Safety' };
+  } else if (dxyMatch) {
+    var dxyLv = Number(dxyMatch[2]);
+    if (dxyLv >= 90 && dxyLv <= 130) scenario = { type: 'dxy-strong', magnitude: dxyLv, framework: 'Bridgewater 4-Quadrant + Druckenmiller' };
+  } else if (oilMatch) {
+    var oilLv = Number(oilMatch[2]);
+    if (oilLv >= 50 && oilLv <= 200) scenario = { type: 'oil-spike', magnitude: oilLv, framework: 'Bridgewater (Stagflation) + MS Cyclical' };
+  }
+  if (!scenario) return null;
+  // 자산별 영향 정량 추산 (휴리스틱 — 역사적 상관계수 기반)
+  var impacts = null;
+  switch (scenario.type) {
+    case 'fed-cut':
+      var cutMag = scenario.magnitude / 50;
+      impacts = {
+        SPX: { direction: '+' + (2 * cutMag).toFixed(1) + '~' + (5 * cutMag).toFixed(1) + '%', verdict: '🟢 우호 (성장주 듀레이션 확장)' },
+        '10Y': { direction: '-' + (30 * cutMag).toFixed(0) + '~' + (50 * cutMag).toFixed(0) + 'bp', verdict: '🟢 채권 우호 (가격 상승)' },
+        DXY: { direction: '-' + (1.5 * cutMag).toFixed(1) + '~' + (3 * cutMag).toFixed(1) + '%', verdict: '🟢 달러 약세 → EM 자산 우호' },
+        Gold: { direction: '+' + (2 * cutMag).toFixed(1) + '~' + (4 * cutMag).toFixed(1) + '%', verdict: '🟢 금 우호 (실질금리 ↓)' },
+        Sector: { direction: 'Tech/REIT/Utilities OW · Financials UW', verdict: '🟢 성장주 + 배당주 우호' }
+      };
+      break;
+    case 'fed-hike':
+      var hikeMag = scenario.magnitude / 50;
+      impacts = {
+        SPX: { direction: '-' + (2 * hikeMag).toFixed(1) + '~' + (5 * hikeMag).toFixed(1) + '%', verdict: '🔴 압박 (멀티플 압축)' },
+        '10Y': { direction: '+' + (30 * hikeMag).toFixed(0) + '~' + (50 * hikeMag).toFixed(0) + 'bp', verdict: '🔴 채권 약세' },
+        DXY: { direction: '+' + (1.5 * hikeMag).toFixed(1) + '~' + (3 * hikeMag).toFixed(1) + '%', verdict: '🔴 달러 강세 → EM 자금 유출' },
+        Gold: { direction: '-' + (1 * hikeMag).toFixed(1) + '~' + (3 * hikeMag).toFixed(1) + '%', verdict: '🔴 금 약세 (실질금리 ↑)' },
+        Sector: { direction: 'Financials/Energy OW · Tech/REIT UW', verdict: '🔴 성장주 압박, 금융주 수혜' }
+      };
+      break;
+    case 'vix-spike':
+      var vixDelta = scenario.magnitude - 18;
+      impacts = {
+        SPX: { direction: '-' + (vixDelta * 0.3).toFixed(1) + '~' + (vixDelta * 0.6).toFixed(1) + '%', verdict: '🔴 변동성 spike → 위험자산 매도' },
+        '10Y': { direction: '-15~30bp', verdict: '🟢 안전자산 도피 → 채권 매수' },
+        Gold: { direction: '+1~3%', verdict: '🟢 안전자산 수혜' },
+        'Quality': { direction: 'Defensive OW · High-Beta UW', verdict: '🔴 방어주 OW, 베타↑ 종목 회피' },
+        'Marks Pendulum': { direction: '비관 극단 진입 → 6~12개월 비대칭 매수 기회', verdict: '🟢 역발상 매수 시그널' }
+      };
+      break;
+    case 'spx-crash':
+      impacts = {
+        VIX: { direction: '+' + (scenario.magnitude * 1.5).toFixed(0) + '~' + (scenario.magnitude * 2.5).toFixed(0) + '%', verdict: '🔴 변동성 폭발' },
+        '10Y': { direction: '-30~60bp', verdict: '🟢 채권 강한 매수' },
+        Gold: { direction: '+2~5%', verdict: '🟢 안전자산 강한 수혜' },
+        Sector: { direction: 'Staples/Healthcare/Utilities OW · Cyclicals UW', verdict: '🔴 방어주 로테이션' },
+        'Buffett MoS': { direction: 'Margin of Safety 확보 시점 — 매수 검토', verdict: '🟢 역발상' }
+      };
+      break;
+    case 'dxy-strong':
+      impacts = {
+        EM: { direction: '-5~15% (DXY ' + scenario.magnitude + ')', verdict: '🔴 EM 자산 강한 압박' },
+        SPX: { direction: '-2~5%', verdict: '🔴 다국적 기업 환율 역풍' },
+        Gold: { direction: '-3~7%', verdict: '🔴 달러 강세 → 금 약세' },
+        KOSPI: { direction: '-3~8%', verdict: '🔴 외국인 자금 유출' }
+      };
+      break;
+    case 'oil-spike':
+      impacts = {
+        Energy: { direction: '+10~25%', verdict: '🟢 에너지 섹터 강세' },
+        Airlines: { direction: '-8~20%', verdict: '🔴 항공/운송 압박' },
+        CPI: { direction: '+0.3~0.8%p', verdict: '🔴 인플레 압력 ↑' },
+        'Stagflation': { direction: 'Bridgewater Quadrant: 성장↓+인플레↑', verdict: '🔴 스태그플레이션 리스크' }
+      };
+      break;
+  }
+  return {
+    scenario: scenario,
+    impacts: impacts,
+    note: '휴리스틱 (역사적 상관계수 기반) — 정확 회귀 아닌 정성+정량 가이드. ' + scenario.framework + ' 프레임 적용.'
+  };
+}
+window._simulateMacroScenario = _simulateMacroScenario;
+
+// v49.69 P369 R131: 약어/별명 fuzzy match 강화 — "엔비" / "퀄컴" / "테슬라" / 본드 / 환율 등
+function _resolveTickerFromFuzzy(input) {
+  if (!input || typeof input !== 'string') return null;
+  var q = String(input).trim().toLowerCase();
+  var fuzzyMap = {
+    '엔비': 'NVDA', '엔비디아': 'NVDA',
+    '애플': 'AAPL',
+    '구글': 'GOOGL', '알파벳': 'GOOGL',
+    '아마존': 'AMZN',
+    '마소': 'MSFT', '마이크로': 'MSFT', '마크': 'MSFT',
+    '테슬': 'TSLA', '테슬라': 'TSLA',
+    '메타': 'META', '페북': 'META', '페이스북': 'META',
+    '퀄컴': 'QCOM',
+    '인텔': 'INTC',
+    '브로드컴': 'AVGO',
+    '암드': 'AMD',
+    '팔란티어': 'PLTR', '팔란': 'PLTR',
+    '슈퍼마이크로': 'SMCI',
+    '넷플': 'NFLX', '넷플릭스': 'NFLX',
+    '디즈니': 'DIS',
+    '삼성전자': '005930.KS', '삼전': '005930.KS',
+    '하이닉스': '000660.KS',
+    '에코프로': '086520.KQ', '에코프로비엠': '247540.KQ',
+    '카카오': '035720.KS',
+    '네이버': '035420.KS',
+    'LG화학': '051910.KS',
+    '현대차': '005380.KS',
+    '코스피': '^KS11', 'kospi': '^KS11',
+    '코스닥': '^KQ11', 'kosdaq': '^KQ11',
+    '엔화': 'JPY=X', 'jpy': 'JPY=X',
+    '원화': 'KRW=X', '원달러': 'KRW=X',
+    '위안': 'CNY=X', '위안화': 'CNY=X',
+    '비트코인': 'BTC-USD', '코인': 'BTC-USD',
+    '이더리움': 'ETH-USD',
+    '금': 'GC=F', 'gold': 'GC=F',
+    '은': 'SI=F', 'silver': 'SI=F',
+    '유가': 'CL=F', 'wti': 'CL=F', '원유': 'CL=F',
+    '나스닥': '^IXIC', 'nasdaq': '^IXIC',
+    'S&P': '^GSPC', '에스앤피': '^GSPC',
+    '다우': '^DJI', '다우존스': '^DJI',
+    '러셀': '^RUT', '러셀2000': '^RUT'
+  };
+  if (fuzzyMap[q]) return fuzzyMap[q];
+  var keys = Object.keys(fuzzyMap);
+  for (var i = 0; i < keys.length; i++) {
+    var k = keys[i].toLowerCase();
+    if (q.indexOf(k) >= 0 || (k.length >= 2 && k.indexOf(q) >= 0 && q.length >= 2)) {
+      return fuzzyMap[keys[i]];
+    }
+  }
+  return null;
+}
+window._resolveTickerFromFuzzy = _resolveTickerFromFuzzy;
+
+// v49.69 P366 R130: 자동 페이지 이동 — 사용자 입력 의도 → 적합 페이지 자동 전환
+// "차트 보여줘" / "포트폴리오 분석" / "옵션 전략" 키워드 감지 → showPage 자동 호출 + 안내 메시지
+function _autoNavigatePage(userQuery, currentCtxId) {
+  if (!userQuery || typeof userQuery !== 'string') return null;
+  var q = userQuery.toLowerCase();
+  var intent = null;
+  // 키워드 패턴 → 페이지 매핑
+  if (/(차트|chart|기술|technical|RSI|MACD|이동평균|MA|Weinstein)/i.test(q)) intent = { page: 'technical', label: '차트 분석', emoji: '📈' };
+  else if (/(시그널|signal|매매|trade|점수|score|ACTION)/i.test(q)) intent = { page: 'signal', label: '매매 시그널', emoji: '🎯' };
+  else if (/(시장 폭|breadth|McClellan|AD line|NHNL)/i.test(q)) intent = { page: 'breadth', label: '시장 폭', emoji: '📊' };
+  else if (/(심리|sentiment|VIX|F&G|공포|탐욕|AAII|Put.?Call|PCR)/i.test(q)) intent = { page: 'sentiment', label: '투자 심리', emoji: '🧠' };
+  else if (/(매크로|macro|Fed|CPI|PCE|유가|달러|환율|FOMC|금리)/i.test(q)) intent = { page: 'macro', label: '거시경제', emoji: '🌍' };
+  else if (/(외환|FX|채권|bond|10Y|2Y|국채|금리)/i.test(q) && !/(macro|매크로)/i.test(q)) intent = { page: 'fxbond', label: '환율/채권', emoji: '💱' };
+  else if (/(기업 분석|fundamental|재무|earnings|EPS|PER|밸류에이션|valuation|owner earnings|moat)/i.test(q)) intent = { page: 'fundamental', label: '기업 분석', emoji: '🏢' };
+  else if (/(테마|theme|섹터|sector|RRG|rotation)/i.test(q)) intent = { page: 'themes', label: '테마/섹터', emoji: '🔄' };
+  else if (/(포트폴리오|portfolio|보유|holdings|리밸런싱|rebalancing)/i.test(q)) intent = { page: 'portfolio', label: '포트폴리오', emoji: '💼' };
+  else if (/(옵션|option|GEX|put|call|delta|gamma|theta|vega)/i.test(q)) intent = { page: 'options', label: '옵션 전략', emoji: '⚙️' };
+  else if (/(브리핑|briefing|오늘|today|이번 주|this week)/i.test(q)) intent = { page: 'briefing', label: '데일리 브리핑', emoji: '📰' };
+  else if (/(뉴스|news|헤드라인|headline)/i.test(q)) intent = { page: 'market-news', label: '실시간 뉴스', emoji: '🗞️' };
+  else if (/(한국|KOSPI|KOSDAQ|KRX|코스피|코스닥|원화|BOK|한은|VKOSPI)/i.test(q)) intent = { page: 'kr-macro', label: '한국 거시', emoji: '🇰🇷' };
+  // 현재 컨텍스트와 동일하면 이동 불필요
+  if (intent && intent.page === currentCtxId) return null;
+  return intent;
+}
+window._autoNavigatePage = _autoNavigatePage;
+
+// v49.69 P367 R130: 포트폴리오 동적 시뮬레이션 — "AAPL 10% 추가 시" 의도 감지 + 가중치 변화 계산
+// 답변에 시나리오 결과 자동 삽입 (보유 종목 라이브 가격 + 시뮬레이션 후 가중치)
+function _simulatePortfolioAddition(userQuery, detectedTickers) {
+  if (!userQuery || typeof userQuery !== 'string') return null;
+  var q = userQuery.toLowerCase();
+  // 의도 감지: "X% 추가" / "X 주 매수" / "X 만큼 늘리면"
+  var addMatch = q.match(/(\d+\.?\d*)\s*(%|퍼센트|percent)\s*(추가|매수|늘리|increase|add|buy)/i);
+  var percentToAdd = addMatch ? Number(addMatch[1]) : null;
+  if (!percentToAdd || percentToAdd <= 0 || percentToAdd > 100) return null;
+  var target = (Array.isArray(detectedTickers) && detectedTickers[0]) || null;
+  if (!target) return null;
+  // 현재 포트폴리오 holdings 조회
+  var portfolio = null;
+  try {
+    if (typeof window.getPortfolioState === 'function') portfolio = window.getPortfolioState();
+    if (!portfolio || !portfolio.holdings) {
+      var pfRaw = localStorage.getItem('aio_portfolio_v1');
+      if (pfRaw) portfolio = JSON.parse(pfRaw);
+    }
+  } catch(_) {}
+  if (!portfolio || !Array.isArray(portfolio.holdings) || portfolio.holdings.length === 0) {
+    return {
+      target: target,
+      percentToAdd: percentToAdd,
+      available: false,
+      note: '포트폴리오 비어 있음 — 보유 종목 추가 후 시뮬레이션 가능'
+    };
+  }
+  // 현재 총 가치 + 가중치
+  var ld = window._liveData || {};
+  var currentTotal = portfolio.holdings.reduce(function(sum, h) {
+    var price = (ld[h.symbol] && ld[h.symbol].price) || h.price || 0;
+    return sum + (price * (h.quantity || 0));
+  }, 0);
+  if (currentTotal <= 0) return null;
+  // 시뮬레이션: target ticker를 percentToAdd% 비중으로 추가
+  var targetPrice = (ld[target] && ld[target].price) || null;
+  if (!targetPrice) return { target: target, percentToAdd: percentToAdd, available: false, reason: '시세 미수신' };
+  var addAmount = currentTotal * (percentToAdd / 100);
+  var addQty = Math.floor(addAmount / targetPrice);
+  var newTotal = currentTotal + (addQty * targetPrice);
+  // 신규 가중치 계산
+  var newWeights = portfolio.holdings.map(function(h) {
+    var price = (ld[h.symbol] && ld[h.symbol].price) || h.price || 0;
+    var currentValue = price * (h.quantity || 0);
+    var newValue = h.symbol === target ? currentValue + (addQty * targetPrice) : currentValue;
+    return {
+      symbol: h.symbol,
+      currentPct: +(currentValue / currentTotal * 100).toFixed(2),
+      newPct: +(newValue / newTotal * 100).toFixed(2),
+      change: +((newValue / newTotal * 100) - (currentValue / currentTotal * 100)).toFixed(2)
+    };
+  });
+  // target이 holdings에 없으면 신규 추가
+  var existsInHoldings = portfolio.holdings.some(function(h) { return h.symbol === target; });
+  if (!existsInHoldings) {
+    newWeights.push({
+      symbol: target,
+      currentPct: 0,
+      newPct: +(addQty * targetPrice / newTotal * 100).toFixed(2),
+      change: +(addQty * targetPrice / newTotal * 100).toFixed(2)
+    });
+  }
+  return {
+    target: target,
+    percentToAdd: percentToAdd,
+    available: true,
+    targetPrice: targetPrice,
+    addAmount: Math.round(addAmount),
+    addQty: addQty,
+    currentTotal: Math.round(currentTotal),
+    newTotal: Math.round(newTotal),
+    weights: newWeights,
+    note: 'currentPct → newPct 가중치 변화. addQty = floor(addAmount / targetPrice)로 정수 주식 수만 시뮬레이션.'
+  };
+}
+window._simulatePortfolioAddition = _simulatePortfolioAddition;
+
+// v49.69 P365 R129: 후속 질문 3개 자동 제안 — 답변 내용 + 페이지 컨텍스트 + 감지된 ticker로 유기적 후속 질문 생성
+// 사용자 정직 요구: "AI 채팅에서 활용할 수 있는 모든 답변/기능" — 대화 깊이 + 유기적 흐름
+function _suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers) {
+  if (!ctxId || !aiResponse) return [];
+  var tickers = Array.isArray(detectedTickers) ? detectedTickers.filter(Boolean).slice(0, 2) : [];
+  var primaryTicker = tickers[0] || null;
+  var lowerResp = String(aiResponse || '').toLowerCase();
+  var lowerQ = String(userQuery || '').toLowerCase();
+  var suggestions = [];
+  // 페이지별 후속 질문 패턴 (10 컨텍스트 + KR 4)
+  if (primaryTicker) {
+    // 종목 분석 후속 — 17 관점 중 일부 deep-dive
+    suggestions.push(primaryTicker + ' 의 Bull/Base/Bear 3 시나리오 확신도와 트리거 조건은?');
+    if (lowerResp.indexOf('moat') < 0 && lowerResp.indexOf('해자') < 0) suggestions.push(primaryTicker + ' 의 경제적 해자 (Moat) — Buffett Owner Earnings + Ackman 8 기준 평가');
+    else if (lowerResp.indexOf('partnership') < 0 && lowerResp.indexOf('파트너') < 0) suggestions.push(primaryTicker + ' 의 최근 6개월 SEC 8-K 파트너십 + 경쟁사 비교');
+    else suggestions.push(primaryTicker + ' 가 현재 매크로 환경(VIX/금리/DXY)에서 가지는 비대칭 리스크');
+    suggestions.push(primaryTicker + ' 을 포트폴리오에 10% 추가 시 가중치/리스크/예상 수익 시뮬레이션');
+  } else if (ctxId === 'macro' || ctxId === 'kr-macro') {
+    suggestions.push('Bridgewater 4-Quadrant 기준 현재 시장 위치는? (성장 × 인플레)');
+    suggestions.push('Fed가 다음 회의에서 50bp 인하 시 자산별 영향 (주식/채권/달러/금)');
+    suggestions.push('Druckenmiller Macro Overlay — 18개월 선행 유동성 시그널 현재 점수');
+  } else if (ctxId === 'sentiment') {
+    suggestions.push('Howard Marks Pendulum 기준 현재 심리 위치 — 향후 6~12개월 비대칭');
+    suggestions.push('VIX/F&G/AAII/Put-Call 6 지표 종합 결론 + 매수/매도 시그널');
+    suggestions.push('극단 공포(F&G ≤ 25) 도달 시 역사적 6~12개월 평균 수익률');
+  } else if (ctxId === 'technical') {
+    suggestions.push('현재 SPX의 Weinstein Stage 판정 + 다음 단계 전환 트리거');
+    suggestions.push('Soros Bubble 5단계 (Stealth/Awareness/Mania/Distribution/Panic) 위치');
+    suggestions.push('차트 신뢰도 vs 매크로 환경 — 현재 패턴 신뢰도 가감');
+  } else if (ctxId === 'fxbond') {
+    suggestions.push('한국 3Y/10Y 금리 + USD/KRW + Fed 경로 교차 분석');
+    suggestions.push('Bridgewater 4-Quadrant 기준 FX/채권 방향성 + Druckenmiller 시그널');
+    suggestions.push('한국은행 다음 결정 시나리오 (동결/인하/인상) + 원화 영향');
+  } else if (ctxId === 'signal' || ctxId === 'breadth') {
+    suggestions.push('GS GIR Out of Consensus 알파 기회 — 현재 시장 미반영 시그널');
+    suggestions.push('MS Cyclical Pendulum 섹터 위치 (Early/Mid/Late/Recession) + 추천');
+    suggestions.push('현재 트레이딩 스코어 + ACTION_RULES 액션 + Bull/Base/Bear 확신도');
+  } else if (ctxId === 'portfolio') {
+    suggestions.push('보유 종목 4-Quadrant 분포 + 안전 마진 점검 (Bridgewater + Buffett)');
+    suggestions.push('현재 포트폴리오 + 시장 환경 일치 여부 + 리밸런싱 액션');
+    suggestions.push('포트폴리오에 방어주/에너지/금 5~10% 추가 시 리스크 감소 효과');
+  } else if (ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'kr-themes') {
+    suggestions.push('Soros Reflexivity — 이 테마의 거품 단계 (Stealth/Mania/Panic)');
+    suggestions.push('MS Cyclical 섹터 로테이션 — 이 테마의 현재 위치 + 다음 단계');
+    suggestions.push('테마 등록 종목 중 최근 6개월 8-K 파트너십 다발 종목 Top 3');
+  } else if (ctxId === 'market-news' || ctxId === 'briefing') {
+    suggestions.push('오늘 핵심 이벤트 3개 + 각각 시장 영향 (Bull/Base/Bear)');
+    suggestions.push('다음 주 FOMC + 어닝 + CPI 일정 + 포지셔닝 가이드');
+    suggestions.push('현재 뉴스 흐름이 Howard Marks Pendulum에서 가리키는 위치');
+  } else if (ctxId === 'fundamental') {
+    suggestions.push('NVDA / AAPL / MSFT 3종 비교 — 17 관점 매트릭스');
+    suggestions.push('Buffett 8 Criteria 모두 충족하는 현재 시장 종목 Top 5');
+    suggestions.push('Owner Earnings + Margin of Safety 70% 이하 종목 스크리닝');
+  } else if (ctxId === 'options') {
+    suggestions.push('현재 VIX/Put-Call/GEX 기준 추천 옵션 전략 (3 시나리오)');
+    suggestions.push('Howard Marks Pendulum — 옵션 IV 진자 위치 + 매도/매수 가이드');
+  } else if (ctxId === 'kr-supply' || ctxId === 'kr-tech') {
+    suggestions.push('한국 외국인/기관/개인 3주체 수급 + 다음 주 전망');
+    suggestions.push('KOSPI Weinstein Stage + VKOSPI 극단 + 미너비니 바닥 3단계');
+    suggestions.push('한국 vs 미국 디커플링 — 현재 강세/약세 + 트리거');
+  }
+  // 사용자 질의에서 키워드 추출 → 추가 후속 질문
+  if (/(언제|when)/i.test(lowerQ) && suggestions.length < 4) {
+    suggestions.push('다음 핵심 이벤트 (FOMC/CPI/어닝) D-Day 카운트 + 시장 영향 시나리오');
+  }
+  if (/(왜|why)/i.test(lowerQ) && suggestions.length < 4) {
+    suggestions.push('이 결론의 반대 시나리오 (Bear case) — 무엇이 트리거인가?');
+  }
+  // 중복 제거 + 3개 한도
+  var seen = {};
+  return suggestions.filter(function(s) {
+    if (seen[s]) return false;
+    seen[s] = true;
+    return true;
+  }).slice(0, 3);
+}
+window._suggestFollowUpQuestions = _suggestFollowUpQuestions;
+
 async function chatSend(ctxId) {
   var ctx = CHAT_CONTEXTS[ctxId];
   if (!ctx) return;
@@ -3477,7 +3813,20 @@ async function chatSend(ctxId) {
   var selectedModelCfg = getModelConfig(selectedModelKey);
 
   // v30.15: 티커 감지 → 실시간 데이터 조회 → 시스템 프롬프트에 주입
+  // v49.69 P369 R131: _extractTickers 0건일 때 fuzzy match 폴백 (약어/별명 매핑)
   var detectedTickers = _extractTickers(q);
+  if (detectedTickers.length === 0 && typeof _resolveTickerFromFuzzy === 'function') {
+    // 입력을 공백/조사로 토큰화 후 fuzzy 매칭
+    var _qTokens = q.split(/[\s,;.!?·…\(\)\[\]]+/).filter(function(t) { return t.length >= 2; });
+    var _fuzzyHits = [];
+    _qTokens.forEach(function(tok) {
+      var resolved = _resolveTickerFromFuzzy(tok);
+      if (resolved && _fuzzyHits.indexOf(resolved) < 0) _fuzzyHits.push(resolved);
+    });
+    if (_fuzzyHits.length > 0) {
+      detectedTickers = _fuzzyHits.slice(0, 3); // 최대 3개
+    }
+  }
   if (window.AIO && typeof window.AIO.ensureFreshDataForUse === 'function') {
     try {
       await Promise.race([
@@ -3783,6 +4132,80 @@ async function chatSend(ctxId) {
         _fbDiv.innerHTML = '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨" aria-label="AI 응답이 도움됨으로 평가">👍</button>' +
           '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="-1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확" aria-label="AI 응답이 부정확함으로 평가">👎</button>';
         aiBubble.parentNode.appendChild(_fbDiv);
+
+        // v49.69 P368 R131: 거시 시나리오 동적 시뮬레이션 — "Fed 50bp 인하 시" / "VIX 30 도달" 등
+        try {
+          var _macro = (typeof _simulateMacroScenario === 'function') ? _simulateMacroScenario(q) : null;
+          if (_macro && _macro.scenario && _macro.impacts) {
+            var _mcDiv = document.createElement('div');
+            _mcDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(255,163,26,0.06);border-left:3px solid var(--data-amber);border-radius:4px;font-size:11px;color:var(--text-primary);';
+            var _mcHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:6px;">🌍 매크로 시나리오 시뮬레이션 (' + escHtml(_macro.scenario.type) + ' · 크기: ' + _macro.scenario.magnitude + ')</div>';
+            _mcHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">프레임: ' + escHtml(_macro.scenario.framework) + '</div>';
+            _mcHTML += '<div style="display:grid;grid-template-columns:1fr 1.5fr 1.5fr;gap:4px;font-size:10px;">';
+            _mcHTML += '<div style="color:var(--text-muted);font-weight:600;">자산</div><div style="color:var(--text-muted);font-weight:600;">예상 방향</div><div style="color:var(--text-muted);font-weight:600;">판정</div>';
+            Object.keys(_macro.impacts).forEach(function(k) {
+              var imp = _macro.impacts[k];
+              _mcHTML += '<div style="font-weight:600;">' + escHtml(k) + '</div><div style="font-family:var(--font-mono);">' + escHtml(imp.direction) + '</div><div>' + escHtml(imp.verdict) + '</div>';
+            });
+            _mcHTML += '</div>';
+            _mcHTML += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">⚠ ' + escHtml(_macro.note) + '</div>';
+            _mcDiv.innerHTML = _mcHTML;
+            aiBubble.parentNode.appendChild(_mcDiv);
+          }
+        } catch(_macroErr) {}
+
+        // v49.69 P366 R130: 자동 페이지 이동 — 사용자 입력 의도 → 적합 페이지 자동 전환 + 안내 메시지
+        try {
+          var _navIntent = (typeof _autoNavigatePage === 'function') ? _autoNavigatePage(q, ctxId) : null;
+          if (_navIntent && _navIntent.page) {
+            var _navDiv = document.createElement('div');
+            _navDiv.style.cssText = 'margin:6px 0;padding:6px 8px;background:rgba(168,85,247,0.08);border-left:3px solid #a855f7;border-radius:4px;cursor:pointer;font-size:11px;color:var(--text-primary);';
+            _navDiv.innerHTML = _navIntent.emoji + ' <strong>' + _navIntent.label + ' 페이지로 이동</strong> — 자세한 라이브 데이터/차트/분석 도구 확인';
+            _navDiv.setAttribute('data-action', 'showPage');
+            _navDiv.setAttribute('data-arg', _navIntent.page);
+            aiBubble.parentNode.appendChild(_navDiv);
+          }
+        } catch(_navErr) {}
+
+        // v49.69 P367 R130: 포트폴리오 동적 시뮬레이션 — "AAPL 10% 추가 시" 의도 → 가중치 변화 계산 + 응답 삽입
+        try {
+          var _pfSim = (typeof _simulatePortfolioAddition === 'function') ? _simulatePortfolioAddition(q, detectedTickers) : null;
+          if (_pfSim && _pfSim.available) {
+            var _pfDiv = document.createElement('div');
+            _pfDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(0,229,160,0.06);border-left:3px solid var(--data-green);border-radius:4px;font-size:11px;color:var(--text-primary);';
+            var _pfHTML = '<div style="font-weight:700;color:var(--data-green);margin-bottom:6px;">💼 포트폴리오 시뮬레이션 — ' + escHtml(_pfSim.target) + ' ' + _pfSim.percentToAdd + '% 추가</div>';
+            _pfHTML += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">현재 총 가치: $' + _pfSim.currentTotal.toLocaleString() + ' → 신규 총 가치: $' + _pfSim.newTotal.toLocaleString() + ' (추가 ' + _pfSim.addQty + '주 × $' + _pfSim.targetPrice.toFixed(2) + ' = $' + _pfSim.addAmount.toLocaleString() + ')</div>';
+            _pfHTML += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-family:var(--font-mono);font-size:10px;">';
+            _pfHTML += '<div style="color:var(--text-muted);font-weight:600;">종목</div><div style="color:var(--text-muted);font-weight:600;text-align:right;">현재 %</div><div style="color:var(--text-muted);font-weight:600;text-align:right;">신규 %</div>';
+            _pfSim.weights.forEach(function(w) {
+              var changeColor = w.change > 0 ? 'var(--data-green)' : w.change < 0 ? 'var(--data-red)' : 'var(--text-muted)';
+              var changeStr = (w.change > 0 ? '+' : '') + w.change.toFixed(2) + '%';
+              _pfHTML += '<div>' + escHtml(w.symbol) + '</div><div style="text-align:right;">' + w.currentPct.toFixed(2) + '%</div><div style="text-align:right;color:' + changeColor + ';">' + w.newPct.toFixed(2) + '% (' + changeStr + ')</div>';
+            });
+            _pfHTML += '</div>';
+            _pfDiv.innerHTML = _pfHTML;
+            aiBubble.parentNode.appendChild(_pfDiv);
+          }
+        } catch(_pfErr) {}
+
+        // v49.69 P365 R129: 후속 질문 3개 자동 제안 + chip 클릭 시 chatFromChip 자동 호출
+        try {
+          var _fuq = (typeof _suggestFollowUpQuestions === 'function') ? _suggestFollowUpQuestions(ctxId, q, fullText, detectedTickers) : null;
+          if (_fuq && _fuq.length > 0) {
+            var _fuqDiv = document.createElement('div');
+            _fuqDiv.className = 'aio-followup-questions';
+            _fuqDiv.style.cssText = 'margin:8px 0 4px;padding:6px 8px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:4px;';
+            var _fuqHTML = '<div style="font-size:11px;color:var(--data-cyan);font-weight:600;margin-bottom:4px;">💡 후속 질문 (클릭 시 자동 전송)</div>';
+            _fuqHTML += '<div style="display:flex;flex-direction:column;gap:4px;">';
+            _fuq.forEach(function(q) {
+              var safeQ = escHtml(q).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+              _fuqHTML += '<div class="q-chip aio-followup-chip" data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + safeQ + '" title="' + escHtml(q) + '" style="cursor:pointer;padding:4px 8px;background:var(--surface-1);border-radius:4px;font-size:11px;color:var(--text-primary);transition:background 0.15s;">[Q] ' + escHtml(q) + '</div>';
+            });
+            _fuqHTML += '</div>';
+            _fuqDiv.innerHTML = _fuqHTML;
+            aiBubble.parentNode.appendChild(_fuqDiv);
+          }
+        } catch(_fuqErr) { /* 후속 질문 실패해도 응답 렌더 차단 X */ }
       }
 
       // v36.2: 웹검색 출처 링크 추가

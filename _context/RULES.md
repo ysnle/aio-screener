@@ -1213,6 +1213,56 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R131. AI 채팅 거시 시나리오 동적 시뮬레이션 + 약어/별명 fuzzy 매칭 의무 (v49.69 추가, P368~P369 근본)
+
+**원칙**: AI 채팅은 (1) 사용자 거시 시나리오 질의 ("Fed 50bp 인하 시" / "VIX 30 도달") → 6+ 시나리오 패턴 자동 감지 + 자산별 정량 영향 추산 + (2) 약어/별명 입력 (엔비/삼전/테슬라/유가/위안 등) → fuzzy 매핑으로 ticker 자동 변환 의무.
+
+**근거 (P368~P369)**: v49.68까지 거시 시나리오 시뮬레이션 미지원 → "Fed 50bp 인하 시 자산 영향?" 질의 시 정성 답변만. 약어 매핑 부재 → "엔비 분석" 입력 시 _extractTickers 0건 → silent fail.
+
+**구조**:
+- `_simulateMacroScenario(q)`: 6 시나리오 패턴 (fed-cut/hike/vix-spike/spx-crash/dxy-strong/oil-spike) + Bridgewater + Druckenmiller 프레임 적용 + SPX/10Y/DXY/Gold/Sector 5축 영향 추산
+- `_resolveTickerFromFuzzy(input)`: 50+ 약어/별명 매핑 + 부분 매칭 (양방향)
+- `_extractTickers` 0건일 때 자동 fallback
+
+**검증**: `AIO.runTests()` T534 (6 시나리오 매핑) + T535 (엔비→NVDA / 삼전→005930.KS / 테슬라→TSLA) + `AIO.assertChatInteractivityAudit()` 100%.
+
+**위반 시**: 거시 가설 질의 silent / 약어 입력 ticker 미감지 → 사용자 답변 없음 또는 환각.
+
+---
+
+## R130. AI 채팅 자동 페이지 이동 + 포트폴리오 동적 시뮬레이션 의무 (v49.69 추가, P366~P367 근본)
+
+**원칙**: AI 채팅 응답은 (1) 사용자 입력 의도 감지 → 적합 페이지 자동 이동 안내 (chip 표시) + (2) 포트폴리오 변경 질의 ("X 10% 추가 시") → 라이브 가격 + 가중치 변화 표 자동 삽입 의무.
+
+**근거 (P366~P367)**: v49.68까지 사용자가 "차트 보여줘" 질의 시 답변만 + 페이지 이동 수동 클릭. 포트폴리오 변경 시뮬레이션 부재 → "10% AAPL 추가 시 비중?" 정성 답변만.
+
+**구조**:
+- `_autoNavigatePage(q, currentCtxId)`: 12+ 키워드 패턴 → page 매핑 + 현재 컨텍스트와 동일 시 nav 안내 생략
+- `_simulatePortfolioAddition(q, tickers)`: 비중 % 정규식 매칭 + portfolio.holdings 자동 조회 + 라이브 가격 + 신규 가중치 계산
+- chatSend 응답 렌더링 직후 chip 자동 삽입 (보라색=nav / 녹색=portfolio)
+
+**검증**: `AIO.runTests()` T532 (autoNav 12+ intent) + T533 (portfolio simulator 정의) + T536 (chatSend 통합).
+
+**위반 시**: 사용자 의도와 무관한 페이지 잔존 → 네비게이션 비효율 + 포트폴리오 가설 silent.
+
+---
+
+## R129. AI 채팅 후속 질문 자동 제안 의무 (v49.69 추가, P365 근본)
+
+**원칙**: AI 채팅 응답 끝에 반드시 3개 후속 질문 chip 자동 제안 의무. 14 컨텍스트별 분기 + ticker/페이지 컨텍스트 기반 유기적 질문 생성. chip 클릭 시 `chatFromChip` 자동 호출.
+
+**근거 (P365)**: v49.68까지 답변 종료 후 사용자가 직접 다음 질문 입력 → 진입장벽 + 대화 깊이 부족. 후속 질문 자동 제안 시 대화 흐름 유기적 + 사용자 진입장벽 50% 감소.
+
+**구조**:
+- `_suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers)`: 14 컨텍스트 분기 (종목→17 관점 deep-dive / macro→Bridgewater 4-Quadrant / sentiment→Marks Pendulum / portfolio→4-Quadrant 분포 / themes→Soros Bubble 단계 / kr-*→한국 시장 특화)
+- 응답 종료 후 사이앙색 chip 3개 자동 삽입 + 클릭 시 `chatFromChip(ctxId, q)` 자동 호출
+
+**검증**: `AIO.runTests()` T531 (함수 + 14 분기) + T539 (배열 3개 반환) + `AIO.assertChatInteractivityAudit().checks.suggestFollowUpQuestions`.
+
+**위반 시**: 사용자 후속 질의 진입장벽 ↑ + 대화 흐름 단절.
+
+---
+
 ## R128. AI 채팅 시각 단서 표준 + 데이터 소스 우선순위 + 출처 타임스탬프 (v49.68 추가, P361~P363 근본)
 
 **원칙**: AI 채팅 답변은 (1) 이모지 표준 (🔴 공포·위험·매도 / 🟡 중립·주의 / 🟢 안정·기회·매수) + (2) 핵심 결론 **굵게** + (3) 데이터 소스 우선순위 명문화 (`_liveSnap` → `_closeSnap` → `DATA_SNAPSHOT` 폴백 → fetched) + (4) 모든 수치 인용 시 "Source · 기준일: YYYY-MM-DD" 표기 의무.

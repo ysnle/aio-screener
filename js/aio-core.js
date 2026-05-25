@@ -5741,6 +5741,48 @@ window.AIO.getAnalysisFrameworkCoverageAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.69 P370 R129~R131: assertChatInteractivityAudit — 6 인터랙티브 기능 자동 진단
+// (후속 질문 / 자동 페이지 이동 / 포트폴리오 시뮬레이션 / 거시 시나리오 / fuzzy 매칭 / 응답 시각 단서)
+// 사용자 정직 요구 "AI 채팅에서 활용할 수 있는 모든 답변/기능"
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertChatInteractivityAudit = function() {
+  var checks = {
+    suggestFollowUpQuestions: typeof window._suggestFollowUpQuestions === 'function',
+    autoNavigatePage: typeof window._autoNavigatePage === 'function',
+    simulatePortfolioAddition: typeof window._simulatePortfolioAddition === 'function',
+    simulateMacroScenario: typeof window._simulateMacroScenario === 'function',
+    resolveTickerFromFuzzy: typeof window._resolveTickerFromFuzzy === 'function',
+    chatFromChip: typeof window.chatFromChip === 'function'
+  };
+  // _fetchTickerDataForChat 자체에 chip 렌더링 통합 검증
+  var chatSendSrc = (typeof window.chatSend === 'function') ? window.chatSend.toString() : '';
+  var integrations = {
+    followUpInChatSend: chatSendSrc.indexOf('_suggestFollowUpQuestions') >= 0,
+    autoNavInChatSend: chatSendSrc.indexOf('_autoNavigatePage') >= 0,
+    pfSimInChatSend: chatSendSrc.indexOf('_simulatePortfolioAddition') >= 0,
+    macroSimInChatSend: chatSendSrc.indexOf('_simulateMacroScenario') >= 0,
+    fuzzyResolveInTickerExtract: chatSendSrc.indexOf('_resolveTickerFromFuzzy') >= 0
+  };
+  var fnCount = Object.values(checks).filter(Boolean).length;
+  var integCount = Object.values(integrations).filter(Boolean).length;
+  var totalChecks = Object.keys(checks).length + Object.keys(integrations).length;
+  var passCount = fnCount + integCount;
+  var coveragePct = Math.round(passCount / totalChecks * 100);
+  return {
+    status: coveragePct === 100 ? 'ok' : coveragePct >= 80 ? 'warn' : 'fail',
+    coveragePct: coveragePct,
+    fnCount: fnCount,
+    fnTotal: Object.keys(checks).length,
+    integCount: integCount,
+    integTotal: Object.keys(integrations).length,
+    checks: checks,
+    integrations: integrations,
+    note: 'v49.69 신규 6 인터랙티브 기능 자동 진단 — 100% = 완전 통합, 80%+ = 보강 권장.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.68 P362 R128: getChatContextConsistencyAudit — 14 CHAT_CONTEXTS 간 데이터 일관성 + 기관급 프레임 통합 + 시각 단서 표준 자동 검증
 // 사용자 정직 지적: "AI 채팅 시스템 전체가 유기적으로 기관급 퀄리티로 작동해야"
 // ─────────────────────────────────────────────────────────────────
@@ -9675,6 +9717,20 @@ window._aioRefreshAuditWidget = function() {
         }
       } catch(e) { cccEl.textContent = '⚠ chatContextConsistency error'; }
     }
+    // v49.69 P370 R129~R131: AI 채팅 인터랙티브 기능 자동 진단 (후속 질문/자동 이동/시뮬레이션/fuzzy)
+    var ciaEl = container.querySelector('[data-audit-key="chatInteractivity"]');
+    if (ciaEl) {
+      try {
+        var cia = window.AIO && window.AIO.assertChatInteractivityAudit && window.AIO.assertChatInteractivityAudit();
+        if (cia) {
+          var iconA = cia.status === 'ok' ? '✓' : cia.status === 'warn' ? '⚠' : '✗';
+          var colorA = cia.status === 'ok' ? 'var(--data-green)' : cia.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          ciaEl.innerHTML = '<span style="color:' + colorA + ';">' + iconA + '</span> 인터랙티브 <b>' + cia.coveragePct + '%</b> · 함수 ' + cia.fnCount + '/' + cia.fnTotal + ' · 통합 ' + cia.integCount + '/' + cia.integTotal;
+        } else {
+          ciaEl.innerHTML = '<span style="color:var(--text-muted);">— chatInteractivity audit 미가용</span>';
+        }
+      } catch(e) { ciaEl.textContent = '⚠ chatInteractivity error'; }
+    }
   } catch(e) { /* 위젯 갱신 실패는 silent */ }
 };
 // 페이지 로드 후 자동 1회 + 5분마다 갱신
@@ -11396,7 +11452,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.68';
+const APP_VERSION = 'v49.69';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

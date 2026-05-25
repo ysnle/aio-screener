@@ -2,11 +2,47 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.68
-latest_P_number: P364
-total_entries: 364
-next_P_number: P365
+latest_version: v49.69
+latest_P_number: P370
+total_entries: 370
+next_P_number: P371
 ---
+
+## P370 · v49.69 · [P370/R129~R131] AI 채팅 인터랙티브 기능 자동 진단 audit 부재
+- **문제**: v49.68까지 후속 질문/자동 페이지 이동/시뮬레이션/fuzzy 매칭 등 인터랙티브 기능 통합 여부 자동 검증 audit 없음. 신규 기능 추가 시 통합 누락 silent.
+- **시정 (v49.69)**: `AIO.assertChatInteractivityAudit()` 신설 (`js/aio-core.js`) — 6 함수 정의 + 5 chatSend 통합 자동 점검 + coveragePct 100% 검증. 사이드바 audit row 9번째 (`chatInteractivity`) "인터랙티브 X% · 함수 X/6 · 통합 X/5" 색상 표시.
+- **재발 방지**: T537~T538 라이브 DOM 회귀.
+- **파일**: `js/aio-core.js` assertChatInteractivityAudit + 사이드바 ciaEl 분기
+
+## P369 · v49.69 · [P369/R131] AI 채팅 약어/별명 fuzzy 매칭 부재 ("엔비"/"삼전" 인식 실패)
+- **문제**: v49.68까지 `_extractTickers`가 한글 약어/별명 (엔비/삼전/테슬라/유가/위안 등) silent 미감지 → ticker 0건 → 종목 분석 fetch 미실행 → "데이터 미수신" silent fail. 사용자 진입장벽 ↑.
+- **시정 (v49.69)**: `_resolveTickerFromFuzzy(input)` 신설 — 50+ 약어/별명 매핑 (엔비→NVDA / 삼전→005930.KS / 테슬라→TSLA / 카카오→035720.KS / 비트코인→BTC-USD / 유가→CL=F / 코스피→^KS11 등). 정확 매칭 + 부분 매칭 (양방향). `_extractTickers` 0건일 때 chatSend에서 공백/조사 토큰화 후 자동 fallback 호출 (최대 3개).
+- **재발 방지**: T535 (엔비→NVDA / 삼전→005930.KS / 테슬라→TSLA 정확 매핑 검증).
+- **파일**: `js/aio-chat.js` _resolveTickerFromFuzzy + chatSend detectedTickers fallback
+
+## P368 · v49.69 · [P368/R131] AI 채팅 거시 시나리오 동적 시뮬레이션 부재
+- **문제**: v49.68까지 사용자 "Fed 50bp 인하 시 자산 영향?" / "VIX 30 도달 시?" 질의 시 정성 답변만 → 정량 추산 부재.
+- **시정 (v49.69)**: `_simulateMacroScenario(q)` 신설 — 6 시나리오 패턴 자동 감지 (fed-cut/fed-hike/vix-spike/spx-crash/dxy-strong/oil-spike) + Bridgewater + Druckenmiller 프레임 적용 + SPX/10Y/DXY/Gold/Sector 5축 정량 영향 추산 (휴리스틱). chatSend 응답 직후 amber chip + 표 자동 삽입 (자산 / 예상 방향 / 판정 🟢🔴).
+- **재발 방지**: T534 (6 시나리오 매핑 검증).
+- **파일**: `js/aio-chat.js` _simulateMacroScenario + chatSend chip 삽입
+
+## P367 · v49.69 · [P367/R130] AI 채팅 포트폴리오 동적 시뮬레이션 부재
+- **문제**: v49.68까지 "AAPL 10% 추가 시 비중?" 질의 silent — portfolio.holdings 자동 조회 + 가중치 변화 계산 미지원.
+- **시정 (v49.69)**: `_simulatePortfolioAddition(q, tickers)` 신설 — 비중 % 정규식 매칭 + portfolio.holdings 자동 조회 + 라이브 가격 + 신규 가중치 계산. chatSend 응답 직후 녹색 chip + 표 자동 삽입 (종목 / currentPct / newPct + 변화 색상). 신규 종목 (holdings 미등록) 자동 추가 시뮬레이션.
+- **재발 방지**: T533 함수 정의.
+- **파일**: `js/aio-chat.js` _simulatePortfolioAddition + chatSend chip 삽입
+
+## P366 · v49.69 · [P366/R130] AI 채팅 자동 페이지 이동 부재
+- **문제**: v49.68까지 사용자 "차트 보여줘" 입력 시 답변만 + 페이지 이동 수동 클릭 → 네비게이션 비효율.
+- **시정 (v49.69)**: `_autoNavigatePage(q, currentCtxId)` 신설 — 12+ 키워드 패턴 매핑 (차트/기술→technical / 시그널→signal / 심리→sentiment / 매크로→macro / 외환채권→fxbond / 기업분석→fundamental / 테마→themes / 포트폴리오→portfolio / 옵션→options / 뉴스→market-news / 한국→kr-macro). 현재 컨텍스트와 동일하면 이동 안내 생략. 보라색 chip + showPage data-action 자동 삽입.
+- **재발 방지**: T532 (12+ intent 매핑 검증).
+- **파일**: `js/aio-chat.js` _autoNavigatePage + chatSend chip 삽입
+
+## P365 · v49.69 · [P365/R129] AI 채팅 후속 질문 자동 제안 부재 (대화 깊이 + 진입장벽)
+- **문제**: v49.68까지 답변 종료 후 사용자가 직접 다음 질문 입력 → 진입장벽 + 대화 깊이 단절. 14 컨텍스트별 적합 후속 질문 부재.
+- **시정 (v49.69)**: `_suggestFollowUpQuestions(ctxId, q, response, tickers)` 신설 — 14 컨텍스트별 분기 (종목→17 관점 deep-dive / macro→Bridgewater 4-Quadrant / sentiment→Marks Pendulum / technical→Weinstein Stage / portfolio→4-Quadrant 분포 / themes→Soros Bubble / kr-*→한국 시장). 응답 후 사이앙색 chip 3개 (`q-chip aio-followup-chip`) 자동 삽입 + 클릭 시 `chatFromChip(ctxId, q)` 자동 호출. 사용자 질의에 "언제"/"왜" 키워드 시 추가 후속 질문.
+- **재발 방지**: T531 (14 분기 검증) + T539 (3개 배열 반환).
+- **파일**: `js/aio-chat.js` _suggestFollowUpQuestions + chatSend chip 삽입
 
 ## P364 · v49.68 · [P364/R128] AI 채팅 사이드바 audit row 7 → 8축 (chatContextConsistency 미가시화)
 
