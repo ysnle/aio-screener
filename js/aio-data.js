@@ -7233,7 +7233,7 @@ function renderBriefingFeed(items) {
   const container = document.getElementById('briefing-live-news-list');
   if (!container) return;
   if (!items || items.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">뉴스 로딩 중...</div>';
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">뉴스 수집 중</div>';
     return;
   }
 
@@ -7641,7 +7641,7 @@ function getTimeAgo(date) {
 
 /* ── 뉴스→시그널 통합: 뉴스 감성 집계 ─────────────────────── */
 function computeNewsSentimentScore() {
-  if (!newsCache || newsCache.length === 0) return { score: 50, label: 'N/A', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
+  if (!newsCache || newsCache.length === 0) return { score: 50, label: '뉴스 없음', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
 
   const recent = filterByAge(newsCache, 24); // 24시간 이내
   if (recent.length === 0) return { score: 50, label: '데이터 부족', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
@@ -8170,7 +8170,7 @@ async function fetchAllNews(forceRefresh = false) {
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <span style="font-size:20px;">⟳</span>
         <div>
-          <div style="font-size:13px;font-weight:700;">실시간 뉴스 로딩 중...</div>
+          <div style="font-size:13px;font-weight:700;">실시간 뉴스 수집 중</div>
           <div style="font-size:11px;color:var(--text-secondary);">15개 소스 동시 접속 · Reuters · CNBC · Digitimes · TrendForce · 궈밍치 · Nikkei · SCMP 외</div>
         </div>
       </div>
@@ -10443,6 +10443,11 @@ function applyLiveQuotes(quotes) {
       const regimeSub = document.getElementById('mkt-regime-sub');
       if (regimeSub) {
         regimeSub.textContent = 'ATH ' + (pctFromATH >= 0 ? '+' : '') + pctFromATH + '% · ' + (pctFromATH < -20 ? 'Bear' : pctFromATH < -10 ? 'Correction' : pctFromATH < -5 ? '조정' : 'Near ATH');
+        // v49.64 P334: derived sink lineage (R114 가시 sink 보호)
+        regimeSub.setAttribute('data-operational-use', 'decision');
+        regimeSub.setAttribute('data-source-kind', 'derived');
+        regimeSub.setAttribute('data-source-label', 'derived:spx-ath-gap');
+        regimeSub.setAttribute('data-source-ts', String(now));
       }
     }
     // price 요소 — 스테일 데이터 지시자 포함
@@ -10604,12 +10609,25 @@ function applyLiveQuotes(quotes) {
     const vrSub = document.getElementById('vol-regime-sub');
     if (vrVal) { vrVal.textContent = vixRegime(vp).label; vrVal.style.color = col; }
     if (vrSub) vrSub.textContent = 'VIX ' + vp.toFixed(2) + ' · ' + vixToPercentile(vp) + '%ile';
+    // v49.64 P334: VIX 파생 sink lineage (snap-vix-lbl/vol-regime-val/sub) — gauge 결과 표시
+    var _vixTs = String(Date.now());
+    [vixLbl, vrVal, vrSub].forEach(function(el) {
+      if (!el) return;
+      el.setAttribute('data-operational-use', 'decision');
+      el.setAttribute('data-source-kind', 'derived');
+      el.setAttribute('data-source-label', 'derived:vix-regime');
+      el.setAttribute('data-source-ts', _vixTs);
+    });
     // Update VIX %ile cell in radar table
     const vixPctCell = document.getElementById('vix-pct-cell');
     if (vixPctCell) {
       const pct = vixToPercentile(vp);
       vixPctCell.textContent = pct + '%ile · ' + vixRegime(vp).label;
       vixPctCell.style.color = col;
+      vixPctCell.setAttribute('data-operational-use', 'decision');
+      vixPctCell.setAttribute('data-source-kind', 'derived');
+      vixPctCell.setAttribute('data-source-label', 'derived:vix-percentile');
+      vixPctCell.setAttribute('data-source-ts', _vixTs);
     }
     document.querySelectorAll('[data-vix-badge]').forEach(el => el.textContent = 'VIX ' + vp.toFixed(2));
     const vixLabel = document.getElementById('vix-live-label');
@@ -10625,7 +10643,15 @@ function applyLiveQuotes(quotes) {
     });
     // 추가 하드코딩 셀 업데이트
     const vixPctTableCell = document.getElementById('vix-pct-table-cell');
-    if (vixPctTableCell) { vixPctTableCell.textContent = optVixPct + '%ile'; vixPctTableCell.style.color = col; }
+    if (vixPctTableCell) {
+      vixPctTableCell.textContent = optVixPct + '%ile';
+      vixPctTableCell.style.color = col;
+      // v49.64 P334: options 페이지 VIX %ile 셀 lineage
+      vixPctTableCell.setAttribute('data-operational-use', 'decision');
+      vixPctTableCell.setAttribute('data-source-kind', 'derived');
+      vixPctTableCell.setAttribute('data-source-label', 'derived:vix-percentile');
+      vixPctTableCell.setAttribute('data-source-ts', _vixTs);
+    }
   }
   const tsEl = document.getElementById('live-quote-ts');
   if (tsEl) tsEl.textContent = new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
@@ -11300,7 +11326,7 @@ function refreshHomeDashboard() {
         const tickerStr = tickers.length > 0 ? `<div style="margin-top:3px;">${tickers.map(t => `<span style="font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:2px;">${escHtml(t)}</span>`).join('')}</div>` : '';
         return `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px;border-top:2px solid ${sentColor};">
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:700;">${escHtml(item.source || 'NEWS')}</div>
-          <div style="font-size:11px;font-weight:600;line-height:1.3;margin-bottom:4px;">${escHtml(item.headline || '뉴스 로딩 중...')}</div>
+          <div style="font-size:11px;font-weight:600;line-height:1.3;margin-bottom:4px;">${escHtml(item.headline || '뉴스 수집 중')}</div>
           ${tickerStr}
           <div style="font-size:11px;color:var(--text-muted);">${escHtml(item.timeAgo || '방금')}</div>
         </div>`;
@@ -11392,6 +11418,55 @@ function fgRating(score) {
 }
 
 // CNN Fear & Greed 실시간 Fetch
+// v49.64 Codex L11347~11381 패턴 통합 (P331/P334): F&G 점수+출처 메타 단일 책임 함수
+// 5 호출점(live/proxy/snapshot/historical/error) 의 DOM/lineage 갱신을 한 곳에서 처리.
+// 의도: applyMarketCurrentnessGuard가 `data-operational-use` + `data-source-kind` + `data-source-label`을
+// 페이지 sink 별로 정합 검증할 수 있도록 일관된 메타데이터 부여.
+function _applyFearGreedScore(opts) {
+  opts = opts || {};
+  var score      = opts.score;
+  var sourceKind = opts.sourceKind || 'unavailable';  // live | proxy | snapshot | unavailable
+  var sourceLabel= opts.sourceLabel || 'cnn-fear-greed';
+  var sourceTs   = opts.sourceTs || new Date().toISOString();
+  var operationalUse = opts.operationalUse || (sourceKind === 'live' ? 'decision' : sourceKind === 'proxy' ? 'decision' : 'reference-only');
+  var badge      = document.getElementById('fg-live-badge');
+  var big        = document.getElementById('fg-score-big');
+  var rat        = document.getElementById('fg-rating-text');
+  var homeFG     = document.getElementById('home-fg-score');
+  var fgRef      = document.getElementById('fg-historical-ref');
+  var fgLink     = document.getElementById('fg-signal-link');
+  var col        = (typeof fgColor === 'function' && score != null) ? fgColor(score) : null;
+  if (score != null && isFinite(score)) {
+    if (big)    { big.textContent = score; if (col) big.style.color = col; }
+    if (rat && typeof fgRating === 'function') { rat.textContent = fgRating(score); if (col) rat.style.color = col; }
+    if (homeFG) { homeFG.textContent = score; if (col) homeFG.style.color = col; }
+    if (typeof fgUpdateNeedle === 'function') fgUpdateNeedle(score);
+    if (fgRef) {
+      if (score <= 15) fgRef.textContent = '참고: 과거 F&G 15↓ 구간에서 6~12개월 후 수익률이 양(+)이었던 사례가 다수';
+      else if (score >= 85) fgRef.textContent = '참고: 과거 F&G 85+ 구간에서 3~6개월 후 조정이 발생한 사례가 다수';
+      else fgRef.textContent = '';
+    }
+    if (fgLink) fgLink.style.display = (score <= 25 || score >= 75) ? 'block' : 'none';
+  }
+  if (badge) {
+    badge.textContent = opts.badgeText || (sourceKind === 'live' ? '실시간 · CNN API' : sourceKind === 'proxy' ? '실시간 (프록시)' : sourceKind === 'snapshot' ? '폴백 데이터 (과거 스냅샷)' : '데이터 미수신');
+    badge.style.color = sourceKind === 'live' ? '#00e5a0' : sourceKind === 'proxy' ? '#ffa31a' : '#7b8599';
+    badge.setAttribute('data-operational-use', operationalUse);
+    badge.setAttribute('data-source-kind', sourceKind);
+    badge.setAttribute('data-source-label', sourceLabel);
+    badge.setAttribute('data-source-ts', sourceTs);
+  }
+  // sink 정합 — big/home FG도 동일 lineage 부여 (R114 가시 sink 보호)
+  [big, homeFG, rat].forEach(function(el) {
+    if (!el) return;
+    el.setAttribute('data-operational-use', operationalUse);
+    el.setAttribute('data-source-kind', sourceKind);
+    el.setAttribute('data-source-label', sourceLabel);
+  });
+  return { score: score, sourceKind: sourceKind, sourceLabel: sourceLabel, operationalUse: operationalUse };
+}
+window._applyFearGreedScore = _applyFearGreedScore;
+
 async function fetchFearGreed() {
   const badge = document.getElementById('fg-live-badge');
   const url   = 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata';
@@ -11423,16 +11498,8 @@ async function fetchFearGreed() {
         if (typeof _renderFGComponents === 'function') setTimeout(_renderFGComponents, 0);
       }
     } catch(subErr) { /* 서브컴포넌트는 옵셔널 — 실패해도 메인 score 갱신은 성공 */ }
-    const big = document.getElementById('fg-score-big');
-    const rat = document.getElementById('fg-rating-text');
-    const col = fgColor(score);
-    if (big) { big.textContent = score; big.style.color = col; }
-    if (rat) { rat.textContent = fgRating(score); rat.style.color = col; }
-    // v49.23 P218: home의 F&G 점수도 동일 소스로 갱신 (ID 이원화 해소)
-    const homeFG = document.getElementById('home-fg-score');
-    if (homeFG) { homeFG.textContent = score; homeFG.style.color = col; }
-    fgUpdateNeedle(score);
-    if (badge) { badge.textContent = '실시간 · CNN API'; badge.style.color = '#00e5a0'; }
+    // v49.64 P334: 단일 helper로 sink + lineage 메타 일괄 적용 (live 경로)
+    _applyFearGreedScore({ score: score, sourceKind: 'live', sourceLabel: 'cnn-fear-greed-api', operationalUse: 'decision' });
     // Historical
     if (prev && prev.length >= 4) {
       const h1 = document.getElementById('fg-h1');
@@ -11459,33 +11526,16 @@ async function fetchFearGreed() {
       const fg2   = data2.fear_and_greed;
       if (fg2) {
         const score2 = Math.round(fg2.score);
-        const big2   = document.getElementById('fg-score-big');
-        const rat2   = document.getElementById('fg-rating-text');
-        const col2   = fgColor(score2);
-        if (big2) { big2.textContent = score2; big2.style.color = col2; }
-        if (rat2) { rat2.textContent = fgRating(score2); rat2.style.color = col2; }
-        // v49.23 P218: home F&G 점수도 동일 소스 (proxy 폴백 경로)
-        const homeFG2 = document.getElementById('home-fg-score');
-        if (homeFG2) { homeFG2.textContent = score2; homeFG2.style.color = col2; }
-        // v35.4 B3: 극단 구간 역사적 참고
-        var _fgRef = document.getElementById('fg-historical-ref');
-        if (_fgRef) {
-          if (score2 <= 15) _fgRef.textContent = '참고: 과거 F&G 15↓ 구간에서 6~12개월 후 수익률이 양(+)이었던 사례가 다수';
-          else if (score2 >= 85) _fgRef.textContent = '참고: 과거 F&G 85+ 구간에서 3~6개월 후 조정이 발생한 사례가 다수';
-          else _fgRef.textContent = '';
-        }
-        // v42.1: 극단 공포/탐욕 시 시그널 페이지 링크 표시
-        var _fgLink = document.getElementById('fg-signal-link');
-        if (_fgLink) _fgLink.style.display = (score2 <= 25 || score2 >= 75) ? 'block' : 'none';
-        fgUpdateNeedle(score2);
-        if (badge) { badge.textContent = '실시간 (프록시)'; badge.style.color = '#ffa31a'; }
+        // v49.64 P334: helper 통합 (proxy 경로)
+        _applyFearGreedScore({ score: score2, sourceKind: 'proxy', sourceLabel: 'cnn-fear-greed-proxy', operationalUse: 'decision' });
       }
       // v37.8: 심리 복합 분석 갱신
       if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
       return true;
     } catch(e2) {
-      if (badge) { badge.textContent = '폴백 데이터 (과거 스냅샷)'; badge.style.color = '#7b8599'; }
-      fgUpdateNeedle((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 15);
+      // v49.64 P334: snapshot 경로도 helper로 통합
+      var _snapFg = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 15;
+      _applyFearGreedScore({ score: _snapFg, sourceKind: 'snapshot', sourceLabel: 'DATA_SNAPSHOT:fear-greed', operationalUse: 'reference-only' });
       if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
       return false;
     }

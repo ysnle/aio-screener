@@ -711,18 +711,38 @@ function updateRallyQualityVerdict() {
 }
 
 // v42.4: 브레드쓰 바 동적 갱신 — signal 페이지 + breadth 페이지 NDX 카드
+// v49.64 Codex P332: 20-SMA 70%+ amber override (과열 신호 — v49.63 index.html 정적 변경의 동적 보강)
 function updateBreadthBars() {
   function _bbColor(v) { return v >= 50 ? '#00e5a0' : v >= 30 ? '#ffa31a' : '#ff5b50'; }
   function _bbBg(v)    { return v >= 50 ? 'var(--data-green-mid)' : v >= 30 ? 'var(--data-amber-mid)' : 'var(--data-red-mid)'; }
   function _bbLbl(v)   { return v >= 60 ? '강세' : v >= 50 ? '중립↑' : v >= 35 ? '중립↓' : '약세'; }
+  // v49.64 Codex P332: 20-SMA 전용 라벨 — 70%+ "과열" amber override (강세/과열 구분)
+  function _bb20smaLbl(v) {
+    if (v >= 70) return '과열';
+    if (v >= 60) return '강세';
+    if (v >= 50) return '중립↑';
+    if (v >= 35) return '중립↓';
+    return '약세';
+  }
+  function _bb20smaColor(v) {
+    if (v >= 70) return '#ffa31a';            // amber: 과열
+    return _bbColor(v);
+  }
+  function _bb20smaBg(v) {
+    if (v >= 70) return 'var(--data-amber-mid)';
+    return _bbBg(v);
+  }
   var rows = [
     { bar:'bb-5sma-bar',  val:'bb-5sma-val',  badge:'bb-5sma-badge',  v: window._breadth5 },
-    { bar:'bb-20sma-bar', val:'bb-20sma-val', badge:'bb-20sma-badge', v: window._breadth200 },
+    { bar:'bb-20sma-bar', val:'bb-20sma-val', badge:'bb-20sma-badge', v: window._breadth200, is20Sma: true },
     { bar:'bb-50sma-bar', val:'bb-50sma-val', badge:'bb-50sma-badge', v: window._breadth50 },
   ];
   rows.forEach(function(r) {
     if (r.v == null) return;
-    var c = _bbColor(r.v), bg = _bbBg(r.v), lbl = _bbLbl(r.v);
+    // v49.64 Codex P332: 20-SMA는 amber override 적용 (70%+ 과열 신호)
+    var c   = r.is20Sma ? _bb20smaColor(r.v) : _bbColor(r.v);
+    var bg  = r.is20Sma ? _bb20smaBg(r.v)    : _bbBg(r.v);
+    var lbl = r.is20Sma ? _bb20smaLbl(r.v)   : _bbLbl(r.v);
     var barEl = document.getElementById(r.bar), valEl = document.getElementById(r.val), bdgEl = document.getElementById(r.badge);
     if (barEl)  { barEl.style.width = r.v + '%'; barEl.style.background = c; }
     if (valEl)  { valEl.textContent = r.v + '%'; valEl.style.color = c; }

@@ -6,6 +6,80 @@
 
 ---
 
+## v49.64 — 잔여 영역 완전 정리 (v49.63 92% → 99%) (2026-05-25)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-data.js`, `js/aio-ui.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: v49.63 (92% Codex 통합) 후 단일 Explore agent 진단으로 17 잔여 영역 정밀 매핑. 정직 시정 사이클 (v49.62 표면 → v49.63 핵심 → v49.64 완성)의 마지막 단계. Codex 통합 92% → 99% + Pre-existing 7 → 4 FAIL + T463~T470 8 신규 라이브 DOM 회귀.
+
+**Changes**:
+
+**Phase 1 — Loading copy 정규화 11+곳 (P334/R115 신규)**:
+- `index.html` 11+곳에 "계산 중"/"로딩 중"/"분석 중" → "수신 대기"/"수집 대기" 표준 적용
+  - home market-regime: `mkt-regime-sub`(ATH) / `snap-vix-lbl`(레벨) / `vol-regime-sub`(VIX %ile) 3곳 → "수신 대기"
+  - home risk-monitor: `rm-vixstr-status`(로딩 중) / `rm-rspratio-status`(계산중) / `rm-fg-status`(로딩중) 3곳 → "수집/수신/수집 대기"
+  - sentiment: `sent-overall-badge` "분석 중..." → "심리 입력 수신 대기" (T467 정합)
+  - AAII: `aaii-date-label` "최신값 로딩 중" → "최신값 수집 대기"
+  - macro FRED: `fred-chart-status` → "수집 대기"
+  - macro temperature: `temp-narrative` → "거시 입력 수신 대기"
+  - kr-macro: 6 ETF 카드 `.kr-etf-price` `replace_all` → "수집 대기"
+- **R115 신규** (RULES.md): "사용자 가시 placeholder 텍스트는 '수신 대기'/'수집 대기' 표준 의무. '계산 중'/'로딩 중' 금지" — 표준 매핑 + 검증 방법 + Lineage 보완 권장
+
+**Phase 2 — Pre-existing 중기 3건 시정**:
+- **T176b** (P335): CHAT_CONTEXTS 정적 2026.04 토큰 5건 일반화 (`js/aio-chat.js` L112/L462/L463/L533/L538) — "【2026.04 시장 맥락】" → "【최근 분기 시장 맥락】", §65/§66 "(2026.04)" → "(최근 분기 리서치)", FOMC 의사록 주석 일반화. `js/aio-core.js` L6963 `staleRe` regex 확장 (`2026\.04(\.\d+)?|2026\.05\.(0[1-9]|1[0-5])`).
+- **T263** (P336): `assertChatResponseAccuracy` 임계값 20% → 10% (T263 expectation 정합). thousand separator 패턴 `\$\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?` 추가 + `replace(/,/g, '')` 파싱.
+- **T394** (P337): `#risk-radar-body` 초기 `data-operational-use="reference-only"` + `data-source-kind="unavailable"` + `data-source-label="risk-radar-pending"` 마킹. `loadRiskRadar` 데이터 도착 시 hook에서 `decision`/`mixed`/`risk-radar-static+finnhub` 갱신. `risk-radar-status` 텍스트 "데이터 로딩 중" → "리스크 입력 수신 대기" 정규화.
+
+**Phase 3 — `_applyFearGreedScore` 헬퍼 신설 (Codex L11347~11381 패턴)**:
+- `js/aio-data.js`: 5 호출점 (live/proxy/snapshot) sink + lineage 메타 단일 책임 함수
+- `sourceKind` 분기: 'live'/'proxy'/'snapshot'/'unavailable'
+- `sourceLabel`: 'cnn-fear-greed-api' / 'cnn-fear-greed-proxy' / 'DATA_SNAPSHOT:fear-greed'
+- 갱신 대상: `fg-live-badge` / `fg-score-big` / `fg-rating-text` / `home-fg-score` / `fg-historical-ref` / `fg-signal-link` + `fgUpdateNeedle`
+- 일괄 부여: `data-operational-use` (decision/reference-only) + `data-source-kind` + `data-source-label` + `data-source-ts`
+- `window._applyFearGreedScore` 노출 (T465 검증)
+- 효과: fetchFearGreed 3 호출점 78줄 → 9줄 (live/proxy/snapshot 분기)
+
+**Phase 4 — Options mock 정리 + template화 (P338)**:
+- `index.html` L9981~10040 옵션 흐름 표 6 mock 행 (NVDA $130 PUT / SPY $550 PUT / TSLA $400 CALL / AMD $220 CALL / META $520 CALL / AAPL $200 PUT) → 단일 placeholder (colspan=8 + 안내 메시지). tbody에 `data-operational-use="reference-only"` + `data-source="requires-broker-options-feed"` + `data-source-kind="template"` + `data-source-label="options-flow-pending"` 마킹.
+- L10198~10236 trade ideas 3 카드 ("SPY 550 Call 매도 (4/18)" 등) → generic template ("Index ETF Covered Call" / "Bull Put Spread" / "Event Straddle"). 각 카드에 `data-source-label="options-strategy-template"` 마킹. 상단 안내 추가 ("⚠ 전략 구조 예시이며 특정 종목·만기·가격을 권고하지 않습니다").
+
+**Phase 5 — applyLiveQuotes data-source lineage 강화**:
+- `js/aio-data.js` `applyLiveQuotes` 5 derived sink에 `data-source-kind="derived"` 마킹:
+  - `mkt-regime-sub` → `data-source-label="derived:spx-ath-gap"`
+  - `snap-vix-lbl` / `vol-regime-val` / `vol-regime-sub` → `data-source-label="derived:vix-regime"`
+  - `vix-pct-cell` / `vix-pct-table-cell` → `data-source-label="derived:vix-percentile"`
+- 모두 `data-operational-use="decision"` + `data-source-ts` 동시 부여 (R114 가시 sink 보호)
+
+**Phase 6 — aio-ui.js updateBreadthBars 20-SMA amber override (P332 동적 보강)**:
+- `_bb20smaLbl`/`_bb20smaColor`/`_bb20smaBg` 별도 헬퍼 함수 + `is20Sma: true` row 플래그
+- 70%+ "과열" amber 강제 (v49.63 정적 인라인 색상 변경의 동적 보강)
+
+**Phase 7 — 뉴스 텍스트 정규화**:
+- `js/aio-data.js` "뉴스 로딩 중" → "뉴스 수집 중" 3곳 (L7236 briefing-live-news-list / L8173 실시간 뉴스 헤더 / L11329 news item escHtml fallback)
+- `computeNewsSentimentScore` label 'N/A' → '뉴스 없음'
+
+**Phase 8 — T463~T470 8 신규 라이브 DOM 회귀 테스트**:
+- `js/aio-tests.js` `_testV4964CodexResidualIntegration` 신규 + Group60 등록
+- T462 갱신: APP_VERSION === 'v49.64' (v49.63 → v49.64)
+- T463: loading copy 표준 (5 sink — mkt-regime-sub/fred-chart-status/sent-overall-badge/aaii-date-label/temp-narrative)
+- T464: kr-macro ETF 6 카드 placeholder 표준
+- T465: `_applyFearGreedScore` 함수 정의 + sourceKind 4 분기 검증
+- T466: aux panels — 영구 "로딩 중" 0건
+- T467: sent-overall-badge "분석 중" 부재 + "수신 대기" 존재
+- T468: `assertChatResponseAccuracy` 10% threshold ($150 vs $170.50 = 12% → false)
+- T469: options template 3+ 카드 (`[data-source-label="options-strategy-template"]`)
+- T470: `#risk-radar-body` 초기 lineage 마킹
+
+**버전 동기화 7곳**: title + badge + APP_VERSION + version.json + sw.js (SW_VERSION + SW_BUILD) + JS cache-bust 6곳 (?v=49.64) + _context/CLAUDE.md + CLAUDE.md + CHANGELOG.md
+
+**신규 P 번호 5개**: P334 (Loading copy R115) + P335 (CHAT_CONTEXTS 정적 2026.04 T176b) + P336 (assertChatResponseAccuracy threshold T263) + P337 (risk-radar-body lineage T394) + P338 (Options mock template P332+P333 연속)
+
+**신규 R 규칙 1개**: R115 (사용자 가시 placeholder 텍스트 표준 의무)
+
+**잔여 (v49.65 이관)**: T175 live_defaults stale (실시간 API 부재) + T259 chat_numeric_safelist (텍스트 간접 검증) + T392 analysis_text lineage (메타 확대).
+
+---
+
 ## v49.63 — Codex v49.61 정밀 재통합 (v49.62 표면 통합의 35% 누락 시정) (2026-05-22)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-ui.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

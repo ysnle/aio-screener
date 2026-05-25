@@ -1213,6 +1213,26 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R115. 사용자 가시 placeholder 텍스트 표준 의무 (v49.64 추가, P334 근본)
+
+**원칙**: 모든 사용자 가시 "대기 중" 상태 placeholder는 "수신 대기" (incoming) / "수집 대기" (collecting) 표준 사용. "계산 중" / "로딩 중" / "분석 중" 금지.
+
+**근거 (P334)**: v49.62~v49.63 Codex 통합 시 11곳 loading copy 정규화 누락 → "계산 중 99곳 / 로딩 중 85곳"이 페이지 곳곳에 영구 잔존 → 사용자가 "데이터 미수신"인지 "오류"인지 구분 불가 + getMarketCurrentnessAudit 영구 미반영 sink 자동 탐지 회피.
+
+**표준 매핑**:
+- "계산 중" / "계산중" → "수신 대기" (값을 받아 계산 대기)
+- "로딩 중" / "로딩중" → "수집 대기" (소스에서 수집 대기)
+- "분석 중" / "분석중" → "수신 대기" 또는 "심리 입력 수신 대기" / "거시 입력 수신 대기" (분석 대상 데이터 대기)
+- "뉴스 로딩 중" → "뉴스 수집 중"
+
+**검증**: `AIO.runTests()` T463 (home/sentiment/aaii/macro/temp 5 sink 표준 검증) + T466 (영구 loading 0건) + T467 (sentiment badge "분석 중" 부재 + "수신 대기" 존재).
+
+**위반 시**: 사용자가 페이지 진입 시 영구 placeholder 잔존으로 데이터 미수신 인지 못함 + 자동 audit이 stale sink 탐지 회피.
+
+**Lineage 보완**: placeholder 텍스트 변경과 함께 `data-operational-use="reference-only"` + `data-source-kind="unavailable"` 마킹 권장 (R114 통합 검증과 양립).
+
+---
+
 ## R114. 외부 워크트리 통합 시 함수 존재 vs 페이지 실행 검증 분리 의무 (v49.63 추가, P331 근본)
 
 **원칙**: Codex/다른 워크트리에서 통합 시 (1) `typeof fn === 'function'` 단위 검증 + (2) 실제 페이지가 fn을 호출하고 DOM이 변경되는지 통합 검증 양쪽 모두 필수.

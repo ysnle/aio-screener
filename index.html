@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.63 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.64 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3987,7 +3987,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.63</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.64</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4589,7 +4589,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="^GSPC">—</div>
       <div style="font-size:10px;" data-live-chg="^GSPC">—</div>
       <div data-idx-futures="^GSPC" style="display:none;font-size:11px;margin-top:2px;"></div>
-      <div id="mkt-regime-sub" style="font-size:11px;color:var(--text-muted);margin-top:3px;">ATH 계산 중…</div>
+      <div id="mkt-regime-sub" style="font-size:11px;color:var(--text-muted);margin-top:3px;">ATH 수신 대기</div>
     </div>
     <div id="snap-ixic" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-cyan);border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="technical" title="차트 분석 →">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">NASDAQ</div>
@@ -4600,9 +4600,9 @@ body.light-theme canvas { filter:none; }
     <div id="snap-vix" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-amber);border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="sentiment" title="투자 심리 →">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">VIX 공포지수</div>
       <div id="snap-vix-val" style="font-size:14px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);">—</div>
-      <div id="snap-vix-lbl" style="font-size:11px;color:var(--text-muted);">레벨 계산 중…</div>
+      <div id="snap-vix-lbl" style="font-size:11px;color:var(--text-muted);">레벨 수신 대기</div>
       <div id="vol-regime-val" style="font-size:11px;font-weight:700;margin-top:3px;">—</div>
-      <div id="vol-regime-sub" style="font-size:11px;color:var(--text-muted);">VIX %ile 계산 중…</div>
+      <div id="vol-regime-sub" style="font-size:11px;color:var(--text-muted);">VIX %ile 수신 대기</div>
     </div>
     <div id="snap-oil" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-purple);border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="macro" title="거시경제 →">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">WTI 원유</div>
@@ -4824,7 +4824,7 @@ body.light-theme canvas { filter:none; }
       <div class="risk-mon-cell">
         <div class="rm-label">VIX 선물<span class="rm-tip">콘탱고=정상, 백워데이션=공황징조</span></div>
         <div class="rm-val" id="rm-vixstr-val" style="color:var(--text-muted);">대기</div>
-        <div class="rm-status" id="rm-vixstr-status" style="color:var(--text-muted);">로딩 중</div>
+        <div class="rm-status" id="rm-vixstr-status" style="color:var(--text-muted);">수집 대기</div>
         <div class="rm-bar-wrap"><div class="rm-bar" id="rm-vixstr-bar" style="width:50%;background:var(--text-muted);"></div></div>
       </div>
       <!-- MOVE Index (Bond Vol) -->
@@ -4845,7 +4845,7 @@ body.light-theme canvas { filter:none; }
       <div class="risk-mon-cell">
         <div class="rm-label">RSP/SPY<span class="rm-tip">동일가중/시총가중 비율. 낮으면 빅테크 쏠림</span></div>
         <div class="rm-val" id="rm-rspratio-val">0.291</div>
-        <div class="rm-status" id="rm-rspratio-status">계산중</div>
+        <div class="rm-status" id="rm-rspratio-status">수신 대기</div>
         <div class="rm-bar-wrap"><div class="rm-bar" id="rm-rspratio-bar" style="width:40%;background:var(--data-red);"></div></div>
       </div>
     </div>
@@ -4866,7 +4866,7 @@ body.light-theme canvas { filter:none; }
       <div class="risk-mon-cell">
         <div class="rm-label">공포·탐욕</div>
         <div class="rm-val" id="rm-fg-val">18</div>
-        <div class="rm-status" id="rm-fg-status">로딩중</div>
+        <div class="rm-status" id="rm-fg-status">수집 대기</div>
         <div class="rm-bar-wrap"><div class="rm-bar" id="rm-fg-bar"></div></div>
       </div>
     </div>
@@ -5737,7 +5737,7 @@ body.light-theme canvas { filter:none; }
           </div>
         </div>
         <div style="display:flex;gap:6px;align-items:center;">
-          <span id="sent-overall-badge" class="status-pill sp-neutral">분석 중...</span>
+          <span id="sent-overall-badge" class="status-pill sp-neutral">심리 입력 수신 대기</span>
           <span class="freshness-badge fb-live">● LIVE</span>
         </div>
       </div>
@@ -5902,7 +5902,7 @@ body.light-theme canvas { filter:none; }
               <span style="color:var(--text-muted);font-size:11px;"> 강세</span>
             </div>
           </div>
-          <div style="margin-top:4px;font-size:11px;color:var(--text-muted);" id="aaii-date-label">AAII 주간 설문 · 최신값 로딩 중</div>
+          <div style="margin-top:4px;font-size:11px;color:var(--text-muted);" id="aaii-date-label">AAII 주간 설문 · 최신값 수집 대기</div>
           <div style="margin-top:3px;" id="aaii-signal-badge">
             <span style="font-size:11px;font-weight:700;color:var(--data-amber);">● 중정도 비관 (-7.3% spread)</span>
             <span style="font-size:11px;color:var(--text-muted);margin-left:4px;">(극단 비관은 spread &lt; -20% 기준)</span>
@@ -7086,7 +7086,7 @@ body.light-theme canvas { filter:none; }
         <span style="font-size:12px;font-weight:700;color:var(--text-secondary);">핵심 경제지표 시계열 (12개월)</span>
         <span style="font-size:11px;color:var(--text-muted);margin-left:8px;">FRED API · 월간 데이터 <span style="font-size:10px;color:var(--data-amber);" title="v49.31 H4/R77 MACRO_CALENDAR — 발표일 기반 자동 stale">(다음 갱신: NFP 6/6 · CPI 6/12 · PCE 6/30)</span></span>
       </div>
-      <span id="fred-chart-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">로딩 중...</span>
+      <span id="fred-chart-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수집 대기</span>
     </div>
     <div id="fred-charts-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
       <div style="background:var(--surface-1);border-radius:8px;padding:10px;">
@@ -7259,7 +7259,7 @@ body.light-theme canvas { filter:none; }
         <div style="background:rgba(0,229,160,0.1);border-radius:7px;padding:10px;">
           <div style="font-size:11px;color:#10b981;font-weight:700;">현재 온도</div>
           <div id="temp-score" style="font-size:16px;font-weight:900;color:#10b981;font-family:var(--font-mono);">—</div>
-          <div id="temp-narrative" style="font-size:11px;color:var(--text-muted);margin-top:4px;">계산 중…</div>
+          <div id="temp-narrative" style="font-size:11px;color:var(--text-muted);margin-top:4px;">거시 입력 수신 대기</div>
         </div>
         <div style="background:rgba(168,85,247,0.1);border-radius:7px;padding:10px;">
           <div style="font-size:11px;color:#c7d2fe;font-weight:700;">0~100 해석</div>
@@ -8448,11 +8448,11 @@ body.light-theme canvas { filter:none; }
             <option value="earnings">빅테크 어닝</option>
             <option value="geopolitical">지정학/정치</option>
           </select>
-          <span id="risk-radar-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">데이터 로딩 중</span>
+          <span id="risk-radar-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">리스크 입력 수신 대기</span>
         </div>
       </div>
-      <div id="risk-radar-body" style="display:flex;flex-direction:column;gap:4px;max-height:360px;overflow-y:auto;padding-right:4px;">
-        <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">리스크 레이더 로딩 중…</div>
+      <div id="risk-radar-body" data-operational-use="reference-only" data-source-kind="unavailable" data-source-label="risk-radar-pending" style="display:flex;flex-direction:column;gap:4px;max-height:360px;overflow-y:auto;padding-right:4px;">
+        <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">리스크 레이더 수신 대기</div>
       </div>
     </div>
 
@@ -9977,73 +9977,20 @@ body.light-theme canvas { filter:none; }
             <th style="text-align:left;padding:7px 8px;font-weight:700;">해석</th>
           </tr>
         </thead>
-        <tbody>
-          <tr style="border-bottom:1px solid var(--surface-3);background:rgba(255,91,80,0.06);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">NVDA</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,91,80,0.3);color:var(--data-red);padding:2px 6px;border-radius:3px;font-size:11px;font-weight:700;">PUT</span></td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);">$130</td>
-            <td style="text-align:center;padding:7px 8px;">4/18</td>
-            <td style="text-align:center;padding:7px 8px;font-weight:700;color:var(--data-red);">24,500</td>
-            <td style="text-align:center;padding:7px 8px;">45,200</td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);color:var(--data-red);">$3.28</td>
-            <td style="padding:7px 8px;font-size:11px;color:var(--text-muted);">Volume >> OI (새로운 공매도)</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);background:rgba(255,91,80,0.06);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">SPY</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,91,80,0.3);color:var(--data-red);padding:2px 6px;border-radius:3px;font-size:11px;font-weight:700;">PUT</span></td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);">$550</td>
-            <td style="text-align:center;padding:7px 8px;">4/25</td>
-            <td style="text-align:center;padding:7px 8px;font-weight:700;color:var(--data-red);">18,800</td>
-            <td style="text-align:center;padding:7px 8px;">82,100</td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);color:var(--data-red);">$2.15</td>
-            <td style="padding:7px 8px;font-size:11px;color:var(--text-muted);">큰 기관 헤징 의심</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);background:rgba(0,229,160,0.06);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">TSLA</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(0,229,160,0.3);color:var(--data-green);padding:2px 6px;border-radius:3px;font-size:11px;font-weight:700;">CALL</span></td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);">$400</td>
-            <td style="text-align:center;padding:7px 8px;">4/18</td>
-            <td style="text-align:center;padding:7px 8px;font-weight:700;color:var(--data-green);">12,200</td>
-            <td style="text-align:center;padding:7px 8px;">28,900</td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);color:var(--data-green);">$4.82</td>
-            <td style="padding:7px 8px;font-size:11px;color:var(--text-muted);">OTM 콜 매수 · 반등 기대</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);background:rgba(255,163,26,0.06);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">AMD</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.3);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;font-weight:700;">CALL</span></td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);">$220</td>
-            <td style="text-align:center;padding:7px 8px;">4/18</td>
-            <td style="text-align:center;padding:7px 8px;font-weight:700;color:var(--data-amber);">8,600</td>
-            <td style="text-align:center;padding:7px 8px;">5,300</td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);color:var(--data-amber);">$5.67</td>
-            <td style="padding:7px 8px;font-size:11px;color:var(--text-muted);">비상 활동! Vol > OI (주목)</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">META</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(0,229,160,0.3);color:var(--data-green);padding:2px 6px;border-radius:3px;font-size:11px;font-weight:700;">CALL</span></td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);">$520</td>
-            <td style="text-align:center;padding:7px 8px;">5/16</td>
-            <td style="text-align:center;padding:7px 8px;">4,200</td>
-            <td style="text-align:center;padding:7px 8px;">12,800</td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);color:var(--data-green);">$11.28</td>
-            <td style="padding:7px 8px;font-size:11px;color:var(--text-muted);">장기 우상향 포지셔닝</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">AAPL</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,91,80,0.3);color:var(--data-red);padding:2px 6px;border-radius:3px;font-size:11px;font-weight:700;">PUT</span></td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);">$200</td>
-            <td style="text-align:center;padding:7px 8px;">4/18</td>
-            <td style="text-align:center;padding:7px 8px;font-weight:700;color:var(--data-red);">6,100</td>
-            <td style="text-align:center;padding:7px 8px;">9,400</td>
-            <td style="text-align:center;padding:7px 8px;font-family:var(--font-mono);color:var(--data-red);">$3.42</td>
-            <td style="padding:7px 8px;font-size:11px;color:var(--text-muted);">기술주 약세 헤지</td>
+        <tbody data-operational-use="reference-only" data-source="requires-broker-options-feed" data-source-kind="template" data-source-label="options-flow-pending">
+          <tr>
+            <td colspan="8" style="padding:18px 12px;text-align:center;color:var(--text-muted);font-size:11px;line-height:1.7;">
+              <div style="font-weight:700;color:var(--data-amber);margin-bottom:6px;">⚠ 옵션 흐름 라이브 피드 미연결</div>
+              <div>특정 종목·행사가·만기·프리미엄 예시는 v49.64에서 제거되었습니다 (실거래 혼동 차단).</div>
+              <div style="margin-top:4px;">CBOE / ThinkOrSwim / Polygon 옵션 체인 API 연결 시 unusual activity 표가 자동 채워집니다.</div>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div style="margin-top:10px;padding:10px;background:rgba(0,229,160,0.08);border-left:3px solid var(--data-green);border-radius:4px;">
+    <div style="margin-top:10px;padding:10px;background:rgba(255,163,26,0.08);border-left:3px solid var(--data-amber);border-radius:4px;">
       <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">
-        <strong style="color:var(--data-green);">분석:</strong> AMD Call $220 (거래량 8.6K > OI 5.3K)은 비상 활동 — OTM 콜 대량 매수는 상승 기대 신호. NVDA/SPY Put은 기관 포트폴리오 헤징. TSLA Call $400은 8.6% OTM 반등 베팅.
+        <strong style="color:var(--data-amber);">참고:</strong> 옵션 unusual activity는 브로커 옵션 체인 라이브 피드(CBOE / TOS / Polygon)가 필요합니다. 본 페이지 전략 템플릿(아래)은 시장 환경별 구조 예시이며 특정 종목·가격을 권장하지 않습니다.
       </div>
     </div>
   </div>
@@ -10195,41 +10142,42 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- Best Trade Ideas -->
-    <div style="padding:12px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:8px;">
-      <div style="font-size:11px;font-weight:800;color:#3b82f6;margin-bottom:8px;">현재 최고의 거래 아이디어 (Top 3)</div>
+    <!-- Best Trade Ideas — v49.64 P338: mock 가격 → generic template (실시간 옵션 체인 연결 전 참고용) -->
+    <div style="padding:12px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:8px;" data-operational-use="reference-only" data-source-kind="template" data-source-label="options-strategy-template">
+      <div style="font-size:11px;font-weight:800;color:#3b82f6;margin-bottom:6px;">전략 템플릿 (참고용 — 실시간 옵션 체인 연결 시 자동 갱신)</div>
+      <div style="font-size:10px;color:var(--data-amber);margin-bottom:8px;">⚠ 아래 항목은 전략 구조 예시이며 특정 종목·만기·가격을 권고하지 않습니다. 실거래는 브로커 옵션 체인 + 본인 리스크 한도 기준으로 결정하세요.</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-        <!-- Trade 1 -->
-        <div style="padding:10px;background:var(--surface-3);border-radius:6px;">
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">1⃣ SPY Covered Call</div>
+        <!-- Template 1 -->
+        <div style="padding:10px;background:var(--surface-3);border-radius:6px;" data-operational-use="reference-only" data-source-kind="template" data-source-label="options-strategy-template">
+          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">1⃣ Index ETF Covered Call</div>
           <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
-            <strong>설정:</strong> SPY 550 Call 매도 (4/18)<br>
-            <strong>진입:</strong> 보유 주식 + Call 매도<br>
-            <strong>목표:</strong> 프리미엄 $2.40 획득<br>
-            <strong>위험:</strong> 550 상한 고정<br>
-            <strong>확률:</strong> 70% 성공률
+            <strong>설정:</strong> 보유 ETF 위 OTM Call 매도<br>
+            <strong>진입:</strong> 현 주가 + 단기~중기 만기<br>
+            <strong>목표:</strong> 변동성 프리미엄 수취<br>
+            <strong>위험:</strong> 상승 캡(상한) 고정<br>
+            <strong>적합:</strong> IV 정상~높음 / 횡보 박스
           </div>
         </div>
-        <!-- Trade 2 -->
-        <div style="padding:10px;background:var(--surface-3);border-radius:6px;">
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">2⃣ NVDA Put Spread</div>
+        <!-- Template 2 -->
+        <div style="padding:10px;background:var(--surface-3);border-radius:6px;" data-operational-use="reference-only" data-source-kind="template" data-source-label="options-strategy-template">
+          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">2⃣ Bull Put Spread</div>
           <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
-            <strong>설정:</strong> 130 Put 매도 / 120 Put 매수<br>
-            <strong>진입:</strong> $2.80 프리미엄 수취<br>
-            <strong>목표:</strong> 만기 시 프리미엄 보관<br>
-            <strong>위험:</strong> $10 스프레드<br>
-            <strong>확률:</strong> 72% (120 이상 유지)
+            <strong>설정:</strong> OTM Put 매도 / Deep OTM Put 매수<br>
+            <strong>진입:</strong> 순 프리미엄 수취 (Credit Spread)<br>
+            <strong>목표:</strong> 만기 시 OTM 유지<br>
+            <strong>위험:</strong> 스프레드 폭 — 수취 프리미엄<br>
+            <strong>적합:</strong> 약상승~횡보 전망 / 지지선 위
           </div>
         </div>
-        <!-- Trade 3 -->
-        <div style="padding:10px;background:var(--surface-3);border-radius:6px;">
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">3⃣ QQQ Straddle (고변동 이벤트 예시)</div>
+        <!-- Template 3 -->
+        <div style="padding:10px;background:var(--surface-3);border-radius:6px;" data-operational-use="reference-only" data-source-kind="template" data-source-label="options-strategy-template">
+          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">3⃣ Event Straddle (고변동 이벤트 대비)</div>
           <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
-            <strong>설정:</strong> 410 Call + Put 매수<br>
-            <strong>진입:</strong> 총 $3.15 비용<br>
-            <strong>목표:</strong> ±2.5% 이상 움직임<br>
-            <strong>만기:</strong> 이벤트 직후 만기 선택<br>
-            <strong>확률:</strong> 55% (큰 수익 가능)
+            <strong>설정:</strong> ATM Call + Put 동시 매수<br>
+            <strong>진입:</strong> 이벤트 직전 / IV 상승 전<br>
+            <strong>목표:</strong> 큰 단방향 또는 양방향 이동<br>
+            <strong>위험:</strong> IV Crush (이벤트 후 IV ↓)<br>
+            <strong>적합:</strong> 실적/FOMC 등 큰 발표 예정 종목
           </div>
         </div>
       </div>
@@ -10743,42 +10691,42 @@ body.light-theme canvas { filter:none; }
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 반도체</span>
             <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">로딩 중...</div>
+          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
         <div class="kr-etf-card" data-live-price="305720.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 2차전지</span>
             <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">로딩 중...</div>
+          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
         <div class="kr-etf-card" data-live-price="012450.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">방산 (한화에어로)</span>
             <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">로딩 중...</div>
+          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
         <div class="kr-etf-card" data-live-price="329180.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">조선 (HD현대중공업)</span>
             <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">로딩 중...</div>
+          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
         <div class="kr-etf-card" data-live-price="091220.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">TIGER 은행</span>
             <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">로딩 중...</div>
+          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
         <div class="kr-etf-card" data-live-price="244580.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 바이오</span>
             <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">로딩 중...</div>
+          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
       </div>
     </div>
@@ -12437,9 +12385,9 @@ body.light-theme canvas { filter:none; }
   }
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.63"></script>
-  <script src="./js/aio-data.js?v=49.63"></script>
-  <script src="./js/aio-ui.js?v=49.63"></script>
+  <script src="./js/aio-core.js?v=49.64"></script>
+  <script src="./js/aio-data.js?v=49.64"></script>
+  <script src="./js/aio-ui.js?v=49.64"></script>
 
   <script>
 
@@ -15401,7 +15349,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.63"></script>
+<script src="./js/aio-chat.js?v=49.64"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -24149,9 +24097,12 @@ async function loadRiskRadar() {
   else if (filter === 'earnings') filtered = allEvents.filter(function(e) { return e.category === 'earnings'; });
   else if (filter === 'geopolitical') filtered = allEvents.filter(function(e) { return e.category === 'geopolitical'; });
 
-  // 5. 렌더
+  // 5. 렌더 (v49.64 P337/T394: lineage 메타 갱신 — pending → decision)
   if (filtered.length === 0) {
     body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:10px;">해당 필터에 맞는 이벤트 없음</div>';
+    body.setAttribute('data-operational-use', 'reference-only');
+    body.setAttribute('data-source-kind', 'mixed');
+    body.setAttribute('data-source-label', 'risk-radar-empty');
   } else {
     var html = '';
     filtered.forEach(function(e) {
@@ -24174,6 +24125,11 @@ async function loadRiskRadar() {
       html += '</div>';
     });
     body.innerHTML = html;
+    // v49.64 P337/T394: decision lineage 갱신 — 정적 + Finnhub 혼합 데이터
+    body.setAttribute('data-operational-use', 'decision');
+    body.setAttribute('data-source-kind', 'mixed');
+    body.setAttribute('data-source-label', 'risk-radar-static+finnhub');
+    body.setAttribute('data-source-ts', new Date().toISOString());
   }
 
   var st = document.getElementById('risk-radar-status');
@@ -27456,9 +27412,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.63"></script>
+<script src="./js/aio-glossary.js?v=49.64"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.63"></script>
+<script src="./js/aio-tests.js?v=49.64"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전

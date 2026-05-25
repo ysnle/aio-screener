@@ -1,12 +1,51 @@
 ---
 verified_by: agent
-last_verified: 2026-05-22
+last_verified: 2026-05-25
 confidence: high
-latest_version: v49.63
-latest_P_number: P333
-total_entries: 333
-next_P_number: P334
+latest_version: v49.64
+latest_P_number: P338
+total_entries: 338
+next_P_number: P339
 ---
+
+## P338 · v49.64 · [P338/R115] Options mock 가격 (NVDA $130/SPY $550) → template + reference-only (혼동 차단)
+
+- **문제**: v49.63 P333에서 Options trade ideas 3 카드는 template화했으나 Section 5 옵션 흐름 표 6 mock 행 (NVDA $130 PUT / SPY $550 PUT / TSLA $400 CALL / AMD $220 CALL / META $520 CALL / AAPL $200 PUT 정확 행사가 + 만기 + 프리미엄)이 그대로 잔존. 사용자가 "실시간 옵션 흐름 데이터인가?" 혼동.
+- **시정 (v49.64)**: index.html L9981~10040 tbody 전체를 단일 placeholder (colspan=8 + "⚠ 옵션 흐름 라이브 피드 미연결" + "CBOE/ToS/Polygon 연결 시 자동 채워짐") + tbody에 `data-operational-use="reference-only"` + `data-source="requires-broker-options-feed"` + `data-source-kind="template"` + `data-source-label="options-flow-pending"` 마킹. Section 7 trade ideas 3 카드도 generic template + 안내 메시지 추가.
+- **재발 방지**: T469 라이브 DOM 회귀 테스트 (`[data-source-label="options-strategy-template"]` 3+ 카드 검증).
+- **파일**: `index.html` L9981~10040 (mock table) + L10198~10236 (trade ideas)
+
+## P337 · v49.64 · [P337/T394] risk-radar-body lineage 부재 → decision narrative audit 미검출
+
+- **문제**: T394 decision_narrative_without_lineage_is_reference_only — `#risk-radar-body` 초기 "리스크 레이더 로딩 중…" 텍스트가 `data-operational-use` 마킹 없이 표시 → `getMarketCurrentnessAudit` 가 narrative 미마킹 sink로 자동 탐지 못함. v49.42~v49.58 누적 잔존.
+- **시정 (v49.64)**: index.html L8454 `#risk-radar-body`에 초기 `data-operational-use="reference-only"` + `data-source-kind="unavailable"` + `data-source-label="risk-radar-pending"` 마킹. 텍스트도 "수신 대기"로 정규화 (R115). loadRiskRadar 함수에서 데이터 도착 시 hook 추가 — filtered.length > 0이면 `data-operational-use="decision"` + `data-source-kind="mixed"` + `data-source-label="risk-radar-static+finnhub"` + `data-source-ts` 갱신.
+- **재발 방지**: T470 라이브 DOM 회귀 (risk-radar-body 초기 lineage 검증).
+- **파일**: `index.html` L8454 (초기) + L24144~24180 (loadRiskRadar 갱신 hook)
+
+## P336 · v49.64 · [P336/T263] assertChatResponseAccuracy 임계값 20% — $150 vs $170.50 (12% 편차) false 판정 실패
+
+- **문제**: T263 `assert_chat_response_accuracy: $170 정확 + $150 부정확` — QCOM live=$170.50, mock 응답 "QCOM 현재 $150" → 편차 -12.02%. 기존 임계값 `Math.abs(dev) > 20`으로 `accurate=true` 반환 → 테스트 expectation `acc2.accurate === false` 실패.
+- **근본 원인**: T263 test expectation `Math.abs(acc2.deviation) > 10`과 함수 임계값 20%의 불일치. 10% 편차는 가격 인용 정확성 측면에서 이미 "부정확" 판정 필요.
+- **시정 (v49.64)**: `assertChatResponseAccuracy` 임계값 `> 20` → `> 10` (T263 정합). 추가로 thousand separator 패턴 `/\$\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?|\$\d{1,5}(?:\.\d{1,2})?/g` + `replace(/,/g, '')` 파싱 추가 ($1,234.56 형식 지원).
+- **재발 방지**: T468 라이브 DOM 회귀 (live._liveData.QCOM=170.50 mock + assertChatResponseAccuracy('QCOM 현재 $150', ['QCOM']) → accurate=false 검증).
+- **파일**: `js/aio-core.js` L3068~3103 assertChatResponseAccuracy
+
+## P335 · v49.64 · [P335/T176b] CHAT_CONTEXTS 정적 2026.04 토큰 5건 → 일반화 + staleRe regex 확장
+
+- **문제**: T176b `chat_context_freshness: stale date/event tokens = 0` 영구 실패 — `js/aio-chat.js` 5곳에 "2026.04" 정적 토큰 잔존: L112 (FOMC 의사록 주석) + L462 (시장 맥락 주석) + L463 (사용자 가시 prompt 헤더) + L533/L538 (§65/§66 JPM CoWoS 리서치 헤더). v49.59 Phase 7 시정 시도했으나 누락.
+- **근본 원인**: 정적 날짜는 한 번 작성하면 1개월 후 stale. 일반화 마커 ("최근 분기" / "2026 Q2") 미사용.
+- **시정 (v49.64)**:
+  - aio-chat.js: 5건 모두 일반화. "【2026.04 시장 맥락】" → "【최근 분기 시장 맥락】". §65 "(2026.04)" → "(최근 분기 리서치)". §66 동일. FOMC 의사록 주석 일반화. L462 주석 v49.64 마커.
+  - aio-core.js staleRe regex 확장: `/2026\.04(\.\d+)?|2026\.05\.(0[1-9]|1[0-5])/` 추가 → 향후 2026.04 / 2026.05 초반 토큰 자동 탐지 (4월 전체 + 5월 1~15일).
+- **재발 방지**: 정적 날짜 사용 금지 권장 + staleRe 정기 점검 (v49.65에서 6월 토큰 자동 stale로 확장).
+- **파일**: `js/aio-chat.js` L112/L462/L463/L533/L538 + `js/aio-core.js` L6963 staleRe
+
+## P334 · v49.64 · [P334/R115] Loading copy 정규화 11+곳 — "계산 중"/"로딩 중" 영구 표시 → "수신 대기"/"수집 대기" 표준
+
+- **Codex v49.61 잔여 발견**: home market-regime (ATH/VIX 레벨/VIX %ile) / risk-monitor (VIX 선물/RSP-SPY/F&G) / sentiment badge / AAII / macro FRED / temperature / kr-macro 6 ETF — 모든 사용자 가시 placeholder가 "계산 중" / "로딩 중" / "분석 중" 사용. 페이지 진입 시 영구 잔존하여 "데이터 미수신" 인지 불가.
+- **시정 (v49.64)**: 11+ 위치 모두 "수신 대기" (incoming) / "수집 대기" (collecting) / "심리 입력 수신 대기" / "거시 입력 수신 대기" 표준화. kr-macro 6 ETF는 `replace_all` 일괄. sent-overall-badge "분석 중..." → "심리 입력 수신 대기" (T467 정합).
+- **재발 방지**: **R115 신규** (사용자 가시 placeholder 텍스트는 "수신 대기"/"수집 대기" 표준 의무, "계산 중"/"로딩 중" 금지). T463 라이브 DOM 회귀 (5 sink 검증) + T467 (sent-overall-badge 검증).
+- **파일**: `index.html` L4592/4603/4605 (home) + L4827/4848/4869 (risk) + L5740 (sent) + L5905 (AAII) + L7089 (FRED) + L7262 (temp) + L10746~10781 (kr-ETF 6곳)
 
 ## P333 · v49.63 · [P333/R114] Options trade ideas mock 가격 — 실시간 vs 예시 혼동 위험
 

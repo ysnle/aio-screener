@@ -3071,8 +3071,9 @@ window.AIO.assertChatResponseAccuracy = function(responseText, detectedTickers) 
   detectedTickers = Array.isArray(detectedTickers) ? detectedTickers : [];
   if (detectedTickers.length === 0) return result;
 
-  // 가격 패턴 추출: $123.45 또는 $123 형식
-  var priceMatches = responseText.match(/\$\d{1,5}(?:\.\d{1,2})?/g) || [];
+  // v49.64 P336/T263: 가격 패턴 추출 보강 — thousand separator + 정확한 \b 경계
+  // $123 / $123.45 / $1,234.56 모두 지원
+  var priceMatches = responseText.match(/\$\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?|\$\d{1,5}(?:\.\d{1,2})?/g) || [];
   if (priceMatches.length === 0) return result;
 
   var ld = window._liveData || {};
@@ -3082,13 +3083,16 @@ window.AIO.assertChatResponseAccuracy = function(responseText, detectedTickers) 
     if (!live || !live.price) return;
     var livePrice = Number(live.price);
     priceMatches.forEach(function(pm) {
-      var citedPrice = Number(pm.replace('$', ''));
+      // v49.64: thousand separator 제거 후 숫자 파싱
+      var citedPrice = Number(pm.replace('$', '').replace(/,/g, ''));
+      if (!isFinite(citedPrice) || citedPrice <= 0) return;
       // safelist 임계값은 제외 (calibration 상수)
       if (window.AIO_NUMERIC_GUIDELINE_SAFELIST && window.AIO_NUMERIC_GUIDELINE_SAFELIST.isCalibrationConstant(citedPrice)) return;
       var dev = (citedPrice - livePrice) / livePrice * 100;
       if (Math.abs(dev) > Math.abs(maxDev)) maxDev = dev;
       result.priceCitations.push({ ticker: t, citedPrice: citedPrice, livePrice: livePrice, deviationPct: dev });
-      if (Math.abs(dev) > 20) {
+      // v49.64 P336: 임계값 20% → 10% (T263 정합) — 10%+ 편차는 부정확 판정
+      if (Math.abs(dev) > 10) {
         result.accurate = false;
         result.issues.push(t + ' cited $' + citedPrice + ' vs live $' + livePrice.toFixed(2) + ' (' + (dev >= 0 ? '+' : '') + dev.toFixed(1) + '%)');
       }
@@ -6960,7 +6964,8 @@ window.AIO.getChatContextFreshnessAudit = function() {
   if (typeof window.CHAT_CONTEXTS === 'undefined') {
     return { totalHits: -1, error: 'CHAT_CONTEXTS not loaded' };
   }
-  var staleRe = /BLS Apr CPI was headline|Warsh 화요일|Warsh 5월 취임|5-6월 발표|이슬라마바드 협상|2026\.04\.1[0-8]|4\/(12|13|14|15|18)[^0-9]/;
+  // v49.64 P335/T176b: 2026.04.X / 2026.05.0X 정적 토큰 광범위 검출 (CHAT_CONTEXTS 일반화 의무)
+  var staleRe = /BLS Apr CPI was headline|Warsh 화요일|Warsh 5월 취임|5-6월 발표|이슬라마바드 협상|2026\.04(\.\d+)?|2026\.05\.(0[1-9]|1[0-5])|4\/(12|13|14|15|18)[^0-9]/;
   var hits = [];
   var byContext = {};
   Object.keys(window.CHAT_CONTEXTS).forEach(function(key) {
@@ -9862,7 +9867,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.63';
+const APP_VERSION = 'v49.64';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
