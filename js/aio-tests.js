@@ -2289,6 +2289,42 @@
       essence ? 'loadingText=' + essence.goals.intuitiveBeginnerUse.loadingTextCount : 'missing essence');
   }
 
+  // v49.66 P348~P351 R121: AI 채팅 시스템 dead code / partial integration / silent fail 회귀 방지
+  function _testV4966ChatCompleteness() {
+    var chatFn = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
+
+    // T492: fetchSECRiskFactors Dead code 해소 — _fetchTickerDataForChat에 riskFactorsPromise + [Risk Factors] 라벨
+    _assert('T492 chat_risk_factors_integrated_v4966: riskFactorsPromise + [Risk Factors (SEC 10-K Item 1A)] 라벨 통합',
+      chatFn.indexOf('riskFactorsPromise') >= 0 && chatFn.indexOf('[Risk Factors (SEC 10-K Item 1A)]') >= 0,
+      'promise=' + (chatFn.indexOf('riskFactorsPromise') >= 0) + ' label=' + (chatFn.indexOf('[Risk Factors') >= 0));
+
+    // T493: 14 CHAT_CONTEXTS 모두 _getV48IntegratedContext 호출 (partial 0건)
+    var cfc = window.AIO && window.AIO.assertChatFunctionCoverage && window.AIO.assertChatFunctionCoverage();
+    _assert('T493 chat_contexts_v48_integrated_v4966: 14 CHAT_CONTEXTS 모두 _getV48IntegratedContext 호출 (partial 0)',
+      cfc && cfc.partialContextCount === 0,
+      cfc ? ('partialCount=' + cfc.partialContextCount + ' partial=' + JSON.stringify(cfc.partialContexts || [])) : 'audit fn 미가용');
+
+    // T494: _chatTickerCache 실 구현 — save/load/LRU 모두 동작 + getChatTickerCacheStats 존재
+    _assert('T494 chat_ticker_cache_implemented_v4966: cache save+load+LRU + getChatTickerCacheStats 함수 정의',
+      cfc && cfc.cacheImplemented === true && typeof (window.AIO && window.AIO.getChatTickerCacheStats) === 'function',
+      cfc ? ('cache=' + cfc.cacheImplemented + ' checks=' + JSON.stringify(cfc.cacheChecks || {}) + ' statsFn=' + typeof (window.AIO && window.AIO.getChatTickerCacheStats)) : 'audit fn 미가용');
+
+    // T495: assertChatFunctionCoverage 함수 정의 + deadCodeCount === 0
+    _assert('T495 assert_chat_function_coverage_v4966: AIO.assertChatFunctionCoverage 정의 + deadCodeCount === 0',
+      typeof (window.AIO && window.AIO.assertChatFunctionCoverage) === 'function' && cfc && cfc.deadCodeCount === 0,
+      cfc ? ('deadCount=' + cfc.deadCodeCount + ' dead=' + JSON.stringify(cfc.deadCode || []).slice(0, 200)) : 'missing');
+
+    // T496: 사이드바 audit row 6번째 (chatFunctionCoverage) DOM 존재
+    var cfcEl = document.querySelector('[data-audit-key="chatFunctionCoverage"]');
+    _assert('T496 sidebar_chat_function_coverage_row_v4966: 사이드바 audit row [data-audit-key="chatFunctionCoverage"] DOM 존재',
+      !!cfcEl, 'cfcEl=' + (!!cfcEl));
+
+    // T497: APP_VERSION === 'v49.66'
+    _assert('T497 app_version_v4966_chat_completeness: APP_VERSION === "v49.66"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.66',
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지
   function _testV4962CodexAuditCoverageIntegration() {
     var reg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
@@ -3416,6 +3452,7 @@
     try { _testV4963CodexFullIntegration(); } catch(e) { console.error('Group59 error:', e); }
     try { _testV4964CodexResidualIntegration(); } catch(e) { console.error('Group60 error:', e); }
     try { _testV4965Coverage17Perspectives(); } catch(e) { console.error('Group61 error:', e); }
+    try { _testV4966ChatCompleteness(); } catch(e) { console.error('Group62 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

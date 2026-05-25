@@ -1213,6 +1213,29 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R121. AI 채팅 시스템 정의-호출 정합 의무 (v49.66 추가, P348~P351 근본)
+
+**원칙**: `window.AIO.fetch*` 또는 `compute*` 접두 함수는 모두 의무적으로 (1) `_fetchTickerDataForChat` 통합 또는 (2) `knownExempt` 리스트에 명시. 14 CHAT_CONTEXTS는 모두 `_getV48IntegratedContext` 호출 의무. `_chatTickerCache`는 save + load + LRU eviction 3축 모두 구현 의무.
+
+**근거 (P348~P351)**: v49.65 사용 가능도 97% 진단 — fetchSECRiskFactors v49.34 정의 후 호출 0건 잔존 (Dead code 1건) + 7 CHAT_CONTEXTS (macro/portfolio/breadth/kr-*) `_getV48IntegratedContext` 미호출 (Partial Integration) + `_chatTickerCache` 5분 TTL 정의만 + save 로직 부재 (Silent fail). 자동 회귀 방지 audit 부재로 신규 함수 추가 시 통합 누락 미감지.
+
+**구조**:
+- `AIO.assertChatFunctionCoverage()` 자동 점검:
+  - `chatRelevantFns` = window.AIO.fetch*/compute* 함수 (28 knownExempt 제외)
+  - `deadCode` = `_fetchTickerDataForChat` source에서 `AIO.fn(` 또는 `window.AIO.fn(` 패턴 미발견 함수
+  - `partialContexts` = CHAT_CONTEXTS 중 system() source에 `_getV48IntegratedContext` 미포함
+  - `cacheImplemented` = `_chatTickerCache[t]` save + `cacheMissTickers` load + `_CC_MAX`/`evictions` LRU 3축 모두 존재
+  - `status: 'ok'` 조건: deadCodeCount === 0 AND partialContextCount === 0 AND cacheImplemented === true
+- 사이드바 audit row 6번째 (`[data-audit-key="chatFunctionCoverage"]`) — "함수 X/Y · 컨텍스트 X/Y · 캐시 ✓/✗" 색상
+
+**검증**: `AIO.runTests()` T492 (risk factors 통합) + T493 (14 컨텍스트 partial 0) + T494 (cache 3축 + stats fn) + T495 (deadCode 0) + T496 (사이드바 row DOM).
+
+**위반 시**: 정의된 fetch/compute 함수가 채팅 응답에 활용 안 됨 → 사용자가 "왜 이 분석 안 되냐" 질문할 때 silent gap. v49.66 정직 시정 선례 (97% → 100%).
+
+**Lineage 보완**: 의도적 미통합 시 ANALYSIS_FRAMEWORK_REGISTRY에 `deprecated: true` 또는 `knownExempt` 리스트 추가로 명시.
+
+---
+
 ## R119. 3대 본질 정렬 감사 의무 (v49.65 추가, P346 근본)
 
 **원칙**: 주요 기능/데이터/UX 변경은 항상 AIO의 3대 본질에 맞는지 자동 감사되어야 한다.

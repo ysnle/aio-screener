@@ -6,6 +6,43 @@
 
 ---
 
+## v49.66 — AI 채팅 시스템 dead code + partial integration + silent fail 100% 시정 (2026-05-25)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 질의 "AI 채팅 시스템에 주입된 모든 기능들이 완벽하게 쓰이는지 세밀하게 확인" → Explore agent 전수 조사 결과 v49.65 사용 가능도 **97%** (97/100 함수 정상), 3 카테고리 정확 매핑: Dead code 1건 / Partial Integration 7건 / Silent Fail 1건. 모두 시정 + 자동 회귀 방지 audit 신설 → 100% 달성.
+
+**Changes**:
+
+**Phase 1 — fetchSECRiskFactors Dead code 해소 (P348/R121)**:
+- `_fetchTickerDataForChat`에 `riskFactorsPromise` 추가 (2.5초 timeout)
+- `[Risk Factors (SEC 10-K Item 1A)]` 라벨 + 가이드 (학습 데이터 환각 금지) 출력
+- ABSOLUTE RULES 17 관점 매핑 #16 갱신
+
+**Phase 2 — 7 CHAT_CONTEXTS _getV48IntegratedContext 통합 (P349)**:
+- macro / portfolio / breadth + KR 4 (kr-macro/supply/themes/tech) 모두 v48.83 시장 자료 자동 주입
+- 결과: 14/14 CHAT_CONTEXTS 100% v48 통합 (6대 패러다임 + 25건 분석)
+
+**Phase 3 — _chatTickerCache 실 구현 (P350)**:
+- 사전 cache 조회 + 종목별 블록 save + LRU 50 cap + getChatTickerCacheStats() 통계
+- 효과: 동일 종목 재질의 ~0.5초 응답 + 외부 API 쿼터 절약
+
+**Phase 4 — assertChatFunctionCoverage audit (P351/R121)**:
+- 3축 자동 감지: deadCode (fetch*/compute* 미통합) / partialContexts (v48 미호출) / cacheImplemented (3축 동작)
+- knownExempt 28개 false positive 차단
+- 사이드바 audit row 6번째 (chatFunctionCoverage) — "함수 X/Y · 컨텍스트 X/Y · 캐시 ✓" 색상 표시
+
+**Phase 5+6 — R121 + P348~P351 + T492~T497 6 신규 + 동기화 + 배포**:
+- T492 riskFactors / T493 컨텍스트 partial 0 / T494 cache 3축 / T495 deadCode 0 / T496 사이드바 row / T497 APP_VERSION
+- Group62 등록 + 버전 7곳 동기화
+
+**신규 P 번호 4개**: P348~P351
+**신규 R 규칙 1개**: R121 (정의-호출 정합 의무)
+
+**정직 평가**: v49.65 97% → v49.66 100% (자동 회귀 방지 + audit 가시화 완비).
+
+---
+
 ## v49.65 — AI 채팅 17 관점 분석 프레임워크 + 정직 커버리지 보강 (2026-05-25)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

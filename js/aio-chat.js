@@ -157,6 +157,7 @@ const CHAT_CONTEXTS = {
         '6. 시간축 대비: 단기/중기/장기 각각 시나리오.\n' +
         '7. 경기 사이클 투자 가이드: 현재 국면에서 유리/불리한 자산군.\n' +
         '대시보드(매매 스코어 ' + s.score + '/100)·투자심리(시장 참가자 반응)·환율채권(금리/환율 심층) 페이지 연결.' +
+        _getV48IntegratedContext('macro') +
         _getChatRules();
     }
   },
@@ -779,6 +780,7 @@ const CHAT_CONTEXTS = {
         '사용자의 돈이 걸린 질문에 3줄 답변은 모욕이다. 멀티팩터 교차검증과 시나리오 분석으로 풍성하고 개인화된 분석을 제공하라.\n' +
         '보유 종목 티커를 반드시 인용. 차트 분석(종목별 Stage)·매크로(거시환경)·매매시그널(환경 점수) 페이지 연결.' +
         _buildMarketLeadersSnapshot() +
+        _getV48IntegratedContext('portfolio') +
         _getChatRules();
     }
   },
@@ -980,6 +982,7 @@ const CHAT_CONTEXTS = {
         '브레드쓰-지수 괴리: 지수 상승 + 브레드쓰 하락 = 불트랩(Bull Trap) 경고.\n\n' +
         '매매시그널(환경 점수)·차트 분석(기술 타이밍) 페이지 연결.' +
         _buildMarketLeadersSnapshot() +
+        _getV48IntegratedContext('breadth') +
         _getChatRules();
     }
   },
@@ -1111,6 +1114,7 @@ const CHAT_CONTEXTS = {
         '- BOK 정책 방향은 가계부채·원화 안정·글로벌 연준 사이클을 종합 판단\n' +
         '- 외국인 수급과 원화 방향의 상관관계 강조\n' +
         '- 지정학 리스크 언급 시 데이터 기반 한정\n' +
+        _getV48IntegratedContext('macro') +
         _getChatRules();
     }
   },
@@ -1129,6 +1133,7 @@ const CHAT_CONTEXTS = {
         '- 외국인/기관/개인 3주체 수급 방향과 주가 움직임의 연관성 분석\n' +
         '- 프로그램 매매(차익·비차익) 및 ETF 플로우 고려\n' +
         '- 장기 추세와 당일 수급 노이즈 구분\n' +
+        _getV48IntegratedContext('breadth') +
         _getChatRules();
     }
   },
@@ -1147,6 +1152,7 @@ const CHAT_CONTEXTS = {
         '- KRX 섹터(반도체·자동차·바이오·금융·에너지)의 상대강도 분석\n' +
         '- 테마 과열 신호(거래량 급증, PER 확장)와 순환매 전환 신호 구분\n' +
         '- RRG 차트 기반 리더/약화/라거/개선 사이클 해석\n' +
+        _getV48IntegratedContext('themes') +
         _getChatRules();
     }
   },
@@ -1167,6 +1173,7 @@ const CHAT_CONTEXTS = {
         '- Weinstein Stage: Stage 1(바닥 형성) → 2(상승) → 3(고점) → 4(하락)\n' +
         '- VKOSPI > 25 시 공포 과잉(저가매수 신호), < 15 시 안주 경계\n' +
         '- 주요 지지/저항: KOSPI 이동평균(20MA, 60MA, 120MA, 200MA) 기준\n' +
+        _getV48IntegratedContext('technical') +
         _getChatRules();
     }
   }
@@ -2000,6 +2007,28 @@ function _withTimeout(promise, ms, fallback) {
 }
 window._withTimeout = _withTimeout;
 
+// v49.66 P350 R121: _chatTickerCache 통계 — hit/miss/eviction/size 가시화
+window.AIO = window.AIO || {};
+window.AIO.getChatTickerCacheStats = function() {
+  var c = window._chatTickerCache || {};
+  var s = window._chatTickerCacheStats || { hits: 0, misses: 0, evictions: 0 };
+  var size = Object.keys(c).length;
+  var total = s.hits + s.misses;
+  var hitRate = total > 0 ? Math.round(s.hits / total * 100) : 0;
+  return {
+    size: size,
+    maxSize: 50,
+    ttlMinutes: 5,
+    hits: s.hits,
+    misses: s.misses,
+    evictions: s.evictions,
+    totalLookups: total,
+    hitRatePct: hitRate,
+    cachedTickers: Object.keys(c).sort(),
+    generatedAt: new Date().toISOString()
+  };
+};
+
 async function _fetchTickerDataForChat(tickers) {
   if (!tickers || tickers.length === 0) return '';
   var _f = function(v, dec) { return v != null && !isNaN(v) ? Number(v).toFixed(dec || 1) : 'N/A'; };
@@ -2007,8 +2036,35 @@ async function _fetchTickerDataForChat(tickers) {
   var fmpKey = _getApiKey('aio_fmp_key') || '';
   var results = [];
 
+  // v49.66 P350 R121: _chatTickerCache 실 구현 — 5분 TTL, 동일 종목 재질의 시 ~0.5초 응답 + 외부 API 쿼터 절약
+  window._chatTickerCache = window._chatTickerCache || {};
+  window._chatTickerCacheStats = window._chatTickerCacheStats || { hits: 0, misses: 0, evictions: 0 };
+  var _CC_TTL = 5 * 60 * 1000;
+  var _CC_MAX = 50;
+  // 사전 캐시 조회 — 만료되지 않은 종목은 캐시 결과 재사용, miss만 새로 fetch
+  var cacheMissTickers = [];
+  var cachedBlocks = [];
+  for (var _ci = 0; _ci < tickers.length; _ci++) {
+    var _ct = tickers[_ci];
+    var _cached = window._chatTickerCache[_ct];
+    if (_cached && (Date.now() - _cached.ts < _CC_TTL) && typeof _cached.block === 'string') {
+      cachedBlocks.push(_cached.block);
+      window._chatTickerCacheStats.hits++;
+    } else {
+      cacheMissTickers.push(_ct);
+      window._chatTickerCacheStats.misses++;
+    }
+  }
+  // 전부 cache hit이면 즉시 반환 (수신/취합 완전 회피)
+  if (cacheMissTickers.length === 0 && cachedBlocks.length > 0) {
+    return '\n\n【사용자가 물어본 종목 실시간 데이터 (cache hit)】\n' + cachedBlocks.join('\n') + '\n\n⚠️ ABSOLUTE RULES: 위 데이터는 5분 이내 캐시. cache TTL 만료 시 자동 재 fetch.\n';
+  }
+  // miss만 처리 (기존 흐름 유지)
+  tickers = cacheMissTickers;
+
   for (var i = 0; i < tickers.length; i++) {
     var t = tickers[i];
+    var _tickerBlockStart = results.length; // 캐시 저장용 — 이 종목의 결과 라인 시작 인덱스
     var data = null;
     // 1. _liveData 캐시 확인
     var ld = (window._liveData || {})[t];
@@ -2035,6 +2091,8 @@ async function _fetchTickerDataForChat(tickers) {
     var evEbitdaPromise    = window.AIO && window.AIO.computeEvEbitda            ? _withTimeout(window.AIO.computeEvEbitda(t).catch(function(){return null;}), _T, null) : null;
     var macroBetaPromise   = window.AIO && window.AIO.computeMacroBeta           ? _withTimeout(window.AIO.computeMacroBeta(t).catch(function(){return null;}), _T, null) : null;
     var shortPromise       = window.AIO && window.AIO.fetchFinnhubShortInterest  ? _withTimeout(window.AIO.fetchFinnhubShortInterest(t).catch(function(){return null;}), _T, null) : null;
+    // v49.66 P348 R121: fetchSECRiskFactors Dead code 해소 (#16 리스크 SEC 10-K Item 1A 직접 URL 인용)
+    var riskFactorsPromise = window.AIO && window.AIO.fetchSECRiskFactors        ? _withTimeout(window.AIO.fetchSECRiskFactors(t).catch(function(){return null;}), _T, null) : null;
     // v49.65 P340/P341 R116: 17 관점 분석 프레임워크 완성 — 6 신규 promise
     var supplyChainPromise = window.AIO && window.AIO.fetchSECSupplyChain        ? _withTimeout(window.AIO.fetchSECSupplyChain(t).catch(function(){return null;}), _T, null) : null;
     var partnershipPromise = window.AIO && window.AIO.fetchPartnershipAlerts     ? _withTimeout(window.AIO.fetchPartnershipAlerts(t, 6).catch(function(){return null;}), _T, null) : null;
@@ -2236,6 +2294,15 @@ async function _fetchTickerDataForChat(tickers) {
         }
       } catch(_shErr) {}
 
+      // v49.66 P348 R121 신규 (#16 리스크): Risk Factors — SEC 10-K Item 1A 직접 URL (fetchSECRiskFactors Dead code 해소)
+      try {
+        var rf = riskFactorsPromise ? await riskFactorsPromise : null;
+        if (rf && rf.available) {
+          results.push('  [Risk Factors (SEC 10-K Item 1A)] ' + (rf.riskFactorsUrl || '') + ' · SIC: ' + (rf.sicDescription || 'N/A'));
+          results.push('  [Risk Factors 가이드] Item 1A 섹션은 동일 10-K 문서 내 (위 [SEC 10-K] URL과 동일 파일). 종목별 사업/규제/매크로/경쟁/소송/사이버 리스크 정성 분석 시 위 URL 직접 fetch + Item 1A 섹션 인용. 학습 데이터로 "주요 리스크" 추정 절대 금지 (R117).');
+        }
+      } catch(_rfErr) {}
+
       // v49.65 P340 R116 신규 (#12 공급망): Supply Chain — SEC 10-K Item 1/1C 가이드
       try {
         var sc = supplyChainPromise ? await supplyChainPromise : null;
@@ -2318,9 +2385,27 @@ async function _fetchTickerDataForChat(tickers) {
       results.push('  ✅ 허용된 답변: "현재 ' + t + ' 실시간 데이터를 받아오지 못했습니다. Yahoo Finance(finance.yahoo.com/quote/' + t + ') 또는 Finnhub 등 외부 도구로 직접 확인을 권장합니다."');
       results.push('  ✅ 허용된 분석: 가격을 인용하지 않는 일반론적 사업 모델/경쟁사 비교/섹터 트렌드 (수치 없이) 만 답변하세요.');
     }
+    // v49.66 P350: 이 종목 처리 결과를 5분 TTL 캐시에 저장 (다음 동일 종목 질의 시 즉시 응답)
+    try {
+      var _tickerLines = results.slice(_tickerBlockStart);
+      if (_tickerLines.length > 0) {
+        window._chatTickerCache[t] = { block: _tickerLines.join('\n'), ts: Date.now() };
+        // LRU eviction — 50 종목 초과 시 가장 오래된 10개 삭제
+        var _ckeys = Object.keys(window._chatTickerCache);
+        if (_ckeys.length > _CC_MAX) {
+          _ckeys.sort(function(a, b) { return window._chatTickerCache[a].ts - window._chatTickerCache[b].ts; })
+            .slice(0, 10).forEach(function(k) {
+              delete window._chatTickerCache[k];
+              window._chatTickerCacheStats.evictions++;
+            });
+        }
+      }
+    } catch(_ccErr) {}
   }
+  // v49.66 P350: 캐시된 종목 결과를 신규 fetch 결과와 병합
+  if (cachedBlocks.length > 0) results = cachedBlocks.concat(results);
   if (results.length === 0) return '';
-  return '\n\n【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n\n📋 17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [SEC 10-K Item 1A] (Risk Factors) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- ⚠ 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
+  return '\n\n【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n\n📋 17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- ⚠ 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
 }
 
 // ── v34.2: 기업 내부 비교 분석 — 비즈니스 모델·수익 구조·해자 심층 데이터 ──

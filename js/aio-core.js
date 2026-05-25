@@ -5399,6 +5399,91 @@ window.AIO.getAnalysisFrameworkCoverageAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.66 P351 R121: assertChatFunctionCoverage — Dead code/Partial Integration/Silent Fail 자동 회귀 방지
+// AI 채팅 시스템에 정의된 fetch/compute 함수가 실제로 _fetchTickerDataForChat에 통합되었는지
+// + 14 CHAT_CONTEXTS가 _getV48IntegratedContext 호출했는지 + _chatTickerCache save 로직 존재 자동 검증
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertChatFunctionCoverage = function() {
+  // 1. window.AIO.fetch* / compute* 함수 목록 (채팅 통합 후보)
+  var chatRelevantFns = Object.keys(window.AIO || {}).filter(function(k) {
+    return /^(fetch|compute)[A-Z]/.test(k);
+  });
+  // 2. _fetchTickerDataForChat 소스에서 호출 검색
+  var chatSrc = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
+  // 알려진 deprecated/내부전용 — false positive 차단
+  var knownExempt = {
+    'fetchWithTimeout': true,         // 일반 fetch util
+    'fetchAllNews': true,             // briefing 페이지 전용
+    'fetchFearGreed': true,           // F&G 별도 fetch (CNN)
+    'fetchNaverNews': true,           // 뉴스 별도
+    'fetchTopAnalystEstimates': true, // 별도 표
+    'fetchFinnhubEconomicCalendar': true, // 별도
+    'fetchFRED': true,                // macro 별도
+    'fetchFMPProfile': true,          // 내부 helper
+    'fetchFMPRatios': true,           // 내부 helper
+    'fetchFMPCashflow': true,         // 내부 helper
+    'fetchFMPBalance': true,          // 내부 helper
+    'fetchFMPIncome': true,           // 내부 helper
+    'fetchFMPGrowth': true,           // 내부 helper
+    'fetchFMPDCF': true,              // 내부 helper
+    'fetchFMPPriceTarget': true,      // 내부 helper
+    'fetchFMPInstitutional': true,    // 내부 helper
+    'fetchFMPInsiderTrades': true,    // 내부 helper
+    'fetchFMPRevGeo': true,           // 내부 helper
+    'fetchFMPEstimates': true,        // 내부 helper
+    'fetchFMPExecutives': true,       // 내부 helper
+    'fetchFMPMetrics': true,          // 내부 helper
+    'fetchFinnhubEarningsCalendar': true,    // 이미 _fetchTickerDataForChat에 직접 호출
+    'fetchFinnhubRecommendation': true,      // 이미 _fetchTickerDataForChat에 직접 호출
+    'fetchNaverUSData': true,                // 이미 _fetchTickerDataForChat에 직접 호출
+    'fetchPolygonOptions': true       // options 페이지 전용
+  };
+  var deadCode = chatRelevantFns.filter(function(fn) {
+    if (knownExempt[fn]) return false;
+    // _fetchTickerDataForChat에 'AIO.fn(' 또는 'window.AIO.fn(' 패턴 검색
+    var pattern1 = new RegExp('AIO\\.' + fn + '\\(');
+    var pattern2 = new RegExp('window\\.AIO\\.' + fn + '\\(');
+    return !pattern1.test(chatSrc) && !pattern2.test(chatSrc);
+  });
+  // 3. CHAT_CONTEXTS 14개 _getV48IntegratedContext 호출 검증
+  var ctxIds = window.CHAT_CONTEXTS ? Object.keys(window.CHAT_CONTEXTS) : [];
+  var partialContexts = ctxIds.filter(function(id) {
+    var ctx = window.CHAT_CONTEXTS[id];
+    if (!ctx || typeof ctx.system !== 'function') return false;
+    var src = '';
+    try { src = ctx.system.toString(); } catch(_) {}
+    return src.indexOf('_getV48IntegratedContext') < 0;
+  });
+  // 4. silent fail 검증 — _chatTickerCache save 로직 존재 + LRU eviction
+  var hasCacheSave = chatSrc.indexOf('_chatTickerCache[t]') >= 0 || chatSrc.indexOf('_chatTickerCache[ t ]') >= 0;
+  var hasCacheLoad = chatSrc.indexOf('_chatTickerCache[_ct]') >= 0 || chatSrc.indexOf('cacheMissTickers') >= 0;
+  var hasLRU = chatSrc.indexOf('_CC_MAX') >= 0 || chatSrc.indexOf('evictions') >= 0;
+  var cacheImplemented = hasCacheSave && hasCacheLoad && hasLRU;
+  // 5. 정합 비율 계산
+  var integrated = chatRelevantFns.length - deadCode.length;
+  var integrationPct = chatRelevantFns.length > 0 ? Math.round(integrated / chatRelevantFns.length * 100) : 100;
+  var ctxIntegrated = ctxIds.length - partialContexts.length;
+  var ctxIntegrationPct = ctxIds.length > 0 ? Math.round(ctxIntegrated / ctxIds.length * 100) : 100;
+  return {
+    status: (deadCode.length === 0 && partialContexts.length === 0 && cacheImplemented) ? 'ok' : 'warn',
+    chatRelevantFnCount: chatRelevantFns.length,
+    integratedFnCount: integrated,
+    deadCode: deadCode,
+    deadCodeCount: deadCode.length,
+    integrationPct: integrationPct,
+    contextTotal: ctxIds.length,
+    contextIntegrated: ctxIntegrated,
+    partialContexts: partialContexts,
+    partialContextCount: partialContexts.length,
+    contextIntegrationPct: ctxIntegrationPct,
+    cacheImplemented: cacheImplemented,
+    cacheChecks: { save: hasCacheSave, load: hasCacheLoad, lru: hasLRU },
+    note: 'Dead code 0건 + Partial 0건 + Cache 구현 = ok. 알려진 내부/페이지 전용 함수는 knownExempt로 false positive 차단.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.34 신규 fetch: fetchSECBusinessDescription
 // SEC EDGAR 10-K Item 1 (Business) 본문 fetch. 비즈니스 구조/사업 모델/공급망 출처.
 // data.sec.gov 무료 + CORS 가능 (단 일부 프록시 필요)
@@ -8982,6 +9067,23 @@ window._aioRefreshAuditWidget = function() {
         }
       } catch(e) { essenceEl.textContent = '⚠ essence audit error'; }
     }
+    // v49.66 P351 R121: AI 채팅 함수 통합 — Dead code/Partial Integration/Silent Fail 자동 감지
+    var cfcEl = container.querySelector('[data-audit-key="chatFunctionCoverage"]');
+    if (cfcEl) {
+      try {
+        var cfc = window.AIO && window.AIO.assertChatFunctionCoverage && window.AIO.assertChatFunctionCoverage();
+        if (cfc) {
+          var icon7 = cfc.status === 'ok' ? '✓' : cfc.status === 'warn' ? '⚠' : '✗';
+          var color7 = cfc.status === 'ok' ? 'var(--data-green)' : cfc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var fnPart = '함수 <b>' + cfc.integratedFnCount + '/' + cfc.chatRelevantFnCount + '</b> (' + cfc.integrationPct + '%)';
+          var ctxPart = '컨텍스트 ' + cfc.contextIntegrated + '/' + cfc.contextTotal + ' (' + cfc.contextIntegrationPct + '%)';
+          var cachePart = cfc.cacheImplemented ? '캐시 ✓' : '캐시 ✗';
+          cfcEl.innerHTML = '<span style="color:' + color7 + ';">' + icon7 + '</span> 채팅 통합 ' + fnPart + ' · ' + ctxPart + ' · ' + cachePart;
+        } else {
+          cfcEl.innerHTML = '<span style="color:var(--text-muted);">— chatFunctionCoverage audit 미가용</span>';
+        }
+      } catch(e) { cfcEl.textContent = '⚠ chatFunctionCoverage error'; }
+    }
   } catch(e) { /* 위젯 갱신 실패는 silent */ }
 };
 // 페이지 로드 후 자동 1회 + 5분마다 갱신
@@ -10703,7 +10805,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.65';
+const APP_VERSION = 'v49.66';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

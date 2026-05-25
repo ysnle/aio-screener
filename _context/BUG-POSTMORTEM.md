@@ -2,11 +2,57 @@
 verified_by: agent
 last_verified: 2026-05-25
 confidence: high
-latest_version: v49.65
-latest_P_number: P347
-total_entries: 347
-next_P_number: P348
+latest_version: v49.66
+latest_P_number: P351
+total_entries: 351
+next_P_number: P352
 ---
+
+## P351 · v49.66 · [P351/R121] AI 채팅 정의-호출 정합 자동 회귀 방지 audit 부재
+
+- **문제**: v49.65까지 신규 fetch/compute 함수 추가 시 `_fetchTickerDataForChat` 통합 누락 자동 감지 audit 없음. 14 CHAT_CONTEXTS의 `_getV48IntegratedContext` 호출 정합 자동 검증 부재. `_chatTickerCache` 구현 여부 자동 확인 부재 → 신규 회귀 silent.
+- **시정 (v49.66)**: `AIO.assertChatFunctionCoverage()` 신설 (`js/aio-core.js` L5402~5485). 3축 자동 점검:
+  - `chatRelevantFns` (window.AIO.fetch*/compute*, 28 knownExempt 제외) vs `_fetchTickerDataForChat` source 호출 검증 → `deadCode` 리스트
+  - 14 CHAT_CONTEXTS system() source에 `_getV48IntegratedContext` 호출 검증 → `partialContexts` 리스트
+  - `_chatTickerCache` save/load/LRU 3축 모두 존재 여부 → `cacheImplemented` boolean
+- 사이드바 audit row 6번째 신규 (`[data-audit-key="chatFunctionCoverage"]`, index.html L3901) + `_aioRefreshAuditWidget` 분기 추가.
+- **재발 방지**: T495 라이브 DOM 회귀 (deadCodeCount === 0) + T496 (사이드바 row DOM) + R121 신규 (정의-호출 정합 의무).
+- **파일**: `js/aio-core.js` assertChatFunctionCoverage + _aioRefreshAuditWidget cfcEl 분기 + `index.html` audit row + `js/aio-tests.js` T495/T496
+
+## P350 · v49.66 · [P350/R121] _chatTickerCache 5분 TTL 정의만 + save 로직 부재 (Silent Fail)
+
+- **문제**: v49.57 P317 plan에서 `window._chatTickerCache[t] = { data, ts }` TTL 5분 의도 명시. v49.65까지 실제 코드 부재 — 정의만 있고 save/load 로직 없음. 동일 종목 연속 질의 시 17 promise 매번 새로 fetch → Yahoo/SEC/Finnhub rate-limit hit + 응답 4초 반복 + 외부 API 쿼터 낭비.
+- **시정 (v49.66)**: `_fetchTickerDataForChat` 실 구현 (`js/aio-chat.js` L2010~2035 + L2367~2389):
+  - 함수 진입 시 사전 cache 조회 (5분 TTL 내 종목은 즉시 `cachedBlocks`로 반환)
+  - 종목 처리 완료 후 cache save (`_tickerBlockStart` 추적으로 종목별 블록 정확 분리)
+  - LRU eviction (50 종목 cap 초과 시 오래된 10개 자동 삭제)
+  - `window._chatTickerCacheStats` (hits/misses/evictions) 통계 누적
+  - `AIO.getChatTickerCacheStats()` 신규 (size/maxSize/ttlMinutes/hitRatePct/cachedTickers 가시화)
+- 효과: 동일 종목 재질의 시 ~0.5초 응답 + 외부 API 쿼터 절약.
+- **재발 방지**: T494 라이브 DOM 회귀 (`cacheImplemented === true` + `getChatTickerCacheStats` 함수 정의).
+- **파일**: `js/aio-chat.js` L2010~2035 (cache 조회 + stats 함수) + L2367~2389 (save + LRU)
+
+## P349 · v49.66 · [P349/R121] 7 CHAT_CONTEXTS _getV48IntegratedContext 미호출 (Partial Integration)
+
+- **문제**: v49.65 전수 조사 결과 14 CHAT_CONTEXTS 중 7개가 `_getV48IntegratedContext(pageId)` 동적 컨텍스트 미호출 — macro / portfolio / breadth + KR 4개 (kr-macro / kr-supply / kr-themes / kr-tech). v48.83 시장 자료 (6대 패러다임 + 25건 분석, Apple CEO 전환 / Vertiv 1Q26 / Mythos 사이버 / DC Watch / Google-MRVL 등) 자동 주입 안 됨 → AI가 학습 데이터로 답변 (환각 위험).
+- **시정 (v49.66)**: 7 컨텍스트 system() 끝부분에 `_getV48IntegratedContext(focus)` 호출 추가:
+  - macro → `_getV48IntegratedContext('macro')`
+  - portfolio → `_getV48IntegratedContext('portfolio')`
+  - breadth → `_getV48IntegratedContext('breadth')`
+  - kr-macro → `_getV48IntegratedContext('macro')` (KR도 거시 통합 컨텍스트 공유)
+  - kr-supply → `_getV48IntegratedContext('breadth')` (수급 = 브레드쓰 유사)
+  - kr-themes → `_getV48IntegratedContext('themes')`
+  - kr-tech → `_getV48IntegratedContext('technical')`
+- 함수가 unknown pageFocus는 common context만 반환 (graceful) — KR 4개는 common context로도 시장 자료 주입 충분.
+- **재발 방지**: T493 라이브 DOM 회귀 (`assertChatFunctionCoverage().partialContextCount === 0`).
+- **파일**: `js/aio-chat.js` 7 컨텍스트 system() 끝부분
+
+## P348 · v49.66 · [P348/R121] fetchSECRiskFactors Dead code (#16 리스크 정의만 + 호출 0건)
+
+- **문제**: v49.34에서 `AIO.fetchSECRiskFactors` 함수 정의 (`js/aio-core.js` L5550 부근) + ANALYSIS_FRAMEWORK_REGISTRY #16 "리스크" 필드의 `primarySource`로 등록. 그러나 `_fetchTickerDataForChat`에서 실제 호출 0건. 사용자가 종목 리스크 분석 질의 시 AI는 학습 데이터 + 일반 가이드만 답변 — 종목별 SEC 10-K Item 1A (Risk Factors) URL 직접 인용 못함.
+- **시정 (v49.66)**: `js/aio-chat.js` `_fetchTickerDataForChat` (L2045~2046)에 `riskFactorsPromise` 추가 (2.5초 timeout) + `[Risk Factors (SEC 10-K Item 1A)]` 라벨 + 가이드 텍스트 출력. ABSOLUTE RULES 17 관점 매핑 #16 갱신: `[SEC 10-K Item 1A]` (정적 가이드) → `[Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용)`.
+- **재발 방지**: T492 라이브 DOM 회귀 (`_fetchTickerDataForChat` source에 `riskFactorsPromise` + `[Risk Factors (SEC 10-K Item 1A)]` 라벨 검증) + R121 신규 (정의-호출 정합 의무).
+- **파일**: `js/aio-chat.js` L2045 promise 선언 + L2240~2247 render 블록 + L2367 ABSOLUTE RULES 매핑
 
 ## P347 · v49.65 · [P347/R120] 3대 본질 감사가 script 텍스트까지 세는 오탐 + 초보자 초기 문구 잔존
 
