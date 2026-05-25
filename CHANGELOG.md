@@ -6,6 +6,51 @@
 
 ---
 
+## v49.68 — AI 채팅 기관급 퀄리티 + 유기적 작동 + 의미 기반 시정 (2026-05-26)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `js/aio-ui.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 지적 "단순 겉만 훑지 말고 의미/내용/의도 파악. AI 채팅 시스템 전체가 유기적으로 기관급 퀄리티" → Explore agent 의미적 정밀 진단 결과 v49.67 기관급 통합도 32% (3.5/11) + Bull/Base/Bear 미강제 + 시각 단서 부재 + 데이터 소스 우선순위 미명문화 + 14 컨텍스트 일관성 audit 부재 5 갭 시정.
+
+**Changes**:
+
+**Phase 1 — 기관급 분석 프레임워크 8개 통합 (P360/R126)**:
+- `_getInstitutionalFrameworkContext(pageFocus)` 신규 — Bridgewater All Weather / Druckenmiller / Howard Marks / Buffett / Ackman / Soros / GS GIR / Morgan Stanley Cyclical 8 프레임 정의
+- `_getV48IntegratedContext` 자동 호출 → 14 CHAT_CONTEXTS 모두 자동 주입
+- 페이지별 우선 프레임 매핑 (macro→Bridgewater+Druckenmiller / fundamental→Buffett+Ackman 등)
+- ABSOLUTE RULES 11조 (8 프레임 중 1~3개 인용 의무)
+
+**Phase 2 — Bull/Base/Bear 시나리오 + 시각 단서 (P361/R127/R128)**:
+- 시장 환경 헤더 VIX/F&G/Score 이모지 자동 (🔴 ≥25 / 🟡 ≥20 / 🟢 안정)
+- ABSOLUTE RULES 9조 (시나리오 분기 X+Y+Z=100) + 10조 (이모지 표준 + Source · 기준일)
+- 답변 구조 강제 (결론 → 3 핵심 → 시나리오 → 액션)
+
+**Phase 3 — 데이터 소스 우선순위 (P363/R128)**:
+- ABSOLUTE RULES 12조 — _liveSnap → _closeSnap → DATA_SNAPSHOT → fetched 4순위
+- 폴백값 인용 시 "(폴백)" + Source · 기준일 명시 의무
+
+**Phase 4 — AIO.getChatContextConsistencyAudit (P362/R128)**:
+- 14 CHAT_CONTEXTS × 5 측면 + _fetchTickerDataForChat 5 측면 → qualityScore 0~100
+- 가중치: 프레임 25 + 라이브 15 + 시나리오 10 + 시각 5 + 출처 5 + 채팅 함수 40
+- 사이드바 audit row **8번째** (chatContextConsistency)
+
+**Codex P357~P359 동시 통합 (R123~R125)**:
+- P357/R123: 사이드바 REGISTRY row 의미 분리 (real/total + alias) + chat freshness (current/archive) + T505~T507
+- P358/R124: AIO.getFullSurfaceAudit() DOM-first + AutoOps + deployment gate + T508~T514
+- P359/R125: AIO.getDeepReviewAudit() 2nd/3rd-pass + AutoOps + deployment gate + T515~T520
+
+**Phase 5+6 — R126~R128 + P360~P364 + T521~T530 10 신규 (Group64) + 동기화 7곳**:
+- T521 8 프레임 / T522 v48 → instFw / T523 시나리오 / T524 이모지 + 타임스탬프
+- T525 ABSOLUTE RULES 9~12조 / T526 audit / T527 qualityScore ≥60
+- T528 사이드바 row / T529 14 컨텍스트 12+ 프레임 / T530 APP_VERSION
+
+**신규 P 번호 5개**: P360~P364
+**신규 R 규칙 3개**: R126 (기관급 8 프레임 인용 의무) + R127 (Bull/Base/Bear 분기) + R128 (시각 단서 + 데이터 우선순위)
+
+**정직 평가**: v49.67 "시세 폴백 + 시장 헤더" → v49.68 "의미 기반 기관급 퀄리티 + 14 컨텍스트 유기적 수렴 + 8 기관급 프레임 명시 인용 의무 + 4 audit 자동 진단".
+
+---
+
 ## v49.67 — 사용자 체감 품질 정직 시정 (시세 폴백 4단계 + 시장 헤더 자동 주입 + 자동 진단) (2026-05-26)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
@@ -11637,3 +11682,10 @@ Signal 페이지를 Bloomberg Terminal급 **"지금 거래해야 할까? / Shoul
 
 - 파일: `aio_ui_prototype-9d072106.html`
 - 원본 기준점. 이후 모든 버전의 CSS·사이드바 소스.
+## Codex v49.67 hardening addendum — audit rows + DOM-first full surface audit (2026-05-26)
+
+- **P357/R123**: Sidebar REGISTRY row now separates real ticker entries from alias coverage; chat context freshness separates current stale hits from archive/reference hits. Guarded by T505-T507.
+- **P358/R124**: Added `AIO.getFullSurfaceAudit()` for DOM-first page surface inventory across every `.page[id]` plus registered non-route overlays: headings, sections/cards, data sinks, controls, tables, charts, explainers, visible loading text, brief coverage, and sequential registry coverage. Wired to sidebar `[data-audit-key="fullSurface"]`, `AIO.getAutoOpsReadiness()`, `AIO.getDeploymentGateAudit()`, and T508-T514.
+- **P359/R125**: Added `AIO.getDeepReviewAudit()` for second/third-pass review over meaning-bearing text snippets, delegated input handlers, unlabeled controls, dense jargon, console-only hints, and data-sink lineage/explainer coverage. Wired to sidebar `[data-audit-key="deepReview"]`, `AIO.getAutoOpsReadiness()`, `AIO.getDeploymentGateAudit()`, and T515-T520.
+
+---

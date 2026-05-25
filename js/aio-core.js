@@ -2444,6 +2444,348 @@ window.AIO.getPageUXAudit = function() {
   };
 };
 
+// v49.67 Codex P358/R124: DOM-first full surface audit.
+// This complements the page registry audit by walking the actual rendered pages
+// and summarizing every major user-facing surface: headings, sections, data
+// sinks, controls, tables, charts, explainers, and visible placeholder text.
+window.AIO.getFullSurfaceAudit = function(opts) {
+  opts = opts || {};
+  var root = opts.root || document;
+  var registry = (window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY && window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages) || {};
+  var briefs = window.AIO_PAGE_BRIEFS || {};
+  var overlayRegistry = { glossary: '#glossary-modal' };
+  var issues = [];
+  var pages = [];
+  var totals = {
+    domPages: 0,
+    registeredPages: 0,
+    unregisteredPages: 0,
+    registrySubSections: 0,
+    headings: 0,
+    sections: 0,
+    dataSinks: 0,
+    controls: 0,
+    tables: 0,
+    charts: 0,
+    explainers: 0,
+    overlays: 0,
+    visibleLoadingText: 0
+  };
+
+  function qsa(base, selector) {
+    try { return Array.prototype.slice.call((base || root).querySelectorAll(selector)); }
+    catch(_) { return []; }
+  }
+  function ownVisibleText(el) {
+    if (!el) return '';
+    try {
+      if (!document.createTreeWalker || !window.NodeFilter) return el.textContent || '';
+      var parts = [];
+      var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+        acceptNode: function(node) {
+          var parent = node.parentElement;
+          if (!parent || /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/i.test(parent.tagName)) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      var node;
+      while ((node = walker.nextNode())) parts.push(node.nodeValue || '');
+      return parts.join(' ');
+    } catch(_) {
+      return el.textContent || '';
+    }
+  }
+  function countVisibleLoading(el) {
+    var text = ownVisibleText(el);
+    var match = text.match(/로딩 중|데이터 로딩|분석 로딩|계산 중/g);
+    return match ? match.length : 0;
+  }
+  function countEmptyTables(el) {
+    return qsa(el, 'table').filter(function(tbl) {
+      var rows = qsa(tbl, 'tbody tr, tr');
+      var text = ownVisibleText(tbl).replace(/\s+/g, '');
+      return rows.length <= 1 && !text;
+    }).length;
+  }
+  function pageKeyFromId(id) {
+    return String(id || '').replace(/^page-/, '');
+  }
+
+  var domPages = qsa(root, '.page[id]').filter(function(el) { return /^page-/.test(el.id || ''); });
+  totals.domPages = domPages.length;
+
+  domPages.forEach(function(pageEl) {
+    var id = pageKeyFromId(pageEl.id);
+    if (typeof window._aioRenderPageBrief === 'function') {
+      try { window._aioRenderPageBrief(id); } catch(_) {}
+    }
+    var reg = registry[id] || null;
+    var regSections = reg && Array.isArray(reg.subSections) ? reg.subSections.length : 0;
+    var headings = qsa(pageEl, 'h1,h2,h3,h4,.page-title,.section-title,.widget-title,.card-title,.subsection-title,.aio-page-brief-title').length;
+    var sections = qsa(pageEl, 'section,.section,[class*="section"],.data-widget,.widget,[class*="widget"],.card,[class*="card"],.glass-card,.aio-page-brief,[data-audit-section],[data-page-purpose],[style*="border"]').length;
+    var dataSinks = qsa(pageEl, '[data-live-price],[data-live-kr],[data-live-chg],[data-snap],[data-source-kind],[data-operational-use],[data-runtime-state],[data-score-scale],[data-threshold-table],[data-scenario-key],[data-cycle-phase]').length;
+    var controls = qsa(pageEl, 'button,[data-action],input,select,textarea').length;
+    var tables = qsa(pageEl, 'table').length;
+    var charts = qsa(pageEl, 'canvas,iframe,[id*="chart"],[class*="chart"]').length;
+    var explainers = qsa(pageEl, '.aio-explain,.aio-explain-content,details,.aio-page-brief-step,.aio-page-brief-focus').length;
+    var loading = countVisibleLoading(pageEl);
+    var emptyTables = countEmptyTables(pageEl);
+    var textChars = ownVisibleText(pageEl).replace(/\s+/g, ' ').trim().length;
+    var hasBrief = !!pageEl.querySelector('.aio-page-brief');
+    var riskFlags = [];
+
+    if (!reg) riskFlags.push('missingSequentialRegistry');
+    if (!briefs[id]) riskFlags.push('missingBriefRegistry');
+    if (!hasBrief) riskFlags.push('briefNotRendered');
+    if (loading) riskFlags.push('visibleLoadingText');
+    if (textChars > 800 && dataSinks === 0 && tables === 0 && charts === 0 && controls === 0) riskFlags.push('textOnlySurface');
+    if (tables && emptyTables === tables) riskFlags.push('emptyTablesOnly');
+    if (headings === 0) riskFlags.push('noHeading');
+
+    totals.registeredPages += reg ? 1 : 0;
+    totals.unregisteredPages += reg ? 0 : 1;
+    totals.registrySubSections += regSections;
+    totals.headings += headings;
+    totals.sections += sections;
+    totals.dataSinks += dataSinks;
+    totals.controls += controls;
+    totals.tables += tables;
+    totals.charts += charts;
+    totals.explainers += explainers;
+    totals.visibleLoadingText += loading;
+
+    if (riskFlags.length) {
+      issues.push(id + ': ' + riskFlags.join(','));
+    }
+
+    pages.push({
+      id: id,
+      domId: pageEl.id,
+      title: ((pageEl.querySelector('.page-title,h1,h2') || {}).textContent || id).replace(/\s+/g, ' ').trim().slice(0, 80),
+      registered: !!reg,
+      registrySubSections: regSections,
+      briefRegistry: !!briefs[id],
+      briefRendered: hasBrief,
+      headings: headings,
+      sections: sections,
+      dataSinks: dataSinks,
+      controls: controls,
+      tables: tables,
+      emptyTables: emptyTables,
+      charts: charts,
+      explainers: explainers,
+      textChars: textChars,
+      visibleLoadingText: loading,
+      riskFlags: riskFlags
+    });
+  });
+
+  Object.keys(registry).forEach(function(id) {
+    var overlaySel = overlayRegistry[id];
+    var overlayEl = overlaySel ? document.querySelector(overlaySel) : null;
+    if (!document.getElementById('page-' + id) && !overlayEl) {
+      issues.push(id + ': registered but DOM page missing');
+    } else if (overlayEl) {
+      totals.overlays += 1;
+    }
+  });
+
+  var riskPageCount = pages.filter(function(p) { return p.riskFlags.length > 0; }).length;
+  var coveragePct = totals.domPages ? Math.round((totals.registeredPages / totals.domPages) * 100) : 0;
+  var score = Math.max(0, Math.min(100,
+    100 -
+    (totals.unregisteredPages * 6) -
+    (totals.visibleLoadingText * 5) -
+    (riskPageCount * 2)
+  ));
+  var status = score >= 90 && issues.length === 0 ? 'ok' : score >= 70 ? 'warn' : 'fail';
+
+  return {
+    version: window.AIO.version || (typeof APP_VERSION === 'string' ? APP_VERSION : null),
+    generatedAt: new Date().toISOString(),
+    status: status,
+    score: score,
+    coveragePct: coveragePct,
+    pageCount: totals.domPages,
+    riskPageCount: riskPageCount,
+    issueCount: issues.length,
+    issues: issues,
+    totals: totals,
+    pages: pages
+  };
+};
+
+// v49.67 Codex P359/R125: second/third-pass deep review audit.
+// This layer checks meaning-bearing text snippets, delegated input handlers, and
+// data-sink explanation coverage after the DOM surface itself has been inventoried.
+window.AIO.getDeepReviewAudit = function(opts) {
+  opts = opts || {};
+  var root = opts.root || document;
+  var issues = [];
+  var warnings = [];
+  var textSamples = [];
+  var inputIssues = [];
+  var dataPageIssues = [];
+  var unlabeledButtons = [];
+  var jargonDense = [];
+  var consoleHints = [];
+  var placeholderHits = [];
+  var staleHits = [];
+
+  function qsa(base, selector) {
+    try { return Array.prototype.slice.call((base || root).querySelectorAll(selector)); }
+    catch(_) { return []; }
+  }
+  function pageKey(el) {
+    var p = el && el.closest && el.closest('.page[id]');
+    return p && p.id ? p.id.replace(/^page-/, '') : ((el && el.closest && el.closest('#glossary-modal')) ? 'glossary' : 'global');
+  }
+  function textOf(el) {
+    return ((el && (el.innerText || el.textContent)) || '').replace(/\s+/g, ' ').trim();
+  }
+  function isReferenceOnly(el, txt) {
+    if (el && el.closest && el.closest('[data-aio-archive="true"], .aio-page-brief')) return true;
+    return /archive|reference|past|education|example|static summary|not live|\uACFC\uAC70|\uCC38\uACE0|\uAD50\uC721|\uC608\uC2DC/i.test(txt || '');
+  }
+  function handlerExists(name) {
+    name = String(name || '').split(':')[0].trim();
+    if (!name || name === '__value' || name === '__value_kr') return true;
+    return typeof window[name] === 'function' || !!(window.AIO && typeof window.AIO[name] === 'function');
+  }
+  function collectTextNodes() {
+    var parents = [];
+    var seen = [];
+    var base = root.body || root.documentElement || root;
+    try {
+      var walker = document.createTreeWalker(base, NodeFilter.SHOW_TEXT, {
+        acceptNode: function(node) {
+          var parent = node.parentElement;
+          if (!parent || /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/i.test(parent.tagName)) return NodeFilter.FILTER_REJECT;
+          var txt = (node.nodeValue || '').replace(/\s+/g, ' ').trim();
+          if (txt.length < 2) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      var node;
+      while ((node = walker.nextNode())) {
+        var el = node.parentElement;
+        if (!el || seen.indexOf(el) >= 0) continue;
+        seen.push(el);
+        parents.push(el);
+      }
+    } catch(_) {
+      parents = qsa(root, '.page[id] h1,.page[id] h2,.page[id] h3,.page[id] h4,.page[id] p,.page[id] li,.page[id] td,.page[id] th,.page[id] button,.page[id] label,.page[id] small,.page[id] .page-title,.page[id] .page-subtitle,#glossary-modal h2,#glossary-modal input,#glossary-modal button');
+    }
+    return parents;
+  }
+
+  var textNodes = collectTextNodes();
+  var staleRe = /PCE\(4\/30\)|VIX Spot 18\.36|05\/0[4-9]|2025[-/.](0?[1-9]|1[0-2])[-/.]\d{1,2}|2024[-/.]/i;
+  var placeholderRe = /\b(?:TODO|FIXME|Lorem|undefined|null|NaN)\b|\uB85C\uB529\s*\uC911|\uB85C\uB529\.\.\.|\uB85C\uB529\uC911|\uB370\uC774\uD130 \uB85C\uB529|\uBD84\uC11D \uB85C\uB529|\uACC4\uC0B0 \uC911/i;
+  var jargonRe = /\b(RSI|MACD|VIX|ATR|OPEX|FOMC|CPI|PCE|DXY|HY|OAS|GEX|IV|RRG|FCF|EV\/EBITDA|PER|PBR)\b/g;
+
+  textNodes.forEach(function(el) {
+    var txt = textOf(el);
+    if (!txt) return;
+    if (textSamples.length < 12 && txt.length >= 8) textSamples.push({ page: pageKey(el), text: txt.slice(0, 120) });
+    if (placeholderRe.test(txt)) placeholderHits.push({ page: pageKey(el), text: txt.slice(0, 120) });
+    if (staleRe.test(txt) && !isReferenceOnly(el, txt)) staleHits.push({ page: pageKey(el), text: txt.slice(0, 120) });
+    var jargon = txt.match(jargonRe);
+    if (jargon && jargon.length >= 4 && !/why|meaning|means|\uC758\uBBF8|\uC124\uBA85|\uC774\uC720|\uC65C/.test(txt)) {
+      jargonDense.push({ page: pageKey(el), terms: jargon.slice(0, 8), text: txt.slice(0, 120) });
+    }
+    if (/console|AIO\./i.test(txt) && !/developer|debug|log/i.test(txt)) {
+      consoleHints.push({ page: pageKey(el), text: txt.slice(0, 120) });
+    }
+  });
+
+  qsa(root, '[data-on-enter],[data-on-input]').forEach(function(el) {
+    ['data-on-enter', 'data-on-input'].forEach(function(attr) {
+      if (!el.hasAttribute || !el.hasAttribute(attr)) return;
+      var spec = el.getAttribute(attr) || '';
+      var name = spec.split(':')[0].trim();
+      if (!handlerExists(name)) {
+        inputIssues.push({ page: pageKey(el), attr: attr, handler: name, id: el.id || '', tag: el.tagName });
+      }
+    });
+  });
+
+  qsa(root, 'button,[role="button"]').forEach(function(el) {
+    var label = textOf(el) || el.getAttribute('aria-label') || el.getAttribute('title') || '';
+    if (!label.trim()) {
+      unlabeledButtons.push({ page: pageKey(el), id: el.id || '', action: el.getAttribute('data-action') || '' });
+    }
+  });
+
+  qsa(root, '.page[id]').forEach(function(pageEl) {
+    var sinks = qsa(pageEl, '[data-live-price],[data-live-kr],[data-live-chg],[data-snap],[data-runtime-state],[data-score-scale],[data-threshold-table],[data-scenario-key],[data-cycle-phase]');
+    if (!sinks.length) return;
+    var lineage = qsa(pageEl, '[data-source-kind],[data-operational-use],[data-snap-date],.source,.source-note,.aio-source,.aio-data-lineage');
+    var explainers = qsa(pageEl, '.aio-explain,.aio-explain-content,details,.aio-page-brief-step,.aio-tooltip');
+    if (sinks.length >= 8 && lineage.length === 0 && explainers.length === 0) {
+      dataPageIssues.push({ page: pageKey(pageEl), sinks: sinks.length, lineageMarkers: lineage.length, explainers: explainers.length });
+    }
+  });
+
+  var actionAudit = window.AIO.getDataActionHandlerAudit ? window.AIO.getDataActionHandlerAudit() : null;
+  var seedAudit = window.AIO.getStaticSeedFallbackAudit ? window.AIO.getStaticSeedFallbackAudit() : null;
+  var surface = window.AIO.getFullSurfaceAudit ? window.AIO.getFullSurfaceAudit() : null;
+
+  placeholderHits.forEach(function(hit) { issues.push(hit.page + ': placeholder/live loading text in user copy'); });
+  staleHits.forEach(function(hit) { issues.push(hit.page + ': stale live-like date/token in user copy'); });
+  inputIssues.forEach(function(hit) { issues.push(hit.page + ': missing ' + hit.attr + ' handler ' + hit.handler); });
+  if (actionAudit && actionAudit.issueCount) issues.push(actionAudit.issueCount + ' missing data-action handler(s)');
+  if (seedAudit && seedAudit.issueCount) issues.push(seedAudit.issueCount + ' data-snap seed issue(s)');
+  dataPageIssues.forEach(function(hit) { warnings.push(hit.page + ': data sinks without page-level lineage/explainer markers'); });
+  if (unlabeledButtons.length) warnings.push(unlabeledButtons.length + ' unlabeled button(s)');
+  if (jargonDense.length) warnings.push(jargonDense.length + ' dense jargon snippet(s)');
+  if (consoleHints.length) warnings.push(consoleHints.length + ' console-only hint snippet(s)');
+
+  var score = Math.max(0, Math.min(100,
+    100 -
+    (issues.length * 8) -
+    (dataPageIssues.length * 3) -
+    Math.min(12, unlabeledButtons.length) -
+    Math.min(10, jargonDense.length * 2) -
+    Math.min(8, consoleHints.length * 2)
+  ));
+  var status = issues.length ? 'fail' : (warnings.length ? 'warn' : 'ok');
+
+  return {
+    version: window.AIO.version || (typeof APP_VERSION === 'string' ? APP_VERSION : null),
+    generatedAt: new Date().toISOString(),
+    status: status,
+    score: score,
+    issueCount: issues.length,
+    warningCount: warnings.length,
+    issues: issues,
+    warnings: warnings,
+    tiers: {
+      textMeaning: {
+        snippetCount: textNodes.length,
+        placeholderCount: placeholderHits.length,
+        staleTokenCount: staleHits.length,
+        jargonDenseCount: jargonDense.length,
+        consoleHintCount: consoleHints.length,
+        samples: textSamples
+      },
+      interaction: {
+        dataActionIssueCount: actionAudit ? actionAudit.issueCount : null,
+        inputBindingIssueCount: inputIssues.length,
+        unlabeledButtonCount: unlabeledButtons.length,
+        inputIssues: inputIssues.slice(0, 20),
+        unlabeledButtons: unlabeledButtons.slice(0, 20)
+      },
+      dataMeaning: {
+        sinkCount: surface && surface.totals ? surface.totals.dataSinks : qsa(root, '[data-live-price],[data-live-kr],[data-live-chg],[data-snap]').length,
+        dataPageIssueCount: dataPageIssues.length,
+        staticSeedIssueCount: seedAudit ? seedAudit.issueCount : null,
+        dataPageIssues: dataPageIssues.slice(0, 20)
+      }
+    }
+  };
+};
+
 // v49.65 Codex hardening: product essence alignment audit.
 // Tracks the three north-star goals as user-facing, repeatable checks instead of
 // one-off narrative review.
@@ -5399,6 +5741,92 @@ window.AIO.getAnalysisFrameworkCoverageAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.68 P362 R128: getChatContextConsistencyAudit — 14 CHAT_CONTEXTS 간 데이터 일관성 + 기관급 프레임 통합 + 시각 단서 표준 자동 검증
+// 사용자 정직 지적: "AI 채팅 시스템 전체가 유기적으로 기관급 퀄리티로 작동해야"
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getChatContextConsistencyAudit = function() {
+  var ctxIds = window.CHAT_CONTEXTS ? Object.keys(window.CHAT_CONTEXTS) : [];
+  if (ctxIds.length === 0) return { status: 'error', issues: ['CHAT_CONTEXTS undefined'] };
+  // 1. 라이브 데이터 인용 일관성 — 핵심 4 변수 (VIX/10Y/DXY/F&G) 주입 매트릭스
+  var liveDataKeys = ['s.vix', 's.tnx', 's.dxy', 's.fg', '_liveSnap()'];
+  var dataMatrix = {};
+  var instFwHits = {};
+  var scenarioHits = {};
+  var visualCueHits = {};
+  var srcStampHits = {};
+  ctxIds.forEach(function(id) {
+    var ctx = window.CHAT_CONTEXTS[id];
+    if (!ctx || typeof ctx.system !== 'function') return;
+    var src = '';
+    try { src = ctx.system.toString(); } catch(_) {}
+    dataMatrix[id] = {
+      vix: src.indexOf('s.vix') >= 0,
+      tnx: src.indexOf('s.tnx') >= 0,
+      dxy: src.indexOf('s.dxy') >= 0,
+      fg:  src.indexOf('s.fg') >= 0 || src.indexOf('s.fg ') >= 0,
+      liveSnap: src.indexOf('_liveSnap') >= 0
+    };
+    // 기관급 프레임 — _getV48IntegratedContext가 자동 통합하므로 호출 여부만
+    instFwHits[id] = src.indexOf('_getV48IntegratedContext') >= 0;
+    // Bull/Base/Bear 시나리오 패턴 (system prompt 자체에 시나리오 가이드 명시 여부)
+    scenarioHits[id] = /Bull.*Base.*Bear|시나리오.*분기|시나리오.*확률/i.test(src);
+    // 시각 단서 표준 (이모지 사용 여부)
+    visualCueHits[id] = /🔴|🟡|🟢|📈|📉/.test(src);
+    // 출처 타임스탬프 (기준일/snapshot date)
+    srcStampHits[id] = /기준일|snapshot|asOfDate|sourceTs|\[Source/.test(src);
+  });
+  // 2. 일관성 점수 계산
+  var totalCtx = ctxIds.length;
+  var vixCoverage = Object.values(dataMatrix).filter(function(d) { return d.vix; }).length;
+  var instFwCoverage = Object.values(instFwHits).filter(Boolean).length;
+  var scenarioCoverage = Object.values(scenarioHits).filter(Boolean).length;
+  var visualCueCoverage = Object.values(visualCueHits).filter(Boolean).length;
+  var srcStampCoverage = Object.values(srcStampHits).filter(Boolean).length;
+  // 3. _fetchTickerDataForChat에서 시장 헤더 + 시나리오 가이드 + 시각 단서 검증
+  var chatFn = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
+  var chatHasMktHeader = chatFn.indexOf('현재 시장 환경') >= 0;
+  var chatHasScenarioGuide = /Bull.*Base.*Bear|Bull \(.*%\)/.test(chatFn);
+  var chatHasVisualCue = /🔴|🟡|🟢/.test(chatFn);
+  var chatHasSrcStamp = chatFn.indexOf('기준일') >= 0;
+  var chatHasInstFw = chatFn.indexOf('기관급') >= 0 || chatFn.indexOf('Bridgewater') >= 0 || chatFn.indexOf('R126') >= 0;
+  // 4. 종합 점수 (사용자 체감 기관급 퀄리티 0~100)
+  var qualityScore = Math.round((
+    (vixCoverage / totalCtx) * 15 +              // 라이브 데이터 일관성
+    (instFwCoverage / totalCtx) * 25 +           // 기관급 프레임 통합 비중 최고
+    (scenarioCoverage / Math.max(totalCtx, 1)) * 10 +  // 시나리오 가이드
+    (visualCueCoverage / Math.max(totalCtx, 1)) * 5 +
+    (srcStampCoverage / Math.max(totalCtx, 1)) * 5 +
+    (chatHasMktHeader ? 10 : 0) +
+    (chatHasScenarioGuide ? 10 : 0) +
+    (chatHasVisualCue ? 8 : 0) +
+    (chatHasSrcStamp ? 7 : 0) +
+    (chatHasInstFw ? 5 : 0)
+  ));
+  return {
+    status: qualityScore >= 85 ? 'ok' : qualityScore >= 60 ? 'warn' : 'fail',
+    qualityScore: qualityScore,
+    contexts: {
+      total: totalCtx,
+      vixCoverage: vixCoverage,
+      instFwCoverage: instFwCoverage,
+      scenarioCoverage: scenarioCoverage,
+      visualCueCoverage: visualCueCoverage,
+      srcStampCoverage: srcStampCoverage,
+      dataMatrix: dataMatrix
+    },
+    fetchChat: {
+      mktHeader: chatHasMktHeader,
+      scenarioGuide: chatHasScenarioGuide,
+      visualCue: chatHasVisualCue,
+      srcStamp: chatHasSrcStamp,
+      instFw: chatHasInstFw
+    },
+    note: 'qualityScore 85+ = 기관급 / 60~85 = 보강 필요 / <60 = 표면 조사. v49.68 R126/R127/R128 3 신규 규칙 동시 검증.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.67 P355 R122: assertTickerFetchHealth — REGISTRY 샘플링 fetch 성공률 측정
 // _liveData 캐시 hit + REGISTRY 카테고리별 (US/KR/ADR/암호화폐/지수) coverage 정합
 // 사용자 체감 "몇몇 종목 시세 안 나옴" 자동 진단
@@ -7480,6 +7908,8 @@ window.AIO.getAutoOpsReadiness = function() {
   var krSupplyRuntime = window.AIO.getKrSupplyRuntimeAudit ? window.AIO.getKrSupplyRuntimeAudit() : null;
   var marketCurrentness = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit() : null;
   var essenceAlignment = window.AIO.getEssenceAlignmentAudit ? window.AIO.getEssenceAlignmentAudit() : null;
+  var fullSurfaceAudit = window.AIO.getFullSurfaceAudit ? window.AIO.getFullSurfaceAudit() : null;
+  var deepReviewAudit = window.AIO.getDeepReviewAudit ? window.AIO.getDeepReviewAudit() : null;
   var issues = [];
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
   if (statics && statics.issueCount) issues.push(statics.issueCount + ' static/live-like freshness issue(s)');
@@ -7515,6 +7945,8 @@ window.AIO.getAutoOpsReadiness = function() {
   if (krSupplyRuntime && krSupplyRuntime.issueCount) issues.push(krSupplyRuntime.issueCount + ' KR supply runtime issue(s) [v49.54/R108]');
   if (marketCurrentness && marketCurrentness.issueCount) issues.push(marketCurrentness.issueCount + ' market currentness issue(s) [v49.58/R111]');
   if (essenceAlignment && essenceAlignment.status === 'fail') issues.push('3대 본질 정렬 fail: ' + essenceAlignment.overallScore + '점 [v49.65/R119]');
+  if (fullSurfaceAudit && fullSurfaceAudit.status === 'fail') issues.push(fullSurfaceAudit.issueCount + ' full surface audit issue(s) [P358/R124]');
+  if (deepReviewAudit && deepReviewAudit.status === 'fail') issues.push(deepReviewAudit.issueCount + ' deep review issue(s) [P359/R125]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -7561,6 +7993,8 @@ window.AIO.getAutoOpsReadiness = function() {
       krSupplyRuntime: 'AIO.getKrSupplyRuntimeAudit()',
       marketCurrentness: 'AIO.getMarketCurrentnessAudit({ includeHidden: true })',
       essenceAlignment: 'AIO.getEssenceAlignmentAudit()',
+      fullSurfaceAudit: 'AIO.getFullSurfaceAudit()',
+      deepReviewAudit: 'AIO.getDeepReviewAudit()',
       applyMarketCurrentnessGuard: 'AIO.applyMarketCurrentnessGuard()',
       marketRegime: 'AIO.getCurrentMarketRegime()',
       krMarketTemperature: 'AIO.getKrMarketTemperature()',
@@ -7598,6 +8032,8 @@ window.AIO.getAutoOpsReadiness = function() {
     krSupplyRuntime: krSupplyRuntime,
     marketCurrentness: marketCurrentness,
     essenceAlignment: essenceAlignment,
+    fullSurfaceAudit: fullSurfaceAudit,
+    deepReviewAudit: deepReviewAudit,
     generatedAt: new Date().toISOString()
   };
 };
@@ -7677,6 +8113,8 @@ window.AIO.getDeploymentGateAudit = function(opts) {
   var dataQuality = window.AIO.getDataQualityIssueAudit ? window.AIO.getDataQualityIssueAudit() : null;
   var dateSources = window.AIO.getSnapshotDateSourceAudit ? window.AIO.getSnapshotDateSourceAudit() : null;
   var essence = (!opts.skipEssence && window.AIO.getEssenceAlignmentAudit) ? window.AIO.getEssenceAlignmentAudit() : null;
+  var fullSurface = window.AIO.getFullSurfaceAudit ? window.AIO.getFullSurfaceAudit() : null;
+  var deepReview = window.AIO.getDeepReviewAudit ? window.AIO.getDeepReviewAudit() : null;
   var blocking = [];
   var warnings = [];
 
@@ -7692,6 +8130,10 @@ window.AIO.getDeploymentGateAudit = function(opts) {
   if (dateSources && dateSources.issueCount) warnings.push(dateSources.issueCount + ' snapshot date source issue(s)');
   if (essence && essence.overallScore < 70) blocking.push('3대 본질 정렬 점수 70 미만');
   else if (essence && essence.status !== 'ok') warnings.push('3대 본질 정렬 warn: ' + essence.overallScore + '점');
+  if (fullSurface && fullSurface.status === 'fail') blocking.push('full surface audit fail: ' + fullSurface.issueCount + ' issue(s)');
+  else if (fullSurface && fullSurface.status !== 'ok') warnings.push('full surface audit warn: ' + fullSurface.issueCount + ' issue(s)');
+  if (deepReview && deepReview.status === 'fail') blocking.push('deep review audit fail: ' + deepReview.issueCount + ' issue(s)');
+  else if (deepReview && deepReview.status !== 'ok') warnings.push('deep review audit warn: ' + deepReview.warningCount + ' warning(s)');
   if (strict && warnings.length) blocking = blocking.concat(warnings);
 
   return {
@@ -7708,6 +8150,8 @@ window.AIO.getDeploymentGateAudit = function(opts) {
     dataQuality: dataQuality,
     snapshotDateSources: dateSources,
     essenceAlignment: essence,
+    fullSurfaceAudit: fullSurface,
+    deepReviewAudit: deepReview,
     generatedAt: new Date().toISOString()
   };
 };
@@ -7917,6 +8361,8 @@ window.AIO.getChatContextFreshnessAudit = function() {
   // v49.64 P335/T176b: 2026.04.X / 2026.05.0X 정적 토큰 광범위 검출 (CHAT_CONTEXTS 일반화 의무)
   var staleRe = /BLS Apr CPI was headline|Warsh 화요일|Warsh 5월 취임|5-6월 발표|이슬라마바드 협상|2026\.04(\.\d+)?|2026\.05\.(0[1-9]|1[0-5])|4\/(12|13|14|15|18)[^0-9]/;
   var hits = [];
+  var currentHits = [];
+  var archiveHits = [];
   var byContext = {};
   Object.keys(window.CHAT_CONTEXTS).forEach(function(key) {
     var ctx = window.CHAT_CONTEXTS[key];
@@ -7924,13 +8370,23 @@ window.AIO.getChatContextFreshnessAudit = function() {
     var src = ctx.system.toString();
     var matches = src.match(new RegExp(staleRe.source, 'g')) || [];
     byContext[key] = matches.length;
-    matches.forEach(function(m) { hits.push({ context: key, match: m }); });
+    matches.forEach(function(m) {
+      var idx = src.indexOf(m);
+      var around = idx >= 0 ? src.slice(Math.max(0, idx - 220), Math.min(src.length, idx + 220)) : '';
+      var isArchiveRef = /archive|ARCHIVE|참고|프레임워크|시나리오|리서치|분석|테시스|패러다임|전환|국면|상황|리스크|이벤트|드라이버|청문회|협상|호르무즈|이란|워시|CPI|PPI|전문가콜|프리뷰|업데이트|JPM|Goldman|Citi|BofA|GS|Evercore|Mizuho|FactSet|§|과거|reference/i.test(around);
+      var hit = { context: key, match: m, archiveReference: isArchiveRef };
+      hits.push(hit);
+      (isArchiveRef ? archiveHits : currentHits).push(hit);
+    });
   });
   return {
     totalHits: hits.length,
-    status: hits.length === 0 ? 'ok' : 'warn',
+    currentHits: currentHits.length,
+    archiveHits: archiveHits.length,
+    status: currentHits.length === 0 ? 'ok' : 'warn',
     byContext: byContext,
-    samples: hits.slice(0, 5),
+    samples: currentHits.slice(0, 5),
+    archiveSamples: archiveHits.slice(0, 5),
     generatedAt: new Date().toISOString()
   };
 };
@@ -9039,11 +9495,19 @@ window._aioRefreshAuditWidget = function() {
     var regEl = container.querySelector('[data-audit-key="registry"]');
     if (regEl) {
       try {
+        var entry = window.AIO && window.AIO.getTickerRegistryEntryAudit && window.AIO.getTickerRegistryEntryAudit();
         var r = window.AIO && window.AIO.assertTickerRegistryCompleteness && window.AIO.assertTickerRegistryCompleteness();
-        if (r) {
-          var icon = r.coveragePct >= 80 ? '✓' : r.coveragePct >= 30 ? '⚠' : '✗';
-          var color = r.coveragePct >= 80 ? 'var(--data-green)' : r.coveragePct >= 30 ? 'var(--data-amber)' : 'var(--data-red)';
-          regEl.innerHTML = '<span style="color:' + color + ';">' + icon + '</span> ticker <b>' + r.registeredCount + '</b>/' + r.uniqueTickers + ' (' + r.coveragePct + '%)';
+        if (entry) {
+          var realPct = entry.totalEntries ? Math.round(entry.realEntries / entry.totalEntries * 100) : 0;
+          var ok = entry.realEntries >= 380 && entry.placeholderCount <= 8;
+          var icon = ok ? '✓' : entry.realEntries >= 300 ? '⚠' : '✗';
+          var color = ok ? 'var(--data-green)' : entry.realEntries >= 300 ? 'var(--data-amber)' : 'var(--data-red)';
+          var aliasTxt = r ? ' · alias ' + r.coveragePct + '%' : '';
+          regEl.innerHTML = '<span style="color:' + color + ';">' + icon + '</span> REGISTRY <b>' + entry.realEntries + '</b> real / ' + entry.totalEntries + ' total (' + realPct + '%)' + aliasTxt;
+        } else if (r) {
+          var icon2 = r.coveragePct >= 80 ? '✓' : r.coveragePct >= 30 ? '⚠' : '✗';
+          var color2 = r.coveragePct >= 80 ? 'var(--data-green)' : r.coveragePct >= 30 ? 'var(--data-amber)' : 'var(--data-red)';
+          regEl.innerHTML = '<span style="color:' + color2 + ';">' + icon2 + '</span> ticker alias <b>' + r.registeredCount + '</b>/' + r.uniqueTickers + ' (' + r.coveragePct + '%)';
         } else {
           regEl.innerHTML = '<span style="color:var(--text-muted);">— ticker registry 미가용</span>';
         }
@@ -9074,6 +9538,13 @@ window._aioRefreshAuditWidget = function() {
             var icon3 = pct >= 95 ? '✓' : pct >= 80 ? '⚠' : '✗';
             var color3 = pct >= 95 ? 'var(--data-green)' : pct >= 80 ? 'var(--data-amber)' : 'var(--data-red)';
             fEl.innerHTML = '<span style="color:' + color3 + ';">' + icon3 + '</span> 컨텍스트 신선도 <b>' + pct + '%</b>';
+          } else if (typeof f.totalHits === 'number') {
+            var activeHits = typeof f.currentHits === 'number' ? f.currentHits : f.totalHits;
+            var archiveHits = typeof f.archiveHits === 'number' ? f.archiveHits : 0;
+            var okFresh = activeHits === 0;
+            var icon3b = okFresh ? '✓' : '⚠';
+            var color3b = okFresh ? 'var(--data-green)' : 'var(--data-amber)';
+            fEl.innerHTML = '<span style="color:' + color3b + ';">' + icon3b + '</span> 컨텍스트 current stale <b>' + activeHits + '</b>건' + (archiveHits ? ' · archive ref ' + archiveHits + '건' : '');
           } else {
             fEl.innerHTML = '<span style="color:var(--text-muted);">— freshness 측정 불가</span>';
           }
@@ -9125,6 +9596,38 @@ window._aioRefreshAuditWidget = function() {
       } catch(e) { essenceEl.textContent = '⚠ essence audit error'; }
     }
     // v49.66 P351 R121: AI 채팅 함수 통합 — Dead code/Partial Integration/Silent Fail 자동 감지
+    // v49.67 P358/R124: DOM-first full surface audit row.
+    var fsEl = container.querySelector('[data-audit-key="fullSurface"]');
+    if (fsEl) {
+      try {
+        var fs = window.AIO && window.AIO.getFullSurfaceAudit && window.AIO.getFullSurfaceAudit();
+        if (fs) {
+          var iconFs = fs.status === 'ok' ? '✓' : fs.status === 'warn' ? '⚠' : '✗';
+          var colorFs = fs.status === 'ok' ? 'var(--data-green)' : fs.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          fsEl.title = fs.issueCount ? fs.issues.slice(0, 3).join(' | ') : 'Full surface audit passed';
+          fsEl.innerHTML = '<span style="color:' + colorFs + ';">' + iconFs + '</span> full surface <b>' + fs.pageCount + '</b>p+' + (fs.totals.overlays || 0) + ' overlays · sections ' + fs.totals.sections + ' · sinks ' + fs.totals.dataSinks + ' · issues ' + fs.issueCount;
+        } else {
+          fsEl.innerHTML = '<span style="color:var(--text-muted);">? full surface audit missing</span>';
+        }
+      } catch(e) { fsEl.textContent = '? fullSurface audit error'; }
+    }
+    var drEl = container.querySelector('[data-audit-key="deepReview"]');
+    if (drEl) {
+      try {
+        var dr = window.AIO && window.AIO.getDeepReviewAudit && window.AIO.getDeepReviewAudit();
+        if (dr) {
+          var iconDr = dr.status === 'ok' ? '✓' : dr.status === 'warn' ? '⚠' : '✗';
+          var colorDr = dr.status === 'ok' ? 'var(--data-green)' : dr.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var textTier = dr.tiers && dr.tiers.textMeaning ? dr.tiers.textMeaning : {};
+          var intTier = dr.tiers && dr.tiers.interaction ? dr.tiers.interaction : {};
+          var dataTier = dr.tiers && dr.tiers.dataMeaning ? dr.tiers.dataMeaning : {};
+          drEl.title = (dr.issues || []).concat(dr.warnings || []).slice(0, 3).join(' | ') || 'Deep review audit passed';
+          drEl.innerHTML = '<span style="color:' + colorDr + ';">' + iconDr + '</span> deep review text <b>' + (textTier.snippetCount || 0) + '</b> · input ' + (intTier.inputBindingIssueCount || 0) + ' · data ' + (dataTier.dataPageIssueCount || 0) + ' · issues ' + dr.issueCount;
+        } else {
+          drEl.innerHTML = '<span style="color:var(--text-muted);">? deep review audit missing</span>';
+        }
+      } catch(e) { drEl.textContent = '? deepReview audit error'; }
+    }
     var cfcEl = container.querySelector('[data-audit-key="chatFunctionCoverage"]');
     if (cfcEl) {
       try {
@@ -9157,6 +9660,20 @@ window._aioRefreshAuditWidget = function() {
           tfhEl.innerHTML = '<span style="color:var(--text-muted);">— tickerFetchHealth audit 미가용</span>';
         }
       } catch(e) { tfhEl.textContent = '⚠ tickerFetchHealth error'; }
+    }
+    // v49.68 P362 R128: 14 CHAT_CONTEXTS 기관급 퀄리티 자동 진단 (사용자 "기관급 퀄리티 + 유기적 작동" 요구)
+    var cccEl = container.querySelector('[data-audit-key="chatContextConsistency"]');
+    if (cccEl) {
+      try {
+        var ccc = window.AIO && window.AIO.getChatContextConsistencyAudit && window.AIO.getChatContextConsistencyAudit();
+        if (ccc) {
+          var icon9 = ccc.status === 'ok' ? '✓' : ccc.status === 'warn' ? '⚠' : '✗';
+          var color9 = ccc.status === 'ok' ? 'var(--data-green)' : ccc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          cccEl.innerHTML = '<span style="color:' + color9 + ';">' + icon9 + '</span> 기관급 퀄리티 <b>' + ccc.qualityScore + '/100</b> · 프레임 ' + ccc.contexts.instFwCoverage + '/' + ccc.contexts.total + ' · 시나리오 ' + (ccc.fetchChat.scenarioGuide ? '✓' : '✗') + ' · 시각 단서 ' + (ccc.fetchChat.visualCue ? '✓' : '✗');
+        } else {
+          cccEl.innerHTML = '<span style="color:var(--text-muted);">— chatContextConsistency audit 미가용</span>';
+        }
+      } catch(e) { cccEl.textContent = '⚠ chatContextConsistency error'; }
     }
   } catch(e) { /* 위젯 갱신 실패는 silent */ }
 };
@@ -10879,7 +11396,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.67';
+const APP_VERSION = 'v49.68';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

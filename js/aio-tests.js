@@ -2287,6 +2287,83 @@
     _assert('T491 beginner_visible_loading_zero_v4965: 보이는 초기 로딩/계산 문구 0건',
       essence && essence.goals.intuitiveBeginnerUse.loadingTextCount === 0,
       essence ? 'loadingText=' + essence.goals.intuitiveBeginnerUse.loadingTextCount : 'missing essence');
+
+    if (window._aioRefreshAuditWidget) window._aioRefreshAuditWidget();
+    var regRow = document.querySelector('[data-audit-key="registry"]');
+    var regRowText = regRow ? (regRow.textContent || '') : '';
+    _assert('T505 sidebar_registry_real_count_v4967: 사이드바 REGISTRY row가 real/total 분리 표시',
+      /REGISTRY/.test(regRowText) && /real/.test(regRowText) && /total/.test(regRowText),
+      regRowText || 'missing registry row');
+
+    var freshRow = document.querySelector('[data-audit-key="freshness"]');
+    var freshRowText = freshRow ? (freshRow.textContent || '') : '';
+    _assert('T506 sidebar_freshness_not_unavailable_v4967: freshness row가 측정 불가로 남지 않음',
+      freshRowText.indexOf('측정 불가') === -1 && /current stale|stale hit|신선도/.test(freshRowText),
+      freshRowText || 'missing freshness row');
+
+    var freshAudit = window.AIO && window.AIO.getChatContextFreshnessAudit && window.AIO.getChatContextFreshnessAudit();
+    _assert('T507 chat_freshness_current_vs_archive_v4967: current stale과 archive ref 분리',
+      freshAudit && typeof freshAudit.currentHits === 'number' && typeof freshAudit.archiveHits === 'number',
+      freshAudit ? JSON.stringify({ currentHits: freshAudit.currentHits, archiveHits: freshAudit.archiveHits }) : 'missing freshness audit');
+
+    var surface = window.AIO && window.AIO.getFullSurfaceAudit && window.AIO.getFullSurfaceAudit();
+    var domPageCount = document.querySelectorAll('.page[id]').length;
+    _assert('T508 full_surface_audit_shape_v4967: DOM-first full surface audit API shape',
+      surface && Array.isArray(surface.pages) && surface.totals && typeof surface.issueCount === 'number',
+      surface ? JSON.stringify({ status: surface.status, pages: surface.pageCount, issues: surface.issueCount }) : 'missing full surface audit');
+
+    _assert('T509 full_surface_covers_all_dom_pages_v4967: full surface audit covers every .page[id]',
+      surface && surface.pageCount === domPageCount && surface.pages.length === domPageCount,
+      surface ? 'auditPages=' + surface.pageCount + ' domPages=' + domPageCount : 'missing full surface audit');
+
+    var fsRow = document.querySelector('[data-audit-key="fullSurface"]');
+    _assert('T510 sidebar_full_surface_row_v4967: sidebar audit row [data-audit-key="fullSurface"] exists',
+      !!fsRow, 'fullSurface row=' + !!fsRow);
+
+    var opsSurface = window.AIO && window.AIO.getAutoOpsReadiness && window.AIO.getAutoOpsReadiness();
+    _assert('T511 auto_ops_includes_full_surface_v4967: getAutoOpsReadiness includes fullSurfaceAudit',
+      opsSurface && opsSurface.fullSurfaceAudit && opsSurface.commands && opsSurface.commands.fullSurfaceAudit === 'AIO.getFullSurfaceAudit()',
+      opsSurface ? 'hasSurface=' + !!opsSurface.fullSurfaceAudit : 'missing ops');
+
+    _assert('T512 full_surface_visible_loading_zero_v4967: full surface audit visible loading text is zero',
+      surface && surface.totals && surface.totals.visibleLoadingText === 0,
+      surface ? 'visibleLoadingText=' + surface.totals.visibleLoadingText : 'missing full surface audit');
+
+    var gateSurface = window.AIO && window.AIO.getDeploymentGateAudit && window.AIO.getDeploymentGateAudit({ strict: false });
+    _assert('T513 deployment_gate_includes_full_surface_v4967: deployment gate includes fullSurfaceAudit',
+      gateSurface && Object.prototype.hasOwnProperty.call(gateSurface, 'fullSurfaceAudit'),
+      gateSurface ? 'hasSurface=' + Object.prototype.hasOwnProperty.call(gateSurface, 'fullSurfaceAudit') : 'missing gate');
+
+    _assert('T514 full_surface_includes_overlay_surfaces_v4967: non-route glossary overlay is counted',
+      surface && surface.totals && surface.totals.overlays >= 1,
+      surface ? 'overlays=' + surface.totals.overlays : 'missing full surface audit');
+
+    var deep = window.AIO && window.AIO.getDeepReviewAudit && window.AIO.getDeepReviewAudit();
+    _assert('T515 deep_review_audit_shape_v4967: text/function/data deep review API shape',
+      deep && deep.tiers && deep.tiers.textMeaning && deep.tiers.interaction && deep.tiers.dataMeaning && typeof deep.issueCount === 'number',
+      deep ? JSON.stringify({ status: deep.status, issues: deep.issueCount, warnings: deep.warningCount }) : 'missing deep review audit');
+
+    _assert('T516 deep_review_scans_text_snippets_v4967: deep review scans meaning-bearing text snippets',
+      deep && deep.tiers.textMeaning.snippetCount >= 500,
+      deep ? 'snippets=' + deep.tiers.textMeaning.snippetCount : 'missing deep review audit');
+
+    var drRow = document.querySelector('[data-audit-key="deepReview"]');
+    _assert('T517 sidebar_deep_review_row_v4967: sidebar audit row [data-audit-key="deepReview"] exists',
+      !!drRow, 'deepReview row=' + !!drRow);
+
+    var opsDeep = window.AIO && window.AIO.getAutoOpsReadiness && window.AIO.getAutoOpsReadiness();
+    _assert('T518 auto_ops_includes_deep_review_v4967: getAutoOpsReadiness includes deepReviewAudit',
+      opsDeep && opsDeep.deepReviewAudit && opsDeep.commands && opsDeep.commands.deepReviewAudit === 'AIO.getDeepReviewAudit()',
+      opsDeep ? 'hasDeep=' + !!opsDeep.deepReviewAudit : 'missing ops');
+
+    var gateDeep = window.AIO && window.AIO.getDeploymentGateAudit && window.AIO.getDeploymentGateAudit({ strict: false });
+    _assert('T519 deployment_gate_includes_deep_review_v4967: deployment gate includes deepReviewAudit',
+      gateDeep && Object.prototype.hasOwnProperty.call(gateDeep, 'deepReviewAudit'),
+      gateDeep ? 'hasDeep=' + Object.prototype.hasOwnProperty.call(gateDeep, 'deepReviewAudit') : 'missing gate');
+
+    _assert('T520 deep_review_input_binding_shape_v4967: data-on-enter/input handler audit is included',
+      deep && deep.tiers.interaction && typeof deep.tiers.interaction.inputBindingIssueCount === 'number',
+      deep ? 'inputIssues=' + deep.tiers.interaction.inputBindingIssueCount : 'missing deep review audit');
   }
 
   // v49.66 P348~P351 R121: AI 채팅 시스템 dead code / partial integration / silent fail 회귀 방지
@@ -2365,9 +2442,74 @@
     _assert('T503 absolute_rules_market_flow_v4967: ABSOLUTE RULES 8조 (R122 시장 흐름 유기적 도입 의무)',
       hasRule8, 'rule8=' + hasRule8);
 
-    // T504: APP_VERSION === 'v49.67'
-    _assert('T504 app_version_v4967_final: APP_VERSION === "v49.67"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.67',
+    // T504: APP_VERSION === 'v49.68' (v49.68 기관급 퀄리티 + 유기적 작동)
+    _assert('T504 app_version_v4968_institutional: APP_VERSION === "v49.68"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.68',
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
+  // v49.68 P360~P364 R126~R128: AI 채팅 기관급 퀄리티 + 시나리오 분기 + 시각 단서 + 데이터 우선순위 + 컨텍스트 일관성 회귀 방지
+  function _testV4968InstitutionalQuality() {
+    // T521: _getInstitutionalFrameworkContext 함수 정의 + 8 프레임 명시
+    var instSrc = typeof window._getInstitutionalFrameworkContext === 'function' ? window._getInstitutionalFrameworkContext.toString() : '';
+    var has8Frames = /Bridgewater.*All Weather/i.test(instSrc) && /Druckenmiller/i.test(instSrc) && /Howard Marks/i.test(instSrc) && /Buffett.*Owner Earnings/i.test(instSrc) && /Ackman.*8 Criteria/i.test(instSrc) && /Soros.*Reflexivity/i.test(instSrc) && /GS GIR/i.test(instSrc) && /Morgan Stanley.*Cyclical/i.test(instSrc);
+    _assert('T521 institutional_framework_8_v4968: _getInstitutionalFrameworkContext + 8 기관급 프레임 명시 (Bridgewater/Druckenmiller/Marks/Buffett/Ackman/Soros/GS GIR/MS Cyclical)',
+      typeof window._getInstitutionalFrameworkContext === 'function' && has8Frames,
+      'fn=' + typeof window._getInstitutionalFrameworkContext + ' 8frames=' + has8Frames);
+
+    // T522: _getV48IntegratedContext가 _getInstitutionalFrameworkContext 자동 호출
+    var v48Src = typeof window._getV48IntegratedContext === 'function' ? window._getV48IntegratedContext.toString() : '';
+    _assert('T522 v48_integrates_institutional_v4968: _getV48IntegratedContext → _getInstitutionalFrameworkContext 자동 호출',
+      v48Src.indexOf('_getInstitutionalFrameworkContext') >= 0,
+      'integration=' + (v48Src.indexOf('_getInstitutionalFrameworkContext') >= 0));
+
+    // T523: _fetchTickerDataForChat에 Bull/Base/Bear 시나리오 가이드 + R127 명시
+    var chatFn = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
+    var hasScenarioGuide = /Bull \(X%\).*Base \(Y%\).*Bear \(Z%\)/.test(chatFn) || (/Bull/.test(chatFn) && /Base/.test(chatFn) && /Bear/.test(chatFn) && /R127/.test(chatFn));
+    _assert('T523 chat_scenario_guide_v4968: Bull/Base/Bear 3 시나리오 분기 + 확신도 + R127 명시',
+      hasScenarioGuide,
+      'scenario=' + hasScenarioGuide);
+
+    // T524: 시장 환경 헤더 + 이모지 표준 (🔴🟡🟢)
+    var hasEmojiStd = /🔴|🟡|🟢/.test(chatFn);
+    var hasMktHdrTimestamp = /기준일/.test(chatFn);
+    _assert('T524 chat_visual_cue_emoji_v4968: 시각 단서 표준 — VIX/F&G 이모지 (🔴/🟡/🟢) + 기준일 타임스탬프 + R128',
+      hasEmojiStd && hasMktHdrTimestamp && /R128/.test(chatFn),
+      'emoji=' + hasEmojiStd + ' stamp=' + hasMktHdrTimestamp + ' R128=' + /R128/.test(chatFn));
+
+    // T525: ABSOLUTE RULES 9~12조 추가 (R126/R127/R128 + 데이터 소스 우선순위)
+    var hasRule9 = chatFn.indexOf('9. 종목/시장 분석 답변은 반드시 **Bull/Base/Bear') >= 0;
+    var hasRule10 = chatFn.indexOf('10. **시각 단서 표준') >= 0;
+    var hasRule11 = chatFn.indexOf('11. **기관급 프레임 인용') >= 0;
+    var hasRule12 = chatFn.indexOf('12. **데이터 소스 우선순위') >= 0;
+    _assert('T525 absolute_rules_9_to_12_v4968: ABSOLUTE RULES 9~12조 (시나리오/시각/프레임/우선순위) 모두 명시',
+      hasRule9 && hasRule10 && hasRule11 && hasRule12,
+      'r9=' + hasRule9 + ' r10=' + hasRule10 + ' r11=' + hasRule11 + ' r12=' + hasRule12);
+
+    // T526: AIO.getChatContextConsistencyAudit 함수 정의 + qualityScore 반환
+    var ccc = window.AIO && typeof window.AIO.getChatContextConsistencyAudit === 'function' && window.AIO.getChatContextConsistencyAudit();
+    _assert('T526 chat_context_consistency_audit_v4968: AIO.getChatContextConsistencyAudit + qualityScore 0~100 + contexts/fetchChat',
+      ccc && typeof ccc.qualityScore === 'number' && ccc.contexts && ccc.fetchChat,
+      ccc ? ('qualityScore=' + ccc.qualityScore + ' instFw=' + ccc.contexts.instFwCoverage + '/' + ccc.contexts.total) : 'fn missing');
+
+    // T527: qualityScore >= 60 (보강 필요 수준 이상)
+    _assert('T527 chat_quality_score_minimum_v4968: qualityScore >= 60 (보강 필요 이상 — 표면 조사 < 60)',
+      ccc && ccc.qualityScore >= 60,
+      ccc ? ('qualityScore=' + ccc.qualityScore) : 'audit missing');
+
+    // T528: 사이드바 audit row 8번째 (chatContextConsistency) DOM 존재
+    var cccEl = document.querySelector('[data-audit-key="chatContextConsistency"]');
+    _assert('T528 sidebar_chat_context_consistency_row_v4968: 사이드바 audit row [data-audit-key="chatContextConsistency"] DOM 존재',
+      !!cccEl, 'cccEl=' + (!!cccEl));
+
+    // T529: 14 CHAT_CONTEXTS 모두 기관급 프레임 통합 (_getV48IntegratedContext 호출 → 자동 주입)
+    _assert('T529 all_contexts_institutional_framework_v4968: 14 CHAT_CONTEXTS 기관급 프레임 통합 (>= 12/14)',
+      ccc && ccc.contexts.instFwCoverage >= 12,
+      ccc ? ('instFw=' + ccc.contexts.instFwCoverage + '/' + ccc.contexts.total) : 'audit missing');
+
+    // T530: APP_VERSION === 'v49.68'
+    _assert('T530 app_version_v4968_final: APP_VERSION === "v49.68"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.68',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -3500,6 +3642,7 @@
     try { _testV4965Coverage17Perspectives(); } catch(e) { console.error('Group61 error:', e); }
     try { _testV4966ChatCompleteness(); } catch(e) { console.error('Group62 error:', e); }
     try { _testV4967UxQuality(); } catch(e) { console.error('Group63 error:', e); }
+    try { _testV4968InstitutionalQuality(); } catch(e) { console.error('Group64 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

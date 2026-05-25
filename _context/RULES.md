@@ -1213,6 +1213,90 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 
 ---
 
+## R128. AI 채팅 시각 단서 표준 + 데이터 소스 우선순위 + 출처 타임스탬프 (v49.68 추가, P361~P363 근본)
+
+**원칙**: AI 채팅 답변은 (1) 이모지 표준 (🔴 공포·위험·매도 / 🟡 중립·주의 / 🟢 안정·기회·매수) + (2) 핵심 결론 **굵게** + (3) 데이터 소스 우선순위 명문화 (`_liveSnap` → `_closeSnap` → `DATA_SNAPSHOT` 폴백 → fetched) + (4) 모든 수치 인용 시 "Source · 기준일: YYYY-MM-DD" 표기 의무.
+
+**근거 (P361~P363)**: v49.67 사용자 체감 시정 후 의미적 진단 결과 시각 단서 일관성 부재 (이모지/굵기 무작위) + 데이터 소스 우선순위 미명문화 (`_liveSnap`/`_closeSnap`/`DATA_SNAPSHOT` 혼용) + 출처 타임스탬프 누락 (Fed Rate 폴백값 인용 시 기준일 미표기). 사용자가 "이 답변 정확한가? 언제 기준?" 즉시 검증 불가.
+
+**구조**:
+- 시장 환경 헤더에 VIX/F&G/Score 이모지 자동 분류: VIX ≥25 🔴 / ≥20 🟡 / <20 🟢. F&G ≤25 또는 ≥75 🔴 / ≤45 또는 ≥55 🟡 / 46~54 🟢.
+- ABSOLUTE RULES 10조 (시각 단서 표준) + 12조 (데이터 우선순위 1~4순위).
+- 폴백값 인용 시 "(폴백)" 명시 + 학습 데이터 추정 절대 금지.
+
+**검증**: `AIO.runTests()` T524 (이모지 + 타임스탬프) + T525 (ABSOLUTE RULES 10/12조 명시) + `getChatContextConsistencyAudit().fetchChat.visualCue/srcStamp`.
+
+**위반 시**: 시각 단서 무작위 → 사용자가 위험/기회 즉시 인지 못함 + 출처 타임스탬프 부재 → "이 정보 언제 기준?" silent fail.
+
+---
+
+## R127. AI 채팅 Bull/Base/Bear 3 시나리오 분기 강제 (v49.68 추가, P361 근본)
+
+**원칙**: 종목/시장 분석 답변은 반드시 **Bull (확신도 X%) / Base (Y%) / Bear (Z%)** 3 시나리오 분기 + X+Y+Z=100 확신도 명시 의무. 단일 시나리오만 답변 금지.
+
+**근거 (P361)**: v49.67 의미적 진단 결과 14 CHAT_CONTEXTS 중 macro만 시나리오 분기 (60/25/15% 확률) 제공. fundamental/themes/ticker/portfolio/sentiment 등 대부분은 단일 결론 → 사용자가 비대칭 위험 인지 불가.
+
+**구조**:
+- 형식: "**📈 Bull (확신도 X%)**: [트리거 조건] → [목표 시나리오] / **🟡 Base (Y%)**: [현재 환경 유지 시] → [예상] / **📉 Bear (Z%)**: [악화 트리거] → [하방 시나리오]"
+- ABSOLUTE RULES 9조 (시나리오 분기 의무) 명시.
+- 시나리오별 trigger condition + 예상 시간축 + 구체적 액션 (포지션 사이즈/진입가/손절) 의무.
+
+**검증**: `AIO.runTests()` T523 (Bull/Base/Bear + R127 명시) + `getChatContextConsistencyAudit().fetchChat.scenarioGuide`.
+
+**위반 시**: 사용자가 "이 종목 어떻게 될까?" 질의 시 단일 결론만 받음 → 비대칭 위험 미인지.
+
+---
+
+## R126. AI 채팅 기관급 분석 프레임워크 8개 인용 의무 (v49.68 추가, P360 근본)
+
+**원칙**: 14 CHAT_CONTEXTS의 답변은 의무적으로 다음 8 기관급 프레임 중 페이지 주제와 가장 관련 깊은 1~3개 명시 인용:
+1. **Bridgewater All Weather 4-Quadrant** (성장 × 인플레 매트릭스)
+2. **Druckenmiller Macro Overlay** (18개월 선행 유동성)
+3. **Howard Marks Pendulum** (낙관↔비관 진자)
+4. **Buffett Owner Earnings + Margin of Safety**
+5. **Ackman Pershing Square 8 Criteria**
+6. **Soros Reflexivity** (Perception ↔ Fundamentals 양방향)
+7. **GS GIR Top of Mind + Out of Consensus**
+8. **Morgan Stanley Cyclical Pendulum** (ISM/CRB → 11 GICS 섹터)
+
+**근거 (P360)**: v49.67 의미적 진단 결과 기관급 프레임 통합도 32% (3.5/11) — Citi/JPM 부분만 통합, Bridgewater/Druckenmiller/Marks/Buffett/Ackman/Soros 등 핵심 기관급 프레임 명시 부재. 사용자가 "기관급 퀄리티" 요구.
+
+**구조**:
+- `_getInstitutionalFrameworkContext(pageFocus)` 신규 함수 — 8 프레임 정의 + 페이지별 우선 프레임 매핑
+- `_getV48IntegratedContext`가 자동 호출 → 14 CHAT_CONTEXTS 모두 자동 주입
+- ABSOLUTE RULES 11조 (8 프레임 중 1~3개 인용 의무) 명시
+
+**페이지별 우선 프레임 매핑**:
+- macro / kr-macro → Bridgewater 4-Quadrant + Druckenmiller Overlay
+- sentiment → Marks Pendulum + Soros Reflexivity
+- fundamental / ticker → Buffett Owner Earnings + Ackman 8 Criteria
+- themes / theme-detail → Soros Reflexivity + MS Cyclical Pendulum
+- technical → Soros Bubble 5단계 + Druckenmiller
+- signal / breadth → GS GIR Out of Consensus + MS Cyclical
+- fxbond → Bridgewater + Druckenmiller
+- portfolio → All Weather (자산 분산) + Buffett Margin of Safety
+
+**검증**: `AIO.runTests()` T521 (8 프레임 명시) + T522 (v48 → instFw 자동 호출) + T529 (14 컨텍스트 12+ 프레임) + `getChatContextConsistencyAudit().contexts.instFwCoverage`.
+
+**위반 시**: AI 답변이 학습 데이터 기반 추측 → 기관급 분석 프레임 부재로 신뢰도 낮음 + 사용자 "왜 이 결론인가?" 추적 불가.
+
+---
+
+## R123. 사이드바 Audit row 의미 분리 표시 의무 (v49.67 추가, P357 근본)
+
+**원칙**: 사이드바 audit row는 서로 다른 의미의 수치를 한 줄에 섞어 단독 대표값처럼 보이면 안 된다. 특히 REGISTRY 실제 등록 수와 alias/fetch coverage, 현재 stale hit와 archive/reference hit는 분리 표시한다.
+
+**구조**:
+- REGISTRY row는 `AIO.getTickerRegistryEntryAudit()`를 우선 사용해 `realEntries / totalEntries / placeholderCount` 기준을 표시하고, alias coverage는 보조 지표로만 붙인다.
+- freshness row는 `AIO.getChatContextFreshnessAudit()`의 `currentHits`와 `archiveHits`를 분리 표시한다.
+- `currentHits > 0`은 최신 판단 오염 가능성으로 warn, `archiveHits > 0`은 과거 리서치 참조로 표시하되 현재 판단 근거로 쓰면 안 된다.
+
+**근거 (P357)**: v49.67에서 REGISTRY row가 alias coverage 46%만 보여 실제 384 real / 391 total 보강을 가렸다. freshness row도 totalHits만 보아 "측정 불가" 또는 전체 stale 경고로 표시되어 현재 stale과 archive reference를 구분하지 못했다.
+
+**검증**: `AIO.runTests()` T505 (REGISTRY real/total row) + T506 (freshness 측정 불가 금지) + T507 (currentHits/archiveHits shape).
+
+---
+
 ## R122. AI 채팅 사용자 체감 품질 의무 (v49.67 추가, P352~P356 근본)
 
 **원칙**: AI 채팅 응답은 (1) 시세 fetch 폴백 4단계 (Yahoo→Stooq→Naver→Finnhub) 의무 + (2) 모든 종목 답변 첫 줄에 "현재 시장 환경" 헤더 자동 주입 의무 + (3) 시세 조회 실패 종목은 캐시 저장 금지 (stale 응답 5분 반복 차단) + (4) `AIO.assertTickerFetchHealth()` 카테고리별 coverage 자동 감지.
@@ -1635,3 +1719,35 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 
 **위반 시**: 실시간 갱신이 외관상 정상이지만 정적 폴백값이 영원히 표시 (sticky stale).
 
+## R125. Second/third-pass text, function, and data meaning audit required (v49.67 added, P359 root prevention)
+
+**Rule**: A DOM surface inventory is not enough. After every page/overlay is counted, the app must run a deeper audit over meaning-bearing text, delegated input handlers, control labels, and data-sink explanation coverage.
+
+**Required coverage**:
+- `AIO.getDeepReviewAudit()` must scan visible/user-facing text snippets for placeholder/loading text, stale live-like tokens, dense unexplained jargon, and console-only hints.
+- `data-on-enter` and `data-on-input` handlers must be verified separately from `data-action`.
+- Buttons/role buttons must have visible text, `aria-label`, or `title`.
+- Pages with many data sinks must have page-level lineage markers or explainers.
+- Sidebar, AutoOps, deployment gate, and regression tests must expose the result.
+
+**Evidence (P359)**: User asked whether the work went beyond first pass into 2nd/3rd-pass review and whether all text/function/content had been checked. P358 covered surfaces, but not text/function/data meaning layers.
+
+**Validation**: `AIO.runTests()` T515-T520.
+
+---
+
+## R124. DOM-first full surface audit required (v49.67 added, P358 root prevention)
+
+**Rule**: A page review is not complete until the app can audit the actual rendered DOM, not only registry entries or narrative notes.
+
+**Required coverage**:
+- `AIO.getFullSurfaceAudit()` must walk every `.page[id]` plus registered non-route overlays and return per-page counts for headings, sections/cards, data sinks, controls, tables, charts, explainers, visible loading text, brief coverage, and sequential registry coverage.
+- The sidebar audit widget must include `[data-audit-key="fullSurface"]` so non-console users can see the result.
+- `AIO.getAutoOpsReadiness()` and `AIO.getDeploymentGateAudit()` must include the full-surface result.
+- Regression tests must verify API shape, all DOM page coverage, sidebar row, AutoOps integration, deployment gate integration, and visible loading text count.
+
+**Evidence (P358)**: User challenged that the prior work looked like only a first-pass review. The previous `getPageUXAudit()` used `AIO_PAGE_BRIEFS` as its starting point, so it did not prove every actual page surface was inventoried.
+
+**Validation**: `AIO.runTests()` T508-T514.
+
+---

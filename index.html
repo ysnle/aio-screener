@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.67 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.68 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3898,8 +3898,11 @@ body.light-theme canvas { filter:none; }
               <div data-audit-key="chatContexts">⏳ CHAT_CONTEXTS 정합성…</div>
               <div data-audit-key="analysisFramework">⏳ 분석 프레임워크 17 관점…</div>
               <div data-audit-key="essence">⏳ 3대 본질 정렬…</div>
+              <div data-audit-key="fullSurface">⏳ 전체 표면 전수 감사…</div>
+              <div data-audit-key="deepReview">⏳ 텍스트·기능·데이터 2/3차 감사…</div>
               <div data-audit-key="chatFunctionCoverage">⏳ AI 채팅 함수 통합…</div>
               <div data-audit-key="tickerFetchHealth">⏳ 시세 fetch 건강도…</div>
+              <div data-audit-key="chatContextConsistency">⏳ 14 컨텍스트 기관급…</div>
             </div>
             <!-- v49.58 P322 R108: web_search 토글 GUI -->
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,212,255,0.15);display:flex;justify-content:space-between;align-items:center;">
@@ -3991,7 +3994,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.67</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.68</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4075,7 +4078,7 @@ body.light-theme canvas { filter:none; }
         </div>
         <div class="aio-metric-value" id="home-quality-score" style="color:var(--text-muted);font-size:20px;font-weight:800;">—</div>
       </div>
-      <div id="home-quality-label" style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:var(--space-2);font-weight:600;letter-spacing:var(--ls-wide);">계산 중...</div>
+      <div id="home-quality-label" style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:var(--space-2);font-weight:600;letter-spacing:var(--ls-wide);">판정 입력 대기...</div>
       <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">가중치: 50MA% 25 + A/D 20 + NHNL 20 + McClellan 20 + RSP/SPY 15 = 100</div>
     </div>
 
@@ -4095,7 +4098,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:12px;font-weight:800;color:var(--accent);">📋 지금 해야 할 일 — Action Items <span style="font-size:9px;color:var(--text-muted);font-weight:600;">v49.28/R69 ACTION_RULES</span></div>
       <button data-action="_aioRefreshActionPlan" style="font-size:10px;padding:3px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:4px;color:var(--text-secondary);cursor:pointer;">↻ 갱신</button>
     </div>
-    <div id="home-action-position" style="font-size:12px;color:var(--text-primary);margin-bottom:6px;font-weight:600;">VIX 기반 포지션 사이즈 계산 중...</div>
+    <div id="home-action-position" style="font-size:12px;color:var(--text-primary);margin-bottom:6px;font-weight:600;">VIX 기반 포지션 사이즈 입력 대기...</div>
     <div id="home-action-sentiment" style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;line-height:1.5;">F&amp;G 기반 센티먼트 입력 수신 대기...</div>
     <div id="home-action-breadth" style="font-size:11px;color:var(--text-muted);line-height:1.5;"></div>
     <div style="font-size:10px;color:var(--text-muted);margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
@@ -4757,7 +4760,7 @@ body.light-theme canvas { filter:none; }
         <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">스윙 진입 체크리스트<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="스윙 진입 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">스윙 진입 5대 필터</span>(1) 50SMA&gt;150SMA&gt;200SMA 정배열 (2) RS Rating 80+ (3) 52주 고점 대비 25% 이내 (4) 거래량 평균 대비 150%+ (5) 시장폭(Breadth) 60%+. <strong>5개 모두 통과 = A급 진입</strong>, 3개+ = 선별, 2개 이하 = 패스.</span></span></span>
         <span style="font-size:11px;color:var(--text-muted);margin-left:6px;">Jeff Sun CFTe 15 Hard Rules 기반</span>
       </div>
-      <div id="entry-check-summary" style="font-size:10px;font-weight:700;font-family:var(--font-mono);color:var(--text-muted);">로딩...</div>
+      <div id="entry-check-summary" style="font-size:10px;font-weight:700;font-family:var(--font-mono);color:var(--text-muted);">판정 대기</div>
     </div>
     <div id="entry-check-items" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px;">
       <div id="ec-vix" style="padding:6px 10px;background:var(--surface-1);border-radius:6px;display:flex;align-items:center;gap:6px;">
@@ -5054,7 +5057,7 @@ body.light-theme canvas { filter:none; }
           <div class="bb-label">시장균등도</div>
           <div class="bb-bar-wrap"><div id="bb-rsp-bar" class="bb-bar" style="width:35%;background:var(--data-red);"></div></div>
           <div class="bb-val" id="bb-rsp-val">—</div>
-          <div class="bb-badge" id="bb-rsp-badge" style="background:rgba(255,91,80,0.1);color:var(--data-red);">로딩중</div>
+          <div class="bb-badge" id="bb-rsp-badge" style="background:rgba(255,91,80,0.1);color:var(--data-red);">수신 대기</div>
         </div>
         <!-- McClellan -->
         <div class="breadth-bar-row">
@@ -6034,7 +6037,7 @@ body.light-theme canvas { filter:none; }
           </script>
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-          <span id="briefing-regime-badge" class="status-pill sp-neutral">시장 국면 로딩중</span>
+          <span id="briefing-regime-badge" class="status-pill sp-neutral">시장 국면 수신 대기</span>
           <span style="font-size:11px;color:var(--data-purple);background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);padding:2px 8px;border-radius:4px;font-weight:700;">08:00 KST 기준</span>
           <span class="cross-link" data-action="showPage" data-arg="macro">매크로 상세 →</span>
           <span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 →</span>
@@ -6054,7 +6057,7 @@ body.light-theme canvas { filter:none; }
         매일 오전 8시(KST) 기준 지난 24시간 주요 뉴스를 수집 → 테마별 분류 → AI 분석·해석·설명까지 생성합니다. 처음 로딩 시 30초~1분 소요될 수 있습니다.
       </div>
       <div id="briefing-live-news-list" style="display:flex;flex-direction:column;gap:6px;">
-        <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">⟳ 뉴스를 불러오는 중...</div>
+        <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">뉴스 수집 대기...</div>
       </div>
     </div>
 
@@ -6450,7 +6453,7 @@ body.light-theme canvas { filter:none; }
       <div style="text-align:center;">
         <div id="health-score-display" style="font-size:42px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);">—</div>
         <div id="health-grade-display" style="font-size:10px;font-weight:700;color:var(--text-muted);">/100</div>
-        <div id="health-regime-display" style="font-size:11px;margin-top:4px;padding:2px 6px;background:rgba(255,163,26,0.1);border-radius:4px;color:var(--data-amber);">계산 중</div>
+        <div id="health-regime-display" style="font-size:11px;margin-top:4px;padding:2px 6px;background:rgba(255,163,26,0.1);border-radius:4px;color:var(--data-amber);">판정 대기</div>
       </div>
       <!-- 구성 요소 -->
       <div id="health-components" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
@@ -8417,7 +8420,7 @@ body.light-theme canvas { filter:none; }
     <!-- v37.8: 펀더멘털 동적 분석 -->
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">기업 밸류에이션 스캔</div>
-      <div id="fund-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">기업 카드 로딩 후 자동 분석됩니다</div>
+      <div id="fund-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">기업 카드 수신 후 자동 분석됩니다</div>
     </div>
 
     <!-- v48.56: 어닝 캘린더 — EarningsHub 스타일 주간 그리드 (Finnhub + FMP + IPO) -->
@@ -8778,22 +8781,22 @@ body.light-theme canvas { filter:none; }
           <tr style="border-bottom:1px solid var(--border);">
             <td style="padding:8px;"><b>NVDA</b></td>
             <td style="text-align:center;padding:8px;" data-live-price="NVDA">—</td>
-            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-ytd="NVDA">로딩...</td>
-            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-1y="NVDA">로딩...</td>
+            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-ytd="NVDA">수신 대기</td>
+            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-1y="NVDA">수신 대기</td>
             <td style="text-align:center;padding:8px;">Self</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border);">
             <td style="padding:8px;"><b>XLC</b></td>
             <td style="text-align:center;padding:8px;" data-live-price="XLC">—</td>
-            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-ytd="XLC">로딩...</td>
-            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-1y="XLC">로딩...</td>
+            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-ytd="XLC">수신 대기</td>
+            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-1y="XLC">수신 대기</td>
             <td style="text-align:center;padding:8px;">67</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border);">
             <td style="padding:8px;"><b>XSD</b></td>
             <td style="text-align:center;padding:8px;" data-live-price="XSD">—</td>
-            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-ytd="XSD">로딩...</td>
-            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-1y="XSD">로딩...</td>
+            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-ytd="XSD">수신 대기</td>
+            <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-1y="XSD">수신 대기</td>
             <td style="text-align:center;padding:8px;">44</td>
           </tr>
         </tbody>
@@ -9684,7 +9687,7 @@ body.light-theme canvas { filter:none; }
     <!-- 뉴스 피드 컨테이너 (단일) -->
     <div id="live-news-feed" style="display:flex;flex-direction:column;gap:6px;">
       <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">
-        뉴스를 불러오는 중입니다... <span style="color:var(--data-cyan);">● RSS 연결 중</span>
+        뉴스 수집 대기 중입니다... <span style="color:var(--data-cyan);">● RSS 연결 대기</span>
       </div>
     </div>
   </div>
@@ -12393,9 +12396,9 @@ body.light-theme canvas { filter:none; }
   }
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.67"></script>
-  <script src="./js/aio-data.js?v=49.67"></script>
-  <script src="./js/aio-ui.js?v=49.67"></script>
+  <script src="./js/aio-core.js?v=49.68"></script>
+  <script src="./js/aio-data.js?v=49.68"></script>
+  <script src="./js/aio-ui.js?v=49.68"></script>
 
   <script>
 
@@ -15217,6 +15220,59 @@ function _getChatRules() {
   '  [승인 요청 금지] "이 분석이 도움이 되셨나요?", "더 궁금한 점 있으시면 말씀해 주세요" 같은 승인 요청·빈 마무리 문구 금지. 분석을 끝내면 분석으로 마무리하라. 후속 질문 3개([Q:...]) 제안은 허용.\n';
 }
 
+// v49.68 P360 R126: 기관급 분석 프레임워크 8개 통합 — 14 CHAT_CONTEXTS 공통 주입 (사용자 "기관급 퀄리티" 요구)
+// Bridgewater All Weather / Druckenmiller / Howard Marks / Buffett / Ackman / Soros / GS GIR / Morgan Stanley
+function _getInstitutionalFrameworkContext(pageFocus) {
+  var fw =
+    '\n\n【기관급 분석 프레임워크 (v49.68 R126 — 답변 시 페이지 관련 1~3개 인용 의무)】\n' +
+    '① **Bridgewater All Weather 4-Quadrant**: 성장(↑/↓) × 인플레(↑/↓) 매트릭스. 현재 분기 위치 판정 후 자산 비중 가이드.\n' +
+    '   - 성장↑+인플레↑ (스태그플레이션) → 원자재/에너지/금 OW · 채권 UW\n' +
+    '   - 성장↑+인플레↓ (이상 시나리오) → 성장주/Tech OW · 방어주 UW\n' +
+    '   - 성장↓+인플레↑ (스태그) → 금/TIPS OW · 주식 UW\n' +
+    '   - 성장↓+인플레↓ (디플레/리세션) → 장기채/Defensive OW · Cyclicals UW\n' +
+    '② **Druckenmiller Macro Overlay**: 18개월 선행 매크로 시그널 (M2 성장률 / Yield Curve / Fed Liquidity / 달러 사이클). "미시 < 매크로 < 유동성" — 유동성이 모든 것을 압도.\n' +
+    '③ **Howard Marks Memo (Pendulum Theory)**: 시장 심리는 "낙관 ↔ 비관" 진자 운동. 극단 비관 (F&G ≤ 25) = 비대칭 상승 기회 / 극단 탐욕 (F&G ≥ 75) = 비대칭 하락 위험. 현재 위치 → 향후 6~12개월 비대칭 매핑.\n' +
+    '④ **Buffett Owner Earnings + Margin of Safety**: Owner Earnings = 순이익 + 감가상각 - 유지보수 CAPEX - SBC. FCF Yield 대비 평가. 본질가치 = Owner Earnings × 10~20배 (해자 강도에 따라). 시장가가 본질가치 70% 이하 = Margin of Safety 확보.\n' +
+    '⑤ **Ackman Pershing Square 8 Criteria**: ①단순/이해 가능 ②예측 가능 캐시플로 ③지배적 시장 위치 ④Pricing Power ⑤높은 ROIC ⑥Strong Balance Sheet ⑦Capable + Honest 경영진 ⑧합리적 가격. 8/8 모두 충족만 매수. 6/8 이하 = 통과.\n' +
+    '⑥ **Soros Reflexivity**: "Perception ↔ Fundamentals 양방향 강화" 루프. 차트가 펀더멘털을 만들고, 펀더멘털이 차트를 강화. Bubble 단계 (Stealth → Awareness → Mania → Distribution → Panic) 위치 판정.\n' +
+    '⑦ **GS GIR (Top of Mind / Trade Recommendation)**: 시점별 핵심 컨센서스 vs 비컨센서스 분리. "Top of Mind" 5 테마 + "Out of Consensus" 3 트레이드. 시장 합의에서 벗어난 알파 기회 식별.\n' +
+    '⑧ **Morgan Stanley Cyclical Pendulum**: ISM/CRB/PMI 사이클 → 11 GICS 섹터 로테이션 매핑. Early (Cyclicals/Small Cap) → Mid (Tech/Industrials) → Late (Energy/Materials) → Recession (Staples/Utilities/Healthcare).\n' +
+    '\n[답변 시 의무] 종목/매크로/시장 분석 시 위 8 프레임 중 페이지 주제와 가장 관련 깊은 1~3개를 명시 인용 후 결론 도출. "Bridgewater All Weather 4-quadrant 기준 현재 위치는 ~, Druckenmiller Overlay에서 유동성 시그널은 ~, 결론적으로 ~"\n';
+
+  var pageSpecific = '';
+  switch (pageFocus) {
+    case 'macro':
+    case 'kr-macro':
+      pageSpecific = '\n[이 페이지 우선 프레임] Bridgewater 4-Quadrant + Druckenmiller Macro Overlay 우선. 현재 4-quadrant 위치 + 18개월 유동성 시그널 결합.\n';
+      break;
+    case 'sentiment':
+      pageSpecific = '\n[이 페이지 우선 프레임] Howard Marks Pendulum + Soros Reflexivity. F&G 극단치 + 차트-펀더 양방향 루프 단계 판정.\n';
+      break;
+    case 'fundamental':
+    case 'ticker':
+      pageSpecific = '\n[이 페이지 우선 프레임] Buffett Owner Earnings + Ackman 8 Criteria. Owner Earnings 산출 + 8 기준 충족 여부 명시.\n';
+      break;
+    case 'themes':
+    case 'theme-detail':
+      pageSpecific = '\n[이 페이지 우선 프레임] Soros Reflexivity + Morgan Stanley Cyclical Pendulum. 테마 거품 단계 + 섹터 로테이션 위치.\n';
+      break;
+    case 'technical':
+      pageSpecific = '\n[이 페이지 우선 프레임] Soros Reflexivity (Bubble 5단계) + Druckenmiller Macro Overlay. 차트 패턴 신뢰도를 매크로 환경으로 가감.\n';
+      break;
+    case 'signal':
+    case 'breadth':
+      pageSpecific = '\n[이 페이지 우선 프레임] GS GIR Out of Consensus + Morgan Stanley Cyclical. 컨센서스 이탈 시그널 + 섹터 위치.\n';
+      break;
+    case 'fxbond':
+      pageSpecific = '\n[이 페이지 우선 프레임] Bridgewater 4-Quadrant + Druckenmiller. 매크로 환경 + 유동성 사이클 → FX/채권 방향성.\n';
+      break;
+    case 'portfolio':
+      pageSpecific = '\n[이 페이지 우선 프레임] Bridgewater All Weather (자산 분산) + Buffett Margin of Safety. 보유 종목 4-quadrant 분포 + 안전 마진 점검.\n';
+      break;
+  }
+  return fw + pageSpecific;
+}
+
 // v48.20 (integrate): 공용 매크로 맥락 주입 함수 — 7개 CHAT_CONTEXT가 공유
 // 35건 리서치 자료의 핵심 프레임워크를 모든 페이지 AI 챗에 일관되게 전달
 function _getV48IntegratedContext(pageFocus) {
@@ -15353,11 +15409,13 @@ function _getV48IntegratedContext(pageFocus) {
         '• 하이퍼스케일러 약정 수혜 시그널 (v48.87): Anthropic $200B Google Cloud 5yr + OpenAI $45B 서버 2026 → NVDA/TSMC 수주 가시성 최고 수준. 단기: TSMC 어닝 가이던스(용량 할당 변화) + NVDA B300 출하 모멘텀 = 진입 트리거. CoreWeave $3.1B 담보 = CRWV 재평가 변수.\n';
       break;
   }
-  return common + focus;
+  // v49.68 P360 R126: 기관급 분석 프레임워크 자동 통합 — 14 CHAT_CONTEXTS 공통 주입
+  var instFw = (typeof _getInstitutionalFrameworkContext === 'function') ? _getInstitutionalFrameworkContext(pageFocus) : '';
+  return common + focus + instFw;
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.67"></script>
+<script src="./js/aio-chat.js?v=49.68"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -27465,9 +27523,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.67"></script>
+<script src="./js/aio-glossary.js?v=49.68"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.67"></script>
+<script src="./js/aio-tests.js?v=49.68"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전

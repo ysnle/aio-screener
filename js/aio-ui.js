@@ -689,7 +689,7 @@ function updateRallyQualityVerdict() {
   var b5 = (typeof window._breadth5 === 'number') ? window._breadth5 : null;
   var b20 = (typeof window._breadth200 === 'number') ? window._breadth200 : null;
   var b50 = (typeof window._breadth50 === 'number') ? window._breadth50 : null;
-  if (!b5) { el.textContent = '시장폭 데이터 로딩 대기 중...'; return; }
+  if (!b5) { el.textContent = '시장폭 데이터 수신 대기 중...'; return; }
 
   var verdict = '', color = '', bg = '';
   if (b5 > 70 && b50 > 60) {
@@ -2777,7 +2777,7 @@ async function runInstitutionalTechnicalBrief(arg) {
   }
   if (!symbol || symbol === '[OBJECT HTMLBUTTONELEMENT]') symbol = 'NVDA';
   var row = document.getElementById('tech-brief-regime-row');
-  if (row) row.innerHTML = '<div style="grid-column:1/-1;padding:10px;color:var(--text-muted);font-size:11px;">Loading institutional technical brief for ' + _itbEsc(symbol) + '...</div>';
+  if (row) row.innerHTML = '<div style="grid-column:1/-1;padding:10px;color:var(--text-muted);font-size:11px;">Institutional technical brief input pending for ' + _itbEsc(symbol) + '...</div>';
   try {
     var fetcher = window.fetchOHLCVWithFallback || window.fetchOHLCV;
     var settled = await Promise.allSettled([

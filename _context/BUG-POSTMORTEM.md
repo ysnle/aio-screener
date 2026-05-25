@@ -2,10 +2,78 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.67
-latest_P_number: P356
-total_entries: 356
-next_P_number: P357
+latest_version: v49.68
+latest_P_number: P364
+total_entries: 364
+next_P_number: P365
+---
+
+## P364 · v49.68 · [P364/R128] AI 채팅 사이드바 audit row 7 → 8축 (chatContextConsistency 미가시화)
+
+- **문제**: v49.67 사이드바 audit 7축 (registry/web_search/freshness/chatContexts/analysisFramework/essence/chatFunctionCoverage/tickerFetchHealth/fullSurface/deepReview)에 "14 CHAT_CONTEXTS 기관급 퀄리티" 정합 row 부재. 사용자가 "AI 채팅 시스템 전체가 유기적으로 기관급 퀄리티" 요구 시 자가 진단 불가.
+- **시정 (v49.68)**: `[data-audit-key="chatContextConsistency"]` row 8번째 추가 + `_aioRefreshAuditWidget`에 cccEl 분기 — "기관급 퀄리티 X/100 · 프레임 X/14 · 시나리오 ✓ · 시각 ✓" 색상 표시 (>=85% green / >=60% amber / <60% red).
+- **재발 방지**: T528 라이브 DOM 회귀 (사이드바 row DOM 존재).
+- **파일**: `index.html` + `js/aio-core.js` _aioRefreshAuditWidget cccEl 분기
+
+## P363 · v49.68 · [P363/R128] AI 채팅 데이터 소스 우선순위 미명문화 + 출처 타임스탬프 누락
+
+- **문제**: v49.67까지 _liveSnap/_closeSnap/DATA_SNAPSHOT 3중 데이터 소스 혼용 + 우선순위 명문화 부재. 폴백값 인용 시 "기준일" 미표기로 사용자가 stale 여부 판단 불가. macro context "Fed Rate: 3.50-3.75%" 폴백값을 실시간처럼 인용.
+- **시정 (v49.68)**: ABSOLUTE RULES **12조 신규** — 1순위 _liveSnap (실시간 <5분) → 2순위 _closeSnap (종가) → 3순위 DATA_SNAPSHOT (폴백, 신선도 명시) → 4순위 SEC/FMP/Naver/Finnhub fetched (5분 캐시). 폴백값 인용 시 "(폴백)" 명시 + "Source · 기준일: YYYY-MM-DD" 표기 의무.
+- **재발 방지**: T525 라이브 DOM 회귀 (ABSOLUTE RULES 12조 명시).
+- **파일**: `js/aio-chat.js` ABSOLUTE RULES 12조
+
+## P362 · v49.68 · [P362/R128] AI 채팅 14 컨텍스트 일관성 + 기관급 퀄리티 자동 진단 부재
+
+- **문제**: v49.67까지 14 CHAT_CONTEXTS의 의미적 품질 (기관급 프레임 통합 / 시나리오 가이드 / 시각 단서 / 출처 타임스탬프) 자동 진단 부재. 사용자가 "기관급 퀄리티 유기적 작동" 요구 시 콘솔에서 즉시 점수 확인 불가. 같은 데이터 (VIX/10Y/DXY)가 14 컨텍스트에 일관 주입되는지 미검증.
+- **시정 (v49.68)**: `AIO.getChatContextConsistencyAudit()` 신설 — 14 CHAT_CONTEXTS × 5 측면 (라이브 일관성 / 기관급 프레임 / 시나리오 / 시각 단서 / 출처 타임스탬프) + _fetchTickerDataForChat 자체 5 측면 검증. qualityScore 0~100 산출 (가중치: 프레임 25점 + 라이브 15점 + 시나리오 10점 + 시각 5점 + 출처 5점 + 채팅 함수 40점). status: 85+ ok / 60~85 warn / <60 fail.
+- **재발 방지**: T526 함수 정의 + T527 qualityScore >= 60 + T529 14 컨텍스트 12+ 프레임.
+- **파일**: `js/aio-core.js` getChatContextConsistencyAudit + `index.html` 사이드바 row
+
+## P361 · v49.68 · [P361/R127/R128] AI 채팅 Bull/Base/Bear 시나리오 분기 미강제 + 시각 단서 부재
+
+- **문제 (의미적 진단)**: v49.67까지 14 CHAT_CONTEXTS 중 macro만 시나리오 분기 (60/25/15% 확률) 제공. 종목 분석/사용자 질의 시 단일 결론만 답변 → 비대칭 위험 미인지. 이모지/굵기/색상 일관성 부재 → 사용자가 위험/기회 즉시 시각 인지 불가.
+- **시정 (v49.68)**:
+  - 시장 환경 헤더에 VIX/F&G/Score 이모지 자동 분류: VIX ≥25 🔴 / ≥20 🟡 / <20 🟢 / F&G 극단 (≤25 또는 ≥75) 🔴 / 중립 🟢 / Score ≥65 🟢 / ≥40 🟡 / <40 🔴
+  - ABSOLUTE RULES **9조 신규** (R127 Bull/Base/Bear 3 시나리오 분기 + 확신도 X+Y+Z=100 의무): 형식 "**📈 Bull (X%)**: [트리거] → [시나리오] / **🟡 Base (Y%)** / **📉 Bear (Z%)**"
+  - ABSOLUTE RULES **10조 신규** (R128 시각 단서 표준 + Source · 기준일 표기 + 결론→3 핵심→시나리오→액션 구조 강제)
+- **재발 방지**: T523 시나리오 가이드 / T524 이모지 + 타임스탬프 / T525 ABSOLUTE RULES 10조.
+- **파일**: `js/aio-chat.js` 시장 헤더 이모지 + ABSOLUTE RULES 9~10조
+
+## P360 · v49.68 · [P360/R126] AI 채팅 기관급 분석 프레임워크 8개 통합 부재 (32% → 100% 매핑)
+
+- **사용자 정직 지적**: "AI 채팅 관련한 시스템 전체가 유기적으로 기관급 퀄리티로 작동해야"
+- **문제 진단 (Explore agent 의미적 정밀 진단)**: v49.67까지 11 기관급 프레임 중 3.5/11 (32%) 통합:
+  - ✓ 명시: Citi (Stagflation Playbook, NAND SCA), JPM (CoWoS, Healthcare, Liquidity), Goldman (Top of Mind, Evercore 일부)
+  - ❌ **누락 (핵심 8개)**: Bridgewater All Weather 4-Quadrant / Druckenmiller Macro Overlay / Howard Marks Pendulum / Buffett Owner Earnings + Margin of Safety / Ackman Pershing Square 8 Criteria / Soros Reflexivity / GS GIR (Top of Mind / Out of Consensus 명시) / Morgan Stanley Cyclical Pendulum
+- **시정 (v49.68)**:
+  - `_getInstitutionalFrameworkContext(pageFocus)` 신규 함수 (`index.html` L15222~15310) — 8 프레임 정의 + 답변 시 의무 명시 + 페이지별 우선 프레임 매핑
+  - `_getV48IntegratedContext` 자동 호출 → 14 CHAT_CONTEXTS 모두 자동 주입 (`return common + focus + instFw;`)
+  - ABSOLUTE RULES **11조 신규** (R126 8 프레임 중 1~3개 인용 의무): "Bridgewater 4-Quadrant 기준 현재 위치는 ~ / Druckenmiller Overlay 유동성 시그널은 ~ / 따라서 ~"
+  - 페이지별 우선 프레임: macro→Bridgewater+Druckenmiller / sentiment→Marks+Soros / fundamental→Buffett+Ackman / themes→Soros+MS Cyclical / fxbond→Bridgewater+Druckenmiller / portfolio→All Weather+Margin of Safety
+- **재발 방지**: T521 8 프레임 명시 + T522 v48 → instFw 자동 호출 + T529 14 컨텍스트 12+ 프레임 + R126 신규.
+- **파일**: `index.html` L15222 _getInstitutionalFrameworkContext + L15411 _getV48IntegratedContext 통합
+
+## P359 · v49.67 · [P359/R125] Surface inventory was not enough for second/third-pass text/function/data review
+- **Problem**: P358 proved every page/overlay surface was present, but it still did not prove that meaning-bearing text, delegated input handlers, unlabeled controls, dense jargon, console-only hints, and data-sink explanation coverage were audited as a second/third pass.
+- **Fix (v49.67 Codex hardening)**: Added `AIO.getDeepReviewAudit()` to scan text snippets, placeholder/stale tokens, `data-on-enter`/`data-on-input` handlers, unlabeled buttons, dense jargon, console-only hints, and data pages with sinks but no lineage/explainer markers.
+- **Prevention**: Wired the audit to sidebar `[data-audit-key="deepReview"]`, `AIO.getAutoOpsReadiness()`, and `AIO.getDeploymentGateAudit()`. Added T515-T520 for API shape, text snippet coverage, sidebar row, AutoOps integration, deployment gate integration, and input binding audit shape.
+- **Files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `version.json`
+---
+
+## P358 · v49.67 · [P358/R124] 1-pass page review ambiguity — no DOM-first full surface inventory
+- **Problem**: Prior audits could still be interpreted as "first pass" because `getPageUXAudit()` follows the page brief registry and does not inventory every actual DOM surface. A page could have tables, charts, controls, data sinks, or visible placeholder text that was not summarized in one operator-facing audit.
+- **Fix (v49.67 Codex hardening)**: Added `AIO.getFullSurfaceAudit()` to walk every `.page[id]` in the rendered DOM and summarize headings, sections/cards, data sinks, controls, tables, charts, explainers, visible loading text, registry coverage, brief coverage, and per-page risk flags.
+- **Prevention**: Wired the new audit to sidebar `[data-audit-key="fullSurface"]`, `AIO.getAutoOpsReadiness()`, and `AIO.getDeploymentGateAudit()`. Added T508-T514 for API shape, full DOM page coverage, sidebar row, AutoOps command/result, visible loading zero, deployment gate integration, and non-route overlay coverage.
+- **Files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `version.json`
+---
+
+## P357 · v49.67 · [P357/R123] 사이드바 Audit row 의미 혼선 — REGISTRY/신선도 수치 분리 부족
+
+- **문제**: v49.67 사이드바 audit row에서 REGISTRY는 실제 등록 수(`384 real / 391 total`)가 아니라 alias coverage(`250/543`, 46%)만 보여 사용자가 등록 보강을 과소평가할 수 있었다. freshness row도 `getChatContextFreshnessAudit()`의 `totalHits` 반환을 pct로만 해석해 "측정 불가" 또는 전체 stale hit 경고로 보일 수 있었다.
+- **시정 (v49.67 Codex 보강)**: registry row는 `getTickerRegistryEntryAudit()` 우선 표시로 변경해 `real / total`과 alias coverage를 분리. freshness audit은 `currentHits`와 `archiveHits`를 분리 반환하고, sidebar row는 `current stale N건 · archive ref M건`으로 표시.
+- **재발 방지**: T505 (`REGISTRY real/total` row), T506 (`freshness 측정 불가 금지`), T507 (`currentHits/archiveHits shape`) 추가.
+- **브라우저 확인**: registry row `✓ REGISTRY 384 real / 391 total (98%) · alias 46%`, freshness row `✓ 컨텍스트 current stale 0건 · archive ref 24건`.
+- **파일**: `js/aio-core.js`, `js/aio-tests.js`
 ---
 
 ## P356 · v49.67 · [P356/R122] AI 채팅 사이드바 audit row 6 → 7축 (tickerFetchHealth 미가시화)
