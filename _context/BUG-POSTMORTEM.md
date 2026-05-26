@@ -2,11 +2,47 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.73
-latest_P_number: P392
-total_entries: 392
-next_P_number: P393
+latest_version: v49.74
+latest_P_number: P398
+total_entries: 398
+next_P_number: P399
 ---
+
+## P398 · v49.74 hotfix · [P398/R146] home 페이지 채팅 UI DOM 부재 — CHAT_CONTEXTS만 등록하고 패널 미설치
+
+- **문제 (사용자 라이브 검증 발견)**: "Home에서는 AI 채팅 되지도 않아". v49.73에서 `window.CHAT_CONTEXTS['home']` 추가했으나 `#page-home`에 `<div class="aio-chat" id="chat-home">` DOM 미설치 → `chatSend('home')`이 input `chat-home-inp` 못 찾아 silent return.
+- **시정**: `#page-home` 끝 (L4428 직전)에 theme-detail 패턴 미러 인라인 채팅 패널 추가 (acp-header/messages/chips/input/btn 5요소). chips 3개 (오늘 시장 환경 요약 / 지금 뭐부터 봐야 / 초보자 시작 가이드).
+- **재발 방지**: R146 신규 — CHAT_CONTEXTS 등록만으로 부족, DOM 인라인 패널 의무.
+
+## P397 · v49.74 hotfix · [P397/R145] AI 답변 학습 데이터 자기 인용 절대 차단 강화
+
+- **문제 (사용자 라이브 검증 발견)**: AI 답변에 "2025년 초 학습 데이터 기준으로 NVDA는 $400~500대" 등장. ABSOLUTE RULES 5조 ("학습 데이터 사용 금지")는 있으나 자기 환각 자백 표현 / 학습 시점 연도 / 추측 가격 범위 자동 차단 부재.
+- **시정**: (a) ABSOLUTE RULES 17조 신규 — 금지 표현 4 카테고리 명시 (자기 환각 자백/학습 연도/추측 가격/추측 뉴스). 시세 데이터 ✗ 시 모든 가격 수치 절대 금지. (b) `getChatHallucinationAudit` 패턴 3개 추가 — `self-confess-training-data` (+5점 critical), `training-year-citation`, `vague-price-range`. `requiresWarningBox` 플래그. (c) chatSend 응답 렌더에 self-confess 검출 시 답변 위에 강제 빨간 경고 박스 표시 + 검출 패턴 + 권장 조치 명시.
+- **재발 방지**: 시각적 사용자 경고 + ABSOLUTE RULES 17조 + audit 패턴 강화.
+
+## P396 · v49.74 · [P396] 라이브 검증 환경 제약 — 사용자 production 직접 검증 가이드 (정직)
+
+- **문제**: MCP preview 서버가 다른 워크트리(distracted-ramanujan-28118e, v49.55) 바인딩 → v49.73 라이브 검증 불가. 자동 모드 안전장치가 (a) 다른 워크트리 파일 체크아웃 (b) 병렬 포트 서버 시작 차단.
+- **시정**: 사용자 직접 production (https://ysnle.github.io/aio-screener/) 검증 가이드 제공 — 7 페이지 × 3 질문 = 21 질의 + 평가 체크리스트 (현재성/정확성/직관성/정성→정량). 사용자 답변 공유 후 v49.75에서 발견 갭 시정 예정.
+- **재발 방지**: T588 — 라이브 검증 가이드 안내 (회귀 검증 아닌 사용자 안내).
+
+## P395 · v49.74 · [P395/R144] AI 채팅 멀티턴 토큰 누적 정책 부재 — v46.6 char-trim 단독 → 환각 누적 위험
+
+- **문제**: v46.6 char-limit 60K trim만 존재 → 10턴+ 대화 시 이전 환각이 신규 답변에 누적 가능. Turn-count cap 부재 / 요약 prepend 부재.
+- **시정**: chatSend에 (a) turn-cap 24 추가 (b) 8개+ 제거 시 사용자 주요 질문 5개 추출 → 요약 user 메시지 + 어시스턴트 확인 메시지 자동 prepend (c) `window._chatMultiTurnStats` { trimEvents, summaryInsertions, maxTurnsBeforeTrim } 추적.
+- **재발 방지**: T582 + T583 + T585.
+
+## P394 · v49.74 · [P394] AI 채팅 시스템 잔존 갭 11개 정직 매핑 (사용자 정직 질의 응답)
+
+- **문제**: v49.73까지 26 영역 다뤘으나 사용자 "더 조사하거나 점검할 영역 없어?" 정직 질의에 솔직 답변. 11개 잔존 갭 매핑 (CRITICAL 2 + HIGH 4 + MEDIUM 3 + LOW 2).
+- **시정**: v49.74 (CRITICAL 2 + HIGH 1 = 3) + v49.75 (HIGH 3 잔여 = 답변 캐시/환각 자동 감지 강화/피드백 통계). 2단계 분할.
+- **재발 방지**: 라이브 검증 + 멀티턴 정책 + KR audit 확장 통합.
+
+## P393 · v49.74 · [P393/R143] AI 답변 품질 audit가 KR 4 페이지 (kr-macro/supply/themes/tech) 평가 누락
+
+- **문제**: v49.73 `assertChatAnswerQualityAudit`이 7 페이지만 (home/technical/macro/sentiment/breadth/fundamental/portfolio) 평가 → KR 사용자 체감 갭 (한국 시장 답변 품질 저평가).
+- **시정**: ctxIds 배열을 7 → 11로 확장 (kr-macro/kr-supply/kr-themes/kr-tech 4 추가). freshnessScore 계산식 분모 7 → 11.
+- **재발 방지**: T581 (`perPageDetail.length === 11` + KR 4 ID 모두 포함) + T586 (분모 11 검증).
 
 ## P392 · v49.73 · [P392/R140~R142] AI 채팅 답변 품질 3축 자동 진단 audit + 사이드바 13축
 

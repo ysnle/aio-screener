@@ -1181,6 +1181,38 @@ const CHAT_CONTEXTS = {
 
 if (typeof window !== 'undefined') {
   window.CHAT_CONTEXTS = CHAT_CONTEXTS;
+  window._chatMultiTurnStats = window._chatMultiTurnStats || {
+    trimEvents: 0,
+    summaryInsertions: 0,
+    maxTurnsBeforeTrim: 0,
+    lastTrimmedChars: 0
+  };
+}
+
+function _aioNormalizeChatFreshnessLanguage(text) {
+  if (typeof text !== 'string' || !text) return text;
+  return text
+    .replace(/\[실시간\]/g, '[live 우선/source 확인]')
+    .replace(/실시간 값 사용/g, 'source label과 신선도를 확인한 값만 사용')
+    .replace(/실시간 데이터 블록/g, 'live 우선/source 확인 데이터 블록')
+    .replace(/실시간 데이터가 주입된 경우/g, 'live/source 확인 데이터가 주입된 경우')
+    .replace(/실시간 데이터·뉴스·웹검색/g, 'live/source 확인 데이터·뉴스·웹검색')
+    .replace(/실시간 데이터/g, 'live 우선/source 확인 데이터')
+    .replace(/실시간 시세 조회 실패/g, '현재 시세 조회 실패')
+    .replace(/실시간 시세/g, 'live 우선/source 확인 시세')
+    .replace(/실시간 조회/g, 'live 우선/source 확인 조회')
+    .replace(/실시간 스냅샷/g, 'source-aware 스냅샷')
+    .replace(/실시간 한국시장/g, 'source-aware 한국시장')
+    .replace(/실시간 등락률/g, 'live 우선/source 확인 등락률')
+    .replace(/실시간 밸류에이션/g, 'live 우선/source 확인 밸류에이션')
+    .replace(/실시간 가격/g, 'live 우선/source 확인 가격')
+    .replace(/실시간 연결/g, 'live 연결')
+    .replace(/_liveSnap\(\) 실시간/g, '_liveSnap() live 우선/source 확인')
+    .replace(/\[실시간 시세\]/g, '[live 우선/source 확인 시세]');
+}
+
+if (typeof window !== 'undefined') {
+  window._aioNormalizeChatFreshnessLanguage = _aioNormalizeChatFreshnessLanguage;
 }
 
 // ── Per-context state ──────────────────────────────────────────────────
@@ -4448,19 +4480,38 @@ async function chatSend(ctxId) {
   else _dataVerify += '• 정적 데이터: ⚠ ' + _snapAge + '시간 경과 — 수치 인용 시 "N시간 전 스냅샷" 명시\n';
   _dataVerify += '규칙: ✗ 또는 ⚠ 표시된 데이터는 "확인되지 않음"·"데이터 미수집"이라고 명시적으로 밝혀야 한다. 추측 금지.\n';
   systemPrompt += _dataVerify;
+  systemPrompt = _aioNormalizeChatFreshnessLanguage(systemPrompt);
 
-  // v46.6: messages 배열 자동 trim — 토큰 폭발 방지 (60,000자 ≈ 15K토큰 제한)
+  // v49.74 P395 R144: messages 멀티턴 윈도잉 + 요약 — char-trim (v46.6) + turn-cap (24) + 요약 prepend
+  // 사용자 정직 지적 — "멀티턴 대화 토큰 누적 정책 부재" 시정
+  window._chatMultiTurnStats = window._chatMultiTurnStats || { trimEvents: 0, summaryInsertions: 0, maxTurnsBeforeTrim: 0 };
   var _msgTotalChars = state.messages.reduce(function(sum, m) { return sum + (m.content || '').length; }, 0);
-  if (_msgTotalChars > 60000) {
+  var _MAX_TURNS = 24;       // turn cap (user + assistant 한 쌍 = 2)
+  var _CHAR_LIMIT = 60000;   // ~15K 토큰
+  var _CHAR_TARGET = 40000;  // trim 후 목표
+  var _SUMMARY_TRIGGER = 8;  // 요약 본문 삽입 시작 시점 (제거 메시지 8개+)
+  if (_msgTotalChars > _CHAR_LIMIT || state.messages.length > _MAX_TURNS) {
+    var _removedMsgs = [];
     var _trimCount = 0;
-    while (state.messages.length > 2 && _msgTotalChars > 40000) {
+    while (state.messages.length > 2 && (_msgTotalChars > _CHAR_TARGET || state.messages.length > _MAX_TURNS - 2)) {
       var removed = state.messages.shift();
+      _removedMsgs.push(removed);
       _msgTotalChars -= (removed.content || '').length;
       _trimCount++;
     }
     if (_trimCount > 0) {
-      console.log('[AIO v46.6] messages trim: ' + _trimCount + '개 제거 (남은 ' + state.messages.length + '개, ' + Math.round(_msgTotalChars/1000) + 'K자)');
-      showToast('이전 대화가 길어 최근 ' + state.messages.length + '턴만 유지됩니다.');
+      window._chatMultiTurnStats.trimEvents++;
+      window._chatMultiTurnStats.maxTurnsBeforeTrim = Math.max(window._chatMultiTurnStats.maxTurnsBeforeTrim, _trimCount + state.messages.length);
+      // _SUMMARY_TRIGGER 이상 제거 시 요약 메시지 prepend — 환각 누적 차단 + 이전 컨텍스트 핵심 보존
+      if (_trimCount >= _SUMMARY_TRIGGER) {
+        var _userTurns = _removedMsgs.filter(function(m){ return m.role === 'user'; }).map(function(m){ return (m.content||'').slice(0, 80); }).slice(0, 5);
+        var _summaryMsg = '[이전 대화 요약 — ' + _trimCount + '개 메시지 정리] 사용자 주요 질문: ' + (_userTurns.length ? _userTurns.map(function(q,i){ return (i+1)+') ' + q; }).join(' / ') : '(질문 미상)') + '. 이 컨텍스트는 참고만 — 현재 답변은 새 [시스템 데이터]만 인용.';
+        state.messages.unshift({ role: 'user', content: _summaryMsg });
+        state.messages.unshift({ role: 'assistant', content: '이전 대화 요약 확인. 새 질문 정량/출처 데이터 우선.' });
+        window._chatMultiTurnStats.summaryInsertions++;
+      }
+      console.log('[AIO v49.74 P395 R144] messages trim: ' + _trimCount + '개 제거 (남은 ' + state.messages.length + '개, ' + Math.round(_msgTotalChars/1000) + 'K자) · 요약삽입:' + (_trimCount >= _SUMMARY_TRIGGER));
+      if (typeof showToast === 'function') showToast('이전 대화 길이 정리 — 최근 ' + state.messages.length + '턴 + 요약 유지');
     }
   }
 
@@ -4586,6 +4637,16 @@ async function chatSend(ctxId) {
               _accItems.push('<span style="color:' + _hColor + ';" title="패턴: ' + _hall.patterns.join(', ') + '">🧠 환각 ' + _hall.suspicionScore + '/10</span>');
               if (_hall.suspicionScore >= 7 && typeof console !== 'undefined' && console.warn) {
                 console.warn('[AIO/R86] High hallucination risk:', _hall);
+              }
+              // v49.74 P397 R145: 학습 데이터 자기 인용 (self-confess) 패턴 검출 시 강제 빨간 경고 박스
+              if (_hall.requiresWarningBox && aiBubble && aiBubble.parentNode) {
+                var _hallBox = document.createElement('div');
+                _hallBox.className = 'aio-hallucination-warning';
+                _hallBox.style.cssText = 'margin:6px 0;padding:8px 10px;background:rgba(255,91,80,0.12);border:1px solid #ff5b50;border-radius:6px;color:#ff5b50;font-size:11px;line-height:1.5;font-weight:600;';
+                _hallBox.innerHTML = '⚠️ <strong>환각 경고 (v49.74 R145)</strong>: AI 답변에 "학습 데이터" / "기억 속" / "내가 알기로" 등 자기 환각 자백 표현이 감지됐습니다. 이 답변의 가격·시점 정량 정보는 신뢰하지 마세요. 시스템 프롬프트에 주입된 데이터만 인용해야 합니다.<br/>' +
+                  '<span style="color:var(--text-muted);font-weight:500;">검출 패턴: ' + _hall.patterns.join(' · ') + '</span><br/>' +
+                  '<span style="color:var(--text-muted);font-weight:500;">권장 조치: 실시간 시세 새로고침 후 재질문 (사이드바 → 🔄) 또는 시스템 프롬프트의 [Price]/[News] 블록 인용 여부 확인.</span>';
+                aiBubble.parentNode.insertBefore(_hallBox, aiBubble);
               }
             } else {
               _accItems.push('<span style="color:#3ddba5;" title="환각 패턴 0">🧠 클린</span>');

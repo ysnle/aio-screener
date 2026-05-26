@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.73 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.74 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4000,7 +4000,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.73</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.74</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4425,6 +4425,26 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- [OLD SECTIONS REMOVED - REPLACED BY NEW DASHBOARD] -->
+
+  <!-- v49.74 P398 R146: home 페이지 인라인 채팅 패널 (사용자 정직 발견 — "Home에서는 AI 채팅 되지도 않아") -->
+  <div class="aio-chat" id="chat-home" style="margin-top:16px;">
+    <div class="acp-header">
+      <span class="acp-title">AIO Screener 홈 — AI 종합 안내</span>
+      <button class="acp-clear" data-action="chatClear" data-arg="home" title="대화 초기화">🗑</button>
+    </div>
+    <div class="acp-messages" id="chat-home-msgs"></div>
+    <div class="acp-chips" id="chat-home-chips">
+      <button class="aio-chat-chip q-chip" data-action="chatFromChip" data-arg="home" data-arg2="오늘 시장 환경 요약해줘">오늘 시장 환경 요약</button>
+      <button class="aio-chat-chip q-chip" data-action="chatFromChip" data-arg="home" data-arg2="지금 환경에서 뭐부터 봐야 해?">지금 뭐부터 봐야?</button>
+      <button class="aio-chat-chip q-chip" data-action="chatFromChip" data-arg="home" data-arg2="초보자라면 어디부터 시작해?">초보자 시작 가이드</button>
+    </div>
+    <div class="acp-input-row" style="display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--border);">
+      <input id="chat-home-inp" placeholder="시장 흐름·시그널·종목·포트폴리오 무엇이든 질문하세요..."
+        data-on-keydown="chatInputEnter" data-arg="home"
+        style="flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text-primary);font-size:13px;">
+      <button id="chat-home-btn" data-action="chatSend" data-arg="home" class="acp-send-btn" style="padding:8px 14px;background:var(--accent);color:#0a0e14;border:none;border-radius:6px;cursor:pointer;font-weight:700;">전송 ▶</button>
+    </div>
+  </div>
 </div><!-- fix: page-home outer close -->
 
 
@@ -6925,7 +6945,7 @@ body.light-theme canvas { filter:none; }
       <div style="padding:8px 10px;background:rgba(0,212,255,0.04);border-radius:6px;border:1px dashed rgba(0,212,255,0.3);">
         <strong style="color:var(--accent);">📖 매크로 내러티브 생성 중…</strong>
         <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.6;">
-          • <strong>출처</strong>: SPX/VIX/DXY/금리/유가 실시간 + DATA_SNAPSHOT 폴백<br>
+          • <strong>출처</strong>: SPX/VIX/DXY/금리/유가 live 우선 + 차단 시 DATA_SNAPSHOT 참고용 폴백<br>
           • <strong>예상 시간</strong>: 1~2초 (live data fetch) 또는 즉시 (cache hit)<br>
           • <strong>실패 시</strong>: 정적 폴백 — "Fed 정책 대기 · 유가 변동 모니터링"<br>
           • <strong>수동 갱신</strong>: 콘솔 <code>generateMacroStoryline()</code>
@@ -9845,7 +9865,7 @@ body.light-theme canvas { filter:none; }
   <!-- Real-time Sentiment Strip -->
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
     <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">VIX (실시간)</div>
+      <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">VIX (live 우선)</div>
       <div style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:#3b82f6;" data-live-price="^VIX" data-static-default="true">—</div>
       <div style="font-size:11px;color:var(--text-muted);">—</div>
     </div>
@@ -9868,7 +9888,7 @@ body.light-theme canvas { filter:none; }
 
   <!-- v31.9: 데이터 소스 고지 배너 · v48.15: 스냅샷 경과일 자동 표시 (텍스트-C) -->
   <div id="opt-data-notice" style="padding:8px 12px;margin-bottom:12px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.2);border-radius:var(--radius);font-size:11px;color:var(--data-amber);line-height:1.5;">
-    <strong>데이터 안내:</strong> VIX·VVIX는 실시간 (Yahoo Finance). IV Rank, Greeks, Skew, GEX, 옵션 흐름은 <strong>참고용 추정치 · 주간 수동 갱신</strong>입니다. 정확한 옵션 데이터는 CBOE, ThinkorSwim, Interactive Brokers 등 전문 플랫폼을 이용하세요.
+    <strong>데이터 안내:</strong> VIX·VVIX는 Yahoo Finance live 우선이며, 차단 시 reference-only snapshot으로 표시됩니다. IV Rank, Greeks, Skew, GEX, 옵션 흐름은 <strong>참고용 추정치 · 주간 수동 갱신</strong>입니다. 정확한 옵션 데이터는 CBOE, ThinkorSwim, Interactive Brokers 등 전문 플랫폼을 이용하세요.
     <span id="opt-update-time" style="margin-left:8px;color:var(--text-muted);">스냅샷: <span data-snap-date="option-snapshot">2026-05-16</span> · <span id="option-snapshot-stale-days">경과 산출 대기</span></span>
   </div>
 
@@ -9893,7 +9913,7 @@ body.light-theme canvas { filter:none; }
       <div id="opt-pcr-text" style="font-size:11px;color:var(--text-muted);line-height:1.4;" data-source-kind="pending" data-operational-use="reference-only">CBOE Total P/C 수신 대기 · 실패 시 DATA_SNAPSHOT은 참고용으로만 표시합니다.</div>
     </div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
-      <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">VIX (실시간)</div>
+      <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">VIX (live 우선)</div>
       <div style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);" data-live-price="^VIX" data-static-default="true">—</div>
       <div style="font-size:11px;color:var(--data-red);margin-bottom:6px;">높은 긴장 (평년 15~18)</div>
       <div style="font-size:11px;color:var(--text-muted);line-height:1.4;">VIX 장기 평년 15~18. 20+ 주의, 30+ 극도 긴장. FOMC 듀얼 리스크 + 2주 휴전 붕괴 가능성 → VIX 30+ 지속 환경. 4월 이벤트 밀집(CPI/어닝/OPEX)으로 변동성 확대 경계.</div>
@@ -9985,7 +10005,7 @@ body.light-theme canvas { filter:none; }
     </div>
     <div id="vix-term-interp" style="margin-top:10px;padding:10px;background:rgba(255,163,26,0.08);border-left:3px solid var(--data-amber);border-radius:4px;">
       <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">
-      <strong style="color:var(--data-amber);">해석:</strong> <span id="vix-term-interp-text">실시간 데이터 수신 대기...</span>
+      <strong style="color:var(--data-amber);">해석:</strong> <span id="vix-term-interp-text">live/snapshot 데이터 수신 대기...</span>
       </div>
     </div>
   </div>
@@ -12472,11 +12492,58 @@ body.light-theme canvas { filter:none; }
     _cjsFallback.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
     document.head.appendChild(_cjsFallback);
   }
+  (function installChartFallback() {
+    if (typeof window.Chart !== 'undefined') return;
+    function flattenData(config) {
+      var ds = config && config.data && config.data.datasets ? config.data.datasets : [];
+      var first = ds && ds[0] ? ds[0].data || [] : [];
+      return first.map(function(v) {
+        var n = Number(v && typeof v === 'object' && v.y != null ? v.y : v);
+        return isFinite(n) ? n : null;
+      }).filter(function(v) { return v != null; });
+    }
+    window.Chart = function(ctx, config) {
+      this.ctx = ctx && ctx.canvas ? ctx : (ctx && ctx.getContext ? ctx.getContext('2d') : null);
+      this.config = config || {};
+      this.destroy = function() {};
+      this.update = function() {};
+      try {
+        var c = this.ctx && this.ctx.canvas;
+        if (!this.ctx || !c) return;
+        var w = c.clientWidth || c.width || 320;
+        var h = c.clientHeight || c.height || 160;
+        c.width = w;
+        c.height = h;
+        this.ctx.clearRect(0, 0, w, h);
+        this.ctx.strokeStyle = '#00d4ff';
+        this.ctx.lineWidth = 2;
+        this.ctx.font = '11px sans-serif';
+        this.ctx.fillStyle = '#7b8599';
+        var data = flattenData(this.config);
+        if (!data.length) {
+          this.ctx.fillText('Chart data unavailable', 12, 22);
+          return;
+        }
+        var min = Math.min.apply(null, data);
+        var max = Math.max.apply(null, data);
+        var span = max - min || 1;
+        this.ctx.beginPath();
+        data.forEach(function(v, i) {
+          var x = 12 + (w - 24) * (data.length === 1 ? 0.5 : i / (data.length - 1));
+          var y = h - 18 - ((v - min) / span) * (h - 36);
+          if (i === 0) this.ctx.moveTo(x, y); else this.ctx.lineTo(x, y);
+        }, this);
+        this.ctx.stroke();
+        this.ctx.fillText('Fallback chart', 12, 16);
+      } catch(_) {}
+    };
+    window.Chart.__aioFallback = true;
+  })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.73"></script>
-  <script src="./js/aio-data.js?v=49.73"></script>
-  <script src="./js/aio-ui.js?v=49.73"></script>
+  <script src="./js/aio-core.js?v=49.74"></script>
+  <script src="./js/aio-data.js?v=49.74"></script>
+  <script src="./js/aio-ui.js?v=49.74"></script>
 
   <script>
 
@@ -15318,7 +15385,16 @@ function _getChatRules() {
   '주가/지표/배수/비율/통계 모든 정량 인용 시 반드시 (출처 · 기준일) 괄호를 동반하라.\n' +
   '• 올바른 예: "SPX 4,892.50 (Yahoo /quote, 2026-05-26 11:30)" / "F&G 62 (CNN, 2026-05-26)" / "NVDA P/E 22.4 (Finnhub, fetched 5분 전)"\n' +
   '• 시스템 프롬프트의 데이터 블록 라벨 [fetched X · source Y]을 그대로 인용하라. 출처/기준일 없는 정량 = 환각으로 간주.\n' +
-  '• 폴백값 인용 시 "(폴백)" 명시 (R128 12조 정합). 예: "DXY 99.3 (DATA_SNAPSHOT 2026-05-20, 폴백)".\n';
+  '• 폴백값 인용 시 "(폴백)" 명시 (R128 12조 정합). 예: "DXY 99.3 (DATA_SNAPSHOT 2026-05-20, 폴백)".\n\n' +
+  // v49.74 P397 R145: 학습 데이터 자기 인용 + 시점 환각 절대 금지 (사용자 정직 발견 — "2025년 초 학습 데이터 기준" 답변 등장)
+  '【ABSOLUTE RULES 17조 — 학습 데이터 자기 인용 + 시점 환각 절대 금지 (v49.74 R145)】\n' +
+  '다음 표현은 답변에 절대 등장 금지 — 등장 시 답변 신뢰도 F + 사용자에게 자동 환각 경고 표시:\n' +
+  '• 금지 1: "학습 데이터 기준", "내가 학습한", "학습 시점", "기억 속", "내가 알기로", "내 기억으론" — AI 자기 환각 자백 표현\n' +
+  '• 금지 2: "2024년", "2025년 초", "2023년 말" 등 학습 시점 추정 연도 인용 (현재 연도는 시스템 프롬프트의 【세션 시각】에만 의존)\n' +
+  '• 금지 3: "약 $X~$Y대에서 베이스를 형성", "$X 부근에서 매수" 등 시스템 프롬프트에 가격이 없는데 추측 가격 언급\n' +
+  '• 금지 4: "최근 발표", "이번 분기 실적", "지난 어닝" — [News]/[SEC 8-K]/[Earnings] 데이터 블록에 없는데 추측 인용\n' +
+  '시세 데이터 ✗ 표시 시 답변 전체에서 **모든 가격 수치 절대 금지**. "현재 시세 미수신으로 정량 분석 불가, 정성 프레임워크만 적용" 명시. 그 외 학습 시점 가격 일체 환각.\n' +
+  '데이터 부재 시 올바른 답변: "현재 데이터 블록에 [Price] 미주입 — 실시간 시세 새로고침 후 재질문 권장. 정성 분석만 가능: [Weinstein Stage]/[ATR Extension] 등 시스템 프레임워크 적용".\n';
 }
 
 // v49.68 P360 R126: 기관급 분석 프레임워크 8개 통합 — 14 CHAT_CONTEXTS 공통 주입 (사용자 "기관급 퀄리티" 요구)
@@ -15519,7 +15595,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.73"></script>
+<script src="./js/aio-chat.js?v=49.74"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -15717,7 +15793,7 @@ async function updateTechIndicators() {
       '<td style="padding:5px 4px;color:var(--text-muted);font-size:11px;line-height:1.4;">' + ind.explain + '</td></tr>';
   });
   html += '</table>';
-  html += '<div style="margin-top:8px;padding:6px 10px;background:' + (snapshot && snapshot.ok ? 'rgba(0,229,160,0.08)' : 'rgba(255,163,26,0.08)') + ';border-radius:6px;border-left:3px solid ' + (snapshot && snapshot.ok ? 'var(--data-green)' : 'var(--data-amber)') + ';font-size:11px;color:' + (snapshot && snapshot.ok ? 'var(--data-green)' : 'var(--data-amber)') + ';line-height:1.5;">' + (snapshot && snapshot.ok ? 'RSI·MACD·볼린저밴드·이평/ATR은 SPY 일봉 OHLCV 기반 실제 계산값입니다.' : 'OHLCV가 없을 때만 당일 시세 변동 기반 간이 추정치로 폴백합니다.') + ' VIX는 실시간 데이터입니다.</div>';
+  html += '<div style="margin-top:8px;padding:6px 10px;background:' + (snapshot && snapshot.ok ? 'rgba(0,229,160,0.08)' : 'rgba(255,163,26,0.08)') + ';border-radius:6px;border-left:3px solid ' + (snapshot && snapshot.ok ? 'var(--data-green)' : 'var(--data-amber)') + ';font-size:11px;color:' + (snapshot && snapshot.ok ? 'var(--data-green)' : 'var(--data-amber)') + ';line-height:1.5;">' + (snapshot && snapshot.ok ? 'RSI·MACD·볼린저밴드·이평/ATR은 SPY 일봉 OHLCV 기반 실제 계산값입니다.' : 'OHLCV가 없을 때만 당일 시세 변동 기반 간이 추정치로 폴백합니다.') + ' VIX는 live 우선이며 차단 시 source label이 reference-only로 표시됩니다.</div>';
 
   var container = document.getElementById('tech-indicators-live');
   if (container) container.innerHTML = html;
@@ -16952,6 +17028,16 @@ function computeEconomicTemperature() {
   var wti = _ldSafe('CL=F','price');
   var dxy = _ldSafe('DX-Y.NYB','price');
   var hyg = _ldSafe('HYG','price');
+  function _tempNum(v, fallback) {
+    var n = Number(v);
+    return isFinite(n) ? n : fallback;
+  }
+  vix = _tempNum(vix, 18);
+  tnx = _tempNum(tnx, 4.3);
+  fvx = _tempNum(fvx, 4.1);
+  wti = _tempNum(wti, 75);
+  dxy = _tempNum(dxy, 100);
+  hyg = _tempNum(hyg, 86);
 
   // Calculate component scores (0-100 each)
   var vixScore = Math.max(0, Math.min(100, (30 - vix) * 2 + 50));  // Lower VIX = higher score
@@ -17254,10 +17340,10 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '【실시간 시세 (신선도: ' + fresh + ')】\n' +
         '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) | NASDAQ: ' + (s.nasdaq || '—') + ' (' + (s.nasdaqPct || '—') + '%) [' + s.indexBasis + ']\n' +
         '• 50SMA: ' + s.spx50ma + ' | 200SMA: ' + s.spx200ma + '\n' +
-        '• VIX: ' + s.vix + ' [실시간] | DXY: ' + s.dxy + ' [실시간] | 시장건강도: ' + healthStr + '\n' +
+        '• VIX: ' + s.vix + ' [live 우선/source 확인] | DXY: ' + s.dxy + ' [live 우선/source 확인] | 시장건강도: ' + healthStr + '\n' +
         '• F&G: ' + s.fg + ' | 트레이딩 스코어: ' + s.score + '/100\n' +
         '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
-        '주가·지수 분석 시 위 종가 기준. VIX·DXY 등 시장환경은 실시간 값 사용.\n' +
+        '주가·지수 분석 시 위 종가 기준. VIX·DXY 등 시장환경은 live 우선 값을 사용하되 source가 snapshot/fallback이면 참고용으로 낮춰 해석.\n' +
         (s._stale.length > 0 ? '[' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
         '【4단계 분석 프레임워크】\n' +
         '1단계 — 시장 전체(시장폭, Market Breadth): 참여도·방향성 → 시장폭 페이지\n' +
@@ -17404,7 +17490,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '【v48.60 FRED 지표 (자동 바인딩)】 실업률 ' + m.unemployment + ' · 주택착공 ' + m.housing + ' · 소매판매 ' + m.retailSalesMoM + ' · 미시건 신뢰 ' + m.consConf + ' · 시간당임금 ' + m.wageGrowth + '\n' +
         '【v48.60 BOK 한국은행】 기준금리 ' + m.bokRate + ' (' + m.bokStatus + ') · 【KOSIS 통계청】 CPI ' + m.krCpi + '\n' +
         '【주요 지수 종가 (확정)】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + ' | KOSPI: ' + s.kospi + '\n' +
-        '주가·지수 분석 시 종가 기준. VIX·금리·환율·유가·FRED·BOK·KOSIS 등 시장환경은 위 실시간 값 사용.\n' +
+        '주가·지수 분석 시 종가 기준. VIX·금리·환율·유가·FRED·BOK·KOSIS 등 시장환경은 live 우선 값을 사용하되 source/freshness를 함께 확인.\n' +
         (s._stale.length > 0 ? '[' + s._stale.join(', ') + '] 폴백값일 수 있음. 확정 발언 자제.\n' : '') + '\n' +
         '【경제의 숨결 — 인터커넥션 맵】\n' +
         '유가↑ → 물가↑ → Fed 금리↑ → 달러↑ + 금리↑ → 주식↓ → 소비↓ → 수요파괴 → 유가↓ → 사이클 반복. 경제의 호흡.\n\n' +
@@ -17414,7 +17500,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         'B. 휴전→영구 정전 전환(30%): 이란 IRGC 포함 내부 합의 + 호르무즈 완전 재개방 → 유가 $80대 복귀. 인플레 기대 꺾임 → Fed 비둘기 전환 가능. 수혜: 성장주·기술·EM·일본\n' +
         'C. 재교전(20%): 2주 휴전 만료 후 협상 결렬. WTI 재급등 $110+. VIX 35+. 수혜: 에너지·방산·금, 회피: 항공·운송·화학\n' +
         'D. 글로벌 침체(15%): 관세+유가 이중 충격 누적 → 소비 위축. Apollo 디폴트율 5.8%. 예측시장 침체확률 37%. 수혜: 현금·국채·금\n' +
-        '위 확률은 휴전 합의 기준. 최신 유가·VIX·DXY 실시간 데이터에 따라 확률을 재조정해서 답변할 것.\n\n' +
+        '위 확률은 휴전 합의 기준. 최신 유가·VIX·DXY live 우선 데이터와 source/freshness에 따라 확률을 재조정해서 답변할 것.\n\n' +
         '【4/9 시장 맥락 (뉴스 파이프라인 교차 분석)】\n' +
         '• 랠리 동력: 헤지펀드 숏 팬데믹 이후 최고 → 숏커버링이 +$1.6T 시총 증가의 주 동력. 펀더멘탈 매수가 아닌 기술적 커버링 = 지속성 의문.\n' +
         '• FOMC 의사록 양방향 리스크: "유가 상승 지속 시 금리 인상 가능" + "전쟁 장기화 시 금리 인하 필요" = Fed가 시나리오 의존적 정책으로 전환. 단일 경로 프라이싱 불가 → VIX 프리미엄 구조.\n' +
@@ -18069,9 +18155,9 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '【한국 지수 종가 기준 (신선도: ' + fresh + ')】\n' +
         '• KOSPI: ' + (kospiClose ? kospiClose.toFixed(2) : (kospi.price ? kospi.price.toFixed(2) : s.kospi)) + ' (' + (kospi.pct != null ? ((kospi.pct>=0?'+':'') + kospi.pct.toFixed(2) + '%') : '등락률 N/A') + ') [종가]\n' +
         '• KOSDAQ: ' + (kosdaqClose ? kosdaqClose.toFixed(2) : (kosdaq.price ? kosdaq.price.toFixed(2) : s.kosdaq)) + ' (' + (kosdaq.pct != null ? ((kosdaq.pct>=0?'+':'') + kosdaq.pct.toFixed(2) + '%') : '등락률 N/A') + ') [종가]\n' +
-        '• VKOSPI: ' + (S.vkospi||'—') + ' [실시간] | 원/달러: ' + s.krw + ' [실시간]\n' +
+        '• VKOSPI: ' + (S.vkospi||'—') + ' [live 우선/source 확인] | 원/달러: ' + s.krw + ' [live 우선/source 확인]\n' +
         (krDataStr ? '\n【한국 대장주 종가 기준】\n' + krDataStr : '') +
-        '주가·지수 분석 시 종가 기준. VKOSPI·환율 등 시장환경은 실시간 값 사용.\n\n' +
+        '주가·지수 분석 시 종가 기준. VKOSPI·환율 등 시장환경은 live 우선 값을 사용하되 source가 snapshot/fallback이면 참고용으로 낮춰 해석.\n\n' +
         '【기술적 분석 프레임워크 — 한국 시장 특화】\n' +
         '한국 시장은 외국인·기관 수급이 기술적 패턴을 압도하는 경우가 빈번. 차트 신호와 수급 신호를 반드시 교차 검증.\n\n' +
         '1. Weinstein 단계 분석 (30주 이동평균 기준)\n' +
@@ -27759,9 +27845,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.73"></script>
+<script src="./js/aio-glossary.js?v=49.74"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.73"></script>
+<script src="./js/aio-tests.js?v=49.74"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전

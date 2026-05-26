@@ -4107,8 +4107,27 @@ window.AIO.getChatHallucinationAudit = function(responseText) {
     result.suspicionScore += 1;
     result.patterns.push('stale-year-reference');
   }
+  // v49.74 P397 R145: 학습 데이터 자기 인용 절대 차단 패턴 강화 (사용자 정직 발견 — "2025년 초 학습 데이터 기준" 답변 등장)
+  // AI가 자기 환각을 자백하는 표현은 critical (+5점)
+  if (/(학습\s*데이터\s*기준|학습\s*데이터\s*에\s*따르면|내가\s*학습한|학습\s*시점|기억\s*속|내가\s*알기로|내\s*기억(으로|에))/.test(responseText)) {
+    result.suspicionScore += 5;
+    result.patterns.push('self-confess-training-data');
+  }
+  // 시점 환각 — "2025년 초", "2024년 말", "최근 발표(데이터 없는 경우)" 등 학습 시점 추정 연도
+  var staleYearMatches = responseText.match(/202[0-5]년\s*(초|말|중반)?/g) || [];
+  if (staleYearMatches.length > 0) {
+    result.suspicionScore += Math.min(3, staleYearMatches.length);
+    result.patterns.push('training-year-citation:' + staleYearMatches.length);
+  }
+  // "약 $X~$Y대에서 베이스를 형성" — 데이터 없이 가격 범위 추측
+  if (/약\s*\$\d+\s*[~\-]\s*\$?\d+\s*(대|범위|구간|에서)/.test(responseText)) {
+    result.suspicionScore += 3;
+    result.patterns.push('vague-price-range');
+  }
   result.suspicionScore = Math.min(result.suspicionScore, result.maxScore);
   result.verdict = result.suspicionScore >= 7 ? 'high-risk' : result.suspicionScore >= 4 ? 'medium-risk' : result.suspicionScore >= 2 ? 'low-risk' : 'clean';
+  // v49.74 P397: blocking-grade 환각 — self-confess-training-data 패턴은 답변 위에 빨간 경고 박스 강제
+  result.requiresWarningBox = result.patterns.indexOf('self-confess-training-data') >= 0;
   return result;
 };
 
@@ -6288,7 +6307,10 @@ window.AIO.assertFinancialChartsAudit = function() {
 // ─────────────────────────────────────────────────────────────────
 window.AIO.assertChatAnswerQualityAudit = function() {
   var ctxs = window.CHAT_CONTEXTS || {};
-  var ctxIds = ['home','technical','macro','sentiment','breadth','fundamental','portfolio'];
+  // v49.74 P393 R143: 7 페이지 → 11 페이지 확장 (KR 4 페이지 audit 포함)
+  // 사용자 정직 지적 — KR 페이지 답변 품질 평가 누락
+  var ctxIds = ['home','technical','macro','sentiment','breadth','fundamental','portfolio',
+                'kr-macro','kr-supply','kr-themes','kr-tech'];
   // A. 현재성 (Freshness) — 세션 시각 헤더 + 동적 마커 헬퍼 + 정적 stale 토큰 0건
   var staleTokenRe = /tail_risk_snapshot_\d{4}|FOMC\s*의사록\(2026\.04\)|2025\.4 선례|2026\.3-4 랠리/;
   var freshnessCheck = ctxIds.map(function(id) {
@@ -6309,10 +6331,11 @@ window.AIO.assertChatAnswerQualityAudit = function() {
   var hasRelativeFn = typeof window._aioRelativeDate === 'function';
   var staleCount = freshnessCheck.reduce(function(a, c){ return a + (c.staleTokens || 0); }, 0);
   var sessionHdrCount = freshnessCheck.filter(function(c){ return c.hasSessionHeader; }).length;
+  // v49.74 P393 R143: 11 페이지 확장 — 분모 7 → 11 (KR 4 페이지 포함)
   var freshnessScore = Math.round(
     (hasSessionFn ? 25 : 0) +
     (hasRelativeFn ? 15 : 0) +
-    Math.min(35, (sessionHdrCount / 7) * 35) +
+    Math.min(35, (sessionHdrCount / 11) * 35) +
     (staleCount === 0 ? 25 : Math.max(0, 25 - staleCount * 5))
   );
   // B. 정확성 (Accuracy) — fetched/source 라벨 키워드 + _aioFetchLabel 헬퍼 + 출처 헤더
@@ -8254,11 +8277,12 @@ window.AIO.renderStaticDataGovernanceBadges = function() {
       if (!item) return;
       el.setAttribute('data-static-category', item.category);
       el.setAttribute('data-static-age-days', item.ageDays == null ? '' : String(item.ageDays));
+      if (el.offsetParent === null && (el.style && el.style.display === 'none')) return;
       var badge = el.nextElementSibling;
       if (!badge || !badge.classList || !badge.classList.contains('aio-static-data-badge')) {
         badge = document.createElement('span');
         badge.className = 'aio-static-data-badge';
-        badge.style.cssText = 'margin-left:4px;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:800;letter-spacing:0;border:1px solid rgba(255,255,255,.18);';
+        badge.style.cssText = 'display:inline-flex;vertical-align:baseline;margin-left:4px;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:800;letter-spacing:0;border:1px solid rgba(255,255,255,.18);max-width:58px;white-space:nowrap;line-height:1.2;';
         el.parentNode && el.parentNode.insertBefore(badge, el.nextSibling);
       }
       var label = item.hardStale ? 'STALE' : item.stale ? 'STATIC' : item.liveLike ? 'OK' : 'REF';
@@ -11075,11 +11099,24 @@ window.AIO = window.AIO || {};
 window.AIO.annotateLiveDataSinks = function(root, opts) {
   root = root || document;
   opts = opts || {};
-  var selector = '[data-live-price],[data-live-chg],[data-live-pct],[data-live-kr],[data-snap]';
+  var selector = '[data-live-price],[data-live-chg],[data-live-pct],[data-live-kr],[data-snap],canvas,[data-threshold-key],[data-threshold-table],[data-runtime-state],[data-score-scale],[data-scenario-key],[data-cycle-phase]';
   var target = opts.symbol || null;
   var touched = 0;
   function keyFor(el) {
-    return el && (el.getAttribute('data-live-price') || el.getAttribute('data-live-chg') || el.getAttribute('data-live-pct') || el.getAttribute('data-live-kr') || el.getAttribute('data-snap')) || '';
+    return el && (
+      el.getAttribute('data-live-price') ||
+      el.getAttribute('data-live-chg') ||
+      el.getAttribute('data-live-pct') ||
+      el.getAttribute('data-live-kr') ||
+      el.getAttribute('data-snap') ||
+      el.getAttribute('data-threshold-key') ||
+      el.getAttribute('data-threshold-table') ||
+      el.getAttribute('data-runtime-state') ||
+      el.getAttribute('data-score-scale') ||
+      el.getAttribute('data-scenario-key') ||
+      el.getAttribute('data-cycle-phase') ||
+      el.id
+    ) || '';
   }
   function sourceKind(source, policyKey) {
     source = String(source || '');
@@ -11094,13 +11131,26 @@ window.AIO.annotateLiveDataSinks = function(root, opts) {
       if (!el) return;
       var sym = keyFor(el);
       if (!sym || (target && sym !== target)) return;
+      var tag = (el.tagName || '').toLowerCase();
+      var isCanvas = tag === 'canvas';
+      var isRuleSink = !isCanvas && (
+        el.hasAttribute('data-threshold-key') ||
+        el.hasAttribute('data-threshold-table') ||
+        el.hasAttribute('data-runtime-state') ||
+        el.hasAttribute('data-score-scale') ||
+        el.hasAttribute('data-scenario-key') ||
+        el.hasAttribute('data-cycle-phase')
+      );
       var isSnapshotSink = el.hasAttribute && el.hasAttribute('data-snap') &&
         !el.hasAttribute('data-live-price') && !el.hasAttribute('data-live-chg') && !el.hasAttribute('data-live-pct') && !el.hasAttribute('data-live-kr');
       var ds = (window._dataSource && window._dataSource[sym]) || {};
       var ld = (window._liveData && window._liveData[sym]) || {};
-      var source = isSnapshotSink ? 'DATA_SNAPSHOT' : (ds.source || ld.source || 'unavailable');
+      var existingKind = (el.getAttribute('data-source-kind') || '').toLowerCase();
+      var existingLabel = el.getAttribute('data-source-label') || '';
+      var hasExistingUsableLineage = existingKind && existingKind !== 'pending' && !ds.source && !ld.source;
+      var source = hasExistingUsableLineage ? (existingLabel || existingKind) : (isCanvas ? 'chart-render' : (isRuleSink ? 'AIO_RULESET' : (isSnapshotSink ? 'DATA_SNAPSHOT' : (ds.source || ld.source || 'unavailable'))));
       var policyKey = ds.policyKey || (ld.metric && ld.metric.policyKey) || '';
-      var kind = isSnapshotSink ? 'snapshot' : sourceKind(source, policyKey);
+      var kind = hasExistingUsableLineage ? existingKind : (isCanvas ? 'derived' : (isRuleSink ? 'rule' : (isSnapshotSink ? 'snapshot' : sourceKind(source, policyKey))));
       var operationalUse = (kind === 'live') ? 'decision' : 'reference-only';
       if (opts.force || !el.getAttribute('data-source-kind')) el.setAttribute('data-source-kind', kind);
       if (opts.force || !el.getAttribute('data-operational-use')) el.setAttribute('data-operational-use', operationalUse);
@@ -12342,7 +12392,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.73';
+const APP_VERSION = 'v49.74';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -14473,7 +14523,7 @@ function applyDataSnapshot() {
     if (staleEl) {
       if (!isNaN(age) && age > 24 * 60 * 60 * 1000) {
         const hrs = Math.floor(age / 3600000);
-        staleEl.textContent = '스냅샷 기준 ' + hrs + '시간 전. 실시간 데이터 수신 시 자동 갱신됩니다.';
+        staleEl.textContent = '스냅샷 기준 ' + hrs + '시간 전. live 데이터 수신 시 자동 갱신됩니다.';
         staleEl.style.display = 'block';
 
         // 실시간 데이터 수신 감지 — 반복 체크 (5초 간격, 최대 2분)
@@ -15007,12 +15057,12 @@ window.AIO.updateSnapshotStaleBanner = function() {
   el.setAttribute('data-operational-use', 'reference-only');
   el.setAttribute('data-source-kind', 'snapshot');
   if (coreLiveOk) {
-    el.textContent = '핵심 실시간 시세 반영 중 · 정적 보조 스냅샷은 ' + hrs + '시간 전 자료라 현재 판단에서 제외됩니다.';
+    el.textContent = '핵심 live 시세 반영 중 · 정적 보조 스냅샷은 ' + hrs + '시간 전 자료라 현재 판단에서 제외됩니다.';
     el.style.background = 'rgba(0,212,255,0.08)';
     el.style.borderColor = 'rgba(0,212,255,0.25)';
     el.style.color = 'var(--data-cyan)';
   } else {
-    el.textContent = '정적 스냅샷 기준 ' + hrs + '시간 전 · 핵심 실시간 시세가 완전하지 않아 현재 시장 판단에 사용하지 마세요.';
+    el.textContent = '정적 스냅샷 기준 ' + hrs + '시간 전 · 핵심 live 시세가 완전하지 않아 현재 시장 판단에 사용하지 마세요.';
     el.style.background = 'rgba(255,91,80,0.10)';
     el.style.borderColor = 'rgba(255,91,80,0.30)';
     el.style.color = 'var(--data-red)';

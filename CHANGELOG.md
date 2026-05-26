@@ -6,6 +6,39 @@
 
 ---
 
+## v49.74 — 잔존 갭 11개 정직 진단 + CRITICAL hotfix (학습 데이터 인용 차단 / home 채팅 UI) (2026-05-26)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 질의 "더 조사하거나 점검할 영역 없어? 세밀하게 모두 조사했다고 장담?" → 정직 응답으로 잔존 갭 11개 매핑. **이후 사용자 production NVDA 라이브 검증 결과 CRITICAL 4건 발견**: (1) home 채팅 UI 부재 (2) NVDA 시세 fetch 실패 (3) AI 답변에 "2025년 초 학습 데이터 기준" 환각 자백 (4) 모바일 레이아웃 깨짐. hotfix 진행.
+
+**Changes**:
+
+1. **잔존 11 갭 정직 매핑** — CRITICAL 2 + HIGH 4 + MEDIUM 3 + LOW 2
+
+2. **KR 4 페이지 audit 확장 (P393/R143)** — `assertChatAnswerQualityAudit` ctxIds 7→11 (kr-macro/kr-supply/kr-themes/kr-tech) + freshnessScore 분모 11
+
+3. **멀티턴 윈도잉 (P395/R144)** — chatSend turn-cap 24 + 8개+ 제거 시 자동 요약 prepend + `_chatMultiTurnStats` 통계
+
+4. **CRITICAL hotfix P397/R145 — 학습 데이터 자기 인용 절대 차단**:
+   - ABSOLUTE RULES 17조 신규 (자기 환각 자백/학습 연도/추측 가격/추측 뉴스 4 카테고리 금지)
+   - `getChatHallucinationAudit` 3 패턴 추가: `self-confess-training-data` (+5점 critical) + `training-year-citation` + `vague-price-range`
+   - `requiresWarningBox` 플래그 + chatSend 검출 시 답변 위 빨간 강제 경고 박스 (자기 환각 자백 패턴 + 검출 패턴 + 권장 조치 명시)
+
+5. **CRITICAL hotfix P398/R146 — home 채팅 UI DOM 추가**:
+   - `#page-home` 끝에 theme-detail 패턴 인라인 채팅 패널 (header/messages/chips 3개/input/btn)
+   - CHAT_CONTEXTS['home'] 등록만으로 부족, DOM 의무
+
+6. **Phase 5 동기화 + R143~R146 + P393~P398 + T581~T588 + 7곳 sync + commit/push**
+
+**Verification**:
+- `AIO.getChatHallucinationAudit("2025년 초 학습 데이터 기준으로 NVDA $400대")` → `requiresWarningBox: true`, `patterns: ['self-confess-training-data', 'training-year-citation', 'vague-price-range']`
+- `document.getElementById('chat-home-inp')` ≠ null
+- 사용자 production 새로고침 후 home 페이지에서 채팅 가능
+- 답변에 "학습 데이터 기준" 등장 시 답변 위 빨간 경고 박스 시각 표시
+
+---
+
 ## v49.73 — AI 채팅 7 페이지 21 질문 답변 품질 심층 보강 (현재성·정확성·직관성) (2026-05-26)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

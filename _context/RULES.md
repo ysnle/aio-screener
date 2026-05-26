@@ -6,6 +6,35 @@ target_version: v48.97
 
 ---
 
+## R145. AI 답변에 학습 데이터 자기 인용 + 시점 환각 절대 금지 (v49.74 hotfix)
+
+- 다음 표현 답변 등장 시 환각 신뢰도 F + 빨간 경고 박스 강제 표시:
+  - "학습 데이터 기준", "내가 학습한", "학습 시점", "기억 속", "내가 알기로" — AI 자기 환각 자백
+  - "2024년", "2025년 초", "202[0-5]년 (초/말/중반)" — 학습 시점 추정 연도
+  - "약 $X~$Y대에서 베이스 형성" — 데이터 없이 가격 범위 추측
+- 시세 데이터 ✗ 시 답변 전체에서 모든 가격 수치 절대 금지. "현재 시세 미수신, 정성 분석만" 명시.
+- `getChatHallucinationAudit().requiresWarningBox === true` 시 답변 위에 강제 빨간 경고 박스.
+- ABSOLUTE RULES 17조 (`_getChatRules`).
+
+## R146. home 페이지 인라인 채팅 패널 의무 (v49.74 hotfix)
+
+- 사용자 첫 진입점 `#page-home` 끝에 `<div class="aio-chat" id="chat-home">` + msgs/chips/inp/btn DOM 의무 (theme-detail 패턴 미러).
+- CHAT_CONTEXTS['home'] 등록만으로는 부족 — 실제 DOM 트리거 필수.
+
+## R143. AI 답변 품질 audit는 11 페이지 평가 의무 (KR 4 페이지 포함) (v49.74)
+
+- `AIO.assertChatAnswerQualityAudit()`는 home/technical/macro/sentiment/breadth/fundamental/portfolio + kr-macro/kr-supply/kr-themes/kr-tech 총 11 페이지 평가.
+- KR 페이지 누락 시 사용자 체감 갭 (한국 시장 답변 품질 저평가) 발생.
+- 회귀 방지: T581 — `assertChatAnswerQualityAudit().perPageDetail.length === 11`.
+
+## R144. AI 채팅 멀티턴 윈도잉 + 요약 prepend 의무 (v49.74)
+
+- `state.messages` 배열은 char-limit (60K) + turn-cap (24) 양쪽 한도 적용.
+- 트리밍 시 8개 이상 제거되면 사용자 주요 질문 5개 추출 → 요약 메시지 자동 prepend (역할 user) + 어시스턴트 확인 메시지 (역할 assistant).
+- `window._chatMultiTurnStats` { trimEvents, summaryInsertions, maxTurnsBeforeTrim } 추적.
+- 환각 누적 차단 + 이전 컨텍스트 핵심 보존.
+- 회귀 방지: T582 (stats 초기화) + T583 (윈도잉 로직) + T585 (요약 트리거).
+
 ## R140. AI 답변에서 정성 표현 사용 시 정량 근거 1개 이상 괄호 동반 의무 (v49.73)
 
 - 정성 표현 (높은/낮은/강한/약한/안정/불안/과열/공포/탐욕 등) 사용 시 반드시 정량 수치를 괄호로 동반.

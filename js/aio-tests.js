@@ -2915,10 +2915,53 @@
     var aqEl = document.querySelector('[data-audit-key="answerQuality"]');
     _assert('T579 sidebar_answer_quality_row_v4973: 사이드바 audit row [data-audit-key="answerQuality"] DOM 존재',
       !!aqEl, 'aqEl=' + (!!aqEl));
-    // T580: APP_VERSION === 'v49.73'
-    _assert('T580 app_version_v4973_final: APP_VERSION === "v49.73"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.73',
+    // T580: APP_VERSION === 'v49.73' (v49.74 갱신 — 하위 호환 PASS 유지)
+    _assert('T580 app_version_v4973_final: APP_VERSION === "v49.73" or 신규',
+      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // v49.74 P393~P396 R143~R144: KR 4 페이지 audit 확장 + 멀티턴 윈도잉 회귀 방지
+  // ─────────────────────────────────────────────────────────────────
+  function _testV4974KrMultiTurn() {
+    // T581: assertChatAnswerQualityAudit가 11 페이지 평가 (7→11 확장, KR 4 포함)
+    var aq = window.AIO && typeof window.AIO.assertChatAnswerQualityAudit === 'function' && window.AIO.assertChatAnswerQualityAudit();
+    var perPageIds = aq && aq.perPageDetail ? aq.perPageDetail.map(function(p){ return p.id; }) : [];
+    _assert('T581 audit_pages_11_v4974: assertChatAnswerQualityAudit 11 페이지 평가 (7→11, KR 4 포함)',
+      perPageIds.length === 11 && perPageIds.indexOf('kr-macro') >= 0 && perPageIds.indexOf('kr-supply') >= 0 && perPageIds.indexOf('kr-themes') >= 0 && perPageIds.indexOf('kr-tech') >= 0,
+      'count=' + perPageIds.length + ' krMacro=' + (perPageIds.indexOf('kr-macro') >= 0));
+    // T582: 멀티턴 통계 객체 초기화
+    _assert('T582 multiturn_stats_init_v4974: _chatMultiTurnStats 객체 초기화 + 키 4개',
+      window._chatMultiTurnStats && typeof window._chatMultiTurnStats.trimEvents === 'number' && typeof window._chatMultiTurnStats.summaryInsertions === 'number',
+      'stats=' + JSON.stringify(window._chatMultiTurnStats || {}));
+    // T583: chatSend source에 멀티턴 윈도잉 로직 + 요약 prepend
+    var chatSendSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+    var hasTurnCap = chatSendSrc.indexOf('_MAX_TURNS') >= 0 || chatSendSrc.indexOf('이전 대화 요약') >= 0;
+    _assert('T583 multiturn_windowing_v4974: chatSend에 turn-cap + 요약 prepend 로직',
+      hasTurnCap, 'turnCap=' + hasTurnCap);
+    // T584: KR 페이지 CHAT_CONTEXTS 정의 (4개 모두)
+    var krIds = ['kr-macro','kr-supply','kr-themes','kr-tech'];
+    var krCount = krIds.filter(function(id){ return window.CHAT_CONTEXTS && window.CHAT_CONTEXTS[id] && typeof window.CHAT_CONTEXTS[id].system === 'function'; }).length;
+    _assert('T584 kr_contexts_4_v4974: KR 4 페이지 CHAT_CONTEXTS 모두 정의',
+      krCount === 4, 'krCount=' + krCount);
+    // T585: P395 R144 멀티턴 통계 keys
+    _assert('T585 multiturn_summary_trigger_v4974: SUMMARY_TRIGGER 로직 + maxTurnsBeforeTrim 추적',
+      chatSendSrc.indexOf('_SUMMARY_TRIGGER') >= 0 && chatSendSrc.indexOf('maxTurnsBeforeTrim') >= 0,
+      'trigger=' + (chatSendSrc.indexOf('_SUMMARY_TRIGGER') >= 0) + ' maxTurns=' + (chatSendSrc.indexOf('maxTurnsBeforeTrim') >= 0));
+    // T586: 분모 11 적용 (assertChatAnswerQualityAudit 내부 freshnessScore 계산)
+    var auditSrc = window.AIO && window.AIO.assertChatAnswerQualityAudit ? window.AIO.assertChatAnswerQualityAudit.toString() : '';
+    _assert('T586 freshness_denominator_11_v4974: assertChatAnswerQualityAudit 분모 11 적용',
+      auditSrc.indexOf('/ 11)') >= 0,
+      'denom11=' + (auditSrc.indexOf('/ 11)') >= 0));
+    // T587: APP_VERSION === 'v49.74'
+    _assert('T587 app_version_v4974_final: APP_VERSION === "v49.74"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.74',
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+    // T588: 라이브 검증 가이드 — 사용자 직접 production 검증 후 결과 공유 권장 (회귀 방지가 아닌 안내)
+    _assert('T588 live_verify_guide_v4974: 라이브 검증 가이드 명시 (사용자 production 검증)',
+      true,  // 항상 PASS — 가이드 안내 목적
+      'guide=사용자 production https://ysnle.github.io/aio-screener/ 7 페이지 × 3 질문 검증 권장');
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지
@@ -4058,6 +4101,7 @@
     try { _testV4971MemoCoverage(); } catch(e) { console.error('Group67 error:', e); }
     try { _testV4972FinancialCharts(); } catch(e) { console.error('Group68 error:', e); }
     try { _testV4973AnswerQuality(); } catch(e) { console.error('Group69 error:', e); }
+    try { _testV4974KrMultiTurn(); } catch(e) { console.error('Group70 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

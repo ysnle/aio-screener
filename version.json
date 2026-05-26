@@ -1,5 +1,5 @@
 {
-  "version": "v49.73",
-  "built": "2026-05-26T13:00:00+09:00",
-  "note": "v49.73: AI 채팅 7 페이지 21 질문 답변 품질 심층 보강 (현재성·정확성·직관성) — 사용자 정직 요구 시정. (1) Phase 1 _aioRelativeDate + _aioSessionContextHeader + _aioFetchLabel 헬퍼 3종 신설. (2) Phase 2 _getChatRules 진입부에 세션 시각 헤더 자동 prepend → 14 CHAT_CONTEXTS 모두 자동 인지. (3) Phase 3 _fetchTickerDataForChat 종목별 진입부 일괄 fetched 헤더 + 5 라벨 source 명시. (4) Phase 4 ABSOLUTE RULES 14조 (정성→정량 동반) + 15조 (표준 4 구조: 결론/정량/시나리오/액션) + 16조 (모든 정량 인용 시 출처·기준일 괄호). (5) Phase 5 home CHAT_CONTEXTS 신설 — 5 카테고리 자동 분류 + 페이지 안내. (6) Phase 6 assertChatAnswerQualityAudit 3 카테고리 + 사이드바 13축 (answerQuality). R140~R142 + P388~P392 + T571~T580 10 신규 (Group69) + 동기화 7곳."
+  "version": "v49.74",
+  "built": "2026-05-26T16:00:00+09:00",
+  "note": "v49.74: 사용자 정직 질의 '더 조사할 영역 없어?' 응답 + 사용자 라이브 검증 critical 4건 hotfix. 잔존 갭 11개 매핑 + v49.74 시정 5건. (1) Phase 1 라이브 검증 가이드 (P396): MCP preview 환경 제약 정직 보고 + 사용자 production 직접 검증 가이드 제공. (2) Phase 3 KR 4 페이지 audit 확장 (P393/R143): assertChatAnswerQualityAudit ctxIds 7→11 + 분모 11. (3) Phase 4 멀티턴 윈도잉 (P395/R144): chatSend turn-cap 24 + 8개+ 제거 시 자동 요약 prepend + _chatMultiTurnStats 통계. (4) hotfix P397/R145 학습 데이터 자기 인용 절대 차단: 사용자 NVDA 답변에 '2025년 초 학습 데이터 기준' 환각 자백 발견 시정. ABSOLUTE RULES 17조 신규 + getChatHallucinationAudit self-confess-training-data 패턴 +5점 critical + chatSend에 검출 시 답변 위 빨간 강제 경고 박스. (5) hotfix P398/R146 home 채팅 UI: '#page-home에 인라인 chat-home 패널 (theme-detail 패턴) DOM 추가 — CHAT_CONTEXTS 등록만으로 부족. Phase 5 R143~R146 + P393~P398 + T581~T588 + 동기화 7곳."
 }
