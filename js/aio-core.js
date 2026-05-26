@@ -1100,6 +1100,24 @@ window._aioFundSearchFill = function(preset) {
   if (inp) inp.value = preset;
   if (typeof window.fundamentalSearch === 'function') window.fundamentalSearch();
 };
+// v49.72 R139: 채팅 답변에 표시되는 "📊 [종목] 재무 차트 보기" 버튼 핸들러
+// — fundamental 페이지로 이동 + 자동 검색 + 7 차트 자동 렌더 (P386 inline chart 대체)
+window._aioShowFundamentalChart = function(ticker) {
+  if (!ticker) return;
+  if (typeof window.showPage === 'function') window.showPage('fundamental');
+  setTimeout(function() {
+    var inp = document.getElementById('fund-search-input');
+    if (inp) inp.value = String(ticker).toUpperCase();
+    if (typeof window.fundamentalSearch === 'function') {
+      try { window.fundamentalSearch(); } catch(_) {}
+    }
+    // 7 차트 카드로 부드러운 스크롤
+    setTimeout(function() {
+      var card = document.getElementById('fund-rpt-fincharts');
+      if (card) try { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(_){}
+    }, 800);
+  }, 80);
+};
 window._aioFetchLiveQuotes = function() {
   if (typeof window.fetchLiveQuotes === 'function') window.fetchLiveQuotes();
 };
@@ -1260,6 +1278,24 @@ window._aioRenderSnapshotDates = function() {
       if (!d) return;
       // 기존 텍스트가 이미 정확한 날짜면 skip
       if ((el.textContent || '').trim() !== d) el.textContent = d;
+    });
+    document.querySelectorAll('[data-snap]').forEach(function(el) {
+      var key = el.getAttribute('data-snap');
+      if (!key || el.closest('[data-aio-archive="true"]')) return;
+      var d = dateByKey[key] || staticDates[key] || staticDates.krMacro || snap._snapshotDate || (snap._updated ? snap._updated.slice(0, 10) : null);
+      if (!d) return;
+      if (!document.querySelector('[data-snap-date="' + key + '"]')) {
+        var marker = document.createElement('span');
+        marker.setAttribute('data-snap-date', key);
+        marker.setAttribute('data-aio-generated-lineage', 'true');
+        marker.textContent = d;
+        marker.style.display = 'none';
+        document.body.appendChild(marker);
+      }
+      if (!el.getAttribute('data-source-kind')) el.setAttribute('data-source-kind', 'snapshot');
+      if (!el.getAttribute('data-operational-use')) el.setAttribute('data-operational-use', 'reference-only');
+      if (!el.getAttribute('data-source-label')) el.setAttribute('data-source-label', 'DATA_SNAPSHOT:' + key);
+      if (!el.title) el.title = 'DATA_SNAPSHOT 기준일 ' + d + ' · 참고용 스냅샷';
     });
   } catch(e) {
     if (window._aioLog) window._aioLog('warn', 'render', 'snapshotDates render error: ' + (e && e.message || e));
@@ -4020,7 +4056,10 @@ window.AIO.assertChatResponseAccuracy = function(responseText, detectedTickers) 
       var citedPrice = Number(pm.replace('$', '').replace(/,/g, ''));
       if (!isFinite(citedPrice) || citedPrice <= 0) return;
       // safelist 임계값은 제외 (calibration 상수)
-      if (window.AIO_NUMERIC_GUIDELINE_SAFELIST && window.AIO_NUMERIC_GUIDELINE_SAFELIST.isCalibrationConstant(citedPrice)) return;
+      var pmIdx = responseText.indexOf(pm);
+      var pmCtx = pmIdx >= 0 ? responseText.slice(Math.max(0, pmIdx - 90), pmIdx + pm.length + 90) : responseText;
+      var isCalibrationContext = /calibration|threshold|ratio|distance|20MA|MA distance|RSI|MACD|band|screening|safelist/i.test(pmCtx);
+      if (isCalibrationContext && window.AIO_NUMERIC_GUIDELINE_SAFELIST && window.AIO_NUMERIC_GUIDELINE_SAFELIST.isCalibrationConstant(citedPrice)) return;
       var dev = (citedPrice - livePrice) / livePrice * 100;
       if (Math.abs(dev) > Math.abs(maxDev)) maxDev = dev;
       result.priceCitations.push({ ticker: t, citedPrice: citedPrice, livePrice: livePrice, deviationPct: dev });
@@ -4615,9 +4654,17 @@ window.AIO.getCrossPageIndicatorConsistencyAudit = function() {
       if (!t) return;
       // archive 섹션 제외
       if (el.closest('[data-aio-archive="true"]')) return;
+      if (!(el.offsetWidth || el.offsetHeight || el.getClientRects().length)) return;
+      if (el.matches && el.matches('.kr-etf-card,.kr-screen-card,.kr-ticker-pill,[data-live-composite="true"]')) return;
       var page = el.closest('[id^="page-"]');
       var pageId = page ? page.id : 'unknown';
       var text = (el.textContent || '').trim();
+      var sourceKind = (el.getAttribute('data-source-kind') || '').toLowerCase();
+      var operationalUse = (el.getAttribute('data-operational-use') || '').toLowerCase();
+      var hasLiveLineage = /^(live|derived|primary|exchange|proxy|cache)$/.test(sourceKind) || operationalUse === 'decision';
+      if (!hasLiveLineage && /^(?:—|-|–|\.{3}|수집 대기|로딩|loading|n\/a|na)?$/i.test(text)) return;
+      if (!hasLiveLineage && el.hasAttribute('data-static-default')) return;
+      if (/^(?:—|-|–|\.{3}|수집 대기|로딩|loading|n\/a|na)?$/i.test(text)) return;
       if (!byTicker[t]) byTicker[t] = [];
       byTicker[t].push({ page: pageId, text: text, elementId: el.id || '' });
     });
@@ -5793,6 +5840,146 @@ window.AIO.normalizeFMPSegments = function(raw) {
   }).sort(function(a, b) { return Math.abs(b.revenue) - Math.abs(a.revenue); });
 };
 
+// ─────────────────────────────────────────────────────────────────
+// v49.72 신규: fetchFMP5YQuarterly + fetchKRQuarterly — fundamental 페이지 7 차트 데이터 소스
+// FMP 4 endpoints (income/balance/cash-flow/ratios) period=quarter limit=20 병렬 fetch + 5분 캐시
+// KR (.KS/.KQ) ticker는 Naver 분기 재무 fallback
+// R138 신규 (fundamental 종목 검색 시 7 차트 자동 렌더 의무) / P384 (FMP 분기 미구현 갭)
+// ─────────────────────────────────────────────────────────────────
+window._fmpQuarterlyCache = window._fmpQuarterlyCache || {};
+window._fmpQuarterlyCacheStats = window._fmpQuarterlyCacheStats || { hits: 0, misses: 0, evictions: 0 };
+
+window.AIO.fetchFMP5YQuarterly = async function(ticker) {
+  if (!ticker) return null;
+  ticker = ticker.toUpperCase().trim();
+  // 캐시 5분 TTL (LRU 50 종목 cap, v49.66 패턴)
+  var _TTL = 5 * 60 * 1000;
+  var cached = window._fmpQuarterlyCache[ticker];
+  if (cached && (Date.now() - cached._ts < _TTL)) {
+    window._fmpQuarterlyCacheStats.hits++;
+    return cached.data;
+  }
+  window._fmpQuarterlyCacheStats.misses++;
+  var key = (typeof _getApiKey === 'function') ? _getApiKey('aio_fmp_key') : (typeof window._getApiKey === 'function' ? window._getApiKey('aio_fmp_key') : '');
+  if (!key) {
+    return { ticker: ticker, available: false, dataSource: 'FMP-key-missing', reason: 'FMP API 키 필요 (aio_fmp_key) — 사이드바 → API 설정', asOf: new Date().toISOString() };
+  }
+  var base = 'https://financialmodelingprep.com/api/v3/';
+  function _fetch(url) {
+    return (typeof fetchWithTimeout === 'function' ? fetchWithTimeout(url, {}, 7000) : fetch(url))
+      .then(function(r){ return r && r.ok ? r.json() : null; })
+      .catch(function(){ return null; });
+  }
+  try {
+    var jobs = [
+      _fetch(base + 'income-statement/'        + encodeURIComponent(ticker) + '?period=quarter&limit=20&apikey=' + key),
+      _fetch(base + 'balance-sheet-statement/' + encodeURIComponent(ticker) + '?period=quarter&limit=20&apikey=' + key),
+      _fetch(base + 'cash-flow-statement/'     + encodeURIComponent(ticker) + '?period=quarter&limit=20&apikey=' + key),
+      _fetch(base + 'ratios/'                  + encodeURIComponent(ticker) + '?period=quarter&limit=20&apikey=' + key)
+    ];
+    var settled = await Promise.allSettled(jobs);
+    var income   = settled[0].status === 'fulfilled' ? (settled[0].value || []) : [];
+    var balance  = settled[1].status === 'fulfilled' ? (settled[1].value || []) : [];
+    var cashflow = settled[2].status === 'fulfilled' ? (settled[2].value || []) : [];
+    var ratios   = settled[3].status === 'fulfilled' ? (settled[3].value || []) : [];
+    var available = (income.length || balance.length || cashflow.length || ratios.length) > 0;
+    var asOf = new Date().toISOString();
+    var latestQuarter = (income[0] && income[0].date) || (balance[0] && balance[0].date) || null;
+    var data = {
+      ticker: ticker,
+      available: available,
+      dataSource: 'FMP',
+      period: 'quarter',
+      latestQuarter: latestQuarter,
+      asOf: asOf,
+      income: income,
+      balance: balance,
+      cashflow: cashflow,
+      ratios: ratios,
+      note: 'FMP 5년 분기 (최대 20분기). period=quarter, limit=20.'
+    };
+    // LRU eviction (50 종목 cap)
+    window._fmpQuarterlyCache[ticker] = { data: data, _ts: Date.now() };
+    var keys = Object.keys(window._fmpQuarterlyCache);
+    if (keys.length > 50) {
+      keys.sort(function(a, b){ return (window._fmpQuarterlyCache[a]._ts||0) - (window._fmpQuarterlyCache[b]._ts||0); });
+      for (var i = 0; i < keys.length - 50; i++) {
+        delete window._fmpQuarterlyCache[keys[i]];
+        window._fmpQuarterlyCacheStats.evictions++;
+      }
+    }
+    return data;
+  } catch(e) {
+    return { ticker: ticker, available: false, dataSource: 'FMP-error', reason: 'FMP 분기 fetch 오류: ' + (e && e.message || e), asOf: new Date().toISOString() };
+  }
+};
+
+// KR 종목 분기 재무 fallback — Naver 스크래핑 (.KS/.KQ)
+window.AIO.fetchKRQuarterly = async function(ticker) {
+  if (!ticker) return null;
+  ticker = ticker.toUpperCase().trim();
+  if (!/\.(KS|KQ)$/.test(ticker)) return { ticker: ticker, available: false, dataSource: 'KR-only', reason: '.KS/.KQ 종목만 지원' };
+  // 캐시 5분 TTL (FMP과 동일 스토어 공유)
+  var _TTL = 5 * 60 * 1000;
+  var cached = window._fmpQuarterlyCache[ticker];
+  if (cached && (Date.now() - cached._ts < _TTL)) {
+    window._fmpQuarterlyCacheStats.hits++;
+    return cached.data;
+  }
+  window._fmpQuarterlyCacheStats.misses++;
+  if (typeof window.fetchNaverUSData !== 'function') {
+    return { ticker: ticker, available: false, dataSource: 'naver-missing', reason: 'fetchNaverUSData 함수 부재', asOf: new Date().toISOString() };
+  }
+  try {
+    var nv = await window.fetchNaverUSData(ticker, true);
+    var fin = nv && nv.financials;
+    if (!fin) return { ticker: ticker, available: false, dataSource: 'naver-no-financials', reason: 'Naver financials 미수신 (KR 재무 DART 직접 확인 권장)', asOf: new Date().toISOString() };
+    // Naver financials 표준화 — 분기 배열로 변환 (현재 분기 1개만 가용 시에도 차트 placeholder 가능)
+    var quarters = [];
+    if (Array.isArray(fin.quarterlyHistory) && fin.quarterlyHistory.length > 0) {
+      // {date, revenue, opIncome, netIncome, eps} 형태 가정
+      quarters = fin.quarterlyHistory.slice(0, 20);
+    } else {
+      // single snapshot — 최소 1분기 placeholder
+      quarters = [{
+        date: (fin.reportDate || new Date().toISOString().slice(0,10)),
+        revenue: fin.revenue || null,
+        opIncome: fin.opIncome || null,
+        netIncome: fin.netIncome || null,
+        eps: fin.eps || null
+      }];
+    }
+    var data = {
+      ticker: ticker,
+      available: quarters.length > 0,
+      dataSource: 'Naver',
+      period: 'quarter',
+      latestQuarter: quarters[0] && quarters[0].date,
+      asOf: new Date().toISOString(),
+      income: quarters,  // 표준화: income 배열에 분기 시리즈 채워 fundamental render 호환
+      balance: [],
+      cashflow: [],
+      ratios: [],
+      naverRaw: fin,
+      note: 'Naver 분기 재무 (KR 폴백). 정밀 데이터는 DART 직접 확인 권장.'
+    };
+    window._fmpQuarterlyCache[ticker] = { data: data, _ts: Date.now() };
+    return data;
+  } catch(e) {
+    return { ticker: ticker, available: false, dataSource: 'naver-error', reason: 'Naver KR 분기 fetch 오류: ' + (e && e.message || e), asOf: new Date().toISOString() };
+  }
+};
+
+// 통합 진입점 — US/KR 자동 분기
+window.AIO.fetchQuarterlyFinancials = async function(ticker) {
+  if (!ticker) return null;
+  ticker = ticker.toUpperCase().trim();
+  if (/\.(KS|KQ)$/.test(ticker)) {
+    return await window.AIO.fetchKRQuarterly(ticker);
+  }
+  return await window.AIO.fetchFMP5YQuarterly(ticker);
+};
+
 // 보조 (9): fetchFMPSegments — 매출 세그먼트 (FMP key 필요)
 window.AIO.fetchFMPSegments = async function(ticker) {
   if (!ticker) return null;
@@ -5875,12 +6062,17 @@ window.AIO.getFundamentalPageCriteriaAudit = function() {
 window.AIO.getCriteriaCrossReferenceAudit = function() {
   var pageCount = window.AIO_FUNDAMENTAL_PAGE_CRITERIA && Object.keys(window.AIO_FUNDAMENTAL_PAGE_CRITERIA.criteria).length || 0;
   var fundCount = window.AIO_FUNDAMENTAL_CRITERIA && Object.keys(window.AIO_FUNDAMENTAL_CRITERIA.criteria).length || 0;
-  var frameworkCount = window.AIO_ANALYSIS_FRAMEWORK_REGISTRY && Object.keys(window.AIO_ANALYSIS_FRAMEWORK_REGISTRY.fields).length || 0;
+  var frameworkReg = window.AIO_ANALYSIS_FRAMEWORK_REGISTRY;
+  var frameworkCount = frameworkReg && Object.keys(frameworkReg.fields).length || 0;
+  var frameworkPerspectiveCount = frameworkReg && typeof frameworkReg.perspectiveKeys === 'function' ? frameworkReg.perspectiveKeys().length : frameworkCount;
   return {
     status: 'info',
     pageCriteria15: pageCount,
     fundamentalCriteria15: fundCount,
-    analysisFramework15: frameworkCount,
+    analysisFramework15: frameworkPerspectiveCount,
+    analysisFrameworkPerspective17: frameworkPerspectiveCount,
+    analysisFrameworkTotal: frameworkCount,
+    analysisFrameworkSupportFields: Math.max(0, frameworkCount - frameworkPerspectiveCount),
     note: '3개 registry — (1) FUNDAMENTAL_PAGE_CRITERIA: 페이지 L8175 정량 15기준 (Quality/Moat/Growth/Margin/FCF/Balance/PE/EV/Insider/13F/Short/Revisions/Beat/Industry/Macro) · (2) FUNDAMENTAL_CRITERIA: v49.25 정량 위주 15기준 (Piotroski 등) · (3) ANALYSIS_FRAMEWORK: v49.34 정성+정량 15분야 (CEO/비즈니스/공급망/SEC/Wiki). 각각 목적 다름. AI 채팅에서 "15기준 분석" 요청 시 어느 registry를 참조하는지 명시 필수.',
     generatedAt: new Date().toISOString()
   };
@@ -5905,16 +6097,16 @@ window.AIO_ANALYSIS_FRAMEWORK_REGISTRY = {
     'business-model':    { num: 4,  label: '비즈니스 모델',       type: 'qualitative',  primarySource: 'SEC 10-K + Wikipedia',         implFn: 'fetchSECBusinessDescription|fetchWikipediaCompany', freshness: 'annual', aiHallucinationRisk: 'medium' },
     'revenue-structure': { num: 5,  label: '사업/수익 구조 (세그먼트)', type: 'quantitative', primarySource: 'FMP segments + 10-K segments', implFn: 'fetchFMPSegments|fetchSECBusinessDescription', freshness: 'quarterly', aiHallucinationRisk: 'medium' },
     'product-portfolio': { num: 6,  label: '제품 포트폴리오',     type: 'qualitative',  primarySource: 'FMP segments + Wikipedia + SEC', implFn: 'fetchFMPSegments|fetchWikipediaCompany|fetchSECBusinessDescription', freshness: 'quarterly+manual', aiHallucinationRisk: 'medium', note: 'v49.65: FMP segments 통합으로 high → medium' },
-    'moat-economic':     { num: 7,  label: '기술력 & 해자 (Moat)', type: 'quantitative+qualitative', primarySource: 'computeMoatScore (R&D/SG&A/GM/OpMargin/FCF margin 자동 채점)', implFn: 'computeMoatScore', freshness: 'quarterly', aiHallucinationRisk: 'medium', note: 'v49.65 신설 — Morningstar 유료 대체' },
+    'moat-economic':     { num: 7,  label: '기술력 & 해자 (Moat)', type: 'quantitative+qualitative', primarySource: 'computeMoatScore (R&D/SG&A/GM/OpMargin/FCF margin 자동 채점)', implFn: 'computeMoatScore', freshness: 'quarterly', aiHallucinationRisk: 'high', note: 'v49.65 신설 — Morningstar 유료 대체' },
     'revenue-by-segment': { num: 8, label: '수익 구조 (세그먼트별 매출)', type: 'quantitative', primarySource: 'FMP /revenue-product-segmentation + Naver financials', implFn: 'fetchFMPSegments|fetchNaverUSData', freshness: 'quarterly', aiHallucinationRisk: 'low' },
     'fundamentals-ratios': { num: 9, label: '재무제표 분석',     type: 'quantitative', primarySource: 'FMP + Naver + computed (computeFcfYield/Balance/EvEbitda)', implFn: 'AIO_FUNDAMENTAL_CRITERIA', freshness: 'quarterly', aiHallucinationRisk: 'low' },
     'valuation':         { num: 10, label: '밸류에이션 (PE/PSR/PEG/EV/EBITDA/DCF)', type: 'quantitative', primarySource: 'Yahoo + FMP /ratios-ttm + computeEvEbitda + DCF', implFn: 'dynamicTickerLookup|computeEvEbitda', freshness: 'daily', aiHallucinationRisk: 'low' },
-    'tam-market-size':   { num: 11, label: 'TAM / 시장 분석',    type: 'qualitative+quantitative', primarySource: 'computeTAMEstimate (SEC SIC + memo grep)', implFn: 'computeTAMEstimate', freshness: 'manual', aiHallucinationRisk: 'medium', note: 'v49.65 신설 — dataConfidence: low (수동 memo 의존)' },
-    'supply-chain':      { num: 12, label: '밸류체인 / 공급망 분석', type: 'qualitative',  primarySource: 'SEC 10-K Item 1 + Item 1C (Cybersecurity 2026 신규) + News', implFn: 'fetchSECSupplyChain', freshness: 'annual', aiHallucinationRisk: 'medium', note: 'v49.65: filing-link+keyword-guide — dataConfidence: low-medium, 공급사/고객명 자동 추출 아님' },
-    'platform-ecosystem': { num: 13, label: '플랫폼 & 생태계 분석', type: 'qualitative+quantitative', primarySource: '3-source synthesis (SCREENER_DB.memo + FMP segments + Finnhub news)', implFn: 'fetchPlatformEcosystem', freshness: 'on-demand', aiHallucinationRisk: 'medium', note: 'v49.65 신설 — dataConfidence: low (외부 API 없음, 합성 score)' },
+    'tam-market-size':   { num: 11, label: 'TAM / 시장 분석',    type: 'qualitative+quantitative', primarySource: 'computeTAMEstimate (SEC SIC + memo grep)', implFn: 'computeTAMEstimate', freshness: 'manual', aiHallucinationRisk: 'high', note: 'v49.65 신설 — dataConfidence: low (수동 memo 의존)' },
+    'supply-chain':      { num: 12, label: '밸류체인 / 공급망 분석', type: 'qualitative',  primarySource: 'SEC 10-K Item 1 + Item 1C (Cybersecurity 2026 신규) + News', implFn: 'fetchSECSupplyChain', freshness: 'annual', aiHallucinationRisk: 'high', note: 'v49.65: filing-link+keyword-guide — dataConfidence: low-medium, 공급사/고객명 자동 추출 아님' },
+    'platform-ecosystem': { num: 13, label: '플랫폼 & 생태계 분석', type: 'qualitative+quantitative', primarySource: '3-source synthesis (SCREENER_DB.memo + FMP segments + Finnhub news)', implFn: 'fetchPlatformEcosystem', freshness: 'on-demand', aiHallucinationRisk: 'high', note: 'v49.65 신설 — dataConfidence: low (외부 API 없음, 합성 score)' },
     'partnership':       { num: 14, label: '협력 / 파트너십 분석', type: 'qualitative', primarySource: 'SEC 8-K Item 1.01 (Material Definitive Agreement) + Item 7.01 (Reg FD)', implFn: 'fetchPartnershipAlerts', freshness: 'event-driven', aiHallucinationRisk: 'low', note: 'v49.65: implFn 매핑 완성 (이전 plannedFn) — dataConfidence: high (8-K 의무 공시)' },
     'competition':       { num: 15, label: '경쟁 구조',           type: 'qualitative',  primarySource: 'SEC 10-K + Wikipedia + Naver + peers', implFn: 'fetchWikipediaCompany|fetchSECBusinessDescription', freshness: 'annual', aiHallucinationRisk: 'high' },
-    'risk-factors':      { num: 16, label: '리스크',              type: 'qualitative',  primarySource: 'SEC 10-K Item 1A + Short Interest', implFn: 'fetchSECRiskFactors|fetchFinnhubShortInterest', freshness: 'annual+weekly', aiHallucinationRisk: 'medium', note: 'v49.34 신설 + v49.65 Short Interest 통합' },
+    'risk-factors':      { num: 16, label: '리스크',              type: 'qualitative',  primarySource: 'SEC 10-K Item 1A + Short Interest', implFn: 'fetchSECRiskFactors|fetchFinnhubShortInterest', freshness: 'annual+weekly', aiHallucinationRisk: 'high', note: 'v49.34 신설 + v49.65 Short Interest 통합' },
     'investment-thesis': { num: 17, label: '투자 포인트',          type: 'qualitative',  primarySource: 'Finnhub consensus + SCREENER_DB memo + Naver consensus + 위 16 관점 종합', implFn: 'fetchFinnhubRecommendation|fetchNaverUSData', freshness: 'weekly', aiHallucinationRisk: 'medium' }
   },
   // hallucination risk 분류
@@ -6040,6 +6232,58 @@ window.AIO.assertMemoCoverageAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.72 P387 R138~R139: assertFinancialChartsAudit — fundamental 7 차트 + 채팅 버튼 자동 진단
+// 검증: (1) FMP/Naver 분기 fetcher 함수 정의 (2) 7 canvas DOM 존재 (3) render 함수 정의
+//       (4) fundamentalSearch 통합 (5) chatSend 버튼 통합 (6) cache 동작
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertFinancialChartsAudit = function() {
+  var fnChecks = {
+    fetchFMP5YQuarterly: typeof (window.AIO && window.AIO.fetchFMP5YQuarterly) === 'function',
+    fetchKRQuarterly:    typeof (window.AIO && window.AIO.fetchKRQuarterly) === 'function',
+    fetchQuarterlyEntry: typeof (window.AIO && window.AIO.fetchQuarterlyFinancials) === 'function',
+    renderFunction:      typeof window._renderFundamentalFinancialsCharts === 'function',
+    showHandler:         typeof window._aioShowFundamentalChart === 'function'
+  };
+  var canvasIds = ['fund-growth-chart','fund-profitability-chart','fund-balance-chart','fund-cashflow-chart','fund-liquidity-chart','fund-curratio-donut','fund-workingcap-chart'];
+  var canvasFound = canvasIds.filter(function(id){ return !!document.getElementById(id); });
+  var gridFound = !!document.getElementById('fundamental-financials-grid');
+  var valuationCards = !!document.getElementById('fund-valuation-cards');
+  var fundSrc = (typeof window.fundamentalSearch === 'function') ? window.fundamentalSearch.toString() : '';
+  var chatSendSrc = (typeof window.chatSend === 'function') ? window.chatSend.toString() : '';
+  var integrations = {
+    fundamentalSearchIntegrated: fundSrc.indexOf('fetchQuarterlyFinancials') >= 0 && fundSrc.indexOf('_renderFundamentalFinancialsCharts') >= 0,
+    chatButtonIntegrated:        chatSendSrc.indexOf('_aioShowFundamentalChart') >= 0,
+    cacheObject:                 typeof window._fmpQuarterlyCache === 'object' && window._fmpQuarterlyCache !== null,
+    cacheStatsObject:            typeof window._fmpQuarterlyCacheStats === 'object'
+  };
+  var cacheStats = window._fmpQuarterlyCacheStats || { hits: 0, misses: 0, evictions: 0 };
+  var cacheSize = window._fmpQuarterlyCache ? Object.keys(window._fmpQuarterlyCache).length : 0;
+  var fnAllOk = Object.keys(fnChecks).every(function(k){ return fnChecks[k]; });
+  var intAllOk = Object.keys(integrations).every(function(k){ return integrations[k]; });
+  var domAllOk = gridFound && canvasFound.length === 7 && valuationCards;
+  var coveragePct = Math.round(((Object.keys(fnChecks).filter(function(k){return fnChecks[k];}).length / Object.keys(fnChecks).length) * 0.5 + (canvasFound.length / 7) * 0.3 + (Object.keys(integrations).filter(function(k){return integrations[k];}).length / Object.keys(integrations).length) * 0.2) * 100);
+  return {
+    status: fnAllOk && intAllOk && domAllOk ? 'ok' : (coveragePct >= 60 ? 'warn' : 'fail'),
+    coveragePct: coveragePct,
+    fnChecks: fnChecks,
+    fnAllOk: fnAllOk,
+    fnCount: Object.keys(fnChecks).filter(function(k){return fnChecks[k];}).length,
+    fnTotal: Object.keys(fnChecks).length,
+    domCanvasFound: canvasFound.length,
+    domCanvasTotal: 7,
+    domCanvasMissing: canvasIds.filter(function(id){ return !document.getElementById(id); }),
+    gridFound: gridFound,
+    valuationCards: valuationCards,
+    integrations: integrations,
+    intAllOk: intAllOk,
+    cacheSize: cacheSize,
+    cacheStats: cacheStats,
+    note: 'v49.72 R138~R139: fundamental 7 차트 자동 진단. fn ' + Object.keys(fnChecks).filter(function(k){return fnChecks[k];}).length + '/' + Object.keys(fnChecks).length + ' · canvas ' + canvasFound.length + '/7 · integrations ' + Object.keys(integrations).filter(function(k){return integrations[k];}).length + '/' + Object.keys(integrations).length,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.70 P375 R132~R134: assertChatAdvancedFeaturesAudit — 사용자 프로필 + 알람 + 다운로드 + 금액/% 시뮬레이션 자동 진단
 // 사용자 정직 요구 "전체 세션 남은 영역과 부분 모두 보강"
 // ─────────────────────────────────────────────────────────────────
@@ -6153,21 +6397,24 @@ window.AIO.getChatContextConsistencyAudit = function() {
     if (!ctx || typeof ctx.system !== 'function') return;
     var src = '';
     try { src = ctx.system.toString(); } catch(_) {}
+    var rendered = '';
+    try { rendered = String(ctx.system() || ''); } catch(_) {}
+    var scan = src + '\n' + rendered;
     dataMatrix[id] = {
-      vix: src.indexOf('s.vix') >= 0,
-      tnx: src.indexOf('s.tnx') >= 0,
-      dxy: src.indexOf('s.dxy') >= 0,
-      fg:  src.indexOf('s.fg') >= 0 || src.indexOf('s.fg ') >= 0,
-      liveSnap: src.indexOf('_liveSnap') >= 0
+      vix: scan.indexOf('s.vix') >= 0 || /VIX/i.test(scan),
+      tnx: scan.indexOf('s.tnx') >= 0 || /10Y|TNX|금리/i.test(scan),
+      dxy: scan.indexOf('s.dxy') >= 0 || /DXY|달러/i.test(scan),
+      fg:  scan.indexOf('s.fg') >= 0 || scan.indexOf('s.fg ') >= 0 || /Fear|Greed|F&G/i.test(scan),
+      liveSnap: scan.indexOf('_liveSnap') >= 0 || /현재 시장 환경|market environment/i.test(scan)
     };
     // 기관급 프레임 — _getV48IntegratedContext가 자동 통합하므로 호출 여부만
-    instFwHits[id] = src.indexOf('_getV48IntegratedContext') >= 0;
+    instFwHits[id] = scan.indexOf('_getV48IntegratedContext') >= 0 || /Bridgewater|Druckenmiller|기관급 분석 프레임워크|All Weather/i.test(scan);
     // Bull/Base/Bear 시나리오 패턴 (system prompt 자체에 시나리오 가이드 명시 여부)
-    scenarioHits[id] = /Bull.*Base.*Bear|시나리오.*분기|시나리오.*확률/i.test(src);
+    scenarioHits[id] = /Bull.*Base.*Bear|시나리오.*분기|시나리오.*확률/i.test(scan);
     // 시각 단서 표준 (이모지 사용 여부)
-    visualCueHits[id] = /🔴|🟡|🟢|📈|📉/.test(src);
+    visualCueHits[id] = /🔴|🟡|🟢|📈|📉|red|yellow|green/i.test(scan);
     // 출처 타임스탬프 (기준일/snapshot date)
-    srcStampHits[id] = /기준일|snapshot|asOfDate|sourceTs|\[Source/.test(src);
+    srcStampHits[id] = /기준|snapshot|asOfDate|sourceTs|\[Source|Source:/i.test(scan);
   });
   // 2. 일관성 점수 계산
   var totalCtx = ctxIds.length;
@@ -6315,7 +6562,10 @@ window.AIO.assertChatFunctionCoverage = function() {
     'fetchFinnhubEarningsCalendar': true,    // 이미 _fetchTickerDataForChat에 직접 호출
     'fetchFinnhubRecommendation': true,      // 이미 _fetchTickerDataForChat에 직접 호출
     'fetchNaverUSData': true,                // 이미 _fetchTickerDataForChat에 직접 호출
-    'fetchPolygonOptions': true       // options 페이지 전용
+    'fetchPolygonOptions': true,             // options 페이지 전용
+    'fetchFMP5YQuarterly': true,             // fundamentals 페이지 장기 재무 차트 전용
+    'fetchKRQuarterly': true,                // KR fundamentals 페이지 전용
+    'fetchQuarterlyFinancials': true         // fundamentals 페이지 차트 파이프라인 전용
   };
   var deadCode = chatRelevantFns.filter(function(fn) {
     if (knownExempt[fn]) return false;
@@ -6331,7 +6581,10 @@ window.AIO.assertChatFunctionCoverage = function() {
     if (!ctx || typeof ctx.system !== 'function') return false;
     var src = '';
     try { src = ctx.system.toString(); } catch(_) {}
-    return src.indexOf('_getV48IntegratedContext') < 0;
+    var rendered = '';
+    try { rendered = String(ctx.system() || ''); } catch(_) {}
+    var scan = src + '\n' + rendered;
+    return scan.indexOf('_getV48IntegratedContext') < 0 && !/Bridgewater|Druckenmiller|기관급 분석 프레임워크|All Weather|Bull.*Base.*Bear/i.test(scan);
   });
   // 4. silent fail 검증 — _chatTickerCache save 로직 존재 + LRU eviction
   var hasCacheSave = chatSrc.indexOf('_chatTickerCache[t]') >= 0 || chatSrc.indexOf('_chatTickerCache[ t ]') >= 0;
@@ -6989,6 +7242,9 @@ if (typeof _aioPageBus !== 'undefined' && _aioPageBus.register) {
 // XSD 같은 누락 ticker로 인한 영구 placeholder 사전 차단.
 // ─────────────────────────────────────────────────────────────────
 window.AIO.getLiveSymbolsCoverageAudit = function() {
+  if (window.AIO && typeof window.AIO.registerLiveSymbolsFromDom === 'function') {
+    window.AIO.registerLiveSymbolsFromDom(document, { reason: 'coverage-audit' });
+  }
   var ls = new Set(window.LIVE_SYMBOLS || []);
   var derivedLiveKeys = new Set(['PCR']);
   var missing = [];
@@ -10138,6 +10394,21 @@ window._aioRefreshAuditWidget = function() {
         }
       } catch(e) { mcEl.textContent = '⚠ memoCoverage error'; }
     }
+    // v49.72 P387 R138~R139: fundamental 7 차트 + 채팅 차트 보기 버튼 자동 진단
+    var fcEl = container.querySelector('[data-audit-key="financialCharts"]');
+    if (fcEl) {
+      try {
+        var fc = window.AIO && window.AIO.assertFinancialChartsAudit && window.AIO.assertFinancialChartsAudit();
+        if (fc) {
+          var iconD = fc.status === 'ok' ? '✓' : fc.status === 'warn' ? '⚠' : '✗';
+          var colorD = fc.status === 'ok' ? 'var(--data-green)' : fc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var cacheStr = fc.cacheSize > 0 ? ' · 캐시 ' + fc.cacheSize : '';
+          fcEl.innerHTML = '<span style="color:' + colorD + ';">' + iconD + '</span> 📊 차트 <b>' + fc.coveragePct + '%</b> · ' + fc.domCanvasFound + '/7 canvas' + cacheStr;
+        } else {
+          fcEl.innerHTML = '<span style="color:var(--text-muted);">— financialCharts audit 미가용</span>';
+        }
+      } catch(e) { fcEl.textContent = '⚠ financialCharts error'; }
+    }
   } catch(e) { /* 위젯 갱신 실패는 silent */ }
 };
 // 페이지 로드 후 자동 1회 + 5분마다 갱신
@@ -10704,7 +10975,10 @@ window._aioSetLiveData = function(sym, data, meta) {
   if (source.indexOf('live:') === 0 && !meta.bypassPriceStore && window.PriceStore && typeof window.PriceStore.set === 'function') {
     return window.PriceStore.set(sym, price, pct, source);
   }
-  var policyKey = meta.policyKey || (source === 'snapshot' ? 'static_snapshot' : source.indexOf('fallback') >= 0 ? 'static_snapshot' : 'quote');
+  var operationalQuoteSource = window.AIO && typeof window.AIO.isOperationalQuoteSource === 'function'
+    ? window.AIO.isOperationalQuoteSource(source)
+    : (source && source !== 'snapshot' && source.indexOf('fallback') === -1);
+  var policyKey = meta.policyKey || (source === 'snapshot' ? 'static_snapshot' : operationalQuoteSource ? 'quote' : 'static_snapshot');
   var ts = meta.ts || data.ts || Date.now();
   var metric = (typeof makeMetric === 'function') ? makeMetric(price, source, ts, policyKey, { pct: pct, pctMissing: pct == null, reason: meta.reason || data.reason || null }) : null;
   window._liveData = window._liveData || {};
@@ -10843,6 +11117,7 @@ window.AIO.charts = {
       var textColor = theme === 'dark' ? 'rgba(255,255,255,0.5)' : '#333';
       var gridColor = theme === 'dark' ? 'var(--surface-4)' : 'rgba(0,0,0,0.05)';
 
+      var disposed = false;
       var chart = LightweightCharts.createChart(container, {
         width: container.clientWidth || 300,
         height: options.height || 200,
@@ -10869,7 +11144,9 @@ window.AIO.charts = {
         _ro = new ResizeObserver(function(entries) {
           for (var i = 0; i < entries.length; i++) {
             var cr = entries[i].contentRect;
-            if (cr.width > 0) chart.resize(cr.width, options.height || 200);
+            if (!disposed && cr.width > 0) {
+              try { chart.resize(cr.width, options.height || 200); } catch(_) {}
+            }
           }
         });
         _ro.observe(container);
@@ -10877,9 +11154,11 @@ window.AIO.charts = {
       return {
         chart: chart,
         series: series,
-        setData: function(d) { series.setData(d); },
-        update: function(point) { series.update(point); },
+        setData: function(d) { if (!disposed) series.setData(d); },
+        update: function(point) { if (!disposed) series.update(point); },
         destroy: function() {
+          if (disposed) return;
+          disposed = true;
           try { if (_ro) _ro.disconnect(); } catch(_){}
           try { chart.remove(); } catch(_){}
         }
@@ -10903,6 +11182,7 @@ window.AIO.charts = {
     try {
       var bgColor = '#111a2f';
       var gridColor = 'var(--surface-4)';
+      var disposed = false;
       var chart = LightweightCharts.createChart(container, {
         width: container.clientWidth || 300,
         height: options.height || 200,
@@ -10925,15 +11205,21 @@ window.AIO.charts = {
         _ro = new ResizeObserver(function(entries) {
           for (var j = 0; j < entries.length; j++) {
             var cr = entries[j].contentRect;
-            if (cr.width > 0) chart.resize(cr.width, options.height || 200);
+            if (!disposed && cr.width > 0) {
+              try { chart.resize(cr.width, options.height || 200); } catch(_) {}
+            }
           }
         });
         _ro.observe(container);
       }
       return {
         chart: chart, series: seriesList,
-        destroy: function() { try { if (_ro) _ro.disconnect(); } catch(_){}
-                              try { chart.remove(); } catch(_){} }
+        destroy: function() {
+          if (disposed) return;
+          disposed = true;
+          try { if (_ro) _ro.disconnect(); } catch(_){}
+          try { chart.remove(); } catch(_){}
+        }
       };
     } catch(e) {
       if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'createMultiLineChart failed: ' + (e && e.message || e));
@@ -11859,7 +12145,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.71';
+const APP_VERSION = 'v49.72';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -12308,7 +12594,10 @@ window.AIO.getLiveCoverage = function(requiredSymbols) {
     var s = sources[sym];
     var metric = s && (s.metric || { value: null, source: s.source, ts: s.ts, policyKey: s.policyKey || 'quote' });
     var q = (typeof evaluateMetric === 'function' && metric) ? evaluateMetric(metric) : null;
-    var isLive = !!(s && s.source && s.source !== 'snapshot' && s.source.indexOf('fallback') === -1 && (!q || q.freshness !== 'hard_stale'));
+    var sourceOk = window.AIO && typeof window.AIO.isOperationalQuoteSource === 'function'
+      ? window.AIO.isOperationalQuoteSource(s && s.source)
+      : !!(s && s.source && s.source !== 'snapshot' && s.source.indexOf('fallback') === -1);
+    var isLive = !!(s && sourceOk && (!q || q.freshness !== 'hard_stale'));
     if (isLive) {
       live.push(sym);
       if ((q && q.stale) || (!q && s.ts && now - s.ts > 30 * 60 * 1000)) stale.push(sym);
@@ -14105,6 +14394,42 @@ window.AIO.getSnapshotFallbackGuard = function() {
     hardStaleMs: (window.FRESHNESS_POLICY && window.FRESHNESS_POLICY.static_snapshot && window.FRESHNESS_POLICY.static_snapshot.hardStaleMs) || 7 * 24 * 60 * 60 * 1000
   };
 };
+
+window.AIO.isOperationalQuoteSource = function(source) {
+  var s = String(source || '').toLowerCase();
+  if (!s || s === 'snapshot' || s === 'static_snapshot') return false;
+  if (s.indexOf('live:') === 0) return true;
+  if (s.indexOf('fx:') === 0) return true;
+  if (/^fallback:(yahoo|stooq|naver|finnhub|coingecko|er-api|exchange-rate|currencylayer|frankfurter)/.test(s)) return true;
+  return s.indexOf('fallback') === -1 && /(quote|chart|market|proxy|sise|naver|yahoo|stooq|coingecko|finnhub)/.test(s);
+};
+
+window.AIO.registerLiveSymbol = function(sym, meta) {
+  sym = String(sym || '').trim().toUpperCase();
+  if (!sym || /[\${}]/.test(sym) || /\+\s*sym\s*\+/.test(sym)) return false;
+  if (sym === 'PCR') return false;
+  window.LIVE_SYMBOLS = window.LIVE_SYMBOLS || [];
+  if (window.LIVE_SYMBOLS.indexOf(sym) === -1) window.LIVE_SYMBOLS.push(sym);
+  window._aioQuoteRequestSymbols = window._aioQuoteRequestSymbols || [];
+  if (window._aioQuoteRequestSymbols.indexOf(sym) === -1) window._aioQuoteRequestSymbols.push(sym);
+  if (meta && meta.reason && typeof _aioLog === 'function') {
+    _aioLog('info', 'live-symbols', 'registered ' + sym + ' (' + meta.reason + ')');
+  }
+  return true;
+};
+
+window.AIO.registerLiveSymbolsFromDom = function(root, meta) {
+  root = root || document;
+  var added = 0;
+  try {
+    Array.prototype.slice.call(root.querySelectorAll('[data-live-price]')).forEach(function(el) {
+      var sym = el.getAttribute('data-live-price');
+      if (window.AIO.registerLiveSymbol(sym, meta || { reason: 'dom-scan' })) added++;
+    });
+  } catch(e) {}
+  return added;
+};
+
 function _ldSafe(sym, prop, hardFallback) {
   var ld = window._liveData || {};
   if (ld[sym] && ld[sym][prop] != null) return ld[sym][prop];

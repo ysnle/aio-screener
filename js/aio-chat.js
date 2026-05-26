@@ -4649,6 +4649,29 @@ async function chatSend(ctxId) {
           }
         } catch(_pfErr) {}
 
+        // v49.72 R139: 답변 종목 detect 시 "📊 [종목] 재무 차트 보기" 버튼 자동 삽입
+        // — 7 섹션 5년 분기 (Growth/Profitability/Balance/CashFlow/Liquidity/WorkingCap/Valuation)
+        try {
+          if (detectedTickers && detectedTickers.length > 0) {
+            var _seenChartBtn = {};
+            var _chartBtnContainer = document.createElement('div');
+            _chartBtnContainer.className = 'aio-financial-chart-buttons';
+            _chartBtnContainer.style.cssText = 'margin:8px 0 4px;display:flex;flex-direction:column;gap:4px;';
+            detectedTickers.forEach(function(t) {
+              if (!t || _seenChartBtn[t]) return;
+              _seenChartBtn[t] = true;
+              var _btn = document.createElement('div');
+              _btn.className = 'aio-financial-chart-btn';
+              _btn.setAttribute('data-action', '_aioShowFundamentalChart');
+              _btn.setAttribute('data-arg', t);
+              _btn.style.cssText = 'cursor:pointer;padding:6px 8px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:4px;font-size:11px;color:var(--text-primary);transition:background 0.15s;';
+              _btn.innerHTML = '📊 <strong>' + escHtml(t) + ' 재무 차트 보기</strong> ↗ <span style="color:var(--text-muted);">— 7 섹션 5년 분기 (Growth/Profitability/Balance/CashFlow/Liquidity/WorkingCap/Valuation)</span>';
+              _chartBtnContainer.appendChild(_btn);
+            });
+            if (_chartBtnContainer.children.length > 0) aiBubble.parentNode.appendChild(_chartBtnContainer);
+          }
+        } catch(_finChartBtnErr) {}
+
         // v49.69 P365 R129: 후속 질문 3개 자동 제안 + chip 클릭 시 chatFromChip 자동 호출
         try {
           var _fuq = (typeof _suggestFollowUpQuestions === 'function') ? _suggestFollowUpQuestions(ctxId, q, fullText, detectedTickers) : null;
@@ -5065,6 +5088,12 @@ async function fundamentalSearch() {
     // v49.58 R106: 채팅 컨텍스트가 활성 종목 자동 인지 (CHAT_CONTEXTS['ticker'] / .fundamental)
     if (collected && collected.ticker) window._currentTickerId = collected.ticker;
     try { _renderFundHeader(collected); _renderFundSEC(collected); _renderFundFinancials(collected); _renderFundStatements(collected); _renderFundValuation(collected); if (typeof _renderFundMultiPeriod === 'function') _renderFundMultiPeriod(collected); _renderFundPeers(collected); _renderFundEarnings(collected); if (typeof _renderFundVariance === 'function') _renderFundVariance(collected); if (typeof _renderFundNews === 'function') _renderFundNews(collected); _renderFundSources(collected); } catch(e) { _aioLog('warn', 'fund', '캐시 렌더 실패: ' + e.message); }
+    // v49.72 R138: 7 차트 캐시 즉시 렌더 (별도 cache는 _fmpQuarterlyCache 5분 TTL)
+    try {
+      if (window.AIO && typeof window.AIO.fetchQuarterlyFinancials === 'function') {
+        window.AIO.fetchQuarterlyFinancials(ticker).then(function(qd){ _renderFundamentalFinancialsCharts(qd); }).catch(function(){});
+      }
+    } catch(_qchErr) {}
     if (loadingEl) {
       var _srcList = (collected.sources || []).map(function(s){ return escHtml(String(s || '')); });
       loadingEl.innerHTML = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">캐시 데이터 (' + _ageMin + '분 전) — ' + _srcList.length + '개 소스</div><div style="font-size:11px;color:var(--text-muted);">' + _srcList.join(' · ') + '</div>';
@@ -5282,6 +5311,24 @@ async function fundamentalSearch() {
   if (typeof _renderFundVariance === 'function') _renderFundVariance(collected);    // v48.90
   if (typeof _renderFundNews === 'function') _renderFundNews(collected);            // v48.13
   _renderFundSources(collected);
+
+  // v49.72 R138: 7 차트 fundamental UI 자동 렌더 (FMP/Naver 5년 분기 데이터, 5분 캐시)
+  try {
+    if (window.AIO && typeof window.AIO.fetchQuarterlyFinancials === 'function') {
+      var _qChartCard = document.getElementById('fund-rpt-fincharts');
+      if (_qChartCard) {
+        // 로딩 placeholder (R115: "수신 대기")
+        var _qMeta = document.getElementById('fund-fin-meta');
+        if (_qMeta) _qMeta.textContent = '분기 재무 수신 대기 (' + ticker + ')';
+        _qChartCard.style.display = 'block';
+      }
+      window.AIO.fetchQuarterlyFinancials(ticker).then(function(qd){
+        try { _renderFundamentalFinancialsCharts(qd); } catch(_rErr) { _aioLog('warn', 'fund', '7 차트 렌더 실패: ' + (_rErr && _rErr.message || _rErr)); }
+      }).catch(function(){
+        try { _renderFundamentalFinancialsCharts({ available: false, dataSource: 'fetch-error', reason: 'fetch 실패 (5초 timeout 또는 네트워크)', ticker: ticker }); } catch(_) {}
+      });
+    }
+  } catch(_qFinErr) { _aioLog('warn', 'fund', '7 차트 fetch 진입 실패: ' + (_qFinErr && _qFinErr.message || _qFinErr)); }
 
   // ─── LLM에 실제 데이터 전달하여 종합 분석 요청 ───
   var chatInp = document.getElementById('chat-fundamental-inp');
@@ -5651,6 +5698,283 @@ function _renderFundFinancials(d) {
 
   grid.innerHTML = html;
   el.style.display = 'block';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// v49.72 신규: _renderFundamentalFinancialsCharts — DART Financials 스타일 7 차트 렌더
+// 입력: { ticker, available, dataSource, period, latestQuarter, asOf, income[], balance[], cashflow[], ratios[] }
+// 의존: window.Chart (Chart.js) + window._aioChartRegistry (v48.96 P167)
+// R138: fundamental 종목 검색 시 7 차트 자동 렌더 의무
+// ─────────────────────────────────────────────────────────────────
+function _renderFundamentalFinancialsCharts(data) {
+  var card = document.getElementById('fund-rpt-fincharts');
+  if (!card) return;
+  card.style.display = 'block';
+  var meta = document.getElementById('fund-fin-meta');
+  if (meta) {
+    if (data && data.available) {
+      meta.textContent = (data.dataSource || 'FMP') + ' · period=' + (data.period || 'quarter') + (data.latestQuarter ? (' · 기준일 ' + data.latestQuarter) : '');
+    } else {
+      meta.textContent = (data && data.dataSource) ? (data.dataSource + ' · ' + (data.reason || '데이터 부재')) : '데이터 부재 — 외부 확인 권장';
+    }
+  }
+
+  // helper: 분기 시리즈 → {labels[], values[]} (오래된 → 최신 순으로 reverse)
+  function _series(arr, field) {
+    if (!Array.isArray(arr) || arr.length === 0) return { labels: [], values: [] };
+    var slice = arr.slice(0, 5).reverse();  // 최근 5분기
+    return {
+      labels: slice.map(function(q){ return (q.date || q.period || '').slice(0, 7); }),
+      values: slice.map(function(q){ var v = q[field]; return (v != null && isFinite(v)) ? Number(v) : null; })
+    };
+  }
+  function _fmt(n) {
+    if (n == null || !isFinite(n)) return '—';
+    var abs = Math.abs(n);
+    if (abs >= 1e12) return (n/1e12).toFixed(2) + 'T';
+    if (abs >= 1e9)  return (n/1e9 ).toFixed(2) + 'B';
+    if (abs >= 1e6)  return (n/1e6 ).toFixed(2) + 'M';
+    if (abs >= 1e3)  return (n/1e3 ).toFixed(2) + 'K';
+    return n.toFixed(2);
+  }
+  function _pct(n) { return (n != null && isFinite(n)) ? (n*100).toFixed(2) + '%' : '—'; }
+
+  var canvasIds = [
+    'fund-growth-chart', 'fund-profitability-chart', 'fund-balance-chart',
+    'fund-cashflow-chart', 'fund-liquidity-chart', 'fund-curratio-donut', 'fund-workingcap-chart'
+  ];
+  // 기존 차트 destroy (재렌더 시 중복 방지)
+  if (window._aioChartRegistry && typeof window._aioChartRegistry.destroyIfExists === 'function') {
+    canvasIds.forEach(function(id){ window._aioChartRegistry.destroyIfExists(id); });
+  }
+
+  // Chart.js 부재 / 데이터 부재 → placeholder
+  if (typeof window.Chart === 'undefined') {
+    canvasIds.forEach(function(id){
+      var cv = document.getElementById(id);
+      if (cv) cv.setAttribute('data-fallback', 'chart-js-missing');
+    });
+    return;
+  }
+  if (!data || !data.available) {
+    canvasIds.forEach(function(id){
+      var cv = document.getElementById(id);
+      if (cv) cv.setAttribute('data-operational-use', 'reference-only');
+    });
+    // 7번째 카드 (Valuation cards) 폴백
+    var vc = document.getElementById('fund-valuation-cards');
+    var cb = document.getElementById('fund-calc-basis');
+    if (vc) vc.innerHTML = '<div style="grid-column:1/-1;color:var(--text-muted);font-size:10px;padding:8px;text-align:center;">5년 분기 데이터 부재 — 외부 확인 권장</div>';
+    if (cb) cb.textContent = (data && data.reason) || '데이터 미수신';
+    return;
+  }
+
+  var COLORS = {
+    rev: '#00d4ff', op: '#ffa31a', net: '#00e5a0',
+    opM: '#ffa31a', netM: '#00e5a0', roe: '#a855f7',
+    assets: '#ffa31a', liab: '#ff5b50', equity: '#00e5a0',
+    opCF: '#00e5a0', invCF: '#ff5b50', finCF: '#a855f7',
+    cash: '#00e5a0', curLiab: '#ffa31a', totLiab: '#ff5b50',
+    recv: '#7dd3fc', inv: '#00d4ff', curAssets: '#00e5a0'
+  };
+
+  // ① Growth — Revenue/OpIncome/NetIncome (bar)
+  var gRev = _series(data.income, 'revenue');
+  var gOp  = _series(data.income, 'operatingIncome');
+  var gNI  = _series(data.income, 'netIncome');
+  var cv1 = document.getElementById('fund-growth-chart');
+  if (cv1) {
+    var ctx1 = cv1.getContext('2d');
+    var c1 = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: gRev.labels,
+        datasets: [
+          { label: 'Revenue', data: gRev.values, backgroundColor: COLORS.rev },
+          { label: 'OpInc',   data: gOp.values,  backgroundColor: COLORS.op  },
+          { label: 'NetInc',  data: gNI.values,  backgroundColor: COLORS.net }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
+    });
+    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-growth-chart', c1);
+  }
+  var tg = document.getElementById('fund-growth-table');
+  if (tg) {
+    tg.innerHTML = gRev.labels.map(function(lab, i){
+      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>R ' + _fmt(gRev.values[i]) + ' · O ' + _fmt(gOp.values[i]) + ' · N ' + _fmt(gNI.values[i]) + '</span></div>';
+    }).join('');
+  }
+
+  // ② Profitability — OpMargin/NetMargin/ROE (line)
+  var pOpM  = _series(data.ratios, 'operatingProfitMargin');
+  var pNetM = _series(data.ratios, 'netProfitMargin');
+  var pROE  = _series(data.ratios, 'returnOnEquity');
+  var cv2 = document.getElementById('fund-profitability-chart');
+  if (cv2) {
+    var ctx2 = cv2.getContext('2d');
+    var c2 = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: pOpM.labels,
+        datasets: [
+          { label: 'OpMargin',  data: pOpM.values.map(function(v){return v!=null?v*100:null;}),  borderColor: COLORS.opM,  backgroundColor: 'transparent', tension: 0.3 },
+          { label: 'NetMargin', data: pNetM.values.map(function(v){return v!=null?v*100:null;}), borderColor: COLORS.netM, backgroundColor: 'transparent', tension: 0.3 },
+          { label: 'ROE',       data: pROE.values.map(function(v){return v!=null?v*100:null;}),  borderColor: COLORS.roe,  backgroundColor: 'transparent', tension: 0.3 }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return v.toFixed(1) + '%'; } } } } }
+    });
+    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-profitability-chart', c2);
+  }
+  var tp = document.getElementById('fund-profitability-table');
+  if (tp) {
+    tp.innerHTML = pOpM.labels.map(function(lab, i){
+      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>OpM ' + _pct(pOpM.values[i]) + ' · NM ' + _pct(pNetM.values[i]) + ' · ROE ' + _pct(pROE.values[i]) + '</span></div>';
+    }).join('');
+  }
+
+  // ③ Balance Sheet — Assets/Liab/Equity (bar)
+  var bA = _series(data.balance, 'totalAssets');
+  var bL = _series(data.balance, 'totalLiabilities');
+  var bE = _series(data.balance, 'totalStockholdersEquity');
+  var cv3 = document.getElementById('fund-balance-chart');
+  if (cv3) {
+    var ctx3 = cv3.getContext('2d');
+    var c3 = new Chart(ctx3, {
+      type: 'bar',
+      data: { labels: bA.labels, datasets: [
+        { label: 'Assets', data: bA.values, backgroundColor: COLORS.assets },
+        { label: 'Liab',   data: bL.values, backgroundColor: COLORS.liab },
+        { label: 'Equity', data: bE.values, backgroundColor: COLORS.equity }
+      ]},
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
+    });
+    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-balance-chart', c3);
+  }
+  var tb = document.getElementById('fund-balance-table');
+  if (tb) {
+    tb.innerHTML = bA.labels.map(function(lab, i){
+      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>A ' + _fmt(bA.values[i]) + ' · L ' + _fmt(bL.values[i]) + ' · E ' + _fmt(bE.values[i]) + '</span></div>';
+    }).join('');
+  }
+
+  // ④ Cash Flow — Operating/Investing/Financing (bar)
+  var cOp = _series(data.cashflow, 'operatingCashFlow');
+  var cIn = _series(data.cashflow, 'netCashUsedForInvestingActivites');
+  var cFi = _series(data.cashflow, 'netCashUsedProvidedByFinancingActivities');
+  var cv4 = document.getElementById('fund-cashflow-chart');
+  if (cv4) {
+    var ctx4 = cv4.getContext('2d');
+    var c4 = new Chart(ctx4, {
+      type: 'bar',
+      data: { labels: cOp.labels, datasets: [
+        { label: 'Op CF',  data: cOp.values, backgroundColor: COLORS.opCF },
+        { label: 'Inv CF', data: cIn.values, backgroundColor: COLORS.invCF },
+        { label: 'Fin CF', data: cFi.values, backgroundColor: COLORS.finCF }
+      ]},
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
+    });
+    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-cashflow-chart', c4);
+  }
+  var tc = document.getElementById('fund-cashflow-table');
+  if (tc) {
+    tc.innerHTML = cOp.labels.map(function(lab, i){
+      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>Op ' + _fmt(cOp.values[i]) + ' · Inv ' + _fmt(cIn.values[i]) + ' · Fin ' + _fmt(cFi.values[i]) + '</span></div>';
+    }).join('');
+  }
+
+  // ⑤ Liquidity — Cash / CurLiab / TotLiab (line) + Current Ratio (donut)
+  var lCash = _series(data.balance, 'cashAndCashEquivalents');
+  var lCL   = _series(data.balance, 'totalCurrentLiabilities');
+  var lTL   = _series(data.balance, 'totalLiabilities');
+  var cv5a = document.getElementById('fund-liquidity-chart');
+  if (cv5a) {
+    var ctx5a = cv5a.getContext('2d');
+    var c5a = new Chart(ctx5a, {
+      type: 'line',
+      data: { labels: lCash.labels, datasets: [
+        { label: 'Cash',     data: lCash.values, borderColor: COLORS.cash,    backgroundColor: 'transparent', tension: 0.3 },
+        { label: 'Cur Liab', data: lCL.values,   borderColor: COLORS.curLiab, backgroundColor: 'transparent', tension: 0.3 },
+        { label: 'Tot Liab', data: lTL.values,   borderColor: COLORS.totLiab, backgroundColor: 'transparent', tension: 0.3 }
+      ]},
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
+    });
+    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-liquidity-chart', c5a);
+  }
+  // Current Ratio Donut — latest quarter
+  var curRatio = data.ratios && data.ratios[0] && data.ratios[0].currentRatio;
+  var cv5b = document.getElementById('fund-curratio-donut');
+  if (cv5b && curRatio != null && isFinite(curRatio)) {
+    var ratioColor = curRatio >= 2 ? COLORS.cash : curRatio >= 1 ? COLORS.curLiab : COLORS.totLiab;
+    var ctx5b = cv5b.getContext('2d');
+    var displayVal = Math.min(curRatio, 3);  // 3.0 cap for donut visualization
+    var c5b = new Chart(ctx5b, {
+      type: 'doughnut',
+      data: { labels: ['Current Ratio', 'Remaining'], datasets: [{ data: [displayVal, Math.max(3 - displayVal, 0)], backgroundColor: [ratioColor, 'rgba(255,255,255,0.05)'], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c){ return c.dataIndex === 0 ? 'Current Ratio: ' + curRatio.toFixed(2) + 'x' : ''; } } } } }
+    });
+    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-curratio-donut', c5b);
+  }
+  var tl = document.getElementById('fund-liquidity-table');
+  if (tl) {
+    tl.innerHTML = lCash.labels.map(function(lab, i){
+      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>Cash ' + _fmt(lCash.values[i]) + ' · CL ' + _fmt(lCL.values[i]) + ' · TL ' + _fmt(lTL.values[i]) + '</span></div>';
+    }).join('') + (curRatio != null ? '<div style="margin-top:4px;padding:4px;background:rgba(255,255,255,0.04);border-radius:4px;text-align:center;">Current Ratio: <strong>' + curRatio.toFixed(2) + 'x</strong> · ' + (curRatio >= 2 ? '강건' : curRatio >= 1 ? '정상' : '주의') + '</div>' : '');
+  }
+
+  // ⑥ Working Capital — Receivables/Inventory/CurAssets (line)
+  var wR = _series(data.balance, 'netReceivables');
+  var wI = _series(data.balance, 'inventory');
+  var wA = _series(data.balance, 'totalCurrentAssets');
+  var cv6 = document.getElementById('fund-workingcap-chart');
+  if (cv6) {
+    var ctx6 = cv6.getContext('2d');
+    var c6 = new Chart(ctx6, {
+      type: 'line',
+      data: { labels: wR.labels, datasets: [
+        { label: 'Recv',  data: wR.values, borderColor: COLORS.recv,      backgroundColor: 'transparent', tension: 0.3 },
+        { label: 'Inv',   data: wI.values, borderColor: COLORS.inv,       backgroundColor: 'transparent', tension: 0.3 },
+        { label: 'CurA',  data: wA.values, borderColor: COLORS.curAssets, backgroundColor: 'transparent', tension: 0.3 }
+      ]},
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
+    });
+    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-workingcap-chart', c6);
+  }
+  var tw = document.getElementById('fund-workingcap-table');
+  if (tw) {
+    tw.innerHTML = wR.labels.map(function(lab, i){
+      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>R ' + _fmt(wR.values[i]) + ' · I ' + _fmt(wI.values[i]) + ' · CA ' + _fmt(wA.values[i]) + '</span></div>';
+    }).join('');
+  }
+
+  // ⑦ Valuation Multiples — P/E, P/B, P/S cards + Calculation Basis
+  var latestRatio = data.ratios && data.ratios[0] || {};
+  var pe = latestRatio.priceEarningsRatio || latestRatio.peRatio || null;
+  var pb = latestRatio.priceToBookRatio   || latestRatio.pbRatio || null;
+  var ps = latestRatio.priceToSalesRatio  || latestRatio.psRatio || null;
+  var vcards = document.getElementById('fund-valuation-cards');
+  if (vcards) {
+    function _vCard(label, val, color) {
+      return '<div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:6px 4px;text-align:center;">' +
+        '<div style="font-size:9px;color:var(--text-muted);">' + label + '</div>' +
+        '<div style="font-size:14px;font-weight:800;color:' + color + ';font-family:var(--font-mono);margin-top:2px;">' + (val != null && isFinite(val) ? Number(val).toFixed(2) + 'x' : '—') + '</div>' +
+      '</div>';
+    }
+    vcards.innerHTML = _vCard('P/E', pe, '#00d4ff') + _vCard('P/B', pb, '#ffa31a') + _vCard('P/S', ps, '#00e5a0');
+  }
+  var basis = document.getElementById('fund-calc-basis');
+  if (basis) {
+    var ld = (window._liveData || {})[data.ticker] || {};
+    var lastClose = ld.price != null ? ld.price : null;
+    var latestEps = data.income && data.income[0] && (data.income[0].eps || data.income[0].epsdiluted);
+    basis.innerHTML = '<div style="border-top:1px dashed rgba(255,255,255,0.08);padding-top:4px;margin-top:4px;">' +
+      '<div>· Latest close: ' + (lastClose != null ? '$' + lastClose.toFixed(2) : '—') + '</div>' +
+      '<div>· Latest quarter: ' + (data.latestQuarter || '—') + '</div>' +
+      '<div>· Latest EPS (Q): ' + (latestEps != null ? '$' + Number(latestEps).toFixed(2) : '—') + '</div>' +
+      '<div>· Data source: ' + (data.dataSource || 'FMP') + '</div>' +
+      '</div>';
+  }
 }
 
 function _renderFundStatements(d) {

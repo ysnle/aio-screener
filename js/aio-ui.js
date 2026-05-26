@@ -2408,6 +2408,11 @@ window._aioFundTabSwitch = function(tab) {
 
 // v49.2: Institutional Technical Brief renderers
 window._techBriefChartInstances = window._techBriefChartInstances || [];
+function _itbSafeRemoveChart(chart) {
+  if (!chart || chart.__aioDisposed) return;
+  chart.__aioDisposed = true;
+  try { chart.remove(); } catch(e) {}
+}
 
 function _itbEsc(v) {
   if (typeof escHtml === 'function') return escHtml(v);
@@ -2758,7 +2763,7 @@ function renderTechnicalBrief(symbol, result) {
   renderBreadthRotationPanel(result.breadthRotation);
   renderCandleRiskBadge(result.candleRisk);
   renderBeginnerExplanation(result);
-  window._techBriefChartInstances.forEach(function(c) { try { c.remove(); } catch(e) {} });
+  window._techBriefChartInstances.forEach(_itbSafeRemoveChart);
   window._techBriefChartInstances = [];
   _itbRenderMiniChart('tech-brief-chart-monthly', symbol + ' Monthly', result.monthly || []);
   _itbRenderMiniChart('tech-brief-chart-weekly', symbol + ' Weekly', result.weekly || []);

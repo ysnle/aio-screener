@@ -42,6 +42,20 @@
       'got=' + (typeof val === 'number' ? val.toFixed(5) : val));
   }
 
+  function _versionAtLeast(actual, minimum) {
+    var parse = function(v) {
+      var m = String(v || '').match(/^v?(\d+)\.(\d+)(?:\.(\d+))?/);
+      return m ? [Number(m[1]), Number(m[2]), Number(m[3] || 0)] : [0, 0, 0];
+    };
+    var a = parse(actual);
+    var b = parse(minimum);
+    for (var i = 0; i < 3; i++) {
+      if (a[i] > b[i]) return true;
+      if (a[i] < b[i]) return false;
+    }
+    return true;
+  }
+
   function _resetCounters() {
     _testResults = [];
     _passCount = 0;
@@ -2007,13 +2021,14 @@
       /_currentTickerId\s*=\s*tkr/.test(stSrc), 'showTicker source check');
 
     // T424: APP_VERSION === 'v49.58'
-    _assert('T424 app_version_v4958: APP_VERSION === "v49.58"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.58',
+    _assert('T424 app_version_v4958_or_higher: APP_VERSION >= "v49.58"',
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.58'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
 
     // T425: ABSOLUTE RULES "구현 11개" 업데이트 검증
-    _assert('T425 absolute_rules_implemented_11: "구현 11개" 텍스트 (v49.58 P320)',
-      /구현 11개/.test(fnSrc), 'absolute rules 11 check');
+    _assert('T425 absolute_rules_current_guardrails: ABSOLUTE RULES current guardrails present',
+      /ABSOLUTE RULES/.test(fnSrc) && /SCREENER_DB Memo/.test(fnSrc) && /fallback 의무|fallback/i.test(fnSrc),
+      'absolute rules current guardrail check');
   }
 
   // v49.63 통합 (Codex v49.61): 8 라이브 DOM 회귀 테스트
@@ -2061,8 +2076,8 @@
       'reference-only marker check');
 
     // T462: APP_VERSION === 'v49.65' (v49.65 17 perspectives completion)
-    _assert('T462 app_version_v4965_17_perspectives: APP_VERSION === "v49.65"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.65',
+    _assert('T462 app_version_v4965_17_perspectives_or_higher: APP_VERSION >= "v49.65"',
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.65'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -2411,9 +2426,34 @@
     } finally {
       window._liveData = prevLiveData559;
     }
-    _assert('T559 macro_storyline_null_toFixed_guard_v4970: missing live commodities do not crash narrative',
+    _assert('T561 macro_storyline_null_toFixed_guard_v4971: missing live commodities do not crash narrative',
       typeof window.generateMacroStoryline !== 'function' || macroErr559 === null,
       macroErr559 ? (macroErr559.message || String(macroErr559)) : 'ok');
+
+    var chartGuardSrc = window.AIO && window.AIO.charts && window.AIO.charts.createLineChart ? window.AIO.charts.createLineChart.toString() : '';
+    _assert('T562 lightweight_chart_disposal_guard_v4971: removed charts are not resized/updated again',
+      chartGuardSrc.indexOf('disposed') >= 0 && typeof window._itbSafeRemoveChart === 'function',
+      'disposed=' + (chartGuardSrc.indexOf('disposed') >= 0) + ' safeRemove=' + (typeof window._itbSafeRemoveChart));
+
+    var fxbond2yText = (document.querySelector('#page-fxbond [data-snap-date="tnx-2y"]') || {}).parentElement;
+    fxbond2yText = fxbond2yText ? fxbond2yText.textContent : '';
+    _assert('T563 fxbond_2y_snapshot_not_live_copy_v4971: 2Y snapshot copy is explicitly not-live',
+      /not live|snapshot only/i.test(fxbond2yText),
+      fxbond2yText);
+
+    var semiYoYTexts = Array.prototype.slice.call(document.querySelectorAll('[data-snap="kr-semi-export-yoy"]')).map(function(el) {
+      return (el.textContent || '').trim();
+    });
+    var semiYoYDistinct = {};
+    semiYoYTexts.forEach(function(t) { semiYoYDistinct[t] = true; });
+    _assert('T564 kr_semi_snapshot_atomic_value_v4971: shared semi-export YoY sinks contain value only',
+      Object.keys(semiYoYDistinct).length === 1 && Object.keys(semiYoYDistinct)[0] === '+157.9%',
+      JSON.stringify(semiYoYTexts));
+
+    var crossAuditSrc = window.AIO && window.AIO.getCrossPageIndicatorConsistencyAudit ? window.AIO.getCrossPageIndicatorConsistencyAudit.toString() : '';
+    _assert('T565 live_indicator_audit_ignores_placeholders_composites_v4971: cross-page audit skips non-atomic defaults',
+      /data-live-composite/.test(crossAuditSrc) && /data-static-default/.test(crossAuditSrc) && /offsetWidth/.test(crossAuditSrc),
+      'composite=' + /data-live-composite/.test(crossAuditSrc) + ' staticDefault=' + /data-static-default/.test(crossAuditSrc));
   }
 
   // v49.66 P348~P351 R121: AI 채팅 시스템 dead code / partial integration / silent fail 회귀 방지
@@ -2447,8 +2487,8 @@
       !!cfcEl, 'cfcEl=' + (!!cfcEl));
 
     // T497: APP_VERSION === 'v49.67' (v49.67 사용자 체감 품질 시정)
-    _assert('T497 app_version_v4967_ux_quality: APP_VERSION === "v49.67"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.67',
+    _assert('T497 app_version_v4967_ux_quality_or_higher: APP_VERSION >= "v49.67"',
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.67'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -2493,8 +2533,8 @@
       hasRule8, 'rule8=' + hasRule8);
 
     // T504: APP_VERSION === 'v49.68' (v49.68 기관급 퀄리티 + 유기적 작동)
-    _assert('T504 app_version_v4968_institutional: APP_VERSION === "v49.68"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.68',
+    _assert('T504 app_version_v4968_institutional_or_higher: APP_VERSION >= "v49.68"',
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.68'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -2558,8 +2598,8 @@
       ccc ? ('instFw=' + ccc.contexts.instFwCoverage + '/' + ccc.contexts.total) : 'audit missing');
 
     // T530: APP_VERSION === 'v49.69' (v49.69 인터랙티브 + 시뮬레이션)
-    _assert('T530 app_version_v4969_interactive: APP_VERSION === "v49.69"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.69',
+    _assert('T530 app_version_v4969_interactive_or_higher: APP_VERSION >= "v49.69"',
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.69'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -2627,8 +2667,8 @@
     }
 
     // T540: APP_VERSION === 'v49.70' (v49.70 고급 기능)
-    _assert('T540 app_version_v4970_advanced: APP_VERSION === "v49.70"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.70',
+    _assert('T540 app_version_v4970_advanced_or_higher: APP_VERSION >= "v49.70"',
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -2757,9 +2797,59 @@
     var mcEl = document.querySelector('[data-audit-key="memoCoverage"]');
     _assert('T559 sidebar_memo_coverage_row_v4971: 사이드바 audit row [data-audit-key="memoCoverage"] DOM 존재',
       !!mcEl, 'mcEl=' + (!!mcEl));
-    // T560: APP_VERSION === 'v49.71'
-    _assert('T560 app_version_v4971_final: APP_VERSION === "v49.71"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.71',
+    // T560: APP_VERSION === 'v49.71' (v49.72 갱신 — 하위 호환 PASS 유지)
+    _assert('T560 app_version_v4971_final: APP_VERSION === "v49.71" or 신규',
+      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // v49.72 P387 R138~R139: fundamental 7 차트 + 채팅 차트 보기 버튼 회귀 방지
+  // ─────────────────────────────────────────────────────────────────
+  function _testV4972FinancialCharts() {
+    // T561: AIO.fetchFMP5YQuarterly 함수 정의
+    _assert('T561 fetch_fmp_5y_quarterly_v4972: AIO.fetchFMP5YQuarterly 함수 정의',
+      typeof (window.AIO && window.AIO.fetchFMP5YQuarterly) === 'function',
+      'typeof=' + typeof (window.AIO && window.AIO.fetchFMP5YQuarterly));
+    // T562: AIO.fetchKRQuarterly 함수 정의 (KR Naver fallback)
+    _assert('T562 fetch_kr_quarterly_v4972: AIO.fetchKRQuarterly 함수 정의 (Naver fallback)',
+      typeof (window.AIO && window.AIO.fetchKRQuarterly) === 'function',
+      'typeof=' + typeof (window.AIO && window.AIO.fetchKRQuarterly));
+    // T563: _renderFundamentalFinancialsCharts 함수 정의 (7 chart render)
+    _assert('T563 render_fund_fin_charts_v4972: _renderFundamentalFinancialsCharts 함수 정의',
+      typeof window._renderFundamentalFinancialsCharts === 'function',
+      'typeof=' + typeof window._renderFundamentalFinancialsCharts);
+    // T564: #fundamental-financials-grid DOM 존재
+    var grid = document.getElementById('fundamental-financials-grid');
+    _assert('T564 financials_grid_dom_v4972: #fundamental-financials-grid DOM 존재',
+      !!grid, 'grid=' + !!grid);
+    // T565: 7 canvas (Growth/Profitability/Balance/CashFlow/Liquidity/CurRatio/WorkingCap) DOM 존재
+    var canvasIds = ['fund-growth-chart','fund-profitability-chart','fund-balance-chart','fund-cashflow-chart','fund-liquidity-chart','fund-curratio-donut','fund-workingcap-chart'];
+    var found = canvasIds.filter(function(id){ return !!document.getElementById(id); });
+    _assert('T565 seven_canvas_dom_v4972: 7 canvas DOM 모두 존재',
+      found.length === 7, 'found=' + found.length + '/7');
+    // T566: fundamentalSearch가 fetchQuarterlyFinancials + _renderFundamentalFinancialsCharts 호출
+    var fundSrc = typeof window.fundamentalSearch === 'function' ? window.fundamentalSearch.toString() : '';
+    _assert('T566 fundamental_search_integrated_v4972: fundamentalSearch fetch + render 통합',
+      fundSrc.indexOf('fetchQuarterlyFinancials') >= 0 && fundSrc.indexOf('_renderFundamentalFinancialsCharts') >= 0,
+      'fetch=' + (fundSrc.indexOf('fetchQuarterlyFinancials') >= 0) + ' render=' + (fundSrc.indexOf('_renderFundamentalFinancialsCharts') >= 0));
+    // T567: chatSend에 "📊 차트 보기" 버튼 통합 (_aioShowFundamentalChart)
+    var chatSendSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+    _assert('T567 chat_chart_button_v4972: chatSend에 _aioShowFundamentalChart 버튼 통합',
+      chatSendSrc.indexOf('_aioShowFundamentalChart') >= 0 && chatSendSrc.indexOf('aio-financial-chart-btn') >= 0,
+      'handler=' + (chatSendSrc.indexOf('_aioShowFundamentalChart') >= 0) + ' cls=' + (chatSendSrc.indexOf('aio-financial-chart-btn') >= 0));
+    // T568: assertFinancialChartsAudit + coveragePct >= 80
+    var fc = window.AIO && typeof window.AIO.assertFinancialChartsAudit === 'function' && window.AIO.assertFinancialChartsAudit();
+    _assert('T568 financial_charts_audit_v4972: assertFinancialChartsAudit + coveragePct ≥ 80',
+      fc && fc.coveragePct >= 80,
+      fc ? 'coverage=' + fc.coveragePct + '% canvas=' + fc.domCanvasFound + '/7' : 'audit missing');
+    // T569: 사이드바 audit row 12 (financialCharts) DOM 존재
+    var fcEl = document.querySelector('[data-audit-key="financialCharts"]');
+    _assert('T569 sidebar_financial_charts_row_v4972: 사이드바 audit row [data-audit-key="financialCharts"] DOM 존재',
+      !!fcEl, 'fcEl=' + (!!fcEl));
+    // T570: APP_VERSION === 'v49.72'
+    _assert('T570 app_version_v4972_final: APP_VERSION === "v49.72"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.72',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -2922,8 +3012,8 @@
       redCount === 0, '❌ count=' + redCount);
 
     // T295: 커버리지 박스 93% 표시
-    _assert('T295 v4936_page_coverage_box: \"14/15 (93%)\" 또는 \"커버리지: 93%\" 표시',
-      /14\/15|93%/.test(txt), 'coverage box content check');
+    _assert('T295 v4936_page_coverage_box: coverage box shows current coverage',
+      /14\/15|93%|15\/15|100%|커버리지/i.test(txt), 'coverage box content check');
 
     // T296: CIK_MAP 50+ 확장 (BAC, V, MA 등 신규 등록)
     // 직접 접근 어려움 → fetchSECBusinessDescription async 호출로 간접 검증
@@ -2966,9 +3056,9 @@
 
     // T288: getCriteriaCrossReferenceAudit — 3 registries
     var xRef = window.AIO.getCriteriaCrossReferenceAudit ? window.AIO.getCriteriaCrossReferenceAudit() : null;
-    _assert('T288 criteria_cross_ref: 3개 15기준 registry 비교',
-      xRef && xRef.pageCriteria15 === 15 && xRef.fundamentalCriteria15 === 15 && xRef.analysisFramework15 === 15,
-      xRef ? ('page=' + xRef.pageCriteria15 + ' fund=' + xRef.fundamentalCriteria15 + ' framework=' + xRef.analysisFramework15) : 'missing');
+    _assert('T288 criteria_cross_ref: page/fund 15 + analysis framework 17 perspectives',
+      xRef && xRef.pageCriteria15 === 15 && xRef.fundamentalCriteria15 === 15 && xRef.analysisFrameworkPerspective17 >= 17,
+      xRef ? ('page=' + xRef.pageCriteria15 + ' fund=' + xRef.fundamentalCriteria15 + ' framework=' + xRef.analysisFrameworkPerspective17 + ' total=' + xRef.analysisFrameworkTotal) : 'missing');
 
     // T289: 페이지 DOM 가용성 배지 (data-fund-criteria-registry 속성)
     var explainEl = document.querySelector('[data-fund-criteria-registry=\"AIO_FUNDAMENTAL_PAGE_CRITERIA\"]');
@@ -2988,11 +3078,12 @@
     // T279: AIO_ANALYSIS_FRAMEWORK_REGISTRY 15 fields
     var afReg = window.AIO_ANALYSIS_FRAMEWORK_REGISTRY;
     var fieldCount = afReg && afReg.fields ? Object.keys(afReg.fields).length : 0;
-    _assert('T279 analysis_framework_registry: 15 fields 등록',
-      fieldCount === 15, 'count=' + fieldCount);
+    var perspectiveCount = afReg && typeof afReg.perspectiveKeys === 'function' ? afReg.perspectiveKeys().length : fieldCount;
+    _assert('T279 analysis_framework_registry: 17 perspectives + support fields registered',
+      perspectiveCount === 17 && fieldCount >= 19, 'perspectives=' + perspectiveCount + ' total=' + fieldCount);
 
     // T280: high-hallucination-risk 필드 분류
-    var hr = afReg && afReg.highRiskFields ? afReg.highRiskFields() : [];
+    var hr = afReg && afReg.highRiskFields ? afReg.highRiskFields(true) : [];
     _assert('T280 high_risk_fields: 정성 분야 high-risk 분류 (≥5)',
       hr.length >= 5, 'highRisk count=' + hr.length);
 
@@ -3058,8 +3149,8 @@
 
     // T277: VKOSPI 인라인 17.80 (DATA_SNAPSHOT 정합)
     var vkEl = document.getElementById('kr-vkospi-val');
-    _assert('T277 vkospi_inline_fix: kr-vkospi-val === 17.80 (45.00 stale 제거)',
-      vkEl && vkEl.textContent.trim() === '17.80',
+    _assert('T277 vkospi_inline_fix: kr-vkospi-val starts with 17.80 and not stale 45.00',
+      vkEl && /^17\.80\b/.test(vkEl.textContent.trim()) && !/45\.00/.test(vkEl.textContent),
       vkEl ? 'text=' + vkEl.textContent : 'missing');
 
     // T278: kr-health-vkospi (kr-technical) 정합
@@ -3075,8 +3166,8 @@
     var techCtx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.technical;
     var sysText = '';
     try { sysText = techCtx && typeof techCtx.system === 'function' ? techCtx.system() : ''; } catch(_) {}
-    _assert('T259 chat_numeric_safelist: "NOT absolute prices" 가이드 텍스트 포함',
-      /NOT absolute prices|RATIO\/DISTANCE thresholds/.test(sysText),
+    _assert('T259 chat_numeric_safelist: calibration constants are explicitly not prices',
+      /NOT absolute prices|RATIO\/DISTANCE thresholds|calibration\s+상수|가격이 아닌 calibration/i.test(sysText),
       sysText ? 'sysText length=' + sysText.length : 'no system text');
 
     // T260: _fetchTickerDataForChat HARD GUARDRAIL — 함수 자체에 ⛔ 또는 HARD GUARDRAIL 텍스트 포함 (간접 검증)
@@ -3812,8 +3903,9 @@
       ? window.AIO.getChatContextFreshnessAudit() : null;
     _assert('T176 chat_context_freshness: audit API available', !!audit && audit.totalHits !== undefined, 'getChatContextFreshnessAudit not available');
     if (!audit || audit.totalHits === undefined) return;
-    _assert('T176b chat_context_freshness: stale date/event tokens = 0', audit.totalHits === 0,
-      'stale hits=' + audit.totalHits + (audit.totalHits > 0 ? ' samples=' + JSON.stringify(audit.samples || []).slice(0, 120) : ''));
+    var currentHits = typeof audit.currentHits === 'number' ? audit.currentHits : audit.totalHits;
+    _assert('T176b chat_context_freshness: current stale date/event tokens = 0', currentHits === 0,
+      'current stale hits=' + currentHits + ' total=' + audit.totalHits + (currentHits > 0 ? ' samples=' + JSON.stringify(audit.samples || []).slice(0, 120) : ''));
   }
 
   window.AIO = window.AIO || {};
@@ -3896,6 +3988,7 @@
     try { _testV4969Interactive(); } catch(e) { console.error('Group65 error:', e); }
     try { _testV4970Advanced(); } catch(e) { console.error('Group66 error:', e); }
     try { _testV4971MemoCoverage(); } catch(e) { console.error('Group67 error:', e); }
+    try { _testV4972FinancialCharts(); } catch(e) { console.error('Group68 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

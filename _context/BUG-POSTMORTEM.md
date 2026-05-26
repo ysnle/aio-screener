@@ -2,11 +2,41 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.70
-latest_P_number: P377
-total_entries: 377
-next_P_number: P378
+latest_version: v49.72
+latest_P_number: P387
+total_entries: 387
+next_P_number: P388
 ---
+
+## P387 · v49.72 · [P387/R138~R139] fundamental 7 차트 + 채팅 차트 보기 버튼 자동 진단 audit + 사이드바 12축
+
+- **시정**: `AIO.assertFinancialChartsAudit()` 신설 — 5 함수(fetchFMP5YQuarterly/fetchKRQuarterly/fetchQuarterlyFinancials/renderFn/showHandler) + 7 canvas DOM + 4 통합 검증 + 캐시 stats. 사이드바 audit row 12번째 (`financialCharts`) — "📊 차트 X% · X/7 canvas · 캐시 X".
+- **재발 방지**: T568 (audit coveragePct ≥ 80) + T569 (사이드바 row DOM).
+
+## P386 · v49.72 · [P386/R139] AI 채팅 답변 시각 자료 부재 — inline chart 대신 페이지 이동 버튼 채택
+
+- **문제**: 사용자 "AI 채팅에서 답변할 때 시각적 자료도 생성해서 같이 보여줄 수 있어? 이미지처럼." 직접 질의. Explore agent 진단 결과 inline mini-chart는 기술적으로 가능하나 (a) 토큰 비효율 (b) 모바일 레이아웃 복잡 (c) DOMPurify 게이트 통과 필요.
+- **시정**: `chatSend` 응답 렌더에 `📊 [종목] 재무 차트 보기 ↗` 시안색 버튼 자동 삽입 (detectedTickers 순회). 클릭 시 `_aioShowFundamentalChart(ticker)` → fundamental 페이지 이동 + 자동 검색 + 7 차트 전체 렌더 + 부드러운 스크롤.
+- **장점 vs inline chart**: 7 섹션 + 메트릭 테이블 full view + 모바일 1열 반응형 + 메모리 leak 0 + 토큰 절약.
+- **재발 방지**: T567 — chatSend source에 `_aioShowFundamentalChart` + `aio-financial-chart-btn` class 모두 검증.
+
+## P385 · v49.72 · [P385/R138] KR (.KS/.KQ) 종목 분기 재무 Naver 스크래핑 fallback 부재
+
+- **문제**: FMP 무료 티어가 KR 종목 분기 재무 미지원 → KR 종목 fundamental 페이지 검색 시 7 차트 placeholder만 표시.
+- **시정**: `AIO.fetchKRQuarterly(ticker)` 신설 — `.KS/.KQ` 정규식 매칭 시 `fetchNaverUSData(ticker, true).financials` 호출, `quarterlyHistory` 표준화 (income 배열에 분기 시리즈 채워 render 함수 호환). 단일 분기만 가용해도 placeholder 차트 렌더.
+- **재발 방지**: T562 — `typeof AIO.fetchKRQuarterly === 'function'`.
+
+## P384 · v49.72 · [P384/R138] FMP 5년 분기 데이터 fetch 미구현 — fundamental 페이지 분기 1~2개만 표시
+
+- **문제**: 기존 `fundamentalSearch`는 FMP `/income-statement?limit=5` (annual)만 호출 — 분기별 시계열 미존재. DART Financials 스타일 5분기 trend 차트 불가.
+- **시정**: `AIO.fetchFMP5YQuarterly(ticker)` 신설 — 4 endpoints (income-statement / balance-sheet-statement / cash-flow-statement / ratios) `period=quarter&limit=20` `Promise.allSettled` 병렬 fetch + 5분 캐시 (`_fmpQuarterlyCache` + LRU 50 종목 cap). FMP key 없으면 graceful `available:false` 반환.
+- **재발 방지**: T561 — `typeof AIO.fetchFMP5YQuarterly === 'function'` + T565 7 canvas DOM 검증.
+
+## P383 · v49.72 · [P383/R138] fundamental 페이지 텍스트만 — DART Financials 스타일 시각 차트 부재
+
+- **문제**: 사용자 "기업 분석 페이지에 저렇게 재무제표 분석해주는 기능을 추가해야 되나?" 이미지 (koreantickers.com/DART Financials 7 섹션 차트) 첨부 요청. 기존 fundamental 페이지는 카드/표 위주 시각화로 5년 분기 trend 한눈에 못 봄.
+- **시정**: `#page-fundamental` "재무 상세" 탭에 `#fundamental-financials-grid` 추가 — 4x2 grid (Growth/Profitability/Balance/CashFlow/Liquidity+CurRatio Donut/WorkingCap/Valuation) + 각 카드 하단 5분기 metric 테이블. Chart.js 7 instance (`_aioChartRegistry`에 등록하여 페이지 이탈 시 메모리 leak 0). 모바일 반응형 (4열 → 2열 → 1열).
+- **재발 방지**: T563/T564/T565 — render 함수 + grid DOM + 7 canvas 모두 검증.
 
 ## P377 · v49.70 · [P377/R135] Codex 4/5차 직접 전수 원장 + 로딩 문구 실보강
 

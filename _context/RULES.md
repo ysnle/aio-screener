@@ -6,6 +6,22 @@ target_version: v48.97
 
 ---
 
+## R138. fundamental 종목 검색 시 7 차트 자동 렌더 의무 (v49.72)
+
+- fundamental 페이지에서 종목 검색 (`fundamentalSearch`) 시 DART Financials 스타일 7 섹션 차트 자동 렌더 의무: Growth / Profitability / Balance Sheet / Cash Flow / Liquidity / Working Capital / Valuation Multiples.
+- 데이터 소스: `AIO.fetchFMP5YQuarterly(ticker)` (US) 또는 `AIO.fetchKRQuarterly(ticker)` (.KS/.KQ Naver fallback). 통합 진입점 `AIO.fetchQuarterlyFinancials(ticker)`.
+- 캐시 5분 TTL + LRU 50 종목 cap (`window._fmpQuarterlyCache` + `_fmpQuarterlyCacheStats`).
+- 7 canvas (`#fund-growth-chart` 등) 모두 `_aioChartRegistry`에 등록하여 페이지 이탈 시 메모리 leak 0.
+- 데이터 부재 시 `reference-only` 폴백 마킹 + "5년 분기 데이터 부재" placeholder.
+- 회귀 방지: `AIO.assertFinancialChartsAudit().coveragePct >= 80` + T561~T570.
+
+## R139. AI 채팅 답변에 종목 detect 시 "📊 차트 보기" 버튼 자동 삽입 의무 (v49.72)
+
+- `chatSend` 응답 렌더 시 `detectedTickers` 비어있지 않으면 각 ticker별 `📊 [종목] 재무 차트 보기 ↗` 시안색 버튼 자동 추가.
+- 핸들러 `_aioShowFundamentalChart(ticker)`: fundamental 페이지 이동 + 자동 검색 + 7 차트 렌더 + 부드러운 스크롤.
+- 인라인 mini-chart 미구현 정책 (P386): 토큰 비효율 + 모바일 레이아웃 + DOMPurify 복잡 → 페이지 이동 버튼이 표준.
+- 회귀 방지: chatSend source에 `_aioShowFundamentalChart` + `aio-financial-chart-btn` 모두 포함 (T567).
+
 ## R135. 4/5차는 감사 함수만으로 완료 금지
 
 - 사용자가 "세밀하게 전수 조사", "4차/5차"를 요구하면 자동 감사 함수 추가만으로 완료 처리하지 않는다.

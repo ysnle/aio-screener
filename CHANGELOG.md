@@ -6,6 +6,49 @@
 
 ---
 
+## v49.72 — fundamental 페이지 DART Financials 7 차트 + 채팅 차트 보기 버튼 (2026-05-26)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 질의 "AI 채팅에서 답변할 때 시각적 자료도 생성해서 같이 보여줄 수 있어? 이미지처럼. 아니면 기업 분석 페이지에 저렇게 재무제표 분석해주는 기능을 추가해야 되나?" + koreantickers.com/DART Financials 7 섹션 이미지 첨부. Explore agent 진단: (Q1) 채팅 inline chart 가능하나 비권장 (토큰 비효율 + 모바일 + DOMPurify 복잡) → 페이지 이동 버튼 채택 (Q2) fundamental 페이지에 즉시 추가 권장 — FMP 분기 데이터 가능.
+
+**Changes**:
+
+1. **Phase 1 — fetchFMP5YQuarterly + fetchKRQuarterly (P384~P385/R138)** (`js/aio-core.js`)
+   - `AIO.fetchFMP5YQuarterly(ticker)` — FMP 4 endpoints (income-statement/balance-sheet-statement/cash-flow-statement/ratios) `period=quarter&limit=20` `Promise.allSettled` 병렬 fetch + 5분 캐시 + LRU 50 종목 cap (`_fmpQuarterlyCache` + `_fmpQuarterlyCacheStats`). FMP key 없으면 `available:false` graceful.
+   - `AIO.fetchKRQuarterly(ticker)` — `.KS/.KQ` 정규식 매칭 + `fetchNaverUSData(ticker, true).financials` 호출 → `quarterlyHistory` 표준화 (income 배열에 분기 시리즈 채워 render 호환).
+   - `AIO.fetchQuarterlyFinancials(ticker)` — 통합 진입점 (US/KR 자동 분기).
+
+2. **Phase 2 — 7 차트 UI grid (P383/R138)** (`index.html` + `js/aio-chat.js`)
+   - `#page-fundamental` "재무 상세" 탭에 `#fundamental-financials-grid` 추가 (4x2 grid).
+   - ① Growth (Rev/OpInc/NetInc Bar #00d4ff/#ffa31a/#00e5a0) ② Profitability (OpMargin/NetMargin/ROE Line %) ③ Balance Sheet (Assets/Liab/Equity Bar) ④ Cash Flow (Op/Inv/Fin CF Bar) ⑤ Liquidity (Cash/CurLiab/TotLiab Line + Current Ratio Donut) ⑥ Working Capital (Recv/Inv/CurA Line) ⑦ Valuation Multiples (P/E·P/B·P/S cards + Calc Basis).
+   - `_renderFundamentalFinancialsCharts(data)` 신규 — Chart.js 7 instance + `_aioChartRegistry.register` (페이지 이탈 시 자동 destroy) + 모바일 반응형 (4열 → 2열 → 1열) + 데이터 부재 시 `reference-only` 폴백.
+   - 각 카드 하단 5분기 metric 테이블 + sticky scroll.
+
+3. **Phase 3 — fundamentalSearch 통합 + 캐시 + 로딩 UX**
+   - 캐시 hit 경로 + fresh fetch 경로 모두 `AIO.fetchQuarterlyFinancials` 호출 + `_renderFundamentalFinancialsCharts` 자동 렌더.
+   - 로딩 placeholder "분기 재무 수신 대기 (TICKER)" (R115 표준).
+
+4. **Phase 4 — 채팅 차트 보기 버튼 (P386/R139)** (`js/aio-chat.js` + `js/aio-core.js`)
+   - chatSend 응답 렌더 시 `detectedTickers` 순회 → "📊 [종목] 재무 차트 보기 ↗" 시안색 버튼 자동 삽입 (`.aio-financial-chart-btn`).
+   - `_aioShowFundamentalChart(ticker)` 핸들러 — fundamental 페이지 이동 + 자동 검색 + 7 차트 카드로 부드러운 스크롤.
+   - Inline mini-chart 미구현 정직 채택 (v49.73 이관).
+
+5. **Phase 5 — assertFinancialChartsAudit + 사이드바 12축 (P387)** (`js/aio-core.js` + `index.html`)
+   - `AIO.assertFinancialChartsAudit()` — 5 함수 + 7 canvas DOM + 4 통합 + 캐시 stats + coveragePct (가중치 50/30/20).
+   - 사이드바 audit row 12번째 (`financialCharts`) — "📊 차트 X% · X/7 canvas · 캐시 X" 색상 표시.
+   - R138~R139 + P383~P387 + T561~T570 10 신규 (Group68) + 동기화 7곳 (title/badge/APP_VERSION/version.json/sw.js × 2/CLAUDE.md × 2/CHANGELOG.md/JS cache-bust 6곳).
+
+**Verification**:
+- `APP_VERSION === 'v49.72'` ✓ / `SW_VERSION === 'v49.72'` ✓
+- `typeof AIO.fetchFMP5YQuarterly === 'function'` / `fetchKRQuarterly` / `fetchQuarterlyFinancials` ✓
+- `typeof _renderFundamentalFinancialsCharts === 'function'` / `_aioShowFundamentalChart` ✓
+- `document.querySelectorAll('#fundamental-financials-grid canvas').length === 7` ✓
+- `AIO.assertFinancialChartsAudit().coveragePct >= 80` 예상
+- `AIO.runTests()` 신규 T561~T570 10 PASS 예상
+
+---
+
 ## v49.70 — AI 채팅 고급 기능 (사용자 프로필 + 알람 + 다운로드 + 금액/% 시뮬레이션) (2026-05-26)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

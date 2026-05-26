@@ -1668,7 +1668,7 @@ const _PROXY_REGISTRY = {
     // Tier 2: 보조 프록시
     this.list.push({ id:'allorigins-raw', label:'allorigins/raw', mkUrl: function(u){ return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u); }, fails:0, lastOk:0, disabled:false });
     this.list.push({ id:'allorigins-get', label:'allorigins/get', mkUrl: function(u){ return 'https://api.allorigins.win/get?url='+encodeURIComponent(u); }, fails:0, lastOk:0, disabled:false });
-    this.list.push({ id:'codetabs', label:'codetabs.com', mkUrl: function(u){ return 'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u); }, fails:0, lastOk:0, disabled:false });
+    this.list.push({ id:'codetabs', label:'codetabs.com', mkUrl: function(u){ return 'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u); }, fails:0, lastOk:0, disabled:false });
   },
   markOk: function(id) {
     var p = this.list.find(function(x){ return x.id === id; });
@@ -9500,6 +9500,7 @@ async function fetchLiveQuotes(requestedSymbols) {
   }
   // Tier 0: 핵심 26개 심볼 선행 fetch → applyLiveQuotes() 즉시 호출로 체감 속도 개선
   const TIER0_SYMS = [
+    '^GSPC','^IXIC','DX-Y.NYB','^KS11','^KQ11',
     'SPY','QQQ','DIA','IWM',
     'GC=F','CL=F','NG=F','ZB=F','GLD','USO','TLT',
     'BTC-USD','ETH-USD',
@@ -9820,6 +9821,12 @@ async function fetchLiveQuotes(requestedSymbols) {
             var open = parseFloat(cols[3]) || parseFloat(cols[4]);   // Open 우선
             // v46.4: CSV 파싱 검증 — NaN/Infinity/음수 방어
             if (!isFinite(close) || close <= 0 || !isFinite(open) || open <= 0) return;
+            // Stooq copper sometimes reports HG in cents while Yahoo HG=F uses dollars per lb.
+            // Normalize before jump validation so a valid live rescue is not rejected as -99%.
+            if (yahooSym === 'HG=F' && close > 100 && open > 100) {
+              close = close / 100;
+              open = open / 100;
+            }
             var prevClose = (window._liveData && window._liveData[yahooSym] && window._liveData[yahooSym].chartPreviousClose > 0)
               ? window._liveData[yahooSym].chartPreviousClose : open;
             var pct = prevClose > 0 ? ((close - prevClose) / prevClose * 100) : null;
@@ -9836,6 +9843,40 @@ async function fetchLiveQuotes(requestedSymbols) {
         }
       } catch(e) { _aioLog('warn', 'fetch', 'Stooq 폴백 실패: ' + e.message); }
     }
+  }
+
+  async function _fetchQuoteRescue(symbols, label, limit) {
+    symbols = Array.from(new Set((symbols || []).map(function(s) {
+      return String(s || '').trim().toUpperCase();
+    }).filter(Boolean)));
+    var have = {};
+    allQuotes.forEach(function(q) { if (q && q.symbol) have[q.symbol] = true; });
+    symbols = symbols.filter(function(sym) { return !have[sym]; });
+    if (limit && symbols.length > limit) symbols = symbols.slice(0, limit);
+    if (!symbols.length) return 0;
+    var added = 0;
+    for (var ri = 0; ri < symbols.length; ri += 6) {
+      var batch = symbols.slice(ri, ri + 6);
+      var settled = await Promise.allSettled(batch.map(fetchYFChart));
+      settled.forEach(function(r) {
+        if (r.status === 'fulfilled' && r.value && r.value.symbol && !have[r.value.symbol]) {
+          have[r.value.symbol] = true;
+          allQuotes.push(r.value);
+          added++;
+        }
+      });
+      if (added > 0) applyLiveQuotes(allQuotes);
+    }
+    if (added && typeof _aioLog === 'function') _aioLog('info', 'fetch', label + ' quote rescue applied: ' + added + '/' + symbols.length);
+    return added;
+  }
+
+  try {
+    var _coreRescueSyms = (window.AIO && window.AIO.CORE_LIVE_SYMBOLS) || ['^GSPC','^IXIC','^VIX','CL=F','GC=F','KRW=X','DX-Y.NYB','^KS11','^KQ11'];
+    await _fetchQuoteRescue(_coreRescueSyms, 'core', _coreRescueSyms.length);
+    await _fetchQuoteRescue(_requestedQuoteSyms, 'requested-dom', 120);
+  } catch(e) {
+    if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'quote rescue failed: ' + (e && e.message || e));
   }
 
   // ─── 최종 결과 적용 ─────────────────────────────────────────
