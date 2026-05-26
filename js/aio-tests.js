@@ -2964,6 +2964,53 @@
       'guide=사용자 production https://ysnle.github.io/aio-screener/ 7 페이지 × 3 질문 검증 권장');
   }
 
+  // ─────────────────────────────────────────────────────────────────
+  // v49.75 P399~P404 R147~R150: 4 패턴 일반화 회귀 방지
+  // Pattern A: CHAT_CONTEXTS DOM 매트릭스 / Pattern B: 답변 후처리 / Pattern C: fetch 실패 / Pattern D: 시점 누출
+  // ─────────────────────────────────────────────────────────────────
+  function _testV4975PatternsAudits() {
+    // T589 Pattern A: assertChatPanelDomAudit 함수 정의 + ctxs 매트릭스
+    var panelAudit = window.AIO && typeof window.AIO.assertChatPanelDomAudit === 'function' && window.AIO.assertChatPanelDomAudit();
+    _assert('T589 chat_panel_dom_audit_v4975: assertChatPanelDomAudit + totalContexts num + perContextDetail array',
+      panelAudit && typeof panelAudit.totalContexts === 'number' && Array.isArray(panelAudit.perContextDetail),
+      panelAudit ? 'total=' + panelAudit.totalContexts + ' okPct=' + panelAudit.coveragePct + ' contextOnly=' + panelAudit.contextOnlyCount : 'audit missing');
+    // T590 Pattern B: assertChatAnswerStructureAudit 함수 정의 + 4 rule 검증
+    var structAudit = window.AIO && typeof window.AIO.assertChatAnswerStructureAudit === 'function' &&
+      window.AIO.assertChatAnswerStructureAudit('VIX 19.5 (Yahoo, 2026-05-26 11:30). 결론: 변동성 낮음. 시나리오: Bull 60%, Bear 40%. 액션: 진입 대기.');
+    _assert('T590 chat_answer_structure_audit_v4975: assertChatAnswerStructureAudit + 4 rule 통합',
+      structAudit && structAudit.status !== 'na' && Array.isArray(structAudit.violations),
+      structAudit ? 'status=' + structAudit.status + ' violations=' + structAudit.violationCount + ' passes=' + structAudit.passCount : 'audit missing');
+    // T591 Pattern B 검증: 잘못된 답변 입력 → violations 검출
+    var badStruct = window.AIO && typeof window.AIO.assertChatAnswerStructureAudit === 'function' &&
+      window.AIO.assertChatAnswerStructureAudit('NVDA 차트는 높은 변동성에 강한 모멘텀이 보이는 안정적 추세입니다.');
+    _assert('T591 chat_answer_structure_violations_v4975: 정성만+정량0 → R140 violation 검출',
+      badStruct && badStruct.violations.some(function(v){ return v.rule === 'R140'; }),
+      badStruct ? 'violations=' + badStruct.violations.map(function(v){return v.rule;}).join(',') : 'audit missing');
+    // T592 Pattern C: assertFetchFailureSurfacingAudit 함수 정의 + 17 promise 검증
+    var fetchAudit = window.AIO && typeof window.AIO.assertFetchFailureSurfacingAudit === 'function' && window.AIO.assertFetchFailureSurfacingAudit();
+    _assert('T592 fetch_failure_surfacing_audit_v4975: assertFetchFailureSurfacingAudit + promiseDefined >= 14',
+      fetchAudit && fetchAudit.promiseDefined >= 14 && fetchAudit.hasUserVisibleFailLabel,
+      fetchAudit ? 'defined=' + fetchAudit.promiseDefined + '/17 visible=' + fetchAudit.hasUserVisibleFailLabel : 'audit missing');
+    // T593 Pattern D: getChatHallucinationAudit에 신규 패턴 3개 (stale-md-date / stale-iso-date / vague-price-range / self-confess)
+    var hallTest = window.AIO && window.AIO.getChatHallucinationAudit && window.AIO.getChatHallucinationAudit('2025년 초 학습 데이터 기준 NVDA는 약 $400~500대 베이스 형성. 5/22 종가, 4/15 어닝.');
+    _assert('T593 hallucination_pattern_d_v4975: stale-md-date + self-confess + vague-price-range 모두 검출',
+      hallTest && hallTest.patterns.indexOf('self-confess-training-data') >= 0 && hallTest.patterns.some(function(p){return p.indexOf('vague-price-range')>=0||p.indexOf('stale-md-date')>=0;}),
+      hallTest ? 'patterns=' + hallTest.patterns.join(',') : 'audit missing');
+    // T594 chatSend에 R148 후처리 검증 통합
+    var chatSendSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+    _assert('T594 chatsend_structure_validation_v4975: chatSend에 assertChatAnswerStructureAudit 통합',
+      chatSendSrc.indexOf('assertChatAnswerStructureAudit') >= 0 && chatSendSrc.indexOf('aio-chat-structure-badge') >= 0,
+      'audit=' + (chatSendSrc.indexOf('assertChatAnswerStructureAudit') >= 0) + ' badge=' + (chatSendSrc.indexOf('aio-chat-structure-badge') >= 0));
+    // T595 home 채팅 DOM 존재 (v49.74 hotfix)
+    var homeDom = !!document.getElementById('chat-home-inp');
+    _assert('T595 home_chat_dom_v4974_hotfix: #chat-home-inp DOM 존재 (P398 hotfix)',
+      homeDom, 'homeDom=' + homeDom);
+    // T596 APP_VERSION === 'v49.75'
+    _assert('T596 app_version_v4975_final: APP_VERSION === "v49.75"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.75',
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지
   function _testV4962CodexAuditCoverageIntegration() {
     var reg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
@@ -4102,6 +4149,7 @@
     try { _testV4972FinancialCharts(); } catch(e) { console.error('Group68 error:', e); }
     try { _testV4973AnswerQuality(); } catch(e) { console.error('Group69 error:', e); }
     try { _testV4974KrMultiTurn(); } catch(e) { console.error('Group70 error:', e); }
+    try { _testV4975PatternsAudits(); } catch(e) { console.error('Group71 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

@@ -2,11 +2,47 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.74
-latest_P_number: P398
-total_entries: 398
-next_P_number: P399
+latest_version: v49.75
+latest_P_number: P404
+total_entries: 404
+next_P_number: P405
 ---
+
+## P404 · v49.75 · [P404] 4 critical 패턴 일반화 — "비슷한 패턴 모두 심층 점검해봐" 응답
+
+- **사용자 정직 요구 응답**: v49.74 hotfix 4 critical 발견을 패턴화 → 11개+ 잠재 위험 매핑.
+- **시정**: R147~R150 4 신규 규칙 + 4 신규 audit 함수 + chatSend 후처리 통합.
+- Pattern A → R147 (DOM 매트릭스) / Pattern B → R148 (답변 후처리) / Pattern C → R149 (fetch surfacing) / Pattern D → R150 (시점 누출).
+
+## P403 · v49.75 · [P403/R150] AI 답변 날짜 토큰 stale 자동 검출 부재 (Pattern D)
+
+- **문제**: 사용자 발견 — AI 답변에 "5/22" / "4/15" 등 학습 시점 날짜 그대로 노출. v49.73 stale token audit는 system prompt 내부만 검증.
+- **시정**: `getChatHallucinationAudit`에 `stale-md-date` (오늘과 7일+ 이격 M/D) + `stale-iso-date` (YYYY-MM-DD) regex 추가.
+- **재발 방지**: T593.
+
+## P402 · v49.75 · [P402/R149] 외부 fetch 실패 surfacing audit 부재 (Pattern C)
+
+- **문제**: 사용자 발견 — NVDA Yahoo fetch 실패 silent. dynamicTickerLookup 4단계 폴백 (v49.67) 있어도 실패 시 사용자 명시 알림 약함.
+- **시정**: `AIO.assertFetchFailureSurfacingAudit()` 신설 — 17 promise × 실패 surfacing 자동 진단.
+- **재발 방지**: T592.
+
+## P401 · v49.75 · [P401/R148] ABSOLUTE RULES 답변 후처리 검증 부재 (Pattern B)
+
+- **문제**: R140 정성→정량 / R141 표준 4 구조 / R142 출처 괄호 — system prompt에만 정의되고 실제 답변 적용 자동 검증 부재.
+- **시정**: `AIO.assertChatAnswerStructureAudit(responseText)` 신설 — 4 rule 위반 자동 검출. chatSend 응답 후처리 통합 — violations 검출 시 답변 위 amber 배지.
+- **재발 방지**: T590 + T591 + T594.
+
+## P400 · v49.75 · [P400/R147] CHAT_CONTEXTS DOM 매트릭스 audit 부재 (Pattern A)
+
+- **문제**: v49.74 P398 home 케이스 일반화 — 18+ context 중 inline panel DOM 있는 것 2개만 (theme-detail / home). 14+ context는 DOM 부재로 chatSend silent return 위험.
+- **시정**: `AIO.assertChatPanelDomAudit()` 신설 — 모든 ctxId × DOM 4요소 (panel/msgs/inp/btn) 자동 진단. `CONTEXT_NO_DOM` gap 표시.
+- **재발 방지**: T589.
+
+## P399 · v49.75 · [P399] 4 critical 패턴 정직 매핑 + 일반화 (사용자 정직 요구 응답)
+
+- 사용자 "비슷한 패턴 모두 심층 점검해봐" → 4 critical 패턴 일반화 진단.
+- Pattern A (CHAT_CONTEXTS DOM 부재) / Pattern B (Audit 정의 ≠ 적용) / Pattern C (Fetch silent fail) / Pattern D (Stale token 답변 누출).
+- 각 패턴 별 audit 함수 + R 규칙 + 회귀 테스트.
 
 ## P398 · v49.74 hotfix · [P398/R146] home 페이지 채팅 UI DOM 부재 — CHAT_CONTEXTS만 등록하고 패널 미설치
 

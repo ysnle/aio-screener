@@ -6,6 +6,30 @@ target_version: v48.97
 
 ---
 
+## R147. CHAT_CONTEXTS 등록은 DOM 패널과 항상 쌍 (Pattern A 일반화) (v49.75)
+
+- 사용자 정직 발견 (P398) — home CHAT_CONTEXTS 등록 후 DOM panel 누락 → chatSend silent return.
+- 모든 CHAT_CONTEXTS[ctxId] 정의 후 `<div class="aio-chat" id="chat-{ctxId}">` + msgs/inp/btn 4요소 의무.
+- 회귀 방지: `AIO.assertChatPanelDomAudit().contextOnlyCount === 0`.
+
+## R148. ABSOLUTE RULES는 system prompt 정의 + 답변 후처리 양쪽 의무 (Pattern B 일반화) (v49.75)
+
+- R140 정성→정량 / R141 표준 4 구조 / R142 출처 괄호 — 시스템 프롬프트 정의만으로는 부족, 답변 후처리 검증 의무.
+- `AIO.assertChatAnswerStructureAudit(responseText)` — 4 rule 위반 자동 검출 + chatSend 응답에 시각 배지.
+- 회귀 방지: 답변 후처리 violations 검출 → 답변 위 amber 배지 표시.
+
+## R149. 외부 fetch 실패는 사용자 ❌ 라벨로 surfacing 의무 (Pattern C 일반화) (v49.75)
+
+- `_fetchTickerDataForChat` 17 promise × 실패 시 silent return 금지.
+- `dynamicTickerLookup` 4단계 폴백 후도 실패 시 `'• ' + ticker + ': ❌ 시세 조회 실패'` 라벨 명시 (v49.67 패턴).
+- 회귀 방지: `AIO.assertFetchFailureSurfacingAudit().hasUserVisibleFailLabel === true`.
+
+## R150. AI 답변에 등장한 날짜 토큰은 세션 시각 대비 stale 자동 검출 (Pattern D 일반화) (v49.75)
+
+- `getChatHallucinationAudit` regex 확장: `stale-md-date` (5/22 등 M/D + 오늘과 7일+ 이격) + `stale-iso-date` (YYYY-MM-DD).
+- 답변에 stale 날짜 2건+ 시 환각 점수 +2 (P402).
+- 회귀 방지: T593.
+
 ## R145. AI 답변에 학습 데이터 자기 인용 + 시점 환각 절대 금지 (v49.74 hotfix)
 
 - 다음 표현 답변 등장 시 환각 신뢰도 F + 빨간 경고 박스 강제 표시:

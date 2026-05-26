@@ -1,5 +1,5 @@
 {
-  "version": "v49.74",
-  "built": "2026-05-26T16:00:00+09:00",
-  "note": "v49.74: 사용자 정직 질의 '더 조사할 영역 없어?' 응답 + 사용자 라이브 검증 critical 4건 hotfix. 잔존 갭 11개 매핑 + v49.74 시정 5건. (1) Phase 1 라이브 검증 가이드 (P396): MCP preview 환경 제약 정직 보고 + 사용자 production 직접 검증 가이드 제공. (2) Phase 3 KR 4 페이지 audit 확장 (P393/R143): assertChatAnswerQualityAudit ctxIds 7→11 + 분모 11. (3) Phase 4 멀티턴 윈도잉 (P395/R144): chatSend turn-cap 24 + 8개+ 제거 시 자동 요약 prepend + _chatMultiTurnStats 통계. (4) hotfix P397/R145 학습 데이터 자기 인용 절대 차단: 사용자 NVDA 답변에 '2025년 초 학습 데이터 기준' 환각 자백 발견 시정. ABSOLUTE RULES 17조 신규 + getChatHallucinationAudit self-confess-training-data 패턴 +5점 critical + chatSend에 검출 시 답변 위 빨간 강제 경고 박스. (5) hotfix P398/R146 home 채팅 UI: '#page-home에 인라인 chat-home 패널 (theme-detail 패턴) DOM 추가 — CHAT_CONTEXTS 등록만으로 부족. Phase 5 R143~R146 + P393~P398 + T581~T588 + 동기화 7곳."
+  "version": "v49.75",
+  "built": "2026-05-26T17:30:00+09:00",
+  "note": "v49.75: 사용자 정직 요구 '비슷한 패턴 모두 심층 점검해봐' 응답 — v49.74 hotfix 4 critical 발견 일반화 + 4 패턴 회귀 방지 audit 시정. (1) Pattern A (P400/R147) CHAT_CONTEXTS DOM 매트릭스 audit: assertChatPanelDomAudit 신설 — 18+ context × inline panel DOM 4요소 (panel/msgs/inp/btn) 자동 진단 + CONTEXT_NO_DOM gap 표시. (2) Pattern B (P401/R148) ABSOLUTE RULES 답변 후처리 검증: assertChatAnswerStructureAudit 신설 — R140 정성→정량 / R141 표준 4구조 / R142 출처 괄호 / R145 자기 환각 자백 4 rule 답변 텍스트 분석. chatSend 응답에 violations 검출 시 답변 위 amber 배지. (3) Pattern C (P402/R149) Fetch 실패 surfacing audit: assertFetchFailureSurfacingAudit 신설 — _fetchTickerDataForChat 17 promise × 실패 surfacing 자동 진단. (4) Pattern D (P403/R150) 정적 시점 토큰 답변 누출 검출 강화: getChatHallucinationAudit에 stale-md-date (5/22 등 오늘과 7일+ 이격) + stale-iso-date (YYYY-MM-DD) regex 추가. (5) Phase 5: R147~R150 + P399~P404 + T589~T596 8 신규 (Group71) + 동기화 7곳."
 }

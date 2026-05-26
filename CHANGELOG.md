@@ -6,6 +6,39 @@
 
 ---
 
+## v49.75 — 4 패턴 일반화 + 후처리 audit 통합 (사용자 "비슷한 패턴 모두 심층 점검") (2026-05-26)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 요구 "비슷한 패턴 모두 심층 점검해봐" → v49.74 hotfix 4 critical 사례 (home DOM 부재 / 시세 silent / 학습 인용 / 시점 누출) 일반화 → 4 패턴 매핑 + 신규 audit 4건 + chatSend 후처리 통합.
+
+**Changes**:
+
+1. **Pattern A (P400/R147)** — CHAT_CONTEXTS DOM 매트릭스
+   - `AIO.assertChatPanelDomAudit()` — 18+ ctxId × DOM 4요소 자동 진단
+   - `CONTEXT_NO_DOM` gap (home P398 일반화)
+
+2. **Pattern B (P401/R148)** — 답변 후처리 검증
+   - `AIO.assertChatAnswerStructureAudit(responseText)` — R140 정성→정량 / R141 표준 4구조 / R142 출처 괄호 / R145 자기 환각 자백 4 rule 검증
+   - chatSend 응답 통합 — violations 시 답변 위 amber 배지 표시
+
+3. **Pattern C (P402/R149)** — Fetch 실패 surfacing audit
+   - `AIO.assertFetchFailureSurfacingAudit()` — 17 promise × silent fail 자동 진단
+
+4. **Pattern D (P403/R150)** — 정적 시점 토큰 누출 강화
+   - `getChatHallucinationAudit` regex 확장: `stale-md-date` (5/22 등 7일+ 이격) + `stale-iso-date` (YYYY-MM-DD)
+
+5. **Phase 5 동기화** — R147~R150 + P399~P404 + T589~T596 8 신규 (Group71) + 7곳 sync
+
+**Verification**:
+- `AIO.assertChatPanelDomAudit().coveragePct` (DOM 매트릭스 시각화)
+- `AIO.assertChatAnswerStructureAudit("정성만 답변")` → R140 violation 검출
+- `AIO.assertFetchFailureSurfacingAudit().promiseDefined >= 14`
+- `AIO.getChatHallucinationAudit("5/22 종가 + 4/15 어닝")` → stale-md-date 패턴
+- AIO.runTests().filter(t => t.id >= 'T589') → 8 PASS
+
+---
+
 ## v49.74 — 잔존 갭 11개 정직 진단 + CRITICAL hotfix (학습 데이터 인용 차단 / home 채팅 UI) (2026-05-26)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

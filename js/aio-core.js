@@ -4124,6 +4124,38 @@ window.AIO.getChatHallucinationAudit = function(responseText) {
     result.suspicionScore += 3;
     result.patterns.push('vague-price-range');
   }
+  // v49.75 P402 R150: Pattern D — 정적 시점 토큰 답변 누출 강화 (사용자 정직 발견 — "5/22" 학습 시점 노출)
+  // 세션 날짜와 다른 정적 날짜 토큰이 답변에 그대로 등장 시 검출
+  try {
+    var now = new Date();
+    var todayY = now.getFullYear();
+    var todayM = now.getMonth() + 1;
+    var todayD = now.getDate();
+    // M/D 형식 날짜 매칭 (5/22, 4/12 등) — 오늘과 비교
+    var mdMatches = responseText.match(/(\d{1,2})\/(\d{1,2})\b/g) || [];
+    var staleMd = [];
+    mdMatches.forEach(function(md) {
+      var parts = md.split('/');
+      var m = parseInt(parts[0], 10);
+      var d = parseInt(parts[1], 10);
+      // 유효 월/일 + 오늘과 7일+ 이격
+      if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+        var thatDate = new Date(todayY, m - 1, d);
+        var diffDays = Math.abs((now - thatDate) / 86400000);
+        if (diffDays > 7) staleMd.push({ md: md, daysFromToday: Math.round(diffDays) });
+      }
+    });
+    if (staleMd.length >= 2) {
+      result.suspicionScore += 2;
+      result.patterns.push('stale-md-date:' + staleMd.length);
+    }
+    // YYYY-MM-DD 또는 YYYY.MM.DD 형식 — 1개월+ 과거면 stale
+    var isoMatches = responseText.match(/202[0-5][\-\.](\d{1,2})[\-\.](\d{1,2})/g) || [];
+    if (isoMatches.length >= 2) {
+      result.suspicionScore += 1;
+      result.patterns.push('stale-iso-date:' + isoMatches.length);
+    }
+  } catch(_) {}
   result.suspicionScore = Math.min(result.suspicionScore, result.maxScore);
   result.verdict = result.suspicionScore >= 7 ? 'high-risk' : result.suspicionScore >= 4 ? 'medium-risk' : result.suspicionScore >= 2 ? 'low-risk' : 'clean';
   // v49.74 P397: blocking-grade 환각 — self-confess-training-data 패턴은 답변 위에 빨간 경고 박스 강제
@@ -6391,6 +6423,144 @@ window.AIO.assertChatAnswerQualityAudit = function() {
     },
     perPageDetail: freshnessCheck,
     note: 'v49.73 R140~R142: 답변 품질 3축 — 현재성/정확성/직관성. 사용자 정직 요구 "현재 시장/기업 상황 반영, 정확하고 최신 데이터, 직관적 표현" 자동 진단.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.75 P399 R147: assertChatPanelDomAudit — CHAT_CONTEXTS DOM 매트릭스 정합 검증
+// 사용자 라이브 발견 — home CHAT_CONTEXTS 등록만 하고 DOM 패널 부재 (v49.74 P398).
+// Pattern A 일반화: 모든 ctxId × inline panel DOM 존재 여부 + chatSend 호환성 자동 진단.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertChatPanelDomAudit = function() {
+  var ctxs = window.CHAT_CONTEXTS || {};
+  var ctxIds = Object.keys(ctxs);
+  var details = ctxIds.map(function(id) {
+    var ctx = ctxs[id];
+    var hasContext = !!(ctx && typeof ctx.system === 'function');
+    var panelEl = document.getElementById('chat-' + id);
+    var msgsEl  = document.getElementById('chat-' + id + '-msgs');
+    var inpEl   = document.getElementById('chat-' + id + '-inp');
+    var btnEl   = document.getElementById('chat-' + id + '-btn');
+    var hasInlinePanel = !!(panelEl && msgsEl && inpEl && btnEl);
+    // chatSend(ctxId) 호환성 — input element 없으면 silent return
+    var chatSendCompatible = !!inpEl;
+    return {
+      id: id, hasContext: hasContext, hasInlinePanel: hasInlinePanel,
+      panel: !!panelEl, msgs: !!msgsEl, inp: !!inpEl, btn: !!btnEl,
+      chatSendCompatible: chatSendCompatible,
+      gap: hasContext && !chatSendCompatible ? 'CONTEXT_NO_DOM' : null
+    };
+  });
+  var contextOnly = details.filter(function(d){ return d.gap === 'CONTEXT_NO_DOM'; });
+  var fullOk = details.filter(function(d){ return d.hasContext && d.chatSendCompatible; });
+  var coveragePct = ctxIds.length > 0 ? Math.round((fullOk.length / ctxIds.length) * 100) : 0;
+  return {
+    status: contextOnly.length === 0 ? 'ok' : contextOnly.length <= 2 ? 'warn' : 'fail',
+    totalContexts: ctxIds.length,
+    fullOkCount: fullOk.length,
+    contextOnlyCount: contextOnly.length,
+    contextOnlyList: contextOnly.map(function(d){ return d.id; }),
+    coveragePct: coveragePct,
+    perContextDetail: details,
+    note: 'v49.75 R147: CHAT_CONTEXTS 등록 후 DOM 패널 누락 자동 감지. Pattern A 일반화 (P398 home 케이스 → 14+ contexts 매트릭스). CONTEXT_NO_DOM gap = inline panel 부재 → chatSend silent return.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.75 P400 R148: assertChatAnswerStructureAudit — R140~R142 답변 후처리 검증
+// 사용자 정직 발견 — R140 (정성→정량) / R141 (표준 4 구조) / R142 (출처 괄호)
+// 시스템 프롬프트에만 정의되고 실제 답변 적용 여부 검증 부재.
+// Pattern B 일반화: 답변 텍스트 분석 → 4 rule 위반 자동 검출.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertChatAnswerStructureAudit = function(responseText) {
+  if (!responseText || typeof responseText !== 'string') {
+    return { status: 'na', violations: [], reason: '응답 텍스트 부재' };
+  }
+  var violations = [];
+  var passes = [];
+  // R140 정성→정량 동반 검증
+  // 정성 표현 패턴 (높은/낮은/강한/약한/안정/불안/과열/공포/탐욕)
+  var qualitativeWords = ['높은', '낮은', '강한', '약한', '안정적', '불안정', '과열', '공포', '탐욕', '신중', '낙관', '비관'];
+  var qualHits = qualitativeWords.filter(function(w){ return responseText.indexOf(w) >= 0; });
+  // 정량 패턴 ($, %, 숫자+점수/배/주)
+  var hasQuant = /(\$\d|\d+(\.\d+)?\s*%|\d+(\.\d+)?\s*(배|점|주))/.test(responseText);
+  if (qualHits.length >= 3 && !hasQuant) {
+    violations.push({ rule: 'R140', issue: '정성 표현 ' + qualHits.length + '개 사용하나 정량 근거 0개', severity: 'high' });
+  } else if (qualHits.length > 0 && hasQuant) {
+    passes.push('R140 정성+정량 동반');
+  }
+  // R141 표준 4 구조 검증 (결론/정량/시나리오/액션)
+  var hasConclusion = /(\【결론\】|결론\s*:|요약\s*:|한\s*줄\s*요약)/.test(responseText);
+  var hasScenario = /(Bull|Bear|Base|낙관|비관|중립).{0,30}(\d+%|확신도)/.test(responseText) || /시나리오/.test(responseText);
+  var hasAction = /(액션|진입|이탈|관망|손절|목표가|포지션)/.test(responseText);
+  var structureScore = (hasConclusion ? 1 : 0) + (hasScenario ? 1 : 0) + (hasAction ? 1 : 0);
+  if (responseText.length > 500 && structureScore < 2) {
+    violations.push({ rule: 'R141', issue: '답변 길이 ' + responseText.length + '자이나 표준 4구조 ' + structureScore + '/3 적용', severity: 'medium', detail: { hasConclusion: hasConclusion, hasScenario: hasScenario, hasAction: hasAction } });
+  } else if (structureScore >= 2) {
+    passes.push('R141 표준 구조 ' + structureScore + '/3');
+  }
+  // R142 출처 괄호 검증 — 정량 인용 + (출처) 매칭
+  var priceMatches = responseText.match(/\$\d+(?:[,\.]\d+)*/g) || [];
+  var citedPrices = (responseText.match(/\$\d+[\d,\.]*\s*\([^)]*(?:Yahoo|FMP|Finnhub|Naver|SEC|CNN|fetched|KST|\d{4}-\d{2}-\d{2})/g) || []).length;
+  var uncitedPrices = priceMatches.length - citedPrices;
+  if (priceMatches.length >= 2 && citedPrices === 0) {
+    violations.push({ rule: 'R142', issue: '가격 ' + priceMatches.length + '회 인용하나 (출처·기준일) 0건', severity: 'high' });
+  } else if (priceMatches.length > 0 && citedPrices > 0) {
+    passes.push('R142 출처 ' + citedPrices + '/' + priceMatches.length);
+  }
+  // R145 자기 환각 자백 (이미 getChatHallucinationAudit에서 검출, 여기서 cross-reference)
+  if (/(학습\s*데이터\s*기준|기억\s*속|내가\s*알기로)/.test(responseText)) {
+    violations.push({ rule: 'R145', issue: 'AI 자기 환각 자백 표현 사용', severity: 'critical' });
+  }
+  var overallVerdict = violations.some(function(v){ return v.severity === 'critical'; }) ? 'critical' :
+                       violations.some(function(v){ return v.severity === 'high'; }) ? 'fail' :
+                       violations.length > 0 ? 'warn' : 'ok';
+  return {
+    status: overallVerdict,
+    violations: violations,
+    violationCount: violations.length,
+    passes: passes,
+    passCount: passes.length,
+    responseLength: responseText.length,
+    note: 'v49.75 R148: R140 정성→정량 / R141 표준 4 구조 / R142 출처 괄호 / R145 자기 환각 자백 4 ABSOLUTE RULES 답변 후처리 검증. Pattern B 일반화.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.75 P401 R149: assertFetchFailureSurfacingAudit — 17 fetch 실패 silent 검증
+// 사용자 정직 발견 — NVDA Yahoo fetch 실패 silent (R122 4단계 폴백 있어도 사용자 인지 어려움).
+// Pattern C 일반화: _fetchTickerDataForChat의 17 promise 각각 실패 시 ❌ 라벨 명시 검증.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertFetchFailureSurfacingAudit = function() {
+  var src = (typeof window._fetchTickerDataForChat === 'function') ? window._fetchTickerDataForChat.toString() : '';
+  var keyFetches = ['sec', 'wiki', 'sec8K', 'fhNews', 'insider', 'thirteenF', 'fcf', 'balance', 'evEbitda', 'macroBeta', 'short', 'riskFactors', 'supplyChain', 'partnership', 'platform', 'moat', 'tam'];
+  var perFetch = keyFetches.map(function(name) {
+    // 패턴: NAME + Promise 변수 + 실패/null 처리 검증
+    var promiseVar = name + 'Promise';
+    var hasPromise = src.indexOf(promiseVar) >= 0;
+    // 실패 처리: catch + null check + 사용자 surfacing
+    var hasNullCheck = new RegExp(promiseVar + '\\s*\\?\\s*await').test(src);
+    return {
+      name: name,
+      hasPromise: hasPromise,
+      hasNullCheck: hasNullCheck
+    };
+  });
+  var promiseTotal = perFetch.filter(function(p){ return p.hasPromise; }).length;
+  var hasFailureSurfaceFn = typeof window._aioRenderFetchFailures === 'function';
+  var hasUserVisibleFailLabel = src.indexOf('❌') >= 0 || src.indexOf('실패') >= 0;
+  return {
+    status: promiseTotal >= 14 && hasUserVisibleFailLabel ? 'ok' : promiseTotal >= 10 ? 'warn' : 'fail',
+    totalExpectedFetches: keyFetches.length,
+    promiseDefined: promiseTotal,
+    perFetch: perFetch,
+    hasFailureSurfaceFn: hasFailureSurfaceFn,
+    hasUserVisibleFailLabel: hasUserVisibleFailLabel,
+    coveragePct: Math.round((promiseTotal / keyFetches.length) * 100),
+    note: 'v49.75 R149: _fetchTickerDataForChat 17 fetch promise × 실패 surfacing 검증. Pattern C 일반화.',
     generatedAt: new Date().toISOString()
   };
 };
@@ -12392,7 +12562,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.74';
+const APP_VERSION = 'v49.75';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

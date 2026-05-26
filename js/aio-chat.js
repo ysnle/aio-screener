@@ -4656,6 +4656,25 @@ async function chatSend(ctxId) {
             _accBadge.innerHTML = '<span style="color:var(--text-muted);font-weight:600;">v49.33 검증:</span> ' + _accItems.join('');
             aiBubble.parentNode.appendChild(_accBadge);
           }
+          // v49.75 P400 R148: R140~R142 답변 후처리 검증 (Pattern B 일반화)
+          // — 시스템 프롬프트에만 정의된 ABSOLUTE RULES가 실제 답변에 적용되는지 자동 감지
+          try {
+            if (typeof window.AIO !== 'undefined' && window.AIO.assertChatAnswerStructureAudit) {
+              var _struct = window.AIO.assertChatAnswerStructureAudit(visible);
+              if (_struct && _struct.violations && _struct.violations.length > 0) {
+                var _sBadge = document.createElement('div');
+                _sBadge.className = 'aio-chat-structure-badge';
+                _sBadge.style.cssText = 'font-size:10px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:3px 0;padding:4px 6px;background:rgba(255,163,26,0.06);border-left:2px solid var(--data-amber);border-radius:4px;';
+                var _sItems = _struct.violations.map(function(v) {
+                  var _vc = v.severity === 'critical' ? '#ff5b50' : v.severity === 'high' ? '#ffa31a' : '#7e8a9e';
+                  return '<span style="color:' + _vc + ';" title="' + escHtml(v.issue) + '">⚠ ' + v.rule + '</span>';
+                });
+                _sBadge.innerHTML = '<span style="color:var(--text-muted);font-weight:600;">v49.75 구조:</span> ' + _sItems.join(' · ') +
+                  (_struct.passes && _struct.passes.length > 0 ? ' <span style="color:var(--data-green);">✓ ' + _struct.passes.length + '</span>' : '');
+                aiBubble.parentNode.appendChild(_sBadge);
+              }
+            }
+          } catch(_structErr) {}
         } catch(_validateErr) { /* validation 실패해도 응답 렌더는 차단 X */ }
 
         // v46.6: 피드백 버튼
