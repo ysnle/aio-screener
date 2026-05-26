@@ -6,6 +6,32 @@ target_version: v48.97
 
 ---
 
+## R140. AI 답변에서 정성 표현 사용 시 정량 근거 1개 이상 괄호 동반 의무 (v49.73)
+
+- 정성 표현 (높은/낮은/강한/약한/안정/불안/과열/공포/탐욕 등) 사용 시 반드시 정량 수치를 괄호로 동반.
+- 올바른 예: "높은 변동성 (VIX 28.5, 90일 평균 18 대비 +58%)" / "탐욕 구간 (F&G 76, 직전 1주 +12pt)".
+- 정성만 단독 사용 = 환각 신호. 데이터 부재 시 "데이터 미수신 — 정성 평가 불가" 답변.
+- ABSOLUTE RULES 14조 (`_getChatRules` index.html L15298 직전).
+- 회귀 방지: `assertChatAnswerQualityAudit().intuitiveness.rule14_qualityToQuant === true`.
+
+## R141. AI 답변 표준 4 구조 강제 (결론/정량/시나리오/액션) (v49.73)
+
+- 모든 분석성 답변은 다음 4 블록 구조 (단순 정보 질의는 예외):
+  - ①【결론】 한 줄 요약 + 신뢰도 (low/medium/high)
+  - ②【정량 근거】 3~5개 bullet, 각 (출처+기준일) 괄호 동반
+  - ③【시나리오】 Bull/Base/Bear 3 분기 + 확률 합계 100%
+  - ④【액션 가이드】 3단계 (관망 / 진입 / 이탈) — 각 트리거 + 포지션 사이즈
+- 구조 위반 시 환각 위험 신호.
+- ABSOLUTE RULES 15조.
+
+## R142. 모든 정량 인용 시 (출처 · 기준일) 괄호 필수 (v49.73)
+
+- 주가/지표/배수/비율/통계 모든 정량 인용 시 (출처 · 기준일) 괄호 동반.
+- 올바른 예: "SPX 4,892.50 (Yahoo /quote, 2026-05-26 11:30)" / "NVDA P/E 22.4 (Finnhub, fetched 5분 전)".
+- 시스템 프롬프트의 데이터 블록 라벨 `[source X · fetched Y]` 그대로 인용.
+- 폴백값 인용 시 "(폴백)" 명시 (R128 12조 정합).
+- ABSOLUTE RULES 16조. `_aioFetchLabel(name, source, ts)` 헬퍼 의무 사용.
+
 ## R138. fundamental 종목 검색 시 7 차트 자동 렌더 의무 (v49.72)
 
 - fundamental 페이지에서 종목 검색 (`fundamentalSearch`) 시 DART Financials 스타일 7 섹션 차트 자동 렌더 의무: Growth / Profitability / Balance Sheet / Cash Flow / Liquidity / Working Capital / Valuation Multiples.

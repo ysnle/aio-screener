@@ -2739,9 +2739,9 @@
     _assert('T549 sidebar_chat_advanced_row_v4970: 사이드바 audit row [data-audit-key="chatAdvanced"] DOM 존재',
       !!cafEl, 'cafEl=' + (!!cafEl));
 
-    // T550: APP_VERSION === 'v49.71' (v49.71 MEMO 커버리지 + 신선도)
-    _assert('T550 app_version_v4971_memo: APP_VERSION === "v49.71"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.71',
+    // T550: APP_VERSION >= 'v49.71' (v49.71 MEMO 커버리지 + 신선도)
+    _assert('T550 app_version_v4971_memo: APP_VERSION >= "v49.71"',
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.71'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -2847,9 +2847,77 @@
     var fcEl = document.querySelector('[data-audit-key="financialCharts"]');
     _assert('T569 sidebar_financial_charts_row_v4972: 사이드바 audit row [data-audit-key="financialCharts"] DOM 존재',
       !!fcEl, 'fcEl=' + (!!fcEl));
-    // T570: APP_VERSION === 'v49.72'
-    _assert('T570 app_version_v4972_final: APP_VERSION === "v49.72"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.72',
+    // T570: APP_VERSION === 'v49.72' (v49.73 갱신 — 하위 호환 PASS 유지)
+    _assert('T570 app_version_v4972_final: APP_VERSION === "v49.72" or 신규',
+      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // v49.73 P388~P392 R140~R142: AI 채팅 답변 품질 3축 회귀 방지 (현재성·정확성·직관성)
+  // ─────────────────────────────────────────────────────────────────
+  function _testV4973AnswerQuality() {
+    // T571: _aioRelativeDate 함수 + 호출 결과 형식 ("X년 Y월 (N일 전)")
+    var relOk = false;
+    if (typeof window._aioRelativeDate === 'function') {
+      var r = window._aioRelativeDate('2026-04-30');
+      relOk = typeof r === 'string' && r.indexOf('년') >= 0 && r.indexOf('월') >= 0;
+    }
+    _assert('T571 relative_date_helper_v4973: _aioRelativeDate 함수 + 결과 형식',
+      relOk, 'relOk=' + relOk);
+    // T572: _aioSessionContextHeader 함수 + "【세션 시각:" + "【시점 자동 인지】" 포함
+    var hdrOk = false;
+    if (typeof window._aioSessionContextHeader === 'function') {
+      var h = window._aioSessionContextHeader();
+      hdrOk = typeof h === 'string' && h.indexOf('【세션 시각:') >= 0 && h.indexOf('【시점 자동 인지】') >= 0;
+    }
+    _assert('T572 session_context_header_v4973: _aioSessionContextHeader + "【세션 시각:" + "【시점 자동 인지】"',
+      hdrOk, 'hdrOk=' + hdrOk);
+    // T573: _aioFetchLabel 함수 정의
+    _assert('T573 fetch_label_helper_v4973: _aioFetchLabel 함수 정의',
+      typeof window._aioFetchLabel === 'function',
+      'typeof=' + typeof window._aioFetchLabel);
+    // T574: _fetchTickerDataForChat에 "일괄 fetched" + "source data.sec" 통합
+    var chatSrc = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
+    _assert('T574 data_block_fetched_header_v4973: _fetchTickerDataForChat에 "일괄 fetched" + "source data.sec" 표준',
+      chatSrc.indexOf('일괄 fetched') >= 0 && chatSrc.indexOf('source data.sec') >= 0,
+      'header=' + (chatSrc.indexOf('일괄 fetched') >= 0) + ' source=' + (chatSrc.indexOf('source data.sec') >= 0));
+    // T575: _getChatRules에 14조 (정성→정량) + 15조 (표준 구조) + 16조 (출처)
+    var rulesText = '';
+    try { rulesText = (typeof window._getChatRules === 'function') ? window._getChatRules() : ''; } catch(_) {}
+    var rule14 = rulesText.indexOf('14조') >= 0 && rulesText.indexOf('정성 표현') >= 0;
+    var rule15 = rulesText.indexOf('15조') >= 0 && rulesText.indexOf('표준 답변 구조') >= 0;
+    var rule16 = rulesText.indexOf('16조') >= 0 && rulesText.indexOf('출처') >= 0 && rulesText.indexOf('기준일') >= 0;
+    _assert('T575 absolute_rules_14_15_16_v4973: ABSOLUTE RULES 14조 (R140 정성→정량) + 15조 (R141 표준 구조) + 16조 (R142 출처 괄호)',
+      rule14 && rule15 && rule16,
+      'r14=' + rule14 + ' r15=' + rule15 + ' r16=' + rule16);
+    // T576: CHAT_CONTEXTS['home'] 정의 + system() "AIO Screener 홈" + "답변 가이드"
+    var homeCtx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS['home'];
+    var homeOk = false;
+    if (homeCtx && typeof homeCtx.system === 'function') {
+      try {
+        var sys = homeCtx.system();
+        homeOk = sys.indexOf('AIO Screener 홈') >= 0 && sys.indexOf('답변 가이드') >= 0;
+      } catch(_) {}
+    }
+    _assert('T576 home_chat_context_v4973: CHAT_CONTEXTS["home"] + system() "AIO Screener 홈" + "답변 가이드"',
+      homeOk, 'homeOk=' + homeOk);
+    // T577: AIO.assertChatAnswerQualityAudit 함수 + overallScore 수치
+    var aq = window.AIO && typeof window.AIO.assertChatAnswerQualityAudit === 'function' && window.AIO.assertChatAnswerQualityAudit();
+    _assert('T577 assert_chat_answer_quality_audit_v4973: assertChatAnswerQualityAudit + overallScore num',
+      aq && typeof aq.overallScore === 'number',
+      aq ? 'overall=' + aq.overallScore + ' fresh=' + aq.freshness.score + ' acc=' + aq.accuracy.score + ' intu=' + aq.intuitiveness.score : 'audit missing');
+    // T578: overallScore ≥ 70 (모든 Phase 적용 후 목표)
+    _assert('T578 answer_quality_score_70_v4973: assertChatAnswerQualityAudit.overallScore ≥ 70',
+      aq && aq.overallScore >= 70,
+      aq ? 'overall=' + aq.overallScore : 'audit missing');
+    // T579: 사이드바 audit row 13 (answerQuality) DOM 존재
+    var aqEl = document.querySelector('[data-audit-key="answerQuality"]');
+    _assert('T579 sidebar_answer_quality_row_v4973: 사이드바 audit row [data-audit-key="answerQuality"] DOM 존재',
+      !!aqEl, 'aqEl=' + (!!aqEl));
+    // T580: APP_VERSION === 'v49.73'
+    _assert('T580 app_version_v4973_final: APP_VERSION === "v49.73"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.73',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -3989,6 +4057,7 @@
     try { _testV4970Advanced(); } catch(e) { console.error('Group66 error:', e); }
     try { _testV4971MemoCoverage(); } catch(e) { console.error('Group67 error:', e); }
     try { _testV4972FinancialCharts(); } catch(e) { console.error('Group68 error:', e); }
+    try { _testV4973AnswerQuality(); } catch(e) { console.error('Group69 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

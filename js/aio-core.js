@@ -1283,8 +1283,7 @@ window._aioRenderSnapshotDates = function() {
       var key = el.getAttribute('data-snap');
       if (!key || el.closest('[data-aio-archive="true"]')) return;
       var d = dateByKey[key] || staticDates[key] || staticDates.krMacro || snap._snapshotDate || (snap._updated ? snap._updated.slice(0, 10) : null);
-      if (!d) return;
-      if (!document.querySelector('[data-snap-date="' + key + '"]')) {
+      if (d && !document.querySelector('[data-snap-date="' + key + '"]')) {
         var marker = document.createElement('span');
         marker.setAttribute('data-snap-date', key);
         marker.setAttribute('data-aio-generated-lineage', 'true');
@@ -1295,7 +1294,7 @@ window._aioRenderSnapshotDates = function() {
       if (!el.getAttribute('data-source-kind')) el.setAttribute('data-source-kind', 'snapshot');
       if (!el.getAttribute('data-operational-use')) el.setAttribute('data-operational-use', 'reference-only');
       if (!el.getAttribute('data-source-label')) el.setAttribute('data-source-label', 'DATA_SNAPSHOT:' + key);
-      if (!el.title) el.title = 'DATA_SNAPSHOT 기준일 ' + d + ' · 참고용 스냅샷';
+      if (!el.title) el.title = d ? ('DATA_SNAPSHOT 기준일 ' + d + ' · 참고용 스냅샷') : 'DATA_SNAPSHOT 참고용 스냅샷';
     });
   } catch(e) {
     if (window._aioLog) window._aioLog('warn', 'render', 'snapshotDates render error: ' + (e && e.message || e));
@@ -6284,6 +6283,96 @@ window.AIO.assertFinancialChartsAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.73 P392 R140~R142: assertChatAnswerQualityAudit — 답변 품질 3축 자동 진단
+// 사용자 정직 요구 "현재 시장/기업 상황 반영, 정확하고 최신 데이터, 직관적 표현" 3 카테고리 검증
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertChatAnswerQualityAudit = function() {
+  var ctxs = window.CHAT_CONTEXTS || {};
+  var ctxIds = ['home','technical','macro','sentiment','breadth','fundamental','portfolio'];
+  // A. 현재성 (Freshness) — 세션 시각 헤더 + 동적 마커 헬퍼 + 정적 stale 토큰 0건
+  var staleTokenRe = /tail_risk_snapshot_\d{4}|FOMC\s*의사록\(2026\.04\)|2025\.4 선례|2026\.3-4 랠리/;
+  var freshnessCheck = ctxIds.map(function(id) {
+    var ctx = ctxs[id];
+    if (!ctx || typeof ctx.system !== 'function') return { id: id, hasContext: false, staleTokens: 0, hasSessionHeader: false };
+    var src = ctx.system.toString();
+    var sysOut = '';
+    try { sysOut = ctx.system() || ''; } catch(_) {}
+    return {
+      id: id,
+      hasContext: true,
+      staleTokens: ((sysOut.match(new RegExp(staleTokenRe.source, 'g')) || []).length),
+      hasSessionHeader: (sysOut.indexOf('【세션 시각:') >= 0) || (src.indexOf('_getChatRules') >= 0),  // _getChatRules가 헤더 주입
+      sysOutLength: sysOut.length
+    };
+  });
+  var hasSessionFn = typeof window._aioSessionContextHeader === 'function';
+  var hasRelativeFn = typeof window._aioRelativeDate === 'function';
+  var staleCount = freshnessCheck.reduce(function(a, c){ return a + (c.staleTokens || 0); }, 0);
+  var sessionHdrCount = freshnessCheck.filter(function(c){ return c.hasSessionHeader; }).length;
+  var freshnessScore = Math.round(
+    (hasSessionFn ? 25 : 0) +
+    (hasRelativeFn ? 15 : 0) +
+    Math.min(35, (sessionHdrCount / 7) * 35) +
+    (staleCount === 0 ? 25 : Math.max(0, 25 - staleCount * 5))
+  );
+  // B. 정확성 (Accuracy) — fetched/source 라벨 키워드 + _aioFetchLabel 헬퍼 + 출처 헤더
+  var chatSrc = (typeof window._fetchTickerDataForChat === 'function') ? window._fetchTickerDataForChat.toString() : '';
+  var fetchedKwHits = (chatSrc.match(/fetched/g) || []).length;
+  var sourceKwHits = (chatSrc.match(/source\s+(data\.sec|en\.wikipedia|Finnhub|FMP|Yahoo|Stooq|Naver)/g) || []).length;
+  var hasFetchLabelFn = typeof window._aioFetchLabel === 'function';
+  var hasBlockHeader = chatSrc.indexOf('일괄 fetched') >= 0;
+  var accuracyScore = Math.round(
+    (hasFetchLabelFn ? 25 : 0) +
+    (hasBlockHeader ? 20 : 0) +
+    Math.min(30, (fetchedKwHits / 8) * 30) +
+    Math.min(25, (sourceKwHits / 5) * 25)
+  );
+  // C. 직관성 (Intuitiveness) — ABSOLUTE RULES 14~16조 + home 컨텍스트 + 표준 답변 구조
+  var rulesText = '';
+  try { rulesText = (typeof window._getChatRules === 'function') ? window._getChatRules() : ''; } catch(_) {}
+  var hasRule14 = rulesText.indexOf('14조') >= 0 && rulesText.indexOf('정성 표현') >= 0 && rulesText.indexOf('정량 근거') >= 0;
+  var hasRule15 = rulesText.indexOf('15조') >= 0 && rulesText.indexOf('표준 답변 구조') >= 0;
+  var hasRule16 = rulesText.indexOf('16조') >= 0 && rulesText.indexOf('출처') >= 0 && rulesText.indexOf('기준일') >= 0;
+  var hasHomeCtx = !!ctxs['home'] && typeof ctxs['home'].system === 'function';
+  var intuitivenessScore = Math.round(
+    (hasRule14 ? 20 : 0) +
+    (hasRule15 ? 20 : 0) +
+    (hasRule16 ? 20 : 0) +
+    (hasHomeCtx ? 40 : 0)
+  );
+  // 종합
+  var overall = Math.round((freshnessScore + accuracyScore + intuitivenessScore) / 3);
+  return {
+    status: overall >= 85 ? 'ok' : overall >= 60 ? 'warn' : 'fail',
+    overallScore: overall,
+    freshness: {
+      score: freshnessScore,
+      hasSessionFn: hasSessionFn,
+      hasRelativeFn: hasRelativeFn,
+      sessionHeaderCount: sessionHdrCount,
+      staleTokens: staleCount
+    },
+    accuracy: {
+      score: accuracyScore,
+      hasFetchLabelFn: hasFetchLabelFn,
+      hasBlockHeader: hasBlockHeader,
+      fetchedKeywordHits: fetchedKwHits,
+      sourceKeywordHits: sourceKwHits
+    },
+    intuitiveness: {
+      score: intuitivenessScore,
+      rule14_qualityToQuant: hasRule14,
+      rule15_standardStructure: hasRule15,
+      rule16_sourceCitation: hasRule16,
+      hasHomeContext: hasHomeCtx
+    },
+    perPageDetail: freshnessCheck,
+    note: 'v49.73 R140~R142: 답변 품질 3축 — 현재성/정확성/직관성. 사용자 정직 요구 "현재 시장/기업 상황 반영, 정확하고 최신 데이터, 직관적 표현" 자동 진단.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.70 P375 R132~R134: assertChatAdvancedFeaturesAudit — 사용자 프로필 + 알람 + 다운로드 + 금액/% 시뮬레이션 자동 진단
 // 사용자 정직 요구 "전체 세션 남은 영역과 부분 모두 보강"
 // ─────────────────────────────────────────────────────────────────
@@ -10409,6 +10498,20 @@ window._aioRefreshAuditWidget = function() {
         }
       } catch(e) { fcEl.textContent = '⚠ financialCharts error'; }
     }
+    // v49.73 P392 R140~R142: 답변 품질 3축 자동 진단 (현재성·정확성·직관성)
+    var aqEl = container.querySelector('[data-audit-key="answerQuality"]');
+    if (aqEl) {
+      try {
+        var aq = window.AIO && window.AIO.assertChatAnswerQualityAudit && window.AIO.assertChatAnswerQualityAudit();
+        if (aq) {
+          var iconE = aq.status === 'ok' ? '✓' : aq.status === 'warn' ? '⚠' : '✗';
+          var colorE = aq.status === 'ok' ? 'var(--data-green)' : aq.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          aqEl.innerHTML = '<span style="color:' + colorE + ';">' + iconE + '</span> 📋 답변 품질 <b>' + aq.overallScore + '점</b> · 현재 ' + aq.freshness.score + ' · 정확 ' + aq.accuracy.score + ' · 직관 ' + aq.intuitiveness.score;
+        } else {
+          aqEl.innerHTML = '<span style="color:var(--text-muted);">— answerQuality audit 미가용</span>';
+        }
+      } catch(e) { aqEl.textContent = '⚠ answerQuality error'; }
+    }
   } catch(e) { /* 위젯 갱신 실패는 silent */ }
 };
 // 페이지 로드 후 자동 1회 + 5분마다 갱신
@@ -10774,6 +10877,9 @@ const PriceStore = {
     window._quoteTimestamps[sym] = ts;
     window._dataSource = window._dataSource || {};
     window._dataSource[sym] = { source: source || 'live:yahoo', ts: ts, pctMissing: pctMissing, policyKey: 'quote', metric: metric };
+    if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
+      window.AIO.annotateLiveDataSinks(document, { symbol: sym, force: true });
+    }
     return true;
   },
   get(sym) {
@@ -10965,6 +11071,94 @@ const SnapshotStore = {
 };
 window.SnapshotStore = SnapshotStore;
 
+window.AIO = window.AIO || {};
+window.AIO.annotateLiveDataSinks = function(root, opts) {
+  root = root || document;
+  opts = opts || {};
+  var selector = '[data-live-price],[data-live-chg],[data-live-pct],[data-live-kr],[data-snap]';
+  var target = opts.symbol || null;
+  var touched = 0;
+  function keyFor(el) {
+    return el && (el.getAttribute('data-live-price') || el.getAttribute('data-live-chg') || el.getAttribute('data-live-pct') || el.getAttribute('data-live-kr') || el.getAttribute('data-snap')) || '';
+  }
+  function sourceKind(source, policyKey) {
+    source = String(source || '');
+    policyKey = String(policyKey || '');
+    if (!source || source === 'unavailable') return 'unavailable';
+    if (policyKey === 'static_snapshot' || source === 'snapshot' || /snapshot/i.test(source)) return 'snapshot';
+    if (window.AIO && typeof window.AIO.isOperationalQuoteSource === 'function' && window.AIO.isOperationalQuoteSource(source)) return 'live';
+    return /fallback/i.test(source) ? 'fallback' : 'live';
+  }
+  try {
+    Array.prototype.slice.call(root.querySelectorAll(selector)).forEach(function(el) {
+      if (!el) return;
+      var sym = keyFor(el);
+      if (!sym || (target && sym !== target)) return;
+      var isSnapshotSink = el.hasAttribute && el.hasAttribute('data-snap') &&
+        !el.hasAttribute('data-live-price') && !el.hasAttribute('data-live-chg') && !el.hasAttribute('data-live-pct') && !el.hasAttribute('data-live-kr');
+      var ds = (window._dataSource && window._dataSource[sym]) || {};
+      var ld = (window._liveData && window._liveData[sym]) || {};
+      var source = isSnapshotSink ? 'DATA_SNAPSHOT' : (ds.source || ld.source || 'unavailable');
+      var policyKey = ds.policyKey || (ld.metric && ld.metric.policyKey) || '';
+      var kind = isSnapshotSink ? 'snapshot' : sourceKind(source, policyKey);
+      var operationalUse = (kind === 'live') ? 'decision' : 'reference-only';
+      if (opts.force || !el.getAttribute('data-source-kind')) el.setAttribute('data-source-kind', kind);
+      if (opts.force || !el.getAttribute('data-operational-use')) el.setAttribute('data-operational-use', operationalUse);
+      if (opts.force || !el.getAttribute('data-source-label')) el.setAttribute('data-source-label', source === 'unavailable' ? ('quote unavailable:' + sym) : (source + ':' + sym));
+      if (!el.getAttribute('data-source-ts') && (ds.ts || ld.ts)) el.setAttribute('data-source-ts', new Date(ds.ts || ld.ts).toISOString());
+      if (!el.title) el.title = sym + ' · ' + kind + ' · ' + operationalUse;
+      touched++;
+    });
+  } catch(_) {}
+  return touched;
+};
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
+        window.AIO.annotateLiveDataSinks(document, { reason: 'DOMContentLoaded', force: true });
+      }
+    }, 0);
+    if (!window.AIO._liveSinkObserver && typeof MutationObserver !== 'undefined') {
+      var pendingLineageScan = false;
+      window.AIO._liveSinkObserver = new MutationObserver(function(records) {
+        if (pendingLineageScan) return;
+        var hasNewSink = false;
+        try {
+          records.forEach(function(record) {
+            Array.prototype.slice.call(record.addedNodes || []).forEach(function(node) {
+              if (hasNewSink || !node || node.nodeType !== 1) return;
+              if ((node.matches && node.matches('[data-live-price],[data-live-chg],[data-live-pct],[data-live-kr],[data-snap]')) ||
+                  (node.querySelector && node.querySelector('[data-live-price],[data-live-chg],[data-live-pct],[data-live-kr],[data-snap]'))) {
+                hasNewSink = true;
+              }
+            });
+          });
+        } catch(_) {}
+        if (!hasNewSink) return;
+        pendingLineageScan = true;
+        setTimeout(function() {
+          pendingLineageScan = false;
+          if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
+            window.AIO.annotateLiveDataSinks(document, { reason: 'dynamic-dom', force: true });
+          }
+        }, 50);
+      });
+      try { window.AIO._liveSinkObserver.observe(document.body || document.documentElement, { childList: true, subtree: true }); } catch(_) {}
+    }
+  });
+  document.addEventListener('pageShown', function(e) {
+    var page = e && e.detail ? document.getElementById('page-' + e.detail) : null;
+    if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
+      window.AIO.annotateLiveDataSinks(page || document, { reason: 'pageShown', force: true });
+      setTimeout(function() {
+        window.AIO.annotateLiveDataSinks(page || document, { reason: 'pageShown-post-render', force: true });
+      }, 150);
+    }
+  });
+}
+
 window._aioSetLiveData = function(sym, data, meta) {
   data = data || {};
   meta = meta || {};
@@ -10994,6 +11188,9 @@ window._aioSetLiveData = function(sym, data, meta) {
   });
   window._dataSource = window._dataSource || {};
   window._dataSource[sym] = { source: source, ts: metric ? metric.ts : ts, pctMissing: pct == null || !isFinite(Number(pct)), policyKey: policyKey, metric: metric, reason: meta.reason || null };
+  if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
+    window.AIO.annotateLiveDataSinks(document, { symbol: sym, force: true });
+  }
   return true;
 };
 
@@ -12145,7 +12342,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.72';
+const APP_VERSION = 'v49.73';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

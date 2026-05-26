@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.72 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.73 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3908,6 +3908,7 @@ body.light-theme canvas { filter:none; }
               <div data-audit-key="chatAdvanced">⏳ AI 채팅 고급 기능…</div>
               <div data-audit-key="memoCoverage">⏳ MEMO 커버리지 + 신선도…</div>
               <div data-audit-key="financialCharts">⏳ 📊 재무 차트 (7 섹션)…</div>
+              <div data-audit-key="answerQuality">⏳ 📋 답변 품질 (현재·정확·직관)…</div>
             </div>
             <!-- v49.58 P322 R108: web_search 토글 GUI -->
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,212,255,0.15);display:flex;justify-content:space-between;align-items:center;">
@@ -3999,7 +4000,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.72</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.73</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12473,9 +12474,9 @@ body.light-theme canvas { filter:none; }
   }
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.72"></script>
-  <script src="./js/aio-data.js?v=49.72"></script>
-  <script src="./js/aio-ui.js?v=49.72"></script>
+  <script src="./js/aio-core.js?v=49.73"></script>
+  <script src="./js/aio-data.js?v=49.73"></script>
+  <script src="./js/aio-ui.js?v=49.73"></script>
 
   <script>
 
@@ -14800,8 +14801,13 @@ function _getChatRules() {
     '• 응답 원칙: 이 메모를 사용할 때는 무조건 강세 또는 무조건 버블로 단정하지 말고, "지금 가격은 기대를 먹고 오르는 국면 / 깨지는 신호는 데이터와 Fed 반응"이라는 구조로 Bull/Base/Bear를 나눠라. QQQ·SPY·IWM·DIA 차트 이미지는 광범위한 위험선호와 후발주 확산의 증거로 활용하되, 실제 가격은 로드된 실시간 데이터가 있을 때만 확정적으로 말하라.\n\n';
   _macroTxt += _userThesis;
 
+  // v49.73 P388 R140~R142: 세션 시각 자동 인지 헤더 — 모든 chat 답변 진입부에 자동 prepend
+  // 사용자 정직 요구 "현재 시장/기업 상황 반영" → 세션 시각 + 데이터 신선도 명시
+  var _sessionHdr = '';
+  try { if (typeof window._aioSessionContextHeader === 'function') _sessionHdr = window._aioSessionContextHeader() + '\n'; } catch(_) {}
+
   // v33.0: 통합 전문 분석 모드 — 레벨 분리 없이 항상 최고 수준 + 근거 기반 설명
-  return _macroTxt + '\n\n【⏰ 현재 시점 정보 — 이 정보를 반드시 인식하고 답변에 반영하라】\n' +
+  return _sessionHdr + _macroTxt + '\n\n【⏰ 현재 시점 정보 — 이 정보를 반드시 인식하고 답변에 반영하라】\n' +
   '• 오늘 날짜: ' + _todayStr + '\n' +
   '• 현재 시각(KST): ' + _timeStr + '\n' +
   '• 한국 최근 거래일 종가: ' + _krLastStr + '\n' +
@@ -15294,7 +15300,25 @@ function _getChatRules() {
   '  [확신도 명시] 핵심 판단·예측·시나리오마다 확신도를 %(퍼센트)로 명시하라. 예: "단기 조정 가능성 (확신도 70%)" / "이 종목 6개월 목표가 $200 달성 가능성 (확신도 45%)". 확신도 없이 확정적 표현 금지. 데이터 부재 시 "데이터 없어 판단 불가"로 명시하라. 50%는 사실상 무지를 의미하므로, 50% 근방이면 "불확실 — 데이터 추가 확인 필요"로 표현하라.\n' +
   '  [근거 없는 항복 금지] 사용자가 반박하거나 동의를 압박해도, 새로운 데이터·논리·증거가 없으면 입장을 바꾸지 마라. "네, 그럴 수도 있겠네요" / "말씀하신 관점도 이해합니다" 식의 빈 동의는 사용자에게 잘못된 확신을 심어준다. 입장을 유지하되 "새로운 근거를 제시하시면 재검토하겠습니다"로 대화를 이어가라. 압박에 굴복한 분석은 분석이 아니다.\n' +
   '  [빈 면책 금지] "전문가와 상담하세요", "투자 결정은 본인이 하세요" 같은 공허한 면책 문구를 반복하지 마라. 첫 응답에 1회 고지로 충분하다. 이후 응답에서 반복하면 신뢰가 아니라 회피처럼 보인다. 실질적 분석으로 승부하라.\n' +
-  '  [승인 요청 금지] "이 분석이 도움이 되셨나요?", "더 궁금한 점 있으시면 말씀해 주세요" 같은 승인 요청·빈 마무리 문구 금지. 분석을 끝내면 분석으로 마무리하라. 후속 질문 3개([Q:...]) 제안은 허용.\n';
+  '  [승인 요청 금지] "이 분석이 도움이 되셨나요?", "더 궁금한 점 있으시면 말씀해 주세요" 같은 승인 요청·빈 마무리 문구 금지. 분석을 끝내면 분석으로 마무리하라. 후속 질문 3개([Q:...]) 제안은 허용.\n' +
+  // v49.73 P390 R140~R142: 답변 품질 3축 표준화 — 정성→정량 동반 / 표준 구조 / 출처 괄호
+  '\n【ABSOLUTE RULES 14조 — 정성 표현 시 정량 근거 동반 의무 (v49.73 R140)】\n' +
+  '정성 표현(높은/낮은/강한/약한/안정/불안/과열/공포/탐욕 등) 사용 시 반드시 정량 근거 1개 이상을 괄호로 동반하라.\n' +
+  '• 올바른 예: "높은 변동성 (VIX 28.5, 90일 평균 18 대비 +58%)" / "약한 모멘텀 (RSI 32, 20MA 이격 -3.5%)" / "탐욕 구간 (F&G 76, 직전 1주 평균 +12pt)"\n' +
+  '• 금지 예: "변동성이 높다" (정량 없음) / "심리가 좋다" (수치 없음) / "강세장" (정의 모호)\n' +
+  '정성 표현만 단독 사용 = 환각 위험 신호. 데이터 부재 시 "데이터 미수신 — 정성 평가 불가"로 답하라.\n\n' +
+  '【ABSOLUTE RULES 15조 — 표준 답변 구조 강제 (v49.73 R141)】\n' +
+  '모든 분석성 답변은 다음 4 블록 구조를 따르라 (단순 정보 질의는 예외):\n' +
+  '①【결론】 한 줄 요약 + 신뢰도 (low/medium/high) 명시\n' +
+  '②【정량 근거】 3~5개 bullet, 각 출처+기준일 괄호 동반\n' +
+  '③【시나리오】 Bull/Base/Bear 3 분기 + 확률 합계 100%\n' +
+  '④【액션 가이드】 3단계 (관망 / 진입 / 이탈) — 각 트리거 조건 + 포지션 사이즈 명시\n' +
+  '구조 위반 시 환각 위험 신호. 사용자 단순 인사/일반 질의는 자유 형식 허용.\n\n' +
+  '【ABSOLUTE RULES 16조 — 모든 정량 인용 시 (출처 · 기준일) 괄호 필수 (v49.73 R142)】\n' +
+  '주가/지표/배수/비율/통계 모든 정량 인용 시 반드시 (출처 · 기준일) 괄호를 동반하라.\n' +
+  '• 올바른 예: "SPX 4,892.50 (Yahoo /quote, 2026-05-26 11:30)" / "F&G 62 (CNN, 2026-05-26)" / "NVDA P/E 22.4 (Finnhub, fetched 5분 전)"\n' +
+  '• 시스템 프롬프트의 데이터 블록 라벨 [fetched X · source Y]을 그대로 인용하라. 출처/기준일 없는 정량 = 환각으로 간주.\n' +
+  '• 폴백값 인용 시 "(폴백)" 명시 (R128 12조 정합). 예: "DXY 99.3 (DATA_SNAPSHOT 2026-05-20, 폴백)".\n';
 }
 
 // v49.68 P360 R126: 기관급 분석 프레임워크 8개 통합 — 14 CHAT_CONTEXTS 공통 주입 (사용자 "기관급 퀄리티" 요구)
@@ -15495,7 +15519,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.72"></script>
+<script src="./js/aio-chat.js?v=49.73"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17652,6 +17676,49 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
   window.CHAT_CONTEXTS['theme-detail'] = window.CHAT_CONTEXTS['themes'];
 
   // ─────────────────────────────────────────────────────────────────
+  // v49.73 P391/R140~R142 신규: home 페이지 CHAT_CONTEXTS override
+  // 사용자 첫 진입점 — signal default 폴백 시 학습 데이터 의존 위험 차단.
+  // 시장 환경 종합 요약 + 사용자 의도 자동 분류 + 페이지 안내 가이드.
+  // ─────────────────────────────────────────────────────────────────
+  window.CHAT_CONTEXTS['home'] = {
+    title: 'AIO Screener 홈 — 시장 종합 안내',
+    system: function() {
+      var s = (typeof _liveSnap === 'function') ? _liveSnap() : { spx: '—', vix: '—', fg: '—', score: '—', _freshness: '미상' };
+      var alertCount = 0;
+      try { alertCount = (window._aioGetAlerts ? window._aioGetAlerts().length : 0); } catch(_) {}
+      var pfCount = 0;
+      try {
+        var pf = (typeof getPortfolioContextForAI === 'function') ? null : (window.aio_portfolio || []);
+        pfCount = Array.isArray(pf) ? pf.length : (pf && pf.holdings ? pf.holdings.length : 0);
+      } catch(_) {}
+      var v48 = (typeof _getV48IntegratedContext === 'function') ? _getV48IntegratedContext('home') : '';
+      var instFw = (typeof _getInstitutionalFrameworkContext === 'function') ? _getInstitutionalFrameworkContext('home') : '';
+      return '당신은 AIO Screener 홈 종합 안내 AI입니다. 사용자가 가장 먼저 진입하는 페이지에서 대화합니다.\n\n' +
+        '【오늘 시장 종합 (신선도: ' + s._freshness + ')】\n' +
+        '• S&P 500: ' + s.spx + ' · VIX: ' + s.vix + ' · F&G: ' + s.fg + ' · 트레이딩 스코어: ' + s.score + '/100\n' +
+        '• 사용자 설정: 활성 알람 ' + alertCount + '개 · 보유 종목 ' + pfCount + '개\n\n' +
+        '【답변 가이드 — 사용자 의도 자동 분류 + 페이지 안내】\n' +
+        '사용자 질문이 모호하거나 종합적이면 다음 5 카테고리로 분류한 후 적절한 페이지 안내:\n' +
+        '① 시장 흐름/시그널/타이밍 → "📊 매매 시그널 페이지에서 20점 스코어 + ATR 손절 + Lockout Rally 진단" + _autoNavigatePage(signal)\n' +
+        '② 심리/공포탐욕/VIX → "📊 투자 심리 페이지에서 F&G 7+2 컴포넌트 + Tail Risk Board 6지표" + _autoNavigatePage(sentiment)\n' +
+        '③ 거시/금리/달러/유가 → "📊 거시 분석 페이지에서 Fed 경로 + 인플레 패러다임 + DXY 에스컬레이션" + _autoNavigatePage(macro)\n' +
+        '④ 종목 분석/실적/밸류 → "📊 기업 분석 페이지에서 SEC 10-K + Wikipedia + FMP 5년 분기 7 차트" + _autoNavigatePage(fundamental)\n' +
+        '⑤ 포트폴리오/리스크 → "📊 포트폴리오 페이지에서 VaR + Sharpe + Beta + Drift" + _autoNavigatePage(portfolio)\n\n' +
+        '【답변 구조 (홈 페이지 특화)】\n' +
+        '1) 시장 환경 1줄 요약 (정량 동반 — R140)\n' +
+        '2) 사용자 의도 분류 + 추천 페이지 1~2개\n' +
+        '3) 해당 페이지 핵심 기능 미리보기 (2~3 bullet)\n' +
+        '4) 다음 액션 단계 ("[페이지명] 페이지로 이동해서 X 확인")\n\n' +
+        '【홈 페이지 자체 데이터】\n' +
+        '• 시장 현황 카드 (실시간 시세) / Action Item (ACTION_RULES) / 리스크 레이더 / F&G+CNN gauge / GMO 표\n' +
+        '• 답변 시 위 카드 직접 인용 가능 (📊 [home-action-position] 등).\n\n' +
+        instFw +
+        v48 +
+        '\n\n' + _getChatRules();
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────────
   // v49.58 P319/R106 신규: ticker 페이지 CHAT_CONTEXTS override
   // 사용자가 가장 자주 들어가는 ticker 상세 페이지에 채팅 컨텍스트 정의 부재 시정.
   // window._currentTickerId (Phase 2에서 showTicker 진입 시 설정) 기반 자동 종목 주입.
@@ -18562,6 +18629,9 @@ function renderKrThemeCardsFromMap() {
   });
 
   container.innerHTML = html;
+  if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
+    window.AIO.annotateLiveDataSinks(container, { reason: 'kr-theme-render', force: true });
+  }
   var addedLiveSymbols = 0;
   if (window.AIO && typeof window.AIO.registerLiveSymbolsFromDom === 'function') {
     addedLiveSymbols = window.AIO.registerLiveSymbolsFromDom(container, { reason: 'kr-theme-render' });
@@ -24066,6 +24136,9 @@ async function initFundamentalCards() {
     html += '</div>';
   });
   grid.innerHTML = html;
+  if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
+    window.AIO.annotateLiveDataSinks(grid, { reason: 'fundamental-cards-render', force: true });
+  }
 
   // Also load earnings surprises and calendar with fallback data
   loadEarningsSurprises();
@@ -27686,9 +27759,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.72"></script>
+<script src="./js/aio-glossary.js?v=49.73"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.72"></script>
+<script src="./js/aio-tests.js?v=49.73"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전
@@ -28839,11 +28912,26 @@ async function analyzeTickerDeep(ticker) {
 var krTechCharts = {};
 
 // ── VKOSPI Chart.js 스파크라인 ──────────────────────────────────
+function _lockKrVkospiCanvasHeight(cvs) {
+  if (!cvs) return;
+  function apply() {
+    if (cvs.style.height !== '160px') cvs.style.setProperty('height', '160px', 'important');
+    if (cvs.getAttribute('height') !== '160') cvs.setAttribute('height', '160');
+  }
+  apply();
+  if (!cvs._aioHeightGuard) {
+    cvs._aioHeightGuard = true;
+    try {
+      new MutationObserver(function() { apply(); }).observe(cvs, { attributes: true, attributeFilter: ['style', 'height'] });
+    } catch(_) {}
+  }
+}
+
 function initKrVkospiChart() {
   var cvs = document.getElementById('kr-vkospi-chart');
   if (!cvs) return;
   cvs.style.width = '100%';
-  cvs.style.height = '160px';
+  _lockKrVkospiCanvasHeight(cvs);
   cvs.style.maxHeight = '180px';
   cvs.style.display = 'block';
   cvs.height = 160;
@@ -28923,6 +29011,8 @@ function initKrVkospiChart() {
       }
     }
   });
+  _lockKrVkospiCanvasHeight(cvs);
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(function() { _lockKrVkospiCanvasHeight(cvs); });
 }
 
 // ═══ v48.78: 심층 종목 기술 분석 — 계산 + 렌더 함수 ═════════════════════════

@@ -6,6 +6,55 @@
 
 ---
 
+## v49.73 — AI 채팅 7 페이지 21 질문 답변 품질 심층 보강 (현재성·정확성·직관성) (2026-05-26)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 요구 "AI 기능이 있는 각 페이지마다 대표 예시 질문 3개씩 물어본 후 나온 답변들 심층 분석해서 근본적 보강. 현재 시장/기업 상황 반영, 정확하고 최신 데이터, 직관적 표현 중점 체크." Explore agent A+B 정적 분석으로 7 페이지 (home/macro/sentiment/breadth/technical/fundamental/portfolio) × 3 평가 축 갭 4건 매핑.
+
+**3 평가 축 진단 결과**:
+- 현재성 갭: 5 페이지에 정적 날짜 토큰 + home 페이지 CHAT_CONTEXTS 부재
+- 정확성 갭: 16 데이터 블록 라벨 fetched 시각 + source 표준화 부재
+- 직관성 갭: 추상 표현 (정성만) + 답변 구조 자유 형식 + 출처 괄호 강제 부재
+
+**Changes**:
+
+1. **Phase 1 — 헬퍼 3종 (P388/R140)** (`js/aio-chat.js`)
+   - `_aioRelativeDate(target)` — ISO/monthsAgo → "YYYY년 M월 (N일 전)" 동적 마커
+   - `_aioSessionContextHeader()` — 【세션 시각】 + 【시점 자동 인지】 + 【데이터 신선도】 3축 자동 prepend
+   - `_aioFetchLabel(name, source, ts)` — 데이터 블록 표준 라벨 "[name · fetched YYYY-MM-DD HH:MM KST · source]"
+
+2. **Phase 2 — _getChatRules 통합** (`index.html` L14803)
+   - 진입부에 `_aioSessionContextHeader()` 자동 prepend → 14 CHAT_CONTEXTS 모두 자동 인지
+
+3. **Phase 3 — 데이터 블록 라벨 표준화 (P389/R142)** (`js/aio-chat.js` `_fetchTickerDataForChat`)
+   - 종목별 진입부 "━━ [TICKER 데이터 블록 · 일괄 fetched X KST] ━━" 헤더 추가
+   - 5 주요 라벨 (SEC 10-K · Wikipedia · SEC 8-K · News · Insider · Risk Factors)에 "source X" 명시
+
+4. **Phase 4 — ABSOLUTE RULES 14~16조 (P390/R140~R142)** (`index.html` `_getChatRules`)
+   - 14조 (R140): 정성 표현 사용 시 정량 근거 1개 이상 괄호 동반 의무
+   - 15조 (R141): 표준 4 구조 강제 (결론/정량/시나리오/액션)
+   - 16조 (R142): 모든 정량 인용 시 (출처 · 기준일) 괄호 필수
+
+5. **Phase 5 — home CHAT_CONTEXTS 신설 (P391)** (`index.html` L17682 직전)
+   - 5 카테고리 자동 분류 (시그널/심리/매크로/종목/포트폴리오) + 페이지 안내 + 시장 환경 종합
+   - 기관급 프레임워크 + V48 컨텍스트 + ABSOLUTE RULES 14~16조 자동 통합
+
+6. **Phase 6 — assertChatAnswerQualityAudit + 사이드바 13축 (P392)** (`js/aio-core.js`)
+   - 3 카테고리 (현재성/정확성/직관성) × 각 ~30점 = overallScore 100점 산출
+   - 사이드바 audit row 13번째 (`answerQuality`) — "📋 답변 품질 X점 · 현재 X · 정확 X · 직관 X"
+   - R140~R142 + P388~P392 + T571~T580 10 신규 (Group69) + 동기화 7곳
+
+**Verification**:
+- `APP_VERSION === 'v49.73'` ✓ / `SW_VERSION === 'v49.73'` ✓
+- `typeof _aioRelativeDate === 'function'` ✓ / `_aioSessionContextHeader` / `_aioFetchLabel` ✓
+- `CHAT_CONTEXTS['home']` 정의 ✓
+- `_getChatRules()` 반환에 "14조 정성 표현" + "15조 표준 답변 구조" + "16조 출처 기준일" ✓
+- `AIO.assertChatAnswerQualityAudit().overallScore >= 70` 예상
+- `AIO.runTests()` 신규 T571~T580 10 PASS 예상
+
+---
+
 ## v49.72 — fundamental 페이지 DART Financials 7 차트 + 채팅 차트 보기 버튼 (2026-05-26)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

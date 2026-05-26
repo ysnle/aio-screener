@@ -2,11 +2,40 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.72
-latest_P_number: P387
-total_entries: 387
-next_P_number: P388
+latest_version: v49.73
+latest_P_number: P392
+total_entries: 392
+next_P_number: P393
 ---
+
+## P392 · v49.73 · [P392/R140~R142] AI 채팅 답변 품질 3축 자동 진단 audit + 사이드바 13축
+
+- **시정**: `AIO.assertChatAnswerQualityAudit()` 신설 — 현재성(세션 헤더+동적 마커 헬퍼+stale 토큰)/정확성(fetched 키워드+source 라벨+_aioFetchLabel)/직관성(R140~R142+home 컨텍스트) 3 카테고리 자동 진단 + overallScore 산출. 사이드바 audit row 13번째 (`answerQuality`) — "📋 답변 품질 X점 · 현재 X · 정확 X · 직관 X".
+- **재발 방지**: T577 (audit shape) + T578 (overallScore ≥ 70) + T579 (사이드바 row DOM).
+
+## P391 · v49.73 · [P391/R140~R142] home 페이지 CHAT_CONTEXTS 부재 → signal default fallback 학습 데이터 의존
+
+- **문제**: 사용자가 가장 먼저 진입하는 `home` 페이지에 CHAT_CONTEXTS 별도 정의 없음 → 채팅 시 signal default로 폴백되어 시장 환경/페이지 안내 컨텍스트 부재.
+- **시정**: `window.CHAT_CONTEXTS['home']` override 신설 (`index.html` L17681 부근). 5 카테고리 사용자 의도 자동 분류 + 각 페이지 안내 (시그널/심리/매크로/종목/포트폴리오) + 시장 환경 종합 (SPX/VIX/F&G/스코어 정량) + 표준 답변 구조 (4 블록) + 기관급 프레임워크 + V48 컨텍스트 + ABSOLUTE RULES 14~16조.
+- **재발 방지**: T576 — `CHAT_CONTEXTS['home']` 정의 + system() "AIO Screener 홈" + "답변 가이드" 검증.
+
+## P390 · v49.73 · [P390/R140~R142] ABSOLUTE RULES 14~16조 (정성→정량 의무 / 표준 답변 구조 / 출처 괄호) 부재
+
+- **문제**: AI 답변에 "높은 변동성" / "강세장" 등 정성 표현이 정량 근거 없이 사용되거나, 답변 구조가 자유 형식으로 흐트러져 사용자 직관성 저하. v49.68 R128 (12조)에 "출처+기준일" 가이드는 있으나 자동 강제 부재.
+- **시정**: `_getChatRules()` 끝에 14조 (R140 정성→정량 동반) + 15조 (R141 표준 4 구조: 결론/정량/시나리오/액션) + 16조 (R142 모든 정량 인용에 출처 괄호 필수) 추가.
+- **재발 방지**: T575 — `_getChatRules()` 반환에 "14조 정성 표현" + "15조 표준 답변 구조" + "16조 출처 + 기준일" 3 키워드 모두 포함.
+
+## P389 · v49.73 · [P389/R142] 데이터 블록 16 라벨 fetched 시각 · source 명시 부족
+
+- **문제**: `_fetchTickerDataForChat`에 16+ 데이터 블록 라벨 ([SEC 10-K] / [Wikipedia] / [News] 등)이 출처는 일부 있으나 fetched 시각이 누락되어 AI 답변에서 "언제 가져온 데이터" 추적 불가. 사용자가 "이 가격 어디서?" 질문 시 답변 불가.
+- **시정**: `_aioFetchLabel(name, source, ts)` 헬퍼 신설 (R142 표준 출력 `[name · fetched YYYY-MM-DD HH:MM KST · source]`). 종목별 데이터 블록 진입부에 "━━━━━ [TICKER 데이터 블록 · 일괄 fetched X KST] ━━━━━" 헤더 추가. 5 주요 라벨 (SEC 10-K / Wikipedia / SEC 8-K / News / Insider / Risk Factors)에 "source X" 명시.
+- **재발 방지**: T573 (헬퍼 정의) + T574 (헤더 + source 라벨 검증).
+
+## P388 · v49.73 · [P388/R140] 세션 시각 자동 인지 헤더 부재 → AI 답변 "현재" 시점 환각
+
+- **문제**: AI 채팅 system 프롬프트에 세션 시각 명시 부재 → AI가 학습 데이터 시점 ("2024년 초"/"올해 4월")을 현재로 착각하여 답변. v49.67 시장 환경 헤더는 ticker 답변에만 적용. `_getChatRules`의 동적 날짜 주입은 있으나 데이터 신선도 + 시점 인지 강제 부재.
+- **시정**: `_aioSessionContextHeader()` 헬퍼 신설 — 【세션 시각: YYYY-MM-DD HH:MM KST】 + 【시점 자동 인지: 오늘은 X년 Y월 Z일 (요일)】 + 【데이터 신선도: _liveData N분 전 / DATA_SNAPSHOT 기준일】 3축 자동 prepend. `_getChatRules()` 진입부에 통합 → 14 CHAT_CONTEXTS 모두 자동 인지. `_aioRelativeDate(target)` 헬퍼 동반 — 정적 날짜 토큰 (예: "2026.04 FOMC") → 동적 마커 ("2026년 4월 (X일 전)") 치환 가능.
+- **재발 방지**: T571 (relativeDate) + T572 (sessionHeader).
 
 ## P387 · v49.72 · [P387/R138~R139] fundamental 7 차트 + 채팅 차트 보기 버튼 자동 진단 audit + 사이드바 12축
 

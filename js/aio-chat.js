@@ -2076,6 +2076,17 @@ async function _fetchTickerDataForChat(tickers) {
   for (var i = 0; i < tickers.length; i++) {
     var t = tickers[i];
     var _tickerBlockStart = results.length; // 캐시 저장용 — 이 종목의 결과 라인 시작 인덱스
+    // v49.73 P389 R142: 데이터 블록 fetched 시각 헤더 — 모든 라벨에 통합 출처/기준일 명시 (출처 괄호 의무 R142)
+    try {
+      if (typeof window._aioFetchLabel === 'function') {
+        var _bn = new Date();
+        var _bp = function(n){ return String(n).padStart(2, '0'); };
+        var _bts = _bn.getFullYear() + '-' + _bp(_bn.getMonth()+1) + '-' + _bp(_bn.getDate()) + ' ' + _bp(_bn.getHours()) + ':' + _bp(_bn.getMinutes()) + ' KST';
+        results.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        results.push('【' + t + ' 데이터 블록 · 일괄 fetched ' + _bts + ' (각 라벨에 개별 source 명시)】');
+        results.push('AI 답변 시 모든 정량 인용에 (출처 · 기준일) 괄호 동반 의무 — ABSOLUTE RULES 16조 (R142).');
+      }
+    } catch(_hdrErr) {}
     var data = null;
     // 1. _liveData 캐시 확인
     var ld = (window._liveData || {})[t];
@@ -2208,14 +2219,14 @@ async function _fetchTickerDataForChat(tickers) {
       try {
         var sec = secPromise ? await secPromise : null;
         if (sec && sec.available) {
-          results.push('  [SEC 10-K] ' + (sec.companyName || t) + ' · SIC: ' + (sec.sicDescription || sec.sic || 'N/A') + ' · Filed: ' + (sec.latest10K && sec.latest10K.filingDate) + ' · ' + (sec.businessDescriptionUrl || ''));
+          results.push('  [SEC 10-K · source data.sec.gov/submissions] ' + (sec.companyName || t) + ' · SIC: ' + (sec.sicDescription || sec.sic || 'N/A') + ' · Filed: ' + (sec.latest10K && sec.latest10K.filingDate) + ' · ' + (sec.businessDescriptionUrl || ''));
           results.push('  [SEC 10-K 사용 가이드] Item 1 (Business) + Item 1A (Risk Factors)는 위 URL에서 직접 fetch 가능. 비즈니스 구조/사업 모델/공급망/리스크/경쟁 등 정성 분석은 이 출처를 인용하여 답변. AI 학습 데이터로 환각 금지.');
         }
       } catch(_secErr) {}
       try {
         var wiki = wikiPromise ? await wikiPromise : null;
         if (wiki && wiki.available && wiki.extract) {
-          results.push('  [Wikipedia] ' + wiki.url);
+          results.push('  [Wikipedia · source en.wikipedia.org/w/api.php] ' + wiki.url);
           results.push('  [기업 개요 (Wiki intro)] ' + wiki.extract.substring(0, 600));
         }
       } catch(_wikiErr) {}
@@ -2227,7 +2238,7 @@ async function _fetchTickerDataForChat(tickers) {
           var _8kLines = sec8k.recent8KList.map(function(f) {
             return '    · ' + (f.filingDate || '?') + ' · Items: ' + (f.items || 'N/A') + ' · ' + (f.url || '');
           }).join('\n');
-          results.push('  [SEC 8-K (최근 ' + sec8k.recent8KCount + '건 · event-driven)]\n' + _8kLines);
+          results.push('  [SEC 8-K · source data.sec.gov · 최근 ' + sec8k.recent8KCount + '건 event-driven]\n' + _8kLines);
           results.push('  [SEC 8-K 가이드] Items 코드 — 1.01=신규계약 · 2.02=실적사전공시 · 5.02=임원변경 · 7.01=Reg FD · 8.01=기타. M&A/CEO변경/사이버사고 등 환각 차단용. URL 직접 fetch 가능.');
         }
       } catch(_8kErr) {}
@@ -2239,7 +2250,7 @@ async function _fetchTickerDataForChat(tickers) {
           var _newsLines = fhNews.topHeadlines.map(function(n) {
             return '    · ' + (n.datetime || '?') + ' [' + (n.source || 'unknown') + '] ' + (n.headline || '');
           }).join('\n');
-          results.push('  [News (' + fhNews.period + ' · 총 ' + fhNews.articleCount + '건 · Top ' + fhNews.topHeadlines.length + ')]\n' + _newsLines);
+          results.push('  [News · source Finnhub /company-news · ' + fhNews.period + ' · 총 ' + fhNews.articleCount + '건 · Top ' + fhNews.topHeadlines.length + ']\n' + _newsLines);
         }
       } catch(_newsErr) {}
 
@@ -2247,7 +2258,7 @@ async function _fetchTickerDataForChat(tickers) {
       try {
         var insider = insiderPromise ? await insiderPromise : null;
         if (insider && insider.available) {
-          results.push('  [Insider (12주 · ' + insider.period + ')] 거래 ' + insider.transactionCount + '건 · 매수 ' + insider.buyCount + ' / 매도 ' + insider.sellCount + ' · Net ' + (insider.netShares >= 0 ? '+' : '') + insider.netShares + '주 → ' + insider.verdict + ' (' + insider.note + ')');
+          results.push('  [Insider · source Finnhub /insider-transactions · 12주 ' + insider.period + '] 거래 ' + insider.transactionCount + '건 · 매수 ' + insider.buyCount + ' / 매도 ' + insider.sellCount + ' · Net ' + (insider.netShares >= 0 ? '+' : '') + insider.netShares + '주 → ' + insider.verdict + ' (' + insider.note + ')');
         }
       } catch(_inErr) {}
 
@@ -2336,7 +2347,7 @@ async function _fetchTickerDataForChat(tickers) {
       try {
         var rf = riskFactorsPromise ? await riskFactorsPromise : null;
         if (rf && rf.available) {
-          results.push('  [Risk Factors (SEC 10-K Item 1A)] ' + (rf.riskFactorsUrl || '') + ' · SIC: ' + (rf.sicDescription || 'N/A'));
+          results.push('  [Risk Factors · source SEC 10-K Item 1A] ' + (rf.riskFactorsUrl || '') + ' · SIC: ' + (rf.sicDescription || 'N/A'));
           results.push('  [Risk Factors 가이드] Item 1A 섹션은 동일 10-K 문서 내 (위 [SEC 10-K] URL과 동일 파일). 종목별 사업/규제/매크로/경쟁/소송/사이버 리스크 정성 분석 시 위 URL 직접 fetch + Item 1A 섹션 인용. 학습 데이터로 "주요 리스크" 추정 절대 금지 (R117).');
         }
       } catch(_rfErr) {}
@@ -3703,6 +3714,66 @@ if (typeof setTimeout !== 'undefined' && typeof window !== 'undefined') {
     setInterval(function() { try { _aioCheckAlerts(); } catch(_) {} }, 60 * 1000);
   }, 30000);
 }
+
+// ─────────────────────────────────────────────────────────────────
+// v49.73 P388 R140~R142: 답변 품질 3축 보강 (현재성·정확성·직관성) 헬퍼
+// 사용자 정직 질의 "현재 시장/기업 상황 반영, 최신 데이터, 직관적 표현"
+// ─────────────────────────────────────────────────────────────────
+
+// _aioRelativeDate(target) — ISO 문자열 또는 monthsAgo number → 'YYYY년 M월 (N일 전)' 동적 문자열
+// 정적 날짜 토큰 (예: "2026.04 FOMC") → 동적 마커로 치환하여 세션 시각에 따라 자동 갱신
+function _aioRelativeDate(target) {
+  var now = new Date();
+  var ref;
+  if (typeof target === 'number') { ref = new Date(); ref.setMonth(ref.getMonth() + target); }
+  else if (typeof target === 'string' && target.length > 0) { ref = new Date(target); }
+  else { ref = now; }
+  if (isNaN(ref.getTime())) return '날짜 미상';
+  var days = Math.round((now.getTime() - ref.getTime()) / (24 * 3600 * 1000));
+  var ym = ref.getFullYear() + '년 ' + (ref.getMonth() + 1) + '월';
+  if (Math.abs(days) <= 1) return ym + ' (오늘)';
+  return ym + ' (' + (days > 0 ? days + '일 전' : Math.abs(days) + '일 후') + ')';
+}
+window._aioRelativeDate = _aioRelativeDate;
+
+// _aioSessionContextHeader() — 모든 chat system 프롬프트 진입부에 자동 prepend
+// 【세션 시각】 + 【시점 자동 인지】 + 【데이터 신선도】 3축으로 AI 환각 시점 인지 보강
+function _aioSessionContextHeader() {
+  var now = new Date();
+  var pad = function(n){ return String(n).padStart(2, '0'); };
+  var sessionTs = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ' KST';
+  var weekdays = ['일','월','화','수','목','금','토'];
+  var today = now.getFullYear() + '년 ' + (now.getMonth()+1) + '월 ' + now.getDate() + '일 (' + weekdays[now.getDay()] + ')';
+  var liveAge = '미수신';
+  try {
+    var lf = window._lastFetch || {};
+    var lastQuoteTs = lf.quote || lf.liveQuotes || lf.live || null;
+    if (lastQuoteTs) {
+      var ageMin = Math.floor((Date.now() - (typeof lastQuoteTs === 'number' ? lastQuoteTs : new Date(lastQuoteTs).getTime())) / 60000);
+      liveAge = (ageMin <= 0 ? '방금' : ageMin + '분 전');
+    }
+  } catch(_) {}
+  var snapDate = '미상';
+  try {
+    if (window.DATA_SNAPSHOT) snapDate = window.DATA_SNAPSHOT.snapDate || window.DATA_SNAPSHOT.asOf || window.DATA_SNAPSHOT._asOf || '미상';
+  } catch(_) {}
+  return '【세션 시각: ' + sessionTs + '】\n' +
+         '【시점 자동 인지】 오늘은 ' + today + '. 모든 "최근/현재/오늘" 표현은 이 시점 기준.\n' +
+         '【데이터 신선도】 _liveData 마지막 갱신: ' + liveAge + ' / DATA_SNAPSHOT 기준일: ' + snapDate + '\n';
+}
+window._aioSessionContextHeader = _aioSessionContextHeader;
+
+// _aioFetchLabel(name, source, ts) — 데이터 블록 라벨 표준화
+// 출력: '[name · fetched YYYY-MM-DD HH:MM KST · source]'
+// R142 (출처 + 기준일 괄호 필수) 정합. _fetchTickerDataForChat 16 라벨 일괄 적용.
+function _aioFetchLabel(name, source, ts) {
+  var t = ts ? (ts instanceof Date ? ts : new Date(ts)) : new Date();
+  if (isNaN(t.getTime())) t = new Date();
+  var pad = function(n){ return String(n).padStart(2, '0'); };
+  var label = t.getFullYear() + '-' + pad(t.getMonth()+1) + '-' + pad(t.getDate()) + ' ' + pad(t.getHours()) + ':' + pad(t.getMinutes());
+  return '[' + name + ' · fetched ' + label + ' KST · ' + (source || 'source 미상') + ']';
+}
+window._aioFetchLabel = _aioFetchLabel;
 
 // v49.71 P377 R135: SCREENER_DB.memo 신선도 파싱 — memo 헤더의 날짜 패턴 grep + days_since_update 계산
 // 사용자 정직 질의 "MEMO가 있더라도 예전의 데이터면 어떡해?" 시정
