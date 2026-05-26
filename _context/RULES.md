@@ -6,6 +6,23 @@ target_version: v48.97
 
 ---
 
+## R151. 시세 데이터 ✗ 시 답변에 가격 수치 절대 금지 — HARD STOP (v49.76)
+
+- `_liveStatusCS` 미수신 시 system prompt에 🚨 HARD STOP 7 조항 강제 주입:
+  1. 모든 $ 가격 수치 절대 금지
+  2. 학습 연도 / 자기 환각 자백 표현 금지
+  3. 가격 범위 추측 금지
+  4. 시점 인용 금지 (데이터 블록 부재 시)
+  5. 올바른 답변 시작 형식 명시
+  6. 위반 시 R145 환각 경고 자동 표시
+- v49.74 R145 + ABSOLUTE RULES 17조 위에 강제 HARD STOP 추가.
+
+## R152. 모바일 채팅 레이아웃 100vw 비율 의무 (v49.76)
+
+- `.aio-chat / .acp-messages / .acp-bubble / .acp-chips` 모바일에서 max-width: 100vw + box-sizing: border-box.
+- `.acp-bubble` max-width: calc(100vw - 80px). chip wrap + 폰트 11px 통일.
+- 사용자 좌절 발견 — "답변 화면 비율이랑 레이아웃도 안 맞아" 시정.
+
 ## R147. CHAT_CONTEXTS 등록은 DOM 패널과 항상 쌍 (Pattern A 일반화) (v49.75)
 
 - 사용자 정직 발견 (P398) — home CHAT_CONTEXTS 등록 후 DOM panel 누락 → chatSend silent return.

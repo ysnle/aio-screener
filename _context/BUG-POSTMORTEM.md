@@ -2,11 +2,39 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.75
-latest_P_number: P404
-total_entries: 404
-next_P_number: P405
+latest_version: v49.76
+latest_P_number: P409
+total_entries: 409
+next_P_number: P410
 ---
+
+## P409 · v49.76 · [P409] kr-supply 컨텍스트 확인 — aio-chat.js L1121 이미 정의됨
+
+- 사용자 발견 v49.74 audit 의심 사항 확인 — `kr-supply` CHAT_CONTEXTS는 `aio-chat.js` 베이스 정의에 이미 존재 (L1121). assertChatAnswerQualityAudit의 11 페이지 평가에 정상 포함.
+
+## P408 · v49.76 · [P408] AIO.diagnose() 통합 진단 명령 신설 — 사용자 좌절 시정
+
+- **문제**: 사용자가 콘솔에서 진단하려면 5개+ 명령 입력 필요. 답답함 누적.
+- **시정**: `AIO.diagnose(ticker)` 신설 — 1줄로 7개 진단 항목 자동 실행 + console에 가시화 + report 객체 반환 + 권장 조치 자동 출력.
+- 7 항목: 시세 fetch / _liveData 상태 / 시세 fetch 건강도 / CHAT_CONTEXTS DOM 매트릭스 / 채팅 함수 통합 / 답변 품질 / home 채팅 DOM.
+
+## P407 · v49.76 · [P407/R152] 모바일 채팅 레이아웃 100vw 비율 미시정
+
+- **문제 (사용자 좌절 발견)**: "답변 화면 비율이랑 레이아웃도 안 맞아". `.acp-bubble` / `.aio-chat` 모바일 max-width unset → 답변 본문 좁고 chip wrap 부적절.
+- **시정**: 모바일 미디어 쿼리 추가 — `.aio-chat` 100vw / `.acp-bubble` max-width: calc(100vw - 80px) / `.acp-chips` flex-wrap + 폰트 11px / `.acp-bubble pre` overflow-x 명시.
+- **재발 방지**: R152.
+
+## P406 · v49.76 · [P406/R151] 시세 ✗ 시 가격 환각 강제 차단 미흡
+
+- **문제 (사용자 좌절 발견)**: AI 답변에 "$400~500대", "$268.03" 등 시세 ✗ 상태에서 가격 수치 등장. v49.74 R145 + ABSOLUTE RULES 17조 있어도 AI가 follow-up 분석에서 가격 사용.
+- **시정**: chatSend `_dataVerify`에 `_liveStatusCS.indexOf('미수신') >= 0` 검출 시 🚨 HARD STOP 7 조항 강제 주입 — 모든 가격 수치 절대 금지 + 올바른 답변 형식 명시.
+- **재발 방지**: R151.
+
+## P405 · v49.76 · [P405] dynamicTickerLookup proxy 5개 + 진단 로깅 강화
+
+- **문제 (사용자 좌절 발견)**: NVDA 시세 fetch 실패. 3 proxy (corsproxy/allorigins/codetabs)가 1~2개 다운 시 silent fail.
+- **시정**: (a) 5 proxy 확장 (codetabs 1순위 + allorigins + corsproxy + thingproxy + cors-sh) (b) timeout 12s → 8s (다음 proxy 빠르게) (c) `window._aioTickerLookupDiag[ticker]` 진단 로깅 (각 proxy attempt + retry + duration) (d) 모든 proxy 실패 시 console.warn 명시.
+- **재발 방지**: AIO.diagnose(ticker)로 즉시 진단 가능.
 
 ## P404 · v49.75 · [P404] 4 critical 패턴 일반화 — "비슷한 패턴 모두 심층 점검해봐" 응답
 

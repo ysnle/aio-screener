@@ -3005,9 +3005,42 @@
     var homeDom = !!document.getElementById('chat-home-inp');
     _assert('T595 home_chat_dom_v4974_hotfix: #chat-home-inp DOM 존재 (P398 hotfix)',
       homeDom, 'homeDom=' + homeDom);
-    // T596 APP_VERSION === 'v49.75'
-    _assert('T596 app_version_v4975_final: APP_VERSION === "v49.75"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.75',
+    // T596 APP_VERSION === 'v49.75' (v49.76 갱신 — 하위 호환)
+    _assert('T596 app_version_v4975_final: APP_VERSION === "v49.75" or 신규',
+      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // v49.76 P405~P409: 사용자 좌절 hotfix 회귀 방지 — 시세 / 가격 환각 / 모바일 / diagnose
+  // ─────────────────────────────────────────────────────────────────
+  function _testV4976UserFrustrationFix() {
+    // T597: dynamicTickerLookup proxy 5개 (codetabs 1순위 + allorigins + corsproxy + thingproxy + cors-sh)
+    var dynSrc = typeof window.dynamicTickerLookup === 'function' ? window.dynamicTickerLookup.toString() : '';
+    _assert('T597 ticker_lookup_5proxies_v4976: dynamicTickerLookup 5 proxy (codetabs/allorigins/corsproxy/thingproxy/cors-sh)',
+      dynSrc.indexOf('codetabs') >= 0 && dynSrc.indexOf('allorigins') >= 0 && dynSrc.indexOf('corsproxy') >= 0 && dynSrc.indexOf('thingproxy') >= 0 && dynSrc.indexOf('cors-sh') >= 0,
+      'codetabs=' + (dynSrc.indexOf('codetabs') >= 0) + ' thing=' + (dynSrc.indexOf('thingproxy') >= 0));
+    // T598: _aioTickerLookupDiag 진단 로깅 객체
+    _assert('T598 ticker_diag_logging_v4976: window._aioTickerLookupDiag 진단 객체 + 코드에 attempts 기록',
+      dynSrc.indexOf('_aioTickerLookupDiag') >= 0 && dynSrc.indexOf('attempts.push') >= 0,
+      'diag=' + (dynSrc.indexOf('_aioTickerLookupDiag') >= 0));
+    // T599: 시세 ✗ 시 가격 환각 HARD STOP system prompt
+    var chatSendSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+    _assert('T599 price_hallucination_hard_stop_v4976: chatSend에 "🚨🚨🚨" + "HARD STOP" + "가격 수치 절대 금지" 강제',
+      chatSendSrc.indexOf('HARD STOP') >= 0 && chatSendSrc.indexOf('가격 수치 절대 금지') >= 0,
+      'hardStop=' + (chatSendSrc.indexOf('HARD STOP') >= 0));
+    // T600: AIO.diagnose() 통합 진단 명령
+    _assert('T600 aio_diagnose_v4976: AIO.diagnose 함수 정의 (1줄 통합 진단)',
+      typeof window.AIO.diagnose === 'function',
+      'typeof=' + typeof window.AIO.diagnose);
+    // T601: 모바일 .aio-chat / .acp-bubble 100vw 미디어 쿼리
+    var htmlSrc = document.documentElement.outerHTML;
+    var hasModalChatCss = htmlSrc.indexOf('R152') >= 0 || htmlSrc.indexOf('max-width: calc(100vw - 80px)') >= 0 || htmlSrc.indexOf('width: 100% !important; max-width: 100vw !important') >= 0;
+    _assert('T601 mobile_chat_layout_fix_v4976: 모바일 .aio-chat / .acp-bubble 100vw 미디어 쿼리 (R152)',
+      hasModalChatCss, 'hasCss=' + hasModalChatCss);
+    // T602: APP_VERSION === 'v49.76'
+    _assert('T602 app_version_v4976_final: APP_VERSION === "v49.76"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.76',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -4150,6 +4183,7 @@
     try { _testV4973AnswerQuality(); } catch(e) { console.error('Group69 error:', e); }
     try { _testV4974KrMultiTurn(); } catch(e) { console.error('Group70 error:', e); }
     try { _testV4975PatternsAudits(); } catch(e) { console.error('Group71 error:', e); }
+    try { _testV4976UserFrustrationFix(); } catch(e) { console.error('Group72 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

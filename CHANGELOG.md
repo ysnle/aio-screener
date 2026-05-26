@@ -6,6 +6,45 @@
 
 ---
 
+## v49.76 — 시세 fetch 근본 보강 + 가격 환각 HARD STOP + 모바일 + AIO.diagnose() (2026-05-26)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 좌절 "AI 채팅 제발 제대로 좀 쓰자" → audit 그만 추가하고 실제 작동 시정.
+
+**Changes**:
+
+1. **P405 dynamicTickerLookup proxy 3→5 확장 + 진단 로깅**
+   - codetabs 1순위 + allorigins + corsproxy + thingproxy + cors-sh (5개)
+   - `window._aioTickerLookupDiag[ticker]` 진단 로깅 (각 proxy attempt + retry + duration)
+   - timeout 12s → 8s (다음 proxy 빠르게 시도)
+   - 모든 proxy 실패 시 `console.warn` 명시
+
+2. **P406/R151 시세 ✗ 시 가격 환각 HARD STOP**
+   - `_liveStatusCS` 미수신 검출 시 system prompt에 🚨🚨🚨 7 조항 강제 주입
+   - 모든 $ 가격 수치 절대 금지 + 학습 연도 / 자기 환각 자백 / 추측 가격 / 시점 인용 일체 금지
+   - 올바른 답변 시작 형식 명시 ("현재 NVDA 시세 미수신 — 정성 프레임워크만")
+
+3. **P407/R152 모바일 채팅 레이아웃 fix**
+   - `.aio-chat` 100vw + `.acp-bubble` max-width: calc(100vw - 80px)
+   - `.acp-chips` flex-wrap + chip 폰트 11px 통일
+   - `.acp-bubble pre` overflow-x 명시
+
+4. **P408 AIO.diagnose(ticker) 통합 진단 명령**
+   - 1줄로 7 항목 자동 실행 + console 가시화
+   - 7 항목: 시세 fetch / _liveData 상태 / 시세 fetch 건강도 / CHAT_CONTEXTS DOM / 채팅 함수 통합 / 답변 품질 / home 채팅 DOM
+   - 권장 조치 자동 출력
+
+5. **Phase 5 동기화** — R151~R152 + P405~P409 + T597~T602 6 신규 (Group72) + 7곳 sync
+
+**Verification (사용자 production)**:
+```js
+AIO.diagnose('NVDA')  // 콘솔 1줄로 전체 진단
+window._aioTickerLookupDiag.NVDA  // 어떤 proxy가 어떻게 실패했는지
+```
+
+---
+
 ## v49.75 — 4 패턴 일반화 + 후처리 audit 통합 (사용자 "비슷한 패턴 모두 심층 점검") (2026-05-26)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

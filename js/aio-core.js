@@ -6428,6 +6428,80 @@ window.AIO.assertChatAnswerQualityAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.76 P408: AIO.diagnose() — 사용자 콘솔 1줄 통합 진단 (시세/채팅/audit 모두)
+// 사용자 좌절 발견 — 콘솔 명령 5개 입력해야 진단 가능. 1줄로 압축.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.diagnose = async function(ticker) {
+  ticker = (ticker || 'NVDA').toUpperCase();
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('[AIO v49.76 diagnose] 통합 진단 시작 - ticker: ' + ticker);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  var report = { ticker: ticker, startedAt: new Date().toISOString(), version: typeof APP_VERSION !== 'undefined' ? APP_VERSION : '?' };
+  // 1. 시세 fetch 진단 (실시간)
+  try {
+    var t0 = Date.now();
+    var quote = await window.dynamicTickerLookup(ticker);
+    report.quote = { result: quote, durationMs: Date.now() - t0 };
+    report.quoteDiag = window._aioTickerLookupDiag && window._aioTickerLookupDiag[ticker];
+    console.log('[1/7] 시세 fetch:', quote ? '✓ price=' + quote.price + ' source=' + quote.source : '✗ FAILED');
+  } catch(e) { report.quote = { error: String(e) }; console.error('[1/7] 시세 fetch 오류:', e); }
+  // 2. _liveData 상태
+  report.liveData = {
+    keysCount: Object.keys(window._liveData || {}).length,
+    sample: window._liveData && window._liveData[ticker],
+    nvdaInLive: !!(window._liveData && window._liveData[ticker])
+  };
+  console.log('[2/7] _liveData[' + ticker + ']:', report.liveData.sample || '✗ 없음 (전체 ' + report.liveData.keysCount + '개)');
+  // 3. assertTickerFetchHealth
+  try {
+    report.tickerHealth = window.AIO.assertTickerFetchHealth && window.AIO.assertTickerFetchHealth();
+    console.log('[3/7] 시세 fetch 건강도:', report.tickerHealth ? report.tickerHealth.note : 'N/A');
+  } catch(e) { report.tickerHealth = { error: String(e) }; }
+  // 4. assertChatPanelDomAudit
+  try {
+    report.chatPanelDom = window.AIO.assertChatPanelDomAudit && window.AIO.assertChatPanelDomAudit();
+    if (report.chatPanelDom) {
+      console.log('[4/7] CHAT_CONTEXTS DOM 매트릭스: ' + report.chatPanelDom.fullOkCount + '/' + report.chatPanelDom.totalContexts + ' OK · 누락 ' + report.chatPanelDom.contextOnlyCount + '건');
+      if (report.chatPanelDom.contextOnlyList.length > 0) console.log('     → 누락 ctxId:', report.chatPanelDom.contextOnlyList.join(', '));
+    }
+  } catch(e) { report.chatPanelDom = { error: String(e) }; }
+  // 5. assertChatFunctionCoverage
+  try {
+    report.chatFnCoverage = window.AIO.assertChatFunctionCoverage && window.AIO.assertChatFunctionCoverage();
+    console.log('[5/7] 채팅 함수 통합: dead=' + (report.chatFnCoverage ? report.chatFnCoverage.deadCodeCount : '?') + ' · 통합 ' + (report.chatFnCoverage ? report.chatFnCoverage.integrationPct + '%' : '?'));
+  } catch(e) { report.chatFnCoverage = { error: String(e) }; }
+  // 6. assertChatAnswerQualityAudit
+  try {
+    report.answerQuality = window.AIO.assertChatAnswerQualityAudit && window.AIO.assertChatAnswerQualityAudit();
+    console.log('[6/7] 답변 품질: 종합 ' + (report.answerQuality ? report.answerQuality.overallScore + '점' : '?'));
+  } catch(e) { report.answerQuality = { error: String(e) }; }
+  // 7. home 채팅 DOM
+  report.homeChatDom = {
+    panel: !!document.getElementById('chat-home'),
+    inp:   !!document.getElementById('chat-home-inp'),
+    btn:   !!document.getElementById('chat-home-btn')
+  };
+  console.log('[7/7] home 채팅 DOM: panel=' + report.homeChatDom.panel + ' inp=' + report.homeChatDom.inp + ' btn=' + report.homeChatDom.btn);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('[AIO diagnose] 완료. 상세 결과: report 변수 또는 콘솔 위 로그 확인');
+  report.finishedAt = new Date().toISOString();
+  // 사용자 권장 조치
+  var actions = [];
+  if (!report.quote || !report.quote.result || !report.quote.result.price) {
+    actions.push('🔴 시세 fetch 실패 — 5분 후 재시도 또는 사이드바 🔄 클릭');
+    if (report.quoteDiag) actions.push('   진단: ' + report.quoteDiag.attempts.length + ' proxy 시도 → 모두 실패');
+  }
+  if (report.chatPanelDom && report.chatPanelDom.contextOnlyCount > 0) {
+    actions.push('⚠ CHAT_CONTEXTS ' + report.chatPanelDom.contextOnlyCount + '건 DOM 부재 (v49.74+ 일부 시정, 잔여는 v49.77+ 작업)');
+  }
+  if (actions.length > 0) {
+    console.log('\n권장 조치:');
+    actions.forEach(function(a){ console.log('  ' + a); });
+  }
+  return report;
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.75 P399 R147: assertChatPanelDomAudit — CHAT_CONTEXTS DOM 매트릭스 정합 검증
 // 사용자 라이브 발견 — home CHAT_CONTEXTS 등록만 하고 DOM 패널 부재 (v49.74 P398).
 // Pattern A 일반화: 모든 ctxId × inline panel DOM 존재 여부 + chatSend 호환성 자동 진단.
@@ -12562,7 +12636,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.75';
+const APP_VERSION = 'v49.76';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
