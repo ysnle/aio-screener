@@ -3,6 +3,15 @@ verified_by: agent
 last_verified: 2026-05-09
 confidence: high
 target_version: v48.97
+
+---
+
+## R135. 4/5차는 감사 함수만으로 완료 금지
+
+- 사용자가 "세밀하게 전수 조사", "4차/5차"를 요구하면 자동 감사 함수 추가만으로 완료 처리하지 않는다.
+- 최소 1회는 실제 `index.html`의 모든 `.page[id]`를 직접 원장화해 텍스트량, 버튼/입력, `data-action`, `data-on-*`, 외부 링크 rel, input 라벨, 표 접근성, live/snap 데이터 싱크, 출처/운영 마커, 표/차트/설명, 날짜형 토큰, 초기 로딩 문구를 페이지별로 확인한다.
+- 원장 결과에서 나온 실제 사용자 문구/기능 결함을 먼저 고친 뒤, `AIO.getFourthFifthPassAudit()` 같은 재발 방지 감사로 게이트에 연결한다.
+- 직접 점검 결과와 수치(예: 페이지 수, action 수, input binding 수)는 BUG-POSTMORTEM/CHANGELOG에 남긴다.
 ---
 
 # AIO Screener — 마스터 룰 (RULES.md)

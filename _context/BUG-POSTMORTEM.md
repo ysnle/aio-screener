@@ -3,10 +3,17 @@ verified_by: agent
 last_verified: 2026-05-26
 confidence: high
 latest_version: v49.70
-latest_P_number: P376
-total_entries: 376
-next_P_number: P377
+latest_P_number: P377
+total_entries: 377
+next_P_number: P378
 ---
+
+## P377 · v49.70 · [P377/R135] Codex 4/5차 직접 전수 원장 + 로딩 문구 실보강
+
+- **문제**: 4/5차가 감사 함수 추가에 치우치면 실제 페이지 텍스트/버튼/데이터 바인딩 전수 점검이 끝났다고 오인될 수 있음.
+- **직접 점검**: `index.html` 21개 `.page[id]`를 순서대로 잘라 텍스트량, 버튼/입력, `data-action`, `data-on-*`, live/snap 데이터 싱크, 출처/운영 마커, 표/차트/설명, 날짜형 토큰, 초기 로딩 문구를 페이지별 원장으로 추출. `data-action` 127개와 입력 바인딩 19개는 모두 핸들러 존재 확인. 중복 ID/빈 버튼/이미지 alt/차트 라벨/나쁜 초기 문구는 0건 확인.
+- **시정**: `target="_blank"` 외부 링크 7개 rel 보강, 라벨 약한 input 3개 aria/placeholder 보강, 초기/동적 사용자 문구의 "로딩/로딩 실패/불러오는 중"을 "수신 대기/요청 중/수신 실패" 계열로 정규화. `fxbond` 과거 타임라인은 `data-aio-archive="true"`로 보관 콘텐츠임을 명시. 숨김 glossary 버튼에 aria/title 라벨 추가.
+- **재발 방지**: `AIO.getFourthFifthPassAudit()` 추가. 4차는 데이터 진실성/출처/최신성 감사, 5차는 기관급·자동 최신화·초보자 직관성 3대 목표를 페이지별 점수화. `AIO.getTableAccessibilityAudit()` + `_aioApplyTableAccessibility()`로 모든 표에 접근 가능한 이름/header semantics 자동 보정. Sidebar row, AutoOps, deployment gate, T551~T558에 연결.
 
 ## P376 · v49.70 · [P376/R132~R134] AI 채팅 고급 기능 자동 진단 audit + 사이드바 10축
 - **시정**: `AIO.assertChatAdvancedFeaturesAudit()` 신설 (10 함수 + 5 통합 + 5 API 자동 진단 + coveragePct 100%). 사이드바 audit row 10번째 (chatAdvanced) — "고급 기능 X% · 함수 X/10 · 🔔X · 👤✓".
@@ -3615,5 +3622,3 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
   12. breadth-divergence (다이버전스 경보)
 - **auditStatus**: 'partial' (1차만, 2차 → v49.40)
 - **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.breadth
-
-

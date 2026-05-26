@@ -2366,35 +2366,54 @@
       deep ? 'inputIssues=' + deep.tiers.interaction.inputBindingIssueCount : 'missing deep review audit');
 
     var fourthFifth = window.AIO && window.AIO.getFourthFifthPassAudit && window.AIO.getFourthFifthPassAudit();
-    _assert('T521 fourth_fifth_pass_audit_shape_v4970: 4/5차 데이터·본질 감사 API shape',
+    _assert('T551 fourth_fifth_pass_audit_shape_v4970: 4/5차 데이터·본질 감사 API shape',
       fourthFifth && fourthFifth.passes && fourthFifth.passes.dataTruth && fourthFifth.passes.goalFit && typeof fourthFifth.issueCount === 'number',
       fourthFifth ? JSON.stringify({ status: fourthFifth.status, score: fourthFifth.score, issues: fourthFifth.issueCount }) : 'missing fourth/fifth audit');
 
-    _assert('T522 fourth_pass_covers_data_pages_v4970: 4차 감사가 데이터 페이지를 직접 집계',
+    _assert('T552 fourth_pass_covers_data_pages_v4970: 4차 감사가 데이터 페이지를 직접 집계',
       fourthFifth && fourthFifth.passes.dataTruth.pageCount === domPageCount && fourthFifth.passes.dataTruth.dataPageCount >= 8,
       fourthFifth ? 'pages=' + fourthFifth.passes.dataTruth.pageCount + ' dataPages=' + fourthFifth.passes.dataTruth.dataPageCount : 'missing fourth/fifth audit');
 
-    _assert('T523 fifth_pass_goal_fit_scores_v4970: 5차 감사가 3대 목표 점수를 페이지별 산출',
+    _assert('T553 fifth_pass_goal_fit_scores_v4970: 5차 감사가 3대 목표 점수를 페이지별 산출',
       fourthFifth && fourthFifth.passes.goalFit && typeof fourthFifth.passes.goalFit.overallScore === 'number' && Array.isArray(fourthFifth.passes.goalFit.weakestPages),
       fourthFifth ? 'overall=' + fourthFifth.passes.goalFit.overallScore + ' weak=' + fourthFifth.passes.goalFit.weakPageCount : 'missing fourth/fifth audit');
 
     var ffRow = document.querySelector('[data-audit-key="fourthFifth"]');
-    _assert('T524 sidebar_fourth_fifth_row_v4970: sidebar audit row [data-audit-key="fourthFifth"] exists',
+    _assert('T554 sidebar_fourth_fifth_row_v4970: sidebar audit row [data-audit-key="fourthFifth"] exists',
       !!ffRow, 'fourthFifth row=' + !!ffRow);
 
     var opsFf = window.AIO && window.AIO.getAutoOpsReadiness && window.AIO.getAutoOpsReadiness();
-    _assert('T525 auto_ops_includes_fourth_fifth_v4970: getAutoOpsReadiness includes fourthFifthPass',
+    _assert('T555 auto_ops_includes_fourth_fifth_v4970: getAutoOpsReadiness includes fourthFifthPass',
       opsFf && opsFf.fourthFifthPass && opsFf.commands && opsFf.commands.fourthFifthPass === 'AIO.getFourthFifthPassAudit()',
       opsFf ? 'hasFourthFifth=' + !!opsFf.fourthFifthPass : 'missing ops');
 
     var gateFf = window.AIO && window.AIO.getDeploymentGateAudit && window.AIO.getDeploymentGateAudit({ strict: false });
-    _assert('T526 deployment_gate_includes_fourth_fifth_v4970: deployment gate includes fourthFifthPass',
+    _assert('T556 deployment_gate_includes_fourth_fifth_v4970: deployment gate includes fourthFifthPass',
       gateFf && Object.prototype.hasOwnProperty.call(gateFf, 'fourthFifthPass'),
       gateFf ? 'hasFourthFifth=' + Object.prototype.hasOwnProperty.call(gateFf, 'fourthFifthPass') : 'missing gate');
 
-    _assert('T527 direct_loading_copy_reduced_v4970: 직접 점검에서 초기 로딩 문구가 deepReview fail로 남지 않음',
+    _assert('T557 direct_loading_copy_reduced_v4970: 직접 점검에서 초기 로딩 문구가 deepReview fail로 남지 않음',
       deep && deep.issueCount === 0,
       deep ? 'issues=' + deep.issueCount + ' title=' + (deep.issues || []).slice(0, 2).join('|') : 'missing deep review audit');
+
+    var tableA11y = window.AIO && window.AIO.getTableAccessibilityAudit && window.AIO.getTableAccessibilityAudit();
+    _assert('T558 table_accessibility_normalizer_v4970: all tables get accessible names/header semantics',
+      tableA11y && tableA11y.issueCount === 0,
+      tableA11y ? 'tables=' + tableA11y.tableCount + ' issues=' + tableA11y.issueCount : 'missing table a11y audit');
+
+    var prevLiveData559 = window._liveData;
+    var macroErr559 = null;
+    try {
+      window._liveData = {};
+      if (typeof window.generateMacroStoryline === 'function') window.generateMacroStoryline();
+    } catch (e) {
+      macroErr559 = e;
+    } finally {
+      window._liveData = prevLiveData559;
+    }
+    _assert('T559 macro_storyline_null_toFixed_guard_v4970: missing live commodities do not crash narrative',
+      typeof window.generateMacroStoryline !== 'function' || macroErr559 === null,
+      macroErr559 ? (macroErr559.message || String(macroErr559)) : 'ok');
   }
 
   // v49.66 P348~P351 R121: AI 채팅 시스템 dead code / partial integration / silent fail 회귀 방지
@@ -2680,9 +2699,67 @@
     _assert('T549 sidebar_chat_advanced_row_v4970: 사이드바 audit row [data-audit-key="chatAdvanced"] DOM 존재',
       !!cafEl, 'cafEl=' + (!!cafEl));
 
-    // T550: APP_VERSION === 'v49.70'
-    _assert('T550 app_version_v4970_final: APP_VERSION === "v49.70"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.70',
+    // T550: APP_VERSION === 'v49.71' (v49.71 MEMO 커버리지 + 신선도)
+    _assert('T550 app_version_v4971_memo: APP_VERSION === "v49.71"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.71',
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
+  // v49.71 P377~P382 R135~R137: SCREENER_DB.memo 커버리지 + 신선도 + 14 CHAT_CONTEXTS 활용 회귀 방지
+  function _testV4971MemoCoverage() {
+    // T551: _aioParseMemoFreshness — 날짜 패턴 파싱 정확도
+    if (typeof window._aioParseMemoFreshness === 'function') {
+      var f1 = window._aioParseMemoFreshness('[04/21] CX9 NIC 2026 출하');
+      var f3 = window._aioParseMemoFreshness('가스 유틸리티');
+      _assert('T551 parse_memo_freshness_v4971: [04/21] / 날짜없음 정확 분류',
+        f1 && f1.hasDate === true && f3 && f3.hasDate === false,
+        'f1=' + (f1 && f1.hasDate) + ' f3=' + (f3 && f3.hasDate));
+    } else {
+      _assert('T551 parse_memo_fn_missing', false, 'fn missing');
+    }
+    // T552: _aioGetMemoForTicker — NVDA hasMemo true / 미등록 fallback msg
+    if (typeof window._aioGetMemoForTicker === 'function') {
+      var nvdaMemo = window._aioGetMemoForTicker('NVDA');
+      var unknownMemo = window._aioGetMemoForTicker('ZZZZZZ');
+      _assert('T552 get_memo_for_ticker_v4971: NVDA hasMemo true / 미등록 fallback',
+        nvdaMemo && (nvdaMemo.hasMemo === true || nvdaMemo.hasMemo === false) && unknownMemo && unknownMemo.hasMemo === false && unknownMemo.fallback,
+        'nvda=' + (nvdaMemo && nvdaMemo.hasMemo) + ' unk=' + (unknownMemo && unknownMemo.hasMemo));
+    } else {
+      _assert('T552 get_memo_fn_missing', false, 'fn missing');
+    }
+    // T553: _fetchTickerDataForChat에 [SCREENER_DB Memo] 라벨 + _aioGetMemoForTicker 통합
+    var chatSrc = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
+    _assert('T553 chat_memo_integration_v4971: _fetchTickerDataForChat [SCREENER_DB Memo] + _aioGetMemoForTicker',
+      chatSrc.indexOf('[SCREENER_DB Memo') >= 0 && chatSrc.indexOf('_aioGetMemoForTicker') >= 0,
+      'label=' + (chatSrc.indexOf('[SCREENER_DB Memo') >= 0) + ' fn=' + (chatSrc.indexOf('_aioGetMemoForTicker') >= 0));
+    // T554: ABSOLUTE RULES 13~14조 (R135/R136)
+    _assert('T554 absolute_rules_13_14_v4971: ABSOLUTE RULES 13~14조 (R135 신선도 + R136 fallback)',
+      chatSrc.indexOf('13. **[SCREENER_DB Memo] 신선도') >= 0 && chatSrc.indexOf('14. **[SCREENER_DB Memo 없음]') >= 0,
+      'r13=' + (chatSrc.indexOf('13. **[SCREENER_DB Memo] 신선도') >= 0) + ' r14=' + (chatSrc.indexOf('14. **[SCREENER_DB Memo 없음]') >= 0));
+    // T555: AIO.assertMemoCoverageAudit + memoCoveragePct ≥ 50 (사용자 정직 질의 1)
+    var mc = window.AIO && typeof window.AIO.assertMemoCoverageAudit === 'function' && window.AIO.assertMemoCoverageAudit();
+    _assert('T555 memo_coverage_audit_v4971: assertMemoCoverageAudit + memoCoveragePct ≥ 50',
+      mc && mc.memoCoveragePct >= 50,
+      mc ? ('memoCov=' + mc.memoCoveragePct + '%') : 'audit missing');
+    // T556: 사용자 질의 2 — chatIntegrated + rulesText 활성
+    _assert('T556 memo_chat_integration_active_v4971: chatIntegrated + rulesText 모두 true (사용자 질의 2)',
+      mc && mc.chatIntegrated === true && mc.rulesText === true,
+      mc ? 'chatInt=' + mc.chatIntegrated + ' rules=' + mc.rulesText : 'audit missing');
+    // T557: 사용자 질의 3 — REGISTRY 매핑 + 미등록 종목 fallback
+    _assert('T557 memo_registry_mapping_v4971: REGISTRY ≥ 100 매핑 + 미등록 fallback (사용자 질의 3)',
+      mc && mc.registryInDb >= 50,
+      mc ? 'regInDb=' + mc.registryInDb : 'audit missing');
+    // T558: 사용자 질의 4 — stalePct < 50% 통제
+    _assert('T558 memo_stale_pct_v4971: stalePct < 50% (사용자 질의 4: 예전 데이터 통제)',
+      mc && mc.stalePct < 50,
+      mc ? 'stale=' + mc.stalePct + '%' : 'audit missing');
+    // T559: 사이드바 audit row 11번째 (memoCoverage) DOM 존재
+    var mcEl = document.querySelector('[data-audit-key="memoCoverage"]');
+    _assert('T559 sidebar_memo_coverage_row_v4971: 사이드바 audit row [data-audit-key="memoCoverage"] DOM 존재',
+      !!mcEl, 'mcEl=' + (!!mcEl));
+    // T560: APP_VERSION === 'v49.71'
+    _assert('T560 app_version_v4971_final: APP_VERSION === "v49.71"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.71',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -3818,6 +3895,7 @@
     try { _testV4968InstitutionalQuality(); } catch(e) { console.error('Group64 error:', e); }
     try { _testV4969Interactive(); } catch(e) { console.error('Group65 error:', e); }
     try { _testV4970Advanced(); } catch(e) { console.error('Group66 error:', e); }
+    try { _testV4971MemoCoverage(); } catch(e) { console.error('Group67 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

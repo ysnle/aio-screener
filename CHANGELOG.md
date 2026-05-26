@@ -14,6 +14,11 @@
 
 **Changes**:
 
+**Codex Addendum - 4/5차 직접 전수 원장 + 실제 UX 보강 (P377/R135)**:
+- 21개 `.page[id]`를 직접 원장화해 텍스트량, 버튼/입력, `data-action`, `data-on-*`, live/snap 데이터 싱크, 출처/운영 마커, 표/차트/설명, 날짜형 토큰, 초기 로딩 문구를 페이지별 점검.
+- `data-action` 127개와 입력 바인딩 19개는 모두 핸들러 존재 확인. `target="_blank"` 7개 rel 보강, 라벨 약한 input 3개 aria/placeholder 보강, 초기/동적 사용자 문구의 "로딩/로딩 실패/불러오는 중"을 "수신 대기/요청 중/수신 실패" 계열로 정규화.
+- `AIO.getFourthFifthPassAudit()` + `AIO.getTableAccessibilityAudit()` 추가: 4차 데이터 진실성/최신성, 5차 기관급·자동 최신화·초보자 직관성 목표 적합성, 표 접근성 자동 보정까지 재발 방지. Sidebar row, AutoOps, deployment gate, T551~T558 연결.
+
 **Phase 1 — 사용자 투자 프로필 (P371/R132)**:
 - `_aioGetUserProfile()` / `_aioSetUserProfile()` — localStorage 영속 (riskTolerance + timeHorizon + preferredAssets + excludedAssets)
 - `_buildUserProfileContext()` — system prompt 자동 생성 + `_getV48IntegratedContext` 자동 호출 → 14 CHAT_CONTEXTS 통합

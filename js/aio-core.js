@@ -925,6 +925,77 @@ window._aioLRU = function(name, cap) {
 // ═══ v48.33: 이벤트 위임 헬퍼 — onclick 다중 문장/조합 패턴 대체 ═══════════
 // onclick="a();b();" 같은 2-statement 패턴을 단일 함수로 이식.
 // 디스패처에서 단일 data-action으로 호출 가능.
+// v49.70 Codex P377/R135: table accessibility normalizer.
+// Direct audit found many data tables without explicit names. Keep table markup
+// understandable for screen readers even when future dynamic renderers add rows.
+window._aioApplyTableAccessibility = function(root) {
+  root = root || document;
+  var fixed = 0;
+  try {
+    Array.prototype.forEach.call(root.querySelectorAll('table'), function(tbl, idx) {
+      if (!tbl.getAttribute('role')) { tbl.setAttribute('role', 'table'); fixed++; }
+      if (!tbl.getAttribute('aria-label') && !tbl.getAttribute('aria-labelledby') && !tbl.getAttribute('title')) {
+        var box = tbl.closest && tbl.closest('.data-widget,.widget,.card,.glass-card,.aio-widget,.section,.page');
+        var heading = box && box.querySelector ? box.querySelector('.widget-title,.card-title,.section-title,.page-title,h1,h2,h3,h4') : null;
+        var label = heading && (heading.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!label) {
+          var page = tbl.closest && tbl.closest('.page[id]');
+          label = page && page.id ? page.id.replace(/^page-/, '') : 'AIO';
+        }
+        tbl.setAttribute('aria-label', label + ' data table ' + (idx + 1));
+        fixed++;
+      }
+      Array.prototype.forEach.call(tbl.querySelectorAll('th:not([scope])'), function(th) {
+        th.setAttribute('scope', 'col');
+        fixed++;
+      });
+      if (!tbl.querySelector('th')) {
+        Array.prototype.forEach.call(tbl.querySelectorAll('tr'), function(tr) {
+          var first = tr.querySelector('td');
+          if (first && !first.getAttribute('role')) {
+            first.setAttribute('role', 'rowheader');
+            fixed++;
+          }
+        });
+      }
+    });
+  } catch(_) {}
+  return fixed;
+};
+
+window.AIO.getTableAccessibilityAudit = function(root) {
+  root = root || document;
+  if (typeof window._aioApplyTableAccessibility === 'function') window._aioApplyTableAccessibility(root);
+  var issues = [];
+  try {
+    Array.prototype.forEach.call(root.querySelectorAll('table'), function(tbl, idx) {
+      if (!tbl.getAttribute('aria-label') && !tbl.getAttribute('aria-labelledby') && !tbl.getAttribute('title')) {
+        issues.push('table ' + (idx + 1) + ': missing accessible name');
+      }
+      if (!tbl.querySelector('th') && !tbl.querySelector('[role="rowheader"]')) {
+        issues.push('table ' + (idx + 1) + ': missing header semantics');
+      }
+    });
+  } catch(e) {
+    issues.push('table accessibility audit error: ' + (e && e.message || e));
+  }
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    issues: issues,
+    tableCount: root.querySelectorAll ? root.querySelectorAll('table').length : 0,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { window._aioApplyTableAccessibility(); });
+  } else {
+    setTimeout(function() { window._aioApplyTableAccessibility(); }, 0);
+  }
+}
+
 window._aioRetryNews = function() {
   if (typeof window.isFetching !== 'undefined') window.isFetching = false;
   if (typeof window.fetchAllNews === 'function') window.fetchAllNews(true);
@@ -2828,13 +2899,15 @@ window.AIO.getFourthFifthPassAudit = function(opts) {
   var market = safe(function() { return window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit({ includeHidden: true }) : null; }, null);
   var action = safe(function() { return window.AIO.getDataActionHandlerAudit ? window.AIO.getDataActionHandlerAudit() : null; }, null);
   var essence = safe(function() { return window.AIO.getEssenceAlignmentAudit ? window.AIO.getEssenceAlignmentAudit(opts) : null; }, null);
+  var tableA11y = safe(function() { return window.AIO.getTableAccessibilityAudit ? window.AIO.getTableAccessibilityAudit(root) : null; }, null);
 
   var hardAudits = [
     { key: 'staticSeedFallback', audit: seed, tag: 'DATA_SNAPSHOT seed fallback' },
     { key: 'liveSymbolsCoverage', audit: live, tag: 'LIVE_SYMBOLS coverage' },
     { key: 'snapshotConsistency', audit: snapshot, tag: 'cross-page snapshot consistency' },
     { key: 'crossPageIndicator', audit: cross, tag: 'indicator consistency' },
-    { key: 'dataActionHandler', audit: action, tag: 'data-action handler' }
+    { key: 'dataActionHandler', audit: action, tag: 'data-action handler' },
+    { key: 'tableAccessibility', audit: tableA11y, tag: 'table accessibility' }
   ];
   hardAudits.forEach(function(item) {
     var count = auditIssueCount(item.audit);
@@ -2928,7 +3001,8 @@ window.AIO.getFourthFifthPassAudit = function(opts) {
           snapshotConsistency: snapshot,
           crossPageIndicator: cross,
           marketCurrentness: market,
-          dataActionHandler: action
+          dataActionHandler: action,
+          tableAccessibility: tableA11y
         }
       },
       goalFit: {
@@ -5902,6 +5976,70 @@ window.AIO.getAnalysisFrameworkCoverageAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.71 P380 R135~R137: assertMemoCoverageAudit — SCREENER_DB memo 커버리지 + 신선도 + REGISTRY 매핑 자동 진단
+// 사용자 정직 질의 4건 시정: (1) 커버리지 (2) MEMO 활용 (3) 없는 종목 fallback (4) 오래된 데이터
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertMemoCoverageAudit = function() {
+  var db = window.SCREENER_DB;
+  var reg = window.AIO_TICKER_NAME_REGISTRY;
+  if (!db) return { status: 'error', issues: ['SCREENER_DB undefined'] };
+  var dbArray = Array.isArray(db) ? db : Object.keys(db).map(function(k) { return db[k]; });
+  var totalRows = dbArray.length;
+  var withMemo = 0, withoutMemo = 0, totalLen = 0;
+  var freshnessBuckets = { fresh: 0, medium: 0, oldish: 0, stale: 0, unknown: 0 };
+  var freshnessSamples = { stale: [], unknown: [] };
+  dbArray.forEach(function(row) {
+    if (!row) return;
+    if (row.memo && typeof row.memo === 'string' && row.memo.length > 0) {
+      withMemo++;
+      totalLen += row.memo.length;
+      try {
+        var fresh = (typeof window._aioParseMemoFreshness === 'function') ? window._aioParseMemoFreshness(row.memo) : null;
+        if (fresh && fresh.confidence) {
+          if (fresh.confidence === 'high') freshnessBuckets.fresh++;
+          else if (fresh.confidence === 'medium') freshnessBuckets.medium++;
+          else if (fresh.confidence === 'low') freshnessBuckets.oldish++;
+          else if (fresh.confidence === 'stale') {
+            freshnessBuckets.stale++;
+            if (freshnessSamples.stale.length < 5) freshnessSamples.stale.push({ sym: row.sym, days: fresh.days });
+          } else {
+            freshnessBuckets.unknown++;
+            if (freshnessSamples.unknown.length < 5) freshnessSamples.unknown.push(row.sym);
+          }
+        }
+      } catch(_) {}
+    } else {
+      withoutMemo++;
+    }
+  });
+  var regEntries = (reg && reg.entries) || {};
+  var regKeys = Object.keys(regEntries).filter(function(k) {
+    var e = regEntries[k];
+    return e && e.en !== '_skip' && k.indexOf('_dup') < 0 && k.indexOf('_skip') < 0;
+  });
+  var dbSyms = {};
+  dbArray.forEach(function(r) { if (r && r.sym) dbSyms[r.sym] = true; });
+  var regInDb = regKeys.filter(function(k) { return dbSyms[k]; }).length;
+  var regNotInDb = regKeys.filter(function(k) { return !dbSyms[k]; });
+  var memoCoveragePct = totalRows > 0 ? Math.round(withMemo / totalRows * 100) : 0;
+  var avgLen = withMemo > 0 ? Math.round(totalLen / withMemo) : 0;
+  var stalePct = withMemo > 0 ? Math.round(freshnessBuckets.stale / withMemo * 100) : 0;
+  var chatFn = (typeof window._fetchTickerDataForChat === 'function') ? window._fetchTickerDataForChat.toString() : '';
+  var chatIntegrated = chatFn.indexOf('_aioGetMemoForTicker') >= 0 && chatFn.indexOf('[SCREENER_DB Memo') >= 0;
+  var rulesText = chatFn.indexOf('R135') >= 0 && chatFn.indexOf('R136') >= 0;
+  return {
+    status: memoCoveragePct >= 90 && chatIntegrated && rulesText && stalePct <= 30 ? 'ok' : (memoCoveragePct >= 50 && chatIntegrated ? 'warn' : 'fail'),
+    totalRows: totalRows, withMemo: withMemo, withoutMemo: withoutMemo, memoCoveragePct: memoCoveragePct,
+    avgMemoLength: avgLen, freshnessBuckets: freshnessBuckets, freshnessSamples: freshnessSamples, stalePct: stalePct,
+    registryTotal: regKeys.length, registryInDb: regInDb,
+    registryNotInDb: regNotInDb.slice(0, 10), registryGapCount: regNotInDb.length,
+    chatIntegrated: chatIntegrated, rulesText: rulesText,
+    note: 'memoCoveragePct ' + memoCoveragePct + '% / stalePct ' + stalePct + '% / chatIntegrated ' + chatIntegrated + ' / R135-R136 rules ' + rulesText,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.70 P375 R132~R134: assertChatAdvancedFeaturesAudit — 사용자 프로필 + 알람 + 다운로드 + 금액/% 시뮬레이션 자동 진단
 // 사용자 정직 요구 "전체 세션 남은 영역과 부분 모두 보강"
 // ─────────────────────────────────────────────────────────────────
@@ -8204,7 +8342,7 @@ window.AIO.getAutoOpsReadiness = function() {
   if (essenceAlignment && essenceAlignment.status === 'fail') issues.push('3대 본질 정렬 fail: ' + essenceAlignment.overallScore + '점 [v49.65/R119]');
   if (fullSurfaceAudit && fullSurfaceAudit.status === 'fail') issues.push(fullSurfaceAudit.issueCount + ' full surface audit issue(s) [P358/R124]');
   if (deepReviewAudit && deepReviewAudit.status === 'fail') issues.push(deepReviewAudit.issueCount + ' deep review issue(s) [P359/R125]');
-  if (fourthFifthPass && fourthFifthPass.status === 'fail') issues.push(fourthFifthPass.issueCount + ' fourth/fifth pass issue(s) [P360/R126]');
+  if (fourthFifthPass && fourthFifthPass.status === 'fail') issues.push(fourthFifthPass.issueCount + ' fourth/fifth pass issue(s) [P377/R135]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -9985,6 +10123,21 @@ window._aioRefreshAuditWidget = function() {
         }
       } catch(e) { cafEl.textContent = '⚠ chatAdvanced error'; }
     }
+    // v49.71 P380 R135~R137: MEMO 커버리지 + 신선도 자동 진단 (사용자 정직 질의 4건 시정)
+    var mcEl = container.querySelector('[data-audit-key="memoCoverage"]');
+    if (mcEl) {
+      try {
+        var mc = window.AIO && window.AIO.assertMemoCoverageAudit && window.AIO.assertMemoCoverageAudit();
+        if (mc) {
+          var iconC = mc.status === 'ok' ? '✓' : mc.status === 'warn' ? '⚠' : '✗';
+          var colorC = mc.status === 'ok' ? 'var(--data-green)' : mc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var staleStr = mc.stalePct > 30 ? ' · 🔴 stale ' + mc.stalePct + '%' : mc.stalePct > 10 ? ' · 🟡 stale ' + mc.stalePct + '%' : ' · 🟢 신선';
+          mcEl.innerHTML = '<span style="color:' + colorC + ';">' + iconC + '</span> MEMO <b>' + mc.withMemo + '/' + mc.totalRows + '</b> (' + mc.memoCoveragePct + '%)' + staleStr + ' · 통합 ' + (mc.chatIntegrated ? '✓' : '✗');
+        } else {
+          mcEl.innerHTML = '<span style="color:var(--text-muted);">— memoCoverage audit 미가용</span>';
+        }
+      } catch(e) { mcEl.textContent = '⚠ memoCoverage error'; }
+    }
   } catch(e) { /* 위젯 갱신 실패는 silent */ }
 };
 // 페이지 로드 후 자동 1회 + 5분마다 갱신
@@ -11706,7 +11859,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.70';
+const APP_VERSION = 'v49.71';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

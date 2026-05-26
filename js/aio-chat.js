@@ -2313,6 +2313,25 @@ async function _fetchTickerDataForChat(tickers) {
         }
       } catch(_shErr) {}
 
+      // v49.71 P377 R135 신규: SCREENER_DB.memo + 신선도 자동 주입 (사용자 정직 질의 "MEMO 활용 + 신선도" 시정)
+      try {
+        var _memoData = (typeof _aioGetMemoForTicker === 'function') ? _aioGetMemoForTicker(t) : null;
+        if (_memoData) {
+          if (_memoData.hasMemo) {
+            results.push('  [SCREENER_DB Memo · ' + _memoData.freshness.label + (_memoData.freshness.dateStr ? ' · ' + _memoData.freshness.dateStr : '') + ']');
+            results.push('    ' + _memoData.memo);
+            if (_memoData.freshness.confidence === 'stale' || _memoData.freshness.confidence === 'low') {
+              results.push('  ⚠️ [Memo 가이드] 위 memo는 ' + _memoData.freshness.days + '일 전 작성 — AI 답변 시 "이 memo는 ' + _memoData.freshness.days + '일 전 데이터이므로 최근 변경 확인 권장" 명시 의무 (R135). [SEC 8-K] / [News] 최신 데이터 우선 인용.');
+            } else if (_memoData.freshness.confidence === 'unknown') {
+              results.push('  ⚠️ [Memo 가이드] memo 헤더에 날짜 패턴 없음 — 신선도 불명. AI 답변 시 "memo 작성일 미상" 명시 + [News] 최신 데이터 우선.');
+            }
+          } else {
+            results.push('  [SCREENER_DB Memo] ❌ ' + _memoData.fallback);
+            results.push('  ⚠️ [Memo 가이드] 위 종목은 수동 memo 미작성 — [SEC 10-K] / [Wikipedia] / [Naver] 3 소스 폴백만으로 분석. dataConfidence: medium. AI 답변 시 "정성 분석 한계 — 외부 직접 확인 권장" 경고 (R135/R136).');
+          }
+        }
+      } catch(_memoErr) {}
+
       // v49.66 P348 R121 신규 (#16 리스크): Risk Factors — SEC 10-K Item 1A 직접 URL (fetchSECRiskFactors Dead code 해소)
       try {
         var rf = riskFactorsPromise ? await riskFactorsPromise : null;
@@ -2456,7 +2475,7 @@ async function _fetchTickerDataForChat(tickers) {
         '⚠️ **답변 의무 (R122/R127/R128)**: (1) 위 시장 환경 도입 인용 (2) **Bull (X%) / Base (Y%) / Bear (Z%)** 3 시나리오 분기 + 확신도 명시 (X+Y+Z=100) (3) 이모지 🔴🟡🟢 표준 사용 (4) 데이터 출처 [Source · 기준일] 표기 (5) 기관급 프레임 (Bridgewater/Druckenmiller/Howard Marks/Buffett/Ackman/Soros/GS GIR/MS Cyclical) 중 1~3개 명시 인용 (R126).\n\n';
     }
   } catch(_hdrErr) {}
-  return '\n\n' + _mktHeader + '【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n8. 종목 답변 도입은 반드시 위 【현재 시장 환경】 헤더 인용 — "지금 VIX X · F&G Y 환경에서 [종목]은..." 패턴 사용. 시장 환경과 무관한 정적 분석 금지 (R122 시장 흐름 유기적 도입 의무). 시세 조회 실패 종목은 ❌ 표시 + suggestedAction 인용 후 "실시간 데이터 미수신 — 일반론적 분석만 가능" 답변.\n9. 종목/시장 분석 답변은 반드시 **Bull/Base/Bear 3 시나리오 분기 + 각각 확신도(확률 %)** 명시 의무 (R127). 형식: "**📈 Bull (확신도 X%)**: [트리거 조건] → [목표 시나리오] / **🟡 Base (Y%)**: [현재 환경 유지 시] → [예상] / **📉 Bear (Z%)**: [악화 트리거] → [하방 시나리오]". X+Y+Z = 100. 단일 시나리오만 답변 금지.\n10. **시각 단서 표준 (R128)**: 이모지 규칙 — VIX/F&G/위험 신호는 🔴(공포·위험·매도) / 🟡(중립·주의) / 🟢(안정·기회·매수). 핵심 결론은 **굵게**. 데이터 출처는 [Source: SEC/Yahoo/FMP · 기준일: YYYY-MM-DD] 형식 명시 의무. 한 줄 결론 → 3 핵심 → 시나리오 분기 → 액션 구조 강제.\n11. **기관급 프레임 인용 의무 (R126)**: 답변에 위 【기관급 분석 프레임워크】 8개 중 페이지 주제와 가장 관련 깊은 1~3개 명시 인용. "Bridgewater 4-Quadrant 기준 현재 위치는 ~ / Druckenmiller Overlay 유동성 시그널은 ~ / 따라서 ~" 패턴.\n12. **데이터 소스 우선순위 명문화 (R128)**: 모든 수치 인용 시 출처 우선순위 — **1순위: _liveSnap() 실시간** (시세/VIX/금리/달러/유가, < 5분) → **2순위: _closeSnap() 일별 종가** (SPX/NASDAQ/DOW 분석 기준) → **3순위: DATA_SNAPSHOT 폴백** (실시간/종가 미수신 시 정적, 신선도 명시 의무) → **4순위: SEC/FMP/Naver/Finnhub fetched** (종목별 5분 캐시). 데이터 인용 시 "Source: [layer] · 기준일: YYYY-MM-DD" 명시 의무. 폴백값 인용 시 "(폴백)" 명시 + 학습 데이터 추정 금지.\n\n📋 17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- ⚠ 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
+  return '\n\n' + _mktHeader + '【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n8. 종목 답변 도입은 반드시 위 【현재 시장 환경】 헤더 인용 — "지금 VIX X · F&G Y 환경에서 [종목]은..." 패턴 사용. 시장 환경과 무관한 정적 분석 금지 (R122 시장 흐름 유기적 도입 의무). 시세 조회 실패 종목은 ❌ 표시 + suggestedAction 인용 후 "실시간 데이터 미수신 — 일반론적 분석만 가능" 답변.\n9. 종목/시장 분석 답변은 반드시 **Bull/Base/Bear 3 시나리오 분기 + 각각 확신도(확률 %)** 명시 의무 (R127). 형식: "**📈 Bull (확신도 X%)**: [트리거 조건] → [목표 시나리오] / **🟡 Base (Y%)**: [현재 환경 유지 시] → [예상] / **📉 Bear (Z%)**: [악화 트리거] → [하방 시나리오]". X+Y+Z = 100. 단일 시나리오만 답변 금지.\n10. **시각 단서 표준 (R128)**: 이모지 규칙 — VIX/F&G/위험 신호는 🔴(공포·위험·매도) / 🟡(중립·주의) / 🟢(안정·기회·매수). 핵심 결론은 **굵게**. 데이터 출처는 [Source: SEC/Yahoo/FMP · 기준일: YYYY-MM-DD] 형식 명시 의무. 한 줄 결론 → 3 핵심 → 시나리오 분기 → 액션 구조 강제.\n11. **기관급 프레임 인용 의무 (R126)**: 답변에 위 【기관급 분석 프레임워크】 8개 중 페이지 주제와 가장 관련 깊은 1~3개 명시 인용. "Bridgewater 4-Quadrant 기준 현재 위치는 ~ / Druckenmiller Overlay 유동성 시그널은 ~ / 따라서 ~" 패턴.\n12. **데이터 소스 우선순위 명문화 (R128)**: 모든 수치 인용 시 출처 우선순위 — **1순위: _liveSnap() 실시간** (시세/VIX/금리/달러/유가, < 5분) → **2순위: _closeSnap() 일별 종가** (SPX/NASDAQ/DOW 분석 기준) → **3순위: DATA_SNAPSHOT 폴백** (실시간/종가 미수신 시 정적, 신선도 명시 의무) → **4순위: SEC/FMP/Naver/Finnhub fetched** (종목별 5분 캐시). 데이터 인용 시 "Source: [layer] · 기준일: YYYY-MM-DD" 명시 의무. 폴백값 인용 시 "(폴백)" 명시 + 학습 데이터 추정 금지.\n13. **[SCREENER_DB Memo] 신선도 인용 의무 (R135)**: 답변에 SCREENER_DB Memo 인용 시 반드시 위 [SCREENER_DB Memo · X일 전] 라벨의 일수 표기. 30일+ stale memo는 "이 memo는 N일 전 데이터 — 최근 [SEC 8-K]/[News]로 검증 후 인용" 경고 의무. 90일+ stale 또는 confidence:stale 표시 시 "memo만으로 결론 금지 — 외부 확인 필수" 강제. 날짜 미상 (unknown) memo는 "작성일 불명 — 보조 데이터로만 활용" 명시.\n14. **[SCREENER_DB Memo 없음] 종목 fallback 의무 (R136)**: SCREENER_DB.memo가 없는 종목 (위 ❌ 표시)은 [SEC 10-K]/[Wikipedia]/[Naver]/[News] 4 소스 폴백만 사용. 답변에 "이 종목은 수동 memo 미작성 — dataConfidence:medium" 명시 의무 + "memo 등록 종목 (예: NVDA/AAPL) 대비 정성 분석 한계 — 외부 확인 권장" 경고 강제.\n\n📋 17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- ⚠ 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
 }
 
 // ── v34.2: 기업 내부 비교 분석 — 비즈니스 모델·수익 구조·해자 심층 데이터 ──
@@ -3684,6 +3703,76 @@ if (typeof setTimeout !== 'undefined' && typeof window !== 'undefined') {
     setInterval(function() { try { _aioCheckAlerts(); } catch(_) {} }, 60 * 1000);
   }, 30000);
 }
+
+// v49.71 P377 R135: SCREENER_DB.memo 신선도 파싱 — memo 헤더의 날짜 패턴 grep + days_since_update 계산
+// 사용자 정직 질의 "MEMO가 있더라도 예전의 데이터면 어떡해?" 시정
+function _aioParseMemoFreshness(memo) {
+  if (!memo || typeof memo !== 'string') return { hasDate: false, days: null, confidence: 'low', label: '날짜 미상' };
+  // 패턴: [04/21] / [2026-04-21] / 04/21 (Citi) / (2026-04-21) / [Citi+JPM 04/21] / (4/29 게시)
+  var patterns = [
+    /\[(\d{4}-\d{2}-\d{2})\]/,                  // [2026-04-21]
+    /\((\d{4}-\d{2}-\d{2})\)/,                  // (2026-04-21)
+    /(\d{4}\.\d{2}\.\d{2})/,                    // 2026.04.21
+    /\[[^\]]*?(\d{1,2})\/(\d{1,2})[^\]]*?\]/,   // [Citi+JPM 04/21] or [04/21]
+    /\((\d{1,2})\/(\d{1,2})\s*[게시발표]\)/,    // (4/29 게시)
+    /(\d{1,2})\/(\d{1,2})\s*[게시발표]/         // 4/29 게시
+  ];
+  var year = new Date().getFullYear(); // 2026
+  for (var i = 0; i < patterns.length; i++) {
+    var m = memo.match(patterns[i]);
+    if (m) {
+      var dateStr;
+      if (m[1] && m[1].length >= 8 && /\d{4}/.test(m[1])) {
+        // ISO 형식 (2026-04-21 또는 2026.04.21)
+        dateStr = m[1].replace(/\./g, '-');
+      } else if (m[1] && m[2]) {
+        // MM/DD 형식 — 현재 연도 가정
+        dateStr = year + '-' + String(m[1]).padStart(2, '0') + '-' + String(m[2]).padStart(2, '0');
+      }
+      if (dateStr) {
+        var parsedDate = new Date(dateStr);
+        if (!isNaN(parsedDate.getTime())) {
+          var days = Math.floor((Date.now() - parsedDate.getTime()) / 86400000);
+          // 미래 날짜 (연도 추정 오류) → 1년 빼서 재계산
+          if (days < 0) {
+            parsedDate.setFullYear(parsedDate.getFullYear() - 1);
+            days = Math.floor((Date.now() - parsedDate.getTime()) / 86400000);
+          }
+          var confidence = days <= 7 ? 'high' : days <= 30 ? 'medium' : days <= 90 ? 'low' : 'stale';
+          var label = days <= 7 ? '🟢 신선 (' + days + '일 전)' :
+                      days <= 30 ? '🟡 보통 (' + days + '일 전)' :
+                      days <= 90 ? '🟠 오래됨 (' + days + '일 전)' :
+                      '🔴 stale (' + days + '일 전 — 외부 확인 권장)';
+          return { hasDate: true, dateStr: dateStr, days: days, confidence: confidence, label: label };
+        }
+      }
+    }
+  }
+  return { hasDate: false, days: null, confidence: 'unknown', label: '⚪ 날짜 미상 (헤더 파싱 실패)' };
+}
+window._aioParseMemoFreshness = _aioParseMemoFreshness;
+
+// v49.71 P378 R135: SCREENER_DB ticker row 자동 조회 + memo + 신선도 라벨 반환
+function _aioGetMemoForTicker(ticker) {
+  if (!ticker) return null;
+  var db = window.SCREENER_DB || [];
+  var row = Array.isArray(db) ? db.find(function(r) { return r && r.sym === ticker; }) : (db[ticker] || null);
+  if (!row || !row.memo) {
+    return { ticker: ticker, hasMemo: false, fallback: 'SCREENER_DB 미등록 또는 memo 부재 — SEC/Wikipedia/Naver 폴백 의존 (dataConfidence:medium)' };
+  }
+  var freshness = _aioParseMemoFreshness(row.memo);
+  return {
+    ticker: ticker,
+    hasMemo: true,
+    memo: row.memo,
+    memoLength: row.memo.length,
+    freshness: freshness,
+    sector: row.sector || null,
+    industry: row.industry || null,
+    mcap: row.mcap || null
+  };
+}
+window._aioGetMemoForTicker = _aioGetMemoForTicker;
 
 // v49.70 P371 R132: 사용자 투자 프로필 — 위험성향 + 시간축 + 선호 자산 (localStorage 영속)
 // 14 CHAT_CONTEXTS의 system prompt에 자동 주입 → AI가 개인화된 답변 제공
