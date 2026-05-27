@@ -1100,6 +1100,23 @@ window._aioFundSearchFill = function(preset) {
   if (inp) inp.value = preset;
   if (typeof window.fundamentalSearch === 'function') window.fundamentalSearch();
 };
+// v49.77 P411 R154: 데이터 새로고침 핸들러 — callClaude 실패 시 사용자가 즉시 액션 가능
+window._aioRefreshAllData = function() {
+  try {
+    if (window.AIO && typeof window.AIO.forceRefreshAllData === 'function') {
+      window.AIO.forceRefreshAllData();
+      if (typeof showToast === 'function') showToast('🔄 전체 데이터 새로고침 시작 — 1~2초 대기 후 재질문 권장', 4000);
+    } else if (typeof window.fetchLiveQuotes === 'function') {
+      window.fetchLiveQuotes();
+      if (typeof showToast === 'function') showToast('🔄 시세 새로고침 시작', 3000);
+    } else {
+      if (typeof showToast === 'function') showToast('⚠ 새로고침 함수 미가용 — 페이지 새로고침 (Ctrl+Shift+R) 권장', 4000);
+    }
+  } catch(e) {
+    if (typeof showToast === 'function') showToast('⚠ 새로고침 오류: ' + (e && e.message || e), 4000);
+  }
+};
+
 // v49.72 R139: 채팅 답변에 표시되는 "📊 [종목] 재무 차트 보기" 버튼 핸들러
 // — fundamental 페이지로 이동 + 자동 검색 + 7 차트 자동 렌더 (P386 inline chart 대체)
 window._aioShowFundamentalChart = function(ticker) {
@@ -3861,6 +3878,11 @@ window.AIO.assertTickerRegistryCompleteness = function() {
     if (window.AIO.isTickerRegistryPlaceholder && window.AIO.isTickerRegistryPlaceholder(t, e)) return;
     registered[t.toUpperCase()] = true;
   });
+  try {
+    (window.SCREENER_DB || []).forEach(function(r) {
+      if (r && r.sym) registered[String(r.sym).toUpperCase()] = true;
+    });
+  } catch(_) {}
   // SCR_KEYWORD_ALIASES는 한글/영문 모두 키로 존재 — 중복 방지 위해 ticker별 unique 집계
   var allTickers = {};
   var themeCount = 0;
@@ -4027,6 +4049,160 @@ window.AIO.getThemeFetchCoverageAudit = function(themeId) {
     generatedAt: new Date().toISOString()
   };
 };
+
+// Theme/Trend deep audit: universe, weights, quote readiness, registry, and beginner UX.
+window.AIO.getThemeTrendDeepAudit = function() {
+  function uniq(arr) {
+    var seen = {};
+    return (arr || []).filter(Boolean).map(String).filter(function(x) {
+      if (seen[x]) return false;
+      seen[x] = true;
+      return true;
+    });
+  }
+  function registryMap() {
+    var out = {};
+    try {
+      (window.SCREENER_DB || []).forEach(function(r) {
+        if (r && r.sym) out[String(r.sym).toUpperCase()] = r;
+      });
+    } catch(_) {}
+    return out;
+  }
+  function krCodeMap() {
+    var out = {};
+    function add(sym) {
+      sym = String(sym || '').toUpperCase();
+      var m = sym.match(/^(\d{6})\.(KS|KQ)$/);
+      if (m && !out[m[1]]) out[m[1]] = sym;
+    }
+    try { (window.SCREENER_DB || []).forEach(function(r) { add(r && r.sym); }); } catch(_) {}
+    try { (window.KR_SUB_THEMES || []).forEach(function(t) { (t.tickers || []).forEach(add); (t.leaders || []).forEach(add); Object.keys(t.weights || {}).forEach(add); }); } catch(_) {}
+    return out;
+  }
+  var registry = registryMap();
+  var codeToSym = krCodeMap();
+  var liveSet = {};
+  try { (window.LIVE_SYMBOLS || []).forEach(function(s) { liveSet[String(s).toUpperCase()] = true; }); } catch(_) {}
+  function normalizeKrCode(code) {
+    code = String(code || '').trim();
+    if (!code) return '';
+    if (/\.(KS|KQ)$/i.test(code)) return code.toUpperCase();
+    return codeToSym[code] || (code + '.KS');
+  }
+  function collectTheme(raw, source, idOverride) {
+    raw = raw || {};
+    var weights = {};
+    var symbols = [];
+    if (Array.isArray(raw)) {
+      var insight = (window.KR_THEME_INSIGHTS && idOverride && window.KR_THEME_INSIGHTS[idOverride]) || null;
+      raw.forEach(function(item) {
+        var sym = normalizeKrCode(item && item.code);
+        if (!sym) return;
+        symbols.push(sym);
+        weights[sym] = Number(item.w) || 0;
+      });
+      raw = {
+        id: idOverride,
+        name: idOverride,
+        tickers: symbols,
+        leaders: symbols.slice(0, 3),
+        weights: weights,
+        desc: insight && (insight.insight || insight.macro || insight.macroKey || insight.upCondition || insight.breakSignal || (insight.breakSignals && insight.breakSignals[0])) || ''
+      };
+    }
+    weights = raw.weights || {};
+    symbols = uniq([raw.etf, raw.compositeBase].concat(raw.leaders || [], raw.leaderHighlight || [], raw.tickers || [], Object.keys(weights || {})));
+    var wsum = Object.keys(weights || {}).reduce(function(sum, k) { return sum + (Number(weights[k]) || 0); }, 0);
+    return {
+      source: source,
+      id: raw.id || idOverride || raw.name || 'unknown',
+      name: raw.nameKr || raw.name || raw.id || idOverride || 'unknown',
+      symbols: symbols,
+      symbolCount: symbols.length,
+      weights: weights,
+      weightSum: wsum,
+      hasDesc: !!(raw.desc || raw.insight || raw.catalyst || raw.macro || raw.nameKr),
+      hasLeaders: Array.isArray(raw.leaders) && raw.leaders.length > 0,
+      etf: raw.etf || null
+    };
+  }
+  var themes = [];
+  try { (window.THEME_MAP || []).forEach(function(t) { themes.push(collectTheme(t, 'THEME_MAP')); }); } catch(_) {}
+  try { (window.SUB_THEMES || []).forEach(function(t) { themes.push(collectTheme(t, 'SUB_THEMES')); }); } catch(_) {}
+  try { (window.KR_SUB_THEMES || []).forEach(function(t) { themes.push(collectTheme(t, 'KR_SUB_THEMES')); }); } catch(_) {}
+  try {
+    Object.keys(window.KR_THEME_MAP || {}).forEach(function(id) {
+      themes.push(collectTheme(window.KR_THEME_MAP[id], 'KR_THEME_MAP', id));
+    });
+  } catch(_) {}
+  var symbolThemes = {};
+  themes.forEach(function(t) {
+    t.symbols.forEach(function(s) {
+      var key = String(s).toUpperCase();
+      symbolThemes[key] = symbolThemes[key] || [];
+      symbolThemes[key].push(t.id);
+    });
+  });
+  var uniqueSymbols = Object.keys(symbolThemes);
+  var weightIssues = themes.filter(function(t) {
+    var hasWeights = Object.keys(t.weights || {}).length > 0;
+    return hasWeights && Math.abs(t.weightSum - 100) > 1;
+  }).map(function(t) { return { source: t.source, id: t.id, name: t.name, weightSum: t.weightSum }; });
+  var thinThemes = themes.filter(function(t) { return t.symbolCount < 3; })
+    .map(function(t) { return { source: t.source, id: t.id, name: t.name, symbolCount: t.symbolCount, symbols: t.symbols }; });
+  var uxIssues = themes.filter(function(t) { return !t.hasDesc || !t.hasLeaders; })
+    .map(function(t) { return { source: t.source, id: t.id, name: t.name, hasDesc: t.hasDesc, hasLeaders: t.hasLeaders }; });
+  var missingLive = uniqueSymbols.filter(function(s) { return !liveSet[s]; });
+  var profileSet = {};
+  try {
+    (window.AIO.collectPageDataSymbols('themes', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
+    (window.AIO.collectPageDataSymbols('theme-detail', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
+    (window.AIO.collectPageDataSymbols('kr-themes', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
+  } catch(_) {}
+  var missingProfileSymbols = uniqueSymbols.filter(function(s) { return !profileSet[s]; });
+  var missingRegistry = uniqueSymbols.filter(function(s) {
+    if (registry[s]) return false;
+    if (/^(XL|SMH|SOXX|QQQ|SPY|IWM|DIA|KRE|XBI|URA|BOTZ|HACK|ICLN|DRIV|IYZ|XSD|CRAK|ITA|GDX|LIT|JETS|OIH|AMLP|CIBR|IBIT|BITO|FBTC|ARKB|BITB|HODL|BTC-|ETH-|KRW=|\^)/.test(s)) return false;
+    return true;
+  });
+  var standard = ['XLK','XLF','XLV','XLY','XLP','XLE','XLI','XLB','XLU','XLRE','XLC'];
+  var sectorSet = {};
+  try { (window.RRG_SECTORS || []).forEach(function(s) { sectorSet[String(s.sym || '').toUpperCase()] = true; }); } catch(_) {}
+  var missingSectors = standard.filter(function(s) { return !sectorSet[s]; });
+  var pricedNow = uniqueSymbols.filter(function(s) {
+    var d = window._liveData && window._liveData[s];
+    return d && isFinite(Number(d.price));
+  });
+  var issues = [];
+  if (missingSectors.length) issues.push({ type: 'missing-standard-sector-etf', count: missingSectors.length, sample: missingSectors });
+  if (weightIssues.length) issues.push({ type: 'theme-weight-sum', count: weightIssues.length, sample: weightIssues.slice(0, 10) });
+  if (thinThemes.length) issues.push({ type: 'thin-theme-universe', count: thinThemes.length, sample: thinThemes.slice(0, 10) });
+  if (uxIssues.length) issues.push({ type: 'beginner-ux-metadata', count: uxIssues.length, sample: uxIssues.slice(0, 10) });
+  if (missingProfileSymbols.length) issues.push({ type: 'missing-theme-profile-symbols', count: missingProfileSymbols.length, sample: missingProfileSymbols.slice(0, 30) });
+  if (missingRegistry.length) issues.push({ type: 'missing-registry-symbols', count: missingRegistry.length, sample: missingRegistry.slice(0, 30) });
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    issueCount: issues.length,
+    counts: {
+      themes: themes.length,
+      uniqueSymbols: uniqueSymbols.length,
+      pricedNow: pricedNow.length,
+      priceCoveragePct: uniqueSymbols.length ? Math.round(pricedNow.length / uniqueSymbols.length * 100) : 0
+    },
+    issues: issues,
+    weightIssues: weightIssues,
+    thinThemes: thinThemes,
+    uxIssues: uxIssues,
+    missingLiveSymbols: missingLive,
+    missingThemeProfileSymbols: missingProfileSymbols,
+    missingRegistrySymbols: missingRegistry,
+    missingStandardSectorEtfs: missingSectors,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.assertThemeTrendDeepAudit = window.AIO.getThemeTrendDeepAudit;
 
 // ─────────────────────────────────────────────────────────────────
 // v49.32 M2 근본 수정: assertChatResponseAccuracy — AI 응답 post-hoc 검증
@@ -9224,6 +9400,37 @@ function _aioPushSymbol(out, sym) {
   out.push(sym);
 }
 
+function _aioResolveKrThemeSymbol(raw) {
+  raw = String(raw || '').trim().toUpperCase();
+  if (!raw) return '';
+  if (/\.(KS|KQ)$/.test(raw) || raw.indexOf('=') > 0 || raw.charAt(0) === '^') return raw;
+  if (!/^\d{6}$/.test(raw)) return raw;
+  try {
+    var found = null;
+    (window.SCREENER_DB || []).some(function(r) {
+      var sym = r && String(r.sym || '').toUpperCase();
+      if (sym && sym.indexOf(raw + '.') === 0) {
+        found = sym;
+        return true;
+      }
+      return false;
+    });
+    if (found) return found;
+    (window.KR_SUB_THEMES || []).some(function(t) {
+      return (t.tickers || []).some(function(sym) {
+        sym = String(sym || '').toUpperCase();
+        if (sym.indexOf(raw + '.') === 0) {
+          found = sym;
+          return true;
+        }
+        return false;
+      });
+    });
+    if (found) return found;
+  } catch(_) {}
+  return raw + '.KS';
+}
+
 function _aioPushThemeSymbols(out, theme) {
   if (!theme) return;
   _aioPushSymbol(out, theme.etf);
@@ -9244,7 +9451,9 @@ function _aioPushInputSymbol(out, id) {
 function _aioCollectDynamicPageSymbols(pageId, scope) {
   var id = String(pageId || '').replace(/^page-/, '') || 'home';
   var out = [];
-  var limit = (scope && scope.symbolLimit) || (id.indexOf('kr') === 0 || id === 'korea' ? 180 : 260);
+  var isThemePage = id === 'themes' || id === 'theme-detail';
+  var isKrThemePage = id === 'korea' || id === 'kr-home' || id === 'kr-themes' || id === 'kr-tech' || id === 'kr-technical';
+  var limit = (scope && scope.symbolLimit) || (isThemePage ? 650 : (isKrThemePage ? 360 : 260));
   if (id === 'signal') {
     _aioPushInputSymbol(out, 'signal-lockout-symbol');
   }
@@ -9261,11 +9470,11 @@ function _aioCollectDynamicPageSymbols(pageId, scope) {
     (window.THEME_MAP || []).forEach(function(theme) { _aioPushThemeSymbols(out, theme); });
     (window.SUB_THEMES || []).forEach(function(theme) { _aioPushThemeSymbols(out, theme); });
   }
-  if (id === 'korea' || id === 'kr-home' || id === 'kr-themes' || id === 'kr-tech') {
+  if (isKrThemePage) {
     (window.KR_SUB_THEMES || []).forEach(function(theme) { _aioPushThemeSymbols(out, theme); });
     var krMap = window.KR_THEME_MAP || {};
     Object.keys(krMap).forEach(function(key) {
-      (krMap[key] || []).forEach(function(item) { _aioPushSymbol(out, item && (item.yahoo || item.sym || item.code)); });
+      (krMap[key] || []).forEach(function(item) { _aioPushSymbol(out, _aioResolveKrThemeSymbol(item && (item.yahoo || item.sym || item.code))); });
     });
   }
   return _aioUniq(out).slice(0, limit);

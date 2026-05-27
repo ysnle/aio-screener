@@ -2,11 +2,41 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.76
-latest_P_number: P409
-total_entries: 409
-next_P_number: P410
+latest_version: v49.77
+latest_P_number: P414
+total_entries: 414
+next_P_number: P415
 ---
+
+## P414 · v49.77 · [P414] AI 채팅 진입~답변~렌더 chain의 silent fail 13 영역 정직 매핑
+
+- **사용자 정직 질의**: "AI 채팅/답변과 관련해서 전체 시스템 심층 점검한거야?"
+- **정직 응답**: 아니오. audit 함수만 늘리고 실제 라이브 검증은 사용자 1회뿐. 13 미점검 영역 매핑.
+- **v49.77 시정 5 critical**: chatSend silent return 5+ / callClaude 친화 안내 / 답변 액션 버튼 / 환각 시 재요청 / 데이터 ✗ 배너.
+
+## P413 · v49.77 · [P413/R155] 데이터 ✗ / 환각 검출 시 답변 위 액션 버튼 부재
+
+- **문제**: 답변 본문에 "실시간 시세 미수신" 안내 있어도 사용자가 다음 액션 (새로고침/재질문) 알기 어려움.
+- **시정**: 답변 위 amber 배너 + 🔄 새로고침 + 🔁 재질문 버튼 자동 삽입 (시세/재무 ✗ 시 + 환각 self-confess 시).
+- **재발 방지**: R155.
+
+## P412 · v49.77 · [P412/R155] 환각 검출 시 단순 경고 → 즉시 재요청 UX 추가
+
+- **문제**: v49.74 P397에서 환각 경고 박스 추가했으나 사용자가 답변 신뢰도 잃은 상황에서 다음 액션 명시 부재.
+- **시정**: 환각 경고 박스 내부에 🔄 시세 새로고침 + 🔁 데이터 받고 재질문 버튼 추가.
+- **재발 방지**: R155.
+
+## P411 · v49.77 · [P411/R154] callClaude 최종 실패 시 사용자 friendly 안내 부재
+
+- **문제**: 재시도 (v46.6) 후 최종 실패 시 raw 에러 메시지만 표시 → 사용자가 무엇을 해야 할지 모름.
+- **시정**: 에러 분류 (401/429/500/network/other) 별 친화 안내 + 권장 조치 ul + 외부 링크 + 콘솔 명령 + 인라인 액션 버튼 (재시도/새로고침).
+- **재발 방지**: R154.
+
+## P410 · v49.77 · [P410/R153] chatSend silent return 5+ 경로 사용자 피드백 부재
+
+- **문제**: `if (!ctx) return;` / `if (state.streaming) return;` / `if (!inp) return;` / `if (!q) return;` 모두 silent → 사용자가 "왜 안 되지?" 좌절.
+- **시정**: 각 early return에 toast 알림 (3~6초) 또는 input border 강조 (빈 입력). console.warn 로깅 추가 — 개발자 디버깅.
+- **재발 방지**: R153.
 
 ## P409 · v49.76 · [P409] kr-supply 컨텍스트 확인 — aio-chat.js L1121 이미 정의됨
 

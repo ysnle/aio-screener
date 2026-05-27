@@ -6,6 +6,24 @@ target_version: v48.97
 
 ---
 
+## R153. chatSend silent return 모든 경로 사용자 피드백 의무 (v49.77)
+
+- `if (!ctx) return;` / `if (state.streaming) return;` / `if (!inp) return;` / `if (!q) return;` 모두 사용자 피드백 의무.
+- toast 알림 (3~6초) 또는 input border 강조 (빈 입력 시).
+- console.warn 로깅 추가 — 개발자 디버깅 가능.
+
+## R154. callClaude 최종 실패 시 friendly 안내 + 자가 진단 가이드 (v49.77)
+
+- 에러 분류 (401/429/500/network/other) 별 친화 안내.
+- 권장 조치 ul 리스트 + 외부 링크 + 콘솔 명령 가이드.
+- 액션 버튼: "🔁 같은 질문 재시도" + "🔄 데이터 새로고침" 인라인 삽입.
+
+## R155. 데이터 ✗ / 환각 검출 시 답변 위 액션 버튼 배너 의무 (v49.77)
+
+- 시세 ✗ 또는 재무 ✗ 시 답변 위에 amber 경고 배너 + 새로고침/재질문 버튼.
+- 환각 self-confess 검출 시 빨간 경고 박스 + 동일 액션 버튼.
+- 사용자가 답변 신뢰 못 할 때 즉시 액션 가능한 UX.
+
 ## R151. 시세 데이터 ✗ 시 답변에 가격 수치 절대 금지 — HARD STOP (v49.76)
 
 - `_liveStatusCS` 미수신 시 system prompt에 🚨 HARD STOP 7 조항 강제 주입:

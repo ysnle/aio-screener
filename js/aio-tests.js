@@ -3038,9 +3038,48 @@
     var hasModalChatCss = htmlSrc.indexOf('R152') >= 0 || htmlSrc.indexOf('max-width: calc(100vw - 80px)') >= 0 || htmlSrc.indexOf('width: 100% !important; max-width: 100vw !important') >= 0;
     _assert('T601 mobile_chat_layout_fix_v4976: 모바일 .aio-chat / .acp-bubble 100vw 미디어 쿼리 (R152)',
       hasModalChatCss, 'hasCss=' + hasModalChatCss);
-    // T602: APP_VERSION === 'v49.76'
-    _assert('T602 app_version_v4976_final: APP_VERSION === "v49.76"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.76',
+    // T602: APP_VERSION === 'v49.76' (v49.77 갱신 — 하위 호환)
+    _assert('T602 app_version_v4976_final: APP_VERSION === "v49.76" or 신규',
+      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // v49.77 P410~P414 R153~R155: AI 채팅 silent fail 전면 시정 회귀 방지
+  // ─────────────────────────────────────────────────────────────────
+  function _testV4977UserFeedbackChain() {
+    var chatSendSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+    // T603: chatSend silent return 5+ 경로 모두 사용자 피드백 (toast / inline border)
+    _assert('T603 chatsend_silent_feedback_v4977: chatSend 모든 silent return에 toast/inline 피드백',
+      chatSendSrc.indexOf('채팅 컨텍스트 미정의') >= 0 && chatSendSrc.indexOf('이전 답변 스트리밍 중') >= 0 && chatSendSrc.indexOf('채팅 입력창 DOM 부재') >= 0,
+      'ctx=' + (chatSendSrc.indexOf('채팅 컨텍스트 미정의') >= 0) + ' streaming=' + (chatSendSrc.indexOf('이전 답변 스트리밍 중') >= 0));
+    // T604: callClaude 실패 시 에러 분류 + friendly 안내
+    _assert('T604 call_claude_error_classification_v4977: chatSend onError에 401/429/500 분류 + 권장 조치 ul',
+      chatSendSrc.indexOf('API 키 무효') >= 0 && chatSendSrc.indexOf('rate.*limit') >= 0 && chatSendSrc.indexOf('Anthropic 서버 일시 오류') >= 0,
+      'class401=' + (chatSendSrc.indexOf('API 키 무효') >= 0));
+    // T605: _aioRefreshAllData 핸들러 정의
+    _assert('T605 refresh_all_data_handler_v4977: window._aioRefreshAllData 함수 정의',
+      typeof window._aioRefreshAllData === 'function',
+      'typeof=' + typeof window._aioRefreshAllData);
+    // T606: 환각 검출 시 액션 버튼 (🔄 시세 새로고침 / 🔁 데이터 받고 재질문)
+    _assert('T606 hallucination_action_buttons_v4977: 환각 경고 박스 내 _aioRefreshAllData + chatFromChip 액션 버튼',
+      chatSendSrc.indexOf('시세 새로고침') >= 0 && chatSendSrc.indexOf('데이터 받고 재질문') >= 0,
+      'refresh=' + (chatSendSrc.indexOf('시세 새로고침') >= 0));
+    // T607: 데이터 ✗ 시 답변 위 amber 배너
+    _assert('T607 data_missing_banner_v4977: chatSend에 data-missing-banner + amber 배경',
+      chatSendSrc.indexOf('aio-data-missing-banner') >= 0 && chatSendSrc.indexOf('동일 질문 재시도') >= 0,
+      'banner=' + (chatSendSrc.indexOf('aio-data-missing-banner') >= 0));
+    // T608: 에러 메시지에 자가진단 명령 (AIO.diagnose) 안내
+    _assert('T608 error_guide_diagnose_v4977: callClaude 실패 안내에 AIO.diagnose() 명령 포함',
+      chatSendSrc.indexOf('AIO.diagnose') >= 0,
+      'diagnose=' + (chatSendSrc.indexOf('AIO.diagnose') >= 0));
+    // T609: 빈 입력 시 inline border 강조 (toast spam 회피)
+    _assert('T609 empty_input_border_v4977: 빈 입력 시 input.style.borderColor 강조',
+      chatSendSrc.indexOf("inp.style.borderColor = '#ffa31a'") >= 0,
+      'borderColor=' + (chatSendSrc.indexOf("inp.style.borderColor = '#ffa31a'") >= 0));
+    // T610: APP_VERSION === 'v49.77'
+    _assert('T610 app_version_v4977_final: APP_VERSION === "v49.77"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.77',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -4184,6 +4223,7 @@
     try { _testV4974KrMultiTurn(); } catch(e) { console.error('Group70 error:', e); }
     try { _testV4975PatternsAudits(); } catch(e) { console.error('Group71 error:', e); }
     try { _testV4976UserFrustrationFix(); } catch(e) { console.error('Group72 error:', e); }
+    try { _testV4977UserFeedbackChain(); } catch(e) { console.error('Group73 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

@@ -4262,17 +4262,40 @@ function _suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers
 window._suggestFollowUpQuestions = _suggestFollowUpQuestions;
 
 async function chatSend(ctxId) {
+  // v49.77 P410 R153: chatSend silent return 5+ 경로 모두 사용자 피드백 (사용자 좌절 시정)
+  // 사용자 발견 — home 채팅 안 됨 등 silent fail 경험. 모든 early return에 toast/inline 안내.
   var ctx = CHAT_CONTEXTS[ctxId];
-  if (!ctx) return;
+  if (!ctx) {
+    if (typeof showToast === 'function') showToast('⚠ 채팅 컨텍스트 미정의: ' + ctxId + ' — 새로고침 후 재시도', 5000);
+    if (typeof console !== 'undefined' && console.warn) console.warn('[AIO chatSend] CHAT_CONTEXTS[' + ctxId + '] undefined. 정의된 ctxIds:', Object.keys(CHAT_CONTEXTS || {}).join(','));
+    return;
+  }
   var state = getChatState(ctxId);
-  if (state.streaming) return;
+  if (state.streaming) {
+    if (typeof showToast === 'function') showToast('⏳ 이전 답변 스트리밍 중 — 완료 후 재시도', 3000);
+    return;
+  }
 
   var inp = document.getElementById('chat-' + ctxId + '-inp');
   var btn = document.getElementById('chat-' + ctxId + '-btn');
-  if (!inp) return;
+  if (!inp) {
+    // DOM 부재 — v49.74 P398/R146 케이스. 사용자에게 명확 안내.
+    if (typeof showToast === 'function') showToast('⚠ 채팅 입력창 DOM 부재: chat-' + ctxId + '-inp — 페이지 새로고침 권장', 6000);
+    if (typeof console !== 'undefined' && console.error) console.error('[AIO chatSend] DOM input missing for ctxId=' + ctxId + '. CHAT_CONTEXTS 등록 후 DOM 패널 누락 가능성 (P398/R146).');
+    return;
+  }
 
   var q = inp.value.trim();
-  if (!q) return;
+  if (!q) {
+    // 빈 입력 — inline 미세 안내 (toast는 spam되므로 input border 강조만)
+    try {
+      inp.style.transition = 'border-color 0.3s';
+      inp.style.borderColor = '#ffa31a';
+      setTimeout(function(){ inp.style.borderColor = ''; }, 800);
+      inp.focus();
+    } catch(_) {}
+    return;
+  }
 
   // v48.94 P160: fundamental 자동 분석 재귀 상한 (fundamentalSearch → chatSend → ... loop)
   if (ctxId === 'fundamental') {
@@ -4608,6 +4631,27 @@ async function chatSend(ctxId) {
         badgeEl.textContent = modelLabel;
         aiBubble.parentNode.appendChild(badgeEl);
 
+        // v49.77 P413 R155: 데이터 ✗ 시 답변 위 액션 버튼 배너 자동 삽입
+        try {
+          var _liveMissing = _liveStatusCS && (_liveStatusCS.indexOf('미수신') >= 0 || _liveStatusCS.indexOf('✗') >= 0);
+          var _financialMissing = !tickerDataStr;
+          if ((_liveMissing || _financialMissing) && aiBubble && aiBubble.parentNode) {
+            var _safeQ2 = escHtml(q).replace(/'/g, '\\\'');
+            var _dataMissBox = document.createElement('div');
+            _dataMissBox.className = 'aio-data-missing-banner';
+            _dataMissBox.style.cssText = 'margin:6px 0;padding:8px 10px;background:rgba(255,163,26,0.10);border:1px solid var(--data-amber);border-radius:6px;color:var(--text-primary);font-size:12px;line-height:1.5;';
+            var _missList = [];
+            if (_liveMissing) _missList.push('실시간 시세');
+            if (_financialMissing && detectedTickers && detectedTickers.length > 0) _missList.push('재무 데이터');
+            _dataMissBox.innerHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:4px;">⚠ 데이터 부재 — ' + _missList.join(' / ') + ' 미수신</div>' +
+              '<div style="color:var(--text-muted);font-size:11px;margin-bottom:6px;">위 답변은 정성 프레임워크만 적용 — 정량 수치 인용 시 환각 위험. 데이터 새로고침 후 재질문 권장.</div>' +
+              '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+              '<button data-action="_aioRefreshAllData" style="font-size:11px;padding:4px 10px;background:rgba(61,219,165,0.15);border:1px solid var(--data-green);color:var(--data-green);border-radius:4px;cursor:pointer;font-weight:600;">🔄 데이터 새로고침</button>' +
+              '<button data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + _safeQ2 + '" style="font-size:11px;padding:4px 10px;background:rgba(0,212,255,0.15);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;font-weight:600;">🔁 동일 질문 재시도</button>' +
+              '</div>';
+            aiBubble.parentNode.insertBefore(_dataMissBox, aiBubble);
+          }
+        } catch(_dmErr) {}
         // v46.6: 데이터 신뢰도 배지
         var _srcBadge = document.createElement('div');
         _srcBadge.style.cssText = 'font-size:11px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:var(--surface-1);border-radius:4px;';
@@ -4650,14 +4694,19 @@ async function chatSend(ctxId) {
               if (_hall.suspicionScore >= 7 && typeof console !== 'undefined' && console.warn) {
                 console.warn('[AIO/R86] High hallucination risk:', _hall);
               }
-              // v49.74 P397 R145: 학습 데이터 자기 인용 (self-confess) 패턴 검출 시 강제 빨간 경고 박스
+              // v49.74 P397 R145 + v49.77 P412 R155: 학습 데이터 자기 인용 (self-confess) 패턴 검출 시 강제 빨간 경고 박스 + 액션 버튼
               if (_hall.requiresWarningBox && aiBubble && aiBubble.parentNode) {
+                var _safeQ = escHtml(q).replace(/'/g, '\\\'');
                 var _hallBox = document.createElement('div');
                 _hallBox.className = 'aio-hallucination-warning';
-                _hallBox.style.cssText = 'margin:6px 0;padding:8px 10px;background:rgba(255,91,80,0.12);border:1px solid #ff5b50;border-radius:6px;color:#ff5b50;font-size:11px;line-height:1.5;font-weight:600;';
-                _hallBox.innerHTML = '⚠️ <strong>환각 경고 (v49.74 R145)</strong>: AI 답변에 "학습 데이터" / "기억 속" / "내가 알기로" 등 자기 환각 자백 표현이 감지됐습니다. 이 답변의 가격·시점 정량 정보는 신뢰하지 마세요. 시스템 프롬프트에 주입된 데이터만 인용해야 합니다.<br/>' +
-                  '<span style="color:var(--text-muted);font-weight:500;">검출 패턴: ' + _hall.patterns.join(' · ') + '</span><br/>' +
-                  '<span style="color:var(--text-muted);font-weight:500;">권장 조치: 실시간 시세 새로고침 후 재질문 (사이드바 → 🔄) 또는 시스템 프롬프트의 [Price]/[News] 블록 인용 여부 확인.</span>';
+                _hallBox.style.cssText = 'margin:6px 0;padding:10px 12px;background:rgba(255,91,80,0.12);border:1px solid #ff5b50;border-radius:6px;color:#ff5b50;font-size:12px;line-height:1.5;';
+                _hallBox.innerHTML = '<div style="font-weight:700;margin-bottom:4px;">⚠️ 환각 경고 (v49.74 R145)</div>' +
+                  '<div style="color:#f87171;font-weight:500;margin-bottom:4px;">AI 답변에 "학습 데이터" / "기억 속" / "2025년 초" 등 자기 환각 자백 표현이 감지됐습니다. 이 답변의 가격·시점 정량 정보는 신뢰하지 마세요.</div>' +
+                  '<div style="color:var(--text-muted);font-weight:500;font-size:11px;">검출 패턴: ' + _hall.patterns.join(' · ') + '</div>' +
+                  '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">' +
+                  '<button data-action="_aioRefreshAllData" style="font-size:11px;padding:4px 10px;background:rgba(61,219,165,0.15);border:1px solid var(--data-green);color:var(--data-green);border-radius:4px;cursor:pointer;font-weight:600;">🔄 시세 새로고침</button>' +
+                  '<button data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + _safeQ + '" style="font-size:11px;padding:4px 10px;background:rgba(0,212,255,0.15);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;font-weight:600;">🔁 데이터 받고 재질문</button>' +
+                  '</div>';
                 aiBubble.parentNode.insertBefore(_hallBox, aiBubble);
               }
             } else {
@@ -4909,7 +4958,36 @@ async function chatSend(ctxId) {
       var loadEl = document.getElementById('chat-' + ctxId + '-loading');
       if (loadEl) { var loadWrap = loadEl.closest('.acp-msg') || loadEl.parentNode; if (loadWrap && loadWrap.parentNode) loadWrap.parentNode.removeChild(loadWrap); }
 
-      chatAppendMsg(ctxId, 'ai', '' + _aioSafeMD(errMsg));  // v48.94 P158
+      // v49.77 P411 R154: callClaude 최종 실패 시 friendly 안내 + 자가 진단 가이드 (사용자 좌절 시정)
+      // 에러 유형 분류: 401 API key / 429 rate limit / 5xx network / overloaded / other
+      var _errCat, _errIcon, _errGuide;
+      if (/401|unauthorized|invalid.*key|API.*key/i.test(errMsg)) {
+        _errCat = 'API 키 무효'; _errIcon = '🔑';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>사이드바 → "Claude API 키" 입력 (<code>sk-ant-api03-…</code> 형식)</li><li><a href="https://console.anthropic.com" target="_blank" style="color:#00d4ff;">console.anthropic.com</a>에서 키 발급 또는 만료 확인</li><li>v49.45 키 백업 복원: 콘솔 <code>AIO.recoverApiKeysFromIdb()</code></li></ul>';
+      } else if (/429|rate.*limit|too many/i.test(errMsg)) {
+        _errCat = 'API 사용량 한도 초과'; _errIcon = '⏱';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>1분 후 재시도 (Anthropic rate limit 회복 대기)</li><li>console.anthropic.com에서 사용량/한도 확인</li><li>모델 변경: Sonnet → Haiku (사이드바 모델 선택)</li></ul>';
+      } else if (/500|502|503|529|overloaded|server.*error/i.test(errMsg)) {
+        _errCat = 'Anthropic 서버 일시 오류'; _errIcon = '⚠';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>1~2분 후 재시도 (Anthropic 일시 부하)</li><li><a href="https://status.anthropic.com" target="_blank" style="color:#00d4ff;">status.anthropic.com</a> 상태 확인</li><li>모델 변경: Sonnet-Thinking → Sonnet → Haiku 순서로 fallback 권장</li></ul>';
+      } else if (/network|fetch|cors/i.test(errMsg)) {
+        _errCat = '네트워크 오류'; _errIcon = '📡';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>인터넷 연결 확인</li><li>Cloudflare Worker proxy 상태 확인 (corsproxy/allorigins)</li><li>콘솔 <code>AIO.diagnose()</code> 실행 후 결과 확인</li></ul>';
+      } else {
+        _errCat = '알 수 없는 오류'; _errIcon = '❓';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>콘솔 (F12) 에러 메시지 확인</li><li>콘솔 <code>AIO.diagnose()</code> 실행 후 권장 조치 확인</li><li>페이지 새로고침 (Ctrl+Shift+R)</li></ul>';
+      }
+      var _errBox = '<div style="padding:10px 12px;background:rgba(248,113,113,0.08);border:1px solid #f87171;border-radius:6px;color:var(--text-primary);font-size:12px;line-height:1.5;">' +
+        '<div style="font-size:13px;font-weight:700;color:#ff5b50;margin-bottom:4px;">' + _errIcon + ' ' + _errCat + ' — 답변 생성 실패</div>' +
+        '<div style="color:var(--text-muted);font-family:var(--font-mono);font-size:11px;margin-bottom:6px;padding:4px 6px;background:rgba(0,0,0,0.2);border-radius:3px;overflow-x:auto;">' + escHtml(errMsg).slice(0, 200) + '</div>' +
+        '<div style="font-size:11px;font-weight:600;color:var(--text-secondary);">권장 조치:</div>' +
+        _errGuide +
+        '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">' +
+        '<button data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + escHtml(q).replace(/'/g, '\\\'') + '" style="font-size:11px;padding:4px 10px;background:rgba(0,212,255,0.12);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;">🔁 같은 질문 재시도</button>' +
+        '<button data-action="_aioRefreshAllData" style="font-size:11px;padding:4px 10px;background:rgba(61,219,165,0.12);border:1px solid var(--data-green);color:var(--data-green);border-radius:4px;cursor:pointer;">🔄 데이터 새로고침</button>' +
+        '</div>' +
+        '</div>';
+      chatAppendMsg(ctxId, 'ai', _errBox);
     },
     // opts — v31.3 적응형 모델 선택 + v34.5 심층 분석 토큰 확장 + v49.57 P318 web_search
     { modelKey: selectedModelKey, maxTokens: (singleDeepStr || deepCompareStr || _shouldDeepAnalyze) ? 16000 : undefined, webSearch: _useClaudeWebSearch }

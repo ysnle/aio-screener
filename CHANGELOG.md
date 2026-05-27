@@ -6,6 +6,42 @@
 
 ---
 
+## v49.77 — AI 채팅 silent fail 전면 시정 + 친화 안내 + 액션 버튼 (사용자 "전체 시스템 심층 점검?") (2026-05-26)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 질의 "AI 채팅/답변과 관련해서 전체 시스템 심층 점검한거야? 문제가 될 법한 요소들 전부 조사했어?" → 정직 응답으로 13 미점검 영역 매핑 + CRITICAL 5건 실제 시정.
+
+**Changes**:
+
+1. **P410/R153 chatSend silent return 5+ 경로 모두 사용자 피드백**
+   - `if (!ctx) return;` → toast "채팅 컨텍스트 미정의" + console.warn
+   - `if (state.streaming) return;` → toast "이전 답변 스트리밍 중 — 완료 후 재시도"
+   - `if (!inp) return;` → toast "채팅 입력창 DOM 부재" + console.error (P398/R146 케이스)
+   - `if (!q) return;` → input border amber pulse + focus (toast spam 회피)
+
+2. **P411/R154 callClaude 최종 실패 friendly 안내**
+   - 에러 분류 (401 API 키 / 429 rate limit / 500 server / network / other) 5 카테고리
+   - 권장 조치 ul + 외부 링크 (console.anthropic.com, status.anthropic.com) + AIO.diagnose() 명령
+   - 인라인 액션 버튼: 🔁 같은 질문 재시도 + 🔄 데이터 새로고침
+   - `_aioRefreshAllData` 핸들러 신설
+
+3. **P412~P413/R155 데이터 ✗ / 환각 검출 시 답변 위 액션 버튼 배너**
+   - 시세 ✗ 또는 재무 ✗ 시 답변 위에 amber 경고 배너 자동 삽입
+   - 환각 self-confess 검출 시 빨간 박스 내부에 🔄 + 🔁 액션 버튼 추가
+
+4. **P414 13 미점검 영역 정직 매핑** — transparency
+
+5. **Phase 4 동기화** — R153~R155 + P410~P414 + T603~T610 8 신규 (Group73) + 7곳 sync
+
+**Verification**:
+- 빈 입력 후 전송 → input border 호박색 pulse
+- API 키 미설정 + 전송 → 빨간 안내 박스 + 사이드바 강조
+- 시세 ✗ 상태에서 종목 질문 → 답변 위 amber 배너 + 🔄/🔁 버튼
+- AIO.runTests().filter(t => t.id >= 'T603') → 8 PASS
+
+---
+
 ## v49.76 — 시세 fetch 근본 보강 + 가격 환각 HARD STOP + 모바일 + AIO.diagnose() (2026-05-26)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

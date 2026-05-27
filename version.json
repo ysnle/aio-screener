@@ -1,5 +1,5 @@
 {
-  "version": "v49.76",
-  "built": "2026-05-26T19:00:00+09:00",
-  "note": "v49.76: 사용자 좌절 'AI 채팅 제발 제대로 좀 쓰자' 응답 — audit 그만 추가하고 실제 작동 시정. (1) P405 dynamicTickerLookup proxy 3→5 확장 (codetabs 1순위 + thingproxy + cors-sh) + 진단 로깅 window._aioTickerLookupDiag + timeout 12s→8s + 모든 proxy 실패 시 console.warn. (2) P406/R151 시세 ✗ 시 가격 환각 HARD STOP 7 조항 강제 — _liveStatusCS 미수신 검출 시 system prompt에 🚨🚨🚨 강제 주입 (모든 가격 수치 절대 금지 + 학습 연도/자기 환각 자백 금지 + 올바른 답변 형식 명시). (3) P407/R152 모바일 채팅 레이아웃 fix — .aio-chat 100vw + .acp-bubble max-width: calc(100vw - 80px) + chip wrap + 폰트 11px 통일. (4) P408 AIO.diagnose(ticker) 통합 진단 명령 — 1줄로 7 항목 자동 실행 + console 가시화 + report 반환. (5) Phase 5 R151~R152 + P405~P409 + T597~T602 + 동기화 7곳."
+  "version": "v49.77",
+  "built": "2026-05-26T20:30:00+09:00",
+  "note": "v49.77: 사용자 정직 질의 '전체 시스템 심층 점검?' 응답 — audit 그만 늘리고 실제 사용자 좌절 시정. (1) P410/R153 chatSend silent return 5+ 경로 모두 사용자 피드백 — toast/inline border + console.warn. (2) P411/R154 callClaude 최종 실패 friendly 안내 — 5 에러 분류 + 권장 조치 + AIO.diagnose 가이드 + 인라인 액션 버튼. _aioRefreshAllData 핸들러 신설. (3) P412~P413/R155 데이터 ✗ / 환각 검출 시 답변 위 액션 버튼 배너 — amber 배너 (시세/재무 ✗) + 빨간 박스 액션 (환각). (4) P414 13 미점검 영역 정직 매핑. R153~R155 + P410~P414 + T603~T610 + 동기화 7곳."
 }
