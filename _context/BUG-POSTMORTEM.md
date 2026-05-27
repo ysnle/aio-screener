@@ -2,11 +2,42 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.78
-latest_P_number: P421
-total_entries: 421
-next_P_number: P422
+latest_version: v49.79
+latest_P_number: P427
+total_entries: 427
+next_P_number: P428
 ---
+
+## P427 · v49.79 · [P427/R164] Claude API 비용 누적 추적 + 가시화 부재
+
+- **문제**: 사용자 정직 요구 — "API 비용 누적 추적 부재" v49.78 잔여 6건 중 LOW priority.
+- **시정**: `_aioTrackApiUsage({model, inputTokens, outputTokens})` 신설 — callClaude 응답 후 자동 호출. daily / lifetime 누적 + 30일+ 자동 정리. Anthropic 가격 (Sonnet $3/$15 · Haiku $0.25/$1.25 per 1M tok) 적용.
+- **콘솔**: `AIO.getApiUsage()` 즉시 조회 (오늘/7일/lifetime).
+
+## P426 · v49.79 · [P426/R163] 멀티탭 race condition + localStorage storage 이벤트 부재
+
+- **문제**: 사용자 정직 요구 — "멀티탭 race condition" v49.78 잔여. API 키를 한 탭에서 변경하면 다른 탭은 즉시 인지 못함.
+- **시정**: `window.addEventListener('storage', ...)` 등록. API 키 (`aio_*_key`) / 사용자 프로필 / 알람 변경 감지 시 다른 탭 toast + audit widget 자동 갱신.
+
+## P425 · v49.79 · [P425/R162] _fetchTickerDataForChat 17 promise schema 변경 내성 부재
+
+- **문제**: Yahoo/SEC/Finnhub/Naver API 응답 schema 변경 시 silent crash 또는 부분 데이터 silent 무시.
+- **시정**: `_aioValidateFetchResult(result, requiredFields, sourceName)` 신설 — 필수 필드 검증 + partial / invalid 분류. degrade 메시지 생성 헬퍼.
+
+## P424 · v49.79 · [P424/R161] saveChatEntry localStorage QuotaExceededError silent fail
+
+- **문제**: 기존 `_saveChatHistory`에 quota catch 있으나 silent (사용자 인지 불가). 50건 축소도 실패 시 더 공격적 처리 부재.
+- **시정**: 3단계 prune (CHAT_HISTORY_MAX → 50 → 10) + 각 단계 사용자 toast (6s / 10s / 15s) + API 키 백업 권장 안내.
+
+## P423 · v49.79 · [P423/R160] kr-macro hardcoded fedRate '3.50-3.75' + 정적 시점 토큰 잔존
+
+- **문제**: Explore agent 진단 — kr-macro에 hardcoded `fedRate '3.50-3.75'` + "2026.03 이란 전쟁" / "2026.04 JPM 리포트" 정적 시점 토큰. R150 위반.
+- **시정**: kr-macro context 진입부에 통합 staleness 경고 추가. DATA_SNAPSHOT._updated 기준 N일 전 표시. "2026.03/2026.04" 시점 분석은 historical anchor 명시.
+
+## P422 · v49.79 · [P422/R159] ticker / options _currentTickerId null + _liveData 미수신 가드 부실
+
+- **문제**: ticker context는 null guard 있으나 사용자 친화 부족 ("페이지 진입 ticker 없음"). _liveData 미수신 시 HARD STOP 명시 부재. options context는 더 약함.
+- **시정**: ticker context — null 시 친화 안내 (예시 ticker) + _liveData 미수신 시 "✗ 모든 $ 가격 인용 금지 HARD STOP" 강제. options context도 동일 패턴.
 
 ## P421 · v49.78 · [P421] AI 채팅 코드 단위 정밀 진단 5 CRITICAL bug 일괄 시정
 

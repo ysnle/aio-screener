@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.78 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.79 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4011,7 +4011,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.78</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.79</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12552,9 +12552,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.78"></script>
-  <script src="./js/aio-data.js?v=49.78"></script>
-  <script src="./js/aio-ui.js?v=49.78"></script>
+  <script src="./js/aio-core.js?v=49.79"></script>
+  <script src="./js/aio-data.js?v=49.79"></script>
+  <script src="./js/aio-ui.js?v=49.79"></script>
 
   <script>
 
@@ -14145,13 +14145,31 @@ function _getChatHistory() {
 function _saveChatHistory(history) {
   // 최대 개수 초과 시 오래된 것부터 삭제
   while (history.length > CHAT_HISTORY_MAX) history.shift();
-  try { localStorage.setItem(CHAT_HISTORY_LS, JSON.stringify(history)); }
+  try { localStorage.setItem(CHAT_HISTORY_LS, JSON.stringify(history)); return true; }
   catch(e) {
-    // QuotaExceededError 시 강제 50건으로 축소 후 재시도
+    // v49.79 P424/R161: QuotaExceededError 강화 처리 — 자동 prune + 사용자 toast 알림 (silent fail 차단)
+    var isQuotaExceeded = (e && (e.name === 'QuotaExceededError' || e.code === 22 || /quota/i.test(String(e.message || ''))));
     try {
       while (history.length > 50) history.shift();
       localStorage.setItem(CHAT_HISTORY_LS, JSON.stringify(history));
-    } catch(_){}
+      if (isQuotaExceeded && !window._aioQuotaWarningShown) {
+        window._aioQuotaWarningShown = true;
+        if (typeof showToast === 'function') showToast('⚠ 채팅 기록 용량 초과 — 자동 정리 (50건 유지). 키 백업 권장 (AIO.exportApiKeys())', 6000);
+        if (typeof console !== 'undefined' && console.warn) console.warn('[AIO v49.79 P424] localStorage quota exceeded — chat history pruned to 50.');
+      }
+      return true;
+    } catch(e2) {
+      try {
+        while (history.length > 10) history.shift();
+        localStorage.setItem(CHAT_HISTORY_LS, JSON.stringify(history));
+        if (typeof showToast === 'function') showToast('🔴 저장공간 심각 부족 — 채팅 기록 10건만 유지. AIO.exportApiKeys() 즉시 실행!', 10000);
+        if (typeof console !== 'undefined' && console.error) console.error('[AIO v49.79 P424] localStorage critical — backup API keys NOW.');
+      } catch(e3) {
+        if (typeof showToast === 'function') showToast('🔴 저장공간 완전 소진 — 채팅 저장 불가. localStorage 수동 정리 필요.', 15000);
+        if (typeof console !== 'undefined' && console.error) console.error('[AIO v49.79 P424] localStorage save failed completely.', e3);
+      }
+      return false;
+    }
   }
 }
 
@@ -15606,7 +15624,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.78"></script>
+<script src="./js/aio-chat.js?v=49.79"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17826,10 +17844,14 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
       var s = _liveSnap();
       var fresh = s._freshness;
       return '당신은 종목 심층 분석 전문가입니다. "기업 분석" / "종목 상세" 페이지에서 대화하고 있습니다.\n\n' +
-        // v49.58 R106: 활성 종목 라이브 가격 동적 주입 (themes 패턴 미러)
+        // v49.58 R106 + v49.79 P422/R159: 활성 종목 가드 강화 — null + _liveData 없을 때 명확 안내
         (function() {
           var ticker = window._currentTickerId || null;
-          if (!ticker) return '【현재 종목】 페이지 진입 ticker 없음. 사용자 메시지의 ticker로 분석.\n\n';
+          if (!ticker) {
+            return '【현재 종목: 미선택】 사용자가 ticker 페이지 진입 안 함 또는 _currentTickerId 미설정.\n' +
+              '【답변 가이드】 사용자 메시지에 ticker (예: NVDA, AAPL, 005930.KS, 한국어 별명) 감지 시 _fetchTickerDataForChat 자동 17 소스 fetch.\n' +
+              '【시점 ticker 부재 시 답변 형식】 "어떤 종목 분석을 원하시나요? 예시: NVDA / 삼성전자 / 005930.KS" — 추측 환각 금지.\n\n';
+          }
           var ld = (window._liveData || {})[ticker] || {};
           var price = ld.price ? '$' + Number(ld.price).toFixed(2) : '—';
           var pct = ld.pct != null ? (' (' + (ld.pct>=0?'+':'') + Number(ld.pct).toFixed(2) + '%)') : '';
@@ -17839,9 +17861,11 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
             var e = reg.entries[ticker];
             nameInfo = ' (' + (e.kr || '') + ' · ' + (e.en || '') + ')';
           }
-          return '【현재 종목: ' + ticker + nameInfo + ' · ' + price + pct + '】\n' +
-            '※ 위 가격은 라이브 fetch. 분석 시 학습 데이터 환각 절대 금지 (ABSOLUTE RULES 5조).\n' +
-            '※ 사용자 질문에서 다른 ticker 감지 시 _fetchTickerDataForChat이 자동 6 소스 fetch 추가.\n\n';
+          // v49.79 P422: _liveData 미수신 시 명시적 HARD STOP 경고 추가
+          var liveStatus = ld.price ? '✓ 라이브 fetch' : '✗ 시세 미수신 — 모든 $ 가격 인용 금지 (HARD STOP)';
+          return '【현재 종목: ' + ticker + nameInfo + ' · ' + price + pct + '】 ' + liveStatus + '\n' +
+            '※ ' + (ld.price ? '위 가격은 라이브 fetch. 분석 시 학습 데이터 환각 절대 금지 (ABSOLUTE RULES 5조 + 17조).' : '시세 ✗ 상태 — 정량 가격 분석 불가, 정성 프레임워크 (Weinstein Stage / RSI / 패턴 인식)만 적용.') + '\n' +
+            '※ 사용자 질문에서 다른 ticker 감지 시 _fetchTickerDataForChat 자동 17 소스 fetch 추가.\n\n';
         })() +
         '【시장 환경 (신선도: ' + fresh + ')】\n' +
         '• S&P 500: ' + s.spx + ' | VIX: ' + s.vix + ' | DXY: ' + s.dxy + ' | 10Y: ' + (s.tnx || '—') + '%\n\n' +
@@ -17938,11 +17962,17 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
       var skew = (ld['^SKEW'] && ld['^SKEW'].price) || snap.skew || null;
       var ticker = window._currentTickerId || null;
       var tickerBlock = '';
+      // v49.79 P422/R159: options ticker null guard 강화 — 사용자 친화 안내 + 시세 미수신 표시
       if (ticker) {
         var tld = ld[ticker] || {};
-        tickerBlock = '【현재 종목: ' + ticker + ' · 옵션 분석 대상】\n' +
-          '• 기초자산 가격: $' + (tld.price ? Number(tld.price).toFixed(2) : '—') + (tld.pct != null ? ' (' + (tld.pct>=0?'+':'') + Number(tld.pct).toFixed(2) + '%)' : '') + '\n' +
-          '※ 옵션 체인 상세 (Strike별 OI/Volume/IV) 사용자가 명시 입력 필요. 실시간 옵션 체인 fetch는 페이지 데이터 의존.\n\n';
+        var liveStatus = tld.price ? '✓ 라이브' : '✗ 미수신';
+        tickerBlock = '【현재 종목: ' + ticker + ' · 옵션 분석 대상 · ' + liveStatus + '】\n' +
+          '• 기초자산 가격: $' + (tld.price ? Number(tld.price).toFixed(2) : '— (시세 ✗ → 가격 인용 금지)') + (tld.pct != null ? ' (' + (tld.pct>=0?'+':'') + Number(tld.pct).toFixed(2) + '%)' : '') + '\n' +
+          '※ 옵션 체인 상세 (Strike별 OI/Volume/IV) 사용자가 명시 입력 필요. 실시간 옵션 체인 fetch는 페이지 데이터 의존.\n' +
+          (tld.price ? '' : '⚠ 시세 ✗ — 옵션 분석 시 기초자산 가격 추측 금지. "현재가 데이터 미수신 — Strike 분석 시 사용자 지정 가격 인용" 답변.\n') + '\n';
+      } else {
+        tickerBlock = '【현재 종목: 미선택】 옵션 분석 대상 ticker 미설정.\n' +
+          '【답변 가이드】 사용자가 "NVDA 옵션 어때?", "SPY put call ratio" 등 ticker 명시 시 분석. 미명시 시 "어떤 종목의 옵션을 분석할까요? (예: NVDA, SPY, QQQ)" 답변.\n\n';
       }
       return '당신은 옵션 전략 전문가입니다. "옵션 분석" 페이지에서 대화하고 있습니다.\n\n' +
         tickerBlock +
@@ -18056,7 +18086,15 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
       var ld = window._liveData || {};
       var kospi = ld['^KS11'] || {};
       var kosdaq = ld['^KQ11'] || {};
+      // v49.79 P423/R160: 정적 시점 토큰 + hardcoded 값 staleness 통합 경고
+      var snapAgeDays = '미상';
+      try { if (S._updated) snapAgeDays = Math.round((Date.now() - new Date(S._updated).getTime()) / 86400000); } catch(_) {}
+      var stalenessWarn = '【⚠ 한국 매크로 데이터 신선도 안내 (v49.79 R160)】\n' +
+        '아래 한은 기준금리 · 국고채 · CPI · GDP · 수출 등 거시지표는 DATA_SNAPSHOT (' + (snapAgeDays !== '미상' ? snapAgeDays + '일 전' : '시점 미상') + ') 기준 정적 값.\n' +
+        '시점이 지난 경우 다음 출처에서 최신 확인 권장: BOK(한은) · KOSIS · KRX. 답변 시 "스냅샷 기준 X일 전 값 — 최신 발표 별도 확인" 명시 의무.\n' +
+        '또한 본 컨텍스트의 "2026.03/2026.04" 시점 분석 (이란 전쟁/JPM 리포트/GS KOSPI 분석)은 historical anchor — 현재 시점 기준 ' + (snapAgeDays !== '미상' && snapAgeDays > 0 ? snapAgeDays + '일 이상 경과' : '시점 비교 불가') + '. 패턴 학습용으로만 활용.\n\n';
       return '당신은 한국 경제·금융 전문가입니다. "한국 매크로" 페이지에서 대화하고 있습니다.\n\n' +
+        stalenessWarn +
         '【한국 시장 종가 기준 데이터 (신선도: ' + fresh + ')】\n' +
         '• KOSPI: ' + (kospiClose ? kospiClose.toFixed(2) : (kospi.price ? kospi.price.toFixed(2) : s.kospi)) + ' (' + (kospi.pct != null ? ((kospi.pct>=0?'+':'') + kospi.pct.toFixed(2) + '%') : '등락률 N/A') + ') [종가] | P/E ' + (S.kospiPE||'—') + '배 | P/B ' + (S.kospiPB||'—') + '배\n' +
         '• KOSDAQ: ' + (kosdaqClose ? kosdaqClose.toFixed(2) : (kosdaq.price ? kosdaq.price.toFixed(2) : s.kosdaq)) + ' (' + (kosdaq.pct != null ? ((kosdaq.pct>=0?'+':'') + kosdaq.pct.toFixed(2) + '%') : '등락률 N/A') + ') [종가] | P/E ' + (S.kosdaqPE||'—') + '배\n' +
@@ -25862,6 +25900,15 @@ function renderThemeHeatmap() {
 // ═══════════════════════════════════════════════════════════════
 //  테마 상세 패널 (서브테마 + 대장주 + 라이브 가격)
 // ═══════════════════════════════════════════════════════════════
+function _themeFinitePct(v) {
+  return v != null && isFinite(Number(v));
+}
+function _themeFmtPct(v, dec, fallback) {
+  if (!_themeFinitePct(v)) return fallback || 'LIVE REQUIRED';
+  v = Number(v);
+  return (v >= 0 ? '+' : '') + v.toFixed(dec == null ? 2 : dec) + '%';
+}
+
 function showThemeDetail(themeId) {
   var idx = THEME_INDEX[themeId];
   if (idx === undefined) return;
@@ -25910,11 +25957,12 @@ function showThemeDetail(themeId) {
     html += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;"> 서브테마 상세</div>';
     theme.subThemes.forEach(function(sub) {
       var subPerf = calcCompositePerf(sub.tickers, sub.weights);
-      var subColor = subPerf.chgPct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
+      var subHasPerf = _themeFinitePct(subPerf.chgPct);
+      var subColor = subHasPerf ? (subPerf.chgPct >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
       html += '<div style="background:var(--surface-1);border:1px solid var(--surface-4);border-radius:6px;padding:8px;margin-bottom:6px;">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
           '<span style="font-size:13px;font-weight:700;">' + sub.name + (sub.etf ? ' <span style="color:var(--text-muted);font-size:11px;">' + sub.etf + '</span>' : '') + '</span>' +
-          '<span style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:' + subColor + ';">' + (subPerf.chgPct>=0?'+':'') + subPerf.chgPct.toFixed(2) + '%</span>' +
+          '<span style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:' + subColor + ';">' + _themeFmtPct(subPerf.chgPct, 2, 'LIVE REQUIRED') + '</span>' +
         '</div>' +
         '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
       sub.tickers.forEach(function(t) {
@@ -25948,13 +25996,16 @@ function _buildThemeDeepAnalysis(theme, perf, breadth, ld) {
   var sections = [];
 
   // 1) 테마 온도 진단
-  var pct = perf.chgPct != null ? perf.chgPct : 0; // R15
+  var hasPct = _themeFinitePct(perf && perf.chgPct);
+  var pct = hasPct ? Number(perf.chgPct) : 0; // R15
   var tempDiag = '';
+  if (!hasPct) tempDiag = '<b>Live data required</b> - this theme detail is connected, but current quotes for its constituents have not loaded yet. Use the composition/weights below and refresh data before reading momentum.';
   if (pct >= 3) tempDiag = '<b>매우 강세</b> — 시장 전체에서 가장 주목받는 테마 중 하나입니다. 단기 과열 가능성도 체크해야 합니다.';
   else if (pct >= 1) tempDiag = '<b>강세</b> — 모멘텀이 살아있습니다. 기관·헤지펀드 자금이 유입되고 있을 가능성이 높습니다.';
   else if (pct >= 0) tempDiag = ' <b>보합</b> — 방향성 탐색 중입니다. 시장이 이 테마에 대해 확신을 갖지 못하고 있습니다.';
   else if (pct >= -2) tempDiag = '<b>약세</b> — 차익실현 또는 로테이션 매도가 나오고 있습니다. 펀더멘털 훼손인지 일시적 조정인지 구분이 필요합니다.';
   else tempDiag = ' <b>급락</b> — 시장에서 외면받고 있는 테마입니다. 구조적 문제가 있는지 확인하세요.';
+  if (!hasPct) tempDiag = '<b>Live data required</b> - this theme detail is connected, but current quotes for its constituents have not loaded yet. Use the composition/weights below and refresh data before reading momentum.';
   sections.push(tempDiag);
 
   // 2) 종목 간 퍼포먼스 격차 분석
@@ -25997,11 +26048,11 @@ function _buildThemeDeepAnalysis(theme, perf, breadth, ld) {
         if (Object.keys(subW).length === 0) subW = null;
       }
       var sp = calcCompositePerf(sub.tickers, subW);
-      subPerfs.push({ name: sub.name, pct: sp.chgPct });
+      if (_themeFinitePct(sp.chgPct)) subPerfs.push({ name: sub.name, pct: Number(sp.chgPct) });
     });
     subPerfs.sort(function(a,b) { return b.pct - a.pct; });
     var bestSub = subPerfs[0], worstSub = subPerfs[subPerfs.length - 1];
-    if (bestSub && worstSub && bestSub.name !== worstSub.name) {
+    if (subPerfs.length >= 2 && bestSub && worstSub && bestSub.name !== worstSub.name) {
       var subGap = bestSub.pct - worstSub.pct;
       if (subGap > 1) {
         sections.push(' <b>서브테마 격차:</b> "' + bestSub.name + '"(' + (bestSub.pct>=0?'+':'') + bestSub.pct.toFixed(2) + '%)이 "' + worstSub.name + '"(' + (worstSub.pct>=0?'+':'') + worstSub.pct.toFixed(2) + '%) 대비 ' + subGap.toFixed(1) + '%p 우세. 자금이 서브테마 내에서도 로테이션되고 있습니다.');
@@ -26076,8 +26127,9 @@ function showSubThemeDetail(subThemeId) {
     var comp = calcCompositePerf(st.tickers, st.weights);
     perf = { chgPct: comp.chgPct, source: st.weights ? 'ETF가중(' + comp.count + ')' : '합산(' + comp.count + ')' };
   }
-  var isPos = perf.chgPct >= 0;
-  var chgColor = isPos ? 'var(--data-green)' : 'var(--data-red)';
+  var hasPerf = _themeFinitePct(perf.chgPct);
+  var isPos = hasPerf && perf.chgPct >= 0;
+  var chgColor = hasPerf ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
 
   // ── 헤더 ──
   var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">' +
@@ -26085,7 +26137,7 @@ function showSubThemeDetail(subThemeId) {
     (st.etf ? ' <span style="font-size:13px;font-family:var(--font-mono);color:var(--accent);">' + st.etf + '</span>' : '') +
     '</div>' +
     '<div style="text-align:right;">' +
-      '<span style="font-size:16px;font-weight:900;font-family:var(--font-mono);color:' + chgColor + ';">' + (isPos?'+':'') + perf.chgPct.toFixed(2) + '%</span>' +
+      '<span style="font-size:16px;font-weight:900;font-family:var(--font-mono);color:' + chgColor + ';">' + _themeFmtPct(perf.chgPct, 2, 'LIVE REQUIRED') + '</span>' +
       '<div style="font-size:10px;color:var(--text-muted);">via ' + perf.source + '</div>' +
     '</div>' +
   '</div>';
@@ -26167,7 +26219,8 @@ function showSubThemeDetail(subThemeId) {
   var sections = [];
 
   // 1) 온도 진단
-  var pct = perf.chgPct;
+  var pct = hasPerf ? Number(perf.chgPct) : 0;
+  if (!hasPerf) sections.push('<b>Live data required</b> - this sub-theme is connected, but current quotes have not loaded yet. Read the constituent list first and refresh data before using momentum.');
   if (pct >= 3) sections.push('<b>매우 강세</b> — 시장에서 가장 뜨거운 테마 중 하나. 단기 과열 가능성 점검 필요. 모멘텀 추세 추종(trend-following) 전략에 적합하되, 급반전 리스크에도 대비하세요.');
   else if (pct >= 1) sections.push('<b>강세</b> — 기관·헤지펀드 자금이 유입되고 있을 가능성 높음. 테마 ETF(' + (st.etf||'—') + ')와 대장주를 비교해 알파가 어디서 나오는지 파악하세요.');
   else if (pct >= 0) sections.push(' <b>보합</b> — 시장이 이 테마에 대해 아직 방향을 정하지 못함. 카탈리스트(실적 발표, 정책 변화, 기술 진전) 대기 구간. 지금은 관망하되 핵심 종목의 기술적 지지선을 체크하세요.');
@@ -27888,9 +27941,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.78"></script>
+<script src="./js/aio-glossary.js?v=49.79"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.78"></script>
+<script src="./js/aio-tests.js?v=49.79"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전

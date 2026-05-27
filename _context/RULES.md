@@ -6,6 +6,43 @@ target_version: v48.97
 
 ---
 
+## R159. ticker / options context는 _currentTickerId null + _liveData 미수신 양쪽 가드 의무 (v49.79)
+
+- ticker 없을 때: "어떤 종목 분석을 원하시나요?" + 예시 (NVDA / 삼성전자 / 005930.KS) 명시.
+- ticker 있으나 _liveData 미수신: "✗ 시세 미수신 → 모든 $ 가격 인용 금지 (HARD STOP)" 강제.
+- 정성 프레임워크 (Weinstein / RSI / 패턴)만 적용 가이드.
+
+## R160. kr-macro 정적 데이터 / 시점 토큰 진입부 staleness 경고 의무 (v49.79)
+
+- DATA_SNAPSHOT._updated 기준 N일 전 표시.
+- "2026.03 이란 전쟁", "2026.04 JPM/GS 리포트" 등 시점 분석은 historical anchor 명시.
+- 답변 시 "스냅샷 기준 N일 전 값 — BOK/KOSIS/KRX 최신 확인" 명시 의무.
+
+## R161. localStorage QuotaExceededError 강화 처리 + 사용자 toast 의무 (v49.79)
+
+- `_saveChatHistory` quota 초과 시 50건 → 10건 순차 prune.
+- 각 단계 사용자 toast 알림 (6s / 10s / 15s).
+- API 키 백업 권장 안내 (AIO.exportApiKeys()).
+
+## R162. 외부 fetch 결과 schema 검증 + graceful degrade 의무 (v49.79)
+
+- `_aioValidateFetchResult(result, requiredFields, sourceName)` 헬퍼 사용.
+- requiredFields 전부 누락 시 schema 변경 가능 경고 + degrade 메시지.
+- partial 누락은 warning만 (부분 수집 유지).
+
+## R163. 멀티탭 localStorage storage 이벤트 리스너 의무 (v49.79)
+
+- `window.addEventListener('storage', ...)` 등록.
+- API 키 / 사용자 프로필 / 알람 변경 시 다른 탭 toast + audit widget 자동 갱신.
+- 중복 등록 방지 (`_aioStorageListenerRegistered` flag).
+
+## R164. Claude API 호출 토큰 사용량 누적 추적 + 비용 가시화 의무 (v49.79)
+
+- `_aioTrackApiUsage({model, inputTokens, outputTokens})` 매 호출 후.
+- daily / lifetime / 30일+ 자동 정리.
+- `AIO.getApiUsage()` 콘솔 명령으로 즉시 조회.
+- Anthropic 가격 (Sonnet $3/$15, Haiku $0.25/$1.25 per 1M tok) 적용.
+
 ## R156. 외부 fetch 폴백 chain은 sequential 금지, Promise.race 병렬 의무 (v49.78 코드 단위 진단)
 
 - 폴백 체인 (Yahoo 5 proxy / SEC 다수 / Finnhub 등)을 sequential `for...await`로 처리 시 최악 80s+ hang.

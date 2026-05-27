@@ -6,6 +6,30 @@
 
 ---
 
+## v49.79 — 잔여 6건 모두 보강 (ticker guard / kr-macro / quota / schema / multi-tab / API 비용) (2026-05-27)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 요구 "잔여 영역도 모두 보강" → v49.78 정직 잔여 6건 시정.
+
+**Changes**:
+
+1. **P422/R159** ticker / options context `_currentTickerId` null + `_liveData` 미수신 양쪽 가드 강화 — 친화 안내 + 예시 ticker (NVDA / 삼성전자) + HARD STOP 명시
+2. **P423/R160** kr-macro 진입부 staleness 경고 — DATA_SNAPSHOT._updated 기준 N일 전 + "2026.03/2026.04" 시점 분석은 historical anchor 명시
+3. **P424/R161** `_saveChatHistory` QuotaExceededError 3단계 prune (50→10→0) + 각 단계 사용자 toast (6s/10s/15s) + AIO.exportApiKeys() 권장
+4. **P425/R162** `_aioValidateFetchResult(result, requiredFields, sourceName)` 헬퍼 — 17 promise schema 변경 내성 + partial/invalid 분류 + degrade 메시지
+5. **P426/R163** 멀티탭 `storage` 이벤트 리스너 — API 키 / 사용자 프로필 / 알람 변경 자동 감지 + toast + audit widget 갱신
+6. **P427/R164** `_aioTrackApiUsage` + `AIO.getApiUsage()` — Anthropic 비용 누적 추적 (Sonnet $3/$15, Haiku $0.25/$1.25 per 1M tok), daily/lifetime + 30일+ 자동 정리
+7. **Phase 7 동기화** — R159~R164 + P422~P427 + T630~T640 11 신규 (Group75) + 7곳 sync
+
+**Verification**:
+- `AIO.getApiUsage()` → 오늘/7일/lifetime 출력
+- 다른 탭에서 API 키 변경 → toast "🔑 다른 탭에서 API 키 변경 감지"
+- ticker 페이지 종목 미선택 채팅 → "어떤 종목 분석을 원하시나요? 예시: NVDA / 삼성전자"
+- AIO.runTests() → T630~T640 11 PASS
+
+---
+
 ## v49.78 — 코드 단위 정밀 진단 5 CRITICAL fix (NVDA 시세 80s→3.5s 등) (2026-05-26)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

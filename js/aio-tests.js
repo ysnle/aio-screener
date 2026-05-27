@@ -3155,9 +3155,76 @@
     _assert('T628 dynamic_lookup_exposed_v4978: window.dynamicTickerLookup 함수 정의',
       typeof window.dynamicTickerLookup === 'function',
       'typeof=' + typeof window.dynamicTickerLookup);
-    // T629: APP_VERSION === 'v49.78'
-    _assert('T629 app_version_v4978_final: APP_VERSION === "v49.78"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.78',
+    // T629: APP_VERSION === 'v49.78' (v49.79 갱신 하위 호환)
+    _assert('T629 app_version_v4978_final: APP_VERSION === "v49.78" or 신규',
+      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // v49.79 P422~P427 R159~R164: 잔여 6건 모두 보강 회귀 방지
+  // ─────────────────────────────────────────────────────────────────
+  function _testV4979RemainingFixes() {
+    // T630 R159: ticker context null guard 강화 — "어떤 종목 분석을 원하시나요" 친화 안내
+    var tickerCtx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.ticker;
+    var tickerSys = '';
+    if (tickerCtx && typeof tickerCtx.system === 'function') {
+      try { window._currentTickerId = null; tickerSys = tickerCtx.system() || ''; } catch(_) {}
+    }
+    _assert('T630 ticker_null_guard_v4979: ticker context null 시 친화 안내 + 예시',
+      tickerSys.indexOf('미선택') >= 0 && tickerSys.indexOf('NVDA') >= 0,
+      'friendly=' + (tickerSys.indexOf('미선택') >= 0));
+    // T631 R159: ticker context _liveData 미수신 시 HARD STOP 표시
+    _assert('T631 ticker_live_hard_stop_v4979: ticker context에 "시세 미수신" + "HARD STOP" 패턴',
+      tickerSys.indexOf('HARD STOP') >= 0 || tickerSys.indexOf('가격 인용 금지') >= 0,
+      'hardStop=' + (tickerSys.indexOf('HARD STOP') >= 0));
+    // T632 R160: kr-macro staleness 경고 진입부 추가
+    var krMacroCtx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS['kr-macro'];
+    var krMacroSys = '';
+    if (krMacroCtx && typeof krMacroCtx.system === 'function') {
+      try { krMacroSys = krMacroCtx.system() || ''; } catch(_) {}
+    }
+    _assert('T632 kr_macro_staleness_v4979: kr-macro 진입부 staleness 경고 + historical anchor 명시',
+      krMacroSys.indexOf('한국 매크로 데이터 신선도') >= 0 && krMacroSys.indexOf('historical anchor') >= 0,
+      'staleness=' + (krMacroSys.indexOf('한국 매크로 데이터 신선도') >= 0));
+    // T633 R161: _saveChatHistory QuotaExceededError 강화 처리
+    var saveHistSrc = typeof window._saveChatHistory === 'function' ? window._saveChatHistory.toString() : '';
+    _assert('T633 quota_3stage_prune_v4979: _saveChatHistory 3단계 prune (50→10→0) + toast',
+      saveHistSrc.indexOf('isQuotaExceeded') >= 0 && saveHistSrc.indexOf('AIO.exportApiKeys') >= 0 && saveHistSrc.indexOf('10건만 유지') >= 0,
+      'stages=' + (saveHistSrc.indexOf('isQuotaExceeded') >= 0));
+    // T634 R162: _aioValidateFetchResult 함수 정의
+    _assert('T634 validate_fetch_result_v4979: _aioValidateFetchResult 함수 정의 + degrade 헬퍼',
+      typeof window._aioValidateFetchResult === 'function',
+      'typeof=' + typeof window._aioValidateFetchResult);
+    // T635 R162: validateFetchResult 작동 — null result 검증
+    if (typeof window._aioValidateFetchResult === 'function') {
+      var v1 = window._aioValidateFetchResult(null, ['x'], 'TestSource');
+      _assert('T635 validate_null_result_v4979: null result → valid:false + degrade',
+        v1 && v1.valid === false && v1.degradeMsg && v1.degradeMsg.indexOf('TestSource') >= 0,
+        'v1=' + JSON.stringify(v1));
+    } else {
+      _assert('T635 validate_fn_missing_v4979', false, 'fn missing');
+    }
+    // T636 R163: 멀티탭 storage 이벤트 리스너 등록
+    _assert('T636 multitab_storage_listener_v4979: window._aioStorageListenerRegistered = true',
+      window._aioStorageListenerRegistered === true,
+      'registered=' + window._aioStorageListenerRegistered);
+    // T637 R164: _aioTrackApiUsage 함수 정의
+    _assert('T637 track_api_usage_v4979: window._aioTrackApiUsage 함수 정의',
+      typeof window._aioTrackApiUsage === 'function',
+      'typeof=' + typeof window._aioTrackApiUsage);
+    // T638 R164: AIO.getApiUsage 콘솔 명령
+    _assert('T638 get_api_usage_v4979: AIO.getApiUsage 함수 정의',
+      typeof (window.AIO && window.AIO.getApiUsage) === 'function',
+      'typeof=' + typeof (window.AIO && window.AIO.getApiUsage));
+    // T639 R164: callClaude에 _aioTrackApiUsage 호출 통합
+    var callClaudeSrc = typeof callClaude === 'function' ? callClaude.toString() : '';
+    _assert('T639 callclaude_usage_tracking_v4979: callClaude에 _aioTrackApiUsage 호출 통합',
+      callClaudeSrc.indexOf('_aioTrackApiUsage') >= 0,
+      'tracking=' + (callClaudeSrc.indexOf('_aioTrackApiUsage') >= 0));
+    // T640: APP_VERSION === 'v49.79'
+    _assert('T640 app_version_v4979_final: APP_VERSION === "v49.79"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.79',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -4303,6 +4370,7 @@
     try { _testV4976UserFrustrationFix(); } catch(e) { console.error('Group72 error:', e); }
     try { _testV4977UserFeedbackChain(); } catch(e) { console.error('Group73 error:', e); }
     try { _testV4978CodeAuditFixes(); } catch(e) { console.error('Group74 error:', e); }
+    try { _testV4979RemainingFixes(); } catch(e) { console.error('Group75 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

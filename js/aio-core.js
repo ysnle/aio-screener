@@ -1100,6 +1100,104 @@ window._aioFundSearchFill = function(preset) {
   if (inp) inp.value = preset;
   if (typeof window.fundamentalSearch === 'function') window.fundamentalSearch();
 };
+// v49.79 P426/R163: 멀티탭 localStorage storage 이벤트 리스너 — 다른 탭 변경 자동 감지
+// 사용자 정직 요구 — 멀티탭 race condition 시정 (API 키 / 프로필 / 알람 / 채팅 기록)
+(function() {
+  if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
+  if (window._aioStorageListenerRegistered) return;
+  window._aioStorageListenerRegistered = true;
+  window.addEventListener('storage', function(e) {
+    if (!e || !e.key) return;
+    // API 키 변경 감지
+    if (/^aio_(claude|fmp|finnhub|fred|naver|bok|kosis)_key$/.test(e.key)) {
+      if (typeof showToast === 'function') showToast('🔑 다른 탭에서 API 키 변경 감지 — 이 탭에도 자동 반영', 4000);
+      if (typeof console !== 'undefined' && console.info) console.info('[AIO v49.79 P426] Multi-tab API key change:', e.key);
+      try { if (typeof window._aioRefreshAuditWidget === 'function') window._aioRefreshAuditWidget(); } catch(_) {}
+    }
+    if (e.key === 'aio_user_profile_v1') {
+      if (typeof showToast === 'function') showToast('👤 다른 탭에서 사용자 프로필 변경 감지', 3000);
+    }
+    if (e.key === 'aio_alerts_v1') {
+      if (typeof console !== 'undefined' && console.info) console.info('[AIO v49.79 P426] Multi-tab alerts changed');
+    }
+  });
+})();
+
+// v49.79 P427/R164: API 비용 누적 추적 — Claude API 호출마다 토큰 기록
+// 사용자 정직 요구 — 비용 가시화 부재 시정.
+// callClaude에서 응답 후 _aioTrackApiUsage({model, inputTokens, outputTokens}) 호출.
+window._aioTrackApiUsage = function(opts) {
+  if (!opts || typeof opts !== 'object') return;
+  var model = opts.model || 'unknown';
+  var inTok = opts.inputTokens || 0;
+  var outTok = opts.outputTokens || 0;
+  if (!inTok && !outTok) return;
+  // Anthropic 모델별 가격 ($ per 1M tokens) — 2026년 5월 기준
+  var pricing = {
+    'sonnet':          { input: 3.00, output: 15.00 },   // Sonnet 4.x
+    'sonnet-thinking': { input: 3.00, output: 15.00 },
+    'haiku':           { input: 0.25, output: 1.25 },
+    'opus':            { input: 15.00, output: 75.00 }
+  };
+  var price = pricing[model] || pricing.sonnet;
+  var costUsd = (inTok / 1e6) * price.input + (outTok / 1e6) * price.output;
+  try {
+    var raw = localStorage.getItem('aio_api_usage_v1') || '{}';
+    var data = JSON.parse(raw);
+    var today = new Date().toISOString().slice(0, 10);
+    data.daily = data.daily || {};
+    data.daily[today] = data.daily[today] || { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, byModel: {} };
+    data.daily[today].calls++;
+    data.daily[today].inputTokens += inTok;
+    data.daily[today].outputTokens += outTok;
+    data.daily[today].costUsd += costUsd;
+    data.daily[today].byModel[model] = (data.daily[today].byModel[model] || 0) + 1;
+    data.lifetime = data.lifetime || { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+    data.lifetime.calls++;
+    data.lifetime.inputTokens += inTok;
+    data.lifetime.outputTokens += outTok;
+    data.lifetime.costUsd += costUsd;
+    // 30일+ 오래된 daily 데이터 자동 삭제
+    var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
+    var cutoffStr = cutoff.toISOString().slice(0, 10);
+    Object.keys(data.daily).forEach(function(d) { if (d < cutoffStr) delete data.daily[d]; });
+    localStorage.setItem('aio_api_usage_v1', JSON.stringify(data));
+  } catch(_) {}
+};
+
+// AIO.getApiUsage() — 콘솔 명령
+window.AIO = window.AIO || {};
+window.AIO.getApiUsage = function() {
+  try {
+    var data = JSON.parse(localStorage.getItem('aio_api_usage_v1') || '{}');
+    var today = new Date().toISOString().slice(0, 10);
+    var todayUsage = (data.daily || {})[today] || { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+    var dailyKeys = Object.keys(data.daily || {}).sort();
+    var last7 = dailyKeys.slice(-7).reduce(function(acc, d) {
+      var v = data.daily[d];
+      acc.calls += v.calls; acc.inputTokens += v.inputTokens; acc.outputTokens += v.outputTokens; acc.costUsd += v.costUsd;
+      return acc;
+    }, { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 });
+    var lifetime = data.lifetime || { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+    var report = {
+      today: { date: today, calls: todayUsage.calls, inputTokens: todayUsage.inputTokens, outputTokens: todayUsage.outputTokens, costUsd: todayUsage.costUsd.toFixed(4), byModel: todayUsage.byModel || {} },
+      last7days: { calls: last7.calls, inputTokens: last7.inputTokens, outputTokens: last7.outputTokens, costUsd: last7.costUsd.toFixed(4) },
+      lifetime: { calls: lifetime.calls, inputTokens: lifetime.inputTokens, outputTokens: lifetime.outputTokens, costUsd: lifetime.costUsd.toFixed(4) },
+      dailyDetail: data.daily || {},
+      note: 'v49.79 P427: Anthropic API 비용 자동 추적 (Sonnet $3/$15 · Haiku $0.25/$1.25 per 1M tok). 30일+ daily 자동 정리.'
+    };
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('[AIO v49.79 API Usage]');
+    console.log('오늘:', report.today.calls + '회 · $' + report.today.costUsd + ' (in:' + report.today.inputTokens + ' out:' + report.today.outputTokens + ')');
+    console.log('최근 7일:', report.last7days.calls + '회 · $' + report.last7days.costUsd);
+    console.log('전체 누적:', report.lifetime.calls + '회 · $' + report.lifetime.costUsd);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    return report;
+  } catch(e) {
+    return { error: String(e), note: 'API usage 데이터 미수신 또는 localStorage 오류' };
+  }
+};
+
 // v49.77 P411 R154: 데이터 새로고침 핸들러 — callClaude 실패 시 사용자가 즉시 액션 가능
 window._aioRefreshAllData = function() {
   try {
@@ -13014,7 +13112,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.76';
+const APP_VERSION = 'v49.78';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
