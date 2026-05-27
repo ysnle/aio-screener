@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.77 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.78 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4011,7 +4011,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.77</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.78</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12552,9 +12552,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.77"></script>
-  <script src="./js/aio-data.js?v=49.77"></script>
-  <script src="./js/aio-ui.js?v=49.77"></script>
+  <script src="./js/aio-core.js?v=49.78"></script>
+  <script src="./js/aio-data.js?v=49.78"></script>
+  <script src="./js/aio-ui.js?v=49.78"></script>
 
   <script>
 
@@ -15606,7 +15606,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.77"></script>
+<script src="./js/aio-chat.js?v=49.78"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -20663,13 +20663,12 @@ async function dynamicTickerLookup(ticker) {
   if (ld[ticker] && ld[ticker].price) {
     return { ticker: ticker, price: ld[ticker].price, pct: ld[ticker].pct, source: 'cache' };
   }
-  // 2. Yahoo Finance Chart API로 실시간 조회 (v49.76 P405: proxy 5개 + 진단 로깅 강화)
-  // 사용자 좌절 발견 — NVDA 시세 실패. proxy 다운 가능성 → 5개 + 우선순위 재정렬 + 명시적 로깅.
+  // 2. Yahoo Finance Chart API (v49.78 C1/P415: 5 proxy 병렬 race + 3.5s timeout)
+  // CRITICAL FIX: v49.76 sequential 5 proxy × 8s × 2 retry = 최악 80s hang → 병렬 race = 최악 3.5s
   window._aioTickerLookupDiag = window._aioTickerLookupDiag || {};
-  window._aioTickerLookupDiag[ticker] = { attempts: [], finalSource: null, startTime: Date.now() };
+  window._aioTickerLookupDiag[ticker] = { attempts: [], finalSource: null, startTime: Date.now(), strategy: 'parallel-race-v49.78' };
   try {
     var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker) + '?interval=1d&range=5d';
-    // v49.76: 안정 우선순위 — codetabs 가장 안정 (1순위) → allorigins → corsproxy → thingproxy → cors-anywhere
     var proxies = [
       { name: 'codetabs',   fn: function(u) { return 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u); } },
       { name: 'allorigins', fn: function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
@@ -20677,57 +20676,66 @@ async function dynamicTickerLookup(ticker) {
       { name: 'thingproxy', fn: function(u) { return 'https://thingproxy.freeboard.io/fetch/' + u; } },
       { name: 'cors-sh',    fn: function(u) { return 'https://proxy.cors.sh/' + u; } }
     ];
-    var _maxRetries = 2; // 1회 재시도
-    for (var i = 0; i < proxies.length; i++) {
-      var _retry = 0;
-      var _proxyName = proxies[i].name;
-      while (_retry < _maxRetries) {
-        var _attemptStart = Date.now();
-        try {
-        var r = await fetchWithTimeout(proxies[i].fn(url), {}, 8000);  // 12s → 8s (다음 proxy 빨리)
-        window._aioTickerLookupDiag[ticker].attempts.push({ proxy: _proxyName, retry: _retry, status: r.status, ok: r.ok, durationMs: Date.now() - _attemptStart });
-        if (r.ok) {
-          var raw = await r.json();
-          if (raw.contents) try { raw = JSON.parse(raw.contents); } catch(e) { /* malformed JSON in contents */ }
-          var meta = raw && raw.chart && raw.chart.result && raw.chart.result[0] && raw.chart.result[0].meta;
-          if (meta && meta.regularMarketPrice) {
-            // v30.14: chartPreviousClose 기반 폴백 변화율 계산
-            var _dynPrice = meta.regularMarketPrice;
-            var _dynPrev = meta.chartPreviousClose || meta.previousClose || 0;
-            var _dynPct = meta.regularMarketChangePercent;
-            if (_dynPct == null && _dynPrev > 0) {
-              _dynPct = ((_dynPrice - _dynPrev) / _dynPrev) * 100;
-            }
-            if (typeof window._aioSetLiveData === 'function') {
-              window._aioSetLiveData(ticker, { price: _dynPrice, pct: _dynPct != null ? _dynPct : null }, { source: 'yahoo:' + _proxyName, policyKey: 'quote_afterhours', reason: 'ticker detail dynamic lookup' });
-            } else {
-              if (!window._liveData) window._liveData = {};
-              window._liveData[ticker] = { price: _dynPrice, pct: _dynPct != null ? _dynPct : null, pctMissing: _dynPct == null };
-            }
-            window._aioTickerLookupDiag[ticker].finalSource = 'yahoo:' + _proxyName;
-            window._aioTickerLookupDiag[ticker].totalMs = Date.now() - window._aioTickerLookupDiag[ticker].startTime;
-            return {
-              ticker: ticker,
-              price: _dynPrice,
-              pct: _dynPct != null ? _dynPct : null,
-              name: meta.shortName || meta.longName || ticker,
-              exchange: meta.exchangeName || '',
-              currency: meta.currency || 'USD',
-              source: 'yahoo:' + _proxyName
-            };
-          }
-        }
-        break;  // v49.32 B4: 성공 시 retry 종료
-        } catch(_proxyErr) {
-          window._aioTickerLookupDiag[ticker].attempts.push({ proxy: _proxyName, retry: _retry, error: String(_proxyErr && _proxyErr.message || _proxyErr).slice(0, 80), durationMs: Date.now() - _attemptStart });
-          _retry++;
-          if (_retry < _maxRetries) await new Promise(function(rs){ setTimeout(rs, 500); });
-        }
-      }
+    var _PROXY_TIMEOUT = 3500; // 8s → 3.5s
+    // 모든 proxy 병렬 race — 첫 성공 즉시 반환
+    var proxyAttempts = proxies.map(function(p) {
+      var _attemptStart = Date.now();
+      return fetchWithTimeout(p.fn(url), {}, _PROXY_TIMEOUT).then(function(r) {
+        window._aioTickerLookupDiag[ticker].attempts.push({ proxy: p.name, status: r.status, ok: r.ok, durationMs: Date.now() - _attemptStart });
+        if (!r.ok) throw new Error(p.name + ' status ' + r.status);
+        return r.json();
+      }).then(function(raw) {
+        if (raw && raw.contents) { try { raw = JSON.parse(raw.contents); } catch(_) {} }
+        var meta = raw && raw.chart && raw.chart.result && raw.chart.result[0] && raw.chart.result[0].meta;
+        if (!meta || !meta.regularMarketPrice) throw new Error(p.name + ' invalid meta');
+        return { proxyName: p.name, meta: meta };
+      }).catch(function(err) {
+        window._aioTickerLookupDiag[ticker].attempts.push({ proxy: p.name, error: String(err && err.message || err).slice(0, 80), durationMs: Date.now() - _attemptStart });
+        throw err;
+      });
+    });
+    var winner = null;
+    if (typeof Promise.any === 'function') {
+      try { winner = await Promise.any(proxyAttempts); }
+      catch(_aggErr) { /* 모두 실패 — Stooq 진입 */ }
+    } else {
+      // Promise.any polyfill (구형 브라우저)
+      winner = await new Promise(function(resolve) {
+        var pending = proxyAttempts.length;
+        var resolved = false;
+        proxyAttempts.forEach(function(p) {
+          p.then(function(v) { if (!resolved) { resolved = true; resolve(v); } },
+                 function() { pending--; if (pending === 0 && !resolved) resolve(null); });
+        });
+      });
     }
-    // v49.76 P405: Yahoo 5 proxy 모두 실패 시 콘솔 명시 로깅
+    if (winner && winner.meta) {
+      var meta = winner.meta;
+      var _proxyName = winner.proxyName;
+      var _dynPrice = meta.regularMarketPrice;
+      var _dynPrev = meta.chartPreviousClose || meta.previousClose || 0;
+      var _dynPct = meta.regularMarketChangePercent;
+      if (_dynPct == null && _dynPrev > 0) _dynPct = ((_dynPrice - _dynPrev) / _dynPrev) * 100;
+      if (typeof window._aioSetLiveData === 'function') {
+        window._aioSetLiveData(ticker, { price: _dynPrice, pct: _dynPct != null ? _dynPct : null }, { source: 'yahoo:' + _proxyName, policyKey: 'quote_afterhours', reason: 'parallel race winner v49.78' });
+      } else {
+        if (!window._liveData) window._liveData = {};
+        window._liveData[ticker] = { price: _dynPrice, pct: _dynPct != null ? _dynPct : null, pctMissing: _dynPct == null };
+      }
+      window._aioTickerLookupDiag[ticker].finalSource = 'yahoo:' + _proxyName;
+      window._aioTickerLookupDiag[ticker].totalMs = Date.now() - window._aioTickerLookupDiag[ticker].startTime;
+      return {
+        ticker: ticker,
+        price: _dynPrice,
+        pct: _dynPct != null ? _dynPct : null,
+        name: meta.shortName || meta.longName || ticker,
+        exchange: meta.exchangeName || '',
+        currency: meta.currency || 'USD',
+        source: 'yahoo:' + _proxyName
+      };
+    }
     if (typeof console !== 'undefined' && console.warn) {
-      console.warn('[AIO v49.76] dynamicTickerLookup Yahoo 5 proxy 모두 실패:', ticker, window._aioTickerLookupDiag[ticker]);
+      console.warn('[AIO v49.78 C1] dynamicTickerLookup 5 proxy 병렬 race 모두 실패:', ticker, window._aioTickerLookupDiag[ticker]);
     }
   } catch(e) { _aioLog('warn', 'fetch', 'Dynamic lookup error: ' + e.message); }
 
@@ -27176,7 +27184,12 @@ var THEME_NARRATIVES = {
   'gaming':{macro:'크래프톤 인도 PUBG 재진출 + 엔씨 MMORPG 글로벌 확장 + 서브컬처/인디 붐 + 모바일 스토어 수수료 인하 영향.',breakSignals:['대장 IP DAU 40%↓ 급락','확률형 아이템 규제 강화','블록버스터 신작 연기'],foreignFlow:'신작 대작 론칭 전 매집 → 첫 주 성과 확인 후 매도 경향. 크래프톤 인도 상장 이슈는 장기 드라이버.',linkedUS:'Gaming (EA, TTWO, RBLX, NTDOY)'},
   'reit':{macro:'금리 인하 기대 + 물류 수요 회복 + 데이터센터 리츠 신규 상장 붐 + 배당 강화 정책.',breakSignals:['10Y 금리 4.5%+ 재진입','공실률 20%+ 급증','주요 리츠 배당 삭감 공시'],foreignFlow:'금리 인하 신호 후 매집 → 공실률 악화·금리 반등에 매도. ESR켄달스퀘어 물류 리츠가 대표 성장주.',linkedUS:'REIT (XLRE, EQIX, O, PLD)'},
   'drone':{macro:'한-폴란드·UAE 방산 수출 + 국방비 GDP 3%+ 증액 + UAM 상용화 정책 + 군용 무인기 수요 증가.',breakSignals:['UAM 인증 연기','드론 수출 규제 강화','평화 협상 진전으로 방산 프리미엄 축소'],foreignFlow:'방산 수주 발표 후 매집 → 지정학 긴장 완화에 매도. 퍼스텍·LIG넥스원이 미사일 유도·드론 핵심.',linkedUS:'Defense/Drone (LMT, RTX, KTOS, AVAV)'},
-  'travel':{macro:'중국 단체관광 재개 + 엔저 일본 여행 수요 + K-콘텐츠 방한 관광객 유입 + 저비용 항공사 경쟁.',breakSignals:['국제선 여객 YoY 음수 전환','달러/원 1500+ 급등','지정학 리스크 고조로 여행심리 악화'],foreignFlow:'방한 외국인 증가 통계 후 매집 → 유가 급등·환율 약세에 매도. 호텔신라는 면세점 의존도 높아 중국 관광객 민감.',linkedUS:'Travel (BKNG, MAR, DAL, ABNB)'}
+  'travel':{macro:'중국 단체관광 재개 + 엔저 일본 여행 수요 + K-콘텐츠 방한 관광객 유입 + 저비용 항공사 경쟁.',breakSignals:['국제선 여객 YoY 음수 전환','달러/원 1500+ 급등','지정학 리스크 고조로 여행심리 악화'],foreignFlow:'방한 외국인 증가 통계 후 매집 → 유가 급등·환율 약세에 매도. 호텔신라는 면세점 의존도 높아 중국 관광객 민감.',linkedUS:'Travel (BKNG, MAR, DAL, ABNB)'},
+  'wind_solar':{macro:'풍력 타워, 태양광 소재, 연료전지 발전을 한 바구니로 묶어 재생에너지 수주와 전력 인프라 교체 사이클을 함께 추적한다.',breakSignals:['미국·유럽 재생에너지 보조금 축소','태양광 폴리실리콘·모듈 가격 급락','풍력 프로젝트 발주 지연'],foreignFlow:'해외 재생에너지 ETF와 전력기기 수주 뉴스가 동행할 때 매수세가 붙고, 금리 급등이나 보조금 축소 뉴스에는 민감하게 흔들린다.',linkedUS:'Clean Energy (ICLN, TAN, FSLR, ENPH)'},
+  'quantum':{macro:'통신사 양자암호, 광통신 장비, RF 부품을 중심으로 한국 양자 테마를 구성한다. 아직 초기 시장이라 실적보다 정책·표준·보안 인프라 뉴스 민감도가 높다.',breakSignals:['양자암호 국가망 예산 축소','대형 통신사 CapEx 감축','해외 양자컴퓨팅 고평가 조정'],foreignFlow:'IONQ, IBM, GOOGL 등 글로벌 양자 뉴스가 한국 통신·광장비 종목 심리에 전이된다. 실적 확인 전에는 비중 과열을 경계한다.',linkedUS:'Quantum/Telecom (IONQ, IBM, GOOGL)'},
+  'uam':{macro:'eVTOL 기체, 항공전자, 엔진·부품, 무인기 플랫폼을 묶어 도심항공교통 상용화 기대와 방산 항공 수요를 동시에 본다.',breakSignals:['UAM 실증·인증 일정 지연','배터리·모터 안전성 이슈','방산 항공 예산 축소'],foreignFlow:'JOBY, ACHR, RTX 등 글로벌 항공·UAM 흐름과 국내 인증 로드맵 발표가 핵심 촉매다.',linkedUS:'Aerospace/UAM (JOBY, ACHR, RTX)'},
+  'hydrogen':{macro:'수소 생산, 저장·운송, 충전, 연료전지 발전, 수소차까지 이어지는 밸류체인을 한 화면에서 점검한다.',breakSignals:['그린수소 프로젝트 취소','수소 충전 인프라 보조금 축소','연료전지 수주 공백'],foreignFlow:'PLUG, BE, FCEL 등 글로벌 수소주 변동성과 국내 충전소·발전 프로젝트 발주가 함께 움직이는지 확인한다.',linkedUS:'Hydrogen/Fuel Cell (BE, PLUG, FCEL)'},
+  'space':{macro:'위성, 발사체, 항공우주 부품, 방산 전자장비를 묶어 우주경제와 안보 수요를 함께 읽는 테마다.',breakSignals:['위성 발사 일정 지연','국방·우주 예산 삭감','대형 방산 수주 실패'],foreignFlow:'RKLB, ASTS, LMT 등 글로벌 우주·방산 종목의 리스크온 여부와 국내 위성·발사체 일정이 동행하는지 본다.',linkedUS:'Space/Aerospace (RKLB, ASTS, LMT)'}
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -27875,9 +27888,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.77"></script>
+<script src="./js/aio-glossary.js?v=49.78"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.77"></script>
+<script src="./js/aio-tests.js?v=49.78"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전

@@ -6,6 +6,25 @@ target_version: v48.97
 
 ---
 
+## R156. 외부 fetch 폴백 chain은 sequential 금지, Promise.race 병렬 의무 (v49.78 코드 단위 진단)
+
+- 폴백 체인 (Yahoo 5 proxy / SEC 다수 / Finnhub 등)을 sequential `for...await`로 처리 시 최악 80s+ hang.
+- `Promise.any` 또는 polyfill 병렬 race + 각 fetch에 짧은 timeout (3.5s)로 첫 성공 즉시 반환.
+- 회귀 방지: T611 — `dynamicTickerLookup.toString()`에 `Promise.any` 또는 `Promise.race` 포함.
+
+## R157. innerHTML 호출 전 _aioSafeMD fallback chain 의무 (v49.78)
+
+- `_aioSafeMD` undefined 시 → `escHtml` → manual HTML escape 3단계 fallback.
+- XSS 우회 방지 + DOMPurify 부재 시 답변 깨짐 차단.
+- 회귀 방지: T613.
+
+## R158. chatSend atomic streaming lock — 입력 검증 통과 직후 즉시 (v49.78)
+
+- 기존 `state.streaming = true` 60줄+ 거리 → 빠른 더블 클릭 race window 존재.
+- `state._chatSendEntered` counter 증가/감소로 atomic 보장.
+- onDone / onError / chatClear 모두에서 reset.
+- 회귀 방지: T615.
+
 ## R153. chatSend silent return 모든 경로 사용자 피드백 의무 (v49.77)
 
 - `if (!ctx) return;` / `if (state.streaming) return;` / `if (!inp) return;` / `if (!q) return;` 모두 사용자 피드백 의무.

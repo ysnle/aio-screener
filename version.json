@@ -1,5 +1,5 @@
 {
-  "version": "v49.77",
-  "built": "2026-05-26T20:30:00+09:00",
-  "note": "v49.77: 사용자 정직 질의 '전체 시스템 심층 점검?' 응답 — audit 그만 늘리고 실제 사용자 좌절 시정. (1) P410/R153 chatSend silent return 5+ 경로 모두 사용자 피드백 — toast/inline border + console.warn. (2) P411/R154 callClaude 최종 실패 friendly 안내 — 5 에러 분류 + 권장 조치 + AIO.diagnose 가이드 + 인라인 액션 버튼. _aioRefreshAllData 핸들러 신설. (3) P412~P413/R155 데이터 ✗ / 환각 검출 시 답변 위 액션 버튼 배너 — amber 배너 (시세/재무 ✗) + 빨간 박스 액션 (환각). (4) P414 13 미점검 영역 정직 매핑. R153~R155 + P410~P414 + T603~T610 + 동기화 7곳."
+  "version": "v49.78",
+  "built": "2026-05-26T22:00:00+09:00",
+  "note": "v49.78: 사용자 정직 요구 '코드단위 심층 점검' — Explore agent 2 병렬 진단 5 CRITICAL fix. (1) C1/P415/R156 dynamicTickerLookup 5 proxy sequential → Promise.any 병렬 race (최악 80s → 3.5s) — NVDA 시세 실패의 진짜 원인. _PROXY_TIMEOUT 8s → 3.5s. (2) C2/P416~P417/R157 aiBubble null + _aioSafeMD undefined silent fail 차단 — toast/console.warn + escHtml fallback chain (XSS 방어). (3) C4/P418 callClaude T.CHUNK_TIMEOUT 방어적 fallback 15000ms. (4) C4/P419/R158 chatSend state.streaming atomic lock — _chatSendEntered counter (60줄+ race window 차단) + onDone/onError/chatClear 모두 reset. (5) P420 18+ CHAT_CONTEXTS DOM 매트릭스 진단 결과 — ticker null guard 부실 + kr-macro hardcoded fedRate v49.79+ 잔여. (6) Phase 5 R156~R158 + P415~P421 + T622~T629 8 신규 (Group74) + 동기화 7곳."
 }

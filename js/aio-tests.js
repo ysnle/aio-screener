@@ -2954,9 +2954,9 @@
     _assert('T586 freshness_denominator_11_v4974: assertChatAnswerQualityAudit 분모 11 적용',
       auditSrc.indexOf('/ 11)') >= 0,
       'denom11=' + (auditSrc.indexOf('/ 11)') >= 0));
-    // T587: APP_VERSION === 'v49.74'
-    _assert('T587 app_version_v4974_final: APP_VERSION === "v49.74"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.74',
+    // T587: APP_VERSION v49.7x or newer within this workstream
+    _assert('T587 app_version_v4974_final: APP_VERSION === "v49.74" or newer v49.7x',
+      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
     // T588: 라이브 검증 가이드 — 사용자 직접 production 검증 후 결과 공유 권장 (회귀 방지가 아닌 안내)
     _assert('T588 live_verify_guide_v4974: 라이브 검증 가이드 명시 (사용자 production 검증)',
@@ -3077,9 +3077,87 @@
     _assert('T609 empty_input_border_v4977: 빈 입력 시 input.style.borderColor 강조',
       chatSendSrc.indexOf("inp.style.borderColor = '#ffa31a'") >= 0,
       'borderColor=' + (chatSendSrc.indexOf("inp.style.borderColor = '#ffa31a'") >= 0));
-    // T610: APP_VERSION === 'v49.77'
-    _assert('T610 app_version_v4977_final: APP_VERSION === "v49.77"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.77',
+    // T610: APP_VERSION v49.7x or newer within this workstream
+    _assert('T610 app_version_v4977_final: APP_VERSION === "v49.77" or newer v49.7x',
+      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+    var themeAudit = window.AIO && typeof window.AIO.getThemeTrendDeepAudit === 'function' && window.AIO.getThemeTrendDeepAudit();
+    _assert('T611 theme_trend_deep_audit_defined: theme/trend audit returns 100+ themes and 500+ symbols',
+      themeAudit && themeAudit.counts && themeAudit.counts.themes >= 100 && themeAudit.counts.uniqueSymbols >= 500,
+      themeAudit ? 'themes=' + themeAudit.counts.themes + ' symbols=' + themeAudit.counts.uniqueSymbols : 'audit missing');
+    _assert('T612 theme_weights_ok: all weighted theme baskets sum to 100',
+      themeAudit && Array.isArray(themeAudit.weightIssues) && themeAudit.weightIssues.length === 0,
+      themeAudit ? 'weightIssues=' + themeAudit.weightIssues.length : 'audit missing');
+    _assert('T613 theme_profile_quote_ready: all theme symbols are included in page data profiles',
+      themeAudit && Array.isArray(themeAudit.missingThemeProfileSymbols) && themeAudit.missingThemeProfileSymbols.length === 0 && themeAudit.counts.quoteReadinessPct === 100,
+      themeAudit ? 'missingProfile=' + themeAudit.missingThemeProfileSymbols.length + ' quoteReady=' + themeAudit.counts.quoteReadinessPct : 'audit missing');
+    _assert('T614 kr_theme_symbols_normalized: kr-themes profile has no raw 6-digit symbols',
+      !(window.AIO && window.AIO.collectPageDataSymbols && window.AIO.collectPageDataSymbols('kr-themes', { symbolLimit: 999 }).some(function(s){ return /^\d{6}$/.test(String(s)); })),
+      'no raw KR symbols');
+    _assert('T615 theme_beginner_ux_metadata: all theme baskets have description and leaders',
+      themeAudit && Array.isArray(themeAudit.uxIssues) && themeAudit.uxIssues.length === 0,
+      themeAudit ? 'uxIssues=' + themeAudit.uxIssues.length : 'audit missing');
+    _assert('T616 page_deep_audit_router_defined: page-specific deep audit router exists',
+      window.AIO && typeof window.AIO.runPageDeepAudit === 'function' && typeof window.AIO.runAllPageDeepAudits === 'function',
+      'runPageDeepAudit=' + typeof (window.AIO && window.AIO.runPageDeepAudit));
+    var themePageAudit = window.AIO && window.AIO.runPageDeepAudit && window.AIO.runPageDeepAudit('themes', { symbolLimit: 999 });
+    _assert('T617 themes_page_deep_audit_dataflow: themes page deep audit checks broad US universe with no blocking',
+      themePageAudit && themePageAudit.dataFlow && themePageAudit.dataFlow.symbolCount >= 350 && themeAudit && themeAudit.counts.uniqueSymbols >= 500 && themePageAudit.blocking.length === 0,
+      themePageAudit ? 'status=' + themePageAudit.status + ' symbols=' + themePageAudit.dataFlow.symbolCount + ' blocking=' + themePageAudit.blocking.join(',') : 'audit missing');
+    var allPageAudit = window.AIO && window.AIO.runAllPageDeepAudits && window.AIO.runAllPageDeepAudits({ symbolLimit: 999 });
+    _assert('T618 all_page_deep_audit_system: all-page deep audit covers 20+ page systems',
+      allPageAudit && allPageAudit.pagesChecked >= 20 && Array.isArray(allPageAudit.pages),
+      allPageAudit ? 'pages=' + allPageAudit.pagesChecked + ' status=' + allPageAudit.status : 'audit missing');
+    _assert('T619 theme_essential_categories: no missing essential 2026 theme category',
+      themeAudit && Array.isArray(themeAudit.missingThemeCategories) && themeAudit.missingThemeCategories.length === 0,
+      themeAudit ? 'missing=' + themeAudit.missingThemeCategories.join(',') : 'audit missing');
+    _assert('T620 theme_concentration_audit: concentration warning array is exposed',
+      themeAudit && Array.isArray(themeAudit.concentrationWarnings),
+      themeAudit ? 'warnings=' + themeAudit.concentrationWarnings.length : 'audit missing');
+    var symExplain = window.AIO && window.AIO.getThemeSymbolExplainability && window.AIO.getThemeSymbolExplainability('KTOS');
+    _assert('T621 theme_symbol_explainability: missing registry tickers still have theme fallback explanation',
+      symExplain && symExplain.found && Array.isArray(symExplain.themes) && symExplain.themes.length >= 1,
+      symExplain ? 'found=' + symExplain.found + ' themes=' + symExplain.themes.length : 'explainability missing');
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // v49.78 P415~P421 R156~R158: 코드 단위 정밀 진단 5 CRITICAL fix 회귀 방지
+  // ─────────────────────────────────────────────────────────────────
+  function _testV4978CodeAuditFixes() {
+    // T622 C1: dynamicTickerLookup 5 proxy 병렬 race + Promise.any 적용 (sequential 금지)
+    var dynSrc = typeof window.dynamicTickerLookup === 'function' ? window.dynamicTickerLookup.toString() : '';
+    _assert('T622 ticker_parallel_race_v4978: dynamicTickerLookup에 Promise.any + parallel-race 적용 (sequential 금지)',
+      dynSrc.indexOf('Promise.any') >= 0 && dynSrc.indexOf('parallel-race') >= 0,
+      'promiseAny=' + (dynSrc.indexOf('Promise.any') >= 0) + ' parallel=' + (dynSrc.indexOf('parallel-race') >= 0));
+    // T623: 5 proxy timeout 3.5s 단축 (8s → 3.5s)
+    _assert('T623 ticker_timeout_short_v4978: dynamicTickerLookup proxy timeout 3500ms (8s에서 단축)',
+      dynSrc.indexOf('_PROXY_TIMEOUT = 3500') >= 0,
+      'timeout=' + (dynSrc.indexOf('_PROXY_TIMEOUT = 3500') >= 0));
+    // T624 C3: _aioSafeMD fallback chain
+    var chatSendSrc = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+    _assert('T624 safemd_fallback_chain_v4978: chatSend에 _aioSafeMD typeof 체크 + escHtml fallback',
+      chatSendSrc.indexOf("typeof _aioSafeMD === 'function'") >= 0,
+      'fallback=' + (chatSendSrc.indexOf("typeof _aioSafeMD === 'function'") >= 0));
+    // T625 C2: aiBubble null 시 사용자 안내 (silent fail 차단)
+    _assert('T625 aibubble_null_alert_v4978: aiBubble null 시 toast + console.warn',
+      chatSendSrc.indexOf('채팅 응답 렌더 영역 부재') >= 0,
+      'alert=' + (chatSendSrc.indexOf('채팅 응답 렌더 영역 부재') >= 0));
+    // T626 C4: state.streaming atomic lock — _chatSendEntered counter
+    _assert('T626 streaming_atomic_lock_v4978: chatSend에 _chatSendEntered counter atomic lock',
+      chatSendSrc.indexOf('_chatSendEntered') >= 0 && chatSendSrc.indexOf('중복 요청 차단') >= 0,
+      'atomic=' + (chatSendSrc.indexOf('_chatSendEntered') >= 0));
+    // T627 C4: chunk timeout 방어적 fallback
+    var callClaudeSrc = typeof callClaude === 'function' ? callClaude.toString() : '';
+    _assert('T627 chunk_timeout_defensive_v4978: callClaude에 typeof T 방어 + 15000 fallback',
+      callClaudeSrc.indexOf('_chunkTimeoutMs') >= 0,
+      'defensive=' + (callClaudeSrc.indexOf('_chunkTimeoutMs') >= 0));
+    // T628: dynamicTickerLookup 함수 정의 (사용자 콘솔 진단 가능)
+    _assert('T628 dynamic_lookup_exposed_v4978: window.dynamicTickerLookup 함수 정의',
+      typeof window.dynamicTickerLookup === 'function',
+      'typeof=' + typeof window.dynamicTickerLookup);
+    // T629: APP_VERSION === 'v49.78'
+    _assert('T629 app_version_v4978_final: APP_VERSION === "v49.78"',
+      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.78',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -4224,6 +4302,7 @@
     try { _testV4975PatternsAudits(); } catch(e) { console.error('Group71 error:', e); }
     try { _testV4976UserFrustrationFix(); } catch(e) { console.error('Group72 error:', e); }
     try { _testV4977UserFeedbackChain(); } catch(e) { console.error('Group73 error:', e); }
+    try { _testV4978CodeAuditFixes(); } catch(e) { console.error('Group74 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

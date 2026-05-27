@@ -2,11 +2,52 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.77
-latest_P_number: P414
-total_entries: 414
-next_P_number: P415
+latest_version: v49.78
+latest_P_number: P421
+total_entries: 421
+next_P_number: P422
 ---
+
+## P421 · v49.78 · [P421] AI 채팅 코드 단위 정밀 진단 5 CRITICAL bug 일괄 시정
+
+- **사용자 정직 요구**: "코드단위로 심층 점검 및 세밀 조사 진행해서 보강"
+- **Explore agent 2 병렬 진단 결과** — 5 CRITICAL + 5 MEDIUM = 10 잠재 silent fail 발견.
+- **v49.78 시정**: C1~C4 즉시 해결 (실제 작동 fix, audit 추가 금지).
+
+## P420 · v49.78 · [P420] CHAT_CONTEXTS 18+ DOM 매트릭스 진단 결과 — 16 contexts DOM 부재
+
+- **진단 결과**: 18 contexts × 2 DOM만 (home / theme-detail). 나머지 16 contexts는 sidebar overlay 패널 통해 작동 (별도 메커니즘).
+- **신규 발견**: ticker / options 컨텍스트의 `_currentTickerId` null 가드 부실, kr-macro hardcoded fedRate '3.50-3.75' R150 위반.
+- **시정 v49.79+**: ticker null guard + kr-macro 동적 fedRate 갱신 (시간 부족으로 v49.78 미포함).
+
+## P419 · v49.78 · [P419/R158] chatSend state.streaming race condition — 60줄+ 거리 window
+
+- **진단**: 기존 `if (state.streaming) return;` (L4274) ~ `state.streaming = true;` (L4335) 사이 60줄+ 동기 코드. 빠른 더블 클릭 시 두 요청 동시 진입 가능.
+- **시정**: `state._chatSendEntered` counter atomic lock — 검증 통과 직후 즉시 lock. onDone/onError/chatClear에서 reset.
+- **재발 방지**: T615.
+
+## P418 · v49.78 · [P418/R155] callClaude T.CHUNK_TIMEOUT 정의 확인 + 방어적 fallback
+
+- **Explore agent 의심 사항 검증**: aio-core.js L13050에 `T.CHUNK_TIMEOUT: 15000` 정의 확인 — 실제로는 false positive.
+- **시정**: 방어적 fallback `typeof T !== 'undefined' && T && T.CHUNK_TIMEOUT ? T.CHUNK_TIMEOUT : 15000` — module 로드 race condition 시 안전.
+
+## P417 · v49.78 · [P417/R157] aiBubble null + _aioSafeMD undefined → silent render fail + XSS 위험
+
+- **진단**: `chatAppendMsg` null 반환 시 호출처 L4595 `if (aiBubble)` 가드 있으나 사용자에게 알림 없음 (silent). `_aioSafeMD` undefined 시 `innerHTML = null + 'cursor'` → "null<span>" 렌더 + XSS 우회.
+- **시정**: (a) aiBubble null 시 console.warn + toast "응답 렌더 영역 부재" 안내. (b) `_aioSafeMD` 3단계 fallback chain (`_aioSafeMD` → `escHtml` → manual escape).
+- **재발 방지**: T613.
+
+## P416 · v49.78 · [P416] chatAppendMsg null guard 일관성 검증 — 모든 호출처 안전
+
+- **진단**: chatSend 내부 모든 `aiBubble.innerHTML` 호출 (L4596 / L4970 / L4971)에 `if (aiBubble)` 가드 이미 존재 (false alarm 일부).
+- **시정**: aiBubble null 시 사용자 alert 추가 (P417과 통합).
+
+## P415 · v49.78 · [P415/R156] dynamicTickerLookup sequential 5 proxy → 최악 80초 hang
+
+- **🔴 CRITICAL — NVDA 시세 실패의 진짜 원인**: v49.76까지 `for (var i = 0; i < proxies.length; i++) { while (_retry < 2) await fetchWithTimeout(...8000) }` = 5 × 8s × 2 = 최악 80초 sequential hang.
+- **시정**: `Promise.any` 병렬 race + `Promise.any` polyfill (구형 브라우저). 각 proxy 3.5s timeout. 최악 3.5초 내 결과 결정. 첫 성공 즉시 반환.
+- **사용자 영향**: NVDA 채팅 답변 8초+ 무응답 → 환각 차단 규칙 트리거 → 학습 데이터 인용 답변. 시세 fetch 4초로 단축 시 → _liveData 채워짐 → 정상 답변.
+- **재발 방지**: T611 + R156 (sequential proxy chain 금지).
 
 ## P414 · v49.77 · [P414] AI 채팅 진입~답변~렌더 chain의 silent fail 13 영역 정직 매핑
 

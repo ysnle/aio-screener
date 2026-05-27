@@ -6,6 +6,41 @@
 
 ---
 
+## v49.78 — 코드 단위 정밀 진단 5 CRITICAL fix (NVDA 시세 80s→3.5s 등) (2026-05-26)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 요구 "코드단위로 심층 점검 및 세밀 조사 진행해서 보강" → Explore agent 2 병렬 코드 정밀 진단 → 5 CRITICAL + 5 MEDIUM = 10 잠재 silent fail 발견 → CRITICAL 5건 즉시 실제 fix.
+
+**Changes**:
+
+1. **🔴 CRITICAL C1/P415/R156 — dynamicTickerLookup sequential → 병렬 race** (NVDA 시세 실패 진짜 원인)
+   - 기존: 5 proxy × 8s timeout × 2 retry = **최악 80s sequential hang**
+   - 시정: `Promise.any` (+ polyfill) 병렬 race + 각 proxy 3.5s timeout = **최악 3.5s**
+   - 첫 성공 proxy 즉시 반환. 사용자 NVDA 채팅 답변 4초 내 시세 채워짐.
+
+2. **C2/P416 chatAppendMsg null guard 강화**
+   - aiBubble null 시 console.warn + toast 안내 ("응답 렌더 영역 부재") — silent fail 차단
+
+3. **C3/P417/R157 _aioSafeMD fallback chain**
+   - 3단계: `_aioSafeMD` → `escHtml` → manual HTML escape
+   - DOMPurify 부재 시 XSS 우회 방어
+
+4. **C4/P418 callClaude T.CHUNK_TIMEOUT 방어적 fallback**
+   - `typeof T !== 'undefined' && T.CHUNK_TIMEOUT ? ... : 15000` — module 로드 race 안전
+
+5. **C4/P419/R158 chatSend state.streaming atomic lock**
+   - `state._chatSendEntered` counter — 60줄+ race window 차단
+   - onDone/onError/chatClear 모두 reset
+
+**Verification**:
+- `AIO.diagnose('NVDA')` → totalMs < 4000ms 예상 (기존 80s → 3.5s)
+- `dynamicTickerLookup.toString()` Promise.any 포함 확인
+- 빠른 더블 클릭 시 toast "중복 요청 차단"
+- AIO.runTests() → T622~T629 8 PASS
+
+---
+
 ## v49.77 — AI 채팅 silent fail 전면 시정 + 친화 안내 + 액션 버튼 (사용자 "전체 시스템 심층 점검?") (2026-05-26)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

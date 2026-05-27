@@ -1510,10 +1510,12 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     try {
       while (true) {
         // v30.5: 청크 간 15초 타임아웃 — 서버가 멈추면 자동 중단
+        // v49.78 C4 P418: T 객체 미정의 가능성 방어 — typeof 체크 + 명시적 15000ms fallback
+        var _chunkTimeoutMs = (typeof T !== 'undefined' && T && T.CHUNK_TIMEOUT) ? T.CHUNK_TIMEOUT : 15000;
         var chunkTimer;
         var chunkPromise = Promise.race([
           reader.read(),
-          new Promise(function(_, rej) { chunkTimer = setTimeout(function(){ rej(new Error('chunk_timeout')); }, T.CHUNK_TIMEOUT); })
+          new Promise(function(_, rej) { chunkTimer = setTimeout(function(){ rej(new Error('chunk_timeout')); }, _chunkTimeoutMs); })
         ]);
         var result;
         try { result = await chunkPromise; } finally { clearTimeout(chunkTimer); }
@@ -4296,6 +4298,20 @@ async function chatSend(ctxId) {
     } catch(_) {}
     return;
   }
+  // v49.78 C4 P419: state.streaming atomic lock — 동시 클릭 race condition 차단
+  // 기존 L4335 streaming=true 설정까지 60줄+ 거리 → 빠른 더블 클릭 시 race window 존재
+  // 검증 통과 직후 즉시 atomic lock — 이후 모든 prep는 lock 보호 영역
+  if (state.streaming) {
+    if (typeof showToast === 'function') showToast('⏳ 이미 처리 중인 요청 있음 — 완료 후 재시도', 2500);
+    return;
+  }
+  state._chatSendEntered = state._chatSendEntered || 0;
+  state._chatSendEntered++;
+  if (state._chatSendEntered > 1) {
+    state._chatSendEntered--;
+    if (typeof showToast === 'function') showToast('⏳ 중복 요청 차단 — 첫 번째 요청 완료 후 재시도', 2500);
+    return;
+  }
 
   // v48.94 P160: fundamental 자동 분석 재귀 상한 (fundamentalSearch → chatSend → ... loop)
   if (ctxId === 'fundamental') {
@@ -4592,8 +4608,16 @@ async function chatSend(ctxId) {
         aiBubble = chatAppendMsg(ctxId, 'ai', '', 'chat-' + ctxId + '-streaming');
       }
       var visible = stripChips(fullText);
+      // v49.78 C2/C3 P417: aiBubble null 시 사용자에게 즉시 안내 (silent fail 차단) + _aioSafeMD fallback
       if (aiBubble) {
-        aiBubble.innerHTML = _aioSafeMD(visible) + '<span class="chat-cursor">▌</span>';  // v48.94 P158: DOMPurify 2차
+        var _safeRender = (typeof _aioSafeMD === 'function') ? _aioSafeMD(visible) :
+                          (typeof escHtml === 'function') ? escHtml(visible).replace(/\n/g, '<br>') :
+                          String(visible).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }).replace(/\n/g, '<br>');
+        aiBubble.innerHTML = _safeRender + '<span class="chat-cursor">▌</span>';
+      } else {
+        // chatAppendMsg null 반환 — DOM 부재 silent fail 차단 (사용자 좌절 시정)
+        if (typeof console !== 'undefined' && console.warn) console.warn('[AIO chatSend] aiBubble null — chat-' + ctxId + '-msgs DOM 부재. CHAT_CONTEXTS 등록 후 패널 누락 (P398/R146 일반화).');
+        if (typeof showToast === 'function') showToast('⚠ 채팅 응답 렌더 영역 부재: chat-' + ctxId + '-msgs — 페이지 새로고침 권장', 6000);
       }
       // v34.1c: 긴 답변 시 자동 확장 (200자 이상이면 자동으로 채팅 영역 확장 — 일반 LLM 채팅처럼)
       if (fullText.length > 200) {
@@ -4610,6 +4634,7 @@ async function chatSend(ctxId) {
     // onDone — finalise
     function(fullText) {
       state.streaming = false;
+      state._chatSendEntered = 0;  // v49.78 C4 P419: atomic lock release
       if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
 
       var loadEl = document.getElementById('chat-' + ctxId + '-loading');
@@ -4952,6 +4977,7 @@ async function chatSend(ctxId) {
       }
       state.streaming = false;
       state._retryCount = 0;
+      state._chatSendEntered = 0;  // v49.78 C4 P419: atomic lock release (onError)
       if (ctxId === 'fundamental') state._fundDepth = 0;  // v48.94 P160: 재귀 카운터 리셋
       if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
 
@@ -5007,6 +5033,7 @@ function chatClear(ctxId) {
     var state = getChatState(ctxId);
     state.messages = [];
     state.streaming = false;
+    state._chatSendEntered = 0;  // v49.78 C4 P419: clear 시에도 atomic lock release
     var msgsEl = document.getElementById('chat-' + ctxId + '-msgs');
     if (msgsEl) msgsEl.innerHTML = '';
     chatRenderChips(ctxId, null);
