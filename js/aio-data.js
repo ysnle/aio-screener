@@ -374,6 +374,7 @@ var SCREENER_DB = [
   { sym:'SIMO', name:'Silicon Motion', sector:'Technology', signal:'BUY', memo:'[JPM 04/29] PT$260(Jun-27, 기존$145↑) · 1Q26 매출 QoQ+23%/YoY+105% 역대최고 · BootDrive $30M → 2026E $160M/2027E $375M AI인프라 OS드라이브 급성장 · BlueField-4 NIC 탑재 퀄 진행 ASP 2x+ · MonTitan TLC NAND 기반 2Q26 한 분기 앞당김 · AI반도체 컨트롤러 팹리스 운영레버리지 · NVDA 생태계 이중수혜(BlueField 탑재+DC SSD 밀도) · DC SSD 비중 12→19% 구조전환 수혜 · eMMC/UFS YoY+140%+ NAND 메이커 소비자 시장 철수 반사수혜', mcap:4, rsi:52, index:'NASDAQ' },
   { sym:'FDX', name:'FedEx', sector:'Industrials', signal:'HOLD', memo:'글로벌 물류 · 이커머스 수혜', mcap:86, rsi:46, index:'SP500' },
   { sym:'PWR', name:'Quanta Services', sector:'Industrials', signal:'BUY', memo:'송전망 건설 최대 수혜 · 전력망 병목 구조적 Capex · 재생에너지 · AI 인프라', mcap:78, rsi:52, index:'SP500' },
+  { sym:'POWL', name:'Powell Industries', sector:'Industrials', signal:'BUY', memo:'전력 배전·스위치기어 · 데이터센터/유틸리티 전력 인프라 병목 수혜 · DC 인프라 테마 보강 편입', mcap:4, rsi:50, index:'NASDAQ' },
   { sym:'MTZ', name:'MasTec', sector:'Industrials', signal:'BUY', memo:'[Citi 04/09] 전력 인프라 EPC 핵심 수혜 · PWR과 함께 DC전력인프라 구조적 Capex 수혜 · 추론DC 입지 이동(남동부·중부대서양 연안)→신규 송전인프라 건설 수요', mcap:7, rsi:50, index:'SP500' },
   { sym:'MRSH', name:'Marsh McLennan', sector:'Financials', signal:'HOLD', memo:'보험 브로커 · 리스크 컨설팅', mcap:85, rsi:50, index:'SP500' },
   { sym:'UPS', name:'UPS', sector:'Industrials', signal:'HOLD', memo:'미국 최대 택배 · 배당', mcap:84, rsi:44, index:'SP500' },
@@ -778,7 +779,7 @@ var SCREENER_DB = [
 
   // ═══ v35.6: 한국 KOSPI/KOSDAQ 종합 종목 데이터베이스 (150+종목) ═══
   // 시총 상위 대형주 (KOSPI 시총 TOP)
-  { sym:'005930.KS', name:'삼성전자', sector:'Technology', signal:'BUY', memo:'[GS 04/15 Buy 유지] 미국 투자자 선호 SEC>HXSCL — 일반메모리 비중↑=이익 레버리지 + HBM4 따라잡기 + 주주환원 임박 · 1Q26 OP만으로 역대 최강 2017-2018 사이클 연간평균 상회 = ROE/P/B 구조 전환 · HBM4 고핀속도(11Gbps+) 램프업 문제 미보고 → SEC가 HBM4 시장점유 확대 수혜 · LTA 레버리지 역전: 고객 선제안 = 공급사 협상력 확보 · DRAM/NAND ASP +75-85% QoQ · 수급 타이트 2028H1 · 2027 LTA 가시성=멀티플 정상화 · 약세 리스크: 26H2 가격 둔화, 27초 가격 하락, 중국 공급 위협', mcap:350, rsi:45, index:'KOSPI' },
+  { sym:'005930.KS', name:'삼성전자', sector:'Technology', signal:'BUY', memo:'[GS 04/15 Buy 유지] 미국 투자자 선호 SEC>SK하이닉스(000660.KS) — 일반메모리 비중↑=이익 레버리지 + HBM4 따라잡기 + 주주환원 임박 · 1Q26 OP만으로 역대 최강 2017-2018 사이클 연간평균 상회 = ROE/P/B 구조 전환 · HBM4 고핀속도(11Gbps+) 램프업 문제 미보고 → SEC가 HBM4 시장점유 확대 수혜 · LTA 레버리지 역전: 고객 선제안 = 공급사 협상력 확보 · DRAM/NAND ASP +75-85% QoQ · 수급 타이트 2028H1 · 2027 LTA 가시성=멀티플 정상화 · 약세 리스크: 26H2 가격 둔화, 27초 가격 하락, 중국 공급 위협', mcap:350, rsi:45, index:'KOSPI' },
   { sym:'000660.KS', name:'SK하이닉스', sector:'Technology', signal:'BUY', memo:'[JPM OW PT 180만원 / Citi BUY 170만원 — 04/25] 1Q26 OP 37.6조 사상 최대(QoQ+96%/YoY+405%) · DRAM ASP +60%대중반/NAND ASP +70%대중반 · HBM4 고객 일정 준수·향후 3년 수요>공급(경영진) · LTA: 고객 요청 급증·3~5년 물량+선불 협의 중 · NAND 321단 연말 국내 50% 전환·KV캐시 AI메모리 부상 · SOCAMM2 양산(Vera 192GB)·LPDDR6 업계 최초 개발 · 26E Capex 43조(YoY+57%)·용인 1단계 2/27 조기 · HBF JEDEC 표준화 연내·주주환원 확대 검토(26H2) · [기존] HBM3E 12H·ADR 상장 검토', mcap:120, rsi:52, index:'KOSPI' },
   { sym:'373220.KS', name:'LG에너지솔루션', sector:'Technology', signal:'WATCH', memo:'글로벌 배터리 2위 · EV 둔화 우려 · 46시리즈 양산', mcap:80, rsi:40, index:'KOSPI' },
   { sym:'207940.KS', name:'삼성바이오로직스', sector:'Healthcare', signal:'HOLD', memo:'CDMO 글로벌 1위 · 4공장 가동 · 수주 잔고 역대', mcap:55, rsi:50, index:'KOSPI' },
@@ -4845,7 +4846,7 @@ const KNOWN_TICKERS = new Set([
   'ODFL','OIH','OKE','OKLO','OKTA','ON','ONON','ORCL','ORLY','OTIS','OXY','PANW',
   'PSKY','PATH','PAYC','PAYX','PBR','PCAR','PDD','PEG','PEP','PFE','PFG','PG',
   'PGR','PH','PHM','PINS','PKG','PL','PLBY','PLD','PLTR','PM','PNC','PODD',
-  'POET','POOL','PPG','PPL','PRU','PSA','PSX','PTC','PWR','PYPL','QBTS','QCOM',
+  'POET','POOL','POWL','PPG','PPL','PRU','PSA','PSX','PTC','PWR','PYPL','QBTS','QCOM',
   'QQQ','QUBT','RACE','RBLX','RCL','RDDT','RDW','REG','REGN','RELX','RF','RGTI',
   'RHI','RIO','RIOT','RIVN','RKLB','RKT','RL','RMD','ROK','ROKU','ROP','ROST',
   'RSG','RSP','RTX','RUT','RVTY','RY','SAN','SAP','SBAC','SBUX','SCCO','SCHW',
@@ -7362,7 +7363,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '• TSMC 선단 캐파 2027까지 타이트: 2026-2028 3년 Capex $190~200B(역대급, 이전 3년 대비 2배). 2027 가격 +4-5% like-for-like 인상 논의(2Q26 콘콜). N5 이하 CAGR 25%. C.C.Wei "차세대 LPU 고객과 긴밀 협력" = 삼성 Groq 수주 단기 경계.\n' +
     '• ASML 가이던스 체계 전환: 오더 비공시 이후 "연초 보수 → 연중 상향" 패턴. 1분기 조기 상향(€340-390→€360-400억 중간값 €380, +€15억) = 수요 강도 신호. 2027 Low NA EUV 최소 80대 공약(VA 컨센 72 상회).\n' +
     '• HBM+HBF 3계층 패러다임: SanDisk HBF 일정 6개월 앞당김(26H2 파일럿, 27초 AI 추론 디바이스). 스택당 512GB 16레이어 = HBM 대비 동일비용 8-16배 용량. AI 훈련→추론 전환 = 용량 최적화 메모리 신카테고리.\n' +
-    '• 메모리 LTA 레버리지 역전(GS 한국 피드백): 기존 "LTA=정점 신호" → 신규 "고객 선제안=공급사 레버리지 확보". SEC 1Q OP만으로 역대 최강 2017-2018 연간평균 상회 = ROE/P/B 구조 전환. SEC > HXSCL 선호(미국 투자자), HBM4 고핀속도 11Gbps+ 램프업 문제 미보고 = SEC 점유 확대 수혜.\n' +
+    '• 메모리 LTA 레버리지 역전(GS 한국 피드백): 기존 "LTA=정점 신호" → 신규 "고객 선제안=공급사 레버리지 확보". SEC 1Q OP만으로 역대 최강 2017-2018 연간평균 상회 = ROE/P/B 구조 전환. SEC > SK하이닉스(000660.KS) 선호(미국 투자자), HBM4 고핀속도 11Gbps+ 램프업 문제 미보고 = SEC 점유 확대 수혜.\n' +
     '• CoreWeave 프론티어 랩 독점: Meta $21B 신규(2032 Vera Rubin)+Meta $14B 기존+OpenAI $22B+Anthropic 수십억 = 합산 $58B+. NVIDIA 3중 관계(공급+고객+투자자)가 비NVDA 호스팅 차단. 2025말 가격 +20% 인상 보고(WSJ).\n' +
     '• Nvidia Rubin 로드맵: CX9 NIC(포트당 800G→1.6Tb/s) 개발 과제로 일부 2026→2027 이월 가능(TrendForce). Citi 2026 Rubin 비중 31% 전망(TrendForce 수정치 22% 상회).\n' +
     '• Marvell 역할 확장: Google TPU 신규 설계 벤더 승격(MediaTek급) + Google LPU(Groq 대응 LLM 전용 추론) 신규 아키텍처 논의. NVLink Fusion IP블록 제공으로 XPU 이진선택→스펙트럼 전환.\n\n' +
@@ -8652,12 +8653,12 @@ const LIVE_SYMBOLS = [
   '042700.KQ','403870.KQ','058470.KQ','357780.KQ','240810.KQ','039030.KQ','272290.KQ',  // 반도체 소부장 (KOSDAQ)
   // 로봇/자동화 — 두산로보틱스(KOSPI) + 현대로템(KOSPI) + KOSDAQ 4
   '454910.KS','064350.KS',
-  '277810.KQ','090360.KQ','388720.KQ','090710.KQ',
+  '277810.KQ','108490.KQ','090360.KQ','388720.KQ','090710.KQ',
   // AI/SW — KOSPI 4 + KOSDAQ 2
   '035420.KS','018260.KS','012510.KS','035720.KS',
   '030520.KQ','304100.KQ',
   // 의료기기/AI진단 — 전원 KOSDAQ
-  '214150.KQ','328130.KQ','068760.KQ','338220.KQ','049950.KQ','145720.KQ',
+  '214150.KQ','328130.KQ','338220.KQ','322510.KQ','049950.KQ','145720.KQ',
   // 조선/해양 — 전원 KOSPI
   '009540.KS','010140.KS','329180.KS','042660.KS','010620.KS',
   // 전력기기/변압기 — KOSPI 5 + KOSDAQ 1(제룡전기)
@@ -8670,7 +8671,7 @@ const LIVE_SYMBOLS = [
   '090430.KS','192820.KS','051900.KS',
   '278470.KQ','257720.KQ','237880.KQ',
   // K-푸드 — 전원 KOSPI
-  '003230.KS','097950.KS','271560.KS','004370.KS','004990.KS','280360.KS',
+  '003230.KS','097950.KS','271560.KS','004370.KS','280360.KS',
   // 금융/밸류업 — 전원 KOSPI
   '105560.KS','055550.KS','086790.KS','316140.KS','138040.KS','032830.KS','006800.KS',
   // 자동차/SDV — 전원 KOSPI
@@ -8769,7 +8770,7 @@ const LIVE_SYMBOLS = [
   // ── Top 200 시총 확장 종목 ──
   'ABT','ADI','ADP','AFL','AIG','AON','APH','AZO','BK','BMY','BSX','CARR','CI','CME','CMG','CNC','COF','CTAS','CTSH','DD','DE','DHR','EBAY','ECL','EFX','EOG','FI','GPN','HCA','HUBB','HUM','ICE','IDXX','IQV','KEYS','KHC','MAR','MCK','MCO','MDLZ','MET','MMC','MSCI','MSI','NXPI','ORLY','OTIS','PAYX','PGR','PRU','PSA','RMD','ROP','SCHW','SHW','SRE','STE','STZ','SYK','TDG','TGT','TJX','TROW','VRSK','WEC','WELL','WM','YUM',
   // ── KR_SUB_THEMES·SUB_THEMES Critical 수정 반영 신규 종목 ──
-  'HXSCL','SSNLF',                                            // 한국 메모리 ADR (SK하이닉스/삼성전자)
+  '000660.KS','005930.KS',                                    // 한국 메모리 KRX 보통주 (SK하이닉스/삼성전자)
   'SNDK',                                                      // SanDisk (WDC 분사 재상장)
   'IRDM','NXT','ARRY','SHLS',                                 // 위성/트래커/인버터
   'NNE','LEU','SMR','OKLO','BWXT','CEG','VST',                // 원전/SMR

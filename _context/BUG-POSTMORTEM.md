@@ -2,11 +2,37 @@
 verified_by: agent
 last_verified: 2026-05-26
 confidence: high
-latest_version: v49.79
-latest_P_number: P427
-total_entries: 427
-next_P_number: P428
+latest_version: v49.80
+latest_P_number: P432
+total_entries: 432
+next_P_number: P433
 ---
+
+## P432 · v49.80 · [P432] ticker context HARD STOP 추가 — null 시 가격 인용 절대 금지
+
+- **Codex 발견**: v49.79에서 ticker context null guard 강화했으나, AI가 ticker 미확정 상태에서 가격 추측 답변 가능성 잔존.
+- **시정**: null branch에 "【시세 미수신 HARD STOP】 ticker 확정 전에는 모든 가격 인용 금지. 먼저 사용자에게 종목을 확인하고 live fetch 이후에만 가격을 말한다." 추가.
+
+## P431 · v49.80 · [P431] getThemeTrendDeepAudit 확장 — REGISTRY + KR_STOCK_DB 통합
+
+- **Codex 시정**: 기존 SCREENER_DB만 풀로 사용 → AIO_TICKER_NAME_REGISTRY + KR_STOCK_DB 추가 통합. 테마 ticker 매칭 정확도 향상 (placeholder 제외 + KR 6자리 코드 .KS/.KQ 자동 매핑).
+
+## P430 · v49.80 · [P430] getThemeCompositionLogicAudit 신규 — 테마 구성 자동 검증
+
+- **Codex 신규**: 테마 정의의 구조적 정합성 자동 검증.
+- **검증 항목**: duplicateThemeIds / invalidWeights / weightCoverageIssues / leaderNotInBasket / krRawCodesMissingStockDb / semanticEvidencePct (90%+) / semanticExclusionHits (배제 규칙 위반).
+- **재발 방지**: T643~T646.
+
+## P429 · v49.80 · [P429/R166] AIO_THEME_SEMANTIC_EXCLUSION_RULES 신규
+
+- **문제**: 자동 ticker→테마 매칭이 의미적으로 부적합한 종목 포함 위험.
+- **시정**: 명시적 배제 규칙 — kr_medtech: 068760.KQ Celltrion Pharm (pharma/biopharma 노출, AI 진단 또는 의료기기 직접 노출 아님) / kr_kfood: 004990.KS Lotte Corp (holding company, Lotte Wellfood 280360.KS로 직접 노출 권장).
+- **재발 방지**: T646 + R166.
+
+## P428 · v49.80 · [P428/R165] TICKER REGISTRY 100+ 확장 + MARA 기업명 갱신
+
+- **Codex 확장**: AIO_TICKER_NAME_REGISTRY 100+ entries 추가 — medtech KR (JLK/VUNO/Dentium/미래컴퍼니/롯데웰푸드/ROBOTIS) + US 메가캡/신흥국 100+ (전력/방산/에너지/카지노/금/리츠/유틸리티 등). MARA: 마라톤디지털 → 마라홀딩스 (실제 기업명 변경 반영). KR_STOCK_DB 정정: 178320 로보스타 → 서진시스템 (실제 종목 매핑) / 108320 로보티즈 → LX세미콘 (팹리스). medtech_kr 테마 재구성: 삼천당제약/미래컴퍼니/리가켐 → 클래시스/루닛/뷰노/JLK/덴티움. HXSCL → SK하이닉스(000660.KS) 일관화 (v48 통합 컨텍스트 + kr-macro + kr-themes + AI Briefing + KR_THEME_CATALYSTS).
+- **재발 방지**: T641~T642 (theme detail LIVE REQUIRED graceful).
 
 ## P427 · v49.79 · [P427/R164] Claude API 비용 누적 추적 + 가시화 부재
 

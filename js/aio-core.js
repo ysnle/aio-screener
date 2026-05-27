@@ -3477,7 +3477,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     // ── v49.57 신규: 크립토/핀테크 (8) ──
     'MSTR':  { en: 'MicroStrategy',    kr: '마이크로스트래티지', alt: ['microstrategy', 'mstr'] },
     'RIOT':  { en: 'Riot Platforms',   kr: '라이엇플랫폼', alt: ['riot platforms', 'riot'] },
-    'MARA':  { en: 'Marathon Digital', kr: '마라톤디지털', alt: ['marathon', 'mara'] },
+    'MARA':  { en: 'MARA Holdings', kr: '마라홀딩스', alt: ['mara holdings', 'marathon', 'mara'] },
     'HOOD':  { en: 'Robinhood',        kr: '로빈후드',     alt: ['robinhood', 'hood'] },
     'PYPL':  { en: 'PayPal',           kr: '페이팔',       alt: ['paypal', 'pypl'] },
     'SOFI':  { en: 'SoFi',             kr: '소파이',       alt: ['sofi'] },
@@ -3768,6 +3768,10 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '214150.KQ': { en: 'Classys',            kr: '클래시스',      alt: ['classys', '214150'] },
     '086900.KQ': { en: 'Medytox',            kr: '메디톡스',      alt: ['medytox', '086900'] },
     '328130.KQ': { en: 'Lunit',              kr: '루닛',          alt: ['lunit', '328130'] },
+    '322510.KQ': { en: 'JLK',                kr: '제이엘케이',      alt: ['jlk', '322510'] },
+    '338220.KQ': { en: 'VUNO',               kr: '뷰노',            alt: ['vuno', '338220'] },
+    '049950.KQ': { en: 'Mirae Company',      kr: '미래컴퍼니',      alt: ['mirae company', '049950'] },
+    '145720.KQ': { en: 'Dentium',            kr: '덴티움',          alt: ['dentium', '145720'] },
     '347860.KQ': { en: 'AB Bio',             kr: '에이비엘바이오', alt: ['abl bio', '347860'] },
     '141080.KQ': { en: 'Legochembio',        kr: '리가켐바이오',  alt: ['legochem', '141080'] },
     '298380.KQ': { en: 'Aibio',              kr: '에이비엘바이오', alt: ['aibio', '298380'] },
@@ -3778,9 +3782,11 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '950140.KQ': { en: 'Jinyang Inc',        kr: '진양제약',      alt: ['jinyang', '950140'] },
     '950130.KQ': { en: 'EXICURE',            kr: '엑시큐어',      alt: ['exicure', '950130'] },
     '950220.KQ': { en: 'Neowiz',             kr: '네오위즈',      alt: ['neowiz', '950220'] },
+    '280360.KS': { en: 'Lotte Wellfood',     kr: '롯데웰푸드',      alt: ['lotte wellfood', '280360'] },
 
     // ── KR KOSDAQ AI/SW/로봇 (10) ──
     '277810.KQ': { en: 'Rainbow Robotics',   kr: '레인보우로보틱스', alt: ['rainbow robotics', '277810'] },
+    '108490.KQ': { en: 'ROBOTIS',            kr: '로보티즈',      alt: ['robotis', '108490'] },
     '293490.KQ_dup': { en: '_skip', kr: '_skip', alt: ['_skip'] },
     '058610.KQ': { en: 'SPSCO',              kr: 'SPS코리아',     alt: ['spsco', '058610'] },
     '226320.KQ': { en: 'JYP Entertainment',  kr: 'JYP엔터',       alt: ['jyp', 'jyp ent', '226320'] },
@@ -3860,6 +3866,113 @@ window.AIO_TICKER_NAME_REGISTRY = {
     'EADSY': { en: 'Airbus',                kr: '에어버스',      alt: ['airbus', 'eadsy'] },
 
     // ── 신흥국/중남미 (10) ──
+    'EME':   { en: 'EMCOR Group',           kr: 'EMCOR',         alt: ['emcor', 'eme'] },
+    'MOD':   { en: 'Modine',                kr: '모딘',          alt: ['modine', 'mod'] },
+    'ACLS':  { en: 'Axcelis',               kr: '액셀리스',      alt: ['axcelis', 'acls'] },
+    'ENTG':  { en: 'Entegris',              kr: '인테그리스',    alt: ['entegris', 'entg'] },
+    'UCTT':  { en: 'Ultra Clean',           kr: '울트라클린',    alt: ['ultra clean', 'uctt'] },
+    'S':     { en: 'SentinelOne',           kr: '센티넬원',      alt: ['sentinelone', 'sentinel one'] },
+    'CYBR':  { en: 'CyberArk',              kr: '사이버아크',    alt: ['cyberark', 'cybr'] },
+    'DINO':  { en: 'HF Sinclair',           kr: 'HF싱클레어',    alt: ['hf sinclair', 'dino'] },
+    'DK':    { en: 'Delek US',              kr: '델렉US',        alt: ['delek', 'delek us'] },
+    'FTI':   { en: 'TechnipFMC',            kr: '테크닙FMC',     alt: ['technipfmc', 'fti'] },
+    'NOV':   { en: 'NOV',                   kr: 'NOV',           alt: ['nov inc', 'national oilwell'] },
+    'WHD':   { en: 'Cactus',                kr: '캑터스',        alt: ['cactus', 'whd'] },
+    'LEU':   { en: 'Centrus Energy',        kr: '센트러스',      alt: ['centrus', 'leu'] },
+    'ARRY':  { en: 'Array Technologies',    kr: '어레이테크',    alt: ['array technologies', 'arry'] },
+    'SHLS':  { en: 'Shoals',                kr: '숄스',          alt: ['shoals', 'shls'] },
+    'FLNC':  { en: 'Fluence Energy',        kr: '플루언스',      alt: ['fluence', 'flnc'] },
+    'KTOS':  { en: 'Kratos Defense',        kr: '크레이토스',    alt: ['kratos', 'ktos'] },
+    'AVAV':  { en: 'AeroVironment',         kr: '에어로바이런먼트', alt: ['aerovironment', 'avav'] },
+    'DKNG':  { en: 'DraftKings',            kr: '드래프트킹스',  alt: ['draftkings', 'dkng'] },
+    'FLUT':  { en: 'Flutter Entertainment', kr: '플러터',        alt: ['flutter', 'flut'] },
+    'PENN':  { en: 'PENN Entertainment',    kr: '펜엔터',        alt: ['penn entertainment', 'penn'] },
+    'KGC':   { en: 'Kinross Gold',          kr: '킨로스골드',    alt: ['kinross', 'kgc'] },
+    'AA':    { en: 'Alcoa',                 kr: '알코아',        alt: ['alcoa', 'aa'] },
+    'ADM':   { en: 'Archer-Daniels-Midland', kr: 'ADM',          alt: ['adm', 'archer daniels'] },
+    'AEM':   { en: 'Agnico Eagle Mines',    kr: '애그니코이글',  alt: ['agnico eagle', 'aem'] },
+    'ALAB':  { en: 'Astera Labs',           kr: '아스테라랩스',  alt: ['astera labs', 'alab'] },
+    'ALB':   { en: 'Albemarle',             kr: '앨버말',        alt: ['albemarle', 'alb'] },
+    'ALL':   { en: 'Allstate',              kr: '올스테이트',    alt: ['allstate', 'all'] },
+    'ALNY':  { en: 'Alnylam',               kr: '앨나일람',      alt: ['alnylam', 'alny'] },
+    'APD':   { en: 'Air Products',          kr: '에어프로덕츠',  alt: ['air products', 'apd'] },
+    'APO':   { en: 'Apollo Global Management', kr: '아폴로',     alt: ['apollo global', 'apo'] },
+    'AXON':  { en: 'Axon Enterprise',       kr: '액손',          alt: ['axon', 'axon enterprise'] },
+    'BIIB':  { en: 'Biogen',                kr: '바이오젠',      alt: ['biogen', 'biib'] },
+    'BRK-B': { en: 'Berkshire Hathaway B',  kr: '버크셔B',       alt: ['berkshire', 'brk-b'] },
+    'BX':    { en: 'Blackstone',            kr: '블랙스톤',      alt: ['blackstone', 'bx'] },
+    'CB':    { en: 'Chubb',                 kr: '처브',          alt: ['chubb', 'cb'] },
+    'CLS':   { en: 'Celestica',             kr: '셀레스티카',    alt: ['celestica', 'cls'] },
+    'CLSK':  { en: 'CleanSpark',            kr: '클린스파크',    alt: ['cleanspark', 'clsk'] },
+    'CRDO':  { en: 'Credo Technology',      kr: '크레도',        alt: ['credo', 'crdo'] },
+    'CRSP':  { en: 'CRISPR Therapeutics',   kr: '크리스퍼',      alt: ['crispr therapeutics', 'crsp'] },
+    'CTVA':  { en: 'Corteva',               kr: '코르테바',      alt: ['corteva', 'ctva'] },
+    'CZR':   { en: 'Caesars Entertainment', kr: '시저스',        alt: ['caesars', 'czr'] },
+    'DG':    { en: 'Dollar General',        kr: '달러제너럴',    alt: ['dollar general', 'dg'] },
+    'EIX':   { en: 'Edison International',  kr: '에디슨인터내셔널', alt: ['edison international', 'eix'] },
+    'EMR':   { en: 'Emerson Electric',      kr: '에머슨',        alt: ['emerson', 'emr'] },
+    'EPD':   { en: 'Enterprise Products Partners', kr: 'EPD',    alt: ['enterprise products', 'epd'] },
+    'ES':    { en: 'Eversource Energy',     kr: '에버소스',      alt: ['eversource', 'es'] },
+    'ET':    { en: 'Energy Transfer',       kr: '에너지트랜스퍼', alt: ['energy transfer', 'et'] },
+    'ETR':   { en: 'Entergy',               kr: '엔터지',        alt: ['entergy', 'etr'] },
+    'EVRG':  { en: 'Evergy',                kr: '에버지',        alt: ['evergy', 'evrg'] },
+    'FCX':   { en: 'Freeport-McMoRan',      kr: '프리포트맥모란', alt: ['freeport', 'fcx'] },
+    'FDX':   { en: 'FedEx',                 kr: '페덱스',        alt: ['fedex', 'fdx'] },
+    'FE':    { en: 'FirstEnergy',           kr: '퍼스트에너지',  alt: ['firstenergy', 'fe'] },
+    'FNV':   { en: 'Franco-Nevada',         kr: '프랑코네바다',  alt: ['franco nevada', 'fnv'] },
+    'GEV':   { en: 'GE Vernova',            kr: 'GE버노바',      alt: ['ge vernova', 'gev'] },
+    'GFI':   { en: 'Gold Fields',           kr: '골드필즈',      alt: ['gold fields', 'gfi'] },
+    'GFS':   { en: 'GlobalFoundries',       kr: '글로벌파운드리스', alt: ['globalfoundries', 'gfs'] },
+    'GRAB':  { en: 'Grab',                  kr: '그랩',          alt: ['grab'] },
+    'HLT':   { en: 'Hilton',                kr: '힐튼',          alt: ['hilton', 'hlt'] },
+    'KKR':   { en: 'KKR',                   kr: 'KKR',           alt: ['kkr'] },
+    'KMI':   { en: 'Kinder Morgan',         kr: '킨더모건',      alt: ['kinder morgan', 'kmi'] },
+    'LAC':   { en: 'Lithium Americas',      kr: '리튬아메리카스', alt: ['lithium americas', 'lac'] },
+    'LIN':   { en: 'Linde',                 kr: '린데',          alt: ['linde', 'lin'] },
+    'LUV':   { en: 'Southwest Airlines',    kr: '사우스웨스트항공', alt: ['southwest airlines', 'luv'] },
+    'LYFT':  { en: 'Lyft',                  kr: '리프트',        alt: ['lyft'] },
+    'MAR':   { en: 'Marriott',              kr: '메리어트',      alt: ['marriott', 'mar'] },
+    'MET':   { en: 'MetLife',               kr: '메트라이프',    alt: ['metlife', 'met'] },
+    'MGM':   { en: 'MGM Resorts',           kr: 'MGM리조트',     alt: ['mgm resorts', 'mgm'] },
+    'MNST':  { en: 'Monster Beverage',      kr: '몬스터베버리지', alt: ['monster beverage', 'mnst'] },
+    'MP':    { en: 'MP Materials',          kr: 'MP머티리얼즈',  alt: ['mp materials', 'mp'] },
+    'NEM':   { en: 'Newmont',               kr: '뉴몬트',        alt: ['newmont', 'nem'] },
+    'NVT':   { en: 'nVent Electric',        kr: '엔벤트',        alt: ['nvent', 'nvt'] },
+    'OKE':   { en: 'ONEOK',                 kr: '원오크',        alt: ['oneok', 'oke'] },
+    'ONTO':  { en: 'Onto Innovation',       kr: '온투이노베이션', alt: ['onto innovation', 'onto'] },
+    'PGR':   { en: 'Progressive',           kr: '프로그레시브',  alt: ['progressive', 'pgr'] },
+    'PH':    { en: 'Parker-Hannifin',       kr: '파커하니핀',    alt: ['parker hannifin', 'ph'] },
+    'RCL':   { en: 'Royal Caribbean',       kr: '로열캐리비안',  alt: ['royal caribbean', 'rcl'] },
+    'ROK':   { en: 'Rockwell Automation',   kr: '로크웰',        alt: ['rockwell automation', 'rok'] },
+    'SBAC':  { en: 'SBA Communications',    kr: 'SBA커뮤니케이션스', alt: ['sba communications', 'sbac'] },
+    'SNDK':  { en: 'SanDisk',               kr: '샌디스크',      alt: ['sandisk', 'sndk'] },
+    'STX':   { en: 'Seagate',               kr: '씨게이트',      alt: ['seagate', 'stx'] },
+    'SYK':   { en: 'Stryker',               kr: '스트라이커',    alt: ['stryker', 'syk'] },
+    'TER':   { en: 'Teradyne',              kr: '테라다인',      alt: ['teradyne', 'ter'] },
+    'TOST':  { en: 'Toast',                 kr: '토스트',        alt: ['toast', 'tost'] },
+    'TPL':   { en: 'Texas Pacific Land',    kr: '텍사스퍼시픽랜드', alt: ['texas pacific land', 'tpl'] },
+    'TRGP':  { en: 'Targa Resources',       kr: '타르가',        alt: ['targa', 'trgp'] },
+    'TRV':   { en: 'Travelers',             kr: '트래블러스',    alt: ['travelers', 'trv'] },
+    'UMC':   { en: 'United Microelectronics', kr: 'UMC',         alt: ['umc', 'united microelectronics'] },
+    'UNP':   { en: 'Union Pacific',         kr: '유니언퍼시픽',  alt: ['union pacific', 'unp'] },
+    'UPS':   { en: 'UPS',                   kr: 'UPS',           alt: ['ups'] },
+    'WAB':   { en: 'Wabtec',                kr: '왑텍',          alt: ['wabtec', 'wab'] },
+    'WDC':   { en: 'Western Digital',       kr: '웨스턴디지털',  alt: ['western digital', 'wdc'] },
+    'WMB':   { en: 'Williams Companies',    kr: '윌리엄스',      alt: ['williams companies', 'wmb'] },
+    'WPM':   { en: 'Wheaton Precious Metals', kr: '휘튼프레셔스', alt: ['wheaton precious', 'wpm'] },
+    'WYNN':  { en: 'Wynn Resorts',          kr: '윈리조트',      alt: ['wynn resorts', 'wynn'] },
+    'XEL':   { en: 'Xcel Energy',           kr: '엑셀에너지',    alt: ['xcel energy', 'xel'] },
+
+    'AEP':   { en: 'American Electric Power', kr: 'AEP',         alt: ['american electric power', 'aep'] },
+    'BMY':   { en: 'Bristol Myers Squibb',  kr: 'BMS',           alt: ['bristol myers', 'bmy'] },
+    'DUK':   { en: 'Duke Energy',           kr: '듀크에너지',    alt: ['duke energy', 'duk'] },
+    'EXC':   { en: 'Exelon',                kr: '엑셀론',        alt: ['exelon', 'exc'] },
+    'GOLD':  { en: 'Barrick Gold',          kr: '배릭골드',      alt: ['barrick', 'gold'] },
+    'GS':    { en: 'Goldman Sachs',         kr: '골드만삭스',    alt: ['goldman sachs', 'gs'] },
+    'HPE':   { en: 'Hewlett Packard Enterprise', kr: 'HPE',      alt: ['hewlett packard enterprise', 'hpe'] },
+    'PWR':   { en: 'Quanta Services',       kr: '콴타서비스',    alt: ['quanta services', 'pwr'] },
+    'POWL':  { en: 'Powell Industries',     kr: '파월인더스트리즈', alt: ['powell industries', 'powl'] },
+    'CORZ':  { en: 'Core Scientific',       kr: '코어사이언티픽', alt: ['core scientific', 'corz'] },
     'VALE':  { en: 'Vale',                  kr: '발레',          alt: ['vale'] },
     'ITUB':  { en: 'Itau Unibanco',         kr: '이타우우니방쿠', alt: ['itau', 'itub'] },
     'BBD':   { en: 'Banco Bradesco',        kr: '브라데스쿠',    alt: ['bradesco', 'bbd'] },
@@ -4165,6 +4278,22 @@ window.AIO.getThemeTrendDeepAudit = function() {
         if (r && r.sym) out[String(r.sym).toUpperCase()] = r;
       });
     } catch(_) {}
+    try {
+      var nameReg = window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries;
+      Object.keys(nameReg || {}).forEach(function(k) {
+        var entry = nameReg[k];
+        if (!entry || (window.AIO.isTickerRegistryPlaceholder && window.AIO.isTickerRegistryPlaceholder(k, entry))) return;
+        out[String(k).toUpperCase()] = entry;
+      });
+    } catch(_) {}
+    try {
+      Object.keys(window.KR_STOCK_DB || {}).forEach(function(code) {
+        if (!/^\d{6}$/.test(String(code))) return;
+        var entry = window.KR_STOCK_DB[code];
+        out[code + '.KS'] = entry;
+        out[code + '.KQ'] = entry;
+      });
+    } catch(_) {}
     return out;
   }
   function krCodeMap() {
@@ -4330,6 +4459,159 @@ window.AIO.getThemeTrendDeepAudit = function() {
 };
 
 window.AIO.assertThemeTrendDeepAudit = window.AIO.getThemeTrendDeepAudit;
+
+window.AIO_THEME_SEMANTIC_EXCLUSION_RULES = window.AIO_THEME_SEMANTIC_EXCLUSION_RULES || {
+  kr_medtech: {
+    '068760.KQ': 'Celltrion Pharm is pharmaceutical/biopharma exposure, not a direct medical-device or AI-diagnosis pure play.'
+  },
+  kr_kfood: {
+    '004990.KS': 'Lotte Corp is holding-company exposure; use direct food exposure such as Lotte Wellfood (280360.KS) instead.'
+  }
+};
+
+window.AIO.getThemeCompositionLogicAudit = function() {
+  function uniq(arr) {
+    var seen = {};
+    return (arr || []).filter(Boolean).map(String).filter(function(x) {
+      var k = x.toUpperCase();
+      if (seen[k]) return false;
+      seen[k] = true;
+      return true;
+    });
+  }
+  function isKnownMarketProxy(sym) {
+    return /^(XL|SMH|SOXX|QQQ|SPY|IWM|DIA|KRE|XBI|URA|BOTZ|HACK|ICLN|DRIV|IYZ|XSD|CRAK|ITA|GDX|LIT|JETS|OIH|AMLP|CIBR|IBIT|BITO|FBTC|ARKB|BITB|HODL|BTC-|ETH-|KRW=|\^)/.test(sym);
+  }
+  function hasSemanticEvidence(sym) {
+    sym = String(sym || '').toUpperCase();
+    if (!sym) return false;
+    if (isKnownMarketProxy(sym)) return true;
+    try { if ((window.SCREENER_DB || []).some(function(r) { return r && String(r.sym || '').toUpperCase() === sym && (r.name || r.memo || r.sector); })) return true; } catch(_) {}
+    try {
+      var reg = window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries;
+      if (reg && reg[sym] && !(window.AIO.isTickerRegistryPlaceholder && window.AIO.isTickerRegistryPlaceholder(sym, reg[sym]))) return true;
+    } catch(_) {}
+    var m = sym.match(/^(\d{6})\.(KS|KQ)$/);
+    try { if (m && window.KR_STOCK_DB && window.KR_STOCK_DB[m[1]]) return true; } catch(_) {}
+    return false;
+  }
+  function collect(raw, source, idOverride) {
+    raw = raw || {};
+    if (Array.isArray(raw)) {
+      var weights = {};
+      var syms = [];
+      raw.forEach(function(item) {
+        var code = String(item && item.code || '').trim();
+        if (!code) return;
+        syms.push(code);
+        weights[code] = Number(item.w) || 0;
+      });
+      return { source: source, id: idOverride, name: idOverride, leaders: syms.slice(0, 3), tickers: syms, weights: weights, symbols: uniq(syms), rawKr: true };
+    }
+    var weights2 = raw.weights || {};
+    var symbols = uniq([raw.etf, raw.compositeBase].concat(raw.leaders || [], raw.leaderHighlight || [], raw.tickers || [], Object.keys(weights2 || {})));
+    return {
+      source: source,
+      id: raw.id || idOverride || raw.name || 'unknown',
+      name: raw.nameKr || raw.name || raw.id || idOverride || 'unknown',
+      leaders: raw.leaders || [],
+      tickers: raw.tickers || [],
+      weights: weights2,
+      symbols: symbols,
+      etf: raw.etf || null,
+      desc: raw.desc || ''
+    };
+  }
+  var themes = [];
+  try { (window.THEME_MAP || []).forEach(function(t) { themes.push(collect(t, 'THEME_MAP')); }); } catch(_) {}
+  try { (window.SUB_THEMES || []).forEach(function(t) { themes.push(collect(t, 'SUB_THEMES')); }); } catch(_) {}
+  try { (window.KR_SUB_THEMES || []).forEach(function(t) { themes.push(collect(t, 'KR_SUB_THEMES')); }); } catch(_) {}
+  try { Object.keys(window.KR_THEME_MAP || {}).forEach(function(id) { themes.push(collect(window.KR_THEME_MAP[id], 'KR_THEME_MAP', id)); }); } catch(_) {}
+
+  var sourceIds = {};
+  var crossSourceIds = {};
+  var duplicateThemeIds = [];
+  var crossSourceIdCollisions = [];
+  var invalidWeights = [];
+  var weightCoverageIssues = [];
+  var leaderNotInBasket = [];
+  var semanticGaps = [];
+  var semanticExclusionHits = [];
+  var krRawCodesMissingStockDb = [];
+  var concentrationWarnings = [];
+  var allSymbols = {};
+  themes.forEach(function(t) {
+    var sameSourceKey = t.source + ':' + t.id;
+    if (sourceIds[sameSourceKey]) duplicateThemeIds.push({ source: t.source, id: t.id });
+    sourceIds[sameSourceKey] = true;
+    crossSourceIds[t.id] = crossSourceIds[t.id] || {};
+    crossSourceIds[t.id][t.source] = true;
+
+    var basket = {};
+    (t.symbols || []).forEach(function(s) { basket[String(s).toUpperCase()] = true; allSymbols[String(s).toUpperCase()] = true; });
+    (t.leaders || []).forEach(function(s) {
+      if (!basket[String(s).toUpperCase()]) leaderNotInBasket.push({ source: t.source, id: t.id, symbol: s });
+    });
+    var weightKeys = Object.keys(t.weights || {});
+    if (weightKeys.length) {
+      (t.tickers || []).forEach(function(s) {
+        if (!(s in t.weights)) weightCoverageIssues.push({ source: t.source, id: t.id, symbol: s, issue: 'ticker-without-weight' });
+      });
+      weightKeys.forEach(function(s) {
+        var v = Number(t.weights[s]);
+        if (!isFinite(v) || v <= 0) invalidWeights.push({ source: t.source, id: t.id, symbol: s, weight: t.weights[s] });
+      });
+      var vals = weightKeys.map(function(k) { return Number(t.weights[k]) || 0; }).filter(function(v) { return v > 0; }).sort(function(a, b) { return b - a; });
+      if (vals.length >= 3) {
+        var top1 = vals[0];
+        var top3 = vals.slice(0, 3).reduce(function(sum, v) { return sum + v; }, 0);
+        if (top1 > 45 || top3 > 85) concentrationWarnings.push({ source: t.source, id: t.id, name: t.name, top1: top1, top3: top3 });
+      }
+    }
+    (t.symbols || []).forEach(function(s) {
+      var sym = String(s || '').toUpperCase();
+      try {
+        var exclusions = window.AIO_THEME_SEMANTIC_EXCLUSION_RULES || {};
+        var byTheme = exclusions[t.id] || exclusions[String(t.id || '').toLowerCase()];
+        var reason = byTheme && (byTheme[sym] || byTheme[String(s || '')]);
+        if (reason) semanticExclusionHits.push({ source: t.source, id: t.id, symbol: sym, reason: reason });
+      } catch(_) {}
+      if (/^\d{6}$/.test(sym)) {
+        try { if (!window.KR_STOCK_DB || !window.KR_STOCK_DB[sym]) krRawCodesMissingStockDb.push({ source: t.source, id: t.id, code: sym }); } catch(_) {}
+        return;
+      }
+      if (!hasSemanticEvidence(sym)) semanticGaps.push({ source: t.source, id: t.id, symbol: sym });
+    });
+  });
+  Object.keys(crossSourceIds).forEach(function(id) {
+    var sources = Object.keys(crossSourceIds[id]);
+    if (sources.length > 1) crossSourceIdCollisions.push({ id: id, sources: sources });
+  });
+  var uniqueSymbols = Object.keys(allSymbols);
+  var semanticGapSymbols = {};
+  semanticGaps.forEach(function(g) { semanticGapSymbols[g.symbol] = true; });
+  var structuralBlocking = duplicateThemeIds.length + invalidWeights.length + weightCoverageIssues.length + leaderNotInBasket.length + krRawCodesMissingStockDb.length + semanticExclusionHits.length;
+  return {
+    status: structuralBlocking ? 'warn' : 'ok',
+    counts: {
+      themes: themes.length,
+      uniqueSymbols: uniqueSymbols.length,
+      semanticEvidenceSymbols: Math.max(0, uniqueSymbols.length - Object.keys(semanticGapSymbols).length),
+      semanticEvidencePct: uniqueSymbols.length ? Math.round((uniqueSymbols.length - Object.keys(semanticGapSymbols).length) / uniqueSymbols.length * 100) : 0
+    },
+    duplicateThemeIds: duplicateThemeIds,
+    crossSourceIdCollisions: crossSourceIdCollisions,
+    leaderNotInBasket: leaderNotInBasket,
+    invalidWeights: invalidWeights,
+    weightCoverageIssues: weightCoverageIssues,
+    krRawCodesMissingStockDb: krRawCodesMissingStockDb,
+    semanticExclusionHits: semanticExclusionHits,
+    semanticGaps: semanticGaps,
+    concentrationWarnings: concentrationWarnings,
+    note: 'Composition logic audit checks structural integrity and local explainability. It does not prove every constituent is currently the best market representative without external verification.',
+    generatedAt: new Date().toISOString()
+  };
+};
 
 window.AIO.getThemeSymbolExplainability = function(symbol) {
   var target = String(symbol || '').trim().toUpperCase();
@@ -13112,7 +13394,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.78';
+const APP_VERSION = 'v49.80';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

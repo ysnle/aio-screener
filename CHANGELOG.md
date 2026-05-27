@@ -6,6 +6,46 @@
 
 ---
 
+## v49.80 — Codex 통합: TICKER REGISTRY 100+ + 테마 의미 배제 + KR_STOCK_DB 정합성 (2026-05-27)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 요구 "Codex 작업 내용 꼼꼼하게 참고해서 전체 통합 후 커밋/배포". v49.79 push 이후 Codex가 4 파일 (index/core/data/tests) 387 line 미커밋 작업 → 통합.
+
+**Codex 작업 통합 내용**:
+
+1. **P428/R165 AIO_TICKER_NAME_REGISTRY 100+ entries 추가**:
+   - **medtech KR**: JLK (322510), VUNO (338220), Dentium (145720), 미래컴퍼니 (049950), 롯데웰푸드 (280360.KS), ROBOTIS (108490)
+   - **US 메가캡/신흥국 100+**: EME, MOD, ACLS, ENTG, UCTT, S(SentinelOne), CYBR, DINO, DK, FTI, NOV, WHD, LEU, ARRY, SHLS, FLNC, KTOS, AVAV, DKNG, FLUT, PENN, KGC, AA, ADM, AEM, ALAB, ALB, ALL, ALNY, APD, APO, AXON, BIIB, BRK-B, BX, CB, CLS, CLSK, CRDO, CRSP, CTVA, CZR, DG, EIX, EMR, EPD, ES, ET, ETR, EVRG, FCX, FDX, FE, FNV, GEV, GFI, GFS, GRAB, HLT, KKR, KMI, LAC, LIN, LUV, LYFT, MAR, MET, MGM, MNST, MP, NEM, NVT, OKE, ONTO, PGR, PH, RCL, ROK, SBAC, SNDK, STX, SYK, TER, TOST, TPL, TRGP, TRV, UMC, UNP, UPS, WAB, WDC, WMB, WPM, WYNN, XEL, AEP, BMY, DUK, EXC, GOLD, GS, HPE, PWR, POWL, CORZ
+   - **MARA**: 마라톤디지털 → 마라홀딩스 (기업명 변경 반영)
+
+2. **P429/R166 AIO_THEME_SEMANTIC_EXCLUSION_RULES**:
+   - kr_medtech: 068760.KQ Celltrion Pharm 제외 (pharma 노출, AI 진단/의료기기 직접 아님)
+   - kr_kfood: 004990.KS Lotte Corp 제외 (holding, 280360.KS Lotte Wellfood 권장)
+
+3. **P430 getThemeCompositionLogicAudit**: 테마 구성 자동 검증 (duplicates/weights/leaders/KR codes/semantic 90%+/exclusion)
+
+4. **P431 getThemeTrendDeepAudit 확장**: REGISTRY + KR_STOCK_DB 통합
+
+5. **P432 ticker context HARD STOP**: _currentTickerId null 시 가격 인용 절대 금지
+
+6. **HXSCL → SK하이닉스(000660.KS) 일관화**: v48 통합 컨텍스트 + kr-macro + kr-themes + AI Briefing + KR_THEME_CATALYSTS + SCREENER_DB 005930.KS 메모
+
+7. **medtech_kr 테마 재구성**: 삼천당제약/미래컴퍼니/리가켐 → 클래시스/루닛/뷰노/JLK/덴티움
+
+8. **KR_STOCK_DB 정정**: 178320 로보스타 → 서진시스템 / 108320 로보티즈 → LX세미콘
+
+9. **SCREENER_DB + KNOWN_TICKERS + LIVE_SYMBOLS**: POWL + 108490 (로보티즈) 추가
+
+10. **T641~T646 신규**: theme detail LIVE REQUIRED graceful / sub-theme no-live / composition audit / structural clean / semantic evidence 90%+ / exclusion guard
+
+**Verification**:
+- `Object.keys(AIO_TICKER_NAME_REGISTRY.entries).length` → +100 증가
+- `AIO.getThemeCompositionLogicAudit()` → `semanticExclusionHits.length === 0`
+- `AIO.runTests()` → T641~T646 6 PASS
+
+---
+
 ## v49.79 — 잔여 6건 모두 보강 (ticker guard / kr-macro / quota / schema / multi-tab / API 비용) (2026-05-27)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

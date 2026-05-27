@@ -6,6 +6,18 @@ target_version: v48.97
 
 ---
 
+## R165. AIO_TICKER_NAME_REGISTRY 의미적 정확성 + 한글 별명 일관성 의무 (v49.80 Codex)
+
+- 새 ticker 등록 시 `{ en, kr, alt[] }` 3축 의무. en은 공식 영문명, kr은 한국 시장 표기, alt는 alias 배열.
+- 기업명 변경 시 (예: MARA 마라톤디지털 → 마라홀딩스) 즉시 반영. 회사 IR / SEC 10-K cover page 기준.
+- KR_STOCK_DB 종목 sym 매핑 정확성 확보. 잘못 매핑된 사례 (예: 178320=로보스타 → 실제 서진시스템) 자동 audit.
+
+## R166. AIO_THEME_SEMANTIC_EXCLUSION_RULES 의미적 misfit 배제 의무 (v49.80 Codex)
+
+- 테마 자동 ticker 매칭 시 의미적 misfit (holding company / 다른 sector ETF) 명시 배제.
+- 형식: `AIO_THEME_SEMANTIC_EXCLUSION_RULES[themeId][ticker] = '배제 이유'`.
+- 회귀 방지: `getThemeCompositionLogicAudit().semanticExclusionHits === 0`.
+
 ## R159. ticker / options context는 _currentTickerId null + _liveData 미수신 양쪽 가드 의무 (v49.79)
 
 - ticker 없을 때: "어떤 종목 분석을 원하시나요?" + 예시 (NVDA / 삼성전자 / 005930.KS) 명시.

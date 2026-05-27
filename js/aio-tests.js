@@ -3226,6 +3226,54 @@
     _assert('T640 app_version_v4979_final: APP_VERSION === "v49.79"',
       typeof APP_VERSION === 'string' && APP_VERSION === 'v49.79',
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
+    // T641~T642: theme detail panels must degrade gracefully before live quotes arrive.
+    var prevLive = window._liveData;
+    var themeOk = false;
+    var subOk = false;
+    try {
+      window._liveData = {};
+      if (typeof window.showPage === 'function') window.showPage('themes');
+      if (typeof window.showThemeDetail === 'function') {
+        var firstTheme = window.THEME_MAP && window.THEME_MAP[0] && window.THEME_MAP[0].id;
+        if (firstTheme) {
+          window.showThemeDetail(firstTheme);
+          var themePanel = document.getElementById('theme-detail-panel');
+          themeOk = !!(themePanel && themePanel.style.display !== 'none' && themePanel.textContent.indexOf('LIVE REQUIRED') >= 0);
+        }
+      }
+      if (typeof window.showSubThemeDetail === 'function') {
+        var firstSub = window.SUB_THEMES && window.SUB_THEMES[0] && window.SUB_THEMES[0].id;
+        if (firstSub) {
+          window.showSubThemeDetail(firstSub);
+          var subPanel = document.getElementById('sub-theme-detail-panel');
+          subOk = !!(subPanel && subPanel.style.display !== 'none' && subPanel.textContent.indexOf('LIVE REQUIRED') >= 0);
+        }
+      }
+    } catch(eThemeNoLive) {
+      themeOk = false;
+      subOk = false;
+    } finally {
+      window._liveData = prevLive;
+    }
+    _assert('T641 theme_detail_no_live_no_throw_v4979: no-live theme detail opens with LIVE REQUIRED',
+      themeOk,
+      'themeOk=' + themeOk);
+    _assert('T642 subtheme_detail_no_live_no_throw_v4979: no-live subtheme detail opens with LIVE REQUIRED',
+      subOk,
+      'subOk=' + subOk);
+    var compositionAudit = window.AIO && typeof window.AIO.getThemeCompositionLogicAudit === 'function' && window.AIO.getThemeCompositionLogicAudit();
+    _assert('T643 theme_composition_logic_audit_defined_v4979: theme composition logic audit exists',
+      compositionAudit && compositionAudit.counts && compositionAudit.counts.themes >= 100,
+      compositionAudit ? 'themes=' + compositionAudit.counts.themes : 'audit missing');
+    _assert('T644 theme_composition_structural_clean_v4979: no broken weights, leaders, or KR raw-code mapping',
+      compositionAudit && compositionAudit.duplicateThemeIds.length === 0 && compositionAudit.invalidWeights.length === 0 && compositionAudit.weightCoverageIssues.length === 0 && compositionAudit.leaderNotInBasket.length === 0 && compositionAudit.krRawCodesMissingStockDb.length === 0,
+      compositionAudit ? 'dup=' + compositionAudit.duplicateThemeIds.length + ' invalidW=' + compositionAudit.invalidWeights.length + ' weightCoverage=' + compositionAudit.weightCoverageIssues.length + ' leaderGap=' + compositionAudit.leaderNotInBasket.length + ' krMissing=' + compositionAudit.krRawCodesMissingStockDb.length : 'audit missing');
+    _assert('T645 theme_semantic_evidence_coverage_v4979: local registry/DB explainability covers 90%+ theme symbols',
+      compositionAudit && compositionAudit.counts.semanticEvidencePct >= 90,
+      compositionAudit ? 'semanticEvidencePct=' + compositionAudit.counts.semanticEvidencePct + ' gaps=' + compositionAudit.semanticGaps.length : 'audit missing');
+    _assert('T646 theme_semantic_exclusion_guard_v4979: known theme misfits stay out of baskets',
+      compositionAudit && compositionAudit.semanticExclusionHits && compositionAudit.semanticExclusionHits.length === 0,
+      compositionAudit ? 'semanticExclusionHits=' + compositionAudit.semanticExclusionHits.length : 'audit missing');
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지
