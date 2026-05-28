@@ -7088,9 +7088,9 @@ function renderFeed(items) {
 // v49.8: HOME 핵심 뉴스는 최근 72시간 안의 시장 충격도 높은 맥락만 기본 노출한다.
 // 지나간 이벤트는 예정/핵심 뉴스처럼 고정하지 않고, 실시간 뉴스 수집 성공 시 자동 교체한다.
 var HOME_WEEKLY_NEWS = [
-  { title: 'AI 주도주 조정과 Nasdaq -0.7%: 과열 랠리 이후 반도체·소프트웨어 추격매수보다 10EMA/21EMA 이탈과 거래량을 먼저 확인해야 합니다.', source: 'AP market wrap', date: '2026-05-13', sentiment: 'warn', topic: 'earnings' },
-  { title: 'WTI +4.2%·Brent +3.4%: 유가 급등은 인플레이션·금리 경로를 다시 흔들 수 있어 에너지 제외 섹터 강세의 지속성을 점검해야 합니다.', source: 'WSJ/Barron\'s', date: '2026-05-13', sentiment: 'warn', topic: 'macro' },
-  { title: 'KOSPI +2.63% 반등: 한국장은 전일 급락 뒤 되돌림이 강했지만, 환율·외국인 수급·반도체 대형주 확인 전에는 fallback 라벨을 유지합니다.', source: 'KRX/Seoul Economic Daily', date: '2026-05-13', sentiment: 'neutral', topic: 'kr' },
+  { title: 'WTI -6%·Brent -4.5% 급락: 이란 평화 협상 진전 (Strait of Hormuz 1개월 내 재개 가능성) — 에너지 섹터 +1bp 하락 주도, 인플레 컨센서스 재평가 신호 모니터.', source: 'Reuters/Bloomberg/TheStreet', date: '2026-05-27', sentiment: 'bull', topic: 'geo' },
+  { title: 'Dow 50,644 신고가·SPX 7,520 신고가: VIX 17.0으로 추가 하락, 위험선호 지속. 다만 NDX 반도체 -0.1%로 챕랠리 약화 + Bear AAII 36.6%로 단기 경계 신호.', source: 'CNBC/TheStreet', date: '2026-05-27', sentiment: 'bull', topic: 'market' },
+  { title: 'KOSPI 8,185 (-0.53%) 5일 랠리 종료: KOSDAQ -2.54% 급락 (외국인 매도 + 채권금리 상승). 8,200 저항 대치, 반도체 대형주·환율 1,464원 동시 모니터 필요.', source: 'KRX/Seoul Economic Daily', date: '2026-05-28', sentiment: 'warn', topic: 'kr' },
 ];
 window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
 

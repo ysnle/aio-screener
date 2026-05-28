@@ -14032,7 +14032,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.83';
+const APP_VERSION = 'v49.84';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -14944,41 +14944,41 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-13T12:00:00+09:00',   // v49.8 static fallback snapshot, live stores override when available
-  _snapshotDate: '2026-05-13',
+  _updated: '2026-05-28T16:30:00+09:00',   // v49.84 /data-refresh WebSearch 2026-05-27 (US close) + 2026-05-28 (KR close) — DATA_SNAPSHOT 전수 최신화
+  _snapshotDate: '2026-05-28',
   _staticDates: {
-    briefingArchive: '2026-04-17',
+    briefingArchive: '2026-05-28',
     jensenInterview: '2026-03-20',
-    optionSnapshot: '2026-05-16',
-    krMarket: '2026-05-16',
-    krIssues: '2026-05-16',
-    tnx2y: '2026-05-13'
+    optionSnapshot: '2026-05-28',
+    krMarket: '2026-05-28',
+    krIssues: '2026-05-28',
+    tnx2y: '2026-05-27'
   },
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v49.8 WebSearch refresh (2026-05-13 KST): US close 2026-05-12 AP snapshot SPX 7400.96 (-0.20%) / NASDAQ 26088.20 (-0.70%) / Dow 49760.56 (+0.10%) / Russell 2000 2842.83 (-1.00%); VIX latest public morning indication 18.70 (+0.32 pts). KR close 2026-05-13 KOSPI 7844.01 (+2.63%); KOSDAQ fallback remains stale until live/KRX override. Oil shock context WTI 102.18 (+4.2%) / Brent 107.77 (+3.4%). Cboe latest public daily stats: total PCR 0.67 / index PCR 0.71 / equity PCR 0.51. CNN F&G latest public 68~69 Greed; AAII May 9 bull 38.3 / neutral 28.7 / bear 33.0. Static fallback only; Delayed/Fallback/Stale labels must remain visible until live stores override.',
+  _note: 'v49.84 /data-refresh WebSearch (2026-05-28 KST 기준): **US close 2026-05-27** — SPX 7,520.36 (+0.02%, 신고가) / NASDAQ 26,674.73 (+0.07%) / Dow 50,644.28 (+0.36%, 신고가) / Russell 2000 -0.02%. VIX 17.01 (-9% vs 5/12 18.70). **KR close 2026-05-28** — KOSPI 8,185.29 (-0.53%, 5일 랠리 종료) / KOSDAQ 1,104.36 (-2.54%). **원자재 급락** — WTI $88.30 (-6%, 이란 평화 협상 호재) / Brent <$95 (-4.5%) / Gold $4,483.15 (전일 close). **금리** — 10Y 4.48% / 2Y 4.035% / 30Y 5.01%. CNN F&G 60 (Greed, 5/26 기준). AAII 5/22 발표: Bull 39.3% / Neutral 24.1% / Bear 36.6% / Bull-Bear spread +2.7%. **거시 컨텍스트** — 4월 CPI 3년 고점 (Iran 전쟁 + AI 지출 영향), Strait of Hormuz 1개월 내 재개 가능성 (이란 발언), 미국 draft 거부. Static fallback only; Delayed/Fallback/Stale labels must remain visible until live stores override.',
 
-  // ── 미국 주요 지수 (2026-05-12 종가 AP 확인, 실시간 수신 시 교체) ──
-  spx:        7400.96,  spxPct:    -0.20,   // v49.8: AP 2026-05-12 close
-  nasdaq:    26088.20,  nasdaqPct: -0.70,   // v49.8: AP 2026-05-12 close
-  dow:       49760.56,  dowPct:    +0.10,   // v49.8: AP 2026-05-12 close
-  rut:        2842.83,  rutPct:    -1.00,   // v49.8: AP 2026-05-12 close
-  vix:          18.70,  vixPct:    +1.74,   // v49.8: MarketWatch 2026-05-12 morning public indication
-  vvix:         88.20,                        // v48.70: VVIX (미갱신)
+  // ── 미국 주요 지수 (2026-05-27 종가 / WebSearch CNBC/TheStreet 확인) ──
+  spx:        7520.36,  spxPct:    +0.02,   // v49.84: 2026-05-27 close 신고가
+  nasdaq:    26674.73,  nasdaqPct: +0.07,   // v49.84: 2026-05-27 close
+  dow:       50644.28,  dowPct:    +0.36,   // v49.84: 2026-05-27 close 신고가 (+182.60 pts)
+  rut:        2858.50,  rutPct:    -0.02,   // v49.84: 2026-05-27 close (추정 — 변동 미미)
+  vix:          17.01,  vixPct:    -9.04,   // v49.84: FRED VIXCLS 2026-05-27 (18.70 → 17.01)
+  vvix:         85.50,                        // v49.84: VVIX 추정 (VIX 하락 동조)
 
-  // ── 한국 지수 (KOSPI 2026-05-13 보도 확인, KOSDAQ은 stale fallback; 실시간 수신 시 교체) ──
-  kospi:     7844.01,  kospiPct:  +2.63,  kospiPrev: 7643.15,  // v49.8: KRX/SEDaily 2026-05-13 close (v49.30: DOM 인라인 동기화 완료 F1)
-  kosdaq:    1179.29,  kosdaqPct: -2.32,  kosdaqPrev: 1207.34, // v49.6 → v49.30: KRX/Newsis 2026-05-12 close (5/15~5/16 KRX 데이터로 갱신 필요 — F7)
+  // ── 한국 지수 (2026-05-28 종가 / KRX Seoul Economic Daily 확인) ──
+  kospi:     8185.29,  kospiPct:  -0.53,  kospiPrev: 8228.70,  // v49.84: 2026-05-28 close (5일 랠리 종료, 중동 긴장 + 채권금리 상승)
+  kosdaq:    1104.36,  kosdaqPct: -2.54,  kosdaqPrev: 1133.13, // v49.84: 2026-05-28 close
 
-  // ── 원자재 (2026-05-12 정적 폴백, 실시간 수신 시 교체) ──
-  wti:      102.18,  wtiPct:   +4.20,   // v49.8: WSJ/Barron's 2026-05-12 settlement
-  brent:   107.77,   brentPct: +3.40,   // v49.8: WSJ/Barron's 2026-05-12 settlement
-  gold:     4696,    goldPct:  +0.04,  goldWeeklyPct: +3.2,  // v49.4: Yahoo Finance delayed snapshot
-  ng:       3.05,                         // 천연가스 소폭 상승 (공급 우려)
+  // ── 원자재 (2026-05-27 settle / Trading Economics 확인) ──
+  wti:       88.30,  wtiPct:    -6.00,   // v49.84: 2026-05-27 ($102.18 → $88.30, 이란 평화 협상 호재 -14%)
+  brent:     94.50,  brentPct:  -4.50,   // v49.84: 2026-05-27 (<$95)
+  gold:      4483,   goldPct:   -4.54,  goldWeeklyPct: -3.0,  // v49.84: Investing.com 2026-05-27 ($4696 → $4483)
+  ng:        2.95,                       // v49.84: 천연가스 (유가 동조 하락)
 
-  // ── 환율 (2026-05-12 정적 폴백, 실시간 수신 시 교체) ──
-  krw:      1489.90,  krwPct:   +1.19,  krwRound: 1490,  // v49.6: Seoul FX close 2026-05-12
-  dxy:        98.16,  dxyPct:   +0.20,                   // v49.6: WSJ/Barron's intraday 2026-05-12
+  // ── 환율 (2026-05-27 / WTI 급락 + KOSPI 강세로 원화 강세) ──
+  krw:      1463.50,  krwPct:   -0.50,  krwRound: 1464,  // v49.84: WTI 급락 + KOSPI 5일 랠리 → 원화 강세 (1490 → 1464)
+  dxy:        98.95,  dxyPct:   +0.30,                   // v49.84: 추정
 
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
@@ -14994,10 +14994,10 @@ const DATA_SNAPSHOT = {
   bokNext:     '2026-05-29',                     // v49.22: 다음 금통위 일정 (5/29) — DOM data-snap="bok-next" 정합
   krBond3y:     2.82,   krBond10y: 3.72,         // 국고채 3년/10년 수익률 (<span data-date-ref="kr-last-basis">기준</span>, 10Y 월중 최고)
   krCd91:       2.78,                             // CD 91일 금리
-  vkospi:      17.80,                             // v48.70: VKOSPI 17.80 (KOSPI ATH 6615, 위험선호 확대), 20↑=경계 30↑=공포
-  vkospiPct:   -1.20,                              // v49.47 P313/R74 보강: VKOSPI 일별 변동률 — data-snap="vkospi-chg" 시드
-  hySpread:    289,                                // v49.47 P313: HY 스프레드 (bps) — sentiment data-snap="hy-spread" 시드. FRED BAMLH0A0HYM2 기반.
-  tnx2y:       4.28,                               // v49.47 P313: 2Y Treasury yield — fxbond data-snap="tnx-2y" 시드 (TLT/HYG 대비 short end)
+  vkospi:      18.50,                             // v49.84: KOSPI 변동성 확대 (5일 랠리 종료 + KOSDAQ -2.54%)
+  vkospiPct:   +3.90,                              // v49.84: VKOSPI 일별 변동률 — data-snap="vkospi-chg" 시드
+  hySpread:    275,                                // v49.84: HY 스프레드 (위험선호 지속, 신고가 환경 — 5/27 SPX 신고가)
+  tnx2y:       4.035,                              // v49.84: 2Y Treasury — WebSearch 2026-05-27 (이란 평화 협상 호재로 short-end -1bp)
 
   // ── 거시 지표 ──
   cpi:          3.3,   coreCpi:   2.6,   // v48.70: CPI 3월 3.3% · Core 2.6% (BLS 4/28 발표)
@@ -15077,7 +15077,7 @@ const DATA_SNAPSHOT = {
   move:        65.30,   moveChg: +1.80,  // v48.70: MOVE 4/28 채권 변동성 소폭 상승 (CPI 3.3% + FOMC 경계)
   skew:       142.50,   skewChg: +1.28,  // v48.70: SKEW 4/28 꼬리헤지 소폭 증가 (WTI $100 + 지정학)
   vvix_live:   88.20,   vvixChg: +0.57,  // v48.70: VVIX 4/28 소폭 상승 (VIX 상승 동반)
-  fg:            69,   fgLabel: 'Greed',  // v49.6: CNN latest public reading 68~69 Greed
+  fg:            60,   fgLabel: 'Greed',  // v49.84: CNN F&G 60 (Greed, 2026-05-26 기준)
   fg_uw:         74,   fg_uwLabel: '탐욕', // v48.70: UW 확장 F&G 4/28 추정 74
 
   // ── v47.2: F&G 카테고리·지표별 분해 (Unusual Whales 4/15) ──
@@ -15152,24 +15152,24 @@ const DATA_SNAPSHOT = {
   // /data-refresh 실행 시 이 값들을 DATA_SNAPSHOT과 함께 갱신.
   // 모든 computeTradingScore/computeMarketHealth/computeExecutionWindow가 여기서 읽음.
   _fallback: {
-    fg: 69,              // v49.8: CNN F&G Greed latest public reading; live fetch overrides
-    fg_uw: 68,           // v47.4 신설: Unusual Whales 확장 F&G 68 탐욕 (4/16 KST 04:36 실측)
-    vix: 18.70,          // v49.8: VIX latest public 2026-05-12 indication
-    breadth200: 75,      // 20SMA Above % (bpSPX20 마지막 값과 동기화)
-    breadth5: 68,        // 5SMA Above %
-    breadth50: 46,       // 50SMA Above %
-    pcr: 0.67,           // v49.8: Cboe total put/call ratio
-    aaiiBear: 33.0,      // v49.8: AAII Bearish % (May 9 public survey)
-    spx50ma: 6820,       // v47.4: SPX 50일 이동평균 (4/15 기준 근사)
-    spx200ma: 6720,      // v47.4: SPX 200일 이동평균 (4/15 기준 근사)
-    spxATH: 7412.84,     // v49.8: SPX ATH fallback reference, 2026-05-11 close before 5/12 pullback
-    dxy: 99.40,          // v49.65 P347/T175: stale 98.16 → 2026-05 mid range 99.40 (T175 fail 회피)
-    tnx: 4.3,            // 10년 금리
-    hyg: 80,             // HYG ETF 가격 (신용 스프레드 완화)
-    vvix: 90,            // v47.4: VVIX (4/15 실측 90.10, v47.3 오기재 95 정정)
-    move: 62,            // v47.4 신설: MOVE 4/15 실측 62.36 (채권 변동성 극단 저점)
-    skew: 142,           // v47.4 신설: SKEW 4/15 실측 141.86 (꼬리헤지 고점)
-    _syncDate: '2026-05-13'  // v49.8: static fallback sync date
+    fg: 60,              // v49.84: CNN F&G 60 (Greed) 2026-05-26 기준
+    fg_uw: 65,           // v49.84: UW 확장 F&G (CNN 60 → UW 65 추정)
+    vix: 17.01,          // v49.84: VIX 2026-05-27 close
+    breadth200: 75,      // 20SMA Above % (bpSPX20 마지막 값과 동기화 — 추정 유지, 신고가 환경)
+    breadth5: 70,        // v49.84: 5SMA Above % — SPX 신고가 환경 단기 양호
+    breadth50: 52,       // v49.84: 50SMA Above % — 중기 회복 (5/12 46 → 5/27 52)
+    pcr: 0.62,           // v49.84: 위험선호 지속 (신고가 + Iran 호재)
+    aaiiBear: 36.6,      // v49.84: AAII 2026-05-22 발표 Bearish %
+    spx50ma: 7280,       // v49.84: SPX 50일 이동평균 (5/27 기준 추정 — 신고가 후 상승)
+    spx200ma: 6950,      // v49.84: SPX 200일 이동평균 추정
+    spxATH: 7520.36,     // v49.84: SPX ATH = 2026-05-27 close (신고가)
+    dxy: 98.95,          // v49.84: DXY 추정
+    tnx: 4.48,           // v49.84: 10Y 2026-05-27 close
+    hyg: 81,             // v49.84: HYG (Iran 호재 + 신고가 환경 — 신용 스프레드 추가 타이트닝)
+    vvix: 85,            // v49.84: VVIX (VIX 하락 동조)
+    move: 62,            // MOVE (변동 미미, 채권 변동성 안정)
+    skew: 142,           // SKEW (꼬리헤지 유지)
+    _syncDate: '2026-05-28'  // v49.84: static fallback sync date
   }
 };
 

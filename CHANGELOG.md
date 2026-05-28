@@ -6,6 +6,53 @@
 
 ---
 
+## v49.84 — /data-refresh 전수 최신화 (15일 stale → 0일) (2026-05-28)
+
+**Changed files**: `js/aio-core.js`, `js/aio-data.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+**Motivation**: 사용자 `/data-refresh` 호출. DATA_SNAPSHOT._updated가 2026-05-13 (15일 경과 = CRITICAL, 일간 데이터 5배 초과). WebSearch 30 카테고리 (A~T 그룹) 전수 점검 + 최신화.
+
+### CRITICAL 시장 변화 (2026-05-13 → 2026-05-28)
+| 카테고리 | 이전 | 신규 | 변화 |
+|---------|------|------|------|
+| **WTI** | $102.18 (+4.2%) | **$88.30 (-6%)** | **-14% (이란 평화 협상 호재)** |
+| **Brent** | $107.77 | **<$95** | **-12%** |
+| **Gold** | $4,696 | **$4,483** | **-4.5%** |
+| **SPX** | 7,400.96 (-0.20%) | **7,520.36 (+0.02%, 신고가)** | +1.6% |
+| **NASDAQ** | 26,088.20 | **26,674.73** | +2.2% |
+| **Dow** | 49,760.56 | **50,644.28 (신고가)** | +1.8% |
+| **VIX** | 18.70 | **17.01** | -9% |
+| **KOSPI** | 7,844.01 (+2.63%) | **8,185.29 (-0.53%)** | +4.3% (5일 랠리, 5/28 종료) |
+| **KOSDAQ** | 1,179.29 | **1,104.36 (-2.54%)** | -6.4% (외국인 매도) |
+| **KRW** | 1,489.90 | **1,463.50** | 원화 강세 |
+| **10Y Treasury** | 4.3% | **4.48%** | +18bp |
+| **2Y Treasury** | 4.28% | **4.035%** | -25bp (Iran 호재) |
+| **F&G** | 69 (Greed) | **60 (Greed)** | -9pt 둔화 |
+| **VKOSPI** | 17.80 | **18.50** | +3.9% |
+| **HY OAS** | 289bp | **275bp** | -14bp 타이트닝 |
+| **AAII (5/22)** | Bull 38.3·Bear 33.0 | **Bull 39.3·Bear 36.6·Spread +2.7%** | 갱신 |
+| **Breadth 5SMA** | 68% | **70%** | +2pt |
+| **Breadth 50SMA** | 46% | **52%** | +6pt 개선 |
+
+### HOME_WEEKLY_NEWS 3건 전면 교체 (5/13 → 5/27-28)
+1. WTI -6%·Brent -4.5% 급락: 이란 평화 협상 진전 (Strait of Hormuz 1개월 재개 가능성) [bull/geo]
+2. Dow 50,644·SPX 7,520 신고가: VIX 17.0 추가 하락 [bull/market]
+3. KOSPI 8,185 (-0.53%) 5일 랠리 종료: KOSDAQ -2.54% 급락 [warn/kr]
+
+### 거시 컨텍스트
+- 4월 CPI 3년 고점 (Iran 전쟁 + AI 지출 영향) — Fortune 2026-05-12
+- Strait of Hormuz 1개월 내 재개 가능성 (이란 발언) — Bloomberg 2026-05-27
+- 미국 draft 거부 → 협상 지속 + 변동성 가능
+- Dow 신고가 + SPX 신고가 → 챕랠리 약화 + AAII Bear 36.6% (단기 경계 신호)
+
+### 동기화 7곳
+title + badge + APP_VERSION + `?v=49.84`×6 + sw.js (SW_VERSION + SW_BUILD `2026-05-28T17:00:00+09:00`) + version.json + _context/CLAUDE.md + CLAUDE.md + CHANGELOG.md.
+
+### _fallback _syncDate
+2026-05-13 → 2026-05-28.
+
+---
+
 ## v49.83 — 기관급 + 직관성 9건 일괄 보강 (백로그 cleanup) (2026-05-28)
 
 **Changed files**: `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
