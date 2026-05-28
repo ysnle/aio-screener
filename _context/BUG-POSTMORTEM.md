@@ -4009,3 +4009,16 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **파일**: `js/aio-core.js` (P440 다음 신규)
 - **violated_rule**: R170(신규)
 - **prevention**: R170 — KR/외국 ticker 매핑 정정 시 다중 데이터 구조 cross-check 의무. 외부 작업본(Codex/VsCode) 통합 시 본 audit 실행 후 0 conflict 검증 후 commit.
+
+---
+
+## P443~P450 · v49.83 · 기관급 + 직관성 9건 일괄 보강 (사용자 정직 백로그)
+
+- **P443 / R172**: MACRO_CALENDAR auto-advance hook 부재 — `_aioRecomputeMacroCalendar` 신규 (페이지 로드 7s 후 자동 1회 + dry-run preview 사이드바 18축). monthly/every-6-7-weeks/fomc-decision/weekly 패턴 자동 next event compute. 발표 경과 시 stale audit false alarm 자동 해소.
+- **P444 / R173**: 자산 간 correlation matrix 부재 (cross-asset regime classification 부재) — `AIO.computeCrossAssetCorrelation` 신규. `_priceHistory` 활용 30일 rolling Pearson + regime 휴리스틱 (SPY-QQQ>0.85 + SPY-TLT<-0.2 = risk-on / SPY-^VIX<-0.6 + SPY-TLT>0.3 = risk-off / SPY-QQQ<0.5 = decoupled). 사이드바 16축.
+- **P445 / R174**: AI 답변 정량 비율 측정 부재 — `AIO.assertQuantitativeRatioAudit` 신규. `localStorage.aio_chat_history` 최근 20건 → 정량 토큰 (\$/% / 1,234 / bp / 일 / 년 등) / 단어 비율 산출. 기관 7%+/일반 4~7%/정성 과다 <4%. 사이드바 17축.
+- **P446 / R175**: earnings call transcript 통합 부재 — `AIO.fetchFMPEarningsCallTranscript` 신규 + `_fetchTickerDataForChat` 18 promise 통합. FMP /earning_call_transcript 5분 캐시 + [Earnings Call (Qx YYYY)] 라벨 + 600자 발췌 답변 주입. ASP/제품 로드맵/고객 commentary 정성 분석 정확성 도약.
+- **P447 / R176**: AI 답변 시각 자료 부재 (기관급 직관성 #8) — `window._aioBuildSparklineSvg` 신규 + `chatSend` 통합. 답변 종목별 30일 mini sparkline SVG 자동 인라인 (Promise.all 병렬 최대 3 종목, 240×56 path + area fill, 양수 green/음수 red). `_priceHistory` 우선 → Yahoo Chart 1mo fallback.
+- **P449 / R177**: 사이드바 18축 metric 일반 사용자 부담 (#7) — 일반/개발자 mode 토글 신규 (`localStorage.aio_audit_mode` + checkbox). simple = ✓/⚠/✗/⏳ 아이콘만 / detailed = metric 상세.
+- **P450 / R178**: audit row 동등 위계로 위기 시그널 가시성 부족 (#9) — failure status sticky top + pulse 애니메이션. ✗ priority 0 (top + 빨간 border + 2s pulse) / ⚠ 1 (amber border) / ⏳ 2 / ✓ 3. CSS flex order. + @media (min-width:1600px) 데스크탑 wide-mode 2열 grid (#10).
+- **prevention**: R172~R178 — 신규 audit 함수 추가 시 (1) fn 정의 (2) 사이드바 row (3) 회귀 T 테스트 3종 셋트 동시 작성 의무 (R170 패턴 일반화).

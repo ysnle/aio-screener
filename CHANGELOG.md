@@ -6,6 +6,40 @@
 
 ---
 
+## v49.83 — 기관급 + 직관성 9건 일괄 보강 (백로그 cleanup) (2026-05-28)
+
+**Changed files**: `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 요구 "v49.82 백로그 10 항목 모두 순차 보강". 실시간 옵션 체인(외부 broker 필요)만 제외하고 9건 단일 commit.
+
+### 신규 함수 5개 + audit 3개 (aio-core.js)
+- `_aioRecomputeMacroCalendar({dryRun})` — 발표 캘린더 자동 advance (P443/R172)
+- `AIO.computeCrossAssetCorrelation()` — 30일 Pearson + regime (P444/R173)
+- `AIO.assertQuantitativeRatioAudit()` — 채팅 정량 비율 측정 (P445/R174)
+- `AIO.fetchFMPEarningsCallTranscript(ticker)` — FMP transcript fetch (P446/R175)
+- `window._aioBuildSparklineSvg(ticker, opts)` — 30일 mini sparkline SVG (P447/R176)
+
+### chatSend 통합 (aio-chat.js)
+- `earningsCallPromise` _fetchTickerDataForChat 18 promise + [Earnings Call (Qx YYYY)] 라벨
+- 답변 종목별 sparkline SVG 자동 인라인 (Promise.all 병렬 최대 3)
+
+### 사이드바 18축 + UX
+- 16축 crossAssetCorr / 17축 quantRatio / 18축 macroCalendarAuto 3 신규 row
+- 일반/개발자 mode 토글 (`localStorage.aio_audit_mode` + checkbox) — P449/R177
+- failure status sticky top + pulse animation (CSS flex order + keyframes) — P450/R178
+- @media (min-width: 1600px) wide-mode 2열 grid (#10)
+
+### T658~T672 15 신규 테스트 (Group77)
+함수 정의 / status 반환 / source 통합 / 사이드바 DOM / APP_VERSION 전수.
+
+### R172~R178 신규 + P443~P450 신규
+신규 audit 패턴 일반화: fn + 사이드바 row + T 회귀 3종 동시 작성 의무 (R170 확장).
+
+### 동기화 7곳
+title + badge + APP_VERSION + `?v=49.83`×6 + sw.js (SW_BUILD `2026-05-28T16:00:00+09:00`) + version.json + _context/CLAUDE.md + CLAUDE.md + CHANGELOG.md.
+
+---
+
 ## v49.82 — 정직 시정 + 자동 회귀 인프라 (Codex 표면 통합 재발 방지) (2026-05-28)
 
 **Changed files**: `js/aio-data.js`, `js/aio-core.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

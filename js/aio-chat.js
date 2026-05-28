@@ -2170,6 +2170,8 @@ async function _fetchTickerDataForChat(tickers) {
     var moatPromise        = window.AIO && window.AIO.computeMoatScore           ? _withTimeout(window.AIO.computeMoatScore(t).catch(function(){return null;}), _T, null) : null;
     var fmpSegPromise      = window.AIO && window.AIO.fetchFMPSegments           ? _withTimeout(window.AIO.fetchFMPSegments(t).catch(function(){return null;}), _T, null) : null;
     var tamPromise         = window.AIO && window.AIO.computeTAMEstimate         ? _withTimeout(window.AIO.computeTAMEstimate(t).catch(function(){return null;}), _T, null) : null;
+    // v49.83 P446/R175 신규 (#4): FMP earnings call transcript — ASP/제품 로드맵/고객 commentary 정성 분석용
+    var earningsCallPromise = window.AIO && window.AIO.fetchFMPEarningsCallTranscript ? _withTimeout(window.AIO.fetchFMPEarningsCallTranscript(t).catch(function(){return null;}), _T, null) : null;
 
     if (data) {
       var line = '• ' + data.ticker + (data.name ? ' (' + data.name + ')' : '') + ': $' + Number(data.price).toFixed(2) + (data.pct != null ? (' (' + (data.pct >= 0 ? '+' : '') + Number(data.pct).toFixed(2) + '%)') : '');
@@ -2391,6 +2393,19 @@ async function _fetchTickerDataForChat(tickers) {
           results.push('  [Risk Factors 가이드] Item 1A 섹션은 동일 10-K 문서 내 (위 [SEC 10-K] URL과 동일 파일). 종목별 사업/규제/매크로/경쟁/소송/사이버 리스크 정성 분석 시 위 URL 직접 fetch + Item 1A 섹션 인용. 학습 데이터로 "주요 리스크" 추정 절대 금지 (R117).');
         }
       } catch(_rfErr) {}
+
+      // v49.83 P446 R175 신규 (#4 earnings call transcript): FMP /earning_call_transcript
+      try {
+        var ec = earningsCallPromise ? await earningsCallPromise : null;
+        if (ec && ec.available) {
+          results.push('  [Earnings Call (Q' + (ec.quarter || '?') + ' ' + (ec.year || '') + ' · ' + (ec.date || '') + ') · source FMP /earning_call_transcript] excerpt ' + ec.excerptLength + '자');
+          var snip = (ec.excerpt || '').slice(0, 600).replace(/\s+/g, ' ').trim();
+          if (snip) results.push('  [Earnings Call 발췌] ' + snip + (ec.excerpt.length > 600 ? '...' : ''));
+          results.push('  [Earnings Call 가이드] ASP/제품 로드맵/고객 commentary 정성 분석 시 위 발췌 직접 인용. 인용 부분 외 추측 금지.');
+        } else if (ec && !ec.available && ec.reason && /key/i.test(ec.reason)) {
+          results.push('  [Earnings Call] FMP API key 미설정 — 사이드바 → API 설정 등록 시 분기 transcript 자동 주입');
+        }
+      } catch(_ecErr) {}
 
       // v49.65 P340 R116 신규 (#12 공급망): Supply Chain — SEC 10-K Item 1/1C 가이드
       try {
@@ -4938,6 +4953,36 @@ async function chatSend(ctxId) {
             if (_chartBtnContainer.children.length > 0) aiBubble.parentNode.appendChild(_chartBtnContainer);
           }
         } catch(_finChartBtnErr) {}
+
+        // v49.83 P447/R176: 답변 종목별 30일 mini sparkline SVG 자동 인라인 삽입 (기관급 직관성 #8)
+        try {
+          if (detectedTickers && detectedTickers.length > 0 && typeof window._aioBuildSparklineSvg === 'function') {
+            var _seenSpark = {};
+            var _sparkContainer = document.createElement('div');
+            _sparkContainer.className = 'aio-sparkline-container';
+            _sparkContainer.style.cssText = 'margin:6px 0 4px;display:flex;flex-direction:column;gap:4px;';
+            // 최대 3개 종목 (토큰/UI 절약)
+            var _sparkTickers = detectedTickers.slice(0, 3);
+            // 비동기 — 각 ticker별 sparkline 병렬 생성
+            Promise.all(_sparkTickers.map(function(t) {
+              if (!t || _seenSpark[t]) return Promise.resolve(null);
+              _seenSpark[t] = true;
+              return window._aioBuildSparklineSvg(t, { label: t, width: 240, height: 56 }).then(function(html) {
+                if (html) {
+                  var div = document.createElement('div');
+                  div.innerHTML = html;
+                  return div.firstElementChild;
+                }
+                return null;
+              }).catch(function() { return null; });
+            })).then(function(els) {
+              els.forEach(function(el) { if (el) _sparkContainer.appendChild(el); });
+              if (_sparkContainer.children.length > 0 && aiBubble && aiBubble.parentNode) {
+                aiBubble.parentNode.appendChild(_sparkContainer);
+              }
+            }).catch(function(){});
+          }
+        } catch(_sparkErr) {}
 
         // v49.69 P365 R129: 후속 질문 3개 자동 제안 + chip 클릭 시 chatFromChip 자동 호출
         try {

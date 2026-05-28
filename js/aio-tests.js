@@ -3324,9 +3324,74 @@
     var krRow = document.querySelector('[data-audit-key="krTickerMapping"]');
     _assert('T656 sidebar_kr_row_v4982: [data-audit-key="krTickerMapping"] DOM 존재 (15축)',
       !!krRow, krRow ? 'present' : 'missing');
-    // T657: APP_VERSION === 'v49.82'
-    _assert('T657 app_version_v4982: APP_VERSION === "v49.82"',
-      typeof APP_VERSION !== 'undefined' && APP_VERSION === 'v49.82',
+    // T657: APP_VERSION === 'v49.82' (또는 이후)
+    _assert('T657 app_version_v4982: APP_VERSION === "v49.82"+ (semver >= 49.82)',
+      typeof APP_VERSION !== 'undefined' && /^v49\.\d+$/.test(APP_VERSION) && parseInt(APP_VERSION.split('.')[1], 10) >= 82,
+      typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
+  }
+
+  // v49.83 — 기관급 + 직관성 9건 보강 + R171~R178 회귀 방지
+  function _testV4983InstitutionalIntuitive() {
+    // T658 R172/P443: MACRO_CALENDAR auto-update hook
+    _assert('T658 macro_calendar_recompute_v4983: AIO._aioRecomputeMacroCalendar fn 정의',
+      window.AIO && typeof window.AIO._aioRecomputeMacroCalendar === 'function',
+      typeof (window.AIO && window.AIO._aioRecomputeMacroCalendar));
+    var mc = window.AIO && window.AIO._aioRecomputeMacroCalendar && window.AIO._aioRecomputeMacroCalendar({ dryRun: true });
+    _assert('T659 macro_calendar_dry_run_v4983: dryRun 호출 시 status returned',
+      mc && (mc.status === 'ok' || mc.status === 'advanced'),
+      mc ? 'status=' + mc.status + ' advancedCount=' + mc.advancedCount : 'no result');
+    // T660 R173/P444: computeCrossAssetCorrelation
+    _assert('T660 cross_asset_corr_defined_v4983: AIO.computeCrossAssetCorrelation fn 정의',
+      window.AIO && typeof window.AIO.computeCrossAssetCorrelation === 'function',
+      typeof (window.AIO && window.AIO.computeCrossAssetCorrelation));
+    var corr = window.AIO && window.AIO.computeCrossAssetCorrelation && window.AIO.computeCrossAssetCorrelation();
+    _assert('T661 cross_asset_corr_returns_v4983: status returned (ok / insufficient_data)',
+      corr && (corr.status === 'ok' || corr.status === 'insufficient_data'),
+      corr ? 'status=' + corr.status : 'no result');
+    // T662 R174/P445: assertQuantitativeRatioAudit
+    _assert('T662 quant_ratio_audit_defined_v4983: AIO.assertQuantitativeRatioAudit fn 정의',
+      window.AIO && typeof window.AIO.assertQuantitativeRatioAudit === 'function',
+      typeof (window.AIO && window.AIO.assertQuantitativeRatioAudit));
+    var qr = window.AIO && window.AIO.assertQuantitativeRatioAudit && window.AIO.assertQuantitativeRatioAudit();
+    _assert('T663 quant_ratio_returns_v4983: status returned (ok / warn / fail / no_data)',
+      qr && (qr.status === 'ok' || qr.status === 'warn' || qr.status === 'fail' || qr.status === 'no_data'),
+      qr ? 'status=' + qr.status + ' pct=' + (qr.quantitativeRatioPct || 0) : 'no result');
+    // T664 R175/P446: fetchFMPEarningsCallTranscript
+    _assert('T664 fmp_earnings_call_defined_v4983: AIO.fetchFMPEarningsCallTranscript fn 정의',
+      window.AIO && typeof window.AIO.fetchFMPEarningsCallTranscript === 'function',
+      typeof (window.AIO && window.AIO.fetchFMPEarningsCallTranscript));
+    // T665 R176/P447: _aioBuildSparklineSvg sparkline generator (#8)
+    _assert('T665 sparkline_svg_defined_v4983: window._aioBuildSparklineSvg fn 정의',
+      typeof window._aioBuildSparklineSvg === 'function',
+      typeof window._aioBuildSparklineSvg);
+    // T666 _fetchTickerDataForChat source에 earningsCallPromise 포함
+    var chatSrc = (typeof window._fetchTickerDataForChat === 'function') ? window._fetchTickerDataForChat.toString() : '';
+    _assert('T666 chat_earnings_call_integrated_v4983: _fetchTickerDataForChat source에 earningsCallPromise',
+      chatSrc.indexOf('earningsCallPromise') >= 0 && chatSrc.indexOf('Earnings Call') >= 0,
+      'srcLen=' + chatSrc.length);
+    // T667 chatSend source에 sparkline 호출 포함
+    var chatSendFn = window.chatSend;
+    var chatSendSrc = typeof chatSendFn === 'function' ? chatSendFn.toString() : '';
+    _assert('T667 chat_sparkline_inserted_v4983: chatSend에 _aioBuildSparklineSvg 호출',
+      chatSendSrc.indexOf('_aioBuildSparklineSvg') >= 0,
+      'srcLen=' + chatSendSrc.length);
+    // T668 사이드바 16/17/18축 DOM
+    _assert('T668 sidebar_16_corr_v4983: [data-audit-key="crossAssetCorr"] DOM',
+      !!document.querySelector('[data-audit-key="crossAssetCorr"]'),
+      'present check');
+    _assert('T669 sidebar_17_quant_v4983: [data-audit-key="quantRatio"] DOM',
+      !!document.querySelector('[data-audit-key="quantRatio"]'),
+      'present check');
+    _assert('T670 sidebar_18_mca_v4983: [data-audit-key="macroCalendarAuto"] DOM',
+      !!document.querySelector('[data-audit-key="macroCalendarAuto"]'),
+      'present check');
+    // T671 사이드바 mode 토글 + CSS keyframes
+    _assert('T671 sidebar_mode_toggle_v4983: aio-audit-mode-toggle DOM + _aioAuditModeToggle fn + aio-audit-keyframes style',
+      !!document.getElementById('aio-audit-mode-toggle') && typeof window._aioAuditModeToggle === 'function' && !!document.getElementById('aio-audit-keyframes'),
+      'all parts present check');
+    // T672 APP_VERSION === 'v49.83'
+    _assert('T672 app_version_v4983: APP_VERSION === "v49.83"',
+      typeof APP_VERSION !== 'undefined' && APP_VERSION === 'v49.83',
       typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
   }
 
@@ -4474,6 +4539,7 @@
     try { _testV4978CodeAuditFixes(); } catch(e) { console.error('Group74 error:', e); }
     try { _testV4979RemainingFixes(); } catch(e) { console.error('Group75 error:', e); }
     try { _testV4982PostIntegrationAudit(); } catch(e) { console.error('Group76 error:', e); }
+    try { _testV4983InstitutionalIntuitive(); } catch(e) { console.error('Group77 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

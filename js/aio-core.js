@@ -8414,6 +8414,265 @@ window.AIO.getMacroReleaseStaleAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.83 P443/R172: MACRO_CALENDAR 자동 갱신 hook — 일자 경과 시 nextRelease 자동 compute
+// 발표일이 지났는데 갱신 안 된 entries를 다음 주기로 자동 advance.
+// 의도: monthly-first → 다음 달 1째주 / monthly-mid → 다음 달 15일경 / every-6-7-weeks → +45일
+// 주의: 실제 발표 데이터 변경은 별도 — 시각 cycle만 advance하여 stale audit false alarm 차단.
+// ─────────────────────────────────────────────────────────────────
+window.AIO._aioRecomputeMacroCalendar = function(opts) {
+  opts = opts || {};
+  var reg = window.AIO_MACRO_CALENDAR;
+  if (!reg) return { status: 'error', advancedCount: 0 };
+  var now = new Date();
+  var advanced = [];
+  Object.keys(reg.releases).forEach(function(key) {
+    var r = reg.releases[key];
+    var nextTs = new Date(r.nextRelease).getTime();
+    if (isNaN(nextTs)) return;
+    if (now.getTime() <= nextTs) return; // 아직 미발표
+    // 발표일 경과 — advance 1 cycle
+    var oldNext = new Date(r.nextRelease);
+    var newNext = new Date(oldNext);
+    var freq = String(r.frequency || '').toLowerCase();
+    if (freq.indexOf('monthly') >= 0) {
+      newNext.setMonth(newNext.getMonth() + 1);
+    } else if (freq.indexOf('every-6-7-weeks') >= 0) {
+      newNext.setDate(newNext.getDate() + 45);
+    } else if (freq.indexOf('fomc-decision') >= 0) {
+      newNext.setDate(newNext.getDate() + 45);
+    } else if (freq.indexOf('weekly') >= 0) {
+      newNext.setDate(newNext.getDate() + 7);
+    } else {
+      newNext.setMonth(newNext.getMonth() + 1); // default monthly
+    }
+    advanced.push({
+      key: key, name: r.name,
+      prevLastRelease: r.lastRelease, prevNextRelease: r.nextRelease,
+      newLastRelease: r.nextRelease, newNextRelease: newNext.toISOString().slice(0, 10)
+    });
+    if (!opts.dryRun) {
+      r.lastRelease = r.nextRelease;
+      r.nextRelease = newNext.toISOString().slice(0, 10);
+    }
+  });
+  return {
+    status: advanced.length > 0 ? 'advanced' : 'ok',
+    advancedCount: advanced.length,
+    advanced: advanced,
+    dryRun: !!opts.dryRun,
+    generatedAt: now.toISOString()
+  };
+};
+// 페이지 로드 후 1회 자동 advance (앱 시작 시 calendar 자동 최신화)
+setTimeout(function() {
+  try {
+    if (window.AIO && window.AIO._aioRecomputeMacroCalendar) {
+      var r = window.AIO._aioRecomputeMacroCalendar();
+      if (r.advancedCount > 0) console.log('[AIO] MACRO_CALENDAR auto-advanced ' + r.advancedCount + ' entries:', r.advanced.map(function(a){return a.key;}).join(', '));
+    }
+  } catch(_) {}
+}, 7000);
+
+// ─────────────────────────────────────────────────────────────────
+// v49.83 P444/R173: computeCrossAssetCorrelation — 자산 간 30일 rolling Pearson correlation
+// _priceHistory (collectPriceHistory 누적) 활용. 충분한 데이터가 없으면 status:'insufficient_data'.
+// 자산 셋: SPY/QQQ/IWM/TLT/GLD/DXY/USO/VIX (US risk-asset matrix)
+// 반환: { matrix: { 'SPY-QQQ': 0.92, 'SPY-TLT': -0.35, ... }, regime: 'risk-on/off' }
+// ─────────────────────────────────────────────────────────────────
+window.AIO.computeCrossAssetCorrelation = function(opts) {
+  opts = opts || {};
+  var assets = opts.assets || ['SPY', 'QQQ', 'IWM', 'TLT', 'GLD', 'CL=F', '^VIX'];
+  var hist = window._priceHistory || {};
+  var pricesPerAsset = {};
+  var minLen = Infinity;
+  assets.forEach(function(a) {
+    var h = hist[a];
+    if (Array.isArray(h) && h.length >= 5) {
+      var seq = h.map(function(p){return p && p.price ? p.price : null;}).filter(function(v){return v != null && isFinite(v);});
+      pricesPerAsset[a] = seq;
+      if (seq.length < minLen) minLen = seq.length;
+    }
+  });
+  var availableAssets = Object.keys(pricesPerAsset);
+  if (availableAssets.length < 2 || minLen < 5) {
+    return {
+      status: 'insufficient_data',
+      message: '_priceHistory 누적 데이터 부족 (need >= 5 prices for 2+ assets, got ' + availableAssets.length + ' assets, minLen=' + (minLen === Infinity ? 0 : minLen) + ')',
+      availableAssets: availableAssets,
+      requiredAssets: assets,
+      generatedAt: new Date().toISOString()
+    };
+  }
+  // 모든 자산 동일 length로 trim (가장 짧은 시퀀스 기준)
+  var L = Math.min(minLen, 30); // 30일 cap
+  var returns = {};
+  availableAssets.forEach(function(a) {
+    var seq = pricesPerAsset[a].slice(-L);
+    var rets = [];
+    for (var i = 1; i < seq.length; i++) {
+      if (seq[i-1] && seq[i-1] !== 0) rets.push((seq[i] - seq[i-1]) / seq[i-1]);
+    }
+    returns[a] = rets;
+  });
+  // Pearson correlation
+  function pearson(x, y) {
+    var n = Math.min(x.length, y.length);
+    if (n < 3) return null;
+    var mx = 0, my = 0;
+    for (var i = 0; i < n; i++) { mx += x[i]; my += y[i]; }
+    mx /= n; my /= n;
+    var num = 0, dx = 0, dy = 0;
+    for (var j = 0; j < n; j++) {
+      var a = x[j] - mx, b = y[j] - my;
+      num += a * b; dx += a * a; dy += b * b;
+    }
+    var denom = Math.sqrt(dx * dy);
+    if (denom < 1e-12) return 0;
+    return num / denom;
+  }
+  var matrix = {};
+  for (var i = 0; i < availableAssets.length; i++) {
+    for (var j = i + 1; j < availableAssets.length; j++) {
+      var a = availableAssets[i], b = availableAssets[j];
+      var c = pearson(returns[a], returns[b]);
+      if (c != null) matrix[a + '-' + b] = Math.round(c * 100) / 100;
+    }
+  }
+  // Regime classification (간단 휴리스틱)
+  var spyQqq = matrix['SPY-QQQ'];
+  var spyTlt = matrix['SPY-TLT'];
+  var spyVix = matrix['SPY-^VIX'];
+  var regime = 'mixed';
+  if (spyQqq != null && spyQqq > 0.85 && spyTlt != null && spyTlt < -0.2) regime = 'risk-on';
+  else if (spyVix != null && spyVix < -0.6 && spyTlt != null && spyTlt > 0.3) regime = 'risk-off';
+  else if (spyQqq != null && spyQqq < 0.5) regime = 'decoupled';
+  return {
+    status: 'ok',
+    availableAssets: availableAssets,
+    sampleSize: L - 1,
+    matrix: matrix,
+    regime: regime,
+    note: 'v49.83 R173: 30일 rolling Pearson. _priceHistory (collectPriceHistory) 누적 데이터.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.83 P445/R174: assertQuantitativeRatioAudit — AI 답변 정량 비율 자동 측정
+// localStorage.aio_chat_history (최근 채팅) 텍스트 → 정량 토큰 비율 산출.
+// 기관 리포트는 정량 비율 ~65%. 임계값 미만 시 warn.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertQuantitativeRatioAudit = function() {
+  try {
+    var hist = [];
+    try {
+      var raw = localStorage.getItem('aio_chat_history') || localStorage.getItem('aio_unified_chat_history');
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) hist = parsed.slice(-20);
+      }
+    } catch(_) {}
+    if (hist.length === 0) {
+      return {
+        status: 'no_data',
+        message: 'aio_chat_history localStorage 데이터 없음 (채팅 사용 후 재실행)',
+        sampleCount: 0,
+        generatedAt: new Date().toISOString()
+      };
+    }
+    // 정량 토큰 패턴: $123 / 12.3% / 1,234 / 4.5 / 2026년 / 30일 / VIX 18.5
+    var quantRe = /(\$\d+(?:[.,]\d+)*)|(\d+(?:\.\d+)?%)|(\d+(?:,\d{3})+)|(\d+(?:\.\d+)?\s*(?:bp|bps|배|일|개월|년|주|x))|(\b\d+\.\d+\b)/gi;
+    var totals = { quantTokens: 0, totalWords: 0, samples: 0 };
+    hist.forEach(function(entry) {
+      var text = entry && (entry.a || entry.answer || entry.assistant) || '';
+      if (typeof text !== 'string' || !text) return;
+      totals.samples++;
+      var words = text.split(/\s+/).filter(Boolean);
+      totals.totalWords += words.length;
+      var matches = text.match(quantRe) || [];
+      totals.quantTokens += matches.length;
+    });
+    var pct = totals.totalWords > 0 ? Math.round((totals.quantTokens / totals.totalWords) * 100) : 0;
+    // 기관 기준: 정량 비율 7%+ (한국어 답변 특성 — 토큰 단위 다름)
+    // 실제 정량 토큰 카운트 vs 단어 카운트 비율은 5~15% 가 일반적
+    var status = pct >= 7 ? 'ok' : pct >= 4 ? 'warn' : 'fail';
+    return {
+      status: status,
+      sampleCount: totals.samples,
+      totalWords: totals.totalWords,
+      quantTokens: totals.quantTokens,
+      quantitativeRatioPct: pct,
+      threshold: { ok: 7, warn: 4 },
+      note: 'v49.83 R174: 답변 정량 토큰 / 전체 단어 비율. 7%+ 기관급 / 4~7% 일반 / <4% 정성 과다.',
+      generatedAt: new Date().toISOString()
+    };
+  } catch(e) {
+    return { status: 'error', message: e.message };
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.83 P446/R175: fetchFMPEarningsCallTranscript — 분기 earnings call 발췌
+// FMP /earning_call_transcript/{ticker}?quarter=N&year=N (Free tier에 일부 종목만)
+// 결과: 최근 quarter transcript의 첫 1500자 + URL + 호출일.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.fetchFMPEarningsCallTranscript = async function(ticker) {
+  if (!ticker) return { available: false, reason: 'ticker required' };
+  var key = '';
+  try { key = (typeof window._getApiKey === 'function') ? (window._getApiKey('aio_fmp_key') || '') : ''; } catch(_) {}
+  if (!key) {
+    return {
+      available: false,
+      ticker: ticker,
+      reason: 'FMP API key 미설정 — 사이드바 API 설정에서 등록 권장',
+      sourceUrl: 'https://financialmodelingprep.com/developer/docs#earning-call-transcript',
+      generatedAt: new Date().toISOString()
+    };
+  }
+  // 캐시 (10분 TTL)
+  window._fmpEarningsCallCache = window._fmpEarningsCallCache || {};
+  var cached = window._fmpEarningsCallCache[ticker];
+  if (cached && (Date.now() - cached.ts < 10 * 60 * 1000)) {
+    return cached.data;
+  }
+  try {
+    var url = 'https://financialmodelingprep.com/api/v3/earning_call_transcript/' + encodeURIComponent(ticker) + '?apikey=' + encodeURIComponent(key);
+    var ctrl = new AbortController();
+    var to = setTimeout(function(){ ctrl.abort(); }, 5000);
+    var res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(to);
+    if (!res.ok) {
+      var msg = 'FMP HTTP ' + res.status + ' (paid tier required for ' + ticker + ' or rate limit)';
+      var failResult = { available: false, ticker: ticker, reason: msg, generatedAt: new Date().toISOString() };
+      // 실패는 캐시 안 함 (v49.67 R122)
+      return failResult;
+    }
+    var arr = await res.json();
+    if (!Array.isArray(arr) || arr.length === 0) {
+      return { available: false, ticker: ticker, reason: '데이터 없음 (FMP free tier 제한 가능)', generatedAt: new Date().toISOString() };
+    }
+    var latest = arr[0];
+    var excerpt = (latest.content || '').slice(0, 1500);
+    var data = {
+      available: true,
+      ticker: ticker,
+      quarter: latest.quarter,
+      year: latest.year,
+      date: latest.date,
+      excerpt: excerpt,
+      excerptLength: excerpt.length,
+      sourceUrl: url.replace(/apikey=[^&]+/, 'apikey=***'),
+      note: 'v49.83 R175: FMP earnings call transcript. 첫 1500자 발췌.',
+      generatedAt: new Date().toISOString()
+    };
+    window._fmpEarningsCallCache[ticker] = { data: data, ts: Date.now() };
+    return data;
+  } catch(e) {
+    return { available: false, ticker: ticker, reason: 'fetch error: ' + (e && e.message || e), generatedAt: new Date().toISOString() };
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.30 M5 근본 수정: KR_MACRO_RELEASE — 한국 거시 발표 캘린더
 // 수출입/CPI/GDP 등 발표일 기반 자동 stale.
 // R78 신규
@@ -11258,6 +11517,71 @@ setTimeout(function() {
 }, 5000);
 
 // ─────────────────────────────────────────────────────────────────
+// v49.83 P447/R176: _aioBuildSparklineSvg — 종목 30일 mini sparkline SVG (기관급 직관성)
+// Yahoo Chart fetch → 30 closes → SVG path. 양수 green / 음수 red.
+// chatSend가 detected ticker마다 호출하여 답변 끝에 inline 삽입.
+// 폭 240 × 높이 60 — 모바일/데스크탑 공통.
+// ─────────────────────────────────────────────────────────────────
+window._aioBuildSparklineSvg = async function(ticker, opts) {
+  opts = opts || {};
+  var width = opts.width || 240;
+  var height = opts.height || 60;
+  var label = opts.label || ticker;
+  try {
+    // 1) 우선 _priceHistory 사용 (이미 누적, 즉시 응답)
+    var closes = [];
+    var hist = (window._priceHistory && window._priceHistory[ticker]) || null;
+    if (Array.isArray(hist) && hist.length >= 5) {
+      closes = hist.slice(-30).map(function(p){return p && p.price ? p.price : null;}).filter(function(v){return v != null && isFinite(v);});
+    }
+    // 2) _priceHistory 부족 시 Yahoo Chart fetch (1mo)
+    if (closes.length < 5 && typeof window._fetchYahooChartData === 'function') {
+      try {
+        var d = await window._fetchYahooChartData(ticker, '1mo');
+        if (d && Array.isArray(d.closes)) closes = d.closes.slice(-30).filter(function(v){return v != null && isFinite(v);});
+      } catch(_) {}
+    }
+    if (closes.length < 5) {
+      return '<div style="font-size:10px;color:var(--text-muted);padding:4px 6px;">📉 ' + (typeof escHtml === 'function' ? escHtml(label) : label) + ' 차트 데이터 부족 (필요: 5+ closes)</div>';
+    }
+    var min = Math.min.apply(null, closes);
+    var max = Math.max.apply(null, closes);
+    var range = max - min;
+    if (range < 1e-9) range = 1;
+    var padX = 4, padY = 4;
+    var iw = width - padX * 2, ih = height - padY * 2;
+    var pts = closes.map(function(c, i) {
+      var x = padX + (i / (closes.length - 1)) * iw;
+      var y = padY + ih - ((c - min) / range) * ih;
+      return [x, y];
+    });
+    var path = pts.map(function(p, i) { return (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+    var pctChg = closes.length >= 2 ? ((closes[closes.length-1] - closes[0]) / closes[0]) * 100 : 0;
+    var color = pctChg >= 0 ? '#3ddba5' : '#ff5b50'; // green/red
+    var areaPath = path + ' L' + pts[pts.length-1][0].toFixed(1) + ',' + (height - padY).toFixed(1) + ' L' + pts[0][0].toFixed(1) + ',' + (height - padY).toFixed(1) + ' Z';
+    var safeLabel = (typeof escHtml === 'function' ? escHtml(label) : label);
+    var pctText = (pctChg >= 0 ? '+' : '') + pctChg.toFixed(2) + '%';
+    var last = closes[closes.length - 1];
+    var lastText = last >= 1000 ? last.toFixed(0) : last.toFixed(2);
+    return '<div style="margin:6px 0;padding:6px 8px;background:rgba(255,255,255,0.03);border-left:3px solid ' + color + ';border-radius:4px;display:flex;align-items:center;gap:10px;">' +
+      '<div style="flex:0 0 auto;">' +
+        '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '" style="display:block;">' +
+          '<path d="' + areaPath + '" fill="' + color + '" fill-opacity="0.15" stroke="none"/>' +
+          '<path d="' + path + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+        '</svg>' +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--text-secondary);line-height:1.4;">' +
+        '<div style="font-weight:700;color:var(--text-bright);">📉 ' + safeLabel + ' · ' + closes.length + '일</div>' +
+        '<div style="color:' + color + ';font-family:var(--font-mono);font-weight:600;">' + lastText + ' (' + pctText + ')</div>' +
+        '<div style="color:var(--text-muted);font-size:10px;">range: ' + (min >= 1000 ? min.toFixed(0) : min.toFixed(2)) + ' ~ ' + (max >= 1000 ? max.toFixed(0) : max.toFixed(2)) + '</div>' +
+      '</div>' +
+    '</div>';
+  } catch(e) {
+    return '<div style="font-size:10px;color:var(--data-amber);padding:4px 6px;">⚠ sparkline error: ' + (e && e.message || e) + '</div>';
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.82 R170/P440: assertXssEscapeCoverageAudit — innerHTML 삽입 시 escHtml 누락 자동 감지
 // 휴리스틱: js 파일에서 `innerHTML\s*=\s*['"`]?.*?\+\s*[A-Za-z]` 패턴 grep → escHtml 미호출 변수 추출
 // 정밀도: 휴리스틱이라 false positive 가능. allowList로 보정.
@@ -11732,8 +12056,128 @@ window._aioRefreshAuditWidget = function() {
         }
       } catch(e) { krtEl.textContent = '⚠ krTickerMapping error'; }
     }
+    // v49.83 P444/R173: 자산 간 30일 correlation (16축)
+    var corrEl = container.querySelector('[data-audit-key="crossAssetCorr"]');
+    if (corrEl) {
+      try {
+        var corr = window.AIO && window.AIO.computeCrossAssetCorrelation && window.AIO.computeCrossAssetCorrelation();
+        if (corr) {
+          var iconCo = corr.status === 'ok' ? '✓' : corr.status === 'insufficient_data' ? '⏳' : '⚠';
+          var colorCo = corr.status === 'ok' ? 'var(--data-green)' : corr.status === 'insufficient_data' ? 'var(--text-muted)' : 'var(--data-amber)';
+          if (corr.status === 'ok') {
+            corrEl.innerHTML = '<span style="color:' + colorCo + ';">' + iconCo + '</span> 🔗 자산 <b>' + corr.availableAssets.length + '</b> · regime <b>' + corr.regime + '</b> · n=' + corr.sampleSize;
+          } else {
+            corrEl.innerHTML = '<span style="color:' + colorCo + ';">' + iconCo + '</span> 🔗 자산 데이터 누적 중 (need ≥5)';
+          }
+        }
+      } catch(e) { corrEl.textContent = '⚠ crossAssetCorr error'; }
+    }
+    // v49.83 P445/R174: 답변 정량 비율 (17축)
+    var qrEl = container.querySelector('[data-audit-key="quantRatio"]');
+    if (qrEl) {
+      try {
+        var qr = window.AIO && window.AIO.assertQuantitativeRatioAudit && window.AIO.assertQuantitativeRatioAudit();
+        if (qr) {
+          var iconQ = qr.status === 'ok' ? '✓' : qr.status === 'no_data' ? '⏳' : qr.status === 'warn' ? '⚠' : '✗';
+          var colorQ = qr.status === 'ok' ? 'var(--data-green)' : qr.status === 'no_data' ? 'var(--text-muted)' : qr.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          if (qr.status === 'no_data') {
+            qrEl.innerHTML = '<span style="color:' + colorQ + ';">' + iconQ + '</span> 🎯 정량 비율 (채팅 후 측정)';
+          } else {
+            qrEl.innerHTML = '<span style="color:' + colorQ + ';">' + iconQ + '</span> 🎯 정량 비율 <b>' + qr.quantitativeRatioPct + '%</b> · 토큰 ' + qr.quantTokens + '/' + qr.totalWords + ' · 샘플 ' + qr.sampleCount;
+          }
+        }
+      } catch(e) { qrEl.textContent = '⚠ quantRatio error'; }
+    }
+    // v49.83 P443/R172: 거시 캘린더 auto-advance (18축)
+    var mcaEl = container.querySelector('[data-audit-key="macroCalendarAuto"]');
+    if (mcaEl) {
+      try {
+        var mca = window.AIO && window.AIO._aioRecomputeMacroCalendar && window.AIO._aioRecomputeMacroCalendar({ dryRun: true });
+        if (mca) {
+          var iconM = mca.advancedCount === 0 ? '✓' : '⚠';
+          var colorM = mca.advancedCount === 0 ? 'var(--data-green)' : 'var(--data-amber)';
+          mcaEl.innerHTML = '<span style="color:' + colorM + ';">' + iconM + '</span> 📅 거시 캘린더 · 대기 advance <b>' + mca.advancedCount + '</b> (dry-run)';
+        }
+      } catch(e) { mcaEl.textContent = '⚠ macroCalendarAuto error'; }
+    }
+    // v49.83 P450/R178: failure status sticky top + pulse 애니메이션 (#9)
+    try {
+      var rows = Array.prototype.slice.call(container.querySelectorAll('[data-audit-key]'));
+      rows.forEach(function(row) {
+        var t = row.textContent || '';
+        // ✗ failure 우선 / ⚠ warn 두번째 / ✓ ok 마지막
+        var pri = /✗/.test(t) ? 0 : /⚠/.test(t) ? 1 : /⏳/.test(t) ? 2 : 3;
+        row.dataset.auditPri = pri;
+        if (pri === 0) {
+          row.style.background = 'rgba(255,91,80,0.06)';
+          row.style.borderLeft = '2px solid var(--data-red)';
+          row.style.paddingLeft = '6px';
+          row.style.animation = 'aioAuditPulse 2s ease-in-out infinite';
+        } else if (pri === 1) {
+          row.style.background = 'rgba(255,163,26,0.04)';
+          row.style.borderLeft = '2px solid var(--data-amber)';
+          row.style.paddingLeft = '6px';
+          row.style.animation = '';
+        } else {
+          row.style.background = '';
+          row.style.borderLeft = '';
+          row.style.paddingLeft = '';
+          row.style.animation = '';
+        }
+      });
+      // priority sort (CSS order property)
+      rows.sort(function(a, b) { return (+a.dataset.auditPri) - (+b.dataset.auditPri); });
+      rows.forEach(function(row, idx) { row.style.order = String(idx); });
+      container.style.display = 'flex';
+      container.style.flexDirection = 'column';
+    } catch(_) {}
+    // v49.83 P449/R177: 일반/개발자 mode (#7) — localStorage flag
+    try {
+      var devMode = false;
+      try { devMode = localStorage.getItem('aio_audit_mode') === 'detailed'; } catch(_) {}
+      var toggleInput = document.getElementById('aio-audit-mode-toggle');
+      if (toggleInput) toggleInput.checked = devMode;
+      var allRows = container.querySelectorAll('[data-audit-key]');
+      allRows.forEach(function(row) {
+        if (!devMode) {
+          // simple mode: ✓ / ⚠ / ✗ / ⏳ 아이콘만 (첫 글자)
+          var orig = row.dataset.auditFull;
+          if (!orig) row.dataset.auditFull = row.innerHTML;
+          var icon = (row.textContent.match(/[✓⚠✗⏳]/) || ['?'])[0];
+          var labelMatch = row.textContent.match(/[🛡🇰🇷🔗🎯📅📋📊🔍📈💬🧠📑✨🛠]+\s*[^·<]*/);
+          var lbl = labelMatch ? labelMatch[0].trim() : (row.dataset.auditKey || 'audit');
+          row.innerHTML = '<span style="font-size:13px;">' + icon + '</span> ' + (typeof escHtml === 'function' ? escHtml(lbl) : lbl);
+        } else if (row.dataset.auditFull) {
+          // restore full
+          row.innerHTML = row.dataset.auditFull;
+        }
+      });
+    } catch(_) {}
   } catch(e) { /* 위젯 갱신 실패는 silent */ }
 };
+
+// v49.83 P449/R177: 일반/개발자 mode 토글 핸들러
+window._aioAuditModeToggle = function(checked, el) {
+  try {
+    localStorage.setItem('aio_audit_mode', checked ? 'detailed' : 'simple');
+  } catch(_) {}
+  // 즉시 재렌더
+  try { window._aioRefreshAuditWidget(); } catch(_) {}
+};
+
+// v49.83 P450/R178: CSS keyframes 동적 주입 (sticky pulse 애니메이션)
+(function() {
+  try {
+    if (!document.getElementById('aio-audit-keyframes')) {
+      var st = document.createElement('style');
+      st.id = 'aio-audit-keyframes';
+      st.textContent = '@keyframes aioAuditPulse { 0%,100% { opacity:1; } 50% { opacity:0.65; } } ' +
+        // v49.83 #10: 데스크탑 ≥1600px wide-mode — 사이드바 audit 2열 grid
+        '@media (min-width: 1600px) { #aio-audit-widget-content { display:grid !important; grid-template-columns: 1fr 1fr; gap:4px 12px; } #aio-audit-widget-content [data-audit-key] { order: unset !important; } }';
+      document.head.appendChild(st);
+    }
+  } catch(_) {}
+})();
 // 페이지 로드 후 자동 1회 + 5분마다 갱신
 setTimeout(function() {
   try { window._aioRefreshAuditWidget(); } catch(_e) {}
@@ -13588,7 +14032,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.82';
+const APP_VERSION = 'v49.83';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
