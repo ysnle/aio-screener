@@ -3975,3 +3975,37 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **파일**: `index.html` (다수 함수)
 - **violated_rule**: R169(신규)
 - **prevention**: R169 — 동일 함수 내 같은 이름 var/const/let 선언 금지. 신규 코드는 let/const 우선. `AIO.getVarHoistConflictAudit()` (v49.44 R98) 자동 검증.
+
+---
+
+## P439 · v49.82 · SCREENER_DB 178320 잔존 매핑 (Codex v49.80 표면 통합 누락분)
+
+- **증상**: `js/aio-data.js:902` SCREENER_DB에 `178320.KQ → 로보스타` 옛 매핑 잔존. KR_STOCK_DB는 Codex v49.80 P431에서 178320 → 서진시스템 정정했지만 SCREENER_DB는 미정정 → AI 채팅이 "178320 분석" 시 로보스타로 답변, KR 페이지는 서진시스템 표기. 사용자 분석 결과 모순.
+- **원인**: Codex가 `KR_STOCK_DB` 한 위치만 정정하고 다른 데이터 구조(SCREENER_DB) 누락. v49.80 통합 시 cross-verify 없이 변경분만 그대로 수용 (v49.80 정직 평가 #3 정확한 증거).
+- **수정**: SCREENER_DB 178320.KQ → '서진시스템' 정정 + 090360.KQ → '로보스타' 신규 추가 (LG전자 자회사 33.4%).
+- **외부 검증**: WebSearch 2026-05-28 — 178320 = Seojin System (Google Finance/Yahoo/Bloomberg) / 108320 = LX Semicon / 108490 = ROBOTIS / 090360 = Robostar (LG전자 자회사) 모두 확인.
+- **파일**: `js/aio-data.js` L902~903
+- **violated_rule**: R170(신규) · Codex 표면 통합 패턴
+- **prevention**: R170 — KR 종목코드 매핑 정정 시 모든 위치(SCREENER_DB / AIO_TICKER_NAME_REGISTRY / KR_STOCK_DB) cross-verify 의무. `AIO.assertKrTickerMappingAudit()` 자동 검증.
+
+---
+
+## P440 · v49.82 · R167 자동 회귀 audit 부재 (XSS 표면 재발 가능)
+
+- **증상**: v49.81에서 R167 신설했지만 자동 검증 함수 없음 — 향후 escHtml 누락이 또 추가되면 grep 안 하면 감지 불가.
+- **원인**: 규칙만 추가, 검증 인프라 미동반.
+- **수정**: `AIO.assertXssEscapeCoverageAudit()` 신규 — 11 chat/render 함수 toString scan 휴리스틱 (innerHTML 할당 + 변수 concat + escHtml 미호출 = unsafe) + DOM `[style*="hover:"]` 검색 + stylesheet line-clamp 표준 동시 선언 검증. xssCoveragePct 산출. 사이드바 14축 row 노출.
+- **파일**: `js/aio-core.js` (L11260~ 신규)
+- **violated_rule**: R167 운영성 부재
+- **prevention**: 신규 R 규칙 추가 시 동기 audit 함수 동반 의무. 사이드바 row 동기 노출.
+
+---
+
+## P441 · v49.82 · KR 종목코드 매핑 다중 위치 cross-check audit 부재 (Codex 표면 통합 재발 패턴)
+
+- **증상**: Codex v49.80가 일부 위치만 정정하고 다른 위치 누락 (P439 실증). 향후 외부 작업본 통합 시 동일 패턴 재발 가능.
+- **원인**: cross-check 자동화 부재 — 사람이 grep으로 다중 위치 확인 안 하면 silent fail.
+- **수정**: `AIO.assertKrTickerMappingAudit()` 신규 — SCREENER_DB / AIO_TICKER_NAME_REGISTRY / KR_STOCK_DB 3 위치 cross-check + WebSearch verified 8 known mappings (178320/108320/108490/090360/277810/454910/005930/000660) hardcoded check. Critical 충돌 자동 보고. 사이드바 15축 row 노출.
+- **파일**: `js/aio-core.js` (P440 다음 신규)
+- **violated_rule**: R170(신규)
+- **prevention**: R170 — KR/외국 ticker 매핑 정정 시 다중 데이터 구조 cross-check 의무. 외부 작업본(Codex/VsCode) 통합 시 본 audit 실행 후 0 conflict 검증 후 commit.

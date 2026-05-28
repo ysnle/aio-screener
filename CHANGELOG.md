@@ -6,6 +6,74 @@
 
 ---
 
+## v49.82 — 정직 시정 + 자동 회귀 인프라 (Codex 표면 통합 재발 방지) (2026-05-28)
+
+**Changed files**: `js/aio-data.js`, `js/aio-core.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 질의 "Codex와 VsCode 작업본 통합하면서 아쉽거나 보완할 점 없었어?" 응답으로 6 갭 정직 매핑 후 시정. 핵심 사례: Codex v49.80가 KR_STOCK_DB 178320 → 서진시스템 정정했으나 SCREENER_DB는 누락 (P439). 통합 cross-check audit 부재 (P441) → 표면 통합 패턴 재발 위험.
+
+### 1) P439 — SCREENER_DB 178320 잔존 매핑 시정 (data correctness CRITICAL)
+
+`js/aio-data.js:902`에 옛 `178320.KQ → 로보스타` 매핑 잔존. WebSearch 2026-05-28 cross-verify:
+- 178320.KQ = **서진시스템 (Seojin System)** — KOSDAQ tech, AI DC 전력/ESS 케이스 수혜 (Google Finance/Yahoo/Bloomberg/Simply Wall St 모두 일치)
+- 090360.KQ = **로보스타 (Robostar)** — LG전자 자회사 33.4%, 산업용 로봇 (FN가이드/Toss Invest 확인)
+
+정정 + 090360 신규 등록.
+
+### 2) P440/R167 — assertXssEscapeCoverageAudit 신규 (R167 자동 회귀 인프라)
+
+v49.81에서 R167 신설했지만 자동 검증 함수 부재 → 향후 escHtml 누락 추가 시 grep 안 하면 감지 불가. 신규 audit:
+- 11 chat/render 함수 toString scan 휴리스틱 (`openChatHistory`, `renderKrIssues`, `analyzeKrIndex`, `analyzeKrTickerDeep`, `chatRenderChips`, `updateAIPanelContext`, `_aioGuideSearch`, `renderPortfolio`, `renderHomeFeed`, `renderBriefingFeed`, `renderFeed`)
+- 패턴: `\.innerHTML\s*=` 할당 + 변수 concat + escHtml 미호출 = unsafe
+- DOM `[style*="hover:"]` 검색 (R168)
+- stylesheet `-webkit-line-clamp` 옆 `line-clamp` 표준 동시 선언 검증 (R168)
+- 반환: `{ status, xssCoveragePct, unsafeAssignments, inlineHoverHits, lineClampPairsOk, lineClampMissingStd, unsafeSamples }`
+
+### 3) P441/R170 — assertKrTickerMappingAudit 신규 (KR ticker cross-check)
+
+Codex 표면 통합 재발 방지. 신규 audit:
+- 3 데이터 구조 cross-check: SCREENER_DB / AIO_TICKER_NAME_REGISTRY / KR_STOCK_DB
+- WebSearch verified 8 known mappings hardcoded check (178320/108320/108490/090360/277810/454910/005930/000660)
+- Critical 충돌 (knownMismatch) 자동 보고
+- 반환: `{ status, checkedTickers, conflicts, conflictCount, knownMappingChecked, knownMismatchCount }`
+
+### 4) 사이드바 14축 + 15축 row 추가
+
+- `[data-audit-key="xssSurface"]` — "🛡 XSS X% · 위험 N · hover N · lc-pair N"
+- `[data-audit-key="krTickerMapping"]` — "🇰🇷 KR 매핑 N · 충돌 N · known X/X"
+
+`_aioRefreshAuditWidget` 분기 2개 추가. 콘솔 없이 사용자 자가진단.
+
+### 5) T647~T657 11 신규 회귀 테스트 (Group76)
+
+- T647: assertXssEscapeCoverageAudit 함수 정의
+- T648: xssCoveragePct >= 80%
+- T649: assertKrTickerMappingAudit 함수 정의
+- T650: KR mapping critical 충돌 0건
+- T651: P439 시정 — 178320.KQ = 서진시스템
+- T652: P439 신규 — 090360.KQ = 로보스타
+- T653: R168 inline hover hits === 0
+- T654: R169 var hoist conflict === 0
+- T655: 사이드바 14축 xssSurface DOM
+- T656: 사이드바 15축 krTickerMapping DOM
+- T657: APP_VERSION === 'v49.82'
+
+### 6) R170 신규
+
+KR/외국 ticker 매핑 정정 시 모든 데이터 구조 동기 정정 의무. 외부 작업본 통합 시 `AIO.assertKrTickerMappingAudit()` 실행 → critical 충돌 0 확인 후 commit. 신규 audit 함수 추가 시 (1) fn 정의 (2) 사이드바 row 노출 (3) 회귀 T 테스트 3종 셋트 동시 작성 의무.
+
+### 7) 동기화 7곳
+
+title + badge + APP_VERSION + `?v=49.82`×6 + sw.js (SW_VERSION + SW_BUILD `2026-05-28T14:30:00+09:00`) + version.json + _context/CLAUDE.md + CLAUDE.md + CHANGELOG.md.
+
+### v49.80/v49.81 정직 평가 5건 미해결 (v49.83 이관)
+
+- production 라이브 검증 0건 (Chrome MCP 다른 워크트리 bound)
+- "기관급 퀄리티 직관성" 전수 조사 (별도 응답)
+- 잦은 버전 점프 (v49.71→v49.82 = 12 버전 단일 세션) — CI/CD 부재
+
+---
+
 ## v49.81 — VsCode 작업본 통합: XSS 보호 + CSS 표준화 + var→let 스코프 안전성 (2026-05-28)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

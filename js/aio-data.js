@@ -899,7 +899,8 @@ var SCREENER_DB = [
   { sym:'454910.KQ', name:'두산로보틱스', sector:'Technology', signal:'WATCH', memo:'협동로봇 · IPO 후 급등 · 밸류에이션 부담', mcap:5, rsi:55, index:'KOSDAQ' },
   { sym:'277810.KQ', name:'레인보우로보틱스', sector:'Technology', signal:'WATCH', memo:'양팔로봇 · 현대차 지분 투자 · 휴머노이드', mcap:11, rsi:50, index:'KOSDAQ' },
   { sym:'315640.KQ', name:'뉴로메카', sector:'Technology', signal:'WATCH', memo:'협동로봇 · 산업용 자동화', mcap:1, rsi:48, index:'KOSDAQ' },
-  { sym:'178320.KQ', name:'로보스타', sector:'Technology', signal:'WATCH', memo:'산업용 로봇 · 반도체 장비 운반', mcap:1, rsi:45, index:'KOSDAQ' },
+  { sym:'178320.KQ', name:'서진시스템', sector:'Technology', signal:'WATCH', memo:'(v49.82 P439 정정 — Codex v49.80 KR_STOCK_DB 정정 누락분) 통신장비 케이스/금형 · AI DC 전력·ESS 케이스 수혜 · KOSDAQ tech mid-cap', mcap:1, rsi:45, index:'KOSDAQ' },
+  { sym:'090360.KQ', name:'로보스타', sector:'Technology', signal:'WATCH', memo:'(v49.82 P439 신규) LG전자 자회사 33.4% · 산업용 로봇·디스플레이 장비 · 스마트팩토리', mcap:1, rsi:45, index:'KOSDAQ' },
 
   //  금융 (finance)
   { sym:'086790.KS', name:'하나금융지주', sector:'Financials', signal:'BUY', memo:'은행 · 밸류업 · 자사주 소각 · PBR 저평가', mcap:12, rsi:53, index:'KOSPI' },

@@ -3276,6 +3276,60 @@
       compositionAudit ? 'semanticExclusionHits=' + compositionAudit.semanticExclusionHits.length : 'audit missing');
   }
 
+  // v49.82 — R167~R170 회귀 방지 (XSS 보강 + KR ticker mapping + 정직 시정 6건)
+  function _testV4982PostIntegrationAudit() {
+    // T647: assertXssEscapeCoverageAudit 함수 정의 (R167)
+    _assert('T647 xss_escape_audit_defined_v4982: AIO.assertXssEscapeCoverageAudit fn 정의',
+      window.AIO && typeof window.AIO.assertXssEscapeCoverageAudit === 'function',
+      typeof (window.AIO && window.AIO.assertXssEscapeCoverageAudit));
+    // T648: XSS coverage 80%+
+    var xss = window.AIO && window.AIO.assertXssEscapeCoverageAudit && window.AIO.assertXssEscapeCoverageAudit();
+    _assert('T648 xss_coverage_pct_v4982: xssCoveragePct >= 80%',
+      xss && xss.xssCoveragePct >= 80,
+      xss ? 'pct=' + xss.xssCoveragePct + ' unsafe=' + xss.unsafeAssignments : 'no audit');
+    // T649: assertKrTickerMappingAudit 함수 정의 (R170)
+    _assert('T649 kr_mapping_audit_defined_v4982: AIO.assertKrTickerMappingAudit fn 정의',
+      window.AIO && typeof window.AIO.assertKrTickerMappingAudit === 'function',
+      typeof (window.AIO && window.AIO.assertKrTickerMappingAudit));
+    // T650: KR ticker 매핑 critical 충돌 0건 (P439 + Codex v49.80 정정 검증)
+    var krMap = window.AIO && window.AIO.assertKrTickerMappingAudit && window.AIO.assertKrTickerMappingAudit();
+    var crit = krMap && krMap.conflicts ? krMap.conflicts.filter(function(c){return c.severity==='critical';}).length : -1;
+    _assert('T650 kr_mapping_critical_zero_v4982: SCREENER_DB vs WebSearch-verified 충돌 0건',
+      crit === 0, 'criticalConflicts=' + crit + ' total=' + (krMap ? krMap.conflictCount : '?'));
+    // T651: P439 시정 — 178320.KQ는 서진시스템 (not 로보스타)
+    var sdb = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : (window.SCREENER_DB || []);
+    var seojin = Array.isArray(sdb) && sdb.find(function(r){return r && r.sym==='178320.KQ';});
+    _assert('T651 p439_seojin_178320_fixed_v4982: SCREENER_DB 178320.KQ = 서진시스템 (Codex v49.80 누락분 시정)',
+      !!(seojin && seojin.name === '서진시스템'),
+      seojin ? 'name=' + seojin.name : 'entry missing');
+    // T652: 090360.KQ 로보스타 별도 등록 (LG전자 자회사)
+    var robostar = Array.isArray(sdb) && sdb.find(function(r){return r && r.sym==='090360.KQ';});
+    _assert('T652 p439_robostar_090360_added_v4982: SCREENER_DB 090360.KQ = 로보스타 신규 등록',
+      !!(robostar && robostar.name === '로보스타'),
+      robostar ? 'name=' + robostar.name : 'entry missing');
+    // T653: R168 inline hover: 0건
+    _assert('T653 inline_hover_zero_v4982: [style*="hover:"] DOM 0건 (R168)',
+      xss && xss.inlineHoverHits === 0,
+      xss ? 'hits=' + xss.inlineHoverHits : 'no audit');
+    // T654: R169 var hoist conflict 0건 (P311 패턴 재발 방지)
+    var hoist = window.AIO && window.AIO.getVarHoistConflictAudit && window.AIO.getVarHoistConflictAudit();
+    _assert('T654 var_hoist_conflict_zero_v4982: getVarHoistConflictAudit().conflicts === 0',
+      !hoist || !Array.isArray(hoist.conflicts) || hoist.conflicts.length === 0,
+      hoist ? 'conflicts=' + (hoist.conflicts ? hoist.conflicts.length : 'n/a') : 'no audit');
+    // T655: 사이드바 14축 xssSurface row DOM 존재
+    var xssRow = document.querySelector('[data-audit-key="xssSurface"]');
+    _assert('T655 sidebar_xss_row_v4982: [data-audit-key="xssSurface"] DOM 존재 (14축)',
+      !!xssRow, xssRow ? 'present' : 'missing');
+    // T656: 사이드바 15축 krTickerMapping row DOM 존재
+    var krRow = document.querySelector('[data-audit-key="krTickerMapping"]');
+    _assert('T656 sidebar_kr_row_v4982: [data-audit-key="krTickerMapping"] DOM 존재 (15축)',
+      !!krRow, krRow ? 'present' : 'missing');
+    // T657: APP_VERSION === 'v49.82'
+    _assert('T657 app_version_v4982: APP_VERSION === "v49.82"',
+      typeof APP_VERSION !== 'undefined' && APP_VERSION === 'v49.82',
+      typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
+  }
+
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지
   function _testV4962CodexAuditCoverageIntegration() {
     var reg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
@@ -4419,6 +4473,7 @@
     try { _testV4977UserFeedbackChain(); } catch(e) { console.error('Group73 error:', e); }
     try { _testV4978CodeAuditFixes(); } catch(e) { console.error('Group74 error:', e); }
     try { _testV4979RemainingFixes(); } catch(e) { console.error('Group75 error:', e); }
+    try { _testV4982PostIntegrationAudit(); } catch(e) { console.error('Group76 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

@@ -2103,3 +2103,20 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 **Evidence (P438)**: VsCode 작업본에서 30+ 함수 `var ld` → `let ld` 일괄 전환 — P311 같은 SyntaxError 재발 차단.
 
 **Validation**: `AIO.getVarHoistConflictAudit().conflicts.length === 0`.
+
+---
+
+## R170. 외부 작업본 통합 시 KR/외국 ticker 매핑 다중 위치 cross-check 의무 (v49.82 added, P439~P441 root prevention)
+
+**Rule**: KR/외국 ticker 회사명 매핑 정정 시 모든 데이터 구조 동기 정정 의무. 외부 작업본(Codex/VsCode 등) 통합 시 cross-check audit 실행 후 0 conflict 검증.
+
+**Required**:
+- `AIO.assertKrTickerMappingAudit()` 실행 결과 critical 충돌 0건 확인 후에만 commit.
+- 변경 대상 데이터 구조 (최소): `SCREENER_DB` (js/aio-data.js) + `AIO_TICKER_NAME_REGISTRY` (js/aio-core.js) + `KR_STOCK_DB` (index.html) + `LIVE_SYMBOLS` (js/aio-data.js) + `KNOWN_TICKERS`.
+- WebSearch verified known mappings hardcoded check: 178320=서진시스템, 108320=LX세미콘, 108490=로보티즈, 090360=로보스타, 277810=레인보우로보틱스, 454910=두산로보틱스, 005930=삼성전자, 000660=SK하이닉스.
+
+**Evidence (P439~P441)**: Codex v49.80가 `KR_STOCK_DB` 178320만 정정하고 `SCREENER_DB`는 누락. AI 채팅이 "로보스타"로 답변하고 KR 페이지는 "서진시스템" 표기 → 데이터 부정확. 자동 cross-check audit 없으면 silent fail.
+
+**Validation**: `AIO.assertKrTickerMappingAudit().conflicts.filter(c=>c.severity==='critical').length === 0`.
+
+**Pattern 일반화**: 신규 audit 함수 추가 시 (1) audit fn 정의 (2) 사이드바 row 노출 (3) 회귀 T 테스트 3종 셋트 동시 작성.

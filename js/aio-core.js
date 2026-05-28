@@ -11258,6 +11258,170 @@ setTimeout(function() {
 }, 5000);
 
 // ─────────────────────────────────────────────────────────────────
+// v49.82 R170/P440: assertXssEscapeCoverageAudit — innerHTML 삽입 시 escHtml 누락 자동 감지
+// 휴리스틱: js 파일에서 `innerHTML\s*=\s*['"`]?.*?\+\s*[A-Za-z]` 패턴 grep → escHtml 미호출 변수 추출
+// 정밀도: 휴리스틱이라 false positive 가능. allowList로 보정.
+// ─────────────────────────────────────────────────────────────────
+window.AIO = window.AIO || {};
+window.AIO.assertXssEscapeCoverageAudit = function() {
+  try {
+    // 함수 toString으로 source 추출 → 모든 innerHTML 할당 위치 추출
+    var sources = [];
+    var fnSources = [];
+    // (1) escHtml 함수 존재 검증
+    var hasEscHtml = typeof window.escHtml === 'function';
+    // (2) 주요 chat/render 함수들 toString 후 scan
+    var fnNames = [
+      'openChatHistory', 'renderKrIssues', 'analyzeKrIndex', 'analyzeKrTickerDeep',
+      'chatRenderChips', 'updateAIPanelContext', '_aioGuideSearch',
+      'renderPortfolio', 'renderHomeFeed', 'renderBriefingFeed', 'renderFeed'
+    ];
+    var found = [];
+    var unsafeHits = 0;
+    var totalAssignments = 0;
+    fnNames.forEach(function(fn) {
+      var ref = window[fn];
+      if (typeof ref !== 'function') return;
+      var src = ref.toString();
+      // innerHTML = '...' + var 패턴 (escHtml 없이 변수 concat)
+      var assignRe = /\.innerHTML\s*=\s*[^;]+;/g;
+      var assigns = src.match(assignRe) || [];
+      totalAssignments += assigns.length;
+      assigns.forEach(function(line) {
+        // 변수 concat 후 escHtml() 호출 없으면 위험
+        var hasVar = /\+\s*[A-Za-z_$][\w$.]*\s*(?:\+|;|\))/.test(line);
+        var hasEsc = /escHtml\s*\(/.test(line);
+        if (hasVar && !hasEsc) {
+          unsafeHits++;
+          found.push({ fn: fn, snippet: line.slice(0, 120) + '...' });
+        }
+      });
+    });
+    // (3) R168 inline hover: pattern check (index.html scan via DOM)
+    var inlineHoverHits = 0;
+    try {
+      var allEls = document.querySelectorAll('[style*="hover:"]');
+      inlineHoverHits = allEls.length;
+    } catch(_) {}
+    // (4) line-clamp 표준 속성 동시 선언 (모든 sheets)
+    var lineClampPairs = 0;
+    var lineClampMissingStd = 0;
+    try {
+      for (var i = 0; i < document.styleSheets.length; i++) {
+        try {
+          var sheet = document.styleSheets[i];
+          var rules = sheet.cssRules || [];
+          for (var j = 0; j < rules.length; j++) {
+            var r = rules[j];
+            if (r.style && r.style.getPropertyValue('-webkit-line-clamp')) {
+              if (r.style.getPropertyValue('line-clamp')) lineClampPairs++;
+              else lineClampMissingStd++;
+            }
+          }
+        } catch(_) {}
+      }
+    } catch(_) {}
+    var totalCoverage = Math.round(((totalAssignments - unsafeHits) / Math.max(1, totalAssignments)) * 100);
+    var status = (unsafeHits === 0 && inlineHoverHits === 0 && lineClampMissingStd === 0 && hasEscHtml) ? 'ok'
+                : (unsafeHits <= 2 && inlineHoverHits <= 1) ? 'warn' : 'fail';
+    return {
+      status: status,
+      hasEscHtmlHelper: hasEscHtml,
+      scannedFunctions: fnNames.length,
+      totalInnerHtmlAssignments: totalAssignments,
+      unsafeAssignments: unsafeHits,
+      unsafeSamples: found.slice(0, 3),
+      inlineHoverHits: inlineHoverHits,
+      lineClampPairsOk: lineClampPairs,
+      lineClampMissingStd: lineClampMissingStd,
+      xssCoveragePct: totalCoverage,
+      note: 'v49.82 R167~R169 자동 검증. 휴리스틱 — false positive 가능.',
+      generatedAt: new Date().toISOString()
+    };
+  } catch(e) {
+    return { status: 'error', message: e.message };
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────
+// v49.82 R170/P441: assertKrTickerMappingAudit — KR 종목코드 ↔ 회사명 매핑 정합성
+// 다중 위치(SCREENER_DB / AIO_TICKER_NAME_REGISTRY / KR_STOCK_DB)에 동일 ticker가
+// 서로 다른 회사명으로 등록되면 데이터 부정확. 자동 cross-check.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.assertKrTickerMappingAudit = function() {
+  try {
+    var conflicts = [];
+    var checked = 0;
+    var screenerDB = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : (window.SCREENER_DB || []);
+    var nameReg = (window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries) || {};
+    var krStockDB = window.KR_STOCK_DB || {};
+    // SCREENER_DB의 KR ticker (.KS / .KQ) 순회
+    if (Array.isArray(screenerDB)) {
+      screenerDB.forEach(function(row) {
+        if (!row || !row.sym || !/\.K[QS]$/.test(row.sym)) return;
+        checked++;
+        var bare = row.sym.replace(/\.K[QS]$/, '');
+        // 1) AIO_TICKER_NAME_REGISTRY 매핑
+        var regEntry = nameReg[row.sym];
+        if (regEntry && regEntry.kr && row.name && regEntry.kr !== row.name) {
+          conflicts.push({
+            ticker: row.sym, source: 'SCREENER_DB vs REGISTRY',
+            screenerDB: row.name, registry: regEntry.kr,
+            severity: 'high'
+          });
+        }
+        // 2) KR_STOCK_DB 매핑
+        var krEntry = krStockDB[bare];
+        if (krEntry && krEntry.name && row.name && krEntry.name !== row.name) {
+          conflicts.push({
+            ticker: row.sym, source: 'SCREENER_DB vs KR_STOCK_DB',
+            screenerDB: row.name, krStockDB: krEntry.name,
+            severity: 'critical'
+          });
+        }
+      });
+    }
+    // 알려진 KR 매핑 (cross-verify 2026-05-28 WebSearch 확인)
+    var knownMappings = {
+      '178320.KQ': '서진시스템',  // Seojin System (NOT 로보스타)
+      '108320.KQ': 'LX세미콘',    // LX Semicon
+      '108490.KQ': '로보티즈',    // ROBOTIS
+      '090360.KQ': '로보스타',    // Robostar (LG전자 자회사)
+      '277810.KQ': '레인보우로보틱스',
+      '454910.KS': '두산로보틱스',
+      '005930.KS': '삼성전자',
+      '000660.KS': 'SK하이닉스'
+    };
+    var knownMismatch = 0;
+    Object.keys(knownMappings).forEach(function(t) {
+      var expected = knownMappings[t];
+      var sdb = Array.isArray(screenerDB) && screenerDB.find(function(r) { return r && r.sym === t; });
+      if (sdb && sdb.name !== expected) {
+        knownMismatch++;
+        conflicts.push({
+          ticker: t, source: 'SCREENER_DB vs WebSearch-verified',
+          screenerDB: sdb.name, expected: expected,
+          severity: 'critical'
+        });
+      }
+    });
+    var status = conflicts.length === 0 ? 'ok' : conflicts.some(function(c){return c.severity==='critical';}) ? 'fail' : 'warn';
+    return {
+      status: status,
+      checkedTickers: checked,
+      conflicts: conflicts,
+      conflictCount: conflicts.length,
+      knownMappingChecked: Object.keys(knownMappings).length,
+      knownMismatchCount: knownMismatch,
+      note: 'v49.82 R170: SCREENER_DB / AIO_TICKER_NAME_REGISTRY / KR_STOCK_DB cross-check. WebSearch verified 2026-05-28.',
+      generatedAt: new Date().toISOString()
+    };
+  } catch(e) {
+    return { status: 'error', message: e.message };
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.58 P322/R108 신규: 사이드바 Audit 위젯 + web_search 토글 + 키 백업 GUI 핸들러
 // 사용자가 콘솔 없이 self-check + 토글 + 백업 조작 가능. 11 audit 함수 GUI 노출.
 // ─────────────────────────────────────────────────────────────────
@@ -11539,6 +11703,34 @@ window._aioRefreshAuditWidget = function() {
           aqEl.innerHTML = '<span style="color:var(--text-muted);">— answerQuality audit 미가용</span>';
         }
       } catch(e) { aqEl.textContent = '⚠ answerQuality error'; }
+    }
+    // v49.82 P440/R167: XSS escHtml 커버리지 (14축)
+    var xssEl = container.querySelector('[data-audit-key="xssSurface"]');
+    if (xssEl) {
+      try {
+        var xss = window.AIO && window.AIO.assertXssEscapeCoverageAudit && window.AIO.assertXssEscapeCoverageAudit();
+        if (xss) {
+          var iconX = xss.status === 'ok' ? '✓' : xss.status === 'warn' ? '⚠' : '✗';
+          var colorX = xss.status === 'ok' ? 'var(--data-green)' : xss.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          xssEl.innerHTML = '<span style="color:' + colorX + ';">' + iconX + '</span> 🛡 XSS <b>' + xss.xssCoveragePct + '%</b> · 위험 ' + xss.unsafeAssignments + ' · hover ' + xss.inlineHoverHits + ' · lc-pair ' + xss.lineClampPairsOk;
+        } else {
+          xssEl.innerHTML = '<span style="color:var(--text-muted);">— xssSurface audit 미가용</span>';
+        }
+      } catch(e) { xssEl.textContent = '⚠ xssSurface error'; }
+    }
+    // v49.82 P441/R170: KR 종목코드 정합성 (15축)
+    var krtEl = container.querySelector('[data-audit-key="krTickerMapping"]');
+    if (krtEl) {
+      try {
+        var krt = window.AIO && window.AIO.assertKrTickerMappingAudit && window.AIO.assertKrTickerMappingAudit();
+        if (krt) {
+          var iconK = krt.status === 'ok' ? '✓' : krt.status === 'warn' ? '⚠' : '✗';
+          var colorK = krt.status === 'ok' ? 'var(--data-green)' : krt.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          krtEl.innerHTML = '<span style="color:' + colorK + ';">' + iconK + '</span> 🇰🇷 KR 매핑 <b>' + krt.checkedTickers + '</b> · 충돌 <b>' + krt.conflictCount + '</b> · known ' + krt.knownMappingChecked + '/' + (krt.knownMappingChecked - krt.knownMismatchCount);
+        } else {
+          krtEl.innerHTML = '<span style="color:var(--text-muted);">— krTickerMapping audit 미가용</span>';
+        }
+      } catch(e) { krtEl.textContent = '⚠ krTickerMapping error'; }
     }
   } catch(e) { /* 위젯 갱신 실패는 silent */ }
 };
@@ -13396,7 +13588,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.81';
+const APP_VERSION = 'v49.82';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
