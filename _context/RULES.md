@@ -2056,3 +2056,50 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 **Validation**: `AIO.runTests()` T508-T514.
 
 ---
+
+---
+
+## R167. innerHTML 삽입 시 모든 사용자/외부 변수에 escHtml() 의무 + 정규식 메타문자 이스케이프 (v49.81 added, P433~P435 root prevention)
+
+**Rule**: innerHTML/innerHTMLAssignment에 삽입되는 모든 사용자 입력, API 응답, 동적 라벨, ticker, 칩 등 변수는 `escHtml()` 래핑 의무. 동적 정규식(`new RegExp(userInput, ...)`) 생성 시 메타문자 이스케이프 의무.
+
+**Required**:
+- 사용자 입력 또는 외부 데이터를 직접 innerHTML/`+` concat으로 삽입 금지.
+- HTML attribute 값에 데이터 삽입 시 `escHtml(x).replace(/'/g, '&#39;')` 표준 패턴 사용. 백슬래시 이스케이프 금지.
+- `new RegExp(userInput, ...)` 호출 시 `userInput.replace(/[.*+?^${}()|[\]\]/g, '\$&')` 사전 이스케이프.
+
+**Evidence (P433~P435)**: VsCode 작업본 v49.80 baseline 위 검토 결과 10+ 위치 escHtml 누락 + `_aioGuideSearch` 정규식 인젝션 가능 + chip safeQ 백슬래시 이스케이프 비효율 발견.
+
+**Validation**: grep `innerHTML.*\+.*[A-Za-z]` 결과 사용자 데이터 변수가 escHtml 없이 삽입된 경우 0건.
+
+---
+
+## R168. vendor-prefix CSS 속성은 표준 속성과 동시 선언 + inline hover: 금지 (v49.81 added, P436~P437 root prevention)
+
+**Rule**: CSS vendor-prefix 속성 사용 시 표준 속성과 동시 선언. inline `style` 속성에 `hover:`/`focus:` 등 pseudo-class 작성 금지 (의미 없음).
+
+**Required**:
+- `-webkit-line-clamp` → `-webkit-line-clamp` + `line-clamp` 동시.
+- inline `style="...hover:..."` 패턴 금지. hover 효과는 stylesheet에서 `.class:hover` 또는 `:hover { ... }` 로 정의.
+- 빈 CSS 규칙 (`.selector { /* */ }`) 정리.
+
+**Evidence (P436~P437)**: line-clamp 표준 누락 3곳 + news-refresh-btn inline hover: 무효 사용 + 옛 dead CSS 규칙 잔존.
+
+**Validation**: grep `style=.*hover:` 결과 0건 + `-webkit-line-clamp:[^}]*}` 옆에 표준 line-clamp 없는 경우 0건.
+
+---
+
+## R169. 동일 함수 내 var/const/let 이름 충돌 금지 + 신규 코드 let/const 우선 (v49.81 added, P438 root prevention, P311 패턴 재발 방지)
+
+**Rule**: 동일 함수 스코프 내에 같은 이름의 `var`/`const`/`let` 선언 금지. 신규 코드는 `let`/`const` 우선 사용.
+
+**Reason**: `var`는 function-scoped + hoisted. 같은 함수 내 어딘가 `const ld` + 다른 곳 `var ld` 선언 시 SyntaxError (P311 v49.44 hotfix 사례 — aio-data.js 전체 parse 실패 + 데이터 파이프라인 마비).
+
+**Required**:
+- 신규 변수 선언은 `let` 또는 `const` 사용.
+- 기존 `var`는 같은 함수 내 const/let 충돌 가능성 확인 후 `let`으로 점진 마이그.
+- `AIO.getVarHoistConflictAudit()` (v49.44 R98 기존) 자동 검증.
+
+**Evidence (P438)**: VsCode 작업본에서 30+ 함수 `var ld` → `let ld` 일괄 전환 — P311 같은 SyntaxError 재발 차단.
+
+**Validation**: `AIO.getVarHoistConflictAudit().conflicts.length === 0`.

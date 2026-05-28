@@ -1738,17 +1738,19 @@ window._aioGuideSearch = function(keyword) {
     }
   }
   if (matches.length === 0) {
-    result.innerHTML = '<span style="color:var(--data-amber);">"' + keyword + '" 검색 결과 없음</span>';
+    result.innerHTML = '<span style="color:var(--data-amber);">"' + escHtml(keyword) + '" 검색 결과 없음</span>';
     result.style.display = 'block';
     return;
   }
+  var escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   var html = '<span style="color:var(--data-green);font-weight:700;">' + matches.length + '건 발견 — 클릭하여 이동:</span>';
   matches.forEach(function(m, i) {
     var labelEl = m.el.querySelector('.explain-label, .aio-explain-trigger-label span:last-child, h2, h3');
     var label = labelEl ? labelEl.textContent.trim().slice(0, 60) : ('결과 ' + (i+1));
     var ref = 'guide-match-' + i;
     m.el.id = m.el.id || ref;
-    html += '<div style="margin-top:4px;padding:4px 8px;background:var(--surface-3);border-radius:4px;cursor:pointer;" data-action="_aioGuideJump" data-arg="' + m.el.id + '"><strong style="color:var(--data-cyan);">' + label + '</strong> <span style="color:var(--text-muted);margin-left:6px;">' + m.text.replace(new RegExp(keyword, 'gi'), function(mt){return '<mark style="background:var(--data-amber);color:#001018;padding:0 2px;">'+mt+'</mark>';}) + '…</span></div>';
+    var safeText = escHtml(m.text).replace(new RegExp(escapedKeyword, 'gi'), function(mt){return '<mark style="background:var(--data-amber);color:#001018;padding:0 2px;">'+escHtml(mt)+'</mark>';});
+    html += '<div style="margin-top:4px;padding:4px 8px;background:var(--surface-3);border-radius:4px;cursor:pointer;" data-action="_aioGuideJump" data-arg="' + escHtml(m.el.id) + '"><strong style="color:var(--data-cyan);">' + escHtml(label) + '</strong> <span style="color:var(--text-muted);margin-left:6px;">' + safeText + '…</span></div>';
   });
   result.innerHTML = html;
   result.style.display = 'block';
@@ -13394,7 +13396,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.80';
+const APP_VERSION = 'v49.81';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

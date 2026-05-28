@@ -3909,3 +3909,69 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
   12. breadth-divergence (다이버전스 경보)
 - **auditStatus**: 'partial' (1차만, 2차 → v49.40)
 - **파일**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.breadth
+
+---
+
+## P433 · v49.81 · index.html 다수 위치 escHtml() 누락 (XSS 표면)
+
+- **증상**: portfolio alloc 키 / openChatHistory ctxLabel·ctxBadge·q·a / renderKrIssues title/desc/meta / analyzeKrIndex·analyzeKrTickerDeep label/stageData/trendData/entryData/crossData/divData/dipData/verdict/ticker / updateAIPanelContext aiChip / chatSendUnified extractChips 등 다수 위치에서 사용자 입력 또는 외부 데이터를 escHtml() 없이 innerHTML 삽입.
+- **원인**: 작성 시점에 데이터 출처를 신뢰했으나, 사용자가 ticker 직접 입력 / 한국 뉴스 RSS 외부 텍스트 / KR 종목 분석 라벨 등 잠재적 XSS 벡터 존재.
+- **수정**: VsCode 작업본에서 모든 잠재 위치에 `escHtml()` 래핑 추가. 10+ 위치 일괄.
+- **파일**: `index.html` (다수)
+- **violated_rule**: R29(innerHTML 직접 삽입 시 escHtml 필수) · R167(신규)
+- **prevention**: R167 — 사용자/외부 데이터를 innerHTML에 삽입 시 모든 변수에 escHtml() 의무. PR/edit 시 grep으로 `innerHTML.*\+.*[^h]` 패턴 자동 검출.
+
+---
+
+## P434 · v49.81 · _aioGuideSearch 정규식 인젝션 + escHtml 누락
+
+- **증상**: 사용자가 `[.*` 등 정규식 메타문자를 검색 키워드로 입력 시 `new RegExp(keyword, 'gi')` 호출이 SyntaxError 또는 의도치 않은 매칭 가능. + label/text/id가 escHtml 없이 innerHTML 삽입.
+- **원인**: keyword를 정규식 패턴 + innerHTML 양쪽에 안전 처리 없이 직접 사용.
+- **수정**: `escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')` + escHtml(keyword)/escHtml(label)/escHtml(text)/escHtml(m.el.id) 동시 적용.
+- **파일**: `js/aio-core.js` `_aioGuideSearch` L1738~1755
+- **violated_rule**: R167(신규)
+- **prevention**: 동적 정규식 생성 시 메타문자 이스케이프 의무. 신규 lint hook: `new RegExp\(\w` 패턴 발견 시 이전 줄에 이스케이프 호출 검증.
+
+---
+
+## P435 · v49.81 · chatRenderChips safeQ 백슬래시 이스케이프 비효율
+
+- **증상**: `escHtml(q).replace(/\\/g, '\\\\').replace(/'/g, "\\'")` — HTML attribute 값에 데이터를 넣을 때 백슬래시 이스케이프가 불필요하고 가독성 저하.
+- **원인**: HTML attribute 값은 escHtml만으로 충분, 백슬래시는 JavaScript 문자열 리터럴에만 의미.
+- **수정**: `escHtml(q).replace(/'/g, '&#39;')` — HTML entity 사용 단순화 (3 곳: chatRenderChips safeQ + chatSend _safeQ2). _missList.map(escHtml) + _navIntent.label escHtml 동일.
+- **파일**: `js/aio-chat.js` L1345 + L4691 + L4694 + L4888
+- **violated_rule**: R167
+- **prevention**: HTML attribute 내 사용자 데이터 → escHtml() + `&#39;` 표준 패턴. 백슬래시 이스케이프 금지.
+
+---
+
+## P436 · v49.81 · CSS line-clamp 표준 속성 누락 (호환성)
+
+- **증상**: `.insight-box.box-collapsed` / `.news-item-headline` / `.news-item-desc` 3곳에서 `-webkit-line-clamp`만 사용. 표준 `line-clamp` 누락 → 향후 표준 채택 시 vendor-prefix 제거 시 깨짐.
+- **원인**: vendor-prefix만 사용하던 시기 CSS.
+- **수정**: 표준 `line-clamp: N;` 속성을 `-webkit-line-clamp: N;` 옆에 동시 선언.
+- **파일**: `index.html` L1655, L2470, L2475
+- **violated_rule**: R168(신규)
+- **prevention**: vendor-prefix 사용 시 표준 속성과 동시 선언 의무.
+
+---
+
+## P437 · v49.81 · inline hover: 무효 속성 사용 + dead CSS
+
+- **증상**: `news-refresh-btn` style에 `hover:background:rgba(0,212,255,0.25);` 포함 — CSS hover pseudo-class는 stylesheet에서만 동작, inline `style` 속성 내 의미 없음. + `#page-options > div:nth-child(4)` 빈 규칙 잔존.
+- **원인**: Tailwind-style 인라인 hover 표기 오용 + 옛 CSS 규칙 미정리.
+- **수정**: inline hover: 속성 제거 + 빈 CSS 규칙 정리.
+- **파일**: `index.html` L9714, L3326
+- **violated_rule**: R168
+- **prevention**: inline `style` 속성에 `hover:`/`focus:` 등 pseudo-class 작성 금지.
+
+---
+
+## P438 · v49.81 · var 사용으로 hoist conflict 위험 (P311 패턴)
+
+- **증상**: 30+ 함수에서 `var ld = window._liveData || {};` 사용 — `var`는 function-scoped + hoisted. 같은 함수 내 다른 곳에서 `const ld` 선언 시 SyntaxError (P311 v49.44 hotfix 패턴).
+- **원인**: 옛 ES5 코드 패턴 잔존.
+- **수정**: 30+ 곳을 `let ld`로 일괄 전환 (block-scoped). 같은 이름 충돌 시 즉시 SyntaxError로 감지.
+- **파일**: `index.html` (다수 함수)
+- **violated_rule**: R169(신규)
+- **prevention**: R169 — 동일 함수 내 같은 이름 var/const/let 선언 금지. 신규 코드는 let/const 우선. `AIO.getVarHoistConflictAudit()` (v49.44 R98) 자동 검증.

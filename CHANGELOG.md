@@ -6,6 +6,62 @@
 
 ---
 
+## v49.81 — VsCode 작업본 통합: XSS 보호 + CSS 표준화 + var→let 스코프 안전성 (2026-05-28)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-chat.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 정직 요구 "VsCode에서 작업한 내용들도 똑같이 참고해서 전체 통합". VsCode 워크스페이스 (`C:\Users\zmfhd\VScode1\aio-screener\`)가 v49.80 baseline (`5cd86dc`) 위에 uncommitted 3 파일 (index.html 225 line / aio-chat.js 8 line / aio-core.js 6 line) 보유 — 보안/CSS/스코프 보강 일괄 통합.
+
+### 1) P433~P435/R167 — escHtml() 누락 보강 (XSS 방어)
+
+**index.html 다수 (10+ 위치)**:
+- portfolio `updatePortfolioSummary` alloc 키 (사용자 입력 ticker 직접 innerHTML 위험)
+- `openChatHistory` ctxLabel + ctxBadge + q + a (대화 기록 모달의 사용자 입력 4 필드)
+- `renderKrIssues` title/desc/meta (이슈 카드 3 필드)
+- `analyzeKrIndex` + `analyzeKrTickerDeep` label/stageData.label/trendData.position/entryData.grade·reasoning/crossData/divData/dipData/verdict/ticker (KR 기술 분석 카드 9 필드)
+- `updateAIPanelContext` aiChip (칩 텍스트)
+- `chatSendUnified` extractChips (응답에서 추출한 칩)
+
+**js/aio-core.js `_aioGuideSearch`**: keyword + label + text + id에 escHtml 적용 + `escapedKeyword` 정규식 메타문자 이스케이프 (`[.*+?^${}()|[\]\\]` → `\\$&`) — 정규식 인젝션 차단.
+
+**js/aio-chat.js `chatRenderChips`**: safeQ 정규화 단순화 (백슬래시 이스케이프 → `&#39;` HTML entity, HTML attribute 내 안전). `_safeQ2` 동일. `_missList .map(escHtml)`. `_navIntent.label` escHtml.
+
+### 2) P436~P437/R168 — CSS 표준화 + 무효 inline hover 제거
+
+- `.insight-box.box-collapsed` / `.news-item-headline` / `.news-item-desc` 3곳에 표준 `line-clamp` 속성 `-webkit-line-clamp` 옆에 동시 선언 (Safari/Chrome 호환성).
+- `news-refresh-btn` inline `hover:background:rgba(...)` 제거 — CSS hover pseudo-class는 stylesheet에서만 동작, inline `style` 속성 내 `hover:` 의미 없음.
+- 데드 `#page-options > div:nth-child(4)` 빈 CSS 규칙 제거.
+
+### 3) P438/R169 — var→let 30+ 곳 (스코프 안전성)
+
+함수 스코프 안전성 — `var`는 함수-scoped + hoisted라서 P311 (v49.44 const+var hoist conflict) 같은 SyntaxError 패턴 재발 가능. `let`은 block-scoped라 같은 함수 내 const/let 이름 충돌 즉시 감지.
+
+**적용 함수 (index.html)**: addPortfolioPosition / renderPortfolio / refreshPortfolioTechnicalRisk / renderWatchlistContent / getPortfolioContextForAI / getWatchlistContextForAI / _liveSnap / _closeSnap / _closingVal / _buildMarketLeadersSnapshot / _buildKoreaLeadersSnapshot / computeMarketHealth / updateTechIndicators / updateSRLevels / updateWeinsteinStage / updateMTF / updatePatternSignals / generateMacroStoryline / renderYieldCurve / computeEconomicTemperature / updateDynamicScenarios / updateMacroRegimePill / updateWtiBrentSpread / CHAT_CONTEXTS theme/ticker/options/portfolio/kr-themes/fundamental / collectPriceHistory / renderAllEtfGrid / renderSubThemesGrid / fxbond override / renderGmoTable / loadTickerChart / calcKrHealthScore / loadTVChart / updateBenchmarkChart / checkPriceAlerts.
+
+### 4) 동기화 7곳
+
+- `index.html` title + badge + JS cache-bust 6곳 (`?v=49.81`)
+- `js/aio-core.js` APP_VERSION
+- `sw.js` SW_VERSION + SW_BUILD (`2026-05-28T12:00:00+09:00`)
+- `version.json`
+- `_context/CLAUDE.md` 현재 버전
+- `CLAUDE.md` 마일스톤 + 현재 버전
+- `CHANGELOG.md` 본 항목
+
+### 신규 R 규칙 / P 번호
+
+- **R167**: 사용자 데이터/API 응답을 innerHTML에 삽입할 때 모든 변수에 `escHtml()` 의무 — 누락 시 XSS 벡터. 정규식 동적 생성 시 메타문자 이스케이프 의무.
+- **R168**: vendor-prefix CSS 속성은 표준 속성과 동시 선언. inline `style` 속성에 `hover:`/`focus:` 등 pseudo-class 작성 금지 (의미 없음).
+- **R169**: 동일 함수 내에 같은 이름의 `var`/`const`/`let` 선언 금지. 신규 코드는 `let`/`const` 우선 사용 (P311 hoist conflict 패턴 재발 방지).
+- **P433**: index.html 다수 위치 escHtml() 누락 (XSS 표면)
+- **P434**: `_aioGuideSearch` 정규식 인젝션 가능 + escHtml 누락
+- **P435**: chip safeQ escape 전략 비효율 (백슬래시 escape → HTML entity)
+- **P436**: CSS line-clamp 표준 속성 누락 (호환성)
+- **P437**: inline hover: 무효 속성 사용
+- **P438**: var 사용으로 hoist conflict 위험 (P311 패턴)
+
+---
+
 ## v49.80 — Codex 통합: TICKER REGISTRY 100+ + 테마 의미 배제 + KR_STOCK_DB 정합성 (2026-05-27)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

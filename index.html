@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.80 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.81 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1655,7 +1655,7 @@ body {
 .insight-box.box-collapsed {
   overflow: hidden; text-overflow: ellipsis; max-height: 44px;
   padding-right: 32px !important;
-  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+  display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical;
   white-space: normal;
 }
 
@@ -2470,12 +2470,12 @@ html { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparen
 .news-item-headline {
   font-size: 10px; font-weight: 600; color: var(--text-primary);
   line-height: 1.4; margin-bottom: 2px;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden; text-overflow: ellipsis; white-space: normal;
 }
 .news-item-desc {
   font-size: 9px; color: var(--text-secondary); line-height: 1.4; margin: 2px 0 3px;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden; text-overflow: ellipsis; white-space: normal;
   opacity: 0.8;
 }
@@ -3326,10 +3326,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
 }
 
 /* ═══ v27.1: 인라인 그리드 반응형 수정 (6열/5열 그리드 오버플로 방지) ═══ */
-/* 옵션 페이지 5열 메트릭 */
-#page-options > div:nth-child(4) {
-  /* repeat(5,1fr) → 3열로 변환 (1024px 이하) */
-}
+/* 옵션 페이지 5열 메트릭 (구형 규칙 제거) */
 
 /* 모든 인라인 6열 그리드 반응형 처리 */
 @media (max-width: 1200px) {
@@ -4011,7 +4008,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.80</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.81</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9714,7 +9711,7 @@ body.light-theme canvas { filter:none; }
         <span id="last-fetch-time" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수신 대기...</span>
         <span id="market-news-count" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);"></span>
         <span id="market-news-tw-label" style="font-size:11px;color:var(--yellow);font-family:var(--font-mono);background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.2);border-radius:4px;padding:2px 8px;">48시간 이내</span>
-        <button id="news-refresh-btn" data-action="_aioFetchAllNewsForce" style="background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.4);color:var(--data-cyan);font-size:11px;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.2s;hover:background:rgba(0,212,255,0.25);">↻ 새로고침</button>
+        <button id="news-refresh-btn" data-action="_aioFetchAllNewsForce" style="background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.4);color:var(--data-cyan);font-size:11px;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.2s;">↻ 새로고침</button>
       </div>
     </div>
 
@@ -12552,9 +12549,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.80"></script>
-  <script src="./js/aio-data.js?v=49.80"></script>
-  <script src="./js/aio-ui.js?v=49.80"></script>
+  <script src="./js/aio-core.js?v=49.81"></script>
+  <script src="./js/aio-data.js?v=49.81"></script>
+  <script src="./js/aio-ui.js?v=49.81"></script>
 
   <script>
 
@@ -13178,7 +13175,7 @@ function addPortfolioPosition() {
   // v38.8: 티커 유효성 검증 — KNOWN_TICKERS 또는 _SNAP_FALLBACK에 존재하는지 확인
   var knownTickers = (typeof KNOWN_TICKERS !== 'undefined') ? KNOWN_TICKERS : [];
   var snapFb = (typeof _SNAP_FALLBACK !== 'undefined') ? _SNAP_FALLBACK : {};
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   // v46.6: KNOWN_TICKERS가 Set이므로 .has() 사용 (기존 .indexOf()는 Set에서 TypeError)
   var isKnown = (knownTickers.has ? knownTickers.has(ticker) : (knownTickers.indexOf ? knownTickers.indexOf(ticker) >= 0 : false)) || snapFb[ticker] || ld[ticker] || /^\d{6}$/.test(ticker);
   if (!isKnown) {
@@ -13324,7 +13321,7 @@ function clearAllPositions() {
 // Render Portfolio
 function renderPortfolio() {
   const positions = getPortfolioData();
-  const ld = window._liveData || {};
+  let ld = window._liveData || {};
   const tbody = document.getElementById('pf-positions-tbody');
   if (!tbody) return;
   // v48.47: R:R 계산기 포지션 드롭다운 동기화
@@ -13441,7 +13438,7 @@ function updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDaily
     const sorted = Object.entries(alloc).sort((a,b) => b[1]-a[1]);
     allocEl.innerHTML = sorted.slice(0,4).map(([k,v]) => {
       const pct = totalValue > 0 ? (v/totalValue*100).toFixed(0) : 0;
-      return `<span style="color:var(--text-secondary);font-size:11px;">${k} ${pct}%</span>`;
+      return `<span style="color:var(--text-secondary);font-size:11px;">${escHtml(k)} ${pct}%</span>`;
     }).join(' · ');
   }
   // v37.8: 동적 포트폴리오 진단
@@ -13559,7 +13556,7 @@ async function refreshPortfolioTechnicalRisk() {
     if (typeof renderPortfolioTechnicalRisk === 'function') renderPortfolioTechnicalRisk({ items: [] });
     return;
   }
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var enriched = positions.map(function(p) {
     var live = ld[p.ticker] || {};
     var price = live && isFinite(live.price) && live.price > 0 ? live.price : p.cost;
@@ -13954,7 +13951,7 @@ function renderWatchlistContent() {
   emptyMsg.style.display = 'none';
   table.style.display = 'table';
 
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   // SCREENER_DB에서 신호 정보 가져오기
   var dbMap = {};
   if (typeof SCREENER_DB !== 'undefined') {
@@ -14008,7 +14005,7 @@ _aioPageBus.register('html-portfolio-watchlist-live', 'aio:liveQuotes', function
 function getPortfolioContextForAI() {
   const positions = getPortfolioData();
   if (!positions.length) return '사용자의 포트폴리오가 비어있습니다.';
-  const ld = window._liveData || {};
+  let ld = window._liveData || {};
   let totalValue = 0;
   const lines = positions.map(p => {
     const live = ld[p.ticker];
@@ -14031,7 +14028,7 @@ function getPortfolioContextForAI() {
 function getWatchlistContextForAI() {
   var lists = getWatchlists();
   if (!lists.length) return '';
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var parts = lists.map(function(wl) {
     if (!wl.tickers.length) return '  ' + wl.name + ': (비어있음)';
     var tks = wl.tickers.map(function(t) {
@@ -14210,7 +14207,7 @@ function openChatHistory(ctxId) {
   overlay.innerHTML = `
     <div class="chat-history-panel">
       <div class="ch-header">
-        <span class="ch-title">대화 기록 (${ctxLabel}) - ${history.length}건</span>
+        <span class="ch-title">대화 기록 (${escHtml(ctxLabel)}) - ${history.length}건</span>
         <div style="display:flex;gap:6px;">
           ${history.length > 0 ? '<button data-action="_aioChatHistoryClear" style="background:none;border:1px solid rgba(255,91,80,0.3);color:var(--data-red);font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;">전체 삭제</button>' : ''}
           <button class="ch-close" data-action="_aioChatHistoryClose" data-pass-el="1">X</button>
@@ -14221,10 +14218,10 @@ function openChatHistory(ctxId) {
           history.map((h, i) => {
             const dt = new Date(h.ts);
             const timeStr = dt.toLocaleDateString('ko-KR', {month:'short',day:'numeric'}) + ' ' + dt.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
-            const ctxBadge = h.ctx ? '<span style="font-size:11px;background:rgba(0,212,255,0.1);color:var(--data-cyan);padding:1px 5px;border-radius:3px;margin-right:6px;">' + (h.ctx) + '</span>' : '';
+            const ctxBadge = h.ctx ? '<span style="font-size:11px;background:rgba(0,212,255,0.1);color:var(--data-cyan);padding:1px 5px;border-radius:3px;margin-right:6px;">' + escHtml(h.ctx) + '</span>' : '';
             return '<div class="ch-item" data-action="_aioToggleWhiteSpace" data-pass-el="1">' +
-              '<div class="ch-item-q">' + ctxBadge + h.q + '</div>' +
-              '<div class="ch-item-a">' + (h.a || '(응답 없음)') + '</div>' +
+              '<div class="ch-item-q">' + ctxBadge + escHtml(h.q || '') + '</div>' +
+              '<div class="ch-item-a">' + (h.a ? escHtml(h.a) : '(응답 없음)') + '</div>' +
               '<div class="ch-item-time">' + timeStr + '</div>' +
             '</div>';
           }).join('')
@@ -14272,7 +14269,7 @@ function renderStaleWarning(containerId) {
 }
 
 function _liveSnap() {
-  const ld = window._liveData || {};
+  let ld = window._liveData || {};
   var stale = [];
   if (!_ld('^GSPC','price')) stale.push('S&P500');
   if (!_ld('^VIX','price')) stale.push('VIX');
@@ -14366,7 +14363,7 @@ function _liveSnap() {
  * 이유: 분석의 일관성·재현성 확보 (장중 변동에 분석이 흔들리지 않음)
  */
 function _closeSnap() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   // ═══ v37.2: 이원화 원칙을 _closeSnap에도 완전 적용 ═══
   // 주가/지수 → chartPreviousClose(종가), 시장환경 → 실시간(_ld)
   function _close(sym) {
@@ -14442,7 +14439,7 @@ function _closeSnap() {
  * @returns {number|null}
  */
 function _closingVal(sym, field) {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var d = ld[sym];
   if (!d) {
     // _SNAP_FALLBACK에서 폴백
@@ -14495,9 +14492,9 @@ function renderKrIssues() {
       return '<div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;background:' + c.bg + ';border:1px solid ' + c.bd + ';">' +
              '<span style="width:8px;height:8px;border-radius:50%;background:' + c.dot + ';display:inline-block;flex-shrink:0;margin-top:3px;"></span>' +
              '<div style="flex:1;min-width:0;">' +
-             '<div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">' + title + '</div>' +
-             '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.4;">' + desc + '</div>' +
-             '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;opacity:0.7;">' + meta + '</div>' +
+             '<div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">' + escHtml(title) + '</div>' +
+             '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.4;">' + escHtml(desc) + '</div>' +
+             '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;opacity:0.7;">' + escHtml(meta) + '</div>' +
              '</div></div>';
     }).join('');
     container.innerHTML = html;
@@ -14554,7 +14551,7 @@ function _getThemeNews(themeTickers, themeName, maxItems) {
 // 포토닉스·메모리·양자·우주 등 ETF 없는 순수 테마까지 leaders/tickers/weights 기반으로 커버.
 function _buildMarketLeadersSnapshot() {
   try {
-    var ld = window._liveData || {};
+    let ld = window._liveData || {};
     var out = '\n\n【오늘의 주도 섹터·테마·주도주 랭킹 (마지막 본장 마감 기준)】\n';
 
     // 1) 섹터 ETF 11개 1일 변화율 랭킹
@@ -14733,7 +14730,7 @@ function _buildMarketLeadersSnapshot() {
 // 마지막 본장 마감 기준 window._liveData를 사용해 KR_SUB_THEMES 22개 가중평균 랭킹 생성.
 function _buildKoreaLeadersSnapshot() {
   try {
-    var ld = window._liveData || {};
+    let ld = window._liveData || {};
     var out = '\n\n【한국 시장 주도 테마·주도주 랭킹 (마지막 본장 마감 기준)】\n';
 
     if (typeof KR_SUB_THEMES !== 'undefined' && Array.isArray(KR_SUB_THEMES)) {
@@ -15624,7 +15621,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.80"></script>
+<script src="./js/aio-chat.js?v=49.81"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -15634,7 +15631,7 @@ function _getV48IntegratedContext(pageFocus) {
 // ── Market Health Score (screener_pro compute_market_health 방법론) ──
 function computeMarketHealth() {
   // v37.1: 주가(SPY/QQQ)=종가 기준, 시장 환경(VIX)=실시간
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   if (!_closingVal('SPY') && !(ld['SPY'])) return;
   if (!_closingVal('QQQ') && !(ld['QQQ'])) return;
 
@@ -15759,7 +15756,7 @@ function computeMarketHealth() {
 
 // ── Technical Indicators Table (S&P 500) ──
 async function updateTechIndicators() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var spx = ld['^GSPC'];
   if (!spx) return;
   var price = spx.price || 0;
@@ -15830,7 +15827,7 @@ async function updateTechIndicators() {
 
 // ── Support/Resistance Levels ──
 function updateSRLevels() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var spx = ld['^GSPC'];
   if (!spx) return;
   var price = spx.price || 6506;
@@ -15884,7 +15881,7 @@ function updateSRLevels() {
 
 // ── Weinstein Stage Analysis ──
 function updateWeinsteinStage() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var spy = ld['SPY'];
   if (!spy) return;
 
@@ -16073,7 +16070,7 @@ function updateWeinsteinStage() {
 
 // ── Multi-Timeframe Analysis ──
 function updateMTF() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var spy = ld['SPY'];
   if (!spy) return;
   var chg = (spy.pct != null ? spy.pct : 0);
@@ -16220,7 +16217,7 @@ function updateMTF() {
 
 // ── Pattern & Signal Detection ──
 function updatePatternSignals() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var spy = ld['SPY'], vix = ld['^VIX'];
   if (!spy) return;
   var chg = (spy.pct != null ? spy.pct : 0);
@@ -16575,7 +16572,7 @@ function renderEconCalendar() {
 
 // ── Macro Storyline (immersive Korean narrative) ──
 function generateMacroStoryline() {
-  var ld = window._liveData || {};  // v38.3: ld 변수 선언 누락 수정 (ReferenceError → 무한 "생성 중…")
+  let ld = window._liveData || {};  // v38.3: ld 변수 선언 누락 수정 (ReferenceError → 무한 "생성 중…")
   var vix = _ldSafe('^VIX','price');
   var tnx = _ldSafe('^TNX','price');
   var fvx = _ldSafe('^FVX','price');
@@ -16954,7 +16951,7 @@ function updateMacroGridMeanings(ld, vix, tnx, fvx, dxy, wti, spread) {
 
 // ── Render Yield Curve Chart ──
 function renderYieldCurve() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var irx = _ldSafe('^IRX','price');  // 3M
   var fvx = _ldSafe('^FVX','price');  // 5Y
   var tnx = _ldSafe('^TNX','price');  // 10Y
@@ -17050,7 +17047,7 @@ function renderYieldCurve() {
 
 // ── Compute Economic Temperature ──
 function computeEconomicTemperature() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var vix = _ldSafe('^VIX','price');
   var tnx = _ldSafe('^TNX','price');
   var fvx = _ldSafe('^FVX','price');
@@ -17136,7 +17133,7 @@ function computeEconomicTemperature() {
 
 // ── Update Dynamic Scenarios ──
 function updateDynamicScenarios() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var vix = _ldSafe('^VIX','price');
   var wti = _ldSafe('CL=F','price');
   var tnx = _ldSafe('^TNX','price');
@@ -17221,7 +17218,7 @@ function updateDynamicScenarios() {
 
 // ── Macro Regime Pill ──
 function updateMacroRegimePill() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var vix = _ldSafe('^VIX','price');
   var tnx = _ldSafe('^TNX','price');
   var fvx = _ldSafe('^FVX','price');
@@ -17267,7 +17264,7 @@ function updateMacroRegimePill() {
 
 // ── WTI-Brent Spread (Enhanced with interpretation) ──
 function updateWtiBrentSpread() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var wti = _ldSafe('CL=F','price');
   var brent = _ldSafe('BZ=F','price');
   var el = document.getElementById('wti-brent-spread');
@@ -17744,7 +17741,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         (function() {
           var themeId = window._currentThemeId || null;
           if (!themeId) return '';
-          var ld = window._liveData || {};
+          let ld = window._liveData || {};
           var aliases = window.SCR_KEYWORD_ALIASES || {};
           var raw = aliases[themeId];
           var tickers = Array.isArray(raw) ? raw.slice(0, 15) : [];
@@ -17853,7 +17850,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
               '【시세 미수신 HARD STOP】 ticker 확정 전에는 모든 가격 인용 금지. 먼저 사용자에게 종목을 확인하고 live fetch 이후에만 가격을 말한다.\n' +
               '【시점 ticker 부재 시 답변 형식】 "어떤 종목 분석을 원하시나요? 예시: NVDA / 삼성전자 / 005930.KS" — 추측 환각 금지.\n\n';
           }
-          var ld = (window._liveData || {})[ticker] || {};
+          let ld = (window._liveData || {})[ticker] || {};
           var price = ld.price ? '$' + Number(ld.price).toFixed(2) : '—';
           var pct = ld.pct != null ? (' (' + (ld.pct>=0?'+':'') + Number(ld.pct).toFixed(2) + '%)') : '';
           var nameInfo = '';
@@ -17953,7 +17950,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
     system: function() {
       var s = _liveSnap();
       var snap = window.DATA_SNAPSHOT || {};
-      var ld = window._liveData || {};
+      let ld = window._liveData || {};
       // 옵션 페이지 핵심 지표 동적 수집
       var pcr = snap.putCallRatio || snap.pcr || null;
       var pcrEquity = snap.pcrEquity || null;
@@ -18030,7 +18027,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
       var krDataStr = '';
       krStocks.forEach(function(k) {
         var cp = _closingVal(k.sym);
-        var ld_ = (window._liveData || {})[k.sym];
+        let ld_ = (window._liveData || {})[k.sym];
         if (cp || (ld_ && ld_.price)) {
           var p = cp || ld_.price;
           var pct = (ld_ && ld_.pct != null) ? ld_.pct : 0; // R15
@@ -18084,7 +18081,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
       // v36.9: 종가 기준 데이터 사용 (분석 일관성)
       var kospiClose = _closingVal('^KS11');
       var kosdaqClose = _closingVal('^KQ11');
-      var ld = window._liveData || {};
+      let ld = window._liveData || {};
       var kospi = ld['^KS11'] || {};
       var kosdaq = ld['^KQ11'] || {};
       // v49.79 P423/R160: 정적 시점 토큰 + hardcoded 값 staleness 통합 경고
@@ -18180,7 +18177,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
       var s = _liveSnap();
       var S = DATA_SNAPSHOT;
       var fresh = s._freshness;
-      var ld = window._liveData || {};
+      let ld = window._liveData || {};
       var kospi = ld['^KS11'] || {};
       var kosdaq = ld['^KQ11'] || {};
       // v37.2: 한국 대장주 종가 기준 (이원화 원칙 적용)
@@ -18351,7 +18348,7 @@ function krSupplyTab(btn, tabId) {
 var _krHomeRetry = 0;
 var _krHomeRetryTimer = null; // v46.9: 페이지 이탈 시 clearTimeout용 (P93)
 function initKoreaHome() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   // Check if Korean data is available, if not retry (max 12 attempts)
   if (!ld['^KS11'] || !ld['^KQ11'] || !ld['KRW=X']) {
     if (_krHomeRetry++ < 12) { _krHomeRetryTimer = setTimeout(initKoreaHome, Math.min(500 * Math.pow(1.3, _krHomeRetry), 3000)); return; }
@@ -18517,7 +18514,7 @@ _aioPageBus.register('html-kr-live', 'aio:liveQuotes', function() {
 var _krSupplyRetry = 0;
 var _krSupplyRetryTimer = null; // v46.9: 페이지 이탈 시 clearTimeout용 (P84)
 function initKoreaSupply() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   // v49.54: supply data fetch must not be blocked by index quote availability.
   if (!window._krSupplyLoaded) {
     window._krSupplyLoaded = true;
@@ -18579,7 +18576,7 @@ function initKoreaSupply() {
 }
 
 function initKoreaThemes() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   // v40.4: 카드를 KR_THEME_MAP에서 동적 생성 (정적 HTML 제거됨 — 단일 진실 원천)
   if (typeof renderKrThemeCardsFromMap === 'function') renderKrThemeCardsFromMap();
   // 1. pill: 종목명 · 가격 · 등락률 명확 표시
@@ -18667,7 +18664,7 @@ function initKoreaThemes() {
 function renderKrThemeCardsFromMap() {
   var container = document.getElementById('kr-theme-container');
   if (!container || typeof KR_THEME_MAP === 'undefined' || typeof KR_STOCK_DB === 'undefined') return;
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
 
   // 테마 메타데이터 (이모지, 한글명, 영문명, 아이콘 배경색)
   var META = {
@@ -20727,7 +20724,7 @@ async function fetchStooqChart(ticker, days) {
 
 async function dynamicTickerLookup(ticker) {
   ticker = ticker.toUpperCase().trim();
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   // 1. 이미 _liveData에 있으면 바로 반환
   if (ld[ticker] && ld[ticker].price) {
     return { ticker: ticker, price: ld[ticker].price, pct: ld[ticker].pct, source: 'cache' };
@@ -20936,7 +20933,7 @@ async function dynamicTickerLookup(ticker) {
 var _krMacroRetry = 0;
 var _krMacroRetryTimer = null; // v46.9: 페이지 이탈 시 clearTimeout용 (P85)
 function initKoreaMacro() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   // Check if required data is available, if not retry (max 20 attempts = 10s)
   if (!ld['KRW=X'] || !ld['^TNX']) {
     if (_krMacroRetry++ < 20) { _krMacroRetryTimer = setTimeout(initKoreaMacro, 500); return; }
@@ -21777,7 +21774,7 @@ function _generateScreenerAnalysis(filtered, ld) {
 // ── 5) 심리지표 복합 분석 ──
 // v38.8: 개별 지표별 행동 가이드 동적 표시
 function _updateSentimentActionGuides() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var vix = ld['^VIX'] ? ld['^VIX'].price : null;
   var fgEl = document.getElementById('fg-score-big');
   var fgScore = fgEl ? parseInt(fgEl.textContent) : null;
@@ -21817,7 +21814,7 @@ function _updateSentimentActionGuides() {
 function _generateSentimentAnalysis() {
   _updateSentimentActionGuides(); // v38.8: 행동 가이드도 함께 업데이트
   var el = document.getElementById('sent-analysis-text'); if (!el) return;
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var fgEl = document.getElementById('fg-score-big');
   var fgScore = fgEl ? parseInt(fgEl.textContent) : NaN;
   var vix = ld['^VIX'] ? ld['^VIX'].price : NaN;
@@ -22501,7 +22498,7 @@ function getScoreAdvice(score) {
 
 // ── Execution Window Score (v20+) ────────────────────────────────
 function computeExecutionWindow() {
-  const ld = window._liveData || {};
+  let ld = window._liveData || {};
   var _fb2 = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
   const vix = _ldSafe('^VIX','price') || _fb2.vix || 20;
   const fg = window._lastFG || _fb2.fg || 35;
@@ -22627,7 +22624,7 @@ function drawPortfolioDonut() {
 
   // v40.4: 실제 포지션 데이터 기반 동적 도넛 차트
   var positions = typeof getPortfolioData === 'function' ? getPortfolioData() : [];
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var SECTOR_COLORS = {'Technology':'var(--data-cyan)','Healthcare':'var(--data-green)','Financial Services':'var(--data-amber)','Financials':'var(--data-amber)','Consumer Cyclical':'#f472b6','Consumer':'#f472b6','Energy':'#ef4444','Industrials':'var(--data-purple)','Consumer Defensive':'#34d399','Communication Services':'var(--data-purple)','Utilities':'var(--data-amber)','Real Estate':'var(--data-red)','Basic Materials':'#06b6d4','CASH':'var(--text-muted)'};
   var TICKER_COLORS = ['var(--data-cyan)','var(--data-green)','var(--data-amber)','#f472b6','var(--data-purple)','#34d399','var(--data-purple)','#ef4444','#06b6d4','var(--data-amber)','var(--data-red)','#c084fc','#fb923c','#22d3ee','#84cc16'];
 
@@ -22759,7 +22756,7 @@ function drawPositionDonut() {
   ctx.clearRect(0,0,W,H);
   var cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 6, ri = r * 0.55;
   var positions = typeof getPortfolioData === 'function' ? getPortfolioData() : [];
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var TICKER_COLORS = ['var(--data-cyan)','var(--data-green)','var(--data-amber)','#f472b6','var(--data-purple)','#34d399','var(--data-purple)','#ef4444','#06b6d4','var(--data-amber)','var(--data-red)','#c084fc','#fb923c','#22d3ee','#84cc16'];
   var SECTOR_COLORS = {'Technology':'var(--data-cyan)','Healthcare':'var(--data-green)','Financial Services':'var(--data-amber)','Financials':'var(--data-amber)','Consumer Cyclical':'#f472b6','Consumer':'#f472b6','Energy':'#ef4444','Industrials':'var(--data-purple)','Consumer Defensive':'#34d399','Communication Services':'var(--data-purple)','Utilities':'var(--data-amber)','Real Estate':'var(--data-red)','Basic Materials':'#06b6d4','CASH':'var(--text-muted)'};
 
@@ -22884,7 +22881,7 @@ function saveCashPosition(val) {
 
 // ── Update Risk Monitor ───────────────────────────────────────────
 function updateRiskMonitor() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
 
   // VIX
   var vix = ld['^VIX'] ? ld['^VIX'].price : null;
@@ -23198,7 +23195,7 @@ function renderScoreBars(scores) {
 // ── Main: Init Signal Dashboard ───────────────────────────────────
 // ── 미너비니 4단계 바닥 프로세스 동적 판별 (v38.9) ──
 function updateBottomProcess() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var vix = ld['^VIX'] ? ld['^VIX'].price : null;
   var spx = ld['^GSPC'] ? ld['^GSPC'].price : (ld['SPY'] ? ld['SPY'].price : null);
   var fg = window._lastFG || null;
@@ -23332,7 +23329,7 @@ var _signalInterval = null;
 
 // ── 진입 체크리스트 실시간 업데이트 (Jeff Sun Hard Rules) ──
 function updateEntryChecklist() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var vixD = ld['^VIX'];
   var spyD = ld['SPY'];
   var health = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
@@ -23698,7 +23695,7 @@ _aioPageBus.register('html-signal-live', 'aio:liveQuotes', function() {
 // ══════════════════════════════════════════════════════════════════
 
 function updateFxDynamicComments() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var dxy = ld['DX-Y.NYB'], krw = ld['KRW=X'], jpy = ld['JPY=X'], cny = ld['CNY=X'];
   var tnx = ld['^TNX'], tyx = ld['^TYX'], irx = ld['^IRX'];
 
@@ -23806,7 +23803,7 @@ function updateFxDynamicComments() {
 }
 
 function updateFxBondPage() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
 
   // DXY signal
   var dxy = ld['DX-Y.NYB'] ? ld['DX-Y.NYB'].price : null;
@@ -23907,7 +23904,7 @@ function initYieldCurveChart() {
   if (!ctx || typeof Chart === 'undefined') return;
   if (_ycChart) { _ycChart.destroy(); _ycChart = null; }
 
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var irx = _ldSafe('^IRX','price');
   var y2 = window._live2Y || 3.88;
   var fvx = _ldSafe('^FVX','price');
@@ -24008,7 +24005,7 @@ function initYieldCurveChart() {
 //  DYNAMIC FX/BOND COMMENTARY (라이브 데이터 기반 자동 해설)
 // ═══════════════════════════════════════════════════════════════
 function generateFxBondCommentary() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
 
   // DXY commentary
   var dxy = ld['DX-Y.NYB'] ? ld['DX-Y.NYB'].price : null;
@@ -24151,7 +24148,7 @@ updateFxBondPage = function() {
 
 // v48.50: Cross-Asset Matrix — 4축 정렬 판정 (FX × Yield × Credit)
 function updateCrossAssetMatrix() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var dxy = ld['DX-Y.NYB'] || {};
   var y10 = ld['^TNX'] || {};
   var y2 = ld['^IRX'] || ld['^FVX'] || {};
@@ -24231,7 +24228,7 @@ var _fundData = {};
 function buildFundCard(sym, data) {
   var profile = data && data.profile ? data.profile : {};
   var ratios = data && data.ratios ? data.ratios : {};
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var live = ld[sym] || {};
 
   var price = live.price || profile.price || '—';
@@ -24249,8 +24246,8 @@ function buildFundCard(sym, data) {
 
   return '<div class="fund-ticker-card" data-action="fundamentalCardClick" data-arg="' + escHtml(sym) + '">' +
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;">' +
-      '<div><div class="ftc-symbol">' + sym + '</div><div class="ftc-name">' + (profile.companyName || sym) + '</div></div>' +
-      '<div style="font-size:11px;color:var(--text-muted);text-align:right;">' + (profile.sector || '') + '</div>' +
+      '<div><div class="ftc-symbol">' + escHtml(sym) + '</div><div class="ftc-name">' + escHtml(profile.companyName || sym) + '</div></div>' +
+      '<div style="font-size:11px;color:var(--text-muted);text-align:right;">' + escHtml(profile.sector || '') + '</div>' +
     '</div>' +
     '<div class="ftc-price" data-live-price="' + sym + '">$' + (typeof price === 'number' ? price.toFixed(2) : price) + '</div>' +
     '<div class="ftc-chg" style="color:' + chgColor + ';" data-live-chg="' + sym + '">' + chg + '</div>' +
@@ -24258,7 +24255,7 @@ function buildFundCard(sym, data) {
       '<div>P/E: <b>' + pe + '</b></div>' +
       '<div>ROE: <b>' + roe + '</b></div>' +
       '<div>EPS: <b>$' + eps + '</b></div>' +
-      '<div>MCap: <b>$' + mktCap + '</b></div>' +
+      '<div>MCap: <b>$' + escHtml(String(mktCap)) + '</b></div>' +
     '</div>' +
     '<div class="metric-gauge"><div class="metric-gauge-fill" style="width:' + peWidth + '%;background:' + peColor + ';"></div></div>' +
     '<div style="font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;"><span>저평가</span><span>P/E</span><span>고평가</span></div>' +
@@ -24299,7 +24296,7 @@ async function initFundamentalCards() {
   var html = '';
   Object.keys(FUND_FALLBACK).forEach(function(sym) {
     var f = FUND_FALLBACK[sym];
-    var ld = window._liveData || {};
+    let ld = window._liveData || {};
     var d = ld[sym];
     var price = d ? d.price : 0;
     var pct = d && d.pct != null ? d.pct : null;
@@ -25055,7 +25052,7 @@ var _rsLastCalc = 0;
 
 // 라이브 데이터 기반 RS 근사 계산
 function calcLiveRS(sym) {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var d = ld[sym], spy = ld['SPY'];
   if (!d || !spy) return { rsRatio: 100, rsMom: 100, quadrant: 'unknown' };
 
@@ -25163,7 +25160,7 @@ function classifyRRG(rsRatio, rsMom) {
 
 function calcCompositePerf(tickers, weights) {
   tickers = tickers || [];
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var total = 0, count = 0, weighted = 0, totalWeight = 0;
   tickers.forEach(function(t) {
     var d = ld[t];
@@ -25205,7 +25202,7 @@ function _isCurrentQuoteData(sym) {
 
 // 테마별 퍼포먼스 계산
 function getThemePerf(theme) {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var totalCandidates = (theme.leaders || theme.tickers || []).length || 1;
   if (theme.etf && _isCurrentQuoteData(theme.etf)) {
     return { chgPct: ld[theme.etf].pct, source: theme.etf, count: 1, total: 1, quality: 'live' };
@@ -25227,7 +25224,7 @@ function getThemePerf(theme) {
 // ══════════════════════════════════════════════════════════════════
 function calcSectorBreadth(tickers) {
   // v36.9: 종가 기준 pct 사용 (장중 변동으로 폭 흔들림 방지)
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var above = 0, total = 0;
   tickers.forEach(function(t) {
     var d = ld[t];
@@ -25275,7 +25272,7 @@ function setRRGView(mode, btn) {
 
 function drawRRG() {
   if (!window._rrgRetry) window._rrgRetry = 0;
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   // v45.5: SPY가 없으면 시드 기반 RRG 그리기 불가 → 로딩 상태 표시 + 짧은 재시도
   if (!ld['SPY']) {
     var stWait = document.getElementById('rrg-chart-status');
@@ -25637,7 +25634,7 @@ async function _loadSector20dChart() {
 function renderSectorPerfBars() {
   var container = document.getElementById('sector-perf-bars');
   if (!container) return;
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var source = _sectorPerfView === 'all' ? ALL_RRG_ETFS : RRG_SECTORS;
   var isWeekly = (_sectorPerfMode === '1w');
 
@@ -25798,7 +25795,7 @@ function generateSectorAnalysis(sectors) {
   // v45.5: null chg 제외 (1주 모드 fetch 미완료 대응)
   sectors.forEach(function(s) { if (s.chg != null) sectorChgMap[s.sym] = s.chg; });
   // RRG_SUBSECTORS에서도 가져오기
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   ['SMH','XOP'].forEach(function(sym) {
     if (ld[sym] && ld[sym].pct != null) sectorChgMap[sym] = ld[sym].pct;
   });
@@ -25878,7 +25875,7 @@ function generateSectorAnalysis(sectors) {
 // ═══════════════════════════════════════════════════════════════
 var _themeHeatmapRetries = 0;
 function renderThemeHeatmap() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   if (Object.keys(ld).length < 5) {
     _themeHeatmapRetries++;
     if (_themeHeatmapRetries < 60) {
@@ -25946,7 +25943,7 @@ function showThemeDetail(themeId) {
   var theme = THEME_MAP[idx];
   var container = document.getElementById('theme-detail-panel');
   if (!container) return;
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
 
   var perf = getThemePerf(theme);
   var hasPerf = perf.chgPct != null && isFinite(perf.chgPct);
@@ -26148,7 +26145,7 @@ function showSubThemeDetail(subThemeId) {
   var st = SUB_THEMES[idx];
   var container = document.getElementById('sub-theme-detail-panel');
   if (!container) return;
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
 
   // 테마 퍼포먼스 계산
   var perf;
@@ -26358,7 +26355,7 @@ function closeSubThemeDetail() {
 //  누적 히스토리 수집 (RS 정밀도 향상)
 // ═══════════════════════════════════════════════════════════════
 function collectPriceHistory() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   Object.keys(ld).forEach(function(sym) {
     var d = ld[sym];
     if (!d || !d.price) return;
@@ -26375,7 +26372,7 @@ function collectPriceHistory() {
 // v48.57: 무한 재귀 가드 — 60회(30초) 재시도 후 폴백 메시지
 window._renderAllEtfGridRetries = 0;
 function renderAllEtfGrid() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   if (Object.keys(ld).length < 5) {
     if (++window._renderAllEtfGridRetries > 60) {
       var fallbackEl = document.getElementById('all-etf-grid');
@@ -27551,7 +27548,7 @@ var KR_THEME_NARRATIVES = {
 
 var _subThemeRetries = 0;
 function renderSubThemesGrid() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   if (Object.keys(ld).length < 5) {
     _subThemeRetries++;
     if (_subThemeRetries < 60) { // v46.6: 최대 30초 대기
@@ -27698,7 +27695,7 @@ _aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
       var _origFx = window.CHAT_CONTEXTS['fxbond'].system;
       window.CHAT_CONTEXTS['fxbond'].system = function() {
         var base = typeof _origFx === 'function' ? _origFx() : _origFx;
-        var ld = window._liveData || {};
+        let ld = window._liveData || {};
         var extra = '\n【추가 FX·채권 데이터】\n' +
           '• USD/JPY: ' + (ld['JPY=X'] ? ld['JPY=X'].price.toFixed(1) : '149.4') + '엔\n' +
           '• 30Y: ' + (ld['^TYX'] ? ld['^TYX'].price.toFixed(2) : '4.96') + '% | 3M: ' + (ld['^IRX'] ? ld['^IRX'].price.toFixed(2) : '3.62') + '%\n' +
@@ -27971,9 +27968,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.80"></script>
+<script src="./js/aio-glossary.js?v=49.81"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.80"></script>
+<script src="./js/aio-tests.js?v=49.81"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전
@@ -28195,7 +28192,7 @@ function getGmoSignal(pct) {
 function renderGmoTable() {
   const tbody = document.getElementById('gmo-tbody');
   if (!tbody) return;
-  const ld = window._liveData || {};
+  let ld = window._liveData || {};
   let html = '';
   const regions = _gmoExpanded ? GMO_MARKETS : GMO_MARKETS.slice(0, 2);
 
@@ -28344,7 +28341,7 @@ document.addEventListener('keydown', function(e) {
   computeMarketHealth = function() {
     var result = originalComputeMarketHealth.call(this);
 
-    var ld = window._liveData || {};
+    let ld = window._liveData || {};
     var m7 = ['AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'];
     var sectorETFs = ['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC'];
 
@@ -28408,7 +28405,7 @@ function loadTickerChart(period, btn) {
 
     // 데이터 없으면 시뮬레이션 데이터 생성
     if (!chartData || !chartData.labels || chartData.labels.length < 2) {
-      var ld = window._liveData || {};
+      let ld = window._liveData || {};
       var basePrice = (ld[sym] && ld[sym].price) ? ld[sym].price : 100;
       var labels = [];
       var prices = [];
@@ -29467,7 +29464,7 @@ window.runDeepAnalysis = function(sym) {
 // ── 한국 시장 건강 점수 동적 계산 ────────────────────────────────
 function calcKrHealthScore() {
   var snap = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : {};
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var score = 50; // 기본값
 
   // 1) KOSPI 추세 (라이브 or 스냅샷)
@@ -29611,12 +29608,12 @@ function initKoreaTechnical() {
 async function analyzeKrIndex(ticker, targetId, label) {
   var resultEl = document.getElementById(targetId);
   if (!resultEl) return;
-  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">분석 준비: ' + label + ' 기술적 분석...</div></div>';
+  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);"><div style="font-size:12px;">분석 준비: ' + escHtml(label) + ' 기술적 분석...</div></div>';
 
   try {
   var chartData = await _fetchYahooChartData(ticker);
   if (!chartData || !chartData.closes || chartData.closes.length < 50) {
-    resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' + label + ' 데이터를 불러올 수 없습니다.</div>';
+    resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' + escHtml(label) + ' 데이터를 불러올 수 없습니다.</div>';
     return;
   }
 
@@ -29648,12 +29645,12 @@ async function analyzeKrIndex(ticker, targetId, label) {
     '<div style="background:'+stageColor+'12;border:1px solid '+stageColor+'30;border-radius:7px;padding:10px;">' +
       '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Weinstein Stage</div>' +
       '<div style="font-size:18px;font-weight:900;color:'+stageColor+';font-family:var(--font-mono);">'+stageData.stage+'단계</div>' +
-      '<div style="font-size:11px;color:'+stageColor+';margin-top:3px;">'+stageData.label+'</div>' +
+      '<div style="font-size:11px;color:'+stageColor+';margin-top:3px;">'+escHtml(stageData.label)+'</div>' +
       '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">확도 '+Math.round(stageData.confidence*100)+'%</div>' +
     '</div>' +
     '<div style="background:'+trendColor+'12;border:1px solid '+trendColor+'30;border-radius:7px;padding:10px;">' +
       '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">추세 위치</div>' +
-      '<div style="font-size:14px;font-weight:900;color:'+trendColor+';">'+trendData.position+'</div>' +
+      '<div style="font-size:14px;font-weight:900;color:'+trendColor+';">'+escHtml(trendData.position)+'</div>' +
       '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">52W: '+trendData.week52+'% | Gap: '+trendData.gapFrom20.toFixed(2)+'%</div>' +
     '</div>' +
     '<div style="background:#a78bba12;border:1px solid #a78bba30;border-radius:7px;padding:10px;">' +
@@ -29663,8 +29660,8 @@ async function analyzeKrIndex(ticker, targetId, label) {
     '</div>' +
     '<div style="background:'+entryColor+'12;border:1px solid '+entryColor+'30;border-radius:7px;padding:10px;">' +
       '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">진입 등급</div>' +
-      '<div style="font-size:18px;font-weight:900;color:'+entryColor+';font-family:var(--font-mono);">'+entryData.grade+'</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;color:'+entryColor+';">'+entryData.reasoning+'</div>' +
+      '<div style="font-size:18px;font-weight:900;color:'+entryColor+';font-family:var(--font-mono);">'+escHtml(entryData.grade)+'</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;color:'+entryColor+';">'+escHtml(entryData.reasoning)+'</div>' +
     '</div>' +
   '</div>';
 
@@ -29672,9 +29669,9 @@ async function analyzeKrIndex(ticker, targetId, label) {
   html += '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;">' +
     '<div style="font-size:11px;font-weight:700;color:var(--text-bright);margin-bottom:6px;">교차 신호 & 다이버전스</div>' +
     '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;">' +
-      '<span>20/50 SMA: <strong style="color:'+(crossData.cross20_50==='golden'?'var(--data-green)':crossData.cross20_50==='death'?'var(--data-red)':'#999')+';">'+crossData.cross20_50+'</strong></span>' +
-      '<span>50/200 SMA: <strong style="color:'+(crossData.cross50_200==='golden'?'var(--data-green)':crossData.cross50_200==='death'?'var(--data-red)':'#999')+';">'+crossData.cross50_200+'</strong></span>' +
-      '<span>RSI 다이버전스: <strong style="color:'+(divData.type==='bullish'?'var(--data-green)':divData.type==='bearish'?'var(--data-red)':'#999')+';">'+divData.type+'</strong></span>' +
+      '<span>20/50 SMA: <strong style="color:'+(crossData.cross20_50==='golden'?'var(--data-green)':crossData.cross20_50==='death'?'var(--data-red)':'#999')+';">'+escHtml(crossData.cross20_50)+'</strong></span>' +
+      '<span>50/200 SMA: <strong style="color:'+(crossData.cross50_200==='golden'?'var(--data-green)':crossData.cross50_200==='death'?'var(--data-red)':'#999')+';">'+escHtml(crossData.cross50_200)+'</strong></span>' +
+      '<span>RSI 다이버전스: <strong style="color:'+(divData.type==='bullish'?'var(--data-green)':divData.type==='bearish'?'var(--data-red)':'#999')+';">'+escHtml(divData.type)+'</strong></span>' +
     '</div>' +
   '</div>';
 
@@ -29698,28 +29695,28 @@ async function analyzeKrIndex(ticker, targetId, label) {
   // Dip classification
   html += '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;">' +
     '<div style="font-size:11px;font-weight:700;color:var(--text-bright);margin-bottom:4px;">조정 분류</div>' +
-    '<div style="font-size:11px;color:var(--text-muted);">'+dipData.label+' (점수: '+dipData.score+'/5)</div>' +
-    '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">'+dipData.reasoning+'</div>' +
+    '<div style="font-size:11px;color:var(--text-muted);">'+escHtml(dipData.label)+' (점수: '+dipData.score+'/5)</div>' +
+    '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">'+escHtml(dipData.reasoning)+'</div>' +
   '</div>';
 
   // Verdict
-  var verdict = label + ' 지수는 현재 Weinstein '+stageData.stage+'단계 ('+stageData.label+'). '+trendData.position+' 위치에서 RSI '+rsi.toFixed(1)+'. ';
+  var verdict = escHtml(label) + ' 지수는 현재 Weinstein '+stageData.stage+'단계 ('+escHtml(stageData.label)+'). '+escHtml(trendData.position)+' 위치에서 RSI '+rsi.toFixed(1)+'. ';
   verdict += stageData.stage===2?'시장 상승세 진행 중.':stageData.stage===3?'고점 주의 구간.':stageData.stage===4?'하락 추세 주의.':'바닥 탐색 중.';
 
   html += '<div style="background:var(--surface-4);border:1px solid var(--border);border-radius:7px;padding:12px;margin-top:8px;font-size:11px;line-height:1.6;border-left:3px solid '+stageColor+';">' +
-    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">'+label+' 종합 판정</div>' +
+    '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">'+escHtml(label)+' 종합 판정</div>' +
     '<div style="color:var(--text-muted);">'+verdict+'</div>' +
   '</div>';
 
   // Price footer
   html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:8px;margin-top:8px;font-size:11px;color:var(--text-muted);text-align:center;">' +
-    label+': '+currentPrice.toFixed(2)+' ('+(priceChange>0?'+':'')+priceChange.toFixed(2)+'%) | 데이터: 1년 일봉 | 업데이트: '+new Date().toLocaleTimeString('ko-KR') +
+    escHtml(label)+': '+currentPrice.toFixed(2)+' ('+(priceChange>0?'+':'')+priceChange.toFixed(2)+'%) | 데이터: 1년 일봉 | 업데이트: '+new Date().toLocaleTimeString('ko-KR') +
   '</div>';
 
   resultEl.innerHTML = html;
   } catch(e) {
     _aioLog('error', 'fetch', 'analyzeKrIndex error: ' + (e && e.message || e));
-    if (resultEl) resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' + label + ' 분석 중 오류가 발생했습니다.</div>';
+    if (resultEl) resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' + escHtml(label) + ' 분석 중 오류가 발생했습니다.</div>';
   }
 }
 
@@ -29774,12 +29771,12 @@ async function analyzeKrTickerDeep(ticker) {
     '<div style="background:' + stageColor + '12;border:1px solid ' + stageColor + '30;border-radius:7px;padding:10px;">' +
       '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Weinstein Stage</div>' +
       '<div style="font-size:18px;font-weight:900;color:' + stageColor + ';font-family:var(--font-mono);">' + stageData.stage + '단계</div>' +
-      '<div style="font-size:11px;color:' + stageColor + ';margin-top:3px;">' + stageData.label + '</div>' +
+      '<div style="font-size:11px;color:' + stageColor + ';margin-top:3px;">' + escHtml(stageData.label) + '</div>' +
       '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">확도 ' + Math.round(stageData.confidence * 100) + '%</div>' +
     '</div>' +
     '<div style="background:' + trendColor + '12;border:1px solid ' + trendColor + '30;border-radius:7px;padding:10px;">' +
       '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">추세 위치</div>' +
-      '<div style="font-size:14px;font-weight:900;color:' + trendColor + ';">' + trendData.position + '</div>' +
+      '<div style="font-size:14px;font-weight:900;color:' + trendColor + ';">' + escHtml(trendData.position) + '</div>' +
       '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">52W: ' + trendData.week52 + '% | Gap: ' + trendData.gapFrom20.toFixed(2) + '%</div>' +
     '</div>' +
     '<div style="background:#a78bba12;border:1px solid #a78bba30;border-radius:7px;padding:10px;">' +
@@ -29789,16 +29786,16 @@ async function analyzeKrTickerDeep(ticker) {
     '</div>' +
     '<div style="background:' + entryColor + '12;border:1px solid ' + entryColor + '30;border-radius:7px;padding:10px;">' +
       '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">진입 등급</div>' +
-      '<div style="font-size:18px;font-weight:900;color:' + entryColor + ';font-family:var(--font-mono);">' + entryData.grade + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;color:' + entryColor + ';">' + entryData.reasoning + '</div>' +
+      '<div style="font-size:18px;font-weight:900;color:' + entryColor + ';font-family:var(--font-mono);">' + escHtml(entryData.grade) + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;color:' + entryColor + ';">' + escHtml(entryData.reasoning) + '</div>' +
     '</div>' +
   '</div>';
 
   html += '<div style="background:var(--surface-4);border:1px solid var(--border);border-radius:7px;padding:12px;margin-top:12px;font-size:11px;line-height:1.6;border-left:3px solid ' + stageColor + ';">' +
     '<div style="font-weight:900;color:var(--text-bright);margin-bottom:6px;">종합 판정</div>' +
     '<div style="color:var(--text-muted);">' +
-      '' + ticker + '는 ' + stageData.label + ' 중. ' +
-      trendData.position + ' 위치에서 ' + entryData.grade + '등급 진입 기회. ' +
+      '' + escHtml(ticker) + '는 ' + escHtml(stageData.label) + ' 중. ' +
+      escHtml(trendData.position) + ' 위치에서 ' + escHtml(entryData.grade) + '등급 진입 기회. ' +
       (stageData.stage === 2 && trendData.alignment > 80 ? '강력한 상승 추세!' : '신호 확인 필요.') +
     '</div>' +
   '</div>';
@@ -29928,7 +29925,7 @@ function loadTVChart(page) {
 
   // v48.52: TradingView 하단 OHLC fallback strip 동기화 (_liveData 기반)
   try {
-    var ld = window._liveData || {};
+    let ld = window._liveData || {};
     var live = ld[ohlcSym] || ld[sym] || {};
     var strip = document.querySelector('#tv-tech-ohlc, .tv-ohlc-strip');
     if (strip && page === 'technical') {
@@ -30106,7 +30103,7 @@ async function updateBenchmarkChart() {
   tickerSeries.forEach(function(s){ coveredSymSet[s.ticker] = true; });
 
   // 포트폴리오 현재가 기준 총 가치 (weight 계산용)
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   var totalCurrentValue = 0;
   pfData.forEach(function(p){
     var cur = (ld[p.ticker] && ld[p.ticker].price > 0) ? ld[p.ticker].price : p.cost;
@@ -30223,7 +30220,7 @@ function renderPriceAlerts() {
   el.innerHTML = html;
 }
 function checkPriceAlerts() {
-  var ld = window._liveData || {};
+  let ld = window._liveData || {};
   _priceAlerts.forEach(function(a) {
     if (!a.active) return;
     var d = ld[a.sym];
@@ -30571,9 +30568,9 @@ function updateAIPanelContext(pageId) {
   // 칩 복원
   var chips = _aiDefaultChips[ctxId] || [];
   var chipsEl = document.getElementById('ai-panel-chips');
-  if (chipsEl) {
+    if (chipsEl) {
     chipsEl.innerHTML = chips.map(function(c) {
-      return '<div class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + c + '</div>';
+      return '<div class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + escHtml(c) + '</div>';
     }).join('');
   }
 }
@@ -30914,7 +30911,7 @@ async function chatSendUnified() {
     var newChips = extractChips(fullText);
     if (newChips.length > 0) {
       var chipsEl = document.getElementById('ai-panel-chips');
-      if (chipsEl) chipsEl.innerHTML = newChips.map(function(c) { return '<div class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + c + '</div>'; }).join('');
+      if (chipsEl) chipsEl.innerHTML = newChips.map(function(c) { return '<div class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + escHtml(c) + '</div>'; }).join('');
     }
   };
 

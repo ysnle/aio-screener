@@ -1345,7 +1345,7 @@ function chatRenderChips(ctxId, chips) {
     chips = (window.CHAT_DEFAULT_CHIPS && window.CHAT_DEFAULT_CHIPS[ctxId]) || [];
   }
   el.innerHTML = chips.map(function(q) {
-    var safeQ = escHtml(q).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    var safeQ = escHtml(q).replace(/'/g, '&#39;');
     return '<div class="q-chip" data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + safeQ + '" title="' + escHtml(q) + '">' + escHtml(q) + '</div>';
   }).join('');
 }
@@ -4691,14 +4691,14 @@ async function chatSend(ctxId) {
           var _liveMissing = _liveStatusCS && (_liveStatusCS.indexOf('미수신') >= 0 || _liveStatusCS.indexOf('✗') >= 0);
           var _financialMissing = !tickerDataStr;
           if ((_liveMissing || _financialMissing) && aiBubble && aiBubble.parentNode) {
-            var _safeQ2 = escHtml(q).replace(/'/g, '\\\'');
+            var _safeQ2 = escHtml(q).replace(/'/g, '&#39;');
             var _dataMissBox = document.createElement('div');
             _dataMissBox.className = 'aio-data-missing-banner';
             _dataMissBox.style.cssText = 'margin:6px 0;padding:8px 10px;background:rgba(255,163,26,0.10);border:1px solid var(--data-amber);border-radius:6px;color:var(--text-primary);font-size:12px;line-height:1.5;';
             var _missList = [];
             if (_liveMissing) _missList.push('실시간 시세');
             if (_financialMissing && detectedTickers && detectedTickers.length > 0) _missList.push('재무 데이터');
-            _dataMissBox.innerHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:4px;">⚠ 데이터 부재 — ' + _missList.join(' / ') + ' 미수신</div>' +
+            _dataMissBox.innerHTML = '<div style="font-weight:700;color:var(--data-amber);margin-bottom:4px;">⚠ 데이터 부재 — ' + _missList.map(escHtml).join(' / ') + ' 미수신</div>' +
               '<div style="color:var(--text-muted);font-size:11px;margin-bottom:6px;">위 답변은 정성 프레임워크만 적용 — 정량 수치 인용 시 환각 위험. 데이터 새로고침 후 재질문 권장.</div>' +
               '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
               '<button data-action="_aioRefreshAllData" style="font-size:11px;padding:4px 10px;background:rgba(61,219,165,0.15);border:1px solid var(--data-green);color:var(--data-green);border-radius:4px;cursor:pointer;font-weight:600;">🔄 데이터 새로고침</button>' +
@@ -4888,7 +4888,7 @@ async function chatSend(ctxId) {
           if (_navIntent && _navIntent.page) {
             var _navDiv = document.createElement('div');
             _navDiv.style.cssText = 'margin:6px 0;padding:6px 8px;background:rgba(168,85,247,0.08);border-left:3px solid #a855f7;border-radius:4px;cursor:pointer;font-size:11px;color:var(--text-primary);';
-            _navDiv.innerHTML = _navIntent.emoji + ' <strong>' + _navIntent.label + ' 페이지로 이동</strong> — 자세한 라이브 데이터/차트/분석 도구 확인';
+            _navDiv.innerHTML = _navIntent.emoji + ' <strong>' + escHtml(_navIntent.label) + ' 페이지로 이동</strong> — 자세한 라이브 데이터/차트/분석 도구 확인';
             _navDiv.setAttribute('data-action', 'showPage');
             _navDiv.setAttribute('data-arg', _navIntent.page);
             aiBubble.parentNode.appendChild(_navDiv);
