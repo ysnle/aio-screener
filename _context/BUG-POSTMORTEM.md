@@ -4127,3 +4127,14 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **오탐 식별**: governance "stale-live-like-date" 중 macro "3/6"(분기 3/6/9/12월 약어)·kr-home "3/11"(v49.95 의도적 과거 인용 "3/11 31.8조→5월 36조")는 false positive.
 - **교훈**: 라이브/lazy 렌더는 정적 코드 읽기로 "값 정확성" 검증 불가 — preview 라이브 로드 필요. 단 프로그래매틱 하네스(showPage+scrollIntoView)는 IntersectionObserver를 발화 못해 lazy 차트 시각검증엔 한계. 실 브라우저 사용자 스크롤로만 최종 확인 가능 — 하네스 아티팩트를 버그로 오인하지 말 것.
 - **violated_rule**: 없음 (검증 작업 · 데이터 오류 0건 발견). R101(LIVE_SYMBOLS coverage) 연장 검증.
+
+## P458 · v49.95 · 값 변경 후 의미-정합성(semantic consistency) 전수 검증 (P61 퇴행 점검)
+
+- **맥락**: 사용자 "단순 겉핥기 아닌 실질적 의미와 정합성까지 체크했어?" → v49.91~95의 22개 값 변경이 **주변 서술·해석·색상·파생점수와 정합**하는지 P61(이벤트 후 하드코딩 텍스트 퇴행) 관점 전수 grep.
+- **점검 대상 (regime 뒤집은 변경)**: krCreditBalance 19.2→36(record)·krPpi 1.5→6.9(28년 최고)·consConf 104.7→93.1(하락)·ismPrice 70.7→84.6·shanghai 3420→4098·pcr 0.67→0.83.
+- **결과 — 모순 0건**: (1) 신용잔고 "감소/축소" 서술 0건(원 스냅샷 코멘트 "감소 추세"만 있었고 v49.94에서 이미 교체) (2) PPI "안정/낮" 서술 0건 (3) Shanghai 옛 레벨 하드코딩 0건 (4) CHAT_CONTEXTS 하드코딩 해석 0건 (5) consConf 캡션 녹색은 카드별 design accent(wage=amber/housing=cyan)지 값-상태 신호 아님.
+- **파생점수 전파 검증 (정확)**: pcr→put/call 심리계산(aio-core L1646·aio-data L2086) 검증값으로 더 정확해짐 · krCreditBalance→retail froth 점수(L16491 `(36-20)*2`) record 빚투를 froth로 정확 반영 · krPpi/ismPrice는 표시 포맷 전용(분류함수 없음).
+- **교차 정합성**: 변경들이 "인플레 급등" 테마로 내적 일관 (krPpi↑·ismPrice↑·consConf↓·cpi↑ 동방향).
+- **근본 이유**: 앱이 값-종속 하드코딩 해석 대신 동적 바인딩(m.consConf=live FRED·data-snap) + 스케일 설명 캡션 + 재계산 파생함수 구조 → P61 퇴행에 구조적 강함.
+- **violated_rule**: 없음. P61 재발 방지 검증 통과.
+- **prevention**: 값 regime 변경(2배+ 또는 부호 전환) 시 의미-정합성 grep 의무 — (지표명).{0,40}(반대방향 형용사) 패턴 + 파생점수 consumer 추적 + 색상/캡션 값-상태 vs design-accent 구분.
