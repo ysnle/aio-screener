@@ -14132,7 +14132,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.93';
+const APP_VERSION = 'v49.94';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -15044,7 +15044,7 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-29T12:00:00+09:00',   // v49.93 cell-level 값 대조 3차 — 한국 국고채 10Y 3.72→4.27(인상기대) · BOE 4.50→3.75 · PBOC 3.10→3.00 · krBond3y 추정
+  _updated: '2026-05-29T15:00:00+09:00',   // v49.94 KR 2차지표 실측 대조 4차 — krCpi 2.7→2.6(4월 실측) · krManufPmi 51.5→53.6(S&P 5/4) · krPpi 1.5→6.9(28년 충격) · krCreditBalance 19.2→36.0(빚투 역대최고)
   _snapshotDate: '2026-05-28',
   _staticDates: {
     briefingArchive: '2026-05-28',
@@ -15114,9 +15114,10 @@ const DATA_SNAPSHOT = {
   housingStarts:1.42,                             // 주택착공 (백만건, 연환산)
   krUnemploy:   3.4,
   // v34.6: 한국 거시 지표 강화
-  krCpi:        2.7,                              // v49.86: 한국 CPI YoY — BOK 5/28 SEP 물가 전망 2.7% 상향 (이란 유가 영향)
-  krPpi:        1.5,                              // v49.47 P313: 한국 PPI YoY — kr-macro data-snap="kr-ppi-yoy" 시드
-  krManufPmi:  51.5,                              // v49.47 P313: 한국 제조업 PMI — kr-macro data-snap="kr-manuf-pmi" 시드 (50+ 확장)
+  krCpi:        2.6,                              // v49.94: 한국 4월 CPI YoY 2.6% 실측 (통계청 — 3월 2.2→4월 2.6 가속, 2024.7 이후 최고, 교통 +9.7% 유가). 기존 2.7은 BOK 연간 전망치 혼동
+  krPpi:        6.9,                              // v49.94: 한국 4월 PPI YoY +6.9% 실측 (한국은행 5월 발표 — 2022.10 이후 최고, 28년만 최대 충격. MoM +2.5%, 8개월 연속 상승, 석유·석탄 +73.9% YoY 주도 = 이란 유가). 기존 1.5 심각 stale
+  krManufPmi:  53.6,                              // v49.94: 한국 4월 제조업 PMI 53.6 실측 (S&P Global 5/4 발표 — 3월 52.6→4월 53.6, 2022.2 이후 최강 확장, 신제품·고객 재고확보). 다음 6/2 5월분. 기존 51.5 stale
+  krManufPmiPrev: 52.6,                           // v49.94: 3월 한국 제조업 PMI (모멘텀 추적용)
   krGdp:       -0.2,   krGdpYoy:  2.6,           // v49.86: 한국 GDP QoQ -0.2 / YoY → BOK 5/28 SEP 성장률 2.6% 상향 (반도체 수출 호조)
   krExport:    +64.8,   krExportStreak: 15,       // v49.86: 5월 1~20일 +64.8% YoY (527억$ 역대 최대), 15개월 연속 흑자 (Korea Times 2026-05-21)
   krSemiExport:+202.1,                            // v49.86: 5월 1~20일 반도체 +202.1% YoY (220억$ = 수출 41.7%, HBM AI 서버 수요)
@@ -15134,7 +15135,7 @@ const DATA_SNAPSHOT = {
   breadth200sma:  56,   // v49.87: $MMTH 56.19 → 56 (Barchart 실측, NYSE % above 200-day MA)
 
   // ── v48.61 P125 해소: DATA_SNAPSHOT 누락 필드 보충 (v49.22: 2026-05-16 기준 갱신, P213 DOM 정합) ──
-  krCreditBalance: 19.2,     // 한국 신용잔고 (조원, 2026-05-16 추정 — 감소 추세)
+  krCreditBalance: 36.0,     // v49.94: 한국 신용거래융자 잔고 ~36조원 역대 최고 (5월 — KOSPI 8000+ 돌파 "빚투" 급증, 3/11 31.8조→5월 36조, 5/21 강제청산 뉴스. 금투협/FSC). 기존 19.2 심각 stale (시장 2배 급등 미반영)
   krDeposit:       62.8,     // 예탁금 (조원, 2026-05-16 추정)
   krShortSelling:   4.1,     // 공매도 비중 % — krShortSell 별칭
   krAdvance:        593,     // 상승 종목수 (KOSPI+KOSDAQ, 2026-05-16 추정)

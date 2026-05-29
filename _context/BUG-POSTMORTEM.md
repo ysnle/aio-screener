@@ -4101,3 +4101,11 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **수정**: 8개 필드 5/28 실측 갱신.
 - **violated_rule**: R182(값 정확성) 연장
 - **prevention**: /data-refresh G그룹(글로벌 지수) + E4(중앙은행 금리)도 분기 1회+ 실측 대조. "추정 유지" 라벨 필드는 getDataLineageAudit에서 staleRisk 표시 검토.
+
+## P455 · v49.94 · KR 2차 거시지표 stale 4건 (CPI forecast 혼동 + PPI/신용잔고 regime 미반영)
+
+- **증상**: cell-level 값 대조 결과 한국 2차 거시지표 4건 stale — (1) krCpi 2.7(실제 4월 2.6, 통계청) (2) krManufPmi 51.5(실제 4월 53.6, S&P Global 5/4 — 2022.2 이후 최강) (3) krPpi 1.5(실제 4월 +6.9% YoY, 한국은행 — 28년만 최대 충격, 석유·석탄 +73.9%) (4) krCreditBalance 19.2조(실제 ~36조, 역대 최고).
+- **원인**: (a) **forecast vs actual 혼동** — krCpi에 BOK 연간 물가 *전망치* 2.7%를 현재 CPI YoY 필드에 입력. 현재값 필드는 실측만 들어가야 함. (b) **PPI 8개월 연속 상승 + 이란 유가 급등(석유·석탄 +73.9%)을 1.5% 평시값으로 방치** — 5배 가까운 괴리. (c) **시장 regime 변화 미반영** — KOSPI 2배 급등(record 8185)으로 "빚투" 신용잔고가 역대 최고 36조인데 평시 19.2조 유지 = 시장 상황과 모순. record rally면 record margin debt가 상식 동행.
+- **수정**: 4개 필드 WebSearch 실측 갱신 + DOM 인라인 4곳(L10814/L11414/L11435/L11731) 3-way 정합(R58). L16491 retail-sentiment 공식이 이제 36조 margin debt를 froth 신호로 정확히 반영.
+- **violated_rule**: R182(값 정확성) · R183(sanity band — krPpi 1.5는 이란 유가 환경에서 비현실적, krCreditBalance 19.2는 record rally와 모순) 연장
+- **prevention**: 거시지표 필드에 "현재값 vs 전망치" 의미 명확히 구분 (전망치는 별도 *Fcst 필드). 시장 regime 급변(지수 급등/유가 급등) 시 연동 2차지표(신용잔고/PPI)도 동반 점검 — 단일 지표만 갱신하면 파생 지표 stale 잔존. /data-refresh K그룹(한국 2차 거시: CPI/PPI/PMI/신용잔고/예탁금)도 월 1회+ 실측 대조.

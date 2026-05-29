@@ -6,6 +6,29 @@
 
 ---
 
+## v49.94 — KR 2차 거시지표 외부 실측 1:1 대조 (값 정확성 4차) (2026-05-29)
+
+**Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`
+
+**Motivation**: 사용자 "계속해서 진행해. 모든 데이터 실제로 하나씩 세밀하게 대조하면서 조사해" 연속. 한국 2차 거시지표(CPI/PMI/PPI/신용잔고) 외부 실측 WebSearch 대조.
+
+### KR 2차지표 stale 4건 시정
+| 지표 | 이전 | 신규 | 출처 |
+|------|------|------|------|
+| krCpi (한국 CPI YoY) | 2.7% | **2.6%** (4월 실측) | 통계청 — 3월 2.2→4월 2.6 가속, 2024.7 이후 최고. 기존 2.7은 BOK 연간 **전망치** 혼동 |
+| krManufPmi (제조업 PMI) | 51.5 | **53.6** | S&P Global 5/4 발표 — 3월 52.6→4월 53.6, 2022.2 이후 최강 확장 |
+| krPpi (생산자물가 YoY) | 1.5% | **6.9%** | 한국은행 — 2022.10 이후 최고, 28년만 최대 충격, 석유·석탄 +73.9% (이란 유가). 심각 stale |
+| krCreditBalance (신용잔고) | 19.2조 | **36.0조** | 금투협/FSC — 역대 최고, KOSPI 8000+ "빚투" 급증 (3/11 31.8조→5월 36조, 5/21 강제청산). 시장 2배 급등 미반영 |
+
+### 근본 교훈
+- **forecast vs actual 혼동** (krCpi): BOK 연간 물가 전망치(2.7%)를 현재 CPI YoY 필드에 넣어 의미 혼동. 현재값 필드엔 실측치만.
+- **시장 regime 변화 미반영** (krCreditBalance): KOSPI가 2배 급등(record 8185)했는데 신용잔고는 평시 19.2조 유지 = 시장 상황과 모순. record rally → record margin debt는 상식 동행.
+- DOM 인라인 4곳(L10814 신용잔고·L11414 PPI·L11435 PMI·L11731 신용잔고)을 DATA_SNAPSHOT·applyDataSnapshot 매핑과 3-way 정합 (R58). L16491 retail-sentiment 공식이 이제 record margin debt를 froth 신호로 정확히 반영.
+
+### 동기화 7곳 + P455 (BUG-POSTMORTEM)
+
+---
+
 ## v49.93 — 금리 필드 외부 실측 1:1 대조 (값 정확성 3차) (2026-05-29)
 
 **Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`

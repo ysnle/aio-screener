@@ -3464,6 +3464,14 @@
     _assert('T683 data_sanity_band_v4992: VKOSPI 정상범위(10~35) + VKOSPI≈VIX±15 + DAX≥24000 + BOJ≥0.75',
       vkOk && corrOk && daxOk && bojOk,
       'vkospi=' + ds2.vkospi + ' vix=' + ds2.vix + ' |diff|=' + (ds2.vkospi && ds2.vix ? Math.abs(ds2.vkospi-ds2.vix).toFixed(1) : '?') + ' dax=' + ds2.dax + ' boj=' + ds2.bojRate);
+    // T684: v49.94 KR 2차 거시지표 실측 — krCpi 2.6 / krManufPmi 53.6 / krPpi 6.9 / krCreditBalance 36.0 + sanity band
+    var krCpiOk  = ds2.krCpi  >= 0 && ds2.krCpi  <= 6;       // 한국 CPI 정상범위 (4월 실측 2.6)
+    var krPmiOk  = ds2.krManufPmi >= 40 && ds2.krManufPmi <= 60 && ds2.krManufPmi > 53; // PMI 정상 + 4월 53.6 확장
+    var krPpiOk  = ds2.krPpi  >= 5 && ds2.krPpi  <= 10;      // 이란 유가 충격 반영 (1.5 평시값 stale 제외)
+    var krCrOk   = ds2.krCreditBalance >= 30;                // record 빚투 36조 (19.2 stale 제외)
+    _assert('T684 kr_secondary_macro_v4994: krCpi 2.6 + krManufPmi 53.6(>53) + krPpi 6.9(5~10) + krCreditBalance 36(≥30)',
+      krCpiOk && krPmiOk && krPpiOk && krCrOk,
+      'krCpi=' + ds2.krCpi + ' krManufPmi=' + ds2.krManufPmi + ' krPpi=' + ds2.krPpi + ' krCredit=' + ds2.krCreditBalance);
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지
