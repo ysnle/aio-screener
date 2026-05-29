@@ -6,6 +6,28 @@
 
 ---
 
+## v49.93 — 금리 필드 외부 실측 1:1 대조 (값 정확성 3차) (2026-05-29)
+
+**Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+**Motivation**: 사용자 "모든 데이터 실제로 하나씩 세밀 대조" 연속. 금리 필드(한국 국고채/BOE/PBOC) 외부 실측 대조.
+
+### 금리 stale 4건 시정
+| 지표 | 이전 | 신규 | 출처 |
+|------|------|------|------|
+| 한국 국고채 10Y | 3.72% | **4.27%** (2023.11 이후 최고) | BOK snapshot 5월 중순 |
+| 한국 국고채 3Y | 2.82% | **3.20%** (인상기대 추정) | — |
+| BOE | 4.50% | **3.75%** (0.75%p stale) | 4/30 회의 8-1 동결 |
+| PBOC 1Y LPR | 3.10% | **3.00%** (12개월째 동결) | 5월 동결, 5Y LPR 3.5% |
+
+- 한국 기준금리 2.50 동결 vs 시장금리(10Y 4.27) 급등 = 가파른 커브 (한은 인상 기대)
+- ECB 2.15 확인 일치 (변동 없음)
+
+### 누적 cell-level 값 대조 (v49.91~93)
+PCE 2.7→3.8 · VKOSPI 74→18.2(오류) · DAX 23200→25068 · Nikkei/Hang Seng/FTSE · WTI/Brent/Gold/Silver · BOJ 0.5→0.75 · 한국채권 10Y 3.72→4.27 · BOE 4.5→3.75 · PBOC 3.1→3.0 — **총 19개 필드 stale/오류 시정.**
+
+---
+
 ## v49.92 — DATA_SNAPSHOT 나머지 필드 외부 실측 1:1 대조 (값 정확성 2차) (2026-05-29)
 
 **Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

@@ -14132,7 +14132,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.92';
+const APP_VERSION = 'v49.93';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -15044,7 +15044,7 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-29T11:00:00+09:00',   // v49.92 cell-level 값 전수 대조 2차 — VKOSPI 74.02→18.20(오류시정) · DAX 23200→25068 · Nikkei/HangSeng/FTSE · WTI 90.5(이란 충돌 재개) · Brent 96.29 · Gold 4411/Silver 73.51 · BOJ 0.50→0.75
+  _updated: '2026-05-29T12:00:00+09:00',   // v49.93 cell-level 값 대조 3차 — 한국 국고채 10Y 3.72→4.27(인상기대) · BOE 4.50→3.75 · PBOC 3.10→3.00 · krBond3y 추정
   _snapshotDate: '2026-05-28',
   _staticDates: {
     briefingArchive: '2026-05-28',
@@ -15088,13 +15088,13 @@ const DATA_SNAPSHOT = {
   fomcDotPlot: '3월 dot plot: 중앙값 -25bp / 7명 동결 / 7명 -25bp',  // v49.85: 3월 dot plot 기반, 6/17 SEP 갱신 예정
   ecbRate:      2.15,  ecbStatus: '동결',
   bojRate:      0.75,   // v49.92: BOJ 4/27-28 회의 0.50→0.75 인상 (TradingEconomics, 기존 0.50 stale)
-  boeRate:      4.50,
-  pbocRate:     3.10,
+  boeRate:      3.75,   // v49.93: BOE 4/30 회의 8-1 동결 3.75% (기존 4.50 stale, 0.75%p — 중동 인플레로 추가 인하 보류)
+  pbocRate:     3.00,   // v49.93: PBOC 1년 LPR 3.0% (5월 12개월째 동결, 5Y LPR 3.5%, 기존 3.10 stale)
   // v34.6: 한국 금리·채권 강화 / v49.85: 신현송 총재 첫 금통위 5/28 결정
   bokRate:      2.50,   bokStatus: '동결',          // v49.85: 한은 2.50% 8연속 동결 (신현송 총재 첫 회의 2026-05-28, 중동 불확실성 사태 추이 점검)
   bokNext:     '2026-07-10',                         // v49.85: 다음 금통위 7월 10일 (5/28 동결 완료, 신현송 총재 첫 결정)
   bokGdpFcst:   2.6,    bokCpiFcst: 2.7,             // v49.85: 한은 2026 성장률 2.6% / 물가 2.7% 상향 조정 (5/28 SEP)
-  krBond3y:     2.82,   krBond10y: 3.72,             // 국고채 3년/10년 수익률 (<span data-date-ref="kr-last-basis">기준</span>, 10Y 월중 최고)
+  krBond3y:     3.20,   krBond10y: 4.27,             // v49.93: 국고채 10Y 4.27% (BOK snapshot 5월 중순, 2023.11 이후 최고 — 한은 인상 기대 급등, 기존 3.72 stale). 3Y 인상기대 반영 추정 (기준 2.50 동결 vs 시장금리 급등 = 가파른 커브)
   krCd91:       2.78,                             // CD 91일 금리
   vkospi:      18.20,                             // v49.92 P453 정정: v49.87 WebSearch "74.02"는 명백한 오류 (VIX 15.74 + KOSPI 사상최고와 양립 불가, VKOSPI 정상범위 12~25, 74=코로나 패닉). VKOSPI-VIX 상관 + KOSDAQ -2.54% 반영 합리적 추정. 라이브(fetchVkospiDynamic Naver) 우선
   vkospiPct:   +2.30,                              // v49.92: VKOSPI 추정 변동률 — data-snap="vkospi-chg" 시드
