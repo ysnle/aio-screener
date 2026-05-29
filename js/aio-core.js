@@ -9480,6 +9480,55 @@ window.AIO.getSnapshotConsistencyAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.96 P459 근본 보강: getSnapshotFallbackConsistencyAudit (R184)
+// DATA_SNAPSHOT 본체 필드 vs DATA_SNAPSHOT._fallback 미러 필드 자동 교차검증.
+// 같은 지표가 두 저장소(본체 + computeTradingScore가 읽는 _fallback)에 존재 →
+// 한쪽만 갱신 시 silent 불일치 (예: v49.95 move 70.9 갱신 시 _fallback.move 62 미러 누락,
+// pcr 0.67 vs _fallback.pcr 0.83). runtime DOM audit(getSnapshotConsistencyAudit)는
+// applyDataSnapshot 정규화 후라 못 잡음 → JS 객체 레벨 비교가 근본 가드.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getSnapshotFallbackConsistencyAudit = function(opts) {
+  opts = opts || {};
+  var tol = opts.tolerance != null ? opts.tolerance : 0.03; // 3% 상대 허용
+  // 본체 key -> _fallback key (미러되어야 하는 지표만)
+  var aliasMap = {
+    fg: 'fg', fg_uw: 'fg_uw', vix: 'vix', pcr: 'pcr', dxy: 'dxy',
+    vvix: 'vvix', move: 'move', skew: 'skew', aaiiBear: 'aaiiBear',
+    breadth5sma: 'breadth5', breadth50sma: 'breadth50', breadth200sma: 'breadth200'
+  };
+  var mismatches = [];
+  try {
+    var S = window.DATA_SNAPSHOT || {};
+    var F = S._fallback || {};
+    Object.keys(aliasMap).forEach(function(sKey) {
+      var fKey = aliasMap[sKey];
+      var a = S[sKey], b = F[fKey];
+      if (a == null || b == null) return;          // 한쪽만 존재 → mirror 의무 아님
+      var na = Number(a), nb = Number(b);
+      if (isNaN(na) || isNaN(nb)) return;
+      var rel = Math.abs(na - nb) / Math.max(Math.abs(na), Math.abs(nb), 1);
+      if (rel > tol) {
+        mismatches.push({
+          snapshotKey: sKey, snapshotVal: na,
+          fallbackKey: fKey, fallbackVal: nb,
+          relDiff: +(rel * 100).toFixed(1) + '%'
+        });
+      }
+    });
+  } catch (e) {
+    return { status: 'error', message: e && e.message || String(e) };
+  }
+  return {
+    status: mismatches.length ? 'warn' : 'ok',
+    issueCount: mismatches.length,
+    checkedPairs: 12,
+    mismatches: mismatches,
+    note: 'DATA_SNAPSHOT 본체 vs _fallback 미러 정합 (R184/P459) — 불일치 시 한쪽만 갱신된 silent drift',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.24 P217 근본 수정: getTableStaleAudit
 // 정적 테이블(<table>) 첫 행의 날짜 패턴(MM/DD or YYYY-MM-DD)을 스캔하여
 // 90일+ 경과한 테이블을 stale로 보고. data-aio-archive="true"는 제외.
@@ -9801,6 +9850,8 @@ window.AIO.getAutoOpsReadiness = function() {
   var liveSymbolsCoverage = window.AIO.getLiveSymbolsCoverageAudit ? window.AIO.getLiveSymbolsCoverageAudit() : null;
   var hardcodedQuoteFallback = window.AIO.getHardcodedQuoteFallbackAudit ? window.AIO.getHardcodedQuoteFallbackAudit() : null;
   var snapshotFallbackGuard = window.AIO.getSnapshotFallbackGuard ? window.AIO.getSnapshotFallbackGuard() : null;
+  // v49.96 R184: DATA_SNAPSHOT 본체 vs _fallback 미러 정합 (P459)
+  var snapshotFallbackConsistency = window.AIO.getSnapshotFallbackConsistencyAudit ? window.AIO.getSnapshotFallbackConsistencyAudit() : null;
   var dataQuality = window.AIO.getDataQualityIssueAudit ? window.AIO.getDataQualityIssueAudit() : null;
   var snapshotDateSources = window.AIO.getSnapshotDateSourceAudit ? window.AIO.getSnapshotDateSourceAudit() : null;
   var operationalDataContract = window.AIO.getOperationalDataContractAudit ? window.AIO.getOperationalDataContractAudit() : null;
@@ -9839,6 +9890,7 @@ window.AIO.getAutoOpsReadiness = function() {
   if (liveSymbolsCoverage && liveSymbolsCoverage.issueCount) issues.push(liveSymbolsCoverage.issueCount + ' DOM ticker(s) missing in LIVE_SYMBOLS [v49.48/R101]');
   if (hardcodedQuoteFallback && hardcodedQuoteFallback.issueCount) issues.push('hardcoded quote fallback reachable [v49.51/R103]');
   if (snapshotFallbackGuard && snapshotFallbackGuard.usable === false) issues.push('DATA_SNAPSHOT hard-stale; snapshot fallback disabled [v49.51/R104]');
+  if (snapshotFallbackConsistency && snapshotFallbackConsistency.issueCount) issues.push(snapshotFallbackConsistency.issueCount + ' snapshot↔_fallback mirror drift [v49.96/R184/P459]');
   if (dataQuality && dataQuality.issueCount) issues.push(dataQuality.issueCount + ' data quality issue(s) [v49.52/R105]');
   if (snapshotDateSources && snapshotDateSources.issueCount) issues.push(snapshotDateSources.issueCount + ' snapshot date source issue(s) [v49.52/R106]');
   if (operationalDataContract && operationalDataContract.issueCount) issues.push(operationalDataContract.issueCount + ' operational data contract issue(s) [v49.54/R107]');
@@ -9888,6 +9940,7 @@ window.AIO.getAutoOpsReadiness = function() {
       cellLevelData: 'AIO.getCellLevelDataAudit(pageId)',
       hardcodedQuoteFallback: 'AIO.getHardcodedQuoteFallbackAudit()',
       snapshotFallbackGuard: 'AIO.getSnapshotFallbackGuard()',
+      snapshotFallbackConsistency: 'AIO.getSnapshotFallbackConsistencyAudit()',
       dataQuality: 'AIO.getDataQualityIssueAudit()',
       snapshotDateSources: 'AIO.getSnapshotDateSourceAudit()',
       operationalDataContract: 'AIO.getOperationalDataContractAudit()',
@@ -14132,7 +14185,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.95';
+const APP_VERSION = 'v49.96';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -15044,7 +15097,7 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-29T16:00:00+09:00',   // v49.95 2차지표 실측 대조 5차 (KR+US+글로벌). KR: krCpi 2.7→2.6·krManufPmi 51.5→53.6·krPpi 1.5→6.9·krCreditBalance 19.2→36.0. US: ismPmi 52.4→52.7·ismPrice 70.7→84.6·ismSvc 54→53.6·retailSales 0.6→0.5·consConf 104.7→93.1·housingStarts 1.42→1.47·move 62.5→70.9·usWageGrowth 3.5→3.6·rut 2858→2936.57. 글로벌: shanghai 3420→4098(20% stale)·cac 7950→8096·ng 2.95→3.07. 옵션: pcr 0.67→0.83(CBOE total 5/21, _fallback과 불일치 해소). MOVE 인라인 시드 모순(62.4/107.4) 통일.
+  _updated: '2026-05-29T17:00:00+09:00',   // v49.96 근본보강: 본체↔_fallback 미러 정합(move 62→70.9·vvix 85→83·skew 142→139·breadth200 57→56·fg_uw 74→65) + getSnapshotFallbackConsistencyAudit(R184). | v49.95 2차지표 실측 대조 5차 (KR+US+글로벌). KR: krCpi 2.7→2.6·krManufPmi 51.5→53.6·krPpi 1.5→6.9·krCreditBalance 19.2→36.0. US: ismPmi 52.4→52.7·ismPrice 70.7→84.6·ismSvc 54→53.6·retailSales 0.6→0.5·consConf 104.7→93.1·housingStarts 1.42→1.47·move 62.5→70.9·usWageGrowth 3.5→3.6·rut 2858→2936.57. 글로벌: shanghai 3420→4098(20% stale)·cac 7950→8096·ng 2.95→3.07. 옵션: pcr 0.67→0.83(CBOE total 5/21, _fallback과 불일치 해소). MOVE 인라인 시드 모순(62.4/107.4) 통일.
   _snapshotDate: '2026-05-28',
   _staticDates: {
     briefingArchive: '2026-05-28',
@@ -15182,7 +15235,7 @@ const DATA_SNAPSHOT = {
   skew:       139.04,   skewChg: -1.50,  // v49.86: SKEW 139.04 (StreetStats.finance 5/27 데이터)
   vvix_live:   85.50,   vvixChg: -1.40,  // v49.86: VVIX 추정 하향 (VIX 17.01 동조)
   fg:            60,   fgLabel: 'Greed',  // v49.84: CNN F&G 60 (Greed, 2026-05-26 기준)
-  fg_uw:         74,   fg_uwLabel: '탐욕', // v48.70: UW 확장 F&G 4/28 추정 74
+  fg_uw:         65,   fg_uwLabel: '탐욕', // v49.96: UW 확장 F&G 65 — _fallback.fg_uw(v49.84 CNN 60→UW 65)와 정합 (기존 74는 v48.70 stale)
 
   // ── v47.2: F&G 카테고리·지표별 분해 (Unusual Whales 4/15) ──
   //   헤드라인 68 뒤에 숨은 내부 구조 — Market Breadth 35.9(공포) + Stock Price Strength 24.8(극단 공포)
@@ -15259,7 +15312,7 @@ const DATA_SNAPSHOT = {
     fg: 60,              // v49.84: CNN F&G 60 (Greed) 2026-05-26 기준
     fg_uw: 65,           // v49.84: UW 확장 F&G (CNN 60 → UW 65 추정)
     vix: 15.74,          // v49.91: VIX 2026-05-28 close
-    breadth200: 57,      // v49.87: $MMTW 57.47 실측 (Barchart — 기존 추정 75 대폭 하향 CRITICAL)
+    breadth200: 56,      // v49.96: $MMTH 56.19→56 (% above 200d) — breadth200sma와 정합 (기존 57은 MMTW 20d값 혼동)
     breadth5: 61,        // v49.87: $MMFD 61.41 실측 (Barchart)
     breadth50: 61,       // v49.87: $MMFI 60.77 실측 (Barchart)
     pcr: 0.83,           // v49.85: CBOE total PCR 2026-05-21 (equity 0.55 / index 별도)
@@ -15270,10 +15323,10 @@ const DATA_SNAPSHOT = {
     dxy: 99.14,          // v49.85: DXY WebSearch 2026-05-27 confirmed
     tnx: 4.48,           // v49.84: 10Y 2026-05-27 close
     hyg: 81,             // v49.84: HYG (Iran 호재 + 신고가 환경 — 신용 스프레드 추가 타이트닝)
-    vvix: 85,            // v49.84: VVIX (VIX 하락 동조)
-    move: 62,            // MOVE (변동 미미, 채권 변동성 안정)
-    skew: 142,           // SKEW (꼬리헤지 유지)
-    _syncDate: '2026-05-28'  // v49.84: static fallback sync date
+    vvix: 83,            // v49.96: VVIX 83 — DATA_SNAPSHOT.vvix와 정합 (기존 85 드리프트)
+    move: 70.9,          // v49.96: MOVE 70.9 — DATA_SNAPSHOT.move와 정합 (기존 62는 v49.95 move 70.9 갱신 시 미러 누락 = 내가 만든 불일치 시정)
+    skew: 139,           // v49.96: SKEW 139 — DATA_SNAPSHOT.skew 139.04와 정합 (기존 142 드리프트)
+    _syncDate: '2026-05-29'  // v49.96: static fallback sync date (snapshot 본체와 mirror 정합)
   }
 };
 

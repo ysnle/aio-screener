@@ -2217,3 +2217,15 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 **근거 (P453)**: VKOSPI 74.02를 WebSearch에서 받아 수용했으나 VIX 15.74와 양립 불가 — band 검증으로 잡았어야 함.
 
 **Validation**: 데이터 갱신 시 band 이탈값 0 · 상관쌍(VKOSPI-VIX 등) 정합.
+
+## R184. 동일 지표가 2개 저장소(DATA_SNAPSHOT 본체 + _fallback 미러)에 존재 시 정합 의무 (v49.96 added, P459 root)
+
+**Rule**: 같은 지표가 `DATA_SNAPSHOT` 본체와 `DATA_SNAPSHOT._fallback`(computeTradingScore/computeMarketHealth가 읽는 미러)에 동시에 존재한다. **한쪽 갱신 시 반드시 다른 쪽도 동기화**한다. 한쪽만 갱신하면 silent drift → 페이지 표시값과 점수 계산값이 어긋남.
+
+**미러 대상 12 키**: fg · fg_uw · vix · pcr · dxy · vvix · move · skew · aaiiBear · breadth5(=breadth5sma) · breadth50(=breadth50sma) · breadth200(=breadth200sma).
+
+**근거 (P459)**: v49.95에서 `move`를 70.9로 갱신하며 `_fallback.move`를 62로 방치 → 점수계산은 62, 표시는 70.9. `pcr`도 본체 0.67 vs `_fallback.pcr` 0.83 불일치. runtime DOM audit(getSnapshotConsistencyAudit)는 applyDataSnapshot 정규화 후라 못 잡음.
+
+**자동 가드**: `AIO.getSnapshotFallbackConsistencyAudit()` — 12 키 3% 허용오차 교차검증 (getAutoOpsReadiness 통합, T686 회귀).
+
+**Validation**: `getSnapshotFallbackConsistencyAudit().issueCount === 0`.

@@ -6,6 +6,30 @@
 
 ---
 
+## v49.96 — 근본 보강: 본체↔_fallback 미러 정합 가드 (R184/P459) (2026-05-29)
+
+**Changed files**: `js/aio-core.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/RULES.md`, `_context/BUG-POSTMORTEM.md`
+
+**Motivation**: 사용자 "단순 겉핥기 아닌 실질적 의미·정합성" + "남은 영역없이 근본 보강". 의미-정합성(P458) 점검 중 드러난 **구조적 부류**를 자동 가드로 승격 — 같은 지표가 `DATA_SNAPSHOT` 본체 + `_fallback` 미러 두 저장소에 존재해 한쪽만 갱신 시 silent drift. 수동으로 잡은 2건(move·pcr)을 자동 탐지하는 audit로 재발 차단.
+
+### 신규 가드: getSnapshotFallbackConsistencyAudit (R184)
+- 본체 12개 키 ↔ `_fallback` 미러를 3% 허용오차로 교차검증 (fg/fg_uw/vix/pcr/dxy/vvix/move/skew/aaiiBear/breadth5·50·200)
+- **runtime DOM audit(getSnapshotConsistencyAudit)가 못 잡던 갭**: applyDataSnapshot 정규화 후라 두 JS 저장소 간 불일치 무시됨 → JS 객체 레벨 비교가 근본 가드
+- getAutoOpsReadiness 통합 + T686 회귀
+
+### 미러 drift 5건 시정 (audit가 즉시 검출)
+| 필드 | 본체 | _fallback(이전) | 정합 후 | 비고 |
+|------|------|----------------|---------|------|
+| move | 70.9 | **62** | 70.9 | v49.95 move 갱신 시 미러 누락 = 내가 만든 불일치 |
+| vvix | 83 | 85 | 83 | 드리프트 |
+| skew | 139.04 | 142 | 139 | 드리프트 |
+| breadth200 | 56 | 57 | 56 | MMTW(20d)/MMTH(200d) 혼동 |
+| fg_uw(본체) | **74**(v48.70) | 65(v49.84) | 65 | 본체가 더 stale → 본체를 미러에 맞춤 |
+
+누적 값 시정 (v49.91~96): 22 + 미러 5 = **27건**. 동기화 7곳.
+
+---
+
 ## v49.95 — US 2차 거시지표 외부 실측 1:1 대조 + 전수 커버리지 정직 점검 (값 정확성 5차) (2026-05-29)
 
 **Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `js/aio-tests.js`

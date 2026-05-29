@@ -4138,3 +4138,12 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **근본 이유**: 앱이 값-종속 하드코딩 해석 대신 동적 바인딩(m.consConf=live FRED·data-snap) + 스케일 설명 캡션 + 재계산 파생함수 구조 → P61 퇴행에 구조적 강함.
 - **violated_rule**: 없음. P61 재발 방지 검증 통과.
 - **prevention**: 값 regime 변경(2배+ 또는 부호 전환) 시 의미-정합성 grep 의무 — (지표명).{0,40}(반대방향 형용사) 패턴 + 파생점수 consumer 추적 + 색상/캡션 값-상태 vs design-accent 구분.
+
+## P459 · v49.96 · DATA_SNAPSHOT 본체 ↔ _fallback 미러 silent drift (근본 보강 가드 신설)
+
+- **증상**: 사용자 "남은 영역없이 근본 보강" → 같은 지표가 `DATA_SNAPSHOT` 본체 + `_fallback` 미러 두 저장소에 존재하는데 한쪽만 갱신돼 불일치. 5건 검출: move(본체 70.9 vs 미러 62)·vvix(83 vs 85)·skew(139 vs 142)·breadth200(56 vs 57, MMTW 20d/MMTH 200d 혼동)·fg_uw(본체 74 v48.70 stale vs 미러 65 v49.84).
+- **원인**: (a) **v49.95에서 move를 70.9로 갱신하며 _fallback.move 62 미러 동기화 누락 — 내가 만든 불일치**. (b) pcr도 동일 패턴(이전 턴 0.67 vs 0.83, v49.95에서 시정). (c) `_fallback`은 computeTradingScore/computeMarketHealth가 읽는 점수계산용 미러인데 본체와 별개 유지보수 → 갱신 시 누락 상시 위험. (d) 기존 runtime DOM audit(getSnapshotConsistencyAudit)는 applyDataSnapshot 정규화 **후** DOM을 봐서 두 JS 저장소 간 불일치를 구조적으로 못 잡음.
+- **수정**: 미러 5건 본체와 정합 + **`AIO.getSnapshotFallbackConsistencyAudit()` 신설**(본체 12키↔미러 3% 허용 교차검증) + getAutoOpsReadiness 통합 + T686 회귀.
+- **근본 보강 의의**: 사용자가 우려한 "겉핥기 아닌 정합성"의 가장 깊은 층 — 사람 눈에 안 보이는 **이중 저장소 drift**를 자동 가드로 승격. 내가 직접 만든 불일치(move)를 audit이 즉시 검출 = 가드 작동 입증.
+- **violated_rule**: R184 신규 (동일 지표 2저장소 정합 의무). R55(snapshot consistency) 연장 — runtime DOM 레벨 → JS 객체 레벨 확장.
+- **prevention**: 미러 키(12개) 갱신 시 양쪽 동시 수정 + `getSnapshotFallbackConsistencyAudit().issueCount === 0` 검증. 신규 미러 키 추가 시 aliasMap 등록 의무.

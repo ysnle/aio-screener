@@ -1,5 +1,5 @@
 {
-  "version": "v49.95",
-  "built": "2026-05-29T16:00:00+09:00",
-  "note": "v49.95 — 2차 거시지표 외부 실측 1:1 대조 (값 정확성 5차, KR+US). 사용자 '모든 데이터 집합/영역/카테고리 전수 조사?' 정직 점검 → DATA_SNAPSHOT 141필드 triage 후 외부대조 가능 미검 ~20필드 WebSearch 대조. **KR stale 4건** (v49.94 통합): krCpi 2.7→2.6(통계청 4월, BOK 전망치 혼동) · krManufPmi 51.5→53.6(S&P 5/4, 2022.2 이후 최강) · krPpi 1.5→6.9(한국은행, 28년 충격 석유+73.9%) · krCreditBalance 19.2→36.0조(빚투 역대최고). **US stale 9건**: ismPmi 52.4→52.7 · ismPrice 70.7→84.6(2022.4 이후 최고) · ismSvc 54→53.6 · retailSales 0.6→0.5 · consConf 104.7→93.1(Conf Board 5월, 라벨 미시간 오류) · housingStarts 1.42→1.47M · move 62.5→70.9 · usWageGrowth 3.5→3.6 · rut 2858→2936.57(신고가권). **MOVE 인라인 시드 모순 통일**(L4960 62.4 / L7954 107.4 → 70.9, 라벨 calm). DOM 인라인 6곳 3-way 정합(R58). 동기화 7곳 + P455/P456 + T684/T685."
+  "version": "v49.96",
+  "built": "2026-05-29T17:00:00+09:00",
+  "note": "v49.96 — 근본 보강: DATA_SNAPSHOT 본체 ↔ _fallback 미러 정합 가드(R184/P459). 사용자 '단순 겉핥기 아닌 실질적 의미·정합성' + '남은 영역없이 근본 보강' 요청. 의미-정합성(P458) 점검 중 발견한 부류 — 같은 지표가 본체+_fallback 두 저장소에 존재해 한쪽만 갱신 시 silent drift (v49.95 move 70.9 갱신 시 _fallback.move 62 미러 누락, pcr 0.67 vs _fallback 0.83) — 를 자동 탐지하는 getSnapshotFallbackConsistencyAudit 신설. runtime DOM audit는 applyDataSnapshot 정규화 후라 못 잡던 갭. **미러 5건 정합 시정**: move 62→70.9·vvix 85→83·skew 142→139·breadth200 57→56(MMTW/MMTH 혼동)·fg_uw(본체) 74→65. getAutoOpsReadiness 통합 + T686 회귀. 누적 값 시정 v49.91~96: 22 + 미러 5 = 27건. 동기화 7곳."
 }
