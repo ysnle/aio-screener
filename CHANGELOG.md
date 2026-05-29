@@ -6,6 +6,37 @@
 
 ---
 
+## v49.86 — /data-refresh 3차 세밀 보강 (2026-05-28)
+
+**Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+**Motivation**: 사용자 "더 갱신하거나 업데이트할 데이터 없어?" — 잔여 9개 카테고리 추가 확인 및 WebSearch 검증.
+
+### 추가 갱신 항목 (9건)
+
+| # | 카테고리 | 이전값 | 신규값 | 출처 |
+|---|---------|--------|--------|------|
+| **CRITICAL** | **CPI 4월** | 3.3% (3월) | **3.8% YoY / Core 2.8%** | BLS 5/14 |
+| **CRITICAL** | **NFP 4월** | +228K (3월) | **+115K, 실업 4.3%** | BLS 5/8 |
+| **CRITICAL** | **KR 수출 5월** | +28.7% (2월) | **+64.8% (527억$ 역대최대)** | Korea Times 5/21 |
+| **CRITICAL** | **KR 반도체** | +157.9% (2월) | **+202.1% (220억$, HBM)** | Korea Times |
+| **HIGH** | Nikkei | 59,284 | **64,999** (+9.7%) | Japan Times 5/27 |
+| **HIGH** | BTC | $79,893 | **$75,216** (-5.9%) | Yahoo Finance 5/27 |
+| **HIGH** | ETH | $2,390 | **$2,068** (-13.5%) | Yahoo Finance 5/27 |
+| **MED** | SKEW | 142.50 | **139.04** | StreetStats 5/27 |
+| **MED** | KR 외국인 | -17,939억 | **-17,700억** (16연속 순매도) | 한경 5/27 |
+| **MED** | krCpi | 2.1% | **2.7%** | BOK 5/28 SEP 상향 |
+| **MED** | krGdpYoy | 1.8% | **2.6%** | BOK 5/28 SEP 상향 |
+| **MED** | aaiiBear | 33.0 | **36.6** | AAII 5/22 |
+
+### 핵심 거시 컨텍스트 업데이트
+- **4월 CPI 3.8%**: Iran 전쟁 + AI DC 지출이 물가 3년 고점 견인 (Fortune 2026-05-12). CPI 상승폭 재가속 — FOMC 6/17 인하 가능성 추가 후퇴
+- **4월 NFP +115K**: 컨센서스(+165K) 하회. 하방 노동시장 + 상방 물가의 Stagflation lite 구도 확인
+- **KR 반도체 +202.1%**: 5월 초중반 HBM AI 수요 급증. KOSPI·SK하이닉스 5일 랠리 핵심 동력
+- **KR BOK 5/28**: 성장 2.6%(+0.8p), 물가 2.7%(+0.6p) 동반 상향 — 스태그플레이션 우려 vs 수출 호조 딜레마
+
+---
+
 ## v49.85 — /data-refresh 2차 세밀 보강 (2026-05-28)
 
 **Changed files**: `js/aio-core.js`, `js/aio-data.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`

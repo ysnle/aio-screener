@@ -14034,7 +14034,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.85';
+const APP_VERSION = 'v49.86';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -14946,7 +14946,7 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-28T16:30:00+09:00',   // v49.84 /data-refresh WebSearch 2026-05-27 (US close) + 2026-05-28 (KR close) — DATA_SNAPSHOT 전수 최신화
+  _updated: '2026-05-28T19:00:00+09:00',   // v49.86 /data-refresh 3차 보강 — US 거시(CPI4월/NFP4월)/글로벌(Nikkei)/크립토(BTC/ETH)/KR 수출 5월/외국인 수급 갱신
   _snapshotDate: '2026-05-28',
   _staticDates: {
     briefingArchive: '2026-05-28',
@@ -14958,7 +14958,7 @@ const DATA_SNAPSHOT = {
   },
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v49.84 /data-refresh WebSearch (2026-05-28 KST 기준): **US close 2026-05-27** — SPX 7,520.36 (+0.02%, 신고가) / NASDAQ 26,674.73 (+0.07%) / Dow 50,644.28 (+0.36%, 신고가) / Russell 2000 -0.02%. VIX 17.01 (-9% vs 5/12 18.70). **KR close 2026-05-28** — KOSPI 8,185.29 (-0.53%, 5일 랠리 종료) / KOSDAQ 1,104.36 (-2.54%). **원자재 급락** — WTI $88.30 (-6%, 이란 평화 협상 호재) / Brent <$95 (-4.5%) / Gold $4,483.15 (전일 close). **금리** — 10Y 4.48% / 2Y 4.035% / 30Y 5.01%. CNN F&G 60 (Greed, 5/26 기준). AAII 5/22 발표: Bull 39.3% / Neutral 24.1% / Bear 36.6% / Bull-Bear spread +2.7%. **거시 컨텍스트** — 4월 CPI 3년 고점 (Iran 전쟁 + AI 지출 영향), Strait of Hormuz 1개월 내 재개 가능성 (이란 발언), 미국 draft 거부. Static fallback only; Delayed/Fallback/Stale labels must remain visible until live stores override.',
+  _note: 'v49.86 /data-refresh 3차 (2026-05-28 KST): 추가 갱신 — 4월 CPI 3.8%/Core 2.8%(BLS 5/14) · 4월 NFP +115K/실업 4.3%(BLS 5/8) · Nikkei 64,999(5/27) · BTC $75,216/ETH $2,068(Yahoo 5/27) · SKEW 139.04 · KR 수출 5/1~20 +64.8%/반도체 +202.1%(역대최대) · KR 외국인 -1.77조(16연속 순매도). v49.84 원문: **US close 2026-05-27** — SPX 7,520.36 (+0.02%, 신고가) / NASDAQ 26,674.73 (+0.07%) / Dow 50,644.28 (+0.36%, 신고가) / Russell 2000 -0.02%. VIX 17.01 (-9% vs 5/12 18.70). **KR close 2026-05-28** — KOSPI 8,185.29 (-0.53%, 5일 랠리 종료) / KOSDAQ 1,104.36 (-2.54%). **원자재 급락** — WTI $88.30 (-6%, 이란 평화 협상 호재) / Brent <$95 (-4.5%) / Gold $4,483.15 (전일 close). **금리** — 10Y 4.48% / 2Y 4.035% / 30Y 5.01%. CNN F&G 60 (Greed, 5/26 기준). AAII 5/22 발표: Bull 39.3% / Neutral 24.1% / Bear 36.6% / Bull-Bear spread +2.7%. **거시 컨텍스트** — 4월 CPI 3년 고점 (Iran 전쟁 + AI 지출 영향), Strait of Hormuz 1개월 내 재개 가능성 (이란 발언), 미국 draft 거부. Static fallback only; Delayed/Fallback/Stale labels must remain visible until live stores override.',
 
   // ── 미국 주요 지수 (2026-05-27 종가 / WebSearch CNBC/TheStreet 확인) ──
   spx:        7520.36,  spxPct:    +0.02,   // v49.84: 2026-05-27 close 신고가
@@ -15004,27 +15004,28 @@ const DATA_SNAPSHOT = {
   tnx2y:       4.035,                              // v49.84: 2Y Treasury — WebSearch 2026-05-27 (이란 평화 협상 호재로 short-end -1bp)
 
   // ── 거시 지표 ──
-  cpi:          3.3,   coreCpi:   2.6,   // v48.70: CPI 3월 3.3% · Core 2.6% (BLS 4/28 발표)
-  pce:          2.7,   corePce:   2.7,            // PCE Core YoY — v46.3: Fed 3월 전망 상향 (2.4/2.5→2.7/2.7)
-  ismPmi:      52.4,   ismPrice:  70.7,   // v45.2: 4/6 ISM 실데이터 70.7% (2022년 10월 이후 최고)
-  ismSvc:      54.0,                              // ISM 서비스업 PMI (3월, 4/3 발표)
-  usUnemploy:   4.30,  // 3월 NFP: +228K(컨센 135K 상회), 실업률 4.3% (4/3 발표) — v49.30 R77: 5/3 BLS 5월 NFP 발표 갱신 대기 (44일 경과)
-  usWageGrowth: 3.5,                              // 시간당 평균 임금 YoY 3.5% (4/3 NFP) — v49.30 R77: 5월 발표 대기
-  retailSales:  0.6,                              // 소매판매 MoM (소비 체력)
-  consConf:    104.7,                              // 미시간 소비자심리 (100↑=낙관)
+  cpi:          3.8,   coreCpi:   2.8,   // v49.86: CPI 4월 YoY 3.8% · Core 2.8% (BLS 5/14 발표, Iran 전쟁+AI 지출 영향 — Fortune 2026-05-12)
+  pce:          2.7,   corePce:   2.7,            // PCE Core YoY — 다음 5/30 발표 예정
+  ismPmi:      52.4,   ismPrice:  70.7,           // v45.2: 4/6 ISM Mfg (5/1 발표 완료, 다음 6/2)
+  ismSvc:      54.0,                              // ISM 서비스업 PMI (4/3 → 5/5 발표 완료, 다음 6/3)
+  usUnemploy:   4.30,  // v49.86: 4월 NFP +115K(컨센 하회), 실업률 4.3% (5/8 발표) — 다음 6/5 5월분 예정
+  usNfp:        115,                               // v49.86: 4월 NFP +115K (헬스케어·운수·소매 주도)
+  usWageGrowth: 3.5,                              // 시간당 평균 임금 YoY (4/3 기준, 5월분 6/5 갱신 예정)
+  retailSales:  0.6,                              // 소매판매 MoM (5/15 발표 완료, 다음 6/17)
+  consConf:    104.7,                              // 미시간 소비자심리
   housingStarts:1.42,                             // 주택착공 (백만건, 연환산)
   krUnemploy:   3.4,
   // v34.6: 한국 거시 지표 강화
-  krCpi:        2.1,                              // 한국 CPI YoY (2026.02 기준, BOK 전망 2.1%)
+  krCpi:        2.7,                              // v49.86: 한국 CPI YoY — BOK 5/28 SEP 물가 전망 2.7% 상향 (이란 유가 영향)
   krPpi:        1.5,                              // v49.47 P313: 한국 PPI YoY — kr-macro data-snap="kr-ppi-yoy" 시드
   krManufPmi:  51.5,                              // v49.47 P313: 한국 제조업 PMI — kr-macro data-snap="kr-manuf-pmi" 시드 (50+ 확장)
-  krGdp:       -0.2,   krGdpYoy:  1.8,           // 한국 GDP QoQ / YoY (BOK 2026 성장률 전망 1.8%)
-  krExport:    +28.7,   krExportStreak: 13,       // 2월 수출 +28.7% YoY (673억$), 13개월 연속 흑자
-  krSemiExport:+157.9,                            // 2월 반도체 수출 +157.9% YoY (역대 최대)
+  krGdp:       -0.2,   krGdpYoy:  2.6,           // v49.86: 한국 GDP QoQ -0.2 / YoY → BOK 5/28 SEP 성장률 2.6% 상향 (반도체 수출 호조)
+  krExport:    +64.8,   krExportStreak: 15,       // v49.86: 5월 1~20일 +64.8% YoY (527억$ 역대 최대), 15개월 연속 흑자 (Korea Times 2026-05-21)
+  krSemiExport:+202.1,                            // v49.86: 5월 1~20일 반도체 +202.1% YoY (220억$ = 수출 41.7%, HBM AI 서버 수요)
   kospiPE:      9.8,    kospiPB:   0.92,          // KOSPI PER/PBR
   kosdaqPE:    32.5,                              // KOSDAQ PER
   krShortSell:  4.1,                              // 공매도 비중(%)
-  krForeignNet:-17939,                            // 외국인 순매수 (억원, 4/3 — 연속 순매도)
+  krForeignNet:-17700,                            // v49.86: 외국인 순매수 (5/27 -1.77조원 순매도, 16연속 순매도 — 한경)
 
   // ── v49.41 P299/R74 보강: breadth*sma DATA_SNAPSHOT 시드 등록 (이전 _fallback만 정의 → 폴백만 동작 차단) ──
   // breadth-5sma / breadth-20sma / breadth-50sma / breadth-200sma data-snap 4 sink가 시드 의존.
@@ -15062,25 +15063,25 @@ const DATA_SNAPSHOT = {
   nandContract_QoQ_2Q26: 73,
   nandContract_YoY_2Q26: 362,
   // ── v48.71 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
-  aaiiBear:        33.0,     // v49.6: AAII/MarketWatch latest weekly report (week ended 2026-05-07)
+  aaiiBear:        36.6,     // v49.86: AAII 5/22 발표 Bear 36.6% (Bull 39.3 / Neutral 24.1)
 
   // ── 글로벌 지수 (GMO 테이블용 정적 폴백, 실시간 수신 시 교체) ──
-  nikkei:    59284,    nikkeiPct:  -1.06,
-  hangseng:  25947,    hangsengPct: +0.29,
-  shanghai:   3420,    shanghaiPct: +1.20,
-  dax:       23200,    daxPct:     +1.80,
-  ftse:      10611,    ftsePct:    +0.01,
-  cac:        7950,    cacPct:     +1.50,
+  nikkei:    64999,    nikkeiPct:  +0.01,  // v49.86: Nikkei 64,999 (2026-05-27, Japan Times — 고점 66,000 도달 후 보합)
+  hangseng:  25947,    hangsengPct: +0.29, // 추정 유지 (직접 확인 불가)
+  shanghai:   3420,    shanghaiPct: +1.20, // 추정 유지
+  dax:       23200,    daxPct:     +1.80,  // 추정 유지
+  ftse:      10611,    ftsePct:    +0.01,  // 추정 유지
+  cac:        7950,    cacPct:     +1.50,  // 추정 유지
 
   // ── 크립토·추가 원자재 (정적 폴백, 실시간 수신 시 교체) ──
-  btc:       79893,    btcPct:    -2.02,   // v49.4: Yahoo Finance delayed snapshot
-  eth:        2390,    ethPct:    -1.80,   // v49.4: static fallback estimate; live crypto source preferred
-  silver:     71.50,   silverPct: +2.64,
+  btc:       75216,    btcPct:    -1.90,   // v49.86: BTC $75,216 2026-05-27 09:21 ET (Yahoo Finance, Iran 평화 협상 + 위험선호)
+  eth:        2068,    ethPct:    -1.90,   // v49.86: ETH $2,068 2026-05-27 09:21 ET (Yahoo Finance)
+  silver:     71.50,   silverPct: +2.64,  // 추정 유지 (WTI 급락 동조 하락 가능성)
 
-  // ── 리스크 지표 (4/17 추정 — 위험선호 지속으로 소폭 완화) ──
-  move:        65.30,   moveChg: +1.80,  // v48.70: MOVE 4/28 채권 변동성 소폭 상승 (CPI 3.3% + FOMC 경계)
-  skew:       142.50,   skewChg: +1.28,  // v48.70: SKEW 4/28 꼬리헤지 소폭 증가 (WTI $100 + 지정학)
-  vvix_live:   88.20,   vvixChg: +0.57,  // v48.70: VVIX 4/28 소폭 상승 (VIX 상승 동반)
+  // ── 리스크 지표 (5/27 갱신) ──
+  move:        62.50,   moveChg: -1.20,  // v49.86: MOVE 추정 하향 (VIX 17→ + Iran 평화 호재 + 10Y 안정)
+  skew:       139.04,   skewChg: -1.50,  // v49.86: SKEW 139.04 (StreetStats.finance 5/27 데이터)
+  vvix_live:   85.50,   vvixChg: -1.40,  // v49.86: VVIX 추정 하향 (VIX 17.01 동조)
   fg:            60,   fgLabel: 'Greed',  // v49.84: CNN F&G 60 (Greed, 2026-05-26 기준)
   fg_uw:         74,   fg_uwLabel: '탐욕', // v48.70: UW 확장 F&G 4/28 추정 74
 
