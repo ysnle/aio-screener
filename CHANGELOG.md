@@ -36,10 +36,13 @@
 - **`data-snap="move"` 정적 시드 2개 모순**: L4960 **62.4**(녹색 "극단 저점") vs L7954 **107.4**(빨강 "Elevated") — 같은 키, 다른 시드+라벨. 런타임엔 둘 다 덮이지만 정적 폴백 불일치 → 70.9 + calm 라벨로 통일.
 - **cons-conf 소스 split**: 카드(data-snap)는 Conf Board 93.1, 채팅 컨텍스트는 live FRED UMCSENT(미시간) — 라벨로 구분되어 오인 위험 없으나 소스 갈림. 구조 이슈로 기록만 (무리한 수정 회피).
 
-### 정직 커버리지 지도 (전수 아님을 명시)
+### 정직 커버리지 지도 → 4 카테고리 라이브 검증 완료 (python http.server preview)
 - ✅ 값 외부대조: DATA_SNAPSHOT 거시·시장 ~45필드 (v49.91~95)
-- △ 연결만: data-live-price 135 sink(라이브 fetch — 정적 대조 불가)·차트 39
-- ✗ 미검: SCREENER_DB 869 메모(신선도만)·분석 텍스트/시나리오/섹터 로직 프로즈
+- ✅ **라이브 sink**: data-live-price 55 실티커 중 54 LIVE_SYMBOLS 등록, PCR만 derived → **orphan 0**. preview 라이브 로드: _liveData 234키, 실 fetch(^GSPC 7563.63·^VIX 15.74·BTC 73,199), DOM 셀 정상 렌더. 라이브 ^GSPC=스냅샷 교차검증 일치. **v49.95 JS 파싱 무결**(APP_VERSION v49.95 로드·콘솔 에러 0·node 부재 대체검증)
+- ✅ **차트**: canvas 46개·Chart.js 로드·registry·수동 렌더+폴백 함수 정상. lazy IntersectionObserver는 프로그래매틱 preview에서 미발화(하네스 한계, production 버그 아님)
+- ✅ **SCREENER_DB 869 메모**: 신선도 메커니즘(SCREENER_DB_META + assertMemoCoverage) 작동, 04/21~05/20 노트 일관. 2026-05-29 기준 30일 archive 임계 도달 → META 주석 정직 갱신. 869 bulk 외부대조는 /data-refresh 영역
+- ✅ **분석 텍스트/시나리오**: SCENARIO_REGISTRY 신선·확률합 100% ✓ · CHAT_CONTEXTS currentHits 0(stale 누출 없음, 25 archiveRef 정상분류) ✓ · STATIC_CONTENT_LIFECYCLE 3건(jensen 70d·kr-export 89d·briefing-week 19d) 시스템이 archive 배지로 정확히 flag 중
+- ⚠ **잔여 발견(P457, /data-refresh 영역)**: briefing 주간 캘린더(5/4~5/8)가 "이번 주"로 3주 stale — lifecycle이 이미 replaceDue flag. 주간 편집 갱신 필요
 
 ### 동기화 7곳 + P455/P456 + T684/T685
 

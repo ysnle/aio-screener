@@ -10,10 +10,10 @@
 var SCREENER_DB_META = {
   schemaVersion: 'v49.31',
   lastBulkUpdate: '2026-04-29',  // 마지막 메모 일괄 게시일 (memo 헤더 04/21~04/29 기준)
-  staleAfterDays: 30,            // R75 lifecycle: 30일 경과 시 archive due (현재 17일 경과 — fresh)
-  replaceAfterDays: 60,          // 60일 경과 시 replace due
+  staleAfterDays: 30,            // R75 lifecycle: 30일 경과 시 archive due (2026-05-29 기준 30일 경과 — archive 임계 도달, /data-refresh 권장)
+  replaceAfterDays: 60,          // 60일 경과 시 replace due (2026-06-28)
   source: 'JPM/Citi/TDCowen/Mizuho 04/21~04/29 게시',
-  note: 'Q2 실적 시즌 (5/17~) 진행 중 — 컨센 변경 시 /data-refresh 권장'
+  note: 'v49.95 점검: 메모 04/21~05/20 어닝/애널 노트. Q2 실적 시즌(5/17~) 진행 중 — 일부 Q1 기반 메모 부분 갱신 필요. 869 메모 bulk 외부대조는 /data-refresh 영역.'
 };
 try { window.SCREENER_DB_META = SCREENER_DB_META; } catch(_) {}
 var SCREENER_DB = [

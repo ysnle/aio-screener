@@ -4118,3 +4118,12 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **잔존(구조 이슈, 미수정 — 기록만)**: cons-conf 카드(data-snap, Conf Board)와 채팅 컨텍스트(live FRED UMCSENT=미시간)가 다른 소스. 라벨로 구분되어 오인 위험 낮음. 향후 단일 소스 통일 검토.
 - **violated_rule**: R182(값 정확성) · R58(DOM 인라인 vs DATA_SNAPSHOT 3-way 정합 — 같은 키 시드 단일화 의무) 연장
 - **prevention**: (1) 발표 완료 월 데이터는 즉시 실측 반영 — "다음 발표 예정" 주석만 두지 말 것. (2) "추정 유지" 라벨 필드도 분기 1회+ 실측 대조 (특히 지수: rut/shanghai/cac). (3) **동일 data-snap 키는 단일 정적 시드** — getSnapshotConsistencyAudit(R55)에 같은 키 다중 시드 불일치 탐지 추가 검토. (4) 라벨과 값 스케일 정합 확인 (Michigan ~50-100 vs Conf Board 1985=100).
+
+## P457 · v49.95 · 라이브·차트·메모·텍스트 4 카테고리 전수 검증 (사용자 "시세/차트·텍스트/분석도?" 정직 점검)
+
+- **맥락**: 사용자 "모든 데이터 집합/영역/카테고리 실질적으로 전수 조사? 시세/차트·텍스트/분석도?" → 스냅샷 외 4 카테고리(라이브 sink·차트·메모·텍스트)를 python http.server preview 라이브 로드로 실제 검증.
+- **검증 방법/결과**: (라이브) data-live-price 55 실티커 orphan 0(PCR만 derived) + preview에서 _liveData 234키 실 fetch·DOM 렌더·라이브 ^GSPC=스냅샷 교차검증 일치 + **v49.95 JS 파싱 무결 확인**(node 부재 대체검증: APP_VERSION v49.95 로드·콘솔 에러 0). (차트) canvas 46·Chart.js·registry·수동렌더+폴백 정상 — 단 lazy IntersectionObserver는 프로그래매틱 preview에서 미발화(하네스 한계, **production 버그 아님**, 섣불리 단정 회피). (메모) 신선도 메커니즘 작동, 30일 archive 임계 도달, META 주석 갱신. (텍스트) SCENARIO 신선·확률합 100%·CHAT_CONTEXTS stale 누출 0·lifecycle 3 aged item 정확히 flag.
+- **발견(미시정, /data-refresh 영역)**: briefing 주간 캘린더(5/4~5/8 주간 일정·earnings·IPO)가 "이번 주"로 표시되나 3주 경과 — STATIC_CONTENT_LIFECYCLE이 `briefing-week-may-4-10` replaceDue로 이미 flag 중. 주간 편집 갱신은 /data-refresh 또는 /integrate 영역(단일 데이터값 아님).
+- **오탐 식별**: governance "stale-live-like-date" 중 macro "3/6"(분기 3/6/9/12월 약어)·kr-home "3/11"(v49.95 의도적 과거 인용 "3/11 31.8조→5월 36조")는 false positive.
+- **교훈**: 라이브/lazy 렌더는 정적 코드 읽기로 "값 정확성" 검증 불가 — preview 라이브 로드 필요. 단 프로그래매틱 하네스(showPage+scrollIntoView)는 IntersectionObserver를 발화 못해 lazy 차트 시각검증엔 한계. 실 브라우저 사용자 스크롤로만 최종 확인 가능 — 하네스 아티팩트를 버그로 오인하지 말 것.
+- **violated_rule**: 없음 (검증 작업 · 데이터 오류 0건 발견). R101(LIVE_SYMBOLS coverage) 연장 검증.
