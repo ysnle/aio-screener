@@ -6,6 +6,27 @@
 
 ---
 
+## v49.90 — cell-level 데이터 sink-to-source 전수 검증 + lineage audit 통합 (2026-05-28)
+
+**Changed files**: `js/aio-core.js`, `index.html`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 "구조만이 아니라 전체 기능/텍스트/내용에 들어가는 데이터 하나하나 세밀 확인했나?" — 정직: v49.88(구조)+v49.89(13종 카테고리)는 경로 존재만. 이번에 개별 sink 전수 cross-check.
+
+### cell-level 전수 검증 (정적 cross-check)
+| 검증 | 대상 | 끊긴 sink |
+|------|------|----------|
+| data-live-price → LIVE_SYMBOLS(636) | 54 고유 ticker | **0** |
+| data-snap → DATA_SNAPSHOT(alias) | 59 고유 key | **0** |
+| **합계** | **113 cell-level sink** | **0** |
+
+- PCR: `derivedLiveKeys` 명시 제외 (fetchPutCall 별도 주입) — 갭 아님
+- 의심 3개 krw-full/kr-cpi-yoy/kr-gdp-qoq: applyDataSnapshot 매핑(15962/16040/16043) + getStaticSeedFallbackAudit aliasMap(5629/5633/5636) 연결 확인 — 끊김 아님
+
+### getDataLineageAudit cellLevel 통합 (P451/R181)
+getLiveSymbolsCoverageAudit + getStaticSeedFallbackAudit 결과를 lineage audit에 통합 → **카테고리(13종 5단계) + cell-level(113 개별 sink) 단일 진입점**. 사이드바 dataLineage row에 "cell 0 끊김 (54+59 sink)" 표시. T680. R181: lineage 검증은 카테고리 + cell-level 둘 다, totalOrphans 0 의무.
+
+---
+
 ## v49.89 — 데이터 계보(lineage) end-to-end 전수 조사 + 자동 audit (2026-05-28)
 
 **Changed files**: `js/aio-core.js`, `index.html`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `_context/DATA-PIPELINE-AUDIT-2026-05-06.md`

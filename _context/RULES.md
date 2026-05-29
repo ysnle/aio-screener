@@ -2171,3 +2171,18 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 **근거 (코드 조사 v49.89)**: 13종 데이터 5단계 추적 — 시세/VIX/F&G/PCR/FRED/뉴스/VKOSPI=auto, breadth=gap, CPI 등=manual.
 
 **Validation**: `AIO.getDataLineageAudit().broken === 0` · 사이드바 dataLineage row · T675~T679.
+
+---
+
+## R181. 데이터 검증은 카테고리 + cell-level(개별 sink→source) 둘 다 (v49.90 added, P451 root)
+
+**Rule**: 데이터 lineage 검증은 카테고리(13종 5단계)에 그치지 않고, 화면에 렌더되는 개별 sink(data-live-price/data-snap)가 각각 source(LIVE_SYMBOLS/DATA_SNAPSHOT)에 연결됐는지 cell-level까지 검증한다.
+
+**Required**:
+- `getDataLineageAudit().cellLevel.totalOrphans === 0` 유지 (렌더되나 source 없는 끊긴 sink 0).
+- 신규 data-live-price ticker는 LIVE_SYMBOLS 등록 또는 derivedLiveKeys 명시. 신규 data-snap key는 DATA_SNAPSHOT 직접 키 / applyDataSnapshot 매핑 / getStaticSeedFallbackAudit aliasMap 중 하나로 연결.
+- "구조/카테고리 존재 확인"으로 끝내지 말 것 — 개별 데이터 값까지 source 역추적.
+
+**근거 (v49.90 전수)**: data-live-price 54→LIVE_SYMBOLS 끊김 0 · data-snap 59→DATA_SNAPSHOT 끊김 0 (113 sink orphan 0).
+
+**Validation**: `AIO.getDataLineageAudit().cellLevel.totalOrphans === 0` · T680.

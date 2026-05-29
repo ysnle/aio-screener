@@ -3435,6 +3435,12 @@
     _assert('T679 app_version_v4989: APP_VERSION >= v49.89 (semver)',
       typeof APP_VERSION !== 'undefined' && /^v49\.\d+$/.test(APP_VERSION) && parseInt(APP_VERSION.split('.')[1], 10) >= 89,
       typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
+    // T680: v49.90 cell-level sink-to-source 통합 (데이터 하나하나 — orphan 0건)
+    var dlc = window.AIO && window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
+    var cl = dlc && dlc.cellLevel;
+    _assert('T680 data_lineage_cell_level_v4990: cellLevel 통합 + orphan sink 0건 (data-live-price/data-snap 개별)',
+      cl && (cl.status === 'ok' || cl.status === 'unknown') && (cl.totalOrphans === 0 || cl.liveSinkOrphans === null),
+      cl ? 'status=' + cl.status + ' liveOrphans=' + cl.liveSinkOrphans + ' snapOrphans=' + cl.snapSinkOrphans + ' liveSinks=' + cl.liveSinkTotal + ' snapSinks=' + cl.snapSinkTotal : 'no cellLevel');
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지

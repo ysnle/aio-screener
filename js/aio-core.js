@@ -11793,14 +11793,35 @@ window.AIO.getDataLineageAudit = function() {
     var broken    = rows.filter(function(r){ return r.status === 'broken'; }).length;
     var gap       = rows.filter(function(r){ return r.status === 'gap'; }).length;
     var manual    = rows.filter(function(r){ return r.status === 'manual'; }).length;
+    // v49.90 R181: cell-level sink-to-source 통합 (데이터 하나하나 — data-live-price/data-snap 개별 sink가 source에 연결됐는지)
+    // getLiveSymbolsCoverageAudit (data-live-price → LIVE_SYMBOLS) + getStaticSeedFallbackAudit (data-snap → DATA_SNAPSHOT alias)
+    var cellLevel = null;
+    try {
+      var liveCov = (window.AIO && window.AIO.getLiveSymbolsCoverageAudit) ? window.AIO.getLiveSymbolsCoverageAudit() : null;
+      var seedCov = (window.AIO && window.AIO.getStaticSeedFallbackAudit) ? window.AIO.getStaticSeedFallbackAudit() : null;
+      var liveOrphans = liveCov && typeof liveCov.issueCount === 'number' ? liveCov.issueCount : null;
+      var snapOrphans = seedCov && typeof seedCov.issueCount === 'number' ? seedCov.issueCount : null;
+      var liveSinks = 0, snapSinks = 0;
+      try { liveSinks = document.querySelectorAll('[data-live-price]').length; } catch(_) {}
+      try { snapSinks = document.querySelectorAll('[data-snap]').length; } catch(_) {}
+      cellLevel = {
+        status: (liveOrphans === 0 && snapOrphans === 0) ? 'ok' : (liveOrphans === null || snapOrphans === null) ? 'unknown' : 'warn',
+        liveSinkTotal: liveSinks, liveSinkOrphans: liveOrphans,  // data-live-price → LIVE_SYMBOLS 미연결
+        snapSinkTotal: snapSinks, snapSinkOrphans: snapOrphans,  // data-snap → DATA_SNAPSHOT 미연결
+        totalOrphans: (liveOrphans || 0) + (snapOrphans || 0),
+        note: '화면 렌더 데이터 개별 sink가 source에 연결됐는지 (data-live-price→LIVE_SYMBOLS / data-snap→DATA_SNAPSHOT). orphan=렌더되나 source 없는 끊긴 sink.'
+      };
+    } catch(_cl) { cellLevel = { status: 'error' }; }
+    var cellOk = cellLevel && (cellLevel.status === 'ok' || cellLevel.status === 'unknown');
     return {
-      status: broken === 0 ? 'ok' : 'warn',
+      status: (broken === 0 && cellOk) ? 'ok' : 'warn',
       total: rows.length,
       connected: connected, broken: broken, gap: gap, manual: manual,
       autoTierPct: Math.round((connected / rows.length) * 100),
       brokenRows: rows.filter(function(r){ return r.status === 'broken'; }).map(function(r){ return r.id; }),
       rows: rows,
-      note: 'v49.89 R180: 데이터 source→scheduler→transform→render(DOM sink) 5단계 lineage 자동 매핑. connected=완전자동연결 / gap=B계층(자동화미구현 정적폴백) / manual=C계층(수동 data-refresh).',
+      cellLevel: cellLevel,
+      note: 'v49.90 R180/R181: 데이터 카테고리 lineage(13종 5단계) + cell-level sink-to-source(data-live-price/data-snap 개별) 통합. connected=완전자동 / gap=B계층 / manual=C계층 / cellLevel.orphan=끊긴 개별 sink.',
       generatedAt: new Date().toISOString()
     };
   } catch(e) {
@@ -12171,7 +12192,9 @@ window._aioRefreshAuditWidget = function() {
         if (dl) {
           var iconL = dl.status === 'ok' ? '✓' : '⚠';
           var colorL = dl.status === 'ok' ? 'var(--data-green)' : 'var(--data-amber)';
-          dlEl.innerHTML = '<span style="color:' + colorL + ';">' + iconL + '</span> 🔗 데이터 계보 자동 <b>' + dl.connected + '</b>/' + dl.total + ' · gap ' + dl.gap + ' · 수동 ' + dl.manual + (dl.broken > 0 ? ' · <span style="color:var(--data-red);">끊김 ' + dl.broken + '</span>' : '');
+          var cl = dl.cellLevel || {};
+          var cellTxt = cl.status ? ' · cell ' + (cl.totalOrphans === 0 ? '<span style="color:var(--data-green);">0 끊김</span>' : '<span style="color:var(--data-red);">끊김 ' + cl.totalOrphans + '</span>') + ' (' + (cl.liveSinkTotal||0) + '+' + (cl.snapSinkTotal||0) + ' sink)' : '';
+          dlEl.innerHTML = '<span style="color:' + colorL + ';">' + iconL + '</span> 🔗 데이터 계보 자동 <b>' + dl.connected + '</b>/' + dl.total + ' · gap ' + dl.gap + ' · 수동 ' + dl.manual + (dl.broken > 0 ? ' · <span style="color:var(--data-red);">끊김 ' + dl.broken + '</span>' : '') + cellTxt;
         } else {
           dlEl.innerHTML = '<span style="color:var(--text-muted);">— dataLineage audit 미가용</span>';
         }
@@ -14109,7 +14132,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.89';
+const APP_VERSION = 'v49.90';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

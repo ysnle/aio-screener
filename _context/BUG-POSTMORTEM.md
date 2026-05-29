@@ -4061,3 +4061,14 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **파일**: `js/aio-core.js` getDataLineageAudit + _aioRefreshAuditWidget dataLineage 분기 / `index.html` 사이드바 row
 - **violated_rule**: R180 신규
 - **prevention**: R180 — 데이터 추가/변경 시 5단계 lineage 연결 + getDataLineageAudit broken 0 의무. 사용자 "조사했나?" 질의에 함수 한 방 응답.
+
+---
+
+## P451 · v49.90 · cell-level 데이터 sink-to-source 전수 검증 부재 (구조/카테고리만 봄)
+
+- **증상**: 사용자 "구조만이 아니라 화면 기능/텍스트/내용에 들어가는 데이터 하나하나 세밀 확인했나?" — v49.88(구조) + v49.89(13종 카테고리)는 데이터 흐름의 "경로 존재"만 검증. 화면에 렌더되는 개별 sink(data-live-price 149 + data-snap 83)가 각각 source(LIVE_SYMBOLS/DATA_SNAPSHOT)에 연결됐는지 cell-level cross-check 미수행.
+- **원인**: lineage audit이 카테고리(13) 레벨에 머무름. 개별 sink별 source 역추적 부재 (기존 getLiveSymbolsCoverageAudit/getStaticSeedFallbackAudit이 각각 하지만 lineage audit에 미통합).
+- **수정**: 정적 전수 cross-check 실행 — data-live-price 54 고유 ticker → LIVE_SYMBOLS 636 (끊김 0) / data-snap 59 고유 key → DATA_SNAPSHOT alias (끊김 0). 의심 3개(krw-full/kr-cpi-yoy/kr-gdp-qoq) 모두 applyDataSnapshot 매핑+aliasMap 연결 확인. getDataLineageAudit에 cellLevel 필드 통합 → 카테고리 + cell-level 단일 진입점.
+- **파일**: `js/aio-core.js` getDataLineageAudit cellLevel + _aioRefreshAuditWidget dlEl
+- **violated_rule**: R181 신규 · P68(추측 금지 — PCR/3개 키 의심 성급했으나 코드 확인으로 검증)
+- **prevention**: R181 — lineage 검증은 카테고리 + cell-level(개별 sink→source) 둘 다. getDataLineageAudit().cellLevel.totalOrphans === 0 의무.
