@@ -2201,3 +2201,19 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 **근거 (P452)**: PCE 2.7→3.8 (1%p+ stale) — 연결은 정상이었으나 값이 3개월 stale. sentiment Tail Risk Board 3/30 하드코딩(SKEW 141.86) 잔존.
 
 **Validation**: /data-refresh 주요 지표 실측 대조 · CHAT_CONTEXTS 하드코딩 수치 grep 0 (DATA_SNAPSHOT 참조 외).
+
+---
+
+## R183. WebSearch 수치는 지표별 정상 band 검증 후 수용 (v49.92 added, P453 root)
+
+**Rule**: WebSearch/WebFetch가 반환한 수치를 데이터로 수용하기 전, 해당 지표의 상식적 정상 범위(sanity band)와 대조한다. 범위 이탈 시 오류 의심 → 재확인 또는 보수적 추정.
+
+**지표별 sanity band**:
+- VKOSPI / VIX: 9~40 (40+ = 위기, 검증 필수) · VVIX: 70~150 · MOVE: 50~180 · SKEW: 110~170
+- PE: 5~60 · PBR: 0.3~15 · CPI/PCE YoY: -2~10% · 기준금리: 0~15%
+- 지수 일변동 통상 ±5% 이내 (초과 시 이벤트 확인)
+- **상관 검증**: VKOSPI ≈ VIX±10 (양립 안 되면 오류). 미국 VIX 15인데 한국 VKOSPI 74 = 명백한 오류.
+
+**근거 (P453)**: VKOSPI 74.02를 WebSearch에서 받아 수용했으나 VIX 15.74와 양립 불가 — band 검증으로 잡았어야 함.
+
+**Validation**: 데이터 갱신 시 band 이탈값 0 · 상관쌍(VKOSPI-VIX 등) 정합.

@@ -4083,3 +4083,21 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **파일**: `js/aio-core.js` DATA_SNAPSHOT pce/corePce/spx/nasdaq/dow/vix/vvix + _fallback / `js/aio-chat.js` L73 PCE 폴백 + L1039 Tail Risk 동적
 - **violated_rule**: R182 신규 · R76(서술 텍스트 stale 토큰) — sentiment 3/30 하드코딩
 - **prevention**: R182 — cell-level은 연결(orphan 0) + 값 정확성(주요 거시/시세 외부 실측 대조) 둘 다. 텍스트 안 수치는 DATA_SNAPSHOT 동적 참조 우선, 하드코딩 금지.
+
+---
+
+## P453 · v49.92 · VKOSPI 74.02 — WebSearch 부정확 값 검증 없이 수용 (상식 범위 미검증)
+
+- **증상**: v49.87에서 VKOSPI를 WebSearch "74.02"로 갱신. 그러나 74는 2020.3 코로나 패닉 수준 — VIX 15.74(미국 평온) + KOSPI 사상최고 8185와 양립 불가. VKOSPI 정상범위 12~25. WebSearch가 Investing.com 페이지의 다른 숫자를 오인 반복.
+- **원인**: WebSearch 결과를 상식(VKOSPI-VIX 상관관계: 한국 변동성은 미국 VIX와 비슷하거나 약간 높음)으로 검증하지 않고 "실측"이라며 그대로 수용. v49.84 추정 18.50이 오히려 정확했는데 잘못된 "실측"으로 덮어씀.
+- **수정**: VKOSPI 74.02 → 18.20 (VIX 15.74 + KOSDAQ -2.54% 반영 합리적 추정). 라이브(fetchVkospiDynamic Naver) 우선 명시.
+- **violated_rule**: R183 신규 · P68(추측/미검증 수용 금지)
+- **prevention**: R183 — WebSearch 수치는 지표별 정상 band 범위 검증 후 수용. VKOSPI 12~30 / VIX 9~80 / PE 5~50 등 sanity range 이탈 시 재확인 또는 보수적 추정.
+
+## P454 · v49.92 · DATA_SNAPSHOT 나머지 필드 stale (글로벌 지수/원자재/BOJ)
+
+- **증상**: cell-level 값 대조 결과 다수 stale — DAX 23200(실제 25068, 사상최고권) / Nikkei 64999(64693) / Hang Seng 25947(25006) / FTSE 10611(10428) / WTI 88.30(90.50, 이란 충돌 재개) / Brent 94.50(96.29) / Gold 4483(4411) / Silver 71.50(73.51) / BOJ 0.50(0.75 인상).
+- **원인**: /data-refresh가 미국 핵심 지수/거시 위주, 글로벌 지수·중앙은행 금리는 "추정 유지"로 방치. DAX는 추정이 1800pt(7%) 벗어남.
+- **수정**: 8개 필드 5/28 실측 갱신.
+- **violated_rule**: R182(값 정확성) 연장
+- **prevention**: /data-refresh G그룹(글로벌 지수) + E4(중앙은행 금리)도 분기 1회+ 실측 대조. "추정 유지" 라벨 필드는 getDataLineageAudit에서 staleRisk 표시 검토.

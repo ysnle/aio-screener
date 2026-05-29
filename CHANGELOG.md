@@ -6,6 +6,35 @@
 
 ---
 
+## v49.92 — DATA_SNAPSHOT 나머지 필드 외부 실측 1:1 대조 (값 정확성 2차) (2026-05-29)
+
+**Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 "모든 데이터 실제로 하나씩 세밀 대조하면서 조사". 글로벌 지수/원자재/중앙은행 금리/VKOSPI 외부 실측 1:1 대조.
+
+### 🔴 CRITICAL — VKOSPI 74.02 오류 (P453)
+v49.87에서 WebSearch "74.02"를 검증 없이 수용했으나 **명백한 오류**: VIX 15.74(미국 평온) + KOSPI 사상최고 8,185와 양립 불가 (VKOSPI 정상 12~25, 74=코로나 패닉). **18.20으로 시정** + 라이브 우선. WebSearch를 상식(VKOSPI-VIX 상관)으로 검증 안 한 실패.
+
+### 글로벌 지수 stale 4건 (5/28 종가)
+| 지표 | 이전 | 신규 |
+|------|------|------|
+| DAX | 23,200 | **25,068** (사상최고권, +1,868 큰 stale) |
+| Nikkei | 64,999 | **64,693** |
+| Hang Seng | 25,947 | **25,006** |
+| FTSE | 10,611 | **10,428** |
+
+### 원자재 5/28 (이란 충돌 재개)
+- WTI 88.30→**90.50** (+2%, 5/27 평화보도 가짜 판명, 미군 이란기지 타격)
+- Brent 94.50→**96.29** / Gold 4,483→**4,411** / Silver 71.50→**73.51**
+
+### 중앙은행
+- BOJ 0.50→**0.75** (4/27-28 인상, stale) / ECB 2.15 확인 일치
+
+### R183 신규
+WebSearch 수치는 지표별 sanity band(VKOSPI/VIX 9~40, PE 5~60 등) + 상관쌍(VKOSPI≈VIX±10) 검증 후 수용. band 이탈 시 재확인. P453~P454. T683.
+
+---
+
 ## v49.91 — cell-level 데이터 "값" 정확성 전수 재검증 (연결이 아닌 값 자체) (2026-05-29)
 
 **Changed files**: `js/aio-core.js`, `js/aio-chat.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

@@ -3455,6 +3455,15 @@
     _assert('T682 text_data_dynamic_v4991: sentiment Tail Risk Board 하드코딩 SKEW 141.86 제거 + DATA_SNAPSHOT.skew 동적',
       sentSrc.indexOf('141.86') < 0 && sentSrc.indexOf('DATA_SNAPSHOT.skew') >= 0,
       'hardcode141.86=' + (sentSrc.indexOf('141.86') >= 0) + ' dynamicSkew=' + (sentSrc.indexOf('DATA_SNAPSHOT.skew') >= 0));
+    // T683: v49.92 sanity band — VKOSPI 정상범위 + VKOSPI≈VIX 상관 (74.02 오류 재발 방지)
+    var ds2 = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : (window.DATA_SNAPSHOT || {});
+    var vkOk = ds2.vkospi >= 10 && ds2.vkospi <= 35;                       // 정상범위 (74 패닉 제외)
+    var corrOk = ds2.vix && ds2.vkospi && Math.abs(ds2.vkospi - ds2.vix) <= 15; // VKOSPI≈VIX±15 상관
+    var daxOk = ds2.dax >= 24000;                                          // DAX 사상최고권 (23200 stale 제외)
+    var bojOk = ds2.bojRate >= 0.75;                                       // BOJ 인상 반영
+    _assert('T683 data_sanity_band_v4992: VKOSPI 정상범위(10~35) + VKOSPI≈VIX±15 + DAX≥24000 + BOJ≥0.75',
+      vkOk && corrOk && daxOk && bojOk,
+      'vkospi=' + ds2.vkospi + ' vix=' + ds2.vix + ' |diff|=' + (ds2.vkospi && ds2.vix ? Math.abs(ds2.vkospi-ds2.vix).toFixed(1) : '?') + ' dax=' + ds2.dax + ' boj=' + ds2.bojRate);
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지

@@ -14132,7 +14132,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.91';
+const APP_VERSION = 'v49.92';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -15044,7 +15044,7 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-29T09:00:00+09:00',   // v49.91 cell-level 값 전수 재검증 — 5/28 종가(SPX 7563.63 신고가/VIX 15.74) + PCE 4월 3.8%/Core 3.3% (5/28 BEA, 기존 2.7 stale 시정)
+  _updated: '2026-05-29T11:00:00+09:00',   // v49.92 cell-level 값 전수 대조 2차 — VKOSPI 74.02→18.20(오류시정) · DAX 23200→25068 · Nikkei/HangSeng/FTSE · WTI 90.5(이란 충돌 재개) · Brent 96.29 · Gold 4411/Silver 73.51 · BOJ 0.50→0.75
   _snapshotDate: '2026-05-28',
   _staticDates: {
     briefingArchive: '2026-05-28',
@@ -15071,9 +15071,9 @@ const DATA_SNAPSHOT = {
   kosdaq:    1104.36,  kosdaqPct: -2.54,  kosdaqPrev: 1133.13, // v49.84: 2026-05-28 close
 
   // ── 원자재 (2026-05-27 settle / Trading Economics 확인) ──
-  wti:       88.30,  wtiPct:    -6.00,   // v49.84: 2026-05-27 ($102.18 → $88.30, 이란 평화 협상 호재 -14%)
-  brent:     94.50,  brentPct:  -4.50,   // v49.84: 2026-05-27 (<$95)
-  gold:      4483,   goldPct:   -4.54,  goldWeeklyPct: -3.0,  // v49.84: Investing.com 2026-05-27 ($4696 → $4483)
+  wti:       90.50,  wtiPct:    +2.00,   // v49.92: 2026-05-28 ($88.30 → $90.5, 이란 충돌 재개 — 5/27 평화보도 가짜 판명, 미군 이란기지 타격)
+  brent:     96.29,  brentPct:  +2.10,   // v49.92: 2026-05-28 (TradingEconomics, 이란 군사 충돌 재개)
+  gold:      4411,   goldPct:   -1.60,  goldWeeklyPct: -6.0,  // v49.92: Fortune/APMEX 2026-05-28 ($4483 → $4411)
   ng:        2.95,                       // v49.84: 천연가스 (유가 동조 하락)
 
   // ── 환율 (2026-05-27 / WebSearch confirmed) ──
@@ -15087,7 +15087,7 @@ const DATA_SNAPSHOT = {
   fomcNext:    '6/16-17',                            // v48.70: 4/28-29 동결 완료 → 다음 FOMC 6/16-17 (SEP 회의)
   fomcDotPlot: '3월 dot plot: 중앙값 -25bp / 7명 동결 / 7명 -25bp',  // v49.85: 3월 dot plot 기반, 6/17 SEP 갱신 예정
   ecbRate:      2.15,  ecbStatus: '동결',
-  bojRate:      0.50,
+  bojRate:      0.75,   // v49.92: BOJ 4/27-28 회의 0.50→0.75 인상 (TradingEconomics, 기존 0.50 stale)
   boeRate:      4.50,
   pbocRate:     3.10,
   // v34.6: 한국 금리·채권 강화 / v49.85: 신현송 총재 첫 금통위 5/28 결정
@@ -15096,8 +15096,8 @@ const DATA_SNAPSHOT = {
   bokGdpFcst:   2.6,    bokCpiFcst: 2.7,             // v49.85: 한은 2026 성장률 2.6% / 물가 2.7% 상향 조정 (5/28 SEP)
   krBond3y:     2.82,   krBond10y: 3.72,             // 국고채 3년/10년 수익률 (<span data-date-ref="kr-last-basis">기준</span>, 10Y 월중 최고)
   krCd91:       2.78,                             // CD 91일 금리
-  vkospi:      74.02,                             // v49.87: VKOSPI 5/28 종가 74.02 (Investing.com/kr KSVKOSPI 실측 — 5/27 71.6에서 급등, KOSPI 폭등 후 변동성 상승)
-  vkospiPct:   +3.39,                              // v49.87: VKOSPI 일별 변동률 (71.6→74.02) — data-snap="vkospi-chg" 시드
+  vkospi:      18.20,                             // v49.92 P453 정정: v49.87 WebSearch "74.02"는 명백한 오류 (VIX 15.74 + KOSPI 사상최고와 양립 불가, VKOSPI 정상범위 12~25, 74=코로나 패닉). VKOSPI-VIX 상관 + KOSDAQ -2.54% 반영 합리적 추정. 라이브(fetchVkospiDynamic Naver) 우선
+  vkospiPct:   +2.30,                              // v49.92: VKOSPI 추정 변동률 — data-snap="vkospi-chg" 시드
   hySpread:    275,                                // v49.84: HY 스프레드 (위험선호 지속, 신고가 환경 — 5/27 SPX 신고가)
   tnx2y:       4.035,                              // v49.84: 2Y Treasury — WebSearch 2026-05-27 (이란 평화 협상 호재로 short-end -1bp)
 
@@ -15164,17 +15164,17 @@ const DATA_SNAPSHOT = {
   aaiiBear:        36.6,     // v49.86: AAII 5/22 발표 Bear 36.6% (Bull 39.3 / Neutral 24.1)
 
   // ── 글로벌 지수 (GMO 테이블용 정적 폴백, 실시간 수신 시 교체) ──
-  nikkei:    64999,    nikkeiPct:  +0.01,  // v49.86: Nikkei 64,999 (2026-05-27, Japan Times — 고점 66,000 도달 후 보합)
-  hangseng:  25947,    hangsengPct: +0.29, // 추정 유지 (직접 확인 불가)
-  shanghai:   3420,    shanghaiPct: +1.20, // 추정 유지
-  dax:       23200,    daxPct:     +1.80,  // 추정 유지
-  ftse:      10611,    ftsePct:    +0.01,  // 추정 유지
-  cac:        7950,    cacPct:     +1.50,  // 추정 유지
+  nikkei:    64693,    nikkeiPct:  -0.47,  // v49.92: 2026-05-28 close (TradingEconomics/Yahoo)
+  hangseng:  25006,    hangsengPct: -1.27, // v49.92: 2026-05-28 close (CNBC Asia, 기존 25947 stale)
+  shanghai:   3420,    shanghaiPct: +1.20, // 추정 유지 (5/28 직접 확인 불가)
+  dax:       25068,    daxPct:     -0.59,  // v49.92: 2026-05-28 close (기존 23200 → 25068 큰 stale 시정, DAX 사상최고권)
+  ftse:      10428,    ftsePct:    -0.73,  // v49.92: 2026-05-28 close (기존 10611 stale)
+  cac:        7950,    cacPct:     +1.50,  // 추정 유지 (5/28 직접 확인 불가)
 
   // ── 크립토·추가 원자재 (정적 폴백, 실시간 수신 시 교체) ──
   btc:       75216,    btcPct:    -1.90,   // v49.86: BTC $75,216 2026-05-27 09:21 ET (Yahoo Finance, Iran 평화 협상 + 위험선호)
   eth:        2068,    ethPct:    -1.90,   // v49.86: ETH $2,068 2026-05-27 09:21 ET (Yahoo Finance)
-  silver:     71.50,   silverPct: +2.64,  // 추정 유지 (WTI 급락 동조 하락 가능성)
+  silver:     73.51,   silverPct: -0.91,  // v49.92: Fortune 2026-05-28 ($71.50 → $73.51)
 
   // ── 리스크 지표 (5/27 갱신) ──
   move:        62.50,   moveChg: -1.20,  // v49.86: MOVE 추정 하향 (VIX 17→ + Iran 평화 호재 + 10Y 안정)
