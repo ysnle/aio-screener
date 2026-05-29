@@ -15044,7 +15044,7 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-29T16:00:00+09:00',   // v49.95 2차지표 실측 대조 5차 (KR+US+글로벌). KR: krCpi 2.7→2.6·krManufPmi 51.5→53.6·krPpi 1.5→6.9·krCreditBalance 19.2→36.0. US: ismPmi 52.4→52.7·ismPrice 70.7→84.6·ismSvc 54→53.6·retailSales 0.6→0.5·consConf 104.7→93.1·housingStarts 1.42→1.47·move 62.5→70.9·usWageGrowth 3.5→3.6·rut 2858→2936.57. 글로벌: shanghai 3420→4098(20% stale)·cac 7950→8096·ng 2.95→3.07. MOVE 인라인 시드 모순(62.4/107.4) 통일.
+  _updated: '2026-05-29T16:00:00+09:00',   // v49.95 2차지표 실측 대조 5차 (KR+US+글로벌). KR: krCpi 2.7→2.6·krManufPmi 51.5→53.6·krPpi 1.5→6.9·krCreditBalance 19.2→36.0. US: ismPmi 52.4→52.7·ismPrice 70.7→84.6·ismSvc 54→53.6·retailSales 0.6→0.5·consConf 104.7→93.1·housingStarts 1.42→1.47·move 62.5→70.9·usWageGrowth 3.5→3.6·rut 2858→2936.57. 글로벌: shanghai 3420→4098(20% stale)·cac 7950→8096·ng 2.95→3.07. 옵션: pcr 0.67→0.83(CBOE total 5/21, _fallback과 불일치 해소). MOVE 인라인 시드 모순(62.4/107.4) 통일.
   _snapshotDate: '2026-05-28',
   _staticDates: {
     briefingArchive: '2026-05-28',
@@ -15155,11 +15155,11 @@ const DATA_SNAPSHOT = {
   gpuRentalRatio_H100_A100: 1.78,   // H100/A100 비율
   ddr5_16gb_spot:  31.18,    // DDR5 16Gb 현물가 ($/unit · 2026-03 · -6.1% MoM · +573% YoY)
   nand_1tb_spot:   28.96,    // NAND 1Tb 현물가 ($/unit · 2026-03 · +16.0% MoM · +475% YoY)
-  dramContract_QoQ_1Q26: 96, // DRAM 계약가 QoQ 1Q26 (+96%)
-  dramContract_QoQ_2Q26: 61, // DRAM 계약가 QoQ 2Q26 예상 (+61%)
+  dramContract_QoQ_1Q26: 95, // v49.95: DRAM 계약가 QoQ 1Q26 +95% (TrendForce/Tom's Hardware 확인, 96→95)
+  dramContract_QoQ_2Q26: 63, // v49.95: DRAM 계약가 QoQ 2Q26 +63% (TrendForce 최신, 61→63 — AI 서버 수요 공급 타이트)
   dramContract_YoY_2Q26: 421, // DRAM 계약가 YoY 2Q26 (+421%)
-  nandContract_QoQ_1Q26: 88,
-  nandContract_QoQ_2Q26: 73,
+  nandContract_QoQ_1Q26: 88, // NAND 계약가 QoQ 1Q26 +88% (TrendForce 확인)
+  nandContract_QoQ_2Q26: 75, // v49.95: NAND 계약가 QoQ 2Q26 +75% (Tom's Hardware/TrendForce 최신, 73→75)
   nandContract_YoY_2Q26: 362,
   // ── v48.71 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
   aaiiBear:        36.6,     // v49.86: AAII 5/22 발표 Bear 36.6% (Bull 39.3 / Neutral 24.1)
@@ -15213,7 +15213,7 @@ const DATA_SNAPSHOT = {
   },
 
   // v49.8: OPEX/gamma fallback seeds; live CBOE/option data overrides when available.
-  pcr: 0.67,
+  pcr: 0.83,            // v49.95: CBOE total put/call 0.83 실측 (2026-05-21, MacroMicro/ycharts) — 기존 0.67 stale + _fallback.pcr 0.83과 불일치 해소
   equityPutCall: 0.51,
   indexPutCall: 0.71,
 
@@ -15244,7 +15244,7 @@ const DATA_SNAPSHOT = {
     breadth_0330:    0.44      // 하락 피크에서 반등한 종목비 (일반적이면 클라이막스 신호)
   },
 
-  // ── KR 섹터 ETF (4/3 종가) ──
+  // ── KR 섹터 ETF (4/3 종가 — v49.95 /data-refresh SKIPPED: ETF↔필드 매핑 불명 + 라이브 fetch 이상적. krSemiPrice 100200 > KODEX반도체(091160) 52주최고 90,900 = 다른 ETF/stale. 단발 WebSearch 대조 부적합, 라이브 우선) ──
   krSemiEtf:   -1.50,  krSemiPrice:  100200,
   kr2ndBatEtf: -1.20,  kr2ndBatPrice: 15800,
   krDefense:   -0.80,  krDefensePrice: 1260000,

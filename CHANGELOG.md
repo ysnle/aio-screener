@@ -42,7 +42,26 @@
 - ✅ **차트**: canvas 46개·Chart.js 로드·registry·수동 렌더+폴백 함수 정상. lazy IntersectionObserver는 프로그래매틱 preview에서 미발화(하네스 한계, production 버그 아님)
 - ✅ **SCREENER_DB 869 메모**: 신선도 메커니즘(SCREENER_DB_META + assertMemoCoverage) 작동, 04/21~05/20 노트 일관. 2026-05-29 기준 30일 archive 임계 도달 → META 주석 정직 갱신. 869 bulk 외부대조는 /data-refresh 영역
 - ✅ **분석 텍스트/시나리오**: SCENARIO_REGISTRY 신선·확률합 100% ✓ · CHAT_CONTEXTS currentHits 0(stale 누출 없음, 25 archiveRef 정상분류) ✓ · STATIC_CONTENT_LIFECYCLE 3건(jensen 70d·kr-export 89d·briefing-week 19d) 시스템이 archive 배지로 정확히 flag 중
+- ✅ **옵션 put/call**: 스냅샷 `pcr 0.67` vs `_fallback.pcr 0.83` 불일치 발견 → CBOE total 실측 0.83(5/21) 확인 후 0.83 통일 (21번째 값 수정)
 - ⚠ **잔여 발견(P457, /data-refresh 영역)**: briefing 주간 캘린더(5/4~5/8)가 "이번 주"로 3주 stale — lifecycle이 이미 replaceDue flag. 주간 편집 갱신 필요
+
+### 정직한 미검 잔여 (전수 100% 아님 — /data-refresh 스킬 체계 영역)
+- **KR 섹터 ETF (4/3 종가)**: krSemiPrice 100200 등 ~8주 stale — 라이브 fetch 이상적
+- **GPU 임대가 + DRAM/NAND (2026-03 JPM 분기)**: 특수 분기 자료
+- **F&G UW 분해 (4/15)**: fg_categories/indicators/extended — UW 특정 소스
+- **KR breadth/예탁금 (5/16 추정)**: krDeposit/krAdvance/krDecline/kr52w
+- **KR 2차 (미발표/저레버리지)**: kospiPE·kosdaqPE·krUnemploy(4월 미발표)·krCoreCpi·krService*
+- **index.html KR_STOCK_DB 하드코딩 가격** 수백 건 · **SCREENER_DB 869 메모 개별 숫자**
+- → 이 잔여는 단발 수정이 아니라 `/data-refresh` 스킬(A~T 30 그룹 체계 스윕) 영역
+
+### /data-refresh 스킬 실행 결과 (사용자 승인 → 잔여 트랜치 스윕)
+- ✅ **DRAM/NAND 계약가 forecast 정합 확인 + 미세정정**: TrendForce/Tom's Hardware 최신 대조 — Q1 DRAM +95%(96→95)·NAND +88%(✓), Q2 DRAM +63%(61→63)·NAND +75%(73→75). 스냅샷 forecast가 실제와 일치 확인 + Q2 2pt 정정 (22번째 값 수정)
+- ⏭ **SKIPPED (정직 기록)**:
+  - DRAM/NAND spot $/unit (ddr5 31.18·nand 28.96, 2026-03): 최근 -30~40% 냉각됐으나 절대값 클린 확보 불가 → TrendForce 직접 필요
+  - KR 섹터 ETF (4/3, 6필드): krSemiPrice 100200 > KODEX반도체 52주최고 90,900 = ETF↔필드 매핑 불명 → 라이브 fetch 이상적, 추측 입력 회피(R183). 코멘트에 SKIPPED 사유 명시
+  - KR breadth/예탁금·F&G UW 분해·KR 2차(kospiPE 등): 저레버리지/미발표 → 보류
+  - KR_STOCK_DB 가격 수백 건·SCREENER_DB 869 메모: 라이브 override/대량 → 체계 스윕 별도 세션
+- **결론**: 외부검증 **가능 + 클린 + 고레버리지** 데이터는 v49.91~95에서 사실상 전부 시정(22건). 잔여는 라이브-이상적이거나 매핑 불명/저레버리지로, 추측 입력 대신 정직 SKIPPED 처리(R183 sanity 원칙 준수).
 
 ### 동기화 7곳 + P455/P456 + T684/T685
 
