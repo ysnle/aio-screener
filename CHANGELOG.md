@@ -6,6 +6,45 @@
 
 ---
 
+## v49.95 — US 2차 거시지표 외부 실측 1:1 대조 + 전수 커버리지 정직 점검 (값 정확성 5차) (2026-05-29)
+
+**Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `js/aio-tests.js`
+
+**Motivation**: 사용자 "모든 데이터 집합/영역/카테고리 실질적으로 전수 조사했어? 시세/차트/지표·텍스트/분석/설명도?" — **정직 답변: 전수 아님.** DATA_SNAPSHOT 141필드 중 거시·시장 핵심 ~36만 검증, 나머지·차트·메모 869·텍스트는 미검/연결만. 커버리지 지도 작성 후 사용자가 "스냅샷 나머지 ~110필드(WebSearch)" 우선순위 선택 → 외부대조 **가능**한 ~20필드 WebSearch 1:1 대조.
+
+### US 2차지표 stale 9건 시정
+| 지표 | 이전 | 신규 | 출처 |
+|------|------|------|------|
+| ismPmi | 52.4 | **52.7** | ISM 4월 (5/1, 2022.8 이후 최강 확장) |
+| ismPrice | 70.7 | **84.6** | ISM 4월 가격 (2022.4 이후 최고, 관세·철강·석유 — 14pt stale) |
+| ismSvc | 54.0 | **53.6** | ISM 서비스 4월 (5/5) |
+| retailSales | 0.6 | **0.5** | Census 4월 MoM (5/14, 휘발유 +12.3% 인플레) |
+| consConf | 104.7 | **93.1** | Conf. Board 5월 (5/26, 중동전쟁 인플레 하락 — 11pt + 라벨 '미시간' 오류 시정) |
+| housingStarts | 1.42 | **1.47M** | Census 4월 SAAR (5/21) |
+| move | 62.5 | **70.9** | ICE BofA MOVE (5/27, <80 평온) |
+| usWageGrowth | 3.5 | **3.6** | 4월 시간당임금 YoY (BLS 5/8) |
+| rut | 2858.50 | **2936.57** | Russell 2000 (5/28 신고가권 — 78pt stale) |
+
+### 글로벌 지수·원자재 stale 3건 ("추정 유지" 필드)
+| 지표 | 이전 | 신규 | 출처 |
+|------|------|------|------|
+| shanghai | 3420 | **4098** | SSE Composite 5/28 (~20% stale — 글로벌 랠리 미반영) |
+| cac | 7950 | **8096** | CAC 40 5/28 (5/27 8,207.89에서 -0.3%) |
+| ng | 2.95 | **3.07** | Henry Hub 천연가스 (EIA/FRED 5/18) |
+
+### 내부 모순 발견·시정 (P456)
+- **`data-snap="move"` 정적 시드 2개 모순**: L4960 **62.4**(녹색 "극단 저점") vs L7954 **107.4**(빨강 "Elevated") — 같은 키, 다른 시드+라벨. 런타임엔 둘 다 덮이지만 정적 폴백 불일치 → 70.9 + calm 라벨로 통일.
+- **cons-conf 소스 split**: 카드(data-snap)는 Conf Board 93.1, 채팅 컨텍스트는 live FRED UMCSENT(미시간) — 라벨로 구분되어 오인 위험 없으나 소스 갈림. 구조 이슈로 기록만 (무리한 수정 회피).
+
+### 정직 커버리지 지도 (전수 아님을 명시)
+- ✅ 값 외부대조: DATA_SNAPSHOT 거시·시장 ~45필드 (v49.91~95)
+- △ 연결만: data-live-price 135 sink(라이브 fetch — 정적 대조 불가)·차트 39
+- ✗ 미검: SCREENER_DB 869 메모(신선도만)·분석 텍스트/시나리오/섹터 로직 프로즈
+
+### 동기화 7곳 + P455/P456 + T684/T685
+
+---
+
 ## v49.94 — KR 2차 거시지표 외부 실측 1:1 대조 (값 정확성 4차) (2026-05-29)
 
 **Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`

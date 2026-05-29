@@ -3472,6 +3472,16 @@
     _assert('T684 kr_secondary_macro_v4994: krCpi 2.6 + krManufPmi 53.6(>53) + krPpi 6.9(5~10) + krCreditBalance 36(≥30)',
       krCpiOk && krPmiOk && krPpiOk && krCrOk,
       'krCpi=' + ds2.krCpi + ' krManufPmi=' + ds2.krManufPmi + ' krPpi=' + ds2.krPpi + ' krCredit=' + ds2.krCreditBalance);
+    // T685: v49.95 US 2차 거시지표 실측 — ISM/소매/소비자신뢰/주택/임금/MOVE/Russell sanity band (stale 값 재발 방지)
+    var ismOk    = ds2.ismPmi >= 50 && ds2.ismPmi <= 55 && ds2.ismPrice >= 80;     // 4월 52.7 + price 84.6(>80 고압)
+    var consOk   = ds2.consConf >= 85 && ds2.consConf <= 100;                       // Conf Board 5월 93.1 (104.7 stale 제외)
+    var moveOk   = ds2.move >= 60 && ds2.move <= 90;                                // MOVE 70.9 (62.5 추정 stale 제외)
+    var rutOk    = ds2.rut >= 2900;                                                 // Russell 신고가권 2936 (2858 stale 제외)
+    var wageOk   = ds2.usWageGrowth >= 3 && ds2.usWageGrowth <= 5;                  // 4월 임금 3.6
+    var shanghaiOk = ds2.shanghai >= 3800;                                          // SSE 4098 (3420 ~20% stale 제외)
+    _assert('T685 us_secondary_macro_v4995: ismPrice 84.6(≥80) + consConf 93.1(85~100) + move 70.9(60~90) + rut 2936(≥2900) + wage 3.6 + shanghai 4098(≥3800)',
+      ismOk && consOk && moveOk && rutOk && wageOk && shanghaiOk,
+      'ismPmi=' + ds2.ismPmi + ' ismPrice=' + ds2.ismPrice + ' consConf=' + ds2.consConf + ' move=' + ds2.move + ' rut=' + ds2.rut + ' wage=' + ds2.usWageGrowth + ' shanghai=' + ds2.shanghai);
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지

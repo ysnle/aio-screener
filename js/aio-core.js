@@ -14132,7 +14132,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.94';
+const APP_VERSION = 'v49.95';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -15044,7 +15044,7 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-29T15:00:00+09:00',   // v49.94 KR 2차지표 실측 대조 4차 — krCpi 2.7→2.6(4월 실측) · krManufPmi 51.5→53.6(S&P 5/4) · krPpi 1.5→6.9(28년 충격) · krCreditBalance 19.2→36.0(빚투 역대최고)
+  _updated: '2026-05-29T16:00:00+09:00',   // v49.95 2차지표 실측 대조 5차 (KR+US+글로벌). KR: krCpi 2.7→2.6·krManufPmi 51.5→53.6·krPpi 1.5→6.9·krCreditBalance 19.2→36.0. US: ismPmi 52.4→52.7·ismPrice 70.7→84.6·ismSvc 54→53.6·retailSales 0.6→0.5·consConf 104.7→93.1·housingStarts 1.42→1.47·move 62.5→70.9·usWageGrowth 3.5→3.6·rut 2858→2936.57. 글로벌: shanghai 3420→4098(20% stale)·cac 7950→8096·ng 2.95→3.07. MOVE 인라인 시드 모순(62.4/107.4) 통일.
   _snapshotDate: '2026-05-28',
   _staticDates: {
     briefingArchive: '2026-05-28',
@@ -15062,7 +15062,7 @@ const DATA_SNAPSHOT = {
   spx:        7563.63,  spxPct:    +0.58,   // v49.91: 2026-05-28 close 신고가 (TheStreet/CNBC, PCE 3년최고에도 tech 주도)
   nasdaq:    26917.47,  nasdaqPct: +0.91,   // v49.91: 2026-05-28 close 신고가
   dow:       50668.97,  dowPct:    +0.05,   // v49.91: 2026-05-28 close (+24.69 pts)
-  rut:        2858.50,  rutPct:    -0.02,   // v49.84: 2026-05-27 close (추정 — 변동 미미)
+  rut:       2936.57,  rutPct:    +0.13,   // v49.95: Russell 2000 2,936.57 실측 (5/28, 52주 신고가권 — 5/27 2,932.74 신고가. Yahoo ^RUT). 기존 2858.50 추정 78pt stale
   vix:          15.74,  vixPct:    -3.38,   // v49.91: FRED VIXCLS 2026-05-28 (17.01 → 15.74, 위험선호 강화)
   vvix:         83.00,                        // v49.91: VVIX 추정 (VIX 15.74 추가 하락 동조)
 
@@ -15074,7 +15074,7 @@ const DATA_SNAPSHOT = {
   wti:       90.50,  wtiPct:    +2.00,   // v49.92: 2026-05-28 ($88.30 → $90.5, 이란 충돌 재개 — 5/27 평화보도 가짜 판명, 미군 이란기지 타격)
   brent:     96.29,  brentPct:  +2.10,   // v49.92: 2026-05-28 (TradingEconomics, 이란 군사 충돌 재개)
   gold:      4411,   goldPct:   -1.60,  goldWeeklyPct: -6.0,  // v49.92: Fortune/APMEX 2026-05-28 ($4483 → $4411)
-  ng:        2.95,                       // v49.84: 천연가스 (유가 동조 하락)
+  ng:        3.07,                       // v49.95: Henry Hub 천연가스 $3.07/MMBtu 실측 (EIA/FRED 5/18). 기존 2.95 stale
 
   // ── 환율 (2026-05-27 / WebSearch confirmed) ──
   krw:      1463.50,  krwPct:   -0.50,  krwRound: 1464,  // v49.84: WTI 급락 + KOSPI 5일 랠리 → 원화 강세 (1490 → 1464)
@@ -15104,14 +15104,14 @@ const DATA_SNAPSHOT = {
   // ── 거시 지표 ──
   cpi:          3.8,   coreCpi:   2.8,   // v49.86: CPI 4월 YoY 3.8% · Core 2.8% (BLS 5/14 발표, Iran 전쟁+AI 지출 영향 — Fortune 2026-05-12)
   pce:          3.8,   corePce:   3.3,            // v49.91: 4월 PCE (BEA 5/28 발표) — Headline 3.8% (2023.5 이후 최고) / Core 3.3% (2023.10 이후 최고). MoM Headline +0.4 / Core +0.2
-  ismPmi:      52.4,   ismPrice:  70.7,           // v45.2: 4/6 ISM Mfg (5/1 발표 완료, 다음 6/2)
-  ismSvc:      54.0,                              // ISM 서비스업 PMI (4/3 → 5/5 발표 완료, 다음 6/3)
+  ismPmi:      52.7,   ismPrice:  84.6,           // v49.95: 4월 ISM Mfg 52.7 (3월과 동일, 2022.8 이후 최강 · 18개월 확장) · Prices 84.6(2022.4 이후 최고, 19개월 연속 상승 — 철강·알루미늄·석유·관세). ISM 5/1 발표. 기존 ismPrice 70.7 14pt stale
+  ismSvc:      53.6,                              // v49.95: 4월 ISM 서비스 PMI 53.6 실측 (5/5 발표 — 3월 54.0→4월 53.6, 22개월 연속 확장. Prices 70.7 고착). 다음 6/3 5월분. 기존 54.0 stale
   usUnemploy:   4.30,  // v49.86: 4월 NFP +115K(컨센 하회), 실업률 4.3% (5/8 발표) — 다음 6/5 5월분 예정
   usNfp:        115,                               // v49.86: 4월 NFP +115K (헬스케어·운수·소매 주도)
-  usWageGrowth: 3.5,                              // 시간당 평균 임금 YoY (4/3 기준, 5월분 6/5 갱신 예정)
-  retailSales:  0.6,                              // 소매판매 MoM (5/15 발표 완료, 다음 6/17)
-  consConf:    104.7,                              // 미시간 소비자심리
-  housingStarts:1.42,                             // 주택착공 (백만건, 연환산)
+  usWageGrowth: 3.6,                              // v49.95: 4월 시간당 평균 임금 +3.6% YoY 실측 ($37.41, MoM +0.2%, BLS 5/8 — 단 실질임금 -0.3% 인플레 잠식). 다음 6/5 5월분
+  retailSales:  0.5,                              // v49.95: 4월 소매판매 +0.5% MoM 실측 ($757.1B, +4.9% YoY, 3개월 연속 증가 — 단 휘발유 +12.3% 인플레 영향. Census 5/14). 다음 6/17 5월분
+  consConf:     93.1,                              // v49.95: 5월 Conference Board 소비자신뢰 93.1 실측 (1985=100, 4월 수정 93.8→5월 93.1, 중동전쟁 인플레로 하락 — 기대지수 74.4. 5/26 발표). 기존 104.7 11pt stale + 라벨 '미시간' 오류(실은 Conference Board)
+  housingStarts:1.47,                             // v49.95: 4월 주택착공 1.465M SAAR 실측 (Census 5/21 — 3월 수정 1.507M 대비 -2.8%, 전년比 +4.6%. 단독 930K). 기존 1.42 stale
   krUnemploy:   3.4,
   // v34.6: 한국 거시 지표 강화
   krCpi:        2.6,                              // v49.94: 한국 4월 CPI YoY 2.6% 실측 (통계청 — 3월 2.2→4월 2.6 가속, 2024.7 이후 최고, 교통 +9.7% 유가). 기존 2.7은 BOK 연간 전망치 혼동
@@ -15167,10 +15167,10 @@ const DATA_SNAPSHOT = {
   // ── 글로벌 지수 (GMO 테이블용 정적 폴백, 실시간 수신 시 교체) ──
   nikkei:    64693,    nikkeiPct:  -0.47,  // v49.92: 2026-05-28 close (TradingEconomics/Yahoo)
   hangseng:  25006,    hangsengPct: -1.27, // v49.92: 2026-05-28 close (CNBC Asia, 기존 25947 stale)
-  shanghai:   3420,    shanghaiPct: +1.20, // 추정 유지 (5/28 직접 확인 불가)
+  shanghai:   4098,    shanghaiPct: +0.12, // v49.95: SSE Composite 4,098 실측 (5/28 +0.12%, BBN/TradingEconomics — 지정학 경계+기술주 회복). 기존 3420 ~20% stale (글로벌 랠리 미반영)
   dax:       25068,    daxPct:     -0.59,  // v49.92: 2026-05-28 close (기존 23200 → 25068 큰 stale 시정, DAX 사상최고권)
   ftse:      10428,    ftsePct:    -0.73,  // v49.92: 2026-05-28 close (기존 10611 stale)
-  cac:        7950,    cacPct:     +1.50,  // 추정 유지 (5/28 직접 확인 불가)
+  cac:        8096,    cacPct:     -0.30,  // v49.95: CAC 40 8,096 실측 (5/28 -0.3%, 5/27 8,207.89 — 약한 PMI+중동 긴장. BBN/TradingEconomics). 기존 7950 stale
 
   // ── 크립토·추가 원자재 (정적 폴백, 실시간 수신 시 교체) ──
   btc:       75216,    btcPct:    -1.90,   // v49.86: BTC $75,216 2026-05-27 09:21 ET (Yahoo Finance, Iran 평화 협상 + 위험선호)
@@ -15178,7 +15178,7 @@ const DATA_SNAPSHOT = {
   silver:     73.51,   silverPct: -0.91,  // v49.92: Fortune 2026-05-28 ($71.50 → $73.51)
 
   // ── 리스크 지표 (5/27 갱신) ──
-  move:        62.50,   moveChg: -1.20,  // v49.86: MOVE 추정 하향 (VIX 17→ + Iran 평화 호재 + 10Y 안정)
+  move:        70.90,   moveChg: -1.20,  // v49.95: MOVE 70.90 실측 (streetstats/Yahoo ^MOVE 2026-05-27 — 80 미만 = 채권시장 평온). 기존 62.50 추정 stale
   skew:       139.04,   skewChg: -1.50,  // v49.86: SKEW 139.04 (StreetStats.finance 5/27 데이터)
   vvix_live:   85.50,   vvixChg: -1.40,  // v49.86: VVIX 추정 하향 (VIX 17.01 동조)
   fg:            60,   fgLabel: 'Greed',  // v49.84: CNN F&G 60 (Greed, 2026-05-26 기준)

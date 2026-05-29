@@ -4109,3 +4109,12 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **수정**: 4개 필드 WebSearch 실측 갱신 + DOM 인라인 4곳(L10814/L11414/L11435/L11731) 3-way 정합(R58). L16491 retail-sentiment 공식이 이제 36조 margin debt를 froth 신호로 정확히 반영.
 - **violated_rule**: R182(값 정확성) · R183(sanity band — krPpi 1.5는 이란 유가 환경에서 비현실적, krCreditBalance 19.2는 record rally와 모순) 연장
 - **prevention**: 거시지표 필드에 "현재값 vs 전망치" 의미 명확히 구분 (전망치는 별도 *Fcst 필드). 시장 regime 급변(지수 급등/유가 급등) 시 연동 2차지표(신용잔고/PPI)도 동반 점검 — 단일 지표만 갱신하면 파생 지표 stale 잔존. /data-refresh K그룹(한국 2차 거시: CPI/PPI/PMI/신용잔고/예탁금)도 월 1회+ 실측 대조.
+
+## P456 · v49.95 · US 2차 거시지표 stale 9건 + data-snap 정적 시드 모순 + 라벨 오류
+
+- **증상**: 사용자 "전수 조사했어?" 정직 점검 → DATA_SNAPSHOT 141필드 triage 결과 거시·시장 핵심만 검증됐고 2차지표 다수 stale 발견. US 9건: ismPmi 52.4(→52.7) · ismPrice 70.7(→84.6, 14pt) · ismSvc 54.0(→53.6) · retailSales 0.6(→0.5) · consConf 104.7(→93.1, 11pt + 라벨 '미시간' 오류) · housingStarts 1.42(→1.47M) · move 62.5(→70.9) · usWageGrowth 3.5(→3.6) · rut 2858.50(→2936.57, 78pt). 추가로 **`data-snap="move"` 정적 시드가 2곳에서 불일치** — L4960 62.4(녹색 "극단 저점") vs L7954 107.4(빨강 "Elevated").
+- **원인**: (a) 4월 발표 완료 지표(ISM/소매/소비자신뢰/주택/임금)를 이전 월값으로 방치 — "다음 발표 6월" 주석만 달고 4월 실측 미반영. (b) **`rut`/`move`를 "추정 유지"로 코멘트하고 실측 안 함** — Russell은 신고가 랠리로 78pt(+2.7%) 벗어남. (c) **같은 data-snap 키를 2개 DOM 위치가 서로 다른 정적 시드로 하드코딩** — applyLiveQuotes가 런타임에 통일하나 라이브 미수신/오프라인 시 모순 노출. (d) consConf 라벨이 'Michigan'인데 값(104.7→93.1)은 Conference Board 스케일 — 소스/라벨 불일치.
+- **수정**: 9개 필드 WebSearch 실측 갱신 + DOM 인라인 6곳(macro 카드 wage/cons-conf/housing + MOVE 2곳 + risk-monitor) 3-way 정합 + MOVE 시드 70.9 통일 + cons-conf 라벨 'Conf. Board (5월)'로 정정.
+- **잔존(구조 이슈, 미수정 — 기록만)**: cons-conf 카드(data-snap, Conf Board)와 채팅 컨텍스트(live FRED UMCSENT=미시간)가 다른 소스. 라벨로 구분되어 오인 위험 낮음. 향후 단일 소스 통일 검토.
+- **violated_rule**: R182(값 정확성) · R58(DOM 인라인 vs DATA_SNAPSHOT 3-way 정합 — 같은 키 시드 단일화 의무) 연장
+- **prevention**: (1) 발표 완료 월 데이터는 즉시 실측 반영 — "다음 발표 예정" 주석만 두지 말 것. (2) "추정 유지" 라벨 필드도 분기 1회+ 실측 대조 (특히 지수: rut/shanghai/cac). (3) **동일 data-snap 키는 단일 정적 시드** — getSnapshotConsistencyAudit(R55)에 같은 키 다중 시드 불일치 탐지 추가 검토. (4) 라벨과 값 스케일 정합 확인 (Michigan ~50-100 vs Conf Board 1985=100).
