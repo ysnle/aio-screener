@@ -6,6 +6,29 @@
 
 ---
 
+## v49.85 — /data-refresh 2차 세밀 보강 (2026-05-28)
+
+**Changed files**: `js/aio-core.js`, `js/aio-data.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+**Motivation**: 사용자 "전체 데이터 더 조사할 부분 없어? 더 세밀하게 조사해줘" — v49.84 잔여 영역 15+ 카테고리 추가 확인 및 보강.
+
+### 추가 갱신 항목 (6건)
+
+1. **DXY 실제 확인** — 98.95(추정) → **99.14** (WebSearch 2026-05-27 confirmed)
+2. **PCR _fallback 실제값** — 0.62 → **0.83** (CBOE total PCR 2026-05-21 실측)
+3. **MACRO_CALENDAR 5개 항목 advance** — NFP/CPI/ISM Mfg/ISM Svc/Retail 모두 5월분 발표 완료 → 6월 일정으로 정적 advance
+4. **BOK 금통위 신규** — 2026-05-28 신현송 총재 첫 금통위 결과:
+   - 기준금리 2.50% **8연속 동결** (중동 불확실성 사태 추이 점검)
+   - 2026 성장률 전망 **2.6%** / 물가 **2.7%** 상향 조정
+   - 다음 금통위: **2026-07-10**
+   - `bokNext` 2026-05-29(경과) → **2026-07-10**
+   - `bokGdpFcst 2.6` / `bokCpiFcst 2.7` 신규 필드
+   - MACRO_CALENDAR `kr-bok` entry 신규 추가
+5. **FOMC dot plot 텍스트** — 3월 SEP 기반 "중앙값 -25bp / 7명 동결 / 7명 -25bp" 신규 `fomcDotPlot` 필드
+6. **SCREENER_DB 핵심 2종목 어닝 마커** — NVDA Q1 FY27 EPS $1.87 beat (5/20), AAPL Q2 FY26 매출 $111.2B beat (4/30) 메모 추가
+
+---
+
 ## v49.84 — /data-refresh 전수 최신화 (15일 stale → 0일) (2026-05-28)
 
 **Changed files**: `js/aio-core.js`, `js/aio-data.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`

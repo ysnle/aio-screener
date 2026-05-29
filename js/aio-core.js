@@ -8375,17 +8375,19 @@ window.AIO.getNamedEntityAudit = function() {
 // R77 신규
 // ─────────────────────────────────────────────────────────────────
 window.AIO_MACRO_CALENDAR = {
-  version: 'v49.41',
+  version: 'v49.85',  // v49.85: 정적 advance (NFP 5/3→6/6, CPI 5/14→6/12, ISM Mfg 5/1→6/2, ISM Svc 5/5→6/3, Retail 5/15→6/17 — 모두 발표 경과)
   releases: {
-    'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-04-03', nextRelease: '2026-05-03', dataField: 'usUnemploy' },
-    'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-04-10', nextRelease: '2026-05-14', dataField: 'cpi' },
+    'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-05-03', nextRelease: '2026-06-06', dataField: 'usUnemploy' },
+    'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-05-14', nextRelease: '2026-06-12', dataField: 'cpi' },
     'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-04-30', nextRelease: '2026-05-30', dataField: 'pce' },
-    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-04-01', nextRelease: '2026-05-01', dataField: 'ismPmi' },
-    'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-04-03', nextRelease: '2026-05-05', dataField: 'ismSvc' },
-    'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-04-16', nextRelease: '2026-05-15', dataField: 'retailSales' },
+    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-05-01', nextRelease: '2026-06-02', dataField: 'ismPmi' },
+    'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-05-05', nextRelease: '2026-06-03', dataField: 'ismSvc' },
+    'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-05-15', nextRelease: '2026-06-17', dataField: 'retailSales' },
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
     'us-fomc':      { name: 'FOMC 회의',       frequency: 'every-6-7-weeks',      lastRelease: '2026-04-29', nextRelease: '2026-06-17', dataField: 'fomc', sepMeeting: true },
-    'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-04-29', nextRelease: '2026-06-17', dataField: 'fedRate', source: 'FOMC 결정' }
+    'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-04-29', nextRelease: '2026-06-17', dataField: 'fedRate', source: 'FOMC 결정' },
+    // v49.85 신규: 한국 BOK 금통위 (5/28 신현송 총재 첫 회의 → 다음 7/10)
+    'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-05-28', nextRelease: '2026-07-10', dataField: 'bokRate', source: '한국은행 금통위' }
   }
 };
 
@@ -14032,7 +14034,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.84';
+const APP_VERSION = 'v49.85';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -14976,23 +14978,25 @@ const DATA_SNAPSHOT = {
   gold:      4483,   goldPct:   -4.54,  goldWeeklyPct: -3.0,  // v49.84: Investing.com 2026-05-27 ($4696 → $4483)
   ng:        2.95,                       // v49.84: 천연가스 (유가 동조 하락)
 
-  // ── 환율 (2026-05-27 / WTI 급락 + KOSPI 강세로 원화 강세) ──
+  // ── 환율 (2026-05-27 / WebSearch confirmed) ──
   krw:      1463.50,  krwPct:   -0.50,  krwRound: 1464,  // v49.84: WTI 급락 + KOSPI 5일 랠리 → 원화 강세 (1490 → 1464)
-  dxy:        98.95,  dxyPct:   +0.30,                   // v49.84: 추정
+  dxy:        99.14,  dxyPct:   -0.03,                   // v49.85: WebSearch 2026-05-27 confirmed (98.16 → 99.14, +0.98)
 
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
-  fedStatus:   '동결',  // v45.6: 동적화 — Fed 금리 변경 시 이 값 갱신 (인하/인상/동결)
+  fedStatus:   '동결',                              // v45.6: 동적화 — Fed 금리 변경 시 이 값 갱신 (인하/인상/동결)
   fomc:        '6/16-17',
-  fomcNext:    '6/16-17',                    // v48.70: 4/28-29 동결 완료 → 다음 FOMC 6/16-17 (SEP 회의)
+  fomcNext:    '6/16-17',                            // v48.70: 4/28-29 동결 완료 → 다음 FOMC 6/16-17 (SEP 회의)
+  fomcDotPlot: '3월 dot plot: 중앙값 -25bp / 7명 동결 / 7명 -25bp',  // v49.85: 3월 dot plot 기반, 6/17 SEP 갱신 예정
   ecbRate:      2.15,  ecbStatus: '동결',
   bojRate:      0.50,
   boeRate:      4.50,
   pbocRate:     3.10,
-  // v34.6: 한국 금리·채권 강화
-  bokRate:      2.50,   bokStatus: '동결',       // 한은 기준금리 (2025.05 인하 후 2.50% → 2026.03까지 7연속 동결)
-  bokNext:     '2026-05-29',                     // v49.22: 다음 금통위 일정 (5/29) — DOM data-snap="bok-next" 정합
-  krBond3y:     2.82,   krBond10y: 3.72,         // 국고채 3년/10년 수익률 (<span data-date-ref="kr-last-basis">기준</span>, 10Y 월중 최고)
+  // v34.6: 한국 금리·채권 강화 / v49.85: 신현송 총재 첫 금통위 5/28 결정
+  bokRate:      2.50,   bokStatus: '동결',          // v49.85: 한은 2.50% 8연속 동결 (신현송 총재 첫 회의 2026-05-28, 중동 불확실성 사태 추이 점검)
+  bokNext:     '2026-07-10',                         // v49.85: 다음 금통위 7월 10일 (5/28 동결 완료, 신현송 총재 첫 결정)
+  bokGdpFcst:   2.6,    bokCpiFcst: 2.7,             // v49.85: 한은 2026 성장률 2.6% / 물가 2.7% 상향 조정 (5/28 SEP)
+  krBond3y:     2.82,   krBond10y: 3.72,             // 국고채 3년/10년 수익률 (<span data-date-ref="kr-last-basis">기준</span>, 10Y 월중 최고)
   krCd91:       2.78,                             // CD 91일 금리
   vkospi:      18.50,                             // v49.84: KOSPI 변동성 확대 (5일 랠리 종료 + KOSDAQ -2.54%)
   vkospiPct:   +3.90,                              // v49.84: VKOSPI 일별 변동률 — data-snap="vkospi-chg" 시드
@@ -15158,12 +15162,12 @@ const DATA_SNAPSHOT = {
     breadth200: 75,      // 20SMA Above % (bpSPX20 마지막 값과 동기화 — 추정 유지, 신고가 환경)
     breadth5: 70,        // v49.84: 5SMA Above % — SPX 신고가 환경 단기 양호
     breadth50: 52,       // v49.84: 50SMA Above % — 중기 회복 (5/12 46 → 5/27 52)
-    pcr: 0.62,           // v49.84: 위험선호 지속 (신고가 + Iran 호재)
+    pcr: 0.83,           // v49.85: CBOE total PCR 2026-05-21 (equity 0.55 / index 별도)
     aaiiBear: 36.6,      // v49.84: AAII 2026-05-22 발표 Bearish %
     spx50ma: 7280,       // v49.84: SPX 50일 이동평균 (5/27 기준 추정 — 신고가 후 상승)
     spx200ma: 6950,      // v49.84: SPX 200일 이동평균 추정
     spxATH: 7520.36,     // v49.84: SPX ATH = 2026-05-27 close (신고가)
-    dxy: 98.95,          // v49.84: DXY 추정
+    dxy: 99.14,          // v49.85: DXY WebSearch 2026-05-27 confirmed
     tnx: 4.48,           // v49.84: 10Y 2026-05-27 close
     hyg: 81,             // v49.84: HYG (Iran 호재 + 신고가 환경 — 신용 스프레드 추가 타이트닝)
     vvix: 85,            // v49.84: VVIX (VIX 하락 동조)
