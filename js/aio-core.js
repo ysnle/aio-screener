@@ -14132,7 +14132,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.90';
+const APP_VERSION = 'v49.91';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -15044,7 +15044,7 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-28T19:00:00+09:00',   // v49.86 /data-refresh 3차 보강 — US 거시(CPI4월/NFP4월)/글로벌(Nikkei)/크립토(BTC/ETH)/KR 수출 5월/외국인 수급 갱신
+  _updated: '2026-05-29T09:00:00+09:00',   // v49.91 cell-level 값 전수 재검증 — 5/28 종가(SPX 7563.63 신고가/VIX 15.74) + PCE 4월 3.8%/Core 3.3% (5/28 BEA, 기존 2.7 stale 시정)
   _snapshotDate: '2026-05-28',
   _staticDates: {
     briefingArchive: '2026-05-28',
@@ -15059,12 +15059,12 @@ const DATA_SNAPSHOT = {
   _note: 'v49.86 /data-refresh 3차 (2026-05-28 KST): 추가 갱신 — 4월 CPI 3.8%/Core 2.8%(BLS 5/14) · 4월 NFP +115K/실업 4.3%(BLS 5/8) · Nikkei 64,999(5/27) · BTC $75,216/ETH $2,068(Yahoo 5/27) · SKEW 139.04 · KR 수출 5/1~20 +64.8%/반도체 +202.1%(역대최대) · KR 외국인 -1.77조(16연속 순매도). v49.84 원문: **US close 2026-05-27** — SPX 7,520.36 (+0.02%, 신고가) / NASDAQ 26,674.73 (+0.07%) / Dow 50,644.28 (+0.36%, 신고가) / Russell 2000 -0.02%. VIX 17.01 (-9% vs 5/12 18.70). **KR close 2026-05-28** — KOSPI 8,185.29 (-0.53%, 5일 랠리 종료) / KOSDAQ 1,104.36 (-2.54%). **원자재 급락** — WTI $88.30 (-6%, 이란 평화 협상 호재) / Brent <$95 (-4.5%) / Gold $4,483.15 (전일 close). **금리** — 10Y 4.48% / 2Y 4.035% / 30Y 5.01%. CNN F&G 60 (Greed, 5/26 기준). AAII 5/22 발표: Bull 39.3% / Neutral 24.1% / Bear 36.6% / Bull-Bear spread +2.7%. **거시 컨텍스트** — 4월 CPI 3년 고점 (Iran 전쟁 + AI 지출 영향), Strait of Hormuz 1개월 내 재개 가능성 (이란 발언), 미국 draft 거부. Static fallback only; Delayed/Fallback/Stale labels must remain visible until live stores override.',
 
   // ── 미국 주요 지수 (2026-05-27 종가 / WebSearch CNBC/TheStreet 확인) ──
-  spx:        7520.36,  spxPct:    +0.02,   // v49.84: 2026-05-27 close 신고가
-  nasdaq:    26674.73,  nasdaqPct: +0.07,   // v49.84: 2026-05-27 close
-  dow:       50644.28,  dowPct:    +0.36,   // v49.84: 2026-05-27 close 신고가 (+182.60 pts)
+  spx:        7563.63,  spxPct:    +0.58,   // v49.91: 2026-05-28 close 신고가 (TheStreet/CNBC, PCE 3년최고에도 tech 주도)
+  nasdaq:    26917.47,  nasdaqPct: +0.91,   // v49.91: 2026-05-28 close 신고가
+  dow:       50668.97,  dowPct:    +0.05,   // v49.91: 2026-05-28 close (+24.69 pts)
   rut:        2858.50,  rutPct:    -0.02,   // v49.84: 2026-05-27 close (추정 — 변동 미미)
-  vix:          17.01,  vixPct:    -9.04,   // v49.84: FRED VIXCLS 2026-05-27 (18.70 → 17.01)
-  vvix:         85.50,                        // v49.84: VVIX 추정 (VIX 하락 동조)
+  vix:          15.74,  vixPct:    -3.38,   // v49.91: FRED VIXCLS 2026-05-28 (17.01 → 15.74, 위험선호 강화)
+  vvix:         83.00,                        // v49.91: VVIX 추정 (VIX 15.74 추가 하락 동조)
 
   // ── 한국 지수 (2026-05-28 종가 / KRX Seoul Economic Daily 확인) ──
   kospi:     8185.29,  kospiPct:  -0.53,  kospiPrev: 8228.70,  // v49.84: 2026-05-28 close (5일 랠리 종료, 중동 긴장 + 채권금리 상승)
@@ -15103,7 +15103,7 @@ const DATA_SNAPSHOT = {
 
   // ── 거시 지표 ──
   cpi:          3.8,   coreCpi:   2.8,   // v49.86: CPI 4월 YoY 3.8% · Core 2.8% (BLS 5/14 발표, Iran 전쟁+AI 지출 영향 — Fortune 2026-05-12)
-  pce:          2.7,   corePce:   2.7,            // PCE Core YoY — 다음 5/30 발표 예정
+  pce:          3.8,   corePce:   3.3,            // v49.91: 4월 PCE (BEA 5/28 발표) — Headline 3.8% (2023.5 이후 최고) / Core 3.3% (2023.10 이후 최고). MoM Headline +0.4 / Core +0.2
   ismPmi:      52.4,   ismPrice:  70.7,           // v45.2: 4/6 ISM Mfg (5/1 발표 완료, 다음 6/2)
   ismSvc:      54.0,                              // ISM 서비스업 PMI (4/3 → 5/5 발표 완료, 다음 6/3)
   usUnemploy:   4.30,  // v49.86: 4월 NFP +115K(컨센 하회), 실업률 4.3% (5/8 발표) — 다음 6/5 5월분 예정
@@ -15257,7 +15257,7 @@ const DATA_SNAPSHOT = {
   _fallback: {
     fg: 60,              // v49.84: CNN F&G 60 (Greed) 2026-05-26 기준
     fg_uw: 65,           // v49.84: UW 확장 F&G (CNN 60 → UW 65 추정)
-    vix: 17.01,          // v49.84: VIX 2026-05-27 close
+    vix: 15.74,          // v49.91: VIX 2026-05-28 close
     breadth200: 57,      // v49.87: $MMTW 57.47 실측 (Barchart — 기존 추정 75 대폭 하향 CRITICAL)
     breadth5: 61,        // v49.87: $MMFD 61.41 실측 (Barchart)
     breadth50: 61,       // v49.87: $MMFI 60.77 실측 (Barchart)
@@ -15265,7 +15265,7 @@ const DATA_SNAPSHOT = {
     aaiiBear: 36.6,      // v49.84: AAII 2026-05-22 발표 Bearish %
     spx50ma: 7280,       // v49.84: SPX 50일 이동평균 (5/27 기준 추정 — 신고가 후 상승)
     spx200ma: 6950,      // v49.84: SPX 200일 이동평균 추정
-    spxATH: 7520.36,     // v49.84: SPX ATH = 2026-05-27 close (신고가)
+    spxATH: 7563.63,     // v49.91: SPX ATH = 2026-05-28 close (신고가)
     dxy: 99.14,          // v49.85: DXY WebSearch 2026-05-27 confirmed
     tnx: 4.48,           // v49.84: 10Y 2026-05-27 close
     hyg: 81,             // v49.84: HYG (Iran 호재 + 신고가 환경 — 신용 스프레드 추가 타이트닝)

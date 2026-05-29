@@ -3441,6 +3441,20 @@
     _assert('T680 data_lineage_cell_level_v4990: cellLevel 통합 + orphan sink 0건 (data-live-price/data-snap 개별)',
       cl && (cl.status === 'ok' || cl.status === 'unknown') && (cl.totalOrphans === 0 || cl.liveSinkOrphans === null),
       cl ? 'status=' + cl.status + ' liveOrphans=' + cl.liveSinkOrphans + ' snapOrphans=' + cl.snapSinkOrphans + ' liveSinks=' + cl.liveSinkTotal + ' snapSinks=' + cl.snapSinkTotal : 'no cellLevel');
+    // T681: v49.91 데이터 값 정확성 — PCE 3.8/3.3 (stale 2.7 시정) + SPX 7563.63 + VIX 15.74 + 텍스트 동적
+    var ds = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : (window.DATA_SNAPSHOT || {});
+    var pceOk = ds.pce >= 3.5 && ds.corePce >= 3.0;  // 2.7 stale 시정 검증
+    var spxOk = ds.spx >= 7560 && ds.spx <= 7570;     // 5/28 종가
+    var vixOk = ds.vix >= 15 && ds.vix <= 16.5;        // 5/28 종가
+    _assert('T681 data_value_accuracy_v4991: PCE 3.8/3.3 + SPX 7563.63 + VIX 15.74 (값 정확성, 연결 아님)',
+      pceOk && spxOk && vixOk,
+      'pce=' + ds.pce + ' corePce=' + ds.corePce + ' spx=' + ds.spx + ' vix=' + ds.vix);
+    // T682: 텍스트 안 데이터 동적 참조 — sentiment Tail Risk Board 하드코딩 SKEW 141.86 제거 확인
+    var sentCtx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.sentiment;
+    var sentSrc = sentCtx && typeof sentCtx.system === 'function' ? sentCtx.system.toString() : '';
+    _assert('T682 text_data_dynamic_v4991: sentiment Tail Risk Board 하드코딩 SKEW 141.86 제거 + DATA_SNAPSHOT.skew 동적',
+      sentSrc.indexOf('141.86') < 0 && sentSrc.indexOf('DATA_SNAPSHOT.skew') >= 0,
+      'hardcode141.86=' + (sentSrc.indexOf('141.86') >= 0) + ' dynamicSkew=' + (sentSrc.indexOf('DATA_SNAPSHOT.skew') >= 0));
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지

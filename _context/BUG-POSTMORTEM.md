@@ -4072,3 +4072,14 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **파일**: `js/aio-core.js` getDataLineageAudit cellLevel + _aioRefreshAuditWidget dlEl
 - **violated_rule**: R181 신규 · P68(추측 금지 — PCR/3개 키 의심 성급했으나 코드 확인으로 검증)
 - **prevention**: R181 — lineage 검증은 카테고리 + cell-level(개별 sink→source) 둘 다. getDataLineageAudit().cellLevel.totalOrphans === 0 의무.
+
+---
+
+## P452 · v49.91 · cell-level 데이터 "값" 정확성 미검증 (연결만 보고 값은 stale)
+
+- **증상**: 사용자 "구조/연결만이 아니라 데이터 하나하나 정확/최신 체크". v49.84~90은 sink-to-source 연결(orphan 0)만 검증. 실제 값 정확성은 부분만. 결과: **PCE pce/corePce 2.7/2.7** (실제 4월 BEA 5/28 발표 = Headline 3.8% / Core 3.3%, 3년 최고) — 1%p+ stale. + 5/27→5/28 종가 갱신 누락 (SPX 7520→7563.63 신고가 / VIX 17.01→15.74).
+- **원인**: lineage/cell-level audit이 "연결 존재"만 검증, "값 정확성"은 자동 검증 불가 (외부 실측 대조 필요). PCE는 v49.86에서 CPI만 갱신하고 PCE 누락.
+- **수정**: WebSearch 5/28 실측 — PCE 3.8/3.3, 시세 4건(SPX/Nasdaq/Dow/VIX) + _fallback(spxATH/vix) + vvix. 텍스트: CHAT_CONTEXTS PCE 폴백 '2.6'→'3.3' + sentiment Tail Risk Board 하드코딩(SKEW 141.86/VVIX 90.10/MOVE 62.36 3/30 스냅샷) → DATA_SNAPSHOT 동적 참조 전환.
+- **파일**: `js/aio-core.js` DATA_SNAPSHOT pce/corePce/spx/nasdaq/dow/vix/vvix + _fallback / `js/aio-chat.js` L73 PCE 폴백 + L1039 Tail Risk 동적
+- **violated_rule**: R182 신규 · R76(서술 텍스트 stale 토큰) — sentiment 3/30 하드코딩
+- **prevention**: R182 — cell-level은 연결(orphan 0) + 값 정확성(주요 거시/시세 외부 실측 대조) 둘 다. 텍스트 안 수치는 DATA_SNAPSHOT 동적 참조 우선, 하드코딩 금지.

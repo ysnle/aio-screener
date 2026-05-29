@@ -6,6 +6,33 @@
 
 ---
 
+## v49.91 — cell-level 데이터 "값" 정확성 전수 재검증 (연결이 아닌 값 자체) (2026-05-29)
+
+**Changed files**: `js/aio-core.js`, `js/aio-chat.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 "구조/연결만이 아니라 데이터 하나하나 정확/최신 체크. 텍스트/내용 안 데이터도." — 정직: v49.84~90은 sink-to-source 연결(orphan 0)만, 값 정확성은 부분만.
+
+### CRITICAL 발견 — PCE 3개월 stale
+- DATA_SNAPSHOT `pce/corePce 2.7/2.7` → 실제 4월(BEA 5/28) **Headline 3.8%(2023.5 이후 최고) / Core 3.3%(2023.10 이후 최고)**. **1%p+ 오차.** v49.86에서 CPI만 갱신하고 PCE 누락. 연결은 정상이었으나 값이 stale — 사용자 지적의 실증.
+
+### 시세 5/27→5/28 갱신 누락 시정
+| 지표 | 이전(5/27) | 신규(5/28) |
+|------|-----------|-----------|
+| SPX | 7,520.36 | **7,563.63** 신고가 |
+| Nasdaq | 26,674.73 | **26,917.47** 신고가 |
+| Dow | 50,644.28 | **50,668.97** |
+| VIX | 17.01 | **15.74** (-3.38%) |
+| _fallback spxATH/vix | 7520.36/17.01 | 7563.63/15.74 |
+
+### 텍스트 안 데이터 시정
+- CHAT_CONTEXTS macro PCE 폴백 `'2.6'`→`'3.3'` 정합
+- sentiment Tail Risk Board 하드코딩 (SKEW 141.86/VVIX 90.10/MOVE 62.36, 3/30 스냅샷) → `DATA_SNAPSHOT.skew/vvix/move/dxy` 동적 참조 전환 (P452)
+
+### R182 신규
+cell-level은 연결(orphan 0) + 값 정확성(외부 실측 대조) 둘 다. 거시 지표는 발표 묶음 단위 갱신(CPI=PCE 동시). 텍스트 수치는 DATA_SNAPSHOT 동적 참조, 하드코딩 금지. T681.
+
+---
+
 ## v49.90 — cell-level 데이터 sink-to-source 전수 검증 + lineage audit 통합 (2026-05-28)
 
 **Changed files**: `js/aio-core.js`, `index.html`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

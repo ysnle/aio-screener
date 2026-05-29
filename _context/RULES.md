@@ -2186,3 +2186,18 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 **근거 (v49.90 전수)**: data-live-price 54→LIVE_SYMBOLS 끊김 0 · data-snap 59→DATA_SNAPSHOT 끊김 0 (113 sink orphan 0).
 
 **Validation**: `AIO.getDataLineageAudit().cellLevel.totalOrphans === 0` · T680.
+
+---
+
+## R182. cell-level은 연결 + 값 정확성 둘 다 / 텍스트 수치는 동적 참조 (v49.91 added, P452 root)
+
+**Rule**: cell-level 데이터 검증은 sink-to-source 연결(orphan 0)에 그치지 않고, 주요 시세/거시 지표의 실제 값이 외부 실측과 일치하는지 확인한다. 텍스트/해설/CHAT_CONTEXTS 안의 수치는 DATA_SNAPSHOT 동적 참조를 우선하고 하드코딩을 금지한다.
+
+**Required**:
+- 연결 검증(getDataLineageAudit cellLevel orphan 0)은 "데이터 있음"을 보장하나 "값 정확"은 보장 못함 — /data-refresh로 주요 지표(CPI/PCE/NFP/시세/금리) 외부 실측 대조 주기 필수.
+- 거시 지표는 발표 묶음 단위로 갱신 (CPI 갱신 시 PCE도 — v49.86 PCE 누락 재발 방지).
+- 텍스트 안 수치(`SKEW 141.86` 등 하드코딩)는 `(DATA_SNAPSHOT.skew || '—')` 동적 참조로 전환. 폴백값도 최신 시드와 정합.
+
+**근거 (P452)**: PCE 2.7→3.8 (1%p+ stale) — 연결은 정상이었으나 값이 3개월 stale. sentiment Tail Risk Board 3/30 하드코딩(SKEW 141.86) 잔존.
+
+**Validation**: /data-refresh 주요 지표 실측 대조 · CHAT_CONTEXTS 하드코딩 수치 grep 0 (DATA_SNAPSHOT 참조 외).

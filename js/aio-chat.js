@@ -70,7 +70,7 @@ const CHAT_CONTEXTS = {
         '• Fed 기준금리: ' + (DATA_SNAPSHOT.fedRate || '3.50-3.75') + '% | 10Y: ' + s.tnx + '% [실시간] | DXY: ' + s.dxy + ' [실시간]\n' +
         '• WTI: $' + s.wti + ' | Brent: $' + s.brent + ' | WTI-Brent 스프레드: $' + _fmt((_ld('BZ=F','price')||DATA_SNAPSHOT.brent)-(_ld('CL=F','price')||DATA_SNAPSHOT.wti),1) + '\n' +
         '• Gold: $' + s.gold + ' | USD/KRW: ' + s.krw + ' | VIX: ' + s.vix + ' [실시간]\n' +
-        '• PCE Core: ' + (DATA_SNAPSHOT.corePce || '2.6') + '% | 소매판매: ' + (DATA_SNAPSHOT.retailSales || '+0.6') + '% MoM | 소비자심리: ' + (DATA_SNAPSHOT.consConf || '104.7') + '\n' +
+        '• PCE Core: ' + (DATA_SNAPSHOT.corePce || '3.3') + '% | 소매판매: ' + (DATA_SNAPSHOT.retailSales || '+0.6') + '% MoM | 소비자심리: ' + (DATA_SNAPSHOT.consConf || '104.7') + '\n' +
         '• 임금 상승: ' + (DATA_SNAPSHOT.usWageGrowth || '3.8') + '% YoY | 주택착공: ' + (DATA_SNAPSHOT.housingStarts || '1.42') + 'M | ISM 서비스: ' + (DATA_SNAPSHOT.ismSvc || '54.4') + '\n' +
         '• S&P 500: ' + s.spx + ' (' + s.spxPct + '%) [' + s.indexBasis + '] | 트레이딩 스코어: ' + s.score + '/100\n' +
         '【분석 기준 종가】 SPX: ' + c.spx + ' | NASDAQ: ' + c.nasdaq + ' | DOW: ' + c.dow + '\n' +
@@ -1036,7 +1036,7 @@ const CHAT_CONTEXTS = {
         '• F&G 85+(극단 탐욕): 3개월 후 평균 -3~5%. 상승이 끝났다는 뜻이 아니라 "기대수익률 낮아짐".\n' +
         '• F&G 구성요소 괴리 분석(v47.1): 헤드라인 F&G보다 내부 구조가 중요. 모멘텀·옵션(80+)이 탐욕인데 브레드쓰(35↓)·주가강도(25↓)가 공포 = "좁은 랠리" 경고. Premium Trend/Ratio 90+ = 옵션 자만(complacency). 모멘텀 vs 브레드쓰 갭 40pt+ = 2021.11 나스닥 고점 직전 유사. 헤드라인만 보지 말고 카테고리별 분해를 기반으로 판단할 것.\n' +
         '• Unusual Whales 확장 5지표 해석(v47.2, DATA_SNAPSHOT.fg_extended 기반): ① Junk Bond Demand(HY vs IG 스프레드, 채권쟁이 심리 프록시. 주식 F&G와 ≥20pt 괴리 시 채권 우위) ② Safe Haven Demand(주식 vs 채권 20일 수익률 차이 — 툴팁 "Extreme Greed" 확인됨: 높을수록 주식 편애. 90+ 극단 시 숏감마 청산→급반전 리스크. ※ "안전자산 수요"로 직역하면 역해석 오해 발생) ③ Fifty Two Week Sentiment(52주 범위 내 상대 위치. 91+ 시 대형주가 끌어올린 착시) vs Stock Price Strength(절대 신고가/신저가 비율. 25↓ 시 좁은 랠리 확증) — 두 지표 동시 체크로 교차 검증 ④ Put/Call(F&G 환산치, PCR 실측과 별개) ⑤ Insider Sentiment(경영진 매수/매도 3개월 비율, 0~5 극단 공포 = 천장 신호. 2021.11 고점 직전 선례). F&G 헤드라인 60+ 동안 Insider Sentiment <10 지속 = 분배(distribution) 단계 확증.\n' +
-        '• 위험봇 Tail Risk Board 6지표(v47.2→v47.4 실측 반영): SKEW 141.86(-4.60%) · VVIX 90.10(-2.77%) · VIX Structure Slope · 9D-VIX · MOVE 62.36(-2.50%, 역사적 저점 유지) · DXY 98.05. 3/30 STABLE 판정 시점(DATA_SNAPSHOT.tail_risk_snapshot_0330) 대비 MOVE 추가 하락(68→62.36) + SKEW 추가 상승(139→141.86) = "겉은 평온, 내부는 헤지로 무장" 역설 **심화**. 9D-VIX는 스크리너 직접 추적 안 되나 VIX 단기 기울기(VX1/VX2 비율)로 근사.\n' +
+        '• 위험봇 Tail Risk Board 6지표(DATA_SNAPSHOT 실측 동적): SKEW ' + (DATA_SNAPSHOT.skew || '—') + ' · VVIX ' + (DATA_SNAPSHOT.vvix || '—') + ' · VIX Structure Slope · 9D-VIX · MOVE ' + (DATA_SNAPSHOT.move || '—') + ' · DXY ' + (DATA_SNAPSHOT.dxy || '—') + '. SKEW 140+ & MOVE 60대 동반 시 "겉은 평온, 내부는 헤지로 무장" 역설 — 주식 VIX 저점인데 꼬리헤지 비싸면 분배 단계 경계. 9D-VIX는 스크리너 직접 추적 안 되나 VIX 단기 기울기(VX1/VX2 비율)로 근사.\n' +
         '• ZBT(Zweig Breadth Thrust) 부재 = 비정상 랠리(v47.2, DATA_SNAPSHOT.zbt): NYSE 상승/하락비 10거래일 내 0.40→0.615 돌파 = 강세장 개시. 2025.4 선례(0.38→0.617) 후 Lock-out Rally. 2026.3-4 랠리는 ZBT 없이 상승(현재 0.5756) = 브레드쓰 부실, 대형주 독식. ZBT 0.615+ 돌파 시 새 Lock-out Rally 가능성, 미돌파 시 분배 진단 유지.\n' +
         '• VIX 40+: 패닉 구간. 역사적으로 VIX 40+ 진입 후 3개월 내 평균 -15%→+20% (V자 반등 패턴 다수).\n' +
         '• VIX 15↓: 안일(complacency). "낮은 VIX는 폭발 대기 중인 변동성" — 옵션 프리미엄 싸게 헤지 기회.\n' +
