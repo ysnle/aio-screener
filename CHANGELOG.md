@@ -6,6 +6,49 @@
 
 ---
 
+## v49.88 — 자동운영 구조 전수 조사 + 부팅 로더 신규 (2026-05-28)
+
+**Changed files**: `index.html`, `js/aio-tests.js`, `js/aio-core.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`
+
+**Motivation**: 사용자 "스크리너 전체가 정확·최신 데이터로 지속적 자동운영 가능한 구조인지 세밀 조사" + 후속 지적 3건 (세밀 확인 검증 / 클라이언트 접속 자동운영 효율성 / API 구조).
+
+### 자동운영 아키텍처 (코드 직접 확인)
+- **스케줄러** `REFRESH_SCHEDULE` 11 태스크, 재귀 setTimeout + ±15% 지터 + 첫 실행 0~30초 랜덤: quotes 3분 / sentiment·breadth·krSupply 10분 / technicals 15분 / vixHistory·krDynamic 30분 / news 45분 / fred 2h / hySpread·maUpdate 6h
+- 부팅 `initV20DataEngine()` (aio-ui.js:1397) → 15초 후 startDataScheduler. `visibilitychange` 자동 pause/resume. in-flight 가드 + timeout + 지수백오프 + 프록시 5중 폴백
+- **API 키**: 공유(Claude+Cloudflare Worker) / 개인 localStorage(FRED/FMP/Finnhub/AV/TD) / 무키(CoinGecko)
+- **데이터 3계층**: A 완전자동 ~60%(시세/F&G/PCR/FRED/기술/VIX/HY/KR수급/VKOSPI) · B 자동화갭(fetchBreadthData가 MMFI/MMTW/MMFD 선언만, 실 fetch 안함) · C 100%수동 ~30%(CPI/PCE/NFP/ISM/AAII/NAAIM/수출/글로벌/SKEW/MOVE)
+
+### 진단 교정 — cron 제안 폐기
+v49.87 직후 "서버 cron 부재 = 한계"로 규정한 것 **철회**. 개인 키 모델 + 5명 지터 분산 설계상 **클라이언트 접속 시 자동운영이 정답**. cron은 "누구 키로 fetch?" 구조적 불가 + 공유 프록시 쿼터 무의미 소진. 사용자 지적 타당.
+
+### 부팅 로더 신규 (P447/R179) — 사용자 직접 제안
+첫 `fetchLiveQuotes` 0~30초 딜레이 + 초기 오버레이 부재 → 정적 폴백이 라이브로 오인되던 갭 해소. body 직후 비침습 상단 배너 → `aio:liveQuotes` 첫 발송 시 fade-out / 10초 미수신 시 정적폴백 안내 전환 / 20초 안전상한 / sessionStorage 재방문 가드 / prefers-reduced-motion 대응.
+
+### 테스트 / 규칙
+- T672 semver 교정 (`=== 'v49.83'` → `>= 83`, v49.84부터 잠재 FAIL이던 것)
+- T673 부팅 로더 작동 + T674 APP_VERSION semver (Group78)
+- R179: 클라이언트 접속 자동운영 모델 — 부팅 로더로 정적 구간 명시, 서버 cron 금지
+
+---
+
+## v49.87 — VKOSPI + Breadth 4개 실측값 정정 (추정→WebFetch 실제 확인) (2026-05-28)
+
+**Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+**Motivation**: 사용자 지적 — VKOSPI(Investing.com)·Breadth(TradingView MNFD/MNTW/MNFI) 소스가 있는데 추정으로 처리한 점 시정.
+
+| 지표 | 기존(추정) | 실측 | 출처 |
+|------|-----------|------|------|
+| VKOSPI | 18.50 | **74.02** | Investing.com KSVKOSPI 5/28 (전일 71.6) |
+| Breadth 5SMA $MMFD | 68 | **61.41** | Barchart |
+| Breadth 20SMA $MMTW | 75 | **57.47** | Barchart |
+| Breadth 50SMA $MMFI | 46 | **60.77** | Barchart |
+| Breadth 200SMA $MMTH | 55 | **56.19** | Barchart |
+
+`_fallback` breadth200/breadth5/breadth50 정합. 데이터 소스 존재 시 WebSearch/WebFetch 우선 원칙 확립.
+
+---
+
 ## v49.86 — /data-refresh 3차 세밀 보강 (2026-05-28)
 
 **Changed files**: `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`

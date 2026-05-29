@@ -4022,3 +4022,23 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **P449 / R177**: 사이드바 18축 metric 일반 사용자 부담 (#7) — 일반/개발자 mode 토글 신규 (`localStorage.aio_audit_mode` + checkbox). simple = ✓/⚠/✗/⏳ 아이콘만 / detailed = metric 상세.
 - **P450 / R178**: audit row 동등 위계로 위기 시그널 가시성 부족 (#9) — failure status sticky top + pulse 애니메이션. ✗ priority 0 (top + 빨간 border + 2s pulse) / ⚠ 1 (amber border) / ⏳ 2 / ✓ 3. CSS flex order. + @media (min-width:1600px) 데스크탑 wide-mode 2열 grid (#10).
 - **prevention**: R172~R178 — 신규 audit 함수 추가 시 (1) fn 정의 (2) 사이드바 row (3) 회귀 T 테스트 3종 셋트 동시 작성 의무 (R170 패턴 일반화).
+
+---
+
+## P447 · v49.88 · 부팅 첫 라이브 수신 갭 — 정적 폴백이 라이브로 오인
+
+- **증상**: 앱 부팅 시 첫 `fetchLiveQuotes`가 0~30초 랜덤 딜레이(startDataScheduler 지터 + initV20DataEngine 15초 지연). 이 구간에 초기 로딩 오버레이가 없어(grep 0건) 사용자가 DATA_SNAPSHOT 정적 폴백값을 실시간 데이터로 오인. /data-refresh로 수동 갱신한 값이라 그럴듯해 더 위험.
+- **원인**: 클라이언트 접속 시 자동운영 모델(개인 키 분산 설계)은 올바르나, "라이브 수신 전 정적 구간"을 사용자에게 시각적으로 알리는 레이어 부재.
+- **수정**: body 직후 비침습 부팅 로더 배너 신설 — "📡 실시간 데이터 수신 중 · 정적 스냅샷 표시 중" → `aio:liveQuotes`(applyLiveQuotes 발송) 첫 수신 시 fade-out. 10초 미수신 시 "⚠ 실시간 연결 지연 — 정적 스냅샷 사용 중"으로 전환 + 4초 후 해제. 20초 안전상한. sessionStorage `aio_boot_done` 재방문 가드. prefers-reduced-motion 대응.
+- **파일**: `index.html` body 직후 DOM+script + `<style>` keyframes
+- **violated_rule**: R115(placeholder 표준) 연장 — 로딩 구간 명시 · R179 신규
+- **prevention**: R179 — 클라이언트 접속 자동운영 모델에서 첫 라이브 수신 전 정적 구간은 부팅 로더로 명시. 서버 cron 도입 금지 (개인 키 모델 위배 + 공유 프록시 쿼터 소진).
+
+## P448 · v49.88 · fetchBreadthData US %above MA 자동 fetch 미작동 (자동화 갭 — 문서화)
+
+- **증상**: `fetchBreadthData`(aio-data.js:2896)가 breadthSymbols로 MMFI/MMTW/MMFD를 선언하나 실제 fetch는 안 함. Alpha Vantage advance/decline 근사치 또는 RSP/SPY 비율만 `updateBreadthUI` 갱신. → DATA_SNAPSHOT.breadth5sma/20sma/50sma/200sma는 라이브 자동 갱신 경로 없음 → 정적 폴백 영구 의존.
+- **원인**: 함수가 % above MA 지표를 가져오는 로직 미구현 (심볼 선언만 dead).
+- **수정**: v49.88에서는 **문서화만** (v49.87 수동 갱신이 정당했던 근본 이유 기록). 실 fetch 구현은 Barchart CORS/프록시 검증 필요 → 별도 작업(P449 후보). 현재는 /data-refresh 수동 갱신 + 부팅 로더로 stale 인지 보완.
+- **파일**: `js/aio-data.js:2896` fetchBreadthData
+- **violated_rule**: 없음 (설계 갭 문서화)
+- **prevention**: C계층(수동) + B계층(자동화갭) 데이터는 `getAutoOpsReadiness`에 stale 경과일 축 추가 검토 (v49.89+).

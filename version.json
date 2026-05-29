@@ -1,5 +1,5 @@
 {
-  "version": "v49.87",
-  "built": "2026-05-28T20:00:00+09:00",
-  "note": "v49.87 — VKOSPI + Breadth 4개 실측값 정정 (추정→WebFetch/WebSearch 실제 확인). (1) VKOSPI 18.50추정 → 74.02 실측 (Investing.com/kr KSVKOSPI 5/28 종가, 전일 71.6). 기존 스냅샷 17.80(v48.70 기준) 대비 4배 폭등 — KOSPI 8,200 랠리 후 변동성 급등. (2) Breadth 20SMA $MMTW: 75추정 → 57.47 실측 (Barchart.com, NYSE % above 20-day MA). (3) Breadth 5SMA $MMFD: 68추정 → 61.41 (Barchart). (4) Breadth 50SMA $MMFI: 46추정 → 60.77 (Barchart). (5) Breadth 200SMA $MMTH: 55추정 → 56.19 (Barchart). _fallback breadth200 75→57 / breadth5 70→61 / breadth50 52→61 정합. 동기화 7곳. 사용자 지적 수용: 데이터 소스(Investing.com/TradingView MNFD/MNTW/MNFI)가 있음에도 추정으로 처리한 점 수정 — 앞으로 동일 케이스 WebSearch/WebFetch 우선."
+  "version": "v49.88",
+  "built": "2026-05-28T21:00:00+09:00",
+  "note": "v49.88 — 자동운영 구조 전수 조사 + 부팅 로더 신규. 사용자 지적 수용: '클라이언트 접속 시에만 자동운영'이 한계가 아니라 올바른 설계 (개인 API 키 모델 + 5명 동시접속 지터 분산 + 공유 비용 최소화). 이전 cron 제안 폐기. **조사 결과**: REFRESH_SCHEDULE 11 태스크 재귀 setTimeout ±15% 지터 (quotes 3분/sentiment·breadth·krSupply 10분/technicals 15분/vixHistory·krDynamic 30분/news 45분/fred 2h/hySpread·maUpdate 6h), visibilitychange 자동 pause/resume, initV20DataEngine 부팅(aio-ui.js:1397). 데이터 3계층: (A) 완전자동 ~60% (시세/F&G/PCR/FRED/기술/VIX/HY/KR수급/VKOSPI) (B) 자동화갭 — fetchBreadthData가 MMFI/MMTW/MMFD 선언만 하고 실 fetch 안함(advance/decline 근사치만) → US %above MA는 정적 폴백 의존 (C) 100% 수동 ~30% (CPI/PCE/NFP/ISM/AAII/NAAIM/수출/글로벌지수/SKEW/MOVE — fetch 함수 0건). **부팅 로더 신규(P447)**: 첫 fetchLiveQuotes가 0~30초 랜덤 딜레이 + 초기 로딩 오버레이 부재로 정적 폴백이 라이브로 오인되던 갭 해소. body 직후 비침습 상단 배너 '📡 실시간 데이터 수신 중 — 정적 스냅샷 표시 중' → aio:liveQuotes 첫 발송 시 자동 fade-out / 10초 미수신 시 정적폴백 안내 전환 / 20초 안전상한 / sessionStorage 재방문 가드 / prefers-reduced-motion 대응. T672 semver 교정(v49.83 하드코딩 → >=83) + T673~T674 신규. R179 신규."
 }

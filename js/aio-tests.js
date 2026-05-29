@@ -3389,9 +3389,24 @@
     _assert('T671 sidebar_mode_toggle_v4983: aio-audit-mode-toggle DOM + _aioAuditModeToggle fn + aio-audit-keyframes style',
       !!document.getElementById('aio-audit-mode-toggle') && typeof window._aioAuditModeToggle === 'function' && !!document.getElementById('aio-audit-keyframes'),
       'all parts present check');
-    // T672 APP_VERSION === 'v49.83'
-    _assert('T672 app_version_v4983: APP_VERSION === "v49.83"',
-      typeof APP_VERSION !== 'undefined' && APP_VERSION === 'v49.83',
+    // T672 APP_VERSION >= v49.83 (semver — 버전업마다 하드코딩 FAIL 방지, v49.88 교정)
+    _assert('T672 app_version_v4983: APP_VERSION >= v49.83 (semver)',
+      typeof APP_VERSION !== 'undefined' && /^v49\.\d+$/.test(APP_VERSION) && parseInt(APP_VERSION.split('.')[1], 10) >= 83,
+      typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
+  }
+
+  // v49.88 — 부팅 로더 (클라이언트 접속 시 자동운영 모델 첫 수신 갭 해소)
+  function _testV4988BootLoader() {
+    // T673: 부팅 로더 시스템 작동 — 로더 DOM이 아직 있거나(수신 전), 제거되며 sessionStorage 가드가 셋됨(수신 후)
+    var loaderPresent = !!document.getElementById('aio-boot-loader');
+    var bootDone = false;
+    try { bootDone = sessionStorage.getItem('aio_boot_done') === '1'; } catch(_) {}
+    _assert('T673 boot_loader_system_v4988: 부팅 로더 DOM 존재 또는 sessionStorage 가드 셋 (수신 전/후 둘 중 하나)',
+      loaderPresent || bootDone,
+      'loaderPresent=' + loaderPresent + ' bootDone=' + bootDone);
+    // T674: APP_VERSION semver >= 49.88
+    _assert('T674 app_version_v4988: APP_VERSION >= v49.88 (semver)',
+      typeof APP_VERSION !== 'undefined' && /^v49\.\d+$/.test(APP_VERSION) && parseInt(APP_VERSION.split('.')[1], 10) >= 88,
       typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
   }
 
@@ -4540,6 +4555,7 @@
     try { _testV4979RemainingFixes(); } catch(e) { console.error('Group75 error:', e); }
     try { _testV4982PostIntegrationAudit(); } catch(e) { console.error('Group76 error:', e); }
     try { _testV4983InstitutionalIntuitive(); } catch(e) { console.error('Group77 error:', e); }
+    try { _testV4988BootLoader(); } catch(e) { console.error('Group78 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

@@ -2140,3 +2140,18 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 **R178 — audit failure status sticky top + pulse 의무**: ✗ failure rows는 자동 top sort + 빨간 border + 2s pulse animation. ⚠ warn = amber. 위기 시그널 즉각 가시.
 
 **Pattern 일반화 (R170 확장)**: 신규 audit 함수 추가 시 (1) fn 정의 (2) 사이드바 data-audit-key row 노출 (3) 회귀 T 테스트 3종 셋트 (`fn 정의 / status 반환 / 사이드바 DOM`) 동시 작성 의무.
+
+---
+
+## R179. 클라이언트 접속 시 자동운영 모델 — 부팅 로더 명시 + 서버 cron 금지 (v49.88 added, P447 root)
+
+**Rule**: AIO는 GitHub Pages 정적 호스팅 + 개인 API 키(localStorage) 모델이다. 데이터 자동 갱신은 **사용자 브라우저 탭이 열린 동안** REFRESH_SCHEDULE 스케줄러로 수행한다. 이것은 한계가 아니라 의도된 설계다.
+
+**Required**:
+- 서버 cron / GitHub Actions schedule로 DATA_SNAPSHOT을 자동 갱신하지 **않는다**. 개인 키를 서버에 둘 수 없고(5명 각자 키), 공유 프록시(Cloudflare) 쿼터만 소진한다.
+- 첫 라이브 수신(`aio:liveQuotes`) 전 정적 폴백 구간은 부팅 로더(`#aio-boot-loader`)로 사용자에게 명시한다.
+- 스케줄러는 "5명 동시접속 최적화" 지터(±15%) + 첫 실행 랜덤 딜레이를 유지한다 (서버 부하/프록시 쿼터 분산).
+
+**근거 (코드)**: `startDataScheduler` 주석 "5명 동시접속 최적화" · `DATA_APIS` 개인 키 5종 + Cloudflare/Claude 공유 · `visibilitychange` 자동 pause.
+
+**Validation**: `AIO.getRefreshSchedulerAudit()` 태스크별 lastOk · 부팅 로더 T673.
