@@ -2155,3 +2155,19 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 **근거 (코드)**: `startDataScheduler` 주석 "5명 동시접속 최적화" · `DATA_APIS` 개인 키 5종 + Cloudflare/Claude 공유 · `visibilitychange` 자동 pause.
 
 **Validation**: `AIO.getRefreshSchedulerAudit()` 태스크별 lastOk · 부팅 로더 T673.
+
+---
+
+## R180. 데이터 lineage 5단계 연결 의무 + 자동 audit (v49.89 added, P450 root)
+
+**Rule**: 모든 핵심 데이터는 source(URL/API) → transport(프록시/타임아웃) → store(검증) → transform(가공) → render(DOM sink) 5단계가 끊김 없이 연결돼야 한다. `AIO.getDataLineageAudit()`로 자동 검증.
+
+**Required**:
+- 신규 데이터 추가 시: source 함수 + REFRESH_SCHEDULE 등록(자동 갱신) 또는 명시적 manual 분류 + renderSink(data-live-price/data-snap) DOM 바인딩.
+- `getDataLineageAudit().broken === 0` 유지 (connected/gap/manual은 의도된 계층).
+- 계층 분류: **auto**(완전 자동 연결) / **gap**(B계층 — 자동화 미구현 정적폴백, 예: breadth %above MA) / **manual**(C계층 — 수동 /data-refresh, 예: CPI/NFP/AAII).
+- fetch 함수 lineage 판정 시 catch/폴백 블록까지 전체 읽기 (P449 — 부분 grep 판정 금지).
+
+**근거 (코드 조사 v49.89)**: 13종 데이터 5단계 추적 — 시세/VIX/F&G/PCR/FRED/뉴스/VKOSPI=auto, breadth=gap, CPI 등=manual.
+
+**Validation**: `AIO.getDataLineageAudit().broken === 0` · 사이드바 dataLineage row · T675~T679.

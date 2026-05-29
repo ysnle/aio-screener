@@ -6,6 +6,37 @@
 
 ---
 
+## v49.89 — 데이터 계보(lineage) end-to-end 전수 조사 + 자동 audit (2026-05-28)
+
+**Changed files**: `js/aio-core.js`, `index.html`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `_context/DATA-PIPELINE-AUDIT-2026-05-06.md`
+
+**Motivation**: 사용자 "모든 데이터 하나하나 어디서 어떤 데이터를 가져오는지 출처 + 정확성/최신성 + 가공/분석 + 렌더링까지 하나의 흐름으로 세밀 조사했나?" — 정직: v49.88은 자동운영 "구조"만 봤고 데이터별 lineage는 미조사. 이번에 13종 end-to-end 추적.
+
+### 데이터 13종 lineage (코드 직접 추적)
+| 데이터 | Source URL | Transport | Transform | Render sink | 계층 |
+|--------|-----------|-----------|-----------|-------------|------|
+| 시세 | query1.finance.yahoo.com/v8/chart | fetchViaProxy 5중 | PriceStore.set 검증 | data-live-price(149) | auto |
+| VIX | Yahoo ^VIX 3mo | fetchViaProxy | vixToPercentile | data-live-price+차트 | auto |
+| F&G | CNN dataviz→CORS_PROXY→snapshot | 3단 폴백 | _applyFearGreedScore | data-snap | auto |
+| PCR | cdn.cboe.com options_volume | CORS_PROXY | _applyFearGreedScore | data-snap | auto |
+| FRED | api.stlouisfed.org | 직접(CORS친화) | applyTechIndicators | 차트 | auto(키) |
+| 뉴스 | RSS 다중 | fetchOneFeed | scoreItem+classifyTopic | renderFeed | auto |
+| VKOSPI | Naver VKOSPI/basic | fetchViaProxy | DATA_SNAPSHOT.vkospi | data-snap | auto |
+| **Breadth %aboveMA** | (실 fetch 미구현) | proxy만 | updateBreadthUI 근사 | data-snap(정적) | **gap** |
+| **CPI/NFP/AAII/SKEW/MOVE/글로벌** | (fetch 0건) | — | /data-refresh 수동 | data-snap(정적) | **manual** |
+
+### F&G 초기진단 정정 (P449)
+v49.89 조사 첫 grep에서 "F&G 직접호출=CORS 갭"으로 성급 판정했으나, catch 블록 확인 결과 **CORS_PROXY 프록시 + snapshot 3단 폴백 완비** (sourceKind live/proxy/snapshot 분류). 갭 아니라 모범 사례. 철회.
+
+### getDataLineageAudit 신설 (P450/R180)
+데이터별 scheduler 등록 + renderSink(DOM 카운트) 자동 검증 → connected/gap/manual/broken 분류. broken 0건. 사이드바 19축 dataLineage row. 사용자 "조사했나?"에 대한 영구 자동 응답.
+
+### 테스트/규칙
+- T675~T679 (Group79): audit 정의 / broken 0 / breadth=gap·macro=manual 분류 / 사이드바 19축 / semver
+- R180: 데이터 추가/변경 시 lineage 5단계(source→transport→store→transform→render) 연결 + getDataLineageAudit broken 0 의무
+
+---
+
 ## v49.88 — 자동운영 구조 전수 조사 + 부팅 로더 신규 (2026-05-28)
 
 **Changed files**: `index.html`, `js/aio-tests.js`, `js/aio-core.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`

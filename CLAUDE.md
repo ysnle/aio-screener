@@ -3,7 +3,8 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v49.88**
+- 현재 버전: **v49.89**
+- **v49.89 데이터 계보(lineage) end-to-end 전수 조사 + 자동 audit**: 사용자 "모든 데이터 하나하나 source→정확성→가공/분석→render 흐름 세밀 조사했나?" — 정직: v49.88은 자동운영 구조만, 이번에 13종 데이터 5단계 lineage 코드 직접 추적. **시세**(Yahoo v8→fetchViaProxy 5중→PriceStore→data-live-price 149) **VIX**(→vixToPercentile) **F&G**(CNN→CORS_PROXY→snapshot 3단→_applyFearGreedScore) **PCR**(CBOE+프록시) **FRED**(stlouisfed) **뉴스**(RSS→scoreItem) **VKOSPI**(Naver). **F&G 초기진단 정정(P449)**: 직접호출만 보고 CORS 갭 판정 성급 → catch에 프록시+snapshot 3단 폴백 완비 확인, 모범 사례. **getDataLineageAudit 신설(P450/R180)**: scheduler 등록 + renderSink DOM 자동 검증 → connected/gap(B계층 breadth)/manual(C계층 CPI/AAII)/broken 분류, broken 0건. 사이드바 19축. DATA-PIPELINE-AUDIT 환류. T675~T679 + R180.
 - **v49.88 자동운영 구조 전수 조사 + 부팅 로더**: 사용자 "정확·최신 데이터로 지속 자동운영 가능 구조인지 세밀 조사" + 후속 지적 3건. **조사**: REFRESH_SCHEDULE 11 태스크(quotes 3분~6h) 재귀 setTimeout ±15% 지터 + visibilitychange pause + 부팅 initV20DataEngine(aio-ui.js:1397). 데이터 3계층 (A 완전자동 ~60% / B 자동화갭 fetchBreadthData / C 100%수동 ~30%). **진단 교정**: 이전 cron 제안 폐기 — 개인 키 모델 + 5명 지터 분산상 클라이언트 접속 자동운영이 정답 (사용자 지적 타당). **부팅 로더 신규(P447/R179)**: 첫 fetchLiveQuotes 0~30초 딜레이 동안 정적 폴백 라이브 오인 갭 → body 직후 비침습 배너 → aio:liveQuotes 첫 수신 fade-out / 10초 미수신 정적폴백 안내 / sessionStorage 재방문 가드. fetchBreadthData 자동화갭 문서화(P448). T672 semver 교정 + T673~T674 + R179.
 - **v49.87 VKOSPI + Breadth 실측 정정**: 추정 → 실측 (VKOSPI 18.50→74.02 Investing.com / Breadth 5SMA $MMFD 61.41 · 20SMA $MMTW 57.47 · 50SMA $MMFI 60.77 · 200SMA $MMTH 56.19 Barchart). 데이터 소스 존재 시 WebSearch/WebFetch 우선 원칙.
 - **v49.86 /data-refresh 3차**: CPI 4월 3.8%/Core 2.8%(BLS 5/14) · NFP 4월 +115K(BLS 5/8) · Nikkei 64,999 · BTC $75,216/ETH $2,068 · KR 수출 5/1~20 +64.8%/반도체 +202.1% · KR 외국인 16연속 순매도 · krCpi 2.7/krGdpYoy 2.6(BOK SEP) · aaiiBear 36.6.

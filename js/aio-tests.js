@@ -3410,6 +3410,33 @@
       typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
   }
 
+  // v49.89 — 데이터 계보(lineage) 자동 매핑
+  function _testV4989DataLineage() {
+    // T675: getDataLineageAudit 함수 정의
+    _assert('T675 data_lineage_audit_defined_v4989: AIO.getDataLineageAudit fn 정의',
+      window.AIO && typeof window.AIO.getDataLineageAudit === 'function',
+      typeof (window.AIO && window.AIO.getDataLineageAudit));
+    // T676: lineage 13종 + 끊김(broken) 0건 (gap/manual은 의도된 계층)
+    var dl = window.AIO && window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
+    _assert('T676 data_lineage_no_broken_v4989: lineage rows >= 13 + broken === 0 (gap/manual은 정상)',
+      dl && Array.isArray(dl.rows) && dl.rows.length >= 13 && dl.broken === 0,
+      dl ? 'total=' + dl.total + ' connected=' + dl.connected + ' broken=' + dl.broken + ' gap=' + dl.gap + ' manual=' + dl.manual : 'no audit');
+    // T677: breadth=gap / staticMacro=manual 정확 분류 (조사 결과 반영)
+    var breadthRow = dl && dl.rows && dl.rows.filter(function(r){ return r.id === 'breadth'; })[0];
+    var macroRow = dl && dl.rows && dl.rows.filter(function(r){ return r.id === 'staticMacro'; })[0];
+    _assert('T677 data_lineage_tier_classify_v4989: breadth=gap + staticMacro=manual (B/C계층 분류)',
+      breadthRow && breadthRow.status === 'gap' && macroRow && macroRow.status === 'manual',
+      'breadth=' + (breadthRow ? breadthRow.status : '?') + ' macro=' + (macroRow ? macroRow.status : '?'));
+    // T678: 사이드바 19축 dataLineage row DOM
+    _assert('T678 sidebar_19_lineage_v4989: [data-audit-key="dataLineage"] DOM',
+      !!document.querySelector('[data-audit-key="dataLineage"]'),
+      'present check');
+    // T679: APP_VERSION semver >= 49.89
+    _assert('T679 app_version_v4989: APP_VERSION >= v49.89 (semver)',
+      typeof APP_VERSION !== 'undefined' && /^v49\.\d+$/.test(APP_VERSION) && parseInt(APP_VERSION.split('.')[1], 10) >= 89,
+      typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
+  }
+
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지
   function _testV4962CodexAuditCoverageIntegration() {
     var reg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
@@ -4556,6 +4583,7 @@
     try { _testV4982PostIntegrationAudit(); } catch(e) { console.error('Group76 error:', e); }
     try { _testV4983InstitutionalIntuitive(); } catch(e) { console.error('Group77 error:', e); }
     try { _testV4988BootLoader(); } catch(e) { console.error('Group78 error:', e); }
+    try { _testV4989DataLineage(); } catch(e) { console.error('Group79 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

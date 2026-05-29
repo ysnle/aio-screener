@@ -4042,3 +4042,22 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **파일**: `js/aio-data.js:2896` fetchBreadthData
 - **violated_rule**: 없음 (설계 갭 문서화)
 - **prevention**: C계층(수동) + B계층(자동화갭) 데이터는 `getAutoOpsReadiness`에 stale 경과일 축 추가 검토 (v49.89+).
+
+---
+
+## P449 · v49.89 · F&G 초기진단 성급 (직접호출만 보고 CORS 갭 판정 → 정정)
+
+- **증상**: 데이터 lineage 조사 첫 grep에서 `fetchFearGreed`가 `fetchWithTimeout(url)` 직접 호출만 보고 "CNN dataviz CORS 차단 갭"으로 성급 판정.
+- **원인**: 함수 catch 블록 미확인. 실제로는 catch에 (1) CORS_PROXY 프록시 재시도 (2) DATA_SNAPSHOT snapshot 폴백 3단 체인 완비. `_applyFearGreedScore`가 sourceKind live/proxy/snapshot 분류.
+- **수정**: 진단 정정 — F&G는 갭 아니라 모범 사례. 코드 수정 0건. 교훈 기록.
+- **violated_rule**: P68(코드 확인 없이 추측 금지) — 함수 전체 읽기 전 부분 grep으로 판정한 절차 오류.
+- **prevention**: fetch 함수 lineage 판정 시 catch/폴백 블록까지 전체 읽고 판정. getDataLineageAudit이 폴백 체인 포함 자동 검증.
+
+## P450 · v49.89 · 데이터 lineage(source→render) 자동 audit 부재
+
+- **증상**: 사용자 "데이터 하나하나 source→정확성→가공→render 흐름 조사했나?" — 데이터별 5단계 계보를 자동 검증하는 함수 부재. 기존 getDataPipelineAudit은 레이어별 카운트지 데이터별 lineage 아님.
+- **원인**: 데이터 계보가 코드 전반에 분산 (DATA_APIS source + REFRESH_SCHEDULE scheduler + PriceStore/MacroStore store + transform 함수 + data-live-price/data-snap render). 단일 매핑 부재.
+- **수정**: `AIO.getDataLineageAudit()` 신설 — 13종 데이터 × {source URL, scheduler 등록, transform, renderSink DOM 카운트} 자동 매핑 + connected/gap(B계층)/manual(C계층)/broken 분류. broken 0건 확인. 사이드바 19축.
+- **파일**: `js/aio-core.js` getDataLineageAudit + _aioRefreshAuditWidget dataLineage 분기 / `index.html` 사이드바 row
+- **violated_rule**: R180 신규
+- **prevention**: R180 — 데이터 추가/변경 시 5단계 lineage 연결 + getDataLineageAudit broken 0 의무. 사용자 "조사했나?" 질의에 함수 한 방 응답.

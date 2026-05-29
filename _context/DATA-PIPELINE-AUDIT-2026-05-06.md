@@ -79,3 +79,31 @@ Before deploy or GitHub parity review:
 3. Load the local or deployed app and run `AIO.getDataPipelineAudit()` and `AIO.runTests()`.
 4. Confirm `layers.render.livePriceSinkCount > 0`, `layers.render.snapSinkCount > 0`, and `layers.state.liveDataCount > 0` after quote refresh.
 5. Treat `status: warn` as acceptable only when the issue list points to known public API/RSS degradation, not missing functions or rejected core prices.
+
+---
+
+## v49.89 데이터 계보(Lineage) End-to-End 매핑 (2026-05-28)
+
+사용자 "데이터 하나하나 source→정확성→가공→render 흐름 조사" 요청으로 13종 데이터의 5단계 lineage를 코드 직접 추적. `AIO.getDataLineageAudit()`로 자동화.
+
+| 데이터 | Source (URL/함수) | Transport | Store/Transform | Render sink | 계층 |
+|--------|------------------|-----------|-----------------|-------------|------|
+| 시세 | query1.finance.yahoo.com/v8/chart · fetchLiveQuotes | fetchViaProxy 5중 | PriceStore.set 검증 | data-live-price(149) | auto |
+| VIX | Yahoo ^VIX 3mo · fetchSentimentHistory | fetchViaProxy | vixToPercentile | data-live-price+차트 | auto |
+| F&G | production.dataviz.cnn.io · fetchFearGreed | 직접→CORS_PROXY→snapshot 3단 | _applyFearGreedScore (live/proxy/snapshot 분류) | data-snap | auto |
+| PCR | cdn.cboe.com/options_volume · fetchPutCall | CORS_PROXY | _applyFearGreedScore | data-snap | auto |
+| FRED | api.stlouisfed.org · fetchAllFredData | 직접(CORS친화) | applyTechIndicators | 차트 | auto(키) |
+| 기술지표 | fetchTechnicalIndicators(SPY) | fetchViaProxy | applyTechIndicators | 차트 | auto |
+| HY스프레드 | FRED BAMLH0A0HYM2 · fetchHYSpread | 직접 | — | data-snap | auto(키) |
+| 뉴스 | RSS 다중 · fetchAllNews/fetchOneFeed | 프록시 | scoreItem+classifyTopic+NewsStore | renderFeed | auto |
+| KR수급 | Naver investorTrend · fetchKrSupplyData | fetchViaProxy | updateKrSupplyDOM | DOM | auto |
+| VKOSPI | Naver VKOSPI/basic · fetchVkospiDynamic | fetchViaProxy | DATA_SNAPSHOT.vkospi | data-snap | auto |
+| **Breadth %aboveMA** | (실 fetch 미구현) · fetchBreadthData | proxy만 | updateBreadthUI 근사 | data-snap | **gap (B계층)** |
+| **CPI/PCE/NFP/AAII/NAAIM/SKEW/MOVE/글로벌지수** | (fetch 함수 0건) | — | /data-refresh 수동 | data-snap | **manual (C계층)** |
+| BTC/ETH | CoinGecko(무키)/수동 | 직접 | PriceStore.set | data-live-price | auto |
+
+**계층 정의**: auto=스케줄러+렌더 완전 연결 / gap=자동화 미구현(B계층) / manual=수동 갱신(C계층, 개인 키 부재 데이터).
+
+**검증**: `AIO.getDataLineageAudit()` → broken 0건. 사이드바 19축 dataLineage row. T675~T679.
+
+**남은 갭**: (1) B계층 breadth %above MA 실 fetch — Barchart $MMFI/$MMTW/$MMFD 프록시 통합 (P448, 향후) (2) C계층 stale 경과일 가시화 (향후).

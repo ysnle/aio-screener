@@ -11748,6 +11748,67 @@ window.AIO.assertKrTickerMappingAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.89 P450/R180: getDataLineageAudit — 데이터별 source→scheduler→transform→render 5단계 lineage 자동 매핑
+// 각 핵심 데이터가 (1)스케줄러 등록 (2)렌더 sink(data-live-price/data-snap DOM) 연결됐는지 자동 검증.
+// tier: auto(완전자동) / gap(B계층 자동화 미구현) / manual(C계층 수동 /data-refresh)
+// 사용자 "데이터 하나하나 source→render 흐름 조사" 질의에 대한 영구 자동 응답.
+// ─────────────────────────────────────────────────────────────────
+window.AIO.getDataLineageAudit = function() {
+  try {
+    var sched = window.REFRESH_SCHEDULE || {};
+    function domCount(attr) { try { return document.querySelectorAll('[' + attr + ']').length; } catch(_) { return 0; } }
+    // 핵심 데이터 13종 lineage 정의 (코드 조사 v49.89 기반 — source URL은 실제 fetch 함수 확인)
+    var LINEAGE = [
+      { id:'quotes',     label:'시세 (지수/종목)',  source:'Yahoo v8 chart (query1.finance.yahoo.com)', schedKey:'quotes',     transform:'PriceStore.set 검증',        renderAttr:'data-live-price', tier:'auto' },
+      { id:'vix',        label:'VIX',              source:'Yahoo ^VIX 3mo',                            schedKey:'vixHistory', transform:'vixToPercentile',            renderAttr:'data-live-price', tier:'auto' },
+      { id:'fearGreed',  label:'F&G (공포탐욕)',    source:'CNN dataviz → CORS_PROXY → snapshot (3단)', schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:'data-snap',       tier:'auto' },
+      { id:'putCall',    label:'Put/Call',         source:'CBOE cdn (CORS_PROXY 경유)',                 schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:'data-snap',       tier:'auto' },
+      { id:'fred',       label:'FRED 매크로',       source:'api.stlouisfed.org (CORS 친화, 키 필요)',     schedKey:'fred',       transform:'applyTechIndicators',        renderAttr:null,              tier:'auto', needsKey:true },
+      { id:'technicals', label:'기술 지표 (SPY)',   source:'fetchTechnicalIndicators',                  schedKey:'technicals', transform:'applyTechIndicators',        renderAttr:null,              tier:'auto' },
+      { id:'hySpread',   label:'HY 스프레드',       source:'FRED BAMLH0A0HYM2 (키 필요)',                schedKey:'hySpread',   transform:'fetchHYSpread',              renderAttr:'data-snap',       tier:'auto', needsKey:true },
+      { id:'news',       label:'뉴스',             source:'RSS 다중 (fetchOneFeed)',                    schedKey:'news',       transform:'scoreItem + classifyTopic',  renderAttr:null,              tier:'auto' },
+      { id:'krSupply',   label:'KR 수급',          source:'Naver investorTrend API (프록시)',           schedKey:'krSupply',   transform:'updateKrSupplyDOM',          renderAttr:null,              tier:'auto' },
+      { id:'krDynamic',  label:'VKOSPI/KR 동적',    source:'Naver VKOSPI/basic (프록시)',                schedKey:'krDynamic',  transform:'fetchVkospiDynamic→DATA_SNAPSHOT.vkospi', renderAttr:'data-snap', tier:'auto' },
+      { id:'breadth',    label:'Breadth %above MA', source:'(실 fetch 미구현 — AV advance/decline 근사치만)', schedKey:'breadth', transform:'updateBreadthUI (근사)',     renderAttr:'data-snap',       tier:'gap',    note:'B계층: fetchBreadthData가 MMFI/MMTW/MMFD 선언만, %above MA는 정적 폴백 (P448). /data-refresh 수동 갱신.' },
+      { id:'staticMacro',label:'CPI/PCE/NFP/AAII/NAAIM/SKEW/MOVE/글로벌지수', source:'(fetch 함수 0건)', schedKey:null, transform:'/data-refresh 수동', renderAttr:'data-snap', tier:'manual', note:'C계층: 자동 fetch 경로 없음, 수동 갱신 (R179 클라이언트 모델 — 개인 키 부재 데이터)' },
+      { id:'crypto',     label:'BTC/ETH',          source:'CoinGecko (무키 30/min) / 수동 폴백',         schedKey:'quotes',     transform:'PriceStore.set',             renderAttr:'data-live-price', tier:'auto' }
+    ];
+    var rows = LINEAGE.map(function(L) {
+      var schedOk = L.schedKey ? !!(sched[L.schedKey] && typeof sched[L.schedKey].fn === 'function') : false;
+      var sinks = L.renderAttr ? domCount(L.renderAttr) : null;
+      var renderOk = L.renderAttr ? (sinks > 0) : true; // null = 차트/별도 렌더
+      var status;
+      if (L.tier === 'gap') status = 'gap';
+      else if (L.tier === 'manual') status = 'manual';
+      else status = (schedOk && renderOk) ? 'connected' : 'broken';
+      return {
+        id: L.id, label: L.label, source: L.source,
+        schedulerRegistered: schedOk, schedKey: L.schedKey || null,
+        transform: L.transform, renderAttr: L.renderAttr || '(chart/etc)',
+        renderSinks: sinks, needsKey: !!L.needsKey,
+        status: status, tier: L.tier, note: L.note || null
+      };
+    });
+    var connected = rows.filter(function(r){ return r.status === 'connected'; }).length;
+    var broken    = rows.filter(function(r){ return r.status === 'broken'; }).length;
+    var gap       = rows.filter(function(r){ return r.status === 'gap'; }).length;
+    var manual    = rows.filter(function(r){ return r.status === 'manual'; }).length;
+    return {
+      status: broken === 0 ? 'ok' : 'warn',
+      total: rows.length,
+      connected: connected, broken: broken, gap: gap, manual: manual,
+      autoTierPct: Math.round((connected / rows.length) * 100),
+      brokenRows: rows.filter(function(r){ return r.status === 'broken'; }).map(function(r){ return r.id; }),
+      rows: rows,
+      note: 'v49.89 R180: 데이터 source→scheduler→transform→render(DOM sink) 5단계 lineage 자동 매핑. connected=완전자동연결 / gap=B계층(자동화미구현 정적폴백) / manual=C계층(수동 data-refresh).',
+      generatedAt: new Date().toISOString()
+    };
+  } catch(e) {
+    return { status: 'error', message: e.message };
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.58 P322/R108 신규: 사이드바 Audit 위젯 + web_search 토글 + 키 백업 GUI 핸들러
 // 사용자가 콘솔 없이 self-check + 토글 + 백업 조작 가능. 11 audit 함수 GUI 노출.
 // ─────────────────────────────────────────────────────────────────
@@ -12101,6 +12162,20 @@ window._aioRefreshAuditWidget = function() {
           mcaEl.innerHTML = '<span style="color:' + colorM + ';">' + iconM + '</span> 📅 거시 캘린더 · 대기 advance <b>' + mca.advancedCount + '</b> (dry-run)';
         }
       } catch(e) { mcaEl.textContent = '⚠ macroCalendarAuto error'; }
+    }
+    // v49.89 P450/R180: 데이터 계보 (source→render) 19축
+    var dlEl = container.querySelector('[data-audit-key="dataLineage"]');
+    if (dlEl) {
+      try {
+        var dl = window.AIO && window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
+        if (dl) {
+          var iconL = dl.status === 'ok' ? '✓' : '⚠';
+          var colorL = dl.status === 'ok' ? 'var(--data-green)' : 'var(--data-amber)';
+          dlEl.innerHTML = '<span style="color:' + colorL + ';">' + iconL + '</span> 🔗 데이터 계보 자동 <b>' + dl.connected + '</b>/' + dl.total + ' · gap ' + dl.gap + ' · 수동 ' + dl.manual + (dl.broken > 0 ? ' · <span style="color:var(--data-red);">끊김 ' + dl.broken + '</span>' : '');
+        } else {
+          dlEl.innerHTML = '<span style="color:var(--text-muted);">— dataLineage audit 미가용</span>';
+        }
+      } catch(e) { dlEl.textContent = '⚠ dataLineage error'; }
     }
     // v49.83 P450/R178: failure status sticky top + pulse 애니메이션 (#9)
     try {
@@ -14034,7 +14109,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.88';
+const APP_VERSION = 'v49.89';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
