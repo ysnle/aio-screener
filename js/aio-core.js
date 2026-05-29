@@ -14034,7 +14034,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.86';
+const APP_VERSION = 'v49.87';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -14998,8 +14998,8 @@ const DATA_SNAPSHOT = {
   bokGdpFcst:   2.6,    bokCpiFcst: 2.7,             // v49.85: 한은 2026 성장률 2.6% / 물가 2.7% 상향 조정 (5/28 SEP)
   krBond3y:     2.82,   krBond10y: 3.72,             // 국고채 3년/10년 수익률 (<span data-date-ref="kr-last-basis">기준</span>, 10Y 월중 최고)
   krCd91:       2.78,                             // CD 91일 금리
-  vkospi:      18.50,                             // v49.84: KOSPI 변동성 확대 (5일 랠리 종료 + KOSDAQ -2.54%)
-  vkospiPct:   +3.90,                              // v49.84: VKOSPI 일별 변동률 — data-snap="vkospi-chg" 시드
+  vkospi:      74.02,                             // v49.87: VKOSPI 5/28 종가 74.02 (Investing.com/kr KSVKOSPI 실측 — 5/27 71.6에서 급등, KOSPI 폭등 후 변동성 상승)
+  vkospiPct:   +3.39,                              // v49.87: VKOSPI 일별 변동률 (71.6→74.02) — data-snap="vkospi-chg" 시드
   hySpread:    275,                                // v49.84: HY 스프레드 (위험선호 지속, 신고가 환경 — 5/27 SPX 신고가)
   tnx2y:       4.035,                              // v49.84: 2Y Treasury — WebSearch 2026-05-27 (이란 평화 협상 호재로 short-end -1bp)
 
@@ -15030,10 +15030,10 @@ const DATA_SNAPSHOT = {
   // ── v49.41 P299/R74 보강: breadth*sma DATA_SNAPSHOT 시드 등록 (이전 _fallback만 정의 → 폴백만 동작 차단) ──
   // breadth-5sma / breadth-20sma / breadth-50sma / breadth-200sma data-snap 4 sink가 시드 의존.
   // 실시간 fetch 경로(있다면 fetchBreadthFromAPI)에서 set 시 _isFallback false 전환 필요.
-  breadth5sma:    68,   // SPX 종목 5일선 위 비중 (%) — 초단기 추세 양호 기준
-  breadth20sma:   75,   // 20일선 위 비중 (%) — 단기 추세 강함
-  breadth50sma:   46,   // 50일선 위 비중 (%) — 중기 추세 혼조
-  breadth200sma:  55,   // 200일선 위 비중 (%) — 장기 추세
+  breadth5sma:    61,   // v49.87: $MMFD 61.41 → 반올림 61 (Barchart 실측, NYSE % above 5-day MA)
+  breadth20sma:   57,   // v49.87: $MMTW 57.47 → 57 (Barchart 실측, NYSE % above 20-day MA — 기존 75 대비 CRITICAL 하락)
+  breadth50sma:   61,   // v49.87: $MMFI 60.77 → 61 (Barchart 실측, NYSE % above 50-day MA — 기존 46 대비 개선 확인)
+  breadth200sma:  56,   // v49.87: $MMTH 56.19 → 56 (Barchart 실측, NYSE % above 200-day MA)
 
   // ── v48.61 P125 해소: DATA_SNAPSHOT 누락 필드 보충 (v49.22: 2026-05-16 기준 갱신, P213 DOM 정합) ──
   krCreditBalance: 19.2,     // 한국 신용잔고 (조원, 2026-05-16 추정 — 감소 추세)
@@ -15160,9 +15160,9 @@ const DATA_SNAPSHOT = {
     fg: 60,              // v49.84: CNN F&G 60 (Greed) 2026-05-26 기준
     fg_uw: 65,           // v49.84: UW 확장 F&G (CNN 60 → UW 65 추정)
     vix: 17.01,          // v49.84: VIX 2026-05-27 close
-    breadth200: 75,      // 20SMA Above % (bpSPX20 마지막 값과 동기화 — 추정 유지, 신고가 환경)
-    breadth5: 70,        // v49.84: 5SMA Above % — SPX 신고가 환경 단기 양호
-    breadth50: 52,       // v49.84: 50SMA Above % — 중기 회복 (5/12 46 → 5/27 52)
+    breadth200: 57,      // v49.87: $MMTW 57.47 실측 (Barchart — 기존 추정 75 대폭 하향 CRITICAL)
+    breadth5: 61,        // v49.87: $MMFD 61.41 실측 (Barchart)
+    breadth50: 61,       // v49.87: $MMFI 60.77 실측 (Barchart)
     pcr: 0.83,           // v49.85: CBOE total PCR 2026-05-21 (equity 0.55 / index 별도)
     aaiiBear: 36.6,      // v49.84: AAII 2026-05-22 발표 Bearish %
     spx50ma: 7280,       // v49.84: SPX 50일 이동평균 (5/27 기준 추정 — 신고가 후 상승)

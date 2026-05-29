@@ -1,5 +1,5 @@
 {
-  "version": "v49.86",
-  "built": "2026-05-28T19:00:00+09:00",
-  "note": "v49.86 /data-refresh 3차 세밀 보강 — US 거시/글로벌 지수/크립토/한국 수출·수급 갱신. (1) CPI 4월 YoY 3.8%(Core 2.8%) — BLS 5/14 발표 (Iran 전쟁+AI 지출, 기존 3.3→3.8 CRITICAL). (2) NFP 4월 +115K / 실업률 4.3% 유지 — BLS 5/8 발표 (기존 3월 +228K→4월 +115K 둔화). (3) Nikkei 64,999 (5/27, 기존 59,284→64,999 +9.7%). (4) BTC $75,216 / ETH $2,068 (Yahoo Finance 5/27, 기존 $79,893/$2,390 대비 약세). (5) SKEW 139.04 (StreetStats 5/27, 기존 142.50→139.04). (6) KR 수출 5/1~20: +64.8% YoY (527억$ 역대 최대) / 반도체 +202.1% (220억$, HBM AI 수요) / 15개월 연속 흑자. (7) KR 외국인 -1.77조원 16연속 순매도 (5/27, 한경). (8) krCpi 2.1→2.7% (BOK 5/28 SEP 물가 2.7% 상향). (9) krGdpYoy 1.8→2.6% (BOK 5/28 SEP 성장률 상향). (10) aaiiBear 33.0→36.6 (AAII 5/22 확인). _updated 16:30→19:00. 동기화 7곳."
+  "version": "v49.87",
+  "built": "2026-05-28T20:00:00+09:00",
+  "note": "v49.87 — VKOSPI + Breadth 4개 실측값 정정 (추정→WebFetch/WebSearch 실제 확인). (1) VKOSPI 18.50추정 → 74.02 실측 (Investing.com/kr KSVKOSPI 5/28 종가, 전일 71.6). 기존 스냅샷 17.80(v48.70 기준) 대비 4배 폭등 — KOSPI 8,200 랠리 후 변동성 급등. (2) Breadth 20SMA $MMTW: 75추정 → 57.47 실측 (Barchart.com, NYSE % above 20-day MA). (3) Breadth 5SMA $MMFD: 68추정 → 61.41 (Barchart). (4) Breadth 50SMA $MMFI: 46추정 → 60.77 (Barchart). (5) Breadth 200SMA $MMTH: 55추정 → 56.19 (Barchart). _fallback breadth200 75→57 / breadth5 70→61 / breadth50 52→61 정합. 동기화 7곳. 사용자 지적 수용: 데이터 소스(Investing.com/TradingView MNFD/MNTW/MNFI)가 있음에도 추정으로 처리한 점 수정 — 앞으로 동일 케이스 WebSearch/WebFetch 우선."
 }
