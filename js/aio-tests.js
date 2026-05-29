@@ -3487,6 +3487,21 @@
     _assert('T686 snapshot_fallback_mirror_consistency_v4996: 본체↔_fallback 미러 drift 0 (R184)',
       !!sfc && sfc.issueCount === 0,
       sfc ? ('issueCount=' + sfc.issueCount + ' mismatches=' + JSON.stringify(sfc.mismatches)) : 'audit fn missing');
+    // T687: v49.96 P460 — KR_STOCK_DB 코드 추출 (코드-키 객체에서 6자리 KEY 수집). 0이면 siseJson 폴백 tier 무력화
+    var krdb = (typeof window.KR_STOCK_DB !== 'undefined') ? window.KR_STOCK_DB : (typeof KR_STOCK_DB !== 'undefined' ? KR_STOCK_DB : null);
+    var krCodes = [];
+    if (krdb) (function collect(src){
+      if (!src) return;
+      if (Array.isArray(src)) { src.forEach(collect); return; }
+      if (typeof src === 'object') {
+        if (src.code) krCodes.push(src.code);
+        else if (src.symbol && /^[0-9]{6}$/.test(String(src.symbol))) krCodes.push(src.symbol);
+        else Object.keys(src).forEach(function(k){ if (/^[0-9]{6}$/.test(k)) krCodes.push(k); collect(src[k]); });
+      }
+    })(krdb);
+    _assert('T687 kr_stock_db_code_extraction_v4996: 코드-키 객체에서 6자리 코드 추출 ≥ 100 (P460 siseJson 폴백 tier)',
+      !!krdb && krCodes.length >= 100,
+      krdb ? ('extracted=' + krCodes.length + ' dbKeys=' + Object.keys(krdb).length) : 'KR_STOCK_DB undefined');
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지

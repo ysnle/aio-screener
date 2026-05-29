@@ -28,6 +28,12 @@
 
 누적 값 시정 (v49.91~96): 22 + 미러 5 = **27건**. 동기화 7곳.
 
+### 추가 근본 수정: KR_STOCK_DB 코드 추출 버그 (P460) — 앱 자체 audit이 surfacing
+- 사용자 "진짜 완벽?" 압박 → 앱 자신의 `getAutoOpsReadiness()`/`getDataQualityIssueAudit()`를 띄워 점검 → "KR_STOCK_DB code extraction returned 0 codes" 경고 발견
+- **원인**: `_aioCollectKrCodes`(aio-data.js)가 값에서 `.code`/`.symbol`을 찾는데 KR_STOCK_DB는 코드가 KEY (`'103140':{...}` 198개). 6자리 KEY를 안 봐서 0 추출 → KR 개별종목 siseJson 최종 폴백 tier 무력화 (primary Object.keys 경로는 정상이라 숨어있었음)
+- **수정**: 객체-키 재귀에 `if (/^[0-9]{6}$/.test(k)) push(k)` 추가. 라이브 검증 0→**198개**. T687 회귀.
+- 데이터 정확성 압박이 **코드 결함 발굴**로 이어진 사례 — "겉핥기 아닌 정합성"의 가장 깊은 층(죽은 폴백 tier).
+
 ---
 
 ## v49.95 — US 2차 거시지표 외부 실측 1:1 대조 + 전수 커버리지 정직 점검 (값 정확성 5차) (2026-05-29)

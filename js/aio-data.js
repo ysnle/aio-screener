@@ -8973,7 +8973,12 @@ async function fetchKrNaverQuotes() {
     if (typeof src === 'object') {
       if (src.code) allCodesFlat.push(src.code);
       else if (src.symbol && /^[0-9]{6}$/.test(String(src.symbol))) allCodesFlat.push(src.symbol);
-      else Object.keys(src).forEach(function(k) { _aioCollectKrCodes(src[k]); });
+      else Object.keys(src).forEach(function(k) {
+        // v49.96 P460: KR_STOCK_DB는 코드가 KEY ('103140': {name,price,...})이고 값엔 .code/.symbol 없음.
+        // 이전엔 값만 재귀해 6자리 KEY를 놓쳐 0개 추출 → siseJson 최종 폴백 tier 무력화. 키가 6자리 코드면 직접 수집.
+        if (/^[0-9]{6}$/.test(k)) allCodesFlat.push(k);
+        _aioCollectKrCodes(src[k]);
+      });
     }
   }
   if (typeof KR_STOCK_DB !== 'undefined') {

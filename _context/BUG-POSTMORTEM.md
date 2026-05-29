@@ -4147,3 +4147,12 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **근본 보강 의의**: 사용자가 우려한 "겉핥기 아닌 정합성"의 가장 깊은 층 — 사람 눈에 안 보이는 **이중 저장소 drift**를 자동 가드로 승격. 내가 직접 만든 불일치(move)를 audit이 즉시 검출 = 가드 작동 입증.
 - **violated_rule**: R184 신규 (동일 지표 2저장소 정합 의무). R55(snapshot consistency) 연장 — runtime DOM 레벨 → JS 객체 레벨 확장.
 - **prevention**: 미러 키(12개) 갱신 시 양쪽 동시 수정 + `getSnapshotFallbackConsistencyAudit().issueCount === 0` 검증. 신규 미러 키 추가 시 aliasMap 등록 의무.
+
+## P460 · v49.96 · KR_STOCK_DB 코드 추출 0건 — siseJson 최종 폴백 tier 무력화 (앱 자체 audit이 surfacing)
+
+- **증상**: 사용자 "진짜 남은 영역없이 완벽?" → 앱 자신의 `getAutoOpsReadiness()` status 'warn' + `getDataQualityIssueAudit()`에 "KR_STOCK_DB code extraction returned 0 codes" 경고. KR 개별종목 fetch의 siseJson(3~4차 최종 폴백)이 대상 코드 0개로 무력화.
+- **원인**: `_aioCollectKrCodes`(aio-data.js L8967)가 객체 값에서 `.code`/`.symbol` 필드를 찾는데, **KR_STOCK_DB는 코드가 KEY인 구조**(`'103140': {mcap,name,price,sector,themes}` — 198 entries, 값에 .code 없음). 재귀가 값만 탐색하고 6자리 KEY를 안 봐서 0개 추출. primary 경로(L8877 `Object.keys(KR_STOCK_DB)`)는 정상이라 일반 사용엔 안 보였고, **deepest 폴백 tier에서만 silent 무력화**.
+- **수정**: `_aioCollectKrCodes` 객체-키 재귀 분기에 `if (/^[0-9]{6}$/.test(k)) allCodesFlat.push(k)` 추가 — 코드-키 객체 직접 수집. 라이브 검증: 0 → **198개**(= Object.keys 전체), 전부 6자리.
+- **근본성**: 단순 데이터값이 아니라 **fetch 폴백 체인의 죽은 tier** — 사용자가 "완벽?" 압박으로 앱 자체 audit을 띄우게 했고, 그 audit이 사람 눈에 안 보이던 코드 결함을 surfacing. 데이터 정확성 사이클이 코드 결함 발굴로 이어진 사례.
+- **violated_rule**: 없음 (신규 버그). R15(데이터 미수신 처리) 연장 — 폴백 tier 무결성.
+- **prevention**: T687 회귀(코드-키 객체 추출 ≥ 100). 코드-키 구조 데이터(KR_STOCK_DB류) 순회 시 KEY가 식별자인지 확인. `recordDataQualityIssue` 경고는 getAutoOpsReadiness에 집계되므로 주기적 `getDataQualityIssueAudit()` 점검.
