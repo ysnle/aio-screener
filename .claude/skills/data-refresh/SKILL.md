@@ -1,9 +1,11 @@
 ---
 name: data-refresh
-description: 전체 정적 데이터 전수 점검 + WebSearch 기반 최신화. 지표/차트/시세/함수/로직/기준/텍스트 모두 포함 — 22개 → 30개 카테고리(A~T 그룹). v48.40+ 확장.
+description: 전체 정적 데이터 전수 점검 + WebSearch 기반 최신화. v49.96 audit-first 재설계 — 앱 자체 audit(getAutoOpsReadiness/getDataQualityIssueAudit/getSnapshotFallbackConsistencyAudit)을 0단계로 먼저 실행해 stale/drift/코드결함 surfacing 후 타겟 시정. 지표/차트/시세/함수/로직/기준/텍스트 30 카테고리(A~T). 데이터는 js/aio-core.js·js/aio-data.js (v48.29 모듈분리).
 ---
 
-# /data-refresh — 전체 정적 데이터 최신화 워크플로우 (v48.40+)
+# /data-refresh — 전체 정적 데이터 최신화 워크플로우 (v49.96 audit-first 재설계)
+
+> **v49.96 핵심 변경**: (1) **0단계 Audit-First** — 수동 grep 전에 앱 자체 audit 먼저. (2) **아키텍처 이전 공지** — DATA_SNAPSHOT/_fallback→js/aio-core.js, SCREENER_DB/KR_STOCK_DB→js/aio-data.js. (3) R183 sanity·R184 미러·P460 코드결함 교훈 반영.
 
 ## 목적
 프로젝트 전체의 **정적으로 작성된 모든 데이터**를 전수 점검하고, WebSearch 기반으로 오늘 기준 최신화한다.
@@ -31,9 +33,51 @@ description: 전체 정적 데이터 전수 점검 + WebSearch 기반 최신화.
 
 ## 실행 전 필수 읽기
 
-1. `_context/RULES.md` — R15 (데이터 미수신 vs 0%), R21 (데이터 경과일 관리)
-2. `_context/BUG-POSTMORTEM.md` — P10~P11 (bpLabels 동기화), P48 (브레드쓰 배열 2주 괴리), P49 (stale 임계값), P61 (이벤트 후 하드코딩 텍스트 퇴행)
+1. `_context/RULES.md` — R15 (데이터 미수신 vs 0%), R21 (데이터 경과일), **R183 (WebSearch 값 sanity band), R184 (DATA_SNAPSHOT 본체↔_fallback 미러 정합)**
+2. `_context/BUG-POSTMORTEM.md` — P10~P11 (bpLabels), P48 (브레드쓰 괴리), P49 (stale 임계값), P61 (이벤트 후 하드코딩 텍스트 퇴행), **P453 (WebSearch 부정확값·VKOSPI 74 오류), P459 (_fallback 미러 drift), P460 (KR_STOCK_DB 코드-키 추출 0)**
 3. `CHANGELOG.md` 최신 5개 — 최근 어느 카테고리가 갱신됐는지 파악 (중복 작업 방지)
+
+---
+
+## ⚠️ 아키텍처 이전 공지 (v48.29 모듈 분리 — 본문 레거시 grep 경로 치환 필수)
+
+본문(A~T 그룹)의 `grep ... index.html` 명령 다수는 **v48.29 4-모듈 분리 이전** 작성. 데이터는 이제 JS 모듈에 있다:
+
+| 데이터 | 레거시(본문) | **현재 실제 위치** |
+|--------|------------|-------------------|
+| `DATA_SNAPSHOT` 본체 + `_fallback` 미러 | index.html | **js/aio-core.js** |
+| `SCREENER_DB`·`KR_STOCK_DB`(코드-키 객체)·`HOME_WEEKLY_NEWS`·`SCR_KEYWORD_ALIASES` | index.html | **js/aio-data.js** |
+| `THRESHOLD_REGISTRY`·`SCENARIO_REGISTRY`·`STATIC_CONTENT_LIFECYCLE`·`CHAT_CONTEXTS` | index.html | **js/aio-core.js + js/aio-chat.js** |
+| 차트 시계열(vixData/hyData/bpLabels)·폴백 렌더 | index.html | **js/aio-ui.js + js/aio-data.js** |
+| `data-snap`/`data-live-price` sink(DOM) | index.html | index.html (그대로) |
+
+→ 본문 grep의 `index.html`을 위 js 경로로 치환. DOM sink만 index.html 유지.
+
+---
+
+## 0단계: Audit-First (v49.96 신규 — 최우선, 수동 grep보다 먼저)
+
+> **교훈 (v49.91~96)**: 이 스킬 작성 후 앱에 자가 진단 audit이 대거 추가됨(R55~R184). 30 그룹을 수동 grep하기 전에 **앱이 무엇을 stale/drift/결함으로 보고하는지 먼저 듣는다.** audit 플래그 항목에만 수동 WebSearch를 타겟 → 효율·정확성 수배.
+
+**브라우저 콘솔/preview_eval에서 먼저:**
+```js
+AIO.getAutoOpsReadiness()                  // 종합 — issues[] 한 번에
+AIO.getStaticDataGovernanceAudit()         // live-like 정적값 stale + 정적 테이블 90일+
+AIO.getSnapshotFallbackConsistencyAudit()  // 본체↔_fallback 미러 drift (R184/P459)
+AIO.getDataQualityIssueAudit()             // fetch 실패·추출 0건 등 코드 결함도 surfacing (P460)
+AIO.getSnapshotConsistencyAudit()          // 같은 data-snap 키 다중 시드 불일치
+AIO.assertSnapshotInlineMatch()            // DOM 인라인 vs DATA_SNAPSHOT
+AIO.getScenarioFreshnessAudit()            // SCENARIO 30일+
+AIO.getStaticContentLifecycleAudit()       // archive/replace due
+AIO.getChatContextFreshnessAudit()         // CHAT_CONTEXTS stale 토큰
+```
+
+**Audit → 행동 매핑:**
+- 필드/키가 stale/drift 플래그 → 그 항목만 WebSearch 실측 시정 (전수 grep 불필요)
+- `getSnapshotFallbackConsistencyAudit().issueCount > 0` → 검증된 최신값으로 본체+미러 양쪽 동기화 (R184)
+- `getDataQualityIssueAudit` 코드성 경고(추출 0·schema mismatch) → **데이터값 아닌 코드 버그** → 근본 수정 (P460 선례)
+- 1~9 모두 ok + 신규 발표(CPI/NFP/ISM/FOMC) 없음 → 수동 그룹 스캔 생략 가능
+- **WebSearch 값 수용 시 R183 sanity band 필수**: VKOSPI/VIX 9~40·PE 5~60·CPI/PCE -2~10%·지수 일변동 ±5%·상관쌍(VKOSPI≈VIX±15) (P453 VKOSPI 74 오류 방지)
 
 ---
 
@@ -878,6 +922,9 @@ grep -c "_aioFeedHealth.reportOk" js/aio-data.js
 | **D16** | R그룹 UI 텍스트 시점 (v48.40) | 하드코딩 절대 날짜 `'2026-...'` 0건 (주석 제외) · 상대 시간 표현 정합성 |
 | **D17** | S그룹 earnings 캘린더 (v48.40) | `1Q26 실적 4/29` 등 예상 발표일이 현재 기준 유효 (지나간 건 현재 분기로 이월) |
 | **D18** | T그룹 종합 추이 (v48.40) | SCREENER_DB 엔트리 수 · _markFetch 호출 수 · 정적 데이터 라인 수 추이 로그 |
+| **D19** | 0단계 Audit-First 실행 (v49.96) | `getAutoOpsReadiness`/`getStaticDataGovernanceAudit`/`getDataQualityIssueAudit` 먼저 실행 + 플래그 항목 타겟 처리 |
+| **D20** | 본체↔_fallback 미러 정합 (v49.96/R184) | `getSnapshotFallbackConsistencyAudit().issueCount === 0` (move/pcr/vvix/skew 등 12키) |
+| **D21** | R183 sanity + 코드결함 분리 (v49.96) | WebSearch 값 band 이탈 0 · `getDataQualityIssueAudit` 코드성 경고(추출 0 등)는 데이터 아닌 코드 버그로 분리 시정 |
 
 ### 판정 규칙
 - **전부 yes** → PASS ✓, 사용자에게 리포트 제출
