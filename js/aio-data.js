@@ -7135,17 +7135,24 @@ function renderHomeFeed(items) {
           '</div></div>';
       }).join('');
     return;
-  } else if (HOME_WEEKLY_NEWS && HOME_WEEKLY_NEWS.length > 0 && (!items || items.length === 0)) {
-    container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);line-height:1.55;">최근 72시간 안의 핵심 뉴스만 표시합니다. 지난 이벤트는 기본 화면에서 숨기며, 실시간 뉴스 수집이 성공하면 자동으로 교체됩니다.</div>';
+  }
+  // v49.97 P462: 정적 큐레이션이 72h 만료돼 비었을 때 — 동적 RSS 뉴스가 있으면 그것을 우선 표시.
+  // (이전엔 정적이 만료되면 items가 있어도 안내문만 띄워 홈 핵심뉴스가 영구 공백처럼 보였음 = 사용자 보고 "브리핑/뉴스 부실"의 근본)
+  if (!items || items.length === 0) {
+    // 동적 뉴스도 없으면 안내문 (정적 큐레이션 존재 시에만 — 완전 초기엔 로딩 표시 유지)
+    if (HOME_WEEKLY_NEWS && HOME_WEEKLY_NEWS.length > 0) {
+      container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);line-height:1.55;">최근 72시간 핵심 뉴스 수집 중… 실시간 뉴스가 도착하면 자동 표시됩니다.</div>';
+    }
     return;
   }
 
-  // 폴백: 동적 뉴스 (HOME_WEEKLY_NEWS가 비어있을 때만)
-  if (!items || items.length === 0) return;
-
   // v39.0c: 72시간 이내 + score 90+ 진짜 시장 이동 이벤트만
-  let filtered = filterByAge(items, 72);
-  filtered = filtered.filter(i => !i._blacklisted && i.topic !== 'analyst' && (i.score || 0) >= 90);
+  // v49.97 P462: 단계적 완화 — 90+ 가 0건이면 70+, 그래도 0이면 50+ 로 완화해 홈 핵심뉴스 영구공백 방지.
+  //   (정적 큐레이션 만료 후 동적 뉴스가 90점 미만뿐이면 이전엔 빈 화면이었음 = "브리핑/뉴스 부실" 근본 2)
+  let base = filterByAge(items, 72).filter(i => !i._blacklisted && i.topic !== 'analyst');
+  let filtered = base.filter(i => (i.score || 0) >= 90);
+  if (filtered.length === 0) filtered = base.filter(i => (i.score || 0) >= 70);
+  if (filtered.length === 0) filtered = base.filter(i => (i.score || 0) >= 50);
 
   // 중요도 가중: 매크로/지정학/정책 > 실적 > 기업 뉴스
   filtered.forEach(i => {

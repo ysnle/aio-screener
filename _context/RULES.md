@@ -2229,3 +2229,23 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 **자동 가드**: `AIO.getSnapshotFallbackConsistencyAudit()` — 12 키 3% 허용오차 교차검증 (getAutoOpsReadiness 통합, T686 회귀).
 
 **Validation**: `getSnapshotFallbackConsistencyAudit().issueCount === 0`.
+
+## R185. 재발방지 audit은 pull이 아닌 push — 지속 운영 중 자동 surfacing 의무 (v49.96 added, P461 root)
+
+**Rule**: 새 audit/test를 만들면 "수동 호출 전용(pull)"으로 끝내지 않는다. 지속 운영 중 stale/drift/코드결함이 발생하면 **운영자에게 자동으로 드러나야(push)** 한다. audit이 있어도 아무도 콘솔을 안 두드리면 묻힌다 (P460: KR_STOCK_DB 추출 0 결함이 audit엔 있었으나 운영자가 수동 점검 전엔 못 봄).
+
+**메커니즘**: `_aioAutoSurfaceOps()` — `aio:liveQuotes`(라이브 fetch마다)에 throttle(30분) 연결 → `getAutoOpsReadiness`/`getSnapshotFallbackConsistencyAudit`/`getDataQualityIssueAudit` 자동 실행 → warn 시 `console.warn`(운영 진단) + 사이드바 위젯 badge. 엔드유저 팝업 아님(부하 분산 4초 지연 + try/catch).
+
+**근거 (P461)**: 데이터 fetch는 REFRESH_SCHEDULE로 자동(push)이나 품질/drift audit은 수동(pull)뿐 → 지속운영 재발방지의 마지막 빈칸. pull→push로 메움.
+
+**Validation**: `typeof _aioAutoSurfaceOps === 'function'` + `aio:liveQuotes` 리스너 등록 + T688.
+
+## R186. 첫 접속/새로고침 시 진행률 로더 + 정적 콘텐츠 만료 시 동적 폴스루 의무 (v49.97 added, P462 root)
+
+**Rule (a) 부팅 로더**: 첫 접속·새로고침으로 라이브 데이터 동기화 중일 때, 단순 "수신 중" 배너가 아니라 **핵심 N개 데이터 진행률**(N/total + 진행바 + 도착 항목 체크)을 표시한다. 핵심 시세 도착 후 단시간(4초)+하드캡(15초) 자동 닫기, 느린 소스(FRED/KR)는 백그라운드. `_lastFetch[key]` 타임스탬프 기반.
+
+**Rule (b) 정적 콘텐츠 폴스루**: 정적 큐레이션(HOME_WEEKLY_NEWS 등)이 만료(72h)되면 안내문만 띄우지 말고 **동적 소스(RSS)로 자동 폴스루**한다. 동적 필터 임계값은 **단계적 완화**(90→70→50)로 영구 공백 방지.
+
+**근거 (P462)**: 홈 "핵심 뉴스"가 정적 3건 만료 후 동적 items가 있어도 안내문만 띄우거나 score≥90 필터에 다 걸려 빈 화면 = 사용자 보고 "브리핑/뉴스 부실"의 근본.
+
+**Validation**: 로더 진행률 DOM(`aio-boot-count`/`aio-boot-bar-fill`) + `renderHomeFeed` 단계적 완화(70/50) + T689.

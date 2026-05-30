@@ -3502,6 +3502,12 @@
     _assert('T687 kr_stock_db_code_extraction_v4996: 코드-키 객체에서 6자리 코드 추출 ≥ 100 (P460 siseJson 폴백 tier)',
       !!krdb && krCodes.length >= 100,
       krdb ? ('extracted=' + krCodes.length + ' dbKeys=' + Object.keys(krdb).length) : 'KR_STOCK_DB undefined');
+    // T688: v49.96 P461/R185 — Audit Push (pull→push). _aioAutoSurfaceOps 존재 + 구조 반환 + 위젯 갱신
+    var pushFn = (typeof window._aioAutoSurfaceOps === 'function');
+    var pushRes = pushFn ? window._aioAutoSurfaceOps() : null;
+    _assert('T688 audit_push_pull_to_push_v4996: _aioAutoSurfaceOps 존재 + {count,problems} 반환 (지속운영 자동 surfacing R185)',
+      pushFn && pushRes && typeof pushRes.count === 'number' && Array.isArray(pushRes.problems),
+      pushFn ? ('count=' + (pushRes && pushRes.count) + ' problems=' + (pushRes && pushRes.problems ? pushRes.problems.length : 'n/a')) : '_aioAutoSurfaceOps 미정의');
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지

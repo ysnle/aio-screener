@@ -6,6 +6,19 @@
 
 ---
 
+## v49.97 — 부팅 로더 진행률화 + 브리핑/뉴스 자동화 (P462/R186) (2026-05-29)
+
+**Changed files**: `index.html`, `js/aio-data.js`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/RULES.md`, `_context/BUG-POSTMORTEM.md`
+
+**사용자 지적**: "(1) 새로고침 시 데이터 최신화 동안 게임 접속식 대기창 필요 (2) 브리핑/시장핵심뉴스 아직 부실".
+
+- **부팅 로더 진행률화** (index.html): v49.88 단순 "수신 중" 배너 → 핵심 5개(시세·심리·시장폭·뉴스·변동성) 진행률 추적. `N/5` 카운터 + 진행바 + 도착 항목 체크(`_lastFetch` 타임스탬프 폴링). 핵심 시세 후 4초/하드캡 15초 자동 닫기, 느린 소스(FRED/KR)는 백그라운드. **라이브 검증**: `1/5`(바 20%)→데이터 도착 후 자동 닫힘.
+- **홈 핵심뉴스 영구공백 근본 fix** (P462, aio-data.js `renderHomeFeed`): 정적 `HOME_WEEKLY_NEWS` 72h 만료 시 (a) 안내문만 띄우던 것 → 동적 RSS items로 자동 폴스루, (b) `score >= 90` 단일 임계값 → 단계적 완화(90→70→50). **라이브 검증**: homeNewsHasContent=true, 콘솔 에러 0.
+- **지속운영 시스템 현황**: REFRESH_SCHEDULE 11태스크 자동 갱신(시세 3분~HY 6시간, 라이브 `_lastFetch` 6키 확인) + v49.96 audit push + v49.97 진행률 로더 = 첫 접속~지속 운영 가시화.
+- R186 + T689 + 동기화 7곳.
+
+---
+
 ## v49.96 — 근본 보강: 본체↔_fallback 미러 정합 가드 (R184/P459) (2026-05-29)
 
 **Changed files**: `js/aio-core.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/RULES.md`, `_context/BUG-POSTMORTEM.md`
@@ -33,6 +46,18 @@
 - **원인**: `_aioCollectKrCodes`(aio-data.js)가 값에서 `.code`/`.symbol`을 찾는데 KR_STOCK_DB는 코드가 KEY (`'103140':{...}` 198개). 6자리 KEY를 안 봐서 0 추출 → KR 개별종목 siseJson 최종 폴백 tier 무력화 (primary Object.keys 경로는 정상이라 숨어있었음)
 - **수정**: 객체-키 재귀에 `if (/^[0-9]{6}$/.test(k)) push(k)` 추가. 라이브 검증 0→**198개**. T687 회귀.
 - 데이터 정확성 압박이 **코드 결함 발굴**로 이어진 사례 — "겉핥기 아닌 정합성"의 가장 깊은 층(죽은 폴백 tier).
+
+### 추가 근본 보강: Audit Push — pull→push (P461/R185)
+- 사용자 "데이터 작업하면서 근본+재발방지 다 했나?" 회고 → grep 확인: 재발방지 audit(runTests·getAutoOpsReadiness·getDataQualityIssueAudit)이 **전부 수동 호출 전용(pull)**, 자동 경고 0건. 데이터 fetch만 REFRESH_SCHEDULE로 자동(push).
+- **빈칸**: 지속운영 중 stale/drift/코드결함이 또 생겨도 운영자가 콘솔을 안 두드리면 묻힘 (P460이 그 사례).
+- **신설**: `_aioAutoSurfaceOps()` — `aio:liveQuotes`에 throttle(30분) 연결 → audit 자동 실행 → warn 시 console.warn(운영진단) + 사이드바 badge. 4초 지연+가드, 엔드유저 팝업 아님. T688 회귀.
+- **의의**: "audit을 만든다(pull)" → "audit이 스스로 운영자에게 알린다(push)" — 재발방지 철학 완성. 데이터 작업의 진짜 마지막 칸.
+
+### 회고 정직 평가 (사용자 "근본+재발방지 다 했나?")
+- 구조적/코드 결함(P453 VKOSPI·P459 미러·P460 추출): **근본+재발방지 완비** (rule+audit+test 3종) ✓
+- 값 stale 27건: 증상 수정 + 문서 + sanity 회귀 — 시장데이터는 본질적 재-stale이라 "값 재발방지"는 성립 안 하고 freshness audit이 담당 (△)
+- briefing 캘린더(P457): flag만, 미수정 (✗, /data-refresh 영역)
+- **재발방지 장치 pull-only 갭(P461)**: 이번에 push로 시정 → 빈칸 메움 ✓
 
 ---
 

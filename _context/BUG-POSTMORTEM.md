@@ -4155,4 +4155,21 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **수정**: `_aioCollectKrCodes` 객체-키 재귀 분기에 `if (/^[0-9]{6}$/.test(k)) allCodesFlat.push(k)` 추가 — 코드-키 객체 직접 수집. 라이브 검증: 0 → **198개**(= Object.keys 전체), 전부 6자리.
 - **근본성**: 단순 데이터값이 아니라 **fetch 폴백 체인의 죽은 tier** — 사용자가 "완벽?" 압박으로 앱 자체 audit을 띄우게 했고, 그 audit이 사람 눈에 안 보이던 코드 결함을 surfacing. 데이터 정확성 사이클이 코드 결함 발굴로 이어진 사례.
 - **violated_rule**: 없음 (신규 버그). R15(데이터 미수신 처리) 연장 — 폴백 tier 무결성.
-- **prevention**: T687 회귀(코드-키 객체 추출 ≥ 100). 코드-키 구조 데이터(KR_STOCK_DB류) 순회 시 KEY가 식별자인지 확인. `recordDataQualityIssue` 경고는 getAutoOpsReadiness에 집계되므로 주기적 `getDataQualityIssueAudit()` 점검.
+- **prevention**: T687 회귀(코드-키 객체 추출 ≥ 100). 코드-키 구조 데이터(KR_STOCK_DB류) 순회 시 KEY가 식별자인지 확인. `recordDataQualityIssue` 경고는 getAutoOpsReadiness에 집계되므로 주기적 `getDataQualityIssueAudit()` 점검. → **P461에서 이 "주기적 점검"을 자동화(push)함.**
+
+## P461 · v49.96 · 재발방지 audit이 pull-only — 지속운영 중 자동으로 안 울림 (push 레이어 신설)
+
+- **증상**: 사용자 "데이터 작업하면서 근본 보강+재발 방지까지 다 했나?" 회고 점검 → grep 확인 결과 runTests·getAutoOpsReadiness·getDataQualityIssueAudit 모두 **자동 실행/경고 push 0건** (콘솔 수동 호출 전용). 데이터 fetch는 REFRESH_SCHEDULE로 자동(push)인데 **품질/drift audit은 pull-only**. P460(추출 0 결함)도 audit엔 있었으나 운영자가 수동 점검할 때까지 묻혀 있었음.
+- **원인**: v49.24~96에서 audit 함수를 25+개 만들었으나 모두 "필요할 때 콘솔에서 호출" 설계. 지속 운영(5명 동시접속, 클라이언트 사이드, 서버 cron 불가) 환경에서 운영자가 매번 콘솔을 두드리지 않으면 재발방지 가드가 잠들어 있음 = 재발방지의 마지막 빈칸.
+- **수정**: `_aioAutoSurfaceOps()` 신설 — `aio:liveQuotes`(라이브 fetch마다)에 throttle(30분) 연결 → getAutoOpsReadiness + 미러 + 데이터품질 audit 자동 실행 → warn 시 console.warn(운영 진단) + `window._aioLastOpsWarn` + 사이드바 위젯 badge 갱신. 4초 지연 + try/catch로 부하/안전 가드. 엔드유저 팝업 아님. T688 회귀.
+- **근본성**: "audit을 만든다"(pull)에서 "audit이 스스로 운영자에게 알린다"(push)로 — 재발방지 철학의 완성. 데이터 작업의 진짜 마지막 한 칸.
+- **violated_rule**: R185 신규 (재발방지 audit은 push 의무). R184/R55 연장.
+- **prevention**: 신규 audit 추가 시 getAutoOpsReadiness 집계 + (warn 가치 있으면) _aioAutoSurfaceOps 경로 포함. `typeof _aioAutoSurfaceOps === 'function'` + 리스너 등록 T688 검증.
+
+## P462 · v49.97 · 첫 접속 대기 UX 부재 + 홈 핵심뉴스 영구공백 (로더 진행률화 + 동적 폴스루)
+
+- **증상**: 사용자 "(1) 새로고침 시 전체 데이터 최신화에 시간 걸리는데 게임 접속식 대기창이 필요 (2) 브리핑/시장핵심뉴스가 아직 부실". 진단: ① 부팅 로더(v49.88)가 "수신 중" 단순 배너로 진행 상황 안 보임. ② 홈 `renderHomeFeed`가 정적 `HOME_WEEKLY_NEWS` 3건이 72h 만료되면, 동적 RSS items가 있어도 (a) 안내문만 띄우거나 (b) `score >= 90` 필터에 다 걸려 빈 채 return → 핵심뉴스 영구 공백.
+- **원인**: ① 로더가 첫 `aio:liveQuotes` 1회만 보고 닫는 binary 설계 — 무엇이 얼마나 왔는지 미표시. ② 정적 우선 → 만료 시 동적 폴스루 경로가 끊겨 있었고(L7138 else-if가 안내문에서 return), 동적 경로도 90점 단일 임계값이라 평범한 뉴스는 0건.
+- **수정**: ① 부팅 로더를 핵심 5개(시세·심리·시장폭·뉴스·변동성) 진행률 추적으로 교체 — `_lastFetch` 타임스탬프 폴링 → `N/5` 카운터 + 진행바 + 도착 항목 체크, 핵심 시세 후 4초/하드캡 15초 자동 닫기, 느린 소스 백그라운드. ② `renderHomeFeed` 정적 만료 시 동적 items로 자동 폴스루 + score 단계적 완화(90→70→50). 라이브 검증: 로더 `1/5`→자동닫힘, 홈뉴스 내용 표시, 콘솔 에러 0. T689 회귀.
+- **violated_rule**: R186 신규 (진행률 로더 + 정적 만료 시 동적 폴스루). R57(정적 stale) 연장.
+- **prevention**: 정적 큐레이션 콘텐츠는 만료 시 항상 동적 폴백 경로 확보 + 단일 임계값 필터는 단계적 완화. 첫 접속 동기화는 진행률 가시화. T689.

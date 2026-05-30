@@ -11883,6 +11883,47 @@ window.AIO.getDataLineageAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v49.96 P461/R185 근본 보강: Audit Push (pull→push)
+// 지속 운영 중 stale/drift/코드결함이 발생해도, audit이 "수동 호출 전용"이면
+// 아무도 콘솔을 안 두드리면 묻힌다(P460이 그 사례 — audit이 있었지만 운영자가 안 봄).
+// → aio:liveQuotes(라이브 fetch마다 발생)에 throttle(30분) 연결해 getAutoOpsReadiness를
+//   자동 실행하고, warn이면 운영자에게 console.warn + 사이드바 위젯 badge로 surfacing.
+// 엔드유저 팝업 아님(운영 진단용). 부하 분산 위해 4초 지연 + try/catch 가드.
+// ─────────────────────────────────────────────────────────────────
+window._aioAutoSurfaceOps = function() {
+  try {
+    var A = window.AIO; if (!A || !A.getAutoOpsReadiness) return null;
+    var problems = [];
+    var r = A.getAutoOpsReadiness();
+    if (r && r.status === 'warn' && r.issues) problems = problems.concat(r.issues);
+    var mirror = A.getSnapshotFallbackConsistencyAudit ? A.getSnapshotFallbackConsistencyAudit() : null;
+    if (mirror && mirror.issueCount) problems.push(mirror.issueCount + '개 snapshot↔_fallback 미러 drift (R184)');
+    var dq = A.getDataQualityIssueAudit ? A.getDataQualityIssueAudit() : null;
+    if (dq) {
+      var list = dq.issues || dq.items || [];
+      var codeWarns = list.filter(function(x){ var s=((x&&x.message)||'')+((x&&x.error)||''); return /extraction returned 0|schema|non-JSON|0 codes/i.test(s); });
+      if (codeWarns.length) problems.push(codeWarns.length + '개 데이터품질 코드성 경고 (추출0/schema 등)');
+    }
+    window._aioLastOpsWarn = { ts: Date.now(), count: problems.length, problems: problems.slice(0, 12) };
+    if (problems.length) {
+      try { console.warn('[AIO 운영 점검] ' + problems.length + '개 항목 주의 — AIO.getAutoOpsReadiness() 로 상세 확인:\n  · ' + problems.slice(0, 8).join('\n  · ')); } catch (_w) {}
+    }
+    try { if (typeof window._aioRefreshAuditWidget === 'function') window._aioRefreshAuditWidget(); } catch (_rw) {}
+    return window._aioLastOpsWarn;
+  } catch (e) { return null; }
+};
+(function _aioWireOpsPush(){
+  var THROTTLE = 30 * 60 * 1000, last = 0;
+  function tick() {
+    var now = Date.now();
+    if (now - last < THROTTLE) return;   // 최초: last=0 → 통과, 이후 30분 throttle
+    last = now;
+    setTimeout(function(){ try { window._aioAutoSurfaceOps(); } catch (_) {} }, 4000); // 렌더 후 지연
+  }
+  try { document.addEventListener('aio:liveQuotes', tick); } catch (_) {}
+})();
+
+// ─────────────────────────────────────────────────────────────────
 // v49.58 P322/R108 신규: 사이드바 Audit 위젯 + web_search 토글 + 키 백업 GUI 핸들러
 // 사용자가 콘솔 없이 self-check + 토글 + 백업 조작 가능. 11 audit 함수 GUI 노출.
 // ─────────────────────────────────────────────────────────────────
@@ -14185,7 +14226,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.96';
+const APP_VERSION = 'v49.97';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -15097,7 +15138,7 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-29T17:00:00+09:00',   // v49.96 근본보강: 본체↔_fallback 미러 정합(move 62→70.9·vvix 85→83·skew 142→139·breadth200 57→56·fg_uw 74→65) + getSnapshotFallbackConsistencyAudit(R184) + KR_STOCK_DB 코드추출 버그 fix(P460, 0→198 siseJson 폴백). | v49.95 2차지표 실측 대조 5차 (KR+US+글로벌). KR: krCpi 2.7→2.6·krManufPmi 51.5→53.6·krPpi 1.5→6.9·krCreditBalance 19.2→36.0. US: ismPmi 52.4→52.7·ismPrice 70.7→84.6·ismSvc 54→53.6·retailSales 0.6→0.5·consConf 104.7→93.1·housingStarts 1.42→1.47·move 62.5→70.9·usWageGrowth 3.5→3.6·rut 2858→2936.57. 글로벌: shanghai 3420→4098(20% stale)·cac 7950→8096·ng 2.95→3.07. 옵션: pcr 0.67→0.83(CBOE total 5/21, _fallback과 불일치 해소). MOVE 인라인 시드 모순(62.4/107.4) 통일.
+  _updated: '2026-05-29T17:00:00+09:00',   // v49.96 근본보강: 본체↔_fallback 미러 정합(move 62→70.9·vvix 85→83·skew 142→139·breadth200 57→56·fg_uw 74→65) + getSnapshotFallbackConsistencyAudit(R184) + KR_STOCK_DB 코드추출 버그 fix(P460, 0→198 siseJson 폴백) + Audit Push(P461/R185 _aioAutoSurfaceOps pull→push). | v49.95 2차지표 실측 대조 5차 (KR+US+글로벌). KR: krCpi 2.7→2.6·krManufPmi 51.5→53.6·krPpi 1.5→6.9·krCreditBalance 19.2→36.0. US: ismPmi 52.4→52.7·ismPrice 70.7→84.6·ismSvc 54→53.6·retailSales 0.6→0.5·consConf 104.7→93.1·housingStarts 1.42→1.47·move 62.5→70.9·usWageGrowth 3.5→3.6·rut 2858→2936.57. 글로벌: shanghai 3420→4098(20% stale)·cac 7950→8096·ng 2.95→3.07. 옵션: pcr 0.67→0.83(CBOE total 5/21, _fallback과 불일치 해소). MOVE 인라인 시드 모순(62.4/107.4) 통일.
   _snapshotDate: '2026-05-28',
   _staticDates: {
     briefingArchive: '2026-05-28',
