@@ -8133,6 +8133,7 @@ window.AIO_STATIC_CONTENT_LIFECYCLE = {
   contents: {
     'jensen-interview-202603': { type: 'interview', createdAt: '2026-03-20', archiveAfterDays: 30, replaceAfterDays: 60, source: 'NVIDIA CEO All-In Podcast' },
     'briefing-week-may-4-10': { type: 'weekly-calendar', createdAt: '2026-05-10', archiveAfterDays: 7, replaceAfterDays: 14, source: 'Past reference calendar' },
+    'briefing-week-jun-1-5':  { type: 'weekly-calendar', createdAt: '2026-05-31', archiveAfterDays: 7, replaceAfterDays: 14, source: 'Computex/GTC 주간 + AVGO/CRWD 실적 + NFP 6/5' },
     'kr-export-2026-02':      { type: 'kr-macro-monthly', createdAt: '2026-03-01', archiveAfterDays: 45, replaceAfterDays: 60, source: '산업통상자원부 2월 수출' }
   },
   // 콘텐츠 ID의 expire 상태 계산
@@ -9027,18 +9028,17 @@ window.AIO.getPagePurposeRatioAudit = function() {
 window.AIO_SCENARIO_REGISTRY = {
   version: 'v49.41',
   staleDaysThreshold: 30,
-  // v49.27 macro 경기 시나리오 (연착륙/스태그플레이션/경기침체)
+  // v49.99 5/31 업데이트: BofA Hartnett 6월 인플레 경고 + 이란-미국 합의 최종단계 + Computex 촉매
   scenarios: {
-    'soft-landing':   { label: '연착륙',     probability: 0.30, lastUpdated: '2026-05-13', source: 'JPM 5월 update', triggers: ['CPI <3%', 'Unemployment <4.5%', 'GDP +2%~'] },
-    'stagflation':    { label: '스태그플레이션', probability: 0.45, lastUpdated: '2026-05-13', source: 'Citi base case', triggers: ['CPI >3.5%', 'GDP <1%', 'Oil >$100'] },
-    'recession':      { label: '경기침체',   probability: 0.25, lastUpdated: '2026-05-13', source: 'Yield curve inversion 6M', triggers: ['2s10s <0', 'NFP <0', 'ISM <45'] }
+    'soft-landing':   { label: '연착륙', probability: 0.30, lastUpdated: '2026-05-31', source: 'JPM/Citi — 이란 합의 시 WTI 하락→인플레 완화 경로', triggers: ['이란-미국 합의 확정(호르무즈 재개방)', 'CPI <3.5%', 'NFP +150K+', 'AVGO 실적 서프라이즈'] },
+    'stagflation':    { label: '스태그플레이션', probability: 0.45, lastUpdated: '2026-05-31', source: 'BofA Hartnett 6월 인플레 경고 + CPI 3.8%(3년 고점)', triggers: ['CPI >3.5% 지속', '6월 NFP 약화(4월 +115K 수준)', 'Oil >$95', 'PCE 3.3% 고착'] },
+    'recession':      { label: '경기침체', probability: 0.25, lastUpdated: '2026-05-31', source: '소비자신뢰 93.1 하락 + 이란 기뢰/MOU실패 지정학 리스크', triggers: ['이란 기뢰→호르무즈 봉쇄 재발', 'NFP <0', 'ISM PMI <45', 'Brent $130+'] }
   },
-  // v49.41 P295/R73 보강: signal 페이지 단기 시장 시나리오 (2~4주 전망)
-  // L5195~5224 인라인 정적 확률(30~35%/40~45%/15~20%) → REGISTRY 단일 출처로 통합.
+  // v49.99 5/31 업데이트: Computex 촉매(낙관↑) vs BofA 인플레 경고(비관↑)
   signalShortTerm: {
-    'optimistic':  { label: '낙관', probability: 0.325, probabilityRange: '30~35%', lastUpdated: '2026-05-13', source: 'v49.30 일반화 후 유지', triggers: ['원자재 공급 정상화', '지정학 리스크 완화', '스몰캡/금융주 반등'] },
-    'base':        { label: '기본', probability: 0.425, probabilityRange: '40~45%', lastUpdated: '2026-05-13', source: 'JPM/Citi 컨센서스', triggers: ['WTI $90~100 횡보', 'VIX 18~22 박스', '데드캣 바운스'] },
-    'pessimistic': { label: '비관', probability: 0.175, probabilityRange: '15~20%', lastUpdated: '2026-05-13', source: 'tail risk 가중',  triggers: ['Brent $130+', '수요 파괴 심화', '데드캣 바운스 반복'] }
+    'optimistic':  { label: '낙관', probability: 0.375, probabilityRange: '35~40%', lastUpdated: '2026-05-31', source: 'Computex 젠슨황 + AVGO 실적 + Vera Rubin 실물 출하', triggers: ['NVDA Computex 강세', 'AVGO AI ASIC 가이던스 대폭 상향', '이란-미국 합의 확정', '메모리 ASP 추가 상향'] },
+    'base':        { label: '기본', probability: 0.400, probabilityRange: '38~42%', lastUpdated: '2026-05-31', source: 'JPM/Citi — 메모리 강세·지정학 불확실성 공존', triggers: ['WTI $88~95 횡보', 'VIX 16~20 박스', 'NFP +80~130K', 'AVGO 인라인 실적'] },
+    'pessimistic': { label: '비관', probability: 0.225, probabilityRange: '20~25%', lastUpdated: '2026-05-31', source: 'BofA Hartnett 인플레 경고 + 이란 기뢰/MOU실패',  triggers: ['6월 CPI 재가속', '호르무즈 봉쇄 재발', 'AVGO 쇼크', 'NFP <50K'] }
   },
   // 확률 합 검증 (macro 경기 시나리오)
   validateSum: function() {
@@ -15140,15 +15140,15 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-29T17:00:00+09:00',   // v49.96 근본보강: 본체↔_fallback 미러 정합(move 62→70.9·vvix 85→83·skew 142→139·breadth200 57→56·fg_uw 74→65) + getSnapshotFallbackConsistencyAudit(R184) + KR_STOCK_DB 코드추출 버그 fix(P460, 0→198 siseJson 폴백) + Audit Push(P461/R185 _aioAutoSurfaceOps pull→push). | v49.95 2차지표 실측 대조 5차 (KR+US+글로벌). KR: krCpi 2.7→2.6·krManufPmi 51.5→53.6·krPpi 1.5→6.9·krCreditBalance 19.2→36.0. US: ismPmi 52.4→52.7·ismPrice 70.7→84.6·ismSvc 54→53.6·retailSales 0.6→0.5·consConf 104.7→93.1·housingStarts 1.42→1.47·move 62.5→70.9·usWageGrowth 3.5→3.6·rut 2858→2936.57. 글로벌: shanghai 3420→4098(20% stale)·cac 7950→8096·ng 2.95→3.07. 옵션: pcr 0.67→0.83(CBOE total 5/21, _fallback과 불일치 해소). MOVE 인라인 시드 모순(62.4/107.4) 통일.
-  _snapshotDate: '2026-05-28',
+  _updated: '2026-05-31T21:00:00+09:00',   // v49.99 텔레그램 3채널 통합 + SCENARIO_REGISTRY 5/31 갱신. BofA Hartnett 6월 인플레 경고·BOJ 우에다 G7 발언·이란-미국 합의 최종·Computex GTC 타이페이·메모리 사이클 대격변(DRAM ASP 50~60%·NAND 75~100% QoQ — Susquehanna 5/29). 주간 캘린더 6/1~5 교체.
+  _snapshotDate: '2026-05-31',
   _staticDates: {
-    briefingArchive: '2026-05-28',
+    briefingArchive: '2026-05-31',
     jensenInterview: '2026-03-20',
     optionSnapshot: '2026-05-28',
-    krMarket: '2026-05-28',
-    krIssues: '2026-05-28',
-    tnx2y: '2026-05-27'
+    krMarket: '2026-05-31',
+    krIssues: '2026-05-31',
+    tnx2y: '2026-05-28'
   },
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
@@ -15252,10 +15252,10 @@ const DATA_SNAPSHOT = {
   ddr5_16gb_spot:  31.18,    // DDR5 16Gb 현물가 ($/unit · 2026-03 · -6.1% MoM · +573% YoY)
   nand_1tb_spot:   28.96,    // NAND 1Tb 현물가 ($/unit · 2026-03 · +16.0% MoM · +475% YoY)
   dramContract_QoQ_1Q26: 95, // v49.95: DRAM 계약가 QoQ 1Q26 +95% (TrendForce/Tom's Hardware 확인, 96→95)
-  dramContract_QoQ_2Q26: 63, // v49.95: DRAM 계약가 QoQ 2Q26 +63% (TrendForce 최신, 61→63 — AI 서버 수요 공급 타이트)
+  dramContract_QoQ_2Q26: 55, // v49.99: Susquehanna 5/29 마켓체크 "DRAM ASP QoQ +50~60%" 중간값 55. JPM 63%(TrendForce) vs Susquehanna 50~60% — Susquehanna 하향 수정 반영. AI 서버 수요 타이트 구조 유지
   dramContract_YoY_2Q26: 421, // DRAM 계약가 YoY 2Q26 (+421%)
   nandContract_QoQ_1Q26: 88, // NAND 계약가 QoQ 1Q26 +88% (TrendForce 확인)
-  nandContract_QoQ_2Q26: 75, // v49.95: NAND 계약가 QoQ 2Q26 +75% (Tom's Hardware/TrendForce 최신, 73→75)
+  nandContract_QoQ_2Q26: 87, // v49.99: Susquehanna 5/29 "NAND ASP QoQ +75~100%" 중간값 87 (기존 75 = 하한). 키옥시아 UBS·GS 동시 커버리지 개시 = 구조적 상승 확신
   nandContract_YoY_2Q26: 362,
   // ── v48.71 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
   aaiiBear:        36.6,     // v49.86: AAII 5/22 발표 Bear 36.6% (Bull 39.3 / Neutral 24.1)
