@@ -24,9 +24,9 @@ var SCREENER_DB = [
   { sym:'NVDA', name:'NVIDIA', sector:'Technology', signal:'BUY', memo:'[Computex GTC 타이페이 06/01~] 젠슨 황 기조연설+Windows PC 진출(MS 서피스·DELL 협력) · 폭스콘 Vera Rubin 2H26 출하 낙관 · 젠슨 황 2026 매출 성장률 ~100%·2027년도 동등 규모 · 린스에쿼티 단기 $250 근접 · [Q1 FY27 어닝 05/20] EPS $1.87(컨센 $1.76, +6.25%beat) Next 8/26 · [Citi+JPM 04/21] CX9 NIC 일부 2027 이월(CX8 대체불가) · Vera CPU 2H 마진·CPO 순풍·Rubin Ultra 회복 · AVGO/MRVL ASIC 경쟁 리스크 · Alpamayo 오픈소스 AV', mcap:4197, rsi:48, index:'SP500' },
   { sym:'AAPL', name:'Apple', sector:'Technology', signal:'HOLD', memo:'[Q2 FY26 어닝 04/30] 매출 $111.2B (+17% YoY, beat) · EPS $2.01 (+22% YoY, beat) · GM 49.3% (guidance 상회) · Next 7/30. [JPM 04/21] CEO 전환 Tim Cook→John Ternus(50세) 2026-09-01 · 하드웨어 중심 리더십(아이폰/맥/에어팟/비전프로 총괄, M시리즈 전환 주역) · 팀쿡 Executive Chairman 잔류(정책·관세) · Johny Srouji CHO 승격(A4 설계자) · Arthur Levinson lead independent director · 긍정 평가(스마트폰 이후 폼팩터+AI 매개체 대비) · 투자자 관심: (1)팀쿡급 실행력 지속 (2)서비스 우선순위 (3)AI 전략·개인화 Siri WWDC 주목', mcap:3645, rsi:52, index:'SP500' },
   { sym:'GOOGL', name:'Alphabet', sector:'Technology', signal:'BUY', memo:'[JPM 04/29] PT$460 OW유지 · 검색+19%(사상최고 쿼리) Cloud$20B(+63%) · Cloud 백로그$4,620억(전분기 거의 2배) · GenAI 매출+800%YoY · CY26 CapEx $1,800-1,900억(기존$1,750-1,850 상향) · CY27 대폭증가 예고 · Gemini 분당160억토큰(QoQ+60%) · Fabric 유료고객35,000(+60%YoY) · AI 풀스택 역량 전면발현 · [TDCowen PT$375↑] CAGR13.6%·Waymo 2030 49시장·AV예약2035 $200억+ · FCF-P/E 28.3x', mcap:3641, rsi:52, index:'SP500' },
-  { sym:'MSFT', name:'Microsoft', sector:'Technology', signal:'BUY', memo:'[JPM 04/29] PT$550 Azure+39%CC · F4Q 가이던스 39-40%CC · Copilot 2,000만석(FQ2→FQ3 +33%) · AI ARR $37B(+123%YoY 전분기 $13B→) · CY26 CapEx $1,900억(메모리가격상승 $250억 포함) · [Citi] PT$620(기존$600↑) M365 Copilot 2,000만석 확인 · [Mizuho] PT$515 공급제약 CY26 내내 지속 전망 · E7 $99/월(Copilot+Entra+Agent 365) · TAC 프로그램 OpenAI 파트너', mcap:2838, rsi:50, index:'SP500' },
+  { sym:'MSFT', name:'Microsoft', sector:'Technology', signal:'BUY', memo:'[Computex 06/02] 서피스 브랜드로 NVDA ARM칩 기반 Windows PC 공식 출시 협력 · 로컬 AI 에이전트 강화(클라우드 비용 절감·온디바이스 AI) · [JPM 04/29] PT$550 Azure+39%CC · F4Q 가이던스 39-40%CC · Copilot 2,000만석(FQ2→FQ3 +33%) · AI ARR $37B(+123%YoY) · CY26 CapEx $1,900억(메모리가격상승 $250억 포함) · [Citi] PT$620↑ · E7 $99/월(Copilot+Entra+Agent) · 삼성→MS LTA 선지급 $100억+(메모리 공급 확보)', mcap:2838, rsi:50, index:'SP500' },
   { sym:'AMZN', name:'Amazon', sector:'Technology', signal:'BUY', memo:'[JPM 04/29] PT$330 OW유지 · AWS+28%(15분기 최고) 런레이트$1,500억 · 백로그$3,640억(전분기 거의 2배·Anthropic $100B 미포함) · Trainium $2,250억 약정 · Bedrock+170% QoQ · 칩 런레이트$20B+ · 2026 Capex $2,000억 · [Citi PT$285/Jefferies $300/WF $305] · Globalstar 인수', mcap:2205, rsi:48, index:'SP500' },
-  { sym:'META', name:'Meta Platforms', sector:'Technology', signal:'HOLD', memo:'[JPM 04/29] 하향 OW→N PT$725(기존$825↓) · 광고+33% 강하나 CapEx $1,250-1,450억(기존$1,150-1,350↑) · FCF 2026E -$40억/2027E -$240억 전환 · CapEx 수익경로 불투명 · [번스타인 PT$900] Muse Spark 첫 진전·메타AI 세션 두자릿수 증가 · 릴스 Reels+10%YoY · 광고AI 크리에이티브 800만 광고주 · CoreWeave $350억(2032)', mcap:1502, rsi:48, index:'SP500' },
+  { sym:'META', name:'Meta Platforms', sector:'Technology', signal:'HOLD', memo:'[하드웨어 로드맵 05/30] AI 펜던트 2027 테스트 시작 + AI 안경 라인업 대폭 확대 + "업무용 웨어러블(Wearables for Work)" 서비스 신설(The Information 내부문건). 하드웨어 적자 만회용 수익화 전략 구체화. [JPM 04/29] 하향 OW→N PT$725(기존$825↓) · 광고+33% 강하나 CapEx $1,250-1,450억↑ · FCF 2026E -$40억/2027E -$240억 전환 · [번스타인 PT$900] Muse Spark 첫 진전·메타AI 세션 두자릿수 증가 · 릴스+10%YoY · CoreWeave $350억(2032)', mcap:1502, rsi:48, index:'SP500' },
   { sym:'TSM', name:'TSMC', sector:'Technology', signal:'BUY', memo:'[Citi PT NT$2875 JPM PT NT$2500] 1Q26 매출 NT$1,134B(+35%YoY, +8%QoQ), GM 66.2%, OPM 58.1%, EPS NT$22.08(컨센 전면상회) · 2Q26 가이던스 +10%QoQ · 2026 매출 가이던스 "30%→30%+" 상향(JPM 35%+, 바이사이드 36% 예상) · 2026-2028 3년 Capex $190~200B(역대급, 2023-2025 대비 2배) · 선단공정 캐파 2027까지 타이트, N5이하 CAGR 25% · N3 2027H1 타이난 램프, AZ P2 27H2, JP P2 28 · N2 4Q25 양산진입(수율 양호), 2028 150k wfpm · 2027 가격 +4-5% like-for-like 인상 논의(2Q26 콘콜) · C.C.Wei "차세대 LPU 고객과 긴밀 협력"=삼성 Groq 수주 위협 · 44% 점유율, 파운드리 독점 모트', mcap:1708, rsi:52, index:'SP500' },
   { sym:'AVGO', name:'Broadcom', sector:'Technology', signal:'BUY', memo:'[Citi 04/25] TPU 8t(학습)+TPU 8i(추론) 모두 AVGO 주요 실리콘 파트너 확인 — 추론 아키텍처 복잡성 증가할수록 구조적 수혜 · GOOG와 다년간 LTA 체결 · 추론/에이전틱 워크로드 메모리 아키텍처 커스터마이징 확대 전망 · [기존 04/21] 7년 구글 14칩·반도체 500억→1000억 경로·F27 컨빅션: 구글/앤스로픽 800억+OpenAI 150억+네트워킹 450억·27년 TPU 700만 중 600-700만 AVGO·XPU 플랫폼·CPO 양산 유일·META 1GW·Tomahawk 6', mcap:1472, rsi:45, index:'SP500' },
   { sym:'TSLA', name:'Tesla', sector:'Consumer', signal:'WATCH', memo:'[2026.04 공시] HW4+ 칩셋: 64GB(HW4 32GB 2배)·대역폭 +10%·2027 양산(HW4/HW4.5/HW4+ 3버전) · $2B AI 하드웨어 기업 인수 합의(10-Q 주석14): 보장분 $2억+마일스톤 $18억·익명 대상·주식 지급 · 2026 Capex $250억+ · AI5 칩 테이프아웃·Terafab·xAI $20억 투자 · [기존 04/21] FSD v14·로보택시 오스틴 2025.12~·GS $375 중립·HSBC $119 vs Bull $600', mcap:1381, rsi:42, index:'SP500' },
@@ -63,10 +63,10 @@ var SCREENER_DB = [
   { sym:'RTX', name:'Raytheon Tech', sector:'Industrials', signal:'BUY', memo:'F-35/패트리엇 · 글로벌 방위비 증가 수혜', mcap:267, rsi:59, index:'SP500' },
   { sym:'GS', name:'Goldman Sachs', sector:'Financials', signal:'HOLD', memo:'M&A/IPO 수수료 회복 · 자산관리 확대 · 4/13 어닝발표 — 바이백 블랙아웃 해제 후 첫 실적 · 롱온리 +24% 매수우위(데스크플로우) · 금리 H4L 환경 NII 안정', mcap:244, rsi:52, index:'DOW30' },
   { sym:'GE', name:'GE Aerospace', sector:'Industrials', signal:'BUY', memo:'항공 엔진 독점 듀오폴리(RR과) · LEAP+GE9X 수주잔고 $150B+ · MRO 서비스 매출 성장 · GE Vernova 분사 완료(전력+풍력) · 항공 여행 구조적 회복 · 국방 예산 확대 수혜 · PER 38x', mcap:220, rsi:58, index:'DOW30' },
-  { sym:'INTC', name:'Intel', sector:'Technology', signal:'BUY', memo:'[Citi BUY $95 / Keybanc OW $110 / WF EW $85 — 04/25] 에이전틱 AI 주도 서버 CPU 수요: 2026E 두 자릿수 성장(6개월전 소폭→급상향), GPU:CPU 1:8→1:4→대등 방향 · 18A 수율 내부 예상 초과, 14A 성숙도 18A 동시점 대비 앞서 추적 · 2H26 14A 수주 약속 발표 예상·2027 지속 · 파운드리 2027 말 영업 손익분기점 · Terafab 신뢰성 제고 · EMIB-T 첨단패키징 수주잔고 증가(연 $10억+ 기회) · 1Q26 DCAI +22% YoY, EPS $0.29 컨센 대폭 상회 · WF: 2028 EPS $3 경로 필요=밸류에이션 캡 · [기존] 18A 65%·HumuFish EMIB-T TPUv9·Trainium4 Alchip·Clearwater Forest', mcap:100, rsi:55, index:'DOW30' },
+  { sym:'INTC', name:'Intel', sector:'Technology', signal:'BUY', memo:'[NVDA PC 위협 06/01] NVDA ARM기반 Windows PC 진출 = x86 독점 침식 위협. 단, 에이전틱 AI에서 CPU 수요 구조적 증가(Dell 어닝콜: AI가 CPU 하네스 필수 확인)로 서버 DCAI 실질 수혜는 유지. [Citi BUY $95/Keybanc OW $110 04/25] 에이전틱 AI 주도 서버 CPU: GPU:CPU 1:8→1:4→대등 방향 · 1Q26 DCAI +22%YoY EPS $0.29 컨센 대폭 상회 · 18A 수율 내부 예상 초과 · 2H26 14A 수주 발표 예상 · 파운드리 2027말 손익분기점', mcap:100, rsi:55, index:'DOW30' },
   { sym:'LMT', name:'Lockheed Martin', sector:'Industrials', signal:'BUY', memo:'트럼프 FY2027 $1.5T 국방예산(WWII후 최대증액) · F-35 조달 포함 · Golden Dome $185B · 인도태평양 억제력 강화 · 무기재고 재건', mcap:145, rsi:61, index:'SP500' },
   { sym:'ARM', name:'ARM Holdings', sector:'Technology', signal:'BUY', memo:'[JPM OW PT$240 / UBS PT$245 (v48.87 05/07)] AGI CPU 파이프라인 6주 만에 $1B→$2B+ 급증 — 공급이 수요 제약(TSMC/ASE 병목). FY27 DC 로열티 2x YoY 전망. ARM ISA 점유율 15%→40-45%(2030) 목표. Neoverse V3 에이전틱 오케스트레이션 최적. CPU:GPU 비율 재편 핵심 수혜자. AI CPU1→CPU2→CPU3 자체 설계 마진 성장 여정 지속. AVGO ASIC+MRVL NVLink Fusion 파트너십 상승여지. 리스크: 고객(Arm IP사용자)과 직접 경쟁·IP 침해 우려 · TSMC 3nm 공급 제약 2026 → 2027H2 완화 기대. [기존 JPM 04/21] Masa "NVDA 신뢰할 2위 부재→ARM" · GW당 $12-13B 콘텐츠', mcap:141, rsi:48, index:'SP500' },
-  { sym:'QCOM', name:'Qualcomm', sector:'Technology', signal:'BUY', memo:'[Q2 FY2026 어닝 04/29] 매출$10.6B EPS$2.65(컨센$2.55 상회) 주가+16% · QCT핸드셋$6.024B(-13%YoY) → FQ3저점·FQ4순차회복(재고소진·CEO확인) · 자동차$1.326B(+38%YoY 역대최고·연율$5B+ 마일스톤) · DC ASIC 대형하이퍼스케일러 12월출하(앞당김·마진accretive·6월InvDay 고객공개) · 중국 FQ3 인벤토리저점·반등 가시화 · Citi/JPM/WF PT$160 일제상향 · [Bernstein 04/29] ASIC 하이퍼스케일러 진출=모바일 단기역풍 상쇄 장기구조 카탈리스트 · 스냅드래곤 X Elite AI PC 수요 유지', mcap:139, rsi:52, index:'SP500' },
+  { sym:'QCOM', name:'Qualcomm', sector:'Technology', signal:'BUY', memo:'[NVDA PC 진출 영향 06/01] NVDA ARM기반 Windows PC = QCOM 스냅드래곤 X Elite와 유사 비x86 아키텍처 → 경쟁 격화 우려. 그러나 비x86 생태계 확장 선례 강화·시장 자체 확대 효과도 있음. 6월 Investor Day에서 QCOM 대응 전략 공개 예정. [Q2 FY2026 어닝 04/29] 매출$10.6B EPS$2.65(+상회) 주가+16% · 자동차$1.326B(+38%YoY 역대최고) · DC ASIC 대형하이퍼스케일러 12월출하 · 중국 FQ3 저점 반등 · Citi/JPM/WF PT$160↑', mcap:139, rsi:52, index:'SP500' },
   { sym:'PANW', name:'Palo Alto Networks', sector:'Technology', signal:'BUY', memo:'[Citi AI서밋 04/21] Glasswing 창립파트너(CRWD와 공동 유일 순수사이버) · AI 기반 공격 규모·속도·정교함 증가 대응 수혜 · 런타임 제어 전환=네트워크+클라우드+엔드포인트 인라인 제어포인트 보유자 우위 · 섀도AI 확산 보안예산 확대 · Citi 2등급 선호(CRWD 다음) · Cortex XSIAM 플랫폼 통합 · OpenClaw 공격표면 확장 대응', mcap:133, rsi:52, index:'SP500' },
   { sym:'NOW', name:'ServiceNow', sector:'Technology', signal:'WATCH', memo:'[UBS 04/09] Neutral 하향 — AI 예산이 비AI SW 크라우딩아웃 · PT $100(from $170, 13x 2027E EV/FCF) · 1Q 가이던스 부진 리스크 · SW→Semi 로테이션 역풍 · 장기 CRPO 성장 16%→추정치 하향', mcap:116, rsi:48, index:'SP500' },
   { sym:'CRWD', name:'CrowdStrike', sector:'Technology', signal:'BUY', memo:'[Citi+WF+WF AI서밋 04/21] **양쪽 독점 파트너**: Anthropic Glasswing(CRWD+PANW 유일 순수사이버) + OpenAI TAC(Trust Access for Cyber) 14파트너(GPT-5.4-Cyber 조기접근 유일 순수사이버) · Mythos 오픈소스 6-9개월 도달 예상, 2026-07 CVE 대량공개 대비 · 탐지→런타임 통제 전환 수혜 · CTEM(지속위협노출관리) 지출 확장 · 복수 인라인 제어포인트+SOC 텔레메트리 독점 · LLM 익스플로잇 한계비용 0 수렴 → 예산 촉매 · CAISI/AISI 정부 표준화 경로 · "AI 보안 ≠ 프론티어모델 단독"', mcap:104, rsi:52, index:'SP500' },
@@ -173,7 +173,7 @@ var SCREENER_DB = [
   { sym:'CIEN', name:'Ciena', sector:'Technology', signal:'BUY', memo:'광네트워킹 장비 · AI 트래픽 증가 수혜', mcap:9, rsi:52, index:'SP500' },
   { sym:'GLW', name:'Corning', sector:'Technology', signal:'WATCH', memo:'[JPM 04/17: OW→N 하향] PT$175(기존$115↑ but 밸류에이션 우려) · NTM PE 50배+, 2027E 40배+ = 펀더멘털보다 앞서감 · AI 광학 섹터 프리미엄 과거 평균 대비 +83% · 광섬유 · AI DC 광케이블 수요 폭증 · Gorilla Glass · 펀더멘털 강세 유지되나 2028년 이익 봐야 밸류에이션 정당화', mcap:40, rsi:55, index:'SP500' },
   { sym:'VRT', name:'Vertiv Holdings', sector:'Industrials', signal:'BUY', memo:'[Citi $353 / JPM Q1강세 — 04/25] 1Q26: 유기적 매출 +23%·EPS $1.17 예상상회·2026 가이던스 상향 · 수주잔고+슬롯 100GW 조기 달성→110GW 상향 · EMEA 1Q 수주 탄탄(2H26 YoY+ 예상) · BMarko 인수완료/ThermoKey 2Q완료 · 순레버리지 0.2배 M&A 여력 · 관세 실질 상쇄 기대 · 투자자 데이 5/19-20 차기 촉매 · [기존] DC 파이프라인 415GW 누적·낙관 EPS 2026 $8/2027 $13', mcap:42, rsi:48, index:'SP500' },
-  { sym:'DELL', name:'Dell Technologies', sector:'Technology', signal:'BUY', memo:'[FY1Q27 어닝 05/29] 매출 $43.8B(+88%YoY) EPS $4.86(+214%) AI서버 $16.1B · [Susquehanna 05/29] PT$700(기존$138↑↑) 중립→긍정 상향 · 공급 제약 우선순위 ①NAND ②DRAM ③CPU ④HDD(제프 클라크 CEO) — AI서버 병목이 GPU아닌 메모리 · Computex NVDA 칩 기반 Windows PC 발표 예정(MS 서피스 협력) · [JPM 04/17] PT$205 · FY27 EPS +27% 성장 전망', mcap:80, rsi:45, index:'SP500' },
+  { sym:'DELL', name:'Dell Technologies', sector:'Technology', signal:'BUY', memo:'[FY1Q27 어닝 05/29] 매출 $43.8B(+88%YoY) EPS $4.86(+214%) OP $4.2B(+154%) · AI서버 매출 $16.1B · 수주 $24.4B · 잔고 $51.3B · 고객 5,000개+ · 전통서버 $8.5B(+92%YoY) · CSG PC $14.6B(+17%YoY) · 2Q 가이던스 $44-45B(+50%YoY) ISG+75%/CSG+20% · FY27 연간 $165-169B(+50%YoY) AI서버 $60B · [Susquehanna 05/29] PT$700(기존$138↑↑) 중립→긍정 상향 · 공급 제약 ①NAND ②DRAM ③CPU ④HDD · Computex NVDA ARM칩 기반 Windows PC 협력', mcap:80, rsi:45, index:'SP500' },
   { sym:'HPE', name:'Hewlett Packard Enterprise', sector:'Technology', signal:'HOLD', memo:'AI 서버/네트워킹 · Juniper 인수 · 하이브리드 클라우드', mcap:28, rsi:48, index:'SP500' },
   // ── 헬스케어 / 비만치료 / 텔레헬스 ──
   { sym:'HIMS', name:'Hims & Hers Health', sector:'Healthcare', signal:'BUY', memo:'텔레헬스 · GLP-1 비만치료 · D2C 헬스케어 급성장', mcap:8, rsi:65, index:'RUSSELL2000' },
@@ -800,7 +800,7 @@ var SCREENER_DB = [
 
   //  반도체 (semi) — 소재·장비 포함
   { sym:'042700.KQ', name:'한미반도체', sector:'Technology', signal:'BUY', memo:'HBM TC 본더 독점 · AI 반도체 후공정 수혜', mcap:8, rsi:55, index:'KOSDAQ' },
-  { sym:'009150.KS', name:'삼성전기', sector:'Technology', signal:'HOLD', memo:'MLCC · AI 서버용 고용량 전환 · 전장 비중 확대', mcap:10, rsi:48, index:'KOSPI' },
+  { sym:'009150.KS', name:'삼성전기', sector:'Technology', signal:'BUY', memo:'[MLCC 가격 급등 05/30] 중국 Guangdong XMAWEI MLCC 가격 급등으로 유통업체에 공식 가격인상 통보(메리츠증권). 현지 유통 전반 가격 인상 움직임 확인. AI 서버 고용량 MLCC 수요+전장 비중 확대+중국발 가격 인상 = 삼성전기 수혜 복합 요인. AI 서버용 고용량 MLCC 전환·LTCC·카메라모듈 · 전장 비중 확대', mcap:10, rsi:48, index:'KOSPI' },
   { sym:'402340.KS', name:'SK스퀘어', sector:'Technology', signal:'HOLD', memo:'SK하이닉스 지분 보유 · AI 투자 밸류체인', mcap:10, rsi:50, index:'KOSPI' },
   { sym:'039030.KQ', name:'이오테크닉스', sector:'Technology', signal:'BUY', memo:'레이저 장비 · 반도체 후공정 · HBM 수혜', mcap:4, rsi:52, index:'KOSDAQ' },
   { sym:'403870.KQ', name:'HPSP', sector:'Technology', signal:'BUY', memo:'고압 수소 어닐링 · 삼성 파운드리 필수 장비', mcap:3, rsi:50, index:'KOSDAQ' },
@@ -3941,6 +3941,20 @@ const MACRO_KW = [
   'net leverage','positioning','tactical positioning','forced buy',
   '요새 이란','공급 공백','유가 프리미엄','바벨 전략','순레버리지','포지셔닝',
   'server price','AI server price','서버 가격','BOM cost',
+  // v49.99 (integrate 2026-05-31): 텔레그램 3채널 통합 키워드
+  'memory ASP','DRAM ASP','NAND ASP','메모리 ASP','DRAM 가격','NAND 가격',
+  'memory TAM','메모리 TAM','agentic AI memory','에이전틱 AI 메모리',
+  'MLCC price','MLCC 가격','MLCC 인상','passive components','수동부품 가격',
+  'Iran mine','이란 기뢰','Meham mine','27 Razab','이란 미사일 보트',
+  'US-Iran deal','미-이란 합의','nuclear deal text','호르무즈 재개방',
+  'Tehran stock','테헤란 증시','Iran-US MOU','이란 MOU',
+  'Computex 2026','GTC Taipei','GTC 타이페이','젠슨황 기조연설',
+  'Vera Rubin PC','NVDA Windows PC','ARM Windows','엔비디아 PC',
+  'Foxconn Vera Rubin','폭스콘 베라루빈','Quanta AI 2030',
+  'dollar won 24h','달러원 24시간','FX 24시간','원달러 야간거래',
+  'quantum milestone','Quantinuum H2','양자컴퓨터 마일스톤','32 qubit',
+  'LTA prepayment','LTA 선지급','memory LTA','메모리 장기계약',
+  'Kioxia','키옥시아','NAND cycle peak','낸드 사이클 정점',
   // v48.16 (integrate 2026-04-18): Citi 자산배분 + Fed + 데이터센터 규제
   'escalate to de-escalate','고조 후 완화','quality rotation','퀄리티 로테이션',
   'earnings broadening','이익 확산','defensive tilt','디펜시브 전환',
@@ -4499,6 +4513,10 @@ const TECH_KW = [
   'Oracle','ORCL','Oracle Cloud','SAP','Workday','WDAY',
   // ── v37.3: 테크 이벤트 · 컨퍼런스
   'CES','MWC','GTC','WWDC','Google I/O','Build','re:Invent','re:MARS',
+  'Computex','Computex 2026','GTC Taipei','GTC 타이페이','Computex keynote',
+  'Vera Rubin Windows PC','ARM PC','NVDA PC chip','on-device AI PC',
+  'Kioxia BiCS','BICS10','NAND scaling','수평 스케일링','낸드 수평 미세화',
+  'MLCC shortage','MLCC supply','passive component price','MLCC 부족','수동소자',
   'product launch','developer conference','keynote','developer day',
   // ── v37.3: 한국어 테크 기업
   '엔비디아','테슬라','애플','마이크로소프트','구글','아마존','메타',
@@ -7492,7 +7510,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '• TSMC 선단 캐파 2027까지 타이트: 2026-2028 3년 Capex $190~200B(역대급, 이전 3년 대비 2배). 2027 가격 +4-5% like-for-like 인상 논의(2Q26 콘콜). N5 이하 CAGR 25%. C.C.Wei "차세대 LPU 고객과 긴밀 협력" = 삼성 Groq 수주 단기 경계.\n' +
     '• ASML 가이던스 체계 전환: 오더 비공시 이후 "연초 보수 → 연중 상향" 패턴. 1분기 조기 상향(€340-390→€360-400억 중간값 €380, +€15억) = 수요 강도 신호. 2027 Low NA EUV 최소 80대 공약(VA 컨센 72 상회).\n' +
     '• HBM+HBF 3계층 패러다임: SanDisk HBF 일정 6개월 앞당김(26H2 파일럿, 27초 AI 추론 디바이스). 스택당 512GB 16레이어 = HBM 대비 동일비용 8-16배 용량. AI 훈련→추론 전환 = 용량 최적화 메모리 신카테고리.\n' +
-    '• 메모리 LTA 레버리지 역전(GS 한국 피드백): 기존 "LTA=정점 신호" → 신규 "고객 선제안=공급사 레버리지 확보". SEC 1Q OP만으로 역대 최강 2017-2018 연간평균 상회 = ROE/P/B 구조 전환. SEC > SK하이닉스(000660.KS) 선호(미국 투자자), HBM4 고핀속도 11Gbps+ 램프업 문제 미보고 = SEC 점유 확대 수혜.\n' +
+    '• 메모리 LTA 레버리지 역전(GS 한국 피드백): 기존 "LTA=정점 신호" → 신규 "고객 선제안=공급사 레버리지 확보". MS→삼성 $100억+ LTA 선지급 실증(5/31 JP모건). KB증권(5/29): SKH 300→380만원, "2Q 충족률 50%, 메모리 마라톤 5km 지점". Susquehanna(5/29): MU $1,750(기존$600), SNDK $3,250(기존$2,000). Q2 DRAM ASP +50~60%QoQ, NAND ASP +75~100%QoQ 실증. TrendForce TAM 2026E $889B→2027E $1.28T+. SEC 1Q OP 역대 최강 2017-18 연간평균 상회.\n' +
     '• CoreWeave 프론티어 랩 독점: Meta $21B 신규(2032 Vera Rubin)+Meta $14B 기존+OpenAI $22B+Anthropic 수십억 = 합산 $58B+. NVIDIA 3중 관계(공급+고객+투자자)가 비NVDA 호스팅 차단. 2025말 가격 +20% 인상 보고(WSJ).\n' +
     '• Nvidia Rubin 로드맵: CX9 NIC(포트당 800G→1.6Tb/s) 개발 과제로 일부 2026→2027 이월 가능(TrendForce). Citi 2026 Rubin 비중 31% 전망(TrendForce 수정치 22% 상회).\n' +
     '• Marvell 역할 확장: Google TPU 신규 설계 벤더 승격(MediaTek급) + Google LPU(Groq 대응 LLM 전용 추론) 신규 아키텍처 논의. NVLink Fusion IP블록 제공으로 XPU 이진선택→스펙트럼 전환.\n\n' +
@@ -7514,16 +7532,31 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '【AI 보안 정부 개입 표준화 (v48.18)】\n' +
     '• OpenAI TAC(Trust Access for Cyber) 14개 초기 파트너: CRWD(양쪽 독점 — Glasswing+TAC 조기접근)+PANW(Glasswing)+ZS(TAC 신규 진입)+NVDA+ORCL+CSCO + 금융 7개 + 스타트업 2개. GPT-5.4 Cyber(원본 코드 없이 클로즈드 SW 취약점 분석).\n' +
     '• 미국 CAISI/영국 AISI 연방기관 접근 제공 = 규제 표준화 경로. "AI 보안 ≠ 프론티어 모델 단독 해결" → 예산 촉매.\n\n' +
-    '【지정학(4/14 기준)】\n' +
-    '• 4/12 이슬라마바드 21시간 협상 결렬 → 4/13 호르무즈 봉쇄 발효 → 4/18 재개통 진행. 트럼프 "접근 선박 격침" 경고. Brent $103(+8%)→$95, WTI $98→$91. 봉쇄 장기화 시 공급갭 1,400만bbl/d.\n\n' +
-    '【주요 예정 이벤트 (v48.18 업데이트)】\n' +
-    '• 04/22-24 Google Cloud Next 라스베이거스 — 에이전트/인프라/고객 수주. 1일차 GCP CEO 기조연설(TPU/Rubin GPU/제미나이 3.5 가능성).\n' +
-    '• 04/28-29 FOMC — 듀얼 리스크 확인.\n' +
-    '• 04/29 GOOGL 1Q26 실적(Citi PT$405 90일 촉매).\n' +
-    '• 05/13 CPI + Brandcast.\n' +
-    '• 05/19-20 Google I/O — Gemini 3.5 예상.\n' +
-    '• 05/20 Google Marketing Live.\n' +
-    '• 어닝 시즌 진행 중: GS/JPM/TSM/NFLX/ASML 완료, MSFT/GOOGL/AMZN/META 예정.\n\n' +
+    '【지정학 (5/31 기준 — 복합 리스크)】\n' +
+    '• 이란 군사 동향: 이란 혁명수비대 신형 미사일 보트 "27 Razab" 공개(크루즈 미사일 700km 사거리, 호르무즈 작전 특화) + 오만 해안 이란제 Meham-3 기뢰 300kg 발견. 동시에 미-이란 합의 최종 단계 진입 — JD 밴스 "이란이 선의로 협상, 장애물은 문구뿐" · 스티븐 밀러 "이란이 호르무즈 재개방 포함 중대한 양보 수락". 트럼프 최종 서명 여부만 남음. 합의 vs 군사 동향 이중 신호 → 호르무즈 리스크 프리미엄 잔존.\n' +
+    '• 트럼프-이란 MOU 불승인(5/30 NYT) — 협상 문구 마찰 지속. EU 러시아 원유 가격상한 일시 동결 검토(에너지 공급 우려).\n' +
+    '• 이스라엘-레바논: 이스라엘 군 타이르 지역 공습 다수 사상자. 레바논 휴전 협상 교착.\n' +
+    '• 테헤란 증시: 종합지수 +83,000pt(4,236만pt), 은행주 주도 — 합의 기대 반영 신호.\n' +
+    '• 에너지 포지션: 합의 확정 시 WTI 즉각 하락 가능성 vs 기뢰·기술 긴장 지속 시 $5-10 프리미엄 유지. 수혜: LMT/RTX/NOC(방산) + XOM/CVX(원유).\n\n' +
+    '【메모리 사이클 대격변 (5/29-31 실증)】\n' +
+    '• Dell FY1Q27: 매출 $43.8B(+88%YoY) EPS $4.86(+214%). AI 서버 수주 $24.4B, 잔고 $51.3B, 고객 5,000개+. ISG $29.0B(+181%YoY). 2Q 가이던스 $44-45B(+50%YoY), AI서버 FY27 연간 $60B. 공급 제약 순위: ①NAND ②DRAM ③CPU ④HDD — GPU보다 메모리가 더 희소.\n' +
+    '• Susquehanna 목표가 대폭 상향(5/29): MU $600→$1,750 · SNDK $2,000→$3,250 · DELL $138→$700. 근거: Q2 DRAM ASP QoQ +50~60%(기대치 +50% 상회) · NAND ASP QoQ +75~100%. "blended ASP 지속 강세·마진 구조 지속 확신".\n' +
+    '• KB증권(5/29): SKH 목표가 300→380만원. "2Q 수요충족률 50%=공급 극심 부족. 2028년까지 최소 2년 부족. 에이전틱 AI 토큰 사용 7배 증가 → 범용 DRAM 신규 공급은 공정전환만 가능". 베라 루빈에서 메모리 원가 블랙웰 대비 5배 확대.\n' +
+    '• TrendForce TAM 대폭 상향: 2026E $551.6B→$889.3B, 2027E $842.7B→$1.28T+(+44%YoY). DRAM 2026E +303%YoY($619B), NAND 2026E +281%YoY($271B). 에이전틱 AI KV캐시·CPU배치비율 변화·SSD 역할 확대 = 구조적 수요 급증.\n' +
+    '• MS→삼성 LTA 선지급 $100억+(JP모건 확인). 메모리 LTA 선지급 30% 관행화. 공급 희소성 구조 고착.\n\n' +
+    '【Computex/GTC 타이페이 (6/1~5)】\n' +
+    '• NVDA 젠슨 황 기조연설(6/1 한국시간 낮 12시, GTC 타이페이): ①에이전틱 AI ②ARM기반 Windows PC(MS 서피스·DELL 협력, 퀄컴과 유사 비x86 아키텍처 진입) ③Rubin 플랫폼 생산 확대 ④$1조 AI 기회 구체화 발표 예상.\n' +
+    '• 린스에쿼티: 기조연설 긍정 촉매, 단기 $250 근접. 젠슨 황: 2026 매출 ~100% 성장, 2027년도 동등 규모.\n' +
+    '• 폭스콘 류양웨이: Vera Rubin 2H26 출하 낙관. CPO(실리콘 포토닉스) 수직계열화 강화.\n' +
+    '• 콴타 량츠전: AI 시장 "계단식 성장 2030년까지". 전력공급이 최대 병목(2~3년 선행 신청 필요).\n' +
+    '• MLCC 가격 급등: 중국 Guangdong XMAWEI MLCC 가격 급등으로 공식 가격인상 통보. 삼성전기(009150.KS) 수혜 신호.\n\n' +
+    '【주요 예정 이벤트 (v49.99 — 6월 1주차)】\n' +
+    '• 6/1(일): 한국 5월 수출입 + 美 5월 ISM 제조업 PMI + GTC 타이페이(~4일) + 젠슨황 기조연설(한국 낮 12시) + CRDO 실적(장후).\n' +
+    '• 6/2(월): 美 4월 JOLTS + 유로존/한국 5월 CPI + Computex 2026(~5일) + PANW/GTLB/ULTA 실적(장후).\n' +
+    '• 6/3(화): 한국 휴장 + 美 5월 ADP + 연준 베이지북 + AVGO/CRWD/C3.AI 실적(장후) — AVGO 실적이 AI반도체 섹터 핵심 촉매.\n' +
+    '• 6/4(수): 美 챌린저 해고건수 + 한국 5월 외환보유액 + CIEN/RBRK/LULU/DOCU/IOT 실적.\n' +
+    '• 6/5(목): 美 5월 고용보고서(NFP) — 금리 경로의 핵심 변수.\n' +
+    '• 달러-원 24시간 논스톱 거래: 7월 6일부터 주말 제외 24시간 거래 시행.\n\n' +
     '위 뉴스와 매크로·반도체·스태그 맥락을 교차 분석하여 기관급 모닝 브리핑을 작성하세요.\n\n' +
     '=== 작성 원칙 ===\n' +
     '1. 뉴스를 "나열"하지 마라. 서사(narrative)로 엮어라. 마치 골드만삭스 CIO가 고객에게 보내는 데일리 노트처럼.\n' +
