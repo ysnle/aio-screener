@@ -1,5 +1,5 @@
 {
-  "version": "v49.98",
-  "built": "2026-05-31T12:00:00+09:00",
-  "note": "v49.98 — 종합 5페이지 on-enter 즉시 갱신 (P463/R187). 사용자 '종합 5페이지는 실제 매매 핵심이니 자동 최신화 강력 보강, 최신 시장 반영'. 갭: 스케줄러는 주기(시세 3분~브레드쓰/심리 10분)로만 돌아 페이지 진입 시점에 stale 가능. AIO_PAGE_REFRESH_MAP으로 home→[quotes,sentiment,breadth,news] · signal→[quotes,technicals,breadth] · breadth→[breadth,quotes] · sentiment→[sentiment,vixHistory,quotes] · briefing→[news,quotes,sentiment] 매핑. aio:pageShown 진입 시 의존 태스크가 ½interval 초과 stale이면 _runScheduledTask 강제 호출(fresh면 스킵, _inFlight 가드, per-task 30초 디바운스). 기존 인프라(_runScheduledTask·runScheduledRefresh·visibilitychange stale갱신·v49.97 진행률로더·v49.96 audit push) 위에 진입 트리거 레이어 추가. R187 + T690 + 동기화 7곳."
+  "version": "v49.99",
+  "built": "2026-05-31T21:00:00+09:00",
+  "note": "v49.99 — 텔레그램 채널 3개(@aetherjapanresearch·@insidertracking·@bornlupin) 일주일치 통합. 핵심: Q2 DRAM ASP +50~60%·NAND ASP +75~100% QoQ(Susquehanna) + Dell FY1Q27 AI서버 $16.1B + SK하이닉스 수요충족률 50% + MU PT$1750·SNDK PT$3250·DELL PT$700 대폭 상향 + NVDA Computex·Vera Rubin 2H26 + 중동 지정학 리스크 + 메모리 TAM TrendForce 2027E $1.28T. KNOWLEDGE-BASE PT-G~K 5개 패러다임 전환 추가."
 }

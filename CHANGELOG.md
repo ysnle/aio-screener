@@ -6,6 +6,20 @@
 
 ---
 
+## v49.99 — 텔레그램 3채널 일주일치 통합 + 메모리 사이클 대격변 업데이트 (2026-05-31)
+
+**Changed files**: `js/aio-data.js`, `index.html`, `js/aio-core.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/KNOWLEDGE-BASE.md`
+
+**출처**: @aetherjapanresearch · @insidertracking · @bornlupin (2026-05-24~31)
+
+- **SCREENER_DB 업데이트** (5개 티커): DELL FY1Q27 실적($43.8B +88%/AI서버$16.1B) + Susquehanna 대폭 상향(MU $600→$1750, SNDK $2000→$3250, DELL $138→$700) + SK하이닉스 KB증권 300→380만원(수요충족률 50%) + 삼성전자 MS LTA 선지급 $100억+ + NVDA Computex·Vera Rubin 2H26 출하
+- **Q2 메모리 ASP 확인**: DRAM +50~60% QoQ, NAND +75~100% QoQ (Susquehanna 실측)
+- **메모리 TAM 상향**: TrendForce 2026E $889B → 2027E $1.28T+(에이전틱 AI 구조적 수요)
+- **중동 지정학**: 이란 기뢰·미사일 + Trump-Iran MOU 실패 + EU 러시아 제재 동결 검토
+- **KNOWLEDGE-BASE PT-G~K** 5개 패러다임 전환 추가
+
+---
+
 ## v49.98 — 종합 5페이지 on-enter 즉시 갱신 (매매 핵심 자동 최신화 강화) (P463/R187) (2026-05-31)
 
 **Changed files**: `js/aio-data.js`, `js/aio-core.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/RULES.md`, `_context/BUG-POSTMORTEM.md`
