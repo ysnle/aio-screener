@@ -3982,6 +3982,12 @@ const MACRO_KW = [
   'quantum milestone','Quantinuum H2','양자컴퓨터 마일스톤','32 qubit',
   'LTA prepayment','LTA 선지급','memory LTA','메모리 장기계약',
   'Kioxia','키옥시아','NAND cycle peak','낸드 사이클 정점',
+  // v49.99 MACRO_KW 추가 — 분석가·인플레·메모리수급 (ANALYST_KW max+3이라 여기에도 등록)
+  'Hartnett','Michael Hartnett','BofA inflation','inflation warning','인플레 경고',
+  'Ueda','BOJ Ueda','우에다','G7 central bank','G7 금리',
+  'memory supply','memory shortage','메모리 수급','메모리 공급 부족','반도체 수급',
+  'AI server demand','AI 서버 수요','server supply constraint','서버 공급 제약',
+  'Dell AI server','Dell earnings','Dell FY27','FY1Q27',
   // v48.16 (integrate 2026-04-18): Citi 자산배분 + Fed + 데이터센터 규제
   'escalate to de-escalate','고조 후 완화','quality rotation','퀄리티 로테이션',
   'earnings broadening','이익 확산','defensive tilt','디펜시브 전환',
@@ -4544,6 +4550,20 @@ const TECH_KW = [
   'Vera Rubin Windows PC','ARM PC','NVDA PC chip','on-device AI PC',
   'Kioxia BiCS','BICS10','NAND scaling','수평 스케일링','낸드 수평 미세화',
   'MLCC shortage','MLCC supply','passive component price','MLCC 부족','수동소자',
+  // v49.99 TECH_KW 추가 — Susquehanna·Dell실적·HBM점유율·일본반도체 (ANALYST_KW max+3 보완)
+  'Susquehanna','Susquehanna upgrades','Susquehanna raises','Susquehanna initiates',
+  'KB Securities','KB증권 목표가','KB증권 상향','KB 증권',
+  'Lynx Equity','DA Davidson','Melius Research',
+  'Dell FY27','Dell FY1Q27','Dell AI server revenue','Dell ISG',
+  'AI server supply constraint','AI server backlog','AI 서버 수주잔고',
+  'memory supply shortage','DRAM shortage','NAND shortage','메모리 부족','메모리 쇼티지',
+  'HBM market share','HBM share','HBM 점유율','HBM 시장점유',
+  'Foxconn shareholder','Foxconn Liu','류양웨이','폭스콘 주총',
+  'Quanta earnings','Quanta Liu','량츠전','콴타 주총',
+  'Fujitsu','후지쯔','Fujitsu MONAKA','MONAKA CPU',
+  'Tokyo Electron TEL','TEL semiconductor','도쿄일렉트론','도쿄 일렉트론',
+  'Winbond','윈본드','NAND flash price','낸드 플래시 가격',
+  'memory contract price','메모리 계약가','분기 계약가',
   'product launch','developer conference','keynote','developer day',
   // ── v37.3: 한국어 테크 기업
   '엔비디아','테슬라','애플','마이크로소프트','구글','아마존','메타',
@@ -4963,6 +4983,11 @@ const ANALYST_KW = [
   'Jefferies','JPMorgan','Goldman Sachs','Morgan Stanley','Citigroup','Bank of America',
   'KeyBanc','Piper Sandler','Barclays','UBS','Deutsche Bank','RBC Capital',
   'Mizuho','Needham','Wedbush','Canaccord','Truist','Oppenheimer','Stifel',
+  // v49.99: 텔레그램 채널 주요 기관 추가 — 이번 주 핵심 리포트 기관
+  'Susquehanna','Susquehanna Financial','SIG','Lynx Equity','Lynx equity',
+  'DA Davidson','Melius Research','Melius','KB Securities','KB증권',
+  'Hartnett','Michael Hartnett','BofA Hartnett',
+  '커버리지 개시','매수 개시','커버리지 시작','신규 편입',
   '목표주가','투자의견','매수의견','매도의견','중립의견',
   '목표주가 상향','목표주가 하향','투자의견 상향','투자의견 하향',
   '비중확대','비중축소','시장수익률','매수 유지','중립 유지',
@@ -5102,6 +5127,10 @@ const KR_TICKER_MAP = {
   // AI 인프라 / 네오클라우드
   '코어위브': 'CRWV', 'coreweave': 'CRWV',
   '네비우스': 'NBIS', 'nebius': 'NBIS',
+  // v49.99: 일본 반도체 신규 등록 (키옥시아·TEL·후지쯔)
+  '키옥시아': '6600.T', 'kioxia': '6600.T', 'kioxia holdings': '6600.T',
+  '도쿄일렉트론': '8035.T', 'tokyo electron': '8035.T', 'tel semiconductor': '8035.T',
+  '후지쯔': '6702.T', 'fujitsu': '6702.T', 'fujitsu monaka': '6702.T',
   // 위성통신 (Globalstar/AMZN LEO 테마)
   '글로벌스타': 'GSAT', 'globalstar': 'GSAT',
   // v48.19: AVGO-Meta MTIA, 테라팹, Wartsila 맥락 주요 키워드
