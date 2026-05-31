@@ -3201,19 +3201,43 @@ var AIO_PAGE_REFRESH_MAP = {
 window.AIO_PAGE_REFRESH_MAP = AIO_PAGE_REFRESH_MAP;
 
 var _aioPageRefreshLast = {};   // key -> 마지막 on-enter 강제 fetch ts (per-task 최소 간격 가드)
+
+// v49.99 연계점①: HOME_WEEKLY_NEWS 만료 감지 → news 태스크 강제 pre-warm
+// 문제: news interval 45분, stale threshold 22.5분 — HOME_WEEKLY_NEWS 만료 시점에
+//       마지막 news 실행이 22.5분 미만이면 on-enter refresh가 스킵 → "수집 중..." 공백.
+// 해결: HOME_WEEKLY_NEWS가 만료됐거나 24h 이내 만료 예정이면 news 태스크를 stale 무관하게 강제 실행.
+function _aioIsWeeklyNewsExpiring() {
+  var src = window.HOME_WEEKLY_NEWS || (typeof HOME_WEEKLY_NEWS !== 'undefined' ? HOME_WEEKLY_NEWS : null);
+  if (!src || !src.length) return true; // 비어있으면 만료로 간주
+  var now = Date.now();
+  var maxAgeMs = 72 * 60 * 60 * 1000;   // 72h 만료 기준
+  var warnMs   = 24 * 60 * 60 * 1000;   // 24h 전부터 pre-warm
+  return src.every(function(n) {
+    if (!n || !n.date) return true;
+    var t = new Date(String(n.date) + 'T23:59:59+09:00').getTime();
+    if (isNaN(t)) return true;
+    return (now - t) >= (maxAgeMs - warnMs); // 만료됐거나 24h 이내 만료 예정
+  });
+}
+window._aioIsWeeklyNewsExpiring = _aioIsWeeklyNewsExpiring;
+
 function _aioRefreshPageData(pageId) {
   try {
     if (_schedulerPaused) return;
     var keys = AIO_PAGE_REFRESH_MAP[pageId];
     if (!keys || !window.REFRESH_SCHEDULE) return;
     var now = Date.now();
+    // v49.99 연계점①: home/briefing 진입 시 주간뉴스 만료 여부 사전 체크
+    var weeklyNewsExpiring = (pageId === 'home' || pageId === 'briefing') && _aioIsWeeklyNewsExpiring();
     keys.forEach(function(key) {
       var cfg = REFRESH_SCHEDULE[key];
       if (!cfg || typeof cfg.fn !== 'function' || cfg._inFlight) return;
       // stale 판정: 마지막 성공이 ½ interval 초과 (아직 fresh면 스킵 — 불필요 호출 방지)
       var lastOk = cfg._lastOk || 0;
       var staleThreshold = Math.max((cfg.interval || 600000) * 0.5, 60000);
-      if (lastOk && (now - lastOk) < staleThreshold) return;
+      // 연계점①: news 태스크이고 주간뉴스 만료 임박 — stale 기준 무시하고 강제 실행
+      var forceRefresh = (key === 'news' && weeklyNewsExpiring);
+      if (!forceRefresh && lastOk && (now - lastOk) < staleThreshold) return;
       // per-task on-enter 최소 간격 30초 (페이지 빠른 전환 폭주 차단)
       if (_aioPageRefreshLast[key] && (now - _aioPageRefreshLast[key]) < 30000) return;
       _aioPageRefreshLast[key] = now;
@@ -7495,7 +7519,20 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
   var anchorStr = bw.anchorDate.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
   briefingHeader = briefingHeader || '';
 
+  // v49.99 연계점②: HOME_WEEKLY_NEWS 신선도 체크 — 만료 시 AI 프롬프트에 컨텍스트 공백 경고 주입
+  // v49.98 on-enter refresh가 news 태스크를 강제 실행했어도 AI 프롬프트의 정적 큐레이션 컨텍스트
+  // 자체가 만료됐으면 AI가 틀린 주간 컨텍스트로 분석할 위험. 만료 시 명시적으로 알림.
+  var _weeklyCtxNote = '';
+  try {
+    var _wn = window._aioGetCurrentHomeWeeklyNews ? window._aioGetCurrentHomeWeeklyNews() : [];
+    if (!_wn || _wn.length === 0) {
+      _weeklyCtxNote = '[시스템: HOME_WEEKLY_NEWS 정적 큐레이션 72h 만료. 아래 실시간 RSS 뉴스만으로 분석. ' +
+        '정적 주간 컨텍스트 없음 — 주간 흐름 언급 시 "이번 주 확인된 뉴스에 따르면"으로 한정.]\n\n';
+    }
+  } catch(_we) {}
+
   var prompt = '당신은 전문 금융 애널리스트입니다. 아래는 ' + anchorStr + ' 08:00 KST ~ 24시간 동안 수집된 주요 뉴스입니다.\n\n' +
+    _weeklyCtxNote +
     newsText + '\n\n' +
     '【현재 매크로 맥락 — 5/31 기준 최신화 (v49.99)】\n' +
     '• Fed/금리: 기준금리 3.50-3.75% 동결. 다음 FOMC 6/16-17(SEP 회의). 4월 CPI 3.8%(3년 고점)·Core PCE 3.3%(2023.10 이후 최고). BofA Hartnett "6월 추가 인플레 경고 — 저실업률·고용 강세 지속으로 연준 인하 기대 과소평가". 베이지북 6/3 발표.\n' +
