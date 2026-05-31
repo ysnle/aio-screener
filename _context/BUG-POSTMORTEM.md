@@ -4180,4 +4180,4 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **원인**: 페이지 진입과 데이터 갱신이 분리. visibilitychange(탭 복귀)엔 stale 갱신이 있었으나, **SPA 내 페이지 전환(showPage)엔 on-enter 갱신 트리거가 없었음**.
 - **수정**: `AIO_PAGE_REFRESH_MAP`(5페이지→의존 태스크) + `_aioRefreshPageData(pageId)` — `aio:pageShown` 구독해 진입 시 의존 태스크가 ½interval 초과 stale이면 `_runScheduledTask` 강제 호출. fresh면 스킵 + `_inFlight` 가드 + per-task 30초 디바운스 + `_schedulerPaused` 존중으로 호출 폭주/중복 차단.
 - **violated_rule**: R187 신규 (매매 핵심 페이지 on-enter stale 갱신 의무). R21(데이터 경과일) 연장.
-- **prevention**: 매매 직결 페이지는 진입 시 의존 데이터 신선도 확인 후 stale이면 즉시 갱신. 신규 핵심 페이지 추가 시 AIO_PAGE_REFRESH_MAP 등록. T690.
+- **prevention**: 매매 직결 페이지는 진입 시 의존 데이터 신선도 확인 후 stale이면 즉시 갱신. 신규 핵심 페이지 추가 시 AIO_PAGE_REFRESH_MAP 등록. `AIO.getPageRefreshCoverageAudit()`로 DOM/매핑/refresh hook 완전성을 추가 검증. T690~T691.

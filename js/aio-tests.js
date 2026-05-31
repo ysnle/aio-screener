@@ -3526,6 +3526,11 @@
     _assert('T690 page_onenter_refresh_v4998: 종합 5페이지 refresh 매핑 + _aioRefreshPageData 함수 (P463/R187)',
       !!mapOk && prFn,
       'mapOk=' + !!mapOk + ' fn=' + prFn + ' keys=' + (prMap ? Object.keys(prMap).join(',') : 'none'));
+
+    var coverageAudit = (typeof window.AIO.getPageRefreshCoverageAudit === 'function') ? window.AIO.getPageRefreshCoverageAudit() : null;
+    _assert('T691 page_refresh_coverage_audit_v4998: 종합 5페이지 DOM 존재 + refresh 매핑 + coverage audit (institutional-grade page refresh)',
+      !!coverageAudit && coverageAudit.status === 'ok',
+      coverageAudit ? ('status=' + coverageAudit.status + ' missing=' + coverageAudit.missingPageIds.join(',') + ' issues=' + coverageAudit.taskIssues.join(',') + ' wired=' + coverageAudit.pageRefreshWired) : 'coverageAudit undefined');
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지

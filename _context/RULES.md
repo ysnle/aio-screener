@@ -2260,4 +2260,4 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 
 **근거 (P463)**: 스케줄러가 주기(브레드쓰/심리 10분)로만 돌아 페이지 진입 시점에 stale일 수 있음 — 매매 결정에 직접 쓰는 페이지엔 치명적.
 
-**Validation**: `AIO_PAGE_REFRESH_MAP` 5키 + `typeof _aioRefreshPageData === 'function'` + `aio:pageShown` 구독 + T690.
+**Validation**: `AIO_PAGE_REFRESH_MAP` 5키 + `typeof _aioRefreshPageData === 'function'` + `aio:pageShown` 구독 + `AIO.getPageRefreshCoverageAudit()` + T690~T691.

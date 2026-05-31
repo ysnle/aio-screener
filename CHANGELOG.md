@@ -16,6 +16,7 @@
 - **수정** (P463): `AIO_PAGE_REFRESH_MAP` 5페이지→의존 태스크 매핑 + `_aioRefreshPageData(pageId)`. `aio:pageShown` 진입 시 의존 태스크 ½interval 초과 stale이면 `_runScheduledTask` 강제 호출.
   - home→[quotes,sentiment,breadth,news] · signal→[quotes,technicals,breadth] · breadth→[breadth,quotes] · sentiment→[sentiment,vixHistory,quotes] · briefing→[news,quotes,sentiment]
   - 가드: fresh면 스킵 · `_inFlight` 중복차단 · per-task 30초 디바운스 · `_schedulerPaused` 존중
+- **강화**: `AIO.getPageRefreshCoverageAudit()` 추가 — 종합 5페이지 DOM 존재, refresh 매핑, task 정의, page hook 연결을 감사하는 institutional-grade coverage audit.
 - **지속운영 스택 완성**: 주기 스케줄러(v21~) + 탭복귀 stale갱신(v30.11) + **페이지진입 stale갱신(v49.98)** + 진행률 로더(v49.97) + audit push(v49.96). 첫 접속~지속~페이지전환 전 구간 최신성 커버.
 - R187 + T690 + 동기화 7곳.
 

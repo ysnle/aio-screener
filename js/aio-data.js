@@ -3336,6 +3336,61 @@ window.AIO.getRefreshSchedulerAudit = function() {
   };
 };
 
+window.AIO.getPageRefreshCoverageAudit = function() {
+  var prMap = window.AIO_PAGE_REFRESH_MAP || {};
+  var targetPages = ['home','signal','breadth','sentiment','briefing'];
+  var now = Date.now();
+  var missingPageIds = [];
+  var taskIssues = [];
+  var pageDetails = {};
+
+  targetPages.forEach(function(pageId) {
+    var pageEl = document.getElementById('page-' + pageId);
+    if (!pageEl) missingPageIds.push(pageId);
+
+    var tasks = Array.isArray(prMap[pageId]) ? prMap[pageId] : [];
+    var details = [];
+    tasks.forEach(function(task) {
+      var cfg = REFRESH_SCHEDULE[task] || {};
+      var defined = typeof REFRESH_SCHEDULE[task] !== 'undefined';
+      var hasFn = typeof cfg.fn === 'function';
+      if (!defined) taskIssues.push(pageId + '→' + task);
+      details.push({
+        task: task,
+        defined: defined,
+        hasFn: hasFn,
+        lastOk: cfg._lastOk || 0,
+        intervalMs: cfg.interval || 0,
+        staleMs: cfg._lastOk ? Math.max(0, now - cfg._lastOk) : null,
+        nextDue: cfg.nextDue || 0
+      });
+    });
+
+    pageDetails[pageId] = {
+      pageExists: !!pageEl,
+      tasks: tasks,
+      taskDetails: details,
+      taskIssues: details.filter(function(d){ return !d.defined; }).map(function(d){ return d.task; })
+    };
+  });
+
+  var mapOk = targetPages.every(function(pageId) {
+    return Array.isArray(prMap[pageId]) && prMap[pageId].length > 0;
+  });
+  var pageRefreshWired = typeof window._aioRefreshPageData === 'function';
+
+  return {
+    status: (missingPageIds.length || taskIssues.length || !mapOk || !pageRefreshWired) ? 'warn' : 'ok',
+    pageIds: targetPages,
+    pageDetails: pageDetails,
+    missingPageIds: missingPageIds,
+    mapOk: mapOk,
+    pageRefreshWired: pageRefreshWired,
+    taskIssues: taskIssues,
+    generatedAt: new Date(now).toISOString()
+  };
+};
+
 window.AIO.runScheduledRefresh = async function(keys) {
   _assignRefreshScheduleFunctions();
   _normalizeRefreshSchedule();
