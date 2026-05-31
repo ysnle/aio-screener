@@ -9866,6 +9866,8 @@ window.AIO.getAutoOpsReadiness = function() {
   if (statics && statics.issueCount) issues.push(statics.issueCount + ' static/live-like freshness issue(s)');
   if (!scheduler || !scheduler.totalTasks) issues.push('refresh scheduler audit unavailable');
   else if (scheduler.tasksWithoutFn && scheduler.tasksWithoutFn.length) issues.push('scheduler task(s) without function: ' + scheduler.tasksWithoutFn.join(','));
+  if (scheduler && scheduler.pageRefreshIssues && scheduler.pageRefreshIssues.length) issues.push(scheduler.pageRefreshIssues.length + ' page on-enter refresh 매핑 오류 [v49.98/R187]: ' + scheduler.pageRefreshIssues.join(','));
+  if (scheduler && scheduler.pageRefreshWired === false) issues.push('page on-enter refresh 미연결 [v49.98/R187]');
   if (continuity && continuity.issueCount) issues.push(continuity.issueCount + ' data continuity repair candidate(s)');
   if (sinkConsistency && sinkConsistency.issueCount) issues.push(sinkConsistency.issueCount + ' cross-page sink mismatch(es) [P216/P218 pattern]');
   if (tableStale && tableStale.issueCount) issues.push(tableStale.issueCount + ' stale table(s) [P217 pattern]');
@@ -14226,7 +14228,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.97';
+const APP_VERSION = 'v49.98';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

@@ -3181,6 +3181,60 @@ function startDataScheduler() {
   console.log('[AIO v20] ═══ All schedulers active ═══');
 }
 
+// ─────────────────────────────────────────────────────────────────
+// v49.98 P463/R187: 종합 5 페이지 on-enter 즉시 갱신 (매매 핵심 페이지 stale 차단)
+// 갭: 스케줄러는 주기(10분 등)로만 돌아 페이지 진입 시점에 stale할 수 있음.
+//     실제 매매에 쓰는 종합 5페이지(대시보드/시그널/시장폭/심리/브리핑)는
+//     진입 즉시 의존 태스크가 stale(½ interval 초과)이면 강제 재fetch해 최신 반영.
+// 디바운스: 동일 태스크 동시 진입 폭주 방지 (cfg._inFlight + per-task 최소 간격).
+// ─────────────────────────────────────────────────────────────────
+var AIO_PAGE_REFRESH_MAP = {
+  home:      ['quotes', 'sentiment', 'breadth', 'news'],   // 대시보드: 종합 스냅샷
+  signal:    ['quotes', 'technicals', 'breadth'],          // 매매 시그널: 시세+기술+시장폭
+  breadth:   ['breadth', 'quotes'],                        // 시장 폭
+  sentiment: ['sentiment', 'vixHistory', 'quotes'],        // 투자 심리: F&G/PCR+VIX
+  briefing:  ['news', 'quotes', 'sentiment']               // 오늘의 브리핑: 뉴스 우선
+};
+window.AIO_PAGE_REFRESH_MAP = AIO_PAGE_REFRESH_MAP;
+
+var _aioPageRefreshLast = {};   // key -> 마지막 on-enter 강제 fetch ts (per-task 최소 간격 가드)
+function _aioRefreshPageData(pageId) {
+  try {
+    if (_schedulerPaused) return;
+    var keys = AIO_PAGE_REFRESH_MAP[pageId];
+    if (!keys || !window.REFRESH_SCHEDULE) return;
+    var now = Date.now();
+    keys.forEach(function(key) {
+      var cfg = REFRESH_SCHEDULE[key];
+      if (!cfg || typeof cfg.fn !== 'function' || cfg._inFlight) return;
+      // stale 판정: 마지막 성공이 ½ interval 초과 (아직 fresh면 스킵 — 불필요 호출 방지)
+      var lastOk = cfg._lastOk || 0;
+      var staleThreshold = Math.max((cfg.interval || 600000) * 0.5, 60000);
+      if (lastOk && (now - lastOk) < staleThreshold) return;
+      // per-task on-enter 최소 간격 30초 (페이지 빠른 전환 폭주 차단)
+      if (_aioPageRefreshLast[key] && (now - _aioPageRefreshLast[key]) < 30000) return;
+      _aioPageRefreshLast[key] = now;
+      setTimeout(function(){ _runScheduledTask(key, cfg, false); }, 0);
+    });
+  } catch (e) {}
+}
+window._aioRefreshPageData = _aioRefreshPageData;
+
+// aio:pageShown 구독 — 종합 5 페이지 진입 시 on-enter 갱신
+try {
+  // aio:pageShown payload: CustomEvent { detail: id(문자열) } — showPage(aio-core L17499)
+  function _onPageShown(e) {
+    var d = e && e.detail;
+    var pageId = (typeof d === 'string') ? d : (d && (d.pageId || d.id));
+    if (pageId && AIO_PAGE_REFRESH_MAP[pageId]) _aioRefreshPageData(pageId);
+  }
+  if (window._aioPageBus && window._aioPageBus.register) {
+    window._aioPageBus.register('data-page-onenter-refresh', 'aio:pageShown', _onPageShown);
+  } else {
+    document.addEventListener('aio:pageShown', _onPageShown);
+  }
+} catch (e) {}
+
 // v30.11: 스케줄러 재시작 함수 (Page Visibility 복귀용)
 function restartScheduler() {
   Object.entries(REFRESH_SCHEDULE).forEach(([key, cfg]) => {
@@ -3258,14 +3312,26 @@ window.AIO.getRefreshSchedulerAudit = function() {
       lastDurationMs: cfg.lastDurationMs || 0
     };
   });
+  // v49.98 R187: 종합 5페이지 on-enter refresh 매핑 무결성 — 매핑된 태스크가 실존 스케줄 키인지 검증
+  var pageRefreshIssues = [];
+  var prMap = window.AIO_PAGE_REFRESH_MAP || {};
+  Object.keys(prMap).forEach(function(pg) {
+    (prMap[pg] || []).forEach(function(k) {
+      if (!REFRESH_SCHEDULE[k]) pageRefreshIssues.push(pg + '→' + k + ' (unknown task)');
+    });
+  });
+  var pageRefreshWired = typeof window._aioRefreshPageData === 'function';
   return {
-    status: tasksWithoutFn.length ? 'warn' : 'ok',
+    status: (tasksWithoutFn.length || pageRefreshIssues.length || !pageRefreshWired) ? 'warn' : 'ok',
     paused: !!_schedulerPaused,
     totalTasks: Object.keys(tasks).length,
     tasksWithoutFn: tasksWithoutFn,
     inFlight: inFlight,
     recentlyOk: staleOk,
     tasks: tasks,
+    pageRefreshMap: prMap,                    // v49.98: 페이지→태스크 매핑 (R187)
+    pageRefreshWired: pageRefreshWired,
+    pageRefreshIssues: pageRefreshIssues,     // 매핑이 가리키는 unknown 태스크
     generatedAt: new Date(now).toISOString()
   };
 };

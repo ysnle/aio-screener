@@ -4173,3 +4173,11 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **수정**: ① 부팅 로더를 핵심 5개(시세·심리·시장폭·뉴스·변동성) 진행률 추적으로 교체 — `_lastFetch` 타임스탬프 폴링 → `N/5` 카운터 + 진행바 + 도착 항목 체크, 핵심 시세 후 4초/하드캡 15초 자동 닫기, 느린 소스 백그라운드. ② `renderHomeFeed` 정적 만료 시 동적 items로 자동 폴스루 + score 단계적 완화(90→70→50). 라이브 검증: 로더 `1/5`→자동닫힘, 홈뉴스 내용 표시, 콘솔 에러 0. T689 회귀.
 - **violated_rule**: R186 신규 (진행률 로더 + 정적 만료 시 동적 폴스루). R57(정적 stale) 연장.
 - **prevention**: 정적 큐레이션 콘텐츠는 만료 시 항상 동적 폴백 경로 확보 + 단일 임계값 필터는 단계적 완화. 첫 접속 동기화는 진행률 가시화. T689.
+
+## P463 · v49.98 · 종합 5페이지 진입 시 stale 노출 — on-enter 즉시 갱신 부재 (매매 핵심 페이지)
+
+- **증상**: 사용자 "종합 5페이지는 실제 매매 핵심이니 자동 최신화 강력 보강, 최신 시장 모두 반영". 진단: REFRESH_SCHEDULE는 주기(시세 3분·브레드쓰/심리 10분·뉴스 45분)로만 돌고, `aio:pageShown` hook은 **렌더만** 하고 fetch 강제는 안 함 → 매매시그널/시장폭 페이지 진입 시 직전 주기가 안 돌았으면 최대 10분 stale한 데이터로 매매 판단.
+- **원인**: 페이지 진입과 데이터 갱신이 분리. visibilitychange(탭 복귀)엔 stale 갱신이 있었으나, **SPA 내 페이지 전환(showPage)엔 on-enter 갱신 트리거가 없었음**.
+- **수정**: `AIO_PAGE_REFRESH_MAP`(5페이지→의존 태스크) + `_aioRefreshPageData(pageId)` — `aio:pageShown` 구독해 진입 시 의존 태스크가 ½interval 초과 stale이면 `_runScheduledTask` 강제 호출. fresh면 스킵 + `_inFlight` 가드 + per-task 30초 디바운스 + `_schedulerPaused` 존중으로 호출 폭주/중복 차단.
+- **violated_rule**: R187 신규 (매매 핵심 페이지 on-enter stale 갱신 의무). R21(데이터 경과일) 연장.
+- **prevention**: 매매 직결 페이지는 진입 시 의존 데이터 신선도 확인 후 stale이면 즉시 갱신. 신규 핵심 페이지 추가 시 AIO_PAGE_REFRESH_MAP 등록. T690.

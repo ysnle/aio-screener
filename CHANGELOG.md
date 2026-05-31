@@ -6,6 +6,21 @@
 
 ---
 
+## v49.98 — 종합 5페이지 on-enter 즉시 갱신 (매매 핵심 자동 최신화 강화) (P463/R187) (2026-05-31)
+
+**Changed files**: `js/aio-data.js`, `js/aio-core.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/RULES.md`, `_context/BUG-POSTMORTEM.md`
+
+**사용자 지적**: "종합 5페이지는 실제 매매에 주로 쓰이니 자동 최신화 운영 강력 보강 — 각 페이지가 최신 시장 상황 모두 반영".
+
+- **진단**: REFRESH_SCHEDULE 11태스크는 주기(시세 3분·브레드쓰/심리 10분·뉴스 45분)로만 돌고, `aio:pageShown` hook은 렌더만 하고 fetch 강제 안 함 → 매매시그널/시장폭 진입 시 최대 10분 stale 가능. visibilitychange(탭 복귀)엔 stale 갱신 있었으나 SPA 페이지 전환엔 없었음.
+- **수정** (P463): `AIO_PAGE_REFRESH_MAP` 5페이지→의존 태스크 매핑 + `_aioRefreshPageData(pageId)`. `aio:pageShown` 진입 시 의존 태스크 ½interval 초과 stale이면 `_runScheduledTask` 강제 호출.
+  - home→[quotes,sentiment,breadth,news] · signal→[quotes,technicals,breadth] · breadth→[breadth,quotes] · sentiment→[sentiment,vixHistory,quotes] · briefing→[news,quotes,sentiment]
+  - 가드: fresh면 스킵 · `_inFlight` 중복차단 · per-task 30초 디바운스 · `_schedulerPaused` 존중
+- **지속운영 스택 완성**: 주기 스케줄러(v21~) + 탭복귀 stale갱신(v30.11) + **페이지진입 stale갱신(v49.98)** + 진행률 로더(v49.97) + audit push(v49.96). 첫 접속~지속~페이지전환 전 구간 최신성 커버.
+- R187 + T690 + 동기화 7곳.
+
+---
+
 ## v49.97 — 부팅 로더 진행률화 + 브리핑/뉴스 자동화 (P462/R186) (2026-05-29)
 
 **Changed files**: `index.html`, `js/aio-data.js`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/RULES.md`, `_context/BUG-POSTMORTEM.md`

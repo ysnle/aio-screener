@@ -3508,6 +3508,24 @@
     _assert('T688 audit_push_pull_to_push_v4996: _aioAutoSurfaceOps 존재 + {count,problems} 반환 (지속운영 자동 surfacing R185)',
       pushFn && pushRes && typeof pushRes.count === 'number' && Array.isArray(pushRes.problems),
       pushFn ? ('count=' + (pushRes && pushRes.count) + ' problems=' + (pushRes && pushRes.problems ? pushRes.problems.length : 'n/a')) : '_aioAutoSurfaceOps 미정의');
+    // T689: v49.97 P462/R186 — 부팅 로더 진행률 DOM + 홈피드 단계적 완화 폴백
+    var bootCount = document.getElementById('aio-boot-count');
+    var bootBar = document.getElementById('aio-boot-bar-fill');
+    var loaderOk = (!bootCount && !bootBar) || (bootCount && bootBar);   // 로더는 도착 후 제거 가능 → 부재도 PASS
+    var rhfSrc = (typeof renderHomeFeed === 'function') ? renderHomeFeed.toString() : '';
+    var gradFallback = rhfSrc.indexOf('>= 70') >= 0 && rhfSrc.indexOf('>= 50') >= 0;
+    _assert('T689 boot_loader_progress_and_home_feed_fallback_v4997: 로더 진행률 DOM 정합 + 홈피드 단계적완화(90→70→50) (P462/R186)',
+      loaderOk && gradFallback,
+      'loaderOk=' + loaderOk + ' gradFallback=' + gradFallback);
+    // T690: v49.98 P463/R187 — 종합 5페이지 on-enter 즉시 갱신 매핑 + 트리거 함수
+    var prMap = window.AIO_PAGE_REFRESH_MAP;
+    var prFn = (typeof window._aioRefreshPageData === 'function');
+    var mapOk = prMap && ['home','signal','breadth','sentiment','briefing'].every(function(p){
+      return Array.isArray(prMap[p]) && prMap[p].length > 0;
+    });
+    _assert('T690 page_onenter_refresh_v4998: 종합 5페이지 refresh 매핑 + _aioRefreshPageData 함수 (P463/R187)',
+      !!mapOk && prFn,
+      'mapOk=' + !!mapOk + ' fn=' + prFn + ' keys=' + (prMap ? Object.keys(prMap).join(',') : 'none'));
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지

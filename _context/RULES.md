@@ -2249,3 +2249,15 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 **근거 (P462)**: 홈 "핵심 뉴스"가 정적 3건 만료 후 동적 items가 있어도 안내문만 띄우거나 score≥90 필터에 다 걸려 빈 화면 = 사용자 보고 "브리핑/뉴스 부실"의 근본.
 
 **Validation**: 로더 진행률 DOM(`aio-boot-count`/`aio-boot-bar-fill`) + `renderHomeFeed` 단계적 완화(70/50) + T689.
+
+## R187. 매매 핵심 페이지(종합 5)는 진입 시 stale하면 즉시 재fetch 의무 (v49.98 added, P463 root)
+
+**Rule**: 실제 매매에 쓰는 종합 5페이지(대시보드/매매시그널/시장폭/투자심리/브리핑)는 스케줄 주기에만 의존하지 않는다. **페이지 진입(`aio:pageShown`) 시 의존 태스크가 stale(½ interval 초과)이면 즉시 강제 재fetch**해 최신 시장을 반영한다.
+
+**매핑** (`AIO_PAGE_REFRESH_MAP`): home→[quotes,sentiment,breadth,news] · signal→[quotes,technicals,breadth] · breadth→[breadth,quotes] · sentiment→[sentiment,vixHistory,quotes] · briefing→[news,quotes,sentiment].
+
+**가드**: fresh면 스킵(불필요 호출 방지) · `cfg._inFlight` 중복 차단 · per-task 30초 디바운스(빠른 페이지 전환 폭주 방지) · `_schedulerPaused`(백그라운드 탭) 존중.
+
+**근거 (P463)**: 스케줄러가 주기(브레드쓰/심리 10분)로만 돌아 페이지 진입 시점에 stale일 수 있음 — 매매 결정에 직접 쓰는 페이지엔 치명적.
+
+**Validation**: `AIO_PAGE_REFRESH_MAP` 5키 + `typeof _aioRefreshPageData === 'function'` + `aio:pageShown` 구독 + T690.
