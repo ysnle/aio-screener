@@ -3070,6 +3070,50 @@ _normalizeRefreshSchedule();
 let _schedulerPaused = false;
 let _lastVisibleTime = Date.now();
 
+function _aioRefreshTaskLabel(key, cfg) {
+  return (cfg && cfg.label) || key;
+}
+
+function _aioEmitRefreshEvent(type, detail) {
+  try {
+    window.AIO = window.AIO || {};
+    var state = Object.assign({
+      type: type,
+      active: type !== 'done',
+      generatedAt: new Date().toISOString()
+    }, detail || {});
+    window.AIO.refreshState = state;
+    if (typeof window.dispatchEvent === 'function' && typeof CustomEvent === 'function') {
+      window.dispatchEvent(new CustomEvent('aio:refresh:' + type, { detail: state }));
+      window.dispatchEvent(new CustomEvent('aio:refresh', { detail: state }));
+    }
+  } catch (_) {}
+}
+
+function _aioMarkSchedulerFetch(key, result) {
+  if (result && result.updated === false) return;
+  if (typeof window._markFetch !== 'function') return;
+  var map = {
+    quotes: 'quote',
+    news: 'news',
+    sentiment: 'sentiment',
+    breadth: 'breadth',
+    fred: 'fred',
+    technicals: 'technicals',
+    vixHistory: 'vixHistory',
+    hySpread: 'hySpread',
+    maUpdate: 'maUpdate',
+    krSupply: 'krSupply',
+    krDynamic: 'krDynamic'
+  };
+  window._markFetch(map[key] || key);
+}
+
+window.AIO = window.AIO || {};
+window.AIO.getRefreshState = function() {
+  return window.AIO.refreshState || { active: false, generatedAt: new Date().toISOString() };
+};
+
 function _normalizeRefreshSchedule() {
   Object.entries(REFRESH_SCHEDULE || {}).forEach(([key, cfg]) => {
     cfg.key = cfg.key || key;
@@ -3084,29 +3128,59 @@ function _normalizeRefreshSchedule() {
   });
 }
 
-async function _runScheduledTask(key, cfg, showError) {
-  if (!cfg || typeof cfg.fn !== 'function') return;
-  if (_schedulerPaused || cfg._inFlight) return;
+async function _runScheduledTask(key, cfg, showError, opts) {
+  opts = opts || {};
+  if (!cfg || typeof cfg.fn !== 'function') return { key: key, ok: false, skipped: true, error: 'scheduler function not assigned' };
+  if (_schedulerPaused) return { key: key, ok: false, skipped: true, error: 'scheduler paused' };
+  if (cfg._inFlight) return { key: key, ok: false, skipped: true, error: 'scheduler task already in flight' };
   cfg._inFlight = true;
   cfg.lastRunStart = Date.now();
+  var resolved;
   try {
-    var taskResult = cfg.fn();
+    var taskResult = cfg.fn(opts);
     if (taskResult && typeof taskResult.then === 'function') {
       var timeoutMs = Math.max(3000, cfg.timeoutMs || 30000);
-      await Promise.race([
+      resolved = await Promise.race([
         taskResult,
         new Promise(function(_, reject) {
           setTimeout(function() { reject(new Error('scheduler timeout: ' + key + ' (' + timeoutMs + 'ms)')); }, timeoutMs);
         })
       ]);
+    } else {
+      resolved = taskResult;
+    }
+    if (resolved && typeof resolved === 'object' && resolved.ok === false) {
+      cfg._lastErr = resolved.error || resolved.reason || 'scheduler task returned no update';
+      return {
+        key: key,
+        ok: false,
+        skipped: !!resolved.skipped,
+        updated: resolved.updated === true,
+        error: cfg._lastErr,
+        result: resolved
+      };
+    }
+    if (resolved && typeof resolved === 'object' && resolved.updated === false && resolved.skipped) {
+      cfg._lastErr = resolved.error || resolved.reason || 'scheduler task skipped without update';
+      return {
+        key: key,
+        ok: false,
+        skipped: true,
+        updated: false,
+        error: cfg._lastErr,
+        result: resolved
+      };
     }
     cfg._lastOk = Date.now();
     cfg._lastErr = '';
     cfg.retryCount = 0;
+    _aioMarkSchedulerFetch(key, resolved);
+    return { key: key, ok: true, skipped: false, updated: !(resolved && resolved.updated === false), error: '', result: resolved };
   } catch(e) {
     cfg._lastErr = e && e.message || String(e);
     cfg.retryCount = (cfg.retryCount || 0) + 1;
     if (showError) showDataError(cfg.label, 'auto refresh failed; retrying on next cycle', 'warn');
+    return { key: key, ok: false, skipped: false, updated: false, error: cfg._lastErr };
   } finally {
     cfg.lastRunEnd = Date.now();
     cfg.lastDurationMs = cfg.lastRunEnd - cfg.lastRunStart;
@@ -3115,8 +3189,8 @@ async function _runScheduledTask(key, cfg, showError) {
 }
 
 function _assignRefreshScheduleFunctions() {
-  REFRESH_SCHEDULE.quotes.fn     = () => { return (typeof fetchLiveQuotes === 'function') ? fetchLiveQuotes() : null; };
-  REFRESH_SCHEDULE.news.fn       = () => { return (typeof fetchAllNews === 'function') ? fetchAllNews(false) : null; };
+  REFRESH_SCHEDULE.quotes.fn     = (opts) => { return (typeof fetchLiveQuotes === 'function') ? fetchLiveQuotes(opts && opts.symbols) : null; };
+  REFRESH_SCHEDULE.news.fn       = (opts) => { return (typeof fetchAllNews === 'function') ? fetchAllNews(!!(opts && opts.forceRefresh)) : null; };
   REFRESH_SCHEDULE.sentiment.fn  = () => {
     var jobs = [];
     if (typeof fetchFearGreed === 'function') jobs.push(fetchFearGreed());
@@ -3125,7 +3199,17 @@ function _assignRefreshScheduleFunctions() {
   };
   REFRESH_SCHEDULE.breadth.fn    = fetchBreadthData;
   REFRESH_SCHEDULE.fred.fn       = fetchAllFredData;
-  REFRESH_SCHEDULE.technicals.fn = () => fetchTechnicalIndicators('SPY').then(d => { if (d) applyTechIndicators(d); });
+  REFRESH_SCHEDULE.technicals.fn = (opts) => {
+    var optSymbols = opts && Array.isArray(opts.symbols) ? opts.symbols : [];
+    var symbol = optSymbols.filter(function(s) { return s && String(s).charAt(0) !== '^'; })[0] || _aioGetActiveTechnicalSymbol(opts && opts.pageId);
+    return fetchTechnicalIndicators(symbol).then(d => {
+      if (d) {
+        applyTechIndicators(d);
+        return { ok: true, updated: true, symbol: symbol };
+      }
+      return { ok: false, skipped: true, updated: false, reason: 'technical indicators unavailable', symbol: symbol };
+    });
+  };
   REFRESH_SCHEDULE.vixHistory.fn = fetchSentimentHistory;
   REFRESH_SCHEDULE.hySpread.fn   = () => { return (typeof fetchHYSpread === 'function') ? fetchHYSpread() : null; };
   REFRESH_SCHEDULE.maUpdate.fn   = () => { return (typeof autoUpdateMA === 'function') ? autoUpdateMA() : null; };
@@ -3134,6 +3218,25 @@ function _assignRefreshScheduleFunctions() {
   window.REFRESH_SCHEDULE = REFRESH_SCHEDULE;
   _normalizeRefreshSchedule();
 }
+
+function _aioGetActiveTechnicalSymbol(pageId) {
+  var symbol = '';
+  try {
+    if (pageId === 'signal') {
+      var input = document.getElementById('signal-lockout-symbol');
+      if (input && input.value) symbol = String(input.value);
+    }
+    if (!symbol && window.AIO && typeof window.AIO.collectPageDataSymbols === 'function') {
+      var symbols = window.AIO.collectPageDataSymbols(pageId || 'technical') || [];
+      symbol = (symbols || []).filter(function(s) { return s && String(s).charAt(0) !== '^'; })[0] || symbols[0] || '';
+    }
+  } catch(e) {}
+  symbol = String(symbol || 'SPY').trim().toUpperCase();
+  return symbol || 'SPY';
+}
+window._aioGetActiveTechnicalSymbol = _aioGetActiveTechnicalSymbol;
+
+_assignRefreshScheduleFunctions();
 
 function startDataScheduler() {
   console.log('[AIO v21] ═══ Data Scheduler Starting (5명 동시접속 최적화) ═══');
@@ -3192,13 +3295,36 @@ function startDataScheduler() {
 // 디바운스: 동일 태스크 동시 진입 폭주 방지 (cfg._inFlight + per-task 최소 간격).
 // ─────────────────────────────────────────────────────────────────
 var AIO_PAGE_REFRESH_MAP = {
-  home:      ['quotes', 'sentiment', 'breadth', 'news'],   // 대시보드: 종합 스냅샷
-  signal:    ['quotes', 'technicals', 'breadth'],          // 매매 시그널: 시세+기술+시장폭
-  breadth:   ['breadth', 'quotes'],                        // 시장 폭
-  sentiment: ['sentiment', 'vixHistory', 'quotes'],        // 투자 심리: F&G/PCR+VIX
-  briefing:  ['news', 'quotes', 'sentiment']               // 오늘의 브리핑: 뉴스 우선
+  home:      ['quotes', 'news', 'sentiment', 'breadth', 'technicals'],
+  signal:    ['quotes', 'sentiment', 'breadth', 'technicals', 'vixHistory', 'hySpread'],
+  breadth:   ['quotes', 'breadth', 'technicals'],
+  sentiment: ['quotes', 'sentiment', 'vixHistory', 'hySpread'],
+  briefing:  ['quotes', 'news', 'sentiment', 'breadth', 'fred', 'technicals']
 };
 window.AIO_PAGE_REFRESH_MAP = AIO_PAGE_REFRESH_MAP;
+
+function _aioGetRefreshProfile(pageId) {
+  try {
+    if (window.AIO && typeof window.AIO.getDataRequirementProfile === 'function') {
+      return window.AIO.getDataRequirementProfile({ pageId: pageId, reason: 'page-onenter', forceFresh: true });
+    }
+  } catch(_) {}
+  var raw = window.AIO && window.AIO.DATA_REQUIREMENT_PROFILES ? window.AIO.DATA_REQUIREMENT_PROFILES[pageId] : null;
+  return {
+    pageId: pageId,
+    tasks: (raw && raw.tasks) || AIO_PAGE_REFRESH_MAP[pageId] || [],
+    symbols: (raw && raw.symbols) || []
+  };
+}
+
+function _aioGetComprehensiveSymbols() {
+  var out = [];
+  ['home','signal','breadth','sentiment','briefing'].forEach(function(pageId) {
+    var p = _aioGetRefreshProfile(pageId);
+    (p.symbols || []).forEach(function(sym) { out.push(sym); });
+  });
+  return Array.from(new Set(out.map(function(sym) { return String(sym || '').trim().toUpperCase(); }).filter(Boolean)));
+}
 
 var _aioPageRefreshLast = {};   // key -> 마지막 on-enter 강제 fetch ts (per-task 최소 간격 가드)
 
@@ -3212,7 +3338,9 @@ function _aioIsWeeklyNewsExpiring() {
   var now = Date.now();
   var maxAgeMs = 72 * 60 * 60 * 1000;   // 72h 만료 기준
   var warnMs   = 24 * 60 * 60 * 1000;   // 24h 전부터 pre-warm
-  return src.every(function(n) {
+  var currentCount = (typeof _aioGetCurrentHomeWeeklyNews === 'function') ? _aioGetCurrentHomeWeeklyNews(now).length : 0;
+  if (currentCount < Math.min(3, src.length)) return true;
+  return src.some(function(n) {
     if (!n || !n.date) return true;
     var t = new Date(String(n.date) + 'T23:59:59+09:00').getTime();
     if (isNaN(t)) return true;
@@ -3224,11 +3352,16 @@ window._aioIsWeeklyNewsExpiring = _aioIsWeeklyNewsExpiring;
 function _aioRefreshPageData(pageId) {
   try {
     if (_schedulerPaused) return;
+    _assignRefreshScheduleFunctions();
     var keys = AIO_PAGE_REFRESH_MAP[pageId];
     if (!keys || !window.REFRESH_SCHEDULE) return;
+    var profile = _aioGetRefreshProfile(pageId);
+    var symbols = Array.isArray(profile.symbols) ? profile.symbols.slice() : [];
     var now = Date.now();
     // v49.99 연계점①: home/briefing 진입 시 주간뉴스 만료 여부 사전 체크
     var weeklyNewsExpiring = (pageId === 'home' || pageId === 'briefing') && _aioIsWeeklyNewsExpiring();
+    var dueKeys = [];
+    var options = {};
     keys.forEach(function(key) {
       var cfg = REFRESH_SCHEDULE[key];
       if (!cfg || typeof cfg.fn !== 'function' || cfg._inFlight) return;
@@ -3241,8 +3374,16 @@ function _aioRefreshPageData(pageId) {
       // per-task on-enter 최소 간격 30초 (페이지 빠른 전환 폭주 차단)
       if (_aioPageRefreshLast[key] && (now - _aioPageRefreshLast[key]) < 30000) return;
       _aioPageRefreshLast[key] = now;
-      setTimeout(function(){ _runScheduledTask(key, cfg, false); }, 0);
+      dueKeys.push(key);
+      options[key] = { pageId: pageId, forceRefresh: forceRefresh, reason: forceRefresh ? 'weekly-news-expiring' : 'page-onenter-stale', symbols: symbols };
     });
+    if (dueKeys.length && window.AIO && typeof window.AIO.runScheduledRefresh === 'function') {
+      setTimeout(function(){
+        window.AIO.runScheduledRefresh({ keys: dueKeys, options: options, pageId: pageId, symbols: symbols, reason: 'page-onenter' }).catch(function(e) {
+          if (typeof _aioLog === 'function') _aioLog('warn', 'refresh', 'page refresh failed: ' + pageId + ' ' + (e && e.message || e));
+        });
+      }, 0);
+    }
   } catch (e) {}
 }
 window._aioRefreshPageData = _aioRefreshPageData;
@@ -3294,11 +3435,15 @@ document.addEventListener('visibilitychange', () => {
     _schedulerPaused = false;
     const elapsed = Date.now() - _lastVisibleTime;
     // stale 데이터만 즉시 갱신
+    var resumeKeys = [];
     Object.entries(REFRESH_SCHEDULE).forEach(([key, cfg]) => {
       if (cfg.fn && elapsed >= cfg.interval) {
-        try { setTimeout(() => { _runScheduledTask(key, cfg, false); }, 0); } catch(e) {}
+        resumeKeys.push(key);
       }
     });
+    if (resumeKeys.length && window.AIO && typeof window.AIO.runScheduledRefresh === 'function') {
+      try { setTimeout(function(){ window.AIO.runScheduledRefresh({ keys: resumeKeys, reason: 'visibility-resume', symbols: _aioGetComprehensiveSymbols() }).catch(function(){}); }, 0); } catch(e) {}
+    }
     restartScheduler();
     if (!window._dataStatusInterval) window._dataStatusInterval = _aioRegisterTimer('dataStatus', updateDataStatus, T.COOLDOWN); // v48.91
     _lastVisibleTime = Date.now();
@@ -3364,11 +3509,14 @@ window.AIO.getRefreshSchedulerAudit = function() {
 };
 
 window.AIO.getPageRefreshCoverageAudit = function() {
+  _assignRefreshScheduleFunctions();
+  _normalizeRefreshSchedule();
   var prMap = window.AIO_PAGE_REFRESH_MAP || {};
   var targetPages = ['home','signal','breadth','sentiment','briefing'];
   var now = Date.now();
   var missingPageIds = [];
   var taskIssues = [];
+  var profileIssues = [];
   var pageDetails = {};
 
   targetPages.forEach(function(pageId) {
@@ -3376,12 +3524,18 @@ window.AIO.getPageRefreshCoverageAudit = function() {
     if (!pageEl) missingPageIds.push(pageId);
 
     var tasks = Array.isArray(prMap[pageId]) ? prMap[pageId] : [];
+    var profile = window.AIO && window.AIO.DATA_REQUIREMENT_PROFILES ? window.AIO.DATA_REQUIREMENT_PROFILES[pageId] : null;
+    var expectedTasks = profile && Array.isArray(profile.tasks) ? profile.tasks : [];
+    var missingProfileTasks = expectedTasks.filter(function(task) { return tasks.indexOf(task) < 0; });
+    var extraTasks = tasks.filter(function(task) { return expectedTasks.length && expectedTasks.indexOf(task) < 0; });
+    if (missingProfileTasks.length) profileIssues.push(pageId + ' missing profile tasks: ' + missingProfileTasks.join(','));
     var details = [];
     tasks.forEach(function(task) {
       var cfg = REFRESH_SCHEDULE[task] || {};
       var defined = typeof REFRESH_SCHEDULE[task] !== 'undefined';
       var hasFn = typeof cfg.fn === 'function';
       if (!defined) taskIssues.push(pageId + '→' + task);
+      else if (!hasFn) taskIssues.push(pageId + '→' + task + ' (fn missing)');
       details.push({
         task: task,
         defined: defined,
@@ -3396,8 +3550,11 @@ window.AIO.getPageRefreshCoverageAudit = function() {
     pageDetails[pageId] = {
       pageExists: !!pageEl,
       tasks: tasks,
+      expectedTasks: expectedTasks,
+      missingProfileTasks: missingProfileTasks,
+      extraTasks: extraTasks,
       taskDetails: details,
-      taskIssues: details.filter(function(d){ return !d.defined; }).map(function(d){ return d.task; })
+      taskIssues: details.filter(function(d){ return !d.defined || !d.hasFn; }).map(function(d){ return d.task; })
     };
   });
 
@@ -3407,13 +3564,86 @@ window.AIO.getPageRefreshCoverageAudit = function() {
   var pageRefreshWired = typeof window._aioRefreshPageData === 'function';
 
   return {
-    status: (missingPageIds.length || taskIssues.length || !mapOk || !pageRefreshWired) ? 'warn' : 'ok',
+    status: (missingPageIds.length || taskIssues.length || profileIssues.length || !mapOk || !pageRefreshWired) ? 'warn' : 'ok',
     pageIds: targetPages,
     pageDetails: pageDetails,
     missingPageIds: missingPageIds,
     mapOk: mapOk,
     pageRefreshWired: pageRefreshWired,
     taskIssues: taskIssues,
+    profileIssues: profileIssues,
+    generatedAt: new Date(now).toISOString()
+  };
+};
+
+window.AIO.refreshAllComprehensivePages = async function() {
+  var pages = ['home','signal','breadth','sentiment','briefing'];
+  var taskSet = {};
+  pages.forEach(function(pageId) {
+    var profile = _aioGetRefreshProfile(pageId);
+    (profile.tasks || AIO_PAGE_REFRESH_MAP[pageId] || []).forEach(function(task) { taskSet[task] = true; });
+  });
+  var tasks = Object.keys(taskSet);
+  var refresh = await window.AIO.runScheduledRefresh({
+    keys: tasks,
+    forceRefresh: true,
+    pageId: 'comprehensive-5',
+    reason: 'comprehensive-pages-force-refresh',
+    symbols: _aioGetComprehensiveSymbols()
+  });
+  try { if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
+  try { if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') window.AIO.renderStaticDataGovernanceBadges(); } catch(_) {}
+  return { status: refresh.status, refresh: refresh, audit: window.AIO.getComprehensivePageDataFreshnessAudit(), generatedAt: new Date().toISOString() };
+};
+
+window.AIO.getComprehensivePageDataFreshnessAudit = function() {
+  _assignRefreshScheduleFunctions();
+  _normalizeRefreshSchedule();
+  var pages = ['home','signal','breadth','sentiment','briefing'];
+  var now = Date.now();
+  var details = pages.map(function(pageId) {
+    var profile = _aioGetRefreshProfile(pageId);
+    var tasks = profile.tasks || AIO_PAGE_REFRESH_MAP[pageId] || [];
+    var symbols = profile.symbols || [];
+    var pageEl = null;
+    try { pageEl = document.getElementById('page-' + pageId); } catch(_) {}
+    var missingTasks = tasks.filter(function(task) { return !REFRESH_SCHEDULE[task] || typeof REFRESH_SCHEDULE[task].fn !== 'function'; });
+    var staleTasks = tasks.filter(function(task) {
+      var cfg = REFRESH_SCHEDULE[task] || {};
+      return !cfg._lastOk || (now - cfg._lastOk) > Math.max(cfg.interval || 600000, 60000) * 2;
+    });
+    var liveMissing = symbols.filter(function(sym) { return String(sym || '').charAt(0) !== '^' && !(window._liveData && window._liveData[String(sym).toUpperCase()]); });
+    var sinks = pageEl ? pageEl.querySelectorAll('[data-live-price],[data-live-pct],[data-live-field],[data-snap],[data-snap-date]').length : 0;
+    var chartLike = pageEl ? pageEl.querySelectorAll('canvas,[id*="chart"],[id*="widget"]').length : 0;
+    var issues = [];
+    if (!pageEl) issues.push('missing page DOM');
+    if (missingTasks.length) issues.push('missing task fn: ' + missingTasks.join(','));
+    if (!tasks.length) issues.push('no refresh tasks');
+    if (!symbols.length) issues.push('no symbol profile');
+    return {
+      pageId: pageId,
+      status: issues.length ? 'warn' : 'ok',
+      issues: issues,
+      tasks: tasks,
+      missingTasks: missingTasks,
+      staleTasks: staleTasks,
+      symbols: symbols,
+      symbolCount: symbols.length,
+      liveMissingSample: liveMissing.slice(0, 12),
+      liveMissingCount: liveMissing.length,
+      dataSinkCount: sinks,
+      chartLikeCount: chartLike
+    };
+  });
+  var issues = details.filter(function(d) { return d.issues.length; });
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    pagesChecked: details.length,
+    issueCount: issues.length,
+    totalSymbols: _aioGetComprehensiveSymbols().length,
+    unionTasks: Array.from(new Set(details.reduce(function(acc, d) { return acc.concat(d.tasks); }, []))),
+    pages: details,
+    surfaceIntegrity: window.AIO.getComprehensiveSurfaceIntegrityAudit ? window.AIO.getComprehensiveSurfaceIntegrityAudit({ symbolLimit: 999 }) : null,
     generatedAt: new Date(now).toISOString()
   };
 };
@@ -3421,39 +3651,137 @@ window.AIO.getPageRefreshCoverageAudit = function() {
 window.AIO.runScheduledRefresh = async function(keys) {
   _assignRefreshScheduleFunctions();
   _normalizeRefreshSchedule();
+  var forceAll = false;
+  var optsByKey = {};
+  var runSymbols = [];
+  var runPageId = '';
+  var runReason = '';
   var list = Array.isArray(keys) && keys.length ? keys : Object.keys(REFRESH_SCHEDULE || {});
+  if (keys && !Array.isArray(keys) && typeof keys === 'object') {
+    list = Array.isArray(keys.keys) && keys.keys.length ? keys.keys : Object.keys(REFRESH_SCHEDULE || {});
+    forceAll = !!keys.forceRefresh;
+    optsByKey = keys.options || {};
+    runSymbols = Array.isArray(keys.symbols) ? keys.symbols.slice() : [];
+    runPageId = keys.pageId || '';
+    runReason = keys.reason || '';
+  }
+  if (!runSymbols.length && runPageId) {
+    var runProfile = _aioGetRefreshProfile(runPageId);
+    runSymbols = Array.isArray(runProfile.symbols) ? runProfile.symbols.slice() : [];
+  }
   var out = [];
   var wasPaused = _schedulerPaused;
+  var prevQuoteRequestSymbols = window._aioQuoteRequestSymbols;
+  var runId = 'refresh-' + Date.now() + '-' + Math.round(Math.random() * 100000);
+  var startedAt = Date.now();
+  if (runSymbols.length) window._aioQuoteRequestSymbols = runSymbols.slice();
+  _aioEmitRefreshEvent('start', {
+    runId: runId,
+    keys: list.slice(),
+    pageId: runPageId,
+    reason: runReason,
+    symbols: runSymbols.slice(),
+    total: list.length,
+    done: 0,
+    currentKey: '',
+    currentLabel: '',
+    forceRefresh: forceAll,
+    results: []
+  });
   _schedulerPaused = false;
   try {
     for (var i = 0; i < list.length; i++) {
       var key = list[i];
       var cfg = REFRESH_SCHEDULE && REFRESH_SCHEDULE[key];
       var started = Date.now();
+      _aioEmitRefreshEvent('progress', {
+        runId: runId,
+        phase: 'running',
+        key: key,
+        label: _aioRefreshTaskLabel(key, cfg),
+        currentKey: key,
+        currentLabel: _aioRefreshTaskLabel(key, cfg),
+        index: i + 1,
+        done: i,
+        total: list.length,
+        keys: list.slice(),
+        pageId: runPageId,
+        reason: runReason,
+        symbols: runSymbols.slice(),
+        forceRefresh: forceAll,
+        results: out.slice()
+      });
       if (!cfg) {
-        out.push({ key: key, ok: false, skipped: true, error: 'unknown scheduler key' });
+        out.push({ key: key, ok: false, skipped: true, error: 'unknown scheduler key', durationMs: Date.now() - started, lastOk: 0 });
+        _aioEmitRefreshEvent('progress', { runId: runId, phase: 'skipped', key: key, label: key, index: i + 1, done: i + 1, total: list.length, keys: list.slice(), pageId: runPageId, reason: runReason, symbols: runSymbols.slice(), forceRefresh: forceAll, result: out[out.length - 1], results: out.slice() });
         continue;
       }
       if (typeof cfg.fn !== 'function') {
-        out.push({ key: key, ok: false, skipped: true, error: 'scheduler function not assigned' });
+        out.push({ key: key, ok: false, skipped: true, error: 'scheduler function not assigned', durationMs: Date.now() - started, lastOk: cfg._lastOk || 0 });
+        _aioEmitRefreshEvent('progress', { runId: runId, phase: 'skipped', key: key, label: _aioRefreshTaskLabel(key, cfg), index: i + 1, done: i + 1, total: list.length, keys: list.slice(), pageId: runPageId, reason: runReason, symbols: runSymbols.slice(), forceRefresh: forceAll, result: out[out.length - 1], results: out.slice() });
         continue;
       }
-      await _runScheduledTask(key, cfg, true);
-      out.push({ key: key, ok: !cfg._lastErr, skipped: false, error: cfg._lastErr || '', durationMs: Date.now() - started, lastOk: cfg._lastOk || 0 });
+      var keyOpts = optsByKey[key] || {};
+      var opts = Object.assign({}, keyOpts, {
+        pageId: runPageId || keyOpts.pageId || '',
+        reason: runReason || keyOpts.reason || '',
+        symbols: runSymbols.length ? runSymbols.slice() : (Array.isArray(keyOpts.symbols) ? keyOpts.symbols.slice() : []),
+        forceRefresh: !!(forceAll || keyOpts.forceRefresh)
+      });
+      var taskRun = await _runScheduledTask(key, cfg, true, opts);
+      out.push({ key: key, ok: !!(taskRun && taskRun.ok), skipped: !!(taskRun && taskRun.skipped), updated: !!(taskRun && taskRun.updated), error: (taskRun && taskRun.error) || cfg._lastErr || '', durationMs: Date.now() - started, lastOk: cfg._lastOk || 0 });
+      _aioEmitRefreshEvent('progress', {
+        runId: runId,
+        phase: (taskRun && taskRun.ok) ? (taskRun.skipped ? 'skipped' : 'ok') : 'error',
+        key: key,
+        label: _aioRefreshTaskLabel(key, cfg),
+        index: i + 1,
+        done: i + 1,
+        total: list.length,
+        keys: list.slice(),
+        pageId: runPageId,
+        reason: runReason,
+        symbols: runSymbols.slice(),
+        forceRefresh: forceAll,
+        result: out[out.length - 1],
+        results: out.slice()
+      });
     }
   } finally {
     _schedulerPaused = wasPaused;
+    if (prevQuoteRequestSymbols == null) delete window._aioQuoteRequestSymbols;
+    else window._aioQuoteRequestSymbols = prevQuoteRequestSymbols;
   }
-  return {
+  var result = {
     status: out.some(function(x) { return !x.ok && !x.skipped; }) ? 'warn' : 'ok',
     results: out,
     scheduler: window.AIO.getRefreshSchedulerAudit(),
     generatedAt: new Date().toISOString()
   };
+  _aioEmitRefreshEvent('done', {
+    runId: runId,
+    status: result.status,
+    total: list.length,
+    done: out.length,
+    keys: list.slice(),
+    pageId: runPageId,
+    reason: runReason,
+    symbols: runSymbols.slice(),
+    forceRefresh: forceAll,
+    durationMs: Date.now() - startedAt,
+    results: out.slice()
+  });
+  return result;
 };
 
 window.AIO.forceRefreshAllData = async function(keys) {
-  var result = await window.AIO.runScheduledRefresh(keys);
+  var result = await window.AIO.runScheduledRefresh({
+    keys: Array.isArray(keys) && keys.length ? keys : null,
+    forceRefresh: true,
+    pageId: Array.isArray(keys) && keys.length ? 'custom' : 'comprehensive-5',
+    reason: 'manual-force-refresh',
+    symbols: _aioGetComprehensiveSymbols()
+  });
   try { if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
   try { if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') window.AIO.renderStaticDataGovernanceBadges(); } catch(_) {}
   return {
@@ -3488,7 +3816,13 @@ window.AIO.ensureFreshDataForUse = async function(scope) {
     window._aioQuoteRequestSymbols = plan.profile.symbols.slice();
   }
   try {
-    var refresh = await window.AIO.runScheduledRefresh(plan.tasks);
+    var refresh = await window.AIO.runScheduledRefresh({
+      keys: plan.tasks,
+      pageId: scope.pageId || scope.ctxId || scope.context || '',
+      reason: scope.reason || 'ensure-fresh',
+      symbols: plan.profile && Array.isArray(plan.profile.symbols) ? plan.profile.symbols : [],
+      forceRefresh: !!scope.forceFresh
+    });
     try { if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
     try { if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') window.AIO.renderStaticDataGovernanceBadges(); } catch(_) {}
     return { status: refresh && refresh.status || 'ok', plan: plan, refresh: refresh, generatedAt: new Date().toISOString() };
@@ -3501,6 +3835,118 @@ window.AIO.ensureFreshDataForUse = async function(scope) {
   }
 };
 
+function _aioNormalizeChatTickers(tickers) {
+  var out = [];
+  (Array.isArray(tickers) ? tickers : []).forEach(function(t) {
+    t = String(t || '').trim().toUpperCase();
+    if (t && out.indexOf(t) < 0) out.push(t);
+  });
+  return out.slice(0, 5);
+}
+
+function _aioTickerQuoteAgeMs(ticker) {
+  ticker = String(ticker || '').toUpperCase();
+  var ts = window._quoteTimestamps && window._quoteTimestamps[ticker];
+  if (!ts) return Infinity;
+  return Date.now() - ts;
+}
+
+function _aioClearChatTickerCache(tickers) {
+  try {
+    if (!window._chatTickerCache) return;
+    _aioNormalizeChatTickers(tickers).forEach(function(t) { delete window._chatTickerCache[t]; });
+  } catch(_) {}
+}
+
+window.AIO.getChatAnswerFreshnessAudit = function(scope) {
+  scope = scope || {};
+  var tickers = _aioNormalizeChatTickers(scope.tickers);
+  var profile = window.AIO.getDataRequirementProfile ? window.AIO.getDataRequirementProfile(Object.assign({}, scope, { reason: 'chat', tickers: tickers, forceFresh: true, symbolLimit: scope.symbolLimit || 999 })) : null;
+  var plan = window.AIO.getAutoFreshnessPlan ? window.AIO.getAutoFreshnessPlan(Object.assign({}, scope, { reason: 'chat', tickers: tickers, forceFresh: true, symbolLimit: scope.symbolLimit || 999 })) : null;
+  var quoteRows = tickers.map(function(t) {
+    var live = window._liveData && window._liveData[t];
+    var ageMs = _aioTickerQuoteAgeMs(t);
+    return {
+      ticker: t,
+      hasLivePrice: !!(live && live.price),
+      quoteAgeMs: isFinite(ageMs) ? ageMs : null,
+      quoteAgeSec: isFinite(ageMs) ? Math.round(ageMs / 1000) : null,
+      source: live && live.source || '',
+      status: (live && live.price && ageMs <= 2 * 60 * 1000) ? 'ok' : 'refresh_required'
+    };
+  });
+  var staleQuotes = quoteRows.filter(function(r) { return r.status !== 'ok'; });
+  var fundCache = {};
+  try {
+    tickers.forEach(function(t) {
+      var c = window._fundCache && window._fundCache[t];
+      fundCache[t] = c && c._ts ? { ageMin: Math.round((Date.now() - c._ts) / 60000), fresh: Date.now() - c._ts < 30 * 60 * 1000 } : { fresh: false, ageMin: null };
+    });
+  } catch(_) {}
+  return {
+    status: staleQuotes.length ? 'refresh_required' : 'ok',
+    strict: tickers.length > 0,
+    tickers: tickers,
+    quoteRows: quoteRows,
+    staleQuoteCount: staleQuotes.length,
+    profile: profile,
+    plan: plan,
+    fundCache: fundCache,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.ensureFreshChatAnswerData = async function(scope) {
+  scope = scope || {};
+  var tickers = _aioNormalizeChatTickers(scope.tickers);
+  var strict = tickers.length > 0;
+  var chatScope = Object.assign({}, scope, {
+    reason: 'chat',
+    tickers: tickers,
+    forceFresh: strict || !!scope.forceFresh,
+    symbolLimit: scope.symbolLimit || 999
+  });
+  var before = window.AIO.getChatAnswerFreshnessAudit ? window.AIO.getChatAnswerFreshnessAudit(chatScope) : null;
+  if (scope.dryRun) {
+    return { status: before && before.status || 'dry_run', strict: strict, before: before, refresh: null, quoteLookups: [], after: before, generatedAt: new Date().toISOString() };
+  }
+  if (strict) _aioClearChatTickerCache(tickers);
+  var refresh = null;
+  try {
+    refresh = await window.AIO.ensureFreshDataForUse(chatScope);
+  } catch(e) {
+    refresh = { status: 'warn', error: e && e.message || String(e) };
+  }
+  var lookups = [];
+  if (strict && typeof dynamicTickerLookup === 'function') {
+    for (var i = 0; i < tickers.length; i++) {
+      var t = tickers[i];
+      var live = window._liveData && window._liveData[t];
+      var ageMs = _aioTickerQuoteAgeMs(t);
+      if (!live || !live.price || !isFinite(ageMs) || ageMs > 90 * 1000 || scope.forceFresh) {
+        try {
+          var r = await (typeof _withTimeout === 'function'
+            ? _withTimeout(dynamicTickerLookup(t), 3500, null)
+            : dynamicTickerLookup(t));
+          lookups.push({ ticker: t, ok: !!(r && r.price), source: r && (r.source || r.exchange || '') || '' });
+        } catch(e2) {
+          lookups.push({ ticker: t, ok: false, error: e2 && e2.message || String(e2) });
+        }
+      }
+    }
+  }
+  var after = window.AIO.getChatAnswerFreshnessAudit ? window.AIO.getChatAnswerFreshnessAudit(chatScope) : null;
+  return {
+    status: after && after.staleQuoteCount ? 'warn' : (refresh && refresh.status || 'ok'),
+    strict: strict,
+    before: before,
+    refresh: refresh,
+    quoteLookups: lookups,
+    after: after,
+    generatedAt: new Date().toISOString()
+  };
+};
+
 function updateDataStatusError(status, msg) {
   var panel = document.getElementById('data-status-panel');
   if (!panel) return;
@@ -3510,6 +3956,12 @@ function updateDataStatusError(status, msg) {
 }
 
 function updateDataStatus() {
+  try {
+    if (window.AIO && typeof window.AIO.getRefreshState === 'function') {
+      var refreshState = window.AIO.getRefreshState();
+      if (refreshState && refreshState.active) return;
+    }
+  } catch(_) {}
   const el = document.getElementById('data-status-panel');
   if (!el) return;
   const now = Date.now();
@@ -7287,7 +7739,7 @@ var HOME_WEEKLY_NEWS = [
   { title: 'Dell FY1Q27 AI서버 $16.1B·매출 $43.8B(+88%YoY): AI 공급 제약 ①NAND ②DRAM ③CPU — GPU가 아닌 메모리가 희소. Susquehanna DELL $138→$700·MU $600→$1,750·SNDK $2,000→$3,250 목표가 대폭 상향.', source: 'Dell Earnings/Susquehanna 2026-05-29', date: '2026-05-29', sentiment: 'bull', topic: 'semi' },
   { title: '이란-미국 MOU 불승인(트럼프) + 이란 기뢰 300kg 오만 해안 발견 + 미사일 보트 27 Razab 공개(700km 크루즈): 호르무즈 리스크 재부상. 동시에 JD 밴스 "합의 문구만 남은 상태" — 합의·군사 이중신호.', source: 'Reuters/NYT/IRGC 2026-05-30', date: '2026-05-30', sentiment: 'warn', topic: 'geo' },
   { title: 'KB증권 SKH 목표가 300→380만원: 2Q 수요충족률 50%·메모리 마라톤 5km 지점. TrendForce 메모리TAM 2026E $889B→2027E $1.28T+. DRAM ASP Q2 +50~60%·NAND +75~100% QoQ (에이전틱AI 토큰 7배 증가 구조적 수요).', source: 'KB증권/TrendForce/Susquehanna 2026-05-29', date: '2026-05-29', sentiment: 'bull', topic: 'semi' },
-  { title: 'NVDA Computex GTC 타이페이 젠슨황 기조연설 6/1 낮 12시: Vera Rubin 실물 출하(CoreWeave NVL72 설치 확인)·Windows PC 진출(MS 서피스·DELL 협력)·에이전틱AI $1조 로드맵 발표 예정. 린스에쿼티 $250 단기 근접.', source: 'Foxconn/Dell/Lynx Equity 2026-05-29', date: '2026-05-31', sentiment: 'bull', topic: 'semi' },
+  { title: 'NVDA Computex GTC 타이페이 젠슨황 기조연설 6/1 낮 12시 이후 결과 확인 필요: Vera Rubin 실물 출하(CoreWeave NVL72 설치 확인)·Windows PC 진출(MS 서피스·DELL 협력)·에이전틱AI $1조 로드맵이 핵심 체크포인트. 린스에쿼티 $250 단기 근접.', source: 'Foxconn/Dell/Lynx Equity 2026-05-29', date: '2026-05-31', sentiment: 'bull', topic: 'semi' },
   { title: 'KOSPI 8,185(-0.53%)·KOSDAQ -2.54%: 외국인 16연속 순매도·채권금리 10Y 4.27% 급등. BofA Hartnett "6월 추가 인플레 경고(저실업+고용 강세)". BOJ 우에다 G7 "금리 효과 불완전" → 엔/달러 방향 불투명.', source: 'KRX/BofA/BOJ G7 2026-05-28', date: '2026-05-31', sentiment: 'warn', topic: 'macro' },
 ];
 window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
@@ -7624,7 +8076,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '• TrendForce TAM 대폭 상향: 2026E $551.6B→$889.3B, 2027E $842.7B→$1.28T+(+44%YoY). DRAM 2026E +303%YoY($619B), NAND 2026E +281%YoY($271B). 에이전틱 AI KV캐시·CPU배치비율 변화·SSD 역할 확대 = 구조적 수요 급증.\n' +
     '• MS→삼성 LTA 선지급 $100억+(JP모건 확인). 메모리 LTA 선지급 30% 관행화. 공급 희소성 구조 고착.\n\n' +
     '【Computex/GTC 타이페이 (6/1~5)】\n' +
-    '• NVDA 젠슨 황 기조연설(6/1 한국시간 낮 12시, GTC 타이페이): ①에이전틱 AI ②ARM기반 Windows PC(MS 서피스·DELL 협력, 퀄컴과 유사 비x86 아키텍처 진입) ③Rubin 플랫폼 생산 확대 ④$1조 AI 기회 구체화 발표 예상.\n' +
+    '• NVDA 젠슨 황 기조연설(6/1 한국시간 낮 12시 이후 결과 확인 필요, GTC 타이페이): ①에이전틱 AI ②ARM기반 Windows PC(MS 서피스·DELL 협력, 퀄컴과 유사 비x86 아키텍처 진입) ③Rubin 플랫폼 생산 확대 ④$1조 AI 기회 구체화가 핵심 체크포인트.\n' +
     '• 린스에쿼티: 기조연설 긍정 촉매, 단기 $250 근접. 젠슨 황: 2026 매출 ~100% 성장, 2027년도 동등 규모.\n' +
     '• 폭스콘 류양웨이: Vera Rubin 2H26 출하 낙관. CPO(실리콘 포토닉스) 수직계열화 강화.\n' +
     '• 콴타 량츠전: AI 시장 "계단식 성장 2030년까지". 전력공급이 최대 병목(2~3년 선행 신청 필요).\n' +
@@ -8385,6 +8837,10 @@ async function fetchAllNews(forceRefresh = false) {
       renderHomeFeed(newsCache);
       renderBriefingFeed(newsCache);
     }
+    var cachedProgLabel = document.getElementById('news-progress-label');
+    var cachedProgBar = document.getElementById('news-progress-bar');
+    if (cachedProgLabel) cachedProgLabel.textContent = '뉴스 캐시 사용 중 - 최신 수집본 유지';
+    if (cachedProgBar) cachedProgBar.style.width = '100%';
     return;
   }
 
@@ -8403,6 +8859,12 @@ async function fetchAllNews(forceRefresh = false) {
   const feed = document.getElementById('live-news-feed');
   const dot  = document.getElementById('live-dot');
   const lbl  = document.getElementById('live-btn-label');
+  const progWrap = document.getElementById('news-progress-wrap');
+  const progBar = document.getElementById('news-progress-bar');
+  const progLabelTop = document.getElementById('news-progress-label');
+  if (progWrap) progWrap.style.display = 'block';
+  if (progBar) progBar.style.width = '0%';
+  if (progLabelTop) progLabelTop.textContent = '뉴스 수집 준비 중';
   if (dot) { dot.style.background = 'var(--yellow)'; dot.style.boxShadow = '0 0 5px var(--yellow)'; }
   if (lbl) lbl.textContent = '뉴스 요청 중...';
   try { // v27.3: try-finally로 isFetching 영구 잠김 방지
@@ -8439,11 +8901,13 @@ async function fetchAllNews(forceRefresh = false) {
     const pct = Math.round(done / total * 100);
     const bar = document.getElementById('load-bar');
     const st  = document.getElementById('load-status');
+    const pageBar = document.getElementById('news-progress-bar');
     const progLabel = document.getElementById('news-progress-label');
     // v29.5: 홈 페이지 진행률도 함께 업데이트
     const homeBar = document.getElementById('home-news-progress-bar');
     const homeText = document.getElementById('home-news-progress-text');
     if (bar) bar.style.width = pct + '%';
+    if (pageBar) pageBar.style.width = pct + '%';
     if (st)  st.textContent = `(${done}/${total}) ${name} 완료`;
     if (progLabel) progLabel.textContent = `뉴스 수집 중... ${done}/${total}`;
     if (homeBar) homeBar.style.width = pct + '%';
@@ -8709,6 +9173,10 @@ async function fetchAllNews(forceRefresh = false) {
 
   if (dot) { dot.style.background = 'var(--green)'; dot.style.boxShadow = '0 0 5px var(--green)'; }
   if (lbl) lbl.textContent = '새로고침';
+  const pageProgBar = document.getElementById('news-progress-bar');
+  const pageProgWrap = document.getElementById('news-progress-wrap');
+  if (pageProgBar) pageProgBar.style.width = '100%';
+  if (pageProgWrap) setTimeout(function(){ pageProgWrap.style.display = 'none'; }, 2500);
   const ftEl = document.getElementById('last-fetch-time');
   if (ftEl) ftEl.textContent = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
 

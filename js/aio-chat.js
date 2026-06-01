@@ -2069,8 +2069,9 @@ window.AIO.getChatTickerCacheStats = function() {
   };
 };
 
-async function _fetchTickerDataForChat(tickers) {
+async function _fetchTickerDataForChat(tickers, opts) {
   if (!tickers || tickers.length === 0) return '';
+  opts = opts || {};
   var _f = function(v, dec) { return v != null && !isNaN(v) ? Number(v).toFixed(dec || 1) : 'N/A'; };
   var _fm = function(v) { if (!v) return 'N/A'; if (v >= 1e12) return '$' + (v/1e12).toFixed(1) + 'T'; if (v >= 1e9) return '$' + (v/1e9).toFixed(1) + 'B'; if (v >= 1e6) return '$' + (v/1e6).toFixed(0) + 'M'; return '$' + v; };
   var fmpKey = _getApiKey('aio_fmp_key') || '';
@@ -2081,13 +2082,14 @@ async function _fetchTickerDataForChat(tickers) {
   window._chatTickerCacheStats = window._chatTickerCacheStats || { hits: 0, misses: 0, evictions: 0 };
   var _CC_TTL = 5 * 60 * 1000;
   var _CC_MAX = 50;
+  var _bypassChatTickerCache = !!(opts.forceFresh || opts.bypassCache || opts.reason === 'chat-answer' || opts.reason === 'chat-preflight');
   // 사전 캐시 조회 — 만료되지 않은 종목은 캐시 결과 재사용, miss만 새로 fetch
   var cacheMissTickers = [];
   var cachedBlocks = [];
   for (var _ci = 0; _ci < tickers.length; _ci++) {
     var _ct = tickers[_ci];
     var _cached = window._chatTickerCache[_ct];
-    if (_cached && (Date.now() - _cached.ts < _CC_TTL) && typeof _cached.block === 'string') {
+    if (!_bypassChatTickerCache && _cached && (Date.now() - _cached.ts < _CC_TTL) && typeof _cached.block === 'string') {
       cachedBlocks.push(_cached.block);
       window._chatTickerCacheStats.hits++;
     } else {
@@ -3146,8 +3148,8 @@ function _buildChatIntentContext(ctxId, query, flags) {
 
 function _shouldSingleDeepAnalyzeChat(ctxId, query, detectedTickers, deepCompareStr) {
   if (!detectedTickers || detectedTickers.length !== 1 || deepCompareStr) return false;
-  var deepCtx = ctxId === 'fundamental' || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'portfolio';
-  return deepCtx || (typeof _hasDeepAnalysisKw === 'function' && _hasDeepAnalysisKw(query));
+  var deepCtx = ctxId === 'fundamental' || ctxId === 'ticker' || ctxId === 'technical' || ctxId === 'options' || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'portfolio';
+  return deepCtx || detectedTickers.length === 1 || (typeof _hasDeepAnalysisKw === 'function' && _hasDeepAnalysisKw(query));
 }
 window._classifyChatIntent = _classifyChatIntent;
 window._buildChatMemoryContext = _buildChatMemoryContext;
@@ -4415,7 +4417,17 @@ async function chatSend(ctxId) {
       detectedTickers = _fuzzyHits.slice(0, 3); // 최대 3개
     }
   }
-  if (window.AIO && typeof window.AIO.ensureFreshDataForUse === 'function') {
+  var chatFreshPreflight = null;
+  if (window.AIO && typeof window.AIO.ensureFreshChatAnswerData === 'function') {
+    try {
+      chatFreshPreflight = await Promise.race([
+        window.AIO.ensureFreshChatAnswerData({ ctxId: ctxId, query: q, tickers: detectedTickers, reason: 'chat-answer', forceFresh: detectedTickers.length > 0 }),
+        new Promise(function(resolve) { setTimeout(function(){ resolve({ status: 'timeout', strict: detectedTickers.length > 0 }); }, 6500); })
+      ]);
+    } catch(_chatFreshErr) {
+      chatFreshPreflight = { status: 'warn', error: _chatFreshErr && _chatFreshErr.message || String(_chatFreshErr), strict: detectedTickers.length > 0 };
+    }
+  } else if (window.AIO && typeof window.AIO.ensureFreshDataForUse === 'function') {
     try {
       await Promise.race([
         window.AIO.ensureFreshDataForUse({ ctxId: ctxId, query: q, tickers: detectedTickers, reason: 'chat' }),
@@ -4425,7 +4437,7 @@ async function chatSend(ctxId) {
   }
   var tickerDataStr = '';
   if (detectedTickers.length > 0) {
-    try { tickerDataStr = await _fetchTickerDataForChat(detectedTickers); } catch(e) {}
+    try { tickerDataStr = await _fetchTickerDataForChat(detectedTickers, { forceFresh: true, reason: 'chat-answer', preflight: chatFreshPreflight }); } catch(e) {}
   }
 
   // v34.2: 섹터/카테고리 비교 질문 감지 → FMP 다중 종목 밸류에이션 일괄 조회
@@ -4510,6 +4522,16 @@ async function chatSend(ctxId) {
   if (singleDeepStr) systemPrompt += singleDeepStr;
   if (webSearchStr) systemPrompt += webSearchStr;
   if (newsContextStr) systemPrompt += newsContextStr;
+  if (chatFreshPreflight && detectedTickers.length > 0) {
+    var _cfAfter = chatFreshPreflight.after || {};
+    var _cfRows = (_cfAfter.quoteRows || []).map(function(r) {
+      return r.ticker + ': ' + (r.hasLivePrice ? 'quote-ok' : 'quote-missing') + (r.quoteAgeSec != null ? ' age=' + r.quoteAgeSec + 's' : '') + (r.source ? ' source=' + r.source : '');
+    }).join(' / ');
+    systemPrompt += '\n\n[AI Chat Freshness Preflight v49.104]\n' +
+      'status=' + (chatFreshPreflight.status || 'unknown') + ' strict=' + !!chatFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
+      'quotes=' + (_cfRows || 'not available') + '\n' +
+      'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt. If a ticker quote remains missing or stale after preflight, do not invent price, market cap, valuation, earnings, or target-price numbers.\n';
+  }
 
   // v48.11: 환각 방지 5중 강화 (chatSend) — chatSendUnified와 완전 일치
   // 1) 오늘 날짜 + Claude 커트오프  2) 추세 해석 필수 규칙  3) [주가 추이] 주입 여부 체크

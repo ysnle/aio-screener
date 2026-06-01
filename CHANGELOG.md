@@ -6,6 +6,63 @@
 
 ---
 
+## v49.104 — AI 채팅 자동 최신화 답변 시스템 보강 (2026-06-01)
+
+**Changed files**: `js/aio-data.js`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
+
+- **종목 답변 strict preflight**: `AIO.ensureFreshChatAnswerData()` 신규. 종목 질문은 중앙 `ensureFreshDataForUse({forceFresh:true})`를 거쳐 quote/news/technical refresh를 강제하고, `dynamicTickerLookup()`으로 질문 ticker를 개별 재조회.
+- **채팅 ticker cache 우회**: `_fetchTickerDataForChat(tickers, opts)`가 `forceFresh`, `chat-answer`, `chat-preflight`일 때 5분 cache hit를 쓰지 않고 새 데이터 블록을 재구성. preflight 전에 해당 종목 `_chatTickerCache`도 무효화.
+- **답변 프롬프트 데이터 검증 블록**: `chatSend()`와 통합 AI 패널 `chatSendUnified()` 모두 `[AI Chat Freshness Preflight v49.104]`를 system prompt에 주입해 ticker별 quote 상태/age/source를 LLM이 보게 함. preflight 후에도 quote가 없으면 가격/시총/밸류/실적/목표가 수치 추정 금지.
+- **기업 분석 기본 강화**: 단일 종목 질문은 기본적으로 `_fetchDeepCompareData()` 기반 기업 심층 데이터 경로를 타도록 확장. FMP 키가 있으면 profile/재무/밸류/세그먼트/DCF/컨센서스 등 기업 분석 관점 데이터가 답변 전에 수집된다.
+- **배포 캐시 회전**: `index.html` script query를 `v=49.104`로 올려 최신 JS가 로드되도록 동기화.
+- **회귀 테스트**: T703~T706 추가. chat strict preflight, ticker cache bypass, 양쪽 채팅 표면 연결, 단일 종목 기업 데이터 경로를 검증.
+
+## v49.103 — 5개 종합 페이지 전체 표면 최신화 감사 보강 (2026-06-01)
+
+**Changed files**: `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
+
+- **DOM live sink → refresh symbol profile 자동 합류**: 화면에 실제로 존재하는 `[data-live-price]`, `[data-live-chg]`, `[data-live-pct]`, `[data-live-field]` 값을 `_aioCollectDomLiveSymbols(pageId)`가 수집하고 `AIO.collectPageDataSymbols()`에 합류. page profile에 빠진 신규 live sink가 생겨도 quote refresh 범위에서 자동 포착.
+- **차트/지표/시세/수치/수식/텍스트 표면 감사**: `AIO.getComprehensiveSurfaceIntegrityAudit()` 신규. home/signal/breadth/sentiment/briefing에서 live sink, snap key, chart-like element, formula-like text, static numeric candidate, stale/loading text candidate를 페이지별로 집계하고 샘플/이슈를 반환.
+- **운영 감사 통합**: `AIO.getComprehensivePageDataFreshnessAudit()`가 `surfaceIntegrity`를 함께 반환해, 5개 종합 페이지 최신화 감사에서 task/symbol/sink/charts뿐 아니라 실제 UI 표면 후보까지 한 번에 확인 가능.
+- **회귀 테스트**: T701~T702 추가. DOM live sink collector가 page refresh symbol profile에 연결되어 있는지, comprehensive surface integrity audit API가 존재하는지 검증.
+
+## v49.102 — 5개 종합 페이지 개별 데이터 최신화 범위 보강 (2026-06-01)
+
+**Changed files**: `js/aio-data.js`, `js/aio-core.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
+
+- **page-onenter 중앙화**: `_aioRefreshPageData()`가 각 task를 `_runScheduledTask()`로 직접 실행하지 않고 `AIO.runScheduledRefresh({keys,pageId,symbols,options})` 중앙 이벤트 경로를 사용. 페이지 진입 최신화도 상단 진행/결과 이벤트와 같은 기준으로 추적.
+- **5페이지 심볼 범위 확대**: `DATA_REQUIREMENT_PROFILES`/동적 페이지 심볼을 refresh run에 전달. `quotes.fn(opts)`는 `fetchLiveQuotes(opts.symbols)`, `technicals.fn(opts)`는 page/profile 심볼을 우선 사용.
+- **전체 강제 최신화 보강**: `AIO.forceRefreshAllData()`가 5개 종합 페이지 심볼 union을 포함해 quote prewarm 범위를 확장.
+- **운영 API 추가**: `AIO.refreshAllComprehensivePages()`로 home/signal/breadth/sentiment/briefing union task를 강제 최신화. `AIO.getComprehensivePageDataFreshnessAudit()`로 5개 페이지 task/symbol/data-sink/chart/missing-live 샘플 감사.
+- **visibility resume 중앙화**: 백그라운드 복귀 후 stale task도 직접 task 호출 대신 `runScheduledRefresh()`로 통합.
+- **회귀 테스트**: T699~T700 추가. page-onenter 중앙 refresh 경로, symbol 전달, 5페이지 데이터 freshness audit/API 존재 검증.
+
+## v49.101 — 전체 최신화 UX/파이프라인 근본 보강 (2026-06-01)
+
+**Changed files**: `js/aio-data.js`, `js/aio-ui.js`, `js/aio-core.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- **중앙 refresh state model 추가**: `runScheduledRefresh()`가 `aio:refresh:start/progress/done` 이벤트와 `AIO.refreshState/getRefreshState()`를 발행. 태스크별 X/Y, 현재 key/label, 결과 배열, 실패/스킵 상태를 UI가 직접 구독 가능.
+- **상단 새로고침 중앙화**: `globalRefresh()`가 직접 fetch 일부만 호출하던 경로를 `AIO.forceRefreshAllData()` 우선으로 전환. 11개 `REFRESH_SCHEDULE` 태스크와 동일한 force-refresh 의미를 사용.
+- **진행 레이어 추가**: `aio-refresh-progress-layer`가 전체 최신화 진행률, 현재 소스, 태스크별 완료/스킵/확인필요 상태를 표시. `data-status-panel`도 active refresh 중 X/Y 상태를 우선 표시.
+- **상태 패널 race 방지**: `updateDataStatus()`, `showDataError()`, `_renderApiDashboard()`가 active refresh 중 상단 진행 상태를 덮어쓰지 않도록 우선순위 가드 추가.
+- **freshness 계측 일관화**: `_runScheduledTask()` 성공 시 scheduler key를 `_lastFetch` key로 매핑해 중앙 기록. 부트 로더/신선도 패널이 같은 성공 기준을 보도록 보강.
+- **뉴스 진행률 실사용화**: 숨겨져 있던 `#news-progress-wrap`을 fetch 시작 시 표시하고 `#news-progress-bar`를 실제 진행률에 맞춰 갱신. cache-hit 경로도 "캐시 사용 중" 상태 표시.
+- **부트 로더 의미 보정**: 첫 quote 수신 4초 후 강제 종료를 제거해 5개 데이터 그룹 진행률이 quote 단독 완료로 오인되지 않도록 수정.
+- **회귀 테스트**: T695~T698 추가. refresh 이벤트, global refresh 중앙화, 뉴스 progress bar 활성화, status panel 우선순위 가드 검증.
+
+## v49.100 — 종합 5페이지 자동 최신화 운영 시스템 근본 보강 (2026-06-01)
+
+**Changed files**: `js/aio-data.js`, `js/aio-ui.js`, `js/aio-core.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- **강제 뉴스 갱신 실동작 수정**: 주간 뉴스 만료/임박 시 page-onenter가 `news` stale threshold만 우회하던 문제를 수정. `_runScheduledTask(..., { forceRefresh:true })` → `REFRESH_SCHEDULE.news.fn` → `fetchAllNews(true)`까지 전달.
+- **초기 15초 on-enter no-op 제거**: `_assignRefreshScheduleFunctions()`를 즉시 배선하고 `_aioRefreshPageData()` 진입 시 재확인하여 scheduler 시작 전 페이지 이동도 refresh map이 작동.
+- **5페이지 의존성 정합**: `AIO_PAGE_REFRESH_MAP`을 `DATA_REQUIREMENT_PROFILES`와 맞춤. home/signal/breadth/sentiment/briefing에서 누락됐던 breadth/fred/technicals/hySpread/vixHistory 의존성을 반영.
+- **성공 기록 의미 강화**: task가 `{ok:false, skipped:true, updated:false}`를 반환하면 `_lastOk`를 갱신하지 않음. 기술 지표는 signal 입력 심볼을 우선 사용하고 데이터 없음은 성공으로 위장하지 않음.
+- **감사/회귀 방지 강화**: `getPageRefreshCoverageAudit()`가 task 함수 누락과 profile mismatch까지 `warn` 처리. T690~T691도 force refresh 전달, profile 정합, 스냅샷 우선 차트 보강을 확인하도록 확장.
+- **배포 최신성 정리**: `index.html` script cache-buster `v=49.98` 잔존 제거 → `v=49.100`; APP_VERSION/version.json/SW/title/badge 동기화.
+- **stale 문구 보정**: 2026-06-01 12:00 KST가 지난 Computex/Jensen 카드와 브리핑 문구를 “예정/내일 발표”에서 “결과 확인 필요/상태 추적”으로 전환.
+- **정적 scaffold 보강**: AAII/PCR/Breadth 차트 초기 배열이 최신 스냅샷 값을 덮어쓰지 않도록 `DATA_SNAPSHOT` 우선 반영 및 reference-only lineage 부여.
+
 ## v49.99 — 텔레그램 3채널 일주일치 통합 + 메모리 사이클 대격변 업데이트 (2026-05-31)
 
 **Changed files**: `js/aio-data.js`, `index.html`, `js/aio-core.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/KNOWLEDGE-BASE.md`

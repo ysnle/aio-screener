@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.99 — 올인원 투자 터미널</title>
+  <title>AIO Screener v49.104 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3755,7 +3755,7 @@ body.light-theme canvas { filter:none; }
       // 첫 시세 수신 후 핵심 일부만 와도 4초 뒤 닫기 (느린 소스 무한대기 방지)
       document.addEventListener('aio:liveQuotes', function(){
         arrived.quote = true;
-        setTimeout(function(){ if (!done && arrived.quote) { var f=document.getElementById('aio-boot-bar-fill'); hideBoot(); } }, 4000);
+        setTimeout(progressTick, 50);
       }, { once: true });
       // 10초 미수신 → 정적 폴백 안내 후 4초 뒤 해제 (사용자가 stale 인지)
       setTimeout(function(){
@@ -4132,7 +4132,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.99</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.104</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6245,16 +6245,16 @@ body.light-theme canvas { filter:none; }
         <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">Jensen Huang · 트럼프 · 머스크 등 주요 발언 집중 분석</span>
       </div>
 
-      <!-- v49.99: Jensen Huang - Computex GTC Taipei 2026-06-01 기조연설 예고 카드 -->
+      <!-- v49.100: Jensen Huang - Computex GTC Taipei 2026-06-01 기조연설 상태 추적 카드 -->
       <div class="interview-card" data-aio-archive="false" data-lifecycle-id="jensen-computex-202606" style="border:1px solid rgba(0,229,160,0.4);background:rgba(0,229,160,0.03);">
         <div class="interview-card-header">
-          <div style="width:32px;height:32px;border-radius:4px;background:rgba(0,229,160,0.2);border:1px solid rgba(0,229,160,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:800;color:var(--data-green);font-family:var(--font-mono);">LIVE</div>
+          <div style="width:32px;height:32px;border-radius:4px;background:rgba(255,163,26,0.16);border:1px solid rgba(255,163,26,0.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:800;color:var(--data-amber);font-family:var(--font-mono);">CHK</div>
           <div>
             <div class="interview-person">Jensen Huang (젠슨 황) · Computex GTC 타이페이 기조연설</div>
-            <div style="font-size:11px;color:var(--text-muted);">NVIDIA CEO · <b style="color:var(--data-green);">2026-06-01 낮 12:00 KST 예정</b> <span style="font-size:11px;padding:1px 5px;background:rgba(0,229,160,0.15);border-radius:3px;color:var(--data-green);font-weight:700;">📡 예고</span></div>
+            <div style="font-size:11px;color:var(--text-muted);">NVIDIA CEO · <b style="color:var(--data-amber);">2026-06-01 낮 12:00 KST 이후 결과 확인 필요</b> <span style="font-size:11px;padding:1px 5px;background:rgba(255,163,26,0.15);border-radius:3px;color:var(--data-amber);font-weight:700;">상태 추적</span></div>
           </div>
           <div class="interview-meta">
-            <span style="font-size:11px;color:var(--data-green);">내일 발표</span>
+            <span style="font-size:11px;color:var(--data-amber);">결과 반영 대기</span>
           </div>
         </div>
 
@@ -6265,8 +6265,8 @@ body.light-theme canvas { filter:none; }
             <div class="interview-quote">마이클 델 Dell 회장이 5/31 CoreWeave에 세계 첫 Vera Rubin NVL72 설치 인증. 폭스콘 류양웨이 "하반기 출하 낙관". 콴타 "AI 시장 계단식 성장 2030까지". 기조연설에서 양산 일정 공식화 전망.</div>
           </div>
           <div style="background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);border-radius:6px;padding:8px 10px;">
-            <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:5px;">Windows PC 진출 공식 발표</div>
-            <div class="interview-quote">MS 서피스·Dell 협력으로 NVDA ARM칩 기반 Windows PC 발표 예정. 온디바이스 AI 강화 — 클라우드 비용 절감·로컬 에이전트. 퀄컴 스냅드래곤 X Elite와 유사 비x86 아키텍처 생태계 확장.</div>
+            <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:5px;">Windows PC 진출 확인 항목</div>
+            <div class="interview-quote">MS 서피스·Dell 협력의 NVDA ARM칩 기반 Windows PC 발표 여부 확인 필요. 온디바이스 AI 강화 — 클라우드 비용 절감·로컬 에이전트. 퀄컴 스냅드래곤 X Elite와 유사 비x86 아키텍처 생태계 확장.</div>
           </div>
           <div style="background:rgba(255,163,26,0.05);border:1px solid rgba(255,163,26,0.15);border-radius:6px;padding:8px 10px;">
             <div style="font-size:11px;color:var(--data-amber);font-weight:700;margin-bottom:5px;">매출 성장 전망</div>
@@ -6355,7 +6355,7 @@ body.light-theme canvas { filter:none; }
         <span style="font-family:var(--font-mono);color:var(--data-green);flex-shrink:0;min-width:32px;">6/1</span>
         <span style="color:var(--data-green);flex-shrink:0;min-width:20px;">일</span>
         <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">12:00 KST</span>
-        <span><b style="color:var(--data-green);">NVDA 젠슨황 기조연설</b> — GTC 타이페이. Vera Rubin·Windows PC·에이전틱 AI·$1조 시장 업데이트. 린스에쿼티 "$250 근접" 전망.</span>
+        <span><b style="color:var(--data-amber);">NVDA 젠슨황 기조연설</b> — 12:00 KST 이후 결과 확인 필요. Vera Rubin·Windows PC·에이전틱 AI·$1조 시장 업데이트가 핵심 체크포인트.</span>
       </div>
       <div class="cal-row">
         <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">6/1</span>
@@ -6468,7 +6468,7 @@ body.light-theme canvas { filter:none; }
       <!-- ④ 이번 주 5대 관전 포인트 -->
       <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">🧠 이번 주 5대 관전 포인트</div>
       <div style="font-size:11px;line-height:1.6;color:var(--text-secondary);">
-        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-green);">1. NVDA 젠슨황 기조연설 (6/1 낮 12시)</b> — Vera Rubin 실물 출하(CoreWeave 설치 확인), Windows PC 출시, AI 수요 $1조 로드맵. 린스에쿼티 $250 근접 전망 → 섹터 전반 촉매.</div>
+        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-amber);">1. NVDA 젠슨황 기조연설 (6/1 낮 12시 이후 확인)</b> — Vera Rubin 실물 출하(CoreWeave 설치 확인), Windows PC 출시, AI 수요 $1조 로드맵의 실제 발표 내용 확인 전까지는 촉매 후보로 분류.</div>
         <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-red);">2. AVGO 실적 (6/3 AMC) ★★★</b> — XPU·ASIC 매출 가이던스가 AI 반도체 섹터 방향 결정. 구글 TPU 2031 LTA + Anthropic 3.5GW 수주 업데이트. 쇼크 시 NVDA·ALAB·MRVL 동반 조정.</div>
         <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-red);">3. 美 5월 NFP (6/5)</b> — BofA Hartnett "저실업+고임금→6월 인플레 재가속" 경고 검증. +150K+ = 연준 인하 기대 후퇴→성장주 멀티플 압축. 4월 4.3%·임금 3.6% 이어질지 핵심.</div>
         <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-amber);">4. 이란-미국 합의 최종 결정</b> — 트럼프 서명 여부만 남음(JD 밴스 "문구만 남은 상태"). 확정 시 WTI -$10+ 즉각 하락→에너지 비중 축소 시그널. 이란 기뢰 발견·MOU 불승인 혼재 중.</div>
@@ -12655,9 +12655,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.98"></script>
-  <script src="./js/aio-data.js?v=49.98"></script>
-  <script src="./js/aio-ui.js?v=49.98"></script>
+  <script src="./js/aio-core.js?v=49.104"></script>
+  <script src="./js/aio-data.js?v=49.104"></script>
+  <script src="./js/aio-ui.js?v=49.104"></script>
 
   <script>
 
@@ -15727,7 +15727,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.98"></script>
+<script src="./js/aio-chat.js?v=49.104"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28074,9 +28074,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.98"></script>
+<script src="./js/aio-glossary.js?v=49.104"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.98"></script>
+<script src="./js/aio-tests.js?v=49.104"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전
@@ -30762,14 +30762,19 @@ async function chatSendUnified() {
   try {
     // 1. 티커 감지 + 실시간 시세 (8s 타임아웃)
     var detectedTickers = typeof _extractTickers === 'function' ? _extractTickers(q) : [];
-    if (window.AIO && typeof window.AIO.ensureFreshDataForUse === 'function') {
+    var _uniFreshPreflight = null;
+    if (window.AIO && typeof window.AIO.ensureFreshChatAnswerData === 'function') {
+      try {
+        _uniFreshPreflight = await _withTimeout(window.AIO.ensureFreshChatAnswerData({ ctxId: ctxId, query: q, tickers: detectedTickers, reason: 'chat-answer', forceFresh: detectedTickers.length > 0 }), 6500, 'chatFresh');
+      } catch(fe0) { _aioLog('warn', 'fetch', 'AI chat freshness preflight 실패/타임아웃: ' + fe0.message); _uniFreshPreflight = { status: 'warn', strict: detectedTickers.length > 0 }; }
+    } else if (window.AIO && typeof window.AIO.ensureFreshDataForUse === 'function') {
       try {
         await _withTimeout(window.AIO.ensureFreshDataForUse({ ctxId: ctxId, query: q, tickers: detectedTickers, reason: 'chat' }), 4500, 'freshness');
       } catch(fe) { _aioLog('warn', 'fetch', 'AI freshness preflight 실패/타임아웃: ' + fe.message); }
     }
     if (detectedTickers.length > 0 && typeof _fetchTickerDataForChat === 'function') {
       try {
-        var tickerDataStr = await _withTimeout(_fetchTickerDataForChat(detectedTickers), 8000, 'ticker');
+        var tickerDataStr = await _withTimeout(_fetchTickerDataForChat(detectedTickers, { forceFresh: true, reason: 'chat-answer', preflight: _uniFreshPreflight }), 8000, 'ticker');
         if (tickerDataStr) { sysPrompt += tickerDataStr; _uniTickerData = true; }
       } catch(te) { _aioLog('warn', 'fetch', '티커 데이터 실패/타임아웃: ' + te.message); }
     }
@@ -30855,6 +30860,16 @@ async function chatSendUnified() {
     }
     if (typeof _buildChatMemoryContext === 'function') {
       sysPrompt += _buildChatMemoryContext(ctxId, q);
+    }
+    if (_uniFreshPreflight && detectedTickers.length > 0) {
+      var _uniFreshAfter = _uniFreshPreflight.after || {};
+      var _uniQuoteRows = (_uniFreshAfter.quoteRows || []).map(function(r) {
+        return r.ticker + ': ' + (r.hasLivePrice ? 'quote-ok' : 'quote-missing') + (r.quoteAgeSec != null ? ' age=' + r.quoteAgeSec + 's' : '') + (r.source ? ' source=' + r.source : '');
+      }).join(' / ');
+      sysPrompt += '\n\n[AI Chat Freshness Preflight v49.104]\n' +
+        'status=' + (_uniFreshPreflight.status || 'unknown') + ' strict=' + !!_uniFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
+        'quotes=' + (_uniQuoteRows || 'not available') + '\n' +
+        'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt. If a ticker quote remains missing or stale after preflight, do not invent price, market cap, valuation, earnings, or target-price numbers.\n';
     }
   } catch(e) { _aioLog('warn', 'fetch', 'chatSendUnified 데이터 주입 실패: ' + e.message); }
 

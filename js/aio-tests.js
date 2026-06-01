@@ -3523,14 +3523,117 @@
     var mapOk = prMap && ['home','signal','breadth','sentiment','briefing'].every(function(p){
       return Array.isArray(prMap[p]) && prMap[p].length > 0;
     });
+    var profileMapOk = !!(prMap && window.AIO && window.AIO.DATA_REQUIREMENT_PROFILES) &&
+      ['home','signal','breadth','sentiment','briefing'].every(function(p) {
+        var expected = (window.AIO.DATA_REQUIREMENT_PROFILES[p] || {}).tasks || [];
+        return expected.length && expected.every(function(t) { return prMap[p].indexOf(t) >= 0; });
+      });
+    var mappedFnsOk = !!(window.REFRESH_SCHEDULE && prMap) &&
+      Object.keys(prMap || {}).every(function(p) {
+        return (prMap[p] || []).every(function(t) {
+          return window.REFRESH_SCHEDULE[t] && typeof window.REFRESH_SCHEDULE[t].fn === 'function';
+        });
+      });
     _assert('T690 page_onenter_refresh_v4998: 종합 5페이지 refresh 매핑 + _aioRefreshPageData 함수 (P463/R187)',
-      !!mapOk && prFn,
-      'mapOk=' + !!mapOk + ' fn=' + prFn + ' keys=' + (prMap ? Object.keys(prMap).join(',') : 'none'));
+      !!mapOk && prFn && profileMapOk && mappedFnsOk,
+      'mapOk=' + !!mapOk + ' profileMapOk=' + profileMapOk + ' mappedFnsOk=' + mappedFnsOk + ' fn=' + prFn + ' keys=' + (prMap ? Object.keys(prMap).join(',') : 'none'));
 
     var coverageAudit = (typeof window.AIO.getPageRefreshCoverageAudit === 'function') ? window.AIO.getPageRefreshCoverageAudit() : null;
     _assert('T691 page_refresh_coverage_audit_v4998: 종합 5페이지 DOM 존재 + refresh 매핑 + coverage audit (institutional-grade page refresh)',
       !!coverageAudit && coverageAudit.status === 'ok',
-      coverageAudit ? ('status=' + coverageAudit.status + ' missing=' + coverageAudit.missingPageIds.join(',') + ' issues=' + coverageAudit.taskIssues.join(',') + ' wired=' + coverageAudit.pageRefreshWired) : 'coverageAudit undefined');
+      coverageAudit ? ('status=' + coverageAudit.status + ' missing=' + coverageAudit.missingPageIds.join(',') + ' issues=' + coverageAudit.taskIssues.join(',') + ' profileIssues=' + ((coverageAudit.profileIssues || []).join(',')) + ' wired=' + coverageAudit.pageRefreshWired) : 'coverageAudit undefined');
+
+    var refreshSrc690 = prFn ? window._aioRefreshPageData.toString() : '';
+    var newsFnSrc690 = (window.REFRESH_SCHEDULE && window.REFRESH_SCHEDULE.news && window.REFRESH_SCHEDULE.news.fn) ? window.REFRESH_SCHEDULE.news.fn.toString() : '';
+    var runSrc690 = (window.AIO && typeof window.AIO.runScheduledRefresh === 'function') ? window.AIO.runScheduledRefresh.toString() : '';
+    _assert('T692 page_refresh_force_news_v49100: weekly news expiry reaches fetchAllNews(true)',
+      refreshSrc690.indexOf('forceRefresh') >= 0 && refreshSrc690.indexOf('weekly-news-expiring') >= 0 &&
+        newsFnSrc690.indexOf('fetchAllNews') >= 0 && newsFnSrc690.indexOf('forceRefresh') >= 0 &&
+        runSrc690.indexOf('forceRefresh') >= 0,
+      'refreshForce=' + (refreshSrc690.indexOf('forceRefresh') >= 0) + ' newsFn=' + newsFnSrc690.slice(0, 80));
+
+    var weeklySrc690 = (typeof window._aioIsWeeklyNewsExpiring === 'function') ? window._aioIsWeeklyNewsExpiring.toString() : '';
+    _assert('T693 weekly_news_prewarm_v49100: weekly prewarm triggers on thin/any-expiring set',
+      weeklySrc690.indexOf('currentCount <') >= 0 && weeklySrc690.indexOf('.some(') >= 0 && weeklySrc690.indexOf('.every(') < 0,
+      weeklySrc690.slice(0, 120));
+
+    var sentSrc690 = (typeof initSentimentCharts === 'function') ? initSentimentCharts.toString() : '';
+    var breadthSrc690 = (typeof initBreadthPage === 'function') ? initBreadthPage.toString() : '';
+    _assert('T694 snapshot_over_static_scaffold_v49100: AAII/PCR/Breadth scaffold uses DATA_SNAPSHOT before globals',
+      sentSrc690.indexOf('DATA_SNAPSHOT.aaiiBear') >= 0 && sentSrc690.indexOf('DATA_SNAPSHOT.pcr') >= 0 &&
+        breadthSrc690.indexOf('DATA_SNAPSHOT') >= 0 && breadthSrc690.indexOf('breadth20sma') >= 0,
+      'sentSnapshot=' + (sentSrc690.indexOf('DATA_SNAPSHOT.aaiiBear') >= 0) + '/' + (sentSrc690.indexOf('DATA_SNAPSHOT.pcr') >= 0) + ' breadthSnapshot=' + (breadthSrc690.indexOf('breadth20sma') >= 0));
+
+    var runSrc695 = (window.AIO && typeof window.AIO.runScheduledRefresh === 'function') ? window.AIO.runScheduledRefresh.toString() : '';
+    _assert('T695 refresh_progress_events_v49101: scheduler emits start/progress/done state',
+      window.AIO && typeof window.AIO.getRefreshState === 'function' &&
+        runSrc695.indexOf("_aioEmitRefreshEvent('start'") >= 0 &&
+        runSrc695.indexOf("_aioEmitRefreshEvent('progress'") >= 0 &&
+        runSrc695.indexOf("_aioEmitRefreshEvent('done'") >= 0,
+      'getState=' + !!(window.AIO && typeof window.AIO.getRefreshState === 'function'));
+
+    var globalSrc696 = (typeof globalRefresh === 'function') ? globalRefresh.toString() : '';
+    _assert('T696 global_refresh_uses_scheduler_v49101: topbar refresh calls central force refresh',
+      globalSrc696.indexOf('forceRefreshAllData') >= 0 && globalSrc696.indexOf('runScheduledRefresh') >= 0,
+      globalSrc696.slice(0, 140));
+
+    var newsSrc697 = (typeof fetchAllNews === 'function') ? fetchAllNews.toString() : '';
+    _assert('T697 news_progress_bar_visible_v49101: market-news progress wrapper and bar are actively updated',
+      !!document.getElementById('news-progress-wrap') && !!document.getElementById('news-progress-bar') &&
+        newsSrc697.indexOf('progWrap.style.display') >= 0 &&
+        newsSrc697.indexOf('news-progress-bar') >= 0 &&
+        newsSrc697.indexOf('pageBar.style.width') >= 0,
+      'wrap=' + !!document.getElementById('news-progress-wrap') + ' bar=' + !!document.getElementById('news-progress-bar'));
+
+    var statusSrc698 = (typeof updateDataStatus === 'function') ? updateDataStatus.toString() : '';
+    var errSrc698 = (typeof showDataError === 'function') ? showDataError.toString() : '';
+    var dashSrc698 = (typeof _renderApiDashboard === 'function') ? _renderApiDashboard.toString() : '';
+    _assert('T698 refresh_status_panel_priority_v49101: status panel writers respect active refresh state',
+      statusSrc698.indexOf('getRefreshState') >= 0 && errSrc698.indexOf('getRefreshState') >= 0 && dashSrc698.indexOf('getRefreshState') >= 0,
+      'status=' + (statusSrc698.indexOf('getRefreshState') >= 0) + ' err=' + (errSrc698.indexOf('getRefreshState') >= 0) + ' dash=' + (dashSrc698.indexOf('getRefreshState') >= 0));
+
+    var prSrc699 = (typeof window._aioRefreshPageData === 'function') ? window._aioRefreshPageData.toString() : '';
+    var runSrc699 = (window.AIO && typeof window.AIO.runScheduledRefresh === 'function') ? window.AIO.runScheduledRefresh.toString() : '';
+    _assert('T699 page_onenter_uses_central_refresh_v49102: 5-page entry refresh emits progress and passes symbols',
+      prSrc699.indexOf('runScheduledRefresh') >= 0 && prSrc699.indexOf('symbols') >= 0 &&
+        prSrc699.indexOf('_runScheduledTask') < 0 && runSrc699.indexOf('_aioQuoteRequestSymbols') >= 0,
+      'pageRun=' + (prSrc699.indexOf('runScheduledRefresh') >= 0) + ' symbols=' + (prSrc699.indexOf('symbols') >= 0));
+
+    _assert('T700 comprehensive_page_data_audit_v49102: 5-page data surface audit and force refresh API exist',
+      window.AIO && typeof window.AIO.getComprehensivePageDataFreshnessAudit === 'function' &&
+        typeof window.AIO.refreshAllComprehensivePages === 'function',
+      'audit=' + !!(window.AIO && typeof window.AIO.getComprehensivePageDataFreshnessAudit === 'function'));
+
+    var profileSrc701 = (window.AIO && typeof window.AIO.collectPageDataSymbols === 'function') ? window.AIO.collectPageDataSymbols.toString() : '';
+    _assert('T701 dom_live_symbols_join_profile_v49103: visible live sinks join page refresh symbols',
+      typeof _aioCollectDomLiveSymbols === 'function' && profileSrc701.indexOf('_aioCollectDomLiveSymbols') >= 0,
+      'domCollector=' + (typeof _aioCollectDomLiveSymbols === 'function'));
+
+    _assert('T702 comprehensive_surface_integrity_audit_v49103: charts indicators prices formulas text audit exists',
+      window.AIO && typeof window.AIO.getComprehensiveSurfaceIntegrityAudit === 'function',
+      'surfaceAudit=' + !!(window.AIO && typeof window.AIO.getComprehensiveSurfaceIntegrityAudit === 'function'));
+
+    var chatFreshSrc703 = (window.AIO && typeof window.AIO.ensureFreshChatAnswerData === 'function') ? window.AIO.ensureFreshChatAnswerData.toString() : '';
+    _assert('T703 chat_answer_freshness_preflight_v49104: stock chat forces quote refresh and ticker lookup',
+      chatFreshSrc703.indexOf('ensureFreshDataForUse') >= 0 && chatFreshSrc703.indexOf('dynamicTickerLookup') >= 0 && chatFreshSrc703.indexOf('_aioClearChatTickerCache') >= 0,
+      'chatFresh=' + !!chatFreshSrc703);
+
+    var tickerFetchSrc704 = (typeof _fetchTickerDataForChat === 'function') ? _fetchTickerDataForChat.toString() : '';
+    _assert('T704 chat_ticker_cache_bypass_v49104: ticker data block can bypass 5m cache for AI answers',
+      tickerFetchSrc704.indexOf('opts') >= 0 && tickerFetchSrc704.indexOf('_bypassChatTickerCache') >= 0 && tickerFetchSrc704.indexOf('chat-answer') >= 0,
+      'tickerFetchOpts=' + (tickerFetchSrc704.indexOf('opts') >= 0));
+
+    var chatSendSrc705 = (typeof chatSend === 'function') ? chatSend.toString() : '';
+    var unifiedSrc705 = (typeof chatSendUnified === 'function') ? chatSendUnified.toString() : '';
+    _assert('T705 chat_send_uses_strict_freshness_v49104: both chat surfaces use strict preflight',
+      chatSendSrc705.indexOf('ensureFreshChatAnswerData') >= 0 && chatSendSrc705.indexOf('forceFresh') >= 0 &&
+        unifiedSrc705.indexOf('ensureFreshChatAnswerData') >= 0 && unifiedSrc705.indexOf('forceFresh') >= 0,
+      'chat=' + (chatSendSrc705.indexOf('ensureFreshChatAnswerData') >= 0) + ' unified=' + (unifiedSrc705.indexOf('ensureFreshChatAnswerData') >= 0));
+
+    var deepSrc706 = (typeof _shouldSingleDeepAnalyzeChat === 'function') ? _shouldSingleDeepAnalyzeChat.toString() : '';
+    _assert('T706 single_ticker_company_analysis_default_v49104: single stock questions trigger company-data path',
+      deepSrc706.indexOf('detectedTickers.length === 1') >= 0,
+      'deepSingle=' + (deepSrc706.indexOf('detectedTickers.length === 1') >= 0));
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지

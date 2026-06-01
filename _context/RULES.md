@@ -2261,3 +2261,53 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 **근거 (P463)**: 스케줄러가 주기(브레드쓰/심리 10분)로만 돌아 페이지 진입 시점에 stale일 수 있음 — 매매 결정에 직접 쓰는 페이지엔 치명적.
 
 **Validation**: `AIO_PAGE_REFRESH_MAP` 5키 + `typeof _aioRefreshPageData === 'function'` + `aio:pageShown` 구독 + `AIO.getPageRefreshCoverageAudit()` + T690~T691.
+
+## R188. 전체 데이터 최신화 진행률은 중앙 refresh state를 단일 진실 원천으로 표시한다 (v49.101 added, P464 root)
+
+**Rule**: 상단 새로고침/전체 최신화 UX는 개별 fetch 호출 결과를 추정하지 않고 `AIO.runScheduledRefresh()`의 `aio:refresh:start/progress/done` 이벤트와 `AIO.getRefreshState()`를 단일 진실 원천으로 사용한다. 사용자는 진행 중 X/Y, 현재 소스, 완료/스킵/확인필요 상태를 볼 수 있어야 한다.
+
+**Required**:
+- `globalRefresh()`는 `AIO.forceRefreshAllData()` 또는 `AIO.runScheduledRefresh({forceRefresh:true})` 중앙 경로를 우선 사용한다.
+- `data-status-panel`/API dashboard/error writer는 active refresh 중 진행 상태를 덮어쓰지 않는다.
+- 뉴스 progress wrapper/bar는 실제 fetch 시작 시 표시되고 소스 진행률에 따라 갱신된다.
+- 부트 로더는 quote 단독 수신만으로 5개 데이터 그룹 완료처럼 사라지지 않는다.
+
+**Validation**: `AIO.getRefreshState()` + `aio:refresh:*` 이벤트 + `aio-refresh-progress-layer` + T695~T698.
+
+## R189. 5개 종합 페이지 개별 데이터는 page profile 심볼/태스크 union으로 최신화한다 (v49.102 added, P465 root)
+
+**Rule**: home/signal/breadth/sentiment/briefing의 자동 최신화는 단순 페이지명 매핑이 아니라 `DATA_REQUIREMENT_PROFILES`의 task와 symbol 목록을 refresh run에 전달해야 한다. 페이지 진입, 수동 전체 최신화, visibility resume은 가능한 한 `AIO.runScheduledRefresh()` 중앙 경로를 사용해 실제 task 실행과 UX 진행률이 갈라지지 않게 한다.
+
+**Required**:
+- `_aioRefreshPageData(pageId)`는 `_runScheduledTask()` 직접 호출이 아니라 `runScheduledRefresh({keys,pageId,symbols,options})`를 사용한다.
+- `quotes` task는 page/profile symbols를 `fetchLiveQuotes()`에 전달한다.
+- `technicals` task는 활성 입력 심볼뿐 아니라 profile symbols를 우선 후보로 사용한다.
+- 5개 종합 페이지 전체 수동 최신화는 union task + union symbols를 사용한다.
+- 운영 감사는 task/symbol/data-sink/chart/missing-live 샘플을 페이지별로 반환한다.
+
+**Validation**: `AIO.refreshAllComprehensivePages()` + `AIO.getComprehensivePageDataFreshnessAudit()` + T699~T700.
+
+## R190. 보이는 차트/지표/시세/수치/수식/텍스트 표면은 최신화 감사에 자동 편입한다 (v49.103 added, P466 root)
+
+**Rule**: home/signal/breadth/sentiment/briefing의 실제 DOM에 추가되는 live price/change/percent/field sink는 별도 profile 수동 등록이 늦어져도 `collectPageDataSymbols()`가 자동 수집해 quote refresh symbol 범위에 포함해야 한다. 최신화 UX가 "데이터 갱신"을 표시할 때 실제 화면에 보이는 라이브 시세/지표 sink가 refresh scope 밖에 남아 있으면 안 된다.
+
+**Required**:
+- `[data-live-price]`, `[data-live-chg]`, `[data-live-pct]`, `[data-live-field]` DOM sink는 `_aioCollectDomLiveSymbols(pageId)`를 통해 page profile symbol union에 합류한다.
+- 5개 종합 페이지 감사는 task/symbol뿐 아니라 live sink, snap key, chart-like element, formula-like text, static numeric candidate, stale/loading text candidate를 페이지별로 점검한다.
+- snap key orphan, live key profile 누락, id 없는 chart-like element, stale/loading text 후보는 운영 감사 결과에 issues/samples로 노출한다.
+- 새 UI 숫자/수식/차트/텍스트를 추가할 때 `AIO.getComprehensiveSurfaceIntegrityAudit()` 결과가 새 표면을 감지하는지 확인한다.
+
+**Validation**: `AIO.getComprehensiveSurfaceIntegrityAudit()` + `AIO.getComprehensivePageDataFreshnessAudit().surfaceIntegrity` + T701~T702.
+
+## R191. AI 채팅의 종목 답변은 strict preflight 후 최신 시세/기업 데이터 블록만 인용한다 (v49.104 added, P467 root)
+
+**Rule**: 사용자가 주식 종목을 묻는 모든 AI 채팅 답변은 LLM 호출 전에 `AIO.ensureFreshChatAnswerData()`를 통과해야 한다. 종목 관련 가격, 시총, 밸류에이션, 실적, 목표가, 기업 분석 수치는 preflight 이후 주입된 quote/company-analysis 데이터 블록에 있는 값만 인용하고, 5분 cache hit나 학습 데이터 추정값으로 대체하면 안 된다.
+
+**Required**:
+- `chatSend()`와 `chatSendUnified()` 양쪽 모두 종목 감지 후 `ensureFreshChatAnswerData({forceFresh:true})`를 우선 호출한다.
+- 종목 질문은 `_chatTickerCache` 해당 종목을 무효화하고 `_fetchTickerDataForChat(..., {forceFresh:true, reason:'chat-answer'})`로 fresh data block을 재생성한다.
+- preflight는 중앙 `runScheduledRefresh({keys,symbols,reason,forceRefresh})` 경로를 사용하고, 필요한 경우 `dynamicTickerLookup()`으로 질문 ticker를 개별 재조회한다.
+- 단일 종목 질문은 기본적으로 기업 심층 데이터 경로를 타야 한다. FMP/Finnhub/SEC/Naver 등 외부 데이터가 없으면 없는 항목을 명시하고 숫자를 추정하지 않는다.
+- system prompt에는 ticker별 quote 상태/age/source를 포함한 `AI Chat Freshness Preflight` 블록을 주입한다.
+
+**Validation**: `AIO.ensureFreshChatAnswerData()` + `AIO.getChatAnswerFreshnessAudit()` + `_fetchTickerDataForChat(...,{forceFresh:true})` + T703~T706.

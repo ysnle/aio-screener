@@ -10251,9 +10251,29 @@ function _aioCollectDynamicPageSymbols(pageId, scope) {
   return _aioUniq(out).slice(0, limit);
 }
 
+function _aioCollectDomLiveSymbols(pageId) {
+  var id = String(pageId || '').replace(/^page-/, '') || 'home';
+  var root = null;
+  var out = [];
+  try { root = document.getElementById('page-' + id); } catch(_) {}
+  if (!root) return out;
+  var attrs = ['data-live-price', 'data-live-chg', 'data-live-pct', 'data-live-field'];
+  try {
+    root.querySelectorAll(attrs.map(function(a) { return '[' + a + ']'; }).join(',')).forEach(function(el) {
+      attrs.forEach(function(attr) {
+        var v = el.getAttribute(attr);
+        if (!v || /^\$\{/.test(v)) return;
+        _aioPushSymbol(out, v);
+      });
+    });
+  } catch(_) {}
+  return _aioUniq(out);
+}
+window._aioCollectDomLiveSymbols = _aioCollectDomLiveSymbols;
+
 window.AIO.collectPageDataSymbols = function(pageId, scope) {
   var base = _aioResolveRequirementProfile(pageId);
-  return _aioUniq((base.symbols || []).concat(_aioCollectDynamicPageSymbols(pageId, scope || {})));
+  return _aioUniq((base.symbols || []).concat(_aioCollectDynamicPageSymbols(pageId, scope || {})).concat(_aioCollectDomLiveSymbols(pageId)));
 };
 
 window.AIO.CRITICAL_PAGE_GROUPS = {
@@ -10316,6 +10336,96 @@ window.AIO.getCritical10PageFreshnessAudit = function(opts) {
 };
 
 // P209/P211: 한국시장 5페이지 freshness audit (v49.20)
+function _aioLeafTextNodes(root) {
+  if (!root) return [];
+  try {
+    return Array.from(root.querySelectorAll('h1,h2,h3,h4,p,li,td,th,span,div,button')).filter(function(el) {
+      if (el.closest('[data-aio-archive="true"]')) return false;
+      if (el.children && el.children.length > 2) return false;
+      var text = String(el.textContent || '').trim();
+      return text.length > 0 && text.length <= 220;
+    });
+  } catch(_) {
+    return [];
+  }
+}
+
+window.AIO.getComprehensiveSurfaceIntegrityAudit = function(opts) {
+  opts = opts || {};
+  var pageIds = ['home','signal','breadth','sentiment','briefing'];
+  var formulaRe = new RegExp('[=*xX]|score|formula|calc|calculate|weight|ratio|spread|RSI|MACD|SMA|EMA|VIX|Breadth|F&G|Fear|Greed|HY|PCR|AAII|NAAIM|\\uC810\\uC218|\\uACF5\\uC2DD|\\uC218\\uC2DD|\\uACC4\\uC0B0|\\uAC00\\uC911', 'i');
+  var numericRe = new RegExp('(?:\\$|\\u20A9)?\\s*\\d[\\d,.]*(?:\\.\\d+)?\\s*(?:%|bp|bps|x|\\uBC30|\\uC870|\\uC5B5|M|B|T|pts?)?', 'i');
+  var staleRe = new RegExp('2026-0[1-5]-|2026\\.0[1-5]\\.|4/(?:0?[1-9]|1[0-9]|2[0-9])|5/(?:0?[1-9]|1[0-9]|2[0-9])|loading|calculating|analyzing|\\uB85C\\uB529\\s*\\uC911|\\uACC4\\uC0B0\\s*\\uC911|\\uBD84\\uC11D\\s*\\uC911', 'i');
+  var ds = window.DATA_SNAPSHOT || {};
+  var pages = pageIds.map(function(pageId) {
+    var root = null;
+    try { root = document.getElementById('page-' + pageId); } catch(_) {}
+    var profile = window.AIO.getDataRequirementProfile ? window.AIO.getDataRequirementProfile({ pageId: pageId, reason: 'surface-integrity', symbolLimit: opts.symbolLimit || 999 }) : { tasks: [], symbols: [] };
+    var profileSet = {};
+    (profile.symbols || []).forEach(function(sym) { profileSet[String(sym).toUpperCase()] = true; });
+    var liveEls = root ? Array.from(root.querySelectorAll('[data-live-price],[data-live-chg],[data-live-pct],[data-live-field]')) : [];
+    var snapEls = root ? Array.from(root.querySelectorAll('[data-snap],[data-snap-date]')) : [];
+    var chartEls = root ? Array.from(root.querySelectorAll('canvas,[id*="chart"],[id*="widget"],[class*="chart"]')) : [];
+    var leaves = _aioLeafTextNodes(root);
+    var liveKeys = [];
+    liveEls.forEach(function(el) {
+      ['data-live-price','data-live-chg','data-live-pct','data-live-field'].forEach(function(attr) {
+        var v = el.getAttribute(attr);
+        if (v && !/^\$\{/.test(v)) liveKeys.push(String(v).toUpperCase());
+      });
+    });
+    liveKeys = _aioUniq(liveKeys);
+    var uncoveredLiveKeys = liveKeys.filter(function(k) { return !profileSet[k]; });
+    var snapKeys = _aioUniq(snapEls.map(function(el) { return el.getAttribute('data-snap') || el.getAttribute('data-snap-date') || ''; }).filter(Boolean));
+    var orphanSnapKeys = snapKeys.filter(function(k) {
+      var camel = k.replace(/-([a-z])/g, function(_, c) { return c.toUpperCase(); });
+      var snake = k.replace(/-/g, '_');
+      return ds[k] == null && ds[camel] == null && ds[snake] == null && !(ds._fallback && (ds._fallback[k] != null || ds._fallback[camel] != null || ds._fallback[snake] != null));
+    });
+    var formulaNodes = leaves.filter(function(el) { return formulaRe.test(String(el.textContent || '')); });
+    var staticNumericNodes = leaves.filter(function(el) {
+      if (!numericRe.test(String(el.textContent || ''))) return false;
+      if (el.matches('[data-live-price],[data-live-chg],[data-live-pct],[data-live-field],[data-snap],[data-snap-date],[data-threshold-key]')) return false;
+      if (el.closest('[data-live-price],[data-live-chg],[data-live-pct],[data-live-field],[data-snap],[data-snap-date],[data-threshold-key]')) return false;
+      return true;
+    });
+    var staleNodes = leaves.filter(function(el) { return staleRe.test(String(el.textContent || '')); });
+    var chartNoId = chartEls.filter(function(el) { return !el.id; });
+    var issues = [];
+    if (!root) issues.push('missing page DOM');
+    if (uncoveredLiveKeys.length) issues.push('live keys missing from refresh profile: ' + uncoveredLiveKeys.slice(0, 8).join(','));
+    if (orphanSnapKeys.length) issues.push('snap keys missing from DATA_SNAPSHOT/fallback: ' + orphanSnapKeys.slice(0, 8).join(','));
+    if (chartNoId.length) issues.push('chart-like elements without id: ' + chartNoId.length);
+    if (staleNodes.length) issues.push('stale/loading text candidates: ' + staleNodes.length);
+    return {
+      pageId: pageId,
+      status: issues.length ? 'warn' : 'ok',
+      issues: issues,
+      tasks: profile.tasks || [],
+      symbolCount: (profile.symbols || []).length,
+      liveKeyCount: liveKeys.length,
+      uncoveredLiveKeys: uncoveredLiveKeys.slice(0, 20),
+      snapKeyCount: snapKeys.length,
+      orphanSnapKeys: orphanSnapKeys.slice(0, 20),
+      chartLikeCount: chartEls.length,
+      chartNoIdCount: chartNoId.length,
+      formulaTextCount: formulaNodes.length,
+      staticNumericCandidateCount: staticNumericNodes.length,
+      staticNumericSamples: staticNumericNodes.slice(0, 12).map(function(el) { return { id: el.id || '', text: String(el.textContent || '').trim().slice(0, 120) }; }),
+      staleTextCandidateCount: staleNodes.length,
+      staleTextSamples: staleNodes.slice(0, 12).map(function(el) { return { id: el.id || '', text: String(el.textContent || '').trim().slice(0, 120) }; })
+    };
+  });
+  var issuePages = pages.filter(function(p) { return p.issues.length; });
+  return {
+    status: issuePages.length ? 'warn' : 'ok',
+    pagesChecked: pages.length,
+    issueCount: issuePages.length,
+    pages: pages,
+    generatedAt: new Date().toISOString()
+  };
+};
+
 window.AIO.getCriticalKrPageFreshnessAudit = function(opts) {
   opts = opts || {};
   var krIds = (window.AIO.CRITICAL_PAGE_GROUPS && window.AIO.CRITICAL_PAGE_GROUPS.krMarket) ||
@@ -10569,7 +10679,8 @@ window.AIO.getAutoFreshnessPlan = function(scope) {
     var policy = (window.FRESHNESS_POLICY && window.FRESHNESS_POLICY[policyKey]) || null;
     var maxAge = policy ? policy.staleMs : 30 * 60 * 1000;
     var age = _aioTaskAgeMs(taskKey);
-    if (age === Infinity) addTask(taskKey, 'never fetched');
+    if (scope && scope.forceFresh) addTask(taskKey, 'force fresh request');
+    else if (age === Infinity) addTask(taskKey, 'never fetched');
     else if (age > maxAge) addTask(taskKey, 'stale ' + Math.round(age / 60000) + 'm > ' + Math.round(maxAge / 60000) + 'm');
   });
   if (profile.wantsFresh) addTask('news', 'freshness-sensitive request');
@@ -10782,6 +10893,13 @@ function showDataError(area, msg, severity) {
   // data-status-panel에 표시 (있는 경우)
   var panel = document.getElementById('data-status-panel');
   if (panel) {
+    try {
+      var refreshState = window.AIO && typeof window.AIO.getRefreshState === 'function' ? window.AIO.getRefreshState() : null;
+      if (refreshState && refreshState.active && severity !== 'error') {
+        _aioLog('warn', area, msg);
+        return;
+      }
+    } catch(_) {}
     var icon = severity === 'error' ? '<span class="sd sd-r"></span>' : severity === 'info' ? '<span class="sd sd-g"></span>' : '<span class="sd sd-y"></span>';
     var color = severity === 'error' ? '#ef4444' : severity === 'info' ? '#00e5a0' : '#ffa31a';
     panel.innerHTML = '<span style="color:' + color + ';font-size:10px;">' + icon + ' ' + escHtml(area) + ': ' + escHtml(msg) + '</span>';
@@ -11086,6 +11204,10 @@ window._fireThresholdBreach = function(metric, value, threshold, direction) {
 
 var _lastDashRender = 0;
 function _renderApiDashboard() {
+  try {
+    var refreshState = window.AIO && typeof window.AIO.getRefreshState === 'function' ? window.AIO.getRefreshState() : null;
+    if (refreshState && refreshState.active) return;
+  } catch(_) {}
   var now = Date.now();
   if (now - _lastDashRender < 2000) return; // 2초 스로틀
   _lastDashRender = now;
@@ -14228,7 +14350,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.99';
+const APP_VERSION = 'v49.104';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

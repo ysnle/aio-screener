@@ -495,7 +495,7 @@ function initSentimentCharts() {
   // ─ AAII stacked horizontal bar ─────────────────────────────────────
   const aaiiCtx = document.getElementById('aaii-chart');
   if (aaiiCtx) {
-    const aaiiLabels = ['4/29', '4/22', '4/15', '4/8', '4/1', '3/25']; // v48.71: 4/29(5/1 발표) 추가, 3/18 드롭
+    const aaiiLabels = ['4/29', '4/22', '4/15', '4/8', '4/1', '3/25']; // reference scaffold; DATA_SNAPSHOT.aaiiBear overrides latest value when available
     // Bull / Neutral / Bear — v45.0: aaii.com 실데이터 검증 완료
     // v48.71: 4/29 Bull 38.1 Neutral 22.2 Bear 39.7 (WebSearch 실측, 지정학 우려 급반전) | 4/22 Bull 46.0 Bear 34.4 유지
     const aaiiDatasets = [[38.1, 46.0, 31.7, 35.7, 33.6, 32.1], [22.2, 19.6, 23.7, 21.3, 15.0, 18.1], [39.7, 34.4, 44.6, 43.0, 51.4, 49.8]];
@@ -503,8 +503,17 @@ function initSentimentCharts() {
     var _aaiiBearEl = document.getElementById('aaii-bear-val');
     var _aaiiBullEl = document.getElementById('aaii-bull-val');
     var _aaiiSignal = document.getElementById('aaii-signal-badge');
-    var latestBear = aaiiDatasets[2][0]; // 최신 약세 비율
-    var latestBull = aaiiDatasets[0][0]; // 최신 강세 비율
+    var snapAaiiBear = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.aaiiBear != null) ? Number(DATA_SNAPSHOT.aaiiBear) : NaN;
+    var latestBear = isFinite(snapAaiiBear) ? snapAaiiBear : aaiiDatasets[2][0];
+    var latestBull = aaiiDatasets[0][0];
+    if (isFinite(snapAaiiBear)) {
+      aaiiDatasets[2][0] = snapAaiiBear;
+      if (aaiiCtx.setAttribute) {
+        aaiiCtx.setAttribute('data-source-kind', 'snapshot');
+        aaiiCtx.setAttribute('data-operational-use', 'reference-only');
+        aaiiCtx.setAttribute('data-source-label', 'DATA_SNAPSHOT:aaiiBear');
+      }
+    }
     if (_aaiiBearEl) _aaiiBearEl.textContent = latestBear.toFixed(1) + '%';
     if (_aaiiBullEl) _aaiiBullEl.textContent = latestBull.toFixed(1) + '%';
     window._aaiiBearish = latestBear;
@@ -569,7 +578,16 @@ function initSentimentCharts() {
     // CBOE Equity P/C Ratio (추정치, 실거래일 기준)
     const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17','4/18','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1']; // v48.76: 5/1 연장 (NASDAQ 신고가, 실적 랠리 지속)
     // v46.10: 4/14(0.58 재협상 기대→풋 감소 추정). v48.76: 4/30 Total P/C 0.78 (WebSearch 실측), 5/1 추정 0.60
-    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58,0.55,0.52,0.54,0.57,0.60,0.62,0.59,0.57,0.61,0.64,0.69,0.78,0.60]; // v48.76: 4/30 PCR 0.78(WebSearch), 5/1 추정 0.60 (콜 우위 지속)
+    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58,0.55,0.52,0.54,0.57,0.60,0.62,0.59,0.57,0.61,0.64,0.69,0.78,0.60]; // reference scaffold; DATA_SNAPSHOT.pcr overrides latest point when available
+    var snapPcr = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.pcr != null) ? Number(DATA_SNAPSHOT.pcr) : NaN;
+    if (isFinite(snapPcr)) {
+      pcData[pcData.length - 1] = snapPcr;
+      if (pcCtx.setAttribute) {
+        pcCtx.setAttribute('data-source-kind', 'snapshot');
+        pcCtx.setAttribute('data-operational-use', 'reference-only');
+        pcCtx.setAttribute('data-source-label', 'DATA_SNAPSHOT:pcr');
+      }
+    }
     var _gPC = chartDataGate('pc-chart', pcLabels, [pcData], { minPoints: 3, chartName: 'Put/Call Ratio' });
     if (_gPC && window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
       try {
@@ -787,6 +805,13 @@ function initBreadthPage(forceReinit) {
   const bpSPX50 = [38, 37, 36, 35, 34, 34, 35, 36, 37, 38, 37, 36, 35, 34, 33, 32, 32, 33, 32, 31.8, 31.5, 32.2, 38, 46, 48, 50, 51, 52, 53, 54, 55, 57, 58, 59, 61, 62, 63, 65, 67, 69, 71];   // $SPXA50R / S5FI (v48.76: 5/1 추정 71%, WebSearch ~71% SPX above 50SMA 확인)
   const bpNDX50 = [34, 33, 32, 31, 30, 30, 31, 32, 33, 33, 32, 31, 30, 29, 28, 28, 29, 29, 28, 27.6, 27.4, 28.2, 40, 49, 51, 52, 53, 54, 55, 55, 56, 58, 59, 60, 62, 63, 64, 66, 68, 70, 72];   // MNFI / NDFI (v48.76: 5/1 추정 72%)
   // ── 전역 캐싱: computeTradingScore + updateRallyQualityVerdict 참조용 ──
+  var snapBreadth = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : {};
+  var snapB5 = Number(snapBreadth.breadth5sma);
+  var snapB20 = Number(snapBreadth.breadth20sma);
+  var snapB50 = Number(snapBreadth.breadth50sma);
+  if (isFinite(snapB5)) bpSPX5[bpSPX5.length - 1] = snapB5;
+  if (isFinite(snapB20)) bpSPX20[bpSPX20.length - 1] = snapB20;
+  if (isFinite(snapB50)) bpSPX50[bpSPX50.length - 1] = snapB50;
   window._breadth200 = bpSPX20[bpSPX20.length - 1]; // 20SMA above %
   window._breadth5 = bpSPX5[bpSPX5.length - 1];     // 5SMA above %
   window._breadth50 = bpSPX50[bpSPX50.length - 1];   // 50SMA above %
@@ -2015,8 +2040,156 @@ try { if (!window._aioPopstateRegistered) window.addEventListener('popstate', (e
 })();
 
 // ── Global refresh: all data sources ──────────────────────────────────
+// Unified refresh progress surface. It listens to the scheduler events emitted by aio-data.js.
+(function bindAioRefreshProgressSurface() {
+  var lastKeys = [];
+  var labels = {
+    quotes: '시세',
+    news: '뉴스',
+    sentiment: '심리',
+    breadth: '시장폭',
+    fred: 'FRED',
+    technicals: '기술지표',
+    vixHistory: 'VIX 히스토리',
+    hySpread: 'HY 스프레드',
+    maUpdate: 'MA 갱신',
+    krSupply: 'KR 수급',
+    krDynamic: 'KR 동적 데이터'
+  };
+
+  function ensureLayer() {
+    var layer = document.getElementById('aio-refresh-progress-layer');
+    if (layer) return layer;
+    layer = document.createElement('div');
+    layer.id = 'aio-refresh-progress-layer';
+    layer.setAttribute('role', 'status');
+    layer.setAttribute('aria-live', 'polite');
+    layer.style.cssText = 'display:none;position:fixed;right:14px;top:58px;z-index:99998;width:min(360px,calc(100vw - 28px));background:var(--surface-2,#111827);border:1px solid var(--border,#2b3440);border-radius:8px;box-shadow:0 14px 34px rgba(0,0,0,.35);padding:10px 12px;color:var(--text-primary,#e5edf5);font-family:var(--font-sans,system-ui);';
+    layer.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;"><div id="aio-refresh-progress-title" style="font-size:12px;font-weight:800;">전체 데이터 최신화</div><div id="aio-refresh-progress-count" style="font-size:11px;font-family:var(--font-mono,monospace);color:var(--data-cyan,#00d4ff);">0/0</div></div><div style="height:4px;background:var(--surface-4,#253040);border-radius:4px;overflow:hidden;margin-bottom:8px;"><div id="aio-refresh-progress-bar" style="height:100%;width:0%;background:var(--data-cyan,#00d4ff);transition:width .25s ease;"></div></div><div id="aio-refresh-progress-current" style="font-size:11px;color:var(--text-muted,#8b98a5);margin-bottom:8px;">대기 중</div><div id="aio-refresh-progress-list" style="display:grid;gap:4px;max-height:190px;overflow:auto;"></div>';
+    document.body.appendChild(layer);
+    return layer;
+  }
+
+  function statusText(key, detail, byKey) {
+    var row = byKey[key];
+    if (row) {
+      if (row.ok && !row.skipped) return '완료';
+      if (row.skipped) return '스킵';
+      return '확인 필요';
+    }
+    if (detail.currentKey === key && detail.phase === 'running') return '진행 중';
+    return '대기';
+  }
+
+  function statusColor(text) {
+    if (text === '완료') return 'var(--data-green,#00e5a0)';
+    if (text === '진행 중') return 'var(--data-cyan,#00d4ff)';
+    if (text === '스킵') return 'var(--data-amber,#ffa31a)';
+    if (text === '확인 필요') return 'var(--data-red,#ff5b50)';
+    return 'var(--text-muted,#8b98a5)';
+  }
+
+  function render(detail) {
+    detail = detail || {};
+    if (Array.isArray(detail.keys) && detail.keys.length) lastKeys = detail.keys.slice();
+    var total = detail.total || lastKeys.length || 0;
+    var done = detail.done || 0;
+    var pct = total ? Math.min(100, Math.round(done / total * 100)) : 0;
+    var active = detail.type !== 'done';
+    var layer = ensureLayer();
+    var panel = document.getElementById('data-status-panel');
+    var btn = document.getElementById('topbar-refresh-btn');
+    var title = document.getElementById('aio-refresh-progress-title');
+    var count = document.getElementById('aio-refresh-progress-count');
+    var bar = document.getElementById('aio-refresh-progress-bar');
+    var current = document.getElementById('aio-refresh-progress-current');
+    var list = document.getElementById('aio-refresh-progress-list');
+    var failed = (detail.results || []).filter(function(r) { return r && !r.ok && !r.skipped; }).length;
+
+    layer.style.display = 'block';
+    if (title) title.textContent = active ? '전체 데이터 최신화 중' : (failed ? '최신화 완료 - 확인 필요' : '최신화 완료');
+    if (count) count.textContent = done + '/' + total;
+    if (bar) {
+      bar.style.width = pct + '%';
+      bar.style.background = failed ? 'var(--data-amber,#ffa31a)' : 'var(--data-cyan,#00d4ff)';
+    }
+    if (current) {
+      current.textContent = active
+        ? ((detail.currentLabel || labels[detail.currentKey] || detail.currentKey || '데이터') + ' 수신 중')
+        : (failed ? failed + '개 소스 확인 필요' : '모든 요청이 정리되었습니다');
+    }
+    if (panel) {
+      panel.textContent = active ? ('전체 최신화 ' + done + '/' + total) : (failed ? '최신화 확인 필요' : '최신화 완료');
+      panel.title = '전체 데이터 최신화 상태';
+    }
+    if (btn) {
+      btn.disabled = active;
+      btn.textContent = active ? ('갱신 ' + done + '/' + total) : (failed ? '확인 필요' : '완료');
+    }
+    if (list) {
+      var byKey = {};
+      (detail.results || []).forEach(function(r) { if (r && r.key) byKey[r.key] = r; });
+      list.innerHTML = '';
+      (lastKeys.length ? lastKeys : Object.keys(byKey)).forEach(function(key) {
+        var txt = statusText(key, detail, byKey);
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;border-top:1px solid rgba(255,255,255,.06);padding-top:4px;';
+        var name = document.createElement('span');
+        name.textContent = labels[key] || key;
+        var state = document.createElement('span');
+        state.textContent = txt;
+        state.style.cssText = 'font-family:var(--font-mono,monospace);color:' + statusColor(txt) + ';';
+        row.appendChild(name);
+        row.appendChild(state);
+        list.appendChild(row);
+      });
+    }
+    if (!active) {
+      setTimeout(function() {
+        var latest = window.AIO && window.AIO.getRefreshState ? window.AIO.getRefreshState() : null;
+        if (!latest || latest.runId === detail.runId) {
+          layer.style.display = 'none';
+          if (btn) { btn.disabled = false; btn.textContent = '새로고침'; }
+        }
+      }, failed ? 6000 : 2500);
+    }
+  }
+
+  window.addEventListener('aio:refresh:start', function(e) { render(e.detail); });
+  window.addEventListener('aio:refresh:progress', function(e) { render(e.detail); });
+  window.addEventListener('aio:refresh:done', function(e) { render(e.detail); });
+})();
+
 async function globalRefresh() {
   const btn = document.getElementById('topbar-refresh-btn');
+  if (window.AIO && (typeof window.AIO.forceRefreshAllData === 'function' || typeof window.AIO.runScheduledRefresh === 'function')) {
+    if (btn) { btn.textContent = '갱신 준비'; btn.disabled = true; }
+    try {
+      var result = typeof window.AIO.forceRefreshAllData === 'function'
+        ? await window.AIO.forceRefreshAllData()
+        : await window.AIO.runScheduledRefresh({ forceRefresh: true });
+      var activePage = document.querySelector('.page.active');
+      var activeId = activePage ? activePage.id.replace('page-','') : (typeof prevPage !== 'undefined' ? prevPage : 'home');
+      if (activeId === 'breadth' && typeof initBreadthPage === 'function') {
+        initBreadthPage(true);
+        if (typeof updateRallyQualityVerdict === 'function') setTimeout(updateRallyQualityVerdict, 300);
+      }
+      if (activeId === 'sentiment' && typeof initSentimentPage === 'function') initSentimentPage(true);
+      if (activeId === 'signal' && typeof initSignalDashboard === 'function') initSignalDashboard();
+      if (activeId === 'fxbond' && typeof updateFxBondPage === 'function') updateFxBondPage();
+      if (btn) {
+        btn.textContent = result && result.status === 'warn' ? '확인 필요' : '완료';
+        btn.disabled = false;
+        setTimeout(function(){ btn.textContent = '새로고침'; }, result && result.status === 'warn' ? 6000 : 2500);
+      }
+      return result;
+    } catch(e) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'globalRefresh scheduler error: ' + (e && e.message || e));
+      if (typeof showDataError === 'function') showDataError('새로고침', '전체 새로고침 중 오류 - 일부 데이터가 갱신되지 않았을 수 있습니다', 'warn');
+      if (btn) { btn.textContent = '새로고침'; btn.disabled = false; }
+      return null;
+    }
+  }
   if (btn) { btn.textContent = '↻ 갱신 중...'; btn.disabled = true; }
   try {
   const tasks = [];
