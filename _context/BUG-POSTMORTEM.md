@@ -1,12 +1,84 @@
 ---
 verified_by: agent
-last_verified: 2026-05-26
+last_verified: 2026-06-02
 confidence: high
-latest_version: v49.80
-latest_P_number: P432
-total_entries: 432
-next_P_number: P433
+latest_version: v50.1
+latest_P_number: P477
+total_entries: 477
+next_P_number: P478
 ---
+
+## P477 - v50.1 - [R200] trading decision logic must be gated by current evidence
+
+- **Problem**: Page-level evidence existed, but trading/decision functions could still return plausible scores from stale or proxy inputs: hardcoded SPX MA constants, breadth default/proxy paths, OHLCV-missing RSI/MACD proxies, localStorage ATH estimates, static VIX IV Rank range, and static screener values in ticker entry checks.
+- **Fix**: Added `AIO.getTradingDecisionInputEvidence()` and `AIO.getTradingDecisionLogicAudit()`, wired trading findings into `AIO.runEvidenceDeploymentGate()`, neutralized SPX MA hardcoded fallbacks, exposed trading score evidence status, marked Weinstein ATH proxy evidence, and made options IV Rank use VIX history when available.
+- **Prevention**: T745~T748 guard trading input evidence, trading logic audit shape, deployment gate inclusion, and active runtime version format (`vMAJOR.MINOR`, max two decimal digits).
+
+## P476 - v50.0 - [R200] 21-page evidence contract + deployment gate foundation
+
+- **Problem**: R187~R199 accumulated as separate freshness/evidence rules, but runtime contracts were still split across page profiles, refresh map, deep audits, sequential registry, and critical-10 evidence checks.
+- **Fix**: Added `AIO_PAGE_CONTRACTS`, `EvidenceStore`, `SourceAdapterRegistry`, `AuditRegistry`, `FormulaRegistry`, `AIO.getAllPageContentEvidenceMatrix()`, and `AIO.runEvidenceDeploymentGate()`. `DATA_SNAPSHOT` is now reference/historical unless promoted by verified current evidence.
+- **Prevention**: T737~T744 guard contracts, derived maps, source adapters, evidence store, formula registry, audit registry, deployment gate, and AI chat evidence guard.
+
+## P475 - v49.112 - [R199] full evidence matrix must not sample representative content only
+
+- **Problem**: Critical-10 checks could still pass while charts, numeric text, narratives, and hidden surface items remained outside the evidence matrix.
+- **Fix**: `AIO.getCritical10ContentEvidenceMatrix()` inventories all live/snapshot/snap-date/chart/numeric/narrative items and classifies pass/warn/block/needs_evidence.
+
+## P474 - v49.111 - [R198] visible content must be compared against current market situation
+
+- **Problem**: Refresh success did not prove that visible values or narratives matched the current market regime.
+- **Fix**: Added current reference snapshot plus `AIO.getCritical10MarketSituationAudit()` and `AIO.refreshCritical10MarketSituationAudit()`.
+
+## P473 - v49.110 - [R197] critical freshness must inspect the visible market surface
+
+- **Problem**: Scheduler freshness could look healthy even when visible cells were source-missing, reference-only, or truth-blocked.
+- **Fix**: Added `AIO.getCritical10MarketSurfaceAudit()` and wired it into freshness/readiness.
+
+## P472 - v49.109 - [R196] trading-use quotes need independent cross-source validation
+
+- **Problem**: A single live source could be wrong or stale and still appear decision-usable.
+- **Fix**: Added source-family quote cache and multi-source cross-checking, with mismatches blocking trading-use values where appropriate.
+
+## P471 - v49.108 - [R195] trading-use market data must pass DataTruthGate
+
+- **Problem**: Live values lacked a unified truth gate for source, timestamp, sanity, and previous-close coherence.
+- **Fix**: Added `AIO_DATA_TRUTH_GATE`, `AIO.evaluateDataTruth()`, and `AIO.getDataTruthAudit()`.
+
+## P470 - v49.107 - [R194] refresh success must be followed by DOM binding verification
+
+- **Problem**: Data fetch completion could be mistaken for actual visible screen update completion.
+- **Fix**: Added explicit live DOM binding apply/verify/repair paths for critical-10 pages.
+
+## P469 - v49.106 - [R193] AI chat must vary answer structure and use injected current data
+
+- **Problem**: AI answers were too uniform and could still lean on model memory for current claims.
+- **Fix**: Added intent-based answer coverage context and stricter prompt rules for live/FMP/SEC/Naver/Finnhub/news data use.
+
+## P468 - v49.105 - [R192] forceFresh for AI stock answers must bypass local stale shortcuts
+
+- **Problem**: `_chatTickerCache`, `_liveData` shortcuts, and min-gap throttles could bypass fresh stock answer retrieval.
+- **Fix**: Forced fresh ticker lookup and cache invalidation for chat-answer preflight.
+
+## P467 - v49.104 - [R191] AI stock answers require strict fresh quote/company data preflight
+
+- **Problem**: Stock chat could answer before current quote/company blocks were verified.
+- **Fix**: Added `AIO.ensureFreshChatAnswerData()` and strict ticker data block injection.
+
+## P466 - v49.103 - [R190] visible charts/indicators/numbers/formulas/text enter freshness audit
+
+- **Problem**: Page refresh could miss visible static numbers, formulas, chart containers, and narrative claims.
+- **Fix**: Added surface integrity audit and automatic DOM live-symbol collection.
+
+## P465 - v49.102 - [R189] comprehensive 5 page data refresh uses page profile task/symbol union
+
+- **Problem**: Some page-specific symbols/tasks were not prewarmed by the central refresh.
+- **Fix**: Routed page refresh through central scheduled refresh using page profile symbols.
+
+## P464 - v49.101 - [R188] full refresh progress must use central refresh state
+
+- **Problem**: UI progress could say data was refreshing without reflecting the real task pipeline state.
+- **Fix**: Added central refresh state events and progress layer for task-level start/progress/done reporting.
 
 ## P432 · v49.80 · [P432] ticker context HARD STOP 추가 — null 시 가격 인용 절대 금지
 

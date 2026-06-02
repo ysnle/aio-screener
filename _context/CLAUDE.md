@@ -2,7 +2,14 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v49.112
+- **현재 버전**: v50.1
+
+## v50.1 hotfix note
+- Trading/decision-use outputs now have a dedicated evidence gate. Use `AIO.getTradingDecisionInputEvidence()` for SPX/SPY/VIX/10Y/HYG/DXY/WTI input currentness and `AIO.getTradingDecisionLogicAudit()` for stale fallback/proxy logic review before trusting market score, regime, execution window, Weinstein stage, ticker entry checklist, or options IV Rank.
+
+## v50.0 hotfix note
+
+- Added the evidence-first 21-page contract foundation. `AIO_PAGE_CONTRACTS` is now the single runtime contract for all route pages, compatibility maps are derived from it, `EvidenceStore` classifies every live/snapshot/chart/table/form/numeric/narrative item with an evidenceId, and `AIO.runEvidenceDeploymentGate()` replaces representative critical-10 checks as the deployment-facing gate. AI chat receives EvidenceStore context and post-answer numeric/date evidence reference auditing.
 
 ## v49.112 hotfix note
 

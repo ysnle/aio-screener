@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v49.112 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.1 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4132,7 +4132,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v49.112</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.1</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12655,9 +12655,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=49.112"></script>
-  <script src="./js/aio-data.js?v=49.112"></script>
-  <script src="./js/aio-ui.js?v=49.112"></script>
+  <script src="./js/aio-core.js?v=50.1"></script>
+  <script src="./js/aio-data.js?v=50.1"></script>
+  <script src="./js/aio-ui.js?v=50.1"></script>
 
   <script>
 
@@ -15727,7 +15727,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=49.112"></script>
+<script src="./js/aio-chat.js?v=50.1"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -16011,9 +16011,10 @@ function updateWeinsteinStage() {
   // 1. SPY 가격 위치 추정 (ATH 대비 하락폭으로 200일 MA 위/아래 추정)
   //    SPY ATH 근처 → Stage 2/3, ATH -10% 이하 → Stage 1/4
   // v41.8: 동적 ATH 추적 (localStorage) — 하드코딩 640은 최소 바닥값
-  var _storedATH = 640;
-  try { _storedATH = parseFloat(localStorage.getItem('_spy_ath') || '640') || 640; } catch(e) {}
-  var spyATH = Math.max(spyPrice, _storedATH, 640);
+  var _storedATH = (window._spxATH && spyPrice) ? window._spxATH / (window._spxATH > 1000 ? 10 : 1) : (spyPrice || 0);
+  try { _storedATH = parseFloat(localStorage.getItem('_spy_ath') || String(_storedATH || spyPrice || 0)) || _storedATH; } catch(e) {}
+  var spyATH = Math.max(spyPrice || 0, _storedATH || 0);
+  var spyAthEvidence = window._spxATH ? 'ohlcv-index-ath' : (_storedATH && _storedATH > spyPrice ? 'local-storage-reference' : 'live-price-estimated-ath');
   try { if (spyPrice > _storedATH) localStorage.setItem('_spy_ath', String(spyPrice)); } catch(e) {}
   var drawdown = ((spyPrice - spyATH) / spyATH) * 100;
   var priceScore = 0;
@@ -16022,6 +16023,7 @@ function updateWeinsteinStage() {
   else if (drawdown > -10) { priceScore = -0.5; scoreDetails.push('ATH -10% 이내 → 약한 약세'); }
   else if (drawdown > -20) { priceScore = -1.5; scoreDetails.push('ATH -20% 이내 → 약세(조정)'); }
   else { priceScore = -2; scoreDetails.push('ATH -20%+ → 베어마켓'); }
+  if (spyAthEvidence !== 'ohlcv-index-ath') scoreDetails.push('ATH evidence: ' + spyAthEvidence + ' (reference-only)');
   scores.push({ name: '가격 위치', val: priceScore, weight: 2.5 });
 
   // 2. 시장폭 (Breadth) — 50SMA above % + 200SMA above %
@@ -22500,11 +22502,12 @@ function computeTradingScore(mode) {
   else               momScore = 15;  // Extreme Fear
 
   // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
-  const spx200ma = (window._spxMA && window._spxMA[200]) || _fb.spx200ma || 6720;  // v47.4: 4/15 기준
-  const spx50ma  = (window._spxMA && window._spxMA[50])  || _fb.spx50ma || 6820;   // v47.4: 4/15 기준
+  const spx200ma = (window._spxMA && window._spxMA[200]) || _fb.spx200ma || null;
+  const spx50ma  = (window._spxMA && window._spxMA[50])  || _fb.spx50ma || null;
   const spxPrice = _closingVal('^GSPC') || _ldSafe('^GSPC','price');
   let trendScore;
-  if (spxPrice > spx50ma * 1.02)     trendScore = 82;
+  if (!spxPrice || !spx50ma || !spx200ma) trendScore = 50;
+  else if (spxPrice > spx50ma * 1.02)     trendScore = 82;
   else if (spxPrice > spx50ma)       trendScore = 68;
   else if (spxPrice > spx200ma)      trendScore = 50;
   else if (spxPrice > spx200ma*0.97) trendScore = 32;
@@ -22593,7 +22596,8 @@ function computeTradingScore(mode) {
   // 최소 5점 보장 — 0점은 "데이터 미수신"으로 오해되므로 바닥값 설정
   const total = Math.max(5, Math.min(100, compositeScore));
 
-  return { total, volScore, momScore, trendScore, breadthScore, macroScore };
+  var evidenceAudit = (window.AIO && window.AIO.getTradingDecisionInputEvidence) ? window.AIO.getTradingDecisionInputEvidence() : null;
+  return { total, volScore, momScore, trendScore, breadthScore, macroScore, evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit };
 }
 
 // ── Score Advice: Convert Score to Action Guidance ────────────────
@@ -22667,8 +22671,8 @@ function computeExecutionWindow() {
 function classifyMarketRegime() {
   // v37.1: SPX=종가(레짐 판단 안정성), VIX=실시간(급변 즉시 감지)
   const spxPrice = _closingVal('^GSPC') || _ldSafe('^GSPC','price');
-  const spx200ma = (window._spxMA && window._spxMA[200]) || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.spx200ma : 6720);  // v47.4: _fb 통합
-  const spx50ma  = (window._spxMA && window._spxMA[50])  || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.spx50ma  : 6820);  // v47.4: _fb 통합
+  const spx200ma = (window._spxMA && window._spxMA[200]) || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.spx200ma : null);
+  const spx50ma  = (window._spxMA && window._spxMA[50])  || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.spx50ma  : null);
   const vix = _ldSafe('^VIX','price') || (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.vix : 20);
   const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.breadth200 : 75);
 
@@ -22677,7 +22681,9 @@ function classifyMarketRegime() {
   let color = 'var(--data-amber)';
   let sub = '방향성 불분명';
 
-  if (spxPrice > spx50ma && breadth200 > 55) {
+  if (!spxPrice || !spx50ma || !spx200ma) {
+    regime = 'DATA_CHECK'; label = 'Data check'; color = 'var(--data-amber)'; sub = 'SPX MA evidence required';
+  } else if (spxPrice > spx50ma && breadth200 > 55) {
     regime = 'UPTREND'; label = '상승 추세'; color = 'var(--data-green)'; sub = '50MA 위 + 시장폭 양호';
   } else if (spxPrice < spx200ma && breadth200 < 30) {
     regime = 'DOWNTREND'; label = '하락 추세'; color = 'var(--data-red)'; sub = '200MA 하회 + 시장폭 붕괴';
@@ -27944,7 +27950,12 @@ function initOptionsPage() {
     }
 
     // v46.6: IV Rank 추정 → 52주 VIX 범위 기반 (2025.04~2026.04: 저점12 고점82 이란전쟁)
-    var _vixLow52 = 12, _vixHigh52 = 82; // 2025.04~2026.04: 저점12(2025년 안정기) 고점82(이란전쟁 4/4) — 52주 윈도우 아직 유효
+    var _vixSeries52w = Array.isArray(window._vixHistory) ? window._vixHistory.map(Number).filter(function(x) { return isFinite(x) && x > 0; }) : [];
+    var _vixRangeEvidence = _vixSeries52w.length >= 20 ? 'vix-history-series' : 'reference-band';
+    var _vixLow52 = _vixSeries52w.length >= 20 ? Math.min.apply(null, _vixSeries52w) : 12;
+    var _vixHigh52 = _vixSeries52w.length >= 20 ? Math.max.apply(null, _vixSeries52w) : 40;
+    if (!isFinite(_vixHigh52) || _vixHigh52 <= _vixLow52) { _vixLow52 = 12; _vixHigh52 = 40; _vixRangeEvidence = 'reference-band'; }
+    window._vixIvRankEvidence = { source: _vixRangeEvidence, low: _vixLow52, high: _vixHigh52, asOf: new Date().toISOString(), decisionUse: _vixRangeEvidence === 'vix-history-series' ? 'verified-current' : 'reference-only' };
     var ivRank = Math.min(99, Math.max(1, Math.round(((vix - _vixLow52) / (_vixHigh52 - _vixLow52)) * 100)));
     var ivRankEl = document.getElementById('opt-ivrank-val');
     var ivRankDesc = document.getElementById('opt-ivrank-desc');
@@ -28077,9 +28088,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=49.112"></script>
+<script src="./js/aio-glossary.js?v=50.1"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-<script src="./js/aio-tests.js?v=49.112"></script>
+  <script src="./js/aio-tests.js?v=50.1"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전
@@ -30884,10 +30895,17 @@ async function chatSendUnified() {
       var _uniQuoteRows = (_uniFreshAfter.quoteRows || []).map(function(r) {
         return r.ticker + ': ' + (r.hasLivePrice ? 'quote-ok' : 'quote-missing') + (r.quoteAgeSec != null ? ' age=' + r.quoteAgeSec + 's' : '') + (r.source ? ' source=' + r.source : '') + (r.truthStatus ? ' truth=' + r.truthStatus : '') + (r.crossSourceStatus ? ' cross=' + r.crossSourceStatus + '/' + (r.crossSourceCount || 0) : '') + (r.truthIssues && r.truthIssues.length ? ' issues=' + r.truthIssues.slice(0,3).join('|') : '');
       }).join(' / ');
-      sysPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v49.112]\n' +
+      var _uniEvidence = null;
+      try {
+        _uniEvidence = window.AIO && typeof window.AIO.getChatEvidenceContext === 'function'
+          ? window.AIO.getChatEvidenceContext({ tickers: detectedTickers })
+          : null;
+      } catch(_evCtxErr) {}
+      sysPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v50.1]\n' +
         'status=' + (_uniFreshPreflight.status || 'unknown') + ' strict=' + !!_uniFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
         'quotes=' + (_uniQuoteRows || 'not available') + '\n' +
-        'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt. If a ticker quote remains missing, stale, truth-blocked, cross-source mismatched, out-of-range, or source-mismatched after preflight, do not invent or use price, market cap, valuation, earnings, or target-price numbers for trading judgment.\n';
+        'evidenceStore=' + (_uniEvidence && _uniEvidence.evidenceStoreStatus || 'unknown') + ' blockedTickers=' + (_uniEvidence && _uniEvidence.blockedTickers && _uniEvidence.blockedTickers.join(',') || 'none') + '\n' +
+        'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt or EvidenceStore verified/current items. If a ticker quote remains missing, stale, truth-blocked, cross-source mismatched, out-of-range, source-mismatched, or EvidenceStore-blocked after preflight, do not invent or use price, market cap, valuation, earnings, or target-price numbers for trading judgment. Say "현재 검증 데이터 없음" for blocked current claims.\n';
     }
   } catch(e) { _aioLog('warn', 'fetch', 'chatSendUnified 데이터 주입 실패: ' + e.message); }
 

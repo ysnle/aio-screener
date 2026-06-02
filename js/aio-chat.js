@@ -4596,10 +4596,10 @@ async function chatSend(ctxId) {
     var _cfRows = (_cfAfter.quoteRows || []).map(function(r) {
       return r.ticker + ': ' + (r.hasLivePrice ? 'quote-ok' : 'quote-missing') + (r.quoteAgeSec != null ? ' age=' + r.quoteAgeSec + 's' : '') + (r.source ? ' source=' + r.source : '') + (r.truthStatus ? ' truth=' + r.truthStatus : '') + (r.crossSourceStatus ? ' cross=' + r.crossSourceStatus + '/' + (r.crossSourceCount || 0) : '') + (r.truthIssues && r.truthIssues.length ? ' issues=' + r.truthIssues.slice(0,3).join('|') : '');
     }).join(' / ');
-    systemPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v49.112]\n' +
+    systemPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v50.0]\n' +
       'status=' + (chatFreshPreflight.status || 'unknown') + ' strict=' + !!chatFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
       'quotes=' + (_cfRows || 'not available') + '\n' +
-      'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt. If a ticker quote remains missing, stale, truth-blocked, cross-source mismatched, out-of-range, or source-mismatched after preflight, do not invent or use price, market cap, valuation, earnings, or target-price numbers for trading judgment.\n';
+      'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt or EvidenceStore verified/current items. If a ticker quote remains missing, stale, truth-blocked, cross-source mismatched, out-of-range, source-mismatched, or EvidenceStore-blocked after preflight, do not invent or use price, market cap, valuation, earnings, or target-price numbers for trading judgment. Say "현재 검증 데이터 없음" for blocked current claims.\n';
   }
 
   // v48.11: 환각 방지 5중 강화 (chatSend) — chatSendUnified와 완전 일치

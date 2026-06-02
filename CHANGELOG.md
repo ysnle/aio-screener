@@ -6,6 +6,29 @@
 
 ---
 
+## v50.1 - Trading decision evidence gate (2026-06-02)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `EVIDENCE-DEBT.md`
+
+- **Trading input evidence**: added `AIO.getTradingDecisionInputEvidence()` for SPX/SPY/VIX/10Y/HYG/DXY/WTI currentness, source, age, and reference-only status.
+- **Logic audit**: added `AIO.getTradingDecisionLogicAudit()` for stale hardcoded fallbacks, breadth proxies, OHLCV-missing technical proxies, ticker static screener paths, Weinstein ATH proxy, and options IV Rank VIX range.
+- **Gate integration**: `AIO.runEvidenceDeploymentGate()` now includes trading-decision findings and can strict-block unresolved trading evidence warnings.
+- **Decision safety**: neutralized hardcoded SPX 50/200MA decision fallbacks, exposed trading score evidence status, marked Weinstein ATH proxy evidence, and replaced static VIX 12~82 IV Rank range with VIX-history-first range plus reference metadata.
+- **Version policy**: current runtime versions now stay at one or two decimal digits only (`v50.1`, not `v49.100`); T748 guards the runtime format.
+- **Regression guard**: T745~T748 verify trading input evidence, trading logic audit, deployment gate integration, and runtime version format.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v50.1.
+
+## v50.0 - Evidence-first 21-page contract foundation (2026-06-02)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`, `_context/BUG-POSTMORTEM.md`, `EVIDENCE-DEBT.md`
+
+- **21-page contract**: added `AIO_PAGE_CONTRACTS` as the single runtime source for all route pages, with compatibility derivation for requirement profiles, page refresh maps, and deep audit systems.
+- **Evidence layer**: added `EvidenceStore`, `SourceAdapterRegistry`, `AuditRegistry`, and `FormulaRegistry`; `DATA_SNAPSHOT` is treated as snapshot/reference/historical until promoted by verified current evidence.
+- **All-page gate**: added `AIO.getAllPageContentEvidenceMatrix()` and `AIO.runEvidenceDeploymentGate()` so deployment checks all 21 pages instead of representative critical-10 samples only.
+- **AI answer guard**: added chat EvidenceStore context and numeric/date evidence reference audit via `AIO.assertChatEvidenceReferences()`.
+- **Regression guard**: T737~T744 verify contracts, derived maps, source adapters, EvidenceStore, formulas, audit registry, deployment gate, and chat evidence guard.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v50.0.
+
 ## v49.112 - Full critical-10 content evidence matrix (2026-06-02)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`

@@ -2,7 +2,7 @@
 verified_by: agent
 last_verified: 2026-06-02
 confidence: high
-target_version: v49.112
+target_version: v50.1
 
 ---
 
@@ -2250,6 +2250,15 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 
 **Validation**: 로더 진행률 DOM(`aio-boot-count`/`aio-boot-bar-fill`) + `renderHomeFeed` 단계적 완화(70/50) + T689.
 
+## R200. v50 페이지 계약/데이터 증거/AI 답변/배포 게이트 4원칙 (v50.0 added, P476 root)
+
+R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. 모든 후속 작업은 아래 4개 상위 계약을 통과해야 한다.
+
+1. **페이지 계약**: 21개 route 페이지는 `AIO_PAGE_CONTRACTS`에 pageId/pageType/refreshTasks/symbols/dataSinks/charts/tables/narratives/forms/auditPolicy/decisionUsePolicy를 등록해야 한다. `DATA_REQUIREMENT_PROFILES`, `AIO_PAGE_REFRESH_MAP`, `PAGE_DEEP_AUDIT_SYSTEMS`, sequential audit registry는 이 계약에서 파생되어야 한다.
+2. **데이터 증거**: live/snapshot/chart/table/formula/numeric/narrative 항목은 `EvidenceStore`의 evidenceId/sourcePolicy/sourceFamily/value/asOf/freshnessSla/decisionUse/status/remediation을 가져야 한다. `DATA_SNAPSHOT`은 기본적으로 snapshot/reference/historical이며, 매매 판단용 현재 데이터로 사용하려면 verified/current evidence로 승격되어야 한다.
+3. **AI 답변**: AI 채팅의 현재 시장·종목 수치와 날짜는 주입된 quote/company/filing/news/technical block 또는 EvidenceStore verified/current 항목만 인용한다. stale/missing/block 상태면 숫자를 만들지 않고 "현재 검증 데이터 없음"으로 답한다. `assertChatResponseAccuracy()`는 `assertChatEvidenceReferences()`까지 함께 수행해야 한다.
+4. **배포 게이트**: 배포 판단은 `AIO.runEvidenceDeploymentGate()`가 기준이다. must-pass 최소 조건은 21페이지 contract 존재, critical page block 0, unclassified/needs_evidence 0, source adapter registry 존재, audit registry 실행 가능이다.
+
 ## R187. 매매 핵심 페이지(종합 5)는 진입 시 stale하면 즉시 재fetch 의무 (v49.98 added, P463 root)
 
 **Rule**: 실제 매매에 쓰는 종합 5페이지(대시보드/매매시그널/시장폭/투자심리/브리핑)는 스케줄 주기에만 의존하지 않는다. **페이지 진입(`aio:pageShown`) 시 의존 태스크가 stale(½ interval 초과)이면 즉시 강제 재fetch**해 최신 시장을 반영한다.
@@ -2412,3 +2421,15 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 - Comprehensive page freshness and ops readiness must include evidence matrix counts so pages cannot look healthy while content items still need evidence or are blocked.
 
 **Validation**: `AIO.getCritical10ContentEvidenceMatrix()` + T734~T736.
+
+## R201. Trading decision logic must pass current evidence gate (v50.1 added, P477 root)
+
+**Rule**: trading score, market regime, execution window, Weinstein stage, ticker entry checklist, and options IV Rank are actionable only after `AIO.getTradingDecisionInputEvidence()` and `AIO.getTradingDecisionLogicAudit()` pass. `DATA_SNAPSHOT`, static screener values, localStorage ATH, same-day change technical proxies, RSP/SPY breadth proxies, and static VIX range bands are reference-only unless promoted by verified/current evidence.
+
+**Validation**: `AIO.runEvidenceDeploymentGate({ strict: true })` includes `tradingDecisionLogic`, and strict mode blocks unresolved trading-use fallback warnings/blocks.
+
+## R202. Runtime version uses one or two decimal digits only (v50.1 added)
+
+**Rule**: Current runtime release tags must use `vMAJOR.MINOR` with one or two digits after the decimal point, for example `v50.1` or `v50.12`. Do not create new three-decimal tags such as `v49.100`. Historical changelog entries may remain as archive text, but active `APP_VERSION`, title, badge, `version.json`, `SW_VERSION`, and cache-busters must follow this format.
+
+**Validation**: T748 checks `window.AIO.version` against `^v\d+\.\d{1,2}$`.

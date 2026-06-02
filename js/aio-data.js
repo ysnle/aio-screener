@@ -3308,6 +3308,11 @@ var AIO_PAGE_REFRESH_MAP = {
 };
 window.AIO_PAGE_REFRESH_MAP = AIO_PAGE_REFRESH_MAP;
 window.AIO_CRITICAL_10_PAGE_IDS = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+try {
+  if (window.AIO && typeof window.AIO.applyPageContractCompatibility === 'function') {
+    window.AIO.applyPageContractCompatibility();
+  }
+} catch(_) {}
 
 function _aioGetRefreshProfile(pageId) {
   try {

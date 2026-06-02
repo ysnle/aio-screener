@@ -5006,6 +5006,73 @@
       'current stale hits=' + currentHits + ' total=' + audit.totalHits + (currentHits > 0 ? ' samples=' + JSON.stringify(audit.samples || []).slice(0, 120) : ''));
   }
 
+  function _testV500EvidenceFoundation() {
+    var contracts = window.AIO && window.AIO.getPageContracts ? window.AIO.getPageContracts() : null;
+    _assert('T737 v500_page_contracts: 21 route pages have a single contract source',
+      contracts && Array.isArray(contracts.routePageIds) && contracts.routePageIds.length === 21 &&
+        contracts.pages && contracts.pages.home && contracts.pages['market-news'] && contracts.pages['kr-technical'] && contracts.pages.guide,
+      JSON.stringify(contracts && contracts.routePageIds));
+
+    var compat = window.AIO && window.AIO.applyPageContractCompatibility ? window.AIO.applyPageContractCompatibility() : null;
+    _assert('T738 v500_contract_derivation: profiles/refresh/deep-audit maps derive from contracts',
+      compat && compat.status === 'ok' &&
+        window.AIO.DATA_REQUIREMENT_PROFILES && window.AIO.DATA_REQUIREMENT_PROFILES['market-news'] &&
+        window.AIO.DATA_REQUIREMENT_PROFILES['kr-technical'] &&
+        compat.sequentialRegistryCount >= 21 &&
+        (!window.AIO_PAGE_REFRESH_MAP || (window.AIO_PAGE_REFRESH_MAP.options && window.AIO_PAGE_REFRESH_MAP['kr-home'])),
+      JSON.stringify(compat));
+
+    var sourceAudit = window.AIO && window.AIO.getSourceAdapterAudit ? window.AIO.getSourceAdapterAudit() : null;
+    _assert('T739 v500_source_adapter_registry: major data families have SLA/cross-check adapters',
+      sourceAudit && sourceAudit.adapterCount >= 12 && sourceAudit.families && sourceAudit.families.quote >= 2 && sourceAudit.families['kr-market'] >= 1,
+      JSON.stringify(sourceAudit));
+
+    var evidence = window.AIO && window.AIO.getAllPageContentEvidenceMatrix ? window.AIO.getAllPageContentEvidenceMatrix({ includeItems: false }) : null;
+    _assert('T740 v500_evidence_store: all route page surface items receive evidence ids and no needs_evidence residue',
+      evidence && evidence.pagesChecked === 21 && evidence.totals && evidence.totals.total >= 21 &&
+        evidence.unclassifiedCount === 0 && evidence.totals.needs_evidence === 0,
+      JSON.stringify(evidence && evidence.totals));
+
+    var formulas = window.AIO_FORMULA_REGISTRY && window.AIO_FORMULA_REGISTRY.formulas || {};
+    _assert('T741 v500_formula_registry: score/formula families are registered by page usage',
+      Object.keys(formulas).length >= 8 && formulas.marketRegimeScore && formulas.optionsRisk && formulas.themeRanking,
+      Object.keys(formulas).join(','));
+
+    var registry = window.AIO && window.AIO.runAuditRegistry ? window.AIO.runAuditRegistry({ includeItems: false }) : null;
+    _assert('T742 v500_audit_registry: deployment sees uniform registry results',
+      registry && registry.auditCount >= 8 && typeof registry.blockingCount === 'number' && Array.isArray(registry.results),
+      JSON.stringify(registry && { status: registry.status, auditCount: registry.auditCount }));
+
+    var gate = window.AIO && window.AIO.runEvidenceDeploymentGate ? window.AIO.runEvidenceDeploymentGate({ strict: false, includeItems: false }) : null;
+    _assert('T743 v500_evidence_deployment_gate: new gate returns deployable contract evidence summary',
+      gate && typeof gate.deployable === 'boolean' && gate.evidence && gate.evidence.pagesChecked === 21 && gate.pageContracts && gate.sourceAdapters,
+      JSON.stringify(gate && { status: gate.status, blocking: gate.blocking && gate.blocking.length, warnings: gate.warnings && gate.warnings.length }));
+
+    var chatEv = window.AIO && window.AIO.getChatEvidenceContext ? window.AIO.getChatEvidenceContext({ tickers: ['NVDA'] }) : null;
+    var chatAssert = window.AIO && window.AIO.assertChatEvidenceReferences ? window.AIO.assertChatEvidenceReferences('NVDA 2026-06-02 $100', { tickers: ['NVDA'] }) : null;
+    _assert('T744 v500_chat_evidence_guard: chat has evidence context and numeric/date reference audit',
+      chatEv && Array.isArray(chatEv.tickers) && chatAssert && Array.isArray(chatAssert.numbers) && Array.isArray(chatAssert.dates),
+      JSON.stringify({ chatEv: chatEv && chatEv.status, chatAssert: chatAssert && chatAssert.status }));
+
+    var tradingInputs = window.AIO && window.AIO.getTradingDecisionInputEvidence ? window.AIO.getTradingDecisionInputEvidence() : null;
+    var tradingAudit = window.AIO && window.AIO.getTradingDecisionLogicAudit ? window.AIO.getTradingDecisionLogicAudit({ requireExternalReferences: false }) : null;
+    _assert('T745 v501_trading_decision_evidence: trading inputs expose current/reference evidence rows',
+      tradingInputs && Array.isArray(tradingInputs.rows) && tradingInputs.rows.length >= 7 && Array.isArray(tradingInputs.criticalMissing),
+      JSON.stringify(tradingInputs && { status: tradingInputs.status, total: tradingInputs.total }));
+
+    _assert('T746 v501_trading_decision_logic_audit: formulas/fallbacks/single-stock paths are audited',
+      tradingAudit && Array.isArray(tradingAudit.findings) && tradingAudit.inputEvidence && typeof tradingAudit.blockingCount === 'number',
+      JSON.stringify(tradingAudit && { status: tradingAudit.status, findings: tradingAudit.findingCount }));
+
+    _assert('T747 v501_evidence_gate_includes_trading_logic: deployment gate carries trading audit summary',
+      gate && gate.tradingDecisionLogic && typeof gate.tradingDecisionLogic.findingCount === 'number',
+      JSON.stringify(gate && gate.tradingDecisionLogic && { status: gate.tradingDecisionLogic.status, findings: gate.tradingDecisionLogic.findingCount }));
+
+    _assert('T748 v501_version_format: runtime version uses at most two decimal digits',
+      window.AIO && /^v\d+\.\d{1,2}$/.test(String(window.AIO.version || '')),
+      String(window.AIO && window.AIO.version));
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -5098,6 +5165,7 @@
     try { _testV4983InstitutionalIntuitive(); } catch(e) { console.error('Group77 error:', e); }
     try { _testV4988BootLoader(); } catch(e) { console.error('Group78 error:', e); }
     try { _testV4989DataLineage(); } catch(e) { console.error('Group79 error:', e); }
+    try { _testV500EvidenceFoundation(); } catch(e) { console.error('Group80 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
