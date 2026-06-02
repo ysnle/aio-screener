@@ -2,7 +2,7 @@
 verified_by: agent
 last_verified: 2026-06-02
 confidence: high
-target_version: v49.111
+target_version: v49.112
 
 ---
 
@@ -2400,3 +2400,15 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 - Comprehensive page freshness and ops readiness must surface the market-situation audit so a page cannot look healthy when its visible market content is not backed by current reference data.
 
 **Validation**: `AIO.getCritical10MarketSituationAudit()` + `AIO.refreshCritical10MarketSituationAudit()` + T728~T733.
+
+## R199. Critical-10 content checks must use a full evidence matrix, not representative samples (v49.112 added, P475 root)
+
+**Rule**: Market-currentness checks must cover all visible critical-10 content categories, including trading indicators, sentiment indicators, Breadth charts, static numeric text, and analysis/explanation text. Representative-only checks are insufficient.
+
+**Required**:
+- `AIO.getCritical10ContentEvidenceMatrix()` must classify every live cell, snapshot cell, snap date, chart-like element, static numeric text, and market narrative as `pass`, `warn`, `block`, or `needs_evidence`.
+- The matrix must use `collectCritical10MarketContentInventory({ full:true })`, not a sample-only inventory, when computing counts and status.
+- External references may be passed in and must block a visible price cell when displayed value differs beyond tolerance.
+- Comprehensive page freshness and ops readiness must include evidence matrix counts so pages cannot look healthy while content items still need evidence or are blocked.
+
+**Validation**: `AIO.getCritical10ContentEvidenceMatrix()` + T734~T736.

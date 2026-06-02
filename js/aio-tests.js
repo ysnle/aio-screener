@@ -3904,6 +3904,46 @@
         refreshSrc733.indexOf('getCritical10MarketSituationAudit') >= 0,
       'len=' + refreshSrc733.length);
 
+    var matrix734 = null;
+    try { matrix734 = window.AIO.getCritical10ContentEvidenceMatrix ? window.AIO.getCritical10ContentEvidenceMatrix({ includeItems: false }) : null; } catch(_t734) {}
+    _assert('T734 full_content_evidence_matrix_v49112: every critical page content category is classified',
+      matrix734 && matrix734.totals &&
+        typeof matrix734.totals.total === 'number' &&
+        matrix734.totals.byKind &&
+        typeof matrix734.totals.byKind.live === 'number' &&
+        typeof matrix734.totals.byKind.chart === 'number' &&
+        typeof matrix734.totals.byKind['numeric-text'] === 'number' &&
+        Array.isArray(matrix734.pages),
+      JSON.stringify(matrix734 && matrix734.totals));
+
+    var extBlock735 = null;
+    try {
+      var tmp735 = document.createElement('div');
+      tmp735.id = 'page-aio-test-evidence';
+      tmp735.className = 'page';
+      tmp735.innerHTML = '<span id="aio-evidence-price-735" data-live-price="EVID735" data-source-kind="live" data-operational-use="decision" data-truth-status="verified">100.00</span>';
+      document.body.appendChild(tmp735);
+      window._liveData = window._liveData || {};
+      window._dataSource = window._dataSource || {};
+      window._liveData.EVID735 = { price: 100, pct: 0, source: 'live:test', ts: Date.now() };
+      window._dataSource.EVID735 = { source: 'live:test', ts: Date.now(), policyKey: 'quote' };
+      extBlock735 = window.AIO.getCritical10ContentEvidenceMatrix({ pages: ['aio-test-evidence'], externalReferences: { symbols: { EVID735: { price: 130, source: 'external-test', asOf: '2026-06-02' } } } });
+      tmp735.remove();
+      delete window._liveData.EVID735;
+      delete window._dataSource.EVID735;
+    } catch(_t735) {}
+    _assert('T735 external_reference_mismatch_blocks_visible_price_v49112: external market reference mismatch blocks item',
+      extBlock735 && extBlock735.totals && extBlock735.totals.block >= 1,
+      JSON.stringify(extBlock735 && extBlock735.totals));
+
+    var compSrc736 = window.AIO && typeof window.AIO.getComprehensivePageDataFreshnessAudit === 'function' ? window.AIO.getComprehensivePageDataFreshnessAudit.toString() : '';
+    var readySrc736 = window.AIO && typeof window.AIO.getAutoOpsReadiness === 'function' ? window.AIO.getAutoOpsReadiness.toString() : '';
+    _assert('T736 evidence_matrix_integrated_in_freshness_and_readiness_v49112: matrix status reaches page freshness and ops',
+      compSrc736.indexOf('getCritical10ContentEvidenceMatrix') >= 0 &&
+        readySrc736.indexOf('getCritical10ContentEvidenceMatrix') >= 0 &&
+        readySrc736.indexOf('content evidence item') >= 0,
+      'comp=' + compSrc736.length + ' ready=' + readySrc736.length);
+
     try {
       delete window._liveData.XSRC720; delete window._liveData.XSRC721; delete window._liveData.XSRC724;
       delete window._dataSource.XSRC720; delete window._dataSource.XSRC721; delete window._dataSource.XSRC724;

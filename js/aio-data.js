@@ -3647,8 +3647,10 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
   var now = Date.now();
   var critical10MarketSurface = null;
   var critical10MarketSituation = null;
+  var critical10EvidenceMatrix = null;
   var marketSurfaceByPage = {};
   var marketSituationByPage = {};
+  var evidenceByPage = {};
   try {
     critical10MarketSurface = window.AIO.getCritical10MarketSurfaceAudit ? window.AIO.getCritical10MarketSurfaceAudit({ pages: pages }) : null;
     if (critical10MarketSurface && Array.isArray(critical10MarketSurface.pages)) {
@@ -3664,6 +3666,14 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     }
   } catch(e3) {
     critical10MarketSituation = { status: 'error', issuePageCount: pages.length, error: e3 && e3.message || String(e3), pages: [] };
+  }
+  try {
+    critical10EvidenceMatrix = window.AIO.getCritical10ContentEvidenceMatrix ? window.AIO.getCritical10ContentEvidenceMatrix({ pages: pages, includeItems: false }) : null;
+    if (critical10EvidenceMatrix && Array.isArray(critical10EvidenceMatrix.pages)) {
+      critical10EvidenceMatrix.pages.forEach(function(row) { evidenceByPage[row.pageId] = row; });
+    }
+  } catch(e4) {
+    critical10EvidenceMatrix = { status: 'error', error: e4 && e4.message || String(e4), pages: [] };
   }
   var details = pages.map(function(pageId) {
     var profile = _aioGetRefreshProfile(pageId);
@@ -3683,6 +3693,7 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     try { bindingAudit = window.AIO.verifyPageLiveDataBinding ? window.AIO.verifyPageLiveDataBinding({ pageId: pageId }) : null; } catch(e2) { bindingAudit = { status: 'error', error: e2 && e2.message || String(e2), sourceMissingCount: 0, bindingMissingCount: 0, truthBlockedCount: 0 }; }
     var marketRow = marketSurfaceByPage[pageId] || null;
     var situationRow = marketSituationByPage[pageId] || null;
+    var evidenceRow = evidenceByPage[pageId] || null;
     var issues = [];
     if (!pageEl) issues.push('missing page DOM');
     if (missingTasks.length) issues.push('missing task fn: ' + missingTasks.join(','));
@@ -3695,6 +3706,7 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     if (marketRow && marketRow.marketIssueCount) issues.push('market surface issue: ' + marketRow.marketIssueCount);
     if (marketRow && marketRow.staleSnapDates && marketRow.staleSnapDates.length) issues.push('stale snap-date: ' + marketRow.staleSnapDates.length);
     if (situationRow && situationRow.status !== 'ok') issues.push('market situation mismatch/coverage: ' + situationRow.issues.join('|'));
+    if (evidenceRow && evidenceRow.status !== 'pass') issues.push('content evidence review: ' + JSON.stringify(evidenceRow.counts));
     return {
       pageId: pageId,
       status: issues.length ? 'warn' : 'ok',
@@ -3733,6 +3745,10 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
         sourceIssueCount: situationRow.sourceIssueCount || 0,
         staleDateCount: situationRow.staleDateCount || 0,
         narrativeConflictCount: situationRow.narrativeConflictCount || 0
+      } : null,
+      evidenceMatrix: evidenceRow ? {
+        status: evidenceRow.status,
+        counts: evidenceRow.counts || {}
       } : null
     };
   });
@@ -3747,6 +3763,7 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     surfaceIntegrity: window.AIO.getComprehensiveSurfaceIntegrityAudit ? window.AIO.getComprehensiveSurfaceIntegrityAudit({ symbolLimit: 999 }) : null,
     critical10MarketSurface: critical10MarketSurface,
     critical10MarketSituation: critical10MarketSituation,
+    critical10EvidenceMatrix: critical10EvidenceMatrix,
     generatedAt: new Date(now).toISOString()
   };
 };

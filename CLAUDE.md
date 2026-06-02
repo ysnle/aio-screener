@@ -3,7 +3,8 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v49.111**
+- 현재 버전: **v49.112**
+- **v49.112 full critical-10 content evidence matrix**: added `AIO.getCritical10ContentEvidenceMatrix()` so every live cell, snapshot, snap date, chart-like element, static numeric text, and market narrative across the 10 US pages is classified as pass/warn/block/needs_evidence. External reference quotes can now block mismatched visible prices. T734~T736 added.
 - **v49.111 critical-10 market situation deep audit**: added full page content inventory plus current quote/regime comparison. `AIO.getCritical10MarketSituationAudit()` checks visible values, sources/truth, stale dates, and market narrative conflicts; `AIO.refreshCritical10MarketSituationAudit()` fetches, cross-checks, rebinds, then audits. T728~T733 added.
 - **v49.110 critical-10 market surface audit hardening**: added `AIO.getCritical10MarketSurfaceAudit()` and wired it into comprehensive page freshness/readiness so visible source-missing, binding-missing, truth-blocked/reference-only market cells, stale tasks, and stale snap dates cannot report as OK. T724~T727 added.
 - **v49.109 multi-source quote cross-validation**: added source-family quote cache plus Yahoo/Naver/Stooq/Finnhub/FMP/CoinGecko/FX cross-checks. `AIO_DATA_TRUTH_GATE` blocks trading-use data when independent live sources materially disagree, and AI chat preflight exposes `cross=<status>/<count>` before using stock price or valuation numbers. T719~T723 added.

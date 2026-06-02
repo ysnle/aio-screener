@@ -2,7 +2,11 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v49.111
+- **현재 버전**: v49.112
+
+## v49.112 hotfix note
+
+- Added a full critical-10 content evidence matrix. Every live cell, snapshot cell, snap date, chart-like element, static numeric text, and market narrative across the 10 US pages is classified as pass/warn/block/needs_evidence. External references can be passed in to compare actual observed market values against visible page prices, so checks are not limited to representative samples or internal self-audits.
 
 ## v49.111 hotfix note
 

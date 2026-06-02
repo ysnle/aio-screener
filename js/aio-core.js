@@ -9861,6 +9861,7 @@ window.AIO.getAutoOpsReadiness = function() {
   var marketCurrentness = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit() : null;
   var critical10MarketSurface = window.AIO.getCritical10MarketSurfaceAudit ? window.AIO.getCritical10MarketSurfaceAudit() : null;
   var critical10MarketSituation = window.AIO.getCritical10MarketSituationAudit ? window.AIO.getCritical10MarketSituationAudit({ sampleLimit: 40 }) : null;
+  var critical10EvidenceMatrix = window.AIO.getCritical10ContentEvidenceMatrix ? window.AIO.getCritical10ContentEvidenceMatrix({ includeItems: false }) : null;
   var dataTruth = window.AIO.getDataTruthAudit ? window.AIO.getDataTruthAudit({ critical10: true, symbolLimit: 999 }) : null;
   var essenceAlignment = window.AIO.getEssenceAlignmentAudit ? window.AIO.getEssenceAlignmentAudit() : null;
   var fullSurfaceAudit = window.AIO.getFullSurfaceAudit ? window.AIO.getFullSurfaceAudit() : null;
@@ -9905,7 +9906,8 @@ window.AIO.getAutoOpsReadiness = function() {
   if (marketCurrentness && marketCurrentness.issueCount) issues.push(marketCurrentness.issueCount + ' market currentness issue(s) [v49.58/R111]');
   if (critical10MarketSurface && critical10MarketSurface.issuePageCount) issues.push(critical10MarketSurface.issuePageCount + ' critical page market surface issue page(s) [v49.110/R197]');
   if (critical10MarketSituation && critical10MarketSituation.status !== 'ok') issues.push(critical10MarketSituation.issuePageCount + ' critical page market-situation mismatch/coverage page(s) [v49.111/R198]');
-  if (dataTruth && dataTruth.blockedCount) issues.push(dataTruth.blockedCount + ' truth-blocked market data symbol(s) [v49.111/DataTruthGate+CrossSource]: ' + dataTruth.blockedSymbols.slice(0, 8).join(','));
+  if (critical10EvidenceMatrix && critical10EvidenceMatrix.status !== 'pass') issues.push((critical10EvidenceMatrix.totals && critical10EvidenceMatrix.totals.total || 0) + ' content evidence item(s) need pass/warn/block review [v49.112/R199]');
+  if (dataTruth && dataTruth.blockedCount) issues.push(dataTruth.blockedCount + ' truth-blocked market data symbol(s) [v49.112/DataTruthGate+CrossSource]: ' + dataTruth.blockedSymbols.slice(0, 8).join(','));
   if (essenceAlignment && essenceAlignment.status === 'fail') issues.push('3대 본질 정렬 fail: ' + essenceAlignment.overallScore + '점 [v49.65/R119]');
   if (fullSurfaceAudit && fullSurfaceAudit.status === 'fail') issues.push(fullSurfaceAudit.issueCount + ' full surface audit issue(s) [P358/R124]');
   if (deepReviewAudit && deepReviewAudit.status === 'fail') issues.push(deepReviewAudit.issueCount + ' deep review issue(s) [P359/R125]');
@@ -9960,6 +9962,7 @@ window.AIO.getAutoOpsReadiness = function() {
       critical10MarketSurface: 'AIO.getCritical10MarketSurfaceAudit()',
       critical10MarketSituation: 'AIO.getCritical10MarketSituationAudit()',
       refreshMarketSituationAudit: 'AIO.refreshCritical10MarketSituationAudit()',
+      critical10EvidenceMatrix: 'AIO.getCritical10ContentEvidenceMatrix()',
       essenceAlignment: 'AIO.getEssenceAlignmentAudit()',
       fullSurfaceAudit: 'AIO.getFullSurfaceAudit()',
       deepReviewAudit: 'AIO.getDeepReviewAudit()',
@@ -10003,6 +10006,7 @@ window.AIO.getAutoOpsReadiness = function() {
     marketCurrentness: marketCurrentness,
     critical10MarketSurface: critical10MarketSurface,
     critical10MarketSituation: critical10MarketSituation,
+    critical10EvidenceMatrix: critical10EvidenceMatrix,
     essenceAlignment: essenceAlignment,
     fullSurfaceAudit: fullSurfaceAudit,
     deepReviewAudit: deepReviewAudit,
@@ -14390,7 +14394,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.111';
+const APP_VERSION = 'v49.112';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -16994,7 +16998,7 @@ window.AIO.getCrossSourceQuoteValidation = function(symbol, opts) {
 };
 
 window.AIO_DATA_TRUTH_GATE = {
-  version: 'v49.111',
+  version: 'v49.112',
   singleSourceIsWarn: true,
   classifyAsset: function(sym) {
     sym = String(sym || '').toUpperCase();
@@ -17596,12 +17600,12 @@ window.AIO.collectCritical10MarketContentInventory = function(opts) {
       chartLikeCount: chartRows.length,
       numericTextCount: numericRows.length,
       narrativeTextCount: narrativeRows.length,
-      liveSinks: liveRows.slice(0, opts.sampleLimit || 120),
-      snapSinks: snapRows.slice(0, opts.sampleLimit || 80),
-      snapDates: dateRows.slice(0, opts.sampleLimit || 80),
-      charts: chartRows.slice(0, opts.sampleLimit || 80),
-      numericTextSamples: numericRows.slice(0, opts.sampleLimit || 80),
-      narrativeSamples: narrativeRows.slice(0, opts.sampleLimit || 80)
+      liveSinks: opts.full ? liveRows : liveRows.slice(0, opts.sampleLimit || 120),
+      snapSinks: opts.full ? snapRows : snapRows.slice(0, opts.sampleLimit || 80),
+      snapDates: opts.full ? dateRows : dateRows.slice(0, opts.sampleLimit || 80),
+      charts: opts.full ? chartRows : chartRows.slice(0, opts.sampleLimit || 80),
+      numericTextSamples: opts.full ? numericRows : numericRows.slice(0, opts.sampleLimit || 80),
+      narrativeSamples: opts.full ? narrativeRows : narrativeRows.slice(0, opts.sampleLimit || 80)
     };
   });
   var totals = pagesOut.reduce(function(acc, p) {
@@ -17711,6 +17715,148 @@ window.AIO.refreshCritical10MarketSituationAudit = async function(opts) {
   }
   var audit = window.AIO.getCritical10MarketSituationAudit(Object.assign({}, opts, { symbols: symbols }));
   return { status: audit.status, refresh: refresh, audit: audit, generatedAt: new Date().toISOString() };
+};
+
+function _aioExternalReferenceMap(externalReferences) {
+  var raw = (externalReferences && (externalReferences.symbols || externalReferences.bySymbol)) || externalReferences || {};
+  var out = {};
+  Object.keys(raw || {}).forEach(function(k) {
+    var v = raw[k];
+    if (typeof v === 'number') v = { price: v };
+    if (!v) return;
+    out[String(k).toUpperCase()] = {
+      symbol: String(k).toUpperCase(),
+      price: Number(v.price != null ? v.price : v.value),
+      pct: Number(v.pct != null ? v.pct : v.changePercent),
+      source: v.source || v.provider || 'external',
+      asOf: v.asOf || v.date || '',
+      url: v.url || '',
+      note: v.note || ''
+    };
+  });
+  return out;
+}
+
+function _aioEvidenceStatus(statuses) {
+  if (statuses.indexOf('block') >= 0) return 'block';
+  if (statuses.indexOf('warn') >= 0) return 'warn';
+  if (statuses.indexOf('needs_evidence') >= 0) return 'needs_evidence';
+  return 'pass';
+}
+
+window.AIO.getCritical10ContentEvidenceMatrix = function(opts) {
+  opts = opts || {};
+  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var tolerancePct = opts.valueTolerancePct || 1.5;
+  var dateWarnDays = opts.dateWarnDays || 14;
+  var inventory = window.AIO.collectCritical10MarketContentInventory({ pages: pages, full: true });
+  var ext = _aioExternalReferenceMap(opts.externalReferences || {});
+  var liveSymbols = [];
+  inventory.pages.forEach(function(p) { (p.liveSinks || []).forEach(function(r) { if (r.symbol) liveSymbols.push(r.symbol); }); });
+  var reference = window.AIO.getMarketSituationReferenceSnapshot({ symbols: _aioUniq((window.AIO.MARKET_SITUATION_REFERENCE_SYMBOLS || []).concat(liveSymbols).concat(Object.keys(ext))).slice(0, opts.symbolLimit || 320), maxAgeMs: opts.maxAgeMs || 15 * 60 * 1000 });
+  var now = Date.now();
+  var allItems = [];
+  var pageRows = inventory.pages.map(function(page) {
+    var items = [];
+    function add(item) {
+      item.evidenceId = item.evidenceId || [item.pageId, item.kind, item.symbol || item.key || item.id || items.length].join(':');
+      items.push(item);
+      allItems.push(item);
+    }
+    (page.liveSinks || []).forEach(function(row) {
+      var statuses = [];
+      var checks = [];
+      var ref = reference.bySymbol && reference.bySymbol[row.symbol];
+      var extRef = ext[row.symbol];
+      var target = extRef && isFinite(extRef.price) && extRef.price > 0 ? extRef : ref;
+      if (!target || !target.price) {
+        statuses.push('warn');
+        checks.push({ type: 'reference-missing', message: 'No current internal/external reference for visible live cell.' });
+      } else if (row.field === 'price' && isFinite(row.parsedValue)) {
+        var diffPct = Math.abs(row.parsedValue - target.price) / target.price * 100;
+        checks.push({ type: extRef ? 'external-price-compare' : 'internal-price-compare', referencePrice: target.price, displayedValue: row.parsedValue, diffPct: Number(diffPct.toFixed(3)), source: target.source || target.sourceKind || '', asOf: target.asOf || '' });
+        if (diffPct > tolerancePct) statuses.push('block');
+      } else if (row.field === 'price') {
+        statuses.push('warn');
+        checks.push({ type: 'display-parse-missing', message: 'Visible price could not be parsed.' });
+      }
+      if (!row.sourceKind) {
+        statuses.push('warn');
+        checks.push({ type: 'source-kind-missing' });
+      }
+      if (row.operationalUse === 'reference-only') {
+        statuses.push('warn');
+        checks.push({ type: 'reference-only' });
+      }
+      if (row.truthStatus === 'blocked') {
+        statuses.push('block');
+        checks.push({ type: 'truth-blocked', issues: row.truthIssues || '' });
+      }
+      add(Object.assign({}, row, { kind: 'live', status: _aioEvidenceStatus(statuses), checks: checks, externalReference: extRef || null, internalReference: ref || null }));
+    });
+    (page.snapSinks || []).forEach(function(row) {
+      var statuses = ['needs_evidence'];
+      var checks = [{ type: 'snapshot-cell', message: 'Snapshot/static cell requires source/date evidence before trading use.' }];
+      if (row.operationalUse === 'reference-only' || /snapshot/i.test(row.sourceKind || '')) checks.push({ type: 'reference-only-or-snapshot' });
+      add(Object.assign({}, row, { kind: 'snapshot', status: _aioEvidenceStatus(statuses), checks: checks }));
+    });
+    (page.snapDates || []).forEach(function(row) {
+      var statuses = [];
+      var checks = [];
+      var m = String(row.text || '').match(/(20\d{2})-(\d{2})-(\d{2})/);
+      if (m) {
+        var ts = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime();
+        var ageDays = Math.floor((now - ts) / 86400000);
+        checks.push({ type: 'snap-date-age', ageDays: ageDays });
+        if (ageDays > dateWarnDays) statuses.push('warn');
+      } else {
+        statuses.push('needs_evidence');
+        checks.push({ type: 'date-parse-missing' });
+      }
+      add(Object.assign({}, row, { kind: 'snap-date', status: _aioEvidenceStatus(statuses), checks: checks }));
+    });
+    (page.charts || []).forEach(function(row) {
+      add(Object.assign({}, row, { kind: 'chart', status: 'needs_evidence', checks: [{ type: 'chart-series-evidence-required', message: 'Chart container exists; latest series/source audit is still required.' }] }));
+    });
+    (page.numericTextSamples || []).forEach(function(row) {
+      add(Object.assign({}, row, { kind: 'numeric-text', status: 'needs_evidence', checks: [{ type: 'static-number-evidence-required', message: 'Static numeric text requires explicit evidence mapping or threshold classification.' }] }));
+    });
+    (page.narrativeSamples || []).forEach(function(row) {
+      var statuses = [];
+      var checks = [];
+      var text = row.text || '';
+      var reg = reference.regime || {};
+      if (reg.oil === 'oil_high' && /(유가\s*안정|유가\s*약세|oil soft|cheap oil)/i.test(text)) {
+        statuses.push('warn'); checks.push({ type: 'narrative-regime-conflict', regime: reg.oil });
+      }
+      if (reg.volatility === 'low' && /(패닉|고변동|panic|high volatility)/i.test(text)) {
+        statuses.push('warn'); checks.push({ type: 'narrative-regime-conflict', regime: reg.volatility });
+      }
+      if (!checks.length) checks.push({ type: 'narrative-read', regime: reg.riskTone || 'unknown' });
+      add(Object.assign({}, row, { kind: 'narrative', status: _aioEvidenceStatus(statuses), checks: checks }));
+    });
+    var counts = items.reduce(function(acc, item) {
+      acc[item.status] = (acc[item.status] || 0) + 1;
+      acc.total++;
+      return acc;
+    }, { total: 0, pass: 0, warn: 0, block: 0, needs_evidence: 0 });
+    return { pageId: page.pageId, status: counts.block ? 'block' : (counts.warn || counts.needs_evidence ? 'warn' : 'pass'), counts: counts, items: opts.includeItems === false ? [] : items.slice(0, opts.itemLimit || items.length) };
+  });
+  var totals = allItems.reduce(function(acc, item) {
+    acc[item.status] = (acc[item.status] || 0) + 1;
+    acc.total++;
+    acc.byKind[item.kind] = (acc.byKind[item.kind] || 0) + 1;
+    return acc;
+  }, { total: 0, pass: 0, warn: 0, block: 0, needs_evidence: 0, byKind: {} });
+  return {
+    status: totals.block ? 'block' : (totals.warn || totals.needs_evidence || reference.status !== 'ok' ? 'warn' : 'pass'),
+    pagesChecked: pageRows.length,
+    totals: totals,
+    reference: { status: reference.status, missingCount: reference.missingCount, staleCount: reference.staleCount, truthBlockedCount: reference.truthBlockedCount, regime: reference.regime },
+    externalReferenceCount: Object.keys(ext).length,
+    pages: pageRows,
+    generatedAt: new Date().toISOString()
+  };
 };
 
 window.AIO.updateSnapshotStaleBanner = function() {

@@ -6,6 +6,17 @@
 
 ---
 
+## v49.112 - Full critical-10 content evidence matrix (2026-06-02)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
+
+- **Full-item matrix**: added `AIO.getCritical10ContentEvidenceMatrix()` so every critical-10 live cell, snapshot cell, snap date, chart-like element, static numeric text, and market narrative is classified as `pass`, `warn`, `block`, or `needs_evidence`.
+- **External reference compare**: the evidence matrix accepts external reference quotes, allowing actual market observations such as SPY/QQQ/VIX/10Y/WTI/Gold/BTC to block visible price cells when the page value materially differs.
+- **No representative-only check**: `collectCritical10MarketContentInventory({ full:true })` now returns all rows, so Breadth charts, sentiment indicators, trading metrics, static numeric text, and analysis/explanation text are all represented in the evidence matrix.
+- **Freshness/readiness integration**: comprehensive page freshness and ops readiness now include evidence matrix counts, preventing pages from looking healthy while many content items still require evidence or are blocked.
+- **Regression guard**: T734~T736 verify full category classification, external-reference mismatch blocking, and freshness/readiness integration.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v49.112.
+
 ## v49.111 - Critical-10 market situation deep audit (2026-06-02)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
