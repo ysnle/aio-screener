@@ -2,7 +2,7 @@
 verified_by: agent
 last_verified: 2026-06-02
 confidence: high
-target_version: v49.107
+target_version: v49.108
 
 ---
 
@@ -2348,3 +2348,17 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 - Cell-level and market-currentness audits must include all live sink attrs, not just `data-live-price`.
 
 **Validation**: `AIO.refreshAllCriticalPages()` + `AIO.verifyCritical10LiveBindings()` + T711~T714.
+
+## R195. Trading-use market data must pass DataTruthGate before decision use (v49.108 added, P471 root)
+
+**Rule**: A fetched quote is not trading-usable merely because it arrived from a live endpoint. It must pass truth validation first. If truth validation fails, the value may be displayed only as reference/unverified and AI answers must not use it for trading judgment.
+
+**Required**:
+- Every live quote used by `data-live-price/chg/pct/field` must be evaluable through `AIO.evaluateDataTruth(symbol)`.
+- Truth validation must check source allow-list, timestamp presence, max age by asset/session, price sanity range, percent-change sanity, and price-vs-previous-close percent coherence when previous close is available.
+- DOM live sinks must expose `data-truth-status`, `data-truth-confidence`, and `data-truth-issues`.
+- If truth status is `blocked`, `data-operational-use` must be `reference-only` even when `data-source-kind` is `live`.
+- `annotateLiveDataSinks(...force:true)` must not re-promote truth-blocked values to `decision`.
+- AI chat freshness preflight must include truth status/issues and must forbid current numeric claims from truth-blocked data.
+
+**Validation**: `AIO.getDataTruthAudit({critical10:true})` + T715~T718.

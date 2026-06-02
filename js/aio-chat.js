@@ -3141,11 +3141,12 @@ function _buildChatAnswerCoverageContext(ctxId, query, flags) {
   if (required.indexOf('news/web/filings') >= 0 && !(has.news || has.web)) missing.push('news/web/filings');
   if (required.indexOf('position/weight/risk') >= 0 && !has.portfolio) missing.push('position/weight/risk');
 
-  return '\n\n[AI Answer Coverage + Current Data Contract v49.106]\n' +
+  return '\n\n[AI Answer Coverage + Current Data Contract v49.108]\n' +
     'mode=' + mode + ' | ctx=' + ctxId + ' | intents=' + intents.join(',') + '\n' +
     'required_axes=' + required.join(' / ') + '\n' +
     'available_axes=' + Object.keys(has).filter(function(k){ return has[k]; }).join(',') + '\n' +
     (missing.length ? 'missing_axes=' + missing.join(',') + ' -> state these as unavailable; do not fill them with model memory.\n' : 'missing_axes=none detected from injected context.\n') +
+    'truth_gate_rule: current quote numbers are decision-usable only when DataTruthGate returns verified/warn with decisionUse=true. If status=blocked, stale, out-of-range, or source-mismatched, state data not verified and omit the number for trading judgment.\n' +
     'response_diversity_rule: choose the structure that fits the mode. decision memo = verdict first + sizing/trigger/invalidation; ranked comparison = table + rank rationale; valuation memo = drivers + multiples/DCF only if injected; earnings review = reported/guidance/revision/catalyst; technical setup = trend/levels/risk; beginner explanation = plain-language concept + concrete injected-data example.\n' +
     'current_data_rule: never use Claude/model training data for current price, market cap, earnings, guidance, analyst targets, ratings, news, filings, macro releases, or dates after the training cutoff. Use only injected live quote, FMP/SEC/Naver/Finnhub, news, web-search, DATA_SNAPSHOT with age label, and explicitly cited prompt blocks. If data is missing or stale, say \"데이터 미수집/확인 불가\" and omit the number.\n';
 }
@@ -4593,12 +4594,12 @@ async function chatSend(ctxId) {
   if (chatFreshPreflight && detectedTickers.length > 0) {
     var _cfAfter = chatFreshPreflight.after || {};
     var _cfRows = (_cfAfter.quoteRows || []).map(function(r) {
-      return r.ticker + ': ' + (r.hasLivePrice ? 'quote-ok' : 'quote-missing') + (r.quoteAgeSec != null ? ' age=' + r.quoteAgeSec + 's' : '') + (r.source ? ' source=' + r.source : '');
+      return r.ticker + ': ' + (r.hasLivePrice ? 'quote-ok' : 'quote-missing') + (r.quoteAgeSec != null ? ' age=' + r.quoteAgeSec + 's' : '') + (r.source ? ' source=' + r.source : '') + (r.truthStatus ? ' truth=' + r.truthStatus : '') + (r.truthIssues && r.truthIssues.length ? ' issues=' + r.truthIssues.slice(0,3).join('|') : '');
     }).join(' / ');
-    systemPrompt += '\n\n[AI Chat Freshness Preflight v49.106]\n' +
+    systemPrompt += '\n\n[AI Chat Freshness + Truth Preflight v49.108]\n' +
       'status=' + (chatFreshPreflight.status || 'unknown') + ' strict=' + !!chatFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
       'quotes=' + (_cfRows || 'not available') + '\n' +
-      'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt. If a ticker quote remains missing or stale after preflight, do not invent price, market cap, valuation, earnings, or target-price numbers.\n';
+      'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt. If a ticker quote remains missing, stale, truth-blocked, out-of-range, or source-mismatched after preflight, do not invent or use price, market cap, valuation, earnings, or target-price numbers for trading judgment.\n';
   }
 
   // v48.11: 환각 방지 5중 강화 (chatSend) — chatSendUnified와 완전 일치

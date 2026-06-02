@@ -2,7 +2,11 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v49.107
+- **현재 버전**: v49.108
+
+## v49.108 hotfix note
+
+- Added DataTruthGate for trading-safety data validation. Live quote data must pass source allow-list, timestamp/age, sanity range, and price-vs-previous-close percent-change coherence checks before it can remain decision-usable. DOM sinks receive `data-truth-*` attrs, truth-blocked values are forced to `reference-only`, and AI chat preflight receives truth status/issues.
 
 ## v49.107 hotfix note
 

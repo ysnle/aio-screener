@@ -1,5 +1,5 @@
 {
-  "version": "v49.107",
-  "built": "2026-06-02T11:42:00+09:00",
-  "note": "v49.107 - Critical-10 freshness pipeline hardening. Manual, page-enter, and AI preflight refreshes now use the combined comprehensive 5 + market-analysis 5 symbol universe, then re-apply and verify every data-live price/change/pct/field sink so refresh success cannot be mistaken for actual DOM update success."
+  "version": "v49.108",
+  "built": "2026-06-02T12:20:00+09:00",
+  "note": "v49.108 - DataTruthGate hardening. Live quote data must now pass source, timestamp, sanity-range, stale-age, and pct/previous-close coherence checks before it can remain decision-usable. Truth-blocked values are marked reference-only in the DOM and exposed to AI chat preflight so trading answers cannot use unverifiable numbers."
 }

@@ -3646,7 +3646,7 @@
       ? window._buildChatAnswerCoverageContext('fundamental', 'NVDA latest earnings valuation risk', { tickerData:true, trendData:true, deepData:true, webSearch:true, news:true, freshness:true })
       : '';
     _assert('T708 chat_answer_coverage_contract_v49106: answer modes and current-data contract injected',
-      covSrc708.indexOf('AI Answer Coverage + Current Data Contract v49.106') >= 0 &&
+      (covSrc708.indexOf('AI Answer Coverage + Current Data Contract v49.106') >= 0 || covSrc708.indexOf('AI Answer Coverage + Current Data Contract v49.108') >= 0) &&
         covSrc708.indexOf('decision memo') >= 0 &&
         covSrc708.indexOf('ranked comparison') >= 0 &&
         covSrc708.indexOf('valuation memo') >= 0 &&
@@ -3705,6 +3705,58 @@
         cellSrc714.indexOf('data-live-field') >= 0 &&
         profileHome714 && profileHome714.symbols && profileHome714.symbols.indexOf('BTC-USD') >= 0,
       'cellAuditAttrs=' + (cellSrc714.indexOf('data-live-field') >= 0) + ' homeSymbols=' + (profileHome714 && profileHome714.symbols ? profileHome714.symbols.join(',').slice(0, 120) : 'missing'));
+
+    var truthGate715 = window.AIO_DATA_TRUTH_GATE;
+    var truthBad715 = window.AIO && typeof window.AIO.evaluateDataTruth === 'function'
+      ? window.AIO.evaluateDataTruth('^GSPC', { price: 999999, pct: 0, source: 'live:yahoo', ts: Date.now() }, { source: 'live:yahoo', ts: Date.now(), policyKey: 'quote' })
+      : null;
+    var truthStale715 = window.AIO && typeof window.AIO.evaluateDataTruth === 'function'
+      ? window.AIO.evaluateDataTruth('SPY', { price: 650, pct: 0.1, source: 'live:yahoo', ts: Date.now() - 86400000 }, { source: 'live:yahoo', ts: Date.now() - 86400000, policyKey: 'quote' })
+      : null;
+    _assert('T715 data_truth_gate_blocks_bad_or_stale_quotes_v49108: sanity and staleness block trading-use values',
+      !!truthGate715 && truthBad715 && truthBad715.status === 'blocked' &&
+        truthStale715 && truthStale715.status === 'blocked',
+      'bad=' + JSON.stringify(truthBad715 && truthBad715.issues) + ' stale=' + JSON.stringify(truthStale715 && truthStale715.issues));
+
+    var annSrc716 = window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function' ? window.AIO.annotateLiveDataSinks.toString() : '';
+    var domTruth716 = false;
+    try {
+      window._liveData = window._liveData || {};
+      window._dataSource = window._dataSource || {};
+      window._liveData.AIOX = { price: 999999, pct: 0, source: 'live:yahoo', ts: Date.now() };
+      window._dataSource.AIOX = { source: 'live:yahoo', ts: Date.now(), policyKey: 'quote' };
+      var tmp716 = document.createElement('span');
+      tmp716.setAttribute('data-live-price', 'AIOX');
+      tmp716.textContent = '—';
+      document.body.appendChild(tmp716);
+      if (window.AIO && typeof window.AIO.applyLiveDataToDom === 'function') window.AIO.applyLiveDataToDom({ force: true });
+      domTruth716 = tmp716.getAttribute('data-truth-status') === 'blocked' &&
+        tmp716.getAttribute('data-operational-use') === 'reference-only';
+      tmp716.remove();
+      delete window._liveData.AIOX;
+      delete window._dataSource.AIOX;
+    } catch(_t716) {}
+    _assert('T716 truth_gate_controls_dom_operational_use_v49108: live sinks receive data-truth attrs and cannot be re-promoted blindly',
+      domTruth716 &&
+        annSrc716.indexOf('evaluateDataTruth') >= 0 &&
+        annSrc716.indexOf('truthOk') >= 0,
+      'domTruth=' + domTruth716 + ' annotateTruth=' + (annSrc716.indexOf('evaluateDataTruth') >= 0));
+
+    var chatAuditSrc717 = window.AIO && typeof window.AIO.getChatAnswerFreshnessAudit === 'function' ? window.AIO.getChatAnswerFreshnessAudit.toString() : '';
+    var ensureChatSrc717 = window.AIO && typeof window.AIO.ensureFreshChatAnswerData === 'function' ? window.AIO.ensureFreshChatAnswerData.toString() : '';
+    _assert('T717 chat_preflight_uses_truth_gate_v49108: AI stock answers see truthStatus and blocked quotes',
+      chatAuditSrc717.indexOf('truthStatus') >= 0 &&
+        chatAuditSrc717.indexOf('truthBlockedCount') >= 0 &&
+        ensureChatSrc717.indexOf('truthBlockedCount') >= 0,
+      'auditTruth=' + (chatAuditSrc717.indexOf('truthStatus') >= 0));
+
+    var readinessSrc718 = window.AIO && typeof window.AIO.getAutoOpsReadiness === 'function' ? window.AIO.getAutoOpsReadiness.toString() : '';
+    var truthAudit718 = window.AIO && typeof window.AIO.getDataTruthAudit === 'function' ? window.AIO.getDataTruthAudit({ symbols: ['SPY'] }) : null;
+    _assert('T718 auto_ops_includes_data_truth_audit_v49108: readiness and audit expose truth-blocked symbols',
+      typeof window.AIO.getDataTruthAudit === 'function' &&
+        readinessSrc718.indexOf('getDataTruthAudit') >= 0 &&
+        truthAudit718 && typeof truthAudit718.blockedCount === 'number',
+      'truthAudit=' + !!truthAudit718 + ' readiness=' + (readinessSrc718.indexOf('getDataTruthAudit') >= 0));
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지

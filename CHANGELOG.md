@@ -6,6 +6,18 @@
 
 ---
 
+## v49.108 - DataTruthGate trading-safety validation (2026-06-02)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
+
+- **Truth gate**: added `AIO_DATA_TRUTH_GATE`, `AIO.evaluateDataTruth()`, and `AIO.getDataTruthAudit()` to validate live quote values by source allow-list, timestamp/age, sanity range, and pct-vs-previous-close coherence.
+- **Decision-use block**: live DOM sinks now receive `data-truth-status`, `data-truth-confidence`, and `data-truth-issues`. Truth-blocked values are forced to `data-operational-use="reference-only"` even if their transport source is live.
+- **No blind re-promotion**: `annotateLiveDataSinks(...force:true)` now respects truth gate output, preventing later lineage scans from promoting blocked live values back to decision-use.
+- **AI safety**: chat freshness preflight now includes `truthStatus` and `truthIssues`; if a quote is stale, out-of-range, source-mismatched, or truth-blocked, AI instructions forbid using that number for trading judgment.
+- **Operations audit**: `getAutoOpsReadiness()` now includes `getDataTruthAudit({critical10:true})` and reports truth-blocked symbols.
+- **Regression guard**: T715~T718 verify bad/stale quote blocking, DOM truth attrs, AI preflight truth fields, and readiness integration.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v49.108.
+
 ## v49.107 - Critical-10 freshness pipeline and DOM binding hardening (2026-06-02)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`

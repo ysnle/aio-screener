@@ -3922,13 +3922,19 @@ window.AIO.getChatAnswerFreshnessAudit = function(scope) {
   var quoteRows = tickers.map(function(t) {
     var live = window._liveData && window._liveData[t];
     var ageMs = _aioTickerQuoteAgeMs(t);
+    var truth = null;
+    try { truth = window.AIO && typeof window.AIO.evaluateDataTruth === 'function' ? window.AIO.evaluateDataTruth(t, live || {}, (window._dataSource && window._dataSource[t]) || {}) : null; } catch(_) {}
+    var quoteOk = !!(live && live.price && ageMs <= 2 * 60 * 1000 && (!truth || truth.decisionUse === true));
     return {
       ticker: t,
       hasLivePrice: !!(live && live.price),
       quoteAgeMs: isFinite(ageMs) ? ageMs : null,
       quoteAgeSec: isFinite(ageMs) ? Math.round(ageMs / 1000) : null,
       source: live && live.source || '',
-      status: (live && live.price && ageMs <= 2 * 60 * 1000) ? 'ok' : 'refresh_required'
+      truthStatus: truth && truth.status || 'unknown',
+      truthIssues: truth ? (truth.issues || []).concat(truth.warnings || []) : [],
+      decisionUse: !truth || truth.decisionUse === true,
+      status: quoteOk ? 'ok' : (truth && truth.status === 'blocked' ? 'blocked' : 'refresh_required')
     };
   });
   var staleQuotes = quoteRows.filter(function(r) { return r.status !== 'ok'; });
@@ -3940,11 +3946,12 @@ window.AIO.getChatAnswerFreshnessAudit = function(scope) {
     });
   } catch(_) {}
   return {
-    status: staleQuotes.length ? 'refresh_required' : 'ok',
+    status: staleQuotes.some(function(r) { return r.status === 'blocked'; }) ? 'blocked' : (staleQuotes.length ? 'refresh_required' : 'ok'),
     strict: tickers.length > 0,
     tickers: tickers,
     quoteRows: quoteRows,
     staleQuoteCount: staleQuotes.length,
+    truthBlockedCount: quoteRows.filter(function(r) { return r.status === 'blocked'; }).length,
     profile: profile,
     plan: plan,
     fundCache: fundCache,
@@ -3993,7 +4000,7 @@ window.AIO.ensureFreshChatAnswerData = async function(scope) {
   }
   var after = window.AIO.getChatAnswerFreshnessAudit ? window.AIO.getChatAnswerFreshnessAudit(chatScope) : null;
   return {
-    status: after && after.staleQuoteCount ? 'warn' : (refresh && refresh.status || 'ok'),
+    status: after && after.truthBlockedCount ? 'blocked' : (after && after.staleQuoteCount ? 'warn' : (refresh && refresh.status || 'ok')),
     strict: strict,
     before: before,
     refresh: refresh,
@@ -11243,18 +11250,31 @@ function _aioFormatLivePrice(sym, price) {
 
 function _aioMarkLiveSink(el, sym, d, policyKey, unavailable) {
   if (!el) return;
-  var ds = (window._dataSource && window._dataSource[_aioLiveSym(sym)]) || d || {};
+  sym = _aioLiveSym(sym);
+  var ds = (window._dataSource && window._dataSource[sym]) || d || {};
   var source = ds.source || d && (d.source || d._source) || (unavailable ? 'unavailable' : 'live:yahoo');
   var ts = ds.ts || _aioLiveTs(d);
   var contract = null;
+  var truth = null;
   try {
     contract = ds.metric && ds.metric.contract ? ds.metric.contract :
       (window.AIO_OPERATIONAL_DATA_CONTRACT ? window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric({ source: source, ts: ts, policyKey: policyKey || 'quote' }) : null);
   } catch(_) {}
+  try {
+    truth = window.AIO && typeof window.AIO.evaluateDataTruth === 'function' ? window.AIO.evaluateDataTruth(sym, d, ds) : null;
+  } catch(_) {}
+  var truthOk = !truth || truth.decisionUse === true;
   el.setAttribute('data-source-kind', unavailable ? 'unavailable' : (contract && contract.sourceKind ? contract.sourceKind : (/snapshot|cache/i.test(source) ? 'snapshot' : 'live')));
-  el.setAttribute('data-operational-use', (!unavailable && contract && contract.allowedUse) ? 'decision' : (!unavailable && !contract ? 'decision' : 'reference-only'));
+  el.setAttribute('data-operational-use', (!unavailable && truthOk && contract && contract.allowedUse) ? 'decision' : (!unavailable && truthOk && !contract ? 'decision' : 'reference-only'));
   el.setAttribute('data-source-label', source);
   if (ts) el.setAttribute('data-source-ts', String(ts));
+  if (truth) {
+    el.setAttribute('data-truth-status', truth.status);
+    el.setAttribute('data-truth-confidence', truth.confidence || '');
+    el.setAttribute('data-truth-issues', (truth.issues || []).concat(truth.warnings || []).join('|'));
+    if (truth.status === 'blocked') el.title = 'Data truth blocked: ' + (truth.issues || []).join(', ');
+    else if (truth.status === 'warn' && !el.title) el.title = 'Data truth warning: ' + (truth.warnings || []).join(', ');
+  }
   if (!unavailable && /unavailable|미수신|failed|실패/i.test(String(el.title || ''))) el.title = '';
 }
 
@@ -11355,7 +11375,7 @@ window.AIO.verifyPageLiveDataBinding = function(opts) {
   opts = opts || {};
   var pageId = opts.pageId || opts.id || '';
   var root = _aioLiveRoot(pageId);
-  var out = { pageId: pageId || null, total: 0, ok: 0, bindingMissing: [], sourceMissing: [], generatedAt: new Date().toISOString() };
+  var out = { pageId: pageId || null, total: 0, ok: 0, bindingMissing: [], sourceMissing: [], truthBlocked: [], generatedAt: new Date().toISOString() };
   try {
     Array.prototype.slice.call(root.querySelectorAll('[data-live-price],[data-live-chg],[data-live-pct],[data-live-field]')).forEach(function(el) {
       var sym = el.getAttribute('data-live-price') || el.getAttribute('data-live-chg') || el.getAttribute('data-live-pct') || (String(el.getAttribute('data-live-field') || '').split(':')[0]);
@@ -11365,7 +11385,10 @@ window.AIO.verifyPageLiveDataBinding = function(opts) {
       var d = _aioLiveDataFor(sym);
       var hasSource = !!d && (_aioLivePrice(d) != null || _aioLivePct(d) != null || d.value != null);
       var textMissing = _aioIsLivePlaceholder(el.textContent);
+      var truth = null;
+      try { truth = window.AIO && typeof window.AIO.evaluateDataTruth === 'function' ? window.AIO.evaluateDataTruth(sym, d || {}, (window._dataSource && window._dataSource[sym]) || {}) : null; } catch(_) {}
       if (!hasSource) out.sourceMissing.push({ symbol: sym, id: el.id || '', attr: el.hasAttribute('data-live-price') ? 'price' : (el.hasAttribute('data-live-chg') ? 'chg' : (el.hasAttribute('data-live-pct') ? 'pct' : 'field')) });
+      else if (truth && truth.status === 'blocked') out.truthBlocked.push({ symbol: sym, id: el.id || '', issues: truth.issues || [] });
       else if (textMissing) out.bindingMissing.push({ symbol: sym, id: el.id || '', text: String(el.textContent || '').trim() });
       else out.ok += 1;
     });
@@ -11374,7 +11397,8 @@ window.AIO.verifyPageLiveDataBinding = function(opts) {
   }
   out.bindingMissingCount = out.bindingMissing.length;
   out.sourceMissingCount = out.sourceMissing.length;
-  out.status = out.error || out.bindingMissingCount || out.sourceMissingCount ? 'warn' : 'ok';
+  out.truthBlockedCount = out.truthBlocked.length;
+  out.status = out.error || out.bindingMissingCount || out.sourceMissingCount || out.truthBlockedCount ? 'warn' : 'ok';
   return out;
 };
 
@@ -11383,7 +11407,8 @@ window.AIO.verifyCritical10LiveBindings = function() {
   var audits = pages.map(function(pageId) { return window.AIO.verifyPageLiveDataBinding({ pageId: pageId }); });
   var bindingMissing = audits.reduce(function(n, a) { return n + (a.bindingMissingCount || 0); }, 0);
   var sourceMissing = audits.reduce(function(n, a) { return n + (a.sourceMissingCount || 0); }, 0);
-  return { status: bindingMissing || sourceMissing ? 'warn' : 'ok', pagesChecked: audits.length, bindingMissingCount: bindingMissing, sourceMissingCount: sourceMissing, pages: audits, generatedAt: new Date().toISOString() };
+  var truthBlocked = audits.reduce(function(n, a) { return n + (a.truthBlockedCount || 0); }, 0);
+  return { status: bindingMissing || sourceMissing || truthBlocked ? 'warn' : 'ok', pagesChecked: audits.length, bindingMissingCount: bindingMissing, sourceMissingCount: sourceMissing, truthBlockedCount: truthBlocked, pages: audits, generatedAt: new Date().toISOString() };
 };
 
 window.AIO.repairPageLiveDataBinding = async function(opts) {
@@ -11442,6 +11467,10 @@ function applyLiveQuotes(quotes) {
       window._liveData[q.symbol] = window._liveData[q.symbol] || {};
       window._liveData[q.symbol].chartPreviousClose = q.chartPreviousClose;
     }
+    if (q.regularMarketPreviousClose && q.regularMarketPreviousClose > 0) {
+      window._liveData[q.symbol] = window._liveData[q.symbol] || {};
+      window._liveData[q.symbol].regularMarketPreviousClose = q.regularMarketPreviousClose;
+    }
     // v30.14: 환율 심볼의 chartPreviousClose를 _fxPrevClose에 자동 보정
     // Yahoo chart API에서 가져온 chartPreviousClose로 환율 변화율 즉시 계산 가능하게 함
     if (q.chartPreviousClose && q.chartPreviousClose > 0 && q.symbol.includes('=X')) {
@@ -11452,7 +11481,21 @@ function applyLiveQuotes(quotes) {
     }
     // v30.11: 데이터 출처 기록
     var _storedMetric = window._liveData && window._liveData[q.symbol] && window._liveData[q.symbol].metric;
-    window._dataSource[q.symbol] = { source: q._source || 'live:yahoo', ts: now, pctMissing: !hasPct, policyKey: 'quote', metric: _storedMetric || null };
+    window._dataSource[q.symbol] = {
+      source: q._source || 'live:yahoo',
+      ts: now,
+      pctMissing: !hasPct,
+      policyKey: 'quote',
+      metric: _storedMetric || null,
+      previousClose: q.regularMarketPreviousClose || q.chartPreviousClose || null,
+      rawQuoteTs: q.regularMarketTime || q.postMarketTime || q.preMarketTime || null
+    };
+    try {
+      if (window.AIO && typeof window.AIO.evaluateDataTruth === 'function') {
+        var _truth = window.AIO.evaluateDataTruth(q.symbol, window._liveData[q.symbol], window._dataSource[q.symbol]);
+        window._liveData[q.symbol].truth = _truth;
+      }
+    } catch(_truthErr) {}
     const pctStr = hasPct ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '—';
     const cls    = hasPct ? (pct >= 0 ? 'pnl pos' : 'pnl neg') : 'pnl neutral';
     // Track SPX vs ATH for Market Regime display
