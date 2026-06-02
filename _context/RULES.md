@@ -2,7 +2,7 @@
 verified_by: agent
 last_verified: 2026-06-02
 confidence: high
-target_version: v49.109
+target_version: v49.110
 
 ---
 
@@ -2375,3 +2375,15 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 - Delayed/EOD source disagreement may warn, but independent live-source disagreement must block decision-use data.
 
 **Validation**: `AIO.getCrossSourceQuoteValidation(symbol)` + `AIO.validateQuoteCrossSources(symbols)` + T719~T723.
+
+## R197. Critical-10 freshness must audit visible market surface, not only refresh schedules (v49.110 added, P473 root)
+
+**Rule**: The comprehensive 5 pages and market-analysis 5 pages must not report freshness OK from refresh task metadata alone. The audit must read the actual visible DOM market surface and fail/warn when any visible quote, metric, date, or binding is missing, stale, reference-only, or truth-blocked.
+
+**Required**:
+- `AIO.getCritical10MarketSurfaceAudit()` must aggregate page-level market currentness, live binding, truth-blocked, and stale snap-date counts for all critical-10 pages.
+- `AIO.getComprehensivePageDataFreshnessAudit()` must include `verifyPageLiveDataBinding()` and `getCritical10MarketSurfaceAudit()` so source-missing, binding-missing, truth-blocked visible cells, stale tasks, and stale snap dates affect page status.
+- `AIO.getAutoOpsReadiness()` must expose the critical-10 market-surface audit and warn when affected pages exist.
+- Visible `data-operational-use="reference-only"` or `data-truth-status="blocked"` quote cells must count as market currentness issues even if a numeric value is displayed.
+
+**Validation**: `AIO.getCritical10MarketSurfaceAudit()` + `AIO.getComprehensivePageDataFreshnessAudit()` + T724~T727.

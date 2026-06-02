@@ -3645,6 +3645,16 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
   _normalizeRefreshSchedule();
   var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
   var now = Date.now();
+  var critical10MarketSurface = null;
+  var marketSurfaceByPage = {};
+  try {
+    critical10MarketSurface = window.AIO.getCritical10MarketSurfaceAudit ? window.AIO.getCritical10MarketSurfaceAudit({ pages: pages }) : null;
+    if (critical10MarketSurface && Array.isArray(critical10MarketSurface.pages)) {
+      critical10MarketSurface.pages.forEach(function(row) { marketSurfaceByPage[row.pageId] = row; });
+    }
+  } catch(e) {
+    critical10MarketSurface = { status: 'error', issuePageCount: pages.length, error: e && e.message || String(e), pages: [] };
+  }
   var details = pages.map(function(pageId) {
     var profile = _aioGetRefreshProfile(pageId);
     var tasks = profile.tasks || AIO_PAGE_REFRESH_MAP[pageId] || [];
@@ -3659,11 +3669,20 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     var liveMissing = symbols.filter(function(sym) { return !(window._liveData && window._liveData[String(sym).toUpperCase()]); });
     var sinks = pageEl ? pageEl.querySelectorAll('[data-live-price],[data-live-pct],[data-live-field],[data-snap],[data-snap-date]').length : 0;
     var chartLike = pageEl ? pageEl.querySelectorAll('canvas,[id*="chart"],[id*="widget"]').length : 0;
+    var bindingAudit = null;
+    try { bindingAudit = window.AIO.verifyPageLiveDataBinding ? window.AIO.verifyPageLiveDataBinding({ pageId: pageId }) : null; } catch(e2) { bindingAudit = { status: 'error', error: e2 && e2.message || String(e2), sourceMissingCount: 0, bindingMissingCount: 0, truthBlockedCount: 0 }; }
+    var marketRow = marketSurfaceByPage[pageId] || null;
     var issues = [];
     if (!pageEl) issues.push('missing page DOM');
     if (missingTasks.length) issues.push('missing task fn: ' + missingTasks.join(','));
+    if (staleTasks.length) issues.push('stale task: ' + staleTasks.join(','));
     if (!tasks.length) issues.push('no refresh tasks');
     if (!symbols.length) issues.push('no symbol profile');
+    if (bindingAudit && bindingAudit.sourceMissingCount) issues.push('visible live source missing: ' + bindingAudit.sourceMissingCount);
+    if (bindingAudit && bindingAudit.bindingMissingCount) issues.push('visible live binding missing: ' + bindingAudit.bindingMissingCount);
+    if (bindingAudit && bindingAudit.truthBlockedCount) issues.push('truth-blocked visible live sink: ' + bindingAudit.truthBlockedCount);
+    if (marketRow && marketRow.marketIssueCount) issues.push('market surface issue: ' + marketRow.marketIssueCount);
+    if (marketRow && marketRow.staleSnapDates && marketRow.staleSnapDates.length) issues.push('stale snap-date: ' + marketRow.staleSnapDates.length);
     return {
       pageId: pageId,
       status: issues.length ? 'warn' : 'ok',
@@ -3676,7 +3695,24 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
       liveMissingSample: liveMissing.slice(0, 12),
       liveMissingCount: liveMissing.length,
       dataSinkCount: sinks,
-      chartLikeCount: chartLike
+      chartLikeCount: chartLike,
+      bindingAudit: bindingAudit ? {
+        status: bindingAudit.status,
+        total: bindingAudit.total || 0,
+        sourceMissingCount: bindingAudit.sourceMissingCount || 0,
+        bindingMissingCount: bindingAudit.bindingMissingCount || 0,
+        truthBlockedCount: bindingAudit.truthBlockedCount || 0
+      } : null,
+      marketSurface: marketRow ? {
+        status: marketRow.status,
+        issueCount: marketRow.issueCount || 0,
+        marketIssueCount: marketRow.marketIssueCount || 0,
+        visibleUnavailableCount: marketRow.visibleUnavailableCount || 0,
+        visibleReferenceOnlyCount: marketRow.visibleReferenceOnlyCount || 0,
+        visibleTruthBlockedCount: marketRow.visibleTruthBlockedCount || 0,
+        staleSnapDateCount: marketRow.staleSnapDates ? marketRow.staleSnapDates.length : 0,
+        marketIssueSample: marketRow.marketIssueSample || []
+      } : null
     };
   });
   var issues = details.filter(function(d) { return d.issues.length; });
@@ -3688,6 +3724,7 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     unionTasks: Array.from(new Set(details.reduce(function(acc, d) { return acc.concat(d.tasks); }, []))),
     pages: details,
     surfaceIntegrity: window.AIO.getComprehensiveSurfaceIntegrityAudit ? window.AIO.getComprehensiveSurfaceIntegrityAudit({ symbolLimit: 999 }) : null,
+    critical10MarketSurface: critical10MarketSurface,
     generatedAt: new Date(now).toISOString()
   };
 };

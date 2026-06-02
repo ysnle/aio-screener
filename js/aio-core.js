@@ -9859,6 +9859,7 @@ window.AIO.getAutoOpsReadiness = function() {
   var operationalDataContract = window.AIO.getOperationalDataContractAudit ? window.AIO.getOperationalDataContractAudit() : null;
   var krSupplyRuntime = window.AIO.getKrSupplyRuntimeAudit ? window.AIO.getKrSupplyRuntimeAudit() : null;
   var marketCurrentness = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit() : null;
+  var critical10MarketSurface = window.AIO.getCritical10MarketSurfaceAudit ? window.AIO.getCritical10MarketSurfaceAudit() : null;
   var dataTruth = window.AIO.getDataTruthAudit ? window.AIO.getDataTruthAudit({ critical10: true, symbolLimit: 999 }) : null;
   var essenceAlignment = window.AIO.getEssenceAlignmentAudit ? window.AIO.getEssenceAlignmentAudit() : null;
   var fullSurfaceAudit = window.AIO.getFullSurfaceAudit ? window.AIO.getFullSurfaceAudit() : null;
@@ -9901,7 +9902,8 @@ window.AIO.getAutoOpsReadiness = function() {
   if (operationalDataContract && operationalDataContract.issueCount) issues.push(operationalDataContract.issueCount + ' operational data contract issue(s) [v49.54/R107]');
   if (krSupplyRuntime && krSupplyRuntime.issueCount) issues.push(krSupplyRuntime.issueCount + ' KR supply runtime issue(s) [v49.54/R108]');
   if (marketCurrentness && marketCurrentness.issueCount) issues.push(marketCurrentness.issueCount + ' market currentness issue(s) [v49.58/R111]');
-  if (dataTruth && dataTruth.blockedCount) issues.push(dataTruth.blockedCount + ' truth-blocked market data symbol(s) [v49.109/DataTruthGate+CrossSource]: ' + dataTruth.blockedSymbols.slice(0, 8).join(','));
+  if (critical10MarketSurface && critical10MarketSurface.issuePageCount) issues.push(critical10MarketSurface.issuePageCount + ' critical page market surface issue page(s) [v49.110/R197]');
+  if (dataTruth && dataTruth.blockedCount) issues.push(dataTruth.blockedCount + ' truth-blocked market data symbol(s) [v49.110/DataTruthGate+CrossSource]: ' + dataTruth.blockedSymbols.slice(0, 8).join(','));
   if (essenceAlignment && essenceAlignment.status === 'fail') issues.push('3대 본질 정렬 fail: ' + essenceAlignment.overallScore + '점 [v49.65/R119]');
   if (fullSurfaceAudit && fullSurfaceAudit.status === 'fail') issues.push(fullSurfaceAudit.issueCount + ' full surface audit issue(s) [P358/R124]');
   if (deepReviewAudit && deepReviewAudit.status === 'fail') issues.push(deepReviewAudit.issueCount + ' deep review issue(s) [P359/R125]');
@@ -9953,6 +9955,7 @@ window.AIO.getAutoOpsReadiness = function() {
       dataTruth: 'AIO.getDataTruthAudit({critical10:true})',
       krSupplyRuntime: 'AIO.getKrSupplyRuntimeAudit()',
       marketCurrentness: 'AIO.getMarketCurrentnessAudit({ includeHidden: true })',
+      critical10MarketSurface: 'AIO.getCritical10MarketSurfaceAudit()',
       essenceAlignment: 'AIO.getEssenceAlignmentAudit()',
       fullSurfaceAudit: 'AIO.getFullSurfaceAudit()',
       deepReviewAudit: 'AIO.getDeepReviewAudit()',
@@ -9994,6 +9997,7 @@ window.AIO.getAutoOpsReadiness = function() {
     dataTruth: dataTruth,
     krSupplyRuntime: krSupplyRuntime,
     marketCurrentness: marketCurrentness,
+    critical10MarketSurface: critical10MarketSurface,
     essenceAlignment: essenceAlignment,
     fullSurfaceAudit: fullSurfaceAudit,
     deepReviewAudit: deepReviewAudit,
@@ -14381,7 +14385,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.109';
+const APP_VERSION = 'v49.110';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -16985,7 +16989,7 @@ window.AIO.getCrossSourceQuoteValidation = function(symbol, opts) {
 };
 
 window.AIO_DATA_TRUTH_GATE = {
-  version: 'v49.109',
+  version: 'v49.110',
   singleSourceIsWarn: true,
   classifyAsset: function(sym) {
     sym = String(sym || '').toUpperCase();
@@ -17288,6 +17292,8 @@ window.AIO.getMarketCurrentnessAudit = function(opts) {
       var unavailable = !txt || unavailableRe.test(txt);
       var use = el.getAttribute('data-operational-use') || '';
       var sourceKind = el.getAttribute('data-source-kind') || '';
+      var truthStatus = el.getAttribute('data-truth-status') || '';
+      var truthIssues = el.getAttribute('data-truth-issues') || '';
       var referenceOnly = use === 'reference-only' || /snapshot|unavailable|reference/.test(sourceKind);
       var hasLineage = !!(use && sourceKind);
       var item = {
@@ -17298,11 +17304,19 @@ window.AIO.getMarketCurrentnessAudit = function(opts) {
         visible: visible,
         unavailable: unavailable,
         operationalUse: use || null,
-        sourceKind: sourceKind || null
+        sourceKind: sourceKind || null,
+        truthStatus: truthStatus || null,
+        truthIssues: truthIssues || null
       };
       liveSinks.push(item);
-      if (visible && unavailable && !referenceOnly) {
+      if (visible && unavailable) {
         issues.push({ type: 'visible-live-sink-unavailable', key: key, id: item.id, pageId: item.pageId, text: item.text });
+      }
+      if (visible && referenceOnly) {
+        issues.push({ type: 'visible-live-sink-reference-only', key: key, id: item.id, pageId: item.pageId, sourceKind: sourceKind || '', truthStatus: truthStatus || '', text: item.text });
+      }
+      if (visible && truthStatus === 'blocked') {
+        issues.push({ type: 'visible-live-sink-truth-blocked', key: key, id: item.id, pageId: item.pageId, truthIssues: truthIssues || '', text: item.text });
       }
       if (visible && !unavailable && !hasLineage) {
         issues.push({ type: 'visible-live-sink-missing-lineage', key: key, id: item.id, pageId: item.pageId, text: item.text });
@@ -17340,12 +17354,90 @@ window.AIO.getMarketCurrentnessAudit = function(opts) {
     issueCount: issues.length,
     issues: issues,
     visibleUnavailableCount: issues.filter(function(x) { return x.type === 'visible-live-sink-unavailable'; }).length,
+    visibleReferenceOnlyCount: issues.filter(function(x) { return x.type === 'visible-live-sink-reference-only'; }).length,
+    visibleTruthBlockedCount: issues.filter(function(x) { return x.type === 'visible-live-sink-truth-blocked'; }).length,
     narrativeIssueCount: narrativeIssues.length,
     snapshotAgeHours: snapshotAgeHours,
     coreLiveOk: coreLiveOk,
     liveSinkCount: liveSinks.length,
     liveSinks: liveSinks,
     generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getCritical10MarketSurfaceAudit = function(opts) {
+  opts = opts || {};
+  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var now = Date.now();
+  var dateWarnDays = opts.dateWarnDays || 14;
+  function parseDate(text) {
+    var s = String(text || '').trim();
+    var m = s.match(/(20\d{2})-(\d{2})-(\d{2})/);
+    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime();
+    return NaN;
+  }
+  var rows = pages.map(function(pageId) {
+    var root = null;
+    try { root = document.getElementById('page-' + pageId); } catch(_) {}
+    var market = null;
+    var binding = null;
+    var staleDates = [];
+    var snapDateCount = 0;
+    if (root) {
+      try { market = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit({ root: root, includeHidden: true }) : null; } catch(e) { market = { status: 'error', issueCount: 1, issues: [{ type: 'market-audit-error', message: e && e.message || String(e) }] }; }
+      try { binding = window.AIO.verifyPageLiveDataBinding ? window.AIO.verifyPageLiveDataBinding({ pageId: pageId }) : null; } catch(e2) { binding = { status: 'error', error: e2 && e2.message || String(e2), sourceMissingCount: 0, bindingMissingCount: 0, truthBlockedCount: 0 }; }
+      try {
+        Array.prototype.slice.call(root.querySelectorAll('[data-snap-date]')).forEach(function(el) {
+          snapDateCount++;
+          var ts = parseDate(el.textContent || el.getAttribute('data-snap-date-value'));
+          if (!isFinite(ts)) return;
+          var ageDays = Math.floor((now - ts) / 86400000);
+          if (ageDays > dateWarnDays) {
+            staleDates.push({ key: el.getAttribute('data-snap-date') || '', text: String(el.textContent || '').trim(), ageDays: ageDays, id: el.id || '' });
+          }
+        });
+      } catch(_dateAudit) {}
+    }
+    var issueCount = (root ? 0 : 1) +
+      (market && market.issueCount || 0) +
+      (binding ? ((binding.sourceMissingCount || 0) + (binding.bindingMissingCount || 0) + (binding.truthBlockedCount || 0)) : 0) +
+      staleDates.length;
+    return {
+      pageId: pageId,
+      status: issueCount ? 'warn' : 'ok',
+      issueCount: issueCount,
+      pageExists: !!root,
+      liveSinkCount: binding && binding.total || 0,
+      sourceMissingCount: binding && binding.sourceMissingCount || 0,
+      bindingMissingCount: binding && binding.bindingMissingCount || 0,
+      truthBlockedCount: binding && binding.truthBlockedCount || 0,
+      marketIssueCount: market && market.issueCount || 0,
+      visibleUnavailableCount: market && market.visibleUnavailableCount || 0,
+      visibleReferenceOnlyCount: market && market.visibleReferenceOnlyCount || 0,
+      visibleTruthBlockedCount: market && market.visibleTruthBlockedCount || 0,
+      snapDateCount: snapDateCount,
+      staleSnapDates: staleDates.slice(0, 12),
+      marketIssueSample: market && market.issues ? market.issues.slice(0, 12) : [],
+      generatedAt: new Date(now).toISOString()
+    };
+  });
+  var issuePages = rows.filter(function(r) { return r.issueCount > 0; });
+  var totals = rows.reduce(function(acc, r) {
+    acc.liveSinkCount += r.liveSinkCount || 0;
+    acc.sourceMissingCount += r.sourceMissingCount || 0;
+    acc.bindingMissingCount += r.bindingMissingCount || 0;
+    acc.truthBlockedCount += r.truthBlockedCount || 0;
+    acc.marketIssueCount += r.marketIssueCount || 0;
+    acc.staleSnapDateCount += (r.staleSnapDates || []).length;
+    return acc;
+  }, { liveSinkCount: 0, sourceMissingCount: 0, bindingMissingCount: 0, truthBlockedCount: 0, marketIssueCount: 0, staleSnapDateCount: 0 });
+  return {
+    status: issuePages.length ? 'warn' : 'ok',
+    pagesChecked: rows.length,
+    issuePageCount: issuePages.length,
+    totals: totals,
+    pages: rows,
+    generatedAt: new Date(now).toISOString()
   };
 };
 

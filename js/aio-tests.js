@@ -2799,7 +2799,7 @@
       !!mcEl, 'mcEl=' + (!!mcEl));
     // T560: APP_VERSION === 'v49.71' (v49.72 갱신 — 하위 호환 PASS 유지)
     _assert('T560 app_version_v4971_final: APP_VERSION === "v49.71" or 신규',
-      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -2849,7 +2849,7 @@
       !!fcEl, 'fcEl=' + (!!fcEl));
     // T570: APP_VERSION === 'v49.72' (v49.73 갱신 — 하위 호환 PASS 유지)
     _assert('T570 app_version_v4972_final: APP_VERSION === "v49.72" or 신규',
-      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -2917,7 +2917,7 @@
       !!aqEl, 'aqEl=' + (!!aqEl));
     // T580: APP_VERSION === 'v49.73' (v49.74 갱신 — 하위 호환 PASS 유지)
     _assert('T580 app_version_v4973_final: APP_VERSION === "v49.73" or 신규',
-      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -2956,7 +2956,7 @@
       'denom11=' + (auditSrc.indexOf('/ 11)') >= 0));
     // T587: APP_VERSION v49.7x or newer within this workstream
     _assert('T587 app_version_v4974_final: APP_VERSION === "v49.74" or newer v49.7x',
-      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
     // T588: 라이브 검증 가이드 — 사용자 직접 production 검증 후 결과 공유 권장 (회귀 방지가 아닌 안내)
     _assert('T588 live_verify_guide_v4974: 라이브 검증 가이드 명시 (사용자 production 검증)',
@@ -3007,7 +3007,7 @@
       homeDom, 'homeDom=' + homeDom);
     // T596 APP_VERSION === 'v49.75' (v49.76 갱신 — 하위 호환)
     _assert('T596 app_version_v4975_final: APP_VERSION === "v49.75" or 신규',
-      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -3040,7 +3040,7 @@
       hasModalChatCss, 'hasCss=' + hasModalChatCss);
     // T602: APP_VERSION === 'v49.76' (v49.77 갱신 — 하위 호환)
     _assert('T602 app_version_v4976_final: APP_VERSION === "v49.76" or 신규',
-      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -3079,7 +3079,7 @@
       'borderColor=' + (chatSendSrc.indexOf("inp.style.borderColor = '#ffa31a'") >= 0));
     // T610: APP_VERSION v49.7x or newer within this workstream
     _assert('T610 app_version_v4977_final: APP_VERSION === "v49.77" or newer v49.7x',
-      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
     var themeAudit = window.AIO && typeof window.AIO.getThemeTrendDeepAudit === 'function' && window.AIO.getThemeTrendDeepAudit();
     _assert('T611 theme_trend_deep_audit_defined: theme/trend audit returns 100+ themes and 500+ symbols',
@@ -3157,7 +3157,7 @@
       'typeof=' + typeof window.dynamicTickerLookup);
     // T629: APP_VERSION === 'v49.78' (v49.79 갱신 하위 호환)
     _assert('T629 app_version_v4978_final: APP_VERSION === "v49.78" or 신규',
-      typeof APP_VERSION === 'string' && APP_VERSION.indexOf('v49.7') === 0,
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.70'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
   }
 
@@ -3223,8 +3223,8 @@
       callClaudeSrc.indexOf('_aioTrackApiUsage') >= 0,
       'tracking=' + (callClaudeSrc.indexOf('_aioTrackApiUsage') >= 0));
     // T640: APP_VERSION === 'v49.79'
-    _assert('T640 app_version_v4979_final: APP_VERSION === "v49.79"',
-      typeof APP_VERSION === 'string' && APP_VERSION === 'v49.79',
+    _assert('T640 app_version_v4979_final: APP_VERSION >= "v49.79"',
+      typeof APP_VERSION === 'string' && _versionAtLeast(APP_VERSION, 'v49.79'),
       'APP_VERSION=' + (typeof APP_VERSION === 'string' ? APP_VERSION : 'undef'));
     // T641~T642: theme detail panels must degrade gracefully before live quotes arrive.
     var prevLive = window._liveData;
@@ -3813,9 +3813,51 @@
         ensureSrc723.indexOf('validateQuoteCrossSources') >= 0,
       JSON.stringify(chatAudit723 && chatAudit723.quoteRows && chatAudit723.quoteRows[0]));
 
+    var marketAudit724 = null;
     try {
-      delete window._liveData.XSRC720; delete window._liveData.XSRC721;
-      delete window._dataSource.XSRC720; delete window._dataSource.XSRC721;
+      window._liveData = window._liveData || {};
+      window._dataSource = window._dataSource || {};
+      window._liveData.XSRC724 = { price: 100, pct: 0, source: 'snapshot', ts: Date.now() };
+      window._dataSource.XSRC724 = { source: 'snapshot', ts: Date.now(), policyKey: 'quote' };
+      var tmp724 = document.createElement('div');
+      tmp724.id = 'aio-test-market-surface-724';
+      tmp724.innerHTML = '<span id="aio-test-market-sink-724" data-live-price="XSRC724" data-operational-use="reference-only" data-source-kind="snapshot" data-truth-status="blocked" data-truth-issues="cross_source_mismatch:fmp:30%">100.00</span>';
+      document.body.appendChild(tmp724);
+      marketAudit724 = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit({ root: tmp724, includeHidden: true }) : null;
+      tmp724.remove();
+    } catch(_t724) {}
+    _assert('T724 visible_reference_only_truth_blocked_market_sink_warns_v49110: visible market cells cannot hide behind reference-only labels',
+      marketAudit724 &&
+        marketAudit724.visibleReferenceOnlyCount >= 1 &&
+        marketAudit724.visibleTruthBlockedCount >= 1,
+      JSON.stringify(marketAudit724 && { ref: marketAudit724.visibleReferenceOnlyCount, truth: marketAudit724.visibleTruthBlockedCount, issues: marketAudit724.issues }));
+
+    var marketSurface725 = null;
+    try { marketSurface725 = window.AIO.getCritical10MarketSurfaceAudit ? window.AIO.getCritical10MarketSurfaceAudit() : null; } catch(_t725) {}
+    _assert('T725 critical10_market_surface_audit_v49110: 10-page surface audit aggregates live binding and truth-blocked counts',
+      marketSurface725 &&
+        marketSurface725.totals &&
+        typeof marketSurface725.totals.sourceMissingCount === 'number' &&
+        typeof marketSurface725.totals.truthBlockedCount === 'number' &&
+        Array.isArray(marketSurface725.pages),
+      JSON.stringify(marketSurface725 && marketSurface725.totals));
+
+    var comprehensiveSrc726 = window.AIO && typeof window.AIO.getComprehensivePageDataFreshnessAudit === 'function' ? window.AIO.getComprehensivePageDataFreshnessAudit.toString() : '';
+    _assert('T726 comprehensive_page_freshness_uses_visible_surface_audits_v49110: freshness OK is blocked by visible sink/source/truth issues',
+      comprehensiveSrc726.indexOf('verifyPageLiveDataBinding') >= 0 &&
+        comprehensiveSrc726.indexOf('getCritical10MarketSurfaceAudit') >= 0 &&
+        comprehensiveSrc726.indexOf('truth-blocked visible live sink') >= 0,
+      'len=' + comprehensiveSrc726.length);
+
+    var readinessSrc727 = window.AIO && typeof window.AIO.getAutoOpsReadiness === 'function' ? window.AIO.getAutoOpsReadiness.toString() : '';
+    _assert('T727 auto_ops_readiness_includes_critical10_market_surface_v49110: ops readiness reports page-level market surface gaps',
+      readinessSrc727.indexOf('getCritical10MarketSurfaceAudit') >= 0 &&
+        readinessSrc727.indexOf('critical10MarketSurface') >= 0,
+      'len=' + readinessSrc727.length);
+
+    try {
+      delete window._liveData.XSRC720; delete window._liveData.XSRC721; delete window._liveData.XSRC724;
+      delete window._dataSource.XSRC720; delete window._dataSource.XSRC721; delete window._dataSource.XSRC724;
       if (window.AIO_CROSS_SOURCE_QUOTE_CACHE) { delete window.AIO_CROSS_SOURCE_QUOTE_CACHE.XSRC720; delete window.AIO_CROSS_SOURCE_QUOTE_CACHE.XSRC721; }
     } catch(_t719Cleanup) {}
   }

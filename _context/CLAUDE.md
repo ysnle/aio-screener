@@ -2,7 +2,11 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v49.109
+- **현재 버전**: v49.110
+
+## v49.110 hotfix note
+
+- Added critical-10 market surface auditing. Comprehensive page freshness and ops readiness now inspect the actual visible market cells across the comprehensive 5 plus market-analysis 5 pages, warning on missing live sources, missing DOM bindings, truth-blocked/reference-only values, stale refresh tasks, and stale snap dates before any page can report OK.
 
 ## v49.109 hotfix note
 

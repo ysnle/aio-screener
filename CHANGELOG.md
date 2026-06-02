@@ -6,6 +6,17 @@
 
 ---
 
+## v49.110 - Critical-10 market surface audit hardening (2026-06-02)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
+
+- **Visible market surface gate**: added `AIO.getCritical10MarketSurfaceAudit()` so the comprehensive 5 pages and market-analysis 5 pages are audited from the actual visible DOM surface, not only from scheduled refresh task metadata.
+- **Freshness audit hardening**: `AIO.getComprehensivePageDataFreshnessAudit()` now warns when visible live cells have missing sources, missing bindings, truth-blocked/reference-only values, stale refresh tasks, or stale `data-snap-date` cells.
+- **Market currentness tightening**: visible quote cells marked `reference-only` or `data-truth-status="blocked"` now count as market currentness issues even when they still display a number.
+- **Ops readiness integration**: `AIO.getAutoOpsReadiness()` now reports critical-10 page market-surface issue pages and exposes the audit command in the readiness command map.
+- **Regression guard**: T724~T727 verify reference-only/truth-blocked visible sink warnings, 10-page market surface aggregation, comprehensive freshness integration, and ops readiness integration.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v49.110.
+
 ## v49.109 - Multi-source quote cross-validation (2026-06-02)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
