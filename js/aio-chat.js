@@ -4594,12 +4594,12 @@ async function chatSend(ctxId) {
   if (chatFreshPreflight && detectedTickers.length > 0) {
     var _cfAfter = chatFreshPreflight.after || {};
     var _cfRows = (_cfAfter.quoteRows || []).map(function(r) {
-      return r.ticker + ': ' + (r.hasLivePrice ? 'quote-ok' : 'quote-missing') + (r.quoteAgeSec != null ? ' age=' + r.quoteAgeSec + 's' : '') + (r.source ? ' source=' + r.source : '') + (r.truthStatus ? ' truth=' + r.truthStatus : '') + (r.truthIssues && r.truthIssues.length ? ' issues=' + r.truthIssues.slice(0,3).join('|') : '');
+      return r.ticker + ': ' + (r.hasLivePrice ? 'quote-ok' : 'quote-missing') + (r.quoteAgeSec != null ? ' age=' + r.quoteAgeSec + 's' : '') + (r.source ? ' source=' + r.source : '') + (r.truthStatus ? ' truth=' + r.truthStatus : '') + (r.crossSourceStatus ? ' cross=' + r.crossSourceStatus + '/' + (r.crossSourceCount || 0) : '') + (r.truthIssues && r.truthIssues.length ? ' issues=' + r.truthIssues.slice(0,3).join('|') : '');
     }).join(' / ');
-    systemPrompt += '\n\n[AI Chat Freshness + Truth Preflight v49.108]\n' +
+    systemPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v49.109]\n' +
       'status=' + (chatFreshPreflight.status || 'unknown') + ' strict=' + !!chatFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
       'quotes=' + (_cfRows || 'not available') + '\n' +
-      'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt. If a ticker quote remains missing, stale, truth-blocked, out-of-range, or source-mismatched after preflight, do not invent or use price, market cap, valuation, earnings, or target-price numbers for trading judgment.\n';
+      'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt. If a ticker quote remains missing, stale, truth-blocked, cross-source mismatched, out-of-range, or source-mismatched after preflight, do not invent or use price, market cap, valuation, earnings, or target-price numbers for trading judgment.\n';
   }
 
   // v48.11: 환각 방지 5중 강화 (chatSend) — chatSendUnified와 완전 일치
@@ -5434,6 +5434,14 @@ function _validateFMPData(collected) {
 
   // 2. 가격 괴리: Yahoo vs FMP (10% 이상이면 경고)
   if (collected.price && collected.fmpProfile && collected.fmpProfile.price && collected.fmpProfile.price > 0) {
+    try {
+      if (window.AIO && typeof window.AIO.recordCrossSourceQuote === 'function') {
+        window.AIO.recordCrossSourceQuote(ticker, 'fmp:profile', collected.fmpProfile.price, null, Date.now(), {
+          delayed: true,
+          reason: 'fundamental-fmp-profile-price'
+        });
+      }
+    } catch(_fmpCrossRecord) {}
     var priceDiff = Math.abs(collected.price - collected.fmpProfile.price) / collected.price * 100;
     if (priceDiff > 10) {
       warnings.push('가격 괴리 ' + priceDiff.toFixed(1) + '%: Yahoo $' + collected.price.toFixed(2) + ' vs FMP $' + collected.fmpProfile.price.toFixed(2));

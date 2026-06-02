@@ -3757,6 +3757,67 @@
         readinessSrc718.indexOf('getDataTruthAudit') >= 0 &&
         truthAudit718 && typeof truthAudit718.blockedCount === 'number',
       'truthAudit=' + !!truthAudit718 + ' readiness=' + (readinessSrc718.indexOf('getDataTruthAudit') >= 0));
+
+    var crossApi719 = !!(window.AIO &&
+      typeof window.AIO.recordCrossSourceQuote === 'function' &&
+      typeof window.AIO.getCrossSourceQuoteValidation === 'function' &&
+      typeof window.AIO.normalizeQuoteSourceFamily === 'function');
+    _assert('T719 cross_source_quote_cache_api_v49109: quote sources can be recorded and grouped by family',
+      crossApi719 &&
+        window.AIO.normalizeQuoteSourceFamily('fallback:finnhub-quote') === 'finnhub' &&
+        window.AIO.normalizeQuoteSourceFamily('yahoo:codetabs') === 'yahoo',
+      'crossApi=' + crossApi719);
+
+    var verified720 = null;
+    try {
+      window._liveData = window._liveData || {};
+      window._dataSource = window._dataSource || {};
+      window._liveData.XSRC720 = { price: 100, pct: 0, source: 'live:yahoo', ts: Date.now() };
+      window._dataSource.XSRC720 = { source: 'live:yahoo', ts: Date.now(), policyKey: 'quote' };
+      window.AIO.recordCrossSourceQuote('XSRC720', 'finnhub:quote-cross', 100.5, 0.5, Date.now(), {});
+      verified720 = window.AIO.evaluateDataTruth('XSRC720');
+    } catch(_t720) {}
+    _assert('T720 cross_source_verified_keeps_decision_use_v49109: independent matching source verifies quote',
+      verified720 && verified720.decisionUse === true &&
+        verified720.crossSource && verified720.crossSource.status === 'verified' &&
+        verified720.crossSource.verifiedCount >= 1,
+      JSON.stringify(verified720 && verified720.crossSource || verified720));
+
+    var blocked721 = null;
+    try {
+      window._liveData.XSRC721 = { price: 100, pct: 0, source: 'live:yahoo', ts: Date.now() };
+      window._dataSource.XSRC721 = { source: 'live:yahoo', ts: Date.now(), policyKey: 'quote' };
+      window.AIO.recordCrossSourceQuote('XSRC721', 'fmp:quote-cross', 130, 30, Date.now(), {});
+      blocked721 = window.AIO.evaluateDataTruth('XSRC721');
+    } catch(_t721) {}
+    _assert('T721 cross_source_mismatch_blocks_decision_use_v49109: large independent mismatch blocks trading-use data',
+      blocked721 && blocked721.status === 'blocked' &&
+        blocked721.issues && blocked721.issues.join('|').indexOf('cross_source_mismatch') >= 0,
+      JSON.stringify(blocked721 && blocked721.issues || blocked721));
+
+    var validateSrc722 = window.AIO && typeof window.AIO.validateQuoteCrossSources === 'function' ? window.AIO.validateQuoteCrossSources.toString() : '';
+    var fetchSrc722 = typeof fetchLiveQuotes === 'function' ? fetchLiveQuotes.toString() : '';
+    var scheduleSrc722 = typeof scheduleQuoteCrossSourceValidation === 'function' ? scheduleQuoteCrossSourceValidation.toString() : '';
+    _assert('T722 cross_source_fetch_pipeline_v49109: refresh pipeline can query Finnhub/FMP/Stooq/CoinGecko/FX validators',
+      validateSrc722.indexOf('finnhub.io/api/v1/quote') >= 0 &&
+        validateSrc722.indexOf('financialmodelingprep.com/api/v3/quote') >= 0 &&
+        validateSrc722.indexOf('coingecko.com/api/v3/simple/price') >= 0 &&
+        (fetchSrc722.indexOf('post-live-quotes-cross-source') >= 0 || scheduleSrc722.indexOf('validateQuoteCrossSources') >= 0),
+      'validateLen=' + validateSrc722.length + ' fetchHook=' + (fetchSrc722.indexOf('post-live-quotes-cross-source') >= 0) + ' scheduler=' + (scheduleSrc722.indexOf('validateQuoteCrossSources') >= 0));
+
+    var chatAudit723 = window.AIO && typeof window.AIO.getChatAnswerFreshnessAudit === 'function' ? window.AIO.getChatAnswerFreshnessAudit({ tickers: ['XSRC720'] }) : null;
+    var ensureSrc723 = window.AIO && typeof window.AIO.ensureFreshChatAnswerData === 'function' ? window.AIO.ensureFreshChatAnswerData.toString() : '';
+    _assert('T723 chat_preflight_exposes_cross_source_status_v49109: AI answers see cross-source status before using numbers',
+      chatAudit723 && chatAudit723.quoteRows && chatAudit723.quoteRows[0] &&
+        typeof chatAudit723.quoteRows[0].crossSourceStatus === 'string' &&
+        ensureSrc723.indexOf('validateQuoteCrossSources') >= 0,
+      JSON.stringify(chatAudit723 && chatAudit723.quoteRows && chatAudit723.quoteRows[0]));
+
+    try {
+      delete window._liveData.XSRC720; delete window._liveData.XSRC721;
+      delete window._dataSource.XSRC720; delete window._dataSource.XSRC721;
+      if (window.AIO_CROSS_SOURCE_QUOTE_CACHE) { delete window.AIO_CROSS_SOURCE_QUOTE_CACHE.XSRC720; delete window.AIO_CROSS_SOURCE_QUOTE_CACHE.XSRC721; }
+    } catch(_t719Cleanup) {}
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지

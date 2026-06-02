@@ -3924,6 +3924,10 @@ window.AIO.getChatAnswerFreshnessAudit = function(scope) {
     var ageMs = _aioTickerQuoteAgeMs(t);
     var truth = null;
     try { truth = window.AIO && typeof window.AIO.evaluateDataTruth === 'function' ? window.AIO.evaluateDataTruth(t, live || {}, (window._dataSource && window._dataSource[t]) || {}) : null; } catch(_) {}
+    var cross = truth && truth.crossSource ? truth.crossSource : null;
+    try {
+      if (!cross && window.AIO && typeof window.AIO.getCrossSourceQuoteValidation === 'function') cross = window.AIO.getCrossSourceQuoteValidation(t);
+    } catch(_crossAudit) {}
     var quoteOk = !!(live && live.price && ageMs <= 2 * 60 * 1000 && (!truth || truth.decisionUse === true));
     return {
       ticker: t,
@@ -3933,6 +3937,9 @@ window.AIO.getChatAnswerFreshnessAudit = function(scope) {
       source: live && live.source || '',
       truthStatus: truth && truth.status || 'unknown',
       truthIssues: truth ? (truth.issues || []).concat(truth.warnings || []) : [],
+      crossSourceStatus: cross && cross.status || 'unknown',
+      crossSourceCount: cross && typeof cross.independentCount === 'number' ? cross.independentCount : 0,
+      crossSourceMismatches: cross ? [].concat(cross.blockingMismatches || [], cross.warningMismatches || []) : [],
       decisionUse: !truth || truth.decisionUse === true,
       status: quoteOk ? 'ok' : (truth && truth.status === 'blocked' ? 'blocked' : 'refresh_required')
     };
@@ -3981,6 +3988,7 @@ window.AIO.ensureFreshChatAnswerData = async function(scope) {
     refresh = { status: 'warn', error: e && e.message || String(e) };
   }
   var lookups = [];
+  var crossCheck = null;
   if (strict && typeof dynamicTickerLookup === 'function') {
     for (var i = 0; i < tickers.length; i++) {
       var t = tickers[i];
@@ -3998,6 +4006,14 @@ window.AIO.ensureFreshChatAnswerData = async function(scope) {
       }
     }
   }
+  if (strict && window.AIO && typeof window.AIO.validateQuoteCrossSources === 'function') {
+    try {
+      var crossPromise = window.AIO.validateQuoteCrossSources(tickers, { reason: 'chat-answer-cross-source', force: true, limit: Math.max(1, tickers.length) });
+      crossCheck = typeof _withTimeout === 'function' ? await _withTimeout(crossPromise, 6500, null) : await crossPromise;
+    } catch(e3) {
+      crossCheck = { status: 'warn', error: e3 && e3.message || String(e3) };
+    }
+  }
   var after = window.AIO.getChatAnswerFreshnessAudit ? window.AIO.getChatAnswerFreshnessAudit(chatScope) : null;
   return {
     status: after && after.truthBlockedCount ? 'blocked' : (after && after.staleQuoteCount ? 'warn' : (refresh && refresh.status || 'ok')),
@@ -4005,6 +4021,7 @@ window.AIO.ensureFreshChatAnswerData = async function(scope) {
     before: before,
     refresh: refresh,
     quoteLookups: lookups,
+    crossCheck: crossCheck,
     after: after,
     generatedAt: new Date().toISOString()
   };
@@ -10660,6 +10677,13 @@ async function fetchLiveQuotes(requestedSymbols) {
   // ─── 최종 결과 적용 ─────────────────────────────────────────
   if (allQuotes.length > 0) {
     applyLiveQuotes(allQuotes);
+    try {
+      scheduleQuoteCrossSourceValidation([].concat(
+        _requestedQuoteSyms,
+        (window.AIO && window.AIO.CORE_LIVE_SYMBOLS) || [],
+        (typeof _aioGetCritical10Symbols === 'function' ? _aioGetCritical10Symbols() : [])
+      ), 'post-live-quotes-cross-source');
+    } catch(_crossScheduleErr) {}
     fetchLiveQuotes._failCount = 0;
     // v48.36: 중앙 freshness 추적 — _lastFetch.quote + DATA_SNAPSHOT._isFallback 해제
     if (typeof window._markFetch === 'function') window._markFetch('quote');
@@ -10704,6 +10728,196 @@ async function fetchLiveQuotes(requestedSymbols) {
     window._aioQuoteInFlight = false;
   }
 }
+
+function scheduleQuoteCrossSourceValidation(symbols, reason) {
+  if (!window.AIO || typeof window.AIO.validateQuoteCrossSources !== 'function') return;
+  symbols = Array.from(new Set((symbols || []).map(function(sym) {
+    return String(sym || '').trim().toUpperCase();
+  }).filter(Boolean)));
+  if (!symbols.length) return;
+  clearTimeout(window._aioCrossSourceValidationTimer);
+  window._aioCrossSourceValidationTimer = setTimeout(function() {
+    window.AIO.validateQuoteCrossSources(symbols, {
+      reason: reason || 'quote-cross-source',
+      limit: 32
+    }).catch(function(e) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'cross-source quote validation failed: ' + (e && e.message || e));
+    });
+  }, 1200);
+}
+
+window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
+  opts = opts || {};
+  symbols = Array.from(new Set((symbols || []).map(function(sym) {
+    return String(sym || '').trim().toUpperCase();
+  }).filter(Boolean)));
+  var limit = Math.max(1, Math.min(Number(opts.limit || 24), 48));
+  symbols = symbols.slice(0, limit);
+  var now = Date.now();
+  var cache = window.AIO_CROSS_SOURCE_QUOTE_CACHE = window.AIO_CROSS_SOURCE_QUOTE_CACHE || {};
+  var fmpKey = (typeof _getApiKey === 'function') ? (_getApiKey('aio_fmp_key') || '') : '';
+  var finnhubKey = (typeof _getApiKey === 'function') ? (_getApiKey('aio_finnhub_key') || '') : '';
+
+  function _record(sym, source, price, pct, meta) {
+    try {
+      if (window.AIO && typeof window.AIO.recordCrossSourceQuote === 'function') {
+        window.AIO.recordCrossSourceQuote(sym, source, price, pct, Date.now(), Object.assign({ reason: opts.reason || 'cross-source-validation' }, meta || {}));
+      }
+    } catch(_recordErr) {}
+  }
+  function _isKr(sym) { return /\.KS$|\.KQ$|^\d{6}$|\^KS11$|\^KQ11$/.test(sym); }
+  function _isCrypto(sym) { return /^(BTC|ETH|SOL|BNB)-USD$/.test(sym); }
+  function _isFx(sym) { return /=X$/.test(sym); }
+  function _isStockLike(sym) { return !_isKr(sym) && !_isCrypto(sym) && !_isFx(sym) && !/^\^/.test(sym) && !/=F$/.test(sym) && /^[A-Z][A-Z0-9.-]{0,7}$/.test(sym); }
+  function _stooqSymbol(sym) {
+    if (sym === 'CL=F') return 'cl.f';
+    if (sym === 'BZ=F') return 'bz.f';
+    if (sym === 'GC=F') return 'gc.f';
+    if (sym === 'SI=F') return 'si.f';
+    if (sym === 'NG=F') return 'ng.f';
+    if (sym === 'HG=F') return 'hg.f';
+    if (sym === 'DX-Y.NYB' || sym === 'DX=F') return 'dx.f';
+    if (_isStockLike(sym)) return sym.replace(/[^A-Z0-9]/g, '').toLowerCase() + '.us';
+    return null;
+  }
+  async function _fetchJson(url, ms) {
+    var r = await fetchWithTimeout(url, {}, ms || 6500);
+    if (!r || !r.ok) return null;
+    return r.json();
+  }
+  async function _fetchText(url, ms) {
+    var r;
+    try { r = await fetchWithTimeout(url, {}, ms || 6500); } catch(e) { r = await fetchViaProxy(url, (ms || 6500) + 2000); }
+    if (!r || !r.ok) return null;
+    var text = await r.text();
+    if (text && text.charAt(0) === '{') {
+      try { var j = JSON.parse(text); text = j.contents || text; } catch(_parseProxy) {}
+    }
+    return text;
+  }
+  async function _yahooCross(sym) {
+    if (!_isKr(sym)) return false;
+    try {
+      var d = await _fetchJson('https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) + '?interval=1m&range=1d', 6500);
+      var result = d && d.chart && d.chart.result && d.chart.result[0];
+      var meta = result && result.meta;
+      var price = meta && (meta.regularMarketPrice || meta.previousClose);
+      var prev = meta && meta.previousClose;
+      var pct = price && prev ? (price - prev) / prev * 100 : null;
+      if (price > 0) { _record(sym, 'yahoo:cross-chart', price, pct, { previousClose: prev || null }); return true; }
+    } catch(_yahooErr) {}
+    return false;
+  }
+  async function _stooqCross(sym) {
+    var st = _stooqSymbol(sym);
+    if (!st) return false;
+    try {
+      var text = await _fetchText('https://stooq.com/q/l/?s=' + encodeURIComponent(st) + '&f=sd2t2ohlcv&h&e=csv', 6500);
+      if (!text) return false;
+      var line = text.trim().split('\n')[1];
+      if (!line) return false;
+      var cols = line.split(',');
+      if (cols.length < 8 || cols[1] === 'N/D') return false;
+      var close = parseFloat(cols[6]) || parseFloat(cols[7]);
+      var open = parseFloat(cols[3]) || parseFloat(cols[4]);
+      if (sym === 'HG=F' && close > 100 && open > 100) { close = close / 100; open = open / 100; }
+      var pct = close > 0 && open > 0 ? (close - open) / open * 100 : null;
+      if (close > 0) { _record(sym, 'stooq:eod-cross', close, pct, { delayed: true, previousClose: open || null }); return true; }
+    } catch(_stooqErr) {}
+    return false;
+  }
+  async function _finnhubCross(sym) {
+    if (!finnhubKey || !_isStockLike(sym)) return false;
+    try {
+      var d = await _fetchJson('https://finnhub.io/api/v1/quote?symbol=' + encodeURIComponent(sym) + '&token=' + encodeURIComponent(finnhubKey), 6500);
+      if (d && d.c > 0) {
+        var pct = d.pc > 0 ? (d.c - d.pc) / d.pc * 100 : null;
+        _record(sym, 'finnhub:quote-cross', d.c, pct, { previousClose: d.pc || null });
+        return true;
+      }
+    } catch(_fhErr) {}
+    return false;
+  }
+  async function _fmpCross(sym) {
+    if (!fmpKey || !_isStockLike(sym)) return false;
+    try {
+      var d = await _fetchJson('https://financialmodelingprep.com/api/v3/quote/' + encodeURIComponent(sym) + '?apikey=' + encodeURIComponent(fmpKey), 6500);
+      var row = Array.isArray(d) ? d[0] : null;
+      if (row && row.price > 0) {
+        _record(sym, 'fmp:quote-cross', row.price, row.changesPercentage != null ? row.changesPercentage : null, { previousClose: row.previousClose || null });
+        return true;
+      }
+    } catch(_fmpErr) {}
+    return false;
+  }
+  async function _coingeckoCross(sym) {
+    if (!_isCrypto(sym)) return false;
+    var map = {'BTC-USD':'bitcoin','ETH-USD':'ethereum','SOL-USD':'solana','BNB-USD':'binancecoin'};
+    try {
+      var id = map[sym];
+      var d = await _fetchJson('https://api.coingecko.com/api/v3/simple/price?ids=' + encodeURIComponent(id) + '&vs_currencies=usd&include_24hr_change=true&include_last_updated_at=true', 6500);
+      var row = d && d[id];
+      if (row && row.usd > 0) {
+        _record(sym, 'coingecko:cross-simple-price', row.usd, row.usd_24h_change != null ? row.usd_24h_change : null, { delayed: false, sourceTs: row.last_updated_at || null });
+        return true;
+      }
+    } catch(_cgErr) {}
+    return false;
+  }
+  async function _fxCross(sym) {
+    if (!_isFx(sym)) return false;
+    var codeBySym = {'KRW=X':'KRW','JPY=X':'JPY','EURUSD=X':'EUR','GBPUSD=X':'GBP','CNY=X':'CNY','AUDUSD=X':'AUD','CAD=X':'CAD','CHF=X':'CHF'};
+    var code = codeBySym[sym];
+    if (!code) return false;
+    var inverted = {'EURUSD=X':1,'GBPUSD=X':1,'AUDUSD=X':1};
+    var ok = false;
+    async function one(url, source) {
+      try {
+        var d = await _fetchJson(url, 6000);
+        var raw = d && d.rates && d.rates[code];
+        var price = raw > 0 ? (inverted[sym] ? 1 / raw : raw) : null;
+        if (price > 0) { _record(sym, source, price, null, {}); ok = true; }
+      } catch(_fxOne) {}
+    }
+    await Promise.allSettled([
+      one('https://open.er-api.com/v6/latest/USD', 'fx:open.er-api-cross'),
+      one('https://api.exchangerate-api.com/v4/latest/USD', 'fx:exchangerate-api-cross')
+    ]);
+    return ok;
+  }
+  async function _runOne(sym) {
+    var bucket = cache[sym];
+    if (!opts.force && bucket && bucket.lastFetchAt && now - bucket.lastFetchAt < 3 * 60 * 1000) {
+      return window.AIO.getCrossSourceQuoteValidation(sym);
+    }
+    cache[sym] = bucket || { symbol: sym, sources: {}, updatedAt: 0 };
+    cache[sym].lastFetchAt = now;
+    await Promise.allSettled([
+      _yahooCross(sym),
+      _stooqCross(sym),
+      _finnhubCross(sym),
+      _fmpCross(sym),
+      _coingeckoCross(sym),
+      _fxCross(sym)
+    ]);
+    var truth = null;
+    try { if (window.AIO && typeof window.AIO.evaluateDataTruth === 'function') truth = window.AIO.evaluateDataTruth(sym); } catch(_truthEval) {}
+    return truth || (window.AIO && typeof window.AIO.getCrossSourceQuoteValidation === 'function' ? window.AIO.getCrossSourceQuoteValidation(sym) : null);
+  }
+
+  var rows = [];
+  for (var i = 0; i < symbols.length; i += 4) {
+    var chunk = symbols.slice(i, i + 4);
+    var settled = await Promise.allSettled(chunk.map(_runOne));
+    settled.forEach(function(r) { if (r.status === 'fulfilled' && r.value) rows.push(r.value); });
+  }
+  return {
+    status: rows.some(function(r) { return r.status === 'blocked' || r.status === 'mismatch'; }) ? 'blocked' : (rows.some(function(r) { return r.status === 'warn' || r.status === 'warn_mismatch' || r.status === 'single_source'; }) ? 'warn' : 'verified'),
+    total: symbols.length,
+    rows: rows,
+    generatedAt: new Date().toISOString()
+  };
+};
 
 
 // ── Dynamic VIX Percentile ──────────────────────────────────────
@@ -11490,6 +11704,15 @@ function applyLiveQuotes(quotes) {
       previousClose: q.regularMarketPreviousClose || q.chartPreviousClose || null,
       rawQuoteTs: q.regularMarketTime || q.postMarketTime || q.preMarketTime || null
     };
+    try {
+      if (window.AIO && typeof window.AIO.recordCrossSourceQuote === 'function') {
+        window.AIO.recordCrossSourceQuote(q.symbol, q._source || 'live:yahoo', price, pct, now, {
+          previousClose: q.regularMarketPreviousClose || q.chartPreviousClose || null,
+          rawQuoteTs: q.regularMarketTime || q.postMarketTime || q.preMarketTime || null,
+          delayed: /stooq|eod/i.test(String(q._source || ''))
+        });
+      }
+    } catch(_quoteCrossRecordErr) {}
     try {
       if (window.AIO && typeof window.AIO.evaluateDataTruth === 'function') {
         var _truth = window.AIO.evaluateDataTruth(q.symbol, window._liveData[q.symbol], window._dataSource[q.symbol]);

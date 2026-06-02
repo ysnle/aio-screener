@@ -2,7 +2,11 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v49.108
+- **현재 버전**: v49.109
+
+## v49.109 hotfix note
+
+- Added multi-source quote cross-validation. Quote values are recorded by source family and compared across Yahoo/Naver/Stooq/Finnhub/FMP/CoinGecko/FX where available. Independent live-source mismatches block trading-use data, delayed/EOD mismatches warn, and AI chat preflight receives `cross=<status>/<count>` for detected stock tickers.
 
 ## v49.108 hotfix note
 

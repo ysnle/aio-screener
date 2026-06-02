@@ -3,7 +3,8 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v49.108**
+- 현재 버전: **v49.109**
+- **v49.109 multi-source quote cross-validation**: added source-family quote cache plus Yahoo/Naver/Stooq/Finnhub/FMP/CoinGecko/FX cross-checks. `AIO_DATA_TRUTH_GATE` blocks trading-use data when independent live sources materially disagree, and AI chat preflight exposes `cross=<status>/<count>` before using stock price or valuation numbers. T719~T723 added.
 - **v49.108 DataTruthGate hardening**: added `AIO_DATA_TRUTH_GATE`, `AIO.evaluateDataTruth()`, and `AIO.getDataTruthAudit()` so quote values must pass source, timestamp, stale-age, sanity-range, and pct/previous-close coherence checks before they can remain decision-usable. Truth-blocked values are marked `reference-only` in DOM lineage and injected into AI chat freshness preflight. T715~T718 added.
 - **v49.107 Critical-10 freshness pipeline hardening**: manual refresh, page-enter refresh, and AI freshness preflight now use the combined comprehensive 5 + market-analysis 5 symbol universe. `AIO.applyLiveDataToDom()`, `AIO.verifyPageLiveDataBinding()`, `AIO.verifyCritical10LiveBindings()`, and `AIO.repairPageLiveDataBinding()` make visible DOM binding explicit for every `data-live-price/chg/pct/field` sink, so refresh completion cannot be mistaken for actual screen update completion. T711~T714 added.
 - **v49.106 AI answer diversity/current-data contract**: AI 채팅에 `_buildChatAnswerCoverageContext()` 신규. 답변을 decision memo, ranked comparison, valuation memo, earnings review, technical setup, portfolio risk note, beginner explanation 등으로 의도별 분기하고, 최신 가격/시총/실적/가이던스/목표가/뉴스/공시/매크로 수치는 Claude 학습 데이터가 아니라 주입된 live/FMP/SEC/Naver/Finnhub/news/web-search/age-labeled snapshot 데이터만 쓰도록 system prompt에 강제한다. T708~T710 추가.

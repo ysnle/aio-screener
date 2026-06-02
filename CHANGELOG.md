@@ -6,6 +6,17 @@
 
 ---
 
+## v49.109 - Multi-source quote cross-validation (2026-06-02)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
+
+- **Cross-source cache**: added `AIO.recordCrossSourceQuote()`, `AIO.getCrossSourceQuoteValidation()`, and source-family normalization so Yahoo/Naver/Stooq/Finnhub/FMP/CoinGecko/FX quote values are retained independently instead of overwriting each other.
+- **Truth gate integration**: `AIO_DATA_TRUTH_GATE` now evaluates independent-source agreement. Large live-source mismatches add `cross_source_mismatch` and block trading-use data; delayed/EOD mismatches remain warnings.
+- **Refresh pipeline**: `fetchLiveQuotes()` now schedules post-refresh cross-source validation for requested, core, and critical-10 symbols. `applyLiveQuotes()` and `_aioSetLiveData()` record every quote into the cross-source cache.
+- **AI preflight**: stock-answer preflight now forces `validateQuoteCrossSources()` for detected tickers and injects `cross=<status>/<count>` into the prompt; cross-source mismatched values are forbidden for current price/valuation claims.
+- **Regression guard**: T719~T723 verify source-family grouping, verified independent matches, mismatch blocking, multi-provider validator coverage, and chat preflight cross-source exposure.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v49.109.
+
 ## v49.108 - DataTruthGate trading-safety validation (2026-06-02)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`

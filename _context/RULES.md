@@ -2,7 +2,7 @@
 verified_by: agent
 last_verified: 2026-06-02
 confidence: high
-target_version: v49.108
+target_version: v49.109
 
 ---
 
@@ -2362,3 +2362,16 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 - AI chat freshness preflight must include truth status/issues and must forbid current numeric claims from truth-blocked data.
 
 **Validation**: `AIO.getDataTruthAudit({critical10:true})` + T715~T718.
+
+## R196. Trading-use quotes require independent cross-source validation when available (v49.109 added, P472 root)
+
+**Rule**: Current quote data must keep independent source-family evidence instead of overwriting providers into one final value. A value can remain decision-usable only if DataTruthGate passes and no independent live source materially disagrees. If independent sources disagree beyond the asset threshold, the quote is blocked for trading-use and AI answers must not cite it as current.
+
+**Required**:
+- Every quote write path (`applyLiveQuotes`, `_aioSetLiveData`, ticker-detail fallbacks, and stock-chat/company-analysis fetches) should record the value through `AIO.recordCrossSourceQuote()` when a price is available.
+- `AIO.getCrossSourceQuoteValidation(symbol)` must compare source families, not raw labels, so all Yahoo proxies count as Yahoo while Finnhub/FMP/Stooq/Naver/CoinGecko/FX APIs remain independent families.
+- `fetchLiveQuotes()` must schedule post-refresh cross-source validation for requested/core/critical symbols via `AIO.validateQuoteCrossSources()`.
+- AI stock-answer preflight must force cross-source validation for detected tickers and inject cross-source status into the prompt.
+- Delayed/EOD source disagreement may warn, but independent live-source disagreement must block decision-use data.
+
+**Validation**: `AIO.getCrossSourceQuoteValidation(symbol)` + `AIO.validateQuoteCrossSources(symbols)` + T719~T723.
