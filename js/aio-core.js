@@ -9860,6 +9860,7 @@ window.AIO.getAutoOpsReadiness = function() {
   var krSupplyRuntime = window.AIO.getKrSupplyRuntimeAudit ? window.AIO.getKrSupplyRuntimeAudit() : null;
   var marketCurrentness = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit() : null;
   var critical10MarketSurface = window.AIO.getCritical10MarketSurfaceAudit ? window.AIO.getCritical10MarketSurfaceAudit() : null;
+  var critical10MarketSituation = window.AIO.getCritical10MarketSituationAudit ? window.AIO.getCritical10MarketSituationAudit({ sampleLimit: 40 }) : null;
   var dataTruth = window.AIO.getDataTruthAudit ? window.AIO.getDataTruthAudit({ critical10: true, symbolLimit: 999 }) : null;
   var essenceAlignment = window.AIO.getEssenceAlignmentAudit ? window.AIO.getEssenceAlignmentAudit() : null;
   var fullSurfaceAudit = window.AIO.getFullSurfaceAudit ? window.AIO.getFullSurfaceAudit() : null;
@@ -9903,7 +9904,8 @@ window.AIO.getAutoOpsReadiness = function() {
   if (krSupplyRuntime && krSupplyRuntime.issueCount) issues.push(krSupplyRuntime.issueCount + ' KR supply runtime issue(s) [v49.54/R108]');
   if (marketCurrentness && marketCurrentness.issueCount) issues.push(marketCurrentness.issueCount + ' market currentness issue(s) [v49.58/R111]');
   if (critical10MarketSurface && critical10MarketSurface.issuePageCount) issues.push(critical10MarketSurface.issuePageCount + ' critical page market surface issue page(s) [v49.110/R197]');
-  if (dataTruth && dataTruth.blockedCount) issues.push(dataTruth.blockedCount + ' truth-blocked market data symbol(s) [v49.110/DataTruthGate+CrossSource]: ' + dataTruth.blockedSymbols.slice(0, 8).join(','));
+  if (critical10MarketSituation && critical10MarketSituation.status !== 'ok') issues.push(critical10MarketSituation.issuePageCount + ' critical page market-situation mismatch/coverage page(s) [v49.111/R198]');
+  if (dataTruth && dataTruth.blockedCount) issues.push(dataTruth.blockedCount + ' truth-blocked market data symbol(s) [v49.111/DataTruthGate+CrossSource]: ' + dataTruth.blockedSymbols.slice(0, 8).join(','));
   if (essenceAlignment && essenceAlignment.status === 'fail') issues.push('3대 본질 정렬 fail: ' + essenceAlignment.overallScore + '점 [v49.65/R119]');
   if (fullSurfaceAudit && fullSurfaceAudit.status === 'fail') issues.push(fullSurfaceAudit.issueCount + ' full surface audit issue(s) [P358/R124]');
   if (deepReviewAudit && deepReviewAudit.status === 'fail') issues.push(deepReviewAudit.issueCount + ' deep review issue(s) [P359/R125]');
@@ -9956,6 +9958,8 @@ window.AIO.getAutoOpsReadiness = function() {
       krSupplyRuntime: 'AIO.getKrSupplyRuntimeAudit()',
       marketCurrentness: 'AIO.getMarketCurrentnessAudit({ includeHidden: true })',
       critical10MarketSurface: 'AIO.getCritical10MarketSurfaceAudit()',
+      critical10MarketSituation: 'AIO.getCritical10MarketSituationAudit()',
+      refreshMarketSituationAudit: 'AIO.refreshCritical10MarketSituationAudit()',
       essenceAlignment: 'AIO.getEssenceAlignmentAudit()',
       fullSurfaceAudit: 'AIO.getFullSurfaceAudit()',
       deepReviewAudit: 'AIO.getDeepReviewAudit()',
@@ -9998,6 +10002,7 @@ window.AIO.getAutoOpsReadiness = function() {
     krSupplyRuntime: krSupplyRuntime,
     marketCurrentness: marketCurrentness,
     critical10MarketSurface: critical10MarketSurface,
+    critical10MarketSituation: critical10MarketSituation,
     essenceAlignment: essenceAlignment,
     fullSurfaceAudit: fullSurfaceAudit,
     deepReviewAudit: deepReviewAudit,
@@ -14385,7 +14390,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.110';
+const APP_VERSION = 'v49.111';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -16989,7 +16994,7 @@ window.AIO.getCrossSourceQuoteValidation = function(symbol, opts) {
 };
 
 window.AIO_DATA_TRUTH_GATE = {
-  version: 'v49.110',
+  version: 'v49.111',
   singleSourceIsWarn: true,
   classifyAsset: function(sym) {
     sym = String(sym || '').toUpperCase();
@@ -17439,6 +17444,273 @@ window.AIO.getCritical10MarketSurfaceAudit = function(opts) {
     pages: rows,
     generatedAt: new Date(now).toISOString()
   };
+};
+
+window.AIO.MARKET_SITUATION_REFERENCE_SYMBOLS = ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','^VVIX','^TNX','^TYX','^FVX','DX-Y.NYB','CL=F','BZ=F','GC=F','SI=F','BTC-USD','TLT','HYG','LQD','GLD','USO','KRW=X','^KS11','^KQ11'];
+
+function _aioMarketAuditNumber(text) {
+  var s = String(text || '').replace(/[,＄$₩]/g, '').replace(/[^\d.\-+]/g, ' ').trim();
+  var m = s.match(/[-+]?\d+(?:\.\d+)?/);
+  return m ? Number(m[0]) : NaN;
+}
+
+function _aioMarketAuditQuote(sym) {
+  sym = String(sym || '').toUpperCase();
+  var q = window._liveData && window._liveData[sym];
+  var ds = window._dataSource && window._dataSource[sym];
+  var price = Number(q && (q.price != null ? q.price : q.regularMarketPrice));
+  var pct = Number(q && (q.pct != null ? q.pct : q.regularMarketChangePercent));
+  var ts = Number((q && q.ts) || (ds && ds.ts) || (q && q.timestamp) || 0);
+  var truth = null;
+  try { truth = window.AIO.evaluateDataTruth ? window.AIO.evaluateDataTruth(sym) : null; } catch(_) {}
+  var cross = null;
+  try { cross = window.AIO.getCrossSourceQuoteValidation ? window.AIO.getCrossSourceQuoteValidation(sym) : null; } catch(_) {}
+  return {
+    symbol: sym,
+    hasQuote: isFinite(price) && price > 0,
+    price: isFinite(price) ? price : null,
+    pct: isFinite(pct) ? pct : null,
+    source: (ds && ds.source) || (q && q.source) || '',
+    sourceKind: (ds && ds.sourceKind) || '',
+    ts: ts || null,
+    ageMs: ts ? Date.now() - ts : null,
+    truthStatus: truth && truth.status || null,
+    decisionUse: truth ? truth.decisionUse === true : null,
+    truthIssues: truth && truth.issues || [],
+    crossStatus: cross && cross.status || null,
+    crossVerifiedCount: cross && cross.verifiedCount || 0,
+    crossBlockingCount: cross && cross.blockingMismatches ? cross.blockingMismatches.length : 0
+  };
+}
+
+function _aioMarketAuditRegime(ref) {
+  ref = ref || {};
+  function q(sym, field) {
+    var r = ref[String(sym).toUpperCase()];
+    return r && typeof r[field || 'price'] === 'number' ? r[field || 'price'] : NaN;
+  }
+  var spyPct = q('SPY', 'pct');
+  var qqqPct = q('QQQ', 'pct');
+  var vix = q('^VIX', 'price');
+  var tnx = q('^TNX', 'price');
+  var oil = q('CL=F', 'price');
+  var gold = q('GC=F', 'price');
+  var riskScore = 0;
+  if (isFinite(spyPct)) riskScore += spyPct > 0.25 ? 1 : (spyPct < -0.25 ? -1 : 0);
+  if (isFinite(qqqPct)) riskScore += qqqPct > 0.25 ? 1 : (qqqPct < -0.25 ? -1 : 0);
+  if (isFinite(vix)) riskScore += vix < 16 ? 1 : (vix > 22 ? -1 : 0);
+  return {
+    riskTone: riskScore >= 2 ? 'risk_on' : (riskScore <= -2 ? 'risk_off' : 'mixed'),
+    volatility: isFinite(vix) ? (vix < 16 ? 'low' : (vix < 22 ? 'normal' : (vix < 30 ? 'elevated' : 'stress'))) : 'unknown',
+    rates: isFinite(tnx) ? (tnx >= 4.5 ? 'high_yield_pressure' : (tnx <= 4.0 ? 'rate_relief' : 'neutral')) : 'unknown',
+    oil: isFinite(oil) ? (oil >= 85 ? 'oil_high' : (oil <= 65 ? 'oil_soft' : 'oil_neutral')) : 'unknown',
+    gold: isFinite(gold) ? (gold >= 4300 ? 'gold_high' : (gold <= 3500 ? 'gold_soft' : 'gold_neutral')) : 'unknown',
+    inputs: { spyPct: isFinite(spyPct) ? spyPct : null, qqqPct: isFinite(qqqPct) ? qqqPct : null, vix: isFinite(vix) ? vix : null, tnx: isFinite(tnx) ? tnx : null, oil: isFinite(oil) ? oil : null, gold: isFinite(gold) ? gold : null }
+  };
+}
+
+window.AIO.getMarketSituationReferenceSnapshot = function(opts) {
+  opts = opts || {};
+  var symbols = _aioUniq((opts.symbols || window.AIO.MARKET_SITUATION_REFERENCE_SYMBOLS || []).concat(opts.extraSymbols || []));
+  var rows = symbols.map(_aioMarketAuditQuote);
+  var bySymbol = {};
+  rows.forEach(function(r) { bySymbol[r.symbol] = r; });
+  var missing = rows.filter(function(r) { return !r.hasQuote; });
+  var truthBlocked = rows.filter(function(r) { return r.truthStatus === 'blocked' || r.decisionUse === false; });
+  var stale = rows.filter(function(r) { return typeof r.ageMs === 'number' && r.ageMs > (opts.maxAgeMs || 15 * 60 * 1000); });
+  return {
+    status: missing.length || truthBlocked.length || stale.length ? 'warn' : 'ok',
+    symbols: symbols,
+    rows: rows,
+    bySymbol: bySymbol,
+    regime: _aioMarketAuditRegime(bySymbol),
+    missingCount: missing.length,
+    staleCount: stale.length,
+    truthBlockedCount: truthBlocked.length,
+    missingSymbols: missing.map(function(r) { return r.symbol; }),
+    staleSymbols: stale.map(function(r) { return r.symbol; }),
+    truthBlockedSymbols: truthBlocked.map(function(r) { return r.symbol; }),
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.collectCritical10MarketContentInventory = function(opts) {
+  opts = opts || {};
+  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var marketWordRe = /시장|시황|강세|약세|상승|하락|위험|리스크|변동성|금리|유가|달러|VIX|S&P|SPY|QQQ|Nasdaq|나스닥|국채|채권|크레딧|브레드스|breadth|risk|volatility|yield|oil|gold|bitcoin|BTC/i;
+  var numericRe = /(?:[$₩])?\s*[-+]?\d[\d,.]*(?:\.\d+)?\s*(?:%|bp|bps|x|배|조|억|M|B|T|pt|pts)?/i;
+  var pagesOut = pages.map(function(pageId) {
+    var root = null;
+    try { root = document.getElementById('page-' + pageId); } catch(_) {}
+    var liveRows = [];
+    var snapRows = [];
+    var dateRows = [];
+    var chartRows = [];
+    var numericRows = [];
+    var narrativeRows = [];
+    if (root) {
+      Array.prototype.slice.call(root.querySelectorAll('[data-live-price],[data-live-chg],[data-live-pct],[data-live-field]')).forEach(function(el) {
+        var fieldAttr = el.hasAttribute('data-live-price') ? 'price' : (el.hasAttribute('data-live-chg') ? 'chg' : (el.hasAttribute('data-live-pct') ? 'pct' : 'field'));
+        var rawKey = el.getAttribute('data-live-price') || el.getAttribute('data-live-chg') || el.getAttribute('data-live-pct') || el.getAttribute('data-live-field') || '';
+        var sym = fieldAttr === 'field' ? String(rawKey).split(':')[0] : rawKey;
+        liveRows.push({
+          pageId: pageId,
+          id: el.id || '',
+          symbol: String(sym || '').toUpperCase(),
+          field: fieldAttr,
+          text: String(el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 140),
+          parsedValue: _aioMarketAuditNumber(el.textContent),
+          sourceKind: el.getAttribute('data-source-kind') || '',
+          sourceLabel: el.getAttribute('data-source-label') || '',
+          operationalUse: el.getAttribute('data-operational-use') || '',
+          truthStatus: el.getAttribute('data-truth-status') || '',
+          truthIssues: el.getAttribute('data-truth-issues') || ''
+        });
+      });
+      Array.prototype.slice.call(root.querySelectorAll('[data-snap]')).forEach(function(el) {
+        snapRows.push({ pageId: pageId, id: el.id || '', key: el.getAttribute('data-snap') || '', text: String(el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 140), parsedValue: _aioMarketAuditNumber(el.textContent), sourceKind: el.getAttribute('data-source-kind') || '', operationalUse: el.getAttribute('data-operational-use') || '' });
+      });
+      Array.prototype.slice.call(root.querySelectorAll('[data-snap-date]')).forEach(function(el) {
+        dateRows.push({ pageId: pageId, id: el.id || '', key: el.getAttribute('data-snap-date') || '', text: String(el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 80) });
+      });
+      Array.prototype.slice.call(root.querySelectorAll('canvas,[id*="chart"],[id*="widget"],[class*="chart"]')).forEach(function(el) {
+        chartRows.push({ pageId: pageId, id: el.id || '', tag: el.tagName || '', text: String(el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 100) });
+      });
+      _aioLeafTextNodes(root).forEach(function(el) {
+        var text = String(el.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!text || text.length > 260) return;
+        if (numericRe.test(text) && !el.closest('[data-live-price],[data-live-chg],[data-live-pct],[data-live-field],[data-snap],[data-snap-date]')) {
+          numericRows.push({ pageId: pageId, id: el.id || '', text: text.slice(0, 160), parsedValue: _aioMarketAuditNumber(text) });
+        }
+        if (marketWordRe.test(text)) {
+          narrativeRows.push({ pageId: pageId, id: el.id || '', text: text.slice(0, 220) });
+        }
+      });
+    }
+    return {
+      pageId: pageId,
+      pageExists: !!root,
+      liveSinkCount: liveRows.length,
+      snapSinkCount: snapRows.length,
+      snapDateCount: dateRows.length,
+      chartLikeCount: chartRows.length,
+      numericTextCount: numericRows.length,
+      narrativeTextCount: narrativeRows.length,
+      liveSinks: liveRows.slice(0, opts.sampleLimit || 120),
+      snapSinks: snapRows.slice(0, opts.sampleLimit || 80),
+      snapDates: dateRows.slice(0, opts.sampleLimit || 80),
+      charts: chartRows.slice(0, opts.sampleLimit || 80),
+      numericTextSamples: numericRows.slice(0, opts.sampleLimit || 80),
+      narrativeSamples: narrativeRows.slice(0, opts.sampleLimit || 80)
+    };
+  });
+  var totals = pagesOut.reduce(function(acc, p) {
+    acc.liveSinkCount += p.liveSinkCount; acc.snapSinkCount += p.snapSinkCount; acc.snapDateCount += p.snapDateCount;
+    acc.chartLikeCount += p.chartLikeCount; acc.numericTextCount += p.numericTextCount; acc.narrativeTextCount += p.narrativeTextCount;
+    return acc;
+  }, { liveSinkCount: 0, snapSinkCount: 0, snapDateCount: 0, chartLikeCount: 0, numericTextCount: 0, narrativeTextCount: 0 });
+  return { status: pagesOut.every(function(p) { return p.pageExists; }) ? 'ok' : 'warn', pagesChecked: pagesOut.length, totals: totals, pages: pagesOut, generatedAt: new Date().toISOString() };
+};
+
+window.AIO.getCritical10MarketSituationAudit = function(opts) {
+  opts = opts || {};
+  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var inventory = window.AIO.collectCritical10MarketContentInventory({ pages: pages, sampleLimit: opts.sampleLimit || 140 });
+  var liveSymbols = [];
+  inventory.pages.forEach(function(p) { (p.liveSinks || []).forEach(function(s) { if (s.symbol) liveSymbols.push(s.symbol); }); });
+  var reference = window.AIO.getMarketSituationReferenceSnapshot({ symbols: _aioUniq((window.AIO.MARKET_SITUATION_REFERENCE_SYMBOLS || []).concat(liveSymbols)).slice(0, opts.symbolLimit || 260), maxAgeMs: opts.maxAgeMs || 15 * 60 * 1000 });
+  var now = Date.now();
+  var dateWarnDays = opts.dateWarnDays || 14;
+  var valueTolerancePct = opts.valueTolerancePct || 1.5;
+  var issues = [];
+  var pagesOut = inventory.pages.map(function(p) {
+    var pageIssues = [];
+    var valueMismatches = [];
+    var referenceMissing = [];
+    var sourceIssues = [];
+    var staleDates = [];
+    var narrativeConflicts = [];
+    (p.liveSinks || []).forEach(function(row) {
+      var ref = reference.bySymbol && reference.bySymbol[row.symbol];
+      if (!ref || !ref.hasQuote) {
+        referenceMissing.push(row);
+      } else if (row.field === 'price' && isFinite(row.parsedValue) && ref.price) {
+        var diffPct = Math.abs(row.parsedValue - ref.price) / ref.price * 100;
+        if (diffPct > valueTolerancePct) valueMismatches.push(Object.assign({ referencePrice: ref.price, diffPct: Number(diffPct.toFixed(3)) }, row));
+      }
+      if (!row.sourceKind || row.operationalUse === 'reference-only' || row.truthStatus === 'blocked') sourceIssues.push(row);
+    });
+    (p.snapDates || []).forEach(function(row) {
+      var m = String(row.text || '').match(/(20\d{2})-(\d{2})-(\d{2})/);
+      if (!m) return;
+      var ts = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime();
+      var ageDays = Math.floor((now - ts) / 86400000);
+      if (ageDays > dateWarnDays) staleDates.push(Object.assign({ ageDays: ageDays }, row));
+    });
+    var reg = reference.regime || {};
+    (p.narrativeSamples || []).forEach(function(row) {
+      var text = row.text || '';
+      if (reg.volatility === 'low' && /(공포|패닉|고변동|변동성\s*급등|high volatility|panic)/i.test(text)) narrativeConflicts.push(Object.assign({ reason: 'low-vix-but-fear-language', regime: reg.volatility }, row));
+      if ((reg.volatility === 'elevated' || reg.volatility === 'stress') && /(저변동|안정적\s*변동성|low volatility|calm)/i.test(text)) narrativeConflicts.push(Object.assign({ reason: 'high-vix-but-calm-language', regime: reg.volatility }, row));
+      if (reg.rates === 'high_yield_pressure' && /(금리\s*하락|금리\s*완화|채권\s*랠리|rate relief|lower yields)/i.test(text)) narrativeConflicts.push(Object.assign({ reason: 'high-yield-but-rate-relief-language', regime: reg.rates }, row));
+      if (reg.oil === 'oil_high' && /(유가\s*안정|유가\s*약세|oil soft|cheap oil)/i.test(text)) narrativeConflicts.push(Object.assign({ reason: 'high-oil-but-soft-oil-language', regime: reg.oil }, row));
+      if (reg.riskTone === 'risk_off' && /(risk[- ]?on|강세장|위험선호|추격매수|공격적\s*매수)/i.test(text)) narrativeConflicts.push(Object.assign({ reason: 'risk-off-but-risk-on-language', regime: reg.riskTone }, row));
+    });
+    if (!p.pageExists) pageIssues.push('missing page DOM');
+    if (referenceMissing.length) pageIssues.push('missing current reference for visible live sink: ' + referenceMissing.length);
+    if (valueMismatches.length) pageIssues.push('visible value differs from current reference: ' + valueMismatches.length);
+    if (sourceIssues.length) pageIssues.push('visible source/truth issue: ' + sourceIssues.length);
+    if (staleDates.length) pageIssues.push('stale snap date: ' + staleDates.length);
+    if (narrativeConflicts.length) pageIssues.push('narrative conflicts with current regime: ' + narrativeConflicts.length);
+    var out = {
+      pageId: p.pageId,
+      status: pageIssues.length ? 'warn' : 'ok',
+      issues: pageIssues,
+      counts: { liveSinkCount: p.liveSinkCount, snapSinkCount: p.snapSinkCount, snapDateCount: p.snapDateCount, chartLikeCount: p.chartLikeCount, numericTextCount: p.numericTextCount, narrativeTextCount: p.narrativeTextCount },
+      referenceMissingCount: referenceMissing.length,
+      valueMismatchCount: valueMismatches.length,
+      sourceIssueCount: sourceIssues.length,
+      staleDateCount: staleDates.length,
+      narrativeConflictCount: narrativeConflicts.length,
+      valueMismatchSample: valueMismatches.slice(0, 12),
+      referenceMissingSample: referenceMissing.slice(0, 12),
+      sourceIssueSample: sourceIssues.slice(0, 12),
+      staleDateSample: staleDates.slice(0, 12),
+      narrativeConflictSample: narrativeConflicts.slice(0, 12)
+    };
+    if (pageIssues.length) issues.push(out);
+    return out;
+  });
+  var totals = pagesOut.reduce(function(acc, p) {
+    acc.referenceMissingCount += p.referenceMissingCount; acc.valueMismatchCount += p.valueMismatchCount; acc.sourceIssueCount += p.sourceIssueCount;
+    acc.staleDateCount += p.staleDateCount; acc.narrativeConflictCount += p.narrativeConflictCount;
+    return acc;
+  }, { referenceMissingCount: 0, valueMismatchCount: 0, sourceIssueCount: 0, staleDateCount: 0, narrativeConflictCount: 0 });
+  return {
+    status: issues.length || reference.status !== 'ok' ? 'warn' : 'ok',
+    pagesChecked: pagesOut.length,
+    issuePageCount: issues.length,
+    totals: totals,
+    reference: { status: reference.status, missingCount: reference.missingCount, staleCount: reference.staleCount, truthBlockedCount: reference.truthBlockedCount, missingSymbols: reference.missingSymbols.slice(0, 40), staleSymbols: reference.staleSymbols.slice(0, 40), truthBlockedSymbols: reference.truthBlockedSymbols.slice(0, 40), regime: reference.regime },
+    inventoryTotals: inventory.totals,
+    pages: pagesOut,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.refreshCritical10MarketSituationAudit = async function(opts) {
+  opts = opts || {};
+  var symbols = _aioUniq((window.AIO.MARKET_SITUATION_REFERENCE_SYMBOLS || []).concat(opts.symbols || []));
+  var refresh = null;
+  try {
+    if (typeof fetchLiveQuotes === 'function') refresh = await fetchLiveQuotes(symbols);
+    if (window.AIO.validateQuoteCrossSources) await window.AIO.validateQuoteCrossSources(symbols, { reason: 'critical10-market-situation-audit' });
+    if (window.AIO.applyLiveDataToDom) window.AIO.applyLiveDataToDom({ force: true, reason: 'critical10-market-situation-audit' });
+  } catch(e) {
+    refresh = { status: 'error', error: e && e.message || String(e) };
+  }
+  var audit = window.AIO.getCritical10MarketSituationAudit(Object.assign({}, opts, { symbols: symbols }));
+  return { status: audit.status, refresh: refresh, audit: audit, generatedAt: new Date().toISOString() };
 };
 
 window.AIO.updateSnapshotStaleBanner = function() {

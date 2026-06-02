@@ -2,7 +2,7 @@
 verified_by: agent
 last_verified: 2026-06-02
 confidence: high
-target_version: v49.110
+target_version: v49.111
 
 ---
 
@@ -2387,3 +2387,16 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 - Visible `data-operational-use="reference-only"` or `data-truth-status="blocked"` quote cells must count as market currentness issues even if a numeric value is displayed.
 
 **Validation**: `AIO.getCritical10MarketSurfaceAudit()` + `AIO.getComprehensivePageDataFreshnessAudit()` + T724~T727.
+
+## R198. Critical-10 page content must be compared with current market reference/regime before being trusted (v49.111 added, P474 root)
+
+**Rule**: The comprehensive 5 pages and market-analysis 5 pages must not be treated as market-current just because refresh tasks ran or live sinks exist. The app must inventory visible market content and compare it against the current reference quote/truth/cross-source snapshot and derived market regime.
+
+**Required**:
+- `AIO.collectCritical10MarketContentInventory()` must enumerate live cells, snapshot cells, snap dates, chart-like elements, static numeric text, and market narrative text for all critical-10 pages.
+- `AIO.getMarketSituationReferenceSnapshot()` must expose current reference coverage, age, truth status, cross-source status, and a derived market regime for core market symbols.
+- `AIO.getCritical10MarketSituationAudit()` must warn on missing current references, visible value/reference mismatches, source/truth problems, stale dates, and narrative-regime conflicts.
+- `AIO.refreshCritical10MarketSituationAudit()` must be able to fetch current quotes, run cross-source validation, rebind DOM cells, and then rerun the situation audit.
+- Comprehensive page freshness and ops readiness must surface the market-situation audit so a page cannot look healthy when its visible market content is not backed by current reference data.
+
+**Validation**: `AIO.getCritical10MarketSituationAudit()` + `AIO.refreshCritical10MarketSituationAudit()` + T728~T733.

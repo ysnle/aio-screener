@@ -4596,7 +4596,7 @@ async function chatSend(ctxId) {
     var _cfRows = (_cfAfter.quoteRows || []).map(function(r) {
       return r.ticker + ': ' + (r.hasLivePrice ? 'quote-ok' : 'quote-missing') + (r.quoteAgeSec != null ? ' age=' + r.quoteAgeSec + 's' : '') + (r.source ? ' source=' + r.source : '') + (r.truthStatus ? ' truth=' + r.truthStatus : '') + (r.crossSourceStatus ? ' cross=' + r.crossSourceStatus + '/' + (r.crossSourceCount || 0) : '') + (r.truthIssues && r.truthIssues.length ? ' issues=' + r.truthIssues.slice(0,3).join('|') : '');
     }).join(' / ');
-    systemPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v49.110]\n' +
+    systemPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v49.111]\n' +
       'status=' + (chatFreshPreflight.status || 'unknown') + ' strict=' + !!chatFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
       'quotes=' + (_cfRows || 'not available') + '\n' +
       'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt. If a ticker quote remains missing, stale, truth-blocked, cross-source mismatched, out-of-range, or source-mismatched after preflight, do not invent or use price, market cap, valuation, earnings, or target-price numbers for trading judgment.\n';

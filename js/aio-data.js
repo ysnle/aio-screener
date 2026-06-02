@@ -3646,7 +3646,9 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
   var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
   var now = Date.now();
   var critical10MarketSurface = null;
+  var critical10MarketSituation = null;
   var marketSurfaceByPage = {};
+  var marketSituationByPage = {};
   try {
     critical10MarketSurface = window.AIO.getCritical10MarketSurfaceAudit ? window.AIO.getCritical10MarketSurfaceAudit({ pages: pages }) : null;
     if (critical10MarketSurface && Array.isArray(critical10MarketSurface.pages)) {
@@ -3654,6 +3656,14 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     }
   } catch(e) {
     critical10MarketSurface = { status: 'error', issuePageCount: pages.length, error: e && e.message || String(e), pages: [] };
+  }
+  try {
+    critical10MarketSituation = window.AIO.getCritical10MarketSituationAudit ? window.AIO.getCritical10MarketSituationAudit({ pages: pages, sampleLimit: 40 }) : null;
+    if (critical10MarketSituation && Array.isArray(critical10MarketSituation.pages)) {
+      critical10MarketSituation.pages.forEach(function(row) { marketSituationByPage[row.pageId] = row; });
+    }
+  } catch(e3) {
+    critical10MarketSituation = { status: 'error', issuePageCount: pages.length, error: e3 && e3.message || String(e3), pages: [] };
   }
   var details = pages.map(function(pageId) {
     var profile = _aioGetRefreshProfile(pageId);
@@ -3672,6 +3682,7 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     var bindingAudit = null;
     try { bindingAudit = window.AIO.verifyPageLiveDataBinding ? window.AIO.verifyPageLiveDataBinding({ pageId: pageId }) : null; } catch(e2) { bindingAudit = { status: 'error', error: e2 && e2.message || String(e2), sourceMissingCount: 0, bindingMissingCount: 0, truthBlockedCount: 0 }; }
     var marketRow = marketSurfaceByPage[pageId] || null;
+    var situationRow = marketSituationByPage[pageId] || null;
     var issues = [];
     if (!pageEl) issues.push('missing page DOM');
     if (missingTasks.length) issues.push('missing task fn: ' + missingTasks.join(','));
@@ -3683,6 +3694,7 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     if (bindingAudit && bindingAudit.truthBlockedCount) issues.push('truth-blocked visible live sink: ' + bindingAudit.truthBlockedCount);
     if (marketRow && marketRow.marketIssueCount) issues.push('market surface issue: ' + marketRow.marketIssueCount);
     if (marketRow && marketRow.staleSnapDates && marketRow.staleSnapDates.length) issues.push('stale snap-date: ' + marketRow.staleSnapDates.length);
+    if (situationRow && situationRow.status !== 'ok') issues.push('market situation mismatch/coverage: ' + situationRow.issues.join('|'));
     return {
       pageId: pageId,
       status: issues.length ? 'warn' : 'ok',
@@ -3712,6 +3724,15 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
         visibleTruthBlockedCount: marketRow.visibleTruthBlockedCount || 0,
         staleSnapDateCount: marketRow.staleSnapDates ? marketRow.staleSnapDates.length : 0,
         marketIssueSample: marketRow.marketIssueSample || []
+      } : null,
+      marketSituation: situationRow ? {
+        status: situationRow.status,
+        issues: situationRow.issues || [],
+        referenceMissingCount: situationRow.referenceMissingCount || 0,
+        valueMismatchCount: situationRow.valueMismatchCount || 0,
+        sourceIssueCount: situationRow.sourceIssueCount || 0,
+        staleDateCount: situationRow.staleDateCount || 0,
+        narrativeConflictCount: situationRow.narrativeConflictCount || 0
       } : null
     };
   });
@@ -3725,6 +3746,7 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     pages: details,
     surfaceIntegrity: window.AIO.getComprehensiveSurfaceIntegrityAudit ? window.AIO.getComprehensiveSurfaceIntegrityAudit({ symbolLimit: 999 }) : null,
     critical10MarketSurface: critical10MarketSurface,
+    critical10MarketSituation: critical10MarketSituation,
     generatedAt: new Date(now).toISOString()
   };
 };

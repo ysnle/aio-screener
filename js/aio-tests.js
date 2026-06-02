@@ -3855,6 +3855,55 @@
         readinessSrc727.indexOf('critical10MarketSurface') >= 0,
       'len=' + readinessSrc727.length);
 
+    var inventory728 = null;
+    try { inventory728 = window.AIO.collectCritical10MarketContentInventory ? window.AIO.collectCritical10MarketContentInventory({ sampleLimit: 5 }) : null; } catch(_t728) {}
+    _assert('T728 critical10_content_inventory_v49111: 10 pages enumerate live/snap/date/chart/numeric/narrative content',
+      inventory728 && inventory728.totals &&
+        typeof inventory728.totals.liveSinkCount === 'number' &&
+        typeof inventory728.totals.chartLikeCount === 'number' &&
+        typeof inventory728.totals.numericTextCount === 'number' &&
+        Array.isArray(inventory728.pages),
+      JSON.stringify(inventory728 && inventory728.totals));
+
+    var reference729 = null;
+    try { reference729 = window.AIO.getMarketSituationReferenceSnapshot ? window.AIO.getMarketSituationReferenceSnapshot({ symbols: ['SPY','QQQ','^VIX','^TNX','CL=F','GC=F'] }) : null; } catch(_t729) {}
+    _assert('T729 market_situation_reference_snapshot_v49111: current reference snapshot exposes quote coverage and regime inputs',
+      reference729 && reference729.regime &&
+        typeof reference729.missingCount === 'number' &&
+        reference729.bySymbol && reference729.bySymbol.SPY &&
+        typeof reference729.regime.riskTone === 'string',
+      JSON.stringify(reference729 && { missing: reference729.missingCount, regime: reference729.regime }));
+
+    var situation730 = null;
+    try { situation730 = window.AIO.getCritical10MarketSituationAudit ? window.AIO.getCritical10MarketSituationAudit({ sampleLimit: 8 }) : null; } catch(_t730) {}
+    _assert('T730 critical10_market_situation_audit_v49111: visible values/narratives compare against current reference/regime',
+      situation730 && situation730.reference &&
+        situation730.inventoryTotals &&
+        typeof situation730.totals.referenceMissingCount === 'number' &&
+        Array.isArray(situation730.pages),
+      JSON.stringify(situation730 && { status: situation730.status, totals: situation730.totals, ref: situation730.reference }));
+
+    var compSrc731 = window.AIO && typeof window.AIO.getComprehensivePageDataFreshnessAudit === 'function' ? window.AIO.getComprehensivePageDataFreshnessAudit.toString() : '';
+    _assert('T731 comprehensive_freshness_includes_market_situation_v49111: page freshness carries market-situation comparison',
+      compSrc731.indexOf('getCritical10MarketSituationAudit') >= 0 &&
+        compSrc731.indexOf('market situation mismatch/coverage') >= 0,
+      'len=' + compSrc731.length);
+
+    var readinessSrc732 = window.AIO && typeof window.AIO.getAutoOpsReadiness === 'function' ? window.AIO.getAutoOpsReadiness.toString() : '';
+    _assert('T732 auto_ops_readiness_includes_market_situation_v49111: ops readiness reports current-market mismatch coverage',
+      readinessSrc732.indexOf('getCritical10MarketSituationAudit') >= 0 &&
+        readinessSrc732.indexOf('refreshCritical10MarketSituationAudit') >= 0 &&
+        readinessSrc732.indexOf('market-situation mismatch') >= 0,
+      'len=' + readinessSrc732.length);
+
+    var refreshSrc733 = window.AIO && typeof window.AIO.refreshCritical10MarketSituationAudit === 'function' ? window.AIO.refreshCritical10MarketSituationAudit.toString() : '';
+    _assert('T733 refresh_market_situation_pipeline_v49111: deep audit can fetch, cross-check, rebind, then audit',
+      refreshSrc733.indexOf('fetchLiveQuotes') >= 0 &&
+        refreshSrc733.indexOf('validateQuoteCrossSources') >= 0 &&
+        refreshSrc733.indexOf('applyLiveDataToDom') >= 0 &&
+        refreshSrc733.indexOf('getCritical10MarketSituationAudit') >= 0,
+      'len=' + refreshSrc733.length);
+
     try {
       delete window._liveData.XSRC720; delete window._liveData.XSRC721; delete window._liveData.XSRC724;
       delete window._dataSource.XSRC720; delete window._dataSource.XSRC721; delete window._dataSource.XSRC724;

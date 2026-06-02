@@ -2,7 +2,11 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v49.110
+- **현재 버전**: v49.111
+
+## v49.111 hotfix note
+
+- Added critical-10 market situation deep auditing. The app now inventories live cells, snapshot cells, snap dates, chart-like elements, static numeric text, and market narrative text across the 10 US pages, then compares visible values and narratives against the current quote/truth/cross-source reference snapshot and derived market regime. `refreshCritical10MarketSituationAudit()` can fetch, cross-check, rebind, and re-audit in one pass.
 
 ## v49.110 hotfix note
 

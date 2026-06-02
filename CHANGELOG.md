@@ -6,6 +6,17 @@
 
 ---
 
+## v49.111 - Critical-10 market situation deep audit (2026-06-02)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
+
+- **Full content inventory**: added `AIO.collectCritical10MarketContentInventory()` to enumerate live cells, snapshot cells, snap dates, chart-like elements, static numeric text, and market narrative text across the comprehensive 5 pages plus market-analysis 5 pages.
+- **Current market reference snapshot**: added `AIO.getMarketSituationReferenceSnapshot()` using the app's live quote/truth/cross-source state for core indices, ETFs, volatility, rates, FX, commodities, credit, crypto, and KR references.
+- **Situation comparison audit**: added `AIO.getCritical10MarketSituationAudit()` to compare visible page values and market narratives against the current reference/regime snapshot, warning on missing references, value mismatches, source/truth issues, stale dates, and narrative-regime conflicts.
+- **Live re-check pipeline**: added `AIO.refreshCritical10MarketSituationAudit()` to fetch reference symbols, run cross-source validation, re-apply DOM bindings, then run the deep market situation audit.
+- **Ops/readiness integration**: comprehensive page freshness and `AIO.getAutoOpsReadiness()` now include the market situation audit, so pages cannot look healthy when their visible market content is not backed by current reference data.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v49.111.
+
 ## v49.110 - Critical-10 market surface audit hardening (2026-06-02)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-chat.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`

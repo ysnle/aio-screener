@@ -1,5 +1,5 @@
 {
-  "version": "v49.110",
-  "built": "2026-06-02T13:10:00+09:00",
-  "note": "v49.110 - Critical-10 market surface audit hardening. Comprehensive freshness now checks visible page live sinks, binding/source gaps, truth-blocked/reference-only values, and stale snap dates before reporting OK; ops readiness surfaces page-level market data issues."
+  "version": "v49.111",
+  "built": "2026-06-02T16:45:00+09:00",
+  "note": "v49.111 - Critical-10 market situation deep audit. The app now inventories live cells, snapshots, dates, charts, numeric text, and market narratives across the 10 US pages, compares visible values/narratives against the current reference quote/regime snapshot, and exposes refreshCritical10MarketSituationAudit() for live re-checks."
 }
