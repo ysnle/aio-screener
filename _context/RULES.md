@@ -1,8 +1,8 @@
 ---
 verified_by: agent
-last_verified: 2026-05-09
+last_verified: 2026-06-02
 confidence: high
-target_version: v48.97
+target_version: v49.107
 
 ---
 
@@ -2311,3 +2311,40 @@ var secPromise = _withTimeout(window.AIO.fetchSECBusinessDescription(t).catch(()
 - system prompt에는 ticker별 quote 상태/age/source를 포함한 `AI Chat Freshness Preflight` 블록을 주입한다.
 
 **Validation**: `AIO.ensureFreshChatAnswerData()` + `AIO.getChatAnswerFreshnessAudit()` + `_fetchTickerDataForChat(...,{forceFresh:true})` + T703~T706.
+
+## R192. `forceFresh` for AI stock answers must bypass every local freshness shortcut (v49.105 added, P468 root)
+
+**Rule**: For stock-related AI answers, `forceFresh:true` is not a UI label and not a soft hint. It must bypass `_chatTickerCache`, bypass `_liveData` immediate cache returns, bypass `ensureFreshDataForUse` minGap throttling, and re-attempt per-ticker quote lookup before the prompt is assembled.
+
+**Required**:
+- `dynamicTickerLookup(ticker, {forceFresh:true})` must not return the `_liveData` cache fast path.
+- `_fetchTickerDataForChat(..., {forceFresh:true, reason:'chat-answer'})` must call `dynamicTickerLookup(t,{forceFresh:true})` instead of using `_liveData` directly.
+- `ensureFreshDataForUse({forceFresh:true})` must not return `recently_refreshed` only because the same task ran within the minGap window.
+- Regression tests must cover all three bypass paths.
+
+**Validation**: T707 plus T703/T704.
+
+## R193. AI chat must vary answer structure by intent and use only injected current data for current claims (v49.106 added, P469 root)
+
+**Rule**: AI chat answers must not collapse every user question into the same generic stock-analysis template. The prompt must classify the requested answer family and choose the appropriate response mode. Current market/company facts must come from injected data blocks, not Claude/model memory.
+
+**Required**:
+- The prompt must support at least these answer modes: decision memo, ranked comparison, valuation memo, earnings review, technical setup, portfolio risk note, beginner explanation, and balanced analysis.
+- Current price, market cap, earnings, guidance, analyst target, rating, news, filing, macro release, and recent-date claims must cite or derive from injected live/FMP/SEC/Naver/Finnhub/news/web-search/DATA_SNAPSHOT blocks.
+- If a required axis is missing or stale, the answer must say `데이터 미수집/확인 불가` or equivalent and omit the number instead of filling gaps from model training data.
+- Both `chatSend()` and `chatSendUnified()` must inject the same answer coverage/current-data contract.
+
+**Validation**: T708~T710.
+
+## R194. Critical-10 refresh success must be followed by DOM binding verification (v49.107 added, P470 root)
+
+**Rule**: "Data refreshed" is true only after the refresh task runs and the visible/live DOM sinks have been re-bound from the latest data store. The US operating scope is the Critical-10 set: comprehensive 5 pages plus market-analysis 5 pages.
+
+**Required**:
+- `AIO_PAGE_REFRESH_MAP` must include `home`, `signal`, `breadth`, `sentiment`, `briefing`, `technical`, `macro`, `fxbond`, `fundamental`, and `themes`.
+- Manual force refresh and critical page refresh must use the Critical-10 symbol union, not only the comprehensive-5 union.
+- `getDataRequirementProfile()` must merge DOM live symbols from `[data-live-price]`, `[data-live-chg]`, `[data-live-pct]`, and `[data-live-field]`.
+- After quote refresh, `AIO.applyLiveDataToDom()` must re-apply all live price/change/pct/field sinks, and `AIO.verifyPageLiveDataBinding()` / `AIO.verifyCritical10LiveBindings()` must expose binding-missing vs source-missing separately.
+- Cell-level and market-currentness audits must include all live sink attrs, not just `data-live-price`.
+
+**Validation**: `AIO.refreshAllCriticalPages()` + `AIO.verifyCritical10LiveBindings()` + T711~T714.

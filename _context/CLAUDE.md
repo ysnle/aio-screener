@@ -2,7 +2,19 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v49.104
+- **현재 버전**: v49.107
+
+## v49.107 hotfix note
+
+- Critical-10 freshness is now the operating unit for the US market pages: comprehensive 5 plus market-analysis 5. Manual refresh, page-enter refresh, and AI freshness preflight use that symbol universe, then explicitly apply and verify every `data-live-price/chg/pct/field` DOM sink so a successful fetch is not treated as a successful visible update until the screen binding audit passes.
+
+## v49.106 hotfix note
+
+- AI chat now injects an answer coverage/current-data contract. It expands response modes across decision, comparison, valuation, earnings, technical, portfolio-risk, macro, catalyst, data-validation, and beginner explanation intents, and forbids current numeric claims from Claude/model memory unless an injected prompt data block supplies them.
+
+## v49.105 hotfix note
+
+- AI stock-answer freshness now treats `forceFresh` as strict: bypass `_chatTickerCache`, bypass `_liveData` immediate cache returns, bypass `ensureFreshDataForUse` minGap throttle, and re-attempt per-ticker quote lookup before prompt assembly.
 
 ## _context/ 문서 (13개 Git-tracked 활성)
 

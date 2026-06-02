@@ -2083,6 +2083,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
   var _CC_TTL = 5 * 60 * 1000;
   var _CC_MAX = 50;
   var _bypassChatTickerCache = !!(opts.forceFresh || opts.bypassCache || opts.reason === 'chat-answer' || opts.reason === 'chat-preflight');
+  var _forceQuoteLookup = !!(opts.forceFresh || opts.bypassLiveCache || opts.reason === 'chat-answer' || opts.reason === 'chat-preflight');
   // 사전 캐시 조회 — 만료되지 않은 종목은 캐시 결과 재사용, miss만 새로 fetch
   var cacheMissTickers = [];
   var cachedBlocks = [];
@@ -2132,11 +2133,11 @@ async function _fetchTickerDataForChat(tickers, opts) {
     var data = null;
     // 1. _liveData 캐시 확인
     var ld = (window._liveData || {})[t];
-    if (ld && ld.price) {
+    if (!_forceQuoteLookup && ld && ld.price) {
       data = { ticker: t, price: ld.price, pct: ld.pct != null ? ld.pct : null, source: 'cache' };
     } else {
       // 2. 실시간 Yahoo 조회 (v49.67: 폴백 체인 4단계 후 fetchFailed:true 구조화 응답)
-      try { data = await dynamicTickerLookup(t); } catch(e) {}
+      try { data = await dynamicTickerLookup(t, { forceFresh: _forceQuoteLookup, reason: opts.reason || 'chat-ticker-data' }); } catch(e) {}
       // v49.67 P352: dynamicTickerLookup가 fetchFailed 객체 반환하면 data = null로 변환 (HARD GUARDRAIL 경로 진입)
       if (data && data.fetchFailed) {
         var _failData = data;
@@ -3086,15 +3087,67 @@ function _classifyChatIntent(query, ctxId) {
   hit('DEEP_RESEARCH', /심층|자세|상세|분석|리서치|기관|펀드|bull|bear|시나리오|카탈리스트|리스크|valuation|밸류|재무|moat|해자/);
   hit('COMPARE_SCREEN', /비교|추천|골라|찾아|스크리닝|순위|top|best|compare|screen|rank|undervalued|overvalued/);
   hit('EXPLAIN_BEGINNER', /초보|쉽게|설명|무슨 뜻|뭐야|개념|용어|how to|explain|beginner/);
+  hit('TECHNICAL_SETUP', /technical|chart|rsi|macd|bollinger|support|resistance|breakout|breakdown|trend|setup|손절|익절|진입|저항|지지|차트|기술/);
+  hit('VALUATION_MODEL', /valuation|dcf|multiple|per|pbr|ev\/ebitda|fair value|intrinsic|owner earnings|밸류|가치평가|적정가|멀티플/);
+  hit('EARNINGS_REVIEW', /earnings|eps|revenue|margin|guidance|surprise|beat|miss|실적|어닝|매출|마진|가이던스|컨센서스/);
+  hit('PORTFOLIO_RISK', /portfolio|position|weight|rebalance|allocation|drawdown|risk budget|포트폴리오|비중|리밸런싱|헤지|위험|손실/);
+  hit('MACRO_LINKAGE', /macro|fed|fomc|cpi|pce|rates?|yield|dollar|oil|fx|bond|매크로|금리|환율|달러|유가|채권|인플레/);
+  hit('CATALYST_RISK', /catalyst|risk|event|lawsuit|regulation|approval|launch|conference|카탈리스트|리스크|이벤트|규제|소송|승인|발표/);
+  hit('DATA_VALIDATION', /source|citation|as of|timestamp|fresh|stale|verify|근거|출처|기준일|최신화|검증|데이터/);
   if (!intents.length) intents.push(ctxId === 'technical' ? 'TECHNICAL_READ' : 'GENERAL_ANALYSIS');
   return {
     primary: intents[0],
-    intents: intents.slice(0, 4),
+    intents: intents.slice(0, 7),
     wantsFresh: intents.indexOf('LATEST_CHECK') >= 0 || /전망|어때|어떻게/.test(q),
     wantsAction: intents.indexOf('ACTION_DECISION') >= 0,
-    wantsDeep: intents.indexOf('DEEP_RESEARCH') >= 0,
-    wantsCompare: intents.indexOf('COMPARE_SCREEN') >= 0
+    wantsDeep: intents.indexOf('DEEP_RESEARCH') >= 0 || intents.indexOf('VALUATION_MODEL') >= 0 || intents.indexOf('EARNINGS_REVIEW') >= 0,
+    wantsCompare: intents.indexOf('COMPARE_SCREEN') >= 0,
+    wantsCoverage: intents
   };
+}
+
+function _buildChatAnswerCoverageContext(ctxId, query, flags) {
+  flags = flags || {};
+  var intent = _classifyChatIntent(query, ctxId);
+  var intents = intent.wantsCoverage || intent.intents || [];
+  var has = {
+    quote: !!flags.tickerData,
+    trend: !!flags.trendData,
+    company: !!flags.deepData,
+    web: !!flags.webSearch,
+    news: !!flags.news,
+    portfolio: !!flags.portfolioData,
+    freshness: !!flags.freshness
+  };
+  var required = ['quote/source', 'as-of timestamp'];
+  if (intents.indexOf('TECHNICAL_SETUP') >= 0 || ctxId === 'technical') required.push('trend/levels');
+  if (intents.indexOf('VALUATION_MODEL') >= 0 || intents.indexOf('EARNINGS_REVIEW') >= 0 || intent.wantsDeep) required.push('fundamentals/valuation');
+  if (intents.indexOf('LATEST_CHECK') >= 0 || intents.indexOf('CATALYST_RISK') >= 0) required.push('news/web/filings');
+  if (intents.indexOf('PORTFOLIO_RISK') >= 0 || ctxId === 'portfolio') required.push('position/weight/risk');
+  if (intents.indexOf('MACRO_LINKAGE') >= 0 || ctxId === 'macro' || ctxId === 'fxbond') required.push('macro cross-asset context');
+
+  var mode = 'balanced analysis';
+  if (intent.wantsAction) mode = 'decision memo';
+  else if (intent.wantsCompare) mode = 'ranked comparison';
+  else if (intents.indexOf('EXPLAIN_BEGINNER') >= 0) mode = 'beginner explanation';
+  else if (intents.indexOf('TECHNICAL_SETUP') >= 0) mode = 'technical setup';
+  else if (intents.indexOf('VALUATION_MODEL') >= 0) mode = 'valuation memo';
+  else if (intents.indexOf('EARNINGS_REVIEW') >= 0) mode = 'earnings review';
+  else if (intents.indexOf('PORTFOLIO_RISK') >= 0) mode = 'portfolio risk note';
+
+  var missing = [];
+  if (required.indexOf('trend/levels') >= 0 && !has.trend) missing.push('trend/levels');
+  if (required.indexOf('fundamentals/valuation') >= 0 && !has.company) missing.push('fundamentals/valuation');
+  if (required.indexOf('news/web/filings') >= 0 && !(has.news || has.web)) missing.push('news/web/filings');
+  if (required.indexOf('position/weight/risk') >= 0 && !has.portfolio) missing.push('position/weight/risk');
+
+  return '\n\n[AI Answer Coverage + Current Data Contract v49.106]\n' +
+    'mode=' + mode + ' | ctx=' + ctxId + ' | intents=' + intents.join(',') + '\n' +
+    'required_axes=' + required.join(' / ') + '\n' +
+    'available_axes=' + Object.keys(has).filter(function(k){ return has[k]; }).join(',') + '\n' +
+    (missing.length ? 'missing_axes=' + missing.join(',') + ' -> state these as unavailable; do not fill them with model memory.\n' : 'missing_axes=none detected from injected context.\n') +
+    'response_diversity_rule: choose the structure that fits the mode. decision memo = verdict first + sizing/trigger/invalidation; ranked comparison = table + rank rationale; valuation memo = drivers + multiples/DCF only if injected; earnings review = reported/guidance/revision/catalyst; technical setup = trend/levels/risk; beginner explanation = plain-language concept + concrete injected-data example.\n' +
+    'current_data_rule: never use Claude/model training data for current price, market cap, earnings, guidance, analyst targets, ratings, news, filings, macro releases, or dates after the training cutoff. Use only injected live quote, FMP/SEC/Naver/Finnhub, news, web-search, DATA_SNAPSHOT with age label, and explicitly cited prompt blocks. If data is missing or stale, say \"데이터 미수집/확인 불가\" and omit the number.\n';
 }
 
 function _buildChatMemoryContext(ctxId, query) {
@@ -3154,6 +3207,7 @@ function _shouldSingleDeepAnalyzeChat(ctxId, query, detectedTickers, deepCompare
 window._classifyChatIntent = _classifyChatIntent;
 window._buildChatMemoryContext = _buildChatMemoryContext;
 window._buildChatIntentContext = _buildChatIntentContext;
+window._buildChatAnswerCoverageContext = _buildChatAnswerCoverageContext;
 window._shouldSingleDeepAnalyzeChat = _shouldSingleDeepAnalyzeChat;
 
 function _needsWebSearch(query, ctxId) {
@@ -4506,15 +4560,29 @@ async function chatSend(ctxId) {
   var intentContextStr = _buildChatIntentContext(ctxId, q, {
     tickers: detectedTickers,
     tickerData: !!tickerDataStr,
+    trendData: (tickerDataStr || '').indexOf('[주가 추이]') >= 0,
     deepData: !!(deepCompareStr || singleDeepStr || sectorCompareStr),
     webSearch: !!webSearchStr,
-    news: !!newsContextStr
+    news: !!newsContextStr,
+    freshness: !!chatFreshPreflight,
+    portfolioData: ctxId === 'portfolio'
   });
+  var coverageContextStr = (typeof _buildChatAnswerCoverageContext === 'function') ? _buildChatAnswerCoverageContext(ctxId, q, {
+    tickers: detectedTickers,
+    tickerData: !!tickerDataStr,
+    trendData: (tickerDataStr || '').indexOf('[주가 추이]') >= 0,
+    deepData: !!(deepCompareStr || singleDeepStr || sectorCompareStr),
+    webSearch: !!webSearchStr,
+    news: !!newsContextStr,
+    freshness: !!chatFreshPreflight,
+    portfolioData: ctxId === 'portfolio'
+  }) : '';
   var memoryContextStr = _buildChatMemoryContext(ctxId, q);
 
   // v20+: dynamic system prompts (portfolio injects live data)
   var systemPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
   if (intentContextStr) systemPrompt += intentContextStr;
+  if (coverageContextStr) systemPrompt += coverageContextStr;
   if (memoryContextStr) systemPrompt += memoryContextStr;
   if (tickerDataStr) systemPrompt += tickerDataStr;
   if (sectorCompareStr) systemPrompt += sectorCompareStr;
@@ -4527,7 +4595,7 @@ async function chatSend(ctxId) {
     var _cfRows = (_cfAfter.quoteRows || []).map(function(r) {
       return r.ticker + ': ' + (r.hasLivePrice ? 'quote-ok' : 'quote-missing') + (r.quoteAgeSec != null ? ' age=' + r.quoteAgeSec + 's' : '') + (r.source ? ' source=' + r.source : '');
     }).join(' / ');
-    systemPrompt += '\n\n[AI Chat Freshness Preflight v49.104]\n' +
+    systemPrompt += '\n\n[AI Chat Freshness Preflight v49.106]\n' +
       'status=' + (chatFreshPreflight.status || 'unknown') + ' strict=' + !!chatFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
       'quotes=' + (_cfRows || 'not available') + '\n' +
       'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt. If a ticker quote remains missing or stale after preflight, do not invent price, market cap, valuation, earnings, or target-price numbers.\n';

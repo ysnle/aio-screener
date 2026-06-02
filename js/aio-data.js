@@ -3299,9 +3299,15 @@ var AIO_PAGE_REFRESH_MAP = {
   signal:    ['quotes', 'sentiment', 'breadth', 'technicals', 'vixHistory', 'hySpread'],
   breadth:   ['quotes', 'breadth', 'technicals'],
   sentiment: ['quotes', 'sentiment', 'vixHistory', 'hySpread'],
-  briefing:  ['quotes', 'news', 'sentiment', 'breadth', 'fred', 'technicals']
+  briefing:  ['quotes', 'news', 'sentiment', 'breadth', 'fred', 'technicals'],
+  technical: ['quotes', 'technicals', 'breadth', 'sentiment', 'vixHistory'],
+  macro:     ['quotes', 'fred', 'news', 'sentiment'],
+  fxbond:    ['quotes', 'fred', 'hySpread', 'news'],
+  fundamental: ['quotes', 'news', 'technicals'],
+  themes:    ['quotes', 'news', 'technicals']
 };
 window.AIO_PAGE_REFRESH_MAP = AIO_PAGE_REFRESH_MAP;
+window.AIO_CRITICAL_10_PAGE_IDS = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
 
 function _aioGetRefreshProfile(pageId) {
   try {
@@ -3325,6 +3331,16 @@ function _aioGetComprehensiveSymbols() {
   });
   return Array.from(new Set(out.map(function(sym) { return String(sym || '').trim().toUpperCase(); }).filter(Boolean)));
 }
+
+function _aioGetCritical10Symbols() {
+  var out = [];
+  (window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes']).forEach(function(pageId) {
+    var p = _aioGetRefreshProfile(pageId);
+    (p.symbols || []).forEach(function(sym) { out.push(sym); });
+  });
+  return Array.from(new Set(out.map(function(sym) { return String(sym || '').trim().toUpperCase(); }).filter(Boolean)));
+}
+window._aioGetCritical10Symbols = _aioGetCritical10Symbols;
 
 var _aioPageRefreshLast = {};   // key -> 마지막 on-enter 강제 fetch ts (per-task 최소 간격 가드)
 
@@ -3353,9 +3369,9 @@ function _aioRefreshPageData(pageId) {
   try {
     if (_schedulerPaused) return;
     _assignRefreshScheduleFunctions();
-    var keys = AIO_PAGE_REFRESH_MAP[pageId];
-    if (!keys || !window.REFRESH_SCHEDULE) return;
     var profile = _aioGetRefreshProfile(pageId);
+    var keys = (profile && profile.tasks && profile.tasks.length) ? profile.tasks : AIO_PAGE_REFRESH_MAP[pageId];
+    if (!keys || !keys.length || !window.REFRESH_SCHEDULE) return;
     var symbols = Array.isArray(profile.symbols) ? profile.symbols.slice() : [];
     var now = Date.now();
     // v49.99 연계점①: home/briefing 진입 시 주간뉴스 만료 여부 사전 체크
@@ -3394,7 +3410,7 @@ try {
   function _onPageShown(e) {
     var d = e && e.detail;
     var pageId = (typeof d === 'string') ? d : (d && (d.pageId || d.id));
-    if (pageId && AIO_PAGE_REFRESH_MAP[pageId]) _aioRefreshPageData(pageId);
+    if (pageId && (AIO_PAGE_REFRESH_MAP[pageId] || (_aioGetRefreshProfile(pageId).tasks || []).length)) _aioRefreshPageData(pageId);
   }
   if (window._aioPageBus && window._aioPageBus.register) {
     window._aioPageBus.register('data-page-onenter-refresh', 'aio:pageShown', _onPageShown);
@@ -3512,7 +3528,7 @@ window.AIO.getPageRefreshCoverageAudit = function() {
   _assignRefreshScheduleFunctions();
   _normalizeRefreshSchedule();
   var prMap = window.AIO_PAGE_REFRESH_MAP || {};
-  var targetPages = ['home','signal','breadth','sentiment','briefing'];
+  var targetPages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
   var now = Date.now();
   var missingPageIds = [];
   var taskIssues = [];
@@ -3596,10 +3612,38 @@ window.AIO.refreshAllComprehensivePages = async function() {
   return { status: refresh.status, refresh: refresh, audit: window.AIO.getComprehensivePageDataFreshnessAudit(), generatedAt: new Date().toISOString() };
 };
 
+window.AIO.refreshAllCriticalPages = async function() {
+  var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var taskSet = {};
+  pages.forEach(function(pageId) {
+    var profile = _aioGetRefreshProfile(pageId);
+    (profile.tasks || AIO_PAGE_REFRESH_MAP[pageId] || []).forEach(function(task) { taskSet[task] = true; });
+  });
+  var tasks = Object.keys(taskSet);
+  var refresh = await window.AIO.runScheduledRefresh({
+    keys: tasks,
+    forceRefresh: true,
+    pageId: 'critical-10',
+    reason: 'critical-10-pages-force-refresh',
+    symbols: _aioGetCritical10Symbols()
+  });
+  try { if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
+  try { if (window.AIO && typeof window.AIO.applyLiveDataToDom === 'function') window.AIO.applyLiveDataToDom({ reason: 'critical-10-refresh', force: true }); } catch(_) {}
+  try { if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') window.AIO.renderStaticDataGovernanceBadges(); } catch(_) {}
+  return {
+    status: refresh.status,
+    refresh: refresh,
+    audit: window.AIO.getCritical10PageFreshnessAudit ? window.AIO.getCritical10PageFreshnessAudit({ symbolLimit: 999 }) : null,
+    binding: window.AIO.verifyCritical10LiveBindings ? window.AIO.verifyCritical10LiveBindings() : null,
+    generatedAt: new Date().toISOString()
+  };
+};
+window.AIO.refreshCritical10Pages = window.AIO.refreshAllCriticalPages;
+
 window.AIO.getComprehensivePageDataFreshnessAudit = function() {
   _assignRefreshScheduleFunctions();
   _normalizeRefreshSchedule();
-  var pages = ['home','signal','breadth','sentiment','briefing'];
+  var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
   var now = Date.now();
   var details = pages.map(function(pageId) {
     var profile = _aioGetRefreshProfile(pageId);
@@ -3612,7 +3656,7 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
       var cfg = REFRESH_SCHEDULE[task] || {};
       return !cfg._lastOk || (now - cfg._lastOk) > Math.max(cfg.interval || 600000, 60000) * 2;
     });
-    var liveMissing = symbols.filter(function(sym) { return String(sym || '').charAt(0) !== '^' && !(window._liveData && window._liveData[String(sym).toUpperCase()]); });
+    var liveMissing = symbols.filter(function(sym) { return !(window._liveData && window._liveData[String(sym).toUpperCase()]); });
     var sinks = pageEl ? pageEl.querySelectorAll('[data-live-price],[data-live-pct],[data-live-field],[data-snap],[data-snap-date]').length : 0;
     var chartLike = pageEl ? pageEl.querySelectorAll('canvas,[id*="chart"],[id*="widget"]').length : 0;
     var issues = [];
@@ -3640,7 +3684,7 @@ window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     status: issues.length ? 'warn' : 'ok',
     pagesChecked: details.length,
     issueCount: issues.length,
-    totalSymbols: _aioGetComprehensiveSymbols().length,
+    totalSymbols: _aioGetCritical10Symbols().length,
     unionTasks: Array.from(new Set(details.reduce(function(acc, d) { return acc.concat(d.tasks); }, []))),
     pages: details,
     surfaceIntegrity: window.AIO.getComprehensiveSurfaceIntegrityAudit ? window.AIO.getComprehensiveSurfaceIntegrityAudit({ symbolLimit: 999 }) : null,
@@ -3778,16 +3822,18 @@ window.AIO.forceRefreshAllData = async function(keys) {
   var result = await window.AIO.runScheduledRefresh({
     keys: Array.isArray(keys) && keys.length ? keys : null,
     forceRefresh: true,
-    pageId: Array.isArray(keys) && keys.length ? 'custom' : 'comprehensive-5',
+    pageId: Array.isArray(keys) && keys.length ? 'custom' : 'critical-10',
     reason: 'manual-force-refresh',
-    symbols: _aioGetComprehensiveSymbols()
+    symbols: Array.isArray(keys) && keys.length ? _aioGetComprehensiveSymbols() : _aioGetCritical10Symbols()
   });
   try { if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
+  try { if (window.AIO && typeof window.AIO.applyLiveDataToDom === 'function') window.AIO.applyLiveDataToDom({ reason: 'manual-force-refresh', force: true }); } catch(_) {}
   try { if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') window.AIO.renderStaticDataGovernanceBadges(); } catch(_) {}
   return {
     status: result.status,
     refresh: result,
     readiness: window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null,
+    binding: window.AIO.verifyCritical10LiveBindings ? window.AIO.verifyCritical10LiveBindings() : null,
     generatedAt: new Date().toISOString()
   };
 };
@@ -3806,7 +3852,7 @@ window.AIO.ensureFreshDataForUse = async function(scope) {
     return { status: 'in_flight', plan: plan, refresh: null, generatedAt: new Date(now).toISOString() };
   }
   var minGap = scope.reason === 'chat' ? 45000 : 15000;
-  if (window._aioEnsureFreshLast[key] && now - window._aioEnsureFreshLast[key] < minGap) {
+  if (!scope.forceFresh && window._aioEnsureFreshLast[key] && now - window._aioEnsureFreshLast[key] < minGap) {
     return { status: 'recently_refreshed', plan: plan, refresh: null, generatedAt: new Date(now).toISOString() };
   }
   window._aioEnsureFreshInFlight[key] = true;
@@ -3824,8 +3870,18 @@ window.AIO.ensureFreshDataForUse = async function(scope) {
       forceRefresh: !!scope.forceFresh
     });
     try { if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
+    var binding = null;
+    try {
+      if (window.AIO && typeof window.AIO.repairPageLiveDataBinding === 'function') {
+        binding = await window.AIO.repairPageLiveDataBinding({ pageId: scope.pageId || scope.ctxId || scope.context || '', retry: !!scope.forceFresh, reason: scope.reason || 'ensure-fresh' });
+      } else if (window.AIO && typeof window.AIO.applyLiveDataToDom === 'function') {
+        window.AIO.applyLiveDataToDom({ pageId: scope.pageId || scope.ctxId || scope.context || '', reason: scope.reason || 'ensure-fresh', force: true });
+      }
+    } catch(_bindErr) {
+      binding = { status: 'warn', error: _bindErr && _bindErr.message || String(_bindErr) };
+    }
     try { if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') window.AIO.renderStaticDataGovernanceBadges(); } catch(_) {}
-    return { status: refresh && refresh.status || 'ok', plan: plan, refresh: refresh, generatedAt: new Date().toISOString() };
+    return { status: refresh && refresh.status || 'ok', plan: plan, refresh: refresh, binding: binding, generatedAt: new Date().toISOString() };
   } catch(e) {
     return { status: 'warn', plan: plan, refresh: null, error: e && e.message || String(e), generatedAt: new Date().toISOString() };
   } finally {
@@ -3926,8 +3982,8 @@ window.AIO.ensureFreshChatAnswerData = async function(scope) {
       if (!live || !live.price || !isFinite(ageMs) || ageMs > 90 * 1000 || scope.forceFresh) {
         try {
           var r = await (typeof _withTimeout === 'function'
-            ? _withTimeout(dynamicTickerLookup(t), 3500, null)
-            : dynamicTickerLookup(t));
+            ? _withTimeout(dynamicTickerLookup(t, { forceFresh: true, reason: 'chat-answer-preflight' }), 3500, null)
+            : dynamicTickerLookup(t, { forceFresh: true, reason: 'chat-answer-preflight' }));
           lookups.push({ ticker: t, ok: !!(r && r.price), source: r && (r.source || r.exchange || '') || '' });
         } catch(e2) {
           lookups.push({ ticker: t, ok: false, error: e2 && e2.message || String(e2) });
@@ -11147,6 +11203,215 @@ window.AIO.getHardcodedQuoteFallbackAudit = function() {
   };
 };
 
+function _aioLiveSym(v) {
+  return String(v || '').trim().toUpperCase();
+}
+
+function _aioLiveDataFor(sym) {
+  sym = _aioLiveSym(sym);
+  var ld = window._liveData || {};
+  return ld[sym] || ld[String(sym || '').trim()] || null;
+}
+
+function _aioLiveNum(v) {
+  var n = Number(v);
+  return isFinite(n) ? n : null;
+}
+
+function _aioLivePrice(d) {
+  if (!d) return null;
+  return _aioLiveNum(d.price != null ? d.price : (d.regularMarketPrice != null ? d.regularMarketPrice : d.value));
+}
+
+function _aioLivePct(d) {
+  if (!d) return null;
+  return _aioLiveNum(d.pct != null ? d.pct : (d.changePct != null ? d.changePct : d.regularMarketChangePercent));
+}
+
+function _aioLiveTs(d) {
+  if (!d) return Date.now();
+  return d.ts || d.timestamp || d.lastUpdated || Date.now();
+}
+
+function _aioFormatLivePrice(sym, price) {
+  sym = _aioLiveSym(sym);
+  var max = price >= 1000 ? 2 : (price >= 10 ? 2 : 4);
+  if (/^(\^TNX|\^TYX|\^FVX|\^IRX)$/.test(sym)) max = 3;
+  if (/=X$/.test(sym)) max = price >= 100 ? 2 : 4;
+  return Number(price).toLocaleString('en-US', { minimumFractionDigits: max <= 2 ? 2 : 0, maximumFractionDigits: max });
+}
+
+function _aioMarkLiveSink(el, sym, d, policyKey, unavailable) {
+  if (!el) return;
+  var ds = (window._dataSource && window._dataSource[_aioLiveSym(sym)]) || d || {};
+  var source = ds.source || d && (d.source || d._source) || (unavailable ? 'unavailable' : 'live:yahoo');
+  var ts = ds.ts || _aioLiveTs(d);
+  var contract = null;
+  try {
+    contract = ds.metric && ds.metric.contract ? ds.metric.contract :
+      (window.AIO_OPERATIONAL_DATA_CONTRACT ? window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric({ source: source, ts: ts, policyKey: policyKey || 'quote' }) : null);
+  } catch(_) {}
+  el.setAttribute('data-source-kind', unavailable ? 'unavailable' : (contract && contract.sourceKind ? contract.sourceKind : (/snapshot|cache/i.test(source) ? 'snapshot' : 'live')));
+  el.setAttribute('data-operational-use', (!unavailable && contract && contract.allowedUse) ? 'decision' : (!unavailable && !contract ? 'decision' : 'reference-only'));
+  el.setAttribute('data-source-label', source);
+  if (ts) el.setAttribute('data-source-ts', String(ts));
+  if (!unavailable && /unavailable|미수신|failed|실패/i.test(String(el.title || ''))) el.title = '';
+}
+
+function _aioSetLiveText(el, text) {
+  if (!el) return;
+  var target = el.children && el.children.length ? (el.querySelector('.pill-price') || el.querySelector('.kr-etf-price')) : null;
+  if (target) target.textContent = text;
+  else el.textContent = text;
+}
+
+function _aioLiveRoot(pageId) {
+  var id = String(pageId || '').replace(/^page-/, '');
+  if (!id) return document;
+  try { return document.getElementById('page-' + id) || document; } catch(_) { return document; }
+}
+
+function _aioIsLivePlaceholder(text) {
+  text = String(text || '').replace(/\s+/g, ' ').trim();
+  return !text || text === '-' || text === '--' || text === '—' || text === 'N/A' || /\.{2,}/.test(text) || /loading|로딩|수신|계산|분석/i.test(text);
+}
+
+window.AIO = window.AIO || {};
+window.AIO.applyLiveDataToDom = function(opts) {
+  opts = opts || {};
+  var root = _aioLiveRoot(opts.pageId);
+  var stats = { touched: 0, filled: 0, missing: 0, missingSymbols: [], generatedAt: new Date().toISOString() };
+  var seenMissing = {};
+  function miss(sym) {
+    sym = _aioLiveSym(sym);
+    if (!sym || seenMissing[sym]) return;
+    seenMissing[sym] = true;
+    stats.missingSymbols.push(sym);
+    stats.missing += 1;
+  }
+  try {
+    Array.prototype.slice.call(root.querySelectorAll('[data-live-price]')).forEach(function(el) {
+      var sym = el.getAttribute('data-live-price');
+      var d = _aioLiveDataFor(sym);
+      var price = _aioLivePrice(d);
+      stats.touched += 1;
+      if (price != null) {
+        _aioSetLiveText(el, _aioFormatLivePrice(sym, price));
+        _aioMarkLiveSink(el, sym, d, 'quote', false);
+        stats.filled += 1;
+      } else {
+        miss(sym);
+        if (_aioIsLivePlaceholder(el.textContent)) _aioMarkLiveSink(el, sym, d, 'quote_missing', true);
+      }
+    });
+    Array.prototype.slice.call(root.querySelectorAll('[data-live-chg],[data-live-pct]')).forEach(function(el) {
+      var sym = el.getAttribute('data-live-chg') || el.getAttribute('data-live-pct');
+      var d = _aioLiveDataFor(sym);
+      var pct = _aioLivePct(d);
+      stats.touched += 1;
+      if (pct != null) {
+        el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+        if (el.classList) {
+          el.classList.remove('pos', 'neg');
+          el.classList.add(pct >= 0 ? 'pos' : 'neg');
+        }
+        _aioMarkLiveSink(el, sym, d, 'quote', false);
+        stats.filled += 1;
+      } else {
+        miss(sym);
+        if (_aioIsLivePlaceholder(el.textContent)) _aioMarkLiveSink(el, sym, d, 'quote_change_missing', true);
+      }
+    });
+    Array.prototype.slice.call(root.querySelectorAll('[data-live-field]')).forEach(function(el) {
+      var raw = el.getAttribute('data-live-field') || '';
+      var parts = String(raw).split(':');
+      var sym = parts[0];
+      var field = parts[1] || 'price';
+      var d = _aioLiveDataFor(sym);
+      var val = d && d[field];
+      if (val == null && field === 'price') val = _aioLivePrice(d);
+      if (val == null && /pct|change/i.test(field)) val = _aioLivePct(d);
+      stats.touched += 1;
+      if (val != null) {
+        el.textContent = typeof val === 'number' ? (field === 'price' ? _aioFormatLivePrice(sym, val) : String(Math.round(val * 100) / 100)) : String(val);
+        _aioMarkLiveSink(el, sym, d, 'quote', false);
+        stats.filled += 1;
+      } else {
+        miss(sym);
+        if (_aioIsLivePlaceholder(el.textContent)) _aioMarkLiveSink(el, sym, d, 'quote_field_missing', true);
+      }
+    });
+  } catch(e) {
+    stats.error = e && e.message || String(e);
+    stats.status = 'warn';
+    return stats;
+  }
+  stats.status = stats.missing ? 'warn' : 'ok';
+  try { if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') window.AIO.annotateLiveDataSinks(root, { force: true }); } catch(_) {}
+  return stats;
+};
+
+window.AIO.verifyPageLiveDataBinding = function(opts) {
+  opts = opts || {};
+  var pageId = opts.pageId || opts.id || '';
+  var root = _aioLiveRoot(pageId);
+  var out = { pageId: pageId || null, total: 0, ok: 0, bindingMissing: [], sourceMissing: [], generatedAt: new Date().toISOString() };
+  try {
+    Array.prototype.slice.call(root.querySelectorAll('[data-live-price],[data-live-chg],[data-live-pct],[data-live-field]')).forEach(function(el) {
+      var sym = el.getAttribute('data-live-price') || el.getAttribute('data-live-chg') || el.getAttribute('data-live-pct') || (String(el.getAttribute('data-live-field') || '').split(':')[0]);
+      sym = _aioLiveSym(sym);
+      if (!sym) return;
+      out.total += 1;
+      var d = _aioLiveDataFor(sym);
+      var hasSource = !!d && (_aioLivePrice(d) != null || _aioLivePct(d) != null || d.value != null);
+      var textMissing = _aioIsLivePlaceholder(el.textContent);
+      if (!hasSource) out.sourceMissing.push({ symbol: sym, id: el.id || '', attr: el.hasAttribute('data-live-price') ? 'price' : (el.hasAttribute('data-live-chg') ? 'chg' : (el.hasAttribute('data-live-pct') ? 'pct' : 'field')) });
+      else if (textMissing) out.bindingMissing.push({ symbol: sym, id: el.id || '', text: String(el.textContent || '').trim() });
+      else out.ok += 1;
+    });
+  } catch(e) {
+    out.error = e && e.message || String(e);
+  }
+  out.bindingMissingCount = out.bindingMissing.length;
+  out.sourceMissingCount = out.sourceMissing.length;
+  out.status = out.error || out.bindingMissingCount || out.sourceMissingCount ? 'warn' : 'ok';
+  return out;
+};
+
+window.AIO.verifyCritical10LiveBindings = function() {
+  var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var audits = pages.map(function(pageId) { return window.AIO.verifyPageLiveDataBinding({ pageId: pageId }); });
+  var bindingMissing = audits.reduce(function(n, a) { return n + (a.bindingMissingCount || 0); }, 0);
+  var sourceMissing = audits.reduce(function(n, a) { return n + (a.sourceMissingCount || 0); }, 0);
+  return { status: bindingMissing || sourceMissing ? 'warn' : 'ok', pagesChecked: audits.length, bindingMissingCount: bindingMissing, sourceMissingCount: sourceMissing, pages: audits, generatedAt: new Date().toISOString() };
+};
+
+window.AIO.repairPageLiveDataBinding = async function(opts) {
+  opts = opts || {};
+  var first = window.AIO.applyLiveDataToDom({ pageId: opts.pageId, reason: opts.reason || 'repair-live-binding', force: true });
+  var audit = window.AIO.verifyPageLiveDataBinding({ pageId: opts.pageId });
+  if (opts.retry && audit.sourceMissingCount && typeof fetchLiveQuotes === 'function' && !window._aioLiveBindingRepairInFlight) {
+    var missing = Array.from(new Set(audit.sourceMissing.map(function(x) { return x.symbol; }))).slice(0, opts.limit || 160);
+    if (missing.length) {
+      window._aioLiveBindingRepairInFlight = true;
+      var prev = window._aioQuoteRequestSymbols;
+      try {
+        window._aioQuoteRequestSymbols = missing.slice();
+        await fetchLiveQuotes(missing);
+      } catch(e) {
+        audit.retryError = e && e.message || String(e);
+      } finally {
+        if (prev == null) delete window._aioQuoteRequestSymbols;
+        else window._aioQuoteRequestSymbols = prev;
+        window._aioLiveBindingRepairInFlight = false;
+      }
+      window.AIO.applyLiveDataToDom({ pageId: opts.pageId, reason: 'repair-live-binding-retry', force: true });
+      audit = window.AIO.verifyPageLiveDataBinding({ pageId: opts.pageId });
+    }
+  }
+  return { status: audit.status, applied: first, audit: audit, generatedAt: new Date().toISOString() };
+};
+
 function applyLiveQuotes(quotes) {
   if (!Array.isArray(quotes)) return;
   window._liveData = window._liveData || {};
@@ -11256,7 +11521,12 @@ function applyLiveQuotes(quotes) {
     // change 요소
     document.querySelectorAll(`[data-live-chg="${q.symbol}"]`).forEach(el => {
       el.textContent = pctStr;
-      el.className = cls;
+      if (el.classList) {
+        el.classList.remove('pos', 'neg');
+        if (hasPct) el.classList.add(pct >= 0 ? 'pos' : 'neg');
+      } else {
+        el.className = cls;
+      }
       var _chgContract = null;
       try {
         _chgContract = _storedMetric && _storedMetric.contract ? _storedMetric.contract :
@@ -11450,7 +11720,12 @@ function applyLiveQuotes(quotes) {
       if (d.pct != null && !isNaN(d.pct)) {
         var pctStr = (d.pct >= 0 ? '+' : '') + d.pct.toFixed(2) + '%';
         el.textContent = pctStr;
-        el.className = d.pct >= 0 ? 'pnl pos' : 'pnl neg';
+        if (el.classList) {
+          el.classList.remove('pos', 'neg');
+          el.classList.add(d.pct >= 0 ? 'pos' : 'neg');
+        } else {
+          el.className = d.pct >= 0 ? 'pnl pos' : 'pnl neg';
+        }
         el.setAttribute('data-source-kind', contract && contract.sourceKind ? contract.sourceKind : 'unknown');
         el.setAttribute('data-operational-use', contract && contract.allowedUse ? 'decision' : 'reference-only');
       } else {
@@ -11461,6 +11736,11 @@ function applyLiveQuotes(quotes) {
       if (ds.ts || d.ts) el.setAttribute('data-source-ts', String(ds.ts || d.ts));
     }
   });
+  try {
+    if (window.AIO && typeof window.AIO.applyLiveDataToDom === 'function') {
+      window.AIO.applyLiveDataToDom({ reason: 'applyLiveQuotes', force: true });
+    }
+  } catch(_liveDomBindErr) {}
 
   // v34: 글로벌 마켓 오버뷰 신선도 타임스탬프 갱신
   window._liveQuoteTimestamp = Date.now();
@@ -11481,6 +11761,7 @@ function applyLiveQuotes(quotes) {
 
   // Dispatch event for page-specific refresh
   document.dispatchEvent(new Event('aio:liveQuotes'));
+  try { window.dispatchEvent(new CustomEvent('aio:liveQuotes', { detail: { count: quotes.length, timestamp: Date.now() } })); } catch(_) {}
 
   // v35.8: 스크리너 DB mcap/RSI 라이브 업데이트
   updateScreenerFromLiveData();

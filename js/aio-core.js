@@ -8276,7 +8276,8 @@ window.AIO.getCellLevelDataAudit = function(pageId) {
   var p = document.getElementById('page-' + pageId);
   if (!p) return { status: 'error', error: 'page not found: ' + pageId };
   try {
-    var cells = Array.from(p.querySelectorAll('.aio-card, .aio-metric-value, .stk-item, td[data-snap], td[data-live-price], [data-threshold-key], [data-snap], [data-live-price]'));
+    var liveSelector = '[data-live-price],[data-live-chg],[data-live-pct],[data-live-field]';
+    var cells = Array.from(p.querySelectorAll('.aio-card, .aio-metric-value, .stk-item, td[data-snap], td[data-live-price], td[data-live-chg], td[data-live-pct], td[data-live-field], [data-threshold-key], [data-snap], ' + liveSelector));
     // 중복 제거
     var seen = new Set();
     var unique = cells.filter(function(c) { if (seen.has(c)) return false; seen.add(c); return true; });
@@ -8291,7 +8292,8 @@ window.AIO.getCellLevelDataAudit = function(pageId) {
         textLen: text.length,
         color: c.style.color || '',
         snapKey: c.getAttribute('data-snap') || null,
-        liveKey: c.getAttribute('data-live-price') || null,
+        liveKey: c.getAttribute('data-live-price') || c.getAttribute('data-live-chg') || c.getAttribute('data-live-pct') || c.getAttribute('data-live-field') || null,
+        liveAttr: c.hasAttribute('data-live-price') ? 'price' : (c.hasAttribute('data-live-chg') ? 'chg' : (c.hasAttribute('data-live-pct') ? 'pct' : (c.hasAttribute('data-live-field') ? 'field' : null))),
         thresholdKey: c.getAttribute('data-threshold-key') || null,
         archive: !!c.closest('[data-aio-archive="true"]')
       };
@@ -10122,17 +10124,17 @@ window.AIO.getDeploymentGateAudit = function(opts) {
 // The app cannot force every third-party API to succeed, but it can know exactly
 // which data each page/chat answer needs and proactively refresh stale layers.
 window.AIO.DATA_REQUIREMENT_PROFILES = {
-  home:        { tasks: ['quotes','news','sentiment','breadth','technicals'], symbols: ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB'] },
-  signal:      { tasks: ['quotes','sentiment','breadth','technicals','vixHistory','hySpread'], symbols: ['SPY','QQQ','IWM','DIA','RSP','SMH','SOXX','HYG','LQD','TLT','^VIX'] },
+  home:        { tasks: ['quotes','news','sentiment','breadth','technicals'], symbols: ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','^TNX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^KS11','BTC-USD'] },
+  signal:      { tasks: ['quotes','sentiment','breadth','technicals','vixHistory','hySpread'], symbols: ['^GSPC','^IXIC','SPY','QQQ','IWM','DIA','RSP','SMH','SOXX','HYG','LQD','TLT','^VIX','^VVIX','^TNX','DX-Y.NYB','CL=F','GC=F','BTC-USD','NVDA','ARM','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC','GLD'] },
   signals:     { alias: 'signal' },
   breadth:     { tasks: ['quotes','breadth','technicals'], symbols: ['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC'] },
-  sentiment:   { tasks: ['quotes','sentiment','vixHistory','hySpread'], symbols: ['^VIX','^VVIX','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT'] },
+  sentiment:   { tasks: ['quotes','sentiment','vixHistory','hySpread'], symbols: ['^VIX','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT'] },
   briefing:    { tasks: ['quotes','news','sentiment','breadth','fred','technicals'], symbols: ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11'] },
-  technical:   { tasks: ['quotes','technicals','breadth','sentiment','vixHistory'], symbols: ['SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX'] },
-  macro:       { tasks: ['quotes','fred','news','sentiment'], symbols: ['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X'] },
-  fxbond:      { tasks: ['quotes','fred','hySpread','news'], symbols: ['KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X','DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','ZB=F','TLT','HYG','LQD','CL=F','GC=F'] },
-  fundamental: { tasks: ['quotes','news','technicals'], symbols: ['SPY','QQQ','AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','AVGO','AMD','PLTR'] },
-  themes:      { tasks: ['quotes','news','technicals'], symbols: ['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY'] },
+  technical:   { tasks: ['quotes','technicals','breadth','sentiment','vixHistory'], symbols: ['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX'] },
+  macro:       { tasks: ['quotes','fred','news','sentiment'], symbols: ['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X'] },
+  fxbond:      { tasks: ['quotes','fred','hySpread','news'], symbols: ['KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X','DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','ZB=F','TLT','IEF','SHY','HYG','LQD','EMB','CL=F','GC=F','BTC-USD'] },
+  fundamental: { tasks: ['quotes','news','technicals'], symbols: ['SPY','QQQ','AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','AVGO','AMD','PLTR','TSM','INTC'] },
+  themes:      { tasks: ['quotes','news','technicals'], symbols: ['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY','XLF','XLE','XLV','XLI','XLP','XLRE','XLB','XLU','GLD'] },
   'theme-detail': { tasks: ['quotes','news','technicals'], symbols: ['SMH','SOXX','QQQ','SPY'] },
   portfolio:   { tasks: ['quotes','technicals'], symbols: ['SPY','QQQ','IWM','^VIX'] },
   ticker:      { tasks: ['quotes','news','technicals'], symbols: ['SPY','QQQ','^VIX'] },
@@ -10263,6 +10265,7 @@ function _aioCollectDomLiveSymbols(pageId) {
       attrs.forEach(function(attr) {
         var v = el.getAttribute(attr);
         if (!v || /^\$\{/.test(v)) return;
+        if (attr === 'data-live-field') v = String(v).split(':')[0];
         _aioPushSymbol(out, v);
       });
     });
@@ -10352,7 +10355,8 @@ function _aioLeafTextNodes(root) {
 
 window.AIO.getComprehensiveSurfaceIntegrityAudit = function(opts) {
   opts = opts || {};
-  var pageIds = ['home','signal','breadth','sentiment','briefing'];
+  var groups = window.AIO.CRITICAL_PAGE_GROUPS || {};
+  var pageIds = opts.pageIds || ((groups.comprehensive || ['home','signal','breadth','sentiment','briefing']).concat(groups.marketAnalysis || ['technical','macro','fxbond','fundamental','themes']));
   var formulaRe = new RegExp('[=*xX]|score|formula|calc|calculate|weight|ratio|spread|RSI|MACD|SMA|EMA|VIX|Breadth|F&G|Fear|Greed|HY|PCR|AAII|NAAIM|\\uC810\\uC218|\\uACF5\\uC2DD|\\uC218\\uC2DD|\\uACC4\\uC0B0|\\uAC00\\uC911', 'i');
   var numericRe = new RegExp('(?:\\$|\\u20A9)?\\s*\\d[\\d,.]*(?:\\.\\d+)?\\s*(?:%|bp|bps|x|\\uBC30|\\uC870|\\uC5B5|M|B|T|pts?)?', 'i');
   var staleRe = new RegExp('2026-0[1-5]-|2026\\.0[1-5]\\.|4/(?:0?[1-9]|1[0-9]|2[0-9])|5/(?:0?[1-9]|1[0-9]|2[0-9])|loading|calculating|analyzing|\\uB85C\\uB529\\s*\\uC911|\\uACC4\\uC0B0\\s*\\uC911|\\uBD84\\uC11D\\s*\\uC911', 'i');
@@ -10508,6 +10512,7 @@ window.AIO.getDataRequirementProfile = function(scope) {
   var tasks = (base.tasks || []).slice();
   var symbols = (base.symbols || []).slice();
   symbols = symbols.concat(_aioCollectDynamicPageSymbols(pageId, scope));
+  symbols = symbols.concat(_aioCollectDomLiveSymbols(pageId));
   var tickers = Array.isArray(scope.tickers) ? scope.tickers : [];
   tickers.forEach(function(t) { symbols.push(String(t || '').toUpperCase()); });
   if (scope.reason === 'chat') {
@@ -14350,7 +14355,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v49.104';
+const APP_VERSION = 'v49.107';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -16855,7 +16860,7 @@ window.AIO.getOperationalDataContractAudit = function() {
   };
 };
 
-var AIO_CURRENTNESS_LIVE_SELECTOR = '[data-live-price], [data-live-kr], [data-live-chg]';
+var AIO_CURRENTNESS_LIVE_SELECTOR = '[data-live-price], [data-live-kr], [data-live-chg], [data-live-pct], [data-live-field]';
 var AIO_CURRENTNESS_NARRATIVE_IDS = [
   'snapshot-stale-warning',
   'opt-pcr-text',
@@ -16888,7 +16893,7 @@ var AIO_CURRENTNESS_NARRATIVE_SELECTOR = [
   '[id*="risk-radar-body"]'
 ].join(', ');
 function _aioCurrentnessLiveKey(el) {
-  return (el && (el.getAttribute('data-live-price') || el.getAttribute('data-live-kr') || el.getAttribute('data-live-chg'))) || '';
+  return (el && (el.getAttribute('data-live-price') || el.getAttribute('data-live-kr') || el.getAttribute('data-live-chg') || el.getAttribute('data-live-pct') || el.getAttribute('data-live-field'))) || '';
 }
 function _aioIsDecisionNarrativeCandidate(el) {
   if (!el || !el.id) return false;

@@ -6,6 +6,37 @@
 
 ---
 
+## v49.107 - Critical-10 freshness pipeline and DOM binding hardening (2026-06-02)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`
+
+- **Critical-10 operating scope**: `AIO_PAGE_REFRESH_MAP`, page-enter refresh, manual force refresh, and critical refresh APIs now cover the comprehensive 5 pages plus the market-analysis 5 pages instead of stopping at `comprehensive-5`.
+- **DOM binding gate**: added `AIO.applyLiveDataToDom()`, `AIO.verifyPageLiveDataBinding()`, `AIO.verifyCritical10LiveBindings()`, and `AIO.repairPageLiveDataBinding()` so every `data-live-price`, `data-live-chg`, `data-live-pct`, and `data-live-field` sink is re-applied and audited after refresh.
+- **Profile/audit root fix**: `getDataRequirementProfile()` now merges DOM live symbols directly, not only via the separate collector path. Cell-level and market-currentness audits now include change/pct/field live sinks.
+- **UI preservation**: live change updates no longer overwrite an element's whole class list, preventing sector/tag styling from being erased during quote updates.
+- **Regression guard**: T711~T714 verify the critical-10 map, critical-10 force refresh symbols, DOM binding repair APIs, and cell audit live-attribute coverage.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v49.107.
+
+## v49.106 - AI answer diversity and current-data contract (2026-06-02)
+
+**Changed files**: `js/aio-chat.js`, `index.html`, `js/aio-tests.js`, `js/aio-core.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
+
+- **Answer diversity layer**: added `_buildChatAnswerCoverageContext()` so the prompt chooses an answer mode from decision memo, ranked comparison, valuation memo, earnings review, technical setup, portfolio risk note, balanced analysis, or beginner explanation instead of forcing every question into one generic analysis shape.
+- **Expanded intent coverage**: `_classifyChatIntent()` now recognizes technical setup, valuation, earnings, portfolio risk, macro linkage, catalyst/risk, and data-validation requests in addition to action, latest, deep research, compare/screen, and beginner explain.
+- **Current-data-only contract**: both `chatSend()` and `chatSendUnified()` inject `[AI Answer Coverage + Current Data Contract v49.106]`, which forbids using Claude/model training data for current price, market cap, earnings, guidance, analyst targets, ratings, news, filings, macro releases, or recent dates unless they appear in injected live/FMP/SEC/Naver/Finnhub/news/web-search/snapshot data blocks.
+- **Regression guard**: T708~T710 verify the coverage contract, expanded intent families, and both chat surfaces using the new prompt layer.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v49.106.
+
+## v49.105 - AI answer freshness strict forceFresh hotfix (2026-06-01)
+
+**Changed files**: `index.html`, `js/aio-chat.js`, `js/aio-data.js`, `js/aio-tests.js`, `js/aio-core.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`
+
+- **Strict quote recency for stock chat**: `dynamicTickerLookup(ticker, opts)` now honors `opts.forceFresh` and does not immediately return `_liveData` cache when an AI answer is being assembled.
+- **Ticker data block hardening**: `_fetchTickerDataForChat(...,{forceFresh:true, reason:'chat-answer'})` now bypasses both the 5-minute chat ticker cache and the `_liveData` fast path, then calls `dynamicTickerLookup(t,{forceFresh:true})`.
+- **Preflight throttle fix**: `ensureFreshDataForUse()` no longer returns `recently_refreshed` from the minGap path when `scope.forceFresh` is true, so repeated ticker questions still run the strict refresh path.
+- **Regression guard**: T703/T704 now assert forced lookup semantics, and T707 covers live-cache + minGap bypass for AI answer freshness.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v49.105.
+
 ## v49.104 — AI 채팅 자동 최신화 답변 시스템 보강 (2026-06-01)
 
 **Changed files**: `js/aio-data.js`, `js/aio-core.js`, `js/aio-chat.js`, `js/aio-tests.js`, `index.html`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`

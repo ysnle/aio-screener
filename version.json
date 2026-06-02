@@ -1,5 +1,5 @@
 {
-  "version": "v49.104",
-  "built": "2026-06-01T18:10:29+09:00",
-  "note": "v49.104 — AI 채팅 자동 최신화 답변 시스템 보강. 종목 질문은 ensureFreshChatAnswerData strict preflight로 중앙 refresh, 개별 ticker lookup, 채팅 ticker cache 우회를 수행하고 시세/기업 분석 데이터 블록 기준으로만 답변하도록 강화."
+  "version": "v49.107",
+  "built": "2026-06-02T11:42:00+09:00",
+  "note": "v49.107 - Critical-10 freshness pipeline hardening. Manual, page-enter, and AI preflight refreshes now use the combined comprehensive 5 + market-analysis 5 symbol universe, then re-apply and verify every data-live price/change/pct/field sink so refresh success cannot be mistaken for actual DOM update success."
 }

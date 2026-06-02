@@ -3615,12 +3615,12 @@
 
     var chatFreshSrc703 = (window.AIO && typeof window.AIO.ensureFreshChatAnswerData === 'function') ? window.AIO.ensureFreshChatAnswerData.toString() : '';
     _assert('T703 chat_answer_freshness_preflight_v49104: stock chat forces quote refresh and ticker lookup',
-      chatFreshSrc703.indexOf('ensureFreshDataForUse') >= 0 && chatFreshSrc703.indexOf('dynamicTickerLookup') >= 0 && chatFreshSrc703.indexOf('_aioClearChatTickerCache') >= 0,
+      chatFreshSrc703.indexOf('ensureFreshDataForUse') >= 0 && chatFreshSrc703.indexOf("dynamicTickerLookup(t, { forceFresh: true") >= 0 && chatFreshSrc703.indexOf('_aioClearChatTickerCache') >= 0,
       'chatFresh=' + !!chatFreshSrc703);
 
     var tickerFetchSrc704 = (typeof _fetchTickerDataForChat === 'function') ? _fetchTickerDataForChat.toString() : '';
     _assert('T704 chat_ticker_cache_bypass_v49104: ticker data block can bypass 5m cache for AI answers',
-      tickerFetchSrc704.indexOf('opts') >= 0 && tickerFetchSrc704.indexOf('_bypassChatTickerCache') >= 0 && tickerFetchSrc704.indexOf('chat-answer') >= 0,
+      tickerFetchSrc704.indexOf('opts') >= 0 && tickerFetchSrc704.indexOf('_bypassChatTickerCache') >= 0 && tickerFetchSrc704.indexOf('_forceQuoteLookup') >= 0 && tickerFetchSrc704.indexOf('dynamicTickerLookup(t, { forceFresh') >= 0 && tickerFetchSrc704.indexOf('chat-answer') >= 0,
       'tickerFetchOpts=' + (tickerFetchSrc704.indexOf('opts') >= 0));
 
     var chatSendSrc705 = (typeof chatSend === 'function') ? chatSend.toString() : '';
@@ -3634,6 +3634,77 @@
     _assert('T706 single_ticker_company_analysis_default_v49104: single stock questions trigger company-data path',
       deepSrc706.indexOf('detectedTickers.length === 1') >= 0,
       'deepSingle=' + (deepSrc706.indexOf('detectedTickers.length === 1') >= 0));
+
+    var ensureFreshSrc707 = (window.AIO && typeof window.AIO.ensureFreshDataForUse === 'function') ? window.AIO.ensureFreshDataForUse.toString() : '';
+    var dynSrc707 = typeof window.dynamicTickerLookup === 'function' ? window.dynamicTickerLookup.toString() : '';
+    _assert('T707 chat_forcefresh_bypasses_live_cache_and_throttle_v49105: AI answer freshness bypasses live cache and minGap throttle',
+      ensureFreshSrc707.indexOf('!scope.forceFresh') >= 0 && dynSrc707.indexOf('!opts.forceFresh') >= 0 && dynSrc707.indexOf('force-fresh-parallel-race-v49.105') >= 0,
+      'ensureFresh=' + (ensureFreshSrc707.indexOf('!scope.forceFresh') >= 0) + ' dynForce=' + (dynSrc707.indexOf('!opts.forceFresh') >= 0));
+
+    var covSrc708 = typeof window._buildChatAnswerCoverageContext === 'function' ? window._buildChatAnswerCoverageContext.toString() : '';
+    var covSample708 = typeof window._buildChatAnswerCoverageContext === 'function'
+      ? window._buildChatAnswerCoverageContext('fundamental', 'NVDA latest earnings valuation risk', { tickerData:true, trendData:true, deepData:true, webSearch:true, news:true, freshness:true })
+      : '';
+    _assert('T708 chat_answer_coverage_contract_v49106: answer modes and current-data contract injected',
+      covSrc708.indexOf('AI Answer Coverage + Current Data Contract v49.106') >= 0 &&
+        covSrc708.indexOf('decision memo') >= 0 &&
+        covSrc708.indexOf('ranked comparison') >= 0 &&
+        covSrc708.indexOf('valuation memo') >= 0 &&
+        covSrc708.indexOf('current_data_rule') >= 0 &&
+        covSample708.indexOf('mode=') >= 0,
+      'coverageFn=' + !!covSrc708 + ' sample=' + covSample708.slice(0, 80));
+
+    var classifySrc709 = typeof window._classifyChatIntent === 'function' ? window._classifyChatIntent.toString() : '';
+    var cls709 = typeof window._classifyChatIntent === 'function' ? window._classifyChatIntent('portfolio risk valuation earnings technical macro catalyst data source', 'portfolio') : null;
+    _assert('T709 chat_intent_diversity_v49106: classifier covers expanded answer families',
+      classifySrc709.indexOf('TECHNICAL_SETUP') >= 0 &&
+        classifySrc709.indexOf('VALUATION_MODEL') >= 0 &&
+        classifySrc709.indexOf('EARNINGS_REVIEW') >= 0 &&
+        classifySrc709.indexOf('PORTFOLIO_RISK') >= 0 &&
+        classifySrc709.indexOf('MACRO_LINKAGE') >= 0 &&
+        cls709 && cls709.intents && cls709.intents.length >= 4,
+      cls709 ? cls709.intents.join(',') : 'missing');
+
+    _assert('T710 chat_surfaces_use_coverage_contract_v49106: both chat surfaces append coverage context',
+      chatSendSrc705.indexOf('_buildChatAnswerCoverageContext') >= 0 &&
+        unifiedSrc705.indexOf('_buildChatAnswerCoverageContext') >= 0,
+      'chat=' + (chatSendSrc705.indexOf('_buildChatAnswerCoverageContext') >= 0) + ' unified=' + (unifiedSrc705.indexOf('_buildChatAnswerCoverageContext') >= 0));
+
+    var criticalPages711 = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+    var prMap711 = window.AIO_PAGE_REFRESH_MAP || {};
+    _assert('T711 critical10_page_refresh_map_v49107: comprehensive 5 + market-analysis 5 all have refresh tasks',
+      criticalPages711.every(function(p) { return Array.isArray(prMap711[p]) && prMap711[p].indexOf('quotes') >= 0; }) &&
+        Array.isArray(window.AIO_CRITICAL_10_PAGE_IDS) && window.AIO_CRITICAL_10_PAGE_IDS.length >= 10,
+      'pages=' + Object.keys(prMap711).join(','));
+
+    var forceSrc712 = window.AIO && typeof window.AIO.forceRefreshAllData === 'function' ? window.AIO.forceRefreshAllData.toString() : '';
+    var criticalRefreshSrc712 = window.AIO && typeof window.AIO.refreshAllCriticalPages === 'function' ? window.AIO.refreshAllCriticalPages.toString() : '';
+    _assert('T712 force_refresh_uses_critical10_symbols_v49107: manual/latest refresh no longer limited to comprehensive-5',
+      forceSrc712.indexOf('_aioGetCritical10Symbols') >= 0 &&
+        forceSrc712.indexOf('critical-10') >= 0 &&
+        criticalRefreshSrc712.indexOf('critical-10-pages-force-refresh') >= 0,
+      forceSrc712.slice(0, 180));
+
+    var bindFn713 = window.AIO && typeof window.AIO.applyLiveDataToDom === 'function';
+    var verifyFn713 = window.AIO && typeof window.AIO.verifyPageLiveDataBinding === 'function';
+    var repairFn713 = window.AIO && typeof window.AIO.repairPageLiveDataBinding === 'function';
+    var bindSrc713 = bindFn713 ? window.AIO.applyLiveDataToDom.toString() : '';
+    _assert('T713 live_dom_binding_repair_v49107: price/chg/pct/field sinks are applied then verifiable',
+      bindFn713 && verifyFn713 && repairFn713 &&
+        bindSrc713.indexOf('[data-live-price]') >= 0 &&
+        bindSrc713.indexOf('[data-live-chg],[data-live-pct]') >= 0 &&
+        bindSrc713.indexOf('[data-live-field]') >= 0,
+      'bind=' + bindFn713 + ' verify=' + verifyFn713 + ' repair=' + repairFn713);
+
+    var cellSrc714 = window.AIO && typeof window.AIO.getCellLevelDataAudit === 'function' ? window.AIO.getCellLevelDataAudit.toString() : '';
+    var profileHome714 = window.AIO && typeof window.AIO.getDataRequirementProfile === 'function'
+      ? window.AIO.getDataRequirementProfile({ pageId: 'home', symbolLimit: 999 }) : null;
+    _assert('T714 cell_audit_and_profile_cover_all_live_attrs_v49107: audits/profile include live chg/pct/field DOM keys',
+      cellSrc714.indexOf('data-live-chg') >= 0 &&
+        cellSrc714.indexOf('data-live-pct') >= 0 &&
+        cellSrc714.indexOf('data-live-field') >= 0 &&
+        profileHome714 && profileHome714.symbols && profileHome714.symbols.indexOf('BTC-USD') >= 0,
+      'cellAuditAttrs=' + (cellSrc714.indexOf('data-live-field') >= 0) + ' homeSymbols=' + (profileHome714 && profileHome714.symbols ? profileHome714.symbols.join(',').slice(0, 120) : 'missing'));
   }
 
   // v49.62 통합 (Codex v49.61): 4 audit coverage gap 회귀 방지
