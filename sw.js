@@ -1,3 +1,255 @@
-self.addEventListener('install',function(){self.skipWaiting()});
-self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(n){return Promise.all(n.map(function(k){return caches.delete(k)}))}).then(function(){return self.registration.unregister()}));self.clients.claim()});
-self.addEventListener('fetch',function(e){e.respondWith(fetch(e.request.url,{cache:'no-store'}))});
+// AIO Screener Service Worker — offline-first v48.27 (P3-4 1단계)
+// 전략: shell (index.html/version.json/js)은 Network-First, API는 Network-First + 캐시 폴백
+// 제약: GitHub Pages HTTPS + 정적 호스팅 (POST 캐싱 불가, CORS 프록시는 제3자 도메인)
+// v48.27 (QA-3): SW_VERSION을 APP_VERSION과 동기화 — activate 시 신규 캐시로 전환 (R1 7번째 동기화 지점)
+
+// R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
+// v48.80/P150: operational hardening adds an explicit build marker and health message.
+const SW_VERSION = 'v50.4';
+const SW_BUILD = '2026-06-03T11:25:00+09:00';
+const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
+const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
+
+// 앱 셸 — 최초 설치 시 pre-cache
+// v48.29: 4개 모듈 모두 외부 분리 (MODULE 1/2/3/4 = core/data/ui/chat)
+// v49.43 P310 hotfix: manifest.json 제거 (GitHub UI 29af1f3 삭제) — cache.add 404 차단 + SW install 실패 방지
+const SHELL_ASSETS = [
+  './',
+  './index.html',
+  './version.json',
+  './js/aio-core.js',
+  './js/aio-data.js',
+  './js/aio-ui.js',
+  './js/aio-chat.js',
+  './js/aio-glossary.js',
+  './js/aio-tests.js',    // v48.93: 단위 테스트 모듈
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+  'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js',
+  'https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js'
+];
+
+// API/데이터 URL 패턴 — Network-First + 캐시 폴백
+const DATA_URL_PATTERNS = [
+  /query[12]\.finance\.yahoo\.com/,      // Yahoo Finance
+  /api\.coingecko\.com/,                  // CoinGecko
+  /fredgraph\.csv|fredapi/,               // FRED
+  /cdn\.cboe\.com/,                       // CBOE
+  /unusualwhales\.com/,                   // Unusual Whales
+  /finnhub\.io/,                          // Finnhub
+  /alphavantage\.co/,                     // Alpha Vantage
+  /financialmodelingprep\.com/,           // FMP
+  /data\.sec\.gov/,                       // SEC EDGAR
+  /corsproxy\.io|allorigins\.win|codetabs\.com/,  // CORS 프록시
+  /rsshub\.app/,                          // RSSHub 텔레그램
+];
+
+// 민감 URL 패턴 — API 키/토큰/중첩 proxy URL 포함 시 캐시 금지
+const SENSITIVE_QUERY_RE = /[?&](apikey|api_key|token|access_token|client_secret|url)=/i;
+function isSensitiveUrl(u) { return SENSITIVE_QUERY_RE.test(u); }
+
+// DATA_CACHE TTL 상수 (초)
+const DATA_CACHE_TTL = 900;   // 시세/API: 15분
+const NEWS_CACHE_TTL = 1800;  // 뉴스/RSS: 30분
+
+// TTL 만료된 DATA_CACHE 항목 정리 (비동기 논블로킹 — 매 저장 시 호출)
+async function purgeExpiredData(cache) {
+  try {
+    var keys = await cache.keys();
+    var now = Date.now();
+    for (var i = 0; i < keys.length; i++) {
+      var res = await cache.match(keys[i]);
+      if (!res) continue;
+      var t   = parseInt(res.headers.get('x-cache-time') || '0');
+      var ttl = parseInt(res.headers.get('x-cache-ttl')  || String(DATA_CACHE_TTL)) * 1000;
+      if (t > 0 && now - t > ttl) cache.delete(keys[i]);
+    }
+  } catch(e) {}
+}
+
+// RSS 뉴스 피드 URL 패턴 (별도 — 짧은 TTL)
+const NEWS_URL_PATTERNS = [
+  /\/rss|\/feed|\.xml|\.rss/i,
+  /reuters\.com|cnbc\.com|bloomberg\.com|wsj\.com/,
+  /washingtonpost\.com|nytimes\.com|ft\.com/,
+  /techcrunch\.com|theverge\.com|arstechnica\.com/,
+  /digitimes\.com|trendforce\.com/
+];
+
+self.addEventListener('install', function(event) {
+  event.waitUntil(
+    caches.open(SHELL_CACHE).then(function(cache) {
+      // shell 항목만 pre-cache (일부 실패해도 설치 계속)
+      return Promise.allSettled(
+        SHELL_ASSETS.map(function(url) {
+          return cache.add(url).catch(function(e) {
+            console.warn('[AIO SW] shell cache miss:', url, e.message);
+          });
+        })
+      );
+    }).then(function() { self.skipWaiting(); })
+  );
+});
+
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(function(keys) {
+      return Promise.all(keys.map(function(k) {
+        // 이전 버전 캐시 삭제 — 새 버전 활성화 시 자동 정리
+        if (k !== SHELL_CACHE && k !== DATA_CACHE) {
+          return caches.delete(k);
+        }
+      }));
+    }).then(function() { self.clients.claim(); })
+  );
+});
+
+self.addEventListener('fetch', function(event) {
+  const request = event.request;
+  const url = request.url;
+
+  // GET만 캐싱 (POST/PUT 등은 패스스루)
+  if (request.method !== 'GET') {
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  // chrome-extension://, data:, blob: 등 스킴 제외
+  if (!url.startsWith('http')) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  // 1) 앱 셸 — Cache-First (네트워크 실패 시에도 즉시 응답)
+  const reqUrl = new URL(url);
+  const scopeUrl = new URL(self.registration.scope);
+  const isShell = SHELL_ASSETS.some(function(asset) {
+    if (/^https?:\/\//.test(asset)) return url === asset;
+    const rel = asset.replace(/^\.\//, '');
+    if (!rel) {
+      return reqUrl.origin === scopeUrl.origin &&
+        (reqUrl.pathname === scopeUrl.pathname || reqUrl.pathname === scopeUrl.pathname.replace(/\/$/, ''));
+    }
+    return reqUrl.origin === scopeUrl.origin && reqUrl.pathname.endsWith('/' + rel);
+  });
+  if (isShell) {
+    event.respondWith(
+      fetch(request, { cache: 'no-store' }).then(function(resp) {
+        if (resp && resp.ok) {
+          var clone = resp.clone();
+          caches.open(SHELL_CACHE).then(function(c) { c.put(request, clone); });
+        }
+        return resp;
+      }).catch(function() {
+        return caches.match(request).then(function(cached) {
+          return cached || new Response('Offline shell asset unavailable', { status: 503, statusText: 'Service Unavailable' });
+        });
+      })
+    );
+    return;
+  }
+  if (isShell) {
+    event.respondWith(
+      caches.match(request).then(function(cached) {
+        if (cached) {
+          // 백그라운드 갱신 (stale-while-revalidate)
+          fetch(request).then(function(fresh) {
+            if (fresh && fresh.ok) {
+              caches.open(SHELL_CACHE).then(function(c) { c.put(request, fresh.clone()); });
+            }
+          }).catch(function(){});
+          return cached;
+        }
+        return fetch(request).then(function(resp) {
+          if (resp && resp.ok) {
+            var clone = resp.clone();
+            caches.open(SHELL_CACHE).then(function(c) { c.put(request, clone); });
+          }
+          return resp;
+        });
+      })
+    );
+    return;
+  }
+
+  // 2) 데이터/API — Network-First + 캐시 폴백 (offline 시 마지막 캐시 응답)
+  const isData = DATA_URL_PATTERNS.some(function(re) { return re.test(url); });
+  const isNews = NEWS_URL_PATTERNS.some(function(re) { return re.test(url); });
+  if (isData || isNews) {
+    event.respondWith(
+      fetch(request).then(function(resp) {
+        if (resp && resp.ok && resp.status === 200 && !isSensitiveUrl(url)) {
+          var ttl = isNews ? NEWS_CACHE_TTL : DATA_CACHE_TTL;
+          var now = String(Date.now());
+          // TTL 헤더를 주입한 래핑 응답 저장 (body 복사 필요)
+          resp.clone().arrayBuffer().then(function(body) {
+            try {
+              var headers = new Headers(resp.headers);
+              headers.set('x-cache-time', now);
+              headers.set('x-cache-ttl', String(ttl));
+              var wrapped = new Response(body, { status: resp.status, statusText: resp.statusText, headers: headers });
+              caches.open(DATA_CACHE).then(function(c) {
+                c.put(request, wrapped);
+                purgeExpiredData(c); // TTL 만료 항목 비동기 정리
+                c.keys().then(function(keys) {
+                  if (keys.length > 500) c.delete(keys[0]); // FIFO 폴백
+                });
+              });
+            } catch(e) {}
+          }).catch(function() {});
+        }
+        return resp;
+      }).catch(function() {
+        // offline or 네트워크 실패 → 캐시 폴백
+        return caches.match(request).then(function(cached) {
+          if (cached) return cached;
+          // 캐시도 없으면 기본 offline 응답
+          return new Response(JSON.stringify({
+            _offline: true,
+            _sw_version: SW_VERSION,
+            _message: 'Offline and no cached data available'
+          }), {
+            status: 503,
+            statusText: 'Service Unavailable (offline)',
+            headers: { 'Content-Type': 'application/json' }
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // 3) 기타 — 일반 fetch (SW 개입 최소화)
+  event.respondWith(fetch(request).catch(function() {
+    return caches.match(request);
+  }));
+});
+
+// 메시지 채널 — 클라이언트가 SW 제어 가능 (예: 캐시 수동 초기화)
+self.addEventListener('message', function(event) {
+  if (!event.data) return;
+  if (event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  } else if (event.data.type === 'CLEAR_DATA_CACHE') {
+    caches.delete(DATA_CACHE).then(function() {
+      event.ports[0] && event.ports[0].postMessage({ ok: true });
+    });
+  } else if (event.data.type === 'GET_VERSION') {
+    event.ports[0] && event.ports[0].postMessage({ version: SW_VERSION });
+  } else if (event.data.type === 'GET_HEALTH') {
+    caches.keys().then(function(keys) {
+      event.ports[0] && event.ports[0].postMessage({
+        version: SW_VERSION,
+        build: SW_BUILD,
+        shellCache: SHELL_CACHE,
+        dataCache: DATA_CACHE,
+        cacheNames: keys
+      });
+    }).catch(function(e) {
+      event.ports[0] && event.ports[0].postMessage({
+        version: SW_VERSION,
+        build: SW_BUILD,
+        error: e && e.message || String(e)
+      });
+    });
+  }
+});

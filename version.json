@@ -1,6 +1,5 @@
 {
-  "version": "v48.13",
-  "built": "2026-04-17T21:15:00+09:00",
-  "note": "v48.13: 기존 스크리너 자연 통합 2건 — Finnhub /company-news 재도입 + 포트폴리오 벤치마크 차트 실데이터 (P128, 무료). (1) v47.10에서 dead code로 제거됐던 fetchFinnhubCompanyNews 재도입 — Finnhub /company-news?from=-14d&to=today 호출, 최신순 정렬 + headline 중복 제거 + 상위 15건 반환. fundamentalSearch의 Finnhub Promise.allSettled에 4번째 job으로 편입(_fhResults[3]) → collected.finnhubNews 저장 + sources 'Finnhub (기업 뉴스)' 추가. 기존 _renderFund* 패턴 그대로 _renderFundNews(d) 신설 — 헤드라인 140자 + 요약 180자 + N시간/일 전 + source/date 라벨. XSS escHtml 전수 적용. fund-rpt-news DOM은 fund-rpt-earnings 뒤 · fund-rpt-sources 앞 섹션에 자연 삽입. (2) updateBenchmarkChart 버그 수정 + SPY/포트폴리오 30일 실데이터 연결 — 기존 stub은 p.sym/p.avgCost/p.shares 필드로 항상 0% 표시(getPortfolioData 실제 필드는 ticker/cost/qty). 교정 후 Yahoo chart range=1mo로 SPY 30일 종가 + 포트폴리오 상위 10 종목 Promise.all 병렬 fetch → 가중 수익률 일별 계산. 미커버 종목(11+ 또는 fetch 실패)은 현재 누적 수익률 선형 분포. 색상 기존 팔레트(--accent 블루 SPY #60a5fa, 포트폴리오 #3ddba5 녹색) + Alpha 색상 티어. 커버리지 % 하단 표시. 포트폴리오 빈 상태 안내. 기존 CSS 변수·폰트·색상 100% 준수, 새 UI 패턴 도입 없음 — 자연 통합.",
-  "versioning": "x.y (31→...→48.11→48.12→48.13)"
+  "version": "v50.4",
+  "built": "2026-06-03T11:25:00+09:00",
+  "note": "v50.4 - Static market data/calendar refresh. Updates hardcoded news, briefing, macro calendar, DATA_SNAPSHOT metadata, Computex/GTC Taipei topics, SpaceX IPO watch, CPI/NFP/FOMC/PCE dates, and cache rotation."
 }

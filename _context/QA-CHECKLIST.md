@@ -1,21 +1,53 @@
 ---
 verified_by: agent
-last_verified: 2026-04-14
+last_verified: 2026-05-20
 confidence: high
-version: v3.5
-checklist_version: v46.8
-total_items: 252
-stages: 18
-latest_P_covered: P105
+version: v3.7
+checklist_version: v49.57
+total_items: 275
+stages: 21
+latest_P_covered: P318
 ---
 
-# AIO Screener — QA 체크리스트 v3.3
+## v49.57 — AI Chat 종목 데이터 커버리지 확장 (T395~T411)
+
+- [ ] **T395**: `AIO_TICKER_NAME_REGISTRY.entries`.length >= 132 (v49.32 47 → v49.57 152)
+- [ ] **T396**: 핵심 신규 등록 — NVO / VKTX / FANUY / SNPS / CDNS / NET / EQIX / RKLB / IONQ / MSTR / LITE / RIVN / SYM / FSLR / LMT + KR 5 (267250.KS HD현대중공업, 323410.KQ 카카오뱅크, 161890.KS 한국콜마, 000080.KS 하이트진로, 006260.KS LS)
+- [ ] **T397**: `AIO.assertTickerRegistryCompleteness().coveragePct >= 30` — SCR_KEYWORD_ALIASES 543 ticker vs REGISTRY 정합. v49.57 라이브 측정: **32%** (47/543 8.6% → 173/543 32%, 3.7× 확장). v49.58+ 추가 ticker 등록 시 80% 목표.
+- [ ] **T398**: `AIO.getThemeFetchCoverageAudit('ai')` — `{ status:'ok', tickers, fetchable:{yahoo,sec,wiki,finnhub,fmp,naver} }`
+- [ ] **T399**: `AIO.fetchFinnhubCompanyNews` 함수 정의 (신규 v49.57)
+- [ ] **T400**: `AIO.fetchSECRecentFilings` 강화 — `recent8KList[{filingDate,items,accession,url}]` 파싱 + form==='8-K' 인덱스 추출
+- [ ] **T401**: `_fetchTickerDataForChat` 4 신규 라벨 ([SEC 8-K] / [News] / [Insider] / [13F])
+- [ ] **T402**: ABSOLUTE RULES 5조 ([SEC 8-K]/[News]/[Insider] 학습 데이터 환각 금지)
+- [ ] **T403**: `_shouldUseClaudeWebSearch` 함수 정의
+- [ ] **T404**: `_shouldUseClaudeWebSearch('오늘 NVDA 뉴스', 'ticker', ['NVDA'])` === true
+- [ ] **T405**: `_shouldUseClaudeWebSearch('PER이 뭐야', 'ticker', [])` === false
+- [ ] **T406**: `AIO.getWebSearchAudit()` — `{ enabled, calls, maxUsesPerCall:3, estimatedCostUsd }`
+- [ ] **T407**: `showTheme(themeId)` 진입 시 `window._currentThemeId` 설정
+- [ ] **T408**: CIK_MAP 확장 — AMAT '0000006951' + LITE + RKLB + CEG 포함 (+84 entries)
+- [ ] **T409**: `CHAT_CONTEXTS.themes.system()` 소스에 `_currentThemeId` + `SCR_KEYWORD_ALIASES`
+- [ ] **T410**: `CHAT_CONTEXTS['theme-detail'].system()` 동일 dynamic 주입
+- [ ] **T411**: APP_VERSION === 'v49.57'
+
+### 수동 검증 (Chrome MCP)
+1. themes 페이지 → "AI · 반도체" 카드 클릭 → 채팅 → "현재 테마의 NVDA 상황 분석"
+2. system 프롬프트 확인 → `【현재 테마: ai · 등록 15종목 라이브 가격】` 블록 + 6개 데이터 라벨 + ABSOLUTE RULES 5조
+3. "오늘 엔비디아 발표 뉴스" → 🔍 Claude 웹 검색 배지 + 검색 결과 인용
+4. 콘솔: `AIO.assertTickerRegistryCompleteness().coveragePct >= 80`
+5. 콘솔: `AIO.getThemeFetchCoverageAudit('ai').tickers > 10`
+6. opt-out: `localStorage.setItem('aio_web_search_enabled','off')` → 배지 없음
+
+---
+
+# AIO Screener — QA 체크리스트 v3.7 (구 v3.6 본문)
 
 > **v3 배경**: v2는 브라우저 런타임·콘솔·차트·레이아웃에 강하지만, LLM 답변·뉴스 선별·포트폴리오·기업분석·번역·API 키·인터랙션·성능·접근성 등 스크리너 핵심 기능의 50%+가 QA 범위 밖이었음. v3는 22개 페이지 × 264개 클릭 핸들러 × 10개 기능 모듈을 전수 커버.
 > **v3.1 추가 (2026-04-06)**: v42.5~v42.7 전수 QA에서 발굴한 P56~P60 패턴 반영. init 중복 cleanup(P56), 그리드 모바일(P57), applyDataSnapshot 역방향(P58), API 전역 초기화 순서(P59), 크로스페이지 함수 연결(P60).
 > **v3.2 추가 (2026-04-08)**: v44.6 이벤트-드리븐 QA에서 발굴한 P61~P63 반영. 17단계 신설 — 이벤트 후 하드코딩 텍스트 퇴행 검증(P61), "구조적 한계" 거부 원칙(P62), 전역 타이머 추적 불가(P63).
 > **v3.3 추가 (2026-04-09)**: v44.9 /bug-fix QA에서 발굴한 P64 반영. 3F-0 신설 — SCREENER_DB 신규 종목 KNOWN_TICKERS 동시 등록 검증.
 > **v3.4 추가 (2026-04-09)**: v45.5 표면 점검 사각지대 QA에서 발굴한 P65~P67 반영. **신규 19단계: 사용자 인터랙션 결과 검증** — UI 토글/탭/모드 클릭 시 결과값이 실제로 바뀌는지(P65), 데이터 미수신 시 "로딩" 영구 정체 없는지(P66), 동급 컴포넌트 자식 구조 일관성(P67).
+> **v3.5 추가 (2026-04-17)**: v48.62 UX 실전성 보강(P106~P110) — 결론 바·fb-estimated 배지·신규 페이지 R49 준수.
+> **v3.6 추가 (2026-04-28)**: v48.69 보안·타이머·데이터 무결성 감사(P140~P143). **QC9·QC10 게이트 신설** — CDN SRI 완결성(R34/P140), setInterval ID 저장(R9/P141). **20단계** — grep 기반 자동 검증 4항목.
 > **핵심 원칙**: 코드 수정 → "고쳤다" 선언 금지. **브라우저에서 직접 확인한 증거**가 있어야 완료.
 > **반복 요청 분석 결과**: 6대 패턴 중 #1 "코드 고쳤다면서 브라우저에서 안 되잖아"가 최다 빈도 → 이 체크리스트의 존재 이유
 > **총 검증 항목**: 234개 (v3: 204개 + v3.1: 12개 + v3.2: 14개 + v3.3: 1개 + v3.4: 3개 신규)
@@ -28,7 +60,7 @@ latest_P_covered: P105
 
 | # | 게이트 | 기준 | 참조 단계 |
 |---|--------|------|-----------|
-| **QC1** | 구조 무결성 | div 열림/닫힘 일치 **AND** 버전 6곳 동기화 **AND** 콘솔 ERROR 0건 | 1A, 2A, 4A |
+| **QC1** | 구조 무결성 | div 열림/닫힘 일치 **AND** 버전 7곳 동기화 **AND** 콘솔 ERROR 0건 | 1A, 2A, 4A |
 | **QC2** | Dead Page 없음 | 22개 페이지 모두 3초 이내 콘텐츠 렌더링 + 차트 canvas에 픽셀 존재 | 1A, 11 |
 | **QC3** | 데이터 정합성 (R15) | `d.pct \|\| 0` 패턴 0건 **AND** `_SNAP_FALLBACK` ≥50 심볼 | 3C, 8 |
 | **QC4** | 네비게이션 사이클 | A→B→A / popstate / 해시 직접 접근 모두 정상 재렌더 | 1B |
@@ -36,6 +68,8 @@ latest_P_covered: P105
 | **QC6** | Dead Static HTML (P46) | `applyDataSnapshot` map의 모든 키가 HTML `data-snap` 속성과 1:1 매칭 | 13 |
 | **QC7** | 과거 버그 재발 없음 | BUG-POSTMORTEM P41~P64 패턴 grep 결과 재발 0건 | 15 |
 | **QC8** | 이벤트 정합성 (P61) | WTI/VIX/지정학 이벤트 후 하드코딩 서술 텍스트가 현재 상황과 일치 | 17 |
+| **QC9** | CDN SRI 완결성 (R34/P140) | `grep -c 'integrity=' index.html` ≥ 3 **AND** crossorigin="anonymous" 동반 | 20 |
+| **QC10** | setInterval ID 저장 (R9/P141) | `grep -En 'setInterval\(' js/aio-core.js js/aio-data.js \| grep -v 'window\._.*Timer\|clearInterval'` → 0건 | 20 |
 
 ### 판정 규칙
 - **전부 yes** → PASS ✓, 배포 가능 (사용자 명시 승인 시)
@@ -60,6 +94,8 @@ latest_P_covered: P105
 | QC6 | 13 | P45, P46, P58 |
 | QC7 | 15 | 전체 BUG-POSTMORTEM |
 | QC8 | 17 | P61, P62, P63 |
+| QC9 | 20 | R34, P140 |
+| QC10 | 20 | R9, P141, P143 |
 
 ---
 
@@ -888,10 +924,12 @@ UI 상태:
 
 ```
 [ ] APP_VERSION 상수 변경 시 title + #app-version-badge 자동 반영
+[ ] sw.js SW_VERSION과 APP_VERSION 일치 확인
 [ ] DATA_SNAPSHOT._updated가 24시간 이내일 때 노란 배너 미노출
 [ ] 라이브 데이터 수신 시 aio:liveDataReceived 이벤트로 배너 즉시 해제
 [ ] 5초 폴링 (최대 24회) → 2분 내 라이브 데이터 없으면 배너 유지
 [ ] version.json과 APP_VERSION 값 일치 확인
+[ ] 브라우저 콘솔에서 AIO.getOperationalHealth().serviceWorker 버전 확인
 ```
 
 ---
@@ -1961,3 +1999,16 @@ VIX 라벨 5단계(안정/주의/경계/공포/극단공포): 15/20/25/30 경계
 F&G 라벨: <= 연산자 통일 (25/45/55/75) — < vs <= 혼용 없는지
 VKOSPI 라벨: 15/25/35 기준 4단계(안정/경계/공포/극단공포) — 모든 함수에서 동일
 ```
+
+── v48.62: UX 실전성 — 결론 바·배지·폰트 (2026-04-22) ──
+P106: 4개 우선 페이지(home/signal/sentiment/macro) 상단에 `.page-conclusion-bar` 존재 여부 — `id="home-conclusion-bar"` 등 grep 확인
+P107: `_updateAllConclusionBars()` 호출 경로 — `updateMarketPulse()` 내 마지막 줄 및 `aio:liveQuotes` 이벤트 후 트리거 확인
+P108: `fb-estimated` 배지 색상 — amber(`rgba(255,163,26,...)`) 정상 렌더링 여부
+P109: 결론 바 "업데이트" 열 — 데이터 로드 후 "—" 에서 상대시간(예: "3분 전")으로 갱신되는지 확인
+P110: 새 페이지 추가 시 R49 준수 — 결론 바 div 삽입 여부 grep(`id=".*-conclusion-bar"`) 확인
+
+── v48.69: 보안·타이머·데이터 무결성 검증 (2026-04-28) ──
+P140/R34: CDN SRI integrity 속성 존재 여부 — `grep -c 'integrity=' index.html` ≥ 3, 각 줄에 crossorigin="anonymous" 동반 확인
+P141/R9: setInterval ID 전역 저장 여부 — `grep -n 'setInterval(' js/aio-core.js | grep -v 'window\._.*Timer'` → 0건 (결과 있으면 ID 미저장 타이머)
+P142/R15: aio-data.js extPct/F&G `|| 0` 재발 검사 — `grep -n '|| 0' js/aio-data.js | grep -i 'pct\|fg\|score'` → 0건
+P143: _lastFetch 키 정합 — `grep -n '_lastFetch\.' js/aio-core.js` 결과에서 저장 키('quote')와 조회 키('quote'||'liveQuotes') 대칭 확인

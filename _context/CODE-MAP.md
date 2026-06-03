@@ -1,246 +1,202 @@
----
+﻿---
 verified_by: agent
-last_verified: 2026-04-11
+last_verified: 2026-05-15
 confidence: high
-target_version: v46.5
-target_file: index.html
-target_lines: 39513
+target_version: v49.21
+target_file: index.html + js/*.js
+target_lines: index.html 30001 + js modules ~28950
 ---
 
-# index.html CODE-MAP
+# AIO v49.20 CODE-MAP
 
-> **목적**: `index.html` 38,251줄을 Claude가 전체 읽지 않고 Read `offset`/`limit`로 **부분 읽기** 위한 line 범위 맵.
-> **사용법**: 작업 전에 이 파일을 읽어 기능에 해당하는 line 범위만 Read. 전체 파일 읽기 금지.
-> **갱신 주기**: 큰 리팩토링(±500줄 이상) 시 `/knowledge-lint` 또는 수동 재스캔.
+> 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
+> 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `Select-String`/부분 Read로 한 번 더 확인한다.
 
 ---
 
-## 1. 전체 파일 구조 (38,251줄)
+## 1. 현재 파일 구조
+
+| 파일 | 줄 수 | 역할 |
+|------|------:|------|
+| `index.html` | 30,001 | HTML shell, CSS, compact Page Focus Brief styles, explain summary styles, 21개 페이지 DOM, Institutional Technical Brief + Lockout/OPEX/Blow-off Top Control DOM, portfolio technical risk runtime, theme/trend no-static-current rendering, unified AI panel runtime, AI freshness preflight hook, 10-page stale live-like default cleanup, 일부 inline runtime, 외부 모듈 로드 |
+| `js/aio-core.js` | 8,140 | 버전, 전역 상태, DATA_SNAPSHOT, 캐시, Page Focus Brief UX, compact content simplification, beginner explain summaries, static data governance/auto-ops readiness, automatic freshness planner/continuity audit, critical 10-page freshness audit with archive exclusion, dynamic page symbol collection, technical snapshot/sell pressure engine, Lockout/OPEX/Blow-off Top strategy engine, DataQuality/AIInfraHeat/PortfolioTechnicalRisk, freshness policy/SnapshotStore/auditAllFreshness, data pipeline audit, 페이지 라우터 |
+| `js/aio-data.js` | 11,577 | API fetcher, OHLCV + Yahoo fallback + quality bundle, OPEX/put-call/lockout bundle fetchers, live coverage guard, 뉴스 소스/스코어링/impact vector/렌더, HOME stale-event filter, Telegram/Aether pipeline audit, 키워드, 캘린더, 데이터 스케줄 + scheduler telemetry + force refresh + `ensureFreshDataForUse`, requested-symbol quote batch refresh |
+| `js/aio-ui.js` | 2,751 | 심리/시장폭 차트, Institutional Technical Brief + Lockout/OPEX/Blow-off Top renderers, data-quality/news-impact/portfolio-risk renderers, LLM quota UI, GitHub polling, feedback UI |
+| `js/aio-chat.js` | 4,697 | CHAT_CONTEXTS, intent/memory/data-coverage prompt governance, AI freshness preflight hook, Lockout/OPEX/Blow-off Top technical prompt, Claude/Perplexity, 기업 분석, fundamentalSearch |
+| `js/aio-tests.js` | 1,369 | 브라우저 단위 테스트 T1~T175, `AIO.runTests()` / `AIO.getTestResults()` |
+| `js/aio-glossary.js` | 304 | 용어사전 검색/렌더 |
+
+---
+
+## 2. index.html 구조
 
 | 범위 | 내용 |
 |------|------|
-| 1 ~ 28 | `<!DOCTYPE>` / `<head>` / meta / preload |
-| 28 ~ 1961 | **인라인 CSS** (`<style>`) — 디자인 토큰, 레이아웃, 컴포넌트, 애니메이션 |
-| 1962 ~ 8635 | **HTML DOM** (`<body>` + 사이드바 + 21개 페이지 div) |
-| 8636 | Chart.js CDN `<script src>` |
-| 8637 ~ 8644 | 짧은 초기화 inline script |
-| **8646 ~ 38248** | **메인 JS 엔진** (다수의 연속 `<script>` 블록) |
-| 38249 ~ 38251 | `</body></html>` |
+| 1 ~ 38 | head meta, title, preload |
+| 39 ~ 3472 | 메인 CSS |
+| 3473 ~ 12280 | body shell + 21개 page DOM |
+| 12281 ~ 12299 | CDN + `aio-core/data/ui` 로드 |
+| 12301 ~ 15242 | inline runtime block 1 |
+| 15243 | `js/aio-chat.js` 로드 |
+| 15245 ~ 26985 | inline runtime block 2 |
+| 26993 | `js/aio-glossary.js` 로드 |
+| 26995 | `js/aio-tests.js` 로드 |
+| 26996 ~ 29978 | glossary/service worker/deep analysis/unified AI panel/update helpers + closing HTML |
 
-### JS 블록 경계 (주요)
-| Script 범위 | 역할 추정 |
-|------------|----------|
-| 8646 ~ 21132 | 상수·데이터·API·유틸·차트 엔진 (가장 큰 블록, ~12,500줄) |
-| 21134 ~ 21476 | showConfirmModal 등 UI 유틸 |
-| 21478 ~ 26030 | LLM 엔진 + CHAT_CONTEXTS + callClaude |
-| 26032 ~ 27884 | 국가/섹터 특화 로직 |
-| 27886 ~ 31754 | 한국 시장 페이지 초기화 |
-| 31755 ~ 35438 | 대시보드 + 차트 렌더링 |
-| 35481 ~ 35659 | glossary draggable button |
-| 35668 ~ 37790 | Yahoo 차트 fetch + 한국 기술 차트 |
-| 37812 ~ 38011 | 보조 유틸 |
-| 38062 ~ 38248 | AI 패널(chatSendUnified) + 이벤트 리스너 |
-
----
-
-## 2. 21개 페이지 DOM 위치
+### 21개 페이지 DOM 시작점
 
 | 페이지 | id | 시작 line |
-|--------|----|----------| 
-| 홈 대시보드 | `page-home` | 2234 |
-| 매매 시그널 | `page-signal` | 2410 |
-| 시장 폭 | `page-breadth` | 3138 |
-| 투자 심리 | `page-sentiment` | 3460 |
-| 데일리 브리핑 | `page-briefing` | 3611 |
-| 차트·기술 | `page-technical` | 3799 |
-| 거시경제 | `page-macro` | 4258 |
-| 환율·채권 | `page-fxbond` | 4758 |
-| 기업 분석 | `page-fundamental` | 5422 |
-| 테마/섹터 | `page-themes` | 5550 |
-| 테마 상세 | `page-theme-detail` | 5700 |
-| 포트폴리오 | `page-portfolio` | 5807 |
-| 티커 상세 | `page-ticker` | 6013 |
-| 시장 뉴스 | `page-market-news` | 6143 |
-| 옵션 분석 | `page-options` | 6247 |
-| 한국 홈 | `page-kr-home` | 6979 |
-| 한국 공급망 | `page-kr-supply` | 7268 |
-| 한국 테마 | `page-kr-themes` | 7463 |
-| 한국 거시 | `page-kr-macro` | 7528 |
-| 한국 기술 | `page-kr-technical` | 7811 |
-| 사용 설명서 | `page-guide` | 8031 |
+|--------|----|----------:|
+| 홈 대시보드 | `page-home` | 3948 |
+| 매매 시그널 | `page-signal` | 4368 |
+| 시장 폭 | `page-breadth` | 5204 |
+| 투자 심리 | `page-sentiment` | 5599 |
+| 데일리 브리핑 | `page-briefing` | 5882 |
+| 차트·기술 | `page-technical` | 6250 |
+| 거시경제 | `page-macro` | 6730 |
+| 환율·채권 | `page-fxbond` | 7324 |
+| 기업 분석 | `page-fundamental` | 8086 |
+| 테마/섹터 | `page-themes` | 8336 |
+| 테마 상세 | `page-theme-detail` | 8594 |
+| 포트폴리오 | `page-portfolio` | 8701 |
+| 티커 상세 | `page-ticker` | 9085 |
+| 시장 뉴스 | `page-market-news` | 9372 |
+| 옵션 분석 | `page-options` | 9513 |
+| 한국 홈 | `page-kr-home` | 10322 |
+| 한국 공급망 | `page-kr-supply` | 10663 |
+| 한국 테마 | `page-kr-themes` | 10895 |
+| 한국 거시 | `page-kr-macro` | 10992 |
+| 한국 기술 | `page-kr-technical` | 11321 |
+| 사용 설명서 | `page-guide` | 11568 |
 
 ---
 
-## 3. 주요 상수 정의 (검증됨)
+## 3. 핵심 상수/함수 위치
 
-| 상수 | Line | 설명 |
-|------|------|------|
-| `APP_VERSION` | **9574** | 버전 문자열 (R1 6곳 중 1곳) |
-| `DATA_SNAPSHOT` | **9604** | 시장 데이터 SSOT |
-| `SCREENER_DB` | **10476** | 스크리너 종목 DB (760+) |
-| `MACRO_KW` | **13284** | 거시 뉴스 키워드 (~480개) |
-| `TECH_KW` | **13517** | 기술/반도체 뉴스 키워드 (~345개) |
-| `KNOWN_TICKERS` | **13979** | 알려진 티커 Set (905+) |
-| `LLM_MODELS` | **20936** | Claude 모델 설정 |
-| `CHAT_CONTEXTS` | **23641** | 챗 컨텍스트 (§1~§68) |
+### `js/aio-core.js`
 
-> 미확인: `FALLBACK_QUOTES`, `LIVE_SYMBOLS`, `LLM_BUDGET` — 필요 시 grep으로 확인.
+| 항목 | line | 비고 |
+|------|-----:|------|
+| `_aioRegisterTimer` | 437 | 타이머 레지스트리, 중복 등록 정리 |
+| `_aioPageBus` | 461 | 페이지 이벤트 라우팅 허브 |
+| `_aioOnce` / `_aioGlobalRegistry` | 549 | 멱등 초기화와 전역 상태 이전 레지스트리 |
+| `_aioFiniteNum` / `_aioSafeDiv` | 590 | NaN/Infinity/분모 0 통합 방어 |
+| `_aioLRU` | 609 | score/ticker regex 등 용량 제한 캐시 |
+| `_aioMarkChartCanvases` | 306 | LightweightCharts 내부 canvas `aria-hidden` 처리 |
+| `chartDataGate` | 1865 | 차트 NaN/null 방어 |
+| `safeLS` / `safeLSGet` / `safeLSGetSync` | 2296 / 2309 / 2322 | 암호화 localStorage |
+| Page Focus Brief UX + Compact Simplification + Static Governance + Auto Freshness Planner | 1660 ~ 2417 | 페이지별 목적/3단계 루틴/관련 페이지 동선, 핵심 보기 토글, 상세/참고/아카이브 접기, `AIO.getPageUXAudit()`, `AIO.getStaticDataGovernanceAudit()`, `AIO.getAutoOpsReadiness()`, `AIO.getAutoFreshnessPlan()` |
+| Institutional technical engine | 4140 ~ 4851 | OHLCV snapshot, sell pressure, semiconductor heat, lockout/OPEX, exit plan |
+| `AIO_EVENT_RISK_CONTEXT` / `calcBlowoffTopChecklist` | 4507 / 4547 | CPI-confirmed event risk + blow-off top checklist |
+| `APP_VERSION` | 4862 | R1 버전 단일 소스 |
+| `AIO.getLiveCoverage` / `getDataFreshnessAudit` | 5300 / 5332 | core live quote coverage + freshness audit |
+| `AIO.getDataPipelineAudit` | 5418 | source/API → transport/cache → scheduler → store → analysis → render audit |
+| `AIO.getOperationalHealth` | 5587 | 운영/SW/API/cache/data freshness/data pipeline 자체 진단 |
+| `DATA_SNAPSHOT` | 5767 | 시장 데이터 SSOT (`window.DATA_SNAPSHOT` exposed below block) |
+| `applyDataSnapshot` | 6677 | snapshot → DOM, 키별 오류 격리 |
+| `_ldSafe` | 7063 | liveData + snapshot fallback |
+| `destroyPageCharts` | 7137 | 페이지 이탈 차트 정리 |
+| `showPage` | 7584 | SPA 페이지 전환 |
+| `_calcPortfolioVaR` | 7899 | 보수적 historical VaR |
 
----
+### `js/aio-data.js`
 
-## 4. 주요 함수 위치 (검증됨)
+| 항목 | line | 비고 |
+|------|-----:|------|
+| `DATA_APIS` | 1593 | API registry |
+| `fetchOHLCV` | 1944 | v48.78 deep technical OHLCV |
+| `fetchOHLCVWithFallback` | 2008 | Twelve Data → Yahoo chart fallback OHLCV normalizer |
+| `fetchFinnhubEarningsCalendar` | 2746 | 어닝 일정 |
+| `REFRESH_SCHEDULE` | 2988 | 자동 갱신 스케줄 |
+| `_runScheduledTask` / `ensureFreshDataForUse` | 3023 / 3258 | task promise timeout + page/chat selective freshness preflight |
+| `AIO.getRefreshSchedulerAudit` / `runScheduledRefresh` | 3169 / 3212 | 자동 갱신 스케줄러 진단 + 수동 강제 갱신 |
+| `AIO_NEWS_SOURCES` | 3572 | RSS/뉴스 소스 |
+| `MACRO_KW` | 3716 | 매크로 키워드 |
+| `TECH_KW` | 4071 | 기술/AI 키워드 |
+| `KNOWN_TICKERS` | 4738 | 티커 Set |
+| `scoreItem` | 5531 | 뉴스 중요도 점수 + LRU 캐시 |
+| `classifyTopic` | 5890 | 뉴스 토픽 분류 |
+| `renderFeed` | 6838 | 시장 뉴스 렌더 |
+| `_aioGetCurrentHomeWeeklyNews` | 7037 | HOME 고정 뉴스 72시간 freshness filter |
+| `renderHomeFeed` | 7049 | 홈 뉴스 렌더 |
+| `renderBriefingFeed` | 7167 | 브리핑 뉴스 렌더 |
+| `fetchOneFeed` | 7730 | 단일 피드 fetch |
+| `fetchAllNews` | 8062 | 뉴스 전체 수집 |
+| `fetchLiveQuotes` | 8978 | live quote pipeline + core coverage guard |
+| `vixToPercentile` | 9795 | VIX percentile 로그 외삽 |
+| `applyLiveQuotes` | 10256 | live quote store + DOM render sink |
+| `toggleSignalMode` | 10921 | signal UI mode state |
 
-### 데이터/API/유틸
-| 함수 | Line | 비고 |
-|------|------|------|
-| `chartDataGate` | 8728 | 차트 렌더 게이트 (NaN/null 방어) |
-| `safeLS` | 9104 | 암호화 localStorage 쓰기 |
-| `safeLSGet` | 9115 | 암호화 localStorage 읽기 |
-| `safeLSGetSync` | 9126 | 동기 읽기 |
-| `drawSparkline` | 11862 | 미니 차트 |
-| `fetchWithTimeout` | 12041 | 타임아웃 fetch |
-| `fetchViaProxy` | 12099 | CORS 프록시 체인 |
-| `fetchChartData` | 12236 | 차트 데이터 |
-| `fetchFundamentals` | 12261 | SEC/FMP 재무 |
-| `fetchFredSeries` | 12369 | FRED 지표 |
-| `escHtml` | 13176 | XSS escape |
+### `js/aio-ui.js`
 
-### 뉴스 시스템
-| 함수 | Line | 비고 |
-|------|------|------|
-| `scoreItem` | 14657 | 뉴스 중요도 점수 (CJK 가중치 v46.5) |
-| `classifyTopic` | 14977 | 주제 분류 (healthcare/space/quantum 포함) |
-| `googleTranslateFree` | 15197 | 번역 (단건) |
-| `freeTranslateNews` | 15270 | 번역 (배치, 분리자 폴백 v46.5) |
-| `autoTranslateNews` | 15400 | 자동 번역 |
-| `localEnrichNews` | 15531 | 로컬 enrich |
-| `extractTickers` | 15666 | 텍스트→티커 (모호 필터 확장 v46.5) |
-| `renderFeed` | 15875 | 시장 뉴스 렌더 |
-| `renderHomeFeed` | 16047 | 홈 뉴스 렌더 |
-| `renderBriefingFeed` | 16162 | 브리핑 뉴스 렌더 |
-| `_markdownToHtml` | 16408 | 마크다운→카드 UI 변환 (v46.5 재설계) |
-| `_generateAIBriefing` | 16266 | AI 브리핑 생성 (기관급 프롬프트 v46.5) |
-| `fetchAllNews` | 17007 | 80+ 소스 일괄 수집 (점진적 렌더링 v46.5) |
+| 항목 | line | 비고 |
+|------|-----:|------|
+| `_refreshSentimentChartData` | 14 | VIX/HYG 동적 차트 |
+| `_SENT_COMMON` | 59 | sentiment chart data |
+| `_initSentVixChart` | 73 | VIX chart |
+| `_initSentNaaimChart` | 151 | NAAIM chart |
+| `_initSentIIChart` | 230 | Investors Intelligence |
+| `_initSentHYChart` | 291 | HY OAS chart |
+| `initSentimentPage` | 352 | sentiment init |
+| `initBreadthPage` | 638 | breadth init |
+| `LLM_MODELS` | 1293 | Claude 모델 설정 |
+| `LLM_BUDGET` | 1444 | 예산/쿼터 |
+| `updateQuotaBadge` | 1521 | LLM UI 동기화 |
+| `ghPollOnce` | 1717 | GitHub version polling |
+| `globalRefresh` | 1897 | 전체 새로고침 |
+| feedback UI | 1949 ~ 2038 | 피드백 패널 |
+| Institutional Technical Brief renderers | 2288 ~ 2555 | 4-chart report, key levels, sell pressure, exit plan, data quality/news impact/portfolio risk renderers, beginner explanation |
 
-### 실시간 데이터 적용
-| 함수 | Line | 비고 |
-|------|------|------|
-| `applyStaticFallbacks` | 18438 | 정적 폴백 즉시 적용 |
-| `applyLiveQuotes` | 18832 | 실시간 시세 주입 |
+### `js/aio-chat.js`
 
-### 페이지 초기화
-| 함수 | Line | 비고 |
-|------|------|------|
-| `destroyPageCharts` | 10133 | Chart 인스턴스 정리 |
-| `showPage` | 10216 | SPA 페이지 전환 |
-| `initSentimentPage` | 19446 | |
-| `initSentimentCharts` | 19624 | |
-| `initBreadthPage` | 19833 | |
-| `initBreadthCharts` | 20127 | |
-| `showConfirmModal` | 22348 | 커스텀 확인 모달 (R6) |
-| `initKoreaHome` | 28185 | |
-| `initKoreaSupply` | 28349 | |
-| `initKoreaThemes` | 28402 | |
-| `initKoreaMacro` | 30386 | |
-| `drawScoreGauge` | 33125 | |
-| `initSignalDashboard` | 33865 | |
-| `updateMarketPulse` | 33969 | 마켓 펄스 바 (v42.1+) |
-| `initYieldCurveChart` | 33173 | |
-| `drawRRG` | 35277 | 섹터 RRG 차트 |
-| `renderSectorPerfBars` | 35556 | 섹터 1일/1주 토글 (v45.5) |
-| `initOptionsPage` | 35526 | |
-| `_fetchYahooChartData` | 36812 | Yahoo 1년 차트 |
-| `initKoreaTechnical` | 38381 | |
-
-### LLM 엔진
-| 함수 | Line | 비고 |
-|------|------|------|
-| `callClaude` | 24548 | 스트리밍 API (30s/60s 타임아웃) |
-| `chatSend` | 25150 | 컨텍스트별 전송 |
-| `_extractTickers` | 24332 | |
-| `_fetchTickerDataForChat` | 24353 | |
-| `_fetchDeepCompareData` | 24476 | 3종목 심층 비교 |
-| `chatSendUnified` | 38180 | AI 패널 전송 |
-
----
-
-## 5. 빠른 참조: "기능 → Read 범위"
-
-index.html 수정 전 아래 표에서 line 범위를 찾아 Read offset/limit로만 읽는다.
-
-| 작업 | Read 범위 |
-|------|-----------|
-| **R1 버전 6곳 동기화** | 9540 (APP_VERSION) + grep `<title>` + grep `app-version-badge` |
-| **DATA_SNAPSHOT/폴백 수정** | 9570~9780, 17881~18500 |
-| **페이지 전환 / init 가드** | 10077~10300 |
-| **스크리너 DB 갱신** | 10442~11400 |
-| **API 프록시 체인** | 12041~12400 |
-| **뉴스 키워드 (MACRO/TECH)** | 13190~13800 |
-| **뉴스 스코어링** | 14459~14800 |
-| **뉴스 번역** | 14933~15300 |
-| **뉴스 렌더링** | 15627~16100 |
-| **뉴스 소스 목록** | 16641~17100 |
-| **실시간 시세 적용** | 17881~18500 |
-| **심리 페이지 차트** | 19446~19800 |
-| **시장 폭 페이지 차트** | 19833~20400 |
-| **LLM 모델/예산** | 20355~20700 |
-| **모달/confirm** | 21700~21900 |
-| **CHAT_CONTEXTS (§1~§64)** | 22980~23700 |
-| **callClaude 엔진** | 23879~24100 |
-| **chatSend + 티커 감지** | 25150~25700 |
-| **한국 페이지** | 28185~32000 |
-| **포트폴리오 차트** | 32000~32200 |
-| **매매 시그널 대시보드** | 32768~33100 |
-| **마켓 펄스 바** | 32872~33000 |
-| **RRG 차트** | 34178~34500 |
-| **섹터 1주 토글** | 34424~34700 |
-| **옵션 분석** | 6247~8030 (DOM) + 35526~36000 (JS) |
-| **한국 기술 차트** | 37212~37600 |
-| **AI 패널 전송** | 38180~38248 |
-| **CSS 변수/레이아웃** | 28~1961 |
+| 항목 | line | 비고 |
+|------|-----:|------|
+| `CHAT_CONTEXTS` | 8 | AI persona/context |
+| `_fetchDeepCompareData` | 1919 | 심층 기업 비교 데이터 |
+| chat intent/memory/data coverage governance | 2406 ~ 2483 | 의도 분류, 최근 대화 중복 방지 메모, 데이터 커버리지 라벨, 단일 종목 심층 트리거 |
+| AI freshness preflight | 2839 ~ 2846 | `AIO.ensureFreshDataForUse()` bounded preflight before ticker/deep/news prompt assembly |
+| `_googleSearch` | 2673 | Google CSE fallback |
+| `chatSend` | 2798 | 컨텍스트별 AI 전송 |
+| `_fmtNum` | 3347 | NaN/Infinity → `—` 표시 방어 |
+| `fundamentalSearch` | 3462 | 기업 분석 수집/렌더 |
+| `_renderFundHeader` | 3710 | 기업 분석 헤더 |
+| `_renderFundFinancials` | 3839 | 재무/애널리스트/SEC Frames, Infinity guard |
+| `_renderFundEarnings` | 4225 | 어닝 일정/서프라이즈 |
+| `_renderFundNews` | 4281 | Finnhub 기업 뉴스 |
 
 ---
 
-## 6. 아키텍처 특징 (요약)
+## 4. 빠른 작업 참조
 
-1. **단일 파일 아키텍처**: HTML + CSS + JS 모두 `index.html`
-2. **절대 전체 재작성 금지**: 38,251줄 — 필요한 부분만 패치
-3. **정적 폴백 우선**: `applyStaticFallbacks()` 즉시 렌더 → `applyLiveQuotes()`로 교체
-4. **CORS 프록시 체인**: rss2json → 다수 무료 프록시 → Cloudflare Worker
-5. **SPA 전환**: `showPage(id)` → `destroyPageCharts(old)` → `initXxxPage()` → `initXxxCharts()`
-6. **다크 테마 전용**: `#0a0e14`, CSS 변수 일관성
-7. **한국어 UI**: 사용자 대면 텍스트 전량 한국어
-8. **WCAG AA**: 대비비 4.5:1
-
-## 7. 상태 라이프사이클 버그 패턴 (반복 발생)
-
-- **init 가드 미리셋**: `if (initialized) return;`을 destroy 시 false로 리셋 안 함 → 재진입 실패 (R9, 3회+ 위반)
-- **캔버스 ID 불일치**: 함수가 그리는 canvas id ≠ 실제 DOM id
-- **popstate 경로 불일치**: `showPage()`와 popstate 핸들러 불일치
-- **Yahoo API 구조 가정**: `meta.regularMarketChangePercent` 없음 → 수동 계산
-- **stale DOM 참조** (P43): 리팩토링 후 `getElementById('삭제된-id')` 무음 실패
-- **0 falsy 함정**: `if (val)` 에서 0이 false → `_ldSafe()` 또는 `val != null`
-
----
-
-## 8. 핵심 함수/패턴 (글로벌 유틸)
-
-- `applyStaticFallbacks()` (17881) — 정적 시세 즉시 적용
-- `applyLiveQuotes()` (18275) — 실시간 시세 주입
-- `chartDataGate()` (8728) — NaN/null 방어
-- `_ldSafe(ticker, field)` — `_liveData` 안전 접근 + `_SNAP_FALLBACK` 폴백 (grep으로 위치 확인)
-- `showPage(id)` (10160) — SPA 전환
-- `destroyPageCharts(pageId)` (10077) — Chart 인스턴스 정리
-- `showConfirmModal()` (21725) — native confirm() 대체 (R6)
-- `safeLS()` / `safeLSGet()` (9104/9115) — 암호화 localStorage
-- `updateMarketPulse()` (32872) — 마켓 펄스 바 (v42.1+)
+| 작업 | 우선 파일/범위 |
+|------|----------------|
+| R1 버전 동기화 | `index.html:10`, `index.html:3961`, `js/aio-core.js:4688`, `version.json`, `sw.js:8`, `_context/CLAUDE.md`, `CHANGELOG.md` |
+| 페이지 핵심화/간소화 | `index.html:780~915`, `js/aio-core.js:1660~1932` |
+| DATA_SNAPSHOT 갱신 | `js/aio-core.js:5593~5806`, `js/aio-core.js:5159~5414` freshness/pipeline audit, `js/aio-ui.js` chart arrays |
+| 뉴스 소스/키워드/Telegram audit | `js/aio-data.js:3429~3557`, `js/aio-data.js:7519~7540` |
+| 뉴스 선별/렌더 | `js/aio-data.js:5174~6781` |
+| 뉴스 수집 안정성 | `js/aio-data.js:7324~8080` |
+| 페이지 전환/init 가드 | `js/aio-core.js:5418~5936`, 각 page init 함수 |
+| sentiment/breadth 차트 | `js/aio-ui.js:1~1050` |
+| LLM 모델/쿼터 | `js/aio-ui.js:1293~1585` |
+| Claude 채팅/웹검색/중복 방지 | `js/aio-chat.js:1~3470`, `index.html:29586~29967` |
+| 기업 분석 UI | `index.html:8086~8335`, `js/aio-chat.js:3471~4697` |
+| 포트폴리오 DOM | `index.html:8467~8838` |
+| 포트폴리오 benchmark chart | `index.html:28663~28827` |
+| 옵션 분석 DOM | `index.html:9267~10082` |
+| 한국 페이지 DOM | `index.html:10083~11328` |
+| browser unit tests | `js/aio-tests.js:1~1322`, `index.html:26995` |
+| glossary | `js/aio-glossary.js`, `index.html:26670~29260` |
 
 ---
 
-## 9. 주의사항
+## 5. 검증 메모
 
-1. **상수 의존성**: 9540~14400 범위의 상수(DATA_SNAPSHOT, SCREENER_DB, TECH_KW 등)는 수십 군데에서 참조. 함수 수정 시 관련 상수도 함께 Read 권장.
-2. **캐시/암호화 로직**: localStorage(`_AioVault`), 뉴스 캐시(10분), 번역 캐시가 있음. 수정 시 캐시 무효화 필요할 수 있음.
-3. **단일 파일 유지**: 절대 전체 재작성 금지. line 범위로 부분 패치만.
-4. **line 번호 드리프트**: 대규모 편집 후 이 맵의 line 번호가 오프셋될 수 있음. `/knowledge-lint` 실행으로 재검증하거나 수동 grep으로 재확인.
-5. **미검증 함수**: 일부 함수(특히 "Explore 추정" 표시된 것)는 실제 grep으로 라인 번호 재확인 권장.
+- v49.8은 실제 사이트 최신성 감사 기준으로 HOME 핵심 뉴스 stale-event filter, 2026-05-13 fallback snapshot, T141~T142 재발 방지 테스트를 추가한 기준.
+- v49.7은 페이지별 Page Focus Brief로 초보자용 3단계 루틴과 관련 페이지 동선을 표준화한 기준.
+- v49.6은 v49.5 Lockout Rally/OPEX 엔진 위에 2026-05-12 WebSearch/public-source 기준 정적 fallback seed를 최신화한 기준.
+- v49.5는 v49.4 데이터 최신성 거버넌스 위에 Lockout Rally/OPEX 전략 엔진, terminal candle, breadth rotation, action ladder UI/tests를 추가한 기준.
+- v49.4는 v49.3 아키텍처 보강 위에 freshness policy, SnapshotStore, scheduler telemetry, auditAllFreshness, WebSearch fallback refresh를 추가한 기준.
+- HTML inline `onclick=` attribute는 0건. JS property assignment `.onclick =`는 modal/prompt overlay 내부에서 4건 존재.
+- `.claude/commands`와 `.claude/hooks`는 GitHub-tracked checkout에는 없음. Claude 로컬 운영 워크트리에만 존재할 수 있으므로 배포 검증과 운영 검증을 구분한다.
+- 큰 구조 변경 뒤에는 이 파일의 line 번호를 반드시 재스캔한다.
