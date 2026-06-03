@@ -1,8 +1,8 @@
 ---
 verified_by: agent
-last_verified: 2026-06-02
+last_verified: 2026-06-03
 confidence: high
-target_version: v50.1
+target_version: v50.4
 
 ---
 
@@ -2433,3 +2433,21 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 **Rule**: Current runtime release tags must use `vMAJOR.MINOR` with one or two digits after the decimal point, for example `v50.1` or `v50.12`. Do not create new three-decimal tags such as `v49.100`. Historical changelog entries may remain as archive text, but active `APP_VERSION`, title, badge, `version.json`, `SW_VERSION`, and cache-busters must follow this format.
 
 **Validation**: T748 checks `window.AIO.version` against `^v\d+\.\d{1,2}$`.
+
+## R203. News surfaces must use the shared evidence-style surface contract (v50.2 added, P478 root)
+
+**Rule**: `home`, `briefing`, and `market-news` must render from `AIO.buildNewsSurfaceModel()` using `AIO_NEWS_SURFACE_CONTRACTS`. Do not reintroduce independent ad hoc filters that bypass source tier, freshness window, score threshold, duplicate removal, verification status, or empty-reason accounting.
+
+**Validation**: `AIO.getNewsSurfaceAudit({ rebuild: true })` must report all three surfaces, and `AIO.runEvidenceDeploymentGate({ strict: true })` must include `newsSurface`. Briefing AI input may include only verified/current items; secondary-only, Telegram-only, stale, or unverified items must stay in review/confirmation-needed UI.
+
+## R204. User-facing market text must pass the text surface contract (v50.3 added, P479 root)
+
+**Rule**: Every route-page text surface must be classified by `AIO_TEXT_SURFACE_CONTRACTS` as a current market claim, education explainer, operational status, developer note, risk disclaimer, or reference archive. Developer/version/rule markers such as `[PRIMARY]`, `[SECONDARY]`, `ACTION_RULES`, `PAGE_PURPOSE_REGISTRY`, and internal audit IDs must not be visible on route pages. Fixed-date market claims must either be refreshed through live calendar/news evidence or marked reference/archive.
+
+**Validation**: T755~T758 verify text contracts, high-risk marker removal, briefing fixed-date claim removal, and deployment-gate integration through `AIO.getTextSurfaceAudit()` and `AIO.runEvidenceDeploymentGate()`.
+
+## R205. Static market calendars must separate official releases from source-dependent topics (v50.4 added, P480 root)
+
+**Rule**: Hardcoded current-market copy, pinned events, AI briefing context, and DATA_SNAPSHOT metadata must distinguish (1) last-published official values, (2) scheduled official release dates, and (3) source-dependent watch topics. Future CPI/NFP/PCE/FOMC values must never be invented before official release. Topics such as Computex announcements or SpaceX IPO reports must show their verification status and must not be rendered as confirmed market data unless verified/current evidence exists.
+
+**Validation**: T759~T762 verify official June 2026 NFP/CPI/FOMC/PCE dates, snapshot current-topic fields, home current-topic queue, and active `vMAJOR.MINOR` runtime version policy.

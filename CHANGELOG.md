@@ -6,6 +6,36 @@
 
 ---
 
+## v50.4 - Static market data and calendar refresh (2026-06-03)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`, `_context/BUG-POSTMORTEM.md`
+
+- **Official calendar refresh**: updated `AIO_MACRO_CALENDAR` and `DATA_SNAPSHOT` metadata for June 2026 official events: BLS NFP 6/5, BLS CPI 6/10, FOMC 6/16-17, BEA PCE 6/25, and BOK 7/10.
+- **Hardcoded market topics**: refreshed static home news, briefing event layer, risk pinned events, options volatility copy, and KR macro schedule for Computex/GTC Taipei, SpaceX IPO watch, CPI/NFP/FOMC/PCE, and current AI earnings watch.
+- **AI briefing guard**: rewrote static AI briefing context so last-published values and future releases are separated; 5월 CPI/NFP/PCE values must not be invented before official release.
+- **Regression guard**: T759~T762 verify official June dates, snapshot current-topic fields, home current-topic queue, and active `vMAJOR.MINOR` version policy.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v50.4.
+
+## v50.3 - Text surface governance (2026-06-03)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`, `_context/BUG-POSTMORTEM.md`
+
+- **21-page text contract**: added `AIO_TEXT_SURFACE_CONTRACTS`, `AIO.getTextSurfaceAudit()`, and `AIO.applyTextSurfaceHygiene()` so route-page text is classified as current market claim, education explainer, operational status, developer note, risk disclaimer, or reference archive.
+- **Gate wiring**: added the text-surface audit to `AIO_AUDIT_REGISTRY` and `AIO.runEvidenceDeploymentGate()` so visible/tooltip copy quality is part of deployability instead of an informal review.
+- **High-risk copy cleanup**: removed user-visible `[PRIMARY]`/`[SECONDARY]`, `R69 ACTION_RULES`, `PAGE_PURPOSE_REGISTRY`, fixed FOMC/CPI/AVGO/Computex briefing claims, and stale KR semiconductor update wording from current-decision surfaces.
+- **Regression guard**: T755~T758 verify text contracts, removal of high-risk internal markers, evidence/calendar-driven briefing copy, and deployment-gate integration.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v50.3.
+
+## v50.2 - News surface contract reform (2026-06-03)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`, `_context/BUG-POSTMORTEM.md`
+
+- **Shared news contract**: added `AIO_NEWS_SURFACE_CONTRACTS` for `home`, `briefing`, and `market-news` so the three visible news areas use one policy source for freshness, max count, score thresholds, source tier, duplicate removal, verification status, and empty-state reason.
+- **Central model + audit**: added `AIO.buildNewsSurfaceModel()` and `AIO.getNewsSurfaceAudit()`; wired the news audit into AutoOps readiness, `AIO_AUDIT_REGISTRY`, and `AIO.runEvidenceDeploymentGate()`.
+- **Surface behavior split**: home now shows the 3 most important verified market items and treats expired `HOME_WEEKLY_NEWS` as reference-only; briefing uses the 08:00 KST 24h window and keeps secondary/unverified items out of AI summary input; market-news keeps 48h exploration with empty reasons and source/verification metadata.
+- **Regression guard**: T749~T754 verify news surface contracts, role-specific models, expired static home news, briefing AI evidence filtering, market-news empty reasons, and deployment-gate integration.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, and script cache busters moved to v50.2.
+
 ## v50.1 - Trading decision evidence gate (2026-06-02)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`, `EVIDENCE-DEBT.md`

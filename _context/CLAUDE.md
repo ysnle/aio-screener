@@ -2,7 +2,16 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.1
+- **현재 버전**: v50.4
+
+## v50.4 hotfix note
+- Static market data/calendar surfaces were refreshed to 2026-06-03 KST. `AIO_MACRO_CALENDAR`, `DATA_SNAPSHOT` metadata, `HOME_WEEKLY_NEWS`, briefing event layer, risk pinned events, options/KR macro copy, and AI briefing prompt context now separate last-published official values from future releases. Computex/GTC Taipei is a verified current-topic layer; SpaceX IPO is a source-dependent watch item; CPI/NFP/PCE future values must not be invented before official releases. T759~T762 added.
+
+## v50.3 hotfix note
+- Text surfaces now have a 21-route governance contract. `AIO_TEXT_SURFACE_CONTRACTS`, `AIO.getTextSurfaceAudit()`, and `AIO.applyTextSurfaceHygiene()` classify visible/tooltip copy and gate developer markers, stale fixed-date market claims, long explainers, and unsupported current-market claims. The audit is included in `AIO_AUDIT_REGISTRY` and `AIO.runEvidenceDeploymentGate()`. T755~T758 added.
+
+## v50.2 hotfix note
+- News surfaces now share AIO_NEWS_SURFACE_CONTRACTS and AIO.buildNewsSurfaceModel(). Home core news is top-3 verified/current market-impact news; briefing is the 08:00 KST 24h decision window with AI input limited to verified/current items; market-news remains 48h exploration with filters and empty reasons. AIO.getNewsSurfaceAudit() is wired into AutoOps readiness and AIO.runEvidenceDeploymentGate().
 
 ## v50.1 hotfix note
 - Trading/decision-use outputs now have a dedicated evidence gate. Use `AIO.getTradingDecisionInputEvidence()` for SPX/SPY/VIX/10Y/HYG/DXY/WTI input currentness and `AIO.getTradingDecisionLogicAudit()` for stale fallback/proxy logic review before trusting market score, regime, execution window, Weinstein stage, ticker entry checklist, or options IV Rank.

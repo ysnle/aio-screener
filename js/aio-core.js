@@ -5102,7 +5102,7 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
         // verify-only (agent false alarm 차단 5건)
         { sub: 'macro-extra-indicators', axis: '최신성', severity: 'ok', note: 'retail-sales/wage-growth/cons-conf/housing FRED 동적 갱신 aio-data.js L2284~2488 _updSnap 호출 — agent "정적 하드코딩" 클레임 false alarm', verifiedIn: 'v49.42' },
         { sub: 'macro-scenario-tree',    axis: '정합성', severity: 'ok', note: 'SCENARIO_REGISTRY macro hook aio-core.js L1564~1588 완전 구현 (validateSum + stale-days) — verifiedIn v49.27/R72', verifiedIn: 'v49.42' },
-        { sub: 'macro-fred-charts',      axis: '최신성', severity: 'ok', note: 'R81 nextUpdate 표시 L7057 "다음 갱신: NFP 6/6 · CPI 6/12 · PCE 6/30" — verifiedIn v49.31/R81', verifiedIn: 'v49.42' },
+        { sub: 'macro-fred-charts',      axis: '최신성', severity: 'ok', note: 'R81 nextUpdate 표시: NFP 6/5 · CPI 6/10 · PCE 6/25 — refreshedIn v50.4/R81', verifiedIn: 'v50.4' },
         { sub: 'macro-storyline',        axis: '정확성', severity: 'ok', note: 'generateMacroStoryline 함수 aio-core.js + aio-tests.js + aio-chat.js 3 파일 존재 — agent "미검증" 클레임 false alarm', verifiedIn: 'v49.42' },
         { sub: 'macro-thermometer',      axis: '로직성', severity: 'ok', note: 'temp-score 계산 js 3 파일 존재 — agent "미검증" 클레임 false alarm', verifiedIn: 'v49.42' },
         // minor (v49.43 후속)
@@ -8451,13 +8451,13 @@ window.AIO.getNamedEntityAudit = function() {
 // R77 신규
 // ─────────────────────────────────────────────────────────────────
 window.AIO_MACRO_CALENDAR = {
-  version: 'v49.85',  // v49.85: 정적 advance (NFP 5/3→6/6, CPI 5/14→6/12, ISM Mfg 5/1→6/2, ISM Svc 5/5→6/3, Retail 5/15→6/17 — 모두 발표 경과)
+  version: 'v50.4',  // v50.4: official June 2026 calendar refresh (NFP 6/5, CPI 6/10, FOMC 6/16-17, PCE 6/25)
   releases: {
-    'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-05-03', nextRelease: '2026-06-06', dataField: 'usUnemploy' },
-    'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-05-14', nextRelease: '2026-06-12', dataField: 'cpi' },
-    'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-04-30', nextRelease: '2026-05-30', dataField: 'pce' },
-    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-05-01', nextRelease: '2026-06-02', dataField: 'ismPmi' },
-    'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-05-05', nextRelease: '2026-06-03', dataField: 'ismSvc' },
+    'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-05-08', nextRelease: '2026-06-05', dataField: 'usUnemploy' },
+    'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-05-12', nextRelease: '2026-06-10', dataField: 'cpi' },
+    'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-05-28', nextRelease: '2026-06-25', dataField: 'pce' },
+    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-06-02', nextRelease: '2026-07-01', dataField: 'ismPmi' },
+    'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-05-05', nextRelease: '2026-06-04', dataField: 'ismSvc' },
     'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-05-15', nextRelease: '2026-06-17', dataField: 'retailSales' },
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
     'us-fomc':      { name: 'FOMC 회의',       frequency: 'every-6-7-weeks',      lastRelease: '2026-04-29', nextRelease: '2026-06-17', dataField: 'fomc', sepMeeting: true },
@@ -9935,6 +9935,7 @@ window.AIO.getAutoOpsReadiness = function() {
   var critical10MarketSurface = window.AIO.getCritical10MarketSurfaceAudit ? window.AIO.getCritical10MarketSurfaceAudit() : null;
   var critical10MarketSituation = window.AIO.getCritical10MarketSituationAudit ? window.AIO.getCritical10MarketSituationAudit({ sampleLimit: 40 }) : null;
   var critical10EvidenceMatrix = window.AIO.getCritical10ContentEvidenceMatrix ? window.AIO.getCritical10ContentEvidenceMatrix({ includeItems: false }) : null;
+  var newsSurface = window.AIO.getNewsSurfaceAudit ? window.AIO.getNewsSurfaceAudit({ rebuild: true }) : null;
   var evidenceDeploymentGate = window.AIO.runEvidenceDeploymentGate ? window.AIO.runEvidenceDeploymentGate({ strict: false, includeItems: false }) : null;
   var dataTruth = window.AIO.getDataTruthAudit ? window.AIO.getDataTruthAudit({ critical10: true, symbolLimit: 999 }) : null;
   var essenceAlignment = window.AIO.getEssenceAlignmentAudit ? window.AIO.getEssenceAlignmentAudit() : null;
@@ -9981,6 +9982,7 @@ window.AIO.getAutoOpsReadiness = function() {
   if (critical10MarketSurface && critical10MarketSurface.issuePageCount) issues.push(critical10MarketSurface.issuePageCount + ' critical page market surface issue page(s) [v49.110/R197]');
   if (critical10MarketSituation && critical10MarketSituation.status !== 'ok') issues.push(critical10MarketSituation.issuePageCount + ' critical page market-situation mismatch/coverage page(s) [v49.111/R198]');
   if (critical10EvidenceMatrix && critical10EvidenceMatrix.status !== 'pass') issues.push((critical10EvidenceMatrix.totals && critical10EvidenceMatrix.totals.total || 0) + ' content evidence item(s) need pass/warn/block review [v49.112/R199]');
+  if (newsSurface && newsSurface.status !== 'ok') issues.push('news surface contract issue(s) [R203]: ' + newsSurface.issues.slice(0, 3).join(' | '));
   if (evidenceDeploymentGate && evidenceDeploymentGate.status === 'fail') issues.push('v50 evidence deployment gate fail: ' + evidenceDeploymentGate.blocking.slice(0, 3).join(' | '));
   else if (evidenceDeploymentGate && evidenceDeploymentGate.status === 'warn') issues.push('v50 evidence deployment gate warn: ' + evidenceDeploymentGate.warnings.slice(0, 3).join(' | '));
   if (dataTruth && dataTruth.blockedCount) issues.push(dataTruth.blockedCount + ' truth-blocked market data symbol(s) [v49.112/DataTruthGate+CrossSource]: ' + dataTruth.blockedSymbols.slice(0, 8).join(','));
@@ -10040,6 +10042,7 @@ window.AIO.getAutoOpsReadiness = function() {
       refreshMarketSituationAudit: 'AIO.refreshCritical10MarketSituationAudit()',
       critical10EvidenceMatrix: 'AIO.getCritical10ContentEvidenceMatrix()',
       allPageEvidenceMatrix: 'AIO.getAllPageContentEvidenceMatrix()',
+      newsSurface: 'AIO.getNewsSurfaceAudit({ rebuild: true })',
       evidenceDeploymentGate: 'AIO.runEvidenceDeploymentGate({ strict: true })',
       essenceAlignment: 'AIO.getEssenceAlignmentAudit()',
       fullSurfaceAudit: 'AIO.getFullSurfaceAudit()',
@@ -10085,6 +10088,7 @@ window.AIO.getAutoOpsReadiness = function() {
       critical10MarketSurface: critical10MarketSurface,
       critical10MarketSituation: critical10MarketSituation,
       critical10EvidenceMatrix: critical10EvidenceMatrix,
+      newsSurface: newsSurface,
       evidenceDeploymentGate: evidenceDeploymentGate,
       essenceAlignment: essenceAlignment,
     fullSurfaceAudit: fullSurfaceAudit,
@@ -14477,7 +14481,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.1';
+const APP_VERSION = 'v50.4';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -15389,19 +15393,19 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-05-31T21:00:00+09:00',   // v49.99 텔레그램 3채널 통합 + SCENARIO_REGISTRY 5/31 갱신. BofA Hartnett 6월 인플레 경고·BOJ 우에다 G7 발언·이란-미국 합의 최종·Computex GTC 타이페이·메모리 사이클 대격변(DRAM ASP 50~60%·NAND 75~100% QoQ — Susquehanna 5/29). 주간 캘린더 6/1~5 교체.
-  _snapshotDate: '2026-05-31',
+  _updated: '2026-06-03T10:40:00+09:00',   // v50.4 정적/하드코딩 최신화: 공식 6월 매크로 캘린더(NFP 6/5, CPI 6/10, FOMC 6/16-17, PCE 6/25) + Computex/GTC Taipei + SpaceX IPO 보도 리스크를 current-topic layer에 반영.
+  _snapshotDate: '2026-06-03',
   _staticDates: {
-    briefingArchive: '2026-05-31',
+    briefingArchive: '2026-06-03',
     jensenInterview: '2026-03-20',
     optionSnapshot: '2026-05-28',
-    krMarket: '2026-05-31',
-    krIssues: '2026-05-31',
+    krMarket: '2026-06-03',
+    krIssues: '2026-06-03',
     tnx2y: '2026-05-28'
   },
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v49.86 /data-refresh 3차 (2026-05-28 KST): 추가 갱신 — 4월 CPI 3.8%/Core 2.8%(BLS 5/14) · 4월 NFP +115K/실업 4.3%(BLS 5/8) · Nikkei 64,999(5/27) · BTC $75,216/ETH $2,068(Yahoo 5/27) · SKEW 139.04 · KR 수출 5/1~20 +64.8%/반도체 +202.1%(역대최대) · KR 외국인 -1.77조(16연속 순매도). v49.84 원문: **US close 2026-05-27** — SPX 7,520.36 (+0.02%, 신고가) / NASDAQ 26,674.73 (+0.07%) / Dow 50,644.28 (+0.36%, 신고가) / Russell 2000 -0.02%. VIX 17.01 (-9% vs 5/12 18.70). **KR close 2026-05-28** — KOSPI 8,185.29 (-0.53%, 5일 랠리 종료) / KOSDAQ 1,104.36 (-2.54%). **원자재 급락** — WTI $88.30 (-6%, 이란 평화 협상 호재) / Brent <$95 (-4.5%) / Gold $4,483.15 (전일 close). **금리** — 10Y 4.48% / 2Y 4.035% / 30Y 5.01%. CNN F&G 60 (Greed, 5/26 기준). AAII 5/22 발표: Bull 39.3% / Neutral 24.1% / Bear 36.6% / Bull-Bear spread +2.7%. **거시 컨텍스트** — 4월 CPI 3년 고점 (Iran 전쟁 + AI 지출 영향), Strait of Hormuz 1개월 내 재개 가능성 (이란 발언), 미국 draft 거부. Static fallback only; Delayed/Fallback/Stale labels must remain visible until live stores override.',
+  _note: 'v50.4 static refresh (2026-06-03 KST): hardcoded market topics/calendar refreshed. Latest published macro data remains April CPI 3.8%/Core 2.8% (BLS 2026-05-12), April NFP +115K/unemployment 4.3% (BLS 2026-05-08), and April PCE headline 3.8%/core 3.3% (BEA 2026-05-28). Next decision calendar: May NFP 2026-06-05, May CPI 2026-06-10, FOMC 2026-06-16/17, May PCE 2026-06-25. Current-topic layer adds Computex/GTC Taipei 2026 AI PC/RTX Spark/AI infrastructure news and SpaceX IPO reports as source-dependent watch items, not confirmed current market data. Static fallback only; Delayed/Fallback/Stale labels must remain visible until live stores override.',
 
   // ── 미국 주요 지수 (2026-05-27 종가 / WebSearch CNBC/TheStreet 확인) ──
   spx:        7563.63,  spxPct:    +0.58,   // v49.91: 2026-05-28 close 신고가 (TheStreet/CNBC, PCE 3년최고에도 tech 주도)
@@ -15449,6 +15453,11 @@ const DATA_SNAPSHOT = {
   // ── 거시 지표 ──
   cpi:          3.8,   coreCpi:   2.8,   // v49.86: CPI 4월 YoY 3.8% · Core 2.8% (BLS 5/14 발표, Iran 전쟁+AI 지출 영향 — Fortune 2026-05-12)
   pce:          3.8,   corePce:   3.3,            // v49.91: 4월 PCE (BEA 5/28 발표) — Headline 3.8% (2023.5 이후 최고) / Core 3.3% (2023.10 이후 최고). MoM Headline +0.4 / Core +0.2
+  cpiNext:     '2026-06-10',                       // v50.4: BLS May 2026 CPI scheduled release
+  nfpNext:     '2026-06-05',                       // v50.4: BLS May 2026 Employment Situation scheduled release
+  pceNext:     '2026-06-25',                       // v50.4: BEA May 2026 Personal Income and Outlays scheduled release
+  computexWeek:'2026-06-01~2026-06-05',            // v50.4: Computex/GTC Taipei current-topic window
+  spacexIpoStatus: 'Reuters-reported June 12 Nasdaq target; source-dependent watch, not guaranteed execution',
   ismPmi:      52.7,   ismPrice:  84.6,           // v49.95: 4월 ISM Mfg 52.7 (3월과 동일, 2022.8 이후 최강 · 18개월 확장) · Prices 84.6(2022.4 이후 최고, 19개월 연속 상승 — 철강·알루미늄·석유·관세). ISM 5/1 발표. 기존 ismPrice 70.7 14pt stale
   ismSvc:      53.6,                              // v49.95: 4월 ISM 서비스 PMI 53.6 실측 (5/5 발표 — 3월 54.0→4월 53.6, 22개월 연속 확장. Prices 70.7 고착). 다음 6/3 5월분. 기존 54.0 stale
   usUnemploy:   4.30,  // v49.86: 4월 NFP +115K(컨센 하회), 실업률 4.3% (5/8 발표) — 다음 6/5 5월분 예정
@@ -18246,6 +18255,229 @@ window.AIO.getCritical10ContentEvidenceMatrix = function(opts) {
     }
   };
 
+  var AIO_TEXT_SURFACE_CONTRACTS = window.AIO_TEXT_SURFACE_CONTRACTS || {
+    version: 'v50.4',
+    generatedAt: '2026-06-03T10:40:00+09:00',
+    policy: {
+      roles: ['current-market-claim','formula-threshold','education-explainer','operational-status','developer-note','risk-disclaimer','reference-archive'],
+      visibleDeveloperNotes: 'blocked-on-route-pages',
+      currentMarketClaims: 'must-carry-evidence-or-currentness-marker',
+      staleDateClaims: 'blocked-unless-reference-archive',
+      longExplainers: 'allowed-only-in-guide-or-collapsed-explainers',
+      decisionUseText: 'verified-current-only'
+    },
+    routes: ROUTE_PAGE_IDS.reduce(function(acc, id) {
+      acc[id] = {
+        pageId: id,
+        textKinds: ['heading','subtitle','metric-label','analysis-copy','status-copy','tooltip'],
+        currentClaimsRequire: ['evidenceId','asOf','sourcePolicy'],
+        developerMarkersAllowed: id === 'guide' ? 'reference-only' : 'none',
+        maxVisibleLongCopy: id === 'guide' ? 999 : 220
+      };
+      return acc;
+    }, {})
+  };
+
+  window.AIO_TEXT_SURFACE_CONTRACTS = AIO_TEXT_SURFACE_CONTRACTS;
+
+  function _aioTextNorm(text) {
+    return String(text || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function _aioTextIsArchiveNode(node) {
+    try {
+      var el = node && (node.nodeType === 1 ? node : node.parentElement);
+      while (el && el !== document.body) {
+        if (el.getAttribute && (
+          el.getAttribute('data-aio-archive') === 'true' ||
+          el.getAttribute('data-operational-use') === 'reference-only' ||
+          el.getAttribute('data-text-role') === 'reference-archive' ||
+          el.getAttribute('data-lifecycle-state') === 'archive'
+        )) return true;
+        el = el.parentElement;
+      }
+    } catch(_) {}
+    return false;
+  }
+
+  function _aioTextHasEvidenceNode(node) {
+    try {
+      var el = node && (node.nodeType === 1 ? node : node.parentElement);
+      while (el && el !== document.body) {
+        if (el.getAttribute && (
+          el.getAttribute('data-evidence-id') ||
+          el.getAttribute('data-snap') ||
+          el.getAttribute('data-live-price') ||
+          el.getAttribute('data-live-field') ||
+          el.getAttribute('data-source-kind') ||
+          el.getAttribute('data-source-label') ||
+          el.getAttribute('data-as-of')
+        )) return true;
+        el = el.parentElement;
+      }
+    } catch(_) {}
+    return false;
+  }
+
+  function _aioClassifySurfaceText(text, pageId, node, attrName) {
+    text = _aioTextNorm(text);
+    var lower = text.toLowerCase();
+    var isGuide = pageId === 'guide' || pageId === 'glossary';
+    var archive = _aioTextIsArchiveNode(node);
+    var hasEvidence = _aioTextHasEvidenceNode(node);
+    var developer = /(\[PRIMARY\]|\[SECONDARY\]|PAGE_PURPOSE_REGISTRY|ACTION_RULES|sectionOrder\[\d+\]|AIO_SCORE_SCALES|DATA_SNAPSHOT|EvidenceStore|CHAT_CONTEXTS|APP_VERSION|SW_VERSION|\bv4[0-9]\.\d{1,3}\/R\d+|\bR\d{2,3}\b|\bP\d{2,3}\b|debug|console|audit|gate)/i.test(text);
+    var staleDate = /(202[0-5][-.\/]\d{1,2}|2026-0[1-5][-.\/]\d{1,2}|\b[1-9]\/\d{1,2}(?:-\d{1,2})?\b|2024~2026|5월 갱신|갱신 대기|업데이트 예정|결과 확인 필요)/i.test(text);
+    var currentCue = /(today|current|latest|live|real-?time|now|FOMC|CPI|PCE|NFP|VIX|SPX|NASDAQ|KOSPI|KOSDAQ|KRW|USD|실시간|현재|최신|오늘|다음|기준|자동갱신|수신 대기|시장|매매|브리핑|수급|금리|환율|뉴스|실적)/i.test(text);
+    var jargonHits = (text.match(/\b(Weinstein|Bridgewater|Dalio|Druckenmiller|RRG|Breadth|Regime|Quality|ZBT|VIX|VVIX|MOVE|SKEW|RSI|MACD|ATR|IV|Greeks|FOMC|PCE|CPI|NFP|OAS|HY|IG|duration|convexity|basis|terminal|contango|backwardation)\b/gi) || []).length;
+    var role = 'education-explainer';
+    if (developer) role = 'developer-note';
+    else if (/risk|disclaimer|not investment advice|투자 책임|투자 권유|원금 손실|위험 고지/i.test(text)) role = 'risk-disclaimer';
+    else if (/수신 대기|로딩|갱신 중|연결 중|데이터 없음|unavailable|loading|pending/i.test(text)) role = 'operational-status';
+    else if (archive || /archive|historical|reference-only|참고용|폴백|snapshot/i.test(text)) role = 'reference-archive';
+    else if (/threshold|score|weight|RSI|ATR|VIX|가중치|구간|임계|점수|공식/i.test(text)) role = 'formula-threshold';
+    else if (currentCue && !isGuide) role = 'current-market-claim';
+
+    var severity = 'pass';
+    var remediation = '';
+    if (!isGuide && developer && !attrName) {
+      severity = 'block';
+      remediation = 'Move developer/version/rule markers to diagnostics or Evidence Console.';
+    } else if (!isGuide && developer && attrName) {
+      severity = 'warn';
+      remediation = 'Remove internal implementation markers from tooltip/aria text.';
+    } else if (!isGuide && staleDate && !archive) {
+      severity = 'block';
+      remediation = 'Replace fixed-date market copy with live calendar/news evidence or mark as archive.';
+    } else if (role === 'current-market-claim' && !hasEvidence && !archive) {
+      severity = 'warn';
+      remediation = 'Attach evidenceId/asOf/sourcePolicy or rewrite as structural education.';
+    } else if (!isGuide && text.length > (AIO_TEXT_SURFACE_CONTRACTS.routes[pageId] && AIO_TEXT_SURFACE_CONTRACTS.routes[pageId].maxVisibleLongCopy || 220)) {
+      severity = 'warn';
+      remediation = 'Move dense explainer copy behind a collapsed guide section.';
+    } else if (!isGuide && jargonHits >= 4) {
+      severity = 'warn';
+      remediation = 'Add plain-language summary before dense professional terminology.';
+    }
+
+    return {
+      role: role,
+      severity: severity,
+      pageId: pageId,
+      attrName: attrName || '',
+      length: text.length,
+      jargonHits: jargonHits,
+      hasEvidence: hasEvidence,
+      archive: archive,
+      staleDate: staleDate,
+      developer: developer,
+      remediation: remediation
+    };
+  }
+
+  window.AIO.applyTextSurfaceHygiene = function(root) {
+    root = root || document;
+    var changed = 0;
+    try {
+      Array.prototype.slice.call(root.querySelectorAll('.page:not(#page-guide) span, .page:not(#page-guide) small')).forEach(function(el) {
+        var t = _aioTextNorm(el.textContent || '');
+        if (!t) return;
+        if (/^(\[PRIMARY\]|\[SECONDARY\])$|^(v4[0-9]\.\d{1,3}\/R\d+.*|R\d{2,3}\s+ACTION_RULES|v49\.\d+\/R\d+\s+PAGE_PURPOSE_REGISTRY)$/i.test(t)) {
+          el.setAttribute('data-text-role', 'developer-note');
+          el.setAttribute('aria-hidden', 'true');
+          el.style.display = 'none';
+          changed++;
+        }
+      });
+      Array.prototype.slice.call(root.querySelectorAll('.page:not(#page-guide) [title]')).forEach(function(el) {
+        var title = el.getAttribute('title') || '';
+        if (/(v4[0-9]\.\d{1,3}\/R\d+|DATA_SNAPSHOT|ACTION_RULES|WEIGHT_REGISTRY)/i.test(title)) {
+          el.setAttribute('data-original-title', title);
+          el.setAttribute('title', 'Data policy and source status are available in the audit console.');
+          changed++;
+        }
+      });
+    } catch(_) {}
+    return { status:'ok', changed:changed, generatedAt:new Date().toISOString() };
+  };
+
+  window.AIO.getTextSurfaceContracts = function() {
+    return AIO_TEXT_SURFACE_CONTRACTS;
+  };
+
+  window.AIO.getTextSurfaceAudit = function(opts) {
+    opts = opts || {};
+    var pages = opts.pages || ROUTE_PAGE_IDS.slice();
+    var items = [];
+    var pageSummaries = [];
+    function add(pageId, text, node, attrName) {
+      text = _aioTextNorm(text);
+      if (!text || text.length < 8) return;
+      var c = _aioClassifySurfaceText(text, pageId, node, attrName);
+      var item = Object.assign({
+        textEvidenceId: _evidenceId(pageId, 'text', attrName || text.slice(0, 40), items.length),
+        text: opts.includeText ? text.slice(0, opts.maxTextLength || 240) : ''
+      }, c);
+      items.push(item);
+    }
+    pages.forEach(function(pageId) {
+      var root = document.getElementById('page-' + pageId);
+      var before = items.length;
+      if (root) {
+        try {
+          var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+            acceptNode: function(node) {
+              var text = _aioTextNorm(node.nodeValue || '');
+              if (!text || text.length < 8) return NodeFilter.FILTER_REJECT;
+              var pe = node.parentElement;
+              if (!pe) return NodeFilter.FILTER_REJECT;
+              var tag = (pe.tagName || '').toLowerCase();
+              if (tag === 'script' || tag === 'style' || tag === 'noscript') return NodeFilter.FILTER_REJECT;
+              var cs = window.getComputedStyle ? window.getComputedStyle(pe) : null;
+              if (cs && (cs.display === 'none' || cs.visibility === 'hidden')) return NodeFilter.FILTER_REJECT;
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          });
+          var node;
+          while ((node = walker.nextNode())) add(pageId, node.nodeValue, node, '');
+          Array.prototype.slice.call(root.querySelectorAll('[title],[aria-label],[placeholder]')).forEach(function(el) {
+            ['title','aria-label','placeholder'].forEach(function(attr) {
+              var v = el.getAttribute && el.getAttribute(attr);
+              if (v) add(pageId, v, el, attr);
+            });
+          });
+        } catch(_) {}
+      }
+      var pageItems = items.slice(before);
+      var block = pageItems.filter(function(i) { return i.severity === 'block'; }).length;
+      var warn = pageItems.filter(function(i) { return i.severity === 'warn'; }).length;
+      pageSummaries.push({ pageId: pageId, total: pageItems.length, block:block, warn:warn, pass:pageItems.length - block - warn });
+    });
+    var blocks = items.filter(function(i) { return i.severity === 'block'; });
+    var warns = items.filter(function(i) { return i.severity === 'warn'; });
+    return {
+      status: blocks.length ? 'fail' : (warns.length ? 'warn' : 'ok'),
+      version: AIO_TEXT_SURFACE_CONTRACTS.version,
+      pageCount: pages.length,
+      itemCount: items.length,
+      blockingCount: blocks.length,
+      warningCount: warns.length,
+      pages: pageSummaries,
+      contracts: opts.includeContracts ? AIO_TEXT_SURFACE_CONTRACTS : undefined,
+      items: opts.includeItems === false ? undefined : items,
+      generatedAt: new Date().toISOString()
+    };
+  };
+
+  if (typeof document !== 'undefined') {
+    try {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() { try { window.AIO.applyTextSurfaceHygiene(document); } catch(_) {} }, { once:true });
+      } else {
+        window.AIO.applyTextSurfaceHygiene(document);
+      }
+    } catch(_) {}
+  }
+
   function _evidenceId(pageId, kind, key, idx) {
     var raw = [pageId || 'unknown', kind || 'item', key || idx || '0'].join(':').toLowerCase();
     return 'ev-' + raw.replace(/[^a-z0-9:_-]+/g, '-').replace(/-+/g, '-').slice(0, 160);
@@ -18701,7 +18933,7 @@ window.AIO.getCritical10ContentEvidenceMatrix = function(opts) {
     var warns = findings.filter(function(f) { return f.severity !== 'block'; });
     return {
       status: blocks.length ? 'fail' : (warns.length ? 'warn' : 'ok'),
-      version: 'v50.1',
+      version: 'v50.4',
       findingCount: findings.length,
       blockingCount: blocks.length,
       warningCount: warns.length,
@@ -18722,6 +18954,8 @@ window.AIO.getCritical10ContentEvidenceMatrix = function(opts) {
       { id:'critical10-surface', critical:false, run:function(){ return window.AIO.getCritical10MarketSurfaceAudit ? window.AIO.getCritical10MarketSurfaceAudit() : { status:'warn', message:'unavailable' }; } },
       { id:'critical10-situation', critical:false, run:function(){ return window.AIO.getCritical10MarketSituationAudit ? window.AIO.getCritical10MarketSituationAudit({ sampleLimit:40 }) : { status:'warn', message:'unavailable' }; } },
       { id:'trading-decision-logic', critical:false, run:function(opts){ return window.AIO.getTradingDecisionLogicAudit ? window.AIO.getTradingDecisionLogicAudit(opts) : { status:'warn', message:'unavailable' }; } },
+      { id:'news-surface', critical:false, run:function(){ return window.AIO.getNewsSurfaceAudit ? window.AIO.getNewsSurfaceAudit({ rebuild:true }) : { status:'warn', message:'unavailable' }; } },
+      { id:'text-surface', critical:false, run:function(){ return window.AIO.getTextSurfaceAudit ? window.AIO.getTextSurfaceAudit({ includeItems:false }) : { status:'warn', message:'unavailable' }; } },
       { id:'data-truth', critical:false, run:function(){ return window.AIO.getDataTruthAudit ? window.AIO.getDataTruthAudit({ critical10:true, symbolLimit:999 }) : { status:'warn', message:'unavailable' }; } }
     ]
   };
@@ -18769,6 +19003,8 @@ window.AIO.getCritical10ContentEvidenceMatrix = function(opts) {
     var registry = window.AIO.getAuditRegistryAudit();
     var evidence = window.AIO.getAllPageContentEvidenceMatrix(Object.assign({}, opts, { includeItems:false }));
     var trading = window.AIO.getTradingDecisionLogicAudit ? window.AIO.getTradingDecisionLogicAudit(opts) : null;
+    var newsSurface = window.AIO.getNewsSurfaceAudit ? window.AIO.getNewsSurfaceAudit({ rebuild:true }) : null;
+    var textSurface = window.AIO.getTextSurfaceAudit ? window.AIO.getTextSurfaceAudit({ includeItems:false }) : null;
     var criticalIds = (window.AIO_PAGE_CONTRACTS.groups.critical5 || []).concat(window.AIO_PAGE_CONTRACTS.groups.analysis5 || []);
     var criticalBlocks = (evidence.pages || []).filter(function(p) { return criticalIds.indexOf(p.pageId) >= 0 && p.counts && p.counts.block; });
     var blocking = [];
@@ -18782,6 +19018,9 @@ window.AIO.getCritical10ContentEvidenceMatrix = function(opts) {
     if (evidence.snapshotLayer && evidence.snapshotLayer.isFallback) warnings.push('DATA_SNAPSHOT is fallback/reference layer, not current trading evidence');
     if (trading && trading.blockingCount) warnings.push('trading decision logic blocking finding(s): ' + trading.blockingCount);
     if (trading && trading.warningCount) warnings.push('trading decision logic warning(s): ' + trading.warningCount);
+    if (newsSurface && newsSurface.status !== 'ok') warnings.push('news surface contract warning(s): ' + newsSurface.issues.slice(0, 3).join(' | '));
+    if (textSurface && textSurface.blockingCount) warnings.push('text surface blocking finding(s): ' + textSurface.blockingCount);
+    if (textSurface && textSurface.warningCount) warnings.push('text surface warning(s): ' + textSurface.warningCount);
     if (opts.strict && warnings.length) blocking = blocking.concat(warnings);
     return {
       status: blocking.length ? 'fail' : (warnings.length ? 'warn' : 'pass'),
@@ -18793,6 +19032,8 @@ window.AIO.getCritical10ContentEvidenceMatrix = function(opts) {
       sourceAdapters: sources,
       auditRegistry: registry,
       tradingDecisionLogic: trading,
+      newsSurface: newsSurface,
+      textSurface: textSurface,
       evidence: evidence,
       generatedAt: new Date().toISOString()
     };

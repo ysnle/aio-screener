@@ -5071,6 +5071,120 @@
     _assert('T748 v501_version_format: runtime version uses at most two decimal digits',
       window.AIO && /^v\d+\.\d{1,2}$/.test(String(window.AIO.version || '')),
       String(window.AIO && window.AIO.version));
+
+    var newsContracts = window.AIO_NEWS_SURFACE_CONTRACTS || {};
+    _assert('T749 v502_news_surface_contracts: home/briefing/market-news policies exist',
+      newsContracts.home && newsContracts.home.windowHours === 72 && newsContracts.home.maxItems === 3 &&
+        newsContracts.briefing && newsContracts.briefing.windowHours === 24 && newsContracts.briefing.aiPolicy === 'verified-current-only' &&
+        newsContracts['market-news'] && newsContracts['market-news'].windowHours === 48 && newsContracts['market-news'].maxItems === 150,
+      JSON.stringify(newsContracts));
+
+    var nowT750 = Date.now();
+    var bwT750 = typeof _getBriefingWindowKST === 'function' ? _getBriefingWindowKST() : { start: nowT750 - 6 * 3600000, end: nowT750 + 6 * 3600000, anchorDate: new Date(nowT750) };
+    var inBriefingDate = new Date(Math.min(bwT750.start + 2 * 3600000, Date.now())).toISOString();
+    var sampleNews = [
+      { title:'Fed rates shock lifts SPY and QQQ', source:'Reuters', tier:1, country:'us', topic:'macro', score:96, pubDate:inBriefingDate, link:'https://example.com/fed-rates', tickers:['SPY','QQQ'] },
+      { title:'Fed rates shock lifts SPY and QQQ duplicate', source:'Bloomberg', tier:1, country:'us', topic:'macro', score:94, pubDate:inBriefingDate, link:'https://example.com/fed-rates-2' },
+      { title:'NVDA earnings guide raises AI capex debate', source:'CNBC', tier:2, country:'us', topic:'earnings', score:82, pubDate:inBriefingDate, link:'https://example.com/nvda', tickers:['NVDA'] },
+      { title:'Telegram rumor says bank rescue is imminent', source:'TG Fast Feed', tier:4, country:'us', topic:'equity', score:76, pubDate:inBriefingDate, link:'https://example.com/tg-rumor', _tgChannel:true },
+      { title:'Old weekly static market item', source:'Archive', tier:2, country:'us', topic:'macro', score:99, pubDate:new Date(nowT750 - 96 * 3600000).toISOString(), link:'https://example.com/old' }
+    ];
+    var homeModel = window.AIO && window.AIO.buildNewsSurfaceModel ? window.AIO.buildNewsSurfaceModel('home', sampleNews, { nowMs: nowT750 }) : null;
+    var briefingModel = window.AIO && window.AIO.buildNewsSurfaceModel ? window.AIO.buildNewsSurfaceModel('briefing', sampleNews, { nowMs: nowT750, windowStart: bwT750.start, windowEnd: bwT750.end, anchorDate: bwT750.anchorDate.toISOString().slice(0, 10) }) : null;
+    var marketModel = window.AIO && window.AIO.buildNewsSurfaceModel ? window.AIO.buildNewsSurfaceModel('market-news', sampleNews, { nowMs: nowT750, countryFilter:'all', topicFilter:'all', typeTab:'all', sortMode:'score' }) : null;
+    _assert('T750 v502_build_news_surface_model: same input produces role-specific surfaces',
+      homeModel && briefingModel && marketModel && homeModel.items.length <= 3 && briefingModel.contract.anchor === '08:00 KST' && marketModel.contract.maxItems === 150,
+      JSON.stringify({ home:homeModel && homeModel.visibleCount, briefing:briefingModel && briefingModel.visibleCount, market:marketModel && marketModel.visibleCount }));
+
+    var expiredHome = window.AIO && window.AIO.buildNewsSurfaceModel ? window.AIO.buildNewsSurfaceModel('home', [], { nowMs: nowT750 }) : null;
+    _assert('T751 v502_home_weekly_news_reference_only: expired HOME_WEEKLY_NEWS is not actionable home news',
+      expiredHome && expiredHome.items.length === 0 && !!expiredHome.emptyReason && newsContracts.home.staleStaticPolicy === 'reference-only',
+      JSON.stringify(expiredHome && { visible: expiredHome.visibleCount, reason: expiredHome.emptyReason }));
+
+    _assert('T752 v502_briefing_ai_uses_verified_current_only: secondary/unverified stay out of AI summary set',
+      briefingModel && briefingModel.aiItems.every(function(i) { return i.eligibleForAi && i.verificationStatus === 'verified-current'; }) &&
+        briefingModel.reviewItems.some(function(i) { return i.verificationStatus === 'secondary-only'; }),
+      JSON.stringify(briefingModel && { ai: briefingModel.aiItems.map(function(i){return i.verificationStatus;}), review: briefingModel.reviewItems.map(function(i){return i.verificationStatus;}) }));
+
+    var emptyFiltered = window.AIO && window.AIO.buildNewsSurfaceModel ? window.AIO.buildNewsSurfaceModel('market-news', sampleNews, { nowMs: nowT750, countryFilter:'all', topicFilter:'crypto', typeTab:'all', sortMode:'score' }) : null;
+    _assert('T753 v502_market_news_empty_reason: zero-result filters expose emptyReason',
+      emptyFiltered && emptyFiltered.items.length === 0 && !!emptyFiltered.emptyReason,
+      JSON.stringify(emptyFiltered && { reason: emptyFiltered.emptyReason, stats: emptyFiltered.stats }));
+
+    var newsAudit = window.AIO && window.AIO.getNewsSurfaceAudit ? window.AIO.getNewsSurfaceAudit({ rebuild: true }) : null;
+    var gateWithNews = window.AIO && window.AIO.runEvidenceDeploymentGate ? window.AIO.runEvidenceDeploymentGate({ strict: false, includeItems: false }) : null;
+    _assert('T754 v502_news_surface_audit_gate: news audit is included in deployment gate',
+      newsAudit && newsAudit.surfaceCount === 3 && gateWithNews && gateWithNews.newsSurface && gateWithNews.newsSurface.surfaceCount === 3,
+      JSON.stringify({ audit: newsAudit && newsAudit.status, gate: gateWithNews && gateWithNews.newsSurface && gateWithNews.newsSurface.status }));
+
+    var textContracts = window.AIO && window.AIO.getTextSurfaceContracts ? window.AIO.getTextSurfaceContracts() : null;
+    _assert('T755 v504_text_surface_contracts: 21 page text contracts classify market/user/dev copy',
+      textContracts && textContracts.version === 'v50.4' && textContracts.routes &&
+        Object.keys(textContracts.routes).length >= 21 &&
+        textContracts.policy && textContracts.policy.roles.indexOf('current-market-claim') >= 0 &&
+        textContracts.policy.roles.indexOf('developer-note') >= 0,
+      JSON.stringify(textContracts && { version:textContracts.version, routes:Object.keys(textContracts.routes || {}).length }));
+
+    var textAudit = window.AIO && window.AIO.getTextSurfaceAudit ? window.AIO.getTextSurfaceAudit({ pages:['home','signal','briefing','options','kr-home','kr-macro','kr-technical'], includeItems:true }) : null;
+    var leakedInternal = textAudit && textAudit.items ? textAudit.items.filter(function(i) {
+      return i.text && /(\[PRIMARY\]|\[SECONDARY\]|PAGE_PURPOSE_REGISTRY|R69 ACTION_RULES|sectionOrder\[0\]|AIO_SCORE_SCALES)/.test(i.text);
+    }) : [];
+    _assert('T756 v504_user_visible_internal_markers_removed: high-risk pages do not expose dev markers',
+      textAudit && Array.isArray(textAudit.items) && leakedInternal.length === 0,
+      JSON.stringify({ leaked: leakedInternal.slice(0, 3).map(function(i){ return i.pageId + ':' + i.text; }) }));
+
+    var briefingText = document.getElementById('page-briefing') ? document.getElementById('page-briefing').textContent : '';
+    _assert('T757 v504_briefing_fixed_date_claims_removed: briefing top copy is evidence/calendar-driven',
+      !/(CPI\s+6\/12|AVGO\s+실적\s*\(6\/3|2026-06-01\s+Computex|업데이트 예정|4월 이벤트 밀집)/.test(briefingText),
+      briefingText.slice(0, 500));
+
+    var gateWithText = window.AIO && window.AIO.runEvidenceDeploymentGate ? window.AIO.runEvidenceDeploymentGate({ strict:false, includeItems:false }) : null;
+    _assert('T758 v504_text_surface_audit_gate: deployment gate includes text surface audit',
+      textAudit && gateWithText && gateWithText.textSurface && gateWithText.textSurface.pageCount >= 21,
+      JSON.stringify(gateWithText && gateWithText.textSurface && { status:gateWithText.textSurface.status, blocks:gateWithText.textSurface.blockingCount, warns:gateWithText.textSurface.warningCount }));
+
+    var macroCal = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases;
+    _assert('T759 v504_macro_calendar_official_june_dates: NFP/CPI/FOMC/PCE dates match official June calendar',
+      macroCal && macroCal['us-nfp'].nextRelease === '2026-06-05' &&
+        macroCal['us-cpi'].nextRelease === '2026-06-10' &&
+        macroCal['us-fomc'].nextRelease === '2026-06-17' &&
+        macroCal['us-pce'].nextRelease === '2026-06-25',
+      JSON.stringify(macroCal && {
+        nfp: macroCal['us-nfp'].nextRelease,
+        cpi: macroCal['us-cpi'].nextRelease,
+        fomc: macroCal['us-fomc'].nextRelease,
+        pce: macroCal['us-pce'].nextRelease
+      }));
+
+    var snapV504 = window.DATA_SNAPSHOT || {};
+    _assert('T760 v504_snapshot_current_topic_fields: static snapshot records current topics without inventing CPI/NFP values',
+      snapV504._snapshotDate === '2026-06-03' &&
+        snapV504.cpiNext === '2026-06-10' &&
+        snapV504.nfpNext === '2026-06-05' &&
+        snapV504.pceNext === '2026-06-25' &&
+        /SpaceX/i.test(String(snapV504.spacexIpoStatus || '')) &&
+        /2026-06-01/.test(String(snapV504.computexWeek || '')),
+      JSON.stringify({
+        snapshotDate: snapV504._snapshotDate,
+        cpiNext: snapV504.cpiNext,
+        nfpNext: snapV504.nfpNext,
+        pceNext: snapV504.pceNext,
+        spacex: snapV504.spacexIpoStatus
+      }));
+
+    var homeWeeklyV504 = window.HOME_WEEKLY_NEWS || [];
+    var homeWeeklyTextV504 = homeWeeklyV504.map(function(i){ return i.title + ' ' + i.source; }).join(' ');
+    _assert('T761 v504_home_weekly_news_current_topics: home static queue contains Computex SpaceX and official CPI calendar framing',
+      /Computex|GTC Taipei/i.test(homeWeeklyTextV504) &&
+        /SpaceX/i.test(homeWeeklyTextV504) &&
+        /6\/10|CPI/i.test(homeWeeklyTextV504) &&
+        !/5\/31 기준|결과 확인 필요/.test(homeWeeklyTextV504),
+      homeWeeklyTextV504.slice(0, 800));
+
+    var runtimeVersionV504 = (typeof APP_VERSION === 'string') ? APP_VERSION : (window.AIO && window.AIO.version);
+    _assert('T762 v504_app_version_semver_two_digit_policy: runtime version uses v50.4 format',
+      runtimeVersionV504 === 'v50.4' && /^v\d+\.\d{1,2}$/.test(runtimeVersionV504),
+      String(runtimeVersionV504));
   }
 
   window.AIO = window.AIO || {};

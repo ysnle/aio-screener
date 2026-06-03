@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.1 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.4 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4132,7 +4132,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.1</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.4</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4196,7 +4196,7 @@ body.light-theme canvas { filter:none; }
     <!-- 매매 신호 (Primary — v49.28/R65 CARD_HIERARCHY primary) -->
     <div class="aio-card aio-card-primary is-interactive has-stripe-top stripe-data-green" data-action="showPage" data-arg="signal" data-card-level="primary" data-weight-key="TRADING_SCORE"
          title="Trading Score (20점) = Trend Template 8점 + Relative Strength 4점 + Volume Profile 3점 + Volatility 3점 + Breakout 2점 (총 20). v49.28/R64 WEIGHT_REGISTRY">
-      <div class="aio-card-title">🎯 지금 매매해도 될까? <span style="font-size:9px;color:var(--data-green);font-weight:700;">[PRIMARY]</span></div>
+      <div class="aio-card-title">🎯 지금 매매해도 될까?</div>
       <div class="aio-metric-value is-lg" id="home-trading-signal" style="color:var(--text-muted);margin-bottom:4px;font-size:24px;font-weight:900;">• • •</div>
       <div id="home-trading-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">
         데이터 수신 대기...
@@ -4207,7 +4207,7 @@ body.light-theme canvas { filter:none; }
     <!-- 시장 품질 스코어 (Secondary) -->
     <div class="aio-card aio-card-secondary has-stripe-top stripe-data-amber" data-card-level="secondary" data-weight-key="QUALITY_SCORE"
          title="Quality Score (100점) = 50일선 위 비율 25점 + A/D Line 20점 + NHNL 20점 + McClellan 20점 + RSP/SPY 15점. v49.28/R64 WEIGHT_REGISTRY">
-      <div class="aio-card-title">시장 품질 (Quality) <span style="font-size:9px;color:var(--data-amber);font-weight:700;">[SECONDARY]</span></div>
+      <div class="aio-card-title">시장 품질 (Quality)</div>
       <div style="display:flex;align-items:center;gap:var(--space-3);">
         <div style="flex:1;">
           <div id="home-quality-meter" style="background:var(--surface-3);border-radius:var(--radius-pill);height:12px;position:relative;overflow:hidden;border:1px solid var(--border);">
@@ -4223,7 +4223,7 @@ body.light-theme canvas { filter:none; }
     <!-- 시장 국면 (Secondary) -->
     <div class="aio-card aio-card-secondary has-stripe-top stripe-data-amber" data-card-level="secondary" data-weight-key="MARKET_REGIME"
          title="Market Regime (4단계) = 200MA 기울기 30점 + 가격 vs 200MA 25점 + Breadth 25점 + VIX 20점. v49.28/R64 WEIGHT_REGISTRY">
-      <div class="aio-card-title">시장 국면 (Regime) <span style="font-size:9px;color:var(--data-amber);font-weight:700;">[SECONDARY]</span></div>
+      <div class="aio-card-title">시장 국면 (Regime)</div>
       <div class="aio-metric-value is-sm" id="home-market-regime" style="color:var(--data-green);margin-bottom:4px;letter-spacing:0.02em;font-size:20px;font-weight:800;">UPTREND</div>
       <div id="home-regime-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">ATH 근접 · VIX 18↓ (정상 Risk-On) · 단기 과열 경계</div>
       <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">가중치: 200MA slope 30 + price vs 200MA 25 + Breadth 25 + VIX 20 = 100</div>
@@ -4233,7 +4233,7 @@ body.light-theme canvas { filter:none; }
   <!-- v49.28 E1/R69 Action Item — 시장 환경별 포지션 사이즈 + 행동 가이드 -->
   <div class="aio-card aio-card-primary has-stripe-top stripe-accent" id="home-action-item-card" style="margin-bottom:var(--space-3);padding:14px 16px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.25);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-size:12px;font-weight:800;color:var(--accent);">📋 지금 해야 할 일 — Action Items <span style="font-size:9px;color:var(--text-muted);font-weight:600;">v49.28/R69 ACTION_RULES</span></div>
+      <div style="font-size:12px;font-weight:800;color:var(--accent);">📋 지금 해야 할 일 — Action Items</div>
       <button data-action="_aioRefreshActionPlan" style="font-size:10px;padding:3px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:4px;color:var(--text-secondary);cursor:pointer;">↻ 갱신</button>
     </div>
     <div id="home-action-position" style="font-size:12px;color:var(--text-primary);margin-bottom:6px;font-weight:600;">VIX 기반 포지션 사이즈 입력 대기...</div>
@@ -4583,8 +4583,7 @@ body.light-theme canvas { filter:none; }
   <div class="page" id="page-signal" data-page-purpose="signal">
   <!-- v49.29 E3/R70 페이지 목적 명시 — signal vs home 역할 분리 -->
   <div style="padding:10px 14px;margin-bottom:10px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.25);border-radius:8px;font-size:12px;color:var(--text-primary);">
-    <strong style="color:var(--accent);">📌 시그널 페이지 목적 (Secondary):</strong> 시그널 상세 + 매매 전략 학습 (셋업 점수 · 위험관리 룰 · 피라미딩 · ATR 스톱). <strong>오늘 매매 판단(Primary)은 <a href="#" data-action="showPage" data-arg="home" style="color:var(--accent);text-decoration:underline;">홈 페이지</a>에서 확인.</strong>
-    <span style="font-size:10px;color:var(--text-muted);">v49.29/R70 PAGE_PURPOSE_REGISTRY 적용</span>
+    <strong style="color:var(--accent);">📌 시그널 페이지 목적:</strong> 매매 신호의 구성요소와 위험관리 기준을 상세히 확인합니다. <strong>전체 시장의 즉시 판단은 <a href="#" data-action="showPage" data-arg="home" style="color:var(--accent);text-decoration:underline;">홈 페이지</a>에서 먼저 확인하세요.</strong>
   </div>
   <div class="insight-box box-collapsed">
     <strong>지금 매매해도 될까? — 75+ 적극 매수 | 60-75 매수 우호 | 45-60 중립 | 30-45 주의 | 30↓ 위험</strong>
@@ -4620,7 +4619,7 @@ body.light-theme canvas { filter:none; }
         <div class="explain-body" data-score-scale="TWENTY_POINT">
           <strong>철학</strong> — Mark Minervini의 SEPA · Stan Weinstein Stage · Nicolas Darvas Box · William O'Neil CAN SLIM을 합성한 <strong>Price Action 우선</strong> 스코어링. 펀더멘털보다 <strong>가격의 움직임</strong>을 1차 필터로 사용 — 시장이 이미 반영한 정보를 중시.
           <div style="margin:6px 0;padding:6px 10px;background:rgba(0,212,255,0.06);border-radius:4px;font-size:11px;color:var(--text-secondary);">
-            <strong style="color:var(--accent);">스케일 변환 (v49.28/R59)</strong> — 20점 = 100점 ×0.20. 다른 페이지의 0~100 라벨과 호환: <code>score100 = score20 × 5</code>. 예: 15/20 → 75/100 (적극 매수). <code>AIO_SCORE_SCALES.convert(15, 'TWENTY_POINT', 'HUNDRED_POINT')</code>로 확인.
+            <strong style="color:var(--accent);">점수 읽는 법</strong> — 20점 만점 점수는 화면에서 100점 기준으로도 함께 해석합니다. 예: 15/20은 75/100 수준으로, 강한 매수 우호 구간에 해당합니다.
           </div>
           <ul>
             <li><strong>Trend Template (8점)</strong> — 주가 &gt; 50일선 &gt; 150일선 &gt; 200일선 (완전 정렬) · 200일선 상승 기울기 · 52주 저점 대비 +30% 이상 · 52주 고점 대비 -25% 이내</li>
@@ -6115,22 +6114,22 @@ body.light-theme canvas { filter:none; }
   <!-- v49.29 E4/R70 우선순위 — 5대 관전 포인트를 페이지 최상단 배치 -->
   <div id="briefing-top-5-watch" data-priority="1" style="margin-bottom:12px;padding:14px 16px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.3);border-radius:10px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-size:13px;font-weight:800;color:var(--data-amber);">🎯 오늘의 5대 관전 포인트 <span style="font-size:10px;color:var(--text-muted);font-weight:600;">v49.29/R70 sectionOrder[0]</span></div>
-      <div style="font-size:10px;color:var(--text-muted);">정렬 우선순위 1위 (어닝/IPO/인터뷰는 하위)</div>
+      <div style="font-size:13px;font-weight:800;color:var(--data-amber);">🎯 오늘의 5대 관전 포인트</div>
+      <div style="font-size:10px;color:var(--text-muted);">검증 뉴스 · 경제 캘린더 · 시장 변동성 기준으로 자동 갱신</div>
     </div>
     <ol id="briefing-top-5-list" style="margin:6px 0 4px 18px;padding:0;font-size:11px;color:var(--text-secondary);line-height:1.7;">
-      <li><strong>FOMC 6/16-17</strong> — 인하 vs 동결 점도표. 시장 컨센서스 변화 추적.</li>
-      <li><strong>CPI 6/12</strong> — 헤드라인/Core 동시 점검. 3% 재진입 여부.</li>
-      <li><strong>대형 어닝</strong> — NVDA/AAPL/MSFT 가이던스가 AI 모멘텀 결정.</li>
-      <li><strong>지정학</strong> — 주요 해상 물류 경로(호르무즈/대만 해협 등) 모니터링. Brent &gt;$110 시 인플레 재점화.</li>
-      <li><strong>VIX 18→25</strong> — 변동성 재상승 시 포지션 50% 축소 (R69 ACTION_RULES).</li>
+      <li><strong>통화정책</strong> — 다음 FOMC와 금리 선물 컨센서스를 최신 캘린더 기준으로 확인.</li>
+      <li><strong>물가·고용</strong> — CPI/PCE/NFP 발표와 실제 수치가 시장 기대를 벗어나는지 점검.</li>
+      <li><strong>대형 실적</strong> — 메가캡 가이던스와 AI/반도체 주문 흐름이 지수 모멘텀을 유지하는지 확인.</li>
+      <li><strong>지정학·원자재</strong> — 유가·해상 물류·달러 흐름이 인플레와 위험선호를 흔드는지 관찰.</li>
+      <li><strong>변동성</strong> — VIX와 옵션 수급이 평온한 랠리인지, 헤지 수요가 늘어나는지 구분.</li>
     </ol>
-    <div style="font-size:10px;color:var(--text-muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">📐 다른 섹션(어닝/IPO/인터뷰/매크로 캘린더)은 아래로 정렬 — 5대 관전이 결정 우선.</div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">현재값이 검증되지 않은 항목은 요약 본문이 아니라 확인 필요 영역으로 분리됩니다.</div>
   </div>
 
   <!-- v49.29 E2/R69 Action Items — briefing에도 ACTION_RULES 적용 -->
   <div id="briefing-action-item-card" style="margin-bottom:12px;padding:12px 14px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.25);border-radius:10px;">
-    <div style="font-size:12px;font-weight:800;color:var(--accent);margin-bottom:6px;">📋 오늘 시장 환경 기반 Action Item (R69 ACTION_RULES)</div>
+    <div style="font-size:12px;font-weight:800;color:var(--accent);margin-bottom:6px;">📋 오늘 시장 환경 기반 Action Item</div>
     <div id="briefing-action-position" style="font-size:11px;color:var(--text-primary);margin-bottom:4px;font-weight:600;">포지션 입력 수신 대기...</div>
     <div id="briefing-action-sentiment" style="font-size:11px;color:var(--text-secondary);">센티먼트 입력 수신 대기...</div>
   </div>
@@ -6245,16 +6244,16 @@ body.light-theme canvas { filter:none; }
         <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">Jensen Huang · 트럼프 · 머스크 등 주요 발언 집중 분석</span>
       </div>
 
-      <!-- v49.100: Jensen Huang - Computex GTC Taipei 2026-06-01 기조연설 상태 추적 카드 -->
-      <div class="interview-card" data-aio-archive="false" data-lifecycle-id="jensen-computex-202606" style="border:1px solid rgba(0,229,160,0.4);background:rgba(0,229,160,0.03);">
+      <!-- Computex event card: reference-only until refreshed by verified news evidence -->
+      <div class="interview-card" data-aio-archive="true" data-text-role="reference-archive" data-lifecycle-id="jensen-computex-202606" style="border:1px solid rgba(0,229,160,0.4);background:rgba(0,229,160,0.03);">
         <div class="interview-card-header">
           <div style="width:32px;height:32px;border-radius:4px;background:rgba(255,163,26,0.16);border:1px solid rgba(255,163,26,0.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:800;color:var(--data-amber);font-family:var(--font-mono);">CHK</div>
           <div>
             <div class="interview-person">Jensen Huang (젠슨 황) · Computex GTC 타이페이 기조연설</div>
-            <div style="font-size:11px;color:var(--text-muted);">NVIDIA CEO · <b style="color:var(--data-amber);">2026-06-01 낮 12:00 KST 이후 결과 확인 필요</b> <span style="font-size:11px;padding:1px 5px;background:rgba(255,163,26,0.15);border-radius:3px;color:var(--data-amber);font-weight:700;">상태 추적</span></div>
+            <div style="font-size:11px;color:var(--text-muted);">NVIDIA CEO · <b style="color:var(--data-amber);">검증 뉴스로 재확인 전까지 참고 자료</b> <span style="font-size:11px;padding:1px 5px;background:rgba(255,163,26,0.15);border-radius:3px;color:var(--data-amber);font-weight:700;">Reference</span></div>
           </div>
           <div class="interview-meta">
-            <span style="font-size:11px;color:var(--data-amber);">결과 반영 대기</span>
+            <span style="font-size:11px;color:var(--data-amber);">참고용</span>
           </div>
         </div>
 
@@ -6308,7 +6307,7 @@ body.light-theme canvas { filter:none; }
           <div class="interview-meta"><a href="https://youtu.be/gwW8GKwHB3I" target="_blank" rel="noopener noreferrer" style="font-size:11px;color:var(--accent);text-decoration:none;">▶ 원본</a></div>
         </div>
         <div style="font-size:11px;color:var(--text-muted);line-height:1.6;padding:6px 0;">
-          핵심 발언 요약: "하이퍼스케일러 5개만 보는 분석가 오류 — Sovereign AI·Enterprise·Edge TAM 5조→15조 달러" | "칩·CUDA·Mellanox 수직통합 = 세계 유일, 시스템 난도 높을수록 점유율 공고" | "AI는 '검색'→'업무 수행' 에이전트 전환 = ROI 핵심" | 2026-06-01 Computex 기조연설로 업데이트 예정.
+          핵심 발언 요약은 검증된 뉴스 수집 결과가 확보될 때만 현재 브리핑 본문에 반영합니다. 이 카드는 이벤트 전 체크리스트와 분석 관점 보존용입니다.
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;">
           <span class="interview-tag">Agentic AI</span><span class="interview-tag">CUDA 해자</span><span class="interview-tag">TAM 5조→15조</span><span class="interview-tag">ARCHIVE</span>
@@ -6334,150 +6333,75 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- ── 이번 주 주요 일정 (06/01-06/05) v49.99 ──────────────────────── -->
-    <!-- v49.99: data-lifecycle-id 업데이트 — briefing-week-jun-1-5 (archiveAfterDays:7/replaceAfterDays:14) -->
-    <div data-aio-archive="true" data-lifecycle-id="briefing-week-jun-1-5" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:14px;">
+    <!-- ── 현재 시장 이벤트 레이어 (06/03 기준) v50.4 ──────────────────────── -->
+    <div data-lifecycle-id="briefing-current-jun-3-25" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:14px;">
       <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
-        📅 이번 주 주요 일정
-        <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">Week of June 1–5, 2026 · Computex GTC 주간</span>
-        <span style="font-size:11px;padding:2px 6px;background:rgba(255,163,26,0.15);border-radius:3px;color:var(--data-amber);margin-left:auto;"> 정적 스냅샷 · <span id="briefing-week-may-stale-days">경과 산출 대기</span></span>
+        📅 현재 시장 이벤트 레이어
+        <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">As of 2026-06-03 KST · official calendar first</span>
+        <span style="font-size:11px;padding:2px 6px;background:rgba(0,212,255,0.10);border-radius:3px;color:var(--accent);margin-left:auto;">v50.4 refreshed</span>
       </div>
 
-      <!-- ① Weekly Macro Calendar -->
-      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:5px;">🌐 Weekly Macro Calendar · Computex/GTC 주간</div>
+      <!-- ① Official macro calendar -->
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:5px;">🌐 공식 매크로 캘린더 · 발표 완료값과 예정값 분리</div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-green);flex-shrink:0;min-width:32px;">6/1</span>
-        <span style="color:var(--data-green);flex-shrink:0;min-width:20px;">일</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">08:00 KST</span>
-        <span><b style="color:var(--data-green);">한국 5월 수출입</b> — 반도체 수출 YoY +200%+ 지속 여부. AI 서버 수요 바로미터.</span>
+        <span style="font-family:var(--font-mono);color:var(--data-red);flex-shrink:0;min-width:52px;">6/5</span>
+        <span style="color:var(--data-red);flex-shrink:0;min-width:32px;">금</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">21:30 KST</span>
+        <span><b style="color:var(--data-red);">BLS May Employment Situation</b> — 4월 공식값은 NFP +115K, 실업률 4.3%. 5월 값은 발표 전까지 생성하지 않습니다.</span>
       </div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-green);flex-shrink:0;min-width:32px;">6/1</span>
-        <span style="color:var(--data-green);flex-shrink:0;min-width:20px;">일</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">12:00 KST</span>
-        <span><b style="color:var(--data-amber);">NVDA 젠슨황 기조연설</b> — 12:00 KST 이후 결과 확인 필요. Vera Rubin·Windows PC·에이전틱 AI·$1조 시장 업데이트가 핵심 체크포인트.</span>
+        <span style="font-family:var(--font-mono);color:var(--data-red);flex-shrink:0;min-width:52px;">6/10</span>
+        <span style="color:var(--data-red);flex-shrink:0;min-width:32px;">수</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">21:30 KST</span>
+        <span><b style="color:var(--data-red);">BLS May CPI</b> — 현재 공식 마지막 값은 4월 CPI 3.8%, Core 2.8%. 발표 전에는 “검증 데이터 없음”으로 처리합니다.</span>
       </div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">6/1</span>
-        <span style="color:var(--accent);flex-shrink:0;min-width:20px;">일</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">23:00 KST</span>
-        <span><b style="color:var(--data-amber);">美 5월 ISM 제조업 PMI</b> — 4월 52.7(22개월 확장). BofA Hartnett 인플레 경고 검증. Price 지수 84.6(2022 이후 최고) 지속 여부.</span>
+        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:52px;">6/16-17</span>
+        <span style="color:var(--data-amber);flex-shrink:0;min-width:32px;">화-수</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">FOMC</span>
+        <span><b style="color:var(--data-amber);">FOMC + SEP</b> — 점도표와 인하 경로 재가격화. CPI/NFP 결과 확인 전에는 정책 방향을 단정하지 않습니다.</span>
       </div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--text-primary);flex-shrink:0;min-width:32px;">6/2</span>
-        <span style="color:var(--text-primary);flex-shrink:0;min-width:20px;">월</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">08:00 KST</span>
-        <span><b style="color:var(--data-amber);">한국 5월 CPI</b> — 4월 2.6%(2024.7 이후 최고). PPI 6.9%(28년 만 최대) 후행 반영 여부. 한은 7/10 금통위 선행 지표.</span>
-      </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--text-primary);flex-shrink:0;min-width:32px;">6/2</span>
-        <span style="color:var(--text-primary);flex-shrink:0;min-width:20px;">월</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">Computex</span>
-        <span><b style="color:var(--data-green);">Computex 2026 개막</b> (~6/5) — NVDA Windows PC 발표(MS 서피스·DELL 협력). ARM 기반 PC 시대 공식 개막.</span>
-      </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">6/2</span>
-        <span style="color:var(--accent);flex-shrink:0;min-width:20px;">월</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">22:00 KST</span>
-        <span><b style="color:var(--data-amber);">美 4월 JOLTS 구인이직</b> + <b style="color:var(--text-primary);">유로존 5월 CPI</b> — 고용 수요·유럽 인플레 동시 확인. ECB 인하 속도 변수.</span>
-      </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--text-muted);flex-shrink:0;min-width:32px;">6/3</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:20px;">화</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">한국 휴장</span>
-        <span style="color:var(--text-muted);">현충일 — 국내 거래량 저조, 야간 선물 집중.</span>
-      </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:32px;">6/3</span>
-        <span style="color:var(--accent);flex-shrink:0;min-width:20px;">화</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">21:15 KST</span>
-        <span><b style="color:var(--data-amber);">美 5월 ADP 민간고용</b> — NFP 선행. 4월 +115K(컨센 하회) 이후 추세 확인.</span>
-      </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--text-primary);flex-shrink:0;min-width:32px;">6/3</span>
-        <span style="color:var(--text-primary);flex-shrink:0;min-width:20px;">화</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">03:00 KST</span>
-        <span><b style="color:var(--text-primary);">연준 베이지북</b> — 12개 지역 경기·물가 진단. BofA 경고 실증 여부. 6/16-17 FOMC 사전 지표.</span>
-      </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--text-primary);flex-shrink:0;min-width:32px;">6/4</span>
-        <span style="color:var(--text-primary);flex-shrink:0;min-width:20px;">수</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:68px;font-size:10px;">20:30 KST</span>
-        <span><b style="color:var(--text-primary);">美 5월 Challenger 해고건수</b> + <b style="color:var(--text-muted);">한국 5월 외환보유액</b> — 달러-원 24시간 거래(7/6~) 준비 상황.</span>
-      </div>
-      <div class="cal-row" style="border-bottom:none;">
-        <span style="font-family:var(--font-mono);color:var(--data-red);flex-shrink:0;min-width:32px;">6/5</span>
-        <span style="color:var(--data-red);flex-shrink:0;min-width:20px;">목</span>
-        <span style="color:var(--data-red);flex-shrink:0;min-width:68px;font-size:10px;">21:30 KST</span>
-        <span><b style="color:var(--data-red);">美 5월 NFP + 실업률 + 임금 ★★★</b> — 이번 주 최대 이벤트. 4월 실업 4.3%·임금 +3.6%. BofA 경고(저실업+고임금→인플레) vs 연준 인하 기대 충돌.</span>
+        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:52px;">6/25</span>
+        <span style="color:var(--data-amber);flex-shrink:0;min-width:32px;">목</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">21:30 KST</span>
+        <span><b style="color:var(--data-amber);">BEA May PCE</b> — 현재 공식 마지막 값은 4월 PCE 3.8%, Core PCE 3.3%. Fed 선호 물가의 후속 확인점입니다.</span>
       </div>
 
-      <!-- ② 어닝스 캘린더 (Day by Day) -->
-      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">📅 어닝스 캘린더 (Day by Day)</div>
-      <div style="display:grid;grid-template-columns:60px 1fr;gap:3px 8px;font-size:11px;line-height:1.5;">
-        <span style="color:var(--data-amber);font-weight:700;padding:2px 0;">일 ★ AMC</span>
-        <span style="color:var(--text-secondary);"><b style="color:var(--data-green);">CRDO</b> — FY27 광학 run-rate $5억+, BofA PT$210, AEC 800G</span>
-        <span style="color:var(--data-amber);font-weight:700;border-top:1px solid var(--surface-2);padding:4px 0 2px;">월 ★ AMC</span>
-        <span style="color:var(--text-secondary);border-top:1px solid var(--surface-2);padding:4px 0 2px;"><b style="color:var(--data-amber);">PANW</b> · GTLB · ULTA — 사이버 보안 플랫폼화 + AI 성장</span>
-        <span style="color:var(--data-amber);font-weight:700;border-top:1px solid var(--surface-2);padding:4px 0 2px;">화 ★★★ AMC</span>
-        <span style="color:var(--text-secondary);border-top:1px solid var(--surface-2);padding:4px 0 2px;"><b style="color:var(--data-green);">AVGO</b> · <b style="color:var(--data-amber);">CRWD</b> · C3.AI — AI반도체 방향타(AVGO XPU)+보안 ARR</span>
-        <span style="color:var(--text-muted);font-weight:600;border-top:1px solid var(--surface-2);padding:4px 0 2px;">수 AMC</span>
-        <span style="color:var(--text-secondary);border-top:1px solid var(--surface-2);padding:4px 0 2px;">CIEN · RBRK · PL · LULU · DOCU · IOT</span>
-        <span style="color:var(--text-muted);font-weight:600;border-top:1px solid var(--surface-2);padding:4px 0 2px;">목 (NFP일)</span>
-        <span style="color:var(--text-muted);border-top:1px solid var(--surface-2);padding:4px 0 2px;">실적 없음 — NFP 발표에 전 시장 집중</span>
+      <!-- ② Current market topics -->
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">🧭 현재 시장 화두 · 검증 상태 표시</div>
+      <div class="cal-row">
+        <span style="font-family:var(--font-mono);color:var(--data-green);flex-shrink:0;min-width:52px;">6/1-5</span>
+        <span style="color:var(--data-green);flex-shrink:0;min-width:32px;">LIVE</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">Computex</span>
+        <span><b style="color:var(--data-green);">Computex/GTC Taipei</b> — NVIDIA RTX Spark/AI PC, Intel AI infrastructure, Foxconn Vera Rubin 지원 등 AI 하드웨어 밸류체인 촉매를 검증 뉴스 기준으로만 반영합니다.</span>
+      </div>
+      <div class="cal-row">
+        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:52px;">6/11-12</span>
+        <span style="color:var(--data-amber);flex-shrink:0;min-width:32px;">WATCH</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">SpaceX IPO</span>
+        <span><b style="color:var(--data-amber);">SpaceX IPO 보도</b> — Reuters 계열 보도 기반 watch 항목입니다. 확정 상장 데이터가 아니라 대형 IPO 유동성·우주/위성 테마 심리 변수로만 분류합니다.</span>
+      </div>
+      <div class="cal-row">
+        <span style="font-family:var(--font-mono);color:var(--accent);flex-shrink:0;min-width:52px;">6/3</span>
+        <span style="color:var(--accent);flex-shrink:0;min-width:32px;">오늘</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">ADP/Beige</span>
+        <span><b style="color:var(--accent);">ADP + Beige Book + AVGO/CRWD 실적</b> — 6/5 NFP와 AI 반도체·보안 가이던스의 선행 확인 구간입니다.</span>
       </div>
 
-      <!-- ③ Earnings Spotlight -->
-      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">💰 Earnings Spotlight</div>
-      <div style="display:grid;grid-template-columns:44px 80px 72px 72px 1fr;gap:4px 8px;font-size:11px;padding:2px 0;border-bottom:1px solid var(--surface-2);">
-        <span style="color:var(--text-muted);font-weight:700;">티커</span>
-        <span style="color:var(--text-muted);">날짜·시기</span>
-        <span style="color:var(--text-muted);">핵심 지표</span>
-        <span style="color:var(--text-muted);">컨센</span>
-        <span style="color:var(--text-muted);">관전 포인트</span>
-      </div>
-      <div style="display:grid;grid-template-columns:44px 80px 72px 72px 1fr;gap:4px 8px;font-size:11px;padding:4px 0;border-bottom:1px solid var(--surface-2);">
-        <span style="font-weight:700;color:var(--data-green);">CRDO</span>
-        <span style="color:var(--text-muted);">6/1 AMC ★</span>
-        <span style="color:var(--text-secondary);">매출 성장</span>
-        <span style="color:var(--text-secondary);">$2.0B</span>
-        <span style="color:var(--text-muted);">광학 run-rate $5억+ 확인 · AEC 800G 수주 모멘텀 · BofA PT$210</span>
-      </div>
-      <div style="display:grid;grid-template-columns:44px 80px 72px 72px 1fr;gap:4px 8px;font-size:11px;padding:4px 0;border-bottom:1px solid var(--surface-2);">
-        <span style="font-weight:700;color:var(--data-amber);">PANW</span>
-        <span style="color:var(--text-muted);">6/2 AMC ★</span>
-        <span style="color:var(--text-secondary);">플랫폼 ARR</span>
-        <span style="color:var(--text-secondary);">—</span>
-        <span style="color:var(--text-muted);">Glasswing 파트너 실적 · 런타임 제어 전환 수혜 확인 · 가이던스 상향 여부</span>
-      </div>
-      <div style="display:grid;grid-template-columns:44px 80px 72px 72px 1fr;gap:4px 8px;font-size:11px;padding:4px 0;border-bottom:1px solid var(--surface-2);">
-        <span style="font-weight:700;color:var(--data-green);">AVGO</span>
-        <span style="color:var(--text-muted);">6/3 AMC ★★★</span>
-        <span style="color:var(--text-secondary);">XPU AI 매출</span>
-        <span style="color:var(--text-secondary);">—</span>
-        <span style="color:var(--data-red);font-weight:700;">AI 반도체 섹터 방향타 — 구글 TPU 업데이트·2027 AI $130B+ 컨빅션 확인 핵심</span>
-      </div>
-      <div style="display:grid;grid-template-columns:44px 80px 72px 72px 1fr;gap:4px 8px;font-size:11px;padding:4px 0;">
-        <span style="font-weight:700;color:var(--data-amber);">CRWD</span>
-        <span style="color:var(--text-muted);">6/3 AMC ★★</span>
-        <span style="color:var(--text-secondary);">ARR · NRR</span>
-        <span style="color:var(--text-secondary);">—</span>
-        <span style="color:var(--text-muted);">Glasswing+TAC 양쪽 파트너 · Falcon 플랫폼 채택률 · AI보안 예산 촉매 확인</span>
-      </div>
-
-      <!-- ④ 이번 주 5대 관전 포인트 -->
+      <!-- ③ Decision focus -->
       <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">🧠 이번 주 5대 관전 포인트</div>
       <div style="font-size:11px;line-height:1.6;color:var(--text-secondary);">
-        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-amber);">1. NVDA 젠슨황 기조연설 (6/1 낮 12시 이후 확인)</b> — Vera Rubin 실물 출하(CoreWeave 설치 확인), Windows PC 출시, AI 수요 $1조 로드맵의 실제 발표 내용 확인 전까지는 촉매 후보로 분류.</div>
-        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-red);">2. AVGO 실적 (6/3 AMC) ★★★</b> — XPU·ASIC 매출 가이던스가 AI 반도체 섹터 방향 결정. 구글 TPU 2031 LTA + Anthropic 3.5GW 수주 업데이트. 쇼크 시 NVDA·ALAB·MRVL 동반 조정.</div>
-        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-red);">3. 美 5월 NFP (6/5)</b> — BofA Hartnett "저실업+고임금→6월 인플레 재가속" 경고 검증. +150K+ = 연준 인하 기대 후퇴→성장주 멀티플 압축. 4월 4.3%·임금 3.6% 이어질지 핵심.</div>
-        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-amber);">4. 이란-미국 합의 최종 결정</b> — 트럼프 서명 여부만 남음(JD 밴스 "문구만 남은 상태"). 확정 시 WTI -$10+ 즉각 하락→에너지 비중 축소 시그널. 이란 기뢰 발견·MOU 불승인 혼재 중.</div>
-        <div style="padding:3px 0;"><b style="color:var(--data-amber);">5. 한국 CPI (6/2) + 연준 베이지북 (6/3)</b> — KR CPI 4월 2.6%(PPI 6.9% 후행 압력), 베이지북으로 12개 지역 경기·물가 진단. FOMC 6/16-17 방향 선취.</div>
+        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-red);">1. CPI/NFP/FOMC 순서</b> — 6/5 고용, 6/10 CPI, 6/16-17 FOMC가 금리 기대와 성장주 멀티플을 다시 가격화합니다.</div>
+        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-green);">2. Computex AI 체인</b> — AI PC, Vera Rubin, 물리 AI, 전력/냉각/제조 파트너 발표가 NVDA·반도체·대만/KR 체인으로 확산되는지 봅니다.</div>
+        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-amber);">3. SpaceX IPO 수급 리스크</b> — 대형 IPO가 실제로 진행되면 성장주·우주/위성·민간시장 밸류에이션에 유동성 이벤트가 됩니다.</div>
+        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-amber);">4. AI 실적 검증</b> — AVGO·CRWD 등 실적 뉴스는 verified/current 데이터가 들어온 뒤에만 현재 판단으로 승격합니다.</div>
+        <div style="padding:3px 0;"><b style="color:var(--text-primary);">5. 데이터 신뢰도</b> — 발표 전 숫자, 단일 출처 보도, 텔레그램 단독 항목은 AI 요약 본문이 아니라 확인 필요 영역으로 분리합니다.</div>
       </div>
 
-      <!-- ⑤ 전략 제안 -->
+      <!-- ④ 전략 제안 -->
       <div style="margin-top:10px;padding:8px 10px;background:rgba(255,163,26,0.08);border-left:3px solid var(--data-amber);border-radius:3px;font-size:11px;color:var(--text-secondary);">
-        <b style="color:var(--data-amber);">📌 전략 제안</b> — AVGO 실적(6/3) 전까지 AI 반도체 포지션 유지, 실적 후 가이던스 확인 후 조정. NFP(6/5) 전 레버리지 경량화. 이란 합의 확정 시 에너지(XOM·CVX) 트림 + 메모리(MU·SNDK·SKH) 비중 유지. Computex 기조연설 후 NVDA 단기 차익실현 가능성 인지. <span style="color:var(--text-muted);font-size:10px;">⚠️ 본 내용은 기술적 시그널이며 투자 판단의 책임은 본인에게 있습니다.</span>
+        <b style="color:var(--data-amber);">📌 전략 체크</b> — 이 블록은 정적 기준선입니다. 실제 매매 판단은 최신 live/evidence 데이터와 뉴스 surface audit이 통과한 항목만 사용하세요. <span style="color:var(--text-muted);font-size:10px;">발표 전 지표 수치와 source-dependent IPO 보도는 참고/감시 항목입니다.</span>
       </div>
     </div>
 
@@ -7231,7 +7155,7 @@ body.light-theme canvas { filter:none; }
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <div>
         <span style="font-size:12px;font-weight:700;color:var(--text-secondary);">핵심 경제지표 시계열 (12개월)</span>
-        <span style="font-size:11px;color:var(--text-muted);margin-left:8px;">FRED API · 월간 데이터 <span style="font-size:10px;color:var(--data-amber);" title="v49.31 H4/R77 MACRO_CALENDAR — 발표일 기반 자동 stale">(다음 갱신: NFP 6/6 · CPI 6/12 · PCE 6/30)</span></span>
+        <span style="font-size:11px;color:var(--text-muted);margin-left:8px;">FRED API · 월간 데이터 <span style="font-size:10px;color:var(--data-amber);" data-text-role="operational-status">발표 캘린더 기준 자동 갱신</span></span>
       </div>
       <span id="fred-chart-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수집 대기</span>
     </div>
@@ -7907,7 +7831,7 @@ body.light-theme canvas { filter:none; }
         <b>수익률 곡선(Yield Curve)</b> = 국채 만기별 이자율 그래프.<br><br>
          <b>정상:</b> 3M < 2Y < 10Y < 30Y (성장 기대)<br>
          <b>역전:</b> 단기 > 장기 = <b style="color:var(--data-red);">경기침체 예상</b> (1968년 이후 적중률 92%)<br>
-         <b>금리 드라이버 전환(2026.04):</b> 3월=경기둔화 기대→금리↓. 4월=FOMC 듀얼 리스크(고용↓+인플레↑)+기대인플레 영향↑→방향 불확실. "Some" 인상 논의 시작.<br>
+         <b>금리 드라이버 전환:</b> 시장은 경기둔화 기대와 물가 재가속 위험을 동시에 가격화합니다. 현재 판단은 6/5 고용, 6/10 CPI, 6/16-17 FOMC 확인 전까지 확률 시나리오로만 유지합니다.<br>
          <b>재무부 역학:</b> 연준 브레이크 vs 재무부 액셀(2023: S&P +24%). TGA 세금 시즌 일시 축소→환류. 베센트 발행 전략 변수.<br>
          <b>한국 영향:</b> 미국 H4L → 금리차 축소 지연 → 원화 약세 압박 지속
       </div>
@@ -8295,7 +8219,7 @@ body.light-theme canvas { filter:none; }
 
   <!-- ══ SECTION H: 금리 싸이클 타임라인 ══════════════════════ -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;"> 글로벌 금리 사이클 타임라인 (2024~2026)</div>
+    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;" data-text-role="reference-archive"> 글로벌 금리 사이클 타임라인 (참고용)</div>
     <div style="position:relative;padding:0 10px;">
       <!-- Timeline line -->
       <div style="position:absolute;top:18px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--data-green),var(--data-amber),var(--data-red),var(--data-cyan));border-radius:2px;"></div>
@@ -10002,7 +9926,7 @@ body.light-theme canvas { filter:none; }
 
   <!-- v31.9: 데이터 소스 고지 배너 · v48.15: 스냅샷 경과일 자동 표시 (텍스트-C) -->
   <div id="opt-data-notice" style="padding:8px 12px;margin-bottom:12px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.2);border-radius:var(--radius);font-size:11px;color:var(--data-amber);line-height:1.5;">
-    <strong>데이터 안내:</strong> VIX·VVIX는 Yahoo Finance live 우선이며, 차단 시 reference-only snapshot으로 표시됩니다. IV Rank, Greeks, Skew, GEX, 옵션 흐름은 <strong>참고용 추정치 · 주간 수동 갱신</strong>입니다. 정확한 옵션 데이터는 CBOE, ThinkorSwim, Interactive Brokers 등 전문 플랫폼을 이용하세요.
+    <strong>데이터 안내:</strong> VIX·VVIX는 live 값을 우선 사용합니다. IV Rank, Greeks, Skew, GEX, 옵션 흐름은 검증된 옵션 체인 원자료가 없으면 <strong>매매 판단용이 아닌 참고용 추정치</strong>로만 표시됩니다. 정확한 옵션 체인은 CBOE, ThinkorSwim, Interactive Brokers 등 전문 플랫폼에서 재확인하세요.
     <span id="opt-update-time" style="margin-left:8px;color:var(--text-muted);">스냅샷: <span data-snap-date="option-snapshot">2026-05-16</span> · <span id="option-snapshot-stale-days">경과 산출 대기</span></span>
   </div>
 
@@ -10030,7 +9954,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">VIX (live 우선)</div>
       <div style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);" data-live-price="^VIX" data-static-default="true">—</div>
       <div style="font-size:11px;color:var(--data-red);margin-bottom:6px;">높은 긴장 (평년 15~18)</div>
-      <div style="font-size:11px;color:var(--text-muted);line-height:1.4;">VIX 장기 평년 15~18. 20+ 주의, 30+ 극도 긴장. FOMC 듀얼 리스크 + 2주 휴전 붕괴 가능성 → VIX 30+ 지속 환경. 4월 이벤트 밀집(CPI/어닝/OPEX)으로 변동성 확대 경계.</div>
+      <div style="font-size:11px;color:var(--text-muted);line-height:1.4;">VIX 장기 평년 15~18. 20+ 주의, 30+ 극도 긴장. 현재 변동성 판단은 6/5 NFP, 6/10 CPI, 6/16-17 FOMC, 6/25 PCE와 Computex/SpaceX IPO 보도 같은 이벤트 클러스터를 기준으로 재평가합니다.</div>
     </div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
       <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">GEX (감마 노출) <span style="font-size:11px;color:var(--data-amber);">수동</span></div>
@@ -10175,7 +10099,7 @@ body.light-theme canvas { filter:none; }
     </div>
     <div style="margin-top:10px;padding:10px;background:rgba(255,91,80,0.08);border-left:3px solid var(--data-red);border-radius:4px;">
       <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">
-        <strong style="color:var(--data-red);">해석:</strong> 양의 스큐(Put > Call) 지속. 관세 협상 이후 VIX 안정 + 단기 랠리 과열 우려 + FOMC 6/16-17 → 기관 Put 헤징 재개 가능성. <strong>맥락:</strong> 에너지 EPS↑가 헤드라인 방어하나 섹터·지역 편차 극대화(Citi §64) — 개별 종목 Put 스큐 확대.
+        <strong style="color:var(--data-red);">해석:</strong> 스큐와 헤지 수요는 현재 옵션 데이터가 검증될 때만 매매 판단에 사용합니다. <strong>맥락:</strong> 섹터·지역 편차가 커지는 구간에서는 개별 종목 Put 스큐 확대 여부를 별도로 확인하세요.
       </div>
     </div>
   </div>
@@ -10309,7 +10233,7 @@ body.light-theme canvas { filter:none; }
   <!-- v49.29 E6/R69 동적 추천 — ACTION_RULES 기반 환경별 옵션 전략 -->
   <div id="options-dynamic-recommendation" style="margin-bottom:12px;padding:12px 14px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.25);border-radius:8px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-size:12px;font-weight:800;color:var(--accent);">📋 동적 옵션 전략 추천 (v49.29/R69 ACTION_RULES)</div>
+      <div style="font-size:12px;font-weight:800;color:var(--accent);">📋 동적 옵션 전략 추천</div>
       <div style="font-size:10px;color:var(--text-muted);">VIX/F&G/Skew 환경 입력 기반 자동 갱신</div>
     </div>
     <div id="options-rec-position" style="font-size:11px;color:var(--text-primary);margin-bottom:4px;font-weight:600;">VIX 기반 전략 결정 중...</div>
@@ -10892,7 +10816,7 @@ body.light-theme canvas { filter:none; }
         </div>
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.12);">
           <span style="width:8px;height:8px;border-radius:50%;background:var(--data-green);display:inline-block;flex-shrink:0;margin-top:3px;"></span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);"><span data-snap="kr-semi-export-yoy-label" title="v49.30 R78 — 5월 갱신 대기">2월 반도체 수출 +157.9% YoY</span> — AI 인프라 수요 폭발적 성장 <span style="font-size:9px;color:var(--data-amber);">(2월 기준, 5월/4월 데이터 갱신 필요)</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">SK하이닉스 HBM3E 양산, 삼성전자 파운드리 수주 호조. 반도체 업종 강세 (+1.8%)</div></div>
+          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);"><span data-snap="kr-semi-export-yoy-label" data-operational-use="reference-only">반도체 수출 모멘텀</span> — 최신 수출 데이터 확인 후 현재 판단에 반영 <span style="font-size:9px;color:var(--data-amber);">(검증 전 참고용)</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">HBM·파운드리·메모리 업황은 최신 수출/실적/수급 데이터와 함께 교차 확인합니다.</div></div>
         </div>
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;background:rgba(255,91,80,0.05);border:1px solid rgba(255,91,80,0.15);">
           <span style="width:8px;height:8px;border-radius:50%;background:var(--data-red);display:inline-block;flex-shrink:0;margin-top:3px;"></span>
@@ -11270,7 +11194,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
       <div class="explain-section">
-        <div class="explain-label is-amber">2024~2026 주도 테마 순환</div>
+        <div class="explain-label is-amber">주도 테마 순환 프레임</div>
         <div class="explain-body">
           <strong>반도체 사이클</strong> → <strong>AI/HBM</strong> → <strong>2차전지</strong> → <strong>조선/방산</strong> → <strong>바이오</strong> → <strong>로봇/휴머노이드</strong> → <strong>우주/항공</strong> → 반복.
           <br><br>
@@ -11537,7 +11461,7 @@ body.light-theme canvas { filter:none; }
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
       <div class="aio-widget">
         <div class="widget-title">주요 수출 동향</div>
-        <table class="kr-flow-table" data-aio-archive="true" data-lifecycle-id="kr-export-2026-02" title="v49.30 R75/R78 — 2월 산업통상자원부 데이터 archive. 5월 갱신 대기">
+        <table class="kr-flow-table" data-aio-archive="true" data-text-role="reference-archive" data-lifecycle-id="kr-export-2026-02" title="Archived export table. Current-use data requires refresh evidence.">
           <tr><th>품목</th><th>2월 수출 (2026-02)</th><th>YoY</th></tr>
           <tr><td>반도체</td><td style="color:var(--green);" data-snap="kr-semi-export-feb">251.6억 USD</td><td style="color:var(--green);" data-snap="kr-semi-export-yoy">+157.9%</td></tr>
           <tr><td>자동차</td><td style="color:var(--text-muted);">58억 USD</td><td style="color:var(--green);">+3.2%</td></tr>
@@ -11598,15 +11522,15 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- ═══ 섹션 6: 정책 일정 ═══ -->
-    <div class="aio-widget" data-aio-archive="true">
-      <div class="widget-title">주요 경제 일정 <span style="font-size:11px;padding:2px 6px;background:rgba(255,163,26,0.15);border-radius:3px;color:var(--data-amber);margin-left:6px;">과거 스냅샷 — 최신 일정은 AI 채팅에서 확인</span></div>
+    <div class="aio-widget">
+      <div class="widget-title">주요 경제 일정 <span style="font-size:11px;padding:2px 6px;background:rgba(0,212,255,0.10);border-radius:3px;color:var(--accent);margin-left:6px;">v50.4 공식 캘린더 기준</span></div>
       <table class="kr-flow-table">
         <tr><th>날짜</th><th>이벤트</th><th>영향</th></tr>
-        <tr><td>03/27</td><td>한국은행 금융안정회의 (3월)</td><td style="color:var(--text-muted);">▶ 참고 (금리결정 없음)</td></tr>
-        <tr><td>04월 중</td><td>한국은행 금통위 (4월)</td><td style="color:var(--yellow);">▶ 이창용: 공급 충격 일시적이면 금리 대응 불필요, 장기화 시 대응. 인플레 리스크↑ 부인 불가</td></tr>
-        <tr><td>04/28~29</td><td>미국 FOMC (4월)</td><td style="color:var(--red);">▶ 중요 — 듀얼 리스크 확인</td></tr>
-        <tr><td>05월 중</td><td>한국은행 금통위 (5월)</td><td style="color:var(--yellow);">▶ 인하 가능성 상승</td></tr>
-        <tr><td>05/21</td><td>1분기 GDP 최종 발표</td><td style="color:var(--text-muted);">▶ 참고</td></tr>
+        <tr><td>06/05</td><td>미국 5월 고용보고서</td><td style="color:var(--red);">▶ NFP·실업률·임금 확인 전까지 금리 경로 단정 금지</td></tr>
+        <tr><td>06/10</td><td>미국 5월 CPI</td><td style="color:var(--red);">▶ 발표 전 수치 생성 금지, 4월 공식값과 분리</td></tr>
+        <tr><td>06/16~17</td><td>미국 FOMC + SEP</td><td style="color:var(--red);">▶ 점도표·인하 경로 재가격화</td></tr>
+        <tr><td>06/25</td><td>미국 5월 PCE</td><td style="color:var(--yellow);">▶ Fed 선호 물가 후속 확인</td></tr>
+        <tr><td>07/10</td><td>한국은행 금통위</td><td style="color:var(--yellow);">▶ 환율·물가·수출 모멘텀 확인 후 판단</td></tr>
       </table>
     </div>
 
@@ -11651,7 +11575,7 @@ body.light-theme canvas { filter:none; }
         <tr><td>주식시장 YTD</td><td style="color:var(--green);">+5.2%</td><td style="color:var(--red);">-3.8%</td><td style="color:var(--red);">-4.2%</td><td style="color:var(--green);">+1.8%</td></tr>
       </table>
       <div style="margin-top:10px;padding:8px 10px;background:rgba(0,212,255,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-        한국(2.50%) vs 미국(3.50~3.75%) 금리차 -1.00~1.25%p → 원/달러 환율 상향 압박. FOMC 의사록: "vast majority" 듀얼 리스크(고용↓+인플레↑) — H4L(Higher For Longer) 가능성↑ → 금리차 축소 지연. 한국: 순매수 포지션 잔존 → 분쟁 장기화 시 추가 청산 하방(Citi). BUT 감세 환류 + 바이백 재개 + 어닝 시즌(+13%) 시 글로벌 위험자산 선호 → 원화 강세 전환 여지.
+        한국(2.50%) vs 미국(3.50~3.75%) 금리차는 원화와 외국인 수급의 핵심 변수입니다. 6/5 NFP, 6/10 CPI, 6/16-17 FOMC, 6/25 PCE가 확인되기 전에는 미국 금리 경로를 단정하지 않고, 한국은 7/10 금통위 전까지 환율·물가·수출 모멘텀을 함께 확인합니다.
       </div>
     </div>
 
@@ -11745,7 +11669,7 @@ body.light-theme canvas { filter:none; }
             <span style="color:var(--text-muted);">외국인 수급:</span> <span id="kr-health-foreign-streak" style="color:var(--red);font-weight:700;">7일 연속 매도</span>
           </div>
           <div style="padding:4px 6px;background:rgba(0,229,160,0.08);border-radius:4px;">
-            <span style="color:var(--text-muted);">수출·반도체:</span> <span style="color:var(--green);font-weight:700;" data-snap="kr-semi-export-yoy" title="v49.30 R78 KR_MACRO_RELEASE — 매월 1일 갱신 대상">+157.9%</span> <span style="color:var(--green);font-weight:700;">YoY <span style="font-size:9px;color:var(--data-amber);">(2월 기준 · 5월 갱신 대기)</span></span>
+            <span style="color:var(--text-muted);">수출·반도체:</span> <span style="color:var(--green);font-weight:700;" data-snap="kr-semi-export-yoy" data-operational-use="reference-only">확인 대기</span> <span style="color:var(--green);font-weight:700;"><span style="font-size:9px;color:var(--data-amber);">(최신 수출 데이터 검증 후 반영)</span></span>
           </div>
           <div style="padding:4px 6px;background:rgba(255,91,80,0.08);border-radius:4px;">
             <span style="color:var(--text-muted);">신용잔고:</span> <span style="color:var(--yellow);font-weight:700;" data-snap="kr-credit">36.0조원</span>
@@ -12655,9 +12579,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.1"></script>
-  <script src="./js/aio-data.js?v=50.1"></script>
-  <script src="./js/aio-ui.js?v=50.1"></script>
+  <script src="./js/aio-core.js?v=50.4"></script>
+  <script src="./js/aio-data.js?v=50.4"></script>
+  <script src="./js/aio-ui.js?v=50.4"></script>
 
   <script>
 
@@ -15412,10 +15336,10 @@ function _getChatRules() {
   '  [Q4 구조적 논리] 포지셔닝이 지역 선택을 결정. 유로스톡스50·DM xUS: 이미 순 공매도(음) → 분쟁 해소 시 숏커버 랠리 잠재력 최대. 한국·일본: 아직 순 매수 잔존 → 분쟁 장기화 시 추가 청산 하방. 지역별 원유 순수출입 구조: 미국 순수출(방어) > 영국·호주(에너지 노출) > 한국·일본·인도·EU(수입 의존 취약).\n' +
   '  [Q5 인접 파급] 한국 양날의 칼: 순 매수 잔존 → 포지셔닝 하방 압력. BUT AI·메모리 반도체 EPS 기여 비중이 EM 내 단독 최대 → 분쟁 해소 시 반등 강도도 EM 최강. 라틴아메리카 EM: 상품 연동 지정학 헤지. 섹터: 에너지(EPS↑) + 헬스케어·유틸리티(방어) > 경기소비재·통신(EPS↓).\n' +
 
-  // v46.3: FOMC 의사록 듀얼 리스크 + 4월 이벤트 밀집 + 2023 TGA 교훈 (2026.04.10)
-  '65. FOMC 의사록 듀얼 리스크 + Higher For Longer 전환 신호 (2026.04):\n' +
+  // v50.4: archived FOMC minutes framework; current event calendar is injected separately
+  '65. FOMC 의사록 듀얼 리스크 + Higher For Longer 전환 신호 (archive framework):\n' +
   '  [Q2 패러다임 전환] 기존: FOMC = 인플레 또는 고용 단일 축 해석 → 인하/동결 이항. 새: "vast majority"가 고용 하방 + 인플레 상방 동시 경고 = 듀얼 리스크 국면 진입. Some 참가자가 양방향 금리 시그널(인상 포함) 필요 주장 → 일방향 인하 기대 사실상 폐기. 비주거 서비스 끈적 + 기대인플레 유가발 상승 = H4L(Higher For Longer) 내러티브 부상.\n' +
-  '  [Q4 구조적 논리] ① 표면=균형, 내부=취약. "Majority" 균형 vs "Vast majority" 취약 — 저채용 환경에서 노동 수요 소폭 하락만으로 실업률 급등 가능(비선형). AI 채용 지연 효과: Many 참가자 확인. ② 인플레 끈적함의 역학: 비주거 서비스 팬데믹 이전 대비 여전히 높음 + 유가 $100+ 지속 시 투입비용→근원물가 전이 경로 활성화 → 기대인플레 흔들릴 가능성(Some 우려). ③ 연준 내부 양방향 논의 = 시장이 인하만 가격에 반영하면 비대칭 리스크. 4월 CPI/PPI + 워시 청문회(4/13 월)가 방향 결정 이벤트.\n' +
+  '  [Q4 구조적 논리] ① 표면=균형, 내부=취약. "Majority" 균형 vs "Vast majority" 취약 — 저채용 환경에서 노동 수요 소폭 하락만으로 실업률 급등 가능(비선형). AI 채용 지연 효과: Many 참가자 확인. ② 인플레 끈적함의 역학: 비주거 서비스 팬데믹 이전 대비 여전히 높음 + 유가 $100+ 지속 시 투입비용→근원물가 전이 경로 활성화 → 기대인플레 흔들릴 가능성(Some 우려). ③ 연준 내부 양방향 논의 = 시장이 인하만 가격에 반영하면 비대칭 리스크. 현재 이벤트 판단은 6/5 NFP, 6/10 CPI, 6/16-17 FOMC, 6/25 PCE 캘린더로 분리한다.\n' +
   '  [Q3 핵심 논쟁] Bull: 유가 일시적 안정 → 주거 서비스 둔화 + 생산성↑ → 디스인플레 경로 유지 → 하반기 1-2회 인하. Bear: 유가 $100+ 장기화 → 기대인플레 불안정 + 비주거 서비스 재가속 → 동결 장기화 또는 인상 논의 본격화 → Higher For Longer.\n' +
   '  [Q5 인접 파급] 채권: 3월(경기둔화 기대) vs 4월+(기대인플레 영향 확대) — 금리 드라이버 전환 가능. 금: 실질금리와 기대인플레 동시 상승 시 기존 역상관 약화 → 다른 움직임 패턴 가능. 워시 인준: 틸리스 반대 지속 + 트럼프 액션 필요 → 통화정책 불확실성 가중.\n' +
 
@@ -15424,7 +15348,7 @@ function _getChatRules() {
   '  [Q4 구조적 논리] ① 2023년 메커니즘: TGA $8,000억→$494억 강제 방출(부채한도)→시장 유동성 지탱. 6월 부채한도 해제 후 T-bill 대량 발행→MMF가 역레포($2.2조)에서 인출해 매수→은행 지급준비금 $390억만 감소→시장 유동성 사실상 미감소. ② 2026년 차이: TGA $8,063억 정상, 부채한도 이미 $5조 인상→2023식 강제 방출 없음. BUT 감세(OBBBA $1,500~1,600억+원천징수 $600억) + 발행 전략 조절 = 다른 형태의 유동성 공급 가능. ③ 중간선거 7개월 전: 궁지에 몰린 정권은 시장을 방치하지 않는다 = 정치적 인센티브.\n' +
   '  [Q3 핵심 논쟁] Bull: 정치적 유동성 공급 + 감세 환류 + 바이백 블랙아웃 해제 + 어닝(매출+9.7%, 이익+13%) → 하반기 랠리. JPM "전술적 강세", 골드만 롱온리 +24% 매수 우위. Bear: 호르무즈 통행료 영구화 + 2주 휴전 붕괴 → WTI $100+ 지속 → GDP -0.6%p + 사모신용 잔존 리스크 + 워시 인준 실패 → 비관 재부상.\n' +
   '  [Q1 테시스 로직] "예측이 아니라 준비." 2023년 비관론에 갇혀 +24% 놓친 경험 + 2026년 낙관 올인 시 호르무즈 장기화에 무방비 → 중립 포지션 + 시나리오별 트리거 설정이 최적. 현금 비중↑ + 확신도 높은 곳 선별 참여 + 뉴스 흐름 따라 사이즈 조절.\n' +
-  '  [Q5 인접 파급] 4월 이벤트 밀집: GS/JPM(4/13-14) → ASML/TSM/NFLX(4/15-16) → OPEX(4/17) + CPI+PPI(4/10) + 워시 청문회(4/13 월) + 세금 마감(4/15). TGA 세금 시즌 유동성 축소 = 일시적(정부→민간 환류). 국채 금리: 3월(경기둔화)→4월(기대인플레) 드라이버 전환 시 금 가격도 기존과 다른 패턴 가능.\n' +
+  '  [Q5 인접 파급] 현재 이벤트 클러스터: Computex/GTC Taipei(6/1-5) → NFP(6/5) → CPI(6/10) → FOMC/SEP(6/16-17) → PCE(6/25). TGA·세금·OPEX 같은 유동성 요인은 해당 월의 실제 캘린더로 별도 검증한다. 국채 금리 드라이버가 경기둔화 기대와 기대인플레 사이에서 전환될 때 금 가격도 기존과 다른 패턴이 가능하다.\n' +
 
   // v46.4: JPM 원유 인프라 피해 + AI사이버 임계점 + NAND HBF + GOOGL TPU 로열티 + 이창용 (2026.04.10)
   '67. 걸프 에너지 인프라 측정 가능한 공급 충격 — JPM 원유 분석 (2026.04):\n' +
@@ -15727,7 +15651,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.1"></script>
+<script src="./js/aio-chat.js?v=50.4"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -16588,27 +16512,17 @@ function renderEconCalendar() {
     {name:'GDP (분기)', dayRange:'last-week', impact:'HIGH', tip:'경제 성장률 = 큰 그림', impColor:'var(--data-red)'},
     {name:'FOMC 회의', dayRange:'6-weeks', impact:'HIGH', tip:'기준금리 결정 = 시장 방향 결정', impColor:'var(--data-red)'}
   ];
-  // v48.18 (integrate): 2026년 4-5월 주요 기업 이벤트 (날짜 지정형)
+  // v50.4: 2026-06-03 기준 공식 일정 + source-dependent market topic watch
   var pinnedEvents2026 = [
-    // v49.7: 과거 이벤트는 렌더 단계에서 제외하고 향후 촉매만 표시
-    {date:'05/04', name:'PLTR 실적 발표 (장 마감 후) ★', impact:'HIGH', tip:'AI 소프트웨어 대장주. 정부·기업 AIP 수요 가속 여부. 가이던스 상향 시 AI 전체 밸류에이션 재평가 촉매. BRKB 주총 — 그렉 아벨 신임 CEO 첫 주주 대면.', impColor:'var(--data-red)'},
-    {date:'05/05', name:'JOLTS + 무역수지 + ISM 서비스 PMI', impact:'HIGH', tip:'JOLTS 구인이직보고서(3월, 23:00 KST) + 무역수지(3월, 21:30 KST) + ISM 서비스 PMI(23:00 KST). 한국·일본·중국 휴장. 아시아 유동성 저조.', impColor:'var(--data-red)'},
-    {date:'05/05', name:'SHOP + PYPL + PFE / AMD + ANET 실적', impact:'HIGH', tip:'장전: SHOP·PYPL(핀테크 소비), PFE(E-Score 10/10). 장후: AMD MI300X E-Score 8.8/10($1.30/$9.9B), ANET DC 네트워크 강도. 반도체·핀테크 동시 점검.', impColor:'var(--data-red)'},
-    {date:'05/06', name:'한국 CPI (4월) + ADP 민간고용', impact:'MED', tip:'한국 CPI(08:00 KST) — 한은 금통위 통화정책 선행. ADP(21:15 KST) — NFP 선행 지표. 일본 휴장.', impColor:'var(--data-amber)'},
-    {date:'05/06', name:'DIS + NVO + UBER / ARM + APP + AXON 실적', impact:'HIGH', tip:'장전: DIS E-Score 10/10($1.49/$24.8B), NVO(GLP-1 수요), UBER(모빌리티 경기). 장후: ARM AI 칩 로열티, APP 모바일 수익화, AXON 보안 클라우드.', impColor:'var(--data-red)'},
-    {date:'05/07', name:'CRWV + COIN + MELI + AFRM / DDOG + MCD 실적', impact:'HIGH', tip:'장후: CRWV(AI 클라우드 인프라 첫 실적), COIN(암호화폐 경기), MELI(중남미 이커머스), AFRM(BNPL 소비). 장전: DDOG(관측성 AI), MCD E-Score 5.0/10.', impColor:'var(--data-red)'},
-    {date:'05/07', name:'Challenger 해고건수 + 신규 실업수당 청구 + 한국 외환보유액', impact:'MED', tip:'Challenger(4월, 20:30 KST) + 실업수당 청구(21:30 KST) + 한국 4월말 외환보유액. 고용 흐름 3중 점검.', impColor:'var(--data-amber)'},
-    {date:'05/08', name:'NFP 비농업고용 + 실업률 (21:30 KST)', impact:'CRITICAL', tip:'이번 주 최대 이벤트. 고용·임금·실업률 동시. 미시간 소비자심리(May) 23:00 KST 동반. 금리·지수 방향 결정. 고용 강→금리 부담, 약→경기 둔화.', impColor:'var(--data-red)'},
-    {date:'05/09', name:'Fed 4인 연설 (Waller·Bowman·Goolsbee·Daly)', impact:'HIGH', tip:'08:30 KST 동시 진행. 금리 정책 힌트 집중. 변동성 유발 가능. FOMC 다음 회의 6/16-17(SEP 포함).', impColor:'var(--data-red)'},
-    {date:'04/22-24', name:'Google Cloud Next (라스베이거스)', impact:'HIGH', tip:'에이전트/인프라/고객 수주 · TPU·Rubin GPU·제미나이 3.5 발표 가능 · GCP 자신감 톤 예상(BofA)', impColor:'var(--data-red)'},
-    {date:(typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fomcNext) ? DATA_SNAPSHOT.fomcNext : '6/16-17', name:'FOMC 회의', impact:'HIGH', tip:'최신 점도표·인플레·고용 균형 확인. 고정 과거 일정 대신 DATA_SNAPSHOT.fomcNext 기준', impColor:'var(--data-red)'},
-    {date:'04/29', name:'GOOGL 1Q26 실적 (장 마감 후)', impact:'HIGH', tip:'Citi PT$405 90일 상승 촉매 워치 · 검색 +16.5%/YouTube +11.5%/Cloud +57.5% 예상', impColor:'var(--data-red)'},
-    {date:'04/30', name:'MSFT 1Q26 실적', impact:'HIGH', tip:'Azure 37-38%cc 가이던스 확인 · Fairwater DC 외부할당 언급 여부 주시', impColor:'var(--data-red)'},
-    {date:'05/01', name:'AMZN 1Q26 실적', impact:'HIGH', tip:'AWS +28%/매출 $178.8B 예상 · Globalstar LEO 전략 · Prime Day 6월 이동 여부', impColor:'var(--data-red)'},
-    {date:'05/13', name:'CPI + Brandcast (YouTube 광고주 행사)', impact:'HIGH', tip:'5월 CPI · YouTube 광고 전략 업데이트', impColor:'var(--data-red)'},
-    {date:'05/19-20', name:'Google I/O', impact:'HIGH', tip:'Gemini 3.5 공개 예상 · 개발자 생태계 업데이트', impColor:'var(--data-red)'},
-    {date:'05/20', name:'Google Marketing Live (GML)', impact:'MED', tip:'광고 제품 업데이트 — AI Max/에이전틱 커머스', impColor:'var(--data-amber)'},
-    {date:'07월', name:'TSMC 2Q26 실적', impact:'HIGH', tip:'2026-2028 3년 Capex $190-200B 계획 공시 예상 · 2026 가이던스 추가 상향 가능성', impColor:'var(--data-red)'}
+    {date:'06/03', name:'ADP 민간고용 + Fed Beige Book', impact:'HIGH', tip:'6/5 NFP와 6/16-17 FOMC 전 고용·지역 경기·물가 힌트. 발표 전 수치는 생성하지 않음.', impColor:'var(--data-red)'},
+    {date:'06/03', name:'AVGO·CRWD·C3.AI 실적 watch', impact:'HIGH', tip:'AI 반도체/보안 가이던스는 verified/current 실적 뉴스가 들어올 때만 현재 판단으로 승격.', impColor:'var(--data-red)'},
+    {date:'06/01-05', name:'Computex 2026 + NVIDIA GTC Taipei', impact:'HIGH', tip:'RTX Spark/AI PC, Vera Rubin, AI infrastructure, physical AI 발표를 AI 하드웨어 체인 촉매로 감시.', impColor:'var(--data-green)'},
+    {date:'06/05', name:'BLS May Employment Situation', impact:'CRITICAL', tip:'May NFP·실업률·임금 발표. 공식 발표 전에는 4월값(+115K, 4.3%)과 분리.', impColor:'var(--data-red)'},
+    {date:'06/10', name:'BLS May CPI', impact:'CRITICAL', tip:'May CPI 공식 발표일. 발표 전에는 5월 CPI 숫자를 만들지 않음.', impColor:'var(--data-red)'},
+    {date:'06/11-12', name:'SpaceX IPO 보도 watch', impact:'HIGH', tip:'Reuters 계열 보도상 6/11 가격 산정·6/12 Nasdaq 상장 가능성. 확정 공시가 아닌 유동성/테마 수급 리스크.', impColor:'var(--data-amber)'},
+    {date:(typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fomcNext) ? DATA_SNAPSHOT.fomcNext : '6/16-17', name:'FOMC + SEP', impact:'CRITICAL', tip:'점도표와 인하 경로 재가격화. NFP/CPI 확인 후 해석.', impColor:'var(--data-red)'},
+    {date:'06/25', name:'BEA May Personal Income and Outlays/PCE', impact:'HIGH', tip:'Fed 선호 물가 후속 확인점. 현재 공식 마지막 값은 4월 PCE 3.8%, Core 3.3%.', impColor:'var(--data-amber)'},
+    {date:'07/10', name:'한국은행 금통위', impact:'HIGH', tip:'환율·물가·수출 모멘텀과 미국 금리 경로 확인 후 판단.', impColor:'var(--data-amber)'}
   ];
   var now = new Date();
   var dow = now.getDay(); // 0=Sun
@@ -28088,9 +28002,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.1"></script>
+<script src="./js/aio-glossary.js?v=50.4"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-  <script src="./js/aio-tests.js?v=50.1"></script>
+  <script src="./js/aio-tests.js?v=50.4"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전
@@ -30901,7 +30815,7 @@ async function chatSendUnified() {
           ? window.AIO.getChatEvidenceContext({ tickers: detectedTickers })
           : null;
       } catch(_evCtxErr) {}
-      sysPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v50.1]\n' +
+      sysPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v50.4]\n' +
         'status=' + (_uniFreshPreflight.status || 'unknown') + ' strict=' + !!_uniFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
         'quotes=' + (_uniQuoteRows || 'not available') + '\n' +
         'evidenceStore=' + (_uniEvidence && _uniEvidence.evidenceStoreStatus || 'unknown') + ' blockedTickers=' + (_uniEvidence && _uniEvidence.blockedTickers && _uniEvidence.blockedTickers.join(',') || 'none') + '\n' +

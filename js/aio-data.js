@@ -7640,6 +7640,295 @@ var _TOPIC_GROUP_ORDER = [
   { key:'general',   label:'기타 뉴스',         icon:'' }
 ];
 
+// v50.2: shared contract for the three user-facing news surfaces.
+window.AIO = window.AIO || {};
+var AIO_NEWS_SURFACE_CONTRACTS = {
+  home: {
+    surfaceId: 'home',
+    role: 'core-market-judgment',
+    windowHours: 72,
+    maxItems: 3,
+    minScoreCascade: [90, 70, 50],
+    excludedTopics: ['analyst'],
+    staleStaticPolicy: 'reference-only',
+    sortMode: 'market-impact'
+  },
+  briefing: {
+    surfaceId: 'briefing',
+    role: 'kst-0800-24h-decision-briefing',
+    anchor: '08:00 KST',
+    windowHours: 24,
+    maxItems: 40,
+    minScore: 45,
+    aiPolicy: 'verified-current-only',
+    reviewPolicy: 'secondary-stale-unverified-to-review'
+  },
+  'market-news': {
+    surfaceId: 'market-news',
+    role: '48h-exploration-and-filtering',
+    windowHours: 48,
+    maxItems: 150,
+    minScore: 30,
+    allowFilters: true,
+    sortMode: 'ui'
+  }
+};
+window.AIO_NEWS_SURFACE_CONTRACTS = AIO_NEWS_SURFACE_CONTRACTS;
+
+function _aioNewsPubMs(item) {
+  var t = item && item.pubDate ? new Date(item.pubDate).getTime() : 0;
+  return isNaN(t) ? 0 : t;
+}
+
+function _aioNewsSourceTier(item) {
+  if (item && item.tier != null && isFinite(Number(item.tier))) return Number(item.tier);
+  var src = String(item && item.source || '');
+  if (/Reuters|Bloomberg|Associated Press|AP News|Financial Times|FT|Wall Street Journal|WSJ/i.test(src)) return 1;
+  if (/CNBC|MarketWatch|Barron|Yahoo Finance|Investing|Seeking Alpha|Economist|NYT|Nikkei|Yonhap|Naver/i.test(src)) return 2;
+  if (/^TG\s|Telegram/i.test(src) || item && (item._tgChannel || item.tgSlug)) return 4;
+  return 3;
+}
+
+function _aioNewsTopicLabel(topic) {
+  var row = _TOPIC_GROUP_ORDER.find(function(t) { return t.key === topic; });
+  return row ? row.label : (topic || 'general');
+}
+
+function _aioNewsId(item) {
+  var seed = String(item && (item.link || item.guid || item.title || '') || '') + '|' + String(item && item.source || '') + '|' + String(item && item.pubDate || '');
+  var h = 0;
+  for (var i = 0; i < seed.length; i++) h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
+  return 'news-' + Math.abs(h);
+}
+
+function _aioNewsDedupeKey(item) {
+  var title = '';
+  try { title = typeof getDisplayTitle === 'function' ? getDisplayTitle(item) : (item.title || ''); } catch(_) { title = item && item.title || ''; }
+  return String(title || item && item.link || '')
+    .toLowerCase()
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/[^a-z0-9가-힣]+/g, '')
+    .slice(0, 72);
+}
+
+function _aioNewsIsBlacklisted(item) {
+  if (!item || item._blacklisted) return true;
+  var text = '';
+  try { text = ((item.title || '') + ' ' + (getDisplayTitle(item) || '') + ' ' + (item.desc || '')).toLowerCase(); }
+  catch(_) { text = ((item.title || '') + ' ' + (item.desc || '')).toLowerCase(); }
+  return (NEWS_BLACKLIST_KW || []).some(function(kw) { return text.indexOf(String(kw).toLowerCase()) >= 0; });
+}
+
+function _aioNewsVerificationStatus(item, ageHours, contract) {
+  var tier = _aioNewsSourceTier(item);
+  var stale = !isFinite(ageHours) || ageHours > (contract.windowHours || 48);
+  var tg = !!(item && (item._tgChannel || item.tgSlug || /^TG\s/i.test(item.source || '')));
+  var unverified = false;
+  try { unverified = typeof isUnverifiedClaim === 'function' && isUnverifiedClaim(item); } catch(_) {}
+  if (stale) return 'stale';
+  if (unverified) return 'unverified';
+  if (tg || tier >= 4) return 'secondary-only';
+  if (tier <= 2) return 'verified-current';
+  return 'current';
+}
+
+function _aioNewsInclusionReason(row, surfaceId) {
+  var topic = _aioNewsTopicLabel(row.topic);
+  var tier = row.sourceTier ? ('Tier ' + row.sourceTier) : 'source';
+  if (surfaceId === 'home') return 'Score ' + row.score + ' · ' + topic + ' · ' + tier;
+  if (surfaceId === 'briefing') return '08:00 KST 24h · Score ' + row.score + ' · ' + row.verificationStatus;
+  return 'Score ' + row.score + ' · ' + topic + ' · ' + row.verificationStatus;
+}
+
+function _aioNormalizeNewsItem(surfaceId, item, contract, nowMs) {
+  var pubMs = _aioNewsPubMs(item);
+  var ageHours = pubMs ? Math.max(0, Math.round((nowMs - pubMs) / 3600000 * 10) / 10) : Infinity;
+  var tickers = [];
+  try { tickers = typeof getDisplayTickers === 'function' ? getDisplayTickers(item) : (item.tickers || []); } catch(_) { tickers = item && item.tickers || []; }
+  var row = Object.assign({}, item || {});
+  row.newsId = row.newsId || _aioNewsId(item);
+  row.title = row.title || '';
+  row.source = row.source || '';
+  row.pubDate = row.pubDate || null;
+  row.ageHours = ageHours;
+  row.score = Number(row.score || 0);
+  row.topic = row.topic || 'general';
+  row.tickers = Array.isArray(tickers) ? tickers : [];
+  row.sourceTier = _aioNewsSourceTier(row);
+  row.verificationStatus = _aioNewsVerificationStatus(row, ageHours, contract);
+  row.staleStatus = row.verificationStatus === 'stale' ? 'stale' : 'current-window';
+  row.sourcePolicy = surfaceId === 'briefing' ? contract.aiPolicy : 'surface-contract';
+  row.inclusionReason = _aioNewsInclusionReason(row, surfaceId);
+  row.eligibleForAi = row.verificationStatus === 'verified-current' || (row.verificationStatus === 'current' && row.sourceTier <= 2);
+  return row;
+}
+
+function _aioApplyNewsFilterOptions(rows, opts) {
+  opts = opts || {};
+  var filtered = rows;
+  var cf = String(opts.countryFilter || (typeof currentCountryFilter !== 'undefined' ? currentCountryFilter : 'all') || 'all').toLowerCase();
+  if (cf && cf !== 'all') {
+    if (cf === 'asia') {
+      var ASIA_COUNTRIES = ['jp','cn','hk','tw','sg','in','qa'];
+      filtered = filtered.filter(function(i) { return ASIA_COUNTRIES.indexOf(String(i.country || '').toLowerCase()) !== -1; });
+    } else if (cf === 'eu') {
+      filtered = filtered.filter(function(i) { return ['eu','uk'].indexOf(String(i.country || '').toLowerCase()) !== -1; });
+    } else if (cf === 'tg') {
+      filtered = filtered.filter(function(i) { return i._tgChannel === true || /^TG\s/i.test(i.source || '') || !!i.tgSlug; });
+    } else {
+      filtered = filtered.filter(function(i) { return String(i.country || '').toLowerCase() === cf; });
+    }
+  }
+  var tf = opts.topicFilter || (typeof currentTopicFilter !== 'undefined' ? currentTopicFilter : 'all');
+  if (tf && tf !== 'all') filtered = filtered.filter(function(i) { return i.topic === tf || (i.topics && i.topics.indexOf(tf) >= 0); });
+  var tab = opts.typeTab || (typeof _newsTypeTab !== 'undefined' ? _newsTypeTab : 'all');
+  if (tab === 'company') filtered = filtered.filter(function(i) { return isCompanyNews(i); });
+  else if (tab === 'market') filtered = filtered.filter(function(i) { return !isCompanyNews(i); });
+  return filtered;
+}
+
+function _aioNewsEmptyReason(surfaceId, stats) {
+  if (!stats.inputCount) return 'no-input-news';
+  if (!stats.withinWindowCount) return 'all-news-outside-time-window';
+  if (!stats.afterScoreCount) return 'below-score-threshold-or-policy-excluded';
+  if (surfaceId === 'market-news') return 'filters-removed-all-eligible-news';
+  return 'no-verified-current-news-for-surface-policy';
+}
+
+window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
+  opts = opts || {};
+  var contract = AIO_NEWS_SURFACE_CONTRACTS[surfaceId];
+  if (!contract) throw new Error('Unknown news surface: ' + surfaceId);
+  var nowMs = Number(opts.nowMs || Date.now());
+  var input = Array.isArray(items) ? items : [];
+  var normalized = input.filter(function(i) { return !_aioNewsIsBlacklisted(i); })
+    .map(function(i) { return _aioNormalizeNewsItem(surfaceId, i, contract, nowMs); });
+  var windowRows = normalized.filter(function(row) {
+    if (opts.windowStart != null && opts.windowEnd != null) {
+      var t = _aioNewsPubMs(row);
+      return t >= opts.windowStart && t < opts.windowEnd;
+    }
+    return row.ageHours <= (contract.windowHours || 48);
+  });
+  if (surfaceId === 'home') windowRows = windowRows.filter(function(i) { return contract.excludedTopics.indexOf(i.topic) === -1; });
+  if (surfaceId === 'market-news') windowRows = _aioApplyNewsFilterOptions(windowRows, opts);
+
+  var scored = windowRows;
+  if (contract.minScoreCascade) {
+    scored = [];
+    contract.minScoreCascade.some(function(th) {
+      scored = windowRows.filter(function(i) { return i.score >= th; });
+      return scored.length > 0;
+    });
+  } else {
+    scored = windowRows.filter(function(i) { return i.score >= (contract.minScore || 0); });
+  }
+
+  var duplicateRemoved = 0;
+  var seen = {};
+  var deduped = [];
+  scored.forEach(function(row) {
+    var key = _aioNewsDedupeKey(row) || row.newsId;
+    if (seen[key]) { duplicateRemoved++; return; }
+    seen[key] = true;
+    deduped.push(row);
+  });
+
+  if (surfaceId === 'home') {
+    deduped.forEach(function(i) {
+      i._surfaceScore = i.score + (['macro','geo','bond','fx','energy'].indexOf(i.topic) >= 0 ? 20 : 0) + (i.sourceTier <= 2 ? 8 : 0);
+      i.inclusionReason = _aioNewsInclusionReason(i, surfaceId);
+    });
+    deduped.sort(function(a, b) { return (b._surfaceScore || 0) - (a._surfaceScore || 0); });
+  } else if (surfaceId === 'market-news' && (opts.sortMode || _newsSortMode) === 'time') {
+    deduped.sort(function(a, b) {
+      var ta = _aioNewsPubMs(a), tb = _aioNewsPubMs(b);
+      var bucketA = Math.floor(ta / 1800000), bucketB = Math.floor(tb / 1800000);
+      if (bucketA !== bucketB) return bucketB - bucketA;
+      return (b.score || 0) - (a.score || 0);
+    });
+  } else {
+    deduped.sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
+  }
+
+  var visible = deduped.slice(0, contract.maxItems || deduped.length);
+  var reviewItems = surfaceId === 'briefing' ? deduped.filter(function(i) { return !i.eligibleForAi; }) : [];
+  var aiItems = surfaceId === 'briefing' ? visible.filter(function(i) { return i.eligibleForAi; }) : visible;
+  var latestPubMs = visible.reduce(function(max, i) { return Math.max(max, _aioNewsPubMs(i)); }, 0);
+  var sourceSet = {};
+  visible.forEach(function(i) { sourceSet[i.source || 'unknown'] = true; });
+  var stats = {
+    inputCount: input.length,
+    normalizedCount: normalized.length,
+    withinWindowCount: windowRows.length,
+    afterScoreCount: scored.length,
+    visibleCount: visible.length,
+    duplicateRemoved: duplicateRemoved
+  };
+  var model = {
+    surfaceId: surfaceId,
+    contract: contract,
+    items: visible,
+    eligibleItems: deduped,
+    aiItems: aiItems,
+    reviewItems: reviewItems.slice(0, 12),
+    visibleCount: visible.length,
+    eligibleCount: deduped.length,
+    staleCount: normalized.filter(function(i) { return i.staleStatus === 'stale'; }).length,
+    unverifiedCount: visible.filter(function(i) { return i.verificationStatus === 'unverified' || i.verificationStatus === 'secondary-only'; }).length,
+    duplicateRemoved: duplicateRemoved,
+    sourceCount: Object.keys(sourceSet).length,
+    lastFetch: window.lastNewsFetchAt || window._lastNewsFetchAt || lastFetchTime || null,
+    latestPubDate: latestPubMs ? new Date(latestPubMs).toISOString() : null,
+    cacheKey: surfaceId + '|' + (opts.anchorDate || '') + '|' + visible.map(function(i) { return i.newsId; }).join(',') + '|' + (latestPubMs || 0),
+    emptyReason: visible.length ? null : _aioNewsEmptyReason(surfaceId, stats),
+    stats: stats,
+    generatedAt: new Date(nowMs).toISOString()
+  };
+  window._aioNewsSurfaceModels = window._aioNewsSurfaceModels || {};
+  window._aioNewsSurfaceModels[surfaceId] = model;
+  return model;
+};
+
+window.AIO.getNewsSurfaceAudit = function(opts) {
+  opts = opts || {};
+  var rows = {};
+  var surfaces = Object.keys(AIO_NEWS_SURFACE_CONTRACTS);
+  var issues = [];
+  surfaces.forEach(function(id) {
+    var model = window._aioNewsSurfaceModels && window._aioNewsSurfaceModels[id];
+    if (!model || opts.rebuild) {
+      var buildOpts = {};
+      if (id === 'market-news') buildOpts = { countryFilter:'all', topicFilter:'all', typeTab:'all', sortMode:'score' };
+      if (id === 'briefing' && typeof _getBriefingWindowKST === 'function') {
+        var bw = _getBriefingWindowKST();
+        buildOpts.windowStart = bw.start; buildOpts.windowEnd = bw.end; buildOpts.anchorDate = bw.anchorDate.toISOString().slice(0, 10);
+      }
+      model = window.AIO.buildNewsSurfaceModel(id, newsCache || [], buildOpts);
+    }
+    rows[id] = {
+      visibleCount: model.visibleCount,
+      eligibleCount: model.eligibleCount,
+      staleCount: model.staleCount,
+      unverifiedCount: model.unverifiedCount,
+      duplicateRemoved: model.duplicateRemoved,
+      sourceCount: model.sourceCount,
+      lastFetch: model.lastFetch,
+      emptyReason: model.emptyReason,
+      latestPubDate: model.latestPubDate,
+      status: model.visibleCount ? 'ok' : 'warn'
+    };
+    if (!model.visibleCount) issues.push(id + ':' + model.emptyReason);
+  });
+  return {
+    status: issues.length ? 'warn' : 'ok',
+    surfaceCount: surfaces.length,
+    issues: issues,
+    surfaces: rows,
+    generatedAt: new Date().toISOString()
+  };
+};
+
 function _renderCategoryGroupView(items, container) {
   // topic별 그룹핑
   var groups = {};
@@ -7711,7 +8000,24 @@ function _renderTopicSection(icon, label, items) {
 
 /* ── renderFeed(): 뉴스 목록 렌더링 (시장 소식 페이지) ──────── */
 function renderFeed(items) {
-  if (!items || items.length === 0) return;
+  var marketNewsContainerV502 = document.getElementById('live-news-feed');
+  var marketNewsModelV502 = null;
+  if (window.AIO && typeof window.AIO.buildNewsSurfaceModel === 'function') {
+    marketNewsModelV502 = window.AIO.buildNewsSurfaceModel('market-news', items || [], {
+      countryFilter: typeof currentCountryFilter !== 'undefined' ? currentCountryFilter : 'all',
+      topicFilter: typeof currentTopicFilter !== 'undefined' ? currentTopicFilter : 'all',
+      typeTab: typeof _newsTypeTab !== 'undefined' ? _newsTypeTab : 'all',
+      sortMode: typeof _newsSortMode !== 'undefined' ? _newsSortMode : 'score'
+    });
+    items = marketNewsModelV502.items || [];
+  }
+  if (!items || items.length === 0) {
+    if (marketNewsContainerV502) {
+      var emptyReasonV502 = marketNewsModelV502 && marketNewsModelV502.emptyReason || 'no-input-news';
+      marketNewsContainerV502.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:12px;line-height:1.6;">No verified news for the current filters<br><span style="font-family:var(--font-mono);font-size:10px;">' + escHtml(emptyReasonV502) + '</span></div>';
+    }
+    return;
+  }
 
   // v29.1: 블랙리스트 2차 필터 (번역 후 한국어 제목 + 설명에도 적용)
   let filtered = items.filter(i => {
@@ -7878,7 +8184,7 @@ function renderFeed(items) {
         <div class="news-item-headline">${tickerHtml}${displayTitle}</div>
         ${descHtml}
         ${summaryHtml}
-        <div class="news-item-meta">${item._tgChannel ? '<span style="background:var(--data-purple-border);color:#a78bfa;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">TG</span>' : ''}${unverifiedBadge}${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo} ${scoreBar} ${impactHtml}</div>
+        <div class="news-item-meta">${item._tgChannel ? '<span style="background:var(--data-purple-border);color:#a78bfa;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">TG</span>' : ''}${unverifiedBadge}${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo} ${scoreBar} ${impactHtml} <span style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);margin-left:4px;">T${escHtml(String(item.sourceTier || '?'))} · ${escHtml(String(item.verificationStatus || 'unchecked'))}${isFinite(item.ageHours) ? ' · ' + escHtml(String(item.ageHours)) + 'h' : ''}</span></div>
       </div>
       ${topicBadge}
     </div>`;
@@ -7896,12 +8202,11 @@ function renderFeed(items) {
 // v49.8: HOME 핵심 뉴스는 최근 72시간 안의 시장 충격도 높은 맥락만 기본 노출한다.
 // 지나간 이벤트는 예정/핵심 뉴스처럼 고정하지 않고, 실시간 뉴스 수집 성공 시 자동 교체한다.
 var HOME_WEEKLY_NEWS = [
-  // v49.99 (2026-05-31): 텔레그램 채널 통합 — 이번 주 핵심 뉴스 5건
-  { title: 'Dell FY1Q27 AI서버 $16.1B·매출 $43.8B(+88%YoY): AI 공급 제약 ①NAND ②DRAM ③CPU — GPU가 아닌 메모리가 희소. Susquehanna DELL $138→$700·MU $600→$1,750·SNDK $2,000→$3,250 목표가 대폭 상향.', source: 'Dell Earnings/Susquehanna 2026-05-29', date: '2026-05-29', sentiment: 'bull', topic: 'semi' },
-  { title: '이란-미국 MOU 불승인(트럼프) + 이란 기뢰 300kg 오만 해안 발견 + 미사일 보트 27 Razab 공개(700km 크루즈): 호르무즈 리스크 재부상. 동시에 JD 밴스 "합의 문구만 남은 상태" — 합의·군사 이중신호.', source: 'Reuters/NYT/IRGC 2026-05-30', date: '2026-05-30', sentiment: 'warn', topic: 'geo' },
-  { title: 'KB증권 SKH 목표가 300→380만원: 2Q 수요충족률 50%·메모리 마라톤 5km 지점. TrendForce 메모리TAM 2026E $889B→2027E $1.28T+. DRAM ASP Q2 +50~60%·NAND +75~100% QoQ (에이전틱AI 토큰 7배 증가 구조적 수요).', source: 'KB증권/TrendForce/Susquehanna 2026-05-29', date: '2026-05-29', sentiment: 'bull', topic: 'semi' },
-  { title: 'NVDA Computex GTC 타이페이 젠슨황 기조연설 6/1 낮 12시 이후 결과 확인 필요: Vera Rubin 실물 출하(CoreWeave NVL72 설치 확인)·Windows PC 진출(MS 서피스·DELL 협력)·에이전틱AI $1조 로드맵이 핵심 체크포인트. 린스에쿼티 $250 단기 근접.', source: 'Foxconn/Dell/Lynx Equity 2026-05-29', date: '2026-05-31', sentiment: 'bull', topic: 'semi' },
-  { title: 'KOSPI 8,185(-0.53%)·KOSDAQ -2.54%: 외국인 16연속 순매도·채권금리 10Y 4.27% 급등. BofA Hartnett "6월 추가 인플레 경고(저실업+고용 강세)". BOJ 우에다 G7 "금리 효과 불완전" → 엔/달러 방향 불투명.', source: 'KRX/BofA/BOJ G7 2026-05-28', date: '2026-05-31', sentiment: 'warn', topic: 'macro' },
+  // v50.4 (2026-06-03): official calendar + verified current-topic refresh
+  { title: 'Computex/GTC Taipei 2026은 AI PC와 물리 AI/인프라 사이클을 동시에 자극하는 주간 촉매입니다. NVIDIA RTX Spark·Windows AI PC, Intel AI 인프라, Foxconn Vera Rubin 지원 발표를 확인하되, 개별 매매 판단은 실시간 뉴스 surface의 verified/current 항목만 사용합니다.', source: 'NVIDIA/AP/Intel/Foxconn 2026-06-01~03', date: '2026-06-03', sentiment: 'bull', topic: 'semi' },
+  { title: 'Reuters 계열 보도에 따르면 SpaceX IPO는 6/11 가격 산정·6/12 Nasdaq 상장 가능성이 시장 화두입니다. 단, 이는 source-dependent IPO watch이며 확정 체결 데이터가 아니므로 유동성 흡수, 우주/위성 밸류에이션, TSLA/방산/우주 테마 심리만 감시합니다.', source: 'Reuters via Investing/Yahoo 2026-05-15~06-02', date: '2026-06-03', sentiment: 'warn', topic: 'ipo' },
+  { title: '6월 매크로 경로는 6/5 고용보고서 → 6/10 CPI → 6/16-17 FOMC → 6/25 PCE 순서로 재가격화됩니다. 현재 발표 완료값은 4월 CPI 3.8%, 4월 NFP +115K/실업 4.3%, 4월 Core PCE 3.3%이며 5월 값은 아직 발표 전입니다.', source: 'BLS/BEA/Federal Reserve calendar 2026-06-03', date: '2026-06-03', sentiment: 'warn', topic: 'macro' },
+  { title: 'AI 반도체 수요는 Computex 발표와 AVGO/CRWD 등 6월 초 실적 뉴스가 교차검증될 때만 현재 판단으로 승격합니다. 정적 큐레이션의 목표가·가이던스 수치는 reference-only이며, 홈 핵심 뉴스는 surface model 점수와 출처 검증으로 재선별됩니다.', source: 'AIO News Surface Contract v50.4', date: '2026-06-03', sentiment: 'neutral', topic: 'semi' },
 ];
 window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
 
@@ -7927,6 +8232,38 @@ window._aioGetCurrentHomeWeeklyNews = _aioGetCurrentHomeWeeklyNews;
 function renderHomeFeed(items) {
   const container = document.getElementById('home-news-highlights');
   if (!container) return;
+  if (window.AIO && typeof window.AIO.buildNewsSurfaceModel === 'function') {
+    var homeModelV502 = window.AIO.buildNewsSurfaceModel('home', items || [], {});
+    if (!homeModelV502.items.length) {
+      var lastFetchText = homeModelV502.lastFetch ? new Date(homeModelV502.lastFetch).toLocaleString('ko-KR') : 'unknown';
+      container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);line-height:1.55;padding:4px 0;">' +
+        '<strong style="color:var(--text-secondary);">현재 검증 뉴스 없음</strong><br>' +
+        '<span style="font-family:var(--font-mono);font-size:10px;">reason=' + escHtml(homeModelV502.emptyReason || 'none') + ' · lastFetch=' + escHtml(lastFetchText) + '</span><br>' +
+        '<span style="font-size:10px;">만료된 HOME_WEEKLY_NEWS는 reference-only로 보존되고, 매매 판단용 핵심 뉴스로 노출하지 않습니다.</span>' +
+        '</div>';
+      return;
+    }
+    container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">핵심 뉴스</div>' +
+      homeModelV502.items.map(function(item) {
+        var sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
+        var sentIcon = sent === 'bull' ? '<span class="sd sd-g"></span>' : sent === 'bear' ? '<span class="sd sd-r"></span>' : sent === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-w"></span>';
+        var timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
+        var displayTitle = escHtml(getDisplayTitle(item));
+        var hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','geo','bond','fx'];
+        var tickers = hMacroTopics.indexOf(item.topic) === -1 ? getDisplayTickers(item) : [];
+        var tickerStr = tickers.length > 0
+          ? tickers.slice(0,2).map(function(t) { var s = t.replace('$',''); return '<span data-action="_aioNewsTickerClick" data-arg="' + escHtml(s) + '" role="button" tabindex="0" style="font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);cursor:pointer;" title="' + escHtml(s) + ' 분석">' + escHtml(t.charAt(0) === '$' ? t : '$' + t) + '</span>'; }).join(' ') + ' '
+          : '';
+        return '<div class="aio-hover-news-item" data-open-url="' + escHtml(escUrl(item.link)) + '" style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;cursor:pointer;border-bottom:1px solid var(--surface-2);">' +
+          '<span style="flex-shrink:0;font-size:10px;line-height:1.6;">' + sentIcon + '</span>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">' + tickerStr + displayTitle + '</div>' +
+            '<div style="font-size:10px;color:var(--text-muted);margin-top:1px;font-family:var(--font-mono);">' + escHtml(item.inclusionReason || '') + ' · ' + escHtml(item.source || '') + ' · ' + escHtml(timeAgo) + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    return;
+  }
 
   // v40.4: 정적 주간 큐레이션 우선 표시
   var currentWeeklyNews = _aioGetCurrentHomeWeeklyNews();
@@ -8059,7 +8396,14 @@ function renderBriefingFeed(items) {
 
   // v42: 8AM KST 기준 24시간 윈도우
   var bw = _getBriefingWindowKST();
-  var cacheKey = bw.anchorDate.toISOString().slice(0, 10);
+  var briefingModelV502 = window.AIO && typeof window.AIO.buildNewsSurfaceModel === 'function'
+    ? window.AIO.buildNewsSurfaceModel('briefing', items || [], {
+        windowStart: bw.start,
+        windowEnd: bw.end,
+        anchorDate: bw.anchorDate.toISOString().slice(0, 10)
+      })
+    : null;
+  var cacheKey = briefingModelV502 ? briefingModelV502.cacheKey : bw.anchorDate.toISOString().slice(0, 10);
 
   // 이미 같은 앵커 날짜로 캐시가 있으면 재사용 (다음 8AM까지 고정)
   if (_briefingCacheKey === cacheKey && _briefingCachedHtml) {
@@ -8078,6 +8422,18 @@ function renderBriefingFeed(items) {
   // score 내림차순 → 상위 40건 선별
   filtered.sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
   filtered = filtered.slice(0, 40);
+  var aiSummaryItemsV502 = filtered;
+  var reviewItemsV502 = [];
+  if (briefingModelV502) {
+    filtered = briefingModelV502.items || [];
+    aiSummaryItemsV502 = briefingModelV502.aiItems || [];
+    reviewItemsV502 = briefingModelV502.reviewItems || [];
+    if (!filtered.length) {
+      var emptyReasonBriefingV502 = briefingModelV502.emptyReason || 'no-briefing-news';
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;line-height:1.6;">No verified briefing news in the 08:00 KST window<br><span style="font-family:var(--font-mono);font-size:10px;">' + escHtml(emptyReasonBriefingV502) + '</span></div>';
+      return;
+    }
+  }
 
   // 카테고리별 그룹핑
   var groups = {};
@@ -8088,6 +8444,8 @@ function renderBriefingFeed(items) {
   });
 
   // 뉴스 요약 텍스트 생성 (AI 프롬프트용 + 폴백 렌더링용)
+  var aiNewsIdSetV502 = {};
+  (aiSummaryItemsV502 || []).forEach(function(i) { aiNewsIdSetV502[i.newsId || i.link || i.title] = true; });
   var summaryLines = [];
   var bulletHtml = '';
   _TOPIC_GROUP_ORDER.forEach(function(tg) {
@@ -8099,7 +8457,7 @@ function renderBriefingFeed(items) {
     arr.slice(0, 5).forEach(function(item) {
       var title = (typeof getDisplayTitle === 'function' ? getDisplayTitle(item) : item.title) || '';
       var desc = (typeof getDisplayDesc === 'function' ? getDisplayDesc(item) : item.desc) || '';
-      summaryLines.push('- ' + title + (desc ? ' — ' + desc.substring(0, 100) : ''));
+      if (aiNewsIdSetV502[item.newsId || item.link || item.title]) summaryLines.push('- ' + title + (desc ? ' — ' + desc.substring(0, 100) : ''));
       sectionBullets += _renderBriefingBullet(item);
     });
     bulletHtml += _renderBriefingSection(tg.icon, tg.label, sectionBullets, arr.length);
@@ -8112,11 +8470,18 @@ function renderBriefingFeed(items) {
     var sectionBullets = '';
     arr.slice(0, 3).forEach(function(item) {
       var title = (typeof getDisplayTitle === 'function' ? getDisplayTitle(item) : item.title) || '';
-      summaryLines.push('- ' + title);
+      if (aiNewsIdSetV502[item.newsId || item.link || item.title]) summaryLines.push('- ' + title);
       sectionBullets += _renderBriefingBullet(item);
     });
     bulletHtml += _renderBriefingSection('', k, sectionBullets, arr.length);
   });
+  if (reviewItemsV502 && reviewItemsV502.length) {
+    var reviewBulletsV502 = '';
+    reviewItemsV502.slice(0, 8).forEach(function(item) {
+      reviewBulletsV502 += _renderBriefingBullet(item);
+    });
+    bulletHtml += _renderBriefingSection('', '확인 필요', reviewBulletsV502, reviewItemsV502.length);
+  }
 
   var totalCount = filtered.length;
   var countEl = document.getElementById('briefing-24h-count');
@@ -8133,14 +8498,14 @@ function renderBriefingFeed(items) {
 
   // AI 브리핑 생성 시도
   var apiKey = typeof getApiKey === 'function' ? getApiKey() : '';
-  if (apiKey && summaryLines.length > 2) {
+  if (apiKey && summaryLines.length > 2 && aiSummaryItemsV502 && aiSummaryItemsV502.length) {
     // 먼저 로딩 UI 표시
     container.innerHTML = '<div style="text-align:center;padding:24px;">' +
       '<div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;">AI 브리핑 생성 중...</div>' +
       '<div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;">' + totalCount + '건의 뉴스를 분석·해석하고 있습니다. 30초~1분 소요될 수 있습니다.</div>' +
       '<div style="width:40px;height:40px;border:3px solid var(--data-cyan-dim);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto;"></div>' +
       '</div>';
-    _generateAIBriefing(summaryLines.join('\n'), bw, bulletHtml, cacheKey, briefingHeader);
+    _generateAIBriefing(summaryLines.join('\n'), bw, bulletHtml, cacheKey, briefingHeader, briefingModelV502);
   } else {
     // API 키 없어도 분석 글 형태로 표시
     var noAiNote = apiKey ? '' : '<div style="padding:10px 12px;font-size:10px;color:var(--text-secondary);background:var(--data-purple-faint);border-radius:6px;margin-bottom:12px;line-height:1.5;border:1px dashed var(--data-purple-border);">' +
@@ -8154,12 +8519,14 @@ function renderBriefingFeed(items) {
 }
 
 // AI 브리핑 생성
-async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefingHeader) {
+async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefingHeader, briefingModel) {
   var container = document.getElementById('briefing-live-news-list');
   if (!container) return;
   var apiKey = getApiKey();
   var anchorStr = bw.anchorDate.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
   briefingHeader = briefingHeader || '';
+  var verifiedCountV502 = briefingModel && briefingModel.aiItems ? briefingModel.aiItems.length : 0;
+  var reviewCountV502 = briefingModel && briefingModel.reviewItems ? briefingModel.reviewItems.length : 0;
 
   // v49.99 연계점②: HOME_WEEKLY_NEWS 신선도 체크 — 만료 시 AI 프롬프트에 컨텍스트 공백 경고 주입
   // v49.98 on-enter refresh가 news 태스크를 강제 실행했어도 AI 프롬프트의 정적 큐레이션 컨텍스트
@@ -8172,22 +8539,25 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
         '정적 주간 컨텍스트 없음 — 주간 흐름 언급 시 "이번 주 확인된 뉴스에 따르면"으로 한정.]\n\n';
     }
   } catch(_we) {}
+  var _evidenceOnlyNoteV502 = '[v50.2 evidence-only briefing rule] The list below contains only verified/current items approved by AIO_NEWS_SURFACE_CONTRACTS.briefing. ' +
+    'Do not summarize stale, secondary-only, Telegram-only, or unverified items as current facts. Excluded review items=' + reviewCountV502 + ', verified items=' + verifiedCountV502 + '.\n\n';
 
   var prompt = '당신은 전문 금융 애널리스트입니다. 아래는 ' + anchorStr + ' 08:00 KST ~ 24시간 동안 수집된 주요 뉴스입니다.\n\n' +
     _weeklyCtxNote +
+    _evidenceOnlyNoteV502 +
     newsText + '\n\n' +
-    '【현재 매크로 맥락 — 5/31 기준 최신화 (v49.99)】\n' +
-    '• Fed/금리: 기준금리 3.50-3.75% 동결. 다음 FOMC 6/16-17(SEP 회의). 4월 CPI 3.8%(3년 고점)·Core PCE 3.3%(2023.10 이후 최고). BofA Hartnett "6월 추가 인플레 경고 — 저실업률·고용 강세 지속으로 연준 인하 기대 과소평가". 베이지북 6/3 발표.\n' +
-    '• 고용: 4월 NFP +115K(컨센 하회)·실업 4.3%·임금 +3.6%YoY. 소비자신뢰 93.1(하락세). 5월 NFP 6/5 발표 — 고용 강세면 금리 부담↑, 약화면 경기 우려↑.\n' +
-    '• BOJ 우에다(G7): "금리 효과가 경제·인플레에 아직 완전히 발현 안 됨" → 추가 인상 신중. BOJ 0.75%. 달러-원 24시간 거래 7/6 시행 예정.\n' +
-    '• 지정학(이중신호): 이란-미국 합의 최종단계(JD 밴스 "문구만 남음") vs 이란 기뢰 300kg·미사일 보트 공개·MOU 불승인. 호르무즈 리스크 지속. EU 러시아 원유 가격 상한 동결 검토.\n' +
-    '• 2% 물가목표 구조적 붕괴: 중물가 시대 지속. Forward Guidance 실패(2021-22) 반복 우려. 재무부-연준 힘겨루기: 2026 베센트 유동성 + 감세(OBBBA) = 정치적 유동성 인센티브.\n\n' +
-    '【시장 구조 (5/31 기준) — Citi/JPM 컨센서스】\n' +
+    '【현재 매크로 맥락 — 2026-06-03 KST 기준 최신화 (v50.4)】\n' +
+    '• 발표 완료값과 예정값을 섞지 마라. 현재 공식 발표 완료값은 4월 CPI 3.8%/Core CPI 2.8%(BLS 5/12), 4월 NFP +115K/실업률 4.3%(BLS 5/8), 4월 PCE 3.8%/Core PCE 3.3%(BEA 5/28)이다.\n' +
+    '• 다음 공식 이벤트는 6/5 May Employment Situation, 6/10 May CPI, 6/16-17 FOMC, 6/25 May PCE다. 5월 CPI·PCE·NFP 수치는 발표 전이면 절대 생성하지 말고 "발표 전/검증 데이터 없음"으로 쓴다.\n' +
+    '• Fed/금리: 기준금리 3.50-3.75% 동결, 다음 FOMC는 6/16-17 SEP 회의. 6/3 Beige Book은 지역 경기·물가 진단으로만 해석하고 정책 결론을 확정하지 않는다.\n' +
+    '• SpaceX IPO: Reuters 계열 보도는 6/11 가격 산정·6/12 Nasdaq 상장 가능성을 말하지만, source-dependent IPO watch다. 확정 공시처럼 쓰지 말고 유동성/우주·위성 테마/대형 IPO 수급 리스크로 분리한다.\n' +
+    '• Computex/GTC Taipei: NVIDIA RTX Spark/AI PC, Intel AI infrastructure, Foxconn Vera Rubin 지원 발표 등은 AI 하드웨어 밸류체인 촉매다. 단, 개별 종목 수치·가이던스는 verified/current 뉴스와 실시간 데이터가 있을 때만 현재 판단으로 승격한다.\n\n' +
+    '【시장 구조 — 최근 검증 스냅샷/컨센서스】\n' +
     '• 지수: SPX 7,563(신고가)·NASDAQ 26,917(신고가)·VIX 15.74(저변동성). KOSPI 8,185·KOSDAQ -2.54%(외국인 16연속 순매도). F&G 65(탐욕).\n' +
     '• 섹터: 반도체(메모리 ASP 폭등) > AI인프라(NVDA·AVGO) > 에너지(이란 리스크 헤지) > 방산(중동 긴장). 커뮤니케이션·필수소비재 UW.\n' +
     '• 연말 목표(Citi): S&P 500 7,700(+2%), 토픽스 4,200(+12%), MSCI EM 1,770(+16%). 테크 내 반도체 > 소프트웨어.\n' +
     '• 베어마켓 체크리스트: 글로벌 8/18 적신호(비싼 밸류에이션 주원인). 매그7+ PEG 기준 GFC 후 저점 = 퀄리티 매수 기회.\n' +
-    '• 포지셔닝: NVDA Computex(6/1) 전후 차익실현 우려 + AVGO 실적(6/3) = 주간 최대 변동성 구간. NFP(6/5) 전 레버리지 경량화 권장.\n\n' +
+    '• 포지셔닝: Computex/GTC 발표, SpaceX IPO 보도, 6/5 NFP, 6/10 CPI가 같은 2주 창에 몰려 있다. verified/current 증거 없이 방향성 단정이나 레버리지 권고를 쓰지 않는다.\n\n' +
     '【반도체/AI 인프라 — 공급 가시성 확대 + 캐파 타이트 2027까지 (v48.18)】\n' +
     '• AVGO-Meta MTIA 2029년 확장: 초기 1GW+, 학습/추론/네트워킹 통합, Hock Tan 메타이사회 퇴임 → 어드바이저. 커스텀 실리콘 지연 우려 불식. AVGO AI 매출 2027 $100B → $130B+ 상향 컨빅션. GOOG LTA 2031, Anthropic 3.5GW TPU 2027 누적.\n' +
     '• TSMC 선단 캐파 2027까지 타이트: 2026-2028 3년 Capex $190~200B(역대급, 이전 3년 대비 2배). 2027 가격 +4-5% like-for-like 인상 논의(2Q26 콘콜). N5 이하 CAGR 25%. C.C.Wei "차세대 LPU 고객과 긴밀 협력" = 삼성 Groq 수주 단기 경계.\n' +
@@ -8224,7 +8594,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '• ASIC용 HBM (구글 TPU/AVGO 등): 삼성전자 1강 > SKH+마이크론 2중 체제. MS→삼성 LTA $100억+ = ASIC HBM 파트너십 실증.\n' +
     '• JP모건 선호 매수 종목: ①SKH ②키옥시아(6600.T) ③MU ④윈본드(2344.TW) ⑤TEL(8035.T) ⑥SIMO.\n' +
     '• 중국 메모리 점유율 상승: DRAM 6%→8~11%, NAND 12%→16%(가치기준 제한적). TAM 자체가 커져 공존 가능하나 중장기 모니터링 필요.\n\n' +
-    '【지정학 (5/31 기준 — 복합 리스크)】\n' +
+    '【지정학 — 복합 리스크는 최신 뉴스 surface로 재검증】\n' +
     '• 이란 군사 동향: 이란 혁명수비대 신형 미사일 보트 "27 Razab" 공개(크루즈 미사일 700km 사거리, 호르무즈 작전 특화) + 오만 해안 이란제 Meham-3 기뢰 300kg 발견. 동시에 미-이란 합의 최종 단계 진입 — JD 밴스 "이란이 선의로 협상, 장애물은 문구뿐" · 스티븐 밀러 "이란이 호르무즈 재개방 포함 중대한 양보 수락". 트럼프 최종 서명 여부만 남음. 합의 vs 군사 동향 이중 신호 → 호르무즈 리스크 프리미엄 잔존.\n' +
     '• 트럼프-이란 MOU 불승인(5/30 NYT) — 협상 문구 마찰 지속. EU 러시아 원유 가격상한 일시 동결 검토(에너지 공급 우려).\n' +
     '• 이스라엘-레바논: 이스라엘 군 타이르 지역 공습 다수 사상자. 레바논 휴전 협상 교착.\n' +
@@ -8236,19 +8606,16 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '• KB증권(5/29): SKH 목표가 300→380만원. "2Q 수요충족률 50%=공급 극심 부족. 2028년까지 최소 2년 부족. 에이전틱 AI 토큰 사용 7배 증가 → 범용 DRAM 신규 공급은 공정전환만 가능". 베라 루빈에서 메모리 원가 블랙웰 대비 5배 확대.\n' +
     '• TrendForce TAM 대폭 상향: 2026E $551.6B→$889.3B, 2027E $842.7B→$1.28T+(+44%YoY). DRAM 2026E +303%YoY($619B), NAND 2026E +281%YoY($271B). 에이전틱 AI KV캐시·CPU배치비율 변화·SSD 역할 확대 = 구조적 수요 급증.\n' +
     '• MS→삼성 LTA 선지급 $100억+(JP모건 확인). 메모리 LTA 선지급 30% 관행화. 공급 희소성 구조 고착.\n\n' +
-    '【Computex/GTC 타이페이 (6/1~5)】\n' +
-    '• NVDA 젠슨 황 기조연설(6/1 한국시간 낮 12시 이후 결과 확인 필요, GTC 타이페이): ①에이전틱 AI ②ARM기반 Windows PC(MS 서피스·DELL 협력, 퀄컴과 유사 비x86 아키텍처 진입) ③Rubin 플랫폼 생산 확대 ④$1조 AI 기회 구체화가 핵심 체크포인트.\n' +
-    '• 린스에쿼티: 기조연설 긍정 촉매, 단기 $250 근접. 젠슨 황: 2026 매출 ~100% 성장, 2027년도 동등 규모.\n' +
-    '• 폭스콘 류양웨이: Vera Rubin 2H26 출하 낙관. CPO(실리콘 포토닉스) 수직계열화 강화.\n' +
-    '• 콴타 량츠전: AI 시장 "계단식 성장 2030년까지". 전력공급이 최대 병목(2~3년 선행 신청 필요).\n' +
-    '• MLCC 가격 급등: 중국 Guangdong XMAWEI MLCC 가격 급등으로 공식 가격인상 통보. 삼성전기(009150.KS) 수혜 신호.\n\n' +
-    '【주요 예정 이벤트 (v49.99 — 6월 1주차)】\n' +
-    '• 6/1(일): 한국 5월 수출입 + 美 5월 ISM 제조업 PMI + GTC 타이페이(~4일) + 젠슨황 기조연설(한국 낮 12시) + CRDO 실적(장후).\n' +
-    '• 6/2(월): 美 4월 JOLTS + 유로존/한국 5월 CPI + Computex 2026(~5일) + PANW/GTLB/ULTA 실적(장후).\n' +
-    '• 6/3(화): 한국 휴장 + 美 5월 ADP + 연준 베이지북 + AVGO/CRWD/C3.AI 실적(장후) — AVGO 실적이 AI반도체 섹터 핵심 촉매.\n' +
-    '• 6/4(수): 美 챌린저 해고건수 + 한국 5월 외환보유액 + CIEN/RBRK/LULU/DOCU/IOT 실적.\n' +
-    '• 6/5(목): 美 5월 고용보고서(NFP) — 금리 경로의 핵심 변수.\n' +
-    '• 달러-원 24시간 논스톱 거래: 7월 6일부터 주말 제외 24시간 거래 시행.\n\n' +
+    '【Computex/GTC 타이페이 (6/1~5) — 현재 화두】\n' +
+    '• NVIDIA GTC Taipei/Computex는 6/1~4, COMPUTEX 본행사는 6/2~5로 진행된다. AI PC/RTX Spark, agentic AI, Vera Rubin/AI infrastructure, robotics/physical AI, OEM ecosystem 발표를 verified/current 뉴스 기준으로만 인용한다.\n' +
+    '• Intel, Foxconn, 주요 OEM 발표는 NVIDIA 단독 모멘텀이 아니라 AI 서버·AI PC·전력/냉각·제조 파트너 체인으로 묶어 해석한다.\n\n' +
+    '【주요 예정 이벤트 (v50.4 — 공식 일정 우선)】\n' +
+    '• 6/3(수): 美 ADP 민간고용, Fed Beige Book, AVGO/CRWD/C3.AI 실적, SpaceX IPO 보도 follow-up watch.\n' +
+    '• 6/5(금): BLS May Employment Situation/NFP — 금리 경로와 경기 둔화 논쟁의 첫 확인점.\n' +
+    '• 6/10(수): BLS May CPI — 아직 발표 전. 발표 전에는 숫자를 만들지 않는다.\n' +
+    '• 6/16-17(화-수): FOMC + SEP — 점도표/인하 경로 재가격화.\n' +
+    '• 6/25(목): BEA May Personal Income and Outlays/PCE — Fed 선호 물가의 후속 확인점.\n' +
+    '• 7/6: 달러-원 24시간 논스톱 거래 시행 예정. 7/10: 한국은행 금통위.\n\n' +
     '위 뉴스와 매크로·반도체·스태그 맥락을 교차 분석하여 기관급 모닝 브리핑을 작성하세요.\n\n' +
     '=== 작성 원칙 ===\n' +
     '1. 뉴스를 "나열"하지 마라. 서사(narrative)로 엮어라. 마치 골드만삭스 CIO가 고객에게 보내는 데일리 노트처럼.\n' +

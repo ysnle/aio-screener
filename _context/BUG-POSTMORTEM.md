@@ -1,12 +1,30 @@
 ---
 verified_by: agent
-last_verified: 2026-06-02
+last_verified: 2026-06-03
 confidence: high
-latest_version: v50.1
-latest_P_number: P477
-total_entries: 477
-next_P_number: P478
+latest_version: v50.4
+latest_P_number: P480
+total_entries: 480
+next_P_number: P481
 ---
+
+## P480 - v50.4 - [R205] static market calendars must separate official releases from source-dependent topics
+
+- **Problem**: Static and hardcoded surfaces still mixed stale 4-5월 events, archived earnings calendars, future CPI/FOMC claims, and current market topics. This could make a refreshed UI look current while pinned events, AI briefing context, or options/KR macro copy still referenced old calendars or implied unpublished data.
+- **Fix**: Updated `AIO_MACRO_CALENDAR`, `DATA_SNAPSHOT` metadata, home static news, briefing current-event layer, risk pinned events, options volatility copy, KR macro schedule, and AI briefing context to the 2026-06-03 KST official calendar. Computex/GTC Taipei is a current-topic layer; SpaceX IPO is explicitly source-dependent watch; unpublished May CPI/NFP/PCE numbers are blocked from being generated.
+- **Prevention**: T759~T762 guard official June dates, snapshot current-topic fields, home topic queue, and active `vMAJOR.MINOR` version policy. Future hardcoded current-market copy must cite an official release date or be marked watch/reference-only.
+
+## P479 - v50.3 - [R204] user-facing market text must pass the text surface contract
+
+- **Problem**: The 21 route pages contained a mixture of user guidance, market analysis, educational text, developer/version markers, fixed-date briefing claims, and reference/archive material. Some visible text such as `[PRIMARY]`, `[SECONDARY]`, `R69 ACTION_RULES`, `PAGE_PURPOSE_REGISTRY`, and fixed FOMC/CPI/earnings/Computex dates could make stale or internal information look like current institutional guidance.
+- **Fix**: Added `AIO_TEXT_SURFACE_CONTRACTS`, `AIO.getTextSurfaceAudit()`, and `AIO.applyTextSurfaceHygiene()`. The audit classifies visible and tooltip text as current market claim, education explainer, operational status, developer note, risk disclaimer, or reference archive. It is wired into `AIO_AUDIT_REGISTRY` and `AIO.runEvidenceDeploymentGate()`. High-risk visible internal markers and fixed-date decision copy were removed or downgraded to reference/archive wording.
+- **Prevention**: T755~T758 guard text contracts, high-risk marker removal, briefing fixed-date claim removal, and deployment-gate inclusion. Future current-market claims need evidence/currentness markers, while developer notes belong in diagnostics/Evidence Console only.
+
+## P478 - v50.2 - [R203] news surfaces must share one evidence-style contract
+
+- **Problem**: Home core news, market briefing, and market-news all used `newsCache`, but each renderer applied its own direct filters, static fallback behavior, duplicate handling, and AI summary input policy. This allowed the UI to say news was refreshed while expired `HOME_WEEKLY_NEWS`, secondary-only TG items, or unverified/stale items could still influence a visible surface or briefing summary path.
+- **Fix**: Added `AIO_NEWS_SURFACE_CONTRACTS`, `AIO.buildNewsSurfaceModel()`, and `AIO.getNewsSurfaceAudit()`. Home now renders only model-selected top-3 actionable news and treats expired weekly static news as reference-only. Briefing uses the 08:00 KST 24h model and sends only verified/current items into AI summary text while placing secondary/unverified items in review. Market-news uses the shared model for 48h exploration and empty reasons.
+- **Prevention**: T749~T754 guard surface contracts, role-specific model output, expired static home behavior, briefing AI evidence filtering, market-news empty reasons, and deployment-gate inclusion.
 
 ## P477 - v50.1 - [R200] trading decision logic must be gated by current evidence
 
