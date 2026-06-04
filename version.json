@@ -1,5 +1,5 @@
 {
-  "version": "v50.6",
-  "built": "2026-06-04T15:00:00+09:00",
-  "note": "v50.6 - Breadth = 5/20/50-day only (200-day removed from breadth participation: signal static diagnostic, golden-cross card, DATA_SNAPSHOT.breadth200sma seed, alias, applyDataSnapshot mapping, score labels; 200-day kept only for trend i.e. price-vs-200MA/Weinstein). Beginner-friendly text overhaul across all 21 pages (Explore-agent ~130-item audit): removed user-visible developer/version markers (screener_pro, Citi sec64, version tags, function names), added Korean to English abbreviations (ATH/DXY/FOMC/IV/GEX/FCF/EV-EBITDA/RRG/Sharpe/VCP/NAAIM/PMI/PF...), glossed jargon (skew/contango/duration/Sahm rule/dot plot/short squeeze...), generalized trader name-drops, added watch-to-action and causal 'why', and rewrote the options intro with a beginner warning. Verified: 21-page navigation error-free, console error-free. T768 added; T324/T325 updated to 5/20/50-only guard."
+  "version": "v50.7",
+  "built": "2026-06-04T18:00:00+09:00",
+  "note": "v50.7 - Per-page 'current market analysis' text now live-syncs with data. Existing narrative generators (breadth consensus, themes cycle, signal scenario/regime, macro scenario, options strategy rec, briefing action, sentiment VIX-term) were extracted into named functions and registered in AIO_PAGE_NARRATIVE_RENDERERS. A new AIO.refreshActivePageNarratives() re-runs the visible page's analysis text on aio:liveQuotes (every quote tick) and aio:refresh:done — not just on page-enter — with an 8s throttle and active-page guard. Each analysis area shows a '🔄 자동 갱신 · HH:MM:SS' stamp so users see the text updating in lockstep with the data. T769 added."
 }

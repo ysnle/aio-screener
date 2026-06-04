@@ -6,7 +6,18 @@
 
 ---
 
-## v50.6 - Breadth 5/20/50 확정 + 초보자 친화 텍스트 개선 (진행 중) (2026-06-04)
+## v50.7 - 페이지별 "현재 시장 분석" 텍스트 라이브 동기화 (2026-06-04)
+
+**Changed files**: `js/aio-core.js`, `index.html`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`
+
+- **문제**: 분석 텍스트 생성기는 이미 존재하고 라이브 데이터를 읽지만 대부분 `aio:pageShown`(페이지 진입 시 1회)에만 연결 → 사용자가 페이지에 머무는 동안 시세·지표는 3분마다 갱신돼도 **분석 텍스트는 진입 후 고정**. 매 틱마다 도는 분석 렌더러는 `renderDynamicMarketNarratives()`의 fxbond 한 문장 + KR 온도 단 2건뿐.
+- **해결 (생성기 재작성 없이 트리거만 확장)**: 7개 페이지 분석 생성기(breadth 합의·themes 사이클·signal 시나리오/레짐·macro 시나리오·options 전략추천·briefing action·sentiment VIX 기간구조)를 named 함수(`_aioRenderBreadthConsensus`/`_aioRenderThemesCycle`/`_aioRenderOptionsRec`/`_aioRenderBriefingAction`/`_aioRenderSignalScenario`/`_aioRenderMacroScenario`)로 추출 + `AIO_PAGE_NARRATIVE_RENDERERS` 레지스트리 등록.
+- **신규 `AIO.refreshActivePageNarratives()`**: `aio:liveQuotes`(매 시세 틱) + `aio:refresh:done`(수동 새로고침) 시 **현재 보이는 페이지의 분석 텍스트만** 재생성. 숨은 페이지 스킵 + **8초 스로틀**로 thrashing 방지. 기존 pageShown 동작은 보존(레지스트리 호출로 단순화).
+- **갱신 가시화**: breadth/themes/options/briefing 분석 영역에 **"🔄 자동 갱신 · HH:MM:SS"** 표식(`data-narrative-stamp`) — 사용자가 텍스트가 데이터와 함께 도는 것을 체감. (signal/macro는 자체 `scenario-outlook-ts`/`macro-scenario-updated` 타임스탬프 보유.)
+- **검증**: preview에서 페이지 머문 채 `aio:liveQuotes` dispatch → 분석 텍스트 재생성 + 타임스탬프 갱신(진입 없이) 확인. breadth(live 약세 주입→"약세 우위 -0.10"), options(VIX 31.5→"포지션 15% + Put 헤지"), themes(사이클 재계산) 실측. 8초 스로틀·12페이지 네비게이션 에러 0·콘솔 에러 0. T769 회귀.
+- **Cache rotation**: title/badge/APP_VERSION/SW_VERSION/version.json/캐시버스터 → v50.7.
+
+## v50.6 - Breadth 5/20/50 확정 + 초보자 친화 텍스트 개선 (2026-06-04)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`
 

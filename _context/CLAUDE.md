@@ -2,7 +2,10 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.6
+- **현재 버전**: v50.7
+
+## v50.7 note
+- **페이지별 "현재 시장 분석" 텍스트 라이브 동기화**: 분석 생성기는 이미 라이브 데이터를 읽었으나 `aio:pageShown`(진입 1회)에만 연결돼 페이지 체류 중 데이터 갱신에 텍스트가 안 따라옴. 7개 페이지 생성기(breadth 합의/themes 사이클/signal 시나리오·레짐/macro 시나리오/options 전략/briefing action/sentiment VIX)를 named 함수로 추출 + `AIO_PAGE_NARRATIVE_RENDERERS` 레지스트리. **`AIO.refreshActivePageNarratives()`**가 `aio:liveQuotes`+`aio:refresh:done` 시 보이는 페이지 분석만 재생성(숨은 페이지 스킵 + 8초 스로틀). `data-narrative-stamp`로 "🔄 자동 갱신 · HH:MM:SS" 표식. 생성기 재작성 없이 트리거만 확장 = 저위험. T769.
 
 ## v50.6 note
 - **Breadth = 5/20/50일선만** (Part 1 완료): 200일선을 breadth participation에서 표시+로직 전면 제거(signal 정적진단·골드크로스 카드·breadth200sma 시드·alias·매핑·점수 라벨). 200일선은 추세 판별(가격 vs 200MA, Weinstein)에만 유지. **주의: `window._breadth200`은 레거시 변수명이며 실제 20일선 breadth(bpSPX20)** — rename 위험으로 유지하되 의미는 20일선. data source: TradingView 스크랩불가/Investing.com 취약 → 주간 WebSearch 수동. T768 가드.

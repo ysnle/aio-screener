@@ -1864,127 +1864,128 @@ if (typeof document !== 'undefined') {
     if (e.detail === 'sentiment') setTimeout(window._aioRenderVixTermRegime, 300);
   });
 
-  // v49.29 E6 적용: options 페이지 진입 시 ACTION_RULES 기반 옵션 전략 추천
+  // v49.29 E6 적용: options 페이지 ACTION_RULES 기반 옵션 전략 추천
+  // v50.7: named 함수로 추출 — pageShown + aio:liveQuotes(보이는 페이지) 양쪽에서 호출.
+  window._aioRenderOptionsRec = function() {
+    try {
+      if (!window.AIO_ACTION_RULES) return;
+      var ld = window._liveData || {};
+      var vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
+      var fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
+      var pos = window.AIO_ACTION_RULES.positionSizing.getRule(vixVal);
+      var sent = window.AIO_ACTION_RULES.sentimentAction.getRule(fgVal);
+      var posEl = document.getElementById('options-rec-position');
+      var sentEl = document.getElementById('options-rec-sentiment');
+      var stratEl = document.getElementById('options-rec-strategy');
+      if (posEl && pos) posEl.textContent = '💼 VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ' → 포지션 ' + pos.sizePct + '%';
+      if (sentEl && sent) sentEl.textContent = '🧠 F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ' → ' + sent.action;
+      if (stratEl) {
+        var strategy;
+        if (!isNaN(vixVal)) {
+          if (vixVal >= 30)      strategy = '🛡 권장 전략: Put 헤지 + Long Volatility (IV 높음 → IV crush 위험. CSP 매도는 회복 후)';
+          else if (vixVal >= 20) strategy = '⚠️ 권장 전략: Covered Call (IV 보통+ → premium 수익). Long Vol 신중.';
+          else if (vixVal >= 15) strategy = '✓ 권장 전략: Bull Call Spread / Covered Call (IV 정상 Risk-On)';
+          else                   strategy = '🔥 권장 전략: Long Volatility (VIX <15 → IV 저점 매수 기회). Naked Call/Put 매도 자제.';
+        } else {
+          strategy = '환경 데이터 부족 — VIX 로딩 후 자동 갱신';
+        }
+        stratEl.textContent = strategy;
+      }
+    } catch(_e) {}
+  };
   _aioPageBus.register('core-options-rec', 'aio:pageShown', function(e){
     if (e.detail !== 'options') return;
-    setTimeout(function() {
-      try {
-        if (!window.AIO_ACTION_RULES) return;
-        var ld = window._liveData || {};
-        var vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-        var fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
-        var pos = window.AIO_ACTION_RULES.positionSizing.getRule(vixVal);
-        var sent = window.AIO_ACTION_RULES.sentimentAction.getRule(fgVal);
-        var posEl = document.getElementById('options-rec-position');
-        var sentEl = document.getElementById('options-rec-sentiment');
-        var stratEl = document.getElementById('options-rec-strategy');
-        if (posEl && pos) posEl.textContent = '💼 VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ' → 포지션 ' + pos.sizePct + '%';
-        if (sentEl && sent) sentEl.textContent = '🧠 F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ' → ' + sent.action;
-        if (stratEl) {
-          var strategy;
-          if (!isNaN(vixVal)) {
-            if (vixVal >= 30)      strategy = '🛡 권장 전략: Put 헤지 + Long Volatility (IV 높음 → IV crush 위험. CSP 매도는 회복 후)';
-            else if (vixVal >= 20) strategy = '⚠️ 권장 전략: Covered Call (IV 보통+ → premium 수익). Long Vol 신중.';
-            else if (vixVal >= 15) strategy = '✓ 권장 전략: Bull Call Spread / Covered Call (IV 정상 Risk-On)';
-            else                   strategy = '🔥 권장 전략: Long Volatility (VIX <15 → IV 저점 매수 기회). Naked Call/Put 매도 자제.';
-          } else {
-            strategy = '환경 데이터 부족 — VIX 로딩 후 자동 갱신';
-          }
-          stratEl.textContent = strategy;
-        }
-      } catch(_e) {}
-    }, 200);
+    setTimeout(window._aioRenderOptionsRec, 200);
   });
 
-  // v49.29 E2 적용: briefing 페이지 진입 시 ACTION_RULES 결과 표시
+  // v49.29 E2 적용: briefing 페이지 ACTION_RULES 결과 표시 (v50.7: named 함수 추출)
+  window._aioRenderBriefingAction = function() {
+    try {
+      if (!window.AIO_ACTION_RULES || !window.AIO_ACTION_RULES.getActionPlan) return;
+      var ld = window._liveData || {};
+      var vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
+      var fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
+      var plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal });
+      var posEl = document.getElementById('briefing-action-position');
+      var sentEl = document.getElementById('briefing-action-sentiment');
+      if (posEl && plan.position) posEl.textContent = '💼 ' + plan.position.sizePct + '% 포지션 — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
+      if (sentEl && plan.sentiment) sentEl.textContent = '🧠 ' + plan.sentiment.action + ' — ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
+      try { if (typeof window._aioStaticContentLifecycleHook === 'function') window._aioStaticContentLifecycleHook(); } catch(_je) {}
+    } catch(_e) {}
+  };
   _aioPageBus.register('core-briefing-action', 'aio:pageShown', function(e){
     if (e.detail !== 'briefing') return;
-    setTimeout(function() {
-      try {
-        if (!window.AIO_ACTION_RULES || !window.AIO_ACTION_RULES.getActionPlan) return;
-        var ld = window._liveData || {};
-        var vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-        var fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
-        var plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal });
-        var posEl = document.getElementById('briefing-action-position');
-        var sentEl = document.getElementById('briefing-action-sentiment');
-        if (posEl && plan.position) posEl.textContent = '💼 ' + plan.position.sizePct + '% 포지션 — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
-        if (sentEl && plan.sentiment) sentEl.textContent = '🧠 ' + plan.sentiment.action + ' — ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
-
-        // v49.48 P316/R75 보강: jensen-hardcoded hook → `_aioStaticContentLifecycleHook()` 일반화 위임.
-        // 모든 [data-lifecycle-id] 마커 element 자동 갱신 (briefing-week-may-4-10 / kr-export-2026-02 등).
-        try { if (typeof window._aioStaticContentLifecycleHook === 'function') window._aioStaticContentLifecycleHook(); } catch(_je) {}
-      } catch(_e) {}
-    }, 200);
+    setTimeout(window._aioRenderBriefingAction, 200);
   });
 
-  // v49.29 L2/L3 적용: breadth 페이지 진입 시 diagnoseBreadthConsensus 결과 표시
+  // v49.29 L2/L3 적용: breadth diagnoseBreadthConsensus 결과 표시 (v50.7: named 함수 추출 — 실시간 5/20/50 SMA 반영)
+  window._aioRenderBreadthConsensus = function() {
+    try {
+      if (!window.AIO || !window.AIO.diagnoseBreadthConsensus) return;
+      // 실시간 breadth(window._breadth5/_breadth200=20일) 우선 + DATA_SNAPSHOT 폴백
+      var S = window.DATA_SNAPSHOT || {};
+      var live5 = (typeof window._breadth5 === 'number') ? window._breadth5 : null;
+      var live20 = (typeof window._breadth200 === 'number') ? window._breadth200 : null; // 레거시명, 실제 20일선
+      var consensus = window.AIO.diagnoseBreadthConsensus({
+        sma5: live5 != null ? live5 : (S.breadth5sma || 68),
+        sma20: live20 != null ? live20 : (S.breadth20sma || 75),
+        sma50: S.breadth50sma || 46,
+        mcclellan: 'bearish',
+        weinstein: 'bearish',
+        goldenCross: 'bullish'
+      });
+      var verdictEl = document.getElementById('breadth-consensus-verdict');
+      var conflictEl = document.getElementById('breadth-consensus-conflict');
+      var detailsEl = document.getElementById('breadth-consensus-details');
+      if (verdictEl) {
+        verdictEl.textContent = consensus.verdict + ' (consensus ' + (consensus.consensus != null ? consensus.consensus.toFixed(2) : '—') + ')';
+        if (consensus.consensus > 0.1) verdictEl.style.color = 'var(--data-green)';
+        else if (consensus.consensus < -0.1) verdictEl.style.color = 'var(--data-red)';
+        else verdictEl.style.color = 'var(--data-amber)';
+      }
+      if (conflictEl) {
+        if (consensus.conflict) {
+          conflictEl.textContent = '⚠️ 모순 신호: ' + consensus.conflict.note;
+          conflictEl.style.color = 'var(--data-red)';
+        } else {
+          conflictEl.textContent = '✓ 모든 신호가 같은 방향';
+          conflictEl.style.color = 'var(--data-green)';
+        }
+      }
+      if (detailsEl && Array.isArray(consensus.details)) {
+        detailsEl.textContent = '입력: ' + consensus.details.map(function(d) {
+          return d.key + '=' + (d.value != null ? d.value : d.signal);
+        }).join(' · ');
+      }
+    } catch(_e) { /* breadth 페이지 합의 실패 — 정적 진단으로 폴백 */ }
+  };
   _aioPageBus.register('core-breadth-consensus', 'aio:pageShown', function(e){
     if (e.detail !== 'breadth') return;
-    setTimeout(function() {
-      try {
-        if (!window.AIO || !window.AIO.diagnoseBreadthConsensus) return;
-        // 정적 폴백 값 + 실시간 (있으면 우선)
-        var S = window.DATA_SNAPSHOT || {};
-        var consensus = window.AIO.diagnoseBreadthConsensus({
-          sma5: S.breadth5sma || 68,
-          sma20: S.breadth20sma || 75,
-          sma50: S.breadth50sma || 46,
-          mcclellan: 'bearish',   // 정적 입력 — 실제 McClellan API 연동 시 동적
-          weinstein: 'bearish',   // Stage 3 = bearish 신호
-          goldenCross: 'bullish'  // Golden Cross 유지 시
-        });
-        var verdictEl = document.getElementById('breadth-consensus-verdict');
-        var conflictEl = document.getElementById('breadth-consensus-conflict');
-        var detailsEl = document.getElementById('breadth-consensus-details');
-        if (verdictEl) {
-          verdictEl.textContent = consensus.verdict + ' (consensus ' + (consensus.consensus != null ? consensus.consensus.toFixed(2) : '—') + ')';
-          // 색상 적용
-          if (consensus.consensus > 0.1) verdictEl.style.color = 'var(--data-green)';
-          else if (consensus.consensus < -0.1) verdictEl.style.color = 'var(--data-red)';
-          else verdictEl.style.color = 'var(--data-amber)';
-        }
-        if (conflictEl) {
-          if (consensus.conflict) {
-            conflictEl.textContent = '⚠️ 모순 신호: ' + consensus.conflict.note;
-            conflictEl.style.color = 'var(--data-red)';
-          } else {
-            conflictEl.textContent = '✓ 모든 신호가 같은 방향';
-            conflictEl.style.color = 'var(--data-green)';
-          }
-        }
-        if (detailsEl && Array.isArray(consensus.details)) {
-          detailsEl.textContent = '입력: ' + consensus.details.map(function(d) {
-            return d.key + '=' + (d.value != null ? d.value : d.signal);
-          }).join(' · ');
-        }
-      } catch(_e) { /* breadth 페이지 합의 실패 — 정적 진단으로 폴백 */ }
-    }, 200);
+    setTimeout(window._aioRenderBreadthConsensus, 200);
   });
 
-  // v49.28 I7 적용: themes 페이지 진입 시 getCycleFromMacro 결과 표시
+  // v49.28 I7 적용: themes getCycleFromMacro 결과 표시 (v50.7: named 함수 추출 — VIX/breadth/금리 라이브 반영)
+  window._aioRenderThemesCycle = function() {
+    try {
+      if (!window.AIO || !window.AIO.getCycleFromMacro) return;
+      var cycle = window.AIO.getCycleFromMacro({});
+      var phaseEl = document.getElementById('cycle-dynamic-phase');
+      var inputsEl = document.getElementById('cycle-dynamic-inputs');
+      var rationaleEl = document.getElementById('cycle-dynamic-rationale');
+      if (phaseEl) phaseEl.textContent = cycle.phase;
+      if (inputsEl) inputsEl.textContent = 'VIX ' + (isNaN(cycle.inputs.vix) ? '—' : cycle.inputs.vix.toFixed(1)) + ' · Breadth50 ' + (isNaN(cycle.inputs.breadth50) ? '—' : cycle.inputs.breadth50 + '%') + ' · 2s10s ' + (cycle.inputs.yield2s10s || 0).toFixed(2) + ' · SPX ' + cycle.inputs.spxTrend;
+      if (rationaleEl) rationaleEl.textContent = '근거: ' + cycle.rationale.join(' · ');
+    } catch(_e) { /* themes 페이지 진입 동적 사이클 실패 — 정적 진단으로 폴백 */ }
+  };
   _aioPageBus.register('core-themes-cycle-dynamic', 'aio:pageShown', function(e){
     if (e.detail !== 'themes') return;
-    setTimeout(function() {
-      try {
-        if (!window.AIO || !window.AIO.getCycleFromMacro) return;
-        var cycle = window.AIO.getCycleFromMacro({});
-        var phaseEl = document.getElementById('cycle-dynamic-phase');
-        var inputsEl = document.getElementById('cycle-dynamic-inputs');
-        var rationaleEl = document.getElementById('cycle-dynamic-rationale');
-        if (phaseEl) phaseEl.textContent = cycle.phase;
-        if (inputsEl) inputsEl.textContent = 'VIX ' + (isNaN(cycle.inputs.vix) ? '—' : cycle.inputs.vix.toFixed(1)) + ' · Breadth50 ' + (isNaN(cycle.inputs.breadth50) ? '—' : cycle.inputs.breadth50 + '%') + ' · 2s10s ' + (cycle.inputs.yield2s10s || 0).toFixed(2) + ' · SPX ' + cycle.inputs.spxTrend;
-        if (rationaleEl) rationaleEl.textContent = '근거: ' + cycle.rationale.join(' · ');
-      } catch(_e) { /* themes 페이지 진입 동적 사이클 실패 — 정적 진단으로 폴백 */ }
-    }, 200);
+    setTimeout(window._aioRenderThemesCycle, 200);
   });
 
   // v49.41 P295/R73 보강: signal 페이지 진입 시 SCENARIO_REGISTRY.signalShortTerm 동기 갱신
   // index.html L5195~5224의 정적 인라인 확률(30~35%/40~45%/15~20%)을 REGISTRY 값으로 갱신 +
   // L5199 #scenario-outlook-ts에 lastUpdated 동기 표시 (정적 "분석 대기 중" 차단).
-  _aioPageBus.register('core-signal-scenario', 'aio:pageShown', function(e){
-    if (e.detail !== 'signal') return;
-    setTimeout(function() {
+  window._aioRenderSignalScenario = function() {
       try {
         var reg = window.AIO_SCENARIO_REGISTRY;
         if (!reg || !reg.signalShortTerm) return;
@@ -2038,13 +2039,14 @@ if (typeof document !== 'undefined') {
           }
         } catch(_e2) {}
       } catch(_e) { /* signal 시나리오 갱신 실패 — 정적 폴백 */ }
-    }, 200);
+  };
+  _aioPageBus.register('core-signal-scenario', 'aio:pageShown', function(e){
+    if (e.detail !== 'signal') return;
+    setTimeout(window._aioRenderSignalScenario, 200);
   });
 
-  // v49.28 L6 적용: macro 페이지 진입 시 SCENARIO_REGISTRY 정보 표시
-  _aioPageBus.register('core-macro-scenario', 'aio:pageShown', function(e){
-    if (e.detail !== 'macro') return;
-    setTimeout(function() {
+  // v49.28 L6 적용: macro SCENARIO_REGISTRY 정보 표시 (v50.7: named 함수 추출)
+  window._aioRenderMacroScenario = function() {
       try {
         var reg = window.AIO_SCENARIO_REGISTRY;
         if (!reg) return;
@@ -2065,8 +2067,68 @@ if (typeof document !== 'undefined') {
         var sumCheck = reg.validateSum();
         if (sumEl) sumEl.textContent = sumCheck.sum.toFixed(2) + (sumCheck.valid ? ' ✓' : ' ⚠️');
       } catch(_e) {}
-    }, 200);
+  };
+  _aioPageBus.register('core-macro-scenario', 'aio:pageShown', function(e){
+    if (e.detail !== 'macro') return;
+    setTimeout(window._aioRenderMacroScenario, 200);
   });
+
+  // ════════════════════════════════════════════════════════════════════
+  // v50.7: 페이지별 "현재 시장 분석" 텍스트 라이브 동기화
+  // 위 named 렌더러들을 페이지별 레지스트리로 묶어, 데이터(시세/지표) 갱신(aio:liveQuotes /
+  // aio:refresh:done) 시 *현재 보이는 페이지*의 분석 텍스트도 함께 재생성한다. (진입 시 1회 한계 해소)
+  // 생성기 재작성 없음 — 트리거만 확장. 숨은 페이지 스킵 + 8초 스로틀로 thrashing 방지.
+  // ════════════════════════════════════════════════════════════════════
+  window.AIO_PAGE_NARRATIVE_RENDERERS = {
+    signal:    function(){ window._aioRenderSignalRegime && window._aioRenderSignalRegime(); window._aioRenderSignalScenario && window._aioRenderSignalScenario(); },
+    breadth:   function(){ window._aioRenderBreadthConsensus && window._aioRenderBreadthConsensus(); },
+    sentiment: function(){ window._aioRenderVixTermRegime && window._aioRenderVixTermRegime(); },
+    options:   function(){ window._aioRenderOptionsRec && window._aioRenderOptionsRec(); },
+    briefing:  function(){ window._aioRenderBriefingAction && window._aioRenderBriefingAction(); },
+    themes:    function(){ window._aioRenderThemesCycle && window._aioRenderThemesCycle(); },
+    macro:     function(){ window._aioRenderMacroScenario && window._aioRenderMacroScenario(); }
+  };
+  var _aioNarrThrottle = {};
+  window.AIO.refreshActivePageNarratives = function(reason) {
+    try {
+      var active = document.querySelector('.page.active');
+      if (!active) return null;
+      var pid = (active.id || '').replace(/^page-/, '');
+      var fn = window.AIO_PAGE_NARRATIVE_RENDERERS[pid];
+      if (typeof fn !== 'function') return null;
+      var now = Date.now();
+      if (_aioNarrThrottle[pid] && (now - _aioNarrThrottle[pid]) < 8000) return null; // 8초 스로틀
+      _aioNarrThrottle[pid] = now;
+      fn();
+      if (typeof window._aioStampNarrativeUpdate === 'function') window._aioStampNarrativeUpdate(pid, now);
+      return { page: pid, reason: reason || 'live', ts: now };
+    } catch(e) {
+      if (window._aioLog) window._aioLog('warn', 'narrative', 'refreshActivePageNarratives: ' + (e && e.message || e));
+      return null;
+    }
+  };
+  // 분석 영역 옆 "🔄 자동 갱신 · HH:MM:SS" 표식 갱신 (사용자가 라이브 동기화를 체감)
+  window._aioStampNarrativeUpdate = function(pid, ts) {
+    try {
+      var d = new Date(ts || Date.now());
+      var hh = String(d.getHours()).padStart(2, '0');
+      var mm = String(d.getMinutes()).padStart(2, '0');
+      var ss = String(d.getSeconds()).padStart(2, '0');
+      var txt = '🔄 자동 갱신 · ' + hh + ':' + mm + ':' + ss;
+      document.querySelectorAll('[data-narrative-stamp="' + pid + '"]').forEach(function(el) {
+        el.textContent = txt;
+      });
+    } catch(_) {}
+  };
+  // 라이브 데이터/수동 새로고침 시 현재 페이지 분석 재생성
+  _aioPageBus.register('core-active-narratives-live', 'aio:liveQuotes', function(){
+    window.AIO.refreshActivePageNarratives('liveQuotes');
+  });
+  if (typeof window !== 'undefined') {
+    window.addEventListener('aio:refresh:done', function(){
+      try { window.AIO.refreshActivePageNarratives('refresh-done'); } catch(_) {}
+    });
+  }
 }
 
 
@@ -14481,7 +14543,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.6';
+const APP_VERSION = 'v50.7';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

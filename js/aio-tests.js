@@ -5267,6 +5267,37 @@
       t768detail = 'seed200undef=' + (ds768.breadth200sma === undefined) + ' noDiag200=' + noDiag200 + ' cards5/20/50=' + (!!b5) + '/' + (!!b20) + '/' + (!!b50) + ' no200card=' + (!b200);
     } catch(e) { t768detail = 'err: ' + (e && e.message); }
     _assert('T768 v506_breadth_5_20_50_only: breadth200sma seed/card/diagnostic 제거 (200은 추세 전용)', t768ok, t768detail);
+
+    // ── v50.7: 페이지별 "현재 시장 분석" 텍스트 라이브 동기화 ──
+    // T769: 분석 렌더러 레지스트리 + named 함수 + refreshActivePageNarratives(라이브 재생성) + 스로틀
+    var t769ok = false, t769detail = '';
+    try {
+      var reg769 = window.AIO_PAGE_NARRATIVE_RENDERERS;
+      var regPages = reg769 ? Object.keys(reg769) : [];
+      var hasCore = ['signal','breadth','options','briefing','themes','macro','sentiment'].every(function(p){ return typeof reg769[p] === 'function'; });
+      var namedOk = typeof window._aioRenderBreadthConsensus === 'function'
+        && typeof window._aioRenderOptionsRec === 'function'
+        && typeof window._aioRenderThemesCycle === 'function'
+        && typeof window._aioRenderBriefingAction === 'function';
+      var hasRefresh = typeof window.AIO.refreshActivePageNarratives === 'function';
+      var hasStamp = typeof window._aioStampNarrativeUpdate === 'function';
+      // 동작: breadth 페이지에서 live breadth 주입 후 재생성 → consensus verdict 갱신 + 스로틀
+      var liveRerenderOk = false, throttleOk = false;
+      if (hasRefresh && typeof showPage === 'function') {
+        showPage('breadth');
+        var vEl = document.getElementById('breadth-consensus-verdict');
+        var beforeV = vEl ? vEl.textContent : '';
+        window._breadth5 = 30; window._breadth200 = 28; // 레거시명=20일선, 약세 주입
+        var r1 = window.AIO.refreshActivePageNarratives('test');
+        var afterV = vEl ? vEl.textContent : '';
+        liveRerenderOk = !!(r1 && r1.page === 'breadth') && beforeV !== afterV;
+        var r2 = window.AIO.refreshActivePageNarratives('test2'); // 즉시 2회차 → 스로틀
+        throttleOk = (r2 === null);
+      }
+      t769ok = (regPages.length >= 7) && hasCore && namedOk && hasRefresh && hasStamp && liveRerenderOk && throttleOk;
+      t769detail = 'pages=' + regPages.length + ' core=' + hasCore + ' named=' + namedOk + ' refresh=' + hasRefresh + ' stamp=' + hasStamp + ' rerender=' + liveRerenderOk + ' throttle=' + throttleOk;
+    } catch(e) { t769detail = 'err: ' + (e && e.message); }
+    _assert('T769 v507_live_narrative_sync: per-page 분석 렌더러가 aio:liveQuotes 시 보이는 페이지 텍스트 재생성 + 스로틀', t769ok, t769detail);
   }
 
   window.AIO = window.AIO || {};
