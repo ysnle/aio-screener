@@ -1,11 +1,11 @@
 ---
 verified_by: agent
-last_verified: 2026-06-03
+last_verified: 2026-06-04
 confidence: high
-latest_version: v50.4
-latest_P_number: P480
-total_entries: 480
-next_P_number: P481
+latest_version: v50.6
+latest_P_number: P481
+total_entries: 481
+next_P_number: P482
 ---
 
 ## P480 - v50.4 - [R205] static market calendars must separate official releases from source-dependent topics
@@ -4271,3 +4271,11 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **수정**: `AIO_PAGE_REFRESH_MAP`(5페이지→의존 태스크) + `_aioRefreshPageData(pageId)` — `aio:pageShown` 구독해 진입 시 의존 태스크가 ½interval 초과 stale이면 `_runScheduledTask` 강제 호출. fresh면 스킵 + `_inFlight` 가드 + per-task 30초 디바운스 + `_schedulerPaused` 존중으로 호출 폭주/중복 차단.
 - **violated_rule**: R187 신규 (매매 핵심 페이지 on-enter stale 갱신 의무). R21(데이터 경과일) 연장.
 - **prevention**: 매매 직결 페이지는 진입 시 의존 데이터 신선도 확인 후 stale이면 즉시 갱신. 신규 핵심 페이지 추가 시 AIO_PAGE_REFRESH_MAP 등록. `AIO.getPageRefreshCoverageAudit()`로 DOM/매핑/refresh hook 완전성을 추가 검증. T690~T691.
+
+## P481 · v50.6 · Breadth participation에 200일선 재유입 (5/20/50만 보는데 200 표시+로직 잔존)
+
+- **증상**: 사용자 "Breadth는 5일·20일·50일선 3개로 보는데 왜 자꾸 200일선이 들어가는지? 저번에 수정했을 텐데". breadth 메인 페이지는 이미 5/20/50 3카드였으나, signal 정적진단 텍스트("… · 200SMA 55%"), breadth 페이지 "골드크로스 비율(50>200 종목%)" 카드, 점수 라벨("200SMA Above"), DATA_SNAPSHOT.breadth200sma 시드에 200일선이 잔존.
+- **원인**: ① breadth participation(종목의 200일선 위 비율)과 trend(지수 가격 vs 200MA)의 구분 부재로, 과거 부분 제거가 표시 일부만 손대고 시드/라벨/별도 카드를 남김. ② `window._breadth200`이 레거시 misnomer(실제 20일선 breadth=bpSPX20)인데 점수 라벨은 "200SMA Above"로 잘못 표기 → 200일 데이터처럼 보임.
+- **수정**: 시장 폭(breadth) = 5/20/50일선만으로 확정. signal 정적진단 200 제거, 골드크로스 카드 제거, `breadth200sma` 시드+alias+applyDataSnapshot 매핑 제거, 점수 라벨 "200SMA Above/보조" → "시장 폭/20일선"으로 정직화, `_fallback.breadth200`은 20일값(57)으로 정합. 200일선은 추세 판별(Weinstein Stage, 가격 vs 200MA)에만 유지. T324/T325 현행화 + T768 신규(200 재유입 방지 가드).
+- **violated_rule**: R57(정적 stale) 연장 + breadth 정의 일관성. P481 신규.
+- **prevention**: "시장 폭(breadth participation)=5/20/50일선" 단일 정의 확정. 200일선은 추세 전용. T768이 breadth200sma 시드/카드/진단 부재를 회귀 검증. breadth 관련 신규 코드는 5/20/50만 사용.

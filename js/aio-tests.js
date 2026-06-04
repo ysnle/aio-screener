@@ -1389,19 +1389,19 @@
     _assert('T323 signal_breadth_thrust_english: "Breadth Thrust" 영문 병기',
       /Breadth Thrust/.test(sigText), 'breadth thrust check');
 
-    // T324: DATA_SNAPSHOT.breadth5sma 시드 등록
-    _assert('T324 ds_breadth5sma_seed: DATA_SNAPSHOT.breadth5sma === 68',
-      window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth5sma === 68,
+    // T324: DATA_SNAPSHOT.breadth5sma 시드 등록 (v50.6: 61)
+    _assert('T324 ds_breadth5sma_seed: DATA_SNAPSHOT.breadth5sma === 61',
+      window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth5sma === 61,
       'breadth5sma=' + (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.breadth5sma : '?'));
 
-    // T325: breadth20sma / 50sma / 200sma 시드 일괄
-    _assert('T325 ds_breadth_seeds_all: 20/50/200sma 시드 등록',
-      window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth20sma === 75
-        && window.DATA_SNAPSHOT.breadth50sma === 46
-        && window.DATA_SNAPSHOT.breadth200sma === 55,
+    // T325: v50.6 — 시장 폭은 5/20/50일선만. 200sma 시드 제거 검증 (200 재유입 방지 가드)
+    _assert('T325 ds_breadth_seeds_5_20_50_only: 20=57 · 50=52 시드 + breadth200sma 부재',
+      window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth20sma === 57
+        && window.DATA_SNAPSHOT.breadth50sma === 52
+        && window.DATA_SNAPSHOT.breadth200sma === undefined,
       '20=' + (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth20sma) +
       ' 50=' + (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth50sma) +
-      ' 200=' + (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth200sma));
+      ' 200=' + (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth200sma) + ' (200 should be undefined)');
 
     // T326: McClellan 카드 라벨 정합화 — "Summation Index" + "Oscillator" 구분 명시
     var brPage = document.getElementById('page-breadth');
@@ -5247,6 +5247,26 @@
       }
     } catch(e) { t767detail = 'err: ' + (e && e.message); }
     _assert('T767 v505_skew_move_auto_fetch_bridge: ^MOVE/^SKEW registered + live bridge updates non-archived move sink', t767ok, t767detail);
+
+    // ── v50.6: Breadth = 5/20/50일선만 (200일선은 추세 전용, breadth participation 제외) ──
+    // T768: breadth 시장 폭에서 200일선 제거 — 데이터 시드 + 표시 텍스트 가드
+    var t768ok = false, t768detail = '';
+    try {
+      var ds768 = window.DATA_SNAPSHOT || {};
+      var seedOk = ds768.breadth200sma === undefined && ds768.breadth5sma != null && ds768.breadth20sma != null && ds768.breadth50sma != null;
+      // signal 정적진단 텍스트에 "200SMA" 부재 (breadth 3카드는 5/20/50)
+      var bodyTxt = document.body ? document.body.innerHTML : '';
+      var noDiag200 = bodyTxt.indexOf('200SMA 55%') < 0 && bodyTxt.indexOf('50일선이 200일선 위 종목') < 0;
+      // breadth 페이지 main 카드 3개 (5/20/50 data-snap)
+      var b5 = document.querySelector('[data-snap="breadth-5sma"]');
+      var b20 = document.querySelector('[data-snap="breadth-20sma"]');
+      var b50 = document.querySelector('[data-snap="breadth-50sma"]');
+      var b200 = document.querySelector('[data-snap="breadth-200sma"]');
+      var cardsOk = !!b5 && !!b20 && !!b50 && !b200;
+      t768ok = seedOk && noDiag200 && cardsOk;
+      t768detail = 'seed200undef=' + (ds768.breadth200sma === undefined) + ' noDiag200=' + noDiag200 + ' cards5/20/50=' + (!!b5) + '/' + (!!b20) + '/' + (!!b50) + ' no200card=' + (!b200);
+    } catch(e) { t768detail = 'err: ' + (e && e.message); }
+    _assert('T768 v506_breadth_5_20_50_only: breadth200sma seed/card/diagnostic 제거 (200은 추세 전용)', t768ok, t768detail);
   }
 
   window.AIO = window.AIO || {};

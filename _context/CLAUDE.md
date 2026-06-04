@@ -2,7 +2,11 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.5
+- **현재 버전**: v50.6
+
+## v50.6 note
+- **Breadth = 5/20/50일선만** (Part 1 완료): 200일선을 breadth participation에서 표시+로직 전면 제거(signal 정적진단·골드크로스 카드·breadth200sma 시드·alias·매핑·점수 라벨). 200일선은 추세 판별(가격 vs 200MA, Weinstein)에만 유지. **주의: `window._breadth200`은 레거시 변수명이며 실제 20일선 breadth(bpSPX20)** — rename 위험으로 유지하되 의미는 20일선. data source: TradingView 스크랩불가/Investing.com 취약 → 주간 WebSearch 수동. T768 가드.
+- **초보자 친화 텍스트 개선** (Part 2 진행 중): 3 Explore agent 21페이지 ~130건 audit. 완료분 = 개발자마커(screener_pro/Citi §64/title 버전) 제거, options 페이지 intro 전면 한글 풀이+초보경고+watch→action, signal 인명 일반화. 잔여 = home/macro/fxbond/fundamental/themes/KR5/portfolio/ticker/market-news/guide 약어병기·풀이·watch→action·문단분해.
 
 ## v50.5 note
 - C계층 매크로 실데이터(FRED) 연결: PCE/Core PCE/Core CPI를 기존 FRED 파이프라인에 등록(`yoy:true`, 13-obs YoY 계산). macro 페이지에 인플레·고용 값 카드 행 신설(CPI/근원CPI/PCE/근원PCE YoY + NFP MoM). CPI 비교표 라벨-데이터 불일치(MoM under YoY label) 교정. `applyDataSnapshot` 매핑 + `DATA_SNAPSHOT.nfp` 폴백. FRED 키 설정 시 자동 YoY 오버라이드.

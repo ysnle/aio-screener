@@ -4970,7 +4970,7 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
         { id: 'breadth-explain-page',    order:  2, topic: '심층 해설 펼쳐보기',             lines: 'L5246~' },
         { id: 'breadth-definition',      order:  3, topic: 'Breadth 5 지표 정의',            lines: 'L5256~5267' },
         { id: 'breadth-narrow-vs-broad', order:  4, topic: 'Narrow Advance vs Broad Rally',  lines: 'L5269~5300' },
-        { id: 'breadth-sma-cards',       order:  5, topic: '5SMA/20SMA/50SMA/200SMA 4 카드 (실데이터)', lines: 'L5340~5410' },
+        { id: 'breadth-sma-cards',       order:  5, topic: '5SMA/20SMA/50SMA 3 카드 (실데이터, v50.6: 200SMA 제거)', lines: 'L5340~5410' },
         { id: 'breadth-consensus-readout', order: 6, topic: 'diagnoseBreadthConsensus (v49.29 R61)', lines: 'L5040~5046' },
         { id: 'breadth-static-diagnose', order:  7, topic: '정적 진단 텍스트',               lines: 'L5048~5050' },
         { id: 'breadth-mcclellan',       order:  8, topic: 'McClellan Oscillator',           lines: 'L5410~5450' },
@@ -4990,7 +4990,7 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
       },
       findings: [
         // v49.41 P299: DATA_SNAPSHOT breadth*sma 시드 부재 — 폴백만 동작 (R74 보강)
-        { sub: 'breadth-sma-cards', axis: '최신성', severity: 'high', note: '5SMA/20SMA/50SMA/200SMA data-snap 4 sink가 DATA_SNAPSHOT 시드 부재 — `S.breadth5sma || 68` 패턴이 폴백만 의존. 실시간 fetch set해도 R74 assertSnapshotInlineMatch 못 잡음', fixedIn: 'v49.41 B1/P299 (DATA_SNAPSHOT에 breadth5sma=68/breadth20sma=75/breadth50sma=46/breadth200sma=55 4 시드 추가)' },
+        { sub: 'breadth-sma-cards', axis: '최신성', severity: 'ok', note: 'v50.6: 시장 폭은 5SMA/20SMA/50SMA 3 카드 (200SMA 제거 — 200일선은 추세 전용). data-snap 3 sink가 DATA_SNAPSHOT 시드 의존.', fixedIn: 'v50.6 (breadth5sma=61/breadth20sma=57/breadth50sma=52 3 시드, breadth200sma 제거)' },
         // v49.41 P300: McClellan Summation vs Oscillator 정의 혼합
         { sub: 'breadth-mcclellan', axis: '정합성', severity: 'high', note: '카드 라벨 "McClellan 써메이션" + 설명 "0 위/아래 = 매수/하락 에너지"가 Summation(장기 누적합) 정의와 Oscillator(단기 ±100) semantic 혼합 — 사용자 해석 오류 위험', fixedIn: 'v49.41 B2/P300 (Summation Index 라벨 명확화 + 설명에 Oscillator와 구분 명시 + 베어 다이버전스 = SPX 신고가 vs Summation 미발동 정의 추가)' },
         // v49.41 verify-only: diagnoseBreadthConsensus 결과 DOM 바인딩 (agent 보고 false alarm 검증)
@@ -9569,7 +9569,7 @@ window.AIO.getSnapshotFallbackConsistencyAudit = function(opts) {
   var aliasMap = {
     fg: 'fg', fg_uw: 'fg_uw', vix: 'vix', pcr: 'pcr', dxy: 'dxy',
     vvix: 'vvix', move: 'move', skew: 'skew', aaiiBear: 'aaiiBear',
-    breadth5sma: 'breadth5', breadth50sma: 'breadth50', breadth200sma: 'breadth200'
+    breadth5sma: 'breadth5', breadth20sma: 'breadth20', breadth50sma: 'breadth50'  // v50.6: breadth200sma 제거 (5/20/50만)
   };
   var mismatches = [];
   try {
@@ -14481,7 +14481,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.5';
+const APP_VERSION = 'v50.6';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -15482,12 +15482,11 @@ const DATA_SNAPSHOT = {
   krForeignNet:-17700,                            // v49.86: 외국인 순매수 (5/27 -1.77조원 순매도, 16연속 순매도 — 한경)
 
   // ── v49.41 P299/R74 보강: breadth*sma DATA_SNAPSHOT 시드 등록 (이전 _fallback만 정의 → 폴백만 동작 차단) ──
-  // breadth-5sma / breadth-20sma / breadth-50sma / breadth-200sma data-snap 4 sink가 시드 의존.
-  // 실시간 fetch 경로(있다면 fetchBreadthFromAPI)에서 set 시 _isFallback false 전환 필요.
+  // v50.6: 시장 폭(breadth)은 5/20/50일선 3개만 사용. 200일선은 추세(가격 vs 200MA) 판별 전용이며 breadth participation에서 제외.
+  // breadth-5sma / breadth-20sma / breadth-50sma data-snap 3 sink가 시드 의존.
   breadth5sma:    61,   // v49.87: $MMFD 61.41 → 반올림 61 (Barchart 실측, NYSE % above 5-day MA)
-  breadth20sma:   57,   // v49.87: $MMTW 57.47 → 57 (Barchart 실측, NYSE % above 20-day MA — 기존 75 대비 CRITICAL 하락)
+  breadth20sma:   57,   // v49.87: $MMTW 57.47 → 57 (Barchart 실측, NYSE % above 20-day MA)
   breadth50sma:   52,   // v50.5: S&P500 above 50d 52.2% (S5FI, Barchart/Investing 2026-06-02 WebSearch — percentile 36, below-avg 참여)
-  breadth200sma:  55,   // v50.5: S&P500 above 200d 55% (S5TH, Investing 2026-06-01 WebSearch — percentile 32). 무료 fetch API 없음 → 주간 WebSearch 갱신
 
   // ── v48.61 P125 해소: DATA_SNAPSHOT 누락 필드 보충 (v49.22: 2026-05-16 기준 갱신, P213 DOM 정합) ──
   krCreditBalance: 36.0,     // v49.94: 한국 신용거래융자 잔고 ~36조원 역대 최고 (5월 — KOSPI 8000+ 돌파 "빚투" 급증, 3/11 31.8조→5월 36조, 5/21 강제청산 뉴스. 금투협/FSC). 기존 19.2 심각 stale (시장 2배 급등 미반영)
@@ -15614,7 +15613,7 @@ const DATA_SNAPSHOT = {
     fg: 60,              // v49.84: CNN F&G 60 (Greed) 2026-05-26 기준
     fg_uw: 65,           // v49.84: UW 확장 F&G (CNN 60 → UW 65 추정)
     vix: 15.74,          // v49.91: VIX 2026-05-28 close
-    breadth200: 56,      // v49.96: $MMTH 56.19→56 (% above 200d) — breadth200sma와 정합 (기존 57은 MMTW 20d값 혼동)
+    breadth200: 57,      // v50.6: window._breadth200(레거시 변수명, 실제 20일선 breadth=bpSPX20)의 폴백값. 20일선 값(57)으로 정합. *200일선 데이터 아님*
     breadth5: 61,        // v49.87: $MMFD 61.41 실측 (Barchart)
     breadth50: 61,       // v49.87: $MMFI 60.77 실측 (Barchart)
     pcr: 0.83,           // v49.85: CBOE total PCR 2026-05-21 (equity 0.55 / index 별도)
@@ -16400,7 +16399,7 @@ function applyDataSnapshot() {
       'breadth-5sma':  _snap.fixed(S.breadth5sma || S.breadth_5sma || ((S._fallback||{}).breadth5) || 68, 0) + '%',
       'breadth-20sma': _snap.fixed(S.breadth20sma || S.breadth_20sma || ((S._fallback||{}).breadth20) || 75, 0) + '%',
       'breadth-50sma': _snap.fixed(S.breadth50sma || S.breadth_50sma || ((S._fallback||{}).breadth50) || 46, 0) + '%',
-      'breadth-200sma':_snap.fixed(S.breadth200sma || ((S._fallback||{}).breadth200) || 55, 0) + '%',
+      // v50.6: breadth-200sma 매핑 제거 (시장 폭은 5/20/50일선만)
       // 한국 매크로 추가 (Agent P1-22)
       'kr-ppi':        (S.krPpi > 0 ? '+' : '') + _snap.fixed(S.krPpi, 1) + '%',
       'kr-pmi':        _snap.fixed(S.krPmi, 1),

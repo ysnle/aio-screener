@@ -6,6 +6,25 @@
 
 ---
 
+## v50.6 - Breadth 5/20/50 확정 + 초보자 친화 텍스트 개선 (진행 중) (2026-06-04)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`
+
+### Part 1 — Breadth는 5/20/50일선만 (200일선 표시+로직 제거)
+- 사용자 지적: "Breadth는 5/20/50으로 보는데 200일선이 자꾸 들어온다(저번에 수정했을 텐데)". **핵심 구분**: 제거 대상 = "종목의 200일선 위 비율"(breadth participation), 유지 대상 = "지수 가격 vs 200일선"(추세 판별 — Weinstein Stage 등).
+- **표시 제거**: signal 정적진단 `"… · 200SMA 55%"` → 5/20/50만. breadth 페이지 "골드크로스 비율(50>200 종목%)" 카드 제거. breadth 메인 3카드(5/20/50)는 유지.
+- **로직 제거**: `DATA_SNAPSHOT.breadth200sma` 시드 + alias(`breadth200sma:'breadth200'`) + `applyDataSnapshot` `'breadth-200sma'` 매핑 제거. 점수 라벨 "200SMA Above/200SMA 보조"(실제로는 20일선 데이터를 잘못 표기) → "시장 폭"/"20일선"으로 정직화. `_fallback.breadth200`은 misnamed `window._breadth200`(=실제 20일선 breadth=bpSPX20)의 폴백이라 20일값(57)으로 정합 + 주석 명확화. (변수명 `_breadth200`은 12+곳 참조라 rename 위험으로 유지, 의미=20일선 주석화.)
+- **데이터 소스**: TradingView=JS전용 스크랩불가 / Investing.com=HTML에 값 있음(스크랩 가능하나 취약·5일선 페이지 없음) 확인 → 자동화 안 함, 주간 WebSearch 수동 유지.
+- **테스트**: T768 신규(breadth200sma 시드/카드/진단 부재 가드 = 200 재유입 방지). T324/T325를 현행(5sma=61/20=57/50=52, 200 undefined)로 갱신.
+
+### Part 2 — 초보자 친화 텍스트 전면 개선 (3 Explore agent ~130건 audit 기반, 진행 중)
+- **개발자/버전 마커 제거**(사용자 노출분): `screener_pro 방법론`, `Citi §64`(3곳), 사이클 title의 `v49.31 H5/R67`.
+- **options 페이지(audit "최악") intro 전면 풀이**: 초보 경고 callout + IV(내재변동성)/IVP/IVR/IV Crush/Skew(스큐)/OTM(외가격)/Greeks(델타·감마·세타·베가 한글)/ATM·ITM·OTM/GEX(딜러 감마 노출)/헤지 전략(보호적 풋·칼라·풋스프레드·VIX콜·0DTE) 한글 병기 + watch→action.
+- **signal 인명 일반화**: Chuck LeBeau/Jesse Livermore/William O'Neil 인용/Jeff Sun → "검증된 기법" 류로(Weinstein·SEPA·VCP 등 기법 라벨은 유지).
+- 스태그플레이션 등 일부 전문용어 1줄 풀이 추가.
+- **잔여**(다음 진행): home/macro/fxbond/fundamental/themes/KR 5페이지/portfolio/ticker/market-news/guide의 약어 한글병기·전문용어 풀이·watch→action·문단 분해.
+- **Cache rotation**: title/badge/APP_VERSION/SW_VERSION/version.json/캐시버스터 → v50.6.
+
 ## v50.5 - C-layer macro real-data wiring (FRED) (2026-06-04)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/INDEX.md`, `_context/GATE-BASELINE-2026-06-04.md`
