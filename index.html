@@ -4195,13 +4195,13 @@ body.light-theme canvas { filter:none; }
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-2);margin-bottom:var(--space-3);">
     <!-- 매매 신호 (Primary — v49.28/R65 CARD_HIERARCHY primary) -->
     <div class="aio-card aio-card-primary is-interactive has-stripe-top stripe-data-green" data-action="showPage" data-arg="signal" data-card-level="primary" data-weight-key="TRADING_SCORE"
-         title="Trading Score (20점) = Trend Template 8점 + Relative Strength 4점 + Volume Profile 3점 + Volatility 3점 + Breakout 2점 (총 20). v49.28/R64 WEIGHT_REGISTRY">
+         title="거래 적합도 점수 (20점) = 추세 정렬 8점 + 상대강도(시장 대비 강함) 4점 + 거래량 3점 + 변동성 3점 + 돌파 2점 (총 20점)">
       <div class="aio-card-title">🎯 지금 매매해도 될까?</div>
       <div class="aio-metric-value is-lg" id="home-trading-signal" style="color:var(--text-muted);margin-bottom:4px;font-size:24px;font-weight:900;">• • •</div>
       <div id="home-trading-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">
         데이터 수신 대기...
       </div>
-      <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">가중치: Trend 8 + RS 4 + Vol 3 + IV 3 + Breakout 2 = 20</div>
+      <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">가중치: 추세 8 + 상대강도 4 + 거래량 3 + 변동성 3 + 돌파 2 = 20점</div>
     </div>
 
     <!-- 시장 품질 스코어 (Secondary) -->
@@ -4259,7 +4259,7 @@ body.light-theme canvas { filter:none; }
         <div class="explain-body">
           <strong>개념</strong> — 20점 만점 AIO Trading Score를 <code>75+ 적극매수 / 60~75 매수우호 / 45~60 중립 / 30~45 주의 / &lt;30 위험</code> 5구간으로 분류한 한 줄 요약. AIO PA-First v5.4 스코어링 엔진이 실시간 산출.
           <ul>
-            <li><strong>구성 요소 (20점)</strong> — 추세 건강도(SPX/QQQ 200일선 위 비율, 4점) · 시장 폭(Breadth %stocks above 50MA, 3점) · 변동성(VIX regime, 3점) · 심리(F&amp;G + Put/Call, 3점) · 금리/유동성(10Y-2Y, HY OAS, 3점) · 섹터 로테이션(RRG 리딩 사분면, 2점) · 모멘텀(SPX 20일 수익률, 2점)</li>
+            <li><strong>구성 요소 (20점)</strong> — 추세 건강도(지수가 200일선 위에 있는지, 4점) · 시장 폭(50일선 위 종목 비율, 3점) · 변동성(VIX 공포지수 수준, 3점) · 심리(공포탐욕지수 + 풋/콜 옵션 비율, 3점) · 금리·유동성(장단기 금리차, 신용 스프레드, 3점) · 섹터 로테이션(RRG 주도 섹터, 2점) · 모멘텀(최근 20일 상승률, 2점)</li>
             <li><strong>의미</strong> — 단일 지표 의존 대신 <strong>복수 지표 가중 합성</strong>으로 시장 체온을 재는 방식. 월가 프랍데스크의 Market Regime Dashboard 방법론.</li>
             <li><strong>활용</strong>:
               <table class="explain-table">
@@ -4307,7 +4307,7 @@ body.light-theme canvas { filter:none; }
             <li><strong>BOTTOMING</strong> (Stage 1) — 200일선 아래 횡보 + 브레드쓰 저점 이탈 회복 + VIX 하락. <strong>분할 매수 준비</strong>. Value 주식 Alpha 최대.</li>
           </ul>
           <div class="explain-callout">
-            <strong>밸류 체인 흐름</strong>: 매크로(연준/금리) → 유동성(M2/실질금리) → 위험자산 Flow → 기업 순이익 예상치 → 지수 → 개별주.
+            <strong>자금이 흐르는 순서</strong>: ① 연준 금리 결정 → ② 시중 유동성(돈의 양) → ③ 위험자산으로 자금 유입 → ④ 기업 순이익 기대치 상승 → ⑤ 지수 상승 → ⑥ 개별 종목. (한 단계가 막히면 아래로 전달이 끊깁니다.)
             시장 국면은 <strong>Stage 2→3 전환 시 연준 긴축이 선행</strong>, <strong>Stage 4→1 전환 시 긴축 종료(pause/pivot)</strong>가 트리거. 국면 판단 = 포트폴리오 전체 Beta 조정 신호.
           </div>
         </div>
@@ -4414,7 +4414,7 @@ body.light-theme canvas { filter:none; }
       <div class="explain-section">
         <div class="explain-label is-purple">Fear &amp; Greed Index — 시장 심리 종합</div>
         <div class="explain-body">
-          <strong>개념</strong> — CNN Business가 발표하는 0~100 범위의 합성 심리 지표. 7개 하위 지표(주가 모멘텀, Breadth, 옵션 풋/콜, 안전자산 수요, 정크본드 수요, 시장 변동성, Safe Haven 수요) 가중 평균.
+          <strong>개념</strong> — CNN이 발표하는 0~100 범위의 종합 심리 지표. 7개 하위 지표(주가 상승세, 시장 폭, 풋/콜 옵션 수요, 안전자산 수요, 정크본드(고위험 회사채) 수요, 시장 변동성, 채권 대비 주식 선호) 가중 평균.
           <ul>
             <li><strong>의미</strong> — 개별 지표의 노이즈를 제거하고 <strong>시장 군중 심리 역치</strong>를 0~100으로 정규화. 단기 반대매매(Contrarian) 신호로 사용.</li>
             <li><strong>활용 구간</strong>:
@@ -6901,7 +6901,7 @@ body.light-theme canvas { filter:none; }
           <ul>
             <li><strong>Early Cycle</strong> — 경기 회복 초기. 연준 완화 · 실업률 하락 중 · 기업 이익 증가. 주식 최고 수익률 국면. (예: 2009, 2020)</li>
             <li><strong>Mid Cycle</strong> — 정상 성장. 연준 중립 · 인플레 2% 목표 근접. 섹터 로테이션(기술→산업재→에너지) 활발. (예: 2013~2015, 2018)</li>
-            <li><strong>Late Cycle</strong> — 과열. 연준 긴축 · 인플레 상승 · 수익률곡선 평탄화. Defensive 섹터(필수소비재/헬스케어) 우위. (예: 2007, 2019 말)</li>
+            <li><strong>Late Cycle(경기 후반)</strong> — 과열. 연준 긴축 · 인플레 상승 · 수익률곡선 평탄화(장기-단기 금리차 축소 = 경기 둔화 신호). 방어주(필수소비재·헬스케어) 우위. (예: 2007, 2019 말)</li>
             <li><strong>Recession</strong> — 위축. 연준 완화 전환 · 실업률 급등 · 기업 이익 쇼크. 현금/단기채 · 금 우위. (예: 2008, 2020-03)</li>
           </ul>
         </div>
@@ -6909,7 +6909,7 @@ body.light-theme canvas { filter:none; }
       <div class="explain-section">
         <div class="explain-label is-amber">CPI / PCE (인플레이션) — 연준 정책의 핵심 입력</div>
         <div class="explain-body">
-          <strong>CPI (소비자물가지수)</strong> — 미국 가구 소비 바스켓. 헤드라인 vs Core(식료품·에너지 제외) 구분. Core CPI는 끈질긴 인플레 측정.
+          <strong>CPI (소비자물가지수)</strong> — 가구가 사는 상품·서비스 묶음의 가격. 헤드라인(전체) vs 근원(Core, 변동 큰 식료품·에너지 제외) 구분. 근원 CPI가 끈질긴 인플레를 더 잘 측정.
           <br><br>
           <strong>PCE</strong> — 개인소비지출 물가. <strong>연준이 실제로 목표로 삼는 지표</strong>(CPI 아님). Core PCE 2% 목표. 차이: CPI 가중치는 고정, PCE는 대체재 반영 → CPI가 평균 +0.3% 높음.
           <ul>
@@ -6923,7 +6923,7 @@ body.light-theme canvas { filter:none; }
         <div class="explain-body">
           <strong>개념</strong> — 매월 첫째 금요일 발표. 가장 주목받는 매크로 이벤트. <strong>실업률(U-3)</strong>은 후행 지표, <strong>NFP 변화</strong>와 <strong>시간당 임금 상승률</strong>이 선행.
           <ul>
-            <li><strong>실업률 상승 전환</strong> — Sahm Rule: 실업률 3개월 이동평균이 12개월 저점 대비 +0.5%p 상승 시 경기침체 진입. 1960년 이후 11번 중 11번 적중 (100%).</li>
+            <li><strong>실업률 상승 전환</strong> — 삼의 법칙(Sahm Rule, 경기침체 조기경보): 실업률 3개월 평균이 최근 12개월 최저점보다 +0.5%p 오르면 경기침체 진입 신호. 1960년 이후 11번 중 11번 적중(100%).</li>
             <li><strong>임금 상승률</strong> — 4% 초과 시 연준 매파적 강화. 3% 이하면 인플레 진정 → 완화 전환 가능.</li>
             <li><strong>매매 적용</strong> — NFP 발표 후 3일간 SPX 변동성 평균 1.5배 확대. 쇼크일(실업률 +0.3%p 이상) <strong>SPX 매도 압력</strong>.</li>
           </ul>
@@ -6934,7 +6934,7 @@ body.light-theme canvas { filter:none; }
         <div class="explain-body">
           <strong>개념</strong> — 연준 위원 19명의 <strong>개별 금리 전망</strong>을 점으로 표시. 분기(3/6/9/12월) 발표. Powell 연설보다 <strong>실제 정책 의도</strong>를 더 잘 반영.
           <ul>
-            <li><strong>Dot Median</strong> — 중앙값이 시장 Fed Funds Futures와 50bps 이상 차이 나면 재조정 필요. 시장과 연준의 Dove/Hawk 스펙트럼 괴리 측정.</li>
+            <li><strong>점도표 중앙값(Dot Median)</strong> — 연준 전망 중앙값이 시장의 금리 선물 예상과 50bp(0.5%p) 이상 벌어지면 한쪽이 조정될 가능성. 시장과 연준의 완화(비둘기파)·긴축(매파) 시각 차이를 측정.</li>
             <li><strong>매매 적용</strong> — FOMC 당일 2:00pm ET 발표. Statement Sea(2~5분) → Powell 기자회견(2:30pm ~ 3:30pm). Powell 첫 5분 발언이 하루 방향 70%+ 결정.</li>
           </ul>
           <div class="explain-callout">
@@ -7016,7 +7016,7 @@ body.light-theme canvas { filter:none; }
         <div style="font-size:11px;font-weight:800;color:var(--data-cyan);"> 미국 달러 (DXY)</div>
         <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);" data-live-price="DX-Y.NYB">—</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
-          기축통화. 강세=미국주식↑, 약세=신흥국·원자재↑<br>
+          세계 기준 통화. 달러 강세 = 미국 금리 높아 자금이 미국으로 몰림(미국주식↑) / 약세 = 자금이 신흥국·원자재로(신흥국↑·원자재↑)<br>
           <b style="color:var(--data-green);">→ 약세 시:</b> 금↑ · EM↑ · 수출주↑ · 원화↑
         </div>
       </div>
@@ -7039,8 +7039,8 @@ body.light-theme canvas { filter:none; }
         <div style="font-size:11px;font-weight:800;color:var(--data-purple);">미국 10년 국채 금리</div>
         <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);" data-live-price="^TNX">—</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
-          시장의 미래 금리 기대. 상승=부동산↓ 성장주↓<br>
-          <b style="color:var(--data-purple);">→ 핵심:</b> 2Y>10Y 역전 = 경기침체 경고
+          시장의 미래 금리 기대. 금리↑ = 대출비용↑(부동산↓) + 미래 이익을 깎아 평가(성장주↓)<br>
+          <b style="color:var(--data-purple);">→ 핵심:</b> 2년물 금리 > 10년물 금리(역전) = 경기침체 경고. <b>→ 그러면: 현금 비중↑·방어주 강화.</b>
         </div>
       </div>
 
@@ -7134,7 +7134,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <div style="font-size:11px;color:var(--text-muted);margin-top:8px;padding:8px;background:rgba(0,0,0,0.2);border-radius:6px;line-height:1.5;">
-      <b style="color:var(--data-purple);">해석:</b> 경제는 사이클 반복. 2026년은 듀얼 리스크(고용↓+인플레↑) 속 방향 결정 시기. FOMC H4L 전환 + 재무부 유동성 vs 연준 긴축 힘겨루기가 핵심.
+      <b style="color:var(--data-purple);">해석:</b> 경제는 사이클을 반복합니다. 2026년은 이중 위험(고용은 둔화↓ + 인플레는 상승↑ = 연준이 한쪽만 잡기 어려운 딜레마) 속 방향 결정 시기. "더 오래 높은 금리(H4L, Higher For Longer)"로의 전환 + 재무부의 유동성 공급 vs 연준 긴축의 힘겨루기가 핵심.
     </div>
   </div>
 
@@ -7560,8 +7560,8 @@ body.light-theme canvas { filter:none; }
       <div class="explain-section">
         <div class="explain-label">TLT / IEF 채권 ETF — 금리 인버스 플레이</div>
         <div class="explain-body">
-          <strong>TLT</strong> (20Y+ Treasury) — 금리 하락 시 가격 급등(듀레이션 17년). 경기 침체 헤지 핵심 자산.
-          <br><strong>IEF</strong> (7-10Y) — 듀레이션 8년. TLT 반절 변동성.
+          <strong>TLT</strong> (미국 20년+ 장기국채 ETF) — 금리 하락 시 가격 급등(듀레이션 17년 = 금리 1%p 하락하면 약 17% 상승). 경기 침체 헤지 핵심 자산.
+          <br><strong>IEF</strong> (7~10년 국채 ETF) — 듀레이션 8년. TLT의 절반 변동성.
           <ul>
             <li><strong>매매 적용</strong> — 10Y 금리 4.5% 이상 = TLT 매수 시점 (역사적 저점 근접). 금리 2.5% 이하 = 익절 전환 신호.</li>
             <li><strong>포트폴리오</strong> — Stock 60% / TLT 20% / Gold 10% / Cash 10% = <strong>All Weather Lite</strong>. 경기 사이클 전반 안정적 Sharpe.</li>
@@ -8302,14 +8302,14 @@ body.light-theme canvas { filter:none; }
         <div class="explain-label">15개 분석 관점 (기관 리서치 프레임워크)</div>
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;padding:6px 8px;background:rgba(0,212,255,0.04);border-radius:4px;">📊 가용성: <span style="color:var(--data-green);">✓ 구현</span> · <span style="color:var(--data-amber);">⚠ 부분/계획됨</span> · <span style="color:var(--data-red);">❌ 미구현 — AI 학습 의존 환각 위험</span></div>
         <div class="explain-body">
-          <strong>(1) Quality of Business</strong> <span style="color:var(--data-green);font-size:10px;">[✓ FMP+Naver]</span> — ROE &gt; 15% 3년+ 지속? 자본 효율성.
+          <strong>(1) 사업의 질(Quality)</strong> <span style="color:var(--data-green);font-size:10px;">[✓ FMP+Naver]</span> — 자기자본이익률(ROE) &gt; 15%를 3년 이상 유지? = 자본을 효율적으로 굴리는 회사.
           <br><strong>(2) Moat</strong> <span style="color:var(--data-amber);font-size:10px;">[⚠ SEC 10-K AI 분석 대체 — Morningstar 유료 미사용]</span> — 경제적 해자 (브랜드·네트워크·전환비용·규제·원가 우위 중 2개+).
           <br><strong>(3) Growth</strong> <span style="color:var(--data-green);font-size:10px;">[✓ FMP+Naver]</span> — 매출 5년 CAGR &gt; 10%? 조정 EPS 성장 &gt; 12%?
           <br><strong>(4) Margin Trend</strong> <span style="color:var(--data-green);font-size:10px;">[✓ Naver]</span> — Gross Margin 확장 중? OPM 3년 상승? 인플레 전가력.
-          <br><strong>(5) FCF Yield</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산]</span> — FCF/시총 &gt; 4%? Buyback+배당.
+          <br><strong>(5) 잉여현금흐름 수익률(FCF Yield)</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산]</span> — 잉여현금(영업에서 남은 현금)÷시가총액 &gt; 4%? = 자사주매입·배당 여력.
           <br><strong>(6) Balance Sheet</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산]</span> — Net Debt / EBITDA &lt; 2.5x?
           <br><strong>(7) Valuation PE</strong> <span style="color:var(--data-green);font-size:10px;">[✓ Yahoo+Naver]</span> — Forward PE vs 5Y 평균. PEG Ratio &lt; 1.5.
-          <br><strong>(8) EV / EBITDA</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산]</span> — 동종 산업 대비 할인?
+          <br><strong>(8) EV/EBITDA</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산]</span> — 기업가치÷영업현금이익(부채 포함 평가). 동종 산업 대비 싼가?
           <br><strong>(9) Insider Activity</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 수집 — key 필요]</span> — 임원 매수/매도 12주 누적.
           <br><strong>(10) Institutional Flow</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 수집 — SEC 공시]</span> — 13F 기관 보유 비중 변화.
           <br><strong>(11) Short Interest</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 수집 — key 필요]</span> — 5% 이하 정상, 15%+ 하방 압력.
@@ -8653,12 +8653,12 @@ body.light-theme canvas { filter:none; }
       <div class="explain-section">
         <div class="explain-label">RRG (Relative Rotation Graph) — Julius de Kempenaer</div>
         <div class="explain-body">
-          <strong>개념</strong> — 섹터의 <strong>상대 강도(RS-Ratio)</strong>와 <strong>상대 모멘텀(RS-Momentum)</strong>을 2차원에 배치. 시계 방향 회전으로 리더십 흐름을 시각화.
+          <strong>개념</strong> — 섹터의 <strong>상대 강도(RS-Ratio: 시장 전체 대비 얼마나 강한가)</strong>와 <strong>상대 모멘텀(RS-Momentum: 지금 강해지는 중인가 약해지는 중인가)</strong>를 2차원 위에 배치. 시계 방향 회전으로 주도 섹터의 흐름을 시각화합니다.
           <ul>
-            <li><strong>Leading</strong> (우상): RS-Ratio &gt; 100 + RS-Momentum &gt; 100 = 강한 상승 주도. Overweight.</li>
-            <li><strong>Weakening</strong> (우하): RS &gt; 100 + Mom &lt; 100 = 상승 둔화. 부분 익절.</li>
-            <li><strong>Lagging</strong> (좌하): RS &lt; 100 + Mom &lt; 100 = 약세 지속. Underweight.</li>
-            <li><strong>Improving</strong> (좌상): RS &lt; 100 + Mom &gt; 100 = 저점 탈출 반등. 분할 매수 검토.</li>
+            <li><strong>주도(Leading, 우상)</strong>: 강함 + 더 강해지는 중 = 상승 주도. <strong>→ 비중 확대(유지)</strong>.</li>
+            <li><strong>둔화(Weakening, 우하)</strong>: 강하지만 힘 빠지는 중 = <strong>→ 부분 익절</strong>.</li>
+            <li><strong>약세(Lagging, 좌하)</strong>: 약함 + 더 약해지는 중 = <strong>→ 비중 축소·회피</strong>.</li>
+            <li><strong>개선(Improving, 좌상)</strong>: 약하지만 살아나는 중 = 저점 탈출 반등. <strong>→ 분할 매수 검토</strong>.</li>
           </ul>
           <strong>매매 적용</strong> — 회전 방향(Leading → Weakening → Lagging → Improving) 시계 방향 흐름 확인. <strong>Improving → Leading</strong> 진입 초기가 최고 수익 국면.
         </div>
@@ -10655,8 +10655,8 @@ body.light-theme canvas { filter:none; }
         <div class="explain-body">
           <strong>원칙</strong> — 외국인 순매수 전환 시 평균 2주간 코스피 +3.5% 상승. 연속 매도는 평균 -4.2%.
           <ul>
-            <li><strong>프로그램 매매</strong>: 인덱스 차익/비차익 거래. 차익 거래 금액은 외국인 의지.</li>
-            <li><strong>공매도</strong>: 2024 재개. 외국인 공매도 잔고 증가는 하락 배팅 → 숏 스퀴즈 가능성도.</li>
+            <li><strong>프로그램 매매</strong>(컴퓨터 자동 대량 거래): 지수 차익·비차익 거래. 차익 거래 금액으로 외국인 매매 의지를 읽습니다.</li>
+            <li><strong>공매도</strong>(주식을 빌려 팔고 나중에 싸게 되사 갚는 하락 베팅): 외국인 공매도 잔고 증가 = 하락 전망. 단 반대로 주가가 오르면 갚으려는 매수가 몰려 급등(숏 스퀴즈)할 수도.</li>
             <li><strong>MSCI 리밸런싱</strong>: 분기말 패시브 자금 유입/유출. KRX 종목 편입/제외는 주가 변동 큼.</li>
           </ul>
         </div>
@@ -10671,7 +10671,7 @@ body.light-theme canvas { filter:none; }
           <ul>
             <li>강한 테마 대장주 30% + 후발주 20% + 현금 50% = 테마 플레이 기본.</li>
             <li>공매도 대상 종목 회피 (숏 타겟은 단기 변동성 큼).</li>
-            <li>원/달러 1,350원+ 환경에서 수출주(삼성전자/현대차) Overweight, 1,250원 이하에서 내수주로 로테이션.</li>
+            <li>원/달러 1,350원+ 환경에서 수출주(삼성전자/현대차) <strong>비중 확대(Overweight)</strong>, 1,250원 이하에서 내수주로 이동.</li>
           </ul>
         </div>
       </div>
@@ -12180,7 +12180,7 @@ body.light-theme canvas { filter:none; }
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b style="color:var(--data-red);">경고:</b> 고위험 파생상품. 주식 6개월+ 경험 + 기초 지식 필수.<br>
           <b>사용법:</b> GEX/IV Rank/Skew/P-C비율 + 전략 가이드 제공.<br>
-          <b>유의사항:</b> Theta Decay로 시간가치 매일 감소. 커버드콜/CSP부터 시작 권장.
+          <b>유의사항:</b> 세타 감소(Theta Decay = 시간가치가 매일 줄어듦)로 가만히 보유만 해도 손실. 커버드콜(보유주 + 콜 매도)·CSP(현금담보 풋 매도)처럼 위험 낮은 전략부터 시작 권장.
         </div>
       </div>
 
