@@ -52,14 +52,14 @@
 
 - AI stock-answer freshness now treats `forceFresh` as strict: bypass `_chatTickerCache`, bypass `_liveData` immediate cache returns, bypass `ensureFreshDataForUse` minGap throttle, and re-attempt per-ticker quote lookup before prompt assembly.
 
-## _context/ 문서 (13개 Git-tracked 활성)
+## _context/ 문서 (14개 Git-tracked 활성)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
 | CLAUDE.md | 이 파일: 구조, hooks, skills, 복리 루프 | 구조 또는 워크플로 변경 시 |
-| RULES.md | 마스터 룰 R1~R29 | 새 규칙/패턴 발견 시 |
-| BUG-POSTMORTEM.md | 버그 사후 분석 P1~P293 (R25 역참조) | 버그 수정 후 |
-| QA-CHECKLIST.md | QA 14티어 체크리스트 v3.3 | /qa 발견 시 |
+| RULES.md | 마스터 룰 R1~R205 | 새 규칙/패턴 발견 시 |
+| BUG-POSTMORTEM.md | 버그 사후 분석 P1~P463 (R25 역참조) | 버그 수정 후 |
+| QA-CHECKLIST.md | QA 14티어 체크리스트 v3.7 | /qa 발견 시 |
 | KNOWLEDGE-BASE.md | 기술 인사이트 축적 (R26) | 인사이트 발견 시 |
 | CODE-MAP.md | index.html + js 모듈 line 범위 맵 | 리팩토링 ±500줄 |
 | INDEX.md | 지식 베이스 인덱스 + 백링크 (R24) | /knowledge-lint L6 |
@@ -69,6 +69,7 @@
 | DATA-PIPELINE-AUDIT-2026-05-06.md | API/소스부터 렌더 sink까지 데이터 파이프라인 레이어 맵 | API/분석/렌더 파이프라인 변경 |
 | ARCHITECTURE-AUDIT-2026-05-10.md | v49.3 전수감사 보고서 기반 아키텍처 보강 요약 | 데이터/함수/리스크 레이어 변경 |
 | DATA-FRESHNESS-AUDIT-2026-05-10.md | v49.4 데이터 최신성/자동 갱신 보강 요약 | freshness policy/source/stale 기준 변경 |
+| GATE-BASELINE-2026-06-04.md | v50.4 evidence 게이트/단위테스트 실측 기준선 | 게이트/테스트 재측정 시 |
 
 ## 파일 구조
 

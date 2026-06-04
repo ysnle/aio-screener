@@ -1,9 +1,9 @@
 ---
-verified_by: codex
-last_verified: 2026-05-09
+verified_by: agent
+last_verified: 2026-06-04
 confidence: high
 auto_refresh: true
-target_version: v49.1
+target_version: v50.4
 ---
 
 # _context Index
@@ -24,15 +24,20 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `DEEP-QA-2026-05-05.md` | Three-area deep QA: UI/rendering, API pipeline, page-level logic | Deep QA run or live/local parity change |
 | `OPERATIONS-AUDIT-2026-05-06.md` | Operational sustainability audit: version/cache/SW/API health | Runtime or deployment hardening |
 | `DATA-PIPELINE-AUDIT-2026-05-06.md` | End-to-end data pipeline map: source, transport, store, analysis, render | API/source, analysis, or render pipeline changes |
+| `ARCHITECTURE-AUDIT-2026-05-10.md` | v49.3 architecture-audit reinforcement summary | Data/function/risk layer changes |
+| `DATA-FRESHNESS-AUDIT-2026-05-10.md` | v49.4 freshness policy / auto-refresh reinforcement summary | Freshness policy/source/stale criteria changes |
+| `GATE-BASELINE-2026-06-04.md` | v50.4 evidence deployment gate + unit-test 실측 기준선 (env-dependent vs code-internal 분리) | 게이트/테스트 재측정, 운영 baseline 추가 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
+
+> 13개 `_context/*.md` 활성. 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다.
 
 ## Current Deployment Baseline
 
-- **Last observed live version**: v48.79 (browser QA, 2026-05-05)
-- **Local integration branch version**: v49.1
-- **Claude integration source**: `.claude/worktrees/brave-curie-5c8b22` (`v49.1`, integrated 2026-05-09)
-- **GitHub baseline**: local tracking `origin/main` is `4f165f0` (`v48.80`); remote refresh was attempted on 2026-05-07 but blocked by local worktree permission/sandbox limits
+- **GitHub baseline (source of truth)**: `origin/main` at `638de8f` (`v50.4`, 2026-06-03)
+- **Claude worktree**: `claude/hungry-euler-8d3b20` — origin/main(v50.4) 머지 동기 완료(2026-06-04). v48.13 → v50.4.
+- **Codex integration source**: `.codex/worktrees/540d/AIO` (v48.13→v50.4 evidence-first 작업 원본)
 - **Live site**: `https://ysnle.github.io/aio-screener/`
+- **게이트 실측 baseline**: `GATE-BASELINE-2026-06-04.md` 참조. 헤드리스 측정 결과 단위테스트 673/692 pass(19 fail), 배포 게이트 `fail`(deployable=false, evidence 1737 pass / 1992 warn / 201 block, unclassified·needs_evidence 0). block 다수는 환경 의존(라이브 데이터 부재); 코드 내재 신호는 text-surface block 45 + trading logic proxy. **운영(키+네트워크) baseline 재측정은 미완**.
 - **Primary source of truth**: GitHub `origin/main` plus live asset parity, not stale local worktrees.
 
 ## Current File Structure
@@ -69,6 +74,7 @@ AIO/
 - `DEEP-QA-2026-05-05.md` records the latest local-vs-live deep QA matrix.
 - `OPERATIONS-AUDIT-2026-05-06.md` records runtime/cache/API self-operation checks for deployed operations.
 - `DATA-PIPELINE-AUDIT-2026-05-06.md` records source-to-render data lineage and release QA commands.
+- `ARCHITECTURE-AUDIT-2026-05-10.md` / `DATA-FRESHNESS-AUDIT-2026-05-10.md` record the v49.3/v49.4 reinforcement summaries that the v50.x evidence layer builds on.
 
 ## Maintenance Rule
 

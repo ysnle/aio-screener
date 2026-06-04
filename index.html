@@ -4655,7 +4655,7 @@ body.light-theme canvas { filter:none; }
         <div class="explain-body">
           <strong>개념</strong> — Average True Range × 배수로 스톱을 설정. 종목별 고유 변동성에 맞춰 스톱 거리 자동 조정. Chuck LeBeau의 Chandelier Exit 기반.
           <ul>
-            <li><strong>공식</strong> — <code>Stop = 고점 - (ATR(14) × 권장 배수)</code>. <strong style="color:var(--data-green);">권장값(v49.28/R60 ATR_PRESETS):</strong> <span data-atr-preset="swing">스윙 3.0x (범위 2.5~3.5)</span> · <span data-atr-preset="position">포지션 5.0x (범위 4.0~6.0)</span> · <span data-atr-preset="scalp">스캘프 1.5x</span> · <span data-atr-preset="trailing">트레일링 2.5x</span>.</li>
+            <li><strong>공식</strong> — <code>Stop = 고점 - (ATR(14) × 권장 배수)</code>. <strong style="color:var(--data-green);">권장값:</strong> <span data-atr-preset="swing">스윙 3.0x (범위 2.5~3.5)</span> · <span data-atr-preset="position">포지션 5.0x (범위 4.0~6.0)</span> · <span data-atr-preset="scalp">스캘프 1.5x</span> · <span data-atr-preset="trailing">트레일링 2.5x</span>.</li>
             <li><strong>왜 고정% 대신 ATR?</strong> — NVDA(ATR 4%)와 KO(ATR 1%)에 같은 5% 스톱을 걸면 NVDA는 정상 노이즈에 반복 체결, KO는 과도한 손실. ATR 기반은 <strong>종목의 정상 호흡(breath)을 허용</strong>.</li>
             <li><strong>매매 적용</strong> — ATR 스톱 + 2% 룰 조합:
               <br>1) ATR로 스톱 거리 결정 (종목별 달라짐)
@@ -5233,7 +5233,7 @@ body.light-theme canvas { filter:none; }
       </div>
       <!-- v49.29 L2/L3/R61 적용: diagnoseBreadthConsensus 동적 합의 표시 -->
       <div id="breadth-consensus-readout" style="margin-top:10px;padding:8px 10px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.25);border-radius:5px;font-size:11px;color:var(--text-secondary);">
-        <strong style="color:var(--accent);">🔀 다중 신호 합의 (R61 diagnoseBreadthConsensus):</strong>
+        <strong style="color:var(--accent);">🔀 다중 신호 합의:</strong>
         <span id="breadth-consensus-verdict" style="color:var(--data-amber);font-weight:700;">판정 입력 대기...</span>
         <div id="breadth-consensus-conflict" style="font-size:10px;color:var(--data-red);margin-top:3px;line-height:1.5;"></div>
         <div id="breadth-consensus-details" style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.4;"></div>
@@ -6803,7 +6803,7 @@ body.light-theme canvas { filter:none; }
   <!-- ══ SECTION 6: 다이버전스·패턴 감지 ═══════════════════════════ -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
     <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">실시간 패턴·시그널 감지</div>
-    <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">screener_pro의 aggregate_signals 방법론: 다이버전스 > BB스퀴즈 > 골든/데드크로스 > 피보나치 레벨</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">신호 우선순위 방법론: 다이버전스 > BB스퀴즈 > 골든/데드크로스 > 피보나치 레벨</div>
     <div id="pattern-signals" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
       <!-- 동적: updatePatternSignals()에서 렌더 -->
       <div style="grid-column:span 2;text-align:center;padding:15px;color:var(--text-muted);font-size:11px;">라이브 데이터 대기 중…</div>
@@ -6983,7 +6983,7 @@ body.light-theme canvas { filter:none; }
       <div style="padding:8px 10px;background:rgba(0,212,255,0.04);border-radius:6px;border:1px dashed rgba(0,212,255,0.3);">
         <strong style="color:var(--accent);">📖 매크로 내러티브 생성 중…</strong>
         <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.6;">
-          • <strong>출처</strong>: SPX/VIX/DXY/금리/유가 live 우선 + 차단 시 DATA_SNAPSHOT 참고용 폴백<br>
+          • <strong>출처</strong>: SPX/VIX/DXY/금리/유가 실시간 우선 + 차단 시 스냅샷 참고용 폴백<br>
           • <strong>예상 시간</strong>: 1~2초 (live data fetch) 또는 즉시 (cache hit)<br>
           • <strong>실패 시</strong>: 정적 폴백 — "Fed 정책 대기 · 유가 변동 모니터링"<br>
           • <strong>수동 갱신</strong>: 콘솔 <code>generateMacroStoryline()</code>
@@ -7384,7 +7384,7 @@ body.light-theme canvas { filter:none; }
     <!-- 수요파괴 + JPM 옵션 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
       <div style="background:rgba(0,0,0,0.15);border-radius:7px;padding:10px;">
-        <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:4px;">수요파괴 피크 데이터 <span style="font-weight:500;color:var(--text-muted);">(2026 H1 평균 · JPM/IEA · 5월 현재 모니터링 — v49.30 R75 시점 일반화)</span></div>
+        <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:4px;">수요파괴 피크 데이터 <span style="font-weight:500;color:var(--text-muted);">(2026 H1 평균 · JPM/IEA · 월간 모니터링)</span></div>
         <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">
           아시아 정제유 선적: <b style="color:var(--data-red);">-30~35%</b> <span style="color:var(--text-muted);">(vs 전쟁 전)</span><br>
           제트유(항공): <b style="color:var(--data-red);">-40%</b> · 노선 철수 <span style="color:var(--text-muted);">(IATA)</span><br>
@@ -8277,30 +8277,30 @@ body.light-theme canvas { filter:none; }
     </button>
     <div class="aio-explain-content">
       <div class="explain-section" data-fund-criteria-registry="AIO_FUNDAMENTAL_PAGE_CRITERIA">
-        <div class="explain-label">15개 분석 관점 (기관 리서치 프레임워크) <span style="font-size:10px;color:var(--data-green);">v49.35 R91: registry 등록 + 가용성 가시화</span></div>
+        <div class="explain-label">15개 분석 관점 (기관 리서치 프레임워크)</div>
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;padding:6px 8px;background:rgba(0,212,255,0.04);border-radius:4px;">📊 가용성: <span style="color:var(--data-green);">✓ 구현</span> · <span style="color:var(--data-amber);">⚠ 부분/계획됨</span> · <span style="color:var(--data-red);">❌ 미구현 — AI 학습 의존 환각 위험</span></div>
         <div class="explain-body">
           <strong>(1) Quality of Business</strong> <span style="color:var(--data-green);font-size:10px;">[✓ FMP+Naver]</span> — ROE &gt; 15% 3년+ 지속? 자본 효율성.
           <br><strong>(2) Moat</strong> <span style="color:var(--data-amber);font-size:10px;">[⚠ SEC 10-K AI 분석 대체 — Morningstar 유료 미사용]</span> — 경제적 해자 (브랜드·네트워크·전환비용·규제·원가 우위 중 2개+).
           <br><strong>(3) Growth</strong> <span style="color:var(--data-green);font-size:10px;">[✓ FMP+Naver]</span> — 매출 5년 CAGR &gt; 10%? 조정 EPS 성장 &gt; 12%?
           <br><strong>(4) Margin Trend</strong> <span style="color:var(--data-green);font-size:10px;">[✓ Naver]</span> — Gross Margin 확장 중? OPM 3년 상승? 인플레 전가력.
-          <br><strong>(5) FCF Yield</strong> <span style="color:var(--data-green);font-size:10px;">[✓ computeFcfYield() v49.36]</span> — FCF/시총 &gt; 4%? Buyback+배당.
-          <br><strong>(6) Balance Sheet</strong> <span style="color:var(--data-green);font-size:10px;">[✓ computeBalanceSheetRatios() v49.36]</span> — Net Debt / EBITDA &lt; 2.5x?
+          <br><strong>(5) FCF Yield</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산]</span> — FCF/시총 &gt; 4%? Buyback+배당.
+          <br><strong>(6) Balance Sheet</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산]</span> — Net Debt / EBITDA &lt; 2.5x?
           <br><strong>(7) Valuation PE</strong> <span style="color:var(--data-green);font-size:10px;">[✓ Yahoo+Naver]</span> — Forward PE vs 5Y 평균. PEG Ratio &lt; 1.5.
-          <br><strong>(8) EV / EBITDA</strong> <span style="color:var(--data-green);font-size:10px;">[✓ computeEvEbitda() v49.36]</span> — 동종 산업 대비 할인?
-          <br><strong>(9) Insider Activity</strong> <span style="color:var(--data-green);font-size:10px;">[✓ fetchFinnhubInsider() v49.36 — key 필요]</span> — 임원 매수/매도 12주 누적.
-          <br><strong>(10) Institutional Flow</strong> <span style="color:var(--data-green);font-size:10px;">[✓ fetchSEC13F() v49.36 — URL fetch]</span> — 13F 기관 보유 비중 변화.
-          <br><strong>(11) Short Interest</strong> <span style="color:var(--data-green);font-size:10px;">[✓ fetchFinnhubShortInterest() v49.36 — key 필요]</span> — 5% 이하 정상, 15%+ 하방 압력.
+          <br><strong>(8) EV / EBITDA</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산]</span> — 동종 산업 대비 할인?
+          <br><strong>(9) Insider Activity</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 수집 — key 필요]</span> — 임원 매수/매도 12주 누적.
+          <br><strong>(10) Institutional Flow</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 수집 — SEC 공시]</span> — 13F 기관 보유 비중 변화.
+          <br><strong>(11) Short Interest</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 수집 — key 필요]</span> — 5% 이하 정상, 15%+ 하방 압력.
           <br><strong>(12) Analyst Revisions</strong> <span style="color:var(--data-green);font-size:10px;">[✓ Finnhub+Naver]</span> — 최근 90일 EPS 추정치 상향/하향.
           <br><strong>(13) Earnings Beat Streak</strong> <span style="color:var(--data-green);font-size:10px;">[✓ Finnhub]</span> — 최근 4분기 어닝 서프라이즈 연속성.
           <br><strong>(14) Industry Rank</strong> <span style="color:var(--data-amber);font-size:10px;">[⚠ SCREENER_DB.rsi 대체 — IBD 유료]</span> — IBD 산업 랭킹 Top 30?
-          <br><strong>(15) Macro Exposure</strong> <span style="color:var(--data-green);font-size:10px;">[✓ computeMacroBeta() v49.36 — 휴리스틱]</span> — 금리/달러/원자재 민감도.
+          <br><strong>(15) Macro Exposure</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산 — 휴리스틱]</span> — 금리/달러/원자재 민감도.
         </div>
         <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;padding:6px 10px;background:rgba(0,229,160,0.08);border-radius:4px;">
-          <strong style="color:var(--data-green);">v49.65 커버리지: 17 관점 출처/함수 매핑 완료</strong> · 단, Supply Chain은 10-K 링크+키워드 가이드, TAM/Platform/Moat/FMP Segments는 confidence/키 의존 한계 고지 필수. 사이드바 Audit 위젯에서 커버리지와 3대 본질 정렬 상태를 확인할 수 있음.
+          <strong style="color:var(--data-green);">커버리지: 17 관점 출처/함수 매핑 완료</strong> · 단, Supply Chain은 10-K 링크+키워드 가이드, TAM/Platform/Moat/FMP Segments는 confidence/키 의존 한계 고지 필수. 사이드바 Audit 위젯에서 커버리지와 3대 본질 정렬 상태를 확인할 수 있음.
         </div>
         <div style="font-size:11px;color:var(--text-secondary);margin-top:6px;padding:6px 10px;background:rgba(168,85,247,0.06);border-radius:4px;">
-          <strong style="color:var(--text-primary);">사용자 요청 17 관점 분석 매트릭스 (v49.65 신규):</strong><br>
+          <strong style="color:var(--text-primary);">사용자 요청 17 관점 분석 매트릭스:</strong><br>
           1) 기업 개요 <span style="color:var(--data-green);">✓ [SEC 10-K + Wiki]</span> · 2) 창립/성장 <span style="color:var(--data-green);">✓ [Wiki + News]</span> · 3) CEO/경영진 <span style="color:var(--data-green);">✓ [Wiki + Insider]</span> · 4) 비즈니스 모델 <span style="color:var(--data-green);">✓ [SEC + Wiki]</span> · 5) 사업 구조 <span style="color:var(--data-green);">✓ [Segments + SEC]</span> · 6) 제품 포트폴리오 <span style="color:var(--data-green);">✓ [FMP Segments]</span> · 7) 기술력/해자 <span style="color:var(--data-green);">✓ [Moat Score]</span> · 8) 수익 구조 <span style="color:var(--data-green);">✓ [Segments + Naver]</span> · 9) 재무제표 <span style="color:var(--data-green);">✓ [FMP + Balance + FCF]</span> · 10) 밸류에이션 <span style="color:var(--data-green);">✓ [PE + EV/EBITDA + 목표가]</span> · 11) TAM/시장 <span style="color:var(--data-amber);">⚠ [SIC + memo, confidence:low]</span> · 12) 공급망 <span style="color:var(--data-green);">✓ [SEC Item 1+1C]</span> · 13) 플랫폼/생태계 <span style="color:var(--data-amber);">⚠ [3-source synthesis, confidence:low]</span> · 14) 협력/파트너십 <span style="color:var(--data-green);">✓ [SEC 8-K 1.01+7.01]</span> · 15) 경쟁 구조 <span style="color:var(--data-green);">✓ [SEC + Wiki + peers]</span> · 16) 리스크 <span style="color:var(--data-green);">✓ [SEC 1A + Short]</span> · 17) 투자 포인트 <span style="color:var(--data-green);">✓ [컨센서스 + 종합]</span>
         </div>
       </div>
@@ -8317,7 +8317,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
       <div class="explain-section">
-        <div class="explain-label is-amber">재무 건전성 Piotroski F-Score (0~9) <span style="font-size:10px;color:var(--data-green);">v49.28/R62 PIOTROSKI_CHECKLIST 자동 채점</span></div>
+        <div class="explain-label is-amber">재무 건전성 Piotroski F-Score (0~9) <span style="font-size:10px;color:var(--data-green);">자동 채점</span></div>
         <div class="explain-body">
           Joseph Piotroski의 9가지 YES/NO 체크. 8~9점 = 재무 강건, 0~2점 = 부실 위험.
           <ul>
@@ -8374,7 +8374,7 @@ body.light-theme canvas { filter:none; }
         <button class="aio-btn-table" data-action="fundamentalSearch" data-arg="TSLA" style="font-size:11px;padding:6px 10px;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);">예시: TSLA</button>
         <button class="aio-btn-table" data-action="fundamentalSearch" data-arg="MSFT" style="font-size:11px;padding:6px 10px;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);">예시: MSFT</button>
       </div>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:6px;">💡 클릭 → 자동 검색 + F-Score(PIOTROSKI_CHECKLIST) + 15가지 분석 관점 적용</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:6px;">💡 클릭 → 자동 검색 + F-Score(Piotroski) + 15가지 분석 관점 적용</div>
     </div>
 
   <!-- v34.9: TradingView 기업분석 차트 -->
@@ -8822,7 +8822,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
       <div id="cycle-dynamic-readout" style="margin-bottom:8px;padding:8px 10px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.25);border-radius:6px;font-size:11px;color:var(--text-secondary);">
-        <strong style="color:var(--accent);">🔄 동적 사이클 판정 (v49.28/R67 getCycleFromMacro):</strong>
+        <strong style="color:var(--accent);">🔄 동적 사이클 판정:</strong>
         <span id="cycle-dynamic-phase" style="color:var(--data-amber);font-weight:700;">판정 입력 대기...</span> ·
         <span id="cycle-dynamic-inputs" style="font-size:10px;color:var(--text-muted);">매크로 입력 수신 대기</span>
         <div id="cycle-dynamic-rationale" style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.5;"></div>
@@ -9067,7 +9067,7 @@ body.light-theme canvas { filter:none; }
     <div id="pf-analysis-dashboard" style="margin-bottom:14px;padding:12px 14px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.25);border-radius:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <div style="font-size:12px;font-weight:800;color:var(--accent);">📊 리스크 분석 (Sharpe / Beta / MDD / Kelly)</div>
-        <div style="font-size:10px;color:var(--text-muted);">v49.29/R71 PagePurposeRatio 시정 — 이론 풍부 vs UI 부족 해소</div>
+        <div style="font-size:10px;color:var(--text-muted);">실시간 리스크 지표</div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
         <div style="padding:8px 10px;background:var(--surface-2);border-radius:6px;text-align:center;">
@@ -9441,7 +9441,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
       <div class="explain-section">
-        <div class="explain-label is-green">AI 채팅 + 자동 데이터 주입 (v48.55+)</div>
+        <div class="explain-label is-green">AI 채팅 + 자동 데이터 주입</div>
         <div class="explain-body">
           AI 채팅 사이드 패널에서 종목 질의 시 <strong>자동 수집</strong>:
           <ul>
@@ -9451,7 +9451,7 @@ body.light-theme canvas { filter:none; }
             <li><strong>SEC EDGAR</strong> — 10-K/10-Q 공시 + 섹터 백분위 순위</li>
             <li><strong>웹검색</strong> — 최신 뉴스·리서치 (Perplexity · Google CSE fallback)</li>
           </ul>
-          <strong>themes/theme-detail/portfolio 페이지에서 이 종목 질의</strong> → FMP 재무 심층 자동 활성 (v48.55 R41).
+          <strong>themes/theme-detail/portfolio 페이지에서 이 종목 질의</strong> → FMP 재무 심층 자동 활성.
         </div>
       </div>
       <div class="explain-section">
