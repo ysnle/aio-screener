@@ -2,7 +2,10 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.7
+- **현재 버전**: v50.8
+
+## v50.8 note
+- **AI 채팅 데이터 출처 전수 감사 + 채팅의 v50.5 FRED 재사용**. 감사 결론: 채팅 견고(실시간 시세 강제 fetch·11소스 펀더멘털·`_liveSnap` 시장헤더·18컨텍스트 100% 동적·답변후 자동검증). agent false-alarm 2건 정정(`_getV48IntegratedContext` index.html:15539 정의됨 / web_search `_shouldUseClaudeWebSearch`→callClaude 배선됨). 진짜 갭 시정: macro 채팅 실제 컨텍스트는 index.html:17554 override(aio-chat.js:62는 死코드)인데 US CPI/PCE/Core 인플레가 누락 → `_liveSnap().macro`에 인플레 YoY 필드 추가(FRED live 우선+스냅샷 폴백) + 프롬프트 라인. `applyFredToUI`가 FRED를 `DATA_SNAPSHOT.cpi/pce/nfp` write-back. baseline: `CHAT-DATA-AUDIT-2026-06-04.md`. T770.
 
 ## v50.7 note
 - **페이지별 "현재 시장 분석" 텍스트 라이브 동기화**: 분석 생성기는 이미 라이브 데이터를 읽었으나 `aio:pageShown`(진입 1회)에만 연결돼 페이지 체류 중 데이터 갱신에 텍스트가 안 따라옴. 7개 페이지 생성기(breadth 합의/themes 사이클/signal 시나리오·레짐/macro 시나리오/options 전략/briefing action/sentiment VIX)를 named 함수로 추출 + `AIO_PAGE_NARRATIVE_RENDERERS` 레지스트리. **`AIO.refreshActivePageNarratives()`**가 `aio:liveQuotes`+`aio:refresh:done` 시 보이는 페이지 분석만 재생성(숨은 페이지 스킵 + 8초 스로틀). `data-narrative-stamp`로 "🔄 자동 갱신 · HH:MM:SS" 표식. 생성기 재작성 없이 트리거만 확장 = 저위험. T769.
@@ -65,7 +68,7 @@
 
 - AI stock-answer freshness now treats `forceFresh` as strict: bypass `_chatTickerCache`, bypass `_liveData` immediate cache returns, bypass `ensureFreshDataForUse` minGap throttle, and re-attempt per-ticker quote lookup before prompt assembly.
 
-## _context/ 문서 (14개 Git-tracked 활성)
+## _context/ 문서 (16개 Git-tracked 활성)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
@@ -83,6 +86,7 @@
 | ARCHITECTURE-AUDIT-2026-05-10.md | v49.3 전수감사 보고서 기반 아키텍처 보강 요약 | 데이터/함수/리스크 레이어 변경 |
 | DATA-FRESHNESS-AUDIT-2026-05-10.md | v49.4 데이터 최신성/자동 갱신 보강 요약 | freshness policy/source/stale 기준 변경 |
 | GATE-BASELINE-2026-06-04.md | v50.4 evidence 게이트/단위테스트 실측 기준선 | 게이트/테스트 재측정 시 |
+| CHAT-DATA-AUDIT-2026-06-04.md | v50.8 AI 채팅 데이터 출처 전수 감사 baseline | 채팅 데이터 경로/컨텍스트 변경 시 |
 
 ## 파일 구조
 

@@ -2492,6 +2492,31 @@ function applyFredToUI(data) {
     const nfpChg = Math.round(data['PAYEMS'].value - data['PAYEMS'].prevValue);
     _updSnap('nfp', function(){ return (nfpChg >= 0 ? '+' : '') + nfpChg.toLocaleString() + 'K'; });
   }
+
+  // v50.8: FRED live 매크로를 DATA_SNAPSHOT 필드에도 write-back.
+  // → macro/sentiment/signal CHAT_CONTEXT 등 DATA_SNAPSHOT.X 소비자가 FRED 키 설정 시 자동으로 live 인용.
+  // (이전: DOM data-snap sink만 갱신 → 채팅은 정적 스냅샷 corePce/cpi만 읽어 신규 FRED 미반영.)
+  try {
+    const DS = window.DATA_SNAPSHOT;
+    if (DS) {
+      const _setLiveSnap = function(key, val) {
+        if (typeof val === 'number' && isFinite(val)) {
+          DS[key] = val;
+          DS._fredLive = DS._fredLive || {};
+          DS._fredLive[key] = { value: val, source: 'FRED', ts: Date.now() };
+        }
+      };
+      if (data['CPIAUCSL'] && typeof data['CPIAUCSL'].yoy === 'number') _setLiveSnap('cpi', +data['CPIAUCSL'].yoy.toFixed(1));
+      if (data['CPILFESL'] && typeof data['CPILFESL'].yoy === 'number') _setLiveSnap('coreCpi', +data['CPILFESL'].yoy.toFixed(1));
+      if (data['PCEPI'] && typeof data['PCEPI'].yoy === 'number') _setLiveSnap('pce', +data['PCEPI'].yoy.toFixed(1));
+      if (data['PCEPILFE'] && typeof data['PCEPILFE'].yoy === 'number') _setLiveSnap('corePce', +data['PCEPILFE'].yoy.toFixed(1));
+      if (data['PAYEMS'] && data['PAYEMS'].value != null && data['PAYEMS'].prevValue != null) {
+        _setLiveSnap('nfp', Math.round(data['PAYEMS'].value - data['PAYEMS'].prevValue));
+      }
+      if (data['FEDFUNDS'] && typeof data['FEDFUNDS'].value === 'number') _setLiveSnap('fedRate', +data['FEDFUNDS'].value.toFixed(2));
+      if (data['UNRATE'] && typeof data['UNRATE'].value === 'number') _setLiveSnap('unemploy', +data['UNRATE'].value.toFixed(1));
+    }
+  } catch(_fredWb) { if (window._aioLog) window._aioLog('warn', 'render', 'FRED→DATA_SNAPSHOT write-back: ' + (_fredWb && _fredWb.message)); }
   if (data['UNRATE']) {
     _updSnap('unemploy', function(){ return data['UNRATE'].value.toFixed(1) + '%'; });
   }

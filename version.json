@@ -1,5 +1,5 @@
 {
-  "version": "v50.7",
-  "built": "2026-06-04T18:00:00+09:00",
-  "note": "v50.7 - Per-page 'current market analysis' text now live-syncs with data. Existing narrative generators (breadth consensus, themes cycle, signal scenario/regime, macro scenario, options strategy rec, briefing action, sentiment VIX-term) were extracted into named functions and registered in AIO_PAGE_NARRATIVE_RENDERERS. A new AIO.refreshActivePageNarratives() re-runs the visible page's analysis text on aio:liveQuotes (every quote tick) and aio:refresh:done — not just on page-enter — with an 8s throttle and active-page guard. Each analysis area shows a '🔄 자동 갱신 · HH:MM:SS' stamp so users see the text updating in lockstep with the data. T769 added."
+  "version": "v50.8",
+  "built": "2026-06-04T21:00:00+09:00",
+  "note": "v50.8 - AI chat data-source audit + chat reuses v50.5 FRED macro. Audit verdict: chat is robust (forced real-time quote per answer, 11-source fundamentals, live market header via _liveSnap, 18 contexts 100% dynamic, post-answer accuracy/hallucination/structure badges). Two agent false-alarms corrected (_getV48IntegratedContext is defined at index.html:15539; web_search IS wired via _shouldUseClaudeWebSearch). Real gap fixed: the live macro CHAT_CONTEXT (index.html:17554 override) exposed Fed/unemployment via live _fredData but omitted US CPI/PCE/Core inflation — now _liveSnap().macro adds cpiYoY/coreCpiYoY/pceYoY/corePceYoY/nfp (FRED-live-first, snapshot fallback, [FRED]/[snapshot] labels) and the macro prompt shows them. applyFredToUI also writes FRED YoY back to DATA_SNAPSHOT.cpi/coreCpi/pce/corePce/nfp/fedRate/unemploy so snapshot consumers stay fresh. Baseline recorded in _context/CHAT-DATA-AUDIT-2026-06-04.md. T770 added."
 }

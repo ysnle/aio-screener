@@ -5298,6 +5298,30 @@
       t769detail = 'pages=' + regPages.length + ' core=' + hasCore + ' named=' + namedOk + ' refresh=' + hasRefresh + ' stamp=' + hasStamp + ' rerender=' + liveRerenderOk + ' throttle=' + throttleOk;
     } catch(e) { t769detail = 'err: ' + (e && e.message); }
     _assert('T769 v507_live_narrative_sync: per-page 분석 렌더러가 aio:liveQuotes 시 보이는 페이지 텍스트 재생성 + 스로틀', t769ok, t769detail);
+
+    // ── v50.8: AI 채팅이 v50.5 FRED 인플레/매크로를 재사용 (write-back + macroBlock 노출) ──
+    // T770: applyFredToUI가 FRED YoY를 DATA_SNAPSHOT에 write-back + macro CHAT_CONTEXT가 인플레 노출
+    var t770ok = false, t770detail = '';
+    try {
+      var fredFn = (typeof applyFredToUI !== 'undefined') ? applyFredToUI : null;
+      var writeBackOk = false, macroExposeOk = false;
+      if (typeof fredFn === 'function' && window.DATA_SNAPSHOT) {
+        fredFn({ 'PCEPILFE': { value: 126.1, prevValue: 125.8, yoy: 2.7, date: '2026-05' },
+                 'PAYEMS': { value: 159200, prevValue: 159053, date: '2026-06' } });
+        writeBackOk = (window.DATA_SNAPSHOT.corePce === 2.7) && (window.DATA_SNAPSHOT.nfp === 147)
+          && !!(window.DATA_SNAPSHOT._fredLive && window.DATA_SNAPSHOT._fredLive.corePce);
+      }
+      // macro CHAT_CONTEXT(override)가 인플레·고용 라인을 포함하고 FRED live값 우선
+      if (window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.macro && window.CHAT_CONTEXTS.macro.system) {
+        window._fredData = window._fredData || {};
+        window._fredData['PCEPILFE'] = { value: 126.1, prevValue: 125.8, yoy: 2.7 };
+        var mctx = window.CHAT_CONTEXTS.macro.system();
+        macroExposeOk = mctx.indexOf('인플레·고용') >= 0 && /근원PCE 2\.7% \[FRED\]/.test(mctx);
+      }
+      t770ok = writeBackOk && macroExposeOk;
+      t770detail = 'writeBack(corePce=2.7,nfp=147,_fredLive)=' + writeBackOk + ' macroExpose(근원PCE 2.7 FRED)=' + macroExposeOk;
+    } catch(e) { t770detail = 'err: ' + (e && e.message); }
+    _assert('T770 v508_chat_reuses_fred: applyFredToUI→DATA_SNAPSHOT write-back + macro CHAT_CONTEXT 인플레 노출', t770ok, t770detail);
   }
 
   window.AIO = window.AIO || {};

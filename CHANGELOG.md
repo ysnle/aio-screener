@@ -6,6 +6,18 @@
 
 ---
 
+## v50.8 - AI 채팅 데이터 출처 전수 감사 + 채팅의 v50.5 FRED 재사용 (2026-06-04)
+
+**Changed files**: `js/aio-data.js`, `index.html`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/INDEX.md`, `_context/CHAT-DATA-AUDIT-2026-06-04.md`
+
+- **감사 결론**: AI 채팅 데이터 출처는 **이미 견고** — 답변마다 실시간 시세 강제 fetch(Yahoo 5프록시→Stooq→Naver→Finnhub), 종목당 11+ 소스 펀더멘털 병렬, `_liveSnap()` 시장 헤더 강제 주입, **18 CHAT_CONTEXTS 100% 동적**, 답변 후 정확성·환각·구조 자동 검증 배지. (`_context/CHAT-DATA-AUDIT-2026-06-04.md`에 실측 baseline.)
+- **Explore agent false-alarm 2건 정정**: `_getV48IntegratedContext`(dead code 주장)는 index.html:15539 정의됨. web_search(미배선 주장)는 `_shouldUseClaudeWebSearch`→`callClaude({webSearch})`로 실제 배선됨.
+- **진짜 갭 시정 (G1)**: macro 채팅의 실제 컨텍스트(index.html:17554 override — aio-chat.js:62 macro는 死코드)는 `_liveSnap().macro`=`_fredData`로 Fed/실업률은 live 사용하나 **US CPI/PCE/Core 인플레가 macroBlock에 누락**돼 v50.5 FRED 인플레가 채팅에 안 들어감. → `_liveSnap().macro`에 `cpiYoY/coreCpiYoY/pceYoY/corePceYoY/nfp` 추가(FRED live 우선 + `DATA_SNAPSHOT` 폴백, `[FRED]`/`[스냅샷]` 라벨) + macro 프롬프트에 "인플레·고용 (YoY)" 라인.
+- **write-back (A)**: `applyFredToUI`가 FRED YoY를 `DATA_SNAPSHOT.cpi/coreCpi/pce/corePce/nfp/fedRate/unemploy`에 반영(`_fredLive` 메타) → 스냅샷 폴백·페이지 data-snap sink·기타 소비자도 최신화.
+- **잔존(향후)**: macro override의 stale 4월 시나리오(이란 휴전 4/7 등) 동적화, 보조 11소스 silent 누락(by-design, AI 환각 위험은 낮음), dead code `computeCrossAssetCorrelation` 1건.
+- **검증**: preview에서 macro 폴백("CPI 3.8% [스냅샷]")→mock FRED("CPI 2.9% [FRED]·NFP +147K [FRED]") 전환, write-back(corePce 3.3→2.7, nfp 115→147), 감사 4함수 실측, 콘솔 에러 0. T770 회귀.
+- **Cache rotation**: title/badge/APP_VERSION/SW_VERSION/version.json/캐시버스터 → v50.8.
+
 ## v50.7 - 페이지별 "현재 시장 분석" 텍스트 라이브 동기화 (2026-06-04)
 
 **Changed files**: `js/aio-core.js`, `index.html`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`
