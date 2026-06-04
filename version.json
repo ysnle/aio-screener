@@ -1,5 +1,5 @@
 {
-  "version": "v50.4",
-  "built": "2026-06-03T11:25:00+09:00",
-  "note": "v50.4 - Static market data/calendar refresh. Updates hardcoded news, briefing, macro calendar, DATA_SNAPSHOT metadata, Computex/GTC Taipei topics, SpaceX IPO watch, CPI/NFP/FOMC/PCE dates, and cache rotation."
+  "version": "v50.5",
+  "built": "2026-06-04T12:00:00+09:00",
+  "note": "v50.5 - C-layer macro real-data wiring. Connects PCE/Core PCE/Core CPI to the existing FRED pipeline with proper YoY computation (13-obs), adds an inflation/employment value card row to the macro page (CPI/Core CPI/PCE/Core PCE YoY + NFP MoM), fixes the CPI comparison-table label-vs-data bug (was MoM under a YoY label), and adds DATA_SNAPSHOT.nfp fallback. Auto-updates from FRED when aio_fred_key is set, falls back to snapshot otherwise. T763~T766 added."
 }

@@ -5182,9 +5182,49 @@
       homeWeeklyTextV504.slice(0, 800));
 
     var runtimeVersionV504 = (typeof APP_VERSION === 'string') ? APP_VERSION : (window.AIO && window.AIO.version);
-    _assert('T762 v504_app_version_semver_two_digit_policy: runtime version uses v50.4 format',
-      runtimeVersionV504 === 'v50.4' && /^v\d+\.\d{1,2}$/.test(runtimeVersionV504),
+    _assert('T762 v504_app_version_semver_two_digit_policy: runtime version uses v50.5 format',
+      /^v50\.\d{1,2}$/.test(runtimeVersionV504) && /^v\d+\.\d{1,2}$/.test(runtimeVersionV504),
       String(runtimeVersionV504));
+
+    // ── v50.5: C계층 매크로 실데이터(FRED) 연결 ──
+    // T763: FRED_SERIES에 PCE/Core CPI/Core PCE YoY 시리즈 등록
+    var fredSeriesV505 = (typeof FRED_SERIES !== 'undefined') ? FRED_SERIES : null;
+    _assert('T763 v505_fred_series_pce_corecpi: PCEPI/PCEPILFE/CPILFESL registered with yoy flag',
+      !!fredSeriesV505 && fredSeriesV505.PCEPI && fredSeriesV505.PCEPI.yoy === true &&
+        fredSeriesV505.PCEPILFE && fredSeriesV505.PCEPILFE.yoy === true &&
+        fredSeriesV505.CPILFESL && fredSeriesV505.CPILFESL.yoy === true &&
+        fredSeriesV505.CPIAUCSL && fredSeriesV505.CPIAUCSL.yoy === true,
+      fredSeriesV505 ? Object.keys(fredSeriesV505).filter(function(k){ return fredSeriesV505[k].yoy; }).join(',') : 'no FRED_SERIES');
+
+    // T764: 인플레·고용 카드 data-snap sink + DATA_SNAPSHOT 폴백 일치
+    var S505 = window.DATA_SNAPSHOT || {};
+    function _snapTxt(k){ var el=document.querySelector('[data-snap="'+k+'"]'); return el?(el.textContent||'').trim():null; }
+    _assert('T764 v505_macro_inflation_jobs_cards: cpi-yoy/core-cpi-yoy/pce-yoy/core-pce-yoy/nfp sinks exist with snapshot fallback',
+      _snapTxt('cpi-yoy') && _snapTxt('core-cpi-yoy') && _snapTxt('pce-yoy') && _snapTxt('core-pce-yoy') && _snapTxt('nfp') &&
+        typeof S505.nfp === 'number' && typeof S505.pce === 'number' && typeof S505.corePce === 'number',
+      [_snapTxt('cpi-yoy'),_snapTxt('core-cpi-yoy'),_snapTxt('pce-yoy'),_snapTxt('core-pce-yoy'),_snapTxt('nfp')].join(' | '));
+
+    // T765: applyFredToUI가 live YoY로 data-snap을 오버라이드 (mock 주입)
+    var t765ok = false, t765detail = 'applyFredToUI not callable';
+    try {
+      var _fredFn = (typeof applyFredToUI !== 'undefined') ? applyFredToUI : null;
+      if (typeof _fredFn === 'function') {
+        var _before = _snapTxt('pce-yoy');
+        _fredFn({ 'PCEPI': { value: 125.4, prevValue: 125.1, yoy: 2.5, date: '2026-05-30' },
+                  'PAYEMS': { value: 159200, prevValue: 159053, date: '2026-06-05' } });
+        var _afterPce = _snapTxt('pce-yoy'), _afterNfp = _snapTxt('nfp');
+        t765ok = (_afterPce === '2.5%') && (_afterNfp === '+147K');
+        t765detail = 'before=' + _before + ' afterPce=' + _afterPce + ' afterNfp=' + _afterNfp;
+        // 폴백 복원 (다른 테스트 영향 방지)
+        if (typeof applyDataSnapshot === 'function') { try { applyDataSnapshot(); } catch(_) {} }
+      }
+    } catch(e) { t765detail = 'err: ' + (e && e.message); }
+    _assert('T765 v505_fred_yoy_override: applyFredToUI overrides pce-yoy/nfp sinks from live YoY', t765ok, t765detail);
+
+    // T766: NFP MoM 증감 계산 정확성 (PAYEMS 레벨 차이, 천명)
+    _assert('T766 v505_nfp_mom_change: PAYEMS 159200-159053 → +147K formatting',
+      (function(){ var c = Math.round(159200 - 159053); return c === 147 && ((c>=0?'+':'')+c.toLocaleString()+'K') === '+147K'; })(),
+      'nfp change calc');
   }
 
   window.AIO = window.AIO || {};

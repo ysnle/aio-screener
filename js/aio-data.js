@@ -2275,7 +2275,7 @@ const FRED_SERIES = {
   'VIXCLS':       { name: 'VIX Close', el: null, unit: '' },
   'ICSA':         { name: 'Initial Claims', el: null, unit: 'K', multiplier: 0.001 },
   'UNRATE':       { name: 'Unemployment Rate', el: null, unit: '%' },
-  'CPIAUCSL':     { name: 'CPI', el: null, unit: '' },
+  'CPIAUCSL':     { name: 'CPI', el: null, unit: '', yoy: true },          // 헤드라인 CPI (YoY 계산)
   'FEDFUNDS':     { name: 'Fed Funds Rate', el: null, unit: '%' },
   // v47.11 신규
   'DFEDTARU':     { name: 'Fed Funds Target Upper', el: null, unit: '%' },
@@ -2290,7 +2290,11 @@ const FRED_SERIES = {
   'RSAFS':        { name: 'Retail Sales', el: null, unit: 'M USD' },       // retail-sales
   'UMCSENT':      { name: 'Michigan Sentiment', el: null, unit: '' },      // cons-conf
   'CES0500000003':{ name: 'Avg Hourly Earnings', el: null, unit: 'USD' },  // wage-growth
-  'PAYEMS':       { name: 'Non-farm Payrolls', el: null, unit: 'K' }       // 고용 (NFP)
+  'PAYEMS':       { name: 'Non-farm Payrolls', el: null, unit: 'K' },      // 고용 (NFP)
+  // v50.5: C계층 매크로 실데이터 연결 — 연준 선호 지표(PCE) + 근원(Core) YoY
+  'CPILFESL':     { name: 'Core CPI', el: null, unit: '', yoy: true },     // 근원 CPI (식료품·에너지 제외)
+  'PCEPI':        { name: 'PCE', el: null, unit: '', yoy: true },          // 헤드라인 PCE (연준 선호)
+  'PCEPILFE':     { name: 'Core PCE', el: null, unit: '', yoy: true }      // 근원 PCE (연준 2% 목표 기준)
 };
 
 // v48.59: BOK ECOS API fetcher — 한국은행 기준금리/환율/수출 (무료, 회원가입)
@@ -2400,7 +2404,8 @@ async function fetchAllFredData() {
   // Fetch in batches of 3 to be nice to FRED
   for (let i = 0; i < seriesIds.length; i += 3) {
     const batch = seriesIds.slice(i, i + 3);
-    const promises = batch.map(id => fetchFredSeries(id, 5).then(obs => ({ id, obs })));
+    // v50.5: YoY 시리즈는 13개월 관측치 필요 (obs[0] vs obs[12])
+    const promises = batch.map(id => fetchFredSeries(id, (FRED_SERIES[id] && FRED_SERIES[id].yoy) ? 13 : 5).then(obs => ({ id, obs })));
     const batchResults = await Promise.allSettled(promises);
     batchResults.forEach(r => {
       if (r.status === 'fulfilled' && r.value.obs && r.value.obs.length > 0) {
@@ -2411,6 +2416,14 @@ async function fetchAllFredData() {
         const accepted = MacroStore.set(id, latest.value, prev ? prev.value : null, latest.date);
         if (accepted) {
           results[id] = { value: MacroStore._data[id].value, prevValue: MacroStore._data[id].prevValue, date: latest.date };
+          // v50.5: 인플레 지표 YoY 계산 (최신 index vs 12개월 전 index)
+          if (FRED_SERIES[id] && FRED_SERIES[id].yoy && obs.length >= 13) {
+            const yearAgo = parseFloat(obs[12] && obs[12].value);
+            const cur = parseFloat(latest.value);
+            if (isFinite(yearAgo) && yearAgo > 0 && isFinite(cur)) {
+              results[id].yoy = ((cur - yearAgo) / yearAgo) * 100;
+            }
+          }
         }
       }
     });
@@ -2461,14 +2474,23 @@ function applyFredToUI(data) {
     const r = data['FEDFUNDS'].value;
     _updSnap('fed-rate', function(){ return r.toFixed(2) + '%'; });
   }
-  if (data['CPIAUCSL']) {
-    // 전년 대비 % (CPIAUCSL은 index 값이라 YoY 계산 별도 필요하지만, 간단화: 최신값 표시)
-    const cpi = data['CPIAUCSL'];
-    if (cpi.prevValue && cpi.prevValue > 0) {
-      // 간단 근사: 12개월 YoY는 별도 observation 필요 — 여기선 MoM만
-      const mom = ((cpi.value - cpi.prevValue) / cpi.prevValue * 100);
-      _updSnap('cpi', function(){ return mom.toFixed(2) + '% MoM'; });
-    }
+  // v50.5: CPI/Core CPI/PCE/Core PCE를 YoY(전년 동월 대비)로 렌더 — 시장/연준 기준 지표.
+  // 기존 'cpi' sink는 비교표(11571)에서 "CPI (YoY)"로 표기되므로 YoY가 정확.
+  function _fredYoYSnap(seriesId, snapKey) {
+    const e = data[seriesId];
+    if (!e || typeof e.yoy !== 'number' || !isFinite(e.yoy)) return;
+    const yoy = e.yoy;
+    _updSnap(snapKey, function(){ return (yoy >= 0 ? '' : '') + yoy.toFixed(1) + '%'; });
+  }
+  _fredYoYSnap('CPIAUCSL', 'cpi');        // 비교표 호환 (US CPI YoY)
+  _fredYoYSnap('CPIAUCSL', 'cpi-yoy');    // 전용 카드
+  _fredYoYSnap('CPILFESL', 'core-cpi-yoy');
+  _fredYoYSnap('PCEPI',    'pce-yoy');
+  _fredYoYSnap('PCEPILFE', 'core-pce-yoy');
+  // NFP: PAYEMS는 천명 단위 레벨 → 전월 대비 증감(MoM change)이 시장이 보는 "신규 고용".
+  if (data['PAYEMS'] && data['PAYEMS'].value != null && data['PAYEMS'].prevValue != null) {
+    const nfpChg = Math.round(data['PAYEMS'].value - data['PAYEMS'].prevValue);
+    _updSnap('nfp', function(){ return (nfpChg >= 0 ? '+' : '') + nfpChg.toLocaleString() + 'K'; });
   }
   if (data['UNRATE']) {
     _updSnap('unemploy', function(){ return data['UNRATE'].value.toFixed(1) + '%'; });

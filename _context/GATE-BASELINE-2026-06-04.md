@@ -88,6 +88,14 @@ measured_env: headless preview (python3 http.server :8080, no API keys, CORS-blo
 
 ---
 
+## 3-b. v50.5 진행 — C계층 매크로 실데이터(FRED) 연결
+
+보완 백로그 #3(실데이터 fetch) 1차 완료: **CPI·근원CPI·PCE·근원PCE·NFP를 기존 FRED 파이프라인에 실연결**.
+- `FRED_SERIES`에 `PCEPI`/`PCEPILFE`/`CPILFESL` 등록(`yoy:true`), 13-obs YoY 계산. macro 페이지에 값 카드 5개 신설(기존엔 sink 자체가 없었음).
+- FRED 키 설정 시 자동 YoY 오버라이드 / 미설정 시 `DATA_SNAPSHOT` 스냅샷 폴백. CPI 비교표 라벨-데이터(MoM under YoY) 버그 교정.
+- mock 검증: applyFredToUI 주입 시 cpi/core/pce/core-pce/nfp 모두 live YoY로 갱신. T763~T766.
+- **남은 C계층**: AAII/NAAIM/SKEW/MOVE = FRED 부재(프로프라이어터리) → 무료 소스 없음, 수동 유지 불가피. breadth %aboveMA(B계층)는 별도 작업.
+
 ## 3. 트레이딩 로직 감사 (`getTradingDecisionLogicAudit`) — 데이터 비의존 ★핵심
 
 알려진 데이터 *획득* 갭과 정확히 일치(라벨링은 정직, 취득은 미해결):

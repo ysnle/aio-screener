@@ -2,12 +2,12 @@
 verified_by: agent
 last_verified: 2026-06-04
 confidence: high
-target_version: v50.4
+target_version: v50.5
 target_file: index.html + js/*.js
 target_lines: index.html 31056 + js modules ~49556
 ---
 
-# AIO v50.4 CODE-MAP
+# AIO v50.5 CODE-MAP
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `Select-String`/부분 Read로 한 번 더 확인한다.

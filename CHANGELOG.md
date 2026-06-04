@@ -6,6 +6,19 @@
 
 ---
 
+## v50.5 - C-layer macro real-data wiring (FRED) (2026-06-04)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/CODE-MAP.md`, `_context/INDEX.md`, `_context/GATE-BASELINE-2026-06-04.md`
+
+- **PCE/Core PCE/Core CPI 실데이터 연결**: `FRED_SERIES`에 `PCEPI`(연준 선호)·`PCEPILFE`(근원 PCE)·`CPILFESL`(근원 CPI)을 `yoy:true`로 등록. 인플레 시리즈는 13개월 관측치를 받아 YoY(전년 동월 대비)를 직접 계산(`fetchAllFredData`). 기존엔 fetch 함수 0건의 C계층 수동 데이터였음.
+- **macro 페이지 인플레·고용 카드 신설**: CPI/근원 CPI/PCE/근원 PCE YoY + NFP(MoM 신규고용) 5-카드 행 추가. 기존 macro 페이지엔 헤드라인 인플레/고용 값 표시 sink가 아예 없었음(YoY 차트 1개 + 하드코딩 서술뿐).
+- **CPI 라벨-데이터 버그 수정**: 한미일중 비교표의 `data-snap="cpi"`가 "CPI (YoY)" 라벨인데 `applyFredToUI`는 MoM을 바인딩하던 불일치 → YoY로 교정.
+- **폴백 거버넌스**: `applyDataSnapshot` 매핑에 `cpi-yoy`·`core-cpi-yoy`·`pce-yoy`·`core-pce-yoy`·`nfp` 추가 + `DATA_SNAPSHOT.nfp=115` 신설. FRED 키 미설정 시 스냅샷 폴백, 설정 시 `applyFredToUI`가 live YoY로 오버라이드.
+- **Regression guard**: T763~T766 — FRED_SERIES yoy 등록, 카드 sink+스냅샷 폴백 일치, applyFredToUI live YoY 오버라이드(mock), NFP MoM 계산.
+- **검증**: preview(키 없음)에서 카드 5개 스냅샷 폴백 렌더 + mock FRED 주입 시 live YoY 오버라이드 확인, 콘솔 에러 0.
+- **보완 백로그 #1·#2·#4 병행**: CODE-MAP v49.21→v50.5 재스캔, 게이트 실측 baseline(`GATE-BASELINE-2026-06-04.md`), text-surface 내부마커 누출 정리(block 45→31). 상세는 해당 문서 참조.
+- **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, script cache busters → v50.5.
+
 ## v50.4 - Static market data and calendar refresh (2026-06-03)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `CLAUDE.md`, `_context/CLAUDE.md`, `_context/RULES.md`, `_context/BUG-POSTMORTEM.md`

@@ -14481,7 +14481,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.4';
+const APP_VERSION = 'v50.5';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -15453,6 +15453,7 @@ const DATA_SNAPSHOT = {
   // ── 거시 지표 ──
   cpi:          3.8,   coreCpi:   2.8,   // v49.86: CPI 4월 YoY 3.8% · Core 2.8% (BLS 5/14 발표, Iran 전쟁+AI 지출 영향 — Fortune 2026-05-12)
   pce:          3.8,   corePce:   3.3,            // v49.91: 4월 PCE (BEA 5/28 발표) — Headline 3.8% (2023.5 이후 최고) / Core 3.3% (2023.10 이후 최고). MoM Headline +0.4 / Core +0.2
+  nfp:          115,                              // v50.5: 직전 비농업 신규고용 MoM(천명) 폴백 — FRED PAYEMS 설정 시 자동 오버라이드 (data-snap="nfp")
   cpiNext:     '2026-06-10',                       // v50.4: BLS May 2026 CPI scheduled release
   nfpNext:     '2026-06-05',                       // v50.4: BLS May 2026 Employment Situation scheduled release
   pceNext:     '2026-06-25',                       // v50.4: BEA May 2026 Personal Income and Outlays scheduled release
@@ -16425,6 +16426,13 @@ function applyDataSnapshot() {
       'kr-service-price': (S.krServicePrice > 0 ? '+' : '') + _snap.fixed(S.krServicePrice, 1) + '% YoY',
       'kr-service-pmi':   _snap.fixed(S.krServicePmi, 1),
       'gex-current':      (S.gexCurrent >= 0 ? '+' : '') + _snap.fixed(S.gexCurrent, 1) + 'B',
+      // v50.5: US 매크로 인플레·고용 (FRED 미설정 시 스냅샷 폴백 — 키 설정 시 applyFredToUI가 YoY로 오버라이드)
+      'cpi':           _snap.fixed(S.cpi, 1) + '%',
+      'cpi-yoy':       _snap.fixed(S.cpi, 1) + '%',
+      'core-cpi-yoy':  _snap.fixed(S.coreCpi, 1) + '%',
+      'pce-yoy':       _snap.fixed(S.pce, 1) + '%',
+      'core-pce-yoy':  _snap.fixed(S.corePce, 1) + '%',
+      'nfp':           (S.nfp >= 0 ? '+' : '') + _snap.fixed(S.nfp, 0) + 'K',
     };
     // v48.99 P181: per-key try-catch — 개별 키 실패가 다른 키 렌더를 막지 않음
     var _snapApplied = 0, _snapFailed = 0;
