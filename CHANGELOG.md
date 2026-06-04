@@ -14,7 +14,9 @@
 - **macro 페이지 인플레·고용 카드 신설**: CPI/근원 CPI/PCE/근원 PCE YoY + NFP(MoM 신규고용) 5-카드 행 추가. 기존 macro 페이지엔 헤드라인 인플레/고용 값 표시 sink가 아예 없었음(YoY 차트 1개 + 하드코딩 서술뿐).
 - **CPI 라벨-데이터 버그 수정**: 한미일중 비교표의 `data-snap="cpi"`가 "CPI (YoY)" 라벨인데 `applyFredToUI`는 MoM을 바인딩하던 불일치 → YoY로 교정.
 - **폴백 거버넌스**: `applyDataSnapshot` 매핑에 `cpi-yoy`·`core-cpi-yoy`·`pce-yoy`·`core-pce-yoy`·`nfp` 추가 + `DATA_SNAPSHOT.nfp=115` 신설. FRED 키 미설정 시 스냅샷 폴백, 설정 시 `applyFredToUI`가 live YoY로 오버라이드.
-- **Regression guard**: T763~T766 — FRED_SERIES yoy 등록, 카드 sink+스냅샷 폴백 일치, applyFredToUI live YoY 오버라이드(mock), NFP MoM 계산.
+- **SKEW/MOVE 자동 fetch 연결**: `^SKEW`(기존 등록)·`^MOVE`(LIVE_SYMBOLS 신규)가 Yahoo에서 응답 확인됨(^SKEW 136.86 / ^MOVE 73.58). `_aioBridgeVolIndicesLive()` 신설 — `aio:liveQuotes`마다 `_liveData['^SKEW'/'^MOVE'/'^VVIX']` live 값을 `data-snap` 비-archive sink에 흘리고 DATA_SNAPSHOT 미러 갱신(regime live화). `data-aio-archive` 보드는 보존. MOVE는 fxbond 표시가 live화, SKEW 유일 sink는 archived라 regime만 live.
+- **무료 소스 없는 sentiment/breadth 주간 WebSearch 갱신**: AAII Bear 36.6→41.9(5/27, aaii.com) · SKEW 139.04→136.86(Yahoo ^SKEW 6/2) · MOVE 70.90→73.58(Yahoo ^MOVE 6/1) · breadth above 50d 61→52(S5FI 6/2) · 200d 56→55(S5TH 6/1). 미러+inline DOM(rm-skew 141.86→136.86 등) 동기화. **이들은 무료 자동 fetch API가 없어(AAII/NAAIM은 회원전용, breadth %aboveMA는 Yahoo 404/Stooq N/D) 주간 WebSearch가 유일 경로** — 권장 주기 주 1회(AAII/NAAIM 발표 주기).
+- **Regression guard**: T763~T767 — FRED_SERIES yoy 등록, 카드 sink+스냅샷 폴백 일치, applyFredToUI live YoY 오버라이드(mock), NFP MoM 계산, SKEW/MOVE 등록+브릿지.
 - **검증**: preview(키 없음)에서 카드 5개 스냅샷 폴백 렌더 + mock FRED 주입 시 live YoY 오버라이드 확인, 콘솔 에러 0.
 - **보완 백로그 #1·#2·#4 병행**: CODE-MAP v49.21→v50.5 재스캔, 게이트 실측 baseline(`GATE-BASELINE-2026-06-04.md`), text-surface 내부마커 누출 정리(block 45→31). 상세는 해당 문서 참조.
 - **Cache rotation**: app title/badge, `APP_VERSION`, `SW_VERSION`, `version.json`, script cache busters → v50.5.

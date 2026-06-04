@@ -9965,6 +9965,8 @@ const LIVE_SYMBOLS = [
   '^IRX','^FVX','^TNX','^TYX',
   // v48.58: VIX 기간구조 (sentiment 페이지 요약)
   '^VIX9D','^VIX3M','^VIX6M','^SKEW',
+  // v50.5: 채권변동성 MOVE 자동 fetch (Yahoo ^MOVE 응답 확인 — 기존 정적 → live)
+  '^MOVE',
   // ── 외환 ────────────────────────────────────────────────────────
   'KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X',
   'DX-Y.NYB',

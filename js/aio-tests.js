@@ -5225,6 +5225,28 @@
     _assert('T766 v505_nfp_mom_change: PAYEMS 159200-159053 → +147K formatting',
       (function(){ var c = Math.round(159200 - 159053); return c === 147 && ((c>=0?'+':'')+c.toLocaleString()+'K') === '+147K'; })(),
       'nfp change calc');
+
+    // T767: SKEW/MOVE 자동 fetch 연결 + live→data-snap 브릿지 (비archive sink 갱신, archive 보존)
+    var t767ok = false, t767detail = 'bridge unavailable';
+    try {
+      var liveSyms505 = (typeof LIVE_SYMBOLS !== 'undefined') ? LIVE_SYMBOLS : [];
+      var regOk = liveSyms505.indexOf('^MOVE') >= 0 && liveSyms505.indexOf('^SKEW') >= 0;
+      var bridgeFn = window._aioBridgeVolIndicesLive;
+      if (regOk && typeof bridgeFn === 'function') {
+        window._liveData = window._liveData || {};
+        window._liveData['^MOVE'] = { price: 71.11, pct: 0.1 };
+        bridgeFn();
+        // 비archive move sink가 live로 갱신되고 archive sink는 보존되는지
+        var nonArch = Array.prototype.filter.call(document.querySelectorAll('[data-snap="move"]'), function(el){ return !el.closest('[data-aio-archive="true"]'); });
+        var liveUpdated = nonArch.some(function(el){ return el.textContent.indexOf('71.11') >= 0 && el.getAttribute('data-source-kind') === 'live'; });
+        t767ok = regOk && liveUpdated;
+        t767detail = 'reg=' + regOk + ' nonArchMoveSinks=' + nonArch.length + ' liveUpdated=' + liveUpdated;
+        try { delete window._liveData['^MOVE']; if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
+      } else {
+        t767detail = 'reg=' + regOk + ' fn=' + (typeof bridgeFn);
+      }
+    } catch(e) { t767detail = 'err: ' + (e && e.message); }
+    _assert('T767 v505_skew_move_auto_fetch_bridge: ^MOVE/^SKEW registered + live bridge updates non-archived move sink', t767ok, t767detail);
   }
 
   window.AIO = window.AIO || {};

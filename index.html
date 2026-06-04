@@ -4994,7 +4994,7 @@ body.light-theme canvas { filter:none; }
       <!-- MOVE Index (Bond Vol) -->
       <div class="risk-mon-cell">
         <div class="rm-label">MOVE<span class="rm-tip">채권변동성. 100+=불안</span></div>
-        <div class="rm-val" id="rm-move-val" style="color:var(--data-green);" data-snap="move">70.9</div>
+        <div class="rm-val" id="rm-move-val" style="color:var(--data-green);" data-snap="move">73.58</div>
         <div class="rm-status" id="rm-move-status" style="color:var(--data-green);background:rgba(0,229,160,0.1);">평온 (80↓)</div>
         <div class="rm-bar-wrap"><div class="rm-bar" style="width:20%;background:var(--data-green);"></div></div>
       </div>
@@ -5042,7 +5042,7 @@ body.light-theme canvas { filter:none; }
             <span class="tip-body">테일 리스크 헤지 수요. 130+=극단적 하방 우려. 높을수록 풋옵션 수요 증가</span>
           </span>
         </div>
-        <div class="rm-val" id="rm-skew-val" style="color:var(--data-red);" data-snap="skew">141.86</div>
+        <div class="rm-val" id="rm-skew-val" style="color:var(--data-red);" data-snap="skew">136.86</div>
         <div class="rm-status" style="color:var(--data-red);background:rgba(255,91,80,0.1);">꼬리위험 고점</div>
         <div class="rm-bar-wrap"><div class="rm-bar" style="width:85%;background:var(--data-red);"></div></div>
       </div>
@@ -7929,7 +7929,7 @@ body.light-theme canvas { filter:none; }
       <div style="background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.2);border-radius:8px;padding:12px;">
         <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">MOVE Index</div>
         <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">ICE BofA 채권 변동성</div>
-        <div style="font-size:26px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);" data-snap="move">70.9</div>
+        <div style="font-size:26px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);" data-snap="move">73.58</div>
         <div style="font-size:11px;color:var(--data-green);margin-top:2px;">평온 (80↓)</div>
         <div style="margin:6px 0;height:4px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;">
           <div style="width:70%;height:100%;background:var(--data-red);border-radius:3px;"></div>
@@ -28316,6 +28316,36 @@ function updateGmoFreshness() {
 // v48.99: _aioPageBus 마이그 (P180)
 _aioPageBus.register('html-gmo-live', 'aio:liveQuotes', renderGmoTable);
 setTimeout(renderGmoTable, 2000);
+
+// v50.5: 꼬리위험 지표(SKEW/MOVE) live→data-snap 브릿지.
+// ^SKEW(기존 fetch)·^MOVE(v50.5 신규 fetch) 라이브 값을 data-snap 정적 sink에 흘리고
+// DATA_SNAPSHOT 미러를 갱신해 NARRATIVE_ENGINE 레짐도 live 기준으로 분류.
+// 미fetch(CORS 차단 등) 시 _liveData에 값이 없으므로 정적 폴백 유지 — 안전한 no-op.
+function _aioBridgeVolIndicesLive() {
+  try {
+    var ld = window._liveData || {};
+    var S = window.DATA_SNAPSHOT || {};
+    function _bridge(sym, snapKey, mirrorKey, digits) {
+      var e = ld[sym];
+      if (!e || e.price == null || !isFinite(e.price)) return;
+      var v = e.price;
+      if (mirrorKey && S) S[mirrorKey] = v;
+      document.querySelectorAll('[data-snap="' + snapKey + '"]').forEach(function(el) {
+        if (el.closest('[data-aio-archive="true"]')) return;
+        el.textContent = v.toFixed(digits);
+        el.setAttribute('data-source-kind', 'live');
+        el.setAttribute('data-operational-use', 'decision');
+        el.setAttribute('data-source-label', 'yahoo:' + sym);
+      });
+    }
+    _bridge('^SKEW', 'skew', 'skew', 2);
+    _bridge('^MOVE', 'move', 'move', 2);
+    _bridge('^VVIX', 'vvix', 'vvix', 2);
+  } catch (e) { if (window._aioLog) window._aioLog('warn', 'render', 'vol-indices bridge: ' + (e && e.message)); }
+}
+_aioPageBus.register('html-vol-indices-live', 'aio:liveQuotes', _aioBridgeVolIndicesLive);
+setTimeout(_aioBridgeVolIndicesLive, 2200);
+window._aioBridgeVolIndicesLive = _aioBridgeVolIndicesLive;
 
 // ═══ v34: Keyboard Shortcuts Help Modal ═══════════════════════════════
 function openKbdHelp() {

@@ -5,7 +5,10 @@
 - **현재 버전**: v50.5
 
 ## v50.5 note
-- C계층 매크로 실데이터(FRED) 연결: PCE/Core PCE/Core CPI를 기존 FRED 파이프라인에 등록(`yoy:true`, 13-obs YoY 계산). macro 페이지에 인플레·고용 값 카드 행 신설(CPI/근원CPI/PCE/근원PCE YoY + NFP MoM). CPI 비교표 라벨-데이터 불일치(MoM under YoY label) 교정. `applyDataSnapshot` 매핑 + `DATA_SNAPSHOT.nfp` 폴백. FRED 키 설정 시 자동 YoY 오버라이드. T763~T766. 병행: CODE-MAP 재스캔, GATE-BASELINE 신설, text-surface 누출 정리.
+- C계층 매크로 실데이터(FRED) 연결: PCE/Core PCE/Core CPI를 기존 FRED 파이프라인에 등록(`yoy:true`, 13-obs YoY 계산). macro 페이지에 인플레·고용 값 카드 행 신설(CPI/근원CPI/PCE/근원PCE YoY + NFP MoM). CPI 비교표 라벨-데이터 불일치(MoM under YoY label) 교정. `applyDataSnapshot` 매핑 + `DATA_SNAPSHOT.nfp` 폴백. FRED 키 설정 시 자동 YoY 오버라이드.
+- SKEW/MOVE 자동 fetch: `^MOVE` LIVE_SYMBOLS 신규 + `_aioBridgeVolIndicesLive()`로 ^SKEW/^MOVE/^VVIX live값을 비-archive data-snap sink에 브릿지(Yahoo 응답 확인). 무료 소스 없는 sentiment/breadth(AAII/NAAIM/SKEW/MOVE/breadth%aboveMA)는 주간 WebSearch 갱신이 유일 경로 — AAII Bear 41.9/SKEW 136.86/MOVE 73.58/breadth 52·55로 갱신.
+- T763~T767. 병행: CODE-MAP 재스캔, GATE-BASELINE 신설, text-surface 누출 정리.
+- **데이터 계층 정리**: 무료 자동 fetch = 시세/뉴스/VIX·SKEW·MOVE·VVIX/글로벌지수/FRED(키)/KR(키). 무료 소스 없음(주간 WebSearch 수동) = AAII·NAAIM·breadth %aboveMA. breadth %aboveMA는 Yahoo 404/Stooq N/D 확인됨.
 
 ## v50.4 hotfix note
 - Static market data/calendar surfaces were refreshed to 2026-06-03 KST. `AIO_MACRO_CALENDAR`, `DATA_SNAPSHOT` metadata, `HOME_WEEKLY_NEWS`, briefing event layer, risk pinned events, options/KR macro copy, and AI briefing prompt context now separate last-published official values from future releases. Computex/GTC Taipei is a verified current-topic layer; SpaceX IPO is a source-dependent watch item; CPI/NFP/PCE future values must not be invented before official releases. T759~T762 added.

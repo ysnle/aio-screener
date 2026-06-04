@@ -15393,7 +15393,7 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-06-03T10:40:00+09:00',   // v50.4 정적/하드코딩 최신화: 공식 6월 매크로 캘린더(NFP 6/5, CPI 6/10, FOMC 6/16-17, PCE 6/25) + Computex/GTC Taipei + SpaceX IPO 보도 리스크를 current-topic layer에 반영.
+  _updated: '2026-06-04T12:00:00+09:00',   // v50.5: 무료 fetch API 없는 sentiment/breadth 주간 WebSearch 갱신 (AAII 5/27 Bear 41.9 · NAAIM 98.39 · SKEW 136.86 · MOVE 73.58 · S5FI 52.2% · S5TH 55%) + SKEW/MOVE ^SKEW/^MOVE Yahoo 자동 fetch 연결. v50.4: 공식 6월 매크로 캘린더 + Computex/SpaceX current-topic.
   _snapshotDate: '2026-06-03',
   _staticDates: {
     briefingArchive: '2026-06-03',
@@ -15486,8 +15486,8 @@ const DATA_SNAPSHOT = {
   // 실시간 fetch 경로(있다면 fetchBreadthFromAPI)에서 set 시 _isFallback false 전환 필요.
   breadth5sma:    61,   // v49.87: $MMFD 61.41 → 반올림 61 (Barchart 실측, NYSE % above 5-day MA)
   breadth20sma:   57,   // v49.87: $MMTW 57.47 → 57 (Barchart 실측, NYSE % above 20-day MA — 기존 75 대비 CRITICAL 하락)
-  breadth50sma:   61,   // v49.87: $MMFI 60.77 → 61 (Barchart 실측, NYSE % above 50-day MA — 기존 46 대비 개선 확인)
-  breadth200sma:  56,   // v49.87: $MMTH 56.19 → 56 (Barchart 실측, NYSE % above 200-day MA)
+  breadth50sma:   52,   // v50.5: S&P500 above 50d 52.2% (S5FI, Barchart/Investing 2026-06-02 WebSearch — percentile 36, below-avg 참여)
+  breadth200sma:  55,   // v50.5: S&P500 above 200d 55% (S5TH, Investing 2026-06-01 WebSearch — percentile 32). 무료 fetch API 없음 → 주간 WebSearch 갱신
 
   // ── v48.61 P125 해소: DATA_SNAPSHOT 누락 필드 보충 (v49.22: 2026-05-16 기준 갱신, P213 DOM 정합) ──
   krCreditBalance: 36.0,     // v49.94: 한국 신용거래융자 잔고 ~36조원 역대 최고 (5월 — KOSPI 8000+ 돌파 "빚투" 급증, 3/11 31.8조→5월 36조, 5/21 강제청산 뉴스. 금투협/FSC). 기존 19.2 심각 stale (시장 2배 급등 미반영)
@@ -15517,7 +15517,7 @@ const DATA_SNAPSHOT = {
   nandContract_QoQ_2Q26: 87, // v49.99: Susquehanna 5/29 "NAND ASP QoQ +75~100%" 중간값 87 (기존 75 = 하한). 키옥시아 UBS·GS 동시 커버리지 개시 = 구조적 상승 확신
   nandContract_YoY_2Q26: 362,
   // ── v48.71 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
-  aaiiBear:        36.6,     // v49.86: AAII 5/22 발표 Bear 36.6% (Bull 39.3 / Neutral 24.1)
+  aaiiBear:        41.9,     // v50.5: AAII 5/27 발표 Bear 41.9% (Bull 35.6 / Neutral 22.6, aaii.com WebSearch) — 비관 우세 강화. 무료 fetch API 없음 → 주간 WebSearch 갱신
 
   // ── 글로벌 지수 (GMO 테이블용 정적 폴백, 실시간 수신 시 교체) ──
   nikkei:    64693,    nikkeiPct:  -0.47,  // v49.92: 2026-05-28 close (TradingEconomics/Yahoo)
@@ -15533,8 +15533,8 @@ const DATA_SNAPSHOT = {
   silver:     73.51,   silverPct: -0.91,  // v49.92: Fortune 2026-05-28 ($71.50 → $73.51)
 
   // ── 리스크 지표 (5/27 갱신) ──
-  move:        70.90,   moveChg: -1.20,  // v49.95: MOVE 70.90 실측 (streetstats/Yahoo ^MOVE 2026-05-27 — 80 미만 = 채권시장 평온). 기존 62.50 추정 stale
-  skew:       139.04,   skewChg: -1.50,  // v49.86: SKEW 139.04 (StreetStats.finance 5/27 데이터)
+  move:        73.58,   moveChg: +0.21,  // v50.5: MOVE 73.58 (Yahoo ^MOVE 2026-06-01) — 이제 ^MOVE LIVE_SYMBOLS 자동 fetch + 브릿지, 이 값은 폴백. 80 미만 = 채권시장 평온
+  skew:       136.86,   skewChg: -1.50,  // v50.5: SKEW 136.86 (Yahoo ^SKEW 2026-06-02 live) — ^SKEW 자동 fetch + 브릿지, 폴백값
   vvix_live:   85.50,   vvixChg: -1.40,  // v49.86: VVIX 추정 하향 (VIX 17.01 동조)
   fg:            60,   fgLabel: 'Greed',  // v49.84: CNN F&G 60 (Greed, 2026-05-26 기준)
   fg_uw:         65,   fg_uwLabel: '탐욕', // v49.96: UW 확장 F&G 65 — _fallback.fg_uw(v49.84 CNN 60→UW 65)와 정합 (기존 74는 v48.70 stale)
@@ -15618,7 +15618,7 @@ const DATA_SNAPSHOT = {
     breadth5: 61,        // v49.87: $MMFD 61.41 실측 (Barchart)
     breadth50: 61,       // v49.87: $MMFI 60.77 실측 (Barchart)
     pcr: 0.83,           // v49.85: CBOE total PCR 2026-05-21 (equity 0.55 / index 별도)
-    aaiiBear: 36.6,      // v49.84: AAII 2026-05-22 발표 Bearish %
+    aaiiBear: 41.9,      // v50.5: AAII 2026-05-27 발표 Bearish % (mirror 정합)
     spx50ma: 7280,       // v49.84: SPX 50일 이동평균 (5/27 기준 추정 — 신고가 후 상승)
     spx200ma: 6950,      // v49.84: SPX 200일 이동평균 추정
     spxATH: 7563.63,     // v49.91: SPX ATH = 2026-05-28 close (신고가)
@@ -15626,9 +15626,9 @@ const DATA_SNAPSHOT = {
     tnx: 4.48,           // v49.84: 10Y 2026-05-27 close
     hyg: 81,             // v49.84: HYG (Iran 호재 + 신고가 환경 — 신용 스프레드 추가 타이트닝)
     vvix: 83,            // v49.96: VVIX 83 — DATA_SNAPSHOT.vvix와 정합 (기존 85 드리프트)
-    move: 70.9,          // v49.96: MOVE 70.9 — DATA_SNAPSHOT.move와 정합 (기존 62는 v49.95 move 70.9 갱신 시 미러 누락 = 내가 만든 불일치 시정)
-    skew: 139,           // v49.96: SKEW 139 — DATA_SNAPSHOT.skew 139.04와 정합 (기존 142 드리프트)
-    _syncDate: '2026-05-29'  // v49.96: static fallback sync date (snapshot 본체와 mirror 정합)
+    move: 73.58,         // v50.5: MOVE 73.58 — DATA_SNAPSHOT.move와 정합 (Yahoo ^MOVE 2026-06-01)
+    skew: 136.86,        // v50.5: SKEW 136.86 — DATA_SNAPSHOT.skew와 정합 (Yahoo ^SKEW 2026-06-02)
+    _syncDate: '2026-06-04'  // v50.5: static fallback sync date (snapshot 본체와 mirror 정합)
   }
 };
 
