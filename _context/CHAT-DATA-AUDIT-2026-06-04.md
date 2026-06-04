@@ -50,11 +50,42 @@ AIO.getChatTickerCacheStats()       // ttl 5min · max 50 · (headless 0 lookups
 
 **채팅 데이터 출처는 이미 견고**(실시간 시세 강제 fetch · 11소스 펀더멘털 · live 시장 헤더 · 18컨텍스트 100% 동적 · 답변 후 자동 검증 · 환각 차단 ABSOLUTE RULES). 큰 결함 없음. v50.8에서 가장 실질적인 갭(macro 채팅이 v50.5 FRED 인플레를 못 받던 것)을 시정. 잔존은 macro 시나리오 stale(G2)·보조소스 silent 누락(G4, by-design)·dead code 1건으로 모두 minor.
 
+## 6. 17~18 관점 기업 분석 데이터 출처·파이프라인 전수 (2026-06-04 심층)
+
+레지스트리 3종(aio-core.js): `AIO_ANALYSIS_FRAMEWORK_REGISTRY`(6904, 17관점+2보조) · `AIO_FUNDAMENTAL_PAGE_CRITERIA`(6831, 정량15) · `AIO_FUNDAMENTAL_CRITERIA`(Piotroski). 채팅 "17 관점"=ANALYSIS_FRAMEWORK. `_fetchTickerDataForChat`(aio-chat.js:2072)가 11+ implFn을 `Promise.allSettled`로 병렬 호출.
+
+**라이브 커버리지(`getAnalysisFrameworkCoverageAudit`)**: 17관점 전부 implFn 有(coveragePct 100%) · high-risk 7 · medium 6 · low 4 · partial(저신뢰 caveat) 10 · status warn.
+
+### 관점별 실제 데이터 등급 (코드+라이브 실행 검증)
+
+**🟢 실제 current-data fetch (정량, low/medium risk)**
+- #8 세그먼트 매출 · #9 재무제표 · #10 밸류에이션: Yahoo + FMP `/ratios-ttm`·`/income`·`/segments` + Naver + computed(FcfYield/Balance/EvEbitda). daily~quarterly, 실 fetch.
+- #14 파트너십: SEC **8-K Item 1.01/7.01** 실 fetch(`fetchSECRecentFilings`가 data.sec.gov CIK submissions 파싱). event-driven, dataConfidence high.
+- #16 리스크: SEC 10-K Item 1A + Finnhub short interest 실 fetch.
+- #1 사업구조 · #2 창립/성장 · #4 비즈모델 · #5/6 수익/제품: SEC 10-K(실 fetch) + Wikipedia(실) + Naver + FMP segments. **단 10-K는 annual** → "현재" = 최근 연차보고서(최대 ~11개월).
+- #17 투자포인트: Finnhub consensus + Naver consensus 실 fetch.
+
+**🔴 placeholder/정적테이블/가이드 (high-risk, 회사별 current 데이터 아님 — 모두 honest 라벨)**
+- #10 기관흐름(13F) `fetchSEC13F`: **순수 placeholder** — `verdict:'manual-query-required'`, 실 holdings 데이터 없음, efts.sec.gov/WhaleWisdom URL만 반환. (무료 집계 13F API 부재 — 설계상 불가피.)
+- #11 TAM `computeTAMEstimate`: live SEC SIC code 조회 → **정적 산업 TAM 테이블**(`AIO_INDUSTRY_TAM_REGISTRY` 하드코딩 22개 SIC) 매핑. 산업 레벨 정적값이지 회사별 current TAM 아님. dataConfidence low + "회사별 정확 TAM 추정 금지" note.
+- #12 공급망 `fetchSECSupplyChain`: 10-K URL + 키워드 가이드만(`requiresManualFetch:true`, `extractedFacts:[]`) — 공급사/고객명 자동 추출 안 함. low-medium.
+- #7 Moat `computeMoatScore`: 실제 재무비율(R&D/GM/OpMargin/FCF margin) **휴리스틱 채점**(AI 아님). 단 입력이 SCREENER_DB(정적 memo) + Naver 의존 → 데이터 없으면 score 0/low. Morningstar 유료 대체.
+- #13 플랫폼 `fetchPlatformEcosystem`: SCREENER_DB.memo + FMP + Finnhub **합성 score**(외부 전용 API 없음). low.
+- #3 CEO · #15 경쟁: Wikipedia + SEC 10-K(annual) — 인사변경/경쟁구도 변화 시 stale. high.
+
+### 결론
+- **정량 관점(밸류에이션·재무·세그먼트·8-K 파트너십·리스크)은 실제 최신 데이터를 fetch** — 정확·current.
+- **정성 high-risk 7관점(13F·TAM·공급망·Moat·플랫폼·CEO·경쟁)은 placeholder/정적테이블/휴리스틱/가이드** — 회사별 current 데이터가 아니며, **레지스트리·함수가 모두 honest하게 dataConfidence low + R117 "학습데이터 추정 금지" 라벨**. AI 채팅은 ABSOLUTE RULES R116/R117로 이 한계를 답변에 고지하도록 강제됨.
+- **환각 위험 낮음**: 가짜를 진짜로 위장하지 않고 "수동 확인 권장/저신뢰"로 정직 표기. **다만 13F는 데이터가 아예 없어(URL만)** 기관흐름 질문은 실질 답을 못 줌 — 무료 집계 API 부재로 구조적 한계.
+- 개선 여지(향후, 선택): TAM 정적테이블 확장 / 공급망·플랫폼 NLP 추출(confidence 명시 유지) / 13F는 무료 소스 없어 URL 유지 불가피.
+
 ## 재현 명령
 ```bash
 python3 -m http.server 8080   # AIO 루트
 ```
 ```js
 AIO.auditAllChatContexts(); AIO.assertChatFunctionCoverage(); AIO.getChatContextConsistencyAudit(); AIO.getChatTickerCacheStats();
+AIO.getAnalysisFrameworkCoverageAudit();   // 17관점 impl/high-risk/partial 분류
+AIO.fetchSEC13F('AAPL'); AIO.computeMoatScore('AAPL'); AIO.computeTAMEstimate('AAPL');  // high-risk 실 반환 확인
 CHAT_CONTEXTS.macro.system();  // '인플레·고용 (YoY...)' 라인 확인
 ```
