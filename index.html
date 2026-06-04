@@ -5838,10 +5838,10 @@ body.light-theme canvas { filter:none; }
           <strong>5대 심리 지표 체계</strong>:
           <ul>
             <li><strong>CNN Fear &amp; Greed</strong> (0~100 합성) — 일간. 단기(1~4주) 반대매매 신호. &lt;20 극단 공포 → 30일 평균 수익률 +3.8%.</li>
-            <li><strong>AAII Bull-Bear Spread</strong> — 개인투자자 설문(주간). Bull-Bear &gt; 30 = 과열, &lt; -20 = 공포. 2009-03 당시 -54(역사적 최저) → 이후 10년 불장.</li>
-            <li><strong>NAAIM Exposure Index</strong> — 액티브 운용사 주식 익스포저(0~200%). &gt;90 = Leverage, &lt;30 = Hedge. 운용사 포지셔닝 역 Index.</li>
-            <li><strong>Investors Intelligence</strong> — 뉴스레터 편집자 센티먼트(II Bull-Bear ratio). 2.5+ = 위험, 0.8 이하 = 기회. 1987년 크래시 예측.</li>
-            <li><strong>CBOE Put/Call Ratio</strong> — 풋 vs 콜 옵션 거래량. &gt;1.2 = 공포 과잉(역발상 매수), &lt;0.7 = 탐욕 과잉(경계). 총 옵션 vs 개별주 풋콜 구분해서 봐야.</li>
+            <li><strong>AAII 강세-약세 격차</strong> — 개인투자자 설문(주간). 강세 응답 % - 약세 응답 %. <strong>+30 이상</strong> = 낙관 과열, <strong>-20 이하</strong> = 공포. 2009-03 당시 -54(역사적 최저) → 이후 10년 상승장.</li>
+            <li><strong>NAAIM 노출 지수</strong> — 전문 운용사들이 주식에 투입한 비중(0%=현금, 100%=주식 가득, 200%=빚내서 투자). <strong>90 이상</strong> = 공격적(과열), <strong>30 미만</strong> = 방어적(공포 = 역발상 매수 신호).</li>
+            <li><strong>투자매체 전문가 심리(Investors Intelligence)</strong> — 투자 뉴스레터 기자들의 강세/약세 비율. 2.5 이상 = 낙관 과열(위험), 0.8 이하 = 비관 극단(기회). 1987년 폭락 예측.</li>
+            <li><strong>풋/콜 비율(CBOE Put/Call)</strong> — 하락 베팅(풋) vs 상승 베팅(콜) 옵션 거래량. <strong>1.2 초과</strong> = 공포 과잉(거꾸로 매수 기회), <strong>0.7 미만</strong> = 탐욕 과잉(경계).</li>
           </ul>
         </div>
       </div>
@@ -6139,7 +6139,7 @@ body.light-theme canvas { filter:none; }
       <div class="explain-section">
         <div class="explain-label">브리핑은 매일 아침 30분 루틴의 코어</div>
         <div class="explain-body">
-          <strong>개념</strong> — 전일 미국장 · 유럽장 · 아시아장의 주요 이벤트를 뉴스 80+ 소스에서 수집 · 점수화 · 요약. <strong>score 90+만 핵심 뉴스</strong>로 상단 고정.
+          <strong>개념</strong> — 전일 미국·유럽·아시아 장의 주요 사건을 뉴스 80여 개 소스에서 수집·채점·요약. <strong>중요도 90점 이상만 핵심 뉴스</strong>로 상단에 고정합니다.
           <ul>
             <li><strong>아침 루틴</strong>: ① 브리핑 읽기(5분) → ② 시그널 스코어 확인(2분) → ③ 보유 종목 뉴스 스캔(5분) → ④ RRG로 섹터 방향(3분) → ⑤ 포지션 조정 체크리스트(5분).</li>
             <li><strong>Action Item</strong>: 각 뉴스 하단 "지금(Now) · 관망(Watch) · 대기(Wait) · 회피(Avoid)" 태그. Now = 즉시 행동, Avoid = 회피 필요.</li>
@@ -6688,7 +6688,7 @@ body.light-theme canvas { filter:none; }
 
   <!-- ══ SECTION 4: 12가지 매매 셋업 (screener_pro 통합) ══════════ -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;">12가지 매매 셋업 패턴 (screener_pro v5)</div>
+    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;">12가지 매매 셋업 패턴</div>
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">각 패턴의 의미와 실전 적용 근거를 정리했습니다</div>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">
@@ -8918,7 +8918,7 @@ body.light-theme canvas { filter:none; }
     <!-- Mode Toggle: ETF vs Subtheme -->
     <div style="display:flex;gap:8px;margin-bottom:14px;">
       <button id="etf-btn" class="aio-btn-table primary" data-action="switchThemeMode" data-arg="etf">ETF 뷰</button>
-      <button id="sub-btn" class="aio-btn-table" data-action="switchThemeMode" data-arg="subtheme">부테마</button>
+      <button id="sub-btn" class="aio-btn-table" data-action="switchThemeMode" data-arg="subtheme">세부 테마</button>
       <span id="theme-mode-desc" style="font-size:10px;color:var(--text-secondary);margin-left:12px;">AI 및 반도체 섹터 주요 ETF</span>
     </div>
 
@@ -9024,12 +9024,12 @@ body.light-theme canvas { filter:none; }
       <div class="explain-section">
         <div class="explain-label">포트폴리오 성과 지표 3대장</div>
         <div class="explain-body">
-          <strong>Sharpe Ratio</strong> — (수익률 - 무위험금리) ÷ 표준편차. 위험조정 수익률 대표 지표.
+          <strong>샤프 지수(Sharpe)</strong> — (수익률 - 안전한 이자율) ÷ 변동폭. <strong>"위험 1만큼 질 때 얼마를 벌었나"</strong>를 재는 핵심 지표(높을수록 효율적).
           <ul>
-            <li>Sharpe &lt; 1 = 평범 · 1~2 = 양호 · &gt;2 = 우수 · &gt;3 = 기관급.</li>
-            <li>개인 투자자 5년 Sharpe 평균 0.3. 버크셔 해서웨이 60년 평균 0.76.</li>
+            <li>1 미만 = 평범(대부분의 개인) · 1~2 = 양호 · 2 초과 = 우수 · 3 초과 = 세계 최고 수준.</li>
+            <li>참고: 개인 투자자 5년 평균 약 0.3, 워런 버핏(버크셔) 60년 평균 0.76.</li>
           </ul>
-          <strong>Sortino Ratio</strong> — Sharpe와 같되 <strong>하방 변동성만</strong> 사용. 상승 변동성 패널티 없이 실제 위험만 측정. 공격형 포트 평가에 유리.
+          <strong>소르티노 지수(Sortino)</strong> — 샤프와 같되 <strong>하락 변동성만</strong> 사용. 오를 때의 출렁임은 벌점에서 빼고 진짜 위험(손실)만 측정. 공격적 포트폴리오 평가에 유리.
           <br><br>
           <strong>Maximum Drawdown (MDD)</strong> — 역대 최대 하락폭. <strong>회복 시간</strong>도 같이 봐야.
           <ul>
@@ -9113,7 +9113,7 @@ body.light-theme canvas { filter:none; }
           <div style="font-size:9px;color:var(--text-muted);">±5% 초과 시 리밸런싱</div>
         </div>
       </div>
-      <div id="pf-analysis-status" style="margin-top:8px;font-size:10px;color:var(--text-muted);text-align:center;">포트폴리오 등록 후 자동 계산 — 콘솔: <code>AIO.computePortfolioRisk(holdings)</code></div>
+      <div id="pf-analysis-status" style="margin-top:8px;font-size:10px;color:var(--text-muted);text-align:center;">포트폴리오 등록 후 자동 계산됩니다. <span style="opacity:0.7;">(개발자 모드: 콘솔에서 <code>AIO.computePortfolioRisk(holdings)</code>)</span></div>
     </div>
 
     <!-- 포트폴리오 PIN 잠금 -->
@@ -9441,7 +9441,7 @@ body.light-theme canvas { filter:none; }
         <div class="explain-body">
           개별 종목 심층 분석 전용 페이지. <strong>실시간 시세 + Weinstein Stage 4단계 + 재무(FMP) + 뉴스(Finnhub) + AI 채팅(themes/fundamental 페르소나)</strong>이 자동 수집·주입됩니다.
           <ul>
-            <li><strong>Overview 탭</strong> — Key Metrics (P/E · P/B · ROE · Dividend), Action (Support · Resistance · 52W Range)</li>
+            <li><strong>개요 탭</strong> — 핵심 지표(P/E 주가수익비율 · P/B 주가순자산비율 · ROE 자기자본이익률 · 배당수익률), 매매 참고(지지선 · 저항선 · 52주 범위)</li>
             <li><strong>Chart 탭</strong> — 1M/3M/6M/1Y 가격 차트 (Yahoo v8/Stooq fallback)</li>
             <li><strong>Financials 탭</strong> — Quarterly Revenue · Gross Profit · Operating Income · Net Income (TTM)</li>
             <li><strong>캔들 패턴 갤러리</strong> — 망치형·강세장악형·샛별형 등 실시간 감지 (현재 티커 기준)</li>
@@ -9484,10 +9484,10 @@ body.light-theme canvas { filter:none; }
             <li>가격 &gt; 50MA &gt; 150MA &gt; 200MA 정배열 + 200MA 상승</li>
             <li>52주 저점 대비 +25% ↑ · 52주 고점 대비 25% 이내</li>
             <li>RS Rating 80+ (시장 대비 상대강도)</li>
-            <li>VCP(Volatility Contraction Pattern) 2~6회 수축 + 거래량 평균 150% ↑</li>
+            <li>VCP(변동성 수축 패턴 = 출렁임이 점점 좁아지며 돌파를 준비하는 모양) 2~6회 수축 + 거래량 평균 150% ↑</li>
             <li>손절 -5~8% (피봇 포인트 대비, 절대 -10% 이상 허용 금지)</li>
           </ol>
-          <strong>목표</strong>: R:R 최소 3:1. 5개 모두 통과 = A급 진입, 3개+ = 선별, 2개 이하 = 패스.
+          <strong>목표</strong>: 손익비(R:R, 예상 수익 ÷ 예상 손실) 최소 3:1. 5개 모두 통과 = A급(적극 진입), 3~4개 = B급(선별), 2개 이하 = C급(보류).
         </div>
       </div>
     </div>
@@ -9726,14 +9726,14 @@ body.light-theme canvas { filter:none; }
       <div class="explain-section">
         <div class="explain-label">뉴스 스코어링 알고리즘</div>
         <div class="explain-body">
-          <strong>구성</strong> — 각 뉴스 0~100점 계산. 소스 신뢰도(30) + 이벤트 유형(40) + 티커 영향력(20) + 최신성(10).
+          <strong>구성</strong> — 각 뉴스를 0~100점으로 채점(중요도). 소스 신뢰도(30점) + 사건 유형(40점) + 종목 영향력(20점) + 최신성(10점).
           <ul>
             <li><strong>&gt; 90</strong>: 시장 이동 이벤트 (FOMC · 대형 실적 서프라이즈 · 전쟁 · 제재)</li>
             <li><strong>70~90</strong>: 주목할 공시 (대형 M&amp;A · 애널리스트 업그레이드 · 경제지표)</li>
             <li><strong>50~70</strong>: 업종 레벨 이슈</li>
             <li><strong>&lt; 50</strong>: 노이즈 (기본 필터에서 숨김)</li>
           </ul>
-          <strong>Sentiment 분류</strong>: bull (호재) · bear (악재) · warn (경계) · neut (중립).
+          <strong>감성 분류</strong>: 호재(bull) · 악재(bear) · 경계(warn) · 중립(neut).
         </div>
       </div>
       <div class="explain-section">
@@ -10657,7 +10657,7 @@ body.light-theme canvas { filter:none; }
           <ul>
             <li><strong>프로그램 매매</strong>(컴퓨터 자동 대량 거래): 지수 차익·비차익 거래. 차익 거래 금액으로 외국인 매매 의지를 읽습니다.</li>
             <li><strong>공매도</strong>(주식을 빌려 팔고 나중에 싸게 되사 갚는 하락 베팅): 외국인 공매도 잔고 증가 = 하락 전망. 단 반대로 주가가 오르면 갚으려는 매수가 몰려 급등(숏 스퀴즈)할 수도.</li>
-            <li><strong>MSCI 리밸런싱</strong>: 분기말 패시브 자금 유입/유출. KRX 종목 편입/제외는 주가 변동 큼.</li>
+            <li><strong>MSCI 리밸런싱</strong>(세계 지수에 한국 종목 편입·제외 조정): 분기말에 이 지수를 따라가는 글로벌 펀드 자금이 대량 유입·유출 → 편입/제외 종목 주가 변동 큼.</li>
           </ul>
         </div>
       </div>
@@ -11308,7 +11308,7 @@ body.light-theme canvas { filter:none; }
       <div class="explain-section">
         <div class="explain-label">BOK (한국은행) 금리 사이클</div>
         <div class="explain-body">
-          <strong>원칙</strong> — BOK는 Fed와 동조하되 <strong>3~6개월 지연</strong>. Fed 긴축 → 원화 약세 방어 위해 BOK도 따라감. Fed 완화 시 BOK도 완화 (단, CPI 2% 목표 내 유지 필요).
+          <strong>원칙</strong> — 한국은행(BOK)은 미국 연준(Fed)을 <strong>3~6개월 지연</strong>해 따라갑니다. Fed 금리↑ → 원화 약세를 막으려 BOK도 금리↑. Fed 금리↓ → BOK도 인하(단, 물가 2% 목표 안에서).
           <ul>
             <li>BOK ≥ 3.5% = 긴축 (부동산/성장 둔화)</li>
             <li>BOK 2.5~3.0% = 중립</li>
@@ -11323,7 +11323,7 @@ body.light-theme canvas { filter:none; }
           <br><strong>반도체 수출 비중</strong> — 한국 수출의 20%. 삼성전자 + SK하이닉스 실적에 직접 반영.
           <ul>
             <li>반도체 단가(NAND/DRAM) 상승 = 주가 선행.</li>
-            <li>PMI 50 이상 = 확장 · 48 이하 = 위축 경계.</li>
+            <li>PMI(구매관리자지수, 기업 체감 경기) 50 = 경계선. 50 이상 = 경기 확장 · 48 이하 = 위축 경계.</li>
           </ul>
         </div>
       </div>
@@ -11537,7 +11537,7 @@ body.light-theme canvas { filter:none; }
         </div>
       </div>
       <div style="background:rgba(255,91,80,0.05);border-radius:8px;padding:10px;font-size:10px;color:var(--text-secondary);">
-        <b style="color:var(--red);">주의:</b> PF(프로젝트파이낸싱) 부실화 우려 지속. 건설사 신용등급 조정. 금리 인하 시까지 부동산 약세 예상
+        <b style="color:var(--red);">주의:</b> PF(프로젝트파이낸싱 = 부동산 개발 사업에 빌려준 대출) 부실 우려 지속 → 건설사 신용등급 하락 · 금융사 손실 위험(금융주 약세). 금리 인하 전까지 부동산 약세 예상
       </div>
     </div>
 
@@ -11637,7 +11637,7 @@ body.light-theme canvas { filter:none; }
       <div class="explain-section">
         <div class="explain-label">한국 시장 특수 구조</div>
         <div class="explain-body">
-          <strong>상/하한가</strong> ±30% — 변동성 제한. 상한가 2일 연속 = 강한 재료 유입.
+          <strong>상/하한가</strong> ±30% — 한국은 하루 등락폭을 ±30%로 제한(미국은 무제한). 상한가 2일 연속 = 강한 호재 유입(단 추격 매수는 신중).
           <br><strong>정규장</strong> 09:00~15:30 · <strong>시간외 종가</strong> 15:40~16:00 · <strong>시간외 단일가</strong> 16:00~18:00.
           <br><br>
           <strong>차트 분석 차이</strong>:
@@ -12037,7 +12037,7 @@ body.light-theme canvas { filter:none; }
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
               <div style="font-size:10px;font-weight:700;color:var(--data-purple);margin-bottom:2px;">Claude API (AI 분석·번역) </div>
-              <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">AI 채팅(적응형: Haiku↔Sonnet↔추론), 뉴스 번역(Haiku 4.5)<br><b>발급:</b> <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">console.anthropic.com</a> 가입 → API Key<br><b>비용:</b> 종량제 (일반 ~$0.005/쿼리, 심층 ~$0.02/쿼리, 번역 ~$0.007/배치)<br><b>없으면:</b> AI 기능 비활성, 영어 뉴스 원문 표시</div>
+              <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">AI 채팅(적응형: Haiku↔Sonnet↔추론), 뉴스 번역(Haiku 4.5)<br><b>발급:</b> <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">console.anthropic.com</a> 가입 → API Key<br><b>비용:</b> 쓴 만큼만 과금 (질문 1회 ~$0.005, 심층 분석 ~$0.02, 번역 1묶음 ~$0.007). <b>체감: 하루 10회 사용해도 월 $1~2 수준</b> (선택 사항)<br><b>없으면:</b> AI 채팅·번역 비활성, 영어 뉴스는 원문으로 표시</div>
             </div>
             <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
               <div style="font-size:10px;font-weight:700;color:var(--data-purple);margin-bottom:2px;">Cloudflare Worker (자체 프록시) — 강력 권장</div>

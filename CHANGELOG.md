@@ -17,12 +17,16 @@
 - **데이터 소스**: TradingView=JS전용 스크랩불가 / Investing.com=HTML에 값 있음(스크랩 가능하나 취약·5일선 페이지 없음) 확인 → 자동화 안 함, 주간 WebSearch 수동 유지.
 - **테스트**: T768 신규(breadth200sma 시드/카드/진단 부재 가드 = 200 재유입 방지). T324/T325를 현행(5sma=61/20=57/50=52, 200 undefined)로 갱신.
 
-### Part 2 — 초보자 친화 텍스트 전면 개선 (3 Explore agent ~130건 audit 기반, 진행 중)
-- **개발자/버전 마커 제거**(사용자 노출분): `screener_pro 방법론`, `Citi §64`(3곳), 사이클 title의 `v49.31 H5/R67`.
-- **options 페이지(audit "최악") intro 전면 풀이**: 초보 경고 callout + IV(내재변동성)/IVP/IVR/IV Crush/Skew(스큐)/OTM(외가격)/Greeks(델타·감마·세타·베가 한글)/ATM·ITM·OTM/GEX(딜러 감마 노출)/헤지 전략(보호적 풋·칼라·풋스프레드·VIX콜·0DTE) 한글 병기 + watch→action.
-- **signal 인명 일반화**: Chuck LeBeau/Jesse Livermore/William O'Neil 인용/Jeff Sun → "검증된 기법" 류로(Weinstein·SEPA·VCP 등 기법 라벨은 유지).
-- 스태그플레이션 등 일부 전문용어 1줄 풀이 추가.
-- **잔여**(다음 진행): home/macro/fxbond/fundamental/themes/KR 5페이지/portfolio/ticker/market-news/guide의 약어 한글병기·전문용어 풀이·watch→action·문단 분해.
+### Part 2 — 초보자 친화 텍스트 전면 개선 (3 Explore agent ~130건 audit 기반, 전 21페이지 핵심 완료)
+- **개발자/버전 마커 사용자 노출분 전면 제거**: `screener_pro`(방법론·v5·셋업 라벨), `Citi §64`(3곳), 사이클 title `v49.31 H5/R67`, 가중치 title `WEIGHT_REGISTRY`, 콘솔 함수명 경고 처리. (잔여 7 dev-block은 S&P500·$SPX·CBOE·10-K 등 금융용어 휴리스틱 오탐.)
+- **영어 약어 한글 병기**(전 페이지): ATH·DXY·FOMC·IV·GEX·OAS·FCF·EV/EBITDA·RRG·Sharpe·Sortino·VCP·P/E·NAAIM·AAII·Put/Call·Overweight·PMI·PF·BOK·Fed 등.
+- **전문용어 1줄 풀이**: 스큐·콘탱고·듀레이션·익스포저·삼의법칙(Sahm)·점도표(Dot Plot)·수익률곡선·스태그플레이션·프로그램매매·공매도·숏스퀴즈·세타감소 등.
+- **인명 일반화**: LeBeau/Livermore/O'Neil/Jeff Sun → "검증된 기법"(Weinstein·SEPA·VCP 등 기법명은 유지).
+- **watch→action 보강**: 금리역전→현금↑·방어주, 옵션 이벤트 직전 매수 자제, RRG 사분면별(비중확대/익절/회피/분할매수) 등.
+- **인과 "왜" 보강**: 금리↑→성장주↓(미래이익 할인)·부동산↓(대출비용), 달러강세→미국집중, MSCI리밸런싱→글로벌펀드 자금.
+- **options 페이지(audit "최악") intro 전면 재작성** + 초보 경고 callout.
+- **페이지 적용**: home·signal·breadth·sentiment·briefing·technical·macro·fxbond·fundamental·themes·theme-detail·portfolio·ticker·market-news·options·kr-home·kr-supply·kr-macro·kr-technical·guide (전 21페이지).
+- **검증**: 21페이지 전수 네비게이션 에러 0, 핵심 gloss 렌더 확인, 콘솔 에러 0(FRED no-key 제외).
 - **Cache rotation**: title/badge/APP_VERSION/SW_VERSION/version.json/캐시버스터 → v50.6.
 
 ## v50.5 - C-layer macro real-data wiring (FRED) (2026-06-04)
