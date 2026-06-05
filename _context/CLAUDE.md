@@ -2,7 +2,10 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.8
+- **현재 버전**: v50.9
+
+## v50.9 note
+- **AI 채팅 고위험(저신뢰) 관점 confidence 통합 고지**. 17관점 감사(v50.8) 후속 — 정성 high-risk 7관점(CEO/경영진·Moat·TAM·공급망·플랫폼/생태계·경쟁·리스크)은 placeholder/정적테이블/휴리스틱/연차필링 기반. 함수가 이미 `dataConfidence`를 산발 라벨하나 AI가 놓칠 수 있어 통합. **사용자 선택**: ① 무료 대체 소스(13F/TAM/공급망)=보류(채팅 흐름 맞는 무료 자동 소스 구조적 부재), ② confidence 고지 강화=진행. **(A)** `_fetchTickerDataForChat`가 데이터 블록 상단 `⚠️ [저신뢰 자동데이터 관점] ...` 1줄 주입 — `AIO_ANALYSIS_FRAMEWORK_REGISTRY.highRiskFields(true)` label 동적 생성(하드코딩 X) + R116/R117 "단정 금지·외부확인 권장". **(B)** `chatSend`가 종목 답변에 amber confidence 배지 추가. 헬퍼 `window._aioLowConfPerspectives` 모듈 최상위 정의(캐시-hit 답변에도 적용). T771.
 
 ## v50.8 note
 - **AI 채팅 데이터 출처 전수 감사 + 채팅의 v50.5 FRED 재사용**. 감사 결론: 채팅 견고(실시간 시세 강제 fetch·11소스 펀더멘털·`_liveSnap` 시장헤더·18컨텍스트 100% 동적·답변후 자동검증). agent false-alarm 2건 정정(`_getV48IntegratedContext` index.html:15539 정의됨 / web_search `_shouldUseClaudeWebSearch`→callClaude 배선됨). 진짜 갭 시정: macro 채팅 실제 컨텍스트는 index.html:17554 override(aio-chat.js:62는 死코드)인데 US CPI/PCE/Core 인플레가 누락 → `_liveSnap().macro`에 인플레 YoY 필드 추가(FRED live 우선+스냅샷 폴백) + 프롬프트 라인. `applyFredToUI`가 FRED를 `DATA_SNAPSHOT.cpi/pce/nfp` write-back. baseline: `CHAT-DATA-AUDIT-2026-06-04.md`. T770.

@@ -5322,6 +5322,31 @@
       t770detail = 'writeBack(corePce=2.7,nfp=147,_fredLive)=' + writeBackOk + ' macroExpose(근원PCE 2.7 FRED)=' + macroExposeOk;
     } catch(e) { t770detail = 'err: ' + (e && e.message); }
     _assert('T770 v508_chat_reuses_fred: applyFredToUI→DATA_SNAPSHOT write-back + macro CHAT_CONTEXT 인플레 노출', t770ok, t770detail);
+
+    // ── v50.9: 고위험(저신뢰) 관점 통합 confidence 고지 — 채팅 답변/데이터블록 ──
+    // T771: _aioLowConfPerspectives 헬퍼가 highRiskFields(true) 레지스트리 기반으로 promptLine+badge 동적 생성 (하드코딩 X)
+    var t771ok = false, t771detail = '';
+    try {
+      var lcFn = window._aioLowConfPerspectives;
+      var reg = window.AIO_ANALYSIS_FRAMEWORK_REGISTRY;
+      var helperOk = false, dynamicOk = false, structOk = false;
+      if (typeof lcFn === 'function' && reg && typeof reg.highRiskFields === 'function') {
+        var lc = lcFn();
+        var hrKeys = reg.highRiskFields(true);
+        var expectLabels = hrKeys.map(function(k){ return (reg.fields[k] && reg.fields[k].label) || k; });
+        helperOk = !!(lc && lc.promptLine && lc.badge && Array.isArray(lc.labels));
+        // 레지스트리 highRiskFields와 정확히 일치(하드코딩 아님 증명)
+        dynamicOk = helperOk && lc.labels.length === expectLabels.length &&
+          expectLabels.every(function(lbl){ return lc.labels.indexOf(lbl) >= 0; }) &&
+          lc.labels.length >= 5;
+        // promptLine은 저신뢰 고지 + R116/R117 포함, badge는 저신뢰 키워드 포함
+        structOk = helperOk && lc.promptLine.indexOf('저신뢰') >= 0 && /R11[67]/.test(lc.promptLine) &&
+          lc.badge.indexOf('저신뢰') >= 0;
+      }
+      t771ok = helperOk && dynamicOk && structOk;
+      t771detail = 'helper=' + helperOk + ' dynamicMatchHighRisk(' + (window._aioLowConfPerspectives && window._aioLowConfPerspectives() ? window._aioLowConfPerspectives().labels.length : 0) + ')=' + dynamicOk + ' struct(저신뢰+R116/117)=' + structOk;
+    } catch(e) { t771detail = 'err: ' + (e && e.message); }
+    _assert('T771 v509_lowconf_disclosure: _aioLowConfPerspectives가 highRiskFields 레지스트리 기반 통합 고지 동적 생성(하드코딩 X)', t771ok, t771detail);
   }
 
   window.AIO = window.AIO || {};

@@ -1,12 +1,18 @@
 ---
 verified_by: agent
-last_verified: 2026-06-04
+last_verified: 2026-06-05
 confidence: high
-latest_version: v50.6
-latest_P_number: P481
-total_entries: 481
-next_P_number: P482
+latest_version: v50.9
+latest_P_number: P482
+total_entries: 482
+next_P_number: P483
 ---
+
+## P482 - v50.9 - computeMacroBeta 동기함수에 .catch 호출 → 종목 채팅 펀더멘털 블록 전체 silent reject
+
+- **Problem**: `_fetchTickerDataForChat`(aio-chat.js:~2184)가 `window.AIO.computeMacroBeta(t).catch(...)`로 호출했으나 `computeMacroBeta`(aio-core.js:6004)는 **동기 함수**(plain object 반환, async 아님). object에는 `.catch`가 없어 promise 구성 중 **TypeError 동기 throw** → `async function _fetchTickerDataForChat` 전체가 reject. chatSend가 try/catch로 삼켜 종목 펀더멘털 데이터 블록(11+ 소스)이 **조용히 통째로 누락**된 채 답변 생성. v49.58(computeMacroBeta 채팅 통합) 이후 잠복. 같은 줄의 다른 compute*(FcfYield/Balance/EvEbitda/Moat/TAM)는 모두 `async function`이라 정상, computeMacroBeta만 sync여서 단독 회귀.
+- **Fix**: 호출부를 `Promise.resolve(window.AIO.computeMacroBeta(t)).catch(...)`로 감싸 sync/async 양쪽 내성 확보. preview 실측: 수정 전 `_fetchTickerDataForChat(['NVDA'])` → "computeMacroBeta(...).catch is not a function" throw, 수정 후 정상 string 반환(통합 저신뢰 라인 + 7 high-risk label 포함).
+- **Prevention**: 채팅 fetch 파이프라인에서 외부 함수 promise화 시 sync 반환 함수는 `Promise.resolve()` wrapping 의무(혼합 promise 배열의 `.catch`/`.then` 직접호출 금지). 헬퍼가 async인지 sync인지 호출 전 확인. (v50.9 P482, T771 인접 회귀.)
 
 ## P480 - v50.4 - [R205] static market calendars must separate official releases from source-dependent topics
 

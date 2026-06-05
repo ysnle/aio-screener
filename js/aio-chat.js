@@ -2069,6 +2069,22 @@ window.AIO.getChatTickerCacheStats = function() {
   };
 };
 
+// v50.9 R116/R117: 저신뢰(고위험) 자동데이터 관점 통합 고지 헬퍼 — 모듈 최상위 정의(캐시-hit 답변에도 안정 적용).
+// 리스트는 하드코딩 금지 — AIO_ANALYSIS_FRAMEWORK_REGISTRY.highRiskFields(true)(aio-core.js)에서 동적 생성.
+window._aioLowConfPerspectives = window._aioLowConfPerspectives || function() {
+  try {
+    var reg = window.AIO_ANALYSIS_FRAMEWORK_REGISTRY;
+    if (!reg || typeof reg.highRiskFields !== 'function') return null;
+    var labels = reg.highRiskFields(true).map(function(k){ return (reg.fields[k] && reg.fields[k].label) || k; });
+    if (!labels.length) return null;
+    return {
+      labels: labels,
+      promptLine: '⚠️ [저신뢰 자동데이터 관점 — 수동확인 권장] ' + labels.join(' · ') + ' : 이 관점들은 placeholder/정적테이블/휴리스틱/연차필링 기반이므로 단정 금지. 답변에 "저신뢰 · 외부 직접확인 권장"을 반드시 명시 (R116/R117).',
+      badge: '🔸 고급 분석(' + labels.slice(0, 4).join('·') + ' 등)은 자동데이터 한계로 <b>저신뢰</b> — 수동 확인 권장'
+    };
+  } catch (_) { return null; }
+};
+
 async function _fetchTickerDataForChat(tickers, opts) {
   if (!tickers || tickers.length === 0) return '';
   opts = opts || {};
@@ -2116,6 +2132,9 @@ async function _fetchTickerDataForChat(tickers, opts) {
   // miss만 처리 (기존 흐름 유지)
   tickers = cacheMissTickers;
 
+  // v50.9: 저신뢰 자동데이터 관점 통합 고지 1줄 (산발 라벨 → 한눈에). 헬퍼는 모듈 최상위 정의.
+  try { var _lcSummary = window._aioLowConfPerspectives(); if (_lcSummary) results.push(_lcSummary.promptLine); } catch(_lcErr) {}
+
   for (var i = 0; i < tickers.length; i++) {
     var t = tickers[i];
     var _tickerBlockStart = results.length; // 캐시 저장용 — 이 종목의 결과 라인 시작 인덱스
@@ -2162,7 +2181,8 @@ async function _fetchTickerDataForChat(tickers, opts) {
     var fcfPromise         = window.AIO && window.AIO.computeFcfYield            ? _withTimeout(window.AIO.computeFcfYield(t).catch(function(){return null;}), _T, null) : null;
     var balancePromise     = window.AIO && window.AIO.computeBalanceSheetRatios  ? _withTimeout(window.AIO.computeBalanceSheetRatios(t).catch(function(){return null;}), _T, null) : null;
     var evEbitdaPromise    = window.AIO && window.AIO.computeEvEbitda            ? _withTimeout(window.AIO.computeEvEbitda(t).catch(function(){return null;}), _T, null) : null;
-    var macroBetaPromise   = window.AIO && window.AIO.computeMacroBeta           ? _withTimeout(window.AIO.computeMacroBeta(t).catch(function(){return null;}), _T, null) : null;
+    // v50.9 P482: computeMacroBeta는 동기 함수(plain object 반환) — Promise.resolve로 감싸야 .catch 가능. 미감쌈 시 TypeError로 _fetchTickerDataForChat 전체 reject(펀더멘털 블록 silent 누락).
+    var macroBetaPromise   = window.AIO && window.AIO.computeMacroBeta           ? _withTimeout(Promise.resolve(window.AIO.computeMacroBeta(t)).catch(function(){return null;}), _T, null) : null;
     var shortPromise       = window.AIO && window.AIO.fetchFinnhubShortInterest  ? _withTimeout(window.AIO.fetchFinnhubShortInterest(t).catch(function(){return null;}), _T, null) : null;
     // v49.66 P348 R121: fetchSECRiskFactors Dead code 해소 (#16 리스크 SEC 10-K Item 1A 직접 URL 인용)
     var riskFactorsPromise = window.AIO && window.AIO.fetchSECRiskFactors        ? _withTimeout(window.AIO.fetchSECRiskFactors(t).catch(function(){return null;}), _T, null) : null;
@@ -4878,6 +4898,21 @@ async function chatSend(ctxId) {
             _accBadge.innerHTML = '<span style="color:var(--text-muted);font-weight:600;">v49.33 검증:</span> ' + _accItems.join('');
             aiBubble.parentNode.appendChild(_accBadge);
           }
+          // v50.9 R116/R117: 종목 답변 시 고위험(저신뢰) 관점 통합 고지 배지 — highRiskFields 레지스트리 재사용
+          try {
+            if (Array.isArray(detectedTickers) && detectedTickers.length > 0 &&
+                typeof window._aioLowConfPerspectives === 'function') {
+              var _lcBadgeData = window._aioLowConfPerspectives();
+              if (_lcBadgeData && _lcBadgeData.badge) {
+                var _confBadge = document.createElement('div');
+                _confBadge.className = 'aio-chat-confidence-badge';
+                _confBadge.style.cssText = 'font-size:10px;color:var(--text-muted);margin:3px 0;padding:4px 6px;background:rgba(255,163,26,0.06);border-left:2px solid var(--data-amber);border-radius:4px;line-height:1.5;';
+                _confBadge.innerHTML = _lcBadgeData.badge;
+                _confBadge.title = '저신뢰 관점 전체: ' + _lcBadgeData.labels.join(' · ');
+                aiBubble.parentNode.appendChild(_confBadge);
+              }
+            }
+          } catch (_cbErr) {}
           // v49.75 P400 R148: R140~R142 답변 후처리 검증 (Pattern B 일반화)
           // — 시스템 프롬프트에만 정의된 ABSOLUTE RULES가 실제 답변에 적용되는지 자동 감지
           try {

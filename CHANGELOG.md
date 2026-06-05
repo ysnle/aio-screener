@@ -6,6 +6,19 @@
 
 ---
 
+## v50.9 - AI 채팅 고위험(저신뢰) 관점 confidence 통합 고지 (2026-06-05)
+
+**Changed files**: `js/aio-chat.js`, `js/aio-tests.js`, `index.html`, `version.json`, `sw.js`, `js/aio-core.js`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`
+
+- **배경**: 직전 17관점 감사(v50.8, `_context/CHAT-DATA-AUDIT-2026-06-04.md`) 결론 — 정량 관점은 실 fetch(정확·current)이나 **고위험 7 정성 관점**(CEO/경영진·기술해자(Moat)·TAM·공급망·플랫폼/생태계·경쟁구조·리스크)은 placeholder/정적테이블/휴리스틱/연차필링 기반. 함수·레지스트리가 이미 `dataConfidence` 라벨을 **산발적**으로 부여하나(`_fetchTickerDataForChat` 2314/2417/2442/2451/2482), AI가 흩어진 라벨을 놓칠 수 있음.
+- **사용자 선택**: ① 무료 대체 소스(13F/TAM/공급망) = **보류**(셋 다 채팅 흐름에 맞는 무료 자동 소스 구조적 부재 — 13F 집계 API 없음·TAM 무료 기업별 소스 없음·공급망 10-K 멀티MB가 2.5초 preflight 초과). 현 honest-guide(저신뢰 라벨+수동확인) 유지가 정직한 설계. ② confidence 고지 강화 = **진행**(통합 요약+가시 배지).
+- **A — 데이터 블록 통합 요약 1줄**: `_fetchTickerDataForChat`가 종목별 루프 전 1회 `⚠️ [저신뢰 자동데이터 관점 — 수동확인 권장] ...` 라인 주입. 리스트는 **하드코딩 금지** — `AIO_ANALYSIS_FRAMEWORK_REGISTRY.highRiskFields(true)`(aio-core.js)에서 label 동적 생성(레지스트리 변경 시 자동 반영). "단정 금지 + 저신뢰·외부 직접확인 권장 명시 (R116/R117)" 지시.
+- **B — 답변 가시 배지**: `chatSend`가 종목 답변(`detectedTickers.length>0`) 시 `_accBadge` 다음에 amber 톤 confidence 배지(`🔸 고급 분석(...등)은 자동데이터 한계로 저신뢰 — 수동 확인 권장`) 추가. 상위 4개 label 표시 + title에 전체 7개.
+- **헬퍼 모듈 최상위화**: `window._aioLowConfPerspectives`를 `_fetchTickerDataForChat` 정의 직전에 정의 → **캐시-hit 답변(펀더멘털 재fetch 없는 경로)에도 배지 안정 적용**.
+- **검증 중 발견·시정 (P482, 기존 버그)**: `_fetchTickerDataForChat`(aio-chat.js)가 `window.AIO.computeMacroBeta(t).catch(...)`를 호출하나 `computeMacroBeta`(aio-core.js:6004)는 **동기 함수**(plain object 반환) → `.catch`가 TypeError로 동기 throw → `_fetchTickerDataForChat` 전체 reject → chatSend가 삼켜 **종목 펀더멘털 11소스 블록이 통째로 silent 누락**되던 잠복 버그(v49.58 이후). `Promise.resolve(...)` 래핑으로 시정. preview 실측: 수정 전 throw → 수정 후 정상 데이터 블록(통합 저신뢰 라인 포함) 반환.
+- **검증**: highRiskFields(true)=7개(CEO·Moat·TAM·공급망·플랫폼·경쟁·리스크) label 정확 반환, promptLine에 "저신뢰"+R116/R117 포함, 배지 highRiskFields 기반. `_fetchTickerDataForChat(['TSLA'],{forceFresh})` 데이터 블록에 통합 라인+7 label 확인. T771 로직 격리 검증 pass(헬퍼가 레지스트리 기반 동적 생성·하드코딩 아님). 콘솔 에러 0. (전체 561+ assert 헤드리스 스위트는 30s eval cap 초과로 부분 실행 — 기존 DOM-audit fail 16건 외 신규 회귀 없음.)
+- **Cache rotation**: title/badge/APP_VERSION/SW_VERSION/version.json/캐시버스터 6곳 → v50.9.
+
 ## v50.8 - AI 채팅 데이터 출처 전수 감사 + 채팅의 v50.5 FRED 재사용 (2026-06-04)
 
 **Changed files**: `js/aio-data.js`, `index.html`, `js/aio-tests.js`, `sw.js`, `version.json`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/INDEX.md`, `_context/CHAT-DATA-AUDIT-2026-06-04.md`
