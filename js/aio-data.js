@@ -8249,11 +8249,11 @@ function renderFeed(items) {
 // v49.8: HOME 핵심 뉴스는 최근 72시간 안의 시장 충격도 높은 맥락만 기본 노출한다.
 // 지나간 이벤트는 예정/핵심 뉴스처럼 고정하지 않고, 실시간 뉴스 수집 성공 시 자동 교체한다.
 var HOME_WEEKLY_NEWS = [
-  // v50.4 (2026-06-03): official calendar + verified current-topic refresh
-  { title: 'Computex/GTC Taipei 2026은 AI PC와 물리 AI/인프라 사이클을 동시에 자극하는 주간 촉매입니다. NVIDIA RTX Spark·Windows AI PC, Intel AI 인프라, Foxconn Vera Rubin 지원 발표를 확인하되, 개별 매매 판단은 실시간 뉴스 surface의 verified/current 항목만 사용합니다.', source: 'NVIDIA/AP/Intel/Foxconn 2026-06-01~03', date: '2026-06-03', sentiment: 'bull', topic: 'semi' },
-  { title: 'Reuters 계열 보도에 따르면 SpaceX IPO는 6/11 가격 산정·6/12 Nasdaq 상장 가능성이 시장 화두입니다. 단, 이는 source-dependent IPO watch이며 확정 체결 데이터가 아니므로 유동성 흡수, 우주/위성 밸류에이션, TSLA/방산/우주 테마 심리만 감시합니다.', source: 'Reuters via Investing/Yahoo 2026-05-15~06-02', date: '2026-06-03', sentiment: 'warn', topic: 'ipo' },
-  { title: '6월 매크로 경로는 6/5 고용보고서 → 6/10 CPI → 6/16-17 FOMC → 6/25 PCE 순서로 재가격화됩니다. 현재 발표 완료값은 4월 CPI 3.8%, 4월 NFP +115K/실업 4.3%, 4월 Core PCE 3.3%이며 5월 값은 아직 발표 전입니다.', source: 'BLS/BEA/Federal Reserve calendar 2026-06-03', date: '2026-06-03', sentiment: 'warn', topic: 'macro' },
-  { title: 'AI 반도체 수요는 Computex 발표와 AVGO/CRWD 등 6월 초 실적 뉴스가 교차검증될 때만 현재 판단으로 승격합니다. 정적 큐레이션의 목표가·가이던스 수치는 reference-only이며, 홈 핵심 뉴스는 surface model 점수와 출처 검증으로 재선별됩니다.', source: 'AIO News Surface Contract v50.4', date: '2026-06-03', sentiment: 'neutral', topic: 'semi' },
+  // v50.11 (2026-06-05): 6/4 US close + AVGO 실적 결과 반영 + 오늘 NFP 발표일
+  { title: 'Broadcom(AVGO)이 6/4 회계 Q2 실적에서 AI 매출은 성장했으나 높아진 기대치를 하회하며 −12.6%($418.91) 급락, 기술주 투자심리에 부담을 줬습니다. 다만 NVIDIA(+1.9%)와 헬스케어·금융 강세로 S&P500은 7,585 신고가를 경신했고 VIX는 15.40으로 안정세입니다. AI 사이클은 견조하나 "기대치 인플레" 리스크가 부각됩니다.', source: 'Yahoo/TheStreet 2026-06-04', date: '2026-06-04', sentiment: 'warn', topic: 'semi' },
+  { title: '6월 매크로 경로는 오늘 6/5 고용보고서(21:30 KST) → 6/10 CPI → 6/16-17 FOMC → 6/25 PCE 순서로 재가격화됩니다. 발표 완료값은 4월 CPI 3.8%, 4월 NFP +115K/실업 4.3%, 4월 Core PCE 3.3%이며 5월 값은 발표 전까지 생성하지 않습니다.', source: 'BLS/BEA/Federal Reserve calendar 2026-06-05', date: '2026-06-04', sentiment: 'warn', topic: 'macro' },
+  { title: 'Computex/GTC Taipei 2026 주간이 6/5로 마무리됩니다. NVIDIA RTX Spark·AI PC, Intel AI 인프라, Foxconn Vera Rubin 지원 등 AI 하드웨어 밸류체인 촉매가 제시됐으나, 개별 매매 판단은 실시간 뉴스 surface의 verified/current 항목만 사용합니다.', source: 'NVIDIA/AP/Intel/Foxconn 2026-06-01~05', date: '2026-06-04', sentiment: 'bull', topic: 'semi' },
+  { title: 'Reuters 계열 보도에 따르면 SpaceX IPO는 6/11 가격 산정·6/12 Nasdaq 상장 가능성이 시장 화두입니다. 단, 이는 source-dependent IPO watch이며 확정 체결 데이터가 아니므로 유동성 흡수, 우주/위성 밸류에이션, TSLA/방산/우주 테마 심리만 감시합니다.', source: 'Reuters via Investing/Yahoo 2026-05-15~06-02', date: '2026-06-04', sentiment: 'warn', topic: 'ipo' },
 ];
 window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
 

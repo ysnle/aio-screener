@@ -8189,16 +8189,16 @@ window.AIO_GEOPOLITICAL_CONTEXT_REGISTRY = {
       name: '호르무즈 해협 긴장',
       region: 'middle-east',
       status: 'monitoring',
-      lastReviewed: '2026-05-17',
+      lastReviewed: '2026-06-04',
       marketImpact: 'oil-supply',
-      currentPriceSignal: 'WTI $102 / Brent $108 — 수요파괴 모니터링',
-      note: '실제 봉쇄/재개 발생 시 status 변경 + WTI/Brent 정합 갱신'
+      currentPriceSignal: 'WTI $93 / Brent $96 — US-Iran 군사 충돌 진행(6/4 완화 기대로 −3.1% 되돌림)',
+      note: '실제 봉쇄/재개 발생 시 status 변경 + WTI/Brent 정합 갱신 (v50.11 6/4 리뷰)'
     },
     'iran-nuclear-deal': {
       name: '이란 핵협상',
       region: 'middle-east',
       status: 'monitoring',
-      lastReviewed: '2026-05-17',
+      lastReviewed: '2026-06-04',
       marketImpact: 'oil-risk-premium',
       currentPriceSignal: 'Brent 위험 프리미엄 $5~10 추정',
       note: '재협상 진전/결렬 이벤트 발생 시 갱신'
@@ -8207,7 +8207,7 @@ window.AIO_GEOPOLITICAL_CONTEXT_REGISTRY = {
       name: '대만 해협 긴장',
       region: 'asia-pacific',
       status: 'monitoring',
-      lastReviewed: '2026-05-17',
+      lastReviewed: '2026-06-04',
       marketImpact: 'semiconductor-supply',
       currentPriceSignal: 'TSMC/SMCI/HBM 공급망 영향',
       note: '실제 군사 충돌/제재 발표 시 status 변경'
@@ -8216,7 +8216,7 @@ window.AIO_GEOPOLITICAL_CONTEXT_REGISTRY = {
       name: '러우 전쟁',
       region: 'europe',
       status: 'monitoring',
-      lastReviewed: '2026-05-17',
+      lastReviewed: '2026-06-04',
       marketImpact: 'energy-grain',
       currentPriceSignal: '천연가스 + 곡물 변동성',
       note: '평화협상/확전 시 갱신'
@@ -8225,7 +8225,7 @@ window.AIO_GEOPOLITICAL_CONTEXT_REGISTRY = {
       name: '미중 관세 분쟁',
       region: 'global',
       status: 'monitoring',
-      lastReviewed: '2026-05-17',
+      lastReviewed: '2026-06-04',
       marketImpact: 'tech-equity-supply-chain',
       currentPriceSignal: 'TSM/NVDA/AAPL 등 글로벌 공급망 영향',
       note: 'Trump 관세 정책 변경 시 갱신'
@@ -8269,6 +8269,9 @@ window.AIO_STATIC_CONTENT_LIFECYCLE = {
     'jensen-interview-202603': { type: 'interview', createdAt: '2026-03-20', archiveAfterDays: 30, replaceAfterDays: 60, source: 'NVIDIA CEO All-In Podcast' },
     'briefing-week-may-4-10': { type: 'weekly-calendar', createdAt: '2026-05-10', archiveAfterDays: 7, replaceAfterDays: 14, source: 'Past reference calendar' },
     'briefing-week-jun-1-5':  { type: 'weekly-calendar', createdAt: '2026-05-31', archiveAfterDays: 7, replaceAfterDays: 14, source: 'Computex/GTC 주간 + AVGO/CRWD 실적 + NFP 6/5' },
+    // v50.11: 현재 DOM 콘텐츠 lifecycle 등록 (orphan marker 해소 — briefing-current-jun-3-25 / jensen-computex-202606)
+    'briefing-current-jun-3-25': { type: 'weekly-calendar', createdAt: '2026-06-05', archiveAfterDays: 21, replaceAfterDays: 28, source: '6월 매크로 경로: NFP 6/5 → CPI 6/10 → FOMC 6/16-17 → PCE 6/25' },
+    'jensen-computex-202606': { type: 'interview', createdAt: '2026-06-01', archiveAfterDays: 30, replaceAfterDays: 45, source: 'NVIDIA Computex/GTC Taipei 2026' },
     'kr-export-2026-02':      { type: 'kr-macro-monthly', createdAt: '2026-03-01', archiveAfterDays: 45, replaceAfterDays: 60, source: '산업통상자원부 2월 수출' }
   },
   // 콘텐츠 ID의 expire 상태 계산
@@ -8561,40 +8564,58 @@ window.AIO.getMacroReleaseStaleAudit = function() {
 // ─────────────────────────────────────────────────────────────────
 window.AIO._aioRecomputeMacroCalendar = function(opts) {
   opts = opts || {};
-  var reg = window.AIO_MACRO_CALENDAR;
-  if (!reg) return { status: 'error', advancedCount: 0 };
   var now = new Date();
   var advanced = [];
-  Object.keys(reg.releases).forEach(function(key) {
-    var r = reg.releases[key];
-    var nextTs = new Date(r.nextRelease).getTime();
-    if (isNaN(nextTs)) return;
-    if (now.getTime() <= nextTs) return; // 아직 미발표
-    // 발표일 경과 — advance 1 cycle
-    var oldNext = new Date(r.nextRelease);
-    var newNext = new Date(oldNext);
-    var freq = String(r.frequency || '').toLowerCase();
-    if (freq.indexOf('monthly') >= 0) {
-      newNext.setMonth(newNext.getMonth() + 1);
-    } else if (freq.indexOf('every-6-7-weeks') >= 0) {
-      newNext.setDate(newNext.getDate() + 45);
-    } else if (freq.indexOf('fomc-decision') >= 0) {
-      newNext.setDate(newNext.getDate() + 45);
-    } else if (freq.indexOf('weekly') >= 0) {
-      newNext.setDate(newNext.getDate() + 7);
-    } else {
-      newNext.setMonth(newNext.getMonth() + 1); // default monthly
-    }
-    advanced.push({
-      key: key, name: r.name,
-      prevLastRelease: r.lastRelease, prevNextRelease: r.nextRelease,
-      newLastRelease: r.nextRelease, newNextRelease: newNext.toISOString().slice(0, 10)
+  // v50.11: monthData(YYYY-MM / YYYY-QN) 1 cycle advance (KR 캘린더 — 발표 데이터 월 동반 이동)
+  function _advMonthData(md, freq) {
+    if (!md) return md;
+    var q = String(md).match(/^(\d{4})-Q([1-4])$/);
+    if (q) { var yy=+q[1], qn=+q[2]+1; if(qn>4){qn=1;yy++;} return yy+'-Q'+qn; }
+    var m = String(md).match(/^(\d{4})-(\d{2})$/);
+    if (m) { var d=new Date(+m[1], +m[2]-1+ (String(freq).indexOf('quarterly')>=0?3:1), 1); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+    return md;
+  }
+  // 단일 registry advance — 여러 cycle stale도 미래가 될 때까지 반복 (KR은 수개월 stale 가능)
+  function _advanceReg(reg) {
+    if (!reg || !reg.releases) return;
+    Object.keys(reg.releases).forEach(function(key) {
+      var r = reg.releases[key];
+      var nextTs = new Date(r.nextRelease).getTime();
+      if (isNaN(nextTs)) return;
+      if (now.getTime() <= nextTs) return; // 아직 미발표
+      var freq = String(r.frequency || '').toLowerCase();
+      var oldNext = r.nextRelease, oldLast = r.lastRelease, oldMonth = r.monthData;
+      var newNext = new Date(r.nextRelease), newLast = r.lastRelease, newMonth = r.monthData;
+      var guard = 0;
+      while (newNext.getTime() < now.getTime() && guard < 60) {
+        newLast = newNext.toISOString().slice(0, 10);
+        if (oldMonth) newMonth = _advMonthData(newMonth, freq);
+        var step = new Date(newNext);
+        if (freq.indexOf('quarterly') >= 0) step.setMonth(step.getMonth() + 3);
+        else if (freq.indexOf('monthly') >= 0) step.setMonth(step.getMonth() + 1);
+        else if (freq.indexOf('every-6-7-weeks') >= 0 || freq.indexOf('fomc-decision') >= 0) step.setDate(step.getDate() + 45);
+        else if (freq.indexOf('weekly') >= 0) step.setDate(step.getDate() + 7);
+        else step.setMonth(step.getMonth() + 1); // default monthly
+        newNext = step;
+        guard++;
+      }
+      if (guard === 0) return;
+      advanced.push({
+        key: key, name: r.name,
+        prevLastRelease: oldLast, prevNextRelease: oldNext,
+        newLastRelease: newLast, newNextRelease: newNext.toISOString().slice(0, 10)
+      });
+      if (!opts.dryRun) {
+        r.lastRelease = newLast;
+        r.nextRelease = newNext.toISOString().slice(0, 10);
+        if (oldMonth) r.monthData = newMonth;
+      }
     });
-    if (!opts.dryRun) {
-      r.lastRelease = r.nextRelease;
-      r.nextRelease = newNext.toISOString().slice(0, 10);
-    }
-  });
+  }
+  // v50.11: US + KR 캘린더 모두 처리 (기존 US 단독 → KR stale 재발 방지 R78/P255)
+  _advanceReg(window.AIO_MACRO_CALENDAR);
+  _advanceReg(window.AIO_KR_MACRO_RELEASE);
+  if (!window.AIO_MACRO_CALENDAR) return { status: 'error', advancedCount: 0 };
   return {
     status: advanced.length > 0 ? 'advanced' : 'ok',
     advancedCount: advanced.length,
@@ -8820,11 +8841,11 @@ window.AIO.fetchFMPEarningsCallTranscript = async function(ticker) {
 window.AIO_KR_MACRO_RELEASE = {
   version: 'v49.30',
   releases: {
-    'kr-export':    { name: '수출입 (산자부)',  frequency: 'monthly-first', lastRelease: '2026-03-01', nextRelease: '2026-04-01', dataField: 'krExport', monthData: '2026-02' },
-    'kr-cpi':       { name: 'CPI (통계청)',    frequency: 'monthly-second', lastRelease: '2026-04-02', nextRelease: '2026-05-02', dataField: 'krCpi', monthData: '2026-03' },
+    'kr-export':    { name: '수출입 (산자부)',  frequency: 'monthly-first', lastRelease: '2026-06-01', nextRelease: '2026-07-01', dataField: 'krExport', monthData: '2026-05' },  // v50.11: 5월 1~20일 +64.8% (DATA_SNAPSHOT.krExport)
+    'kr-cpi':       { name: 'CPI (통계청)',    frequency: 'monthly-second', lastRelease: '2026-06-03', nextRelease: '2026-07-03', dataField: 'krCpi', monthData: '2026-05' },  // v50.11: 날짜 현행화 (krCpi 값은 차기 KOSIS/BOK fetch 시 갱신)
     'kr-gdp':       { name: 'GDP (BOK)',       frequency: 'quarterly',     lastRelease: '2026-04-26', nextRelease: '2026-07-26', dataField: 'krGdp', monthData: '2026-Q1' },
-    'kr-industrial': { name: '산업생산 (통계청)', frequency: 'monthly',     lastRelease: '2026-03-31', nextRelease: '2026-04-30', dataField: 'krIndustrial', monthData: '2026-02' },
-    'kr-semi-export': { name: '반도체 수출 (산자부)', frequency: 'monthly-first', lastRelease: '2026-03-01', nextRelease: '2026-04-01', dataField: 'krSemiExport', monthData: '2026-02', note: '+157.9% YoY 2월 수출' }
+    'kr-industrial': { name: '산업생산 (통계청)', frequency: 'monthly',     lastRelease: '2026-05-30', nextRelease: '2026-06-30', dataField: 'krIndustrial', monthData: '2026-04' },  // v50.11: 날짜 현행화
+    'kr-semi-export': { name: '반도체 수출 (산자부)', frequency: 'monthly-first', lastRelease: '2026-06-01', nextRelease: '2026-07-01', dataField: 'krSemiExport', monthData: '2026-05', note: '+202.1% YoY 5월 1~20일 반도체 수출 (DATA_SNAPSHOT.krSemiExport)' }
   }
 };
 
@@ -9163,13 +9184,13 @@ window.AIO.getPagePurposeRatioAudit = function() {
 // 각 시나리오에 lastUpdated 필수 + audit이 stale 자동 탐지.
 // ─────────────────────────────────────────────────────────────────
 window.AIO_SCENARIO_REGISTRY = {
-  version: 'v49.41',
+  version: 'v50.11',
   staleDaysThreshold: 30,
-  // v49.99 5/31 업데이트: BofA Hartnett 6월 인플레 경고 + 이란-미국 합의 최종단계 + Computex 촉매
+  // v50.11 6/4 업데이트: SPX 신고가 7,585(VIX 15.40)로 위험선호 지속이나 AVGO −12.6% AI 가이던스 실망 + US-Iran 분쟁 진행(유가 $93)으로 낙관 트리거 일부 약화
   scenarios: {
-    'soft-landing':   { label: '연착륙', probability: 0.30, lastUpdated: '2026-05-31', source: 'JPM/Citi — 이란 합의 시 WTI 하락→인플레 완화 경로', triggers: ['이란-미국 합의 확정(호르무즈 재개방)', 'CPI <3.5%', 'NFP +150K+', 'AVGO 실적 서프라이즈'] },
-    'stagflation':    { label: '스태그플레이션', probability: 0.45, lastUpdated: '2026-05-31', source: 'BofA Hartnett 6월 인플레 경고 + CPI 3.8%(3년 고점)', triggers: ['CPI >3.5% 지속', '6월 NFP 약화(4월 +115K 수준)', 'Oil >$95', 'PCE 3.3% 고착'] },
-    'recession':      { label: '경기침체', probability: 0.25, lastUpdated: '2026-05-31', source: '소비자신뢰 93.1 하락 + 이란 기뢰/MOU실패 지정학 리스크', triggers: ['이란 기뢰→호르무즈 봉쇄 재발', 'NFP <0', 'ISM PMI <45', 'Brent $130+'] }
+    'soft-landing':   { label: '연착륙', probability: 0.30, lastUpdated: '2026-06-04', source: 'JPM/Citi — SPX 신고가·VIX 15.40 위험선호 지속, 단 AI 반도체 가이던스 혼조(AVGO 실망 vs NVDA 견조)', triggers: ['US-Iran 긴장 완화(WTI 하락)', 'CPI <3.5%', 'May NFP +150K+', 'AI 반도체 어닝 모멘텀 지속(NVDA 견조)'] },
+    'stagflation':    { label: '스태그플레이션', probability: 0.45, lastUpdated: '2026-06-04', source: 'BofA Hartnett 6월 인플레 경고 + CPI 3.8%(3년 고점) + 유가 $93', triggers: ['CPI >3.5% 지속', 'May NFP 약화(4월 +115K 수준)', 'Oil >$95', 'PCE 3.3% 고착'] },
+    'recession':      { label: '경기침체', probability: 0.25, lastUpdated: '2026-06-04', source: '소비자신뢰 93.1 하락 + US-Iran 군사 충돌 지정학 리스크(6/4 진행)', triggers: ['이란→호르무즈 봉쇄 재발', 'May NFP <0', 'ISM PMI <45', 'Brent $130+'] }
   },
   // v49.99 5/31 업데이트: Computex 촉매(낙관↑) vs BofA 인플레 경고(비관↑)
   signalShortTerm: {
@@ -14543,7 +14564,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.9';
+const APP_VERSION = 'v50.11';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -15455,35 +15476,35 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-06-04T12:00:00+09:00',   // v50.5: 무료 fetch API 없는 sentiment/breadth 주간 WebSearch 갱신 (AAII 5/27 Bear 41.9 · NAAIM 98.39 · SKEW 136.86 · MOVE 73.58 · S5FI 52.2% · S5TH 55%) + SKEW/MOVE ^SKEW/^MOVE Yahoo 자동 fetch 연결. v50.4: 공식 6월 매크로 캘린더 + Computex/SpaceX current-topic.
-  _snapshotDate: '2026-06-03',
+  _updated: '2026-06-05T12:00:00+09:00',   // v50.11 /data-refresh: 6/4 종가(SPX 7585·Nasdaq 26831·VIX 15.40·WTI 93.03) + AVGO -12.6% AI 가이던스 실망 + mirror drift(vvix/breadth50) 동기화 + KR 캘린더 advance + 브리핑 주간 롤. v50.5: sentiment/breadth 주간 + SKEW/MOVE Yahoo fetch. v50.4: 공식 6월 매크로 캘린더 + Computex/SpaceX current-topic.
+  _snapshotDate: '2026-06-04',
   _staticDates: {
-    briefingArchive: '2026-06-03',
+    briefingArchive: '2026-06-05',
     jensenInterview: '2026-03-20',
     optionSnapshot: '2026-05-28',
-    krMarket: '2026-06-03',
-    krIssues: '2026-06-03',
+    krMarket: '2026-06-04',
+    krIssues: '2026-06-04',
     tnx2y: '2026-05-28'
   },
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v50.4 static refresh (2026-06-03 KST): hardcoded market topics/calendar refreshed. Latest published macro data remains April CPI 3.8%/Core 2.8% (BLS 2026-05-12), April NFP +115K/unemployment 4.3% (BLS 2026-05-08), and April PCE headline 3.8%/core 3.3% (BEA 2026-05-28). Next decision calendar: May NFP 2026-06-05, May CPI 2026-06-10, FOMC 2026-06-16/17, May PCE 2026-06-25. Current-topic layer adds Computex/GTC Taipei 2026 AI PC/RTX Spark/AI infrastructure news and SpaceX IPO reports as source-dependent watch items, not confirmed current market data. Static fallback only; Delayed/Fallback/Stale labels must remain visible until live stores override.',
+  _note: 'v50.11 /data-refresh (2026-06-05 KST): 6/4 US close updated — SPX 7,585 (+0.41%), Nasdaq 26,831 (-0.09%), VIX 15.40, WTI $93.03; Broadcom (AVGO) -12.6% to $418.91 after Q2 AI guidance missed lofty expectations (NVDA +1.9% partial offset). Latest published macro remains April CPI 3.8%/Core 2.8% (BLS 2026-05-12), April NFP +115K/unemployment 4.3% (BLS 2026-05-08), April PCE headline 3.8%/core 3.3% (BEA 2026-05-28). May NFP releases TODAY 2026-06-05 08:30 ET (still unpublished — do not generate); then May CPI 2026-06-10, FOMC 2026-06-16/17, May PCE 2026-06-25. Computex/GTC Taipei window concluded 2026-06-05; SpaceX IPO remains source-dependent watch. Static fallback only; Delayed/Fallback/Stale labels must remain visible until live stores override.',
 
-  // ── 미국 주요 지수 (2026-05-27 종가 / WebSearch CNBC/TheStreet 확인) ──
-  spx:        7563.63,  spxPct:    +0.58,   // v49.91: 2026-05-28 close 신고가 (TheStreet/CNBC, PCE 3년최고에도 tech 주도)
-  nasdaq:    26917.47,  nasdaqPct: +0.91,   // v49.91: 2026-05-28 close 신고가
-  dow:       50668.97,  dowPct:    +0.05,   // v49.91: 2026-05-28 close (+24.69 pts)
+  // ── 미국 주요 지수 (2026-06-04 종가 / WebSearch CNBC/TheStreet/Yahoo 확인) ──
+  spx:        7585.00,  spxPct:    +0.41,   // v50.11: 2026-06-04 close 신고가 (Yahoo/TheStreet, 헬스케어+3.14%·금융+2.67% 주도, 11개섹터 중 8개 상승)
+  nasdaq:    26831.00,  nasdaqPct: -0.09,   // v50.11: 2026-06-04 close (AVGO -12.6% AI 가이던스 실망에 기술주 약세, NVDA +1.9% 상쇄)
+  dow:       50668.97,  dowPct:    +0.05,   // v50.11: 6/4 종가 미확인 — 5/28값 유지 (SKIPPED, R183). 6/1 기록 경신 후 6/4 헬스/금융 강세
   rut:       2936.57,  rutPct:    +0.13,   // v49.95: Russell 2000 2,936.57 실측 (5/28, 52주 신고가권 — 5/27 2,932.74 신고가. Yahoo ^RUT). 기존 2858.50 추정 78pt stale
-  vix:          15.74,  vixPct:    -3.38,   // v49.91: FRED VIXCLS 2026-05-28 (17.01 → 15.74, 위험선호 강화)
-  vvix:         83.00,                        // v49.91: VVIX 추정 (VIX 15.74 추가 하락 동조)
+  vix:          15.40,  vixPct:    -4.11,   // v50.11: FRED VIXCLS 2026-06-04 (15.74 → 15.40, 위험선호 지속·US-Iran 크로스커런트에도 안정)
+  vvix:         85.75,                        // v50.11: VVIX 85.75 (sentiment 블록 정합, _fallback 미러 동기화 R184)
 
   // ── 한국 지수 (2026-05-28 종가 / KRX Seoul Economic Daily 확인) ──
   kospi:     8185.29,  kospiPct:  -0.53,  kospiPrev: 8228.70,  // v49.84: 2026-05-28 close (5일 랠리 종료, 중동 긴장 + 채권금리 상승)
   kosdaq:    1104.36,  kosdaqPct: -2.54,  kosdaqPrev: 1133.13, // v49.84: 2026-05-28 close
 
-  // ── 원자재 (2026-05-27 settle / Trading Economics 확인) ──
-  wti:       90.50,  wtiPct:    +2.00,   // v49.92: 2026-05-28 ($88.30 → $90.5, 이란 충돌 재개 — 5/27 평화보도 가짜 판명, 미군 이란기지 타격)
-  brent:     96.29,  brentPct:  +2.10,   // v49.92: 2026-05-28 (TradingEconomics, 이란 군사 충돌 재개)
+  // ── 원자재 (2026-06-04 settle / Trading Economics·Yahoo 확인) ──
+  wti:       93.03,  wtiPct:    -3.11,   // v50.11: 2026-06-04 WTI $93.03 (-3.11%, US-Iran 충돌 완화 기대로 6/4 하락 — 단 주간으로는 5/28 $90.5 대비 상승)
+  brent:     96.29,  brentPct:  -2.90,   // v50.11: 6/4 정확값 미확인 — WTI 연동 추정 유지 (SKIPPED, R183 band 내)
   gold:      4411,   goldPct:   -1.60,  goldWeeklyPct: -6.0,  // v49.92: Fortune/APMEX 2026-05-28 ($4483 → $4411)
   ng:        3.07,                       // v49.95: Henry Hub 천연가스 $3.07/MMBtu 실측 (EIA/FRED 5/18). 기존 2.95 stale
 
@@ -15514,13 +15535,15 @@ const DATA_SNAPSHOT = {
 
   // ── 거시 지표 ──
   cpi:          3.8,   coreCpi:   2.8,   // v49.86: CPI 4월 YoY 3.8% · Core 2.8% (BLS 5/14 발표, Iran 전쟁+AI 지출 영향 — Fortune 2026-05-12)
+  cpiYoy:       3.8,   coreCpiYoy: 2.8,  // v50.11: data-snap="cpi-yoy"/"core-cpi-yoy" seed (page-macro sink, R97 — cpi/coreCpi와 동일, FRED PAYEMS/CPIAUCSL write-back 시 자동 오버라이드)
   pce:          3.8,   corePce:   3.3,            // v49.91: 4월 PCE (BEA 5/28 발표) — Headline 3.8% (2023.5 이후 최고) / Core 3.3% (2023.10 이후 최고). MoM Headline +0.4 / Core +0.2
+  pceYoy:       3.8,   corePceYoy: 3.3,  // v50.11: data-snap="pce-yoy"/"core-pce-yoy" seed (page-macro sink, R97 — pce/corePce와 동일, FRED PCEPI write-back 시 자동 오버라이드)
   nfp:          115,                              // v50.5: 직전 비농업 신규고용 MoM(천명) 폴백 — FRED PAYEMS 설정 시 자동 오버라이드 (data-snap="nfp")
   cpiNext:     '2026-06-10',                       // v50.4: BLS May 2026 CPI scheduled release
   nfpNext:     '2026-06-05',                       // v50.4: BLS May 2026 Employment Situation scheduled release
   pceNext:     '2026-06-25',                       // v50.4: BEA May 2026 Personal Income and Outlays scheduled release
   computexWeek:'2026-06-01~2026-06-05',            // v50.4: Computex/GTC Taipei current-topic window
-  spacexIpoStatus: 'Reuters-reported June 12 Nasdaq target; source-dependent watch, not guaranteed execution',
+  spacexIpoStatus: 'SpaceX IPO: Reuters-reported June 12 Nasdaq target; source-dependent watch, not guaranteed execution',
   ismPmi:      52.7,   ismPrice:  84.6,           // v49.95: 4월 ISM Mfg 52.7 (3월과 동일, 2022.8 이후 최강 · 18개월 확장) · Prices 84.6(2022.4 이후 최고, 19개월 연속 상승 — 철강·알루미늄·석유·관세). ISM 5/1 발표. 기존 ismPrice 70.7 14pt stale
   ismSvc:      53.6,                              // v49.95: 4월 ISM 서비스 PMI 53.6 실측 (5/5 발표 — 3월 54.0→4월 53.6, 22개월 연속 확장. Prices 70.7 고착). 다음 6/3 5월분. 기존 54.0 stale
   usUnemploy:   4.30,  // v49.86: 4월 NFP +115K(컨센 하회), 실업률 4.3% (5/8 발표) — 다음 6/5 5월분 예정
@@ -15674,22 +15697,22 @@ const DATA_SNAPSHOT = {
   _fallback: {
     fg: 60,              // v49.84: CNN F&G 60 (Greed) 2026-05-26 기준
     fg_uw: 65,           // v49.84: UW 확장 F&G (CNN 60 → UW 65 추정)
-    vix: 15.74,          // v49.91: VIX 2026-05-28 close
+    vix: 15.40,          // v50.11: VIX 2026-06-04 close (본체 정합)
     breadth200: 57,      // v50.6: window._breadth200(레거시 변수명, 실제 20일선 breadth=bpSPX20)의 폴백값. 20일선 값(57)으로 정합. *200일선 데이터 아님*
     breadth5: 61,        // v49.87: $MMFD 61.41 실측 (Barchart)
-    breadth50: 61,       // v49.87: $MMFI 60.77 실측 (Barchart)
+    breadth50: 52,       // v50.11: breadth50sma 본체(52, S5FI 52.2%)와 mirror 동기화 (R184 drift 시정, 기존 61)
     pcr: 0.83,           // v49.85: CBOE total PCR 2026-05-21 (equity 0.55 / index 별도)
     aaiiBear: 41.9,      // v50.5: AAII 2026-05-27 발표 Bearish % (mirror 정합)
     spx50ma: 7280,       // v49.84: SPX 50일 이동평균 (5/27 기준 추정 — 신고가 후 상승)
     spx200ma: 6950,      // v49.84: SPX 200일 이동평균 추정
-    spxATH: 7563.63,     // v49.91: SPX ATH = 2026-05-28 close (신고가)
+    spxATH: 7585.00,     // v50.11: SPX ATH = 2026-06-04 close 신고가 (본체 spx 정합)
     dxy: 99.14,          // v49.85: DXY WebSearch 2026-05-27 confirmed
     tnx: 4.48,           // v49.84: 10Y 2026-05-27 close
     hyg: 81,             // v49.84: HYG (Iran 호재 + 신고가 환경 — 신용 스프레드 추가 타이트닝)
-    vvix: 83,            // v49.96: VVIX 83 — DATA_SNAPSHOT.vvix와 정합 (기존 85 드리프트)
+    vvix: 85.75,         // v50.11: VVIX 85.75 — DATA_SNAPSHOT.vvix 본체와 mirror 동기화 (R184 drift 시정, 기존 83)
     move: 73.58,         // v50.5: MOVE 73.58 — DATA_SNAPSHOT.move와 정합 (Yahoo ^MOVE 2026-06-01)
     skew: 136.86,        // v50.5: SKEW 136.86 — DATA_SNAPSHOT.skew와 정합 (Yahoo ^SKEW 2026-06-02)
-    _syncDate: '2026-06-04'  // v50.5: static fallback sync date (snapshot 본체와 mirror 정합)
+    _syncDate: '2026-06-05'  // v50.11: static fallback sync date (snapshot 본체와 mirror 정합)
   }
 };
 

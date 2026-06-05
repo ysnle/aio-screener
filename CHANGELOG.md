@@ -6,6 +6,34 @@
 
 ---
 
+## v50.11 - 전체 데이터 전수 최신화 (/data-refresh) — 6/4 종가 + 캘린더/브리핑/홈뉴스 (2026-06-05)
+
+**Changed files**: `js/aio-core.js`, `js/aio-data.js`, `index.html`, `js/aio-tests.js`, `.claude/skills/data-refresh/SKILL.md`, `version.json`, `sw.js`, `CHANGELOG.md`, `_context/CLAUDE.md`
+
+- **0단계 Audit-First**: `getAutoOpsReadiness`/`getStaticDataGovernanceAudit`/`getSnapshotFallbackConsistencyAudit`/`getKrMacroReleaseAudit`/`getStaticContentLifecycleAudit`/`getScenarioFreshnessAudit`/`getStaticSeedFallbackAudit` 실행 → 플래그 항목 타겟. WebSearch로 6/4 US 종가·오늘(6/5) 이벤트 확인(R183 sanity band).
+- **US 6/4 종가**: SPX 7,585(+0.41% 신고가) · Nasdaq 26,831(−0.09%) · VIX 15.40(−4.11%) · WTI $93.03(−3.11%). 핵심 이벤트: **Broadcom(AVGO) −12.6% $418.91 — Q2 AI 가이던스 기대치 하회**(NVDA +1.9% 일부 상쇄). 5/28 stale 본체 갱신.
+- **미러 drift 시정(R184)**: DATA_SNAPSHOT 본체↔`_fallback` — vvix 83→85.75, breadth50 61→52, spxATH 7563.63→7585, vix→15.40, `_syncDate` 6/5. `getSnapshotFallbackConsistencyAudit().issueCount` 2→0.
+- **캘린더·일정(강조)**: `AIO_KR_MACRO_RELEASE` 4 stale 엔트리(수출/CPI/산업생산/반도체, nextRelease 3~5월 과거) 현행화. **근본 보강**: `_aioRecomputeMacroCalendar`가 이제 US+KR 둘 다 처리 + 수개월 stale도 multi-cycle catch-up(R78/P255 재발 방지). KR audit 4→0.
+- **오늘의 브리핑(강조)**: 이벤트 레이어(index.html) — As of 6/5, 지난 "6/3 ADP/AVGO" 행을 "6/4 완료 AVGO −12.6%"로 결과 반영(P61). `STATIC_CONTENT_LIFECYCLE`에 현재 DOM 콘텐츠(`briefing-current-jun-3-25`/`jensen-computex-202606`) 등록(orphan marker 해소). `AIO_SCENARIO_REGISTRY` lastUpdated 6/4 + AVGO-실망-정정 트리거. `macro-scenario`/`cp-narrative` snap date 6/4.
+- **홈 핵심 뉴스(강조)**: `HOME_WEEKLY_NEWS`(js/aio-data.js) 재선별 — AVGO 실망+SPX 신고가 top, NFP "발표 전"(오늘 21:30 KST 발표, 미발표 수치 생성 금지) 유지, 날짜 6/4.
+- **정합 잔여 시정**: data-snap 시드 누락(cpi-yoy/core-cpi-yoy/pce-yoy/core-pce-yoy) 추가(R97) · sink mismatch(kr-semi-export-yoy 아카이브 Feb값 라이브 키 공유) — 아카이브 셀 data-snap 제거로 분리 · 지정학 5 리뷰(R79) lastReviewed 6/4 + 호르무즈 유가 시그널 $102→$93 정정 · spacexIpoStatus "SpaceX" 명시.
+- **스킬 보강(사용자: 스킬에 없는 영역)**: data-refresh SKILL.md에 U그룹 신설 — 오늘의 브리핑 이벤트 레이어/weekly lifecycle 롤·MACRO_CALENDAR(US+KR)·current-topic 필드. 0단계 감사 명령 보강. HOME_WEEKLY_NEWS grep 경로 index.html→js/aio-data.js 정정.
+- **검증**: 데이터 감사 seed/sink/mirror/KR/geo/scenario 모두 0/ok. 콘솔 에러 0. 데이터 변경에 맞춰 T681(SPX/VIX 밴드)·T564(semi sink 정합)·T759(us-nfp advance 허용)·T760(_snapshotDate 6/4 + spacex) 업데이트, 모두 통과. 잔여 12 사전 fail은 헤드리스 DOM-audit(데이터-refresh 무관). lifecycle 3 replaceDue는 아카이브 historical(수용).
+- **Cache rotation**: R1 7곳 + 캐시버스터 6곳 → v50.11.
+
+## v50.10 - AI 채팅 정성 데이터 커버리지 확장 (Claude web research) (2026-06-05)
+
+**Changed files**: `js/aio-chat.js`, `js/aio-tests.js`, `index.html`, `version.json`, `sw.js`, `js/aio-core.js`, `CHANGELOG.md`, `_context/CLAUDE.md`
+
+- **배경**: 사용자 "단순 시세만 가져오면 의미 없다. Claude web research로 정성 데이터 못 가져오나?" — 조사 결과 Claude native web search(`web_search_20250305`, max_uses:3)는 **이미 callClaude에 배선**(aio-chat.js:1448)됐으나, 트리거 `_shouldUseClaudeWebSearch`(3299)가 **시점/뉴스/이벤트 키워드에만 켜지고 정작 데이터가 부실한 정성 7관점**(공급망·TAM·경쟁·해자·13F/기관·CEO전략·사업구조)엔 안 켜지던 갭. v50.8 ① 보류는 "무료 구조화 API 부재" 한정 — Claude web research(유료·비구조화)는 다른 경로로 실현 가능. 사용자 결정: 자동만 / 모든 정성 질문 / 풀(인용+배지).
+- **A 트리거 확장**: `_shouldUseClaudeWebSearch`를 `_want` accumulator로 리팩토링 + 정성 분기 추가 — (티커 有 OR ctxId ∈ {fundamental,ticker,themes,theme-detail,market-news,briefing,macro}) AND 정성 키워드(공급망/TAM/경쟁/해자/13F/사업구조/경영진/전략/투자포인트/전망/분석…) → web search 활성. 순수 시세 질문(주가/얼마)은 qualIntent 미포함이라 미발화.
+- **B 정성 web-research 지시**: `_useClaudeWebSearch===true`일 때 systemPrompt에 "공급망/TAM/경쟁/해자/13F/사업구조/CEO전략 정성 분석은 placeholder/정적 데이터 의존 말고 web_search로 최신 사실+(출처·발행일) 확인, 미확인은 '확인 불가', 학습데이터 추측 금지" 지시 append.
+- **C native 인용 렌더링**: callClaude 스트리밍 파서(1534)에 `web_search_tool_result` 블록 + `citations_delta` 수집 → `window._aioLastClaudeCitations`(요청 시작 시 리셋, 12건 cap). chatSend onDone에서 `_searchCitationsHTML({citations,engine:'claude'})`로 출처 푸터 렌더(`_searchCitationsHTML`에 `engine==='claude'`→'Claude 웹검색' 라벨 분기).
+- **D 배지 업그레이드**: v50.9 종목 답변 저신뢰 배지를 3단계로 — 검색 발화+인용≥1 → "🔍 웹검색 출처 기반 — 출처 확인 권장"(cyan) / 검색 발화·인용 0 → "🔍 출처 미확정"(amber) / 미발화 → 기존 저신뢰(amber).
+- **E 비용 안전 상한**: `_QUOTA_LIMITS`에 `claudeWebSearch:{daily:120, label:'Claude 웹검색'}`(관대·조정 가능) 추가 — 5명 공유 유료 Claude 키 보호. `_shouldUseClaudeWebSearch`에서 `_isQuotaExceeded` 시 미발화 + `window._aioWebSearchCapped` 플래그 → chatSend amber 안내. callClaude 발화 시 `_bumpApiCounter('claudeWebSearch')`(80% 경고/도달 로그 기존 동작). **신규 API·키 없이 기존 인프라만 재사용**.
+- **검증**: preview에서 `_shouldUseClaudeWebSearch('엔비디아 공급망 분석해줘','fundamental',['NVDA'])`→true / `'엔비디아 주가 얼마'`→false / quota mock→false+capped. `_searchCitationsHTML({...,engine:'claude'})`→'Claude 웹검색' 출처 HTML. T772~T774 회귀(트리거/지시/인용+배지). 콘솔 에러 0.
+- **Cache rotation**: title/badge/APP_VERSION/SW_VERSION/version.json/캐시버스터 6곳 → v50.10.
+
 ## v50.9 - AI 채팅 고위험(저신뢰) 관점 confidence 통합 고지 (2026-06-05)
 
 **Changed files**: `js/aio-chat.js`, `js/aio-tests.js`, `index.html`, `version.json`, `sw.js`, `js/aio-core.js`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/BUG-POSTMORTEM.md`

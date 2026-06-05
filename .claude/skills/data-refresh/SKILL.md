@@ -68,9 +68,14 @@ AIO.getDataQualityIssueAudit()             // fetch 실패·추출 0건 등 코�
 AIO.getSnapshotConsistencyAudit()          // 같은 data-snap 키 다중 시드 불일치
 AIO.assertSnapshotInlineMatch()            // DOM 인라인 vs DATA_SNAPSHOT
 AIO.getScenarioFreshnessAudit()            // SCENARIO 30일+
-AIO.getStaticContentLifecycleAudit()       // archive/replace due
+AIO.getStaticContentLifecycleAudit()       // archive/replace due (브리핑 주간캘린더·인터뷰·KR 월간 포함)
 AIO.getChatContextFreshnessAudit()         // CHAT_CONTEXTS stale 토큰
+AIO.getKrMacroReleaseAudit()               // v50.11: KR 매크로 발표 캘린더 stale (수출/CPI/산업생산/반도체)
+AIO.getStaticSeedFallbackAudit()           // data-snap 키 vs DATA_SNAPSHOT 시드 누락 (R97)
+AIO._aioRecomputeMacroCalendar({dryRun:true}) // v50.11: US+KR 캘린더 auto-advance dry-run (어느 entry가 advance될지 미리보기)
 ```
+
+> **v50.11 캘린더 auto-advance 근본 보강**: `_aioRecomputeMacroCalendar`가 이제 `AIO_MACRO_CALENDAR`(US) + `AIO_KR_MACRO_RELEASE`(KR) **둘 다** 처리하고, 수개월 stale도 미래까지 multi-cycle catch-up 한다 (페이지 로드 7초 후 자동 1회). KR 캘린더 stale(R78/P255)이 재발하면 이 hook가 KR을 도는지 먼저 확인.
 
 **Audit → 행동 매핑:**
 - 필드/키가 stale/drift 플래그 → 그 항목만 WebSearch 실측 시정 (전수 grep 불필요)
@@ -836,6 +841,49 @@ grep -c "_aioFeedHealth.reportOk" js/aio-data.js
 
 ---
 
+## U그룹: 오늘의 브리핑 + 매크로 캘린더 + current-topic (v50.11 신설 — 사용자 강조 영역)
+
+> **핵심**: 홈 핵심 뉴스(F1)만으로는 "오늘의 브리핑·캘린더·일정"이 다 안 잡힌다. 브리핑 이벤트 레이어·주간 lifecycle·MACRO_CALENDAR(US+KR)·DATA_SNAPSHOT current-topic 필드는 별도 점검 대상이다.
+
+### U1. 오늘의 브리핑 이벤트 레이어 (index.html)
+```bash
+# 브리핑 "현재 시장 이벤트 레이어" 카드 — As of 날짜 + 공식 매크로 캘린더 행 + 현재 화두 행
+grep -n 'data-lifecycle-id="briefing-current' index.html | head -3
+grep -n 'As of 2026' index.html | head -3   # 헤더 "As of YYYY-MM-DD KST" 갱신
+```
+- **점검**: (a) `As of` 날짜 = 오늘 · 버전 배지 = 현재 버전. (b) 캘린더 행의 "발표 완료값 vs 예정값" 분리 정확(미발표 5월 CPI/NFP/PCE 수치 생성 금지). (c) **이벤트-결과 정합(P61)**: 지난 화두가 실제로 발표/종료됐으면 결과 반영 (예: AVGO 실적 → 실제 +/− 결과, Computex 주간 종료).
+
+### U2. weekly-calendar lifecycle 롤 (js/aio-core.js `AIO_STATIC_CONTENT_LIFECYCLE`)
+```bash
+grep -n "briefing-current\|briefing-week\|jensen-computex\|jensen-interview" js/aio-core.js | head -6
+# 콘솔: AIO.getStaticContentLifecycleAudit()  → replaceDue/archiveDue
+```
+- **점검**: DOM의 모든 `data-lifecycle-id` 마커가 레지스트리에 등록돼 있는가(orphan 금지). 현재 주간 브리핑/인터뷰 콘텐츠는 `createdAt`이 현재 주간인 entry로 등록. 지난 주간(예: `briefing-week-may-*`)은 archived 처리(`data-aio-archive`). **archived 역사 콘텐츠의 replaceDue는 허용**(이미 교체됨) — 단 현재 노출 콘텐츠가 replaceDue면 롤.
+
+### U3. MACRO_CALENDAR (US `AIO_MACRO_CALENDAR` + KR `AIO_KR_MACRO_RELEASE`)
+```bash
+grep -n "AIO_MACRO_CALENDAR\|AIO_KR_MACRO_RELEASE" js/aio-core.js | head -4
+# 콘솔: AIO._aioRecomputeMacroCalendar({dryRun:true})  → advance 미리보기
+#       AIO.getKrMacroReleaseAudit()                    → KR stale
+```
+- **v50.11**: auto-advance hook가 US+KR 둘 다 처리(7초 후 자동). **정적 nextRelease가 과거면** hook가 미래로 advance — 단 정적 소스도 현재 사이클로 손수 맞춰 배포 파일이 stale 안 보이게. KR entry의 `monthData`/`note`는 실제 DATA_SNAPSHOT 값 월과 정합(예: krSemiExport 값이 5월이면 monthData '2026-05').
+
+### U4. DATA_SNAPSHOT current-topic 필드 (js/aio-core.js)
+```bash
+grep -nE "computexWeek|spacexIpoStatus|cpiNext|nfpNext|pceNext|fomcNext" js/aio-core.js | head -8
+```
+- **점검**: `computexWeek`/`spacexIpoStatus` 등 시점 한정 current-topic 윈도우가 경과했는지. `cpiNext/nfpNext/pceNext/fomcNext` 예정일이 지났으면 다음 사이클로. (윈도우 종료 시 브리핑 U1·홈뉴스 F1도 동반 갱신.)
+
+### U5. 미러·시드·sink 정합 (배포 전 필수)
+```bash
+# 콘솔: AIO.getSnapshotFallbackConsistencyAudit().issueCount === 0  (본체↔_fallback)
+#       AIO.getStaticSeedFallbackAudit().issueCount === 0           (data-snap 시드 R97)
+#       AIO.getSnapshotConsistencyAudit()                           (같은 키 다중 sink 불일치)
+```
+- 아카이브 표/placeholder가 **라이브 data-snap 키를 공유하면 sink mismatch** → 아카이브 셀은 `-feb`/`-archive` 등 archive-specific 키로 분리.
+
+---
+
 ## 주의사항 (Gotchas)
 
 1. **labels20 공유**: VIX 차트와 HY OAS 차트가 같은 `labels20` 배열 공유. 연장 시 `vixData` + `hyData` 동시 업데이트 안 하면 배열 길이 불일치 → 차트 렌더링 오류.
@@ -944,8 +992,8 @@ grep -c "_aioFeedHealth.reportOk" js/aio-data.js
 `HOME_WEEKLY_NEWS`는 홈 화면에 고정 표시되는 **수동 큐레이션 뉴스 3건**이다.
 API가 자동 수집하는 뉴스와 별개 — 직접 수정하지 않으면 갱신되지 않는다.
 
-- 위치: `index.html` → `var HOME_WEEKLY_NEWS = [...]`
-- 스캔 명령: `grep -A15 "^var HOME_WEEKLY_NEWS" index.html | grep "date:"`
+- 위치: **`js/aio-data.js`** → `var HOME_WEEKLY_NEWS = [...]` (v48.29 모듈 분리 이후 — 본문 레거시 `index.html` 경로는 무효)
+- 스캔 명령: `grep -A15 "^var HOME_WEEKLY_NEWS" js/aio-data.js | grep "date:"`
 
 ### 언제 업데이트하는가
 

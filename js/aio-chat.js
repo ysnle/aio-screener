@@ -1451,6 +1451,8 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     window._aioWebSearchStats = window._aioWebSearchStats || { calls: 0, lastUsedAt: null };
     window._aioWebSearchStats.calls++;
     window._aioWebSearchStats.lastUsedAt = new Date().toISOString();
+    // v50.10: 공유 유료 키 일일 사용량 카운트 (80% 경고/도달 로그는 _bumpApiCounter 기존 동작)
+    try { if (typeof _bumpApiCounter === 'function') _bumpApiCounter('claudeWebSearch'); } catch(e) {}
   }
 
   // v48.8: anthropic-beta 헤더 호환성 — 2024년 11월 이후 prompt caching이 정식 기능으로 승격되어
@@ -1507,6 +1509,17 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     var buffer = '';
     var fullText = '';
 
+    // v50.10: native web_search 인용/검색결과 수집 (사용자 출처 표면화). 요청 시작 시 리셋.
+    if (opts.webSearch === true) window._aioLastClaudeCitations = [];
+    function _pushWebCite(url, title) {
+      if (!url || typeof url !== 'string') return;
+      if (!window._aioLastClaudeCitations) window._aioLastClaudeCitations = [];
+      var arr = window._aioLastClaudeCitations;
+      for (var _ci = 0; _ci < arr.length; _ci++) { if (arr[_ci].url === url) return; }
+      if (arr.length >= 12) return;  // 과다 누적 방지
+      arr.push({ url: url, title: (title || '') });
+    }
+
     try {
       while (true) {
         // v30.5: 청크 간 15초 타임아웃 — 서버가 멈추면 자동 중단
@@ -1545,7 +1558,20 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
                 }
                 onChunk(fullText);
               }
+              // v50.10: web_search 인용 (Claude가 실제 인용한 출처) 수집
+              else if (evt.delta.type === 'citations_delta' && evt.delta.citation) {
+                _pushWebCite(evt.delta.citation.url, evt.delta.citation.title);
+              }
               // thinking_delta는 의도적으로 건너뜀 — 내부 추론 과정이므로 표시하지 않음
+            }
+            // v50.10: web_search_tool_result 블록 (Claude가 검색해 찾은 결과 목록) 수집
+            else if (evt.type === 'content_block_start' && evt.content_block && evt.content_block.type === 'web_search_tool_result') {
+              var _wsr = evt.content_block.content;
+              if (Array.isArray(_wsr)) {
+                for (var _wi = 0; _wi < _wsr.length; _wi++) {
+                  if (_wsr[_wi] && _wsr[_wi].url) _pushWebCite(_wsr[_wi].url, _wsr[_wi].title);
+                }
+              }
             }
             // v48.0: usage 추적 — message_start에는 input/cache_creation/cache_read_input_tokens, message_delta에는 output_tokens
             else if (evt.type === 'message_start' && evt.message && evt.message.usage) {
@@ -3298,34 +3324,54 @@ function _needsWebSearch(query, ctxId) {
 // ─────────────────────────────────────────────────────────────────
 function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers) {
   if (!query) return false;
+  window._aioWebSearchCapped = false;
   // 사용자 명시 opt-out
   try {
     if (localStorage.getItem('aio_web_search_enabled') === 'off') return false;
   } catch(e) {}
   var q = String(query).toLowerCase();
+  var _hasTicker = Array.isArray(detectedTickers) && detectedTickers.length > 0;
+  var _want = false;
   // A: 시점 키워드
-  if (/최근|최신|오늘|어제|이번\s*주|이번\s*달|금주|지난주|방금|지금|현재|latest|recent|today|just now|breaking/.test(q)) return true;
-  // B: 페이지 컨텍스트
-  if (ctxId === 'market-news' || ctxId === 'briefing' || ctxId === 'macro') {
-    if (/뉴스|news|소식|발표|상황|동향/.test(q)) return true;
+  if (/최근|최신|오늘|어제|이번\s*주|이번\s*달|금주|지난주|방금|지금|현재|latest|recent|today|just now|breaking/.test(q)) _want = true;
+  // B: 페이지 컨텍스트 (뉴스성)
+  if (!_want && (ctxId === 'market-news' || ctxId === 'briefing' || ctxId === 'macro')) {
+    if (/뉴스|news|소식|발표|상황|동향/.test(q)) _want = true;
   }
   // C: 티커 + 이벤트
-  if (Array.isArray(detectedTickers) && detectedTickers.length > 0) {
-    if (/뉴스|news|발표|announce|실적|earnings|어닝|M&A|인수|합병|파트너십|partnership|소송|lawsuit|CEO|이사회|board|guidance|가이던스|investor\s*day|analyst\s*day/i.test(q)) return true;
+  if (!_want && _hasTicker) {
+    if (/뉴스|news|발표|announce|실적|earnings|어닝|M&A|인수|합병|파트너십|partnership|소송|lawsuit|CEO|이사회|board|guidance|가이던스|investor\s*day|analyst\s*day/i.test(q)) _want = true;
   }
-  // D: 기존 _needsWebSearch가 true면 폴백으로 함께 (Perplexity 키 없을 때 보완)
-  try {
-    if (typeof _needsWebSearch === 'function') {
-      var pKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_perplexity_key') : '';
-      var gKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_google_cse_key') : '';
-      // Perplexity/Google 키가 없을 때만 폴백 (둘 다 있으면 _needsWebSearch가 처리)
-      if (!pKey && !gKey) {
-        // 위 A/B/C에 안 잡힌 패턴이라도 검색 의도 강하면 trigger
-        if (/검색|찾아|search|look\s*up|알아봐|조사/i.test(q)) return true;
+  // E (v50.10): 정성 분석 의도 → web research로 placeholder/정적/휴리스틱 데이터 보강.
+  //   AIO_ANALYSIS_FRAMEWORK_REGISTRY 고위험 7관점(공급망/TAM/경쟁/해자/13F/CEO전략/사업구조)에 대응.
+  //   (티커 有 OR 정성 컨텍스트) AND 정성 키워드. 순수 시세 키워드(주가/시세/얼마)만 있으면 qualIntent 미포함 → 미발화.
+  if (!_want) {
+    var _qualCtx = ctxId === 'fundamental' || ctxId === 'ticker' || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'market-news' || ctxId === 'briefing' || ctxId === 'macro';
+    var _qualIntent = /공급망|supply\s*chain|밸류체인|value\s*chain|tam|시장\s*규모|시장규모|점유율|market\s*share|경쟁|competitor|경쟁사|competition|해자|moat|경쟁\s*우위|기관|13f|지분|institutional|holdings|사업\s*구조|사업구조|비즈니스\s*모델|business\s*model|수익\s*구조|수익구조|경영진|ceo|경영\s*전략|management|전략|strategy|파트너십|partnership|투자\s*포인트|투자포인트|thesis|전망|outlook|평가|왜\s|분석|analyze|analysis/i.test(q);
+    if ((_hasTicker || _qualCtx) && _qualIntent) _want = true;
+  }
+  // D: 검색 의도 폴백 (Perplexity/Google 키 없을 때)
+  if (!_want) {
+    try {
+      if (typeof _needsWebSearch === 'function') {
+        var pKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_perplexity_key') : '';
+        var gKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_google_cse_key') : '';
+        // Perplexity/Google 키가 없을 때만 폴백 (둘 다 있으면 _needsWebSearch가 처리)
+        if (!pKey && !gKey) {
+          if (/검색|찾아|search|look\s*up|알아봐|조사/i.test(q)) _want = true;
+        }
       }
+    } catch(e) {}
+  }
+  if (!_want) return false;
+  // 비용 안전 상한 (v50.10) — 5명 공유 유료 Claude 키 보호. 일일 한도 도달 시 미발화 + UI note 플래그.
+  try {
+    if (typeof _isQuotaExceeded === 'function' && _isQuotaExceeded('claudeWebSearch')) {
+      window._aioWebSearchCapped = true;
+      return false;
     }
   } catch(e) {}
-  return false;
+  return true;
 }
 window._shouldUseClaudeWebSearch = _shouldUseClaudeWebSearch;
 
@@ -3444,7 +3490,8 @@ function _formatSearchForPrompt(sr) {
 function _searchCitationsHTML(sr) {
   if (!sr || !sr.citations || sr.citations.length === 0) return '';
   var html = '<div style="margin-top:6px;padding:6px 8px;background:rgba(168,85,247,0.08);border-left:2px solid #a78bfa;border-radius:0 4px 4px 0;font-size:11px;">';
-  var engName = sr.engine === 'perplexity' ? 'Perplexity' : 'Google';
+  // v50.10: Claude native web_search 출처도 동일 렌더 (engine === 'claude')
+  var engName = sr.engine === 'perplexity' ? 'Perplexity' : sr.engine === 'claude' ? 'Claude 웹검색' : 'Google';
   html += '<div style="color:#a78bfa;font-weight:600;margin-bottom:3px;">' + engName + ' 검색 출처</div>';
   for (var i = 0; i < Math.min(sr.citations.length, 5); i++) {
     var url = sr.citations[i];
@@ -4750,6 +4797,11 @@ async function chatSend(ctxId) {
   } catch(_wsErr) { _useClaudeWebSearch = false; }
   if (_useClaudeWebSearch) {
     chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">🔍 Claude 네이티브 웹 검색 활성화 — 최신 정보 보강 중 (max 3회)</div>');
+    // v50.10 B: 정성 분석 web-research 지시 — placeholder/정적/휴리스틱 데이터 대신 검색으로 최신 사실+출처 확보
+    systemPrompt += '\n\n【웹 리서치 지시 (정성 관점)】\n공급망/밸류체인·TAM/시장규모·경쟁구조·기술해자(Moat)·기관흐름(13F)·사업구조/비즈니스모델·경영진/CEO 전략 같은 정성 분석은 주입된 placeholder/정적테이블/휴리스틱 데이터에 의존하지 말고 web_search로 최신 사실을 확인하라. 각 핵심 주장에는 (출처·발행일)을 명시하고, 검색으로 확인하지 못한 항목은 "확인 불가"로 남겨라 — 학습데이터 기반 추측 금지.';
+  } else if (window._aioWebSearchCapped) {
+    // v50.10 E: 정성 질문이었으나 공유 키 일일 웹검색 한도 도달 → 기존 데이터로 답변 안내
+    chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:var(--data-amber);padding:4px 8px;background:rgba(255,163,26,0.08);border-radius:4px;margin-bottom:4px;">🔍 오늘 웹검색 일일 한도 도달 — 정성 분석은 기존 데이터로 답변(저신뢰 관점 단정 주의). 내일 자동 재개.</div>');
   }
 
   callClaude(
@@ -4846,6 +4898,17 @@ async function chatSend(ctxId) {
         _srcBadge.innerHTML = _bItems.join('');
         aiBubble.parentNode.appendChild(_srcBadge);
 
+        // v50.10: Claude native web_search 출처 푸터 (인용 URL 표면화 — 검증성)
+        var _claudeCites = (window._aioLastClaudeCitations || []);
+        var _webCited = !!(_useClaudeWebSearch && _claudeCites.length > 0);
+        if (_webCited) {
+          try {
+            var _citeWrap = document.createElement('div');
+            _citeWrap.innerHTML = _searchCitationsHTML({ citations: _claudeCites.map(function(c){ return c.url; }), engine: 'claude' });
+            if (_citeWrap.firstChild) aiBubble.parentNode.appendChild(_citeWrap.firstChild);
+          } catch(_cfErr) {}
+        }
+
         // v49.33 R83/R86 자동 검증 통합 — 응답 정확성 + 환각 패턴
         try {
           var _accBadge = document.createElement('div');
@@ -4899,6 +4962,7 @@ async function chatSend(ctxId) {
             aiBubble.parentNode.appendChild(_accBadge);
           }
           // v50.9 R116/R117: 종목 답변 시 고위험(저신뢰) 관점 통합 고지 배지 — highRiskFields 레지스트리 재사용
+          // v50.10: web_search 발화 시 "저신뢰" → "웹검색 출처 기반"으로 업그레이드 (3단계 신뢰도)
           try {
             if (Array.isArray(detectedTickers) && detectedTickers.length > 0 &&
                 typeof window._aioLowConfPerspectives === 'function') {
@@ -4906,9 +4970,26 @@ async function chatSend(ctxId) {
               if (_lcBadgeData && _lcBadgeData.badge) {
                 var _confBadge = document.createElement('div');
                 _confBadge.className = 'aio-chat-confidence-badge';
-                _confBadge.style.cssText = 'font-size:10px;color:var(--text-muted);margin:3px 0;padding:4px 6px;background:rgba(255,163,26,0.06);border-left:2px solid var(--data-amber);border-radius:4px;line-height:1.5;';
-                _confBadge.innerHTML = _lcBadgeData.badge;
-                _confBadge.title = '저신뢰 관점 전체: ' + _lcBadgeData.labels.join(' · ');
+                var _confHtml, _confCss, _confTitle;
+                if (_webCited) {
+                  // 웹검색 실제 발화 + 인용 ≥1 → 출처 기반 (cyan)
+                  _confHtml = '🔍 고급 분석(' + _lcBadgeData.labels.slice(0, 4).join('·') + ' 등)을 <b>웹검색 출처 기반</b>으로 보강 — 출처 확인 권장';
+                  _confCss = 'font-size:10px;color:var(--text-muted);margin:3px 0;padding:4px 6px;background:rgba(0,212,255,0.07);border-left:2px solid var(--data-cyan);border-radius:4px;line-height:1.5;';
+                  _confTitle = '웹검색 출처 ' + _claudeCites.length + '건 · 보강 관점: ' + _lcBadgeData.labels.join(' · ');
+                } else if (_useClaudeWebSearch) {
+                  // 웹검색 시도했으나 인용 미확정 → 중간 상태 (amber)
+                  _confHtml = '🔍 고급 분석 웹검색 시도 — <b>출처 미확정</b>, 단정 금지 (수동 확인 권장)';
+                  _confCss = 'font-size:10px;color:var(--text-muted);margin:3px 0;padding:4px 6px;background:rgba(255,163,26,0.06);border-left:2px solid var(--data-amber);border-radius:4px;line-height:1.5;';
+                  _confTitle = '저신뢰 관점 전체: ' + _lcBadgeData.labels.join(' · ');
+                } else {
+                  // 웹검색 미발화 → 기존 v50.9 저신뢰 배지 (amber)
+                  _confHtml = _lcBadgeData.badge;
+                  _confCss = 'font-size:10px;color:var(--text-muted);margin:3px 0;padding:4px 6px;background:rgba(255,163,26,0.06);border-left:2px solid var(--data-amber);border-radius:4px;line-height:1.5;';
+                  _confTitle = '저신뢰 관점 전체: ' + _lcBadgeData.labels.join(' · ');
+                }
+                _confBadge.style.cssText = _confCss;
+                _confBadge.innerHTML = _confHtml;
+                _confBadge.title = _confTitle;
                 aiBubble.parentNode.appendChild(_confBadge);
               }
             }
@@ -5297,7 +5378,10 @@ var _QUOTA_LIMITS = {
   alphaVantage:{ daily: 25,  label: 'Alpha Vantage breadth' },
   googleCse:  { daily: 100,  label: 'Google CSE 검색' },
   newsdata:   { daily: 200,  label: 'NewsData.io 뉴스' },
-  rss2json:   { daily: 10000,label: 'rss2json' }
+  rss2json:   { daily: 10000,label: 'rss2json' },
+  // v50.10: Claude native web_search 비용 안전 상한 (검색 1회당 과금 — 5명 공유 유료 키 보호).
+  //   관대한 기본값. 운영자가 localStorage 'aio_quota_claudeWebSearch' 또는 본 daily 값으로 조정 가능.
+  claudeWebSearch: { daily: 120, label: 'Claude 웹검색' }
 };
 function _bumpApiCounter(providerKey) {
   try {
