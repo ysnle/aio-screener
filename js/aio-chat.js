@@ -78,7 +78,7 @@ const CHAT_CONTEXTS = {
         (s._stale.length > 0 ? '[' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
 
         // v40.4: 매크로 변수 교차 분석 프레임
-        '【매크로 변수 교차 분석 프레임 (v40.4)】\n' +
+        '【매크로 변수 교차 분석 프레임】\n' +
         '단일 변수 해석 금지. 반드시 교차 조합으로 판단:\n' +
         '• 금리↑ + 달러↑ + 유가↑ = "트리플 긴축" → 성장주 밸류에이션 압축 + 이머징 자금유출 + 소비 위축. 가장 위험한 조합.\n' +
         '• 금리↓ + 달러↓ + 유가↓ = "트리플 완화" → 성장주 리레이팅 + 신흥국 유입 + 소비 회복. 이상적 환경.\n' +
@@ -89,7 +89,7 @@ const CHAT_CONTEXTS = {
         '→ 현재 금리 ' + s.tnx + '% / DXY ' + s.dxy + ' / WTI $' + s.wti + ' / VIX ' + s.vix + ' 조합이 위 시나리오 중 어디에 해당하는가?\n\n' +
 
         // v40.4: 금리 에스컬레이션 래더
-        '【금리 에스컬레이션 래더 (v40.4)】\n' +
+        '【금리 에스컬레이션 래더】\n' +
         '• 10Y 3.5%↓: 성장주 우호, 멀티플 확장, 리츠/유틸 강세\n' +
         '• 10Y 3.5-4.0%: 중립. 실적 성장이 주가 방향 결정\n' +
         '• 10Y 4.0-4.5%: 긴축 임계점. 고PE 종목 압박, 은행/보험 수혜\n' +
@@ -98,7 +98,7 @@ const CHAT_CONTEXTS = {
         '현재 10Y ' + s.tnx + '% → 위 래더에서 현재 위치와 다음 단계 리스크를 명시.\n\n' +
 
         // v40.4: 달러 에스컬레이션 래더
-        '【달러(DXY) 에스컬레이션 래더 (v40.4)】\n' +
+        '【달러(DXY) 에스컬레이션 래더】\n' +
         '• DXY 98↓: 달러 약세 — 신흥국/원자재/금 강세. 수출주 역풍, 해외수익 환산 유리\n' +
         '• DXY 100-103: 중립 구간\n' +
         '• DXY 104-107: 달러 강세 — 이머징 압박 시작, 원자재 약세 압력\n' +
@@ -137,7 +137,7 @@ const CHAT_CONTEXTS = {
         '• 크로스에셋: 채권-주식 양의 상관(안전자산 실종). 2Y UST 롱. 호르무즈 재개통 = 필요조건이지 충분조건 아님.\n\n' +
 
         // v40.4: 경기 사이클 위치 판별
-        '【경기 사이클 현재 위치 판별 (v40.4)】\n' +
+        '【경기 사이클 현재 위치 판별】\n' +
         '• 확장 초기(Early): ISM↑ + 금리↓ + 실업↓ → 경기민감주/소형주 강세\n' +
         '• 확장 중기(Mid): ISM 50+ 안정 + 금리 상승 시작 → 테크/성장주 주도\n' +
         '• 확장 후기(Late): ISM 고점 후 하락 + 금리↑ + 임금↑ → 에너지/소재/가치주. 인플레 헤지 필요\n' +
@@ -148,7 +148,7 @@ const CHAT_CONTEXTS = {
         '• 상수/변수 분리: 이미 반영된 뉴스(상수)와 미반영 불확실성(변수) 구분.\n' +
         '• 에스컬레이션 래더: 유가·금리·달러 각각의 단계별 임팩트.\n' +
         '• 비유+정량 병행: 비유로 흐름을 잡고, 즉시 정량적 인과 분석으로 연결.\n\n' +
-        '【응답 프레임워크 (v40.4 고도화)】\n' +
+        '【응답 프레임워크】\n' +
         '1. 현재 매크로 레짐 한줄 진단: "지금은 {확장후기/수축초기/...} 국면이다."\n' +
         '2. 교차변수 조합 판독: 금리/달러/유가/VIX 4변수 동시 해석.\n' +
         '3. 에스컬레이션 래더: 핵심 변수의 현재 위치와 다음 단계 임계점.\n' +
@@ -430,7 +430,7 @@ const CHAT_CONTEXTS = {
       }
 
       // ── v40.4: 금리 환경 연동 밸류에이션 프레임 ──
-      prompt += '【금리 환경 연동 밸류에이션 프레임 (v40.4)】\n';
+      prompt += '【금리 환경 연동 밸류에이션 프레임】\n';
       prompt += '현재 10Y 금리: ' + s.tnx + '% → DCF 할인율(WACC)에 직접 반영. 금리 1%p 상승 = 성장주 적정가 약 10-15% 하락.\n';
       prompt += '• 10Y 4.5%+: 고PE(35+) 성장주 밸류에이션 압축 구간. FCF Yield < 10Y 금리이면 "채권이 더 매력적" 판단.\n';
       prompt += '• 10Y 3.5-4.5%: 중립. PE 25-35 성장주는 실적 성장이 뒷받침되면 정당화 가능.\n';
@@ -439,7 +439,7 @@ const CHAT_CONTEXTS = {
       prompt += '→ "현재 10Y ' + s.tnx + '%에서 이 기업의 PE가 정당화되는가?" 반드시 판단하라.\n\n';
 
       // ── v40.4: 교차 분석 프레임 ──
-      prompt += '【교차 분석 프레임 — 단일 지표가 아닌 "조합"으로 판단 (v40.4)】\n';
+      prompt += '【교차 분석 프레임 — 단일 지표가 아닌 "조합"으로 판단】\n';
       prompt += '• PE × 금리 환경: 고PE(35+) + 10Y 4.5%+ = 이중 밸류에이션 리스크. 저PE(<15) + 금리 하락기 = 리레이팅 기회.\n';
       prompt += '• ROE × D/E: ROE 20%+ but D/E 1.5+ = 레버리지 기반 ROE(경기 하강 시 취약). ROE 20%+ & D/E < 0.5 = 진짜 수익성.\n';
       prompt += '• 매출성장 × 마진변화: 매출↑+마진↑ = 스케일링 성공(최고). 매출↑+마진↓ = 외형성장만(비용 효율 의심). 매출↓+마진↑ = 구조조정(일시적). 매출↓+마진↓ = 위험.\n';
@@ -449,7 +449,7 @@ const CHAT_CONTEXTS = {
       prompt += '→ 단일 지표 해석 금지. 반드시 2개 이상 교차 검증 후 판단.\n\n';
 
       // ── v40.4: 섹터별 적정 밸류에이션 레인지 ──
-      prompt += '【섹터별 적정 밸류에이션 레인지 가이드 (v40.4)】\n';
+      prompt += '【섹터별 적정 밸류에이션 레인지 가이드】\n';
       prompt += '• Technology: PE 25-40, EV/EBITDA 18-30 (AI/클라우드 성장 프리미엄 반영)\n';
       prompt += '• Healthcare/Biotech: PE 18-30, EV/EBITDA 12-22 (파이프라인 옵션 가치)\n';
       prompt += '• Financials: PB 1.0-2.0, PE 10-18 (자산 기반 밸류에이션)\n';
@@ -544,7 +544,7 @@ const CHAT_CONTEXTS = {
         '현재 경기 국면에 따라 섹터/종목 선택이 달라져야 함:\n' +
         '• 확장기(GDP↑+인플레 안정): 기술/경기소비재/금융 우위. 멀티플 확장 가능.\n' +
         '• 후기/스태그(GDP↓+인플레↑): 에너지 EPS↑가 헤드라인 방어(2022 증거: 에너지가 다른 섹터 하향 상쇄 → 글로벌 EPS +7.9%). 헬스케어/유틸리티(방어) > 경기소비재/통신(EPS↓). 알파 원천 = 지수 방향 아닌 섹터·지역 배분.\n' +
-        '• Capex 효율화 사이클(§58): 2026~2027 = GPU 추가 구매 경쟁→기존 인프라 최대 활용 효율 중심. 네트워크·패브릭·메모리·전력 효율이 시스템 성능 결정 = "데이터 흐름이 병목". AVGO/MRVL(네트워크 패브릭) > VRT(냉각) > NVDA(추론) 우선.\n' +
+        '• Capex 효율화 사이클: 2026~2027 = GPU 추가 구매 경쟁→기존 인프라 최대 활용 효율 중심. 네트워크·패브릭·메모리·전력 효율이 시스템 성능 결정 = "데이터 흐름이 병목". AVGO/MRVL(네트워크 패브릭) > VRT(냉각) > NVDA(추론) 우선.\n' +
         '→ 종목 분석 시 해당 종목이 현재 사이클에서 유리/불리한 위치인지 명시.\n' +
         '【§69 SW→Semi 역대급 로테이션 + AMZN Mispriced 테시스 + NOW AI 크라우딩】\n' +
         '[패러다임 전환] 기존: AI 투자=SaaS 수혜(클라우드 지출↑→SW 확장). 새 틀: AI 예산이 비AI SW를 크라우딩아웃. 주간 IGV-SMH 성과차 -23%(역대 최악). UBS NOW 하향(AI가 SW 장기가치 잠식 + 기업 AI 예산↑→비AI 시트↓/모듈축소/벤더통합). Goldman: "2/27 전 플레이 재실행 — AI 인프라 > asset-light SW."\n' +
@@ -655,11 +655,11 @@ const CHAT_CONTEXTS = {
         '3. 밸류체인 계층 매핑: 해당 테마의 밸류체인을 N개 계층으로 분해. 각 계층의 핵심 플레이어·병목·투자 시사점 제시. "대체 불가능한 위치에 있는 기업은?"\n' +
         '4. 인과 체인: 촉매 이벤트 → 수혜 섹터 → 대장주 → 2차 수혜주까지.\n' +
         '5. Before/After + 깨지는 신호: "이 촉매가 실현되면 밸류에이션이 어떻게 바뀌는가" + "이 테마가 깨지는 조건: ①~, ②~, ③~"\n\n' +
-        '【AI 인프라 Capex 효율화 사이클 (§58, 2026~2027)】\n' +
+        '【AI 인프라 Capex 효율화 사이클 (2026~2027)】\n' +
         'GPU 추가 구매 경쟁 → 기존 인프라 효율 극대화로 전환 중. "데이터 흐름이 병목" = 네트워크·패브릭·메모리·전력 효율이 시스템 성능 결정.\n' +
         '투자 우선순위: ⭐⭐⭐⭐ AVGO/MRVL(네트워크 패브릭, GPU 없이 성능↑ 유일 하드웨어 레버) > CRWV/NBIS/IREN(네오클라우드) > VRT(냉각) > NVDA(추론 최적화) > POET/LWLG(차세대 광학).\n' +
         'Amdahl\'s Law 네트워크 버전: GPU 처리↑도 네트워크 대역폭이 한계 = 돈은 이 병목 해소로 먼저.\n\n' +
-        '【DC전력 워크로드별 분화 (§62 Citi 전문가콜)】\n' +
+        '【DC전력 워크로드별 분화 (Citi 전문가콜)】\n' +
         'DC ≠ 단일 균일 부하. 워크로드별 발전원·백업·입지가 결정됨:\n' +
         '• 학습(가변부하): 왕복엔진+BESS, 99.9% 충분 → 20~40MW 백업\n' +
         '• 추론(점차 안정): 가스터빈+전통백업 → 175MW 백업(클라우드급)\n' +
@@ -820,7 +820,7 @@ const CHAT_CONTEXTS = {
         (s._stale.length > 0 ? '[' + s._stale.join(', ') + '] 폴백값일 수 있음.\n' : '') + '\n' +
 
         // v40.4: 채권-주식-환율 교차 분석 프레임
-        '【채권-주식-환율 교차 분석 프레임 (v40.4)】\n' +
+        '【채권-주식-환율 교차 분석 프레임】\n' +
         '자산 간 관계가 정상인지, 이상 신호인지 자동 판별:\n' +
         '• 10Y↑ + SPX↓ = 정상(금리 상승 → 주식 밸류에이션 압축). 10Y↑ + SPX↑ = 비정상(금리 무시 랠리) → 지속 불가, 조정 예고.\n' +
         '• 10Y↓ + 금↑ = 정상(안전자산 선호). 10Y↑ + 금↑ = 인플레 헤지 수요(물가 불안). 10Y↓ + 금↓ = 디플레 공포.\n' +
@@ -840,7 +840,7 @@ const CHAT_CONTEXTS = {
         '현재 ' + s.krw + '원 → 현재 위치와 다음 임계점까지 거리.\n\n' +
 
         // v40.4: 채권 투자 전략 매트릭스
-        '【채권 투자 전략 — 금리 시나리오별 (v40.4)】\n' +
+        '【채권 투자 전략 — 금리 시나리오별】\n' +
         '• 금리 정점 → 인하 시작: 장기채(TLT/EDV) 강세 시작. Duration 확대. 채권 자본차익 기회.\n' +
         '• 금리 상승 지속: 단기채(SHV/BIL)+TIPS(물가연동). Duration 축소. 쿠폰 수입 중심.\n' +
         '• 금리 동결 장기화: 중기채(IEF) + 크레딧(LQD). 적정 Duration + 수익률 프리미엄 수확.\n' +
@@ -862,14 +862,14 @@ const CHAT_CONTEXTS = {
         '• 위험 신호: 엔/달러 급변동 + VIX 급등 + 신흥국 CDS 확대 = 캐리 청산 3중 경고\n\n' +
 
         // v40.4: 역사적 참고점
-        '【역사적 참고점 — 채권/환율 위기 패턴 (v40.4)】\n' +
+        '【역사적 참고점 — 채권/환율 위기 패턴】\n' +
         '• 2022.10 채권 폭락: 10Y 4.33% → 주식 바닥 동시 도달. "채권의 항복 = 주식의 바닥"\n' +
         '• 2023.10 10Y 5% 터치: "term premium(기간 프리미엄) 급등" — SPX -10% 조정 → 이후 5개월 +20% 반등\n' +
         '• 2024.08 엔캐리 청산: 엔/달러 162→142 급락 + VIX 65 → 3주 만에 회복. 구조적 위기 아닌 포지션 해소.\n' +
         '• 1997 아시아 위기: 원/달러 900→1,900. 경상수지 적자 + 단기외채 과다 + 외환보유고 부족 조합.\n' +
         '→ 현재 상황이 위 사례 중 어디에 가장 유사한가?\n\n' +
 
-        '【응답 프레임워크 (v40.4 고도화)】\n' +
+        '【응답 프레임워크】\n' +
         '1. 교차 자산 판독: 채권/환율/금/주식이 같은 이야기를 하고 있는가? 비동조 시 왜?\n' +
         '2. 인과 체인 3차까지: "10Y X% 돌파 → DXY 강세 → 원/달러 Y원 → 외인 매도 → KOSPI 하락 → 당신의 한국주식"\n' +
         '3. 에스컬레이션 래더: 원/달러·10Y·DXY 각각의 현재 위치와 다음 임계점.\n' +
@@ -2110,6 +2110,54 @@ window._aioLowConfPerspectives = window._aioLowConfPerspectives || function() {
     };
   } catch (_) { return null; }
 };
+
+// v50.12: 기술적 분석 채팅용 종목별 실측 기술지표 fetch — 기존 엔진 재사용(fetchOHLCVWithFallback + calcTechnicalSnapshot + calcExtensionHeat).
+// technical/signal/ticker 컨텍스트에서 RSI/MACD/MA정배열/추세/Weinstein Stage/ATR 이격/확장도를 주입 (방법론만 있고 종목별 데이터 없던 갭 해소).
+async function _fetchTechnicalDataForChat(tickers) {
+  if (!tickers || !tickers.length) return '';
+  var fetcher = window.fetchOHLCVWithFallback || window.fetchOHLCV;
+  var calc = window.calcTechnicalSnapshot;
+  if (typeof fetcher !== 'function' || typeof calc !== 'function') return '';
+  var list = tickers.slice(0, 3);
+  // 병렬 OHLCV fetch (종목별 6s timeout) — 순차 대기 방지
+  var settled = await Promise.all(list.map(function(t) {
+    var p = Promise.resolve(fetcher(t, '1day', 260)).catch(function(){ return null; });
+    return (typeof _withTimeout === 'function') ? _withTimeout(p, 6000, null) : p;
+  }));
+  var blocks = [];
+  for (var i = 0; i < list.length; i++) {
+    var t = list[i], snap = null;
+    try {
+      var ohlcv = settled[i];
+      if (ohlcv && ohlcv.length) snap = calc(ohlcv);
+    } catch (_) { snap = null; }
+    if (!snap || !snap.ok) {
+      blocks.push('━━ [' + t + ' 기술적 데이터] ━━\n❌ OHLCV 미수신 — 실시간 기술지표 계산 불가. 추측 금지, "기술 데이터 수신 대기"로 답하라.');
+      continue;
+    }
+    var ext = window.calcExtensionHeat ? window.calcExtensionHeat(snap) : null;
+    var f = function(v, d) { return (v != null && !isNaN(v)) ? Number(v).toFixed(d == null ? 2 : d) : 'N/A'; };
+    var maAlign = (snap.above10EMA && snap.above21EMA && snap.above50SMA && snap.above200SMA) ? '완전 정배열(10>21>50>200 위)' :
+                  (snap.above50SMA && snap.above200SMA) ? '중장기 정배열(50·200 위)' :
+                  (snap.above50SMA === false) ? '50일선 이탈(추세 훼손)' : '혼조';
+    var stageKr = snap.stageEstimate === 'STAGE_2_ADVANCE' ? 'Stage 2(상승추세·매수 국면)' :
+                  snap.stageEstimate === 'STAGE_4_OR_BASE_REPAIR' ? 'Stage 4 또는 바닥 다지기(회피/관망)' : 'Stage 1/3 전환 구간';
+    var hi20 = snap.recentHigh20, lo20 = snap.recentLow20;
+    var posVs20 = (hi20 && lo20 && hi20 > lo20) ? Math.round((snap.price - lo20) / (hi20 - lo20) * 100) : null;
+    var lines = '━━ [' + t + ' 기술적 데이터 · OHLCV ' + snap.bars + '봉 일봉 실측] ━━\n';
+    lines += '• 종가 $' + f(snap.price) + ' (' + (snap.dayGainPct >= 0 ? '+' : '') + f(snap.dayGainPct) + '%) · RSI(14) ' + f(snap.rsi14, 1) + (snap.rsi14 >= 70 ? ' 과매수' : snap.rsi14 <= 30 ? ' 과매도' : ' 중립') + '\n';
+    lines += '• 이동평균: 10EMA ' + f(snap.ema10) + ' · 21EMA ' + f(snap.ema21) + ' · 50SMA ' + f(snap.sma50) + ' · 200SMA ' + f(snap.sma200) + ' → ' + maAlign + '\n';
+    lines += '• 추세/Stage: ' + snap.trendState + ' · ' + stageKr + '\n';
+    lines += '• 50SMA 이격 ' + (snap.dist50Atr != null ? f(snap.dist50Atr, 1) + ' ATR' : 'N/A') + ' · 20SMA 이격 ' + (snap.dist20Atr != null ? f(snap.dist20Atr, 1) + ' ATR' : 'N/A') + ' · ATR(14) $' + f(snap.atr14) + '\n';
+    lines += '• MACD 히스토그램 ' + (snap.macd && snap.macd.hist != null ? f(snap.macd.hist) + (snap.macd.hist > 0 ? ' 상승모멘텀' : ' 하락모멘텀') : 'N/A') + ' · 볼린저 ' + (snap.bbReentry ? '상단 재진입(소진주의)' : snap.bbOutsideUpper ? '상단 돌파' : '밴드 내') + ' · RVOL20 ' + f(snap.rvol20, 1) + 'x\n';
+    lines += '• 20일 고/저 $' + f(snap.recentHigh20) + '/$' + f(snap.recentLow20) + (posVs20 != null ? ' (레인지 ' + posVs20 + '% 위치)' : '') + ' · 50일 고/저 $' + f(snap.recentHigh50) + '/$' + f(snap.recentLow50) + '\n';
+    if (ext) lines += '• 확장도(Blow-off Risk): ' + ext.state + ' (' + ext.score + '/100' + (ext.flags && ext.flags.length ? ', ' + ext.flags.slice(0, 3).join('/') : '') + ')\n';
+    lines += '※ 위는 라이브 OHLCV 실측 계산값. 피봇/손절/목표는 이 수치 기준으로 제시하고 학습데이터 추측 금지.';
+    blocks.push(lines);
+  }
+  if (!blocks.length) return '';
+  return '\n\n【종목 기술적 실측 데이터 (calcTechnicalSnapshot — 라이브 OHLCV)】\n' + blocks.join('\n\n') + '\n';
+}
 
 async function _fetchTickerDataForChat(tickers, opts) {
   if (!tickers || tickers.length === 0) return '';
@@ -4562,6 +4610,12 @@ async function chatSend(ctxId) {
     try { tickerDataStr = await _fetchTickerDataForChat(detectedTickers, { forceFresh: true, reason: 'chat-answer', preflight: chatFreshPreflight }); } catch(e) {}
   }
 
+  // v50.12: 기술적 분석 컨텍스트 — 종목별 실측 기술지표(RSI/MA/Stage/ATR 이격/확장도) 주입. 기존 OHLCV 엔진 재사용.
+  var technicalDataStr = '';
+  if (detectedTickers.length > 0 && (ctxId === 'technical' || ctxId === 'signal' || ctxId === 'ticker')) {
+    try { technicalDataStr = await _fetchTechnicalDataForChat(detectedTickers); } catch(e) {}
+  }
+
   // v34.2: 섹터/카테고리 비교 질문 감지 → FMP 다중 종목 밸류에이션 일괄 조회
   var sectorCompareStr = '';
   if (detectedTickers.length === 0) {
@@ -4653,6 +4707,7 @@ async function chatSend(ctxId) {
   if (coverageContextStr) systemPrompt += coverageContextStr;
   if (memoryContextStr) systemPrompt += memoryContextStr;
   if (tickerDataStr) systemPrompt += tickerDataStr;
+  if (technicalDataStr) systemPrompt += technicalDataStr;  // v50.12: 기술적 실측 데이터 주입
   if (sectorCompareStr) systemPrompt += sectorCompareStr;
   if (deepCompareStr) systemPrompt += deepCompareStr;
   if (singleDeepStr) systemPrompt += singleDeepStr;
@@ -6518,7 +6573,7 @@ function _renderFundamentalFinancialsCharts(data) {
   if (vcards) {
     function _vCard(label, val, color) {
       return '<div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:6px 4px;text-align:center;">' +
-        '<div style="font-size:9px;color:var(--text-muted);">' + label + '</div>' +
+        '<div style="font-size:11px;color:var(--text-muted);">' + label + '</div>' +
         '<div style="font-size:14px;font-weight:800;color:' + color + ';font-family:var(--font-mono);margin-top:2px;">' + (val != null && isFinite(val) ? Number(val).toFixed(2) + 'x' : '—') + '</div>' +
       '</div>';
     }
@@ -6929,7 +6984,7 @@ function _renderFundMultiPeriod(d) {
     html += '<tr style="background:' + bg + ';border-bottom:1px solid var(--surface-2);">';
     html += '<td style="padding:6px 10px;">' +
       '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);">' + row.label + '</div>' +
-      '<div style="font-size:9px;color:var(--text-muted);">' + row.sub + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);">' + row.sub + '</div>' +
       '</td>';
     // 최대 years.length 열
     for (var ci = 0; ci < years.length; ci++) {

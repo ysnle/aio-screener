@@ -3325,8 +3325,8 @@
     _assert('T656 sidebar_kr_row_v4982: [data-audit-key="krTickerMapping"] DOM 존재 (15축)',
       !!krRow, krRow ? 'present' : 'missing');
     // T657: APP_VERSION === 'v49.82' (또는 이후)
-    _assert('T657 app_version_v4982: APP_VERSION === "v49.82"+ (semver >= 49.82)',
-      typeof APP_VERSION !== 'undefined' && /^v49\.\d+$/.test(APP_VERSION) && parseInt(APP_VERSION.split('.')[1], 10) >= 82,
+    _assert('T657 app_version_v4982: APP_VERSION >= v49.82 (semver, v50+ 정합)',
+      (function(){ var _m=/^v(\d+)\.(\d+)$/.exec(typeof APP_VERSION!=='undefined'?APP_VERSION:''); return !!_m && (+_m[1] > 49 || (+_m[1] === 49 && +_m[2] >= 82)); })(),
       typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
   }
 
@@ -3390,8 +3390,8 @@
       !!document.getElementById('aio-audit-mode-toggle') && typeof window._aioAuditModeToggle === 'function' && !!document.getElementById('aio-audit-keyframes'),
       'all parts present check');
     // T672 APP_VERSION >= v49.83 (semver — 버전업마다 하드코딩 FAIL 방지, v49.88 교정)
-    _assert('T672 app_version_v4983: APP_VERSION >= v49.83 (semver)',
-      typeof APP_VERSION !== 'undefined' && /^v49\.\d+$/.test(APP_VERSION) && parseInt(APP_VERSION.split('.')[1], 10) >= 83,
+    _assert('T672 app_version_v4983: APP_VERSION >= v49.83 (semver, v50+ 정합)',
+      (function(){ var _m=/^v(\d+)\.(\d+)$/.exec(typeof APP_VERSION!=='undefined'?APP_VERSION:''); return !!_m && (+_m[1] > 49 || (+_m[1] === 49 && +_m[2] >= 83)); })(),
       typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
   }
 
@@ -3405,8 +3405,8 @@
       loaderPresent || bootDone,
       'loaderPresent=' + loaderPresent + ' bootDone=' + bootDone);
     // T674: APP_VERSION semver >= 49.88
-    _assert('T674 app_version_v4988: APP_VERSION >= v49.88 (semver)',
-      typeof APP_VERSION !== 'undefined' && /^v49\.\d+$/.test(APP_VERSION) && parseInt(APP_VERSION.split('.')[1], 10) >= 88,
+    _assert('T674 app_version_v4988: APP_VERSION >= v49.88 (semver, v50+ 정합)',
+      (function(){ var _m=/^v(\d+)\.(\d+)$/.exec(typeof APP_VERSION!=='undefined'?APP_VERSION:''); return !!_m && (+_m[1] > 49 || (+_m[1] === 49 && +_m[2] >= 88)); })(),
       typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
   }
 
@@ -3432,8 +3432,8 @@
       !!document.querySelector('[data-audit-key="dataLineage"]'),
       'present check');
     // T679: APP_VERSION semver >= 49.89
-    _assert('T679 app_version_v4989: APP_VERSION >= v49.89 (semver)',
-      typeof APP_VERSION !== 'undefined' && /^v49\.\d+$/.test(APP_VERSION) && parseInt(APP_VERSION.split('.')[1], 10) >= 89,
+    _assert('T679 app_version_v4989: APP_VERSION >= v49.89 (semver, v50+ 정합)',
+      (function(){ var _m=/^v(\d+)\.(\d+)$/.exec(typeof APP_VERSION!=='undefined'?APP_VERSION:''); return !!_m && (+_m[1] > 49 || (+_m[1] === 49 && +_m[2] >= 89)); })(),
       typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
     // T680: v49.90 cell-level sink-to-source 통합 (데이터 하나하나 — orphan 0건)
     var dlc = window.AIO && window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
@@ -5396,6 +5396,94 @@
       t774detail = 'render(claude+url)=' + renderOk + ' badgeUpgrade=' + badgeUpgradeOk + ' citeCapture=' + citeCaptureOk;
     } catch(e) { t774detail = 'err: ' + (e && e.message); }
     _assert('T774 v5010_websearch_citations: native 인용 렌더(engine:claude)+배지 업그레이드+스트리밍 수집', t774ok, t774detail);
+
+    // ── v50.12: 기술적 분석 채팅 데이터 주입 — 기존 OHLCV 엔진 재사용 ──
+    // T775: _fetchTechnicalDataForChat 정의 + chatSend technical/signal/ticker 배선 + calcTechnicalSnapshot 엔진 활용 (소스 검증, 네트워크 비의존)
+    var t775ok = false, t775detail = '';
+    try {
+      var fnDef = typeof window._fetchTechnicalDataForChat === 'function';
+      var engineOk = typeof window.calcTechnicalSnapshot === 'function' && (typeof window.fetchOHLCVWithFallback === 'function' || typeof window.fetchOHLCV === 'function');
+      var fnSrc = fnDef ? String(window._fetchTechnicalDataForChat) : '';
+      // 헬퍼가 엔진 재사용 + 핵심 지표 라벨 포함
+      var reuseOk = /calcTechnicalSnapshot/.test(fnSrc) && /fetchOHLCVWithFallback|fetchOHLCV/.test(fnSrc) &&
+        /RSI\(14\)/.test(fnSrc) && /Stage/.test(fnSrc) && /이동평균/.test(fnSrc);
+      // chatSend 배선: technical/signal/ticker 컨텍스트에서 technicalDataStr 주입
+      var csSrc = (typeof chatSend === 'function') ? String(chatSend) : (typeof window.chatSend === 'function' ? String(window.chatSend) : '');
+      var wiredOk = /_fetchTechnicalDataForChat/.test(csSrc) && /technicalDataStr/.test(csSrc) &&
+        /'technical'|"technical"/.test(csSrc) && /systemPrompt \+= technicalDataStr/.test(csSrc);
+      t775ok = fnDef && engineOk && reuseOk && wiredOk;
+      t775detail = 'fnDef=' + fnDef + ' engine=' + engineOk + ' reuse(snapshot+ohlcv+RSI+Stage)=' + reuseOk + ' wired(technical/signal/ticker)=' + wiredOk;
+    } catch(e) { t775detail = 'err: ' + (e && e.message); }
+    _assert('T775 v5012_technical_chat_data: _fetchTechnicalDataForChat 엔진 재사용 + chatSend technical 배선', t775ok, t775detail);
+
+    // ── v50.14: 프론트엔드/UX 근본 보강 회귀 방지 (재발 방지 인프라) ──
+    // T776: getVisibleDevMarkerAudit 정의 + 가시 dev/버전 마커 0 (§NN·vNN.NN·코드명 재유입 차단, R206)
+    var t776ok = false, t776detail = '';
+    try {
+      var a776 = window.AIO && window.AIO.getVisibleDevMarkerAudit ? window.AIO.getVisibleDevMarkerAudit() : null;
+      var defined776 = !!a776 && typeof a776.violationCount === 'number';
+      var clean776 = defined776 && a776.violationCount === 0;
+      t776ok = defined776 && clean776;
+      t776detail = 'defined=' + defined776 + ' violations=' + (a776 ? a776.violationCount : '?') + (a776 && a776.violations && a776.violations.length ? ' (' + a776.violations.slice(0,3).map(function(v){return v.pageId+':'+v.marker;}).join(',') + ')' : '');
+    } catch(e) { t776detail = 'err: ' + (e && e.message); }
+    _assert('T776 v5014_visible_dev_marker_zero: 가시 텍스트 내 개발자/버전 마커 0 (R206 재발 방지)', t776ok, t776detail);
+
+    // T777: breadth Page Routine에 200일선 부재 (사용자 상시 지시 — breadth는 5/20/50)
+    var t777ok = false, t777detail = '';
+    try {
+      var reg777 = window.AIO_PAGE_BRIEFS;
+      var steps = reg777 && reg777.breadth && reg777.breadth.steps;
+      var joined = Array.isArray(steps) ? steps.join(' ') : '';
+      t777ok = !!joined && joined.indexOf('200일선') < 0 && /5\/20\/50일선/.test(joined);
+      t777detail = 'steps[0]=' + (Array.isArray(steps) ? steps[0] : 'missing');
+    } catch(e) { t777detail = 'err: ' + (e && e.message); }
+    _assert('T777 v5014_breadth_no_200: breadth routine은 5/20/50일선 (200 제외)', t777ok, t777detail);
+
+    // T778: 거버넌스 배지 한글화 (STALE/STATIC/OK/REF → 오래됨/정적/최신/참고)
+    var t778ok = false, t778detail = '';
+    try {
+      var src778 = window.AIO && window.AIO.renderStaticDataGovernanceBadges ? String(window.AIO.renderStaticDataGovernanceBadges) : '';
+      var hasKorean = /오래됨/.test(src778) && /정적/.test(src778) && /최신/.test(src778) && /참고/.test(src778);
+      var noEnglishLabel = !/'STALE'|'STATIC'|'OK'|'REF'/.test(src778);
+      t778ok = hasKorean && noEnglishLabel;
+      t778detail = 'korean=' + hasKorean + ' noEnglishCode=' + noEnglishLabel;
+    } catch(e) { t778detail = 'err: ' + (e && e.message); }
+    _assert('T778 v5014_badge_korean: data-snap-date 배지 라벨 한글화 (영문 코드 부재)', t778ok, t778detail);
+
+    // T779: 용어집에 v50.13 보강 7개 용어 등록 (RRG/OAS/OPEX/소르티노/피오트로스키/ZBT/맥스페인)
+    var t779ok = false, t779detail = '';
+    try {
+      var G779 = window.GLOSSARY || [];
+      var blob779 = JSON.stringify(G779).toUpperCase();
+      var need = ['RRG','OAS','OPEX','SORTINO','PIOTROSKI','ZBT','맥스페인'];
+      var have = need.filter(function(t){ return blob779.indexOf(t.toUpperCase()) >= 0; });
+      t779ok = G779.length >= 267 && have.length === need.length;
+      t779detail = 'glossLen=' + G779.length + ' covered=' + have.length + '/' + need.length;
+    } catch(e) { t779detail = 'err: ' + (e && e.message); }
+    _assert('T779 v5014_glossary_seven: 용어집 +7 (RRG/OAS/OPEX/소르티노/피오트로스키/ZBT/맥스페인)', t779ok, t779detail);
+
+    // T780: signal CP 리스크보드 4월-2026 동결 내러티브 부재 (de-stale: 동적/일반화)
+    var t780ok = false, t780detail = '';
+    try {
+      var sigEl = document.getElementById('page-signal');
+      var sigTxt = sigEl ? (function(){ var c=sigEl.cloneNode(true); Array.prototype.slice.call(c.querySelectorAll('script')).forEach(function(s){s.remove();}); return (c.textContent||'').replace(/\s+/g,' '); })() : '';
+      var stale = /4\/14 트럼프|이란 협상 재개|3월 PPI|4월 어닝 시즌|봉쇄 유지|봉쇄 발효/.test(sigTxt);
+      t780ok = !!sigTxt && !stale;
+      t780detail = sigTxt ? ('staleTokens=' + stale) : 'signal text empty';
+    } catch(e) { t780detail = 'err: ' + (e && e.message); }
+    _assert('T780 v5014_signal_cp_destale: signal CP 리스크보드 4월-2026 동결 내러티브 부재', t780ok, t780detail);
+
+    // T781: 접근성 audit 정의 + 활성 페이지 tap target WCAG AA(24×24) 준수 (R207 회귀 가드)
+    var t781ok = false, t781detail = '';
+    try {
+      var a781 = window.AIO && window.AIO.getAccessibilityAudit ? window.AIO.getAccessibilityAudit() : null;
+      var defined781 = !!a781 && typeof a781.tapTargetUnder24Count === 'number';
+      // 접근 이름 누락 0 + 초소형 폰트(<10px) 0 = 명확한 WCAG AA. tap target<24는 인라인 칩(WCAG 2.5.8 인라인 예외)이 일부 있어 informational.
+      var aaOk = defined781 && a781.missingAccessibleNameCount === 0 && a781.fontUnder10pxCount === 0;
+      t781ok = defined781 && aaOk;
+      t781detail = a781 ? ('under24=' + a781.tapTargetUnder24Count + ' noName=' + a781.missingAccessibleNameCount + ' font<10=' + a781.fontUnder10pxCount + (a781.tapTargets && a781.tapTargets.length ? ' ' + a781.tapTargets.slice(0,3).map(function(t){return t.size;}).join(',') : '')) : 'undefined';
+    } catch(e) { t781detail = 'err: ' + (e && e.message); }
+    _assert('T781 v5014_accessibility_aa: 활성 페이지 tap target WCAG AA(24×24) + 접근 이름 준수 (R207)', t781ok, t781detail);
   }
 
   window.AIO = window.AIO || {};

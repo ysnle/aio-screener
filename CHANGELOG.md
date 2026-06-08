@@ -6,6 +6,51 @@
 
 ---
 
+## v50.14 - 프론트엔드/UX 근본 보강: 회귀 방지 인프라 + 접근성 (2026-06-08)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `version.json`, `sw.js`, `_context/RULES.md`, `_context/CLAUDE.md`, `CHANGELOG.md`, `CLAUDE.md`
+
+v50.13이 **개별 증상 시정**(가시 마커 일일이 제거)에 그쳤다는 정직한 자기평가 → v50.14에서 **재발 방지 인프라 + 접근성 갭**으로 근본화.
+
+**A. 회귀 방지 인프라 (R206)**: `AIO.getVisibleDevMarkerAudit()` 신설 — 모든 `[id^="page-"]` 가시 textContent를 스캔해 개발자/버전 마커(§NN·vNN.NN·RNN·`*_REGISTRY`·`MACRO_CALENDAR`·`DATA_SNAPSHOT`·`Claude Mythos`·`Fallback Only`·`prominent`) 검출. 앱버전배지·`[data-text-role="developer-note"]`·`[data-aio-archive]`·**외부 콘텐츠(라이브 RSS `.news-item-*` / LLM 채팅 `.acp-bubble`)** 제외 → 법률 `§10(b)` 등 오탐 차단. `getAutoOpsReadiness()` 통합. **이 audit이 v50.13이 놓친 실제 동적 누출을 즉시 검출**: macro `generateMacroStoryline` 상태줄 "DATA_SNAPSHOT 즉시 폴백"→"정적 스냅샷 즉시 폴백", options PCR 위젯 소스 라벨 'DATA_SNAPSHOT'→'정적 스냅샷', home 가중치 tooltip "v49.28/R64 WEIGHT_REGISTRY" 제거. 결과: 가시 dev마커 0 (clean + 전체 테스트 suite 실행 후 DOM 상태 양쪽).
+
+**B. 접근성 (R207)**: `AIO.getAccessibilityAudit()` 신설 — 활성 페이지 tap target(WCAG AA 24×24)·초소형 폰트(<10px)·접근 이름 누락 측정. home 온보딩 카드 버튼(설정하러 가기/✕ 닫기) ≥24px로 조정 → under24/noName/font<10 모두 0, status ok. 대비·테이블 a11y는 기존 통과 유지.
+
+**C. 규칙/테스트**: R206(사용자 가시 텍스트에 개발자/버전 마커 금지) + R207(WCAG AA 접근 이름/폰트/tap target) RULES.md 추가. T776~T781 회귀 가드 (dev마커 0 / breadth routine 5·20·50 200부재 / 배지 한글 / 용어집 267+7 / signal CP de-stale / 접근성 AA). T777은 routine 레지스트리를 `AIO_PAGE_BRIEFS.breadth.steps`로 정합.
+
+**D. 심층 전수 보강 (사용자 "정말 하나씩 모두 점검?" 재검증 → 추가 갭 발견·시정)**: textContent 전용 audit이 놓친 **속성 텍스트 dev마커 19건**(8페이지)을 별도 스캔으로 발견 — `_aioApplyTableAccessibility`가 버전배지 포함 heading을 aria-label로 읽어 'v50.14' 누출(heading clone에서 배지 제거로 시정), `_getDataFreshness` tooltip 'DATA_SNAPSHOT 정적 데이터'→'정적 스냅샷'(13건 단일소스), home VIX표·breadth 20sma title의 RNN/REGISTRY 마커 제거. **audit을 속성(title·aria-label·placeholder·alt·data-tooltip)까지 확장**(각 violation `surface` 표기) — 회귀 방지 표면 자체를 근본화. **접근성**: 21페이지를 하나씩 진입(showPage)해 라이브 렌더 후 측정 → **<10px 폰트 7페이지 발견**(briefing 뉴스·technical·guide·portfolio 등). 사용자 결정에 따라 **앱 전역 폰트 ≥11px 일괄 상향**(인라인 `font-size:9/8/9.5px` + 동적 `(opts.fontSize||'9px')` freshness 칩 + DOM API `el.style.fontSize='9px'` KR 공매도/로딩 폴백 라벨 모두). **검증 방법 교훈**: SW가 동일 SW_VERSION 캐시를 유지해 편집 JS가 가려짐 → SW unregister + caches.delete + 서버 직접 fetch 대조로 디스크 정합 확인.
+
+**검증**: 21페이지 라이브 전수 스위프 — 가시 dev마커(text+속성) 0 · <10px 폰트 0 · 접근 이름 누락 0(전 페이지) · T776~781 전부 통과 · runTests 836 pass / 20 fail(전부 기존 헤드리스 DOM-audit·타이밍 fail, 신규 회귀 0) · 콘솔 JS 에러 0(fred/proxy는 샌드박스 네트워크). R1 7곳 + 캐시버스터 6곳.
+
+---
+
+## v50.13 - 21페이지 라이브 프론트엔드/UX 세밀 점검 + 시정 (클러터·중복/초보자 직관성) (2026-06-08)
+
+**Changed files**: `index.html`, `js/aio-core.js`, `js/aio-ui.js`, `js/aio-chat.js`, `js/aio-glossary.js`, `version.json`, `sw.js`, `CHANGELOG.md`, `_context/CLAUDE.md`, `_context/FRONTEND-UX-AUDIT-2026-06-05.md`, `CLAUDE.md`
+
+- **배경**: 사용자 "각 페이지를 실제로 세밀하게 모든 영역 점검했나? 진짜 제대로 완벽하게 보강·개선하자." → 이번엔 21 route를 `showPage`로 **하나씩 진입해 섹션 단위로 실제 콘텐츠를 읽고** 발견을 바로 시정(집계 지표만 보던 직전 audit 보강).
+- **방법론 정정(검증으로 오탐 차단)**: preview dpr 스케일링으로 스크린샷이 폭/비율을 왜곡 → "데스크탑 공간 낭비" 인상은 거짓(측정상 995px 2/3/4열 정상). briefing의 "코드 노출"도 `<script>` textContent 아티팩트(렌더 안 됨)로 확인. **측정+audit을 1차 근거로** 사용.
+- **가시 개발자/버전 마커 제거(전 페이지)**: signal CP8 `(§63)`+코드네임 "Claude Mythos"→"사이버보안" (정적 HTML 5151 + NARRATIVE_ENGINE 동적 16035 양쪽), options "예시는 v49.64에서 제거"→일반 문구, themes/kr-themes `(§58)(§62)(§55)` 섹션참조, briefing "v50.11 refreshed"·kr-macro "v50.4 공식 캘린더 기준"→"공식 캘린더 기준", technical TradingView 폴백 "Fallback Only/…prominent"→"차트 대체 표시/실시간 차트가 안 보일 때만 표시". chat 프롬프트 §58/§62도 정리.
+- **전역 거버넌스 배지 한글화**: `renderStaticDataGovernanceBadges`의 영문 코드 `STALE/STATIC/OK/REF` → `오래됨/정적/최신/참고`. 모든 `[data-snap-date]` 배지(signal/briefing/macro/sentiment/kr-* 등)에 일괄 적용 — 라이브 검증 영문 잔존 0.
+- **홈 상단 쿼터 중복 제거**: 헤더 AI 배지가 'AI · 모델'만 표시하고 옆 `#llm-quota`가 '남은/한도'를 단독 표시(중복 51/51 51/51 해소) + 초보자용 tooltip.
+- **breadth Page Routine 200일선 제거**: `AIO_PAGE_PURPOSE_REGISTRY.breadth.steps`가 아직 "5/20/50/200일선"이라 "5/20/50일선"으로 시정(200은 추세 전용 — 사용자 상시 지시).
+- **용어집 +7**: 페이지에 등장하나 누락됐던 RRG·OAS/HY스프레드·OPEX·소르티노·피오트로스키 F-점수·ZBT·맥스페인 추가(260→267).
+- **검증**: 21페이지 가시 dev마커 0, 영문 배지 0, 용어집 267, 콘솔 JS에러 0(FRED는 헤드리스 네트워크), 신규 테스트 회귀 0(기존 12 헤드리스 fail). 레이아웃/반응형/대비/테이블a11y/죽은버튼 모두 통과.
+- **보류(별도 de-stale 과제)**: macro/fxbond/themes/signal CP1~8 CHAT_CONTEXTS의 4월-2026 이란전쟁 내러티브 + KR 테마 카탈리스트 `[MM/DD]` 4월 접두사(가시 UI 아니거나 데이터-refresh 영역). 리포트: `_context/FRONTEND-UX-AUDIT-2026-06-05.md`.
+- **Cache rotation**: R1 7곳 + 캐시버스터 6곳 → v50.13.
+
+## v50.12 - AI 채팅 기술적 분석 종목별 실측 데이터 주입 (2026-06-05)
+
+**Changed files**: `js/aio-chat.js`, `index.html`, `js/aio-tests.js`, `version.json`, `sw.js`, `js/aio-core.js`, `CHANGELOG.md`, `_context/CLAUDE.md`, `CLAUDE.md`
+
+- **배경 (사용자 질의)**: "fundamental 외에 외환/채권·기술적분석·테마/트렌드·매크로 채팅도 기관급 퀄리티와 양/질 데이터를 제공하나?" → 4개 비-fundamental 컨텍스트 정밀 조사.
+- **조사 결론**: 4개 모두 **방법론(framework)은 기관급**(technical: Weinstein/VCP/SEPA/CAN SLIM/Ichimoku/Jeff Sun/Lockout · macro: 인터커넥션/사이클-섹터/Fed 메커닉 · themes: 4단계+로테이션 · fxbond: 수익률곡선/캐리/자본조달)이고 **live 시장 헤더는 최신**(`_liveSnap`). 단 **(A) technical은 종목별 실측 기술지표를 주입하지 않음** — fundamental의 `_fetchTickerDataForChat`(11소스) 같은 게 없어 시장 전체 데이터만 제공. **(B) macro/fxbond/themes 본문에 4월 2026 이란전쟁 내러티브가 동결**(별도 후속 과제).
+- **시정 (A 핵심)**: 엔진은 이미 존재(`fetchOHLCVWithFallback` + `calcTechnicalSnapshot` + `calcExtensionHeat` — `runInstitutionalTechnicalBrief`가 사용)하나 채팅이 미사용. `_fetchTechnicalDataForChat(tickers)` 신설로 재사용 — technical/signal/ticker 컨텍스트에서 종목별 라이브 일봉 OHLCV(병렬, 6s timeout, 최대 3종목)를 fetch해 **RSI(14)·MACD 히스토그램·볼린저 위치·10/21/50/200 이동평균 정배열·trendState·Weinstein stageEstimate·20/50SMA ATR 이격·ATR(14)·RVOL20·20/50일 고저 레인지 위치·확장도(Blow-off)** 블록 주입. technical 컨텍스트 프롬프트가 이 블록을 Stage/피봇/손절/목표 산정에 우선 인용하도록 지시 + 학습데이터 추측 금지. OHLCV 미수신 시 "❌ 수신 대기" graceful degradation.
+- **버전 테스트 정합 (부수 시정)**: T657/T672/T674/T679가 `/^v49\.\d+$/` 정규식으로 v49만 매칭 → **v50.0부터 영구 fail**이던 stale 테스트(의도와 정반대)를 semver-aware(major>49 OR major==49&&minor>=N)로 시정.
+- **검증**: preview 실측 — `_fetchTechnicalDataForChat(['NVDA'])`가 251봉 OHLCV로 RSI 43.8·이동평균·Stage 실측 계산(548자 블록) 반환. T775(엔진 재사용+chatSend 배선) + 시정된 4 버전 테스트 모두 통과. 콘솔 에러 0. 잔여 16 fail은 헤드리스 DOM-audit(무관).
+- **잔여 (후속)**: macro/fxbond/themes CHAT_CONTEXTS의 4월-2026 동결 내러티브 de-stale + themes 실측 RRG(RS-Ratio/Momentum) 주입은 다음 버전 과제.
+- **Cache rotation**: R1 7곳 + 캐시버스터 6곳 → v50.12.
+
 ## v50.11 - 전체 데이터 전수 최신화 (/data-refresh) — 6/4 종가 + 캘린더/브리핑/홈뉴스 (2026-06-05)
 
 **Changed files**: `js/aio-core.js`, `js/aio-data.js`, `index.html`, `js/aio-tests.js`, `.claude/skills/data-refresh/SKILL.md`, `version.json`, `sw.js`, `CHANGELOG.md`, `_context/CLAUDE.md`

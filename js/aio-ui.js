@@ -1708,9 +1708,10 @@ function updateQuotaBadge() {
 
   if (badge)    badge.textContent = remaining + '/' + dailyLimit;
   if (hdrBadge) {
+    // v50.13: 헤더 배지는 'AI · 모델'만 — 남은 횟수(remaining/dailyLimit)는 옆 #llm-quota가 단독 표시(중복 제거).
     const hdrText = overBudget > 0
-      ? '예산 초과 · +' + overBudget + '회'
-      : model.label + ' · ' + remaining + '/' + dailyLimit;
+      ? 'AI 예산 초과 · +' + overBudget + '회'
+      : 'AI · ' + model.label;
     hdrBadge.textContent = hdrText;
     hdrBadge.style.color = grade === 'green' ? '#00d4ff' : grade === 'warn' ? '#ffa31a' : '#ff5b50';
     hdrBadge.style.borderColor = grade === 'green' ? 'var(--accent-border)' : grade === 'warn' ? 'rgba(245,158,11,0.3)' : 'var(--data-red-soft)';

@@ -937,7 +937,13 @@ window._aioApplyTableAccessibility = function(root) {
       if (!tbl.getAttribute('aria-label') && !tbl.getAttribute('aria-labelledby') && !tbl.getAttribute('title')) {
         var box = tbl.closest && tbl.closest('.data-widget,.widget,.card,.glass-card,.aio-widget,.section,.page');
         var heading = box && box.querySelector ? box.querySelector('.widget-title,.card-title,.section-title,.page-title,h1,h2,h3,h4') : null;
-        var label = heading && (heading.textContent || '').replace(/\s+/g, ' ').trim();
+        // v50.14 R206: 버전 배지(#app-version-badge 등)가 heading 안에 있으면 aria-label에 'v50.14'가 새므로 제외 후 추출
+        var label = '';
+        if (heading) {
+          var hClone = heading.cloneNode(true);
+          Array.prototype.slice.call(hClone.querySelectorAll('[id*="version-badge"],[id*="app-version"],[id*="-version"]')).forEach(function(s){ s.remove(); });
+          label = (hClone.textContent || '').replace(/\s+/g, ' ').trim();
+        }
         if (!label) {
           var page = tbl.closest && tbl.closest('.page[id]');
           label = page && page.id ? page.id.replace(/^page-/, '') : 'AIO';
@@ -2384,7 +2390,7 @@ var AIO_PAGE_BRIEFS = {
   breadth: {
     title: '지수 상승이 소수 대형주인지, 시장 전체인지 확인',
     use: '브레드쓰는 추세의 내구성 체크용입니다.',
-    steps: ['5/20/50/200일선 위 종목 비율 확인', '섹터·RRG로 확산 또는 이탈 확인', '지수와 폭이 갈라지면 신규 매수 축소'],
+    steps: ['5/20/50일선 위 종목 비율 확인', '섹터·RRG로 확산 또는 이탈 확인', '지수와 폭이 갈라지면 신규 매수 축소'],
     focus: '지수는 신고가인데 폭이 약하면 랠리 품질이 낮아진 상태입니다.',
     links: [['signal','시그널'], ['themes','테마'], ['technical','기술 분석']]
   },
@@ -9579,7 +9585,8 @@ window.AIO.renderStaticDataGovernanceBadges = function() {
         badge.style.cssText = 'display:inline-flex;vertical-align:baseline;margin-left:4px;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:800;letter-spacing:0;border:1px solid rgba(255,255,255,.18);max-width:58px;white-space:nowrap;line-height:1.2;';
         el.parentNode && el.parentNode.insertBefore(badge, el.nextSibling);
       }
-      var label = item.hardStale ? 'STALE' : item.stale ? 'STATIC' : item.liveLike ? 'OK' : 'REF';
+      // v50.13: 영어 코드(STALE/STATIC/OK/REF) → 초보자 친화 한글 (전 페이지 data-snap-date 배지 공통)
+      var label = item.hardStale ? '오래됨' : item.stale ? '정적' : item.liveLike ? '최신' : '참고';
       var color = item.hardStale ? '#ff5b50' : item.stale ? '#ffa31a' : item.liveLike ? '#00e5a0' : '#7b8599';
       badge.textContent = label;
       badge.style.color = color;
@@ -9969,8 +9976,87 @@ window.AIO.getCycleFromMacro = function(macro) {
   };
 };
 
+// v50.14 R207 (접근성 회귀 방지): 활성 페이지의 tap target(WCAG AA 24×24)·초소형 폰트(<10px)·접근 이름 누락 감지.
+// 대비/테이블은 기존 getColorContrastAudit/getTableAccessibilityAudit가 담당(통과). 44×44는 AAA로 밀집 터미널 트레이드오프.
+window.AIO.getAccessibilityAudit = function() {
+  var tap = [], font = [], aria = [];
+  try {
+    var inter = Array.prototype.slice.call(document.querySelectorAll('[id^="page-"] button, [id^="page-"] [role="button"], [id^="page-"] [data-action], [id^="page-"] select'));
+    inter.forEach(function(e){
+      var cs = getComputedStyle(e); var r = e.getBoundingClientRect();
+      if (cs.display === 'none' || r.width === 0 || r.height === 0) return; // 숨은 페이지/요소 제외
+      if (r.height < 24 || r.width < 24) { if (tap.length < 20) tap.push({ size: Math.round(r.width) + 'x' + Math.round(r.height), label: ((e.textContent||'').trim() || e.getAttribute('aria-label') || e.getAttribute('data-action') || '').slice(0, 20) }); }
+      var name = (e.textContent || '').trim() || e.getAttribute('aria-label') || e.getAttribute('title');
+      if (!name && aria.length < 20) aria.push({ tag: e.tagName, action: e.getAttribute('data-action') || '' });
+    });
+    Array.prototype.slice.call(document.querySelectorAll('[id^="page-"] *')).forEach(function(n){
+      if (n.children.length !== 0) return;
+      var t = (n.textContent || '').trim(); if (t.length < 4) return;
+      var r = n.getBoundingClientRect(); if (r.width === 0) return;
+      var fs = parseFloat(getComputedStyle(n).fontSize);
+      if (fs && fs < 10 && font.length < 20) font.push({ px: fs, text: t.slice(0, 24) });
+    });
+  } catch(e) { return { status: 'error', error: e && e.message }; }
+  var total = tap.length + font.length + aria.length;
+  return {
+    status: total ? 'warn' : 'ok',
+    tapTargetUnder24Count: tap.length, fontUnder10pxCount: font.length, missingAccessibleNameCount: aria.length,
+    tapTargets: tap, fonts: font, missingNames: aria,
+    note: 'WCAG AA — tap target 24×24 / 대비·테이블 별도 audit 통과. 활성 페이지만 측정(숨은 페이지는 0 크기).',
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// v50.14 R206 (재발 방지): 가시 텍스트 내 개발자/버전 마커 누출 자동 감지.
+// §NN 섹션참조 · vNN.NN 버전(앱 버전 배지 제외) · 코드명/영문 dev 단어(Claude Mythos/Fallback Only/prominent)가
+// 사용자 페이지 본문에 보이면 위반. v50.13에서 개별 제거한 마커가 재유입되면 이 audit이 잡는다.
+window.AIO.getVisibleDevMarkerAudit = function() {
+  var violations = [];
+  try {
+    var devRe = /§\d+|Claude Mythos|Fallback Only|\bprominent\b|\bv\d{2}\.\d{1,2}\b|\bR\d{2,3}\b(?=[\s)\]\/·]|$)|\b[A-Z_]{4,}_REGISTRY\b|MACRO_CALENDAR|DATA_SNAPSHOT/g;
+    var pages = Array.prototype.slice.call(document.querySelectorAll('[id^="page-"]'));
+    pages.forEach(function(pg) {
+      if (!/^page-[a-z]/.test(pg.id) || /-label$/.test(pg.id)) return;
+      var clone = pg.cloneNode(true);
+      // 앱 버전 배지 · 개발자노트 분류 · 아카이브는 제외(의도된 비-사용자 텍스트)
+      // + 외부 콘텐츠(라이브 RSS 뉴스 본문/제목 · LLM 채팅 출력)는 개발자 거버넌스 대상 아님 → 제외(§10(b) 법률조항 등 오탐 방지)
+      Array.prototype.slice.call(clone.querySelectorAll('script, style, [id*="version-badge"], [id*="app-version"], [id*="-version"], [data-text-role="developer-note"], [data-aio-archive="true"], .news-item-desc, .news-item-headline, .news-item-title, .acp-bubble, .aio-chat-msg')).forEach(function(s){ s.remove(); });
+      var txt = (clone.textContent || '').replace(/\s+/g, ' ');
+      var seen = {}, m;
+      devRe.lastIndex = 0;
+      while ((m = devRe.exec(txt)) !== null) {
+        var mk = m[0];
+        if (seen[mk]) continue;
+        seen[mk] = true;
+        violations.push({ pageId: pg.id, marker: mk, surface: 'text', snippet: txt.slice(Math.max(0, m.index - 22), m.index + 22) });
+        if (violations.length > 60) break;
+      }
+      // v50.14 R206: 속성 텍스트(title/aria-label/placeholder/alt/data-tooltip)도 사용자 노출 표면 → 스캔
+      // (텍스트 전용 스캔이 놓친 tooltip dev마커 — DATA_SNAPSHOT/RNN/vNN.NN 등 — 회귀 방지 범위에 포함)
+      var attrNames = ['title', 'aria-label', 'placeholder', 'alt', 'data-tooltip'];
+      Array.prototype.slice.call(clone.querySelectorAll('[title],[aria-label],[placeholder],[alt],[data-tooltip]')).forEach(function(el) {
+        attrNames.forEach(function(an) {
+          var av = el.getAttribute && el.getAttribute(an);
+          if (!av) return;
+          devRe.lastIndex = 0;
+          var am = devRe.exec(av);
+          if (am) {
+            var akey = an + ':' + am[0];
+            if (seen[akey]) return;
+            seen[akey] = true;
+            violations.push({ pageId: pg.id, marker: am[0], surface: an, snippet: av.slice(0, 60) });
+            if (violations.length > 60) return;
+          }
+        });
+      });
+    });
+  } catch(e) { return { status: 'error', error: e && e.message, violationCount: 0, violations: [] }; }
+  return { status: violations.length ? 'warn' : 'ok', violationCount: violations.length, violations: violations, generatedAt: new Date().toISOString() };
+};
+
 window.AIO.getAutoOpsReadiness = function() {
   var freshness = window.AIO.getDataFreshnessAudit ? window.AIO.getDataFreshnessAudit() : null;
+  var visibleDevMarker = window.AIO.getVisibleDevMarkerAudit ? window.AIO.getVisibleDevMarkerAudit() : null;
   var pipeline = window.AIO.getDataPipelineAudit ? window.AIO.getDataPipelineAudit() : null;
   var statics = window.AIO.getStaticDataGovernanceAudit ? window.AIO.getStaticDataGovernanceAudit() : null;
   var scheduler = window.AIO.getRefreshSchedulerAudit ? window.AIO.getRefreshSchedulerAudit() : null;
@@ -10026,6 +10112,7 @@ window.AIO.getAutoOpsReadiness = function() {
   var deepReviewAudit = window.AIO.getDeepReviewAudit ? window.AIO.getDeepReviewAudit() : null;
   var fourthFifthPass = window.AIO.getFourthFifthPassAudit ? window.AIO.getFourthFifthPassAudit() : null;
   var issues = [];
+  if (visibleDevMarker && visibleDevMarker.violationCount) issues.push(visibleDevMarker.violationCount + ' visible developer/version marker(s) [v50.14/R206]: ' + visibleDevMarker.violations.slice(0, 4).map(function(v){ return v.pageId + ':' + v.marker; }).join(', '));
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
   if (statics && statics.issueCount) issues.push(statics.issueCount + ' static/live-like freshness issue(s)');
   if (!scheduler || !scheduler.totalTasks) issues.push('refresh scheduler audit unavailable');
@@ -10078,6 +10165,7 @@ window.AIO.getAutoOpsReadiness = function() {
     issues: issues,
     commands: {
       audit: 'AIO.getAutoOpsReadiness()',
+      visibleDevMarker: 'AIO.getVisibleDevMarkerAudit()',
       forceRefresh: 'AIO.forceRefreshAllData()',
       ensureFresh: 'AIO.ensureFreshDataForUse({ pageId:"home" })',
       staticAudit: 'AIO.getStaticDataGovernanceAudit()',
@@ -14564,7 +14652,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.11';
+const APP_VERSION = 'v50.14';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -14708,7 +14796,7 @@ window.DATE_ENGINE = (function() {
     else { icon = '🔴'; color = '#ff5b50'; }                        // stale
     var label = formatRelative(v);
     if (opts.asHtml === false) return icon + ' ' + label;
-    return '<span style="color:' + color + ';font-size:' + (opts.fontSize || '9px') + ';font-family:var(--font-mono);" title="' + formatAbsolute(v) + '">' + icon + ' ' + label + '</span>';
+    return '<span style="color:' + color + ';font-size:' + (opts.fontSize || '11px') + ';font-family:var(--font-mono);" title="' + formatAbsolute(v) + '">' + icon + ' ' + label + '</span>';
   }
 
   // 여러 타임스탬프 중 가장 오래된 것 기준 stale 판정 (데이터 일관성)
@@ -15898,14 +15986,14 @@ const NARRATIVE_ENGINE = (function() {
     var wti = _snap.num(DS.wti, FB.wti);
     var wtiText = isFinite(wti) && wti > 0 ? '$' + _snap.fixed(wti, 2) : '—';
     var wtiTone, wtiReason;
-    if (wti >= 105)      { wtiTone = '재급등 경고'; wtiReason = '봉쇄 유지 · $110+ 돌파 임박'; }
-    else if (wti >= 95)  { wtiTone = '고점권';      wtiReason = '봉쇄 발효 중 · 재협상 관찰'; }
-    else if (wti >= 85)  { wtiTone = '안정화 기대'; wtiReason = '봉쇄 발효 중이나 완화 기대'; }
-    else                 { wtiTone = '완화 선반영'; wtiReason = '재협상 재개 시나리오 진행'; }
+    if (wti >= 105)      { wtiTone = '재급등 경고'; wtiReason = '공급 차질 우려 고조 · $110+ 돌파 시 인플레 재점화'; }
+    else if (wti >= 95)  { wtiTone = '고점권';      wtiReason = '지정학 프리미엄 잔존 · 추이 관찰'; }
+    else if (wti >= 85)  { wtiTone = '안정화 기대'; wtiReason = '긴장 완화 시 수요 정상화 여지'; }
+    else                 { wtiTone = '완화 구간'; wtiReason = '공급 우려 선반영 해소 진행'; }
     return (
-      '4/14 트럼프 "이란 협상 재개" 시사 · 파키스탄 중재 재협상 곧 재개 전망 · ' +
+      '중동(호르무즈/이란)·우크라이나·대만 지정학 리스크 상시 모니터 · ' +
       'WTI ' + wtiText + ' (' + wtiTone + ') · ' + wtiReason + ' · ' +
-      '재협상 실패 시 재급등 리스크 잔존 · 우크라이나/대만 병존'
+      '에너지 공급 차질 시 유가·방산↑ / 완화 시 위험선호 회복'
     );
   }
 
@@ -15920,8 +16008,8 @@ const NARRATIVE_ENGINE = (function() {
     else if (vix >= 15) stressLabel = '안정';
     else                stressLabel = '과도한 완화 지표';
     return (
-      '연준 ' + fedRate + '% · FOMC "vast majority" 듀얼 리스크(고용↓+인플레↑) · ' +
-      '"Some" 인상 논의 · VIX ' + _snap.fixed(vix, 2) + ' (' + stressLabel + ') · H4L 전환 신호'
+      '연준 ' + fedRate + '% · FOMC 듀얼 리스크(고용 둔화 vs 인플레 고착) 균형 · ' +
+      'VIX ' + _snap.fixed(vix, 2) + ' (' + stressLabel + ') · 데이터 의존적 정책 경로'
     );
   }
 
@@ -15943,7 +16031,6 @@ const NARRATIVE_ENGINE = (function() {
     var paradox = (move <= 70 && skew >= 135);
     var diag = checkDistributionDiagnosis();
     return (
-      '3월 PPI 수요파괴 신호: 무역마진 -1.4% · 중간재 -0.4% · 원자재 -1.9% · Michigan 1Y 4.8%(93년후 최고). ' +
       '<b style="color:#fbbf24;">현재 F&amp;G ' + fg + ' ' + fgReg.label + '</b> — 모멘텀 ' + _snap.fixed(momentum, 1) +
       ' vs 브레드쓰 ' + _snap.fixed(breadth, 1) + ' (갭 ' + _snap.fixed(gap, 1) + 'pt) · ' +
       '주가강도 ' + _snap.fixed(priceStr, 1) + ' · 프리미엄트렌드 ' + _snap.fixed(premTrend, 0) + ' · ' +
@@ -15965,9 +16052,9 @@ const NARRATIVE_ENGINE = (function() {
     else                 deficitSignal = '달러 약세(DXY ' + _snap.fixed(dxy, 2) + ') → Debt-to-GDP 우려 부각';
     var bondLoad = tnx >= 4.5 ? '재발행 부담↑↑' : tnx >= 4.0 ? '재발행 부담 관리' : '재발행 여력';
     return (
-      '미국 재정적자 $2T↑ · 감세(OBBBA $1,500~1,600억+원천징수 $600억) 환류 시작 · ' +
+      '미국 재정적자 $2T↑ · 감세 환류 진행 · ' +
       deficitSignal + ' · 10Y ' + _snap.fixed(tnx, 2) + '% = ' + bondLoad + ' · ' +
-      '생산성 미달→Debt-to-GDP 악화 · 9.9조 달러 재발행 압박 · 중간선거 7개월 전 = 재무부 유동성 인센티브'
+      '생산성 vs Debt-to-GDP · 대규모 국채 재발행 압박 · 재무부 유동성 인센티브'
     );
   }
 
@@ -15996,13 +16083,13 @@ const NARRATIVE_ENGINE = (function() {
     var wtiTxt = isFinite(wti) && wti > 0 ? '$' + _snap.fixed(wti, 2) : '—';
     var brentTxt = isFinite(brent) && brent > 0 ? '$' + _snap.fixed(brent, 2) : '—';
     var direction;
-    if (wti >= 105)     direction = '재급등 · 봉쇄 유지';
-    else if (wti >= 95) direction = '고점권 · 봉쇄 중';
-    else if (wti >= 85) direction = '재협상 기대 · 봉쇄 중이나 완화 여지';
-    else                direction = '완화 선반영 · 재협상 진전 반영';
+    if (wti >= 105)     direction = '재급등 · 공급 차질 심화';
+    else if (wti >= 95) direction = '고점권 · 지정학 프리미엄';
+    else if (wti >= 85) direction = '완화 기대 · 추이 관찰';
+    else                direction = '완화 구간 · 수요 정상화';
     return (
       'WTI ' + wtiTxt + ' · Brent ' + brentTxt + ' (' + direction + ') · ' +
-      'JPM: 구조적 공급 감소(정유 240만bpd+파이프라인 70만bpd) 잔존 · 재협상 실패 시 $110+ 재급등'
+      '중동 공급 리스크 잔존 · 공급 차질 확대 시 $110+ 재급등 가능 · 완화 시 정유 마진 정상화'
     );
   }
 
@@ -16016,9 +16103,8 @@ const NARRATIVE_ENGINE = (function() {
     else if (momentum >= 50)              earningsContext = 'momentum ' + _snap.fixed(momentum, 0) + ' 중립/VIX ' + _snap.fixed(vix, 1) + ' = 실적 품질 선별';
     else                                  earningsContext = 'momentum ' + _snap.fixed(momentum, 0) + ' 약세/VIX ' + _snap.fixed(vix, 1) + ' = 서프라이즈 무시 위험';
     return (
-      '4월 어닝 시즌: 매출 +9.7% 이익 +13%(FactSet 88% EPS 서프라이즈, 6분기 연속 두 자릿수) · ' +
-      '★ 긍정 서프라이즈 주가 반응 -0.2%(5년 평균 +1.0% 대비) = "이미 반영" · ' +
-      earningsContext + ' · NVDA 제외 매그6 성장률 6.4% < 493사 10.1% 역전'
+      '실적 시즌: 긍정 서프라이즈가 이미 주가에 선반영되는 경향(서프라이즈 대비 주가 반응 둔화) · ' +
+      earningsContext + ' · 빅테크 외 종목으로 이익 성장 확산 여부가 관건'
     );
   }
 
@@ -16031,7 +16117,7 @@ const NARRATIVE_ENGINE = (function() {
     else if (vvix >= 85)  systemRisk = 'VVIX ' + _snap.fixed(vvix, 1) + ' 중립';
     else                  systemRisk = 'VVIX ' + _snap.fixed(vvix, 1) + ' 안정';
     return (
-      'Claude Mythos: 취약점→무기화 "수개월→수분" 단축(§63) · OpenAI TAC 14개 파트너(CRWD 양쪽 독점) · ' +
+      '사이버보안: AI로 취약점 무기화 시간 "수개월→수분" 단축 · OpenAI TAC 14개 파트너(CRWD 양쪽 독점) · ' +
       systemRisk + ' · 섀도AI 50%+ 비인가 · CRWD/PANW 보안예산 확장 · 사모신용 잔존 리스크'
     );
   }

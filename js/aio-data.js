@@ -8873,7 +8873,7 @@ function _renderBriefingBullet(item) {
   }
   // AI 요약
   if (displaySummary) {
-    out += '<div style="font-size:9.5px;color:#a78bfa;margin-top:4px;line-height:1.4;padding:4px 8px;background:var(--data-purple-faint);border-radius:4px;">' + escHtml(displaySummary) + '</div>';
+    out += '<div style="font-size:11px;color:#a78bfa;margin-top:4px;line-height:1.4;padding:4px 8px;background:var(--data-purple-faint);border-radius:4px;">' + escHtml(displaySummary) + '</div>';
   }
   out += '</div>';
   return out;
@@ -12882,7 +12882,7 @@ function _getDataFreshness(symbol) {
   var ts  = (window._quoteTimestamps || {})[symbol];
   if (!src || !ts) {
     // 데이터 출처 없음 → 정적 폴백 사용 중
-    return { level: 'snapshot', label: '정적', color: '#7b8599', title: 'DATA_SNAPSHOT 정적 데이터 (API 미연결)' };
+    return { level: 'snapshot', label: '정적', color: '#7b8599', title: '정적 스냅샷 데이터 (API 미연결)' };
   }
   var age = Date.now() - ts;
   var srcLabel = src.source || 'unknown';
@@ -13587,7 +13587,9 @@ function _aioUpdatePutCallDom(payload) {
   var detail = document.getElementById('opt-pcr-text');
   if (detail) {
     var mode = metric.allowedUse ? '현재 의사결정 사용 가능' : '참고용 표시';
-    var parts = ['CBOE Total P/C ' + text, tone.narrative, sourceLabel + ' · ' + mode];
+    // v50.14 R206: 내부 소스 식별자(DATA_SNAPSHOT)를 사용자 친화 라벨로 표시
+    var srcDisplay = sourceLabel === 'DATA_SNAPSHOT' ? '정적 스냅샷' : sourceLabel;
+    var parts = ['CBOE Total P/C ' + text, tone.narrative, srcDisplay + ' · ' + mode];
     if (payload.equityPutCall != null) parts.push('Equity P/C ' + Number(payload.equityPutCall).toFixed(2));
     detail.textContent = parts.join(' · ');
     detail.setAttribute('data-source-kind', sourceKind);

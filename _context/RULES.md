@@ -2451,3 +2451,19 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 **Rule**: Hardcoded current-market copy, pinned events, AI briefing context, and DATA_SNAPSHOT metadata must distinguish (1) last-published official values, (2) scheduled official release dates, and (3) source-dependent watch topics. Future CPI/NFP/PCE/FOMC values must never be invented before official release. Topics such as Computex announcements or SpaceX IPO reports must show their verification status and must not be rendered as confirmed market data unless verified/current evidence exists.
 
 **Validation**: T759~T762 verify official June 2026 NFP/CPI/FOMC/PCE dates, snapshot current-topic fields, home current-topic queue, and active `vMAJOR.MINOR` runtime version policy.
+
+## R206. 사용자 가시 텍스트에 개발자/버전 마커 금지 (v50.14 added, v50.13 UX audit root)
+
+**Rule**: 21 route 페이지의 **사용자에게 보이는 텍스트/툴팁**에 개발 내부 마커를 노출하지 않는다 — 금지: `§NN`(KNOWLEDGE-BASE 섹션 참조), `vNN.NN`(앱 버전 배지 `#app-version-badge` 제외), 코드네임(예: "Claude Mythos"), 영문 dev 단어("Fallback Only"/"prominent"), 영문 거버넌스 코드(STALE/STATIC/OK/REF — 한글 오래됨/정적/최신/참고 사용), `[MM/DD]` 시점 접두사를 단 stale 내러티브. 이런 마커는 KNOWLEDGE-BASE/NARRATIVE_ENGINE/CHAT_CONTEXTS 작성 시 발생하기 쉬우므로, 사용자 surface에 들어가기 전 일반화(evergreen)하거나 HTML 주석/`data-text-role="developer-note"`로 분류한다.
+
+**Validation**: `AIO.getVisibleDevMarkerAudit()`가 모든 `[id^="page-"]`의 **가시 텍스트(textContent) + 속성 텍스트(title·aria-label·placeholder·alt·data-tooltip)** 양쪽을 스캔해 위반 시 `violationCount>0` (각 violation에 `surface:'text'|'title'|...` 표기). 제외: 스크립트·앱버전배지·developer-note·archive·**외부 콘텐츠(라이브 RSS `.news-item-*`·LLM 채팅 `.acp-bubble`/`.aio-chat-msg`)**. `getAutoOpsReadiness()`에 통합. T776(가시 마커 0)·T777(breadth routine 200 부재)·T778(배지 한글)·T779(용어집 7)·T780(signal CP de-stale)로 회귀 방지.
+
+**중요 교훈 2건** (v50.14 실측):
+1. **속성 텍스트도 사용자 노출 표면** — textContent만 스캔하면 tooltip/aria-label의 dev마커(`DATA_SNAPSHOT`/`RNN`/`vNN.NN`)를 놓침. 표 a11y normalizer(`_aioApplyTableAccessibility`)가 버전배지 포함 heading을 aria-label로 읽어 'v50.14'를 누출한 케이스 — heading clone에서 버전배지 제거 후 추출로 시정. audit은 반드시 속성까지 커버.
+2. **정적 HTML이 JS로 런타임 덮어써지는 동적 누출** — `generateMacroStoryline` 등 페이지 진입 시 렌더되는 텍스트는 페이지에 **실제 진입해야** DOM에 나타남. 정적 스캔만으론 부족하므로 **21페이지를 하나씩 진입(showPage)해 동적 렌더 후 재스캔** 필요. + **서비스워커가 동일 SW_VERSION 캐시를 유지하면 편집한 JS가 가려짐** — 검증 시 SW unregister + `caches.delete` 후 hard reload, 또는 서버에서 직접 fetch해 디스크 내용 대조.
+
+## R207. 접근성 WCAG AA 유지 — 접근 이름·최소 폰트·tap target (v50.14 added)
+
+**Rule**: 인터랙티브 요소(button/[role=button]/[data-action]/select)는 **접근 가능한 이름**(텍스트·aria-label·title)을 가져야 하고, **모든 가시 텍스트 폰트는 ≥11px**(v50.14 사용자 결정 — 9px/8px/9.5px 3차 microcopy 포함 전부 ≥11px 상향). tap target은 WCAG 2.5.8 AA **24×24px** 최소 — 단 인라인 칩/링크는 인라인 예외. 대비(getColorContrastAudit)·테이블(getTableAccessibilityAudit)은 기존 통과 유지. 44×44(AAA)는 밀집 터미널 특성상 트레이드오프로 목표 외.
+
+**Validation**: `AIO.getAccessibilityAudit()`(활성 페이지 측정)가 `missingAccessibleNameCount`/`fontUnder10pxCount`/`tapTargetUnder24Count` 반환. T781이 접근 이름 0·초소형 폰트 0을 강제(tap target<24는 인라인 예외로 informational). 21페이지 라이브 스위프로 전수 검증(text 폰트 0·noName 0). **폰트 소스 주의**: `font-size:9px` 리터럴뿐 아니라 **동적 구성**(`(opts.fontSize || '9px')`)·**DOM API**(`el.style.fontSize='9px'`)도 <10px 누출 경로 — grep 시 `['"][89](\.\d)?px['"]`·`fontSize\s*=`까지 점검.

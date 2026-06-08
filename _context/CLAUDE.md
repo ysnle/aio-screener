@@ -2,7 +2,16 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.11
+- **현재 버전**: v50.14
+
+## v50.14 note
+- **프론트엔드/UX 근본 보강: 회귀 방지 인프라 + 접근성**. v50.13이 가시 마커를 일일이 제거한 **증상 시정**에 그쳤다는 정직 평가 → 근본화. **(A) R206** `AIO.getVisibleDevMarkerAudit()` — 모든 `[id^="page-"]` 가시 textContent에서 개발자/버전 마커(§NN·vNN.NN·RNN·`*_REGISTRY`·`MACRO_CALENDAR`·`DATA_SNAPSHOT`·"Claude Mythos"·"Fallback Only"·"prominent") 검출. 앱버전배지·`[data-text-role="developer-note"]`·`[data-aio-archive]`·**외부 콘텐츠(라이브 RSS `.news-item-*`/LLM 채팅 `.acp-bubble`)** 제외 → 법률 `§10(b)` 같은 오탐 차단. `getAutoOpsReadiness()` 통합. **이 audit이 v50.13이 놓친 실제 동적 누출을 즉시 검출**: macro `generateMacroStoryline` 상태줄 "DATA_SNAPSHOT 즉시 폴백"→"정적 스냅샷", options PCR 위젯 소스 라벨 'DATA_SNAPSHOT'→'정적 스냅샷', home 가중치 tooltip "v49.28/R64 WEIGHT_REGISTRY" 제거. 결과: 가시 dev마커 0(clean + 전체 suite 실행 후 DOM 양쪽). **(B) R207** `AIO.getAccessibilityAudit()` — 활성 페이지 tap target(WCAG AA 24×24)·초소형 폰트(<10px)·접근 이름 누락 측정. home 온보딩 버튼(설정하러 가기/✕ 닫기) ≥24px 조정 → under24/noName/font<10 0, status ok. **(C)** R206/R207 RULES.md 추가 + T776~T781 회귀 가드. T777 routine 레지스트리 `AIO_PAGE_BRIEFS.breadth.steps` 정합. **(D) 사용자 "정말 하나씩 모두 점검?" 재검증 → 추가 갭 시정**: textContent 전용 audit이 놓친 **속성 dev마커 19건**(8페이지) 발견 — 표 a11y normalizer aria-label 'v50.14' 누출(heading clone에서 배지 제거), `_getDataFreshness` tooltip 'DATA_SNAPSHOT'→'정적 스냅샷'(13), home VIX표/breadth title 마커 제거. **audit을 속성(title/aria-label/placeholder/alt/data-tooltip)까지 확장**(surface 표기). **접근성**: 21페이지 라이브 진입 스위프 → <10px 폰트 7페이지 발견 → 사용자 결정으로 **앱 전역 폰트 ≥11px 일괄 상향**(인라인+동적 `(opts.fontSize||'9px')` 칩+DOM API). 교훈: SW 동일버전 캐시가 편집 JS 가림 → unregister+caches.delete+서버 fetch 대조. 최종 21페이지 스위프: dev마커(text+속성) 0·<10px 폰트 0·접근이름 누락 0·T776~781 통과·runTests 836/20(신규 회귀 0). R1 7곳 + 캐시버스터 6곳.
+
+## v50.13 note
+- **21페이지 라이브 프론트엔드/UX 세밀 점검 + 시정**(클러터·중복 / 초보자 직관성). 21 route를 `showPage`로 하나씩 진입해 섹션 단위로 실제 콘텐츠를 읽고 시정(직전 집계-only audit 보강). **가시 dev/버전 마커 제거**: §63/§58/§62/§55, "Claude Mythos"→"사이버보안"(정적+NARRATIVE_ENGINE 동적 양쪽), "v49.64에서 제거"·"v50.11 refreshed"·"v50.4 기준"·"Fallback Only/prominent". **전역 배지 한글화**: `renderStaticDataGovernanceBadges` STALE/STATIC/OK/REF→오래됨/정적/최신/참고. **홈 쿼터 중복 제거**(헤더배지 'AI·모델' + #llm-quota 단독). **breadth routine 200일선 제거**. **용어집 +7**(RRG/OAS/OPEX/소르티노/피오트로스키/ZBT/맥스페인, 260→267). 검증: 가시 dev마커 0·영문배지 0·콘솔 JS에러 0·회귀 0. 방법론 교훈: 스크린샷은 dpr로 폭 왜곡→측정+audit 우선. 보류: 4월-2026 내러티브 de-stale(별건). 리포트 `_context/FRONTEND-UX-AUDIT-2026-06-05.md`.
+
+## v50.12 note
+- **AI 채팅 기술적 분석 종목별 실측 데이터 주입**. 사용자 질의("fundamental 외 외환채권/기술/테마/매크로 채팅도 기관급 데이터?") → 조사 결과 4개 모두 방법론은 기관급 + live 헤더 최신이나 **technical만 종목별 실측 기술지표 미주입**. 엔진(`fetchOHLCVWithFallback`+`calcTechnicalSnapshot`+`calcExtensionHeat`, runInstitutionalTechnicalBrief가 사용)은 있는데 채팅 미사용 → `_fetchTechnicalDataForChat(tickers)` 신설(기존 엔진 재사용). technical/signal/ticker 컨텍스트에서 라이브 일봉 OHLCV(병렬·6s·최대3) fetch → RSI/MACD/볼린저/10·21·50·200 MA 정배열/trendState/Weinstein Stage/ATR 이격/RVOL/고저 레인지/확장도 블록 주입. 프롬프트가 Stage/피봇/손절/목표에 우선 인용 + 추측 금지. preview 실측 NVDA 251봉 RSI 43.8 계산 확인. 부수: stale 버전 테스트 4개(T657/672/674/679, `/^v49\./`로 v50 영구fail) semver-aware 시정. T775. **잔여 후속**: macro/fxbond/themes 4월-2026 동결 내러티브 de-stale + themes RRG 실측 주입.
 
 ## v50.11 note
 - **전체 데이터 전수 최신화 (/data-refresh, 2026-06-05)**. Audit-first(getAutoOpsReadiness 등 + KR 캘린더 감사) → WebSearch(R183 band). **US 6/4 종가**: SPX 7,585 신고가·Nasdaq 26,831·VIX 15.40·WTI $93.03; **AVGO −12.6% AI 가이던스 실망**. **미러 drift 0**(vvix 85.75·breadth50 52·spxATH 7585). **캘린더 근본 보강**: `_aioRecomputeMacroCalendar`가 US+KR 둘 다 multi-cycle auto-advance(KR stale 4→0, R78/P255 재발 방지). **오늘의 브리핑**: 이벤트 레이어 AVGO 결과 반영(P61)·`STATIC_CONTENT_LIFECYCLE`에 현재 DOM(briefing-current-jun-3-25/jensen-computex-202606) 등록·시나리오 lastUpdated 6/4 AVGO 트리거 정정. **홈 핵심 뉴스** AVGO+SPX 신고가 재선별(NFP 오늘 발표·미발표 수치 생성 금지). data-snap 시드(cpi-yoy 등)·sink mismatch·지정학 리뷰(5건 6/4) 정합. **SKILL.md**에 U그룹(브리핑/MACRO_CALENDAR US+KR/current-topic) 신설 + HOME_WEEKLY_NEWS grep 경로 정정. 데이터 감사 seed/sink/mirror/KR/geo/scenario 0/ok, 콘솔 0. T681/T564/T759/T760 데이터 정합 업데이트.
@@ -96,6 +105,7 @@
 | DATA-FRESHNESS-AUDIT-2026-05-10.md | v49.4 데이터 최신성/자동 갱신 보강 요약 | freshness policy/source/stale 기준 변경 |
 | GATE-BASELINE-2026-06-04.md | v50.4 evidence 게이트/단위테스트 실측 기준선 | 게이트/테스트 재측정 시 |
 | CHAT-DATA-AUDIT-2026-06-04.md | v50.8 AI 채팅 데이터 출처 전수 감사 baseline | 채팅 데이터 경로/컨텍스트 변경 시 |
+| FRONTEND-UX-AUDIT-2026-06-05.md | v50.12 21페이지 라이브 프론트엔드/UX audit (클러터·중복/직관성·위계) + P0/P1/P2 백로그 | UI/UX 시정·페이지 구조 변경 시 |
 
 ## 파일 구조
 
