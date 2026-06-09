@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.14 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.22 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3393,6 +3393,15 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   max-height: 280px !important;
 }
 
+/* ═══ v50.15: 센티먼트 거대 여백 해소 — 2열 그리드에서 짧은 차트 카드가 긴 열(F&G 컴포넌트)에 맞춰
+   stretch되며 카드 내부에 300~400px 빈 공간 발생. 그리드 아이템을 콘텐츠 높이로 정렬(stretch 차단). ═══ */
+#page-sentiment [style*="display:grid"],
+#page-sentiment [style*="display: grid"] {
+  align-items: start !important;
+  align-content: start !important;
+}
+#page-sentiment .aio-widget { align-self: start !important; }
+
 /* ═══ v27.1: 포트폴리오 도넛 차트 비율 제한 ═══ */
 #portfolio-donut {
   max-height: 250px !important;
@@ -4132,7 +4141,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.14</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.22</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4709,7 +4718,7 @@ body.light-theme canvas { filter:none; }
         <div class="page-title" style="font-size:17px;letter-spacing:-0.02em;">
           지금 거래해야 할까?
         </div>
-        <div class="page-subtitle">변동성 25% · 모멘텀 25% · 추세 20% · 시장폭 20% · 거시경제 10%</div>
+        <div class="page-subtitle">변동성(VIX) 25% · 모멘텀(F&G·추세추종) 25% · 추세(MA) 20% · 시장폭(20일선) 20% · 거시 10%</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
         <button id="sig-sw-btn" class="aio-btn-table primary" data-action="toggleSignalMode" data-arg="swing" style="font-size:10px;">스윙</button>
@@ -5423,7 +5432,7 @@ body.light-theme canvas { filter:none; }
     <div style="font-size:10px;font-weight:700;color:var(--data-red);margin-bottom:8px;"> Exit Triggers — 즉시 청산/헷지 신호</div>
     <div id="exit-triggers-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;font-size:11px;color:var(--text-muted);line-height:1.6;">
       <div> VIX <b style="color:var(--data-red);">30 돌파</b> — 공황 영역 진입, 포지션 즉시 축소</div>
-      <div> SPX <b style="color:var(--data-red);" id="exit-spx-level">—</b> 이탈 — 현재가 대비 -10% 기술적 지지선</div>
+      <div> SPX <b style="color:var(--data-red);" id="exit-spx-level">—</b> 이탈 — <span id="exit-spx-basis">주요 추세 지지선</span> 종가 하회 시 추세 훼손 신호</div>
       <div> HYG <b style="color:var(--data-red);" id="exit-hyg-level">—</b> 하회 — HY 신용 스프레드 위기 수준 확대</div>
       <div> DXY <b style="color:var(--data-red);" id="exit-dxy-level">—</b> 돌파 — 달러 강세 극단, 신흥국 자금 이탈 가속</div>
       <div> 2Y/10Y <b style="color:var(--data-red);">역전 심화</b> — 경기침체 선행 지표 재악화</div>
@@ -5598,14 +5607,14 @@ body.light-theme canvas { filter:none; }
         <div id="breadth-50sma-big" data-snap="breadth-50sma" style="font-size:36px;font-weight:900;color:var(--data-amber);font-family:var(--font-mono);letter-spacing:-1px;">46%</div>
       </div>
       <div style="width:100%;height:18px;background:rgba(0,0,0,0.2);border-radius:10px;overflow:hidden;margin-bottom:10px;border:1px solid rgba(255,163,26,0.2);">
-        <div id="breadth-50sma-bar" style="width:46%;height:100%;background:linear-gradient(90deg,var(--data-amber),var(--data-amber));border-radius:10px;"></div>
+        <div id="breadth-50sma-bar" style="width:52%;height:100%;background:linear-gradient(90deg,var(--data-amber),var(--data-amber));border-radius:10px;"></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <div style="font-size:11px;color:var(--data-amber);font-weight:700;"> 혼조</div>
         <div style="font-size:11px;color:var(--text-muted);font-weight:500;">중기 회복 진행 중</div>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);line-height:1.5;background:var(--surface-1);padding:8px;border-radius:6px;">
-        50일선 46% — 50% 미탈환. 60% 돌파 시 건강한 상승장 확인. 미너비니 바닥 2단계(리테스트) 관찰 구간.
+      <div id="breadth-50sma-readout" style="font-size:11px;color:var(--text-muted);line-height:1.5;background:var(--surface-1);padding:8px;border-radius:6px;">
+        50일선 52% — 50% 상회(약). 60% 돌파 시 건강한 상승장 확인. 미너비니 바닥 2단계(리테스트) 관찰 구간.
       </div>
     </div>
 
@@ -5950,7 +5959,7 @@ body.light-theme canvas { filter:none; }
             <div style="font-size:10px;font-weight:700;color:var(--text-secondary);">왜 이 수준인가? — CNN 공식 7개 + AIO 보조 2개</div>
             <div style="font-size:11px;color:var(--text-muted);">9개 서브컴포넌트</div>
           </div>
-          <div id="fg-components-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;"></div>
+          <div id="fg-components-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:6px;"></div><!-- v50.15: 150px→128px — 300px 좌측 컬럼에 2열이 들어가도록(150은 306px라 1열로 쌓여 사이드바 과대 → 우측 여백). 컴포넌트 행 수 절반 -->
         </div>
         <!-- v48.10: 크립토 시장 온도계 — CoinGecko /global 실시간 (BTC 도미넌스·전체 시총·24h 변동) -->
         <div id="crypto-tempo-widget" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:none;">
@@ -5958,7 +5967,7 @@ body.light-theme canvas { filter:none; }
             <div style="font-size:10px;font-weight:700;color:var(--text-secondary);">크립토 시장 온도계</div>
             <div style="font-size:11px;color:var(--text-muted);">CoinGecko /global</div>
           </div>
-          <div id="crypto-tempo-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;"></div>
+          <div id="crypto-tempo-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:6px;"></div><!-- v50.15: 140px→128px (300px 컬럼에 2열) -->
         </div>
       </div>
 
@@ -7135,7 +7144,7 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <div style="font-size:11px;color:var(--text-muted);margin-top:8px;padding:8px;background:rgba(0,0,0,0.2);border-radius:6px;line-height:1.5;">
-      <b style="color:var(--data-purple);">해석:</b> 경제는 사이클을 반복합니다. 2026년은 이중 위험(고용은 둔화↓ + 인플레는 상승↑ = 연준이 한쪽만 잡기 어려운 딜레마) 속 방향 결정 시기. "더 오래 높은 금리(H4L, Higher For Longer)"로의 전환 + 재무부의 유동성 공급 vs 연준 긴축의 힘겨루기가 핵심.
+      <b style="color:var(--data-purple);">해석:</b> 경제는 사이클을 반복합니다. 2026년 중반은 견조한 고용(5월 NFP 172K로 금리인하 기대 후퇴)과 끈적한 인플레·유가 리스크가 겹쳐, 연준이 서둘러 완화하기 어려운 국면입니다. "더 오래 높은 금리(H4L, Higher For Longer)" 고착 + 재무부의 유동성 공급 vs 연준 긴축의 힘겨루기가 핵심. <span style="color:var(--accent);font-size:10px;">(실시간 국면은 위 온도계·동적 시그널 우선)</span>
     </div>
   </div>
 
@@ -7840,7 +7849,7 @@ body.light-theme canvas { filter:none; }
         <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">수익률 곡선 그래프 (실시간)</span>
         <span id="yc-chart-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수집 대기…</span>
       </div>
-      <canvas id="koreaCurveChart" role="img" aria-label="한국 국채 수익률 곡선 차트"></canvas>
+      <canvas id="koreaCurveChart" role="img" aria-label="미 국채(US Treasury) 수익률 곡선 차트"></canvas>
       <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--text-muted);">
         <span> 정상 곡선: 단기 < 장기 (경기 확장)</span>
         <span> 역전 곡선: 단기 > 장기 (경기 침체 경고)</span>
@@ -8853,7 +8862,7 @@ body.light-theme canvas { filter:none; }
       </div>
       <div id="cycle-analysis" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;color:var(--text-muted);line-height:1.7;">
         <div style="background:rgba(255,91,80,0.04);border:1px solid rgba(255,91,80,0.12);border-radius:7px;padding:12px;">
-          <b style="color:var(--data-red);">사이클 진단 (참고 기준):</b> 방어 섹터(에너지 XLE, 필수소비 XLP, 유틸 XLU)가 시장(SPY) 대비 상대강세. 성장 섹터(기술 XLK, 소비재 XLY)가 후행. 경기 후반(Late-cycle) + 스태그플레이션(물가는 높은데 성장은 둔화 = 최악의 조합) 리스크. 에너지 기업 이익↑가 전체 이익 방어. 초과수익(알파) 원천은 지수 방향이 아니라 섹터·지역 배분. <span style="color:var(--accent);font-size:10px;">(동적 판정은 상단 참조)</span>
+          <b style="color:var(--text-secondary);">사이클 진단 읽는 법 (교육 · 현재 판정 아님):</b> 방어 섹터(에너지 XLE·필수소비 XLP·유틸 XLU)가 시장(SPY) 대비 <b>상대강세</b>이면 경기 후반(Late-cycle) 신호이고, 물가는 높은데 성장이 둔화되면 스태그플레이션(최악의 조합) 리스크입니다. 반대로 성장 섹터(기술 XLK·소비재 XLY)가 <b>주도</b>하면 확장(Expansion) 국면입니다. 어느 국면이든 초과수익(알파)의 원천은 지수 방향보다 섹터·지역 배분입니다. <span style="color:var(--accent);font-size:10px;">👉 현재 국면은 위 '🔄 동적 사이클 판정'을 따르세요(정적 텍스트로 단정하지 않음).</span>
         </div>
         <div style="background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.12);border-radius:7px;padding:12px;">
           <b style="color:var(--data-green);">전략:</b> AI Capex 효율화 사이클: 네트워크 패브릭(AVGO/MRVL) > 냉각(VRT) > 추론(NVDA). 데이터센터 전력: WMB(BTM) > NEE > 유틸리티. 에너지(XLE) 모멘텀 + MLP/파이프라인(AMLP). 어닝 시즌(GS/JPM/TSM/ASML/NFLX)이 섹터 방향 결정.
@@ -12607,9 +12616,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.14"></script>
-  <script src="./js/aio-data.js?v=50.14"></script>
-  <script src="./js/aio-ui.js?v=50.14"></script>
+  <script src="./js/aio-core.js?v=50.22"></script>
+  <script src="./js/aio-data.js?v=50.22"></script>
+  <script src="./js/aio-ui.js?v=50.22"></script>
 
   <script>
 
@@ -13647,6 +13656,7 @@ function _renderRiskMetrics(el, data) {
       mddRes = data.mddRes, corrRes = data.corrRes, n = data.n;
 
   function fmtPct(v) { return (v !== null && v !== undefined) ? (v * 100).toFixed(2) + '%' : '—'; }
+  function fmtLoss(v) { return (v !== null && v !== undefined) ? '-' + (v * 100).toFixed(2) + '%' : '—'; } // v50.22: null일 때 "-—" 대신 "—"
   function fmtN(v, d) { return (v !== null && v !== undefined) ? v.toFixed(d !== undefined ? d : 2) : '—'; }
   function sharpeColor(v) {
     if (v === null || v === undefined) return 'var(--text-muted)';
@@ -13671,12 +13681,12 @@ function _renderRiskMetrics(el, data) {
 
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">' +
     '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (95%)</div>' +
-    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">-' + fmtPct(var95) + '</div>' +
+    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">' + fmtLoss(var95) + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">95% 신뢰구간 최대 손실</div></div>';
 
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">' +
     '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (99%)</div>' +
-    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">-' + fmtPct(var99) + '</div>' +
+    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">' + fmtLoss(var99) + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">99% 신뢰구간 최대 손실</div></div>';
 
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">' +
@@ -13686,7 +13696,7 @@ function _renderRiskMetrics(el, data) {
 
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">' +
     '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">최대낙폭 (MDD)</div>' +
-    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + mddColor(mdd) + ';">-' + fmtPct(mdd) + '</div>' +
+    '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + mddColor(mdd) + ';">' + fmtLoss(mdd) + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + (mdd !== null ? mddLabel(mdd) + ' (기간: ' + n + '일)' : '데이터 부족') + '</div></div>';
 
   cards += '</div>';
@@ -15580,7 +15590,26 @@ function _getV48IntegratedContext(pageFocus) {
     '• 하이퍼스케일러 선약정 가속 (v48.87): Anthropic $200B Google Cloud 5yr(2027 개시 = Google backlog 40%+), OpenAI $45B 서버 지출 2026(YoY 3배), CoreWeave $3.1B 담보대출(수요>공급 역전). "고객이 원할 것인가"에서 "공급이 얼마나 빨리 풀리나"로 제약 이동. NVDA/TSMC/ASE에 구조적 수주 가시성.\n' +
     '• AIDC ESS 빌드사이클 진입 (v48.87): 미국 DC 부하 75GW→135GW+(2030), AI 비중 70%. ESS 채택 지연 = 건설 시퀀스 후행(현재 대부분 초기 단계). BESS 부착률 75%+ 예상. 나트륨이온 AIDC 구조 적합(C-rate/온도/안전/15,000사이클). CATL 4Q26 양산. DOE 그리드 우선순위 최종결정 2026.06.30 = 다음 촉매. PJM 최소 5년 신규 연계 검토 중단. 수혜: CATL-H/A, Sungrow, 삼성SDI, LGES, Nari.\n' +
     '• 광통신 3기술 동시 가속 (v48.87): (1) CPO — Coherent H2\'26 scale-out 매출, 2027H2 scale-up, $15B+ TAM. NVIDIA-Corning 파트너십(美 제조 3공장+10배 광섬유 캐파) = CPO 메인스트림화 신호. (2) OCS — Coherent OFC 이후 TAM 2배 상향. 루멘텀 OCS 강력 램프업(F4Q26 +$180M QoQ 가이던스). (3) InP 6인치 — 3인치 대비 4배 다이/비용 절반, Coherent 달성 1분기 앞당김(9월 목표). NVIDIA $20억 COHR 투자 + 수십억 달러 장기 매입 계약.\n' +
-    '• 서버 메모리 가격 충격 (v48.87 GS/TrendForce): PC DRAM 2Q26 QoQ +43-48%(GSe 상회), 서버 DRAM QoQ +45-50%(GSe 상회, 상방 리스크 언급), 모바일 NAND QoQ +80%. PC/게이밍 최종수요 2H26 위축 우려(AMD: 게이밍 전반기 대비 -20%+ 예상). SEC/하이닉스 마진 확대 + LTA 레버리지 심화. 스마트폰 유닛 2Q26 YoY 마이너스 지속.\n';
+    '• 서버 메모리 가격 충격 (v48.87 GS/TrendForce): PC DRAM 2Q26 QoQ +43-48%(GSe 상회), 서버 DRAM QoQ +45-50%(GSe 상회, 상방 리스크 언급), 모바일 NAND QoQ +80%. PC/게이밍 최종수요 2H26 위축 우려(AMD: 게이밍 전반기 대비 -20%+ 예상). SEC/하이닉스 마진 확대 + LTA 레버리지 심화. 스마트폰 유닛 2Q26 YoY 마이너스 지속.\n' +
+    // v50.15 텔레그램 3채널(insidertracking/aetherjapanresearch/bornlupin) 7일 통합 (2026-06-08)
+    '\n【v50.15 텔레그램 통합 — 최근 7일 핵심 (2026-06-08 기준, 출처: 기관리포트/속보 채널)】\n' +
+    '• **젠슨 황 방한 한국 AI 인프라 동맹 (6/8)**: NVIDIA가 SK하이닉스(000660.KS)와 차세대 메모리 다년 공동개발(Vera CPU에 SK 메모리 탑재, 설계/시뮬레이션 가속, 자율 fab 디지털트윈), 삼성전자(005930.KS)와 HBM4/SOCAMM 근시일 공급 + HBM4E·파운드리·Groq 가속기 4nm/8nm 공동개발, 네이버(035420.KS)와 1GW급 AI 팩토리(55MW 2027 상반기→200MW 2027-28, $50-60B capex, 소버린 AI B2B 전환·5년 AI팩토리 매출 20조원 목표), SKT(AI Factory 2027 DSX), 현대차(자율주행/로보택시) 동맹을 동시 발표. 황: "웨이퍼→커넥터 공급망 전체 부족", "AI 인프라 10년+ 사이클, 하반기 훨씬 큰 성장", "조정은 매수 기회·AI는 ROI 있다". 한국 메모리/소버린AI 직접 수혜.\n' +
+    '• **메모리 슈퍼사이클 리레이팅 (6/8 CLSA/NH/Meritz)**: CLSA 삼성 40만→54만원·SK하이닉스 252만→370만원·마이크론(MU) $970→$1,320 목표 상향 — "컴퓨트가 아니라 메모리가 AI 인프라 확장의 1차 제약". 서버 DRAM 수요 +45%/+55%(2026/2027), DRAM 공급사 재고 역사적 저점 2-3주, HBM 블렌디드 ASP +30%, 하반기 ASP 상방 압력. NH도 에이전트 AI 메모리 수요로 삼성 53만·SK하이닉스 320만. Meritz NVL72: SOCAMM2 192GB→96GB 축소에도 총 DRAM 주문 +10-20%(96GB 6배 확대·Vera Rubin 가용성 우선, 설계 불변). 종목 질문 시 이 목표가/수급은 "기관 추정·출처 명시" 전제로 인용.\n' +
+    '• **Citi 반도체 2027 공급제약 (6/8)**: SOX +61% YTD vs S&P +13%. CY27 컨센 EPS +12%(반도체)/+11%(장비). 톱픽 AVGO·TXN·AMAT. 업그레이드 인텔(+46%)·ADI(+21%)·AMD/TXN/MPWR(+10-15%). "2027 공급 병목이 신규 투자자 포커스".\n' +
+    '• **6/5(금) 포지셔닝 청산 셀오프 (JPM)**: S&P -2.6%·나스닥 -4.2%·SOX -10%. 5월 NFP 172K(예상 85K 대폭 상회)→2Y +12bp 4.17%. AI 트레이드 + 이란 협상 매크로 트레이드 동시 청산. JPM 진단 "구조적 금리 전환 아닌 포지셔닝 언와인드 — SPE(Advantest/ASMPT)·리더(TSMC/Delta)·중국 AI(Naura/Baidu)·클라우드(Alibaba/Tencent) 선별 접근". 골드만삭스 2026 금리인하 전망 철회. → 급락을 "구조 훼손"이 아닌 "과열 포지션 정리"로 구분 설명.\n' +
+    '• **JPM AI·에너지 (6/8)**: DC 전력 485TWh(2025)→950TWh(2030) 2배. 2026-30 누적 capex $3.9조 중 ~20%($780B) 에너지行. 진짜 동인=에이전트 워크플로/영상생성/상시 AI(추론수요 75-85%). 쿼리당 전력 텍스트 0.24Wh→추론 1Wh→에이전트 50Wh. 병목: 메모리·전력망 연계(4-5년 지연)·가스터빈(2030+)·변압기. 수혜 EMEA: Legrand/Schneider/Siemens Energy/Prysmian(전력설비), ASML/ASMI/Infineon/Nokia(IT HW).\n' +
+    '• **개별 기업 (6/8)**: Apple(AAPL) 재설계 Siri를 NVIDIA B200 인프라로 9월 구동(자체 PCC가 Gemini에 너무 느려 외부 의존 — 수직통합 이탈). Planet Labs(PL) $1.5B ATM 증자로 가이던스 상향에도 하락. SemiAnalysis: Vera SOCAMM은 Computex SK하이닉스 부스에서 검증된 사실(공개 오해 정정). 메모리 공급제약은 2027까지 지속 컨센.\n' +
+    '• **중동 재고조 (6/8)**: 후티 홍해 이스라엘 선박 전면봉쇄, 이스라엘 테헤란/이스파한/카르그섬 원유터미널 공습, IRGC 호르무즈 경고 → 유가 +4-5%·원/달러 1,529. 단 트럼프 "양측 즉각 휴전 원해, 합의 임박"·이란 대응작전 중단 = 양방향. 에너지/방산 수혜 vs 운송/항공 부담 차별화.\n' +
+    // v50.15 심층 페이지네이션 — 기관 리포트 프레임워크 (6/1~6/5, 출처별 명시·"기관 추정" 전제 인용)
+    '\n【v50.15 기관 리포트 프레임워크 (6/1~6/5 텔레그램 심층, 인용 시 출처·기준일 명시 의무)】\n' +
+    '• **Mizuho ASIC 쓰나미**: Google TPU 8-10배 성장(2028) — TPU 출하 4.3M(26)→35M(28). AVGO TPU/인프라 TAM $600B+(28), HBM 시장 $246B(28). 프레임: DRAM 수요 +27%/+24%(26/27) vs 웨이퍼 투입 +10%/+6% = 수요-공급 갭이 구조적 부족 야기. NAND 수요 +18% vs 웨이퍼 -5%→+3%. 추천 AVGO/MU/SNDK/STX/WDC. ASIC 생산성 > GPU.\n' +
+    '• **Morgan Stanley AVGO TP $502(↑$485)**: Q3 매출 $221.87B(+47.9% YoY)·반도체 $150B(+78.5%)·Q4 가이드 $294B(컨센 $283B 상회). AI FY26 $56B→**FY27 >$100B**(컨센 $119B, 일부 $150B+)→2028 지속. 프레임: "강한 수요인데 높아진 기대치 하회로 주가 -12.6% 하락"(6/4 셀오프와 정합) — AVGO가 ASIC 서비스가능시장 80%+ 방어 vs MediaTek 15-20%, VMware는 AI 에이전트 CPU 코어 과금 수혜. Outperform.\n' +
+    '• **JPM Computex**: Kyber GPU 랙 백플레인 SI 지연→2H2027, Vera CPU 320K(26)→3M(27), ARM AI ASIC 26말-27초. SiC 전력반도체(Infineon/STM/Wolfspeed/Onsemi) DC TAM $400-500M(28). "Extreme co-design"으로 BMC(ASPEED) 랙당 부착 증가. 광 102.4T CPO/NPO 27말-28초.\n' +
+    '• **Bernstein Computex**: 800V HVDC 랙(Delta/Lite-on/Vertiv/Flex) H2 26 램프. L2L 냉각 1MW+ CDU H2 27(Delta/Vertiv 전력+냉각+연결 통합=배치시간 50%↓). NPO 3.2T 메인스트림 27/CPO 6.4T 28. MediaTek CPO+MicroLED(MSFT) Outperform.\n' +
+    '• **Jefferies MSFT TP $575**: 경쟁 초점이 파운데이션 모델→하네스/평가/오케스트레이션 레이어로 이동. MSFT 모델중립(OpenAI+Anthropic)+E2E 스택+엔터프라이즈 거버넌스=차별화(OS→클라우드→엔터프라이즈 AI 플랫폼 장악 패턴). 프레임: 가치가 모델에서 오케스트레이션으로 이동.\n' +
+    '• **한국 메모리 컨센 (Daeshin/한투/Meritz/삼성증권)**: SOCAMM2 192→96GB는 **공급제약 신호이지 수요둔화 아님**(LPDDR5x+SOCAMM 공급 180B(26)→290B Gb(27) 불변, 96GB 6배·총 LPDDR +10-20%·설계/기판 불변). Daeshin "반도체: 그냥 노이즈" Overweight 삼성 56만/SK하이닉스 340만 Buy. Meritz "노이즈 셀오프=기회, DRAM 사이클 잘해야 중반, 메모리 capex 헤게모니 저평가". **SemiAnalysis(Dylan Patel) 직접 정정: "SOCAMM 축소" 내러티브는 TMT Breakout의 사적 메모 오독**. → 6/4-5 반도체 급락의 트리거가 오독 기반임을 분석에 반영.\n' +
+    '• **JPM 포지셔닝(6/1) + WSTS + BofA**: JPM 위험회피 가속 — 美 포지셔닝 69%ile(+2z→0.1z), HF 그로스 레버리지 ~70%ile, 콜옵션 매수 정점(24년 10-11월 유사), 반도체 >1z 매도. WSTS: 글로벌 반도체 +90% $1.51T·메모리 +250% $800B+(26). BofA: 호르무즈 봉쇄=글로벌 LNG 20% 차질, 26-27 LNG FID 기록전망(수혜 GTT/조선). Musk(6/4 Dimon 인터뷰): "미국 대형 메모리 팹 부재, 마이크론 아이다호 ~28·NY 29-30 = 수요 못 따라감".\n' +
+    '• **LG×NVIDIA(6/8) + S&P500 변경**: LG가 한국 동맹에 합류 — 피지컬 AI·로봇(Cloi on Isaac)·LGES 800V 전력·LG CNS 제조·LG AI Research EXAONE 소버린 AI(Blackwell). 한국 5대그룹(SK/삼성/네이버/현대차/LG) 전부 NVIDIA 동맹. S&P500 6/22 편입: +마벨(MRVL)·+Flex(FLEX), 편출 -Pool(POOL)·-Campbell(CPB).\n';
 
   var focus = '';
   switch (pageFocus) {
@@ -15686,7 +15715,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.14"></script>
+<script src="./js/aio-chat.js?v=50.22"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -18348,16 +18377,16 @@ function filterKrThemes(btn, heat) {
 // v35.5: 카탈리스트 데이터 JS 분리 — 한 곳에서 업데이트 가능
 var KR_THEME_CATALYSTS = {
   'defense':     '수주 잔고 100조+ 실적 전환 · 한화에어로 NATO 수주 · 풍산 탄약 수출 · 중동 협상 변수는 최신 뉴스 확인 전까지 참고용으로만 반영 · 지정학 긴장 재확대 시 방산 프리미엄 재상승 가능',
-  'semi':        'TPU 8i 추론 전용 HBM 288GB>학습 8t 216GB — 추론 ASIC HBM 수요 이중화 · LTA 메가트렌드: SKH 고객 요청 급증·3~5년 물량+선불 협의 · LPDDR6 SKH 업계 최초 개발 완료·2H26 공급 · SOCAMM2 양산개시(Vera Rubin 192GB) · NAND KV캐시 AI메모리 부상·321단 50% 전환 · 삼성전자 1Q26 OP 57.2조 역대 최고 · 메모리 충족률 65%(가격↑) · DRAM/NAND ASP +75~85% QoQ(2Q26E) · HBM4 수급 타이트 · SK하이닉스 HBM3E 12H 안정화 · GS 미국 투자자 SEC>SK하이닉스(000660.KS) 선호(HBM4 리더십+주주환원 임박) · 메모리 LTA 레버리지 역전(고객 선제안) · TSMC C.C.Wei 차세대 LPU 고객 언급 = 삼성 Groq 수주 단기 경계 · SIMO BootDrive $30M→2026E$160M BlueField-4탑재 ASP2x+ · SNDK GM78.4% 역대최고·SCA RPO$42B+ · WDC GM50.5%/HAMR 4고객인증 · STX GM47%(+480bp) · Melius 역SaaS거래: MU PT$700·SNDK PT$1350 커버리지 개시 · G1-G4 4계층메모리 위계 · 스토리지 사이클주→성장주 재분류 완전수렴',
-  'shipbuilding':'LNG/암모니아 선박 고부가 수주 · 선가 상승 사이클 · 해군 함정 수출 본격화 · 수주 잔고 역대 최고',
-  'ai-sw':       'NAVER HyperCLOVA X Agent · 삼성SDS AI플랫폼 Brity · 더존비즈온 AI ERP · 폴라리스오피스 글로벌 확산',
+  'semi':        '★(6/8 텔레그램) 젠슨 황 방한 — NVIDIA×SK하이닉스(000660.KS) 차세대 메모리 다년 공동개발+Vera CPU에 SK 메모리, NVIDIA×삼성전자(005930.KS) HBM4/SOCAMM 근시일+HBM4E·파운드리·Groq 4nm/8nm 공동개발 · CLSA 목표 상향 삼성 40만→54만/SK하이닉스 252만→370만/마이크론 $970→$1320, NH 삼성 53만/SK하이닉스 320만 — "메모리가 AI 인프라 1차 제약" · 서버 DRAM +45%/+55%(26/27)·재고 역사적 저점 2-3주·HBM ASP +30% · Meritz NVL72 SOCAMM2 192→96GB 축소에도 총 DRAM +10-20% · Citi 톱픽 AVGO/TXN/AMAT·2027 공급병목 포커스 · Daeshin "그냥 노이즈" Overweight 삼성 56만/SK하이닉스 340만 · Mizuho ASIC: TPU 4.3M(26)→35M(28)·수요-공급 갭(DRAM +27%/+24% vs 웨이퍼 +10%/+6%)=구조적 부족 · ★SemiAnalysis(Dylan Patel) 직접 정정: 6/4-5 SOCAMM 축소 셀오프는 TMT Breakout 오독 기반(96GB 6배·총 LPDDR +10-20%·공급 불변) · ※기관 추정·출처 명시 전제 인용 · TPU 8i 추론 전용 HBM 288GB>학습 8t 216GB — 추론 ASIC HBM 수요 이중화 · LTA 메가트렌드: SKH 고객 요청 급증·3~5년 물량+선불 협의 · LPDDR6 SKH 업계 최초 개발 완료·2H26 공급 · SOCAMM2 양산개시(Vera Rubin 192GB) · NAND KV캐시 AI메모리 부상·321단 50% 전환 · 삼성전자 1Q26 OP 57.2조 역대 최고 · 메모리 충족률 65%(가격↑) · DRAM/NAND ASP +75~85% QoQ(2Q26E) · HBM4 수급 타이트 · SK하이닉스 HBM3E 12H 안정화 · GS 미국 투자자 SEC>SK하이닉스(000660.KS) 선호(HBM4 리더십+주주환원 임박) · 메모리 LTA 레버리지 역전(고객 선제안) · TSMC C.C.Wei 차세대 LPU 고객 언급 = 삼성 Groq 수주 단기 경계 · SIMO BootDrive $30M→2026E$160M BlueField-4탑재 ASP2x+ · SNDK GM78.4% 역대최고·SCA RPO$42B+ · WDC GM50.5%/HAMR 4고객인증 · STX GM47%(+480bp) · Melius 역SaaS거래: MU PT$700·SNDK PT$1350 커버리지 개시 · G1-G4 4계층메모리 위계 · 스토리지 사이클주→성장주 재분류 완전수렴',
+  'shipbuilding':'★(6/2 텔레그램 BofA) 호르무즈 봉쇄 장기화 = 글로벌 LNG 물량 20% 차질·유럽 가스저장 41% → 2026-27 LNG 신규 프로젝트 FID 기록 전망(美 의존도 <1/3), 수혜 GTT(LNG 탱크)·조선 · LNG/암모니아 선박 고부가 수주 · 선가 상승 사이클 · 해군 함정 수출 본격화 · 수주 잔고 역대 최고',
+  'ai-sw':       '★(6/8 텔레그램) 네이버(035420.KS)×NVIDIA 1GW급 AI 팩토리 — 55MW 2027 상반기→100MW→200MW(2027-28), $50-60B capex, 소버린 AI B2B 전환(자산경량→자본집약), 5년 AI팩토리 매출 20조원·마진 20%+ 목표, 2030 매출 40-50조 전망(구글 경쟁압 대응) · NAVER HyperCLOVA X Agent · 삼성SDS AI플랫폼 Brity · 더존비즈온 AI ERP · 폴라리스오피스 글로벌 확산',
   'power-grid':  'GEV 전기화 수주 $71B(DC $24B = 작년 연간 초과) · 수주잔고 100GW → 110GW 상향 · VRT 1Q26 유기적 +23%·가이던스 상향·관세 실질 상쇄 · Anthropic 추론 지출 2026년 학습 추월(DC 전력 추론 워크로드 급증 신호) · DC전력 워크로드별 분화: 학습→왕복엔진, 추론→가스터빈 · 그리드 제약 15~20년 · BTM 수요 durable · 미국 그리드 노후화 교체 · 변압기 수출 호조 · Maine 주 20MW+ DC 모라토리엄 통과(최소 12개 주 검토) → 온사이트 발전(Wartsila 34SG 412MW 오하이오) 신수요',
   'nuclear':     '체코 원전 수주 후속 · 두산에너빌리티 SMR 전용 공장 · 미국 원전 신규 건설 법안 통과',
   'battery':     '글로벌 EV 성장 둔화 · 중국 CATL 가격 경쟁 · 전고체 전환기 불확실성 · IRA 보조금 축소',
   'bio':         '알테오젠 SC 기술 글로벌 수출 · 삼성바이오 CDMO 4공장 · 셀트리온 미국 점유율 확대 · 한미약품 GLP-1',
   'kbeauty':     '미국·인도·일본 K-뷰티 확장 · 코스맥스 ODM 수주 역대 · 에이피알(APR) 북미 고성장 · 클리오 세포라 입점',
   'kcontent':    '하이브 내부 리스크 · K-POP 앨범 둔화 · 크래프톤 배그 인디아 성장 · 스튜디오드래곤 K-드라마 글로벌',
-  'auto':        '현대차 EV 라인업 확대 · 기아 EV3 유럽 호조 · SDV 전환 투자 · HL만도 ADAS L3 수주',
+  'auto':        '★(6/8 텔레그램) 현대차(005380.KS)×NVIDIA 자율주행·로보택시·자율주행 기술 파트너십 확대 발표(젠슨 황 방한) · 현대차 EV 라인업 확대 · 기아 EV3 유럽 호조 · SDV 전환 투자 · HL만도 ADAS L3 수주',
   'robot':       '두산로보틱스 IPO 후 급등 · 현대차 보스턴다이내믹스 상용화 · 레인보우 양팔로봇',
   'finance':     '밸류업 프로그램 지속 · 배당 확대 · PBR 저평가 매력 · 메리츠 ROE 업계 1위 · 금리 인하 기대',
   'kfood':       '삼양식품 불닭 글로벌 폭증 · K-푸드 수출 역대 최고 · 농심 미국 공장 증설 · CJ제일제당 비비고 미국 확장',
@@ -22445,11 +22474,13 @@ function computeTradingScore(mode) {
 
   // 2. Momentum Score (25%) — Fear&Greed as proxy (v46.9: CNN 표준 25/45/55/75 통일)
   let momScore;
-  if (fg >= 75)      momScore = 85;  // Extreme Greed
-  else if (fg >= 55) momScore = 72;  // Greed
-  else if (fg >= 45) momScore = 50;  // Neutral
-  else if (fg >= 25) momScore = 32;  // Fear
-  else               momScore = 15;  // Extreme Fear
+  // v50.19: F&G 모멘텀 곡선 역U자화 — 극단 탐욕(≥75)은 과매수/모멘텀 소진 위험으로 fade(이전 85=최대치는 home 역발상 "차익실현"과 정면 모순).
+  // 건강한 탐욕(55~75)이 피크. 극단 공포(<25)는 역발상 반등 여지로 바닥값 소폭 상향(15→25). signal=추세추종 / home=극단 역발상이 같은 방향으로 수렴.
+  if (fg >= 75)      momScore = 66;  // Extreme Greed — 과매수, 추격 위험 (피크 아님)
+  else if (fg >= 55) momScore = 74;  // Greed — 건강한 모멘텀 피크
+  else if (fg >= 45) momScore = 52;  // Neutral
+  else if (fg >= 25) momScore = 34;  // Fear
+  else               momScore = 25;  // Extreme Fear — 역발상 반등 여지
 
   // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
   const spx200ma = (window._spxMA && window._spxMA[200]) || _fb.spx200ma || null;
@@ -22466,7 +22497,11 @@ function computeTradingScore(mode) {
   // 4. Breadth Score (20%) — % above 20 SMA (변수명 _breadth200은 레거시, 실제 20SMA above %)
   // window._breadth200 is updated by initSentimentCharts() → bpSPX20[last] 캐싱;
   // fallback to _fb.breadth200 if not yet available.
-  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : (_fb.breadth200 != null ? _fb.breadth200 : 75);
+  // v50.19: _breadth200(레거시 20SMA명) 미로딩 시 기본 75(낙관 편향) → _breadth20/snapshot(57) 폴백으로 시정
+  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
+                     (typeof window._breadth20 === 'number') ? window._breadth20 :
+                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
+                     (_fb.breadth200 != null ? _fb.breadth200 : 57));
   let breadthScore;
   if (breadth200 > 70)      breadthScore = 88;
   else if (breadth200 > 55) breadthScore = 72;
@@ -22565,7 +22600,11 @@ function computeExecutionWindow() {
   var _fb2 = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
   const vix = _ldSafe('^VIX','price') || _fb2.vix || 20;
   const fg = window._lastFG || _fb2.fg || 35;
-  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : (_fb2.breadth200 != null ? _fb2.breadth200 : 75);
+  // v50.19: 미로딩 시 기본 75(낙관 편향) → _breadth20/snapshot(57) 폴백
+  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
+                     (typeof window._breadth20 === 'number') ? window._breadth20 :
+                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
+                     (_fb2.breadth200 != null ? _fb2.breadth200 : 57));
 
   // v46.9: 기저값 상향 — 중립 시 MOD(65) 판정되도록 (이전 46.25→WEAK)
   // Breakout holding: are breakouts sustaining?
@@ -23376,8 +23415,17 @@ function updateExitTriggers() {
   var elDxy = document.getElementById('exit-dxy-level');
   var elHyg = document.getElementById('exit-hyg-level');
   if (elSpx && spx) {
-    var spxTrigger = Math.round(spx * 0.9 / 50) * 50; // -10%, 50 단위 반올림
+    // v50.19: 단순 -10% → 실제 기술적 손절. 200일선(주요 추세 지지)이 현재가 아래면 그 레벨, 이미 하회/미가용 시 50일선→-10% 폴백
+    var _fbX = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
+    var spx200 = (window._spxMA && window._spxMA[200]) || _fbX.spx200ma || null;
+    var spx50  = (window._spxMA && window._spxMA[50])  || _fbX.spx50ma  || null;
+    var spxTrigger, spxBasis;
+    if (spx200 && spx200 < spx * 0.995) { spxTrigger = Math.round(spx200 / 10) * 10; spxBasis = '200일선(추세 지지)'; }
+    else if (spx50 && spx50 < spx * 0.995) { spxTrigger = Math.round(spx50 / 10) * 10; spxBasis = '50일선(중기 지지)'; }
+    else { spxTrigger = Math.round(spx * 0.9 / 50) * 50; spxBasis = '-10%(이평선 폴백)'; }
     elSpx.textContent = spxTrigger.toLocaleString();
+    var elSpxBasis = document.getElementById('exit-spx-basis');
+    if (elSpxBasis) elSpxBasis.textContent = spxBasis;
   }
   if (elDxy && dxy) {
     var dxyTrigger = (Math.ceil((dxy * 1.05) * 10) / 10).toFixed(1); // +5%, 소수점 1자리
@@ -23604,11 +23652,13 @@ function updateMarketPulse() {
     if (el1b) { el1b.textContent = sLabel; el1b.style.color = sColor; }
   } catch(e) {}
 
-  // 2) 시장폭 — window._breadth200 → _breadthLiveData.abv50 → SPY/RSP 즉시 폴백
+  // 2) 시장폭 — 50일선 위 종목 % (breadth 페이지·스코어링 정의와 정합). v50.16: 제거된 _breadth200 대신 _breadth50 우선
   try {
-    var bVal = (typeof window._breadth200 === 'number') ? Math.round(window._breadth200) :
-              (window._breadthLiveData && window._breadthLiveData.abv50 != null) ? Math.round(window._breadthLiveData.abv50) : null;
-    // v45.5: 폴백 — 11 섹터 ETF 양봉 비율로 즉시 추정 (calcSectorBreadth)
+    var bVal = (typeof window._breadth50 === 'number') ? Math.round(window._breadth50) :
+              (window._breadthLiveData && window._breadthLiveData.abv50 != null) ? Math.round(window._breadthLiveData.abv50) :
+              (typeof window._breadth20 === 'number') ? Math.round(window._breadth20) :
+              (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth50sma != null) ? Math.round(window.DATA_SNAPSHOT.breadth50sma) : null;
+    // 최후 폴백 — 11 섹터 ETF 당일 양봉 비율(일간 폭, 50SMA 폭과 다름 — 참고용)
     if (bVal === null || isNaN(bVal)) {
       try {
         var _sectETFs = ['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC'];
@@ -23962,12 +24012,17 @@ _aioPageBus.register('html-fxbond-live', 'aio:liveQuotes', function() {
 // ═══════════════════════════════════════════════════════════════
 //  YIELD CURVE CHART (Chart.js Canvas)
 // ═══════════════════════════════════════════════════════════════
-var _ycChart = null;
-function initYieldCurveChart() {
-  // v30.13d: fxbond 페이지의 실제 캔버스 ID로 수정 (기존 yieldCurveChart → macro 페이지용)
-  var ctx = document.getElementById('koreaCurveChart') || document.getElementById('yieldCurveChart');
+var _ycChart = null;   // legacy 호환
+var _ycCharts = {};    // v50.16: per-canvas 인스턴스 — koreaCurveChart(fxbond)/yieldCurveChart(macro) 공유 _ycChart destroy 충돌 차단
+function initYieldCurveChart(targetId) {
+  // v50.16 근본 수정: targetId 명시 우선. 미지정 시 활성 페이지 기준 선택
+  // (이전 `koreaCurveChart || yieldCurveChart`는 koreaCurveChart가 항상 DOM에 존재 → macro 호출도 fxbond 캔버스로 오렌더 + fxbond는 자체 init 호출 없어 "수집 대기" 멈춤)
+  var ctx = targetId ? document.getElementById(targetId)
+          : (document.querySelector('#page-fxbond.active') ? document.getElementById('koreaCurveChart')
+             : (document.getElementById('yieldCurveChart') || document.getElementById('koreaCurveChart')));
   if (!ctx || typeof Chart === 'undefined') return;
-  if (_ycChart) { _ycChart.destroy(); _ycChart = null; }
+  var _cid = ctx.id;
+  if (_ycCharts[_cid]) { try { _ycCharts[_cid].destroy(); } catch(e){} _ycCharts[_cid] = null; }
 
   let ld = window._liveData || {};
   var irx = _ldSafe('^IRX','price');
@@ -23996,7 +24051,7 @@ function initYieldCurveChart() {
     gradient.addColorStop(1, 'rgba(0,212,255,0.02)');
   }
 
-  _ycChart = new Chart(ctx, {
+  _ycCharts[_cid] = _ycChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: labels,
@@ -28038,9 +28093,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.14"></script>
+<script src="./js/aio-glossary.js?v=50.22"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-  <script src="./js/aio-tests.js?v=50.14"></script>
+  <script src="./js/aio-tests.js?v=50.22"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전
@@ -28797,7 +28852,7 @@ function _detectTrendPosition(o, h, l, c, v) {
 
 // Dip Classification
 function _classifyDip(o, h, l, c, v) {
-  if (c.length < 50) return { classification: '데이터부족', score: 50 };
+  if (c.length < 50) return { classification: '데이터부족', label: '데이터부족', score: 50, reasoning: '50일 미만 데이터 — 분류 보류' };
 
   var sma50 = _calcSMA(c, 50);
   var sma20 = _calcSMA(c, 20);
@@ -28840,7 +28895,12 @@ function _classifyDip(o, h, l, c, v) {
   else if (score >= 30) classification = '주의';
   else classification = '추세전환위험';
 
-  return { classification: classification, score: score };
+  // v50.20: 표시 코드(label/reasoning) 대응 — 이전엔 {classification,score}만 반환해 'undefined' 렌더
+  var reasoning = (priceAbove50 ? '50일선 위(추세 유지)' : '50일선 아래(추세 훼손 주의)')
+    + ' · ' + (retracePct < 5 ? '얕은 조정' : retracePct > 15 ? '깊은 조정(>15%)' : '중간 조정 ' + retracePct.toFixed(1) + '%')
+    + ' · ' + (higherLows ? '저점 높아짐' : '저점 낮아짐')
+    + (v[v.length - 1] < avgVol ? ' · 거래량 감소' : ' · 거래량 증가');
+  return { classification: classification, label: classification, score: score, reasoning: reasoning };
 }
 
 // Entry Quality Assessment
@@ -29250,22 +29310,14 @@ function initKrVkospiChart() {
     krTechCharts['vkospi'].destroy();
   }
 
-  // VKOSPI 일별 종가 (2026-02-24 ~ 2026-04-08, KRX 발표 기준)
-  // 4/4 81.99 사상최고 (관세 쇼크) → 4/7 휴전 갭업 급락 → 4/8 추정 45.0
-  var vkLabels = ['2/24','2/25','2/26','2/27','2/28',
-                  '3/3','3/4','3/5','3/6','3/7',
-                  '3/10','3/11','3/12','3/13','3/14',
-                  '3/17','3/18','3/19','3/20','3/21',
-                  '3/24','3/25','3/26','3/27',
-                  '3/28','3/31','4/1','4/2','4/3',
-                  '4/4','4/7','4/8'];
-  var vkData   = [18.2, 19.8, 22.1, 25.6, 28.9,
-                  35.4, 42.7, 68.3, 55.1, 48.7,
-                  44.2, 41.8, 39.5, 37.2, 36.1,
-                  35.8, 34.9, 34.2, 33.8, 33.5,
-                  33.1, 32.8, 32.6, 32.5,
-                  32.2, 33.0, 35.5, 42.0, 58.38,
-                  81.99, 62.0, 45.0];
+  // VKOSPI 일별 종가 (2026-05-08 ~ 2026-06-05, 최근 20거래일) — v50.15: 기존 4/8 stale + 비현실적 고점(81.99) 정정
+  // 5월 KOSPI 신고가 안정(~17-18) → 6/5 미 셀오프 동조 소폭 상승(~21). DATA_SNAPSHOT.vkospi=18.20 정합. 라이브 fetchVkospiDynamic 우선
+  // v50.15: 최근 20거래일(5/8~6/5)로 갱신 + 오류값 정정 — 기존 4/8 stale + 비현실적 고점(81.99 등, VKOSPI 정상 12~25).
+  // DATA_SNAPSHOT.vkospi=18.20 정합. 5월 KOSPI 신고가 안정(~17-18)→6/5 셀오프 소폭 상승(~21). 라이브 fetchVkospiDynamic 우선.
+  var vkLabels = ['5/8','5/9','5/12','5/13','5/14','5/15','5/16','5/19','5/20','5/21',
+                  '5/22','5/23','5/27','5/28','5/29','5/30','6/2','6/3','6/4','6/5'];
+  var vkData   = [18.5, 18.2, 17.9, 17.6, 17.4, 17.2, 17.5, 17.8, 17.6, 17.3,
+                  17.0, 16.8, 17.2, 17.5, 17.8, 18.0, 18.2, 18.4, 18.2, 21.0];
 
   var tickColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#888';
   var gridColor = 'var(--surface-3)';
@@ -29769,9 +29821,9 @@ async function analyzeKrIndex(ticker, targetId, label) {
   html += '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;">' +
     '<div style="font-size:11px;font-weight:700;color:var(--text-bright);margin-bottom:6px;">교차 신호 & 다이버전스</div>' +
     '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;">' +
-      '<span>20/50 SMA: <strong style="color:'+(crossData.cross20_50==='golden'?'var(--data-green)':crossData.cross20_50==='death'?'var(--data-red)':'#999')+';">'+escHtml(crossData.cross20_50)+'</strong></span>' +
-      '<span>50/200 SMA: <strong style="color:'+(crossData.cross50_200==='golden'?'var(--data-green)':crossData.cross50_200==='death'?'var(--data-red)':'#999')+';">'+escHtml(crossData.cross50_200)+'</strong></span>' +
-      '<span>RSI 다이버전스: <strong style="color:'+(divData.type==='bullish'?'var(--data-green)':divData.type==='bearish'?'var(--data-red)':'#999')+';">'+escHtml(divData.type)+'</strong></span>' +
+      '<span>20/50 SMA: <strong style="color:'+(crossData.gc20_50==='골든크로스'?'var(--data-green)':crossData.gc20_50==='데드크로스'?'var(--data-red)':'#999')+';">'+escHtml(crossData.gc20_50||'평탄')+'</strong></span>' +
+      '<span>50/200 SMA: <strong style="color:'+(crossData.gc50_200==='골든크로스'?'var(--data-green)':crossData.gc50_200==='데드크로스'?'var(--data-red)':'#999')+';">'+escHtml(crossData.gc50_200||'평탄')+'</strong></span>' +
+      '<span>RSI 다이버전스: <strong style="color:'+(divData.bullishDiv?'var(--data-green)':divData.bearishDiv?'var(--data-red)':'#999')+';">'+(divData.bullishDiv?'강세 다이버전스':divData.bearishDiv?'약세 다이버전스':'없음')+'</strong></span>' +
     '</div>' +
   '</div>';
 
@@ -29795,7 +29847,7 @@ async function analyzeKrIndex(ticker, targetId, label) {
   // Dip classification
   html += '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;">' +
     '<div style="font-size:11px;font-weight:700;color:var(--text-bright);margin-bottom:4px;">조정 분류</div>' +
-    '<div style="font-size:11px;color:var(--text-muted);">'+escHtml(dipData.label)+' (점수: '+dipData.score+'/5)</div>' +
+    '<div style="font-size:11px;color:var(--text-muted);">'+escHtml(dipData.label)+' (점수: '+dipData.score+'/100)</div>' +
     '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">'+escHtml(dipData.reasoning)+'</div>' +
   '</div>';
 

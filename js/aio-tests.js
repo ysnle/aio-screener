@@ -5157,27 +5157,26 @@
       }));
 
     var snapV504 = window.DATA_SNAPSHOT || {};
-    _assert('T760 v504_snapshot_current_topic_fields: static snapshot records current topics without inventing CPI/NFP values',
-      snapV504._snapshotDate === '2026-06-04' &&
+    _assert('T760 v5015_snapshot_current_topic_fields: static snapshot records current topics (v50.15 telegram refresh: 6/5 close + NVIDIA Korea) without inventing unpublished values',
+      snapV504._snapshotDate === '2026-06-05' &&
         snapV504.cpiNext === '2026-06-10' &&
-        snapV504.nfpNext === '2026-06-05' &&
+        snapV504.nfpNext === '2026-07-03' &&   // v50.15: 5월 NFP 6/5 발표완료(172K) → 다음 6월분 7/3
         snapV504.pceNext === '2026-06-25' &&
-        /SpaceX/i.test(String(snapV504.spacexIpoStatus || '')) &&
-        /2026-06-01/.test(String(snapV504.computexWeek || '')),
+        /NVIDIA|한국|AI 인프라|메모리/i.test(String(snapV504.currentTopic || '')) &&
+        /2026-06-08/.test(String(snapV504.nvidiaKoreaWeek || '')),
       JSON.stringify({
         snapshotDate: snapV504._snapshotDate,
         cpiNext: snapV504.cpiNext,
         nfpNext: snapV504.nfpNext,
         pceNext: snapV504.pceNext,
-        spacex: snapV504.spacexIpoStatus
+        currentTopic: (snapV504.currentTopic || '').slice(0, 50)
       }));
 
     var homeWeeklyV504 = window.HOME_WEEKLY_NEWS || [];
     var homeWeeklyTextV504 = homeWeeklyV504.map(function(i){ return i.title + ' ' + i.source; }).join(' ');
-    _assert('T761 v504_home_weekly_news_current_topics: home static queue contains Computex SpaceX and official CPI calendar framing',
-      /Computex|GTC Taipei/i.test(homeWeeklyTextV504) &&
-        /SpaceX/i.test(homeWeeklyTextV504) &&
-        /6\/10|CPI/i.test(homeWeeklyTextV504) &&
+    _assert('T761 v5015_home_weekly_news_current_topics: home static queue reflects v50.15 current topics (NVIDIA Korea / memory rerating / NFP selloff), no stale markers',
+      /NVIDIA|엔비디아|메모리|슈퍼사이클/i.test(homeWeeklyTextV504) &&
+        /CLSA|NH|172K|NFP|셀오프|AI 에너지|호르무즈/i.test(homeWeeklyTextV504) &&
         !/5\/31 기준|결과 확인 필요/.test(homeWeeklyTextV504),
       homeWeeklyTextV504.slice(0, 800));
 
@@ -5185,6 +5184,20 @@
     _assert('T762 v504_app_version_semver_two_digit_policy: runtime version uses v50.5 format',
       /^v50\.\d{1,2}$/.test(runtimeVersionV504) && /^v\d+\.\d{1,2}$/.test(runtimeVersionV504),
       String(runtimeVersionV504));
+
+    // v50.15: 개별 기업 뉴스 캐시 연결 — KR 코드→한글명 해석 + 2글자 영문 오탐 차단 회귀 가드
+    var tnfDefined = (typeof window._aioTickerNewsFromCache === 'function') || (typeof _aioTickerNewsFromCache === 'function');
+    var tnfFn = (typeof window._aioTickerNewsFromCache === 'function') ? window._aioTickerNewsFromCache
+              : (typeof _aioTickerNewsFromCache === 'function' ? _aioTickerNewsFromCache : null);
+    var krInfra = !!(window.KR_STOCK_DB && window.KR_STOCK_DB['005930'] && window.KR_STOCK_DB['005930'].name === '삼성전자');
+    var graceful = true;
+    try { if (tnfFn) { var _r = tnfFn('___NOSUCHTICKER___', {}); graceful = (_r === '' || typeof _r === 'string'); } } catch (e) { graceful = false; }
+    // 함수 소스에 KR 코드→한글명 해석 + 영문 길이 가드(al.length >= 4) 존재 확인 (오탐 차단 로직 보존)
+    var srcGuard = false;
+    try { var _s = tnfFn ? String(tnfFn) : ''; srcGuard = /KR_STOCK_DB/.test(_s) && /al\.length >= 4/.test(_s) && /isCJK/.test(_s); } catch (e) {}
+    _assert('T782 v5015_ticker_news_cache_link: 개별기업 뉴스 캐시 연결 함수 정의 + KR_STOCK_DB 한글명 해석 + 영문≥4 오탐가드',
+      tnfDefined && krInfra && graceful && srcGuard,
+      'defined=' + tnfDefined + ' krInfra=' + krInfra + ' graceful=' + graceful + ' srcGuard=' + srcGuard);
 
     // ── v50.5: C계층 매크로 실데이터(FRED) 연결 ──
     // T763: FRED_SERIES에 PCE/Core CPI/Core PCE YoY 시리즈 등록
@@ -5484,6 +5497,39 @@
       t781detail = a781 ? ('under24=' + a781.tapTargetUnder24Count + ' noName=' + a781.missingAccessibleNameCount + ' font<10=' + a781.fontUnder10pxCount + (a781.tapTargets && a781.tapTargets.length ? ' ' + a781.tapTargets.slice(0,3).map(function(t){return t.size;}).join(',') : '')) : 'undefined';
     } catch(e) { t781detail = 'err: ' + (e && e.message); }
     _assert('T781 v5014_accessibility_aa: 활성 페이지 tap target WCAG AA(24×24) + 접근 이름 준수 (R207)', t781ok, t781detail);
+
+    // ─── v50.17 근본 회귀 방지: 날짜 박힌 정적 콘텐츠 stale 자동 감지 ───
+    // T783: 이벤트 타임라인 staleness audit — AIO_EVENT_RISK_CONTEXT asOf+timeline 자동 검증 (technical "Event Runway" 26일 stale 재발 방지)
+    var t783ok = false, t783detail = '';
+    try {
+      var etAudit = (window.AIO && typeof window.AIO.getEventTimelineStalenessAudit === 'function') ? window.AIO.getEventTimelineStalenessAudit() : null;
+      t783ok = !!etAudit && typeof etAudit.status === 'string' && Array.isArray(etAudit.issues) && Array.isArray(etAudit.checked)
+        && etAudit.checked.some(function(c){ return c.id === 'AIO_EVENT_RISK_CONTEXT' && typeof c.futureEvents === 'number'; });
+      t783detail = etAudit ? ('status=' + etAudit.status + ' checked=' + etAudit.checked.length + ' future=' + (etAudit.checked[0] && etAudit.checked[0].futureEvents)) : 'audit-missing';
+    } catch(e) { t783detail = 'ERR:' + e.message; }
+    _assert('T783 v5017_event_timeline_audit: getEventTimelineStalenessAudit + AIO_EVENT_RISK_CONTEXT 커버 (Event Runway 26일 stale 재발 방지)', t783ok, t783detail);
+
+    // T784: 시나리오 freshness audit이 scenarios + signalShortTerm 두 블록 모두 점검 (signalShortTerm 9일 stale 미탐지 갭 차단)
+    var t784ok = false, t784detail = '';
+    try {
+      var sreg = window.AIO_SCENARIO_REGISTRY;
+      var hasThreshold = sreg && typeof sreg.signalStaleDaysThreshold === 'number';
+      var auditSrc = (window.AIO && window.AIO.getScenarioFreshnessAudit) ? window.AIO.getScenarioFreshnessAudit.toString() : '';
+      var coversSignal = /signalShortTerm/.test(auditSrc);
+      var scAudit = (window.AIO && window.AIO.getScenarioFreshnessAudit) ? window.AIO.getScenarioFreshnessAudit() : null;
+      t784ok = hasThreshold && coversSignal && !!scAudit && typeof scAudit.issueCount === 'number';
+      t784detail = 'threshold=' + (sreg && sreg.signalStaleDaysThreshold) + 'd coversSignal=' + coversSignal + ' status=' + (scAudit && scAudit.status);
+    } catch(e) { t784detail = 'ERR:' + e.message; }
+    _assert('T784 v5017_scenario_audit_covers_signal: getScenarioFreshnessAudit이 signalShortTerm 점검 + signalStaleDaysThreshold', t784ok, t784detail);
+
+    // T785: 마켓펄스 시장폭 칩이 제거된 _breadth200 대신 _breadth50/breadth50sma 사용 (27% 오라벨 재발 방지)
+    var t785ok = false, t785detail = '';
+    try {
+      var ump = (typeof updateMarketPulse === 'function') ? updateMarketPulse.toString() : '';
+      t785ok = /_breadth50/.test(ump) && /breadth50sma/.test(ump);
+      t785detail = 'uses_breadth50=' + /_breadth50/.test(ump) + ' uses_snap50=' + /breadth50sma/.test(ump);
+    } catch(e) { t785detail = 'ERR:' + e.message; }
+    _assert('T785 v5017_market_pulse_breadth_source: 시장폭 칩이 _breadth50/breadth50sma 사용 (제거된 _breadth200 폴백 27% 오라벨 재발 방지)', t785ok, t785detail);
   }
 
   window.AIO = window.AIO || {};

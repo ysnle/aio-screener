@@ -53,6 +53,12 @@ description: 전체 정적 데이터 전수 점검 + WebSearch 기반 최신화.
 
 → 본문 grep의 `index.html`을 위 js 경로로 치환. DOM sink만 index.html 유지.
 
+> ⚠️ **필수 검증 게이트 (v50.15 추가 — 반복 실패 방지)**: DATA_SNAPSHOT 스칼라만 갱신하고 **차트 시계열 배열을 빠뜨리면 sentiment/breadth 페이지 차트가 몇 주씩 stale 표시**된다 (실제 v50.11 누락 사례). data-refresh 시 **반드시** 아래 `js/aio-ui.js` 배열들의 **마지막 라벨이 refresh 날짜와 일치**하는지 확인:
+> - `_SENT_COMMON.labels20`(VIX/HY/PC 공유) + `vixData`(L168) + `hyData`(L386) + `pcLabels`/`pcData`(L580) + `naaimData`/`naaimLabels`(L246) + `iiLabels`/`iiBull`/`iiBear`(L325) + `aaiiLabels`/`aaiiDatasets`(L499) + breadth `bpLabels`/`bhLabels`(L790/1182)
+> - 폴백 배열(aio-ui.js L147~157)도 동일하게 연장
+> - 검증: 라이브 sentiment 페이지에서 각 차트의 마지막 x축 라벨이 당월인지 육안 확인. NAAIM/II/AAII는 주간 서베이(무료 API 없음)라 항상 수동 — WebSearch로 grounding.
+> - VIX 기간구조: `DATA_SNAPSHOT.vix9d/vix3m/vix6m` 시드 갱신 (live `^VIX9D/^VIX3M/^VIX6M` fetch 실패 시 폴백).
+
 ---
 
 ## 0단계: Audit-First (v49.96 신규 — 최우선, 수동 grep보다 먼저)

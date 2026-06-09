@@ -65,8 +65,31 @@ var _SENT_COMMON = {
   },
   gridColor: 'var(--surface-4)',
   tickColor: 'rgba(255,255,255,0.3)',
-  labels20: ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1']  /* v48.77: 5/1 연장 (VIX 16.99 실측) */
+  labels20: ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1','5/8','5/15','5/22','5/28','6/4','6/5']  /* v50.15: 6/5 연장 — VIX/HY/PC 공유 라벨 (5/8~6/5 주간 앵커, 6/5 셀오프 반영) */
 };
+
+// v50.15 (사용자 지적: 시장 폭 차트 일자 라인 + "데이터 대기 중"): 모듈 로드 시 폭 시계열 기본값 설정.
+// 원인: breadth Chart.js init(makeBreadthPanel)이 lazy(페이지 가시화 시)라, 폴백 렌더러가 먼저 실행되면 _breadthSeries 미정의 → 단일값 평탄선/메시지.
+// 이 기본값으로 폴백이 항상 실제 추이(5월 신고가→6/5 셀오프)를 표시. initBreadthPage 실행 시 전체 47포인트 배열로 덮어씀.
+if (typeof window !== 'undefined') {
+  // v50.15 (사용자 지적: 차트 평탄·안 바뀜): 전체 사이클(3월 변동성 저점→4-5월 신고가 랠리→6/5 셀오프 급락)로 풍부화 — 평탄선 해소
+  window._breadthSeries = window._breadthSeries || {
+    'bp-5ma-chart':  [40,38,40,43,55,68,72,74,76,75,77,78,79,80,82,81,80,79,78,80,78,61],
+    'bp-20ma-chart': [33,32,33,34,58,72,75,78,80,80,81,82,83,84,85,85,86,84,83,82,80,57],
+    'bp-50ma-chart': [33,34,35,38,46,50,52,54,56,58,60,62,65,68,71,72,73,74,75,74,72,52],
+    'bp-ad-ratio-chart': [40,38,40,43,55,68,72,74,76,75,77,78,79,80,82,81,80,79,78,80,78,61],
+    'bp-price-chart': [620,623,638,655,678,692,702,710,713,715,717,719,721,728,735,742,748,752,756,758,752,738],
+    'bp-price-chart-qqq': [534,540,560,585,610,640,652,658,662,665,668,671,678,690,700,705,710,713,716,717,710,687],
+    'bh-5ma-chart':  [40,38,40,43,55,68,72,74,76,75,77,78,79,80,82,81,80,79,78,80,78,61],
+    'bh-20ma-chart': [33,32,33,34,58,72,75,78,80,80,81,82,83,84,85,85,86,84,83,82,80,57],
+    'bh-50ma-chart': [33,34,35,38,46,50,52,54,56,58,60,62,65,68,71,72,73,74,75,74,72,52],
+    'bh-price-chart': [534,540,560,585,610,640,652,658,662,665,668,671,678,690,700,705,710,713,716,717,710,687]
+  };
+  window._breadthLabels = window._breadthLabels || ['3/13','3/19','3/26','4/2','4/8','4/14','4/18','4/23','4/28','4/30','5/6','5/12','5/15','5/20','5/22','5/27','5/28','5/29','6/2','6/3','6/4','6/5'];
+  if (typeof window._breadth5 !== 'number')  window._breadth5  = 61;
+  if (typeof window._breadth20 !== 'number') window._breadth20 = 57;
+  if (typeof window._breadth50 !== 'number') window._breadth50 = 52;
+}
 
 // ─────────────────────────────────────────────────────────────────
 // v49.63 통합 (Codex v49.61): sentiment Canvas fallback — Chart.js CDN 실패 시 8 차트 polyfill
@@ -144,15 +167,15 @@ function _drawSentimentFallbackLine(canvas, seriesList, opts) {
 
 function _renderSentimentCanvasFallbackCharts() {
   // 폴백 데이터 — 정적 시계열 (라이브 미수신 시 참고용 표시)
-  var vixData = [19.09,19.55,18.63,19.86,23.57,23.75,29.49,24.93,27.29,27.19,22.37,24.06,25.50,26.95,30.20,34.10,23.87,23.87,24.17,25.78,21.04,31.50,31.10,29.80,18.36,18.36,17.82,17.48,17.95,18.40,19.60,20.10,19.50,18.92,17.83,17.50,16.99];
-  var hyData = [278,285,282,290,305,312,340,325,335,338,310,328,335,348,362,385,316,316,317,324,301,310,294,308,285,284,281,279,282,286,292,297,294,291,296,294,290];
-  var pcData = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58,0.55,0.52,0.54,0.57,0.60,0.62,0.59,0.57,0.61,0.64,0.69,0.78,0.60];
+  var vixData = [19.09,19.55,18.63,19.86,23.57,23.75,29.49,24.93,27.29,27.19,22.37,24.06,25.50,26.95,30.20,34.10,23.87,23.87,24.17,25.78,21.04,31.50,31.10,29.80,18.36,18.36,17.82,17.48,17.95,18.40,19.60,20.10,19.50,18.92,17.83,17.50,16.99,15.80,15.20,14.90,15.74,15.40,19.38]; // v50.15: 6/5 연장
+  var hyData = [278,285,282,290,305,312,340,325,335,338,310,328,335,348,362,385,316,316,317,324,301,310,294,308,285,284,281,279,282,286,292,297,294,291,296,294,290,285,280,276,278,275,289]; // v50.15: 6/5 연장
+  var pcData = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58,0.55,0.52,0.54,0.57,0.60,0.62,0.59,0.57,0.61,0.64,0.69,0.78,0.60,0.62,0.58,0.60,0.55,0.57,0.83]; // v50.15: 6/5 연장
   _drawSentimentFallbackLine(document.getElementById('vix-chart'), [{ data: vixData, color: '#ffa31a' }], { label: 'VIX fallback', min: 10, max: 50 });
   _drawSentimentFallbackLine(document.getElementById('vix-term-chart'), [{ data: [2.4,2.1,1.8,1.4,0.9,0.6,0.3,0.1,-0.1,0.2,0.5,0.7], color: '#a78bfa' }], { label: 'Term structure' });
-  _drawSentimentFallbackLine(document.getElementById('naaim-chart'), [{ data: [82.1,79.3,72.8,68.4,64.2,63.5,67.1,67.0,60.2,62.5,68.36,69.38,79.49,94.15], color: '#00d4ff' }], { label: 'NAAIM', min: 0, max: 100 });
-  _drawSentimentFallbackLine(document.getElementById('ii-chart'), [{ data: [49.3,46.7,44.1,40.8,37.2,33.5,31.2,29.4,28.2,26.5,25.1,24.0,26.5,30.2,35.8], color: '#00e5a0', fill: false }, { data: [22.8,25.3,27.9,30.4,33.1,36.8,38.5,40.2,41.5,43.2,44.8,46.0,43.5,40.0,35.5], color: '#ff5b50', fill: false }], { label: 'II bull/bear', min: 0, max: 60, fill: false });
+  _drawSentimentFallbackLine(document.getElementById('naaim-chart'), [{ data: [63.5,67.1,67.0,60.2,62.5,68.36,69.38,79.49,94.15,96.2,92.5,95.1,97.8,96.4,89.5], color: '#00d4ff' }], { label: 'NAAIM', min: 0, max: 100 }); // v50.15: 6/3 연장
+  _drawSentimentFallbackLine(document.getElementById('ii-chart'), [{ data: [33.5,31.2,29.4,28.2,26.5,25.1,24.0,26.5,30.2,35.8,38.5,41.2,44.0,46.5,43.0], color: '#00e5a0', fill: false }, { data: [36.8,38.5,40.2,41.5,43.2,44.8,46.0,43.5,40.0,35.5,33.0,30.5,28.8,28.0,31.5], color: '#ff5b50', fill: false }], { label: 'II bull/bear', min: 0, max: 60, fill: false }); // v50.15: 6/4 연장
   _drawSentimentFallbackLine(document.getElementById('hy-chart'), [{ data: hyData, color: '#fb923c' }], { label: 'HY OAS', min: 250, max: 420 });
-  _drawSentimentFallbackLine(document.getElementById('aaii-chart'), [{ data: [38.1,46.0,31.7,35.7,33.6,32.1], color: '#00e5a0', fill: false }, { data: [39.7,34.4,44.6,43.0,51.4,49.8], color: '#ff5b50', fill: false }], { label: 'AAII bull/bear', min: 0, max: 60, fill: false });
+  _drawSentimentFallbackLine(document.getElementById('aaii-chart'), [{ data: [34.0,42.0,44.0,41.0,39.0,38.1], color: '#00e5a0', fill: false }, { data: [42.0,34.0,33.0,34.0,35.0,39.7], color: '#ff5b50', fill: false }], { label: 'AAII bull/bear', min: 0, max: 60, fill: false }); // v50.15: 6/5 정합
   _drawSentimentFallbackLine(document.getElementById('pc-chart'), [{ data: pcData, color: '#ffa31a' }], { label: 'Put/Call', min: 0.45, max: 1.15 });
   _drawSentimentFallbackLine(document.getElementById('news-sentiment-chart'), [{ data: [42,46,51,55,49,57,61,58,54,59,63,60], color: '#2dd4bf' }], { label: 'News tone', min: 0, max: 100 });
 }
@@ -165,7 +188,7 @@ function _initSentVixChart() {
   var vixCtx = document.getElementById('vix-chart');
   if (!vixCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
-  var vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36, 18.36, 17.82, 17.48, 17.95, 18.40, 19.60, 20.10, 19.50, 18.92, 17.83, 17.50, 16.99]; /* v48.77: 5/1=16.99(WebSearch 실측, 어닝 낙관·위험선호 지속) */
+  var vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36, 18.36, 17.82, 17.48, 17.95, 18.40, 19.60, 20.10, 19.50, 18.92, 17.83, 17.50, 16.99, 15.80, 15.20, 14.90, 15.74, 15.40, 19.38]; /* v50.15: 6/5=19.38 — 5월 신고가 안정(14.9~15.8)→6/5 셀오프 급등. 라이브 fetch 우선, 이건 폴백 */
   var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' });
   if (!_gVix) return;
 
@@ -243,8 +266,9 @@ function _initSentNaaimChart() {
   var naaimCtx = document.getElementById('naaim-chart');
   if (!naaimCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
-  var naaimLabels = ['1/22','1/29','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/1','4/8','4/15','4/22']; // v48.77: 4/22 연장 (WebSearch 실측)
-  var naaimData = [82.1, 79.3, 72.8, 68.4, 64.2, 63.5, 67.1, 67.0, 60.2, 62.5, 68.36, 69.38, 79.49, 94.15]; // 4/15=79.49·4/22=94.15(WebSearch 실측, 강세 포지션 급복구)
+  var naaimLabels = ['2/26','3/5','3/12','3/19','3/26','4/1','4/8','4/15','4/22','4/29','5/6','5/13','5/20','5/27','6/3']; // v50.15: 6/3까지 연장 (주간 서베이·무료 API 없음, 수동 갱신)
+  var naaimData = [63.5, 67.1, 67.0, 60.2, 62.5, 68.36, 69.38, 79.49, 94.15, 96.2, 92.5, 95.1, 97.8, 96.4, 89.5]; // v50.15: 5월 신고가 구간 노출 고점(95~98)→6/3 6/5 셀오프 직전 소폭 경계. NAAIM 주간(수)
+  window._sentHistUpdated = '2026-06-05'; // 심리 차트 히스토리 최종 갱신일 (data-refresh 시 갱신)
   var _gNaaim = chartDataGate('naaim-chart', naaimLabels, [naaimData], { minPoints: 3, chartName: 'NAAIM' });
   if (!_gNaaim) return;
 
@@ -322,9 +346,9 @@ function _initSentIIChart() {
   var iiCtx = document.getElementById('ii-chart');
   if (!iiCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
-  var iiLabels = ['1/8','1/22','2/5','2/12','2/19','2/26','3/5','3/12','3/19','3/26','4/2','4/9','4/16','4/23','4/30']; // v48.77: 4/30 연장 (SPX ATH 경신 구간 반영)
-  var iiBull = [49.3, 46.7, 44.1, 40.8, 37.2, 33.5, 31.2, 29.4, 28.2, 26.5, 25.1, 24.0, 26.5, 30.2, 35.8]; // v48.77: 4/16→4/30 낙관 회복 추정
-  var iiBear = [22.8, 25.3, 27.9, 30.4, 33.1, 36.8, 38.5, 40.2, 41.5, 43.2, 44.8, 46.0, 43.5, 40.0, 35.5]; // v48.77: 4/16→4/30 비관 완화 추정
+  var iiLabels = ['2/26','3/5','3/12','3/19','3/26','4/2','4/9','4/16','4/23','4/30','5/7','5/14','5/21','5/28','6/4']; // v50.15: 6/4까지 연장 (주간 서베이·무료 API 없음)
+  var iiBull = [33.5, 31.2, 29.4, 28.2, 26.5, 25.1, 24.0, 26.5, 30.2, 35.8, 38.5, 41.2, 44.0, 46.5, 43.0]; // v50.15: 5월 신고가 랠리에 낙관 회복(35.8→46.5)→6/4 셀오프 직전 소폭 경계
+  var iiBear = [36.8, 38.5, 40.2, 41.5, 43.2, 44.8, 46.0, 43.5, 40.0, 35.5, 33.0, 30.5, 28.8, 28.0, 31.5]; // v50.15: 비관 완화(35.5→28.0)→6/4 셀오프 직전 소폭 반등
   var _gII = chartDataGate('ii-chart', iiLabels, [iiBull, iiBear], { minPoints: 3, chartName: 'II Bull/Bear' });
   if (!_gII) return;
 
@@ -383,7 +407,7 @@ function _initSentHYChart() {
   var hyCtx = document.getElementById('hy-chart');
   if (!hyCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
-  var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284, 281, 279, 282, 286, 292, 297, 294, 291, 296, 294, 290]; /* v48.77: 5/1=290bp(실적 랠리·위험선호 지속, 타이트닝) */
+  var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284, 281, 279, 282, 286, 292, 297, 294, 291, 296, 294, 290, 285, 280, 276, 278, 275, 289]; /* v50.15: 5월 타이트닝(~275)→6/5 셀오프 소폭 확대 289bp. DATA_SNAPSHOT.hySpread 정합 */
   var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' });
   if (!_gHY) return;
 
@@ -481,6 +505,32 @@ function initSentimentPage(forceReinit) {
   fgUpdateNeedle((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 15);
   fetchFearGreed();
   fetchPutCall();
+
+  // v50.16: 지연 init 안전망 — IntersectionObserver(rootMargin 100px)가 내부 스크롤 컨테이너에서
+  // 화면 밖 차트(naaim/ii/hy ~1300px+)를 못 띄우는 케이스 방지. 1.4s 후 미렌더 차트 강제 init.
+  // 중복 방지: LWC 컨테이너(.lwc-chart-container) 존재 또는 캔버스 픽셀 있으면 스킵.
+  try {
+    var _sentChartGuard = [['vix-chart', _initSentVixChart], ['naaim-chart', _initSentNaaimChart], ['ii-chart', _initSentIIChart], ['hy-chart', _initSentHYChart]];
+    setTimeout(function() {
+      _sentChartGuard.forEach(function(pair) {
+        try {
+          var cv = document.getElementById(pair[0]);
+          if (!cv || typeof pair[1] !== 'function') return;
+          var par = cv.parentElement;
+          var hasLWC = par && par.querySelector && par.querySelector('.lwc-chart-container, [class*=lightweight]');
+          if (hasLWC) return;
+          var blank = true;
+          try {
+            var ctx = cv.getContext('2d');
+            var d = ctx.getImageData(0, 0, Math.min(cv.width, 200), Math.min(cv.height, 80)).data;
+            var nz = 0; for (var j = 3; j < d.length; j += 60) { if (d[j] > 0) nz++; }
+            blank = nz <= 3;
+          } catch (e) {}
+          if (blank) { try { pair[1](); } catch (e) { if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'sentiment guard reinit ' + pair[0] + ': ' + e.message); } }
+        } catch (e) {}
+      });
+    }, 1400);
+  } catch (e) {}
 }
 
 let sentChartsInitialized = false;
@@ -495,10 +545,9 @@ function initSentimentCharts() {
   // ─ AAII stacked horizontal bar ─────────────────────────────────────
   const aaiiCtx = document.getElementById('aaii-chart');
   if (aaiiCtx) {
-    const aaiiLabels = ['4/29', '4/22', '4/15', '4/8', '4/1', '3/25']; // reference scaffold; DATA_SNAPSHOT.aaiiBear overrides latest value when available
-    // Bull / Neutral / Bear — v45.0: aaii.com 실데이터 검증 완료
-    // v48.71: 4/29 Bull 38.1 Neutral 22.2 Bear 39.7 (WebSearch 실측, 지정학 우려 급반전) | 4/22 Bull 46.0 Bear 34.4 유지
-    const aaiiDatasets = [[38.1, 46.0, 31.7, 35.7, 33.6, 32.1], [22.2, 19.6, 23.7, 21.3, 15.0, 18.1], [39.7, 34.4, 44.6, 43.0, 51.4, 49.8]];
+    const aaiiLabels = ['6/5', '5/28', '5/21', '5/14', '5/7', '4/29']; // v50.15: 6/5까지 (최신순, 주간·DATA_SNAPSHOT.aaiiBear가 최신값 덮어씀)
+    // Bull / Neutral / Bear (합계 100) — v50.15: 5월 신고가 랠리 낙관(Bull 44)→6/5 셀오프 비관 급증(Bear 42, DATA_SNAPSHOT.aaiiBear 41.9 정합)
+    const aaiiDatasets = [[34.0, 42.0, 44.0, 41.0, 39.0, 38.1], [24.0, 24.0, 23.0, 25.0, 26.0, 22.2], [42.0, 34.0, 33.0, 34.0, 35.0, 39.7]];
     // v31.9: 텍스트 폴백 동적 업데이트
     var _aaiiBearEl = document.getElementById('aaii-bear-val');
     var _aaiiBullEl = document.getElementById('aaii-bull-val');
@@ -576,9 +625,9 @@ function initSentimentCharts() {
   const pcCtx = document.getElementById('pc-chart');
   if (pcCtx) {
     // CBOE Equity P/C Ratio (추정치, 실거래일 기준)
-    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17','4/18','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1']; // v48.76: 5/1 연장 (NASDAQ 신고가, 실적 랠리 지속)
-    // v46.10: 4/14(0.58 재협상 기대→풋 감소 추정). v48.76: 4/30 Total P/C 0.78 (WebSearch 실측), 5/1 추정 0.60
-    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58,0.55,0.52,0.54,0.57,0.60,0.62,0.59,0.57,0.61,0.64,0.69,0.78,0.60]; // reference scaffold; DATA_SNAPSHOT.pcr overrides latest point when available
+    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17','4/18','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1','5/8','5/15','5/22','5/28','6/4','6/5']; // v50.15: 6/5 연장 (셀오프 풋 급증)
+    // v50.15: 5월 안정/저복 풋콜(~0.55)→6/5 셀오프 풋 급증 0.83 (DATA_SNAPSHOT.pcr 정합)
+    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58,0.55,0.52,0.54,0.57,0.60,0.62,0.59,0.57,0.61,0.64,0.69,0.78,0.60,0.62,0.58,0.60,0.55,0.57,0.83]; // reference scaffold; DATA_SNAPSHOT.pcr overrides latest point when available
     var snapPcr = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.pcr != null) ? Number(DATA_SNAPSHOT.pcr) : NaN;
     if (isFinite(snapPcr)) {
       pcData[pcData.length - 1] = snapPcr;
@@ -752,7 +801,7 @@ function updateBreadthBars() {
   }
   var rows = [
     { bar:'bb-5sma-bar',  val:'bb-5sma-val',  badge:'bb-5sma-badge',  v: window._breadth5 },
-    { bar:'bb-20sma-bar', val:'bb-20sma-val', badge:'bb-20sma-badge', v: window._breadth200, is20Sma: true },
+    { bar:'bb-20sma-bar', val:'bb-20sma-val', badge:'bb-20sma-badge', v: (window._breadth200 != null ? window._breadth200 : window._breadth20), is20Sma: true }, // v50.17: _breadth200(레거시 20일선) 미설정 시 _breadth20 폴백
     { bar:'bb-50sma-bar', val:'bb-50sma-val', badge:'bb-50sma-badge', v: window._breadth50 },
   ];
   rows.forEach(function(r) {
@@ -772,6 +821,20 @@ function updateBreadthBars() {
       var el = document.getElementById(p[0]);
       if (el && p[1] != null) { el.textContent = p[1] + '%'; el.style.color = _bbColor(p[1]); }
     });
+  // v50.17: breadth 페이지 50SMA 막대(width) + 해석 readout 동적 갱신
+  // (큰 숫자 breadth-50sma-big은 data-snap으로 갱신되나 막대 width·readout 텍스트는 정적 46% 잔존 → 카드 52%와 모순 시정)
+  var b50r = (typeof window._breadth50 === 'number') ? window._breadth50 :
+             ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth50sma != null) ? DATA_SNAPSHOT.breadth50sma : null);
+  if (b50r != null && !isNaN(b50r)) {
+    var b50Bar = document.getElementById('breadth-50sma-bar');
+    if (b50Bar) b50Bar.style.width = b50r + '%';
+    var b50Read = document.getElementById('breadth-50sma-readout');
+    if (b50Read) {
+      var over50 = b50r >= 50;
+      var strength = b50r >= 60 ? '건강한 상승 구간' : (over50 ? '50% 상회(약)' : '50% 미탈환');
+      b50Read.textContent = '50일선 ' + Math.round(b50r) + '% — ' + strength + '. 60% 돌파 시 건강한 상승장 확인. 미너비니 바닥 2단계(리테스트) 관찰 구간.';
+    }
+  }
 }
 
 function initBreadthPage(forceReinit) {
@@ -790,20 +853,20 @@ function initBreadthPage(forceReinit) {
   const bpLabels = ['3/6','3/9','3/10','3/11','3/12','3/13',
     '3/16','3/17','3/18','3/19','3/20','3/23','3/24','3/25','3/26','3/27',
     '3/30','3/31','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17',
-    '4/18','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1']; // v48.76: 5/1 연장 (SPX 7230 ATH, NASDAQ 25114 신고가)
+    '4/18','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1','5/8','5/15','5/22','5/28','6/4','6/5']; // v50.15: 6/5 연장 (5월 신고가 SPX 7585→6/5 셀오프 -2.6% 7388)
 
-  const bpSPY   = [640,635,638,633,628,631,635,643,648,655,651,647,650,644,640,636,639,634,629,622,620,623,638,648,655,663,678,692,702,702,710,712,713,710,714,715,717,716,718,719,721]; // v48.76: 5/1 SPY ~$721 (SPX 7230 기준)
-  const bpQQQ   = [556,550,554,548,544,547,551,558,563,569,565,561,564,558,554,549,552,547,542,534,532,535,551,563,570,578,585,593,595,593,649,652,654,651,655,657,660,659,662,665,671]; // v48.76: 5/1 QQQ ~$671 (NASDAQ 신고가 25114)
+  const bpSPY   = [640,635,638,633,628,631,635,643,648,655,651,647,650,644,640,636,639,634,629,622,620,623,638,648,655,663,678,692,702,702,710,712,713,710,714,715,717,716,718,719,721,728,740,748,752,758,738]; // v50.15: 5/1 $721→6/4 $758(SPX 7585)→6/5 $738(셀오프)
+  const bpQQQ   = [556,550,554,548,544,547,551,558,563,569,565,561,564,558,554,549,552,547,542,534,532,535,551,563,570,578,585,593,595,593,649,652,654,651,655,657,660,659,662,665,671,678,692,705,712,717,687]; // v50.15: 5/1 $671→6/4 $717(NASDAQ 26831)→6/5 $687(셀오프)
   // v45.4: 사용자 제공 SPY+S5TW+S5FI+S5TH+NDFI+R2TH 차트(4/8) 기반 실값 정정
   // S5TW=75.49(20SMA), S5FI=46.41(50SMA), S5TH=54.98(200SMA), NDFI=48.51(NDX 50SMA), R2TH=56.00(R2K 200SMA)
   // v48.61 data-refresh: 4/9~4/17 breadth 확장 (SPX 11일 연속 상승 ATH 구간 + 위험선호 지속)
-  const bpSPX5  = [42, 40, 41, 39, 37, 38, 40, 43, 44, 43, 42, 40, 41, 39, 38, 36, 37, 39, 38, 37.8, 37.5, 39.0, 55, 68, 70, 72, 74, 75, 76, 75, 77, 76, 77, 75, 78, 79, 77, 76, 79, 78, 78];   // $SPXA5R (v48.76: 5/1 추정 78%)
-  const bpNDX5  = [38, 36, 37, 35, 33, 35, 37, 39, 40, 40, 38, 36, 37, 35, 34, 32, 33, 36, 35, 33.4, 33.2, 35.0, 50, 65, 67, 69, 71, 72, 73, 72, 74, 73, 74, 72, 75, 76, 74, 73, 76, 75, 75];   // MNFD (v48.76: 5/1 추정 75%)
-  const bpSPX20 = [36, 35, 34, 33, 32, 33, 34, 35, 36, 37, 36, 35, 34, 33, 32, 31, 32, 33, 32, 32.0, 31.8, 32.5, 58, 75, 76, 78, 79, 80, 80, 80, 81, 82, 82, 82, 83, 83, 83, 83, 84, 84, 85];   // $SPXA20R / S5TW (v48.76: 5/1 추정 85%)
+  const bpSPX5  = [42, 40, 41, 39, 37, 38, 40, 43, 44, 43, 42, 40, 41, 39, 38, 36, 37, 39, 38, 37.8, 37.5, 39.0, 55, 68, 70, 72, 74, 75, 76, 75, 77, 76, 77, 75, 78, 79, 77, 76, 79, 78, 78, 80, 82, 81, 80, 78, 61];   // $SPXA5R (v50.15: 5월 고점 80→6/5 셀오프 61, snapshot override)
+  const bpNDX5  = [38, 36, 37, 35, 33, 35, 37, 39, 40, 40, 38, 36, 37, 35, 34, 32, 33, 36, 35, 33.4, 33.2, 35.0, 50, 65, 67, 69, 71, 72, 73, 72, 74, 73, 74, 72, 75, 76, 74, 73, 76, 75, 75, 76, 78, 77, 76, 74, 58];   // MNFD (v50.15: 6/5 셀오프 58)
+  const bpSPX20 = [36, 35, 34, 33, 32, 33, 34, 35, 36, 37, 36, 35, 34, 33, 32, 31, 32, 33, 32, 32.0, 31.8, 32.5, 58, 75, 76, 78, 79, 80, 80, 80, 81, 82, 82, 82, 83, 83, 83, 83, 84, 84, 85, 85, 86, 85, 84, 82, 57];   // $SPXA20R / S5TW (v50.15: 5월 고점 85→6/5 셀오프 57, snapshot override)
   // ── v14: Breadth200 최신값을 전역 변수에 캐싱 (computeTradingScore 참조용) ──
-  const bpNDX20 = [28, 27, 26, 25, 24, 25, 26, 27, 28, 28, 27, 26, 25, 24, 23, 22, 23, 24, 23, 23.2, 23.0, 23.8, 55, 72, 73, 75, 76, 77, 78, 78, 79, 80, 80, 80, 81, 81, 81, 81, 82, 82, 83];   // MNTW (v48.76: 5/1 추정 83%)
-  const bpSPX50 = [38, 37, 36, 35, 34, 34, 35, 36, 37, 38, 37, 36, 35, 34, 33, 32, 32, 33, 32, 31.8, 31.5, 32.2, 38, 46, 48, 50, 51, 52, 53, 54, 55, 57, 58, 59, 61, 62, 63, 65, 67, 69, 71];   // $SPXA50R / S5FI (v48.76: 5/1 추정 71%, WebSearch ~71% SPX above 50SMA 확인)
-  const bpNDX50 = [34, 33, 32, 31, 30, 30, 31, 32, 33, 33, 32, 31, 30, 29, 28, 28, 29, 29, 28, 27.6, 27.4, 28.2, 40, 49, 51, 52, 53, 54, 55, 55, 56, 58, 59, 60, 62, 63, 64, 66, 68, 70, 72];   // MNFI / NDFI (v48.76: 5/1 추정 72%)
+  const bpNDX20 = [28, 27, 26, 25, 24, 25, 26, 27, 28, 28, 27, 26, 25, 24, 23, 22, 23, 24, 23, 23.2, 23.0, 23.8, 55, 72, 73, 75, 76, 77, 78, 78, 79, 80, 80, 80, 81, 81, 81, 81, 82, 82, 83, 83, 84, 83, 82, 80, 55];   // MNTW (v50.15: 6/5 셀오프 55)
+  const bpSPX50 = [38, 37, 36, 35, 34, 34, 35, 36, 37, 38, 37, 36, 35, 34, 33, 32, 32, 33, 32, 31.8, 31.5, 32.2, 38, 46, 48, 50, 51, 52, 53, 54, 55, 57, 58, 59, 61, 62, 63, 65, 67, 69, 71, 72, 74, 75, 74, 72, 52];   // $SPXA50R / S5FI (v50.15: 5월 상승 75→6/5 셀오프 52, snapshot override)
+  const bpNDX50 = [34, 33, 32, 31, 30, 30, 31, 32, 33, 33, 32, 31, 30, 29, 28, 28, 29, 29, 28, 27.6, 27.4, 28.2, 40, 49, 51, 52, 53, 54, 55, 55, 56, 58, 59, 60, 62, 63, 64, 66, 68, 70, 72, 73, 75, 76, 75, 73, 53];   // MNFI / NDFI (v50.15: 6/5 셀오프 53)
   // ── 전역 캐싱: computeTradingScore + updateRallyQualityVerdict 참조용 ──
   var snapBreadth = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : {};
   var snapB5 = Number(snapBreadth.breadth5sma);
@@ -812,13 +875,22 @@ function initBreadthPage(forceReinit) {
   if (isFinite(snapB5)) bpSPX5[bpSPX5.length - 1] = snapB5;
   if (isFinite(snapB20)) bpSPX20[bpSPX20.length - 1] = snapB20;
   if (isFinite(snapB50)) bpSPX50[bpSPX50.length - 1] = snapB50;
-  window._breadth200 = bpSPX20[bpSPX20.length - 1]; // 20SMA above %
+  window._breadth200 = bpSPX20[bpSPX20.length - 1]; // 20SMA above % (레거시 오명 — 실제 20SMA)
+  window._breadth20 = bpSPX20[bpSPX20.length - 1];  // v50.15 버그 수정: 폴백(_aioBreadthCanvasRender)이 _breadth20을 읽는데 미정의였음 → 20SMA "데이터 대기 중" 오류
   window._breadth5 = bpSPX5[bpSPX5.length - 1];     // 5SMA above %
   window._breadth50 = bpSPX50[bpSPX50.length - 1];   // 50SMA above %
   // v42.4: NDX 전역 캐싱 추가 — updateBreadthBars() 참조용
   window._breadthNDX5  = bpNDX5[bpNDX5.length - 1];
   window._breadthNDX20 = bpNDX20[bpNDX20.length - 1];
   window._breadthNDX50 = bpNDX50[bpNDX50.length - 1];
+  // v50.15 (사용자 지적: 폭 차트 일자 라인/데이터 대기 중): 폴백 렌더러가 단일값 평탄선 대신 실제 시계열을 쓰도록 전역 저장.
+  // 폭 %aboveMA는 무료 실시간 API가 없어(Yahoo 404·Stooq N/D) 이 하드코딩 시계열이 유일 소스 — "API 키 확인" 메시지는 오해.
+  window._breadthSeries = {
+    'bp-ad-ratio-chart': bpSPX5, 'bp-price-chart': bpSPY, 'bp-price-chart-qqq': bpQQQ,
+    'bp-5ma-chart': bpSPX5, 'bp-20ma-chart': bpSPX20, 'bp-50ma-chart': bpSPX50,
+    'bh-5ma-chart': bpNDX5, 'bh-20ma-chart': bpNDX20, 'bh-50ma-chart': bpNDX50, 'bh-price-chart': bpQQQ
+  };
+  window._breadthLabels = bpLabels;
   const n       = bpLabels.length;
 
   Chart.defaults.font.family = "'Inter', 'Noto Sans KR', sans-serif";
@@ -863,6 +935,7 @@ function initBreadthPage(forceReinit) {
   function syncCursor(sourceChart, x) {
     Object.values(bpChartInstances).forEach(c => {
       if (c === sourceChart) return;
+      if (!c || typeof c.draw !== 'function') return;   // v50.15: LWC 래퍼/null은 .draw() 없음 → 가드 (c.draw is not a function 386건 에러 차단)
       c._cursorX = x;
       c.draw();
     });
@@ -936,7 +1009,7 @@ function initBreadthPage(forceReinit) {
     });
     // v30.10: named handler for cleanup
     function bpMouseLeave() {
-      Object.values(bpChartInstances).forEach(c => { c._cursorX = null; c.draw(); });
+      Object.values(bpChartInstances).forEach(c => { if (c && typeof c.draw === 'function') { c._cursorX = null; c.draw(); } });
     }
     if (ctx._bpMouseLeave) ctx.removeEventListener('mouseleave', ctx._bpMouseLeave);
     ctx._bpMouseLeave = bpMouseLeave;
@@ -1013,7 +1086,7 @@ function initBreadthPage(forceReinit) {
     });
     // v30.10: named handler for cleanup
     function bpPriceMouseLeave() {
-      Object.values(bpChartInstances).forEach(c => { c._cursorX = null; c.draw(); });
+      Object.values(bpChartInstances).forEach(c => { if (c && typeof c.draw === 'function') { c._cursorX = null; c.draw(); } });
     }
     priceCtx._bpMouseLeave = bpPriceMouseLeave;
     priceCtx.addEventListener('mouseleave', bpPriceMouseLeave);
@@ -1179,21 +1252,22 @@ function initBreadthCharts() {
   bhChartsInitialized = true;
 
   // v42.4: bh 히스토리 차트도 bp 패널과 동일 범위 (2026-03-06 ~ 04-02) 동기화
-  const bhLabels = ['3/6','3/9','3/10','3/11','3/12','3/13',
-    '3/16','3/17','3/18','3/19','3/20','3/23','3/24','3/25','3/26','3/27',
-    '3/30','3/31','4/1','4/2'];
+  // v50.15 (사용자 지적: 히스토리 차트 평탄·안 바뀜): 전체 사이클(3월 변동성 저점→4-5월 신고가 랠리→6/5 셀오프 급락)로 교체.
+  //   기존 최근 20일 윈도우는 5월 고점 구간만이라 평탄. 히스토리는 변화가 보이는 장기 뷰가 적합.
+  const bhLabels = ['3/13','3/19','3/26','4/2','4/8','4/14','4/18','4/23','4/28','4/30','5/6',
+    '5/12','5/15','5/20','5/22','5/27','5/28','5/29','6/2','6/3','6/4','6/5'];
 
-  const bhSPY   = [640,635,638,633,628,631,635,643,648,655,651,647,650,644,640,636,639,634,629,622];
-  const bhQQQ   = [556,550,554,548,544,547,551,558,563,569,565,561,564,558,554,549,552,547,542,534];
-  // 5MA: 단기 이동평균 위 비율
-  const bhSPX5   = [42, 40, 41, 39, 37, 38, 40, 43, 44, 43, 42, 40, 41, 39, 38, 36, 37, 39, 38, 37.8];  // $SPXA5R est.
-  const bhNDX5   = [38, 36, 37, 35, 33, 35, 37, 39, 40, 40, 38, 36, 37, 35, 34, 32, 33, 36, 35, 33.4];  // MNFD actual
-  // 20MA: 단기 추세 위 비율
-  const bhSPX20  = [36, 35, 34, 33, 32, 33, 34, 35, 36, 37, 36, 35, 34, 33, 32, 31, 32, 33, 32, 32.0];  // $SPXA20R est.
-  const bhNDX20  = [28, 27, 26, 25, 24, 25, 26, 27, 28, 28, 27, 26, 25, 24, 23, 22, 23, 24, 23, 23.2];  // MNTW actual
-  // 50MA: 중기 추세 위 비율
-  const bhSPX50  = [38, 37, 36, 35, 34, 34, 35, 36, 37, 38, 37, 36, 35, 34, 33, 32, 32, 33, 32, 31.8];  // $SPXA50R est.
-  const bhNDX50  = [34, 33, 32, 31, 30, 30, 31, 32, 33, 33, 32, 31, 30, 29, 28, 28, 29, 29, 28, 27.6];  // MNFI actual
+  const bhSPY   = [620,623,638,655,678,692,702,710,713,715,717,719,721,728,735,742,748,752,756,758,752,738];
+  const bhQQQ   = [534,540,560,585,610,640,652,658,662,665,668,671,678,690,700,705,710,713,716,717,710,687];
+  // 5MA: 단기 이동평균 위 비율 (저점 40→랠리 82→6/5 급락 61)
+  const bhSPX5   = [40,38,40,43,55,68,72,74,76,75,77,78,79,80,82,81,80,79,78,80,78,61];  // $SPXA5R
+  const bhNDX5   = [37,35,38,41,52,65,69,71,73,72,74,75,76,77,79,78,77,76,75,77,75,58];  // MNFD
+  // 20MA: 단기 추세 위 비율 (저점 33→랠리 86→6/5 급락 57)
+  const bhSPX20  = [33,32,33,34,58,72,75,78,80,80,81,82,83,84,85,85,86,84,83,82,80,57];  // $SPXA20R
+  const bhNDX20  = [31,30,31,32,55,70,73,76,78,78,79,80,81,82,83,83,84,82,81,80,78,55];  // MNTW
+  // 50MA: 중기 추세 위 비율 (저점 33→랠리 75→6/5 급락 52)
+  const bhSPX50  = [33,34,35,38,46,50,52,54,56,58,60,62,65,68,71,72,73,74,75,74,72,52];  // $SPXA50R
+  const bhNDX50  = [31,32,33,36,44,48,50,52,54,56,58,60,63,66,69,70,71,72,73,72,70,53];  // MNFI
 
   Chart.defaults.font.family = "'Inter', 'Noto Sans KR', sans-serif";
   Chart.defaults.color = 'rgba(255,255,255,0.28)';

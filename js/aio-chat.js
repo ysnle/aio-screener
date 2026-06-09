@@ -2393,6 +2393,12 @@ async function _fetchTickerDataForChat(tickers, opts) {
         }
       } catch(_newsErr) {}
 
+      // v50.15 (사용자 지적: 개별 기업 뉴스 약함): RSS/텔레그램 자동수집 캐시(60+ 소스·기관 리포트 포함)를 종목별로 필터 주입 — API 키 불요
+      try {
+        var _cacheNews = (typeof _aioTickerNewsFromCache === 'function') ? _aioTickerNewsFromCache(t, { windowHours: 168, max: 6 }) : '';
+        if (_cacheNews) results.push(_cacheNews);
+      } catch(_cnErr) {}
+
       // v49.57 P317 R104 신규: Finnhub 임원 매수/매도 (12주)
       try {
         var insider = insiderPromise ? await insiderPromise : null;
@@ -3161,6 +3167,93 @@ function _buildNewsContext(ctxId, query) {
     '아래는 스크리너가 자동 수집한 관련 뉴스 헤드라인 + 요약이다. 각 뉴스의 시간(Nh전)을 확인하고, 주가 추이와 교차 검증 후 답변하라. 제목만으로 과도한 해석 금지, 단 요약의 사실 근거(숫자·기관명·인용)는 적극 활용. 각 뉴스의 [$TICKER] 태그로 관련 기업 식별 가능.\n' +
     lines.join('\n') + '\n\n' +
     tickerSummary;
+}
+
+// v50.15 (사용자 지적: 개별 기업 뉴스/소식 약함 → 개별 기업 분석 시 RSS/텔레그램 캐시를 종목별로 연결)
+// newsCache(60+ 소스 · 텔레그램 기관 리포트 포함, scoreItem이 이미 extractTickers로 티커 검출)를 특정 종목으로 필터.
+// _buildNewsContext는 토픽 기반 일반 24h 뉴스 — 이 함수는 종목 타겟 + 7일 윈도우(기업 분석 맥락). API 키 불요.
+function _aioTickerNewsFromCache(ticker, opts) {
+  opts = opts || {};
+  try {
+    var cache = (typeof newsCache !== 'undefined' && newsCache && newsCache.length) ? newsCache
+              : ((window._allNewsItems && window._allNewsItems.length) ? window._allNewsItems : []);
+    if (!cache || !cache.length) return '';
+    var now = Date.now();
+    var windowH = opts.windowHours || 168; // 기본 7일
+    var sym = String(ticker || '').toUpperCase().replace(/\.(KS|KQ|KO)$/, '').trim();
+    if (!sym || sym.length < 1) return '';
+    // 종목명 별칭 수집 — KR 코드→한글명(KR_STOCK_DB 기존 인프라) + 레지스트리 역매핑 + 원본
+    var aliases = [];
+    var rawUpper = String(ticker || '').toUpperCase().trim();
+    function _addAlias(a) { a = String(a || '').toUpperCase().trim(); if (a && aliases.indexOf(a) === -1) aliases.push(a); }
+    _addAlias(sym); _addAlias(rawUpper);
+    try {
+      var _krCode = sym.replace(/\D/g, '');
+      var _kdb = window.KR_STOCK_DB;
+      if (_kdb && /^\d{6}$/.test(_krCode) && _kdb[_krCode] && _kdb[_krCode].name) _addAlias(_kdb[_krCode].name); // 005930 → 삼성전자 (뉴스는 한글명으로 표기)
+    } catch (_k) {}
+    try {
+      var reg = window.AIO_TICKER_NAME_REGISTRY;
+      if (reg) {
+        Object.keys(reg).forEach(function(name) {
+          var v = String(reg[name] || '').toUpperCase().replace(/\.(KS|KQ|KO)$/, '');
+          if (v === sym && name && name.length >= 2) _addAlias(name);
+        });
+      }
+    } catch (_a) {}
+    var matched = [];
+    for (var i = 0; i < cache.length; i++) {
+      var it = cache[i];
+      if (!it) continue;
+      if (it.pubDate && (now - new Date(it.pubDate).getTime()) > windowH * 3600000) continue;
+      var hit = false;
+      // 1) 구조화된 티커 매칭 — extractTickers 결과(US 심볼·KR 한글명 모두)를 전 별칭과 대조
+      try {
+        var its = [];
+        if (it.tickers && Array.isArray(it.tickers)) its = it.tickers;
+        else if (typeof extractTickers === 'function') its = extractTickers(it) || [];
+        for (var k = 0; k < its.length && !hit; k++) {
+          var ts = String(its[k]).toUpperCase().replace(/^\$/, '').replace(/\.(KS|KQ|KO)$/, '');
+          if (aliases.indexOf(ts) !== -1) hit = true;
+        }
+      } catch (_t) {}
+      // 2) 제목/본문 별칭 매칭 — CJK 한글명(부분일치) OR 6자리 코드 OR 영문 길이≥4(단어경계).
+      //    영문 2~3자(ON/AI/AMD/ARM 등)는 일반 단어 오탐 위험 → blob 스킵하고 구조화 extractTickers만 신뢰.
+      if (!hit) {
+        var blob = ((it.title || '') + ' ' + (it.desc || it.summary || it.description || '')).toUpperCase();
+        for (var a = 0; a < aliases.length && !hit; a++) {
+          var al = aliases[a];
+          var isCJK = /[가-힯一-鿿぀-ヿ]/.test(al);
+          if (isCJK) {
+            if (al.length >= 2 && blob.indexOf(al) !== -1) hit = true;
+          } else if (/^\d{6}$/.test(al)) {
+            if (blob.indexOf(al) !== -1) hit = true; // 6자리 종목코드는 변별력 충분
+          } else if (al.length >= 4) {
+            var re = new RegExp('(^|[^A-Z0-9])' + al.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^A-Z0-9]|$)');
+            if (re.test(blob)) hit = true;
+          }
+        }
+      }
+      if (hit) matched.push(it);
+    }
+    if (!matched.length) return '';
+    matched.sort(function(a, b) {
+      var ds = (b.score || 0) - (a.score || 0);
+      if (ds) return ds;
+      var fa = a.pubDate ? (now - new Date(a.pubDate).getTime()) : 9e15;
+      var fb = b.pubDate ? (now - new Date(b.pubDate).getTime()) : 9e15;
+      return fa - fb;
+    });
+    var top = matched.slice(0, opts.max || 6);
+    var lines = top.map(function(it, idx) {
+      var age = it.pubDate ? Math.round((now - new Date(it.pubDate).getTime()) / 3600000) + 'h전' : '?';
+      var title = (it.title || '').toString().replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').substring(0, 110);
+      var descRaw = (it.desc || it.summary || it.description || '').toString().replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      var descShort = descRaw ? '\n     └ ' + descRaw.substring(0, 150) + (descRaw.length > 150 ? '…' : '') : '';
+      return '    ' + (idx + 1) + '. [' + (it.source || '?') + ' · ' + age + '] ' + title + descShort;
+    });
+    return '  [' + sym + ' 종목 뉴스 · source RSS/텔레그램 자동수집 캐시(60+ 소스·기관 리포트 포함) · 최근 ' + Math.round(windowH / 24) + '일 · ' + matched.length + '건 중 Top ' + top.length + ']\n' + lines.join('\n');
+  } catch (e) { return ''; }
 }
 
 function _aioChatTokens(text) {
@@ -5947,11 +6040,19 @@ async function fundamentalSearch() {
   } catch(_qFinErr) { _aioLog('warn', 'fund', '7 차트 fetch 진입 실패: ' + (_qFinErr && _qFinErr.message || _qFinErr)); }
 
   // ─── LLM에 실제 데이터 전달하여 종합 분석 요청 ───
+  var _fundPrompt = ticker + ' 종합 기업 분석해줘. 아래 15개 관점을 모두 다뤄줘:\n1)기업 개요 2)설립 배경&성장 과정 3)경영진 분석 4)비즈니스 모델 5)제품 포트폴리오 6)기술력&해자 7)수익 구조 8)재무제표 분석 9)밸류에이션 10)시장 분석(TAM) 11)수요·공급망 12)파트너십 13)경쟁 구조 14)리스크 15)투자 포인트';
   var chatInp = document.getElementById('chat-fundamental-inp');
   if (chatInp) {
-    chatInp.value = ticker + ' 종합 기업 분석해줘. 아래 15개 관점을 모두 다뤄줘:\n1)기업 개요 2)설립 배경&성장 과정 3)경영진 분석 4)비즈니스 모델 5)제품 포트폴리오 6)기술력&해자 7)수익 구조 8)재무제표 분석 9)밸류에이션 10)시장 분석(TAM) 11)수요·공급망 12)파트너십 13)경쟁 구조 14)리스크 15)투자 포인트';
+    // per-page 채팅 패널이 있으면 자동 전송 (현재 per-page는 home만, fundamental은 통합 패널 사용)
+    chatInp.value = _fundPrompt;
+    chatSend('fundamental');
+  } else {
+    // v50.22 P497: fundamental은 통합 AI 패널(ai-panel-inp) 사용 — 존재하지 않는 chat-fundamental-inp로의
+    // 무조건 자동 전송(매 검색마다 "DOM input missing" 에러 + 공유 Claude 쿼터 자동 소진) 제거.
+    // 통합 입력창에 분석 프롬프트만 프리필 → 사용자 opt-in 전송. 수집 데이터는 window._fundAnalysisData/_currentTickerId에 보존.
+    var _uInp = document.getElementById('ai-panel-inp');
+    if (_uInp && !_uInp.value.trim()) _uInp.value = _fundPrompt;
   }
-  chatSend('fundamental');
 }
 
 // ── 렌더 함수들 ──────────────────────────────────────────────────

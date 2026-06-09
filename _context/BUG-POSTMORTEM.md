@@ -1,12 +1,102 @@
 ---
 verified_by: agent
-last_verified: 2026-06-05
+last_verified: 2026-06-09
 confidence: high
-latest_version: v50.9
-latest_P_number: P482
-total_entries: 482
-next_P_number: P483
+latest_version: v50.22
+latest_P_number: P497
+total_entries: 497
+next_P_number: P498
 ---
+
+## P497 - v50.22 - fundamental 검색이 매번 존재하지 않는 per-page 채팅 패널로 자동전송 → "DOM input missing" 에러 + 쿼터 자동소진 시도
+
+- **Problem**: `fundamentalSearch`(aio-chat.js) 말미(6043~6047)가 종목 검색 완료 후 `chat-fundamental-inp`에 15관점 분석 프롬프트를 넣고 **무조건 `chatSend('fundamental')`** 호출. 그러나 fundamental은 per-page 패널이 아니라 **통합 AI 패널(`ai-panel-inp`/`chatSendUnified`)**을 사용 — `chat-fundamental-inp` DOM이 없음(home만 per-page 패널 보유). → 매 종목 검색마다 `chatSend`가 "[AIO chatSend] DOM input missing for ctxId=fundamental" 콘솔 에러 + return. 만약 패널이 있었다면 매 검색마다 공유 Claude API 쿼터를 자동 소진했을 구조(5명 공유 키). 라이브 콘솔에서 8회 반복 검출.
+- **Fix**: per-page 패널(`chat-fundamental-inp`) 존재 시에만 자동 전송, 없으면(통합 채팅 사용) `chatSend` 대신 통합 입력창(`ai-panel-inp`)에 분석 프롬프트만 프리필 → 사용자 opt-in 전송(쿼터 자동소진 방지). 수집 데이터는 `window._fundAnalysisData`/`_currentTickerId`에 보존돼 통합 채팅이 활용. 라이브 검증(MSFT 검색): "DOM input missing" 에러 0.
+- **Prevention**: per-page `chatSend(ctxId)`는 해당 페이지에 `chat-{ctxId}-inp` 패널이 실제 있을 때만 호출 — 통합 채팅 페이지는 `chatSendUnified`/`ai-panel-inp` 경로 사용. 자동 LLM 전송은 공유 키 쿼터 자동소진이므로 opt-in 원칙. 콘솔 error는 페이지별 직접 점검 시 반드시 확인(undefined 스캔만으론 미검출 — 이 버그는 콘솔에만 표출). (v50.22 P497.)
+
+## P496 - v50.22 - portfolio 리스크 카드 VaR/MDD가 데이터 부족 시 "-—"로 표시 (이중부호 cosmetic)
+
+- **Problem**: `_renderRiskMetrics`(index.html)의 VaR95/VaR99/MDD 카드가 `'-' + fmtPct(v)`로 표시. `fmtPct`는 null/undefined일 때 '—' 반환이므로, 포트폴리오 수익률 데이터 <10일(빈/신규 포트)이면 `'-' + '—'` = **"-—"** (이중부호처럼 보이는 placeholder)로 렌더. 값이 있을 땐 정상("-2.34%") — `_calcPortfolioVaR`/`_calcMaxDrawdown`이 양수 크기를 반환하므로 부호 자체는 정확.
+- **Fix**: `fmtLoss(v)` 헬퍼 신설 — null/undefined→'—', 값→'-X%'. VaR95/99/MDD 3곳에 적용. 검증: 값 "-2.34%/-5.12%/-18.00%", null "—"(이중부호 0).
+- **Prevention**: 손실/음수 표시에 외부 '-' 접두를 붙일 때는 **null placeholder까지 고려한 포맷터**로 일원화(접두+포맷터 분리 시 null에서 "-—" 발생). (v50.22 P496. 로직 버그 아닌 표시 cosmetic.)
+
+## P495 - v50.21 - kr-technical 교차신호/다이버전스도 property 불일치로 "undefined" 렌더 (P494 클러스터 확장)
+
+- **Problem**: analyzeKrIndex(index.html:29759) 렌더의 "교차 신호 & 다이버전스" 섹션(29818~29820)에서 (1) `crossData.cross20_50`/`cross50_200` — `_detectCrossSignals`는 `{gc20_50, gc50_200}`(값 '골든크로스'/'데드크로스'/null) 반환이라 `.cross20_50`은 undefined + 색상 비교 `==='golden'`(영문)도 불일치 → "undefined" + 항상 회색. (2) `divData.type` — `_detectDivergence`는 `{bearishDiv, bullishDiv, rsi}`(불린) 반환이라 `.type` undefined → "undefined" + 회색. P494(dipData)와 같은 render 함수의 같은 클래스 버그인데, 직전 KR 스캔이 dipData "53/5"만 날짜 정규식에 우연히 매칭해 발견했고 cross/div "undefined"는 놓침.
+- **Fix**: 표시를 실제 반환 구조에 맞게 — `crossData.gc20_50==='골든크로스'?green:'데드크로스'?red:gray` + `escHtml(gc20_50||'평탄')`; `divData.bullishDiv?'강세 다이버전스':bearishDiv?'약세 다이버전스':'없음'`. 라이브 검증: kr-technical undefined 0.
+- **Prevention**: render 함수가 여러 helper 결과를 합칠 때 **각 helper의 실제 반환 키/값을 toString이 아닌 정의에서 확인** — 한 곳(dipData) 버그 발견 시 같은 render의 모든 데이터 객체(cross/div/stage/trend) property를 일괄 점검(클러스터로 처리). 스캔 정규식이 우연히 한 건만 잡았다고 "1건"으로 결론 금지. (v50.21 P495.)
+
+## P494 - v50.20 - kr-technical `_classifyDip` 표시가 "undefined (점수: 53/5)" — property명+scale 3중 불일치
+
+- **Problem**: kr-technical 조정 분류에 "undefined (점수: 53/5)" 표시. `_classifyDip`(index.html:28853)은 `{classification, score(0-100)}` 반환인데 표시 코드(L29844)가 `dipData.label`(존재 안 함 → escHtml(undefined)="undefined")·`(점수: '+dipData.score+'/5)`(score는 0-100인데 /5로 표기)·`dipData.reasoning`(존재 안 함 → 빈/undefined) 사용. property명(label vs classification) + scale(/5 vs /100) + 누락(reasoning) 3중 불일치.
+- **Fix**: `_classifyDip` 반환에 `label`(classification 별칭) + `reasoning`(50일선 위치·조정 깊이 %·저점 추세·거래량 기반 실제 근거 문자열) 추가(데이터부족 early-return 28854 포함). 표시 `/5`→`/100`. 검증: "조정(관망) (점수: 54/100)" + reasoning 정상.
+- **Prevention**: 함수 반환 객체와 표시 코드의 property명·scale을 동시 점검 — 특히 escHtml(obj.없는키)는 조용히 "undefined" 렌더(에러 없음). 점수 표시 시 함수의 실제 score range(0-100 vs 0-5) 확인. (v50.20 P494.)
+
+## P493 - v50.20 - breadth `diagnoseBreadthConsensus` verdict 부호 버그 (양의 합의를 "약세 우위"로 표시)
+
+- **Problem**: `AIO.diagnoseBreadthConsensus`(aio-core.js:9884) verdict 매핑에서 `else if (consensus > 0.1) verdict = '약세 우위'`. consensus(가중 합의, -1~+1)가 0.1~0.4면 **양수 = 약한 강세 합의**인데 "약세 우위"(bearish edge)로 표시. 5/20/50SMA + McClellan + Weinstein + goldenCross 가중 합의가 강세 쪽이어도 breadth 페이지 핵심 verdict가 정반대로 표시 → 트레이딩 판단 오도. (밴드: >0.4 강세합의 / **0.1~0.4 ← 버그** / -0.1~0.1 혼조 / -0.4~-0.1 약세우위 / <-0.4 약세합의 — 0.1~0.4 자리만 부호 반대.)
+- **Fix**: `'약세 우위'` → `'강세 우위'`. 검증: 양수 합의 입력 → 강세 verdict, 음수 → 약세.
+- **Prevention**: 점수→라벨 매핑(verdict band)은 **부호 경계마다 방향 일치** 점검(특히 대칭 밴드의 양/음 쌍이 같은 라벨 쓰는 copy-paste 실수). 0 기준 양수=강세/음수=약세 일관성. (v50.20 P493.)
+
+## P492 - v50.19 - F&G가 signal(추세추종 max강세) vs home(역발상 차익실현)에서 정반대 결론 (cross-page 이면 모순)
+
+- **Problem**: 동일 Fear&Greed 지표가 두 페이지에서 정반대 행동을 지시. signal `computeTradingScore.momScore`(index.html:22476)는 극단 탐욕(F&G≥75)을 85=최고 점수(추세추종, 강세)로 평가. 반면 home `AIO_ACTION_RULES.sentimentAction`(aio-core.js:9146)은 극단 탐욕(>75)에 "차익실현+비중 축소"(역발상). → signal은 극단 탐욕에 "가장 매수하기 좋음", home은 "팔아라". 또한 극단 탐욕(과매수)을 max 강세로 보는 건 F&G 설계 취지(극단 탐욕=경고/red)와도 반대.
+- **Fix**: signal momScore를 역U자 곡선으로 — 건강한 탐욕(55~75)=피크 74, 극단 탐욕(≥75)=fade 66(과매수·모멘텀 소진 위험), 극단 공포(<25)=15→25(역발상 반등 floor). 극단 구간에서 signal(추세추종)·home(역발상)이 같은 방향(탐욕 극단=둘 다 신중, 공포 극단=둘 다 기회)으로 수렴. 가중치 라벨에 소스 명시("모멘텀(F&G·추세추종)").
+- **Prevention**: 같은 입력 지표를 여러 페이지가 쓸 때 **해석 방향(추세추종 vs 역발상)이 극단 구간에서 충돌하지 않게** 정합 — 특히 sentiment 지표는 극단에서 역발상이 표준이므로 momentum 점수도 극단을 fade. (v50.19 P492.)
+
+## P491 - v50.19 - signal exit trigger가 "기술적 지지선" 라벨인데 실제론 단순 -10%
+
+- **Problem**: `updateExitTriggers`(index.html:23415)가 SPX 손절을 `spx * 0.9`(기계적 -10%)로 계산하나 HTML 라벨(L5435)은 "현재가 대비 -10% 기술적 지지선" — 실제 기술적 레벨(이평선/스윙저점/ATR)이 아니라 임의 백분율. 트레이더가 실제 쓸 손절이 아님.
+- **Fix**: 200일선(주요 추세 지지)이 현재가 아래면 그 레벨을 손절로, 이미 하회/미가용 시 50일선→-10% 폴백. `window._spxMA[200/50]`→`DATA_SNAPSHOT._fallback.spx200ma/50ma`. `exit-spx-basis` span으로 근거 동적 표시 + 라벨 "주요 추세 지지선 종가 하회 시 추세 훼손 신호"로 정직화.
+- **Prevention**: 손절/지지 레벨은 임의 백분율이 아닌 **실제 기술 레벨(이평선/스윙)** 기반. 라벨이 "기술적"이라 주장하면 실제 기술 계산과 일치해야. (v50.19 P491.)
+
+## P490 - v50.19 - 트레이딩 스코어 시장폭 입력이 미로딩 시 기본값 75(낙관 편향)
+
+- **Problem**: `computeTradingScore`(index.html:22497) + `computeExecutionWindow`(22596)의 `breadth200`이 `window._breadth200`(v50.6 제거된 200일선이 아니라 레거시 "20SMA above %" 변수명) 미설정 시 `_fb.breadth200`→**75**로 폴백. `_breadth200`은 breadth 페이지 init 시에만 설정 → 다른 페이지에서 점수 계산 시 75(healthy) 사용 → 실제 20SMA 57보다 높아 breadthScore 88(>70) = 핵심 매매 점수 낙관 편향. (P483 시장폭 칩과 동일 근본 — v50.6 변수 제거 미전파.)
+- **Fix**: 폴백 체인 `_breadth200`→`_breadth20`(항상 기본 57)→`DATA_SNAPSHOT.breadth20sma`(57)→`_fb.breadth200`→57로 변경(기본 75 제거). 검증: breadthScore 88→72.
+- **Prevention**: 트레이딩 점수의 모든 입력 폴백 기본값은 **중립/실측 근사**여야(낙관 75 같은 임의 우호값 금지) — 데이터 미수신이 점수를 띄우면 안 됨. v50.6 `_breadth200` 제거의 모든 소비자 점검(P483과 묶음). (v50.19 P490.)
+
+## P489 - v50.18 - breadth 50SMA 해석 readout 정적 "46% 미탈환"이 카드 52%와 모순 (결론 반대)
+
+- **Problem**: breadth 페이지 50SMA 카드(`breadth-50sma-big`, data-snap)는 52%로 동적 갱신되나, 바로 아래 해석 readout(index.html:5617 정적 HTML)은 "50일선 46% — 50% 미탈환"으로 고정 + 막대(`breadth-50sma-bar`) width 46% 고정. 52%면 50% **상회**인데 readout은 "46% **미탈환**"이라 결론이 정반대. data-snap은 텍스트만 갱신하고 막대 width·해석 문장은 갱신 대상이 아니었음.
+- **Fix**: readout div에 `id="breadth-50sma-readout"` 부여 + `updateBreadthBars`(aio-ui.js)에 breadth-50sma 막대 width·readout 텍스트 동적 갱신 블록 추가(`window._breadth50`→`DATA_SNAPSHOT.breadth50sma` 폴백, 50% 상회/미탈환 조건부 문장). 검증: 카드·막대·readout 모두 52% "50% 상회(약)". 부수: 같은 함수 20SMA 행이 `window._breadth200`(v50.6 제거된 레거시 20일선명) 단독 의존 → `_breadth20` 폴백 robust.
+- **Prevention**: data-snap 바인딩은 숫자 텍스트만 갱신 — 동일 지표를 인용하는 **해석 문장·막대 width·뱃지는 별도 동적 갱신 필요**(정적 기본값은 카드와 모순될 수 있음). 카드 옆 해석 텍스트는 같은 값/결론 사용 검증. (v50.18 P489.)
+
+## P488 - v50.18 - signal CP 리스크보드가 DATA_SNAPSHOT.wti(stale) 읽어 "고점권" 오표시 + aio:liveQuotes 재렌더 누락
+
+- **Problem**: signal CP1(지정학)·CP6(원자재) 리스크보드 텍스트가 "WTI $97.20 (고점권)·지정학 프리미엄·$110+ 재급등"인데 live WTI는 $89.52. 이중 버그: (a) `getCP1Text`/`getCP6Text`(aio-core.js)가 `_snap.num(DS.wti)`(DATA_SNAPSHOT 6/5 스파이크 97.2)를 읽고 live `_liveData['CL=F']`를 무시. (b) `renderCPTexts`가 `applyDataSnapshot`(스냅샷 적용 시)에서만 호출되고 `aio:liveQuotes`(live fetch 도착)엔 호출 안 됨 → init 시점 snapshot 값을 DOM에 굳히고 live 도착 후에도 재렌더 안 함. 유가가 89로 빠졌는데 "고점권 재급등" 단정 = 매매 오인.
+- **Fix**: (a) `getCP1Text`/`getCP6Text`를 `_liveData['CL=F']`/`['BZ=F']` 우선, snapshot 폴백으로 변경. (b) signal liveQuotes 핸들러(`core-signal-live`, aio-core.js:1702)에 `NARRATIVE_ENGINE.renderCPTexts()` 추가. 검증(SW unregister+cache clear+reload fresh): CP1 "WTI $89.52 (안정화 기대)" · CP6 "$89.52·Brent $92.73 (완화 기대)".
+- **Prevention**: "현재 시장" 내러티브 생성기는 live 피드 있는 심볼(WTI=CL=F·Brent=BZ=F 등)은 **live 우선·snapshot 폴백**. 동적 텍스트 렌더러는 snapshot 변경(applyDataSnapshot)뿐 아니라 **live 도착(aio:liveQuotes)에도 재렌더** 연결(둘 중 하나만 걸면 init 시점 값에 굳음). (v50.18 P488.)
+
+## P487 - v50.18 - macro 스토리라인 "고용 둔화" 전제가 5월 NFP 172K(견조)와 정반대
+
+- **Problem**: macro "해석:" 블록(index.html:7147 정적)이 "2026년은 이중 위험(고용은 둔화↓ + 인플레는 상승↑)" 단정. 그러나 5월 NFP는 172K로 **강세** — 강한 고용이 금리인하 기대를 후퇴시킨 게(골드만 인하 철회) 현재 핵심 매크로 스토리. "고용 둔화" 전제가 사실과 반대 → 사용자가 잘못된 거시 그림으로 판단.
+- **Fix**: "견조한 고용(5월 NFP 172K로 금리인하 기대 후퇴)과 끈적한 인플레·유가 리스크가 겹쳐 연준이 서둘러 완화하기 어려운 국면"으로 정정 + "실시간 국면은 온도계·동적 시그널 우선" 주석.
+- **Prevention**: 정적 매크로 내러티브의 핵심 전제(고용/인플레 방향)는 최신 발표치(NFP/CPI)와 정합 검증 — 발표 묶음 갱신 시 스토리라인 전제도 함께 점검. 가능하면 generateMacroStoryline로 동적화(v50.x 백로그). (v50.18 P487.)
+
+## P486 - v50.18 - themes 정적 사이클 진단이 동적 readout과 정면 모순 (Late-cycle 스태그플레이션 단정 vs Mid Cycle Expansion)
+
+- **Problem**: themes `cycle-analysis`(index.html:8865 정적)가 "방어 섹터 상대강세·성장 후행·경기 후반(Late-cycle)+스태그플레이션(최악의 조합) 리스크"를 단정. 그러나 바로 위 동적 readout(`cycle-dynamic-phase`)은 "Mid Cycle (Expansion)"(VIX<20+breadth>50%) → 정반대 국면을 동시 표시. "(참고 기준)" 라벨로 약하게 구분했으나 사용자는 "스태그플레이션 최악"을 현재로 읽음.
+- **Fix**: 정적 블록을 "단정"에서 "조건부 교육"으로 전환 — "방어 강세=Late-cycle 신호 / 성장 주도=Expansion"을 양쪽 조건부로 설명하고 "현재 국면은 위 동적 readout 따르세요(정적 텍스트로 단정 안 함)"로 위임. 라벨 "사이클 진단(참고 기준)"→"사이클 진단 읽는 법(교육·현재 판정 아님)", 색상 red→중립.
+- **Prevention**: 동적 판정 엔진(getCycleFromMacro 등)이 있는 페이지의 정적 보조 텍스트는 **특정 국면을 단정하지 말 것**(동적과 모순 위험) — 조건부 교육으로 작성 + 동적 readout에 판정 위임. (v50.18 P486.)
+
+## P485 - v50.17 - fxbond yield curve "수집 대기" 영구 멈춤 + macro/fxbond 캔버스 오렌더 (이중 버그)
+
+- **Problem**: fxbond `koreaCurveChart`가 "수집 대기…" placeholder에서 영구 멈춤(라이브 yield 4개 IRX/FVX/TNX/TYX 가용한데도). 이중 원인: (1) `initYieldCurveChart()`는 `_initMacroPage`(aio-core.js:19799)에서만 호출 — fxbond `updateFxBondPage`는 호출 안 함(과거 BUG-4에서 "macro 전용 캔버스"로 오판해 제거됨). (2) `var ctx = getElementById('koreaCurveChart') || getElementById('yieldCurveChart')` — koreaCurveChart가 모든 페이지 DOM에 상존하므로 `||` 좌변이 항상 선택 → **macro가 호출해도 fxbond의 숨은(0-size) 캔버스로 렌더** + 단일 전역 `_ycChart`를 두 페이지가 공유해 서로 destroy.
+- **Fix**: `initYieldCurveChart(targetId)` 파라미터화(미지정 시 `#page-fxbond.active` 여부로 캔버스 선택) + per-canvas `_ycCharts{}` 인스턴스맵(공유 destroy 충돌 차단) + fxbond 페이지 init(PAGES 'fxbond')에 `setTimeout(()=>initYieldCurveChart('koreaCurveChart'),200)` 추가 + macro는 `initYieldCurveChart('yieldCurveChart')` 명시 + 캔버스 aria-label "한국 국채"→"미 국채(US Treasury)"(실제 ^IRX/^FVX/^TNX/^TYX 플롯이라 라벨 정직화). 라이브 검증: koreaCurveChart 인스턴스 생성 + status "✓ 정상 곡선".
+- **Prevention**: 여러 페이지가 같은 차트 init 함수를 공유할 때 (1) 캔버스 타깃은 ID 명시 파라미터로 전달(전역 `getElementById`+`||` 폴백 금지 — 동명/상존 캔버스가 좌변 독점) (2) 차트 인스턴스는 per-canvas 맵으로 관리(단일 전역 금지). T785 인접. (v50.17 P485.)
+
+## P484 - v50.17 - sentiment NAAIM/II/HY 차트 빈 화면 (lazy init이 내부 스크롤 컨테이너 화면 밖 차트 미발화)
+
+- **Problem**: sentiment 페이지 NAAIM·Investor Intelligence·HY Spread 3개 차트가 빈 캔버스(LWC 컨테이너 무·픽셀 무). `initSentimentPage`가 이들을 `_lazyInitChartPage`(IntersectionObserver rootMargin 100px)로 등록하나, 페이지가 내부 `.content` 컨테이너로 스크롤되고 차트가 화면 밖(naaim 1325px/ii 1325px/hy 2312px)이라 진입 시 관찰자 미발화 → 스크롤 전까지 빈 채로 잔존(사용자 "기능이 나오지도 않고"). 직접 `_initSentNaaimChart()` 등 호출 시 정상 LWC 렌더 확인 → 데이터/init 함수는 정상, 트리거만 실패.
+- **Fix**: `initSentimentPage`에 진입 후 1.4s 안전망 `setTimeout` 추가 — vix/naaim/ii/hy 각 캔버스가 미렌더(`.lwc-chart-container` 형제 무 AND 캔버스 픽셀 무)면 해당 init 함수 강제 호출(이미 렌더된 건 스킵해 중복 방지). 라이브 검증(v50.17 reload): naaim/ii/hy 모두 `rendered:true, hasLWC:true`.
+- **Prevention**: 내부 스크롤 컨테이너(window 아닌 `.content`) 안의 below-the-fold 차트를 `_lazyInitChartPage`로 등록할 때는 관찰자 미발화 대비 안전망(지연 타이머 또는 충분한 rootMargin) 동반. 빈 캔버스 판정은 `.lwc-chart-container` 형제 유무로 LWC 렌더 확인(픽셀 검사 단독 금지 — LWC는 별도 캔버스/컨테이너에 그림). T-가드는 안전망 함수 존재로 간접 검증. (v50.17 P484.)
+
+## P483 - v50.17 - 전역 시장폭 칩이 제거된 _breadth200 폴백 → 섹터 당일비율 27%를 "약세"로 오라벨 (전 페이지)
+
+- **Problem**: 마켓펄스바(전 페이지 공통) 시장폭 칩이 "27% 약세"(빨강) 표시 — 실제 breadth(50일선 위 종목 %)는 52%인데 불일치. `updateMarketPulse`(index.html:23637)가 `window._breadth200`을 1순위로 읽으나 v50.6에서 200일선 breadth를 제거(breadth=5/20/50 확정)해 `_breadth200`=undefined → `_breadthLiveData`=null → `calcSectorBreadth`(11 섹터 ETF **당일 양봉비율** 27%)로 폴백. 즉 "50일선 위 %"가 아닌 전혀 다른 일간 지표를 시장폭으로 오라벨. 셀오프 당일엔 섹터 양봉비율이 낮아(27%) "약세" 빨강 표시 → 트레이더가 시장폭이 약세인 줄 오인 가능(매매-안전 직결).
+- **Fix**: 폴백 체인을 `_breadth50`(50SMA 위 %, breadth 페이지·스코어링 정의와 정합)→`_breadthLiveData.abv50`→`_breadth20`→`DATA_SNAPSHOT.breadth50sma`로 교체, calcSectorBreadth(일간 폭, 참고용)는 최후 폴백으로 강등. 라이브 검증: 칩 "52% 주의"(amber), `_breadth50`=52와 정합.
+- **Prevention**: 변수/필드 제거(v50.6 `_breadth200`) 시 **모든 소비자 grep 후 폴백 체인 재정렬 의무**(제거된 변수를 1순위로 읽으면 의도치 않은 후순위 폴백이 침묵 발동). 지표 칩은 페이지 본문 정의와 동일 소스 사용. T785 회귀 가드(`updateMarketPulse`가 `_breadth50`/`breadth50sma` 사용 검증). (v50.17 P483.)
 
 ## P482 - v50.9 - computeMacroBeta 동기함수에 .catch 호출 → 종목 채팅 펀더멘털 블록 전체 silent reject
 

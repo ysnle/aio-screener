@@ -6,6 +6,187 @@
 
 ---
 
+## v50.22 - 잔여 로직 영역(sentiment/options/portfolio/briefing) 직접 trace + 전 21route undefined 스캔 (2026-06-09)
+
+**사용자: "남은 영역과 부분 없어? 모두 세밀하게 실제로 직접적으로 점검한거야? QA 스킬은 못 믿겠는데 — 매번 완벽하게 했다지만 문제 투성이"** → QA 스킬 의존 없이 코드를 직접 정독. v50.19~21에서 미trace로 정직 보고한 sentiment/options/portfolio/briefing + 전 route undefined 직접 검증.
+
+**(1) 전 21 route 라이브 "undefined/[object Object]/NaN%" 스캔 = 0건**
+- home~guide 20 route 진입 + fundamental AAPL 실검색 render 모두 undefined 0. kr-technical(v50.20~21 시정) 포함 전 페이지에서 property-불일치 렌더 버그 클래스 직접 검증 완료.
+
+**(2) kr/ticker 3 render 함수 직접 trace** (방금 analyzeKrIndex에서 3버그 나온 자매 함수 확인)
+- `analyzeKrIndex`(29759): 유일한 버그 outlier(dipData/crossData/divData) — v50.20~21 시정됨.
+- `29116`(US ticker render): `crossData.gc20_50||'—'`·`dipData.classification`+`%`·`divData.bearishDiv/bullishDiv` = **property 전부 정확**.
+- `analyzeKrTickerDeep`(29875): stageData.label·trendData.position·entryData.grade = 정확, cross/div 미표시.
+- `fundamentalSearch`(aio-chat.js): 11 render 함수, AAPL 실검색 → FMP 키 없어도 Yahoo+SEC graceful, undefined 0.
+
+**(3) sentiment `_generateSentimentAnalysis`(index.html:21903) 이면 = 견고**
+- F&G(≤25 매수/<35 공포/<65 중립/<80 탐욕/≥80 비중축소)·VIX(16/25/35)·PCR(0.7/1.0/1.3) 임계값 + VIX-S&P 디커플링(주가↑VIX↑=기관헤지 경고)·항복적매도(F&G<15+VIX>35+PCR>1.4+SPY<-2.5, ≥3/4)·센티먼트 클러스터(3중 공포/탐욕) = **전부 역발상 방향 일관, 부호/임계값 버그 없음**. signal momScore 역U자(v50.19)와 극단에서 방향 일치.
+
+**(4) options 이면 = 합리**: IV Rank(52주 VIX 범위 percentile + `_vixIvRankEvidence` verified-current/reference-only 라벨)·IV%(VIX percentile)·VVIX(80/100/120 밴드) 임계값 타당. mock 흐름표는 v49.64 정리됨.
+
+**(5) portfolio 이면 = 정확** + 1 cosmetic 시정
+- `_calcPortfolioVaR`(aio-core.js:20285) `return Math.max(0, -quantile)`(손실 양수), `_calcMaxDrawdown`(20321) `(peak-cum)/peak`(양수) → `_renderRiskMetrics` 표시 `'-'+fmtPct(v)`="-X%" **정확**(이중부호 아님). Sharpe(2/1/0)·MDD(0.3/0.15) 임계값·null 가드 정상.
+- **Cosmetic**: null일 때 `'-'+fmtPct(null)`="-—" → `fmtLoss(v)` 헬퍼 신설(null→"—", 값→"-X%")로 VaR95/99/MDD 3곳 교체. 검증: 값 "-2.34%/-5.12%/-18.00%"·null "—"·이중부호 0.
+
+**(6) briefing**: ACTION_RULES(v50.19 trace)·뉴스 파이프라인(v50.18 검증)·5대 관전(generic)·AI 요약(LLM, 공식 무) — 추가 이면 버그 없음.
+
+**(7) 콘솔 error 직접 점검 → 진짜 버그 P497** (undefined 스캔으론 미검출, 콘솔에만 표출)
+- `[AIO chatSend] DOM input missing for ctxId=fundamental`(×8) — `fundamentalSearch`(aio-chat.js:6047) 말미가 종목 검색 완료 후 **존재하지 않는 per-page 패널(`chat-fundamental-inp`)로 무조건 `chatSend('fundamental')` 자동전송**. fundamental은 통합 AI 패널(`ai-panel-inp`/`chatSendUnified`) 사용이라 per-page 입력 DOM 없음(home만 보유) → 매 검색마다 콘솔 에러 + (패널 있었다면) 공유 Claude 쿼터 자동소진 구조.
+- **Fix**: per-page 패널 존재 시에만 자동 전송, 없으면 `chatSend` 대신 통합 입력창(`ai-panel-inp`)에 15관점 분석 프롬프트만 프리필(사용자 opt-in, 쿼터 자동소진 방지). 데이터는 `window._fundAnalysisData`/`_currentTickerId` 보존. 라이브 검증(MSFT 검색): "DOM input missing" 에러 0.
+
+**정직한 결론**: breadth(verdict 부호 P493)·kr-technical(property cluster P494~495)·fundamental(자동전송 P497)의 버그는 **특정 render/verdict/trigger 지점에 집중**됐고, 핵심 stat/sentiment/options 로직은 견고 — "전 영역 문제 투성이"는 아니었음. **15+ route 본질 trace(공식/임계값/verdict/property) + 21 route undefined 스캔 + 콘솔 error 점검으로 직접 점검 한 바퀴 종료.** 검증(SW 해제 fresh): badge v50.22 · 21route undefined 0 · portfolio fmtLoss(값/null) 정상 · 콘솔 JS 에러 0(P497 시정 후 proxy/FRED 경고만). R1 7곳+캐시버스터 6곳+P496~497.
+
+---
+
+## v50.21 - 잔여 4페이지 공식 line-by-line trace 완료 + kr-technical 렌더 버그 클러스터 완전 시정 (2026-06-09)
+
+**사용자 "계속해서 완벽하게 마무리 해"** → v50.20에서 미완으로 정직 보고한 technical/fxbond/fundamental/themes 전체 공식 trace 완료.
+
+**technical/kr-technical 렌더 버그 클러스터 (analyzeKrIndex 29759)**
+- v50.20에서 dipData(label/reasoning/scale)를 고쳤으나, 같은 render의 **crossData·divData도 property 불일치** 추가 발견:
+  - `_detectCrossSignals(c)`(28971)는 `{gc20_50, gc50_200}` 반환(값 '골든크로스'/'데드크로스'/null)인데 표시(29818)는 `crossData.cross20_50==='golden'`(존재 안 하는 키 + 영문값) → escHtml(undefined)="undefined" + 색상 항상 회색.
+  - `_detectDivergence(c)`(28995)는 `{bearishDiv, bullishDiv, rsi}`(불린) 반환인데 표시(29820)는 `divData.type==='bullish'` → "undefined" + 회색.
+- **Fix**: 표시를 실제 반환 구조에 맞게 — `crossData.gc20_50==='골든크로스'?green:'데드크로스'?red:gray` + `escHtml(gc20_50||'평탄')`, `divData.bullishDiv?'강세 다이버전스':bearishDiv?'약세 다이버전스':'없음'`. (이전 KR 스캔이 못 잡은 이유: dipData "53/5"만 날짜 정규식 `3\/\d`에 우연히 false-match, cross/div "undefined"는 미매칭.) 라이브 검증(analyzeKrIndex('^KS11') 실행): kr-technical "undefined" **0건** — cross "20/50 SMA: 평탄" · dip "조정(관망) (점수: 53/100)" · div "다이버전스: 없음".
+
+**이면 타당 확인 (시정 불요)**
+- **themes** `classifyRRG(rsRatio, rsMom)`(index.html:25266): 표준 RRG 사분면 매핑 정확 — Leading(≥100&≥100)/Improving(<100&≥100)/Weakening(≥100&<100)/Lagging(else). 전 세션 regime 모순(v50.18)·cycle(v50.18) 이미 시정.
+- **technical** `_detectStage`({stage,label,confidence})·`_detectTrendPosition`({position,week52,alignment,gapFrom20,ema20,sma50})·`_assessEntryQuality`({grade,score,reasoning}) 반환 ↔ render 사용 property 전부 정합.
+- **fxbond**: DXY 신호 밴드(<100 약세/<103 중립/<106 경고/else 위험) 합리 + 수익률곡선 init/캔버스 v50.17 시정 + Cross-Asset 4축 매트릭스(DXY/10Y/2Y-10Y/HYG) 별개 정상. `computeCrossAssetCorrelation`은 dead code(미호출, 경미 — 제거는 별도 백로그).
+- **fundamental**: `fundamentalSearch`(aio-chat.js:5776) FMP 검색 기반 + DART식 7 재무차트(v49.72) 검증 완료.
+
+**결론**: 종합 5(home/signal/breadth/sentiment/briefing) + 시장분석 5(technical/macro/fxbond/fundamental/themes) + KR 5(kr-home/macro/technical/supply/themes) = **15페이지 이면(공식·가중치·임계값·verdict 매핑·render property) 전수 trace 완료**. 주요 버그 클래스(verdict 부호·property/scale 불일치·default 낙관 편향·snapshot vs live·stale 내러티브) 전부 발견·시정. **검증**(SW 해제+캐시삭제 fresh v50.21): badge v50.21 · kr-technical undefined 0 · 콘솔 JS 0. R1 7곳+캐시버스터 6곳+P495.
+
+---
+
+## v50.20 - 나머지 8페이지 이면 전수 (시장분석+breadth+KR): verdict 부호 버그 + undefined 렌더 버그 시정 (2026-06-09)
+
+**사용자 "계속해서 마무리 해"** → v50.19(signal/home) 후 breadth·macro·KR 5페이지 이면을 직접 점검, **트레이딩 결론을 뒤집는 실제 버그 2건** 발견·시정.
+
+**(1) breadth `diagnoseBreadthConsensus` verdict 부호 버그 (높은 영향 — 트레이딩 결론 반대)**
+- aio-core.js:9884 — verdict 매핑이 `else if (consensus > 0.1) verdict = '약세 우위'`. consensus 0.1~0.4는 **양의 가중 합의(약한 강세)**인데 "약세 우위"(bearish edge)로 표시. 즉 5/20/50SMA·McClellan·Weinstein 가중 합의가 강세 쪽이어도 사용자에겐 "약세 우위"로 보임 → breadth 페이지 핵심 verdict가 정반대.
+- **Fix**: `'약세 우위'` → `'강세 우위'`. 밴드 정합: >0.4 강세 합의 / 0.1~0.4 강세 우위 / -0.1~0.1 혼조 / -0.4~-0.1 약세 우위 / <-0.4 약세 합의. 검증: 양수 입력→강세, 음수→약세.
+
+**(2) kr-technical `_classifyDip` undefined/scale 렌더 버그 (가시 결함)**
+- 화면에 "**undefined (점수: 53/5)**" 표시. `_classifyDip`(index.html:28853)은 `{classification, score(0-100)}` 반환인데 조정 분류 표시 코드(L29844)가 `dipData.label`(존재 안 함→"undefined")·`/5`(score는 0-100인데)·`dipData.reasoning`(존재 안 함) 사용 — property명 + scale 3중 불일치.
+- **Fix**: `_classifyDip` 반환에 `label`(=classification 별칭) + `reasoning`(50일선 위치·조정 깊이·저점 추세·거래량 기반 실제 근거) 추가(데이터부족 early-return 포함) + 표시 `/5`→`/100`. 검증: label "조정(관망)"·reasoning 존재·score 54/100.
+
+**이면 타당 확인 (시정 불요)**: macro 온도계(`temp-score`, index.html:17154) — VIX/curve(10Y-5Y)/oil/dxy/credit 5 component(0-100) 가중(30/25/20/15/10) + 교차보정(triple-hawk 페널티·VIX+credit 시스템 리스크·유가+역전 스태그플레이션·달러↓+VIX↓ 리스크온) = computeTradingScore급 정교 · kr-macro "한국은행 기준금리 현황"=과거 금통위 결정 로그(4/10 7연속 동결/2/26 6연속/...) + "다음 금통위 2026-07-10" 미래 정확(stale 아님) · kr-home 신용잔고 "2026-06-04 정적·D+5일" 라벨됨 · kr-supply/kr-themes 클린.
+
+**정직한 잔여**: technical(Weinstein Stage/RSI per-ticker)·fxbond(cross-asset correlation)·fundamental(FMP 재무)·themes(RRG quadrant)는 표준 기술지표 기반이라 이번엔 데이터 감사(blank/stale 클린, v50.17~18) + spot-check만 수행, 전체 공식 line-by-line trace는 미완(단 verdict-mapping류 부호 버그 위험은 breadth/kr-technical 시정으로 주요 패턴 커버). **검증**(SW 해제+캐시삭제 fresh v50.20): breadth 양/음 합의 부호 정상 · `_classifyDip` label/reasoning/score 정상 · 콘솔 JS 0. R1 7곳+캐시버스터 6곳+P493~494.
+
+---
+
+## v50.19 - 트레이딩 로직 이면(공식/가중치/임계값) + 실효성 보강: signal·home (2026-06-09)
+
+**사용자: "각 페이지 빠진 부분/영역 없어? 실질적 의미와 이면까지 확인했어? 실제 트레이딩/매매에 활용·도움 될 것 같아?"** → 증상(stale/깨짐) 너머 **로직 타당성·페이지간 정합·행동가능성**을 점검. signal `computeTradingScore`(index.html:22443) 이면을 직접 추적: 5개 가중(변동성25·모멘텀25·추세20·시장폭20·매크로10) + 교차보정 7종(PCR·AAII 역발상·퍼펙트스톰 패널티·추세-시장폭 다이버전스·HY신용·유가·뉴스감성)은 **정교함(가짜 숫자 아님)** 확인 후, **3가지 실제 약점 발견·근본 시정**.
+
+**(1) 트레이딩 스코어 시장폭 입력 취약 (핵심 매매 숫자 왜곡)**
+- `breadth200`(L22497 computeTradingScore + L22596 computeExecutionWindow)이 `window._breadth200`(v50.6 제거된 200일선이 아니라 레거시 "20SMA above %" 변수명) 미로딩 시 **기본값 75**로 폴백 → 실제 20SMA는 57인데 breadth 페이지 미방문 시 75로 계산 → breadthScore 88(>70 band) = **낙관 편향**.
+- **Fix**: 폴백 체인을 `_breadth200`→`_breadth20`→`DATA_SNAPSHOT.breadth20sma`→`_fb.breadth200`→**57**로 변경(기본 75 제거). 검증: breadthScore 88→**72**(57 실제값 반영), total score 더 정직.
+
+**(2) 손절(exit trigger)이 일반적 -10% (라벨은 "기술적 지지선")**
+- `updateExitTriggers`(index.html:23415)가 `exit-spx`를 `SPX×0.9`(기계적 -10%, 50단위 반올림)로 계산하나 HTML 라벨(L5435)은 "현재가 대비 -10% 기술적 지지선" — 실제 기술적 레벨(이평선/스윙저점)이 아님.
+- **Fix**: **200일선(주요 추세 지지)**이 현재가 아래면 그 레벨, 이미 하회/미가용 시 **50일선→-10% 폴백** + `exit-spx-basis` span으로 근거 동적 표시(라벨 "주요 추세 지지선 종가 하회 시 추세 훼손 신호"로 정직화). `window._spxMA[200/50]`→`DATA_SNAPSHOT._fallback.spx200ma/50ma` 폴백.
+
+**(3) F&G 모멘텀 cross-page 모순 (같은 지표가 정반대 결론)**
+- signal `momScore`(L22476): 극단 탐욕(F&G≥75)을 **85=최대 강세**(추세추종)로 평가. 그러나 home `AIO_ACTION_RULES.sentimentAction`(aio-core.js:9140): 극단 탐욕(>75)에 "**차익실현+비중 축소**"(역발상). → 같은 F&G가 signal은 "가장 강세"·home은 "팔아라"로 정반대 + 극단 탐욕(과매수)을 max 강세로 보는 건 표준(F&G 극단 탐욕=경고)과도 반대.
+- **Fix**: momScore를 **역U자 곡선**으로 — 건강한 탐욕(55~75)=피크 74, 극단 탐욕(≥75)=fade **66**(과매수·모멘텀 소진 위험), 극단 공포(<25)=15→**25**(역발상 반등 floor). signal(추세추종)과 home(극단 역발상)이 극단 구간에서 **같은 방향으로 수렴**. + 가중치 라벨(L4721)에 데이터 소스 명시("모멘텀(F&G·추세추종)" 등).
+
+**이면 타당 확인 (시정 불요)**: home `AIO_ACTION_RULES`(VIX 밴드 포지션 사이징 100/80/50/30/15% + F&G 역발상 행동) 로직 합리적 · sentiment VIX 기간구조 "백워데이션(패닉)"=`VIX9D>VIX×1.02` 분기 타당(절대 레벨 아닌 구조 신호, 6/5 셀오프 후 근월 변동성↑ 정상 + "1~2주 내 반등" 프레이밍 적절) · macro 온도계 입력별 점수(VIX/곡선/WTI/DXY/HYG) 합리적(정밀 추적은 잔여).
+
+**실효성 정직 판정 (사용자 질문 직답)**: signal/home은 **시장 국면·리스크 포지션 사이징·리스크 모니터링·교육·시나리오 인지**에는 유용한 "사이클·리스크 게이지". 단 **종목별 진입가·목표가는 없음**(ticker 페이지로) — "이거 지금 X에 사라" 신호 생성기가 아닌 "지금 사이클 어디·리스크 얼마나" 도구. 이번 3 시정으로 핵심 점수의 낙관 편향 제거·손절 현실화·페이지간 정합이 개선돼 매매 보조 신뢰도 상향.
+
+**정직한 잔여 (순차 계속)**: breadth consensus·briefing·technical·macro(온도계 정밀)·fxbond·fundamental·themes 이면 + KR 5페이지. **검증**(SW 해제+캐시삭제 fresh): computeTradingScore 무오류 실행 · breadthScore 72(57 반영) · momScore 34(F&G 39) · 콘솔 JS 0. R1 7곳+캐시버스터 6곳.
+
+---
+
+## v50.18 - 10페이지 분석/해석 텍스트 직접 정독 + stale 내러티브 근본 시정 (2026-06-09)
+
+**사용자: "테마/트렌드도 확실히 본 거 맞아? 각 페이지 근본 개선도? 10페이지 모두 차트/지표 위주로만 본 거야? 단순 사용설명 텍스트뿐 아니라 기능/섹션 설명·분석·해석 텍스트 모두 하나씩 직접 점검."** → 정직 인정: v50.17은 차트/데이터/날짜토큰 위주였고 산문(prose)은 정독 안 함. v50.18에서 10페이지 분석/해석/설명 텍스트를 실제 추출·정독해 "날짜 토큰은 아니나 현재 시장과 안 맞는 stale 내러티브"(매매 오인 위험)를 시정.
+
+**시정 (실제 정독으로 발견)**
+1. **themes 시장국면 모순** — 동적 readout(`cycle-dynamic-phase`)은 "Mid Cycle (Expansion)"인데 바로 아래 정적 블록(`cycle-analysis` index.html:8865)은 "경기 후반(Late-cycle)+스태그플레이션(물가↑·성장↓=최악의 조합)" 단정 → 정면 충돌. 사용자가 "스태그플레이션 최악"을 현재로 오인. → 정적 블록을 "단정"에서 **"조건부 교육"**(방어 강세=Late-cycle 신호 / 성장 주도=Expansion, 양 국면 설명 + "현재 판정은 위 동적 readout 따르세요")으로 전환. 라벨 "사이클 진단(참고 기준)"→"사이클 진단 읽는 법(교육·현재 판정 아님)".
+2. **macro 스토리라인 전제 오류** — "해석:"(index.html:7147) "2026년은 이중 위험(고용은 둔화↓ + 인플레는 상승↑)" → 5월 NFP 172K(견조)로 **정반대**(강한 고용이 금리인하 철회의 원인 = 현재 핵심 스토리). → "견조한 고용(5월 NFP 172K로 인하 기대 후퇴)+끈적한 인플레·유가 리스크"로 정정 + "실시간 국면은 온도계·동적 시그널 우선" 주석.
+3. **signal 유가 내러티브 stale (근본·이중 버그)** — CP1(지정학)·CP6(원자재) 리스크보드 텍스트가 "WTI $97.20 (고점권)·지정학 프리미엄·$110+ 재급등"인데 **live WTI는 $89.52**. (a) `getCP1Text`/`getCP6Text`(aio-core.js:16074/16171)가 `_snap.num(DS.wti)`(DATA_SNAPSHOT 6/5 스파이크 97.2)를 읽고 live `_liveData['CL=F']` 무시 → **live CL=F/BZ=F 우선**으로 시정. (b) `renderCPTexts`가 `applyDataSnapshot`에서만 호출되고 `aio:liveQuotes`(live 도착)엔 안 돌아 init 시점 snapshot을 캡처 후 안 바뀜 → signal liveQuotes 핸들러(`core-signal-live`)에 `renderCPTexts()` 추가. 검증(SW 해제+캐시삭제 fresh): CP1 "WTI $89.52 (안정화 기대)" · CP6 "$89.52·Brent $92.73 (완화 기대)".
+4. **breadth cell-level 모순** — 50SMA 카드(`data-snap`)는 52%인데 바로 아래 해석 readout(index.html:5617)은 정적 "50일선 46% — 50% 미탈환"(52%면 상회인데 미탈환=결론 반대) + 막대 width 46% 고정. → readout에 id 부여 + `updateBreadthBars`(aio-ui.js)에 breadth-50sma 막대 width·readout 텍스트 동적 갱신 추가(window._breadth50→DATA_SNAPSHOT.breadth50sma 폴백). 검증: 카드·막대·readout 모두 52%, "50% 상회(약)". 부수: 20SMA 행이 `window._breadth200`(v50.6 제거 레거시 20일선명) 단독 → `_breadth20` 폴백 robust.
+
+**클린 확인 (prose 정독 결과 이상無)**: home(뉴스 SpaceX IPO/Hormuz/CoreWeave 당일·포지션 사이즈 live VIX 18.1/F&G 39 동적·가중치 교육) · sentiment(F&G 39/VIX 18.1 동적 전환 해석·NAAIM/II 교육·"역사적 극단 매칭 없음" 정직) · briefing(v50.17 재검증) · technical · fxbond · fundamental. 6페이지 prose + stale 패턴(고용둔화·유가고점권·휴전단정·랠리지속·regime단정·Risk-On확실) 교차 스캔 = **0건**(위험 내러티브는 themes/macro/signal에 집중, 전부 시정).
+
+**방법론 교훈 재확인**: 텍스트 stale은 날짜토큰 스캔으론 안 잡힘 — 분석/해석 산문을 실제 정독해야 "현실과 모순되는 내러티브"(스태그플레이션 단정·고용 둔화·유가 고점권) 검출. preview SW가 편집 JS 가림(getCP1Text 수정 후에도 "97.20" 잔존) → `navigator.serviceWorker.unregister()`+`caches.delete()`+reload로 fresh 검증 + 서버 `fetch('./js/aio-core.js?v=')`로 디스크 정합 대조(서버엔 수정 존재 확인). R1 7곳+캐시버스터 6곳.
+
+---
+
+## v50.17 - 종합·시장분석 10페이지 이면 직접 점검 + stale 콘텐츠 근본 회귀 방지 (2026-06-09)
+
+**사용자 요구: "하나씩 직접 확인해. 겉만 훑지 말고 이면까지 꼼꼼히" + "근본적 개선도 같이 진행하고 있는 거지?"** → 종합 5(home/signal/breadth/sentiment/briefing) + 시장분석 5(technical/macro/fxbond/fundamental/themes)를 라이브 preview에서 데이터 이면까지 직접 점검 후 실 시정 + 자동 감지 레이어 신설.
+
+**시정 (사용자 매매-안전 직결: stale/오염 데이터가 현재처럼 보이는 케이스)**
+1. **전역 시장폭 칩 오라벨 (근본)** — `updateMarketPulse`(index.html:23635) 시장폭 칩이 v50.6에서 제거한 `window._breadth200`(undefined)→`_breadthLiveData`(null)→`calcSectorBreadth`(11섹터 당일 양봉비율 27%)로 폴백 → 실제 breadth(50일선 위 52%)와 불일치하는 **"27% 약세"**(빨강)를 마켓펄스바(전 페이지 공통)에 표시. `_breadth50`→`_breadthLiveData.abv50`→`_breadth20`→`DATA_SNAPSHOT.breadth50sma` 폴백 체인으로 시정 → "52% 주의"(amber) 정합.
+2. **sentiment NAAIM/II/HY 차트 빈 화면 (근본)** — `_lazyInitChartPage`(IntersectionObserver rootMargin 100px)가 내부 `.content` 스크롤 컨테이너에서 화면 밖 차트(naaim 1325px/ii/hy)를 미발화 → `initSentimentPage`에 진입 후 1.4s 안전망 타이머 추가: 미렌더(LWC 컨테이너 무+캔버스 빈) 차트만 강제 init(중복 방지). 직접 호출 시 정상 LWC 렌더 확인 후 적용.
+3. **fxbond yield curve "수집 대기" 멈춤 (근본·이중 버그)** — (a) `initYieldCurveChart()`가 `_initMacroPage`에서만 호출 + fxbond는 자체 init 호출 없음 → koreaCurveChart 영구 "수집 대기". (b) `getElementById('koreaCurveChart')||...yieldCurveChart` 셀렉터가 koreaCurveChart(항상 DOM 존재) 우선 → macro 호출도 fxbond 숨은 캔버스로 오렌더 + 공유 `_ycChart` destroy 충돌. → `initYieldCurveChart(targetId)` 파라미터화 + per-canvas `_ycCharts{}` 인스턴스맵 + fxbond 페이지 init에 `initYieldCurveChart('koreaCurveChart')` 추가 + macro는 `'yieldCurveChart'` 명시 + 라벨 aria "한국 국채"→"미 국채(US Treasury)" 정직화(실제 ^IRX/^FVX/^TNX/^TYX 플롯).
+4. **signal 단기 시나리오 + Event Runway de-stale** — `AIO_SCENARIO_REGISTRY.signalShortTerm`(lastUpdated 5/31, 9일 stale — "AVGO 실적"(6/4 발표완료)·"NFP +80~130K"(실제 172K)·"Computex 젠슨황"(종료)을 미래 트리거로 표시) + `AIO_EVENT_RISK_CONTEXT`(asOf 2026-05-14, 26일 stale, timeline 4건 전부 과거: Trump-Xi summit/NVDA earnings/OPEX) → 6/9 현재 전망(6/10 May CPI·6/12 호르무즈·6/17 FOMC dot plot·6/25 PCE)으로 교체.
+5. **home** — SPX_ATH 폴백 7412.84(stale)→`DATA_SNAPSHOT.spxATH`·regime 설명 "ATH 근처"→실제 갭+VIX 맥락·topbar "시세 연결 중" 고정→`aio:liveQuotes` 갱신(이전 turn 누적분 포함).
+
+**근본 회귀 방지 레이어 (사용자 "근본적 개선" 요구 직접 대응)**
+- `getScenarioFreshnessAudit`가 `reg.scenarios`만 순회하고 **`signalShortTerm` 누락**(9일 stale 미탐지 진짜 갭) → `checkBlock()`으로 두 블록 모두 점검 + `signalStaleDaysThreshold:7`(단기 전술=주간 갱신 기대) + signalShortTerm 확률합 검증.
+- **신규 `AIO.getEventTimelineStalenessAudit()`** — 수동 createdAt(한 단계 위 stale 함정)에 의존하지 않고 실제 `AIO_EVENT_RISK_CONTEXT.timeline[].date`/`asOf`를 읽어 "타임라인 전부 과거"·"asOf 14일+"를 self-validating 감지(Event Runway 26일 stale 재발 차단). 캐시된 stale 데이터로 `wouldFlag:true` 검증.
+- 둘 다 `getAutoOpsReadiness`에 배선 — **`getScenarioFreshnessAudit`는 이전에 정의만 있고 aggregator 미집계(orphan)**였음.
+
+**클린 확인 (이면 점검 결과 이상無)**: briefing(뉴스 35건 당일 20:00/17:18 최신·내용도 6/9 실황[CoreWeave/호르무즈/쿠웨이트 원유/중국 5월 수출]·과거참고 6/5 archive 마킹·5대 관전포인트 동적) · macro(FRED 폴백 정합·"4월 PCE=현재 공식 마지막값/May CPI 6/10 발표 전 생성안함" 정확 프레이밍) · technical(Event Runway 시정 외 클린) · themes/fundamental(클린). **방법론 교훈**: technical 33개 "빈 캔버스"는 false positive — 조상 트리에 `tv-lightweight-charts`(LWC 다중 캔버스 panes) 확인(직속 부모만 보면 오탐). 픽셀 검사는 LWC에 신뢰 불가(사용자 기존 지적 재확인).
+
+**검증 (v50.17 fresh fetch reload)**: 시장폭 칩 52% 주의 · sentiment naaim/ii/hy `rendered:true` · fxbond yield curve 인스턴스+"✓ 정상 곡선" · `getEventTimelineStalenessAudit` status ok(asOf 0일·future 4/4) · `getScenarioFreshnessAudit` status ok(0 stale) · 콘솔 JS 에러 0(FRED API 키 경고만). T783~T785 회귀 가드. R1 7곳+캐시버스터 6곳.
+
+---
+
+## v50.16 - 시장 폭 차트 전체 사이클 복원 + FRED 폴백 현재값 정합 + 캐시버스터 bump (2026-06-09)
+
+**시장 폭 "히스토리" 차트 평탄·축 오류 근본 시정 (사용자 라이브 지적: "0/50/100 비율이 맞아? 바뀌지도 않고")**: 직접 스크린샷 확인 결과 — (1) **Y축 라벨 잘림** — 캔버스 폴백이 0/25/50/75/100% 라벨을 그리나 `padX=8`이라 '100%'가 캔버스 밖으로 잘려 "%"만 보이던 버그 → padX 34로 라벨 표시. (2) **차트 평탄** — bh 히스토리 배열이 최근 20일 윈도우(5월 고점 구간만)라 평탄선 → **전체 사이클(3월 변동성 저점 33%→4-5월 신고가 랠리 86%→6/5 셀오프 급락 57%)** 22포인트로 교체. `ensureVisibleCanvasFallbacks`가 `slice(-14)`로 저점 시작부를 잘라 평탄해 보이던 것도 전체 배열로 수정. 라이브 검증: 5/20/50SMA 히스토리 모두 명확한 상승→급락 사이클 + Y축 0/25/50/75/100% 표시. **FRED 폴백 현재값 정합**: CPI 2.9%(실제 3.8%)·Fed 4.5-5.25%(실제 3.50-3.75%)·실업 4.1%(실제 4.3%) 1%p 괴리 → 현재값 정합("참고용" 라벨 유지). **캐시버스터 교훈**: `location.reload(true)`의 true는 모던 브라우저 무시 + `?v=50.15` 고정 캐시버스터가 편집된 JS를 URL 동일로 캐시 서빙 → 같은 버전 내 JS 편집은 preview 반영 안 됨. **캐시버스터/SW_VERSION을 v50.16으로 bump**해 fresh fetch 강제(배포 시에도 필수). 콘솔 JS 에러 0(FRED API 키 미설정 제외).
+
+## v50.15 - 텔레그램 3채널 7일 시장 인텔리전스 전방위 통합 (2026-06-08)
+
+**Changed files**: `js/aio-data.js`, `js/aio-core.js`, `js/aio-ui.js`, `index.html`, `version.json`, `sw.js`, `_context/KNOWLEDGE-BASE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`, `CLAUDE.md`, `.claude/skills/data-refresh/SKILL.md`
+
+**투자 심리(sentiment) 페이지 stale 차트·깨진 기능·여백 근본 시정 (사용자 라이브 캡쳐 지적 "차트 다 옛날 데이터 + 여백 과다 + 기능 안 나옴 — data-refresh 그렇게 했는데 왜?")**: 정직 진단 — 내 data-refresh(v50.11 등)는 `DATA_SNAPSHOT` 스칼라만 갱신하고 **차트 시계열 배열(`js/aio-ui.js`)을 누락**해 sentiment/breadth 차트가 4월~5/1에서 멈춰 있었음(내 실행 실패). 시정: (1) **stale 배열 6월 연장** — sentiment: `labels20`(VIX/HY/PC 공유)+`vixData`+`hyData`+`pcLabels/pcData`+`naaimData`(6/3)+`iiBull/iiBear`(6/4)+`aaiiLabels/Datasets`(6/5). **추가 전수 sweep(사용자 "싹 다 찾아")**: breadth 페이지 `bpLabels`+8 데이터 배열(bpSPY/QQQ/SPX5/NDX5/SPX20/NDX20/SPX50/NDX50, 5/1→6/5) + `bhLabels`+8 히스토리 배열(4/2→최근 20일 5/8~6/5) + **VKOSPI `vkLabels/vkData`(4/8→6/5, 동시에 비현실적 오류값 81.99 등 정정 — v49.92 DATA_SNAPSHOT.vkospi=18.20 보정이 이 차트엔 미전파됐던 것)** + sentiment 폴백 배열 8개. 총 **34개 차트 배열**. 6/5 셀오프 반영.
+
+**breadth 차트 "일자(flat) 라인 / 데이터 대기 중·API 키 확인" 근본 시정 (사용자 라이브 지적)**: 시장 폭 차트가 3가지 상태로 깨져 있었음 — 정상 시계열 / 단일값 평탄선 / "데이터 대기 중·API 키 확인". 원인: (1) **변수명 버그** — 폴백 `_aioBreadthCanvasRender`가 `window._breadth20`을 읽는데 aio-ui.js는 20SMA 값을 `_breadth200`(레거시 오명)에만 저장 → `_breadth20` 미정의 → 20SMA "데이터 대기 중" (수정: `_breadth20` 추가). (2) **폴백이 단일값 평탄선** — 라이브 폭 시계열(`bld`) 없으면 단일 current 값으로 20포인트 평탄 배열 생성 → 일자 라인 (수정: `window._breadthSeries` 전역 시계열 신설, 모듈 로드 시 설정 — lazy Chart.js init 전에 폴백 실행돼도 실제 추이 표시. `_aioBreadthCanvasRender`·`ensureVisibleCanvasFallbacks` 둘 다 전역 시계열 우선). (3) **오해성 "API 키 확인" 메시지** — %aboveMA는 무료 실시간 API가 없음(Yahoo 404·Stooq N/D) → "시장 폭 시계열 준비 중 (주간 스냅샷)"으로 정직화. (4) `ensureVisibleCanvasFallbacks`의 VKOSPI preset 오류값(82.0) 정정 + `c.draw()` 3곳 typeof 가드. 라이브 검증: 5/20/50SMA 모두 timeseries(34~61px 변동, was flat)·20SMA 57% 표시(was "데이터 대기 중"). **별도 잔여**: `c.draw is not a function` 에러 급증은 lightweight-charts(LWC) 내부 렌더 루프 실패(변경 이전부터 존재·렌더는 정상) — LWC 라이프사이클 별도 디버깅 필요. KR_STOCK_DB 가격 3/27(라이브 overridden).
+
+**10개 핵심 페이지 stale/오염 데이터 전수 감사 (사용자 안전 지적: "예전·오염 데이터가 현재 시장으로 오인되면 매매 치명적")**: 종합 5(home/signal/breadth/sentiment/briefing) + 시장분석 5(technical/macro/fxbond/fundamental/themes) 라이브 진입 — 가시 날짜·빈/평탄 차트·의심 수치 수집. **발견·시정**: **macro FRED 폴백 값이 stale/오류** — CPI 폴백 2.9%(실제 3.8% YoY)·Fed Funds 4.5-5.25%(실제 3.50-3.75%)·실업률 4.1%(실제 4.3%)로 **현재 시장과 1%p 괴리**. `fallbackSeries`(aio-data.js)·`ensureVisibleCanvasFallbacks` preset(aio-core.js) 둘 다 현재값(CPI 3.8·Fed 3.625·실업 4.3)으로 정합 + "참고용 표시" 정직 라벨 유지. **false alarm**: macro "3/6"=분기(3/6/9/12월) 발표 설명. **방법론 한계 정직 고지**: canvas 픽셀 audit이 LWC(별도 컨테이너 렌더)+lazy-init을 "empty/flat"으로 과탐 — 사용자 스크린샷은 차트 정상 렌더 확인. 데이터 정확성은 소스 레벨로 보장(FRED·sentiment·breadth·VKOSPI 전부 현재값). 잔여: c.draw LWC 에러(별개). (2) **VIX 기간구조 "산정 불가" → 작동**: `DATA_SNAPSHOT.vix9d/vix3m/vix6m` 시드 신설 + `_aioRenderVixTermRegime` live 부재 시 폴백 + VIX9D/3M/6M 카드(`data-live-price` 싱크)도 시드 표시. (3) **뉴스 감성 차트 빈 화면 → 즉시 시딩**: 세션당 1포인트씩만 쌓여 비어있던 것을 newsCache 1시간 버킷 즉시 시딩 + localStorage 영속(reload 생존·누적). (4) **거대 여백 해소**: F&G 사이드바가 300px 컬럼에 `minmax(150px)` 컴포넌트를 1열로 쌓아 1795px 과대(우측 차트열 762px 대비 ~1000px 빈 공간) → `minmax(128px)`로 2열화(1504px) + sentiment 그리드 `align-items:start`(카드 내부 317~418px stretch 여백 제거). (5) **재발 방지**: data-refresh SKILL.md에 "차트 시계열 배열 마지막 라벨=refresh 날짜 일치" 필수 검증 게이트 추가. 라이브 검증: VIX term 작동·NAAIM 89.50(6월)·VIX9D 20.60·여백 카드 0·콘솔 JS 0.
+
+**Changed files (텔레그램 통합)**: `js/aio-data.js`, `js/aio-core.js`, `index.html`, `version.json`, `sw.js`, `_context/KNOWLEDGE-BASE.md`, `_context/CLAUDE.md`, `CHANGELOG.md`, `CLAUDE.md`
+
+사용자 요청: 3개 텔레그램 채널(@insidertracking·@aetherjapanresearch·@bornlupin)의 최근 7일 주요 소식을 기관 리포트/종목 커버 + 시장/매크로/개별 기업까지 광범위하게 통합. **로그인 불가(Chrome 제외)** → **공개 `t.me/s/<채널>` 웹 프리뷰**로 로그인 없이 최근 고임팩트 포스트(6/5~6/8) 포착.
+
+**포착된 핵심 인텔리전스**
+- **NVIDIA 한국 AI 인프라 블리츠(6/8)**: 젠슨 황 방한 — SK하이닉스(차세대 메모리 다년·Vera CPU), 삼성(HBM4/SOCAMM·HBM4E·Groq 4-8nm), 네이버(1GW AI팩토리·소버린 AI B2B·$50-60B capex·5년 20조), SKT(DSX), 현대차(AV)
+- **메모리 슈퍼사이클 리레이팅**: CLSA 삼성 40→54만·SK하이닉스 252→370만·마이크론 $970→$1,320 / NH 삼성 53만·SK하이닉스 320만 / 서버 DRAM +45%/+55%·재고 2-3주·HBM ASP +30% / Meritz NVL72 SOCAMM2 192→96GB에도 총 DRAM +10-20%
+- **Citi 반도체 2027 공급제약**: SOX +61% YTD, 톱픽 AVGO/TXN/AMAT
+- **6/5 포지셔닝 청산 셀오프**: S&P -2.6%·나스닥 -4.2%·SOX -10%, 5월 NFP 172K(예상 85K 상회)→2Y 4.17%, JPM "구조 전환 아닌 언와인드", 골드만 인하 전망 철회
+- **JPM AI·에너지**: DC 전력 485→950TWh, capex $3.9조 중 20% 에너지, 에이전트 50Wh/쿼리
+- **개별**: Apple Siri on NVIDIA B200(9월), Planet Labs $1.5B 증자 / **중동 재고조**: 후티 홍해봉쇄·이란 호르무즈 경고·유가 +4-5%·원화 1,529
+
+**통합 surface (5)**
+1. **HOME_WEEKLY_NEWS**(aio-data.js): 5대 뉴스 전면 교체 (NVIDIA 한국/메모리 리레이팅/6·5 셀오프/AI 에너지/지정학)
+2. **DATA_SNAPSHOT**(aio-core.js): 6/5 종가+6/8 상태로 갱신 — SPX ~7,388(-2.6%, ATH 7,585 유지)·나스닥 ~25,704·VIX 19.38(미러 동기화 R184)·5월 NFP 172K·2Y 4.17%·WTI ~97.2·원화 1,529·골드만 인하철회·nvidiaKoreaWeek/currentTopic 신규. 지수 레벨은 텔레그램 % 환산·출처 명시, 라이브 우선
+3. **AI 채팅 `_getV48IntegratedContext`**(index.html): v50.15 텔레그램 블록(NVIDIA 한국 동맹·메모리 1차 제약·Citi 2027·포지셔닝 청산 진단·AI 에너지 곡선·Apple B200·중동) 전 페르소나 자동 주입
+4. **KR_THEME_CATALYSTS**(index.html): semi/ai-sw/auto에 한국 동맹+CLSA/NH 목표+네이버 AI팩토리
+5. **KNOWLEDGE-BASE**(R26): 4개 durable 패러다임 PT-I(소버린 AI 동맹)·PT-J(메모리 1차 제약)·PT-K(포지셔닝 청산 진단)·PT-L(AI 에너지 곡선)
+
+**심화 2차 패스 (`?before=<msgID>` 페이지네이션으로 6/1~6/5 기관 리포트 프레임워크 확보)**
+- **기관 리포트 프레임워크 통합** (AI 채팅 `_getV48IntegratedContext` v50.15 2차 블록): **Mizuho ASIC 쓰나미**(TPU 4.3M→35M 2028·DRAM 수요 +27%/+24% vs 웨이퍼 +10%/+6% = 구조적 부족·AVGO TAM $600B·HBM $246B), **Morgan Stanley AVGO TP $502↑**(Q3 +47.9%·Q4 가이드 $294B·AI FY27 >$100B — "강한 수요인데 기대치 하회로 -12.6%" 정합), **JPM Computex**(Kyber 2H27·Vera CPU 320K→3M·SiC TAM·extreme co-design), **Bernstein**(800V HVDC·L2L 냉각·NPO/CPO), **Jefferies MSFT $575**(가치가 모델→오케스트레이션 레이어 이동), **한국 메모리 컨센**(Daeshin Overweight 삼성 56만/SK하이닉스 340만·Meritz "노이즈=기회"), **JPM 포지셔닝**(69%ile·콜옵션 정점)·**WSTS**(반도체 +90% $1.51T)·**BofA LNG**·**Musk 메모리 팹**. **SemiAnalysis(Dylan Patel) 직접 정정**: 6/4-5 SOCAMM 셀오프는 TMT Breakout 오독 기반.
+- **KNOWLEDGE-BASE +2** (R26): PT-M(ASIC 수요-공급 갭 = 구조적 부족), PT-N("노이즈 셀오프 vs 펀더멘털" 진단 — SOCAMM 오독 + AVGO beat-but-fell).
+- **KR_THEME_CATALYSTS 보강**: semi(Daeshin 목표가+Mizuho ASIC+SemiAnalysis 오독 정정), ai-sw(네이버), auto(현대차), shipbuilding(BofA LNG), + LG 5대그룹 동맹. HOME 뉴스 NVIDIA 항목에 LG+HBM4 3사 인증 추가.
+
+**(B) 뉴스 surface 파이프라인 전수 점검 + 근본 개선** (사용자 요청 — 심층 코드 조사):
+- **선별 로직(`scoreItem`)**: 키워드(MACRO/TECH/MED/ANALYST_KW, 제목 1.5배·CJK 길이 가중)+소스 tier/프리미엄+신선도 감쇄+티커(extractTickers, 메가/대형주 부스트)+인물발언+5대 우선토픽+정치 감점. **정교함 확인**. **개선**: `_PRIORITY_KW`에 최신 토픽 +30(ai factory/sovereign ai/socamm/hbm4e/kyber/agentic ai/positioning unwind/호르무즈/exaone 등).
+- **개별 기업 뉴스 연결 (사용자 핵심 지적 "개별 기업 뉴스 약함")**: `scoreItem`이 이미 항목별 `extractTickers`로 티커를 검출하나, `_fetchTickerDataForChat`(개별기업 분석)은 Finnhub 종목뉴스(API 키 필요)만 쓰고 **60+ RSS/텔레그램 캐시를 종목별로 연결 안 함**이 진짜 갭. **신규 `_aioTickerNewsFromCache(ticker)`**: newsCache를 종목(심볼+한글명 별칭)으로 필터, 7일 윈도우, score+신선도 정렬 Top 6를 종목 데이터 블록에 주입 — **API 키 불요**. 라이브 검증: NVDA 22건 매칭(Citi 반도체 리포트·NVIDIA-SK하이닉스·현대차 파트너십 등 텔레그램 기관 리포트 포함). **정직 재검증으로 발견·시정한 버그 2건**: (a) **KR 종목 누락** — 삼성전자(005930.KS) 0건(레지스트리 비고 숫자코드가 한글명 뉴스와 불일치)을 **`KR_STOCK_DB` 코드→한글명 해석**('005930'→'삼성전자')으로 12건 복구, SK하이닉스도 NVIDIA 파트너십 뉴스 포착(1→5건). (b) **2글자 영문 오탐** — 'ON'(온세미)이 단어 "ON"에 55건 대량 오탐을 **blob 매칭을 CJK 한글명/6자리코드/영문≥4로 제한**(2~3자 영문은 구조화 extractTickers만 신뢰)해 0건 차단. 회귀 가드 **T782** 신설. 데이터 갱신으로 stale된 T760/T761(v50.4 Computex/SpaceX 검사)은 v50.15 현재토픽(NVIDIA 한국/메모리/NFP)으로 정합화. runTests 836/21(기존 헤드리스 baseline, 신규 회귀 0).
+- **정직한 정정**: 직전 "권장 1(t.me/s 스크레이프를 실제 fetch 폴백으로 배선)"은 **틀림 — 이미 완전 구현됨**. `fetchTelegramDirect`(aio-data.js:9310)가 `t.me/s/${slug}` + 7프록시 CORS 체인 + DOMParser로 step3 폴백 수행(CF Worker rsshub 미러 → rss2json → t.me/s 직접). `isTelegramMsgRelevant`도 기관 리포트(goldman/jpm/jefferies/bernstein/증권사/목표가) 통과시킴. v50.15에서 추가한 publicMirror 메타데이터는 사실상 중복(무해·문서화용). **결론: 텔레그램 파이프라인은 이미 견고.**
+- **번역(사용자 질문)**: 외신 자동 한국어 번역 시스템 존재(aio-data.js:6910, Claude Haiku 배치 8건). 단 **① Claude API 키 필요 ② fetch 후 배치 처리라 시간 소요(키 없으면 영어 원문, "[번역 중]" 태그) ③ 결과 캐시로 재번역 방지**.
+- **남은 판단(미변경)**: home surface `analyst` 토픽 제외는 max3 "핵심 시장판단" 슬롯의 등급변경 노이즈 방지 목적 — 의도된 정책으로 유지(개별 기관 분석은 위 종목 뉴스 연결로 커버).
+
+**검증**: 라이브 reload — DATA_SNAPSHOT(spx 7388·nfp 172·vix 19.38·wti 97.2·krw 1529·currentTopic)·미러 정합·채팅 1·2차 블록(Mizuho/MS $502/Jefferies $575/SemiAnalysis/LG 전부)·홈뉴스·KR테마·텔레그램 publicMirror 2건 모두 반영, 콘솔 JS 에러 0. R1 7곳 + 캐시버스터 6곳. 커버리지: 6/1~6/8 약 60+ 포스트 + 기관 리포트 15+건(Mizuho/MS/JPM×3/Bernstein/Citi/Jefferies/Daeshin/한투/Meritz×2/삼성증권/BofA/WSTS).
+
+---
+
 ## v50.14 - 프론트엔드/UX 근본 보강: 회귀 방지 인프라 + 접근성 (2026-06-08)
 
 **Changed files**: `index.html`, `js/aio-core.js`, `js/aio-data.js`, `js/aio-tests.js`, `version.json`, `sw.js`, `_context/RULES.md`, `_context/CLAUDE.md`, `CHANGELOG.md`, `CLAUDE.md`

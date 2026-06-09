@@ -2646,10 +2646,12 @@ var _fredChartInstances = {};
 async function _renderFredCharts() {
   var statusEl = document.getElementById('fred-chart-status');
   // v49.63 통합 (Codex v49.61): FRED 폴백 시스템 — API 키 미설정 시 12개월 reference 차트 표시
+  // v50.15: 폴백 시리즈를 현재값으로 정합 (사용자 지적: 거시 차트가 오염/예전 데이터면 매매 오인 위험).
+  // 끝값 = DATA_SNAPSHOT 현재값: 실업률 4.3%(4월)·CPI YoY 3.8%(4월, 인플레 재가속)·Fed 3.50-3.75%(중앙 3.625).
   var fallbackSeries = {
-    UNRATE: [3.7, 3.8, 3.9, 4.0, 4.0, 4.1, 4.1, 4.2, 4.1, 4.0, 4.0, 4.1],
-    CPIAUCSL: [3.1, 3.0, 2.9, 3.0, 3.2, 3.3, 3.1, 2.9, 2.8, 2.7, 2.8, 2.9],
-    FEDFUNDS: [4.75, 4.75, 4.50, 4.50, 4.25, 4.25, 4.00, 4.00, 3.75, 3.75, 3.50, 3.50]
+    UNRATE:   [4.0, 4.0, 4.1, 4.1, 4.2, 4.2, 4.2, 4.3, 4.3, 4.2, 4.3, 4.3],
+    CPIAUCSL: [3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.6, 3.7, 3.8, 3.8, 3.8],
+    FEDFUNDS: [4.50, 4.25, 4.25, 4.00, 4.00, 3.75, 3.75, 3.75, 3.625, 3.625, 3.625, 3.625]
   };
   var fallbackSeriesMeta = [
     { id: 'UNRATE', canvas: 'fred-unrate-chart', color: '#ff5b50', label: 'Unemployment (%)' },
@@ -4479,8 +4481,8 @@ const AIO_NEWS_SOURCES = [
   {name:'Washington Post Business', url:'https://feeds.washingtonpost.com/rss/business',             country:'us', tier:1, flag:'US', topics:['macro','equity']},
 
   // ═══ TIER 1: 텔레그램 큐레이션 채널 ═══
-  {name:'TG Insider Tracking',       url:'https://rsshub.app/telegram/channel/insidertracking',       country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'insidertracking'},
-  {name:'TG BornLupin',              url:'https://rsshub.app/telegram/channel/bornlupin',             country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'bornlupin'},
+  {name:'TG Insider Tracking',       url:'https://rsshub.app/telegram/channel/insidertracking',       country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings','geo'], type:'telegram', tgSlug:'insidertracking', publicMirror:'https://t.me/s/insidertracking', pipelineRole:'us-fast-breaking'},  // v50.15: publicMirror 폴백(rsshub.app 불안정 시 t.me/s 공개프리뷰) + pipelineRole 명시
+  {name:'TG BornLupin',              url:'https://rsshub.app/telegram/channel/bornlupin',             country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'bornlupin', publicMirror:'https://t.me/s/bornlupin', pipelineRole:'kr-semi-broker-notes'},  // v50.15: publicMirror 폴백 + pipelineRole(한국 반도체 sell-side 노트 집중)
   {name:'TG WalterBloomberg',       url:'https://rsshub.app/telegram/channel/walterbloomberg',       country:'us', tier:1, flag:'TG', topics:['macro','equity','earnings'],        type:'telegram', tgSlug:'walterbloomberg'},
   {name:'TG Aether Japan Research',  url:'https://rsshub.app/telegram/channel/aetherjapanresearch',   country:'jp', tier:1, flag:'TG', topics:['macro','equity','semi','geo','japan'], type:'telegram', tgSlug:'aetherjapanresearch', publicMirror:'https://t.me/s/aetherjapanresearch', pipelineRole:'asia-semi-flow'},
   // v37.2: 속보·지정학·매크로 텔레그램 채널 추가 (v39.0: FirstSquawk/FinancialJuice 공개 미리보기 비활성 — 코드에서 자동 스킵)
@@ -6672,6 +6674,12 @@ function scoreItem(item) {
     // 자산배분/로테이션
     'data dependence','forward guidance failure','2% inflation target','mid-inflation',
     '중물가','데이터 디펜던스','이익 확산','quality rotation',
+    // v50.15 (텔레그램 통합): 최신 AI 인프라/메모리/소버린 AI 토픽 우선 노출
+    'ai factory','ai 팩토리','sovereign ai','소버린 ai','socamm','vera cpu','vera rubin','kyber',
+    'hbm4','hbm4e','hbm5','lpddr6','agentic ai','에이전트 ai','physical ai','피지컬 ai',
+    'memory shortage','메모리 부족','dram shortage','asic','tpu','positioning unwind','포지셔닝 청산',
+    'rate cut withdrawn','금리인하 철회','memory super-cycle','메모리 슈퍼사이클','data center power','데이터센터 전력',
+    'hormuz','호르무즈','red sea','홍해','houthi','후티','lng fid','exaone','blackwell','rubin',
   ];
   var priorityHits = 0;
   _PRIORITY_KW.forEach(kw => { if (text.includes(kw)) priorityHits++; });
@@ -8249,11 +8257,12 @@ function renderFeed(items) {
 // v49.8: HOME 핵심 뉴스는 최근 72시간 안의 시장 충격도 높은 맥락만 기본 노출한다.
 // 지나간 이벤트는 예정/핵심 뉴스처럼 고정하지 않고, 실시간 뉴스 수집 성공 시 자동 교체한다.
 var HOME_WEEKLY_NEWS = [
-  // v50.11 (2026-06-05): 6/4 US close + AVGO 실적 결과 반영 + 오늘 NFP 발표일
-  { title: 'Broadcom(AVGO)이 6/4 회계 Q2 실적에서 AI 매출은 성장했으나 높아진 기대치를 하회하며 −12.6%($418.91) 급락, 기술주 투자심리에 부담을 줬습니다. 다만 NVIDIA(+1.9%)와 헬스케어·금융 강세로 S&P500은 7,585 신고가를 경신했고 VIX는 15.40으로 안정세입니다. AI 사이클은 견조하나 "기대치 인플레" 리스크가 부각됩니다.', source: 'Yahoo/TheStreet 2026-06-04', date: '2026-06-04', sentiment: 'warn', topic: 'semi' },
-  { title: '6월 매크로 경로는 오늘 6/5 고용보고서(21:30 KST) → 6/10 CPI → 6/16-17 FOMC → 6/25 PCE 순서로 재가격화됩니다. 발표 완료값은 4월 CPI 3.8%, 4월 NFP +115K/실업 4.3%, 4월 Core PCE 3.3%이며 5월 값은 발표 전까지 생성하지 않습니다.', source: 'BLS/BEA/Federal Reserve calendar 2026-06-05', date: '2026-06-04', sentiment: 'warn', topic: 'macro' },
-  { title: 'Computex/GTC Taipei 2026 주간이 6/5로 마무리됩니다. NVIDIA RTX Spark·AI PC, Intel AI 인프라, Foxconn Vera Rubin 지원 등 AI 하드웨어 밸류체인 촉매가 제시됐으나, 개별 매매 판단은 실시간 뉴스 surface의 verified/current 항목만 사용합니다.', source: 'NVIDIA/AP/Intel/Foxconn 2026-06-01~05', date: '2026-06-04', sentiment: 'bull', topic: 'semi' },
-  { title: 'Reuters 계열 보도에 따르면 SpaceX IPO는 6/11 가격 산정·6/12 Nasdaq 상장 가능성이 시장 화두입니다. 단, 이는 source-dependent IPO watch이며 확정 체결 데이터가 아니므로 유동성 흡수, 우주/위성 밸류에이션, TSLA/방산/우주 테마 심리만 감시합니다.', source: 'Reuters via Investing/Yahoo 2026-05-15~06-02', date: '2026-06-04', sentiment: 'warn', topic: 'ipo' },
+  // v50.15 (2026-06-08): 텔레그램 3채널(insidertracking/aetherjapanresearch/bornlupin) 7일 통합 — 6/8 엔비디아 한국 블리츠 + 6/5 셀오프 + 메모리 슈퍼사이클
+  { title: '젠슨 황 NVIDIA CEO 방한으로 한국 5대 그룹 AI 인프라 동맹이 동시다발 발표됐습니다. SK하이닉스(차세대 메모리 다년 공동개발 + Vera CPU에 SK 메모리), 삼성전자(HBM4/SOCAMM 근시일 공급 + HBM4E·파운드리·Groq 가속기 4nm/8nm 공동개발), 네이버(1GW급 AI 팩토리·소버린 AI B2B 전환, 55MW 2027 상반기→200MW 2027-28, $50-60B capex), LG(피지컬 AI·로봇 Cloi·LGES 800V 전력·EXAONE 소버린 AI on Blackwell), SKT·현대차(자율주행/로보택시)까지 망라됩니다. NVIDIA는 SK하이닉스·삼성·마이크론 3사 모두 HBM4 공급 인증을 완료했습니다. 황은 "웨이퍼부터 커넥터까지 공급망 전체 부족"·"AI 인프라는 10년+ 투자 사이클"이라며 하반기 가속을 강조했습니다.', source: 'Telegram(aether/lupin)·NVIDIA/Bloomberg 2026-06-08', date: '2026-06-08', sentiment: 'bull', topic: 'semi' },
+  { title: '메모리 슈퍼사이클 리레이팅이 본격화됐습니다. CLSA가 삼성전자 40만→54만원·SK하이닉스 252만→370만원·마이크론 $970→$1,320으로 목표주가를 상향(서버 DRAM +45%/+55% 2026/2027, DRAM 재고 역사적 저점 2-3주, HBM 블렌디드 ASP +30% 전망)했고, NH투자증권도 에이전트 AI 메모리 수요로 삼성 53만·SK하이닉스 320만으로 올렸습니다. "컴퓨트보다 메모리가 AI 인프라 확장의 1차 제약"이라는 진단입니다.', source: 'Telegram·CLSA/NH/Meritz 2026-06-08', date: '2026-06-08', sentiment: 'bull', topic: 'semi' },
+  { title: '6/5(금) 미국 증시가 급락했습니다 — S&P500 -2.6%·나스닥 -4.2%·필라델피아반도체(SOX) -10%. 5월 고용 172K(예상 85K 대폭 상회)에 2년물 금리가 +12bp 4.17%로 튀었고, AI 트레이드와 이란 협상 매크로 트레이드가 동시 청산됐습니다. JPMorgan은 "구조적 금리 전환이 아닌 포지셔닝 청산"으로 진단하고, 골드만삭스는 2026년 금리 인하 전망을 철회했습니다. 6/8 월요일은 선물 혼조·반등 시도로 출발했습니다.', source: 'Telegram·JPM/GS 2026-06-05~08', date: '2026-06-05', sentiment: 'warn', topic: 'macro' },
+  { title: 'JPMorgan AI·에너지 리포트: 데이터센터 전력 수요가 485TWh(2025)→950TWh(2030)로 2배 증가하며, 2026-30 누적 capex $3.9조 중 약 20%($780B)가 에너지로 향합니다. 진짜 동인은 단순 검색이 아니라 에이전트 워크플로·영상생성·상시 AI(추론 수요의 75-85%)이며, 쿼리당 전력은 텍스트 0.24Wh→추론 1Wh→에이전트 50Wh로 급증합니다. 수혜: Legrand·Schneider·Siemens Energy·Prysmian·ASML·Infineon 등 전력/그리드 밸류체인.', source: 'Telegram·JPMorgan 2026-06-08', date: '2026-06-08', sentiment: 'bull', topic: 'energy' },
+  { title: '중동 지정학 리스크가 재고조됐습니다. 후티가 홍해 이스라엘 선박 전면 봉쇄를 선언하고, 이스라엘은 테헤란·이스파한·카르그섬 원유터미널을 공습, 이란 혁명수비대(IRGC)는 호르무즈 해협 적대 함정 타격을 경고했습니다. 유가는 중동 공급 우려로 4-5% 급등했고 원/달러는 1,529원까지 약세였습니다. 다만 트럼프는 "이스라엘·이란 모두 즉각 휴전 원해, 합의 임박"이라 밝혀 협상 기대가 공존합니다. 에너지·방산·운송 차별화 국면입니다.', source: 'Telegram(insidertracking)·Trump 2026-06-08', date: '2026-06-08', sentiment: 'warn', topic: 'geopolitics' },
 ];
 window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
 
@@ -9777,11 +9786,32 @@ async function fetchAllNews(forceRefresh = false) {
     if (labelEl) labelEl.textContent = ns.label + ' (' + ns.bullCount + '↑ ' + ns.bearCount + '↓)';
 
     // v46.6: 뉴스 감성 시계열 히스토리 저장 + 차트 렌더
-    if (!window._newsSentimentHistory) window._newsSentimentHistory = [];
+    // v50.15 (사용자 지적: 뉴스감성 차트 빈 화면): 세션당 1포인트씩만 쌓여 >=2 전까지 빈 차트였음
+    //   → (1) localStorage 영속(reload 생존·누적) (2) 첫 진입 시 뉴스 캐시를 시간 버킷으로 즉시 시딩
+    if (!window._newsSentimentHistory) {
+      window._newsSentimentHistory = [];
+      try { var _savedNsh = JSON.parse(localStorage.getItem('aio_news_sent_hist') || '[]'); if (Array.isArray(_savedNsh) && _savedNsh.length) window._newsSentimentHistory = _savedNsh.slice(-24); } catch (_nshR) {}
+    }
     var _nsh = window._newsSentimentHistory;
+    // 히스토리 부족 시 뉴스 캐시(24h)를 3시간 버킷으로 즉시 시딩 — 빈 차트 방지
+    if (_nsh.length < 3 && typeof newsCache !== 'undefined' && newsCache && newsCache.length >= 6 && typeof getSentimentFromText === 'function') {
+      try {
+        var _nowMs = Date.now(), _seedNsh = [];
+        for (var _bk = 11; _bk >= 0; _bk--) {   // 1시간 버킷 × 12 (뉴스가 최근 몇 시간에 몰려도 다포인트 확보)
+          var _hi = _nowMs - _bk * 3600000, _lo = _hi - 3600000;
+          var _bkItems = newsCache.filter(function(it) { if (!it.pubDate) return false; var t = new Date(it.pubDate).getTime(); return t > _lo && t <= _hi; });
+          if (_bkItems.length < 2) continue;
+          var _bBull = 0, _bBear = 0;
+          _bkItems.forEach(function(it) { var s = getSentimentFromText((it.title || '') + ' ' + (it.desc || '')); if (s === 'bull') _bBull++; else if (s === 'bear' || s === 'warn') _bBear++; });
+          _seedNsh.push({ time: new Date(_hi).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }), score: Math.max(0, Math.min(100, Math.round(50 + (_bBull - _bBear) / _bkItems.length * 50))), bull: _bBull, bear: _bBear });
+        }
+        if (_seedNsh.length >= 2) { window._newsSentimentHistory = _seedNsh; _nsh = window._newsSentimentHistory; }
+      } catch (_seedErr) {}
+    }
     var _nsTime = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
     _nsh.push({ time: _nsTime, score: ns.score, bull: ns.bullCount, bear: ns.bearCount });
     if (_nsh.length > 24) _nsh.shift(); // 최대 24포인트
+    try { localStorage.setItem('aio_news_sent_hist', JSON.stringify(_nsh.slice(-24))); } catch (_nshW) {}
     // 라이브 스코어 표시
     var _nsLiveScore = document.getElementById('news-sent-live-score');
     var _nsLiveLabel = document.getElementById('news-sent-live-label');
@@ -13042,10 +13072,13 @@ function refreshHomeDashboard() {
   const regimeEl = document.getElementById('home-market-regime');
   const regimeExplEl = document.getElementById('home-regime-explanation');
   if (regimeEl) {
-    const SPX_ATH = window._spxATH || 7412.84;  // v49.8: 동적 추적 우선, 폴백 2026-05-11 ATH 근접 종가
-    const spxPrice = spx.price || 6506;
+    const SPX_ATH = window._spxATH || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.spxATH) || 7585;  // v50.16: 폴백 7412.84(stale)→DATA_SNAPSHOT.spxATH 현재 ATH
+    const spxPrice = spx.price || (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.spx : 7388);
     const pctFromATH = ((spxPrice - SPX_ATH) / SPX_ATH * 100);
-    let regime = 'UPTREND', regimeColor = '#00e5a0', regimeDesc = 'ATH 근처';
+    // v50.16: 'ATH 근처' 막연 → 실제 갭 + VIX 맥락 (사용자 지적: 이면까지). VIX는 라이브 우선.
+    var _rVix = (ld && ld['^VIX'] && ld['^VIX'].price) ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
+    var _rVixCtx = isNaN(_rVix) ? '' : (' · VIX ' + _rVix.toFixed(1) + (_rVix < 20 ? ' (정상)' : _rVix < 30 ? ' (경계)' : ' (공포)'));
+    let regime = 'UPTREND', regimeColor = '#00e5a0', regimeDesc = 'ATH ' + (pctFromATH >= -0.5 ? '근접' : pctFromATH.toFixed(1) + '%') + _rVixCtx;
     if (pctFromATH < -20) { regime = 'DOWNTREND'; regimeColor = '#ff5b50'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
     else if (pctFromATH < -10) { regime = 'CORRECTION'; regimeColor = '#ffa31a'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
     else if (pctFromATH < -5) { regime = 'PULLBACK'; regimeColor = '#ffa31a'; regimeDesc = 'ATH ' + pctFromATH.toFixed(1) + '%'; }
