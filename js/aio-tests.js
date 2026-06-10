@@ -1203,8 +1203,9 @@
     });
     _assert('T153 content_simplification: no additive decision cards in compact view', document.querySelectorAll('.aio-page-brief-decision,.aio-page-brief-decision-card').length === 0);
 
-    var modeButtons = Array.prototype.slice.call(document.querySelectorAll('.aio-page-brief-mode'));
-    _assert('T154 core_view_toggle: compact/full toggle rendered', modeButtons.length >= ids.length && typeof window._aioToggleCoreView === 'function', 'buttons=' + modeButtons.length + ', pages=' + ids.length);
+    // v50.29 declutter 스펙 반전: Page Routine 박스/토글은 더 이상 렌더하지 않음 (사용자 지시 — 설명서형 제거)
+    var briefBoxes = document.querySelectorAll('.aio-page-brief, .aio-page-brief-mode');
+    _assert('T154 declutter_no_page_brief: Page Routine 박스/토글 0 (v50.29 — 페이지=데이터/분석/액션)', briefBoxes.length === 0, 'briefEls=' + briefBoxes.length);
 
     var home = document.getElementById('page-home');
     var applied = window._aioApplyContentSimplification ? window._aioApplyContentSimplification('home') : null;
@@ -3985,23 +3986,24 @@
   }
 
   function _testV4938HomeDeepAudit() {
-    // T305: home VIX 표 행 수 6 (REGISTRY 6 bands 정합)
-    var vixTable = document.querySelector('[data-threshold-table=\"VIX\"]');
-    var rowCount = vixTable ? vixTable.querySelectorAll('tr').length : 0;
-    _assert('T305 home_vix_table_6rows: VIX 인라인 표 6 행 (REGISTRY 정합)',
-      rowCount === 6, 'rows=' + rowCount);
+    // T305/T306 (v50.29 스펙 갱신): VIX 인라인 "표"는 해설 블록과 함께 declutter로 제거 —
+    // 단일 출처는 THRESHOLD_REGISTRY.VIX이므로 레지스트리 레벨에서 6 bands + 라벨 정합을 검증
+    var vixReg = window.AIO_THRESHOLD_REGISTRY && window.AIO_THRESHOLD_REGISTRY.VIX;
+    var vixBands = (vixReg && vixReg.bands) || [];
+    _assert('T305 vix_registry_6bands: THRESHOLD_REGISTRY.VIX 6 bands (표는 declutter로 제거, 레지스트리가 단일 출처)',
+      vixBands.length === 6, 'bands=' + vixBands.length);
 
-    // T306: home VIX 표 라벨 "주의" 포함 (R56 정합)
-    var vixText = vixTable ? vixTable.textContent : '';
-    _assert('T306 home_vix_label_jueui: "주의" 라벨 포함 (R56 REGISTRY 정합)',
-      /주의/.test(vixText) && /극단 공포/.test(vixText),
-      '주의 label check');
+    var vixLabels = vixBands.map(function(b) { return (b && (b.label || b[1])) || ''; }).join(' ');
+    _assert('T306 vix_registry_labels: VIX bands 라벨에 "주의" + "극단" 계열 포함 (R56 REGISTRY 정합)',
+      /주의/.test(vixLabels) && /극단|패닉/.test(vixLabels),
+      'labels=' + vixLabels.slice(0, 60));
 
     // T307: L4224 오타 `뷰블` 제거
     var homeEl = document.getElementById('page-home');
     var homeText = homeEl ? homeEl.textContent : '';
+    // v50.29: 해당 텍스트가 든 해설 블록 자체가 declutter로 제거됨 — 오타 부재만 단언
     _assert('T307 home_typo_fixed: "뷰블" 텍스트 제거',
-      !/뷰블/.test(homeText) && /버블/.test(homeText),
+      !/뷰블/.test(homeText),
       '뷰블 found=' + /뷰블/.test(homeText));
 
     // T308: THRESHOLD_REGISTRY.DXY + YIELD_10Y bands 등록
@@ -4103,15 +4105,18 @@
       allUpdated, updatedKeys.filter(function(k){return !pc.criteria[k].implFn;}).join(',') || 'all updated');
 
     // T294: 페이지 가용성 배지 ❌/⚠ → ✓ 갱신 (3개 ❌ 제거)
+    // v50.29: 배지 박스 자체가 declutter로 제거 — ❌ 0 단언은 부재 시에도 참(의도 유지)
     var explainEl = document.querySelector('[data-fund-criteria-registry=\"AIO_FUNDAMENTAL_PAGE_CRITERIA\"]');
     var txt = explainEl ? explainEl.textContent : '';
     var redCount = (txt.match(/\[❌/g) || []).length;
     _assert('T294 v4936_page_badges: 페이지 ❌ 배지 0개 (모두 ✓ 갱신)',
       redCount === 0, '❌ count=' + redCount);
 
-    // T295: 커버리지 박스 93% 표시
-    _assert('T295 v4936_page_coverage_box: coverage box shows current coverage',
-      /14\/15|93%|15\/15|100%|커버리지/i.test(txt), 'coverage box content check');
+    // T295 (v50.29 스펙 갱신): 커버리지 "박스"는 declutter로 제거 — audit 함수가 커버리지를 보고하는지 검증
+    var covAudit = window.AIO && window.AIO.getFundamentalPageCriteriaAudit ? window.AIO.getFundamentalPageCriteriaAudit() : null;
+    _assert('T295 fund_criteria_coverage_audit: getFundamentalPageCriteriaAudit coveragePct ≥ 87 (박스는 declutter로 제거)',
+      !!covAudit && typeof covAudit.coveragePct === 'number' && covAudit.coveragePct >= 87,
+      covAudit ? ('coverage=' + covAudit.coveragePct + '%') : 'audit missing');
 
     // T296: CIK_MAP 50+ 확장 (BAC, V, MA 등 신규 등록)
     // 직접 접근 어려움 → fetchSECBusinessDescription async 호출로 간접 검증
@@ -4158,11 +4163,12 @@
       xRef && xRef.pageCriteria15 === 15 && xRef.fundamentalCriteria15 === 15 && xRef.analysisFrameworkPerspective17 >= 17,
       xRef ? ('page=' + xRef.pageCriteria15 + ' fund=' + xRef.fundamentalCriteria15 + ' framework=' + xRef.analysisFrameworkPerspective17 + ' total=' + xRef.analysisFrameworkTotal) : 'missing');
 
-    // T289: 페이지 DOM 가용성 배지 (data-fund-criteria-registry 속성)
-    var explainEl = document.querySelector('[data-fund-criteria-registry=\"AIO_FUNDAMENTAL_PAGE_CRITERIA\"]');
-    _assert('T289 page_dom_registry_marker: data-fund-criteria-registry 속성 + 가용성 배지',
-      !!explainEl && /\[✓|\[⚠|\[❌/.test(explainEl.textContent || ''),
-      explainEl ? 'badges present' : 'missing');
+    // T289 (v50.29 스펙 갱신): 가용성 배지 박스는 해설 블록과 함께 declutter — 레지스트리 15기준 자체를 검증
+    var fundCritReg = window.AIO_FUNDAMENTAL_PAGE_CRITERIA;
+    var fundCritInner = fundCritReg && fundCritReg.criteria ? fundCritReg.criteria : fundCritReg;
+    var fundCritLen = Array.isArray(fundCritInner) ? fundCritInner.length : (fundCritInner ? Object.keys(fundCritInner).length : 0);
+    _assert('T289 fund_criteria_registry: AIO_FUNDAMENTAL_PAGE_CRITERIA 15기준 등록 (배지 박스는 declutter로 제거)',
+      fundCritLen >= 15, 'criteria=' + fundCritLen);
 
     // T290: getAutoOpsReadiness 21→22축 (pageCriteria 통합)
     var ops = window.AIO.getAutoOpsReadiness();
@@ -4499,12 +4505,12 @@
 
   // ── Group37: v49.29 나머지 11항목 페이지 적용 ─────────────────────────────
   function _testRemainingPagesV4929() {
-    // T231: signal E3 page-purpose 헤더
+    // T231 (v50.29 declutter 스펙 반전): "페이지 목적" 설명 박스 부재 — 사용자 지시로 제거됨
     var sigPurpose = document.querySelector('#page-signal[data-page-purpose="signal"]');
     var sigPurposeText = document.querySelector('#page-signal') ? document.querySelector('#page-signal').textContent : '';
-    _assert('T231 signal_purpose: page-purpose 헤더 + Secondary 표기',
-      !!sigPurpose && /Secondary/.test(sigPurposeText),
-      sigPurpose ? 'found' : 'missing');
+    _assert('T231 signal_no_purpose_box: signal 목적 설명 박스 제거됨 (v50.29 declutter)',
+      !!sigPurpose && !/페이지 목적/.test(sigPurposeText),
+      sigPurpose ? ('purposeBoxText=' + /페이지 목적/.test(sigPurposeText)) : 'page missing');
 
     // T232: breadth consensus readout DOM
     var brConsensus = document.getElementById('breadth-consensus-readout');
@@ -4582,17 +4588,18 @@
 
   // ── Group36: v49.28 인프라 → 페이지 실제 적용 (P239 메타 근본) ─────────────
   function _testInfraPageApplicationV4928() {
-    // T223: signal 페이지 SCORE_SCALES 변환식 표기
-    var signalScaleEl = document.querySelector('#page-signal [data-score-scale="TWENTY_POINT"]');
-    var signalText = signalScaleEl ? (signalScaleEl.textContent || '') : '';
-    _assert('T223 signal_scale_applied: signal 페이지에 score conversion 표기',
-      !!signalScaleEl && /20점\s*=\s*100점/.test(signalText),
-      signalScaleEl ? 'found' : 'not found');
+    // T223 (v50.29 스펙 갱신): 변환식 "표기"는 declutter로 페이지에서 제거 — 단일 출처 레지스트리가 변환을 보장하는지 검증
+    var scaleReg = window.AIO_SCORE_SCALES;
+    var convOk = false;
+    try { convOk = !!scaleReg && typeof scaleReg.convert === 'function' && Math.abs(scaleReg.convert(10, 'TWENTY_POINT', 'HUNDRED_POINT') - 50) < 1; } catch(_) {}
+    _assert('T223 score_scale_registry: AIO_SCORE_SCALES.convert 20점↔100점 단일 출처 (표기 텍스트는 declutter로 제거)',
+      convOk, 'registry=' + !!scaleReg + ' convert10→' + (convOk ? '50' : 'fail'));
 
-    // T224: signal ATR_PRESETS 권장값 표기
-    var atrEls = document.querySelectorAll('#page-signal [data-atr-preset]');
-    _assert('T224 signal_atr_applied: signal 페이지에 ATR_PRESETS 권장값 4개 표기',
-      atrEls.length >= 4, 'count=' + atrEls.length);
+    // T224 (v50.29 스펙 갱신): ATR "표기"는 해설 블록과 함께 declutter — 단일 출처 AIO_ATR_PRESETS 레지스트리 검증
+    var atrReg = window.AIO_ATR_PRESETS;
+    var atrKeys = atrReg ? Object.keys(atrReg).filter(function(k) { return atrReg[k] && (typeof atrReg[k] === 'object'); }) : [];
+    _assert('T224 atr_presets_registry: AIO_ATR_PRESETS 레지스트리 단일 출처 (표기 텍스트는 declutter로 제거)',
+      !!atrReg && atrKeys.length >= 3, 'presets=' + atrKeys.length);
 
     // T225: home 카드 CARD_HIERARCHY 적용
     var primaryCard = document.querySelector('#page-home [data-card-level="primary"][data-weight-key="TRADING_SCORE"]');
@@ -4628,12 +4635,12 @@
       !!cyclePhase && !!cycleInputs,
       'phase=' + !!cyclePhase + ' inputs=' + !!cycleInputs);
 
-    // T230: fundamental PIOTROSKI 콘솔 가이드 (AIO_PIOTROSKI_CHECKLIST.score 텍스트 포함)
-    var fundEl = document.getElementById('page-fundamental');
-    var fundText = fundEl ? fundEl.textContent : '';
-    _assert('T230 fundamental_piotroski_guide: fundamental에 AIO_PIOTROSKI_CHECKLIST.score 사용 예시',
-      /AIO_PIOTROSKI_CHECKLIST\.score/.test(fundText),
-      fundEl ? 'found' : 'page missing');
+    // T230 (v50.29 스펙 갱신): 콘솔 가이드 텍스트는 declutter로 제거(가시 dev 마커이기도 했음 — R206 정합)
+    // — 기능 자체(AIO_PIOTROSKI_CHECKLIST.score)가 단일 출처로 존재·작동하는지 검증
+    var pioReg = window.AIO_PIOTROSKI_CHECKLIST;
+    _assert('T230 piotroski_registry: AIO_PIOTROSKI_CHECKLIST.score 함수 존재 (페이지 가이드 텍스트는 declutter로 제거)',
+      !!pioReg && typeof pioReg.score === 'function',
+      'registry=' + !!pioReg + ' scoreFn=' + (pioReg ? typeof pioReg.score : 'n/a'));
   }
 
   // ── Group35: v49.27 핵심성 정비 + Static→Dynamic 전환 ────────────────────
@@ -5733,6 +5740,29 @@
       t800detail = 'el=' + pelExists800 + ' readsPortfolio=' + readsPf800;
     } catch(e) { t800detail = 'ERR:' + e.message; }
     _assert('T800 v5028_beginner_portfolio_card: #beginner-portfolio-status + 렌더가 aio_portfolio_data 보유 수 반영', t800ok, t800detail);
+
+    // ─── v50.29 declutter — 설명서형 요소 제거 (사용자 지시: 페이지=데이터/분석/액션, 설명=guide+용어집) ───
+    // T801: 비-guide 페이지에 .aio-page-brief/.aio-explain/.beginner-tip 0 + guide에는 설명 보존
+    var t801ok = false, t801detail = '';
+    try {
+      if (typeof window._aioRenderPageBrief === 'function' && window.AIO_PAGE_BRIEFS) {
+        Object.keys(window.AIO_PAGE_BRIEFS).forEach(function(id) { window._aioRenderPageBrief(id); });
+      }
+      var leaks = [];
+      document.querySelectorAll('.page[id^="page-"]').forEach(function(p) {
+        var id = p.id.replace('page-', '');
+        if (id === 'guide') return;
+        var n = p.querySelectorAll('.aio-page-brief, .aio-explain, .beginner-tip').length;
+        if (n > 0) leaks.push(id + ':' + n);
+      });
+      var guidePage = document.getElementById('page-guide');
+      var guideKeeps = guidePage ? guidePage.querySelectorAll('.aio-explain, .beginner-tip').length >= 0 : false; // guide 존재만 확인 (설명 보존 허용)
+      var sigBox = document.querySelector('#page-signal');
+      var noPurpose = sigBox ? !/페이지 목적/.test(sigBox.textContent || '') : false;
+      t801ok = leaks.length === 0 && !!guidePage && noPurpose;
+      t801detail = 'leaks=' + (leaks.length ? leaks.slice(0, 5).join(',') : '0') + ' guide=' + !!guidePage + ' noPurposeBox=' + noPurpose;
+    } catch(e) { t801detail = 'ERR:' + e.message; }
+    _assert('T801 v5029_declutter: 비-guide 21페이지 설명서형 요소(.aio-page-brief/.aio-explain/.beginner-tip) 0 + 목적 박스 제거', t801ok, t801detail);
   }
 
   window.AIO = window.AIO || {};

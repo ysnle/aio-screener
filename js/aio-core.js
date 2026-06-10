@@ -2846,39 +2846,21 @@ window._aioToggleCoreView = function(pageId) {
   Object.keys(AIO_PAGE_BRIEFS).forEach(function(id) { window._aioApplyContentSimplification(id); });
 };
 
+// v50.29 declutter: 사용자 지시 — "원칙적인 사용 설명서/너무 자세한 설명서 제거. 페이지마다 요소가
+// 섞여 유기적 흐름이 없음". 원칙: 페이지 = 데이터·분석·액션만 / 설명·교육 = guide 페이지 + 용어집으로 일원화.
+// 이 함수는 이전에 "Page Routine"(목적·3단계 루틴·동선 chips) 박스를 모든 페이지에 주입했으나,
+// 이제 반대로 설명서형 요소(.aio-page-brief / .aio-explain / .beginner-tip)를 페이지에서 제거한다
+// (guide 페이지의 .aio-explain/.beginner-tip은 설명서 본거지이므로 보존).
+// 호출 경로(pageShown/부팅/audit)는 그대로 재사용 — 호출될 때마다 declutter 보장.
 window._aioRenderPageBrief = function(pageId) {
-  var cfg = AIO_PAGE_BRIEFS[pageId];
-  if (!cfg) return;
   var page = document.getElementById('page-' + pageId);
   if (!page) return;
-  if (page.querySelector('.aio-page-brief')) return;
-  var steps = (cfg.steps || []).slice(0, 3).map(function(step, idx) {
-    return '<div class="aio-page-brief-step"><span class="aio-page-brief-num">' + (idx + 1) + '</span><div class="aio-page-brief-step-text">' + _aioBriefEsc(step) + '</div></div>';
-  }).join('');
-  var links = (cfg.links || []).map(function(pair) {
-    return '<button class="aio-page-brief-chip" data-action="showPage" data-arg="' + _aioBriefEsc(pair[0]) + '">' + _aioBriefEsc(pair[1]) + '</button>';
-  }).join('');
-  var modeBtn = '<button class="aio-page-brief-mode" data-action="_aioToggleCoreView" data-arg="' + _aioBriefEsc(pageId) + '" aria-pressed="' + (_aioCoreViewOn() ? 'true' : 'false') + '">' + (_aioCoreViewOn() ? '핵심 보기 ON' : '전체 보기') + '</button>';
-  var html =
-    '<section class="aio-page-brief" aria-label="페이지 핵심 사용법">' +
-      '<div class="aio-page-brief-head">' +
-        '<div><div class="aio-page-brief-kicker">Page Routine</div><div class="aio-page-brief-title">' + _aioBriefEsc(cfg.title) + '</div></div>' +
-        '<div class="aio-page-brief-use">' + _aioBriefEsc(cfg.use) + modeBtn + '</div>' +
-      '</div>' +
-      '<div class="aio-page-brief-grid">' +
-        '<div class="aio-page-brief-steps">' + steps + '</div>' +
-        '<div class="aio-page-brief-actions"><div class="aio-page-brief-focus">' + _aioBriefEsc(cfg.focus) + '</div>' + links + '</div>' +
-      '</div>' +
-    '</section>';
-  var box = document.createElement('div');
-  box.innerHTML = html;
-  var brief = box.firstElementChild;
-  var anchor = page.querySelector('.insight-box');
-  if (anchor && anchor.parentNode === page) {
-    anchor.insertAdjacentElement('afterend', brief);
-  } else {
-    page.insertBefore(brief, page.firstElementChild);
-  }
+  try {
+    page.querySelectorAll('.aio-page-brief').forEach(function(el) { el.remove(); });
+    if (pageId !== 'guide') {
+      page.querySelectorAll('.aio-explain, .beginner-tip').forEach(function(el) { el.remove(); });
+    }
+  } catch(_) {}
   window._aioApplyContentSimplification(pageId);
 };
 
@@ -2997,7 +2979,8 @@ window.AIO.getPageUXAudit = function() {
   var issues = [];
   pages.forEach(function(p) {
     if (!p.pageExists) issues.push(p.id + ': page missing');
-    if (!p.briefRendered) issues.push(p.id + ': brief missing');
+    // v50.29 declutter 스펙 반전: Page Routine 박스는 의도적으로 0 — 남아 있으면 누출이 이슈
+    if (p.briefRendered) issues.push(p.id + ': page-brief not decluttered (v50.29)');
     if (p.staleLiveLike) issues.push(p.id + ': stale live-like wording');
     if (p.overflow.length) issues.push(p.id + ': text overflow');
   });
@@ -11335,24 +11318,18 @@ _aioPageBus.register('core-page-brief-render', 'aio:pageShown', function(e) {
     setTimeout(function() { window.AIO.renderStaticDataGovernanceBadges(); }, 0);
   }
 });
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    window._aioSimplifyExplainLabels();
-    window._aioInjectExplainSummaries();
-    var active = document.querySelector('.page.active');
-    if (active && active.id) window._aioRenderPageBrief(active.id.replace(/^page-/, ''));
-    if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') {
-      setTimeout(function() { window.AIO.renderStaticDataGovernanceBadges(); }, 0);
-    }
-  });
-} else {
-  window._aioSimplifyExplainLabels();
-  window._aioInjectExplainSummaries();
-  var _briefActive = document.querySelector('.page.active');
-  if (_briefActive && _briefActive.id) window._aioRenderPageBrief(_briefActive.id.replace(/^page-/, ''));
+// v50.29: 부팅 시 활성 페이지만이 아니라 21페이지 전체를 일괄 declutter (숨은 페이지의 설명서형
+// 잔재가 textContent 기반 audit/검색에 잡히지 않도록). _aioRenderPageBrief는 이제 제거 전용이라 저비용.
+function _aioDeclutterAllPages() {
+  try { Object.keys(AIO_PAGE_BRIEFS).forEach(function(id) { window._aioRenderPageBrief(id); }); } catch(_) {}
   if (window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function') {
     setTimeout(function() { window.AIO.renderStaticDataGovernanceBadges(); }, 0);
   }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _aioDeclutterAllPages);
+} else {
+  _aioDeclutterAllPages();
 }
 
 // ═══ v48.44: SVG Doughnut Gauge 렌더 헬퍼 — F&G/Quality/Device 등 ═══
@@ -14985,7 +14962,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.28';
+const APP_VERSION = 'v50.29';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

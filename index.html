@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.28 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.29 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4143,7 +4143,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.28</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.29</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4621,10 +4621,7 @@ body.light-theme canvas { filter:none; }
 
 
   <div class="page" id="page-signal" data-page-purpose="signal">
-  <!-- v49.29 E3/R70 페이지 목적 명시 — signal vs home 역할 분리 -->
-  <div style="padding:10px 14px;margin-bottom:10px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.25);border-radius:8px;font-size:12px;color:var(--text-primary);">
-    <strong style="color:var(--accent);">📌 시그널 페이지 목적:</strong> 매매 신호의 구성요소와 위험관리 기준을 상세히 확인합니다. <strong>전체 시장의 즉시 판단은 <a href="#" data-action="showPage" data-arg="home" style="color:var(--accent);text-decoration:underline;">홈 페이지</a>에서 먼저 확인하세요.</strong>
-  </div>
+  <!-- v50.29 declutter: "페이지 목적" 설명 박스 제거 (사용자 지시 — 원칙적 설명서 제거, 페이지=데이터/분석/액션) -->
   <div class="insight-box box-collapsed">
     <strong>지금 매매해도 될까? — 75+ 적극 매수 | 60-75 매수 우호 | 45-60 중립 | 30-45 주의 | 30↓ 위험</strong>
   </div>
@@ -4780,11 +4777,7 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- v48.57: FOMC 경보 배너 제거 — macro 페이지로 주제 정렬 (중복 제거) -->
-  <!-- 해당 정보는 이제 page-macro 상단 FOMC 섹션에서 참조 -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-amber);border-radius:var(--radius-md);padding:7px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;font-size:11px;">
-    <span style="font-size:10px;font-weight:700;color:var(--data-amber);">FOMC 일정은 거시경제 페이지로 이전</span>
-    <button data-action="showPage" data-arg="macro" class="aio-btn-table" style="margin-left:auto;font-size:10px;">거시경제 →</button>
-  </div>
+  <!-- v50.29 declutter: "FOMC 일정 이전" 안내 스텁 제거 — 이전 공지는 사용자 가치 0 (FOMC는 거시경제 페이지/메뉴) -->
 
   <!-- ─ 시장 스냅샷 카드 (Live Quotes Overlay) ─ -->
   <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px;">
@@ -5196,7 +5189,7 @@ body.light-theme canvas { filter:none; }
 
   <!-- v48.60: signal 페이지 주제 정렬 — 시장 폭/RRG는 각 전용 페이지로 이전 -->
   <div class="section-divider"></div>
-  <div class="section-header">연계 분석 — 전용 페이지로 이동</div>
+  <div class="section-header">연계 분석</div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
     <button data-action="showPage" data-arg="breadth" class="aio-btn-table" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
       <span style="font-size:12px;font-weight:700;color:var(--data-cyan);">시장 폭 분석 →</span>
@@ -8891,10 +8884,8 @@ body.light-theme canvas { filter:none; }
         <span id="cycle-dynamic-inputs" style="font-size:10px;color:var(--text-muted);">매크로 입력 수신 대기</span>
         <div id="cycle-dynamic-rationale" style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.5;"></div>
       </div>
-      <div id="cycle-analysis" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;color:var(--text-muted);line-height:1.7;">
-        <div style="background:rgba(255,91,80,0.04);border:1px solid rgba(255,91,80,0.12);border-radius:7px;padding:12px;">
-          <b style="color:var(--text-secondary);">사이클 진단 읽는 법 (교육 · 현재 판정 아님):</b> 방어 섹터(에너지 XLE·필수소비 XLP·유틸 XLU)가 시장(SPY) 대비 <b>상대강세</b>이면 경기 후반(Late-cycle) 신호이고, 물가는 높은데 성장이 둔화되면 스태그플레이션(최악의 조합) 리스크입니다. 반대로 성장 섹터(기술 XLK·소비재 XLY)가 <b>주도</b>하면 확장(Expansion) 국면입니다. 어느 국면이든 초과수익(알파)의 원천은 지수 방향보다 섹터·지역 배분입니다. <span style="color:var(--accent);font-size:10px;">👉 현재 국면은 위 '🔄 동적 사이클 판정'을 따르세요(정적 텍스트로 단정하지 않음).</span>
-        </div>
+      <!-- v50.29 declutter: "사이클 진단 읽는 법" 교육 prose 제거 — 현재 국면은 위 동적 판정이 담당, 개념은 용어집/guide -->
+      <div id="cycle-analysis" style="display:grid;grid-template-columns:1fr;gap:10px;font-size:12px;color:var(--text-muted);line-height:1.7;">
         <div style="background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.12);border-radius:7px;padding:12px;">
           <b style="color:var(--data-green);">전략:</b> AI Capex 효율화 사이클: 네트워크 패브릭(AVGO/MRVL) > 냉각(VRT) > 추론(NVDA). 데이터센터 전력: WMB(BTM) > NEE > 유틸리티. 에너지(XLE) 모멘텀 + MLP/파이프라인(AMLP). 어닝 시즌(GS/JPM/TSM/ASML/NFLX)이 섹터 방향 결정.
         </div>
@@ -12647,9 +12638,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.28"></script>
-  <script src="./js/aio-data.js?v=50.28"></script>
-  <script src="./js/aio-ui.js?v=50.28"></script>
+  <script src="./js/aio-core.js?v=50.29"></script>
+  <script src="./js/aio-data.js?v=50.29"></script>
+  <script src="./js/aio-ui.js?v=50.29"></script>
 
   <script>
 
@@ -15746,7 +15737,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.28"></script>
+<script src="./js/aio-chat.js?v=50.29"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28124,7 +28115,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.28"></script>
+<script src="./js/aio-glossary.js?v=50.29"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

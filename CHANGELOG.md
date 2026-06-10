@@ -1,5 +1,20 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.29 - 전 페이지 declutter: 설명서형 요소 제거 (2026-06-11)
+
+**사용자 지시: "불필요한 기능/섹션/텍스트 제거 — 너무 친절한/자세한/원칙적인 사용 설명서 포함. 사용자는 기초가 있는 초보자. 페이지마다 요소가 섞여 유기적 흐름이 없고 난잡."** 라이브 21페이지 인벤토리 실측(전 페이지에 Page Routine 박스 1개 + 상세해설 블록 합계 ~35K자 + beginner-tip 7개 + 목적 박스) 후 구조 원칙으로 정리.
+
+**원칙: 페이지 = 데이터·분석·액션만 / 설명·교육 = guide 페이지 + 용어집(클릭)으로 일원화.**
+
+- **(1) Page Routine 박스 제거 (21/21페이지)** — "페이지 목적 + 3단계 활용 루틴 + 관련 페이지 chips + 핵심/전체 보기 토글"(v49.7~v49.13). `_aioRenderPageBrief`를 주입기에서 **제거기로 반전** — 기존 호출 경로(pageShown/부팅/audit) 그대로 재사용해 호출될 때마다 declutter 보장 + 부팅 시 `_aioDeclutterAllPages`로 21페이지 일괄. CSS/레지스트리(AIO_PAGE_BRIEFS)는 보존(테스트·감사 참조).
+- **(2) "상세 해설: ... (펼치기)" `.aio-explain` 블록 제거 (guide 외 전부)** — 페이지당 1~3개, 합계 ~35K자의 접힘식 교육 콘텐츠(개념 설명·읽는 법·원칙). guide 페이지는 설명서 본거지로 보존. `.beginner-tip` 가이드 박스(fxbond 3·technical 2·macro 1·portfolio 1)도 동일 정책.
+- **(3) signal "📌 페이지 목적" 정적 박스 제거** (v49.29 E3) — 역할 안내문은 메뉴명+insight-box 한 줄로 충분.
+- **(4) "초보자 핵심만 먼저" 요약 주입(`_aioInjectExplainSummaries`)·해설 라벨 정규화(`_aioSimplifyExplainLabels`) 부팅 호출 제거** — 대상 블록이 사라져 무의미.
+- **유지(액션형/저밀도)**: insight-box(페이지 정체성 한 줄), 초보자 3질문 패널(액션 진입점), 점수 범례, 결론 바, guide 페이지 전체.
+- **테스트 스펙 반전 (제거된 블록 내 콘텐츠를 단언하던 9건 — 의도는 레지스트리 단일 출처 검증으로 보존)**: T154(브리프 토글→**0 단언**), T231(목적 헤더→**부재**), T223(표기→**AIO_SCORE_SCALES.convert**), T224(ATR 표기→**AIO_ATR_PRESETS**), T230(콘솔 가이드 텍스트→**PIOTROSKI.score 함수** — 가시 dev 마커 제거이기도 함), T289(배지 박스→**criteria 15 레지스트리**), T295(커버리지 박스→**getFundamentalPageCriteriaAudit ≥87%**), T305/T306(VIX 인라인 표→**THRESHOLD_REGISTRY.VIX 6 bands+라벨**), T307(버블 단어 presence 제거). `getPageUXAudit`도 반전 — "brief missing"이 아니라 **brief 잔존이 이슈**. 신규 **T801**(비-guide 21페이지 설명서형 요소 0 — 재유입 가드). 결과: 876 중 857 pass, 실패 19건 전부 사전 존재(데이터 드리프트·버전 단언) — declutter 신규 회귀 0.
+
+R1 7곳 + 캐시버스터 5곳.
+
 ## v50.28 - WO-6 뉴스 서버 백스톱 + WO-7 VIX 퍼센타일 브리지 + WO-11 포트폴리오 카드 동적화 (2026-06-10)
 
 **WO-6 — 뉴스 서버 백스톱 (프록시 독립성)**
