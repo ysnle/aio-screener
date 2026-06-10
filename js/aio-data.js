@@ -4411,6 +4411,11 @@ async function _aioLoadServerData() {
       }
       window._lastFG = d.fearGreed.score;
     }
+    // 4) v50.28/WO-6: 서버 뉴스 백스톱 저장 + (클라이언트 뉴스 비었을 때만) 적용 — additive
+    if (Array.isArray(d.news) && d.news.length) {
+      window._serverNewsBackstop = d.news;
+      try { _aioApplyNewsBackstop(false); } catch(_) {}
+    }
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
     _aioRenderServerDataAge();  // v50.24/WO-4: 나이 배지 갱신
     // v50.24/WO-4: 보이는 페이지 분석 텍스트도 새 데이터로 재생성 (숨은 페이지는 스킵)
@@ -4423,6 +4428,52 @@ async function _aioLoadServerData() {
   }
 }
 window._aioLoadServerData = _aioLoadServerData;
+
+// v50.28/WO-6: 서버 뉴스 백스톱 적용 — 클라이언트 뉴스(프록시)가 비었을 때만 채운다(additive).
+// 작동 중인 뉴스 파이프라인은 절대 건드리지 않음(force=true는 검증/수동 전용).
+// 서버 아이템을 클라이언트 뉴스 모델 형태로 매핑 → scoreItem/classifyTopic → renderFeed/home/briefing.
+function _aioApplyNewsBackstop(force) {
+  try {
+    var bs = window._serverNewsBackstop;
+    if (!Array.isArray(bs) || !bs.length) return false;
+    var clientEmpty = (!Array.isArray(window._allNewsItems) || window._allNewsItems.length === 0) &&
+                      (typeof newsCache === 'undefined' || !newsCache || newsCache.length === 0);
+    if (!force && !clientEmpty) return false; // 자체 뉴스가 있으면 손대지 않음
+    var nowIso = new Date().toISOString();
+    var items = bs.map(function(n) {
+      var it = {
+        title: n.title, headline: n.title,
+        link: n.link, url: n.link,
+        source: n.source || 'News', feed: n.source || 'News',
+        pubDate: n.pubDate || nowIso,
+        desc: '', summary: '',
+        country: 'us',
+        _serverBackstop: true
+      };
+      try { it.score = (typeof scoreItem === 'function') ? scoreItem(it) : 50; } catch(_) { it.score = 50; }
+      try { it.topic = (typeof classifyTopic === 'function') ? classifyTopic(it) : 'general'; } catch(_) { it.topic = 'general'; }
+      try { it.flag = (typeof getCountryFlag === 'function') ? getCountryFlag(it.country) : ''; } catch(_) {}
+      return it;
+    });
+    items.sort(function(a, b) { return (new Date(b.pubDate || 0)) - (new Date(a.pubDate || 0)); });
+    newsCache = items;
+    window._allNewsItems = items;
+    if (typeof renderFeed === 'function') renderFeed(items);
+    if (typeof renderHomeFeed === 'function') renderHomeFeed(items);
+    if (typeof renderBriefingFeed === 'function') renderBriefingFeed(items);
+    window._newsBackstopApplied = { count: items.length, at: Date.now() };
+    if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server 뉴스 백스톱 적용: ' + items.length + '건 (클라이언트 뉴스 부재)');
+    return true;
+  } catch (e) {
+    if (typeof _aioLog === 'function') _aioLog('warn', 'data', '뉴스 백스톱 적용 실패: ' + (e && e.message || e));
+    return false;
+  }
+}
+window._aioApplyNewsBackstop = _aioApplyNewsBackstop;
+// 부팅 12초 후 — 클라이언트 뉴스가 끝내 비었으면(프록시 전멸) 서버 백스톱으로 채움
+if (typeof window !== 'undefined') {
+  setTimeout(function() { try { _aioApplyNewsBackstop(false); } catch(_) {} }, 12000);
+}
 
 // v50.24/WO-4: 서버 데이터 나이를 topbar 배지로 표면화 — 사용자가 "지금 보는 데이터가 N분 전 것"을
 // 항상 알 수 있게. 60분+ amber, 180분+ red. ageMin은 _serverDataMeta.generatedAt 기준으로 매번 재계산
@@ -11648,6 +11699,23 @@ if (window.AIO && window.AIO.diag) {
     };
   };
 }
+
+// v50.28/WO-7: VIX 퍼센타일을 "실측 52주 분포"로 — history.json에 60일+ 누적 시 그 분포 내 현재 VIX의
+// 순위(IV Rank 본래 의미)를 계산, 부족하면 null → 호출자는 기존 고정 CDF vixToPercentile로 폴백.
+// (현재 history 1일 → 항상 null → 동작 변화 0. ~60거래일 누적 시 자동으로 실측 기반 전환.)
+function _aioVixPercentile(vix) {
+  try {
+    if (typeof vix !== 'number' || !isFinite(vix)) return null;
+    var series = (typeof _aioHistorySeries === 'function') ? _aioHistorySeries('vix', 60) : null;
+    if (!series) return null;
+    var vals = series.map(function(p) { return p.value; }).filter(function(v) { return typeof v === 'number' && isFinite(v); });
+    if (vals.length < 60) return null;
+    var below = 0;
+    for (var i = 0; i < vals.length; i++) { if (vals[i] <= vix) below++; }
+    return Math.round((below / vals.length) * 1000) / 10; // 0~100, 0.1 단위
+  } catch (e) { return null; }
+}
+window._aioVixPercentile = _aioVixPercentile;
 
 function vixRegime(vix) {
   if (vix < 12) return { label: 'Subdued', color: '#00e5a0' };

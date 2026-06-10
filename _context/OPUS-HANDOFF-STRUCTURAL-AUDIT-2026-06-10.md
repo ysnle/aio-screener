@@ -23,8 +23,11 @@ purpose: Opus 작업 세션 핸드오프 — 이 문서만으로 cold start 작�
 | WO-9 페이로드 다이어트 | ✅ 완료(tests 동적화) | v50.27 aio-tests.js 미배송+AIO.loadTests(). **script defer는 미적용(로드 순서 위험)** |
 | WO-10 Worker 소스 복원 | ✅ 완료 | v50.27 cloudflare-worker-proxy.js 복원+버그 시정. **정정: 데이터 Worker는 이미 배포·통합돼 동작 중이었음(소스 파일만 P310에서 소실). AI 채팅 키 서버화(Anthropic 프록시)는 별개 — 미구현, 운영자 결정 사항** |
 | WO-7 소비자 데이터 레이어 | ✅ 완료(레이어) | v50.27 _aioLoadHistory/_aioHistorySeries/getHistoryDataAudit. **차트 재배선은 ~20일 누적 후** |
-| WO-6 뉴스 백엔드 이전 | ⬜ 보류 | 서버 RSS 로컬 검증 불가+핵심 파이프라인 위험. 뉴스는 이미 CF Worker·다중프록시 사용. 별도 세션 |
-| WO-12~14 문서/audit 위생 | ⬜ 부분 (핸드오프/CHANGELOG 갱신 지속) | audit 통폐합·게이트 블록 triage는 별도 |
+| WO-6 뉴스 서버 백스톱 | ✅ 완료(additive) | v50.28 fetch-data.mjs Google News RSS→data.json.news + 클라 `_aioApplyNewsBackstop`(자체 뉴스 비었을 때만). **서버 newsOk는 배포 후 라이브 cron 검증** |
+| WO-7 VIX 퍼센타일 브리지 | ✅ 완료(브리지) | v50.28 `_aioVixPercentile`(60일+ 시 실측, 부족 시 고정 CDF 폴백). **차트 시각 전환은 ~60일 누적 후 자동** |
+| WO-12~14 문서/audit 위생 | ⬜ 부분 (핸드오프/CHANGELOG 지속 갱신) | audit 통폐합·게이트 블록 triage(67건)는 회귀 위험 커 별도 세션 |
+
+**잔여(물리/환경 제약으로 자동·후속)**: WO-7 차트 시각 전환(history ~20-60일 누적 후 자동 — 코드 준비됨)·AI 채팅 Claude 키 서버화(운영자 결정: 기존 데이터 Worker에 Anthropic 프록시 확장 시 가능)·WO-11 전면 IA 재설계(UX 검토 동반)·WO-13/14 audit 통폐합·게이트 triage.
 
 **prod 실측 검증(2026-06-10)**: cron 발화(05:11Z·12:46Z 성공) + history.json 첫 레코드 생성 + CI 전 push green + v50.26 라이브 + 레짐 드리프트 배너(F&G 탐욕→공포) + 초보자 패널 요약 동작 = 모두 확인.
 

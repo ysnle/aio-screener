@@ -2354,6 +2354,14 @@ if (typeof document !== 'undefined') {
       else advice = '뚜렷한 극단 신호는 없어요 — 평소 원칙대로 분할 접근.';
       var meta = vix != null ? (' <span style="color:var(--text-muted);">(VIX ' + vix.toFixed(1) + (fg != null ? ' · 공포탐욕 ' + Math.round(fg) : '') + ')</span>') : '';
       el.innerHTML = '<b>' + [vixTxt, fgTxt].filter(Boolean).join(' · ') + '</b><br>' + advice + meta;
+      // v50.28/WO-11: 포트폴리오 카드 동적화 — 보유 종목 있으면 개수 표시(localStorage aio_portfolio_data)
+      var pel = document.getElementById('beginner-portfolio-status');
+      if (pel) {
+        var n = 0;
+        try { var pf = JSON.parse(localStorage.getItem('aio_portfolio_data') || '[]'); if (Array.isArray(pf)) n = pf.length; } catch(_) {}
+        if (n > 0) pel.innerHTML = '보유 <b>' + n + '종목</b> — 손실 위험·집중도·변동성을 진단해 드려요. 아래에서 확인하세요.';
+        // n===0이면 기존 안내 텍스트 유지(덮어쓰지 않음)
+      }
     } catch(_){}
   };
 
@@ -14977,7 +14985,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.27';
+const APP_VERSION = 'v50.28';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

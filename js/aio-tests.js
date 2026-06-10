@@ -5690,6 +5690,49 @@
       t797detail = 'loadTests=' + hasLoadTests797 + ' testsLoadedFlag=' + (window.__aioTestsLoaded === true);
     } catch(e) { t797detail = 'ERR:' + e.message; }
     _assert('T797 v5027_lazy_tests: AIO.loadTests 동적 로더 정의 (aio-tests.js 기본 미배송, 페이로드 절감)', t797ok, t797detail);
+
+    // ─── v50.28 WO-6 뉴스 백스톱 + WO-7 VIX 브리지 + WO-11 포트폴리오 카드 ───
+    // T798 (WO-6): 뉴스 백스톱 — additive(자체 뉴스 있으면 미개입) + 강제 적용 시 렌더
+    var t798ok = false, t798detail = '';
+    try {
+      var hasBackstop798 = typeof window._aioApplyNewsBackstop === 'function';
+      // additive 검증: 자체 뉴스가 있는 상태에서 force=false면 false 반환(미개입)
+      var prevAll = window._allNewsItems, prevBs = window._serverNewsBackstop;
+      window._serverNewsBackstop = [{ title: 'AIO backstop test headline market', link: 'https://example.com/x', source: 'Reuters', pubDate: new Date().toISOString() }];
+      var additive798 = true;
+      if (hasBackstop798 && Array.isArray(window._allNewsItems) && window._allNewsItems.length > 0) {
+        additive798 = (window._aioApplyNewsBackstop(false) === false); // 자체 뉴스 있으면 미개입
+      }
+      // force=true면 매핑+적용 동작(반환 true)
+      var forced798 = hasBackstop798 ? (window._aioApplyNewsBackstop(true) === true) : false;
+      window._serverNewsBackstop = prevBs; // 복원
+      t798ok = hasBackstop798 && additive798 && forced798;
+      t798detail = 'fn=' + hasBackstop798 + ' additive(미개입)=' + additive798 + ' forcedApplied=' + forced798;
+    } catch(e) { t798detail = 'ERR:' + e.message; }
+    _assert('T798 v5028_news_backstop: _aioApplyNewsBackstop additive(자체 뉴스 시 미개입)+force 적용 (프록시 전멸 폴백)', t798ok, t798detail);
+
+    // T799 (WO-7): VIX 퍼센타일 브리지 — 60일 미만이면 null(고정 CDF 폴백), 함수 정의
+    var t799ok = false, t799detail = '';
+    try {
+      var hasVixPct799 = typeof window._aioVixPercentile === 'function';
+      var r799 = hasVixPct799 ? window._aioVixPercentile(20) : 'n/a';
+      // 현재 history < 60일 → null 이어야 함(폴백 보장). 60일+면 0~100 숫자.
+      var gateOk799 = (r799 === null) || (typeof r799 === 'number' && r799 >= 0 && r799 <= 100);
+      t799ok = hasVixPct799 && gateOk799;
+      t799detail = 'fn=' + hasVixPct799 + ' result=' + r799 + ' (null=고정CDF폴백 정상)';
+    } catch(e) { t799detail = 'ERR:' + e.message; }
+    _assert('T799 v5028_vix_percentile_bridge: _aioVixPercentile 60일 게이트(부족 시 null→고정 CDF 폴백)', t799ok, t799detail);
+
+    // T800 (WO-11): 초보자 포트폴리오 카드 요소 + 렌더가 보유 수 반영(0이면 안내 유지)
+    var t800ok = false, t800detail = '';
+    try {
+      var pelExists800 = !!document.getElementById('beginner-portfolio-status');
+      var renderSrc800 = (typeof window._aioRenderBeginnerSummary === 'function') ? window._aioRenderBeginnerSummary.toString() : '';
+      var readsPf800 = /aio_portfolio_data/.test(renderSrc800) && /beginner-portfolio-status/.test(renderSrc800);
+      t800ok = pelExists800 && readsPf800;
+      t800detail = 'el=' + pelExists800 + ' readsPortfolio=' + readsPf800;
+    } catch(e) { t800detail = 'ERR:' + e.message; }
+    _assert('T800 v5028_beginner_portfolio_card: #beginner-portfolio-status + 렌더가 aio_portfolio_data 보유 수 반영', t800ok, t800detail);
   }
 
   window.AIO = window.AIO || {};

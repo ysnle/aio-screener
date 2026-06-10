@@ -1,5 +1,5 @@
 {
-  "version": "v50.27",
-  "built": "2026-06-10T21:30:00+09:00",
-  "note": "v50.27 P2/WO-9 페이로드 절감 + WO-7 히스토리 소비자 데이터 레이어 + WO-10 Worker 소스 복원. WO-9: aio-tests.js(~100KB gzip, 브라우저 전용 836테스트)를 정적 로드에서 제외 → 일반 사용자 미다운로드. AIO.loadTests()로 동적 로드 후 AIO.runTests()(개발자/검증). index.html 정적 캐시버스터 6→5(tests 동적화), ci-version-check 임계 조정. WO-7 소비자 레이어: _aioLoadHistory()(public-data/history.json 부팅 로드→window._aioHistory) + _aioHistorySeries(field, minPoints)(20일+ 누적 시에만 실데이터 배열, 아니면 null→기존 시드 폴백 유지) + AIO.getHistoryDataAudit()(누적일수·chartReady·필드 커버리지). 실제 차트 재배선은 ~20일 누적 후(1일치는 단일점이라 시각검증 불가 — 데이터 레이어만 선구축). WO-10: P310에서 삭제된 cloudflare-worker-proxy.js 소스 복원(데이터 CORS 프록시 — 이미 배포·통합돼 동작 중, 소스 파일만 소실됨) + 잠복 버그 시정(cleanupRateLimitMap 호출이 주석에 붙어 미실행이던 것). R1 7곳+캐시버스터 5곳. T796~T797. (WO-6 서버뉴스/WO-7 차트재배선/WO-11 전면홈은 검증·누적 제약으로 별도 세션 보류.)"
+  "version": "v50.28",
+  "built": "2026-06-10T22:30:00+09:00",
+  "note": "v50.28 WO-6 뉴스 서버 백스톱 + WO-7 VIX 퍼센타일 브리지 + WO-11 포트폴리오 카드 동적화. WO-6: fetch-data.mjs가 Google News RSS(2쿼리, 서버 fetch 안정)를 받아 data.json.news(25건, 제목/링크/매체/날짜)로 출력 + meta.newsOk/newsCount. 클라이언트 _aioApplyNewsBackstop(): 자체 뉴스(프록시)가 비었을 때만(additive — 작동 중이면 미개입) 서버 뉴스를 scoreItem/classifyTopic 거쳐 renderFeed/home/briefing에 렌더. _aioLoadServerData에서 저장+적용 + 부팅 12s 후 재시도(프록시 전멸 대비). 프록시 죽어도 뉴스 표시. WO-7: _aioVixPercentile(vix) — history.json 60일+ 누적 시 실측 52주 분포 내 순위(IV Rank 본의), 부족하면 null→기존 고정 CDF vixToPercentile 폴백(현재 1일→폴백, ~60거래일 누적 시 자동 전환, 회귀 0). WO-11: 초보자 패널 포트폴리오 카드가 aio_portfolio_data 보유 종목 수를 동적 표시(없으면 안내 유지). R1 7곳+캐시버스터 5곳. T798~T800. (WO-6 서버측 newsOk는 배포 후 라이브 cron 런에서 검증.)"
 }

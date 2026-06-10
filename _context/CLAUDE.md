@@ -2,7 +2,8 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.27
+- **현재 버전**: v50.28
+- **v50.28 WO-6 뉴스 서버 백스톱 + WO-7 VIX 퍼센타일 브리지 + WO-11 포트폴리오 카드 동적화**: WO-6 fetch-data.mjs Google News RSS→data.json.news(25건), 클라이언트 `_aioApplyNewsBackstop`(자체 뉴스 비었을 때만·additive·부팅 12s 재시도) → 프록시 전멸해도 뉴스. WO-7 `_aioVixPercentile`(60일+ 시 실측 52주 분포, 부족 시 고정 CDF 폴백·회귀 0). WO-11 초보자 포트폴리오 카드 `aio_portfolio_data` 보유 수 동적. T798~800. 서버 newsOk는 라이브 cron 검증.
 - **v50.27 WO-9 페이로드 + WO-7 히스토리 소비자 레이어 + WO-10 Worker 복원**: WO-9 aio-tests.js(~100KB) 정적 로드 제외→`AIO.loadTests()` 동적(캐시버스터 6→5). WO-7 소비자 레이어 `_aioLoadHistory`/`_aioHistorySeries`(20일+ 시 시드 대체)/`AIO.getHistoryDataAudit`(차트 재배선은 누적 후). WO-10 P310 삭제된 `cloudflare-worker-proxy.js` 복원(데이터 프록시는 이미 배포됨, 소스만 소실) + cleanupRateLimitMap 주석버그 시정. 보류: WO-6 서버뉴스/WO-7 차트재배선/WO-11 전면홈(검증·누적 제약). T796~797.
 - **v50.26 P3/WO-11 초보자 태스크 중심 시작 패널 + ops(WO-7/WO-8)**: 홈 헤더 직후 `#aio-beginner-panel`(additive) 3대 질문: 오늘 시장(라이브 VIX 밴드+F&G 존 평이한 요약 `_aioRenderBeginnerSummary`+행동가이드)·종목 분석(`_aioBeginnerAnalyze`→기업분석 자동검색)·포트폴리오 동선. "간단히 접기"(localStorage). WO-5 `_aioRegimeNow` 재사용. T794~795. **ops**: WO-7 `history.json` 생산자(fetch-data.mjs 일별 upsert·420일 cap), WO-8 CI 게이트(ci.yml: JS 구문/버전동기화/stray + scripts/ci-version-check.mjs, CI green).
 - **v50.25 P1/WO-5 정적 내러티브 레짐 드리프트 가드**: stale 내러티브 50버전 반복의 근본 차단. 정적 분석 텍스트(시나리오·스냅샷 prose·주간뉴스)는 Claude 세션 시점 시장 레짐 전제 → 시장 급변 시 급락일에 "사상최고 랠리" 표시. 작성 시점 레짐(`DATA_SNAPSHOT` SPX/VIX/F&G) vs 라이브를 `_aioRegimeDrift`로 비교(VIX 밴드·F&G 존·SPX %) → severe 시 `#main-content` 상단 전역 배너(`#aio-regime-drift-banner`) + `[data-static-narrative]` 강등 배지. `AIO.getNarrativeRegimeDriftAudit()`→`getAutoOpsReadiness`. 트리거 liveQuotes/serverDataLoaded/pageShown/부팅. R1 7곳+캐시버스터 6곳. T791~793.

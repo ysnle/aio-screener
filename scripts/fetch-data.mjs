@@ -163,6 +163,61 @@ async function fetchFearGreed() {
   return { _source: 'cnn:fail' };
 }
 
+// ── WO-6 (ops): 서버측 뉴스 백스톱 (브라우저 CORS 프록시 전멸 대비) ──
+// 왜: 클라이언트 뉴스는 제3자 프록시(allorigins 등, 자주 죽음)에 의존. 서버(Actions)는 CORS가
+//     없으므로 안정적으로 RSS를 받아 data.json.news로 떨군다. 클라이언트는 자체 뉴스가 비었을
+//     때만 이걸 폴백으로 렌더(작동 중이면 손대지 않음 — additive). Google News RSS는 서버 fetch에
+//     안정적이고 <source> 태그로 실제 매체명을 준다.
+const NEWS_FEEDS = [
+  { url: 'https://news.google.com/rss/search?q=stock%20market%20OR%20S%26P%20500%20OR%20Federal%20Reserve%20when:2d&hl=en-US&gl=US&ceid=US:en', source: 'Google News' },
+  { url: 'https://news.google.com/rss/search?q=nvidia%20OR%20semiconductor%20OR%20AI%20stocks%20OR%20earnings%20when:2d&hl=en-US&gl=US&ceid=US:en', source: 'Google News' },
+];
+function _decodeNewsEntities(s) {
+  return String(s || '')
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'").replace(/&apos;/g, "'").replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ').trim();
+}
+async function fetchNews() {
+  const items = [];
+  for (const feed of NEWS_FEEDS) {
+    try {
+      const xml = await (async () => {
+        const ctrl = new AbortController();
+        const to = setTimeout(() => ctrl.abort(), 12000);
+        const r = await fetch(feed.url, { headers: UA, signal: ctrl.signal });
+        clearTimeout(to);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return await r.text();
+      })();
+      const blocks = xml.split(/<item>/i).slice(1);
+      for (const b of blocks.slice(0, 20)) {
+        const title = _decodeNewsEntities((b.match(/<title>([\s\S]*?)<\/title>/i) || [])[1]);
+        const link = _decodeNewsEntities((b.match(/<link>([\s\S]*?)<\/link>/i) || [])[1]);
+        const pub = _decodeNewsEntities((b.match(/<pubDate>([\s\S]*?)<\/pubDate>/i) || [])[1]);
+        const srcTag = _decodeNewsEntities((b.match(/<source[^>]*>([\s\S]*?)<\/source>/i) || [])[1]);
+        if (!title || !link) continue;
+        const t = pub ? new Date(pub).getTime() : 0;
+        items.push({ title: title.slice(0, 200), link, source: srcTag || feed.source, pubDate: pub || null, ts: isFinite(t) ? t : 0 });
+      }
+    } catch (e) { /* 피드별 실패 무시 */ }
+  }
+  // 중복(제목) 제거 + 최신순 + 25건 cap
+  items.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  const seen = new Set();
+  const out = [];
+  for (const it of items) {
+    const k = it.title.toLowerCase().slice(0, 60);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push({ title: it.title, link: it.link, source: it.source, pubDate: it.pubDate });
+    if (out.length >= 25) break;
+  }
+  return out;
+}
+
 const round = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
 function monthsBetween(a, b) {
   const da = new Date(a), db = new Date(b);
@@ -210,10 +265,11 @@ async function main() {
   const t0 = Date.now();
   console.log(`[fetch-data] ${SYMBOLS.length} 심볼 + FRED + F&G 수집 시작`);
 
-  const [quotesRaw, macro, fearGreed] = await Promise.all([
+  const [quotesRaw, macro, fearGreed, news] = await Promise.all([
     mapLimit(SYMBOLS, 6, fetchQuote),
     fetchFred(process.env.FRED_API_KEY),
     fetchFearGreed(),
+    fetchNews(),
   ]);
 
   const quotes = quotesRaw.filter(q => q && !q.__error);
@@ -234,12 +290,15 @@ async function main() {
       fearGreedOk,
       fredOk,
       macroKeyCount: macroKeys.length,
+      newsOk: Array.isArray(news) && news.length > 0,
+      newsCount: Array.isArray(news) ? news.length : 0,
       elapsedMs: Date.now() - t0,
       schema: 1,
     },
     quotes,
     macro,
     fearGreed,
+    news,
   };
 
   if (!fearGreedOk) console.warn('[fetch-data] 경고: F&G 수집 실패 (사이트는 정적 폴백 사용)');
@@ -249,7 +308,7 @@ async function main() {
   await writeFile(OUT, JSON.stringify(data, null, 1));
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
   const histInfo = await updateHistory(data);
-  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} (실패 ${failed.length}: ${failed.join(',') || '-'}), macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + ')' : 'skip'}, ${data.meta.elapsedMs}ms`);
+  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} (실패 ${failed.length}: ${failed.join(',') || '-'}), macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + ')' : 'skip'}, ${data.meta.elapsedMs}ms`);
 
   // 핵심 심볼이 절반 미만이면 비정상 — 비0 종료로 워크플로가 알림
   if (quotes.length < SYMBOLS.length * 0.5) {

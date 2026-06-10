@@ -1,5 +1,19 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.28 - WO-6 뉴스 서버 백스톱 + WO-7 VIX 퍼센타일 브리지 + WO-11 포트폴리오 카드 동적화 (2026-06-10)
+
+**WO-6 — 뉴스 서버 백스톱 (프록시 독립성)**
+- 클라이언트 뉴스는 제3자 CORS 프록시(allorigins 등, 자주 죽음)에 의존. 서버(GitHub Actions)는 CORS가 없어 안정적 → `fetch-data.mjs`에 `fetchNews()` 추가: **Google News RSS 2쿼리**(시장/거시 + AI·반도체·실적, `when:2d`, 서버 fetch 안정 + `<source>` 태그로 실제 매체명)를 받아 제목/링크/매체/날짜 파싱·중복제거·최신순 25건 → `data.json.news` + `meta.newsOk`/`newsCount`. 피드별 try/catch로 뉴스 실패가 data.json을 깨지 않음.
+- 클라이언트 `_aioApplyNewsBackstop(force)`: **자체 뉴스(프록시)가 비었을 때만**(`_allNewsItems`/`newsCache` 모두 빈 경우) 작동하는 **additive 폴백** — 작동 중인 파이프라인은 절대 미개입. 서버 뉴스를 클라 뉴스 모델로 매핑 → `scoreItem`/`classifyTopic` → `renderFeed`/`renderHomeFeed`/`renderBriefingFeed`. `_aioLoadServerData`에서 저장+적용 + 부팅 12초 후 재시도(프록시 전멸 대비). **결과: 프록시가 모두 죽어도 뉴스가 표시됨.**
+
+**WO-7 — VIX 퍼센타일 실측 브리지 (IV Rank 본래 의미)**
+- `_aioVixPercentile(vix)`: `history.json`에 VIX 60일+ 누적 시 그 실측 52주 분포 내 현재 VIX의 순위(IV Rank의 본래 정의)를 계산. 부족하면 null → 호출자는 기존 고정 CDF `vixToPercentile`로 폴백. 현재 history 1일 → 항상 폴백(동작 변화 0). **~60거래일 누적 시 자동으로 실측 기반 전환**(회귀 위험 0). v50.27 `_aioHistorySeries` 위에 구축.
+
+**WO-11 — 초보자 패널 포트폴리오 카드 동적화**
+- "내 포트폴리오는 괜찮을까요?" 카드(`#beginner-portfolio-status`)가 `aio_portfolio_data`의 보유 종목 수를 읽어 "보유 N종목 — 손실 위험·집중도·변동성 진단" 동적 표시. 보유 0이면 기존 안내 유지(덮어쓰지 않음).
+
+R1 7곳 + 캐시버스터 5곳. 회귀 테스트 T798~T800. (WO-6 서버측 `news` 생성은 배포 후 라이브 cron 런 + `meta.newsOk`로 검증.)
+
 ## v50.27 - WO-9 페이로드 절감 + WO-7 히스토리 소비자 레이어 + WO-10 Worker 소스 복원 (2026-06-10)
 
 **WO-9 — 페이로드 절감 (테스트 코드 미배송)**
