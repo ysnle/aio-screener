@@ -5593,6 +5593,45 @@
       t790detail = 'badge=' + wiresBadge790 + ' narrative=' + wiresNarr790 + ' poll=' + wiresPoll790;
     } catch(e) { t790detail = 'ERR:' + e.message; }
     _assert('T790 v5024_server_data_wiring: _aioLoadServerData→나이배지+내러티브 갱신 + init→폴링 시작 배선 (boot-only 갭 해소)', t790ok, t790detail);
+
+    // ─── v50.25 P1/WO-5 정적 내러티브 레짐 드리프트 가드 ───
+    // T791: 레짐 헬퍼 함수 정의 + _aioRegimeDrift 반환 구조(severity/reasons)
+    var t791ok = false, t791detail = '';
+    try {
+      var hasSnap791 = typeof window._aioSnapshotRegime === 'function';
+      var hasNow791 = typeof window._aioRegimeNow === 'function';
+      var hasDrift791 = typeof window._aioRegimeDrift === 'function';
+      var d791 = hasDrift791 ? window._aioRegimeDrift() : null;
+      var structOk791 = d791 && typeof d791.severity === 'string' && Array.isArray(d791.reasons) && d791.stamp && d791.now;
+      t791ok = hasSnap791 && hasNow791 && hasDrift791 && !!structOk791;
+      t791detail = 'snap=' + hasSnap791 + ' now=' + hasNow791 + ' drift=' + hasDrift791 + ' severity=' + (d791 && d791.severity);
+    } catch(e) { t791detail = 'ERR:' + e.message; }
+    _assert('T791 v5025_regime_helpers: _aioSnapshotRegime/_aioRegimeNow/_aioRegimeDrift 정의 + 반환 구조', t791ok, t791detail);
+
+    // T792: 드리프트 판정 로직 — 알려진 stamp↔now로 severe 검출 (SPX -3.8% + VIX 밴드 + F&G 탐욕→공포)
+    var t792ok = false, t792detail = '';
+    try {
+      var calm = { spx: 7585, vix: 15, fg: 60, date: '2026-06-05' };
+      var crash = { spx: 7300, vix: 26, fg: 28 };
+      var dr792 = window._aioRegimeDrift(calm, crash);
+      var none792 = window._aioRegimeDrift(calm, { spx: 7590, vix: 15.2, fg: 59 }); // 변화 미미 → none
+      t792ok = dr792 && dr792.severity === 'severe' && dr792.reasons.length >= 2 && none792 && none792.severity === 'none';
+      t792detail = 'crash=' + (dr792 && dr792.severity) + '(' + (dr792 && dr792.reasons.length) + ') flat=' + (none792 && none792.severity);
+    } catch(e) { t792detail = 'ERR:' + e.message; }
+    _assert('T792 v5025_regime_drift_logic: 급변(SPX/VIX/F&G)→severe, 미미→none 판정 정확', t792ok, t792detail);
+
+    // T793: 배너 요소 + 마커 적용 함수 + audit + getAutoOpsReadiness 배선
+    var t793ok = false, t793detail = '';
+    try {
+      var hasBanner793 = !!document.getElementById('aio-regime-drift-banner');
+      var hasApply793 = typeof window._aioApplyRegimeDriftMarkers === 'function';
+      var audit793 = (window.AIO && window.AIO.getNarrativeRegimeDriftAudit) ? window.AIO.getNarrativeRegimeDriftAudit() : null;
+      var auditOk793 = audit793 && typeof audit793.severity === 'string' && Array.isArray(audit793.staticNarrativeBlocks);
+      var wiredAutoOps793 = (window.AIO && window.AIO.getAutoOpsReadiness) ? /getNarrativeRegimeDriftAudit/.test(window.AIO.getAutoOpsReadiness.toString()) : false;
+      t793ok = hasBanner793 && hasApply793 && !!auditOk793 && wiredAutoOps793;
+      t793detail = 'banner=' + hasBanner793 + ' apply=' + hasApply793 + ' audit=' + !!auditOk793 + ' autoOpsWired=' + wiredAutoOps793;
+    } catch(e) { t793detail = 'ERR:' + e.message; }
+    _assert('T793 v5025_regime_drift_surface: #aio-regime-drift-banner + _aioApplyRegimeDriftMarkers + audit + autoOps 배선', t793ok, t793detail);
   }
 
   window.AIO = window.AIO || {};

@@ -1,0 +1,24 @@
+v50.25: P1/WO-5 정적 내러티브 레짐 드리프트 가드 (stale 내러티브 근본 차단)
+
+50버전·497P 반복된 stale 내러티브의 구조적 근본 차단. 원인: 시나리오·스냅샷 prose·주간뉴스 등
+정적 분석 텍스트가 Claude 세션 시점(스냅샷 작성일)의 시장 레짐(SPX/VIX/F&G)을 전제로 쓰여,
+시장 급변 시(다음 세션 전) 급락일에 "사상최고 랠리"를 말하는 정반대 상황 발생. 증상(개별 수정)이
+아니라 구조(자동 강등)로 해결.
+
+메커니즘:
+- 작성 시점 레짐 = DATA_SNAPSHOT(SPX/VIX/F&G + _snapshotDate). 현재 레짐 = 라이브 _liveData + _lastFG.
+- _aioRegimeDrift: VIX 밴드(안정/보통/경계/패닉)·F&G 존(극단공포~극단탐욕)·SPX %로 severity(none/mild/severe).
+- severe 시 (a) #main-content 상단 전역 배너(#aio-regime-drift-banner)로 "정적 분석은 [날짜] 기준 —
+  현재 시장 급변, 참고용"(구체 드리프트 명시+세션 닫기) (b) [data-static-narrative] 블록(#macro-storyline)
+  강등 배지+opacity 약화.
+- 신규 _aioSnapshotRegime/_aioRegimeNow/_aioRegimeDrift/_aioApplyRegimeDriftMarkers/_aioDismissRegimeDrift
+  + AIO.getNarrativeRegimeDriftAudit() -> getAutoOpsReadiness 통합. 트리거 liveQuotes/serverDataLoaded/pageShown/부팅.
+- 날짜 기반 getScenarioFreshnessAudit/getEventTimelineStalenessAudit의 레짐 기반 일반화.
+
+부수: R206 getVisibleDevMarkerAudit에서 \bprominent\b 제거 — 금융 뉴스 일반 영단어 오탐(T776 flaky) 차단,
+실제 렌더 dev마커 0건이라 손실 없음("Fallback Only"가 커버).
+
+라이브 검증: 오늘 F&G 탐욕(60)->공포(34) severe 드리프트 정확 검출+배너 표시, 콘솔 JS 0,
+runTests 848/20(신규 T776/T786/T791-793 통과, 잔여 20 전부 사전존재 데이터드리프트). R1 7곳+캐시버스터 6곳.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

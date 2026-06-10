@@ -2160,6 +2160,151 @@ if (typeof document !== 'undefined') {
   }
 }
 
+// ════════════════════════════════════════════════════════════════════
+// v50.25/WO-5: 정적 내러티브 레짐 드리프트 가드
+// 문제: 시나리오·스냅샷 prose·주간뉴스 등 "정적 분석 텍스트"는 Claude 세션 시점(스냅샷 작성일)의
+//       시장 레짐(SPX/VIX/F&G)을 전제로 쓰인다. 시장이 그때와 크게 달라지면(세션 없이) 텍스트가
+//       정반대를 말할 수 있다(예: 급락일에 "사상최고 랠리"). 50버전간 반복된 stale 내러티브의 근본 원인.
+// 해법: 작성 시점 레짐 = DATA_SNAPSHOT(스냅샷 작성일의 SPX/VIX/F&G). 라이브 레짐과 비교해 드리프트가
+//       크면 (a) 전역 배너로 "정적 분석은 [날짜] 기준 — 현재 시장 급변, 참고용" 경고 + (b) data-static-narrative
+//       블록에 강등 배지. 날짜 기반 audit(getScenarioFreshnessAudit)을 레짐 기반으로 일반화.
+// ════════════════════════════════════════════════════════════════════
+(function(){
+  function _num(v){ return (typeof v === 'number' && isFinite(v)) ? v : null; }
+
+  window._aioSnapshotRegime = function(){
+    var ds = window.DATA_SNAPSHOT || {};
+    return {
+      spx: _num(ds.spx),
+      vix: _num(ds.vix),
+      fg:  _num(ds.fg),
+      date: ds._snapshotDate || (ds._updated ? String(ds._updated).slice(0, 10) : null)
+    };
+  };
+
+  window._aioRegimeNow = function(){
+    var ld = window._liveData || {};
+    var ds = window.DATA_SNAPSHOT || {};
+    var spx = (ld['^GSPC'] && _num(ld['^GSPC'].price)) || _num(ds.spx);
+    var vix = (ld['^VIX'] && _num(ld['^VIX'].price)) || _num(ds.vix);
+    var fg  = _num(window._lastFG);
+    if (fg === null) fg = _num(ds.fg);
+    return { spx: spx, vix: vix, fg: fg };
+  };
+
+  function _vixBand(v){ if (v == null) return null; return v < 18 ? 0 : v < 25 ? 1 : v < 32 ? 2 : 3; }
+  function _vixBandLabel(b){ return ['안정','보통','경계','패닉'][b] || '?'; }
+  function _fgZone(v){ if (v == null) return null; return v < 25 ? 0 : v < 45 ? 1 : v < 55 ? 2 : v < 75 ? 3 : 4; }
+  function _fgZoneLabel(z){ return ['극단공포','공포','중립','탐욕','극단탐욕'][z] || '?'; }
+
+  // 작성 시점 레짐(stamp) ↔ 현재 레짐(now) 드리프트 평가. severity: none|mild|severe
+  window._aioRegimeDrift = function(stamp, now){
+    stamp = stamp || window._aioSnapshotRegime();
+    now = now || window._aioRegimeNow();
+    var reasons = [], severe = false, mild = false;
+    if (stamp.vix != null && now.vix != null) {
+      var vb0 = _vixBand(stamp.vix), vb1 = _vixBand(now.vix);
+      var vpct = stamp.vix > 0 ? Math.abs((now.vix - stamp.vix) / stamp.vix * 100) : 0;
+      if (Math.abs(vb1 - vb0) >= 2 || vpct >= 35) { severe = true; reasons.push({ k:'VIX', sev:'severe', msg:'변동성 ' + _vixBandLabel(vb0) + '(' + stamp.vix.toFixed(1) + ') → ' + _vixBandLabel(vb1) + '(' + now.vix.toFixed(1) + ')' }); }
+      else if (Math.abs(vb1 - vb0) >= 1 || vpct >= 18) { mild = true; reasons.push({ k:'VIX', sev:'mild', msg:'VIX ' + stamp.vix.toFixed(1) + ' → ' + now.vix.toFixed(1) }); }
+    }
+    if (stamp.spx != null && now.spx != null && stamp.spx > 0) {
+      var spct = (now.spx - stamp.spx) / stamp.spx * 100;
+      if (Math.abs(spct) >= 3) { severe = true; reasons.push({ k:'SPX', sev:'severe', msg:'S&P500 ' + (spct>=0?'+':'') + spct.toFixed(1) + '% (' + Math.round(stamp.spx) + '→' + Math.round(now.spx) + ')' }); }
+      else if (Math.abs(spct) >= 1.5) { mild = true; reasons.push({ k:'SPX', sev:'mild', msg:'S&P500 ' + (spct>=0?'+':'') + spct.toFixed(1) + '%' }); }
+    }
+    if (stamp.fg != null && now.fg != null) {
+      var z0 = _fgZone(stamp.fg), z1 = _fgZone(now.fg);
+      var fgd = Math.abs(now.fg - stamp.fg);
+      var oppositeSides = (stamp.fg >= 55 && now.fg < 45) || (stamp.fg < 45 && now.fg >= 55);
+      if (oppositeSides || fgd >= 25 || Math.abs(z1 - z0) >= 2) { severe = true; reasons.push({ k:'F&G', sev:'severe', msg:'투자심리 ' + _fgZoneLabel(z0) + '(' + Math.round(stamp.fg) + ') → ' + _fgZoneLabel(z1) + '(' + Math.round(now.fg) + ')' }); }
+      else if (fgd >= 12 || Math.abs(z1 - z0) >= 1) { mild = true; reasons.push({ k:'F&G', sev:'mild', msg:'F&G ' + Math.round(stamp.fg) + ' → ' + Math.round(now.fg) }); }
+    }
+    return { severity: severe ? 'severe' : (mild ? 'mild' : 'none'), reasons: reasons, stamp: stamp, now: now };
+  };
+
+  var _driftDismissed = false;
+  try { _driftDismissed = sessionStorage.getItem('aio_regime_drift_dismissed') === '1'; } catch(_){}
+  window._aioDismissRegimeDrift = function(){
+    _driftDismissed = true;
+    try { sessionStorage.setItem('aio_regime_drift_dismissed', '1'); } catch(_){}
+    window._aioApplyRegimeDriftMarkers();
+  };
+
+  // 전역 배너 + data-static-narrative 블록 강등 배지 적용 (severe 드리프트 시)
+  window._aioApplyRegimeDriftMarkers = function(){
+    try {
+      var drift = window._aioRegimeDrift();
+      var on = drift.severity === 'severe' && !_driftDismissed;
+      var banner = document.getElementById('aio-regime-drift-banner');
+      if (banner) {
+        if (on) {
+          var dateStr = drift.stamp.date || '최근';
+          var reasonsHtml = drift.reasons.filter(function(r){ return r.sev === 'severe'; }).map(function(r){ return r.msg; }).join(' · ');
+          banner.style.cssText = 'display:block;margin:0 0 10px 0;padding:9px 12px;background:rgba(255,90,80,0.12);border:1px solid rgba(255,90,80,0.45);border-radius:8px;font-size:12px;line-height:1.55;color:var(--text-primary);';
+          banner.innerHTML = '<strong style="color:#ff7a70;">⚠ 정적 분석 텍스트는 ' + dateStr + ' 기준입니다 — 현재 시장이 그때와 크게 다릅니다.</strong>' +
+            '<span style="color:var(--text-secondary);"> ' + reasonsHtml + '. 시나리오·해설·주간 요약 텍스트는 <b>참고용</b>으로만 보시고, 상단의 실시간 시세·지표를 우선하세요.</span>' +
+            ' <button data-action="_aioDismissRegimeDrift" style="margin-left:6px;background:none;border:1px solid rgba(255,90,80,0.5);color:#ff7a70;border-radius:5px;font-size:11px;padding:2px 8px;cursor:pointer;">닫기</button>';
+        } else {
+          banner.style.display = 'none';
+          banner.innerHTML = '';
+        }
+      }
+      document.querySelectorAll('[data-static-narrative]').forEach(function(el){
+        var existing = el.querySelector(':scope > .aio-regime-drift-tag');
+        if (on) {
+          el.style.opacity = '0.72';
+          if (!existing) {
+            var tag = document.createElement('div');
+            tag.className = 'aio-regime-drift-tag';
+            tag.style.cssText = 'font-size:11px;color:#ff7a70;margin-bottom:6px;font-weight:600;';
+            tag.textContent = '⚠ 작성 시점(' + (drift.stamp.date || '') + ')과 시장 급변 — 참고용';
+            el.insertBefore(tag, el.firstChild);
+          }
+        } else {
+          el.style.opacity = '';
+          if (existing) existing.remove();
+        }
+      });
+      return drift;
+    } catch(e) {
+      if (window._aioLog) window._aioLog('warn', 'narrative', 'regime drift markers: ' + (e && e.message || e));
+      return null;
+    }
+  };
+
+  window.AIO = window.AIO || {};
+  window.AIO.getNarrativeRegimeDriftAudit = function(){
+    var drift = window._aioRegimeDrift();
+    var blocks = [];
+    try {
+      document.querySelectorAll('[data-static-narrative]').forEach(function(el){
+        blocks.push({ id: el.getAttribute('data-static-narrative'), badged: !!el.querySelector(':scope > .aio-regime-drift-tag') });
+      });
+    } catch(_){}
+    return {
+      status: drift.severity === 'severe' ? 'warn' : 'ok',
+      severity: drift.severity,
+      reasons: drift.reasons.map(function(r){ return r.sev + ':' + r.k + ' ' + r.msg; }),
+      snapshotRegime: drift.stamp,
+      liveRegime: drift.now,
+      staticNarrativeBlocks: blocks,
+      dismissed: _driftDismissed,
+      generatedAt: new Date().toISOString()
+    };
+  };
+
+  // 트리거: 라이브 데이터 / 서버 데이터 / 페이지 진입 / 부팅 1회
+  if (window._aioPageBus && window._aioPageBus.register) {
+    window._aioPageBus.register('core-regime-drift-live', 'aio:liveQuotes', function(){ window._aioApplyRegimeDriftMarkers(); });
+    window._aioPageBus.register('core-regime-drift-page', 'aio:pageShown', function(){ setTimeout(window._aioApplyRegimeDriftMarkers, 150); });
+  }
+  if (typeof window !== 'undefined') {
+    window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioApplyRegimeDriftMarkers(); } catch(_){} });
+    setTimeout(function(){ try { window._aioApplyRegimeDriftMarkers(); } catch(_){} }, 3500);
+  }
+})();
+
 
 // v48.58: 첫 방문 온보딩 모달 (Blocker #1 해소 — API 키 선택 가이드)
 window._aioShowOnboarding = function() {
@@ -10097,7 +10242,10 @@ window.AIO.getAccessibilityAudit = function() {
 window.AIO.getVisibleDevMarkerAudit = function() {
   var violations = [];
   try {
-    var devRe = /§\d+|Claude Mythos|Fallback Only|\bprominent\b|\bv\d{2}\.\d{1,2}\b|\bR\d{2,3}\b(?=[\s)\]\/·]|$)|\b[A-Z_]{4,}_REGISTRY\b|MACRO_CALENDAR|DATA_SNAPSHOT/g;
+    // v50.25: `\bprominent\b` 제거 — 금융 뉴스/교육 텍스트에 흔한 일반 영단어라 라이브 RSS에서 오탐 발생(T776 flaky).
+    //   실제 렌더되는 dev 마커 "prominent"는 0건(정규식·주석에만 존재)이고, 원래 타깃이던 "Fallback Only ... prominent"
+    //   라벨은 "Fallback Only"가 이미 커버 → 손실 없이 오탐만 제거.
+    var devRe = /§\d+|Claude Mythos|Fallback Only|\bv\d{2}\.\d{1,2}\b|\bR\d{2,3}\b(?=[\s)\]\/·]|$)|\b[A-Z_]{4,}_REGISTRY\b|MACRO_CALENDAR|DATA_SNAPSHOT/g;
     var pages = Array.prototype.slice.call(document.querySelectorAll('[id^="page-"]'));
     pages.forEach(function(pg) {
       if (!/^page-[a-z]/.test(pg.id) || /-label$/.test(pg.id)) return;
@@ -10249,6 +10397,9 @@ window.AIO.getAutoOpsReadiness = function() {
   if (fourthFifthPass && fourthFifthPass.status === 'fail') issues.push(fourthFifthPass.issueCount + ' fourth/fifth pass issue(s) [P377/R135]');
   if (scenarioFreshness && scenarioFreshness.issueCount) issues.push(scenarioFreshness.issueCount + ' stale scenario(s) [v50.16 scenario+signalShortTerm]: ' + (scenarioFreshness.staleScenarios || []).slice(0, 4).map(function(s){ return s.id + '=' + s.ageDays + 'd'; }).join(','));
   if (eventTimelineStaleness && eventTimelineStaleness.issueCount) issues.push(eventTimelineStaleness.issueCount + ' event timeline staleness [v50.16]: ' + eventTimelineStaleness.issues.slice(0, 2).join(' | '));
+  // v50.25/WO-5: 정적 내러티브 레짐 드리프트 (작성 시점 ↔ 현재 시장 레짐 급변 → 정적 분석 텍스트 강등)
+  var narrativeRegimeDrift = window.AIO.getNarrativeRegimeDriftAudit ? window.AIO.getNarrativeRegimeDriftAudit() : null;
+  if (narrativeRegimeDrift && narrativeRegimeDrift.severity === 'severe') issues.push('정적 내러티브 레짐 드리프트(severe) [v50.25/WO-5]: ' + (narrativeRegimeDrift.reasons || []).join(' · '));
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -14741,7 +14892,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.24';
+const APP_VERSION = 'v50.25';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

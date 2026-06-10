@@ -1,5 +1,22 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.25 - P1/WO-5: 정적 내러티브 레짐 드리프트 가드 (stale 내러티브 근본 차단) (2026-06-10)
+
+**50버전·497 P넘버에 걸쳐 반복된 stale 내러티브 문제의 구조적 근본 차단.** 매번 손으로 고쳐온(v50.16~22) stale 내러티브의 원인 = 시나리오·스냅샷 prose·주간뉴스 등 "정적 분석 텍스트"가 Claude 세션 시점(= 스냅샷 작성일)의 시장 레짐(SPX/VIX/F&G)을 전제로 작성된다는 것. 시장이 그때와 크게 달라져도(다음 세션 전까지) 텍스트는 그대로라, 급락일에 "사상최고 랠리"를 말하는 정반대 상황이 발생. 증상(개별 텍스트 수정)이 아니라 구조(자동 강등)로 해결.
+
+**메커니즘**
+- **작성 시점 레짐(stamp)** = `DATA_SNAPSHOT`의 SPX/VIX/F&G + `_snapshotDate` (정적 텍스트가 작성된 시장 상태).
+- **현재 레짐(now)** = 라이브 `_liveData['^GSPC'/'^VIX']` + `_lastFG` (스냅샷 폴백).
+- **`_aioRegimeDrift(stamp, now)`**: VIX 밴드(안정<18/보통<25/경계<32/패닉), F&G 존(극단공포<25/공포<45/중립<55/탐욕<75/극단탐욕), SPX % 변화로 드리프트 평가 → `severity: none|mild|severe` + 구체 사유.
+- **severe 드리프트 시 자동 강등**: (a) `#main-content` 상단 **전역 배너**(`#aio-regime-drift-banner`)에 "⚠ 정적 분석 텍스트는 [작성일] 기준 — 현재 시장이 그때와 크게 다릅니다 ([구체 드리프트]). 시나리오·해설·주간 요약은 참고용으로만." + 세션 닫기 버튼. (b) `[data-static-narrative]` 블록(`#macro-storyline` 등)에 "작성 시점과 시장 급변 — 참고용" 배지 + opacity 약화.
+
+**신규 API/함수**
+- `window._aioSnapshotRegime()` / `_aioRegimeNow()` / `_aioRegimeDrift()` / `_aioApplyRegimeDriftMarkers()` / `_aioDismissRegimeDrift()`
+- `AIO.getNarrativeRegimeDriftAudit()` → `getAutoOpsReadiness()` 통합 (severe 시 issue 추가). 날짜 기반 `getScenarioFreshnessAudit`/`getEventTimelineStalenessAudit`의 **레짐 기반 일반화**.
+- 트리거: `aio:liveQuotes` / `aio:serverDataLoaded` / `aio:pageShown` / 부팅 3.5s. 8초 스로틀 불필요(저비용).
+
+R1 7곳 + 캐시버스터 6곳. 회귀 테스트 T791~T793.
+
 ## v50.24 - P0 구조 시정: 자율운영 cron 신뢰도 + ATH 레짐 버그 + refresh 매핑 + 신선도 표면화 (2026-06-10)
 
 **사용자: "구조적·시스템적 문제 전수 조사 후 Opus로 작업."** → Fable 5가 라이브 구동 검증 포함 전수 감사(`_context/OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md`)를 수행해 P0 5건을 매핑, Opus가 백로그 WO-1~4를 순차 시정. **핵심 발견: "v50.23 진짜 자율 운영 전환"이 프로덕션에서 아직 사실이 아니었다** — cron이 등록 후 자동 발화 0회(수동 1회뿐)였고, 죽어도 감지할 장치가 0개(이전 CORS 프록시가 조용히 죽던 것과 동일한 실패 클래스가 백엔드에서 재현). 또한 SPX -2.9% 급락 당일 홈 화면이 "Near ATH"를 표시하는 라이브 버그를 실증 포착.
