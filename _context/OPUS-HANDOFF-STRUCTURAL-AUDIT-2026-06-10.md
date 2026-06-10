@@ -17,13 +17,16 @@ purpose: Opus 작업 세션 핸드오프 — 이 문서만으로 cold start 작�
 | WO-3 refresh 매핑 (P499) | ✅ 완료 | v50.24 |
 | WO-4 데이터 신선도 배지 + 주기 재로드 | ✅ 완료 | v50.24 |
 | WO-5 정적 내러티브 레짐 드리프트 가드 | ✅ 완료 | v50.25 |
-| WO-7 히스토리 축적 (생산자) | ✅ 완료(생산자) | ops(fetch-data.mjs history.json). **소비자(차트 연결)는 미완** — 히스토리 누적 후 진행 |
-| WO-8 CI 게이트 (구문/버전/stray) | ✅ 완료 | ops(.github/workflows/ci.yml + scripts/ci-version-check.mjs). CI green |
-| WO-6 뉴스 백엔드 이전 | ⬜ 미착수 | |
+| WO-7 히스토리 축적 (생산자) | ✅ 완료·**prod 검증** | ops(fetch-data.mjs). 2026-06-10 12:46Z cron이 history.json 첫 생성 확인. **소비자(차트 연결)는 미완** — 30일 누적 후 진행 |
+| WO-8 CI 게이트 (구문/버전/stray) | ✅ 완료·**CI green** | ops(.github/workflows/ci.yml + scripts/ci-version-check.mjs). 매 push green |
+| WO-11 초보자 태스크 중심 홈 | ✅ 완료(시작 패널) | v50.26 #aio-beginner-panel 3대 질문. **전면 홈 재구조화는 후속** |
+| WO-6 뉴스 백엔드 이전 | ⬜ 미착수 — 다음 권장 (검증된 서버 fetch 패턴 확장, 저위험) | |
+| WO-7 소비자 (차트 history.json 연결) | ⬜ 미착수 — 히스토리 ~30일 누적 후 | |
 | WO-9 페이로드 다이어트 | ⬜ 미착수 (위험 — script 로드 순서) | |
-| WO-10 Claude 키 서버화 (Worker) | ⬜ 미착수 (Cloudflare 필요, 로컬 검증 불가) | |
-| WO-11 초보자 태스크 중심 홈 | ⬜ 미착수 | |
-| WO-12~14 문서/audit 위생 | ⬜ 부분 (이 표 갱신 = WO-12 일부) | |
+| WO-10 Claude 키 서버화 (Worker) | ⬜ 미착수 (**Cloudflare 운영자 설정 필요** — 로컬 검증 불가) | |
+| WO-12~14 문서/audit 위생 | ⬜ 부분 | |
+
+**prod 실측 검증(2026-06-10)**: cron 발화(05:11Z·12:46Z 성공) + history.json 첫 레코드 생성 + CI 전 push green + v50.26 라이브 + 레짐 드리프트 배너(F&G 탐욕→공포) + 초보자 패널 요약 동작 = 모두 확인.
 
 부수 완료: R206 `getVisibleDevMarkerAudit`에서 `\bprominent\b` 오탐 제거(T776 안정화). P498/P499 BUG-POSTMORTEM 기록.
 
