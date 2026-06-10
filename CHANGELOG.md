@@ -1,5 +1,22 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.26 - P3/WO-11: 초보자 태스크 중심 시작 패널 + ops(WO-7 히스토리 / WO-8 CI 게이트) (2026-06-10)
+
+**사용자 핵심 목표 "정말로 주식 초보자가 쉽고 직관적으로"에 직접 대응.** 21페이지 지표 터미널은 본질적으로 전문가용 — 초보자는 "어디부터 봐야 할지" 막막하다. 홈 최상단(헤더 직후)에 **3대 질문 중심 진입 패널**을 추가(additive, 기존 라이브 데이터 100% 재사용, 새 데이터/API 0).
+
+**WO-11 — 초보자 시작 패널 (`#aio-beginner-panel`)**
+- (1) **"📊 오늘 시장, 뭘 조심하죠?"** — 라이브 VIX 밴드(안정/보통/높음/패닉)+F&G 존(극단공포~극단탐욕)을 `_aioRenderBeginnerSummary()`가 평이한 한국어 한 줄 + 행동 가이드로 합성(공포 극단=역발상 분할 매수 관심/탐욕 극단=추격 자제·차익실현/고변동=소액·짧은 손절/극단 없음=평소 원칙 분할). WO-5 `_aioRegimeNow` 재사용. → "오늘의 브리핑" 동선.
+- (2) **"🔍 이 종목 사도 될까요?"** — 종목 입력(`beginner-ticker-input`, Enter 지원) → `_aioBeginnerAnalyze()`가 기업 분석 페이지로 이동 + `fund-search-input`/`fundamentalSearch()` 자동 실행(재무·차트·뉴스).
+- (3) **"💼 내 포트폴리오는 괜찮을까요?"** — 포트폴리오 리스크(손실위험·집중도·변동성) 진단 동선.
+- "간단히 접기 ✕"(`_aioHideBeginnerPanel`, localStorage `aio_beginner_panel_hidden`)로 숙련자는 숨김. 트리거: `aio:liveQuotes`/`aio:serverDataLoaded`/`aio:pageShown`(home)/부팅. 모바일 반응형(auto-fit minmax 240px).
+- R1 7곳 + 캐시버스터 6곳. 회귀 테스트 T794~T795.
+
+**ops(WO-7) — 일별 히스토리 축적 `public-data/history.json`** (서버 전용, 클라이언트 버전 무관)
+- `fetch-data.mjs`가 data.json 출력 후 핵심 지표(SPX/Nasdaq/VIX/VVIX/금리/DXY/유가/금/KOSPI/BTC/F&G)를 일자별 1건 upsert(같은 날=종가 수렴), 420일(14개월) cap. 핵심 심볼 없으면 스킵(널 오염 방지). `refresh-data.yml`이 data.json+history.json 동시 커밋. → 52주 VIX(IV Rank)·breadth 사이클·F&G 추이 차트가 시간이 지나면 하드코딩 시드 대신 자체 실데이터 사용(소비자 연결은 후속).
+
+**ops(WO-8) — CI 게이트 `.github/workflows/ci.yml`** (서버 전용)
+- push(main)/PR마다 (1) `node --check` 전 JS(P311급 구문 오류 차단) (2) `.mjs` 구문 (3) `scripts/ci-version-check.mjs`로 R1 버전 7곳+캐시버스터 6곳 동기화 검증 (4) stray 임시/백업 파일 검사. 실패 시 GitHub 자동 이메일. CI 3회 green 확인. **부수**: R206 `getVisibleDevMarkerAudit`에서 `\bprominent\b` 제거(금융 뉴스 일반 영단어 오탐 → T776 안정화).
+
 ## v50.25 - P1/WO-5: 정적 내러티브 레짐 드리프트 가드 (stale 내러티브 근본 차단) (2026-06-10)
 
 **50버전·497 P넘버에 걸쳐 반복된 stale 내러티브 문제의 구조적 근본 차단.** 매번 손으로 고쳐온(v50.16~22) stale 내러티브의 원인 = 시나리오·스냅샷 prose·주간뉴스 등 "정적 분석 텍스트"가 Claude 세션 시점(= 스냅샷 작성일)의 시장 레짐(SPX/VIX/F&G)을 전제로 작성된다는 것. 시장이 그때와 크게 달라져도(다음 세션 전까지) 텍스트는 그대로라, 급락일에 "사상최고 랠리"를 말하는 정반대 상황이 발생. 증상(개별 텍스트 수정)이 아니라 구조(자동 강등)로 해결.

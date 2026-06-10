@@ -2305,6 +2305,72 @@ if (typeof document !== 'undefined') {
   }
 })();
 
+// ════════════════════════════════════════════════════════════════════
+// v50.26/WO-11: 초보자 시작 패널 — 3대 질문("오늘 시장 뭘 조심/이 종목 사도 되나/내 포트 괜찮나")
+// 중심 진입. 21페이지 지표 터미널은 초보자에게 어디부터 볼지 막막 → 홈 최상단에 평이한 한 줄 요약 +
+// 해당 심층 페이지로 가는 동선. 기존 라이브 레짐(_aioRegimeNow)·fundamental 검색 재사용(새 데이터 0).
+// ════════════════════════════════════════════════════════════════════
+(function(){
+  var _hidden = false;
+  try { _hidden = localStorage.getItem('aio_beginner_panel_hidden') === '1'; } catch(_){}
+
+  window._aioHideBeginnerPanel = function(){
+    _hidden = true;
+    try { localStorage.setItem('aio_beginner_panel_hidden', '1'); } catch(_){}
+    var p = document.getElementById('aio-beginner-panel'); if (p) p.style.display = 'none';
+  };
+
+  // 종목 입력 → 기업 분석 페이지로 이동 + 자동 검색 (없으면 검색창 포커스)
+  window._aioBeginnerAnalyze = function(){
+    try {
+      var inp = document.getElementById('beginner-ticker-input');
+      var q = inp ? (inp.value || '').trim() : '';
+      if (typeof showPage === 'function') showPage('fundamental');
+      setTimeout(function(){
+        var fs = document.getElementById('fund-search-input');
+        if (fs && q) fs.value = q;
+        if (q && typeof fundamentalSearch === 'function') fundamentalSearch();
+        else if (fs) fs.focus();
+      }, 280);
+    } catch(_){}
+  };
+
+  // 오늘 시장 한 줄 요약 — 라이브 VIX/F&G를 평이한 한국어 + 행동 가이드로 (역발상 + 변동성)
+  window._aioRenderBeginnerSummary = function(){
+    try {
+      var p = document.getElementById('aio-beginner-panel');
+      if (p && _hidden) { p.style.display = 'none'; return; }
+      var el = document.getElementById('beginner-market-summary');
+      if (!el) return;
+      var r = window._aioRegimeNow ? window._aioRegimeNow() : null;
+      if (!r || (r.vix == null && r.fg == null)) return;
+      var vix = r.vix, fg = r.fg;
+      var vixTxt = vix == null ? '' : (vix < 18 ? '변동성 안정' : vix < 25 ? '변동성 보통' : vix < 32 ? '변동성 높음(경계)' : '변동성 매우 높음(패닉)');
+      var fgTxt = fg == null ? '' : (fg < 25 ? '투자심리 극단적 공포' : fg < 45 ? '투자심리 공포' : fg < 55 ? '투자심리 중립' : fg < 75 ? '투자심리 탐욕' : '투자심리 극단적 탐욕');
+      var advice;
+      if (vix != null && vix >= 28) advice = '급변동 구간 — 신규 진입은 분할·소액, 손절선은 짧게.';
+      else if (fg != null && fg < 25) advice = '공포 극단 — 역발상 분할 매수 관심 구간(급하지 않게).';
+      else if (fg != null && fg >= 75) advice = '탐욕 극단 — 추격 매수는 자제, 일부 차익실현 고려.';
+      else advice = '뚜렷한 극단 신호는 없어요 — 평소 원칙대로 분할 접근.';
+      var meta = vix != null ? (' <span style="color:var(--text-muted);">(VIX ' + vix.toFixed(1) + (fg != null ? ' · 공포탐욕 ' + Math.round(fg) : '') + ')</span>') : '';
+      el.innerHTML = '<b>' + [vixTxt, fgTxt].filter(Boolean).join(' · ') + '</b><br>' + advice + meta;
+    } catch(_){}
+  };
+
+  // Enter 키로도 분석 + 트리거 배선
+  if (typeof window !== 'undefined') {
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' && e.target && e.target.id === 'beginner-ticker-input') { e.preventDefault(); window._aioBeginnerAnalyze(); }
+    });
+    if (window._aioPageBus && window._aioPageBus.register) {
+      window._aioPageBus.register('core-beginner-summary-live', 'aio:liveQuotes', function(){ window._aioRenderBeginnerSummary(); });
+      window._aioPageBus.register('core-beginner-summary-page', 'aio:pageShown', function(e){ if ((e && e.detail) === 'home') setTimeout(window._aioRenderBeginnerSummary, 150); });
+    }
+    window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioRenderBeginnerSummary(); } catch(_){} });
+    setTimeout(function(){ try { window._aioRenderBeginnerSummary(); } catch(_){} }, 3600);
+  }
+})();
+
 
 // v48.58: 첫 방문 온보딩 모달 (Blocker #1 해소 — API 키 선택 가이드)
 window._aioShowOnboarding = function() {
@@ -14892,7 +14958,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.25';
+const APP_VERSION = 'v50.26';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

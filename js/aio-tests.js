@@ -5632,6 +5632,37 @@
       t793detail = 'banner=' + hasBanner793 + ' apply=' + hasApply793 + ' audit=' + !!auditOk793 + ' autoOpsWired=' + wiredAutoOps793;
     } catch(e) { t793detail = 'ERR:' + e.message; }
     _assert('T793 v5025_regime_drift_surface: #aio-regime-drift-banner + _aioApplyRegimeDriftMarkers + audit + autoOps 배선', t793ok, t793detail);
+
+    // ─── v50.26 P3/WO-11 초보자 시작 패널 ───
+    // T794: 패널 DOM(3 카드) + 핸들러 함수 정의
+    var t794ok = false, t794detail = '';
+    try {
+      var panel794 = document.getElementById('aio-beginner-panel');
+      var hasSummary794 = !!document.getElementById('beginner-market-summary');
+      var hasInput794 = !!document.getElementById('beginner-ticker-input');
+      var hasRender794 = typeof window._aioRenderBeginnerSummary === 'function';
+      var hasAnalyze794 = typeof window._aioBeginnerAnalyze === 'function';
+      var hasHide794 = typeof window._aioHideBeginnerPanel === 'function';
+      t794ok = !!panel794 && hasSummary794 && hasInput794 && hasRender794 && hasAnalyze794 && hasHide794;
+      t794detail = 'panel=' + !!panel794 + ' summary=' + hasSummary794 + ' input=' + hasInput794 + ' render=' + hasRender794 + ' analyze=' + hasAnalyze794 + ' hide=' + hasHide794;
+    } catch(e) { t794detail = 'ERR:' + e.message; }
+    _assert('T794 v5026_beginner_panel: #aio-beginner-panel 3카드 + _aioRenderBeginnerSummary/_aioBeginnerAnalyze/_aioHideBeginnerPanel', t794ok, t794detail);
+
+    // T795: 요약 렌더가 라이브 레짐(_aioRegimeNow)을 평이한 한국어로 출력 (수신 대기 placeholder 탈피)
+    var t795ok = false, t795detail = '';
+    try {
+      if (typeof window._aioRenderBeginnerSummary === 'function') window._aioRenderBeginnerSummary();
+      var sEl = document.getElementById('beginner-market-summary');
+      var txt795 = sEl ? (sEl.textContent || '') : '';
+      var hasRegimeNow795 = typeof window._aioRegimeNow === 'function';
+      var rendered795 = /변동성|투자심리/.test(txt795); // 평이한 한국어 합성 출력
+      // _aioRegimeNow가 값을 줄 때만 합성됨 — 값 없으면 placeholder 유지(허용)
+      var r795 = hasRegimeNow795 ? window._aioRegimeNow() : null;
+      var hasData795 = r795 && (r795.vix != null || r795.fg != null);
+      t795ok = hasRegimeNow795 && (hasData795 ? rendered795 : true);
+      t795detail = 'regimeNow=' + hasRegimeNow795 + ' hasData=' + !!hasData795 + ' rendered=' + rendered795 + ' txt="' + txt795.slice(0,40) + '"';
+    } catch(e) { t795detail = 'ERR:' + e.message; }
+    _assert('T795 v5026_beginner_summary_live: _aioRenderBeginnerSummary가 라이브 VIX/F&G를 평이한 한국어로 합성', t795ok, t795detail);
   }
 
   window.AIO = window.AIO || {};

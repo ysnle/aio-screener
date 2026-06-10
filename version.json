@@ -1,5 +1,5 @@
 {
-  "version": "v50.25",
-  "built": "2026-06-10T19:30:00+09:00",
-  "note": "v50.25 P1/WO-5 정적 내러티브 레짐 드리프트 가드 (stale 내러티브 50버전 반복의 근본 차단). 문제: 시나리오·스냅샷 prose·주간뉴스 등 정적 분석 텍스트는 Claude 세션 시점(스냅샷 작성일)의 시장 레짐(SPX/VIX/F&G)을 전제로 쓰여, 시장이 그때와 크게 달라지면(세션 없이) 급락일에 '사상최고 랠리'를 말하는 등 정반대 결론을 표시. 해법: 작성 시점 레짐 = DATA_SNAPSHOT(스냅샷 작성일 SPX/VIX/F&G), 라이브 레짐과 비교(_aioRegimeDrift: VIX 밴드 안정/보통/경계/패닉, F&G 존 극단공포~극단탐욕, SPX %)해 severe 드리프트 시 (a) #main-content 상단 전역 배너로 '정적 분석은 [날짜] 기준 — 현재 시장 급변, 참고용' 경고(구체 드리프트 명시·세션 닫기) + (b) data-static-narrative 블록(#macro-storyline 등) 강등 배지·시각 약화. 신규 _aioSnapshotRegime/_aioRegimeNow/_aioRegimeDrift/_aioApplyRegimeDriftMarkers + AIO.getNarrativeRegimeDriftAudit() → getAutoOpsReadiness 통합. 트리거: aio:liveQuotes/aio:serverDataLoaded/aio:pageShown/부팅. 날짜 기반 getScenarioFreshnessAudit의 레짐 기반 일반화. R1 7곳 + 캐시버스터 6곳. T791~T793."
+  "version": "v50.26",
+  "built": "2026-06-10T20:30:00+09:00",
+  "note": "v50.26 P3/WO-11 초보자 태스크 중심 시작 패널 (홈 최상단). 21페이지 지표 터미널이 초보자에게 '어디부터 봐야 할지 막막'한 문제 → 홈 헤더 직후에 3대 질문 중심 진입 패널(#aio-beginner-panel) 추가(additive·기존 데이터 재사용). (1) '오늘 시장, 뭘 조심하죠?' — 라이브 VIX 밴드+F&G 존을 평이한 한국어 한 줄(_aioRenderBeginnerSummary)+행동 가이드(공포 극단=역발상 분할/탐욕 극단=차익실현/고변동=소액·짧은 손절)로 + 오늘의 브리핑 동선. (2) '이 종목 사도 될까요?' — 종목 입력(beginner-ticker-input, Enter 지원)→기업 분석 자동 검색(_aioBeginnerAnalyze, fund-search-input+fundamentalSearch 재사용). (3) '내 포트폴리오는 괜찮을까요?' — 포트폴리오 리스크 진단 동선. '간단히 접기'(localStorage aio_beginner_panel_hidden)로 숙련자는 숨김. 트리거 aio:liveQuotes/serverDataLoaded/pageShown(home)/부팅. WO-5 _aioRegimeNow 재사용. R1 7곳+캐시버스터 6곳. T794~T795."
 }
