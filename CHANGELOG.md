@@ -1,5 +1,27 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.23 - 데이터 백엔드: 진짜 자율 운영 전환 (구조적 근본 개선) (2026-06-10)
+
+**사용자: "왜 근본적으로 보강·개선이 안 되나. 손 안 대도 알아서 도는 게 목적인데 지금 쓸 수 없는 수준."** → 50버전·497 P넘버가 **증상치료**(stale 값 수정, audit 추가)에 머문 근본 원인 진단: **아키텍처(정적 사이트 + 브라우저 CORS 프록시 + 손으로 박은 DATA_SNAPSHOT)가 "자율 운영"과 구조적으로 양립 불가**. 브라우저는 Yahoo/CNN/FRED를 직접 못 부름(CORS) → 제3자 프록시(자주 죽음) → 실패 시 stale 스냅샷 폴백 → 매주 수동 /data-refresh 필요(= 손대는 일). 이번엔 **구조 자체를 변경**.
+
+**(A) `scripts/fetch-data.mjs` — 서버측 수집기 (Node 20)**
+- Yahoo v8/chart로 60+ 핵심심볼(미국/한국 지수·금리·원자재·환율·신용 ETF·메가캡·KR 대표주) 시세, FRED(CPI/CoreCPI/PCE/CorePCE/FedRate/실업률/NFP), CNN F&G를 **서버에서** 수집 → `public-data/data.json` 출력. CORS·프록시·키노출 0. 동시성6 배치 + 재시도3 + 절반실패 시 비0종료.
+- 출력 형식이 `applyLiveQuotes()`가 기대하는 `{symbol, regularMarketPrice, regularMarketChangePercent, chartPreviousClose, _source}` 그대로 → 사이트 변경 최소.
+
+**(B) `.github/workflows/refresh-data.yml` — GitHub Actions cron**
+- 30분마다(+수동 `workflow_dispatch`) fetch 스크립트 실행 → data.json 변경 시 커밋·푸시(`[skip ci]`) → GitHub Pages 자동 재빌드. **무료**(public repo Actions 무제한). `permissions: contents: write`.
+
+**(C) 사이트 로더 `_aioLoadServerData` (aio-data.js, `initV20DataEngine` 시작 시 await)**
+- 같은-출처 `./public-data/data.json` fetch(no-cache, 분단위 캐시버스터) → `applyLiveQuotes(quotes)`(앱 전체+`aio:liveQuotes`) + `DATA_SNAPSHOT` 매크로 write + `_applyFearGreedScore`(F&G) 즉시 적용. **이게 PRIMARY**, 기존 클라이언트 `fetchLiveQuotes`(프록시)는 live 갱신 레이어로 강등 — **프록시가 죽어도 서버 데이터가 이미 화면에**. data.json 없으면 조용히 false → 기존 경로 폴백.
+
+**검증 (프리뷰, node 로컬부재로 PowerShell 시드 + GitHub Actions가 실제 생성)**: 서버측 23심볼 실수집(SPX 7386.65·VIX 19.87·KOSPI 7970·NVDA 208 — **CORS 프록시 없이**) → data.json fetch/parse 정상 → 로더 `loaderReturned:true`·`_serverDataMeta`{symbolsOk:23, age 3min} → `_liveData` 적용. 콘솔 새 에러 0(기존 `proxy-primary` 실패 경고는 이제 무해 — data.json이 백스톱하는 게 바로 이번 개선의 증거).
+
+**사용자 1회 설정** (배포 후): (1) GitHub repo Settings → Actions → General → Workflow permissions = **Read and write** (워크플로가 data.json 푸시하려면 필수) (2) (선택) FRED 무료키(api.stlouisfed.org) → repo Secret `FRED_API_KEY`(없으면 매크로만 빈값, 시세/F&G는 작동) (3) Actions 탭 → Refresh market data → Run workflow(첫 실행) 또는 다음 :00/:30 대기.
+
+**정직한 한계**: 무료 API가 아예 없는 지표(breadth %above-MA 등)는 가짜 stale 대신 "—". 현재 SYMBOLS는 핵심 60+, 전체 LIVE_SYMBOLS(~300 KR 포함) 확장은 배열 추가만(배치 자동). R1 7곳+캐시버스터 6곳.
+
+
+
 > **작업 규칙**: 매 버전 완료 시 이 파일에 기록. 다음 버전 작업 시 전체 코드 재작성 금지 — 이 로그를 보고 필요한 부분만 수정(patch).
 >
 > **작업 시작 전 참고 방법**: 새 작업을 시작할 때 이 파일의 최근 3~5개 항목을 먼저 읽는다. 현재 버전, 최근 변경된 파일, 진행 중인 이슈를 파악한 뒤 작업 계획을 세운다. 같은 영역을 건드리는 경우 이전 변경 의도와 충돌하지 않는지 확인한다.

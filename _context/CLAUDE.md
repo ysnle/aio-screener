@@ -2,7 +2,8 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.22
+- **현재 버전**: v50.23
+- **v50.23 데이터 백엔드 — 진짜 자율 운영 전환**: 정적사이트+CORS프록시+수동스냅샷 구조가 자율운영과 양립불가임을 진단, 구조 변경. `scripts/fetch-data.mjs`(서버측 Yahoo/FRED/CNN 수집→`public-data/data.json`) + `.github/workflows/refresh-data.yml`(30분 cron, 무료) + 사이트 로더 `_aioLoadServerData`(initV20DataEngine 시작 시 data.json→applyLiveQuotes/매크로/F&G, PRIMARY). 프록시 죽어도 서버데이터 백스톱. 검증: PowerShell 시드 23심볼(CORS 없이) 로더 적용 OK. 사용자 1회설정: Actions write권한 ON + FRED키 Secret(선택). 데이터확장=SYMBOLS 배열 추가. R1 7곳+캐시버스터 6곳.
 
 ## v50.22 note
 - **잔여 로직 영역(sentiment·options·portfolio·briefing) 직접 trace 완료 + 전 21route undefined 스캔**. 사용자 "남은 영역 없어? QA 스킬 불신" → 코드 직접 정독. (1) 전 21 route 라이브 "undefined/[object Object]/NaN" 스캔 0건. (2) kr/ticker 3 render 직접 trace: analyzeKrIndex(유일 버그·시정) vs 29116·analyzeKrTickerDeep property 정확 + fundamental 실검색 undefined 0. (3) sentiment `_generateSentimentAnalysis`: F&G/VIX/PCR 임계값·항복적매도·클러스터 전부 역발상 일관·버그 없음. (4) options IV Rank(evidence 라벨)·VVIX 합리. (5) portfolio `_calcPortfolioVaR`/`_calcMaxDrawdown` 양수 반환→`'-'+fmtPct` 정확, null "-—"→`fmtLoss` "—" cosmetic 시정. (6) **콘솔 error 점검 → P497**: `fundamentalSearch`가 매 검색마다 없는 per-page 패널로 `chatSend('fundamental')` 자동전송 → "DOM input missing" 에러+쿼터 자동소진 시도 → 통합 입력창 프리필(opt-in)로 시정(검증: 에러 0). **결론**: 버그는 breadth/kr-technical/fundamental 특정 지점 집중, 핵심 로직 견고. 검증: badge v50.22·undefined 0·콘솔 JS 0(proxy 경고만). R1 7곳+캐시버스터 6곳+P496~497.

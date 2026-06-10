@@ -4362,9 +4362,59 @@ async function _idbLoadNews(maxAgeMs) {
   } catch(e) { return null; }
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// v50.23: 서버측 데이터 로더 — GitHub Actions(.github/workflows/refresh-data.yml)가
+// scripts/fetch-data.mjs로 생성한 public-data/data.json을 "같은 출처"로 읽어 즉시 적용.
+// CORS 프록시·키노출 없이 항상 신선 → 이게 PRIMARY 소스. 기존 클라이언트 fetchLiveQuotes는
+// live 갱신 레이어로 강등(프록시 실패해도 서버 데이터가 이미 화면에 떠 있음).
+// data.json 없거나 로드 실패 시 조용히 false → 기존 클라이언트 경로가 폴백.
+// ─────────────────────────────────────────────────────────────────────────
+async function _aioLoadServerData() {
+  try {
+    var url = './public-data/data.json?t=' + Math.floor(Date.now() / 60000); // 분 단위 캐시버스터
+    var r = await fetch(url, { cache: 'no-cache' });
+    if (!r.ok) return false;
+    var d = await r.json();
+    if (!d || !d.meta) return false;
+
+    var ageMin = d.meta.generatedAt ? Math.round((Date.now() - new Date(d.meta.generatedAt).getTime()) / 60000) : null;
+    window._serverDataMeta = { generatedAt: d.meta.generatedAt, ageMin: ageMin, symbolsOk: d.meta.symbolsOk, loadedAt: Date.now() };
+
+    // 1) 시세 → applyLiveQuotes (앱 전체 갱신 + aio:liveQuotes 발화)
+    if (Array.isArray(d.quotes) && d.quotes.length && typeof applyLiveQuotes === 'function') {
+      applyLiveQuotes(d.quotes);
+    }
+    // 2) 매크로 → DATA_SNAPSHOT (FRED 서버값, 채팅/macro 페이지가 소비)
+    if (d.macro && window.DATA_SNAPSHOT) {
+      ['cpi','coreCpi','pce','corePce','fedRate','unemployment','nfp'].forEach(function(k){
+        if (typeof d.macro[k] === 'number' && isFinite(d.macro[k])) {
+          window.DATA_SNAPSHOT[k] = d.macro[k];
+          window.DATA_SNAPSHOT['_' + k + '_src'] = 'fred-gh';
+        }
+      });
+    }
+    // 3) Fear & Greed
+    if (d.fearGreed && typeof d.fearGreed.score === 'number' && isFinite(d.fearGreed.score)) {
+      if (typeof _applyFearGreedScore === 'function') {
+        _applyFearGreedScore({ score: d.fearGreed.score, sourceKind: 'live', sourceLabel: 'cnn-via-github-actions', sourceTs: d.fearGreed.asOf || d.meta.generatedAt });
+      }
+      window._lastFG = d.fearGreed.score;
+    }
+    if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
+    try { window.dispatchEvent(new CustomEvent('aio:serverDataLoaded', { detail: window._serverDataMeta })); } catch(_) {}
+    return true;
+  } catch (e) {
+    if (typeof _aioLog === 'function') _aioLog('warn', 'data', 'server data.json 로드 실패(폴백): ' + (e && e.message || e));
+    return false;
+  }
+}
+window._aioLoadServerData = _aioLoadServerData;
+
 async function initV20DataEngine() {
   console.log('[AIO v20] ═══════════════════════════════════════');
   console.log('[AIO v20] Data Engine v20 초기화 시작');
+  // v50.23: 서버 데이터(data.json) 먼저 적용 — 프록시 실패와 무관하게 즉시 신선한 화면
+  try { await _aioLoadServerData(); } catch(_) {}
   console.log('[AIO v20] ═══════════════════════════════════════');
 
   cleanupProxyCache();
