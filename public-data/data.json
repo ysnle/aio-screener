@@ -1,201 +1,614 @@
-﻿{
-    "meta":  {
-                 "generatedAt":  "2026-06-10T00:27:53Z",
-                 "source":  "seed-powershell",
-                 "symbolsOk":  23,
-                 "schema":  1,
-                 "note":  "시드 — GitHub Actions 첫 실행 시 전체 데이터로 교체됨"
-             },
-    "quotes":  [
-                   {
-                       "symbol":  "^GSPC",
-                       "regularMarketPrice":  7386.65,
-                       "regularMarketChangePercent":  -2.932,
-                       "regularMarketPreviousClose":  7609.78,
-                       "chartPreviousClose":  7609.78,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "^IXIC",
-                       "regularMarketPrice":  25678.822,
-                       "regularMarketChangePercent":  -5.223,
-                       "regularMarketPreviousClose":  27093.9,
-                       "chartPreviousClose":  27093.9,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "^DJI",
-                       "regularMarketPrice":  50872.11,
-                       "regularMarketChangePercent":  -0.849,
-                       "regularMarketPreviousClose":  51307.79,
-                       "chartPreviousClose":  51307.79,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "^RUT",
-                       "regularMarketPrice":  2867.023,
-                       "regularMarketChangePercent":  -2.215,
-                       "regularMarketPreviousClose":  2931.96,
-                       "chartPreviousClose":  2931.96,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "^VIX",
-                       "regularMarketPrice":  19.87,
-                       "regularMarketChangePercent":  23.724,
-                       "regularMarketPreviousClose":  16.06,
-                       "chartPreviousClose":  16.06,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "^TNX",
-                       "regularMarketPrice":  4.528,
-                       "regularMarketChangePercent":  0.824,
-                       "regularMarketPreviousClose":  4.491,
-                       "chartPreviousClose":  4.491,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "^TYX",
-                       "regularMarketPrice":  5.011,
-                       "regularMarketChangePercent":  0.421,
-                       "regularMarketPreviousClose":  4.99,
-                       "chartPreviousClose":  4.99,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "CL=F",
-                       "regularMarketPrice":  89.49,
-                       "regularMarketChangePercent":  -3.816,
-                       "regularMarketPreviousClose":  93.04,
-                       "chartPreviousClose":  93.04,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "GC=F",
-                       "regularMarketPrice":  4244.6,
-                       "regularMarketChangePercent":  -5.166,
-                       "regularMarketPreviousClose":  4475.8,
-                       "chartPreviousClose":  4475.8,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "DX-Y.NYB",
-                       "regularMarketPrice":  99.987,
-                       "regularMarketChangePercent":  0.58,
-                       "regularMarketPreviousClose":  99.41,
-                       "chartPreviousClose":  99.41,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "KRW=X",
-                       "regularMarketPrice":  1516.48,
-                       "regularMarketChangePercent":  -0.891,
-                       "regularMarketPreviousClose":  1530.11,
-                       "chartPreviousClose":  1530.11,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "^KS11",
-                       "regularMarketPrice":  7970.74,
-                       "regularMarketChangePercent":  -9.439,
-                       "regularMarketPreviousClose":  8801.49,
-                       "chartPreviousClose":  8801.49,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "^KQ11",
-                       "regularMarketPrice":  977.77,
-                       "regularMarketChangePercent":  -4.704,
-                       "regularMarketPreviousClose":  1026.03,
-                       "chartPreviousClose":  1026.03,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "BTC-USD",
-                       "regularMarketPrice":  61727.54,
-                       "regularMarketChangePercent":  1.413,
-                       "regularMarketPreviousClose":  60867.414,
-                       "chartPreviousClose":  60867.414,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "ETH-USD",
-                       "regularMarketPrice":  1640.74,
-                       "regularMarketChangePercent":  4.588,
-                       "regularMarketPreviousClose":  1568.7677,
-                       "chartPreviousClose":  1568.7677,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "SPY",
-                       "regularMarketPrice":  737.05,
-                       "regularMarketChangePercent":  -2.965,
-                       "regularMarketPreviousClose":  759.57,
-                       "chartPreviousClose":  759.57,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "QQQ",
-                       "regularMarketPrice":  707.83,
-                       "regularMarketChangePercent":  -5.137,
-                       "regularMarketPreviousClose":  746.16,
-                       "chartPreviousClose":  746.16,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "HYG",
-                       "regularMarketPrice":  79.62,
-                       "regularMarketChangePercent":  -0.35,
-                       "regularMarketPreviousClose":  79.9,
-                       "chartPreviousClose":  79.9,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "AAPL",
-                       "regularMarketPrice":  290.55,
-                       "regularMarketChangePercent":  -7.82,
-                       "regularMarketPreviousClose":  315.2,
-                       "chartPreviousClose":  315.2,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "NVDA",
-                       "regularMarketPrice":  208.19,
-                       "regularMarketChangePercent":  -6.566,
-                       "regularMarketPreviousClose":  222.82,
-                       "chartPreviousClose":  222.82,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "MSFT",
-                       "regularMarketPrice":  403.41,
-                       "regularMarketChangePercent":  -8.588,
-                       "regularMarketPreviousClose":  441.31,
-                       "chartPreviousClose":  441.31,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "005930.KS",
-                       "regularMarketPrice":  313500,
-                       "regularMarketChangePercent":  -13.037,
-                       "regularMarketPreviousClose":  360500,
-                       "chartPreviousClose":  360500,
-                       "_source":  "live:yahoo-seed"
-                   },
-                   {
-                       "symbol":  "000660.KS",
-                       "regularMarketPrice":  2159000,
-                       "regularMarketChangePercent":  -8.517,
-                       "regularMarketPreviousClose":  2360000,
-                       "chartPreviousClose":  2360000,
-                       "_source":  "live:yahoo-seed"
-                   }
-               ],
-    "macro":  {
-                  "_source":  "seed:none"
-              },
-    "fearGreed":  {
-                      "_source":  "seed:none"
-                  }
+{
+ "meta": {
+  "generatedAt": "2026-06-10T01:29:40.992Z",
+  "source": "github-actions",
+  "symbolsOk": 74,
+  "symbolsFail": 0,
+  "failedSymbols": [],
+  "elapsedMs": 2134,
+  "schema": 1
+ },
+ "quotes": [
+  {
+   "symbol": "^GSPC",
+   "regularMarketPrice": 7386.65,
+   "regularMarketChangePercent": -2.9321478413305,
+   "regularMarketPreviousClose": 7609.78,
+   "chartPreviousClose": 7609.78,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^IXIC",
+   "regularMarketPrice": 25678.822,
+   "regularMarketChangePercent": -5.222865663488834,
+   "regularMarketPreviousClose": 27093.9,
+   "chartPreviousClose": 27093.9,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^DJI",
+   "regularMarketPrice": 50872.11,
+   "regularMarketChangePercent": -0.8491498074658843,
+   "regularMarketPreviousClose": 51307.79,
+   "chartPreviousClose": 51307.79,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^RUT",
+   "regularMarketPrice": 2867.023,
+   "regularMarketChangePercent": -2.214798291927581,
+   "regularMarketPreviousClose": 2931.96,
+   "chartPreviousClose": 2931.96,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^VIX",
+   "regularMarketPrice": 19.87,
+   "regularMarketChangePercent": 23.723536737235385,
+   "regularMarketPreviousClose": 16.06,
+   "chartPreviousClose": 16.06,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^VVIX",
+   "regularMarketPrice": 95.81,
+   "regularMarketChangePercent": 5.832320777642772,
+   "regularMarketPreviousClose": 90.53,
+   "chartPreviousClose": 90.53,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^FTSE",
+   "regularMarketPrice": 10227.33,
+   "regularMarketChangePercent": -1.4090711910155693,
+   "regularMarketPreviousClose": 10373.5,
+   "chartPreviousClose": 10373.5,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^N225",
+   "regularMarketPrice": 64956.34,
+   "regularMarketChangePercent": -3.726581127301359,
+   "regularMarketPreviousClose": 67470.69,
+   "chartPreviousClose": 67470.69,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^HSI",
+   "regularMarketPrice": 24565.9,
+   "regularMarketChangePercent": -5.65481951216514,
+   "regularMarketPreviousClose": 26038.32,
+   "chartPreviousClose": 26038.32,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^TNX",
+   "regularMarketPrice": 4.528,
+   "regularMarketChangePercent": 0.8238699621465135,
+   "regularMarketPreviousClose": 4.491,
+   "chartPreviousClose": 4.491,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^TYX",
+   "regularMarketPrice": 5.011,
+   "regularMarketChangePercent": 0.4208416833667316,
+   "regularMarketPreviousClose": 4.99,
+   "chartPreviousClose": 4.99,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^FVX",
+   "regularMarketPrice": 4.253,
+   "regularMarketChangePercent": 0.925486473659224,
+   "regularMarketPreviousClose": 4.214,
+   "chartPreviousClose": 4.214,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^IRX",
+   "regularMarketPrice": 3.6349998,
+   "regularMarketChangePercent": 0.3312117030085535,
+   "regularMarketPreviousClose": 3.623,
+   "chartPreviousClose": 3.623,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "CL=F",
+   "regularMarketPrice": 88.42,
+   "regularMarketChangePercent": -4.965606190885645,
+   "regularMarketPreviousClose": 93.04,
+   "chartPreviousClose": 93.04,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "BZ=F",
+   "regularMarketPrice": 91.77,
+   "regularMarketChangePercent": -3.4304956329580185,
+   "regularMarketPreviousClose": 95.03,
+   "chartPreviousClose": 95.03,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "GC=F",
+   "regularMarketPrice": 4238.9,
+   "regularMarketChangePercent": -5.2929085303186145,
+   "regularMarketPreviousClose": 4475.8,
+   "chartPreviousClose": 4475.8,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "SI=F",
+   "regularMarketPrice": 64.93,
+   "regularMarketChangePercent": -11.993927811436846,
+   "regularMarketPreviousClose": 73.779,
+   "chartPreviousClose": 73.779,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "DX-Y.NYB",
+   "regularMarketPrice": 99.96,
+   "regularMarketChangePercent": 0.5532642591288575,
+   "regularMarketPreviousClose": 99.41,
+   "chartPreviousClose": 99.41,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "KRW=X",
+   "regularMarketPrice": 1519.14,
+   "regularMarketChangePercent": -0.7169419192084099,
+   "regularMarketPreviousClose": 1530.11,
+   "chartPreviousClose": 1530.11,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "EURUSD=X",
+   "regularMarketPrice": 1.1543,
+   "regularMarketChangePercent": -0.5685244207080661,
+   "regularMarketPreviousClose": 1.1609,
+   "chartPreviousClose": 1.1609,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "JPY=X",
+   "regularMarketPrice": 160.35,
+   "regularMarketChangePercent": 0.2563461297986724,
+   "regularMarketPreviousClose": 159.94,
+   "chartPreviousClose": 159.94,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "HYG",
+   "regularMarketPrice": 79.62,
+   "regularMarketChangePercent": -0.3504380475594507,
+   "regularMarketPreviousClose": 79.9,
+   "chartPreviousClose": 79.9,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "LQD",
+   "regularMarketPrice": 108.41,
+   "regularMarketChangePercent": -0.4682335659199459,
+   "regularMarketPreviousClose": 108.92,
+   "chartPreviousClose": 108.92,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "TLT",
+   "regularMarketPrice": 85.12,
+   "regularMarketChangePercent": -0.6187974314068898,
+   "regularMarketPreviousClose": 85.65,
+   "chartPreviousClose": 85.65,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "SPY",
+   "regularMarketPrice": 737.05,
+   "regularMarketChangePercent": -2.964835367378924,
+   "regularMarketPreviousClose": 759.57,
+   "chartPreviousClose": 759.57,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "QQQ",
+   "regularMarketPrice": 707.83,
+   "regularMarketChangePercent": -5.136967942532423,
+   "regularMarketPreviousClose": 746.16,
+   "chartPreviousClose": 746.16,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "IWM",
+   "regularMarketPrice": 285.02,
+   "regularMarketChangePercent": -2.27662346567923,
+   "regularMarketPreviousClose": 291.66,
+   "chartPreviousClose": 291.66,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "RSP",
+   "regularMarketPrice": 209.19,
+   "regularMarketChangePercent": -0.40468482193867567,
+   "regularMarketPreviousClose": 210.04,
+   "chartPreviousClose": 210.04,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "DIA",
+   "regularMarketPrice": 509.41,
+   "regularMarketChangePercent": -0.9026359303569556,
+   "regularMarketPreviousClose": 514.05,
+   "chartPreviousClose": 514.05,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "SMH",
+   "regularMarketPrice": 591.01,
+   "regularMarketChangePercent": -6.516821942076216,
+   "regularMarketPreviousClose": 632.21,
+   "chartPreviousClose": 632.21,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XLK",
+   "regularMarketPrice": 180.77,
+   "regularMarketChangePercent": -8.798748801775892,
+   "regularMarketPreviousClose": 198.21,
+   "chartPreviousClose": 198.21,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XLF",
+   "regularMarketPrice": 52.46,
+   "regularMarketChangePercent": 1.9432568985619898,
+   "regularMarketPreviousClose": 51.46,
+   "chartPreviousClose": 51.46,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XLE",
+   "regularMarketPrice": 57.39,
+   "regularMarketChangePercent": -0.983436853002071,
+   "regularMarketPreviousClose": 57.96,
+   "chartPreviousClose": 57.96,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XLV",
+   "regularMarketPrice": 154.57,
+   "regularMarketChangePercent": 5.580601092896166,
+   "regularMarketPreviousClose": 146.4,
+   "chartPreviousClose": 146.4,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XLI",
+   "regularMarketPrice": 175.6,
+   "regularMarketChangePercent": 0.8094609334634575,
+   "regularMarketPreviousClose": 174.19,
+   "chartPreviousClose": 174.19,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XLY",
+   "regularMarketPrice": 115.87,
+   "regularMarketChangePercent": -1.462709414065821,
+   "regularMarketPreviousClose": 117.59,
+   "chartPreviousClose": 117.59,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XLP",
+   "regularMarketPrice": 84.1,
+   "regularMarketChangePercent": 2.7740437492362164,
+   "regularMarketPreviousClose": 81.83,
+   "chartPreviousClose": 81.83,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XLU",
+   "regularMarketPrice": 43.98,
+   "regularMarketChangePercent": 0.18223234624145399,
+   "regularMarketPreviousClose": 43.9,
+   "chartPreviousClose": 43.9,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XLRE",
+   "regularMarketPrice": 44.97,
+   "regularMarketChangePercent": 3.4030811680846096,
+   "regularMarketPreviousClose": 43.49,
+   "chartPreviousClose": 43.49,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XLB",
+   "regularMarketPrice": 50.77,
+   "regularMarketChangePercent": -1.4557453416149069,
+   "regularMarketPreviousClose": 51.52,
+   "chartPreviousClose": 51.52,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XLC",
+   "regularMarketPrice": 111.48,
+   "regularMarketChangePercent": -1.8402747204367256,
+   "regularMarketPreviousClose": 113.57,
+   "chartPreviousClose": 113.57,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^KS11",
+   "regularMarketPrice": 7884.7,
+   "regularMarketChangePercent": -10.416304512076932,
+   "regularMarketPreviousClose": 8801.49,
+   "chartPreviousClose": 8801.49,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "^KQ11",
+   "regularMarketPrice": 978,
+   "regularMarketChangePercent": -4.6811496739861385,
+   "regularMarketPreviousClose": 1026.03,
+   "chartPreviousClose": 1026.03,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "BTC-USD",
+   "regularMarketPrice": 61772.53,
+   "regularMarketChangePercent": 1.4870288394378013,
+   "regularMarketPreviousClose": 60867.414,
+   "chartPreviousClose": 60867.414,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "ETH-USD",
+   "regularMarketPrice": 1640.23,
+   "regularMarketChangePercent": 4.555314340038994,
+   "regularMarketPreviousClose": 1568.7677,
+   "chartPreviousClose": 1568.7677,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "AAPL",
+   "regularMarketPrice": 290.55,
+   "regularMarketChangePercent": -7.820431472081212,
+   "regularMarketPreviousClose": 315.2,
+   "chartPreviousClose": 315.2,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "MSFT",
+   "regularMarketPrice": 403.41,
+   "regularMarketChangePercent": -8.588067344950257,
+   "regularMarketPreviousClose": 441.31,
+   "chartPreviousClose": 441.31,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "NVDA",
+   "regularMarketPrice": 208.19,
+   "regularMarketChangePercent": -6.565837896059598,
+   "regularMarketPreviousClose": 222.82,
+   "chartPreviousClose": 222.82,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "GOOGL",
+   "regularMarketPrice": 364.26,
+   "regularMarketChangePercent": 0.6660218322509239,
+   "regularMarketPreviousClose": 361.85,
+   "chartPreviousClose": 361.85,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "AMZN",
+   "regularMarketPrice": 244.19,
+   "regularMarketChangePercent": -4.806642756900041,
+   "regularMarketPreviousClose": 256.52,
+   "chartPreviousClose": 256.52,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "META",
+   "regularMarketPrice": 584.59,
+   "regularMarketChangePercent": -2.181952043906759,
+   "regularMarketPreviousClose": 597.63,
+   "chartPreviousClose": 597.63,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "TSLA",
+   "regularMarketPrice": 396.68,
+   "regularMarketChangePercent": -6.385991409826781,
+   "regularMarketPreviousClose": 423.74,
+   "chartPreviousClose": 423.74,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "AVGO",
+   "regularMarketPrice": 392.16,
+   "regularMarketChangePercent": -18.566355877650178,
+   "regularMarketPreviousClose": 481.57,
+   "chartPreviousClose": 481.57,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "AMD",
+   "regularMarketPrice": 475.505,
+   "regularMarketChangePercent": -8.826743873911871,
+   "regularMarketPreviousClose": 521.54,
+   "chartPreviousClose": 521.54,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "NFLX",
+   "regularMarketPrice": 81.41,
+   "regularMarketChangePercent": -2.3040921636865495,
+   "regularMarketPreviousClose": 83.33,
+   "chartPreviousClose": 83.33,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "JPM",
+   "regularMarketPrice": 312.7,
+   "regularMarketChangePercent": 3.9008506113769306,
+   "regularMarketPreviousClose": 300.96,
+   "chartPreviousClose": 300.96,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "BRK-B",
+   "regularMarketPrice": 487.77,
+   "regularMarketChangePercent": 3.44849525990965,
+   "regularMarketPreviousClose": 471.51,
+   "chartPreviousClose": 471.51,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "LLY",
+   "regularMarketPrice": 1144.68,
+   "regularMarketChangePercent": 7.5675421698068845,
+   "regularMarketPreviousClose": 1064.15,
+   "chartPreviousClose": 1064.15,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "UNH",
+   "regularMarketPrice": 413,
+   "regularMarketChangePercent": 9.282387806943264,
+   "regularMarketPreviousClose": 377.92,
+   "chartPreviousClose": 377.92,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "XOM",
+   "regularMarketPrice": 148.91,
+   "regularMarketChangePercent": -0.43460818400642265,
+   "regularMarketPreviousClose": 149.56,
+   "chartPreviousClose": 149.56,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "COST",
+   "regularMarketPrice": 968.59,
+   "regularMarketChangePercent": 1.5006235132614512,
+   "regularMarketPreviousClose": 954.27,
+   "chartPreviousClose": 954.27,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "WMT",
+   "regularMarketPrice": 118.88,
+   "regularMarketChangePercent": 5.147709180965853,
+   "regularMarketPreviousClose": 113.06,
+   "chartPreviousClose": 113.06,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "PLTR",
+   "regularMarketPrice": 132.07,
+   "regularMarketChangePercent": -13.208911086285074,
+   "regularMarketPreviousClose": 152.17,
+   "chartPreviousClose": 152.17,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "MU",
+   "regularMarketPrice": 935.89,
+   "regularMarketChangePercent": -12.04867963537261,
+   "regularMarketPreviousClose": 1064.1,
+   "chartPreviousClose": 1064.1,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "CRWD",
+   "regularMarketPrice": 644.93,
+   "regularMarketChangePercent": -16.12848689771768,
+   "regularMarketPreviousClose": 768.95,
+   "chartPreviousClose": 768.95,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "MSTR",
+   "regularMarketPrice": 117.02,
+   "regularMarketChangePercent": -14.006466784244573,
+   "regularMarketPreviousClose": 136.08,
+   "chartPreviousClose": 136.08,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "COIN",
+   "regularMarketPrice": 155.5,
+   "regularMarketChangePercent": -10.62704753146733,
+   "regularMarketPreviousClose": 173.99,
+   "chartPreviousClose": 173.99,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "005930.KS",
+   "regularMarketPrice": 307750,
+   "regularMarketChangePercent": -14.63245492371706,
+   "regularMarketPreviousClose": 360500,
+   "chartPreviousClose": 360500,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "000660.KS",
+   "regularMarketPrice": 2128000,
+   "regularMarketChangePercent": -9.830508474576272,
+   "regularMarketPreviousClose": 2360000,
+   "chartPreviousClose": 2360000,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "005380.KS",
+   "regularMarketPrice": 622000,
+   "regularMarketChangePercent": -14.67764060356653,
+   "regularMarketPreviousClose": 729000,
+   "chartPreviousClose": 729000,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "035420.KS",
+   "regularMarketPrice": 236500,
+   "regularMarketChangePercent": -15.686274509803921,
+   "regularMarketPreviousClose": 280500,
+   "chartPreviousClose": 280500,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "373220.KS",
+   "regularMarketPrice": 389500,
+   "regularMarketChangePercent": -11.977401129943503,
+   "regularMarketPreviousClose": 442500,
+   "chartPreviousClose": 442500,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "105560.KS",
+   "regularMarketPrice": 155700,
+   "regularMarketChangePercent": -0.5747126436781609,
+   "regularMarketPreviousClose": 156600,
+   "chartPreviousClose": 156600,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "207940.KS",
+   "regularMarketPrice": 1286000,
+   "regularMarketChangePercent": -5.92538405267008,
+   "regularMarketPreviousClose": 1367000,
+   "chartPreviousClose": 1367000,
+   "_source": "live:yahoo-gh"
+  }
+ ],
+ "macro": {
+  "_source": "fred:no-key"
+ },
+ "fearGreed": {
+  "score": 33,
+  "rating": "fear",
+  "_source": "cnn",
+  "asOf": "2026-06-09T23:59:58+00:00"
+ }
 }
