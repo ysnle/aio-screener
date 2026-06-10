@@ -8,6 +8,26 @@ purpose: Opus 작업 세션 핸드오프 — 이 문서만으로 cold start 작�
 
 # AIO Screener 구조 전수 감사 + Opus 작업 지시서 (2026-06-10)
 
+## 진행 상태 (2026-06-10 업데이트 — Opus 세션)
+
+| WO | 상태 | 배포 |
+|----|------|------|
+| WO-1 cron 신뢰도 + 워치독 + fetch 호스트 폴백 | ✅ 완료 | v50.24 + ops(refresh/watchdog yml, fetch-data.mjs) |
+| WO-2 ATH 레짐 버그 (P498) | ✅ 완료 | v50.24 |
+| WO-3 refresh 매핑 (P499) | ✅ 완료 | v50.24 |
+| WO-4 데이터 신선도 배지 + 주기 재로드 | ✅ 완료 | v50.24 |
+| WO-5 정적 내러티브 레짐 드리프트 가드 | ✅ 완료 | v50.25 |
+| WO-7 히스토리 축적 (생산자) | ✅ 완료(생산자) | ops(fetch-data.mjs history.json). **소비자(차트 연결)는 미완** — 히스토리 누적 후 진행 |
+| WO-8 CI 게이트 (구문/버전/stray) | ✅ 완료 | ops(.github/workflows/ci.yml + scripts/ci-version-check.mjs). CI green |
+| WO-6 뉴스 백엔드 이전 | ⬜ 미착수 | |
+| WO-9 페이로드 다이어트 | ⬜ 미착수 (위험 — script 로드 순서) | |
+| WO-10 Claude 키 서버화 (Worker) | ⬜ 미착수 (Cloudflare 필요, 로컬 검증 불가) | |
+| WO-11 초보자 태스크 중심 홈 | ⬜ 미착수 | |
+| WO-12~14 문서/audit 위생 | ⬜ 부분 (이 표 갱신 = WO-12 일부) | |
+
+부수 완료: R206 `getVisibleDevMarkerAudit`에서 `\bprominent\b` 오탐 제거(T776 안정화). P498/P499 BUG-POSTMORTEM 기록.
+
+
 ## 0. 이 문서의 목적
 
 Fable 5 세션에서 수행한 **백엔드/프론트엔드/데이터 파이프라인/초보자 UX/자동 운영** 전수 조사 결과와,
