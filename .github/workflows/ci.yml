@@ -1,0 +1,58 @@
+name: CI
+
+# 왜: 836개 런타임 테스트·200+ 규칙이 전부 "브라우저 콘솔 수동 실행"이라, P311(구문 오류로
+# 파이프라인 전체 마비)·버전 누락·stray 파일이 push 시점에 안 걸렸다. 이 게이트가 push/PR마다
+# (1) 전 JS/스크립트 구문 검사 (2) 버전 동기화 7곳+캐시버스터 (3) stray 파일을 검증한다.
+# main push에서 실패하면 GitHub가 소유자에게 자동 이메일 → 회귀를 분 단위로 포착.
+# (데이터 신선도는 refresh-data.yml + data-watchdog.yml 담당. 여기서 fetch를 실행하면 Yahoo에
+#  push마다 74요청이 추가돼 IP 차단을 악화시키므로 구문 검사만 한다.)
+# v50.25/WO-8
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: JS 구문 검사 (전 클라이언트 스크립트 — P311 재발 방지)
+        run: |
+          set -e
+          for f in js/*.js; do
+            echo "--check $f"
+            node --check "$f"
+          done
+
+      - name: 데이터/CI 스크립트 구문 검사 (.mjs)
+        run: |
+          set -e
+          for f in scripts/*.mjs; do
+            echo "--check $f"
+            node --check "$f"
+          done
+
+      - name: 버전 동기화 검증 (R1 7곳 + 캐시버스터 6곳)
+        run: node scripts/ci-version-check.mjs
+
+      - name: stray 임시/백업 파일 검사
+        run: |
+          set -e
+          STRAY=$(git ls-files | grep -E '(\.git-msg.*|.*\.tmp|.*~|.*\.bak|.*\.orig|.*\.rej)$' || true)
+          if [ -n "$STRAY" ]; then
+            echo "❌ 추적된 stray 임시/백업 파일 발견:"; echo "$STRAY"; exit 1
+          fi
+          echo "✅ stray 파일 없음"
