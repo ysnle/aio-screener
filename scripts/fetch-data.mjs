@@ -70,27 +70,37 @@ async function fetchJSON(url, opts = {}, tries = 3) {
   throw lastErr;
 }
 
-// ── Yahoo v8/chart: 한 심볼의 현재가 + 전일종가 ──
+// v50.24/WO-1: Yahoo는 두 호스트(query1/query2)를 운영하고 차단/레이트리밋이 호스트마다 다르게
+// 걸리는 경우가 잦다. GitHub Actions 러너 IP가 한 호스트에서 막혀도 다른 호스트로 폴백 → 전량 실패
+// (= data.json 미갱신)를 줄인다. 2 호스트 × 2 시도 = 최대 4회. 그래도 다 실패하면 throw(해당 심볼만).
+const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
+
+// ── Yahoo v8/chart: 한 심볼의 현재가 + 전일종가 (호스트 폴백 내성) ──
 async function fetchQuote(symbol) {
-  const url = 'https://query1.finance.yahoo.com/v8/finance/chart/' +
-    encodeURIComponent(symbol) + '?interval=1d&range=5d';
-  const j = await fetchJSON(url);
-  const res = j?.chart?.result?.[0];
-  const m = res?.meta;
-  if (!m || typeof m.regularMarketPrice !== 'number') throw new Error('no meta');
-  const price = m.regularMarketPrice;
-  const prev = (typeof m.chartPreviousClose === 'number' && m.chartPreviousClose > 0)
-    ? m.chartPreviousClose
-    : (typeof m.previousClose === 'number' ? m.previousClose : null);
-  const pct = (prev && prev > 0) ? ((price - prev) / prev) * 100 : null;
-  return {
-    symbol,
-    regularMarketPrice: price,
-    regularMarketChangePercent: pct,
-    regularMarketPreviousClose: prev,
-    chartPreviousClose: prev,
-    _source: 'live:yahoo-gh',
-  };
+  let lastErr;
+  for (const host of YAHOO_HOSTS) {
+    try {
+      const url = host + '/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=1d&range=5d';
+      const j = await fetchJSON(url, {}, 2);
+      const res = j?.chart?.result?.[0];
+      const m = res?.meta;
+      if (!m || typeof m.regularMarketPrice !== 'number') throw new Error('no meta');
+      const price = m.regularMarketPrice;
+      const prev = (typeof m.chartPreviousClose === 'number' && m.chartPreviousClose > 0)
+        ? m.chartPreviousClose
+        : (typeof m.previousClose === 'number' ? m.previousClose : null);
+      const pct = (prev && prev > 0) ? ((price - prev) / prev) * 100 : null;
+      return {
+        symbol,
+        regularMarketPrice: price,
+        regularMarketChangePercent: pct,
+        regularMarketPreviousClose: prev,
+        chartPreviousClose: prev,
+        _source: 'live:yahoo-gh',
+      };
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr;
 }
 
 // 동시성 제한 배치 실행
