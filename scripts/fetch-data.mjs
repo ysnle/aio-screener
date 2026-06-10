@@ -12,12 +12,13 @@
 // 환경변수(선택): FRED_API_KEY  (없으면 macro 블록은 빈 값 — 사이트는 정적 폴백)
 // ─────────────────────────────────────────────────────────────────────────
 
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, readFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
+const HIST = `${__dir}/../public-data/history.json`;
 
 // ── 수집 심볼 (v1 핵심셋). 더 넣으려면 배열에 추가만 하면 됨 (배치 처리 자동) ──
 const SYMBOLS = [
@@ -168,6 +169,43 @@ function monthsBetween(a, b) {
   return (db.getFullYear() - da.getFullYear()) * 12 + (db.getMonth() - da.getMonth());
 }
 
+// ── WO-7 (ops): 일별 히스토리 축적 (public-data/history.json) ──
+// 왜: data.json은 매 실행 덮어쓰기라 과거가 안 남는다. 52주 VIX(IV Rank)·breadth 사이클·F&G 추이
+//     차트가 하드코딩 시드 배열에 의존하는 근본 원인. 하루 1건(같은 날은 최신값으로 upsert =
+//     마지막 실행이 종가에 가까움)씩 핵심 지표를 append → 시간이 지나면 사이트가 자체 실데이터 사용.
+// 핵심 심볼(SPX/VIX) 없으면 스킵(널 레코드 오염 방지). ~420일(14개월) cap.
+async function updateHistory(data) {
+  try {
+    const bySym = {};
+    for (const q of data.quotes) bySym[q.symbol] = q.regularMarketPrice;
+    const pick = (s) => (typeof bySym[s] === 'number' && isFinite(bySym[s])) ? round(bySym[s], 2) : null;
+    if (pick('^GSPC') === null && pick('^VIX') === null) {
+      console.warn('[fetch-data] history: 핵심 심볼(SPX/VIX) 없음 — 히스토리 갱신 스킵');
+      return null;
+    }
+    const today = new Date().toISOString().slice(0, 10); // UTC 일자
+    const rec = {
+      date: today,
+      spx: pick('^GSPC'), nasdaq: pick('^IXIC'), dow: pick('^DJI'), rut: pick('^RUT'),
+      vix: pick('^VIX'), vvix: pick('^VVIX'), tnx: pick('^TNX'),
+      dxy: pick('DX-Y.NYB'), wti: pick('CL=F'), gold: pick('GC=F'),
+      kospi: pick('^KS11'), kosdaq: pick('^KQ11'), btc: pick('BTC-USD'),
+      fg: (data.fearGreed && typeof data.fearGreed.score === 'number') ? data.fearGreed.score : null,
+    };
+    let hist = [];
+    try { const raw = JSON.parse(await readFile(HIST, 'utf8')); if (Array.isArray(raw)) hist = raw; } catch { /* 최초 실행 */ }
+    const idx = hist.findIndex(h => h && h.date === today);
+    if (idx >= 0) hist[idx] = rec; else hist.push(rec);          // 같은 날 = upsert(종가 수렴)
+    hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    if (hist.length > 420) hist = hist.slice(hist.length - 420);  // 14개월 cap
+    await writeFile(HIST, JSON.stringify(hist));
+    return { days: hist.length, today, upsert: idx >= 0 ? 'update' : 'append' };
+  } catch (e) {
+    console.warn('[fetch-data] history 갱신 실패(무시):', e && e.message || e);
+    return null;
+  }
+}
+
 async function main() {
   const t0 = Date.now();
   console.log(`[fetch-data] ${SYMBOLS.length} 심볼 + FRED + F&G 수집 시작`);
@@ -209,7 +247,9 @@ async function main() {
 
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, JSON.stringify(data, null, 1));
-  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} (실패 ${failed.length}: ${failed.join(',') || '-'}), macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, ${data.meta.elapsedMs}ms`);
+  // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
+  const histInfo = await updateHistory(data);
+  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} (실패 ${failed.length}: ${failed.join(',') || '-'}), macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + ')' : 'skip'}, ${data.meta.elapsedMs}ms`);
 
   // 핵심 심볼이 절반 미만이면 비정상 — 비0 종료로 워크플로가 알림
   if (quotes.length < SYMBOLS.length * 0.5) {
