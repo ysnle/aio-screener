@@ -4464,6 +4464,65 @@ function _aioStartServerDataPolling() {
 }
 window._aioStartServerDataPolling = _aioStartServerDataPolling;
 
+// ─────────────────────────────────────────────────────────────────────────
+// v50.27/WO-7(소비자 데이터 레이어): public-data/history.json(서버가 일별 누적)을 읽어
+// window._aioHistory에 캐시. 차트 소비자는 _aioHistorySeries(field, minPoints)로 충분한
+// 누적(기본 20일+)이 있을 때만 실데이터 배열을 받고, 부족하면 null → 기존 시드 폴백 유지.
+// (실제 차트 재배선은 데이터가 충분히 쌓인 뒤 — 1일치로는 단일점이라 시각 검증 불가. 지금은
+//  데이터 접근 레이어 + 감사까지. 재배선은 _aioHistorySeries 소비처만 추가하면 됨.)
+// ─────────────────────────────────────────────────────────────────────────
+async function _aioLoadHistory() {
+  try {
+    var url = './public-data/history.json?t=' + Math.floor(Date.now() / 3600000); // 시간 단위 캐시버스터
+    var r = await fetch(url, { cache: 'no-cache' });
+    if (!r.ok) return null;
+    var arr = await r.json();
+    if (!Array.isArray(arr)) return null;
+    window._aioHistory = arr;
+    window._aioHistoryMeta = { days: arr.length, first: arr[0] && arr[0].date, last: arr[arr.length - 1] && arr[arr.length - 1].date, loadedAt: Date.now() };
+    if (typeof _aioLog === 'function') _aioLog('info', 'data', 'history.json 로드: ' + arr.length + '일');
+    return arr;
+  } catch (e) { return null; }
+}
+window._aioLoadHistory = _aioLoadHistory;
+
+// field별 [{date, value}] 시계열 — 유효 포인트가 minPoints 이상일 때만 반환(아니면 null → 시드 폴백)
+function _aioHistorySeries(field, minPoints) {
+  try {
+    var arr = window._aioHistory;
+    if (!Array.isArray(arr) || !arr.length) return null;
+    var out = [];
+    for (var i = 0; i < arr.length; i++) {
+      var v = arr[i] && arr[i][field];
+      if (typeof v === 'number' && isFinite(v)) out.push({ date: arr[i].date, value: v });
+    }
+    return out.length >= (minPoints || 20) ? out : null;
+  } catch (e) { return null; }
+}
+window._aioHistorySeries = _aioHistorySeries;
+
+// 히스토리 데이터 가용성 감사 (소비자 준비 상태)
+window.AIO = window.AIO || {};
+window.AIO.getHistoryDataAudit = function() {
+  var arr = window._aioHistory;
+  var fields = ['spx', 'vix', 'fg', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'btc'];
+  var coverage = {};
+  fields.forEach(function(f) {
+    var s = _aioHistorySeries(f, 1);
+    coverage[f] = s ? s.length : 0;
+  });
+  var days = Array.isArray(arr) ? arr.length : 0;
+  return {
+    status: days > 0 ? 'ok' : 'pending',
+    days: days,
+    chartReady: days >= 20,          // 차트 소비 전환 임계(시드→실데이터)
+    range: window._aioHistoryMeta ? (window._aioHistoryMeta.first + '~' + window._aioHistoryMeta.last) : null,
+    fieldCoverage: coverage,
+    note: days >= 20 ? '실데이터 차트 전환 가능' : (days + '일 누적 — 20일+ 시 시드 대신 자체 데이터 사용'),
+    generatedAt: new Date().toISOString()
+  };
+};
+
 async function initV20DataEngine() {
   console.log('[AIO v20] ═══════════════════════════════════════');
   console.log('[AIO v20] Data Engine v20 초기화 시작');
@@ -4471,6 +4530,8 @@ async function initV20DataEngine() {
   try { await _aioLoadServerData(); } catch(_) {}
   // v50.24/WO-4: 30분 주기 재로드 + 1분 나이 배지 갱신 시작 (boot-only 갭 해소)
   try { _aioStartServerDataPolling(); } catch(_) {}
+  // v50.27/WO-7: 일별 히스토리 로드(차트 소비자 데이터 레이어, 충분히 누적 시 시드 대체)
+  try { _aioLoadHistory(); } catch(_) {}
   console.log('[AIO v20] ═══════════════════════════════════════');
 
   cleanupProxyCache();

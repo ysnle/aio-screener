@@ -46,10 +46,11 @@ check('6. CLAUDE.md',          claudeMd.includes('현재 버전: **' + ver + '**
 const changelog = read('CHANGELOG.md');
 check('7. CHANGELOG.md',       new RegExp('^## ' + verRe + ' ', 'm').test(changelog), 'CHANGELOG 최상단 ' + ver + ' 항목 없음');
 
-// 캐시버스터: index.html의 ?v=NUM 6곳이 모두 verNum 이어야 함
+// 캐시버스터: index.html의 ?v=NUM(정적 스크립트 5곳)이 모두 verNum 이어야 함
+// (v50.27/WO-9: aio-tests.js는 동적 로드로 전환돼 index.html 정적 태그에서 빠짐 — 6→5)
 const busters = [...html.matchAll(/\?v=([\d.]+)"/g)].map((m) => m[1]);
 const wrong = busters.filter((b) => b !== verNum);
-check('8. 캐시버스터(6곳)', busters.length >= 6 && wrong.length === 0,
+check('8. 캐시버스터(정적 5곳)', busters.length >= 5 && wrong.length === 0,
   busters.length + '개 발견, 불일치 ' + wrong.length + '개(' + [...new Set(wrong)].join(',') + ') — 기대 ' + verNum);
 
 if (errors.length) {

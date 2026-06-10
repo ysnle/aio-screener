@@ -2371,6 +2371,25 @@ if (typeof document !== 'undefined') {
   }
 })();
 
+// ════════════════════════════════════════════════════════════════════
+// v50.27/WO-9: 단위 테스트(aio-tests.js, ~100KB gzip)는 일반 사용자에게 불필요 → 기본 미로드.
+// 개발자/검증 시 AIO.loadTests()로 동적 로드 후 AIO.runTests() 실행. 페이로드/파싱 절감.
+// ════════════════════════════════════════════════════════════════════
+window.AIO = window.AIO || {};
+window.AIO.loadTests = function() {
+  return new Promise(function(resolve, reject) {
+    if (window.__aioTestsLoaded || typeof window.AIO.runTests === 'function') { window.__aioTestsLoaded = true; return resolve(true); }
+    try {
+      var s = document.createElement('script');
+      var ver = (typeof APP_VERSION === 'string') ? APP_VERSION.replace(/^v/, '') : String(Date.now());
+      s.src = './js/aio-tests.js?v=' + ver;
+      s.onload = function() { window.__aioTestsLoaded = true; resolve(true); };
+      s.onerror = function() { reject(new Error('aio-tests.js 로드 실패')); };
+      document.head.appendChild(s);
+    } catch (e) { reject(e); }
+  });
+};
+
 
 // v48.58: 첫 방문 온보딩 모달 (Blocker #1 해소 — API 키 선택 가이드)
 window._aioShowOnboarding = function() {
@@ -14958,7 +14977,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.26';
+const APP_VERSION = 'v50.27';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

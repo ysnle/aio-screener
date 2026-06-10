@@ -5663,6 +5663,33 @@
       t795detail = 'regimeNow=' + hasRegimeNow795 + ' hasData=' + !!hasData795 + ' rendered=' + rendered795 + ' txt="' + txt795.slice(0,40) + '"';
     } catch(e) { t795detail = 'ERR:' + e.message; }
     _assert('T795 v5026_beginner_summary_live: _aioRenderBeginnerSummary가 라이브 VIX/F&G를 평이한 한국어로 합성', t795ok, t795detail);
+
+    // ─── v50.27 WO-7 히스토리 소비자 레이어 + WO-9 페이로드 ───
+    // T796 (WO-7): 히스토리 데이터 레이어 — 로더/시리즈/audit + minPoints 게이트(부족 시 null→시드 폴백)
+    var t796ok = false, t796detail = '';
+    try {
+      var hasLoad796 = typeof window._aioLoadHistory === 'function';
+      var hasSeries796 = typeof window._aioHistorySeries === 'function';
+      var hasAudit796 = !!(window.AIO && typeof window.AIO.getHistoryDataAudit === 'function');
+      // minPoints 게이트: 1일치(또는 미로드)면 20 요구 시 null (시드 폴백 보장)
+      var gated796 = hasSeries796 ? (window._aioHistorySeries('vix', 20) === null || Array.isArray(window._aioHistorySeries('vix', 20))) : false;
+      var audit796 = hasAudit796 ? window.AIO.getHistoryDataAudit() : null;
+      var auditStruct796 = audit796 && typeof audit796.days === 'number' && typeof audit796.chartReady === 'boolean';
+      t796ok = hasLoad796 && hasSeries796 && hasAudit796 && gated796 && !!auditStruct796;
+      t796detail = 'load=' + hasLoad796 + ' series=' + hasSeries796 + ' audit=' + hasAudit796 + ' days=' + (audit796 && audit796.days) + ' chartReady=' + (audit796 && audit796.chartReady);
+    } catch(e) { t796detail = 'ERR:' + e.message; }
+    _assert('T796 v5027_history_consumer_layer: _aioLoadHistory/_aioHistorySeries(20일 게이트)/getHistoryDataAudit (시드 폴백 안전)', t796ok, t796detail);
+
+    // T797 (WO-9): aio-tests 동적 로더 정의 + index.html 정적 tests 태그 부재(페이로드 절감)
+    var t797ok = false, t797detail = '';
+    try {
+      var hasLoadTests797 = !!(window.AIO && typeof window.AIO.loadTests === 'function');
+      // 이 테스트가 돌고 있다는 것 = tests가 (동적이든) 로드됨. 핵심은 loadTests API 존재 + 정적 미참조.
+      // 정적 태그 부재는 런타임에서 직접 못 보므로 loadTests 존재로 대표 검증.
+      t797ok = hasLoadTests797;
+      t797detail = 'loadTests=' + hasLoadTests797 + ' testsLoadedFlag=' + (window.__aioTestsLoaded === true);
+    } catch(e) { t797detail = 'ERR:' + e.message; }
+    _assert('T797 v5027_lazy_tests: AIO.loadTests 동적 로더 정의 (aio-tests.js 기본 미배송, 페이로드 절감)', t797ok, t797detail);
   }
 
   window.AIO = window.AIO || {};

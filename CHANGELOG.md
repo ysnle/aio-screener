@@ -1,5 +1,23 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.27 - WO-9 페이로드 절감 + WO-7 히스토리 소비자 레이어 + WO-10 Worker 소스 복원 (2026-06-10)
+
+**WO-9 — 페이로드 절감 (테스트 코드 미배송)**
+- `aio-tests.js`(~394KB raw / ~100KB gzip, 브라우저 전용 868개 단위 테스트)는 일반 사용자에게 불필요한데도 모든 방문자가 다운로드+파싱하던 것을 정적 로드에서 제외. `AIO.loadTests()`(aio-core.js, 동적 `<script>` 주입, APP_VERSION 캐시버스터)로 개발자/검증 시에만 로드 → `AIO.runTests()`. index.html 정적 캐시버스터 6→5, `scripts/ci-version-check.mjs` 임계 5로 조정. 일반 방문자 전송량 ~100KB 절감.
+
+**WO-7 — 히스토리 소비자 데이터 레이어 (차트 재배선 전 단계)**
+- `_aioLoadHistory()`: `public-data/history.json`(WO-7 생산자가 일별 누적 중)을 부팅 시 로드 → `window._aioHistory`. `_aioHistorySeries(field, minPoints)`: 유효 포인트가 minPoints(기본 20일) 이상일 때만 `[{date,value}]` 반환, 부족하면 null → **기존 시드 차트 폴백 유지**(안전). `AIO.getHistoryDataAudit()`: 누적일수·chartReady(20일+)·필드 커버리지. 실제 차트(IV Rank/F&G 추이/VIX 퍼센타일) 재배선은 **~20일 누적 후**(현재 1일치는 단일점이라 시각 검증 불가) — 데이터 접근 레이어만 선구축하고 소비처는 후속.
+
+**WO-10 — Cloudflare Worker 소스 복원**
+- 데이터 CORS 프록시 Worker는 **이미 배포돼 사이트에 통합·동작 중**(사이드바 "CF Worker URL" 입력 + aio-data.js 15곳 라우팅 + Yahoo/뉴스/FRED 등 화이트리스트)이나, P310 대량삭제(`825d3c5`)에서 **소스 파일 `cloudflare-worker-proxy.js`만 소실**됐던 것을 git 이력에서 복원. 복원 중 잠복 버그 시정: `cleanupRateLimitMap()` 호출이 주석 줄에 붙어 미실행이던 것 + BOM/깨진 한글 정리. (이 Worker는 데이터 프록시 전용 — AI 채팅 Claude 키는 별도로 클라이언트가 api.anthropic.com 직접 호출.)
+
+**정직 보류 (이 배치에서 제외 — 이유 명시)**
+- **WO-6 서버 뉴스 백엔드**: 서버측 RSS 파싱은 로컬 검증 불가(node 부재, Actions에서만 실행) + 핵심 뉴스 파이프라인을 무검증 배치에서 변경 시 위험 + 뉴스는 이미 CF Worker·다중 프록시 폴백 사용 → 별도 세션(Actions 로그 검증) 권장.
+- **WO-7 차트 재배선**: history.json ~20일 누적 후라야 시각 검증 가능(현재 1일).
+- **WO-11 전면 홈 재구조화**: 시작 패널(v50.26)로 진입점은 확보, 전면 IA 재설계는 UX 검토 동반 별도 작업.
+
+R1 7곳 + 캐시버스터 5곳. 회귀 테스트 T796~T797.
+
 ## v50.26 - P3/WO-11: 초보자 태스크 중심 시작 패널 + ops(WO-7 히스토리 / WO-8 CI 게이트) (2026-06-10)
 
 **사용자 핵심 목표 "정말로 주식 초보자가 쉽고 직관적으로"에 직접 대응.** 21페이지 지표 터미널은 본질적으로 전문가용 — 초보자는 "어디부터 봐야 할지" 막막하다. 홈 최상단(헤더 직후)에 **3대 질문 중심 진입 패널**을 추가(additive, 기존 라이브 데이터 100% 재사용, 새 데이터/API 0).

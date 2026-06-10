@@ -20,11 +20,11 @@ purpose: Opus 작업 세션 핸드오프 — 이 문서만으로 cold start 작�
 | WO-7 히스토리 축적 (생산자) | ✅ 완료·**prod 검증** | ops(fetch-data.mjs). 2026-06-10 12:46Z cron이 history.json 첫 생성 확인. **소비자(차트 연결)는 미완** — 30일 누적 후 진행 |
 | WO-8 CI 게이트 (구문/버전/stray) | ✅ 완료·**CI green** | ops(.github/workflows/ci.yml + scripts/ci-version-check.mjs). 매 push green |
 | WO-11 초보자 태스크 중심 홈 | ✅ 완료(시작 패널) | v50.26 #aio-beginner-panel 3대 질문. **전면 홈 재구조화는 후속** |
-| WO-6 뉴스 백엔드 이전 | ⬜ 미착수 — 다음 권장 (검증된 서버 fetch 패턴 확장, 저위험) | |
-| WO-7 소비자 (차트 history.json 연결) | ⬜ 미착수 — 히스토리 ~30일 누적 후 | |
-| WO-9 페이로드 다이어트 | ⬜ 미착수 (위험 — script 로드 순서) | |
-| WO-10 Claude 키 서버화 (Worker) | ⬜ 미착수 (**Cloudflare 운영자 설정 필요** — 로컬 검증 불가) | |
-| WO-12~14 문서/audit 위생 | ⬜ 부분 | |
+| WO-9 페이로드 다이어트 | ✅ 완료(tests 동적화) | v50.27 aio-tests.js 미배송+AIO.loadTests(). **script defer는 미적용(로드 순서 위험)** |
+| WO-10 Worker 소스 복원 | ✅ 완료 | v50.27 cloudflare-worker-proxy.js 복원+버그 시정. **정정: 데이터 Worker는 이미 배포·통합돼 동작 중이었음(소스 파일만 P310에서 소실). AI 채팅 키 서버화(Anthropic 프록시)는 별개 — 미구현, 운영자 결정 사항** |
+| WO-7 소비자 데이터 레이어 | ✅ 완료(레이어) | v50.27 _aioLoadHistory/_aioHistorySeries/getHistoryDataAudit. **차트 재배선은 ~20일 누적 후** |
+| WO-6 뉴스 백엔드 이전 | ⬜ 보류 | 서버 RSS 로컬 검증 불가+핵심 파이프라인 위험. 뉴스는 이미 CF Worker·다중프록시 사용. 별도 세션 |
+| WO-12~14 문서/audit 위생 | ⬜ 부분 (핸드오프/CHANGELOG 갱신 지속) | audit 통폐합·게이트 블록 triage는 별도 |
 
 **prod 실측 검증(2026-06-10)**: cron 발화(05:11Z·12:46Z 성공) + history.json 첫 레코드 생성 + CI 전 push green + v50.26 라이브 + 레짐 드리프트 배너(F&G 탐욕→공포) + 초보자 패널 요약 동작 = 모두 확인.
 

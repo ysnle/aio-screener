@@ -1,5 +1,5 @@
 {
-  "version": "v50.26",
-  "built": "2026-06-10T20:30:00+09:00",
-  "note": "v50.26 P3/WO-11 초보자 태스크 중심 시작 패널 (홈 최상단). 21페이지 지표 터미널이 초보자에게 '어디부터 봐야 할지 막막'한 문제 → 홈 헤더 직후에 3대 질문 중심 진입 패널(#aio-beginner-panel) 추가(additive·기존 데이터 재사용). (1) '오늘 시장, 뭘 조심하죠?' — 라이브 VIX 밴드+F&G 존을 평이한 한국어 한 줄(_aioRenderBeginnerSummary)+행동 가이드(공포 극단=역발상 분할/탐욕 극단=차익실현/고변동=소액·짧은 손절)로 + 오늘의 브리핑 동선. (2) '이 종목 사도 될까요?' — 종목 입력(beginner-ticker-input, Enter 지원)→기업 분석 자동 검색(_aioBeginnerAnalyze, fund-search-input+fundamentalSearch 재사용). (3) '내 포트폴리오는 괜찮을까요?' — 포트폴리오 리스크 진단 동선. '간단히 접기'(localStorage aio_beginner_panel_hidden)로 숙련자는 숨김. 트리거 aio:liveQuotes/serverDataLoaded/pageShown(home)/부팅. WO-5 _aioRegimeNow 재사용. R1 7곳+캐시버스터 6곳. T794~T795."
+  "version": "v50.27",
+  "built": "2026-06-10T21:30:00+09:00",
+  "note": "v50.27 P2/WO-9 페이로드 절감 + WO-7 히스토리 소비자 데이터 레이어 + WO-10 Worker 소스 복원. WO-9: aio-tests.js(~100KB gzip, 브라우저 전용 836테스트)를 정적 로드에서 제외 → 일반 사용자 미다운로드. AIO.loadTests()로 동적 로드 후 AIO.runTests()(개발자/검증). index.html 정적 캐시버스터 6→5(tests 동적화), ci-version-check 임계 조정. WO-7 소비자 레이어: _aioLoadHistory()(public-data/history.json 부팅 로드→window._aioHistory) + _aioHistorySeries(field, minPoints)(20일+ 누적 시에만 실데이터 배열, 아니면 null→기존 시드 폴백 유지) + AIO.getHistoryDataAudit()(누적일수·chartReady·필드 커버리지). 실제 차트 재배선은 ~20일 누적 후(1일치는 단일점이라 시각검증 불가 — 데이터 레이어만 선구축). WO-10: P310에서 삭제된 cloudflare-worker-proxy.js 소스 복원(데이터 CORS 프록시 — 이미 배포·통합돼 동작 중, 소스 파일만 소실됨) + 잠복 버그 시정(cleanupRateLimitMap 호출이 주석에 붙어 미실행이던 것). R1 7곳+캐시버스터 5곳. T796~T797. (WO-6 서버뉴스/WO-7 차트재배선/WO-11 전면홈은 검증·누적 제약으로 별도 세션 보류.)"
 }
