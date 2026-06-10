@@ -14741,7 +14741,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.23';
+const APP_VERSION = 'v50.24';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -18381,9 +18381,36 @@ window.AIO.getCritical10ContentEvidenceMatrix = function(opts) {
     var contracts = window.AIO_PAGE_CONTRACTS || _buildContracts();
     window.AIO_PAGE_CONTRACTS = contracts;
     window.AIO.DATA_REQUIREMENT_PROFILES = window.AIO.DATA_REQUIREMENT_PROFILES || {};
+    // v50.24/WO-3 (P499): 가상 계약 태스크(themeRanking/portfolioRisk/companyFundamentals/
+    // filings/optionsSnapshot/krMacro)는 페이지 자체 렌더 로직이 계산하는 "파생" 분석이지
+    // 스케줄러 fetch 태스크가 아니다. 스케줄러는 fetch 키만 알므로, 각 가상 태스크를 그 파생이
+    // 필요로 하는 실제 fetch 의존 키로 치환한다. 이렇게 해야 AIO_PAGE_REFRESH_MAP /
+    // DATA_REQUIREMENT_PROFILES가 유효한 REFRESH_SCHEDULE 키만 갖게 되어
+    // getAutoOpsReadiness "unknown task" 경고(7건)가 사라진다.
+    var CONTRACT_TASK_ALIAS = {
+      companyFundamentals: ['quotes', 'news', 'technicals'],
+      filings:             ['news'],
+      themeRanking:        ['quotes', 'technicals'],
+      portfolioRisk:       ['quotes', 'technicals'],
+      optionsSnapshot:     ['quotes', 'sentiment', 'vixHistory'],
+      krMacro:             ['fred', 'krDynamic']
+    };
+    var _schedKeys = (window.REFRESH_SCHEDULE && Object.keys(window.REFRESH_SCHEDULE)) || [];
+    function _resolveContractTasks(tasks) {
+      var out = [];
+      (tasks || []).forEach(function(t) {
+        var mapped = CONTRACT_TASK_ALIAS[t] ? CONTRACT_TASK_ALIAS[t] : [t];
+        mapped.forEach(function(k) {
+          // 실존 스케줄 키만 채택 (스케줄 로드 전이면 통과 — 정상 흐름은 로드 후 호출됨)
+          if ((!_schedKeys.length || _schedKeys.indexOf(k) !== -1) && out.indexOf(k) === -1) out.push(k);
+        });
+      });
+      return out;
+    }
+
     Object.keys(contracts.pages || {}).forEach(function(id) {
       var c = contracts.pages[id];
-      window.AIO.DATA_REQUIREMENT_PROFILES[id] = { tasks: (c.refreshTasks || []).slice(), symbols: (c.symbols || []).slice() };
+      window.AIO.DATA_REQUIREMENT_PROFILES[id] = { tasks: _resolveContractTasks(c.refreshTasks || []), symbols: (c.symbols || []).slice() };
     });
     window.AIO.DATA_REQUIREMENT_PROFILES.signals = { alias: 'signal' };
     window.AIO.DATA_REQUIREMENT_PROFILES.korea = { alias: 'kr-home' };
@@ -18393,7 +18420,7 @@ window.AIO.getCritical10ContentEvidenceMatrix = function(opts) {
       contracts.routePageIds.forEach(function(id) {
         var c = contracts.pages[id];
         if (!window.AIO_PAGE_REFRESH_MAP[id] && c && c.refreshTasks && c.refreshTasks.length) {
-          window.AIO_PAGE_REFRESH_MAP[id] = c.refreshTasks.slice();
+          window.AIO_PAGE_REFRESH_MAP[id] = _resolveContractTasks(c.refreshTasks);
         }
       });
       window.AIO_PAGE_REFRESH_MAP.signals = window.AIO_PAGE_REFRESH_MAP.signal || window.AIO_PAGE_REFRESH_MAP.signals;

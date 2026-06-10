@@ -2,7 +2,8 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.23
+- **현재 버전**: v50.24
+- **v50.24 P0 구조 시정 (OPUS-HANDOFF 백로그 WO-1~4)**: Fable 5 전수 감사(`_context/OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md`)의 P0 4건 시정. **WO-1 자율운영 cron 신뢰도**: refresh-data.yml cron이 등록 후 자동 발화 0회(수동 1회뿐) + 죽어도 감지 불가(CORS 프록시가 조용히 죽던 것과 동일 실패 클래스) → cron `*/30`→오프피크 `:17,:47`(정시 혼잡 회피) + fetch-data.mjs가 F&G/FRED 실패를 meta(`fearGreedOk`/`fredOk`/`macroKeyCount`)에 노출 + **독립 워치독 `data-watchdog.yml`(매시 :23)** 신설 — 커밋된 data.json이 3시간+ stale이면 워크플로 FAIL → GitHub 자동 실패 이메일(메인 cron 중단 surfacing). **WO-2 (P498) SPX ATH 레짐 버그**: 하드코딩 `7412.84`(stale)가 aio-data.js 두 곳 중복 → 한쪽(L13125)만 v50.16 시정되고 먼저 실행돼 `window._spxATH` 오염시키는 L12303 미시정 → SPX -2.9% 급락일에 레짐이 "Near ATH -0.4%" 오표시(라이브 실증). 단일 출처 헬퍼 `_aioSpxAthFloor()`(floor=max(_spxATH, DATA_SNAPSHOT.spxATH, 7585))로 두 호출점 통일 + topbar "Near ATH" 라벨 -2% 이내로 정직화(-2~-5% "소폭 하락"). **WO-3 (P499) 7페이지 refresh 매핑 오류**: theme-detail/portfolio/ticker/options/kr-themes/kr-macro on-enter refresh가 존재하지 않는 가상 계약 태스크(themeRanking/portfolioRisk/companyFundamentals/filings/optionsSnapshot/krMacro) 참조 → no-op + autoOps "unknown task" 7건 → `applyPageContractCompatibility`에 `CONTRACT_TASK_ALIAS` 치환(가상 파생 태스크→실제 fetch 의존 키, 유효 REFRESH_SCHEDULE 키만 채택). **WO-4 data.json 신선도 표면화**: topbar `#server-data-age` 배지(`_aioRenderServerDataAge`: 60분+ amber/180분+ red) + boot-only 갭 해소(`_aioStartServerDataPolling`: 30분 재로드 + 1분 나이 카운트업) + `aio:serverDataLoaded`→`refreshActivePageNarratives` 연결. R1 7곳 + 캐시버스터 6곳. T786~T790.
 - **v50.23 데이터 백엔드 — 진짜 자율 운영 전환**: 정적사이트+CORS프록시+수동스냅샷 구조가 자율운영과 양립불가임을 진단, 구조 변경. `scripts/fetch-data.mjs`(서버측 Yahoo/FRED/CNN 수집→`public-data/data.json`) + `.github/workflows/refresh-data.yml`(30분 cron, 무료) + 사이트 로더 `_aioLoadServerData`(initV20DataEngine 시작 시 data.json→applyLiveQuotes/매크로/F&G, PRIMARY). 프록시 죽어도 서버데이터 백스톱. 검증: PowerShell 시드 23심볼(CORS 없이) 로더 적용 OK. 사용자 1회설정: Actions write권한 ON + FRED키 Secret(선택). 데이터확장=SYMBOLS 배열 추가. R1 7곳+캐시버스터 6곳.
 
 ## v50.22 note
@@ -128,6 +129,7 @@
 | GATE-BASELINE-2026-06-04.md | v50.4 evidence 게이트/단위테스트 실측 기준선 | 게이트/테스트 재측정 시 |
 | CHAT-DATA-AUDIT-2026-06-04.md | v50.8 AI 채팅 데이터 출처 전수 감사 baseline | 채팅 데이터 경로/컨텍스트 변경 시 |
 | FRONTEND-UX-AUDIT-2026-06-05.md | v50.12 21페이지 라이브 프론트엔드/UX audit (클러터·중복/직관성·위계) + P0/P1/P2 백로그 | UI/UX 시정·페이지 구조 변경 시 |
+| OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md | v50.23 구조 전수 감사 실측 + Opus 작업 백로그 WO-1~14 (cron 미발화·ATH 레짐 버그·stale 내러티브 구조 등 P0 5건) | WO 항목 완료/구조 변경 시 |
 
 ## 파일 구조
 

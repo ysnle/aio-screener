@@ -5530,6 +5530,69 @@
       t785detail = 'uses_breadth50=' + /_breadth50/.test(ump) + ' uses_snap50=' + /breadth50sma/.test(ump);
     } catch(e) { t785detail = 'ERR:' + e.message; }
     _assert('T785 v5017_market_pulse_breadth_source: 시장폭 칩이 _breadth50/breadth50sma 사용 (제거된 _breadth200 폴백 27% 오라벨 재발 방지)', t785ok, t785detail);
+
+    // ─── v50.24 P0 구조 시정 (OPUS-HANDOFF 백로그 WO-1~4) ───
+    // T786 (WO-2/P498): SPX ATH 단일 출처 헬퍼 — floor가 DATA_SNAPSHOT.spxATH 아래로 안 내려감 + applyLiveQuotes 7412.84 하드코딩 제거
+    var t786ok = false, t786detail = '';
+    try {
+      var hasFloor786 = typeof window._aioSpxAthFloor === 'function';
+      var snapAth786 = (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.spxATH) || 7585;
+      var floorVal786 = hasFloor786 ? window._aioSpxAthFloor() : 0;
+      var aqSrc786 = (typeof applyLiveQuotes === 'function') ? applyLiveQuotes.toString() : '';
+      var noHardcode786 = aqSrc786.indexOf('7412.84') === -1 && /_aioSpxAthFloor/.test(aqSrc786);
+      t786ok = hasFloor786 && floorVal786 >= snapAth786 && noHardcode786;
+      t786detail = 'floor=' + floorVal786 + ' >=snapATH(' + snapAth786 + ') noHardcode=' + noHardcode786;
+    } catch(e) { t786detail = 'ERR:' + e.message; }
+    _assert('T786 v5024_spx_ath_single_source: _aioSpxAthFloor() >= DATA_SNAPSHOT.spxATH + applyLiveQuotes 7412.84 하드코딩 제거 (P498 레짐 오표시 재발 방지)', t786ok, t786detail);
+
+    // T787 (WO-2): topbar 레짐 라벨 "Near ATH"는 -2% 이내만 (급락일 "Near ATH" 오표시 차단)
+    var t787ok = false, t787detail = '';
+    try {
+      var aqSrc787 = (typeof applyLiveQuotes === 'function') ? applyLiveQuotes.toString() : '';
+      t787ok = /_athLbl/.test(aqSrc787) && /소폭 하락/.test(aqSrc787);
+      t787detail = 'hasAthLbl=' + /_athLbl/.test(aqSrc787) + ' has소폭하락=' + /소폭 하락/.test(aqSrc787);
+    } catch(e) { t787detail = 'ERR:' + e.message; }
+    _assert('T787 v5024_regime_label_honest: topbar 레짐 라벨 -2% 이내만 Near ATH (소폭 하락 밴드)', t787ok, t787detail);
+
+    // T788 (WO-3/P499): CONTRACT_TASK_ALIAS — applyPageContractCompatibility 후 AIO_PAGE_REFRESH_MAP 전 값이 실존 REFRESH_SCHEDULE 키 (unknown task 0)
+    var t788ok = false, t788detail = '';
+    try {
+      if (window.AIO && typeof window.AIO.applyPageContractCompatibility === 'function') window.AIO.applyPageContractCompatibility();
+      var sched788 = window.REFRESH_SCHEDULE || {};
+      var prMap788 = window.AIO_PAGE_REFRESH_MAP || {};
+      var unknown788 = [];
+      Object.keys(prMap788).forEach(function(pg){ (prMap788[pg] || []).forEach(function(k){ if (!sched788[k]) unknown788.push(pg + '→' + k); }); });
+      var aliasInSrc788 = (window.AIO && window.AIO.applyPageContractCompatibility) ? /CONTRACT_TASK_ALIAS/.test(window.AIO.applyPageContractCompatibility.toString()) : false;
+      t788ok = aliasInSrc788 && unknown788.length === 0;
+      t788detail = 'aliasInSrc=' + aliasInSrc788 + ' unknownTasks=' + unknown788.length + (unknown788.length ? (' ' + unknown788.slice(0,4).join(',')) : '');
+    } catch(e) { t788detail = 'ERR:' + e.message; }
+    _assert('T788 v5024_contract_task_alias: 가상 계약 태스크 치환 후 refresh 매핑 unknown task 0 (7페이지 on-enter no-op 재발 방지)', t788ok, t788detail);
+
+    // T789 (WO-4): 서버 데이터 신선도 표면화 — 배지 렌더/폴링 함수 + #server-data-age 요소 + 나이 버킷
+    var t789ok = false, t789detail = '';
+    try {
+      var hasRender789 = typeof window._aioRenderServerDataAge === 'function';
+      var hasPoll789 = typeof window._aioStartServerDataPolling === 'function';
+      var hasEl789 = !!document.getElementById('server-data-age');
+      var renderSrc789 = hasRender789 ? window._aioRenderServerDataAge.toString() : '';
+      var hasBuckets789 = /180/.test(renderSrc789) && /fb-stale/.test(renderSrc789);
+      t789ok = hasRender789 && hasPoll789 && hasEl789 && hasBuckets789;
+      t789detail = 'render=' + hasRender789 + ' poll=' + hasPoll789 + ' el=' + hasEl789 + ' buckets=' + hasBuckets789;
+    } catch(e) { t789detail = 'ERR:' + e.message; }
+    _assert('T789 v5024_server_data_age_surface: _aioRenderServerDataAge/_aioStartServerDataPolling + #server-data-age 배지 (나이 미표시 해소)', t789ok, t789detail);
+
+    // T790 (WO-4): _aioLoadServerData가 나이 배지 + 내러티브 갱신 배선 + init이 폴링 시작
+    var t790ok = false, t790detail = '';
+    try {
+      var loadSrc790 = (typeof window._aioLoadServerData === 'function') ? window._aioLoadServerData.toString() : '';
+      var initSrc790 = (typeof initV20DataEngine === 'function') ? initV20DataEngine.toString() : '';
+      var wiresBadge790 = /_aioRenderServerDataAge/.test(loadSrc790);
+      var wiresNarr790 = /refreshActivePageNarratives/.test(loadSrc790);
+      var wiresPoll790 = /_aioStartServerDataPolling/.test(initSrc790);
+      t790ok = wiresBadge790 && wiresNarr790 && wiresPoll790;
+      t790detail = 'badge=' + wiresBadge790 + ' narrative=' + wiresNarr790 + ' poll=' + wiresPoll790;
+    } catch(e) { t790detail = 'ERR:' + e.message; }
+    _assert('T790 v5024_server_data_wiring: _aioLoadServerData→나이배지+내러티브 갱신 + init→폴링 시작 배선 (boot-only 갭 해소)', t790ok, t790detail);
   }
 
   window.AIO = window.AIO || {};

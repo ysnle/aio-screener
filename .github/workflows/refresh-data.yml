@@ -6,7 +6,11 @@ name: Refresh market data
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # 30분마다 (크립토/FX 24h + 미국/한국장 커버). 빈도 조절은 이 줄만 수정.
+    # v50.24/WO-1: 정시(:00)는 GitHub Actions가 가장 혼잡해 schedule 런이 자주 드롭/지연된다.
+    # 정시를 피해 :17, :47에 실행(30분 간격 유지) → 발화 신뢰도 향상.
+    # 주의: GitHub 무료 schedule은 본질적으로 best-effort(수 분~수십 분 지연 흔함).
+    #       자동 발화가 안 보이면 Actions 탭에서 schedule 비활성 공지 + repo 활동(60일) 확인.
+    - cron: '17,47 * * * *'
   workflow_dispatch: {}       # 수동 즉시 실행 버튼 (Actions 탭)
 
 # data.json 커밋 푸시 권한

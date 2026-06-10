@@ -2,11 +2,23 @@
 verified_by: agent
 last_verified: 2026-06-09
 confidence: high
-latest_version: v50.22
-latest_P_number: P497
-total_entries: 497
-next_P_number: P498
+latest_version: v50.24
+latest_P_number: P499
+total_entries: 499
+next_P_number: P500
 ---
+
+## P499 - v50.24 - 7개 페이지 on-enter refresh가 존재하지 않는 가상 계약 태스크 참조 → no-op + autoOps "unknown task" 7건
+
+- **Problem**: `applyPageContractCompatibility`(aio-core.js)가 페이지 계약(`AIO_PAGE_CONTRACTS`)의 `refreshTasks`를 그대로 `AIO_PAGE_REFRESH_MAP`/`DATA_REQUIREMENT_PROFILES`에 복사. 그런데 계약에는 `themeRanking`/`portfolioRisk`/`companyFundamentals`/`filings`/`optionsSnapshot`/`krMacro` 같은 **가상(파생) 태스크**가 들어있고 이들은 `REFRESH_SCHEDULE` 키가 아님 → theme-detail/portfolio/ticker/options/kr-themes/kr-macro 진입 시 해당 키가 `_aioRefreshPageData`에서 `if (!cfg) return`으로 조용히 스킵(= 그 페이지 핵심 데이터의 on-enter 강제 갱신이 no-op) + `getAutoOpsReadiness`가 "unknown task" 7건 경고. 라이브 `AIO.getAutoOpsReadiness()`에서 실측 확인.
+- **Fix**: `applyPageContractCompatibility`에 `CONTRACT_TASK_ALIAS` 추가 — 가상 파생 태스크를 그 파생이 실제로 필요로 하는 fetch 의존 키로 치환(예: `optionsSnapshot`→`['quotes','sentiment','vixHistory']`, `companyFundamentals`→`['quotes','news','technicals']`, `krMacro`→`['fred','krDynamic']`). `_resolveContractTasks`가 실존 `REFRESH_SCHEDULE` 키만 채택+dedupe → `AIO_PAGE_REFRESH_MAP`/`DATA_REQUIREMENT_PROFILES` 둘 다 유효 키만 보유.
+- **Prevention**: 페이지 계약의 refreshTasks에 새 "파생 분석" 이름을 넣을 때는 반드시 `CONTRACT_TASK_ALIAS`에 fetch 의존 키 매핑을 함께 등록. 미등록 가상 태스크는 `_resolveContractTasks`가 드롭(unknown task 재발 차단). 회귀: T788(치환 후 매핑 unknown task 0). (v50.24 WO-3 P499.)
+
+## P498 - v50.24 - SPX ATH 하드코딩 7412.84 중복이 한쪽만 시정돼 급락일 레짐 "Near ATH -0.4%" 오표시
+
+- **Problem**: SPX 사상최고가(ATH) 기준값 `7412.84`(stale)가 `js/aio-data.js` 두 곳에 하드코딩 중복(L12303 topbar 레짐, L13125 home 레짐). v50.16에서 L13125만 `DATA_SNAPSHOT.spxATH` 폴백으로 시정됐으나, **applyLiveQuotes 루프에서 먼저 실행되어 `window._spxATH`를 7412.84로 오염**시키는 L12303은 미시정. → SPX 7386.65(-2.93% 급락일)에서 (7386.65−7412.84)/7412.84 = −0.35% → 레짐 "ATH −0.4% · Near ATH"로 표시(실제 ATH 7585 대비 갭 −2.6%). 사상최고가에서 −2.9% 빠진 급락 당일 화면이 "거의 사상최고"를 표시하는 라이브 오표시 — Fable 5 라이브 구동에서 실증 포착. 중복 로직의 한쪽만 고쳐지는 패턴(이 프로젝트 반복 버그 클래스: verdict 부호/property 불일치도 동족).
+- **Fix**: 단일 출처 헬퍼 `_aioSpxAthFloor()` = `Math.max(window._spxATH||0, DATA_SNAPSHOT.spxATH||7585)` 신설 → L12303·L13125 두 호출점이 같은 floor 사용. `7412.84` 하드코딩 전수 제거. 추가로 topbar `mkt-regime-sub` 라벨 정직화: "Near ATH"는 −2% 이내만, −2~−5% "소폭 하락", −5~−10% "조정", −10~−20% "조정(Correction)", <−20% "하락장(Bear)".
+- **Prevention**: 시장 기준값(ATH/breadth/임계값)은 **단일 출처 함수/상수**로 통합 — 동일 값을 여러 곳에 하드코딩 금지(한쪽만 시정되는 재발 차단). 회귀: T786(`_aioSpxAthFloor() >= DATA_SNAPSHOT.spxATH` + applyLiveQuotes에 7412.84 없음)·T787(라벨 −2% 정직화). audit 사후검출보다 단일 출처화가 근본. (v50.24 WO-2 P498.)
 
 ## P497 - v50.22 - fundamental 검색이 매번 존재하지 않는 per-page 채팅 패널로 자동전송 → "DOM input missing" 에러 + 쿼터 자동소진 시도
 

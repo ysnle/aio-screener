@@ -171,6 +171,11 @@ async function main() {
   const quotes = quotesRaw.filter(q => q && !q.__error);
   const failed = quotesRaw.filter(q => q && q.__error).map(q => q.item);
 
+  // v50.24/WO-1: F&G·FRED 실패를 meta에 노출(이전엔 조용히 통과). 사이트 나이 배지/감사가 surfacing.
+  const macroKeys = Object.keys(macro).filter(k => k[0] !== '_');
+  const fearGreedOk = typeof fearGreed.score === 'number' && isFinite(fearGreed.score);
+  const fredOk = !!process.env.FRED_API_KEY && macroKeys.length > 0;
+
   const data = {
     meta: {
       generatedAt: new Date().toISOString(),
@@ -178,6 +183,9 @@ async function main() {
       symbolsOk: quotes.length,
       symbolsFail: failed.length,
       failedSymbols: failed,
+      fearGreedOk,
+      fredOk,
+      macroKeyCount: macroKeys.length,
       elapsedMs: Date.now() - t0,
       schema: 1,
     },
@@ -185,6 +193,9 @@ async function main() {
     macro,
     fearGreed,
   };
+
+  if (!fearGreedOk) console.warn('[fetch-data] 경고: F&G 수집 실패 (사이트는 정적 폴백 사용)');
+  if (process.env.FRED_API_KEY && !fredOk) console.warn('[fetch-data] 경고: FRED 키 있으나 매크로 0건 — 키/한도 확인');
 
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, JSON.stringify(data, null, 1));

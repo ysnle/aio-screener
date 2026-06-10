@@ -4363,6 +4363,17 @@ async function _idbLoadNews(maxAgeMs) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// v50.24/WO-2 (P498): SPX ATH 기준값 단일 출처. 하드코딩 7412.84(stale)가 두 곳에 중복돼
+// 한쪽(L13125)만 v50.16에서 시정되고, 먼저 실행되어 window._spxATH를 오염시키는 쪽은 미시정 →
+// SPX -2.9% 급락일에 레짐이 "Near ATH"로 오표시됐다. 두 호출점이 같은 floor를 쓰도록 통일한다.
+// floor = max(추적된 _spxATH, DATA_SNAPSHOT.spxATH, 7585) → 스냅샷 ATH 아래로 절대 내려가지 않음.
+function _aioSpxAthFloor() {
+  var snap = (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.spxATH) || 0;
+  return Math.max(window._spxATH || 0, snap || 7585);
+}
+window._aioSpxAthFloor = _aioSpxAthFloor;
+
+// ─────────────────────────────────────────────────────────────────────────
 // v50.23: 서버측 데이터 로더 — GitHub Actions(.github/workflows/refresh-data.yml)가
 // scripts/fetch-data.mjs로 생성한 public-data/data.json을 "같은 출처"로 읽어 즉시 적용.
 // CORS 프록시·키노출 없이 항상 신선 → 이게 PRIMARY 소스. 기존 클라이언트 fetchLiveQuotes는
@@ -4401,6 +4412,9 @@ async function _aioLoadServerData() {
       window._lastFG = d.fearGreed.score;
     }
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
+    _aioRenderServerDataAge();  // v50.24/WO-4: 나이 배지 갱신
+    // v50.24/WO-4: 보이는 페이지 분석 텍스트도 새 데이터로 재생성 (숨은 페이지는 스킵)
+    try { if (window.AIO && typeof window.AIO.refreshActivePageNarratives === 'function') window.AIO.refreshActivePageNarratives(); } catch(_) {}
     try { window.dispatchEvent(new CustomEvent('aio:serverDataLoaded', { detail: window._serverDataMeta })); } catch(_) {}
     return true;
   } catch (e) {
@@ -4410,11 +4424,53 @@ async function _aioLoadServerData() {
 }
 window._aioLoadServerData = _aioLoadServerData;
 
+// v50.24/WO-4: 서버 데이터 나이를 topbar 배지로 표면화 — 사용자가 "지금 보는 데이터가 N분 전 것"을
+// 항상 알 수 있게. 60분+ amber, 180분+ red. ageMin은 _serverDataMeta.generatedAt 기준으로 매번 재계산
+// (배지 갱신 타이머가 1분마다 호출해도 나이가 정확히 카운트업되도록).
+function _aioRenderServerDataAge() {
+  try {
+    var el = document.getElementById('server-data-age');
+    if (!el) return;
+    var meta = window._serverDataMeta;
+    if (!meta || !meta.generatedAt) { el.style.display = 'none'; return; }
+    var age = Math.max(0, Math.round((Date.now() - new Date(meta.generatedAt).getTime()) / 60000));
+    var txt, cls, title;
+    if (age < 60)       { txt = '🟢 서버 데이터 ' + age + '분 전'; cls = 'fb-live';   title = '서버(GitHub Actions)가 ' + age + '분 전 받아둔 데이터 — 신선'; }
+    else if (age < 180) { txt = '🟡 서버 데이터 ' + age + '분 전'; cls = 'fb-static'; title = '서버 데이터가 ' + age + '분 경과 — 자동 갱신 대기 중'; }
+    else {
+      var h = Math.floor(age / 60);
+      txt = '🔴 서버 데이터 ' + (h >= 1 ? h + '시간' : age + '분') + ' 전'; cls = 'fb-stale';
+      title = '서버 데이터가 ' + age + '분(약 ' + h + '시간) 경과 — 자동 갱신(GitHub Actions cron)이 지연/중단됐을 수 있음';
+    }
+    el.textContent = txt;
+    el.className = 'freshness-badge ' + cls;
+    el.style.display = '';
+    el.title = title;
+    el.setAttribute('data-server-age-min', String(age));
+  } catch(_) {}
+}
+window._aioRenderServerDataAge = _aioRenderServerDataAge;
+
+// v50.24/WO-4: 부팅 후에도 탭을 열어두면 data.json을 30분마다 재로드 (boot-only 갭 해소).
+// 배지 나이는 1분마다 재렌더(카운트업). 둘 다 _aioRegisterTimer로 등록(중복 방지·visibility pause 연계).
+function _aioStartServerDataPolling() {
+  try {
+    if (typeof _aioRegisterTimer !== 'function') return;
+    _aioRegisterTimer('serverDataReload', function() {
+      _aioLoadServerData().catch(function(){});
+    }, 30 * 60 * 1000);
+    _aioRegisterTimer('serverDataAgeBadge', _aioRenderServerDataAge, 60 * 1000);
+  } catch(_) {}
+}
+window._aioStartServerDataPolling = _aioStartServerDataPolling;
+
 async function initV20DataEngine() {
   console.log('[AIO v20] ═══════════════════════════════════════');
   console.log('[AIO v20] Data Engine v20 초기화 시작');
   // v50.23: 서버 데이터(data.json) 먼저 적용 — 프록시 실패와 무관하게 즉시 신선한 화면
   try { await _aioLoadServerData(); } catch(_) {}
+  // v50.24/WO-4: 30분 주기 재로드 + 1분 나이 배지 갱신 시작 (boot-only 갭 해소)
+  try { _aioStartServerDataPolling(); } catch(_) {}
   console.log('[AIO v20] ═══════════════════════════════════════');
 
   cleanupProxyCache();
@@ -12300,13 +12356,16 @@ function applyLiveQuotes(quotes) {
     const cls    = hasPct ? (pct >= 0 ? 'pnl pos' : 'pnl neg') : 'pnl neutral';
     // Track SPX vs ATH for Market Regime display
     if (q.symbol === '^GSPC') {
-      window._spxATH = Math.max(window._spxATH || 7412.84, q.regularMarketPrice);
+      window._spxATH = Math.max(_aioSpxAthFloor(), q.regularMarketPrice);  // v50.24/WO-2: 단일 출처 헬퍼 (stale 하드코딩 제거, P498)
       const SPX_ATH = window._spxATH;
       const spxPrice = q.regularMarketPrice;
       const pctFromATH = ((spxPrice - SPX_ATH) / SPX_ATH * 100).toFixed(1);
       const regimeSub = document.getElementById('mkt-regime-sub');
       if (regimeSub) {
-        regimeSub.textContent = 'ATH ' + (pctFromATH >= 0 ? '+' : '') + pctFromATH + '% · ' + (pctFromATH < -20 ? 'Bear' : pctFromATH < -10 ? 'Correction' : pctFromATH < -5 ? '조정' : 'Near ATH');
+        // v50.24/WO-2: "Near ATH"는 -2% 이내만 — 그 아래는 정직한 라벨(소폭 하락/조정/하락장)
+        var _athN = parseFloat(pctFromATH);
+        var _athLbl = _athN < -20 ? '하락장(Bear)' : _athN < -10 ? '조정(Correction)' : _athN < -5 ? '조정' : _athN < -2 ? '소폭 하락' : 'Near ATH';
+        regimeSub.textContent = 'ATH ' + (pctFromATH >= 0 ? '+' : '') + pctFromATH + '% · ' + _athLbl;
         // v49.64 P334: derived sink lineage (R114 가시 sink 보호)
         regimeSub.setAttribute('data-operational-use', 'decision');
         regimeSub.setAttribute('data-source-kind', 'derived');
@@ -13122,7 +13181,7 @@ function refreshHomeDashboard() {
   const regimeEl = document.getElementById('home-market-regime');
   const regimeExplEl = document.getElementById('home-regime-explanation');
   if (regimeEl) {
-    const SPX_ATH = window._spxATH || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.spxATH) || 7585;  // v50.16: 폴백 7412.84(stale)→DATA_SNAPSHOT.spxATH 현재 ATH
+    const SPX_ATH = _aioSpxAthFloor();  // v50.24/WO-2: 단일 출처 헬퍼 (L12303과 동일 floor — 레짐 오표시 방지)
     const spxPrice = spx.price || (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.spx : 7388);
     const pctFromATH = ((spxPrice - SPX_ATH) / SPX_ATH * 100);
     // v50.16: 'ATH 근처' 막연 → 실제 갭 + VIX 맥락 (사용자 지적: 이면까지). VIX는 라이브 우선.

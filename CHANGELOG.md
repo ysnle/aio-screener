@@ -1,5 +1,30 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.24 - P0 구조 시정: 자율운영 cron 신뢰도 + ATH 레짐 버그 + refresh 매핑 + 신선도 표면화 (2026-06-10)
+
+**사용자: "구조적·시스템적 문제 전수 조사 후 Opus로 작업."** → Fable 5가 라이브 구동 검증 포함 전수 감사(`_context/OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md`)를 수행해 P0 5건을 매핑, Opus가 백로그 WO-1~4를 순차 시정. **핵심 발견: "v50.23 진짜 자율 운영 전환"이 프로덕션에서 아직 사실이 아니었다** — cron이 등록 후 자동 발화 0회(수동 1회뿐)였고, 죽어도 감지할 장치가 0개(이전 CORS 프록시가 조용히 죽던 것과 동일한 실패 클래스가 백엔드에서 재현). 또한 SPX -2.9% 급락 당일 홈 화면이 "Near ATH"를 표시하는 라이브 버그를 실증 포착.
+
+**WO-1 — 자율운영 cron 신뢰도 + 워치독**
+- `refresh-data.yml` cron `*/30`(정시 포함, GitHub 가장 혼잡 → 드롭/지연 빈번) → `:17,:47`(오프피크) 이동.
+- `scripts/fetch-data.mjs`: F&G·FRED 실패를 조용히 통과시키던 것을 `meta.fearGreedOk`/`meta.fredOk`/`meta.macroKeyCount`로 노출 + 콘솔 경고.
+- **신규 `.github/workflows/data-watchdog.yml`** (매시 :23, refresh와 독립 오프셋): 커밋된 `public-data/data.json`의 `generatedAt`이 3시간+ 경과면 워크플로 FAIL → **GitHub가 repo 소유자에게 자동 실패 이메일** 발송. 네트워크 호출 없이 repo 파일만 검사 → 워치독 자체는 거의 항상 검사 수행. 메인 cron이 조용히 멈추는 실패 클래스를 surfacing.
+
+**WO-2 (P498) — SPX ATH 레짐 버그 (라이브 실증)**
+- 하드코딩 `7412.84`(stale ATH)가 `js/aio-data.js` 두 곳 중복 → 한쪽(L13125)만 v50.16에서 `DATA_SNAPSHOT.spxATH`로 시정되고, **먼저 실행되어 `window._spxATH`를 오염시키는 L12303은 미시정** → 7386.65/7412.84−1 = −0.35% → 레짐 "ATH −0.4% · Near ATH"(실제 갭 −2.6%인데 사상최고 근처라 표시). 중복 로직의 한쪽만 고쳐지는 패턴(이 프로젝트 최대 버그 클래스)의 표본.
+- 단일 출처 헬퍼 `_aioSpxAthFloor()` = `max(window._spxATH||0, DATA_SNAPSHOT.spxATH||7585)` 신설 → L12303·L13125 두 호출점이 같은 floor 사용. `7412.84` 하드코딩 전수 제거.
+- topbar `mkt-regime-sub` 라벨 정직화: "Near ATH"는 −2% 이내만, −2~−5% "소폭 하락", −5~−10% "조정", −10~−20% "조정(Correction)", <−20% "하락장(Bear)".
+
+**WO-3 (P499) — 7페이지 on-enter refresh 매핑 오류**
+- theme-detail/portfolio/ticker/options/kr-themes/kr-macro의 진입 refresh가 `REFRESH_SCHEDULE`에 없는 가상 계약 태스크(`themeRanking`/`portfolioRisk`/`companyFundamentals`/`filings`/`optionsSnapshot`/`krMacro`)를 참조 → 해당 키 no-op + `getAutoOpsReadiness` "unknown task" 7건 경고.
+- `applyPageContractCompatibility`에 `CONTRACT_TASK_ALIAS` 치환 추가: 가상 "파생" 태스크(페이지 자체 렌더가 계산)를 그 파생이 필요로 하는 실제 fetch 의존 키로 매핑(예: `optionsSnapshot`→`['quotes','sentiment','vixHistory']`, `krMacro`→`['fred','krDynamic']`). `DATA_REQUIREMENT_PROFILES`/`AIO_PAGE_REFRESH_MAP` 둘 다 유효 스케줄 키만 갖도록 → unknown task 0.
+
+**WO-4 — data.json 신선도 표면화 + 주기 재로드**
+- topbar `#server-data-age` 배지 신설 + `_aioRenderServerDataAge()`: "🟢 서버 데이터 N분 전"(<60분) / 🟡(<180분) / 🔴(180분+, "자동 갱신 지연/중단 가능"). 로더가 `ageMin`을 계산만 하고 버리던 것을 화면에 노출.
+- `_aioStartServerDataPolling()`: boot-only 로드 갭 해소 — `_aioRegisterTimer`로 30분 주기 data.json 재로드 + 1분마다 나이 배지 카운트업(visibility pause 연계).
+- `aio:serverDataLoaded` 시 `refreshActivePageNarratives()` 호출 → 새 서버 데이터로 보이는 페이지 분석 텍스트 재생성.
+
+R1 7곳 + 캐시버스터 6곳 동기화. 회귀 테스트 T786~T790. P0 잔여(WO-5 내러티브 레짐 스탬프 등)는 P1 이후 순차.
+
 ## v50.23 - 데이터 백엔드: 진짜 자율 운영 전환 (구조적 근본 개선) (2026-06-10)
 
 **사용자: "왜 근본적으로 보강·개선이 안 되나. 손 안 대도 알아서 도는 게 목적인데 지금 쓸 수 없는 수준."** → 50버전·497 P넘버가 **증상치료**(stale 값 수정, audit 추가)에 머문 근본 원인 진단: **아키텍처(정적 사이트 + 브라우저 CORS 프록시 + 손으로 박은 DATA_SNAPSHOT)가 "자율 운영"과 구조적으로 양립 불가**. 브라우저는 Yahoo/CNN/FRED를 직접 못 부름(CORS) → 제3자 프록시(자주 죽음) → 실패 시 stale 스냅샷 폴백 → 매주 수동 /data-refresh 필요(= 손대는 일). 이번엔 **구조 자체를 변경**.

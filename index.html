@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.23 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.24 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4141,13 +4141,14 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.23</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.24</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <span id="home-risk-regime-badge" class="status-pill sp-neutral">시장 국면 분석중</span>
       <span class="freshness-badge fb-live">● FINNHUB 실시간</span>
       <span id="live-quote-ts-topbar" class="freshness-badge fb-static" style="font-size:11px;" title="외부 API 연결 필요 — CORS 프록시 사용">시세 연결 중...</span>
+      <span id="server-data-age" class="freshness-badge fb-static" style="font-size:11px;display:none;" title="서버(GitHub Actions)가 받아둔 데이터의 나이 — 30분마다 자동 갱신">서버 데이터 확인 중...</span>
       <span id="llm-header-badge" data-action="toggleLLM"
         tabindex="0"
         role="button" aria-pressed="true" aria-label="AI 기능 켜기/끄기" style="background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-size:10px;font-weight:700;padding:4px 10px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font-mono);" title="AI ON/OFF 전환">AI ON</span>
@@ -12616,9 +12617,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.23"></script>
-  <script src="./js/aio-data.js?v=50.23"></script>
-  <script src="./js/aio-ui.js?v=50.23"></script>
+  <script src="./js/aio-core.js?v=50.24"></script>
+  <script src="./js/aio-data.js?v=50.24"></script>
+  <script src="./js/aio-ui.js?v=50.24"></script>
 
   <script>
 
@@ -15715,7 +15716,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.23"></script>
+<script src="./js/aio-chat.js?v=50.24"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28093,9 +28094,9 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.23"></script>
+<script src="./js/aio-glossary.js?v=50.24"></script>
 <!-- v48.93: 단위 테스트 모듈 — AIO.runTests() 으로 실행 (브라우저 콘솔) -->
-  <script src="./js/aio-tests.js?v=50.23"></script>
+  <script src="./js/aio-tests.js?v=50.24"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 // GLOSSARY SYSTEM — 투자 용어 사전
