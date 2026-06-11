@@ -2,7 +2,8 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.29
+- **현재 버전**: v50.30
+- **v50.30 구조적 UI 개편 1차 — verdict-first + 안내 패널 제거**: 초보자 패널 완전 제거(v50.26 회귀) + `_aioRenderBriefingDigest`(브리핑이 키 없이도 기존 데이터 4줄 합성으로 실제 브리핑: 레짐·ACTION_RULES·뉴스 Top3·일정) + `_aioReorderCoreSections`(sentiment 복합판단/breadth 종합진단 상단 이동, signal lockout 후순위) + breadth/sentiment 가이드 블록 2개 제거. T794/T795/T800 스펙 반전·대체.
 - **v50.29 전 페이지 declutter**: 설명서형 요소 제거(사용자 지시 — 기초 있는 사용자 기준). 페이지=데이터·분석·액션 / 설명=guide+용어집. `_aioRenderPageBrief` 주입기→제거기 반전(Page Routine 박스 21페이지 제거, `_aioDeclutterAllPages` 부팅 일괄) + `.aio-explain`/`.beginner-tip` guide 외 제거(~35K자) + signal 목적 박스 제거. 레지스트리 보존. T154/T231/T223 스펙 반전 + T801 가드.
 - **v50.28 WO-6 뉴스 서버 백스톱 + WO-7 VIX 퍼센타일 브리지 + WO-11 포트폴리오 카드 동적화**: WO-6 fetch-data.mjs Google News RSS→data.json.news(25건), 클라이언트 `_aioApplyNewsBackstop`(자체 뉴스 비었을 때만·additive·부팅 12s 재시도) → 프록시 전멸해도 뉴스. WO-7 `_aioVixPercentile`(60일+ 시 실측 52주 분포, 부족 시 고정 CDF 폴백·회귀 0). WO-11 초보자 포트폴리오 카드 `aio_portfolio_data` 보유 수 동적. T798~800. 서버 newsOk는 라이브 cron 검증.
 - **v50.27 WO-9 페이로드 + WO-7 히스토리 소비자 레이어 + WO-10 Worker 복원**: WO-9 aio-tests.js(~100KB) 정적 로드 제외→`AIO.loadTests()` 동적(캐시버스터 6→5). WO-7 소비자 레이어 `_aioLoadHistory`/`_aioHistorySeries`(20일+ 시 시드 대체)/`AIO.getHistoryDataAudit`(차트 재배선은 누적 후). WO-10 P310 삭제된 `cloudflare-worker-proxy.js` 복원(데이터 프록시는 이미 배포됨, 소스만 소실) + cleanupRateLimitMap 주석버그 시정. 보류: WO-6 서버뉴스/WO-7 차트재배선/WO-11 전면홈(검증·누적 제약). T796~797.

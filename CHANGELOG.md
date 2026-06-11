@@ -1,5 +1,29 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.30 - 구조적 UI 개편 1차: 결론 우선(verdict-first) + 추가형 안내 패널 제거 (2026-06-11)
+
+**사용자 지시: "'주식이 처음이세요?' 같은 추가형 패널 하지 마라. 기존 핵심 기능/섹션/텍스트만, 쉽고 직관적으로. 브리핑 페이지에는 브리핑이 없고 뉴스 나열만 있고, 시그널/심리/시장폭은 차트·지표는 있는데 직관적으로 쓰기 어렵다."** → 추가가 아니라 **기존 기능이 제 역할을 하도록** 재편.
+
+**(1) 초보자 시작 패널 완전 제거 (v50.26 방향 회귀 — 정직 인정)**
+- `#aio-beginner-panel` HTML + JS(`_aioRenderBeginnerSummary`/`_aioBeginnerAnalyze`/`_aioHideBeginnerPanel`) + 트리거(키 리스너·pageBus·serverDataLoaded) 전부 삭제. 홈은 헤더 → 범례 → 결론 바 → 오늘의 시장으로 직행.
+
+**(2) 브리핑 페이지가 실제로 브리핑하도록 (`_aioRenderBriefingDigest`)**
+- 원인 진단: "오늘의 브리핑" 섹션은 **Claude API 키가 없으면 빈 껍데기**("키를 등록하면...") → 대부분 사용자에게 브리핑 페이지 = 뉴스 나열.
+- 해법: 이미 로드된 기존 데이터만 4줄로 합성하는 결정론적 다이제스트(`#briefing-digest`, 키 불필요):
+  ① **시장** — 라이브 S&P500 %·VIX 밴드·공포탐욕 존(`_aioRegimeNow`) ② **행동** — `AIO_ACTION_RULES.getActionPlan`(홈 액션 카드와 동일 출처) ③ **핵심 뉴스 Top3** — 기존 브리핑 뉴스 surface 모델(`buildNewsSurfaceModel('briefing')`) ④ **일정** — `MACRO_CALENDAR` 7일 이내 발표.
+- AI 분석 브리핑(키 보유 시)은 그 아래 그대로 — 대체가 아닌 보완. 트리거: pageShown(briefing)/liveQuotes(활성 시)/serverDataLoaded/부팅.
+
+**(3) 결론 우선 재배치 (`_aioReorderCoreSections` — 기존 섹션 이동, 신규 콘텐츠 0)**
+- sentiment: **"시장 심리 복합 판단"**(종합 결론, `#sent-analysis-text`)이 7번째에 묻혀 있던 것 → 결론 바 직후로.
+- breadth: **"시장 폭 종합 진단"**(`#breadth-diag-signal`)이 6번째 → 페이지 헤더 직후로.
+- signal: **Lockout/OPEX 컨트롤**(전문 도구)이 최상단을 차지 → 결론 바·점수·티커 바 아래 후순위로.
+- DOM `insertAdjacentElement` 이동(HTML 절제 아님 — div 균형 무위험)·부팅 1.2s 1회·멱등.
+
+**(4) 설명서형 잔여 블록 제거 (v50.29 연장)**
+- breadth "시장 폭 해석 가이드"(30/60% 임계 3단 카드 — 카드 색·툴팁이 동일 정보), sentiment "심리 지표 가이드"(F&G/NAAIM/풋콜 설명 그리드 — 위젯별 ? 툴팁 존재).
+
+**테스트**: T794(패널 존재→**제거 단언**), T795(초보자 요약→**브리핑 다이제스트 렌더**), T800(포트폴리오 카드→**verdict-first 재배치 검증**: sentiment/breadth 결론 인덱스 ≤3 + lockout > ticker). R1 7곳 + 캐시버스터 5곳.
+
 ## v50.29 - 전 페이지 declutter: 설명서형 요소 제거 (2026-06-11)
 
 **사용자 지시: "불필요한 기능/섹션/텍스트 제거 — 너무 친절한/자세한/원칙적인 사용 설명서 포함. 사용자는 기초가 있는 초보자. 페이지마다 요소가 섞여 유기적 흐름이 없고 난잡."** 라이브 21페이지 인벤토리 실측(전 페이지에 Page Routine 박스 1개 + 상세해설 블록 합계 ~35K자 + beginner-tip 7개 + 목적 박스) 후 구조 원칙으로 정리.

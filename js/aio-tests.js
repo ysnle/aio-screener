@@ -5640,36 +5640,29 @@
     } catch(e) { t793detail = 'ERR:' + e.message; }
     _assert('T793 v5025_regime_drift_surface: #aio-regime-drift-banner + _aioApplyRegimeDriftMarkers + audit + autoOps 배선', t793ok, t793detail);
 
-    // ─── v50.26 P3/WO-11 초보자 시작 패널 ───
-    // T794: 패널 DOM(3 카드) + 핸들러 함수 정의
+    // ─── v50.30 스펙 반전: 초보자 시작 패널 제거 (사용자 지시 — 추가형 안내 패널 금지) ───
+    // T794: 패널 DOM/핸들러 완전 제거
     var t794ok = false, t794detail = '';
     try {
       var panel794 = document.getElementById('aio-beginner-panel');
-      var hasSummary794 = !!document.getElementById('beginner-market-summary');
-      var hasInput794 = !!document.getElementById('beginner-ticker-input');
-      var hasRender794 = typeof window._aioRenderBeginnerSummary === 'function';
-      var hasAnalyze794 = typeof window._aioBeginnerAnalyze === 'function';
-      var hasHide794 = typeof window._aioHideBeginnerPanel === 'function';
-      t794ok = !!panel794 && hasSummary794 && hasInput794 && hasRender794 && hasAnalyze794 && hasHide794;
-      t794detail = 'panel=' + !!panel794 + ' summary=' + hasSummary794 + ' input=' + hasInput794 + ' render=' + hasRender794 + ' analyze=' + hasAnalyze794 + ' hide=' + hasHide794;
+      var fnGone794 = typeof window._aioRenderBeginnerSummary !== 'function' && typeof window._aioBeginnerAnalyze !== 'function' && typeof window._aioHideBeginnerPanel !== 'function';
+      t794ok = !panel794 && fnGone794;
+      t794detail = 'panel=' + !!panel794 + ' fnGone=' + fnGone794;
     } catch(e) { t794detail = 'ERR:' + e.message; }
-    _assert('T794 v5026_beginner_panel: #aio-beginner-panel 3카드 + _aioRenderBeginnerSummary/_aioBeginnerAnalyze/_aioHideBeginnerPanel', t794ok, t794detail);
+    _assert('T794 v5030_beginner_panel_removed: #aio-beginner-panel + 핸들러 제거 (추가형 안내 패널 금지)', t794ok, t794detail);
 
-    // T795: 요약 렌더가 라이브 레짐(_aioRegimeNow)을 평이한 한국어로 출력 (수신 대기 placeholder 탈피)
+    // T795 (v50.30 대체): 브리핑 다이제스트 — 키 없이 기존 데이터 합성으로 "실제 브리핑" 렌더
     var t795ok = false, t795detail = '';
     try {
-      if (typeof window._aioRenderBeginnerSummary === 'function') window._aioRenderBeginnerSummary();
-      var sEl = document.getElementById('beginner-market-summary');
-      var txt795 = sEl ? (sEl.textContent || '') : '';
-      var hasRegimeNow795 = typeof window._aioRegimeNow === 'function';
-      var rendered795 = /변동성|투자심리/.test(txt795); // 평이한 한국어 합성 출력
-      // _aioRegimeNow가 값을 줄 때만 합성됨 — 값 없으면 placeholder 유지(허용)
-      var r795 = hasRegimeNow795 ? window._aioRegimeNow() : null;
-      var hasData795 = r795 && (r795.vix != null || r795.fg != null);
-      t795ok = hasRegimeNow795 && (hasData795 ? rendered795 : true);
-      t795detail = 'regimeNow=' + hasRegimeNow795 + ' hasData=' + !!hasData795 + ' rendered=' + rendered795 + ' txt="' + txt795.slice(0,40) + '"';
+      var hasDigestFn795 = typeof window._aioRenderBriefingDigest === 'function';
+      if (hasDigestFn795) window._aioRenderBriefingDigest();
+      var dEl795 = document.getElementById('briefing-digest');
+      var dTxt795 = dEl795 ? (dEl795.textContent || '') : '';
+      // 레짐 데이터가 있으면 "시장" 행 합성, 없으면 대기 문구 — 둘 다 렌더로 인정
+      t795ok = hasDigestFn795 && !!dEl795 && dTxt795.length > 10;
+      t795detail = 'fn=' + hasDigestFn795 + ' el=' + !!dEl795 + ' txt="' + dTxt795.slice(0, 40) + '"';
     } catch(e) { t795detail = 'ERR:' + e.message; }
-    _assert('T795 v5026_beginner_summary_live: _aioRenderBeginnerSummary가 라이브 VIX/F&G를 평이한 한국어로 합성', t795ok, t795detail);
+    _assert('T795 v5030_briefing_digest: _aioRenderBriefingDigest가 #briefing-digest에 기존 데이터 합성 브리핑 렌더 (키 불필요)', t795ok, t795detail);
 
     // ─── v50.27 WO-7 히스토리 소비자 레이어 + WO-9 페이로드 ───
     // T796 (WO-7): 히스토리 데이터 레이어 — 로더/시리즈/audit + minPoints 게이트(부족 시 null→시드 폴백)
@@ -5730,16 +5723,26 @@
     } catch(e) { t799detail = 'ERR:' + e.message; }
     _assert('T799 v5028_vix_percentile_bridge: _aioVixPercentile 60일 게이트(부족 시 null→고정 CDF 폴백)', t799ok, t799detail);
 
-    // T800 (WO-11): 초보자 포트폴리오 카드 요소 + 렌더가 보유 수 반영(0이면 안내 유지)
+    // T800 (v50.30 대체): 핵심 결론 섹션 재배치 — sentiment 복합판단/breadth 종합진단이 상단, signal lockout 후순위
     var t800ok = false, t800detail = '';
     try {
-      var pelExists800 = !!document.getElementById('beginner-portfolio-status');
-      var renderSrc800 = (typeof window._aioRenderBeginnerSummary === 'function') ? window._aioRenderBeginnerSummary.toString() : '';
-      var readsPf800 = /aio_portfolio_data/.test(renderSrc800) && /beginner-portfolio-status/.test(renderSrc800);
-      t800ok = pelExists800 && readsPf800;
-      t800detail = 'el=' + pelExists800 + ' readsPortfolio=' + readsPf800;
+      var hasReorder800 = typeof window._aioReorderCoreSections === 'function';
+      if (hasReorder800) window._aioReorderCoreSections();
+      var idxOf = function(pageId, innerSel) {
+        var p = document.getElementById('page-' + pageId); if (!p) return -1;
+        var inner = p.querySelector(innerSel); if (!inner) return -1;
+        var n = inner; while (n && n.parentElement !== p) n = n.parentElement;
+        return n ? Array.prototype.indexOf.call(p.children, n) : -1;
+      };
+      var sentVerdictIdx = idxOf('sentiment', '#sent-analysis-text');
+      var breadthVerdictIdx = idxOf('breadth', '#breadth-diag-signal');
+      var lockIdx = idxOf('signal', '#signal-lockout-dashboard');
+      var tickIdx = idxOf('signal', '#sig-ticker-track');
+      // 결론이 상단(인덱스 ≤3) + lockout이 티커 뒤
+      t800ok = hasReorder800 && sentVerdictIdx >= 0 && sentVerdictIdx <= 3 && breadthVerdictIdx >= 0 && breadthVerdictIdx <= 3 && lockIdx > tickIdx && tickIdx >= 0;
+      t800detail = 'sentIdx=' + sentVerdictIdx + ' breadthIdx=' + breadthVerdictIdx + ' lock=' + lockIdx + '>tick=' + tickIdx;
     } catch(e) { t800detail = 'ERR:' + e.message; }
-    _assert('T800 v5028_beginner_portfolio_card: #beginner-portfolio-status + 렌더가 aio_portfolio_data 보유 수 반영', t800ok, t800detail);
+    _assert('T800 v5030_verdict_first_reorder: 결론 섹션 상단 재배치(sentiment≤3·breadth≤3) + lockout 후순위', t800ok, t800detail);
 
     // ─── v50.29 declutter — 설명서형 요소 제거 (사용자 지시: 페이지=데이터/분석/액션, 설명=guide+용어집) ───
     // T801: 비-guide 페이지에 .aio-page-brief/.aio-explain/.beginner-tip 0 + guide에는 설명 보존

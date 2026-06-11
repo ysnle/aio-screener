@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.29 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.30 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4143,7 +4143,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.29</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.30</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4158,33 +4158,7 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- v50.26/WO-11: 초보자 시작 패널 — 3대 질문 중심 진입 (기존 라이브 데이터 재사용, additive) -->
-  <div id="aio-beginner-panel" style="margin:4px 0 14px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.25);border-radius:10px;padding:14px 16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-      <div style="font-size:14px;font-weight:700;color:var(--text-primary);">💡 주식이 처음이세요? 오늘 시장을 한눈에</div>
-      <button data-action="_aioHideBeginnerPanel" style="background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;min-height:24px;padding:2px 10px;cursor:pointer;">간단히 접기 ✕</button>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;">
-        <div style="font-size:12px;font-weight:700;color:var(--data-cyan);margin-bottom:6px;">📊 오늘 시장, 뭘 조심하죠?</div>
-        <div id="beginner-market-summary" style="font-size:12px;color:var(--text-secondary);line-height:1.65;min-height:48px;">실시간 시장 상태 수신 대기…</div>
-        <button data-action="showPage" data-arg="briefing" style="margin-top:8px;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);color:var(--data-cyan);border-radius:6px;font-size:11px;font-weight:600;min-height:28px;padding:4px 12px;cursor:pointer;width:100%;">오늘의 브리핑 자세히 →</button>
-      </div>
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;">
-        <div style="font-size:12px;font-weight:700;color:var(--data-green);margin-bottom:6px;">🔍 이 종목 사도 될까요?</div>
-        <div style="font-size:12px;color:var(--text-secondary);line-height:1.65;margin-bottom:8px;">관심 종목을 입력하면 재무·차트·뉴스를 분석해 드려요.</div>
-        <div style="display:flex;gap:6px;">
-          <input id="beginner-ticker-input" type="text" placeholder="예: AAPL, 삼성전자" aria-label="분석할 종목 입력" style="flex:1;min-width:0;background:var(--bg-input,var(--surface-3));border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;min-height:28px;padding:2px 8px;" />
-          <button data-action="_aioBeginnerAnalyze" style="background:rgba(0,229,160,0.14);border:1px solid rgba(0,229,160,0.35);color:var(--data-green);border-radius:6px;font-size:11px;font-weight:700;min-height:28px;padding:4px 12px;cursor:pointer;white-space:nowrap;">분석</button>
-        </div>
-      </div>
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;">
-        <div style="font-size:12px;font-weight:700;color:var(--data-amber);margin-bottom:6px;">💼 내 포트폴리오는 괜찮을까요?</div>
-        <div id="beginner-portfolio-status" style="font-size:12px;color:var(--text-secondary);line-height:1.65;margin-bottom:8px;">보유 종목을 등록하면 리스크(손실 위험·집중도·변동성)를 진단해 드려요.</div>
-        <button data-action="showPage" data-arg="portfolio" style="background:rgba(255,163,26,0.12);border:1px solid rgba(255,163,26,0.3);color:var(--data-amber);border-radius:6px;font-size:11px;font-weight:600;min-height:28px;padding:4px 12px;cursor:pointer;width:100%;">포트폴리오 열기 →</button>
-      </div>
-    </div>
-  </div>
+  <!-- v50.30: 초보자 시작 패널 제거 (사용자 지시 — 추가형 안내 패널 금지, 페이지는 핵심 기능만) -->
 
   <!-- v48.42: 스코어 해석 범례 — aio-legend 스타일 -->
   <div class="aio-legend" style="margin:4px 0 var(--space-3);font-size:var(--fs-xs);color:var(--text-muted);">
@@ -5644,27 +5618,7 @@ body.light-theme canvas { filter:none; }
 
   </div>
 
-  <!-- SECTION 2: 해석 가이드 (신호등) — v42.1: 접기 가능 -->
-  <div style="background:rgba(255,91,80,0.04);border:1px solid rgba(255,91,80,0.15);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;cursor:pointer;user-select:none;" data-action="_aioBreadthGuideToggle" data-pass-el="1">시장 폭 해석 가이드 ▶</div>
-    <div style="display:none;grid-template-columns:repeat(3,1fr);gap:10px;">
-      <div style="padding:10px;background:rgba(255,91,80,0.06);border-left:3px solid var(--data-red);border-radius:6px;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:3px;"> 30% 미만</div>
-        <div style="font-size:10px;color:var(--data-red);font-weight:600;">대부분 하락 중</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">매수 자제. 현금 비중 확대.</div>
-      </div>
-      <div style="padding:10px;background:rgba(255,163,26,0.06);border-left:3px solid var(--data-amber);border-radius:6px;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:3px;"> 30-60%</div>
-        <div style="font-size:10px;color:var(--data-amber);font-weight:600;">혼조 신호</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">선별적 매수. 주의깊게 모니터.</div>
-      </div>
-      <div style="padding:10px;background:rgba(0,229,160,0.06);border-left:3px solid var(--data-green);border-radius:6px;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:3px;"> 60% 이상</div>
-        <div style="font-size:10px;color:var(--data-green);font-weight:600;">대부분 상승 중</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">매수 우호적. 강한 상승장.</div>
-      </div>
-    </div>
-  </div>
+  <!-- v50.30 declutter: "시장 폭 해석 가이드" 임계 설명 블록 제거 — 임계값은 카드 색/툴팁이 이미 전달 -->
 
   <!-- SECTION 3: 종합 진단 -->
   <div style="background:linear-gradient(135deg,rgba(255,91,80,0.08),rgba(255,163,26,0.04));border:1px solid rgba(255,91,80,0.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;">
@@ -5929,24 +5883,7 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- 심리 지표 읽는 법 가이드 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;">
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;margin-bottom:7px;text-transform:uppercase;">심리 지표 가이드</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:11px;">
-        <div style="padding:6px 8px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:5px;line-height:1.5;">
-          <b style="color:var(--accent);">공포·탐욕지수</b><br>
-          <span style="color:var(--text-muted);">0=공포, 100=극단탐욕</span>
-        </div>
-        <div style="padding:6px 8px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:5px;line-height:1.5;">
-          <b style="color:var(--accent);">NAAIM</b><br>
-          <span style="color:var(--text-muted);">펀드매니저 주식비중. 25↓=극단 방어(재진입 시 랠리↑). 95+=풀투자(매수 여력↓)</span>
-        </div>
-        <div style="padding:6px 8px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:5px;line-height:1.5;">
-          <b style="color:var(--accent);">풋콜비율</b><br>
-          <span style="color:var(--text-muted);">1.2↑=공포, 0.7↓=과도낙관</span>
-        </div>
-      </div>
-    </div>
+    <!-- v50.30 declutter: "심리 지표 가이드" 설명 블록 제거 — 각 지표 위젯의 ? 툴팁이 동일 정보 전달 -->
 
     <!-- Fear & Greed Gauge + Top Row Charts -->
     <div style="display:grid;grid-template-columns:300px 1fr;gap:12px;margin-bottom:14px;">
@@ -12638,9 +12575,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.29"></script>
-  <script src="./js/aio-data.js?v=50.29"></script>
-  <script src="./js/aio-ui.js?v=50.29"></script>
+  <script src="./js/aio-core.js?v=50.30"></script>
+  <script src="./js/aio-data.js?v=50.30"></script>
+  <script src="./js/aio-ui.js?v=50.30"></script>
 
   <script>
 
@@ -15737,7 +15674,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.29"></script>
+<script src="./js/aio-chat.js?v=50.30"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28115,7 +28052,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.29"></script>
+<script src="./js/aio-glossary.js?v=50.30"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
