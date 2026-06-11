@@ -5803,6 +5803,19 @@
       t803detail = 'entry=' + entryI + ' exit=' + exitI + ' lock=' + lockI + ' crossGone=' + crossGone + ' capFn=' + capFn;
     } catch(e) { t803detail = 'ERR:' + e.message; }
     _assert('T803 v5033_signal_briefing_reform: Exit Triggers 상단 이동 + cross-asset 스텁 제거 + 브리핑 뉴스 캡 함수', t803ok, t803detail);
+
+    // ─── v50.34 종합5 마무리: home 결론→근거→액션 그룹화 (breadth 차트 접기는 구조 복잡으로 보류) ───
+    var t804ok = false, t804detail = '';
+    try {
+      if (typeof window._aioReorderCoreSections === 'function') { showPage('home'); window._aioReorderCoreSections(); }
+      var ph804 = document.getElementById('page-home');
+      var k804 = ph804 ? Array.from(ph804.children) : [];
+      var hi = function(id){ var e=document.getElementById(id); return e?k804.indexOf(e):-1; };
+      var ci = hi('home-conclusion-bar'), gi = hi('home-trading-grid'), ai = hi('home-action-item-card');
+      t804ok = ci >= 0 && gi === ci + 1 && ai === gi + 1; // 결론→근거(grid)→액션 연속
+      t804detail = 'conc=' + ci + ' grid=' + gi + ' action=' + ai + ' grouped=' + t804ok;
+    } catch(e) { t804detail = 'ERR:' + e.message; }
+    _assert('T804 v5034_home_conclusion_group: home 결론바 직후 [매매판단 그리드 → Action Items] 연속 (결론→근거→액션)', t804ok, t804detail);
   }
 
   window.AIO = window.AIO || {};

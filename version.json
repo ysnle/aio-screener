@@ -1,5 +1,5 @@
 {
-  "version": "v50.33",
-  "built": "2026-06-11T15:00:00+09:00",
-  "note": "v50.33 종합 5개 페이지 개편 1차 (signal·briefing). 사용자: 종합5+분석5 각 페이지 무엇이 필요/제거/변경인지 점검 후 진행. 라이브 전수 인벤토리(home 13섹션/signal 20섹션·4228px/breadth 13/sentiment 6/briefing 3·6255px) 후 가장 명확·안전한 시정부터. (1) Signal 핵심 결정 흐름 정렬: Exit Triggers(청산/헷지 = 핵심 리스크 관리, 기존 맨 끝 묻힘)를 진입 체크리스트 직후로 상향 + Lockout/OPEX는 그 뒤 → 결론→점수→국면→조언→점수게이지→진입→청산→전문도구→상세. (2) Signal cross-asset 안내 스텁 제거(무가치 안내문). (3) Briefing 뉴스 벽(40건·~5900px) 표현 레벨 캡 — _aioCapBriefingNews: 기본 1500px 제한+'전체 뉴스 보기' 토글(렌더 로직 불변, 디제스트가 Top3 제공하므로 핵심만 부합). T803 회귀 가드. 진단으로 식별한 잔여(home 결론 3중복 통합·breadth 차트 6행 중복·sentiment F&G 997px 단일덩어리)는 다음 차수. R1 7곳+캐시버스터 5곳."
+  "version": "v50.34",
+  "built": "2026-06-11T16:30:00+09:00",
+  "note": "v50.34 종합 5개 페이지 개편 2차 — home 결론 흐름 그룹화. (1) home: 결론바와 그 근거/액션 사이에 '오늘의 시장' 배너+경고+내비가 끼어 결론→근거→액션이 분절됐던 것 → 결론바 직후로 [매매 판단 그리드(점수·가중치·품질) → Action Items(포지션·센티먼트 행동)] 묶음(_aioReorderCoreSections, insertAdjacentElement 이동). 흐름: 결론→근거→액션→오늘의 시장→지수/매크로→글로벌→채팅. (2) breadth 상세 차트 접기는 보류 — 'SECTION4 추가 지표' 그리드가 차트 캔버스(bh-* 등)를 직접 담지 않는 복잡 구조라 절반만 접히는 위험 발견, 차트 컨테이너 정밀 매핑 후 별도 진행(라이브 검증으로 회귀 방지). (3) signal 점수 '—/100'은 버그 아님 확인 — refreshSignalDashboard 실행 시 정상 채워짐(부팅 타이밍 placeholder). (4) sentiment 997px는 F&G+VIX+서브차트 4개 핵심 대시보드라 분할 불요. T804(home 그룹화) 가드. 종합 5개 구조 정리: home·signal·sentiment·briefing 완료, breadth는 verdict-first(v50.30)까지·차트 정리는 다음. R1 7곳+캐시버스터 5곳."
 }

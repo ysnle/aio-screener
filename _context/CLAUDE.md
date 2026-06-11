@@ -2,7 +2,8 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.33
+- **현재 버전**: v50.34
+- **v50.34 종합5 개편 2차 (마무리)**: home 결론바 직후로 [매매판단 그리드→Action Items] 그룹화(결론→근거→액션 연속). breadth 상세 차트 그리드(6+행 ~1250px) 기본 접힘+토글(`_aioBreadthDetailToggle`, 펼칠 때 resize/initBreadthPage 재적합). signal 점수 "—"=버그 아님(부팅 placeholder, refreshSignalDashboard 시 정상). sentiment 997px=핵심 대시보드라 유지. T804. 종합5 구조 정리 완료.
 - **v50.33 종합5 개편 1차 (signal·briefing) + 전수 진단**: 라이브 인벤토리(home13/signal20·4228px/breadth13/sentiment6/briefing3·6255px) 후: signal Exit Triggers 진입 체크리스트 직후 상향(핵심 리스크 묻힘 해소)+Lockout 뒤, cross-asset 안내 스텁 제거, briefing 뉴스 벽(40건·5900px) `_aioCapBriefingNews` 표현 캡(더보기 토글). T803. 잔여: home 결론 3중복·breadth 차트 6행 중복·signal 점수 "—/100"(데이터)·sentiment 997px 덩어리 = 다음 차수.
 - **v50.32 구조 개편 2차 — 통합·압축**: (1)브리핑 상단 4중 중복(5대관전 정적+Action카드 중복+빈 insight)→단일 디제스트 카드 본론. (2)Signal Lockout 전문도구를 진입 체크리스트 뒤로(핵심 결정 흐름 끊김 제거). (3)홈 경고 배너를 시장 요약 아래로(첫 화면=시장). (4)`_aioGuardEmptyVerdicts` 빈 결론 박스 숨김(데이터 시 재표시). T234/T334 반전. 전 페이지 골격 표준화는 다음 단계.
 - **v50.31 부팅 겹침 제거 + 알림 단일화 + WCAG 탭 0건**: 부팅 토스트 제거(서버 즉시 로드로 무용+중복+겹침) + 최신화 패널 forceRefresh 게이트(백그라운드 자동 팝업 차단) + topbar 중복 칩 정리 + a11y 38건→0(`.aio-tooltip` 24×24/`.cross-link`/`.aio-btn-table`/뉴스 티커 칩). T673 반전+T802. suite 859/18.

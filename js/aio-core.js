@@ -2358,9 +2358,19 @@ if (typeof document !== 'undefined') {
         var lock = document.getElementById('signal-lockout-control');
         if (lock && lock.parentElement === par && lock !== cursor) { cursor.insertAdjacentElement('afterend', lock); cursor = lock; }
       }
-      // v50.32 (항목3) 홈 첫 화면 = 시장: 운영 경고 배너(데이터 불안정·API 키 안내)를 시장 요약 아래로 이동.
-      // → 사용자가 처음 보는 것이 경고가 아니라 제목·결론·시장. 배너는 조건부라 평소엔 숨겨짐.
+      // v50.34: 홈 결론 흐름 그룹화 — 결론바 직후로 [매매 판단 그리드(점수·근거) → Action Items(액션)] 묶음.
+      //   기존엔 결론바와 그 근거/액션 사이에 '오늘의 시장' 배너+경고+내비가 끼어 결론→근거→액션이 분절됐음.
+      //   결과 흐름: 결론바 → 매매 판단(점수) → 액션 → 오늘의 시장 → 지수/매크로 → 글로벌 → 채팅. (insertAdjacentElement 이동)
       var ph = document.getElementById('page-home');
+      var concBar = document.getElementById('home-conclusion-bar');
+      if (ph && concBar && concBar.parentElement === ph) {
+        var cur = concBar;
+        ['home-trading-grid', 'home-action-item-card'].forEach(function(id){
+          var el = document.getElementById(id);
+          if (el && el.parentElement === ph && el !== cur) { cur.insertAdjacentElement('afterend', el); cur = el; }
+        });
+      }
+      // v50.32 (항목3) 홈 첫 화면 = 시장: 운영 경고 배너(데이터 불안정·API 키 안내)를 시장 요약 아래로 이동.
       var anchorH = document.getElementById('home-market-summary-banner');
       if (ph && anchorH && anchorH.parentElement === ph) {
         ['snapshot-stale-warning', 'api-key-onboarding'].forEach(function(bid){
@@ -2449,6 +2459,9 @@ if (typeof document !== 'undefined') {
       else host.innerHTML = '<span style="color:var(--text-muted);">데이터 수신 대기 — 시세·뉴스가 로드되면 자동으로 요약됩니다.</span>';
     } catch(_){}
   };
+
+  // v50.34: breadth 상세 차트 접기는 보류 — "추가 지표" 그리드(5571)가 차트 캔버스를 직접 담지 않고
+  //   (bh-* 캔버스는 다른 컨테이너) 구조가 복잡해, 절반만 접히는 위험. 차트 컨테이너 정밀 매핑 후 별도 진행.
 
   // v50.33: 브리핑 뉴스 벽(40건·~5900px) 캡 — 렌더 로직(카테고리 그룹)은 그대로 두고 표현 레벨에서
   // 기본 높이를 제한 + 페이드 + "전체 N건 보기" 토글. 디제스트가 Top3를 이미 주므로 "핵심만"에 부합.
@@ -15105,7 +15118,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.33';
+const APP_VERSION = 'v50.34';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
