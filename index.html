@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.30 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.31 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -644,9 +644,10 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-left: 6px;
+  /* v50.31 a11y: WCAG AA 24×24 최소 탭 영역 — 시각 원은 16px 유지(box-shadow 없이 패딩으로 히트만 확장) */
+  width: 24px;
+  height: 24px;
+  margin-left: 2px;
   border-radius: 50%;
   background: var(--surface-3);
   border: 1px solid var(--border);
@@ -1921,6 +1922,7 @@ body {
   transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast);
   letter-spacing: var(--ls-wide);
   line-height: 1;
+  min-height: 24px; /* v50.31 a11y: WCAG AA 24px 탭 높이 */
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -2736,7 +2738,8 @@ body { background: #0d1521 !important; }
 .pulse-seg .ps-val{font-weight:800;font-family:var(--font-mono);font-size:11px;}
 .pulse-seg .ps-status{font-size:11px !important;font-weight:600;}
 /* v42.1: 크로스링크 */
-.cross-link{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600;opacity:0.85;transition:opacity 0.15s;}
+.cross-link{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600;opacity:0.85;transition:opacity 0.15s;display:inline-flex;align-items:center;min-height:24px;} /* v50.31 a11y: WCAG AA 24px 탭 높이 */
+[data-action="_aioNewsTickerClick"]{display:inline-flex;align-items:center;min-height:24px;} /* v50.31 a11y: 뉴스 $티커 칩 4개 생성점 공통 탭 높이 */
 .cross-link:hover{opacity:1;text-decoration:underline;}
 /* v42.1: beginner-tip 접기/펼치기 */
 .beginner-tip.collapsed .insight-explain-body{display:none;}
@@ -3702,85 +3705,7 @@ body.light-theme canvas { filter:none; }
 </style>
 </head>
 <body>
-  <!-- v49.88: 부팅 로더 — 첫 접속 시 라이브 데이터 수신 전까지 "수신 중" 비침습 배너 표시 -->
-  <!--   클라이언트 접속 시 자동운영 모델: 첫 fetchLiveQuotes(0~수초) 동안 정적 스냅샷이 라이브로 오인되는 갭 해소 -->
-  <!--   aio:liveQuotes 첫 발송 시 자동 해제 / 10초 미수신 시 정적 폴백 안내로 전환 -->
-  <div id="aio-boot-loader" role="status" aria-live="polite">
-    <span class="aio-boot-spinner" aria-hidden="true"></span>
-    <span class="aio-boot-txt">
-      <span id="aio-boot-text">📡 실시간 시장 데이터 동기화 중… <span id="aio-boot-count" style="color:var(--data-cyan,#00d4ff);font-weight:700;">0/5</span></span>
-      <span id="aio-boot-sub">시세 · 심리 · 시장폭 · 뉴스 · 변동성 수신 대기</span>
-      <span class="aio-boot-bar" aria-hidden="true"><span id="aio-boot-bar-fill"></span></span>
-    </span>
-  </div>
-  <script>
-  /* v49.88: 부팅 로더 제어 — aio:liveQuotes 첫 수신 시 해제 (재방문 가드 포함) */
-  (function(){
-    try {
-      var loader = document.getElementById('aio-boot-loader');
-      if (!loader) return;
-      // 재방문(같은 세션 SPA 재진입 또는 이미 라이브 데이터 보유) 시 즉시 스킵
-      var hasLive = false;
-      try { hasLive = window._liveData && Object.keys(window._liveData).length >= 3; } catch(_) {}
-      if (sessionStorage.getItem('aio_boot_done') === '1' || hasLive) { loader.remove(); return; }
-      var done = false;
-      function hideBoot() {
-        if (done) return; done = true;
-        try { sessionStorage.setItem('aio_boot_done', '1'); } catch(_) {}
-        loader.classList.add('aio-boot-hide');
-        setTimeout(function(){ try { loader.remove(); } catch(_) {} }, 600);
-      }
-      // v49.98: 핵심 5개 데이터(시세·심리·시장폭·뉴스·변동성) 진행률 추적.
-      // _lastFetch[key] 타임스탬프가 페이지 로드 이후로 갱신되면 "도착"으로 카운트.
-      var KEYS = [
-        { k: 'quote',      label: '시세' },
-        { k: 'sentiment',  label: '심리' },
-        { k: 'breadth',    label: '시장폭' },
-        { k: 'news',       label: '뉴스' },
-        { k: 'vixHistory', label: '변동성' }
-      ];
-      var loadTs = Date.now();
-      var arrived = {};
-      var TOTAL = KEYS.length;
-      function progressTick() {
-        if (done) return;
-        var lf = window._lastFetch || {};
-        var n = 0, pending = [];
-        KEYS.forEach(function(it){
-          if (arrived[it.k] || (lf[it.k] && lf[it.k] >= loadTs - 1000)) { arrived[it.k] = true; n++; }
-          else pending.push(it.label);
-        });
-        var cnt = document.getElementById('aio-boot-count');
-        var fill = document.getElementById('aio-boot-bar-fill');
-        var sub = document.getElementById('aio-boot-sub');
-        if (cnt) cnt.textContent = n + '/' + TOTAL;
-        if (fill) fill.style.width = Math.round(n / TOTAL * 100) + '%';
-        if (sub && pending.length) sub.textContent = pending.join(' · ') + ' 수신 대기';
-        // 핵심 시세 도착 + (전체 도착 또는 시세 후 1.5초 경과) → 닫기 (FRED/KR 등 느린 소스는 백그라운드)
-        if (arrived.quote && n >= TOTAL) { if (sub) sub.textContent = '동기화 완료 ✓'; setTimeout(hideBoot, 350); return; }
-        pollTimer = setTimeout(progressTick, 500);
-      }
-      var pollTimer = setTimeout(progressTick, 400);
-      // 첫 시세 수신 후 핵심 일부만 와도 4초 뒤 닫기 (느린 소스 무한대기 방지)
-      document.addEventListener('aio:liveQuotes', function(){
-        arrived.quote = true;
-        setTimeout(progressTick, 50);
-      }, { once: true });
-      // 10초 미수신 → 정적 폴백 안내 후 4초 뒤 해제 (사용자가 stale 인지)
-      setTimeout(function(){
-        if (done || arrived.quote) return;
-        var t = document.getElementById('aio-boot-text');
-        var s = document.getElementById('aio-boot-sub');
-        if (t) t.textContent = '⚠ 실시간 연결 지연';
-        if (s) s.textContent = '정적 스냅샷 사용 중 — 개인 API 키 설정 시 더 빠른 갱신';
-        loader.classList.add('aio-boot-warn');
-        setTimeout(function(){ hideBoot(); }, 4000);
-      }, 10000);
-      // 안전 상한(하드캡): 15초 후 무조건 해제 (무한대기 방지)
-      setTimeout(function(){ hideBoot(); }, 15000);
-    } catch(_) {}
-  })();
-  </script>
+  <!-- v50.31: v49.88 부팅 로더 제거 — v50.23 서버 data.json 즉시 로드로 "첫 수신 갭"이 사라져 존재 이유 소멸. topbar 갱신 칩과 중복 + 부팅 시 topbar 위 겹침(사용자 스크린샷). -->
   <!-- v34.9: 다크/라이트 테마 토글 -->
   <button class="theme-toggle-btn" id="theme-toggle" data-action="toggleTheme" title="다크/라이트 테마 전환" aria-label="테마 전환"></button>
   <a href="#main-content" class="skip-link">메인 콘텐츠로 건너뛰기</a>
@@ -4143,7 +4068,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.30</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.31</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12575,9 +12500,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.30"></script>
-  <script src="./js/aio-data.js?v=50.30"></script>
-  <script src="./js/aio-ui.js?v=50.30"></script>
+  <script src="./js/aio-core.js?v=50.31"></script>
+  <script src="./js/aio-data.js?v=50.31"></script>
+  <script src="./js/aio-ui.js?v=50.31"></script>
 
   <script>
 
@@ -15674,7 +15599,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.30"></script>
+<script src="./js/aio-chat.js?v=50.31"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28052,7 +27977,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.30"></script>
+<script src="./js/aio-glossary.js?v=50.31"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

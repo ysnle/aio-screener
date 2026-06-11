@@ -3396,15 +3396,13 @@
       typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
   }
 
-  // v49.88 — 부팅 로더 (클라이언트 접속 시 자동운영 모델 첫 수신 갭 해소)
+  // v49.88 부팅 로더 → v50.31 제거 (서버 data.json 즉시 로드로 "첫 수신 갭" 소멸 + topbar 칩 중복 + 겹침)
   function _testV4988BootLoader() {
-    // T673: 부팅 로더 시스템 작동 — 로더 DOM이 아직 있거나(수신 전), 제거되며 sessionStorage 가드가 셋됨(수신 후)
+    // T673 (v50.31 스펙 반전): 부팅 로더 DOM 부재 — topbar 위 겹침 + 갱신 칩 중복 재유입 가드
     var loaderPresent = !!document.getElementById('aio-boot-loader');
-    var bootDone = false;
-    try { bootDone = sessionStorage.getItem('aio_boot_done') === '1'; } catch(_) {}
-    _assert('T673 boot_loader_system_v4988: 부팅 로더 DOM 존재 또는 sessionStorage 가드 셋 (수신 전/후 둘 중 하나)',
-      loaderPresent || bootDone,
-      'loaderPresent=' + loaderPresent + ' bootDone=' + bootDone);
+    _assert('T673 boot_loader_removed_v5031: 부팅 토스트 제거됨 (서버 즉시 로드로 불필요 + 겹침/중복 차단)',
+      !loaderPresent,
+      'loaderPresent=' + loaderPresent);
     // T674: APP_VERSION semver >= 49.88
     _assert('T674 app_version_v4988: APP_VERSION >= v49.88 (semver, v50+ 정합)',
       (function(){ var _m=/^v(\d+)\.(\d+)$/.exec(typeof APP_VERSION!=='undefined'?APP_VERSION:''); return !!_m && (+_m[1] > 49 || (+_m[1] === 49 && +_m[2] >= 88)); })(),
@@ -5766,6 +5764,23 @@
       t801detail = 'leaks=' + (leaks.length ? leaks.slice(0, 5).join(',') : '0') + ' guide=' + !!guidePage + ' noPurposeBox=' + noPurpose;
     } catch(e) { t801detail = 'ERR:' + e.message; }
     _assert('T801 v5029_declutter: 비-guide 21페이지 설명서형 요소(.aio-page-brief/.aio-explain/.beginner-tip) 0 + 목적 박스 제거', t801ok, t801detail);
+
+    // ─── v50.31 부팅 겹침 제거 (사용자 스크린샷: 토스트+진행패널+배너 동시 겹침) ───
+    // T802: (a) 부팅 토스트 부재 (b) 플로팅 진행 패널은 forceRefresh(사용자 트리거)에만 표시 게이트
+    //       (c) data-status-panel 중복 기록 제거 — render 소스 레벨 가드
+    var t802ok = false, t802detail = '';
+    try {
+      var noBootToast = !document.getElementById('aio-boot-loader');
+      // 진행 패널이 떠 있다면 사용자 트리거 중일 때만 — 백그라운드 부팅 후 idle 상태에선 숨김이어야 함
+      var lay802 = document.getElementById('aio-refresh-progress-layer');
+      var st802 = (window.AIO && window.AIO.getRefreshState) ? window.AIO.getRefreshState() : null;
+      var idle802 = !st802 || st802.active === false || st802.type === 'done';
+      var layerHiddenWhenIdle = !lay802 || lay802.style.display === 'none' || !idle802;
+      // (render는 IIFE 내부라 소스 직접 검증 불가 — 부팅 후 idle DOM 상태로 동작 검증)
+      t802ok = noBootToast && layerHiddenWhenIdle;
+      t802detail = 'noBootToast=' + noBootToast + ' layerHiddenWhenIdle=' + layerHiddenWhenIdle + ' idle=' + idle802;
+    } catch(e) { t802detail = 'ERR:' + e.message; }
+    _assert('T802 v5031_no_boot_overlap: 부팅 토스트 제거 + 진행 패널 idle 시 숨김 (겹침 재발 가드)', t802ok, t802detail);
   }
 
   window.AIO = window.AIO || {};

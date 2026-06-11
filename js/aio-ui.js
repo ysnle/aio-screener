@@ -2171,8 +2171,11 @@ try { if (!window._aioPopstateRegistered) window.addEventListener('popstate', (e
     var done = detail.done || 0;
     var pct = total ? Math.min(100, Math.round(done / total * 100)) : 0;
     var active = detail.type !== 'done';
+    // v50.31: 플로팅 진행 패널은 사용자가 직접 누른 전체 새로고침(forceRefresh)일 때만 표시.
+    // 부팅/페이지 진입 등 백그라운드 갱신까지 자동 팝업 → 레짐 배너·콘텐츠 위 겹침(사용자 스크린샷).
+    // 백그라운드 갱신 피드백은 topbar 버튼 텍스트("갱신 N/M")가 조용히 담당.
+    var userRun = detail.forceRefresh === true;
     var layer = ensureLayer();
-    var panel = document.getElementById('data-status-panel');
     var btn = document.getElementById('topbar-refresh-btn');
     var title = document.getElementById('aio-refresh-progress-title');
     var count = document.getElementById('aio-refresh-progress-count');
@@ -2181,7 +2184,7 @@ try { if (!window._aioPopstateRegistered) window.addEventListener('popstate', (e
     var list = document.getElementById('aio-refresh-progress-list');
     var failed = (detail.results || []).filter(function(r) { return r && !r.ok && !r.skipped; }).length;
 
-    layer.style.display = 'block';
+    if (userRun) layer.style.display = 'block';
     if (title) title.textContent = active ? '전체 데이터 최신화 중' : (failed ? '최신화 완료 - 확인 필요' : '최신화 완료');
     if (count) count.textContent = done + '/' + total;
     if (bar) {
@@ -2193,10 +2196,8 @@ try { if (!window._aioPopstateRegistered) window.addEventListener('popstate', (e
         ? ((detail.currentLabel || labels[detail.currentKey] || detail.currentKey || '데이터') + ' 수신 중')
         : (failed ? failed + '개 소스 확인 필요' : '모든 요청이 정리되었습니다');
     }
-    if (panel) {
-      panel.textContent = active ? ('전체 최신화 ' + done + '/' + total) : (failed ? '최신화 확인 필요' : '최신화 완료');
-      panel.title = '전체 데이터 최신화 상태';
-    }
+    // v50.31: data-status-panel 칩 중복 기록 제거 — topbar에 "갱신 N/M"(버튼)과 "전체 최신화 N/M"(칩)이
+    // 같은 정보를 나란히 표시하던 것 정리. 칩은 updateDataStatus(데이터 상태)가 단독 소유.
     if (btn) {
       btn.disabled = active;
       btn.textContent = active ? ('갱신 ' + done + '/' + total) : (failed ? '확인 필요' : '완료');

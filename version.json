@@ -1,5 +1,5 @@
 {
-  "version": "v50.30",
-  "built": "2026-06-11T08:30:00+09:00",
-  "note": "v50.30 구조적 UI 개편 1차 — 결론 우선(verdict-first) + 추가형 안내 패널 제거. 사용자 지시: '주식이 처음이세요? 같은 추가형 패널 금지, 기존 핵심 기능/섹션/텍스트만 — 쉽고 직관적으로. 브리핑 페이지에 브리핑이 없고 뉴스 나열만, 시그널/심리/시장폭은 차트·지표는 있는데 직관적 사용 어려움.' (1) 초보자 시작 패널(#aio-beginner-panel) 완전 제거 — HTML+JS(_aioRenderBeginnerSummary/_aioBeginnerAnalyze/_aioHideBeginnerPanel)+트리거. (2) 브리핑 다이제스트(_aioRenderBriefingDigest): 브리핑 페이지 '오늘의 브리핑' 섹션이 Claude 키 없으면 빈 껍데기였던 것을 — 이미 로드된 기존 데이터(라이브 레짐 SPX/VIX/F&G + AIO_ACTION_RULES 행동 + 뉴스 surface 모델 Top3 + MACRO_CALENDAR 7일 일정)를 4줄로 합성해 키 없이 실제 브리핑 제공(#briefing-digest, AI 브리핑은 키 있으면 아래 그대로). (3) 결론 우선 재배치(_aioReorderCoreSections, 기존 섹션 이동·신규 콘텐츠 0): sentiment '시장 심리 복합 판단'(7번째→결론바 직후)·breadth '시장 폭 종합 진단'(6번째→헤더 직후)·signal Lockout/OPEX 컨트롤(전문 도구)을 점수·티커 아래 후순위로. (4) 설명서형 잔여 제거: breadth '시장 폭 해석 가이드'(임계 3단 카드)·sentiment '심리 지표 가이드'(3종 설명 그리드) — 동일 정보는 카드 색/툴팁이 전달. 테스트: T794(패널 제거)·T795(브리핑 다이제스트)·T800(verdict-first 재배치) 스펙 반전/대체. R1 7곳+캐시버스터 5곳."
+  "version": "v50.31",
+  "built": "2026-06-11T11:30:00+09:00",
+  "note": "v50.31 부팅 겹침 제거 + 알림 레이어 단일화 (사용자 스크린샷: 부팅 토스트+전체 최신화 패널+레짐 배너+API 배너 동시 겹침). (1) v49.88 부팅 토스트(#aio-boot-loader '실시간 시장 데이터 동기화 중 N/5') 완전 제거 — v50.23 서버 data.json 즉시 로드로 '첫 수신 갭'(0~30초)이 사라져 존재 이유 소멸 + topbar 갱신 칩과 정보 중복 + topbar 위 겹침. (2) 플로팅 '전체 데이터 최신화' 패널(#aio-refresh-progress-layer)을 forceRefresh(사용자가 직접 누른 새로고침)일 때만 표시하도록 게이트 — 부팅/페이지 진입 백그라운드 갱신마다 자동 팝업돼 레짐 배너·콘텐츠를 덮던 것 차단. 백그라운드 갱신 피드백은 topbar 버튼 텍스트('갱신 N/M')가 조용히 담당. (3) topbar 중복 칩 정리 — '갱신 N/M'(버튼)과 '전체 최신화 N/M'(data-status-panel 칩)이 같은 정보를 나란히 표시하던 것에서 패널 기록 제거(칩은 updateDataStatus 단독 소유). T673 스펙 반전(로더 부재 가드) + T802 신규(부팅 idle 시 토스트/패널 부재 — 겹침 재발 가드). R1 7곳+캐시버스터 5곳."
 }
