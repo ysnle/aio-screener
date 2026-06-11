@@ -8790,6 +8790,8 @@ function renderBriefingFeed(items) {
     _briefingCachedHtml = finalHtml;
     container.innerHTML = finalHtml || '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">해당 기간 뉴스가 없습니다</div>';
   }
+  // v50.33: 렌더 직후 뉴스 벽 캡 재적용 (비동기 렌더 → 표현 레벨 높이 제한 + 더보기)
+  if (window._aioCapBriefingNews) setTimeout(window._aioCapBriefingNews, 60);
 }
 
 // AI 브리핑 생성

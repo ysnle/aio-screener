@@ -5784,6 +5784,25 @@
       t802detail = 'noBootToast=' + noBootToast + ' layerHiddenWhenIdle=' + layerHiddenWhenIdle + ' idle=' + idle802;
     } catch(e) { t802detail = 'ERR:' + e.message; }
     _assert('T802 v5031_no_boot_overlap: 부팅 토스트 제거 + 진행 패널 idle 시 숨김 (겹침 재발 가드)', t802ok, t802detail);
+
+    // ─── v50.33 종합5 개편: signal Exit 상단 이동 + cross-asset 안내문 제거 + 브리핑 뉴스 캡 ───
+    var t803ok = false, t803detail = '';
+    try {
+      if (typeof window._aioReorderCoreSections === 'function') window._aioReorderCoreSections();
+      var ps803 = document.getElementById('page-signal');
+      var kids803 = ps803 ? Array.from(ps803.children) : [];
+      var idx803 = function(id){ var e=document.getElementById(id); if(!e||!ps803) return -1; var n=e; while(n&&n.parentElement!==ps803)n=n.parentElement; return kids803.indexOf(n); };
+      var entryI = idx803('entry-checklist-card'), exitI = idx803('signal-exit-triggers'), lockI = idx803('signal-lockout-control');
+      // Exit가 진입 체크리스트 직후권(진입 뒤 + Lockout 앞) — 핵심 리스크 상향
+      var exitUp = entryI >= 0 && exitI > entryI && (lockI < 0 || exitI < lockI);
+      // cross-asset 안내 스텁 제거
+      var crossGone = ps803 ? !/환율·채권 페이지의 Cross-Asset 매트릭스에서 상세/.test(ps803.textContent || '') : false;
+      // 브리핑 뉴스 캡 함수 존재
+      var capFn = typeof window._aioCapBriefingNews === 'function';
+      t803ok = exitUp && crossGone && capFn;
+      t803detail = 'entry=' + entryI + ' exit=' + exitI + ' lock=' + lockI + ' crossGone=' + crossGone + ' capFn=' + capFn;
+    } catch(e) { t803detail = 'ERR:' + e.message; }
+    _assert('T803 v5033_signal_briefing_reform: Exit Triggers 상단 이동 + cross-asset 스텁 제거 + 브리핑 뉴스 캡 함수', t803ok, t803detail);
   }
 
   window.AIO = window.AIO || {};

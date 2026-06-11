@@ -2347,14 +2347,16 @@ if (typeof document !== 'undefined') {
         }
       }
       // signal: Lockout/OPEX 컨트롤(전문 도구)을 티커 바 아래로 — 결론·점수가 먼저
-      // v50.32: Lockout/OPEX(전문 도구)을 핵심 결정 흐름(결론→점수→국면→조언→점수게이지→진입 체크리스트)
-      // 뒤로 이동 → 초보자가 위→아래로 읽을 때 결론·점수가 끊기지 않음. (entry-checklist-card 직후로 통일)
-      var lock = document.getElementById('signal-lockout-control');
+      // v50.33: Signal 핵심 결정 흐름 정렬 — 진입 체크리스트 직후로 [Exit Triggers → Lockout] 순서 고정.
+      //   Exit(청산/헷지=핵심 리스크)는 기존 맨 끝에 묻혀 있었음. insertAdjacentElement는 "이동"이라
+      //   현재 위치와 무관하게 순서를 강제(결과 멱등). 부모 같을 때만, 자기 자신 제외.
       var anchorL = document.getElementById('entry-checklist-card') || document.getElementById('sig-ticker-bar');
-      // anchorL이 lock보다 문서상 뒤(FOLLOWING)일 때만 = lock이 아직 위에 있을 때만 이동(멱등)
-      if (lock && anchorL && anchorL.parentElement === lock.parentElement && lock !== anchorL &&
-          (lock.compareDocumentPosition(anchorL) & Node.DOCUMENT_POSITION_FOLLOWING)) {
-        anchorL.insertAdjacentElement('afterend', lock);
+      if (anchorL && anchorL.parentElement) {
+        var par = anchorL.parentElement, cursor = anchorL;
+        var exitT = document.getElementById('signal-exit-triggers');
+        if (exitT && exitT.parentElement === par && exitT !== cursor) { cursor.insertAdjacentElement('afterend', exitT); cursor = exitT; }
+        var lock = document.getElementById('signal-lockout-control');
+        if (lock && lock.parentElement === par && lock !== cursor) { cursor.insertAdjacentElement('afterend', lock); cursor = lock; }
       }
       // v50.32 (항목3) 홈 첫 화면 = 시장: 운영 경고 배너(데이터 불안정·API 키 안내)를 시장 요약 아래로 이동.
       // → 사용자가 처음 보는 것이 경고가 아니라 제목·결론·시장. 배너는 조건부라 평소엔 숨겨짐.
@@ -2448,6 +2450,39 @@ if (typeof document !== 'undefined') {
     } catch(_){}
   };
 
+  // v50.33: 브리핑 뉴스 벽(40건·~5900px) 캡 — 렌더 로직(카테고리 그룹)은 그대로 두고 표현 레벨에서
+  // 기본 높이를 제한 + 페이드 + "전체 N건 보기" 토글. 디제스트가 Top3를 이미 주므로 "핵심만"에 부합.
+  window._aioCapBriefingNews = function(){
+    try {
+      var list = document.getElementById('briefing-live-news-list');
+      if (!list) return;
+      var CAP = 1500;
+      if (list.scrollHeight <= CAP + 200) { // 짧으면 캡 불필요
+        list.style.maxHeight = ''; list.style.overflow = '';
+        var ex0 = document.getElementById('briefing-news-more'); if (ex0) ex0.style.display = 'none';
+        return;
+      }
+      if (list.dataset.aioCapped !== '1') {
+        list.dataset.aioCapped = '1';
+        list.style.maxHeight = CAP + 'px';
+        list.style.overflow = 'hidden';
+        list.style.position = 'relative';
+        var toggle = document.createElement('button');
+        toggle.id = 'briefing-news-more';
+        toggle.className = 'aio-btn-table';
+        toggle.style.cssText = 'display:block;width:100%;margin:8px 0 4px;font-size:12px;font-weight:700;';
+        toggle.textContent = '전체 뉴스 보기 ▼';
+        toggle.addEventListener('click', function(){
+          var capped = list.style.maxHeight !== '';
+          list.style.maxHeight = capped ? '' : CAP + 'px';
+          toggle.textContent = capped ? '접기 ▲' : '전체 뉴스 보기 ▼';
+        });
+        list.insertAdjacentElement('afterend', toggle);
+      }
+      document.getElementById('briefing-news-more') && (document.getElementById('briefing-news-more').style.display = '');
+    } catch(_){}
+  };
+
   // v50.32 (항목4) 빈 결론 박스 금지: 상단에 올린 결론/판단 박스가 placeholder("수신 대기" 등)면 그 박스를
   // 숨겨 빈 결론이 prime 영역을 차지하지 않게. 데이터 도착 후 렌더러가 채우면 다시 표시(토글, 멱등).
   // (결론바·디제스트 등 항상 채워지는 것은 대상 아님 — 데이터 의존 보조 판단 박스만.)
@@ -2473,10 +2508,10 @@ if (typeof document !== 'undefined') {
 
   if (typeof window !== 'undefined') {
     if (window._aioPageBus && window._aioPageBus.register) {
-      window._aioPageBus.register('core-briefing-digest', 'aio:pageShown', function(e){ if ((e && e.detail) === 'briefing') setTimeout(window._aioRenderBriefingDigest, 120); });
+      window._aioPageBus.register('core-briefing-digest', 'aio:pageShown', function(e){ if ((e && e.detail) === 'briefing') { setTimeout(window._aioRenderBriefingDigest, 120); setTimeout(window._aioCapBriefingNews, 800); } });
       window._aioPageBus.register('core-briefing-digest-live', 'aio:liveQuotes', function(){
         var p = document.getElementById('page-briefing');
-        if (p && p.classList.contains('active')) window._aioRenderBriefingDigest();
+        if (p && p.classList.contains('active')) { window._aioRenderBriefingDigest(); setTimeout(window._aioCapBriefingNews, 200); }
       });
       window._aioPageBus.register('core-verdict-guard-page', 'aio:pageShown', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
       window._aioPageBus.register('core-verdict-guard-live', 'aio:liveQuotes', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
@@ -15070,7 +15105,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.32';
+const APP_VERSION = 'v50.33';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
