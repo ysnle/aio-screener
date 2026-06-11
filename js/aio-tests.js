@@ -1453,12 +1453,10 @@
       pages && pages.macro && Array.isArray(pages.macro.subSections) && pages.macro.subSections.length === 12,
       'count=' + (pages && pages.macro && pages.macro.subSections ? pages.macro.subSections.length : '?'));
 
-    // T334 (P302/R76): briefing L5931 정치 토큰 일반화 (호르무즈 단독 → "호르무즈/대만 해협 등")
+    // T334 (v50.32 스펙 반전): 5대 관전 정적 리스트는 브리핑 통합으로 제거됨 — 부재 단언
     var brfList = document.getElementById('briefing-top-5-list');
-    var brfHtml = brfList ? brfList.innerHTML : '';
-    _assert('T334 briefing_geo_token_generalized: "주요 해상 물류 경로" 일반화 포함',
-      /주요 해상 물류 경로/.test(brfHtml) && /호르무즈\/대만 해협 등/.test(brfHtml),
-      'check generalization');
+    _assert('T334 briefing_top5_removed: 정적 5대 관전 리스트 제거 (단일 브리핑 디제스트로 통합)',
+      !brfList, 'brfList=' + !!brfList);
 
     // T335 (P304): briefing L6060 정적 "58일 경과 (60일 임박)" 제거 (#jensen-interview-stale-days span 단독)
     var jensenSpan = document.getElementById('jensen-interview-stale-days');
@@ -2050,15 +2048,19 @@
       typeof (window.AIO && window.AIO.drawFallbackLineChart) === 'function',
       typeof (window.AIO && window.AIO.drawFallbackLineChart));
 
-    // T458: breadth 20SMA amber 색상 정합 (Codex v49.61 CRITICAL)
+    // T458 (v50.32 데이터-무관 로직화): 20SMA 값과 색/라벨 정합 — 70%+면 amber+"과열", 아니면 비-amber.
+    // (기존: 75% amber 하드 단언 → 라이브 값이 57%로 바뀌면 오실패하는 데이터-드리프트 테스트였음)
     var b20bar = document.getElementById('bb-20sma-bar');
     var b20val = document.getElementById('bb-20sma-val');
     var b20badge = document.getElementById('bb-20sma-badge');
-    var amberOk = b20bar && /data-amber|255,\s*163/.test(b20bar.style.background || '');
-    var labelOk = b20badge && /과열/.test(b20badge.textContent || '');
-    _assert('T458 breadth_20sma_amber_policy: 20SMA 75% amber 색상 + "과열" 라벨 (v49.63 정책 변경)',
-      amberOk && labelOk,
-      'amber=' + amberOk + ' label=' + (b20badge && b20badge.textContent));
+    var v20 = b20val ? parseFloat((b20val.textContent || '').replace('%', '')) : NaN;
+    var isAmber = b20bar && /data-amber|255,\s*163/.test(b20bar.style.background || '');
+    var isOverheat = b20badge && /과열/.test(b20badge.textContent || '');
+    var coherent = !b20bar || isNaN(v20) ||
+      (v20 >= 70 ? (isAmber && isOverheat) : (!isAmber && !isOverheat));
+    _assert('T458 breadth_20sma_value_color_coherent: 20SMA 값↔색/라벨 정합 (70%+ amber·과열, 그 외 비-amber)',
+      coherent,
+      'v20=' + v20 + ' amber=' + isAmber + ' overheat=' + isOverheat);
 
     // T459: sentiment initSentimentPage Chart.js undefined 가드
     var initSrc = (typeof initSentimentPage === 'function') ? initSentimentPage.toString() : '';
@@ -4535,12 +4537,13 @@
       !!b20 && (/amber|255,\s*163|data-amber/.test(color20) || (thresholdLabel === 'data-amber') || /green|229,\s*160|red|255,\s*91/.test(color20)),
       b20 ? 'color=' + color20 + ' text=' + text20 + ' threshold=' + thresholdLabel : 'missing');
 
-    // T234: briefing 5대 관전 최상단 + Action Item
+    // T234 (v50.32 스펙 반전): 중복 상단 블록(5대 관전 + Action Item 카드) 제거 → 단일 브리핑 디제스트
     var top5 = document.getElementById('briefing-top-5-watch');
     var brAction = document.getElementById('briefing-action-item-card');
-    _assert('T234 briefing_priority: top-5-watch + action-item-card 모두 존재',
-      !!top5 && !!brAction,
-      'top5=' + !!top5 + ' action=' + !!brAction);
+    var digestEl234 = document.getElementById('briefing-digest');
+    _assert('T234 briefing_consolidated: 중복 블록 제거 + 단일 #briefing-digest 존재',
+      !top5 && !brAction && !!digestEl234,
+      'top5=' + !!top5 + ' action=' + !!brAction + ' digest=' + !!digestEl234);
 
     // T235: portfolio 4-card 대시보드
     var pfSharpe = document.getElementById('pf-sharpe-val');

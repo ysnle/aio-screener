@@ -2113,7 +2113,7 @@ if (typeof document !== 'undefined') {
     breadth:   function(){ window._aioRenderBreadthConsensus && window._aioRenderBreadthConsensus(); },
     sentiment: function(){ window._aioRenderVixTermRegime && window._aioRenderVixTermRegime(); },
     options:   function(){ window._aioRenderOptionsRec && window._aioRenderOptionsRec(); },
-    briefing:  function(){ window._aioRenderBriefingAction && window._aioRenderBriefingAction(); },
+    briefing:  function(){ window._aioRenderBriefingDigest && window._aioRenderBriefingDigest(); },
     themes:    function(){ window._aioRenderThemesCycle && window._aioRenderThemesCycle(); },
     macro:     function(){ window._aioRenderMacroScenario && window._aioRenderMacroScenario(); }
   };
@@ -2347,10 +2347,26 @@ if (typeof document !== 'undefined') {
         }
       }
       // signal: Lockout/OPEX 컨트롤(전문 도구)을 티커 바 아래로 — 결론·점수가 먼저
+      // v50.32: Lockout/OPEX(전문 도구)을 핵심 결정 흐름(결론→점수→국면→조언→점수게이지→진입 체크리스트)
+      // 뒤로 이동 → 초보자가 위→아래로 읽을 때 결론·점수가 끊기지 않음. (entry-checklist-card 직후로 통일)
       var lock = document.getElementById('signal-lockout-control');
-      var tick = document.getElementById('sig-ticker-bar');
-      if (lock && tick && tick.parentElement === lock.parentElement && lock.previousElementSibling !== tick) {
-        tick.insertAdjacentElement('afterend', lock);
+      var anchorL = document.getElementById('entry-checklist-card') || document.getElementById('sig-ticker-bar');
+      // anchorL이 lock보다 문서상 뒤(FOLLOWING)일 때만 = lock이 아직 위에 있을 때만 이동(멱등)
+      if (lock && anchorL && anchorL.parentElement === lock.parentElement && lock !== anchorL &&
+          (lock.compareDocumentPosition(anchorL) & Node.DOCUMENT_POSITION_FOLLOWING)) {
+        anchorL.insertAdjacentElement('afterend', lock);
+      }
+      // v50.32 (항목3) 홈 첫 화면 = 시장: 운영 경고 배너(데이터 불안정·API 키 안내)를 시장 요약 아래로 이동.
+      // → 사용자가 처음 보는 것이 경고가 아니라 제목·결론·시장. 배너는 조건부라 평소엔 숨겨짐.
+      var ph = document.getElementById('page-home');
+      var anchorH = document.getElementById('home-market-summary-banner');
+      if (ph && anchorH && anchorH.parentElement === ph) {
+        ['snapshot-stale-warning', 'api-key-onboarding'].forEach(function(bid){
+          var b = document.getElementById(bid);
+          if (b && b.parentElement === ph && b.compareDocumentPosition(anchorH) & Node.DOCUMENT_POSITION_FOLLOWING) {
+            anchorH.insertAdjacentElement('afterend', b);
+          }
+        });
       }
       return true;
     } catch(e) { return false; }
@@ -2367,7 +2383,8 @@ if (typeof document !== 'undefined') {
       if (!host) {
         host = document.createElement('div');
         host.id = 'briefing-digest';
-        host.style.cssText = 'margin:10px 0 12px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:12px;line-height:1.7;color:var(--text-secondary);';
+        // v50.32: 브리핑 본론 카드로 격상 (accent 좌측 스트립 + 또렷한 배경)
+        host.style.cssText = 'margin:10px 0 14px;padding:14px 16px;background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(0,212,255,0.02));border:1px solid rgba(0,212,255,0.28);border-left:3px solid var(--accent);border-radius:10px;font-size:12.5px;line-height:1.8;color:var(--text-secondary);';
         var headRow = section.firstElementChild;
         if (headRow) headRow.insertAdjacentElement('afterend', host); else section.insertBefore(host, section.firstChild);
       }
@@ -2431,6 +2448,29 @@ if (typeof document !== 'undefined') {
     } catch(_){}
   };
 
+  // v50.32 (항목4) 빈 결론 박스 금지: 상단에 올린 결론/판단 박스가 placeholder("수신 대기" 등)면 그 박스를
+  // 숨겨 빈 결론이 prime 영역을 차지하지 않게. 데이터 도착 후 렌더러가 채우면 다시 표시(토글, 멱등).
+  // (결론바·디제스트 등 항상 채워지는 것은 대상 아님 — 데이터 의존 보조 판단 박스만.)
+  var _EMPTY_VERDICT_RE = /(수신|입력|판정|계산)\s*(대기|중)|분석\s*중\.\.\.|데이터\s*(수신\s*지연|없음)|대기\.\.\./;
+  var _VERDICT_BOXES = [
+    { inner: '#sent-analysis-text', page: 'page-sentiment' },     // 시장 심리 복합 판단
+    { inner: '#breadth-diag-text',  page: 'page-breadth' }        // 시장 폭 종합 진단(보조 텍스트)
+  ];
+  window._aioGuardEmptyVerdicts = function(){
+    try {
+      _VERDICT_BOXES.forEach(function(cfg){
+        var page = document.getElementById(cfg.page); if (!page) return;
+        var inner = page.querySelector(cfg.inner); if (!inner) return;
+        var box = inner; while (box && box.parentElement !== page) box = box.parentElement;
+        if (!box) return;
+        var txt = (inner.textContent || '').replace(/\s+/g, ' ').trim();
+        var empty = !txt || txt.length < 8 || _EMPTY_VERDICT_RE.test(txt);
+        if (empty) { box.dataset.aioEmptyHidden = '1'; box.style.display = 'none'; }
+        else if (box.dataset.aioEmptyHidden === '1') { box.style.display = ''; box.removeAttribute('data-aio-empty-hidden'); }
+      });
+    } catch(_){}
+  };
+
   if (typeof window !== 'undefined') {
     if (window._aioPageBus && window._aioPageBus.register) {
       window._aioPageBus.register('core-briefing-digest', 'aio:pageShown', function(e){ if ((e && e.detail) === 'briefing') setTimeout(window._aioRenderBriefingDigest, 120); });
@@ -2438,9 +2478,12 @@ if (typeof document !== 'undefined') {
         var p = document.getElementById('page-briefing');
         if (p && p.classList.contains('active')) window._aioRenderBriefingDigest();
       });
+      window._aioPageBus.register('core-verdict-guard-page', 'aio:pageShown', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
+      window._aioPageBus.register('core-verdict-guard-live', 'aio:liveQuotes', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
     }
-    window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioRenderBriefingDigest(); } catch(_){} });
-    setTimeout(function(){ try { window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); } catch(_){} }, 1200);
+    window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); } catch(_){} });
+    setTimeout(function(){ try { window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); } catch(_){} }, 1200);
+    setTimeout(function(){ try { window._aioGuardEmptyVerdicts(); } catch(_){} }, 3000);
   }
 })();
 
@@ -15027,7 +15070,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.31';
+const APP_VERSION = 'v50.32';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

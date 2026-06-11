@@ -2,7 +2,8 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.31
+- **현재 버전**: v50.32
+- **v50.32 구조 개편 2차 — 통합·압축**: (1)브리핑 상단 4중 중복(5대관전 정적+Action카드 중복+빈 insight)→단일 디제스트 카드 본론. (2)Signal Lockout 전문도구를 진입 체크리스트 뒤로(핵심 결정 흐름 끊김 제거). (3)홈 경고 배너를 시장 요약 아래로(첫 화면=시장). (4)`_aioGuardEmptyVerdicts` 빈 결론 박스 숨김(데이터 시 재표시). T234/T334 반전. 전 페이지 골격 표준화는 다음 단계.
 - **v50.31 부팅 겹침 제거 + 알림 단일화 + WCAG 탭 0건**: 부팅 토스트 제거(서버 즉시 로드로 무용+중복+겹침) + 최신화 패널 forceRefresh 게이트(백그라운드 자동 팝업 차단) + topbar 중복 칩 정리 + a11y 38건→0(`.aio-tooltip` 24×24/`.cross-link`/`.aio-btn-table`/뉴스 티커 칩). T673 반전+T802. suite 859/18.
 - **v50.30 구조적 UI 개편 1차 — verdict-first + 안내 패널 제거**: 초보자 패널 완전 제거(v50.26 회귀) + `_aioRenderBriefingDigest`(브리핑이 키 없이도 기존 데이터 4줄 합성으로 실제 브리핑: 레짐·ACTION_RULES·뉴스 Top3·일정) + `_aioReorderCoreSections`(sentiment 복합판단/breadth 종합진단 상단 이동, signal lockout 후순위) + breadth/sentiment 가이드 블록 2개 제거. T794/T795/T800 스펙 반전·대체.
 - **v50.29 전 페이지 declutter**: 설명서형 요소 제거(사용자 지시 — 기초 있는 사용자 기준). 페이지=데이터·분석·액션 / 설명=guide+용어집. `_aioRenderPageBrief` 주입기→제거기 반전(Page Routine 박스 21페이지 제거, `_aioDeclutterAllPages` 부팅 일괄) + `.aio-explain`/`.beginner-tip` guide 외 제거(~35K자) + signal 목적 박스 제거. 레지스트리 보존. T154/T231/T223 스펙 반전 + T801 가드.

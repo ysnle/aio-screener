@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.31 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.32 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4068,7 +4068,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.31</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.32</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5995,32 +5995,10 @@ body.light-theme canvas { filter:none; }
   </div>
     <!-- ═══════════════ PAGE: BRIEFING (데일리 브리핑) ═══════════════ -->
   <div class="page" id="page-briefing" data-page-purpose="briefing">
-  <!-- v49.29 E4/R70 우선순위 — 5대 관전 포인트를 페이지 최상단 배치 -->
-  <div id="briefing-top-5-watch" data-priority="1" style="margin-bottom:12px;padding:14px 16px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.3);border-radius:10px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-size:13px;font-weight:800;color:var(--data-amber);">🎯 오늘의 5대 관전 포인트</div>
-      <div style="font-size:10px;color:var(--text-muted);">검증 뉴스 · 경제 캘린더 · 시장 변동성 기준으로 자동 갱신</div>
-    </div>
-    <ol id="briefing-top-5-list" style="margin:6px 0 4px 18px;padding:0;font-size:11px;color:var(--text-secondary);line-height:1.7;">
-      <li><strong>통화정책</strong> — 다음 FOMC와 금리 선물 컨센서스를 최신 캘린더 기준으로 확인.</li>
-      <li><strong>물가·고용</strong> — CPI/PCE/NFP 발표와 실제 수치가 시장 기대를 벗어나는지 점검.</li>
-      <li><strong>대형 실적</strong> — 메가캡 가이던스와 AI/반도체 주문 흐름이 지수 모멘텀을 유지하는지 확인.</li>
-      <li><strong>지정학·원자재</strong> — 유가·해상 물류·달러 흐름이 인플레와 위험선호를 흔드는지 관찰.</li>
-      <li><strong>변동성</strong> — VIX와 옵션 수급이 평온한 랠리인지, 헤지 수요가 늘어나는지 구분.</li>
-    </ol>
-    <div style="font-size:10px;color:var(--text-muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">현재값이 검증되지 않은 항목은 요약 본문이 아니라 확인 필요 영역으로 분리됩니다.</div>
-  </div>
-
-  <!-- v49.29 E2/R69 Action Items — briefing에도 ACTION_RULES 적용 -->
-  <div id="briefing-action-item-card" style="margin-bottom:12px;padding:12px 14px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.25);border-radius:10px;">
-    <div style="font-size:12px;font-weight:800;color:var(--accent);margin-bottom:6px;">📋 오늘 시장 환경 기반 Action Item <span data-narrative-stamp="briefing" style="float:right;font-size:11px;color:var(--text-muted);font-family:var(--font-mono);font-weight:400;" title="VIX/F&G 환경이 갱신될 때 자동으로 다시 계산됩니다">🔄 자동 갱신</span></div>
-    <div id="briefing-action-position" style="font-size:11px;color:var(--text-primary);margin-bottom:4px;font-weight:600;">포지션 입력 수신 대기...</div>
-    <div id="briefing-action-sentiment" style="font-size:11px;color:var(--text-secondary);">센티먼트 입력 수신 대기...</div>
-  </div>
-
-  <div class="insight-box box-collapsed">
-    <strong>오늘 시장 핵심 정리 — AI가 뉴스·실적·경제지표를 종합 브리핑</strong>
-  </div>
+  <!-- v50.32 구조 개편: 브리핑 상단 4중 중복(5대 관전 정적문구 + Action Item 카드 + insight-box + 디제스트) →
+       단일 "오늘의 브리핑" 카드로 통합. 헤더+#briefing-digest(시장→행동→핵심뉴스→일정)가 페이지 본론.
+       제거: 5대 관전(정적 교육·JS 미채움) / Action Item 카드(디제스트 '행동' 줄과 ACTION_RULES 동일출처 중복) /
+       insight-box(빈 머리말). -->
 
   <!-- ═══ v48.46: 브리핑 심층 해설 ═══ -->
   <div class="aio-explain" id="explain-briefing-page">
@@ -12500,9 +12478,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.31"></script>
-  <script src="./js/aio-data.js?v=50.31"></script>
-  <script src="./js/aio-ui.js?v=50.31"></script>
+  <script src="./js/aio-core.js?v=50.32"></script>
+  <script src="./js/aio-data.js?v=50.32"></script>
+  <script src="./js/aio-ui.js?v=50.32"></script>
 
   <script>
 
@@ -15599,7 +15577,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.31"></script>
+<script src="./js/aio-chat.js?v=50.32"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -27977,7 +27955,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.31"></script>
+<script src="./js/aio-glossary.js?v=50.32"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
