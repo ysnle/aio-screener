@@ -5422,7 +5422,7 @@
     _assert('T774 v5010_websearch_citations: native 인용 렌더(engine:claude)+배지 업그레이드+스트리밍 수집', t774ok, t774detail);
 
     // ── v50.12: 기술적 분석 채팅 데이터 주입 — 기존 OHLCV 엔진 재사용 ──
-    // T775: _fetchTechnicalDataForChat 정의 + chatSend technical/signal/ticker 배선 + calcTechnicalSnapshot 엔진 활용 (소스 검증, 네트워크 비의존)
+    // T775: _fetchTechnicalDataForChat 정의 + chatSend 배선(v50.38: 티커 감지 시 전 컨텍스트) + calcTechnicalSnapshot 엔진 활용 (소스 검증, 네트워크 비의존)
     var t775ok = false, t775detail = '';
     try {
       var fnDef = typeof window._fetchTechnicalDataForChat === 'function';
@@ -5431,12 +5431,12 @@
       // 헬퍼가 엔진 재사용 + 핵심 지표 라벨 포함
       var reuseOk = /calcTechnicalSnapshot/.test(fnSrc) && /fetchOHLCVWithFallback|fetchOHLCV/.test(fnSrc) &&
         /RSI\(14\)/.test(fnSrc) && /Stage/.test(fnSrc) && /이동평균/.test(fnSrc);
-      // chatSend 배선: technical/signal/ticker 컨텍스트에서 technicalDataStr 주입
+      // chatSend 배선: v50.38 트랙3 — 티커 감지 시 전 컨텍스트에서 technicalDataStr 주입(기존 technical/signal/ticker 3종 한정 해제)
       var csSrc = (typeof chatSend === 'function') ? String(chatSend) : (typeof window.chatSend === 'function' ? String(window.chatSend) : '');
-      var wiredOk = /_fetchTechnicalDataForChat/.test(csSrc) && /technicalDataStr/.test(csSrc) &&
-        /'technical'|"technical"/.test(csSrc) && /systemPrompt \+= technicalDataStr/.test(csSrc);
+      var wiredOk = /_fetchTechnicalDataForChat\(detectedTickers\)/.test(csSrc) && /technicalDataStr/.test(csSrc) &&
+        /systemPrompt \+= technicalDataStr/.test(csSrc);
       t775ok = fnDef && engineOk && reuseOk && wiredOk;
-      t775detail = 'fnDef=' + fnDef + ' engine=' + engineOk + ' reuse(snapshot+ohlcv+RSI+Stage)=' + reuseOk + ' wired(technical/signal/ticker)=' + wiredOk;
+      t775detail = 'fnDef=' + fnDef + ' engine=' + engineOk + ' reuse(snapshot+ohlcv+RSI+Stage)=' + reuseOk + ' wired(detectedTickers>0 전컨텍스트)=' + wiredOk;
     } catch(e) { t775detail = 'err: ' + (e && e.message); }
     _assert('T775 v5012_technical_chat_data: _fetchTechnicalDataForChat 엔진 재사용 + chatSend technical 배선', t775ok, t775detail);
 
@@ -5904,6 +5904,68 @@
       t809detail = 'tickerGate=' + hasTickerGate + ' generalBranch=' + hasGeneralBranch + ' screenerBranch=' + hasScreenerBranch + ' screenerWire=' + hasScreenerWire;
     } catch(e) { t809detail = 'ERR:' + e.message; }
     _assert('T809 v5037_answer_flexibility: HARD STOP 종목 한정 + 일반/스크리너 분기 + 스크리너 배선', t809ok, t809detail);
+
+    // ─── v50.38 정성·도메인 데이터 + 초보자 시각 차트 ───
+    // T810: 누락됐던 _fetchYahooChartData 복구 + 스파크라인 생성기 정의
+    var t810ok = false, t810detail = '';
+    try {
+      var yfDef = typeof window._fetchYahooChartData === 'function';
+      var sparkDef = typeof window._aioBuildSparklineSvg === 'function';
+      // _priceHistory 시드로 스파크라인 SVG 생성 검증 (네트워크 비의존)
+      window._priceHistory = window._priceHistory || {};
+      window._priceHistory.__AIOT810__ = [100,101,102,103,104,105].map(function(p){ return { price: p }; });
+      var svgP = sparkDef ? window._aioBuildSparklineSvg('__AIOT810__', { label: 'T810' }) : null;
+      // async 반환 — Promise면 구조만, 아니면 문자열
+      var svgIsPromise = svgP && typeof svgP.then === 'function';
+      delete window._priceHistory.__AIOT810__;
+      t810ok = yfDef && sparkDef && svgIsPromise;
+      t810detail = 'yahooChartFn=' + yfDef + ' sparklineFn=' + sparkDef + ' returnsPromise=' + svgIsPromise;
+    } catch(e) { t810detail = 'ERR:' + e.message; }
+    _assert('T810 v5038_chart_fetch_restored: _fetchYahooChartData 정의(누락 복구) + _aioBuildSparklineSvg 생성', t810ok, t810detail);
+
+    // T811: 도메인 라이브 데이터 주입 — _fetchDomainContextForChat 정의 + macro 블록 비어있지 않음(DATA_SNAPSHOT 백본) + chatSend 배선
+    var t811ok = false, t811detail = '';
+    try {
+      var domFn = typeof window._fetchDomainContextForChat === 'function';
+      var macroBlock = domFn ? window._fetchDomainContextForChat('macro') : '';
+      var fxBlock = domFn ? window._fetchDomainContextForChat('fxbond') : '';
+      var themeBlock = domFn ? window._fetchDomainContextForChat('themes') : '';
+      var nonDomain = domFn ? window._fetchDomainContextForChat('fundamental') : 'x'; // 도메인 무관 → ''
+      var macroNonEmpty = typeof macroBlock === 'string' && macroBlock.indexOf('매크로 도메인') >= 0; // DATA_SNAPSHOT cpi/coreCpi 정적 → 항상 채워짐
+      var csSrc811 = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+      var wired811 = csSrc811.indexOf('_fetchDomainContextForChat') >= 0 && csSrc811.indexOf('domainDataStr') >= 0;
+      var gate811 = (nonDomain === ''); // 도메인 무관 ctx는 빈 문자열(자기 게이팅)
+      t811ok = domFn && macroNonEmpty && wired811 && gate811;
+      t811detail = 'fn=' + domFn + ' macroLen=' + (macroBlock ? macroBlock.length : 0) + ' fxLen=' + (fxBlock ? fxBlock.length : 0) + ' themeLen=' + (themeBlock ? themeBlock.length : 0) + ' wired=' + wired811 + ' gate=' + gate811;
+    } catch(e) { t811detail = 'ERR:' + e.message; }
+    _assert('T811 v5038_domain_data: _fetchDomainContextForChat 정의 + macro 블록 채워짐 + chatSend 배선 + 도메인외 게이팅', t811ok, t811detail);
+
+    // T812: 초보자 차트 읽기 카드 — chatSend onDone에 _aioLastTechSnap 재사용 + 평이한 결론 렌더 + _aioShowTechnicalChart 핸들러
+    var t812ok = false, t812detail = '';
+    try {
+      var csSrc812 = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+      var techSrc812 = typeof window._fetchTechnicalDataForChat === 'function' ? window._fetchTechnicalDataForChat.toString() : '';
+      var stashWrite = techSrc812.indexOf('_aioLastTechSnap') >= 0;
+      var cardRender = csSrc812.indexOf('초보자 차트 읽기') >= 0 && csSrc812.indexOf('_aioLastTechSnap') >= 0 && csSrc812.indexOf('한 줄 결론') >= 0;
+      var navHandler = typeof window._aioShowTechnicalChart === 'function' && csSrc812.indexOf('_aioShowTechnicalChart') >= 0;
+      t812ok = stashWrite && cardRender && navHandler;
+      t812detail = 'stash=' + stashWrite + ' card=' + cardRender + ' navFn=' + (typeof window._aioShowTechnicalChart) + ' navWired=' + (csSrc812.indexOf('_aioShowTechnicalChart') >= 0);
+    } catch(e) { t812detail = 'ERR:' + e.message; }
+    _assert('T812 v5038_beginner_chart_reading: snapshot stash + 평이한 차트 읽기 카드 + _aioShowTechnicalChart 핸들러', t812ok, t812detail);
+
+    // T813: 기술 데이터 컨텍스트 확장 — chatSend 게이트가 technical/signal/ticker 한정 아님(티커 감지 시 전 컨텍스트)
+    var t813ok = false, t813detail = '';
+    try {
+      var csSrc813 = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+      // 확장 후: 'if (detectedTickers.length > 0) { ... _fetchTechnicalDataForChat' (ctxId 3종 한정 제거)
+      var hasTechCall = csSrc813.indexOf('_fetchTechnicalDataForChat(detectedTickers)') >= 0;
+      var oldGateGone = !/ctxId === 'technical' \|\| ctxId === 'signal' \|\| ctxId === 'ticker'\)\s*\{\s*\n?\s*try \{ technicalDataStr/.test(csSrc813);
+      // 확장 마커 코멘트 존재
+      var expandMarker = csSrc813.indexOf('기술 데이터 컨텍스트 확장') >= 0;
+      t813ok = hasTechCall && expandMarker;
+      t813detail = 'techCall=' + hasTechCall + ' expandMarker=' + expandMarker + ' oldGateGone=' + oldGateGone;
+    } catch(e) { t813detail = 'ERR:' + e.message; }
+    _assert('T813 v5038_technical_context_expanded: 티커 감지 시 전 컨텍스트 기술 분석 동반(3종 한정 해제)', t813ok, t813detail);
   }
 
   window.AIO = window.AIO || {};

@@ -1474,6 +1474,45 @@ function fetchSparkData(ticker) {
   }).catch(function() { return null; });
 }
 
+// v50.38 트랙1: 누락됐던 _fetchYahooChartData 복구 (핵심 버그 — 8곳에서 호출되나 정의 부재였음).
+//   스파크라인(_aioBuildSparklineSvg)·OHLCV 폴백(fetchOHLCVWithFallback)·VIX/HY/SPY 차트가 공통 의존.
+//   Yahoo v8 chart를 fetchViaProxy(CORS 프록시 체인 + stale-cache 폴백) 경유로 받아 OHLCV 배열 반환.
+//   소비자 기대 형태: { closes, opens, highs, lows, volumes, timestamps }(유닉스초). close는 null 포함 가능 → 소비자가 filter.
+window._fetchYahooChartData = async function(symbol, range, interval) {
+  if (!symbol) return null;
+  range = range || '1mo';
+  interval = interval || '1d';
+  var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(symbol) +
+    '?range=' + encodeURIComponent(range) + '&interval=' + encodeURIComponent(interval) + '&includePrePost=false';
+  try {
+    var json;
+    if (typeof fetchViaProxy === 'function') {
+      json = await fetchViaProxy(url, { parseJson: true, timeout: 7000 });
+    } else {
+      var r = await fetchWithTimeout(url, {}, 7000);
+      json = await r.json();
+    }
+    var res = json && json.chart && json.chart.result && json.chart.result[0];
+    if (!res) return null;
+    var q = (res.indicators && res.indicators.quote && res.indicators.quote[0]) || {};
+    return {
+      symbol: symbol,
+      timestamps: res.timestamp || [],
+      closes: q.close || [],
+      opens: q.open || [],
+      highs: q.high || [],
+      lows: q.low || [],
+      volumes: q.volume || [],
+      meta: res.meta || null
+    };
+  } catch(e) {
+    if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', '_fetchYahooChartData 실패 ' + symbol + ': ' + (e && e.message || e));
+    return null;
+  }
+};
+// 모듈 스코프에서도 typeof _fetchYahooChartData 가드가 통하도록 로컬 별칭 (aio-ui.js 등 비-window 참조 호환)
+var _fetchYahooChartData = window._fetchYahooChartData;
+
 function drawSparkline(canvas, data, ticker) {
   var ctx = canvas.getContext('2d');
   if (!ctx || data.length < 2) return;

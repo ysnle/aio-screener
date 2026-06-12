@@ -1,5 +1,24 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.38 - AI 채팅 정성·도메인 데이터 + 초보자 시각 차트 분석 (2026-06-12)
+
+**사용자: "데이터 출처가 많아도 대부분 시세 아니냐? 정성 데이터(매크로·외환·채권·기업·테마)도 가져오나? 차트/기술 분석은 되나? 예전에 추가한 이미지(시각) 생성이 잘 되는지 모르겠다. 초보자는 차트 분석을 어려워하니 필수다."**
+
+**조사 결론(정직)**: 정성 데이터는 **기업은 깊음**(SEC 10-K 사업/리스크/공급망·Wikipedia·8-K·Moat·TAM·세그먼트·어닝콜·13F·내부자) 하나 **매크로/외환/채권/테마 채팅은 정적 프레임 + 라이브 헤더 + 티커 데이터만** 받고 페이지가 계산한 도메인 라이브 데이터 미주입. 기술 분석은 `_fetchTechnicalDataForChat`(RSI·MA정배열·Weinstein·ATR·MACD·볼린저·RVOL·확장도) 풍부하나 텍스트라 초보자 난해 + technical/signal/ticker 한정. **시각 생성(핵심 버그)**: `_aioBuildSparklineSvg`(30일 가격선 SVG)가 의존하는 **`_fetchYahooChartData`가 8곳에서 호출되나 정의 부재**(모두 typeof 가드로 silent skip) → 스파크라인·OHLCV 폴백·VIX/HY 차트 모두 degraded. **사용자 의심 적중.**
+
+**(트랙1 — 필수)**:
+- **(1a) 누락 함수 복구** (`js/aio-data.js`): `window._fetchYahooChartData(symbol, range)` 신설 — Yahoo v8 chart를 기존 `fetchViaProxy`(CORS 프록시 체인 + stale-cache) 경유로 받아 `{closes,opens,highs,lows,volumes,timestamps}` 반환. 이 한 함수가 스파크라인 + `fetchOHLCVWithFallback` Yahoo 폴백 + VIX/HY/SPY 차트를 **동시 복구**.
+- **(1b) 초보자 "차트 읽기" 카드** (`js/aio-chat.js`): `_fetchTechnicalDataForChat`가 `calcTechnicalSnapshot`을 `window._aioLastTechSnap`에 stash → chatSend onDone가 종목별 평이한 한국어 카드 렌더(**추세**=MA 정배열/이탈 · **위치**=20일 레인지 N%+지지/저항 · **모멘텀**=RSI+MACD · **한 줄 결론**) + 복구된 스파크라인 + **"📊 차트 자세히 보기" 버튼**(`_aioShowTechnicalChart` 신설 → technical 페이지 심층 차트 캔들+MA(5/20/60)+RSI 자동 로드). 초보자가 텍스트 지표 없이 한눈에.
+
+**(트랙2 — 도메인 라이브 데이터 주입)** (`js/aio-chat.js` `_fetchDomainContextForChat(ctxId)`, `_fetchTechnicalDataForChat` 패턴 미러, 네트워크 비의존):
+- **macro/kr-macro**: `_aioRegimeNow()` 레짐 + `DATA_SNAPSHOT` FRED(cpi/coreCpi/pce/corePce/fedRate/nfp/실업률) + 2s10s(라이브 ^TNX − 스냅 2Y) + `AIO.getCycleFromMacro()` 동적 사이클.
+- **fxbond**: DXY·10Y·2Y·2s10s·HYG(라이브) + KR 금리(스냅샷) + `AIO.computeCrossAssetCorrelation()` 레짐.
+- **themes/theme-detail/kr-themes**: 섹터 ETF 리더/하위(라이브 등락 정렬) + `getCycleFromMacro` 국면 + `diagnoseBreadthConsensus`. chatSend 배선 + "🌐 도메인 데이터 ✓" 배지.
+
+**(트랙3 — 기술 컨텍스트 확장)**: chatSend의 `(ctxId==='technical'||'signal'||'ticker')` 게이트를 **티커 감지 시 전 컨텍스트**로 확장 → 어느 페이지 채팅이든 종목 질문 시 기술 분석 + 초보자 차트 읽기 자동 동반(`detectedTickers.length>0` 전제로 비용 통제).
+
+**테스트**: T810(`_fetchYahooChartData` 복구 + 스파크라인)·T811(`_fetchDomainContextForChat` + macro 블록 채워짐 + 배선 + 게이팅)·T812(snapshot stash + 차트 읽기 카드 + `_aioShowTechnicalChart`)·T813(기술 게이트 확장). R1 7곳 + 캐시버스터 5곳. v50.36+v50.37 포함 단일 배포.
+
 ## v50.37 - AI 채팅 차별화 업그레이드: 자연어 스크리너 질의 + 소스 레지스트리 + 답변 유연성 (2026-06-12)
 
 **사용자: "AI 채팅이 그냥 일반 LLM과 차별점이 있어야 스크리너 AI를 쓰는 이점이 있다. 데이터 원천/출처·다양성·확장성·답변 다중성·커버리지·어떤 질문에도 답하는 유연성을 심층 조사해 보강하라."**

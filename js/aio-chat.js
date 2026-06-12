@@ -2262,6 +2262,8 @@ async function _fetchTechnicalDataForChat(tickers) {
       blocks.push('━━ [' + t + ' 기술적 데이터] ━━\n❌ OHLCV 미수신 — 실시간 기술지표 계산 불가. 추측 금지, "기술 데이터 수신 대기"로 답하라.');
       continue;
     }
+    // v50.38 트랙1b: snapshot stash — chatSend onDone가 초보자 "차트 읽기" 카드 렌더에 재사용 (재계산 회피)
+    try { window._aioLastTechSnap = window._aioLastTechSnap || {}; window._aioLastTechSnap[t] = { snap: snap, ts: Date.now() }; } catch(_) {}
     var ext = window.calcExtensionHeat ? window.calcExtensionHeat(snap) : null;
     var f = function(v, d) { return (v != null && !isNaN(v)) ? Number(v).toFixed(d == null ? 2 : d) : 'N/A'; };
     var maAlign = (snap.above10EMA && snap.above21EMA && snap.above50SMA && snap.above200SMA) ? '완전 정배열(10>21>50>200 위)' :
@@ -2285,6 +2287,65 @@ async function _fetchTechnicalDataForChat(tickers) {
   if (!blocks.length) return '';
   return '\n\n【종목 기술적 실측 데이터 (calcTechnicalSnapshot — 라이브 OHLCV)】\n' + blocks.join('\n\n') + '\n';
 }
+
+// v50.38 트랙2: 매크로/외환/채권/테마 채팅에 페이지 도메인 라이브 데이터 주입 (시세 너머 정성+정량).
+//   기존 compute/스냅샷 재사용 — 네트워크 비의존(라이브 캐시 + DATA_SNAPSHOT FRED값 + 내부 compute 함수).
+//   _fetchTechnicalDataForChat 패턴 미러. 도메인 무관 ctx면 '' 반환(자기 게이팅).
+function _fetchDomainContextForChat(ctxId) {
+  try {
+    var snap = window.DATA_SNAPSHOT || {};
+    var live = window._liveData || {};
+    var num = function(v) { return (v != null && isFinite(Number(v))) ? Number(v) : null; };
+    var pick = function() { for (var i = 0; i < arguments.length; i++) { var v = snap[arguments[i]]; if (v != null && v !== '') return v; } return null; };
+    var liveNum = function(sym, field) { var d = live[sym]; return (d && d[field] != null && isFinite(Number(d[field]))) ? Number(d[field]) : null; };
+    var ts = ''; try { var n = new Date(); var p = function(x) { return String(x).padStart(2, '0'); }; ts = n.getFullYear() + '-' + p(n.getMonth()+1) + '-' + p(n.getDate()) + ' ' + p(n.getHours()) + ':' + p(n.getMinutes()) + ' KST'; } catch(_) {}
+    var reg = (typeof window._aioRegimeNow === 'function') ? (function(){ try { return window._aioRegimeNow(); } catch(_){ return null; } })() : null;
+    var tnx = liveNum('^TNX', 'price');                                  // 10Y (%)
+    var twoY = num(pick('tnx2y', 'us2y', 'twoYear'));                    // 2Y 무료 라이브 없음 → 스냅샷
+    var spread = (tnx != null && twoY != null) ? (tnx - twoY) : null;    // 2s10s (% 단위)
+    var spxPct = liveNum('^GSPC', 'pct');
+    var br50 = num(pick('breadth50sma', 'breadth50'));
+    var lines = [];
+
+    if (ctxId === 'macro' || ctxId === 'kr-macro') {
+      if (reg && (reg.vix != null || reg.fg != null)) lines.push('• 시장 레짐: VIX ' + (reg.vix != null ? Number(reg.vix).toFixed(1) : '—') + ' · F&G ' + (reg.fg != null ? Math.round(reg.fg) : '—'));
+      var cpi = num(pick('cpi','cpiYoy')), core = num(pick('coreCpi','coreCpiYoy')), pce = num(pick('pce','pceYoy')), cpce = num(pick('corePce','corePceYoy'));
+      var infl = []; if (cpi != null) infl.push('CPI ' + cpi + '%'); if (core != null) infl.push('Core CPI ' + core + '%'); if (pce != null) infl.push('PCE ' + pce + '%'); if (cpce != null) infl.push('Core PCE ' + cpce + '%');
+      if (infl.length) lines.push('• 인플레(FRED/스냅샷): ' + infl.join(' · '));
+      var fed = pick('fedRate','fed-rate'), nfp = pick('nfp'), unemp = num(pick('unemployment')), fomc = pick('fomc');
+      var pol = []; if (fed != null) pol.push('Fed ' + fed + (String(fed).indexOf('%') < 0 ? '%' : '')); if (nfp != null) pol.push('NFP ' + nfp); if (unemp != null) pol.push('실업률 ' + unemp + '%'); if (fomc) pol.push('다음 FOMC ' + fomc);
+      if (pol.length) lines.push('• 정책/고용: ' + pol.join(' · '));
+      if (tnx != null || twoY != null) lines.push('• 금리: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ' · 2Y ' + twoY.toFixed(2) + '%' : '') + (spread != null ? ' · 2s10s ' + (spread >= 0 ? '+' : '') + (spread * 100).toFixed(0) + 'bp' + (spread < 0 ? ' (역전·침체 선행)' : ' (정상)') : ''));
+      try { if (window.AIO && typeof window.AIO.getCycleFromMacro === 'function') { var cyc = window.AIO.getCycleFromMacro({ vix: reg && reg.vix, breadth50: br50, yield2s10s: spread, spxTrend: (spxPct || 0) >= 0 ? 'up' : 'down' }); if (cyc && cyc.phase) lines.push('• 경기 사이클 국면(동적): ' + cyc.phase + (cyc.label ? ' — ' + cyc.label : '')); } } catch(_) {}
+      if (lines.length) { lines.unshift('【매크로 도메인 라이브 데이터 (FRED 스냅샷 + 라이브 금리/레짐 + 동적 사이클) · ' + ts + '】'); }
+    } else if (ctxId === 'fxbond') {
+      var dxy = liveNum('DX-Y.NYB', 'price'); if (dxy == null) dxy = num(pick('dxy'));
+      var hyg = liveNum('HYG', 'price');
+      if (dxy != null) lines.push('• 달러(DXY): ' + dxy.toFixed(2) + (dxy >= 100 ? ' (강세권·EM 압박)' : ' (약세권·원자재/EM 우호)'));
+      if (tnx != null || twoY != null) lines.push('• 미 국채: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ' · 2Y ' + twoY.toFixed(2) + '%' : '') + (spread != null ? ' · 2s10s ' + (spread >= 0 ? '+' : '') + (spread * 100).toFixed(0) + 'bp' + (spread < 0 ? ' (역전)' : '') : ''));
+      if (hyg != null) lines.push('• 크레딧(HYG): ' + hyg.toFixed(2) + ' — 하락 시 HY 스프레드 확대(리스크오프 신호)');
+      var kr3 = num(pick('krBond3y','kr-bond-3y','krBond3Y')), kr10 = num(pick('krBond10y','kr-bond-10y','krBond10Y'));
+      if (kr3 != null || kr10 != null) lines.push('• 한국 금리(스냅샷): ' + (kr3 != null ? '3Y ' + kr3 + '%' : '') + (kr10 != null ? (kr3 != null ? ' · ' : '') + '10Y ' + kr10 + '%' : ''));
+      try { if (window.AIO && typeof window.AIO.computeCrossAssetCorrelation === 'function') { var ca = window.AIO.computeCrossAssetCorrelation(); if (ca && (ca.regime || ca.verdict)) lines.push('• Cross-Asset 레짐: ' + (ca.regime || ca.verdict)); } } catch(_) {}
+      if (lines.length) { lines.unshift('【외환·채권 도메인 라이브 데이터 (DXY/금리/크레딧 라이브 + KR 금리 스냅샷 + Cross-Asset) · ' + ts + '】'); }
+    } else if (ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'kr-themes') {
+      var secNames = { XLK:'기술', XLF:'금융', XLE:'에너지', XLV:'헬스케어', XLI:'산업재', XLY:'임의소비', XLP:'필수소비', XLRE:'부동산', XLB:'소재', XLU:'유틸', XLC:'커뮤니케이션' };
+      var rows = Object.keys(secNames).map(function(s) { return { s: s, pct: liveNum(s, 'pct') }; }).filter(function(x) { return x.pct != null; }).sort(function(a, b) { return b.pct - a.pct; });
+      if (rows.length >= 3) {
+        lines.push('• 섹터 리더(당일): ' + rows.slice(0, 3).map(function(x) { return secNames[x.s] + '(' + (x.pct >= 0 ? '+' : '') + x.pct.toFixed(2) + '%)'; }).join(' · '));
+        lines.push('• 섹터 하위(당일): ' + rows.slice(-3).map(function(x) { return secNames[x.s] + '(' + (x.pct >= 0 ? '+' : '') + x.pct.toFixed(2) + '%)'; }).join(' · '));
+      }
+      try { if (window.AIO && typeof window.AIO.getCycleFromMacro === 'function') { var cyc2 = window.AIO.getCycleFromMacro({ vix: reg && reg.vix, breadth50: br50, yield2s10s: spread, spxTrend: (spxPct || 0) >= 0 ? 'up' : 'down' }); if (cyc2 && cyc2.phase) lines.push('• 경기 사이클 국면(섹터 로테이션 기준): ' + cyc2.phase + (cyc2.leaders ? ' → 주도: ' + cyc2.leaders : (cyc2.label ? ' — ' + cyc2.label : ''))); } } catch(_) {}
+      try { if (window.AIO && typeof window.AIO.diagnoseBreadthConsensus === 'function') { var bc = window.AIO.diagnoseBreadthConsensus(); if (bc && (bc.verdict || bc.signal || bc.label)) lines.push('• 시장 폭 합의: ' + (bc.verdict || bc.signal || bc.label)); } } catch(_) {}
+      if (lines.length) { lines.unshift('【테마·섹터 도메인 라이브 데이터 (섹터 ETF 등락 + 동적 사이클 + 시장 폭) · ' + ts + '】'); }
+    }
+
+    if (!lines.length) return '';
+    lines.push('※ 위는 라이브 시세 캐시 + FRED/스냅샷 + 내부 compute 실측. 시점성 수치는 이 값 기준으로 답하고 학습데이터 추측 금지.');
+    return '\n\n' + lines.join('\n') + '\n';
+  } catch (e) { return ''; }
+}
+window._fetchDomainContextForChat = _fetchDomainContextForChat;
 
 // v50.37 트랙2: 채팅 데이터 소스 레지스트리 — 종목 답변에 주입되는 모든 데이터 소스의 단일 선언 카탈로그.
 //   목적: (1) 확장성 — 새 소스 추가 시 여기 1줄 + _fetchTickerDataForChat 배선 (2) 출처 투명성 매니페스트 기반
@@ -4880,7 +4941,9 @@ async function chatSend(ctxId) {
 
   // v50.12: 기술적 분석 컨텍스트 — 종목별 실측 기술지표(RSI/MA/Stage/ATR 이격/확장도) 주입. 기존 OHLCV 엔진 재사용.
   var technicalDataStr = '';
-  if (detectedTickers.length > 0 && (ctxId === 'technical' || ctxId === 'signal' || ctxId === 'ticker')) {
+  // v50.38 트랙3: 기술 데이터 컨텍스트 확장 — 티커 감지 시 전 컨텍스트에 기술 분석 자동 동반.
+  //   (종목 무관 매크로/뉴스 질의는 detectedTickers 0이라 미발동 → 비용 통제). 초보자 차트 읽기 카드도 이 데이터 기반.
+  if (detectedTickers.length > 0) {
     try { technicalDataStr = await _fetchTechnicalDataForChat(detectedTickers); } catch(e) {}
   }
 
@@ -4905,6 +4968,12 @@ async function chatSend(ctxId) {
       screenerResult = _aioRunScreenerQuery(q);
       if (screenerResult && screenerResult.matched) screenerStr = _formatScreenerResultPrompt(screenerResult);
     } catch(e) { _aioLog('warn', 'fetch', '스크리너 질의 실패: ' + e.message); }
+  }
+
+  // v50.38 트랙2: 도메인 라이브 데이터 주입 — macro/fxbond/themes 채팅에 페이지 도메인 데이터(수익률곡선·DXY·사이클·섹터 리더 등) 주입.
+  var domainDataStr = '';
+  if (typeof _fetchDomainContextForChat === 'function' && /^(macro|kr-macro|fxbond|themes|theme-detail|kr-themes)$/.test(ctxId)) {
+    try { domainDataStr = _fetchDomainContextForChat(ctxId); } catch(e) {}
   }
 
   // v34.2: 기업 내부 비교 분석 (비즈니스 모델, 수익 구조, 해자 등) — 티커 2~3개 + 내부 비교 의도 감지 시
@@ -4988,6 +5057,7 @@ async function chatSend(ctxId) {
   if (technicalDataStr) systemPrompt += technicalDataStr;  // v50.12: 기술적 실측 데이터 주입
   if (sectorCompareStr) systemPrompt += sectorCompareStr;
   if (screenerStr) systemPrompt += screenerStr;  // v50.37 트랙1: 스크리너 결과
+  if (domainDataStr) systemPrompt += domainDataStr;  // v50.38 트랙2: 도메인 라이브 데이터
   if (deepCompareStr) systemPrompt += deepCompareStr;
   if (singleDeepStr) systemPrompt += singleDeepStr;
   if (webSearchStr) systemPrompt += webSearchStr;
@@ -5237,6 +5307,7 @@ async function chatSend(ctxId) {
         if (webSearchStr) _bItems.push('<span style="color:#a78bfa;">🔍 웹검색 ✓</span>');
         if (singleDeepStr || deepCompareStr) _bItems.push('<span style="color:#60a5fa;">🔬 심층 ✓</span>');
         if (screenerResult && screenerResult.matched) _bItems.push('<span style="color:#fbbf24;" title="' + escHtml(screenerResult.criteria.join(' · ')) + '">📋 스크리너 ' + screenerResult.totalMatched + '종목</span>');  // v50.37 트랙1
+        if (domainDataStr) _bItems.push('<span style="color:#7dd3fc;">🌐 도메인 데이터 ✓</span>');  // v50.38 트랙2
         _srcBadge.innerHTML = _bItems.join('');
         aiBubble.parentNode.appendChild(_srcBadge);
 
@@ -5502,6 +5573,47 @@ async function chatSend(ctxId) {
             if (_chartBtnContainer.children.length > 0) aiBubble.parentNode.appendChild(_chartBtnContainer);
           }
         } catch(_finChartBtnErr) {}
+
+        // v50.38 트랙1b: 초보자 "차트 읽기" 카드 — 텍스트 지표 대신 평이한 한국어 추세/위치/모멘텀/한 줄 결론.
+        //   _fetchTechnicalDataForChat가 stash한 calcTechnicalSnapshot 재사용(재계산·재fetch 0). 초보자 차트분석 핵심.
+        try {
+          var _tcP = detectedTickers && detectedTickers[0];
+          var _tcStash = (window._aioLastTechSnap && _tcP) ? window._aioLastTechSnap[_tcP] : null;
+          var _sn = (_tcStash && (Date.now() - _tcStash.ts < 10 * 60 * 1000)) ? _tcStash.snap : null;
+          if (_sn && _sn.ok && aiBubble && aiBubble.parentNode) {
+            var _f2 = function(v, d) { return (v != null && !isNaN(v)) ? Number(v).toFixed(d == null ? 2 : d) : '—'; };
+            var _trendTxt, _trendColor;
+            if (_sn.above50SMA && _sn.above200SMA && _sn.above10EMA && _sn.above21EMA) { _trendTxt = '상승 추세 (이동평균선 정배열 — 단기>중기>장기 위)'; _trendColor = '#3ddba5'; }
+            else if (_sn.above50SMA && _sn.above200SMA) { _trendTxt = '중장기 상승 (50·200일선 위)'; _trendColor = '#3ddba5'; }
+            else if (_sn.above50SMA === false) { _trendTxt = '추세 훼손 (50일선 아래로 이탈)'; _trendColor = '#ff5b50'; }
+            else { _trendTxt = '방향 혼조 (추세 불명확)'; _trendColor = '#ffa31a'; }
+            var _hi = _sn.recentHigh20, _lo = _sn.recentLow20;
+            var _posPct = (_hi && _lo && _hi > _lo) ? Math.round((_sn.price - _lo) / (_hi - _lo) * 100) : null;
+            var _posTxt = _posPct != null ? ('최근 20일 범위 ' + _posPct + '% 위치 (' + (_posPct >= 70 ? '고점권' : _posPct <= 30 ? '저점권' : '중간') + ') · 지지 $' + _f2(_lo) + ' / 저항 $' + _f2(_hi)) : '범위 데이터 부족';
+            var _rsi = _sn.rsi14;
+            var _rsiTxt = _rsi != null ? ('RSI ' + _f2(_rsi, 0) + ' (' + (_rsi >= 70 ? '과매수·단기 조정 주의' : _rsi <= 30 ? '과매도·반등 가능' : '중립') + ')') : 'RSI —';
+            var _macdTxt = (_sn.macd && _sn.macd.hist != null) ? (_sn.macd.hist > 0 ? 'MACD 상승 모멘텀' : 'MACD 하락 모멘텀') : '';
+            var _verdict;
+            if (_sn.above50SMA === false) _verdict = '추세가 깨진 상태 — 반등 확인 전까지 신규 매수보다 관망이 안전.';
+            else if (_posPct != null && _posPct >= 80) _verdict = '상승 추세지만 단기 고점권 — 추격보다 눌림목(50일선 $' + _f2(_sn.sma50) + ') 대기가 유리.';
+            else if (_rsi != null && _rsi <= 35 && _sn.above200SMA) _verdict = '장기 상승 속 단기 과매도 — 분할 매수 관점 유효(손절 $' + _f2(_lo) + ').';
+            else if (_sn.above50SMA && _sn.above200SMA) _verdict = '상승 추세 유지 중 — 지지($' + _f2(_sn.sma50) + ') 지키는 한 보유/눌림목 매수.';
+            else _verdict = '방향 불명확 — 50일선 회복 여부 확인 후 대응.';
+            var _bcDiv = document.createElement('div');
+            _bcDiv.className = 'aio-beginner-chart-reading';
+            _bcDiv.innerHTML = '<div style="margin:8px 0;padding:10px 12px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:6px;font-size:12px;line-height:1.6;color:var(--text-primary);">' +
+              '<div style="font-weight:800;color:var(--data-cyan);margin-bottom:6px;">📈 ' + escHtml(_tcP) + ' 초보자 차트 읽기 <span style="font-weight:500;color:var(--text-muted);font-size:10px;">(라이브 OHLCV 실측)</span></div>' +
+              '<div style="display:grid;gap:3px;">' +
+                '<div><b style="color:' + _trendColor + ';">추세</b> · ' + escHtml(_trendTxt) + '</div>' +
+                '<div><b style="color:var(--text-secondary);">위치</b> · ' + escHtml(_posTxt) + '</div>' +
+                '<div><b style="color:var(--text-secondary);">모멘텀</b> · ' + escHtml(_rsiTxt) + (_macdTxt ? ' · ' + escHtml(_macdTxt) : '') + '</div>' +
+                '<div style="margin-top:4px;padding-top:4px;border-top:1px solid var(--border);"><b style="color:var(--accent);">한 줄 결론</b> · ' + escHtml(_verdict) + '</div>' +
+              '</div>' +
+              '<button data-action="_aioShowTechnicalChart" data-arg="' + escHtml(_tcP) + '" style="margin-top:6px;font-size:10px;padding:3px 10px;background:rgba(0,212,255,0.12);border:1px solid var(--data-cyan);color:var(--data-cyan);border-radius:4px;cursor:pointer;font-weight:600;">📊 ' + escHtml(_tcP) + ' 차트 자세히 보기 ↗ <span style="color:var(--text-muted);">— 캔들+MA+RSI</span></button>' +
+              '</div>';
+            aiBubble.parentNode.appendChild(_bcDiv);
+          }
+        } catch(_bcErr) {}
 
         // v49.83 P447/R176: 답변 종목별 30일 mini sparkline SVG 자동 인라인 삽입 (기관급 직관성 #8)
         try {

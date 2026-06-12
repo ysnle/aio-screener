@@ -1248,6 +1248,24 @@ window._aioShowFundamentalChart = function(ticker) {
     }, 800);
   }, 80);
 };
+// v50.38 트랙1b: 채팅 초보자 차트 읽기 카드 "📊 차트 자세히 보기" 버튼 핸들러
+// — technical 페이지로 이동 + 심층 종목 기술 분석(캔들 + MA(5/20/60) + RSI) 자동 실행 + 스크롤. 초보자 시각 차트 분석.
+window._aioShowTechnicalChart = function(ticker) {
+  if (!ticker) return;
+  if (typeof window.showPage === 'function') window.showPage('technical');
+  setTimeout(function() {
+    var up = String(ticker).toUpperCase();
+    var inp = document.getElementById('deep-sym-input');
+    if (inp) inp.value = up;
+    if (typeof window.runDeepAnalysis === 'function') {
+      try { window.runDeepAnalysis(up); } catch(_) { try { window.runDeepAnalysis(); } catch(__) {} }
+    }
+    setTimeout(function() {
+      var sec = document.getElementById('deep-analysis-section');
+      if (sec) try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(_){}
+    }, 800);
+  }, 80);
+};
 window._aioFetchLiveQuotes = function() {
   if (typeof window.fetchLiveQuotes === 'function') window.fetchLiveQuotes();
 };
@@ -15181,7 +15199,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.37';
+const APP_VERSION = 'v50.38';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
