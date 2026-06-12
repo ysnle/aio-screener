@@ -1,8 +1,8 @@
 {
  "meta": {
-  "generatedAt": "2026-06-12T21:20:18.110Z",
+  "generatedAt": "2026-06-12T23:03:24.066Z",
   "source": "github-actions",
-  "symbolsOk": 74,
+  "symbolsOk": 77,
   "symbolsFail": 0,
   "failedSymbols": [],
   "fearGreedOk": true,
@@ -10,7 +10,7 @@
   "macroKeyCount": 0,
   "newsOk": true,
   "newsCount": 25,
-  "elapsedMs": 1756,
+  "elapsedMs": 1953,
   "schema": 1
  },
  "quotes": [
@@ -180,6 +180,30 @@
    "regularMarketChangePercent": -0.0885689871325453,
    "regularMarketPreviousClose": 160.327,
    "chartPreviousClose": 160.327,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "GBPUSD=X",
+   "regularMarketPrice": 1.3407,
+   "regularMarketChangePercent": 0.5323935212957489,
+   "regularMarketPreviousClose": 1.3336,
+   "chartPreviousClose": 1.3336,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "CNY=X",
+   "regularMarketPrice": 6.7621,
+   "regularMarketChangePercent": -0.05025497006873209,
+   "regularMarketPreviousClose": 6.7655,
+   "chartPreviousClose": 6.7655,
+   "_source": "live:yahoo-gh"
+  },
+  {
+   "symbol": "AUDUSD=X",
+   "regularMarketPrice": 0.7049,
+   "regularMarketChangePercent": 0.08519096975719635,
+   "regularMarketPreviousClose": 0.7043,
+   "chartPreviousClose": 0.7043,
    "_source": "live:yahoo-gh"
   },
   {
@@ -360,16 +384,16 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 63557.59,
-   "regularMarketChangePercent": 0.7402054727971319,
+   "regularMarketPrice": 63420.39,
+   "regularMarketChangePercent": 0.5227403959924973,
    "regularMarketPreviousClose": 63090.59,
    "chartPreviousClose": 63090.59,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1666.33,
-   "regularMarketChangePercent": -1.4092607005088227,
+   "regularMarketPrice": 1659.23,
+   "regularMarketChangePercent": -1.8293421063686335,
    "regularMarketPreviousClose": 1690.1486,
    "chartPreviousClose": 1690.1486,
    "_source": "live:yahoo-gh"
@@ -614,9 +638,27 @@
   "score": 34,
   "rating": "fear",
   "_source": "cnn",
-  "asOf": "2026-06-12T20:59:58+00:00"
+  "asOf": "2026-06-12T22:44:51+00:00"
  },
  "news": [
+  {
+   "title": "US stocks rise after oil prices ease and SpaceX soars in its debut on Wall Street - The Washington Post",
+   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxQWWNOS2Q1NG03UG9EaDBGQ0V2am9WUVlGQUxsY0dkX1M5ZW1oZGZDNVpjU1kyczlOS3p0a1prckZmM0dGa3FtOXluczROdTg1eXBZbnEtMHBzT2hRbE1zRjRVNDh2U3JRdkZkWXQwRDR6a0kwNVE3YWJiU09tUHRZUGozaFg1R20zbjhRRGd0WTVtNThqeHZJbHZkSmYtQS10eE92NFM3NzZqMmlacnNoTi15cUZXMkRscjh1YUJFX2VIQnZvcXBjVlJPRQ?oc=5",
+   "source": "The Washington Post",
+   "pubDate": "Fri, 12 Jun 2026 23:01:52 GMT"
+  },
+  {
+   "title": "3 Core Artificial Intelligence (AI) Stocks to Buy With $1,000 Right Now and Hold for the Next Decade - The Globe and Mail",
+   "link": "https://news.google.com/rss/articles/CBMijgJBVV95cUxPdnVWWVNBNmRrNUZOc1d3d2h3RmRjTDNKZDh5M2kzUVZBRTNYUFByanFDSEhSeC1lTlhtRUJKajg5Q1htYkk0S2pDWDNNS2lnbC0wc0txVWxpbTJBd090aW9lbkNkeXZGM0JyWm90b3BITTkzUFNKZEtQRDhoMTV0TzhGTlV5elpHWExZZUo4VGctdmZ0ZlhUT2R3RGRsOW1QN1Z2QUg4SWJGM3FzbzBxR0lER1FuTU5neHhCZXdRTGZ0SjY4S1lXR2NBVjV2dUJTUFFBaXpmWFRNNFZvX2NxcGJid19aSU5kX0d1Y05jVnFEdVdOMkJOSmV5aWplUUhlTHVrNDZ3anljWUZ6MHc?oc=5",
+   "source": "The Globe and Mail",
+   "pubDate": "Fri, 12 Jun 2026 22:22:26 GMT"
+  },
+  {
+   "title": "Rezolve AI (RZLV) Stock Valuation In Focus After Planned US$300 Million Buyback Plan - Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNSnBvSVZfSDhoX0NrU2pObFUxdG0zVGhHSWxDS0JTX2h1UVZVSWdISGNvbk9yOG1ycVFodGxBRndiLWUxTDY4bUJVRU9QckRrU0lDeUIxM2laVFFxUmRtckNoWnEtUVR3T2RfT1B3S19pYS1LVWZGRDlzXzVtbUxhdHd5NVQ1bUlZeVdQUGFDMm5TY1p4UVIyQk9yQmY?oc=5",
+   "source": "Yahoo Finance",
+   "pubDate": "Fri, 12 Jun 2026 21:13:17 GMT"
+  },
   {
    "title": "Wall Street on Edge as New Fed Chair Faces First Test - Devdiscourse",
    "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPZHo0U21JU0NxQXBxck9GR3ZoaEV3N1EyeHpwR29EaHNJczVsUmtmekFDVzNnTGo4LVRfYVFTS2NaejNwOU9QbWNGbGpuYVZxeFlLOHNuY0FNbV8zRmJQSWRzeDdvWnJuQi1WQ1EzQ01Fa1NacEFTM2oxRXMtX2l0VDRYal9yNW85ZnlxbDRaUUJpekExOGk5WTEteGdrdjJsTi01Vk9vaXZCMlXSAbABQVVfeXFMUGFJUTdTMjZ3cFdXWWQ0TmxXeGpFdWd0WHlKbVhueDhQUlpCQjZtSzRzUlVCd091TWRWSFJwQUdFWHZQMmF6WDFicldYUVdyYm1YSmY4MExNSmJ5dDBObjRESm5XU2EwQndJMDBPMWI0VVBSOHNiVkc5bHpSWV9kanlyVDdQOVFncjViUjREZGtYX0JXSUpxeHNZT1JFaVJfTzRZX0Z6Yno1WHU5ZW90TEQ?oc=5",
@@ -636,22 +678,16 @@
    "pubDate": "Fri, 12 Jun 2026 20:51:16 GMT"
   },
   {
+   "title": "S&P 500 Ends Up as Oil Drops, SpaceX IPO Catches Wall Street’s Eye - TechStock²",
+   "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQcENlMC1hT3JMbE81SzI2Z1AwU3dwa2dLWU9nRXFxN2tCeGZwZE96MVRHUDMxek1sNHZERzlqUjM3dlJfUFBocGRUWFlCTHRCci1wdWF2UmQ5ckwxd2R4WXMxM3p5Qm9Ybkk1enFsbGZuZGg1NGpHN1RsYjQ3U2h2OW5JaG43cUxfcHU5TQ?oc=5",
+   "source": "TechStock²",
+   "pubDate": "Fri, 12 Jun 2026 20:27:01 GMT"
+  },
+  {
    "title": "U.S. Stock Market Today: Dow Rises Nearly 400 Points - stl.news",
    "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE9NaEtyaFozSlhWVzRaMzRUaUFWM3FDMFlERklvUFpHMUNOVmpoNnBOYW1QRFltNng0dG13TVZtckM5SUxEMmpJQXdHS0pxNTBURGNuakhGc1RpQU1YMlZEU0FyTmU4b05RdU9FRmF2YllGM3lTQ1hDeV9jWXI?oc=5",
    "source": "stl.news",
    "pubDate": "Fri, 12 Jun 2026 20:12:10 GMT"
-  },
-  {
-   "title": "US stocks rise after oil prices ease and SpaceX soars in its debut on Wall Street - The Washington Post",
-   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxQWWNOS2Q1NG03UG9EaDBGQ0V2am9WUVlGQUxsY0dkX1M5ZW1oZGZDNVpjU1kyczlOS3p0a1prckZmM0dGa3FtOXluczROdTg1eXBZbnEtMHBzT2hRbE1zRjRVNDh2U3JRdkZkWXQwRDR6a0kwNVE3YWJiU09tUHRZUGozaFg1R20zbjhRRGd0WTVtNThqeHZJbHZkSmYtQS10eE92NFM3NzZqMmlacnNoTi15cUZXMkRscjh1YUJFX2VIQnZvcXBjVlJPRQ?oc=5",
-   "source": "The Washington Post",
-   "pubDate": "Fri, 12 Jun 2026 20:01:52 GMT"
-  },
-  {
-   "title": "U.S. stocks drift as oil falls and Wall Street waits for SpaceX's debut - Pittsburgh Post-Gazette",
-   "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNdDBmYVJXVGhMTENPX3kyZU9Ya2g1XzdZYjhZNHFMdUpPcEoyVWx4cnhHMGtOQWRPcGxkUS11RllxYlJKWS1NZlJEek4weGxUMTEwMHhnYlVHWFdoUHIwUTVycGdPTGRZbEhFeWl1QlpSNThQSURNY0pnZGQyZDg4bjF2cEY3dGtDZ3BsMFhFMGppNHkta25sSnJoQUZSWG9WUU1qWEdFYw?oc=5",
-   "source": "Pittsburgh Post-Gazette",
-   "pubDate": "Fri, 12 Jun 2026 19:56:42 GMT"
   },
   {
    "title": "Highest Number of S&P 500 Earnings Calls Citing “AI” Over the Past 10 Years - FactSet Insight",
@@ -661,15 +697,21 @@
   },
   {
    "title": "Top US semiconductor stocks as agentic AI reshapes CPU demand - Investing.com",
-   "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOTG1JMnVmU1BSY2xibnJrUlhoWVdIWVpKd1FFVW16QWpsYVZTOHRqcS1Wel9MaHpVYVRKbmhhYXk2LW9hcU9JOThnZW9NMUpsa3drZk0tUUZiMmk4Ym4zenl6VjlTcjdBMWVRb00wcTVVUS1EU2dyR19BMHdxaGtWUUJrUUNpeGtzb3Rud3BiTm91cjVOZnM4Wm1COFIzWVdNT01vMndvSjdreER6X0MwZ2ZIcnRwS0tBa2Y4QldvdTk?oc=5",
+   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxQM2pHREN2YXB4MmJ4ckFWM3ZyblNpVFVvR2ltNG9aemZ4UTM5dDhocWt3M3hqanQ0cUdUVzdoX0NRVnh5ZnUxZVBYNGQ5eXBZSlNmWWJfT2tFeWh1bXNjUFJFY2trckNSdGVVeEdZOWpuazdDUzhtOGhJWjQ2YVBpb055TkpKcFp1MDVkSERuQjJqTHphYWdKcEhrcGdyU2hnSlpDaTRnQjM5LWxKVXJTVzhKUE5id1pqTlJhd3hSSHFGdmJFZGlxTi1rdw?oc=5",
    "source": "Investing.com",
-   "pubDate": "Fri, 12 Jun 2026 19:32:22 GMT"
+   "pubDate": "Fri, 12 Jun 2026 19:31:00 GMT"
   },
   {
    "title": "2 Unsung Heroes of Big Tech's $725 Billion AI Capex Spend - Yahoo Finance",
    "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxQenpEYW1DTjBwWGpDdVJWOTEwQWdpVFhIRHhfVWd4SGdOak1XUTFJWDdYeUVzWUZlRnRmMTBnbE04MzB3eTJHcXc0UjlwSWhRbXNKbUlTRjBPbjZoLXJfQVFZX210RUpqa3oySnB5REN2SU50bDl3SktLTnR6RHFiWEVPR01iSnZtVTU3cExxQnRWXzRxWlByWFVB?oc=5",
    "source": "Yahoo Finance",
    "pubDate": "Fri, 12 Jun 2026 19:20:00 GMT"
+  },
+  {
+   "title": "Newly led Fed puts stock market volatility in focus - Finance & Commerce",
+   "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNaXA2bWJUb2FvbEVRMnVrMnBWY2RDQ1ZtZENqVjBqd25pNGFMOWNTa1BIaVlOYlVJSFlMWVhjMjlsNkg3T1BtTGRnbkdaV3JyV2ZwMmpVYmNWcXQwNU1DU044cEtYbWVyZGxmbzNhLU9FMFlZM0NVQ1ZTMDM2Tkw3a0ZaYlNyOU1rMEtZYi1B?oc=5",
+   "source": "Finance & Commerce",
+   "pubDate": "Fri, 12 Jun 2026 18:38:19 GMT"
   },
   {
    "title": "Aeries Swings to Earnings in 2026 on AI-Driven GCC Demand - Yahoo Finance",
@@ -690,9 +732,9 @@
    "pubDate": "Fri, 12 Jun 2026 17:15:00 GMT"
   },
   {
-   "title": "Nvidia vs AMD: The Better AI Stock Is A Better Buy This June - 24/7 Wall St.",
-   "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPeTc1bU16Rko0MGdhMG5sYUc3UFYzeW5UMkFKSkZjcFZiRnpaLVNZdlN4X240RFVjYWVtMExncUdOdlI1MmhrZnVqdGFmd2JPSW1nUWtzMnMyRFJ3R3J3dG9HbG5kYVV5OGhocVJWczJ3UTNWWGtpUG5FOWRURUp4UlF0NGx6RDhjLWpON2czYkNXZGpySThxVjBlVkdGUVpYSkM0dzN3?oc=5",
-   "source": "24/7 Wall St.",
+   "title": "Nvidia vs AMD: The Better AI Stock Is A Better Buy This June - Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNVG92aklMUkoyUThISTRyTUNjVzdqTDEtOTFhZVptdXpwZE5UVjJ5NnRSbDRkOFM0VzRHajZoRXdxaFRKZGxidTllcWZvYjBkYXJRcGdXVVFwM1l6RGU3bkIweDBHMnFyUUlaZjR1MXdYc0VlRkRnSnVwaDNqSVp0MEtNX0JJRVYtUkxJeFRiU1dEZw?oc=5",
+   "source": "Yahoo Finance",
    "pubDate": "Fri, 12 Jun 2026 16:53:02 GMT"
   },
   {
@@ -726,12 +768,6 @@
    "pubDate": "Fri, 12 Jun 2026 15:37:12 GMT"
   },
   {
-   "title": "SanDisk and Western Digital Jump 6% as Traders Battle Over the AI Storage Stock Melt-Up - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPWDlETWZKS24tcWdFUTdpbG96NGJ5Ui1XdXFYX0p4RVBWQ2t1MklKS0FfWXJ0cVVpcHdlXzNVa3UxNUtIS1RCdWthTTJiZlFWVG8xX20xX3ZGVlR1QmRjbU5mMlpJalJEQUV5b1FJRDR3aXlPUWNHVXMxX01DZ2ZuVHEyZDBDTnd6dzdCRnFGN21YLWJwUENGUVFXbw?oc=5",
-   "source": "Yahoo Finance",
-   "pubDate": "Fri, 12 Jun 2026 15:35:41 GMT"
-  },
-  {
    "title": "Buy The Dip: 5 Top Nasdaq AI Stocks - Seeking Alpha",
    "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQUVRQMlIySUhIRUVXajlndGpibllITHU3NldLajVXYlBXVjJSU2dsUDgwcTJ3d09rWEEwZkVNWVZmU3I3aUIwYXVWUWw0Szd1Q3I3OUFMdFF5b0lyaHNUQ0x5TDBFUXpNNkxDajdaQWMwT19heWZQTFJTVHgxY0o5ZQ?oc=5",
    "source": "Seeking Alpha",
@@ -744,28 +780,16 @@
    "pubDate": "Fri, 12 Jun 2026 15:27:53 GMT"
   },
   {
-   "title": "Wall St Week Ahead- Newly led Fed poses markets wildcard for rockier US indexes - Reuters",
-   "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxPd0hPaE5BT1VkR0h3QzkydWFxU3Jvd3R1RVRzcEl3SjBPTmctMFNQZXpFVE1CX0pjM184MHRIMGVsMkUxWHgtdWU5Q1luQVhHY0R4ejhpMHV5cW1qeFhzTDZyUi10ajE1QkRleE8taVRhcHNBVUR0MkxXZlhPVXBibzYyUVFqUUNtdWFwV3FpTm5GNFI5cUw3dEl5Y3U5bWR5TkprQVJHUnVGV0tjQXZBV1hmSDF5U2dwX2V2TGdpWXAwSS1KX2c?oc=5",
-   "source": "Reuters",
-   "pubDate": "Fri, 12 Jun 2026 13:46:48 GMT"
-  },
-  {
    "title": "Everyone's Buying NVIDIA - Here Are 2 Smarter AI Stocks for 2026 - Yahoo Finance",
    "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOZUhVRENuVDB4YkRJbnhFTk85di1COU1YM3V6bjJQTXJjQzFabkN1N2JzNWpJWW1xUmNyX25qQzhXRGNjLVFVbzlkakFoV0RiSFBFT1gzd2hKaENtU3BLbkg5RlE1MTVRYi1lMjE2b3lTckJZa1htU05mVW8tRW9hOEpEMjRVbW1YSnN6R2FzakJoZ1NpUmlPWlVlQy1RSHM?oc=5",
    "source": "Yahoo Finance",
    "pubDate": "Fri, 12 Jun 2026 11:48:00 GMT"
   },
   {
-   "title": "2 Popular AI Stocks to Sell Before They Drop 44% and 60%, According to Wall Street - The Motley Fool",
-   "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPVmpnZ0JPd1N1WVp1OGR5Sm9kVWV1UkR6U3dKTUxxNmpONUpxQkk5dFM3bUI1OHFqV2tjM0cxVDZqVlN6RU1HeWVVWDNoMHl2cWtsZEYzTE5hWDhDdkpZSWlNU2ZFTGJmSXQtaEJScEVSQ1ROUHFWQ01xaEJkNFUzcy0wcUVRUHdaVGd2WlZPVGlidHFnSmc?oc=5",
-   "source": "The Motley Fool",
-   "pubDate": "Fri, 12 Jun 2026 10:12:00 GMT"
-  },
-  {
-   "title": "U.S. Stock Market Braces for New Federal Reserve Era - Devdiscourse",
-   "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxOWGVnS2FfQlNLaUxCWkx1VzloT2dOOHFrVThlblpZQllQS1hBb2xJY01lcWFpNjRDcHRmZDJZeWQyckxfYWw1d2lETGlpY2VxQXV5ZTFpWlVSSE91eHBSNTFWVWlNZW1JcGNrN3hwNklLYkVmTktKdFRyc1hrOHh0NFR0U2Q2T0hLQWlveVp4S2hEazBMcW9jZ3FiR2k5V0VBLXNHOFJna9IBrAFBVV95cUxPTDgyS2pVWXhFVEZPcXAtaThuVnJ1QVNqcW11cFpycWJ5Q01neFp6WkZrTTMzR3FCNGp4dUtBZ3gxeVhXVjhONmpIVFVXcHlKS2ZMeWlpRWNITzFMc0t4aDhTTXJaMGd4anJidjA3aDVSYjRKNTBDcmstbTByQzd1RkFrTmw4dEFSZWRobVJIZnpXM3ZXeWNtMGlCZUN4bHNIbHJtMWd3RTBtbDV2?oc=5",
-   "source": "Devdiscourse",
-   "pubDate": "Fri, 12 Jun 2026 10:01:36 GMT"
+   "title": "SpaceX's arrival heralds a wave of new stock - Axios",
+   "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9WeEwwOEFWWmFuR1dNbzdsdXYzeE9zUVVOckYzNWliWTBvQVBQT250OG1tci1mT3ppbHJVSmN4ZExDdy1XRFoyRmY0MEdqUGdLaEdPTDZkUV9TemRRZHczb3htZm9ESjZKY0VydnpHS2FrRWdX?oc=5",
+   "source": "Axios",
+   "pubDate": "Fri, 12 Jun 2026 11:00:31 GMT"
   }
  ]
 }
