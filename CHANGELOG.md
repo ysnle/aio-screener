@@ -1,5 +1,23 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.41 - 선순환 연결 계층: 크로스-페이지 뉴스 통합 + 신선 텔레그램 + stale 내러티브 정리 (2026-06-13)
+
+**사용자: "각 페이지/레이어/시스템이 서로 연결·통합·선순환하는 구조가 목표. 개별 데이터 자동 최신화는 그 구조 속 하나일 뿐. 미룬 영역 모두 + 신선 텔레그램 반영."**
+
+**선순환 구조**: 단일 인텔 캐시(RSS + 텔레그램 6채널 → `classifyTopic` 토픽 부여) = ONE source → home/briefing/market-news(기존) + **분석 8페이지(신규)** + 채팅이 모두 소비. 페이지 사일로(market-news 뉴스가 macro/themes/fxbond로 안 흐름)를 연결.
+
+**트랙 1 — 연결 계층: 크로스-페이지 뉴스 [통합 spine]**
+- `AIO_NEWS_SURFACE_CONTRACTS`(aio-data.js)에 분석 8페이지 추가 — `topics` 필터(classifyTopic 실키: macro/geo/semi/earnings/energy). macro→[macro,geo,energy], fxbond→[macro,geo], technical→[semi,earnings], themes→[semi,energy], sentiment→[macro,geo], signal→[macro,semi], fundamental→[earnings,semi], breadth→[semi,macro].
+- `buildNewsSurfaceModel`에 범용 `contract.topics` 필터 단계 추가 — 같은 캐시 재사용.
+- 신규 `_aioRenderPageNewsStrip(pageId)`(aio-core.js): insight-box 직후 "📰 관련 뉴스 N건 · 토픽 · 공유 뉴스캐시" 스트립(출처/신선도 배지 + 전체 뉴스 링크) + `_aioPageBus` pageShown/serverDataLoaded/newsUpdated 배선 + 부팅 1.2s.
+- 신규 `AIO.getConnectiveLayerAudit()`: 8페이지 연결·11 surface·렌더 fn 검증 — 선순환 형식화·회귀 가드. **라이브 검증: status ok·8/8 연결·11 surface·macro 페이지 토픽 스트립 렌더 확인.**
+
+**트랙 2 — 신선 텔레그램 (6/13) → HOME**: 3채널 재fetch로 HOME_WEEKLY_NEWS 재큐레이션 — 6/18 FOMC(99% 동결·6/19 준틴스 휴장)·SpaceX 상장 거래 시초가 $175(+30%)·NVDA Vera China CPU(8월·$20B)·Nokia AI 커버(구글 DC)·메모리 슈퍼사이클 지속.
+
+**트랙 3 — _getV48IntegratedContext de-stale**: index.html 채팅 통합 컨텍스트 최상단에 **"현재 레짐 (2026-06)" 헤더 prepend** — 4월 이란전쟁 격화 서사($150·호르무즈 봉쇄·수요파괴 §70/§71)를 historical로 강등하고 현재(US-이란 휴전·유가 $85·메모리 슈퍼사이클·SpaceX·6/18 FOMC) 우선. 200줄 전면 재작성 대신 레짐 헤더(v50.25 drift 철학).
+
+**테스트**: T814(연결 계층 — 계약 8 + 토픽필터 + 렌더 + audit ok). **정직 보류(차기)**: KR 정적 스냅샷(라이브 소스 없음·fresh KR breadth 미확보)·jensen 84일 아카이브. R1 7곳+캐시버스터 5곳.
+
 ## v50.40 - 데이터품질 핫스팟 + 텔레그램/채팅 맥락 신선화 (앱 audit 진단 시정) (2026-06-12)
 
 **사용자: "데이터 최신화+텔레그램 통합 완벽했나? 텔레그램 최대한 다양하게. 10페이지 자동 최신 운영 + 뉴스 선별/연결/페이지 통합 보강점 자세히 진단."**

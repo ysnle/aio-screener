@@ -7983,7 +7983,17 @@ var AIO_NEWS_SURFACE_CONTRACTS = {
     minScore: 30,
     allowFilters: true,
     sortMode: 'ui'
-  }
+  },
+  // v50.41 선순환 연결 계층: 분석 페이지를 같은 뉴스캐시에 토픽 필터로 연결 (사일로 해소 — 단일 인텔 소스 → 다수 surface).
+  //   topics = classifyTopic 실존 키(macro/geo/semi/earnings/energy)만 사용. role='analysis-page-topic-strip'.
+  macro:       { surfaceId: 'macro',       role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['macro','geo','energy'], sortMode: 'score' },
+  fxbond:      { surfaceId: 'fxbond',      role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['macro','geo'],          sortMode: 'score' },
+  technical:   { surfaceId: 'technical',   role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['semi','earnings'],      sortMode: 'score' },
+  themes:      { surfaceId: 'themes',      role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['semi','energy'],        sortMode: 'score' },
+  sentiment:   { surfaceId: 'sentiment',   role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['macro','geo'],          sortMode: 'score' },
+  signal:      { surfaceId: 'signal',      role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['macro','semi'],         sortMode: 'score' },
+  fundamental: { surfaceId: 'fundamental', role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['earnings','semi'],      sortMode: 'score' },
+  breadth:     { surfaceId: 'breadth',     role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['semi','macro'],         sortMode: 'score' }
 };
 window.AIO_NEWS_SURFACE_CONTRACTS = AIO_NEWS_SURFACE_CONTRACTS;
 
@@ -8124,6 +8134,8 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
   });
   if (surfaceId === 'home') windowRows = windowRows.filter(function(i) { return contract.excludedTopics.indexOf(i.topic) === -1; });
   if (surfaceId === 'market-news') windowRows = _aioApplyNewsFilterOptions(windowRows, opts);
+  // v50.41 선순환: 분석 페이지 토픽 필터 (contract.topics) — 같은 캐시에서 페이지별 관련 토픽만
+  if (contract.topics && contract.topics.length) windowRows = windowRows.filter(function(i) { return contract.topics.indexOf(i.topic) >= 0; });
 
   var scored = windowRows;
   if (contract.minScoreCascade) {
@@ -8205,7 +8217,8 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
 window.AIO.getNewsSurfaceAudit = function(opts) {
   opts = opts || {};
   var rows = {};
-  var surfaces = Object.keys(AIO_NEWS_SURFACE_CONTRACTS);
+  // v50.41: primary 뉴스 surface(home/briefing/market-news)만 — 분석 페이지 topic-strip(role 'analysis-page-*')은 getConnectiveLayerAudit가 별도 담당(의미 분리, deployment gate 과부하 방지).
+  var surfaces = Object.keys(AIO_NEWS_SURFACE_CONTRACTS).filter(function(id) { return String((AIO_NEWS_SURFACE_CONTRACTS[id] || {}).role || '').indexOf('analysis-page') < 0; });
   var issues = [];
   surfaces.forEach(function(id) {
     var model = window._aioNewsSurfaceModels && window._aioNewsSurfaceModels[id];
@@ -8514,12 +8527,12 @@ function renderFeed(items) {
 // v49.8: HOME 핵심 뉴스는 최근 72시간 안의 시장 충격도 높은 맥락만 기본 노출한다.
 // 지나간 이벤트는 예정/핵심 뉴스처럼 고정하지 않고, 실시간 뉴스 수집 성공 시 자동 교체한다.
 var HOME_WEEKLY_NEWS = [
-  // v50.39 (2026-06-12): 텔레그램 3채널(insidertracking/aetherjapanresearch/bornlupin) 7일 통합 — 6/11 반등 랠리 + US-이란 휴전(유가↓) + SpaceX IPO + 메모리 슈퍼사이클 지속
-  { title: '6/11(목) 미국 증시가 반등 랠리를 펼쳤습니다 — S&P500 +1.75%(7,394), 나스닥 +2.54%(25,810), 다우 +1.85%(50,841). US-이란 긴장 완화와 SpaceX IPO를 앞둔 위험선호가 동력이었고, VIX는 19.4 수준으로 내렸습니다. 6/5 셀오프(NFP 172K 서프라이즈발 포지셔닝 청산)에서 반등했지만, 골드만의 금리인하 철회·끈적한 인플레로 "추세 재개냐 베어 반등이냐"는 6/16-17 FOMC 확인 전까지 확률 게임입니다.', source: 'Telegram·WebSearch 2026-06-11', date: '2026-06-11', sentiment: 'bull', topic: 'macro' },
-  { title: 'US-이란 MOU/휴전이 임박했습니다. IRNA가 보도한 7개항 초안은 호르무즈 해협 30일 내 재개통, 단계적 제재 완화(원유 수출 재개 연동), 중동 전선 전면 교전 중단, 동결자산 일부 즉시 해제를 담고 있습니다. 미군 수송기가 제네바로 향하며 주말 서명 신호가 나왔고, 유가는 공급 정상화 기대로 급락(WTI $84.92 -3.2%, Brent ~$88)했습니다. 6/8의 "중동 재고조·유가 급등" 국면에서 정반대로 반전 — 에너지는 약세, 항공·운송·소비는 수혜 전환입니다.', source: 'Telegram(insidertracking)·IRNA/Axios 2026-06-12', date: '2026-06-12', sentiment: 'bull', topic: 'geopolitics' },
-  { title: 'SpaceX가 나스닥에 상장했습니다 — IPO 공모가 $135/주, 시가총액 약 $1.78조, 조달액 약 $750억으로 역대 최대 규모 IPO입니다. 일론 머스크의 순자산은 상장으로 $1조를 돌파했고, 한국 증권사(삼성증권 등)는 2배 롱/숏 상품을 출시했습니다. SpaceX 지분 보유 기업(SATS 등)도 동반 강세였습니다. 다만 ADBE는 호실적에도 -6.5%, SMCI는 AI 서버 수요 대응 증자로 -8.9% 하락하는 등 개별 차별화는 여전합니다.', source: 'Telegram·WebSearch 2026-06-12', date: '2026-06-12', sentiment: 'bull', topic: 'equity' },
-  { title: '메모리 슈퍼사이클이 지속됩니다. AMD 부사장 데이비드 맥아피는 "DDR5 가격 강세가 2028년 상반기까지 이어진다(정상화에 ~2년)"고 밝혔고, SK하이닉스는 연초 대비 +230%·시총 $1조를 돌파하며 8월 나스닥 상장을 추진합니다. 키옥시아는 시총 ¥4.436조로 일본 1위에 올랐습니다. HDD도 랠리 — JPMorgan이 WDC($650)·시게이트($920) 목표가를 올렸습니다(FY27 매출 +40%↑). Q1 2026 반도체 장비 매출은 사상 최대 $365.5억(+14% YoY)을 기록했습니다.', source: 'Telegram(lupin/aether)·JPM/AMD 2026-06-12', date: '2026-06-12', sentiment: 'bull', topic: 'semi' },
-  { title: '반도체·AI 개별 촉매가 이어집니다. 엔비디아는 S&P 신용등급이 AA(안정)로 상향됐고, AMD는 Citi가 Buy·목표가 $575로 올렸습니다(Venice CPU 2.5D 패키징 부족, ASE 2028년까지 풀가동). 메타는 BofA 목표가 $835(2027 EPS 16배). 구글-삼성은 2nm TPU(Icefish) 메모리 I/O 다이 협력(컴퓨트는 TSMC 1.4nm, 2028)을 논의합니다. 나스닥100은 6/22부로 NBIS·RKLB·ALAB·CRWV·TER을 편입합니다.', source: 'Telegram·S&P/Citi/BofA 2026-06-12', date: '2026-06-12', sentiment: 'bull', topic: 'semi' },
+  // v50.41 (2026-06-13 KST): 텔레그램 3채널(insidertracking/aetherjapanresearch/bornlupin) 신선 통합 — 반등 랠리·6/18 FOMC 임박·US-이란 휴전(유가↓)·SpaceX 상장 거래·메모리 슈퍼사이클
+  { title: '미국 증시가 6/11 반등 랠리(S&P +1.75% 7,394·나스닥 +2.54% 25,810·다우 50,841·VIX 19.4) 후 6/18 FOMC를 앞두고 관망세입니다. PolyMarket 기준 동결 확률 99%로, 시장은 점도표·파월 발언에서 인하 경로 단서를 주시합니다(6/19 준틴스 휴장). US-이란 긴장 완화가 위험선호를 뒷받침했지만, 골드만의 인하 철회·끈적한 인플레로 "추세 재개냐 베어 반등이냐"는 FOMC 확인 전까지 확률 게임입니다.', source: 'Telegram·WebSearch 2026-06-13', date: '2026-06-13', sentiment: 'bull', topic: 'macro' },
+  { title: 'US-이란 MOU/휴전이 진전됩니다. IRNA 보도 7개항 초안은 호르무즈 해협 30일 내 재개통, 단계적 제재 완화(원유 수출 재개 연동), 중동 전선 교전 중단, 동결자산 일부 즉시 해제를 담습니다. 유가는 공급 정상화 기대로 급락(WTI ~$85·Brent ~$88·금 ~$4,080)했습니다. 6/8의 "중동 재고조·유가 급등" 국면에서 정반대로 반전 — 에너지는 약세, 항공·운송·소비는 수혜 전환입니다.', source: 'Telegram(insidertracking)·IRNA/Axios 2026-06-13', date: '2026-06-13', sentiment: 'bull', topic: 'geo' },
+  { title: 'SpaceX가 나스닥 상장 후 거래를 시작했습니다 — 공모가 $135/주에서 시초가 약 $175(+30% 프리미엄)로 출발, 시가총액 ~$1.78조, 조달 ~$750억으로 역대 최대 IPO입니다. 머스크 순자산은 $1조를 돌파했고, 한국 증권사는 2배 롱/숏 상품을 출시했습니다. 다만 상장 투자자 35%만 수익·65%는 손실 구간이라는 변동성 경계도 공존합니다. ADBE는 호실적에도 -6.5%, SMCI는 증자로 -8.9% 하락 — 개별 차별화는 여전합니다.', source: 'Telegram·WebSearch 2026-06-13', date: '2026-06-13', sentiment: 'bull', topic: 'equity' },
+  { title: '메모리 슈퍼사이클이 지속됩니다. AMD 부사장은 "DDR5 가격 강세가 2028 상반기까지(정상화 ~2년)"라 밝혔고, SK하이닉스는 연초 대비 +230%·시총 $1조 돌파로 8월 나스닥 상장을 추진합니다. 키옥시아는 시총 ¥4.436조로 일본 1위. HDD도 랠리 — JPM이 WDC($650)·시게이트($920) 목표가를 올렸습니다(FY27 +40%↑). Q1 2026 반도체 장비 매출 사상 최대 $365.5억(+14% YoY, 한국 2위 $89.3억).', source: 'Telegram(lupin/aether)·JPM/AMD 2026-06-13', date: '2026-06-13', sentiment: 'bull', topic: 'semi' },
+  { title: '반도체·AI 개별 촉매가 이어집니다. 엔비디아는 S&P 신용등급 AA(안정) 상향 + 중국용 Vera 데이터센터 CPU를 8월 출시(올 회계연도 ~$200억 목표)합니다. AMD는 Citi Buy·$575(Venice 2.5D 패키징 부족, ASE 2028까지 풀가동), 메타 BofA $835, 노키아는 JPM 커버 개시 $21(광 네트워크 AI 수주·구글 DC 스위칭). 나스닥100은 6/22부로 NBIS·RKLB·ALAB·CRWV·TER을 편입합니다.', source: 'Telegram·S&P/Citi/JPM 2026-06-13', date: '2026-06-13', sentiment: 'bull', topic: 'semi' },
 ];
 window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
 

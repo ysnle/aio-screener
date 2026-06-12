@@ -5966,6 +5966,25 @@
       t813detail = 'techCall=' + hasTechCall + ' expandMarker=' + expandMarker + ' oldGateGone=' + oldGateGone;
     } catch(e) { t813detail = 'ERR:' + e.message; }
     _assert('T813 v5038_technical_context_expanded: 티커 감지 시 전 컨텍스트 기술 분석 동반(3종 한정 해제)', t813ok, t813detail);
+
+    // ─── v50.41 선순환 연결 계층: 크로스-페이지 뉴스 통합 ───
+    // T814: 분석 8페이지가 공유 뉴스캐시에 토픽 필터로 연결(계약 + buildNewsSurfaceModel 토픽 필터 + 렌더 fn + audit)
+    var t814ok = false, t814detail = '';
+    try {
+      var contracts814 = window.AIO_NEWS_SURFACE_CONTRACTS || {};
+      var anaPages = ['macro','fxbond','technical','themes','sentiment','signal','fundamental','breadth'];
+      var allHaveContract = anaPages.every(function(p){ var c = contracts814[p]; return c && Array.isArray(c.topics) && c.topics.length > 0; });
+      var renderFn814 = typeof window._aioRenderPageNewsStrip === 'function';
+      var auditFn814 = !!(window.AIO && typeof window.AIO.getConnectiveLayerAudit === 'function');
+      var aud814 = auditFn814 ? window.AIO.getConnectiveLayerAudit() : null;
+      var auditOk814 = !!(aud814 && aud814.status === 'ok' && aud814.analysisPagesWired === 8 && aud814.newsSurfaceCount >= 11 && (aud814.missingContract||[]).length === 0);
+      // buildNewsSurfaceModel이 분석 surfaceId(macro)를 인식 + 토픽 필터 동작(throw 안 함)
+      var modelOk814 = false;
+      try { var m814 = window.AIO.buildNewsSurfaceModel('macro', window._allNewsItems || [], {}); modelOk814 = !!(m814 && Array.isArray(m814.items)); } catch(_) { modelOk814 = false; }
+      t814ok = allHaveContract && renderFn814 && auditOk814 && modelOk814;
+      t814detail = 'contracts8=' + allHaveContract + ' renderFn=' + renderFn814 + ' auditStatus=' + (aud814 ? aud814.status : 'na') + ' wired=' + (aud814 ? aud814.analysisPagesWired : '-') + '/8 surfaces=' + (aud814 ? aud814.newsSurfaceCount : '-') + ' macroModel=' + modelOk814;
+    } catch(e) { t814detail = 'ERR:' + e.message; }
+    _assert('T814 v5041_connective_layer: 분석 8페이지 크로스-페이지 뉴스 연결(계약+토픽필터+렌더+audit ok)', t814ok, t814detail);
   }
 
   window.AIO = window.AIO || {};

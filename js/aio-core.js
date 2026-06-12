@@ -2562,8 +2562,84 @@ if (typeof document !== 'undefined') {
     } catch(_){}
   };
 
+  // v50.41 선순환 연결 계층: 분석 페이지에 토픽 필터 뉴스 스트립 (같은 뉴스캐시 → 다수 surface, 사일로 해소).
+  //   buildNewsSurfaceModel(pageId, _allNewsItems) 재사용(계약의 topics 필터). insight-box 직후 앵커, 멱등.
+  var _PAGE_NEWS_STRIP_PAGES = ['macro','fxbond','technical','themes','sentiment','signal','fundamental','breadth'];
+  window._PAGE_NEWS_STRIP_PAGES = _PAGE_NEWS_STRIP_PAGES;
+  window._aioRenderPageNewsStrip = function(pageId){
+    try {
+      if (_PAGE_NEWS_STRIP_PAGES.indexOf(pageId) < 0) return;
+      if (!window.AIO || typeof window.AIO.buildNewsSurfaceModel !== 'function') return;
+      if (!window.AIO_NEWS_SURFACE_CONTRACTS || !window.AIO_NEWS_SURFACE_CONTRACTS[pageId]) return;
+      var page = document.getElementById('page-' + pageId); if (!page) return;
+      var items = window._allNewsItems || window.newsCache || [];
+      var model; try { model = window.AIO.buildNewsSurfaceModel(pageId, items, {}); } catch(_) { return; }
+      var rows = (model && model.items) || [];
+      var hostId = 'aio-page-news-' + pageId;
+      var host = document.getElementById(hostId);
+      if (!rows.length) { if (host) host.style.display = 'none'; return; }
+      if (!host) {
+        host = document.createElement('div');
+        host.id = hostId;
+        host.className = 'aio-page-news-strip';
+        host.style.cssText = 'margin:8px 0 12px;padding:8px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;';
+        var anchor = page.querySelector('.insight-box');
+        while (anchor && anchor.parentElement !== page) anchor = anchor.parentElement;
+        if (anchor && anchor.parentElement === page) anchor.insertAdjacentElement('afterend', host);
+        else page.insertBefore(host, page.firstChild);
+      }
+      host.style.display = '';
+      var esc = (typeof escHtml === 'function') ? escHtml : function(s){ return String(s); };
+      var topics = (window.AIO_NEWS_SURFACE_CONTRACTS[pageId].topics || []).join('/');
+      var lines = rows.slice(0, 4).map(function(n){
+        var t = (typeof getDisplayTitle === 'function' ? getDisplayTitle(n) : (n.title || '')) || '';
+        var ageH = n.ageHours != null ? Math.round(n.ageHours) : null;
+        var senColor = n.sentiment === 'bull' ? 'var(--data-green)' : (n.sentiment === 'bear' || n.sentiment === 'warn') ? 'var(--data-red)' : 'var(--text-muted)';
+        return '<div style="font-size:11px;line-height:1.5;margin:2px 0;color:var(--text-secondary);">' +
+          '<span style="color:' + senColor + ';">●</span> ' + esc(String(t).slice(0, 84)) +
+          ' <span style="color:var(--text-muted);font-size:10px;">(' + esc(n.source || '') + (ageH != null ? ' · ' + ageH + 'h' : '') + ')</span></div>';
+      }).join('');
+      host.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+          '<span style="font-size:10px;font-weight:700;color:var(--accent);">📰 관련 뉴스 ' + rows.length + '건 <span style="font-weight:400;color:var(--text-muted);">· 토픽 ' + esc(topics) + ' · 공유 뉴스캐시</span></span>' +
+          '<button data-action="showPage" data-arg="market-news" class="aio-btn-table" style="font-size:9px;padding:1px 6px;">전체 뉴스 →</button></div>' + lines;
+    } catch(_){}
+  };
+  window._aioRenderActivePageNewsStrip = function(){
+    try { var act = document.querySelector('.page.active'); if (!act) return; var pid = (act.id || '').replace('page-', ''); window._aioRenderPageNewsStrip(pid); } catch(_){}
+  };
+
+  // v50.41 선순환 연결 계층 audit — 각 분석 페이지가 공유 뉴스캐시에 토픽 필터로 연결됐는지 검증(통합 형식화·회귀 가드).
+  window.AIO = window.AIO || {};
+  window.AIO.getConnectiveLayerAudit = function(){
+    var pages = window._PAGE_NEWS_STRIP_PAGES || [];
+    var contracts = window.AIO_NEWS_SURFACE_CONTRACTS || {};
+    var renderFn = typeof window._aioRenderPageNewsStrip === 'function';
+    var buildFn = !!(window.AIO && typeof window.AIO.buildNewsSurfaceModel === 'function');
+    var missingContract = [], noTopics = [];
+    pages.forEach(function(p){
+      var c = contracts[p];
+      if (!c) { missingContract.push(p); return; }
+      if (!Array.isArray(c.topics) || !c.topics.length) noTopics.push(p);
+    });
+    var newsSurfaces = Object.keys(contracts);
+    return {
+      status: (renderFn && buildFn && missingContract.length === 0 && noTopics.length === 0) ? 'ok' : 'warn',
+      analysisPagesWired: pages.length - missingContract.length,
+      analysisPageTotal: pages.length,
+      newsSurfaceCount: newsSurfaces.length,           // home/briefing/market-news(3) + 분석 8 = 11 기대
+      renderFnDefined: renderFn,
+      buildModelDefined: buildFn,
+      missingContract: missingContract,
+      contractWithoutTopics: noTopics,
+      pageShownWired: !!(window._aioPageBus),
+      note: '단일 뉴스캐시(RSS+텔레그램 6채널) → home/briefing/market-news + 분석 8페이지 토픽 필터 strip + 채팅. 사일로→연결(선순환).',
+      generatedAt: new Date().toISOString()
+    };
+  };
+
   if (typeof window !== 'undefined') {
     if (window._aioPageBus && window._aioPageBus.register) {
+      window._aioPageBus.register('core-page-news-strip', 'aio:pageShown', function(e){ var pid = e && e.detail; if (pid) setTimeout(function(){ window._aioRenderPageNewsStrip(pid); }, 150); });
       window._aioPageBus.register('core-briefing-digest', 'aio:pageShown', function(e){ if ((e && e.detail) === 'briefing') { setTimeout(window._aioRenderBriefingDigest, 120); setTimeout(window._aioCapBriefingNews, 800); } });
       window._aioPageBus.register('core-briefing-digest-live', 'aio:liveQuotes', function(){
         var p = document.getElementById('page-briefing');
@@ -2572,8 +2648,9 @@ if (typeof document !== 'undefined') {
       window._aioPageBus.register('core-verdict-guard-page', 'aio:pageShown', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
       window._aioPageBus.register('core-verdict-guard-live', 'aio:liveQuotes', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
     }
-    window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); } catch(_){} });
-    setTimeout(function(){ try { window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); } catch(_){} }, 1200);
+    window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} });
+    window.addEventListener('aio:newsUpdated', function(){ try { window._aioRenderActivePageNewsStrip(); } catch(_){} });  // v50.41: 뉴스 갱신 시 활성 페이지 스트립 재렌더
+    setTimeout(function(){ try { window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} }, 1200);
     setTimeout(function(){ try { window._aioGuardEmptyVerdicts(); } catch(_){} }, 3000);
   }
 })();
@@ -15199,7 +15276,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.40';
+const APP_VERSION = 'v50.41';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
