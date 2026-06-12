@@ -1,5 +1,24 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.39 - 텔레그램 3채널 통합 + /data-refresh (2026-06-12)
+
+**사용자: "텔레그램 3채널(aetherjapanresearch·insidertracking·bornlupin) 핵심 뉴스 반영·통합 + /data-refresh 꼼꼼하게 최대한 다 + 마지막에 커밋/배포."**
+
+**텔레그램 7일 핵심 인텔** (공개 `t.me/s/` 프리뷰 WebFetch):
+- **6/11 반등 랠리**: S&P +1.75%(7,394)·Nasdaq +2.54%(25,810)·Dow +1.85%(50,841), VIX ~19.4. US-이란 디에스컬레이션 + SpaceX IPO 위험선호.
+- **US-이란 MOU/휴전 임박**(7개항 초안 IRNA): 호르무즈 30일내 재개·단계적 제재완화(원유수출 연동)·전선 교전중단 → **유가 급락 WTI $84.92(-3.2%)·Brent ~$88·Gold $4,080**. v50.15 "중동 재고조·유가 급등"에서 **정반대 반전**.
+- **SpaceX IPO**: 나스닥 $135/주·시총 ~$1.78조·조달 ~$750억(역대 최대)·머스크 순자산 $1조 돌파·한국 증권사 2x 상품.
+- **메모리 슈퍼사이클 지속**: AMD VP "DDR5 가격 H1'28까지 강세(정상화 ~2년)"·SK하이닉스 +230% YTD/시총 $1조/8월 나스닥 상장 추진·키옥시아 日 시총 1위 ¥4.44조·HDD 랠리(JPM WDC $650/STX $920, FY27 +40%)·Q1'26 반도체 장비매출 사상 최대 $36.55B.
+- **개별**: NVDA S&P 신용 AA 승급·AMD Citi Buy $575(Venice 2.5D 패키징 부족)·Meta BofA $835·구글-삼성 2nm TPU(Icefish)·나스닥100 편입(6/22) NBIS/RKLB/ALAB/CRWV/TER·ADBE -6.5%/SMCI -8.9%.
+
+**/data-refresh (audit-first, WebSearch 실측 + R183 sanity)**:
+- **DATA_SNAPSHOT 본체 + `_fallback` 미러 동기화(R184)**: 美지수(SPX/Nasdaq/Dow 6/11 종가)·VIX 19.44·WTI 84.92·Brent 88.4·Gold 4,080·원달러 1,523.28·BTC 61,303·10Y 4.47%·tnx2y 4.20·KOSPI 7,763.95 + `_updated`/`_snapshotDate`/`_syncDate` 6/11~12 + `_note`/`currentTopic`/`spacexIpoStatus`/`cpiNext` 내러티브 갱신.
+- **HOME_WEEKLY_NEWS** 5건 텔레그램 재큐레이션(6/11~12 날짜로 72h 필터 통과).
+- **매크로 캘린더**: `_aioRecomputeMacroCalendar` 부팅 auto-advance가 지난 NFP(6/5)/CPI(6/10) nextRelease 자동 전진(검증).
+- **차트 시계열**: v50.38에서 `_fetchYahooChartData` 복구로 sentiment VIX/HY 차트가 라이브 fetch 전환 → 정적 배열 의존 감소(정직: 정적 배열 수동 연장은 라이브 대체로 생략).
+
+**정직한 범위**: WebSearch 미확보 필드(ETH·KOSDAQ·DXY·글로벌지수·5월 CPI/PCE 발표값)는 추측 금지(R15/R183) — 라이브 fetch/데이터봇 우선, SKIPPED 라벨 유지. **v50.36~38 포함 단일 배포.** R1 7곳 + 캐시버스터 5곳.
+
 ## v50.38 - AI 채팅 정성·도메인 데이터 + 초보자 시각 차트 분석 (2026-06-12)
 
 **사용자: "데이터 출처가 많아도 대부분 시세 아니냐? 정성 데이터(매크로·외환·채권·기업·테마)도 가져오나? 차트/기술 분석은 되나? 예전에 추가한 이미지(시각) 생성이 잘 되는지 모르겠다. 초보자는 차트 분석을 어려워하니 필수다."**

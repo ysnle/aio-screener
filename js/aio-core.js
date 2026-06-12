@@ -15199,7 +15199,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.38';
+const APP_VERSION = 'v50.39';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -16111,8 +16111,8 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-06-08T12:00:00+09:00',   // v50.15 텔레그램 3채널(insidertracking/aetherjapanresearch/bornlupin) 7일 통합: 6/5(금) 셀오프(S&P -2.6%·나스닥 -4.2%·SOX -10%, 5월 NFP 172K 서프라이즈→2Y 4.17%, 포지셔닝 청산·골드만 금리인하 철회) + 6/8 젠슨 황 방한 한국 AI 인프라 블리츠(SK하이닉스/삼성/네이버 1GW AI팩토리/SKT/현대차) + 메모리 슈퍼사이클 리레이팅(CLSA/NH 목표가 상향) + 중동 재고조(후티 홍해봉쇄·이란 호르무즈 경고·유가 +4-5%). v50.11: 6/4 종가 baseline. v50.5: sentiment/breadth 주간 + SKEW/MOVE Yahoo fetch.
-  _snapshotDate: '2026-06-05',
+  _updated: '2026-06-12T12:00:00+09:00',   // v50.39 텔레그램 3채널 7일 통합 (6/12 KST): 6/11(목) 반등 랠리(S&P +1.75% 7,394 · Nasdaq +2.54% 25,810 · Dow +1.85% 50,841) + US-이란 MOU/휴전 임박(호르무즈 30일내 재개·단계적 제재완화 → 유가 급락 WTI 84.92 -3.2%) + SpaceX IPO($135/주·~$1.78T·머스크 순자산 $1조 돌파) + 메모리 슈퍼사이클 지속(DDR5 가격 H1'28까지 高·SK하이닉스 +230% YTD·시총 $1조·8월 나스닥 상장추진·키옥시아 日 시총1위 ¥4.44조) + HDD 랠리(JPM WDC $650·STX $920) + Q1'26 반도체 장비매출 사상최대 $36.55B. 나스닥100 편입(6/22) NBIS/RKLB/ALAB/CRWV/TER. AMD Citi Buy $575·NVDA S&P AA승급·Meta BofA $835. v50.15: 6/5 셀오프 baseline.
+  _snapshotDate: '2026-06-11',
   _staticDates: {
     briefingArchive: '2026-06-05',
     jensenInterview: '2026-03-20',
@@ -16123,31 +16123,31 @@ const DATA_SNAPSHOT = {
   },
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v50.15 텔레그램 통합 (2026-06-08 KST): 6/5(금) US selloff — S&P500 -2.6% (~7,388), Nasdaq -4.2% (~25,704), SOX -10%; May NFP came in 172K vs 85K forecast → 2Y yield +12bp to 4.17%, "positioning unwind not structural rate inflection" (JPM); Goldman Sachs withdrew its 2026 rate-cut call. 6/8 (Mon) pre-market mixed/rebounding amid Jensen Huang Korea visit: NVIDIA multiyear partnerships with SK Hynix (next-gen memory, Vera CPU on SK memory), Samsung (HBM4/SOCAMM near-term, HBM4E/foundry/Groq 4-8nm co-dev), Naver (1GW AI factory, 55MW H1-2027→200MW 2027-28, $50-60B capex, sovereign-AI B2B pivot), SK Telecom, Hyundai (AV/robotaxi). Memory super-cycle rerating: CLSA Samsung 400k→540k₩, SK Hynix 2.52m→3.7m₩, Micron $970→$1,320; NH Samsung 530k/SK Hynix 3.2m₩ (server DRAM +45%/+55% 26/27, DRAM inventory 2-3wk low, HBM ASP +30%). Citi semis: top picks AVGO/TXN/AMAT, 2027 supply bottleneck focus. Mideast re-escalation: Houthi Red Sea ban, Israel strikes Tehran/Kharg, IRGC Hormuz warning, oil +4-5%, KRW 1,529; Trump says ceasefire "very close". Apple redesigned Siri on NVIDIA B200 (Sept 2026). Derived index levels from telegram % moves; static fallback only — live stores override and Delayed/Fallback labels stay visible.',
+  _note: 'v50.39 텔레그램 통합 (2026-06-12 KST): 6/11(목) rebound rally — S&P500 +1.75% to 7,394.30, Nasdaq +2.54% to 25,809.66, Dow +1.85% to 50,841; VIX ~19.4. Driver: US-Iran de-escalation + risk-on into SpaceX IPO. US-Iran MOU/ceasefire near-signing (7-point draft per IRNA): Strait of Hormuz reopening within 30 days, phased sanctions relief tied to oil-export resumption, war cessation across Mideast fronts — WTI fell to 84.92 (-3.2%), Brent ~88, Gold $4,080 (risk-on, safe-haven unwind). SpaceX IPO on Nasdaq priced $135/share, ~$1.78T valuation, ~$75B raise (largest IPO ever); Musk net worth >$1T; Korean brokers offer 2x long/short. Memory super-cycle intact: AMD VP McAfee says DDR5 pricing elevated until H1-2028 (~2yr normalization); SK Hynix +230% YTD, mktcap >$1T, planning US/Nasdaq listing as early as August; Kioxia now #1 by mktcap in Japan ¥4.436T. HDD rally: JPM upgraded WDC ($650 PT) & Seagate ($920 PT), 40%+ FY27 rev growth. Q1-2026 semicap equipment sales record $36.55B (+14% YoY; China #1 $10.99B, Korea #2 $8.93B, Taiwan #3 $8.77B +24% YoY). Google-Samsung 2nm TPU (Icefish) memory I/O die, compute stays TSMC 1.4nm, 2028. Nvidia S&P credit upgrade to AA (stable). AMD Citi upgrade Buy $575 (Venice CPU 2.5D packaging shortage, ASE booked to 2028). Meta BofA TP $835 (16x fwd 2027 EPS). Nasdaq-100 adds (eff 6/22): NBIS/RKLB/ALAB/CRWV/TER. KR sell-side: PSK Buy ₩194K, VM ₩140K, Hanmi Semi ₩50B SpaceX stake. ADBE beat-but-fell -6.5%, SMCI -8.9% (capital raise). Derived/levels from WebSearch+telegram; static fallback only — live stores override and Delayed/Fallback labels stay visible.',
 
-  // ── 미국 주요 지수 (2026-06-05 종가 셀오프 / 텔레그램 JPM 코멘터리 기반, % 실측·레벨 환산) ──
-  spx:        7388.00,  spxPct:    -2.60,   // v50.15: 6/5(금) S&P -2.6% (텔레그램 JPM, 7585→~7388). 5월 NFP 172K 서프라이즈→금리급등+AI/이란 포지셔닝 청산. ATH 7585는 6/4 유지(spxATH 별도)
-  nasdaq:    25704.00,  nasdaqPct: -4.20,   // v50.15: 6/5 나스닥 -4.2% (텔레그램, 26831→~25704). SOX -10% 동반 — AI 트레이드 청산 집중
-  dow:       50668.97,  dowPct:    -1.50,   // v50.15: 6/5 다우 정확값 미확인 — 셀오프 추정(SKIPPED 레벨 유지, % 추정). 기술주 약세 대비 방어적 하락
-  rut:       2936.57,  rutPct:    +0.13,   // v49.95: Russell 2000 2,936.57 실측 (5/28, 52주 신고가권. Yahoo ^RUT). 6/5 셀오프 미반영(SKIPPED)
-  vix:          19.38,  vixPct:    +25.8,   // v50.15: 6/5 셀오프로 VIX 급등 (15.40→19.38, 라이브 fetch 정합). 변동성 확대국면이나 패닉 미만 — 6/8 반등시도
-  vix9d:        20.60,  vix3m:     19.80,  vix6m: 20.30,   // v50.15: VIX 기간구조 시드 (^VIX9D/^VIX3M/^VIX6M live 부재 시 폴백 — 6/5 셀오프 후 9D>30D 경미한 백워데이션/평탄). 라이브 fetch 우선
-  spxATH:     7585.00,                       // v50.15: SPX 사상최고 = 6/4 종가 7585 (6/5 셀오프와 무관하게 ATH 레벨 유지 · _fallback 미러 정합)
+  // ── 미국 주요 지수 (2026-06-11 종가 반등 랠리 / WebSearch 실측 레벨) ──
+  spx:        7394.30,  spxPct:    +1.75,   // v50.39: 6/11(목) S&P +1.75% to 7,394.30 (WebSearch). US-이란 디에스컬레이션 + SpaceX IPO 위험선호. ATH 7585는 6/4 유지(spxATH 별도)
+  nasdaq:    25809.66,  nasdaqPct: +2.54,   // v50.39: 6/11 나스닥 +2.54% to 25,809.66 (WebSearch). 반도체/AI 트레이드 재매수
+  dow:       50841.00,  dowPct:    +1.85,   // v50.39: 6/11 다우 +1.85% to 50,841 (WebSearch)
+  rut:       2936.57,  rutPct:    +0.13,   // v49.95: Russell 2000 2,936.57 (5/28 실측, 6/11 정확값 미확인 SKIPPED). Yahoo ^RUT 라이브 우선
+  vix:          19.44,  vixPct:    -3.0,    // v50.39: 6/12 VIX ~19.44 (WebSearch). 6/5 셀오프(19.38)→반등 랠리에도 변동성 잔존(이란딜 확정 대기). 패닉 미만
+  vix9d:        18.80,  vix3m:     19.90,  vix6m: 20.40,   // v50.39: VIX 기간구조 시드 (^VIX9D/^VIX3M/^VIX6M live 부재 시 폴백 — 9D<30D 정상 콘탱고 복귀). 라이브 fetch 우선
+  spxATH:     7585.00,                       // v50.15: SPX 사상최고 = 6/4 종가 7585 (현재 7394는 ATH -2.5% 아래 · _fallback 미러 정합)
   vvix:         85.75,                        // v50.11: VVIX 85.75 (sentiment 블록 정합, _fallback 미러 동기화 R184)
 
-  // ── 한국 지수 (2026-05-28 종가 / KRX Seoul Economic Daily 확인) ──
-  kospi:     8185.29,  kospiPct:  -0.53,  kospiPrev: 8228.70,  // v49.84: 2026-05-28 close (5일 랠리 종료, 중동 긴장 + 채권금리 상승)
-  kosdaq:    1104.36,  kosdaqPct: -2.54,  kosdaqPrev: 1133.13, // v49.84: 2026-05-28 close
+  // ── 한국 지수 (2026-06-12 / WebSearch — 이란 휴전 위험선호 반등) ──
+  kospi:     7763.95,  kospiPct:  +0.40,  kospiPrev: 7733.10,  // v50.39: 6/12 KOSPI ~7,763.95 (+0.4%, WebSearch). 이란 디에스컬레이션+메모리 슈퍼사이클 리레이팅 위험선호
+  kosdaq:    1104.36,  kosdaqPct: +0.30,  kosdaqPrev: 1101.06, // v50.39: 6/12 KOSDAQ 정확값 미확인 — 반등 추정(SKIPPED 레벨 유지). 라이브 fetch 우선
 
-  // ── 원자재 (2026-06-08 / 텔레그램 중동 재고조 — 유가 +4-5% 급등) ──
-  wti:       97.20,  wtiPct:    +4.50,   // v50.15: 6/8 WTI ~$97.2 (텔레그램 +4-5%, 93.03→). 후티 홍해봉쇄+이스라엘 카르그섬 원유터미널 공습+IRGC 호르무즈 경고로 공급 우려 재점화
-  brent:     100.80, brentPct:  +4.30,   // v50.15: 6/8 Brent ~$100.8 (WTI 연동 추정, 중동 escalation). $100 재돌파 — 트럼프 "휴전 임박"과 공존하는 양방향 리스크
-  gold:      4411,   goldPct:   -1.60,  goldWeeklyPct: -6.0,  // v49.92: Fortune/APMEX 2026-05-28 ($4483 → $4411)
-  ng:        3.07,                       // v49.95: Henry Hub 천연가스 $3.07/MMBtu 실측 (EIA/FRED 5/18). 기존 2.95 stale
+  // ── 원자재 (2026-06-11~12 / WebSearch — 이란 MOU/휴전 임박, 유가 급락) ──
+  wti:       84.92,  wtiPct:    -3.18,   // v50.39: 6/11 WTI $84.92 (-3.18%, WebSearch). US-이란 MOU/휴전(호르무즈 30일내 재개·제재완화) 공급 정상화 기대 → 급락. v50.15 escalation($97.2)에서 반전
+  brent:     88.40, brentPct:  -3.00,   // v50.39: 6/11 Brent ~$88.4 (WTI+spread 추정, 이란 디에스컬레이션). $100→$88 급락
+  gold:      4080,   goldPct:   -1.80,  goldWeeklyPct: -3.5,  // v50.39: 6/11 Gold ~$4,080 (WebSearch, TradingEconomics). 위험선호+안전자산 되돌림($4,411→$4,080)
+  ng:        3.07,                       // v49.95: Henry Hub 천연가스 $3.07/MMBtu (EIA/FRED 5/18, 라이브 우선)
 
-  // ── 환율 (2026-06-08 / 텔레그램 — 원화 약세 1,529) ──
-  krw:      1529.00,  krwPct:   +1.20,  krwRound: 1529,  // v50.15: 6/8 원/달러 1,529 (텔레그램 insidertracking, 1464→1529 약세). 중동 리스크오프+미 금리급등(2Y 4.17%) 달러 강세 + 6/5 위험회피
-  dxy:        99.14,  dxyPct:   -0.03,                   // v49.85: WebSearch 2026-05-27 confirmed (라이브 fetch 우선, 6/5~8 정확값 미확인 SKIPPED)
+  // ── 환율 (2026-06-12 / WebSearch — 위험선호로 원화 소폭 강세) ──
+  krw:      1523.28,  krwPct:   -0.40,  krwRound: 1523,  // v50.39: 6/12 원/달러 1,523.28 (-0.13~0.4%, WebSearch). 이란 휴전 위험선호로 1,529→1,523 소폭 강세. 라이브 fetch 우선
+  dxy:        99.10,  dxyPct:   -0.05,                   // v50.39: DXY ~99.1 (6/12 정확값 미확인, 99.14 인근 유지 SKIPPED). 라이브 fetch 우선
 
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
@@ -16168,7 +16168,7 @@ const DATA_SNAPSHOT = {
   vkospi:      18.20,                             // v49.92 P453 정정: v49.87 WebSearch "74.02"는 명백한 오류 (VIX 15.74 + KOSPI 사상최고와 양립 불가, VKOSPI 정상범위 12~25, 74=코로나 패닉). VKOSPI-VIX 상관 + KOSDAQ -2.54% 반영 합리적 추정. 라이브(fetchVkospiDynamic Naver) 우선
   vkospiPct:   +2.30,                              // v49.92: VKOSPI 추정 변동률 — data-snap="vkospi-chg" 시드
   hySpread:    275,                                // v49.84: HY 스프레드 (위험선호 지속, 신고가 환경 — 5/27 SPX 신고가)
-  tnx2y:       4.17,                               // v50.15: 2Y Treasury 4.17% (텔레그램 JPM, 6/5 +12bp). 5월 NFP 172K 서프라이즈로 short-end 급등 → 골드만 2026 금리인하 전망 철회. 6/4 4.035 → 6/5 4.17
+  tnx2y:       4.20,                               // v50.39: 2Y Treasury ~4.20% (6/11 10Y 4.47% WebSearch 실측, 2s10s 소폭 정상 +25bp 내외 → 2Y ~4.2 추정·SKIPPED). 6/5 4.17(NFP 172K)에서 이란 디에스컬레이션·랠리로 소폭 변동. 라이브 ^FVX/^IRX 우선
 
   // ── 거시 지표 ──
   cpi:          3.8,   coreCpi:   2.8,   // v49.86: CPI 4월 YoY 3.8% · Core 2.8% (BLS 5/14 발표, Iran 전쟁+AI 지출 영향 — Fortune 2026-05-12)
@@ -16176,13 +16176,13 @@ const DATA_SNAPSHOT = {
   pce:          3.8,   corePce:   3.3,            // v49.91: 4월 PCE (BEA 5/28 발표) — Headline 3.8% (2023.5 이후 최고) / Core 3.3% (2023.10 이후 최고). MoM Headline +0.4 / Core +0.2
   pceYoy:       3.8,   corePceYoy: 3.3,  // v50.11: data-snap="pce-yoy"/"core-pce-yoy" seed (page-macro sink, R97 — pce/corePce와 동일, FRED PCEPI write-back 시 자동 오버라이드)
   nfp:          172,                              // v50.15: 5월 NFP +172K (텔레그램 JPM, 예상 85K 대폭 상회 — 6/5 발표). 강한 고용→금리인하 기대 후퇴. data-snap="nfp", FRED PAYEMS 설정 시 자동 오버라이드
-  cpiNext:     '2026-06-10',                       // v50.4: BLS May 2026 CPI scheduled release (다음 인플레 트리거)
+  cpiNext:     '2026-07-15',                       // v50.39: 5월 CPI 6/10 발표 완료(값 미확인 — 라이브/공식 우선, 추측 금지) → 다음 6월 CPI ~7/15 예정
   nfpNext:     '2026-07-03',                       // v50.15: 5월 고용 6/5 발표 완료(172K) → 다음 6월 NFP 7/3 예정
   pceNext:     '2026-06-25',                       // v50.4: BEA May 2026 Personal Income and Outlays scheduled release
   computexWeek:'2026-06-01~2026-06-05',            // v50.4: Computex/GTC Taipei window (종료)
   nvidiaKoreaWeek: '2026-06-08',                   // v50.15: 젠슨 황 방한 한국 AI 인프라 동맹 발표일 — SK하이닉스(차세대 메모리 다년)/삼성(HBM4·Groq 4-8nm)/네이버(1GW AI팩토리·소버린 AI)/SKT(DSX)/현대차(AV) 동시 발표. 현재 시장 화두
-  currentTopic: '젠슨 황 방한 한국 AI 인프라 블리츠 + 메모리 슈퍼사이클 리레이팅(CLSA/NH) + 6/5 포지셔닝 청산 셀오프(NFP 172K→금리급등) + 중동 재고조(유가 +4-5%)',  // v50.15: 텔레그램 통합 현재 화두
-  spacexIpoStatus: 'SpaceX IPO: Reuters-reported June 12 Nasdaq target; source-dependent watch, not guaranteed execution',
+  currentTopic: 'US-이란 MOU/휴전 임박(호르무즈 30일내 재개·유가 급락 WTI $85) + SpaceX IPO($135·$1.78T·머스크 $1조) + 메모리 슈퍼사이클 지속(DDR5 H1\'28까지·SK하이닉스 +230%/나스닥 상장·키옥시아 日 시총1위) + HDD 랠리(WDC $650/STX $920) + Q1 반도체 장비 사상최대 $36.55B',  // v50.39: 텔레그램+WebSearch 통합 현재 화두
+  spacexIpoStatus: 'SpaceX IPO 실행(6/12~13): Nasdaq 상장 $135/주 IPO가, 시총 ~$1.78T, ~$75B 조달(역대 최대 IPO), 머스크 순자산 $1조 돌파. 한국 증권사 2x 롱/숏 상품 출시. SATS(주주) +6.8%',
   ismPmi:      52.7,   ismPrice:  84.6,           // v49.95: 4월 ISM Mfg 52.7 (3월과 동일, 2022.8 이후 최강 · 18개월 확장) · Prices 84.6(2022.4 이후 최고, 19개월 연속 상승 — 철강·알루미늄·석유·관세). ISM 5/1 발표. 기존 ismPrice 70.7 14pt stale
   ismSvc:      53.6,                              // v49.95: 4월 ISM 서비스 PMI 53.6 실측 (5/5 발표 — 3월 54.0→4월 53.6, 22개월 연속 확장. Prices 70.7 고착). 다음 6/3 5월분. 기존 54.0 stale
   usUnemploy:   4.30,  // v50.15: 4월 4.3% (5/8). 5월 실업률은 텔레그램 미제공(NFP 172K만 확인) — 라이브/공식 발표 우선, SKIPPED
@@ -16251,8 +16251,8 @@ const DATA_SNAPSHOT = {
   cac:        8096,    cacPct:     -0.30,  // v49.95: CAC 40 8,096 실측 (5/28 -0.3%, 5/27 8,207.89 — 약한 PMI+중동 긴장. BBN/TradingEconomics). 기존 7950 stale
 
   // ── 크립토·추가 원자재 (정적 폴백, 실시간 수신 시 교체) ──
-  btc:       75216,    btcPct:    -1.90,   // v49.86: BTC $75,216 2026-05-27 09:21 ET (Yahoo Finance, Iran 평화 협상 + 위험선호)
-  eth:        2068,    ethPct:    -1.90,   // v49.86: ETH $2,068 2026-05-27 09:21 ET (Yahoo Finance)
+  btc:       61303,    btcPct:    -2.45,   // v50.39: BTC $61,302.56 2026-06-12 (WebSearch, -2.45%). 75k→61k 조정 — 미 금리 高(2Y/10Y 12개월 최고권) + 200일선 하회 지속. 라이브 fetch 우선
+  eth:        2068,    ethPct:    -2.40,   // v50.39: ETH 6/12 정확값 미확인 — BTC 동조 약세 추정(SKIPPED 레벨 유지). 라이브 fetch 우선
   silver:     73.51,   silverPct: -0.91,  // v49.92: Fortune 2026-05-28 ($71.50 → $73.51)
 
   // ── 리스크 지표 (5/27 갱신) ──
@@ -16336,7 +16336,7 @@ const DATA_SNAPSHOT = {
   _fallback: {
     fg: 60,              // v49.84: CNN F&G 60 (Greed) 2026-05-26 기준
     fg_uw: 65,           // v49.84: UW 확장 F&G (CNN 60 → UW 65 추정)
-    vix: 19.38,          // v50.15: 6/5 셀오프로 VIX 급등 (본체 정합, 라이브 fetch 19.38)
+    vix: 19.44,          // v50.39: 6/12 VIX ~19.44 (본체 정합, R184 미러)
     breadth200: 57,      // v50.6: window._breadth200(레거시 변수명, 실제 20일선 breadth=bpSPX20)의 폴백값. 20일선 값(57)으로 정합. *200일선 데이터 아님*
     breadth5: 61,        // v49.87: $MMFD 61.41 실측 (Barchart)
     breadth50: 52,       // v50.11: breadth50sma 본체(52, S5FI 52.2%)와 mirror 동기화 (R184 drift 시정, 기존 61)
@@ -16345,13 +16345,13 @@ const DATA_SNAPSHOT = {
     spx50ma: 7280,       // v49.84: SPX 50일 이동평균 (5/27 기준 추정 — 신고가 후 상승)
     spx200ma: 6950,      // v49.84: SPX 200일 이동평균 추정
     spxATH: 7585.00,     // v50.11: SPX ATH = 2026-06-04 close 신고가 (본체 spx 정합)
-    dxy: 99.14,          // v49.85: DXY WebSearch 2026-05-27 confirmed
-    tnx: 4.48,           // v49.84: 10Y 2026-05-27 close
-    hyg: 81,             // v49.84: HYG (Iran 호재 + 신고가 환경 — 신용 스프레드 추가 타이트닝)
+    dxy: 99.10,          // v50.39: DXY ~99.1 (본체 정합, R184 미러)
+    tnx: 4.47,           // v50.39: 10Y 4.47% (6/11 WebSearch 실측)
+    hyg: 81,             // v49.84: HYG (위험선호 환경 — 신용 스프레드 타이트. 라이브 우선)
     vvix: 85.75,         // v50.11: VVIX 85.75 — DATA_SNAPSHOT.vvix 본체와 mirror 동기화 (R184 drift 시정, 기존 83)
     move: 73.58,         // v50.5: MOVE 73.58 — DATA_SNAPSHOT.move와 정합 (Yahoo ^MOVE 2026-06-01)
     skew: 136.86,        // v50.5: SKEW 136.86 — DATA_SNAPSHOT.skew와 정합 (Yahoo ^SKEW 2026-06-02)
-    _syncDate: '2026-06-05'  // v50.11: static fallback sync date (snapshot 본체와 mirror 정합)
+    _syncDate: '2026-06-11'  // v50.39: static fallback sync date (snapshot 본체와 mirror 정합)
   }
 };
 

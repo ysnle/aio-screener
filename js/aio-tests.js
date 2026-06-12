@@ -5168,12 +5168,12 @@
       }));
 
     var snapV504 = window.DATA_SNAPSHOT || {};
-    _assert('T760 v5015_snapshot_current_topic_fields: static snapshot records current topics (v50.15 telegram refresh: 6/5 close + NVIDIA Korea) without inventing unpublished values',
-      snapV504._snapshotDate === '2026-06-05' &&
-        snapV504.cpiNext === '2026-06-10' &&
-        snapV504.nfpNext === '2026-07-03' &&   // v50.15: 5월 NFP 6/5 발표완료(172K) → 다음 6월분 7/3
+    _assert('T760 v5039_snapshot_current_topic_fields: static snapshot records current topics (v50.39 telegram refresh: 6/11 close + Iran ceasefire + SpaceX IPO + memory super-cycle) without inventing unpublished values',
+      snapV504._snapshotDate === '2026-06-11' &&
+        snapV504.cpiNext === '2026-07-15' &&   // v50.39: 5월 CPI 6/10 발표완료 → 다음 6월분 ~7/15 (값 미확인·추측 금지)
+        snapV504.nfpNext === '2026-07-03' &&
         snapV504.pceNext === '2026-06-25' &&
-        /NVIDIA|한국|AI 인프라|메모리/i.test(String(snapV504.currentTopic || '')) &&
+        /이란|휴전|SpaceX|메모리|슈퍼사이클/i.test(String(snapV504.currentTopic || '')) &&
         /2026-06-08/.test(String(snapV504.nvidiaKoreaWeek || '')),
       JSON.stringify({
         snapshotDate: snapV504._snapshotDate,
