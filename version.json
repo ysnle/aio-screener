@@ -1,5 +1,5 @@
 {
-  "version": "v50.34",
-  "built": "2026-06-11T16:30:00+09:00",
-  "note": "v50.34 종합 5개 페이지 개편 2차 — home 결론 흐름 그룹화. (1) home: 결론바와 그 근거/액션 사이에 '오늘의 시장' 배너+경고+내비가 끼어 결론→근거→액션이 분절됐던 것 → 결론바 직후로 [매매 판단 그리드(점수·가중치·품질) → Action Items(포지션·센티먼트 행동)] 묶음(_aioReorderCoreSections, insertAdjacentElement 이동). 흐름: 결론→근거→액션→오늘의 시장→지수/매크로→글로벌→채팅. (2) breadth 상세 차트 접기는 보류 — 'SECTION4 추가 지표' 그리드가 차트 캔버스(bh-* 등)를 직접 담지 않는 복잡 구조라 절반만 접히는 위험 발견, 차트 컨테이너 정밀 매핑 후 별도 진행(라이브 검증으로 회귀 방지). (3) signal 점수 '—/100'은 버그 아님 확인 — refreshSignalDashboard 실행 시 정상 채워짐(부팅 타이밍 placeholder). (4) sentiment 997px는 F&G+VIX+서브차트 4개 핵심 대시보드라 분할 불요. T804(home 그룹화) 가드. 종합 5개 구조 정리: home·signal·sentiment·briefing 완료, breadth는 verdict-first(v50.30)까지·차트 정리는 다음. R1 7곳+캐시버스터 5곳."
+  "version": "v50.36",
+  "built": "2026-06-12T15:30:00+09:00",
+  "note": "v50.36 분석 5개 점검 + technical·themes verdict-first + 전 페이지 죽은 설명서 소스 정리 (+ v50.35 피드백·게시판·옵션 제거 통합). 분석 5개 라이브+소스 직접 점검 결과 macro(conclusion-bar 최상단)·fxbond(Cross-Asset 통합판정 상단)·fundamental(검색 주도형)은 이미 결론 우선이라 불요, technical·themes만 개편 필요. (B) technical: 시장 건강도(결론)를 헤더 직후로(TV차트보다 먼저) + Institutional Brief(per-ticker 심화도구)를 라이브 지표 뒤로 하향. themes: 사이클 국면 판정(결론)을 헤더 직후로(RRG보다 먼저). _aioReorderCoreSections에 idempotent 이동 추가(신규 콘텐츠 0). (C) 전 페이지 죽은 설명서 소스 정리: 화면엔 이미 런타임 declutter로 안 보이나 소스에 남아 있던 27개 .aio-explain/.beginner-tip 블록(1177줄) 삭제 → index.html 30194→29017줄. guide엔 0개라 런타임 동작과 정확히 일치(화면 변화 0). div 균형 유지. (A) v50.35: 피드백·게시판 버튼/모달/드로어 + 옵션 내비 + #page-options 콘텐츠 제거(셸 스텁 유지로 21페이지 정합). 옵션 데이터 미연결(VIX/VVIX만 라이브·심리 중복, 스큐/흐름/Greeks 정적) 확인. T805·T806. R1 7곳+캐시버스터 5곳."
 }

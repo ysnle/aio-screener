@@ -2380,6 +2380,31 @@ if (typeof document !== 'undefined') {
           }
         });
       }
+      // v50.36: technical verdict-first — 시장 건강도(페이지 결론)를 헤더 직후로(TV차트보다 먼저) +
+      //   Institutional Brief(per-ticker 심화 도구)를 라이브 지표 섹션 직후로 하향 → 상단 declutter.
+      //   신규 콘텐츠 0 (기존 섹션 이동). _directChildOf로 inner id를 감싸는 직속 자식 섹션을 잡음.
+      var pt = document.getElementById('page-technical');
+      if (pt) {
+        var hdrT = _directChildOf(pt, '.page-title');
+        var verdictT = _directChildOf(pt, '#market-health-dashboard');
+        if (hdrT && verdictT && verdictT.parentElement === pt && hdrT.nextElementSibling !== verdictT) {
+          hdrT.insertAdjacentElement('afterend', verdictT);
+        }
+        var liveT = _directChildOf(pt, '#tech-indicators-live');
+        var briefT = document.getElementById('institutional-technical-brief');
+        if (liveT && briefT && briefT.parentElement === pt && liveT.nextElementSibling !== briefT) {
+          liveT.insertAdjacentElement('afterend', briefT);
+        }
+      }
+      // v50.36: themes verdict-first — 경기 사이클 국면 판정(페이지 결론)을 헤더 직후로(RRG 차트보다 먼저).
+      var pth = document.getElementById('page-themes');
+      if (pth) {
+        var hdrTh = _directChildOf(pth, '.page-title');
+        var verdictTh = _directChildOf(pth, '#cycle-dynamic-readout');
+        if (hdrTh && verdictTh && verdictTh.parentElement === pth && hdrTh.nextElementSibling !== verdictTh) {
+          hdrTh.insertAdjacentElement('afterend', verdictTh);
+        }
+      }
       return true;
     } catch(e) { return false; }
   };
@@ -2817,7 +2842,7 @@ var AIO_PAGE_BRIEFS = {
     use: '점수보다 행동 사다리가 우선입니다.',
     steps: ['Trading Score로 시장 허용치 확인', 'Lockout/OPEX로 추격매수 위험 확인', '포지션 크기와 스톱을 정한 뒤 실행'],
     focus: '강세장에서는 RSI 과열만으로 팔지 말고, ATR 확장·거래량·종가 위치를 같이 보세요.',
-    links: [['technical','기술 분석'], ['portfolio','포트폴리오'], ['options','옵션'], ['briefing','브리핑']]
+    links: [['technical','기술 분석'], ['portfolio','포트폴리오'], ['briefing','브리핑']]
   },
   breadth: {
     title: '지수 상승이 소수 대형주인지, 시장 전체인지 확인',
@@ -2831,7 +2856,7 @@ var AIO_PAGE_BRIEFS = {
     use: '심리는 타이밍 보조 지표입니다.',
     steps: ['Fear & Greed와 Put/Call 확인', 'AAII·VIX로 군중 쏠림 확인', '극단값은 반대로, 중간값은 추세와 함께 해석'],
     focus: '탐욕은 즉시 매도 신호가 아니라 추격매수 금지 신호에 가깝습니다.',
-    links: [['signal','시그널'], ['options','옵션'], ['breadth','시장 폭']]
+    links: [['signal','시그널'], ['breadth','시장 폭']]
   },
   briefing: {
     title: '오늘 시장을 움직일 이벤트와 행동만 압축 확인',
@@ -2845,7 +2870,7 @@ var AIO_PAGE_BRIEFS = {
     use: '기관형 Technical Brief가 메인입니다.',
     steps: ['티커 입력 후 월/주/일/줌 차트 확인', 'Sell Pressure와 Exit Plan 확인', '10EMA·21EMA·50SMA 이탈별 행동 적용'],
     focus: 'RSI 70+는 과열 경고일 뿐이며, ATR 확장·RVOL·종가 위치가 매도 판단의 핵심입니다.',
-    links: [['signal','시그널'], ['portfolio','포트폴리오'], ['options','옵션']]
+    links: [['signal','시그널'], ['portfolio','포트폴리오'], ['ticker','티커']]
   },
   macro: {
     title: '금리, 인플레, 성장 중 무엇이 시장을 지배하는지 확인',
@@ -15118,7 +15143,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.34';
+const APP_VERSION = 'v50.36';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

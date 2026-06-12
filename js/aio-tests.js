@@ -1079,7 +1079,9 @@
     var optionText = '';
     var optionPage = document.getElementById('page-options');
     if (optionPage) optionText = optionPage.textContent || '';
-    _assert('T137 option_ux: individual IV section marked as example', !/개별 종목 IV 현황/.test(optionText) && /개별 종목 IV 예시/.test(optionText), 'options IV table still reads like live current data');
+    // v50.35: 옵션 페이지 폐기 — 실시간 옵션체인 피드 미연결로 콘텐츠 제거, 셸만 스텁 유지.
+    // 더 이상 라이브처럼 보이는 IV 표/스큐/Greeks가 없어야 하고, 통합 안내 스텁이어야 한다.
+    _assert('T137 option_ux: options decommissioned to stub (no live IV table)', !/개별 종목 IV 현황|개별 종목 IV 예시/.test(optionText) && /통합|정리|투자 심리/.test(optionText), 'options page should be a decommissioned stub, not a live IV surface');
 
     var staleEventLanguageOk = !/PCE\(4\/30\)|PCE 4\/30|VIX Spot 18\.36/.test(optionText);
     _assert('T138 option_ux: stale event wording removed from options page', staleEventLanguageOk, 'stale option event wording remains');
@@ -1717,9 +1719,10 @@
       manualOk === false,
       'manualOk=' + manualOk);
 
-    _assert('T380_options_pcr_single_source_dom_hooks',
-      !!document.getElementById('opt-pcr-val') && !!document.getElementById('opt-pcr-val-secondary') && !!document.getElementById('opt-pcr-text'),
-      'primary=' + !!document.getElementById('opt-pcr-val') + ' secondary=' + !!document.getElementById('opt-pcr-val-secondary'));
+    // v50.35: 옵션 폐기 — PCR DOM 훅은 콘텐츠와 함께 제거. 셸 스텁만 유지.
+    _assert('T380_options_decommissioned_pcr_hooks_removed',
+      !document.getElementById('opt-pcr-val') && !document.getElementById('opt-pcr-text') && !!document.getElementById('page-options'),
+      'pcrVal=' + !!document.getElementById('opt-pcr-val') + ' shell=' + !!document.getElementById('page-options'));
 
     var pcrTexts = Array.prototype.slice.call(document.querySelectorAll('[data-live-price="PCR"]'))
       .map(function(el) { return (el.textContent || '').trim(); })
@@ -1730,10 +1733,11 @@
       Object.keys(pcrUnique).length <= 1,
       'values=' + Object.keys(pcrUnique).join(','));
 
+    // v50.35: 옵션 폐기 — GEX 스냅 DOM 제거. (없어야 정상)
     var gex = document.querySelector('[data-snap="gex-current"], #opt-gex-val');
-    _assert('T382_gex_reference_only_contract',
-      gex && gex.getAttribute('data-operational-use') === 'reference-only',
-      gex ? 'use=' + gex.getAttribute('data-operational-use') : 'missing');
+    _assert('T382_options_decommissioned_gex_removed',
+      !gex && !!document.getElementById('page-options'),
+      gex ? 'use=' + gex.getAttribute('data-operational-use') : 'gex-removed');
 
     _assert('T383_kr_supply_fallback_and_runtime_audit',
       typeof _renderKrWeeklySupplyFallback === 'function' && window.AIO && typeof window.AIO.getKrSupplyRuntimeAudit === 'function',
@@ -1771,14 +1775,12 @@
       typeof window.AIO.updateSnapshotStaleBanner === 'function',
       'typeof=' + (window.AIO && typeof window.AIO.updateSnapshotStaleBanner));
 
+    // v50.35: 옵션 폐기 — PCR narrative/value lineage 쌍 제거. (둘 다 없어야 정상)
     var pcrPrimary = document.getElementById('opt-pcr-val');
     var pcrDetail = document.getElementById('opt-pcr-text');
-    _assert('T390_options_pcr_narrative_operational_use_matches_value',
-      pcrPrimary && pcrDetail &&
-      pcrDetail.getAttribute('data-operational-use') === pcrPrimary.getAttribute('data-operational-use') &&
-      pcrDetail.getAttribute('data-source-kind') === pcrPrimary.getAttribute('data-source-kind'),
-      'value=' + (pcrPrimary && pcrPrimary.getAttribute('data-operational-use')) +
-      ' detail=' + (pcrDetail && pcrDetail.getAttribute('data-operational-use')));
+    _assert('T390_options_decommissioned_pcr_narrative_removed',
+      !pcrPrimary && !pcrDetail && !!document.getElementById('page-options'),
+      'primary=' + !!pcrPrimary + ' detail=' + !!pcrDetail);
 
     var tempLineage = document.createElement('span');
     tempLineage.setAttribute('data-live-price', '__AIO_LINEAGE__');
@@ -2162,11 +2164,12 @@
       if (liveBackup) window._liveData.QCOM = liveBackup;
     }
 
-    // T469: Options trade ideas template + mock table reference-only (P338)
+    // T469: v50.35 옵션 폐기 — 전략 템플릿 카드도 콘텐츠와 함께 제거됨. 셸 스텁만 남아야 한다.
     var tradeTemplates = document.querySelectorAll('[data-source-label="options-strategy-template"]');
-    _assert('T469 options_template_reference_only_v4964: options trade ideas 3+ template 카드 data-source-label="options-strategy-template"',
-      tradeTemplates.length >= 3,
-      'templates=' + tradeTemplates.length);
+    var optPageT469 = document.getElementById('page-options');
+    _assert('T469 options_decommissioned_v5035: strategy template 카드 제거 + 셸 스텁 유지',
+      tradeTemplates.length === 0 && !!optPageT469,
+      'templates=' + tradeTemplates.length + ' shell=' + !!optPageT469);
 
     // T470: risk-radar-body 초기 lineage (P337)
     var rrb = document.getElementById('risk-radar-body');
@@ -4554,12 +4557,12 @@
       !!pfSharpe && !!pfBeta && !!pfMdd && !!pfDrift,
       'sharpe=' + !!pfSharpe + ' beta=' + !!pfBeta + ' mdd=' + !!pfMdd + ' drift=' + !!pfDrift);
 
-    // T236: options 동적 추천 DOM
-    var optRec = document.getElementById('options-dynamic-recommendation');
-    var optStrat = document.getElementById('options-rec-strategy');
-    _assert('T236 options_rec: dynamic-recommendation + rec-strategy DOM',
-      !!optRec && !!optStrat,
-      'rec=' + !!optRec + ' strat=' + !!optStrat);
+    // T236: v50.35 옵션 폐기 — 동적 추천 DOM은 콘텐츠와 함께 제거됨. 셸 스텁만 남아야 한다.
+    var optPageT236 = document.getElementById('page-options');
+    var optRecGone = !document.getElementById('options-dynamic-recommendation') && !document.getElementById('options-rec-strategy');
+    _assert('T236 options_rec: decommissioned (recommendation DOM removed, shell kept)',
+      !!optPageT236 && optRecGone,
+      'shell=' + !!optPageT236 + ' recGone=' + optRecGone);
 
     // T237: technical OHLC fallback 마킹
     var ohlc = document.querySelector('[data-aio-fallback="tradingview-iframe"]');
@@ -5816,6 +5819,47 @@
       t804detail = 'conc=' + ci + ' grid=' + gi + ' action=' + ai + ' grouped=' + t804ok;
     } catch(e) { t804detail = 'ERR:' + e.message; }
     _assert('T804 v5034_home_conclusion_group: home 결론바 직후 [매매판단 그리드 → Action Items] 연속 (결론→근거→액션)', t804ok, t804detail);
+
+    // ─── v50.35 피드백·게시판·옵션 제거 (사용자 요청) ───
+    var t805ok = false, t805detail = '';
+    try {
+      var optNav805 = Array.prototype.some.call(document.querySelectorAll('.nav-item'), function(n){ return /옵션/.test(n.textContent || ''); });
+      var fbBtn805 = !!document.querySelector('[data-action="openFeedback"]');
+      var boardBtn805 = !!document.querySelector('[data-action="openFeedbackBoard"]');
+      var fbModal805 = !!document.getElementById('feedback-overlay');
+      var boardDrawer805 = !!document.getElementById('board-drawer');
+      var optShell805 = !!document.getElementById('page-options'); // 셸은 21페이지 정합 위해 유지
+      var pageCount805 = document.querySelectorAll('.page[id^="page-"]').length;
+      t805ok = !optNav805 && !fbBtn805 && !boardBtn805 && !fbModal805 && !boardDrawer805 && optShell805 && pageCount805 === 21;
+      t805detail = 'optNavGone=' + !optNav805 + ' fbGone=' + (!fbBtn805 && !fbModal805) + ' boardGone=' + (!boardBtn805 && !boardDrawer805) + ' optShell=' + optShell805 + ' pages=' + pageCount805;
+    } catch(e) { t805detail = 'ERR:' + e.message; }
+    _assert('T805 v5035_remove_feedback_board_options: 피드백/게시판 버튼·DOM 제거 + 옵션 내비 제거(셸 유지·21페이지 정합)', t805ok, t805detail);
+
+    // ─── v50.36 분석5 verdict-first: technical 건강도/themes 사이클을 헤더 직후로 + 죽은 설명서 소스 0 ───
+    var t806ok = false, t806detail = '';
+    try {
+      if (typeof window._aioReorderCoreSections === 'function') window._aioReorderCoreSections();
+      // page 직속 자식 중 inner 셀렉터를 감싸는 것을 찾는 헬퍼 (코어 _directChildOf 미러)
+      var dchild = function(page, sel){ var inner = page && page.querySelector(sel); if (!inner) return null; var n = inner; while (n && n.parentElement !== page) n = n.parentElement; return n; };
+      var idxIn = function(page, el){ return (page && el) ? Array.prototype.indexOf.call(page.children, el) : -2; };
+      // technical: 헤더 직후 = 시장 건강도(결론)
+      var ptT = document.getElementById('page-technical');
+      var hdrT = dchild(ptT, '.page-title'), verT = dchild(ptT, '#market-health-dashboard');
+      var techOk = !!(hdrT && verT) && idxIn(ptT, verT) === idxIn(ptT, hdrT) + 1;
+      // themes: 헤더 직후 = 사이클 국면 판정(결론)
+      var ptH = document.getElementById('page-themes');
+      var hdrH = dchild(ptH, '.page-title'), verH = dchild(ptH, '#cycle-dynamic-readout');
+      var themesOk = !!(hdrH && verH) && idxIn(ptH, verH) === idxIn(ptH, hdrH) + 1;
+      // 죽은 설명서 소스 정리: 전 페이지(guide 제외)에서 .aio-explain/.beginner-tip = 0
+      var deadCount = 0;
+      Array.prototype.forEach.call(document.querySelectorAll('[id^="page-"]'), function(pg){
+        if (pg.id === 'page-guide') return;
+        deadCount += pg.querySelectorAll('.aio-explain, .beginner-tip').length;
+      });
+      t806ok = techOk && themesOk && deadCount === 0;
+      t806detail = 'techVerdictAfterHdr=' + techOk + ' themesVerdictAfterHdr=' + themesOk + ' deadExplainSrc=' + deadCount;
+    } catch(e) { t806detail = 'ERR:' + e.message; }
+    _assert('T806 v5036_analysis_verdict_first: technical 건강도·themes 사이클이 헤더 직후 + 죽은 설명서 소스 0', t806ok, t806detail);
   }
 
   window.AIO = window.AIO || {};

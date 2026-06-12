@@ -2,7 +2,9 @@
 
 > 루트 `CLAUDE.md` = 절대 규칙 + 작업 규칙. 이 파일 = 파일 구조 + Hook + Skills + 복리 루프.
 
-- **현재 버전**: v50.34
+- **현재 버전**: v50.36
+- **v50.36 분석 5개 점검 + technical·themes verdict-first + 전 페이지 죽은 설명서 소스 정리**: 분석5 라이브+소스 직접 점검 → macro/fxbond/fundamental은 이미 verdict-first(불요), technical·themes만 상단 결론 없음. (B) `_aioReorderCoreSections`에 idempotent 이동 추가(신규 콘텐츠 0): technical=시장 건강도(`#market-health-dashboard`)를 헤더 직후+Brief를 라이브 지표 뒤로 / themes=사이클 판정(`#cycle-dynamic-readout`)을 헤더 직후. (C) 런타임이 이미 화면에서 제거하던 `.aio-explain`/`.beginner-tip` 27블록(1177줄, guide엔 0)을 소스째 삭제 → index.html 30194→29017, div 균형 유지, 화면 변화 0. 옵션(-939)+설명서(-1177) 누적 절감. T806. R1 7곳+캐시버스터 5곳.
+- **v50.35 피드백·게시판·옵션 제거 (사용자 요청)**: 옵션 데이터 미연결 확인(VIX/VVIX만 라이브·심리와 중복, 스큐/흐름/Greeks는 2026-05-28 정적). 피드백·게시판(route 아님): 사이드바 버튼 2 + 모달/드로어 DOM 제거. 옵션: 내비 + sentiment 링크 + AIO_PAGE_BRIEFS cross-link 3 제거 + #page-options 내부(~770줄) 최소 스텁(셸 유지→21페이지 정합·cascade 0). index.html 31133→30194(-939). 콘솔 0·전페이지 진입 에러 0·pageCount 21. T805.
 - **v50.34 종합5 개편 2차 (마무리)**: home 결론바 직후로 [매매판단 그리드→Action Items] 그룹화(결론→근거→액션 연속). breadth 상세 차트 그리드(6+행 ~1250px) 기본 접힘+토글(`_aioBreadthDetailToggle`, 펼칠 때 resize/initBreadthPage 재적합). signal 점수 "—"=버그 아님(부팅 placeholder, refreshSignalDashboard 시 정상). sentiment 997px=핵심 대시보드라 유지. T804. 종합5 구조 정리 완료.
 - **v50.33 종합5 개편 1차 (signal·briefing) + 전수 진단**: 라이브 인벤토리(home13/signal20·4228px/breadth13/sentiment6/briefing3·6255px) 후: signal Exit Triggers 진입 체크리스트 직후 상향(핵심 리스크 묻힘 해소)+Lockout 뒤, cross-asset 안내 스텁 제거, briefing 뉴스 벽(40건·5900px) `_aioCapBriefingNews` 표현 캡(더보기 토글). T803. 잔여: home 결론 3중복·breadth 차트 6행 중복·signal 점수 "—/100"(데이터)·sentiment 997px 덩어리 = 다음 차수.
 - **v50.32 구조 개편 2차 — 통합·압축**: (1)브리핑 상단 4중 중복(5대관전 정적+Action카드 중복+빈 insight)→단일 디제스트 카드 본론. (2)Signal Lockout 전문도구를 진입 체크리스트 뒤로(핵심 결정 흐름 끊김 제거). (3)홈 경고 배너를 시장 요약 아래로(첫 화면=시장). (4)`_aioGuardEmptyVerdicts` 빈 결론 박스 숨김(데이터 시 재표시). T234/T334 반전. 전 페이지 골격 표준화는 다음 단계.

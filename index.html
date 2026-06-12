@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.34 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.36 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3757,10 +3757,7 @@ body.light-theme canvas { filter:none; }
       </div>
 
       <!-- 고급 -->
-      <div class="nav-section">
-        <div class="nav-label">고급</div>
-        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="options" data-pass-el="1"><span class="nav-icon"></span><span class="label">옵션</span></div>
-      </div>
+      <!-- v50.35: '고급 > 옵션' 내비 제거 — 옵션 페이지 폐기(옵션체인 피드 미연결, 스큐·흐름·Greeks 정적 스냅샷) -->
 
       <!-- 한국 시장 -->
       <div class="nav-section">
@@ -3774,19 +3771,7 @@ body.light-theme canvas { filter:none; }
 
       <div class="nav-divider"></div>
 
-      <!-- Feedback button -->
-      <div style="padding:8px 12px 4px;">
-        <button data-action="openFeedback" class="sidebar-action-btn btn-accent">
-          <span>피드백</span>
-        </button>
-      </div>
-
-      <!-- Board button -->
-      <div style="padding:8px 12px 4px;">
-        <button data-action="openFeedbackBoard" class="sidebar-action-btn btn-kr">
-          <span>게시판</span>
-        </button>
-      </div>
+      <!-- v50.35: 피드백·게시판 버튼 제거 (사용자 요청 — 미사용·용량) -->
 
       <!-- v40.6: 테마 토글 — 사이드바 하단에 통합 -->
       <div style="padding:4px 12px 8px;">
@@ -4068,7 +4053,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.34</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.36</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4184,76 +4169,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 매매 판단 대시보드 심층 해설 ═══ -->
-  <div class="aio-explain" id="explain-decision-dash">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-decision-dash">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>매매 판단 대시보드 심층 해설 — 신호 · 품질 · 국면 (펼쳐보기)</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">매매 신호 (Trading Signal) — "지금 매매해도 될까?"</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 20점 만점 AIO Trading Score를 <code>75+ 적극매수 / 60~75 매수우호 / 45~60 중립 / 30~45 주의 / &lt;30 위험</code> 5구간으로 분류한 한 줄 요약. AIO PA-First v5.4 스코어링 엔진이 실시간 산출.
-          <ul>
-            <li><strong>구성 요소 (20점)</strong> — 추세 건강도(지수가 200일선 위에 있는지, 4점) · 시장 폭(50일선 위 종목 비율, 3점) · 변동성(VIX 공포지수 수준, 3점) · 심리(공포탐욕지수 + 풋/콜 옵션 비율, 3점) · 금리·유동성(장단기 금리차, 신용 스프레드, 3점) · 섹터 로테이션(RRG 주도 섹터, 2점) · 모멘텀(최근 20일 상승률, 2점)</li>
-            <li><strong>의미</strong> — 단일 지표 의존 대신 <strong>복수 지표 가중 합성</strong>으로 시장 체온을 재는 방식. 월가 프랍데스크의 Market Regime Dashboard 방법론.</li>
-            <li><strong>활용</strong>:
-              <table class="explain-table">
-                <thead><tr><th>점수</th><th>전략</th><th>포지션 사이즈</th></tr></thead>
-                <tbody>
-                  <tr><td>75+</td><td>적극 매수·신규 진입 OK</td><td>100% (풀 포지션)</td></tr>
-                  <tr><td>60~75</td><td>매수 우호·추세 추종</td><td>70~80%</td></tr>
-                  <tr><td>45~60</td><td>중립·기존 포지션 유지</td><td>50% 이내</td></tr>
-                  <tr><td>30~45</td><td>주의·신규 진입 보류</td><td>30% 이하·헤지 고려</td></tr>
-                  <tr><td>&lt;30</td><td>위험·현금화 검토</td><td>0~20% + 숏/풋 헤지</td></tr>
-                </tbody>
-              </table>
-            </li>
-            <li><strong>매매 적용</strong> — <strong>진입 타이밍의 필터</strong>로 사용. 종목 차트가 좋더라도 시장 스코어가 40 이하면 <strong>진입 보류</strong>가 원칙. 개별 주식 초과수익률은 시장 Beta에 크게 지배됩니다.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-green">시장 품질 (Quality Score) — 상승의 "질"</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 지수가 올라도 <strong>소수 대형주만 오르는 상승(저품질)</strong>인지 <strong>전 종목이 고르게 오르는 상승(고품질)</strong>인지를 판별하는 Breadth Quality 점수 (0~100).
-          <ul>
-            <li><strong>구성</strong> — (1) 50일선 위 종목 비율 · (2) NYSE A/D Line 추세 · (3) 52주 신고가-신저가 차이 · (4) Mcclellan Summation · (5) Equal-weight SPX(RSP) vs 시총가중 SPX(SPY) 상대 강도</li>
-            <li><strong>의미</strong> — <strong>질 없는 상승</strong>은 반드시 되돌림. 2021 말 Mag7만 오르며 지수는 사상 최고였지만 나머지 종목은 이미 약세장(2022 대폭락 선행).</li>
-            <li><strong>활용</strong>:
-              <ul>
-                <li>Quality &gt; 70 = "Broad Bull" (폭넓은 강세, 가장 안정적인 상승장)</li>
-                <li>Quality 50~70 = "Narrow Advance" (좁은 전진, 선별적 기회)</li>
-                <li>Quality &lt; 50 & SPX 상승 중 = <strong>Divergence Warning</strong> (소수 대형주 의존, 이탈 임박)</li>
-                <li>Quality &lt; 30 = "Distribution Phase" (기관 매도 진행)</li>
-              </ul>
-            </li>
-            <li><strong>매매 적용</strong> — Quality 떨어지는데 SPX 상승이면 <strong>포지션 증대 금지</strong>. 소형주(IWM) 매도 + 대형주 옵션 풋 프로텍션 구간. Quality 상승 전환 시 Small Cap Alpha 기회.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">시장 국면 (Market Regime)</div>
-        <div class="explain-body">
-          <strong>개념</strong> — Stan Weinstein의 4단계 시장 주기(Stage 1 바닥 다지기 → Stage 2 상승 → Stage 3 정점 분배 → Stage 4 하락)를 실시간 지표로 판정한 결과. Bridgewater · Dalio의 <strong>Economic Machine Framework</strong>와 접목.
-          <ul>
-            <li><strong>UPTREND</strong> (Stage 2) — 200일선 위 & 상승 기울기 + 브레드쓰 &gt; 50%. 수익 극대화 구간. <strong>Buy the Dip 유효.</strong></li>
-            <li><strong>TOPPING</strong> (Stage 3) — 200일선 횡보 + 브레드쓰 역행 + VIX 상승 시작. <strong>익절/현금 비중 상향</strong>.</li>
-            <li><strong>DOWNTREND</strong> (Stage 4) — 200일선 아래 & 하락 기울기 + 신저가 폭증. <strong>현금 + 숏 헤지</strong>. 역사적으로 SPX -20% 이상.</li>
-            <li><strong>BOTTOMING</strong> (Stage 1) — 200일선 아래 횡보 + 브레드쓰 저점 이탈 회복 + VIX 하락. <strong>분할 매수 준비</strong>. Value 주식 Alpha 최대.</li>
-          </ul>
-          <div class="explain-callout">
-            <strong>자금이 흐르는 순서</strong>: ① 연준 금리 결정 → ② 시중 유동성(돈의 양) → ③ 위험자산으로 자금 유입 → ④ 기업 순이익 기대치 상승 → ⑤ 지수 상승 → ⑥ 개별 종목. (한 단계가 막히면 아래로 전달이 끊깁니다.)
-            시장 국면은 <strong>Stage 2→3 전환 시 연준 긴축이 선행</strong>, <strong>Stage 4→1 전환 시 긴축 종료(pause/pivot)</strong>가 트리거. 국면 판단 = 포트폴리오 전체 Beta 조정 신호.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ═══ SECTION 2 (v48.41 R1): 컴팩트 KPI 카드 — 4지표 ═══ -->
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;">
     <!-- Cyan 띠: S&P 500 -->
@@ -4293,89 +4208,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 상단 지표 기관급 해설 — 펼쳐보기 ═══ -->
-  <div class="aio-explain" id="explain-top-indicators">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-top-indicators">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>상단 지표 심층 해설 — S&P 500 · NASDAQ · VIX · Fear & Greed (펼쳐보기)</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">S&P 500 (^GSPC)</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 미국 상장 대형주 500개의 시가총액 가중 지수. 애플·MSFT·NVDA 등 상위 10개 종목이 약 32% 비중을 차지해 대형주 쏠림이 지수 방향을 좌우합니다. 글로벌 리스크 자산의 <strong>벤치마크 of 벤치마크</strong>.
-          <ul>
-            <li><strong>의미</strong> — 지수 상승 = 기업 순이익 전망 + PER(밸류에이션 프리미엄) 두 축이 모두 긍정적. 하락 = 둘 중 하나 혹은 모두가 붕괴 중.</li>
-            <li><strong>활용</strong> — <code>200일선 위/아래</code>로 장기 추세 판별 (Stan Weinstein Stage 1~4). <code>5% / 10% / 20%</code> 하락은 조정/중간조정/약세장 경계. ATH 대비 ±3% 내 움직임은 "긴장 구간".</li>
-            <li><strong>매매 적용</strong> — SPX 방향이 <strong>현재 포지션의 우선 기준</strong>. SPX 하락 추세에서 개별주 롱은 역행 리스크. 20/50/200일선 교차는 섹터 로테이션 신호와 반드시 교차검증.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-magenta">NASDAQ Composite (^IXIC)</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 기술주·성장주 중심 지수(3000+ 종목). Mag7(AAPL·MSFT·GOOGL·AMZN·META·NVDA·TSLA)이 약 45% 비중으로 <strong>AI/반도체 사이클의 실시간 체온계</strong>.
-          <ul>
-            <li><strong>의미</strong> — <strong>NASDAQ &gt; SPX 상승률</strong>이면 Risk-On 성장주 선호. <strong>NASDAQ &lt; SPX</strong>면 Defensive 로테이션(가치주·배당주 선호).</li>
-            <li><strong>활용</strong> — QQQ/SPY 비율 차트는 성장-가치 상대 강도. 고점 대비 <code>-10%</code> 조정은 기술주 특유의 Valuation Compression 신호 (금리 상승기에 자주 발생).</li>
-            <li><strong>매매 적용</strong> — 기술주/AI 테마 매매 시 <strong>QQQ 방향에 정렬</strong>. QQQ RSI &gt; 70 + 30일 상승률 &gt; 10%면 과열 (부분 차익 실현 구간). 반대 국면은 브레드쓰 확인 후 분할 진입.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">VIX — 변동성 지수 (^VIX)</div>
-        <div class="explain-body">
-          <strong>개념</strong> — CBOE S&P 500 30일 Implied Volatility. 옵션 시장이 <strong>향후 30일간 연환산 표준편차</strong>로 기대하는 주가 변동폭을 백분율로 환산.
-          <ul>
-            <li><strong>의미</strong> — VIX는 "공포의 온도계"로 통하지만 본질은 <strong>옵션 보험료</strong>. 지수 하락 시 풋옵션 수요가 증가하며 VIX 상승 (상관 -0.75 ~ -0.85).</li>
-            <li><strong>활용 구간</strong>:
-              <table class="explain-table">
-                <thead><tr><th>VIX 구간</th><th>의미</th><th>역사적 상황</th></tr></thead>
-                <tbody data-threshold-table="VIX" title="VIX 구간별 시장 상태 (6단계)">
-                  <tr><td>&lt; 12</td><td>극단 안정</td><td>버블 형성 전조 (2017, 2019)</td></tr>
-                  <tr><td>12~20</td><td>정상 Risk-On</td><td>bull market 기본 구간</td></tr>
-                  <tr><td>20~25</td><td>주의</td><td>변동성 확대 초기 (FOMC 전후)</td></tr>
-                  <tr><td>25~30</td><td>경계</td><td>조정 중 (FOMC/실적 우려)</td></tr>
-                  <tr><td>30~40</td><td>공포</td><td>2020-03 COVID, 2022 금리충격</td></tr>
-                  <tr><td>40+</td><td>극단 공포</td><td>2008 GFC, 2020 락다운</td></tr>
-                </tbody>
-              </table>
-            </li>
-            <li><strong>매매 적용</strong> — VIX &gt; 30 구간은 <strong>역설적 매수 구간</strong> (Mean Reversion). VIX 하락 속 지수 하락(Bearish Divergence)은 반등 신호. VIX/VXN 비율은 SPX/NDX 상대강도 선행.</li>
-          </ul>
-          <div class="explain-callout is-warn">
-            <strong>주의</strong> — VIX는 절대값보다 <strong>변화율(1일 +30% 등)</strong>이 위험 체감을 더 잘 반영합니다. VIX Futures Term Structure (Contango → Backwardation 전환)이 더 정확한 조기 경보입니다.
-          </div>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-purple">Fear &amp; Greed Index — 시장 심리 종합</div>
-        <div class="explain-body">
-          <strong>개념</strong> — CNN이 발표하는 0~100 범위의 종합 심리 지표. 7개 하위 지표(주가 상승세, 시장 폭, 풋/콜 옵션 수요, 안전자산 수요, 정크본드(고위험 회사채) 수요, 시장 변동성, 채권 대비 주식 선호) 가중 평균.
-          <ul>
-            <li><strong>의미</strong> — 개별 지표의 노이즈를 제거하고 <strong>시장 군중 심리 역치</strong>를 0~100으로 정규화. 단기 반대매매(Contrarian) 신호로 사용.</li>
-            <li><strong>활용 구간</strong>:
-              <table class="explain-table">
-                <thead><tr><th>구간</th><th>라벨</th><th>전략적 의미</th></tr></thead>
-                <tbody>
-                  <tr><td>0~25</td><td>극단 공포</td><td>역사적 최저점 근접 — 분할 매수 구간</td></tr>
-                  <tr><td>25~45</td><td>공포</td><td>신규 현금 투입 시작 고려</td></tr>
-                  <tr><td>45~55</td><td>중립</td><td>추세 확인 모드</td></tr>
-                  <tr><td>55~75</td><td>탐욕</td><td>포지션 점검 — 익절 검토</td></tr>
-                  <tr><td>75~100</td><td>극단 탐욕</td><td>현금 비중 상향 + 헤지 추가</td></tr>
-                </tbody>
-              </table>
-            </li>
-            <li><strong>매매 적용</strong> — F&amp;G &lt; 25에서 SPX 매수 → 평균 30일 수익률 <strong>+3.8%</strong> (1990~2024 백테스트). F&amp;G &gt; 80에서 매수는 평균 수익률 -1.2% (역시장 확률 62%).</li>
-            <li><strong>주의</strong> — F&amp;G는 <strong>확인 지표</strong>지 유일한 기준이 아닙니다. 브레드쓰·VIX Term Structure·AAII Bull-Bear Spread 와 교차검증하세요.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ═══ SECTION 2.5: Bloomberg-Style 글로벌 마켓 오버뷰 (v34) ═══ -->
   <div id="bloomberg-global-overview" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(255,163,26,0.04);">
@@ -4412,89 +4244,6 @@ body.light-theme canvas { filter:none; }
 
 
   <!-- ═══ v48.45: GMO + 오늘의 시장 + 서브 지표 통합 해설 ═══ -->
-  <div class="aio-explain" id="explain-gmo-and-flow">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-gmo-and-flow">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>글로벌 마켓 + 서브 지표 (DXY/10Y/Gold/WTI/BTC) 해설 — 밸류체인 흐름 이해</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">Global Markets (GMO) — 지역별 마켓 크로스체크</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 미국·유럽·아시아·원자재·암호화폐·환율을 <strong>단일 시점 스냅샷</strong>으로 표시. 글로벌 자금 흐름(Flow)의 방향을 한눈에 파악.
-          <ul>
-            <li><strong>의미</strong> — 지역별 방향 불일치(예: NYSE 강세 + 유럽 약세)는 <strong>Relative Rotation</strong> 신호. 모든 지역이 같은 방향 = 리스크 Flow 일치(강한 추세). 반대 = 지역간 디커플링 (단기 변동성 커짐).</li>
-            <li><strong>활용</strong> — 미국 장 마감 후 아시아 시장 흐름으로 <strong>다음날 미국 갭 예측</strong>. NK225·HSI 하락 3% + DXY 상승 &gt; 1%면 미국 시가 -1% 확률 75% (2015~2024 백테).</li>
-            <li><strong>매매 적용</strong> — 글로벌 Risk-Off (NK↓+HSI↓+DAX↓+BTC↓) 시 <strong>일일 변동성 확대</strong> → 포지션 사이즈 30% 축소 + 스톱 타이트화. 반대 Risk-On 정렬 시 추세 추종 확신도 증가.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">DXY (달러 인덱스) — 글로벌 유동성 지표</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 달러의 주요 통화(EUR 57% · JPY 14% · GBP 12% 등) 대비 상대 가치 지수. 100이 1973년 기준점.
-          <ul>
-            <li><strong>의미</strong> — DXY &uarr; = 글로벌 달러 유동성 축소 (신흥국·원자재·위험자산 하방 압력). DXY &darr; = 유동성 완화 (Risk-On + 금/원자재 상승).</li>
-            <li><strong>활용</strong> — <code>DXY &gt; 105</code> = 전세계 Risk 자산 역풍. <code>DXY &lt; 95</code> = 강한 Risk-On 유동성. DXY 추세 전환은 섹터 로테이션을 <strong>3~6주 선행</strong>.</li>
-            <li><strong>매매 적용</strong> — DXY 상승 반전 시 <strong>신흥국 ETF(EEM)·구리·금</strong> 매도 검토. 하락 반전 시 반대 포지션. SPX와 역상관(-0.55 최근 5년).</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label">10Y Treasury (^TNX) — 장기 금리 바로미터</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 미국 10년 국채 수익률. 글로벌 <strong>무위험 수익률 Benchmark</strong>이자 주식·부동산 밸류에이션 할인율.
-          <ul>
-            <li><strong>의미</strong> — 10Y 상승 = PER 압축(성장주 타격 &gt; 가치주). 하락 = PER 확장(Tech 랠리). <strong>10Y-2Y 스프레드</strong>가 역전(Inversion) 후 평균 14개월 뒤 경기침체.</li>
-            <li><strong>활용 구간</strong> — 4% 이상 = 밸류에이션 부담. 3% 이하 = 경기 둔화 시그널. 급상승(+50bps/월) = 주가 급락 위험.</li>
-            <li><strong>매매 적용</strong> — 10Y 급등 + SPX 하락 국면에서 <strong>TLT/IEF 매도 + QQQ 매도 + 에너지/금융 상대 매수</strong> (섹터 로테이션 맵과 교차).</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">Gold (GC=F) — 실질금리 역수 + 위기 헤지</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 금 가격은 <strong>실질금리(명목-기대인플)</strong>의 역수 함수. 실질금리 하락 = 금 상승 (기회비용 감소).
-          <ul>
-            <li><strong>의미</strong> — 금 + 달러 동반 상승 = 지정학/금융 위기 신호 (정상적 상관은 -0.5). 금 + 비트코인 동반 상승 = 유동성 완화 랠리. 금 단독 급등 = 인플레이션 기대 재점화.</li>
-            <li><strong>활용</strong> — 포트폴리오의 <strong>5~10% 금 비중</strong>은 장기 Sharpe 개선. 실질금리 하락 예상 시 비중 15~20%까지 확대.</li>
-            <li><strong>매매 적용</strong> — GLD ETF로 익스포저. 금광주(GDX/NEM)는 금 가격 Beta 2~3배. 금 브레이크아웃 확인 후 GDX 레버리지 진입이 효율적.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label">WTI (CL=F) — 경기 사이클 실시간 체온계</div>
-        <div class="explain-body">
-          <strong>개념</strong> — West Texas Intermediate 원유 선물. <strong>글로벌 수요 모멘텀의 Real-Time Proxy</strong>. 헤지펀드의 Macro Trade 핵심 자산.
-          <ul>
-            <li><strong>의미</strong> — WTI 급등 = 수요 확대 OR 공급 충격. 전자는 경기 확장 신호(SPX 긍정), 후자는 스태그플레이션 리스크(SPX 부정). 원유/나스닥 비율 = 실물 vs 성장 밸런스.</li>
-            <li><strong>활용</strong> — WTI Contango(근월 &lt; 원월) = 정상. Backwardation(근월 &gt; 원월) = 공급 타이트, 인플레 압력.</li>
-            <li><strong>매매 적용</strong> — WTI 추세 상승 + XLE(에너지 ETF) 동반 상승 시 <strong>에너지주 Overweight</strong>. WTI 급락은 경기 둔화 경보 — 포트폴리오 Defensive 재편.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-purple">BTC — 글로벌 유동성 + 리스크 자산 최전방</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 비트코인은 <strong>디지털 금</strong>이자 <strong>고베타 Risk-On 자산</strong>의 양면성. 최근 M2(글로벌 유동성)과 상관 +0.8.
-          <ul>
-            <li><strong>의미</strong> — BTC는 SPX의 <strong>1~3개월 선행 지표</strong>로 작동한 이력이 있음 (2020-2022). 유동성 완화 → BTC 먼저 랠리 → 기술주 랠리. 최근엔 동행성 강화.</li>
-            <li><strong>활용</strong> — BTC 30일 변동률과 SPX 30일 변동률 상관이 &gt;0.6 구간은 같은 리스크 자산으로 취급. &lt;0.3은 독립 움직임 (Safe Haven 기능).</li>
-            <li><strong>매매 적용</strong> — BTC 추세 상승 + DXY 하락 = 완화적 유동성 국면 확인. BTC ETF(IBIT/FBTC)로 5% 이내 분산 편입 고려. 단기 50% 급락 가능성 상시 감안.</li>
-          </ul>
-          <div class="explain-callout">
-            <strong>전체 흐름 요약 (밸류체인)</strong>:
-            <br>연준 정책(FOMC) → 2Y 금리 → 10Y 금리 → DXY → 신흥국/원자재/암호화폐 → 미국 대형주 → 섹터 로테이션 → 개별주.
-            <br>이 순서대로 지표가 움직이며, <strong>전 단계 지표가 다음 단계를 3~12주 선행</strong>합니다. 대시보드 상단 지표들은 이 밸류체인의 각 단계를 실시간으로 추적합니다.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- [OLD SECTIONS REMOVED - REPLACED BY NEW DASHBOARD] -->
 
   <!-- v49.74 P398 R146: home 페이지 인라인 채팅 패널 (사용자 정직 발견 — "Home에서는 AI 채팅 되지도 않아") -->
@@ -4541,96 +4290,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 시그널 페이지 기관급 해설 ═══ -->
-  <div class="aio-explain" id="explain-signal-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-signal-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>매매 시그널 페이지 심층 해설 — 20점 스코어링 · 2% 룰 · ATR 스톱 · 진입/청산 전략</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">20점 스코어링 시스템 (PA-First v5.4) <span style="font-size:10px;color:var(--data-amber);font-weight:600;">100점 환산: 20점×5</span></div>
-        <div class="explain-body" data-score-scale="TWENTY_POINT">
-          <strong>철학</strong> — Mark Minervini의 SEPA · Stan Weinstein Stage · Nicolas Darvas Box · William O'Neil CAN SLIM을 합성한 <strong>Price Action 우선</strong> 스코어링. 펀더멘털보다 <strong>가격의 움직임</strong>을 1차 필터로 사용 — 시장이 이미 반영한 정보를 중시.
-          <div style="margin:6px 0;padding:6px 10px;background:rgba(0,212,255,0.06);border-radius:4px;font-size:11px;color:var(--text-secondary);">
-            <strong style="color:var(--accent);">점수 읽는 법</strong> — 20점 만점 점수는 화면에서 100점 기준으로도 함께 해석합니다. 예: 15/20은 75/100 수준으로, 강한 매수 우호 구간에 해당합니다.
-          </div>
-          <ul>
-            <li><strong>Trend Template (8점)</strong> — 주가 &gt; 50일선 &gt; 150일선 &gt; 200일선 (완전 정렬) · 200일선 상승 기울기 · 52주 저점 대비 +30% 이상 · 52주 고점 대비 -25% 이내</li>
-            <li><strong>Relative Strength (4점)</strong> — 지수 대비 6개월 상대 강도 Top 30% · IBD RS Rating &gt; 80</li>
-            <li><strong>Volume Confirmation (3점)</strong> — 20일 평균 거래량 대비 1.5x 이상 상승일 비율 · OBV 상승 추세</li>
-            <li><strong>Volatility Contraction (3점)</strong> — Bollinger Band Width &lt; 20일 평균 · 52주 ATR 하위 40% (Pocket Pivot 기회)</li>
-            <li><strong>Breakout Quality (2점)</strong> — Cup/Flag/VCP 패턴 형성 · 피벗 포인트 1-2% 이내 접근</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-green">2% 룰 (리스크 관리 황금률)</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 단일 거래당 <strong>계좌의 2% 이상 손실을 허용하지 않는다</strong>는 Van Tharp 원칙. 20번 연속 틀려도 계좌 생존 확률 66%.
-          <ul>
-            <li><strong>포지션 사이즈 계산</strong> — <code>Shares = (계좌 × 2%) ÷ (진입가 - 스톱가)</code>. 예: $100k 계좌, 진입 $100, 스톱 $95 → 매수 가능 수량 = $2000 ÷ $5 = <strong>400주</strong></li>
-            <li><strong>왜 2%인가</strong> — Kelly Criterion 백테스트: 2% 고정 리스크는 50% 승률 / 손익비 1.5 시스템에서 Max Drawdown을 20% 이내 제한 (계좌 회복 가능 영역).</li>
-            <li><strong>적용</strong>:
-              <table class="explain-table">
-                <thead><tr><th>계좌 규모</th><th>거래당 최대 손실</th><th>동시 포지션 수</th></tr></thead>
-                <tbody>
-                  <tr><td>$10k</td><td>$200</td><td>5~8</td></tr>
-                  <tr><td>$100k</td><td>$2,000</td><td>8~12</td></tr>
-                  <tr><td>$1M+</td><td>$20,000</td><td>15~25 (분산 증대)</td></tr>
-                </tbody>
-              </table>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">ATR 스톱 (변동성 적응 손절)</div>
-        <div class="explain-body">
-          <strong>개념</strong> — ATR(Average True Range, 평균 변동폭) × 배수로 손절가를 설정. 종목별 고유 변동성에 맞춰 손절 거리를 자동 조정하는 <strong>변동성 기반 추적 손절</strong> 방식.
-          <ul>
-            <li><strong>공식</strong> — <code>Stop = 고점 - (ATR(14) × 권장 배수)</code>. <strong style="color:var(--data-green);">권장값:</strong> <span data-atr-preset="swing">스윙 3.0x (범위 2.5~3.5)</span> · <span data-atr-preset="position">포지션 5.0x (범위 4.0~6.0)</span> · <span data-atr-preset="scalp">스캘프 1.5x</span> · <span data-atr-preset="trailing">트레일링 2.5x</span>.</li>
-            <li><strong>왜 고정% 대신 ATR?</strong> — NVDA(ATR 4%)와 KO(ATR 1%)에 같은 5% 스톱을 걸면 NVDA는 정상 노이즈에 반복 체결, KO는 과도한 손실. ATR 기반은 <strong>종목의 정상 호흡(breath)을 허용</strong>.</li>
-            <li><strong>매매 적용</strong> — ATR 스톱 + 2% 룰 조합:
-              <br>1) ATR로 스톱 거리 결정 (종목별 달라짐)
-              <br>2) 2% 룰로 포지션 사이즈 결정 (계좌당 균일)
-              <br>3) 고점 갱신마다 스톱 상향 (Trailing) — 이익 보호</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-purple">진입 전략 — Pyramiding (분할 추가매수)</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 신규 진입 시 <strong>50%만 초기 매수</strong>, 가격이 유리하게 움직이면 30%·20% 추가하는 <strong>검증된 추세 추종 분할매수</strong> 방식(이익 구간에서만 키움).
-          <ul>
-            <li><strong>1차 (50%)</strong> — 기술적 진입 트리거 발동 시. 이 시점 스코어 75+ 확인.</li>
-            <li><strong>2차 (30%)</strong> — 1차 대비 +5% 상승 + 거래량 확인 후. 스톱을 1차 진입가로 상향 (Breakeven Stop).</li>
-            <li><strong>3차 (20%)</strong> — 1차 대비 +10% + 고점 돌파 확인. 평균 단가 약 +6% 상승했지만 <strong>리스크 Zero</strong>(손실 가능성 없음).</li>
-            <li><strong>이점</strong> — 승자에게 포지션 집중, 패자는 초기 손절. <strong>수익/손실 비대칭성 극대화</strong>.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label">청산 전략 — 3단계 익절</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 분할 익절 전략: <strong>"강할 때 절반을 팔고, 나머지는 추적 손절로 끝까지 끌고 간다."</strong>
-          <ul>
-            <li><strong>Target 1 (1/3 청산)</strong> — R:R = 1:1 (원금 회복 구간). 최소 수익 확보 + 심리 안정.</li>
-            <li><strong>Target 2 (1/3 청산)</strong> — R:R = 1:2 (통계적 기대수익). Trailing Stop 발동.</li>
-            <li><strong>Target 3 (1/3 러너)</strong> — 추세 끝까지 따라감. 50일선 이탈 or Chandelier Exit 발동 시 청산.</li>
-            <li><strong>수학적 근거</strong> — 승률 40% + R:R 평균 2.5 = <strong>기대값 +0.4R</strong>. 풀 청산(Target 1)보다 러너 포함이 장기 기대값 2배 이상.</li>
-          </ul>
-          <div class="explain-callout">
-            <strong>밸류체인 요약 (시그널→실행)</strong>:
-            <br>시장 국면(Regime) 확인 → Quality Score 확인 → 섹터 RRG Leading 확인 → 개별 종목 Trend Template 통과 → 20점 스코어 75+ → 2% 룰 사이즈 → ATR 스톱 → Pyramiding 진입 → 3단계 분할 익절.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- v48.62: 페이지 결론 바 -->
   <div id="signal-conclusion-bar"></div>
 
@@ -5367,69 +5026,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 시장 폭 (Breadth) 기관급 해설 ═══ -->
-  <div class="aio-explain" id="explain-breadth-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-breadth-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>시장 폭 심층 해설 — McClellan · A/D Line · 신고가/신저가 · 다이버전스 조기경보</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">Breadth란 무엇인가</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 지수(SPX)가 오를 때 <strong>몇 개 종목이 같이 올랐는가</strong>를 측정. 지수 뒤에 숨은 "참여자 수" 체크.
-          <ul>
-            <li><strong>% Stocks Above 50MA</strong> — 50일 이동평균선 위에 있는 종목 비율. <code>&gt; 70%</code> 건강 상승 · <code>50~70%</code> 건전 · <code>30~50%</code> 혼조 · <code>&lt; 30%</code> 위험 · <code>&lt; 15%</code> 역사적 바닥 근접.</li>
-            <li><strong>% Stocks Above 200MA</strong> — 장기 추세. 80%+에서 정점 · 20% 이하에서 바닥. 사이클 판단.</li>
-            <li><strong>McClellan Oscillator</strong> — (상승 종목 - 하락 종목) 10일 지수평균 - 19일 지수평균. ±100 이탈 시 단기 과열/과매도.</li>
-            <li><strong>A/D Line (Advance-Decline Line)</strong> — 누적 (상승일수 - 하락일수). 지수가 신고가인데 A/D가 신고가 못 갱신 = <strong>Bearish Divergence</strong> (2000, 2007, 2021 말).</li>
-            <li><strong>신고가-신저가 (NHNL)</strong> — 52주 신고가 수 - 신저가 수. 지수 신고가에서 NHNL이 감소 중이면 <strong>Distribution Phase</strong> 진입 의심.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">왜 중요한가 — Narrow Advance vs Broad Rally</div>
-        <div class="explain-body">
-          <strong>Narrow Advance</strong> (좁은 전진) — 시총 상위 Mag7만 오르고 나머지 493개 종목은 약세. 2021 말 S&amp;P 500은 사상 최고였지만 Russell 2000은 이미 약세장. → 2022 대폭락 선행.
-          <br><br>
-          <strong>Broad Rally</strong> (폭넓은 상승) — 80% 종목이 50일선 위 + 신고가 일일 200+ 종목. 2013, 2017, 2020 말 ~ 2021 초 모두 이 상태. → 평균 6개월 랠리 연장.
-          <br><br>
-          <strong>매매 적용</strong>:
-          <ul>
-            <li>Breadth &gt; 70% + SPX 신고가 = <strong>Full Risk-On</strong> (신규 매수 최적)</li>
-            <li>Breadth 50-70% + SPX 신고가 = <strong>Selective</strong> (강한 종목만)</li>
-            <li>Breadth &lt; 40% + SPX 신고가 = <strong>Divergence Alert</strong> (현금 비중 상향 + 헤지)</li>
-            <li>Breadth &lt; 20% + SPX -15%+ = <strong>Capitulation</strong> (분할 매수 개시)</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-green">HY OAS — 신용 스프레드 (Breadth의 Cousin)</div>
-        <div class="explain-body">
-          <strong>개념</strong> — High Yield(하이일드 = 정크본드) Option-Adjusted Spread. 국채 대비 하이일드 회사채의 초과 수익률. 기업 부도 위험 프리미엄.
-          <ul>
-            <li><strong>의미</strong> — HY OAS 상승 = 기업 디폴트 위험 증가 = Risk-Off. HY OAS는 주식 시장을 <strong>2~4주 선행</strong>하는 역사적 조기 경보.</li>
-            <li><strong>구간</strong>:
-              <table class="explain-table">
-                <thead><tr><th>OAS (bps)</th><th>상태</th><th>역사적 비교</th></tr></thead>
-                <tbody>
-                  <tr><td>&lt; 300</td><td>과열·리스크 무시</td><td>2007-06 (GFC 전)</td></tr>
-                  <tr><td>300~450</td><td>정상 Risk-On</td><td>2017-2019</td></tr>
-                  <tr><td>450~600</td><td>경계</td><td>2015 중국 · 2022 금리</td></tr>
-                  <tr><td>600~900</td><td>스트레스</td><td>2020-03 · 2008 중반</td></tr>
-                  <tr><td>&gt; 900</td><td>시스템 위기</td><td>2008-11 (1,800bps)</td></tr>
-                </tbody>
-              </table>
-            </li>
-            <li><strong>매매 적용</strong> — HY OAS 2주 연속 +50bps 확대 + 주식 신고가 = <strong>강한 Sell Signal</strong>. HY OAS 축소 중 주식 하락 = 곧 반등 가능성.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- 헤더 -->
   <div style="padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:16px;">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
@@ -5730,58 +5326,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 투자 심리 기관급 해설 ═══ -->
-  <div class="aio-explain" id="explain-sentiment-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-sentiment-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>투자 심리 심층 해설 — F&amp;G · AAII · NAAIM · II · Put/Call · Contrarian 전략</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label is-purple">센티먼트 = Contrarian Alpha의 원천</div>
-        <div class="explain-body">
-          <strong>철학</strong> — Warren Buffett의 "남들이 탐욕스러울 때 공포를, 남들이 공포에 떨 때 탐욕을" 이 정량화된 버전. 심리 극단값은 <strong>평균회귀(Mean Reversion)</strong>하므로 역포지션이 통계적 우위.
-          <br><br>
-          <strong>5대 심리 지표 체계</strong>:
-          <ul>
-            <li><strong>CNN Fear &amp; Greed</strong> (0~100 합성) — 일간. 단기(1~4주) 반대매매 신호. &lt;20 극단 공포 → 30일 평균 수익률 +3.8%.</li>
-            <li><strong>AAII 강세-약세 격차</strong> — 개인투자자 설문(주간). 강세 응답 % - 약세 응답 %. <strong>+30 이상</strong> = 낙관 과열, <strong>-20 이하</strong> = 공포. 2009-03 당시 -54(역사적 최저) → 이후 10년 상승장.</li>
-            <li><strong>NAAIM 노출 지수</strong> — 전문 운용사들이 주식에 투입한 비중(0%=현금, 100%=주식 가득, 200%=빚내서 투자). <strong>90 이상</strong> = 공격적(과열), <strong>30 미만</strong> = 방어적(공포 = 역발상 매수 신호).</li>
-            <li><strong>투자매체 전문가 심리(Investors Intelligence)</strong> — 투자 뉴스레터 기자들의 강세/약세 비율. 2.5 이상 = 낙관 과열(위험), 0.8 이하 = 비관 극단(기회). 1987년 폭락 예측.</li>
-            <li><strong>풋/콜 비율(CBOE Put/Call)</strong> — 하락 베팅(풋) vs 상승 베팅(콜) 옵션 거래량. <strong>1.2 초과</strong> = 공포 과잉(거꾸로 매수 기회), <strong>0.7 미만</strong> = 탐욕 과잉(경계).</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-magenta">Divergence 탐지 — 심리와 가격의 어긋남</div>
-        <div class="explain-body">
-          <strong>Bullish Divergence</strong> — 지수는 신저가인데 심리는 저점 갱신 못함 = <strong>매도 탈진(Selling Exhaustion)</strong>. 바닥 확인.
-          <br><br>
-          <strong>Bearish Divergence</strong> — 지수는 신고가인데 AAII Bull %는 하락 중 = <strong>매수자 이미 진입 완료</strong>, 신규 매수세 부재. 고점 징후.
-          <br><br>
-          <strong>매매 적용</strong> — 심리 지표만으로는 단타 타이밍 어려움. <strong>브레드쓰 + 가격 패턴 + 심리</strong> 3종 확인 시 확률 80%+. 심리 지표는 <strong>포지션 사이즈 조절</strong>에 사용 (과열 시 축소, 공포 시 증대).
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">VIX Term Structure — 고급 심리 지표</div>
-        <div class="explain-body">
-          <strong>개념</strong> — VIX 선물의 만기별 곡선. <strong>Contango</strong>(근월 &lt; 원월)이 정상, <strong>Backwardation</strong>(근월 &gt; 원월)은 즉각 공포.
-          <ul>
-            <li>VIX1D / VIX9D / VIX / VIX3M / VIX6M 5단계 곡선 체크</li>
-            <li>VIX9D &gt; VIX = 초단기 공포 집중 (대개 FOMC·CPI 전날)</li>
-            <li>VIX3M &gt; VIX = 장기 우려는 낮고 단기만 치솟음 (즉각 반등 확률↑)</li>
-            <li>전 구간 Backwardation = 패닉 정점 (역사적 매수 기회)</li>
-          </ul>
-          <div class="explain-callout">
-            <strong>실전 팁</strong>: VVIX/VIX 비율이 100 이상이면 "변동성의 변동성"이 극단 — 옵션 매수자 손 떨림 단계. 시장 바닥 가까움.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- v48.62: 페이지 결론 바 -->
   <div id="sentiment-conclusion-bar"></div>
 
@@ -5871,7 +5415,7 @@ body.light-theme canvas { filter:none; }
               VIX 기간구조 (9·1M·3M·6M)
               <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="VIX 기간구조 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">Term Structure 해석</span><strong>콘탱고</strong>(우상향, 정상): 단기&lt;장기 · 시장 안정. <strong>백워데이션</strong>(역전, 비정상): 단기&gt;장기 · 즉각적 공포 &gt; 미래 우려. VIX 백워데이션은 <strong>시장 패닉 신호</strong> · 역사적 바닥 1~2주 선행.</span></span>
             </div>
-            <button data-action="showPage" data-arg="options" class="aio-btn-table" style="font-size:10px;">상세 차트 →</button>
+            <!-- v50.35: 옵션 '상세 차트' 링크 제거 (옵션 페이지 폐기) -->
           </div>
           <div id="vix-term-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
             <div style="text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:8px;">
@@ -5997,42 +5541,6 @@ body.light-theme canvas { filter:none; }
        insight-box(빈 머리말). -->
 
   <!-- ═══ v48.46: 브리핑 심층 해설 ═══ -->
-  <div class="aio-explain" id="explain-briefing-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-briefing-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>브리핑 활용 가이드 — 데일리 루틴 · 뉴스 필터 · Action Item 추출</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">브리핑은 매일 아침 30분 루틴의 코어</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 전일 미국·유럽·아시아 장의 주요 사건을 뉴스 80여 개 소스에서 수집·채점·요약. <strong>중요도 90점 이상만 핵심 뉴스</strong>로 상단에 고정합니다.
-          <ul>
-            <li><strong>아침 루틴</strong>: ① 브리핑 읽기(5분) → ② 시그널 스코어 확인(2분) → ③ 보유 종목 뉴스 스캔(5분) → ④ RRG로 섹터 방향(3분) → ⑤ 포지션 조정 체크리스트(5분).</li>
-            <li><strong>Action Item</strong>: 각 뉴스 하단 "지금(Now) · 관망(Watch) · 대기(Wait) · 회피(Avoid)" 태그. Now = 즉시 행동, Avoid = 회피 필요.</li>
-            <li><strong>뉴스 score 기준</strong>: 지정학(전쟁/제재) 95+ · FOMC/연준 90+ · 대형 실적 85+ · M&amp;A 80 · 단순 공시 60-70.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">Filtering — 뉴스 홍수에서 신호 추출</div>
-        <div class="explain-body">
-          <strong>핵심 원칙</strong> — 시장 이동 뉴스(Market Moving)만 본다. 다음 5개 카테고리에 해당하지 않으면 무시:
-          <ul>
-            <li><strong>금리/통화정책</strong> (FOMC · ECB · BOJ · CPI · PCE)</li>
-            <li><strong>지정학</strong> (전쟁 · 제재 · 관세 · 선거)</li>
-            <li><strong>대형 실적</strong> (Mag7 · 업종 대표)</li>
-            <li><strong>공급망/에너지</strong> (OPEC · 반도체 · 원자재)</li>
-            <li><strong>규제/법안</strong> (반독점 · IRA · Chips Act)</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
     <!-- 헤더 -->
     <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
@@ -6273,67 +5781,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 기술 분석 기관급 해설 ═══ -->
-  <div class="aio-explain" id="explain-technical-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-technical-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>기술 분석 심층 해설 — RSI · MACD · BB · 다중 타임프레임 · 수급</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">RSI (Relative Strength Index, 14일)</div>
-        <div class="explain-body">
-          <strong>개념</strong> — J. Welles Wilder (1978). 최근 14일 상승일 평균 / (상승일+하락일 평균) × 100. 0~100 범위.
-          <ul>
-            <li><strong>70+ 과매수</strong> — 단기 조정 가능 (강세장에서는 80까지 견딤).</li>
-            <li><strong>30- 과매도</strong> — 반등 가능 (약세장에서는 20까지).</li>
-            <li><strong>Divergence</strong>: 가격 신고가인데 RSI 고점 낮아짐 = Bearish Divergence (2018, 2022 주요 고점 확인).</li>
-            <li><strong>Range Shift</strong>: 강세장에서 RSI는 40~80 레인지, 약세장은 20~60. 40/60 이탈은 추세 전환 신호.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">MACD (Moving Average Convergence Divergence)</div>
-        <div class="explain-body">
-          <strong>개념</strong> — Gerald Appel. 12EMA - 26EMA = MACD Line. 9EMA = Signal Line. 차이 = Histogram.
-          <ul>
-            <li><strong>Golden Cross</strong>: MACD &gt; Signal = 상승 신호 · <strong>Dead Cross</strong>: 반대.</li>
-            <li><strong>Zero Line</strong>: MACD &gt; 0 = 상승 추세 우위 · &lt; 0 = 하락 우위. 제로라인 돌파가 진짜 추세 전환.</li>
-            <li><strong>Histogram</strong>: 축소 중이면 추세 약화, 확장 중이면 가속. Histogram Divergence는 최고의 조기 경보.</li>
-          </ul>
-          <strong>매매 적용</strong> — 단독 사용 금지. <strong>MACD + 200일선</strong> 조합이 백테스트 최고(연 +14% 1990~2023).
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-green">Bollinger Bands</div>
-        <div class="explain-body">
-          <strong>개념</strong> — John Bollinger. 20일 MA ± 2표준편차. 약 95% 가격이 밴드 내 움직임.
-          <ul>
-            <li><strong>Bollinger Squeeze</strong>: 밴드 폭 축소 = 변동성 수축 = 곧 큰 움직임 예고 (Breakout 임박).</li>
-            <li><strong>Walking the Band</strong>: 상단 밴드 지속 접촉 = 강한 추세 (매수 지속 유효).</li>
-            <li><strong>Mean Reversion</strong>: 하단 밴드 이탈 후 재진입 = 반등 신호. 지수는 +/-2σ 복귀 확률 95%.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-purple">다중 타임프레임 분석 (Top-Down)</div>
-        <div class="explain-body">
-          <strong>철학</strong> — Alexander Elder의 <strong>Triple Screen</strong>.
-          <ul>
-            <li><strong>1차 (주봉)</strong>: 장기 추세 방향 확인. 주봉 200MA 위 = 매수 후보만.</li>
-            <li><strong>2차 (일봉)</strong>: 추세 방향의 조정(pullback) 탐색. RSI &lt; 50 + 50일선 접근.</li>
-            <li><strong>3차 (60분)</strong>: 진입 타이밍. 역행 움직임 종료 + 추세 재개 확인.</li>
-          </ul>
-          <div class="explain-callout">
-            <strong>핵심 원칙</strong>: 상위 TF 방향과 맞지 않는 거래는 확률 낮음. <strong>주봉 = Captain · 일봉 = Navigator · 60분 = Trigger</strong>.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
       <div>
@@ -6632,18 +6079,6 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!-- 스코어링 시스템 설명 -->
-    <div class="beginner-tip collapsed">
-      <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 20점 만점 스코어링 시스템 (PA-First v5.4)</div>
-      <div class="insight-explain-body">
-        위 12가지 셋업이 발생하면, 다음 기준으로 0~20점 품질 점수를 매깁니다:<br><br>
-         <b>이평선 정배열 (0~4점):</b> 5일>10일>20일>50일>100일>200일 순서대로 쌓여있나? 길이 깔끔하게 정렬될수록 높은 점수<br>
-         <b>매수 위치 (0~3점):</b> 20일 이평선에서 얼마나 가까이 살 수 있나? 2% 이내면 만점! (안전한 손절 가능)<br>
-         <b>상대강도 RS (0~3점):</b> 시장(SPY) 대비 얼마나 강한가? RS 90 이상이면 최상위 10%<br>
-         <b>거래량 (0~3점):</b> 평균의 3배 이상이면 만점! 기관이 들어온다는 증거<br>
-         <b>VCP+BB 스퀴즈 (0~3점):</b> 변동폭 수축 + 볼린저밴드 좁아짐 = <b style="color:var(--data-green);">94.1% 승률</b> 조합!<br><br>
-        <b>핵심:</b> 15점 이상 = A급 기회, 12~14점 = 괜찮은 진입, 10점 미만 = 패스
-      </div>
-    </div>
     <!-- v38.8: 스크리너 연결 버튼 -->
   </div>
 
@@ -6735,19 +6170,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ══ SECTION 7: 핵심 분석 가이드 ═════════════════════════════ -->
-  <div class="beginner-tip collapsed" style="margin-bottom:12px;">
-    <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 기술적 분석 핵심 가이드 — 차트로 시장을 읽는 법</div>
-    <div class="insight-explain-body">
-      기술적 분석은 "과거 가격과 거래량 패턴이 미래에도 반복된다"는 아이디어입니다. 내비게이션처럼, 차트 지표들이 주가의 방향과 속도를 알려줍니다.<br><br>
-       <b>RSI (상대강도지수):</b> 속도계. 70 이상 = 과속 구간(과열, 조심), 30 이하 = 너무 느림(과매도, 반등 기회)<br>
-       <b>이동평균선:</b> 평균 속도. 50일 평균(중기), 200일 평균(장기). 가격이 이동평균 위 = 상승세, 아래 = 하락세<br>
-       <b>MACD:</b> 가속도계. 빨라지면(상향 교차) 상승 가속, 느려지면(하향 교차) 모멘텀 감소<br>
-       <b>볼린저밴드:</b> 변동 범위. 밴드가 좁아지면(스퀴즈) 곧 큰 움직임이 온다!<br>
-       <b>거래량:</b> 연료량. 가격이 오를 때 거래량도 늘어야 진짜 상승. 거래량 없는 상승 = 연료 없이 오르는 것<br><br>
-      <b>가장 중요한 법칙:</b> 절대 하나의 지표만 보지 마세요! 여러 지표를 종합해서 판단하세요.
-    </div>
-  </div>
-
 </div>
 <div class="page" id="page-macro">
   <div class="insight-box box-collapsed">
@@ -6755,66 +6177,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 거시경제 기관급 해설 ═══ -->
-  <div class="aio-explain" id="explain-macro-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-macro-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>매크로 심층 해설 — FOMC · CPI · PCE · 실업률 · PMI · 연준 정책 경로</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">Dalio's Economic Machine Framework</div>
-        <div class="explain-body">
-          <strong>핵심</strong> — Ray Dalio의 <strong>경제는 3가지 힘의 합성</strong>: (1) 생산성 증가 추세(장기) (2) 단기 부채 사이클 5~10년 (3) 장기 부채 사이클 50~75년. 연준 정책과 금리는 <strong>단기 부채 사이클의 조향타</strong>.
-          <ul>
-            <li><strong>Early Cycle</strong> — 경기 회복 초기. 연준 완화 · 실업률 하락 중 · 기업 이익 증가. 주식 최고 수익률 국면. (예: 2009, 2020)</li>
-            <li><strong>Mid Cycle</strong> — 정상 성장. 연준 중립 · 인플레 2% 목표 근접. 섹터 로테이션(기술→산업재→에너지) 활발. (예: 2013~2015, 2018)</li>
-            <li><strong>Late Cycle(경기 후반)</strong> — 과열. 연준 긴축 · 인플레 상승 · 수익률곡선 평탄화(장기-단기 금리차 축소 = 경기 둔화 신호). 방어주(필수소비재·헬스케어) 우위. (예: 2007, 2019 말)</li>
-            <li><strong>Recession</strong> — 위축. 연준 완화 전환 · 실업률 급등 · 기업 이익 쇼크. 현금/단기채 · 금 우위. (예: 2008, 2020-03)</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">CPI / PCE (인플레이션) — 연준 정책의 핵심 입력</div>
-        <div class="explain-body">
-          <strong>CPI (소비자물가지수)</strong> — 가구가 사는 상품·서비스 묶음의 가격. 헤드라인(전체) vs 근원(Core, 변동 큰 식료품·에너지 제외) 구분. 근원 CPI가 끈질긴 인플레를 더 잘 측정.
-          <br><br>
-          <strong>PCE</strong> — 개인소비지출 물가. <strong>연준이 실제로 목표로 삼는 지표</strong>(CPI 아님). Core PCE 2% 목표. 차이: CPI 가중치는 고정, PCE는 대체재 반영 → CPI가 평균 +0.3% 높음.
-          <ul>
-            <li><strong>활용</strong> — CPI 발표일 SPX 변동성 평균 ±0.8%. Core CPI 컨센서스 대비 ±0.1%p 서프라이즈가 즉각 반응.</li>
-            <li><strong>매매 적용</strong> — CPI 발표 전날 포지션 축소(30~50% 감축). 서프라이즈 발생 시 장 초반 과민 반응 후 <strong>장 중반 뷘드 되돌림</strong> 패턴.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-green">실업률 · NFP (비농업 고용)</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 매월 첫째 금요일 발표. 가장 주목받는 매크로 이벤트. <strong>실업률(U-3)</strong>은 후행 지표, <strong>NFP 변화</strong>와 <strong>시간당 임금 상승률</strong>이 선행.
-          <ul>
-            <li><strong>실업률 상승 전환</strong> — 삼의 법칙(Sahm Rule, 경기침체 조기경보): 실업률 3개월 평균이 최근 12개월 최저점보다 +0.5%p 오르면 경기침체 진입 신호. 1960년 이후 11번 중 11번 적중(100%).</li>
-            <li><strong>임금 상승률</strong> — 4% 초과 시 연준 매파적 강화. 3% 이하면 인플레 진정 → 완화 전환 가능.</li>
-            <li><strong>매매 적용</strong> — NFP 발표 후 3일간 SPX 변동성 평균 1.5배 확대. 쇼크일(실업률 +0.3%p 이상) <strong>SPX 매도 압력</strong>.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label">FOMC Dot Plot — 미래 금리 경로</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 연준 위원 19명의 <strong>개별 금리 전망</strong>을 점으로 표시. 분기(3/6/9/12월) 발표. Powell 연설보다 <strong>실제 정책 의도</strong>를 더 잘 반영.
-          <ul>
-            <li><strong>점도표 중앙값(Dot Median)</strong> — 연준 전망 중앙값이 시장의 금리 선물 예상과 50bp(0.5%p) 이상 벌어지면 한쪽이 조정될 가능성. 시장과 연준의 완화(비둘기파)·긴축(매파) 시각 차이를 측정.</li>
-            <li><strong>매매 적용</strong> — FOMC 당일 2:00pm ET 발표. Statement Sea(2~5분) → Powell 기자회견(2:30pm ~ 3:30pm). Powell 첫 5분 발언이 하루 방향 70%+ 결정.</li>
-          </ul>
-          <div class="explain-callout">
-            <strong>Pivot 타이밍</strong>: 연준이 "추가 인상 종료" 시그널을 주는 시점은 <strong>역사적으로 SPX 단기 고점</strong> (완화 기대로 랠리 후 실물 경제 타격 반영). 인내심 필요.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- v48.62: 페이지 결론 바 -->
   <div id="macro-conclusion-bar"></div>
 
@@ -7373,18 +6735,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ══ SECTION 7: 매크로 분석 핵심 가이드 ══════════════════════ -->
-  <div class="beginner-tip collapsed" style="margin-bottom:12px;">
-    <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 매크로 분석 핵심 가이드 — 거시경제가 주가에 미치는 경로</div>
-    <div class="insight-explain-body">
-      아무리 좋은 종목을 골라도, "바다의 방향"(매크로)이 반대면 돈을 잃을 수 있습니다. 매크로는 모든 주식이 함께 타는 배의 방향타입니다.<br><br>
-       <b>금리가 오르면:</b> 미래 현금흐름의 가치가 줄어들어 성장주(기술주)가 타격. "돈의 가격"이 비싸지니까요.<br>
-       <b>인플레이션이 높으면:</b> 기업 비용↑ → 이익↓ → 주가↓. 소비자도 지갑을 닫습니다.<br>
-       <b>달러가 강하면:</b> 미국 수출 기업 이익↓, 하지만 수입 물가↓. 신흥국은 달러 빚 부담↑.<br>
-       <b>유가가 급등하면:</b> 모든 것의 원가가 오릅니다. 1973년, 1979년, 2008년, 2022년 — 유가 급등은 항상 경기침체를 불러왔습니다.<br><br>
-      <b>가장 중요한 습관:</b> 매일 아침 "오늘 Fed 위원이 뭐라고 했지?", "유가가 얼마지?", "10년 금리는?" 이 3가지만 체크하면 매크로의 80%를 커버할 수 있어요!
-    </div>
-  </div>
-
 </div>
     <!-- ═══════════════ PAGE: FUNDAMENTAL (기업 분석) ═══════════════ -->
 
@@ -7394,53 +6744,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 환율/채권 기관급 해설 ═══ -->
-  <div class="aio-explain" id="explain-fxbond-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-fxbond-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>환율·채권 심층 해설 — DXY · 2Y/10Y/30Y · 수익률곡선 역전 · 외인 수급</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">수익률 곡선 (Yield Curve) — 최고의 경기 침체 예측 지표</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 국채 만기별 수익률 곡선. 정상은 우상향(단기 &lt; 장기). <strong>역전(Inversion)</strong> = 2Y &gt; 10Y = 시장이 경기 침체 예상.
-          <ul>
-            <li><strong>10Y-2Y 스프레드</strong> — 역전 후 평균 14개월 뒤 경기침체. 1970년 이후 8번 중 8번 적중. 현 사이클은 2022년 7월 역전 시작.</li>
-            <li><strong>10Y-3M 스프레드</strong> — 연준(Campbell Harvey) 연구 원조 지표. 역전 시 <strong>12개월 내 침체 확률 70%</strong>.</li>
-            <li><strong>5Y-30Y</strong> — 인플레 기대. 평탄화(Flattening) = 장기 인플레 진정, 가파르화(Steepening) = 인플레 재점화 우려.</li>
-            <li><strong>매매 적용</strong> — 역전 해소(Un-inversion)가 진정한 경기 침체 시작 신호. 역전 상태에서 매수는 가능, 해소 후 공격적 디펜시브 전환.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">외인 수급 프록시 — USD/KRW</div>
-        <div class="explain-body">
-          <strong>원/달러 환율</strong>은 한국 주식 외국인 수급의 가장 강한 프록시.
-          <ul>
-            <li><strong>원/달러 상승(원화 약세)</strong> = 외국인이 원화 자산 매도 = 코스피 매도 압력. 상관 -0.72 (최근 5년).</li>
-            <li><strong>1,300원 이상</strong> = 구조적 약세 신호 (외인 대탈출 가능성). 1,400원 이상 = 과거 3번(1997/2008/2022) 모두 금융 스트레스.</li>
-            <li><strong>1,200원 이하</strong> = 원화 강세 + 외인 순매수 국면.</li>
-            <li><strong>매매 적용</strong> — DXY 상승 + 원화 약세 + 한국 CDS 상승 삼중 시그널 시 <strong>한국 주식 비중 축소</strong>. 반대 국면은 외인 주도 랠리 기회.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label">TLT / IEF 채권 ETF — 금리 인버스 플레이</div>
-        <div class="explain-body">
-          <strong>TLT</strong> (미국 20년+ 장기국채 ETF) — 금리 하락 시 가격 급등(듀레이션 17년 = 금리 1%p 하락하면 약 17% 상승). 경기 침체 헤지 핵심 자산.
-          <br><strong>IEF</strong> (7~10년 국채 ETF) — 듀레이션 8년. TLT의 절반 변동성.
-          <ul>
-            <li><strong>매매 적용</strong> — 10Y 금리 4.5% 이상 = TLT 매수 시점 (역사적 저점 근접). 금리 2.5% 이하 = 익절 전환 신호.</li>
-            <li><strong>포트폴리오</strong> — Stock 60% / TLT 20% / Gold 10% / Cash 10% = <strong>All Weather Lite</strong>. 경기 사이클 전반 안정적 Sharpe.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ═══════════════════════════════════════════════════
        AIO · 글로벌 외환·채권 시장 (FX & Fixed Income)
        ═══════════════════════════════════════════════════ -->
@@ -7631,15 +6934,6 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!--  환율 분석 가이드 -->
-    <div class="beginner-tip collapsed">
-      <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 환율·달러 인덱스 분석 가이드 — FX가 자산에 미치는 영향</div>
-      <div class="insight-explain-body">
-        <b>달러 인덱스(DXY)</b> = 달러 vs 6개 주요 통화 강도 지표.<br><br>
-         <b>DXY 100+:</b> 달러 강세 → 신흥국 자본유출↑<br>
-         <b>USD/KRW:</b> 높을수록 원화 약세. 원약세 = 환차익 but 수입비↑<br>
-         <b>EUR/USD:</b> 높을수록 유로 강세. 1.10+ = 달러 약세 구간
-      </div>
-    </div>
   </div>
 
   <!-- ══ SECTION B: 미 국채 수익률 곡선 ══════════════════════════ -->
@@ -7717,18 +7011,6 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!--  수익률 곡선 분석 가이드 -->
-    <div class="beginner-tip collapsed">
-      <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 수익률 곡선 분석 가이드 — 경기 사이클 예측의 핵심 도구</div>
-      <div class="insight-explain-body">
-        <b>수익률 곡선(Yield Curve)</b> = 국채 만기별 이자율 그래프.<br><br>
-         <b>정상:</b> 3M < 2Y < 10Y < 30Y (성장 기대)<br>
-         <b>역전:</b> 단기 > 장기 = <b style="color:var(--data-red);">경기침체 예상</b> (1968년 이후 적중률 92%)<br>
-         <b>금리 드라이버 전환:</b> 시장은 경기둔화 기대와 물가 재가속 위험을 동시에 가격화합니다. 현재 판단은 6/5 고용, 6/10 CPI, 6/16-17 FOMC 확인 전까지 확률 시나리오로만 유지합니다.<br>
-         <b>재무부 역학:</b> 연준 브레이크 vs 재무부 액셀(2023: S&P +24%). TGA 세금 시즌 일시 축소→환류. 베센트 발행 전략 변수.<br>
-         <b>한국 영향:</b> 미국 H4L → 금리차 축소 지연 → 원화 약세 압박 지속
-      </div>
-    </div>
-
     <!-- 스프레드 분석 -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;margin-top:12px;">
       <div class="spread-card">
@@ -7766,15 +7048,6 @@ body.light-theme canvas { filter:none; }
     </div>
 
     <!--  스프레드 분석 가이드 -->
-    <div class="beginner-tip collapsed" style="background:linear-gradient(135deg,rgba(255,91,80,0.06),rgba(255,163,26,0.04));border-color:rgba(255,91,80,0.2);">
-      <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1" style="color:var(--data-red);"> 스프레드 분석 가이드 — 신용 리스크와 경기 전환 시그널</div>
-      <div class="insight-explain-body">
-        <b>스프레드(Spread)</b> = 두 금리의 차이. 경제 건강 상태 지표.<br><br>
-         <b>2s10s:</b> 마이너스(역전)=경기침체 경고. 역전→정상화 구간이 가장 위험 (6-18개월 내 침체 진입률 92%)<br>
-         <b>크레딧 스프레드:</b> 확대=기업 부도 위험↑ → 주식↓<br>
-         <b>HYG:</b> 하락=고위험 채권 불안. $75 이하 = 심각 경고
-      </div>
-    </div>
   </div>
 
   <!-- ══ SECTION C: MOVE Index + 크레딧 스프레드 ══════════════════ -->
@@ -8159,75 +7432,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 기업 분석 기관급 해설 ═══ -->
-  <div class="aio-explain" id="explain-fundamental-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-fundamental-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>기업 분석 심층 해설 — 15개 관점 · 밸류에이션 · 재무 건전성 · 모트(Moat) 평가</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section" data-fund-criteria-registry="AIO_FUNDAMENTAL_PAGE_CRITERIA">
-        <div class="explain-label">15개 분석 관점 (기관 리서치 프레임워크)</div>
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;padding:6px 8px;background:rgba(0,212,255,0.04);border-radius:4px;">📊 가용성: <span style="color:var(--data-green);">✓ 구현</span> · <span style="color:var(--data-amber);">⚠ 부분/계획됨</span> · <span style="color:var(--data-red);">❌ 미구현 — AI 학습 의존 환각 위험</span></div>
-        <div class="explain-body">
-          <strong>(1) 사업의 질(Quality)</strong> <span style="color:var(--data-green);font-size:10px;">[✓ FMP+Naver]</span> — 자기자본이익률(ROE) &gt; 15%를 3년 이상 유지? = 자본을 효율적으로 굴리는 회사.
-          <br><strong>(2) Moat</strong> <span style="color:var(--data-amber);font-size:10px;">[⚠ SEC 10-K AI 분석 대체 — Morningstar 유료 미사용]</span> — 경제적 해자 (브랜드·네트워크·전환비용·규제·원가 우위 중 2개+).
-          <br><strong>(3) Growth</strong> <span style="color:var(--data-green);font-size:10px;">[✓ FMP+Naver]</span> — 매출 5년 CAGR &gt; 10%? 조정 EPS 성장 &gt; 12%?
-          <br><strong>(4) Margin Trend</strong> <span style="color:var(--data-green);font-size:10px;">[✓ Naver]</span> — Gross Margin 확장 중? OPM 3년 상승? 인플레 전가력.
-          <br><strong>(5) 잉여현금흐름 수익률(FCF Yield)</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산]</span> — 잉여현금(영업에서 남은 현금)÷시가총액 &gt; 4%? = 자사주매입·배당 여력.
-          <br><strong>(6) Balance Sheet</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산]</span> — Net Debt / EBITDA &lt; 2.5x?
-          <br><strong>(7) Valuation PE</strong> <span style="color:var(--data-green);font-size:10px;">[✓ Yahoo+Naver]</span> — Forward PE vs 5Y 평균. PEG Ratio &lt; 1.5.
-          <br><strong>(8) EV/EBITDA</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산]</span> — 기업가치÷영업현금이익(부채 포함 평가). 동종 산업 대비 싼가?
-          <br><strong>(9) Insider Activity</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 수집 — key 필요]</span> — 임원 매수/매도 12주 누적.
-          <br><strong>(10) Institutional Flow</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 수집 — SEC 공시]</span> — 13F 기관 보유 비중 변화.
-          <br><strong>(11) Short Interest</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 수집 — key 필요]</span> — 5% 이하 정상, 15%+ 하방 압력.
-          <br><strong>(12) Analyst Revisions</strong> <span style="color:var(--data-green);font-size:10px;">[✓ Finnhub+Naver]</span> — 최근 90일 EPS 추정치 상향/하향.
-          <br><strong>(13) Earnings Beat Streak</strong> <span style="color:var(--data-green);font-size:10px;">[✓ Finnhub]</span> — 최근 4분기 어닝 서프라이즈 연속성.
-          <br><strong>(14) Industry Rank</strong> <span style="color:var(--data-amber);font-size:10px;">[⚠ SCREENER_DB.rsi 대체 — IBD 유료]</span> — IBD 산업 랭킹 Top 30?
-          <br><strong>(15) Macro Exposure</strong> <span style="color:var(--data-green);font-size:10px;">[✓ 자동 계산 — 휴리스틱]</span> — 금리/달러/원자재 민감도.
-        </div>
-        <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;padding:6px 10px;background:rgba(0,229,160,0.08);border-radius:4px;">
-          <strong style="color:var(--data-green);">커버리지: 17 관점 출처/함수 매핑 완료</strong> · 단, Supply Chain은 10-K 링크+키워드 가이드, TAM/Platform/Moat/FMP Segments는 confidence/키 의존 한계 고지 필수. 사이드바 Audit 위젯에서 커버리지와 3대 본질 정렬 상태를 확인할 수 있음.
-        </div>
-        <div style="font-size:11px;color:var(--text-secondary);margin-top:6px;padding:6px 10px;background:rgba(168,85,247,0.06);border-radius:4px;">
-          <strong style="color:var(--text-primary);">사용자 요청 17 관점 분석 매트릭스:</strong><br>
-          1) 기업 개요 <span style="color:var(--data-green);">✓ [SEC 10-K + Wiki]</span> · 2) 창립/성장 <span style="color:var(--data-green);">✓ [Wiki + News]</span> · 3) CEO/경영진 <span style="color:var(--data-green);">✓ [Wiki + Insider]</span> · 4) 비즈니스 모델 <span style="color:var(--data-green);">✓ [SEC + Wiki]</span> · 5) 사업 구조 <span style="color:var(--data-green);">✓ [Segments + SEC]</span> · 6) 제품 포트폴리오 <span style="color:var(--data-green);">✓ [FMP Segments]</span> · 7) 기술력/해자 <span style="color:var(--data-green);">✓ [Moat Score]</span> · 8) 수익 구조 <span style="color:var(--data-green);">✓ [Segments + Naver]</span> · 9) 재무제표 <span style="color:var(--data-green);">✓ [FMP + Balance + FCF]</span> · 10) 밸류에이션 <span style="color:var(--data-green);">✓ [PE + EV/EBITDA + 목표가]</span> · 11) TAM/시장 <span style="color:var(--data-amber);">⚠ [SIC + memo, confidence:low]</span> · 12) 공급망 <span style="color:var(--data-green);">✓ [SEC Item 1+1C]</span> · 13) 플랫폼/생태계 <span style="color:var(--data-amber);">⚠ [3-source synthesis, confidence:low]</span> · 14) 협력/파트너십 <span style="color:var(--data-green);">✓ [SEC 8-K 1.01+7.01]</span> · 15) 경쟁 구조 <span style="color:var(--data-green);">✓ [SEC + Wiki + peers]</span> · 16) 리스크 <span style="color:var(--data-green);">✓ [SEC 1A + Short]</span> · 17) 투자 포인트 <span style="color:var(--data-green);">✓ [컨센서스 + 종합]</span>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-green">PER 해석 — 단일 수치 함정 피하기</div>
-        <div class="explain-body">
-          <strong>PER은 절대값보다 "왜 이 숫자인가"가 중요</strong>.
-          <ul>
-            <li>PER 10 저평가? → 성장률 -5% = 정당한 가격 (가치 함정 Value Trap)</li>
-            <li>PER 40 고평가? → 성장률 +35% = PEG 1.1 = 합리적</li>
-            <li><strong>Shiller PER (CAPE)</strong>: 10년 평균 EPS 사용. SPX CAPE &gt; 30 = 역사적 과열 (2000, 2021)</li>
-            <li><strong>Industry Relative PER</strong>: 섹터 중앙값 대비. 테크 평균 25 vs 유틸리티 18 = 업종별 정상치 다름</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">재무 건전성 Piotroski F-Score (0~9) <span style="font-size:10px;color:var(--data-green);">자동 채점</span></div>
-        <div class="explain-body">
-          Joseph Piotroski의 9가지 YES/NO 체크. 8~9점 = 재무 강건, 0~2점 = 부실 위험.
-          <ul>
-            <li><strong>수익성 (4점)</strong>: Net Income &gt; 0 · ROA &gt; 0 · CFO &gt; 0 · CFO &gt; Net Income</li>
-            <li><strong>건전성 (3점)</strong>: 장기부채 비율 감소 · 유동비율 증가 · 신주 발행 없음</li>
-            <li><strong>효율성 (2점)</strong>: Gross Margin 증가 · 자산 회전율 증가</li>
-          </ul>
-          <strong>매매 적용</strong> — F-Score 8+ 종목의 연평균 초과수익률 +7.5% (학계 검증).
-          <div style="margin-top:10px;padding:10px;background:var(--surface-2);border-radius:6px;border:1px solid var(--border);">
-            <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px;">📐 F-Score 자동 계산기 (브라우저 콘솔)</div>
-            <code style="display:block;font-size:10px;color:var(--text-secondary);background:var(--surface-3);padding:8px;border-radius:4px;overflow-x:auto;">AIO_PIOTROSKI_CHECKLIST.score({ netIncome:1000, roa:0.10, cfo:1200, ltDebtPrev:500, ltDebt:400, currRatio:2.0, currRatioPrev:1.5, shares:100, sharesPrev:100, gpm:0.40, gpmPrev:0.35, assetTurnover:1.2, assetTurnoverPrev:1.0 })<br>→ { score:9, verdict:'우수', details:[...] }</code>
-            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">FMP/SEC API 연동 시 자동 호출 예정. 현재는 수동 입력으로 검증 가능.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
     <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div>
@@ -8511,58 +7715,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 테마/섹터 로테이션 기관급 해설 ═══ -->
-  <div class="aio-explain" id="explain-themes-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-themes-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>테마·트렌드 심층 해설 — RRG · Sector Rotation · 경기 사이클별 리더십</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">RRG (Relative Rotation Graph) — Julius de Kempenaer</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 섹터의 <strong>상대 강도(RS-Ratio: 시장 전체 대비 얼마나 강한가)</strong>와 <strong>상대 모멘텀(RS-Momentum: 지금 강해지는 중인가 약해지는 중인가)</strong>를 2차원 위에 배치. 시계 방향 회전으로 주도 섹터의 흐름을 시각화합니다.
-          <ul>
-            <li><strong>주도(Leading, 우상)</strong>: 강함 + 더 강해지는 중 = 상승 주도. <strong>→ 비중 확대(유지)</strong>.</li>
-            <li><strong>둔화(Weakening, 우하)</strong>: 강하지만 힘 빠지는 중 = <strong>→ 부분 익절</strong>.</li>
-            <li><strong>약세(Lagging, 좌하)</strong>: 약함 + 더 약해지는 중 = <strong>→ 비중 축소·회피</strong>.</li>
-            <li><strong>개선(Improving, 좌상)</strong>: 약하지만 살아나는 중 = 저점 탈출 반등. <strong>→ 분할 매수 검토</strong>.</li>
-          </ul>
-          <strong>매매 적용</strong> — 회전 방향(Leading → Weakening → Lagging → Improving) 시계 방향 흐름 확인. <strong>Improving → Leading</strong> 진입 초기가 최고 수익 국면.
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">경기 사이클별 섹터 리더십</div>
-        <div class="explain-body">
-          <table class="explain-table">
-            <thead><tr><th>국면</th><th>연준</th><th>주도 섹터</th></tr></thead>
-            <tbody>
-              <tr><td>Early Cycle</td><td>완화</td><td>임의소비재(XLY), 금융(XLF), 부동산(XLRE)</td></tr>
-              <tr><td>Mid Cycle</td><td>중립</td><td>기술(XLK), 커뮤니케이션(XLC)</td></tr>
-              <tr><td>Late Cycle</td><td>긴축 시작</td><td>에너지(XLE), 소재(XLB), 산업재(XLI)</td></tr>
-              <tr><td>Recession</td><td>완화 전환</td><td>필수소비재(XLP), 헬스케어(XLV), 유틸리티(XLU)</td></tr>
-            </tbody>
-          </table>
-          <strong>섹터 ETF 11종</strong>: XLK(기술)·XLF(금융)·XLV(헬스케어)·XLY(임의소비)·XLP(필수소비)·XLE(에너지)·XLI(산업)·XLB(소재)·XLU(유틸리티)·XLRE(부동산)·XLC(커뮤니케이션).
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-green">테마 ETF vs 섹터 ETF</div>
-        <div class="explain-body">
-          <strong>Sector</strong> — GICS 분류 11대 업종. 안정적·분산 효과.
-          <br><strong>Theme</strong> — 메가트렌드 기반 (AI, 클라우드, 2차전지, 로보틱스, Cybersecurity 등). 변동성 크나 집중 수익.
-          <ul>
-            <li><strong>AI 테마</strong>: SMH(반도체), ROBO(로봇), WCLD(클라우드), BUG(사이버보안)</li>
-            <li><strong>ESG 테마</strong>: ICLN(청정에너지), LIT(리튬), TAN(태양광)</li>
-            <li><strong>Defensive</strong>: VIG(배당성장), DGRO, SCHD</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
     <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:14px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div>
@@ -8881,65 +8033,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 포트폴리오 기관급 해설 ═══ -->
-  <div class="aio-explain" id="explain-portfolio-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-portfolio-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>포트폴리오 심층 해설 — Sharpe · Sortino · Drawdown · Rebalancing 전략</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">포트폴리오 성과 지표 3대장</div>
-        <div class="explain-body">
-          <strong>샤프 지수(Sharpe)</strong> — (수익률 - 안전한 이자율) ÷ 변동폭. <strong>"위험 1만큼 질 때 얼마를 벌었나"</strong>를 재는 핵심 지표(높을수록 효율적).
-          <ul>
-            <li>1 미만 = 평범(대부분의 개인) · 1~2 = 양호 · 2 초과 = 우수 · 3 초과 = 세계 최고 수준.</li>
-            <li>참고: 개인 투자자 5년 평균 약 0.3, 워런 버핏(버크셔) 60년 평균 0.76.</li>
-          </ul>
-          <strong>소르티노 지수(Sortino)</strong> — 샤프와 같되 <strong>하락 변동성만</strong> 사용. 오를 때의 출렁임은 벌점에서 빼고 진짜 위험(손실)만 측정. 공격적 포트폴리오 평가에 유리.
-          <br><br>
-          <strong>Maximum Drawdown (MDD)</strong> — 역대 최대 하락폭. <strong>회복 시간</strong>도 같이 봐야.
-          <ul>
-            <li>-20% MDD → 원금 회복에 +25% 필요</li>
-            <li>-50% MDD → +100% 필요 (시간 수년)</li>
-            <li>MDD 20% 이내 유지 = 장기 생존의 핵심</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-green">비중 관리 — Kelly Criterion vs Fixed %</div>
-        <div class="explain-body">
-          <strong>Kelly Criterion</strong> (수학적 최적) — <code>f = (pb - q) / b</code>, p=승률 q=패률 b=손익비.
-          <ul>
-            <li>승률 60%, 손익비 2:1 → Kelly = 40% → 실전은 <strong>Half Kelly 20%</strong> 권장 (추정 오차 대비).</li>
-            <li>Full Kelly는 Drawdown -40% 흔함 → 개인 투자자 감당 어려움.</li>
-          </ul>
-          <strong>Fixed 2% 룰</strong> (Van Tharp) — 단순하고 강건. 초보~중급 권장. Max Drawdown 컨트롤 용이.
-          <br><br>
-          <strong>실전 적용</strong>:
-          <ul>
-            <li>단일 종목 &lt; 20% (분산)</li>
-            <li>단일 섹터 &lt; 40%</li>
-            <li>현금 비중 10~30% 동적 유지 (시장 스코어 기반)</li>
-            <li>리밸런싱 <strong>분기 1회 + Drift ±5% 이상</strong> 시</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">SPY 벤치마크 비교 — Alpha / Beta / Information Ratio</div>
-        <div class="explain-body">
-          <strong>Alpha</strong> — 시장(SPY) 대비 초과수익률. 양수면 운용 기여.
-          <br><strong>Beta</strong> — 시장 변동성 대비 민감도. 1 = 시장 동조 · &lt;1 = 방어적 · &gt;1 = 공격적.
-          <br><strong>Information Ratio</strong> — Alpha / Tracking Error. &gt;0.5 양호 · &gt;1.0 우수.
-          <br><br>
-          <strong>매매 적용</strong>: 포트폴리오 Beta 1.2 = 시장 +10%면 +12% 기대, -10%면 -12% 위험. Regime에 맞춰 Beta 조정이 핵심.
-        </div>
-      </div>
-    </div>
-  </div>
-
     <div class="mb-4">
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <div>
@@ -9143,14 +8236,6 @@ body.light-theme canvas { filter:none; }
           </div>
         </div>
       </div>
-      <div class="beginner-tip collapsed" style="margin-top:10px;">
-        <div class="insight-explain-title tip-toggle" data-action="_aioToggleParentCollapsed" data-pass-el="1"> 2% 룰이란?</div>
-        <div class="insight-explain-body">
-          프로 트레이더의 철칙: <b>한 번의 매매에서 총 자산의 2% 이상 잃지 마라!</b><br>
-          예: 자산 $10,000 → 최대 손실 $200 → 손절폭이 $5면 → 최대 40주만 매수<br>
-          이 규칙만 지키면 50번 연속 틀려도 자산의 64%가 남습니다. 생존이 최우선!
-        </div>
-      </div>
     </div>
 
     <!-- 종목 추가 폼 -->
@@ -9296,72 +8381,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- v48.58: Ticker 페이지 기관급 해설 (15개 관점 심층 분석 가이드) -->
-  <div class="aio-explain" id="explain-ticker-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-ticker-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>종목 심층 분석 가이드 — 15개 관점 + Weinstein Stage + 진입 체크리스트</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">이 페이지 구성</div>
-        <div class="explain-body">
-          개별 종목 심층 분석 전용 페이지. <strong>실시간 시세 + Weinstein Stage 4단계 + 재무(FMP) + 뉴스(Finnhub) + AI 채팅(themes/fundamental 페르소나)</strong>이 자동 수집·주입됩니다.
-          <ul>
-            <li><strong>개요 탭</strong> — 핵심 지표(P/E 주가수익비율 · P/B 주가순자산비율 · ROE 자기자본이익률 · 배당수익률), 매매 참고(지지선 · 저항선 · 52주 범위)</li>
-            <li><strong>Chart 탭</strong> — 1M/3M/6M/1Y 가격 차트 (Yahoo v8/Stooq fallback)</li>
-            <li><strong>Financials 탭</strong> — Quarterly Revenue · Gross Profit · Operating Income · Net Income (TTM)</li>
-            <li><strong>캔들 패턴 갤러리</strong> — 망치형·강세장악형·샛별형 등 실시간 감지 (현재 티커 기준)</li>
-            <li><strong>진입 품질 계산기</strong> — 현재가·EMA20·RSI 입력 → A/B/C 등급 + Fibonacci 38.2% + 손절가 추천</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">Weinstein Stage 4단계 (추세 판단 프레임워크)</div>
-        <div class="explain-body">
-          Stan Weinstein "Secrets for Profiting in Bull and Bear Markets" (1988):
-          <ul>
-            <li><strong>Stage 1 바닥 다지기</strong> — 30주 MA 평탄 + 가격 횡보. 매수 준비 구간 (피봇 포인트 탐색).</li>
-            <li><strong>Stage 2 상승 추세 · 매수!</strong> — 30주 MA 위 + 상향 기울기. <strong>여기서만 매수</strong>. VCP·Breakout 셋업 활성.</li>
-            <li><strong>Stage 3 천장 · 매도 준비</strong> — 30주 MA 평탄화 + 변동성 확대. 분할 익절 시작.</li>
-            <li><strong>Stage 4 하락 추세 · 회피</strong> — 30주 MA 아래 + 하향. 숏 또는 현금. 절대 매수 금지.</li>
-          </ul>
-          <strong>적용</strong>: 페이지 상단 Action 버튼(BUY/LONG · HOLD · SELL/SHORT)은 Stage 판정 기반. Stage 2 + RSI 50~70 + 거래량 평균 1.5배 이상 = <strong>A급 진입</strong>.
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-green">AI 채팅 + 자동 데이터 주입</div>
-        <div class="explain-body">
-          AI 채팅 사이드 패널에서 종목 질의 시 <strong>자동 수집</strong>:
-          <ul>
-            <li><strong>Yahoo</strong> — 실시간 가격 · 변동률 · 거래량</li>
-            <li><strong>Finnhub</strong> — 애널리스트 추천(strongBuy/buy/hold/sell) · 향후 어닝 일정 · 기업 뉴스 14일</li>
-            <li><strong>FMP</strong> — profile · ratios TTM · key-metrics · income-statement 5년 · cash-flow · balance-sheet</li>
-            <li><strong>SEC EDGAR</strong> — 10-K/10-Q 공시 + 섹터 백분위 순위</li>
-            <li><strong>웹검색</strong> — 최신 뉴스·리서치 (Perplexity · Google CSE fallback)</li>
-          </ul>
-          <strong>themes/theme-detail/portfolio 페이지에서 이 종목 질의</strong> → FMP 재무 심층 자동 활성.
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">진입 체크리스트 (5대 필터)</div>
-        <div class="explain-body">
-          Mark Minervini SEPA (Specific Entry Point Analysis) 8대 조건 중 핵심 5개:
-          <ol>
-            <li>가격 &gt; 50MA &gt; 150MA &gt; 200MA 정배열 + 200MA 상승</li>
-            <li>52주 저점 대비 +25% ↑ · 52주 고점 대비 25% 이내</li>
-            <li>RS Rating 80+ (시장 대비 상대강도)</li>
-            <li>VCP(변동성 수축 패턴 = 출렁임이 점점 좁아지며 돌파를 준비하는 모양) 2~6회 수축 + 거래량 평균 150% ↑</li>
-            <li>손절 -5~8% (피봇 포인트 대비, 절대 -10% 이상 허용 금지)</li>
-          </ol>
-          <strong>목표</strong>: 손익비(R:R, 예상 수익 ÷ 예상 손실) 최소 3:1. 5개 모두 통과 = A급(적극 진입), 3~4개 = B급(선별), 2개 이하 = C급(보류).
-        </div>
-      </div>
-    </div>
-  </div>
-
     <div class="mb-4">
       <div style="display:flex;gap:8px;margin-bottom:8px;">
         <button id="ticker-back-btn-main" class="aio-btn-table" data-action="showPage" data-arg="portfolio">← 돌아가기</button>
@@ -9583,41 +8602,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.46: 시장 뉴스 심층 해설 ═══ -->
-  <div class="aio-explain" id="explain-news-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-news-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>뉴스 활용 가이드 — Sentiment 스코어 · 티커 태깅 · 4국가 필터</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">뉴스 스코어링 알고리즘</div>
-        <div class="explain-body">
-          <strong>구성</strong> — 각 뉴스를 0~100점으로 채점(중요도). 소스 신뢰도(30점) + 사건 유형(40점) + 종목 영향력(20점) + 최신성(10점).
-          <ul>
-            <li><strong>&gt; 90</strong>: 시장 이동 이벤트 (FOMC · 대형 실적 서프라이즈 · 전쟁 · 제재)</li>
-            <li><strong>70~90</strong>: 주목할 공시 (대형 M&amp;A · 애널리스트 업그레이드 · 경제지표)</li>
-            <li><strong>50~70</strong>: 업종 레벨 이슈</li>
-            <li><strong>&lt; 50</strong>: 노이즈 (기본 필터에서 숨김)</li>
-          </ul>
-          <strong>감성 분류</strong>: 호재(bull) · 악재(bear) · 경계(warn) · 중립(neut).
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">국가 필터 (US · KR · EU · Asia · All)</div>
-        <div class="explain-body">
-          <strong>매매 적용</strong>:
-          <ul>
-            <li>미국장 주력 = US 필터로 집중. 아시아 시차 영향 고려하여 전일 마감 후 오전 뉴스 체크.</li>
-            <li>KR 주력 = KR + US 동시 보기 (미국 시가는 코스피 방향에 직접 영향).</li>
-            <li>지정학 리스크 시즌 = All로 전환, 중동/유럽 뉴스 놓치지 않음.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
     <!-- 헤더 -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
       <div>
@@ -9719,775 +8703,13 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 <div class="page" id="page-options">
-  <div class="insight-box box-collapsed">
-    <strong>옵션으로 시장 방향 읽기 — IV·Skew·Put/Call 비율이 공포와 탐욕을 보여준다</strong>
+  <!-- v50.35: 옵션 페이지 콘텐츠 폐기 (사용자 요청). 실제 옵션체인 피드 미연결 — 스큐·옵션흐름·Greeks가 정적 스냅샷이었음.
+       페이지 셸은 21페이지 아키텍처 정합 위해 유지하되 내부는 최소 스텁(내비에서도 제거됨). VIX/VVIX는 투자심리 페이지에서 확인. -->
+  <div class="insight-box box-collapsed"><strong>옵션 분석은 통합/정리되었습니다 — VIX·변동성은 투자 심리 페이지에서 확인하세요.</strong></div>
+  <div style="padding:24px 16px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.8;">
+    이 페이지는 실시간 옵션체인 데이터 연결이 없어 폐기되었습니다.<br>
+    변동성(VIX·VVIX)과 시장 심리는 <button data-action="showPage" data-arg="sentiment" class="aio-btn-table" style="font-size:11px;">투자 심리 →</button> 에서 확인하세요.
   </div>
-
-  <!-- ═══ v48.46: 옵션 페이지 심층 해설 ═══ -->
-  <div class="aio-explain" id="explain-options-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-options-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>옵션 심층 해설 — IV · Skew · Greeks · 헤지 전략 · Gamma Exposure</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-callout is-warn" style="margin-bottom:12px;">
-        <strong>⚠️ 옵션은 고급 상품입니다.</strong> 레버리지가 크고 손실이 빠릅니다. 최소 6개월+ 주식 거래 경험을 쌓은 뒤 접근하세요. 아래 용어가 낯설면, 먼저 <strong>시장 방향 참고용</strong>(IV·Skew·Put/Call로 공포·탐욕 읽기)으로만 활용하는 것을 권합니다.
-      </div>
-      <div class="explain-section">
-        <div class="explain-label">내재변동성 (IV, Implied Volatility) — 옵션 "가격"의 본질</div>
-        <div class="explain-body">
-          <strong>개념</strong> — 시장이 예상하는 <strong>앞으로의 변동성</strong>을 옵션 가격에서 거꾸로 계산한 값. 높을수록 옵션이 비쌉니다. 현물 가격보다 <strong>시장 심리를 더 정확하게 반영</strong>합니다.
-          <ul>
-            <li><strong>IV 백분위 (IVP)</strong>: 최근 1년 변동성 범위에서 현재가 몇 %位치인지. <strong>80 이상</strong> = 변동성 비쌈 → 옵션 <strong>매도</strong> 유리(정점), <strong>20 이하</strong> = 변동성 쌈 → 옵션 <strong>매수</strong> 유리(저점).</li>
-            <li><strong>IV 랭크 (IVR)</strong>: 변동성을 0~100으로 정규화. 70+ = 프리미엄(옵션값) 받는 매도 전략 유리, 30- = 옵션 사는 매수 전략 유리.</li>
-            <li><strong>IV Crush(변동성 급락)</strong>: 실적·FOMC(연준 회의) <strong>직후</strong> 불확실성이 사라지며 옵션값 급락. <strong>→ 그러면: 이벤트 직전 옵션 신규 매수는 피하세요</strong>(발표 후 가격이 빠질 위험).</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">스큐 (Skew) — 공포의 비대칭 지표</div>
-        <div class="explain-body">
-          <strong>SKEW 지수</strong>: 하락 보험(외가격 풋 = 현재가보다 낮은 행사가의 풋옵션)이 상승 베팅(외가격 콜)보다 얼마나 비싼지를 잰 값. <strong>꼬리 위험(극단적 급락 가능성)</strong>을 측정합니다.
-          <ul>
-            <li>SKEW = 100 = 양방향 위험 대칭 (정상)</li>
-            <li>SKEW &gt; 135 = 하락 보험 수요 폭증 (큰 급락 대비, 과거 2020-02·2022-09)</li>
-            <li>SKEW &gt; 150 = 극단적 경계 (대형 운용사들이 헤지 집중)</li>
-          </ul>
-          <strong>매매 적용</strong> — SKEW &gt; 145 + VIX(공포지수) 낮음 = "고요 속 큰 우려". 역사적으로 급락에 선행. <strong>→ 그러면: 신규 매수 신중, 헤지 비중 점검.</strong>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-green">그릭스 (Greeks) — 옵션 위험의 4가지 차원</div>
-        <div class="explain-body">
-          옵션 값이 무엇에 얼마나 민감한지를 나타내는 4개 지표입니다. (ATM=등가격: 현재가와 행사가가 비슷 / ITM=내가격: 이미 이익권 / OTM=외가격: 현재가에서 먼 옵션)
-          <br><strong>델타(Delta)</strong>: <strong>방향</strong> 민감도 — 현물이 움직일 때 옵션이 따라가는 정도(0~1). 등가격 ≈ 0.5.
-          <br><strong>감마(Gamma)</strong>: 델타의 <strong>가속도</strong> — 등가격에서 가장 큼.
-          <br><strong>세타(Theta)</strong>: <strong>시간 감소</strong> — 매일 줄어드는 가치(매수자 불리), 만기 가까울수록 빨라짐.
-          <br><strong>베가(Vega)</strong>: <strong>변동성</strong> 민감도 — 변동성(IV)이 오르내릴 때 옵션값 변화.
-          <br><br>
-          <strong>딜러 감마 노출 (GEX, Gamma Exposure)</strong> — 옵션 딜러(시장 조성자)들의 감마 포지션 총합. <strong>양수 GEX</strong> = 시장 자동 안정화(딜러가 하락 시 매수·상승 시 매도로 변동성을 눌러줌), <strong>음수 GEX</strong> = 변동성 자동 증폭(하락 가속). <strong>※ 기관급 참고 지표 — 초보자는 "양수=안정, 음수=주의" 정도만.</strong>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-purple">대표 헤지(위험 방어) 전략</div>
-        <div class="explain-body">
-          <ul>
-            <li><strong>보호적 풋(Protective Put)</strong>: 보유 주식 + 풋옵션 매수 = 보험. 단순하지만 비쌈.</li>
-            <li><strong>칼라(Collar)</strong>: 보유 + 풋 매수 + 콜 매도. 콜 판 돈으로 풋값 상쇄(대신 상승 이익 제한).</li>
-            <li><strong>풋 스프레드(Put Spread)</strong>: 풋 매수 + 더 낮은 풋 매도. 비용↓ 보호 범위↓.</li>
-            <li><strong>VIX 콜</strong>: 시장 하락에 베팅하는 변동성 전용 헤지.</li>
-            <li><strong>SPX 0DTE(당일만기 옵션)</strong>: 당일 만기 초단타. 시간가치 소멸 극심. <strong>초고난도 — 초보자 금지.</strong></li>
-          </ul>
-          <div class="explain-callout is-warn">
-            <strong>주의</strong> — 옵션은 레버리지 상품. 총 자본의 5% 이내 옵션 비중이 안전. 프리미엄 매도는 정의 상 최대 손실 무한 (체계적 리스크 관리 필수).
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 1: HEADER + MARKET SENTIMENT STRIP -->
-  <div class="mb-4">
-    <div class="page-title">옵션 분석</div>
-    <div class="page-subtitle">IV Surface · Skew · Greeks · 기간구조 · 선물 흐름</div>
-  </div>
-
-  <!-- Real-time Sentiment Strip -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
-    <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">VIX (live 우선)</div>
-      <div style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:#3b82f6;" data-live-price="^VIX" data-static-default="true">—</div>
-      <div style="font-size:11px;color:var(--text-muted);">—</div>
-    </div>
-    <div style="background:rgba(255,91,80,0.1);border:1px solid rgba(255,91,80,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">VVIX (변동성의 변동성)</div>
-      <div id="opt-vvix-val" style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);" data-live-price="^VVIX" data-snap="vvix">90.10</div>
-      <div id="opt-vvix-desc" style="font-size:11px;color:var(--data-red);">높음 · 단기 변동성 경계</div>
-    </div>
-    <div style="background:rgba(255,163,26,0.1);border:1px solid rgba(255,163,26,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">Put/Call Ratio (CBOE Total)</div>
-      <div id="opt-pcr-val" style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);" data-live-price="PCR" data-source-kind="pending" data-operational-use="reference-only">—</div>
-      <div id="opt-pcr-desc" style="font-size:11px;color:var(--data-amber);">CBOE 수신 대기</div>
-    </div>
-    <div style="background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);border-radius:var(--radius);padding:10px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:3px;"><span class="term-tooltip">GEX (감마 노출)<span class="tip-icon">?</span><span class="tip-body">Gamma Exposure. 옵션 딜러들의 감마 포지션 총합. 양수면 시장 안정(딜러가 역추세 매매), 음수면 변동성 증폭(딜러가 추세 추종)</span></span></div>
-      <div id="opt-gex-val" style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:var(--data-green);" data-operational-use="reference-only">—</div>
-      <div id="opt-gex-desc" style="font-size:11px;color:var(--data-green);">실시간 API 미제공 · 의사결정 제외</div>
-    </div>
-  </div>
-
-  <!-- v31.9: 데이터 소스 고지 배너 · v48.15: 스냅샷 경과일 자동 표시 (텍스트-C) -->
-  <div id="opt-data-notice" style="padding:8px 12px;margin-bottom:12px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.2);border-radius:var(--radius);font-size:11px;color:var(--data-amber);line-height:1.5;">
-    <strong>데이터 안내:</strong> VIX·VVIX는 live 값을 우선 사용합니다. IV Rank, Greeks, Skew, GEX, 옵션 흐름은 검증된 옵션 체인 원자료가 없으면 <strong>매매 판단용이 아닌 참고용 추정치</strong>로만 표시됩니다. 정확한 옵션 체인은 CBOE, ThinkorSwim, Interactive Brokers 등 전문 플랫폼에서 재확인하세요.
-    <span id="opt-update-time" style="margin-left:8px;color:var(--text-muted);">스냅샷: <span data-snap-date="option-snapshot">2026-05-16</span> · <span id="option-snapshot-stale-days">경과 산출 대기</span></span>
-  </div>
-
-  <!-- SECTION 2: CORE METRICS DASHBOARD -->
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px;">
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
-      <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">IV Rank (SPY)</div>
-      <div id="opt-ivrank-val" style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);">—</div>
-      <div id="opt-ivrank-desc" style="font-size:11px;color:var(--data-amber);margin-bottom:6px;">VIX 기반 추정</div>
-      <div style="font-size:11px;color:var(--text-muted);line-height:1.4;">VIX 기반 추정값. 정확한 IV Rank는 CBOE/TOS에서 확인.</div>
-    </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
-      <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">IV Percentile</div>
-      <div id="opt-ivpct-val" style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);">—</div>
-      <div id="opt-ivpct-desc" style="font-size:11px;color:var(--data-amber);margin-bottom:6px;">VIX 기반 추정</div>
-      <div style="font-size:11px;color:var(--text-muted);line-height:1.4;">VIX 수준 기반 추정. 정확한 데이터는 전문 플랫폼 확인.</div>
-    </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
-      <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">Put/Call Ratio (CBOE Total)</div>
-      <div id="opt-pcr-val-secondary" style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);" data-live-price="PCR" data-source-kind="pending" data-operational-use="reference-only">—</div>
-      <div id="opt-pcr-desc-secondary" style="font-size:11px;color:var(--data-amber);margin-bottom:6px;">CBOE 수신 대기</div>
-      <div id="opt-pcr-text" style="font-size:11px;color:var(--text-muted);line-height:1.4;" data-source-kind="pending" data-operational-use="reference-only">CBOE Total P/C 수신 대기 · 실패 시 정적 스냅샷을 참고용으로만 표시합니다.</div>
-    </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
-      <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">VIX (live 우선)</div>
-      <div style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);" data-live-price="^VIX" data-static-default="true">—</div>
-      <div style="font-size:11px;color:var(--data-red);margin-bottom:6px;">높은 긴장 (평년 15~18)</div>
-      <div style="font-size:11px;color:var(--text-muted);line-height:1.4;">VIX 장기 평년 15~18. 20+ 주의, 30+ 극도 긴장. 현재 변동성 판단은 6/5 NFP, 6/10 CPI, 6/16-17 FOMC, 6/25 PCE와 Computex/SpaceX IPO 보도 같은 이벤트 클러스터를 기준으로 재평가합니다.</div>
-    </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
-      <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">GEX (감마 노출) <span style="font-size:11px;color:var(--data-amber);">수동</span></div>
-      <div id="opt-gex-snapshot-val" style="font-size:24px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);" data-snap="gex-current" data-operational-use="reference-only">-12.8B</div>
-      <div style="font-size:10px;color:var(--data-red);margin-bottom:6px;">수동 스냅샷 · 참고용</div>
-      <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">감마 노출 해석은 변동성 구조 참고로만 표시합니다. 현재 의사결정에는 CBOE/SpotGamma 등 최신 전문 소스 확인이 필요합니다.</div>
-    </div>
-  </div>
-
-  <!-- v48.58: 선물 흐름 (Futures Flow) — 사용자 options subtitle "기간구조 · 선물 흐름" 명시됨, 이전 누락 -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-primary);">
-        선물 흐름 (Futures Flow)
-        <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="선물 흐름 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">선물 흐름 해석</span>미국 지수 선물(ES/NQ/YM/RTY) 실시간 등락. <strong>장 외 시간</strong> 선물이 현물과 괴리 → 익일 갭 오픈 가능성. <strong>4지수 동행 상승/하락</strong> = 광범위 모멘텀. <strong>분산</strong> = 섹터별 차등.</span></span>
-      </div>
-      <span style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">Yahoo ES/NQ/YM/RTY 실시간</span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
-        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">ES (S&P500)</div>
-        <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-primary);" data-live-price="ES=F">—</div>
-        <div style="font-size:11px;font-weight:700;" data-live-chg="ES=F">—</div>
-      </div>
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
-        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">NQ (Nasdaq100)</div>
-        <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-primary);" data-live-price="NQ=F">—</div>
-        <div style="font-size:11px;font-weight:700;" data-live-chg="NQ=F">—</div>
-      </div>
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
-        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">YM (Dow)</div>
-        <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-primary);" data-live-price="YM=F">—</div>
-        <div style="font-size:11px;font-weight:700;" data-live-chg="YM=F">—</div>
-      </div>
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
-        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">RTY (Russell)</div>
-        <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-primary);" data-live-price="RTY=F">—</div>
-        <div style="font-size:11px;font-weight:700;" data-live-chg="RTY=F">—</div>
-      </div>
-    </div>
-    <div id="futures-flow-regime" style="margin-top:10px;padding:8px 12px;background:var(--surface-2);border-left:3px solid var(--data-amber);border-radius:4px;font-size:11px;color:var(--text-secondary);line-height:1.5;">
-      <strong style="color:var(--data-amber);">판정:</strong> <span id="futures-flow-text">4지수 동행/분산 판정 대기 중…</span>
-    </div>
-  </div>
-
-  <!-- SECTION 3: VOLATILITY TERM STRUCTURE -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">VIX 기간구조 · <span class="term-tooltip">콘탱고/백워데이션<span class="tip-icon">?</span><span class="tip-body">콘탱고 = 선물>현물 (정상, 시장 안정). 백워데이션 = 현물>선물 (비정상, 즉각적 공포가 미래 우려보다 큼). VIX 백워데이션은 시장 패닉 신호</span></span></div>
-    <div style="overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;font-size:11px;">
-        <thead>
-          <tr style="border-bottom:1px solid var(--border);font-size:10px;color:var(--text-muted);">
-            <th style="text-align:left;padding:7px 10px;font-weight:700;">계약</th>
-            <th style="text-align:center;padding:7px 10px;font-weight:700;">현재값</th>
-            <th style="text-align:center;padding:7px 10px;font-weight:700;">대비</th>
-            <th style="text-align:left;padding:7px 10px;font-weight:700;">만기</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 10px;font-weight:700;color:var(--text-primary);">VIX Spot (현물)</td>
-            <td id="opt-term-vix-spot" style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:var(--data-red);font-weight:700;" data-live-price="^VIX">—</td>
-            <td style="text-align:center;padding:7px 10px;color:var(--text-muted);">기준</td>
-            <td style="padding:7px 10px;color:var(--text-muted);">실시간</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 10px;font-weight:700;color:var(--text-primary);">VXX (단기선물 ETF)</td>
-            <td id="opt-term-vxx" style="text-align:center;padding:7px 10px;font-family:var(--font-mono);font-weight:700;" data-live-price="VXX">—</td>
-            <td id="opt-term-vxx-spread" style="text-align:center;padding:7px 10px;">—</td>
-            <td style="padding:7px 10px;color:var(--text-muted);">1~2개월 롤</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 10px;font-weight:700;color:var(--text-primary);">UVXY (1.5X 레버리지)</td>
-            <td id="opt-term-uvxy" style="text-align:center;padding:7px 10px;font-family:var(--font-mono);font-weight:700;" data-live-price="UVXY">—</td>
-            <td id="opt-term-uvxy-spread" style="text-align:center;padding:7px 10px;">—</td>
-            <td style="padding:7px 10px;color:var(--text-muted);">1~2개월 롤</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 10px;font-weight:700;color:var(--text-primary);">VVIX (변동성의 변동성)</td>
-            <td id="opt-term-vvix" style="text-align:center;padding:7px 10px;font-family:var(--font-mono);font-weight:700;" data-live-price="^VVIX">—</td>
-            <td id="opt-term-vvix-status" style="text-align:center;padding:7px 10px;">—</td>
-            <td style="padding:7px 10px;color:var(--text-muted);">실시간</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div id="vix-term-interp" style="margin-top:10px;padding:10px;background:rgba(255,163,26,0.08);border-left:3px solid var(--data-amber);border-radius:4px;">
-      <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">
-      <strong style="color:var(--data-amber);">해석:</strong> <span id="vix-term-interp-text">live/snapshot 데이터 수신 대기...</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 4: VOLATILITY SKEW ANALYSIS -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-primary);">변동성 스큐 · 헤징 수요 분석</div>
-      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-05-16</span> · 실시간 아님</span>
-    </div>
-    <div style="overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;font-size:11px;">
-        <thead>
-          <tr style="border-bottom:1px solid var(--border);font-size:10px;color:var(--text-muted);">
-            <th style="text-align:left;padding:7px 10px;font-weight:700;">항목</th>
-            <th style="text-align:center;padding:7px 10px;font-weight:700;">SPY</th>
-            <th style="text-align:center;padding:7px 10px;font-weight:700;">NVDA</th>
-            <th style="text-align:center;padding:7px 10px;font-weight:700;">TSLA</th>
-            <th style="text-align:left;padding:7px 10px;font-weight:700;">해석</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 10px;font-weight:700;color:var(--text-primary);"><span class="term-tooltip">25-Delta Put IV<span class="tip-icon">?</span><span class="tip-body">25-Delta = 행사 확률 25%인 외가격(OTM) 옵션. Put IV가 높으면 하락 보험(헤징) 수요가 많다는 뜻</span></span></td>
-            <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:var(--data-red);">28.3</td>
-            <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:var(--data-red);">35.8</td>
-            <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:var(--data-amber);">42.1</td>
-            <td style="padding:7px 10px;font-size:10px;color:var(--text-muted);">OTM Put이 더 비쌈 (헤징 수요)</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 10px;font-weight:700;color:var(--text-primary);">25-Delta Call IV</td>
-            <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:var(--data-green);">22.1</td>
-            <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:var(--data-amber);">28.4</td>
-            <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:var(--data-amber);">35.2</td>
-            <td style="padding:7px 10px;font-size:10px;color:var(--text-muted);">상승 기대 약함</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 10px;font-weight:700;color:var(--text-primary);">스큐 (Put IV - Call IV)</td>
-            <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:var(--data-red);font-weight:700;">+6.2</td>
-            <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:var(--data-red);font-weight:700;">+7.4</td>
-            <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);color:var(--data-red);font-weight:700;">+6.9</td>
-            <td style="padding:7px 10px;font-size:10px;color:var(--text-muted);">양의 스큐 = 하락 헤징 과다</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 10px;font-weight:700;color:var(--text-primary);">스큐 강도</td>
-            <td style="text-align:center;padding:7px 10px;color:var(--data-amber);font-weight:700;">중간</td>
-            <td style="text-align:center;padding:7px 10px;color:var(--data-red);font-weight:700;">높음</td>
-            <td style="text-align:center;padding:7px 10px;color:var(--data-red);font-weight:700;">높음</td>
-            <td style="padding:7px 10px;font-size:10px;color:var(--text-muted);">기관 포트폴리오 헤징 활발</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div style="margin-top:10px;padding:10px;background:rgba(255,91,80,0.08);border-left:3px solid var(--data-red);border-radius:4px;">
-      <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">
-        <strong style="color:var(--data-red);">해석:</strong> 스큐와 헤지 수요는 현재 옵션 데이터가 검증될 때만 매매 판단에 사용합니다. <strong>맥락:</strong> 섹터·지역 편차가 커지는 구간에서는 개별 종목 Put 스큐 확대 여부를 별도로 확인하세요.
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 5: OPTIONS FLOW & UNUSUAL ACTIVITY -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-primary);">옵션 흐름 · 이상 활동 추적</div>
-      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-05-16</span> · 실제 흐름은 CBOE/TOS</span>
-    </div>
-    <div style="overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;font-size:10px;">
-        <thead>
-          <tr style="border-bottom:1px solid var(--border);font-size:11px;color:var(--text-muted);">
-            <th style="text-align:left;padding:7px 8px;font-weight:700;">종목</th>
-            <th style="text-align:center;padding:7px 8px;font-weight:700;">유형</th>
-            <th style="text-align:center;padding:7px 8px;font-weight:700;">행사가</th>
-            <th style="text-align:center;padding:7px 8px;font-weight:700;">만기</th>
-            <th style="text-align:center;padding:7px 8px;font-weight:700;">거래량</th>
-            <th style="text-align:center;padding:7px 8px;font-weight:700;">OI</th>
-            <th style="text-align:center;padding:7px 8px;font-weight:700;">프리미엄</th>
-            <th style="text-align:left;padding:7px 8px;font-weight:700;">해석</th>
-          </tr>
-        </thead>
-        <tbody data-operational-use="reference-only" data-source="requires-broker-options-feed" data-source-kind="template" data-source-label="options-flow-pending">
-          <tr>
-            <td colspan="8" style="padding:18px 12px;text-align:center;color:var(--text-muted);font-size:11px;line-height:1.7;">
-              <div style="font-weight:700;color:var(--data-amber);margin-bottom:6px;">⚠ 옵션 흐름 라이브 피드 미연결</div>
-              <div>실거래 혼동을 막기 위해 특정 종목·행사가·만기·프리미엄 예시는 제공하지 않습니다.</div>
-              <div style="margin-top:4px;">CBOE / ThinkOrSwim / Polygon 옵션 체인 API 연결 시 unusual activity 표가 자동 채워집니다.</div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div style="margin-top:10px;padding:10px;background:rgba(255,163,26,0.08);border-left:3px solid var(--data-amber);border-radius:4px;">
-      <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">
-        <strong style="color:var(--data-amber);">참고:</strong> 옵션 unusual activity는 브로커 옵션 체인 라이브 피드(CBOE / TOS / Polygon)가 필요합니다. 본 페이지 전략 템플릿(아래)은 시장 환경별 구조 예시이며 특정 종목·가격을 권장하지 않습니다.
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 6: GREEKS SENSITIVITY PANEL -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-primary);">Greeks 감도 패널 · 위험도 분석</div>
-      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">스냅샷 · <span data-snap-date="option-snapshot">2026-05-16</span></span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px;">
-      <!-- SPY ATM Options -->
-      <div style="padding:12px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:#3b82f6;margin-bottom:8px;">SPY ATM Call (근월물 예시)</div>
-        <table style="width:100%;border-collapse:collapse;font-size:10px;">
-          <tbody>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">Delta</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">0.52</td>
-              <td style="padding:5px;font-size:11px;color:var(--text-muted);">SPY +1% → Call +0.52%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">Gamma</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">0.012</td>
-              <td style="padding:5px;font-size:11px;color:var(--text-muted);">Delta 가속도 약함</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">Theta</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">-0.038</td>
-              <td style="padding:5px;font-size:11px;color:var(--text-muted);">일일 -$0.038 감소 (시간가치)</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">Vega</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">0.18</td>
-              <td style="padding:5px;font-size:11px;color:var(--text-muted);">IV +1% → Call +$0.18</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">Rho</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">0.042</td>
-              <td style="padding:5px;font-size:11px;color:var(--text-muted);">금리 +1% → Call +$0.042</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- NVDA ATM Options -->
-      <div style="padding:12px;background:rgba(255,91,80,0.08);border:1px solid rgba(255,91,80,0.3);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-red);margin-bottom:8px;">NVDA ATM Call (근월물 예시)</div>
-        <table style="width:100%;border-collapse:collapse;font-size:10px;">
-          <tbody>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">Delta</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">0.48</td>
-              <td style="padding:5px;font-size:11px;color:var(--text-muted);">NVDA +1% → Call +0.48%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">Gamma</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">0.008</td>
-              <td style="padding:5px;font-size:11px;color:var(--text-muted);">높은 변동성→감마 작음</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">Theta</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">-0.052</td>
-              <td style="padding:5px;font-size:11px;color:var(--text-muted);">일일 -$0.052 (빠른 감소)</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">Vega</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">0.28</td>
-              <td style="padding:5px;font-size:11px;color:var(--text-muted);">IV 민감도 높음 (변동성 ▲)</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">Rho</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;">0.031</td>
-              <td style="padding:5px;font-size:11px;color:var(--text-muted);">금리 내성 (Low)</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div style="padding:10px;background:rgba(255,163,26,0.08);border-left:3px solid var(--data-amber);border-radius:4px;">
-      <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">
-        <strong style="color:var(--data-amber);">Greeks 해석:</strong><br>
-        • <strong>Delta 0.5:</strong> ATM Call은 주가 방향에 50% 반응. +$10 주가↑ → Call +$5<br>
-        • <strong>Gamma 작음:</strong> IV 높을 때 감마 감소 (ATM에서 가속도 약함)<br>
-        • <strong>Theta 음수:</strong> 시간이 지날수록 Call 가치 감소. 매도자 유리<br>
-        • <strong>Vega 높음 (NVDA):</strong> IV 변동에 민감. 변동성 ↑하면 수익, ↓하면 손실<br>
-        • <strong>전략:</strong> 현재 IV 높음 → Covered Call/CSP 매도로 Theta 수익 극대
-      </div>
-    </div>
-  </div>
-
-  <!-- v49.29 E6/R69 동적 추천 — ACTION_RULES 기반 환경별 옵션 전략 -->
-  <div id="options-dynamic-recommendation" style="margin-bottom:12px;padding:12px 14px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.25);border-radius:8px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-size:12px;font-weight:800;color:var(--accent);">📋 동적 옵션 전략 추천</div>
-      <div data-narrative-stamp="options" style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);" title="VIX/F&G 환경이 갱신될 때 전략 추천이 자동으로 다시 계산됩니다">🔄 자동 갱신</div>
-    </div>
-    <div id="options-rec-position" style="font-size:11px;color:var(--text-primary);margin-bottom:4px;font-weight:600;">VIX 기반 전략 결정 중...</div>
-    <div id="options-rec-sentiment" style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">센티먼트 기반 결정 중...</div>
-    <div id="options-rec-strategy" style="font-size:11px;color:var(--data-amber);font-weight:600;line-height:1.5;">전략 매칭 중...</div>
-  </div>
-
-  <!-- SECTION 7: STRATEGY RECOMMENDATION ENGINE -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">옵션 전략 가이드 · 환경별 최적 전략 <span style="font-size:10px;color:var(--text-muted);">(아래는 정적 참고 — 위 동적 추천이 우선)</span></div>
-
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;">
-      <!-- IV High -->
-      <div style="padding:12px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.25);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:8px;">IV 높을 때</div>
-        <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Covered Call — 보유 주식 수익화</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Cash-Secured Put — 낮은 가격 주식 매수</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Iron Condor — 횡보 장 프리미엄 수취</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Short Strangle — 양방향 프리미엄</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-red);"></span> Long Call/Put — 비싼 프리미엄 (손실 위험)</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-red);"></span> Long Straddle — IV Crush 위험</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--surface-5);">수익: 프리미엄 수취 전략으로 시간가치 포착</div>
-        </div>
-      </div>
-
-      <!-- IV Low -->
-      <div style="padding:12px;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.25);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-green);margin-bottom:8px;">IV 낮을 때</div>
-        <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Long Call/Put — 저가 프리미엄</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Calendar Spread — 시간가치 차이 활용</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Straddle — 큰 움직임 예상 시</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Strangle — 큰 이동거리 포착</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-red);"></span> Premium Selling — 수취액 적음</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-red);"></span> Iron Condor — 수익 가능성 낮음</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--surface-5);">수익: 변동성 ↑ 시 수익 극대. 방향성 베팅</div>
-        </div>
-      </div>
-
-      <!-- Event-Specific -->
-      <div style="padding:12px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.25);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:8px;">이벤트 대비 (다음 고변동 이벤트)</div>
-        <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Straddle — 양방향 베팅</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Iron Butterfly — 범위 제한 베팅</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> Vertical Spread — 방향 + 위험 제한</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-green);"></span> 포지션 축소 → 발표 후 재평가</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-red);"></span> 무방향 전략 진입 금지 (IV Crush)</div>
-          <div style="margin-bottom:6px;"><span style="color:var(--data-red);"></span> 포지션 50% 축소 (발표 전)</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--surface-5);">수익: 발표 후 큰 변동성 포착, IV Crush 피하기</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Best Trade Ideas — v49.64 P338: mock 가격 → generic template (실시간 옵션 체인 연결 전 참고용) -->
-    <div style="padding:12px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:8px;" data-operational-use="reference-only" data-source-kind="template" data-source-label="options-strategy-template">
-      <div style="font-size:11px;font-weight:800;color:#3b82f6;margin-bottom:6px;">전략 템플릿 (참고용 — 실시간 옵션 체인 연결 시 자동 갱신)</div>
-      <div style="font-size:10px;color:var(--data-amber);margin-bottom:8px;">⚠ 아래 항목은 전략 구조 예시이며 특정 종목·만기·가격을 권고하지 않습니다. 실거래는 브로커 옵션 체인 + 본인 리스크 한도 기준으로 결정하세요.</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-        <!-- Template 1 -->
-        <div style="padding:10px;background:var(--surface-3);border-radius:6px;" data-operational-use="reference-only" data-source-kind="template" data-source-label="options-strategy-template">
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">1⃣ Index ETF Covered Call</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
-            <strong>설정:</strong> 보유 ETF 위 OTM Call 매도<br>
-            <strong>진입:</strong> 현 주가 + 단기~중기 만기<br>
-            <strong>목표:</strong> 변동성 프리미엄 수취<br>
-            <strong>위험:</strong> 상승 캡(상한) 고정<br>
-            <strong>적합:</strong> IV 정상~높음 / 횡보 박스
-          </div>
-        </div>
-        <!-- Template 2 -->
-        <div style="padding:10px;background:var(--surface-3);border-radius:6px;" data-operational-use="reference-only" data-source-kind="template" data-source-label="options-strategy-template">
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">2⃣ Bull Put Spread</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
-            <strong>설정:</strong> OTM Put 매도 / Deep OTM Put 매수<br>
-            <strong>진입:</strong> 순 프리미엄 수취 (Credit Spread)<br>
-            <strong>목표:</strong> 만기 시 OTM 유지<br>
-            <strong>위험:</strong> 스프레드 폭 — 수취 프리미엄<br>
-            <strong>적합:</strong> 약상승~횡보 전망 / 지지선 위
-          </div>
-        </div>
-        <!-- Template 3 -->
-        <div style="padding:10px;background:var(--surface-3);border-radius:6px;" data-operational-use="reference-only" data-source-kind="template" data-source-label="options-strategy-template">
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">3⃣ Event Straddle (고변동 이벤트 대비)</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
-            <strong>설정:</strong> ATM Call + Put 동시 매수<br>
-            <strong>진입:</strong> 이벤트 직전 / IV 상승 전<br>
-            <strong>목표:</strong> 큰 단방향 또는 양방향 이동<br>
-            <strong>위험:</strong> IV Crush (이벤트 후 IV ↓)<br>
-            <strong>적합:</strong> 실적/FOMC 등 큰 발표 예정 종목
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 7b: GREEKS 초보자 해석 가이드 (v38.7) -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">Greeks 초보자 해석 가이드 — "옵션의 네 가지 감각"</div>
-    <div style="font-size:10px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5;">옵션은 주가, 시간, 변동성에 동시에 반응합니다. Greeks는 이 반응의 크기를 측정하는 도구입니다. 자동차에 비유하면:</div>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
-      <div style="padding:12px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:6px;">Delta — 방향 감도 (속도계)</div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">
-          주가가 $1 오를 때 옵션값이 얼마나 오르나?<br>
-          <strong>Delta 0.5</strong> = 주가 $1 상승 시 옵션 +$0.50<br>
-          <strong>Delta 0.8</strong> = 주가 $1 상승 시 옵션 +$0.80 (깊은 ITM)<br>
-          <strong>읽는 법:</strong> Delta가 높을수록 주가를 1:1에 가깝게 추종. 콜은 +, 풋은 -
-        </div>
-      </div>
-      <div style="padding:12px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:#34d399;margin-bottom:6px;">Gamma — 가속도 (가속 페달)</div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">
-          주가가 움직일 때 Delta가 얼마나 빨리 변하나?<br>
-          <strong>Gamma 높음</strong> = ATM 근처. 작은 주가 변동에 Delta 급변<br>
-          <strong>Gamma 낮음</strong> = 깊은 ITM/OTM. Delta 안정적<br>
-          <strong>핵심:</strong> 만기 임박 ATM에서 Gamma 폭발 ("감마 스퀴즈")
-        </div>
-      </div>
-      <div style="padding:12px;background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:6px;">Theta — 시간 감소 (연료 소모)</div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">
-          하루 지날 때마다 옵션값이 얼마나 줄어드나?<br>
-          <strong>Theta -$5</strong> = 매일 $5씩 가치 감소 (매수자 불리)<br>
-          <strong>매수자:</strong> 시간이 적. Theta가 돈을 갉아먹음<br>
-          <strong>매도자:</strong> 시간이 아군. Theta가 수익을 가져다줌<br>
-          <strong>핵심:</strong> Covered Call/CSP 매도 전략이 Theta 수익을 노리는 이유
-        </div>
-      </div>
-      <div style="padding:12px;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-purple);margin-bottom:6px;">Vega — 변동성 감도 (날씨 민감도)</div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">
-          IV(내재변동성)가 1%p 오를 때 옵션값이 얼마나 오르나?<br>
-          <strong>Vega $0.30</strong> = IV +1%p 시 옵션 +$0.30<br>
-          <strong>IV Crush:</strong> 실적 발표 후 IV 급락 → Vega 손실 (매수자 타격)<br>
-          <strong>핵심:</strong> IV 높을 때 매수 = Vega 리스크 큼. 매도 전략이 유리한 이유
-        </div>
-      </div>
-    </div>
-    <div style="margin-top:10px;padding:8px;background:rgba(255,163,26,0.06);border-radius:4px;font-size:11px;color:var(--text-muted);line-height:1.6;">
-      <strong style="color:var(--data-amber);">초보자 요약:</strong> Delta(방향) + Gamma(가속) + Theta(시간) + Vega(변동성) 동시 고려. 입문자는 <strong>Covered Call</strong>부터 — Theta 아군, Delta 리스크 제한.
-    </div>
-  </div>
-
-  <!-- SECTION 8: INDIVIDUAL STOCK IV TABLE (ENHANCED) -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-primary);">개별 종목 IV 예시 · 실적 전 변동성 판단법</div>
-      <span style="font-size:11px;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;">교육용 스냅샷 · 최신 거래 전 체인 확인</span>
-    </div>
-    <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin:-2px 0 10px;">
-      아래 값은 실시간 옵션 체인이 아니라 IV Rank, Skew, 실적 이벤트가 전략을 어떻게 바꾸는지 보여주는 예시입니다. 실제 진입 전에는 브로커/TOS/CBOE의 최신 IV와 실적일을 반드시 다시 확인하세요.
-    </div>
-    <div style="overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;font-size:10px;">
-        <thead>
-          <tr style="border-bottom:1px solid var(--border);font-size:11px;color:var(--text-muted);">
-            <th style="text-align:left;padding:7px 8px;font-weight:700;">종목</th>
-            <th style="text-align:center;padding:7px 8px;font-weight:700;">IV Rank</th>
-            <th style="text-align:center;padding:7px 8px;font-weight:700;">IV Skew</th>
-            <th style="text-align:center;padding:7px 8px;font-weight:700;">실적일</th>
-            <th style="text-align:center;padding:7px 8px;font-weight:700;">크러시 예상</th>
-            <th style="text-align:center;padding:7px 8px;font-weight:700;">추천 전략</th>
-            <th style="text-align:left;padding:7px 8px;font-weight:700;">비고</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">NVDA</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">78</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-red);font-weight:700;">+7.4</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">18-22%</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Covered Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">AI 과열 후 고IV 예시</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">AMD</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">71</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-red);font-weight:700;">+6.2</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">15-18%</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Iron Condor</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">콜 수요 급증 예시</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">TSLA</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">73</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-red);font-weight:700;">+5.8</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">—</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">16-20%</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Call Spread</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">단기 반등 베팅 예시</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">AAPL</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">62</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-red);font-weight:700;">+5.1</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">14-17%</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Covered Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">보유분 프리미엄 수취 예시</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">MSFT</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">58</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">+4.8</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">13-16%</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(0,229,160,0.15);color:var(--data-green);padding:2px 6px;border-radius:3px;font-size:11px;">Long Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">저IV 방향성 베팅 예시</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">META</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">69</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-red);font-weight:700;">+5.3</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">15-19%</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Covered Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">상승 보유분 콜매도 예시</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">AMZN</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">55</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">+4.2</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">확인 필요</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">12-15%</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(0,229,160,0.15);color:var(--data-green);padding:2px 6px;border-radius:3px;font-size:11px;">Long Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">저IV 방향성 베팅 예시</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">SPY</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">72</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-red);font-weight:700;">+6.2</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">—</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">17-21%</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,163,26,0.15);color:var(--data-amber);padding:2px 6px;border-radius:3px;font-size:11px;">Covered Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">다음 CPI/FOMC/실적 전 관망</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">QQQ</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">74</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-red);font-weight:700;">+6.8</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">—</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);">18-23%</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(255,91,80,0.15);color:var(--data-red);padding:2px 6px;border-radius:3px;font-size:11px;">Put Spread</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">기술주 헤지 예시</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--surface-3);">
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">GLD</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-green);font-weight:700;">38</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-green);font-weight:700;">+1.8</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">—</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-green);">8-10%</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(0,229,160,0.15);color:var(--data-green);padding:2px 6px;border-radius:3px;font-size:11px;">Long Call</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">저IV 안전자산 베팅 예시</td>
-          </tr>
-          <tr>
-            <td style="padding:7px 8px;font-weight:800;font-family:var(--font-mono);">TLT</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-green);font-weight:700;">44</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-amber);font-weight:700;">+2.4</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--text-muted);">—</td>
-            <td style="text-align:center;padding:7px 8px;color:var(--data-green);">9-12%</td>
-            <td style="text-align:center;padding:7px 8px;"><span style="background:rgba(0,229,160,0.15);color:var(--data-green);padding:2px 6px;border-radius:3px;font-size:11px;">Calendar</span></td>
-            <td style="padding:7px 8px;color:var(--text-muted);font-size:11px;">채권 가격 상승, 저 IV</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- SECTION 9: VIX STRUCTURE INTERPRETATION -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">VIX 기간구조 상세 해석 · 시장 신호</div>
-
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px;">
-      <!-- VIX vs VVIX Relationship -->
-      <div style="padding:12px;background:rgba(255,91,80,0.08);border:1px solid rgba(255,91,80,0.3);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-red);margin-bottom:8px;">VIX vs VVIX 관계</div>
-        <table style="width:100%;border-collapse:collapse;font-size:10px;">
-          <tbody>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">VIX (현물)</td>
-              <td id="opt-rel-vix" style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;" data-live-price="^VIX">—</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">VVIX (VIX의 변동성)</td>
-              <td id="opt-rel-vvix" style="text-align:right;padding:5px;font-family:var(--font-mono);font-weight:700;" data-live-price="^VVIX">—</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">VIX 1년 평균</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);">17.3</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">VIX 1년 고점</td>
-              <td style="text-align:right;padding:5px;font-family:var(--font-mono);">35.8</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--surface-5);">
-              <td style="padding:5px;color:var(--text-muted);">현재 VIX 백분위</td>
-              <td id="opt-vix-pctile" style="text-align:right;padding:5px;font-family:var(--font-mono);color:var(--data-red);font-weight:700;">—</td>
-            </tr>
-            <tr>
-              <td style="padding:5px;color:var(--text-muted);">VVIX/VIX 비율</td>
-              <td id="opt-vvix-ratio" style="text-align:right;padding:5px;font-family:var(--font-mono);color:var(--data-red);font-weight:700;">—</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Spot vs 30-day Interpretation -->
-      <div style="padding:12px;background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.3);border-radius:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:8px;">Spot vs 30일물 해석</div>
-        <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
-          <div style="margin-bottom:6px;"><strong>현재:</strong> 위 VIX 현물·선물·VVIX 실시간/스냅샷 값을 먼저 확인합니다.</div>
-          <div style="margin-bottom:6px;"><strong>콘탱고:</strong> 선물이 현물보다 높으면 시장이 안정적이고 보험료가 정상화된 상태입니다.</div>
-          <div style="margin-bottom:6px;"><strong>백워데이션:</strong> 현물이 선물보다 높으면 단기 공포가 큰 상태라 헤지 비용과 급등락 위험이 커집니다.</div>
-          <div style="margin-bottom:6px;"><strong>거래:</strong> IV가 높으면 프리미엄 수취 후보, IV가 낮으면 옵션 매수 후보가 될 수 있습니다.</div>
-          <div style="margin-bottom:6px;"><strong>주의:</strong> 이벤트 날짜는 고정 문구가 아니라 브리핑/매크로 일정에서 최신값을 확인하세요.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Historical Context & Interpretation -->
-    <div style="padding:12px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:8px;">
-      <div style="font-size:11px;font-weight:800;color:#3b82f6;margin-bottom:8px;">1년 히스토리 · 현재 상황 평가</div>
-      <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
-        <div style="margin-bottom:8px;">
-          <strong style="color:var(--text-secondary);">VIX 분포 (지난 1년):</strong><br>
-          • 10-15: 24% (매우 낮음 · 드물음)<br>
-          • 15-20: 35% (일반적 · 정상)<br>
-          • 20-25: 25% (상승 · 주의)<br>
-          • 25-30: 12% (높음 · 공포)<br>
-          • 30+: 4% (극도 · 매우 드묾)
-        </div>
-        <div style="margin-bottom:8px;padding:8px;background:rgba(255,91,80,0.2);border-radius:4px;">
-          <strong style="color:var(--data-red);">참고:</strong> VIX 25+ = 상위 16%. 30+ = 상위 4%(극도 드묾). 평년 대비 변동성 크게 확대.
-        </div>
-      </div>
-    </div>
-
-    <!-- Practical Trading Implication -->
-    <div style="padding:12px;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.3);border-radius:8px;margin-top:12px;">
-      <div style="font-size:11px;font-weight:800;color:var(--data-green);margin-bottom:8px;">실무 거래 적용</div>
-      <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
-        <strong style="color:var(--data-green);">1. 프리미엄 수취 기회:</strong> VIX가 높을수록 옵션 프리미엄 상승. Covered Call, CSP, Iron Condor 수익성 ↑<br><br>
-        <strong style="color:var(--data-green);">2. 헤징 비용 상승:</strong> 하락 헤지 (Put 매수)의 프리미엘이 비쌈. 대신 Put 매도 유리.<br><br>
-        <strong style="color:var(--data-green);">3. 백워데이션 활용:</strong> 근월 프리미엄 과대 상태. Calendar Spread (매도 근월 / 매수 원월)로 정상화 수익 추구.<br><br>
-        <strong style="color:var(--data-green);">4. 이벤트 전략:</strong> CPI/FOMC/대형 실적 전에는 IV가 높아질 수 있습니다. 이벤트 직후에는 IV Crush가 날 수 있으므로 방향성보다 프리미엄 변화까지 함께 봅니다.
-      </div>
-    </div>
-  </div>
-
-  <!-- v37.8: 옵션 동적 분석 -->
-  <div class="aio-widget" style="margin-top:12px;">
-    <div class="widget-title">옵션 환경 자동 판단</div>
-    <div id="opt-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">데이터 수신 대기...</div>
-  </div>
-
 </div>
   <!-- ═══════════════ PAGE: KR-HOME (한국장 홈) ═══════════════ -->
   <div class="page" id="page-kr-home">
@@ -10496,57 +8718,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.45: 한국장 기관급 해설 ═══ -->
-  <div class="aio-explain" id="explain-kr-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-kr-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>한국장 심층 해설 — 외국인 수급 · 원/달러 · 코리아 디스카운트 · 테마 순환</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">KOSPI / KOSDAQ 구조 이해</div>
-        <div class="explain-body">
-          <strong>KOSPI</strong> — 삼성전자 + SK하이닉스 2종목 약 30% 비중. <strong>반도체 사이클 = 지수 방향</strong>. 현대차·포스코·금융·에너지가 부차적.
-          <br><strong>KOSDAQ</strong> — 중소형 성장주 1,700+ 종목. 2차전지·바이오·게임·엔터 테마 순환이 심함. Beta 1.3~1.5.
-          <br><br>
-          <strong>미국 시장과 차이</strong>:
-          <ul>
-            <li>시장 규모 (KOSPI 시총 ≈ 애플 1/3). 유동성 낮음 = 개인 수급에도 변동성 큼.</li>
-            <li>배당 수익률 낮고(2% vs SPX 1.5%), 자사주 소각 부재로 <strong>코리아 디스카운트</strong> PER -30% 상시.</li>
-            <li>외국인 비중 33%. 외국인 5일 순매수 추이 = 즉시 지수 방향.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">외국인 수급 = 코리아 장의 90%</div>
-        <div class="explain-body">
-          <strong>원칙</strong> — 외국인 순매수 전환 시 평균 2주간 코스피 +3.5% 상승. 연속 매도는 평균 -4.2%.
-          <ul>
-            <li><strong>프로그램 매매</strong>(컴퓨터 자동 대량 거래): 지수 차익·비차익 거래. 차익 거래 금액으로 외국인 매매 의지를 읽습니다.</li>
-            <li><strong>공매도</strong>(주식을 빌려 팔고 나중에 싸게 되사 갚는 하락 베팅): 외국인 공매도 잔고 증가 = 하락 전망. 단 반대로 주가가 오르면 갚으려는 매수가 몰려 급등(숏 스퀴즈)할 수도.</li>
-            <li><strong>MSCI 리밸런싱</strong>(세계 지수에 한국 종목 편입·제외 조정): 분기말에 이 지수를 따라가는 글로벌 펀드 자금이 대량 유입·유출 → 편입/제외 종목 주가 변동 큼.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-green">섹터 5분류 + 테마 순환</div>
-        <div class="explain-body">
-          <strong>5대 섹터</strong>: 반도체/IT · 2차전지·EV · 바이오·헬스 · 조선·방산 · 소비재·엔터.
-          <br><strong>섹터 순환 주기</strong> — 월~분기 단위로 로테이션. 예: 2024 반도체 → 조선·방산 → 2차전지 순환.
-          <br><br>
-          <strong>매매 적용</strong>:
-          <ul>
-            <li>강한 테마 대장주 30% + 후발주 20% + 현금 50% = 테마 플레이 기본.</li>
-            <li>공매도 대상 종목 회피 (숏 타겟은 단기 변동성 큼).</li>
-            <li>원/달러 1,350원+ 환경에서 수출주(삼성전자/현대차) <strong>비중 확대(Overweight)</strong>, 1,250원 이하에서 내수주로 이동.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
     <div class="row mb-4" style="align-items:flex-start;">
       <div>
         <div class="page-title">한국장 홈 <span class="kr-badge">KRX</span></div>
@@ -10837,41 +9008,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.46: KR 수급 페이지 심층 해설 ═══ -->
-  <div class="aio-explain" id="explain-kr-supply-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-kr-supply-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>한국 수급 심층 해설 — 프로그램 매매 · 공매도 · 외국인 보유비중 · 바스켓 매매</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">3대 수급 주체 — 외국인 · 기관 · 개인</div>
-        <div class="explain-body">
-          <strong>외국인</strong> (33% 시총) — 지수 방향의 코어. MSCI · 글로벌 ETF 자금 유입/유출 + 패시브 리밸런싱. 수급 최우선 지표.
-          <br><strong>기관</strong> (28%) — 연기금 (NPS) · 자산운용사 · 금융투자 · 보험. 중장기 Defensive, 분기말 Window Dressing.
-          <br><strong>개인</strong> (39%) — 단기 변동성 제공. 양봉 강세장 = 개인 매수 과열 시 단기 고점 주의.
-          <br><br>
-          <strong>Key Signal</strong>:
-          <ul>
-            <li>외국인 5일 연속 순매수 = 추세 Bull (평균 +4% 2주간)</li>
-            <li>외국인 순매도 + 기관 순매수 = 기관 역매매 (자주 반전)</li>
-            <li>3주체 모두 매도 = 추세 Bear (Risk-Off)</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">프로그램 매매 — 차익/비차익</div>
-        <div class="explain-body">
-          <strong>차익 거래</strong> — 선물/현물 가격차 이용. 차익 매수가 +3000억 이상이면 지수 견인.
-          <br><strong>비차익 거래</strong> — 바스켓 주문. ETF 유입/유출 반영. 외국인 의지 직접 관찰.
-          <br>
-          <strong>공매도 잔고</strong> — 종목별 대차 잔고. 유의미 증가 = 하락 배팅. 단, 숏 스퀴즈 시 급등 가능.
-        </div>
-      </div>
-    </div>
-  </div>
     <div class="row mb-4" style="align-items:flex-start;">
       <div>
         <div class="page-title">수급 분석 <span class="kr-badge">KRX</span></div>
@@ -11068,36 +9204,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.46: KR 테마 심층 해설 ═══ -->
-  <div class="aio-explain" id="explain-kr-themes-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-kr-themes-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>KR 테마 심층 — 대장주/후발주 패턴 · 테마 순환 주기 · 진입 전략</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">대장주 · 후발주 구조</div>
-        <div class="explain-body">
-          <strong>대장주</strong> — 테마 내 시총 최상위 + 가장 먼저 움직이는 종목. 거래량 · 유동성 풍부. 테마 점화 → 상승 주도.
-          <br><strong>후발주</strong> — 대장주 급등 후 투자자 관심이 번지는 2선 종목. 대장주 대비 2~3일 지연. 높은 변동성.
-          <ul>
-            <li><strong>진입 순서</strong>: 대장주 돌파 확인 → 대장주 고점 대비 -10% 조정 시 후발주 진입 → 대장주 다시 상승 시 후발주 수익률 가속.</li>
-            <li><strong>리스크</strong>: 테마 종료 시 후발주가 먼저 무너진다. 대장주 10일선 이탈 시 후발주 전량 매도.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">주도 테마 순환 프레임</div>
-        <div class="explain-body">
-          <strong>반도체 사이클</strong> → <strong>AI/HBM</strong> → <strong>2차전지</strong> → <strong>조선/방산</strong> → <strong>바이오</strong> → <strong>로봇/휴머노이드</strong> → <strong>우주/항공</strong> → 반복.
-          <br><br>
-          <strong>트리거 패턴</strong>: ① 미국 동종 업종 급등 (Catalytic) → ② 국내 대장주 + 거래량 + 뉴스 → ③ 후발주 순환 → ④ 개인 유입 피크 → ⑤ 익절 타이밍.
-        </div>
-      </div>
-    </div>
-  </div>
     <div class="row mb-4" style="align-items:flex-start;">
       <div>
         <div class="page-title">국내 테마 분석 <span class="kr-badge">KRX</span></div>
@@ -11165,40 +9271,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.46: KR 매크로 심층 해설 ═══ -->
-  <div class="aio-explain" id="explain-kr-macro-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-kr-macro-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>KR 매크로 심층 — 한국은행 · BOK 금리 · 수출입 · 반도체 사이클</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">BOK (한국은행) 금리 사이클</div>
-        <div class="explain-body">
-          <strong>원칙</strong> — 한국은행(BOK)은 미국 연준(Fed)을 <strong>3~6개월 지연</strong>해 따라갑니다. Fed 금리↑ → 원화 약세를 막으려 BOK도 금리↑. Fed 금리↓ → BOK도 인하(단, 물가 2% 목표 안에서).
-          <ul>
-            <li>BOK ≥ 3.5% = 긴축 (부동산/성장 둔화)</li>
-            <li>BOK 2.5~3.0% = 중립</li>
-            <li>BOK ≤ 2.0% = 완화 (주식 우호)</li>
-          </ul>
-        </div>
-      </div>
-      <div class="explain-section">
-        <div class="explain-label is-amber">수출 · 반도체 사이클 Proxy</div>
-        <div class="explain-body">
-          <strong>수출 증가율 YoY</strong> — 한국 GDP의 45%. 수출 +5% 이상 = 경기 확장 · -5% 이하 = 침체.
-          <br><strong>반도체 수출 비중</strong> — 한국 수출의 20%. 삼성전자 + SK하이닉스 실적에 직접 반영.
-          <ul>
-            <li>반도체 단가(NAND/DRAM) 상승 = 주가 선행.</li>
-            <li>PMI(구매관리자지수, 기업 체감 경기) 50 = 경계선. 50 이상 = 경기 확장 · 48 이하 = 위축 경계.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
     <div class="row mb-4" style="align-items:flex-start;">
       <div>
         <div class="page-title">한국 매크로 <span class="kr-badge">BOK</span></div>
@@ -11494,32 +9566,6 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.46: KR 기술 분석 심층 해설 ═══ -->
-  <div class="aio-explain" id="explain-kr-technical-page">
-    <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-kr-technical-page">
-      <span class="aio-explain-trigger-label">
-        <span class="aio-explain-trigger-icon">?</span>
-        <span>KR 종목 기술 분석 — 상/하한가 · 시간외 · 호가 틱 · 미국과 차이</span>
-      </span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="aio-explain-content">
-      <div class="explain-section">
-        <div class="explain-label">한국 시장 특수 구조</div>
-        <div class="explain-body">
-          <strong>상/하한가</strong> ±30% — 한국은 하루 등락폭을 ±30%로 제한(미국은 무제한). 상한가 2일 연속 = 강한 호재 유입(단 추격 매수는 신중).
-          <br><strong>정규장</strong> 09:00~15:30 · <strong>시간외 종가</strong> 15:40~16:00 · <strong>시간외 단일가</strong> 16:00~18:00.
-          <br><br>
-          <strong>차트 분석 차이</strong>:
-          <ul>
-            <li>갭 시작 빈도 높음 (야간 뉴스 · 시간외 반영). 갭 메우기 확률 65%.</li>
-            <li>개인 과열 → 테마주 단기 급등락. 20일선 이탈 즉시 익절 권장.</li>
-            <li>공매도 재개 종목 단기 하방 압력 강함.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
     <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div>
@@ -12347,68 +10393,7 @@ body.light-theme canvas { filter:none; }
 
   </div>
 
-    <!-- Feedback Modal -->
-  <div id="feedback-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9000;align-items:center;justify-content:center;" data-close-on-outside="closeFeedback">
-    <div style="background:#0d1117;border:1px solid rgba(255,255,255,0.12);border-radius:12px;width:100%;max-width:480px;margin:20px;box-shadow:0 24px 48px rgba(0,0,0,0.5);">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--surface-5);">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text-primary);font-family:'Inter',var(--font-sans);">Feedback</div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">버그·데이터 오류·건의사항</div>
-        </div>
-        <button data-action="closeFeedback" class="aio-hover-white" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:4px;transition:color var(--dur-fast);">✕</button>
-      </div>
-      <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
-        <div>
-          <label style="font-size:10px;font-weight:600;color:var(--text-muted);font-family:'Inter',var(--font-sans);display:block;margin-bottom:5px;">유형</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-            <button class="fb-type-btn active" data-type="bug" data-action="selectFBType" data-pass-el="1">버그</button>
-            <button class="fb-type-btn" data-type="data" data-action="selectFBType" data-pass-el="1">데이터</button>
-            <button class="fb-type-btn" data-type="realtime" data-action="selectFBType" data-pass-el="1">실시간</button>
-            <button class="fb-type-btn" data-type="feature" data-action="selectFBType" data-pass-el="1">기능</button>
-          </div>
-        </div>
-        <div>
-          <label for="fb-desc" style="font-size:10px;font-weight:600;color:var(--text-muted);font-family:'Inter',var(--font-sans);display:block;margin-bottom:5px;">내용</label>
-          <textarea id="fb-desc" aria-label="피드백 내용 입력" placeholder="내용을 입력하세요..." class="aio-focus-accent" style="width:100%;height:110px;background:var(--surface-3);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px;color:var(--text-primary);font-family:'Inter',var(--font-sans);font-size:11px;resize:vertical;box-sizing:border-box;outline:none;line-height:1.5;transition:border-color var(--dur-fast);"></textarea>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <button data-action="submitFeedback" class="aio-hover-accent-bg" style="flex:1;padding:9px;background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.35);border-radius:6px;color:var(--accent);font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',var(--font-sans);transition:background var(--dur-fast);"> 전송</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Board Drawer -->
-  <div id="board-overlay" role="presentation" aria-label="피드백 보드 배경" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:8900;" data-close-on-outside="closeFeedbackBoard"></div>
-  <div id="board-drawer" role="dialog" aria-modal="true" aria-label="피드백 게시판">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--surface-5);flex-shrink:0;">
-      <div>
-        <div style="font-size:13px;font-weight:700;color:var(--text-primary);font-family:'Inter',var(--font-sans);">Feedback Board</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">제목은 모든 사용자 공개</div>
-      </div>
-      <button data-action="closeFeedbackBoard" aria-label="게시판 닫기" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:var(--radius-sm);">✕</button>
-    </div>
-    <div style="display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;overflow-x:auto;">
-      <button class="board-tab active" data-filter="all" data-action="setBoardFilter" data-pass-el="1">전체</button>
-      <button class="board-tab" data-filter="open" data-action="setBoardFilter" data-pass-el="1">미처리</button>
-      <button class="board-tab" data-filter="wip" data-action="setBoardFilter" data-pass-el="1">처리중</button>
-      <button class="board-tab" data-filter="done" data-action="setBoardFilter" data-pass-el="1">완료</button>
-    </div>
-    <div id="board-list" style="flex:1;overflow-y:auto;padding:8px 0;">
-      <div style="padding:40px 20px;text-align:center;color:var(--text-muted);font-size:11px;font-family:'Inter',var(--font-sans);">수신 대기...</div>
-    </div>
-  </div>
-
-  <!-- Board Detail Modal -->
-  <div id="board-detail-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9100;align-items:center;justify-content:center;" data-close-on-outside="closeBoardDetail">
-    <div style="background:#0d1117;border:1px solid rgba(255,255,255,0.12);border-radius:10px;width:100%;max-width:460px;margin:20px;max-height:80vh;overflow-y:auto;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--surface-5);position:sticky;top:0;background:#0d1117;">
-        <div id="detail-header" style="font-size:12px;font-weight:700;color:var(--text-primary);font-family:'Inter',var(--font-sans);"></div>
-        <button data-action="closeBoardDetail" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;">✕</button>
-      </div>
-      <div id="detail-body" style="padding:18px;"></div>
-    </div>
-  </div>
+  <!-- v50.35: 피드백 모달 + 게시판 드로어/상세 모달 DOM 제거 (사용자 요청 — 미사용·용량 절감) -->
 
   <!-- v30.11 perf: Chart.js를 <head>에서 여기로 이동 — 초기 DOM 렌더링 차단 제거 -->
   <!-- v38.3: CDN 이중화 — jsDelivr 실패 시 cdnjs 자동 전환 -->
@@ -12474,9 +10459,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.34"></script>
-  <script src="./js/aio-data.js?v=50.34"></script>
-  <script src="./js/aio-ui.js?v=50.34"></script>
+  <script src="./js/aio-core.js?v=50.36"></script>
+  <script src="./js/aio-data.js?v=50.36"></script>
+  <script src="./js/aio-ui.js?v=50.36"></script>
 
   <script>
 
@@ -15573,7 +13558,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.34"></script>
+<script src="./js/aio-chat.js?v=50.36"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -27951,7 +25936,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.34"></script>
+<script src="./js/aio-glossary.js?v=50.36"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

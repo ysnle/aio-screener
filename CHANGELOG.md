@@ -1,5 +1,45 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.36 - 분석 5개 점검 + technical·themes verdict-first + 전 페이지 죽은 설명서 소스 정리 (2026-06-12)
+
+**사용자: "종합5개 확실하게 했으면 분석5개 페이지도 점검 및 조사 먼저 진행해줘. 총 10개 페이지 모두 완벽하다 싶으면 그 때 한번에 커밋/배포하자."** + (직전 결정) 죽은 설명서 소스 정리를 전 페이지로 확대.
+
+**점검 결과 (라이브 + 소스 직접 정독)** — 종합 5개 때보다 고칠 게 적음:
+- **macro**: `macro-conclusion-bar` 최상단 → 이미 verdict-first. 구조 개편 불요.
+- **fxbond**: header risk-pill + Cross-Asset 통합판정(`cam-verdict`) 상단 → 이미 verdict-first. 불요.
+- **fundamental**: 검색 주도형(per-ticker). 검색창 상단, 리포트 헤더가 결론 → 구조 적합.
+- **technical / themes**: 상단 결론 없음 → 개편 대상.
+
+**(B) technical · themes verdict-first** (`js/aio-core.js` `_aioReorderCoreSections` — idempotent 이동, 신규 콘텐츠 0, `_directChildOf`+`insertAdjacentElement` 재사용):
+- **technical**: 시장 건강도(`#market-health-dashboard`=페이지 결론)를 헤더 직후로(TV차트보다 먼저) + Institutional Brief(`#institutional-technical-brief`, per-ticker 심화도구)를 라이브 지표(`#tech-indicators-live`) 직후로 하향 → 상단 declutter. 흐름: 헤더→건강도(결론)→TV차트→지표→Brief→….
+- **themes**: 사이클 국면 판정(`#cycle-dynamic-readout`=결론)을 헤더 직후로 → RRG 차트보다 먼저.
+
+**(C) 전 페이지 죽은 설명서 소스 정리 (페이로드 절감)**: `.aio-explain`/`.beginner-tip` 블록은 v50.29 이후 런타임(`_aioRenderPageBrief`, guide 제외)이 이미 화면에서 제거 중 → **소스에만 남은 invisible payload**. 27개 블록(1177줄) 전부 삭제. 27개 중 guide 페이지엔 0개라 런타임 동작과 정확히 일치 → **화면 변화 0**. `AIO_EXPLAIN_SUMMARIES`/`_aioSimplifyExplainLabels`는 JS 레지스트리/함수라 유지(T135/T136 통과). **index.html 30194 → 29017줄 (−1177)**, div 균형 유지(3688/3688).
+
+**효과**: 옵션(v50.35 −939) + 설명서 소스(−1177) = 누적 큰 폭 페이로드 절감. 라이브 검증: 전 21페이지 진입 에러 0·콘솔 JS 0, technical 헤더 직후=시장 건강도, themes 헤더 직후=사이클 판정, macro/fxbond/fundamental 그대로.
+
+**테스트**: T806 신규(verdict-first — technical 건강도/themes 사이클이 헤더 직후). R1 7곳 + 캐시버스터 5곳.
+
+## v50.35 - 피드백·게시판·옵션 제거 (미사용·용량·데이터 미연결) (2026-06-12)
+
+**사용자: "피드백·게시판·옵션 없애자. 용량만 잡아먹고 필요없을 것 같애. 어차피 옵션은 데이터도 연결 안 되어 있지 않아?"**
+
+**옵션 데이터 사실 확인 (삭제 전 검증)**: 라이브 점검 결과 — VIX(20.88)·VVIX만 라이브이고 이마저 **투자 심리 페이지와 중복**. 옵션 고유 데이터(**변동성 스큐 · 옵션 흐름 · Greeks 패널**)는 전부 **2026-05-28 정적 스냅샷**으로 "스냅샷 · 정적 · 실제..." 라벨이 붙어 있었음 = **실제 옵션체인 피드 미연결**. 사용자 지적이 정확.
+
+**(1) 피드백 · 게시판 제거 (route 페이지 아님 → 깔끔)**
+- 사이드바 "피드백"(`openFeedback`) · "게시판"(`openFeedbackBoard`) 버튼 2개 제거.
+- 피드백 모달(`#feedback-overlay`) + 게시판 드로어(`#board-drawer` + `#board-overlay`) + 게시판 상세 모달(`#board-detail-overlay`) DOM 전부 제거(약 62줄).
+
+**(2) 옵션 제거**
+- "고급 > 옵션" 사이드바 내비 제거.
+- 옵션으로 가던 잔여 링크 제거: sentiment VIX 기간구조 "상세 차트 →" 버튼 + `AIO_PAGE_BRIEFS` cross-link 3건(home/sentiment/technical → 옵션).
+- `#page-options` 내부 콘텐츠(~770줄·렌더 6051px의 IV Rank·스큐·옵션흐름·Greeks·전략 차트/표) → **최소 스텁**("옵션 분석은 통합/정리되었습니다 — VIX·변동성은 투자 심리 페이지에서" + 투자 심리 이동 버튼)으로 교체.
+- **페이지 셸(`#page-options`)은 의도적으로 유지** → `ROUTE_PAGE_IDS`(21) · evidence deployment gate(`pagesChecked===21`) · 테스트 21페이지 단언이 그대로 통과(감사 cascade 0). 내비가 없으니 사용자는 도달 불가, 무거운 콘텐츠만 제거.
+
+**효과**: index.html **31133 → 30194줄 (-939줄)** 페이로드 절감. 라이브 검증: 옵션 내비/피드백·게시판 버튼·모달/드로어 DOM 모두 제거 확인, `#page-options` 스텁 유지, **pageCount 21 유지**, 전 21페이지 진입 에러 0, 콘솔 JS 예외 0.
+
+**테스트**: T805(피드백/게시판 버튼·DOM 부재 + 옵션 내비 부재 + 옵션 셸 유지 + 21페이지 정합). R1 7곳 + 캐시버스터 5곳.
+
 ## v50.34 - 종합 5개 페이지 개편 2차: home 결론 그룹화 + breadth 상세차트 접기 (종합5 마무리) (2026-06-11)
 
 **사용자: "종합5개부터 확실하게 잡고가자."** v50.33의 전수 진단에서 식별한 잔여를 종합 5개에 마저 적용 + 데이터/구조 재검증.
