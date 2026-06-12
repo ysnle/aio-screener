@@ -1,5 +1,19 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.37 - AI 채팅 차별화 업그레이드: 자연어 스크리너 질의 + 소스 레지스트리 + 답변 유연성 (2026-06-12)
+
+**사용자: "AI 채팅이 그냥 일반 LLM과 차별점이 있어야 스크리너 AI를 쓰는 이점이 있다. 데이터 원천/출처·다양성·확장성·답변 다중성·커버리지·어떤 질문에도 답하는 유연성을 심층 조사해 보강하라."**
+
+**조사 결론(정직)**: 채팅은 이미 일반 LLM 대비 막대하게 차별화됨 — 종목당 **22개+ 실시간 소스**(Yahoo·Finnhub·SEC 10-K/8-K/13F/리스크/공급망·Wikipedia·FCF/대차대조표/EV/매크로베타·FMP 세그먼트·Moat/TAM·어닝콜), 의도 분류→8개 답변 모드, 기관 프레임워크, DataTruthGate·환각/정확성/구조 감사, 멀티턴 윈도잉, prompt caching, Sonnet 4.6 + extended thinking. 차별점이 백엔드(프롬프트)에만 있어 안 보일 뿐. **남은 기회 = (a) 일반 LLM이 구조적으로 못 하는 기능 (b) 소스 확장성 (c) 일반질문 유연성** — 사용자가 3개 트랙 선택.
+
+**(트랙1) 자연어 스크리너 질의 — 마퀴 차별 기능** (`js/aio-chat.js`): `_classifyChatIntent`가 `COMPARE_SCREEN`을 감지하나 **실행이 없던 갭** 해소. 신규 `_aioRunScreenerQuery(query)` — "에너지 섹터 BUY 종목 찾아줘"/"RSI 30 이하 기술주" 같은 자연어를 파싱(섹터 `_SECTOR_KEYWORDS`·시그널 BUY/HOLD/WATCH/SELL·시총 버킷·RSI 범위·과매도/과매수·지수 SP500/DOW30/NASDAQ·등락 gainers/losers·테마 `SCR_KEYWORD_ALIASES`)해 **실제 `SCREENER_DB`(aio-data.js) × `_liveData` 조인 필터** → 랭킹 → top 12 반환. `_formatScreenerResultPrompt`로 프롬프트 주입(출처·기준시각 명시) → Claude가 순위·이유·제외사유·다음행동 해설. `chatSend`에 detectedTickers 0 + 조건 파싱 성공 시 발동, 소스 배지에 "📋 스크리너 N종목" 추가. **일반 LLM이 구조적으로 불가능(앱 내부 종목 DB 필터링). 신규 API 0.**
+
+**(트랙2) 채팅 데이터 소스 레지스트리 + 매니페스트 + 감사**: 신규 `AIO_CHAT_SOURCE_REGISTRY` — 22개 채팅 데이터 소스를 `{key,label,fn,tier,free,requiresKey,appliesTo}` 선언적 카탈로그화(단일 출처·확장점). `window._aioLastChatSources` 매니페스트(이번 질의 가용 소스 기록 — provenance/디버깅 기반). 신규 `AIO.getChatSourceRegistryAudit()` — 레지스트리 wired 소스 fn 정의+`_fetchTickerDataForChat` 배선 정합 검증(드리프트 0, R121 toString-scan 패턴), KR DART는 `planned` 확장점(`.KS/.KQ`·`aio_dart_key`·프록시 필요)으로 카탈로그에 명시(미배선 정상). **bespoke 실행부(~600줄)는 유지** — 전면 실행엔진 재작성은 고위험·저가치라 카탈로그+감사+매니페스트 레이어로 정직 한정.
+
+**(트랙3) 답변 유연성 — 어떤 질문에도** (`chatSend`): 가격 HARD STOP 블록이 무차별 주입돼 종목 무관 일반/교육 질문에서 과도하게 경직되던 것 → **3분기 재구성**: (a) 종목 지목 + 시세 미수신 → 기존 엄격 HARD STOP 유지(가격 환각 차단) (b) 스크리너 결과 답변 → 블록 값만 인용 규칙 (c) ticker 0 일반·교육 질문 → 유연 규칙(개념·전략·시장 해석은 일반지식+현재 시장맥락으로 충실히, 특정 종목 현재가·커트오프 이후 사건만 "데이터 미확인" 표기). 일반 개념 설명을 막지 않게.
+
+**테스트**: T807(스크리너 질의 파싱/필터/null 게이팅)·T808(레지스트리 20+ 정의 + 감사 드리프트 0)·T809(HARD STOP 종목 한정 + 일반/스크리너 분기). R1 7곳 + 캐시버스터 5곳. v50.36(10페이지 verdict-first + 죽은 설명서 27블록 삭제) 포함 단일 배포.
+
 ## v50.36 - 분석 5개 점검 + technical·themes verdict-first + 전 페이지 죽은 설명서 소스 정리 (2026-06-12)
 
 **사용자: "종합5개 확실하게 했으면 분석5개 페이지도 점검 및 조사 먼저 진행해줘. 총 10개 페이지 모두 완벽하다 싶으면 그 때 한번에 커밋/배포하자."** + (직전 결정) 죽은 설명서 소스 정리를 전 페이지로 확대.

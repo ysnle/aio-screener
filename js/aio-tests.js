@@ -5860,6 +5860,50 @@
       t806detail = 'techVerdictAfterHdr=' + techOk + ' themesVerdictAfterHdr=' + themesOk + ' deadExplainSrc=' + deadCount;
     } catch(e) { t806detail = 'ERR:' + e.message; }
     _assert('T806 v5036_analysis_verdict_first: technical 건강도·themes 사이클이 헤더 직후 + 죽은 설명서 소스 0', t806ok, t806detail);
+
+    // ─── v50.37 AI 채팅 차별화: 자연어 스크리너 질의 + 소스 레지스트리 + 답변 유연성 ───
+    // T807: 자연어 스크리너 질의 — _aioRunScreenerQuery 정의 + 조건 파싱 + SCREENER_DB 필터 결과 구조
+    var t807ok = false, t807detail = '';
+    try {
+      var fnOk807 = typeof window._aioRunScreenerQuery === 'function' && typeof window._formatScreenerResultPrompt === 'function';
+      var r1 = fnOk807 ? window._aioRunScreenerQuery('rsi 30 이하 기술주 매수 종목') : null;
+      var r2 = fnOk807 ? window._aioRunScreenerQuery('에너지 섹터 BUY 종목 찾아줘') : null;
+      var rNull = fnOk807 ? window._aioRunScreenerQuery('오늘 기분 어때') : 'skip'; // 조건 0 → null
+      // r1: rsi 조건 + 섹터 + 시그널 라벨 존재 + rows 배열. 결과 행은 데이터 의존이라 ≥0 허용, 구조만 단언.
+      var struct807 = !!(r1 && r1.matched && Array.isArray(r1.criteria) && r1.criteria.length > 0 && Array.isArray(r1.rows));
+      var prompt807 = (r1 && r1.rows.length > 0) ? window._formatScreenerResultPrompt(r1) : '__empty_ok__';
+      var promptOk807 = prompt807 === '__empty_ok__' || (typeof prompt807 === 'string' && prompt807.indexOf('스크리너 결과') >= 0);
+      var nullOk807 = (rNull === null); // 조건 미감지 시 null (자기 게이팅)
+      t807ok = fnOk807 && struct807 && promptOk807 && nullOk807;
+      t807detail = 'fn=' + fnOk807 + ' r1crit=' + (r1 ? r1.criteria.join('|') : 'null') + ' r1rows=' + (r1 ? r1.rows.length : '-') + ' r2matched=' + (r2 ? r2.matched : 'null') + ' nullGate=' + nullOk807 + ' promptOk=' + promptOk807;
+    } catch(e) { t807detail = 'ERR:' + e.message; }
+    _assert('T807 v5037_nl_screener_query: _aioRunScreenerQuery 정의 + 조건 파싱/SCREENER_DB 필터 + null 게이팅', t807ok, t807detail);
+
+    // T808: 채팅 데이터 소스 레지스트리 + 매니페스트 + 감사 (드리프트 0)
+    var t808ok = false, t808detail = '';
+    try {
+      var reg808 = window.AIO_CHAT_SOURCE_REGISTRY;
+      var regOk808 = Array.isArray(reg808) && reg808.length >= 20 && reg808.every(function(s){ return s.key && s.label && s.fn && s.tier; });
+      var audit808 = (window.AIO && typeof window.AIO.getChatSourceRegistryAudit === 'function') ? window.AIO.getChatSourceRegistryAudit() : null;
+      // 배선 정합: undefinedFn 0 + notInCode(드리프트) 0. planned(DART)은 미배선 정상.
+      var auditOk808 = !!(audit808 && audit808.status === 'ok' && audit808.unused === 0 && (audit808.undefinedFn||[]).length === 0 && audit808.plannedCount >= 1);
+      t808ok = regOk808 && auditOk808;
+      t808detail = 'regLen=' + (reg808 ? reg808.length : 'null') + ' regOk=' + regOk808 + ' status=' + (audit808 ? audit808.status : 'null') + ' unused=' + (audit808 ? audit808.unused : '-') + ' undef=' + (audit808 ? (audit808.undefinedFn||[]).join(',') : '-') + ' planned=' + (audit808 ? audit808.plannedCount : '-');
+    } catch(e) { t808detail = 'ERR:' + e.message; }
+    _assert('T808 v5037_chat_source_registry: AIO_CHAT_SOURCE_REGISTRY 20+ 정의 + getChatSourceRegistryAudit 드리프트 0', t808ok, t808detail);
+
+    // T809: 답변 유연성 — chatSend에 ticker 0 + 일반/스크리너 분기(HARD STOP 무차별 적용 완화)
+    var t809ok = false, t809detail = '';
+    try {
+      var csSrc809 = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+      var hasTickerGate = /detectedTickers\.length\s*>\s*0\s*&&\s*\(_liveStatusCS/.test(csSrc809); // HARD STOP이 종목 지목 시에만
+      var hasGeneralBranch = csSrc809.indexOf('일반·교육 질문 유연성 규칙') >= 0;
+      var hasScreenerBranch = csSrc809.indexOf('스크리너 답변 규칙') >= 0;
+      var hasScreenerWire = csSrc809.indexOf('_aioRunScreenerQuery') >= 0 && csSrc809.indexOf('screenerStr') >= 0;
+      t809ok = hasTickerGate && hasGeneralBranch && hasScreenerBranch && hasScreenerWire;
+      t809detail = 'tickerGate=' + hasTickerGate + ' generalBranch=' + hasGeneralBranch + ' screenerBranch=' + hasScreenerBranch + ' screenerWire=' + hasScreenerWire;
+    } catch(e) { t809detail = 'ERR:' + e.message; }
+    _assert('T809 v5037_answer_flexibility: HARD STOP 종목 한정 + 일반/스크리너 분기 + 스크리너 배선', t809ok, t809detail);
   }
 
   window.AIO = window.AIO || {};

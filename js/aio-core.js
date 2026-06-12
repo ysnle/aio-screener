@@ -8183,6 +8183,44 @@ window.AIO.assertChatFunctionCoverage = function() {
   };
 };
 
+// v50.37 트랙2: AIO.getChatSourceRegistryAudit — AIO_CHAT_SOURCE_REGISTRY ↔ _fetchTickerDataForChat 코드 정합 감사.
+//   레지스트리에 wired(=배선 의도) 소스의 fn이 (1) 정의돼 있고 (2) _fetchTickerDataForChat 소스에 실제 호출되는지 확인.
+//   planned/wired:false(KR DART 등 확장점)는 미배선 정상 → unused에서 제외. R121 toString-scan 패턴 재사용.
+window.AIO.getChatSourceRegistryAudit = function() {
+  var reg = window.AIO_CHAT_SOURCE_REGISTRY;
+  if (!Array.isArray(reg)) return { status: 'error', error: 'AIO_CHAT_SOURCE_REGISTRY 미정의', total: 0 };
+  var chatSrc = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
+  var wired = reg.filter(function(s) { return s.wired !== false; });
+  var planned = reg.filter(function(s) { return s.wired === false || s.planned; });
+  var undefinedFn = [];   // 레지스트리에 있으나 함수 정의 없음
+  var notInCode = [];     // 정의는 됐으나 _fetchTickerDataForChat에 호출 안 됨 (드리프트)
+  wired.forEach(function(s) {
+    if (!s.fn) return;
+    // _fetchTickerDataForChat 소스에 fn명 등장(호출) 여부 — 'AIO.fn(' / 'window.AIO.fn(' / 'fn(' 패턴
+    var inCode = new RegExp('(?:AIO\\.|window\\.AIO\\.|\\b)' + s.fn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\(').test(chatSrc);
+    var onGlobal = (typeof window[s.fn] === 'function') || (window.AIO && typeof window.AIO[s.fn] === 'function');
+    // 코드에 호출되면(inCode) 모듈 스코프 인라인 함수라도 존재로 간주. 글로벌도 없고 코드에도 없으면 정의 누락.
+    if (!onGlobal && !inCode) { undefinedFn.push(s.key + '(' + s.fn + ')'); return; }
+    if (!inCode) notInCode.push(s.key + '(' + s.fn + ')');
+  });
+  var manifest = window._aioLastChatSources || null;
+  return {
+    status: (undefinedFn.length === 0 && notInCode.length === 0) ? 'ok' : 'warn',
+    total: reg.length,
+    wiredCount: wired.length,
+    plannedCount: planned.length,
+    planned: planned.map(function(s) { return s.key + (s.requiresKey ? ' (req:' + s.requiresKey + ')' : ''); }),
+    undefinedFn: undefinedFn,
+    notInCode: notInCode,
+    unused: notInCode.length,  // 레지스트리 정의 vs 코드 배선 드리프트 (0이어야 정상)
+    manifestPresent: !!manifest,
+    lastManifestAvailable: manifest ? manifest.availableCount : null,
+    tiers: reg.reduce(function(acc, s) { acc[s.tier] = (acc[s.tier] || 0) + 1; return acc; }, {}),
+    note: '레지스트리 wired 소스의 fn 정의+_fetchTickerDataForChat 배선 정합. planned(KR DART 등 확장점)은 미배선 정상. unused>0 = 레지스트리↔코드 드리프트.',
+    generatedAt: new Date().toISOString()
+  };
+};
+
 // ─────────────────────────────────────────────────────────────────
 // v49.34 신규 fetch: fetchSECBusinessDescription
 // SEC EDGAR 10-K Item 1 (Business) 본문 fetch. 비즈니스 구조/사업 모델/공급망 출처.
@@ -15143,7 +15181,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.36';
+const APP_VERSION = 'v50.37';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

@@ -1685,6 +1685,133 @@ function _detectSectorQuery(text) {
   return stocks.length > 0 ? { sectorLabel: matchedKey, stocks: stocks } : null;
 }
 
+// v50.37 트랙1: 자연어 스크리너 질의 — 사용자 자연어 조건을 실제 SCREENER_DB에 필터링.
+//   일반 LLM이 구조적으로 못 하는 차별 기능(앱 내부 종목 DB + 실시간 시세 조인). 신규 API 0.
+//   조건 없으면 null 반환(자기 게이팅) → 일반 흐름으로.
+function _aioRunScreenerQuery(query) {
+  try {
+    var db = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : (window.SCREENER_DB || null);
+    if (!Array.isArray(db) || !db.length) return null;
+    var q = String(query || '').toLowerCase();
+    var crit = {};
+    var labels = [];
+
+    // 1) 시그널 (DB signal 필드: BUY/HOLD/WATCH/SELL)
+    if (/매수\s*(시그널|종목)?|buy\b|사야|살\s*만|저평가\s*매수/.test(q)) crit.signal = 'BUY';
+    else if (/관망|watch\b/.test(q)) crit.signal = 'WATCH';
+    else if (/매도|sell\b|팔\s*/.test(q)) crit.signal = 'SELL';
+    else if (/보유|hold\b/.test(q)) crit.signal = 'HOLD';
+    if (crit.signal) labels.push('시그널=' + crit.signal);
+
+    // 2) RSI — 명시 숫자 우선, 없으면 과매도/과매수 시맨틱
+    var rsiUnder = q.match(/rsi\s*(\d{1,3})\s*(?:이하|미만|under|below|아래|<=?)/) || q.match(/(?:이하|미만|under|below)\s*rsi\s*(\d{1,3})/);
+    var rsiOver  = q.match(/rsi\s*(\d{1,3})\s*(?:이상|초과|over|above|위|>=?)/) || q.match(/(?:이상|초과|over|above)\s*rsi\s*(\d{1,3})/);
+    if (rsiUnder) { crit.rsiMax = +rsiUnder[1]; labels.push('RSI≤' + crit.rsiMax); }
+    if (rsiOver)  { crit.rsiMin = +rsiOver[1];  labels.push('RSI≥' + crit.rsiMin); }
+    if (crit.rsiMax == null && crit.rsiMin == null) {
+      if (/과매도|oversold|침체\s*구간/.test(q)) { crit.rsiMax = 35; labels.push('과매도(RSI≤35)'); }
+      else if (/과매수|과열|overbought/.test(q)) { crit.rsiMin = 65; labels.push('과매수(RSI≥65)'); }
+    }
+
+    // 3) 시가총액 버킷 (mcap 단위 = $B)
+    if (/메가캡|mega\s*-?cap/.test(q)) { crit.mcapMin = 500; labels.push('메가캡(≥$500B)'); }
+    else if (/대형주|large\s*-?cap/.test(q)) { crit.mcapMin = 100; labels.push('대형주(≥$100B)'); }
+    else if (/중형주|mid\s*-?cap/.test(q)) { crit.mcapMin = 10; crit.mcapMax = 100; labels.push('중형주($10~100B)'); }
+    else if (/소형주|small\s*-?cap/.test(q)) { crit.mcapMax = 10; labels.push('소형주(<$10B)'); }
+
+    // 4) 섹터 (_SECTOR_KEYWORDS 재사용 — 가장 구체적 키 우선)
+    var matchedSector = null, secKey = '';
+    Object.keys(_SECTOR_KEYWORDS).forEach(function(kw) {
+      if (q.indexOf(kw.toLowerCase()) >= 0 && (!matchedSector || kw.length > secKey.length)) { matchedSector = _SECTOR_KEYWORDS[kw]; secKey = kw; }
+    });
+
+    // 5) 테마 키워드 (SCR_KEYWORD_ALIASES: { themeKey: [ticker...] }) → ticker 집합
+    var themeTickers = null, themeKey = '';
+    var aliases = (typeof SCR_KEYWORD_ALIASES !== 'undefined') ? SCR_KEYWORD_ALIASES : (window.SCR_KEYWORD_ALIASES || {});
+    Object.keys(aliases).forEach(function(kw) {
+      if (q.indexOf(kw.toLowerCase()) >= 0 && Array.isArray(aliases[kw]) && (!themeTickers || kw.length > themeKey.length)) { themeTickers = aliases[kw]; themeKey = kw; }
+    });
+    // 테마키가 섹터키보다 더 구체적(길면)이면 테마 우선, 아니면 섹터
+    if (themeTickers && themeTickers.length && themeKey.length >= secKey.length) {
+      crit.themeSet = {}; themeTickers.forEach(function(t) { crit.themeSet[t] = true; });
+      labels.push('테마=' + themeKey);
+    } else if (matchedSector) {
+      crit.sectors = matchedSector; labels.push('섹터=' + secKey);
+    }
+
+    // 6) 지수
+    if (/s&p|sp\s*500|에스앤피/.test(q)) { crit.index = 'SP500'; labels.push('S&P500'); }
+    else if (/다우|dow\b/.test(q)) { crit.index = 'DOW30'; labels.push('다우30'); }
+    else if (/나스닥|nasdaq/.test(q)) { crit.index = 'NASDAQ'; labels.push('나스닥'); }
+
+    // 7) 등락 방향 (실시간 _liveData pct)
+    if (/급등|상승\s*(종목|률)?|오른|gainer|올라/.test(q)) { crit.dir = 'up'; labels.push('상승 종목'); }
+    else if (/급락|하락\s*(종목|률)?|내린|loser|떨어/.test(q)) { crit.dir = 'down'; labels.push('하락 종목'); }
+
+    if (labels.length === 0) return null; // 스크리너 조건 미감지 → 일반 흐름
+
+    var live = window._liveData || {};
+    var rows = db.filter(function(s) {
+      if (crit.signal && s.signal !== crit.signal) return false;
+      if (crit.rsiMax != null && !(s.rsi != null && s.rsi <= crit.rsiMax)) return false;
+      if (crit.rsiMin != null && !(s.rsi != null && s.rsi >= crit.rsiMin)) return false;
+      if (crit.mcapMin != null && !((s.mcap || 0) >= crit.mcapMin)) return false;
+      if (crit.mcapMax != null && !((s.mcap || 0) < crit.mcapMax)) return false;
+      if (crit.sectors && !crit.sectors.some(function(sec) { return s.sector === sec; })) return false;
+      if (crit.index && s.index !== crit.index) return false;
+      if (crit.themeSet && !crit.themeSet[s.sym]) return false;
+      if (crit.dir) {
+        var ldp = live[s.sym]; var pct = (ldp && ldp.pct != null) ? ldp.pct : null;
+        if (pct == null) return false;
+        if (crit.dir === 'up' && !(pct > 0)) return false;
+        if (crit.dir === 'down' && !(pct < 0)) return false;
+      }
+      return true;
+    }).map(function(s) {
+      var ld = live[s.sym] || {};
+      return { sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
+        price: ld.price != null ? ld.price : null, pct: ld.pct != null ? ld.pct : null, memo: (s.memo || '').slice(0, 90) };
+    });
+
+    rows.sort(function(a, b) {
+      if (crit.dir === 'up') return (b.pct == null ? -999 : b.pct) - (a.pct == null ? -999 : a.pct);
+      if (crit.dir === 'down') return (a.pct == null ? 999 : a.pct) - (b.pct == null ? 999 : b.pct);
+      if (crit.rsiMax != null) return (a.rsi == null ? 999 : a.rsi) - (b.rsi == null ? 999 : b.rsi);
+      if (crit.rsiMin != null) return (b.rsi == null ? -999 : b.rsi) - (a.rsi == null ? -999 : a.rsi);
+      return (b.mcap || 0) - (a.mcap || 0);
+    });
+
+    return { matched: true, criteria: labels, rows: rows.slice(0, 12), totalMatched: rows.length };
+  } catch (e) { return null; }
+}
+window._aioRunScreenerQuery = _aioRunScreenerQuery;
+
+// v50.37 트랙1: 스크리너 결과 → 프롬프트 블록 (_formatSectorComparePrompt 패턴 미러)
+function _formatScreenerResultPrompt(result) {
+  if (!result || !result.matched || !result.rows || !result.rows.length) return '';
+  var _f = function(v, d) { return v != null && !isNaN(v) ? Number(v).toFixed(d || 1) : 'N/A'; };
+  var _pct = function(v) { return v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + Number(v).toFixed(2) + '%' : 'N/A'; };
+  var ts = '';
+  try { var n = new Date(); var p = function(x) { return String(x).padStart(2, '0'); }; ts = n.getFullYear() + '-' + p(n.getMonth() + 1) + '-' + p(n.getDate()) + ' ' + p(n.getHours()) + ':' + p(n.getMinutes()) + ' KST'; } catch(_) {}
+  var lines = [];
+  lines.push('═══════════════════════════════════════════════════');
+  lines.push('【스크리너 결과 — AIO 종목 DB 실시간 필터링】');
+  lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)');
+  lines.push('출처: AIO SCREENER_DB(기관 메모·시그널·시총·RSI) × 실시간 시세(_liveData) · 기준 ' + ts);
+  lines.push('이 목록은 앱 내부 종목 DB를 실제 필터링한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.');
+  lines.push('═══════════════════════════════════════════════════');
+  result.rows.forEach(function(r, i) {
+    lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + ' · 시그널 ' + r.signal +
+      ' · 시총 ' + (r.mcap ? '$' + r.mcap + 'B' : 'N/A') + ' · RSI ' + _f(r.rsi, 0) +
+      ' · 가격 ' + (r.price != null ? '$' + _f(r.price, 2) : 'N/A') + ' (' + _pct(r.pct) + ')');
+    if (r.memo) lines.push('   메모: ' + r.memo);
+  });
+  lines.push('');
+  lines.push('답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 짧은 순위/표 (2) 상위 종목 선정 이유 (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.');
+  return '\n\n' + lines.join('\n') + '\n';
+}
+window._formatScreenerResultPrompt = _formatScreenerResultPrompt;
+
 // FMP API 다중 종목 밸류에이션 일괄 조회 (PER, PBR, 매출성장, FCF Yield, ROE 등)
 async function _fetchSectorCompareData(stocks) {
   var fmpKey = _getApiKey('aio_fmp_key') || '';
@@ -2159,6 +2286,42 @@ async function _fetchTechnicalDataForChat(tickers) {
   return '\n\n【종목 기술적 실측 데이터 (calcTechnicalSnapshot — 라이브 OHLCV)】\n' + blocks.join('\n\n') + '\n';
 }
 
+// v50.37 트랙2: 채팅 데이터 소스 레지스트리 — 종목 답변에 주입되는 모든 데이터 소스의 단일 선언 카탈로그.
+//   목적: (1) 확장성 — 새 소스 추가 시 여기 1줄 + _fetchTickerDataForChat 배선 (2) 출처 투명성 매니페스트 기반
+//   (3) getChatSourceRegistryAudit로 레지스트리↔코드 드리프트 자동 감지(R121 패턴).
+//   fn = window.AIO.<fn> 또는 모듈 내 함수명. tier = quote/fundamental/qualitative/sentiment/screen.
+//   bespoke 렌더는 _fetchTickerDataForChat에 유지(전면 실행엔진 재작성은 고위험 — 카탈로그+감사+매니페스트 레이어).
+var AIO_CHAT_SOURCE_REGISTRY = [
+  // 시세·추세 (in-function 호출)
+  { key:'quote',        label:'실시간 시세',         fn:'dynamicTickerLookup',           tier:'quote',       free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'trend',        label:'주가 추이(5D/20D/3M)', fn:'_fetchTickerTrend',             tier:'quote',       free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'analystRec',   label:'애널리스트 컨센서스',  fn:'fetchFinnhubRecommendation',    tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
+  { key:'nextEarnings', label:'다음 어닝 일정',       fn:'fetchFinnhubEarningsCalendar',  tier:'fundamental', free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
+  // 펀더멘털 (window.AIO.*)
+  { key:'secBusiness',  label:'SEC 10-K 사업개요',    fn:'fetchSECBusinessDescription',   tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'wikipedia',    label:'Wikipedia 기업개요',   fn:'fetchWikipediaCompany',         tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'sec8K',        label:'SEC 8-K 최근공시',     fn:'fetchSECRecentFilings',         tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'fhNews',       label:'Finnhub 기업뉴스(14일)', fn:'fetchFinnhubCompanyNews',     tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
+  { key:'insider',      label:'내부자 거래',          fn:'fetchFinnhubInsider',           tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
+  { key:'thirteenF',    label:'13F 기관보유',         fn:'fetchSEC13F',                   tier:'sentiment',   free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'fcf',          label:'FCF Yield',           fn:'computeFcfYield',               tier:'fundamental', free:false, requiresKey:'aio_fmp_key', appliesTo:function(){return true;} },
+  { key:'balance',      label:'대차대조표 비율',      fn:'computeBalanceSheetRatios',     tier:'fundamental', free:false, requiresKey:'aio_fmp_key', appliesTo:function(){return true;} },
+  { key:'evEbitda',     label:'EV/EBITDA',           fn:'computeEvEbitda',               tier:'fundamental', free:false, requiresKey:'aio_fmp_key', appliesTo:function(){return true;} },
+  { key:'macroBeta',    label:'매크로 민감도(베타)',  fn:'computeMacroBeta',              tier:'fundamental', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'shortInterest',label:'공매도 비중',          fn:'fetchFinnhubShortInterest',     tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
+  { key:'riskFactors',  label:'SEC 리스크요인(1A)',   fn:'fetchSECRiskFactors',           tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'supplyChain',  label:'공급망(10-K)',         fn:'fetchSECSupplyChain',           tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'partnership',  label:'파트너십(8-K)',        fn:'fetchPartnershipAlerts',        tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'platform',     label:'플랫폼/생태계',        fn:'fetchPlatformEcosystem',        tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'moat',         label:'경제적 해자(Moat)',    fn:'computeMoatScore',              tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'fmpSegments',  label:'FMP 사업 세그먼트',    fn:'fetchFMPSegments',              tier:'fundamental', free:false, requiresKey:'aio_fmp_key', appliesTo:function(){return true;} },
+  { key:'tam',          label:'TAM/시장규모 추정',    fn:'computeTAMEstimate',            tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'earningsCall', label:'어닝콜 전사(ASP/로드맵)', fn:'fetchFMPEarningsCallTranscript', tier:'fundamental', free:false, requiresKey:'aio_fmp_key', appliesTo:function(){return true;} },
+  // 확장점(미배선) — KR DART: .KS/.KQ 종목 재무. OpenDART 키 + 프록시 필요. wired:false로 카탈로그에 명시.
+  { key:'dartFinancials', label:'KR DART 재무(.KS/.KQ)', fn:'fetchDartFinancials',         tier:'fundamental', free:false, requiresKey:'aio_dart_key', wired:false, planned:true, appliesTo:function(t){return /\.(KS|KQ)$/i.test(t||'');} }
+];
+window.AIO_CHAT_SOURCE_REGISTRY = AIO_CHAT_SOURCE_REGISTRY;
+
 async function _fetchTickerDataForChat(tickers, opts) {
   if (!tickers || tickers.length === 0) return '';
   opts = opts || {};
@@ -2167,6 +2330,18 @@ async function _fetchTickerDataForChat(tickers, opts) {
   var fmpKey = _getApiKey('aio_fmp_key') || '';
   var results = [];
 
+  // v50.37 트랙2: 출처 매니페스트 — 이번 질의에서 시도(가용) 가능한 소스 카탈로그 기록 (provenance/디버깅/감사 기반).
+  //   available = 함수 정의 존재 + appliesTo(ticker) 통과 + (requiresKey면) 키 보유. wired:false(미배선) 소스는 제외.
+  try {
+    var _manifestTs = new Date().toISOString();
+    var _manifestSources = (AIO_CHAT_SOURCE_REGISTRY || []).filter(function(s){ return s.wired !== false; }).map(function(s){
+      var _fnOk = (s.fn && (typeof window[s.fn] === 'function' || (window.AIO && typeof window.AIO[s.fn] === 'function')));
+      var _applies = tickers.some(function(t){ try { return s.appliesTo ? s.appliesTo(t) : true; } catch(_){ return true; } });
+      var _keyOk = !s.requiresKey || !!_getApiKey(s.requiresKey);
+      return { key:s.key, label:s.label, tier:s.tier, available: !!(_fnOk && _applies && _keyOk), requiresKey:s.requiresKey || null };
+    });
+    window._aioLastChatSources = { ts:_manifestTs, tickers:tickers.slice(), sources:_manifestSources, availableCount:_manifestSources.filter(function(x){return x.available;}).length };
+  } catch(_mfErr) {}
   // v49.66 P350 R121: _chatTickerCache 실 구현 — 5분 TTL, 동일 종목 재질의 시 ~0.5초 응답 + 외부 API 쿼터 절약
   window._chatTickerCache = window._chatTickerCache || {};
   window._chatTickerCacheStats = window._chatTickerCacheStats || { hits: 0, misses: 0, evictions: 0 };
@@ -4722,6 +4897,16 @@ async function chatSend(ctxId) {
     }
   }
 
+  // v50.37 트랙1: 자연어 스크리너 질의 — 실제 SCREENER_DB 필터(일반 LLM 불가 차별 기능). 특정 티커 없을 때만.
+  var screenerStr = '';
+  var screenerResult = null;
+  if (detectedTickers.length === 0 && typeof _aioRunScreenerQuery === 'function') {
+    try {
+      screenerResult = _aioRunScreenerQuery(q);
+      if (screenerResult && screenerResult.matched) screenerStr = _formatScreenerResultPrompt(screenerResult);
+    } catch(e) { _aioLog('warn', 'fetch', '스크리너 질의 실패: ' + e.message); }
+  }
+
   // v34.2: 기업 내부 비교 분석 (비즈니스 모델, 수익 구조, 해자 등) — 티커 2~3개 + 내부 비교 의도 감지 시
   var deepCompareStr = '';
   if (detectedTickers.length >= 2 && _detectDeepCompareIntent(q)) {
@@ -4802,6 +4987,7 @@ async function chatSend(ctxId) {
   if (tickerDataStr) systemPrompt += tickerDataStr;
   if (technicalDataStr) systemPrompt += technicalDataStr;  // v50.12: 기술적 실측 데이터 주입
   if (sectorCompareStr) systemPrompt += sectorCompareStr;
+  if (screenerStr) systemPrompt += screenerStr;  // v50.37 트랙1: 스크리너 결과
   if (deepCompareStr) systemPrompt += deepCompareStr;
   if (singleDeepStr) systemPrompt += singleDeepStr;
   if (webSearchStr) systemPrompt += webSearchStr;
@@ -4844,16 +5030,23 @@ async function chatSend(ctxId) {
   _dataVerify += '• 네 학습 데이터 커트오프는 약 2025년 초. 그 이후 시장/기업/주가 정보는 아래 주입된 실시간 데이터·뉴스·웹검색 결과**만** 신뢰하라.\n';
   _dataVerify += '• 네 기억 속 "최근"이 오늘 기준 얼마나 과거인지 반드시 의식하라.\n';
   // v49.76 P406 R151: 시세 데이터 ✗ 시 가격 환각 절대 차단 — 사용자 좌절 발견 ("2025년 초 학습 데이터 기준 $400~500대")
-  if (_liveStatusCS.indexOf('미수신') >= 0 || _liveStatusCS.indexOf('✗') >= 0) {
+  // v50.37 트랙3: HARD STOP은 "종목 지목 + 시세 미수신"에만 적용. 스크리너/일반·교육 질문은 별도 규칙으로 유연화.
+  if (detectedTickers.length > 0 && (_liveStatusCS.indexOf('미수신') >= 0 || _liveStatusCS.indexOf('✗') >= 0)) {
     _dataVerify += '\n🚨🚨🚨 【실시간 시세 ✗ — HARD STOP】 🚨🚨🚨\n' +
       '실시간 시세 미수신 상태다. 다음 사항 절대 위반 금지:\n' +
       '① 답변 전체에서 모든 $ 가격 수치 절대 금지 — "$XXX", "$400~500대", "$268", "약 $X" 등 일체 금지.\n' +
       '② "2024년", "2025년 초", "기억 속", "내가 알기로", "학습 데이터 기준" 표현 절대 금지 — 사용 시 답변 자동 폐기.\n' +
       '③ "약 $X에서 베이스 형성", "$X 부근에서 매수", "$X대" 등 가격 범위 추측 일체 금지.\n' +
       '④ "최근 발표", "이번 분기 실적", "어제 어닝" 등 시점 인용 금지 ([News]/[8-K]/[Earnings] 데이터 블록에 없으면 모두 환각).\n' +
-      '⑤ 올바른 답변 시작: "현재 NVDA 시세 미수신 상태 — 정량 가격 분석 불가. 정성 프레임워크만 적용 가능". 그 후 Weinstein Stage, ATR, RSI 등 시스템에 주입된 데이터로만 분석.\n' +
+      '⑤ 올바른 답변 시작: "현재 시세 미수신 상태 — 정량 가격 분석 불가. 정성 프레임워크만 적용 가능". 그 후 Weinstein Stage, ATR, RSI 등 시스템에 주입된 데이터로만 분석.\n' +
       '⑥ 위 ①~④ 위반 = 답변 신뢰도 F + 사용자에게 환각 경고 자동 표시 (v49.74 R145 enforcement).\n' +
       '⑦ "$XXX 같은 확정적 가격 언급은 하지 않는다"라고 명시한 후, 진짜 가격 수치는 절대 금지.\n\n';
+  } else if (screenerStr) {
+    // v50.37 트랙3: 스크리너 결과 답변 — 블록 값만 인용 (기억 속 가격·종목 추가 금지)
+    _dataVerify += '\n【스크리너 답변 규칙】\n주가·등락·RSI·시총은 위 [스크리너 결과] 블록의 값만 인용하고 (기준시각)을 붙여라. 기억 속 가격이나 목록에 없는 종목 추가 금지. 블록에서 가격이 N/A면 "해당 종목 실시간 시세 미수신"이라 밝혀라.\n\n';
+  } else if (detectedTickers.length === 0) {
+    // v50.37 트랙3: 일반·교육·비종목 질문 유연성 — 개념·전략·시장 해석은 충실히, 시점성 수치만 주의
+    _dataVerify += '\n【일반·교육 질문 유연성 규칙】\n이 질문은 특정 종목을 지목하지 않았다. 개념·투자 전략·시장 해석·용어·교육성 질문에는 너의 일반 지식 + 아래 주입된 현재 시장 맥락(VIX·F&G·지수·매크로)을 활용해 충실하고 구체적으로 답하라(일반 개념 설명을 막지 마라). 다만 (a) 특정 종목의 현재 주가·시총·목표가·실적 수치, (b) 학습 커트오프 이후의 날짜·사건·발표는 주입된 데이터에 없으면 단정하지 말고 "현재 데이터 미확인"이라 밝혀라.\n\n';
   }
 
   _dataVerify += '\n【추세 해석 필수 규칙 — 종목 추천·매수·매도 판단 시 무조건 준수】\n';
@@ -5043,6 +5236,7 @@ async function chatSend(ctxId) {
         else _bItems.push('<span style="color:#7e8a9e;">📰 뉴스 ✗</span>');
         if (webSearchStr) _bItems.push('<span style="color:#a78bfa;">🔍 웹검색 ✓</span>');
         if (singleDeepStr || deepCompareStr) _bItems.push('<span style="color:#60a5fa;">🔬 심층 ✓</span>');
+        if (screenerResult && screenerResult.matched) _bItems.push('<span style="color:#fbbf24;" title="' + escHtml(screenerResult.criteria.join(' · ')) + '">📋 스크리너 ' + screenerResult.totalMatched + '종목</span>');  // v50.37 트랙1
         _srcBadge.innerHTML = _bItems.join('');
         aiBubble.parentNode.appendChild(_srcBadge);
 
