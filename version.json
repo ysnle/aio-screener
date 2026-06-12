@@ -1,5 +1,5 @@
 {
-  "version": "v50.39",
-  "built": "2026-06-12T21:00:00+09:00",
-  "note": "v50.39 텔레그램 3채널 통합 + /data-refresh (+ v50.36~38 통합 단일 배포). 텔레그램(aetherjapanresearch/insidertracking/bornlupin) 7일 핵심: 6/11 반등 랠리(S&P +1.75% 7,394·Nasdaq +2.54% 25,810·Dow +1.85% 50,841) + US-이란 MOU/휴전 임박(호르무즈 30일내 재개·단계적 제재완화→WTI 84.92 -3.2% 급락, v50.15 escalation에서 반전) + SpaceX IPO($135·$1.78T·머스크 $1조·역대최대) + 메모리 슈퍼사이클 지속(DDR5 H1'28까지·SK하이닉스 +230%/시총$1조/8월 나스닥 상장·키옥시아 日 시총1위 ¥4.44조·HDD 랠리 WDC$650/STX$920·Q1 장비매출 사상최대 $36.55B) + NVDA S&P AA·AMD Citi $575·Meta BofA $835·나스닥100 편입(6/22) NBIS/RKLB/ALAB/CRWV/TER. data-refresh: DATA_SNAPSHOT 본체+_fallback 미러(R184) 갱신 — 지수/VIX/유가(WTI/Brent)/금/원달러(1,523)/BTC(61,303)/10Y(4.47)/currentTopic/SpaceX상태/cpiNext. HOME_WEEKLY_NEWS 5건 텔레그램 재큐레이션. 차트 시계열은 v50.38 _fetchYahooChartData 복구로 라이브 fetch 전환(정적배열 의존↓). R1 7곳+캐시버스터 5곳."
+  "version": "v50.40",
+  "built": "2026-06-12T23:30:00+09:00",
+  "note": "v50.40 데이터품질 핫스팟 + 텔레그램/채팅 맥락 신선화 (앱 audit-기반 진단 시정). 트랙B(데이터품질): (1) fetch-data.mjs SYMBOLS에 GBPUSD=X·CNY=X·AUDUSD=X 추가 → fxbond 페이지 3개 FX '—' unavailable 해소(다음 데이터봇 cron부터 라이브, 클라이언트 LIVE_SYMBOLS와 정합). (2) AIO_DATA_TRUTH_GATE ^KS11 sanity range 6000→12000 (KOSDAQ 2000→3500) — KOSPI ~7,800인데 6000 cap이 정상값을 'out_of_sanity_range'로 truth-block하던 config 버그 시정(home KOSPI 8,123 reference-only 해소). (3) signal breadth-consensus-verdict에 data-source lineage 마킹(R197 visible-decision-narrative-missing-lineage 해소). 트랙A(텔레그램 다양성·신선화): AI 채팅 기업분석 시장맥락 블록 de-stale — 'WTI $100+/호르무즈 악화 리스크'(현재 이란 휴전·유가 $85로 정반대)를 'US-이란 MOU 휴전·유가 하향안정·메모리 슈퍼사이클'로 갱신(매 기업 분석 답변 주입). 정직 보류(차기): 크로스-페이지 뉴스 strip(분석 7페이지)·_getV48IntegratedContext 텔레그램 블록·KR 정적 스냅샷·jensen 84일 아카이브 — 예산 폴백(부분 손실 방지). R1 7곳+캐시버스터 5곳."
 }

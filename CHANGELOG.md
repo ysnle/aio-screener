@@ -1,5 +1,20 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.40 - 데이터품질 핫스팟 + 텔레그램/채팅 맥락 신선화 (앱 audit 진단 시정) (2026-06-12)
+
+**사용자: "데이터 최신화+텔레그램 통합 완벽했나? 텔레그램 최대한 다양하게. 10페이지 자동 최신 운영 + 뉴스 선별/연결/페이지 통합 보강점 자세히 진단."**
+
+**앱 자체 audit 전수 진단**(getAutoOpsReadiness/getCritical10MarketSurfaceAudit/getTelegramPipelineAudit/getRefreshSchedulerAudit/getNewsSurfaceAudit): 자동 최신화 **골격은 건강**(스케줄러 ok·페이지 리프레시 커버리지 ok·텔레그램 6채널 18건 동적 유입). warn은 대부분 **구체적 데이터품질·뉴스연결 갭** → 타깃 시정.
+
+**트랙 B — 데이터품질 핫스팟**:
+- **fxbond FX 복구**: `scripts/fetch-data.mjs` SYMBOLS에 `GBPUSD=X·CNY=X·AUDUSD=X` 추가 — 데이터봇이 KRW/EUR/JPY만 fetch해 GBP/CNY/AUD가 "—"(unavailable)였던 것 해소(클라이언트 LIVE_SYMBOLS와 정합, 다음 cron부터 라이브).
+- **KOSPI truth-block 시정**: `AIO_DATA_TRUTH_GATE` `^KS11` sanity range **6000→12000**(`^KQ11` 2000→3500). KOSPI ~7,800인데 6000 cap이 정상값을 `price_out_of_sanity_range`로 truth-block → home KOSPI 8,123 reference-only 표시되던 **config 버그** 시정.
+- **signal lineage**: `breadth-consensus-verdict`에 `data-operational-use="derived"` 등 마킹(R197 visible-decision-narrative-missing-lineage 해소).
+
+**트랙 A — 텔레그램/채팅 맥락 신선화**: AI 채팅 기업분석 시장맥락 블록(aio-chat.js) **de-stale** — "WTI $100+ / 호르무즈 지정학 악화 리스크"(현재 US-이란 휴전·유가 $85로 **정반대**)를 "유가 하향안정·휴전 임박·메모리 슈퍼사이클 2028까지·SK하이닉스 나스닥 상장"으로 갱신(매 기업 분석 답변에 주입되는 핵심 맥락).
+
+**정직한 보류(차기 — 예산 폴백, 부분 손실 방지)**: 크로스-페이지 뉴스 strip(분석 7페이지 — `AIO_NEWS_SURFACE_CONTRACTS`가 현재 home/briefing/market-news 3페이지만) · `_getV48IntegratedContext` 텔레그램 블록 · KR 정적 스냅샷(no 라이브 소스) · jensen 84일 아카이브. **진단은 완료**(plan 파일에 7페이지 토픽 매핑·근본원인 기록). R1 7곳+캐시버스터 5곳.
+
 ## v50.39 - 텔레그램 3채널 통합 + /data-refresh (2026-06-12)
 
 **사용자: "텔레그램 3채널(aetherjapanresearch·insidertracking·bornlupin) 핵심 뉴스 반영·통합 + /data-refresh 꼼꼼하게 최대한 다 + 마지막에 커밋/배포."**

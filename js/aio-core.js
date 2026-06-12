@@ -15199,7 +15199,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.39';
+const APP_VERSION = 'v50.40';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -17854,7 +17854,7 @@ window.AIO_DATA_TRUTH_GATE = {
     sym = String(sym || '').toUpperCase();
     var exact = {
       '^GSPC': [1000, 15000], '^IXIC': [3000, 50000], '^DJI': [10000, 100000], '^RUT': [500, 6000],
-      '^KS11': [1000, 6000], '^KQ11': [300, 2000], '^VIX': [5, 100], '^VVIX': [30, 300],
+      '^KS11': [1000, 12000], '^KQ11': [300, 3500], '^VIX': [5, 100], '^VVIX': [30, 300],   // v50.40: KOSPI sanity max 6000→12000 (현 ~7,800, 6000 cap이 정상값 truth-block 유발), KOSDAQ 2000→3500
       '^VIX9D': [5, 120], '^VIX3M': [5, 120], '^VIX6M': [5, 120],
       '^TNX': [0, 12], '^TYX': [0, 12], '^FVX': [0, 12], '^IRX': [0, 12],
       'DX-Y.NYB': [50, 150], 'KRW=X': [800, 1800], 'JPY=X': [80, 220], 'EURUSD=X': [0.6, 1.6],
