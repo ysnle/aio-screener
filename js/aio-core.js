@@ -2944,6 +2944,42 @@ if (typeof document !== 'undefined') {
     };
   };
 
+  // v50.48 [자율 루프 Phase 4] 자율 운영 루프 5단계 연결 audit — ingest→signal→brain→text→reflect.
+  //   각 단계가 실제로 연결돼 데이터가 흐르는지(끊긴 고리 자동 감지). getAutoOpsReadiness에 통합.
+  window.AIO.getAutonomousLoopAudit = function(){
+    var stages = {};
+    try {
+      // 1) INGEST — 서버 data.json + 뉴스 캐시
+      var newsN = (window._allNewsItems && window._allNewsItems.length) || (window.newsCache && window.newsCache.length) || 0;
+      var serverData = !!(window._serverDataMeta && window._serverDataMeta.loadedAt);
+      stages.ingest = { ok: serverData || newsN > 0, serverData: serverData, newsItems: newsN };
+      // 2) SIGNAL — 뉴스 신호 집계
+      var sig = (typeof window._aioComputeNewsSignal === 'function') ? window._aioComputeNewsSignal() : null;
+      stages.signal = { ok: !!(sig && ('sentimentScore' in sig)), available: !!(sig && sig.available), bias: sig && sig.bias };
+      // 3) BRAIN — 단일 두뇌가 신호 흡수 + 정규화 모델
+      var ms = window.AIO.marketState || (window.AIO.computeMarketState && window.AIO.computeMarketState());
+      stages.brain = { ok: !!(ms && 'newsSignal' in ms && ms.riskLevel), riskScore: ms && ms.riskScore, cycleScore: ms && ms.cycleScore, absorbsNews: !!(ms && ms.newsSignal) };
+      // 4) TEXT — 합성 엔진이 분석문 생성
+      var syn = (typeof window.AIO.synthesizeMarketAnalysis === 'function') ? window.AIO.synthesizeMarketAnalysis() : null;
+      stages.text = { ok: !!(syn && syn.available && syn.full && syn.full.length > 30), source: window._serverMarketAnalysis ? 'server-llm' : 'template' };
+      // 5) REFLECT — sink 요소가 채워졌는지(빈 placeholder 탈출)
+      var sinks = document.querySelectorAll('[data-market-analysis-sink]');
+      var filled = 0;
+      sinks.forEach(function(el){ var t = (el.textContent || '').trim(); if (t.length > 20 && t.indexOf('수신 대기') < 0 && t.indexOf('대기...') < 0) filled++; });
+      stages.reflect = { ok: sinks.length > 0 && filled > 0, sinks: sinks.length, filled: filled };
+    } catch(e) { return { status: 'warn', error: e && e.message, stages: stages, generatedAt: new Date().toISOString() }; }
+    var order = ['ingest','signal','brain','text','reflect'];
+    var broken = order.filter(function(s){ return !(stages[s] && stages[s].ok); });
+    return {
+      status: broken.length === 0 ? 'ok' : (broken.length <= 1 ? 'warn' : 'fail'),
+      connected: (order.length - broken.length) + '/' + order.length,
+      brokenStages: broken,
+      stages: stages,
+      note: '자율 운영 루프: 데이터/뉴스 수집 → 신호 집계 → 단일 두뇌(risk/action) → 텍스트 합성 → 화면 반영. 끊긴 고리 자동 감지.',
+      generatedAt: new Date().toISOString()
+    };
+  };
+
   if (typeof window !== 'undefined') {
     if (window._aioPageBus && window._aioPageBus.register) {
       window._aioPageBus.register('core-page-news-strip', 'aio:pageShown', function(e){ var pid = e && e.detail; if (pid) setTimeout(function(){ window._aioRenderPageNewsStrip(pid); }, 150); });
@@ -11091,6 +11127,8 @@ window.AIO.getAutoOpsReadiness = function() {
   // v50.42: 선순환 — 단일 두뇌(marketState) 신선도/충실 + 크로스-페이지 연결(뉴스) 형식화
   var marketStateCoherence = window.AIO.getMarketStateCoherenceAudit ? window.AIO.getMarketStateCoherenceAudit() : null;
   var connectiveLayer = window.AIO.getConnectiveLayerAudit ? window.AIO.getConnectiveLayerAudit() : null;
+  // v50.48: 자율 운영 루프 5단계 연결(ingest→signal→brain→text→reflect)
+  var autonomousLoop = window.AIO.getAutonomousLoopAudit ? window.AIO.getAutonomousLoopAudit() : null;
   var issues = [];
   if (visibleDevMarker && visibleDevMarker.violationCount) issues.push(visibleDevMarker.violationCount + ' visible developer/version marker(s) [v50.14/R206]: ' + visibleDevMarker.violations.slice(0, 4).map(function(v){ return v.pageId + ':' + v.marker; }).join(', '));
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
@@ -11148,6 +11186,7 @@ window.AIO.getAutoOpsReadiness = function() {
   // v50.42: marketState 단일 두뇌 신선도 + 크로스-페이지 연결
   if (marketStateCoherence && marketStateCoherence.status !== 'ok') issues.push('marketState coherence: ' + marketStateCoherence.status + (marketStateCoherence.stale ? ' (stale ' + marketStateCoherence.ageSec + 's)' : '') + ' [v50.42/MarketStateCore]');
   if (connectiveLayer && connectiveLayer.status && connectiveLayer.status !== 'ok') issues.push('connective layer: ' + connectiveLayer.status + ' [v50.41/42]');
+  if (autonomousLoop && autonomousLoop.status === 'fail') issues.push('자율 운영 루프 끊김(' + autonomousLoop.connected + '): ' + (autonomousLoop.brokenStages || []).join(',') + ' [v50.48/Phase4]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -11213,6 +11252,8 @@ window.AIO.getAutoOpsReadiness = function() {
       marketState: 'AIO.computeMarketState()',
       marketStateCoherence: 'AIO.getMarketStateCoherenceAudit()',
       connectiveLayer: 'AIO.getConnectiveLayerAudit()',
+      autonomousLoop: 'AIO.getAutonomousLoopAudit()',
+      marketAnalysis: 'AIO.synthesizeMarketAnalysis()',
       deploymentGate: 'AIO.getDeploymentGateAudit({ strict: true })'
     },
     freshness: freshness,
@@ -15639,7 +15680,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.47';
+const APP_VERSION = 'v50.48';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

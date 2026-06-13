@@ -1,5 +1,28 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.48 - 자율 운영 순환 Phase 4 (완결): 서버 LLM 선택 강화 + 루프 5단계 audit (2026-06-13)
+
+**사용자: "알아서 순차적으로 모두 진행해줘."** — 자율 루프 마스터플랜(Phase 1~4) 마지막 단계.
+
+### 1) 서버 LLM 분석문 생성 (선택·운영자 키)
+- `scripts/fetch-data.mjs` `genMarketAnalysis(data)`: 운영자가 `ANTHROPIC_API_KEY`를 GitHub Secret에 넣으면 cron에서 **Claude Haiku 4.5**(최저가)로 수집 시세/매크로/F&G/뉴스 헤드라인 → "현재 시장 분석" 4~5줄 생성 → `data.json.marketAnalysis`.
+- raw fetch 사용(Action에 anthropic SDK 의존성 미추가) · 20s 타임아웃 · **best-effort**: 실패/키없음이면 스킵, data.json은 정상(클라 템플릿 폴백 = 키 없어도 100% 동작). 비용은 Haiku 기준 월 ~$2-7(게이트 시 더 낮음).
+- `meta.marketAnalysisOk` 노출.
+
+### 2) 클라이언트 서버 LLM 우선 사용
+- `_aioLoadServerData`(aio-data.js)가 `data.marketAnalysis` → `window._serverMarketAnalysis` 로드 후 sink 재렌더.
+- v50.47 `_aioRenderMarketAnalysisSinks`가 이미 서버 LLM 우선 + 템플릿 폴백 로직 보유 → 서버 분석문이 있으면 home "현재 시장 분석"이 LLM 산문으로 격상(소스 라벨 `server-llm`), 없으면 템플릿.
+
+### 3) AIO.getAutonomousLoopAudit() — 루프 5단계 연결 검증
+- ingest(서버데이터/뉴스 캐시) → signal(`_aioComputeNewsSignal`) → brain(marketState 뉴스 흡수+정규화 모델) → text(`synthesizeMarketAnalysis`) → reflect(`[data-market-analysis-sink]` 채움) **5단계 연결 자동 검증**. 끊긴 고리(brokenStages) 감지. status ok/warn/fail.
+- `getAutoOpsReadiness`에 통합(루프 fail 시 issue + commands.autonomousLoop).
+
+### 테스트 + 완결
+- T821 신규: 루프 5단계 audit + 핵심 고리(brain→text→reflect) 연결 + AutoOps 통합 + 서버 LLM 우선 폴백 검증. 회귀 0.
+- **자율 운영 순환 완성(Phase 1~4)**: 데이터·뉴스 수집 → 신호 집계 → 단일 두뇌(risk/action/cycle) → 텍스트 합성(현재 분석) → 화면 반영 → (refresh 시 재순환). 사용자 비전 "사이트가 자체적으로 운영되는 느낌" 구조 완성.
+
+**R1 7곳 + 캐시버스터 5곳.**
+
 ## v50.47 - 자율 운영 순환 Phase 3: 텍스트 합성 엔진 (빈 "현재 분석" 섹션 자동 채움) (2026-06-13)
 
 **사용자: "알아서 순차적으로 모두 진행해줘."** + 페이지 UX 전수조사 ★★★ P1 = "수신/수집/산출 대기 빈 껍데기가 도처에"(사용자가 "미완성/고장"으로 느끼는 #1 원인).

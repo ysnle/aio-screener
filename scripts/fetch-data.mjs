@@ -261,6 +261,41 @@ async function updateHistory(data) {
   }
 }
 
+// v50.48/Phase 4: 선택적 서버 LLM 시장 분석문 생성 (운영자 ANTHROPIC_API_KEY Secret 있을 때만).
+//   raw fetch 사용 — Action에 anthropic SDK 의존성 미추가. best-effort: 실패해도 data.json은 정상(클라가 템플릿 합성으로 폴백).
+//   Haiku 4.5(최저가). 수집한 시세/매크로/F&G/뉴스 헤드라인으로 간결 프롬프트 → 4~5줄 한국어 분석.
+async function genMarketAnalysis(data) {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) return null; // 키 없으면 스킵 — 클라이언트 템플릿이 처리
+  try {
+    const q = {};
+    (data.quotes || []).forEach(x => { if (x && x.symbol) q[x.symbol] = x.price; });
+    const heads = (data.news || []).slice(0, 8).map(n => '- ' + (n.title || '')).join('\n');
+    const ctx = [
+      `SPX ${q['^GSPC'] ?? '—'} VIX ${q['^VIX'] ?? '—'} 10Y ${q['^TNX'] ?? '—'} DXY ${q['DX-Y.NYB'] ?? '—'} WTI ${q['CL=F'] ?? '—'} Gold ${q['GC=F'] ?? '—'} KOSPI ${q['^KS11'] ?? '—'}`,
+      `F&G ${data.fearGreed?.score ?? '—'}`,
+      `CPI ${data.macro?.cpi ?? '—'} FedRate ${data.macro?.fedRate ?? '—'} NFP ${data.macro?.nfp ?? '—'}`,
+      `최근 뉴스 헤드라인:\n${heads || '없음'}`,
+    ].join('\n');
+    const prompt = `다음 실시간 시장 데이터로 "현재 시장 분석"을 한국어 4~5줄로 작성하라. 객관적·간결·투자 조언 단정 금지. 수치는 위 데이터만 인용(추측 금지). 형식: 한 줄 요약 + ①변동성/심리 ②거시/금리 ③주도 뉴스/리스크.\n\n${ctx}`;
+    const ac = new AbortController();
+    const to = setTimeout(() => ac.abort(), 20000);
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 500, messages: [{ role: 'user', content: prompt }] }),
+      signal: ac.signal,
+    });
+    clearTimeout(to);
+    if (!r.ok) { console.warn(`[fetch-data] LLM 분석 생성 실패 HTTP ${r.status} (템플릿 폴백)`); return null; }
+    const j = await r.json();
+    const text = (j.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+    if (!text) return null;
+    const oneLine = text.split('\n').map(s => s.trim()).filter(Boolean)[0] || text.slice(0, 120);
+    return { full: text, oneLine, generatedAt: new Date().toISOString(), model: 'claude-haiku-4-5' };
+  } catch (e) { console.warn('[fetch-data] LLM 분석 생성 예외(템플릿 폴백):', e && e.message); return null; }
+}
+
 async function main() {
   const t0 = Date.now();
   console.log(`[fetch-data] ${SYMBOLS.length} 심볼 + FRED + F&G 수집 시작`);
@@ -300,6 +335,11 @@ async function main() {
     fearGreed,
     news,
   };
+
+  // v50.48/Phase 4: 선택적 서버 LLM 분석문 (키 있을 때만; 실패해도 data.json 정상 — 클라 템플릿 폴백)
+  const marketAnalysis = await genMarketAnalysis(data);
+  if (marketAnalysis) { data.marketAnalysis = marketAnalysis; data.meta.marketAnalysisOk = true; }
+  else { data.meta.marketAnalysisOk = false; }
 
   if (!fearGreedOk) console.warn('[fetch-data] 경고: F&G 수집 실패 (사이트는 정적 폴백 사용)');
   if (process.env.FRED_API_KEY && !fredOk) console.warn('[fetch-data] 경고: FRED 키 있으나 매크로 0건 — 키/한도 확인');

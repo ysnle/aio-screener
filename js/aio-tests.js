@@ -6121,6 +6121,36 @@
       t820detail = 'synth=' + hasSynth + ' shape=' + synShapeOk + ' content=' + contentOk + ' renderFn=' + hasRenderFn + ' sink=' + sinkExists + ' rendered=' + renderedOk;
     } catch(e) { t820detail = 'ERR:' + e.message; }
     _assert('T820 v5047_text_synthesis: synthesizeMarketAnalysis + sink 계약 렌더 + home 자동 분석 비-placeholder', t820ok, t820detail);
+
+    // ─── v50.48 자율 루프 Phase 4: 루프 audit + 서버 LLM 선택 강화 ───
+    // T821: getAutonomousLoopAudit 5단계(ingest→signal→brain→text→reflect) + getAutoOpsReadiness 통합 + 서버LLM 우선 폴백
+    var t821ok = false, t821detail = '';
+    try {
+      window.AIO.computeMarketState();
+      if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks();
+      var hasLoopAudit = !!(window.AIO && typeof window.AIO.getAutonomousLoopAudit === 'function');
+      var la = hasLoopAudit ? window.AIO.getAutonomousLoopAudit() : null;
+      // 5단계 모두 존재 + brain/text/reflect 연결(ingest/signal은 데이터 의존이라 존재만)
+      var stagesOk = !!(la && la.stages && la.stages.ingest && la.stages.signal && la.stages.brain && la.stages.text && la.stages.reflect);
+      var coreConnected = !!(la && la.stages.brain.ok && la.stages.text.ok && la.stages.reflect.ok); // 두뇌→텍스트→반영 핵심 고리
+      var statusOk = !!(la && (la.status === 'ok' || la.status === 'warn') && typeof la.connected === 'string');
+      // AutoOps 통합
+      var ro = (typeof window.AIO.getAutoOpsReadiness === 'function') ? window.AIO.getAutoOpsReadiness() : null;
+      var wiredAutoOps = !!(ro && ro.commands && ro.commands.autonomousLoop);
+      // 서버 LLM 우선 폴백: _serverMarketAnalysis 주입 시 sink source가 server-llm
+      var serverPriorityOk = false;
+      try {
+        var prev = window._serverMarketAnalysis;
+        window._serverMarketAnalysis = { full: '서버 LLM 테스트 분석문 — 충분히 긴 더미 텍스트입니다.', oneLine: '서버 LLM 테스트', generatedAt: new Date().toISOString() };
+        window._aioRenderMarketAnalysisSinks();
+        var sk = document.getElementById('home-market-analysis');
+        serverPriorityOk = !!(sk && sk.getAttribute('data-analysis-source') === 'server-llm');
+        window._serverMarketAnalysis = prev; window._aioRenderMarketAnalysisSinks(); // 원복
+      } catch(_) {}
+      t821ok = hasLoopAudit && stagesOk && coreConnected && statusOk && wiredAutoOps && serverPriorityOk;
+      t821detail = 'loopAudit=' + hasLoopAudit + ' stages=' + stagesOk + ' core=' + coreConnected + ' connected=' + (la && la.connected) + ' status=' + (la && la.status) + ' autoOps=' + wiredAutoOps + ' serverPriority=' + serverPriorityOk;
+    } catch(e) { t821detail = 'ERR:' + e.message; }
+    _assert('T821 v5048_autonomous_loop_audit: 루프 5단계 연결 audit + AutoOps 통합 + 서버 LLM 우선 폴백', t821ok, t821detail);
   }
 
   window.AIO = window.AIO || {};

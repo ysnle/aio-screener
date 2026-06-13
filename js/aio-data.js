@@ -4455,6 +4455,11 @@ async function _aioLoadServerData() {
       window._serverNewsBackstop = d.news;
       try { _aioApplyNewsBackstop(false); } catch(_) {}
     }
+    // 5) v50.48/Phase 4: 서버 LLM 시장 분석문(운영자 키 있을 때 cron 생성) — 있으면 합성 sink가 템플릿 대신 우선 사용.
+    if (d.marketAnalysis && (d.marketAnalysis.full || d.marketAnalysis.oneLine)) {
+      window._serverMarketAnalysis = { full: d.marketAnalysis.full || d.marketAnalysis.oneLine, oneLine: d.marketAnalysis.oneLine || d.marketAnalysis.full, generatedAt: d.marketAnalysis.generatedAt || d.meta.generatedAt };
+      try { if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_) {}
+    }
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
     _aioRenderServerDataAge();  // v50.24/WO-4: 나이 배지 갱신
     // v50.24/WO-4: 보이는 페이지 분석 텍스트도 새 데이터로 재생성 (숨은 페이지는 스킵)
