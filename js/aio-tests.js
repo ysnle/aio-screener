@@ -6029,6 +6029,27 @@
       t816detail = 'fn=' + hasRefreshAction + ' ran=' + ranOk + ' planFromBrain=' + planFromBrain + ' brainPref=' + srcHasBrainPref;
     } catch(e) { t816detail = 'ERR:' + e.message; }
     _assert('T816 v5043_marketstate_consumer: home Action Item이 marketState.actionPlan 단일 출처 구독(+소스 분기)', t816ok, t816detail);
+
+    // ─── v50.44 단일 두뇌 소비자 전환 완성 (선순환 구조) ───
+    // T817: computeMarketState 정본 full 객체(breadthConsensusFull/cycleFull) + 페이지 렌더러 4종 marketState 소비 + audit 이중정의 해소
+    var t817ok = false, t817detail = '';
+    try {
+      var ms817 = (window.AIO && typeof window.AIO.computeMarketState === 'function') ? window.AIO.computeMarketState() : null;
+      // A1: 정본 full 객체 + breadthScore가 .consensus(수치)로 채워짐(이전 .score=undefined 버그 시정)
+      var fullOk = !!(ms817 && ms817.breadthConsensusFull && ms817.breadthConsensusFull.verdict && ms817.cycleFull && ms817.cycleFull.phase && typeof ms817.breadthScore === 'number');
+      // A2: 페이지 렌더러 4종이 marketState 우선 분기를 갖는지(소스 회귀 가드)
+      var renderers = ['_aioRenderBreadthConsensus','_aioRenderThemesCycle','_aioRenderBriefingAction','_aioRenderOptionsRec'];
+      var consumerOk = renderers.every(function(fn){ return typeof window[fn] === 'function' && /marketState/.test(window[fn].toString()); });
+      // A2 실재 정합: breadth 렌더러 실행 후 verdict sink가 marketState verdict와 일치
+      var breadthMatch = false;
+      try { window._aioRenderBreadthConsensus(); var bv = document.getElementById('breadth-consensus-verdict'); breadthMatch = !!(bv && ms817.breadthConsensusFull && bv.textContent.indexOf(ms817.breadthConsensusFull.verdict) >= 0); } catch(_) {}
+      // Track B: canonical getCritical10ContentEvidenceMatrix는 buildEvidenceStore 유일 정의 + dead 이름 분리
+      var canonFn = window.AIO && window.AIO.getCritical10ContentEvidenceMatrix;
+      var dedupOk = !!(canonFn && /buildEvidenceStore/.test(canonFn.toString()) && typeof window.AIO._deadV49112_getCritical10ContentEvidenceMatrix === 'function');
+      t817ok = fullOk && consumerOk && breadthMatch && dedupOk;
+      t817detail = 'full=' + fullOk + ' consumers4=' + consumerOk + ' breadthMatch=' + breadthMatch + ' dedup=' + dedupOk;
+    } catch(e) { t817detail = 'ERR:' + e.message; }
+    _assert('T817 v5044_consumer_transition: 정본 full 객체 + 페이지 렌더러 4종 marketState 소비 + audit 이중정의 해소', t817ok, t817detail);
   }
 
   window.AIO = window.AIO || {};

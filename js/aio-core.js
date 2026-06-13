@@ -1928,9 +1928,16 @@ if (typeof document !== 'undefined') {
   window._aioRenderOptionsRec = function() {
     try {
       if (!window.AIO_ACTION_RULES) return;
-      var ld = window._liveData || {};
-      var vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-      var fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
+      // v50.44: 단일 두뇌(marketState) 정본 우선 — vix/fg를 앱 전체와 동일 출처로. fresh 아니면 폴백.
+      var vixVal, fgVal;
+      var ms = window.AIO && window.AIO.marketState;
+      if (ms && (Date.now() - (ms.ts || 0) < 15 * 60 * 1000) && ms.vix != null) {
+        vixVal = ms.vix; fgVal = (ms.fg != null) ? ms.fg : NaN;
+      } else {
+        var ld = window._liveData || {};
+        vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
+        fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
+      }
       var pos = window.AIO_ACTION_RULES.positionSizing.getRule(vixVal);
       var sent = window.AIO_ACTION_RULES.sentimentAction.getRule(fgVal);
       var posEl = document.getElementById('options-rec-position');
@@ -1961,10 +1968,17 @@ if (typeof document !== 'undefined') {
   window._aioRenderBriefingAction = function() {
     try {
       if (!window.AIO_ACTION_RULES || !window.AIO_ACTION_RULES.getActionPlan) return;
-      var ld = window._liveData || {};
-      var vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-      var fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
-      var plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal });
+      // v50.44: 단일 두뇌(marketState.actionPlan) 정본 우선 — home Action Item과 동일 plan 구독(정합). fresh 아니면 폴백.
+      var vixVal, fgVal, plan;
+      var ms = window.AIO && window.AIO.marketState;
+      if (ms && ms.actionPlan && (Date.now() - (ms.ts || 0) < 15 * 60 * 1000)) {
+        vixVal = (ms.vix != null) ? ms.vix : NaN; fgVal = (ms.fg != null) ? ms.fg : NaN; plan = ms.actionPlan;
+      } else {
+        var ld = window._liveData || {};
+        vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
+        fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
+        plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal });
+      }
       var posEl = document.getElementById('briefing-action-position');
       var sentEl = document.getElementById('briefing-action-sentiment');
       if (posEl && plan.position) posEl.textContent = '💼 ' + plan.position.sizePct + '% 포지션 — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
@@ -1981,18 +1995,25 @@ if (typeof document !== 'undefined') {
   window._aioRenderBreadthConsensus = function() {
     try {
       if (!window.AIO || !window.AIO.diagnoseBreadthConsensus) return;
-      // 실시간 breadth(window._breadth5/_breadth200=20일) 우선 + DATA_SNAPSHOT 폴백
-      var S = window.DATA_SNAPSHOT || {};
-      var live5 = (typeof window._breadth5 === 'number') ? window._breadth5 : null;
-      var live20 = (typeof window._breadth200 === 'number') ? window._breadth200 : null; // 레거시명, 실제 20일선
-      var consensus = window.AIO.diagnoseBreadthConsensus({
-        sma5: live5 != null ? live5 : (S.breadth5sma || 68),
-        sma20: live20 != null ? live20 : (S.breadth20sma || 75),
-        sma50: S.breadth50sma || 46,
-        mcclellan: 'bearish',
-        weinstein: 'bearish',
-        goldenCross: 'bullish'
-      });
+      // v50.44: 단일 두뇌(marketState.breadthConsensusFull) 정본 우선 — 독립 재계산 제거. fresh(<15분) 아니면 폴백.
+      var consensus = null;
+      var ms = window.AIO.marketState;
+      if (ms && ms.breadthConsensusFull && (Date.now() - (ms.ts || 0) < 15 * 60 * 1000)) {
+        consensus = ms.breadthConsensusFull;
+      } else {
+        // 폴백: 실시간 breadth(window._breadth5/_breadth200=20일) 우선 + DATA_SNAPSHOT 폴백 (두뇌와 동일 입력)
+        var S = window.DATA_SNAPSHOT || {};
+        var live5 = (typeof window._breadth5 === 'number') ? window._breadth5 : null;
+        var live20 = (typeof window._breadth200 === 'number') ? window._breadth200 : null; // 레거시명, 실제 20일선
+        consensus = window.AIO.diagnoseBreadthConsensus({
+          sma5: live5 != null ? live5 : (S.breadth5sma || 68),
+          sma20: live20 != null ? live20 : (S.breadth20sma || 75),
+          sma50: S.breadth50sma || 46,
+          mcclellan: 'bearish',
+          weinstein: 'bearish',
+          goldenCross: 'bullish'
+        });
+      }
       var verdictEl = document.getElementById('breadth-consensus-verdict');
       var conflictEl = document.getElementById('breadth-consensus-conflict');
       var detailsEl = document.getElementById('breadth-consensus-details');
@@ -2027,7 +2048,11 @@ if (typeof document !== 'undefined') {
   window._aioRenderThemesCycle = function() {
     try {
       if (!window.AIO || !window.AIO.getCycleFromMacro) return;
-      var cycle = window.AIO.getCycleFromMacro({});
+      // v50.44: 단일 두뇌(marketState.cycleFull) 정본 우선 — fresh(<15분) 아니면 기존 독립 compute 폴백.
+      var cycle = null;
+      var ms = window.AIO.marketState;
+      if (ms && ms.cycleFull && (Date.now() - (ms.ts || 0) < 15 * 60 * 1000)) cycle = ms.cycleFull;
+      else cycle = window.AIO.getCycleFromMacro({});
       var phaseEl = document.getElementById('cycle-dynamic-phase');
       var inputsEl = document.getElementById('cycle-dynamic-inputs');
       var rationaleEl = document.getElementById('cycle-dynamic-rationale');
@@ -2158,6 +2183,9 @@ if (typeof document !== 'undefined') {
       var now = Date.now();
       if (_aioNarrThrottle[pid] && (now - _aioNarrThrottle[pid]) < 8000) return null; // 8초 스로틀
       _aioNarrThrottle[pid] = now;
+      // v50.44: 페이지 렌더러가 단일 두뇌(marketState)를 읽으므로, 재생성 전에 두뇌를 현재 데이터로 재계산.
+      //   선순환 흐름 일치(refresh→두뇌→렌더) — 이게 없으면 렌더러가 stale marketState를 읽어 라이브 변동 미반영.
+      if (window.AIO && typeof window.AIO.computeMarketState === 'function') { try { window.AIO.computeMarketState(); } catch(_){} }
       fn();
       if (typeof window._aioStampNarrativeUpdate === 'function') window._aioStampNarrativeUpdate(pid, now);
       return { page: pid, reason: reason || 'live', ts: now };
@@ -2594,7 +2622,18 @@ if (typeof document !== 'undefined') {
       var vix = _num(reg.vix), fg = _num(reg.fg), spx = _num(reg.spx);
       var vb = _vixBand(vix), fz = _fgZone(fg);
       var sma5 = _num(ds.breadth5sma), sma20 = _num(ds.breadth20sma), sma50 = _num(ds.breadth50sma);
-      var breadth = (typeof A.diagnoseBreadthConsensus === 'function') ? A.diagnoseBreadthConsensus({ sma5: sma5, sma20: sma20, sma50: sma50 }) : null;
+      // v50.44 정본화: breadth 페이지(_aioRenderBreadthConsensus)와 동일 입력 — live(_breadth5/_breadth200=20일선) 우선 + 동일 신호.
+      //   이 1회 계산이 정본 → 페이지는 marketState.breadthConsensusFull을 읽기만(독립 재계산 제거).
+      var live5 = (typeof window._breadth5 === 'number') ? window._breadth5 : null;
+      var live20 = (typeof window._breadth200 === 'number') ? window._breadth200 : null; // 레거시명, 실제 20일선
+      var breadth = (typeof A.diagnoseBreadthConsensus === 'function') ? A.diagnoseBreadthConsensus({
+        sma5: live5 != null ? live5 : (sma5 != null ? sma5 : 68),
+        sma20: live20 != null ? live20 : (sma20 != null ? sma20 : 75),
+        sma50: sma50 != null ? sma50 : 46,
+        mcclellan: 'bearish', weinstein: 'bearish', goldenCross: 'bullish'
+      }) : null;
+      // diagnoseBreadthConsensus는 .consensus(수치) 반환 — v50.42의 .score 참조는 잠복 버그였음(undefined). 시정.
+      var breadthNum = breadth ? breadth.consensus : null;
       var tnx = (ld['^TNX'] && _num(ld['^TNX'].price)); var twoY = _num(ds.tnx2y);
       var spread = (tnx != null && twoY != null) ? (tnx - twoY) : null;
       var spxTrend = (ld['^GSPC'] && ld['^GSPC'].pct != null) ? (ld['^GSPC'].pct >= 0 ? 'up' : 'down') : null;
@@ -2604,7 +2643,7 @@ if (typeof document !== 'undefined') {
       var rs = 0, rn = 0;
       if (vb != null) { rs += vb; rn++; }
       if (fz != null) { rs += (fz <= 0 ? 3 : fz === 1 ? 2 : fz === 2 ? 1 : fz === 3 ? 1 : 2); rn++; }
-      if (breadth && breadth.score != null) { rs += (breadth.score < -0.1 ? 2 : breadth.score < 0.1 ? 1 : 0); rn++; }
+      if (breadthNum != null) { rs += (breadthNum < -0.1 ? 2 : breadthNum < 0.1 ? 1 : 0); rn++; }
       var ra = rn ? rs / rn : null;
       var riskLevel = ra == null ? 'unknown' : ra >= 2.2 ? 'high' : ra >= 1.2 ? 'elevated' : ra >= 0.6 ? 'moderate' : 'low';
       // 주도 뉴스 토픽(뉴스캐시 빈도)
@@ -2622,7 +2661,9 @@ if (typeof document !== 'undefined') {
         spx: spx, vix: vix, fg: fg,
         vixBand: vb, vixBandLabel: _vixBandLabel(vb), fgZone: fz, fgZoneLabel: _fgZoneLabel(fz),
         cyclePhase: cycle ? cycle.phase : null,
-        breadthConsensus: breadth ? breadth.verdict : null, breadthScore: breadth ? breadth.score : null,
+        breadthConsensus: breadth ? breadth.verdict : null, breadthScore: breadthNum,
+        breadthConsensusFull: breadth,   // v50.44 정본 full 객체 — breadth 페이지가 읽음(verdict/consensus/conflict/details)
+        cycleFull: cycle,                // v50.44 정본 full 객체 — themes 페이지가 읽음(phase/inputs/rationale)
         riskLevel: riskLevel,
         dominantTopic: dominantTopic,
         actionPlan: action,
@@ -2760,8 +2801,20 @@ if (typeof document !== 'undefined') {
     }
     window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioScheduleMarketState(100); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} });
     window.addEventListener('aio:newsUpdated', function(){ try { window._aioScheduleMarketState(100); window._aioRenderActivePageNewsStrip(); } catch(_){} });  // v50.41/42: 뉴스 갱신 → marketState + 스트립
-    // v50.42/43: 단일 두뇌 갱신 → 소비자 동기화(드리프트 배너·결론 가드·뉴스 스트립·home Action Item). 선순환 전파 단계.
-    window.addEventListener('aio:marketStateUpdated', function(){ try { if (window._aioApplyRegimeDriftMarkers) window._aioApplyRegimeDriftMarkers(); if (window._aioRefreshActionPlan) window._aioRefreshActionPlan(); window._aioRenderActivePageNewsStrip(); } catch(_){} });
+    // v50.42/43/44: 단일 두뇌 갱신 → 소비자 동기화. 선순환 전파 단계.
+    //   드리프트 배너·결론 가드·뉴스 스트립·home Action Item(v43) + breadth/themes/briefing/options 페이지 렌더러(v44).
+    //   페이지 렌더러는 marketState.*Full을 읽기만(독립 재계산 제거) → 라이브 데이터 갱신 시 페이지 재진입 없이 동기화.
+    window.addEventListener('aio:marketStateUpdated', function(){
+      try {
+        if (window._aioApplyRegimeDriftMarkers) window._aioApplyRegimeDriftMarkers();
+        if (window._aioRefreshActionPlan) window._aioRefreshActionPlan();
+        if (window._aioRenderBreadthConsensus) window._aioRenderBreadthConsensus();
+        if (window._aioRenderThemesCycle) window._aioRenderThemesCycle();
+        if (window._aioRenderBriefingAction) window._aioRenderBriefingAction();
+        if (window._aioRenderOptionsRec) window._aioRenderOptionsRec();
+        window._aioRenderActivePageNewsStrip();
+      } catch(_){}
+    });
     setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} }, 1200);
     setTimeout(function(){ try { window._aioGuardEmptyVerdicts(); } catch(_){} }, 3000);
   }
@@ -15399,7 +15452,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.43';
+const APP_VERSION = 'v50.44';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -18769,7 +18822,10 @@ function _aioEvidenceStatus(statuses) {
   return 'pass';
 }
 
-window.AIO.getCritical10ContentEvidenceMatrix = function(opts) {
+// v50.44 [DEAD/제거] 이 v49.112 정의는 아래 v50.0(buildEvidenceStore 기반, ~L19767)에서 동일 이름으로 override돼
+//   런타임에서 호출되지 않는 dead 정의였다(이중정의 = '한쪽만 고쳐지는' 버그 클래스). canonical 이름 경쟁을 끊기 위해
+//   dead 이름(_deadV49112_*)으로 분리 — 19767이 getCritical10ContentEvidenceMatrix의 유일 정의가 됨. 본문은 무회귀 보존.
+window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
   opts = opts || {};
   var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
   var tolerancePct = opts.valueTolerancePct || 1.5;

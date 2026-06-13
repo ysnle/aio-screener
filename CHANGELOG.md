@@ -1,5 +1,42 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.44 - 단일 두뇌 소비자 전환 완성 (선순환 구조) + 안전한 중복 제거 (2026-06-13)
+
+**사용자: "남은 부분/영역 이어서 계속해줘. 진짜 근본적이고 구조적인 재배치/제거/추가/개편을 목적으로 작업하는 거야."**
+
+**진단**: v50.42가 단일 두뇌(`computeMarketState`/`marketState`/`aio:marketStateUpdated`)를, v50.43이 home Action Item + 채팅 헤더 전파를 만들었다. 그러나 페이지 레짐/판정 렌더러 4종은 여전히 단일 두뇌 밖에서 독립 재계산하고, `aio:pageShown`에만 구독돼 라이브 데이터 갱신 시 페이지 재진입 전까지 stale했다 — 선순환(refresh→두뇌→전파)의 마지막 미연결 구간.
+
+### Track A — 단일 두뇌 소비자 전환 (선순환 구조 완결)
+
+**A1 [추가] computeMarketState 정본 full 객체** (aio-core.js)
+- `breadthConsensusFull`: `diagnoseBreadthConsensus`를 breadth 페이지와 **동일 입력**(live `_breadth5`/`_breadth200`=20일선 우선 → DATA_SNAPSHOT 폴백 + mcclellan/weinstein/goldenCross 동일 신호)으로 1회 계산한 full 객체.
+- `cycleFull`: `getCycleFromMacro`의 full 객체(phase/inputs/rationale).
+- **잠복 버그 시정**: v50.42 computeMarketState가 `breadth.score`(diagnoseBreadthConsensus는 `.consensus` 반환 → `.score`는 undefined)를 참조해 riskLevel 시장폭 성분이 누락되고 `breadthScore`가 null이던 것을 `.consensus`로 시정.
+
+**A2 [재배치] 페이지 렌더러 4종을 순수 소비자로 전환**
+- `_aioRenderBreadthConsensus`→`marketState.breadthConsensusFull`, `_aioRenderThemesCycle`→`marketState.cycleFull`, `_aioRenderBriefingAction`→`marketState.actionPlan`, `_aioRenderOptionsRec`→`marketState.vix`/`actionPlan`.
+- 각각 marketState fresh(<15분)면 읽기, 아니면 기존 독립 compute 폴백(무회귀).
+
+**A3 [개편] `aio:marketStateUpdated` 구독 추가 — 선순환 전파 완결**
+- 4종 렌더러를 `aio:marketStateUpdated` 리스너에 추가(기존 `aio:pageShown` 유지) → 두뇌 갱신 시 페이지 재진입 없이 즉시 동기화. 라이브 데이터 변동이 모든 페이지 판정에 자동 반영.
+
+### Track B — 안전한 중복 제거 (구조적)
+- `getCritical10ContentEvidenceMatrix`가 aio-core.js 18822(구 v49.112)·19767(v50.0 buildEvidenceStore)에 **이중 정의**. 런타임 확인 결과 19767이 override → 18822는 호출되지 않는 **dead 정의**. canonical 이름 경쟁(한쪽만 고쳐지는 버그 클래스) 해소를 위해 18822를 `_deadV49112_*`로 **분리**(본문 보존·무회귀). 19767이 유일 정의가 됨.
+
+### 테스트
+- T817 신규: 정본 full 객체(breadthConsensusFull/cycleFull) + breadthScore 수치화 + 페이지 렌더러 4종 marketState 소스 분기 + breadth sink 정합 + audit 이중정의 해소.
+
+### 라이브 검증 (fresh 프리뷰)
+- `computeMarketState()`에 breadthConsensusFull(verdict "강세 우위", consensus 0.40)·cycleFull(phase "Mid Cycle (Expansion)")·breadthScore 0.40 존재.
+- breadth sink "강세 우위 (consensus 0.40)" = marketState, themes sink "Mid Cycle (Expansion)" = marketState 일치.
+- canonical getCritical10ContentEvidenceMatrix는 buildEvidenceStore 유일 정의로 정상 실행. 콘솔 JS 에러 0.
+
+### 정직 보류 (DEFERRED-BLOCKS §2)
+- breadth 차트 통폐합: doc(`_aioBreadthDetailToggle`)/code 어긋남 + 46%/52% 불일치 → 별도 조사 패스.
+- WO-14 게이트 67건·WO-12 문서 다이어트: 분량 큼.
+
+**R1 7곳 + 캐시버스터 5곳.**
+
 ## v50.43 - 미뤄둔 작업 정리 + marketState 소비자 구독 이전(선순환 전파) (2026-06-13)
 
 **사용자: "Breadth 차트 통합&압축 같은 별도의 세션이 필요하다고 넘긴 작업들이나 남아 있는/못 했던 작업들 모두 정리해줘. 별도의 세션이 필요하다는데 여기 세션과 무슨 차이가 있길래? 여기서 진행하면 안 되는 거야?"**
