@@ -1,5 +1,5 @@
 {
-  "version": "v50.42",
-  "built": "2026-06-17T15:00:00+09:00",
-  "note": "v50.42 Market State Core(단일 두뇌) — 유기적 통합·선순환 구조 개편. 진단: 레짐/사이클/시장폭/리스크/액션을 _aioRegimeNow·getCycleFromMacro·diagnoseBreadthConsensus·AIO_ACTION_RULES 등으로 84곳이 각자 독립 재계산 — 단일 상태 오케스트레이터 부재(드리프트 근원). 근본 해법: AIO.computeMarketState()가 기존 compute 함수 + 뉴스 dominantTopic을 1회 합성 → AIO.marketState 캐시 → aio:marketStateUpdated 버스 발행 → 모든 surface가 같은 상태를 구독(재작성 금지·오케스트레이션 reuse). 트리거: aio:liveQuotes/serverDataLoaded/newsUpdated/pageShown/부팅(2s throttle). 전파: marketStateUpdated 구독자가 드리프트 배너·결론 가드·크로스-페이지 뉴스 스트립 동기화. 선순환 루프 형식화: AIO.getMarketStateCoherenceAudit()(신선도+필드충실+크로스-페이지 드리프트) + getConnectiveLayerAudit를 getAutoOpsReadiness에 통합 — refresh→computeMarketState→전파→audit→갭 시 refresh. T815. 기존 compute 함수/페이지 DOM 보존(회귀 통제). R1 7곳+캐시버스터 5곳. 광범위 소비자 구독 이전·가시적 페이지 재배치는 차기 단계(운영 앱 안전 레일)."
+  "version": "v50.43",
+  "built": "2026-06-17T16:30:00+09:00",
+  "note": "v50.43 미뤄둔 작업 정리 + marketState 소비자 구독 이전(선순환 전파) + 블록 현황 문서화. 사용자 \"별도 세션 필요라는 게 여기와 무슨 차이? 여기서 진행하면 안 되나?\" → 정직: 기술적 차이 없음(컨텍스트 예산·회귀 통제의 완곡어). 진짜 블록은 데이터·시간·운영자 결정 4종뿐. (C4) _context/DEFERRED-BLOCKS.md 신설 — 진짜 블록 6건(KR정적/데이터미확보/jensen/차트누적 history/키서버화/cron) 사유+해제조건 + 진행가능 항목 분리. (C2) v50.42 단일 두뇌(marketState)를 실제 소비자에 전파: home Action Item(_aioRefreshActionPlan)을 marketState.actionPlan 단일 출처 우선으로 업그레이드 + aio-data.js refreshHomeDashboard의 중복 ACTION_RULES 블록을 이 함수 호출로 대체(dedup — 한쪽만 고쳐지는 버그 클래스 제거) + aio:marketStateUpdated 구독에 action-item 재렌더 추가 + 채팅 시장환경 헤더 2경로(_mktHeader·_ccHeader)를 marketState 레짐/심리 라벨 우선으로 라우팅(앱 전체 일관). 모두 폴백 내장(무회귀). T816. 정직 보류(추가 조사·별도 패스): C1B breadth 차트 통합·압축(_aioBreadthDetailToggle이 현 코드에 부재 — 문서/코드 어긋남, 재조사 필요)·C3 게이트 67건 소진/audit 통폐합/문서 다이어트(분량 큼). DEFERRED-BLOCKS §2에 기록. R1 7곳+캐시버스터 5곳."
 }

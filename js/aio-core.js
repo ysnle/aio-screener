@@ -1276,13 +1276,25 @@ window._aioFetchLiveQuotes = function() {
 window._aioRefreshActionPlan = function() {
   try {
     if (!window.AIO_ACTION_RULES || !window.AIO_ACTION_RULES.getActionPlan) return;
-    var ld = window._liveData || {};
-    var vixVal = (ld['^VIX'] && ld['^VIX'].price != null) ? ld['^VIX'].price
-                 : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-    var fgEl = document.getElementById('fg-score-big');
-    var fgVal = fgEl ? parseInt(fgEl.textContent) : NaN;
-    var breadth50Val = window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.breadth50sma : NaN;
-    var plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal, breadth50: breadth50Val });
+    // v50.43: 단일 두뇌(AIO.marketState) 우선 — action-item이 conclusion-bar/trading 카드와 같은 상태를 구독해 정합 보장.
+    //   marketState.actionPlan은 ACTION_RULES와 동일 입력(vix/fg/breadth50)으로 1회 합성됨 → 분산 재계산 제거.
+    //   marketState 미계산/구버전이면 기존 독립 compute로 폴백(무회귀).
+    var ms = window.AIO && window.AIO.marketState;
+    var fresh = ms && ms.actionPlan && (Date.now() - (ms.ts || 0) < 15 * 60 * 1000);
+    var vixVal, fgVal, plan;
+    if (fresh) {
+      vixVal = (ms.vix != null) ? ms.vix : NaN;
+      fgVal = (ms.fg != null) ? ms.fg : NaN;
+      plan = ms.actionPlan;
+    } else {
+      var ld = window._liveData || {};
+      vixVal = (ld['^VIX'] && ld['^VIX'].price != null) ? ld['^VIX'].price
+                   : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
+      var fgEl = document.getElementById('fg-score-big');
+      fgVal = fgEl ? parseInt(fgEl.textContent) : NaN;
+      var breadth50Val = window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.breadth50sma : NaN;
+      plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal, breadth50: breadth50Val });
+    }
     var posEl = document.getElementById('home-action-position');
     var sentEl = document.getElementById('home-action-sentiment');
     var brEl = document.getElementById('home-action-breadth');
@@ -2748,8 +2760,8 @@ if (typeof document !== 'undefined') {
     }
     window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioScheduleMarketState(100); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} });
     window.addEventListener('aio:newsUpdated', function(){ try { window._aioScheduleMarketState(100); window._aioRenderActivePageNewsStrip(); } catch(_){} });  // v50.41/42: 뉴스 갱신 → marketState + 스트립
-    // v50.42: 단일 두뇌 갱신 → 활성 페이지 surface 동기화(드리프트 배너·결론 가드·뉴스 스트립). 선순환 루프의 전파 단계.
-    window.addEventListener('aio:marketStateUpdated', function(){ try { if (window._aioApplyRegimeDriftMarkers) window._aioApplyRegimeDriftMarkers(); window._aioRenderActivePageNewsStrip(); } catch(_){} });
+    // v50.42/43: 단일 두뇌 갱신 → 소비자 동기화(드리프트 배너·결론 가드·뉴스 스트립·home Action Item). 선순환 전파 단계.
+    window.addEventListener('aio:marketStateUpdated', function(){ try { if (window._aioApplyRegimeDriftMarkers) window._aioApplyRegimeDriftMarkers(); if (window._aioRefreshActionPlan) window._aioRefreshActionPlan(); window._aioRenderActivePageNewsStrip(); } catch(_){} });
     setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} }, 1200);
     setTimeout(function(){ try { window._aioGuardEmptyVerdicts(); } catch(_){} }, 3000);
   }
@@ -15387,7 +15399,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.42';
+const APP_VERSION = 'v50.43';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

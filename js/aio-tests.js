@@ -6010,6 +6010,25 @@
       t815detail = 'compute=' + hasCompute + ' schedule=' + hasSchedule + ' fired=' + fired815 + ' shape=' + stateShapeOk + ' cache=' + cacheOk815 + ' coherence=' + (coh815 ? coh815.status : 'na') + ' autoOps=' + wiredAutoOps;
     } catch(e) { t815detail = 'ERR:' + e.message; }
     _assert('T815 v5042_market_state_core: 단일 두뇌 합성+캐시+버스+coherence audit+AutoOps 통합', t815ok, t815detail);
+
+    // ─── v50.43 marketState 소비자 구독 이전 (선순환 전파) ───
+    // T816: home Action Item이 marketState.actionPlan 단일 출처를 읽는지(_aioRefreshActionPlan) + dedup(중복 ACTION_RULES 블록 제거)
+    var t816ok = false, t816detail = '';
+    try {
+      var hasRefreshAction = typeof window._aioRefreshActionPlan === 'function';
+      // marketState를 강제 갱신 후 action plan이 그 plan을 반영하는지(throw 없이 실행 + 소스 단일).
+      var ms816 = (window.AIO && typeof window.AIO.computeMarketState === 'function') ? window.AIO.computeMarketState() : null;
+      var ranOk = false;
+      try { if (hasRefreshAction) { window._aioRefreshActionPlan(); ranOk = true; } } catch(_r) { ranOk = false; }
+      // marketState.actionPlan이 존재하면 단일 두뇌 경로가 활성(action-item이 같은 plan 구독)
+      var planFromBrain = !!(ms816 && ms816.actionPlan && ms816.actionPlan.position);
+      // 함수 소스에 marketState 우선 분기가 박혀 있는지(dedup/단일출처 회귀 가드)
+      var srcHasBrainPref = hasRefreshAction && /marketState/.test(window._aioRefreshActionPlan.toString());
+      // marketStateUpdated 구독자가 action plan 재렌더를 포함하는지 간접 확인은 생략(런타임 비결정). 함수 정의 + 실행 + 소스 분기로 충분.
+      t816ok = hasRefreshAction && ranOk && planFromBrain && srcHasBrainPref;
+      t816detail = 'fn=' + hasRefreshAction + ' ran=' + ranOk + ' planFromBrain=' + planFromBrain + ' brainPref=' + srcHasBrainPref;
+    } catch(e) { t816detail = 'ERR:' + e.message; }
+    _assert('T816 v5043_marketstate_consumer: home Action Item이 marketState.actionPlan 단일 출처 구독(+소스 분기)', t816ok, t816detail);
   }
 
   window.AIO = window.AIO || {};

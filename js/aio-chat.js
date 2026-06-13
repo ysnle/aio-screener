@@ -2430,11 +2430,13 @@ async function _fetchTickerDataForChat(tickers, opts) {
     var _ccHeader = '';
     try {
       var _ccS = (typeof _liveSnap === 'function') ? _liveSnap() : null;
-      if (_ccS) {
-        var _ccVix = _ccS.vix || '—';
-        var _ccFg = _ccS.fg != null ? _ccS.fg : '—';
-        var _ccFgL = _ccFg === '—' ? '—' : (_ccFg <= 25 ? '극단 공포' : _ccFg <= 45 ? '공포' : _ccFg <= 55 ? '중립' : _ccFg <= 75 ? '탐욕' : '극단 탐욕');
-        _ccHeader = '【현재 시장 환경】 VIX ' + _ccVix + ' · F&G ' + _ccFg + ' (' + _ccFgL + ') · 트레이딩 스코어 ' + (_ccS.score != null ? _ccS.score : '—') + '/100\n\n';
+      // v50.43: cache-hit 경로도 marketState 단일 두뇌 우선(레짐/심리 라벨 일관) + _liveSnap 폴백.
+      var _ccM = (window.AIO && window.AIO.marketState && (Date.now() - (window.AIO.marketState.ts || 0) < 15 * 60 * 1000)) ? window.AIO.marketState : null;
+      if (_ccS || _ccM) {
+        var _ccVix = (_ccM && _ccM.vix != null) ? _ccM.vix : ((_ccS && _ccS.vix) || '—');
+        var _ccFg = (_ccM && _ccM.fg != null) ? _ccM.fg : ((_ccS && _ccS.fg != null) ? _ccS.fg : '—');
+        var _ccFgL = (_ccM && _ccM.fgZoneLabel) ? _ccM.fgZoneLabel : (_ccFg === '—' ? '—' : (_ccFg <= 25 ? '극단 공포' : _ccFg <= 45 ? '공포' : _ccFg <= 55 ? '중립' : _ccFg <= 75 ? '탐욕' : '극단 탐욕'));
+        _ccHeader = '【현재 시장 환경】 VIX ' + _ccVix + ' · F&G ' + _ccFg + ' (' + _ccFgL + ') · 트레이딩 스코어 ' + (_ccS && _ccS.score != null ? _ccS.score : '—') + '/100\n\n';
       }
     } catch(_) {}
     return '\n\n' + _ccHeader + '【사용자가 물어본 종목 실시간 데이터 (cache hit · 5분 이내)】\n' + cachedBlocks.join('\n') + '\n\n⚠️ ABSOLUTE RULES (R122): 종목 답변은 위 "현재 시장 환경" 인용으로 시작. 데이터는 5분 이내 캐시이나 시세 자체는 실시간 비교 권장.\n';
@@ -2862,14 +2864,17 @@ async function _fetchTickerDataForChat(tickers, opts) {
   var _mktHeader = '';
   try {
     var _s = (typeof _liveSnap === 'function') ? _liveSnap() : null;
-    if (_s) {
-      var _vix = _s.vix || '—';
-      var _fg = _s.fg != null ? _s.fg : '—';
-      var _spx = _s.spx || '—';
-      var _tnx = _s.tnx || '—';
-      var _score = _s.score != null ? _s.score : '—';
-      var _regime = _s.regime || (_vix !== '—' && Number(_vix) >= 25 ? '경계' : _vix !== '—' && Number(_vix) >= 20 ? '주의' : '안정');
-      var _fgLabel = _fg === '—' ? '—' : (_fg <= 25 ? '극단 공포' : _fg <= 45 ? '공포' : _fg <= 55 ? '중립' : _fg <= 75 ? '탐욕' : '극단 탐욕');
+    // v50.43: 단일 두뇌(AIO.marketState) 우선 — 채팅 시장환경 레짐/심리 라벨을 앱 전체(home/페이지 배너)와 동일 출처로 통일.
+    //   marketState 미계산/구버전이면 _liveSnap 기반 독립 계산으로 폴백(무회귀).
+    var _ms = (window.AIO && window.AIO.marketState && (Date.now() - (window.AIO.marketState.ts || 0) < 15 * 60 * 1000)) ? window.AIO.marketState : null;
+    if (_s || _ms) {
+      var _vix = (_ms && _ms.vix != null) ? _ms.vix : ((_s && _s.vix) || '—');
+      var _fg = (_ms && _ms.fg != null) ? _ms.fg : ((_s && _s.fg != null) ? _s.fg : '—');
+      var _spx = (_s && _s.spx) || (_ms && _ms.spx) || '—';
+      var _tnx = (_s && _s.tnx) || '—';
+      var _score = (_s && _s.score != null) ? _s.score : '—';
+      var _regime = (_ms && _ms.vixBandLabel) ? _ms.vixBandLabel : ((_s && _s.regime) || (_vix !== '—' && Number(_vix) >= 25 ? '경계' : _vix !== '—' && Number(_vix) >= 20 ? '주의' : '안정'));
+      var _fgLabel = (_ms && _ms.fgZoneLabel) ? _ms.fgZoneLabel : (_fg === '—' ? '—' : (_fg <= 25 ? '극단 공포' : _fg <= 45 ? '공포' : _fg <= 55 ? '중립' : _fg <= 75 ? '탐욕' : '극단 탐욕'));
       // v49.68 R128 시각 단서 표준 — VIX/F&G 이모지 자동 적용
       var _vixEmoji = _vix === '—' ? '⚪' : Number(_vix) >= 25 ? '🔴' : Number(_vix) >= 20 ? '🟡' : '🟢';
       var _fgEmoji = _fg === '—' ? '⚪' : (_fg <= 25 || _fg >= 75) ? '🔴' : (_fg <= 45 || _fg >= 55) ? '🟡' : '🟢';

@@ -13385,22 +13385,10 @@ function refreshHomeDashboard() {
     };
     if (regimeExplEl) regimeExplEl.textContent = regimeDesc + (_regimeRef[regime] || '');
 
-    // v49.28 E1 적용: ACTION_RULES 호출로 home Action Item 카드 갱신
-    // v49.44 P311 hotfix: 'var ld = window._liveData || {}' 삭제 — refreshHomeDashboard top L10989의 'const ld'와 hoist 충돌(SyntaxError: Identifier 'ld' has already been declared) → 전체 aio-data.js parse 실패 → home 데이터 마비. outer const ld 그대로 사용.
-    try {
-      if (window.AIO_ACTION_RULES && window.AIO_ACTION_RULES.getActionPlan) {
-        var vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-        var fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
-        var breadth50Val = window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.breadth50sma : NaN;
-        var plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal, breadth50: breadth50Val });
-        var posEl = document.getElementById('home-action-position');
-        var sentActEl = document.getElementById('home-action-sentiment');
-        var brActEl = document.getElementById('home-action-breadth');
-        if (posEl && plan.position) posEl.textContent = '💼 포지션 사이즈: ' + plan.position.sizePct + '% — ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
-        if (sentActEl && plan.sentiment) sentActEl.textContent = '🧠 센티먼트 행동: ' + plan.sentiment.action + ' — ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
-        if (brActEl && plan.actions && plan.actions.length > 2) brActEl.textContent = '📊 ' + plan.actions[plan.actions.length - 1];
-      }
-    } catch(actErr) { /* Action Item 실패해도 home 렌더 차단 X */ }
+    // v49.28 E1 → v50.43: home Action Item 갱신을 단일 경로(_aioRefreshActionPlan)로 통합(dedup).
+    //   이전엔 동일 ACTION_RULES 로직이 여기 + aio-core.js _aioRefreshActionPlan 두 곳에 중복. 한쪽만 고쳐지는 버그 클래스 제거.
+    //   _aioRefreshActionPlan은 AIO.marketState.actionPlan(단일 두뇌) 우선 + 폴백 내장. Action Item 실패해도 home 렌더 차단 X.
+    try { if (typeof window._aioRefreshActionPlan === 'function') window._aioRefreshActionPlan(); } catch(actErr) {}
 
     // v34.5: 홈 상단 리스크 뱃지 동적 업데이트
     var riskBadge = document.getElementById('home-risk-regime-badge');

@@ -1,5 +1,30 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.43 - 미뤄둔 작업 정리 + marketState 소비자 구독 이전(선순환 전파) (2026-06-13)
+
+**사용자: "Breadth 차트 통합&압축 같은 별도의 세션이 필요하다고 넘긴 작업들이나 남아 있는/못 했던 작업들 모두 정리해줘. 별도의 세션이 필요하다는데 여기 세션과 무슨 차이가 있길래? 여기서 진행하면 안 되는 거야?"**
+
+**정직한 답 (DEFERRED-BLOCKS.md §0)**: 기술적으로 이 세션과 다른 세션은 **차이 없음** — 같은 코드·도구·권한. "별도 세션"은 (1) 세션 컨텍스트 예산 (2) 라이브 앱 회귀 통제(단계별 검증)의 완곡어였을 뿐. 진짜 막힌 것은 **데이터·시간·운영자 결정** 4종뿐.
+
+### C4 — 블록 현황 문서화 [코드 변경 0]
+- 신규 `_context/DEFERRED-BLOCKS.md`: 진짜 블록 6건(KR 정적 스냅샷·미확보 시세 필드·jensen 84일·WO-7 차트 history 누적·WO-10 키 서버화·cron 발화 검증)을 **블록 사유 + 해제 조건**과 함께 기록 + 진행 가능 항목(WO-12~14·페이지 구조)을 명확히 분리. "별도 세션" 완곡어 해소.
+
+### C2 — marketState 소비자 구독 이전 (v50.42 단일 두뇌의 실제 전파)
+v50.42에서 `AIO.computeMarketState()`/`marketState`/`aio:marketStateUpdated`는 구축됐으나 소비자는 각자 재계산 中이었음. 고가치 소비자부터 단일 두뇌 구독으로 이전:
+- **home Action Item** (`_aioRefreshActionPlan`, aio-core.js): `AIO.marketState.actionPlan`을 단일 출처로 우선(15분 신선도 가드) + 미계산/구버전 시 기존 독립 compute 폴백(무회귀).
+- **dedup**: `refreshHomeDashboard`(aio-data.js:13390~)의 동일 ACTION_RULES 인라인 블록을 `_aioRefreshActionPlan()` 호출로 대체 — 같은 로직이 두 곳에 중복돼 한쪽만 고쳐지던 버그 클래스(ATH·verdict 부호와 동족) 제거.
+- **전파 구독**: `aio:marketStateUpdated` 리스너에 action-item 재렌더 추가 → 단일 두뇌 갱신 시 액션 동기화.
+- **채팅 시장환경 헤더 2경로** (`_mktHeader` 2862·cache-hit `_ccHeader` 2430, aio-chat.js): 레짐/심리 라벨을 `marketState.vixBandLabel`/`fgZoneLabel` 우선으로 라우팅 → 채팅 헤더가 home/페이지 배너와 동일 출처(앱 전체 일관). `_liveSnap` 폴백 유지.
+
+### 테스트
+- T816 신규: home Action Item이 marketState.actionPlan 단일 출처를 구독하는지(함수 정의 + 실행 + 소스에 marketState 우선 분기) 검증.
+
+### 정직 보류 (추가 조사·별도 패스 — DEFERRED-BLOCKS §2)
+- **C1B breadth 차트 통합·압축**: 문서(v50.34)가 참조하는 `_aioBreadthDetailToggle`이 현 코드에 부재 — 문서/코드 어긋남으로 재조사 필요. 차트 surgery는 회귀 위험 커 별도 검증 패스 권장.
+- **C3 품질/위생**: 게이트 블록 67건 소진(WO-14)·audit 통폐합(WO-13)·문서 다이어트(WO-12) — 분량 큼.
+
+**R1 7곳 + 캐시버스터 5곳.**
+
 ## v50.42 - Market State Core: 단일 두뇌 기반 유기적 통합·선순환 구조 개편 (2026-06-13)
 
 **사용자: "각 페이지/레이어/시스템끼리 단순 연결이 아닌 유기적으로 통합하고, 재배치하고, 추가/제거하고, 근본적/구조적으로 개편까지 하면서 선순환 구조를 만들어라." (범위 선택: 전체 구조 오버홀 — 적극적)**
