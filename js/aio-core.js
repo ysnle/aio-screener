@@ -2562,6 +2562,78 @@ if (typeof document !== 'undefined') {
     } catch(_){}
   };
 
+  // ════════════════════════════════════════════════════════════════
+  // v50.42 Market State Core — 선순환의 단일 두뇌. 기존 compute 함수(_aioRegimeNow·getCycleFromMacro·
+  //   diagnoseBreadthConsensus·AIO_ACTION_RULES) + 뉴스 dominantTopic을 1회 합성 → AIO.marketState 캐시 +
+  //   aio:marketStateUpdated 버스 발행. 모든 surface가 각자 재계산 대신 이 단일 상태를 구독(드리프트 제거).
+  //   IIFE 내부 헬퍼(_num/_vixBand/_fgZone/_vixBandLabel/_fgZoneLabel/_aioRegimeNow/_aioRegimeDrift) 재사용.
+  // ════════════════════════════════════════════════════════════════
+  window.AIO = window.AIO || {};
+  window.AIO.computeMarketState = function(){
+    try {
+      // 로컬 헬퍼(이 함수는 별도 IIFE 소속이라 첫 IIFE의 _vixBand 등에 클로저 접근 불가 — 임계값 1:1 동일하게 복제).
+      var _num = function(v){ return (typeof v === 'number' && isFinite(v)) ? v : null; };
+      var _vixBand = function(v){ if (v == null) return null; return v < 18 ? 0 : v < 25 ? 1 : v < 32 ? 2 : 3; };
+      var _vixBandLabel = function(b){ return ['안정','보통','경계','패닉'][b] || '?'; };
+      var _fgZone = function(v){ if (v == null) return null; return v < 25 ? 0 : v < 45 ? 1 : v < 55 ? 2 : v < 75 ? 3 : 4; };
+      var _fgZoneLabel = function(z){ return ['극단공포','공포','중립','탐욕','극단탐욕'][z] || '?'; };
+      var A = window.AIO || {}, ds = window.DATA_SNAPSHOT || {}, ld = window._liveData || {};
+      var reg = (typeof window._aioRegimeNow === 'function') ? window._aioRegimeNow() : {};
+      var vix = _num(reg.vix), fg = _num(reg.fg), spx = _num(reg.spx);
+      var vb = _vixBand(vix), fz = _fgZone(fg);
+      var sma5 = _num(ds.breadth5sma), sma20 = _num(ds.breadth20sma), sma50 = _num(ds.breadth50sma);
+      var breadth = (typeof A.diagnoseBreadthConsensus === 'function') ? A.diagnoseBreadthConsensus({ sma5: sma5, sma20: sma20, sma50: sma50 }) : null;
+      var tnx = (ld['^TNX'] && _num(ld['^TNX'].price)); var twoY = _num(ds.tnx2y);
+      var spread = (tnx != null && twoY != null) ? (tnx - twoY) : null;
+      var spxTrend = (ld['^GSPC'] && ld['^GSPC'].pct != null) ? (ld['^GSPC'].pct >= 0 ? 'up' : 'down') : null;
+      var cycle = (typeof A.getCycleFromMacro === 'function') ? A.getCycleFromMacro({ vix: vix, breadth50: sma50, yield2s10s: spread, spxTrend: spxTrend }) : null;
+      var action = (window.AIO_ACTION_RULES && typeof window.AIO_ACTION_RULES.getActionPlan === 'function') ? window.AIO_ACTION_RULES.getActionPlan({ vix: vix, fg: fg, breadth50: sma50 }) : null;
+      // 종합 리스크 레벨: VIX 밴드 + F&G 극단 + 시장폭
+      var rs = 0, rn = 0;
+      if (vb != null) { rs += vb; rn++; }
+      if (fz != null) { rs += (fz <= 0 ? 3 : fz === 1 ? 2 : fz === 2 ? 1 : fz === 3 ? 1 : 2); rn++; }
+      if (breadth && breadth.score != null) { rs += (breadth.score < -0.1 ? 2 : breadth.score < 0.1 ? 1 : 0); rn++; }
+      var ra = rn ? rs / rn : null;
+      var riskLevel = ra == null ? 'unknown' : ra >= 2.2 ? 'high' : ra >= 1.2 ? 'elevated' : ra >= 0.6 ? 'moderate' : 'low';
+      // 주도 뉴스 토픽(뉴스캐시 빈도)
+      var dominantTopic = null;
+      try {
+        var items = window._allNewsItems || window.newsCache || [];
+        if (items.length) {
+          var counts = {};
+          items.slice(0, 120).forEach(function(it){ var t = it && it.topic; if (!t || t === 'general' || t === 'analyst') return; counts[t] = (counts[t] || 0) + 1; });
+          var best = null, bn = 0; Object.keys(counts).forEach(function(k){ if (counts[k] > bn) { bn = counts[k]; best = k; } });
+          dominantTopic = best;
+        }
+      } catch(_){}
+      var state = {
+        spx: spx, vix: vix, fg: fg,
+        vixBand: vb, vixBandLabel: _vixBandLabel(vb), fgZone: fz, fgZoneLabel: _fgZoneLabel(fz),
+        cyclePhase: cycle ? cycle.phase : null,
+        breadthConsensus: breadth ? breadth.verdict : null, breadthScore: breadth ? breadth.score : null,
+        riskLevel: riskLevel,
+        dominantTopic: dominantTopic,
+        actionPlan: action,
+        driftFromSnapshot: (typeof window._aioRegimeDrift === 'function') ? window._aioRegimeDrift().severity : null,
+        ts: Date.now()
+      };
+      window.AIO.marketState = state;
+      try { window.dispatchEvent(new CustomEvent('aio:marketStateUpdated', { detail: state })); } catch(_){}
+      return state;
+    } catch(e) { return window.AIO.marketState || null; }
+  };
+  // throttle: 같은 틱 다중 트리거 → 2초 1회 (중복 재계산 제거)
+  var _msThrottle = 0, _msTimer = null;
+  window._aioScheduleMarketState = function(delay){
+    var now = Date.now();
+    if (now - _msThrottle < 2000) {
+      if (!_msTimer) _msTimer = setTimeout(function(){ _msTimer = null; _msThrottle = Date.now(); try { window.AIO.computeMarketState(); } catch(_){} }, 2000);
+      return;
+    }
+    _msThrottle = now;
+    setTimeout(function(){ try { window.AIO.computeMarketState(); } catch(_){} }, delay || 0);
+  };
+
   // v50.41 선순환 연결 계층: 분석 페이지에 토픽 필터 뉴스 스트립 (같은 뉴스캐시 → 다수 surface, 사일로 해소).
   //   buildNewsSurfaceModel(pageId, _allNewsItems) 재사용(계약의 topics 필터). insight-box 직후 앵커, 멱등.
   var _PAGE_NEWS_STRIP_PAGES = ['macro','fxbond','technical','themes','sentiment','signal','fundamental','breadth'];
@@ -2637,6 +2709,29 @@ if (typeof document !== 'undefined') {
     };
   };
 
+  // v50.42 선순환 루프 형식화 audit — 단일 두뇌(marketState) 신선도·충실도 + 크로스-페이지 드리프트.
+  window.AIO.getMarketStateCoherenceAudit = function(){
+    var ms = window.AIO.marketState;
+    if (!ms) { try { ms = window.AIO.computeMarketState(); } catch(_){} }
+    if (!ms) return { status: 'warn', present: false, note: 'marketState 미계산' };
+    var ageMs = Date.now() - (ms.ts || 0);
+    var stale = ageMs > 15 * 60 * 1000;
+    var drift = null;
+    try { drift = window.AIO.getCrossPageIndicatorConsistencyAudit ? window.AIO.getCrossPageIndicatorConsistencyAudit() : null; } catch(_){}
+    var fields = ['vix','fg','vixBandLabel','cyclePhase','breadthConsensus','riskLevel'];
+    var populated = fields.filter(function(f){ return ms[f] != null; }).length;
+    var driftCount = drift ? (drift.issueCount != null ? drift.issueCount : (drift.issues || []).length) : null;
+    return {
+      status: (!stale && populated >= 4) ? 'ok' : 'warn',
+      present: true, ageSec: Math.round(ageMs / 1000), stale: stale,
+      populatedFields: populated + '/' + fields.length,
+      state: { vix: ms.vix, fg: ms.fg, regime: ms.vixBandLabel, cycle: ms.cyclePhase, breadth: ms.breadthConsensus, risk: ms.riskLevel, dominantTopic: ms.dominantTopic },
+      crossPageDrift: driftCount,
+      note: '단일 두뇌(marketState) 신선도 + 필드 충실 + 크로스-페이지 드리프트. refresh→computeMarketState→전파→audit 선순환 루프.',
+      generatedAt: new Date().toISOString()
+    };
+  };
+
   if (typeof window !== 'undefined') {
     if (window._aioPageBus && window._aioPageBus.register) {
       window._aioPageBus.register('core-page-news-strip', 'aio:pageShown', function(e){ var pid = e && e.detail; if (pid) setTimeout(function(){ window._aioRenderPageNewsStrip(pid); }, 150); });
@@ -2647,10 +2742,15 @@ if (typeof document !== 'undefined') {
       });
       window._aioPageBus.register('core-verdict-guard-page', 'aio:pageShown', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
       window._aioPageBus.register('core-verdict-guard-live', 'aio:liveQuotes', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
+      // v50.42: Market State Core — 시세/뉴스/페이지 진입 시 단일 상태 재계산(throttle 2s)
+      window._aioPageBus.register('core-market-state-live', 'aio:liveQuotes', function(){ window._aioScheduleMarketState(300); });
+      window._aioPageBus.register('core-market-state-page', 'aio:pageShown', function(){ window._aioScheduleMarketState(200); });
     }
-    window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} });
-    window.addEventListener('aio:newsUpdated', function(){ try { window._aioRenderActivePageNewsStrip(); } catch(_){} });  // v50.41: 뉴스 갱신 시 활성 페이지 스트립 재렌더
-    setTimeout(function(){ try { window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} }, 1200);
+    window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioScheduleMarketState(100); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} });
+    window.addEventListener('aio:newsUpdated', function(){ try { window._aioScheduleMarketState(100); window._aioRenderActivePageNewsStrip(); } catch(_){} });  // v50.41/42: 뉴스 갱신 → marketState + 스트립
+    // v50.42: 단일 두뇌 갱신 → 활성 페이지 surface 동기화(드리프트 배너·결론 가드·뉴스 스트립). 선순환 루프의 전파 단계.
+    window.addEventListener('aio:marketStateUpdated', function(){ try { if (window._aioApplyRegimeDriftMarkers) window._aioApplyRegimeDriftMarkers(); window._aioRenderActivePageNewsStrip(); } catch(_){} });
+    setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} }, 1200);
     setTimeout(function(){ try { window._aioGuardEmptyVerdicts(); } catch(_){} }, 3000);
   }
 })();
@@ -10736,6 +10836,9 @@ window.AIO.getAutoOpsReadiness = function() {
   // v50.16 근본 회귀 방지: 시나리오(scenarios+signalShortTerm) + 이벤트 타임라인 stale 자동 감지 (이전 orphan/미커버 갭 차단)
   var scenarioFreshness = window.AIO.getScenarioFreshnessAudit ? window.AIO.getScenarioFreshnessAudit() : null;
   var eventTimelineStaleness = window.AIO.getEventTimelineStalenessAudit ? window.AIO.getEventTimelineStalenessAudit() : null;
+  // v50.42: 선순환 — 단일 두뇌(marketState) 신선도/충실 + 크로스-페이지 연결(뉴스) 형식화
+  var marketStateCoherence = window.AIO.getMarketStateCoherenceAudit ? window.AIO.getMarketStateCoherenceAudit() : null;
+  var connectiveLayer = window.AIO.getConnectiveLayerAudit ? window.AIO.getConnectiveLayerAudit() : null;
   var issues = [];
   if (visibleDevMarker && visibleDevMarker.violationCount) issues.push(visibleDevMarker.violationCount + ' visible developer/version marker(s) [v50.14/R206]: ' + visibleDevMarker.violations.slice(0, 4).map(function(v){ return v.pageId + ':' + v.marker; }).join(', '));
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
@@ -10790,6 +10893,9 @@ window.AIO.getAutoOpsReadiness = function() {
   // v50.25/WO-5: 정적 내러티브 레짐 드리프트 (작성 시점 ↔ 현재 시장 레짐 급변 → 정적 분석 텍스트 강등)
   var narrativeRegimeDrift = window.AIO.getNarrativeRegimeDriftAudit ? window.AIO.getNarrativeRegimeDriftAudit() : null;
   if (narrativeRegimeDrift && narrativeRegimeDrift.severity === 'severe') issues.push('정적 내러티브 레짐 드리프트(severe) [v50.25/WO-5]: ' + (narrativeRegimeDrift.reasons || []).join(' · '));
+  // v50.42: marketState 단일 두뇌 신선도 + 크로스-페이지 연결
+  if (marketStateCoherence && marketStateCoherence.status !== 'ok') issues.push('marketState coherence: ' + marketStateCoherence.status + (marketStateCoherence.stale ? ' (stale ' + marketStateCoherence.ageSec + 's)' : '') + ' [v50.42/MarketStateCore]');
+  if (connectiveLayer && connectiveLayer.status && connectiveLayer.status !== 'ok') issues.push('connective layer: ' + connectiveLayer.status + ' [v50.41/42]');
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -10852,6 +10958,9 @@ window.AIO.getAutoOpsReadiness = function() {
       applyMarketCurrentnessGuard: 'AIO.applyMarketCurrentnessGuard()',
       marketRegime: 'AIO.getCurrentMarketRegime()',
       krMarketTemperature: 'AIO.getKrMarketTemperature()',
+      marketState: 'AIO.computeMarketState()',
+      marketStateCoherence: 'AIO.getMarketStateCoherenceAudit()',
+      connectiveLayer: 'AIO.getConnectiveLayerAudit()',
       deploymentGate: 'AIO.getDeploymentGateAudit({ strict: true })'
     },
     freshness: freshness,
@@ -10895,6 +11004,8 @@ window.AIO.getAutoOpsReadiness = function() {
     fullSurfaceAudit: fullSurfaceAudit,
     deepReviewAudit: deepReviewAudit,
     fourthFifthPass: fourthFifthPass,
+    marketStateCoherence: marketStateCoherence,
+    connectiveLayer: connectiveLayer,
     generatedAt: new Date().toISOString()
   };
 };
@@ -15276,7 +15387,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.41';
+const APP_VERSION = 'v50.42';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

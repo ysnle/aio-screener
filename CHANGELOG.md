@@ -1,5 +1,31 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.42 - Market State Core: 단일 두뇌 기반 유기적 통합·선순환 구조 개편 (2026-06-13)
+
+**사용자: "각 페이지/레이어/시스템끼리 단순 연결이 아닌 유기적으로 통합하고, 재배치하고, 추가/제거하고, 근본적/구조적으로 개편까지 하면서 선순환 구조를 만들어라." (범위 선택: 전체 구조 오버홀 — 적극적)**
+
+**진단(코드 실측)**: 레짐/사이클/시장폭/리스크/액션 판정이 `_aioRegimeNow`·`getCycleFromMacro`·`diagnoseBreadthConsensus`·`AIO_ACTION_RULES`로 **84곳에서 각자 독립 재계산**되고 있었다. 단일 상태 오케스트레이터(`marketState`)는 부재(Yahoo 시세 필드뿐)였고, 이 분산이 페이지 간 드리프트의 근원(`getCrossPageIndicatorConsistencyAudit`가 존재하는 이유)이자 "유기적 통합"의 마지막 빠진 뼈대였다.
+
+**근본 해법 = Market State Core(단일 두뇌)** — 한 번 계산 → 캐시 → 버스 → 모든 surface가 같은 상태를 구독. 기존 compute 함수는 **재사용(오케스트레이션)** — 재작성 금지(872 테스트·운영 앱 회귀 통제).
+
+**Phase 1 — State Core + 버스 [추가]**
+- 신규 `AIO.computeMarketState()`(aio-core.js IIFE): 기존 `_aioRegimeNow`(레짐)·`_vixBand/_fgZone`(밴드)·`getCycleFromMacro`(사이클)·`diagnoseBreadthConsensus`(시장폭)·`AIO_ACTION_RULES.getActionPlan`(액션) + 뉴스캐시 dominant topic(주도 테마) + 종합 리스크 레벨(VIX밴드+F&G극단+시장폭 가중)을 **1회 합성** → `{ spx, vix, fg, vixBand, vixBandLabel, fgZone, fgZoneLabel, cyclePhase, breadthConsensus, breadthScore, riskLevel, dominantTopic, actionPlan, driftFromSnapshot, ts }`.
+- `AIO.marketState` 캐시 + `aio:marketStateUpdated` CustomEvent 발행.
+- `_aioScheduleMarketState(delay)`: 2초 throttle(같은 틱 다중 트리거 → 1회 재계산, 중복 제거).
+- 트리거: `aio:liveQuotes`(300ms)·`aio:pageShown`(200ms)·`aio:serverDataLoaded`(100ms)·`aio:newsUpdated`(100ms)·부팅(1200ms).
+
+**Phase 2 — 선순환 루프 형식화 [감사 = 피드백]**
+- 신규 `AIO.getMarketStateCoherenceAudit()`: 단일 두뇌 신선도(15분)·필드 충실(6축)·크로스-페이지 드리프트(`getCrossPageIndicatorConsistencyAudit` 재사용)를 종합 → `getAutoOpsReadiness`에 `marketStateCoherence` + `connectiveLayer` 통합(issues·commands·필드). 루프: refresh → computeMarketState → 전파 → coherence audit → 갭 시 refresh.
+
+**Phase 3 — 전파·구독 [재배치]**
+- `aio:marketStateUpdated` 구독자 등록: 단일 두뇌 갱신 시 드리프트 배너(`_aioApplyRegimeDriftMarkers`) + 활성 페이지 크로스-페이지 뉴스 스트립 동기화 → "한 두뇌가 surface를 구동"하는 전파 단계를 가시화.
+
+**테스트**: T815(`_testV500EvidenceFoundation` 그룹) — computeMarketState 합성 + AIO.marketState 캐시 + aio:marketStateUpdated 발행 + coherence audit present + AutoOps 통합 단언.
+
+**정직 보류(차기 단계 — 운영 앱 안전 레일)**: 광범위 소비자 구독 이전(채팅 시장환경 헤더·내러티브 렌더러·전 페이지 레짐 배너) + 가시적 페이지 재배치는 단계적 검증·커밋. 기존 compute 함수·핵심 DOM은 보존했다(적극 개편을 무회귀로 하는 유일한 경로).
+
+**R1 7곳 + 캐시버스터 5곳.**
+
 ## v50.41 - 선순환 연결 계층: 크로스-페이지 뉴스 통합 + 신선 텔레그램 + stale 내러티브 정리 (2026-06-13)
 
 **사용자: "각 페이지/레이어/시스템이 서로 연결·통합·선순환하는 구조가 목표. 개별 데이터 자동 최신화는 그 구조 속 하나일 뿐. 미룬 영역 모두 + 신선 텔레그램 반영."**

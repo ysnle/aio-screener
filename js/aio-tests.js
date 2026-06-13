@@ -5985,6 +5985,31 @@
       t814detail = 'contracts8=' + allHaveContract + ' renderFn=' + renderFn814 + ' auditStatus=' + (aud814 ? aud814.status : 'na') + ' wired=' + (aud814 ? aud814.analysisPagesWired : '-') + '/8 surfaces=' + (aud814 ? aud814.newsSurfaceCount : '-') + ' macroModel=' + modelOk814;
     } catch(e) { t814detail = 'ERR:' + e.message; }
     _assert('T814 v5041_connective_layer: 분석 8페이지 크로스-페이지 뉴스 연결(계약+토픽필터+렌더+audit ok)', t814ok, t814detail);
+
+    // ─── v50.42 Market State Core: 단일 두뇌(선순환 오케스트레이션) ───
+    // T815: computeMarketState 합성 + AIO.marketState 캐시 + aio:marketStateUpdated 발행 + coherence audit + AutoOps 통합
+    var t815ok = false, t815detail = '';
+    try {
+      var hasCompute = !!(window.AIO && typeof window.AIO.computeMarketState === 'function');
+      var hasSchedule = typeof window._aioScheduleMarketState === 'function';
+      var hasCoherence = !!(window.AIO && typeof window.AIO.getMarketStateCoherenceAudit === 'function');
+      var fired815 = false;
+      var onMs = function(){ fired815 = true; };
+      window.addEventListener('aio:marketStateUpdated', onMs);
+      var st815 = hasCompute ? window.AIO.computeMarketState() : null;
+      window.removeEventListener('aio:marketStateUpdated', onMs);
+      // 합성 결과가 핵심 필드를 노출(값 자체는 데이터 의존이라 키 존재 + 캐시 일치만 검증)
+      var stateShapeOk = !!(st815 && ('vix' in st815) && ('vixBandLabel' in st815) && ('cyclePhase' in st815) && ('breadthConsensus' in st815) && ('riskLevel' in st815) && ('dominantTopic' in st815) && st815.ts);
+      var cacheOk815 = !!(window.AIO.marketState && window.AIO.marketState.ts === (st815 && st815.ts));
+      var coh815 = hasCoherence ? window.AIO.getMarketStateCoherenceAudit() : null;
+      var cohOk = !!(coh815 && coh815.present === true && (coh815.status === 'ok' || coh815.status === 'warn'));
+      // AutoOps에 통합됐는지(명령 맵 + 필드)
+      var ro815 = (window.AIO && typeof window.AIO.getAutoOpsReadiness === 'function') ? window.AIO.getAutoOpsReadiness() : null;
+      var wiredAutoOps = !!(ro815 && ro815.commands && ro815.commands.marketStateCoherence && ('marketStateCoherence' in ro815));
+      t815ok = hasCompute && hasSchedule && hasCoherence && fired815 && stateShapeOk && cacheOk815 && cohOk && wiredAutoOps;
+      t815detail = 'compute=' + hasCompute + ' schedule=' + hasSchedule + ' fired=' + fired815 + ' shape=' + stateShapeOk + ' cache=' + cacheOk815 + ' coherence=' + (coh815 ? coh815.status : 'na') + ' autoOps=' + wiredAutoOps;
+    } catch(e) { t815detail = 'ERR:' + e.message; }
+    _assert('T815 v5042_market_state_core: 단일 두뇌 합성+캐시+버스+coherence audit+AutoOps 통합', t815ok, t815detail);
   }
 
   window.AIO = window.AIO || {};
