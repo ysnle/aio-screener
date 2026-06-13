@@ -2778,6 +2778,74 @@ if (typeof document !== 'undefined') {
     setTimeout(function(){ try { window.AIO.computeMarketState(); } catch(_){} }, delay || 0);
   };
 
+  // ════════════════════════════════════════════════════════════════
+  // v50.47 [자율 루프 Phase 3] 텍스트 합성 엔진 — marketState + newsSignal → "현재 시장 분석" 산문.
+  //   템플릿 기반(무료·결정론적·항상 동작). 단일 두뇌의 수치를 사람이 읽는 한국어 분석으로 변환 →
+  //   빈 "현재 분석 대기" 섹션을 자동으로 채움(자체 운영의 가시적 산출). 서버 LLM(Phase 4)이 있으면 우선, 없으면 이 템플릿.
+  // ════════════════════════════════════════════════════════════════
+  window.AIO.synthesizeMarketAnalysis = function(){
+    try {
+      var ms = window.AIO.marketState || (window.AIO.computeMarketState && window.AIO.computeMarketState());
+      if (!ms) return { available: false, oneLine: '시장 데이터 수신 대기', full: '시장 데이터 수신 대기', parts: {}, ts: Date.now() };
+      var ns = ms.newsSignal || {};
+      var num = function(v, d){ return (typeof v === 'number' && isFinite(v)) ? v : d; };
+      // 1) 레짐 (변동성 + 심리)
+      var vixTxt = ms.vix != null ? ms.vix.toFixed(1) : '—';
+      var regimePart = '변동성 ' + (ms.vixBandLabel || '—') + '(VIX ' + vixTxt + ')'
+        + ' · 투자심리 ' + (ms.fgZoneLabel || '—') + '(F&G ' + (ms.fg != null ? Math.round(ms.fg) : '—') + ')';
+      // 2) 사이클 + 시장폭
+      var cyclePart = '경기 국면 ' + (ms.cyclePhase || '—') + (ms.cycleScore != null ? '(위치 ' + ms.cycleScore + '/100)' : '')
+        + ' · 시장폭 ' + (ms.breadthConsensus || '—');
+      // 3) 리스크 종합
+      var riskLabelKo = { high: '높음', elevated: '경계', moderate: '보통', low: '낮음', unknown: '판정 대기' }[ms.riskLevel] || ms.riskLevel;
+      var riskPart = '종합 리스크 ' + riskLabelKo + (ms.riskScore != null ? '(' + ms.riskScore + '/100)' : '');
+      // 4) 주도 뉴스/감성
+      var topicKo = { macro: '매크로', geo: '지정학', semi: '반도체', earnings: '실적', energy: '에너지', crypto: '크립토', equity: '주식', defense: '방산', analyst: '애널리스트' };
+      var newsPart = '';
+      if (ns.available) {
+        var biasKo = ns.bias === 'bullish' ? '긍정 우위' : ns.bias === 'bearish' ? '부정 우위' : '중립';
+        newsPart = '뉴스 흐름 ' + biasKo + '(감성 ' + num(ns.sentimentScore, 0) + ')'
+          + (ns.dominantTopic ? ' · 주도 테마 ' + (topicKo[ns.dominantTopic] || ns.dominantTopic) : '')
+          + (ns.eventFlags && ns.eventFlags.geopolitical ? ' · ⚠️ 지정학 이벤트 활성' : '');
+      }
+      // 5) 행동 한 줄 (actionPlan 우선)
+      var actionPart = '';
+      if (ms.actionPlan && ms.actionPlan.position) {
+        actionPart = '대응: 포지션 ' + ms.actionPlan.position.sizePct + '% — ' + (ms.actionPlan.position.note || '')
+          + (ms.actionPlan.newsTilt === 'defensive' ? ' (뉴스 경계: 보수적)' : ms.actionPlan.newsTilt === 'constructive' ? ' (뉴스 우호)' : '');
+      }
+      var oneLine = '지금은 ' + (ms.vixBandLabel || '—') + ' 변동성 · ' + (ms.fgZoneLabel || '—') + ' 심리 · '
+        + (ms.cyclePhase || '—') + ' · 리스크 ' + riskLabelKo + (ns.available && ns.bias !== 'neutral' ? ' · 뉴스 ' + (ns.bias === 'bullish' ? '긍정' : '부정') : '') + ' 환경입니다.';
+      var full = [oneLine, '① ' + regimePart, '② ' + cyclePart, '③ ' + riskPart]
+        .concat(newsPart ? ['④ ' + newsPart] : [])
+        .concat(actionPart ? ['→ ' + actionPart] : []).join('\n');
+      return { available: true, oneLine: oneLine, full: full,
+        parts: { regime: regimePart, cycle: cyclePart, risk: riskPart, news: newsPart, action: actionPart },
+        ts: Date.now() };
+    } catch(e) { return { available: false, oneLine: '분석 합성 오류', full: '분석 합성 오류', parts: {}, ts: Date.now(), error: e && e.message }; }
+  };
+
+  // [data-market-analysis-sink] 요소를 합성 분석으로 채움(계약 — 페이지가 attr만 달면 자동 채워짐, 확장 가능).
+  //   data-market-analysis-sink="one"=한 줄, "full"=전체. 서버 LLM 분석문(data.json.marketAnalysis) 있으면 우선.
+  window._aioRenderMarketAnalysisSinks = function(){
+    try {
+      var sinks = document.querySelectorAll('[data-market-analysis-sink]');
+      if (!sinks.length) return;
+      var syn = window.AIO.synthesizeMarketAnalysis();
+      var serverLLM = (window._serverMarketAnalysis && typeof window._serverMarketAnalysis.full === 'string') ? window._serverMarketAnalysis : null;
+      var esc = (typeof escHtml === 'function') ? escHtml : function(s){ return String(s); };
+      sinks.forEach(function(el){
+        var mode = el.getAttribute('data-market-analysis-sink') || 'one';
+        var src = serverLLM || syn;
+        var txt = mode === 'full' ? (src.full || syn.full) : (src.oneLine || syn.oneLine);
+        // full은 줄바꿈을 <br>로, 한 줄은 그대로.
+        el.innerHTML = esc(txt).replace(/\n/g, '<br>');
+        el.setAttribute('data-analysis-source', serverLLM ? 'server-llm' : 'template');
+        el.setAttribute('data-analysis-ts', new Date().toISOString());
+      });
+    } catch(_){}
+  };
+
   // v50.41 선순환 연결 계층: 분석 페이지에 토픽 필터 뉴스 스트립 (같은 뉴스캐시 → 다수 surface, 사일로 해소).
   //   buildNewsSurfaceModel(pageId, _allNewsItems) 재사용(계약의 topics 필터). insight-box 직후 앵커, 멱등.
   var _PAGE_NEWS_STRIP_PAGES = ['macro','fxbond','technical','themes','sentiment','signal','fundamental','breadth'];
@@ -2890,8 +2958,8 @@ if (typeof document !== 'undefined') {
       window._aioPageBus.register('core-market-state-live', 'aio:liveQuotes', function(){ window._aioScheduleMarketState(300); });
       window._aioPageBus.register('core-market-state-page', 'aio:pageShown', function(){ window._aioScheduleMarketState(200); });
     }
-    window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioScheduleMarketState(100); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} });
-    window.addEventListener('aio:newsUpdated', function(){ try { window._aioScheduleMarketState(100); window._aioRenderActivePageNewsStrip(); } catch(_){} });  // v50.41/42: 뉴스 갱신 → marketState + 스트립
+    window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioScheduleMarketState(100); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} });
+    window.addEventListener('aio:newsUpdated', function(){ try { window._aioScheduleMarketState(100); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} });  // v50.41/42/47: 뉴스 갱신 → marketState + 스트립 + 분석 합성
     // v50.42/43/44: 단일 두뇌 갱신 → 소비자 동기화. 선순환 전파 단계.
     //   드리프트 배너·결론 가드·뉴스 스트립·home Action Item(v43) + breadth/themes/briefing/options 페이지 렌더러(v44).
     //   페이지 렌더러는 marketState.*Full을 읽기만(독립 재계산 제거) → 라이브 데이터 갱신 시 페이지 재진입 없이 동기화.
@@ -2903,10 +2971,11 @@ if (typeof document !== 'undefined') {
         if (window._aioRenderThemesCycle) window._aioRenderThemesCycle();
         if (window._aioRenderBriefingAction) window._aioRenderBriefingAction();
         if (window._aioRenderOptionsRec) window._aioRenderOptionsRec();
+        if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); // v50.47 자동 텍스트 합성 전파
         window._aioRenderActivePageNewsStrip();
       } catch(_){}
     });
-    setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); } catch(_){} }, 1200);
+    setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} }, 1200);
     setTimeout(function(){ try { window._aioGuardEmptyVerdicts(); } catch(_){} }, 3000);
   }
 })();
@@ -15570,7 +15639,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.46';
+const APP_VERSION = 'v50.47';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

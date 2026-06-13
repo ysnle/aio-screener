@@ -1,5 +1,37 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.47 - 자율 운영 순환 Phase 3: 텍스트 합성 엔진 (빈 "현재 분석" 섹션 자동 채움) (2026-06-13)
+
+**사용자: "알아서 순차적으로 모두 진행해줘."** + 페이지 UX 전수조사 ★★★ P1 = "수신/수집/산출 대기 빈 껍데기가 도처에"(사용자가 "미완성/고장"으로 느끼는 #1 원인).
+
+**핵심 통찰**: P1(빈 껍데기)은 자율 루프 Phase 3 텍스트 합성이 푸는 바로 그 문제. v50.45가 "뉴스→두뇌" 고리를, v50.46이 알고리즘을 정비했으니, 이제 그 두뇌(marketState+newsSignal)에서 "현재 분석" 산문을 합성해 빈 섹션을 채운다 = **자체 운영의 가시적 산출 + 최대 UX 문제 해결.**
+
+### AIO.synthesizeMarketAnalysis() (신규, aio-core.js)
+- 단일 두뇌 수치 → 사람이 읽는 한국어 분석 산문(템플릿 기반·무료·결정론적·항상 동작):
+  - ① 레짐: 변동성 밴드 + 투자심리 존
+  - ② 사이클 + 시장폭: cyclePhase(위치 N/100) + breadthConsensus
+  - ③ 종합 리스크: riskLevel(N/100) 한국어
+  - ④ 주도 뉴스/감성: bias + dominantTopic + 지정학 플래그
+  - ⑤ 대응 한 줄: actionPlan 포지션 + newsTilt
+  - `oneLine`(한 줄 요약) + `full`(5줄 구조) + `parts` 반환.
+
+### [data-market-analysis-sink] 계약 + 렌더러
+- `_aioRenderMarketAnalysisSinks()`가 `[data-market-analysis-sink]` 요소를 자동 채움(`"one"`=한 줄, `"full"`=전체). **페이지가 attr만 달면 자동 합성됨 — 확장 가능한 텍스트 계층.**
+- 서버 LLM 분석문(`window._serverMarketAnalysis`, Phase 4) 있으면 우선, 없으면 템플릿 폴백 — 키 없어도 100% 동작.
+- 소스 라벨(`data-analysis-source`=server-llm/template) + 타임스탬프 마킹.
+
+### home flagship 섹션
+- 결론바 직후 "🧠 현재 시장 분석 · 자동 합성(데이터·뉴스 기반)" 섹션(`#home-market-analysis`, `data-market-analysis-sink="full"`) 추가 — **항상 채워지는 자동 분석**(빈 껍데기 아님).
+
+### 전파 + 테스트
+- `aio:marketStateUpdated`(구독자에 렌더 추가)·`aio:serverDataLoaded`·`aio:newsUpdated`·부팅(1200ms) 자동 재생성.
+- T820 신규: synthesizeMarketAnalysis 구조 + sink 계약 렌더 + home 자동 분석이 marketState 라벨 반영(비-placeholder).
+
+### 정직 보류 (차기)
+- Phase 4(서버 LLM 선택 강화 fetch-data.mjs + `getAutonomousLoopAudit`) · 다른 빈 섹션(breadth/sentiment/kr-macro/kr-technical)에 `data-market-analysis-sink` attr 확산(이제 attr만 달면 됨).
+
+**R1 7곳 + 캐시버스터 5곳.**
+
 ## v50.46 - 자율 운영 순환 Phase 2: 알고리즘 재작성 (cycle/risk 모델 정규화·가중) (2026-06-13)
 
 **사용자: "Phase 2부터 아니야? 알아서 순차적으로 모두 진행해줘."** + 3-에이전트 페이지 UX 전수조사에서 "건강점수 가중치 불투명·naive 판정" 지적.

@@ -6098,6 +6098,29 @@
       t819detail = 'cycleModel=' + cycleModelOk + ' score=' + (c && c.score) + ' inv=' + invOk + '(' + (cInv && cInv.phase) + ') riskNorm=' + riskNormOk + ' riskField=' + riskFieldOk + ' edge=' + edgeOk;
     } catch(e) { t819detail = 'ERR:' + e.message; }
     _assert('T819 v5046_algo_rewrite: cycle 정규화 모델(score+라벨보존) + risk 정규화(F&G U자) + 경계 안정', t819ok, t819detail);
+
+    // ─── v50.47 자율 루프 Phase 3: 텍스트 합성 엔진(빈 "현재 분석" 섹션 자동 채움) ───
+    // T820: synthesizeMarketAnalysis 구조 + [data-market-analysis-sink] 계약 렌더 + home sink 비-placeholder
+    var t820ok = false, t820detail = '';
+    try {
+      window.AIO.computeMarketState();
+      var hasSynth = !!(window.AIO && typeof window.AIO.synthesizeMarketAnalysis === 'function');
+      var syn = hasSynth ? window.AIO.synthesizeMarketAnalysis() : null;
+      var synShapeOk = !!(syn && ('available' in syn) && typeof syn.oneLine === 'string' && typeof syn.full === 'string' && syn.parts);
+      // 합성 내용이 marketState 라벨을 반영(빈 껍데기 아님)
+      var ms820 = window.AIO.marketState;
+      var contentOk = !!(syn && syn.available && ms820 && ms820.vixBandLabel && syn.full.indexOf(ms820.vixBandLabel) >= 0 && syn.full.length > 30);
+      var hasRenderFn = typeof window._aioRenderMarketAnalysisSinks === 'function';
+      // home sink 요소 존재 + 렌더 후 placeholder 탈출
+      var sink = document.getElementById('home-market-analysis');
+      var sinkExists = !!(sink && sink.getAttribute('data-market-analysis-sink'));
+      var renderedOk = false;
+      if (hasRenderFn && sinkExists) { window._aioRenderMarketAnalysisSinks(); renderedOk = sink.textContent.indexOf('수신 대기') < 0 && sink.textContent.length > 20; }
+      // 구독 배선: marketStateUpdated 리스너가 합성 렌더 포함(소스 확인 어려우니 렌더 fn 존재 + 실행으로 갈음)
+      t820ok = hasSynth && synShapeOk && contentOk && hasRenderFn && sinkExists && renderedOk;
+      t820detail = 'synth=' + hasSynth + ' shape=' + synShapeOk + ' content=' + contentOk + ' renderFn=' + hasRenderFn + ' sink=' + sinkExists + ' rendered=' + renderedOk;
+    } catch(e) { t820detail = 'ERR:' + e.message; }
+    _assert('T820 v5047_text_synthesis: synthesizeMarketAnalysis + sink 계약 렌더 + home 자동 분석 비-placeholder', t820ok, t820detail);
   }
 
   window.AIO = window.AIO || {};
