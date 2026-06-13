@@ -1,5 +1,28 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.46 - 자율 운영 순환 Phase 2: 알고리즘 재작성 (cycle/risk 모델 정규화·가중) (2026-06-13)
+
+**사용자: "Phase 2부터 아니야? 알아서 순차적으로 모두 진행해줘."** + 3-에이전트 페이지 UX 전수조사에서 "건강점수 가중치 불투명·naive 판정" 지적.
+
+**배경**: 페이지 UX 조사(`_context/PAGE-UX-AUDIT-2026-06-13.md`) 결과 ★★ P2 = "naive 알고리즘/자동 판정 부재" + `getCycleFromMacro` 주석이 "단순 의사결정 트리 (개선 가능)" 자인. 마스터플랜 Phase 2 실행.
+
+### getCycleFromMacro 재작성 (aio-core.js)
+- **이전**: vix/breadth/trend 하드 임계값의 if-else 캐스케이드 — 경계에서 'Mid Cycle' 기본값으로 떨어지고 신호 시차/신뢰도 미반영.
+- **이후**: 각 신호를 **-1(악화)~+1(건강) 정규화**(중심·스케일=역사적 정상범위: VIX 20 중심·12 스케일, breadth 50% 중심·28 스케일, 곡선 1.2%p, 추세 ±0.5) → **가중합**(breadth 0.30·vix 0.30·trend 0.25·curve 0.15) → `cyclePos` 0~100. 곡선 역전(2s10s<0)은 침체-선행 별도 가중.
+- **phase 라벨 어휘 보존**(Late Cycle (Peak)/Mid Cycle (Expansion)/Early Cycle (Recovery)/Mid Cycle/Recession Risk/Bear Market/unknown) → themes 페이지·T815/T817 무영향. 반환에 `score`/`confidence`/`components` 추가(additive).
+
+### computeMarketState riskLevel 재작성 (aio-core.js)
+- **이전**: VIX밴드+F&G+breadth의 0~3 거친 평균. F&G가 **비대칭**(극단공포=3, 극단탐욕=2) — "극단탐욕(froth)도 고위험"을 무시.
+- **이후**: 각 성분 0(저위험)~1(고위험) **정규화 가중합 → riskScore 0~100**. F&G는 **U자 `|fg-50|/45`**(양극단 모두 고위험) — 비대칭 가정 시정. 가중: VIX 0.35·F&G 0.20·breadth 0.25·news 0.20. 라벨(low/moderate/elevated/high) 보존 + `riskScore` 노출.
+
+### 테스트
+- T819 신규: 정규화 cycle 모델(score 0~100 + components + 라벨 보존) + 곡선역전→Recession Risk 선행 + riskScore 정규화 + F&G U자 소스 분기 + 경계 입력 phase 안정.
+
+### 라이브 검증 + 정직 보류
+- 회귀 0(기존 data-drift 베이스라인 유지). 정직 보류(차기): Phase 3(`_aioSynthesizeMarketAnalysis` 텍스트 합성 — 빈 "현재 분석" 섹션 채우기)·Phase 4(서버 LLM 선택 + `getAutonomousLoopAudit`).
+
+**R1 7곳 + 캐시버스터 5곳.**
+
 ## v50.45 - 자율 운영 순환 Phase 1: 뉴스 신호 → 두뇌(risk/action) 고리 복원 + 실측 McClellan (2026-06-13)
 
 **사용자: "여러 소스/API로 데이터·뉴스를 받아와, 받아온 정보 기반으로 기능/텍스트 등 섹션을 자동 반영하고 '현재 시장 분석'에도 반영되는 순환 구조 — 사이트가 자체적으로 운영되는 느낌. 알고리즘부터 보강." (다중/병렬 에이전트 활용 지시)**

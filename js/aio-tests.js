@@ -6073,6 +6073,31 @@
       t818detail = 'fn=' + hasSignalFn + ' shape=' + sigShapeOk + ' absorb=' + brainAbsorb + ' mcReal=' + mcRealOk + ' actionAware=' + actionNewsAware;
     } catch(e) { t818detail = 'ERR:' + e.message; }
     _assert('T818 v5045_news_signal_loop: 뉴스 신호 집계 + 두뇌 흡수 + risk/action 뉴스 인지 + 실측 McClellan', t818ok, t818detail);
+
+    // ─── v50.46 자율 루프 Phase 2: cycle/risk 모델 재작성(정규화·가중) ───
+    // T819: getCycleFromMacro 정규화 모델(score/components + 라벨 보존) + riskScore 정규화 + F&G U자 대칭
+    var t819ok = false, t819detail = '';
+    try {
+      var c = window.AIO.getCycleFromMacro({ vix: 16, breadth50: 62, yield2s10s: 0.4, spxTrend: 'up' });
+      // 재작성 모델: score(0~100) + components 노출 + phase 라벨 보존(themes 호환)
+      var cycleModelOk = !!(c && typeof c.score === 'number' && c.score >= 0 && c.score <= 100 && c.components && typeof c.components.vix === 'number' && typeof c.phase === 'string' && Array.isArray(c.rationale));
+      // 곡선 역전 + 변동성 상승 → Recession Risk 선행
+      var cInv = window.AIO.getCycleFromMacro({ vix: 30, breadth50: 35, yield2s10s: -0.3, spxTrend: 'down' });
+      var invOk = !!(cInv && (cInv.phase === 'Recession Risk' || cInv.phase === 'Bear Market'));
+      // riskScore 정규화 + F&G U자: 극단공포(fg=10)와 극단탐욕(fg=90) 모두 고위험 성분
+      // computeMarketState는 라이브 fg를 쓰므로 소스 검증 + getCycle 경계 안정성으로 대체
+      var srcCMS2 = window.AIO.computeMarketState.toString();
+      var riskNormOk = /riskScore/.test(srcCMS2) && /Math\.abs\(fg - 50\)/.test(srcCMS2); // U자 대칭 분기 존재
+      var ms819 = window.AIO.computeMarketState();
+      var riskFieldOk = !!(ms819 && ('riskScore' in ms819) && ('cycleScore' in ms819) && (ms819.riskScore == null || (ms819.riskScore >= 0 && ms819.riskScore <= 100)));
+      // 경계 입력에서 phase가 항상 유효 문자열(naive 캐스케이드의 'unknown' 누락 회귀 가드)
+      var phasesValid = ['Late Cycle (Peak)','Mid Cycle (Expansion)','Early Cycle (Recovery)','Mid Cycle','Recession Risk','Bear Market','unknown'];
+      var edge = window.AIO.getCycleFromMacro({ vix: 22, breadth50: 35, yield2s10s: 0, spxTrend: 'down' });
+      var edgeOk = !!(edge && phasesValid.indexOf(edge.phase) >= 0);
+      t819ok = cycleModelOk && invOk && riskNormOk && riskFieldOk && edgeOk;
+      t819detail = 'cycleModel=' + cycleModelOk + ' score=' + (c && c.score) + ' inv=' + invOk + '(' + (cInv && cInv.phase) + ') riskNorm=' + riskNormOk + ' riskField=' + riskFieldOk + ' edge=' + edgeOk;
+    } catch(e) { t819detail = 'ERR:' + e.message; }
+    _assert('T819 v5046_algo_rewrite: cycle 정규화 모델(score+라벨보존) + risk 정규화(F&G U자) + 경계 안정', t819ok, t819detail);
   }
 
   window.AIO = window.AIO || {};

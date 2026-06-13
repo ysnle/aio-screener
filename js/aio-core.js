@@ -2718,19 +2718,20 @@ if (typeof document !== 'undefined') {
       var cycle = (typeof A.getCycleFromMacro === 'function') ? A.getCycleFromMacro({ vix: vix, breadth50: sma50, yield2s10s: spread, spxTrend: spxTrend }) : null;
       // v50.45: getActionPlan에 newsSignal 전달 — bear 우위 시 보수 tilt(1C에서 사용, 폴백 무회귀).
       var action = (window.AIO_ACTION_RULES && typeof window.AIO_ACTION_RULES.getActionPlan === 'function') ? window.AIO_ACTION_RULES.getActionPlan({ vix: vix, fg: fg, breadth50: sma50, newsSignal: newsSignal }) : null;
-      // 종합 리스크 레벨: VIX 밴드 + F&G 극단 + 시장폭 + (v50.45) 뉴스 신호
-      var rs = 0, rn = 0;
-      if (vb != null) { rs += vb; rn++; }
-      if (fz != null) { rs += (fz <= 0 ? 3 : fz === 1 ? 2 : fz === 2 ? 1 : fz === 3 ? 1 : 2); rn++; }
-      if (breadthNum != null) { rs += (breadthNum < -0.1 ? 2 : breadthNum < 0.1 ? 1 : 0); rn++; }
-      // v50.45 [뉴스 인지] bear 우위/지정학 이벤트 → risk tilt↑. 끊겨 있던 "뉴스→리스크" 고리 복원.
+      // v50.46 [알고리즘 재작성] 종합 리스크 — 비선형 가정 → 정규화 합성(0~100). 각 성분 0(저위험)~1(고위험) 가중합.
+      //   F&G는 U자(양극단=froth/panic 모두 고위험) — 이전 "극단공포만 고위험" 비대칭 가정 시정. 뉴스 성분 포함(v50.45 고리).
+      var rParts = [], rW = [];
+      if (vb != null) { rParts.push(vb / 3); rW.push(0.35); }                              // VIX 밴드 0~3 → 0~1
+      if (fg != null) { rParts.push(Math.min(1, Math.abs(fg - 50) / 45)); rW.push(0.20); } // |F&G-50| U자(양극단 고위험)
+      if (breadthNum != null) { rParts.push(Math.min(1, Math.max(0, (0.2 - breadthNum) / 1.2))); rW.push(0.25); } // 약세 합의→고위험
       if (newsSignal && newsSignal.available) {
-        var nr = newsSignal.bias === 'bearish' ? 2 : newsSignal.bias === 'neutral' ? 1 : 0;
-        if (newsSignal.eventFlags && newsSignal.eventFlags.geopolitical) nr = Math.min(3, nr + 1);
-        rs += nr; rn++;
+        var nrisk = Math.min(1, Math.max(0, (-newsSignal.sentimentScore + 40) / 140));     // bear 감성→고위험
+        if (newsSignal.eventFlags && newsSignal.eventFlags.geopolitical) nrisk = Math.min(1, nrisk + 0.2);
+        rParts.push(nrisk); rW.push(0.20);
       }
-      var ra = rn ? rs / rn : null;
-      var riskLevel = ra == null ? 'unknown' : ra >= 2.2 ? 'high' : ra >= 1.2 ? 'elevated' : ra >= 0.6 ? 'moderate' : 'low';
+      var rWsum = rW.reduce(function(a, b){ return a + b; }, 0);
+      var riskScore = rWsum ? Math.round(rParts.reduce(function(a, p, i){ return a + p * rW[i]; }, 0) / rWsum * 100) : null;
+      var riskLevel = riskScore == null ? 'unknown' : riskScore >= 70 ? 'high' : riskScore >= 45 ? 'elevated' : riskScore >= 25 ? 'moderate' : 'low';
       // 주도 뉴스 토픽: v50.45 newsSignal(신선도 가중) 우선, 폴백으로 단순 빈도.
       var dominantTopic = (newsSignal && newsSignal.dominantTopic) ? newsSignal.dominantTopic : null;
       if (!dominantTopic) {
@@ -2751,7 +2752,9 @@ if (typeof document !== 'undefined') {
         breadthConsensus: breadth ? breadth.verdict : null, breadthScore: breadthNum,
         breadthConsensusFull: breadth,   // v50.44 정본 full 객체 — breadth 페이지가 읽음(verdict/consensus/conflict/details)
         cycleFull: cycle,                // v50.44 정본 full 객체 — themes 페이지가 읽음(phase/inputs/rationale)
+        cycleScore: cycle ? cycle.score : null,  // v50.46 경기 위치 0~100
         riskLevel: riskLevel,
+        riskScore: riskScore,            // v50.46 정규화 리스크 0~100
         dominantTopic: dominantTopic,
         newsSignal: newsSignal,          // v50.45 자율 루프 — 뉴스 감성/이벤트 신호(텍스트 합성·audit가 읽음)
         actionPlan: action,
@@ -10820,36 +10823,56 @@ window.AIO.getCycleFromMacro = function(macro) {
   var yield2s10s = Number(macro.yield2s10s != null ? macro.yield2s10s : 0);
   var spxTrend = macro.spxTrend || (ld['^GSPC'] && ld['^GSPC'].pct > 0 ? 'up' : 'down');
 
-  var phase = 'unknown';
   var rationale = [];
-  // 단순 의사결정 트리 (개선 가능)
+  // v50.46 [알고리즘 재작성] 단순 의사결정 트리 → 정규화·가중 다신호 모델.
+  //   각 신호를 -1(악화)~+1(건강)로 정규화(중심·스케일=역사적 정상범위) → 가중합 → cyclePos 0~100(경기 위치).
+  //   곡선 역전은 별도 침체-선행 신호로 가중. 기존 phase 라벨 어휘 보존(themes 페이지/테스트 호환) + score/confidence/components 추가.
   if (isNaN(vix) && isNaN(breadth50)) {
-    phase = 'unknown';
-    rationale.push('insufficient data');
-  } else if (vix < 15 && breadth50 > 65 && spxTrend === 'up') {
-    phase = 'Late Cycle (Peak)';
-    rationale.push('VIX <15 + breadth >65% + 상승 추세 = 과열');
-  } else if (vix < 20 && breadth50 > 50) {
-    phase = 'Mid Cycle (Expansion)';
-    rationale.push('VIX <20 + breadth >50% = 확장');
-  } else if (vix > 25 && breadth50 < 40) {
-    phase = 'Recession Risk';
-    rationale.push('VIX >25 + breadth <40% = 침체 위험');
-  } else if (vix > 30 && spxTrend === 'down') {
-    phase = 'Bear Market';
-    rationale.push('VIX >30 + 하락 추세 = 약세장');
-  } else if (vix < 25 && breadth50 < 50 && spxTrend === 'up') {
-    phase = 'Early Cycle (Recovery)';
-    rationale.push('VIX <25 + breadth <50% + 반등 = 회복기');
-  } else {
-    phase = 'Mid Cycle';
-    rationale.push('default — 매크로 신호 혼재');
+    return { phase: 'unknown', score: null, confidence: 'low', inputs: { vix: vix, breadth50: breadth50, yield2s10s: yield2s10s, spxTrend: spxTrend }, rationale: ['insufficient data'], generatedAt: new Date().toISOString() };
   }
-  if (yield2s10s < 0) rationale.push('수익률 곡선 역전 → 침체 선행 신호');
+  function _clamp1(x){ return x < -1 ? -1 : x > 1 ? 1 : x; }
+  var hasVix = !isNaN(vix), hasBreadth = !isNaN(breadth50);
+  var nVix = hasVix ? _clamp1((20 - vix) / 12) : 0;            // VIX 8→+1(안정), 32→-1(패닉), 20→0
+  var nBreadth = hasBreadth ? _clamp1((breadth50 - 50) / 28) : 0; // 78%→+1, 22%→-1, 50%→0
+  var nCurve = _clamp1(yield2s10s / 1.2);                       // +1.2%p→+1(가파른 정상), 역전→음
+  var nTrend = spxTrend === 'up' ? 0.5 : spxTrend === 'down' ? -0.5 : 0;
+  var W = { breadth: 0.30, vix: 0.30, trend: 0.25, curve: 0.15 };  // 시장폭·변동성 우선, 추세·곡선 보조
+  var raw = nBreadth * W.breadth + nVix * W.vix + nTrend * W.trend + nCurve * W.curve; // -1..+1
+  var cyclePos = Math.round((raw + 1) * 50); // 0..100
+  var inverted = yield2s10s < 0;
+  var present = (hasVix ? 1 : 0) + (hasBreadth ? 1 : 0) + (yield2s10s !== 0 ? 1 : 0) + 1;
+
+  var phase;
+  if (inverted && nVix < 0) {
+    phase = 'Recession Risk';
+    rationale.push('수익률 곡선 역전(2s10s ' + yield2s10s.toFixed(2) + ') + 변동성 상승 = 침체 선행');
+  } else if (cyclePos >= 72 && nTrend > 0 && nVix > 0.2) {
+    phase = 'Late Cycle (Peak)';
+    rationale.push('경기위치 ' + cyclePos + '/100 — 낮은 변동성+넓은 시장폭+상승 추세 = 과열 구간');
+  } else if (cyclePos >= 55) {
+    phase = 'Mid Cycle (Expansion)';
+    rationale.push('경기위치 ' + cyclePos + '/100 — 확장 국면(시장폭/변동성 양호)');
+  } else if (cyclePos >= 42 && nTrend > 0) {
+    phase = 'Early Cycle (Recovery)';
+    rationale.push('경기위치 ' + cyclePos + '/100 — 약한 시장폭 + 반등 추세 = 회복 초기');
+  } else if (cyclePos >= 30) {
+    phase = 'Mid Cycle';
+    rationale.push('경기위치 ' + cyclePos + '/100 — 신호 혼재(중기)');
+  } else if (nTrend < 0 && nVix < -0.2) {
+    phase = 'Bear Market';
+    rationale.push('경기위치 ' + cyclePos + '/100 — 하락 추세 + 높은 변동성 = 약세장');
+  } else {
+    phase = 'Recession Risk';
+    rationale.push('경기위치 ' + cyclePos + '/100 — 약한 시장폭/변동성 = 침체 위험');
+  }
+  if (inverted && phase !== 'Recession Risk') rationale.push('수익률 곡선 역전 → 침체 선행 신호(보조)');
 
   return {
     phase: phase,
+    score: cyclePos,
+    confidence: present >= 3 ? 'high' : present >= 2 ? 'medium' : 'low',
     inputs: { vix: vix, breadth50: breadth50, yield2s10s: yield2s10s, spxTrend: spxTrend },
+    components: { vix: Number(nVix.toFixed(2)), breadth: Number(nBreadth.toFixed(2)), trend: nTrend, curve: Number(nCurve.toFixed(2)) },
     rationale: rationale,
     generatedAt: new Date().toISOString()
   };
@@ -15547,7 +15570,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.45';
+const APP_VERSION = 'v50.46';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
