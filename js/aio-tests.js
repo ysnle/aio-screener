@@ -6050,6 +6050,29 @@
       t817detail = 'full=' + fullOk + ' consumers4=' + consumerOk + ' breadthMatch=' + breadthMatch + ' dedup=' + dedupOk;
     } catch(e) { t817detail = 'ERR:' + e.message; }
     _assert('T817 v5044_consumer_transition: 정본 full 객체 + 페이지 렌더러 4종 marketState 소비 + audit 이중정의 해소', t817ok, t817detail);
+
+    // ─── v50.45 자율 운영 루프 Phase 1: 뉴스 신호 → 두뇌(risk/action) + 실측 McClellan ───
+    // T818: _aioComputeNewsSignal 구조 + marketState.newsSignal 흡수 + risk 뉴스 반응 + 하드코딩 McClellan 제거 + getActionPlan newsTilt
+    var t818ok = false, t818detail = '';
+    try {
+      var hasSignalFn = typeof window._aioComputeNewsSignal === 'function';
+      var sig = hasSignalFn ? window._aioComputeNewsSignal() : null;
+      // 신호 구조: 핵심 키 존재(데이터 의존이라 값은 키/타입만 검증)
+      var sigShapeOk = !!(sig && ('sentimentScore' in sig) && ('bias' in sig) && sig.eventFlags && Array.isArray(sig.dominantTopics) && ('available' in sig));
+      // marketState가 newsSignal을 흡수하는지
+      var ms818 = window.AIO.computeMarketState();
+      var brainAbsorb = !!(ms818 && 'newsSignal' in ms818);
+      // 하드코딩 McClellan 'bearish' 제거: computeMarketState 소스에 실측 파생(_mcData/모멘텀) 분기 존재 + 하드코딩 라인 부재
+      var srcCMS = window.AIO.computeMarketState.toString();
+      var mcRealOk = /_mcData/.test(srcCMS) && /mcSignal/.test(srcCMS) && !/mcclellan:\s*'bearish'/.test(srcCMS);
+      // risk 뉴스 반응: bearish 신호 주입 시 risk 성분 증가(직접 getActionPlan newsTilt로 확인)
+      var planBear = window.AIO_ACTION_RULES.getActionPlan({ vix: 16, fg: 60, breadth50: 60, newsSignal: { available: true, bias: 'bearish', sentimentScore: -40, eventFlags: { geopolitical: true } } });
+      var planNeutral = window.AIO_ACTION_RULES.getActionPlan({ vix: 16, fg: 60, breadth50: 60 });
+      var actionNewsAware = !!(planBear && planBear.newsTilt === 'defensive' && planBear.actions.length > planNeutral.actions.length);
+      t818ok = hasSignalFn && sigShapeOk && brainAbsorb && mcRealOk && actionNewsAware;
+      t818detail = 'fn=' + hasSignalFn + ' shape=' + sigShapeOk + ' absorb=' + brainAbsorb + ' mcReal=' + mcRealOk + ' actionAware=' + actionNewsAware;
+    } catch(e) { t818detail = 'ERR:' + e.message; }
+    _assert('T818 v5045_news_signal_loop: 뉴스 신호 집계 + 두뇌 흡수 + risk/action 뉴스 인지 + 실측 McClellan', t818ok, t818detail);
   }
 
   window.AIO = window.AIO || {};

@@ -2603,10 +2603,71 @@ if (typeof document !== 'undefined') {
   };
 
   // ════════════════════════════════════════════════════════════════
+  // v50.45 [자율 루프 1A] 뉴스 신호 집계 — 받아온 뉴스(_allNewsItems)를 감성/이벤트 신호로 합성.
+  //   끊겨 있던 "뉴스 → 분석" 고리 복원. 기존 classifyTopic/getSentimentFromText 재사용(신규 fetch 0).
+  //   신선도(pubDate) 가중 — 최근 뉴스가 신호에 더 기여. computeMarketState가 이걸 읽어 risk/action/텍스트에 반영.
+  // ════════════════════════════════════════════════════════════════
+  window.AIO = window.AIO || {};
+  window._aioComputeNewsSignal = function(opts){
+    opts = opts || {};
+    try {
+      var items = window._allNewsItems || window.newsCache || [];
+      if (!items.length) return { available: false, sentimentScore: 0, bull: 0, bear: 0, warn: 0, neut: 0, total: 0, eventFlags: {}, dominantTopics: [], freshCount: 0, ts: Date.now() };
+      var cap = opts.limit || 150;
+      var rows = items.slice(0, cap);
+      var now = Date.now();
+      var _classify = (typeof window.classifyTopic === 'function') ? window.classifyTopic : null;
+      var _sentiment = (typeof window.getSentimentFromText === 'function') ? window.getSentimentFromText : null;
+      var bull = 0, bear = 0, warn = 0, neut = 0;
+      var wSum = 0, sScore = 0;           // 가중 감성
+      var topicAgg = {};                  // topic → { count, w, bull, bear }
+      var eventFlags = { geopolitical: 0, earnings: 0, policy: 0, macro: 0, supply: 0 };
+      var freshCount = 0;
+      rows.forEach(function(it){
+        if (!it) return;
+        var text = (it.title || '') + ' ' + (it.desc || '');
+        var topic = it.topic || (_classify ? _classify(it) : 'general');
+        var sent = _sentiment ? _sentiment(text) : (it.sentiment || 'neut');
+        // 신선도 가중: <6h=1.0, <24h=0.7, <72h=0.4, 그 외 0.2 (pubDate 없으면 0.5)
+        var w = 0.5, ageH = null;
+        if (it.pubDate) { var t = new Date(it.pubDate).getTime(); if (isFinite(t)) { ageH = (now - t) / 3600000; w = ageH < 6 ? 1.0 : ageH < 24 ? 0.7 : ageH < 72 ? 0.4 : 0.2; } }
+        if (ageH != null && ageH < 24) freshCount++;
+        var sv = sent === 'bull' ? 1 : sent === 'bear' ? -1 : sent === 'warn' ? -0.5 : 0;
+        if (sent === 'bull') bull++; else if (sent === 'bear') bear++; else if (sent === 'warn') warn++; else neut++;
+        sScore += sv * w; wSum += w;
+        var ta = topicAgg[topic] || (topicAgg[topic] = { topic: topic, count: 0, w: 0, bull: 0, bear: 0 });
+        ta.count++; ta.w += w; if (sv > 0) ta.bull++; else if (sv < 0) ta.bear++;
+        // 이벤트 플래그(토픽 기반 — classifyTopic 실키)
+        if (topic === 'geo') eventFlags.geopolitical += w;
+        if (topic === 'earnings') eventFlags.earnings += w;
+        if (topic === 'macro') { eventFlags.macro += w; if (/(fed|fomc|rate|금리|연준|cpi|pce|관세|tariff)/i.test(text)) eventFlags.policy += w; }
+        if (topic === 'semi' || topic === 'energy') eventFlags.supply += w;
+      });
+      var total = rows.length;
+      var sentimentScore = wSum > 0 ? Math.max(-100, Math.min(100, Math.round((sScore / wSum) * 100))) : 0;
+      var dominantTopics = Object.keys(topicAgg).filter(function(k){ return k !== 'general' && k !== 'analyst'; })
+        .map(function(k){ var t = topicAgg[k]; return { topic: k, count: t.count, weight: Math.round(t.w * 10) / 10, sentiment: t.bull > t.bear ? 'bull' : t.bear > t.bull ? 'bear' : 'mixed' }; })
+        .sort(function(a, b){ return b.weight - a.weight; }).slice(0, 4);
+      // 이벤트 플래그를 불린화(가중합 임계)
+      var flags = {};
+      Object.keys(eventFlags).forEach(function(k){ flags[k] = eventFlags[k] >= 1.0; });
+      return {
+        available: true, sentimentScore: sentimentScore,
+        bull: bull, bear: bear, warn: warn, neut: neut, total: total,
+        bias: sentimentScore > 12 ? 'bullish' : sentimentScore < -12 ? 'bearish' : 'neutral',
+        eventFlags: flags, dominantTopics: dominantTopics,
+        dominantTopic: dominantTopics.length ? dominantTopics[0].topic : null,
+        freshCount: freshCount, ts: Date.now()
+      };
+    } catch(e) { return { available: false, sentimentScore: 0, bias: 'neutral', eventFlags: {}, dominantTopics: [], total: 0, ts: Date.now(), error: e && e.message }; }
+  };
+
+  // ════════════════════════════════════════════════════════════════
   // v50.42 Market State Core — 선순환의 단일 두뇌. 기존 compute 함수(_aioRegimeNow·getCycleFromMacro·
   //   diagnoseBreadthConsensus·AIO_ACTION_RULES) + 뉴스 dominantTopic을 1회 합성 → AIO.marketState 캐시 +
   //   aio:marketStateUpdated 버스 발행. 모든 surface가 각자 재계산 대신 이 단일 상태를 구독(드리프트 제거).
   //   IIFE 내부 헬퍼(_num/_vixBand/_fgZone/_vixBandLabel/_fgZoneLabel/_aioRegimeNow/_aioRegimeDrift) 재사용.
+  //   v50.45: 뉴스 신호(_aioComputeNewsSignal)를 흡수해 riskLevel/dominantTopic/actionPlan을 뉴스 인지로.
   // ════════════════════════════════════════════════════════════════
   window.AIO = window.AIO || {};
   window.AIO.computeMarketState = function(){
@@ -2621,16 +2682,33 @@ if (typeof document !== 'undefined') {
       var reg = (typeof window._aioRegimeNow === 'function') ? window._aioRegimeNow() : {};
       var vix = _num(reg.vix), fg = _num(reg.fg), spx = _num(reg.spx);
       var vb = _vixBand(vix), fz = _fgZone(fg);
+      // v50.45 [자율 루프] 뉴스 신호 흡수 — risk/dominantTopic/action을 뉴스 인지로.
+      var newsSignal = (typeof window._aioComputeNewsSignal === 'function') ? window._aioComputeNewsSignal() : null;
       var sma5 = _num(ds.breadth5sma), sma20 = _num(ds.breadth20sma), sma50 = _num(ds.breadth50sma);
-      // v50.44 정본화: breadth 페이지(_aioRenderBreadthConsensus)와 동일 입력 — live(_breadth5/_breadth200=20일선) 우선 + 동일 신호.
+      // v50.44 정본화: breadth 페이지(_aioRenderBreadthConsensus)와 동일 입력 — live(_breadth5/_breadth200=20일선) 우선.
       //   이 1회 계산이 정본 → 페이지는 marketState.breadthConsensusFull을 읽기만(독립 재계산 제거).
       var live5 = (typeof window._breadth5 === 'number') ? window._breadth5 : null;
       var live20 = (typeof window._breadth200 === 'number') ? window._breadth200 : null; // 레거시명, 실제 20일선
+      var bSma5 = live5 != null ? live5 : (sma5 != null ? sma5 : 68);
+      var bSma20 = live20 != null ? live20 : (sma20 != null ? sma20 : 75);
+      var bSma50 = sma50 != null ? sma50 : 46;
+      // v50.45 [알고리즘 보강] 하드코딩 'bearish' 신호 → 실측 파생 신호로 교체.
+      //   McClellan: _mcData(calcMcClellan oscillator, index.html) 우선, 없으면 breadth 단기-장기 모멘텀.
+      var mcSignal = 'neutral';
+      try {
+        var mc = window._mcData;
+        if (mc && mc.history && mc.history.length) {
+          var lastOsc = mc.history[mc.history.length - 1].osc;
+          mcSignal = lastOsc > 5 ? 'bullish' : lastOsc < -5 ? 'bearish' : 'neutral';
+        } else { var mom = bSma5 - bSma50; mcSignal = mom > 8 ? 'bullish' : mom < -8 ? 'bearish' : 'neutral'; }
+      } catch(_) {}
+      // Weinstein stage proxy: 50일선 위 비율로 국면 추정(>55=2단계 상승, <40=4단계 하락).
+      var weinSignal = bSma50 >= 55 ? 'bullish' : bSma50 <= 40 ? 'bearish' : 'neutral';
+      // Golden Cross proxy: 20일선 breadth가 50일선 breadth 위면 단기 선도(강세 tilt).
+      var gcSignal = (bSma20 - bSma50) > 5 ? 'bullish' : (bSma20 - bSma50) < -5 ? 'bearish' : 'neutral';
       var breadth = (typeof A.diagnoseBreadthConsensus === 'function') ? A.diagnoseBreadthConsensus({
-        sma5: live5 != null ? live5 : (sma5 != null ? sma5 : 68),
-        sma20: live20 != null ? live20 : (sma20 != null ? sma20 : 75),
-        sma50: sma50 != null ? sma50 : 46,
-        mcclellan: 'bearish', weinstein: 'bearish', goldenCross: 'bullish'
+        sma5: bSma5, sma20: bSma20, sma50: bSma50,
+        mcclellan: mcSignal, weinstein: weinSignal, goldenCross: gcSignal
       }) : null;
       // diagnoseBreadthConsensus는 .consensus(수치) 반환 — v50.42의 .score 참조는 잠복 버그였음(undefined). 시정.
       var breadthNum = breadth ? breadth.consensus : null;
@@ -2638,25 +2716,34 @@ if (typeof document !== 'undefined') {
       var spread = (tnx != null && twoY != null) ? (tnx - twoY) : null;
       var spxTrend = (ld['^GSPC'] && ld['^GSPC'].pct != null) ? (ld['^GSPC'].pct >= 0 ? 'up' : 'down') : null;
       var cycle = (typeof A.getCycleFromMacro === 'function') ? A.getCycleFromMacro({ vix: vix, breadth50: sma50, yield2s10s: spread, spxTrend: spxTrend }) : null;
-      var action = (window.AIO_ACTION_RULES && typeof window.AIO_ACTION_RULES.getActionPlan === 'function') ? window.AIO_ACTION_RULES.getActionPlan({ vix: vix, fg: fg, breadth50: sma50 }) : null;
-      // 종합 리스크 레벨: VIX 밴드 + F&G 극단 + 시장폭
+      // v50.45: getActionPlan에 newsSignal 전달 — bear 우위 시 보수 tilt(1C에서 사용, 폴백 무회귀).
+      var action = (window.AIO_ACTION_RULES && typeof window.AIO_ACTION_RULES.getActionPlan === 'function') ? window.AIO_ACTION_RULES.getActionPlan({ vix: vix, fg: fg, breadth50: sma50, newsSignal: newsSignal }) : null;
+      // 종합 리스크 레벨: VIX 밴드 + F&G 극단 + 시장폭 + (v50.45) 뉴스 신호
       var rs = 0, rn = 0;
       if (vb != null) { rs += vb; rn++; }
       if (fz != null) { rs += (fz <= 0 ? 3 : fz === 1 ? 2 : fz === 2 ? 1 : fz === 3 ? 1 : 2); rn++; }
       if (breadthNum != null) { rs += (breadthNum < -0.1 ? 2 : breadthNum < 0.1 ? 1 : 0); rn++; }
+      // v50.45 [뉴스 인지] bear 우위/지정학 이벤트 → risk tilt↑. 끊겨 있던 "뉴스→리스크" 고리 복원.
+      if (newsSignal && newsSignal.available) {
+        var nr = newsSignal.bias === 'bearish' ? 2 : newsSignal.bias === 'neutral' ? 1 : 0;
+        if (newsSignal.eventFlags && newsSignal.eventFlags.geopolitical) nr = Math.min(3, nr + 1);
+        rs += nr; rn++;
+      }
       var ra = rn ? rs / rn : null;
       var riskLevel = ra == null ? 'unknown' : ra >= 2.2 ? 'high' : ra >= 1.2 ? 'elevated' : ra >= 0.6 ? 'moderate' : 'low';
-      // 주도 뉴스 토픽(뉴스캐시 빈도)
-      var dominantTopic = null;
-      try {
-        var items = window._allNewsItems || window.newsCache || [];
-        if (items.length) {
-          var counts = {};
-          items.slice(0, 120).forEach(function(it){ var t = it && it.topic; if (!t || t === 'general' || t === 'analyst') return; counts[t] = (counts[t] || 0) + 1; });
-          var best = null, bn = 0; Object.keys(counts).forEach(function(k){ if (counts[k] > bn) { bn = counts[k]; best = k; } });
-          dominantTopic = best;
-        }
-      } catch(_){}
+      // 주도 뉴스 토픽: v50.45 newsSignal(신선도 가중) 우선, 폴백으로 단순 빈도.
+      var dominantTopic = (newsSignal && newsSignal.dominantTopic) ? newsSignal.dominantTopic : null;
+      if (!dominantTopic) {
+        try {
+          var items = window._allNewsItems || window.newsCache || [];
+          if (items.length) {
+            var counts = {};
+            items.slice(0, 120).forEach(function(it){ var t = it && it.topic; if (!t || t === 'general' || t === 'analyst') return; counts[t] = (counts[t] || 0) + 1; });
+            var best = null, bn = 0; Object.keys(counts).forEach(function(k){ if (counts[k] > bn) { bn = counts[k]; best = k; } });
+            dominantTopic = best;
+          }
+        } catch(_){}
+      }
       var state = {
         spx: spx, vix: vix, fg: fg,
         vixBand: vb, vixBandLabel: _vixBandLabel(vb), fgZone: fz, fgZoneLabel: _fgZoneLabel(fz),
@@ -2666,6 +2753,7 @@ if (typeof document !== 'undefined') {
         cycleFull: cycle,                // v50.44 정본 full 객체 — themes 페이지가 읽음(phase/inputs/rationale)
         riskLevel: riskLevel,
         dominantTopic: dominantTopic,
+        newsSignal: newsSignal,          // v50.45 자율 루프 — 뉴스 감성/이벤트 신호(텍스트 합성·audit가 읽음)
         actionPlan: action,
         driftFromSnapshot: (typeof window._aioRegimeDrift === 'function') ? window._aioRegimeDrift().severity : null,
         ts: Date.now()
@@ -9864,7 +9952,14 @@ window.AIO_ACTION_RULES = {
       if (bn < 30) actions.push('Breadth: 시장 참여 폭 협소 — 개별 종목 위험 회피, ETF 위주.');
       else if (bn > 70) actions.push('Breadth: 광범위 참여 — 섹터 로테이션 기회.');
     }
-    return { actions: actions, position: pos, sentiment: sent, generatedAt: new Date().toISOString() };
+    // v50.45 [자율 루프] 뉴스 인지 — 받아온 뉴스 감성/이벤트를 행동 가이드에 반영(폴백: newsSignal 없으면 기존 동작).
+    var newsTilt = null, ns = env.newsSignal;
+    if (ns && ns.available) {
+      if (ns.bias === 'bearish') { newsTilt = 'defensive'; actions.push('📰 뉴스 경계: 부정 뉴스 우위(감성 ' + ns.sentimentScore + ') — 신규 진입 보수적, 손절 타이트.'); }
+      else if (ns.bias === 'bullish') { newsTilt = 'constructive'; actions.push('📰 뉴스 우호: 긍정 뉴스 우위(감성 ' + ns.sentimentScore + ') — 추세 추종 우호, 과열만 주의.'); }
+      if (ns.eventFlags && ns.eventFlags.geopolitical) actions.push('⚠️ 지정학 뉴스 활성 — 이벤트 리스크 헤지 점검.');
+    }
+    return { actions: actions, position: pos, sentiment: sent, newsTilt: newsTilt, generatedAt: new Date().toISOString() };
   }
 };
 
@@ -15452,7 +15547,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.44';
+const APP_VERSION = 'v50.45';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

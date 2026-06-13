@@ -1,5 +1,41 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.45 - 자율 운영 순환 Phase 1: 뉴스 신호 → 두뇌(risk/action) 고리 복원 + 실측 McClellan (2026-06-13)
+
+**사용자: "여러 소스/API로 데이터·뉴스를 받아와, 받아온 정보 기반으로 기능/텍스트 등 섹션을 자동 반영하고 '현재 시장 분석'에도 반영되는 순환 구조 — 사이트가 자체적으로 운영되는 느낌. 알고리즘부터 보강." (다중/병렬 에이전트 활용 지시)**
+
+**3-에이전트 병렬 조사 결론**: 수집(ingest)·단일 두뇌(`computeMarketState`)·이벤트 버스는 이미 있으나, **루프가 "뉴스 → 감성/이벤트 신호 → 두뇌(risk/action) → 자동 텍스트"에서 끊김**. 뉴스는 받아오나 `dominantTopic`만 추출되고 감성 점수·이벤트가 분석/텍스트로 전파 안 됨. + 알고리즘 약점: McClellan/Weinstein/goldenCross가 하드코딩 'bearish'/'bullish'(실측 `calcMcClellan`(index.html:27949) 미사용), `getCycleFromMacro`는 "단순 의사결정 트리" 자인.
+
+**결정(사용자)**: 텍스트 합성 = 하이브리드(템플릿 기본 + 서버 LLM 선택), 알고리즘 = 적극 재작성. → 마스터 플랜 v50.45~48(plan 파일). 이번은 **Phase 1**(끊긴 고리 복원 = 최고 가치).
+
+### Phase 1 — News Signal + 두뇌 강화 + 실측 신호
+
+**1A [신규] `_aioComputeNewsSignal()`** (aio-core.js, computeMarketState 앞)
+- 점수화된 `window._allNewsItems`(scoreItem/getSentimentFromText/classifyTopic 재사용 — 신규 fetch 0)에서 합성:
+  - `sentimentScore` (-100..+100, **pubDate 신선도 가중**: <6h=1.0/<24h=0.7/<72h=0.4/그 외 0.2)
+  - `bull/bear/warn/neut` counts, `bias`(bullish/neutral/bearish)
+  - `eventFlags`{geopolitical, earnings, policy, macro, supply} (토픽 가중합 임계 불린화)
+  - `dominantTopics`[{topic, weight, sentiment}] (general/analyst 제외, 가중순 top4)
+  - `freshCount`(24h 이내), `available`.
+
+**1B [강화] `computeMarketState` 뉴스 인지** (aio-core.js)
+- `marketState.newsSignal` 노출. **riskLevel에 뉴스 성분 추가** — bear 우위(+2)/neutral(+1)/지정학 이벤트(+1) → 종합 risk tilt↑. 끊겨 있던 "뉴스→리스크" 고리 복원.
+- `dominantTopic`을 newsSignal(신선도 가중) 기반으로 격상(폴백: 단순 빈도).
+- **실측 신호로 하드코딩 교체**: `mcclellan` → `_mcData`(calcMcClellan oscillator) 부호 우선, 없으면 breadth 단기-장기 모멘텀 / `weinstein` → 50일선 stage proxy(>55 강세·<40 약세) / `goldenCross` → 20-50일 breadth 스프레드. 더 이상 정적 'bearish' 고정 아님.
+
+**1C [강화] `AIO_ACTION_RULES.getActionPlan` 뉴스 인지** (aio-core.js)
+- `env.newsSignal` 선택 인자 → bear 우위 시 `newsTilt:'defensive'` + "📰 뉴스 경계" 액션, bull 우위 시 `constructive`, 지정학 활성 시 "⚠️ 지정학 헤지 점검" 라인. position/sentiment 객체는 보존(폴백 무회귀).
+
+### 테스트
+- T818 신규: `_aioComputeNewsSignal` 구조 + marketState.newsSignal 흡수 + 하드코딩 McClellan 제거(`_mcData`/`mcSignal` 분기 존재 + `mcclellan:'bearish'` 부재) + getActionPlan newsTilt 뉴스 반응.
+
+### 정직 보류 (마스터 플랜 차기)
+- Phase 2: `getCycleFromMacro`/riskLevel 모델 재작성(가중/정규화 다신호).
+- Phase 3: `_aioSynthesizeMarketAnalysis()` 텍스트 합성 엔진(home "현재 시장 분석" 자동 단락 + briefing 뉴스 감성 라인 + macro storyline 뉴스 이벤트 트리거 + 채팅 dominantTopic).
+- Phase 4: 서버 LLM 선택 강화(fetch-data.mjs) + `getAutonomousLoopAudit`.
+
+**R1 7곳 + 캐시버스터 5곳.**
+
 ## v50.44 - 단일 두뇌 소비자 전환 완성 (선순환 구조) + 안전한 중복 제거 (2026-06-13)
 
 **사용자: "남은 부분/영역 이어서 계속해줘. 진짜 근본적이고 구조적인 재배치/제거/추가/개편을 목적으로 작업하는 거야."**
