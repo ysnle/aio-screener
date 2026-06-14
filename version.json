@@ -1,5 +1,5 @@
 {
-  "version": "v50.50",
-  "built": "2026-06-18T04:00:00+09:00",
-  "note": "v50.50 UX 1단계 — home 매매 판단 라벨 정합(라이브 검증 기반). 라이브 페이지 점검 결과 에이전트 정적 감사의 '빈 껍데기/고장' ★항목 대부분이 거짓 양성(렌더러 작동·콘텐츠 충실)임을 확인. 유일하게 라이브에서 실증된 진짜 모순 시정: home '지금 매매해도 될까?' 트레이딩 카드가 YES/CAUTION/NO(>70/>50) 임계로, 같은 점수 62가 결론바/범례의 '선별매수'(60-75)와 모순('CAUTION') → 카드를 결론바·범례와 동일 5밴드(75 적극매수/60 매수우호/45 중립/30 주의/30↓위험)로 정렬(aio-data.js refreshHomeDashboard). 62 → '매수 우호'로 일관. 회귀 0(테스트가 구 라벨 단언 안 함). 라이브 검증: macro 스토리라인/온도계(61)·kr-themes(28카드)·kr-macro/kr-technical 모두 정상 렌더 — 남은 UX는 버그 아닌 주관적 밀도(긴 페이지=충실한 콘텐츠), 사용자 지목 시 선별 진행. R1 7곳+캐시버스터 5곳."
+  "version": "v50.51",
+  "built": "2026-06-14T20:00:00+09:00",
+  "note": "v50.51 DEFERRED-BLOCKS §3 Priority A 전체 + B 착수. A1: stale-day 단일 기준·포맷터(_aioStaleDays/_aioStaleDaysLabel) — data-snap-date 2-writer(aio-core 'N일 경과' UTC parse vs index.html 'D+N일' local parse)가 같은 #KEY-stale-days span을 경쟁 기재하던 충돌을 단일 카운터로 통합(로컬-일 정규화로 off-by-one 제거) + KR 4카드 stale-days span 추가. A2: breadth 중복 차트 통합 — SECTION 5-B(bh-* 히스토리 4캔버스) 제거(bp-*가 동일 시장폭을 일별 전체사이클+라이브 override로 표시·중복), initBreadthCharts retired, 8→4 캔버스. A3: marketState 잔여 소비자 구독 완결 — aio:marketStateUpdated 리스너에 renderDynamicMarketNarratives+generateMacroStoryline 추가(선순환 전파). WO-12: 문서 다이어트 — 루트 CLAUDE.md 227→~75줄, _context/CLAUDE.md 209→~95줄(CHANGELOG.md 단일 이력 출처). WO-14: 게이트 블록 분류 착수 — 45 evidence 블록=100% 환경의존 live(운영서 해소)·트레이딩 0·텍스트 signal/fxbond 청산(reference archive+staleDate 오탐 시정)·GATE-BASELINE §6 기록. WO-13: critical-10 통폐합 평가 — 4함수 dead 아님(별개 lens·테스트핀·룰의무·엔진 공유)·진짜 중복은 v50.44 해소·추가 병합 보류. 라이브 검증: A1 span 단일포맷·A2 bp 5인스턴스/bh 제거·A3 sink 동기화·콘솔 JS 0. R1 7곳+캐시버스터 5곳."
 }

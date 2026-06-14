@@ -1,5 +1,42 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.51 - DEFERRED-BLOCKS §3 Priority A 전체 + B 착수 (2026-06-14)
+
+사용자: "이전 세션 보고서(DEFERRED-BLOCKS.md)에 나와있는대로 작업해줘." → §1 진짜 블록(데이터·시간·운영자 결정)은 제외, §3 우선순위 A(구조 정합) 전체 + B(운영 정리) 착수.
+
+**A1 — KR stale-days 단일 기준·단일 포맷터 통합**
+- `_aioStaleDays(baseDate, nowTs?)` + `_aioStaleDaysLabel(baseDate, opts)` 신규(aio-core) — base·now를 모두 **로컬 캘린더-일로 정규화**해 경과일 단일 산출. `new Date('YYYY-MM-DD')`=UTC 자정 vs `new Date(y,m-1,d)`=로컬 자정 혼용 off-by-one(KST) 제거.
+- **진짜 충돌 정정**: 보고서가 지목한 `aio-core:2086/2148`은 KR/LIFECYCLE가 아니라 **시나리오 레지스트리 writer**(`#scenario-outlook-ts`/`#macro-scenario-stale-days`). 실제 KR stale-days 충돌은 **data-snap-date 핸들러 2개**(aio-core:17734 "N일 경과"·UTC vs index.html:21092 "D+N일"·local)가 같은 `#KEY-stale-days` span에 다른 포맷·기준일로 경쟁 기재한 것.
+- 양 data-snap-date 핸들러 + LIFECYCLE `getStatus` + 시나리오 writer 2곳을 단일 카운터로 라우팅(폴백 내장). KR 4카드(kr-deposit/kr-52w-high/kr-52w-low/kr-advance)에 stale-days span 추가 → 라벨 일반화.
+- 라이브 검증: 전 `#KEY-stale-days`가 단일 "N일 경과" 포맷, `D+` 잔재 0건.
+
+**A2 — breadth 중복 차트 실제 통합/제거** (사용자 선택: 통합/제거)
+- SECTION 5-B(`bh-price/bh-5ma/bh-20ma/bh-50ma` 4캔버스, 정적 22pt 히스토리) **제거**. `bp-*`(SECTION 5)가 동일 5/20/50 시장폭 + S&P500·나스닥100 듀얼라인을 47pt **일별 전체 사이클**(3월 저점→랠리→6/5 셀오프)로 + 라이브 스냅샷 override까지 표시 → bh는 저밀도·정적 중복. 캔버스 8→4.
+- `initBreadthCharts()` 호출 제거 + 함수 retired(no-op 가드), `_breadthSeries` 폴백 맵 bh 엔트리 삭제. bp 제목/aria 정직화(잘못된 "(20일)"·"S&P500"-only → "추세"·"S&P500·나스닥").
+- aio-core의 bh-* 방어적 참조는 `getElementById` null no-op으로 무해. 테스트 bh-* 참조 0건.
+- 라이브 검증: bp 5인스턴스 렌더·bh 캔버스 제거·콘솔 JS 0.
+
+**A3 — marketState 잔여 소비자 구독 확산 (선순환 완결)**
+- `aio:marketStateUpdated` 리스너(aio-core:3002)에 `AIO.renderDynamicMarketNarratives()` + `generateMacroStoryline()` 추가(존재 가드·idempotent·additive) → 단일 두뇌 갱신 시 내러티브/스토리라인 자동 동기화.
+- 채팅 헤더(`_mktHeader`/`_ccHeader`)는 질의 시점 on-demand로 marketState를 읽으므로 구독 불요(이미 정합 — 갭 아님).
+- 라이브 검증: `computeMarketState()` 반복 호출 시 macro storyline sink(1714자) 갱신·throw 0.
+
+**WO-12 — 문서 다이어트**
+- 루트 `CLAUDE.md` 227줄(약 26K 토큰)→~75줄: 최근 5개 버전 요약 + `CHANGELOG.md` 포인터 + 절대 규칙/작업 규칙/복리 루프 유지.
+- `_context/CLAUDE.md` 209→~95줄: 버전 노트 누적분 제거(CHANGELOG.md가 상세 단일 출처), 버전 v50.41→v50.51 정정, DEFERRED-BLOCKS 문서표 추가.
+- `CHANGELOG-ARCHIVE.md` 미신설 — CHANGELOG.md가 이미 v48~현재 상세 보존이라 중복 회피(plan "누락분만 이전" 조건 충족).
+
+**WO-14 — 배포 게이트 블록 분류 착수** (`GATE-BASELINE §6`)
+- evidence 게이트 45블록 = **100% `kind:live`**(헤드리스 미충전 시세 셀·환경 의존, 운영서 자동 해소 — reference 재분류 대상 아님). 트레이딩 로직 0블록.
+- 텍스트 표면: signal 3→0(캡션 "5/20/50SMA" staleDate 오탐 → 미들닷 / "참고 진단" 정적 예시 → `data-aio-archive`), fxbond 1→0(tnx-2y "참고용 스냅샷" → `data-aio-archive`), themes 0. 잔여 17건=비우선 페이지 금융용어 오탐.
+- 정직 결론: 보고서 "67블록"은 대부분 환경 의존 live이며 데이터 비의존 실블록은 소수 reference/오탐. staleDate 정규식 정밀도 개선(audit 코드)은 §4 주의대로 별도 이관.
+
+**WO-13 — critical-10 audit 통폐합 (착수·평가)**
+- 4함수(`getCritical10MarketSurfaceAudit`/`MarketSituationAudit`/`refreshCritical10MarketSituationAudit`/`getCritical10ContentEvidenceMatrix`)는 **dead 아님** — 별개 audit lens(반환 shape 상이)·`getComprehensivePageDataFreshnessAudit`/aio-data/`AUDIT_REGISTRY`/`getAutoOpsReadiness` 소비·T724~T736 핀·RULES 의무·이미 `buildEvidenceStore` 엔진 공유.
+- 유일 진짜 중복(matrix 이중정의)은 v50.44에서 이미 해소(`_deadV49112_*`). 추가 thin-wrapper 병합은 테스트·룰 계약 파손 위험 대비 이득 미미 → **무리한 통합 지양·보류**(통폐합 전제가 중복도 과대평가).
+
+**버전·검증**: R1 7곳(title·badge·APP_VERSION·version.json·sw.js SW_VERSION·_context/CLAUDE.md·CHANGELOG.md) + 캐시버스터 5곳 v50.51. 단위 테스트 876/896 pass(잔여 20 fail은 v50.4 GATE-BASELINE 문서화 환경/데이터/버전 드리프트 — A1/A2/A3 무관, 신규 회귀 0). 라이브 콘솔 JS 에러 0.
+
 ## v50.50 - UX 1단계: home 매매 판단 라벨 정합 (라이브 검증 기반) (2026-06-14)
 
 **사용자: "이제 UX 작업만 남은거야? 조사 결과대로 모두 빠짐없이 직접 해줘. 라이브 화면 보면서 단계별로 진행해."**

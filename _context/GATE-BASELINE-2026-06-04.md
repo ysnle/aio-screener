@@ -159,3 +159,22 @@ AIO.runEvidenceDeploymentGate({strict:false});     // {status,deployable,blockin
 AIO.getTradingDecisionLogicAudit({});              // {blockingCount,warningCount,findings}
 AIO.getTextSurfaceAudit({includeItems:true});      // {blockingCount,warningCount,pages[]}
 ```
+
+---
+
+## 6. WO-14 게이트 블록 분류 착수 (v50.51, 2026-06-14)
+
+DEFERRED-BLOCKS §3 B-WO14("배포 게이트 블록 67건 signal 31·fxbond 16·themes 12 pass/reference 분류"). 헤드리스 preview에서 실측·분류:
+
+**(A) Evidence 게이트 블록 (`getAllPageContentEvidenceMatrix`) = 45건, 100% `kind:live`.**
+- 전부 라이브 시세 셀이 헤드리스(키·네트워크 없음)에서 미충전돼 block된 것. **환경 의존** — 운영(키+네트워크)에서 자동 해소. reference-only 재분류 대상 아님(실제로 live가 맞음). 페이지 분포: idx15(20)·idx1(8)·idx7(8)·idx3(3) 등.
+
+**(B) 트레이딩 로직 블록(`getTradingDecisionLogicAudit`) = 0건** (warning 4 = B계층 breadth proxy, 환경).
+
+**(C) 텍스트 표면 블록(`getTextSurfaceAudit`) = 22건 → 시정 후 17건.** 우선 페이지(signal/fxbond/themes) 분류·시정:
+- `signal` 3건: ① "5/20/50SMA · A-D · McClellan · Weinstein" 캡션 = staleDate 정규식이 "5/20"을 날짜로 **오탐**(지표 용어) → `5·20·50SMA` 미들닷으로 시정. ② "참고 진단: 5SMA 68%·20SMA 75%·50SMA 46%" = 인접 라이브 `breadth-consensus-details`(61/57/52)와 어긋나는 **정적 예시**(자체 "동적 합의는 상단 참조" 명시) → `data-aio-archive="true"` 마킹(참고 예시로 정분류). ③ aria-label 1건(staleDate) = 잔여, 문서화.
+- `fxbond` 1건: tnx-2y "참고용 스냅샷 only, not live · 2026-05-13" = 명시적 reference 스냅샷 → `data-aio-archive="true"` 마킹.
+- `themes`: 텍스트 블록 0건.
+- **결과**: signal 3→0, fxbond 1→0 (우선 3페이지 텍스트 블록 청산). 잔여 17건은 비우선 페이지(home/breadth/sentiment/briefing/technical/macro/market-news/kr-home/kr-macro)로 §4 기록대로 **금융 용어·지표 슬래시(N/N) staleDate 오탐 다수**.
+
+**결론(정직)**: 보고서의 "67 블록"은 **대부분 환경 의존 live 셀**(reference 재분류가 아니라 운영서 해소)이며, 데이터 비의존 실블록은 텍스트 표면의 소수 reference/오탐뿐. 진짜 위반(내부 마커·실 stale)은 우선 페이지에서 발견되지 않음. **잔여 audit 정밀도(staleDate가 `[1-9]/\d{1,2}` 지표 표기·data-snap-date reference를 오탐)** 개선은 evidence 엔진 코드 변경이라 §4 주의대로 별도 신중 처리로 이관.

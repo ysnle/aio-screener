@@ -2082,7 +2082,7 @@ if (typeof document !== 'undefined') {
         });
         var tsEl = document.getElementById('scenario-outlook-ts');
         if (tsEl && latest) {
-          var days = Math.floor((Date.now() - latest) / 86400000);
+          var days = (typeof window._aioStaleDays === 'function') ? window._aioStaleDays(latest) : Math.floor((Date.now() - latest) / 86400000);
           var staleSfx = (days > reg.staleDaysThreshold) ? ' ⚠️ ' + days + '일 경과' : ' (' + days + '일 전)';
           tsEl.textContent = '최근 갱신: ' + new Date(latest).toISOString().slice(0, 10) + staleSfx;
         }
@@ -2144,7 +2144,7 @@ if (typeof document !== 'undefined') {
         if (updEl && latest) updEl.textContent = new Date(latest).toISOString().slice(0, 10);
         var staleEl = document.getElementById('macro-scenario-stale-days');
         if (staleEl && latest) {
-          var days = Math.floor((Date.now() - latest) / 86400000);
+          var days = (typeof window._aioStaleDays === 'function') ? window._aioStaleDays(latest) : Math.floor((Date.now() - latest) / 86400000);
           staleEl.textContent = days + '일 경과' + (days > reg.staleDaysThreshold ? ' ⚠️ STALE' : '');
         }
         var sumEl = document.getElementById('macro-scenario-sum');
@@ -3008,6 +3008,10 @@ if (typeof document !== 'undefined') {
         if (window._aioRenderBriefingAction) window._aioRenderBriefingAction();
         if (window._aioRenderOptionsRec) window._aioRenderOptionsRec();
         if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); // v50.47 자동 텍스트 합성 전파
+        // v50.51 A3: 잔여 내러티브 소비자도 단일 두뇌 갱신에 동기화 (선순환 완결).
+        //   둘 다 liveQuotes/pageShown/boot에서 이미 반복 호출되는 idempotent 렌더러 → additive·저위험.
+        if (window.AIO && typeof window.AIO.renderDynamicMarketNarratives === 'function') window.AIO.renderDynamicMarketNarratives();
+        if (typeof window.generateMacroStoryline === 'function') window.generateMacroStoryline();
         window._aioRenderActivePageNewsStrip();
       } catch(_){}
     });
@@ -9197,6 +9201,57 @@ window.AIO.getGeopoliticalReviewAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// v50.51 A1: stale-day 단일 기준·단일 포맷터 (writer 다수 통합)
+// 기존엔 (1) aio-core data-snap-date 핸들러 (2) index.html data-snap-date 핸들러
+// (3) STATIC_CONTENT_LIFECYCLE.getStatus (4) 시나리오 writer 2곳이 각자 날짜를 파싱했다.
+// 특히 (1)은 new Date('YYYY-MM-DD')=UTC 자정, (2)는 new Date(y,m-1,d)=로컬 자정으로
+// 같은 #KEY-stale-days span을 KST에서 off-by-one + 다른 포맷("N일 경과" vs "D+N일")으로
+// 경쟁 기재했다. 아래 헬퍼로 base·now를 모두 로컬 캘린더-일로 정규화해 카운트를 단일화한다.
+// ─────────────────────────────────────────────────────────────────
+window._aioStaleDays = function(baseDate, nowTs) {
+  try {
+    var b;
+    if (baseDate instanceof Date) {
+      if (isNaN(baseDate.getTime())) return null;
+      b = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+    } else if (typeof baseDate === 'number') {
+      var bd = new Date(baseDate);
+      if (isNaN(bd.getTime())) return null;
+      b = new Date(bd.getFullYear(), bd.getMonth(), bd.getDate());
+    } else if (typeof baseDate === 'string') {
+      var m = baseDate.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (!m) return null;
+      b = new Date(+m[1], +m[2] - 1, +m[3]);
+    } else {
+      return null;
+    }
+    if (isNaN(b.getTime())) return null;
+    var n = (nowTs != null) ? new Date(nowTs) : new Date();
+    var nLocal = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+    return Math.round((nLocal.getTime() - b.getTime()) / 86400000);
+  } catch(_e) { return null; }
+};
+
+// 단일 포맷터: {days, text, color}. "오늘 갱신" / "N일 경과"(+경고 접미사) 표준.
+window._aioStaleDaysLabel = function(baseDate, opts) {
+  opts = opts || {};
+  var days = window._aioStaleDays(baseDate, opts.nowTs);
+  if (days == null) return { days: null, text: (opts.fallback || '—'), color: 'var(--text-muted)' };
+  var warnDays = (opts.warnDays != null) ? opts.warnDays : 14;
+  var staleDays = (opts.staleDays != null) ? opts.staleDays : 30;
+  var text, color;
+  if (days <= 0) {
+    text = '오늘 갱신';
+    color = 'var(--green)';
+  } else {
+    var suffix = days > staleDays ? ' ⚠️' : days > warnDays ? ' (확인 필요)' : '';
+    text = days + '일 경과' + suffix;
+    color = days > staleDays ? 'var(--data-red)' : days > warnDays ? 'var(--data-amber)' : 'var(--text-muted)';
+  }
+  return { days: days, text: text, color: color };
+};
+
+// ─────────────────────────────────────────────────────────────────
 // v49.30 M2 근본 수정: STATIC_CONTENT_LIFECYCLE — 정적 콘텐츠 만료 정책
 // 인터뷰/이벤트/메모 lifecycle 메타. archiveAfterDays 경과 시 자동 stale.
 // R75 신규 (인터뷰 자동 expire)
@@ -9219,8 +9274,10 @@ window.AIO_STATIC_CONTENT_LIFECYCLE = {
     var c = this.contents[contentId];
     if (!c) return { exists: false };
     var now = nowTs || Date.now();
-    var created = new Date(c.createdAt).getTime();
-    var ageDays = Math.floor((now - created) / 86400000);
+    // v50.51 A1: 단일 stale-day 카운터 사용 (로컬-일 정규화 통일). 헬퍼 미로드 시 폴백.
+    var ageDays = (typeof window._aioStaleDays === 'function')
+      ? window._aioStaleDays(c.createdAt, now)
+      : Math.floor((now - new Date(c.createdAt).getTime()) / 86400000);
     var archiveAt = c.archiveAfterDays != null ? c.archiveAfterDays : this.defaultArchiveAfterDays;
     var replaceAt = c.replaceAfterDays != null ? c.replaceAfterDays : this.defaultReplaceAfterDays;
     return {
@@ -15680,7 +15737,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.50';
+const APP_VERSION = 'v50.51';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -17727,26 +17784,16 @@ function applyDataSnapshot() {
     // 사용: <span data-snap-date="briefing-archive">2026-04-15</span>
     //       <span id="briefing-stale-days">...</span>  ← 동일 블록 내 경과일 자동 채움
     try {
+      // v50.51 A1: 단일 포맷터 경유 (index.html data-snap-date 핸들러와 동일 출력 — 경쟁 기재 해소)
       document.querySelectorAll('[data-snap-date]').forEach(function(el) {
-        var dateStr = el.textContent.trim();
-        var parsed = new Date(dateStr);
-        if (isNaN(parsed.getTime())) return;
-        var days = Math.floor((Date.now() - parsed.getTime()) / 86400000);
-        // 가까운 ancestor에서 stale-days 요소 찾기
+        var dateStr = (el.textContent || el.getAttribute('data-snap-date-value') || '').trim();
         var key = el.getAttribute('data-snap-date');
         var staleEl = document.getElementById(key + '-stale-days') || document.getElementById('briefing-stale-days');
-        if (staleEl) {
-          if (days <= 0) {
-            staleEl.textContent = '오늘 갱신';
-            staleEl.style.color = '#00e5a0';
-          } else if (days === 1) {
-            staleEl.textContent = '1일 경과';
-            staleEl.style.color = '#ffa31a';
-          } else {
-            staleEl.textContent = days + '일 경과';
-            staleEl.style.color = days > 7 ? '#ff5b50' : (days > 3 ? '#ffa31a' : '#00d4ff');
-          }
-        }
+        if (!staleEl) return;
+        var lbl = (typeof window._aioStaleDaysLabel === 'function') ? window._aioStaleDaysLabel(dateStr) : null;
+        if (!lbl || lbl.days == null) return;
+        staleEl.textContent = lbl.text;
+        staleEl.style.color = lbl.color;
       });
     } catch(sdErr) { _aioLog('warn', 'snap-date', '처리 실패: ' + sdErr.message); }
 

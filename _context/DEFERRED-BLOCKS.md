@@ -85,3 +85,18 @@ OPUS-HANDOFF WO 백로그 + v50.33/34 페이지 잔여 + v50.42 후속에서 도
 
 ### UX 관련 정직 메모 (v50.50 라이브 검증 결론)
 에이전트 정적 UX 감사(`PAGE-UX-AUDIT-2026-06-13.md`)의 "빈 껍데기/고장" ★항목 **대부분이 거짓 양성**이었음 — 라이브 직접 점검 결과 macro 스토리라인·온도계(61)·kr-themes(28카드)·kr-macro/kr-technical 모두 정상 렌더, options nav 이미 제거됨, sentiment/breadth verdict 렌더러 보유. **유일한 실증 모순**(home 매매 카드 라벨 vs 결론바)만 v50.50에서 시정. 남은 UX는 버그가 아닌 **주관적 밀도**(긴 페이지=충실 콘텐츠) — 사용자 지목 시 선별 진행. 무차별 "간소화"는 콘텐츠 손실 위험이므로 지양.
+
+---
+
+## 4. v50.51 진행 결과 (2026-06-14 — Priority A 전체 + B 착수)
+
+DEFERRED-BLOCKS §3 우선순위 A 전체 + B 착수 수행.
+
+| 항목 | 상태 | 내용 |
+|------|------|------|
+| A1 stale-days 통합 | ✅ 완료 | `_aioStaleDays`/`_aioStaleDaysLabel`(aio-core) 단일 헬퍼 신설 — base·now 로컬-일 정규화로 UTC/로컬 off-by-one 제거. **실제 충돌은 data-snap-date writer 2개**(aio-core:17734 "N일 경과" UTC parse vs index.html:21092 "D+N일" local parse)가 같은 `#KEY-stale-days` span을 경쟁 기재한 것 — 보고서의 2086/2148은 시나리오 writer였음(정정). 양 핸들러 + LIFECYCLE getStatus + 시나리오 2곳을 단일 카운터로 라우팅. KR 4카드(deposit/52w-high/52w-low/advance) stale-days span 추가(라벨 일반화). 라이브 검증: 전 span 단일 "N일 경과" 포맷, D+ 0건. |
+| A2 breadth 차트 통합 | ✅ 완료 | SECTION 5-B(`bh-*` 히스토리 4캔버스) **제거** — `bp-*`(SECTION 5)가 동일 5/20/50 시장폭 + S&P·나스닥 듀얼라인을 일별 전체 사이클 + 라이브 스냅샷 override로 표시하므로 정적·저밀도 bh 세트는 중복. `initBreadthCharts()`/`_refreshBreadthHistoryCharts` retired(no-op). bp 제목/aria 정직화. 8→4 캔버스. 라이브 검증: bp 5인스턴스 렌더·bh 제거·콘솔 JS 0. |
+| A3 marketState 구독 확산 | ✅ 완료 | `aio:marketStateUpdated` 리스너(aio-core:3002)에 `renderDynamicMarketNarratives`+`generateMacroStoryline` 추가(idempotent·additive). 채팅 헤더는 질의 시점 on-demand read라 구독 불요(갭 아님). 라이브 검증: 두뇌 갱신 시 narrative sink 동기화·에러 0. |
+| WO-12 문서 다이어트 | ✅ 완료 | 루트 CLAUDE.md 227줄(26K토큰)→~75줄(최근 5버전+CHANGELOG 포인터). `_context/CLAUDE.md` 209→~95줄(버전 노트 제거+버전 v50.41→v50.50 정정). **CHANGELOG-ARCHIVE.md 미신설** — CHANGELOG.md가 이미 v48~v50.50 상세 단일 출처라 중복 회피("누락분만 이전" 조건 충족). |
+| WO-14 게이트 블록 분류 | ✅ 착수 완료 | **45 evidence 블록 = 100% `kind:live`**(환경 의존, 운영서 해소·재분류 대상 아님). 트레이딩 로직 0블록. 텍스트 블록 signal 3→0·fxbond 1→0(reference archive 마킹 + staleDate 오탐 미들닷 시정)·themes 0. 잔여 17건=비우선 페이지 금융용어 오탐. `GATE-BASELINE §6`에 분류 기록. **보고서의 "67블록"은 대부분 환경 의존 live**임을 실증. |
+| WO-13 audit 통폐합 | ⚠️ 착수(평가)·통합 보류 | critical-10 4함수는 **dead 아님** — 별개 lens(surface/situation/matrix)·각자 다른 반환 shape·freshness audit/AUDIT_REGISTRY/autoOps 소비·T724~736 핀·RULES 의무·이미 `buildEvidenceStore` 엔진 공유. 유일 진짜 중복(matrix 이중정의)은 **v50.44에서 이미 해소**(_deadV49112). 추가 thin-wrapper 병합은 테스트·룰 계약 파손 위험 큰 대비 이득 미미 → **무리한 통합 지양, 보류**(정직 결론: 통폐합 전제가 중복도 과대평가). |

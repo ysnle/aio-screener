@@ -79,11 +79,8 @@ if (typeof window !== 'undefined') {
     'bp-50ma-chart': [33,34,35,38,46,50,52,54,56,58,60,62,65,68,71,72,73,74,75,74,72,52],
     'bp-ad-ratio-chart': [40,38,40,43,55,68,72,74,76,75,77,78,79,80,82,81,80,79,78,80,78,61],
     'bp-price-chart': [620,623,638,655,678,692,702,710,713,715,717,719,721,728,735,742,748,752,756,758,752,738],
-    'bp-price-chart-qqq': [534,540,560,585,610,640,652,658,662,665,668,671,678,690,700,705,710,713,716,717,710,687],
-    'bh-5ma-chart':  [40,38,40,43,55,68,72,74,76,75,77,78,79,80,82,81,80,79,78,80,78,61],
-    'bh-20ma-chart': [33,32,33,34,58,72,75,78,80,80,81,82,83,84,85,85,86,84,83,82,80,57],
-    'bh-50ma-chart': [33,34,35,38,46,50,52,54,56,58,60,62,65,68,71,72,73,74,75,74,72,52],
-    'bh-price-chart': [534,540,560,585,610,640,652,658,662,665,668,671,678,690,700,705,710,713,716,717,710,687]
+    'bp-price-chart-qqq': [534,540,560,585,610,640,652,658,662,665,668,671,678,690,700,705,710,713,716,717,710,687]
+    // v50.51 A2: bh-* 히스토리 차트 제거 (bp-*로 통합) — 폴백 시리즈 엔트리도 삭제
   };
   window._breadthLabels = window._breadthLabels || ['3/13','3/19','3/26','4/2','4/8','4/14','4/18','4/23','4/28','4/30','5/6','5/12','5/15','5/20','5/22','5/27','5/28','5/29','6/2','6/3','6/4','6/5'];
   if (typeof window._breadth5 !== 'number')  window._breadth5  = 61;
@@ -1100,8 +1097,8 @@ function initBreadthPage(forceReinit) {
   // Update Weinstein analysis
   updateWSAnalysis();
 
-  // v27.2: bh-* 히스토리 차트도 초기화 (Section 5-B)
-  initBreadthCharts();
+  // v50.51 A2: SECTION 5-B(bh-* 히스토리 차트) 제거 — bp-*가 동일 시장폭을 일별 전체 사이클로 통합.
+  //   initBreadthCharts() 호출 제거 (함수는 retired stub).
 
   // v40.4: SPY/QQQ 가격 차트 동적 교체 (Yahoo Finance)
   _refreshBreadthPriceChart();
@@ -1240,6 +1237,9 @@ let bhChartsInitialized = false;
 const bhChartInstances = {};
 
 function initBreadthCharts() {
+  // v50.51 A2: RETIRED — bh-* 히스토리 차트(Section 5-B)는 bp-*(Section 5)로 통합됨.
+  //   호출 경로(initBreadthPage) 제거됨. no-op 가드로 잔존 호출 무해화. 아래 본문은 비활성.
+  return;
   if (typeof Chart === 'undefined') return;
   if (bhChartsInitialized) {
     // Already created — just resize to fit newly visible panel
