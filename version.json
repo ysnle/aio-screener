@@ -1,5 +1,5 @@
 {
-  "version": "v50.49",
-  "built": "2026-06-18T02:00:00+09:00",
-  "note": "v50.49 LLM 모델 정책 정렬 — Opus 금지, Haiku 기본 + 필요시 Sonnet(AI 채팅과 동일 철학). scripts/fetch-data.mjs genMarketAnalysis: Haiku 4.5 기본, '필요할 때만' Sonnet 4.6 승격(VIX≥25·지정학/위기 뉴스 헤드라인·LLM_MARKET_ANALYSIS_MODEL=sonnet 강제). Opus 미사용(비용). 승격 사유 콘솔 로깅. 키 없으면 스킵(클라 템플릿 폴백). 정직 보류: (1) sink 확산(breadth 랠리품질·sentiment 복합판단은 이미 도메인 렌더러 보유 — 일반 분석 sink가 덮어써 부적절) (2) KR stale 라벨 일반화 — 라이브 확인 결과 stale-days 경로가 2개(aio-core.js:2086/2148 STATIC_CONTENT_LIFECYCLE 'N일 경과' vs index.html data-snap-date 'D+N일')가 서로 다른 기준일로 공존 → 무리한 3번째 writer 추가 대신 두 경로 통합이 선결(별도 정리 작업). 회귀 0. 다음: 페이지 UX 조사(PAGE-UX-AUDIT-2026-06-13.md) 시정. R1 7곳+캐시버스터 5곳."
+  "version": "v50.50",
+  "built": "2026-06-18T04:00:00+09:00",
+  "note": "v50.50 UX 1단계 — home 매매 판단 라벨 정합(라이브 검증 기반). 라이브 페이지 점검 결과 에이전트 정적 감사의 '빈 껍데기/고장' ★항목 대부분이 거짓 양성(렌더러 작동·콘텐츠 충실)임을 확인. 유일하게 라이브에서 실증된 진짜 모순 시정: home '지금 매매해도 될까?' 트레이딩 카드가 YES/CAUTION/NO(>70/>50) 임계로, 같은 점수 62가 결론바/범례의 '선별매수'(60-75)와 모순('CAUTION') → 카드를 결론바·범례와 동일 5밴드(75 적극매수/60 매수우호/45 중립/30 주의/30↓위험)로 정렬(aio-data.js refreshHomeDashboard). 62 → '매수 우호'로 일관. 회귀 0(테스트가 구 라벨 단언 안 함). 라이브 검증: macro 스토리라인/온도계(61)·kr-themes(28카드)·kr-macro/kr-technical 모두 정상 렌더 — 남은 UX는 버그 아닌 주관적 밀도(긴 페이지=충실한 콘텐츠), 사용자 지목 시 선별 진행. R1 7곳+캐시버스터 5곳."
 }

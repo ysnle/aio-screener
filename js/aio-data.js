@@ -13328,18 +13328,24 @@ function refreshHomeDashboard() {
   const signalEl = document.getElementById('home-trading-signal');
   const explanEl = document.getElementById('home-trading-explanation');
   if (signalEl) {
-    if (tradingScore > 70) {
-      signalEl.textContent = 'YES';
-      signalEl.style.color = '#00e5a0';
-      if (explanEl) explanEl.textContent = '시장 품질 우수. 매매 신호 강함. 변동성 안정적.' + (tradingScore >= 80 ? ' 참고: 과열 구간. 역사적으로 이 수준에서 차익실현이 유효했던 사례가 있음' : '');
-    } else if (tradingScore > 50) {
-      signalEl.textContent = 'CAUTION';
-      signalEl.style.color = '#ffa31a';
-      if (explanEl) explanEl.textContent = '시장 품질 중립. 신호 혼합. 위험 관리 필수.';
+    // v50.50 [UX] 결론바·범례와 동일 5밴드 척도로 정렬 — 이전 YES/CAUTION/NO(>70/>50) 임계가 결론바(75/60/45/30)와
+    //   모순(같은 62점이 카드 'CAUTION' vs 결론바 '선별매수')이라 사용자 혼란. 동일 라벨/임계로 통일.
+    var sc = tradingScore;
+    if (sc >= 75) {
+      signalEl.textContent = '적극 매수'; signalEl.style.color = '#00e5a0';
+      if (explanEl) explanEl.textContent = '시장 품질 우수 · 신호 강함 · 변동성 안정.' + (sc >= 80 ? ' 참고: 80+ 과열 구간 — 역사적으로 차익실현이 유효했던 사례.' : '');
+    } else if (sc >= 60) {
+      signalEl.textContent = '매수 우호'; signalEl.style.color = '#4ade80';
+      if (explanEl) explanEl.textContent = '선별 매수 우호 · 추세 양호. ATR 스톱 설정 후 신규 진입 가능.';
+    } else if (sc >= 45) {
+      signalEl.textContent = '중립 · 관망'; signalEl.style.color = '#ffa31a';
+      if (explanEl) explanEl.textContent = '신호 혼합 · 위험 관리 필수. 기존 포지션 유지, 신규 진입 자제.';
+    } else if (sc >= 30) {
+      signalEl.textContent = '주의 · 축소'; signalEl.style.color = '#ffa31a';
+      if (explanEl) explanEl.textContent = '시장 품질 약화 · 신호 약함. 리스크 자산 비중 축소, 현금 확보.';
     } else {
-      signalEl.textContent = 'NO';
-      signalEl.style.color = '#ff5b50';
-      if (explanEl) explanEl.textContent = '시장 품질 악화. 신호 약함. 포지션 축소 권장.' + (tradingScore <= 25 ? ' 참고: 극단적 약세 구간이나, 역사적으로 분할 매수 시작 시 높은 수익으로 이어진 사례가 있음' : '');
+      signalEl.textContent = '위험 · 방어'; signalEl.style.color = '#ff5b50';
+      if (explanEl) explanEl.textContent = '극단 약세 구간 · 방어적 운용.' + (sc <= 25 ? ' 참고: 역사적으로 분할 매수 시작 시 높은 수익으로 이어진 사례.' : '');
     }
   }
 
