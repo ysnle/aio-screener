@@ -38,11 +38,12 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}   # 없으면 macro는 빈 값(사이트는 정적 폴백)
         run: node scripts/fetch-data.mjs
 
-      - name: Commit data.json + history.json if changed
+      - name: Commit data.json + history.json + screener.json if changed
         run: |
           git config user.name "aio-data-bot"
           git config user.email "actions@github.com"
           git add public-data/data.json public-data/history.json
+          [ -f public-data/screener.json ] && git add public-data/screener.json || true
           if git diff --staged --quiet; then
             echo "변경 없음 — 커밋 생략"
           else

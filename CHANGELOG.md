@@ -1,5 +1,32 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.52 - 기관/퀀트급 업그레이드 Phase 1: 데이터 품질 + 멀티팩터 랭킹 + 블록 해제 (2026-06-15)
+
+운영자: "(1) 블록은 내가 운영자이니 나에게 묻고 풀어라 (2) 아키텍처·알고리즘을 실제 기관/펀드/퀀트 스크리너 수준으로 보강하라." 3-에이전트 전수 조사 결론: 정적 `SCREENER_DB`(시총/RSI/시그널 하드코딩, 2026-04 기준)·멀티팩터 모델/백테스트 부재가 최대 갭("고품질 UI + 휴리스틱급 분석"). UI/데이터 거버넌스 기반은 우수.
+
+**블록 재평가(운영자에게 물어 해소)**: B4(차트 히스토리)는 시간 블록이 아니라 백필로 즉시 해소 가능. B5(Claude 키)는 운영자 결정. B6은 패시브 확인. B1(한국 API)는 운영자가 보류.
+
+**B4 — 차트 히스토리 백필 (키스톤)** `scripts/fetch-data.mjs`
+- `fetchHistory(symbol, range='6mo')` 신규 — Yahoo v8/chart `timestamp[]`+`close[]` 파싱(기존 `fetchQuote`는 range=5d+meta만). `backfillHistory(hist)` — 13개 핵심 심볼(지수/VIX/금리/원자재/KR/BTC) 6개월 일별 종가로 history.json 과거 일자 시드(멱등: 기존 라이브 레코드 보존, 신규만 추가). `updateHistory`가 `hist.length<60`(또는 `BACKFILL=1`)일 때 1회 백필. F&G/IV는 과거 무료 소스 없어 null(정직).
+- 소비자(`_aioHistorySeries` minPoints 20·`_aioVixPercentile` 60)는 이미 준비됨 → ≥60일 채워지면 차트가 시드→실데이터 자동 전환. 검증: mock 65일 → `_aioVixPercentile(20)`=67.7·series 65·merge 멱등.
+
+**Track1 — 데이터 품질: 정적 SCREENER_DB → 라이브 팩터** (`fetch-data.mjs` + `js/aio-data.js`)
+- 서버: `getScreenerSymbols()`가 `js/aio-data.js`의 SCREENER_DB에서 심볼 런타임 추출(단일 출처·드리프트 방지). `enrichScreener()`가 유니버스에 1년 OHLCV → `closesToFactors`(모멘텀 ret1m/3m/6m·연율 변동성·RSI14·pctSma50/200) → `public-data/screener.json`(일1회 자가 스로틀 20h). 워크플로 git add에 screener.json 추가(파일 없으면 스킵).
+- 클라: `_aioApplyServerScreener(sd)`가 SCREENER_DB에 팩터 병합(정적 RSI/시그널 "유지" 주석 제거 → 라이브). `_aioLoadServerData` step6에서 screener.json 로드. 없으면 정적 폴백(무회귀).
+
+**Track2 — 멀티팩터 랭킹 (균형: 랭킹 먼저)** (`js/aio-data.js` + `js/aio-chat.js`)
+- `_aioComputeFactorRanks()` 신규 — momentum(0.35)·trend(0.25)·low-vol(0.20)·size(0.20) 4팩터를 **섹터 상대 z-score**(표본<5면 유니버스)+winsorize(±3σ)+가중합 → **0~100 percentile 랭크** + `factorScores` + `quantSignal`(강세/매수우호/중립/약세). editorial `signal`/`memo`는 보존(객관 퀀트 vs 애널리스트 구분). 팩터 없으면 정적 폴백.
+- **스크리너 표 UI는 v39.2에서 제거됨**(DOM 부재 — `renderScreenerResults` dead) → 라이브 서피스인 **AI 채팅 스크리너**(`_aioRunScreenerQuery`)에 surfacing: '퀀트/랭킹/팩터/우량' 의도 감지 → 랭크순 정렬, 기본 정렬도 랭크 우선(폴백 mcap), 프롬프트(`_formatScreenerResultPrompt`)에 퀀트 랭크·팩터 점수·기준일 노출 + "퀀트(객관) vs 시그널/메모(editorial) 구분" 지침. 검증: 멀티팩터 랭킹 NVDA 100(강세)→META 86→…→INTC 0(약세)·채팅 '퀀트 랭킹 기술주' 랭크정렬 정상.
+
+**B5 — Claude 키 서버화** (`cloudflare-worker-proxy.js` + `js/aio-chat.js`)
+- Worker: `fetch(request,env)` + `/anthropic` POST 라우트 — `handleAnthropic`이 body를 api.anthropic.com으로 포워드(`x-api-key=env.ANTHROPIC_API_KEY`), 본문 스트림 그대로 파이프(SSE 보존). 비용 보호: 모델 allowlist(haiku/sonnet, **opus 차단**)·`max_tokens` 상한·**일일 캡(env.AIO_QUOTA KV)**. CORS에 POST 추가.
+- 클라: `_aioClaudeTarget(apiKey)` — CF Worker URL + `aio_claude_server_mode` 토글 시 `/anthropic` 경유(개인 키 우선·없으면 서버 키). `callClaude` 가드/헤더/fetch 2곳 라우팅. 기본=직접 호출(무회귀). 보조 사이트(뉴스 번역·AI 브리핑)는 개인 키 유지(템플릿 폴백 보유) — 차기 확장.
+- 운영자 1회 설정 문서(Worker 헤더): ANTHROPIC_API_KEY 시크릿 + AIO_QUOTA KV 바인딩 + 사이드바 Worker URL/토글.
+
+**B6 — cron 활성 확인**: refresh-data.yml(`17,47`)+data-watchdog.yml(`23`) 배포됨. 운영자 액션 = GitHub Actions 탭 스케줄 활성 확인(60일 무활동 시 자동 비활성). 코드 변경 불요.
+
+**검증**: 단위 테스트 879/896(v50.51 876/20 대비 회귀 0, 오히려 flaky 3건 통과). 라이브 멀티팩터 랭킹·채팅 스크리너·B4 소비자 전환·콘솔 JS 0. **운영자 설정 필요**: B5(Cloudflare 시크릿/KV)·B6(Actions 활성). **다음 단계**: 백테스트/검증 엔진(history 백필·누적 후), 보조 LLM 사이트 서버키 확장, 밸류/퀄리티 팩터(FMP 키). R1 7곳+캐시버스터 5곳.
+
 ## v50.51 - DEFERRED-BLOCKS §3 Priority A 전체 + B 착수 (2026-06-14)
 
 사용자: "이전 세션 보고서(DEFERRED-BLOCKS.md)에 나와있는대로 작업해줘." → §1 진짜 블록(데이터·시간·운영자 결정)은 제외, §3 우선순위 A(구조 정합) 전체 + B(운영 정리) 착수.

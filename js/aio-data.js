@@ -4460,6 +4460,15 @@ async function _aioLoadServerData() {
       window._serverMarketAnalysis = { full: d.marketAnalysis.full || d.marketAnalysis.oneLine, oneLine: d.marketAnalysis.oneLine || d.marketAnalysis.full, generatedAt: d.marketAnalysis.generatedAt || d.meta.generatedAt };
       try { if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_) {}
     }
+    // 6) v50.52 Track1: 스크리너 팩터 데이터(screener.json, 서버 일1회 갱신) — SCREENER_DB에 라이브 병합 후 랭킹.
+    try {
+      var sUrl = './public-data/screener.json?t=' + Math.floor(Date.now() / 3600000); // 시간 단위 캐시버스터
+      var sr = await fetch(sUrl, { cache: 'no-cache' });
+      if (sr.ok) {
+        var sd = await sr.json();
+        if (sd && sd.data) { window._aioServerScreener = sd; if (typeof _aioApplyServerScreener === 'function') _aioApplyServerScreener(sd); }
+      }
+    } catch(_) { /* screener.json 없으면 정적 SCREENER_DB 폴백 */ }
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
     _aioRenderServerDataAge();  // v50.24/WO-4: 나이 배지 갱신
     // v50.24/WO-4: 보이는 페이지 분석 텍스트도 새 데이터로 재생성 (숨은 페이지는 스킵)
@@ -13095,10 +13104,91 @@ function updateScreenerFromLiveData() {
     var ld = window._liveData[item.sym];
     if (!ld) return;
     if (ld.marketCap) item.mcap = Math.round(ld.marketCap / 1e9);
-    // RSI는 Yahoo Finance quote에 없으므로 유지
+    // RSI/팩터는 screener.json(서버 enrichment, _aioApplyServerScreener)에서 라이브 병합
   });
   console.log('[AIO] 스크리너 DB mcap 라이브 업데이트 완료');
 }
+
+// v50.52 Track1: 서버 팩터 데이터(screener.json)를 SCREENER_DB에 병합 — 정적 RSI/시그널을 라이브 팩터로.
+//   가격 파생 4팩터(모멘텀 ret1m/3m/6m · 저변동 vol · 추세 pctSma50/200 · RSI). 없으면 정적 폴백(무회귀).
+function _aioApplyServerScreener(sd) {
+  if (!sd || !sd.data || typeof SCREENER_DB === 'undefined') return 0;
+  var n = 0;
+  SCREENER_DB.forEach(function(item) {
+    var f = sd.data[item.sym];
+    if (!f) return;
+    if (typeof f.price === 'number') item.price = f.price;
+    if (typeof f.rsi === 'number') item.rsi = f.rsi;               // 정적 RSI → 라이브
+    if (typeof f.ret1m === 'number') item.ret1m = f.ret1m;
+    if (typeof f.ret3m === 'number') item.ret3m = f.ret3m;
+    if (typeof f.ret6m === 'number') item.ret6m = f.ret6m;
+    if (typeof f.vol === 'number') item.vol = f.vol;
+    if (typeof f.pctSma50 === 'number') item.pctSma50 = f.pctSma50;
+    if (typeof f.pctSma200 === 'number') item.pctSma200 = f.pctSma200;
+    item._factorAsOf = sd.asOf;
+    n++;
+  });
+  window._aioScreenerFactorAsOf = sd.asOf;
+  // 팩터 들어왔으니 멀티팩터 랭킹 재계산(Track2) + 스크리너 표 재렌더(보이는 경우)
+  try { if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); } catch(_) {}
+  try { if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(_) {}
+  if (typeof _aioLog === 'function') _aioLog('info', 'data', 'screener 팩터 병합: ' + n + '종목 (asOf ' + (sd.asOf || '?') + ')');
+  return n;
+}
+window._aioApplyServerScreener = _aioApplyServerScreener;
+
+// ── v50.52 Track2: 멀티팩터 랭킹 엔진 (기관/퀀트급) ──
+// 정적 BUY/HOLD 태그(editorial)는 보존하고, 가격 파생 4팩터로 객관적 퀀트 랭크를 부가한다.
+//   momentum(ret1/3/6m) · trend(가격 vs SMA50/200) · low-vol(연율 변동성, 역방향) · size(log mcap).
+//   각 팩터를 섹터 상대 z-score(표본<5면 유니버스 상대) + winsorize(±3σ) → 가중합 → 0~100 percentile 랭크.
+//   팩터 데이터(screener.json) 없으면 null → 소비자는 정적 signal 폴백(무회귀).
+function _aioComputeFactorRanks() {
+  if (typeof SCREENER_DB === 'undefined') return null;
+  var items = SCREENER_DB.filter(function(r){ return r && (typeof r.ret3m === 'number' || typeof r.ret1m === 'number'); });
+  if (items.length < 5) return null; // 데이터 부족 → 정적 폴백
+  var avg = function(a){ return a.length ? a.reduce(function(x,y){return x+y;},0)/a.length : null; };
+  var momRaw = function(r){ var p=[]; ['ret1m','ret3m','ret6m'].forEach(function(k){ if(typeof r[k]==='number') p.push(r[k]); }); return p.length?avg(p):null; };
+  var trendRaw = function(r){ var p=[]; ['pctSma50','pctSma200'].forEach(function(k){ if(typeof r[k]==='number') p.push(r[k]); }); return p.length?avg(p):null; };
+  var lowvolRaw = function(r){ return typeof r.vol==='number' ? -r.vol : null; };           // 낮을수록 우수 → 음수화
+  var sizeRaw = function(r){ return (typeof r.mcap==='number' && r.mcap>0) ? Math.log(r.mcap) : null; };
+  var FACTORS = [
+    { key:'momentum', fn:momRaw,    w:0.35 },
+    { key:'trend',    fn:trendRaw,  w:0.25 },
+    { key:'lowvol',   fn:lowvolRaw, w:0.20 },
+    { key:'size',     fn:sizeRaw,   w:0.20 },
+  ];
+  var stats = function(vals){ if(!vals.length) return {mu:0,sd:0}; var mu=avg(vals); var sd=vals.length>1?Math.sqrt(vals.reduce(function(s,v){return s+(v-mu)*(v-mu);},0)/(vals.length-1)):0; return {mu:mu,sd:sd}; };
+  var winz = function(x,mu,sd){ if(sd<=0||typeof x!=='number'||!isFinite(x)) return 0; var z=(x-mu)/sd; return Math.max(-3,Math.min(3,z)); };
+  var z2pct = function(z){ return Math.max(0,Math.min(100,Math.round(50+z*16.67))); }; // z≈±3 → 0~100
+
+  var bySector = {};
+  items.forEach(function(r){ var s=r.sector||'_'; (bySector[s]=bySector[s]||[]).push(r); });
+
+  FACTORS.forEach(function(F){
+    var uni = stats(items.map(F.fn).filter(function(v){return typeof v==='number'&&isFinite(v);}));
+    Object.keys(bySector).forEach(function(s){
+      var grp = bySector[s];
+      var vals = grp.map(F.fn).filter(function(v){return typeof v==='number'&&isFinite(v);});
+      var st = vals.length>=5 ? stats(vals) : uni;      // 섹터 표본 충분하면 섹터 상대, 아니면 유니버스
+      grp.forEach(function(r){ r['_z_'+F.key] = winz(F.fn(r), st.mu, st.sd); });
+    });
+  });
+
+  items.forEach(function(r){
+    var comp=0; var fs={};
+    FACTORS.forEach(function(F){ var z=r['_z_'+F.key]||0; comp += z*F.w; fs[F.key]=z2pct(z); }); // wsum=1.0
+    r._compositeZ = comp; r.factorScores = fs;
+  });
+  var sorted = items.slice().sort(function(a,b){ return a._compositeZ - b._compositeZ; });
+  var n = sorted.length;
+  sorted.forEach(function(r,i){
+    r.rank = n>1 ? Math.round(i/(n-1)*100) : 50;       // 0~100 percentile (높을수록 우수)
+    r.quantSignal = r.rank>=80?'강세':r.rank>=60?'매수우호':r.rank>=40?'중립':'약세';
+  });
+  window._aioFactorRanksAsOf = window._aioScreenerFactorAsOf || null;
+  return { ranked: n, asOf: window._aioFactorRanksAsOf };
+}
+window._aioComputeFactorRanks = _aioComputeFactorRanks;
 
 // ═══ v31.9: Yahoo→FRED 실시간 데이터 브릿지 ═════════════════════════
 // FRED 데이터는 1~5일 지연. Yahoo에서 이미 실시간으로 가져오는 동일 데이터가 있으면

@@ -22,6 +22,17 @@
  * 2. "새 Worker 만들기" → 아래 코드 전체 복사/붙여넣기 → "배포"
  * 3. 워커 URL 복사 (예: https://aio-proxy.username.workers.dev)
  * 4. AIO Screener 사이드바 "CF Worker URL"에 붙여넣기
+ *
+ * ── v50.52 B5: Claude(AI 채팅) 서버 키 모드 (선택 — 사용자가 키 입력 없이 AI 채팅) ──
+ * 운영자만 1회 설정하면 모든 사용자가 개인 Claude 키 없이 AI 채팅 사용(키는 서버 시크릿).
+ *   1) 위 Worker 배포 후 → Worker 설정(Settings) → Variables and Secrets:
+ *        - Secret 추가: 이름 ANTHROPIC_API_KEY, 값 = 운영자 Anthropic API 키
+ *        - (선택) 변수 ANTHROPIC_DAILY_CAP (기본 300), ANTHROPIC_MAX_TOKENS (기본 1500)
+ *   2) (권장) 일일 캡 강제: KV Namespace 생성 → Worker에 바인딩 이름 AIO_QUOTA 로 추가
+ *        (KV 없으면 캡은 best-effort 미적용 — Cloudflare WAF Rate Limiting Rules 병행 권장)
+ *   3) 사이트에서: 사이드바 "CF Worker URL" 입력 + localStorage 'aio_claude_server_mode'='1'
+ *        (개인 키를 입력하면 개인 키가 우선 — 서버 키는 개인 키 없을 때/서버모드 토글 시 사용)
+ * 비용 보호: 모델 haiku/sonnet만 허용(opus 차단), max_tokens 상한, 일일 호출 캡.
  */
 
 // ── 허용 Origin (CORS) ──────────────────────────────────────────
@@ -137,8 +148,8 @@ function getCorsHeaders(requestOrigin) {
   const origin = ALLOWED_ORIGINS.includes(normalizedOrigin) ? normalizedOrigin : ALLOWED_ORIGINS[0];
   return {
     'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, anthropic-version',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -159,10 +170,69 @@ function errorResponse(message, status = 400, origin = '') {
   );
 }
 
+// ── v50.52 B5: Claude(Anthropic) 서버 키 프록시 ──────────────────────
+// 운영자 시크릿(env.ANTHROPIC_API_KEY)으로 호출 → 사용자는 개인 키 입력 불요.
+// 비용 보호: 모델 allowlist(haiku/sonnet, opus 차단)·max_tokens 상한·일일 캡(env.AIO_QUOTA KV).
+// 스트리밍 지원: 업스트림 응답 본문(r.body)을 그대로 파이프(SSE 보존).
+async function handleAnthropic(request, env, origin) {
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin) });
+  if (request.method !== 'POST') return errorResponse('POST required for /anthropic', 405, origin);
+  if (!env || !env.ANTHROPIC_API_KEY) return errorResponse('서버 Claude 키 미설정 (운영자가 ANTHROPIC_API_KEY 시크릿 추가 필요)', 503, origin);
+
+  // 일일 호출 캡 (KV 바인딩 시). 미바인딩이면 통과(Cloudflare WAF Rate Limiting 권장).
+  const DAILY_CAP = parseInt(env.ANTHROPIC_DAILY_CAP || '300', 10);
+  if (env.AIO_QUOTA && typeof env.AIO_QUOTA.get === 'function') {
+    try {
+      const dayKey = 'claude:' + new Date().toISOString().slice(0, 10);
+      const cur = parseInt((await env.AIO_QUOTA.get(dayKey)) || '0', 10);
+      if (cur >= DAILY_CAP) return errorResponse('일일 AI 사용 한도 초과 — 잠시 후 다시 시도하거나 개인 Claude 키를 입력하세요', 429, origin);
+      await env.AIO_QUOTA.put(dayKey, String(cur + 1), { expirationTtl: 172800 });
+    } catch (e) { /* KV 실패는 통과(best-effort) */ }
+  }
+
+  let body;
+  try { body = await request.json(); } catch { return errorResponse('Invalid JSON body', 400, origin); }
+  // 모델 allowlist: haiku/sonnet만 (opus 차단 — 비용 폭주 방지)
+  if (!/^claude-(haiku|sonnet)/.test(String(body.model || ''))) body.model = 'claude-haiku-4-5';
+  // max_tokens 상한 (공유 키 비용 한계)
+  const MAX_TOK = parseInt(env.ANTHROPIC_MAX_TOKENS || '1500', 10);
+  if (!body.max_tokens || body.max_tokens > MAX_TOK) body.max_tokens = MAX_TOK;
+
+  try {
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 60000);
+    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+    });
+    clearTimeout(to);
+    // 본문 스트림 그대로 파이프(스트리밍 SSE/일반 JSON 모두 보존) + CORS
+    return new Response(upstream.body, {
+      status: upstream.status,
+      headers: {
+        'Content-Type': upstream.headers.get('content-type') || 'application/json',
+        ...getCorsHeaders(origin),
+        ...SECURITY_HEADERS,
+        'X-AIO-Proxy': 'cloudflare-worker-anthropic',
+      },
+    });
+  } catch (e) {
+    return errorResponse(e.name === 'AbortError' ? 'Claude timeout' : 'Claude upstream error', 502, origin);
+  }
+}
+
 /** 메인 요청 핸들러 */
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const requestOrigin = request.headers.get('Origin') || '';
+    const _u = new URL(request.url);
+
+    // v50.52 B5: Claude 서버 키 프록시 라우트 (POST /anthropic). 데이터 프록시(GET ?url=)보다 먼저 분기.
+    if (_u.pathname === '/anthropic' || _u.searchParams.get('anthropic') === '1') {
+      return handleAnthropic(request, env, requestOrigin);
+    }
 
     // OPTIONS 프리플라이트
     if (request.method === 'OPTIONS') {

@@ -1388,10 +1388,25 @@ function chatShowLoading(ctxId) {
 
 // ── Claude API streaming ───────────────────────────────────────────────
 // v31.3: opts = { modelKey: 'haiku'|'sonnet'|'sonnet-thinking' }
+// v50.52 B5: Claude 호출 엔드포인트 결정 — 서버 키 모드(CF Worker /anthropic) vs 직접 호출.
+//   운영자가 Worker URL + 서버 키 토글(aio_claude_server_mode) 설정 시 개인 키 없이 Worker 경유
+//   (키는 Cloudflare 시크릿). 개인 키가 있으면 개인 키 직접 호출 우선(존중). 기본=직접(무회귀).
+function _aioClaudeTarget(apiKey) {
+  try {
+    var wurl = (typeof _getApiKey === 'function' ? (_getApiKey('aio_cf_worker_url') || '') : '').trim().replace(/\/+$/, '');
+    var serverMode = false;
+    try { serverMode = localStorage.getItem('aio_claude_server_mode') === '1'; } catch(_) {}
+    if (wurl && (serverMode || !apiKey)) return { url: wurl + '/anthropic', serverKey: true };
+  } catch(_) {}
+  return { url: 'https://api.anthropic.com/v1/messages', serverKey: false };
+}
+window._aioClaudeTarget = _aioClaudeTarget;
+
 async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   var apiKey = getApiKey();
-  if (!apiKey) {
-    onError('API 키가 설정되지 않았습니다. 상단  버튼에서 Claude API 키를 입력해주세요.');
+  var _claudeTarget = _aioClaudeTarget(apiKey);   // v50.52 B5: 서버 키 모드면 개인 키 불요
+  if (!apiKey && !_claudeTarget.serverKey) {
+    onError('API 키가 설정되지 않았습니다. 상단 버튼에서 Claude API 키를 입력하거나, 운영자가 서버 키 모드를 활성화하면 키 없이 사용할 수 있습니다.');
     return;
   }
   opts = opts || {};
@@ -1458,18 +1473,19 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   // v48.8: anthropic-beta 헤더 호환성 — 2024년 11월 이후 prompt caching이 정식 기능으로 승격되어
   //        beta 헤더 없이도 cache_control 필드만으로 동작. 구버전 SDK 호환 위해 헤더는 유지하되
   //        400 에러 시 자동 폴백 (beta 헤더 제거 후 재시도).
-  var _claudeHeaders = {
-    'Content-Type': 'application/json',
-    'x-api-key': apiKey,
-    'anthropic-version': '2023-06-01',
-    'anthropic-dangerous-direct-browser-access': 'true'
-  };
+  // v50.52 B5: 서버 키 모드면 키 헤더 생략(Worker가 x-api-key/anthropic-version 부여). 직접 호출이면 개인 키.
+  var _claudeHeaders = { 'Content-Type': 'application/json' };
+  if (!_claudeTarget.serverKey) {
+    _claudeHeaders['x-api-key'] = apiKey;
+    _claudeHeaders['anthropic-version'] = '2023-06-01';
+    _claudeHeaders['anthropic-dangerous-direct-browser-access'] = 'true';
+  }
   // cache_control 사용 시에만 beta 헤더 포함 (array system field 감지)
   if (Array.isArray(_systemField) && _systemField.some(function(b){ return b.cache_control; })) {
     _claudeHeaders['anthropic-beta'] = 'prompt-caching-2024-07-31';
   }
   try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
+    var res = await fetch(_claudeTarget.url, {
       method: 'POST',
       signal: ctrl.signal,
       headers: _claudeHeaders,
@@ -1481,7 +1497,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
       if (/beta|cache.*control|invalid.*header/i.test(_errTxt)) {
         _aioLog('warn', 'fetch', 'anthropic-beta 헤더 호환성 오류 — beta 제거 후 재시도');
         delete _claudeHeaders['anthropic-beta'];
-        res = await fetch('https://api.anthropic.com/v1/messages', {
+        res = await fetch(_claudeTarget.url, {
           method: 'POST', signal: ctrl.signal, headers: _claudeHeaders, body: JSON.stringify(reqBody)
         });
       } else {
@@ -1748,7 +1764,13 @@ function _aioRunScreenerQuery(query) {
     if (/급등|상승\s*(종목|률)?|오른|gainer|올라/.test(q)) { crit.dir = 'up'; labels.push('상승 종목'); }
     else if (/급락|하락\s*(종목|률)?|내린|loser|떨어/.test(q)) { crit.dir = 'down'; labels.push('하락 종목'); }
 
+    // 8) v50.52: 퀀트 멀티팩터 랭킹 정렬 의도
+    if (/퀀트|quant|팩터|factor|랭킹|순위|우량|상위\s*종목|best\b|top\s*\d*/.test(q)) { crit.byRank = true; labels.push('퀀트 랭킹순'); }
+
     if (labels.length === 0) return null; // 스크리너 조건 미감지 → 일반 흐름
+
+    // v50.52: 팩터 랭크 보장 — screener.json 병합 후 산출되지만, 아직이면 즉시 계산(폴백 무회귀)
+    if (typeof _aioComputeFactorRanks === 'function' && !db.some(function(s){ return s.rank != null; })) { try { _aioComputeFactorRanks(); } catch(_) {} }
 
     var live = window._liveData || {};
     var rows = db.filter(function(s) {
@@ -1770,14 +1792,19 @@ function _aioRunScreenerQuery(query) {
     }).map(function(s) {
       var ld = live[s.sym] || {};
       return { sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
+        rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
+        ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
         price: ld.price != null ? ld.price : null, pct: ld.pct != null ? ld.pct : null, memo: (s.memo || '').slice(0, 90) };
     });
 
     rows.sort(function(a, b) {
+      if (crit.byRank) return (b.rank == null ? -1 : b.rank) - (a.rank == null ? -1 : a.rank);
       if (crit.dir === 'up') return (b.pct == null ? -999 : b.pct) - (a.pct == null ? -999 : a.pct);
       if (crit.dir === 'down') return (a.pct == null ? 999 : a.pct) - (b.pct == null ? 999 : b.pct);
       if (crit.rsiMax != null) return (a.rsi == null ? 999 : a.rsi) - (b.rsi == null ? 999 : b.rsi);
       if (crit.rsiMin != null) return (b.rsi == null ? -999 : b.rsi) - (a.rsi == null ? -999 : a.rsi);
+      // v50.52: 기본 정렬을 퀀트 랭크 우선으로(있을 때) — 정적 mcap 정렬 대체. 폴백 mcap.
+      if (a.rank != null && b.rank != null) return b.rank - a.rank;
       return (b.mcap || 0) - (a.mcap || 0);
     });
 
@@ -1797,17 +1824,21 @@ function _formatScreenerResultPrompt(result) {
   lines.push('═══════════════════════════════════════════════════');
   lines.push('【스크리너 결과 — AIO 종목 DB 실시간 필터링】');
   lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)');
-  lines.push('출처: AIO SCREENER_DB(기관 메모·시그널·시총·RSI) × 실시간 시세(_liveData) · 기준 ' + ts);
-  lines.push('이 목록은 앱 내부 종목 DB를 실제 필터링한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.');
+  lines.push('출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 기준 ' + ts);
+  var fAsOf = (typeof window !== 'undefined' && window._aioFactorRanksAsOf) ? window._aioFactorRanksAsOf.slice(0,10) : null;
+  lines.push('퀀트 랭크(0~100, 높을수록 우수) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. ' + (fAsOf ? '팩터 기준일 ' + fAsOf : '팩터 데이터 대기 — 시그널/메모는 editorial(애널리스트 노트)') + '.');
+  lines.push('이 목록은 앱 내부 종목 DB를 실제 필터링·랭킹한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.');
   lines.push('═══════════════════════════════════════════════════');
   result.rows.forEach(function(r, i) {
-    lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + ' · 시그널 ' + r.signal +
-      ' · 시총 ' + (r.mcap ? '$' + r.mcap + 'B' : 'N/A') + ' · RSI ' + _f(r.rsi, 0) +
-      ' · 가격 ' + (r.price != null ? '$' + _f(r.price, 2) : 'N/A') + ' (' + _pct(r.pct) + ')');
+    var rankStr = (r.rank != null) ? ('퀀트 ' + r.rank + '/100(' + (r.quantSignal || '') + ')') : '퀀트 N/A';
+    var fsStr = r.factorScores ? (' [모멘텀' + r.factorScores.momentum + '·추세' + r.factorScores.trend + '·저변동' + r.factorScores.lowvol + ']') : '';
+    lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + ' · ' + rankStr + fsStr +
+      ' · 시그널(editorial) ' + r.signal + ' · 시총 ' + (r.mcap ? '$' + r.mcap + 'B' : 'N/A') + ' · RSI ' + _f(r.rsi, 0) +
+      ' · 3M ' + _pct(r.ret3m) + ' · 가격 ' + (r.price != null ? '$' + _f(r.price, 2) : 'N/A') + ' (' + _pct(r.pct) + ')');
     if (r.memo) lines.push('   메모: ' + r.memo);
   });
   lines.push('');
-  lines.push('답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 짧은 순위/표 (2) 상위 종목 선정 이유 (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.');
+  lines.push('답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 퀀트 랭크 기준 순위/표 (2) 상위 종목 선정 이유(어느 팩터가 강한지) (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 퀀트 랭크(객관·데이터)와 시그널/메모(editorial·애널리스트)를 구분해 설명하라. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.');
   return '\n\n' + lines.join('\n') + '\n';
 }
 window._formatScreenerResultPrompt = _formatScreenerResultPrompt;

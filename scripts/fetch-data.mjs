@@ -224,6 +224,65 @@ function monthsBetween(a, b) {
   return (db.getFullYear() - da.getFullYear()) * 12 + (db.getMonth() - da.getMonth());
 }
 
+// ── v50.52 B4: Yahoo v8/chart 다일 종가 히스토리 (백필용) ──
+// 왜: fetchQuote는 range=5d + meta(현재가)만 읽어 history가 하루 1건씩만 쌓임(20~60일 대기).
+//     range=6mo로 일별 종가 배열을 1회 받아 history.json을 즉시 시드 → 차트 대기 제거.
+async function fetchHistory(symbol, range = '6mo') {
+  for (const host of YAHOO_HOSTS) {
+    try {
+      const url = host + '/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=1d&range=' + range;
+      const j = await fetchJSON(url, {}, 2);
+      const res = j?.chart?.result?.[0];
+      const ts = res?.timestamp;
+      const closes = res?.indicators?.quote?.[0]?.close;
+      if (!Array.isArray(ts) || !Array.isArray(closes)) throw new Error('no history arrays');
+      const out = [];
+      for (let i = 0; i < ts.length; i++) {
+        const c = closes[i];
+        if (typeof c !== 'number' || !isFinite(c)) continue;
+        out.push({ date: new Date(ts[i] * 1000).toISOString().slice(0, 10), close: round(c, 2) });
+      }
+      return out;
+    } catch (e) { /* 호스트 폴백 */ }
+  }
+  return [];
+}
+
+// history.json 레코드 필드 ↔ Yahoo 심볼 매핑 (백필 대상). F&G/IV는 과거 무료 소스 없어 제외(해당 일자 null).
+const HIST_SYMBOLS = {
+  '^GSPC': 'spx', '^IXIC': 'nasdaq', '^DJI': 'dow', '^RUT': 'rut',
+  '^VIX': 'vix', '^VVIX': 'vvix', '^TNX': 'tnx',
+  'DX-Y.NYB': 'dxy', 'CL=F': 'wti', 'GC=F': 'gold',
+  '^KS11': 'kospi', '^KQ11': 'kosdaq', 'BTC-USD': 'btc',
+};
+const HIST_FIELDS = ['spx','nasdaq','dow','rut','vix','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','fg'];
+
+// v50.52 B4: 6개월 일별 종가로 history.json 과거 일자 시드(멱등 — 이미 있는 date 보존).
+async function backfillHistory(hist) {
+  const have = new Set(hist.map(h => h && h.date));
+  const byDate = {};
+  const syms = Object.keys(HIST_SYMBOLS);
+  const results = await mapLimit(syms, 4, async (sym) => ({ sym, rows: await fetchHistory(sym, '6mo') }));
+  for (const r of results) {
+    if (!r || r.__error || !Array.isArray(r.rows)) continue;
+    const field = HIST_SYMBOLS[r.sym];
+    for (const row of r.rows) {
+      if (!byDate[row.date]) byDate[row.date] = { date: row.date };
+      byDate[row.date][field] = row.close;
+    }
+  }
+  let added = 0;
+  for (const date of Object.keys(byDate)) {
+    if (have.has(date)) continue;                 // 기존(라이브) 레코드 보존
+    const base = { date };
+    for (const f of HIST_FIELDS) base[f] = (byDate[date][f] != null ? byDate[date][f] : null);
+    hist.push(base);
+    added++;
+  }
+  hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  return { hist, added };
+}
+
 // ── WO-7 (ops): 일별 히스토리 축적 (public-data/history.json) ──
 // 왜: data.json은 매 실행 덮어쓰기라 과거가 안 남는다. 52주 VIX(IV Rank)·breadth 사이클·F&G 추이
 //     차트가 하드코딩 시드 배열에 의존하는 근본 원인. 하루 1건(같은 날은 최신값으로 upsert =
@@ -249,16 +308,112 @@ async function updateHistory(data) {
     };
     let hist = [];
     try { const raw = JSON.parse(await readFile(HIST, 'utf8')); if (Array.isArray(raw)) hist = raw; } catch { /* 최초 실행 */ }
+    // v50.52 B4: 최초/얇을 때(또는 BACKFILL=1) 6개월 일별 종가로 과거 시드 — 차트 대기 제거(멱등).
+    let backfilled = 0;
+    if (hist.length < 60 || process.env.BACKFILL === '1') {
+      try { const bf = await backfillHistory(hist); hist = bf.hist; backfilled = bf.added; } catch (e) { console.warn('[fetch-data] backfill 실패(무시):', e && e.message || e); }
+    }
     const idx = hist.findIndex(h => h && h.date === today);
     if (idx >= 0) hist[idx] = rec; else hist.push(rec);          // 같은 날 = upsert(종가 수렴)
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     if (hist.length > 420) hist = hist.slice(hist.length - 420);  // 14개월 cap
     await writeFile(HIST, JSON.stringify(hist));
-    return { days: hist.length, today, upsert: idx >= 0 ? 'update' : 'append' };
+    return { days: hist.length, today, upsert: idx >= 0 ? 'update' : 'append', backfilled };
   } catch (e) {
     console.warn('[fetch-data] history 갱신 실패(무시):', e && e.message || e);
     return null;
   }
+}
+
+// ── v50.52 Track1: 스크리너 팩터 enrichment (정적 SCREENER_DB → 라이브 팩터 데이터) ──
+// 왜: SCREENER_DB(js/aio-data.js)는 시총/RSI/시그널이 하드코딩(2026-04 기준)이라 stale.
+//     서버에서 유니버스 1년 일별 종가를 받아 모멘텀/저변동/추세/RSI 팩터를 계산해 screener.json으로
+//     떨군다(일 1회 자가 스로틀). 클라가 병합 → 멀티팩터 랭킹의 입력. value/quality(P/E·마진)는
+//     무료 대규모 소스 없음 → 가격 파생 4팩터부터(정직). 심볼은 SCREENER_DB에서 런타임 추출(단일 출처).
+const SCREENER_OUT = `${__dir}/../public-data/screener.json`;
+
+async function getScreenerSymbols() {
+  try {
+    const src = await readFile(`${__dir}/../js/aio-data.js`, 'utf8');
+    const a = src.indexOf('var SCREENER_DB');
+    if (a < 0) return [];
+    const end = src.indexOf('\n];', a);                 // SCREENER_DB 배열 종료
+    const block = src.slice(a, end > a ? end : a + 200000);
+    const syms = [];
+    const re = /\bsym:\s*'([A-Z0-9.\-]+)'/g;
+    let m; while ((m = re.exec(block)) !== null) syms.push(m[1]);
+    return [...new Set(syms)];
+  } catch (e) { console.warn('[fetch-data] screener 심볼 추출 실패:', e && e.message); return []; }
+}
+// Yahoo 심볼 정규화: 클래스주 BRK.B→BRK-B. KR(.KS/.KQ)·일반은 보존.
+const _yhSym = (s) => s.replace(/^([A-Z]+)\.([A-Z])$/, '$1-$2');
+
+const _mean = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+function _retPct(closes, n) {
+  if (closes.length <= n) return null;
+  const a = closes[closes.length - 1 - n], b = closes[closes.length - 1];
+  return (a > 0) ? round((b / a - 1) * 100, 2) : null;
+}
+function _annVol(closes, n) {
+  if (closes.length < n + 1) return null;
+  const seg = closes.slice(-(n + 1));
+  const rets = [];
+  for (let i = 1; i < seg.length; i++) if (seg[i - 1] > 0) rets.push(seg[i] / seg[i - 1] - 1);
+  const mu = _mean(rets);
+  if (mu == null || rets.length < 2) return null;
+  const v = rets.reduce((s, r) => s + (r - mu) * (r - mu), 0) / (rets.length - 1);
+  return round(Math.sqrt(v) * Math.sqrt(252) * 100, 2);   // 연율화 %
+}
+function _rsi14(closes) {
+  if (closes.length < 15) return null;
+  const seg = closes.slice(-15);
+  let g = 0, l = 0;
+  for (let i = 1; i < seg.length; i++) { const d = seg[i] - seg[i - 1]; if (d >= 0) g += d; else l -= d; }
+  g /= 14; l /= 14;
+  if (l === 0) return 100;
+  const rs = g / l;
+  return round(100 - 100 / (1 + rs), 1);
+}
+function closesToFactors(closes) {
+  if (!Array.isArray(closes) || closes.length < 30) return null;
+  const price = closes[closes.length - 1];
+  const sma50 = closes.length >= 50 ? _mean(closes.slice(-50)) : null;
+  const sma200 = closes.length >= 200 ? _mean(closes.slice(-200)) : null;
+  return {
+    price: round(price, 2),
+    ret1m: _retPct(closes, 21), ret3m: _retPct(closes, 63), ret6m: _retPct(closes, 126),
+    vol: _annVol(closes, 60), rsi: _rsi14(closes),
+    pctSma50: (sma50 && sma50 > 0) ? round((price / sma50 - 1) * 100, 2) : null,
+    pctSma200: (sma200 && sma200 > 0) ? round((price / sma200 - 1) * 100, 2) : null,
+  };
+}
+
+async function enrichScreener() {
+  // 자가 스로틀: screener.json이 20시간 내면 스킵(일 1회). BACKFILL/SCREENER_ENRICH=1로 강제.
+  if (process.env.SCREENER_ENRICH !== '1' && process.env.BACKFILL !== '1') {
+    try {
+      const prev = JSON.parse(await readFile(SCREENER_OUT, 'utf8'));
+      if (prev && prev.asOf && (Date.now() - new Date(prev.asOf).getTime()) < 20 * 3600 * 1000) {
+        return { skipped: true, count: Object.keys(prev.data || {}).length };
+      }
+    } catch { /* 최초 실행 */ }
+  }
+  const syms = await getScreenerSymbols();
+  if (!syms.length) return { skipped: true, count: 0, reason: 'no-symbols' };
+  const results = await mapLimit(syms, 5, async (sym) => {
+    const rows = await fetchHistory(_yhSym(sym), '1y');
+    return { sym, closes: (rows || []).map(r => r.close) };
+  });
+  const data = {};
+  let ok = 0;
+  for (const r of results) {
+    if (!r || r.__error || !r.closes) continue;
+    const f = closesToFactors(r.closes);
+    if (f) { data[r.sym] = f; ok++; }
+  }
+  const payload = { asOf: new Date().toISOString(), source: 'github-actions:yahoo-1y', universe: syms.length, ok, data };
+  await writeFile(SCREENER_OUT, JSON.stringify(payload));
+  return { count: ok, universe: syms.length, asOf: payload.asOf };
 }
 
 // v50.48/Phase 4: 선택적 서버 LLM 시장 분석문 생성 (운영자 ANTHROPIC_API_KEY Secret 있을 때만).
@@ -356,7 +511,10 @@ async function main() {
   await writeFile(OUT, JSON.stringify(data, null, 1));
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
   const histInfo = await updateHistory(data);
-  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} (실패 ${failed.length}: ${failed.join(',') || '-'}), macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + ')' : 'skip'}, ${data.meta.elapsedMs}ms`);
+  // v50.52 Track1: 스크리너 팩터 enrichment (일 1회 자가 스로틀 — screener.json)
+  let scrInfo = null;
+  try { scrInfo = await enrichScreener(); } catch (e) { console.warn('[fetch-data] screener enrich 실패(무시):', e && e.message || e); }
+  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} (실패 ${failed.length}: ${failed.join(',') || '-'}), macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe) : 'n/a'}, ${data.meta.elapsedMs}ms`);
 
   // 핵심 심볼이 절반 미만이면 비정상 — 비0 종료로 워크플로가 알림
   if (quotes.length < SYMBOLS.length * 0.5) {
