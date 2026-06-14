@@ -278,12 +278,19 @@ async function genMarketAnalysis(data) {
       `최근 뉴스 헤드라인:\n${heads || '없음'}`,
     ].join('\n');
     const prompt = `다음 실시간 시장 데이터로 "현재 시장 분석"을 한국어 4~5줄로 작성하라. 객관적·간결·투자 조언 단정 금지. 수치는 위 데이터만 인용(추측 금지). 형식: 한 줄 요약 + ①변동성/심리 ②거시/금리 ③주도 뉴스/리스크.\n\n${ctx}`;
+    // 모델 정책: AI 채팅과 동일 — Haiku 기본, "필요할 때"만 Sonnet 승격(Opus 미사용). 승격 조건:
+    //   VIX 고변동(≥25) · 지정학/위기 뉴스 헤드라인 · 강제(LLM_MARKET_ANALYSIS_MODEL=sonnet). 그 외 Haiku(저비용).
+    const vix = Number(q['^VIX']);
+    const crisisNews = /\b(war|conflict|crash|crisis|sanction|invasion|military|선전포고|전쟁|급락|위기|폭락|제재)\b/i.test(heads);
+    const force = (process.env.LLM_MARKET_ANALYSIS_MODEL || '').toLowerCase() === 'sonnet';
+    const escalate = force || (isFinite(vix) && vix >= 25) || crisisNews;
+    const model = escalate ? 'claude-sonnet-4-6' : 'claude-haiku-4-5';
     const ac = new AbortController();
     const to = setTimeout(() => ac.abort(), 20000);
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 500, messages: [{ role: 'user', content: prompt }] }),
+      body: JSON.stringify({ model, max_tokens: 500, messages: [{ role: 'user', content: prompt }] }),
       signal: ac.signal,
     });
     clearTimeout(to);
@@ -292,7 +299,8 @@ async function genMarketAnalysis(data) {
     const text = (j.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
     if (!text) return null;
     const oneLine = text.split('\n').map(s => s.trim()).filter(Boolean)[0] || text.slice(0, 120);
-    return { full: text, oneLine, generatedAt: new Date().toISOString(), model: 'claude-haiku-4-5' };
+    console.log(`[fetch-data] LLM 분석 생성: ${model}${escalate ? ' (승격: VIX/위기뉴스)' : ' (기본)'}`);
+    return { full: text, oneLine, generatedAt: new Date().toISOString(), model };
   } catch (e) { console.warn('[fetch-data] LLM 분석 생성 예외(템플릿 폴백):', e && e.message); return null; }
 }
 

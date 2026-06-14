@@ -1,5 +1,23 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.49 - LLM 모델 정책 정렬 (Opus 금지·Haiku 기본·필요시 Sonnet) (2026-06-14)
+
+**사용자: "LLM도 Opus는 너무 비싸니 하지 말고, AI 채팅처럼 Haiku 기본+필요시 Sonnet. 남은 영역/작업 마저 진행하고, 다 했으면 에이전트로 조사한 UX 작업 진행."**
+
+### 서버 LLM 모델 정책 (fetch-data.mjs genMarketAnalysis)
+- AI 채팅(`LLM_MODELS`: Haiku 기본 → 복잡도별 Sonnet 승격)과 **동일 철학** 적용. **Opus 미사용**(비용).
+- Haiku 4.5 기본, "필요할 때만" Sonnet 4.6 승격: VIX ≥ 25(고변동) · 지정학/위기 뉴스 헤드라인(war/crash/sanction/전쟁/급락…) · `LLM_MARKET_ANALYSIS_MODEL=sonnet` 강제. 그 외 Haiku(저비용).
+- 승격 사유 콘솔 로깅. 키 없으면 여전히 스킵(템플릿 폴백).
+
+### 정직 보류 (이번에 안 함 — 이유 명시)
+- **sink 확산**: breadth 랠리품질(`#rally-quality-verdict`, aio-ui.js:754)·sentiment 복합판단(`#sent-analysis-text`, `_generateSentimentAnalysis`)은 **이미 도메인 전용 렌더러 보유** → 일반 "현재 시장 분석" sink를 달면 도메인 분석을 덮어써 부적절. home flagship sink(v50.47)로 충분 — 추가 안 함.
+- **KR stale 라벨 일반화**: 라이브 검증 결과 stale-days writer가 **2개 공존**(aio-core.js:2086/2148 STATIC_CONTENT_LIFECYCLE 'N일 경과 ⚠️ STALE' vs index.html:21089 data-snap-date 'D+N일' — 서로 다른 기준일로 같은 id에 경쟁). 무리한 3번째 writer 추가 대신 **두 경로 통합이 선결**(별도 정리 작업으로 이관). 현재도 날짜는 모든 KR 값 옆에 표시됨.
+
+### 검증
+- 회귀 0(기존 data-drift 베이스라인 유지). fetch-data.mjs `node --check` OK.
+
+**R1 7곳 + 캐시버스터 5곳.**
+
 ## v50.48 - 자율 운영 순환 Phase 4 (완결): 서버 LLM 선택 강화 + 루프 5단계 audit (2026-06-13)
 
 **사용자: "알아서 순차적으로 모두 진행해줘."** — 자율 루프 마스터플랜(Phase 1~4) 마지막 단계.
