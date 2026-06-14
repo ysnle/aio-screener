@@ -1,6 +1,6 @@
 ---
-updated: 2026-06-13
-version_context: v50.42 → v50.43
+updated: 2026-06-14
+version_context: v50.42 → v50.50 (배포 시점)
 purpose: "별도 세션 필요"라고 넘긴 작업의 진짜 정체를 한 곳에 정리. 대부분은 세션과 무관하게 진행 가능했고, 실제 막힌 것은 데이터·시간·운영자 결정 4종뿐임을 명확히 한다.
 ---
 
@@ -53,3 +53,35 @@ OPUS-HANDOFF WO 백로그 + v50.33/34 페이지 잔여 + v50.42 후속에서 도
 - index.html 29K줄 페이지 단위 모듈 분리 (CODE-MAP 의존 작업 한계 완화)
 - WO-9 script `defer` 적용 (로드 순서 의존성 검증 필요 — core→data→ui→chat)
 - WO-11 전면 홈 IA 재설계 (UX 검토 동반 — 초보자 시작 패널은 v50.26 완료, 전면 재조립은 미완)
+
+---
+
+## 3. 다음 세션 작업 목록 (2026-06-14 정리 — v50.50 배포 후)
+
+> v50.42~50 누적 배포 완료 시점 기준. 우선순위 순. 각 항목은 **여기서/다음에 코드로 진행 가능**하며, 진짜 블록(§1)은 별도 표기.
+
+### 우선순위 A — 구조 정합 (코드, 즉시 가능)
+| # | 작업 | 근거/위치 | 비고 |
+|---|------|-----------|------|
+| A1 | **KR stale-days 2-writer 통합** | aio-core.js:2086/2148 `STATIC_CONTENT_LIFECYCLE` "N일 경과" vs index.html:21089 `data-snap-date` "D+N일" — 서로 다른 기준일로 숫자 불일치 위험 | v50.49에서 일반화 시도했으나 **두 경로 통합이 선결**이라 revert. 단일 기준일·단일 포맷터로 합친 뒤 stale 라벨 일반화 |
+| A2 | **breadth 차트 통합·압축 (C1B)** | v50.34 접기 토글(`_aioBreadthDetailToggle`)만 적용. 문서엔 추가 통합 언급 있으나 현 코드와 어긋남 | 카드+현재+히스토리 3중 표현 중복 — doc/code 재대조 후 실제 통합 |
+| A3 | **marketState 소비자 구독 확산 잔여** | v50.42~44에서 home action·채팅 헤더·4 렌더러 전환 완료. 잔여 내러티브 렌더러/페이지 배너 일부 | `aio:marketStateUpdated` 미구독 소비자 마저 이전 (선순환 완결) |
+
+### 우선순위 B — 운영 정리 (분량 큼, 단계적)
+| # | 작업 | 근거 | 비고 |
+|---|------|------|------|
+| B-WO13 | audit 통폐합 (critical-10 5세대 → v50.0 evidence 게이트 단일) | OPUS-HANDOFF | orphan audit 정리 |
+| B-WO14 | 배포 게이트 블록 67건 (signal 31·fxbond 16·themes 12) pass/reference 분류 | OPUS-HANDOFF | 대부분 reference-only 재분류로 해소 예상 |
+| B-WO12 | 문서 다이어트 (루트 CLAUDE.md 슬림화 + 아카이브) | OPUS-HANDOFF | 현 루트 CLAUDE.md 비대 — note 아카이브 이전 |
+
+### 우선순위 C — sink 확산 (선택적)
+| # | 작업 | 근거 | 비고 |
+|---|------|------|------|
+| C1 | breadth/sentiment에 `[data-market-analysis-sink]` 확산 | v50.47 잔여 | **주의**: breadth 랠리품질·sentiment 복합판단은 **이미 도메인 렌더러 보유**(aio-ui.js:754 등) → 일반 sink가 덮어쓰면 부적절. 도메인 렌더러 리팩토링 동반해야 안전 |
+
+### 진짜 블록 (§1 재참조 — 코드로 해결 불가)
+- B1 KR 정적 데이터 (소스 없음) · B2 미확보 시세 필드 (데이터 도착 대기) · B3 jensen 84일 (신규 자료 필요)
+- B4 차트 history 누적 (시간) · B5 Claude 키 서버화 (운영자 결정) · B6 cron 신뢰성 검증 (시간)
+
+### UX 관련 정직 메모 (v50.50 라이브 검증 결론)
+에이전트 정적 UX 감사(`PAGE-UX-AUDIT-2026-06-13.md`)의 "빈 껍데기/고장" ★항목 **대부분이 거짓 양성**이었음 — 라이브 직접 점검 결과 macro 스토리라인·온도계(61)·kr-themes(28카드)·kr-macro/kr-technical 모두 정상 렌더, options nav 이미 제거됨, sentiment/breadth verdict 렌더러 보유. **유일한 실증 모순**(home 매매 카드 라벨 vs 결론바)만 v50.50에서 시정. 남은 UX는 버그가 아닌 **주관적 밀도**(긴 페이지=충실 콘텐츠) — 사용자 지목 시 선별 진행. 무차별 "간소화"는 콘텐츠 손실 위험이므로 지양.
