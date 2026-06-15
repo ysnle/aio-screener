@@ -75,7 +75,19 @@
       "mcp__Claude_in_Chrome__read_console_messages",
       "mcp__Claude_in_Chrome__tabs_context_mcp",
       "mcp__Claude_in_Chrome__navigate",
-      "PowerShell(Head -20)"
+      "PowerShell(Head -20)",
+      "PowerShell(git -C \"C:\\\\Users\\\\zmfhd\\\\OneDrive\\\\����\\\\Claude\\\\Projects\\\\AIO\\\\.claude\\\\worktrees\\\\gallant-yalow-99469c\" status --short)",
+      "PowerShell(git -C \"C:\\\\Users\\\\zmfhd\\\\OneDrive\\\\����\\\\Claude\\\\Projects\\\\AIO\\\\.claude\\\\worktrees\\\\gallant-yalow-99469c\" log --oneline -3)",
+      "PowerShell(\"----\")",
+      "PowerShell(git -C $m status --short)",
+      "PowerShell(git -C $m rev-parse --short HEAD)",
+      "PowerShell(git -C $m rev-parse --short origin/main 2>$null)",
+      "PowerShell(git -C \"C:\\\\Users\\\\zmfhd\\\\OneDrive\\\\����\\\\Claude\\\\Projects\\\\AIO\\\\.claude\\\\worktrees\\\\gallant-yalow-99469c\" rev-parse --short HEAD)",
+      "PowerShell($m=\"C:\\\\Users\\\\zmfhd\\\\OneDrive\\\\����\\\\Claude\\\\Projects\\\\AIO\")",
+      "PowerShell(\"MAIN WORKTREE STATUS:\")",
+      "PowerShell(\"---- main HEAD ----\")",
+      "PowerShell(\"---- origin/main ----\")",
+      "PowerShell(\"---- branch HEAD to merge ----\")"
     ]
   },
   "hooks": {
