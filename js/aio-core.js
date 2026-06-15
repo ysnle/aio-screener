@@ -3436,6 +3436,13 @@ var AIO_PAGE_BRIEFS = {
     steps: ['대시보드에서 오늘 모드 결정', '시그널/기술/포트폴리오로 행동 결정', '뉴스/매크로/테마로 이유 확인'],
     focus: '처음에는 대시보드 → 시그널 → 포트폴리오 3개만 반복해도 충분합니다.',
     links: [['home','대시보드'], ['signal','시그널'], ['portfolio','포트폴리오']]
+  },
+  screener: {
+    title: '전체 종목을 팩터로 줄 세웁니다',
+    use: '먼저 시장(시그널 페이지)을 보고, 여기서 어떤 종목을 살지 고릅니다.',
+    steps: ['퀀트 랭크(0~100) 상위부터 확인', '섹터/시총 필터로 좁히기', '헤더 클릭으로 모멘텀·추세·저변동 정렬'],
+    focus: '랭크는 객관 멀티팩터, 시그널/메모는 애널리스트 의견 — 둘을 구분해 보세요.',
+    links: [['signal','시그널'], ['technical','기술 분석'], ['fundamental','기업 분석']]
   }
 };
 window.AIO_PAGE_BRIEFS = AIO_PAGE_BRIEFS;
@@ -15737,7 +15744,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.52';
+const APP_VERSION = 'v50.53';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -19226,7 +19233,7 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     'technical','macro','fxbond','fundamental','themes',
     'theme-detail','portfolio','ticker','market-news','options',
     'kr-home','kr-supply','kr-themes','kr-macro','kr-technical',
-    'guide'
+    'guide','screener'
   ];
   var CRITICAL_5 = ['home','signal','breadth','sentiment','briefing'];
   var ANALYSIS_5 = ['technical','macro','fxbond','fundamental','themes'];
@@ -19281,7 +19288,8 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
       'kr-macro':{tasks:['quotes','fred','krDynamic','krMacro'],symbols:['KRW=X','^KS11','^KQ11']},
       'kr-technical':{tasks:['quotes','technicals','krDynamic'],symbols:['^KS11','^KQ11','KRW=X']},
       guide:{tasks:[],symbols:[]},
-      glossary:{tasks:[],symbols:[]}
+      glossary:{tasks:[],symbols:[]},
+      screener:{tasks:['quotes'],symbols:['SPY','QQQ','^VIX']}  // v50.53 2A: 퀀트 스크리너(전 유니버스는 screener.json 팩터로 랭킹)
     };
     return p[id] || { tasks:['quotes'], symbols:[] };
   }
@@ -19468,7 +19476,7 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     return {
       status: status,
       routePageCount: contracts.routePageIds.length,
-      expectedRoutePageCount: 21,
+      expectedRoutePageCount: 22,  // v50.53: +screener 전용 페이지
       missingDom: missingDom,
       missingProfile: missingProfile,
       missingRefreshMap: missingRefresh,
@@ -20452,6 +20460,7 @@ const breadcrumbMap = {
   options: ['AIO','옵션 대시보드'],
   'market-news': ['AIO','시장 소식'], signal: ['AIO','매매 시그널'], breadth: ['AIO','시장 흐름'], sentiment: ['AIO','투자 심리'],
   guide: ['AIO','입문 가이드'],
+  screener: ['AIO','퀀트 스크리너'],
   'theme-detail': ['AIO','테마','—'],
   ticker: ['AIO','—','—'],
 };
@@ -20777,7 +20786,8 @@ window.PAGES = {
   'kr-themes':      { label: '한국 테마',        init: null, chatCtx: 'kr-themes' },
   'kr-macro':       { label: '한국 거시',        init: null, chatCtx: 'kr-macro' },
   'kr-technical':   { label: '한국 기술',        init: null, chatCtx: 'kr-tech' },
-  'guide':          { label: '사용 설명서',      init: null, chatCtx: null }
+  'guide':          { label: '사용 설명서',      init: null, chatCtx: null },
+  'screener':       { label: '퀀트 스크리너',    init: function() { try { if (typeof _aioInitScreenerFilters === 'function') _aioInitScreenerFilters(); if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'screener init: ' + (e && e.message || e)); } }, chatCtx: 'screener' }  // v50.53 2A: 전용 퀀트 스크리너
 };
 
 // v48.15 (P2-A): PAGES.init 지원 헬퍼 함수들 — showPage/popstate에서 추출된 단일 진실 원천

@@ -5019,8 +5019,8 @@
 
   function _testV500EvidenceFoundation() {
     var contracts = window.AIO && window.AIO.getPageContracts ? window.AIO.getPageContracts() : null;
-    _assert('T737 v500_page_contracts: 21 route pages have a single contract source',
-      contracts && Array.isArray(contracts.routePageIds) && contracts.routePageIds.length === 21 &&
+    _assert('T737 v500_page_contracts: 22 route pages have a single contract source (v50.53 +screener)',
+      contracts && Array.isArray(contracts.routePageIds) && contracts.routePageIds.length === 22 &&
         contracts.pages && contracts.pages.home && contracts.pages['market-news'] && contracts.pages['kr-technical'] && contracts.pages.guide,
       JSON.stringify(contracts && contracts.routePageIds));
 
@@ -5040,7 +5040,7 @@
 
     var evidence = window.AIO && window.AIO.getAllPageContentEvidenceMatrix ? window.AIO.getAllPageContentEvidenceMatrix({ includeItems: false }) : null;
     _assert('T740 v500_evidence_store: all route page surface items receive evidence ids and no needs_evidence residue',
-      evidence && evidence.pagesChecked === 21 && evidence.totals && evidence.totals.total >= 21 &&
+      evidence && evidence.pagesChecked === 22 && evidence.totals && evidence.totals.total >= 21 &&
         evidence.unclassifiedCount === 0 && evidence.totals.needs_evidence === 0,
       JSON.stringify(evidence && evidence.totals));
 
@@ -5056,7 +5056,7 @@
 
     var gate = window.AIO && window.AIO.runEvidenceDeploymentGate ? window.AIO.runEvidenceDeploymentGate({ strict: false, includeItems: false }) : null;
     _assert('T743 v500_evidence_deployment_gate: new gate returns deployable contract evidence summary',
-      gate && typeof gate.deployable === 'boolean' && gate.evidence && gate.evidence.pagesChecked === 21 && gate.pageContracts && gate.sourceAdapters,
+      gate && typeof gate.deployable === 'boolean' && gate.evidence && gate.evidence.pagesChecked === 22 && gate.pageContracts && gate.sourceAdapters,
       JSON.stringify(gate && { status: gate.status, blocking: gate.blocking && gate.blocking.length, warnings: gate.warnings && gate.warnings.length }));
 
     var chatEv = window.AIO && window.AIO.getChatEvidenceContext ? window.AIO.getChatEvidenceContext({ tickers: ['NVDA'] }) : null;
@@ -5830,7 +5830,7 @@
       var boardDrawer805 = !!document.getElementById('board-drawer');
       var optShell805 = !!document.getElementById('page-options'); // 셸은 21페이지 정합 위해 유지
       var pageCount805 = document.querySelectorAll('.page[id^="page-"]').length;
-      t805ok = !optNav805 && !fbBtn805 && !boardBtn805 && !fbModal805 && !boardDrawer805 && optShell805 && pageCount805 === 21;
+      t805ok = !optNav805 && !fbBtn805 && !boardBtn805 && !fbModal805 && !boardDrawer805 && optShell805 && pageCount805 === 22;
       t805detail = 'optNavGone=' + !optNav805 + ' fbGone=' + (!fbBtn805 && !fbModal805) + ' boardGone=' + (!boardBtn805 && !boardDrawer805) + ' optShell=' + optShell805 + ' pages=' + pageCount805;
     } catch(e) { t805detail = 'ERR:' + e.message; }
     _assert('T805 v5035_remove_feedback_board_options: 피드백/게시판 버튼·DOM 제거 + 옵션 내비 제거(셸 유지·21페이지 정합)', t805ok, t805detail);

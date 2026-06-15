@@ -1298,12 +1298,16 @@ var SCR_KEYWORD_ALIASES = {
 
 
 function renderScreenerResults() {
-  var market = document.getElementById('scr-market').value;
-  var sector = document.getElementById('scr-sector').value;
-  var signal = document.getElementById('scr-signal').value;
-  var cap = document.getElementById('scr-cap').value;
-  var adrFilter = (document.getElementById('scr-adr') ? document.getElementById('scr-adr').value : '');
-  var textQ = (document.getElementById('scr-text-search') ? document.getElementById('scr-text-search').value : '').trim().toLowerCase();
+  var marketEl = document.getElementById('scr-market');
+  if (!marketEl || typeof SCREENER_DB === 'undefined') return; // v50.53: 스크리너 DOM 부재 시 no-op (다른 페이지서 우발 호출 방어)
+  if (typeof _aioComputeFactorRanks === 'function') { try { _aioComputeFactorRanks(); } catch(_) {} } // v50.53: 진입 시 멀티팩터 랭크 보장(폴백 무회귀)
+  var _v = function(id){ var el = document.getElementById(id); return el ? el.value : ''; };
+  var market = _v('scr-market');
+  var sector = _v('scr-sector');
+  var signal = _v('scr-signal');
+  var cap = _v('scr-cap');
+  var adrFilter = _v('scr-adr');
+  var textQ = (_v('scr-text-search') || '').trim().toLowerCase();
   var ld = window._liveData || {};
 
   // 텍스트 검색어에서 키워드 앨리어스 매칭
@@ -1375,42 +1379,62 @@ function renderScreenerResults() {
     } else if (_scrSortCol === 'adr') {
       av = getAdrEstimate(a);
       bv = getAdrEstimate(b);
+    } else if (_scrSortCol === 'momentum' || _scrSortCol === 'trend' || _scrSortCol === 'lowvol') {
+      // v50.53: 팩터 점수 정렬 (factorScores 중첩)
+      av = (a.factorScores && a.factorScores[_scrSortCol] != null) ? a.factorScores[_scrSortCol] : null;
+      bv = (b.factorScores && b.factorScores[_scrSortCol] != null) ? b.factorScores[_scrSortCol] : null;
     } else {
-      av = a[_scrSortCol]; bv = b[_scrSortCol];
+      av = a[_scrSortCol]; bv = b[_scrSortCol]; // rank·ret3m·mcap·rsi·sym·sector 등 직접 속성
     }
-    if (typeof av === 'string') { av = av.toUpperCase(); bv = bv.toUpperCase(); }
+    if (typeof av === 'string') { av = av.toUpperCase(); bv = (typeof bv === 'string') ? bv.toUpperCase() : bv; }
+    else { if (av == null) av = -Infinity; if (bv == null) bv = -Infinity; } // null은 항상 하단
     var c = av > bv ? 1 : (av < bv ? -1 : 0);
     return _scrSortAsc ? c : -c;
   });
 
   var html = '';
+  // v50.53 2A: 멀티팩터 퀀트 랭크 컬럼 + 팩터 점수(모멘텀/추세/저변동). editorial signal/메모는 보존(행 title).
+  var _fcell = function(v){ if (v == null) return '<td style="text-align:right;padding:6px 8px;color:#5a6678;">—</td>'; var c = v>=66?'#00e5a0':v>=40?'#ffa31a':'#ff5b50'; return '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+c+';">'+v+'</td>'; };
   filtered.forEach(function(r) {
     var sc = r.signal === 'BUY' ? '#00e5a0' : r.signal === 'SELL' ? '#ff5b50' : r.signal === 'WATCH' ? '#ffa31a' : '#7b8599';
     var sb = r.signal === 'BUY' ? 'var(--data-green-soft)' : r.signal === 'SELL' ? 'var(--data-red-soft)' : r.signal === 'WATCH' ? 'var(--data-amber-soft)' : 'var(--data-muted-soft)';
-    var d = ld[r.sym];
-    var chg = d && d.pct != null ? d.pct : null;
-    var cc = chg !== null ? (chg >= 0 ? '#00e5a0' : '#ff5b50') : '#7b8599';
-    var chgDisplay = chg !== null ? ((chg >= 0 ? '+' : '') + chg.toFixed(2) + '%') : '—';
-    var mcapStr = r.mcap >= 1000 ? '$' + (r.mcap/1000).toFixed(1) + 'T' : '$' + r.mcap + 'B';
+    var mcapStr = (r.mcap >= 1000) ? '$' + (r.mcap/1000).toFixed(1) + 'T' : '$' + (r.mcap||0) + 'B';
+    var rank = (typeof r.rank === 'number') ? r.rank : null;
+    var rkColor = rank == null ? '#7b8599' : rank >= 80 ? '#00e5a0' : rank >= 60 ? '#7ddf8f' : rank >= 40 ? '#ffa31a' : '#ff5b50';
+    var fs = r.factorScores || {};
+    var ret3 = (typeof r.ret3m === 'number') ? ((r.ret3m>=0?'+':'')+r.ret3m.toFixed(1)+'%') : '—';
+    var ret3c = (typeof r.ret3m === 'number') ? (r.ret3m>=0?'#00e5a0':'#ff5b50') : '#5a6678';
+    // 주의: r.memo는 내부 마커(vNN·RNN·Codex 등)를 포함할 수 있어 title 툴팁에 노출하지 않음(R206). 행 클릭 → 심층 분석.
     html += '<tr class="aio-hover-row" style="border-bottom:1px solid var(--surface-4);cursor:pointer;" data-action="_aioScreenerTicker" data-arg="' + escHtml(r.sym) + '">' +
-      '<td style="padding:8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:11px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
-      '<td style="text-align:right;padding:8px;font-family:var(--font-mono);font-weight:700;" data-live-price="' + escHtml(r.sym) + '">—</td>' +
-      '<td style="text-align:right;padding:8px;font-family:var(--font-mono);color:' + cc + ';" data-live-chg="' + escHtml(r.sym) + '">' + chgDisplay + '</td>' +
-      '<td style="text-align:center;padding:6px 4px;"><canvas class="sparkline-mini" data-spark-ticker="' + escHtml(r.sym) + '" width="64" height="22" role="img" aria-label="' + escHtml(r.sym) + ' 스파크라인 차트" style="display:inline-block;vertical-align:middle;"></canvas></td>' +
-      '<td style="text-align:center;padding:8px;"><span style="background:' + sb + ';color:' + sc + ';padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
-      '<td style="text-align:right;padding:8px;font-family:var(--font-mono);">' + r.rsi + '</td>' +
-      '<td style="text-align:right;padding:8px;font-family:var(--font-mono);font-size:10px;color:' + (getAdrEstimate(r) >= 4 ? '#ffa31a' : getAdrEstimate(r) >= 2 ? '#7b8599' : '#00e5a0') + ';">' + getAdrEstimate(r) + '%</td>' +
-      '<td style="text-align:right;padding:8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
-      '<td style="padding:8px;color:var(--text-muted);font-size:10px;">' + escHtml(r.memo) + '</td>' +
-      '<td style="text-align:center;padding:4px;"><button class="aio-hover-fade" data-action="addToWatchlistFromScreener" data-arg="' + escHtml(r.sym) + '" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:12px;" title="관심 종목에 추가"></button></td></tr>';
+      '<td style="text-align:center;padding:6px 8px;"><span style="font-family:var(--font-mono);font-weight:800;font-size:12px;color:'+rkColor+';">' + (rank==null?'—':rank) + '</span>' + (r.quantSignal ? '<div style="font-size:9px;color:'+rkColor+';">'+escHtml(r.quantSignal)+'</div>' : '') + '</td>' +
+      '<td style="padding:6px 8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:10px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
+      '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);">' + escHtml(r.sector||'') + '</td>' +
+      _fcell(fs.momentum) + _fcell(fs.trend) + _fcell(fs.lowvol) +
+      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+ret3c+';">' + ret3 + '</td>' +
+      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
+      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
+      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-weight:700;" data-live-price="' + escHtml(r.sym) + '">—</td>' +
+      '<td style="text-align:center;padding:6px 8px;"><span style="background:' + sb + ';color:' + sc + ';padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
+    '</tr>';
   });
 
-  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
+  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
   // 스파크라인 미니차트 렌더링
   requestAnimationFrame(function() { renderSparklines(filtered); });
   document.getElementById('screener-result-count').textContent = filtered.length;
   // v37.8: 동적 스크리너 분석
   if (typeof _generateScreenerAnalysis === 'function') _generateScreenerAnalysis(filtered, ld);
+
+  // v50.53 2A: 정렬 화살표 표시 + 팩터 신선도 배지 + 백테스트 패널
+  try {
+    document.querySelectorAll('#page-screener [data-scr-sort]').forEach(function(th){
+      var ar = th.querySelector('.scr-arrow');
+      if (ar) ar.textContent = (th.getAttribute('data-scr-sort') === _scrSortCol) ? (_scrSortAsc ? ' ▲' : ' ▼') : '';
+    });
+    var asEl = document.querySelector('#page-screener [data-factor-asof]');
+    if (asEl) asEl.textContent = window._aioScreenerFactorAsOf ? ('팩터 기준 ' + String(window._aioScreenerFactorAsOf).slice(0,10)) : '팩터 데이터 대기 (정적 시그널 폴백 중)';
+    if (typeof _aioRenderScreenerBacktest === 'function') _aioRenderScreenerBacktest();
+  } catch(_) {}
 
   // v38.3: 스크리너 결과에 실시간 가격 즉시 반영 — tbody 스코프 한정 (O(n) 단일 패스)
   var ld2 = window._liveData || {};
@@ -1438,6 +1462,56 @@ function renderScreenerResults() {
     });
   }
 }
+
+// v50.53 2A: 스크리너 필터 옵션을 SCREENER_DB에서 동적 생성(값 정합) + 변경 리스너 1회 배선.
+window._aioInitScreenerFilters = function() {
+  if (typeof SCREENER_DB === 'undefined') return;
+  var fill = function(id, key, allLabel) {
+    var sel = document.getElementById(id);
+    if (!sel || sel.getAttribute('data-filled')) return;
+    var vals = {}; SCREENER_DB.forEach(function(r){ if (r && r[key]) vals[r[key]] = true; });
+    var opts = '<option value="">' + allLabel + '</option>';
+    Object.keys(vals).sort().forEach(function(v){ var e = String(v).replace(/"/g,''); opts += '<option value="' + e + '">' + e + '</option>'; });
+    sel.innerHTML = opts; sel.setAttribute('data-filled', '1');
+  };
+  fill('scr-market', 'index', '전체 지수');
+  fill('scr-sector', 'sector', '전체 섹터');
+  ['scr-market','scr-sector','scr-signal','scr-cap'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el && !el.getAttribute('data-wired')) { el.addEventListener('change', function(){ renderScreenerResults(); }); el.setAttribute('data-wired','1'); }
+  });
+  var ts = document.getElementById('scr-text-search');
+  if (ts && !ts.getAttribute('data-wired')) { ts.addEventListener('input', function(){ renderScreenerResults(); }); ts.setAttribute('data-wired','1'); }
+};
+
+// v50.53 2A: 스크리너 헤더 클릭 정렬 — 같은 컬럼 재클릭 시 방향 토글, 신규 컬럼은 기본 방향.
+window._aioScreenerSort = function(col) {
+  if (!col) return;
+  if (_scrSortCol === col) { _scrSortAsc = !_scrSortAsc; }
+  else { _scrSortCol = col; _scrSortAsc = (col === 'sym' || col === 'sector'); } // 텍스트=오름차순, 수치/랭크=내림차순 기본
+  try { window.AIO.state._scrSortCol = _scrSortCol; window.AIO.state._scrSortAsc = _scrSortAsc; } catch(_) {}
+  if (typeof renderScreenerResults === 'function') renderScreenerResults();
+};
+
+// v50.53 2B: 팩터 백테스트 패널 렌더 (screener.json.backtest — 서버 횡단면 IC/분위/적중률)
+window._aioRenderScreenerBacktest = function() {
+  var el = document.getElementById('screener-backtest-panel');
+  if (!el) return;
+  var bt = window._aioFactorBacktest;
+  if (!bt || !bt.ic) { el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">팩터 검증 데이터 수집 중 — 서버 enrichment(일 1회) 후 표시됩니다.</div>'; return; }
+  var fmtIC = function(v){ if (v == null) return '—'; var c = v>=0.05?'#00e5a0':v<=-0.05?'#ff5b50':'#ffa31a'; return '<span style="color:'+c+';font-weight:700;">'+v.toFixed(3)+'</span>'; };
+  var rows = [['모멘텀','momentum'],['추세','trend'],['저변동','lowvol'],['종합','composite']].map(function(p){
+    return '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">'+p[0]+' IC</span>'+fmtIC(bt.ic[p[1]])+'</div>';
+  }).join('');
+  var spread = (bt.quantileSpread != null) ? ((bt.quantileSpread>=0?'+':'')+bt.quantileSpread.toFixed(1)+'%') : '—';
+  var hit = (bt.hitRate != null) ? (bt.hitRate.toFixed(0)+'%') : '—';
+  el.innerHTML =
+    '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">팩터 검증 <span style="font-weight:400;color:var(--text-muted);">— 최근 1년 횡단면, forward ' + (bt.fwdDays||21) + '일 · ' + (bt.n||'?') + '종목 · ' + (bt.asOf?String(bt.asOf).slice(0,10):'') + '</span></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;">' + rows +
+    '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">상-하위 분위 스프레드</span><span style="font-weight:700;">'+spread+'</span></div>' +
+    '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">방향 적중률</span><span style="font-weight:700;">'+hit+'</span></div></div>' +
+    '<div style="font-size:9px;color:var(--text-muted);margin-top:4px;">IC>0.05 = 유의미한 예측력(랭크↑→수익↑). 종합 랭크가 검증 기반.</div>';
+};
 
 // ═══ 스파크라인 미니차트 시스템 ═══════════════════════════════════════
 var _sparkCache = {}; // { ticker: { data: [numbers], ts: timestamp } }
@@ -7496,8 +7570,9 @@ async function freeTranslateNews(items) {
 /* ── v27.2: 뉴스 fetch 후 자동 번역 + 해석 + 티커 추출 ────────── */
 async function autoTranslateNews(items) {
   const apiKey = getApiKey();
-  // API 키 없으면 Google Translate 무료 번역 수행
-  if (!apiKey) {
+  // v50.53 2C: 서버 키 모드(CF Worker) 지원 — 개인 키 없어도 Worker 경유. 둘 다 없으면 무료 번역.
+  const _ct = (typeof _aioClaudeTarget === 'function') ? _aioClaudeTarget(apiKey) : { url: 'https://api.anthropic.com/v1/messages', serverKey: false };
+  if (!apiKey && !_ct.serverKey) {
     console.log('[AIO v29] Claude API 키 미설정 → Google Translate 무료 번역 실행');
     await freeTranslateNews(items);
     return;
@@ -7547,14 +7622,9 @@ async function autoTranslateNews(items) {
     }).join('\n\n');
 
     try {
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      const resp = await fetch(_ct.url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, _ct.serverKey ? {} : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }),
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
           max_tokens: 4000,
@@ -8836,9 +8906,10 @@ function renderBriefingFeed(items) {
     '<div style="font-size:11px;color:var(--text-muted);">' + periodStart + ' ~ ' + periodEnd + ' KST · 총 ' + totalCount + '건 선별</div>' +
     '</div>';
 
-  // AI 브리핑 생성 시도
+  // AI 브리핑 생성 시도 (v50.53 2C: 서버 키 모드 시 개인 키 없이도 생성)
   var apiKey = typeof getApiKey === 'function' ? getApiKey() : '';
-  if (apiKey && summaryLines.length > 2 && aiSummaryItemsV502 && aiSummaryItemsV502.length) {
+  var _briefSrvKey = (typeof _aioClaudeTarget === 'function') ? _aioClaudeTarget(apiKey).serverKey : false;
+  if ((apiKey || _briefSrvKey) && summaryLines.length > 2 && aiSummaryItemsV502 && aiSummaryItemsV502.length) {
     // 먼저 로딩 UI 표시
     container.innerHTML = '<div style="text-align:center;padding:24px;">' +
       '<div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;">AI 브리핑 생성 중...</div>' +
@@ -8865,6 +8936,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
   var container = document.getElementById('briefing-live-news-list');
   if (!container) return;
   var apiKey = getApiKey();
+  var _ct = (typeof _aioClaudeTarget === 'function') ? _aioClaudeTarget(apiKey) : { url: 'https://api.anthropic.com/v1/messages', serverKey: false }; // v50.53 2C
   var anchorStr = bw.anchorDate.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
   briefingHeader = briefingHeader || '';
   var verifiedCountV502 = briefingModel && briefingModel.aiItems ? briefingModel.aiItems.length : 0;
@@ -8996,14 +9068,9 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '- 뉴스 원문 그대로 복붙 금지 — 반드시 분석·해석·연결해서 서사를 만들어라';
 
   try {
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+    var resp = await fetch(_ct.url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, _ct.serverKey ? {} : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }),
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 4000,
@@ -13129,6 +13196,7 @@ function _aioApplyServerScreener(sd) {
     n++;
   });
   window._aioScreenerFactorAsOf = sd.asOf;
+  if (sd.backtest) window._aioFactorBacktest = sd.backtest;   // v50.53 2B: 팩터 백테스트 결과 보관
   // 팩터 들어왔으니 멀티팩터 랭킹 재계산(Track2) + 스크리너 표 재렌더(보이는 경우)
   try { if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); } catch(_) {}
   try { if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(_) {}

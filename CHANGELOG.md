@@ -1,5 +1,24 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.53 - 기관/퀀트급 업그레이드 Phase 2: 전용 퀀트 스크리너 페이지 + 팩터 백테스트 + LLM 서버키 확장 (2026-06-15)
+
+운영자: "Phase 2 모두 진행" + (설명 후) "전용 페이지". Phase 1(v50.52)에서 멀티팩터 랭킹 엔진은 만들었으나 AI 채팅에서만 보여(텍스트), 시각 표 부재 → 전용 페이지로 시각화. 밸류/퀄리티 팩터는 유료 FMP 키 필요 → 운영자 보류(가격 4팩터 유지).
+
+**2A — 전용 퀀트 스크리너 페이지 (`page-screener`, 센터피스)**
+- 신규 라우트 페이지 + 사이드바 nav "퀀트 스크리너"(도구 섹션). 전체 유니버스(~330종목)를 멀티팩터 퀀트 랭크(0~100)순 **정렬 가능 테이블**: 순위·종목·섹터·모멘텀/추세/저변동 팩터점수·3M·RSI·시총·가격(라이브)·시그널(editorial).
+- **헤더 클릭 정렬** `_aioScreenerSort`(같은 컬럼 재클릭 시 방향 토글·↑↓ 표시) — v41.5에서 제거됐던 정렬 부활 + rank/factorScores 정렬 키. **동적 필터**: `_aioInitScreenerFilters`가 SCREENER_DB에서 섹터/지수 옵션 생성(값 정합) + 시그널/시총/검색 + change 리스너 1회 배선.
+- `renderScreenerResults`(v39.2 제거된 DOM) **부활·업그레이드**: 진입 시 `_aioComputeFactorRanks` 호출(랭크 보장), rank 배지·팩터 미니점수·quantSignal 컬럼. 필수 DOM 부재 시 no-op 가드(우발 호출 방어). 팩터 데이터 없으면 정적 시그널 폴백(무회귀). **메모는 title 툴팁에서 제외**(R206 — 메모 내 내부 마커 vNN/RNN/Codex 누출 차단).
+- **22페이지 계약 정합**: `ROUTE_PAGE_IDS`+'screener' → `applyPageContractCompatibility`가 DATA_REQUIREMENT_PROFILES/AIO_PAGE_REFRESH_MAP/PAGE_DEEP_AUDIT_SYSTEMS/AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY **자동 등록**(churn 0). `expectedRoutePageCount` 21→22, `window.PAGES`/`breadcrumbMap`/`AIO_PAGE_BRIEFS`(T490 커버리지)/nav + 페이지수 테스트 T737/T740/T743/T805 21→22.
+
+**2B — 서버 팩터 백테스트 (검증 = 기관 신뢰도)**
+- `scripts/fetch-data.mjs` `backtestFactors` + `_spearman` 신규 — enrich 시 수집한 1년 일별 종가로 **횡단면 검증**: 끝에서 6 리밸시점(147~42일 전)마다 전 종목을 팩터로 랭크 → forward 21일 수익률과 Spearman IC, 종합 랭크 상-하위 5분위 스프레드, 방향 적중률. 누적 대기 불요(enrich 1패스). → `screener.json.backtest`.
+- 클라 `_aioApplyServerScreener`가 `window._aioFactorBacktest` 보관 → `_aioRenderScreenerBacktest`가 스크리너 페이지 "팩터 검증" 패널(팩터별 IC·분위 스프레드·적중률·IC>0.05 유의 해석).
+
+**2C — 보조 LLM 2사이트 서버키 라우팅 (B5 완결)**
+- `autoTranslateNews`(뉴스 번역)·`_generateAIBriefing`(AI 브리핑) + 후자 caller 가드를 `_aioClaudeTarget` 경유로 — 서버 키 모드 시 개인 키 없이 Worker 경유(번역은 무료 폴백, 브리핑은 caller 가드 완화). 기본 직접 호출 무회귀.
+
+**검증**: 라이브 — 스크리너 872행 렌더·필터(섹터 Technology 186)·헤더 정렬(3M desc NVDA+25%→META+18%)·mock 팩터 랭크 NVDA 100→META 80→…→INTC 0·백테스트 패널(IC 0.072/적중 67%)·`getPageContractAudit` ok(22, missing 0)·evidence pagesChecked 22·unclassified 0·콘솔 JS 0. 단위 테스트 879/896(v50.52와 동일 — 신규 페이지로 일시 깨진 T490/T776 즉시 시정, 잔여 17은 기존 환경/데이터/버전 드리프트). **운영자 설정**: 없음(B5는 v50.52 설정 유지). **다음**: 밸류/퀄리티 팩터(FMP 유료 키)·백테스트 실측(cron enrich 후 screener.json 생성 시 자동). R1 7곳+캐시버스터 5곳.
+
 ## v50.52 - 기관/퀀트급 업그레이드 Phase 1: 데이터 품질 + 멀티팩터 랭킹 + 블록 해제 (2026-06-15)
 
 운영자: "(1) 블록은 내가 운영자이니 나에게 묻고 풀어라 (2) 아키텍처·알고리즘을 실제 기관/펀드/퀀트 스크리너 수준으로 보강하라." 3-에이전트 전수 조사 결론: 정적 `SCREENER_DB`(시총/RSI/시그널 하드코딩, 2026-04 기준)·멀티팩터 모델/백테스트 부재가 최대 갭("고품질 UI + 휴리스틱급 분석"). UI/데이터 거버넌스 기반은 우수.

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.52 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.53 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3752,6 +3752,7 @@ body.light-theme canvas { filter:none; }
       <!-- 도구 -->
       <div class="nav-section">
         <div class="nav-label">도구</div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="screener" data-pass-el="1"><span class="nav-icon"></span><span class="label">퀀트 스크리너</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="guide" data-pass-el="1"><span class="nav-icon"></span><span class="label">사용 설명서</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="openGlossary"><span class="nav-icon"></span><span class="label">용어 사전</span></div>
       </div>
@@ -4053,7 +4054,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.52</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.53</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -8701,6 +8702,52 @@ body.light-theme canvas { filter:none; }
     변동성(VIX·VVIX)과 시장 심리는 <button data-action="showPage" data-arg="sentiment" class="aio-btn-table" style="font-size:11px;">투자 심리 →</button> 에서 확인하세요.
   </div>
 </div>
+  <!-- ═══════════════ PAGE: SCREENER (퀀트 스크리너) — v50.53 2A ═══════════════ -->
+  <div class="page" id="page-screener">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+      <div>
+        <div class="page-title">퀀트 스크리너</div>
+        <div class="page-subtitle">멀티팩터 랭킹 · 전체 유니버스 · 헤더 클릭으로 정렬</div>
+      </div>
+      <span data-factor-asof style="font-size:11px;color:var(--data-amber);align-self:center;">팩터 데이터 대기</span>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">
+      <strong style="color:var(--text-secondary);">퀀트 랭크(0~100)</strong> = 섹터 상대 멀티팩터 합성 — 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. 높을수록 우수. <strong>시그널</strong>은 editorial(애널리스트 노트)이라 구분.
+    </div>
+    <div id="screener-backtest-panel" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:12px;"><div style="font-size:11px;color:var(--text-muted);">팩터 검증 데이터 수집 중 — 서버 enrichment(일 1회) 후 표시됩니다.</div></div>
+    <!-- 필터 바 -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+      <select id="scr-market" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 지수</option></select>
+      <select id="scr-sector" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 섹터</option></select>
+      <select id="scr-signal" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 시그널</option><option value="BUY">BUY</option><option value="HOLD">HOLD</option><option value="WATCH">WATCH</option><option value="SELL">SELL</option></select>
+      <select id="scr-cap" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 시총</option><option value="MEGA">메가캡 (≥$1T... )</option><option value="LARGE">대형 ($10B~1T)</option><option value="MID">중형 ($2~10B)</option><option value="SMALL">소형 (&lt;$2B)</option></select>
+      <input id="scr-text-search" type="text" placeholder="티커·이름·메모 검색" class="aio-btn-table" style="font-size:11px;padding:4px 8px;min-width:160px;">
+      <span style="font-size:11px;color:var(--text-muted);margin-left:auto;"><span id="screener-result-count">0</span>종목</span>
+    </div>
+    <!-- 결과 테이블 -->
+    <div style="overflow-x:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+      <table class="aio-table is-mono is-compact" style="width:100%;min-width:760px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--surface-5);">
+            <th data-scr-sort="rank" data-action="_aioScreenerSort" data-arg="rank" role="button" style="cursor:pointer;text-align:center;padding:7px 8px;font-size:10px;">순위<span class="scr-arrow"></span></th>
+            <th data-scr-sort="sym" data-action="_aioScreenerSort" data-arg="sym" role="button" style="cursor:pointer;text-align:left;padding:7px 8px;font-size:10px;">종목<span class="scr-arrow"></span></th>
+            <th data-scr-sort="sector" data-action="_aioScreenerSort" data-arg="sector" role="button" style="cursor:pointer;text-align:left;padding:7px 8px;font-size:10px;">섹터<span class="scr-arrow"></span></th>
+            <th data-scr-sort="momentum" data-action="_aioScreenerSort" data-arg="momentum" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">모멘텀<span class="scr-arrow"></span></th>
+            <th data-scr-sort="trend" data-action="_aioScreenerSort" data-arg="trend" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">추세<span class="scr-arrow"></span></th>
+            <th data-scr-sort="lowvol" data-action="_aioScreenerSort" data-arg="lowvol" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">저변동<span class="scr-arrow"></span></th>
+            <th data-scr-sort="ret3m" data-action="_aioScreenerSort" data-arg="ret3m" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">3M<span class="scr-arrow"></span></th>
+            <th data-scr-sort="rsi" data-action="_aioScreenerSort" data-arg="rsi" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">RSI<span class="scr-arrow"></span></th>
+            <th data-scr-sort="mcap" data-action="_aioScreenerSort" data-arg="mcap" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">시총<span class="scr-arrow"></span></th>
+            <th data-scr-sort="price" data-action="_aioScreenerSort" data-arg="price" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">가격<span class="scr-arrow"></span></th>
+            <th style="text-align:center;padding:7px 8px;font-size:10px;">시그널</th>
+          </tr>
+        </thead>
+        <tbody id="screener-results-body"><tr><td colspan="11" style="text-align:center;padding:20px;color:var(--text-muted);">로딩 중...</td></tr></tbody>
+      </table>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px;">행 클릭 → 종목 심층 분석. 퀀트 랭크는 서버 일별 팩터(screener.json) 기반 — 미수신 시 정적 시그널로 폴백.</div>
+  </div>
+
   <!-- ═══════════════ PAGE: KR-HOME (한국장 홈) ═══════════════ -->
   <div class="page" id="page-kr-home">
   <div class="insight-box box-collapsed">
@@ -10449,9 +10496,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.52"></script>
-  <script src="./js/aio-data.js?v=50.52"></script>
-  <script src="./js/aio-ui.js?v=50.52"></script>
+  <script src="./js/aio-core.js?v=50.53"></script>
+  <script src="./js/aio-data.js?v=50.53"></script>
+  <script src="./js/aio-ui.js?v=50.53"></script>
 
   <script>
 
@@ -13553,7 +13600,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.52"></script>
+<script src="./js/aio-chat.js?v=50.53"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -25928,7 +25975,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.52"></script>
+<script src="./js/aio-glossary.js?v=50.53"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

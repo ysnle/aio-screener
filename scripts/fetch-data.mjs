@@ -388,6 +388,66 @@ function closesToFactors(closes) {
   };
 }
 
+// v50.53 2B: 서버 팩터 백테스트 — 수집한 1년 일별 종가로 횡단면(cross-sectional) 검증.
+//   끝(today)에서 N일 전 리밸 시점마다 전 종목을 팩터로 랭크 → forward 21일 수익률과의 Spearman IC,
+//   종합 랭크 상-하위 분위 스프레드, 방향 적중률. 누적 대기 불요(enrich 시점 1패스 계산).
+function _spearman(xs, ys) {
+  var n = xs.length; if (n < 3 || ys.length !== n) return null;
+  function ranks(a) { var idx = a.map(function(v, i){ return [v, i]; }); idx.sort(function(p, q){ return p[0] - q[0]; }); var r = new Array(n); for (var k = 0; k < n; k++) r[idx[k][1]] = k + 1; return r; }
+  var rx = ranks(xs), ry = ranks(ys), d2 = 0;
+  for (var i = 0; i < n; i++) { var d = rx[i] - ry[i]; d2 += d * d; }
+  return 1 - (6 * d2) / (n * (n * n - 1));
+}
+function backtestFactors(stockData) {
+  var OFFSETS = [147, 126, 105, 84, 63, 42], FWD = 21;     // 끝에서 N일 전 리밸 시점들
+  var isNum = function(v){ return typeof v === 'number' && isFinite(v); };
+  var icS = { momentum:0, trend:0, lowvol:0, composite:0 }, icN = { momentum:0, trend:0, lowvol:0, composite:0 };
+  var spreadSum = 0, spreadN = 0, hit = 0, hitN = 0;
+  function rank01(vals) { // 값→0..1 percentile(null=0.5)
+    var idx = vals.map(function(v, i){ return [v, i]; }).filter(function(p){ return isNum(p[0]); });
+    idx.sort(function(a, b){ return a[0] - b[0]; });
+    var out = vals.map(function(){ return 0.5; });
+    idx.forEach(function(p, r){ out[p[1]] = idx.length > 1 ? r / (idx.length - 1) : 0.5; });
+    return out;
+  }
+  OFFSETS.forEach(function(off) {
+    var rows = [];
+    stockData.forEach(function(s) {
+      var c = s.closes; if (!c || c.length < off + 1) return;
+      var p = c.length - off; if (p < 63 || p + FWD > c.length - 1) return;
+      var f = closesToFactors(c.slice(0, p + 1)); if (!f) return;
+      var fwd = (c[p] > 0) ? (c[p + FWD] / c[p] - 1) : null; if (!isNum(fwd)) return;
+      var mom = [f.ret1m, f.ret3m, f.ret6m].filter(isNum); mom = mom.length ? _mean(mom) : null;
+      var tr = [f.pctSma50, f.pctSma200].filter(isNum); tr = tr.length ? _mean(tr) : null;
+      rows.push({ mom: mom, trend: tr, lowvol: isNum(f.vol) ? -f.vol : null, fwd: fwd });
+    });
+    if (rows.length < 10) return;
+    [['mom','momentum'], ['trend','trend'], ['lowvol','lowvol']].forEach(function(pair) {
+      var ps = rows.filter(function(r){ return isNum(r[pair[0]]); });
+      if (ps.length < 10) return;
+      var ic = _spearman(ps.map(function(r){ return r[pair[0]]; }), ps.map(function(r){ return r.fwd; }));
+      if (isNum(ic)) { icS[pair[1]] += ic; icN[pair[1]]++; }
+    });
+    var rm = rank01(rows.map(function(r){ return r.mom; })), rt = rank01(rows.map(function(r){ return r.trend; })), rl = rank01(rows.map(function(r){ return r.lowvol; }));
+    rows.forEach(function(r, i){ r.comp = 0.4 * rm[i] + 0.3 * rt[i] + 0.3 * rl[i]; });
+    var icC = _spearman(rows.map(function(r){ return r.comp; }), rows.map(function(r){ return r.fwd; }));
+    if (isNum(icC)) { icS.composite += icC; icN.composite++; }
+    var sorted = rows.slice().sort(function(a, b){ return a.comp - b.comp; });
+    var q = Math.max(1, Math.floor(sorted.length / 5));
+    var botM = _mean(sorted.slice(0, q).map(function(r){ return r.fwd; }));
+    var topM = _mean(sorted.slice(-q).map(function(r){ return r.fwd; }));
+    if (isNum(topM) && isNum(botM)) { spreadSum += (topM - botM); spreadN++; hitN++; if (topM > botM) hit++; }
+  });
+  var ic = {}; ['momentum','trend','lowvol','composite'].forEach(function(k){ ic[k] = icN[k] ? round(icS[k] / icN[k], 3) : null; });
+  return {
+    asOf: new Date().toISOString(), fwdDays: FWD, dates: spreadN,
+    n: stockData.filter(function(s){ return s.closes && s.closes.length >= 148; }).length,
+    ic: ic,
+    quantileSpread: spreadN ? round(spreadSum / spreadN * 100, 2) : null,
+    hitRate: hitN ? round(hit / hitN * 100, 1) : null,
+  };
+}
+
 async function enrichScreener() {
   // 자가 스로틀: screener.json이 20시간 내면 스킵(일 1회). BACKFILL/SCREENER_ENRICH=1로 강제.
   if (process.env.SCREENER_ENRICH !== '1' && process.env.BACKFILL !== '1') {
@@ -411,9 +471,13 @@ async function enrichScreener() {
     const f = closesToFactors(r.closes);
     if (f) { data[r.sym] = f; ok++; }
   }
-  const payload = { asOf: new Date().toISOString(), source: 'github-actions:yahoo-1y', universe: syms.length, ok, data };
+  // v50.53 2B: 횡단면 팩터 백테스트(수집한 closes 재사용 — 1패스)
+  let backtest = null;
+  try { backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148)); }
+  catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
+  const payload = { asOf: new Date().toISOString(), source: 'github-actions:yahoo-1y', universe: syms.length, ok, data, backtest };
   await writeFile(SCREENER_OUT, JSON.stringify(payload));
-  return { count: ok, universe: syms.length, asOf: payload.asOf };
+  return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite };
 }
 
 // v50.48/Phase 4: 선택적 서버 LLM 시장 분석문 생성 (운영자 ANTHROPIC_API_KEY Secret 있을 때만).
