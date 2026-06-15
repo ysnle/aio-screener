@@ -1,5 +1,28 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.54 - 기관/퀀트급 업그레이드 Phase 3: 알고리즘 백로그 완결 (레짐 적응 가중·6팩터·포트 리스크) (2026-06-15)
+
+운영자: "기관/퀀트급 업그레이드와 알고리즘 — 저번에 물어본/제안한 것 모두 순차 진행." 에이전트 알고리즘 감사에서 남긴 갭(레짐 적응 가중·밸류/퀄리티·리스크 귀속·스트레스·어닝)과 이전 보류분(FMP 밸류/퀄리티)을 모두 처리. 데이터 의존(FMP)은 키 게이트+폴백(코드베이스 표준).
+
+**3A — 레짐 적응형 팩터 가중** (`js/aio-data.js`)
+- 신규 `_aioFactorWeights(marketState)` — riskScore/vixBand/fgZone/cyclePhase로 가중 틸트 산출: **위험회피**(저변동·퀄리티↑·모멘텀↓)·**위험선호**(모멘텀·추세↑·저변동↓)·**후기사이클**(밸류↑). `_aioComputeFactorRanks`가 고정 가중 대신 이를 사용, **present 팩터로 정규화**(데이터 가용 팩터만). marketState 없으면 기본 가중(무회귀). 스크리너 `#screener-regime-note`에 현재 레짐 표시.
+- 검증: 동일 종목군에서 marketState risk-off 강제 시 방어주 JNJ 랭크 40→80 상승(저변동·퀄리티 가중 반영).
+
+**3B/3C — 밸류·퀄리티·어닝 팩터 (6팩터)** (`scripts/fetch-data.mjs` + `js/aio-data.js`)
+- 서버 신규 `enrichFundamentals(syms)` — `process.env.FMP_API_KEY` 있을 때만(유료 권장). per-symbol `ratios-ttm`(PE/PB/EV-EBITDA/ROE/마진)+`financial-growth`(매출성장)+`earnings-surprises`(EPS 서프라이즈), mapLimit 동시성 4. KR(.KS/.KQ) 제외(FMP 미지원). → `screener.json.data[sym]`에 병합. 키 없으면 스킵(4팩터 유지).
+- 클라 `_aioComputeFactorRanks`에 **value**(저PE/PB/EV-EBITDA = 수익률 환산 역방향)·**quality**(ROE/마진/매출성장) 팩터 추가 — 데이터 있을 때만 FACTORS에 포함(동적). `_aioApplyServerScreener`가 pe/pb/evEbitda/roe/margin/revGrowth/epsSurprise 병합. 스크리너 테이블에 밸류/퀄리티 컬럼(정렬 가능, 데이터 없으면 '—'). 13컬럼.
+- 검증: mock 6팩터 데이터 → factorScores에 value/quality 산출(NVDA value 25·quality 81)·컬럼 렌더·정렬.
+
+**3D — 포트폴리오 리스크 귀속 + 익스포저 한도** (`index.html`)
+- 신규 `_aioRenderPortfolioExposure(positions, returnsMap)` — SCREENER_DB 섹터 룩업으로 **섹터 집중도**·**상위3 집중**·**평균 쌍별 상관**(인라인 Pearson)·**평균 퀀트 랭크**(팩터 익스포저) + 한도 경고(단일섹터>40%·상위3>60%·평균상관>0.7). `#pf-exposure-panel`. `refreshPortfolioRisk`에서 호출.
+- 검증: 기술 집중 mock 포트 → "Technology 93% 집중 ⚠️ · 상위3 93% · 평균상관 0.42 · 평균 퀀트랭크 64".
+
+**3E — 포트폴리오 스트레스 시나리오** (`index.html`)
+- 신규 `_aioRenderPortfolioStress(positions)` — 섹터별 주식/금리/유가 베타 휴리스틱으로 시나리오 손익: 2008 GFC(−50%)·2020 COVID(−34%)·금리+100bp·유가+30%. `#pf-stress-panel` + 최대 취약 종목.
+- 검증: 기술 포트 → 2008 −60.1%(NVDA)·COVID −40.9%·금리 −0.8%·유가 −0.2%.
+
+**검증**: 라이브 — 6팩터 랭킹·밸류/퀄리티 컬럼·레짐 노트·포트 익스포저/스트레스 패널·콘솔 JS 0. 클린 리로드 deepReview issueCount 0. 단위 테스트 878/896 — 17은 기존 환경/데이터/버전 드리프트, 18번째 T557(deepReview)은 **runTests 스윕이 ticker 페이지를 로딩 상태로 남긴 테스트-격리 잔류**(클린 로드 0·미수정 ticker 페이지·신규 회귀 아님). **운영자 설정(선택)**: `FMP_API_KEY` 유료 시크릿 → 밸류/퀄리티/어닝 라이브(미설정 시 4팩터). **보류**: B1 KR 데이터(운영자 미선택)·order-flow/NLP(인프라 과대). R1 7곳+캐시버스터 5곳.
+
 ## v50.53 - 기관/퀀트급 업그레이드 Phase 2: 전용 퀀트 스크리너 페이지 + 팩터 백테스트 + LLM 서버키 확장 (2026-06-15)
 
 운영자: "Phase 2 모두 진행" + (설명 후) "전용 페이지". Phase 1(v50.52)에서 멀티팩터 랭킹 엔진은 만들었으나 AI 채팅에서만 보여(텍스트), 시각 표 부재 → 전용 페이지로 시각화. 밸류/퀄리티 팩터는 유료 FMP 키 필요 → 운영자 보류(가격 4팩터 유지).

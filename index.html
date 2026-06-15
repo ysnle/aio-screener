@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.53 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.54 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -8349,6 +8349,9 @@ body.light-theme canvas { filter:none; }
       <div id="pf-risk-metrics" style="padding:10px 12px;">
         <div style="font-size:11px;color:var(--text-muted);padding:6px 0;">최소 2종목 · 5거래일+ 가격 기록이 필요합니다. <strong style="color:var(--text-secondary);">⟳ 계산</strong> 버튼을 클릭하세요.</div>
       </div>
+      <!-- v50.54 3D/3E: 익스포저·집중도 + 스트레스 시나리오 (⟳ 계산 시 함께 갱신) -->
+      <div id="pf-exposure-panel" style="padding:10px 12px;border-top:1px solid var(--border);"></div>
+      <div id="pf-stress-panel" style="padding:10px 12px;border-top:1px solid var(--border);"></div>
       <div style="border-top:1px solid var(--border);padding:10px 12px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <div>
@@ -8712,7 +8715,8 @@ body.light-theme canvas { filter:none; }
       <span data-factor-asof style="font-size:11px;color:var(--data-amber);align-self:center;">팩터 데이터 대기</span>
     </div>
     <div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">
-      <strong style="color:var(--text-secondary);">퀀트 랭크(0~100)</strong> = 섹터 상대 멀티팩터 합성 — 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. 높을수록 우수. <strong>시그널</strong>은 editorial(애널리스트 노트)이라 구분.
+      <strong style="color:var(--text-secondary);">퀀트 랭크(0~100)</strong> = 섹터 상대 멀티팩터 합성 — 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈(+밸류/퀄리티는 FMP 키 시). 높을수록 우수. <strong>시그널</strong>은 editorial(애널리스트 노트)이라 구분.
+      <span id="screener-regime-note" style="display:block;margin-top:4px;color:var(--accent);font-weight:600;"></span>
     </div>
     <div id="screener-backtest-panel" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:12px;"><div style="font-size:11px;color:var(--text-muted);">팩터 검증 데이터 수집 중 — 서버 enrichment(일 1회) 후 표시됩니다.</div></div>
     <!-- 필터 바 -->
@@ -8735,6 +8739,8 @@ body.light-theme canvas { filter:none; }
             <th data-scr-sort="momentum" data-action="_aioScreenerSort" data-arg="momentum" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">모멘텀<span class="scr-arrow"></span></th>
             <th data-scr-sort="trend" data-action="_aioScreenerSort" data-arg="trend" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">추세<span class="scr-arrow"></span></th>
             <th data-scr-sort="lowvol" data-action="_aioScreenerSort" data-arg="lowvol" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">저변동<span class="scr-arrow"></span></th>
+            <th data-scr-sort="value" data-action="_aioScreenerSort" data-arg="value" role="button" title="밸류(저PER/PBR/EV-EBITDA) — FMP 키 필요" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">밸류<span class="scr-arrow"></span></th>
+            <th data-scr-sort="quality" data-action="_aioScreenerSort" data-arg="quality" role="button" title="퀄리티(ROE/마진/매출성장) — FMP 키 필요" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">퀄리티<span class="scr-arrow"></span></th>
             <th data-scr-sort="ret3m" data-action="_aioScreenerSort" data-arg="ret3m" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">3M<span class="scr-arrow"></span></th>
             <th data-scr-sort="rsi" data-action="_aioScreenerSort" data-arg="rsi" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">RSI<span class="scr-arrow"></span></th>
             <th data-scr-sort="mcap" data-action="_aioScreenerSort" data-arg="mcap" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">시총<span class="scr-arrow"></span></th>
@@ -8742,7 +8748,7 @@ body.light-theme canvas { filter:none; }
             <th style="text-align:center;padding:7px 8px;font-size:10px;">시그널</th>
           </tr>
         </thead>
-        <tbody id="screener-results-body"><tr><td colspan="11" style="text-align:center;padding:20px;color:var(--text-muted);">로딩 중...</td></tr></tbody>
+        <tbody id="screener-results-body"><tr><td colspan="13" style="text-align:center;padding:20px;color:var(--text-muted);">로딩 중...</td></tr></tbody>
       </table>
     </div>
     <div style="font-size:10px;color:var(--text-muted);margin-top:8px;">행 클릭 → 종목 심층 분석. 퀀트 랭크는 서버 일별 팩터(screener.json) 기반 — 미수신 시 정적 시그널로 폴백.</div>
@@ -10496,9 +10502,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.53"></script>
-  <script src="./js/aio-data.js?v=50.53"></script>
-  <script src="./js/aio-ui.js?v=50.53"></script>
+  <script src="./js/aio-core.js?v=50.54"></script>
+  <script src="./js/aio-data.js?v=50.54"></script>
+  <script src="./js/aio-ui.js?v=50.54"></script>
 
   <script>
 
@@ -11492,8 +11498,93 @@ async function refreshPortfolioRisk() {
 
   _renderRiskMetrics(el, { var95: var95, var99: var99, sharpe: sharpe, mddRes: mddRes,
     corrRes: corrRes, validTickers: validTickers, n: minLen });
+  try { _aioRenderPortfolioExposure(positions, returnsMap); } catch(_) {}   // v50.54 3D
+  try { _aioRenderPortfolioStress(positions); } catch(_) {}                 // v50.54 3E
   try { refreshPortfolioTechnicalRisk(); } catch(_) {}
 }
+
+// v50.54 3D: 포트폴리오 리스크 귀속 + 익스포저 한도 — 섹터/종목 집중도·팩터 익스포저·상관 클러스터.
+function _pfPearson(a, b) {
+  var n = Math.min(a.length, b.length); if (n < 3) return null;
+  a = a.slice(-n); b = b.slice(-n);
+  var ma = 0, mb = 0, i; for (i = 0; i < n; i++) { ma += a[i]; mb += b[i]; } ma /= n; mb /= n;
+  var num = 0, da = 0, dbb = 0; for (i = 0; i < n; i++) { var x = a[i] - ma, y = b[i] - mb; num += x * y; da += x * x; dbb += y * y; }
+  return (da > 0 && dbb > 0) ? num / Math.sqrt(da * dbb) : null;
+}
+function _aioRenderPortfolioExposure(positions, returnsMap) {
+  var el = document.getElementById('pf-exposure-panel'); if (!el) return;
+  if (!positions || !positions.length) { el.innerHTML = ''; return; }
+  var ld = window._liveData || {}, db = window.SCREENER_DB || [];
+  var find = function(s){ for (var i=0;i<db.length;i++) if (db[i].sym===s) return db[i]; return null; };
+  var rows = positions.map(function(p){ var lv=ld[p.ticker]||{}; var px=(lv.price&&lv.price>0)?lv.price:p.cost; return { sym:p.ticker, value:px*p.qty, stock:find(p.ticker) }; });
+  var total = rows.reduce(function(s,r){return s+(r.value||0);},0);
+  if (total <= 0) { el.innerHTML = ''; return; }
+  rows.forEach(function(r){ r.w = r.value/total; });
+  var bySec = {}; rows.forEach(function(r){ var sec=(r.stock&&r.stock.sector)||'기타'; bySec[sec]=(bySec[sec]||0)+r.w; });
+  var secArr = Object.keys(bySec).map(function(k){return [k,bySec[k]];}).sort(function(a,b){return b[1]-a[1];});
+  var topSorted = rows.slice().sort(function(a,b){return b.w-a.w;});
+  var top3 = topSorted.slice(0,3).reduce(function(s,r){return s+r.w;},0);
+  var ranked = rows.filter(function(r){ return r.stock && typeof r.stock.rank==='number'; });
+  var wr = ranked.reduce(function(s,r){return s+r.w;},0);
+  var avgRank = wr>0 ? Math.round(ranked.reduce(function(s,r){return s+r.stock.rank*r.w;},0)/wr) : null;
+  // 평균 쌍별 상관
+  var tk = Object.keys(returnsMap||{}); var cs=0, cn=0, hi=0;
+  for (var a=0;a<tk.length;a++) for (var b=a+1;b<tk.length;b++){ var c=_pfPearson(returnsMap[tk[a]], returnsMap[tk[b]]); if (c!=null){ cs+=c; cn++; if (c>0.7) hi++; } }
+  var avgCorr = cn>0 ? cs/cn : null;
+  var warns = [];
+  if (secArr.length && secArr[0][1] > 0.40) warns.push(secArr[0][0]+' 섹터 '+Math.round(secArr[0][1]*100)+'% 집중(>40%)');
+  if (top3 > 0.60) warns.push('상위 3종목 '+Math.round(top3*100)+'% 집중(>60%)');
+  if (avgCorr != null && avgCorr > 0.7) warns.push('평균 상관 '+avgCorr.toFixed(2)+' — 분산효과 약함(>0.70)');
+  var secHtml = secArr.slice(0,5).map(function(s){ var pct=Math.round(s[1]*100); var col=s[1]>0.4?'var(--data-red)':s[1]>0.25?'var(--data-amber)':'var(--text-secondary)'; return '<div style="display:flex;justify-content:space-between;font-size:11px;padding:1px 0;"><span style="color:var(--text-secondary);">'+_escHtmlSafe(s[0])+'</span><span style="color:'+col+';font-weight:700;">'+pct+'%</span></div>'; }).join('');
+  el.innerHTML =
+    '<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">익스포저 · 집중도</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;">' +
+      '<div>' + secHtml + '</div>' +
+      '<div style="font-size:11px;">' +
+        '<div style="display:flex;justify-content:space-between;padding:1px 0;"><span style="color:var(--text-secondary);">상위3 집중</span><span style="font-weight:700;color:'+(top3>0.6?'var(--data-red)':'var(--text-primary)')+';">'+Math.round(top3*100)+'%</span></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:1px 0;"><span style="color:var(--text-secondary);">평균 상관</span><span style="font-weight:700;">'+(avgCorr!=null?avgCorr.toFixed(2):'—')+'</span></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:1px 0;"><span style="color:var(--text-secondary);">평균 퀀트 랭크</span><span style="font-weight:700;">'+(avgRank!=null?avgRank:'—')+'</span></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:1px 0;"><span style="color:var(--text-secondary);">종목/섹터 수</span><span style="font-weight:700;">'+rows.length+'/'+secArr.length+'</span></div>' +
+      '</div>' +
+    '</div>' +
+    (warns.length ? '<div style="margin-top:6px;font-size:10px;color:var(--data-amber);line-height:1.5;">⚠️ '+warns.map(_escHtmlSafe).join(' · ')+'</div>' : '<div style="margin-top:6px;font-size:10px;color:var(--data-green);">✓ 집중도·상관 한도 내</div>');
+}
+// v50.54 3E: 포트폴리오 스트레스 시나리오 — 섹터 베타(주식/금리/유가) 기반 가상 충격 손익.
+function _aioRenderPortfolioStress(positions) {
+  var el = document.getElementById('pf-stress-panel'); if (!el) return;
+  if (!positions || !positions.length) { el.innerHTML = ''; return; }
+  var ld = window._liveData || {}, db = window.SCREENER_DB || [];
+  var find = function(s){ for (var i=0;i<db.length;i++) if (db[i].sym===s) return db[i]; return null; };
+  var SECTOR_RISK = {
+    'Technology':{eq:1.25,rate:-0.8,oil:0.0}, 'Communication Services':{eq:1.10,rate:-0.5,oil:0.0},
+    'Consumer':{eq:1.15,rate:-0.6,oil:-0.2}, 'Consumer Defensive':{eq:0.60,rate:-0.2,oil:-0.1},
+    'Financials':{eq:1.10,rate:0.5,oil:0.0}, 'Healthcare':{eq:0.80,rate:-0.3,oil:0.0},
+    'Energy':{eq:1.00,rate:0.1,oil:1.2}, 'Industrials':{eq:1.10,rate:-0.2,oil:-0.3},
+    'Materials':{eq:1.10,rate:-0.2,oil:0.3}, 'Utilities':{eq:0.50,rate:-1.0,oil:-0.2}, 'Real Estate':{eq:0.90,rate:-1.2,oil:0.0}
+  };
+  var DEF = {eq:1.0,rate:-0.4,oil:0.0};
+  var rows = positions.map(function(p){ var lv=ld[p.ticker]||{}; var px=(lv.price&&lv.price>0)?lv.price:p.cost; var st=find(p.ticker); var sr=(st&&SECTOR_RISK[st.sector])||DEF; return { sym:p.ticker, value:px*p.qty, sr:sr }; });
+  var total = rows.reduce(function(s,r){return s+(r.value||0);},0); if (total<=0){ el.innerHTML=''; return; }
+  rows.forEach(function(r){ r.w=r.value/total; });
+  // 시나리오: 주식충격(eq)·금리+100bp(rate)·유가+30%(oil×0.30)
+  var SCEN = [
+    { name:'2008 금융위기 (시장 −50%)', f:function(sr){ return sr.eq * -0.50; } },
+    { name:'2020 코로나 (시장 −34%)',   f:function(sr){ return sr.eq * -0.34; } },
+    { name:'금리 +100bp',               f:function(sr){ return sr.rate * 0.01; } },
+    { name:'유가 +30%',                 f:function(sr){ return sr.oil * 0.30; } },
+  ];
+  var lines = SCEN.map(function(sc){
+    var port=0, worst=null;
+    rows.forEach(function(r){ var imp=sc.f(r.sr); port += r.w*imp; if (worst===null || imp<worst.imp) worst={sym:r.sym, imp:imp}; });
+    var col = port<-0.15?'var(--data-red)':port<0?'var(--data-amber)':'var(--data-green)';
+    return '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">'+_escHtmlSafe(sc.name)+'</span><span style="font-weight:700;color:'+col+';">'+(port>=0?'+':'')+(port*100).toFixed(1)+'%'+(worst&&worst.imp<0?' <span style="color:var(--text-muted);font-weight:400;">('+_escHtmlSafe(worst.sym)+')</span>':'')+'</span></div>';
+  }).join('');
+  el.innerHTML =
+    '<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">스트레스 시나리오 <span style="font-weight:400;color:var(--text-muted);">— 섹터 베타 기반 추정</span></div>' +
+    lines +
+    '<div style="font-size:9px;color:var(--text-muted);margin-top:4px;">섹터 주식/금리/유가 베타 휴리스틱 추정치 — 실제 손익과 다를 수 있음.</div>';
+}
+function _escHtmlSafe(s){ return (typeof escHtml==='function') ? escHtml(String(s)) : String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
 async function refreshPortfolioTechnicalRisk() {
   var el = document.getElementById('pf-technical-risk');
@@ -13600,7 +13691,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.53"></script>
+<script src="./js/aio-chat.js?v=50.54"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -25975,7 +26066,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.53"></script>
+<script src="./js/aio-glossary.js?v=50.54"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

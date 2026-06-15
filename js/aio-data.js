@@ -1379,8 +1379,8 @@ function renderScreenerResults() {
     } else if (_scrSortCol === 'adr') {
       av = getAdrEstimate(a);
       bv = getAdrEstimate(b);
-    } else if (_scrSortCol === 'momentum' || _scrSortCol === 'trend' || _scrSortCol === 'lowvol') {
-      // v50.53: 팩터 점수 정렬 (factorScores 중첩)
+    } else if (_scrSortCol === 'momentum' || _scrSortCol === 'trend' || _scrSortCol === 'lowvol' || _scrSortCol === 'value' || _scrSortCol === 'quality') {
+      // v50.53/54: 팩터 점수 정렬 (factorScores 중첩 — 모멘텀/추세/저변동/밸류/퀄리티)
       av = (a.factorScores && a.factorScores[_scrSortCol] != null) ? a.factorScores[_scrSortCol] : null;
       bv = (b.factorScores && b.factorScores[_scrSortCol] != null) ? b.factorScores[_scrSortCol] : null;
     } else {
@@ -1409,7 +1409,7 @@ function renderScreenerResults() {
       '<td style="text-align:center;padding:6px 8px;"><span style="font-family:var(--font-mono);font-weight:800;font-size:12px;color:'+rkColor+';">' + (rank==null?'—':rank) + '</span>' + (r.quantSignal ? '<div style="font-size:9px;color:'+rkColor+';">'+escHtml(r.quantSignal)+'</div>' : '') + '</td>' +
       '<td style="padding:6px 8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:10px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
       '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);">' + escHtml(r.sector||'') + '</td>' +
-      _fcell(fs.momentum) + _fcell(fs.trend) + _fcell(fs.lowvol) +
+      _fcell(fs.momentum) + _fcell(fs.trend) + _fcell(fs.lowvol) + _fcell(fs.value) + _fcell(fs.quality) +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+ret3c+';">' + ret3 + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
@@ -1418,7 +1418,7 @@ function renderScreenerResults() {
     '</tr>';
   });
 
-  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
+  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="13" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
   // 스파크라인 미니차트 렌더링
   requestAnimationFrame(function() { renderSparklines(filtered); });
   document.getElementById('screener-result-count').textContent = filtered.length;
@@ -1433,6 +1433,8 @@ function renderScreenerResults() {
     });
     var asEl = document.querySelector('#page-screener [data-factor-asof]');
     if (asEl) asEl.textContent = window._aioScreenerFactorAsOf ? ('팩터 기준 ' + String(window._aioScreenerFactorAsOf).slice(0,10)) : '팩터 데이터 대기 (정적 시그널 폴백 중)';
+    var rnEl = document.getElementById('screener-regime-note');   // v50.54 3A: 레짐 적응 가중 표시
+    if (rnEl) rnEl.textContent = window._aioActiveFactorRegime ? ('⚙️ 가중 레짐: ' + window._aioActiveFactorRegime) : '';
     if (typeof _aioRenderScreenerBacktest === 'function') _aioRenderScreenerBacktest();
   } catch(_) {}
 
@@ -13192,6 +13194,8 @@ function _aioApplyServerScreener(sd) {
     if (typeof f.vol === 'number') item.vol = f.vol;
     if (typeof f.pctSma50 === 'number') item.pctSma50 = f.pctSma50;
     if (typeof f.pctSma200 === 'number') item.pctSma200 = f.pctSma200;
+    // v50.54 3B/3C: FMP 밸류/퀄리티/어닝(키 있을 때만 존재)
+    ['pe','pb','evEbitda','roe','margin','revGrowth','epsSurprise'].forEach(function(k){ if (typeof f[k] === 'number') item[k] = f[k]; });
     item._factorAsOf = sd.asOf;
     n++;
   });
@@ -13210,6 +13214,26 @@ window._aioApplyServerScreener = _aioApplyServerScreener;
 //   momentum(ret1/3/6m) · trend(가격 vs SMA50/200) · low-vol(연율 변동성, 역방향) · size(log mcap).
 //   각 팩터를 섹터 상대 z-score(표본<5면 유니버스 상대) + winsorize(±3σ) → 가중합 → 0~100 percentile 랭크.
 //   팩터 데이터(screener.json) 없으면 null → 소비자는 정적 signal 폴백(무회귀).
+// v50.54 3A: 레짐 적응형 팩터 가중 — marketState(위험회피/선호/후기사이클)에 따라 가중 틸트.
+//   위험회피: 저변동·퀄리티↑·모멘텀↓ / 위험선호: 모멘텀·추세↑·저변동↓ / 후기사이클: 밸류↑.
+//   가중은 합=1 불요(_aioComputeFactorRanks가 present 팩터로 정규화). marketState 없으면 기본(무회귀).
+window._aioFactorWeights = function(ms) {
+  var w = { momentum:0.30, trend:0.22, lowvol:0.18, size:0.10, value:0.10, quality:0.10 };
+  var label = '중립 → 균형 가중';
+  try {
+    if (ms) {
+      var risk = (typeof ms.riskScore === 'number') ? ms.riskScore : null; // 0~100
+      var fg = String(ms.fgZone || ''); var vb = String(ms.vixBand || ''); var rl = String(ms.riskLevel || '');
+      var riskOff = (risk != null && risk >= 60) || /패닉|경계|panic|caution|high|elevated/i.test(vb + ' ' + rl) || /극단\s*공포|공포|fear/i.test(fg);
+      var riskOn  = (risk != null && risk < 35) || /탐욕|greed/i.test(fg);
+      if (riskOff)      { w = { momentum:0.15, trend:0.20, lowvol:0.30, size:0.05, value:0.10, quality:0.20 }; label = '위험회피 → 저변동·퀄리티 가중↑'; }
+      else if (riskOn)  { w = { momentum:0.38, trend:0.27, lowvol:0.10, size:0.10, value:0.07, quality:0.08 }; label = '위험선호 → 모멘텀·추세 가중↑'; }
+      if (/late|후기|peak|침체|recession/i.test(String(ms.cyclePhase || ''))) { w.value += 0.06; w.momentum = Math.max(0, w.momentum - 0.06); label += ' · 후기사이클 밸류↑'; }
+    }
+  } catch(_) {}
+  return { weights: w, regimeLabel: label };
+};
+
 function _aioComputeFactorRanks() {
   if (typeof SCREENER_DB === 'undefined') return null;
   var items = SCREENER_DB.filter(function(r){ return r && (typeof r.ret3m === 'number' || typeof r.ret1m === 'number'); });
@@ -13219,12 +13243,22 @@ function _aioComputeFactorRanks() {
   var trendRaw = function(r){ var p=[]; ['pctSma50','pctSma200'].forEach(function(k){ if(typeof r[k]==='number') p.push(r[k]); }); return p.length?avg(p):null; };
   var lowvolRaw = function(r){ return typeof r.vol==='number' ? -r.vol : null; };           // 낮을수록 우수 → 음수화
   var sizeRaw = function(r){ return (typeof r.mcap==='number' && r.mcap>0) ? Math.log(r.mcap) : null; };
+  // v50.54 3B: 밸류(저PE/PB/EV-EBITDA = 수익률 환산 → 높을수록 우수)·퀄리티(ROE/마진/매출성장). FMP 데이터 있을 때만.
+  var valueRaw = function(r){ var p=[]; if(typeof r.pe==='number'&&r.pe>0)p.push(1/r.pe); if(typeof r.pb==='number'&&r.pb>0)p.push(1/r.pb); if(typeof r.evEbitda==='number'&&r.evEbitda>0)p.push(1/r.evEbitda); return p.length?avg(p):null; };
+  var qualityRaw = function(r){ var p=[]; ['roe','margin','revGrowth'].forEach(function(k){ if(typeof r[k]==='number') p.push(r[k]); }); return p.length?avg(p):null; };
+  // v50.54 3A: 팩터 집합은 데이터 가용에 따라 동적(가격 4팩터 + value/quality는 FMP 있을 때). 가중은 레짐 적응형.
   var FACTORS = [
-    { key:'momentum', fn:momRaw,    w:0.35 },
-    { key:'trend',    fn:trendRaw,  w:0.25 },
-    { key:'lowvol',   fn:lowvolRaw, w:0.20 },
-    { key:'size',     fn:sizeRaw,   w:0.20 },
+    { key:'momentum', fn:momRaw },
+    { key:'trend',    fn:trendRaw },
+    { key:'lowvol',   fn:lowvolRaw },
+    { key:'size',     fn:sizeRaw },
   ];
+  if (items.some(function(r){ return valueRaw(r) != null; }))   FACTORS.push({ key:'value',   fn:valueRaw });
+  if (items.some(function(r){ return qualityRaw(r) != null; })) FACTORS.push({ key:'quality', fn:qualityRaw });
+  var W = (typeof _aioFactorWeights === 'function') ? _aioFactorWeights(window.AIO && window.AIO.marketState) : null;
+  var weights = (W && W.weights) ? W.weights : { momentum:0.35, trend:0.25, lowvol:0.20, size:0.20, value:0, quality:0 };
+  window._aioActiveFactorRegime = W ? W.regimeLabel : null;
+  window._aioActiveFactorWeights = weights;
   var stats = function(vals){ if(!vals.length) return {mu:0,sd:0}; var mu=avg(vals); var sd=vals.length>1?Math.sqrt(vals.reduce(function(s,v){return s+(v-mu)*(v-mu);},0)/(vals.length-1)):0; return {mu:mu,sd:sd}; };
   var winz = function(x,mu,sd){ if(sd<=0||typeof x!=='number'||!isFinite(x)) return 0; var z=(x-mu)/sd; return Math.max(-3,Math.min(3,z)); };
   var z2pct = function(z){ return Math.max(0,Math.min(100,Math.round(50+z*16.67))); }; // z≈±3 → 0~100
@@ -13242,10 +13276,12 @@ function _aioComputeFactorRanks() {
     });
   });
 
+  var wsum = 0; FACTORS.forEach(function(F){ wsum += (weights[F.key] || 0); });
+  if (wsum <= 0) wsum = 1;
   items.forEach(function(r){
     var comp=0; var fs={};
-    FACTORS.forEach(function(F){ var z=r['_z_'+F.key]||0; comp += z*F.w; fs[F.key]=z2pct(z); }); // wsum=1.0
-    r._compositeZ = comp; r.factorScores = fs;
+    FACTORS.forEach(function(F){ var z=r['_z_'+F.key]||0; comp += z*(weights[F.key]||0); fs[F.key]=z2pct(z); });
+    r._compositeZ = comp / wsum; r.factorScores = fs;   // 적응 가중·present 팩터 정규화
   });
   var sorted = items.slice().sort(function(a,b){ return a._compositeZ - b._compositeZ; });
   var n = sorted.length;

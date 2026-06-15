@@ -448,6 +448,47 @@ function backtestFactors(stockData) {
   };
 }
 
+// v50.54 3B/3C: FMP 밸류/퀄리티/어닝 enrichment — process.env.FMP_API_KEY 있을 때만(유료 티어 권장).
+//   per-symbol ratios-ttm(PE/PB/EV-EBITDA/ROE/마진) + financial-growth(매출성장) + earnings-surprises(EPS 서프라이즈).
+//   KR(.KS/.KQ)은 FMP 미지원 → 제외. 키 없으면 null(클라 4팩터 폴백·무회귀).
+const _fmpSym = (s) => s.replace(/^([A-Z]+)\.([A-Z])$/, '$1-$2');
+async function enrichFundamentals(syms) {
+  const key = process.env.FMP_API_KEY;
+  if (!key) return null;
+  const base = 'https://financialmodelingprep.com/api/v3';
+  const us = syms.filter(s => !/\.(KS|KQ)$/i.test(s));
+  const out = {};
+  let ok = 0;
+  await mapLimit(us, 4, async (sym) => {
+    const s = encodeURIComponent(_fmpSym(sym));
+    try {
+      const [ratios, growth, earn] = await Promise.all([
+        fetchJSON(`${base}/ratios-ttm/${s}?apikey=${key}`, {}, 1).catch(() => null),
+        fetchJSON(`${base}/financial-growth/${s}?period=annual&limit=1&apikey=${key}`, {}, 1).catch(() => null),
+        fetchJSON(`${base}/earnings-surprises/${s}?apikey=${key}`, {}, 1).catch(() => null),
+      ]);
+      const r = Array.isArray(ratios) ? ratios[0] : null;
+      const g = Array.isArray(growth) ? growth[0] : null;
+      const e = Array.isArray(earn) ? earn[0] : null;
+      const rec = {};
+      if (r) {
+        if (typeof r.peRatioTTM === 'number' && r.peRatioTTM > 0) rec.pe = round(r.peRatioTTM, 2);
+        if (typeof r.priceToBookRatioTTM === 'number' && r.priceToBookRatioTTM > 0) rec.pb = round(r.priceToBookRatioTTM, 2);
+        if (typeof r.enterpriseValueMultipleTTM === 'number' && r.enterpriseValueMultipleTTM > 0) rec.evEbitda = round(r.enterpriseValueMultipleTTM, 2);
+        if (typeof r.returnOnEquityTTM === 'number') rec.roe = round(r.returnOnEquityTTM * 100, 1);
+        if (typeof r.netProfitMarginTTM === 'number') rec.margin = round(r.netProfitMarginTTM * 100, 1);
+      }
+      if (g && typeof g.revenueGrowth === 'number') rec.revGrowth = round(g.revenueGrowth * 100, 1);
+      if (e && typeof e.actualEarningResult === 'number' && typeof e.estimatedEarning === 'number' && e.estimatedEarning !== 0) {
+        rec.epsSurprise = round((e.actualEarningResult - e.estimatedEarning) / Math.abs(e.estimatedEarning) * 100, 1);
+      }
+      if (Object.keys(rec).length) { out[sym] = rec; ok++; }
+    } catch (_) {}
+  });
+  console.log(`[fetch-data] FMP fundamentals: ${ok}/${us.length}`);
+  return out;
+}
+
 async function enrichScreener() {
   // 자가 스로틀: screener.json이 20시간 내면 스킵(일 1회). BACKFILL/SCREENER_ENRICH=1로 강제.
   if (process.env.SCREENER_ENRICH !== '1' && process.env.BACKFILL !== '1') {
@@ -471,6 +512,11 @@ async function enrichScreener() {
     const f = closesToFactors(r.closes);
     if (f) { data[r.sym] = f; ok++; }
   }
+  // v50.54 3B/3C: FMP 밸류/퀄리티/어닝 병합(키 있을 때만 — 가격 팩터에 합류, 없으면 4팩터)
+  try {
+    const fund = await enrichFundamentals(syms);
+    if (fund) for (const sym in fund) { if (data[sym]) Object.assign(data[sym], fund[sym]); else data[sym] = fund[sym]; }
+  } catch (e) { console.warn('[fetch-data] fundamentals 병합 실패(무시):', e && e.message || e); }
   // v50.53 2B: 횡단면 팩터 백테스트(수집한 closes 재사용 — 1패스)
   let backtest = null;
   try { backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148)); }
