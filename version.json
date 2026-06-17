@@ -1,5 +1,5 @@
 {
-  "version": "v50.54",
-  "built": "2026-06-15T16:00:00+09:00",
-  "note": "v50.54 기관/퀀트급 업그레이드 Phase 3 — 알고리즘 백로그 완결. 3A 레짐 적응형 팩터 가중: _aioFactorWeights(marketState)가 위험회피(저변동·퀄리티↑·모멘텀↓)/위험선호(모멘텀·추세↑)/후기사이클(밸류↑)에 따라 가중 틸트 → _aioComputeFactorRanks가 present 팩터로 정규화. 스크리너 레짐 노트. 검증: risk-off 시 방어주 JNJ 40→80 상승. 3B/3C 밸류·퀄리티·어닝(6팩터): fetch-data.mjs enrichFundamentals(FMP_API_KEY 게이트) — ratios-ttm(PE/PB/EV-EBITDA/ROE/마진)+financial-growth(매출성장)+earnings-surprises(EPS) → screener.json 병합. 클라 value(저PER/PBR/EV 역방향)·quality(ROE/마진/성장) 팩터 + 스크리너 밸류/퀄리티 컬럼(정렬). FMP 키 없으면 4팩터 폴백(무회귀). 3D 포트폴리오 리스크 귀속·익스포저: _aioRenderPortfolioExposure(섹터 집중도·상위종목·평균상관·평균 퀀트랭크·한도 경고). 3E 스트레스 시나리오: _aioRenderPortfolioStress(2008/COVID/금리+100bp/유가+30% 섹터 베타 추정). 검증: 6팩터 랭킹·밸류/퀄리티 컬럼·익스포저 'Tech 93% 집중' 경고·스트레스 시나리오 손익·22페이지 회귀 0·테스트 878/896(클린로드 deepReview 0·T557은 테스트 잔류 아티팩트·신규 회귀 0)·콘솔 JS 0. 운영자 설정(선택): FMP_API_KEY 유료 키 시 밸류/퀄리티/어닝 라이브. 보류: B1 KR 데이터(운영자 미선택). R1 7곳+캐시버스터 5곳."
+  "version": "v50.68",
+  "built": "2026-06-17T00:00:00+09:00",
+  "note": "v50.68 refreshes live public-data on 2026-06-17: quotes 77/77, F&G 40, news 25, history 185d, screener 851/869, and Telegram 7d digest 807 posts across 3 channels. Includes v50.67 UX declutter."
 }

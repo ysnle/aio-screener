@@ -1,12 +1,88 @@
 ---
 verified_by: agent
-last_verified: 2026-06-09
+last_verified: 2026-06-16
 confidence: high
-latest_version: v50.24
-latest_P_number: P499
-total_entries: 499
-next_P_number: P500
+latest_version: v50.63
+latest_P_number: P509
+total_entries: 508
+next_P_number: P510
 ---
+
+## P509 - v50.63 - Telegram digest collection was not in the scheduled consumption loop
+
+- **Symptom**: Telegram digest integration existed in static JS, but the scheduled `refresh-data.yml` job only committed `data.json`, `history.json`, and `screener.json`. The workflow also had a broken `ANTHROPIC_API_KEY` line where `run:` was appended to the env comment, risking failed scheduled refreshes.
+- **Root cause**: The self-reinforcing loop stopped at "script exists / static object updated." It did not require a same-origin dynamic artifact, app boot loader, freshness metadata update, audit visibility, and regression coverage for Telegram digest consumption.
+- **Fix**: Rewrote `refresh-data.yml` with valid ASCII YAML, added scheduled `fetch-telegram-digest.mjs --out public-data/telegram-digest.json`, committed the current digest artifact, added `_aioLoadServerTelegramDigest()` / `_aioApplyTelegramDigestPayload()`, updated `getTelegramPipelineAudit()`, and added T831.
+- **Prevention**: Any new automated data source must satisfy collect -> public-data artifact -> boot/load consumption -> freshness metadata -> audit -> regression test. R217.
+
+## P508 - v50.62 - Data/news refresh was collected but not structurally broad enough
+
+- **Symptom**: Telegram 7d digest and public-data refresh existed, but analysis-page news contracts still favored narrow macro/geo/semi filters. The home stale warning also used one timestamp for both price snapshots and news/theme digest freshness, making a refreshed digest look like old market data.
+- **Root cause**: The collection layer and consumption layer were not bound as one contract. New topics such as optical, power, memory, materials, ai-policy, space, crypto, and Korea supply-chain were present in data but not fully mapped into page strips, chat page context, and freshness metadata.
+- **Fix**: Re-ran fetch-data, refreshed public-data, updated DATA_SNAPSHOT static fallback to 2026-06-16, split _marketDataUpdated from _telegramDigestUpdated, added Telegram category registry/page map, widened AIO_NEWS_SURFACE_CONTRACTS, injected category/page map into chat, and added T830.
+- **Prevention**: A news/theme refresh is complete only when digest, category registry, page map, page contracts, chat context, freshness metadata, and regression tests are all connected. R216.
+
+## P507 - v50.61 - Telegram 수집 데이터가 주간 소스/채팅/스크리너 레이어로 자동 환류되지 않음
+
+- **Symptom**: 사용자가 지정한 Telegram 3채널 1주일치 뉴스/소식/정보를 수집해도, 기존 구조는 개별 RSS/클라이언트 뉴스 분류와 수동 HOME_WEEKLY_NEWS 갱신에 의존했다. 고거래량 채널은 브라우저 직접 접근/로그인/CORS 제약 때문에 누락되기 쉽고, AI 채팅은 최신 정성 테마를 종목 추천·시장 맥락에 일관되게 연결하지 못할 수 있었다.
+- **Root cause**: Telegram 공개 미러를 주간 digest로 정규화하는 서버/스크립트 레이어가 없었고, 수집 결과가 HOME_WEEKLY_NEWS, SCREENER_DB, MACRO_KW/TECH_KW, 채팅 system prompt까지 이어지는 단일 환류 경로가 없었다.
+- **Fix**: `scripts/fetch-telegram-digest.mjs` 추가. 3채널 공개 미러 796건을 수집해 토픽/티커/스코어를 추출하고, `AIO_TELEGRAM_WEEKLY_DIGEST` + HOME_WEEKLY_NEWS + SCREENER_DB 메모 오버레이 + MACRO/TECH 키워드 + AI 채팅 컨텍스트로 연결. T829 추가.
+- **Prevention**: 새 외부 정성 소스는 "수집 파일"에서 끝내지 말고 digest 객체, 화면 큐레이션, 스크리너 메모, 키워드 분류, 채팅 답변 계약, 테스트까지 연결해야 한다. 고거래량 채널은 safety cap/resumable paging/backfill 한계를 문서화한다. R215.
+
+## P506 - v50.60 - AI 채팅이 AIO 페이지/데이터 강점을 하나의 답변 계약으로 통합하지 못함
+
+- **Problem**: 스크리너 AI 채팅은 시세, 차트, 퀀트 스크리너, 뉴스, 매크로, 포트폴리오 등 여러 내부 데이터 레이어를 갖고 있었지만, 답변 생성 단계에서 "일반 LLM과 다른 AIO 전용 강점"을 항상 명시하는 상위 계약이 없었다. 그 결과 사용자가 넓은 추천·시장 상황 반영·정성/정량 통합 답변을 기대할 때 일부 데이터 블록은 주입되어도 답변 구조가 페이지 간 연결, 현재 시장 맥락, 정량/정성 균형으로 안정적으로 수렴하지 못할 수 있었다.
+- **Root cause**: `AIO_CHAT_SOURCE_REGISTRY`는 개별 소스 출처 감사에는 효과적이지만, 사용자가 체감하는 답변 레이어(현재 시장 → 정량 지표 → 정성 뉴스/공시 → 종합 판단 → 관련 페이지/도구 연결)를 선언하지 않았다. `chatSend()`도 intent/coverage/memory/data blocks를 붙였지만 AIO 전체 시스템을 관통하는 통합 답변 계약은 별도로 주입하지 않았다.
+- **Fix**: `AIO_CHAT_PIPELINE_REGISTRY`를 추가해 marketState, quotes, technicalOHLCV, screener, breadthSentiment, macroRatesFx, companyFundamentals, newsFilings, themes, portfolio 레이어를 선언. `_buildAioIntegratedAnswerContext()`를 추가해 "not a generic LLM" 원칙, 현재 시장 연결, 정량/정성 답변, 종합 판단, 페이지 연결, 추천 다양성 규칙을 시스템 프롬프트에 주입. `chatSend()`는 `integratedContextStr`를 생성해 coverage 뒤에 붙이고, coverage flags도 technical/screener/domain 데이터를 인식하도록 확장. T828 추가.
+- **violated_rule:** R15, R211, R212, R213
+- **Prevention**: 새 채팅 데이터/페이지 기능은 소스 레지스트리뿐 아니라 사용자 답변 계약까지 연결해야 한다. 개별 데이터 블록이 주입되어도, 현재 시장·정량·정성·페이지 연결·추천 다양성 중 어느 축으로 쓰일지 명시하지 않으면 완료로 보지 않는다. R214.
+
+## P505 - v50.59 - AI 채팅이 기존 OHLCV 차트 분석 엔진을 무티커 시장 질문에 활용하지 못함
+
+- **Problem**: 차트적 분석 기능 자체는 `fetchOHLCVWithFallback` + `calcTechnicalSnapshot` + `calcExtensionHeat`로 존재했고, 종목 티커가 있는 질문에는 `_fetchTechnicalDataForChat()`가 RSI/MACD/MA/ATR/Stage/확장도를 주입했다. 하지만 사용자가 "지금 시장 차트적으로 어때?"처럼 티커 없이 기술/차트 분석을 물으면 이 엔진이 자동 발동하지 않아, 기존 시장 대표 차트 기능을 채팅이 충분히 쓰지 못했다. 또한 OHLCV 기술지표 소스가 `AIO_CHAT_SOURCE_REGISTRY`에 없어서 출처/확장성 감사에서 보이지 않았다.
+- **Root cause**: v50.38에서 기술 데이터 주입 범위를 "티커 감지 시 전 컨텍스트"로 확장했지만, 무티커 기술 질문을 SPY/QQQ/SMH 같은 대표 프록시로 변환하는 라우터가 없었다. 소스 레지스트리 감사도 `_fetchTickerDataForChat()` 내부만 스캔해, `chatSend()`에서 별도로 주입되는 기술/도메인 데이터 소스를 표현하기 어려웠다.
+- **Fix**: `_aioTechnicalSymbolsForChat()`를 추가해 무티커 기술/차트 질문에는 기본적으로 SPY·QQQ·SMH, 반도체 질문에는 SMH·SOXX·QQQ, 폭/소형주 질문에는 IWM·RSP·SPY, 한국 기술 질문에는 ^KS11·^KQ11·KRW=X를 선택한다. `chatSend()`는 티커가 없어도 해당 라우터 결과로 `_fetchTechnicalDataForChat(..., {autoMarket:true})`를 호출한다. `_fetchTechnicalDataForChat()`는 OHLCV `dataQuality` source/rows/fetched 라벨을 포함한다. `technicalOHLCV`를 `AIO_CHAT_SOURCE_REGISTRY`에 등록하고 `getChatSourceRegistryAudit()`가 ticker fetch + technical injector + domain injector + chatSend를 함께 스캔하도록 확장. T827 추가.
+- **violated_rule:** R15, R121, R212
+- **Prevention**: 새 채팅 데이터 기능은 "존재 여부"뿐 아니라 사용자의 자연어 질문에서 실제 주입되는 라우팅까지 검증한다. 레지스트리 감사는 단일 실행 함수만 보지 말고 모든 채팅 데이터 주입 경로를 포함해야 한다. R213.
+
+## P504 - v50.58 - AI 채팅 신뢰성 가드가 일반/스크리너 답변까지 과도하게 억제
+
+- **Problem**: 스크리너가 AI 채팅을 보강해야 하는데 일부 규칙은 오히려 답변을 좁혔다. 일반/교육 질문, 넓은 스크리너 추천, 단순 종목 사실 질문에도 "주가 추이 미주입 시 추세 언급 금지", 6단계 기관 리포트, Bull/Base/Bear, 기관 프레임 인용 의무가 전역으로 붙었다. 그 결과 사용자는 직관적인 답변 대신 과도한 제한·형식·미수집 경고를 받기 쉬웠다.
+- **Root cause**: 환각 방지 규칙이 사용자 의도별로 분리되지 않고 `chatSend()` 말미의 공통 `_dataVerify`와 `_fetchTickerDataForChat()` 종목 데이터 블록에 일괄 주입됐다. 스크리너 후보군은 3M·RSI·퀀트 랭크라는 자체 근거를 제공하는데도 개별 티커용 `[주가 추이]` 부재와 같은 기준으로 평가됐다.
+- **Fix**: `_aioChatAnswerPolicy()`를 추가해 일반/교육, 스크리너 후보, 단순 종목 사실, 매매 판단을 분리. 매매 판단/전망 질문에만 강한 추세·시나리오·기관 메모 규칙을 적용하고, 단순 질문은 바로 답하도록 변경. 스크리너 후보군은 3M·RSI·퀀트 랭크·섹터/시장 분산을 근거로 설명 가능하다고 명시. `_fetchTickerDataForChat()`도 query/ctxId를 받아 Bull/Base/Bear 강제를 의도별로 완화. T826 추가.
+- **violated_rule:** R15, R140, R211
+- **Prevention**: 정확성 가드는 답변을 차단하는 장치가 아니라 답변 범위를 라벨링하는 장치다. 새 채팅 규칙은 반드시 적용 대상(일반/스크리너/단순 종목/매매 판단)을 명시하고, 스크리너가 제공한 구조화 근거를 개별 티커 데이터 미수집으로 무효화하지 않는다. R212.
+
+## P503 - v50.57 - AI 채팅의 넓은 종목 추천이 특정 테마로 과수렴
+
+- **Problem**: 사용자가 "종목 추천해줘"처럼 넓은 질문을 하면 AI 채팅이 CEG, 전력 섹터, AVGO/브로드컴, AI 인프라 같은 특정 시장/기업으로 반복 수렴했다. 실제 LLM처럼 넓은 후보군을 먼저 펼친 뒤 사용자 제약에 맞춰 좁히는 동작이 부족했다.
+- **Root cause**: `_aioRunScreenerQuery()`가 명시 조건(섹터·RSI·시총·퀀트 등)이 없으면 null을 반환해, 넓은 추천 질문에는 후보 리스트가 주입되지 않았다. 그 상태에서 `CHAT_CONTEXTS`의 고정 리서치 문단과 과거 대화 메모가 프롬프트의 강한 앵커가 되어 특정 테마가 과대표집됐다. 최근 답변에서 반복된 티커를 감점하거나 섹터·시장·시총 분산을 강제하는 구조도 없었다.
+- **Fix**: `_aioIsBroadRecommendationQuery()`, `_aioBuildDiversifiedRecommendationRows()`, `_aioExtractRecentRecommendationTickers()`를 추가. 넓은 추천 질문은 SCREENER_DB를 섹터·시장·시총별로 분산 샘플링하고 최근 대화 반복 티커를 감점한 `diversified-recommendation` 모드로 처리한다. `_formatScreenerResultPrompt()`는 "균형 추천 후보" 블록과 같은 섹터 최대 2개, 3~5개 최종 선택, 제외/보류 이유, 대체 후보 설명을 강제한다. `chatSend()`는 최근 대화 티커를 넘기고 추천 다양성·반복 편향 방지 규칙을 system prompt에 추가한다. T825 추가.
+- **violated_rule:** R15, R135
+- **Prevention**: 넓은 추천 질문은 고정 내러티브보다 구조화된 후보군을 먼저 주입한다. 추천 후보는 최소 섹터·시장·시총 분산 축을 갖고, 최근 대화에서 반복된 종목은 감점한다. 특정 섹터/테마 질문은 기존 필터를 유지하되, 조건 없는 추천은 균형 후보 모드로 회귀 테스트한다. R211.
+
+## P502 - v50.56 - 정적 감사 통과 후 런타임 scope·복합 sink·증거 게이트 오판이 잔존
+
+- **Problem**: KST formatter가 두 번째 `DOMContentLoaded` listener 내부에 선언돼 첫 번째 listener와 quota 함수에서 `ReferenceError`가 발생했다. KR 홈/테마의 복합 카드 전체가 `data-live-price` sink여서 감사기가 종목코드·이름·비중까지 가격으로 읽었고, 한국 주식은 미국 주식 상한 10,000을 공유해 정상 원화 가격을 차단했다. 참고 전용 미수집 quote도 의사결정 값과 동일하게 배포 차단됐으며, 텍스트 감사는 `S&P500`, `MA(5/20/60)`, `1/3/6M`, `9/11 종목`을 개발 표식·과거 날짜로 오인했다. 뉴스 84개 순차 수집은 정상 진행 중에도 오래 “수집 중”으로만 보여 영구 로딩처럼 보였다.
+- **Root cause**: 브라우저 실행 순서 검증 없이 함수 존재만 검사했고, 데이터 sink의 소유권을 값 노드가 아닌 복합 컨테이너에 부여했다. 자산별 가격 단위, `decision`/`reference-only`, 날짜/비율/브랜드 토큰을 감사 규칙에서 구분하지 않았다. 장기 비동기 작업도 전경 loading과 백그라운드 진행 상태가 분리되지 않았다.
+- **Fix**: KST helper를 모듈 전역으로 이동. KR 카드와 동적 테마 pill은 `data-live-symbol` 소유 컨테이너와 가격/등락 child sink로 분리하고 `.KS/.KQ` 원화 sanity range를 추가. 참고 전용 truth-block은 warn으로 강등하되 decision sink는 계속 차단. 텍스트 날짜 판정을 KST 경과일·문맥 기반으로 변경하고 단어 경계를 적용. 12초 이후 뉴스 진행 문구를 백그라운드 갱신으로 전환. 공식 일정에는 evidence metadata를 부착. T824와 CI 구조 검사를 추가.
+- **violated_rule:** R15, R195, R204, R208
+- **Prevention**: 공유 helper는 모든 listener/caller보다 앞선 module scope에 둔다. 복합 UI의 live 속성은 실제 값 child에만 둔다. 증거 게이트는 사용 목적과 자산 단위를 함께 평가하고, 텍스트 날짜 감사는 경과일·문맥을 사용한다. 브라우저 fresh context에서 22페이지를 실제 진입한 뒤 gate를 재실행한다. R210.
+
+## P501 - v50.56 - 계약·시간대·한국 지수 카드가 서로 다른 진실 원천을 사용
+
+- **Problem**: 스크리너 추가 후 페이지 계약 감사는 22개를 기대했지만 배포 게이트는 `routePageCount !== 21`을 유지해 정상 상태에서도 항상 차단됐다. 홈 날짜는 KST로 9시간 이동한 `Date`에 로컬 `getDay()`를 적용해 2026-06-15 월요일을 화요일로 표시했다. 한국 지수 카드는 라이브 현재가·등락률만 갱신하고 전일종가는 정적 스냅샷을 남겼으며 `kosdaq-prev`는 snapshot map에서도 누락됐다.
+- **Root cause**: 동일 개념의 기대 페이지 수, 날짜/요일, 가격/등락/전일종가가 각각 다른 상수·시간대 API·DOM writer에서 관리됐다. 기존 T743은 반환 shape만 검사해 게이트 자체의 불변식을 검증하지 않았다.
+- **Fix**: 배포 게이트가 `expectedRoutePageCount`와 실제 수를 비교하도록 변경. `AIO.getKstDateParts()`로 날짜·요일·일일 쿼터를 `Asia/Seoul` 기준 단일 계산. KR 카드에 전일종가/변동 sink를 추가하고 `applyLiveQuotes()`와 `initKoreaHome()`가 동일 quote의 previous close를 사용하도록 변경. `kosdaq-prev` snapshot map 복구. T743 강화, T823 및 CI 구조 회귀 검사 추가. 로컬 서버 실행기를 foreground·절대 Python 경로로 고정.
+- **violated_rule:** R1, R15, R195
+- **Prevention**: 기대 개수는 계약 객체에서만 읽고 별도 숫자를 비교하지 않는다. 날짜와 요일은 동일 timezone formatter 결과를 사용한다. 가격 카드의 현재가·등락·기준가는 하나의 quote payload에서 함께 갱신한다. CI에서 이 세 불변식을 정적 검사하고 브라우저 T823으로 확인한다. R209.
+
+## P500 - v50.55 - 감사 보고서의 정적 추정과 런타임 상태가 혼재해 실제 결함은 숨고 정상 기능은 오탐
+
+- **Problem**: 12페이지 감사 보고서가 정적 HTML만 보고 동적 바인딩 요소를 "빈 껍데기"로 판정한 항목이 다수였지만, 실제 런타임에는 별도 결함이 존재했다. 퀀트 스크리너는 `public-data/screener.json` 404를 영구 "수집 중"으로 표시했고, FMP 미설정 팩터의 `—`는 결측/제외 의미가 불명확했다. 뉴스는 실제 84개 소스를 "50+"/"80개"로 하드코딩하고 표시 기준·상한을 숨겼으며 토픽 필터가 분류 체계보다 적었다. 기술분석은 검증 출처 없는 VCP 94%/패턴별 정밀 승률을 확정값처럼 노출했다. 브리핑/캘린더는 과거 6/5·6/10 이벤트를 여전히 예정으로 취급했고 Actions는 코드가 읽는 FMP/Anthropic 시크릿을 전달하지 않았다.
+- **Root cause**: (1) `loading`과 `unavailable` 상태를 하나의 문구로 합침, (2) 소스 수·이벤트·분석 근거를 데이터에서 파생하지 않고 복수 UI/프롬프트에 하드코딩, (3) 분석적 확률 주장에 출처·표본·레짐 계약이 없음, (4) 워크플로 환경변수와 수집 코드의 요구사항을 교차검증하지 않음.
+- **Fix**: `_aioScreenerLoadState`로 loading/ready/partial/unavailable을 분리하고 결측 팩터 제외를 명시. 뉴스 소스 수를 `AIO_NEWS_SOURCES.length`에서 동적 표시하고 반도체·지정학·채권·FX 필터 및 48시간/점수30/150건 정책을 공개. 고정 승률·출처 불명 통계를 제거하고 조건부 패턴 판단으로 변경. AI 브리핑을 런타임 스냅샷+향후 이벤트 생성식으로 전환. Fed/BEA 공식 일정 확인 후 과거 정적 이벤트 제거. Actions에 선택 시크릿 전달. T822 추가.
+- **Prevention**: 사용자 가시 상태는 loading/unavailable/excluded를 분리하고, 소스 수·가용 팩터·향후 일정은 단일 데이터 원천에서 파생한다. 정밀 승률/개선율은 검증 가능한 출처·표본·기간이 없으면 표시하지 않는다. 감사 보고서는 정적 마크업 주장과 런타임 동작을 반드시 교차검증한다. R208.
 
 ## P499 - v50.24 - 7개 페이지 on-enter refresh가 존재하지 않는 가상 계약 태스크 참조 → no-op + autoOps "unknown task" 7건
 

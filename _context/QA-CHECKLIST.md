@@ -1,13 +1,111 @@
 ---
 verified_by: agent
-last_verified: 2026-05-20
+last_verified: 2026-06-16
 confidence: high
 version: v3.7
-checklist_version: v49.57
-total_items: 275
+checklist_version: v50.63
+total_items: 315
 stages: 21
-latest_P_covered: P318
+latest_P_covered: P509
 ---
+
+## v50.63 - Telegram digest auto-refresh consumption loop (P509/R217/T831)
+
+- [ ] `.github/workflows/refresh-data.yml` has valid YAML and a separate `run: node scripts/fetch-data.mjs` step.
+- [ ] The scheduled refresh also runs `node scripts/fetch-telegram-digest.mjs --days=7 --out=public-data/telegram-digest.json`.
+- [ ] The commit step stages `public-data/telegram-digest.json` when present.
+- [ ] `data-watchdog.yml` checks both `public-data/data.json` and `public-data/telegram-digest.json` freshness.
+- [ ] `public-data/telegram-digest.json` exists and includes generatedAt/since/until/channels/count/topicCounts/tickerCounts.
+- [ ] `_aioLoadServerTelegramDigest()` fetches `public-data/telegram-digest.json` and degrades to static fallback if unavailable.
+- [ ] `_aioApplyTelegramDigestPayload()` updates `AIO_TELEGRAM_WEEKLY_DIGEST`, category registry, page map, DATA_SNAPSHOT digest freshness, and `_aioTelegramDigestMeta`.
+- [ ] `getTelegramPipelineAudit().digest` exposes dynamicLoaded/status/asOf/window/count/category/page-map coverage and T831 passes.
+
+## v50.62 - Data/news freshness split + broad page integration (P508/R216/T830)
+
+- [ ] public-data/data.json generatedAt is 2026-06-16 and quotesOk is 77/77.
+- [ ] DATA_SNAPSHOT has _marketDataDate/_marketDataUpdated and _telegramDigestDate/_telegramDigestUpdated as separate fields.
+- [ ] snapshot stale banner text is based on _marketDataUpdated and mentions market snapshot vs news/theme digest separately.
+- [ ] AIO_TELEGRAM_CATEGORY_REGISTRY has at least 10 categories and AIO_TELEGRAM_PAGE_INTEGRATION_MAP covers home/macro/fxbond/technical/themes/sentiment/signal/fundamental/breadth/screener/briefing/market-news.
+- [ ] AIO_NEWS_SURFACE_CONTRACTS technical/themes/fundamental include optical/power/memory/materials/ai-policy/crypto where appropriate.
+- [ ] _buildAioIntegratedAnswerContext injects telegram_category_registry and telegram_page_map.
+- [ ] T830 passes.
+
+## v50.61 - Telegram 3채널 1주일 다이제스트 통합 (P507/R215/T829)
+
+- [ ] `scripts/fetch-telegram-digest.mjs --since=...`가 3채널 공개 미러를 수집하고 JSON digest를 생성하는가
+- [ ] `AIO_TELEGRAM_WEEKLY_DIGEST.counts.total === 796` 및 sources/window/pipelineNote가 노출되는가
+- [ ] HOME_WEEKLY_NEWS 최신 항목 날짜가 2026-06-16이며 BOJ, Anthropic/Fable, CW laser, WF6/MLCC 테마를 포함하는가
+- [ ] SCREENER_DB overlay가 NVDA/MU/000660.KS/009150.KS 등 핵심 종목 메모에 `[TG 06/15~16]` 근거를 추가하는가
+- [ ] `_buildAioIntegratedAnswerContext()`가 telegram_weekly_digest/themes/catalysts/pipeline_note를 system prompt에 주입하는가
+- [ ] T829가 digest, home, chat, keyword, memo overlay를 함께 검증하는가
+
+## v50.60 - AI 채팅 통합 답변 파이프라인 보강 (P506/R214/T828)
+
+- [ ] `AIO_CHAT_PIPELINE_REGISTRY`가 현재 시장·시세·차트·스크리너·시장폭/심리·매크로·펀더멘털·뉴스/공시·테마·포트폴리오 레이어를 선언하는가
+- [ ] `_buildAioIntegratedAnswerContext()`가 일반 LLM이 아닌 AIO 전용 강점을 명시하는가
+- [ ] 답변 계약이 현재 시장 연결, 정량 답변, 정성 답변, 종합 판단, 페이지 연결, 추천 다양성을 모두 포함하는가
+- [ ] `chatSend()`가 `integratedContextStr`를 시스템 프롬프트에 실제 주입하는가
+- [ ] coverage context가 `technicalData`, `screenerData`, `domainData` 축을 인식하는가
+- [ ] T828이 레지스트리·프롬프트 계약·chatSend 배선을 함께 검증하는가
+
+## v50.59 - AI 채팅 차트 분석 연결 보강 (P505/R213/T827)
+
+- [ ] 무티커 기술/차트 질문이 `_aioTechnicalSymbolsForChat()`를 통해 시장 대표 프록시(SPY/QQQ/SMH 등)로 라우팅되는가
+- [ ] `chatSend()`가 티커가 없어도 기술 질문일 때 `_fetchTechnicalDataForChat(..., {autoMarket:true})`를 호출하는가
+- [ ] `_fetchTechnicalDataForChat()`가 OHLCV `dataQuality` source/rows/fetched 라벨을 포함하는가
+- [ ] `AIO_CHAT_SOURCE_REGISTRY`에 `technicalOHLCV`가 등록되어 있는가
+- [ ] `getChatSourceRegistryAudit()`가 `_fetchTickerDataForChat()` 외 기술/도메인/chatSend 주입 경로까지 스캔하는가
+- [ ] T827이 라우팅·레지스트리·audit unused=0을 함께 검증하는가
+
+## v50.58 - AI 채팅 답변 정책 유연화 (P504/R212/T826)
+
+- [ ] 일반/교육 질문이 종목 리포트·Bull/Base/Bear 구조로 강제되지 않고 바로 답하는가
+- [ ] 넓은 스크리너 추천이 `[주가 추이]` 부재로 막히지 않고 3M·RSI·퀀트 랭크를 근거로 설명하는가
+- [ ] 단순 종목 사실 질문은 매수/매도 판단으로 과도하게 확장되지 않는가
+- [ ] 매매 판단/전망/추천 질문에는 강한 데이터 검증·시나리오·시장 환경 연결이 유지되는가
+- [ ] 스크리너 후보군 밖 종목은 확정 추천으로 섞지 않고 추가 탐색 조건으로 안내하는가
+- [ ] T826이 `_aioChatAnswerPolicy()`, `chatSend()`, `_fetchTickerDataForChat()`의 의도별 정책 분리를 검증하는가
+
+## v50.57 - AI 채팅 추천 다양성·반복 편향 방지 (P503/R211/T825)
+
+- [ ] 조건 없는 "종목 추천" 질문이 `diversified-recommendation` 모드로 진입하는가
+- [ ] 후보군이 4개 이상 섹터와 복수 시장/시총 버킷으로 분산되는가
+- [ ] 최근 대화에 반복된 CEG/AVGO 등 티커가 후보 점수에서 감점되는가
+- [ ] "전력/반도체/한국주"처럼 명시된 섹터/테마 질문은 기존 조건 필터를 유지하는가
+- [ ] T825가 프롬프트 내 추천 다양성·반복 편향 방지 지시와 `chatSend()` 배선을 검증하는가
+
+## v50.56 - 런타임 scope·복합 sink·증거 게이트 (P502/R210/T824)
+
+- [ ] 공유 KST helper가 모든 `DOMContentLoaded` listener와 quota caller보다 먼저 선언되는가
+- [ ] `.kr-etf-card`, `.kr-screen-card`, `.kr-ticker-pill` 컨테이너에 `data-live-price`가 없고 실제 가격 child에만 존재하는가
+- [ ] `.KS/.KQ` 정상 원화 가격이 미국 주식 10,000 상한으로 truth-block 되지 않는가
+- [ ] `reference-only` 미수집 quote는 warn, `decision` truth-block만 block으로 집계되는가
+- [ ] `S&P500`, `MA(5/20/60)`, `1/3/6M`, 종목 수 비율이 개발 표식/과거 날짜로 오인되지 않는가
+- [ ] 공식 일정 문구에 evidence/source/as-of metadata가 연결되는가
+- [ ] 뉴스 수집 12초 이후 사용자 표면이 영구 loading이 아닌 백그라운드 갱신 상태를 표시하는가
+- [ ] fresh browser에서 22/22 route, evidence block 0, text block 0, pageerror 0, T824 포함 전체 테스트가 통과하는가
+
+## v50.56 - 계약·KST·KR 지수 정합성 (P501/R209/T823)
+
+- [ ] `getPageContractAudit().routePageCount === expectedRoutePageCount === 22`이고 배포 게이트에 route-page contract 차단이 없는가
+- [ ] `AIO.getKstDateParts(new Date('2026-06-14T15:30:00Z'))`가 `2026-06-15`, `월`을 반환하는가
+- [ ] 홈 날짜 라벨과 LLM 일일 쿼터 날짜가 UTC가 아닌 `Asia/Seoul` 기준인가
+- [ ] KOSPI/KOSDAQ 카드의 현재가·변동액·등락률·전일종가가 동일 quote의 previous close와 수학적으로 일치하는가
+- [ ] `applyDataSnapshot()`에 `kospi-prev`와 `kosdaq-prev`가 모두 매핑되는가
+- [ ] `node scripts/ci-structural-check.mjs`와 T743/T823이 통과하는가
+- [ ] `scripts/start-local.cmd 8765`가 실행정책 오류 없이 현재 worktree를 제공하고 `/version.json`이 현재 버전인가
+
+## v50.55 — 12페이지 실효성·정합성 감사 보강 (P500/R208/T822)
+
+- [ ] 퀀트 스크리너 `screener.json` 404/미수신 시 "수집 중"이 영구 유지되지 않고 `팩터 검증 비활성` 또는 부분 데이터 상태가 표시되는가
+- [ ] FMP 미설정 시 밸류·퀄리티 `—`가 결측이며 랭킹 제외 팩터라는 설명이 보이는가
+- [ ] 시장 뉴스 소스 수가 `AIO_NEWS_SOURCES.length`와 일치하고, 48시간·점수 30·150건 상한이 사용자에게 공개되는가
+- [ ] 뉴스 토픽 필터가 `semi`, `geo`, `bond`, `fx` 분류를 포함하고 빈 결과에서 현재 필터 조건을 설명하는가
+- [ ] 기술분석 UI/CHAT_CONTEXTS에 근거 없는 `94% 승률`, `94.1%`, 출처 불명 개선율이 없는가
+- [ ] 브리핑 프롬프트가 런타임 시장 스냅샷과 현재 이후 일정만 사용하고 과거 고정 테시스/목표가를 현재 사실처럼 재사용하지 않는가
+- [ ] 홈/매크로/한국 일정 표면에 6/5·6/10 이벤트가 "발표 전/향후"로 남지 않았는가
+- [ ] GitHub Actions가 `FRED_API_KEY`, `FMP_API_KEY`, `ANTHROPIC_API_KEY` 선택 시크릿을 수집 스크립트에 전달하는가
+- [ ] T822 통과, JS syntax 0, version CI 통과, 브라우저 콘솔 신규 오류 0
 
 ## v49.57 — AI Chat 종목 데이터 커버리지 확장 (T395~T411)
 

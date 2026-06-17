@@ -48,6 +48,9 @@ jobs:
       - name: 버전 동기화 검증 (R1 7곳 + 캐시버스터 6곳)
         run: node scripts/ci-version-check.mjs
 
+      - name: Structural regression checks
+        run: node scripts/ci-structural-check.mjs
+
       - name: stray 임시/백업 파일 검사
         run: |
           set -e

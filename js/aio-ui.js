@@ -1403,6 +1403,37 @@ function initBreadthCharts() {
   _refreshBreadthHistoryCharts();
 }
 
+function _aioGetKstDateParts(input) {
+  var date = input instanceof Date ? input : new Date(input == null ? Date.now() : input);
+  var parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23'
+  }).formatToParts(date);
+  var out = {};
+  parts.forEach(function(part) {
+    if (part.type !== 'literal') out[part.type] = part.value;
+  });
+  var dayMap = { Sun:'일', Mon:'월', Tue:'화', Wed:'수', Thu:'목', Fri:'금', Sat:'토' };
+  return {
+    year: out.year,
+    month: out.month,
+    day: out.day,
+    hour: out.hour,
+    minute: out.minute,
+    weekday: dayMap[out.weekday] || out.weekday,
+    isoDate: out.year + '-' + out.month + '-' + out.day,
+    dateStr: out.year + '.' + out.month + '.' + out.day
+  };
+}
+window.AIO = window.AIO || {};
+window.AIO.getKstDateParts = _aioGetKstDateParts;
+
 // ── 앱 시작 시 시세 초기화 ────────────────────────────────────────
 /* v20: DOMContentLoaded Handler #1 - Core Data Init */
 document.addEventListener('DOMContentLoaded', () => {
@@ -1417,7 +1448,7 @@ document.addEventListener('DOMContentLoaded', () => {
   try { if (window.AIO && typeof window.AIO._bindCore === 'function') window.AIO._bindCore(); } catch(_){}
 
   // 날짜 자동 업데이트
-  const todayDisp = new Date().toISOString().slice(0,10).replace(/-/g,'.');
+  const todayDisp = _aioGetKstDateParts(new Date()).dateStr;
   const dlEl = document.getElementById('home-date-label');
   if (dlEl) dlEl.textContent = todayDisp + ' KST · 실시간: 시세·뉴스·F&G  |  정적: MA·Breadth·CP리스크(주1회 갱신)';
 
@@ -1430,16 +1461,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try { localStorage.setItem('_ls_test', '1'); localStorage.removeItem('_ls_test'); }
     catch(e) {
       var w = document.getElementById('snapshot-stale-warning');
-      if (w) { w.textContent = '현재 브라우저 설정에서 데이터 저장이 차단되어 있습니다. 포트폴리오·API 키가 저장되지 않습니다. 시크릿/개인정보보호 모드를 해제하세요.'; w.style.display = 'block'; }
+      if (w) { w.textContent = '브라우저 저장이 차단되어 포트폴리오·API 키가 저장되지 않습니다.'; w.style.display = 'block'; }
     }
-  })();
-
-  // v46.10: 신규 사용자 API 키 미설정 시 온보딩 배너
-  (function() {
-    var hasKey = !!(_getApiKey('aio_finnhub_key') || _getApiKey('aio_fmp_key') || _getApiKey('aio_fred_key') || _getApiKey('aio_claude_api_key'));
-    var dismissed = localStorage.getItem('aio_onboard_dismissed');
-    var banner = document.getElementById('api-key-onboarding');
-    if (banner && !hasKey && !dismissed) banner.style.display = 'block';
   })();
 
   // v17: 정적 기본값 즉시 로드 (API 연결 전에 빈칸/— 없애기)
@@ -1689,7 +1712,7 @@ function getLLMState() {
 }
 
 function getQuota() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = _aioGetKstDateParts(new Date()).isoDate;
   let stored;
   try { stored = JSON.parse(localStorage.getItem('llm_quota') || '{}'); } catch(e) { stored = {}; }
   if (stored.date !== today) {
@@ -1865,13 +1888,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Dynamic date labels ─────────────────────────────────────────
 (function updateDateLabels() {
-  const now = new Date();
-  const kst = new Date(now.getTime() + (9 * 60 * 60 * 1000));
-  const dateStr = kst.toISOString().slice(0,10).replace(/-/g,'.');
-  const timeStr = kst.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-  const dayNames = ['일','월','화','수','목','금','토'];
-  const dayStr = dayNames[kst.getDay()];
-  const fullLabel = dateStr + ' (' + dayStr + ') KST';
+  const kst = _aioGetKstDateParts(new Date());
+  const dateStr = kst.dateStr;
+  const timeStr = kst.hour + ':' + kst.minute;
+  const fullLabel = dateStr + ' (' + kst.weekday + ') KST';
   
   // Update home date label
   const dlEl = document.getElementById('home-date-label');

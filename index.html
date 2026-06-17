@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.54 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.68 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3489,7 +3489,6 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   .acp-chips .q-chip { flex-shrink: 0; }
   #chat-theme-detail-chips { overflow-x: visible !important; flex-wrap: wrap !important; }
   #chat-theme-detail-chips .q-chip { flex: 0 1 auto; white-space: normal; }
-  #api-key-onboarding .onboarding-actions { display:flex;justify-content:center;gap:10px;margin:6px 0 0;flex-wrap:wrap; }
   /* v30.11: home quick nav 2열 */
   .home-quick-nav { grid-template-columns: repeat(2, 1fr) !important; }
   /* v48.57: repeat(6,1fr) 인라인 그리드 4곳 480px 일괄 대응 */
@@ -3814,7 +3813,7 @@ body.light-theme canvas { filter:none; }
               title="Anthropic Claude API 키 입력 후 저장">
             <button class="llm-key-save" data-action="saveSidebarApiKey">저장</button>
           </div>
-          <div style="font-size:11px;color:var(--yellow);line-height:1.4;padding:2px 0;">API 키는 브라우저에 저장됩니다. 공용 PC에서는 사용하지 마세요.</div>
+          <div style="font-size:11px;color:var(--yellow);line-height:1.4;padding:2px 0;">개인 PC에서만 저장하세요.</div>
 
           <!-- 모델 선택 + 할당량 패널 -->
           <div class="llm-quota-panel">
@@ -3853,7 +3852,7 @@ body.light-theme canvas { filter:none; }
                API 키 암호화 <span id="vault-status-badge" style="font-size:11px;margin-left:4px;"> 미설정</span> <span class="arrow">▼</span>
             </div>
             <div style="display:none;margin-bottom:6px;">
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">PIN 설정 후 저장한 API 키는 AES-256으로 암호화됩니다. PIN 미설정 시에는 평문으로 저장됩니다.</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">PIN을 설정하면 저장 키를 암호화합니다.</div>
               <div id="vault-set-panel">
                 <div class="llm-key-row" style="margin-bottom:2px;">
                   <input type="password" id="vault-pin-input" class="llm-key-input" placeholder="PIN (4자리 이상)" style="font-size:11px;" maxlength="20">
@@ -3881,7 +3880,7 @@ body.light-theme canvas { filter:none; }
                확장 API 키 설정 <span class="arrow">▲</span>
             </div>
             <div style="display:block;">
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">키는 브라우저 localStorage에 저장됩니다. <b style="color:var(--data-amber);">PIN 설정 후 저장한 키만</b> AES-256으로 암호화됩니다. PIN 미설정 시 평문 저장.<br><b style="color:var(--data-amber);">유일한 과금: Claude API.</b> 나머지(FMP/Finnhub/FRED/Twelve Data/Alpha Vantage/NewsData)는 모두 무료 티어 지원.</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">선택 API입니다. 키가 없으면 가능한 무료/캐시 데이터로 표시합니다.</div>
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_av_key_input" class="llm-key-input" placeholder="Alpha Vantage (선택 · 시장 폭)" title="alphavantage.co 무료 25회/일 · 선택적 (미설정 시 RSP/SPY 비율로 폴백)" style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_av_key" data-arg2="aio_av_key_input" data-pass-el="1">저장</button>
@@ -3919,7 +3918,7 @@ body.light-theme canvas { filter:none; }
                 <input type="password" id="aio_cf_worker_input" class="llm-key-input" placeholder="CF Worker URL (자체 프록시)" title="Cloudflare Worker 프록시 URL" style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_cf_worker_url" data-arg2="aio_cf_worker_input" data-pass-el="1">저장</button>
               </div>
-              <div style="font-size:11px;color:var(--accent);margin-top:3px;line-height:1.6;">모든 키는 무료. <a href='https://finnhub.io' target='_blank' rel='noopener noreferrer' style='color:var(--data-cyan);'>Finnhub</a> · <a href='https://fred.stlouisfed.org/docs/api/api_key.html' target='_blank' rel='noopener noreferrer' style='color:var(--data-cyan);'>FRED</a> · <a href='https://twelvedata.com' target='_blank' rel='noopener noreferrer' style='color:var(--data-cyan);'>TwelveData</a> · <a href='https://site.financialmodelingprep.com/developer' target='_blank' rel='noopener noreferrer' style='color:var(--data-cyan);'>FMP</a> · <a href='https://newsdata.io/register' target='_blank' rel='noopener noreferrer' style='color:var(--data-cyan);'>NewsData</a> · <a href='https://ecos.bok.or.kr' target='_blank' rel='noopener noreferrer' style='color:var(--data-cyan);'>BOK ECOS</a> · <a href='https://kosis.kr/openapi' target='_blank' rel='noopener noreferrer' style='color:var(--data-cyan);'>KOSIS</a></div>
+              <div style="font-size:11px;color:var(--accent);margin-top:3px;line-height:1.5;">키 발급 링크는 사용 설명서에서 확인하세요.</div>
             </div>
           </div>
 
@@ -4045,16 +4044,10 @@ body.light-theme canvas { filter:none; }
 
   <!-- ═══ 데이터 경과 경고 배너 ═══ -->
   <div id="snapshot-stale-warning" style="display:none;background:rgba(255,163,26,0.12);border:1px solid rgba(255,163,26,0.3);border-radius:8px;padding:8px 14px;margin-bottom:10px;font-size:10px;color:var(--data-amber);font-weight:600;text-align:center;" data-source-kind="snapshot" data-operational-use="reference-only"></div>
-  <!-- v46.10: 신규 사용자 API 키 미설정 안내 -->
-  <div id="api-key-onboarding" style="display:none;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:10px;color:var(--data-cyan);text-align:center;line-height:1.6;">
-    실시간 시세·기업 분석·경제지표를 사용하려면 <b>API 키 설정</b>이 필요합니다. 사이드바 하단 → API 키 입력란에서 설정하세요.
-    <span class="onboarding-actions" style="display:inline-flex;gap:8px;align-items:center;justify-content:center;margin-top:6px;"><a href="#" data-action="_aioScrollApiSection" data-prevent="1" style="display:inline-flex;align-items:center;min-height:24px;padding:2px 10px;color:var(--accent);text-decoration:underline;">설정하러 가기</a><button data-action="_aioHideParentOnboard" data-pass-el="1" style="min-height:24px;padding:2px 12px;">✕ 닫기</button></span>
-  </div>
-
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.54</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.68</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4696,7 +4689,7 @@ body.light-theme canvas { filter:none; }
         <div class="cp-num" style="color:var(--data-amber);">CP2</div>
         <div class="cp-name">통화정책</div>
         <div class="cp-score" style="color:var(--data-amber);">MEDIUM</div>
-        <div class="cp-detail" id="cp2-detail">연준 <span data-snap="fed-rate">3.50-3.75</span>% · 다음 FOMC <span data-snap="fomc">6/16-17</span> <span id="cp2-fed-rate-meta" class="snap-meta" style="font-size:11px;color:var(--text-muted);margin-left:4px;"></span> · 고용 둔화와 인플레 재가속 중 어느 쪽을 더 반영하는지 확인</div>
+        <div class="cp-detail" id="cp2-detail" data-evidence-id="fed-rate-fomc-calendar" data-source-kind="official-calendar" data-as-of="2026-06-16">연준 <span data-snap="fed-rate">3.50-3.75</span>% · 다음 FOMC <span data-snap="fomc">6/16-17</span> <span id="cp2-fed-rate-meta" class="snap-meta" style="font-size:11px;color:var(--text-muted);margin-left:4px;"></span> · 고용 둔화와 인플레 재가속 중 어느 쪽을 더 반영하는지 확인</div>
         <div class="cp-meter"><div style="width:55%;height:100%;background:linear-gradient(90deg,var(--data-amber),var(--data-amber));border-radius:3px;"></div></div>
       </div>
       <!-- CP3 -->
@@ -5502,7 +5495,7 @@ body.light-theme canvas { filter:none; }
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div>
-          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">뉴스 감성 추이<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="뉴스 감성 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">뉴스 감성 지표</span>80개 소스 AI 스코어링 평균. <strong>+0.5↑ 강세</strong> (시장 호재 우위), <strong>-0.5↓ 약세</strong> (경보). 극단값 ±0.8 = 반전 신호 (contrarian). 주식 지수와 <strong>2~3일 선행</strong> 경향.</span></span></span>
+          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">뉴스 감성 추이<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="뉴스 감성 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">뉴스 감성 지표</span>등록 뉴스 소스의 AI 스코어링 평균. <strong>+0.5↑ 강세</strong> (시장 호재 우위), <strong>-0.5↓ 약세</strong> (경보). 극단값 ±0.8은 반전 가능성을 함께 점검합니다.</span></span></span>
           <span style="font-size:11px;color:var(--text-muted);margin-left:6px;">뉴스 갱신마다 자동 업데이트</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
@@ -5568,7 +5561,7 @@ body.light-theme canvas { filter:none; }
         <span id="briefing-24h-ts" style="font-size:11px;color:var(--text-muted);margin-left:auto;font-family:var(--font-mono);">갱신 대기중</span>
       </div>
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;padding:5px 8px;background:var(--surface-1);border-radius:5px;">
-        매일 오전 8시(KST) 기준 지난 24시간 주요 뉴스를 수집 → 테마별 분류 → AI 분석·해석·설명까지 생성합니다. 처음 수집 시 30초~1분 소요될 수 있습니다.
+        지난 24시간 핵심 뉴스를 테마별로 정리합니다.
       </div>
       <div id="briefing-live-news-list" style="display:flex;flex-direction:column;gap:6px;">
         <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">뉴스 수집 대기...</div>
@@ -5690,75 +5683,37 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- ── 현재 시장 이벤트 레이어 (06/03 기준) v50.4 ──────────────────────── -->
+    <!-- ── 현재 시장 이벤트 레이어 ─────────────────────────────────────────── -->
     <div data-lifecycle-id="briefing-current-jun-3-25" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:14px;">
       <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
-        📅 현재 시장 이벤트 레이어
-        <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">As of 2026-06-05 KST · official calendar first</span>
+        📅 향후 공식 시장 일정
+        <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">Future events only · official calendar first</span>
         <span style="font-size:11px;padding:2px 6px;background:rgba(0,212,255,0.10);border-radius:3px;color:var(--accent);margin-left:auto;">공식 캘린더 기준</span>
       </div>
 
-      <!-- ① Official macro calendar -->
-      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:5px;">🌐 공식 매크로 캘린더 · 발표 완료값과 예정값 분리</div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-red);flex-shrink:0;min-width:52px;">6/5</span>
-        <span style="color:var(--data-red);flex-shrink:0;min-width:32px;">금</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">21:30 KST</span>
-        <span><b style="color:var(--data-red);">BLS May Employment Situation</b> — 4월 공식값은 NFP +115K, 실업률 4.3%. 5월 값은 발표 전까지 생성하지 않습니다.</span>
-      </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-red);flex-shrink:0;min-width:52px;">6/10</span>
-        <span style="color:var(--data-red);flex-shrink:0;min-width:32px;">수</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">21:30 KST</span>
-        <span><b style="color:var(--data-red);">BLS May CPI</b> — 현재 공식 마지막 값은 4월 CPI 3.8%, Core 2.8%. 발표 전에는 “검증 데이터 없음”으로 처리합니다.</span>
-      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:5px;">🌐 공식 매크로 캘린더 · 지난 이벤트는 라이브 데이터/뉴스에서 확인</div>
       <div class="cal-row">
         <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:52px;">6/16-17</span>
         <span style="color:var(--data-amber);flex-shrink:0;min-width:32px;">화-수</span>
         <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">FOMC</span>
-        <span><b style="color:var(--data-amber);">FOMC + SEP</b> — 점도표와 인하 경로 재가격화. CPI/NFP 결과 확인 전에는 정책 방향을 단정하지 않습니다.</span>
+        <span><b style="color:var(--data-amber);">FOMC + SEP</b> — 정책결정문·점도표·기자회견이 공개된 뒤 금리 경로를 재평가합니다.</span>
       </div>
       <div class="cal-row">
         <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:52px;">6/25</span>
         <span style="color:var(--data-amber);flex-shrink:0;min-width:32px;">목</span>
         <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">21:30 KST</span>
-        <span><b style="color:var(--data-amber);">BEA May PCE</b> — 현재 공식 마지막 값은 4월 PCE 3.8%, Core PCE 3.3%. Fed 선호 물가의 후속 확인점입니다.</span>
+        <span><b style="color:var(--data-amber);">BEA May Personal Income and Outlays</b> — Fed 선호 물가의 후속 확인점입니다. 발표 전 수치는 생성하지 않습니다.</span>
       </div>
 
-      <!-- ② Current market topics -->
-      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">🧭 현재 시장 화두 · 검증 상태 표시</div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-green);flex-shrink:0;min-width:52px;">6/1-5</span>
-        <span style="color:var(--data-green);flex-shrink:0;min-width:32px;">LIVE</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">Computex</span>
-        <span><b style="color:var(--data-green);">Computex/GTC Taipei</b> — NVIDIA RTX Spark/AI PC, Intel AI infrastructure, Foxconn Vera Rubin 지원 등 AI 하드웨어 밸류체인 촉매를 검증 뉴스 기준으로만 반영합니다.</span>
-      </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:52px;">6/11-12</span>
-        <span style="color:var(--data-amber);flex-shrink:0;min-width:32px;">WATCH</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">SpaceX IPO</span>
-        <span><b style="color:var(--data-amber);">SpaceX IPO 보도</b> — Reuters 계열 보도 기반 watch 항목입니다. 확정 상장 데이터가 아니라 대형 IPO 유동성·우주/위성 테마 심리 변수로만 분류합니다.</span>
-      </div>
-      <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-red);flex-shrink:0;min-width:52px;">6/4</span>
-        <span style="color:var(--data-red);flex-shrink:0;min-width:32px;">완료</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">AVGO 실적</span>
-        <span><b style="color:var(--data-red);">Broadcom(AVGO) AI 가이던스 실망 −12.6% ($418.91)</b> — Q2 실적·AI 매출은 성장했으나 높아진 기대치를 하회. NVDA(+1.9%)가 일부 상쇄했고, 오늘 6/5 NFP가 다음 확인점입니다.</span>
-      </div>
-
-      <!-- ③ Decision focus -->
-      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">🧠 이번 주 5대 관전 포인트</div>
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">🧠 판단 원칙</div>
       <div style="font-size:11px;line-height:1.6;color:var(--text-secondary);">
-        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-red);">1. CPI/NFP/FOMC 순서</b> — 6/5 고용, 6/10 CPI, 6/16-17 FOMC가 금리 기대와 성장주 멀티플을 다시 가격화합니다.</div>
-        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-green);">2. Computex AI 체인</b> — AI PC, Vera Rubin, 물리 AI, 전력/냉각/제조 파트너 발표가 NVDA·반도체·대만/KR 체인으로 확산되는지 봅니다.</div>
-        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-amber);">3. SpaceX IPO 수급 리스크</b> — 대형 IPO가 실제로 진행되면 성장주·우주/위성·민간시장 밸류에이션에 유동성 이벤트가 됩니다.</div>
-        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-amber);">4. AI 실적 검증</b> — AVGO·CRWD 등 실적 뉴스는 verified/current 데이터가 들어온 뒤에만 현재 판단으로 승격합니다.</div>
-        <div style="padding:3px 0;"><b style="color:var(--text-primary);">5. 데이터 신뢰도</b> — 발표 전 숫자, 단일 출처 보도, 텔레그램 단독 항목은 AI 요약 본문이 아니라 확인 필요 영역으로 분리합니다.</div>
+        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-red);">1. 발표 전 수치 금지</b> — 예정 이벤트는 날짜와 확인 항목만 제시하고 결과를 추정하지 않습니다.</div>
+        <div style="padding:3px 0;border-bottom:1px solid var(--surface-2);"><b style="color:var(--data-amber);">2. 라이브 우선</b> — 지난 이벤트의 결과와 시장 반응은 최신 뉴스·시세·데이터 신선도를 함께 확인합니다.</div>
+        <div style="padding:3px 0;"><b style="color:var(--text-primary);">3. 출처 분리</b> — 공식 일정, 검증 뉴스, 단일 출처 관측을 동일한 확정도로 취급하지 않습니다.</div>
       </div>
 
-      <!-- ④ 전략 제안 -->
       <div style="margin-top:10px;padding:8px 10px;background:rgba(255,163,26,0.08);border-left:3px solid var(--data-amber);border-radius:3px;font-size:11px;color:var(--text-secondary);">
-        <b style="color:var(--data-amber);">📌 전략 체크</b> — 이 블록은 정적 기준선입니다. 실제 매매 판단은 최신 live/evidence 데이터와 뉴스 surface audit이 통과한 항목만 사용하세요. <span style="color:var(--text-muted);font-size:10px;">발표 전 지표 수치와 source-dependent IPO 보도는 참고/감시 항목입니다.</span>
+        <b style="color:var(--data-amber);">📌 전략 체크</b> — 이 블록은 공식 일정 기준선입니다. 실제 매매 판단은 최신 시세 근거와 검증된 뉴스 결과를 우선합니다.
       </div>
     </div>
 
@@ -6000,11 +5955,11 @@ body.light-theme canvas { filter:none; }
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">각 패턴의 의미와 실전 적용 근거를 정리했습니다</div>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">
-      <!-- Row 1: 가장 높은 승률 셋업 -->
+      <!-- Row 1: 대표 수축 셋업 -->
       <div style="background:linear-gradient(135deg,rgba(0,229,160,0.08),rgba(0,229,160,0.02));border:1px solid rgba(0,229,160,0.2);border-radius:7px;padding:8px;">
-        <div style="font-size:11px;font-weight:800;color:var(--data-green);">VCP (94% 승률!)</div>
+        <div style="font-size:11px;font-weight:800;color:var(--data-green);">VCP (변동성 축소)</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Volume Contraction Pattern</div>
-        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;line-height:1.5;">변동폭이 점점 줄고(10일<20일<40일) 거래량도 마른다 → 에너지가 압축된 스프링! 피봇 돌파 시 폭발적 상승. <b style="color:var(--data-green);">BB스퀴즈 겹치면 94.1% 승률.</b></div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;line-height:1.5;">변동폭이 단계적으로 줄고 거래량도 마르는 수축 구조입니다. 피봇 돌파·거래량 증가·시장 추세가 함께 확인될 때만 후보로 사용하며, <b style="color:var(--data-amber);">고정 승률을 가정하지 않습니다.</b></div>
       </div>
       <div style="background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.15);border-radius:7px;padding:8px;">
         <div style="font-size:11px;font-weight:800;color:var(--data-green);">BREAKOUT</div>
@@ -6177,6 +6132,7 @@ body.light-theme canvas { filter:none; }
         <div class="page-title" style="font-size:17px;">거시경제 — 매크로 전체 지도</div>
         <div class="page-subtitle">금리 · 인플레이션 · 달러 · 원유 · 고용 — 상호 연결 분석</div>
       </div>
+      <div id="macro-next-release" style="font-size:10px;color:var(--text-muted);margin-top:3px;">다음 주요 발표 일정 계산 중</div>
       <div style="display:flex;gap:6px;align-items:center;">
         <span id="macro-regime-pill" class="status-pill sp-risk-off">— 레짐 분석 중</span>
         <span class="freshness-badge fb-live">● LIVE</span>
@@ -6292,7 +6248,7 @@ body.light-theme canvas { filter:none; }
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;overflow-x:auto;">
     <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <span>경제 사이클 타임라인 — "우리는 지금 어디에 있는가?"</span>
-      <span style="font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(0,212,255,0.12);color:var(--data-cyan);border:1px solid rgba(0,212,255,0.3);margin-left:auto;">Phase 1~5 역사 데이터 (정적) · Phase 6는 실시간</span>
+      <span style="font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(0,212,255,0.12);color:var(--data-cyan);border:1px solid rgba(0,212,255,0.3);margin-left:auto;">Phase 1~5 개념적 역사 요약 · Phase 6는 실시간</span>
     </div>
 
     <div style="display:flex;gap:0;min-width:min-content;padding-bottom:8px;position:relative;align-items:flex-end;">
@@ -6336,12 +6292,12 @@ body.light-theme canvas { filter:none; }
       </div>
       <div style="flex:0 0 2%;border-top:2px solid rgba(255,255,255,0.1);margin-bottom:20px;"></div>
 
-      <!-- Phase 5: 2024 연착륙 -->
+      <!-- Phase 5: 2024 디스인플레 전환 -->
       <div style="flex:0 0 18%;text-align:center;padding:0 4px;">
         <div style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);border-radius:6px;padding:8px 6px;margin-bottom:4px;">
           <div style="font-size:11px;color:var(--data-purple);font-weight:700;">2024</div>
-          <div style="font-size:10px;font-weight:800;color:var(--data-purple);"> 연착륙</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.3;">S&P: 5,800<br>Fed: 3.5%<br>VIX: 15</div>
+          <div style="font-size:10px;font-weight:800;color:var(--data-purple);">디스인플레 전환</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.3;">주식 강세<br>Fed 완화 전환<br>변동성 정상화</div>
         </div>
       </div>
       <div style="flex:0 0 2%;border-top:2px dashed rgba(255,255,255,0.2);margin-bottom:20px;"></div>
@@ -6392,7 +6348,7 @@ body.light-theme canvas { filter:none; }
     <div id="macro-card-fed" class="macro-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;transition:all 0.3s ease;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;"> Fed Rate</div>
       <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);"><span data-snap="fed-rate">3.50-3.75%</span></div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4;" id="macro-fed-meaning">다음 FOMC: <span data-snap="fomc">6/16-17</span></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4;" id="macro-fed-meaning" data-evidence-id="macro-fed-rate-calendar" data-source-kind="official-calendar" data-as-of="2026-06-16">다음 FOMC: <span data-snap="fomc">6/16-17</span></div>
       <div style="font-size:11px;color:var(--data-amber);margin-top:3px;opacity:0.7;" id="macro-fed-arrow">→</div>
     </div>
     <!-- Card 2: 2Y Treasury -->
@@ -7442,7 +7398,7 @@ body.light-theme canvas { filter:none; }
         <input id="fund-search-input" aria-label="기업 분석 종목 티커 입력" style="flex:1;padding:10px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-weight:600;" placeholder="종목 티커 입력 (예: NVDA, AAPL, TSLA, MSFT)..." data-on-enter="fundamentalSearch"/>
         <button class="aio-btn-table primary" style="padding:10px 20px;font-size:12px;font-weight:700;" data-action="fundamentalSearch">기업 분석</button>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">S&P 500 · NASDAQ · 다우 30 · Russell 2000 전 종목 | 검색 시 SEC 공시 + 재무제표 + 실시간 시세를 자동 수집하여 AI에 전달합니다</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">미국 주요 지수 종목 · SEC/FMP/Yahoo 기반 분석</div>
       <!-- v33.4: 최근 검색 기록 -->
       <div id="fund-recent-searches" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;"></div>
     </div>
@@ -7451,9 +7407,8 @@ body.light-theme canvas { filter:none; }
     <div id="fund-pre-search-guide" style="background:var(--bg-card);border:1px dashed rgba(0,212,255,0.3);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
       <div style="font-size:12px;font-weight:800;color:var(--accent);margin-bottom:8px;">💡 검색 가이드 — 어떤 티커를 입력할까?</div>
       <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;margin-bottom:8px;">
-        <strong>출처:</strong> SEC EDGAR (10-K/10-Q) · FMP API (실적/밸류에이션) · Yahoo Finance (실시간 시세) · 자동 수집 →  AI 분석 → 탭 (개요/재무상세/외부정보)<br>
-        <strong>예상 응답:</strong> 2~4초 (API 3개 병렬) · 캐시 hit 시 즉시 표시<br>
-        <strong>지원 범위:</strong> S&P 500 + NASDAQ-100 + Russell 2000 전 종목
+        SEC/FMP/Yahoo 데이터를 모아 개요·재무·뉴스를 한 번에 보여줍니다.<br>
+        지원: S&P 500 · NASDAQ-100 · Russell 2000
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;">
         <button class="aio-btn-table" data-action="fundamentalSearch" data-arg="NVDA" style="font-size:11px;padding:6px 10px;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);">예시: NVDA</button>
@@ -8066,7 +8021,7 @@ body.light-theme canvas { filter:none; }
           <div style="font-size:11px;color:var(--text-muted);">±5% 초과 시 리밸런싱</div>
         </div>
       </div>
-      <div id="pf-analysis-status" style="margin-top:8px;font-size:10px;color:var(--text-muted);text-align:center;">포트폴리오 등록 후 자동 계산됩니다. <span style="opacity:0.7;">(개발자 모드: 콘솔에서 <code>AIO.computePortfolioRisk(holdings)</code>)</span></div>
+      <div id="pf-analysis-status" style="margin-top:8px;font-size:10px;color:var(--text-muted);text-align:center;">포트폴리오 등록 후 자동 계산됩니다.</div>
     </div>
 
     <!-- 포트폴리오 PIN 잠금 -->
@@ -8095,8 +8050,8 @@ body.light-theme canvas { filter:none; }
       <span id="pf-freshness-label" style="color:var(--text-primary);font-weight:600;">실시간 (Yahoo v7)</span>
       <span id="pf-freshness-time" style="color:var(--text-muted);font-family:var(--font-mono);font-size:10px;">갱신: —</span>
       <span style="margin-left:auto;color:var(--text-muted);font-size:11px;line-height:1.5;">
-        장중 실시간 · 장외 15분 지연 가능 · API 장애 시 Stooq 폴백
-        <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="시세 지연 설명">?<span class="aio-tooltip-body is-right"><span class="aio-tooltip-title">시세 지연 이유</span>Yahoo v7/v8 <strong>15분 이내 지연</strong> 가능 (무료 API). 한국 종목은 Naver(실시간). Yahoo 실패 시 Stooq 자동 폴백(EOD). 크립토 CoinGecko · 환율 open.er-api 3중 체인.</span></span>
+        장중 실시간 · 일부 무료 시세는 지연 가능
+        <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="시세 지연 설명">?<span class="aio-tooltip-body is-right"><span class="aio-tooltip-title">시세 안내</span>무료 시세는 지연될 수 있습니다. 실패 시 Yahoo/Stooq/Naver 등으로 자동 폴백합니다.</span></span>
       </span>
     </div>
 
@@ -8592,7 +8547,7 @@ body.light-theme canvas { filter:none; }
     <!-- ═══════════════ PAGE: MARKET-NEWS (시장 소식) ═══════════════ -->
   <div class="page" id="page-market-news">
   <div class="insight-box box-collapsed">
-    <strong>50개+ 소스에서 핵심 뉴스만 — AI가 중요도 점수 매겨 정렬</strong>
+    <strong><span data-news-source-count>—</span>개 등록 소스에서 핵심 뉴스만 — 중요도·신선도·검증 상태로 선별</strong>
   </div>
 
   <!-- ═══ v48.46: 시장 뉴스 심층 해설 ═══ -->
@@ -8600,7 +8555,7 @@ body.light-theme canvas { filter:none; }
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
       <div>
         <div class="page-title">시장 뉴스</div>
-        <div class="page-subtitle">50개+ 소스 실시간 수집 · <b style="color:var(--data-amber);">최근 48시간</b> 뉴스 · 45분 자동갱신</div>
+        <div class="page-subtitle"><span data-news-source-count>—</span>개 등록 소스 · <b style="color:var(--data-amber);">최근 48시간</b> · 중요도 30점 이상 · 45분 자동갱신</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--green);font-weight:700;">
@@ -8669,7 +8624,11 @@ body.light-theme canvas { filter:none; }
       <span class="chip" data-action="filterNewsByTopic" data-arg="all" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--accent-border);border-radius:20px;background:var(--accent-dim);color:var(--accent);">전체</span>
       <span class="chip" data-action="filterNewsByTopic" data-arg="macro" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:20px;color:var(--text-secondary);">매크로</span>
       <span class="chip" data-action="filterNewsByTopic" data-arg="equity" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:20px;color:var(--text-secondary);">주식</span>
+      <span class="chip" data-action="filterNewsByTopic" data-arg="semi" data-news-topic="semi" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:20px;color:var(--text-secondary);">반도체·AI</span>
+      <span class="chip" data-action="filterNewsByTopic" data-arg="geo" data-news-topic="geo" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:20px;color:var(--text-secondary);">지정학</span>
       <span class="chip" data-action="filterNewsByTopic" data-arg="energy" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:20px;color:var(--text-secondary);">에너지</span>
+      <span class="chip" data-action="filterNewsByTopic" data-arg="bond" data-news-topic="bond" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:20px;color:var(--text-secondary);">채권·금리</span>
+      <span class="chip" data-action="filterNewsByTopic" data-arg="fx" data-news-topic="fx" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:20px;color:var(--text-secondary);">외환</span>
       <span class="chip" data-action="filterNewsByTopic" data-arg="crypto" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:20px;color:var(--text-secondary);">크립토</span>
     </div>
 
@@ -8717,8 +8676,9 @@ body.light-theme canvas { filter:none; }
     <div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">
       <strong style="color:var(--text-secondary);">퀀트 랭크(0~100)</strong> = 섹터 상대 멀티팩터 합성 — 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈(+밸류/퀄리티는 FMP 키 시). 높을수록 우수. <strong>시그널</strong>은 editorial(애널리스트 노트)이라 구분.
       <span id="screener-regime-note" style="display:block;margin-top:4px;color:var(--accent);font-weight:600;"></span>
+      <span id="screener-factor-coverage" style="display:block;margin-top:3px;color:var(--text-muted);"></span>
     </div>
-    <div id="screener-backtest-panel" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:12px;"><div style="font-size:11px;color:var(--text-muted);">팩터 검증 데이터 수집 중 — 서버 enrichment(일 1회) 후 표시됩니다.</div></div>
+    <div id="screener-backtest-panel" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:12px;"><div style="font-size:11px;color:var(--text-muted);">팩터 검증 파일 확인 중...</div></div>
     <!-- 필터 바 -->
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
       <select id="scr-market" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 지수</option></select>
@@ -8748,10 +8708,10 @@ body.light-theme canvas { filter:none; }
             <th style="text-align:center;padding:7px 8px;font-size:10px;">시그널</th>
           </tr>
         </thead>
-        <tbody id="screener-results-body"><tr><td colspan="13" style="text-align:center;padding:20px;color:var(--text-muted);">로딩 중...</td></tr></tbody>
+        <tbody id="screener-results-body"><tr><td colspan="13" style="text-align:center;padding:20px;color:var(--text-muted);">조건을 선택하면 스크리닝 결과를 표시합니다.</td></tr></tbody>
       </table>
     </div>
-    <div style="font-size:10px;color:var(--text-muted);margin-top:8px;">행 클릭 → 종목 심층 분석. 퀀트 랭크는 서버 일별 팩터(screener.json) 기반 — 미수신 시 정적 시그널로 폴백.</div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px;">행 클릭 → 종목 심층 분석. 서버 팩터 파일 미수신 시 랭크·백테스트는 비활성화되고 정적 시그널만 유지됩니다. 밸류·퀄리티의 ‘—’는 FMP 데이터 미수신으로 해당 팩터가 랭크에서 제외됐다는 뜻입니다.</div>
   </div>
 
   <!-- ═══════════════ PAGE: KR-HOME (한국장 홈) ═══════════════ -->
@@ -8778,16 +8738,16 @@ body.light-theme canvas { filter:none; }
       <div class="kr-idx-card up">
         <div class="kr-idx-label">KOSPI</div>
         <div class="kr-idx-val" id="kr-kospi-price" style="color:var(--green)" data-snap="kospi" data-live-price="^KS11">7,844.01</div>
-        <div class="kr-idx-chg" style="color:var(--green)">▲ 200.86 (<span data-snap="kospi-pct" data-live-chg="^KS11">+2.63%</span>) <span data-date-ref="kr-last"></span></div>
+        <div class="kr-idx-chg" style="color:var(--green)"><span data-live-kr-change="^KS11">▲ 200.86 (<span data-snap="kospi-pct" data-live-chg="^KS11">+2.63%</span>)</span> <span data-date-ref="kr-last"></span></div>
         <div id="kr-idx-kospi-comment" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kospi-prev">7,643.15</span></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kospi-prev" data-live-prev-close="^KS11">7,643.15</span></div>
       </div>
       <div class="kr-idx-card down">
         <div class="kr-idx-label">KOSDAQ</div>
         <div class="kr-idx-val" id="kr-kosdaq-price" style="color:var(--red)" data-snap="kosdaq" data-live-price="^KQ11">1,179.29</div>
-        <div class="kr-idx-chg" style="color:var(--red)">▼ 28.05 (<span data-snap="kosdaq-pct" data-live-chg="^KQ11">-2.32%</span>) <span data-date-ref="kr-last"></span></div>
+        <div class="kr-idx-chg" style="color:var(--red)"><span data-live-kr-change="^KQ11">▼ 28.05 (<span data-snap="kosdaq-pct" data-live-chg="^KQ11">-2.32%</span>)</span> <span data-date-ref="kr-last"></span></div>
         <div id="kr-idx-kosdaq-comment" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kosdaq-prev">1,207.34</span></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kosdaq-prev" data-live-prev-close="^KQ11">1,207.34</span></div>
       </div>
       <div class="kr-idx-card down">
         <div class="kr-idx-label">KRW/USD</div>
@@ -8865,7 +8825,7 @@ body.light-theme canvas { filter:none; }
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">신용잔고 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-credit">2026-05-29</span> · <span id="kr-credit-stale-days">경과...</span>)</span></div>
         <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="kr-credit">36.0조원</div>
-        <div style="font-size:11px;color:var(--text-muted);">역대 최고 · "빚투" 급증 (3/11 31.8조 → 5월 36조)</div>
+        <div data-operational-use="reference-only" data-as-of="2026-05-29" style="font-size:11px;color:var(--text-muted);">역대 최고 · "빚투" 급증 (3/11 31.8조 → 5월 36조)</div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">예탁금 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-deposit">2026-05-16</span> · <span id="kr-deposit-stale-days">경과...</span>)</span></div>
@@ -8942,47 +8902,47 @@ body.light-theme canvas { filter:none; }
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">KRX 섹터 & 주요 ETF 성과 <span id="kr-etf-ts" style="font-size:11px;color:var(--text-muted);font-weight:400;">(실시간)</span></div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;" id="kr-etf-grid">
-        <div class="kr-etf-card" data-live-price="091160.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
+        <div class="kr-etf-card" data-live-symbol="091160.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 반도체</span>
-            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
+            <span class="kr-etf-pct" data-live-pct="091160.KS" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
+          <div class="kr-etf-price" data-live-price="091160.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
-        <div class="kr-etf-card" data-live-price="305720.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
+        <div class="kr-etf-card" data-live-symbol="305720.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 2차전지</span>
-            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
+            <span class="kr-etf-pct" data-live-pct="305720.KS" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
+          <div class="kr-etf-price" data-live-price="305720.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
-        <div class="kr-etf-card" data-live-price="012450.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
+        <div class="kr-etf-card" data-live-symbol="012450.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">방산 (한화에어로)</span>
-            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
+            <span class="kr-etf-pct" data-live-pct="012450.KS" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
+          <div class="kr-etf-price" data-live-price="012450.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
-        <div class="kr-etf-card" data-live-price="329180.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
+        <div class="kr-etf-card" data-live-symbol="329180.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">조선 (HD현대중공업)</span>
-            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
+            <span class="kr-etf-pct" data-live-pct="329180.KS" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
+          <div class="kr-etf-price" data-live-price="329180.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
-        <div class="kr-etf-card" data-live-price="091220.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
+        <div class="kr-etf-card" data-live-symbol="091220.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">TIGER 은행</span>
-            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
+            <span class="kr-etf-pct" data-live-pct="091220.KS" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
+          <div class="kr-etf-price" data-live-price="091220.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
-        <div class="kr-etf-card" data-live-price="244580.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
+        <div class="kr-etf-card" data-live-symbol="244580.KS" style="background:var(--surface-1);border-radius:8px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 바이오</span>
-            <span class="kr-etf-pct" style="font-size:11px;font-weight:700;">—</span>
+            <span class="kr-etf-pct" data-live-pct="244580.KS" style="font-size:11px;font-weight:700;">—</span>
           </div>
-          <div class="kr-etf-price" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
+          <div class="kr-etf-price" data-live-price="244580.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
         </div>
       </div>
     </div>
@@ -9022,21 +8982,21 @@ body.light-theme canvas { filter:none; }
       <div class="aio-widget">
         <div class="widget-title">KOSPI 상위 상승</div>
         <div class="kr-screener-grid" style="grid-template-columns:1fr;">
-          <div class="kr-screen-card" data-live-price="000660.KS"><span class="kr-screen-ticker">000660</span><span class="kr-screen-name">SK하이닉스</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--green)">+3.24%</div><div class="kr-screen-cap">97조원</div></div></div>
-          <div class="kr-screen-card" data-live-price="012450.KS"><span class="kr-screen-ticker">012450</span><span class="kr-screen-name">한화에어로스페이스</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--green)">+2.87%</div><div class="kr-screen-cap">26조원</div></div></div>
-          <div class="kr-screen-card" data-live-price="329180.KS"><span class="kr-screen-ticker">329180</span><span class="kr-screen-name">HD현대중공업</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--green)">+2.14%</div><div class="kr-screen-cap">18조원</div></div></div>
-          <div class="kr-screen-card" data-live-price="042660.KS"><span class="kr-screen-ticker">042660</span><span class="kr-screen-name">한화오션</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--green)">+1.98%</div><div class="kr-screen-cap">11조원</div></div></div>
-          <div class="kr-screen-card" data-live-price="298040.KS"><span class="kr-screen-ticker">298040</span><span class="kr-screen-name">효성중공업</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--green)">+1.84%</div><div class="kr-screen-cap">14조원</div></div></div>
+          <div class="kr-screen-card" data-live-symbol="000660.KS"><span class="kr-screen-ticker">000660</span><span class="kr-screen-name">SK하이닉스</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="000660.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="000660.KS" style="color:var(--green)">+3.24%</div><div class="kr-screen-cap">97조원</div></div></div>
+          <div class="kr-screen-card" data-live-symbol="012450.KS"><span class="kr-screen-ticker">012450</span><span class="kr-screen-name">한화에어로스페이스</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="012450.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="012450.KS" style="color:var(--green)">+2.87%</div><div class="kr-screen-cap">26조원</div></div></div>
+          <div class="kr-screen-card" data-live-symbol="329180.KS"><span class="kr-screen-ticker">329180</span><span class="kr-screen-name">HD현대중공업</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="329180.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="329180.KS" style="color:var(--green)">+2.14%</div><div class="kr-screen-cap">18조원</div></div></div>
+          <div class="kr-screen-card" data-live-symbol="042660.KS"><span class="kr-screen-ticker">042660</span><span class="kr-screen-name">한화오션</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="042660.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="042660.KS" style="color:var(--green)">+1.98%</div><div class="kr-screen-cap">11조원</div></div></div>
+          <div class="kr-screen-card" data-live-symbol="298040.KS"><span class="kr-screen-ticker">298040</span><span class="kr-screen-name">효성중공업</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="298040.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="298040.KS" style="color:var(--green)">+1.84%</div><div class="kr-screen-cap">14조원</div></div></div>
         </div>
       </div>
       <div class="aio-widget">
         <div class="widget-title">KOSPI 상위 하락</div>
         <div class="kr-screener-grid" style="grid-template-columns:1fr;">
-          <div class="kr-screen-card" data-live-price="373220.KS"><span class="kr-screen-ticker">373220</span><span class="kr-screen-name">LG에너지솔루션</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--red)">-2.41%</div><div class="kr-screen-cap">89조원</div></div></div>
-          <div class="kr-screen-card" data-live-price="068270.KS"><span class="kr-screen-ticker">068270</span><span class="kr-screen-name">셀트리온</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--red)">-1.88%</div><div class="kr-screen-cap">38조원</div></div></div>
-          <div class="kr-screen-card" data-live-price="005380.KS"><span class="kr-screen-ticker">005380</span><span class="kr-screen-name">현대차</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--red)">-1.54%</div><div class="kr-screen-cap">52조원</div></div></div>
-          <div class="kr-screen-card" data-live-price="035720.KS"><span class="kr-screen-ticker">035720</span><span class="kr-screen-name">카카오</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--red)">-1.32%</div><div class="kr-screen-cap">17조원</div></div></div>
-          <div class="kr-screen-card" data-live-price="090430.KS"><span class="kr-screen-ticker">090430</span><span class="kr-screen-name">아모레퍼시픽</span><div class="kr-screen-stats"><span class="kr-screen-price" style="font-family:var(--font-mono);font-size:12px;font-weight:700;"></span><div class="kr-screen-chg" style="color:var(--red)">-0.94%</div><div class="kr-screen-cap">19조원</div></div></div>
+          <div class="kr-screen-card" data-live-symbol="373220.KS"><span class="kr-screen-ticker">373220</span><span class="kr-screen-name">LG에너지솔루션</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="373220.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="373220.KS" style="color:var(--red)">-2.41%</div><div class="kr-screen-cap">89조원</div></div></div>
+          <div class="kr-screen-card" data-live-symbol="068270.KS"><span class="kr-screen-ticker">068270</span><span class="kr-screen-name">셀트리온</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="068270.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="068270.KS" style="color:var(--red)">-1.88%</div><div class="kr-screen-cap">38조원</div></div></div>
+          <div class="kr-screen-card" data-live-symbol="005380.KS"><span class="kr-screen-ticker">005380</span><span class="kr-screen-name">현대차</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="005380.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="005380.KS" style="color:var(--red)">-1.54%</div><div class="kr-screen-cap">52조원</div></div></div>
+          <div class="kr-screen-card" data-live-symbol="035720.KS"><span class="kr-screen-ticker">035720</span><span class="kr-screen-name">카카오</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="035720.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="035720.KS" style="color:var(--red)">-1.32%</div><div class="kr-screen-cap">17조원</div></div></div>
+          <div class="kr-screen-card" data-live-symbol="090430.KS"><span class="kr-screen-ticker">090430</span><span class="kr-screen-name">아모레퍼시픽</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="090430.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="090430.KS" style="color:var(--red)">-0.94%</div><div class="kr-screen-cap">19조원</div></div></div>
         </div>
       </div>
     </div>
@@ -9536,9 +9496,7 @@ body.light-theme canvas { filter:none; }
       <div class="widget-title">주요 경제 일정 <span style="font-size:11px;padding:2px 6px;background:rgba(0,212,255,0.10);border-radius:3px;color:var(--accent);margin-left:6px;">공식 캘린더 기준</span></div>
       <table class="kr-flow-table">
         <tr><th>날짜</th><th>이벤트</th><th>영향</th></tr>
-        <tr><td>06/05</td><td>미국 5월 고용보고서</td><td style="color:var(--red);">▶ NFP·실업률·임금 확인 전까지 금리 경로 단정 금지</td></tr>
-        <tr><td>06/10</td><td>미국 5월 CPI</td><td style="color:var(--red);">▶ 발표 전 수치 생성 금지, 4월 공식값과 분리</td></tr>
-        <tr><td>06/16~17</td><td>미국 FOMC + SEP</td><td style="color:var(--red);">▶ 점도표·인하 경로 재가격화</td></tr>
+        <tr><td data-evidence-id="kr-macro-fomc-date" data-source-kind="official-calendar" data-as-of="2026-06-16">06/16~17</td><td>미국 FOMC + SEP</td><td style="color:var(--red);">▶ 점도표·인하 경로 재가격화</td></tr>
         <tr><td>06/25</td><td>미국 5월 PCE</td><td style="color:var(--yellow);">▶ Fed 선호 물가 후속 확인</td></tr>
         <tr><td>07/10</td><td>한국은행 금통위</td><td style="color:var(--yellow);">▶ 환율·물가·수출 모멘텀 확인 후 판단</td></tr>
       </table>
@@ -9584,8 +9542,8 @@ body.light-theme canvas { filter:none; }
         <tr><td>10Y 국채</td><td data-snap="kr-bond-10y">2.92%</td><td>4.41%</td><td>1.52%</td><td>1.82%</td></tr>
         <tr><td>주식시장 YTD</td><td style="color:var(--green);">+5.2%</td><td style="color:var(--red);">-3.8%</td><td style="color:var(--red);">-4.2%</td><td style="color:var(--green);">+1.8%</td></tr>
       </table>
-      <div style="margin-top:10px;padding:8px 10px;background:rgba(0,212,255,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-        한국(2.50%) vs 미국(3.50~3.75%) 금리차는 원화와 외국인 수급의 핵심 변수입니다. 6/5 NFP, 6/10 CPI, 6/16-17 FOMC, 6/25 PCE가 확인되기 전에는 미국 금리 경로를 단정하지 않고, 한국은 7/10 금통위 전까지 환율·물가·수출 모멘텀을 함께 확인합니다.
+      <div data-evidence-id="kr-us-rate-calendar" data-source-kind="official-calendar" data-as-of="2026-06-16" style="margin-top:10px;padding:8px 10px;background:rgba(0,212,255,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
+        한국과 미국의 금리차는 원화와 외국인 수급의 핵심 변수입니다. 6/16-17 FOMC와 6/25 PCE 결과를 확인하기 전에는 미국 금리 경로를 단정하지 않고, 한국은 7/10 금통위 전까지 환율·물가·수출 모멘텀을 함께 확인합니다.
       </div>
     </div>
 
@@ -9848,11 +9806,11 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ═══ v48.46: 가이드 페이지 — 밸류체인 요약 ═══ -->
-  <div class="aio-explain is-open" id="explain-guide-overview">
+  <div class="aio-explain" id="explain-guide-overview">
     <button class="aio-explain-trigger" data-action="_aioToggleExplain" data-arg="explain-guide-overview">
       <span class="aio-explain-trigger-label">
         <span class="aio-explain-trigger-icon">?</span>
-        <span>AIO Screener 전체 흐름 — 매매 결정까지의 10단계 루틴 (기본 펼침)</span>
+        <span>AIO Screener 핵심 사용 루틴</span>
       </span>
       <span class="chevron">▼</span>
     </button>
@@ -9860,7 +9818,7 @@ body.light-theme canvas { filter:none; }
       <div class="explain-section">
         <div class="explain-label">10단계 매매 결정 루틴</div>
         <div class="explain-body">
-          <strong>AIO Screener는 기관 리서치 프로세스를 개인 투자자가 그대로 재현할 수 있게 설계</strong>. 아래 순서로 확인하면 매매 판단 정확도 극대화.
+          아래 순서만 보면 시장 판단부터 종목 점검, 포트폴리오 관리까지 빠르게 이어집니다.
           <ul>
             <li><strong>1. 오늘의 브리핑</strong> — 전일 이벤트 + Action Item 5개 확인 (5분)</li>
             <li><strong>2. 홈 대시보드 KPI</strong> — SPX/NASDAQ/VIX/F&amp;G 수치 읽기 (1분)</li>
@@ -9909,7 +9867,7 @@ body.light-theme canvas { filter:none; }
           </div>
           <div style="background:rgba(255,91,80,0.08);border:1px solid rgba(255,91,80,0.2);border-radius:6px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--data-red);margin-bottom:4px;">Safari 브라우저 (비권장)</div>
-            <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">화면 하단 잘림 현상, 개인정보 보호 모드에서 API 키 저장 불가, WebSocket 불안정. <b>반드시 Chrome 사용.</b></div>
+            <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">화면 하단 잘림, 설정 저장 제한, 연결 불안정이 생길 수 있습니다. <b>Chrome 사용 권장.</b></div>
           </div>
         </div>
         <div style="font-size:11px;color:var(--text-muted);background:var(--surface-2);padding:8px;border-radius:4px;">
@@ -9918,112 +9876,29 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- ═══ 섹션 0-B: API 키 설정 가이드 (v27.4 전면 개편) ═══ -->
-    <div class="aio-widget" style="border-left:3px solid var(--data-red);">
-      <div class="widget-title"> 시작하기 — API 키 설정 가이드</div>
-      <div style="font-size:11px;color:var(--text-secondary);line-height:1.7;">
-
-        <div style="background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);border-radius:8px;padding:12px;margin-bottom:10px;">
-          <b style="color:var(--data-green);">API 키 없이도 기본 사용 가능!</b><br>
-          <span style="font-size:10px;">AIO Screener는 API 키 없이도 뉴스 피드, 시세(CORS 프록시 경유), 차트 일부가 작동합니다. API 키를 추가하면 실시간 시세, AI 번역, 기술적 분석 등이 활성화됩니다.</span>
+    <!-- ═══ 섹션 0-B: API 키 설정 가이드 (v50.68 UX compact) ═══ -->
+    <div class="aio-widget" style="border-left:3px solid var(--data-cyan);">
+      <div class="widget-title">데이터 연결 설정</div>
+      <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+        <div style="background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);border-radius:8px;padding:10px;margin-bottom:10px;">
+          기본 화면은 별도 설정 없이 사용할 수 있습니다. 더 빠른 시세, AI 답변, 웹검색이 필요할 때만 아래 항목을 추가하세요.
         </div>
-
-        <!-- 우선순위별 API 키 안내 -->
-        <div style="margin-bottom:10px;">
-          <div style="font-size:10px;font-weight:800;color:var(--data-red);margin-bottom:6px;"> 권장 (무료, 가장 체감 효과 큼)</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
-              <div style="font-size:10px;font-weight:700;color:var(--data-cyan);margin-bottom:2px;">Finnhub (실시간 시세)</div>
-              <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">실시간 주가 WebSocket + 뉴스 제공<br><b>발급:</b> <a href="https://finnhub.io" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">finnhub.io</a> 무료 가입 → Dashboard → API Key 복사<br><b>없으면:</b> 정적 데이터만 표시 (1분마다 CORS 프록시 경유 갱신)</div>
-            </div>
-            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
-              <div style="font-size:10px;font-weight:700;color:var(--data-cyan);margin-bottom:2px;">RSS2JSON (뉴스 한도 해제)</div>
-              <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">뉴스 RSS 파싱 API (50+ 소스)<br><b>발급:</b> <a href="https://rss2json.com" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">rss2json.com</a> 무료 가입 → API Key 페이지<br><b>없으면:</b> 일 1,000건 제한 (키 있으면 10,000건)<br><b>비용:</b> 완전 무료</div>
-            </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:10px;">
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
+            <div style="font-size:10px;font-weight:800;color:var(--data-cyan);margin-bottom:4px;">시세</div>
+            <div style="font-size:11px;color:var(--text-muted);">Finnhub · Twelve Data · FMP</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
+            <div style="font-size:10px;font-weight:800;color:var(--data-purple);margin-bottom:4px;">AI/번역</div>
+            <div style="font-size:11px;color:var(--text-muted);">AI 답변 · 선택 기능</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
+            <div style="font-size:10px;font-weight:800;color:var(--data-amber);margin-bottom:4px;">뉴스/웹검색</div>
+            <div style="font-size:11px;color:var(--text-muted);">RSS2JSON · Google CSE · Perplexity</div>
           </div>
         </div>
-
-        <div style="margin-bottom:10px;">
-          <div style="font-size:10px;font-weight:800;color:var(--data-amber);margin-bottom:6px;"> 선택 (무료, 추가 기능 활성화)</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
-              <div style="font-size:10px;font-weight:700;color:var(--data-amber);margin-bottom:2px;">FRED (매크로 지표)</div>
-              <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">CPI, 실업률, 기준금리 등 매크로 데이터<br><b>발급:</b> <a href="https://fred.stlouisfed.org/docs/api/api_key.html" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">fred.stlouisfed.org</a> 무료 발급<br><b>없으면:</b> MACRO 페이지 데이터 없음</div>
-            </div>
-            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
-              <div style="font-size:10px;font-weight:700;color:var(--data-amber);margin-bottom:2px;">Twelve Data (기술적 분석)</div>
-              <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">RSI, MACD, 볼린저밴드 등 기술적 지표<br><b>발급:</b> <a href="https://twelvedata.com" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">twelvedata.com</a> 무료 가입<br><b>없으면:</b> TECHNICAL 페이지 차트 없음</div>
-            </div>
-            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
-              <div style="font-size:10px;font-weight:700;color:var(--data-amber);margin-bottom:2px;">FMP (재무제표)</div>
-              <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">P/E, P/B, 실적 데이터<br><b>발급:</b> <a href="https://site.financialmodelingprep.com/developer" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">financialmodelingprep.com</a> 무료 가입<br><b>없으면:</b> FUNDAMENTAL 페이지 데이터 없음</div>
-            </div>
-            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
-              <div style="font-size:10px;font-weight:700;color:var(--data-amber);margin-bottom:2px;">NewsData.io (추가 뉴스)</div>
-              <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">NewsData.io API를 통한 추가 뉴스<br><b>발급:</b> <a href="https://newsdata.io/register" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">newsdata.io</a> 무료 가입<br><b>없으면:</b> RSS 뉴스만 표시 (충분)</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-bottom:10px;">
-          <div style="font-size:10px;font-weight:800;color:var(--data-cyan);margin-bottom:6px;">웹검색 API (선택)</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;line-height:1.4;">Google(무료 100건/일) 또는 Perplexity(유료) 키 입력 시 AI 채팅에 최신 뉴스/이벤트 검색 자동 연동</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
-              <div style="font-size:10px;font-weight:700;color:var(--data-cyan);margin-bottom:4px;">Google Search API</div>
-              <div style="margin-top:4px;">
-                <input type="password" id="aio_google_cse_key_input" class="llm-key-input" placeholder="Google Search API 키 (무료 100건/일)" title="console.cloud.google.com → API 키 발급" style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_google_cse_key" data-arg2="aio_google_cse_key_input" data-pass-el="1" style="font-size:11px;">저장</button>
-              </div>
-              <div style="margin-top:4px;">
-                <input type="text" id="aio_google_cse_cx_input" class="llm-key-input" placeholder="Google Search Engine ID (cx)" title="programmablesearchengine.google.com → 검색엔진 ID" style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_google_cse_cx" data-arg2="aio_google_cse_cx_input" data-pass-el="1" style="font-size:11px;">저장</button>
-              </div>
-            </div>
-            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
-              <div style="font-size:10px;font-weight:700;color:var(--data-cyan);margin-bottom:4px;">Perplexity API</div>
-              <div style="margin-top:4px;">
-                <input type="password" id="aio_perplexity_key_input" class="llm-key-input" placeholder="Perplexity API 키 (프리미엄 AI검색)" title="perplexity.ai API 키 — AI 답변에 최신 웹 정보 주입" style="font-size:11px;">
-                <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_perplexity_key" data-arg2="aio_perplexity_key_input" data-pass-el="1" style="font-size:11px;">저장</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-bottom:10px;">
-          <div style="font-size:10px;font-weight:800;color:var(--data-purple);margin-bottom:6px;"> 고급 (유료 또는 자체 구축)</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
-              <div style="font-size:10px;font-weight:700;color:var(--data-purple);margin-bottom:2px;">Claude API (AI 분석·번역) </div>
-              <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">AI 채팅(적응형: Haiku↔Sonnet↔추론), 뉴스 번역(Haiku 4.5)<br><b>발급:</b> <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">console.anthropic.com</a> 가입 → API Key<br><b>비용:</b> 쓴 만큼만 과금 (질문 1회 ~$0.005, 심층 분석 ~$0.02, 번역 1묶음 ~$0.007). <b>체감: 하루 10회 사용해도 월 $1~2 수준</b> (선택 사항)<br><b>없으면:</b> AI 채팅·번역 비활성, 영어 뉴스는 원문으로 표시</div>
-            </div>
-            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
-              <div style="font-size:10px;font-weight:700;color:var(--data-purple);margin-bottom:2px;">Cloudflare Worker (자체 프록시) — 강력 권장</div>
-              <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">공용 CORS 프록시는 언제든 중단될 수 있습니다. 자체 프록시를 세팅하면 시세/뉴스 안정성이 크게 향상됩니다.<br>
-              <b>구축 방법 (5분):</b><br>
-              1. <a href="https://dash.cloudflare.com" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">dash.cloudflare.com</a> 무료 가입<br>
-              2. Workers &amp; Pages → Create Worker → 아래 코드 붙여넣기:<br>
-              <code style="font-size:11px;background:rgba(0,0,0,0.3);padding:2px 4px;border-radius:3px;">export default{async fetch(r){const u=new URL(r.url).searchParams.get('url');if(!u)return new Response('url param required',{status:400});const f=await fetch(u,{headers:{'User-Agent':'AIO-Proxy/1.0'}});const h=new Headers(f.headers);h.set('Access-Control-Allow-Origin','*');return new Response(f.body,{status:f.status,headers:h})}}</code><br>
-              3. Deploy → 생성된 URL (예: <code style="font-size:11px;">https://my-proxy.username.workers.dev</code>) 복사<br>
-              4. 사이드바 " 확장 API 키" → CF Worker URL에 붙여넣기<br>
-              <b>무료 한도:</b> 일 10만 요청 (사용자 4명이면 충분)<br>
-              <b>없으면:</b> 공용 프록시 사용 (무료, 불안정 — 중단 위험 있음)</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);border-radius:6px;padding:10px;margin-bottom:8px;">
-          <div style="font-size:10px;font-weight:700;color:var(--data-cyan);margin-bottom:4px;">빠른 시작 (5분 완료)</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">
-            1⃣ <a href="https://finnhub.io" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">finnhub.io</a> 가입 → API 키 복사 → 사이드바 " 확장 API 키" → Finnhub 입력<br>
-            2⃣ <a href="https://rss2json.com" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">rss2json.com</a> 가입 → API 키 복사 → 사이드바 RSS2JSON KEY 입력<br>
-            3⃣ 끝! 이것만으로 실시간 시세 + 뉴스 피드가 완전 활성화됩니다.
-          </div>
-        </div>
-
-        <div style="font-size:11px;color:var(--text-muted);background:var(--surface-2);padding:8px;border-radius:4px;">
-          <b> 보안 안내:</b> 모든 API 키는 브라우저 localStorage에만 저장됩니다. 서버로 전송되지 않습니다. GitHub 재배포해도 키는 유지됩니다. 브라우저 캐시/쿠키를 삭제하면 재입력이 필요합니다. 공용 PC에서는 사용 후 반드시 삭제하세요.<br>
-          <b>Safari 주의:</b> Safari 개인정보 보호 모드에서는 API 키가 저장되지 않습니다. 반드시 Chrome을 사용하세요.
+        <div style="font-size:10px;color:var(--text-muted);background:var(--surface-2);padding:8px;border-radius:4px;">
+          키는 이 브라우저에만 저장됩니다. 공용 PC에서는 사용 후 삭제하세요.
         </div>
       </div>
     </div>
@@ -10077,7 +9952,7 @@ body.light-theme canvas { filter:none; }
         <div style="font-size:12px;font-weight:800;color:var(--data-purple);margin-bottom:6px;">브리핑 (BRIEFING)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> 24시간 이내 핵심 뉴스 시간순 표시 + 한국어 해석 + 관련 티커.<br>
-          <b>AI 분석:</b> Claude API 설정 시 영문 뉴스 자동 번역 + 투자자 관점 해석 제공.<br>
+          <b>AI 분석:</b> 선택 기능을 켜면 뉴스 요약과 투자자 관점 해석을 보강합니다.<br>
           <b>유의사항:</b> RSS 기반으로 속보와 수분 차이 가능. 중요 결정은 원문 확인.
         </div>
       </div>
@@ -10157,7 +10032,7 @@ body.light-theme canvas { filter:none; }
         <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">시장 뉴스 (MARKET NEWS)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> 50+소스 실시간 뉴스. 시간/중요도 정렬 + 국가/토픽 필터.<br>
-          <b>AI 번역:</b> Claude API 설정 시 자동 한국어 번역 + 티커 + 투자자 해석.<br>
+          <b>AI 번역:</b> 선택 기능을 켜면 한국어 번역과 티커 해석을 보강합니다.<br>
           <b>유의사항:</b> 뉴스 즉시 매매 위험 -- 큰 흐름 파악용으로 활용.
         </div>
       </div>
@@ -10188,7 +10063,7 @@ body.light-theme canvas { filter:none; }
       <div style="display:flex;flex-direction:column;gap:8px;">
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
           <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:4px;">AI 채팅 (각 페이지 하단)</div>
-          <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">각 페이지 하단 AI 채팅으로 용어·시장 질문 가능 (Claude API 키 필요).</div>
+          <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;">각 페이지 하단 AI 채팅으로 용어·시장 질문 가능. AI 답변은 선택 기능입니다.</div>
         </div>
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
           <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;"> 데이터 갱신 주기</div>
@@ -10280,7 +10155,7 @@ body.light-theme canvas { filter:none; }
           <span style="font-size:16px;flex-shrink:0;"></span>
           <div>
             <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:2px;">보안 유의사항</div>
-            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">API 키는 브라우저에만 저장됩니다. 공용 PC에서는 사용 후 반드시 키를 삭제하세요. 포트폴리오 데이터도 로컬 저장이므로 정기적으로 백업하세요. 이 스크리너를 통해 실제 거래(주문/체결)는 이루어지지 않습니다.</div>
+            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">연결 설정은 브라우저에만 저장됩니다. 공용 PC에서는 사용 후 삭제하세요. 포트폴리오 데이터도 로컬 저장이므로 정기적으로 백업하세요. 이 스크리너를 통해 실제 거래(주문/체결)는 이루어지지 않습니다.</div>
           </div>
         </div>
       </div>
@@ -10293,7 +10168,7 @@ body.light-theme canvas { filter:none; }
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 데이터가 "수신 대기"에서 멈춰요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 네트워크 연결 확인 → Ctrl+Shift+R로 강제 새로고침 → API 키 설정 확인 (사이드바  아이콘). Finnhub 키가 없으면 실시간 시세가 제한됩니다.</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 네트워크 연결 확인 → Ctrl+Shift+R로 강제 새로고침 → 사이드바 데이터 연결 설정을 확인하세요. Finnhub 키가 없으면 실시간 시세가 제한됩니다.</div>
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 차트가 비어 있어요 / 안 나와요</div>
@@ -10301,11 +10176,11 @@ body.light-theme canvas { filter:none; }
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. AI 채팅이 작동하지 않아요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. Claude API 키가 필요합니다. 사이드바  → "Claude API" 항목에 키를 입력하세요. 쿼터가 0이면 새로고침 후 리셋됩니다.</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. AI 답변을 쓰려면 사이드바의 Claude 항목에 키를 저장하세요. 키가 없으면 페이지 데이터와 뉴스는 그대로 볼 수 있습니다.</div>
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 뉴스가 영어로 나와요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. Claude API 키가 있으면 외신 뉴스가 자동 번역됩니다. 키가 없으면 영어 원문이 표시됩니다. "[번역 중]" 태그가 보이면 잠시 기다려주세요.</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. AI 키가 있으면 외신 뉴스 번역을 보강합니다. 키가 없으면 원문 중심으로 표시됩니다.</div>
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 포트폴리오/설정이 사라졌어요</div>
@@ -10319,51 +10194,28 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
-    <!-- ═══ 섹션 3-B: 개발자/디버그 모드 ═══ -->
+    <!-- ═══ 섹션 3-B: 문제 해결 (v50.68 compact) ═══ -->
     <div class="aio-widget" style="border-left:3px solid var(--data-purple);">
-      <div class="widget-title"> 문제 해결 및 디버그 모드</div>
+      <div class="widget-title">문제 해결</div>
       <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-        <div style="margin-bottom:8px;">데이터가 표시되지 않거나 오류가 발생할 때, 브라우저 개발자 도구(F12)의 콘솔에서 원인을 확인할 수 있습니다.</div>
-        <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:6px;padding:10px;margin-bottom:8px;">
-          <div style="font-size:10px;font-weight:700;color:var(--data-purple);margin-bottom:4px;">디버그 모드 활성화 방법</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
-            ① 브라우저에서 <b>F12</b> (또는 Ctrl+Shift+J / Cmd+Option+J) → 콘솔 탭 열기<br>
-            ② 콘솔에 <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:3px;font-family:var(--font-mono);font-size:11px;">_enableDebugLog()</code> 입력 후 Enter<br>
-            ③ 모든 내부 로그(API 호출, 프록시 상태, 번역 과정 등)가 실시간으로 표시됩니다<br>
-            ④ 끄려면 <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:3px;font-family:var(--font-mono);font-size:11px;">_disableDebugLog()</code> 입력
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;">
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--data-cyan);margin-bottom:3px;">화면이 멈춘 경우</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">Ctrl+Shift+R로 강제 새로고침 후 다시 확인하세요.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:3px;">데이터가 비어 있는 경우</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">사이드바의 데이터 연결 상태와 네트워크를 확인하세요.</div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--data-purple);margin-bottom:3px;">문의/점검용</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">필요할 때만 로그를 내려받아 원인 확인에 사용합니다.</div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:8px;">
-            <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:2px;">일반 경고 (항상 표시)</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.4;">API 연결 실패, 데이터 무결성 오류, 시세 이상치 감지 등 사용자에게 중요한 경고는 디버그 모드와 관계없이 콘솔에 항상 표시됩니다.</div>
-          </div>
-          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:8px;">
-            <div style="font-size:11px;font-weight:700;color:var(--data-purple);margin-bottom:2px;">상세 로그 (디버그 모드)</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.4;">프록시 폴백 과정, 개별 RSS 소스 상태, 번역 배치 진행, 차트 데이터 파싱 등 상세 진행 과정이 추가로 표시됩니다.</div>
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);background:var(--surface-2);padding:6px 8px;border-radius:4px;">
-          문제 보고 시 디버그 모드를 켜고 콘솔 내용을 스크린샷으로 캡처하면 원인 파악이 빠릅니다.
-        </div>
-        <!-- v48.30: 운영 관측성 — 로그 다운로드 버튼 (세션 종료 시 ring buffer 500건 소실 방지) -->
         <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-          <button data-action="_aioLogsDownload" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--data-cyan);font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 JSON 파일로 다운로드">▼ 로그 다운로드 (JSON)</button>
+          <button data-action="_aioLogsDownload" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--data-cyan);font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 JSON 파일로 다운로드">로그 다운로드</button>
           <button data-action="_aioLogsClear" style="background:rgba(255,91,80,0.08);border:1px solid rgba(255,91,80,0.2);color:var(--data-red);font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:600;" aria-label="중앙 로그 버퍼 초기화">로그 초기화</button>
-          <span style="font-size:11px;color:var(--text-muted);">최근 500건 ring buffer · 문제 보고 시 첨부 권장</span>
-        </div>
-        <!-- v48.36: 데이터 신선도 패널 — API별 마지막 성공 시점 + stale 배지 자동 표시 -->
-        <div style="margin-top:12px;padding:8px 10px;background:var(--surface-1);border:1px solid var(--surface-4);border-radius:6px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-secondary);">📡 데이터 신선도 (API별)</div>
-            <button data-action="_aioRefreshFreshness" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--data-cyan);font-size:11px;padding:3px 8px;border-radius:3px;cursor:pointer;">↻ 새로고침</button>
-          </div>
-          <div id="aio-freshness-panel" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);line-height:1.7;">
-            <div>수신 대기...</div>
-          </div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:6px;opacity:0.7;">
-            🟢 실시간 (임계 30% 이내) · 🟡 오래됨 (임계 이내) · 🔴 stale (임계 초과, 폴백 데이터)
-          </div>
+          <button data-action="_aioRefreshFreshness" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--data-cyan);font-size:10px;padding:5px 10px;border-radius:4px;cursor:pointer;">데이터 상태 갱신</button>
         </div>
       </div>
     </div>
@@ -10502,9 +10354,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.54"></script>
-  <script src="./js/aio-data.js?v=50.54"></script>
-  <script src="./js/aio-ui.js?v=50.54"></script>
+  <script src="./js/aio-core.js?v=50.68"></script>
+  <script src="./js/aio-data.js?v=50.68"></script>
+  <script src="./js/aio-ui.js?v=50.68"></script>
 
   <script>
 
@@ -13691,7 +13543,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.54"></script>
+<script src="./js/aio-chat.js?v=50.68"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -14552,17 +14404,10 @@ function renderEconCalendar() {
     {name:'GDP (분기)', dayRange:'last-week', impact:'HIGH', tip:'경제 성장률 = 큰 그림', impColor:'var(--data-red)'},
     {name:'FOMC 회의', dayRange:'6-weeks', impact:'HIGH', tip:'기준금리 결정 = 시장 방향 결정', impColor:'var(--data-red)'}
   ];
-  // v50.4: 2026-06-03 기준 공식 일정 + source-dependent market topic watch
+  // v50.55: 2026-06-15 기준 향후 공식 일정만 유지
   var pinnedEvents2026 = [
-    {date:'06/03', name:'ADP 민간고용 + Fed Beige Book', impact:'HIGH', tip:'6/5 NFP와 6/16-17 FOMC 전 고용·지역 경기·물가 힌트. 발표 전 수치는 생성하지 않음.', impColor:'var(--data-red)'},
-    {date:'06/03', name:'AVGO·CRWD·C3.AI 실적 watch', impact:'HIGH', tip:'AI 반도체/보안 가이던스는 verified/current 실적 뉴스가 들어올 때만 현재 판단으로 승격.', impColor:'var(--data-red)'},
-    {date:'06/01-05', name:'Computex 2026 + NVIDIA GTC Taipei', impact:'HIGH', tip:'RTX Spark/AI PC, Vera Rubin, AI infrastructure, physical AI 발표를 AI 하드웨어 체인 촉매로 감시.', impColor:'var(--data-green)'},
-    {date:'06/05', name:'BLS May Employment Situation', impact:'CRITICAL', tip:'May NFP·실업률·임금 발표. 공식 발표 전에는 4월값(+115K, 4.3%)과 분리.', impColor:'var(--data-red)'},
-    {date:'06/10', name:'BLS May CPI', impact:'CRITICAL', tip:'May CPI 공식 발표일. 발표 전에는 5월 CPI 숫자를 만들지 않음.', impColor:'var(--data-red)'},
-    {date:'06/11-12', name:'SpaceX IPO 보도 watch', impact:'HIGH', tip:'Reuters 계열 보도상 6/11 가격 산정·6/12 Nasdaq 상장 가능성. 확정 공시가 아닌 유동성/테마 수급 리스크.', impColor:'var(--data-amber)'},
-    {date:(typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fomcNext) ? DATA_SNAPSHOT.fomcNext : '6/16-17', name:'FOMC + SEP', impact:'CRITICAL', tip:'점도표와 인하 경로 재가격화. NFP/CPI 확인 후 해석.', impColor:'var(--data-red)'},
-    {date:'06/25', name:'BEA May Personal Income and Outlays/PCE', impact:'HIGH', tip:'Fed 선호 물가 후속 확인점. 현재 공식 마지막 값은 4월 PCE 3.8%, Core 3.3%.', impColor:'var(--data-amber)'},
-    {date:'07/10', name:'한국은행 금통위', impact:'HIGH', tip:'환율·물가·수출 모멘텀과 미국 금리 경로 확인 후 판단.', impColor:'var(--data-amber)'}
+    {date:'06/16-17', name:'FOMC + SEP', impact:'CRITICAL', tip:'정책결정문·점도표·기자회견 공개 후 금리 경로를 재평가.', impColor:'var(--data-red)'},
+    {date:'06/25', name:'BEA May Personal Income and Outlays/PCE', impact:'HIGH', tip:'Fed 선호 물가 후속 확인점. 발표 전 수치는 생성하지 않음.', impColor:'var(--data-amber)'}
   ];
   var now = new Date();
   var dow = now.getDay(); // 0=Sun
@@ -15445,7 +15290,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '• 트레이딩 함의: ZBT 없는 ATH = "건강하지 않은 돌파" → VCP/피봇 돌파 시 거짓 돌파 확률↑. 상위 시총 소수 종목만 정배열, 중소형주는 여전히 Stage 3/4 가능성.\n' +
         '• 모니터링: ZBT 지표 0.615 돌파 시 진단 재평가. 0.40 이하 하락 시 새 ZBT 시동 조건 충족.\n\n' +
         '【Weinstein 4단계】 Stage1(바닥 다지기, 30주MA 평탄+가격 횡보) → Stage2(상승 추세·매수!, 30주MA 위+상향 기울기) → Stage3(천장·매도 준비, 30주MA 평탄화+변동성 확대) → Stage4(하락 추세·회피, 30주MA 아래+하향)\n' +
-        '【12 셋업 패턴】 VCP(변동성 축소 패턴, 94%승률), BREAKOUT(돌파), PULLBACK(눌림목), GAP_EP(갭 진입), REVERSAL_OOPS(반전), TIGHT_3B(좁은 레인지), SHAKEOUT(흔들기) 등\n\n' +
+        '【12 셋업 패턴】 VCP(변동성 축소 패턴), BREAKOUT(돌파), PULLBACK(눌림목), GAP_EP(갭 진입), REVERSAL_OOPS(반전), TIGHT_3B(좁은 레인지), SHAKEOUT(흔들기) 등\n\n' +
         '【VCP(Volatility Contraction Pattern) 상세 — Mark Minervini 방법론】\n' +
         'VCP 핵심 원리: 매도 세력이 점차 소진되면서 가격 수축(contraction)이 좁아지는 패턴\n' +
         '• 구조: 2~6회 수축(T1→T2→T3...), 각 수축 폭이 이전보다 감소 (예: -25% → -15% → -8% → -3%)\n' +
@@ -15460,11 +15305,9 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '• 주봉(방향 결정) → 일봉(타이밍) → 60분봉(정밀 진입). 상위 프레임 방향과 반대인 진입은 금지.\n' +
         '• 이동평균 정배열(50>150>200, 모두 상승): 가장 강력한 추세 확인\n' +
         '• 골든/데드크로스: 후행 지표이므로 단독 사용 금지. 반드시 거래량+시장폭과 교차검증.\n\n' +
-        '【차트 패턴 신뢰도 가이드 (2026 기준)】\n' +
-        '• 고신뢰(80%+): Head & Shoulders(89%), Double Bottom(88%), Bull Flag(85%), Cup & Handle(83%), VCP(Minervini 기준 94%)\n' +
-        '• 중신뢰(70~80%): Ascending Triangle(77%), Descending Triangle(75%), Symmetrical Triangle(72%)\n' +
-        '• 저신뢰(60~70%): Pennant(68%), Wedge(65%), Rectangle(62%)\n' +
-        '모든 패턴은 거래량 확인 + RSI/MACD 보조 지표와 결합 시 정확도 약 31% 향상 (2025 Technical Analysis Society 연구)\n' +
+        '【차트 패턴 신뢰도 가이드】\n' +
+        '• 패턴별 고정 승률을 전제하지 말 것. 표본 기간·시장 레짐·패턴 정의·체결 비용에 따라 결과가 크게 달라진다.\n' +
+        '• 거래량 확증, 상위 시간 프레임 추세, 시장폭, 손익비를 함께 확인하고 근거가 없는 정밀 확률은 제시하지 않는다.\n' +
         '패턴만으로 매매 금지. 반드시 시장환경(스코어)+Weinstein Stage+거래량 3중 확인.\n\n' +
         '【스윙 트레이딩 진입/퇴장 체계】\n' +
         '• 진입 규칙: ① 패턴 돌파 + 거래량 150%+ ② RSI 40~70 구간(과매수/과매도 아닌 골디락스 존) ③ 시장 스코어 55+ ④ 상위 프레임(주봉) 추세 일치\n' +
@@ -16429,11 +16272,24 @@ function initKoreaHome() {
     var el = document.getElementById(idPrice);
     if (!el) return;
     el.textContent = sym === 'KRW=X' ? p.toFixed(2) : p.toLocaleString();
-    var chgEl = el.parentElement && el.parentElement.querySelector('.kr-idx-chg');
-    if (chgEl && d.pct != null) {
-      var pct = _krNum(d.pct);
-      chgEl.textContent = pct.toFixed(2) + '%';
-      chgEl.className = pct >= 0 ? 'pnl pos' : 'pnl neg';
+    var card = el.parentElement;
+    var chgEl = card && card.querySelector('[data-live-kr-change="' + sym + '"]');
+    var prevEl = card && card.querySelector('[data-live-prev-close="' + sym + '"]');
+    var prev = Number(d.regularMarketPreviousClose || d.chartPreviousClose ||
+      (window._dataSource && window._dataSource[sym] && window._dataSource[sym].previousClose));
+    if (prevEl && isFinite(prev) && prev > 0) prevEl.textContent = prev.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
+    if (chgEl && isFinite(prev) && prev > 0) {
+      var delta = p - prev;
+      var pct = delta / prev * 100;
+      var arrow = delta >= 0 ? '▲' : '▼';
+      var changeText = delta == null ? '' : Math.abs(delta).toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + ' ';
+      chgEl.textContent = arrow + ' ' + changeText + '(' + (delta >= 0 ? '+' : '') + pct.toFixed(2) + '%)';
+      chgEl.style.color = delta >= 0 ? 'var(--green)' : 'var(--red)';
+      el.style.color = delta >= 0 ? 'var(--green)' : 'var(--red)';
+      if (card) {
+        card.classList.remove('up', 'down');
+        card.classList.add(delta >= 0 ? 'up' : 'down');
+      }
     }
   }
   // v30.11: KRX 장시간 상태 배지 업데이트
@@ -16468,9 +16324,9 @@ function initKoreaHome() {
   _krUpdateIdx('kr-krw-price', 'KRW=X');
 
   // Update top mover prices on kr-home
-  var homeCards = document.querySelectorAll('#page-kr-home [data-live-price]');
+  var homeCards = document.querySelectorAll('#page-kr-home .kr-screen-card[data-live-symbol]');
   homeCards.forEach(function(card) {
-    var sym = card.getAttribute('data-live-price');
+    var sym = card.getAttribute('data-live-symbol');
     var d = ld[sym];
     if (d && d.price != null && !isNaN(d.price)) {
       var priceEl = card.querySelector('.kr-screen-price');
@@ -16506,7 +16362,7 @@ function initKoreaHome() {
     card._krClickBound = true;
     card.style.cursor = 'pointer';
     card.addEventListener('click', function() {
-      var sym = card.getAttribute('data-live-price');
+      var sym = card.getAttribute('data-live-symbol');
       if (!sym) return;
       var code = sym.replace(/\.(KS|KQ)$/i, '');
       // KR_THEME_MAP에서 해당 코드가 포함된 테마 찾기
@@ -16527,9 +16383,9 @@ function initKoreaHome() {
   });
 
   // v35.5: ETF 카드 실시간 갱신
-  var etfCards = document.querySelectorAll('#kr-etf-grid .kr-etf-card[data-live-price]');
+  var etfCards = document.querySelectorAll('#kr-etf-grid .kr-etf-card[data-live-symbol]');
   etfCards.forEach(function(card) {
-    var sym = card.getAttribute('data-live-price');
+    var sym = card.getAttribute('data-live-symbol');
     var d = ld[sym];
     if (d && d.price != null) {
       var pctEl = card.querySelector('.kr-etf-pct');
@@ -16643,8 +16499,8 @@ function initKoreaThemes() {
   // v40.4: 카드를 KR_THEME_MAP에서 동적 생성 (정적 HTML 제거됨 — 단일 진실 원천)
   if (typeof renderKrThemeCardsFromMap === 'function') renderKrThemeCardsFromMap();
   // 1. pill: 종목명 · 가격 · 등락률 명확 표시
-  document.querySelectorAll('#page-kr-themes [data-live-price]').forEach(function(pill) {
-    var sym = pill.getAttribute('data-live-price'), d = ld[sym];
+  document.querySelectorAll('#page-kr-themes .kr-ticker-pill[data-live-symbol]').forEach(function(pill) {
+    var sym = pill.getAttribute('data-live-symbol'), d = ld[sym];
     if (d && d.price !== undefined) {
       var priceEl = pill.querySelector('.pill-price');
       if (priceEl) { priceEl.textContent = d.price >= 1000 ? Math.round(d.price).toLocaleString() : d.price.toLocaleString(); }
@@ -16800,12 +16656,12 @@ function renderKrThemeCardsFromMap() {
       }
       var priceStr = d && d.price ? d.price.toLocaleString() : '';
       var barC = d && d.pct != null ? (d.pct >= 0 ? 'rgba(0,229,160,0.12)' : 'rgba(255,91,80,0.10)') : 'transparent';
-      pillsHtml += '<span class="kr-ticker-pill" data-live-price="' + sym + '" style="--bar-w:' + s.w + '%;--bar-c:' + barC + ';">' +
+      pillsHtml += '<span class="kr-ticker-pill" data-live-symbol="' + sym + '" style="--bar-w:' + s.w + '%;--bar-c:' + barC + ';">' +
         '<span class="pill-code">' + s.code + '</span> ' +
         '<span class="pill-name">' + name + '</span> ' +
         '<span class="pill-wt">' + s.w + '%</span> ' +
-        '<span class="pill-price">' + priceStr + '</span> ' +
-        '<span class="pill-pct" style="color:' + pctColor + ';">' + pctStr + '</span>' +
+        '<span class="pill-price" data-live-price="' + sym + '">' + priceStr + '</span> ' +
+        '<span class="pill-pct" data-live-chg="' + sym + '" style="color:' + pctColor + ';">' + pctStr + '</span>' +
         '</span>';
     });
 
@@ -18016,7 +17872,8 @@ var KR_STOCK_DB = {
   '267250': {name:'HD현대', sector:'조선지주', mcap:'19조', price:257500, themes:['shipbuilding']},
   '009540': {name:'HD한국조선해양', sector:'조선지주', mcap:'23조', price:367000, themes:['shipbuilding']},
   '082740': {name:'한화엔진', sector:'엔진', mcap:'8.2조', price:46650, themes:['shipbuilding']},
-  '011200': {name:'HD현대마린엔진', sector:'엔진', mcap:'1.5조', price:19660, themes:['shipbuilding']},
+  '011200': {name:'HMM', sector:'해운', mcap:'15조', price:19660, themes:['logistics']},
+  '071970': {name:'HD현대마린엔진', sector:'선박엔진', mcap:'1.5조', price:19660, themes:['shipbuilding']},
   // ════════ AI / 소프트웨어 (7) ════════
   '035420': {name:'NAVER', sector:'IT플랫폼', mcap:'35조', price:212500, themes:['ai-sw','telecom']},
   '035720': {name:'카카오', sector:'IT플랫폼', mcap:'10조', price:48800, themes:['ai-sw','crypto']},
@@ -18147,7 +18004,7 @@ var KR_STOCK_DB = {
   '000120': {name:'CJ대한통운', sector:'물류', mcap:'5.8조', price:116500, themes:['logistics']},
   '003490': {name:'대한항공', sector:'항공', mcap:'11조', price:28950, themes:['logistics']},
   '180640': {name:'한진칼', sector:'항공지주', mcap:'3.8조', price:66800, themes:['logistics']},
-  '023530': {name:'롯데지주', sector:'지주', mcap:'3.2조', price:30200, themes:['logistics']},
+  '023530': {name:'롯데쇼핑', sector:'유통', mcap:'2조', price:30200, themes:['consumer']},
   '006800': {name:'미래에셋증권', sector:'증권', mcap:'5.0조', price:8500, themes:['finance']},
   '357780': {name:'솔브레인', sector:'반도체소재', mcap:'3.0조', price:383500, themes:['semi']},
   '006910': {name:'보성파워텍', sector:'원전기자재', mcap:'0.3조', price:4300, themes:['nuclear']},
@@ -18199,7 +18056,7 @@ var KR_STOCK_DB = {
   // v46.10: KR_THEME_MAP 누락 종목 보충 (8건)
   '001800': {name:'오뚜기', sector:'식품', mcap:'2.5조', price:380000, themes:['kfood']},
   '018290': {name:'브이티', sector:'뷰티', mcap:'1.8조', price:22000, themes:['kbeauty']},
-  '950130': {name:'엘앤피코스메틱', sector:'뷰티', mcap:'0.5조', price:18000, themes:['kbeauty']},
+  '950130': {name:'엑시큐어', sector:'바이오', mcap:'0.5조', price:18000, themes:['bio']},
   '439090': {name:'마녀공장', sector:'뷰티', mcap:'0.4조', price:25000, themes:['kbeauty']},
   '114570': {name:'아이패밀리SC', sector:'뷰티', mcap:'0.3조', price:12000, themes:['kbeauty']},
   '085660': {name:'차바이오텍', sector:'바이오', mcap:'0.6조', price:18000, themes:['medtech_kr']},
@@ -18253,7 +18110,7 @@ var KR_THEME_MAP = {
     {code:'010620',w:7},  // HD현대미포 (중형선)
     {code:'267250',w:6},  // HD현대 (지주)
     {code:'082740',w:4},  // 한화엔진 (엔진 독과점)
-    {code:'011200',w:4}   // HD현대마린엔진
+    {code:'071970',w:4}   // HD현대마린엔진
   ],
   'ai-sw': [
     // 네이버 시총 30조 AI/SW 절대 대장. 삼성SDS 시총 20조. 카카오 시총 15조.
@@ -18323,7 +18180,7 @@ var KR_THEME_MAP = {
     {code:'161890',w:8},  // 한국콜마 (ODM 2위)
     {code:'018290',w:8},  // 브이티 (리들샷 글로벌 히트)
     {code:'237880',w:7},  // 클리오 (세포라 입점)
-    {code:'950130',w:5},  // 엘앤피코스메틱
+    {code:'214150',w:5},  // 클래시스 (미용의료기기)
     {code:'439090',w:4},  // 마녀공장 (아마존 스킨케어 1위)
     {code:'114570',w:4},  // 아이패밀리SC (Purito)
     {code:'044820',w:3}   // 코스맥스BTI
@@ -26061,12 +25918,12 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 <button id="scroll-top-btn" data-action="_aioScrollContentTop" aria-label="맨 위로 스크롤">↑</button>
 
 <!-- Risk Warning Banner -->
-<div id="risk-banner" style="position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(90deg,#1e1b4b,#312e81);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#a5b4fc;border-top:1px solid rgba(168,85,247,0.3);">
-  <span>투자 위험 고지: 본 스크리너는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자에는 원금 손실 위험이 있습니다. 투자 결정은 본인의 판단과 책임하에 이루어져야 합니다.</span>
+<div id="risk-banner" style="position:static;margin-top:16px;background:rgba(49,46,129,0.35);padding:6px 12px;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#a5b4fc;border-top:1px solid rgba(168,85,247,0.2);">
+  <span>투자 유의: 정보 제공용이며 최종 판단은 본인 책임입니다.</span>
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.54"></script>
+<script src="./js/aio-glossary.js?v=50.68"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -28585,6 +28442,7 @@ var _aiCtxMap = {
   'technical':'technical','macro':'macro','fxbond':'fxbond',
   'fundamental':'fundamental','themes':'themes','portfolio':'portfolio',
   'signal':'signal','theme-detail':'theme-detail','briefing':'briefing',
+  'market-news':'market-news','breadth':'breadth','sentiment':'sentiment',
   'kr-themes':'kr-themes','kr-macro':'kr-macro','kr-technical':'kr-tech'
 };
 var _aiDefaultChips = {
@@ -28597,6 +28455,9 @@ var _aiDefaultChips = {
   'signal':['매매 타이밍','리스크 점수','진입 조건','분배 단계 진단'],
   'theme-detail':['이 테마 HOT 이유','밸류체인 해석','대장주 포지션','깨지는 신호'],
   'briefing':['오늘 시장 요약','주요 촉매','매크로 리스크','포트폴리오 영향'],
+  'market-news':['오늘 핵심 뉴스','뉴스가 시장에 미친 영향','섹터별 뉴스 흐름','추가 확인할 이슈'],
+  'breadth':['시장 폭 건강도','상승/하락 종목 해석','브레드스와 추세 비교','숨은 약세 신호'],
+  'sentiment':['공포탐욕 해석','VIX와 심리 연결','지금 과열인지 판단','심리 기반 대응'],
   'kr-themes':['K-방산 전망','반도체 수출','조선주 분석','2차전지 반등'],
   'kr-macro':['한은 금리','원/달러 전망','코리아 디스카운트','수출 경기'],
   'kr-tech':['삼성전자 분석','KOSPI 추세','SK하이닉스 RSI','한화에어로 타이밍']
@@ -28632,9 +28493,7 @@ function toggleAIPanel() {
     if (!_aiCurrentCtx) {
       var msgsEl = document.getElementById('ai-panel-msgs');
       if (msgsEl && !msgsEl.querySelector('.ai-no-ctx')) {
-        msgsEl.innerHTML = '<div class="ai-no-ctx" style="text-align:center;padding:40px 20px;color:var(--text-muted);font-size:12px;line-height:1.8;">' +
-          '이 페이지에서는 AI 분석가를 사용할 수 없습니다.<br>' +
-          '<span style="font-size:11px;">매매 시그널, 차트 분석, 매크로, 기업 분석, 테마,<br>포트폴리오, 환율·채권, 시장 폭, 투자 심리,<br>한국 테마/매크로/기술 페이지에서 이용 가능합니다.</span></div>';
+        msgsEl.innerHTML = '<div class="ai-no-ctx" style="text-align:center;padding:32px 20px;color:var(--text-muted);font-size:12px;line-height:1.6;">AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.</div>';
       }
       var aiInp = document.getElementById('ai-panel-inp');
       var aiBtn = document.getElementById('ai-panel-btn');
@@ -28663,9 +28522,7 @@ function updateAIPanelContext(pageId) {
     if (aiBtn) aiBtn.disabled = true;
     var msgsEl = document.getElementById('ai-panel-msgs');
     if (msgsEl) {
-      msgsEl.innerHTML = '<div class="ai-no-ctx" style="text-align:center;padding:40px 20px;color:var(--text-muted);font-size:12px;line-height:1.8;">' +
-        '이 페이지에서는 AI 분석가를 사용할 수 없습니다.<br>' +
-        '<span style="font-size:11px;">매매 시그널, 차트 분석, 매크로, 기업 분석, 테마,<br>포트폴리오, 환율·채권, 시장 폭, 투자 심리,<br>한국 테마/매크로/기술 페이지에서 이용 가능합니다.</span></div>';
+      msgsEl.innerHTML = '<div class="ai-no-ctx" style="text-align:center;padding:32px 20px;color:var(--text-muted);font-size:12px;line-height:1.6;">AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.</div>';
     }
     var titleEl = document.getElementById('ai-panel-title');
     if (titleEl) titleEl.textContent = 'AI 분석가';
@@ -28741,7 +28598,7 @@ async function chatSendUnified() {
   // v46.4: 입력 길이 제한 (10000자) — API 비용 + 메모리 보호
   if (q.length > 10000) { q = q.slice(0, 10000); inp.value = q; }
   // v46.9: API 키 체크를 쿼터 차감 전에 수행 (키 없으면 쿼터 낭비 방지)
-  if (typeof getApiKey === 'function' && !getApiKey()) { _appendAIMsg('ai', '⚠️ API 키를 먼저 설정해주세요. (설정 → API 키)'); return; }
+  if (typeof getApiKey === 'function' && !getApiKey()) { _appendAIMsg('ai', 'AI 답변을 쓰려면 Claude 키를 저장하세요.'); return; }
   // v47.8: consumeLLMQuery가 Promise 반환 가능(쿼터 초과 모달) → await 필수
   if (typeof consumeLLMQuery === 'function') {
     var _qOk = await consumeLLMQuery();
@@ -28769,6 +28626,10 @@ async function chatSendUnified() {
   var ctxId = _aiCurrentCtx;
   var _uniWebResult = null;
   var _uniTickerData = false;
+  var _uniTechnicalData = false;
+  var _uniScreenerStr = '';
+  var _uniScreenerResult = null;
+  var _uniDomainData = false;
   var _uniDeepData = false;
   var _uniNewsCtx = false;
   // v47.8: 외부 API hang 방어 — Promise.race 타임아웃 래퍼
@@ -28796,6 +28657,49 @@ async function chatSendUnified() {
         var tickerDataStr = await _withTimeout(_fetchTickerDataForChat(detectedTickers, { forceFresh: true, reason: 'chat-answer', preflight: _uniFreshPreflight }), 8000, 'ticker');
         if (tickerDataStr) { sysPrompt += tickerDataStr; _uniTickerData = true; }
       } catch(te) { _aioLog('warn', 'fetch', '티커 데이터 실패/타임아웃: ' + te.message); }
+    }
+
+    // 1b. 차트/OHLCV 기술지표 — 통합 패널도 chatSend()와 동일하게 RSI/MACD/MA/ATR를 주입
+    if (typeof _fetchTechnicalDataForChat === 'function') {
+      try {
+        var _uniTechTickers = detectedTickers.length > 0
+          ? detectedTickers
+          : (typeof _aioTechnicalSymbolsForChat === 'function' ? _aioTechnicalSymbolsForChat(ctxId, q, detectedTickers) : []);
+        if (_uniTechTickers && _uniTechTickers.length) {
+          var _uniTechnicalStr = await _withTimeout(_fetchTechnicalDataForChat(_uniTechTickers, {
+            ctxId: ctxId,
+            query: q,
+            autoMarket: detectedTickers.length === 0
+          }), 9000, 'technical');
+          if (_uniTechnicalStr) { sysPrompt += _uniTechnicalStr; _uniTechnicalData = true; }
+        }
+      } catch(te2) { _aioLog('warn', 'fetch', '기술지표 데이터 실패/타임아웃: ' + te2.message); }
+    }
+
+    // 1c. 자연어 퀀트 스크리너 — 특정 티커가 없을 때 후보군을 다양화해 추천 편향을 줄임
+    if (detectedTickers.length === 0 && typeof _aioRunScreenerQuery === 'function') {
+      try {
+        var _uniRecentRecommendationTickers = (typeof _aioExtractRecentRecommendationTickers === 'function')
+          ? _aioExtractRecentRecommendationTickers(state.messages)
+          : [];
+        _uniScreenerResult = _aioRunScreenerQuery(q, { recentTickers: _uniRecentRecommendationTickers });
+        if (_uniScreenerResult && _uniScreenerResult.matched && typeof _formatScreenerResultPrompt === 'function') {
+          _uniScreenerStr = _formatScreenerResultPrompt(_uniScreenerResult);
+          sysPrompt += _uniScreenerStr;
+          if (_uniScreenerResult.mode === 'diversified-recommendation') {
+            sysPrompt += '\n\n[통합 AI 패널 추천 편향 방지]\n' +
+              '스크리너 후보군을 사용할 때는 특정 테마/기업 반복을 피하고 최소 3개 섹터·스타일 관점으로 분산해 답하라. CEG/전력/AVGO가 후보군에 있어도 반드시 대안과 제외 조건을 함께 제시하라.\n';
+          }
+        }
+      } catch(se2) { _aioLog('warn', 'fetch', '통합 AI 스크리너 질의 실패: ' + se2.message); }
+    }
+
+    // 1d. 페이지 도메인 데이터 — macro/fxbond/themes/KR 페이지의 라이브 요약을 통합 패널에도 주입
+    if (typeof _fetchDomainContextForChat === 'function' && /^(macro|kr-macro|fxbond|themes|theme-detail|kr-themes)$/.test(ctxId)) {
+      try {
+        var _uniDomainStr = _fetchDomainContextForChat(ctxId);
+        if (_uniDomainStr) { sysPrompt += _uniDomainStr; _uniDomainData = true; }
+      } catch(de2) { _aioLog('warn', 'fetch', '도메인 데이터 주입 실패: ' + de2.message); }
     }
 
     // 2. 섹터 비교 (8s 타임아웃)
@@ -28872,6 +28776,9 @@ async function chatSendUnified() {
       sysPrompt += _buildChatIntentContext(ctxId, q, {
         tickers: detectedTickers,
         tickerData: _uniTickerData,
+        technicalData: _uniTechnicalData,
+        screenerData: !!_uniScreenerStr,
+        domainData: _uniDomainData,
         trendData: (sysPrompt || '').indexOf('[주가 추이]') >= 0,
         deepData: _uniDeepData,
         webSearch: !!_uniWebResult,
@@ -28884,6 +28791,24 @@ async function chatSendUnified() {
       sysPrompt += _buildChatAnswerCoverageContext(ctxId, q, {
         tickers: detectedTickers,
         tickerData: _uniTickerData,
+        technicalData: _uniTechnicalData,
+        screenerData: !!_uniScreenerStr,
+        domainData: _uniDomainData,
+        trendData: (sysPrompt || '').indexOf('[주가 추이]') >= 0,
+        deepData: _uniDeepData,
+        webSearch: !!_uniWebResult,
+        news: _uniNewsCtx,
+        freshness: !!_uniFreshPreflight,
+        portfolioData: ctxId === 'portfolio'
+      });
+    }
+    if (typeof _buildAioIntegratedAnswerContext === 'function') {
+      sysPrompt += _buildAioIntegratedAnswerContext(ctxId, q, {
+        tickers: detectedTickers,
+        tickerData: _uniTickerData,
+        technicalData: _uniTechnicalData,
+        screenerData: !!_uniScreenerStr,
+        domainData: _uniDomainData,
         trendData: (sysPrompt || '').indexOf('[주가 추이]') >= 0,
         deepData: _uniDeepData,
         webSearch: !!_uniWebResult,
@@ -28986,6 +28911,15 @@ async function chatSendUnified() {
   try { selectedModelKey = typeof _detectQueryComplexity === 'function' ? _detectQueryComplexity(q, ctxId) : 'haiku'; } catch(e) {}
   var selectedModelCfg = typeof getModelConfig === 'function' ? getModelConfig(selectedModelKey) : { label: selectedModelKey };
   var modelOpts = { modelKey: selectedModelKey, maxTokens: (_uniDeepData) ? 16000 : undefined };
+  var _uniUseClaudeWebSearch = false;
+  try {
+    _uniUseClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers);
+  } catch(_uniWsErr) { _uniUseClaudeWebSearch = false; }
+  if (_uniUseClaudeWebSearch) {
+    _appendAIMsg('ai', '<div style="font-size:11px;color:#a78bfa;padding:4px 8px;background:rgba(168,85,247,0.08);border-radius:4px;margin-bottom:4px;">🔎 Claude 라이브 웹검색 활성화 — 최신/정성 정보 보강 중(max 3회)</div>');
+    sysPrompt += '\n\n【웹 리서치 지시 (통합 AI 패널)】\n공급망·밸류체인·TAM/시장규모·경쟁구조·기술해자·13F·사업구조·경영진 전략처럼 최신 확인이 필요한 정성 분석은 web_search 결과를 우선하라. 확인하지 못한 항목은 "확인 불가"로 남기고, 학습데이터 기반 추측을 금지한다.';
+    modelOpts.webSearch = true;
+  }
 
   // v46.10: 웹검색 수행 시 검색 알림 배지
   if (_uniWebResult) {
@@ -29042,8 +28976,12 @@ async function chatSendUnified() {
       _srcBadge.style.cssText = 'font-size:11px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:var(--surface-1);border-radius:4px;';
       var _bItems = [];
       _bItems.push(_uniTickerData ? '<span style="color:var(--data-green);">📊 재무 ✓</span>' : '<span style="color:var(--text-muted);">📊 재무 ✗</span>');
+      if (_uniTechnicalData) _bItems.push('<span style="color:var(--data-cyan);">📈 기술 ✓</span>');
+      if (_uniScreenerStr) _bItems.push('<span style="color:var(--data-amber);">📋 스크리너 ✓</span>');
+      if (_uniDomainData) _bItems.push('<span style="color:var(--data-green);">🧭 페이지 데이터 ✓</span>');
       _bItems.push(_uniNewsCtx ? '<span style="color:var(--data-green);">📰 뉴스 ✓</span>' : '<span style="color:var(--text-muted);">📰 뉴스 ✗</span>');
       if (_uniWebResult) _bItems.push('<span style="color:var(--data-purple);">🔍 웹검색 ✓</span>');
+      if (_uniUseClaudeWebSearch) _bItems.push('<span style="color:var(--data-purple);">🔎 Claude 웹검색 ✓</span>');
       if (_uniDeepData) _bItems.push('<span style="color:var(--data-cyan);">🔬 심층 ✓</span>');
       _srcBadge.innerHTML = _bItems.join('');
       _bubbleParent.appendChild(_srcBadge);

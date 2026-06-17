@@ -1406,7 +1406,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   var apiKey = getApiKey();
   var _claudeTarget = _aioClaudeTarget(apiKey);   // v50.52 B5: 서버 키 모드면 개인 키 불요
   if (!apiKey && !_claudeTarget.serverKey) {
-    onError('API 키가 설정되지 않았습니다. 상단 버튼에서 Claude API 키를 입력하거나, 운영자가 서버 키 모드를 활성화하면 키 없이 사용할 수 있습니다.');
+    onError('AI 답변을 쓰려면 Claude 키를 저장하세요.');
     return;
   }
   opts = opts || {};
@@ -1701,11 +1701,126 @@ function _detectSectorQuery(text) {
   return stocks.length > 0 ? { sectorLabel: matchedKey, stocks: stocks } : null;
 }
 
+function _aioIsBroadRecommendationQuery(query) {
+  var q = String(query || '').toLowerCase();
+  if (!q) return false;
+  return /(종목\s*)?(추천|골라|뽑아|찾아줘|아이디어|후보|리스트)|recommend|stock\s*ideas?|top\s*picks?|best\s*stocks?|pick\s*stocks?/i.test(q);
+}
+
+function _aioInferTickerMarket(sym, index) {
+  var s = String(sym || '');
+  if (/\.KS$|\.KQ$/.test(s)) return 'KR';
+  if (/\.T$/.test(s)) return 'Japan';
+  if (/\.TW$/.test(s)) return 'Taiwan';
+  if (/\.HK$/.test(s)) return 'Hong Kong';
+  if (/ADR/i.test(index || '')) return 'ADR';
+  return 'US';
+}
+
+function _aioCapBucket(mcap) {
+  var v = Number(mcap || 0);
+  if (v >= 500) return 'mega';
+  if (v >= 100) return 'large';
+  if (v >= 10) return 'mid';
+  if (v > 0) return 'small';
+  return 'unknown';
+}
+
+function _aioExtractRecentRecommendationTickers(messages) {
+  try {
+    var db = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : (window.SCREENER_DB || []);
+    var known = {};
+    (Array.isArray(db) ? db : []).forEach(function(s) { if (s && s.sym) known[s.sym] = true; });
+    var out = {};
+    (messages || []).slice(-8).forEach(function(m) {
+      var text = String((m && m.content) || '');
+      var hits = text.match(/\b[A-Z][A-Z0-9.-]{1,9}(?:\.(?:KS|KQ|T|TW|HK))?\b|\b\d{6}\.(?:KS|KQ)\b/g) || [];
+      hits.forEach(function(t) { if (known[t]) out[t] = true; });
+    });
+    return Object.keys(out);
+  } catch(_) {
+    return [];
+  }
+}
+window._aioExtractRecentRecommendationTickers = _aioExtractRecentRecommendationTickers;
+
+function _aioBuildDiversifiedRecommendationRows(db, live, opts) {
+  opts = opts || {};
+  live = live || {};
+  var recent = {};
+  (opts.recentTickers || []).forEach(function(t) { recent[t] = true; });
+  var seen = {};
+  var eligible = (Array.isArray(db) ? db : []).filter(function(s) {
+    if (!s || !s.sym || seen[s.sym]) return false;
+    seen[s.sym] = true;
+    if (s.signal === 'SELL') return false;
+    if (s.sector === 'ETF') return false;
+    if (/^\^|=|-USD$/i.test(s.sym)) return false;
+    return true;
+  }).map(function(s) {
+    var ld = live[s.sym] || {};
+    var rank = (typeof s.rank === 'number') ? s.rank : 50;
+    var signalScore = ({ BUY: 18, WATCH: 8, HOLD: 2 })[s.signal] || 0;
+    var rsi = Number(s.rsi);
+    var rsiScore = isFinite(rsi) ? (rsi >= 35 && rsi <= 62 ? 5 : rsi > 75 ? -12 : rsi < 25 ? -6 : 0) : 0;
+    var capScore = Math.min(10, Math.max(0, Math.log10(Math.max(1, Number(s.mcap || 1))) * 2));
+    var pct = (ld && ld.pct != null && isFinite(Number(ld.pct))) ? Number(ld.pct) : null;
+    var liveScore = pct == null ? 0 : Math.max(-5, Math.min(5, pct));
+    var repeatPenalty = recent[s.sym] ? 25 : 0;
+    var market = _aioInferTickerMarket(s.sym, s.index);
+    var score = rank + signalScore + rsiScore + capScore + liveScore - repeatPenalty;
+    return {
+      sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
+      rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
+      ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
+      price: ld.price != null ? ld.price : null, pct: pct, memo: (s.memo || '').slice(0, 90),
+      market: market, capBucket: _aioCapBucket(s.mcap), diversityScore: Math.round(score), repeatPenalty: repeatPenalty
+    };
+  }).sort(function(a, b) { return b.diversityScore - a.diversityScore; });
+
+  function pickRows(sectorLimit, marketLimit, maxRows) {
+    var picked = [], secCount = {}, marketCount = {};
+    eligible.forEach(function(r) {
+      if (picked.length >= maxRows) return;
+      var sec = r.sector || 'Unknown';
+      var mkt = r.market || 'US';
+      if ((secCount[sec] || 0) >= sectorLimit) return;
+      if ((marketCount[mkt] || 0) >= (marketLimit[mkt] || marketLimit._default || maxRows)) return;
+      picked.push(r);
+      secCount[sec] = (secCount[sec] || 0) + 1;
+      marketCount[mkt] = (marketCount[mkt] || 0) + 1;
+    });
+    return { rows: picked, secCount: secCount, marketCount: marketCount };
+  }
+
+  var first = pickRows(2, { US: 7, KR: 5, Japan: 2, Taiwan: 2, 'Hong Kong': 2, ADR: 2, _default: 3 }, 16);
+  if (first.rows.length < 12) first = pickRows(3, { US: 10, KR: 7, Japan: 3, Taiwan: 3, 'Hong Kong': 3, ADR: 3, _default: 4 }, 16);
+  var sectors = {}, markets = {}, capBuckets = {};
+  var recentSuppressed = eligible.filter(function(r) { return r.repeatPenalty > 0; }).length;
+  first.rows.forEach(function(r) {
+    sectors[r.sector || 'Unknown'] = true;
+    markets[r.market || 'US'] = true;
+    capBuckets[r.capBucket || 'unknown'] = true;
+  });
+  return {
+    rows: first.rows,
+    totalMatched: eligible.length,
+    recentSuppressed: recentSuppressed,
+    diversity: {
+      sectorCount: Object.keys(sectors).length,
+      marketCount: Object.keys(markets).length,
+      capBucketCount: Object.keys(capBuckets).length
+    }
+  };
+}
+window._aioBuildDiversifiedRecommendationRows = _aioBuildDiversifiedRecommendationRows;
+
 // v50.37 트랙1: 자연어 스크리너 질의 — 사용자 자연어 조건을 실제 SCREENER_DB에 필터링.
 //   일반 LLM이 구조적으로 못 하는 차별 기능(앱 내부 종목 DB + 실시간 시세 조인). 신규 API 0.
 //   조건 없으면 null 반환(자기 게이팅) → 일반 흐름으로.
-function _aioRunScreenerQuery(query) {
+function _aioRunScreenerQuery(query, opts) {
   try {
+    opts = opts || {};
     var db = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : (window.SCREENER_DB || null);
     if (!Array.isArray(db) || !db.length) return null;
     var q = String(query || '').toLowerCase();
@@ -1767,10 +1882,26 @@ function _aioRunScreenerQuery(query) {
     // 8) v50.52: 퀀트 멀티팩터 랭킹 정렬 의도
     if (/퀀트|quant|팩터|factor|랭킹|순위|우량|상위\s*종목|best\b|top\s*\d*/.test(q)) { crit.byRank = true; labels.push('퀀트 랭킹순'); }
 
-    if (labels.length === 0) return null; // 스크리너 조건 미감지 → 일반 흐름
-
     // v50.52: 팩터 랭크 보장 — screener.json 병합 후 산출되지만, 아직이면 즉시 계산(폴백 무회귀)
     if (typeof _aioComputeFactorRanks === 'function' && !db.some(function(s){ return s.rank != null; })) { try { _aioComputeFactorRanks(); } catch(_) {} }
+
+    var isBroadRecommendation = _aioIsBroadRecommendationQuery(q);
+    var onlyGenericRank = crit.byRank && labels.length === 1 && !crit.signal && crit.rsiMax == null && crit.rsiMin == null &&
+      crit.mcapMin == null && crit.mcapMax == null && !crit.sectors && !crit.themeSet && !crit.index && !crit.dir;
+    if (isBroadRecommendation && (labels.length === 0 || onlyGenericRank)) {
+      var diversified = _aioBuildDiversifiedRecommendationRows(db, window._liveData || {}, opts);
+      return {
+        matched: true,
+        mode: 'diversified-recommendation',
+        criteria: onlyGenericRank ? ['균형 추천 후보', '퀀트 랭킹 참고'] : ['균형 추천 후보'],
+        rows: diversified.rows,
+        totalMatched: diversified.totalMatched,
+        diversity: diversified.diversity,
+        recentSuppressed: diversified.recentSuppressed
+      };
+    }
+
+    if (labels.length === 0) return null; // 스크리너 조건 미감지 → 일반 흐름
 
     var live = window._liveData || {};
     var rows = db.filter(function(s) {
@@ -1821,24 +1952,36 @@ function _formatScreenerResultPrompt(result) {
   var ts = '';
   try { var n = new Date(); var p = function(x) { return String(x).padStart(2, '0'); }; ts = n.getFullYear() + '-' + p(n.getMonth() + 1) + '-' + p(n.getDate()) + ' ' + p(n.getHours()) + ':' + p(n.getMinutes()) + ' KST'; } catch(_) {}
   var lines = [];
+  var isDiversified = result.mode === 'diversified-recommendation';
   lines.push('═══════════════════════════════════════════════════');
-  lines.push('【스크리너 결과 — AIO 종목 DB 실시간 필터링】');
+  lines.push(isDiversified ? '【균형 추천 후보 — AIO 종목 DB 분산 샘플링】' : '【스크리너 결과 — AIO 종목 DB 실시간 필터링】');
   lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)');
   lines.push('출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 기준 ' + ts);
   var fAsOf = (typeof window !== 'undefined' && window._aioFactorRanksAsOf) ? window._aioFactorRanksAsOf.slice(0,10) : null;
   lines.push('퀀트 랭크(0~100, 높을수록 우수) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. ' + (fAsOf ? '팩터 기준일 ' + fAsOf : '팩터 데이터 대기 — 시그널/메모는 editorial(애널리스트 노트)') + '.');
-  lines.push('이 목록은 앱 내부 종목 DB를 실제 필터링·랭킹한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.');
+  if (isDiversified) {
+    var dv = result.diversity || {};
+    lines.push('분산 설계: 섹터 ' + (dv.sectorCount || '?') + '개 · 시장/지역 ' + (dv.marketCount || '?') + '개 · 시총 버킷 ' + (dv.capBucketCount || '?') + '개. 최근 대화 반복 티커는 점수 감점: ' + (result.recentSuppressed || 0) + '개.');
+    lines.push('이 목록은 넓은 "종목 추천" 질문에서 특정 섹터/기업으로 과도하게 수렴하지 않도록 만든 후보군이다. 최종 답변은 이 후보군에서 3~5개만 골라야 하며, 같은 섹터·테마는 최대 2개까지만 선택하라.');
+  } else {
+    lines.push('이 목록은 앱 내부 종목 DB를 실제 필터링·랭킹한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.');
+  }
   lines.push('═══════════════════════════════════════════════════');
   result.rows.forEach(function(r, i) {
     var rankStr = (r.rank != null) ? ('퀀트 ' + r.rank + '/100(' + (r.quantSignal || '') + ')') : '퀀트 N/A';
     var fsStr = r.factorScores ? (' [모멘텀' + r.factorScores.momentum + '·추세' + r.factorScores.trend + '·저변동' + r.factorScores.lowvol + ']') : '';
-    lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + ' · ' + rankStr + fsStr +
+    var divStr = isDiversified ? (' · ' + (r.market || 'US') + '/' + (r.capBucket || 'unknown') + ' · 분산점수 ' + (r.diversityScore != null ? r.diversityScore : 'N/A')) : '';
+    lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + divStr + ' · ' + rankStr + fsStr +
       ' · 시그널(editorial) ' + r.signal + ' · 시총 ' + (r.mcap ? '$' + r.mcap + 'B' : 'N/A') + ' · RSI ' + _f(r.rsi, 0) +
       ' · 3M ' + _pct(r.ret3m) + ' · 가격 ' + (r.price != null ? '$' + _f(r.price, 2) : 'N/A') + ' (' + _pct(r.pct) + ')');
     if (r.memo) lines.push('   메모: ' + r.memo);
   });
   lines.push('');
-  lines.push('답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 퀀트 랭크 기준 순위/표 (2) 상위 종목 선정 이유(어느 팩터가 강한지) (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 퀀트 랭크(객관·데이터)와 시그널/메모(editorial·애널리스트)를 구분해 설명하라. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.');
+  if (isDiversified) {
+    lines.push('답변 지침: (1) 먼저 "후보군을 넓게 분산해 봤다"고 밝히고 (2) 성장/퀄리티/방어/경기민감/한국·글로벌 중 최소 3개 관점으로 3~5개를 선택 (3) 제외·보류 후보 2~3개와 이유 제시 (4) 사용자가 공격형/방어형/한국주 선호를 밝히면 다음 답변에서 재랭킹하겠다고 안내. CEG·전력·AVGO·AI 반도체 같은 기존 강한 테마가 포함돼도 자동 1순위로 두지 말고, 비AI/비전력 대안과 비교해 상대 우위가 있을 때만 선택하라. 최종 추천과 수치 근거는 후보군 안에서 제시하되, 사용자가 더 넓은 탐색을 원하면 어떤 조건(시장·섹터·시총·위험도)으로 SCREENER_DB를 다시 펼치면 되는지 안내하라.');
+  } else {
+    lines.push('답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 퀀트 랭크 기준 순위/표 (2) 상위 종목 선정 이유(어느 팩터가 강한지) (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 퀀트 랭크(객관·데이터)와 시그널/메모(editorial·애널리스트)를 구분해 설명하라. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.');
+  }
   return '\n\n' + lines.join('\n') + '\n';
 }
 window._formatScreenerResultPrompt = _formatScreenerResultPrompt;
@@ -2271,8 +2414,9 @@ window._aioLowConfPerspectives = window._aioLowConfPerspectives || function() {
 
 // v50.12: 기술적 분석 채팅용 종목별 실측 기술지표 fetch — 기존 엔진 재사용(fetchOHLCVWithFallback + calcTechnicalSnapshot + calcExtensionHeat).
 // technical/signal/ticker 컨텍스트에서 RSI/MACD/MA정배열/추세/Weinstein Stage/ATR 이격/확장도를 주입 (방법론만 있고 종목별 데이터 없던 갭 해소).
-async function _fetchTechnicalDataForChat(tickers) {
+async function _fetchTechnicalDataForChat(tickers, opts) {
   if (!tickers || !tickers.length) return '';
+  opts = opts || {};
   var fetcher = window.fetchOHLCVWithFallback || window.fetchOHLCV;
   var calc = window.calcTechnicalSnapshot;
   if (typeof fetcher !== 'function' || typeof calc !== 'function') return '';
@@ -2297,6 +2441,8 @@ async function _fetchTechnicalDataForChat(tickers) {
     try { window._aioLastTechSnap = window._aioLastTechSnap || {}; window._aioLastTechSnap[t] = { snap: snap, ts: Date.now() }; } catch(_) {}
     var ext = window.calcExtensionHeat ? window.calcExtensionHeat(snap) : null;
     var f = function(v, d) { return (v != null && !isNaN(v)) ? Number(v).toFixed(d == null ? 2 : d) : 'N/A'; };
+    var q = settled[i] && settled[i].dataQuality ? settled[i].dataQuality : null;
+    var qLine = q ? ('• 데이터 품질: ' + (q.label || q.confidence || 'UNKNOWN') + ' · source ' + (q.source || 'unknown') + (q.rows != null ? ' · rows ' + q.rows : '') + (q.timestamp ? ' · fetched ' + new Date(q.timestamp).toISOString() : '') + '\n') : '';
     var maAlign = (snap.above10EMA && snap.above21EMA && snap.above50SMA && snap.above200SMA) ? '완전 정배열(10>21>50>200 위)' :
                   (snap.above50SMA && snap.above200SMA) ? '중장기 정배열(50·200 위)' :
                   (snap.above50SMA === false) ? '50일선 이탈(추세 훼손)' : '혼조';
@@ -2312,12 +2458,29 @@ async function _fetchTechnicalDataForChat(tickers) {
     lines += '• MACD 히스토그램 ' + (snap.macd && snap.macd.hist != null ? f(snap.macd.hist) + (snap.macd.hist > 0 ? ' 상승모멘텀' : ' 하락모멘텀') : 'N/A') + ' · 볼린저 ' + (snap.bbReentry ? '상단 재진입(소진주의)' : snap.bbOutsideUpper ? '상단 돌파' : '밴드 내') + ' · RVOL20 ' + f(snap.rvol20, 1) + 'x\n';
     lines += '• 20일 고/저 $' + f(snap.recentHigh20) + '/$' + f(snap.recentLow20) + (posVs20 != null ? ' (레인지 ' + posVs20 + '% 위치)' : '') + ' · 50일 고/저 $' + f(snap.recentHigh50) + '/$' + f(snap.recentLow50) + '\n';
     if (ext) lines += '• 확장도(Blow-off Risk): ' + ext.state + ' (' + ext.score + '/100' + (ext.flags && ext.flags.length ? ', ' + ext.flags.slice(0, 3).join('/') : '') + ')\n';
+    lines += qLine;
     lines += '※ 위는 라이브 OHLCV 실측 계산값. 피봇/손절/목표는 이 수치 기준으로 제시하고 학습데이터 추측 금지.';
     blocks.push(lines);
   }
   if (!blocks.length) return '';
-  return '\n\n【종목 기술적 실측 데이터 (calcTechnicalSnapshot — 라이브 OHLCV)】\n' + blocks.join('\n\n') + '\n';
+  var scope = opts.autoMarket ? '시장 대표 차트' : '종목';
+  return '\n\n【' + scope + ' 기술적 실측 데이터 (calcTechnicalSnapshot — 라이브 OHLCV)】\n' + blocks.join('\n\n') + '\n';
 }
+
+function _aioTechnicalSymbolsForChat(ctxId, query, detectedTickers) {
+  if (Array.isArray(detectedTickers) && detectedTickers.length) return detectedTickers.slice(0, 3);
+  var q = String(query || '').toLowerCase();
+  var intent = (typeof _classifyChatIntent === 'function') ? _classifyChatIntent(query, ctxId) : { intents: [] };
+  var wantsTechnical = ctxId === 'technical' || ctxId === 'signal' || ctxId === 'ticker' || ctxId === 'kr-tech' || ctxId === 'kr-technical' ||
+    (intent.intents || []).indexOf('TECHNICAL_SETUP') >= 0 ||
+    /차트|기술|rsi|macd|atr|이동평균|지지|저항|돌파|추세|technical|chart|setup|support|resistance|breakout|trend/.test(q);
+  if (!wantsTechnical) return [];
+  if (/한국|코스피|코스닥|kr|kospi|kosdaq/.test(q) || ctxId === 'kr-tech' || ctxId === 'kr-technical') return ['^KS11', '^KQ11', 'KRW=X'];
+  if (/반도체|세미|semi|chip|smh|soxx/.test(q)) return ['SMH', 'SOXX', 'QQQ'];
+  if (/소형|러셀|중소형|iwm|rsp|breadth|폭/.test(q)) return ['IWM', 'RSP', 'SPY'];
+  return ['SPY', 'QQQ', 'SMH'];
+}
+window._aioTechnicalSymbolsForChat = _aioTechnicalSymbolsForChat;
 
 // v50.38 트랙2: 매크로/외환/채권/테마 채팅에 페이지 도메인 라이브 데이터 주입 (시세 너머 정성+정량).
 //   기존 compute/스냅샷 재사용 — 네트워크 비의존(라이브 캐시 + DATA_SNAPSHOT FRED값 + 내부 compute 함수).
@@ -2387,6 +2550,7 @@ var AIO_CHAT_SOURCE_REGISTRY = [
   // 시세·추세 (in-function 호출)
   { key:'quote',        label:'실시간 시세',         fn:'dynamicTickerLookup',           tier:'quote',       free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'trend',        label:'주가 추이(5D/20D/3M)', fn:'_fetchTickerTrend',             tier:'quote',       free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'technicalOHLCV', label:'OHLCV 기술지표(RSI/MACD/MA/ATR)', fn:'_fetchTechnicalDataForChat', tier:'technical', free:true, requiresKey:null, appliesTo:function(){return true;} },
   { key:'analystRec',   label:'애널리스트 컨센서스',  fn:'fetchFinnhubRecommendation',    tier:'sentiment',   free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
   { key:'nextEarnings', label:'다음 어닝 일정',       fn:'fetchFinnhubEarningsCalendar',  tier:'fundamental', free:false, requiresKey:'aio_finnhub_key', appliesTo:function(){return true;} },
   // 펀더멘털 (window.AIO.*)
@@ -2414,9 +2578,27 @@ var AIO_CHAT_SOURCE_REGISTRY = [
 ];
 window.AIO_CHAT_SOURCE_REGISTRY = AIO_CHAT_SOURCE_REGISTRY;
 
+// v50.60: AIO 채팅이 일반 LLM과 달라야 하는 이유를 데이터/페이지 파이프라인으로 명시한다.
+// 실제 답변은 아래 _buildAioIntegratedAnswerContext()가 이 레지스트리를 읽어 정량+정성+현재 시장+페이지 연결 계약으로 주입한다.
+var AIO_CHAT_PIPELINE_REGISTRY = [
+  { key:'marketState', label:'현재 시장 현황', tier:'current', kind:'quant', pages:['home','market-news','briefing'] },
+  { key:'quotes', label:'실시간/검증 시세', tier:'current', kind:'quant', pages:['home','technical','signal','fundamental','portfolio'] },
+  { key:'technicalOHLCV', label:'차트·기술 지표', tier:'analysis', kind:'quant', pages:['technical','signal'] },
+  { key:'screener', label:'퀀트 스크리너 후보군', tier:'analysis', kind:'quant', pages:['screener','themes','kr-themes'] },
+  { key:'breadthSentiment', label:'시장 폭·심리', tier:'context', kind:'quant', pages:['breadth','sentiment'] },
+  { key:'macroRatesFx', label:'매크로·금리·환율', tier:'context', kind:'quant', pages:['macro','fxbond','kr-macro'] },
+  { key:'companyFundamentals', label:'기업 펀더멘털·밸류에이션', tier:'analysis', kind:'mixed', pages:['fundamental'] },
+  { key:'newsFilings', label:'뉴스·공시·촉매·리스크', tier:'current', kind:'qual', pages:['market-news','briefing','fundamental'] },
+  { key:'themes', label:'테마·섹터 로테이션', tier:'context', kind:'mixed', pages:['themes','theme-detail','kr-themes'] },
+  { key:'portfolio', label:'보유종목·비중·리스크', tier:'user', kind:'mixed', pages:['portfolio'] }
+];
+window.AIO_CHAT_PIPELINE_REGISTRY = AIO_CHAT_PIPELINE_REGISTRY;
+
 async function _fetchTickerDataForChat(tickers, opts) {
   if (!tickers || tickers.length === 0) return '';
   opts = opts || {};
+  var _tickerPolicy = (typeof _aioChatAnswerPolicy === 'function') ? _aioChatAnswerPolicy(opts.query || '', opts.ctxId || 'ticker', tickers, null) : { needsFullStockMemo: true, asksDecision: true };
+  var _forceScenarioAnswer = !!(_tickerPolicy.needsFullStockMemo || _tickerPolicy.asksDecision);
   var _f = function(v, dec) { return v != null && !isNaN(v) ? Number(v).toFixed(dec || 1) : 'N/A'; };
   var _fm = function(v) { if (!v) return 'N/A'; if (v >= 1e12) return '$' + (v/1e12).toFixed(1) + 'T'; if (v >= 1e9) return '$' + (v/1e9).toFixed(1) + 'B'; if (v >= 1e6) return '$' + (v/1e6).toFixed(0) + 'M'; return '$' + v; };
   var fmpKey = _getApiKey('aio_fmp_key') || '';
@@ -2913,10 +3095,13 @@ async function _fetchTickerDataForChat(tickers, opts) {
       var _nowStamp = new Date().toISOString().slice(0, 19).replace('T', ' ') + ' UTC';
       _mktHeader = '【현재 시장 환경 (v49.68 자동 헤더 · 기준일: ' + _nowStamp + ')】\n' +
         '• **SPX**: ' + _spx + ' · **VIX**: ' + _vixEmoji + ' ' + _vix + ' (' + _regime + ') · **10Y**: ' + _tnx + '% · **F&G**: ' + _fgEmoji + ' ' + _fg + ' (' + _fgLabel + ') · **트레이딩 스코어**: ' + _scoreEmoji + ' ' + _score + '/100\n' +
-        '⚠️ **답변 의무 (R122/R127/R128)**: (1) 위 시장 환경 도입 인용 (2) **Bull (X%) / Base (Y%) / Bear (Z%)** 3 시나리오 분기 + 확신도 명시 (X+Y+Z=100) (3) 이모지 🔴🟡🟢 표준 사용 (4) 데이터 출처 [Source · 기준일] 표기 (5) 기관급 프레임 (Bridgewater/Druckenmiller/Howard Marks/Buffett/Ackman/Soros/GS GIR/MS Cyclical) 중 1~3개 명시 인용 (R126).\n\n';
+        (_forceScenarioAnswer
+          ? '⚠️ **답변 가이드 (R122/R127/R128)**: 매매 판단·전망·추천 질문이면 위 시장 환경을 연결하고, **Bull (X%) / Base (Y%) / Bear (Z%)** 3 시나리오와 확신도를 제시하라. 데이터 출처 [Source · 기준일]과 필요한 시각 단서 🔴🟡🟢를 사용한다. 기관급 프레임은 도움이 될 때 1~2개만 인용한다.\n\n'
+          : 'ℹ️ **답변 가이드 (R122/R128)**: 단순 사실·용어·요약 질문이면 시장 환경은 배경으로만 짧게 쓰고, Bull/Base/Bear·기관 프레임을 강제하지 말라. 질문에 바로 답하고 필요한 출처·기준일만 붙인다.\n\n');
     }
   } catch(_hdrErr) {}
-  return '\n\n' + _mktHeader + '【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n8. 종목 답변 도입은 반드시 위 【현재 시장 환경】 헤더 인용 — "지금 VIX X · F&G Y 환경에서 [종목]은..." 패턴 사용. 시장 환경과 무관한 정적 분석 금지 (R122 시장 흐름 유기적 도입 의무). 시세 조회 실패 종목은 ❌ 표시 + suggestedAction 인용 후 "실시간 데이터 미수신 — 일반론적 분석만 가능" 답변.\n9. 종목/시장 분석 답변은 반드시 **Bull/Base/Bear 3 시나리오 분기 + 각각 확신도(확률 %)** 명시 의무 (R127). 형식: "**📈 Bull (확신도 X%)**: [트리거 조건] → [목표 시나리오] / **🟡 Base (Y%)**: [현재 환경 유지 시] → [예상] / **📉 Bear (Z%)**: [악화 트리거] → [하방 시나리오]". X+Y+Z = 100. 단일 시나리오만 답변 금지.\n10. **시각 단서 표준 (R128)**: 이모지 규칙 — VIX/F&G/위험 신호는 🔴(공포·위험·매도) / 🟡(중립·주의) / 🟢(안정·기회·매수). 핵심 결론은 **굵게**. 데이터 출처는 [Source: SEC/Yahoo/FMP · 기준일: YYYY-MM-DD] 형식 명시 의무. 한 줄 결론 → 3 핵심 → 시나리오 분기 → 액션 구조 강제.\n11. **기관급 프레임 인용 의무 (R126)**: 답변에 위 【기관급 분석 프레임워크】 8개 중 페이지 주제와 가장 관련 깊은 1~3개 명시 인용. "Bridgewater 4-Quadrant 기준 현재 위치는 ~ / Druckenmiller Overlay 유동성 시그널은 ~ / 따라서 ~" 패턴.\n12. **데이터 소스 우선순위 명문화 (R128)**: 모든 수치 인용 시 출처 우선순위 — **1순위: _liveSnap() 실시간** (시세/VIX/금리/달러/유가, < 5분) → **2순위: _closeSnap() 일별 종가** (SPX/NASDAQ/DOW 분석 기준) → **3순위: DATA_SNAPSHOT 폴백** (실시간/종가 미수신 시 정적, 신선도 명시 의무) → **4순위: SEC/FMP/Naver/Finnhub fetched** (종목별 5분 캐시). 데이터 인용 시 "Source: [layer] · 기준일: YYYY-MM-DD" 명시 의무. 폴백값 인용 시 "(폴백)" 명시 + 학습 데이터 추정 금지.\n13. **[SCREENER_DB Memo] 신선도 인용 의무 (R135)**: 답변에 SCREENER_DB Memo 인용 시 반드시 위 [SCREENER_DB Memo · X일 전] 라벨의 일수 표기. 30일+ stale memo는 "이 memo는 N일 전 데이터 — 최근 [SEC 8-K]/[News]로 검증 후 인용" 경고 의무. 90일+ stale 또는 confidence:stale 표시 시 "memo만으로 결론 금지 — 외부 확인 필수" 강제. 날짜 미상 (unknown) memo는 "작성일 불명 — 보조 데이터로만 활용" 명시.\n14. **[SCREENER_DB Memo 없음] 종목 fallback 의무 (R136)**: SCREENER_DB.memo가 없는 종목 (위 ❌ 표시)은 [SEC 10-K]/[Wikipedia]/[Naver]/[News] 4 소스 폴백만 사용. 답변에 "이 종목은 수동 memo 미작성 — dataConfidence:medium" 명시 의무 + "memo 등록 종목 (예: NVDA/AAPL) 대비 정성 분석 한계 — 외부 확인 권장" 경고 강제.\n\n📋 17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- ⚠ 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
+  var _flexScope = _forceScenarioAnswer ? '' : '\n\n【우선 적용: 답변 형식 완화】\n아래 ABSOLUTE RULES의 9~11번(시나리오·액션 구조·기관 프레임)은 매매 판단/전망/추천 질문에만 적용한다. 단순 사실·용어·요약 질문은 질문에 바로 답하고, 필요한 데이터 출처·기준일·한계만 짧게 붙인다.\n';
+  return '\n\n' + _mktHeader + _flexScope + '【사용자가 물어본 종목 실시간 데이터】\n' + results.join('\n') + '\n\n⚠️ ABSOLUTE RULES (v49.32 R82/R83/R84 + v49.34 R90 + v49.35 R91 + v49.57 R104 + v49.65 R116/R117):\n1. 위 실시간 데이터 블록의 수치만 인용. 학습 데이터의 과거 수치 절대 금지.\n2. "데이터 조회 실패"로 표시된 종목은 가격/PER/PBR/시총 등 정량 수치 답변 금지 — "실시간 데이터 미수신"으로만 응답.\n3. system 프롬프트의 다른 위치에 박힌 임계값/배수(예: "20MA distance 147-150")는 가격이 아닌 calibration 상수임. 종목 가격으로 인용 금지.\n4. 응답 후 AIO.assertChatResponseAccuracy() 자동 검증으로 ±10% 이상 괴리 시 차단됨.\n5. [SEC 8-K] / [News] / [Insider] / [13F] 블록 데이터만 인용. 학습 데이터(2024~2025)에서 "XX 회사 인수 발표/CEO 사임/실적 가이던스 상향" 등 거시 사건 환각 절대 금지. 블록이 비어 있거나 available:false면 "최근 이벤트 데이터 없음 — 사용자 직접 확인 권장"으로 응답.\n6. [Supply Chain] / [Partnerships] / [Platform Eco] / [Moat Score] / [Segments] / [TAM] 6 신규 라벨 (v49.65 17 관점 보강) 데이터만 인용. AI 학습 데이터에서 공급사/파트너십/플랫폼 사용자수/MAU/TAM 등 추정 절대 금지 (R116).\n7. dataConfidence: "low" 또는 "low-medium" 표시 분야 (Supply Chain / Platform Eco / TAM / Moat 일부)는 답변에 "정성 분석 한계 — 외부 확인 권장" 경고 의무. "Strong/Wide/Large" 등 강한 형용 사용 금지 (R117).\n8. 종목 답변 도입은 반드시 위 【현재 시장 환경】 헤더 인용 — "지금 VIX X · F&G Y 환경에서 [종목]은..." 패턴 사용. 시장 환경과 무관한 정적 분석 금지 (R122 시장 흐름 유기적 도입 의무). 시세 조회 실패 종목은 ❌ 표시 + suggestedAction 인용 후 "실시간 데이터 미수신 — 일반론적 분석만 가능" 답변.\n9. 종목/시장 분석 답변은 반드시 **Bull/Base/Bear 3 시나리오 분기 + 각각 확신도(확률 %)** 명시 의무 (R127). 형식: "**📈 Bull (확신도 X%)**: [트리거 조건] → [목표 시나리오] / **🟡 Base (Y%)**: [현재 환경 유지 시] → [예상] / **📉 Bear (Z%)**: [악화 트리거] → [하방 시나리오]". X+Y+Z = 100. 단일 시나리오만 답변 금지.\n10. **시각 단서 표준 (R128)**: 이모지 규칙 — VIX/F&G/위험 신호는 🔴(공포·위험·매도) / 🟡(중립·주의) / 🟢(안정·기회·매수). 핵심 결론은 **굵게**. 데이터 출처는 [Source: SEC/Yahoo/FMP · 기준일: YYYY-MM-DD] 형식 명시 의무. 한 줄 결론 → 3 핵심 → 시나리오 분기 → 액션 구조 강제.\n11. **기관급 프레임 인용 의무 (R126)**: 답변에 위 【기관급 분석 프레임워크】 8개 중 페이지 주제와 가장 관련 깊은 1~3개 명시 인용. "Bridgewater 4-Quadrant 기준 현재 위치는 ~ / Druckenmiller Overlay 유동성 시그널은 ~ / 따라서 ~" 패턴.\n12. **데이터 소스 우선순위 명문화 (R128)**: 모든 수치 인용 시 출처 우선순위 — **1순위: _liveSnap() 실시간** (시세/VIX/금리/달러/유가, < 5분) → **2순위: _closeSnap() 일별 종가** (SPX/NASDAQ/DOW 분석 기준) → **3순위: DATA_SNAPSHOT 폴백** (실시간/종가 미수신 시 정적, 신선도 명시 의무) → **4순위: SEC/FMP/Naver/Finnhub fetched** (종목별 5분 캐시). 데이터 인용 시 "Source: [layer] · 기준일: YYYY-MM-DD" 명시 의무. 폴백값 인용 시 "(폴백)" 명시 + 학습 데이터 추정 금지.\n13. **[SCREENER_DB Memo] 신선도 인용 의무 (R135)**: 답변에 SCREENER_DB Memo 인용 시 반드시 위 [SCREENER_DB Memo · X일 전] 라벨의 일수 표기. 30일+ stale memo는 "이 memo는 N일 전 데이터 — 최근 [SEC 8-K]/[News]로 검증 후 인용" 경고 의무. 90일+ stale 또는 confidence:stale 표시 시 "memo만으로 결론 금지 — 외부 확인 필수" 강제. 날짜 미상 (unknown) memo는 "작성일 불명 — 보조 데이터로만 활용" 명시.\n14. **[SCREENER_DB Memo 없음] 종목 fallback 의무 (R136)**: SCREENER_DB.memo가 없는 종목 (위 ❌ 표시)은 [SEC 10-K]/[Wikipedia]/[Naver]/[News] 4 소스 폴백만 사용. 답변에 "이 종목은 수동 memo 미작성 — dataConfidence:medium" 명시 의무 + "memo 등록 종목 (예: NVDA/AAPL) 대비 정성 분석 한계 — 외부 확인 권장" 경고 강제.\n\n📋 17 분석 관점 출처 매핑 (v49.65 R116 — 출처/함수 매핑 완료, low-confidence 분야는 한계 고지 필수):\n1) 기업 개요: [Wikipedia] + [기업 개요 (Wiki intro)]\n2) 창립 배경 & 성장 과정: [Wikipedia] (founded/IPO) + [News] (성장 마일스톤)\n3) CEO/경영진 분석: [Wikipedia] CEO/management 섹션 + [Insider] (자기자본 매수)\n4) 비즈니스 모델: [SEC 10-K Item 1] + [Wikipedia]\n5) 사업 구조: [SEC 10-K Item 1] + [Segments] (FMP segments)\n6) 제품 포트폴리오: [Segments] 우선 + [Wikipedia] 보조 (Wiki 단독 환각 차단)\n7) 기술력 & 해자: [Moat Score] (휴리스틱 자동 채점 — Morningstar 공식 등급 아님)\n8) 수익 구조: [Segments] + [Naver] + FMP 손익\n9) 재무제표 분석: FMP /income/balance/cashflow + [Balance Sheet] + [FCF Yield]\n10) 밸류에이션: FMP /ratios-ttm + [EV/EBITDA] + [애널리스트 컨센서스]\n11) TAM/시장 분석: [TAM] (SEC SIC + memo) — confidence 명시 의무\n12) 밸류체인/공급망: [Supply Chain] (SEC 10-K 링크+키워드 가이드 — 자동 추출 아님)\n13) 플랫폼/생태계: [Platform Eco] (3-source synthesis) — dataConfidence 명시 의무\n14) 협력/파트너십: [Partnerships] (SEC 8-K Item 1.01/7.01, 최근 8-K 40건 검사)\n15) 경쟁 구조: [SEC 10-K Item 1] + [Wikipedia] competitors 섹션 + peers\n16) 리스크: [Risk Factors (SEC 10-K Item 1A)] (v49.66 SEC URL 직접 인용) + [Short Interest]\n17) 투자 포인트: [애널리스트 컨센서스] + [Naver 컨센서스] + 위 16 관점 종합\n\n- 데이터 출처가 없는 분야는 "현재 검증된 데이터 없음 — 외부 도구 권장" 답변. 학습 데이터로 채우기 금지.\n\n📋 fundamental 페이지 17 관점 가용성 (v49.65 R116):\n- ✓ 출처/함수 매핑 17/17: 17 관점 모두 최소 데이터 경로 또는 명시적 가이드 보유\n- ⚠ 부분/한계 고지 필수: Supply Chain(10-K 링크+키워드 가이드), TAM(SIC+memo), Platform Eco(합성 score), Moat(휴리스틱), FMP Segments(API key 의존), 일부 SEC/Wiki 미등록 해외·KR 종목\n- 위 17 관점 라벨은 채팅 응답에 직접 인용. 미수신 라벨은 "데이터 fetch 실패 — 외부 직접 확인 권장" 답변. AI 학습 데이터로 채우기 금지.\n';
 }
 
 // ── v34.2: 기업 내부 비교 분석 — 비즈니스 모델·수익 구조·해자 심층 데이터 ──
@@ -3565,13 +3750,42 @@ function _classifyChatIntent(query, ctxId) {
   };
 }
 
+function _aioChatAnswerPolicy(query, ctxId, detectedTickers, screenerResult) {
+  var intent = _classifyChatIntent(query, ctxId);
+  var q = String(query || '').toLowerCase();
+  var tickers = Array.isArray(detectedTickers) ? detectedTickers : [];
+  var hasTicker = tickers.length > 0;
+  var hasScreener = !!(screenerResult && screenerResult.matched);
+  var isBroadRecommendation = !!(screenerResult && screenerResult.mode === 'diversified-recommendation');
+  var asksDecision = intent.wantsAction || /추천|골라|뽑아|사도|살까|매수|매도|보유|손절|익절|비중|전망|목표|entry|exit|buy|sell|hold|trim|target|outlook/.test(q);
+  var asksSimple = intent.intents.indexOf('EXPLAIN_BEGINNER') >= 0 || /간단|요약|한줄|뜻|뭐야|무슨\s*의미|정의|per|pbr|roe|용어/.test(q);
+  var asksFreshMarket = intent.wantsFresh || intent.intents.indexOf('MACRO_LINKAGE') >= 0;
+  return {
+    intent: intent,
+    hasTicker: hasTicker,
+    hasScreener: hasScreener,
+    isBroadRecommendation: isBroadRecommendation,
+    asksDecision: asksDecision,
+    asksSimple: asksSimple,
+    asksFreshMarket: asksFreshMarket,
+    needsFullStockMemo: hasTicker && asksDecision && !asksSimple,
+    needsTickerFactAnswer: hasTicker && (!asksDecision || asksSimple),
+    needsScreenerGuide: hasScreener,
+    needsGeneralGuide: !hasTicker && !hasScreener
+  };
+}
+window._aioChatAnswerPolicy = _aioChatAnswerPolicy;
+
 function _buildChatAnswerCoverageContext(ctxId, query, flags) {
   flags = flags || {};
   var intent = _classifyChatIntent(query, ctxId);
   var intents = intent.wantsCoverage || intent.intents || [];
   var has = {
     quote: !!flags.tickerData,
-    trend: !!flags.trendData,
+    trend: !!(flags.trendData || flags.technicalData),
+    technical: !!flags.technicalData,
+    screener: !!flags.screenerData,
+    domain: !!flags.domainData,
     company: !!flags.deepData,
     web: !!flags.webSearch,
     news: !!flags.news,
@@ -3609,6 +3823,99 @@ function _buildChatAnswerCoverageContext(ctxId, query, flags) {
     'response_diversity_rule: choose the structure that fits the mode. decision memo = verdict first + sizing/trigger/invalidation; ranked comparison = table + rank rationale; valuation memo = drivers + multiples/DCF only if injected; earnings review = reported/guidance/revision/catalyst; technical setup = trend/levels/risk; beginner explanation = plain-language concept + concrete injected-data example.\n' +
     'current_data_rule: never use Claude/model training data for current price, market cap, earnings, guidance, analyst targets, ratings, news, filings, macro releases, or dates after the training cutoff. Use only injected live quote, FMP/SEC/Naver/Finnhub, news, web-search, DATA_SNAPSHOT with age label, and explicitly cited prompt blocks. If data is missing or stale, say \"데이터 미수집/확인 불가\" and omit the number.\n';
 }
+
+function _buildAioIntegratedAnswerContext(ctxId, query, flags) {
+  try {
+    flags = flags || {};
+    var intent = (typeof _classifyChatIntent === 'function') ? _classifyChatIntent(query, ctxId) : {};
+    var nav = (typeof _autoNavigatePage === 'function') ? _autoNavigatePage(query, ctxId) : null;
+    var registry = Array.isArray(window.AIO_CHAT_PIPELINE_REGISTRY) ? window.AIO_CHAT_PIPELINE_REGISTRY : [];
+    var lowerCtx = String(ctxId || 'home');
+    var tickers = Array.isArray(flags.tickers) ? flags.tickers : [];
+    var active = [];
+    var addActive = function(cond, key) { if (cond && active.indexOf(key) < 0) active.push(key); };
+
+    addActive(true, 'marketState');
+    addActive(!!flags.tickerData || tickers.length > 0, 'quotes');
+    addActive(!!flags.technicalData || lowerCtx === 'technical' || lowerCtx === 'signal', 'technicalOHLCV');
+    addActive(!!flags.screenerData || lowerCtx === 'screener', 'screener');
+    addActive(!!flags.domainData || /^(macro|kr-macro|fxbond)$/.test(lowerCtx), 'macroRatesFx');
+    addActive(!!flags.deepData || lowerCtx === 'fundamental', 'companyFundamentals');
+    addActive(!!flags.news || !!flags.webSearch || lowerCtx === 'market-news' || lowerCtx === 'briefing', 'newsFilings');
+    addActive(/^(themes|theme-detail|kr-themes)$/.test(lowerCtx), 'themes');
+    addActive(lowerCtx === 'breadth' || lowerCtx === 'sentiment', 'breadthSentiment');
+    addActive(!!flags.portfolioData || lowerCtx === 'portfolio', 'portfolio');
+
+    var q = String(query || '');
+    if (/추천|후보|종목|screen|screener|퀀트|랭킹/i.test(q)) addActive(true, 'screener');
+    if (/차트|기술|추세|돌파|지지|저항|rsi|macd|이평|setup/i.test(q)) addActive(true, 'technicalOHLCV');
+    if (/뉴스|공시|촉매|리스크|이슈|최신|왜 지금/i.test(q)) addActive(true, 'newsFilings');
+    if (/금리|환율|달러|채권|유가|인플레|매크로|fed|fomc/i.test(q)) addActive(true, 'macroRatesFx');
+    if (/폭|브레드스|심리|fear|greed|vix/i.test(q)) addActive(true, 'breadthSentiment');
+
+    var pageHints = [];
+    var pushPage = function(label) { if (label && pageHints.indexOf(label) < 0) pageHints.push(label); };
+    active.forEach(function(key) {
+      var row = registry.filter(function(r) { return r.key === key; })[0];
+      (row && row.pages || []).forEach(function(p) {
+        if (p === 'technical') pushPage('차트·기술 분석');
+        else if (p === 'signal') pushPage('매매 시그널');
+        else if (p === 'screener') pushPage('퀀트 스크리너');
+        else if (p === 'breadth') pushPage('시장 폭');
+        else if (p === 'sentiment') pushPage('투자 심리');
+        else if (p === 'macro' || p === 'kr-macro') pushPage('매크로');
+        else if (p === 'fxbond') pushPage('환율·채권');
+        else if (p === 'fundamental') pushPage('기업 분석');
+        else if (p === 'themes' || p === 'theme-detail' || p === 'kr-themes') pushPage('테마·섹터');
+        else if (p === 'portfolio') pushPage('포트폴리오');
+        else if (p === 'market-news' || p === 'briefing') pushPage('시장 뉴스·브리핑');
+        else if (p === 'home') pushPage('시장 현황');
+      });
+    });
+    if (nav && nav.target && nav.target !== lowerCtx) pushPage('관련 페이지: ' + nav.label);
+
+    var injected = registry.filter(function(r) { return active.indexOf(r.key) >= 0; }).map(function(r) {
+      return r.key + '(' + r.kind + '/' + r.tier + ')';
+    });
+    var available = [];
+    if (flags.tickerData) available.push('시세/추세');
+    if (flags.technicalData) available.push('OHLCV 기술지표');
+    if (flags.screenerData) available.push('퀀트 후보군');
+    if (flags.domainData) available.push('도메인 페이지 데이터');
+    if (flags.deepData) available.push('기업 심층 데이터');
+    if (flags.news) available.push('뉴스 컨텍스트');
+    if (flags.webSearch) available.push('웹 검색');
+    if (flags.freshness) available.push('신선도 검증');
+    if (flags.portfolioData) available.push('포트폴리오 맥락');
+
+    var tg = window.AIO_TELEGRAM_WEEKLY_DIGEST || null;
+    var tgLines = '';
+    if (tg && Array.isArray(tg.themes) && tg.themes.length) {
+      tgLines += 'telegram_weekly_digest=' + (tg.window || '') + ' | posts=' + ((tg.counts && tg.counts.total) || 'unknown') + ' | sources=' + (tg.sources || []).join(',') + '\n';
+      tgLines += 'telegram_topics=' + Object.keys(tg.topicCounts || {}).map(function(k) { return k + ':' + tg.topicCounts[k]; }).join(', ') + '\n';
+      tgLines += 'telegram_core_themes=' + tg.themes.slice(0, 5).join(' / ') + '\n';
+      tgLines += 'telegram_catalysts=' + (tg.catalysts || []).map(function(c) { return c.key + ': ' + c.text; }).slice(0, 9).join(' / ') + '\n';
+      tgLines += 'telegram_category_registry=' + (tg.categories || []).map(function(c) { return c.id + '=' + (c.topics || []).join('+') + ':' + c.focus; }).slice(0, 10).join(' / ') + '\n';
+      tgLines += 'telegram_page_map=' + lowerCtx + ':' + ((tg.pageMap && tg.pageMap[lowerCtx]) || (tg.pageMap && tg.pageMap.home) || []).join(',') + '\n';
+      tgLines += 'telegram_pipeline_note=' + (tg.pipelineNote || 'public mirror secondary source; verify before hard trading claims') + '\n';
+    }
+
+    return '\n\n[AIO Integrated Answer Pipeline v50.60]\n' +
+      'special_edge: This screener chat is not a generic LLM. It must combine AIO page data, 현재 시장(live/stale-labeled market context), quant screener/technical signals, qualitative news/filings, and user portfolio/page intent into one answer.\n' +
+      'ctx=' + lowerCtx + ' | tickers=' + (tickers.length ? tickers.join(',') : 'none') + ' | intent=' + (intent.primary || intent.mode || 'mixed') + '\n' +
+      'pipeline_layers=' + (injected.length ? injected.join(' / ') : 'marketState(current/quant)') + '\n' +
+      'available_injected_data=' + (available.length ? available.join(', ') : 'none; explain what is missing before using any current number') + '\n' +
+      tgLines +
+      'answer_contract:\n' +
+      '1. Begin with the user intent in one plain Korean sentence, then connect it to the current market regime when injected market/news/domain data exists.\n' +
+      '2. Quantitative answer: use available price, trend, RSI/MACD/MA/ATR, screener rank, breadth, valuation, rates/FX, or portfolio metrics. Label source/freshness when numbers are current-sensitive.\n' +
+      '3. Qualitative answer: add business quality, catalyst, risk, news/filing, sector rotation, and narrative fit only from injected context or clearly mark as general framework.\n' +
+      '4. Synthesis: explain what changed, why it matters now, what would confirm/negate the view, and avoid repeating the same narrow names/themes unless the injected data ranks them.\n' +
+      '5. Page linkage: when useful, point to the relevant AIO page/tool so the user can continue: ' + pageHints.slice(0, 8).join(' / ') + '.\n' +
+      '6. If the user asks for recommendations, present a diversified candidate set by market/sector/cap/style, include alternatives and exclusion conditions, and say when more user preference is needed.\n';
+  } catch(e) { return ''; }
+}
+window._buildAioIntegratedAnswerContext = _buildAioIntegratedAnswerContext;
 
 function _buildChatMemoryContext(ctxId, query) {
   try {
@@ -3769,8 +4076,10 @@ function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers) {
       if (typeof _needsWebSearch === 'function') {
         var pKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_perplexity_key') : '';
         var gKey = (typeof _getApiKey === 'function') ? _getApiKey('aio_google_cse_key') : '';
-        // Perplexity/Google 키가 없을 때만 폴백 (둘 다 있으면 _needsWebSearch가 처리)
-        if (!pKey && !gKey) {
+        var gCx = (typeof _getApiKey === 'function') ? _getApiKey('aio_google_cse_cx') : '';
+        // 완성된 Perplexity/Google CSE 설정이 없을 때만 Claude native web_search 폴백.
+        // Google API key만 있고 cx가 빠진 반쪽 설정은 _needsWebSearch가 실행하지 못하므로 여기서 막지 않는다.
+        if (!pKey && !(gKey && gCx)) {
           if (/검색|찾아|search|look\s*up|알아봐|조사/i.test(q)) _want = true;
         }
       }
@@ -3984,7 +4293,7 @@ async function _aiWebSearch(searchQuery) {
     }
   }
 
-  throw new Error('검색 API 키 없음 (Perplexity 또는 Google Search API 키를 설정하세요)');
+  throw new Error('검색 API 키 없음 (Perplexity 키 또는 Google Search API 키+검색엔진 ID(cx)를 설정하세요)');
 }
 
 // v46.2: Deep Search — 복합 질문을 3~5개 하위 쿼리로 분해 + 병렬 검색 + 종합
@@ -4972,7 +5281,7 @@ async function chatSend(ctxId) {
   }
   var tickerDataStr = '';
   if (detectedTickers.length > 0) {
-    try { tickerDataStr = await _fetchTickerDataForChat(detectedTickers, { forceFresh: true, reason: 'chat-answer', preflight: chatFreshPreflight }); } catch(e) {}
+    try { tickerDataStr = await _fetchTickerDataForChat(detectedTickers, { forceFresh: true, reason: 'chat-answer', preflight: chatFreshPreflight, query: q, ctxId: ctxId }); } catch(e) {}
   }
 
   // v50.12: 기술적 분석 컨텍스트 — 종목별 실측 기술지표(RSI/MA/Stage/ATR 이격/확장도) 주입. 기존 OHLCV 엔진 재사용.
@@ -4981,6 +5290,13 @@ async function chatSend(ctxId) {
   //   (종목 무관 매크로/뉴스 질의는 detectedTickers 0이라 미발동 → 비용 통제). 초보자 차트 읽기 카드도 이 데이터 기반.
   if (detectedTickers.length > 0) {
     try { technicalDataStr = await _fetchTechnicalDataForChat(detectedTickers); } catch(e) {}
+  } else {
+    try {
+      var defaultTechnicalTickers = (typeof _aioTechnicalSymbolsForChat === 'function') ? _aioTechnicalSymbolsForChat(ctxId, q, detectedTickers) : [];
+      if (defaultTechnicalTickers && defaultTechnicalTickers.length) {
+        technicalDataStr = await _fetchTechnicalDataForChat(defaultTechnicalTickers, { ctxId: ctxId, query: q, autoMarket: true });
+      }
+    } catch(e) {}
   }
 
   // v34.2: 섹터/카테고리 비교 질문 감지 → FMP 다중 종목 밸류에이션 일괄 조회
@@ -5001,7 +5317,8 @@ async function chatSend(ctxId) {
   var screenerResult = null;
   if (detectedTickers.length === 0 && typeof _aioRunScreenerQuery === 'function') {
     try {
-      screenerResult = _aioRunScreenerQuery(q);
+      var recentRecommendationTickers = (typeof _aioExtractRecentRecommendationTickers === 'function') ? _aioExtractRecentRecommendationTickers(state.messages) : [];
+      screenerResult = _aioRunScreenerQuery(q, { recentTickers: recentRecommendationTickers });
       if (screenerResult && screenerResult.matched) screenerStr = _formatScreenerResultPrompt(screenerResult);
     } catch(e) { _aioLog('warn', 'fetch', '스크리너 질의 실패: ' + e.message); }
   }
@@ -5066,6 +5383,9 @@ async function chatSend(ctxId) {
     tickers: detectedTickers,
     tickerData: !!tickerDataStr,
     trendData: (tickerDataStr || '').indexOf('[주가 추이]') >= 0,
+    technicalData: !!technicalDataStr,
+    screenerData: !!screenerStr,
+    domainData: !!domainDataStr,
     deepData: !!(deepCompareStr || singleDeepStr || sectorCompareStr),
     webSearch: !!webSearchStr,
     news: !!newsContextStr,
@@ -5076,6 +5396,22 @@ async function chatSend(ctxId) {
     tickers: detectedTickers,
     tickerData: !!tickerDataStr,
     trendData: (tickerDataStr || '').indexOf('[주가 추이]') >= 0,
+    technicalData: !!technicalDataStr,
+    screenerData: !!screenerStr,
+    domainData: !!domainDataStr,
+    deepData: !!(deepCompareStr || singleDeepStr || sectorCompareStr),
+    webSearch: !!webSearchStr,
+    news: !!newsContextStr,
+    freshness: !!chatFreshPreflight,
+    portfolioData: ctxId === 'portfolio'
+  }) : '';
+  var integratedContextStr = (typeof _buildAioIntegratedAnswerContext === 'function') ? _buildAioIntegratedAnswerContext(ctxId, q, {
+    tickers: detectedTickers,
+    tickerData: !!tickerDataStr,
+    trendData: (tickerDataStr || '').indexOf('[주가 추이]') >= 0,
+    technicalData: !!technicalDataStr,
+    screenerData: !!screenerStr,
+    domainData: !!domainDataStr,
     deepData: !!(deepCompareStr || singleDeepStr || sectorCompareStr),
     webSearch: !!webSearchStr,
     news: !!newsContextStr,
@@ -5088,11 +5424,18 @@ async function chatSend(ctxId) {
   var systemPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
   if (intentContextStr) systemPrompt += intentContextStr;
   if (coverageContextStr) systemPrompt += coverageContextStr;
+  if (integratedContextStr) systemPrompt += integratedContextStr;
   if (memoryContextStr) systemPrompt += memoryContextStr;
   if (tickerDataStr) systemPrompt += tickerDataStr;
   if (technicalDataStr) systemPrompt += technicalDataStr;  // v50.12: 기술적 실측 데이터 주입
   if (sectorCompareStr) systemPrompt += sectorCompareStr;
   if (screenerStr) systemPrompt += screenerStr;  // v50.37 트랙1: 스크리너 결과
+  if (screenerResult && screenerResult.mode === 'diversified-recommendation') {
+    systemPrompt += '\n\n【추천 다양성·반복 편향 방지 규칙】\n' +
+      '이 질문은 넓은 종목 추천이다. 위 균형 추천 후보군을 1차 데이터로 사용하고, 앞부분의 고정 리서치 문단이나 최근 대화에서 자주 나온 CEG/전력/AVGO/AI 인프라 테마에 과도하게 끌리지 마라.\n' +
+      '최종 추천은 섹터·시장·시총을 분산해 3~5개만 제시한다. 같은 테마는 최대 2개. 각 추천에는 "왜 지금", "왜 이 섹터", "대체 후보", "제외/보류 조건"을 붙인다.\n' +
+      '사용자가 선호 시장·위험성향·기간을 말하지 않았다면 단일 정답처럼 말하지 말고 균형형 기본안과 공격형/방어형 변형을 함께 제시한다.\n';
+  }
   if (domainDataStr) systemPrompt += domainDataStr;  // v50.38 트랙2: 도메인 라이브 데이터
   if (deepCompareStr) systemPrompt += deepCompareStr;
   if (singleDeepStr) systemPrompt += singleDeepStr;
@@ -5130,6 +5473,7 @@ async function chatSend(ctxId) {
 
   var _snapAge = DATA_SNAPSHOT._updated ? Math.round((Date.now() - new Date(DATA_SNAPSHOT._updated).getTime()) / 3600000) : 999;
   var _hasTrendCS = (tickerDataStr || '').indexOf('[주가 추이]') !== -1;
+  var _answerPolicyCS = (typeof _aioChatAnswerPolicy === 'function') ? _aioChatAnswerPolicy(q, ctxId, detectedTickers, screenerResult) : { needsFullStockMemo: detectedTickers.length > 0, needsScreenerGuide: !!screenerStr, needsGeneralGuide: detectedTickers.length === 0 && !screenerStr };
 
   var _dataVerify = '\n\n【오늘 날짜 + 학습 데이터 커트오프】\n';
   _dataVerify += '• 오늘: ' + _todayCS + '\n';
@@ -5149,31 +5493,46 @@ async function chatSend(ctxId) {
       '⑦ "$XXX 같은 확정적 가격 언급은 하지 않는다"라고 명시한 후, 진짜 가격 수치는 절대 금지.\n\n';
   } else if (screenerStr) {
     // v50.37 트랙3: 스크리너 결과 답변 — 블록 값만 인용 (기억 속 가격·종목 추가 금지)
-    _dataVerify += '\n【스크리너 답변 규칙】\n주가·등락·RSI·시총은 위 [스크리너 결과] 블록의 값만 인용하고 (기준시각)을 붙여라. 기억 속 가격이나 목록에 없는 종목 추가 금지. 블록에서 가격이 N/A면 "해당 종목 실시간 시세 미수신"이라 밝혀라.\n\n';
+    _dataVerify += '\n【스크리너 답변 규칙】\n스크리너는 답변을 억제하는 장치가 아니라 후보군·팩터·현재 시장 맥락을 제공하는 보조 엔진이다. 주가·등락·RSI·시총은 위 [스크리너 결과] 또는 [균형 추천 후보] 블록의 값만 인용하고 (기준시각)을 붙여라. 후보군 밖 종목은 확정 추천/정량 근거로 섞지 말고, 필요 시 "추가 탐색 조건"으로만 제안하라. 블록에서 가격이 N/A면 "해당 종목 실시간 시세 미수신"이라 밝혀라.\n';
+    if (screenerResult && screenerResult.mode === 'diversified-recommendation') {
+      _dataVerify += '넓은 추천 질문에서는 특정 한 섹터·한 기업으로 몰아가지 말고 최소 3개 섹터 관점으로 나눠 답하라. CEG/전력/AVGO가 후보군에 있더라도 반복 추천 방지 규칙을 우선 적용하라. [주가 추이] 블록이 없어도 후보군의 3M·RSI·퀀트 랭크는 스크리너 근거로 사용할 수 있다.\n';
+    }
+    _dataVerify += '\n';
   } else if (detectedTickers.length === 0) {
     // v50.37 트랙3: 일반·교육·비종목 질문 유연성 — 개념·전략·시장 해석은 충실히, 시점성 수치만 주의
     _dataVerify += '\n【일반·교육 질문 유연성 규칙】\n이 질문은 특정 종목을 지목하지 않았다. 개념·투자 전략·시장 해석·용어·교육성 질문에는 너의 일반 지식 + 아래 주입된 현재 시장 맥락(VIX·F&G·지수·매크로)을 활용해 충실하고 구체적으로 답하라(일반 개념 설명을 막지 마라). 다만 (a) 특정 종목의 현재 주가·시총·목표가·실적 수치, (b) 학습 커트오프 이후의 날짜·사건·발표는 주입된 데이터에 없으면 단정하지 말고 "현재 데이터 미확인"이라 밝혀라.\n\n';
   }
 
-  _dataVerify += '\n【추세 해석 필수 규칙 — 종목 추천·매수·매도 판단 시 무조건 준수】\n';
-  _dataVerify += '1. 긍정 뉴스가 있어도 [주가 추이] 라벨이 "하락 추세·약세 지속·조정 중"이면 → 호재 이미 반영됐거나 다른 부정 요인. **뉴스만으로 추천 금지**.\n';
-  _dataVerify += '2. 반드시 [주가 추이](5D/20D/3M) 먼저 확인 후 답변.\n';
-  _dataVerify += '3. 애널리스트 목표가는 "발표 시점" 확인 — 오래된 목표가는 "참고용"으로만.\n';
-  _dataVerify += '4. "최근 상승세" 표현은 주입된 추이로 검증 후에만 사용.\n';
-  _dataVerify += '5. 시간 불일치 탐지: 긍정 뉴스일 이후 주가 급락이면 "재료 소진/후속 악재" 가능성 언급.\n';
-  _dataVerify += '6. 네 기억 속 주가/실적은 거의 100% 오래된 값. 주입된 [주가 추이]/[실시간 시세]/[웹검색]만 현재값으로 취급.\n';
+  if (_answerPolicyCS.needsFullStockMemo) {
+    _dataVerify += '\n【추세 해석 필수 규칙 — 종목 추천·매수·매도 판단 시 적용】\n';
+    _dataVerify += '1. 긍정 뉴스가 있어도 [주가 추이] 라벨이 "하락 추세·약세 지속·조정 중"이면 → 호재 이미 반영됐거나 다른 부정 요인. **뉴스만으로 추천 금지**.\n';
+    _dataVerify += '2. [주가 추이](5D/20D/3M) 또는 스크리너 3M/RSI/퀀트 랭크를 먼저 확인 후 답변.\n';
+    _dataVerify += '3. 애널리스트 목표가는 "발표 시점" 확인 — 오래된 목표가는 "참고용"으로만.\n';
+    _dataVerify += '4. "최근 상승세" 표현은 주입된 추이·스크리너 3M·실시간 등락으로 검증 후에만 사용.\n';
+    _dataVerify += '5. 시간 불일치 탐지: 긍정 뉴스일 이후 주가 급락이면 "재료 소진/후속 악재" 가능성 언급.\n';
+    _dataVerify += '6. 네 기억 속 주가/실적은 오래된 값일 수 있다. 주입된 [주가 추이]/[실시간 시세]/[웹검색]/[스크리너]만 현재값으로 취급.\n';
 
-  // v48.12: 기관 리서치 스타일 답변 구조 (chatSend 일관성)
-  _dataVerify += '\n【기관 애널리스트 스타일 답변 구조 — 종목 질문 시】\n';
-  _dataVerify += '골드만·JP모건·버핏·아크인베스트·월가 애널리스트처럼 논리적 이유·근거와 함께 설명하라. 단순 의견 금지. 6단계 프레임워크:\n';
-  _dataVerify += '① 현재 상황(가격·[주가 추이]·최근 변화) ② 투자 스토리/내러티브(성장 동력·해자·테마) ③ 재무·밸류에이션(섹터 평균 대비 "왜 그 수준인가")\n';
-  _dataVerify += '④ Bull Case(목표가 상단 + 구체적 달성 조건) ⑤ Bear Case(하락 트리거) ⑥ 카탈리스트 + 리스크 + 깨지는 신호 3~5개.\n';
-  _dataVerify += '[실시간 시세][주가 추이][뉴스][애널리스트 컨센서스][다음 어닝][재무 FMP][웹검색] 모두 교차 참조. 항상 숫자·시점·출처로 근거 제시. 인사이트의 핵심("이 종목에서 지금 가장 중요한 한 가지")을 먼저 명시.\n';
+    _dataVerify += '\n【기관 애널리스트 스타일 답변 구조 — 매매 판단/전망 질문 시】\n';
+    _dataVerify += '결론부터 말하고, ① 현재 상황 ② 투자 스토리 ③ 재무·밸류에이션 ④ Bull/Base/Bear 조건 ⑤ 카탈리스트 ⑥ 깨지는 신호 순으로 압축하라. 모든 숫자·시점·출처는 주입 데이터 기준으로 표시한다.\n';
+  } else if (_answerPolicyCS.needsTickerFactAnswer) {
+    _dataVerify += '\n【질문 맞춤 종목 답변 규칙】\n';
+    _dataVerify += '사용자가 단순 사실·용어·요약을 물으면 6단계 리포트나 Bull/Base/Bear를 강제하지 말고, 질문에 바로 답한 뒤 필요한 데이터 출처와 한계만 짧게 붙여라. 매수/매도 판단으로 확장하지 않는다.\n';
+  } else if (_answerPolicyCS.needsScreenerGuide) {
+    _dataVerify += '\n【스크리너 보조 답변 규칙】\n';
+    _dataVerify += '스크리너 후보군의 3M·RSI·퀀트 랭크·섹터/시장 분산을 활용해 직관적으로 설명하라. 개별 티커용 [주가 추이] 블록 부재를 이유로 스크리너 근거 설명을 막지 않는다.\n';
+  } else {
+    _dataVerify += '\n【답변 형식 유연성 규칙】\n';
+    _dataVerify += '질문이 교육/개념/시장 해석이면 짧은 결론 → 핵심 이유 3개 → 현재 시장에 적용하는 방법 순으로 답하라. 종목 매매 리포트 양식, Bull/Base/Bear, 기관 프레임 인용을 자동으로 강제하지 않는다.\n';
+  }
 
-  _dataVerify += '\n【데이터 검증 상태 — 반드시 준수】\n';
+  _dataVerify += '\n【데이터 검증 상태 — 질문 범위별 준수】\n';
   _dataVerify += '• 실시간 시세: ' + _liveStatusCS + '\n';
-  _dataVerify += '• 주가 추이(5D/20D/3M): ' + (_hasTrendCS ? '✓ 주입됨 — 이 추이를 기준으로 추세 판단하라' : '✗ 미주입 — 추세 언급 자체 금지') + '\n';
-  _dataVerify += '• 기업 재무(FMP): ' + (tickerDataStr ? '✓ 수집 완료' : '✗ 미수집 — PER/ROE/마진 등 재무 수치를 추측하지 마라. "재무 데이터 미수집"이라고 밝혀라') + '\n';
+  if (_answerPolicyCS.needsFullStockMemo || _answerPolicyCS.needsTickerFactAnswer) {
+    _dataVerify += '• 주가 추이(5D/20D/3M): ' + (_hasTrendCS ? '✓ 주입됨 — 이 추이를 기준으로 추세 판단 가능' : '✗ 미주입 — 개별 종목의 현재 추세/진입가 판단은 보류') + '\n';
+    _dataVerify += '• 기업 재무(FMP): ' + (tickerDataStr ? '✓ 수집 완료' : '✗ 미수집 — PER/ROE/마진 등 재무 수치를 추측하지 마라. "재무 데이터 미수집"이라고 밝혀라') + '\n';
+  } else if (_answerPolicyCS.needsScreenerGuide) {
+    _dataVerify += '• 스크리너 후보군: ✓ 주입됨 — 후보군의 3M·RSI·퀀트 랭크·섹터 분산은 설명 근거로 사용 가능\n';
+  }
   _dataVerify += '• 뉴스 컨텍스트: ' + (newsContextStr ? '✓ ' + newsContextStr.split('\n').filter(function(l){return l.match(/^\d/);}).length + '건 주입됨 (시간 표기 포함)' : '✗ 관련 뉴스 없음 — "최근 뉴스에 따르면"이라고 시작하지 마라') + '\n';
   _dataVerify += '• 웹검색: ' + (webSearchStr ? '✓ 검색 완료' : '✗ 미실행 — 검증되지 않은 최신 정보를 확정적으로 말하지 마라') + '\n';
   if (_snapAge >= 72) _dataVerify += '• 정적 데이터: ⚠⚠ ' + _snapAge + '시간(' + Math.round(_snapAge/24) + '일) 경과 — **정적 수치 인용 자체 금지**. 실시간/웹검색만 사용\n';

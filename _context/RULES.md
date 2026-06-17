@@ -2,7 +2,7 @@
 verified_by: agent
 last_verified: 2026-06-03
 confidence: high
-target_version: v50.4
+target_version: v50.63
 
 ---
 
@@ -2467,3 +2467,112 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 **Rule**: 인터랙티브 요소(button/[role=button]/[data-action]/select)는 **접근 가능한 이름**(텍스트·aria-label·title)을 가져야 하고, **모든 가시 텍스트 폰트는 ≥11px**(v50.14 사용자 결정 — 9px/8px/9.5px 3차 microcopy 포함 전부 ≥11px 상향). tap target은 WCAG 2.5.8 AA **24×24px** 최소 — 단 인라인 칩/링크는 인라인 예외. 대비(getColorContrastAudit)·테이블(getTableAccessibilityAudit)은 기존 통과 유지. 44×44(AAA)는 밀집 터미널 특성상 트레이드오프로 목표 외.
 
 **Validation**: `AIO.getAccessibilityAudit()`(활성 페이지 측정)가 `missingAccessibleNameCount`/`fontUnder10pxCount`/`tapTargetUnder24Count` 반환. T781이 접근 이름 0·초소형 폰트 0을 강제(tap target<24는 인라인 예외로 informational). 21페이지 라이브 스위프로 전수 검증(text 폰트 0·noName 0). **폰트 소스 주의**: `font-size:9px` 리터럴뿐 아니라 **동적 구성**(`(opts.fontSize || '9px')`)·**DOM API**(`el.style.fontSize='9px'`)도 <10px 누출 경로 — grep 시 `['"][89](\.\d)?px['"]`·`fontSize\s*=`까지 점검.
+
+## R208. 분석 UI 상태·수량·정밀 주장·향후 일정은 증거 원천에서 파생 (v50.55 added, P500 root)
+
+**Rule**: 사용자 가시 분석 표면은 `loading`, `unavailable`, `excluded`, `ready`를 서로 다른 상태로 표시한다. 등록 소스 수·활성 팩터·표시 상한·향후 일정은 코드의 실제 배열/응답/공식 일정 원천에서 파생하며 복수 위치에 숫자를 하드코딩하지 않는다. 승률·정확도 개선율 같은 정밀 분석 주장은 검증 가능한 출처, 표본, 기간, 시장 레짐이 없으면 표시하거나 AI 컨텍스트에 주입하지 않는다. 과거 이벤트는 향후 일정으로 자동 이동시키지 않으며, 기계적 주기 연장은 `estimated`로 명시한다.
+
+**Validation**: T822가 뉴스 소스 수 동적 표기, 분류 토픽 필터, 근거 없는 기술 승률 제거, 스크리너 unavailable 상태를 검증한다. 일정 변경 시 Fed/BEA/BLS 등 1차 공식 출처 날짜를 확인하고 브라우저에서 과거 이벤트의 "발표 전/향후" 잔존 여부를 점검한다.
+
+## R209. 계약 수·시간대·복합 가격 카드는 단일 진실 원천에서 파생 (v50.56 added, P501 root)
+
+**Rule**: 라우트 수 검증은 `AIO_PAGE_CONTRACTS`/`expectedRoutePageCount`에서 파생하며 별도 숫자 리터럴을 두지 않는다. 날짜·요일·일일 사용량 경계는 동일한 명시적 timezone formatter를 사용한다. 현재가·변동액·등락률·전일종가처럼 한 카드에서 함께 해석되는 수치는 동일 quote payload와 timestamp에서 원자적으로 렌더한다.
+
+**Validation**: `scripts/ci-structural-check.mjs`가 라우트 수, legacy 21-page gate 부재, KST formatter, KR previous-close sink/map을 검사한다. T743은 gate 계약 수 불변식, T823은 KST 날짜·요일과 KR sink 존재를 검증한다.
+
+## R210. 런타임 scope·sink 소유권·증거 게이트 의미를 함께 검증 (v50.56 added, P502 root)
+
+**Rule**: 여러 listener/함수가 공유하는 helper는 모든 caller보다 앞선 module scope에 선언한다. 복합 카드/행/pill은 `data-live-symbol`로 종목을 소유하고 `data-live-price`/`data-live-chg`는 실제 값 child에만 둔다. DataTruth sanity range는 자산·통화 단위를 구분하며, `reference-only` 미수집값은 경고로 남기되 `decision` sink의 blocked truth는 배포 차단한다. 날짜 감사는 KST 실제 경과일과 일정 문맥을 사용하고 비율·이동평균 기간·브랜드명 부분문자열을 날짜/개발 표식으로 판정하지 않는다. 12초 이상 비동기 수집은 전경 loading 대신 백그라운드 진행 상태를 표시한다.
+
+**Validation**: T824와 `scripts/ci-structural-check.mjs`가 KR 복합 sink, 원화 가격 범위, reference-only 게이트, 날짜/비율 구분, 뉴스 백그라운드 상태를 검사한다. fresh browser context에서 22개 라우트를 모두 진입한 뒤 evidence/text block 0, 영구 loading 0, pageerror 0을 확인한다.
+
+## R211. 넓은 AI 종목 추천은 분산 후보군을 먼저 만들고 반복 앵커를 감점 (v50.57 added, P503 root)
+
+**Rule**: 사용자가 특정 티커·섹터·테마를 지정하지 않고 "종목 추천", "top picks", "stock ideas"처럼 넓은 추천을 요청하면 AI 채팅은 고정 리서치 내러티브나 최근 대화에서 반복된 종목으로 바로 수렴하지 않는다. 먼저 SCREENER_DB 기반 후보군을 섹터·시장/지역·시총 버킷으로 분산 샘플링하고, 최근 대화에서 반복된 티커는 감점한 뒤 그 후보군에서만 3~5개를 고른다.
+
+**Required**:
+- `_aioRunScreenerQuery()`는 조건 없는 넓은 추천을 `mode: 'diversified-recommendation'`으로 반환한다.
+- 후보군은 동일 섹터/테마 과밀을 제한하고, 가능한 한 4개 이상 섹터와 복수 시장/시총 버킷을 포함한다.
+- `chatSend()`는 최근 대화 티커를 추천 후보 생성기에 전달하고, system prompt에 추천 다양성·반복 편향 방지 규칙을 주입한다.
+- 특정 섹터/테마 질문(예: "전력 종목 추천")은 분산 모드가 아니라 기존 명시 조건 필터를 유지한다.
+
+**Validation**: T825는 "종목 추천해줘"가 균형 추천 후보 모드로 진입하고, "전력 종목 추천해줘"는 명시 섹터 필터로 남으며, 프롬프트에 반복 편향 방지 지시가 포함되는지 검증한다.
+
+## R212. AI 채팅 정확성 가드는 사용자 의도별로 적용하고 답변력을 억제하지 않는다 (v50.58 added, P504 root)
+
+**Rule**: AI 채팅의 환각 방지·출처·시나리오·기관 프레임 규칙은 모든 질문에 일괄 강제하지 않는다. 일반/교육 질문, 스크리너 후보 추천, 단순 종목 사실 질문, 매매 판단/전망 질문을 분리하고, 각 의도에 필요한 만큼만 데이터 한계와 답변 구조를 적용한다.
+
+**Required**:
+- `_aioChatAnswerPolicy()`가 일반/교육, 스크리너, 단순 종목, 매매 판단 모드를 구분한다.
+- Bull/Base/Bear, 기관 프레임, 6단계 종목 리포트는 매매 판단·전망·추천 질문에만 강하게 적용한다.
+- 일반/교육 질문은 바로 답하고, 현재 수치·최신 사건이 필요한 경우에만 데이터 미수집/출처 한계를 밝힌다.
+- 스크리너 후보군은 3M·RSI·퀀트 랭크·섹터/시장 분산을 자체 근거로 사용할 수 있으며, 개별 티커 `[주가 추이]` 블록 부재만으로 스크리너 설명을 막지 않는다.
+- 스크리너는 최종 추천의 근거 범위를 정직하게 제한하되, 사용자가 더 넓은 탐색을 원하면 추가 필터 조건을 안내한다.
+
+**Validation**: T826은 `PER이 뭐야?`가 일반/교육 모드로, `종목 추천해줘`가 스크리너 보조 모드로, `NVDA 지금 매수해도 돼?`가 매매 판단 모드로 분리되는지와 chatSend/fetchTickerData의 과도한 형식 강제 완화를 검증한다.
+
+## R213. AI 채팅 데이터 기능은 자연어 라우팅과 출처 레지스트리까지 연결해야 한다 (v50.59 added, P505 root)
+
+**Rule**: 채팅용 데이터/분석 함수가 존재하는 것만으로 완료로 보지 않는다. 사용자가 티커 없이 자연어로 묻는 대표 질문도 해당 기능으로 라우팅되어야 하며, 주입되는 데이터 소스는 `AIO_CHAT_SOURCE_REGISTRY`와 `getChatSourceRegistryAudit()`에 드러나야 한다.
+
+**Required**:
+- 무티커 기술/차트 질문은 `_aioTechnicalSymbolsForChat()` 같은 라우터를 통해 시장 대표 프록시(SPY/QQQ/SMH 등) 또는 문맥별 프록시로 변환한다.
+- OHLCV/차트/도메인 데이터처럼 `_fetchTickerDataForChat()` 바깥에서 주입되는 소스도 레지스트리에 등록하고 감사 스캔 범위에 포함한다.
+- 데이터 블록에는 source, rows/count, fetched/asOf 또는 dataQuality 라벨을 붙여 최신성·신뢰성 한계를 사용자가 볼 수 있게 한다.
+- 회귀 테스트는 함수 정의뿐 아니라 `chatSend()` 배선, 레지스트리 등록, audit unused=0까지 확인한다.
+
+**Validation**: T827은 `지금 시장 차트적 분석해줘` 같은 무티커 기술 질문이 SPY/QQQ/SMH 시장 OHLCV 컨텍스트로 연결되고, `technicalOHLCV` 소스가 레지스트리와 감사에서 정상 처리되는지 검증한다.
+
+## R214. AI 채팅은 AIO 전용 통합 답변 계약까지 주입해야 한다 (v50.60 added, P506 root)
+
+**Rule**: AIO 채팅은 일반 LLM처럼 고립된 텍스트 답변만 생성하지 않는다. 내부 페이지와 데이터 파이프라인의 강점을 답변에 반영해야 하므로, 현재 시장 맥락, 정량 지표, 정성 뉴스/공시, 스크리너/테마/포트폴리오 맥락, 관련 페이지 연결을 하나의 답변 계약으로 주입해야 한다.
+
+**Required**:
+- 채팅 파이프라인 레이어는 `AIO_CHAT_PIPELINE_REGISTRY`처럼 선언적으로 드러나야 한다.
+- 답변 계약은 최소 현재 시장 연결, 정량 답변, 정성 답변, 종합 판단, 페이지 연결, 추천 다양성/반복 편향 방지를 포함한다.
+- `chatSend()`는 intent/coverage/source blocks와 별도로 통합 답변 컨텍스트를 system prompt에 주입한다.
+- coverage flags는 ticker/trend/company뿐 아니라 technical/screener/domain/page-context 데이터를 인식해야 한다.
+- 새 페이지나 데이터 레이어를 채팅에 연결할 때는 "어떤 답변 축에 쓰이는지"까지 테스트로 고정한다.
+
+**Validation**: T828은 `AIO_CHAT_PIPELINE_REGISTRY`, `_buildAioIntegratedAnswerContext()`, `chatSend()` 배선을 함께 확인하고, 현재 시장·정량·정성·페이지 연결·AIO 전용 강점이 프롬프트 계약에 들어가는지 검증한다.
+
+## R215. Telegram/외부 정성 소스는 digest -> 화면 -> 스크리너 -> 채팅 -> 테스트까지 환류해야 한다 (v50.61 added, P507 root)
+
+**Rule**: Telegram, Discord, 리서치 채널처럼 구조화되지 않은 고빈도 정성 소스는 원문 수집만으로 완료로 보지 않는다. 수집 결과를 주간/일간 digest로 정규화하고, 사용자 화면·스크리너 후보·뉴스 분류·AI 채팅 계약에 같은 요약 레이어로 연결해야 한다.
+
+**Required**:
+- 공개 미러/공식 API/수동 파일 등 source URL과 수집 window, post count, channel별 count, safety cap 여부를 digest 객체에 남긴다.
+- 주요 테마는 HOME_WEEKLY_NEWS 또는 동등한 사용자 노출 큐레이션에 반영한다.
+- 종목 catalyst는 SCREENER_DB memo overlay 또는 별도 evidence layer로 연결하고, 고정 memo를 무작정 대체하지 않는다.
+- 새 토픽은 MACRO_KW/TECH_KW 등 분류 키워드에 추가해 뉴스 파이프라인이 다음 수집에서도 감지하게 한다.
+- AI 채팅은 digest themes/catalysts/pipeline note를 system prompt에 주입해 현재 시장과 추천 다양성에 활용한다.
+- 고거래량 채널이 paging cap에 걸리면 "완료"로 숨기지 말고 resumable paging/backfill 필요성을 기록한다.
+
+**Validation**: T829는 `AIO_TELEGRAM_WEEKLY_DIGEST`, HOME_WEEKLY_NEWS, SCREENER_DB memo overlay, MACRO/TECH keyword expansion, `_buildAioIntegratedAnswerContext()` Telegram 주입을 함께 검증한다.
+
+
+## R216. Data/news refresh must separate collection freshness from consumption coverage (v50.62 added, P508 root)
+
+**Rule**: A market/news refresh is not complete just because raw files or digest objects were updated. The system must separately expose market-data freshness, narrative/news freshness, page-level consumption coverage, and chat consumption coverage.
+
+**Required**:
+- DATA_SNAPSHOT must distinguish _marketDataUpdated/_marketDataDate from _telegramDigestUpdated/_telegramDigestDate when the two layers are refreshed by different pipelines.
+- Stale/freshness banners must not imply current numeric market data when only narrative/news context was refreshed, and must not warn generically when numeric fallback is current but live coverage is incomplete.
+- New digest topics must be mapped through a category registry and page integration map, then reflected in AIO_NEWS_SURFACE_CONTRACTS and chat integrated context.
+- Regression tests must cover at least one broad page map, one analysis-page topic strip, and the freshness metadata split.
+
+**Validation**: T830 checks Telegram categories, page maps, widened news contracts, DATA_SNAPSHOT market/digest dates, updateSnapshotStaleBanner, and chat category/page-map injection.
+
+## R217. Scheduled data sources must close the collect -> artifact -> consume -> audit loop (v50.63 added, P509 root)
+
+**Rule**: A source is not "automated" merely because a fetch script exists or a static JS object was manually updated. Scheduled sources must produce a same-origin `public-data/*` artifact, the app must consume that artifact at boot or refresh time, freshness metadata must reflect the consumed artifact, and an audit/test must expose whether the app is using dynamic data or static fallback.
+
+**Required**:
+- GitHub Actions must run the source fetcher and commit its artifact alongside related market data.
+- Independent watchdogs must check freshness of every committed artifact that the UI treats as current context.
+- The runtime loader must degrade to static fallback without blocking the app, but it must record `ready` vs `unavailable` status.
+- Consumption must update the same registry/page-map/chat/freshness objects that the static fallback uses, not a parallel orphan object.
+- Operational audits must show source count, artifact asOf/window/count, dynamicLoaded status, and coverage.
+- Regression tests must exercise both the payload application function and the loader wiring string or equivalent route.
+
+**Validation**: T831 checks dynamic Telegram digest application, `public-data/telegram-digest.json` loader wiring, freshness metadata update, category/page-map preservation, and Telegram pipeline audit visibility.

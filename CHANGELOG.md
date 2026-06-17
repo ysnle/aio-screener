@@ -1,5 +1,121 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.68 - 전체 데이터 최신화 + 라이브 UX 정리 배포본 (2026-06-17)
+
+- **데이터 최신화**: 네트워크 허용 상태에서 `scripts/fetch-data.mjs` 재실행. quotes 77/77, 실패 0, F&G 40, news 25, history 185d(update), screener 851/869로 `public-data/data.json`, `history.json`, `screener.json` 갱신.
+- **Telegram digest 최신화**: `scripts/fetch-telegram-digest.mjs --days=7` 재실행. @aetherjapanresearch 155건, @insidertracking 521건, @bornlupin 131건, 총 807건. macro/geo/market-note/semi/power/equity/crypto/ai-policy/optical 카테고리와 주요 티커 카운트 갱신.
+- **라이브 UX 정리 포함**: v50.67의 8877 라이브 DOM 점검 기반 가이드/API 설정/브리핑/포트폴리오 문구 과밀도 정리를 포함.
+- **검증**: R1 버전 동기화 v50.68 + 캐시버스터 5곳. 자동 커밋·배포 요청에 따라 배포 대상 버전으로 준비.
+
+## v50.67 - 라이브 UI/UX 문구 과밀도 2차 정리 (2026-06-17)
+
+- **라이브 점검 기반 정리**: `http://127.0.0.1:8877/` 기준으로 주요 페이지 DOM을 확인해 과도한 기본 노출 텍스트를 줄임.
+- **가이드 다이어트**: 첫 사용 루틴을 기본 접힘으로 바꾸고 API 설정 장문 블록을 짧은 데이터 연결 카드로 교체.
+- **부담 문구 완화**: 브리핑/FAQ/AI 채팅의 Claude 키 유도문을 짧고 선택적인 안내로 낮춤. 포트폴리오에는 개발자 콘솔 문구가 보이지 않게 수정.
+- **검증**: T835 추가. R1 7곳(title·badge·APP_VERSION·version.json·sw.js·CLAUDE.md·CHANGELOG.md) + 캐시버스터 5곳 v50.67 동기화. 자동 커밋·배포 없음.
+
+## v50.66 - 첫 진입 UX/문구 과밀도 정리 (2026-06-17)
+
+- **UX 정리**: 홈 진입 시 API 키가 없으면 자동으로 뜨던 `api-key-onboarding` 배너를 제거. 첫 화면은 시장 현황 핵심 카드부터 바로 보이도록 조정.
+- **문구 다이어트**: 사이드바 API 키 안내, 홈 뉴스 설명, 기업 분석 검색 가이드, 포트폴리오 시세 지연 툴팁, AI 미지원 페이지 안내, 하단 투자 고지를 짧고 덜 부담스럽게 정리.
+- **고정 UI 완화**: 하단 투자 고지를 fixed overlay에서 static compact notice로 변경해 화면을 덮지 않게 조정.
+- **검증**: T834 추가. R1 7곳(title·badge·APP_VERSION·version.json·sw.js·CLAUDE.md·CHANGELOG.md) + 캐시버스터 5곳 v50.66 동기화. 자동 커밋·배포 없음.
+
+## v50.65 - 통합 AI 패널 데이터 주입 parity 보강 (2026-06-17)
+
+- **통합 AI 패널 보강**: `chatSendUnified()`에도 `chatSend()` 수준의 기술/OHLCV(`_fetchTechnicalDataForChat`), 자연어 퀀트 스크리너(`_aioRunScreenerQuery`), 매크로·환율·테마 도메인 데이터(`_fetchDomainContextForChat`), AIO 통합 답변 계약(`_buildAioIntegratedAnswerContext`), Claude native `web_search` 폴백을 연결.
+- **미사용 컨텍스트 복구**: `market-news`, `breadth`, `sentiment`는 `CHAT_CONTEXTS`와 기본 칩은 있었지만 통합 AI 패널 맵에서 빠져 사용성이 제한되던 상태를 시정. 이제 뉴스/시장폭/투자심리 페이지에서도 AI 패널이 해당 컨텍스트로 열린다.
+- **자가 진단 정합성**: `AIO.assertChatPanelDomAudit()`가 예전 inline 채팅 DOM뿐 아니라 오른쪽 통합 AI 패널 경로도 정상 지원 경로로 인정하도록 수정해 오탐을 줄였다.
+- **검증**: T833 추가. R1 7곳(title·badge·APP_VERSION·version.json·sw.js·CLAUDE.md·CHANGELOG.md) + 캐시버스터 5곳 v50.65 동기화. 자동 커밋·배포 없음.
+
+## v50.64 - AI WebSearch 설정/로컬 서버 안정화 (2026-06-17)
+
+- **WebSearch 설정 정합성**: Google CSE는 API key와 검색엔진 ID(cx)가 모두 있어야 동작하므로 `aio_google_cse_cx`를 민감키/복원/백업 스냅샷 경로에 포함. `getWebSearchAudit()`가 Perplexity/Google key/cx 준비 상태와 `externalSearchReady`를 브라우저에서 직접 보여주도록 확장.
+- **Claude web_search 폴백 복구**: Google API key만 있고 cx가 없는 반쪽 설정에서 기존 `_needsWebSearch()`는 실행되지 않는데 `_shouldUseClaudeWebSearch()`까지 폴백을 막던 논리를 수정. 이제 완성된 Perplexity 또는 Google CSE 설정이 없으면 Claude native web_search가 최신/검색 의도 질문을 보완할 수 있다.
+- **로컬 서버 안정화**: Python/PowerShell `Start-Process` 환경 변수 충돌(Path/PATH)과 Codex 시간제한 종료 영향을 피할 수 있도록 `scripts/start-local-node.mjs` 및 `scripts/start-local-node.cmd` 추가. no-store 정적 서버로 브라우저 캐시 확인도 쉬워졌다.
+- **검증**: T832 추가. R1 7곳(title·badge·APP_VERSION·version.json·sw.js·CLAUDE.md·CHANGELOG.md) + 캐시버스터 5곳 v50.64 동기화. 자동 커밋·배포 없음.
+
+## v50.62 - 데이터 최신화 + 뉴스/테마 구조 통합 확장 (2026-06-16)
+
+- **데이터 최신화**: `scripts/fetch-data.mjs`를 네트워크 허용 상태에서 재실행해 `public-data/data.json`, `public-data/history.json`, `public-data/screener.json`을 갱신. Yahoo/CNN 파이프라인 기준 quotes 77/77, F&G 41, news 25건, history 184d, screener 851/869.
+- **정적 스냅샷 보정**: `DATA_SNAPSHOT`의 주요 가격 fallback을 2026-06-16 기준으로 갱신하고 `_marketDataUpdated`, `_telegramDigestUpdated`, `_telegramDigestWindow`를 분리. 홈 상단 stale 배너가 가격/지표 스냅샷과 뉴스/테마 다이제스트 날짜를 따로 판단하도록 수정.
+- **뉴스/테마 구조 확장**: Telegram digest를 10개 카테고리(macro/geo, Japan rates, AI policy, optical, power/grid, memory/materials, equity/analyst, space, crypto, Korea supply chain)와 12개 페이지 맵(home/macro/fxbond/technical/themes/sentiment/signal/fundamental/breadth/screener/briefing/market-news)으로 확장.
+- **페이지별 반영**: `AIO_NEWS_SURFACE_CONTRACTS`의 analysis page strip을 4개 제한의 좁은 semi/macro 필터에서 optical/power/memory/materials/ai-policy/crypto/space/equity까지 받도록 확대.
+- **AI 채팅 연결**: `_buildAioIntegratedAnswerContext()`가 `telegram_category_registry`와 `telegram_page_map`을 함께 주입해 사용자의 페이지/의도에 맞게 더 넓은 테마 후보군을 연결.
+- **검증**: T830 추가. 자동 커밋·배포 없음.
+
+## v50.61 - Telegram 3채널 1주일 다이제스트 통합 (2026-06-16)
+
+- **수집 범위**: `@aetherjapanresearch`, `@insidertracking`, `@bornlupin` 공개 미러 기준 2026-06-09~2026-06-16 KST 주요 포스트 796건 수집. 채널별 132/521/143건, 토픽별 geo 301 · market-note 299 · macro 244 · equity 204 · semi 187 · power 80 · optical 45 · ai-policy 37 · crypto 18.
+- **스크리너 반영**: `AIO_TELEGRAM_WEEKLY_DIGEST` 신규 레이어 + `HOME_WEEKLY_NEWS` 최신 5대 테마로 갱신. SCREENER_DB는 NVDA/AMD/AMZN/ORCL/MU/MRVL/BE/SK하이닉스/삼성전기 메모 오버레이로 BOJ 1%, US-Iran/Hormuz, Anthropic Fable/Mythos, NVDA EML/CW laser, CPO/NPO, 800V HVDC/SOFC, HBM4E, MLCC/silicon capacitor/WF6를 연결.
+- **AI 채팅 연결**: `_buildAioIntegratedAnswerContext()`가 Telegram weekly digest, 토픽 카운트, 핵심 테마, 종목별 catalyst를 system prompt에 주입. 추천/시장 질문에서 특정 전력/CEG/AVGO류로 과집중하지 않고 macro/policy/optical/power/memory/materials 축을 함께 펼치도록 보강.
+- **뉴스 파이프라인 보강**: `scripts/fetch-telegram-digest.mjs` 추가. 공개 미러를 페이지 단위로 수집하고 태그/티커/스코어를 추출해 JSON digest로 저장 가능. 고거래량 채널(`insidertracking`)은 30페이지 safety cap에 걸렸으므로 다음 단계는 resumable paging/backfill과 server-side scheduled digest.
+- **검증**: T829 추가. R1 7곳(title·badge·APP_VERSION·version.json·sw.js·CLAUDE.md·_context/CLAUDE.md) + 캐시버스터 v50.61 동기화. 자동 커밋·배포 없음.
+
+## v50.60 - AI 채팅 통합 답변 파이프라인 보강 (2026-06-16)
+
+- **AIO 전용 강점 명시**: `AIO_CHAT_PIPELINE_REGISTRY` 추가. 현재 시장, 실시간/검증 시세, OHLCV 기술지표, 퀀트 스크리너, 시장 폭·심리, 매크로·환율·채권, 기업 펀더멘털, 뉴스·공시, 테마·섹터, 포트폴리오 레이어를 채팅 파이프라인으로 선언했다.
+- **정량+정성+페이지 연결 답변 계약**: `_buildAioIntegratedAnswerContext()` 추가. 채팅이 일반 LLM처럼 고립 답변을 만들지 않고, 현재 시장 맥락 → 정량 지표 → 정성 뉴스/공시 → 종합 판단 → 관련 AIO 페이지/도구 연결 순서로 답하도록 system prompt에 계약을 주입한다.
+- **스크리너 AI 사용 이유 강화**: 추천 질문에는 시장/섹터/시총/스타일 분산, 대체 후보, 제외 조건을 요구하고, 차트·스크리너·뉴스·매크로·포트폴리오 맥락을 질문 의도에 맞게 결합하도록 했다.
+- **배선/검증**: `chatSend()`가 `integratedContextStr`를 coverage 뒤에 주입한다. coverage flags도 `technicalData`, `screenerData`, `domainData`를 인식한다. T828 추가.
+- **문서 루프**: P506, R214, QA 체크리스트, CODE-MAP v50.60 동기화. 자동 커밋·배포 없음.
+
+## v50.59 - AI 채팅 차트 분석 연결 보강 (2026-06-16)
+
+- **조사 결론**: 차트적 분석은 가능하다. 기존 엔진은 `fetchOHLCVWithFallback` → `calcTechnicalSnapshot` → `calcExtensionHeat`로 RSI·MACD·MA·ATR·Weinstein Stage·확장도까지 계산한다. 다만 기존 연결은 티커가 감지된 질문에 강했고, "지금 시장 차트적으로 어때?" 같은 무티커 시장 기술 질문은 페이지의 기존 기술 기능을 충분히 자동 활용하지 못했다.
+- **무티커 기술 라우팅**: `_aioTechnicalSymbolsForChat()` 추가. 기술/차트 질문에서 티커가 없으면 기본 SPY·QQQ·SMH를 주입하고, 반도체는 SMH·SOXX·QQQ, 폭/소형주는 IWM·RSP·SPY, 한국 기술 질문은 ^KS11·^KQ11·KRW=X로 라우팅한다.
+- **채팅 주입 보강**: `chatSend()`가 티커 감지 실패 시에도 기술 질문이면 `_fetchTechnicalDataForChat(defaultTechnicalTickers, {autoMarket:true})`를 호출해 시장 대표 OHLCV 기술 컨텍스트를 system prompt에 주입한다.
+- **출처/신뢰성 보강**: `_fetchTechnicalDataForChat()`가 OHLCV `dataQuality`의 source, rows, fetched 시각을 포함한다. `technicalOHLCV`를 `AIO_CHAT_SOURCE_REGISTRY`에 등록하고, `getChatSourceRegistryAudit()`가 ticker fetch뿐 아니라 technical/domain injector와 `chatSend()`까지 스캔하도록 확장했다.
+- **회귀 방지**: T827 추가. 무티커 차트 질문 라우팅, `chatSend()` 배선, `technicalOHLCV` 레지스트리 등록, registry audit `unused=0`, 기술 데이터 품질 라벨을 검증한다.
+- **검증**: JS syntax 0, 버전 CI OK(v50.59 8곳+캐시버스터 5개), 구조 CI OK, Chrome headless `AIO.runTests()` 902/902 PASS. `getChatSourceRegistryAudit()` status ok, unused 0, `technicalOHLCV` 포함 total 25 sources. 무티커 기술 질문 라우팅 결과 SPY/QQQ/SMH.
+- **문서 루프**: P505, R213, QA 체크리스트, CODE-MAP v50.59 동기화. 자동 커밋·배포 없음.
+
+## v50.58 - AI 채팅 답변 정책 유연화 (2026-06-16)
+
+- **근본 원인**: 환각 방지와 출처 강제 규칙이 사용자 의도별로 분리되지 않아, 일반/교육 질문·스크리너 후보 추천·단순 종목 사실 질문까지 매매 리포트 형식으로 과도하게 끌려갔다.
+- **의도 정책 분리**: `_aioChatAnswerPolicy()` 추가. 일반/교육, 스크리너 후보, 단순 종목 사실, 매매 판단/전망을 분리하고 `chatSend()` 검증 블록을 해당 정책에 맞게 다르게 주입한다.
+- **스크리너 보조성 복구**: 스크리너 후보군은 답변 억제 장치가 아니라 3M·RSI·퀀트 랭크·섹터/시장 분산을 제공하는 보조 엔진으로 명시. 개별 티커 `[주가 추이]` 블록 부재만으로 스크리너 설명을 막지 않는다.
+- **형식 강제 완화**: Bull/Base/Bear, 6단계 기관 리포트, 기관 프레임 인용은 매매 판단·전망·추천 질문에만 강하게 적용. 단순 사실·용어·요약 질문은 질문에 바로 답하고 출처/한계만 짧게 붙인다.
+- **회귀 방지**: T826 추가. `PER이 뭐야?`, `종목 추천해줘`, `NVDA 지금 매수해도 돼?`가 각각 다른 답변 정책으로 분류되고, `chatSend()`/`_fetchTickerDataForChat()`에 과도한 형식 강제 완화 문구가 있는지 검증한다.
+- **검증**: JS syntax 0, 버전 CI OK(v50.58 8곳+캐시버스터 5개), 구조 CI OK, Chrome headless `AIO.runTests()` 901/901 PASS. T826 detail: 일반/교육 `needsGeneralGuide`, 스크리너 `needsScreenerGuide`, 매매 판단 `needsFullStockMemo`.
+- **문서 루프**: P504, R212, QA 체크리스트, CODE-MAP v50.58 동기화. 자동 커밋·배포 없음.
+
+## v50.57 - AI 채팅 추천 편향 완화 (2026-06-16)
+
+- **근본 원인**: 조건 없는 넓은 "종목 추천" 질문이 `_aioRunScreenerQuery()` 후보군을 받지 못해, `CHAT_CONTEXTS`의 고정 리서치 문단과 최근 대화 메모가 CEG·전력·AVGO/브로드컴·AI 인프라로 답변을 앵커링했다.
+- **균형 후보군**: `_aioIsBroadRecommendationQuery()`, `_aioBuildDiversifiedRecommendationRows()`, `_aioExtractRecentRecommendationTickers()`를 추가. SCREENER_DB를 섹터·시장/지역·시총 버킷으로 분산 샘플링하고, 최근 대화에서 반복된 티커는 감점한다.
+- **프롬프트 보강**: 넓은 추천은 `diversified-recommendation` 모드와 "균형 추천 후보" 블록을 주입한다. 최종 답변은 후보군 중 3~5개, 동일 섹터/테마 최대 2개, 제외·보류 이유 포함을 요구하며 특정 고정 테마 반복을 금지한다.
+- **명시 조건 보존**: "전력 종목 추천"처럼 사용자가 특정 섹터/테마를 준 경우에는 분산 모드가 아니라 기존 스크리너 필터를 유지한다.
+- **회귀 방지**: T825 추가. 조건 없는 추천의 분산 모드, 4개 이상 섹터 분산, 최근 반복 티커 감점, 프롬프트/`chatSend()` 배선, 명시 섹터 필터 보존을 검증한다.
+- **검증**: JS syntax 0, 버전 CI OK(v50.57 8곳+캐시버스터 5개), 구조 CI OK, Chrome headless `AIO.runTests()` 900/900 PASS. T825 detail: 12개 후보, 8개 섹터, 2개 시장, 4개 시총 버킷, 최근 반복 티커 감점 2개, 동일 섹터 최대 2개.
+- **문서 루프**: P503, R211, QA 체크리스트, CODE-MAP v50.57 동기화. 자동 커밋·배포 없음.
+
+## v50.56 - 심층 감사 정확성·운영 게이트 보강 (2026-06-16)
+
+- **배포 게이트**: `runEvidenceDeploymentGate()`의 21페이지 하드코딩을 제거하고 `getPageContractAudit().expectedRoutePageCount`와 실제 라우트 수를 비교. T743도 계약 수 일치와 해당 차단 메시지 부재를 검증.
+- **KST 날짜**: `AIO.getKstDateParts()`를 신설해 홈 날짜·요일과 LLM 일일 쿼터 날짜를 `Asia/Seoul` 기준으로 통일. 2026-06-15가 화요일로 표시되던 혼합 UTC/local 계산 제거.
+- **한국 지수 정합성**: KOSPI/KOSDAQ 카드에 `data-live-prev-close`/`data-live-kr-change` 계약을 추가하고 가격·변동액·등락률·전일종가를 동일 quote에서 갱신. `applyDataSnapshot()`의 누락된 `kosdaq-prev` 매핑 복구.
+- **런타임 scope**: KST formatter를 listener 내부에서 module scope로 이동해 홈 초기화·quota 호출의 `ReferenceError` 2건 제거.
+- **한국 카드/pill 구조**: KR 홈 카드와 동적 테마 pill의 live binding을 복합 컨테이너에서 실제 가격·등락 child로 이동. `.KS/.KQ` 원화 가격 sanity range와 ticker registry 교차검증을 보강.
+- **증거·텍스트 게이트**: reference-only 미수집값과 decision 값을 분리하고, KST 경과일 기반 날짜 판정으로 `S&P500`, 비율, MA 기간 오탐 제거. 공식 일정 evidence metadata 추가. 최종 evidence/text block 0, `deployable: true`.
+- **뉴스 진행 상태**: 84개 소스 수집이 12초를 넘으면 “백그라운드 갱신”으로 전환해 정상 장기 작업이 영구 loading처럼 보이지 않도록 개선.
+- **데이터/일정**: 공식 BLS 일정으로 NFP 7/2·CPI 7/14를 고정하고, KOSPI/KOSDAQ·VVIX snapshot/fallback·KR ticker mapping 불일치를 시정.
+- **회귀 방지**: T823과 `scripts/ci-structural-check.mjs`를 추가하고 CI에 연결. 라우트 수, KST 포맷터, KR 전일종가 sink/매핑을 push/PR마다 검사.
+- **최종 검증**: T824 포함 899/899 PASS, 22/22 route 정상, 영구 loading 0, 브라우저 pageerror 0, KR mapping conflict 0, snapshot mirror mismatch 0.
+- **로컬 서버**: `scripts/start-local.cmd` + `start-local.ps1` 추가. 최신 worktree를 자동 루트로 사용하고 번들 Python 절대 경로·foreground 실행으로 PowerShell 실행정책 및 `Path`/`PATH` 환경 복사 충돌을 회피.
+- **문서 루프**: P501~P502, R209~R210, QA 체크리스트, CODE-MAP v50.56 동기화. 자동 커밋·배포 없음.
+
+## v50.55 - 12페이지 실효성·정합성 감사 반영 (2026-06-15)
+
+Claude 에이전트 감사 보고서 3건의 12페이지 지적을 실제 DOM·렌더 함수·데이터 파이프라인과 교차검증했다. 동적 바인딩으로 이미 정상인 "빈 껍데기" 지적은 변경하지 않고, 런타임에서 재현되는 상태·근거·최신성 결함만 보강했다.
+
+- **퀀트 스크리너**: `screener.json`의 loading/ready/partial/unavailable 상태 분리. 404/미수신 시 영구 "수집 중" 대신 검증 비활성 사유 표시. FMP 미설정 밸류·퀄리티는 `—` 결측이며 랭킹 제외 팩터임을 명시.
+- **시장 뉴스**: 실제 `AIO_NEWS_SOURCES.length`에서 소스 수 동적 표시. 반도체·지정학·채권·FX 토픽 필터 추가. 최근 48시간·score 30 이상·최대 150건 정책과 필터 결과/표시 상한 공개.
+- **기술분석**: VCP 94%/94.1%와 출처 불명 패턴별 정밀 승률·31% 개선 주장을 UI와 AI 컨텍스트에서 제거. 표본·레짐·체결비용을 함께 보는 조건부 판단으로 교체.
+- **브리핑·일정**: AI 브리핑의 2026-06-03 고정 시장값·과거 이벤트·고정 목표가 테시스를 제거하고 런타임 스냅샷+현재 이후 일정으로 생성. Fed/BEA 공식 원문 기준 6/16-17 FOMC, 6/25 PCE를 향후 일정으로 유지하고 6/5·6/10 "발표 전" 잔존 제거. 기계적 일정 연장은 estimated 표시.
+- **운영 파이프라인**: `refresh-data.yml`에 `FMP_API_KEY`, `ANTHROPIC_API_KEY` 선택 시크릿 전달 추가.
+- **회귀 방지**: P500, R208, QA 체크리스트, T822 추가. 버전 7곳+캐시버스터 5곳 동기화.
+
 ## v50.54 - 기관/퀀트급 업그레이드 Phase 3: 알고리즘 백로그 완결 (레짐 적응 가중·6팩터·포트 리스크) (2026-06-15)
 
 운영자: "기관/퀀트급 업그레이드와 알고리즘 — 저번에 물어본/제안한 것 모두 순차 진행." 에이전트 알고리즘 감사에서 남긴 갭(레짐 적응 가중·밸류/퀄리티·리스크 귀속·스트레스·어닝)과 이전 보류분(FMP 밸류/퀄리티)을 모두 처리. 데이터 의존(FMP)은 키 게이트+폴백(코드베이스 표준).
@@ -13933,3 +14049,9 @@ Signal 페이지를 Bloomberg Terminal급 **"지금 거래해야 할까? / Shoul
 - **P359/R125**: Added `AIO.getDeepReviewAudit()` for second/third-pass review over meaning-bearing text snippets, delegated input handlers, unlabeled controls, dense jargon, console-only hints, and data-sink lineage/explainer coverage. Wired to sidebar `[data-audit-key="deepReview"]`, `AIO.getAutoOpsReadiness()`, `AIO.getDeploymentGateAudit()`, and T515-T520.
 
 ---
+## v50.63 - Telegram digest auto-refresh loop closure (2026-06-16)
+
+- **Automation loop**: Repaired `.github/workflows/refresh-data.yml` syntax/readability and added `scripts/fetch-telegram-digest.mjs --days=7 --out=public-data/telegram-digest.json` to the scheduled data refresh job.
+- **Consumption loop**: Added `public-data/telegram-digest.json` as a same-origin data artifact and wired the app to load it at boot. The dynamic digest now updates `AIO_TELEGRAM_WEEKLY_DIGEST`, category registry, page map, `DATA_SNAPSHOT` digest freshness fields, and Telegram pipeline audit metadata.
+- **Self-audit loop**: `getTelegramPipelineAudit()` now reports dynamic digest status/count/asOf/category/page-map coverage, so future audits can see whether Telegram collection is static fallback or actually refreshed.
+- **Regression**: Added T831 to guard dynamic digest application and loader wiring. No commit/deploy performed.

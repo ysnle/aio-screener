@@ -1,18 +1,15 @@
 name: Data freshness watchdog
 
-# 왜: 메인 새로고침(refresh-data.yml)이 조용히 멈추면 아무도 모른다(이전 CORS 프록시가 죽던 것과 같은 실패 클래스).
-# 이 워치독은 refresh와 "독립된" 스케줄로 돌며, 커밋된 public-data/data.json의 나이를 검사한다.
-# 임계(기본 3시간) 초과 시 워크플로를 FAIL시킨다 → GitHub가 repo 소유자에게 자동으로 실패 이메일을 보낸다.
-# 네트워크 호출 없음(repo 파일만 읽음) → 워치독 자체는 거의 항상 성공적으로 "검사"를 수행.
-# v50.24/WO-1
+# Independent watchdog for committed public-data artifacts. It does not fetch
+# network data; it fails loudly when scheduled refresh commits stop arriving.
 
 on:
   schedule:
-    - cron: '23 * * * *'   # 매시 :23 (refresh의 :17,:47과 다른 오프셋 — 독립성 확보)
+    - cron: '23 * * * *'
   workflow_dispatch:
     inputs:
       max_age_minutes:
-        description: '허용 최대 나이(분). 초과 시 실패.'
+        description: 'Maximum allowed age in minutes before failing.'
         required: false
         default: '180'
 
@@ -26,24 +23,43 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check data.json freshness
+      - name: Check public-data freshness
         env:
           MAX_AGE_MIN: ${{ github.event.inputs.max_age_minutes || '180' }}
         run: |
-          node -e '
-            const fs = require("fs");
-            const max = parseInt(process.env.MAX_AGE_MIN || "180", 10);
-            let d;
-            try { d = JSON.parse(fs.readFileSync("public-data/data.json", "utf8")); }
-            catch (e) { console.error("data.json 읽기/파싱 실패:", e.message); process.exit(1); }
-            const gen = d && d.meta && d.meta.generatedAt;
-            if (!gen) { console.error("meta.generatedAt 없음 — 데이터 구조 이상"); process.exit(1); }
-            const ageMin = Math.round((Date.now() - new Date(gen).getTime()) / 60000);
-            console.log(`data.json generatedAt=${gen} / age=${ageMin}min / 허용=${max}min`);
-            console.log(`symbolsOk=${d.meta.symbolsOk} fearGreedOk=${d.meta.fearGreedOk} fredOk=${d.meta.fredOk}`);
-            if (ageMin > max) {
-              console.error(`❌ 데이터가 ${ageMin}분 경과(허용 ${max}분 초과) — 자동 새로고침(refresh-data.yml)이 멈췄을 수 있음. Actions 탭에서 schedule 발화 여부를 확인하세요.`);
+          node - <<'NODE'
+          const fs = require('fs');
+          const max = parseInt(process.env.MAX_AGE_MIN || '180', 10);
+
+          function readJson(path) {
+            try { return JSON.parse(fs.readFileSync(path, 'utf8')); }
+            catch (e) {
+              console.error(`${path} read/parse failed: ${e.message}`);
               process.exit(1);
             }
-            console.log("✅ 데이터 신선도 정상");
-          '
+          }
+
+          function checkAge(label, ts) {
+            if (!ts) {
+              console.error(`${label} timestamp missing`);
+              process.exit(1);
+            }
+            const ageMin = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
+            console.log(`${label}=${ts} / age=${ageMin}min / max=${max}min`);
+            if (!Number.isFinite(ageMin) || ageMin > max) {
+              console.error(`${label} is stale (${ageMin}min > ${max}min). Check refresh-data.yml schedule and commit permissions.`);
+              process.exit(1);
+            }
+            return ageMin;
+          }
+
+          const data = readJson('public-data/data.json');
+          checkAge('data.json meta.generatedAt', data && data.meta && data.meta.generatedAt);
+          console.log(`symbolsOk=${data.meta && data.meta.symbolsOk} fearGreedOk=${data.meta && data.meta.fearGreedOk} fredOk=${data.meta && data.meta.fredOk}`);
+
+          const tg = readJson('public-data/telegram-digest.json');
+          checkAge('telegram-digest.json generatedAt', tg && tg.generatedAt);
+          console.log(`telegramCount=${tg.count} channels=${Array.isArray(tg.channels) ? tg.channels.length : 0}`);
+
+          console.log('public-data freshness OK');
+          NODE

@@ -4614,7 +4614,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '086520.KQ': { en: 'EcoPro',             kr: '에코프로',       alt: ['ecopro', '086520'] },
 
     // ── v49.57 신규: 한국 종목 5종 (사용자 요청) ──
-    '267250.KS': { en: 'HD Hyundai Heavy',   kr: 'HD현대중공업',   alt: ['hd hyundai heavy', '267250', '현대중공업'] },
+    '267250.KS': { en: 'HD Hyundai',         kr: 'HD현대',         alt: ['hd hyundai', '267250', '현대중공업지주'] },
     '006260.KS': { en: 'LS',                 kr: 'LS',            alt: ['ls corp', '006260', 'ls전선'] },
     '161890.KS': { en: 'Kolmar Korea',       kr: '한국콜마',       alt: ['kolmar korea', 'kolmar', '161890'] },
     '000080.KS': { en: 'HiteJinro',          kr: '하이트진로',     alt: ['hitejinro', '000080', '하이트'] },
@@ -4734,7 +4734,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '101490.KQ': { en: 'Silicon Display',    kr: '실리콘웍스',    alt: ['silicon display', '101490'] },
     '352700.KQ': { en: 'HPSP',               kr: 'HPSP',          alt: ['hpsp', '352700'] },
     '413640.KQ': { en: 'Hyundai Mobis Test', kr: 'NEXTIN',        alt: ['nextin', '413640'] },
-    '403870.KQ': { en: 'HJ Sci',             kr: 'HJ소재',        alt: ['hj sci', '403870'] },
+    '403870.KQ': { en: 'HPSP',               kr: 'HPSP',          alt: ['hpsp', '403870'] },
     '058470_dup': { en: '_skip', kr: '_skip', alt: ['_skip'] },
     '067310.KQ': { en: 'Hana Micron',        kr: '하나마이크론',  alt: ['hana micron', '067310'] },
     '036930.KQ': { en: 'Jusung Engineering', kr: '주성엔지니어링', alt: ['jusung', '036930'] },
@@ -4786,7 +4786,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '042660.KS_dup': { en: '_skip', kr: '_skip', alt: ['_skip'] }, // 한화오션 중복
     '298020.KS': { en: 'HHI Construction',   kr: 'HHI건설',       alt: ['hhi construction', '298020'] },
     '003490.KS': { en: 'Korean Air',         kr: '대한항공',      alt: ['korean air', '003490'] },
-    '180640.KS': { en: 'Hanwha Aerospace 2', kr: '한화엔진',      alt: ['hanwha engine', '180640'] },
+    '180640.KS': { en: 'Hanjin KAL',          kr: '한진칼',        alt: ['hanjin kal', '180640'] },
     '079550.KS': { en: 'LIG Nex1',           kr: 'LIG넥스원',     alt: ['lig nex1', '079550'] },
     '028260.KS': { en: 'Samsung C&T',        kr: '삼성물산',      alt: ['samsung cnt', 'samsung c&t', '028260'] },
     '009150.KS': { en: 'Samsung Electro-Mechanics', kr: '삼성전기', alt: ['samsung em', '009150'] },
@@ -5162,6 +5162,16 @@ window.AIO.getWebSearchAudit = function() {
   var stats = window._aioWebSearchStats || { calls: 0, lastUsedAt: null };
   var optOut = false;
   try { optOut = localStorage.getItem('aio_web_search_enabled') === 'off'; } catch(e) {}
+  var hasPerplexity = false;
+  var hasGoogleKey = false;
+  var hasGoogleCx = false;
+  try {
+    if (typeof _getApiKey === 'function') {
+      hasPerplexity = !!_getApiKey('aio_perplexity_key');
+      hasGoogleKey = !!_getApiKey('aio_google_cse_key');
+      hasGoogleCx = !!_getApiKey('aio_google_cse_cx');
+    }
+  } catch(e) {}
   return {
     status: 'ok',
     enabled: !optOut,
@@ -5171,6 +5181,11 @@ window.AIO.getWebSearchAudit = function() {
     maxUsesPerCall: 3,
     estimatedCostUsd: stats.calls * 0.03, // $10/1000 searches * 3 uses
     helperAvailable: typeof window._shouldUseClaudeWebSearch === 'function',
+    perplexityConfigured: hasPerplexity,
+    googleCseKeyConfigured: hasGoogleKey,
+    googleCseCxConfigured: hasGoogleCx,
+    googleCseReady: hasGoogleKey && hasGoogleCx,
+    externalSearchReady: hasPerplexity || (hasGoogleKey && hasGoogleCx),
     note: '사용자 비활성화: localStorage.setItem("aio_web_search_enabled","off"). 활성화 되돌리기: removeItem 또는 "on"',
     generatedAt: new Date().toISOString()
   };
@@ -6039,7 +6054,7 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
         { id: 'technical-indicator-cards', order:  4, topic: 'RSI/MACD/Stochastic/ADX 4 카드',        lines: 'L6500~6531' },
         { id: 'technical-ticker-search',   order:  5, topic: '빠른 종목 검색 (Weinstein/RSI)',        lines: 'L6533~6551' },
         { id: 'technical-support-resist',  order:  6, topic: '지지/저항 + Weinstein 4단계',          lines: 'L6553~6596' },
-        { id: 'technical-trading-setups',  order:  7, topic: '12 매매 셋업 패턴 (VCP 94%)',          lines: 'L6600~6689' },
+        { id: 'technical-trading-setups',  order:  7, topic: '12 매매 셋업 패턴 (조건부 후보)',       lines: 'L6600~6689' },
         { id: 'technical-mtf-analysis',    order:  8, topic: '멀티 타임프레임 (Triple Screen)',       lines: 'L6691~6700' },
         { id: 'technical-pattern-signals', order:  9, topic: '다이버전스·패턴 (aggregate_signals)',    lines: 'L6702~6710' },
         { id: 'technical-deep-ticker',     order: 10, topic: '심층 종목 기술 분석 (월/주/일 차트)',    lines: 'L6712~6776' },
@@ -8188,6 +8203,17 @@ window.AIO.diagnose = async function(ticker) {
 window.AIO.assertChatPanelDomAudit = function() {
   var ctxs = window.CHAT_CONTEXTS || {};
   var ctxIds = Object.keys(ctxs);
+  var aiMap = window._aiCtxMap || {};
+  var unifiedCtxIds = {};
+  Object.keys(aiMap).forEach(function(pageId) {
+    if (aiMap[pageId]) unifiedCtxIds[aiMap[pageId]] = true;
+  });
+  var unifiedPanelReady = !!(
+    document.getElementById('ai-panel') &&
+    document.getElementById('ai-panel-msgs') &&
+    document.getElementById('ai-panel-inp') &&
+    document.getElementById('ai-panel-btn')
+  );
   var details = ctxIds.map(function(id) {
     var ctx = ctxs[id];
     var hasContext = !!(ctx && typeof ctx.system === 'function');
@@ -8196,10 +8222,13 @@ window.AIO.assertChatPanelDomAudit = function() {
     var inpEl   = document.getElementById('chat-' + id + '-inp');
     var btnEl   = document.getElementById('chat-' + id + '-btn');
     var hasInlinePanel = !!(panelEl && msgsEl && inpEl && btnEl);
-    // chatSend(ctxId) 호환성 — input element 없으면 silent return
-    var chatSendCompatible = !!inpEl;
+    var hasUnifiedPanel = !!(unifiedPanelReady && unifiedCtxIds[id]);
+    // chatSend(ctxId)는 inline input, chatSendUnified()는 통합 패널 매핑이 필요하다.
+    var chatSendCompatible = !!inpEl || hasUnifiedPanel;
     return {
       id: id, hasContext: hasContext, hasInlinePanel: hasInlinePanel,
+      hasUnifiedPanel: hasUnifiedPanel,
+      supportedPath: hasInlinePanel ? 'inline' : (hasUnifiedPanel ? 'unified' : null),
       panel: !!panelEl, msgs: !!msgsEl, inp: !!inpEl, btn: !!btnEl,
       chatSendCompatible: chatSendCompatible,
       gap: hasContext && !chatSendCompatible ? 'CONTEXT_NO_DOM' : null
@@ -8215,8 +8244,10 @@ window.AIO.assertChatPanelDomAudit = function() {
     contextOnlyCount: contextOnly.length,
     contextOnlyList: contextOnly.map(function(d){ return d.id; }),
     coveragePct: coveragePct,
+    unifiedPanelReady: unifiedPanelReady,
+    unifiedContextCount: details.filter(function(d){ return d.hasUnifiedPanel; }).length,
     perContextDetail: details,
-    note: 'v49.75 R147: CHAT_CONTEXTS 등록 후 DOM 패널 누락 자동 감지. Pattern A 일반화 (P398 home 케이스 → 14+ contexts 매트릭스). CONTEXT_NO_DOM gap = inline panel 부재 → chatSend silent return.',
+    note: 'v50.65 R147+: CHAT_CONTEXTS 등록 후 inline 패널 또는 통합 AI 패널 매핑 누락을 자동 감지. CONTEXT_NO_DOM gap = inline/chatSend 및 unified/chatSendUnified 경로 모두 없음.',
     generatedAt: new Date().toISOString()
   };
 };
@@ -8600,7 +8631,9 @@ window.AIO.assertChatFunctionCoverage = function() {
     'fetchPolygonOptions': true,             // options 페이지 전용
     'fetchFMP5YQuarterly': true,             // fundamentals 페이지 장기 재무 차트 전용
     'fetchKRQuarterly': true,                // KR fundamentals 페이지 전용
-    'fetchQuarterlyFinancials': true         // fundamentals 페이지 차트 파이프라인 전용
+    'fetchQuarterlyFinancials': true,        // fundamentals 페이지 차트 파이프라인 전용
+    'computeMarketState': true,              // 전역 시장 두뇌: 채팅 시장 헤더가 캐시된 marketState를 소비
+    'computeCrossAssetCorrelation': true     // 채팅 시장 헤더에서 직접 소비, ticker fetch 내부 함수는 아님
   };
   var deadCode = chatRelevantFns.filter(function(fn) {
     if (knownExempt[fn]) return false;
@@ -8650,20 +8683,25 @@ window.AIO.assertChatFunctionCoverage = function() {
   };
 };
 
-// v50.37 트랙2: AIO.getChatSourceRegistryAudit — AIO_CHAT_SOURCE_REGISTRY ↔ _fetchTickerDataForChat 코드 정합 감사.
-//   레지스트리에 wired(=배선 의도) 소스의 fn이 (1) 정의돼 있고 (2) _fetchTickerDataForChat 소스에 실제 호출되는지 확인.
+// v50.37 트랙2: AIO.getChatSourceRegistryAudit — AIO_CHAT_SOURCE_REGISTRY ↔ 채팅 데이터 주입 코드 정합 감사.
+//   레지스트리에 wired(=배선 의도) 소스의 fn이 (1) 정의돼 있고 (2) ticker fetch/chatSend/domain injector 소스에 실제 호출되는지 확인.
 //   planned/wired:false(KR DART 등 확장점)는 미배선 정상 → unused에서 제외. R121 toString-scan 패턴 재사용.
 window.AIO.getChatSourceRegistryAudit = function() {
   var reg = window.AIO_CHAT_SOURCE_REGISTRY;
   if (!Array.isArray(reg)) return { status: 'error', error: 'AIO_CHAT_SOURCE_REGISTRY 미정의', total: 0 };
-  var chatSrc = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
+  var chatSrc = [
+    typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '',
+    typeof window._fetchTechnicalDataForChat === 'function' ? window._fetchTechnicalDataForChat.toString() : '',
+    typeof window._fetchDomainContextForChat === 'function' ? window._fetchDomainContextForChat.toString() : '',
+    typeof window.chatSend === 'function' ? window.chatSend.toString() : ''
+  ].join('\n');
   var wired = reg.filter(function(s) { return s.wired !== false; });
   var planned = reg.filter(function(s) { return s.wired === false || s.planned; });
   var undefinedFn = [];   // 레지스트리에 있으나 함수 정의 없음
   var notInCode = [];     // 정의는 됐으나 _fetchTickerDataForChat에 호출 안 됨 (드리프트)
   wired.forEach(function(s) {
     if (!s.fn) return;
-    // _fetchTickerDataForChat 소스에 fn명 등장(호출) 여부 — 'AIO.fn(' / 'window.AIO.fn(' / 'fn(' 패턴
+    // 채팅 데이터 주입 소스에 fn명 등장(호출) 여부 — 'AIO.fn(' / 'window.AIO.fn(' / 'fn(' 패턴
     var inCode = new RegExp('(?:AIO\\.|window\\.AIO\\.|\\b)' + s.fn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\(').test(chatSrc);
     var onGlobal = (typeof window[s.fn] === 'function') || (window.AIO && typeof window.AIO[s.fn] === 'function');
     // 코드에 호출되면(inCode) 모듈 스코프 인라인 함수라도 존재로 간주. 글로벌도 없고 코드에도 없으면 정의 누락.
@@ -8683,7 +8721,7 @@ window.AIO.getChatSourceRegistryAudit = function() {
     manifestPresent: !!manifest,
     lastManifestAvailable: manifest ? manifest.availableCount : null,
     tiers: reg.reduce(function(acc, s) { acc[s.tier] = (acc[s.tier] || 0) + 1; return acc; }, {}),
-    note: '레지스트리 wired 소스의 fn 정의+_fetchTickerDataForChat 배선 정합. planned(KR DART 등 확장점)은 미배선 정상. unused>0 = 레지스트리↔코드 드리프트.',
+    note: '레지스트리 wired 소스의 fn 정의+채팅 데이터 주입 배선 정합. planned(KR DART 등 확장점)은 미배선 정상. unused>0 = 레지스트리↔코드 드리프트.',
     generatedAt: new Date().toISOString()
   };
 };
@@ -9520,7 +9558,7 @@ window.AIO.getNamedEntityAudit = function() {
 // R77 신규
 // ─────────────────────────────────────────────────────────────────
 window.AIO_MACRO_CALENDAR = {
-  version: 'v50.4',  // v50.4: official June 2026 calendar refresh (NFP 6/5, CPI 6/10, FOMC 6/16-17, PCE 6/25)
+  version: 'v50.63',
   releases: {
     'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-05-08', nextRelease: '2026-06-05', dataField: 'usUnemploy' },
     'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-05-12', nextRelease: '2026-06-10', dataField: 'cpi' },
@@ -9534,6 +9572,35 @@ window.AIO_MACRO_CALENDAR = {
     // v49.85 신규: 한국 BOK 금통위 (5/28 신현송 총재 첫 회의 → 다음 7/10)
     'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-05-28', nextRelease: '2026-07-10', dataField: 'bokRate', source: '한국은행 금통위' }
   }
+};
+window.AIO_MACRO_OFFICIAL_SCHEDULES = {
+  'us-nfp': ['2026-06-05', '2026-07-02'],
+  'us-cpi': ['2026-06-10', '2026-07-14'],
+  'us-pce': ['2026-05-28', '2026-06-25', '2026-07-30'],
+  'us-fomc': ['2026-06-17', '2026-07-29'],
+  'us-fed-rate': ['2026-06-17', '2026-07-29']
+};
+
+window.AIO.renderMacroNextRelease = function() {
+  var el = document.getElementById('macro-next-release');
+  var releases = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases;
+  if (!el || !releases) return null;
+  var todayKst = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).format(new Date());
+  var upcoming = Object.keys(releases).map(function(key) {
+    return { key:key, name:releases[key].name, date:releases[key].nextRelease };
+  }).filter(function(item) {
+    return item.date && item.date >= todayKst;
+  }).sort(function(a, b) {
+    return a.date.localeCompare(b.date);
+  });
+  if (!upcoming.length) {
+    el.textContent = '다음 주요 발표 일정 확인 필요';
+    return null;
+  }
+  el.textContent = '다음 주요 발표: ' + upcoming[0].name + ' · ' + upcoming[0].date + ' KST 기준';
+  return upcoming[0];
 };
 
 window.AIO.getMacroReleaseStaleAudit = function() {
@@ -9582,6 +9649,9 @@ window.AIO._aioRecomputeMacroCalendar = function(opts) {
   // 단일 registry advance — 여러 cycle stale도 미래가 될 때까지 반복 (KR은 수개월 stale 가능)
   function _advanceReg(reg) {
     if (!reg || !reg.releases) return;
+    var todayKst = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).format(now);
     Object.keys(reg.releases).forEach(function(key) {
       var r = reg.releases[key];
       var nextTs = new Date(r.nextRelease).getTime();
@@ -9589,6 +9659,24 @@ window.AIO._aioRecomputeMacroCalendar = function(opts) {
       if (now.getTime() <= nextTs) return; // 아직 미발표
       var freq = String(r.frequency || '').toLowerCase();
       var oldNext = r.nextRelease, oldLast = r.lastRelease, oldMonth = r.monthData;
+      var official = window.AIO_MACRO_OFFICIAL_SCHEDULES && window.AIO_MACRO_OFFICIAL_SCHEDULES[key];
+      var officialIndex = Array.isArray(official) ? official.findIndex(function(date) { return date >= todayKst; }) : -1;
+      if (officialIndex >= 0) {
+        var officialNext = official[officialIndex];
+        var officialLast = officialIndex > 0 ? official[officialIndex - 1] : oldLast;
+        advanced.push({
+          key:key, name:r.name,
+          prevLastRelease:oldLast, prevNextRelease:oldNext,
+          newLastRelease:officialLast, newNextRelease:officialNext
+        });
+        if (!opts.dryRun) {
+          r.lastRelease = officialLast;
+          r.nextRelease = officialNext;
+          r.scheduleStatus = 'official';
+          r.scheduleNote = '공식 2026 발표 캘린더';
+        }
+        return;
+      }
       var newNext = new Date(r.nextRelease), newLast = r.lastRelease, newMonth = r.monthData;
       var guard = 0;
       while (newNext.getTime() < now.getTime() && guard < 60) {
@@ -9612,6 +9700,8 @@ window.AIO._aioRecomputeMacroCalendar = function(opts) {
       if (!opts.dryRun) {
         r.lastRelease = newLast;
         r.nextRelease = newNext.toISOString().slice(0, 10);
+        r.scheduleStatus = 'estimated';
+        r.scheduleNote = '기존 주기를 기계적으로 연장한 추정일 — 공식 캘린더 확인 필요';
         if (oldMonth) r.monthData = newMonth;
       }
     });
@@ -9634,9 +9724,10 @@ setTimeout(function() {
     if (window.AIO && window.AIO._aioRecomputeMacroCalendar) {
       var r = window.AIO._aioRecomputeMacroCalendar();
       if (r.advancedCount > 0) console.log('[AIO] MACRO_CALENDAR auto-advanced ' + r.advancedCount + ' entries:', r.advanced.map(function(a){return a.key;}).join(', '));
+      if (window.AIO.renderMacroNextRelease) window.AIO.renderMacroNextRelease();
     }
   } catch(_) {}
-}, 7000);
+}, 0);
 
 // ─────────────────────────────────────────────────────────────────
 // v49.83 P444/R173: computeCrossAssetCorrelation — 자산 간 30일 rolling Pearson correlation
@@ -12756,7 +12847,7 @@ const _AioVault = {
 // 암호화 대상 키 목록
 const _AIO_SENSITIVE_KEYS = new Set([
   'aio_claude_api_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fmp_key',
-  'aio_perplexity_key', 'aio_google_cse_key',
+  'aio_perplexity_key', 'aio_google_cse_key', 'aio_google_cse_cx',
   'aio_fred_key', 'aio_td_key', 'aio_newsdata_key', 'aio_rss2json_key', 'aio_cf_worker_url'
 ]);
 
@@ -12982,7 +13073,7 @@ window._aioCollectKeySnapshot = function() {
   var snap = {};
   var keys = (typeof _AIO_SENSITIVE_KEYS !== 'undefined') ? Array.from(_AIO_SENSITIVE_KEYS) :
     ['aio_claude_api_key','aio_av_key','aio_finnhub_key','aio_fmp_key','aio_perplexity_key',
-     'aio_google_cse_key','aio_fred_key','aio_td_key','aio_newsdata_key','aio_rss2json_key','aio_cf_worker_url'];
+     'aio_google_cse_key','aio_google_cse_cx','aio_fred_key','aio_td_key','aio_newsdata_key','aio_rss2json_key','aio_cf_worker_url'];
   keys.forEach(function(k) {
     var v = (typeof _getApiKey === 'function') ? _getApiKey(k) : (localStorage.getItem(k) || '');
     if (v) snap[k] = v;
@@ -13230,6 +13321,27 @@ window.AIO.assertKrTickerMappingAudit = function() {
     var screenerDB = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : (window.SCREENER_DB || []);
     var nameReg = (window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries) || {};
     var krStockDB = window.KR_STOCK_DB || {};
+    var nameAliases = {
+      '035420.KS': ['NAVER', '네이버'],
+      '047810.KS': ['한국항공우주', '한국항공우주KAI'],
+      '141080.KQ': ['리가켐바이오', '리가켐바이오사이언스'],
+      '041510.KQ': ['SM', 'SM엔터테인먼트'],
+      '035900.KQ': ['JYP', 'JYPENT', 'JYP엔터테인먼트'],
+      '086790.KS': ['하나금융', '하나금융지주']
+    };
+    function sameCompanyName(ticker, a, b) {
+      var normalize = function(value) {
+        return String(value || '').toUpperCase()
+          .replace(/\([^)]*\)/g, '')
+          .replace(/엔터테인먼트|ENTERTAINMENT|ENT\.?|사이언스|지주/g, '')
+          .replace(/[^0-9A-Z가-힣]/g, '');
+      };
+      var left = normalize(a), right = normalize(b);
+      if (left === right) return true;
+      var aliases = nameAliases[ticker] || [];
+      var normalizedAliases = aliases.map(normalize);
+      return normalizedAliases.indexOf(left) >= 0 && normalizedAliases.indexOf(right) >= 0;
+    }
     // SCREENER_DB의 KR ticker (.KS / .KQ) 순회
     if (Array.isArray(screenerDB)) {
       screenerDB.forEach(function(row) {
@@ -13238,7 +13350,7 @@ window.AIO.assertKrTickerMappingAudit = function() {
         var bare = row.sym.replace(/\.K[QS]$/, '');
         // 1) AIO_TICKER_NAME_REGISTRY 매핑
         var regEntry = nameReg[row.sym];
-        if (regEntry && regEntry.kr && row.name && regEntry.kr !== row.name) {
+        if (regEntry && regEntry.kr && row.name && !sameCompanyName(row.sym, regEntry.kr, row.name)) {
           conflicts.push({
             ticker: row.sym, source: 'SCREENER_DB vs REGISTRY',
             screenerDB: row.name, registry: regEntry.kr,
@@ -13247,7 +13359,7 @@ window.AIO.assertKrTickerMappingAudit = function() {
         }
         // 2) KR_STOCK_DB 매핑
         var krEntry = krStockDB[bare];
-        if (krEntry && krEntry.name && row.name && krEntry.name !== row.name) {
+        if (krEntry && krEntry.name && row.name && !sameCompanyName(row.sym, krEntry.name, row.name)) {
           conflicts.push({
             ticker: row.sym, source: 'SCREENER_DB vs KR_STOCK_DB',
             screenerDB: row.name, krStockDB: krEntry.name,
@@ -13265,13 +13377,20 @@ window.AIO.assertKrTickerMappingAudit = function() {
       '277810.KQ': '레인보우로보틱스',
       '454910.KS': '두산로보틱스',
       '005930.KS': '삼성전자',
-      '000660.KS': 'SK하이닉스'
+      '000660.KS': 'SK하이닉스',
+      '403870.KQ': 'HPSP',
+      '267250.KS': 'HD현대',
+      '011200.KS': 'HMM',
+      '950130.KQ': '엑시큐어',
+      '041510.KQ': 'SM엔터테인먼트',
+      '023530.KS': '롯데쇼핑',
+      '180640.KS': '한진칼'
     };
     var knownMismatch = 0;
     Object.keys(knownMappings).forEach(function(t) {
       var expected = knownMappings[t];
       var sdb = Array.isArray(screenerDB) && screenerDB.find(function(r) { return r && r.sym === t; });
-      if (sdb && sdb.name !== expected) {
+      if (sdb && !sameCompanyName(t, sdb.name, expected)) {
         knownMismatch++;
         conflicts.push({
           ticker: t, source: 'SCREENER_DB vs WebSearch-verified',
@@ -15744,7 +15863,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.54';
+const APP_VERSION = 'v50.68';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -16219,8 +16338,10 @@ window.AIO.getLiveCoverage = function(requiredSymbols) {
 
 window.AIO.getDataFreshnessAudit = function() {
   var snap = window.DATA_SNAPSHOT || {};
-  var updatedTs = snap._updated ? new Date(snap._updated).getTime() : 0;
+  var updatedTs = (snap._marketDataUpdated || snap._updated) ? new Date(snap._marketDataUpdated || snap._updated).getTime() : 0;
+  var narrativeTs = (snap._telegramDigestUpdated || snap._narrativeUpdated) ? new Date(snap._telegramDigestUpdated || snap._narrativeUpdated).getTime() : 0;
   var snapshotAgeHours = updatedTs ? Math.round((Date.now() - updatedTs) / 3600000) : null;
+  var narrativeAgeHours = narrativeTs ? Math.round((Date.now() - narrativeTs) / 3600000) : null;
   var liveCoverage = window.AIO.getLiveCoverage();
   var priceHealth = null;
   try { priceHealth = window.PriceStore && typeof window.PriceStore.health === 'function' ? window.PriceStore.health() : null; } catch(_p) {}
@@ -16240,6 +16361,12 @@ window.AIO.getDataFreshnessAudit = function() {
     issues: issues,
     snapshotDate: snap._snapshotDate || null,
     snapshotUpdated: snap._updated || null,
+    marketDataDate: snap._marketDataDate || snap._snapshotDate || null,
+    marketDataUpdated: snap._marketDataUpdated || snap._updated || null,
+    narrativeUpdated: snap._telegramDigestUpdated || snap._narrativeUpdated || null,
+    narrativeAgeHours: narrativeAgeHours,
+    telegramDigestDate: snap._telegramDigestDate || null,
+    telegramDigestWindow: snap._telegramDigestWindow || null,
     snapshotAgeHours: snapshotAgeHours,
     snapshotIsFallback: snap._isFallback !== false,
     effectiveFallback: effectiveFallback,
@@ -16656,43 +16783,36 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-06-12T12:00:00+09:00',   // v50.39 텔레그램 3채널 7일 통합 (6/12 KST): 6/11(목) 반등 랠리(S&P +1.75% 7,394 · Nasdaq +2.54% 25,810 · Dow +1.85% 50,841) + US-이란 MOU/휴전 임박(호르무즈 30일내 재개·단계적 제재완화 → 유가 급락 WTI 84.92 -3.2%) + SpaceX IPO($135/주·~$1.78T·머스크 순자산 $1조 돌파) + 메모리 슈퍼사이클 지속(DDR5 가격 H1'28까지 高·SK하이닉스 +230% YTD·시총 $1조·8월 나스닥 상장추진·키옥시아 日 시총1위 ¥4.44조) + HDD 랠리(JPM WDC $650·STX $920) + Q1'26 반도체 장비매출 사상최대 $36.55B. 나스닥100 편입(6/22) NBIS/RKLB/ALAB/CRWV/TER. AMD Citi Buy $575·NVDA S&P AA승급·Meta BofA $835. v50.15: 6/5 셀오프 baseline.
-  _snapshotDate: '2026-06-11',
+  _updated: '2026-06-16T19:58:22+09:00',   // v50.62 public-data refresh: Yahoo/CNN pipeline 77/77 quotes, F&G 41. Telegram/news digest remains 2026-06-16 15:00 KST.
+  _snapshotDate: '2026-06-16',
+  _marketDataDate: '2026-06-16',
+  _marketDataUpdated: '2026-06-16T19:58:22+09:00',
+  _telegramDigestDate: '2026-06-16',
+  _telegramDigestUpdated: '2026-06-16T15:00:00+09:00',
+  _telegramDigestWindow: '2026-06-09~2026-06-16 KST',
+  _narrativeUpdated: '2026-06-16T15:00:00+09:00',
   _staticDates: {
-    briefingArchive: '2026-06-05',
+    briefingArchive: '2026-06-16',
     jensenInterview: '2026-03-20',
     optionSnapshot: '2026-05-28',
-    krMarket: '2026-06-04',
-    krIssues: '2026-06-04',
-    tnx2y: '2026-05-28'
+    krMarket: '2026-06-16',
+    krIssues: '2026-06-16',
+    tnx2y: '2026-06-16'
   },
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v50.39 텔레그램 통합 (2026-06-12 KST): 6/11(목) rebound rally — S&P500 +1.75% to 7,394.30, Nasdaq +2.54% to 25,809.66, Dow +1.85% to 50,841; VIX ~19.4. Driver: US-Iran de-escalation + risk-on into SpaceX IPO. US-Iran MOU/ceasefire near-signing (7-point draft per IRNA): Strait of Hormuz reopening within 30 days, phased sanctions relief tied to oil-export resumption, war cessation across Mideast fronts — WTI fell to 84.92 (-3.2%), Brent ~88, Gold $4,080 (risk-on, safe-haven unwind). SpaceX IPO on Nasdaq priced $135/share, ~$1.78T valuation, ~$75B raise (largest IPO ever); Musk net worth >$1T; Korean brokers offer 2x long/short. Memory super-cycle intact: AMD VP McAfee says DDR5 pricing elevated until H1-2028 (~2yr normalization); SK Hynix +230% YTD, mktcap >$1T, planning US/Nasdaq listing as early as August; Kioxia now #1 by mktcap in Japan ¥4.436T. HDD rally: JPM upgraded WDC ($650 PT) & Seagate ($920 PT), 40%+ FY27 rev growth. Q1-2026 semicap equipment sales record $36.55B (+14% YoY; China #1 $10.99B, Korea #2 $8.93B, Taiwan #3 $8.77B +24% YoY). Google-Samsung 2nm TPU (Icefish) memory I/O die, compute stays TSMC 1.4nm, 2028. Nvidia S&P credit upgrade to AA (stable). AMD Citi upgrade Buy $575 (Venice CPU 2.5D packaging shortage, ASE booked to 2028). Meta BofA TP $835 (16x fwd 2027 EPS). Nasdaq-100 adds (eff 6/22): NBIS/RKLB/ALAB/CRWV/TER. KR sell-side: PSK Buy ₩194K, VM ₩140K, Hanmi Semi ₩50B SpaceX stake. ADBE beat-but-fell -6.5%, SMCI -8.9% (capital raise). Derived/levels from WebSearch+telegram; static fallback only — live stores override and Delayed/Fallback labels stay visible.',
+  _note: 'v50.62 data/theme refresh (2026-06-16 KST): public-data fetch succeeded with 77/77 Yahoo quotes, CNN Fear & Greed 41, 25 news items, and screener enrichment 851/869. Static price fallback now reflects 2026-06-16 market snapshot while Telegram 3-channel digest adds macro/geo, Japan rates, AI policy, optical, power/grid, memory/materials, equity/analyst, space, crypto, and Korea supply-chain layers. Live stores still override these fallback numbers; if live coverage is incomplete, labels and freshness banner must disclose that distinction.',
 
-  // ── 미국 주요 지수 (2026-06-11 종가 반등 랠리 / WebSearch 실측 레벨) ──
-  spx:        7394.30,  spxPct:    +1.75,   // v50.39: 6/11(목) S&P +1.75% to 7,394.30 (WebSearch). US-이란 디에스컬레이션 + SpaceX IPO 위험선호. ATH 7585는 6/4 유지(spxATH 별도)
-  nasdaq:    25809.66,  nasdaqPct: +2.54,   // v50.39: 6/11 나스닥 +2.54% to 25,809.66 (WebSearch). 반도체/AI 트레이드 재매수
-  dow:       50841.00,  dowPct:    +1.85,   // v50.39: 6/11 다우 +1.85% to 50,841 (WebSearch)
-  rut:       2936.57,  rutPct:    +0.13,   // v49.95: Russell 2000 2,936.57 (5/28 실측, 6/11 정확값 미확인 SKIPPED). Yahoo ^RUT 라이브 우선
-  vix:          19.44,  vixPct:    -3.0,    // v50.39: 6/12 VIX ~19.44 (WebSearch). 6/5 셀오프(19.38)→반등 랠리에도 변동성 잔존(이란딜 확정 대기). 패닉 미만
+  // ── 미국 주요 지수 (2026-06-11 종가 반등 랠리 / WebSearch 실측 레벨) ──  spx:        7554.29,  spxPct:    +2.01,   // v50.62: public-data Yahoo ^GSPC 2026-06-16T10:58Z  nasdaq:    26683.94,  nasdaqPct: +2.91,   // v50.62: public-data Yahoo ^IXIC  dow:       51671.03,  dowPct:    +1.74,   // v50.62: public-data Yahoo ^DJI  rut:        2965.09,  rutPct:    +3.84,   // v50.62: public-data Yahoo ^RUT  vix:          16.18,  vixPct:   -27.18,   // v50.62: public-data Yahoo ^VIX
   vix9d:        18.80,  vix3m:     19.90,  vix6m: 20.40,   // v50.39: VIX 기간구조 시드 (^VIX9D/^VIX3M/^VIX6M live 부재 시 폴백 — 9D<30D 정상 콘탱고 복귀). 라이브 fetch 우선
-  spxATH:     7585.00,                       // v50.15: SPX 사상최고 = 6/4 종가 7585 (현재 7394는 ATH -2.5% 아래 · _fallback 미러 정합)
-  vvix:         85.75,                        // v50.11: VVIX 85.75 (sentiment 블록 정합, _fallback 미러 동기화 R184)
+  spxATH:     7585.00,                       // v50.15: SPX 사상최고 = 6/4 종가 7585 (현재 7394는 ATH -2.5% 아래 · _fallback 미러 정합)  vvix:         87.58,                        // v50.62: public-data Yahoo ^VVIX
 
-  // ── 한국 지수 (2026-06-12 / WebSearch — 이란 휴전 위험선호 반등) ──
-  kospi:     7763.95,  kospiPct:  +0.40,  kospiPrev: 7733.10,  // v50.39: 6/12 KOSPI ~7,763.95 (+0.4%, WebSearch). 이란 디에스컬레이션+메모리 슈퍼사이클 리레이팅 위험선호
-  kosdaq:    1104.36,  kosdaqPct: +0.30,  kosdaqPrev: 1101.06, // v50.39: 6/12 KOSDAQ 정확값 미확인 — 반등 추정(SKIPPED 레벨 유지). 라이브 fetch 우선
+  // ── 한국 지수 (2026-06-12 / WebSearch — 이란 휴전 위험선호 반등) ──  kospi:     8726.60,  kospiPct:  +7.78,  kospiPrev: 8096.93,  // v50.62: public-data Yahoo ^KS11  kosdaq:    1018.68,  kosdaqPct: +5.26,  kosdaqPrev: 967.81, // v50.62: public-data Yahoo ^KQ11
 
-  // ── 원자재 (2026-06-11~12 / WebSearch — 이란 MOU/휴전 임박, 유가 급락) ──
-  wti:       84.92,  wtiPct:    -3.18,   // v50.39: 6/11 WTI $84.92 (-3.18%, WebSearch). US-이란 MOU/휴전(호르무즈 30일내 재개·제재완화) 공급 정상화 기대 → 급락. v50.15 escalation($97.2)에서 반전
-  brent:     88.40, brentPct:  -3.00,   // v50.39: 6/11 Brent ~$88.4 (WTI+spread 추정, 이란 디에스컬레이션). $100→$88 급락
-  gold:      4080,   goldPct:   -1.80,  goldWeeklyPct: -3.5,  // v50.39: 6/11 Gold ~$4,080 (WebSearch, TradingEconomics). 위험선호+안전자산 되돌림($4,411→$4,080)
+  // ── 원자재 (2026-06-11~12 / WebSearch — 이란 MOU/휴전 임박, 유가 급락) ──  wti:       77.22,  wtiPct:   -11.96,   // v50.62: public-data Yahoo CL=F  brent:     80.94, brentPct:  -10.44,   // v50.62: public-data Yahoo BZ=F  gold:      4368.10, goldPct:  +6.79,  goldWeeklyPct: +6.79,  // v50.62: public-data Yahoo GC=F
   ng:        3.07,                       // v49.95: Henry Hub 천연가스 $3.07/MMBtu (EIA/FRED 5/18, 라이브 우선)
 
-  // ── 환율 (2026-06-12 / WebSearch — 위험선호로 원화 소폭 강세) ──
-  krw:      1523.28,  krwPct:   -0.40,  krwRound: 1523,  // v50.39: 6/12 원/달러 1,523.28 (-0.13~0.4%, WebSearch). 이란 휴전 위험선호로 1,529→1,523 소폭 강세. 라이브 fetch 우선
-  dxy:        99.10,  dxyPct:   -0.05,                   // v50.39: DXY ~99.1 (6/12 정확값 미확인, 99.14 인근 유지 SKIPPED). 라이브 fetch 우선
+  // ── 환율 (2026-06-12 / WebSearch — 위험선호로 원화 소폭 강세) ──  krw:      1505.78,  krwPct:   -1.31,  krwRound: 1506,  // v50.62: public-data Yahoo KRW=X  dxy:        99.55,  dxyPct:   -0.31,                   // v50.62: public-data Yahoo DX-Y.NYB
 
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
@@ -16701,7 +16821,7 @@ const DATA_SNAPSHOT = {
   fomcNext:    '6/16-17',                            // v48.70: 4/28-29 동결 완료 → 다음 FOMC 6/16-17 (SEP 회의)
   fomcDotPlot: '3월 dot plot: 중앙값 -25bp / 7명 동결 / 7명 -25bp (6/17 SEP 갱신 예정). 단 5월 NFP 172K 서프라이즈로 골드만삭스는 2026 금리인하 전망 철회(텔레그램 6/5) — 시장 인하 기대 후퇴, 2Y 4.17%',  // v50.15: 골드만 인하 철회 반영
   ecbRate:      2.15,  ecbStatus: '동결',
-  bojRate:      0.75,   // v49.92: BOJ 4/27-28 회의 0.50→0.75 인상 (TradingEconomics, 기존 0.50 stale)
+  bojRate:      1.00,   // v50.61: BOJ 6/16 overnight call rate 25bp hike to 1.00% (Telegram/Aether digest; live macro source overrides when available)
   boeRate:      3.75,   // v49.93: BOE 4/30 회의 8-1 동결 3.75% (기존 4.50 stale, 0.75%p — 중동 인플레로 추가 인하 보류)
   pbocRate:     3.00,   // v49.93: PBOC 1년 LPR 3.0% (5월 12개월째 동결, 5Y LPR 3.5%, 기존 3.10 stale)
   // v34.6: 한국 금리·채권 강화 / v49.85: 신현송 총재 첫 금통위 5/28 결정
@@ -16726,7 +16846,7 @@ const DATA_SNAPSHOT = {
   pceNext:     '2026-06-25',                       // v50.4: BEA May 2026 Personal Income and Outlays scheduled release
   computexWeek:'2026-06-01~2026-06-05',            // v50.4: Computex/GTC Taipei window (종료)
   nvidiaKoreaWeek: '2026-06-08',                   // v50.15: 젠슨 황 방한 한국 AI 인프라 동맹 발표일 — SK하이닉스(차세대 메모리 다년)/삼성(HBM4·Groq 4-8nm)/네이버(1GW AI팩토리·소버린 AI)/SKT(DSX)/현대차(AV) 동시 발표. 현재 시장 화두
-  currentTopic: 'US-이란 MOU/휴전 임박(호르무즈 30일내 재개·유가 급락 WTI $85) + SpaceX IPO($135·$1.78T·머스크 $1조) + 메모리 슈퍼사이클 지속(DDR5 H1\'28까지·SK하이닉스 +230%/나스닥 상장·키옥시아 日 시총1위) + HDD 랠리(WDC $650/STX $920) + Q1 반도체 장비 사상최대 $36.55B',  // v50.39: 텔레그램+WebSearch 통합 현재 화두
+  currentTopic: 'Telegram 7d digest(796 posts): US-Iran/Hormuz risk-on + BOJ 1%/JGB taper/Nikkei 70k + Anthropic Fable/Mythos export control + NVDA EML/CW laser lock + CPO/NPO/800V HVDC/SOFC power + MU/SK Hynix HBM4E + MLCC/silicon capacitor/WF6 materials shock',  // v50.61: Telegram public-mirror 3-channel digest
   spacexIpoStatus: 'SpaceX IPO 실행(6/12~13): Nasdaq 상장 $135/주 IPO가, 시총 ~$1.78T, ~$75B 조달(역대 최대 IPO), 머스크 순자산 $1조 돌파. 한국 증권사 2x 롱/숏 상품 출시. SATS(주주) +6.8%',
   ismPmi:      52.7,   ismPrice:  84.6,           // v49.95: 4월 ISM Mfg 52.7 (3월과 동일, 2022.8 이후 최강 · 18개월 확장) · Prices 84.6(2022.4 이후 최고, 19개월 연속 상승 — 철강·알루미늄·석유·관세). ISM 5/1 발표. 기존 ismPrice 70.7 14pt stale
   ismSvc:      53.6,                              // v49.95: 4월 ISM 서비스 PMI 53.6 실측 (5/5 발표 — 3월 54.0→4월 53.6, 22개월 연속 확장. Prices 70.7 고착). 다음 6/3 5월분. 기존 54.0 stale
@@ -16787,24 +16907,17 @@ const DATA_SNAPSHOT = {
   // ── v48.71 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
   aaiiBear:        41.9,     // v50.5: AAII 5/27 발표 Bear 41.9% (Bull 35.6 / Neutral 22.6, aaii.com WebSearch) — 비관 우세 강화. 무료 fetch API 없음 → 주간 WebSearch 갱신
 
-  // ── 글로벌 지수 (GMO 테이블용 정적 폴백, 실시간 수신 시 교체) ──
-  nikkei:    64693,    nikkeiPct:  -0.47,  // v49.92: 2026-05-28 close (TradingEconomics/Yahoo)
-  hangseng:  25006,    hangsengPct: -1.27, // v49.92: 2026-05-28 close (CNBC Asia, 기존 25947 stale)
+  // ── 글로벌 지수 (GMO 테이블용 정적 폴백, 실시간 수신 시 교체) ──  nikkei:    69404.50, nikkeiPct: +8.14,  // v50.62: public-data Yahoo ^N225  hangseng:  24493.95, hangsengPct: -0.29, // v50.62: public-data Yahoo ^HSI
   shanghai:   4098,    shanghaiPct: +0.12, // v49.95: SSE Composite 4,098 실측 (5/28 +0.12%, BBN/TradingEconomics — 지정학 경계+기술주 회복). 기존 3420 ~20% stale (글로벌 랠리 미반영)
-  dax:       25068,    daxPct:     -0.59,  // v49.92: 2026-05-28 close (기존 23200 → 25068 큰 stale 시정, DAX 사상최고권)
-  ftse:      10428,    ftsePct:    -0.73,  // v49.92: 2026-05-28 close (기존 10611 stale)
+  dax:       25068,    daxPct:     -0.59,  // v49.92: 2026-05-28 close (기존 23200 → 25068 큰 stale 시정, DAX 사상최고권)  ftse:      10491.97,  ftsePct:    +2.59,  // v50.62: public-data Yahoo ^FTSE
   cac:        8096,    cacPct:     -0.30,  // v49.95: CAC 40 8,096 실측 (5/28 -0.3%, 5/27 8,207.89 — 약한 PMI+중동 긴장. BBN/TradingEconomics). 기존 7950 stale
 
-  // ── 크립토·추가 원자재 (정적 폴백, 실시간 수신 시 교체) ──
-  btc:       61303,    btcPct:    -2.45,   // v50.39: BTC $61,302.56 2026-06-12 (WebSearch, -2.45%). 75k→61k 조정 — 미 금리 高(2Y/10Y 12개월 최고권) + 200일선 하회 지속. 라이브 fetch 우선
-  eth:        2068,    ethPct:    -2.40,   // v50.39: ETH 6/12 정확값 미확인 — BTC 동조 약세 추정(SKIPPED 레벨 유지). 라이브 fetch 우선
-  silver:     73.51,   silverPct: -0.91,  // v49.92: Fortune 2026-05-28 ($71.50 → $73.51)
+  // ── 크립토·추가 원자재 (정적 폴백, 실시간 수신 시 교체) ──  btc:       66444.00, btcPct:   +4.57,   // v50.62: public-data Yahoo BTC-USD  eth:        1792.74, ethPct:   +7.66,   // v50.62: public-data Yahoo ETH-USD  silver:     70.57,   silverPct:+10.46,  // v50.62: public-data Yahoo SI=F
 
   // ── 리스크 지표 (5/27 갱신) ──
   move:        73.58,   moveChg: +0.21,  // v50.5: MOVE 73.58 (Yahoo ^MOVE 2026-06-01) — 이제 ^MOVE LIVE_SYMBOLS 자동 fetch + 브릿지, 이 값은 폴백. 80 미만 = 채권시장 평온
   skew:       136.86,   skewChg: -1.50,  // v50.5: SKEW 136.86 (Yahoo ^SKEW 2026-06-02 live) — ^SKEW 자동 fetch + 브릿지, 폴백값
-  vvix_live:   85.50,   vvixChg: -1.40,  // v49.86: VVIX 추정 하향 (VIX 17.01 동조)
-  fg:            60,   fgLabel: 'Greed',  // v49.84: CNN F&G 60 (Greed, 2026-05-26 기준)
+  vvix_live:   85.50,   vvixChg: -1.40,  // v49.86: VVIX 추정 하향 (VIX 17.01 동조)  fg:            41,   fgLabel: 'Fear',  // v50.62: CNN Fear & Greed 2026-06-16T10:39Z
   fg_uw:         65,   fg_uwLabel: '탐욕', // v49.96: UW 확장 F&G 65 — _fallback.fg_uw(v49.84 CNN 60→UW 65)와 정합 (기존 74는 v48.70 stale)
 
   // ── v47.2: F&G 카테고리·지표별 분해 (Unusual Whales 4/15) ──
@@ -16878,10 +16991,8 @@ const DATA_SNAPSHOT = {
   // ── v46.4: 트레이딩 스코어 폴백값 (단일 진실 원천) ──
   // /data-refresh 실행 시 이 값들을 DATA_SNAPSHOT과 함께 갱신.
   // 모든 computeTradingScore/computeMarketHealth/computeExecutionWindow가 여기서 읽음.
-  _fallback: {
-    fg: 60,              // v49.84: CNN F&G 60 (Greed) 2026-05-26 기준
-    fg_uw: 65,           // v49.84: UW 확장 F&G (CNN 60 → UW 65 추정)
-    vix: 19.44,          // v50.39: 6/12 VIX ~19.44 (본체 정합, R184 미러)
+  _fallback: {    fg: 41,              // v50.62: CNN Fear & Greed 41 (Fear)
+    fg_uw: 65,           // v49.84: UW 확장 F&G (CNN 60 → UW 65 추정)    vix: 16.18,          // v50.62: DATA_SNAPSHOT.vix mirror
     breadth200: 57,      // v50.6: window._breadth200(레거시 변수명, 실제 20일선 breadth=bpSPX20)의 폴백값. 20일선 값(57)으로 정합. *200일선 데이터 아님*
     breadth5: 61,        // v49.87: $MMFD 61.41 실측 (Barchart)
     breadth50: 52,       // v50.11: breadth50sma 본체(52, S5FI 52.2%)와 mirror 동기화 (R184 drift 시정, 기존 61)
@@ -16889,14 +17000,9 @@ const DATA_SNAPSHOT = {
     aaiiBear: 41.9,      // v50.5: AAII 2026-05-27 발표 Bearish % (mirror 정합)
     spx50ma: 7280,       // v49.84: SPX 50일 이동평균 (5/27 기준 추정 — 신고가 후 상승)
     spx200ma: 6950,      // v49.84: SPX 200일 이동평균 추정
-    spxATH: 7585.00,     // v50.11: SPX ATH = 2026-06-04 close 신고가 (본체 spx 정합)
-    dxy: 99.10,          // v50.39: DXY ~99.1 (본체 정합, R184 미러)
-    tnx: 4.47,           // v50.39: 10Y 4.47% (6/11 WebSearch 실측)
-    hyg: 81,             // v49.84: HYG (위험선호 환경 — 신용 스프레드 타이트. 라이브 우선)
-    vvix: 85.75,         // v50.11: VVIX 85.75 — DATA_SNAPSHOT.vvix 본체와 mirror 동기화 (R184 drift 시정, 기존 83)
+    spxATH: 7585.00,     // v50.11: SPX ATH = 2026-06-04 close 신고가 (본체 spx 정합)    dxy: 99.55,          // v50.62: DATA_SNAPSHOT.dxy mirror    tnx: 4.469,          // v50.62: public-data Yahoo ^TNX    hyg: 80.04,          // v50.62: public-data Yahoo HYG    vvix: 87.58,         // v50.62: DATA_SNAPSHOT.vvix mirror
     move: 73.58,         // v50.5: MOVE 73.58 — DATA_SNAPSHOT.move와 정합 (Yahoo ^MOVE 2026-06-01)
-    skew: 136.86,        // v50.5: SKEW 136.86 — DATA_SNAPSHOT.skew와 정합 (Yahoo ^SKEW 2026-06-02)
-    _syncDate: '2026-06-11'  // v50.39: static fallback sync date (snapshot 본체와 mirror 정합)
+    skew: 136.86,        // v50.5: SKEW 136.86 — DATA_SNAPSHOT.skew와 정합 (Yahoo ^SKEW 2026-06-02)    _syncDate: '2026-06-16'  // v50.62: static fallback sync date
   }
 };
 
@@ -17616,6 +17722,7 @@ function applyDataSnapshot() {
       'kospi-prev':    _snap.localeFull(S.kospiPrev),
       'kospi-pct':     _snap.pct(S.kospiPct),
       'kosdaq':        _snap.localeFull(S.kosdaq),
+      'kosdaq-prev':   _snap.localeFull(S.kosdaqPrev),
       'kosdaq-pct':    _snap.pct(S.kosdaqPct),
       'move':          _snap.fixed(S.move, 1),
       'kr-unemploy':   _snap.fixed(S.krUnemploy, 1) + '%',
@@ -17883,13 +17990,15 @@ function applyDataSnapshot() {
 
     // v34.2: Staleness 경고 — 스냅샷 기준이지만 실시간 데이터가 들어오면 자동 해제
     // 개선: 고정 12초 타이머 → 반복 폴링 + 이벤트 리스너로 확실히 해제
-    const updated = S._updated ? new Date(S._updated).getTime() : 0;
+    const updated = (S._marketDataUpdated || S._updated) ? new Date(S._marketDataUpdated || S._updated).getTime() : 0;
     const age = updated ? (Date.now() - updated) : Infinity;
     const staleEl = document.getElementById('snapshot-stale-warning');
     if (staleEl) {
       if (!isNaN(age) && age > 24 * 60 * 60 * 1000) {
         const hrs = Math.floor(age / 3600000);
-        staleEl.textContent = '스냅샷 기준 ' + hrs + '시간 전. live 데이터 수신 시 자동 갱신됩니다.';
+        var mdDate = S._marketDataDate || S._snapshotDate || 'unknown';
+        var tgDate = S._telegramDigestDate || (S._telegramDigestUpdated ? String(S._telegramDigestUpdated).slice(0, 10) : 'unknown');
+        staleEl.textContent = 'Static market snapshot as of ' + mdDate + ' (' + hrs + 'h old); news/theme digest as of ' + tgDate + '. Live quotes replace these fallback numbers automatically.';
         staleEl.style.display = 'block';
 
         // 실시간 데이터 수신 감지 — 반복 체크 (5초 간격, 최대 2분)
@@ -18398,6 +18507,7 @@ window.AIO_DATA_TRUTH_GATE = {
       'BTC-USD': [1000, 500000], 'ETH-USD': [100, 50000]
     };
     if (exact[sym]) return exact[sym];
+    if (/\.(KS|KQ)$/.test(sym)) return [1, 10000000];
     var asset = this.classifyAsset(sym);
     if (asset === 'etf') return [1, 1000];
     if (asset === 'equity') return [0.01, 10000];
@@ -19222,7 +19332,7 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
   };
 };
 
-// v50.0: 21-page evidence-first contract layer.
+// v50.0: route-page evidence-first contract layer.
 // This does not pretend snapshots are current market data. It makes that boundary
 // machine-readable so UI, AI chat, audits, and deployment gates share one contract.
 (function() {
@@ -19602,6 +19712,7 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
   function _aioTextHasEvidenceNode(node) {
     try {
       var el = node && (node.nodeType === 1 ? node : node.parentElement);
+      if (el && el.querySelector && el.querySelector('[data-evidence-id],[data-snap],[data-live-price],[data-live-field],[data-source-kind],[data-source-label],[data-as-of]')) return true;
       while (el && el !== document.body) {
         if (el.getAttribute && (
           el.getAttribute('data-evidence-id') ||
@@ -19624,8 +19735,25 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     var isGuide = pageId === 'guide' || pageId === 'glossary';
     var archive = _aioTextIsArchiveNode(node);
     var hasEvidence = _aioTextHasEvidenceNode(node);
-    var developer = /(\[PRIMARY\]|\[SECONDARY\]|PAGE_PURPOSE_REGISTRY|ACTION_RULES|sectionOrder\[\d+\]|AIO_SCORE_SCALES|DATA_SNAPSHOT|EvidenceStore|CHAT_CONTEXTS|APP_VERSION|SW_VERSION|\bv4[0-9]\.\d{1,3}\/R\d+|\bR\d{2,3}\b|\bP\d{2,3}\b|debug|console|audit|gate)/i.test(text);
-    var staleDate = /(202[0-5][-.\/]\d{1,2}|2026-0[1-5][-.\/]\d{1,2}|\b[1-9]\/\d{1,2}(?:-\d{1,2})?\b|2024~2026|5월 갱신|갱신 대기|업데이트 예정|결과 확인 필요)/i.test(text);
+    var developer = /(\[PRIMARY\]|\[SECONDARY\]|PAGE_PURPOSE_REGISTRY|ACTION_RULES|sectionOrder\[\d+\]|AIO_SCORE_SCALES|DATA_SNAPSHOT|EvidenceStore|CHAT_CONTEXTS|APP_VERSION|SW_VERSION|\bv4[0-9]\.\d{1,3}\/R\d+|\bR\d{2,3}\b|(^|[^A-Z&])P\d{2,3}\b|\b(?:debug|console|audit|gate)\b)/i.test(text);
+    var slashFormula = /(\b\d+\/\d+\/\d+(?:M)?\b|M7\s+\d+\/\d+|섹터\s+\d+\/\d+|(?:MA|SMA|EMA)\s*\(?\d+\/\d+|모멘텀\s*\(\d+\/\d+\/\d+M|수익률\s*\(\d+\/\d+\/\d+M)/i.test(text);
+    var ratioSlash = /(?:합산|진입|순풍|상승|리더십|[A-Z^]{2,8}\s*·)[^\n]{0,20}\b\d+\/\d+\b|\b\d+\/\d+\b[^\n]{0,15}(?:%|진입|순풍|상승|리더십)/i.test(text);
+    var dateCue = /(FOMC|PCE|CPI|NFP|회의|일정|발표|텔레그램|기준일|예정|마감|갱신|어닝|실적)/i.test(text);
+    var staleDate = /(202[0-5][-.\/]\d{1,2}|2024~2026)/i.test(text);
+    if (!slashFormula && !ratioSlash) {
+      var nowParts = {};
+      try {
+        new Intl.DateTimeFormat('en-US', { timeZone:'Asia/Seoul', year:'numeric', month:'2-digit', day:'2-digit' })
+          .formatToParts(new Date()).forEach(function(p) { if (p.type !== 'literal') nowParts[p.type] = Number(p.value); });
+      } catch(_) {}
+      var todayUtc = Date.UTC(nowParts.year || new Date().getFullYear(), (nowParts.month || new Date().getMonth() + 1) - 1, nowParts.day || new Date().getDate());
+      var isoMatch = text.match(/\b(20\d{2})[-.\/](\d{1,2})[-.\/](\d{1,2})\b/);
+      var mdMatch = dateCue && text.match(/\b(0?[1-9]|1[0-2])\/(0?[1-9]|[12]\d|3[01])(?:[-~](?:0?[1-9]|[12]\d|3[01]))?\b/);
+      var targetUtc = isoMatch
+        ? Date.UTC(Number(isoMatch[1]), Number(isoMatch[2]) - 1, Number(isoMatch[3]))
+        : (mdMatch ? Date.UTC(nowParts.year || new Date().getFullYear(), Number(mdMatch[1]) - 1, Number(mdMatch[2])) : null);
+      if (targetUtc != null && Math.floor((todayUtc - targetUtc) / 86400000) > 14) staleDate = true;
+    }
     var currentCue = /(today|current|latest|live|real-?time|now|FOMC|CPI|PCE|NFP|VIX|SPX|NASDAQ|KOSPI|KOSDAQ|KRW|USD|실시간|현재|최신|오늘|다음|기준|자동갱신|수신 대기|시장|매매|브리핑|수급|금리|환율|뉴스|실적)/i.test(text);
     var jargonHits = (text.match(/\b(Weinstein|Bridgewater|Dalio|Druckenmiller|RRG|Breadth|Regime|Quality|ZBT|VIX|VVIX|MOVE|SKEW|RSI|MACD|ATR|IV|Greeks|FOMC|PCE|CPI|NFP|OAS|HY|IG|duration|convexity|basis|terminal|contango|backwardation)\b/gi) || []).length;
     var role = 'education-explainer';
@@ -19644,7 +19772,7 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     } else if (!isGuide && developer && attrName) {
       severity = 'warn';
       remediation = 'Remove internal implementation markers from tooltip/aria text.';
-    } else if (!isGuide && staleDate && !archive) {
+    } else if (!isGuide && staleDate && !archive && !hasEvidence) {
       severity = 'block';
       remediation = 'Replace fixed-date market copy with live calendar/news evidence or mark as archive.';
     } else if (role === 'current-market-claim' && !hasEvidence && !archive) {
@@ -19883,7 +20011,13 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
         }
         if (!row.sourceKind) checks.push({ type:'source-kind-missing', status:'warn' });
         if (row.operationalUse === 'reference-only') checks.push({ type:'reference-only-live-cell', status:'warn' });
-        if (row.truthStatus === 'blocked') checks.push({ type:'truth-blocked', status:'block', issues: row.truthIssues || '' });
+        if (row.truthStatus === 'blocked') {
+          checks.push({
+            type: row.operationalUse === 'reference-only' ? 'truth-blocked-reference-only' : 'truth-blocked',
+            status: row.operationalUse === 'reference-only' ? 'warn' : 'block',
+            issues: row.truthIssues || ''
+          });
+        }
         status = _statusFromChecks(checks);
         add('live', row, {
           sourcePolicy: status === 'pass' ? 'verified-current' : 'live-verification-required',
@@ -20308,7 +20442,12 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     var criticalBlocks = (evidence.pages || []).filter(function(p) { return criticalIds.indexOf(p.pageId) >= 0 && p.counts && p.counts.block; });
     var blocking = [];
     var warnings = [];
-    if (!contracts || contracts.status === 'fail' || contracts.routePageCount !== 21) blocking.push('21-page contract/profile/refresh/deep-audit contract incomplete');
+    var expectedRoutePageCount = contracts && contracts.expectedRoutePageCount;
+    if (!contracts || contracts.status === 'fail' || !Number.isInteger(expectedRoutePageCount) ||
+        contracts.routePageCount !== expectedRoutePageCount) {
+      blocking.push('route-page contract/profile/refresh/deep-audit contract incomplete (' +
+        (contracts ? contracts.routePageCount + '/' + expectedRoutePageCount : 'audit unavailable') + ')');
+    }
     if (sources && sources.missingCrossChecks && sources.missingCrossChecks.length) warnings.push('source adapter cross-check peer missing: ' + sources.missingCrossChecks.length);
     if (!registry || registry.auditCount < 7) blocking.push('audit registry incomplete');
     if (evidence.unclassifiedCount) blocking.push('unclassified evidence item(s): ' + evidence.unclassifiedCount);
@@ -20345,30 +20484,34 @@ window.AIO.updateSnapshotStaleBanner = function() {
   var el = document.getElementById('snapshot-stale-warning');
   if (!el) return null;
   var snap = window.DATA_SNAPSHOT || {};
-  var updatedTs = snap._updated ? new Date(snap._updated).getTime() : 0;
+  var marketUpdated = snap._marketDataUpdated || snap._updated;
+  var updatedTs = marketUpdated ? new Date(marketUpdated).getTime() : 0;
   if (!updatedTs || isNaN(updatedTs)) return null;
   var hrs = Math.floor((Date.now() - updatedTs) / 3600000);
+  var marketDate = snap._marketDataDate || snap._snapshotDate || 'unknown';
+  var digestDate = snap._telegramDigestDate || (snap._telegramDigestUpdated ? String(snap._telegramDigestUpdated).slice(0, 10) : 'unknown');
   if (hrs <= 24) {
     el.style.display = 'none';
-    return { status: 'fresh', hours: hrs };
+    return { status: 'fresh', hours: hrs, marketDataDate: marketDate, telegramDigestDate: digestDate };
   }
   var currentness = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit() : null;
   var coreLiveOk = !!(currentness && currentness.coreLiveOk);
+  var baseText = 'Static market snapshot as of ' + marketDate + ' (' + hrs + 'h old); news/theme digest as of ' + digestDate + '. ';
   el.style.display = 'block';
   el.setAttribute('data-operational-use', 'reference-only');
   el.setAttribute('data-source-kind', 'snapshot');
   if (coreLiveOk) {
-    el.textContent = '핵심 live 시세 반영 중 · 정적 보조 스냅샷은 ' + hrs + '시간 전 자료라 현재 판단에서 제외됩니다.';
+    el.textContent = baseText + 'Live quotes are active, so the static snapshot is reference-only.';
     el.style.background = 'rgba(0,212,255,0.08)';
     el.style.borderColor = 'rgba(0,212,255,0.25)';
     el.style.color = 'var(--data-cyan)';
   } else {
-    el.textContent = '정적 스냅샷 기준 ' + hrs + '시간 전 · 핵심 live 시세가 완전하지 않아 현재 시장 판단에 사용하지 마세요.';
+    el.textContent = baseText + 'Live quote coverage is incomplete; verify live values or public-data freshness before current-market decisions.';
     el.style.background = 'rgba(255,91,80,0.10)';
     el.style.borderColor = 'rgba(255,91,80,0.30)';
     el.style.color = 'var(--data-red)';
   }
-  return { status: coreLiveOk ? 'reference-only' : 'warn', hours: hrs, coreLiveOk: coreLiveOk };
+  return { status: coreLiveOk ? 'reference-only' : 'warn', hours: hrs, coreLiveOk: coreLiveOk, marketDataDate: marketDate, telegramDigestDate: digestDate };
 };
 
 window.AIO.applyMarketCurrentnessGuard = function(opts) {
@@ -21423,4 +21566,3 @@ window.AIO.getColorContrastAudit = function() {
   return { pairs: results, allPass: allPass, failCount: failCount,
     summary: 'WCAG AA (' + (allPass ? '✓ 전체 통과' : '✗ ' + failCount + '건 미달') + ')' };
 };
-

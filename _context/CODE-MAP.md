@@ -1,13 +1,13 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-06-04
+last_verified: 2026-06-16
 confidence: high
-target_version: v50.5
+target_version: v50.60
 target_file: index.html + js/*.js
-target_lines: index.html 31056 + js modules ~49556
+target_lines: index.html 29118 + js modules 53914
 ---
 
-# AIO v50.5 CODE-MAP
+# AIO v50.60 CODE-MAP
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `Select-String`/부분 Read로 한 번 더 확인한다.
@@ -18,13 +18,13 @@ target_lines: index.html 31056 + js modules ~49556
 
 | 파일 | 줄 수 | 역할 |
 |------|------:|------|
-| `index.html` | 31,056 | HTML shell, CSS, compact Page Focus Brief styles, explain summary styles, 21개 페이지 DOM, Institutional Technical Brief + Lockout/OPEX/Blow-off Top Control DOM, portfolio technical risk runtime, theme/trend no-static-current rendering, unified AI panel runtime, AI freshness preflight hook, 10-page stale live-like default cleanup, 일부 inline runtime, 외부 모듈 로드 |
-| `js/aio-core.js` | 20,125 | 버전, 전역 상태, DATA_SNAPSHOT, 캐시, Page Focus Brief UX, static data governance/auto-ops readiness, freshness planner, critical-10 freshness audit, technical snapshot/sell pressure engine, Lockout/OPEX/Blow-off Top strategy engine, **v50.x evidence-first 레이어**: `AIO_PAGE_CONTRACTS`(21페이지 단일 계약)·`EvidenceStore`·`SourceAdapterRegistry`·`FormulaRegistry`·`AIO_TEXT_SURFACE_CONTRACTS`·DataTruthGate·cross-source 검증·trading decision evidence gate·`runEvidenceDeploymentGate`, data pipeline audit, 페이지 라우터 |
-| `js/aio-data.js` | 13,721 | API fetcher, OHLCV + Yahoo fallback + quality bundle, OPEX/put-call/lockout bundle fetchers, live coverage guard, 뉴스 소스/스코어링/impact vector/렌더, HOME stale-event filter, Telegram/Aether pipeline audit, 키워드, 캘린더, 데이터 스케줄 + scheduler telemetry + force refresh + `ensureFreshDataForUse`, `recordCrossSourceQuote` 기록, requested-symbol quote batch refresh |
-| `js/aio-ui.js` | 3,050 | 심리/시장폭 차트, Institutional Technical Brief + Lockout/OPEX/Blow-off Top renderers, data-quality/news-impact/portfolio-risk renderers, LLM quota UI, GitHub polling, feedback UI |
-| `js/aio-chat.js` | 7,041 | CHAT_CONTEXTS, intent/memory/data-coverage prompt governance, AI freshness preflight hook, EvidenceStore 컨텍스트 주입 + 답변 후 numeric/date evidence 감사, Lockout/OPEX/Blow-off Top technical prompt, Claude/Perplexity, 기업 분석, fundamentalSearch |
-| `js/aio-tests.js` | 5,315 | 브라우저 단위 테스트 T1~T762 (총 843 `_assert`), `AIO.runTests()` / `AIO.getTestResults()` |
-| `js/aio-glossary.js` | 304 | 용어사전 검색/렌더 |
+| `index.html` | 29,118 | HTML shell, CSS, 22개 route page DOM, inline runtime, 외부 모듈 로드 |
+| `js/aio-core.js` | 21,545 | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터. `AIO_PAGE_CONTRACTS`는 22개 route 계약 |
+| `js/aio-data.js` | 14,361 | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, 스크리너 |
+| `js/aio-ui.js` | 3,154 | 차트/렌더러, KST 날짜 포맷터, LLM quota UI, 피드백 UI |
+| `js/aio-chat.js` | 8,002 | CHAT_CONTEXTS, 데이터 preflight/evidence, Claude/Perplexity, 추천 분산 후보, 의도별 답변 정책, 차트 기술 라우팅, AIO 통합 답변 파이프라인, 기업 분석 |
+| `js/aio-tests.js` | 6,538 | 브라우저 회귀 테스트 T1~T828, `AIO.runTests()` / `AIO.getTestResults()` |
+| `js/aio-glossary.js` | 314 | 용어사전 검색/렌더 |
 
 ---
 
@@ -34,40 +34,40 @@ target_lines: index.html 31056 + js modules ~49556
 |------|------|
 | 1 ~ 38 | head meta, title, preload (aio-core/data/ui/chat preload at 29~32) |
 | 39 ~ 3693 | 메인 CSS |
-| 3694 ~ 12581 | body shell + 21개 page DOM (8504~8507 인라인 `<style>` 포함) |
-| 12582 ~ 12584 | `aio-core/data/ui` 로드 (`?v=50.4`) |
-| 12585 ~ 15653 | inline runtime block 1 |
-| 15654 | `js/aio-chat.js` 로드 |
-| 15655 ~ 28004 | inline runtime block 2 |
-| 28005 | `js/aio-glossary.js` 로드 |
-| 28007 | `js/aio-tests.js` 로드 |
-| 28008 ~ 31056 | glossary/service worker/deep analysis/unified AI panel/update helpers + 후미 `<style>`(30429~30458) + closing HTML |
+| 3694 ~ 10469 | body shell + 22개 route page DOM |
+| 10471 ~ 10473 | `aio-core/data/ui` 로드 (`?v=50.60`) |
+| 10475 ~ 13659 | inline runtime block 1 |
+| 13660 | `js/aio-chat.js` 로드 |
+| 13662 ~ 26031 | inline runtime block 2 |
+| 26040 | `js/aio-glossary.js` 로드 |
+| 26043 ~ 29118 | glossary/service worker/deep analysis/unified AI panel/update helpers + closing HTML |
 
-### 21개 페이지 DOM 시작점
+### 22개 route 페이지 DOM 시작점
 
 | 페이지 | id | 시작 line |
 |--------|----|----------:|
-| 홈 대시보드 | `page-home` | 4122 |
-| 매매 시그널 | `page-signal` | 4583 |
-| 시장 폭 | `page-breadth` | 5434 |
-| 투자 심리 | `page-sentiment` | 5830 |
-| 데일리 브리핑 | `page-briefing` | 6113 |
-| 차트·기술 | `page-technical` | 6412 |
-| 거시경제 | `page-macro` | 6894 |
-| 환율·채권 | `page-fxbond` | 7499 |
-| 기업 분석 | `page-fundamental` | 8264 |
-| 테마/섹터 | `page-themes` | 8616 |
-| 테마 상세 | `page-theme-detail` | 8880 |
-| 포트폴리오 | `page-portfolio` | 8987 |
-| 티커 상세 | `page-ticker` | 9402 |
-| 시장 뉴스 | `page-market-news` | 9689 |
-| 옵션 분석 | `page-options` | 9830 |
-| 한국 홈 | `page-kr-home` | 10598 |
-| 한국 공급망 | `page-kr-supply` | 10939 |
-| 한국 테마 | `page-kr-themes` | 11170 |
-| 한국 거시 | `page-kr-macro` | 11267 |
-| 한국 기술 | `page-kr-technical` | 11596 |
-| 사용 설명서 | `page-guide` | 11843 |
+| 홈 대시보드 | `page-home` | 4044 |
+| 매매 시그널 | `page-signal` | 4280 |
+| 시장 폭 | `page-breadth` | 5031 |
+| 투자 심리 | `page-sentiment` | 5314 |
+| 데일리 브리핑 | `page-briefing` | 5528 |
+| 차트·기술 | `page-technical` | 5731 |
+| 거시경제 | `page-macro` | 6127 |
+| 환율·채권 | `page-fxbond` | 6695 |
+| 기업 분석 | `page-fundamental` | 7383 |
+| 테마/섹터 | `page-themes` | 7666 |
+| 테마 상세 | `page-theme-detail` | 7877 |
+| 포트폴리오 | `page-portfolio` | 7984 |
+| 티커 상세 | `page-ticker` | 8335 |
+| 시장 뉴스 | `page-market-news` | 8556 |
+| 옵션 분석(폐기 안내 shell) | `page-options` | 8666 |
+| 퀀트 스크리너 | `page-screener` | 8676 |
+| 한국 홈 | `page-kr-home` | 8726 |
+| 한국 수급 | `page-kr-supply` | 9016 |
+| 한국 테마 | `page-kr-themes` | 9212 |
+| 한국 거시 | `page-kr-macro` | 9279 |
+| 한국 기술 | `page-kr-technical` | 9572 |
+| 사용 설명서 | `page-guide` | 9793 |
 
 ---
 
@@ -92,35 +92,35 @@ target_lines: index.html 31056 + js modules ~49556
 | `calcTechnicalSnapshot` / `calcSellPressure` | 13954 / 14206 | OHLCV 스냅샷, 매도압력 엔진 |
 | `calcDataQuality` / `calcAIInfraHeat` / `calcPositionTechnicalRisk` | 14332 / 14385 / 14415 | 데이터품질·AI인프라열·포지션리스크 |
 | `AIO_EVENT_RISK_CONTEXT` / `calcBlowoffTopChecklist` | 14129 / 14169 | event risk + blow-off top checklist |
-| `APP_VERSION` | 14484 | R1 버전 단일 소스 (`v50.4`) |
+| `APP_VERSION` | 15835 | R1 버전 단일 소스 (`v50.60`) |
 | `getLiveCoverage` / `getDataFreshnessAudit` | 14922 / 14957 | core live quote coverage + freshness audit |
 | `getDataPipelineAudit` | 15043 | source→transport→scheduler→store→analysis→render audit |
 | `getOperationalHealth` | 15212 | 운영/SW/API/cache/freshness/pipeline 자체 진단 |
-| `applyDataSnapshot` | 16332 | snapshot → DOM, 키별 오류 격리 |
-| `_ldSafe` | 16778 | liveData + snapshot fallback |
-| `destroyPageCharts` | 19220 | 페이지 이탈 차트 정리 |
-| `showPage` | 19667 | SPA 페이지 전환 |
-| `_calcPortfolioVaR` | 20000 | 보수적 historical VaR |
+| `applyDataSnapshot` | 17686 | snapshot → DOM, 키별 오류 격리 |
+| `_ldSafe` | 18130 | liveData + snapshot fallback |
+| `destroyPageCharts` | 20634 | 페이지 이탈 차트 정리 |
+| `showPage` | 21082 | SPA 페이지 전환 |
+| `_calcPortfolioVaR` | 21415 | 보수적 historical VaR |
 | **DATA_SNAPSHOT** | (window.DATA_SNAPSHOT) | 시장 데이터 SSOT — `grep "DATA_SNAPSHOT ="`로 확인 |
 
 #### v50.x evidence-first 레이어 (`js/aio-core.js`)
 
 | 항목 | line | 비고 |
 |------|-----:|------|
-| `recordCrossSourceQuote` | 16980 | source-family별 시세 기록(R196) |
-| `getCrossSourceQuoteValidation` | 17018 | 교차 소스 불일치 검증 |
-| `getDataTruthAudit` | 17242 | DataTruthGate 감사(R195) |
-| `getMarketSituationReferenceSnapshot` | 17608 | 현재 시장 레짐 기준 스냅샷 |
-| `collectCritical10MarketContentInventory` | 17633 | critical-10 가시 콘텐츠 전수 인벤토리 |
-| `getCritical10ContentEvidenceMatrix` | 17839 / 18757 | 전 콘텐츠 pass/warn/block/needs_evidence(R199) |
-| `_buildContracts` / `AIO_PAGE_CONTRACTS` | 18070 / 18092 | 21페이지 단일 계약(R v50.0) |
-| `applyPageContractCompatibility` | 18105 | 계약→호환 맵 파생 |
-| `AIO_SOURCE_ADAPTER_REGISTRY` / `getSourceAdapterRegistry` | 18191 / 18219 | 소스 어댑터 레지스트리 |
-| `AIO_TEXT_SURFACE_CONTRACTS` / `applyTextSurfaceHygiene` / `getTextSurfaceAudit` | 18258 / 18377 / 18407 | 텍스트 표면 계약(R204) |
-| `buildEvidenceStore` | 18528 | evidenceId 분류 스토어(R v50.0) |
-| `getAllPageContentEvidenceMatrix` | 18741 | 21페이지 전체 증거 매트릭스 |
-| `getTradingDecisionInputEvidence` / `getTradingDecisionLogicAudit` | 18841 / 18863 | 트레이딩 결정 증거 게이트(R201) |
-| `runEvidenceDeploymentGate` | 18998 | **배포 게이트 — 7개 감사 통합 strict/warn 산출** |
+| `recordCrossSourceQuote` | 18332 | source-family별 시세 기록(R196) |
+| `getCrossSourceQuoteValidation` | 18370 | 교차 소스 불일치 검증 |
+| `getDataTruthAudit` | 18595 | DataTruthGate 감사(R195) |
+| `getMarketSituationReferenceSnapshot` | 18961 | 현재 시장 레짐 기준 스냅샷 |
+| `collectCritical10MarketContentInventory` | 18986 | critical-10 가시 콘텐츠 전수 인벤토리 |
+| `getCritical10ContentEvidenceMatrix` | 20165 | 전 콘텐츠 pass/warn/block/needs_evidence(R199) |
+| `_buildContracts` / `AIO_PAGE_CONTRACTS` | 19345 / 19367 | 22페이지 단일 계약 |
+| `applyPageContractCompatibility` | 19380 | 계약→호환 맵 파생 |
+| `AIO_SOURCE_ADAPTER_REGISTRY` | 19493 | 소스 어댑터 레지스트리 |
+| `AIO_TEXT_SURFACE_CONTRACTS` / `applyTextSurfaceHygiene` / `getTextSurfaceAudit` | 19560 / 19679 / 19709 | 텍스트 표면 계약(R204) |
+| `buildEvidenceStore` | 19830 | evidenceId 분류 스토어 |
+| `getAllPageContentEvidenceMatrix` | 20043 | 22페이지 전체 증거 매트릭스 |
+| `getTradingDecisionInputEvidence` / `getTradingDecisionLogicAudit` | 20143 / 20165 | 트레이딩 결정 증거 게이트(R201) |
+| `runEvidenceDeploymentGate` | 20300 | **배포 게이트 — 계약 기대값 기반 strict/warn 산출** |
 
 > news surface 계약(`AIO_NEWS_SURFACE_CONTRACTS` / `buildNewsSurfaceModel` / `getNewsSurfaceAudit`)은 `js/aio-data.js`에 위치(아래 표).
 
@@ -180,17 +180,23 @@ target_lines: index.html 31056 + js modules ~49556
 | 항목 | line | 비고 |
 |------|-----:|------|
 | `CHAT_CONTEXTS` | 8 | AI persona/context |
-| `_fetchDeepCompareData` | 2594 | 심층 기업 비교 데이터 |
-| `_classifyChatIntent` | 3081 | 의도 분류(governance) |
-| `_googleSearch` | 3441 | Google CSE fallback |
-| `chatSend` | 4368 | 컨텍스트별 AI 전송 |
-| AI freshness preflight + EvidenceStore rule | 4485 ~ 4602 | `ensureFreshDataForUse()` preflight + EvidenceStore-only 인용 강제 |
-| `_fmtNum` | 5386 | NaN/Infinity → `—` 표시 방어 |
-| `fundamentalSearch` | 5509 | 기업 분석 수집/렌더 |
-| `_renderFundHeader` | 5785 | 기업 분석 헤더 |
-| `_renderFundFinancials` | 5914 | 재무/애널리스트/SEC Frames, Infinity guard |
-| `_renderFundEarnings` | 6577 | 어닝 일정/서프라이즈 |
-| `_renderFundNews` | 6633 | Finnhub 기업 뉴스 |
+| `_aioBuildDiversifiedRecommendationRows` | 1747 | 넓은 종목 추천용 섹터·시장·시총 분산 후보군(R211) |
+| `_aioRunScreenerQuery` | 1821 | 자연어 스크리너/추천 후보 생성. 조건 없는 추천은 `diversified-recommendation` |
+| `_formatScreenerResultPrompt` | 1948 | 스크리너/균형 추천 후보 프롬프트 |
+| `_fetchTechnicalDataForChat` / `_aioTechnicalSymbolsForChat` | 2417 / 2470 | OHLCV 기술지표 주입 + 무티커 기술 질문 시장 대표 프록시 라우팅(R213) |
+| `AIO_CHAT_SOURCE_REGISTRY` | 2549 | 채팅 데이터 출처 레지스트리(`technicalOHLCV` 포함) |
+| `AIO_CHAT_PIPELINE_REGISTRY` / `_buildAioIntegratedAnswerContext` | 2583 / 3827 | AIO 전용 통합 답변 파이프라인. 현재 시장+정량+정성+페이지 연결 계약(R214) |
+| `_fetchDeepCompareData` | 3130 | 심층 기업 비교 데이터 |
+| `_classifyChatIntent` / `_aioChatAnswerPolicy` | 3725 / 3753 | 의도 분류 + 일반/스크리너/단순 종목/매매 판단 답변 정책 분리(R212) |
+| `_googleSearch` | 4201 | Google CSE fallback |
+| `chatSend` | 5142 | 컨텍스트별 AI 전송. 최근 반복 티커 감점 + 추천 다양성/의도별 답변 정책 + 기술 데이터 + 통합 답변 파이프라인 주입 |
+| AI freshness preflight + EvidenceStore rule | 5258 ~ 5393 | `ensureFreshDataForUse()` preflight + EvidenceStore-only 인용 강제 + integratedContextStr 생성 |
+| `_fmtNum` | 6282 | NaN/Infinity → `—` 표시 방어 |
+| `fundamentalSearch` | 6405 | 기업 분석 수집/렌더 |
+| `_renderFundHeader` | 6689 | 기업 분석 헤더 |
+| `_renderFundFinancials` | 6818 | 재무/애널리스트/SEC Frames, Infinity guard |
+| `_renderFundEarnings` | 7481 | 어닝 일정/서프라이즈 |
+| `_renderFundNews` | 7537 | Finnhub 기업 뉴스 |
 
 ---
 
@@ -198,7 +204,7 @@ target_lines: index.html 31056 + js modules ~49556
 
 | 작업 | 우선 파일/범위 |
 |------|----------------|
-| R1 버전 동기화 | `index.html:10`(title), `index.html:4135`(badge), `js/aio-core.js:14484`(APP_VERSION), `version.json`, `sw.js:8`(SW_VERSION), `_context/CLAUDE.md`, `CHANGELOG.md` + `index.html:12582~12584`·`15654`·`28005`·`28007` 캐시버스터 `?v=` |
+| R1 버전 동기화 | `index.html:10`(title), `index.html:4057`(badge), `js/aio-core.js:15835`(APP_VERSION), `version.json`, `sw.js:8`(SW_VERSION), `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md` + `index.html:10471~10473`·`13660`·`26040` 캐시버스터 `?v=` |
 | 배포 게이트/evidence 감사 | `js/aio-core.js:18070~19060` (contracts→evidence→trading→deployment gate) |
 | 데이터 진실성/교차소스 | `js/aio-core.js:16980~17500` |
 | 텍스트/뉴스 표면 계약 | `js/aio-core.js:18258~18420`(텍스트), `js/aio-data.js:7645~7990`(뉴스) |
@@ -208,8 +214,12 @@ target_lines: index.html 31056 + js modules ~49556
 | 페이지 전환/init 가드 | `js/aio-core.js:19220~19800`(destroyPageCharts/showPage), 각 page init 함수 |
 | sentiment/breadth 차트 | `js/aio-ui.js:14~900` |
 | LLM 모델/쿼터 | `js/aio-ui.js:1439~1700` |
-| Claude 채팅/웹검색/preflight | `js/aio-chat.js:3081~4602` |
-| 기업 분석 UI | `index.html:8264~8615`, `js/aio-chat.js:5509~7041` |
+| Claude 채팅/웹검색/preflight | `js/aio-chat.js:1747~5470` |
+| AI 추천 다양성/반복 편향 | `js/aio-chat.js:1747~1990`, `js/aio-chat.js:5021~5378`, `js/aio-tests.js:6283~6315` |
+| AI 답변 정책 유연화 | `js/aio-chat.js:3737~3761`, `js/aio-chat.js:5043~5400`, `js/aio-tests.js:6317~6344` |
+| AI 차트 분석 연결 | `js/aio-chat.js:2417~2483`, `js/aio-chat.js:5173~5186`, `js/aio-core.js:8655~8690`, `js/aio-tests.js:6346~6369` |
+| AI 통합 답변 파이프라인 | `js/aio-chat.js:2583~2595`, `js/aio-chat.js:3827~3905`, `js/aio-chat.js:5393~5411`, `js/aio-tests.js:6371~6410` |
+| 기업 분석 UI | `index.html:7383~8555`, `js/aio-chat.js:6313~7445` |
 | 포트폴리오 DOM | `index.html:8987~9401` |
 | 옵션 분석 DOM | `index.html:9830~10597` |
 | 한국 페이지 DOM | `index.html:10598~11842` |

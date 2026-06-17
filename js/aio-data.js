@@ -13,7 +13,7 @@ var SCREENER_DB_META = {
   staleAfterDays: 30,            // R75 lifecycle: 30일 경과 시 archive due (2026-05-29 기준 30일 경과 — archive 임계 도달, /data-refresh 권장)
   replaceAfterDays: 60,          // 60일 경과 시 replace due (2026-06-28)
   source: 'JPM/Citi/TDCowen/Mizuho 04/21~04/29 게시',
-  note: 'v49.99 점검(5/31): 텔레그램 3채널(@aetherjapanresearch·@insidertracking·@bornlupin) 일주일치 기관 리포트·코멘트 전방위 통합. 신규 추가: 키옥시아(6600.T)·TEL(8035.T). 업데이트: NVDA·MSFT·META·MU·SNDK·DELL·SKH·삼성·삼성전기·QCOM·INTC·AVGO·PANW·CRWD·IONQ. AI채팅 컨텍스트: 지정학/메모리사이클/Computex/BofA Hartnett/BOJ 우에다/JP모건 HBM점유율. MACRO_KW+18·TECH_KW+8. 다음 갱신 포인트: 6/3 AVGO 실적, 6/5 NFP.'
+  note: 'v50.62 Telegram/data refresh (2026-06-16 KST): scraped public mirrors for @aetherjapanresearch, @insidertracking, @bornlupin. 796 posts integrated as weekly themes, screener memo overlays, macro/tech keyword expansion, and chat context. Main clusters: US-Iran/Hormuz risk-on, BOJ 1% + JGB taper/Nikkei 70k, Anthropic Fable/Mythos export control, NVDA optical supply lock, CPO/NPO, 800V HVDC/SOFC power, MU/SK Hynix HBM4E, MLCC/silicon capacitor, WF6 supply shock.'
 };
 try { window.SCREENER_DB_META = SCREENER_DB_META; } catch(_) {}
 var SCREENER_DB = [
@@ -831,7 +831,7 @@ var SCREENER_DB = [
   { sym:'010620.KS', name:'HD현대미포', sector:'Industrials', signal:'HOLD', memo:'중형 선박 전문 · 석유화학 탱커 수주', mcap:4, rsi:48, index:'KOSPI' },
   { sym:'267250.KS', name:'HD현대', sector:'Industrials', signal:'HOLD', memo:'조선·중공업 지주 · 오일뱅크 · 그룹 밸류업', mcap:6, rsi:47, index:'KOSPI' },
   { sym:'082740.KS', name:'한화엔진', sector:'Industrials', signal:'HOLD', memo:'선박 엔진 · 친환경 LNG 이중연료', mcap:2, rsi:46, index:'KOSPI' },
-  { sym:'011200.KS', name:'HJ중공업', sector:'Industrials', signal:'HOLD', memo:'선박 엔진 · 발전설비', mcap:1, rsi:45, index:'KOSPI' },
+  { sym:'011200.KS', name:'HMM', sector:'Industrials', signal:'HOLD', memo:'컨테이너 해운 · 운임 사이클 · 물류', mcap:15, rsi:45, index:'KOSPI' },
 
   // 전력기기 (power-grid)
   { sym:'298040.KS', name:'효성중공업', sector:'Industrials', signal:'BUY', memo:'변압기/차단기 · 미국·중동 수출 호조 · 그리드 교체 수요', mcap:8, rsi:55, index:'KOSPI' },
@@ -877,11 +877,11 @@ var SCREENER_DB = [
   { sym:'278470.KQ', name:'에이피알(APR)', sector:'Consumer', signal:'BUY', memo:'메디큐브 북미 고성장 · D2C 뷰티 플랫폼 · 2024.02 KOSDAQ 상장', mcap:4, rsi:58, index:'KOSDAQ' },
   { sym:'257720.KQ', name:'실리콘투', sector:'Consumer', signal:'BUY', memo:'K-뷰티 글로벌 유통 · 스타일코리안 · 수출 폭증', mcap:3, rsi:55, index:'KOSDAQ' },
   { sym:'237880.KQ', name:'클리오', sector:'Consumer', signal:'HOLD', memo:'색조 화장품 · 세포라 입점 · 글로벌 확장', mcap:2, rsi:50, index:'KOSDAQ' },
-  { sym:'950130.KQ', name:'엘앤피코스메틱', sector:'Consumer', signal:'HOLD', memo:'메디힐 마스크팩 · K-뷰티 글로벌', mcap:1, rsi:47, index:'KOSDAQ' },
+  { sym:'950130.KQ', name:'엑시큐어', sector:'Healthcare', signal:'WATCH', memo:'핵산 치료제 플랫폼 · 임상·자금조달 리스크', mcap:1, rsi:47, index:'KOSDAQ' },
 
   //  K-콘텐츠 (kcontent)
   { sym:'352820.KS', name:'하이브', sector:'Communication Services', signal:'WATCH', memo:'BTS 개별활동 · 내부 리스크 · 앨범 둔화 우려', mcap:8, rsi:42, index:'KOSPI' },
-  { sym:'041510.KS', name:'SM엔터테인먼트', sector:'Communication Services', signal:'HOLD', memo:'에스파 · K-POP 대표 · 카카오 자회사', mcap:4, rsi:45, index:'KOSPI' },
+  { sym:'041510.KQ', name:'SM엔터테인먼트', sector:'Communication Services', signal:'HOLD', memo:'에스파 · K-POP 대표 · 카카오 자회사', mcap:4, rsi:45, index:'KOSDAQ' },
   { sym:'035900.KQ', name:'JYP엔터테인먼트', sector:'Communication Services', signal:'HOLD', memo:'스트레이키즈 · NiziU · K-POP 해외 수익', mcap:3, rsi:48, index:'KOSDAQ' },
   { sym:'122870.KQ', name:'YG엔터테인먼트', sector:'Communication Services', signal:'WATCH', memo:'블랙핑크 · 트레저 · IP 중심 전환', mcap:2, rsi:40, index:'KOSDAQ' },
   { sym:'253450.KS', name:'스튜디오드래곤', sector:'Communication Services', signal:'HOLD', memo:'K-드라마 제작 · 넷플릭스 파트너 · CJ ENM 자회사', mcap:2, rsi:45, index:'KOSPI' },
@@ -975,6 +975,178 @@ var SCREENER_DB = [
 // ── ADR% 추정 함수 (Jeff Sun CFTe 프레임워크 기반) ──
 // mcap 티어 + 섹터 변동성 보정으로 ADR% 추정
 // ADR%(Average Daily Range) = 하루 평균 변동폭 비율. 높을수록 변동성 큼.
+var AIO_TELEGRAM_WEEKLY_DIGEST = {
+  asOf: '2026-06-16T15:00:00+09:00',
+  window: '2026-06-09~2026-06-16 KST',
+  marketDataAsOf: '2026-06-16T19:58:22+09:00',
+  sources: ['https://t.me/s/aetherjapanresearch', 'https://t.me/s/insidertracking', 'https://t.me/s/bornlupin'],
+  counts: { total: 796, aetherjapanresearch: 132, insidertracking: 521, bornlupin: 143 },
+  pipelineNote: 'Public Telegram mirror scrape. insidertracking hit 30-page safety cap, so server-side digest should allow resumable paging/backfill for very high-volume channels.',
+  topicCounts: { geo:301, marketNote:299, macro:244, equity:204, semi:187, power:80, optical:45, aiPolicy:37, crypto:18 },
+  tickerCounts: { NVDA:66, MU:56, '005930.KS':35, AMZN:28, '000660.KS':28, META:25, TSM:21, AMD:20, ORCL:18, RKLB:18, MRVL:14, ADBE:12, LITE:11, AAOI:9, '009150.KS':8, SMCI:7, ALAB:6, BE:5, COHR:4, MTSI:1 },
+  themes: [
+    'Macro/geo: US-Iran MOU and Hormuz reopening narrative drove risk-on; WTI eased near $80, US 10Y fell below 4.45%, Goldman Q2 GDP tracker rose to 2.4%, but breadth lagged mega-cap tech.',
+    'Japan macro: BOJ raised overnight call rate 25bp to 1%, continued JGB purchase taper path, Nikkei briefly crossed 70,000; Citi sees only 25% odds of another hike before December.',
+    'AI policy: Anthropic Fable/Mythos export-control dispute with US Commerce remains unresolved; sovereign AI and nationality-based model access are now market-relevant risks.',
+    'AI infrastructure: NVDA appears to have locked EML capacity and is securing CW laser capacity; late optical buyers include AMD, Amazon, Meta. CPO/NPO, 800V HVDC, SOFC onsite power, and DC-grid gear remain bottleneck themes.',
+    'Memory/materials: TD Cowen lifted MU target to $1,500; SK Hynix HBM4E sampling pulled into Jun-Jul; AI-server MLCC lead times stretched toward 24 weeks; silicon capacitors and WF6/tungsten hexafluoride supply entered the watchlist.'
+  ],
+  catalysts: [
+    { key:'NVDA', text:'Bond financing, optical capacity lock, EML/CW laser supply control, Rubin Ultra memory pull, sovereign AI export-control spillover.' },
+    { key:'AMD', text:'Meta gigawatt MI450/Helios thesis, Venice CPU leverage, but late optical capacity risk versus NVDA.' },
+    { key:'MU', text:'SOCAMM/DRAM per-GW uplift, TD Cowen target $1,500, WSB/memory sentiment surge into earnings.' },
+    { key:'MRVL', text:'Celestial/CPO/NVLink Fusion linkage and optical supply-chain scarcity.' },
+    { key:'AMZN', text:'AWS/Trainium plus SK Group US AI data-center testbed and late optical-capacity risk.' },
+    { key:'ORCL', text:'AI infrastructure backlog/RPO and Bloom Energy 2.8GW SOFC time-to-power linkage.' },
+    { key:'BE', text:'SOFC onsite power as data-center grid bypass; Oracle 2.8GW master-contract narrative reinforced.' },
+    { key:'000660.KS', text:'HBM4E samples pulled forward, SK US AI data-center testbed, Ulsan AWS-linked AIDC to 100MW by 2029.' },
+    { key:'009150.KS', text:'MLCC 24-week lead time, AI server up to 28k MLCCs, silicon capacitor strategy across AI server/mobile/auto/optical.' }
+  ],
+  categories: [
+    { id:'macro-geo', label:'Macro/Geopolitics', topics:['macro','geo','market-note'], focus:'US-Iran/Hormuz de-escalation, oil shock reversal, rates/FX risk-on, breadth lag.' },
+    { id:'japan-rates', label:'Japan Rates/Equity', topics:['macro','bond','fx','market-note'], focus:'BOJ 1%, JGB taper, Nikkei 70k, yen/rate sensitivity.' },
+    { id:'ai-policy', label:'AI Policy/Sovereignty', topics:['ai-policy','semi','macro'], focus:'Anthropic Fable/Mythos export-control and nationality/access rules.' },
+    { id:'optical-interconnect', label:'Optical Interconnect', topics:['optical','semi'], focus:'EML/CW laser capacity, CPO/NPO, Celestial/NVLink Fusion, late buyer risk.' },
+    { id:'power-grid', label:'AI Power/Grid', topics:['power','energy','semi'], focus:'800V HVDC, SOFC onsite power, grid gear, transformer and time-to-power bottlenecks.' },
+    { id:'memory-materials', label:'Memory/Materials', topics:['memory','materials','semi'], focus:'MU, SK Hynix HBM4E, MLCC 24w lead times, silicon capacitors, WF6.' },
+    { id:'equity-analyst', label:'Equity/Analyst Flow', topics:['equity','analyst','earnings'], focus:'PT revisions, index inclusion, single-stock catalysts and crowding.' },
+    { id:'space-leo', label:'Space/LEO', topics:['space','equity'], focus:'RKLB/NBIS/SpaceX-linked momentum, satellite and launch supply chain.' },
+    { id:'crypto-risk', label:'Crypto/Risk Appetite', topics:['crypto','market-note'], focus:'BTC/ETH liquidity beta and risk-on confirmation/divergence.' },
+    { id:'korea-supplychain', label:'Korea Supply Chain', topics:['semi','power','materials','equity'], focus:'SK Hynix, Samsung Electronics, Samsung Electro-Mechanics, Korean AI infra and power equipment.' }
+  ],
+  pageMap: {
+    home: ['macro-geo','ai-policy','optical-interconnect','power-grid','memory-materials'],
+    macro: ['macro-geo','japan-rates','ai-policy'],
+    fxbond: ['macro-geo','japan-rates'],
+    technical: ['optical-interconnect','memory-materials','power-grid'],
+    themes: ['optical-interconnect','power-grid','memory-materials','space-leo','crypto-risk','korea-supplychain'],
+    sentiment: ['macro-geo','crypto-risk','equity-analyst'],
+    signal: ['macro-geo','optical-interconnect','power-grid','memory-materials'],
+    fundamental: ['equity-analyst','memory-materials','optical-interconnect','power-grid','ai-policy'],
+    breadth: ['macro-geo','equity-analyst','memory-materials'],
+    screener: ['equity-analyst','optical-interconnect','power-grid','memory-materials','space-leo','korea-supplychain'],
+    briefing: ['macro-geo','japan-rates','ai-policy','optical-interconnect','power-grid','memory-materials'],
+    'market-news': ['macro-geo','japan-rates','ai-policy','optical-interconnect','power-grid','memory-materials','equity-analyst','space-leo','crypto-risk','korea-supplychain']
+  }
+};
+try { window.AIO_TELEGRAM_WEEKLY_DIGEST = AIO_TELEGRAM_WEEKLY_DIGEST; } catch(_) {}
+var AIO_TELEGRAM_CATEGORY_REGISTRY = AIO_TELEGRAM_WEEKLY_DIGEST.categories || [];
+var AIO_TELEGRAM_PAGE_INTEGRATION_MAP = AIO_TELEGRAM_WEEKLY_DIGEST.pageMap || {};
+try {
+  window.AIO_TELEGRAM_CATEGORY_REGISTRY = AIO_TELEGRAM_CATEGORY_REGISTRY;
+  window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP = AIO_TELEGRAM_PAGE_INTEGRATION_MAP;
+} catch(_) {}
+
+function _aioTelegramWindowLabel(sinceIso, untilIso) {
+  try {
+    var fmt = new Intl.DateTimeFormat('en-CA', { timeZone:'Asia/Seoul', year:'numeric', month:'2-digit', day:'2-digit' });
+    var s = sinceIso ? fmt.format(new Date(sinceIso)) : null;
+    var u = untilIso ? fmt.format(new Date(untilIso)) : null;
+    return (s && u) ? (s + '~' + u + ' KST') : null;
+  } catch(_) { return null; }
+}
+
+function _aioNormalizeTelegramDigestPayload(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  var base = AIO_TELEGRAM_WEEKLY_DIGEST || {};
+  var channelRows = Array.isArray(raw.channels) ? raw.channels : [];
+  var counts = { total: Number(raw.count || 0) || (base.counts && base.counts.total) || 0 };
+  channelRows.forEach(function(ch) {
+    if (ch && ch.channel) counts[ch.channel] = Number(ch.count || 0) || 0;
+  });
+  var sources = channelRows.length ? channelRows.map(function(ch) {
+    return 'https://t.me/s/' + ch.channel;
+  }) : (base.sources || []);
+  var windowLabel = _aioTelegramWindowLabel(raw.since, raw.until) || base.window || '';
+  var asOf = raw.generatedAt || raw.until || base.asOf || null;
+  var merged = Object.assign({}, base, {
+    asOf: asOf,
+    window: windowLabel,
+    sources: sources,
+    counts: counts,
+    topicCounts: Object.assign({}, base.topicCounts || {}, raw.topicCounts || {}),
+    tickerCounts: Object.assign({}, base.tickerCounts || {}, raw.tickerCounts || {}),
+    rawTopItems: Array.isArray(raw.topItems) ? raw.topItems.slice(0, 40) : [],
+    rawItemCount: Number(raw.count || 0) || 0,
+    rawChannels: channelRows,
+    dynamicDigestLoaded: true,
+    dynamicDigestSource: raw.source || 'telegram-public-mirror',
+    pipelineNote: String(base.pipelineNote || '') + ' Automated public-data/telegram-digest.json is loaded at boot when available.'
+  });
+  return merged;
+}
+
+function _aioApplyTelegramDigestPayload(raw) {
+  var merged = _aioNormalizeTelegramDigestPayload(raw);
+  if (!merged) return false;
+  AIO_TELEGRAM_WEEKLY_DIGEST = merged;
+  AIO_TELEGRAM_CATEGORY_REGISTRY = merged.categories || [];
+  AIO_TELEGRAM_PAGE_INTEGRATION_MAP = merged.pageMap || {};
+  try {
+    window.AIO_TELEGRAM_WEEKLY_DIGEST = AIO_TELEGRAM_WEEKLY_DIGEST;
+    window.AIO_TELEGRAM_CATEGORY_REGISTRY = AIO_TELEGRAM_CATEGORY_REGISTRY;
+    window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP = AIO_TELEGRAM_PAGE_INTEGRATION_MAP;
+    window._aioTelegramDigestMeta = {
+      status: 'ready',
+      loadedAt: Date.now(),
+      asOf: merged.asOf,
+      window: merged.window,
+      count: merged.counts && merged.counts.total,
+      source: merged.dynamicDigestSource
+    };
+    if (window.DATA_SNAPSHOT && merged.asOf) {
+      window.DATA_SNAPSHOT._telegramDigestUpdated = merged.asOf;
+      window.DATA_SNAPSHOT._telegramDigestDate = new Date(merged.asOf).toISOString().slice(0, 10);
+      window.DATA_SNAPSHOT._telegramDigestWindow = merged.window || window.DATA_SNAPSHOT._telegramDigestWindow;
+      window.DATA_SNAPSHOT._narrativeUpdated = merged.asOf;
+    }
+  } catch(_) {}
+  return true;
+}
+
+async function _aioLoadServerTelegramDigest() {
+  try {
+    var url = './public-data/telegram-digest.json?t=' + Math.floor(Date.now() / 3600000);
+    var r = await fetch(url, { cache: 'no-cache' });
+    if (!r.ok) {
+      window._aioTelegramDigestMeta = { status:'unavailable', checkedAt:Date.now(), detail:'HTTP ' + r.status };
+      return false;
+    }
+    var raw = await r.json();
+    var ok = _aioApplyTelegramDigestPayload(raw);
+    if (!ok) window._aioTelegramDigestMeta = { status:'unavailable', checkedAt:Date.now(), detail:'invalid payload' };
+    return ok;
+  } catch(e) {
+    window._aioTelegramDigestMeta = { status:'unavailable', checkedAt:Date.now(), detail:(e && e.message) || 'fetch failed' };
+    return false;
+  }
+}
+
+try {
+  window._aioNormalizeTelegramDigestPayload = _aioNormalizeTelegramDigestPayload;
+  window._aioApplyTelegramDigestPayload = _aioApplyTelegramDigestPayload;
+  window._aioLoadServerTelegramDigest = _aioLoadServerTelegramDigest;
+} catch(_) {}
+
+try {
+  var _tgMemoOverlay = {
+    NVDA: '[TG 06/16] $25B bond issue + EML/CW laser capacity lock; Rubin Ultra/HBM4E and sovereign-AI export-control themes raise both upside and policy risk.',
+    AMD: '[TG 06/16] Citi/Meta MI450 gigawatt thesis and Venice CPU leverage; watch late optical-capacity constraints versus NVDA supply lock.',
+    AMZN: '[TG 06/16] AWS/Trainium remains AI infra anchor; SK Group US AI DC testbed and optical-capacity scarcity add supply-chain relevance.',
+    ORCL: '[TG 06/16] OCI/AI infra backlog narrative reinforced; Bloom Energy 2.8GW SOFC time-to-power linkage remains key power catalyst.',
+    MU: '[TG 06/15] TD Cowen PT $1,500; SOCAMM de-spec still lifts DRAM per GW, pricing strength could run through 2H27; memory sentiment crowded.',
+    MRVL: '[TG 06/16] Celestial/CPO/NVLink Fusion and CW-laser scarcity keep optical interconnect as main upside/risk vector.',
+    BE: '[TG 06/16] SOFC onsite power framed as AI DC grid-bypass solution; Oracle 2.8GW master contract + 90-120d deployment thesis reinforced.',
+    '000660.KS': '[TG 06/15-16] HBM4E samples pulled forward to Jun-Jul; SK US AI DC testbed and Ulsan AWS-linked AIDC target 100MW by 2029.',
+    '009150.KS': '[TG 06/15-16] AI server MLCC lead times near 24w; silicon capacitor strategy and up-to-28k MLCC/server demand support cycle.'
+  };
+  SCREENER_DB.forEach(function(r) {
+    if (r && _tgMemoOverlay[r.sym] && String(r.memo || '').indexOf(_tgMemoOverlay[r.sym]) < 0) {
+      r.memo = _tgMemoOverlay[r.sym] + ' ' + (r.memo || '');
+    }
+  });
+} catch(_) {}
+
 function getAdrEstimate(r) {
   var base;
   if (r.mcap >= 1000) base = 1.5;      // MEGA (1T+)
@@ -1283,7 +1455,7 @@ var SCR_KEYWORD_ALIASES = {
   'k배터리': ['373220.KS','006400.KS','247540.KQ','051910.KS','005490.KS','096770.KS','086520.KQ','003670.KQ','066970.KQ'],
   'k바이오': ['068270.KS','207940.KS','196170.KQ','128940.KS','028300.KQ','000100.KS','326030.KS','141080.KQ'],
   'k뷰티': ['090430.KS','051900.KS','044820.KQ','192820.KQ','161890.KS','278470.KQ','257720.KQ','237880.KQ'],
-  'k콘텐츠': ['259960.KS','352820.KS','041510.KS','035900.KQ','122870.KQ','253450.KS','035760.KS'],
+  'k콘텐츠': ['259960.KS','352820.KS','041510.KQ','035900.KQ','122870.KQ','253450.KS','035760.KS'],
   'k푸드': ['003230.KS','097950.KS','271560.KS','004370.KS','280360.KS','005180.KS','000080.KS'],
   'k금융': ['105560.KS','055550.KS','086790.KS','316140.KS','138040.KS','032830.KS','000810.KS','323410.KQ'],
   'k로봇': ['454910.KQ','277810.KQ','315640.KQ','178320.KQ','005380.KS'],
@@ -1394,7 +1566,14 @@ function renderScreenerResults() {
 
   var html = '';
   // v50.53 2A: 멀티팩터 퀀트 랭크 컬럼 + 팩터 점수(모멘텀/추세/저변동). editorial signal/메모는 보존(행 title).
-  var _fcell = function(v){ if (v == null) return '<td style="text-align:right;padding:6px 8px;color:#5a6678;">—</td>'; var c = v>=66?'#00e5a0':v>=40?'#ffa31a':'#ff5b50'; return '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+c+';">'+v+'</td>'; };
+  var _fcell = function(v, label, gated){
+    if (v == null) {
+      var why = gated ? label + ' 데이터 미수신 — 현재 랭크에서 제외' : label + ' 팩터 데이터 미수신';
+      return '<td aria-label="' + escHtml(why) + '" title="' + escHtml(why) + '" style="text-align:right;padding:6px 8px;color:#5a6678;">—</td>';
+    }
+    var c = v>=66?'#00e5a0':v>=40?'#ffa31a':'#ff5b50';
+    return '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+c+';">'+v+'</td>';
+  };
   filtered.forEach(function(r) {
     var sc = r.signal === 'BUY' ? '#00e5a0' : r.signal === 'SELL' ? '#ff5b50' : r.signal === 'WATCH' ? '#ffa31a' : '#7b8599';
     var sb = r.signal === 'BUY' ? 'var(--data-green-soft)' : r.signal === 'SELL' ? 'var(--data-red-soft)' : r.signal === 'WATCH' ? 'var(--data-amber-soft)' : 'var(--data-muted-soft)';
@@ -1409,7 +1588,7 @@ function renderScreenerResults() {
       '<td style="text-align:center;padding:6px 8px;"><span style="font-family:var(--font-mono);font-weight:800;font-size:12px;color:'+rkColor+';">' + (rank==null?'—':rank) + '</span>' + (r.quantSignal ? '<div style="font-size:9px;color:'+rkColor+';">'+escHtml(r.quantSignal)+'</div>' : '') + '</td>' +
       '<td style="padding:6px 8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:10px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
       '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);">' + escHtml(r.sector||'') + '</td>' +
-      _fcell(fs.momentum) + _fcell(fs.trend) + _fcell(fs.lowvol) + _fcell(fs.value) + _fcell(fs.quality) +
+      _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+ret3c+';">' + ret3 + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
@@ -1435,6 +1614,14 @@ function renderScreenerResults() {
     if (asEl) asEl.textContent = window._aioScreenerFactorAsOf ? ('팩터 기준 ' + String(window._aioScreenerFactorAsOf).slice(0,10)) : '팩터 데이터 대기 (정적 시그널 폴백 중)';
     var rnEl = document.getElementById('screener-regime-note');   // v50.54 3A: 레짐 적응 가중 표시
     if (rnEl) rnEl.textContent = window._aioActiveFactorRegime ? ('⚙️ 가중 레짐: ' + window._aioActiveFactorRegime) : '';
+    var fcEl = document.getElementById('screener-factor-coverage');
+    if (fcEl) {
+      var activeFactors = window._aioActiveFactors || [];
+      var omitted = ['value','quality'].filter(function(k){ return activeFactors.indexOf(k) === -1; });
+      fcEl.textContent = activeFactors.length
+        ? ('활성 팩터 ' + activeFactors.length + '개: ' + activeFactors.join(' · ') + (omitted.length ? ' | 제외: ' + omitted.join(' · ') + ' (서버 FMP 미수신)' : ''))
+        : '활성 팩터 없음 — 서버 팩터 파일 미수신';
+    }
     if (typeof _aioRenderScreenerBacktest === 'function') _aioRenderScreenerBacktest();
   } catch(_) {}
 
@@ -1500,7 +1687,19 @@ window._aioRenderScreenerBacktest = function() {
   var el = document.getElementById('screener-backtest-panel');
   if (!el) return;
   var bt = window._aioFactorBacktest;
-  if (!bt || !bt.ic) { el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">팩터 검증 데이터 수집 중 — 서버 enrichment(일 1회) 후 표시됩니다.</div>'; return; }
+  var state = window._aioScreenerLoadState || { status:'loading' };
+  if (!bt || !bt.ic) {
+    if (state.status === 'unavailable') {
+      el.innerHTML = '<div style="font-size:11px;color:var(--data-amber);font-weight:700;">팩터 검증 비활성</div>' +
+        '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.5;">서버 팩터 파일을 받지 못해 백테스트·라이브 팩터를 표시하지 않습니다. 정적 데이터 기반 표는 유지됩니다.' +
+        (state.detail ? ' <span style="font-family:var(--font-mono);">(' + escHtml(state.detail) + ')</span>' : '') + '</div>';
+    } else if (state.status === 'partial') {
+      el.innerHTML = '<div style="font-size:11px;color:var(--data-amber);">팩터 데이터는 수신했지만 백테스트 결과가 없습니다.</div>';
+    } else {
+      el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">팩터 검증 파일 확인 중...</div>';
+    }
+    return;
+  }
   var fmtIC = function(v){ if (v == null) return '—'; var c = v>=0.05?'#00e5a0':v<=-0.05?'#ff5b50':'#ffa31a'; return '<span style="color:'+c+';font-weight:700;">'+v.toFixed(3)+'</span>'; };
   var rows = [['모멘텀','momentum'],['추세','trend'],['저변동','lowvol'],['종합','composite']].map(function(p){
     return '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">'+p[0]+' IC</span>'+fmtIC(bt.ic[p[1]])+'</div>';
@@ -4496,12 +4695,21 @@ window._aioSpxAthFloor = _aioSpxAthFloor;
 // data.json 없거나 로드 실패 시 조용히 false → 기존 클라이언트 경로가 폴백.
 // ─────────────────────────────────────────────────────────────────────────
 async function _aioLoadServerData() {
+  window._aioScreenerLoadState = { status:'loading', checkedAt:Date.now() };
   try {
     var url = './public-data/data.json?t=' + Math.floor(Date.now() / 60000); // 분 단위 캐시버스터
     var r = await fetch(url, { cache: 'no-cache' });
-    if (!r.ok) return false;
+    if (!r.ok) {
+      window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'data.json HTTP ' + r.status };
+      try { if (typeof _aioRenderScreenerBacktest === 'function') _aioRenderScreenerBacktest(); } catch(_) {}
+      return false;
+    }
     var d = await r.json();
-    if (!d || !d.meta) return false;
+    if (!d || !d.meta) {
+      window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'invalid data.json payload' };
+      try { if (typeof _aioRenderScreenerBacktest === 'function') _aioRenderScreenerBacktest(); } catch(_) {}
+      return false;
+    }
 
     var ageMin = d.meta.generatedAt ? Math.round((Date.now() - new Date(d.meta.generatedAt).getTime()) / 60000) : null;
     window._serverDataMeta = { generatedAt: d.meta.generatedAt, ageMin: ageMin, symbolsOk: d.meta.symbolsOk, loadedAt: Date.now() };
@@ -4531,6 +4739,9 @@ async function _aioLoadServerData() {
       window._serverNewsBackstop = d.news;
       try { _aioApplyNewsBackstop(false); } catch(_) {}
     }
+    try {
+      if (typeof _aioLoadServerTelegramDigest === 'function') await _aioLoadServerTelegramDigest();
+    } catch(_) {}
     // 5) v50.48/Phase 4: 서버 LLM 시장 분석문(운영자 키 있을 때 cron 생성) — 있으면 합성 sink가 템플릿 대신 우선 사용.
     if (d.marketAnalysis && (d.marketAnalysis.full || d.marketAnalysis.oneLine)) {
       window._serverMarketAnalysis = { full: d.marketAnalysis.full || d.marketAnalysis.oneLine, oneLine: d.marketAnalysis.oneLine || d.marketAnalysis.full, generatedAt: d.marketAnalysis.generatedAt || d.meta.generatedAt };
@@ -4542,9 +4753,20 @@ async function _aioLoadServerData() {
       var sr = await fetch(sUrl, { cache: 'no-cache' });
       if (sr.ok) {
         var sd = await sr.json();
-        if (sd && sd.data) { window._aioServerScreener = sd; if (typeof _aioApplyServerScreener === 'function') _aioApplyServerScreener(sd); }
+        if (sd && sd.data) {
+          window._aioScreenerLoadState = { status:sd.backtest ? 'ready' : 'partial', checkedAt:Date.now(), asOf:sd.asOf || null, count:Object.keys(sd.data).length };
+          window._aioServerScreener = sd;
+          if (typeof _aioApplyServerScreener === 'function') _aioApplyServerScreener(sd);
+        } else {
+          window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'invalid payload' };
+        }
+      } else {
+        window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'HTTP ' + sr.status };
       }
-    } catch(_) { /* screener.json 없으면 정적 SCREENER_DB 폴백 */ }
+    } catch(e) {
+      window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:(e && e.message) || 'fetch failed' };
+    }
+    try { if (typeof _aioRenderScreenerBacktest === 'function') _aioRenderScreenerBacktest(); } catch(_) {}
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
     _aioRenderServerDataAge();  // v50.24/WO-4: 나이 배지 갱신
     // v50.24/WO-4: 보이는 페이지 분석 텍스트도 새 데이터로 재생성 (숨은 페이지는 스킵)
@@ -4552,6 +4774,8 @@ async function _aioLoadServerData() {
     try { window.dispatchEvent(new CustomEvent('aio:serverDataLoaded', { detail: window._serverDataMeta })); } catch(_) {}
     return true;
   } catch (e) {
+    window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'server data unavailable' };
+    try { if (typeof _aioRenderScreenerBacktest === 'function') _aioRenderScreenerBacktest(); } catch(_) {}
     if (typeof _aioLog === 'function') _aioLog('warn', 'data', 'server data.json 로드 실패(폴백): ' + (e && e.message || e));
     return false;
   }
@@ -4922,6 +5146,13 @@ const AIO_NEWS_SOURCES = [
 ];
 
 window.AIO_NEWS_SOURCES = AIO_NEWS_SOURCES;
+function _aioUpdateNewsSourceMeta() {
+  var count = AIO_NEWS_SOURCES.length;
+  document.querySelectorAll('[data-news-source-count]').forEach(function(el){ el.textContent = count; });
+  return count;
+}
+window._aioUpdateNewsSourceMeta = _aioUpdateNewsSourceMeta;
+_aioUpdateNewsSourceMeta();
 
 // ── Global HTML escape ─────────────────────────────────────────
 function escHtml(s) {
@@ -5008,6 +5239,11 @@ const MACRO_KW = [
   '평균물가목표','2% 물가목표','중물가',
   // v39.2: JP모건 유가 시나리오 + 트럼프 국방예산 (2026.04)
   'demand destruction threshold','oil price scenario','gasoline price','K-shaped recovery',
+  // v50.61 Telegram 7d macro/policy extensions.
+  'BOJ 1%','JGB purchase taper','Nikkei 70000','Iran reconstruction fund',
+  'US-Iran MOU','Hormuz reopening','Hormuz oil shipments','AI model export control',
+  'Fable 5 export control','Mythos 5 export control','foreign national AI access',
+  'sovereign AI regulation','G7 AI security','Commerce Department AI export',
   'quality growth','low volatility','selective re-entry','bear flattener',
   'energy exporter','energy importer','AUD carry','NOK carry',
   'cross-asset correlation','inflation expectations anchored','net energy exporter',
@@ -5556,6 +5792,10 @@ const TECH_KW = [
   // ── v37.3: 테크 이벤트 · 컨퍼런스
   'CES','MWC','GTC','WWDC','Google I/O','Build','re:Invent','re:MARS',
   'Computex','Computex 2026','GTC Taipei','GTC 타이페이','Computex keynote',
+  'WF6','tungsten hexafluoride','Kanto Denka','Central Glass','silicon capacitor',
+  'AI server MLCC','CPO/NPO','NPO','CW laser supply','EML capacity lock',
+  'optical capacity lock','800V HVDC','SOFC data center','solid oxide fuel cell',
+  'CoPoS glass substrate','glass substrate CoPoS','HBM4E sample','SOCAMM de-spec',
   'Vera Rubin Windows PC','ARM PC','NVDA PC chip','on-device AI PC',
   'Kioxia BiCS','BICS10','NAND scaling','수평 스케일링','낸드 수평 미세화',
   'MLCC shortage','MLCC supply','passive component price','MLCC 부족','수동소자',
@@ -6476,6 +6716,12 @@ const TOPIC_KEYWORDS = {
               'israel','lebanon','hezbollah','hormuz','strait','blockade','CENTCOM','drone','drone strike',
               'IRGC','proxy','oil tanker','tanker seizure','shipping lane','oil embargo',
               '이란','이스라엘','레바논','헤즈볼라','호르무즈','봉쇄','공습','드론','유조선','해상봉쇄'],
+  'market-note': ['market note','market tape','risk-on','risk off','risk appetite','breadth lag','rotation','positioning',
+              'short squeeze','liquidity','vol crush','volatility crush','mega-cap led','equal weight','factor rotation',
+              'FOMO','crowding','gamma','dealers','market microstructure','rebound rally','relief rally'],
+  'ai-policy': ['AI policy','AI regulation','export control','Commerce Department','Fable','Mythos','sovereign AI',
+              'model export','nationality-based access','AI access','frontier model','compute governance','AI security',
+              'foreign national','G7 AI','dual-use AI','AI sanctions','model weights','AI licensing'],
   semi:     ['semiconductor','chip','AI','GPU','HBM','TSMC','NVDA','AMD','AVGO','SMCI','memory','foundry',
               'Blackwell','H100','H200','CoWoS','EUV','ASML','반도체','파운드리','HBM',
               'wafer','fab','advanced packaging','chiplet','2nm','3nm','1.4nm','GAA',
@@ -6536,6 +6782,20 @@ const TOPIC_KEYWORDS = {
               'DeFi','DEX','TVL','staking','validator','layer 2','rollup',
               'SEC crypto','crypto regulation','MiCA',
               '이더리움','솔라나','스테이블코인','채굴','온체인','디파이','크립토 ETF'],
+  optical:  ['optical','photonics','silicon photonics','CPO','NPO','co-packaged optics','EML','CW laser','DFB laser',
+              'VCSEL','InP','indium phosphide','OCS','optical circuit switch','1.6T optics','3.2T optics',
+              'Celestial','NVLink Fusion','Lumentum','Coherent','AAOI','Applied Optoelectronics','Lightmatter','Ayar Labs',
+              'DustPhotonics','scale-up optical','scale-out optical','optical capacity lock','laser bottleneck'],
+  power:    ['power grid','grid','HVDC','800V HVDC','SOFC','solid oxide fuel cell','fuel cell','onsite power',
+              'behind-the-meter','time-to-power','transformer','substation','switchgear','data center power',
+              'AI power demand','rack power','power density','grid bottleneck','PPA','power purchase agreement',
+              'Bloom Energy','Vertiv','Eaton','Quanta Services','Schneider Electric','gas turbine'],
+  memory:   ['memory','DRAM','NAND','HBM','HBM4','HBM4E','HBM3E','SOCAMM','DDR5','LPDDR','eSSD','HBF',
+              'Micron','MU','SK Hynix','Samsung memory','Kioxia','SanDisk','Western Digital','Seagate',
+              'memory supercycle','DRAM ASP','NAND ASP','contract price','memory LTA'],
+  materials:['WF6','tungsten hexafluoride','MLCC','silicon capacitor','glass substrate','glass core','CoPoS',
+              'ABF','CCL','copper clad laminate','photoresist','EUV mask','photomask','InP substrate',
+              'Kanto Denka','Central Glass','Samsung Electro-Mechanics','Murata','TDK'],
   analyst:  ['price target','target price','upgrades to','downgrades to','initiates coverage','overweight','underweight',
               'buy rating','sell rating','목표주가','투자의견'],
   // ── v31.8: 신규 토픽 추가
@@ -8022,8 +8282,14 @@ function renderCompanyBullet(item) {
 var _TOPIC_GROUP_ORDER = [
   { key:'macro',     label:'매크로·경제',       icon:'' },
   { key:'geo',       label:'국제 정치·지정학',  icon:'' },
+  { key:'market-note',label:'시장 노트',         icon:'' },
   { key:'equity',    label:'주식·시장',         icon:'' },
   { key:'semi',      label:'반도체·AI',         icon:'' },
+  { key:'ai-policy', label:'AI 정책·규제',       icon:'' },
+  { key:'optical',   label:'광학·인터커넥트',    icon:'' },
+  { key:'power',     label:'전력·그리드',        icon:'' },
+  { key:'memory',    label:'메모리',             icon:'' },
+  { key:'materials', label:'소재·부품',          icon:'' },
   { key:'earnings',  label:'실적·기업',         icon:'' },
   { key:'energy',    label:'원자재·에너지',     icon:'' },
   { key:'bond',      label:'채권·금리',         icon:'' },
@@ -8072,14 +8338,14 @@ var AIO_NEWS_SURFACE_CONTRACTS = {
   },
   // v50.41 선순환 연결 계층: 분석 페이지를 같은 뉴스캐시에 토픽 필터로 연결 (사일로 해소 — 단일 인텔 소스 → 다수 surface).
   //   topics = classifyTopic 실존 키(macro/geo/semi/earnings/energy)만 사용. role='analysis-page-topic-strip'.
-  macro:       { surfaceId: 'macro',       role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['macro','geo','energy'], sortMode: 'score' },
-  fxbond:      { surfaceId: 'fxbond',      role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['macro','geo'],          sortMode: 'score' },
-  technical:   { surfaceId: 'technical',   role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['semi','earnings'],      sortMode: 'score' },
-  themes:      { surfaceId: 'themes',      role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['semi','energy'],        sortMode: 'score' },
-  sentiment:   { surfaceId: 'sentiment',   role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['macro','geo'],          sortMode: 'score' },
-  signal:      { surfaceId: 'signal',      role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['macro','semi'],         sortMode: 'score' },
-  fundamental: { surfaceId: 'fundamental', role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['earnings','semi'],      sortMode: 'score' },
-  breadth:     { surfaceId: 'breadth',     role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 4, minScore: 40, topics: ['semi','macro'],         sortMode: 'score' }
+  macro:       { surfaceId: 'macro',       role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','ai-policy','power','energy'], sortMode: 'score' },
+  fxbond:      { surfaceId: 'fxbond',      role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','bond','fx'],                 sortMode: 'score' },
+  technical:   { surfaceId: 'technical',   role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['semi','optical','power','memory','materials','market-note'], sortMode: 'score' },
+  themes:      { surfaceId: 'themes',      role: 'analysis-page-topic-strip', windowHours: 72, maxItems: 8, minScore: 35, topics: ['semi','optical','power','memory','materials','ai-policy','energy','space','crypto','equity'], sortMode: 'score' },
+  sentiment:   { surfaceId: 'sentiment',   role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','crypto','equity','ai-policy'], sortMode: 'score' },
+  signal:      { surfaceId: 'signal',      role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','semi','optical','power','memory'], sortMode: 'score' },
+  fundamental: { surfaceId: 'fundamental', role: 'analysis-page-topic-strip', windowHours: 72, maxItems: 8, minScore: 35, topics: ['earnings','equity','analyst','semi','optical','power','memory','materials','ai-policy'], sortMode: 'score' },
+  breadth:     { surfaceId: 'breadth',     role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['semi','macro','market-note','equity','crypto','memory'], sortMode: 'score' }
 };
 window.AIO_NEWS_SURFACE_CONTRACTS = AIO_NEWS_SURFACE_CONTRACTS;
 
@@ -8509,7 +8775,14 @@ function renderFeed(items) {
   if (!container) return;
 
   if (filtered.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:12px;">필터 조건에 맞는 뉴스가 없습니다</div>';
+    var emptyFilters = [];
+    if (currentCountryFilter !== 'all') emptyFilters.push('국가=' + currentCountryFilter);
+    if (currentTopicFilter !== 'all') emptyFilters.push('토픽=' + currentTopicFilter);
+    if (_newsTypeTab !== 'all') emptyFilters.push('유형=' + _newsTypeTab);
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:12px;line-height:1.7;">현재 조건에서 최근 48시간·중요도 30점 이상 뉴스가 없습니다.' +
+      (emptyFilters.length ? '<br><span style="font-family:var(--font-mono);font-size:11px;">' + escHtml(emptyFilters.join(' · ')) + '</span><br>필터를 전체로 바꾸거나 새로고침하세요.' : '') + '</div>';
+    var emptyCount = document.getElementById('market-news-count');
+    if (emptyCount) emptyCount.textContent = '0건';
     return;
   }
 
@@ -8527,6 +8800,7 @@ function renderFeed(items) {
   var useCompanyBulletFormat = (_newsTypeTab === 'company');
 
   // v40.4: 건수 상한 150건 (브리핑 20건보다 넓지만 과부하 방지)
+  var eligibleCount = filtered.length;
   filtered = filtered.slice(0, 150);
   const html = filtered.map((item, idx) => {
     // 기업 뉴스 간결 불릿 형식
@@ -8606,7 +8880,7 @@ function renderFeed(items) {
 
   // 카운트 업데이트
   const countEl = document.getElementById('market-news-count');
-  if (countEl) countEl.textContent = filtered.length + '건';
+  if (countEl) countEl.textContent = eligibleCount > filtered.length ? (filtered.length + '건 표시 / ' + eligibleCount + '건 일치') : (filtered.length + '건');
 }
 
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
@@ -8619,6 +8893,13 @@ var HOME_WEEKLY_NEWS = [
   { title: 'SpaceX가 나스닥 상장 후 거래를 시작했습니다 — 공모가 $135/주에서 시초가 약 $175(+30% 프리미엄)로 출발, 시가총액 ~$1.78조, 조달 ~$750억으로 역대 최대 IPO입니다. 머스크 순자산은 $1조를 돌파했고, 한국 증권사는 2배 롱/숏 상품을 출시했습니다. 다만 상장 투자자 35%만 수익·65%는 손실 구간이라는 변동성 경계도 공존합니다. ADBE는 호실적에도 -6.5%, SMCI는 증자로 -8.9% 하락 — 개별 차별화는 여전합니다.', source: 'Telegram·WebSearch 2026-06-13', date: '2026-06-13', sentiment: 'bull', topic: 'equity' },
   { title: '메모리 슈퍼사이클이 지속됩니다. AMD 부사장은 "DDR5 가격 강세가 2028 상반기까지(정상화 ~2년)"라 밝혔고, SK하이닉스는 연초 대비 +230%·시총 $1조 돌파로 8월 나스닥 상장을 추진합니다. 키옥시아는 시총 ¥4.436조로 일본 1위. HDD도 랠리 — JPM이 WDC($650)·시게이트($920) 목표가를 올렸습니다(FY27 +40%↑). Q1 2026 반도체 장비 매출 사상 최대 $365.5억(+14% YoY, 한국 2위 $89.3억).', source: 'Telegram(lupin/aether)·JPM/AMD 2026-06-13', date: '2026-06-13', sentiment: 'bull', topic: 'semi' },
   { title: '반도체·AI 개별 촉매가 이어집니다. 엔비디아는 S&P 신용등급 AA(안정) 상향 + 중국용 Vera 데이터센터 CPU를 8월 출시(올 회계연도 ~$200억 목표)합니다. AMD는 Citi Buy·$575(Venice 2.5D 패키징 부족, ASE 2028까지 풀가동), 메타 BofA $835, 노키아는 JPM 커버 개시 $21(광 네트워크 AI 수주·구글 DC 스위칭). 나스닥100은 6/22부로 NBIS·RKLB·ALAB·CRWV·TER을 편입합니다.', source: 'Telegram·S&P/Citi/JPM 2026-06-13', date: '2026-06-13', sentiment: 'bull', topic: 'semi' },
+];
+HOME_WEEKLY_NEWS = [
+  { title: 'Telegram 3-channel 7d digest: 796 public-mirror posts processed from Aether Japan Research, Insider Tracking, and BornLupin. Main market tape shifted to US-Iran/Hormuz risk-on: WTI near $80, 10Y below 4.45%, GS Q2 GDP tracker 2.4%, Nasdaq led by mega-tech while breadth lagged.', source: 'Telegram public mirrors 2026-06-16', date: '2026-06-16', sentiment: 'bull', topic: 'macro' },
+  { title: 'Japan macro moved into the foreground: BOJ raised the overnight call rate 25bp to 1%, maintained JGB purchase taper path, and Nikkei briefly crossed 70,000. Citi framed another hike before December as only ~25% probability, so yen/rate sensitivity is a live macro input.', source: 'Aether Japan Research 2026-06-16', date: '2026-06-16', sentiment: 'neutral', topic: 'macro' },
+  { title: 'AI policy is now an investable risk factor: Anthropic Fable/Mythos export-control talks with US Commerce remain unresolved, with nationality/access rules and sovereign-AI security concerns affecting model vendors, cloud distribution, and sovereign data-center duplication.', source: 'Insider Tracking 2026-06-16', date: '2026-06-16', sentiment: 'neutral', topic: 'ai-policy' },
+  { title: 'AI infra bottleneck broadened beyond GPUs: NVDA appears to have locked EML capacity and is securing CW-laser supply, while AMD/Amazon/Meta are later buyers. CPO/NPO, 800V HVDC, SOFC onsite power, grid gear, and optical suppliers now matter alongside accelerators.', source: 'Insider Tracking/BornLupin 2026-06-16', date: '2026-06-16', sentiment: 'bull', topic: 'semi' },
+  { title: 'Memory/materials cycle extended: TD Cowen lifted MU target to $1,500; SK Hynix HBM4E samples were pulled into Jun-Jul; AI-server MLCC lead times stretched toward 24 weeks; Samsung Electro-Mechanics silicon capacitors and WF6/tungsten hexafluoride supply shock entered the watchlist.', source: 'BornLupin/Insider Tracking 2026-06-15~16', date: '2026-06-16', sentiment: 'bull', topic: 'semi' }
 ];
 window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
 
@@ -8921,9 +9202,8 @@ function renderBriefingFeed(items) {
     _generateAIBriefing(summaryLines.join('\n'), bw, bulletHtml, cacheKey, briefingHeader, briefingModelV502);
   } else {
     // API 키 없어도 분석 글 형태로 표시
-    var noAiNote = apiKey ? '' : '<div style="padding:10px 12px;font-size:10px;color:var(--text-secondary);background:var(--data-purple-faint);border-radius:6px;margin-bottom:12px;line-height:1.5;border:1px dashed var(--data-purple-border);">' +
-      '<strong style="color:#a78bfa;">AI 분석 브리핑을 원하시나요?</strong><br>' +
-      '설정에서 Claude API 키를 등록하면 아래 뉴스를 AI가 종합 분석·해석·연결하여 전문 브리핑을 생성합니다.</div>';
+    var noAiNote = apiKey ? '' : '<div style="padding:8px 10px;font-size:10px;color:var(--text-muted);background:var(--surface-2);border-radius:6px;margin-bottom:10px;line-height:1.5;">' +
+      'AI 키를 추가하면 이 뉴스 묶음을 한 문단 브리핑으로 요약할 수 있습니다.</div>';
     var finalHtml = briefingHeader + noAiNote + bulletHtml;
     _briefingCacheKey = cacheKey;
     _briefingCachedHtml = finalHtml;
@@ -8957,82 +9237,57 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
   } catch(_we) {}
   var _evidenceOnlyNoteV502 = '[v50.2 evidence-only briefing rule] The list below contains only verified/current items approved by AIO_NEWS_SURFACE_CONTRACTS.briefing. ' +
     'Do not summarize stale, secondary-only, Telegram-only, or unverified items as current facts. Excluded review items=' + reviewCountV502 + ', verified items=' + verifiedCountV502 + '.\n\n';
+  function _buildBriefingMacroContext() {
+    var now = new Date();
+    var snap = window.DATA_SNAPSHOT || {};
+    var live = window._liveData || {};
+    var fmt = function(v, digits, suffix) {
+      if (v == null || v === '' || (typeof v === 'number' && !isFinite(v))) return '미수신';
+      if (typeof v === 'number') return v.toFixed(digits == null ? 2 : digits) + (suffix || '');
+      return String(v);
+    };
+    var quote = function(sym, snapKey, digits, suffix) {
+      var row = live[sym];
+      var v = row && isFinite(Number(row.price)) ? Number(row.price) : snap[snapKey];
+      return fmt(v, digits, suffix);
+    };
+    var releases = [];
+    var reg = window.AIO_MACRO_CALENDAR;
+    if (reg && reg.releases) {
+      Object.keys(reg.releases).forEach(function(key) {
+        var r = reg.releases[key];
+        var ts = r && r.nextRelease ? new Date(r.nextRelease).getTime() : NaN;
+        if (!isFinite(ts) || ts < now.getTime() - 86400000) return;
+        releases.push({
+          date: r.nextRelease,
+          name: r.name || key,
+          estimated: r.scheduleStatus === 'estimated'
+        });
+      });
+      releases.sort(function(a, b){ return String(a.date).localeCompare(String(b.date)); });
+    }
+    var releaseText = releases.slice(0, 8).map(function(r) {
+      return '• ' + r.date + ' ' + r.name + (r.estimated ? ' [주기 추정일·공식 일정 재확인]' : ' [등록 일정]');
+    }).join('\n');
+    return '【런타임 매크로 컨텍스트 — ' + now.toLocaleString('ko-KR', { timeZone:'Asia/Seoul' }) + ' KST 생성】\n' +
+      '• 시장: SPX ' + quote('^GSPC','spx',2) + ' · NASDAQ ' + quote('^IXIC','nasdaq',2) + ' · VIX ' + quote('^VIX','vix',2) +
+      ' · 10Y ' + quote('^TNX','tnx',2,'%') + ' · DXY ' + quote('DX-Y.NYB','dxy',2) + ' · WTI $' + quote('CL=F','wti',2) + '\n' +
+      '• 공식값 스냅샷: CPI ' + fmt(snap.cpi,1,'%') + ' · Core CPI ' + fmt(snap.coreCpi,1,'%') +
+      ' · PCE ' + fmt(snap.pce,1,'%') + ' · Core PCE ' + fmt(snap.corePce,1,'%') +
+      ' · NFP ' + fmt(snap.nfp,0,'K') + ' · 실업률 ' + fmt(snap.unemployment != null ? snap.unemployment : snap.usUnemploy,1,'%') +
+      ' · Fed ' + fmt(snap.fedRate != null ? snap.fedRate : snap['fed-rate']) + '\n' +
+      '• 값이 미수신이면 추정하지 말고 “데이터 미수신”으로 표기. 발표 완료값·예정 일정·뉴스 기반 관측을 분리.\n' +
+      '【다가오는 일정】\n' + (releaseText || '• 미래 일정 미등록 — 공식 캘린더 확인 필요') + '\n' +
+      '• [주기 추정일]은 공식 발표일이 아니므로 확정 일정처럼 쓰지 않는다.\n\n';
+  }
+  var _briefingMacroContext = _buildBriefingMacroContext();
 
   var prompt = '당신은 전문 금융 애널리스트입니다. 아래는 ' + anchorStr + ' 08:00 KST ~ 24시간 동안 수집된 주요 뉴스입니다.\n\n' +
     _weeklyCtxNote +
     _evidenceOnlyNoteV502 +
     newsText + '\n\n' +
-    '【현재 매크로 맥락 — 2026-06-03 KST 기준 최신화 (v50.4)】\n' +
-    '• 발표 완료값과 예정값을 섞지 마라. 현재 공식 발표 완료값은 4월 CPI 3.8%/Core CPI 2.8%(BLS 5/12), 4월 NFP +115K/실업률 4.3%(BLS 5/8), 4월 PCE 3.8%/Core PCE 3.3%(BEA 5/28)이다.\n' +
-    '• 다음 공식 이벤트는 6/5 May Employment Situation, 6/10 May CPI, 6/16-17 FOMC, 6/25 May PCE다. 5월 CPI·PCE·NFP 수치는 발표 전이면 절대 생성하지 말고 "발표 전/검증 데이터 없음"으로 쓴다.\n' +
-    '• Fed/금리: 기준금리 3.50-3.75% 동결, 다음 FOMC는 6/16-17 SEP 회의. 6/3 Beige Book은 지역 경기·물가 진단으로만 해석하고 정책 결론을 확정하지 않는다.\n' +
-    '• SpaceX IPO: Reuters 계열 보도는 6/11 가격 산정·6/12 Nasdaq 상장 가능성을 말하지만, source-dependent IPO watch다. 확정 공시처럼 쓰지 말고 유동성/우주·위성 테마/대형 IPO 수급 리스크로 분리한다.\n' +
-    '• Computex/GTC Taipei: NVIDIA RTX Spark/AI PC, Intel AI infrastructure, Foxconn Vera Rubin 지원 발표 등은 AI 하드웨어 밸류체인 촉매다. 단, 개별 종목 수치·가이던스는 verified/current 뉴스와 실시간 데이터가 있을 때만 현재 판단으로 승격한다.\n\n' +
-    '【시장 구조 — 최근 검증 스냅샷/컨센서스】\n' +
-    '• 지수: SPX 7,563(신고가)·NASDAQ 26,917(신고가)·VIX 15.74(저변동성). KOSPI 8,185·KOSDAQ -2.54%(외국인 16연속 순매도). F&G 65(탐욕).\n' +
-    '• 섹터: 반도체(메모리 ASP 폭등) > AI인프라(NVDA·AVGO) > 에너지(이란 리스크 헤지) > 방산(중동 긴장). 커뮤니케이션·필수소비재 UW.\n' +
-    '• 연말 목표(Citi): S&P 500 7,700(+2%), 토픽스 4,200(+12%), MSCI EM 1,770(+16%). 테크 내 반도체 > 소프트웨어.\n' +
-    '• 베어마켓 체크리스트: 글로벌 8/18 적신호(비싼 밸류에이션 주원인). 매그7+ PEG 기준 GFC 후 저점 = 퀄리티 매수 기회.\n' +
-    '• 포지셔닝: Computex/GTC 발표, SpaceX IPO 보도, 6/5 NFP, 6/10 CPI가 같은 2주 창에 몰려 있다. verified/current 증거 없이 방향성 단정이나 레버리지 권고를 쓰지 않는다.\n\n' +
-    '【반도체/AI 인프라 — 공급 가시성 확대 + 캐파 타이트 2027까지 (v48.18)】\n' +
-    '• AVGO-Meta MTIA 2029년 확장: 초기 1GW+, 학습/추론/네트워킹 통합, Hock Tan 메타이사회 퇴임 → 어드바이저. 커스텀 실리콘 지연 우려 불식. AVGO AI 매출 2027 $100B → $130B+ 상향 컨빅션. GOOG LTA 2031, Anthropic 3.5GW TPU 2027 누적.\n' +
-    '• TSMC 선단 캐파 2027까지 타이트: 2026-2028 3년 Capex $190~200B(역대급, 이전 3년 대비 2배). 2027 가격 +4-5% like-for-like 인상 논의(2Q26 콘콜). N5 이하 CAGR 25%. C.C.Wei "차세대 LPU 고객과 긴밀 협력" = 삼성 Groq 수주 단기 경계.\n' +
-    '• ASML 가이던스 체계 전환: 오더 비공시 이후 "연초 보수 → 연중 상향" 패턴. 1분기 조기 상향(€340-390→€360-400억 중간값 €380, +€15억) = 수요 강도 신호. 2027 Low NA EUV 최소 80대 공약(VA 컨센 72 상회).\n' +
-    '• HBM+HBF 3계층 패러다임: SanDisk HBF 일정 6개월 앞당김(26H2 파일럿, 27초 AI 추론 디바이스). 스택당 512GB 16레이어 = HBM 대비 동일비용 8-16배 용량. AI 훈련→추론 전환 = 용량 최적화 메모리 신카테고리.\n' +
-    '• 메모리 LTA 레버리지 역전(GS 한국 피드백): 기존 "LTA=정점 신호" → 신규 "고객 선제안=공급사 레버리지 확보". MS→삼성 $100억+ LTA 선지급 실증(5/31 JP모건). KB증권(5/29): SKH 300→380만원, "2Q 충족률 50%, 메모리 마라톤 5km 지점". Susquehanna(5/29): MU $1,750(기존$600), SNDK $3,250(기존$2,000). Q2 DRAM ASP +50~60%QoQ, NAND ASP +75~100%QoQ 실증. TrendForce TAM 2026E $889B→2027E $1.28T+. SEC 1Q OP 역대 최강 2017-18 연간평균 상회.\n' +
-    '• CoreWeave 프론티어 랩 독점: Meta $21B 신규(2032 Vera Rubin)+Meta $14B 기존+OpenAI $22B+Anthropic 수십억 = 합산 $58B+. NVIDIA 3중 관계(공급+고객+투자자)가 비NVDA 호스팅 차단. 2025말 가격 +20% 인상 보고(WSJ).\n' +
-    '• Nvidia Rubin 로드맵: CX9 NIC(포트당 800G→1.6Tb/s) 개발 과제로 일부 2026→2027 이월 가능(TrendForce). Citi 2026 Rubin 비중 31% 전망(TrendForce 수정치 22% 상회).\n' +
-    '• Marvell 역할 확장: Google TPU 신규 설계 벤더 승격(MediaTek급) + Google LPU(Groq 대응 LLM 전용 추론) 신규 아키텍처 논의. NVLink Fusion IP블록 제공으로 XPU 이진선택→스펙트럼 전환.\n\n' +
-    '【JPM 하드웨어/네트워킹 1Q26 — AI 밸류에이션 로테이션 (v48.18)】\n' +
-    '• 핵심 메시지: 이번 실적 시즌 펀더멘털 < **밸류에이션 드라이버**. AI 관련주 밸류에이션 프리미엄 과거 평균 +83%(직전 +79%). 광/T&M/HDD 프리미엄 쏠림, EMS/네트워킹/IT HW 프리미엄 완화.\n' +
-    '• 순위 재편 Top10: 1)ANET PT$200 2)APH PT$190 3)CLS 4)STX PT$600 Positive Catalyst 5)WDC PT$400 6)CRDO 7)CSCO 8)JBL 9)FLEX 10)COHR. HDD/EMS/DELL 상승, 광학주 하락.\n' +
-    '• 4건 OW→N 하향: GLW PT$175(NTM PE 50배+), FN PT$700+Negative Catalyst, NTAP PT$110(NAND 계약가 C4Q25 +36%→C2Q26 +73% 전례 없음 → FY27 GPM -200bps), QCOM PT$140+Negative Catalyst(ARM AGI CPU + Nvidia Groq LPX 경쟁).\n' +
-    '• HDD 가장 압도적 긍정: 완만한 가격 인상↑ + HAMR 전환 가속 COGS↓ 동시 진행. STX HAMR 주도권 F3Q/F4Q GPM 긍정 서프라이즈 여지.\n' +
-    '• 광학 vs 구리 논쟁: 시장의 광 대체 우려 과도. APH(AFL 2위) = 구리 최대 수혜. 광학은 2028년 이익 봐야 밸류에이션 정당화.\n\n' +
-    '【FactSet 어닝 인사이트 — NVDA 제외 매그7 역전 (v48.18)】\n' +
-    '• Q1 2026 EPS 서프라이즈 88%(5년 평균 78%). 매출 서프라이즈 84%(5년 평균 70%). S&P 500 Q1 혼합 EPS 성장률 13.2%(6분기 연속 두 자릿수).\n' +
-    '• **NVDA 제외 시 매그7 성장률 6.4% < 나머지 493개사 10.1%** — 이익 주도권이 NVDA 단독 집중. CY2026 전체로도 NVDA 제외 시 매그7 24.8%→13.2% 하락.\n' +
-    '• 긍정적 서프라이즈 주가 반응 -0.2%(5년 평균 +1.0% 대비) = "좋은 실적 이미 가격 반영" 해석.\n' +
-    '• 섹터: IT +45.1%(반도체 +95% 주도), 금융 +19.7%, 소재 +21.6% 강세. 에너지 -13.1%(Exxon EPS $1.83→$1.07), 헬스케어 -10.5%(Merck Cidara 일회성). 순이익률 IT 28.9% vs 에너지 6.8%.\n\n' +
-    '【DC 규제 전환 + 테라팹 신규 수요 (v48.18)】\n' +
-    '• Maine 주 20MW+ 신규 DC 2027 가을까지 모라토리엄 통과(미국 최초 주 단위). 최소 12개 주 유사 검토. 지난해 무산 DC 프로젝트 $1,520억.\n' +
-    '• 온사이트 발전 신수요: Wartsila 34SG 엔진 412MW 오하이오 하이퍼스케일 DC(선박 엔진 DC 전력 첫 사례). 전력망 연결 지연 회피 수요. 리드타임 2년.\n' +
-    '• 머스크 테라팹(TSLA+SpaceX JV): AMAT/TEL/LRCX에 "빛의 속도" 견적 요청 — 포토마스크/기판/식각/증착/세정/테스트 전방위. 삼성 테일러 팹 대안 요청 거절. 도쿄 일렉트론 +6% 급등, 어드반테스트/스크린HD/디스코 주가 견인.\n\n' +
-    '【AI 보안 정부 개입 표준화 (v48.18)】\n' +
-    '• OpenAI TAC(Trust Access for Cyber) 14개 초기 파트너: CRWD(양쪽 독점 — Glasswing+TAC 조기접근)+PANW(Glasswing)+ZS(TAC 신규 진입)+NVDA+ORCL+CSCO + 금융 7개 + 스타트업 2개. GPT-5.4 Cyber(원본 코드 없이 클로즈드 SW 취약점 분석).\n' +
-    '• 미국 CAISI/영국 AISI 연방기관 접근 제공 = 규제 표준화 경로. "AI 보안 ≠ 프론티어 모델 단독 해결" → 예산 촉매.\n\n' +
-    '【금리/매크로 최신화 (5/31)】\n' +
-    '• BofA Michael Hartnett (5/25): 6월 추가 인플레 우려 경고. 근거: 저실업률 지속 + 고용 강세 유지 → 임금 압력 잔존. 연준 금리인하 기대 후퇴 리스크. Hartnett "하반기 인플레 서프라이즈 가능성을 시장이 과소평가".\n' +
-    '• BOJ 우에다 총재 (G7 재무장관회의): "G7 중앙은행들 사이에서 금리 인상의 경제·인플레 효과가 아직 완전히 발현되지 않았다는 공통된 인식." → BOJ 추가 인상 신중론 지속. 엔/달러 방향성 불투명.\n' +
-    '• 달러-원 24시간 논스톱 거래 7월 6일 시행 — 야간 환율 변동성 노출 확대 → 수출 기업 헤지 비용 증가 주의.\n\n' +
-    '【JP모건 HBM 시장 점유율 전망 (5/29 글로벌 메모리 보고서)】\n' +
-    '• NVIDIA용 HBM: SKH 1강 (독점적 우위) > 삼성전자+마이크론 2중 체제. SKH의 HBM4 고핀속도(11Gbps+) 기술 우위 유지.\n' +
-    '• ASIC용 HBM (구글 TPU/AVGO 등): 삼성전자 1강 > SKH+마이크론 2중 체제. MS→삼성 LTA $100억+ = ASIC HBM 파트너십 실증.\n' +
-    '• JP모건 선호 매수 종목: ①SKH ②키옥시아(6600.T) ③MU ④윈본드(2344.TW) ⑤TEL(8035.T) ⑥SIMO.\n' +
-    '• 중국 메모리 점유율 상승: DRAM 6%→8~11%, NAND 12%→16%(가치기준 제한적). TAM 자체가 커져 공존 가능하나 중장기 모니터링 필요.\n\n' +
-    '【지정학 — 복합 리스크는 최신 뉴스 surface로 재검증】\n' +
-    '• 이란 군사 동향: 이란 혁명수비대 신형 미사일 보트 "27 Razab" 공개(크루즈 미사일 700km 사거리, 호르무즈 작전 특화) + 오만 해안 이란제 Meham-3 기뢰 300kg 발견. 동시에 미-이란 합의 최종 단계 진입 — JD 밴스 "이란이 선의로 협상, 장애물은 문구뿐" · 스티븐 밀러 "이란이 호르무즈 재개방 포함 중대한 양보 수락". 트럼프 최종 서명 여부만 남음. 합의 vs 군사 동향 이중 신호 → 호르무즈 리스크 프리미엄 잔존.\n' +
-    '• 트럼프-이란 MOU 불승인(5/30 NYT) — 협상 문구 마찰 지속. EU 러시아 원유 가격상한 일시 동결 검토(에너지 공급 우려).\n' +
-    '• 이스라엘-레바논: 이스라엘 군 타이르 지역 공습 다수 사상자. 레바논 휴전 협상 교착.\n' +
-    '• 테헤란 증시: 종합지수 +83,000pt(4,236만pt), 은행주 주도 — 합의 기대 반영 신호.\n' +
-    '• 에너지 포지션: 합의 확정 시 WTI 즉각 하락 가능성 vs 기뢰·기술 긴장 지속 시 $5-10 프리미엄 유지. 수혜: LMT/RTX/NOC(방산) + XOM/CVX(원유).\n\n' +
-    '【메모리 사이클 대격변 (5/29-31 실증)】\n' +
-    '• Dell FY1Q27: 매출 $43.8B(+88%YoY) EPS $4.86(+214%). AI 서버 수주 $24.4B, 잔고 $51.3B, 고객 5,000개+. ISG $29.0B(+181%YoY). 2Q 가이던스 $44-45B(+50%YoY), AI서버 FY27 연간 $60B. 공급 제약 순위: ①NAND ②DRAM ③CPU ④HDD — GPU보다 메모리가 더 희소.\n' +
-    '• Susquehanna 목표가 대폭 상향(5/29): MU $600→$1,750 · SNDK $2,000→$3,250 · DELL $138→$700. 근거: Q2 DRAM ASP QoQ +50~60%(기대치 +50% 상회) · NAND ASP QoQ +75~100%. "blended ASP 지속 강세·마진 구조 지속 확신".\n' +
-    '• KB증권(5/29): SKH 목표가 300→380만원. "2Q 수요충족률 50%=공급 극심 부족. 2028년까지 최소 2년 부족. 에이전틱 AI 토큰 사용 7배 증가 → 범용 DRAM 신규 공급은 공정전환만 가능". 베라 루빈에서 메모리 원가 블랙웰 대비 5배 확대.\n' +
-    '• TrendForce TAM 대폭 상향: 2026E $551.6B→$889.3B, 2027E $842.7B→$1.28T+(+44%YoY). DRAM 2026E +303%YoY($619B), NAND 2026E +281%YoY($271B). 에이전틱 AI KV캐시·CPU배치비율 변화·SSD 역할 확대 = 구조적 수요 급증.\n' +
-    '• MS→삼성 LTA 선지급 $100억+(JP모건 확인). 메모리 LTA 선지급 30% 관행화. 공급 희소성 구조 고착.\n\n' +
-    '【Computex/GTC 타이페이 (6/1~5) — 현재 화두】\n' +
-    '• NVIDIA GTC Taipei/Computex는 6/1~4, COMPUTEX 본행사는 6/2~5로 진행된다. AI PC/RTX Spark, agentic AI, Vera Rubin/AI infrastructure, robotics/physical AI, OEM ecosystem 발표를 verified/current 뉴스 기준으로만 인용한다.\n' +
-    '• Intel, Foxconn, 주요 OEM 발표는 NVIDIA 단독 모멘텀이 아니라 AI 서버·AI PC·전력/냉각·제조 파트너 체인으로 묶어 해석한다.\n\n' +
-    '【주요 예정 이벤트 (v50.4 — 공식 일정 우선)】\n' +
-    '• 6/3(수): 美 ADP 민간고용, Fed Beige Book, AVGO/CRWD/C3.AI 실적, SpaceX IPO 보도 follow-up watch.\n' +
-    '• 6/5(금): BLS May Employment Situation/NFP — 금리 경로와 경기 둔화 논쟁의 첫 확인점.\n' +
-    '• 6/10(수): BLS May CPI — 아직 발표 전. 발표 전에는 숫자를 만들지 않는다.\n' +
-    '• 6/16-17(화-수): FOMC + SEP — 점도표/인하 경로 재가격화.\n' +
-    '• 6/25(목): BEA May Personal Income and Outlays/PCE — Fed 선호 물가의 후속 확인점.\n' +
-    '• 7/6: 달러-원 24시간 논스톱 거래 시행 예정. 7/10: 한국은행 금통위.\n\n' +
-    '위 뉴스와 매크로·반도체·스태그 맥락을 교차 분석하여 기관급 모닝 브리핑을 작성하세요.\n\n' +
+    _briefingMacroContext +
+    '위 검증 뉴스와 런타임 매크로 데이터만 교차 분석해 기관급 모닝 브리핑을 작성하세요. 과거 고정 투자논지·목표가·이벤트를 현재 사실처럼 재사용하지 마세요.\n\n' +
     '=== 작성 원칙 ===\n' +
     '1. 뉴스를 "나열"하지 마라. 서사(narrative)로 엮어라. 마치 골드만삭스 CIO가 고객에게 보내는 데일리 노트처럼.\n' +
     '2. 모든 팩트에 출처를 붙여라 (예: "Reuters에 따르면", "Bloomberg 보도", "WSJ 단독").\n' +
@@ -9362,6 +9617,8 @@ window.AIO.getTelegramPipelineAudit = function() {
   var all = (window._allNewsItems || newsCache || []).filter(function(it) { return it && (it._tgChannel || /TG|Telegram/i.test(String(it.feed || it.source || ''))); });
   var aetherSource = sources.find(function(s) { return s.tgSlug === 'aetherjapanresearch'; }) || null;
   var aetherItems = all.filter(function(it) { return it._tgChannel === 'aetherjapanresearch' || /Aether Japan/i.test(String(it.feed || it.source || '')); });
+  var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || null;
+  var digestMeta = window._aioTelegramDigestMeta || null;
   return {
     status: aetherSource ? 'OK' : 'MISSING_AETHER_SOURCE',
     telegramSourceCount: sources.length,
@@ -9369,6 +9626,15 @@ window.AIO.getTelegramPipelineAudit = function() {
       return { name: s.name, slug: s.tgSlug || null, tier: s.tier, topics: s.topics || [], publicMirror: s.publicMirror || ('https://t.me/s/' + (s.tgSlug || '')), pipelineRole: s.pipelineRole || 'telegram-fast-secondary' };
     }),
     aether: aetherSource ? { url: aetherSource.url, publicMirror: aetherSource.publicMirror, role: aetherSource.pipelineRole, topics: aetherSource.topics } : null,
+    digest: digest ? {
+      dynamicLoaded: !!digest.dynamicDigestLoaded,
+      status: digestMeta && digestMeta.status || (digest.dynamicDigestLoaded ? 'ready' : 'static-fallback'),
+      asOf: digest.asOf || null,
+      window: digest.window || null,
+      count: digest.counts && digest.counts.total || null,
+      categoryCount: Array.isArray(digest.categories) ? digest.categories.length : 0,
+      pageMapCount: digest.pageMap ? Object.keys(digest.pageMap).length : 0
+    } : null,
     recentTelegramItems: all.length,
     recentAetherItems: aetherItems.length,
     verificationPolicy: 'Telegram items are fast secondary inputs. Confirm with primary source or market data before presenting as live trade facts.'
@@ -9814,7 +10080,7 @@ async function fetchAllNews(forceRefresh = false) {
         <span style="font-size:20px;">⟳</span>
         <div>
           <div style="font-size:13px;font-weight:700;">실시간 뉴스 수집 중</div>
-          <div style="font-size:11px;color:var(--text-secondary);">15개 소스 동시 접속 · Reuters · CNBC · Digitimes · TrendForce · 궈밍치 · Nikkei · SCMP 외</div>
+          <div style="font-size:11px;color:var(--text-secondary);">${AIO_NEWS_SOURCES.length}개 등록 소스 병렬 수집 · Reuters · CNBC · Digitimes · TrendForce · Nikkei · SCMP 외</div>
         </div>
       </div>
       <div id="load-progress" style="height:4px;background:var(--bg-hover);border-radius:2px;overflow:hidden;">
@@ -9848,9 +10114,13 @@ async function fetchAllNews(forceRefresh = false) {
     if (bar) bar.style.width = pct + '%';
     if (pageBar) pageBar.style.width = pct + '%';
     if (st)  st.textContent = `(${done}/${total}) ${name} 완료`;
-    if (progLabel) progLabel.textContent = `뉴스 수집 중... ${done}/${total}`;
+    if (progLabel) progLabel.textContent = Date.now() - _fetchStartTime > 12000
+      ? `백그라운드 갱신 · ${done}/${total}`
+      : `뉴스 수집 중... ${done}/${total}`;
     if (homeBar) homeBar.style.width = pct + '%';
-    if (homeText) homeText.textContent = `${done}/${total} 소스 수집 중...`;
+    if (homeText) homeText.textContent = Date.now() - _fetchStartTime > 12000
+      ? `${done}/${total} 소스 백그라운드 갱신`
+      : `${done}/${total} 소스 수집 중...`;
   };
 
   // v21: 배치 분할 (3개씩 순차 배치 → CF Worker 100req/분 rate limit 안전)
@@ -11025,7 +11295,7 @@ async function fetchLiveQuotes(requestedSymbols) {
     ['064350.KS', '079550.KS', '272210.KS', '000880.KS', '103140.KS'], // 현대로템,LIG넥스원,한화시스템,한화,풍산
     // ── 한국 조선 테마 ──
     ['009540.KS', '010140.KS', '010620.KS', '082740.KS', '267250.KS'], // HD한국조선해양,삼성중공업,HD현대미포,한화엔진,HD현대
-    ['011200.KS', '011210.KS'],                                         // HD현대마린엔진,현대위아
+    ['071970.KS', '011210.KS'],                                         // HD현대마린엔진,현대위아
     // ── 한국 전력인프라 테마 ──
     ['267260.KS', '103590.KS', '006260.KS', '229640.KS', '000500.KS'], // HD현대일렉트릭,일진전기,LS,LS에코에너지,가온전선
     ['033100.KS', '259960.KS'],                                         // 제룡전기,크래프톤
@@ -11048,9 +11318,9 @@ async function fetchLiveQuotes(requestedSymbols) {
     ['247540.KQ', '003670.KQ', '028300.KQ', '161890.KQ'],              // 에코프로비엠,포스코퓨처엠,HLB,한국콜마
     // ── 한국 기타 대형주 ──
     ['004370.KS', '000810.KS', '035760.KS', '017670.KS', '018880.KS'], // 농심,삼성화재,CJ ENM,SK텔레콤,한온시스템
-    ['030200.KS', '032640.KS', '032830.KS', '041510.KS'],               // KT,LG유플러스,삼성생명,에스엠 (086280.KS→16536 중복제거)
+    ['030200.KS', '032640.KS', '032830.KS', '041510.KQ'],               // KT,LG유플러스,삼성생명,에스엠 (086280.KS→16536 중복제거)
     ['280360.KS', '352820.KS', '097950.KS', '251270.KS', '204320.KS'], // 롯데웰푸드,하이브,CJ제일제당,넷마블,만도
-    ['005180.KS', '000080.KS', '004020.KS', '035900.KS', '030520.KQ'], // 빙그레,하이트진로,현대제철,JYP Ent.,한글과컴퓨터
+    ['005180.KS', '000080.KS', '004020.KS', '035900.KQ', '030520.KQ'], // 빙그레,하이트진로,현대제철,JYP Ent.,한글과컴퓨터
     // ── 추가 대형주 (DOW30 + S&P500) ──
     ['BRK-B', 'MA', 'UNH', 'HD', 'PG'],
     ['ABBV', 'NFLX', 'PEP', 'KO', 'MCD'],
@@ -12569,6 +12839,11 @@ function applyLiveQuotes(quotes) {
     // v31.8: PriceStore 검증 레이어 경유 (타입/범위/급변 전부 Store에서 처리)
     const accepted = PriceStore.set(q.symbol, price, pct, q._source || 'live:yahoo');
     if (!accepted) return;
+    if (q.symbol === '^VVIX' && window.DATA_SNAPSHOT) {
+      window.DATA_SNAPSHOT.vvix = price;
+      window.DATA_SNAPSHOT._fallback = window.DATA_SNAPSHOT._fallback || {};
+      window.DATA_SNAPSHOT._fallback.vvix = price;
+    }
     window._previousPrices[q.symbol] = price;
     // v36.6: 프리/애프터마켓 시세 저장 (미국장 마감 후 방향성 추적)
     if (q.extPrice && q.extSession) {
@@ -12705,6 +12980,28 @@ function applyLiveQuotes(quotes) {
       el.setAttribute('data-source-label', q._source || 'live:yahoo');
       el.setAttribute('data-source-ts', String(now));
     });
+    var previousClose = Number(q.regularMarketPreviousClose || q.chartPreviousClose);
+    if (isFinite(previousClose) && previousClose > 0) {
+      document.querySelectorAll(`[data-live-prev-close="${q.symbol}"]`).forEach(function(el) {
+        el.textContent = previousClose.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
+        el.setAttribute('data-source-kind', 'live');
+        el.setAttribute('data-operational-use', 'decision');
+        el.setAttribute('data-source-label', q._source || 'live:yahoo');
+        el.setAttribute('data-source-ts', String(now));
+      });
+      var atomicDelta = price - previousClose;
+      var atomicPct = atomicDelta / previousClose * 100;
+      document.querySelectorAll(`[data-live-kr-change="${q.symbol}"]`).forEach(function(el) {
+        el.textContent = (atomicDelta >= 0 ? '▲ ' : '▼ ')
+          + Math.abs(atomicDelta).toLocaleString('ko-KR', { maximumFractionDigits: 2 })
+          + ' (' + (atomicPct >= 0 ? '+' : '') + atomicPct.toFixed(2) + '%)';
+        el.style.color = atomicDelta >= 0 ? 'var(--green)' : 'var(--red)';
+        el.setAttribute('data-source-kind', 'live');
+        el.setAttribute('data-operational-use', 'decision');
+        el.setAttribute('data-source-label', q._source || 'live:yahoo');
+        el.setAttribute('data-source-ts', String(now));
+      });
+    }
     // v36.8: 개별 종목 시간외 표시 — 기업분석(ticker-detail) 화면 전용
     if (q.extPrice && q.extSession) {
       // ticker-hero (기업분석 페이지)의 시간외 표시 전용 영역
@@ -13259,6 +13556,7 @@ function _aioComputeFactorRanks() {
   var weights = (W && W.weights) ? W.weights : { momentum:0.35, trend:0.25, lowvol:0.20, size:0.20, value:0, quality:0 };
   window._aioActiveFactorRegime = W ? W.regimeLabel : null;
   window._aioActiveFactorWeights = weights;
+  window._aioActiveFactors = FACTORS.map(function(F){ return F.key; });
   var stats = function(vals){ if(!vals.length) return {mu:0,sd:0}; var mu=avg(vals); var sd=vals.length>1?Math.sqrt(vals.reduce(function(s,v){return s+(v-mu)*(v-mu);},0)/(vals.length-1)):0; return {mu:mu,sd:sd}; };
   var winz = function(x,mu,sd){ if(sd<=0||typeof x!=='number'||!isFinite(x)) return 0; var z=(x-mu)/sd; return Math.max(-3,Math.min(3,z)); };
   var z2pct = function(z){ return Math.max(0,Math.min(100,Math.round(50+z*16.67))); }; // z≈±3 → 0~100
