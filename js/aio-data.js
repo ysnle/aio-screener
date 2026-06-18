@@ -1585,7 +1585,15 @@ function renderScreenerResults() {
     var ret3c = (typeof r.ret3m === 'number') ? (r.ret3m>=0?'#00e5a0':'#ff5b50') : '#5a6678';
     // 주의: r.memo는 내부 마커(vNN·RNN·Codex 등)를 포함할 수 있어 title 툴팁에 노출하지 않음(R206). 행 클릭 → 심층 분석.
     html += '<tr class="aio-hover-row" style="border-bottom:1px solid var(--surface-4);cursor:pointer;" data-action="_aioScreenerTicker" data-arg="' + escHtml(r.sym) + '">' +
-      '<td style="text-align:center;padding:6px 8px;"><span style="font-family:var(--font-mono);font-weight:800;font-size:12px;color:'+rkColor+';">' + (rank==null?'—':rank) + '</span>' + (r.quantSignal ? '<div style="font-size:9px;color:'+rkColor+';">'+escHtml(r.quantSignal)+'</div>' : '') + '</td>' +
+      '<td style="text-align:center;padding:5px 8px;">' +
+        (rank!=null
+          ? '<div style="font-family:var(--font-mono);font-weight:800;font-size:11px;color:'+rkColor+';">' + rank + '</div>' +
+            '<div style="height:3px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:3px;overflow:hidden;">' +
+              '<div style="height:100%;width:'+rank+'%;background:'+rkColor+';border-radius:2px;"></div>' +
+            '</div>'
+          : '<span style="color:#5a6678;">—</span>') +
+        (r.quantSignal ? '<div style="font-size:9px;color:'+rkColor+';margin-top:2px;">'+escHtml(r.quantSignal)+'</div>' : '') +
+      '</td>' +
       '<td style="padding:6px 8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:10px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
       '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);">' + escHtml(r.sector||'') + '</td>' +
       _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) +

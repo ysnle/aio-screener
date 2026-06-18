@@ -16384,7 +16384,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.75';
+const APP_VERSION = 'v50.76';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -21550,6 +21550,30 @@ function _initBriefingPage() {
       else if (rgText.indexOf('BULL') >= 0 || rgText.indexOf('상승') >= 0 || rgText.indexOf('UP') >= 0) { brBadge.textContent = ' ' + rgText; brBadge.className = 'status-pill sp-risk-on'; }
     } catch(e) {}
   }
+  // v50.76: 시장 현황 스트립 업데이트 (briefing-market-strip)
+  try {
+    var bsv = document.getElementById('briefing-score-val');
+    var ts = window._tradingScore;
+    if (bsv && ts != null) {
+      var bsCol = ts >= 75 ? 'var(--data-green)' : ts >= 60 ? 'var(--data-green)' : ts >= 45 ? 'var(--data-amber)' : ts >= 30 ? '#fb923c' : 'var(--data-red)';
+      bsv.textContent = ts;
+      bsv.style.color = bsCol;
+    }
+    var bfg = document.getElementById('briefing-fg-val');
+    var fg = window._fearGreedValue;
+    if (bfg && fg != null) {
+      var fgCol = fg >= 60 ? 'var(--data-green)' : fg >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
+      bfg.textContent = fg;
+      bfg.style.color = fgCol;
+    }
+    var brb3 = document.getElementById('briefing-regime-badge3');
+    if (brb3 && typeof classifyMarketRegime === 'function') {
+      var rg3 = classifyMarketRegime();
+      var rt3 = rg3.regime || '—';
+      brb3.textContent = rt3;
+      brb3.className = (rt3.indexOf('BULL') >= 0 || rt3.indexOf('상승') >= 0) ? 'status-pill sp-risk-on' : 'status-pill sp-risk-off';
+    }
+  } catch(_) {}
   setTimeout(function() {
     var bc = document.getElementById('briefing-live-news-list');
     if (!bc) return;
@@ -21877,15 +21901,25 @@ function showTicker(tkr) {
     var color = pass >= total - 1 ? '#00e5a0' : pass >= total / 2 ? '#ffa31a' : '#ff5b50';
     var verdict = pass >= total - 1 ? '진입 검토 가능' : pass >= total / 2 ? '선별적 검토' : '진입 자제';
 
-    var html = '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;display:flex;justify-content:space-between;">' +
-      '<span>진입 적합성</span>' +
-      '<span style="color:' + color + ';font-family:var(--font-mono);">' + pass + '/' + total + ' ' + verdict + '</span></div>';
-    html += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
+    var barW = Math.round(pass / total * 100);
+    var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
+      '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);letter-spacing:0.06em;text-transform:uppercase;">진입 적합성</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<div style="width:80px;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">' +
+          '<div style="height:100%;width:' + barW + '%;background:' + color + ';border-radius:3px;transition:width 0.3s;"></div>' +
+        '</div>' +
+        '<span style="font-size:11px;font-weight:800;color:' + color + ';font-family:var(--font-mono);">' + pass + '/' + total + ' ' + verdict + '</span>' +
+      '</div>' +
+    '</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:0;">';
     checks.forEach(function(c) {
-      var icon = c.ok === true ? '' : c.ok === false ? '' : '—';
-      var bg = c.ok === true ? 'var(--data-green-faint)' : c.ok === false ? 'var(--data-amber-faint)' : 'var(--surface-2)';
-      html += '<div style="background:' + bg + ';border-radius:5px;padding:4px 8px;font-size:11px;display:flex;align-items:center;gap:4px;">' +
-        '<span>' + icon + '</span><span style="font-weight:700;">' + c.label + '</span><span style="color:var(--text-muted);">' + c.note + '</span></div>';
+      var icon = c.ok === true ? '✓' : c.ok === false ? '✗' : '—';
+      var col = c.ok === true ? 'var(--data-green)' : c.ok === false ? 'var(--data-amber)' : 'var(--text-muted)';
+      html += '<div style="display:grid;grid-template-columns:18px 1fr auto;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);">' +
+        '<span style="font-size:11px;font-weight:900;color:' + col + ';text-align:center;">' + icon + '</span>' +
+        '<span style="font-size:11px;font-weight:700;color:var(--text-primary);">' + c.label + '</span>' +
+        '<span style="font-size:11px;color:' + col + ';font-family:var(--font-mono);">' + c.note + '</span>' +
+        '</div>';
     });
     html += '</div>';
     ecDiv.innerHTML = html;

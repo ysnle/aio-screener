@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.75 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.76 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4112,7 +4112,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.75</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.76</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4504,60 +4504,57 @@ body.light-theme canvas { filter:none; }
   <!-- ─ 시그널 어드바이스 배너 (grid 바깥) ─ -->
   <div id="signal-advice-container" style="margin-bottom:12px;"></div>
 
-  <!-- ─ 메인 그리드: 의사결정 엔진 ─ -->
-  <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;margin-bottom:12px;">
-
-    <!-- 메인 점수 원형 게이지 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;">종합 거래 점수</div>
-      <div style="position:relative;width:110px;height:110px;">
-        <canvas id="score-gauge-canvas" role="img" aria-label="트레이딩 스코어 게이지 차트" width="110" height="110"></canvas>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;line-height:1;">
-          <div id="score-gauge-val" style="font-size:28px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">/ 100</div>
-        </div>
-      </div>
-      <div id="score-decision-badge" style="padding:6px 18px;border-radius:20px;font-size:13px;font-weight:900;letter-spacing:0.05em;background:rgba(0,229,160,0.15);border:2px solid rgba(0,229,160,0.4);color:var(--data-green);">—</div>
-      <div id="score-decision-sub" style="font-size:11px;color:var(--text-muted);text-align:center;line-height:1.4;max-width:150px;">점수 입력 수신 대기…</div>
-      <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);" id="score-ts">—</div>
+  <!-- ─ 스코어 히어로 (v50.76: flat — 원형 게이지 제거) ─ -->
+  <canvas id="score-gauge-canvas" aria-label="트레이딩 스코어" width="110" height="110" style="display:none;" aria-hidden="true"></canvas>
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:20px;">
+    <div style="text-align:center;min-width:90px;flex-shrink:0;">
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">종합 거래 점수</div>
+      <div id="score-gauge-val" style="font-size:54px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);line-height:1;">—</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">/100</div>
     </div>
+    <div style="width:1px;background:var(--border);align-self:stretch;flex-shrink:0;"></div>
+    <div style="flex:1;min-width:0;">
+      <div id="score-decision-badge" style="padding:5px 16px;border-radius:16px;font-size:13px;font-weight:900;letter-spacing:0.05em;background:rgba(0,229,160,0.12);border:1px solid rgba(0,229,160,0.3);color:var(--data-green);display:inline-block;margin-bottom:8px;">—</div>
+      <div id="score-decision-sub" style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:4px;">점수 입력 수신 대기…</div>
+      <div id="score-ts" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">—</div>
+    </div>
+  </div>
 
-    <!-- 5 서브 점수 그리드 -->
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;padding-left:2px;">점수 구성 상세 (가중 평균)</div>
+  <!-- ─ 점수 구성 + 실행 타이밍 ─ -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;">
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">점수 구성 상세 (가중 평균)</div>
       <div id="score-bars-container" style="display:flex;flex-direction:column;gap:6px;">
-        <!-- JS로 렌더링 -->
         <div style="font-size:11px;color:var(--text-muted);padding:10px;">핵심 수치 연결 확인 중</div>
       </div>
-      <!-- 실행 타이밍 점수 (Enhanced) -->
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:10px 12px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;">⏱ 실행 윈도우 점수</div>
-            <div id="exec-window-desc" style="font-size:11px;color:var(--text-secondary);margin-top:3px;">셋업 실현율 기반 — 지금 진입해도 되는가?</div>
-          </div>
-          <div style="text-align:right;">
-            <div id="exec-window-score" style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:var(--data-cyan);">—</div>
-            <div id="exec-window-label" style="font-size:11px;color:var(--text-muted);">—</div>
-          </div>
+    </div>
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:10px 12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;">⏱ 실행 윈도우 점수</div>
+          <div id="exec-window-desc" style="font-size:11px;color:var(--text-secondary);margin-top:3px;">셋업 실현율 기반 — 지금 진입해도 되는가?</div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;">
-          <div style="text-align:center;padding:4px;background:rgba(0,0,0,0.15);border-radius:4px;">
-            <div style="font-size:11px;color:var(--text-muted);">브레이크아웃 유지</div>
-            <div id="ew-breakout" style="font-size:11px;font-weight:700;color:var(--data-red);font-family:var(--font-mono);">LOW</div>
-          </div>
-          <div style="text-align:center;padding:4px;background:rgba(0,0,0,0.15);border-radius:4px;">
-            <div style="font-size:11px;color:var(--text-muted);">풀백 매수세</div>
-            <div id="ew-pullback" style="font-size:11px;font-weight:700;color:var(--data-amber);font-family:var(--font-mono);">WEAK</div>
-          </div>
-          <div style="text-align:center;padding:4px;background:rgba(0,0,0,0.15);border-radius:4px;">
-            <div style="font-size:11px;color:var(--text-muted);">후속 상승</div>
-            <div id="ew-followthru" style="font-size:11px;font-weight:700;color:var(--data-red);font-family:var(--font-mono);">NONE</div>
-          </div>
-          <div style="text-align:center;padding:4px;background:rgba(0,0,0,0.15);border-radius:4px;">
-            <div style="font-size:11px;color:var(--text-muted);">리더 유지력</div>
-            <div id="ew-leaders" style="font-size:11px;font-weight:700;color:var(--data-amber);font-family:var(--font-mono);">MIXED</div>
-          </div>
+        <div style="text-align:right;">
+          <div id="exec-window-score" style="font-size:20px;font-weight:800;font-family:var(--font-mono);color:var(--data-cyan);">—</div>
+          <div id="exec-window-label" style="font-size:11px;color:var(--text-muted);">—</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;">
+        <div style="text-align:center;padding:4px;background:rgba(0,0,0,0.15);border-radius:4px;">
+          <div style="font-size:11px;color:var(--text-muted);">브레이크아웃 유지</div>
+          <div id="ew-breakout" style="font-size:11px;font-weight:700;color:var(--data-red);font-family:var(--font-mono);">LOW</div>
+        </div>
+        <div style="text-align:center;padding:4px;background:rgba(0,0,0,0.15);border-radius:4px;">
+          <div style="font-size:11px;color:var(--text-muted);">풀백 매수세</div>
+          <div id="ew-pullback" style="font-size:11px;font-weight:700;color:var(--data-amber);font-family:var(--font-mono);">WEAK</div>
+        </div>
+        <div style="text-align:center;padding:4px;background:rgba(0,0,0,0.15);border-radius:4px;">
+          <div style="font-size:11px;color:var(--text-muted);">후속 상승</div>
+          <div id="ew-followthru" style="font-size:11px;font-weight:700;color:var(--data-red);font-family:var(--font-mono);">NONE</div>
+        </div>
+        <div style="text-align:center;padding:4px;background:rgba(0,0,0,0.15);border-radius:4px;">
+          <div style="font-size:11px;color:var(--text-muted);">리더 유지력</div>
+          <div id="ew-leaders" style="font-size:11px;font-weight:700;color:var(--data-amber);font-family:var(--font-mono);">MIXED</div>
         </div>
       </div>
     </div>
@@ -5616,6 +5613,36 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
+    <!-- v50.76: 시장 현황 요약 바 -->
+    <div id="briefing-market-strip" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        <span style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">SCORE</span>
+        <span id="briefing-score-val" style="font-size:15px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</span>
+      </div>
+      <div style="width:1px;height:18px;background:var(--border);flex-shrink:0;"></div>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span style="font-size:10px;color:var(--text-muted);font-weight:700;">SPY</span>
+        <span style="font-size:12px;font-weight:800;font-family:var(--font-mono);" data-live-price="SPY">—</span>
+        <span style="font-size:11px;" data-live-chg="SPY">—</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span style="font-size:10px;color:var(--text-muted);font-weight:700;">QQQ</span>
+        <span style="font-size:12px;font-weight:800;font-family:var(--font-mono);" data-live-price="QQQ">—</span>
+        <span style="font-size:11px;" data-live-chg="QQQ">—</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span style="font-size:10px;color:var(--text-muted);font-weight:700;">VIX</span>
+        <span style="font-size:12px;font-weight:800;font-family:var(--font-mono);" data-live-price="^VIX">—</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span style="font-size:10px;color:var(--text-muted);font-weight:700;">F&amp;G</span>
+        <span id="briefing-fg-val" style="font-size:12px;font-weight:800;font-family:var(--font-mono);">—</span>
+      </div>
+      <div style="margin-left:auto;">
+        <span id="briefing-regime-badge3" class="status-pill sp-neutral" style="font-size:10px;">국면 대기</span>
+      </div>
+    </div>
+
     <!-- ── v16: 실시간 24시간 뉴스 섹션 ──────────────────────────── -->
     <div style="background:var(--bg-card);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:12px 14px;margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
@@ -5825,28 +5852,37 @@ body.light-theme canvas { filter:none; }
   </div>
 
   <!-- ══ SECTION 1: 시장 건강도 대시보드 (Market Health Score) ══════ -->
-  <div style="background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(168,85,247,0.03));border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">시장 건강도 종합 점수</div>
-    <div id="market-health-dashboard" style="display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center;">
-      <!-- 점수 게이지 -->
-      <div style="text-align:center;">
-        <div id="health-score-display" style="font-size:42px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);">—</div>
-        <div id="health-grade-display" style="font-size:10px;font-weight:700;color:var(--text-muted);">/100</div>
-        <div id="health-regime-display" style="font-size:11px;margin-top:4px;padding:2px 6px;background:rgba(255,163,26,0.1);border-radius:4px;color:var(--data-amber);">판정 대기</div>
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
+    <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">시장 건강도 종합 점수</div>
+    <div id="market-health-dashboard" style="display:grid;grid-template-columns:110px 1fr;gap:16px;align-items:start;">
+      <!-- 점수 -->
+      <div style="text-align:center;padding-top:4px;">
+        <div id="health-score-display" style="font-size:48px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);line-height:1;">—</div>
+        <div id="health-grade-display" style="font-size:10px;font-weight:700;color:var(--text-muted);margin-top:2px;">/100</div>
+        <div id="health-regime-display" style="font-size:11px;margin-top:6px;padding:3px 8px;background:rgba(255,163,26,0.1);border-radius:4px;color:var(--data-amber);display:inline-block;">판정 대기</div>
       </div>
-      <!-- 구성 요소 -->
-      <div id="health-components" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-        <div style="background:var(--surface-1);border:1px solid var(--surface-4);border-radius:6px;padding:8px;text-align:center;">
-          <div style="font-size:11px;color:var(--text-muted);">SPY 상태</div>
-          <div id="hc-spy" style="font-size:12px;font-weight:800;font-family:var(--font-mono);" data-live-chg="SPY">—</div>
+      <!-- 구성 요소: 수평 바 형식 -->
+      <div id="health-components" style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:grid;grid-template-columns:60px 1fr 52px;align-items:center;gap:8px;">
+          <div style="font-size:10px;color:var(--text-muted);font-weight:600;">SPY</div>
+          <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:50%;background:var(--data-green);border-radius:3px;" id="hc-spy-bar"></div>
+          </div>
+          <div id="hc-spy" style="font-size:11px;font-weight:800;font-family:var(--font-mono);text-align:right;" data-live-chg="SPY">—</div>
         </div>
-        <div style="background:var(--surface-1);border:1px solid var(--surface-4);border-radius:6px;padding:8px;text-align:center;">
-          <div style="font-size:11px;color:var(--text-muted);">QQQ 상태</div>
-          <div id="hc-qqq" style="font-size:12px;font-weight:800;font-family:var(--font-mono);" data-live-chg="QQQ">—</div>
+        <div style="display:grid;grid-template-columns:60px 1fr 52px;align-items:center;gap:8px;">
+          <div style="font-size:10px;color:var(--text-muted);font-weight:600;">QQQ</div>
+          <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:50%;background:var(--data-green);border-radius:3px;" id="hc-qqq-bar"></div>
+          </div>
+          <div id="hc-qqq" style="font-size:11px;font-weight:800;font-family:var(--font-mono);text-align:right;" data-live-chg="QQQ">—</div>
         </div>
-        <div style="background:var(--surface-1);border:1px solid var(--surface-4);border-radius:6px;padding:8px;text-align:center;">
-          <div style="font-size:11px;color:var(--text-muted);">VIX 공포</div>
-          <div id="hc-vix" style="font-size:12px;font-weight:800;font-family:var(--font-mono);" data-live-price="^VIX">—</div>
+        <div style="display:grid;grid-template-columns:60px 1fr 52px;align-items:center;gap:8px;">
+          <div style="font-size:10px;color:var(--text-muted);font-weight:600;">VIX</div>
+          <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:30%;background:var(--data-amber);border-radius:3px;" id="hc-vix-bar"></div>
+          </div>
+          <div id="hc-vix" style="font-size:11px;font-weight:800;font-family:var(--font-mono);text-align:right;" data-live-price="^VIX">—</div>
         </div>
       </div>
     </div>
@@ -13714,6 +13750,18 @@ function computeMarketHealth() {
   if (el) { el.textContent = grade; el.style.color = gradeColor; }
   el = document.getElementById('health-regime-display');
   if (el) { el.textContent = regime; el.style.color = gradeColor; }
+  // v50.76: 수평 바 업데이트 (SPY/QQQ: 중앙=0%, VIX: 10→0% 40→100%)
+  (function() {
+    var spyW = Math.min(100, Math.max(0, 50 + spyChg * 10));
+    var qqqW = Math.min(100, Math.max(0, 50 + qqqChg * 10));
+    var vixW = Math.min(100, Math.max(0, (vp - 10) / 30 * 100));
+    var spyCol = spyChg >= 0 ? 'var(--data-green)' : 'var(--data-red)';
+    var qqqCol = qqqChg >= 0 ? 'var(--data-green)' : 'var(--data-red)';
+    var vixCol = vp < 20 ? 'var(--data-green)' : vp < 25 ? 'var(--data-amber)' : 'var(--data-red)';
+    var sb = document.getElementById('hc-spy-bar'); if (sb) { sb.style.width = spyW + '%'; sb.style.background = spyCol; }
+    var qb = document.getElementById('hc-qqq-bar'); if (qb) { qb.style.width = qqqW + '%'; qb.style.background = qqqCol; }
+    var vb = document.getElementById('hc-vix-bar'); if (vb) { vb.style.width = vixW + '%'; vb.style.background = vixCol; }
+  })();
   el = document.getElementById('tech-health-pill');
   if (el) {
     el.textContent = grade + ' ' + regime;

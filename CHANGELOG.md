@@ -1,5 +1,13 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.76 - 5페이지 구조적 개편 — 레퍼런스 flat design 반영 (2026-06-18)
+
+- **page-signal 스코어 히어로**: 원형 canvas 게이지 → 플랫 대형 숫자(54px) + 수직 구분선 + 판정 배지 가로 배치. canvas는 `display:none` 유지(JS 호환). 점수 구성 바·실행 윈도우를 2열 카드로 재배치.
+- **page-screener 랭크 바**: 순위 셀에 0~100 범위 3px mini 진행 바 추가 — 랭크 색상과 연동(녹/황/적). 수치·바·퀀트 시그널 세로 배치.
+- **page-technical 건강도 개선**: 그라디언트 배경 → `var(--bg-card)` 플랫. SPY/QQQ/VIX 3-col 카드 → 수평 `label|bar|value` 그리드 3행. `computeMarketHealth()` 내부에서 변화율 기반 바 폭/색상 실시간 업데이트(SPY/QQQ: 중앙50%±10%/1%, VIX: 10→0%·40→100%).
+- **page-ticker 진입 체크 개선**: 4개 pill 태그 → 행 테이블(✓/✗ 아이콘 + 레이블 + 결과값). 헤더에 pass/total 진행 바 80px 추가.
+- **page-briefing 시장 현황 바**: 뉴스 섹션 위에 `briefing-market-strip` 신설 — SCORE·SPY·QQQ·VIX·F&G·국면 배지 1행 표시. 페이지 진입 시 `window._tradingScore`·`_fearGreedValue`·`classifyMarketRegime()` 로 자동 채움.
+
 ## v50.75 - 홈 대시보드 구조 정리 + 실데이터 시장 팩터 히트맵 (2026-06-18)
 
 - **Codex 가짜 데이터 전면 제거**: `AIO_IMPORTED_RESEARCH_20260618`·`AIO_RESEARCH_REFRESH_CONTRACT`·`_aioPremiumBoardModel`(해시 기반 가짜 +1/-1)·`_aioResearchCardsHtml`·`_aioRenderImportedResearchBridge`·`_aioPremiumBoardHtml`·`_aioCreateVisualReport`·`_aioDownloadVisualReport`·CSS `.aio-research-bridge/.aio-premium-board/.apb-*` 총 ~480줄 삭제. 구현 메모가 UI에 노출되던 "자료 통합 브릿지" 완전 제거.
