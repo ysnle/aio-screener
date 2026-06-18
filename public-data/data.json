@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-06-18T20:39:25.714Z",
+  "generatedAt": "2026-06-18T22:34:02.308Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -10,7 +10,7 @@
   "macroKeyCount": 0,
   "newsOk": true,
   "newsCount": 25,
-  "elapsedMs": 1021,
+  "elapsedMs": 1034,
   "schema": 1,
   "marketAnalysisOk": false
  },
@@ -121,48 +121,48 @@
   },
   {
    "symbol": "CL=F",
-   "regularMarketPrice": 75.46,
-   "regularMarketChangePercent": -6.5510835913312775,
+   "regularMarketPrice": 75.68,
+   "regularMarketChangePercent": -6.2786377708978245,
    "regularMarketPreviousClose": 80.75,
    "chartPreviousClose": 80.75,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "BZ=F",
-   "regularMarketPrice": 79.38,
-   "regularMarketChangePercent": -4.556931585908388,
+   "regularMarketPrice": 79.51,
+   "regularMarketChangePercent": -4.400625225441862,
    "regularMarketPreviousClose": 83.17,
    "chartPreviousClose": 83.17,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "GC=F",
-   "regularMarketPrice": 4237.8,
-   "regularMarketChangePercent": -2.0841035120147833,
+   "regularMarketPrice": 4221.4,
+   "regularMarketChangePercent": -2.4630314232902117,
    "regularMarketPreviousClose": 4328,
    "chartPreviousClose": 4328,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "SI=F",
-   "regularMarketPrice": 66.025,
-   "regularMarketChangePercent": -5.767419290383348,
+   "regularMarketPrice": 65.645,
+   "regularMarketChangePercent": -6.309765078640147,
    "regularMarketPreviousClose": 70.066,
    "chartPreviousClose": 70.066,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "DX-Y.NYB",
-   "regularMarketPrice": 100.801,
-   "regularMarketChangePercent": 1.175348790524949,
+   "regularMarketPrice": 100.814,
+   "regularMarketChangePercent": 1.1883970691558743,
    "regularMarketPreviousClose": 99.63,
    "chartPreviousClose": 99.63,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "KRW=X",
-   "regularMarketPrice": 1538.8,
-   "regularMarketChangePercent": 1.411643754366068,
+   "regularMarketPrice": 1536.42,
+   "regularMarketChangePercent": 1.2547944483254005,
    "regularMarketPreviousClose": 1517.38,
    "chartPreviousClose": 1517.38,
    "_source": "live:yahoo-gh"
@@ -177,8 +177,8 @@
   },
   {
    "symbol": "JPY=X",
-   "regularMarketPrice": 161.408,
-   "regularMarketChangePercent": 0.7981015424967162,
+   "regularMarketPrice": 161.348,
+   "regularMarketChangePercent": 0.760631986510971,
    "regularMarketPreviousClose": 160.13,
    "chartPreviousClose": 160.13,
    "_source": "live:yahoo-gh"
@@ -193,16 +193,16 @@
   },
   {
    "symbol": "CNY=X",
-   "regularMarketPrice": 6.7686,
-   "regularMarketChangePercent": -0.10183750276732206,
+   "regularMarketPrice": 6.7681,
+   "regularMarketChangePercent": -0.109217031953369,
    "regularMarketPreviousClose": 6.7755,
    "chartPreviousClose": 6.7755,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "AUDUSD=X",
-   "regularMarketPrice": 0.7019,
-   "regularMarketChangePercent": -0.41146424517593844,
+   "regularMarketPrice": 0.7018,
+   "regularMarketChangePercent": -0.4256526674233829,
    "regularMarketPreviousClose": 0.7048,
    "chartPreviousClose": 0.7048,
    "_source": "live:yahoo-gh"
@@ -385,16 +385,16 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 63049.67,
-   "regularMarketChangePercent": -4.049176386081954,
+   "regularMarketPrice": 62688.38,
+   "regularMarketChangePercent": -4.59899802770946,
    "regularMarketPreviousClose": 65710.4,
    "chartPreviousClose": 65710.4,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1710.71,
-   "regularMarketChangePercent": -0.8061691278850711,
+   "regularMarketPrice": 1699.06,
+   "regularMarketChangePercent": -1.4816828792866226,
    "regularMarketPreviousClose": 1724.6133,
    "chartPreviousClose": 1724.6133,
    "_source": "live:yahoo-gh"
@@ -636,12 +636,48 @@
   "_source": "fred:no-key"
  },
  "fearGreed": {
-  "score": 37,
+  "score": 38,
   "rating": "fear",
   "_source": "cnn",
-  "asOf": "2026-06-18T20:20:01+00:00"
+  "asOf": "2026-06-18T22:14:22+00:00"
  },
  "news": [
+  {
+   "title": "NVIDIA Corporation (NVDA) Invests in a $10B AI Buildout Initiative - Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxONF9OUWF3VGpSNXk1bThuUmRSTldKNUhPejBVVF9XaDVVbDh2Nms3R2x0bm8wanRNQ0xodFlRVHFNZmpZM1ZpbE9OQTBXYno1Q0Z2NGRpa2RZNDFVSWozQ2JyVFZuNGVlak03OUlmTVduSzRkT2xMTU4yMEJkeEpsY21kV2xzVEhZUnp5a1RDZWlQT29PNFNVTW5FaTJiU05B?oc=5",
+   "source": "Yahoo Finance",
+   "pubDate": "Thu, 18 Jun 2026 21:18:54 GMT"
+  },
+  {
+   "title": "Accenture: How Earnings and Acquisitions Triggered a Historic Stock Crash - Barron's",
+   "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTFB1R3QxRUtDdmJfTlhYQmV2VTNpXzBPNDlrQXEtU3RfSVRudzMyWTNNVFpOVDFNT2dJZGxVcFJLNXF5ek5ZX0NCMWlvVkp6bF9JS3ZSWWxUT1BteHBfcTRIUnM4WVgtRlNjdEhXNmxjWkF4d0VzUWN6SDJaZkQ?oc=5",
+   "source": "Barron's",
+   "pubDate": "Thu, 18 Jun 2026 21:17:00 GMT"
+  },
+  {
+   "title": "Dow Jones Futures: Nvidia Leads 5 Chips Near Buy Points; SpaceX Stock Needs This - Investor's Business Daily",
+   "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPNEhrdlloWm5pS3hyaVF6azNTZW9TbnJFU01aTmJNems5Tk1ROUl1aGxhY3BfTkZYNlZOMkJtTDRuWXNvcFJEb2FnQ1duY0VOU20zNGIxaXhmcHU1WXMzNTNiYl9IZmZRTzlfT0k5NnA5ejQ1MGJlR21melNMOFVsbVpvc1RzdmdCOWszMnluZ2ctbkY4ajFZZDVsakZTZENyanJjWmozcGhJNDJneTZxU1luT3h2Zw?oc=5",
+   "source": "Investor's Business Daily",
+   "pubDate": "Thu, 18 Jun 2026 21:15:00 GMT"
+  },
+  {
+   "title": "Dow Gains 72, Nasdaq Surges 496, S&P 500 Adds 80 - TV News Check",
+   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNaExZZnlrcFE2X2dyRk1pRXRKZUphWkFUSWdIQ29NY01fdnRxeUR2RFNsR0NJRXBMWVM2Y3dGNGJCX3FLdmIzMWx3Zks5cHkwYXJLOWh4T3dma3JXem8ydjEtNlJkWGlIYm5iYkUycjZFbFFRN2tIZG9ub1BwRExGRUF5ZEJuTTdzTXlXRE93YVI?oc=5",
+   "source": "TV News Check",
+   "pubDate": "Thu, 18 Jun 2026 20:49:44 GMT"
+  },
+  {
+   "title": "Stock Market Today: Nasdaq, Russell 2000 Pace Rebound; SpaceX Slumps 24% Off Its Peak - Investor's Business Daily",
+   "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQaTZzYVctMFhaakhiSDhBM3ViWF9Da3dGN3lKeFpqNW5FNnlQNDdwLWRsel9pVDR5NU9kZzk2ZFNpV0dyZXJBM1VUbGQ5UV9fdFd1OWdJX0s5cXdKYzJRVmJ2THo0MV9XbHQxNWVhYlZiajZYeDdiS0FKb1N0cjZBSTdMcF9hbno3RTNOTzhydHotOVZHMEFtNjg0SDZXckw5LThETVNYbXFwT3ZGa3Y4eFV0Z1p3d2VNT3Fv?oc=5",
+   "source": "Investor's Business Daily",
+   "pubDate": "Thu, 18 Jun 2026 20:49:00 GMT"
+  },
+  {
+   "title": "Accenture CEO Julie Sweet says AI transformation will 'take some time' as stock price takes another hit - Business Insider",
+   "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNQTE3RE1uVS0xUkVGSE92MHVPZnBWX3dvaUloUXJmanRLUGlybkhwaElZVHFuTURfbm1yRHdzUzRwTGhEbkpKam5EdVFSaEN4QktfTlV6bUQtbjBSVHIxQ0NKejRLcThMUVU3NVRzQnNTdWxObUFMNi15eWlEbDdDRUpUM1lhVUNI?oc=5",
+   "source": "Business Insider",
+   "pubDate": "Thu, 18 Jun 2026 20:42:10 GMT"
+  },
   {
    "title": "Markets are clinging to a Federal Reserve that no longer exists – analyst (SP500:) - Seeking Alpha",
    "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOMm1oNHM1TmhITzFSR0ZtZlhIeC1WNk9nQkpsajZTc0hoZWdzZlNCVDl2QWQ5NzczbUk0T1pNODVkRldXM3JESDVKQUdQZ0UtbXhGd25mYVhhSmthdVRXVWJwOFVzZVlZMEJhQ1JtSnMwVVM4eDZXQ0F1eG5FVGlvelIwRTlkZWJ3Rjg1ZXlHTzBtbkZnX1VneC1mX1Q4SG5Wd0dGYUc2bDl0RUctVmc?oc=5",
@@ -667,12 +703,6 @@
    "pubDate": "Thu, 18 Jun 2026 19:41:15 GMT"
   },
   {
-   "title": "Goldman Sachs Says SpaceX Could Hit $474 Billion in Revenue by 2030. Here Are the 3 AI Stocks That Benefit Most. - The Motley Fool",
-   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOZ085czY4TkFlRUVNeVZ2cWZBb21mLW1ZcXdRbUxnbEFyU3RQMGtCdnZ6OGdaTU5ONEtVcVN1VmlsVjlBOXRpb3ZzR0l2ODRjM1lXeFZBMFRZTF93b3lEekE2bHlVNWd2aGgwcC0wNGRDdzlaelNNbGhwcFpSLUt3MG9zRFdsZGhHM2FsaDRaZ0MtLUlzNm1FcA?oc=5",
-   "source": "The Motley Fool",
-   "pubDate": "Thu, 18 Jun 2026 19:37:35 GMT"
-  },
-  {
    "title": "This AI Stock Recaptures Key Level, Eyes Entry As Earnings Accelerate - Investor's Business Daily",
    "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxOYl9nLVJUU1lyWkt0Tnh0aURjemtFUDQ0czNfNW9KNnp1UEU4ZjlJUU0zYnNTYzBRZW9abHFkR3prdGF3aGNqLWZwZXVUSUs4VzRWdW5jbl82a2FicFhSVGlKSElxSGNOZ2dKZV9EX2Q5SXVTM1c2QjZhZFdVX3ZiWVQ4dzhkMVZYU1FDbEUwNDlPRHZKd1hWYlVoUTA1a1dheVh6VnJVRjlRRlBMQ2JYLW1JY3Atdw?oc=5",
    "source": "Investor's Business Daily",
@@ -685,46 +715,16 @@
    "pubDate": "Thu, 18 Jun 2026 19:21:21 GMT"
   },
   {
-   "title": "Why Accenture Stock Is Sinking 18% After Earnings and a Big Acquisition - Barron's",
-   "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTFB1R3QxRUtDdmJfTlhYQmV2VTNpXzBPNDlrQXEtU3RfSVRudzMyWTNNVFpOVDFNT2dJZGxVcFJLNXF5ek5ZX0NCMWlvVkp6bF9JS3ZSWWxUT1BteHBfcTRIUnM4WVgtRlNjdEhXNmxjWkF4d0VzUWN6SDJaZkQ?oc=5",
-   "source": "Barron's",
-   "pubDate": "Thu, 18 Jun 2026 19:05:00 GMT"
-  },
-  {
-   "title": "3 Hidden AI Revolution Stocks to Buy Now - Zacks Investment Research",
-   "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOc3ZrQ0s1dGhMNkRkZ1ZzSVZkMFdPOFRRNlgwY2s2MTRBcFEyaUluWmhwbUdGUkJ2dTNIOWpjXzFfUXFScGtvVkw0LTdFRU5WSndWQUFLS3pLdzQzRTFsWm5rUVNUNzZaNWRTb3ZpMk1zbF9qOHR1cTJ3WWduSFhtdkc5em9MelZo?oc=5",
-   "source": "Zacks Investment Research",
-   "pubDate": "Thu, 18 Jun 2026 19:00:15 GMT"
-  },
-  {
    "title": "Morningstar Investment Conference: These Top Managers Like European Defense Stocks but Differ on AI Plays - Morningstar",
    "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxOQko4QXo2Y0VwUmJuakZPSFRCX0FQVzNfcUxNYUdldzAxYlkzTVEyX1ZhUjZqdFFxd2hOS1FTRHV6RHBpZFdFX3F5eEQycUc1Rkl4elFRTGFHS0haanlwQ1BQZzlsVExuWGNLNGw0eTFHcXZKZEJSVVhIRktRZDZPSFlWOHZUQzhHY0tmbDk0QzVNWjFTb2JWSUdQTmdCeTVwVmc3ZWVKRkRqaDhRT0s4MWhBY3FWR0ZOcjVYUFRRYmlvLXhNTVdtMUt5Z2s?oc=5",
    "source": "Morningstar",
-   "pubDate": "Thu, 18 Jun 2026 18:45:00 GMT"
-  },
-  {
-   "title": "Is Viant Technology (DSP) One Of The Best AI Advertising Stocks To Buy? - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxNODBWOFBNUXg5RHBNRFk5U2tnMVdFODRrRXVzaEtpb20yN3lEQm14OTBTT3ZobGpFYkNfY2hsNFprb01UelFxdFNEdlFXVHhncHlEbVF5em11cVdJMXd1TnRnX19CQzliTnhxQkZGN0hJSUhLRnR3bGtua3V0VUx2Q0xyRzlaSXRnY3BQVGpLOHc0YUxOUl92ZHJGcjdjQQ?oc=5",
-   "source": "Yahoo Finance",
-   "pubDate": "Thu, 18 Jun 2026 18:31:45 GMT"
-  },
-  {
-   "title": "Top AI Stocks to Add to Your Portfolio for Impressive Returns - The Globe and Mail",
-   "link": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxOS3lSVnhIaEpiTnA5V1N2NHZrZEFxcC1WcUlzSjF0bnBFZ3B5c2Q2VHhhcnZTZ05iSGRqQjE4LWlJV21pX0tja3A2ZTJpa1hod0dicXJ0Zmc5QjAzR1d6ZEpYaVVoUS1JTWtVTkxERHAyRzVfMW5EY1FQSm9MVnBDZGRqSFMyNG80UXFIem1HT0ZYbXZZcUFKcXJCUGlEa1h2TUtjd0xYQzFZTmNNRmNUQkU0anJFNUt0YVV5ZS00eV9rZWxSc3RRNDNiZHJRT25na29jZTJvTWZnTGJD?oc=5",
-   "source": "The Globe and Mail",
-   "pubDate": "Thu, 18 Jun 2026 18:01:07 GMT"
+   "pubDate": "Thu, 18 Jun 2026 18:45:15 GMT"
   },
   {
    "title": "Intel leads AI, chip stocks higher after Trump touts Apple chip deal - Seeking Alpha",
    "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQX05nZlNCQmVtdkc2aGtydkpwaHRnTmlEZ0xVdWZaTGwyeDgtSlR3TXRzZnBYZ29hQWtzeDA1V3lXV05PWnBva25uQjRlY2tHWW95UW00eENnNDFacTJNSFFlOXZISU56WUNQV1NqWG1VRlVuX3F3cEYzaWdtV1dHVDR2THNYQWxQTkc0cVVzNF9QLURjTUgybUxIcUVCbWdxbVlrT09hV3c?oc=5",
    "source": "Seeking Alpha",
    "pubDate": "Thu, 18 Jun 2026 17:40:54 GMT"
-  },
-  {
-   "title": "Warren Buffett Just Tripled Down on the Stock Bill Ackman Is Selling - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQbW1CQmtNcGRSRWRkZEg4eVpvZmIyYU9LaTFQdXVjdGJNcHBhSkhhaHZkTV9sMVlMM1YxdGx0RW1BVjVWUkxfMzFETXRncmFocmNIQmM1Tnl3S0FQVUFJTU9ET0l4ZnIyOE9TR1ZNeGw0dkdoMzEtN2hNM29OWDZwM2FVd0N5YVBqandJYk1ySjhsbElLNlFXNUJmNGFQQQ?oc=5",
-   "source": "Yahoo Finance",
-   "pubDate": "Thu, 18 Jun 2026 17:40:39 GMT"
   },
   {
    "title": "Power Integrations, Lattice Semiconductor, and onsemi Stocks Trade Up, What You Need To Know - StockStory",
@@ -751,10 +751,10 @@
    "pubDate": "Thu, 18 Jun 2026 16:43:07 GMT"
   },
   {
-   "title": "Adobe Stock Meets Two Rising AI Rivals One Quietly Mispriced - simplywall.st",
-   "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxQTDAxVG1CcGs3c2luN1R1U3RBQlhmRTlPYTB5ZV9mMUF4YzFIbXJlVmM5a21nS2MzdFZKcnEyNTJNMEY2U180dVJPaldMRnJ5VkRWUmhJZmJpNHpLelJmbEhCRWFYN1QyNzRnemRZTC1oT3VnZUd5YnJTX3Y2MmFwaDZpWFR1ZlNsN3VNaFlfYUxnZU5hTmRLQ3ByY0ZfN0ZRMThDQjRZa3A1cFlwWTZGRXk2NkVRbXJILVViOE54MlNiQdIBxwFBVV95cUxQeHpYSGR5UXBuWV9rTWlGV0dXeGd4N21BRzdOX0tQVnBqa3d5bUFnbHpxT1J2Y2x4OHpGXzh4RUlsZ3F4elFpbHY2dW1tXy1VVDNRVFl1QjBGQXNoNnpMV25wWXNDSlo3SkVfUzQwMHlUSjBjT2xQZ0lGYkFXaVhvX09weXl1cENWT2c4QmRDNkx1clJEQVBlYWFmazVRejZhbEx5QmY5WWc5ODNtRGFMVWwyLThnT3hMakwwWHBhOXY1NGZXQ3Iw?oc=5",
-   "source": "simplywall.st",
-   "pubDate": "Thu, 18 Jun 2026 16:38:42 GMT"
+   "title": "Top AI Stocks to Add to Your Portfolio for Impressive Returns - Zacks Investment Research",
+   "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNQ2J4NVNidU1LeWVJZXFaZ1ZFYndXcjJzTnVMQW1VT25rck5JQ2ZHYWNGYldmTDVpXzktN3hHWVJZUll2Q0xoelVmand6emlMZzA0OXBGMWZVc3hOUGR5ZXNOMnY1ZVQzTzZYeVRZNGxfVF9XVnhPaGJ4NXFIZmN5bGFWSC04bTk0dVZsUFB4Sk82QnMwRHZsQVFzVUo3N0NvbVI4Ng?oc=5",
+   "source": "Zacks Investment Research",
+   "pubDate": "Thu, 18 Jun 2026 15:51:02 GMT"
   },
   {
    "title": "Sanders proposes tax on artificial intelligence stocks - WCAX",
@@ -769,6 +769,12 @@
    "pubDate": "Thu, 18 Jun 2026 15:03:20 GMT"
   },
   {
+   "title": "Is Intuit (INTU) One of the Best Generative AI Software Stocks to Buy? - Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPX19zS3RQcmtfekRiOGljaVpGRWItSk03NUw2Y2g0R083eTFlMlpYMkpUMnoxdGZaYi1NcEFEZUQweExuNnZ4OEF6ak81Y2NjTTFDWXZzQk40UjFmM3VBR29OcGI1T0xKR2I5ZURnb3VHRklObkNIcG0yTExEVllkdDd0YnZfQ1ZYalNQMzN3VlpTbmRqb0JpdFE5Yw?oc=5",
+   "source": "Yahoo Finance",
+   "pubDate": "Thu, 18 Jun 2026 15:03:12 GMT"
+  },
+  {
    "title": "MRVL vs. AMD: Which Semiconductor Stock Has an Edge in the AI Market? - Yahoo Finance",
    "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOaFZyWWFGQl9McGk5d0VkdW5OOHh5ZmNwYWRCN2ZMSk9mZmdkWjRwSjN3RGk3dEhYU1RWU3IwYzVKU2NnTVptY3BZdm1UWjlzdU1fSEZLQktVdXBEQ0JkN3h5eGNuTlktVEpaQWFHY2haNkRUUW9oclFKTTdUdXA4dGpZQnJxUVZGODZ0am5XdDFudDZlRlk2R2EzWQ?oc=5",
    "source": "Yahoo Finance",
@@ -779,12 +785,6 @@
    "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxQNHFfTW51NnRtYTA4S1FCRll1emFpcjFkS2ktRGxnVjhKZDR5UzRId0wxcTRyRVRCQmZoNkhwT0d0cGZ1RjM1VGgwbkd5T2pxTkZFeVJ0aTkyV3FRVjkxeTAwNGQ4RDZaS0JxS3JHU2czWkIyb1JmZzlhUkxoWE1qREc3ZExFNzM1ZTI00gGQAUFVX3lxTE5ySl9PaElLbTQyaElJZFVvMzExeFZGOFJFX05zd2NPOEcweEdUZi1KTG9mbjZNNmxSS2NPZW1mbmdjelhYX3JIWlJ5RVZQYktDSGRCRDQwUk1sT0xyTWxlTDAxUEVJZmkxcDRqM3NYMW43X2d0MlZEbGs1UHh2T0o3YmFCeEpzS0t2X3lad3FyRA?oc=5",
    "source": "CNBC",
    "pubDate": "Thu, 18 Jun 2026 12:28:36 GMT"
-  },
-  {
-   "title": "Stock Market News for Jun 18, 2026 - The Globe and Mail",
-   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPUTQtc2FZS1ZraFdJbEV6NjBLQ3VCRUlpaXZ0U3VQTW5POTFGY3U2QW5fQkhBRERJNTNkeGVvWEhXOFd4YjVwY3hkdUM5STIyZVNGNzUwSk10Z1ZZOFByY19ITjVGZnk5bUNIdVhlNWZXZW5PTHhldFBvN1lmRkVTNXQxSlY3S2dUNmpDTEJyRHVtYzVwRUJ1WHVpakl1eHF6MlZxN2tXcVVVLWJkM01iSHgtZVBuZzhpTmc?oc=5",
-   "source": "The Globe and Mail",
-   "pubDate": "Thu, 18 Jun 2026 12:11:06 GMT"
   },
   {
    "title": "3 Top Artificial Intelligence (AI) Stocks to Buy With $1,000 Right Now - Yahoo Finance",
