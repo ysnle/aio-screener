@@ -3613,23 +3613,52 @@ function _aioDefaultDecision(pageId) {
   var spxPct = snap.spxPct != null ? 'S&P ' + (Number(snap.spxPct) >= 0 ? '+' : '') + _aioDecisionNum(snap.spxPct, 2) + '%' : '지수 방향 확인';
   var tnxTxt = tnx.value != null ? '10Y ' + _aioDecisionNum(tnx.value, 2) + '%' : '10Y 미수신';
   var wtiTxt = wti.value != null ? 'WTI $' + _aioDecisionNum(wti.value, 1) : '유가 미수신';
+
+  // 기존 refreshHomeDashboard 5밴드와 동일 기준으로 라이브 스코어 읽기
+  var _sc = 50;
+  try {
+    if (typeof computeTradingScore === 'function') { _sc = computeTradingScore().total; }
+    else if (window._tradingScore != null) { _sc = window._tradingScore; }
+  } catch(_) { _sc = window._tradingScore != null ? window._tradingScore : 50; }
+  var _band = _sc >= 75 ? { label:'적극 매수', action:'손절선 확인 후 신규 진입 가능. 80+ 구간은 차익실현 병행.' }
+    : _sc >= 60 ? { label:'매수 우호', action:'ATR 손절선 설정 후 분할 진입. 추격보다 1차 매수 우선.' }
+    : _sc >= 45 ? { label:'중립 · 관망', action:'신규 진입 자제. 기존 포지션 방어선과 손절을 먼저 확인.' }
+    : _sc >= 30 ? { label:'주의 · 축소', action:'리스크 자산 비중 축소. 현금 비율 높이고 헤지 검토.' }
+    : { label:'위험 · 방어', action:'신규 매수 중단. 방어 운용 후 스코어 45+ 복귀 확인 후 재개.' };
+
+  // FOMC/이란 이벤트를 AIO_EVENT_FRESHNESS_REGISTRY에서 단일 경로로 읽기
+  var _fomcReg = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
+  var _iranReg = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).iranHormuzOil || {};
+  var _fomcReason = _fomcReg.result
+    ? 'FOMC ' + (_fomcReg.eventDate || '') + ': ' + _fomcReg.result.slice(0, 50)
+    : '금리·달러 반응으로 FOMC 정책 경로 확인';
+  var _iranReason = _iranReg.result
+    ? (_iranReg.label || '이란/유가') + ': ' + _iranReg.result.slice(0, 40) + ' · ' + wtiTxt
+    : '이란/호르무즈 리스크 모니터: ' + wtiTxt + '와 헤드라인 재반전 확인';
+
   var commonReasons = [
-    spxPct + ' · ' + vixTxt + '로 위험선호/방어 강도 확인',
-    'FOMC는 6/17 이후 결과 확인 구간: 금리·달러 반응이 핵심',
-    '이란/호르무즈 리스크는 완화 모니터: ' + wtiTxt + '와 헤드라인 재반전 확인'
+    spxPct + ' · ' + vixTxt + ' · 스코어 ' + Math.round(_sc) + '/100 (' + _band.label + ')',
+    _fomcReason,
+    _iranReason
   ];
   var map = {
     home: {
       title: '오늘 결론',
-      decision: '매수 우호지만 추격보다 분할 진입',
+      decision: _band.label + ' (스코어 ' + Math.round(_sc) + '/100)',
       reasons: commonReasons,
-      action: '관심 종목은 1차 매수만 허용하고, 신규 진입은 ATR 손절선과 이벤트 리스크를 먼저 정한다.'
+      action: _band.action + ' 신규 진입은 ATR 손절선과 이벤트 리스크를 먼저 정한다.'
     },
     signal: {
       title: '신규 매수 가능 여부',
-      decision: '가능하되 포지션 크기는 80% 이내',
-      reasons: ['위험자산 흐름은 우호적이나 FOMC 사후 금리 경계가 남아 있음', 'Lockout/OPEX 같은 고급 조건보다 손절·헤지가 먼저', '유가 리스크 완화는 긍정이나 헤드라인 리스크는 열려 있음'],
-      action: '분할 매수, 손절선 타이트, VIX 20 상향 돌파 시 신규 매수 중단.'
+      decision: _sc >= 75 ? '적극 진입 가능' : _sc >= 60 ? '선별 진입 가능' : _sc >= 45 ? '신규 진입 보류' : '진입 금지 · 방어',
+      reasons: [
+        '스코어 ' + Math.round(_sc) + '/100 → ' + _band.label,
+        'Lockout/OPEX 같은 고급 조건보다 손절·헤지가 먼저',
+        _fomcReason
+      ],
+      action: _sc >= 60
+        ? '분할 매수, 손절선 타이트, VIX 20 상향 돌파 시 신규 매수 중단.'
+        : '신규 매수 자제. 스코어 60+ 복귀와 VIX 안정 확인 후 재진입.'
     },
     breadth: {
       title: '시장 폭 판단',
@@ -3639,14 +3668,14 @@ function _aioDefaultDecision(pageId) {
     },
     sentiment: {
       title: '심리 결론',
-      decision: '공포 완화, 과열은 아님',
+      decision: _sc >= 60 ? '공포 완화 · 과열 아님' : _sc >= 45 ? '혼합 심리 · 관망' : '공포 심화 · 방어',
       reasons: ['F&G ' + (snap.fg || '미수신') + ' · ' + vixTxt, 'AAII/PutCall은 보조 확인 지표로만 사용', 'SNAPSHOT 값은 신뢰도 감점 후 결론에 반영'],
       action: '공포 구간은 분할, 과열 구간은 추격 금지. 심리만으로 매수/매도하지 않는다.'
     },
     briefing: {
       title: '시장 요약',
-      decision: 'FOMC 이후 금리 경계와 유가 완화가 오늘의 축',
-      reasons: ['시장 요약 → 오늘 할 일 → 핵심 뉴스 순서로 읽기', '6/17 FOMC는 예정이 아니라 결과 확인', '이란/호르무즈 뉴스는 유가·인플레 리스크로 연결'],
+      decision: _band.label + ' — ' + (_fomcReg.nextCheckpoint ? _fomcReg.nextCheckpoint.slice(0, 30) : '주요 이벤트 확인'),
+      reasons: ['시장 요약 → 오늘 할 일 → 핵심 뉴스 순서로 읽기', _fomcReason, _iranReason],
       action: '뉴스는 Top 3~5개만 먼저 확인하고, 보유 종목 관련 뉴스만 AI 질문으로 넘긴다.'
     },
     'market-news': {
@@ -3658,7 +3687,7 @@ function _aioDefaultDecision(pageId) {
     technical: {
       title: '차트 판단',
       decision: '종목 입력 후 레벨·진입·무효화부터 확인',
-      reasons: ['차트/보조지표/거래량은 종목별 수집 성공 여부가 핵심', '셋업 교육은 상세 영역으로 분리', '시장 VIX·금리 환경을 차트 판단에 함께 반영'],
+      reasons: ['차트/보조지표/거래량은 종목별 수집 성공 여부가 핵심', '셋업 교육은 상세 영역으로 분리', '시장 ' + vixTxt + ' · 스코어 ' + Math.round(_sc) + '/100 환경을 차트 판단에 함께 반영'],
       action: '티커를 입력하고 진입가, 무효화 가격, 손절, 기간을 한 번에 확인한다.'
     },
     screener: {
@@ -3693,8 +3722,8 @@ function _aioDefaultDecision(pageId) {
     },
     macro: {
       title: '오늘 매크로 판단',
-      decision: 'FOMC 이후 금리 경계, 유가 리스크는 완화 모니터',
-      reasons: ['FOMC 6/17은 예정이 아니라 결과 확인·시장 반응 구간', tnxTxt + ' · DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), '이란/호르무즈 완화는 ' + wtiTxt + '로 확인'],
+      decision: _fomcReg.status === 'RESULT_REVIEW' ? 'FOMC 결과 확인 구간 · 유가 리스크 완화 모니터' : '금리·달러·유가 방향 확인',
+      reasons: [_fomcReason, tnxTxt + ' · DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), _iranReason],
       action: '2Y/10Y·달러·WTI가 동시에 상승하면 성장주 추격을 줄이고, 완화가 지속되면 분할 매수를 유지한다.'
     },
     fxbond: {
@@ -3706,7 +3735,7 @@ function _aioDefaultDecision(pageId) {
     fundamental: {
       title: '기업 분석 준비',
       decision: '17개 관점과 데이터 가용성부터 확인',
-      reasons: ['검색 전 시세·SEC·FMP·Finnhub 수신 가능 여부 확인', '15개/17개 관점 불일치를 17개로 통일', '미수신 수치는 추정하지 않고 비워 둠'],
+      reasons: ['검색 전 시세·SEC·FMP·Finnhub 수신 가능 여부 확인', '수집된 소스만 근거로 사용하고 미수신은 공란', '시장 배경: ' + _band.label + ' · ' + vixTxt],
       action: '티커 입력 후 수집 성공 소스만 근거로 AI 종합 분석을 실행한다.'
     },
     options: {
@@ -3740,7 +3769,7 @@ function _aioDefaultDecision(pageId) {
     'kr-macro': {
       title: '한국 매크로 판단',
       decision: '금리·환율·유가·수출입만 상단 판단에 사용',
-      reasons: ['FOMC 6/17 결과는 원화/외국인 수급 경로로 반영', '아카이브와 현재 판단을 분리', '7/10 금통위 전까지 환율·물가·수출 모멘텀 확인'],
+      reasons: [_fomcReason + ' (원화/수급 경로 반영)', '아카이브와 현재 판단을 분리', '7/10 금통위 전까지 환율·물가·수출 모멘텀 확인'],
       action: 'USD/KRW 상승과 외국인 매도가 겹치면 방어, 환율 안정과 반도체 수급 개선이면 선별 확대.',
       sourceKind: 'SNAPSHOT'
     },
@@ -4239,6 +4268,11 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   var old = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
   if (old) old.remove();
   var cls = 'aio-source-' + String(d.sourceKind || 'SNAPSHOT').toLowerCase();
+  // FOMC 안내는 관련 페이지에만 표시, 텍스트는 레지스트리에서 읽음
+  var _fomcFooterPages = { home:1, macro:1, fxbond:1, signal:1, briefing:1, 'kr-macro':1 };
+  var _fomcFoot = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
+  var _fomcFootNote = (_fomcFooterPages[pageId] && _fomcFoot.result)
+    ? _fomcFoot.result.slice(0, 70) : '';
   var html = ''
     + '<section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(d.sourceKind) + '">'
     + '  <div class="aio-decision-top">'
@@ -4250,7 +4284,7 @@ window._aioRenderPageDecisionHeader = function(pageId) {
     + '    <div class="aio-decision-card"><div class="aio-decision-label">오늘 행동</div><div class="aio-decision-action">' + _aioDecisionEsc(d.action) + '</div></div>'
     + '    <div class="aio-decision-card"><div class="aio-decision-label">데이터 기준시각</div><div class="aio-decision-action">' + _aioDecisionEsc(d.asOf) + '</div></div>'
     + '  </div>'
-    + '  <div class="aio-decision-foot"><span>FOMC 6/17은 예정이 아니라 결과 확인/시장 반응 구간입니다.</span><button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 질문</button></div>'
+    + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : '') + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 질문</button></div>'
     + '</section>';
   page.insertAdjacentHTML('afterbegin', html);
   var header = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
@@ -4259,7 +4293,10 @@ window._aioRenderPageDecisionHeader = function(pageId) {
 };
 
 window._aioRenderAllPageDecisionHeaders = function() {
-  var ids = ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+  // AIO_ALL_ROUTE_PAGE_IDS 우선 사용 — ROUTE_PAGE_IDS 단일 출처와 동기화
+  var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
+    ? window.AIO_ALL_ROUTE_PAGE_IDS
+    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
   ids.forEach(function(id) {
     try { window._aioRenderPageDecisionHeader(id); } catch(_) {}
   });
@@ -4267,30 +4304,35 @@ window._aioRenderAllPageDecisionHeaders = function() {
 
 window._aioApplyEventFreshnessGate = function() {
   try {
-    var fomc = window.AIO_EVENT_FRESHNESS_REGISTRY && window.AIO_EVENT_FRESHNESS_REGISTRY.fomc;
+    var fomc = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc;
     if (!fomc) return;
+    // 날짜·텍스트를 레지스트리에서 단일 경로로 읽어 DOM에 반영
+    var fomcDate = fomc.eventDate || '';
+    var fomcResult = fomc.result || (fomcDate ? 'FOMC ' + fomcDate + ' 결과 확인 구간' : 'FOMC 결과 확인 구간');
+    var fomcNextCP = fomc.nextCheckpoint || '금리·달러 방향 확인';
+    var fomcLabel = fomc.label || 'FOMC';
     var cp2 = document.getElementById('cp2-detail');
     if (cp2) {
       cp2.setAttribute('data-source-kind', 'SNAPSHOT');
-      cp2.setAttribute('data-as-of', '2026-06-17');
-      cp2.textContent = 'Fed 3.50-3.75% · FOMC 6/17 결과 확인 구간 · 고용 둔화와 인플레 고착 중 어느 쪽을 더 반영하는지 금리/달러로 확인';
+      cp2.setAttribute('data-as-of', fomcDate);
+      cp2.textContent = 'Fed 3.50-3.75% · ' + fomcLabel + (fomcDate ? ' ' + fomcDate : '') + ': ' + fomcResult.slice(0, 50) + ' · 다음 확인: ' + fomcNextCP.slice(0, 40);
     }
     var fed = document.getElementById('macro-fed-meaning');
     if (fed) {
       fed.setAttribute('data-source-kind', 'SNAPSHOT');
-      fed.setAttribute('data-as-of', '2026-06-17');
-      fed.textContent = 'FOMC 결과: 6/17 이후 금리·달러 반응 확인';
+      fed.setAttribute('data-as-of', fomcDate);
+      fed.textContent = fomcLabel + ' ' + (fomcDate ? fomcDate + ': ' : '') + fomcResult.slice(0, 40);
     }
     document.querySelectorAll('[data-snap="fomc"]').forEach(function(el) {
-      el.textContent = '6/17 결과';
+      el.textContent = fomcDate ? fomcDate + ' 결과' : fomcLabel + ' 결과';
       el.setAttribute('data-source-kind', 'SNAPSHOT');
-      el.setAttribute('data-as-of', '2026-06-17');
-      el.title = '6/17 FOMC는 예정이 아니라 결과 확인/시장 반응 구간입니다.';
+      el.setAttribute('data-as-of', fomcDate);
+      el.title = fomcResult;
     });
     document.querySelectorAll('[data-evidence-id*="fomc"], [data-evidence-id*="fed-rate"], [data-evidence-id*="kr-us-rate-calendar"]').forEach(function(el) {
       if (!el) return;
       el.setAttribute('data-source-kind', 'SNAPSHOT');
-      el.setAttribute('data-as-of', '2026-06-17');
+      el.setAttribute('data-as-of', fomcDate);
     });
   } catch(_) {}
 };
@@ -16667,7 +16709,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.73';
+const APP_VERSION = 'v50.74';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

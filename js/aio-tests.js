@@ -6715,6 +6715,36 @@
       t840detail = JSON.stringify({ audit:!!audit840, auto:audit840 && audit840.autoRefreshReady, contract:contract840.version, board:!!board840, btn:!!btn840, visualFns:visualFns840, report:report840 });
     } catch(e) { t840detail = 'ERR:' + e.message; }
     _assert('T840 v5073_premium_research_automation_visual_report: research digest contract, premium board, and PNG-style report generator stay wired', t840ok, t840detail);
+
+    // T841: v50.74 structural fix — decision engine reads live score, FOMC uses registry, footer is conditional.
+    var t841ok = false, t841detail = '';
+    try {
+      var validBands841 = { '적극 매수':1, '매수 우호':1, '중립 · 관망':1, '주의 · 축소':1, '위험 · 방어':1 };
+      var homeDecision841 = typeof window._aioBuildPageDecision === 'function' ? window._aioBuildPageDecision('home') : null;
+      // decision 문구가 5밴드 중 하나를 포함해야 함 (정적 고정 문구 제거 검증)
+      var bandInDecision841 = homeDecision841 && Object.keys(validBands841).some(function(b) {
+        return homeDecision841.decision.indexOf(b) >= 0;
+      });
+      // score 표기 포함 여부
+      var scoreInDecision841 = homeDecision841 && /스코어\s*\d/.test(homeDecision841.decision);
+      // FOMC 이유가 하드코딩 날짜 대신 레지스트리에서 왔는지 — commonReasons는 레지스트리 result 슬라이스
+      var reg841 = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
+      var fomcReasonDynamic841 = homeDecision841 && reg841.result &&
+        homeDecision841.reasons.some(function(r) { return r && r.indexOf(reg841.result.slice(0, 20)) >= 0; });
+      // FOMC footer가 비관련 페이지(portfolio)에는 없어야 함
+      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('portfolio');
+      var portHeader841 = document.querySelector('#page-portfolio .aio-decision-header[data-aio-decision-page="portfolio"]');
+      var noFomcFooter841 = !portHeader841 || !(/6\/17|FOMC/.test((portHeader841.querySelector('.aio-decision-foot') || {}).textContent || ''));
+      // FOMC footer가 관련 페이지(macro)에는 있어야 함
+      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('macro');
+      var macroFooter841 = document.querySelector('#page-macro .aio-decision-header .aio-decision-foot');
+      var fomcFooterOnMacro841 = !macroFooter841 || macroFooter841.textContent.length > 5;
+      // _aioRenderAllPageDecisionHeaders가 AIO_ALL_ROUTE_PAGE_IDS를 참조
+      var routeIds841 = window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length > 0;
+      t841ok = !!(bandInDecision841 && scoreInDecision841 && fomcReasonDynamic841 && noFomcFooter841 && routeIds841);
+      t841detail = JSON.stringify({ band:bandInDecision841, score:scoreInDecision841, fomcDynamic:fomcReasonDynamic841, noFomcPortfolio:noFomcFooter841, fomcMacro:fomcFooterOnMacro841, routeIds:routeIds841 });
+    } catch(e) { t841detail = 'ERR:' + e.message; }
+    _assert('T841 v5074_structural_fix: decision reads live score, FOMC uses registry, footer is page-conditional, route-ids wired', t841ok, t841detail);
   }
 
   window.AIO = window.AIO || {};

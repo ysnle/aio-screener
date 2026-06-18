@@ -1,5 +1,13 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.74 - Decision Header 구조 보강 (2026-06-18)
+
+- **`_aioDefaultDecision` 동적화**: Decision Header의 판단 문구(`decision`, `action`)가 기존 `refreshHomeDashboard` 5밴드와 동일한 `computeTradingScore()` → `window._tradingScore` 경로로 라이브 스코어를 읽어 동적 생성. VIX 35에서도 "매수 우호"가 고정 표시되던 구조 해소.
+- **FOMC 텍스트 단일 경로화**: `_aioDefaultDecision`의 `commonReasons`, `_aioApplyEventFreshnessGate`의 DOM 패치(cp2-detail, macro-fed-meaning, data-snap="fomc")가 모두 `AIO_EVENT_FRESHNESS_REGISTRY.fomc`에서 날짜·결과·다음 체크포인트를 읽도록 전환. 기존 하드코딩 '6/17' 9곳 제거.
+- **Decision Header footer 조건부**: '결과 확인 구간' 안내 문구가 home/macro/fxbond/signal/briefing/kr-macro 6개 페이지에만 표시되도록 제한. 포트폴리오·수급·옵션 등 무관 페이지 상단 FOMC 노출 제거.
+- **`_aioRenderAllPageDecisionHeaders` ROUTE_PAGE_IDS 연동**: 22페이지 목록을 `window.AIO_ALL_ROUTE_PAGE_IDS`에서 읽어 ROUTE_PAGE_IDS 단일 출처와 동기화. 새 페이지 추가 시 두 곳 수동 관리 불필요.
+- **회귀 테스트**: T841 추가. 라이브 스코어 기반 5밴드 판단, FOMC 레지스트리 경로, 조건부 footer, route-ids 연동을 검증.
+
 ## v50.73 - 프리미엄 스크리너 보드 + 자동 보강형 리서치 + 시각 리포트 (2026-06-18)
 
 - **자동 보강 구조 편입**: 사용자 제공 X/이미지 자료를 `public-data/user-research-digest.json` 스키마로 정규화하고, 앱 런타임에 `AIO_RESEARCH_REFRESH_CONTRACT` + `AIO.loadUserResearchDigest()`로 읽을 수 있게 연결. 자료는 기본 `REFERENCE`이며, 라이브 가격/뉴스/매크로 검증 없이는 현재 시장 결론으로 승격하지 않도록 명시.
