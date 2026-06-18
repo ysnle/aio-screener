@@ -1,0 +1,112 @@
+{
+  "version": "v50.73",
+  "generatedAt": "2026-06-18T00:00:00+09:00",
+  "sourceKind": "REFERENCE",
+  "description": "User supplied X threads and UI/UX screenshots normalized for AIO Screener page and AI-context integration. These are design/framework references, not live market data.",
+  "items": [
+    {
+      "id": "x-yeoulabba-2067181573074792476",
+      "url": "https://x.com/yeoulabba/status/2067181573074792476",
+      "title": "Labor-inflation prism: do not rely on a single unemployment/inflation aggregate",
+      "categories": ["macro", "fxbond", "ai-context"],
+      "pageTargets": ["macro", "fxbond", "home"],
+      "extraction": {
+        "thesis": "Analyze layoff unemployment, quits, duration, common inflation, wage pressure, and expectations together.",
+        "signals": ["Beveridge curve", "Phillips curve", "common vs idiosyncratic inflation"],
+        "risks": ["single-metric macro overconfidence"],
+        "automationHint": "Refresh with official labor/inflation releases and classify as SNAPSHOT only after data cross-check."
+      }
+    },
+    {
+      "id": "x-nuradu-2065464860780249096",
+      "url": "https://x.com/NURadu_/status/2065464860780249096",
+      "title": "High-growth theme rotation and FOMO entry risk",
+      "categories": ["screener", "themes", "risk"],
+      "pageTargets": ["screener", "themes", "signal"],
+      "extraction": {
+        "thesis": "A good business can be a bad entry when institutional distribution, washout risk, and macro duration sensitivity are ignored.",
+        "signals": ["FOMO", "distribution", "washout", "future cash-flow duration"],
+        "risks": ["chasing crowded growth themes"],
+        "automationHint": "Use screener factor rotation and price/volume confirmation before raising conviction."
+      }
+    },
+    {
+      "id": "x-peterbrandt-2064916348619358359",
+      "url": "https://x.com/PeterLBrandt/status/2064916348619358359",
+      "title": "Chart patterns are risk/reward tools, not predictions",
+      "categories": ["technical", "ticker", "education"],
+      "pageTargets": ["technical", "ticker", "kr-technical"],
+      "extraction": {
+        "thesis": "Patterns mostly do not predict; they define asymmetric reward/risk and invalidation.",
+        "signals": ["congestion", "continuation", "pattern morphing", "large-player accumulation/distribution"],
+        "risks": ["pattern prophecy"],
+        "automationHint": "Render entry, invalidation, and reward/risk before pattern names."
+      }
+    },
+    {
+      "id": "x-teslamania4477-2062073365658300898",
+      "url": "https://x.com/teslamania4477/status/2062073365658300898",
+      "title": "Small and mid-cap growth buy filter",
+      "categories": ["fundamental", "screener", "ticker"],
+      "pageTargets": ["fundamental", "screener", "ticker"],
+      "extraction": {
+        "thesis": "Check bottleneck, vertical integration, backlog visibility, production reality, kill condition, and dilution use.",
+        "signals": ["bottleneck", "vertical integration", "backlog", "scale-up", "kill condition", "dilution"],
+        "risks": ["story-only growth", "unfunded scale-up"],
+        "automationHint": "Map to 17-perspective company analysis and missing-data warnings."
+      }
+    },
+    {
+      "id": "x-nuradu-2060727898743734589",
+      "url": "https://x.com/NURadu_/status/2060727898743734589",
+      "title": "Candles, moving averages, MACD, patience, and timing",
+      "categories": ["technical", "kr-technical"],
+      "pageTargets": ["technical", "kr-technical"],
+      "extraction": {
+        "thesis": "Chart analysis should read psychology and timing through candles, moving averages, MACD, and patience.",
+        "signals": ["MA", "MACD", "Granville", "resting is investing"],
+        "risks": ["overtrading"],
+        "automationHint": "Favor plan blocks: entry zone, invalidation, stop, holding period, confidence."
+      }
+    },
+    {
+      "id": "x-nuradu-2058933545415176682",
+      "url": "https://x.com/NURadu_/status/2058933545415176682",
+      "title": "AI infrastructure value-chain bottlenecks",
+      "categories": ["themes", "fundamental", "screener"],
+      "pageTargets": ["themes", "theme-detail", "fundamental", "screener"],
+      "extraction": {
+        "thesis": "Separate shortages from bottlenecks across GPU, HBM, CPU, storage, optics, neocloud, and power.",
+        "signals": ["GPU", "HBM", "CPU", "storage", "optics", "power", "neocloud"],
+        "risks": ["single-stock AI bias"],
+        "automationHint": "Use value-chain layer tags to diversify recommendations beyond one market or one company."
+      }
+    },
+    {
+      "id": "ui-reference-images-1-5",
+      "url": "local-clipboard-images-1-5",
+      "title": "Premium screener UX references: heatmap, factor table, grouped comparison, chart cockpit, sector detail",
+      "categories": ["ui-pattern", "screener", "technical", "ticker"],
+      "pageTargets": ["home", "screener", "technical", "ticker", "themes", "kr-themes"],
+      "extraction": {
+        "thesis": "Use clean board layout, compact metrics, heatmap rows, grouped tables, chart-first cockpit, and strong numeric hierarchy.",
+        "signals": ["premium board", "heatmap", "factor matrix", "chart cockpit", "highlighted key numbers"],
+        "risks": ["dense text", "weak visual hierarchy"],
+        "automationHint": "UI patterns apply immediately because they are not market facts."
+      }
+    },
+    {
+      "id": "ui-reference-images-6-9",
+      "url": "local-clipboard-images-6-9",
+      "title": "Visual report references: Minervini overlay, macro one-pager, Korea daily card, DART financial dashboard",
+      "categories": ["ui-pattern", "report", "ai-chat", "fundamental", "kr-market"],
+      "pageTargets": ["technical", "fundamental", "kr-home", "portfolio", "ticker"],
+      "extraction": {
+        "thesis": "AI chat can generate structured visual report cards in-browser and export them as PNG when current page data exists.",
+        "signals": ["report card", "key number emphasis", "7-chart financials", "Minervini overlay"],
+        "risks": ["image looks authoritative while data is stale"],
+        "automationHint": "Every generated visual must show sourceKind and asOf."
+      }
+    }
+  ]
+}

@@ -5,6 +5,32 @@
 // ║  분할 효과: 외부 .js 파일 분리 1차 후보 (Phase 3에서 활용)                  ║
 // ║  안전: 의존만 받고 의존 없음, 톱-레벨 즉시 호출 없음                       ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
+function _getImportedResearchContext(ctxId) {
+  try {
+    var reg = window.AIO_IMPORTED_RESEARCH_20260618;
+    if (!reg || !reg.pageModules) return '';
+    var map = {
+      home:'home', briefing:'home', macro:'macro', fxbond:'fxbond',
+      technical:'technical', signal:'technical', screener:'screener',
+      ticker:'ticker', fundamental:'fundamental', themes:'themes',
+      'theme-detail':'theme-detail', portfolio:'portfolio',
+      'kr-market':'kr-home', 'kr-home':'kr-home', 'kr-supply':'kr-supply',
+      'kr-themes':'kr-themes', 'kr-macro':'macro', 'kr-tech':'kr-technical',
+      'kr-technical':'kr-technical'
+    };
+    var key = map[ctxId] || ctxId;
+    var mod = reg.pageModules[key];
+    if (!mod) return '';
+    var lines = (mod.cards || []).map(function(c) { return '- ' + c[0] + ': ' + c[1]; }).join('\n');
+    return '\n\n[User supplied research integration | sourceKind=REFERENCE | asOf=' + (reg.asOf || '2026-06-18') + ']\n' +
+      mod.title + ' - ' + mod.sub + '\n' +
+      lines + '\n' +
+      'Rule: use this as a decision framework and UI pattern, not as live market data. For current prices, fundamentals, macro numbers, or trade decisions, cite only LIVE/SNAPSHOT/verified data blocks already injected into the prompt.\n' +
+      'Visual report rule: if the user asks for an image, infographic, report card, one-page memo, or visual material, explain that AIO can create an in-browser PNG-style visual report from the current page via _aioCreateVisualReport("' + key + '"). The visual must show sourceKind/asOf and must not make stale REFERENCE material look live.\n';
+  } catch(_) { return ''; }
+}
+if (typeof window !== 'undefined') window._getImportedResearchContext = _getImportedResearchContext;
+
 const CHAT_CONTEXTS = {
   // ── 차트/기술 분석 (enhanced version overridden later) ──
   technical: {
@@ -54,6 +80,7 @@ const CHAT_CONTEXTS = {
         'Use the blow-off checklist when markets or semiconductor leaders are extended: index price/20MA ratio in upper extension band, single-name 20MA distance in extreme extension band (these are RATIO/DISTANCE thresholds, NEVER absolute prices — do NOT cite numbers like 117-120 or 147-150 as stock prices), 20MA/50SMA ATR extension, RVOL climax, weak close position, Bollinger re-entry, OPEX gamma decay, and event exhaustion after summit/OPEX/NVDA/Korea semi catalysts. For exact thresholds refer to AIO_NUMERIC_GUIDELINE_SAFELIST (R84) — they are calibration constants, not price quotes.\n' +
         'The H2 liquidity thesis (bank regulation/eSLR relief, possible TGA drawdown, fiscal impulse, eventual cuts, current Treasury Secretary and Fed Chair policy mix) is a medium-term support backdrop, not a reason to chase if CPI/oil/rates are rising. For current named officials, refer to AIO_NAMED_ENTITY_REGISTRY (R76). Treat Telegram/Aether Japan Research as a fast secondary pipeline; confirm with primary sources or market data before presenting it as a live trading fact.\n' +
         _getV48IntegratedContext('technical') +
+        _getImportedResearchContext('technical') +
         _getChatRules();
     }
   },
@@ -158,6 +185,7 @@ const CHAT_CONTEXTS = {
         '7. 경기 사이클 투자 가이드: 현재 국면에서 유리/불리한 자산군.\n' +
         '대시보드(매매 스코어 ' + s.score + '/100)·투자심리(시장 참가자 반응)·환율채권(금리/환율 심층) 페이지 연결.' +
         _getV48IntegratedContext('macro') +
+        _getImportedResearchContext('macro') +
         _getChatRules();
     }
   },
@@ -469,9 +497,9 @@ const CHAT_CONTEXTS = {
       prompt += '• 지정학 완화 국면: 중동 디에스컬레이션으로 에너지·운송 교역조건 개선 — 단 SpaceX IPO·금리 高 등 개별 변동성 상존.\n';
       prompt += '→ "현재 매크로가 이 기업에 순풍인가 역풍인가" 반드시 판단. VIX ' + s.vix + ', F&G ' + s.fg + ', 트레이딩 스코어 ' + s.score + '/100.\n\n';
 
-      // ── 15개 관점 분석 지시 (v33.2: 데이터 태그 강화) ──
-      prompt += '【 핵심 지시: 15개 관점 종합 기업 분석 프레임워크】\n';
-      prompt += '사용자가 기업 분석을 요청하면, 위에 제공된 실제 수집 데이터를 기반으로 아래 15개 관점을 유기적으로 연결하여 분석하라.\n';
+      // ── 17개 관점 분석 지시 (v50.70: 데이터 가용성/행동 계획까지 통합) ──
+      prompt += '【 핵심 지시: 17개 관점 종합 기업 분석 프레임워크】\n';
+      prompt += '사용자가 기업 분석을 요청하면, 위에 제공된 실제 수집 데이터를 기반으로 아래 17개 관점을 유기적으로 연결하여 분석하라.\n';
       prompt += '단순 나열이 아니라, 하나의 스토리로 연결해야 한다. "이 회사는 왜 존재하고, 어떻게 돈을 벌고, 그 돈벌이가 지속 가능한가"라는 큰 질문에 답하는 흐름.\n\n';
 
       prompt += '1. 【기업 개요】 한 문장 정의 + 핵심 숫자(시총/매출/이익/직원). "이 기업은 본질적으로 ___다." 데이터: fmpProfile(companyName, sector, industry, mktCap, fullTimeEmployees)\n';
@@ -557,6 +585,7 @@ const CHAT_CONTEXTS = {
         '[META 광고 패권 역전 — WSJ] 2026 순광고 $243B > GOOGL $239B(사상 첫 역전). AI 추천→릴스 시청 YoY+30%. AI 비디오 도구 ARR $10B. 릴스 12M $50B. GOOGL 검색 점유율 48.5%(10년 만에 50%↓). 핵심: AI 추천 알고리즘이 광고 수익을 재분배하는 구조적 전환.\n' +
         '[기업 AI 3파전 — CNBC] OpenAI "MSFT가 고객확보 제한"→Amazon Bedrock 선회. Anthropic ARR $300억 vs OpenAI 기업 40%(소비자와 대등 궤도). "Claude 매니아"(HumanX). MSFT 코파일럿→오픈클로 GUI 에이전트 진화. 구조적 역학: 하이퍼스케일러 자체 AI 채널(Bedrock/Vertex) = AI 모델사의 유통 지배력 확보 수단.\n' +
         _getV48IntegratedContext('fundamental') +
+        _getImportedResearchContext('fundamental') +
         _getChatRules();
 
       return prompt;
@@ -682,6 +711,7 @@ const CHAT_CONTEXTS = {
         '매매시그널(전체 환경)·차트 분석(대장주 타이밍) 연결.' +
         _buildMarketLeadersSnapshot() +
         _getV48IntegratedContext('themes') +
+        _getImportedResearchContext('themes') +
         _getChatRules();
     }
   },
@@ -781,6 +811,7 @@ const CHAT_CONTEXTS = {
         '보유 종목 티커를 반드시 인용. 차트 분석(종목별 Stage)·매크로(거시환경)·매매시그널(환경 점수) 페이지 연결.' +
         _buildMarketLeadersSnapshot() +
         _getV48IntegratedContext('portfolio') +
+        _getImportedResearchContext('portfolio') +
         _getChatRules();
     }
   },
@@ -879,6 +910,7 @@ const CHAT_CONTEXTS = {
         '7. 카드 카운팅: Fed·한은의 "남은 카드" + 카드 소진 시 경로.\n' +
         '매크로(금리-달러-유가 연결)·투자심리(공포/탐욕 연동)·포트폴리오(채권 비중 조정) 페이지 연결.' +
         _getV48IntegratedContext('fxbond') +
+        _getImportedResearchContext('fxbond') +
         _getChatRules();
     }
   },
@@ -944,6 +976,7 @@ const CHAT_CONTEXTS = {
         '차트 분석(기술 타이밍)·매크로(거시 환경)·투자 심리(공포/탐욕) 페이지 연결.' +
         _buildMarketLeadersSnapshot() +
         _getV48IntegratedContext('signal') +
+        _getImportedResearchContext('technical') +
         _getChatRules();
     }
   },
@@ -1091,6 +1124,7 @@ const CHAT_CONTEXTS = {
         '테마 타이밍: 초기(인지도 낮음+밸류 저렴) → 가속(뉴스 폭증+급등) → 과열(P/E 비정상) → 조정(테마 피로) 4단계.\n' +
         '테마 분석·섹터 로테이션(RRG) 페이지 연결.' +
         _getV48IntegratedContext('themes') +
+        _getImportedResearchContext('theme-detail') +
         _getChatRules();
     }
   }
@@ -1115,6 +1149,7 @@ const CHAT_CONTEXTS = {
         '- 외국인 수급과 원화 방향의 상관관계 강조\n' +
         '- 지정학 리스크 언급 시 데이터 기반 한정\n' +
         _getV48IntegratedContext('macro') +
+        _getImportedResearchContext('kr-macro') +
         _getChatRules();
     }
   },
@@ -1153,6 +1188,7 @@ const CHAT_CONTEXTS = {
         '- 테마 과열 신호(거래량 급증, PER 확장)와 순환매 전환 신호 구분\n' +
         '- RRG 차트 기반 리더/약화/라거/개선 사이클 해석\n' +
         _getV48IntegratedContext('themes') +
+        _getImportedResearchContext('kr-themes') +
         _getChatRules();
     }
   },
@@ -1174,6 +1210,59 @@ const CHAT_CONTEXTS = {
         '- VKOSPI > 25 시 공포 과잉(저가매수 신호), < 15 시 안주 경계\n' +
         '- 주요 지지/저항: KOSPI 이동평균(20MA, 60MA, 120MA, 200MA) 기준\n' +
         _getV48IntegratedContext('technical') +
+        _getImportedResearchContext('kr-technical') +
+        _getChatRules();
+    }
+  },
+  screener: {
+    title: 'AI 퀀트 스크리너 동반자',
+    label: '퀀트 스크리너',
+    icon: 'Q',
+    system: function() {
+      const s = _liveSnap();
+      var rows = [];
+      try {
+        rows = window._aioLastScreenerResults || window._screenerLastResults || window._lastScreenerRows || [];
+        if (!Array.isArray(rows) || rows.length === 0) rows = Array.isArray(window.SCREENER_DB) ? window.SCREENER_DB.slice(0, 12) : [];
+      } catch(_) { rows = []; }
+      var sample = rows.slice(0, 12).map(function(r, i) {
+        var sym = r && (r.sym || r.ticker || r.symbol) || '?';
+        var sector = r && (r.sector || r.theme || r.industry) || 'sector n/a';
+        var score = r && (r.score || r.rankScore || r.totalScore || r.signal) || 'score n/a';
+        return (i + 1) + '. ' + sym + ' · ' + sector + ' · ' + score;
+      }).join('\n') || '현재 선택/랭킹 후보 없음';
+      return '당신은 AIO 퀀트 스크리너를 사용자 대신 해석하는 투자 분석가입니다.\n\n' +
+        '목표: 특정 시장/섹터/종목으로 답을 좁히지 말고, 현재 시장 국면과 스크리너 후보군을 함께 보며 넓은 후보 풀을 제시합니다.\n' +
+        '반드시 ①시장 국면 ②후보를 고른 이유 ③강한 팩터 ④결측/저신뢰 데이터 ⑤다음 행동 ⑥AI가 더 확인해야 할 질문 순서로 답하세요.\n' +
+        '추천 요청에는 대형주/중형주/테마/방어/해외·한국장 관점을 나눠 최소 5개 후보군 또는 조건을 제시하고, 단일 종목 몰아주기를 피하세요.\n\n' +
+        '【현재 시장 스냅샷】\n' +
+        'SPX ' + s.spx + ' · VIX ' + s.vix + ' · DXY ' + s.dxy + ' · 10Y ' + s.tnx + ' · 신선도 ' + s._freshness + '\n\n' +
+        '【스크리너 후보 샘플】\n' + sample + '\n\n' +
+        _getV48IntegratedContext('screener') +
+        _getImportedResearchContext('screener') +
+        _getChatRules();
+    }
+  },
+  ticker: {
+    title: 'AI 종목 Cockpit 분석가',
+    label: '종목 Cockpit',
+    icon: 'T',
+    system: function() {
+      const s = _liveSnap();
+      var ticker = (window._currentTickerId || (window._fundAnalysisData && window._fundAnalysisData.ticker) || '').toString().toUpperCase();
+      var ld = ticker && window._liveData ? window._liveData[ticker] : null;
+      var fd = window._fundAnalysisData && window._fundAnalysisData.ticker === ticker ? window._fundAnalysisData : null;
+      var priceLine = ld && ld.price ? (ticker + ' $' + Number(ld.price).toFixed(2) + (ld.pct != null ? ' (' + (ld.pct >= 0 ? '+' : '') + Number(ld.pct).toFixed(2) + '%)' : '')) : '선택 종목 실시간 가격 없음';
+      var sourceLine = fd && fd.sources && fd.sources.length ? fd.sources.slice(0, 8).join(', ') : '기업 상세 수집 데이터 없음';
+      return '당신은 AIO 종목 cockpit 분석가입니다. 사용자가 고른 단일 종목을 시장 국면, 기술, 재무, 뉴스, 포트폴리오 리스크와 연결해 설명합니다.\n\n' +
+        '답변 순서: ①한 줄 판단 ②현재 가격/추세 ③핵심 레벨 ④기업/뉴스/촉매 ⑤포트폴리오 관점 ⑥데이터 신뢰도 ⑦다음 행동.\n' +
+        '데이터가 없으면 없다고 말하고, 학습 데이터로 최신 가격·실적·뉴스를 단정하지 마세요. 기술 분석은 RSI/MA/ATR/거래량/지지·저항이 있을 때만 수치화합니다.\n\n' +
+        '【선택 종목】 ' + (ticker || '없음') + '\n' +
+        '【가격】 ' + priceLine + '\n' +
+        '【기업 데이터 소스】 ' + sourceLine + '\n' +
+        '【시장 배경】 SPX ' + s.spx + ' · VIX ' + s.vix + ' · DXY ' + s.dxy + ' · 10Y ' + s.tnx + ' · 신선도 ' + s._freshness + '\n\n' +
+        _getV48IntegratedContext('fundamental') +
+        _getImportedResearchContext('ticker') +
         _getChatRules();
     }
   }
@@ -3121,7 +3210,7 @@ var _DEEP_ANALYSIS_KW = [
     '공급망','supply chain','밸류체인','value chain',
     '핵심 역량','core competence','차별화','differentiation',
     '종합 분석','종합분석','심층 분석','심층분석','딥다이브','deep dive','기업 분석','기업분석',
-    // v34.5: 기본 분석 요청도 15개 관점 자동 적용 — 티커 + 아래 키워드 조합 시 트리거
+    // v50.70: 기본 분석 요청도 17개 관점 자동 적용 — 티커 + 아래 키워드 조합 시 트리거
     '분석해','분석 해','분석좀','분석 좀','분석하','분석 하','분석을','분석 을',
     '알려줘','알려 줘','알려주','알려 주','설명해','설명 해','설명좀','설명 좀',
     '어때','어떄','어떻게 생각','어떻게 봐','어떻게봐','전망','투자','매수','매도',
@@ -3228,9 +3317,9 @@ function _formatSingleDeepPrompt(ticker, deepData) {
   var cutIdx = dataPrompt.indexOf('【기업 비교 분석 지침');
   if (cutIdx > 0) dataPrompt = dataPrompt.slice(0, cutIdx);
   dataPrompt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
-  dataPrompt += '【단일 기업 심층 분석 지침 — 15개 관점 프레임워크 (임원급 깊이)】\n';
+  dataPrompt += '【단일 기업 심층 분석 지침 — 17개 관점 프레임워크 (임원급 깊이)】\n';
   dataPrompt += '위 데이터를 기반으로, 기업 내부 전략기획팀이 이사회에 보고하는 수준의 깊이와 디테일로 분석하라.\n';
-  dataPrompt += '15개 관점(기업 개요/설립 배경/경영진/비즈니스 모델/제품 포트폴리오/기술력&해자/수익 구조/재무제표/밸류에이션/시장 TAM/수요&공급망/파트너십/경쟁 구조/리스크/투자포인트) 전부 커버.\n';
+  dataPrompt += '17개 관점(기업 개요/설립 배경/경영진/비즈니스 모델/제품 포트폴리오/기술력&해자/수익 구조/재무제표/밸류에이션/시장 TAM/수요&공급망/파트너십/경쟁 구조/리스크/촉매·실적수정/포트폴리오 적합성/투자포인트) 전부 커버.\n';
   dataPrompt += '해자 7유형 판정(기술독점/네트워크효과/전환비용/브랜드/규모의경제/무형자산/FCF전환) 필수.\n';
   dataPrompt += '제공된 실제 숫자(세그먼트별 매출·R&D/매출·마진 추이·FCF마진·D/E·내부자 매매·DCF 적정가 등)를 반드시 인용.\n';
   dataPrompt += '시계열 트렌드를 읽어라 — "방향"이 "현재 값"보다 중요. 3개년 추이의 가속/감속을 반드시 언급.\n';
@@ -3443,9 +3532,9 @@ function _formatDeepComparePrompt(tickers, deepData) {
     out += '\n';
   }
 
-  // 비교 분석 지침 — 15개 관점 완전 커버 (기업 내부 임원급 깊이)
+  // 비교 분석 지침 — 17개 관점 완전 커버 (기업 내부 임원급 깊이)
   out += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
-  out += '【기업 비교 분석 지침 — 15개 관점 프레임워크 (임원급 심층 분석)】\n';
+  out += '【기업 비교 분석 지침 — 17개 관점 프레임워크 (임원급 심층 분석)】\n';
   out += '위 데이터를 기반으로, 기업 내부 임원이 이사회에서 경쟁사 대비 분석을 발표하는 수준의 깊이와 디테일로 비교하라.\n';
   out += '단답·요약 금지. 각 관점에서 구체적 숫자를 인용하고, 그 숫자가 "왜 중요한지"까지 해석하라.\n\n';
 
@@ -3502,16 +3591,16 @@ function _formatDeepComparePrompt(tickers, deepData) {
   out += '  • Bull/Base/Bear 시나리오별 비교: 각 기업의 낙관/기본/비관 시나리오\n';
   out += '  • 핵심 카탈리스트 비교: 실적 서프라이즈 이력, 신제품, M&A 가능성\n';
   out += '  • 내부자 매매 방향이 시사하는 바 비교\n';
-  out += '  • 종합 비교표: 15개 관점의 핵심 수치를 한 눈에 볼 수 있는 비교표\n';
+  out += '  • 종합 비교표: 17개 관점의 핵심 수치와 결측 데이터를 한 눈에 볼 수 있는 비교표\n';
   out += '  • 최종 판정: "A는 ___에서 확실한 우위, B는 ___에서 확실한 우위. 투자자 유형별 추천: 성장 투자자라면 A, 가치 투자자라면 B"\n';
   out += '  데이터: 위 모든 데이터 종합\n\n';
 
   out += '【응답 프레임워크 — "기업을 하나의 이야기로 비교"】\n';
-  out += '• 15개 관점을 기계적으로 나열하지 마라. 두 기업의 핵심 차이가 무엇인지를 축으로, "왜 이 둘이 다른 길을 걸어왔는가"의 서사로 연결하라.\n';
+  out += '• 17개 관점을 기계적으로 나열하지 마라. 두 기업의 핵심 차이가 무엇인지를 축으로, "왜 이 둘이 다른 길을 걸어왔는가"의 서사로 연결하라.\n';
   out += '• 실제 수집된 데이터의 구체적 숫자를 반드시 인용하라 — 학습 데이터의 과거 수치 사용 금지.\n';
   out += '• 팩트(숫자로 확인된 사실)와 전망(검증되지 않은 기대)을 명확히 구분하라.\n';
   out += '• 시계열 트렌드를 읽어라 — "방향"이 "현재 값"보다 중요. 3개년 추이의 가속/감속을 반드시 언급.\n';
-  out += '• 15개 관점을 모두 다루되, 해당 기업들의 핵심 차별점이 되는 2~3개 관점은 특히 깊이 있게 다뤄라.\n';
+  out += '• 17개 관점을 모두 다루되, 해당 기업들의 핵심 차별점이 되는 2~3개 관점은 특히 깊이 있게 다뤄라.\n';
   out += '• 단답·요약 금지. 기업 내부 전략기획팀이 이사회에 보고하는 수준의 깊이와 디테일로 분석하라.\n';
 
   return out;
@@ -5343,7 +5432,7 @@ async function chatSend(ctxId) {
     } catch(e) { _aioLog('warn', 'fetch', '기업 내부 비교 데이터 조회 실패: ' + e.message); }
   }
 
-  // v34.5: 단일 기업 분석 — 티커 1개 감지 시 기본적으로 15개 관점 심층 분석 자동 적용
+  // v50.70: 단일 기업 분석 — 티커 1개 감지 시 기본적으로 17개 관점 심층 분석 자동 적용
   // fundamental 컨텍스트에서는 키워드 없이도 자동 트리거
   // v48.55: themes/theme-detail ctx에서도 FMP 심층 수집 활성화 — 사용자 지적 반영
   //   "AI 채팅에서 테마/트렌드에 있는 모든 종목 상세 분석 가능해야" → 단일 티커 질의 시 재무 자동 포함
@@ -6510,7 +6599,7 @@ async function fundamentalSearch() {
     }
     // AI 채팅 입력창 세팅 (기존 동작 유지)
     var _chatInpC = document.getElementById('chat-fundamental-inp');
-    if (_chatInpC) _chatInpC.value = ticker + ' 종합 기업 분석해줘. 15개 관점 적용.';
+    if (_chatInpC) _chatInpC.value = ticker + ' 종합 기업 분석해줘. 17개 관점과 데이터 가용성 매트릭스 적용.';
     return;
   }
 
@@ -6741,7 +6830,7 @@ async function fundamentalSearch() {
   } catch(_qFinErr) { _aioLog('warn', 'fund', '7 차트 fetch 진입 실패: ' + (_qFinErr && _qFinErr.message || _qFinErr)); }
 
   // ─── LLM에 실제 데이터 전달하여 종합 분석 요청 ───
-  var _fundPrompt = ticker + ' 종합 기업 분석해줘. 아래 15개 관점을 모두 다뤄줘:\n1)기업 개요 2)설립 배경&성장 과정 3)경영진 분석 4)비즈니스 모델 5)제품 포트폴리오 6)기술력&해자 7)수익 구조 8)재무제표 분석 9)밸류에이션 10)시장 분석(TAM) 11)수요·공급망 12)파트너십 13)경쟁 구조 14)리스크 15)투자 포인트';
+  var _fundPrompt = ticker + ' 종합 기업 분석해줘. 아래 17개 관점과 데이터 가용성 매트릭스를 모두 다뤄줘:\n1)기업 개요 2)설립 배경&성장 과정 3)경영진 분석 4)비즈니스 모델 5)제품 포트폴리오 6)기술력&해자 7)수익 구조 8)재무제표 분석 9)밸류에이션 10)시장 분석(TAM) 11)수요·공급망 12)파트너십 13)경쟁 구조 14)리스크 15)촉매·실적수정 16)포트폴리오 적합성 17)투자 포인트';
   var chatInp = document.getElementById('chat-fundamental-inp');
   if (chatInp) {
     // per-page 채팅 패널이 있으면 자동 전송 (현재 per-page는 home만, fundamental은 통합 패널 사용)
@@ -7643,7 +7732,7 @@ function _renderFundSources(d) {
   if (!el || !body) return;
   var html = '';
   d.sources.forEach(function(s) { html += '• ' + s + '<br>'; });
-  html += '• <b>AI 분석:</b> 위 수집 데이터를 Claude에 전달하여 15개 관점 종합 분석';
+  html += '• <b>AI 분석:</b> 위 수집 데이터를 Claude에 전달하여 17개 관점 종합 분석';
   body.innerHTML = html;
   el.style.display = 'block';
 }

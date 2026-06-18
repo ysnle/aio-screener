@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.68 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.73 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3701,6 +3701,120 @@ body.light-theme canvas { filter:none; }
   #aio-boot-loader .aio-boot-spinner { animation: none; }
   #aio-boot-loader { animation: none; }
 }
+
+/* v50.73: page-first decision contract + premium imported research board */
+.aio-decision-header {
+  margin: 0 0 12px 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(0, 212, 255, 0.28);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.09), rgba(10, 18, 32, 0.92));
+  box-shadow: 0 8px 26px rgba(0,0,0,0.20);
+}
+.aio-decision-header[data-source-kind="SNAPSHOT"],
+.aio-decision-header[data-source-kind="REFERENCE"] { border-color: rgba(255, 163, 26, 0.30); }
+.aio-decision-header[data-source-kind="UNAVAILABLE"] { border-color: rgba(255, 91, 80, 0.35); }
+.aio-decision-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
+.aio-decision-kicker { font-size:11px; font-weight:800; color:var(--accent); letter-spacing:0.06em; text-transform:uppercase; }
+.aio-decision-verdict { margin-top:4px; font-size:20px; font-weight:900; color:var(--text-primary); line-height:1.25; letter-spacing:var(--ls-tight); }
+.aio-decision-meta { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:6px; min-width:220px; }
+.aio-source-badge, .aio-confidence-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 8px; border-radius:999px; font-size:11px; font-weight:800;
+  border:1px solid rgba(255,255,255,0.12); font-family:var(--font-mono);
+}
+.aio-source-live { color:var(--data-green); background:rgba(16,185,129,0.10); border-color:rgba(16,185,129,0.35); }
+.aio-source-delayed { color:var(--data-cyan); background:rgba(0,212,255,0.08); border-color:rgba(0,212,255,0.28); }
+.aio-source-snapshot, .aio-source-reference { color:var(--data-amber); background:rgba(255,163,26,0.10); border-color:rgba(255,163,26,0.30); }
+.aio-source-unavailable { color:var(--data-red); background:rgba(255,91,80,0.10); border-color:rgba(255,91,80,0.32); }
+.aio-decision-grid { display:grid; grid-template-columns: 1.2fr 0.9fr 0.9fr; gap:10px; }
+.aio-decision-card {
+  padding:10px 12px; border-radius:10px;
+  background:rgba(7,13,24,0.62); border:1px solid rgba(255,255,255,0.08);
+}
+.aio-decision-label { font-size:11px; color:var(--text-muted); font-weight:800; margin-bottom:6px; }
+.aio-decision-list { margin:0; padding-left:16px; color:var(--text-secondary); font-size:12px; line-height:1.65; }
+.aio-decision-action { color:var(--text-primary); font-size:13px; line-height:1.6; font-weight:700; }
+.aio-decision-foot { margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:11px; color:var(--text-muted); }
+.aio-ai-context-btn {
+  padding:5px 9px; border-radius:7px;
+  border:1px solid rgba(0,212,255,0.35); background:rgba(0,212,255,0.08);
+  color:var(--accent); font-size:11px; font-weight:800; cursor:pointer;
+}
+.aio-research-bridge {
+  margin:-2px 0 12px 0; padding:12px 14px;
+  border:1px solid rgba(139,92,246,0.24); border-radius:12px;
+  background:linear-gradient(135deg, rgba(139,92,246,0.09), rgba(0,212,255,0.035));
+}
+.aio-research-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.aio-research-title { font-size:13px; font-weight:900; color:var(--text-primary); letter-spacing:var(--ls-tight); }
+.aio-research-sub { margin-top:3px; font-size:11px; color:var(--text-muted); line-height:1.45; }
+.aio-research-source { font-size:10px; font-weight:800; color:var(--data-purple); border:1px solid rgba(139,92,246,0.32); background:rgba(139,92,246,0.08); padding:4px 7px; border-radius:999px; white-space:nowrap; }
+.aio-research-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); gap:8px; }
+.aio-research-card { padding:10px 11px; border:1px solid rgba(255,255,255,0.08); border-radius:10px; background:rgba(7,13,24,0.52); min-height:74px; }
+.aio-research-card b { display:block; font-size:12px; color:var(--accent); margin-bottom:5px; }
+.aio-research-card span { display:block; font-size:11px; color:var(--text-secondary); line-height:1.5; }
+.aio-mini-heatmap { display:grid; grid-template-columns:repeat(6,1fr); gap:3px; margin-top:7px; }
+.aio-mini-heatmap i { display:block; height:9px; border-radius:3px; background:rgba(255,255,255,0.08); }
+.aio-mini-heatmap i.hot { background:rgba(255,91,80,0.72); }
+.aio-mini-heatmap i.cold { background:rgba(0,132,255,0.70); }
+.aio-mini-heatmap i.neutral { background:rgba(255,163,26,0.62); }
+.aio-premium-board {
+  margin-top:10px; padding:12px;
+  border:1px solid rgba(255,255,255,0.09); border-radius:14px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(5,10,20,0.42));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 28px rgba(0,0,0,0.18);
+}
+.apb-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.apb-title { font-size:12px; font-weight:900; color:var(--text-primary); letter-spacing:0.04em; text-transform:uppercase; }
+.apb-tabs { display:flex; flex-wrap:wrap; gap:5px; }
+.apb-tab { padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.10); background:rgba(255,255,255,0.035); color:var(--text-muted); font-size:10px; font-weight:800; }
+.apb-tab.active { color:#001018; background:var(--accent); border-color:var(--accent); }
+.apb-layout { display:grid; grid-template-columns:minmax(280px,1.4fr) minmax(220px,0.9fr); gap:10px; }
+.apb-matrix { border:1px solid rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; background:rgba(0,0,0,0.16); }
+.apb-row { display:grid; grid-template-columns:92px repeat(6,1fr); min-height:28px; border-bottom:1px solid rgba(255,255,255,0.055); }
+.apb-row:last-child { border-bottom:0; }
+.apb-head, .apb-label, .apb-cell { display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; }
+.apb-head { color:var(--text-muted); background:rgba(255,255,255,0.035); }
+.apb-label { justify-content:flex-start; padding-left:10px; color:var(--text-secondary); background:rgba(255,255,255,0.025); }
+.apb-cell { color:rgba(255,255,255,0.88); font-family:var(--font-mono); }
+.apb-cell.hot { background:rgba(255,91,80,0.62); }
+.apb-cell.warm { background:rgba(255,163,26,0.48); }
+.apb-cell.neutral { background:rgba(148,163,184,0.18); }
+.apb-cell.cool { background:rgba(59,130,246,0.54); }
+.apb-cell.good { background:rgba(0,229,160,0.48); }
+.apb-side { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.apb-metric {
+  padding:9px 10px; min-height:62px;
+  border:1px solid rgba(255,255,255,0.08); border-radius:10px;
+  background:rgba(7,13,24,0.62);
+}
+.apb-metric small { display:block; font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; }
+.apb-metric b { display:block; font-size:18px; line-height:1.1; color:var(--text-primary); font-family:var(--font-mono); }
+.apb-metric span { display:block; margin-top:5px; font-size:10px; color:var(--text-secondary); line-height:1.35; }
+.apb-actions { grid-column:1/-1; display:flex; gap:6px; flex-wrap:wrap; }
+.apb-btn {
+  border:1px solid rgba(0,212,255,0.28); background:rgba(0,212,255,0.075);
+  color:var(--accent); border-radius:8px; padding:6px 9px;
+  font-size:11px; font-weight:900; cursor:pointer;
+}
+.apb-btn.secondary { border-color:rgba(139,92,246,0.28); background:rgba(139,92,246,0.08); color:#c4b5fd; }
+.aio-visual-report {
+  margin:10px 0 12px; padding:12px;
+  border:1px solid rgba(0,212,255,0.22); border-radius:14px;
+  background:linear-gradient(135deg, rgba(4,10,22,0.95), rgba(17,24,39,0.88));
+}
+.aio-visual-report-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+.aio-visual-report-title { font-size:12px; font-weight:900; color:var(--text-primary); }
+.aio-visual-report canvas { width:100%; max-width:760px; height:auto; display:block; border-radius:12px; border:1px solid rgba(255,255,255,0.08); background:#07111f; }
+@media (max-width: 900px) {
+  .aio-decision-top { flex-direction:column; }
+  .aio-decision-meta { justify-content:flex-start; min-width:0; }
+  .aio-decision-grid { grid-template-columns:1fr; }
+  .aio-research-head { flex-direction:column; }
+  .apb-layout { grid-template-columns:1fr; }
+  .apb-row { grid-template-columns:74px repeat(6,1fr); }
+}
 </style>
 </head>
 <body>
@@ -4047,7 +4161,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.68</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.73</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4081,7 +4195,7 @@ body.light-theme canvas { filter:none; }
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
       <div style="font-size:12px;font-weight:800;color:var(--accent);">🧠 현재 시장 분석 <span style="font-weight:400;color:var(--text-muted);font-size:10px;">· 자동 합성(데이터·뉴스 기반)</span></div>
     </div>
-    <div id="home-market-analysis" data-market-analysis-sink="full" style="font-size:12px;color:var(--text-secondary);line-height:1.8;">시장 데이터 수신 대기...</div>
+    <div id="home-market-analysis" data-market-analysis-sink="full" style="font-size:12px;color:var(--text-secondary);line-height:1.8;">시장 판단 준비 중 · 시세/뉴스 연결 확인</div>
   </div>
 
   <!-- ═══ v48.42: SECTION 0 — 오늘의 시장 ═══ -->
@@ -4125,7 +4239,7 @@ body.light-theme canvas { filter:none; }
       <div class="aio-card-title">🎯 지금 매매해도 될까?</div>
       <div class="aio-metric-value is-lg" id="home-trading-signal" style="color:var(--text-muted);margin-bottom:4px;font-size:24px;font-weight:900;">• • •</div>
       <div id="home-trading-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">
-        데이터 수신 대기...
+        핵심 수치 연결 확인 중
       </div>
       <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">가중치: 추세 8 + 상대강도 4 + 거래량 3 + 변동성 3 + 돌파 2 = 20점</div>
     </div>
@@ -4162,8 +4276,8 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:12px;font-weight:800;color:var(--accent);">📋 지금 해야 할 일 — Action Items</div>
       <button data-action="_aioRefreshActionPlan" style="font-size:10px;padding:3px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:4px;color:var(--text-secondary);cursor:pointer;">↻ 갱신</button>
     </div>
-    <div id="home-action-position" style="font-size:12px;color:var(--text-primary);margin-bottom:6px;font-weight:600;">VIX 기반 포지션 사이즈 입력 대기...</div>
-    <div id="home-action-sentiment" style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;line-height:1.5;">F&amp;G 기반 센티먼트 입력 수신 대기...</div>
+    <div id="home-action-position" style="font-size:12px;color:var(--text-primary);margin-bottom:6px;font-weight:600;">포지션 크기 계산 준비 중</div>
+    <div id="home-action-sentiment" style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;line-height:1.5;">심리 지표 확인 중</div>
     <div id="home-action-breadth" style="font-size:11px;color:var(--text-muted);line-height:1.5;"></div>
     <div style="font-size:10px;color:var(--text-muted);margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
       📐 <strong>규칙</strong>: VIX <15→100%/15~20→80%/20~25→50%/25~30→30%/30+→15%. F&amp;G ≤25→역발상 매수 · 26~45→관심종목 1차 · 46~75→중립/추격자제 · 75+→차익실현.
@@ -4463,7 +4577,7 @@ body.light-theme canvas { filter:none; }
       <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;padding-left:2px;">점수 구성 상세 (가중 평균)</div>
       <div id="score-bars-container" style="display:flex;flex-direction:column;gap:6px;">
         <!-- JS로 렌더링 -->
-        <div style="font-size:11px;color:var(--text-muted);padding:10px;">라이브 데이터 수신 대기…</div>
+        <div style="font-size:11px;color:var(--text-muted);padding:10px;">핵심 수치 연결 확인 중</div>
       </div>
       <!-- 실행 타이밍 점수 (Enhanced) -->
       <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:10px 12px;">
@@ -4689,7 +4803,7 @@ body.light-theme canvas { filter:none; }
         <div class="cp-num" style="color:var(--data-amber);">CP2</div>
         <div class="cp-name">통화정책</div>
         <div class="cp-score" style="color:var(--data-amber);">MEDIUM</div>
-        <div class="cp-detail" id="cp2-detail" data-evidence-id="fed-rate-fomc-calendar" data-source-kind="official-calendar" data-as-of="2026-06-16">연준 <span data-snap="fed-rate">3.50-3.75</span>% · 다음 FOMC <span data-snap="fomc">6/16-17</span> <span id="cp2-fed-rate-meta" class="snap-meta" style="font-size:11px;color:var(--text-muted);margin-left:4px;"></span> · 고용 둔화와 인플레 재가속 중 어느 쪽을 더 반영하는지 확인</div>
+        <div class="cp-detail" id="cp2-detail" data-evidence-id="fed-rate-fomc-calendar" data-source-kind="SNAPSHOT" data-as-of="2026-06-17">연준 <span data-snap="fed-rate">3.50-3.75</span>% · FOMC <span data-snap="fomc">6/17 결과</span> <span id="cp2-fed-rate-meta" class="snap-meta" style="font-size:11px;color:var(--text-muted);margin-left:4px;"></span> · 금리·달러·2Y/10Y 반응으로 경로 재평가</div>
         <div class="cp-meter"><div style="width:55%;height:100%;background:linear-gradient(90deg,var(--data-amber),var(--data-amber));border-radius:3px;"></div></div>
       </div>
       <!-- CP3 -->
@@ -5564,7 +5678,7 @@ body.light-theme canvas { filter:none; }
         지난 24시간 핵심 뉴스를 테마별로 정리합니다.
       </div>
       <div id="briefing-live-news-list" style="display:flex;flex-direction:column;gap:6px;">
-        <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">뉴스 수집 대기...</div>
+        <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">핵심 뉴스 확인 중</div>
       </div>
     </div>
 
@@ -5582,7 +5696,7 @@ body.light-theme canvas { filter:none; }
     <!-- v35.8: 동적 브리핑 — 라이브 데이터 기반 자동 생성 -->
     <div id="dynamic-briefing-content">
       <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px;">
-        시장 데이터 수신 대기...
+        시장 요약 준비 중
       </div>
     </div>
 
@@ -5693,10 +5807,10 @@ body.light-theme canvas { filter:none; }
 
       <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:5px;">🌐 공식 매크로 캘린더 · 지난 이벤트는 라이브 데이터/뉴스에서 확인</div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:52px;">6/16-17</span>
-        <span style="color:var(--data-amber);flex-shrink:0;min-width:32px;">화-수</span>
+        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:52px;">6/17</span>
+        <span style="color:var(--data-amber);flex-shrink:0;min-width:32px;">결과</span>
         <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">FOMC</span>
-        <span><b style="color:var(--data-amber);">FOMC + SEP</b> — 정책결정문·점도표·기자회견이 공개된 뒤 금리 경로를 재평가합니다.</span>
+        <span><b style="color:var(--data-amber);">FOMC 결과 확인</b> — 금리·달러·2Y/10Y 반응으로 정책 경로를 재평가합니다.</span>
       </div>
       <div class="cal-row">
         <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:52px;">6/25</span>
@@ -5898,7 +6012,7 @@ body.light-theme canvas { filter:none; }
       </button>
     </div>
     <div id="ticker-analysis-result" style="min-height:60px;">
-      <div style="text-align:center;padding:22px;color:var(--text-muted);font-size:11px;line-height:1.7;">종목 입력 → Weinstein Stage · RSI · MA 정배열 · 진입 등급 표시<br><span style="font-size:10px;opacity:0.8;">15개 관점 심층(재무·밸류·뉴스·AI 분석)은 <b>티커 페이지</b>에서 자동 수집</span></div>
+      <div style="text-align:center;padding:22px;color:var(--text-muted);font-size:11px;line-height:1.7;">종목 입력 → Weinstein Stage · RSI · MA 정배열 · 진입 등급 표시<br><span style="font-size:10px;opacity:0.8;">17개 관점 심층(재무·밸류·뉴스·AI 분석)은 <b>티커 페이지</b>에서 자동 수집</span></div>
     </div>
   </div>
 
@@ -6144,16 +6258,13 @@ body.light-theme canvas { filter:none; }
 
   <!-- ══ SECTION 0: 매크로 스토리라인 (서사형 분석) ══════════════ -->
   <div style="background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(168,85,247,0.04));border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:16px;margin-bottom:12px;">
-    <div style="font-size:12px;font-weight:800;color:var(--data-cyan);margin-bottom:8px;">지금 세계 경제에서 무슨 일이 벌어지고 있나? (한 눈에 보기)</div>
-    <div id="macro-storyline" data-static-narrative="macro-storyline" style="font-size:11px;color:var(--text-secondary);line-height:2.0;">
+    <div style="font-size:12px;font-weight:800;color:var(--data-cyan);margin-bottom:8px;">오늘 매크로 결론 — FOMC·유가·달러·금리 한 번에 보기</div>
+    <div id="macro-storyline" data-static-narrative="macro-storyline" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
       <!-- 동적: generateMacroStoryline()에서 렌더 (v49.29 I6/R68 placeholder 표준 적용) -->
       <div style="padding:8px 10px;background:rgba(0,212,255,0.04);border-radius:6px;border:1px dashed rgba(0,212,255,0.3);">
-        <strong style="color:var(--accent);">📖 매크로 내러티브 생성 중…</strong>
+        <strong style="color:var(--accent);">매크로 결론 준비 중</strong>
         <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.6;">
-          • <strong>출처</strong>: SPX/VIX/DXY/금리/유가 실시간 우선 + 차단 시 스냅샷 참고용 폴백<br>
-          • <strong>예상 시간</strong>: 1~2초 (live data fetch) 또는 즉시 (cache hit)<br>
-          • <strong>실패 시</strong>: 정적 폴백 — "Fed 정책 대기 · 유가 변동 모니터링"<br>
-          • <strong>수동 갱신</strong>: 콘솔 <code>generateMacroStoryline()</code>
+          핵심 수치와 뉴스 맥락을 연결해 오늘의 금리·유가·달러·위험심리 결론을 표시합니다.
         </div>
       </div>
     </div>
@@ -6348,7 +6459,7 @@ body.light-theme canvas { filter:none; }
     <div id="macro-card-fed" class="macro-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;transition:all 0.3s ease;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;"> Fed Rate</div>
       <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);"><span data-snap="fed-rate">3.50-3.75%</span></div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4;" id="macro-fed-meaning" data-evidence-id="macro-fed-rate-calendar" data-source-kind="official-calendar" data-as-of="2026-06-16">다음 FOMC: <span data-snap="fomc">6/16-17</span></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4;" id="macro-fed-meaning" data-evidence-id="macro-fed-rate-calendar" data-source-kind="SNAPSHOT" data-as-of="2026-06-17">FOMC 결과: <span data-snap="fomc">6/17 결과</span></div>
       <div style="font-size:11px;color:var(--data-amber);margin-top:3px;opacity:0.7;" id="macro-fed-arrow">→</div>
     </div>
     <!-- Card 2: 2Y Treasury -->
@@ -7135,8 +7246,8 @@ body.light-theme canvas { filter:none; }
             <td style="text-align:center;padding:7px 10px;"><b style="color:var(--data-red);font-family:var(--font-mono);"><span data-snap="fed-rate">3.50~3.75%</span></b></td>
             <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);" data-live-price="^TNX">4.31%</td>
             <td style="text-align:center;padding:7px 10px;"><span style="background:rgba(255,163,26,0.1);color:var(--data-amber);border-radius:4px;padding:2px 7px;font-size:11px;">동결</span></td>
-            <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);" data-snap="fomc">6/16-17</td>
-            <td style="padding:7px 10px;font-size:11px;color:var(--text-muted);">CPI 재점화 · 금리인하 2026 1회만 | 이란-유가 모니터링</td>
+            <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);" data-snap="fomc">6/17 결과</td>
+            <td style="padding:7px 10px;font-size:11px;color:var(--text-muted);">FOMC 이후 금리·달러 반응 확인 | 이란-유가 모니터링</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 10px;"><span style="font-size:13px;">🇪🇺</span> <b>유로존</b></td>
@@ -7375,7 +7486,7 @@ body.light-theme canvas { filter:none; }
 
   <div class="page" id="page-fundamental">
   <div class="insight-box box-collapsed">
-    <strong>이 회사 투자할 만한가? — SEC·FMP·Yahoo 데이터로 15개 관점 AI 분석</strong>
+    <strong>이 회사 투자할 만한가? — SEC·FMP·Yahoo 데이터로 17개 관점 AI 분석</strong>
   </div>
 
   <!-- ═══ v48.45: 기업 분석 기관급 해설 ═══ -->
@@ -8329,7 +8440,7 @@ body.light-theme canvas { filter:none; }
     <strong>종목 심층 분석 — 재무·차트·뉴스·실적을 한 곳에서 확인</strong>
   </div>
 
-  <!-- v48.58: Ticker 페이지 기관급 해설 (15개 관점 심층 분석 가이드) -->
+  <!-- v50.70: Ticker 페이지 기관급 해설 (17개 관점 심층 분석 가이드) -->
     <div class="mb-4">
       <div style="display:flex;gap:8px;margin-bottom:8px;">
         <button id="ticker-back-btn-main" class="aio-btn-table" data-action="showPage" data-arg="portfolio">← 돌아가기</button>
@@ -8651,7 +8762,7 @@ body.light-theme canvas { filter:none; }
     <!-- 뉴스 피드 컨테이너 (단일) -->
     <div id="live-news-feed" style="display:flex;flex-direction:column;gap:6px;">
       <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">
-        뉴스 수집 대기 중입니다... <span style="color:var(--data-cyan);">● RSS 연결 대기</span>
+        검증 뉴스 준비 중 · <span style="color:var(--data-cyan);">소스 상태 확인</span>
       </div>
     </div>
   </div>
@@ -9496,7 +9607,7 @@ body.light-theme canvas { filter:none; }
       <div class="widget-title">주요 경제 일정 <span style="font-size:11px;padding:2px 6px;background:rgba(0,212,255,0.10);border-radius:3px;color:var(--accent);margin-left:6px;">공식 캘린더 기준</span></div>
       <table class="kr-flow-table">
         <tr><th>날짜</th><th>이벤트</th><th>영향</th></tr>
-        <tr><td data-evidence-id="kr-macro-fomc-date" data-source-kind="official-calendar" data-as-of="2026-06-16">06/16~17</td><td>미국 FOMC + SEP</td><td style="color:var(--red);">▶ 점도표·인하 경로 재가격화</td></tr>
+        <tr><td data-evidence-id="kr-macro-fomc-date" data-source-kind="SNAPSHOT" data-as-of="2026-06-17">06/17</td><td>미국 FOMC 결과</td><td style="color:var(--yellow);">▶ 금리·달러 반응 확인</td></tr>
         <tr><td>06/25</td><td>미국 5월 PCE</td><td style="color:var(--yellow);">▶ Fed 선호 물가 후속 확인</td></tr>
         <tr><td>07/10</td><td>한국은행 금통위</td><td style="color:var(--yellow);">▶ 환율·물가·수출 모멘텀 확인 후 판단</td></tr>
       </table>
@@ -9543,7 +9654,7 @@ body.light-theme canvas { filter:none; }
         <tr><td>주식시장 YTD</td><td style="color:var(--green);">+5.2%</td><td style="color:var(--red);">-3.8%</td><td style="color:var(--red);">-4.2%</td><td style="color:var(--green);">+1.8%</td></tr>
       </table>
       <div data-evidence-id="kr-us-rate-calendar" data-source-kind="official-calendar" data-as-of="2026-06-16" style="margin-top:10px;padding:8px 10px;background:rgba(0,212,255,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-        한국과 미국의 금리차는 원화와 외국인 수급의 핵심 변수입니다. 6/16-17 FOMC와 6/25 PCE 결과를 확인하기 전에는 미국 금리 경로를 단정하지 않고, 한국은 7/10 금통위 전까지 환율·물가·수출 모멘텀을 함께 확인합니다.
+        한국과 미국의 금리차는 원화와 외국인 수급의 핵심 변수입니다. 6/17 FOMC 결과 이후 미국 금리·달러 반응과 6/25 PCE를 함께 확인하고, 한국은 7/10 금통위 전까지 환율·물가·수출 모멘텀을 함께 봅니다.
       </div>
     </div>
 
@@ -9828,7 +9939,7 @@ body.light-theme canvas { filter:none; }
             <li><strong>6. 센티먼트</strong> — F&amp;G + AAII + Put/Call 극단값 체크</li>
             <li><strong>7. 시장 폭</strong> — % Above 50MA + Divergence 탐지</li>
             <li><strong>8. 섹터 로테이션 (RRG)</strong> — Leading 사분면 섹터 선별</li>
-            <li><strong>9. 기업 분석</strong> — 15개 관점 통과 여부 + F-Score</li>
+            <li><strong>9. 기업 분석</strong> — 17개 관점 통과 여부 + F-Score</li>
             <li><strong>10. 포트폴리오</strong> — 2% 룰 사이즈 · ATR 스톱 · Pyramiding</li>
           </ul>
           <div class="explain-callout">
@@ -10354,9 +10465,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.68"></script>
-  <script src="./js/aio-data.js?v=50.68"></script>
-  <script src="./js/aio-ui.js?v=50.68"></script>
+  <script src="./js/aio-core.js?v=50.73"></script>
+  <script src="./js/aio-data.js?v=50.73"></script>
+  <script src="./js/aio-ui.js?v=50.73"></script>
 
   <script>
 
@@ -12833,8 +12944,8 @@ function _getChatRules() {
   '  - 재무 ✗이면 PER/PBR/ROE/마진/매출 등 구체적 숫자를 절대 언급하지 마라. "재무 데이터를 확인하려면 기업 분석 페이지에서 종목을 검색해주세요"로 안내.\n' +
   '  - 가격을 말할 때는 반드시 데이터 출처(실시간/종가/폴백)를 명시하라. 출처 없는 가격 언급 금지.\n' +
   '⑤-2. 【섹터 비교 분석】 섹션이 있으면 반드시 해당 실시간 밸류에이션 데이터(PER/PBR/ROE/매출성장 등)를 인용하여 종목 간 비교 분석하라. 비교 요약 → 최종 추천(1~2개) → 주의사항 → 후속 액션 순서로 구성. N/A 항목은 "데이터 확인 필요"로 표기.\n' +
-  '⑤-3. 【 기업 내부 비교 분석 데이터】 섹션이 있으면 15개 관점(기업 개요/설립 배경/경영진/비즈니스 모델/제품 포트폴리오/기술력&해자/수익 구조/재무제표/밸류에이션/시장 TAM/수요&공급망/파트너십/경쟁 구조/리스크/투자포인트) 프레임워크에 따라 심층 비교 분석하라. 기업 내부 전략기획팀이 이사회에 보고하는 수준의 깊이와 디테일 필수. 반드시 제공된 실제 숫자(세그먼트별 매출·R&D/매출·마진 추이·FCF마진·D/E·내부자 매매·DCF 적정가 등)를 인용. 단답·요약 절대 금지.\n' +
-  '⑤-4. 【단일 기업 심층 분석 지침】 섹션이 있으면 해당 기업에 대해 15개 관점 프레임워크 + 해자 7유형 판정을 적용하여 전문 리서치 리포트 수준의 심층 분석을 수행하라. fundamentalSearch()로 검색하지 않은 상태에서도 채팅만으로 18개 FMP 데이터가 주입된 것이므로, 이 데이터를 최대한 활용하라. Bull/Base/Bear 시나리오 + 깨지는 신호 필수.\n' +
+  '⑤-3. 【 기업 내부 비교 분석 데이터】 섹션이 있으면 17개 관점(기업 개요/설립 배경/경영진/비즈니스 모델/제품 포트폴리오/기술력&해자/수익 구조/재무제표/밸류에이션/시장 TAM/수요&공급망/파트너십/경쟁 구조/리스크/촉매·실적수정/포트폴리오 적합성/투자포인트) 프레임워크에 따라 심층 비교 분석하라. 기업 내부 전략기획팀이 이사회에 보고하는 수준의 깊이와 디테일 필수. 반드시 제공된 실제 숫자(세그먼트별 매출·R&D/매출·마진 추이·FCF마진·D/E·내부자 매매·DCF 적정가 등)를 인용. 단답·요약 절대 금지.\n' +
+  '⑤-4. 【단일 기업 심층 분석 지침】 섹션이 있으면 해당 기업에 대해 17개 관점 프레임워크 + 해자 7유형 판정을 적용하여 전문 리서치 리포트 수준의 심층 분석을 수행하라. fundamentalSearch()로 검색하지 않은 상태에서도 채팅만으로 18개 FMP 데이터가 주입된 것이므로, 이 데이터를 최대한 활용하라. Bull/Base/Bear 시나리오 + 깨지는 신호 필수.\n' +
   '⑥ 사용자가 특정 종목을 물으면 해당 종목 분석이 답변의 80% 이상이어야 한다. 시장 전체 상황은 맥락으로 간략히만.\n' +
   '2. 서사(내러티브) 구조 — 모든 답변의 뼈대: ① 장면 진입: 질문이나 상황 묘사로 시작 ("지금 VIX가 30을 넘었다. 월가의 공포 체온계가 빨간불이다.") ② 핵심 숫자 임팩트: 수치를 별도 행에 배치하고 즉시 해석 ("→ 이 숫자가 말하는 건...") ③ 왜?(Why) 스토리: 데이터와 논리로 "왜 이런 일이 벌어지는지" 맥락을 풀어준다. 단순 팩트 나열 금지. 반드시 원인-결과의 서사적 흐름으로. ④ 그래서?(So What): "이게 당신의 투자에 무슨 의미인지" 개인적 함의로 연결 ⑤ 액션 클로징: "그래서 당신이 지금 할 수 있는 것은..." 구체적 행동으로 마무리.\n' +
   '3. 핵심 포인트는 3개로 정리 (삼단 구문): "첫째... 둘째... 셋째..."\n' +
@@ -13207,7 +13318,7 @@ function _getChatRules() {
   // v50.4: archived FOMC minutes framework; current event calendar is injected separately
   '65. FOMC 의사록 듀얼 리스크 + Higher For Longer 전환 신호 (archive framework):\n' +
   '  [Q2 패러다임 전환] 기존: FOMC = 인플레 또는 고용 단일 축 해석 → 인하/동결 이항. 새: "vast majority"가 고용 하방 + 인플레 상방 동시 경고 = 듀얼 리스크 국면 진입. Some 참가자가 양방향 금리 시그널(인상 포함) 필요 주장 → 일방향 인하 기대 사실상 폐기. 비주거 서비스 끈적 + 기대인플레 유가발 상승 = H4L(Higher For Longer) 내러티브 부상.\n' +
-  '  [Q4 구조적 논리] ① 표면=균형, 내부=취약. "Majority" 균형 vs "Vast majority" 취약 — 저채용 환경에서 노동 수요 소폭 하락만으로 실업률 급등 가능(비선형). AI 채용 지연 효과: Many 참가자 확인. ② 인플레 끈적함의 역학: 비주거 서비스 팬데믹 이전 대비 여전히 높음 + 유가 $100+ 지속 시 투입비용→근원물가 전이 경로 활성화 → 기대인플레 흔들릴 가능성(Some 우려). ③ 연준 내부 양방향 논의 = 시장이 인하만 가격에 반영하면 비대칭 리스크. 현재 이벤트 판단은 6/5 NFP, 6/10 CPI, 6/16-17 FOMC, 6/25 PCE 캘린더로 분리한다.\n' +
+  '  [Q4 구조적 논리] ① 표면=균형, 내부=취약. "Majority" 균형 vs "Vast majority" 취약 — 저채용 환경에서 노동 수요 소폭 하락만으로 실업률 급등 가능(비선형). AI 채용 지연 효과: Many 참가자 확인. ② 인플레 끈적함의 역학: 비주거 서비스 팬데믹 이전 대비 여전히 높음 + 유가 $100+ 지속 시 투입비용→근원물가 전이 경로 활성화 → 기대인플레 흔들릴 가능성(Some 우려). ③ 연준 내부 양방향 논의 = 시장이 인하만 가격에 반영하면 비대칭 리스크. 현재 이벤트 판단은 6/5 NFP, 6/10 CPI, 6/17 FOMC 결과 확인, 6/25 PCE 캘린더로 분리한다.\n' +
   '  [Q3 핵심 논쟁] Bull: 유가 일시적 안정 → 주거 서비스 둔화 + 생산성↑ → 디스인플레 경로 유지 → 하반기 1-2회 인하. Bear: 유가 $100+ 장기화 → 기대인플레 불안정 + 비주거 서비스 재가속 → 동결 장기화 또는 인상 논의 본격화 → Higher For Longer.\n' +
   '  [Q5 인접 파급] 채권: 3월(경기둔화 기대) vs 4월+(기대인플레 영향 확대) — 금리 드라이버 전환 가능. 금: 실질금리와 기대인플레 동시 상승 시 기존 역상관 약화 → 다른 움직임 패턴 가능. 워시 인준: 틸리스 반대 지속 + 트럼프 액션 필요 → 통화정책 불확실성 가중.\n' +
 
@@ -13216,7 +13327,7 @@ function _getChatRules() {
   '  [Q4 구조적 논리] ① 2023년 메커니즘: TGA $8,000억→$494억 강제 방출(부채한도)→시장 유동성 지탱. 6월 부채한도 해제 후 T-bill 대량 발행→MMF가 역레포($2.2조)에서 인출해 매수→은행 지급준비금 $390억만 감소→시장 유동성 사실상 미감소. ② 2026년 차이: TGA $8,063억 정상, 부채한도 이미 $5조 인상→2023식 강제 방출 없음. BUT 감세(OBBBA $1,500~1,600억+원천징수 $600억) + 발행 전략 조절 = 다른 형태의 유동성 공급 가능. ③ 중간선거 7개월 전: 궁지에 몰린 정권은 시장을 방치하지 않는다 = 정치적 인센티브.\n' +
   '  [Q3 핵심 논쟁] Bull: 정치적 유동성 공급 + 감세 환류 + 바이백 블랙아웃 해제 + 어닝(매출+9.7%, 이익+13%) → 하반기 랠리. JPM "전술적 강세", 골드만 롱온리 +24% 매수 우위. Bear: 호르무즈 통행료 영구화 + 2주 휴전 붕괴 → WTI $100+ 지속 → GDP -0.6%p + 사모신용 잔존 리스크 + 워시 인준 실패 → 비관 재부상.\n' +
   '  [Q1 테시스 로직] "예측이 아니라 준비." 2023년 비관론에 갇혀 +24% 놓친 경험 + 2026년 낙관 올인 시 호르무즈 장기화에 무방비 → 중립 포지션 + 시나리오별 트리거 설정이 최적. 현금 비중↑ + 확신도 높은 곳 선별 참여 + 뉴스 흐름 따라 사이즈 조절.\n' +
-  '  [Q5 인접 파급] 현재 이벤트 클러스터: Computex/GTC Taipei(6/1-5) → NFP(6/5) → CPI(6/10) → FOMC/SEP(6/16-17) → PCE(6/25). TGA·세금·OPEX 같은 유동성 요인은 해당 월의 실제 캘린더로 별도 검증한다. 국채 금리 드라이버가 경기둔화 기대와 기대인플레 사이에서 전환될 때 금 가격도 기존과 다른 패턴이 가능하다.\n' +
+  '  [Q5 인접 파급] 현재 이벤트 클러스터: Computex/GTC Taipei(6/1-5) → NFP(6/5) → CPI(6/10) → FOMC 결과 확인(6/17) → PCE(6/25). TGA·세금·OPEX 같은 유동성 요인은 해당 월의 실제 캘린더로 별도 검증한다. 국채 금리 드라이버가 경기둔화 기대와 기대인플레 사이에서 전환될 때 금 가격도 기존과 다른 패턴이 가능하다.\n' +
 
   // v46.4: JPM 원유 인프라 피해 + AI사이버 임계점 + NAND HBF + GOOGL TPU 로열티 + 이창용 (2026.04.10)
   '67. 걸프 에너지 인프라 측정 가능한 공급 충격 — JPM 원유 분석 (2026.04):\n' +
@@ -13543,7 +13654,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.68"></script>
+<script src="./js/aio-chat.js?v=50.73"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -14406,7 +14517,7 @@ function renderEconCalendar() {
   ];
   // v50.55: 2026-06-15 기준 향후 공식 일정만 유지
   var pinnedEvents2026 = [
-    {date:'06/16-17', name:'FOMC + SEP', impact:'CRITICAL', tip:'정책결정문·점도표·기자회견 공개 후 금리 경로를 재평가.', impColor:'var(--data-red)'},
+    {date:'06/17', name:'FOMC 결과 확인', impact:'RESULT', tip:'정책결정문·점도표·기자회견 공개 후 금리·달러 반응을 확인.', impColor:'var(--data-amber)'},
     {date:'06/25', name:'BEA May Personal Income and Outlays/PCE', impact:'HIGH', tip:'Fed 선호 물가 후속 확인점. 발표 전 수치는 생성하지 않음.', impColor:'var(--data-amber)'}
   ];
   var now = new Date();
@@ -14507,6 +14618,47 @@ function generateMacroStoryline() {
 
   var story = '';
   var summary = '';
+
+  var y2Now = window._live2Y || 4.16;
+  var vixPctNow = ld['^VIX'] && isFinite(ld['^VIX'].pct) ? ld['^VIX'].pct : 0;
+  var oilPctNow = ld['CL=F'] && isFinite(ld['CL=F'].pct) ? ld['CL=F'].pct : 0;
+  var spyToneNow = spyChg > 0.6 ? '위험선호' : (spyChg < -0.6 ? '위험회피' : '관망');
+  var ratePressureNow = (tnx >= 4.4 || y2Now >= 4.1);
+  var oilReliefNow = (wti < 85 && oilPctNow <= 0.5);
+  var dollarToneNow = dxyChg > 0.3 ? '달러 강세' : (dxyChg < -0.3 ? '달러 약세' : '달러 중립');
+  var macroActionNow = ratePressureNow
+    ? '신규 매수는 분할로 제한. 성장주·장기채 민감도 확인.'
+    : '금리 부담 완화 구간. 추세 강한 업종부터 선별.';
+  if (oilReliefNow) {
+    macroActionNow += ' 유가 리스크는 완화 쪽이나 중동 헤드라인은 계속 확인.';
+  } else if (wti >= 85 || oilPctNow > 1) {
+    macroActionNow += ' 유가 상승은 인플레 재점화 리스크로 반영.';
+  }
+  function macroCardNow(label, value, note, color) {
+    return '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:9px;padding:10px 11px;">' +
+      '<div style="font-size:10px;color:var(--text-muted);font-weight:800;margin-bottom:5px;">' + label + '</div>' +
+      '<div style="font-size:15px;color:' + color + ';font-weight:900;margin-bottom:5px;">' + value + '</div>' +
+      '<div style="font-size:10.5px;color:var(--text-secondary);line-height:1.45;">' + note + '</div>' +
+      '</div>';
+  }
+  story =
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;">' +
+    macroCardNow('시장 톤', spyToneNow, 'SPY ' + (spyChg >= 0 ? '+' : '') + spyChg.toFixed(1) + '% · VIX ' + vix.toFixed(1), spyChg >= 0 ? 'var(--data-green)' : 'var(--data-amber)') +
+    macroCardNow('FOMC/금리', ratePressureNow ? '매파 압력' : '금리 부담 완화', '2Y ' + y2Now.toFixed(2) + '% · 10Y ' + tnx.toFixed(2) + '% · 점도표/발언은 할인율 변수', ratePressureNow ? 'var(--data-amber)' : 'var(--data-green)') +
+    macroCardNow('이란/유가', oilReliefNow ? '유가 리스크 완화' : '유가 경계', 'WTI $' + wti.toFixed(1) + ' · Brent $' + brent.toFixed(1) + ' · 호르무즈/휴전 뉴스는 꼬리위험', oilReliefNow ? 'var(--data-green)' : 'var(--data-red)') +
+    macroCardNow('달러/유동성', dollarToneNow, 'DXY ' + dxy.toFixed(1) + ' (' + (dxyChg >= 0 ? '+' : '') + dxyChg.toFixed(1) + '%) · 신흥국/원화 민감도 확인', dxyChg > 0.3 ? 'var(--data-amber)' : 'var(--data-cyan)') +
+    '</div>' +
+    '<div style="margin-top:10px;padding:10px 12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.18);border-radius:8px;color:var(--text-secondary);line-height:1.55;">' +
+    '<b style="color:var(--data-cyan);">핵심 판단</b> ' + macroActionNow +
+    '</div>';
+  summary = (ratePressureNow ? 'FOMC 이후 금리 경계' : '금리 부담 완화') + ' · ' +
+    (oilReliefNow ? '이란/유가 리스크 완화' : '유가 리스크 확인') + ' · ' +
+    spyToneNow + ' 대응';
+  var macroContainerNow = document.getElementById('macro-storyline');
+  if (macroContainerNow) macroContainerNow.innerHTML = story;
+  var macroSummaryNow = document.getElementById('macro-summary-line');
+  if (macroSummaryNow) macroSummaryNow.innerHTML = '오늘 대응: ' + summary + ' - ' + macroActionNow;
+  return;
 
   // ═ 오프닝: 가장 큰 움직임 파악 ═
   var _vixPct = ld['^VIX'] ? (ld['^VIX'].pct != null ? ld['^VIX'].pct : 0) : 0;
@@ -21317,7 +21469,7 @@ function updateEntryChecklist() {
   }
 
   // 5. FOMC/CPI 48시간 이내 — v46.9: 동적 FOMC + 미래 이벤트만 (P89)
-  var _fomcStr = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fomcNext) ? DATA_SNAPSHOT.fomcNext : '6/16-17';
+  var _fomcStr = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fomcNext) ? DATA_SNAPSHOT.fomcNext : '결과 확인';
   var _fomcParts = _fomcStr.replace(/\//g, '-').split('-');
   var _fomcYear = _fomcParts.length === 3 ? _fomcParts[0] : '2026';
   var _fomcMonth = _fomcParts.length === 3 ? _fomcParts[1] : _fomcParts[0];
@@ -25923,7 +26075,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.68"></script>
+<script src="./js/aio-glossary.js?v=50.73"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

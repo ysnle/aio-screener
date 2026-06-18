@@ -6610,6 +6610,111 @@
       });
     } catch(e) { t835detail = 'ERR:' + e.message; }
     _assert('T835 v5067_live_ux_declutter: guide, briefing, and portfolio copy stays compact', t835ok, t835detail);
+
+    // T836: v50.69 macro/briefing decision UX — 설명형 장문보다 시장 요약과 즉시 행동이 먼저 보여야 한다.
+    var t836ok = false, t836detail = '';
+    try {
+      if (typeof window.generateMacroStoryline === 'function') window.generateMacroStoryline();
+      var macroStory836 = document.getElementById('macro-storyline');
+      var macroText836 = macroStory836 ? (macroStory836.textContent || '') : '';
+      var briefingHelper836 = typeof window._buildBriefingDecisionSummary === 'function'
+        ? window._buildBriefingDecisionSummary([{ title: 'FOMC Iran oil market note', desc: 'Fed rates and Hormuz oil risk', topic: 'macro' }], 1, {})
+        : '';
+      var renderSrc836 = typeof window.renderBriefingFeed === 'function' ? String(window.renderBriefingFeed) : '';
+      var macroCompact836 = /핵심 판단/.test(macroText836) && /FOMC\/금리/.test(macroText836) && !/1장|2장|3장/.test(macroText836);
+      var briefingSummary836 = /시장 상황 요약/.test(briefingHelper836) && /오늘 행동/.test(briefingHelper836) && /briefingDecisionHtml/.test(renderSrc836);
+      t836ok = !!(macroCompact836 && briefingSummary836);
+      t836detail = JSON.stringify({ macroCompact: macroCompact836, briefingSummary: briefingSummary836 });
+    } catch(e) { t836detail = 'ERR:' + e.message; }
+    _assert('T836 v5069_macro_briefing_decision_ux: macro and briefing start with current-market decision summary', t836ok, t836detail);
+
+    // T837: v50.70 page decision/source contract + FOMC freshness gate.
+    var t837ok = false, t837detail = '';
+    try {
+      var pages837 = ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+      var validKinds837 = { LIVE:1, DELAYED:1, SNAPSHOT:1, REFERENCE:1, UNAVAILABLE:1 };
+      var models837 = typeof window._aioBuildPageDecision === 'function'
+        ? pages837.map(function(p){ return window._aioBuildPageDecision(p); })
+        : [];
+      var modelOk837 = models837.length === pages837.length && models837.every(function(m) {
+        return m && m.decision && Array.isArray(m.reasons) && m.reasons.length === 3 && m.action && m.confidence && m.asOf && validKinds837[m.sourceKind];
+      });
+      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('screener');
+      if (typeof window._aioApplyEventFreshnessGate === 'function') window._aioApplyEventFreshnessGate();
+      var screenerHeader837 = document.querySelector('#page-screener .aio-decision-header');
+      var aiBtn837 = screenerHeader837 && screenerHeader837.querySelector('[data-action="_aioAskAiFromPageDecision"][data-arg="screener"]');
+      var fomcSnapshot837 = window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.fomc === '6/17 결과' &&
+        !/갱신 예정|6\/16-17/.test(String(window.DATA_SNAPSHOT.fomcDotPlot || ''));
+      var cp2Text837 = document.getElementById('cp2-detail') ? document.getElementById('cp2-detail').textContent : '';
+      var domFresh837 = /6\/17|결과/.test(cp2Text837) && !/다음 FOMC|6\/16-17/.test(cp2Text837);
+      t837ok = !!(window.AIO_SOURCE_KIND && modelOk837 && aiBtn837 && fomcSnapshot837 && domFresh837);
+      t837detail = JSON.stringify({ modelOk:modelOk837, aiBtn:!!aiBtn837, fomcSnapshot:fomcSnapshot837, domFresh:domFresh837 });
+    } catch(e) { t837detail = 'ERR:' + e.message; }
+    _assert('T837 v5070_page_decision_source_contract: pages expose decision/sourceKind/actions and FOMC is result-review', t837ok, t837detail);
+
+    // T838: v50.71 residual deep-audit fixes — guide header + screener/ticker AI contexts stay wired.
+    var t838ok = false, t838detail = '';
+    try {
+      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('guide');
+      var guideHeader838 = document.querySelector('#page-guide .aio-decision-header');
+      var ctx838 = window.CHAT_CONTEXTS || {};
+      var screenerText838 = ctx838.screener && typeof ctx838.screener.system === 'function' ? ctx838.screener.system() : '';
+      var tickerText838 = ctx838.ticker && typeof ctx838.ticker.system === 'function' ? ctx838.ticker.system() : '';
+      var cp2Text838 = document.getElementById('cp2-detail') ? document.getElementById('cp2-detail').textContent : '';
+      t838ok = !!(guideHeader838 &&
+        ctx838.screener && ctx838.ticker &&
+        /스크리너 후보|단일 종목/.test(screenerText838) &&
+        /종목 cockpit|데이터 신뢰도/.test(tickerText838) &&
+        !/6\/16-17|다음 FOMC/.test(cp2Text838));
+      t838detail = JSON.stringify({ guideHeader:!!guideHeader838, screenerCtx:!!ctx838.screener, tickerCtx:!!ctx838.ticker, cp2:cp2Text838 });
+    } catch(e) { t838detail = 'ERR:' + e.message; }
+    _assert('T838 v5071_residual_deep_audit: guide/header and screener/ticker AI contexts are wired without stale FOMC copy', t838ok, t838detail);
+
+    // T839: v50.72 imported research bridge — user X threads + UI references are mapped to pages and AI context.
+    var t839ok = false, t839detail = '';
+    try {
+      var reg839 = window.AIO_IMPORTED_RESEARCH_20260618 || {};
+      var mods839 = reg839.pageModules || {};
+      var required839 = ['home','macro','fxbond','technical','screener','ticker','fundamental','portfolio','themes','theme-detail','kr-home','kr-supply','kr-themes','kr-technical'];
+      var modulesOk839 = required839.every(function(k) {
+        return mods839[k] && mods839[k].title && Array.isArray(mods839[k].cards) && mods839[k].cards.length >= 2;
+      });
+      if (typeof window._aioRenderPageDecisionHeader === 'function') {
+        window._aioRenderPageDecisionHeader('screener');
+        window._aioRenderPageDecisionHeader('macro');
+      }
+      var bridge839 = document.querySelector('#page-screener .aio-research-bridge[data-source-kind="REFERENCE"]');
+      var macroBridge839 = document.querySelector('#page-macro .aio-research-bridge[data-source-kind="REFERENCE"]');
+      var ctxFn839 = typeof window._getImportedResearchContext === 'function';
+      var ctxText839 = ctxFn839 ? window._getImportedResearchContext('screener') : '';
+      var ctxOk839 = /sourceKind=REFERENCE/.test(ctxText839) && /heatmap|candidate|rank/i.test(ctxText839);
+      t839ok = !!(/^v50\.(72|73)$/.test(String(reg839.version || '')) && reg839.sourceKind === 'REFERENCE' &&
+        Array.isArray(reg839.sources) && reg839.sources.length >= 7 &&
+        modulesOk839 && bridge839 && macroBridge839 && ctxOk839);
+      t839detail = JSON.stringify({ version:reg839.version, sources:reg839.sources && reg839.sources.length, modulesOk:modulesOk839, bridge:!!bridge839, macroBridge:!!macroBridge839, ctx:ctxOk839 });
+    } catch(e) { t839detail = 'ERR:' + e.message; }
+    _assert('T839 v5072_imported_research_bridge: X/UI references are page-mapped, rendered as REFERENCE, and injected into AI context', t839ok, t839detail);
+
+    // T840: v50.73 premium research automation + visual report generator.
+    var t840ok = false, t840detail = '';
+    try {
+      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('screener');
+      var audit840 = window.AIO && typeof window.AIO.getResearchPipelineAudit === 'function' ? window.AIO.getResearchPipelineAudit() : null;
+      var board840 = document.querySelector('#page-screener .aio-premium-board[data-aio-premium-board="screener"]');
+      var btn840 = board840 && board840.querySelector('[data-action="_aioCreateVisualReport"][data-arg="screener"]');
+      var visualFns840 = typeof window._aioCreateVisualReport === 'function' && typeof window._aioDownloadVisualReport === 'function';
+      var report840 = false;
+      if (visualFns840) {
+        window._aioCreateVisualReport('screener');
+        report840 = !!document.querySelector('#page-screener .aio-visual-report[data-report-page="screener"] canvas');
+      }
+      var contract840 = window.AIO_RESEARCH_REFRESH_CONTRACT || {};
+      t840ok = !!(audit840 && audit840.autoRefreshReady && audit840.sourceKind === 'REFERENCE' &&
+        contract840.version === 'v50.73' && contract840.digestPath &&
+        board840 && btn840 && visualFns840 && report840);
+      t840detail = JSON.stringify({ audit:!!audit840, auto:audit840 && audit840.autoRefreshReady, contract:contract840.version, board:!!board840, btn:!!btn840, visualFns:visualFns840, report:report840 });
+    } catch(e) { t840detail = 'ERR:' + e.message; }
+    _assert('T840 v5073_premium_research_automation_visual_report: research digest contract, premium board, and PNG-style report generator stay wired', t840ok, t840detail);
   }
 
   window.AIO = window.AIO || {};

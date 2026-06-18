@@ -1,5 +1,46 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.73 - 프리미엄 스크리너 보드 + 자동 보강형 리서치 + 시각 리포트 (2026-06-18)
+
+- **자동 보강 구조 편입**: 사용자 제공 X/이미지 자료를 `public-data/user-research-digest.json` 스키마로 정규화하고, 앱 런타임에 `AIO_RESEARCH_REFRESH_CONTRACT` + `AIO.loadUserResearchDigest()`로 읽을 수 있게 연결. 자료는 기본 `REFERENCE`이며, 라이브 가격/뉴스/매크로 검증 없이는 현재 시장 결론으로 승격하지 않도록 명시.
+- **프리미엄 스크리너 UI 반영**: 1~5번 이미지의 깔끔한 heatmap/table/metric/cockpit 구조를 `aio-premium-board` 공통 컴포넌트로 추가. 각 페이지 decision/research 영역 아래에서 기간별 heatmap, 핵심 수치 카드, 보고서 생성/AI 질문 액션을 한 번에 제공.
+- **AI 시각 리포트 생성**: `_aioCreateVisualReport(pageId)`와 `_aioDownloadVisualReport(pageId)`를 추가해 현재 페이지 판단·sourceKind·asOf·핵심 근거를 1080x1350 PNG형 카드로 브라우저에서 생성/다운로드 가능하게 함. AI 채팅 컨텍스트에도 이미지/보고서 요청 시 이 기능을 안내하도록 보강.
+- **핵심 수치 강조**: premium board와 visual report에서 decision/confidence/action/sourceKind/asOf를 별도 metric hierarchy로 분리해, 긴 설명보다 핵심 숫자와 판단이 먼저 보이도록 조정.
+- **회귀 테스트**: T840 추가. 자동 보강 계약, premium board 렌더, visual report 생성 함수 및 DOM 생성 경로를 검증.
+
+## v50.72 - 사용자 제공 X/스크린샷 자료 구조 통합 (2026-06-18)
+
+- **자료별 구조화**: X 링크 6개와 UI 참고 이미지 9개를 `AIO_IMPORTED_RESEARCH_20260618` 레지스트리에 `REFERENCE` 자료로 정리. 노동·물가 프리즘, 고성장주 진입 필터, 차트 손익비 철학, 소형 성장주 매수 필터, 이동평균/MACD 운용, AI 인프라 밸류체인, 한국장/재무 리포트 UI 패턴을 분리.
+- **페이지 반영**: home/macro/fxbond/technical/screener/ticker/fundamental/portfolio/themes/theme-detail/kr-home/kr-supply/kr-themes/kr-technical에 “자료 통합 브릿지”를 렌더링해 각 페이지 상단 decision header 아래에서 목적·적용 포인트·sourceKind를 확인 가능하게 함.
+- **AI 채팅 통합**: technical/signal/macro/fxbond/fundamental/themes/theme-detail/portfolio/kr-macro/kr-themes/kr-technical/screener/ticker 컨텍스트에 사용자 자료 기반 프레임워크를 주입. 단, 라이브 가격·실적·뉴스처럼 확정 인용하지 않도록 `sourceKind=REFERENCE` 규칙을 명시.
+- **UX 패턴 반영**: 경쟁 스크리너의 heatmap/table/card layout, Minervini식 차트 오버레이, AI 리포트 카드, DART 7차트 재무 cockpit을 페이지별 역할에 맞춰 후보 패널·차트 판단·리포트 생성·기업분석 흐름으로 연결.
+- **회귀 테스트**: T839 추가. 자료 레지스트리, 페이지 브리지 렌더, AI 컨텍스트 주입, `REFERENCE` 라벨을 검증.
+
+## v50.71 - 이전 요청 잔여 심층 점검/보강 (2026-06-18)
+
+- **자동 온보딩 제거**: API 키가 없을 때 첫 화면을 가로막던 자동 onboarding modal 호출을 opt-in으로 전환. 사용자는 바로 대시보드 판단을 볼 수 있음.
+- **라우트 누락 보강**: `guide`도 page decision/sourceKind header 렌더 목록에 포함해 실제 라우트와 decision 계약 범위를 일치시킴.
+- **AI 채팅 보강**: `screener`, `ticker` 전용 CHAT_CONTEXTS persona를 추가. 추천 요청은 특정 섹터/종목 반복을 피하고, 시장 국면·후보 이유·강한 팩터·결측 데이터·다음 행동을 함께 답하도록 보강.
+- **FOMC stale 정리**: 2026-06-18 기준 `6/16-17` FOMC를 upcoming처럼 보이게 하는 정적 HTML/프롬프트/이벤트 클러스터 잔여 문구를 `6/17 결과 확인`과 금리·달러 반응 확인으로 전환.
+- **기본 화면 문구 정리**: 상단 주요 카드, briefing, market-news의 "수신 대기/No verified" 기본 문구를 더 짧고 직관적인 상태 문구로 교체.
+- **회귀 테스트**: T838 추가. guide decision header, screener/ticker AI context, stale FOMC 문구 제거를 검증.
+
+## v50.70 - 페이지별 decision/sourceKind 구조 개편 (2026-06-18)
+
+- **공통 판단 모델 추가**: 주요 페이지 상단에 `decision`, `reasons[3]`, `action`, `confidence`, `asOf`, `sourceKind` 계약을 렌더링. `LIVE/DELAYED/SNAPSHOT/REFERENCE/UNAVAILABLE`만 허용하고 SNAPSHOT/REFERENCE는 신뢰도 감점.
+- **페이지별 상단 결론 정리**: home/signal/breadth/sentiment/briefing/market-news, technical/screener/ticker/portfolio/themes, macro/fxbond/fundamental/options, KR 페이지에 목적별 오늘 판단·행동 블록을 추가.
+- **이벤트 최신성 게이트**: 2026-06-17 FOMC를 더 이상 upcoming으로 표시하지 않고 결과 확인/시장 반응/다음 체크포인트로 전환. 이란·호르무즈·유가 레지스트리는 2026-06-18 완화 모니터 상태로 갱신.
+- **AI 연결 보강**: screener/ticker 포함 모든 decision 카드에 “현재 결과로 AI 질문” 액션을 추가해 현재 페이지 판단을 통합 AI 입력으로 넘김.
+- **기업 분석 정합성**: fundamental/ticker/AI 프롬프트의 15개 관점 잔여를 17개 관점 + 데이터 가용성 매트릭스로 통일.
+- **회귀 테스트**: T837 추가. 페이지 decision 모델, sourceKind enum, screener AI 액션, FOMC 결과 전환을 검증.
+
+## v50.69 - 매크로·브리핑 의사결정형 UX 개편 (2026-06-18)
+
+- **로컬 화면 기준 감사**: `http://127.0.0.1:8877/`에서 홈/매크로/브리핑/차트/퀀트/뉴스 페이지를 직접 확인. 매크로는 카드 96개·긴 블록 9개·장(章)형 설명이 남아 있고, 브리핑은 시장 요약보다 뉴스 목록 중심인 문제가 확인됨.
+- **매크로 결론 카드화**: `generateMacroStoryline()`을 화면상 FOMC/금리, 이란/유가, 달러/유동성, 시장 톤 4개 결론 카드와 `오늘 대응` 요약으로 즉시 렌더하도록 전환. 기존 “1장/2장”형 장문 설명은 사용자 화면 경로에서 제거.
+- **브리핑 시장 요약 선행**: AI 키가 없어도 `시장 상황 요약`과 `오늘 행동`을 뉴스 목록보다 먼저 표시하도록 `_buildBriefingDecisionSummary()`를 추가. SPY/VIX/10Y/DXY/WTI와 선별 뉴스의 FOMC·이란·매크로 언급량을 함께 반영.
+- **회귀 테스트**: T836 추가. 매크로가 `핵심 판단` 중심으로 렌더되고 브리핑이 `시장 상황 요약`을 먼저 갖는지 확인.
+
 ## v50.68 - 전체 데이터 최신화 + 라이브 UX 정리 배포본 (2026-06-17)
 
 - **데이터 최신화**: 네트워크 허용 상태에서 `scripts/fetch-data.mjs` 재실행. quotes 77/77, 실패 0, F&G 40, news 25, history 185d(update), screener 851/869로 `public-data/data.json`, `history.json`, `screener.json` 갱신.

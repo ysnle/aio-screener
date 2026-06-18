@@ -8691,7 +8691,7 @@ function renderFeed(items) {
   if (!items || items.length === 0) {
     if (marketNewsContainerV502) {
       var emptyReasonV502 = marketNewsModelV502 && marketNewsModelV502.emptyReason || 'no-input-news';
-      marketNewsContainerV502.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:12px;line-height:1.6;">No verified news for the current filters<br><span style="font-family:var(--font-mono);font-size:10px;">' + escHtml(emptyReasonV502) + '</span></div>';
+      marketNewsContainerV502.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:12px;line-height:1.6;">현재 필터에서 검증 뉴스가 없습니다<br><span style="font-family:var(--font-mono);font-size:10px;">소스 상태/필터 확인 · ' + escHtml(emptyReasonV502) + '</span></div>';
     }
     return;
   }
@@ -9079,6 +9079,57 @@ function _getBriefingWindowKST() {
 var _briefingCacheKey = null;
 var _briefingCachedHtml = null;
 
+function _buildBriefingDecisionSummary(items, totalCount, bw) {
+  var ld = window._liveData || {};
+  function live(sym, key, fallback) {
+    var row = ld[sym] || {};
+    var n = Number(row[key]);
+    return isFinite(n) ? n : fallback;
+  }
+  function escLocal(v) {
+    return typeof escHtml === 'function' ? escHtml(String(v == null ? '' : v)) : String(v == null ? '' : v).replace(/[&<>"']/g, function(c) {
+      return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c];
+    });
+  }
+  function pct(v) { return (v >= 0 ? '+' : '') + Number(v || 0).toFixed(1) + '%'; }
+  var spyPct = live('SPY', 'pct', 0);
+  var vix = live('^VIX', 'price', 18);
+  var wti = live('CL=F', 'price', 80);
+  var wtiPct = live('CL=F', 'pct', 0);
+  var tnx = live('^TNX', 'price', 4.3);
+  var dxyPct = live('DX-Y.NYB', 'pct', 0);
+  var snap = window.DATA_SNAPSHOT || {};
+  var fg = (snap.fg && snap.fg.value) || snap.fearGreed || null;
+  var textBlob = (items || []).slice(0, 40).map(function(i) {
+    return [i.title, i.desc, i.topic, i.source].join(' ');
+  }).join(' ').toLowerCase();
+  var fedHits = (textBlob.match(/fomc|fed|warsh|dot plot|rate|yield|금리|점도표/g) || []).length;
+  var iranHits = (textBlob.match(/iran|hormuz|oil|brent|wti|middle east|이란|호르무즈|유가|중동/g) || []).length;
+  var macroHits = (textBlob.match(/macro|inflation|cpi|pce|dollar|fx|인플레|달러/g) || []).length;
+  var marketTone = spyPct > 0.6 && vix < 20 ? '위험선호 우위' : (spyPct < -0.6 || vix >= 22 ? '위험회피 경계' : '관망 혼합');
+  var fedTone = tnx >= 4.4 || fedHits >= 2 ? '금리/점도표 경계' : '금리 부담 중립';
+  var oilTone = wti < 85 && wtiPct <= 0.5 ? '유가 리스크 완화' : '유가 헤드라인 경계';
+  var action = (fedTone.indexOf('경계') >= 0)
+    ? '추격 매수보다 분할 진입. 장기금리 민감주와 레버리지 노출을 먼저 확인.'
+    : '추세가 확인된 업종 위주로 선별. 뉴스는 가격 반응이 동반될 때만 가중.';
+  if (oilTone.indexOf('완화') >= 0) action += ' 유가 안정은 인플레 부담을 낮추지만 중동 뉴스는 꼬리위험으로 유지.';
+  var fgText = fg != null ? ' · F&G ' + fg : '';
+  var meta = '선별 뉴스 ' + totalCount + '건 · FOMC/금리 ' + fedHits + ' · 이란/유가 ' + iranHits + ' · 매크로 ' + macroHits;
+  return '<div style="margin-bottom:12px;padding:12px;background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(168,85,247,0.04));border:1px solid rgba(0,212,255,0.20);border-radius:10px;">' +
+    '<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:9px;">' +
+    '<div style="font-size:13px;font-weight:900;color:var(--text-primary);">시장 상황 요약</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">' + escLocal(meta) + '</div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;">' +
+    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:8px;padding:9px;"><b style="color:var(--data-cyan);">' + escLocal(marketTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">SPY ' + pct(spyPct) + ' · VIX ' + Number(vix).toFixed(1) + fgText + '</div></div>' +
+    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:8px;padding:9px;"><b style="color:var(--data-amber);">' + escLocal(fedTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">10Y ' + Number(tnx).toFixed(2) + '% · DXY ' + pct(dxyPct) + '</div></div>' +
+    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:8px;padding:9px;"><b style="color:var(--data-green);">' + escLocal(oilTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">WTI $' + Number(wti).toFixed(1) + ' (' + pct(wtiPct) + ') · 중동 뉴스 확인</div></div>' +
+    '</div>' +
+    '<div style="margin-top:9px;font-size:11px;color:var(--text-secondary);line-height:1.5;"><b style="color:var(--accent);">오늘 행동</b> ' + escLocal(action) + '</div>' +
+    '</div>';
+}
+window._buildBriefingDecisionSummary = _buildBriefingDecisionSummary;
+
 function renderBriefingFeed(items) {
   const container = document.getElementById('briefing-live-news-list');
   if (!container) return;
@@ -9123,7 +9174,15 @@ function renderBriefingFeed(items) {
     reviewItemsV502 = briefingModelV502.reviewItems || [];
     if (!filtered.length) {
       var emptyReasonBriefingV502 = briefingModelV502.emptyReason || 'no-briefing-news';
-      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;line-height:1.6;">No verified briefing news in the 08:00 KST window<br><span style="font-family:var(--font-mono);font-size:10px;">' + escHtml(emptyReasonBriefingV502) + '</span></div>';
+      var emptyPeriodStartV5069 = new Date(bw.start).toLocaleDateString('ko-KR', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+      var emptyPeriodEndV5069 = new Date(bw.end).toLocaleDateString('ko-KR', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+      var emptyHeaderV5069 = '<div style="margin-bottom:14px;padding:10px 12px;background:var(--data-purple-faint);border-radius:8px;border:1px solid var(--data-purple-soft);">' +
+        '<div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">오늘의 시장 브리핑</div>' +
+        '<div style="font-size:11px;color:var(--text-muted);">' + emptyPeriodStartV5069 + ' ~ ' + emptyPeriodEndV5069 + ' KST · 검증 뉴스 0건</div>' +
+        '</div>';
+      var emptyDecisionV5069 = _buildBriefingDecisionSummary(items || [], 0, bw);
+      container.innerHTML = emptyHeaderV5069 + emptyDecisionV5069 +
+        '<div style="text-align:center;padding:14px;color:var(--text-muted);font-size:11px;line-height:1.6;background:var(--surface-2);border-radius:8px;">08:00 KST 윈도우의 검증 뉴스는 아직 없습니다.<br><span style="font-family:var(--font-mono);font-size:10px;">' + escHtml(emptyReasonBriefingV502) + '</span></div>';
       return;
     }
   }
@@ -9188,6 +9247,7 @@ function renderBriefingFeed(items) {
     '<div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">오늘의 시장 브리핑</div>' +
     '<div style="font-size:11px;color:var(--text-muted);">' + periodStart + ' ~ ' + periodEnd + ' KST · 총 ' + totalCount + '건 선별</div>' +
     '</div>';
+  var briefingDecisionHtml = _buildBriefingDecisionSummary(filtered, totalCount, bw);
 
   // AI 브리핑 생성 시도 (v50.53 2C: 서버 키 모드 시 개인 키 없이도 생성)
   var apiKey = typeof getApiKey === 'function' ? getApiKey() : '';
@@ -9199,12 +9259,12 @@ function renderBriefingFeed(items) {
       '<div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;">' + totalCount + '건의 뉴스를 분석·해석하고 있습니다. 30초~1분 소요될 수 있습니다.</div>' +
       '<div style="width:40px;height:40px;border:3px solid var(--data-cyan-dim);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto;"></div>' +
       '</div>';
-    _generateAIBriefing(summaryLines.join('\n'), bw, bulletHtml, cacheKey, briefingHeader, briefingModelV502);
+    _generateAIBriefing(summaryLines.join('\n'), bw, bulletHtml, cacheKey, briefingHeader + briefingDecisionHtml, briefingModelV502);
   } else {
     // API 키 없어도 분석 글 형태로 표시
     var noAiNote = apiKey ? '' : '<div style="padding:8px 10px;font-size:10px;color:var(--text-muted);background:var(--surface-2);border-radius:6px;margin-bottom:10px;line-height:1.5;">' +
       'AI 키를 추가하면 이 뉴스 묶음을 한 문단 브리핑으로 요약할 수 있습니다.</div>';
-    var finalHtml = briefingHeader + noAiNote + bulletHtml;
+    var finalHtml = briefingHeader + briefingDecisionHtml + noAiNote + bulletHtml;
     _briefingCacheKey = cacheKey;
     _briefingCachedHtml = finalHtml;
     container.innerHTML = finalHtml || '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">해당 기간 뉴스가 없습니다</div>';

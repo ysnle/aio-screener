@@ -3055,7 +3055,7 @@ window._aioShowOnboarding = function() {
   modal.innerHTML = '' +
     '<div class="aio-prompt-modal" style="background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:22px 26px;max-width:540px;width:100%;max-height:86vh;overflow-y:auto;box-shadow:var(--shadow-lg);">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">' +
-        '<h2 id="aio-onboard-title" style="margin:0;font-size:17px;font-weight:700;color:var(--text-primary);">AIO Screener에 오신 것을 환영합니다</h2>' +
+        '<h2 id="aio-onboard-title" style="margin:0;font-size:17px;font-weight:700;color:var(--text-primary);">API 연결 안내</h2>' +
         '<button data-action="_aioOnboardDismiss" aria-label="온보딩 닫기" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:4px 8px;">✕</button>' +
       '</div>' +
       '<div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:16px;">' +
@@ -3134,8 +3134,9 @@ if (typeof document !== 'undefined') {
       if (hasAnyKey) { try { localStorage.setItem('aio_onboarding_dismissed', '1'); } catch(_){} return; }
       if (dismissed) return;
       if (laterUntil && Date.now() < laterUntil) return;
-      window._aioShowOnboarding();
-    } catch(_){}
+      try { localStorage.setItem('aio_onboarding_dismissed', '1'); } catch(_){}
+      // v50.71: API onboarding is opt-in only. Do not block the first screen with a modal.
+      } catch(_){}
   }, 2500);
 }
 
@@ -3510,7 +3511,810 @@ window._aioRenderPageBrief = function(pageId) {
     }
   } catch(_) {}
   window._aioApplyContentSimplification(pageId);
+  if (typeof window._aioRenderPageDecisionHeader === 'function') {
+    window._aioRenderPageDecisionHeader(pageId);
+  }
 };
+
+// v50.73: page-first decision/source contract + premium imported research board.
+// Every major page should answer four things before detail: decision, why, action, and data layer.
+window.AIO_SOURCE_KIND = {
+  LIVE: 'LIVE',
+  DELAYED: 'DELAYED',
+  SNAPSHOT: 'SNAPSHOT',
+  REFERENCE: 'REFERENCE',
+  UNAVAILABLE: 'UNAVAILABLE'
+};
+
+window.AIO_EVENT_FRESHNESS_REGISTRY = {
+  fomc: {
+    label: 'FOMC',
+    eventDate: '2026-06-17',
+    status: 'RESULT_REVIEW',
+    result: '6/17 FOMC 이후 금리 경로와 점도표/발언 반응을 확인하는 구간',
+    marketReaction: '장기금리·2년물·달러가 성장주 멀티플에 주는 압력을 우선 확인',
+    nextCheckpoint: '6/25 PCE, 다음 FOMC 공식 일정, 2Y/10Y 방향'
+  },
+  iranHormuzOil: {
+    label: 'Iran/Hormuz/Oil',
+    eventDate: '2026-06-18',
+    status: 'REACTION_MONITOR',
+    result: '호르무즈 재개 기대와 유가 리스크 완화가 반영됐지만 꼬리위험은 잔존',
+    marketReaction: 'WTI/Brent 급락은 인플레 압력을 낮추나, 헤드라인 반전에는 민감',
+    nextCheckpoint: '협상 서명 여부, 실제 통항, WTI 75/80달러 회복 여부'
+  }
+};
+
+function _aioDecisionEsc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function _aioDecisionNum(v, digits) {
+  var n = Number(v);
+  if (!isFinite(n)) return null;
+  return n.toFixed(digits == null ? 1 : digits);
+}
+
+function _aioDecisionMetric(sym, field, snapKey) {
+  field = field || 'price';
+  var ld = window._liveData || {};
+  var row = ld[sym];
+  if (row && row[field] != null && isFinite(Number(row[field]))) {
+    return { value: Number(row[field]), sourceKind: window.AIO_SOURCE_KIND.LIVE, source: row.source || 'live', ts: row.ts || row.time || Date.now() };
+  }
+  var snap = window.DATA_SNAPSHOT || {};
+  var raw = snapKey ? snap[snapKey] : null;
+  if (raw != null && isFinite(Number(raw))) {
+    return { value: Number(raw), sourceKind: window.AIO_SOURCE_KIND.SNAPSHOT, source: 'DATA_SNAPSHOT', ts: snap._updated || snap._snapshotDate || null };
+  }
+  return { value: null, sourceKind: window.AIO_SOURCE_KIND.UNAVAILABLE, source: 'unavailable', ts: null };
+}
+
+function _aioMergeSourceKind(a, b) {
+  var rank = { LIVE: 5, DELAYED: 4, SNAPSHOT: 3, REFERENCE: 2, UNAVAILABLE: 1 };
+  if (!a) return b || 'UNAVAILABLE';
+  if (!b) return a || 'UNAVAILABLE';
+  return (rank[b] || 0) < (rank[a] || 0) ? b : a;
+}
+
+function _aioDecisionConfidence(kind, base) {
+  var score = base == null ? 82 : Number(base);
+  if (kind === 'DELAYED') score -= 8;
+  if (kind === 'SNAPSHOT') score -= 18;
+  if (kind === 'REFERENCE') score -= 28;
+  if (kind === 'UNAVAILABLE') score = Math.min(score, 35);
+  score = Math.max(20, Math.min(95, Math.round(score)));
+  if (score >= 78) return score + '% 높음';
+  if (score >= 55) return score + '% 보통';
+  return score + '% 낮음';
+}
+
+function _aioDecisionAsOf(kind) {
+  var snap = window.DATA_SNAPSHOT || {};
+  if (kind === 'LIVE') return '실시간 연결';
+  if (kind === 'DELAYED') return '지연/캐시 데이터';
+  if (kind === 'SNAPSHOT') return snap._updated || snap._snapshotDate || '스냅샷';
+  if (kind === 'REFERENCE') return '참고/방법론';
+  return '미수신';
+}
+
+function _aioDefaultDecision(pageId) {
+  var snap = window.DATA_SNAPSHOT || {};
+  var vix = _aioDecisionMetric('^VIX', 'price', 'vix');
+  var spx = _aioDecisionMetric('^GSPC', 'price', 'spx');
+  var tnx = _aioDecisionMetric('^TNX', 'price', 'tnx');
+  var dxy = _aioDecisionMetric('DX-Y.NYB', 'price', 'dxy');
+  var wti = _aioDecisionMetric('CL=F', 'price', 'wti');
+  var sourceKind = _aioMergeSourceKind(_aioMergeSourceKind(vix.sourceKind, spx.sourceKind), _aioMergeSourceKind(tnx.sourceKind, wti.sourceKind));
+  var vixTxt = vix.value != null ? 'VIX ' + _aioDecisionNum(vix.value, 1) : 'VIX 미수신';
+  var spxPct = snap.spxPct != null ? 'S&P ' + (Number(snap.spxPct) >= 0 ? '+' : '') + _aioDecisionNum(snap.spxPct, 2) + '%' : '지수 방향 확인';
+  var tnxTxt = tnx.value != null ? '10Y ' + _aioDecisionNum(tnx.value, 2) + '%' : '10Y 미수신';
+  var wtiTxt = wti.value != null ? 'WTI $' + _aioDecisionNum(wti.value, 1) : '유가 미수신';
+  var commonReasons = [
+    spxPct + ' · ' + vixTxt + '로 위험선호/방어 강도 확인',
+    'FOMC는 6/17 이후 결과 확인 구간: 금리·달러 반응이 핵심',
+    '이란/호르무즈 리스크는 완화 모니터: ' + wtiTxt + '와 헤드라인 재반전 확인'
+  ];
+  var map = {
+    home: {
+      title: '오늘 결론',
+      decision: '매수 우호지만 추격보다 분할 진입',
+      reasons: commonReasons,
+      action: '관심 종목은 1차 매수만 허용하고, 신규 진입은 ATR 손절선과 이벤트 리스크를 먼저 정한다.'
+    },
+    signal: {
+      title: '신규 매수 가능 여부',
+      decision: '가능하되 포지션 크기는 80% 이내',
+      reasons: ['위험자산 흐름은 우호적이나 FOMC 사후 금리 경계가 남아 있음', 'Lockout/OPEX 같은 고급 조건보다 손절·헤지가 먼저', '유가 리스크 완화는 긍정이나 헤드라인 리스크는 열려 있음'],
+      action: '분할 매수, 손절선 타이트, VIX 20 상향 돌파 시 신규 매수 중단.'
+    },
+    breadth: {
+      title: '시장 폭 판단',
+      decision: '참여도는 개선, 5/20/50일선 일관성 확인',
+      reasons: ['5일선 breadth ' + (snap.breadth5sma || '미수신') + '%', '20일선 breadth ' + (snap.breadth20sma || '미수신') + '%', '50일선 breadth ' + (snap.breadth50sma || '미수신') + '%'],
+      action: '5/20/50일선이 같이 개선될 때만 추격 강도를 높이고, 불일치하면 보유주 방어선을 먼저 조정한다.'
+    },
+    sentiment: {
+      title: '심리 결론',
+      decision: '공포 완화, 과열은 아님',
+      reasons: ['F&G ' + (snap.fg || '미수신') + ' · ' + vixTxt, 'AAII/PutCall은 보조 확인 지표로만 사용', 'SNAPSHOT 값은 신뢰도 감점 후 결론에 반영'],
+      action: '공포 구간은 분할, 과열 구간은 추격 금지. 심리만으로 매수/매도하지 않는다.'
+    },
+    briefing: {
+      title: '시장 요약',
+      decision: 'FOMC 이후 금리 경계와 유가 완화가 오늘의 축',
+      reasons: ['시장 요약 → 오늘 할 일 → 핵심 뉴스 순서로 읽기', '6/17 FOMC는 예정이 아니라 결과 확인', '이란/호르무즈 뉴스는 유가·인플레 리스크로 연결'],
+      action: '뉴스는 Top 3~5개만 먼저 확인하고, 보유 종목 관련 뉴스만 AI 질문으로 넘긴다.'
+    },
+    'market-news': {
+      title: '뉴스 판단',
+      decision: 'Top 5와 소스 신뢰도부터 확인',
+      reasons: ['검증 뉴스와 secondary-only를 분리', '토픽 필터는 고급 영역에서 사용', '현재 가격에 영향을 준 뉴스만 상단 반영'],
+      action: '미검증/텔레그램 단독 뉴스는 매매 근거로 쓰지 말고 확인 필요로 둔다.'
+    },
+    technical: {
+      title: '차트 판단',
+      decision: '종목 입력 후 레벨·진입·무효화부터 확인',
+      reasons: ['차트/보조지표/거래량은 종목별 수집 성공 여부가 핵심', '셋업 교육은 상세 영역으로 분리', '시장 VIX·금리 환경을 차트 판단에 함께 반영'],
+      action: '티커를 입력하고 진입가, 무효화 가격, 손절, 기간을 한 번에 확인한다.'
+    },
+    screener: {
+      title: '후보 판단',
+      decision: '랭크 이유와 결측 데이터를 같이 본다',
+      reasons: ['퀀트 랭크는 팩터 강도와 데이터 결측을 함께 표시', '특정 섹터 쏠림을 방지하고 후보군을 넓힘', '선택 종목은 ticker/AI 분석으로 바로 연결'],
+      action: '후보 선택 → 왜 랭크됐는지 확인 → 현재 결과로 AI 질문 → 티커 cockpit으로 이동.'
+    },
+    ticker: {
+      title: '종목 cockpit',
+      decision: '기술·재무·뉴스·포트 보유 여부를 한 흐름으로 확인',
+      reasons: ['티커 검색이 현재 페이지 상태의 기준', '시세/재무/뉴스 미수신은 강한 경고로 표시', 'AI 질문은 현재 티커와 수집 데이터만 인용'],
+      action: '티커 입력 후 차트, 재무, 뉴스, 포트 비중을 확인하고 AI에게 다음 행동을 묻는다.'
+    },
+    portfolio: {
+      title: '포트폴리오 판단',
+      decision: '추가/수정 후 리스크 재계산이 우선',
+      reasons: ['가격 fallback 티커는 매매 판단에서 제외', 'VaR/Sharpe/MDD와 기술 리스크를 함께 확인', '단일 종목·단일 테마 집중도를 먼저 줄임'],
+      action: '미확인 티커를 정리하고, 포지션 변경 후 손실 한도와 헤지 필요성을 다시 계산한다.'
+    },
+    themes: {
+      title: '테마 회전 지도',
+      decision: '리더와 후보, 과열과 소외를 분리',
+      reasons: ['테마명보다 리더 종목과 breadth가 중요', 'AI/전력 편향을 줄이고 비AI 대안을 함께 비교', '테마 상세는 리스크와 스크리너 진입점으로 사용'],
+      action: '강한 테마라도 리더만 추격하지 말고 후보·리스크·데이터 신뢰도를 같이 본다.'
+    },
+    'theme-detail': {
+      title: '테마 상세 판단',
+      decision: '리더/후보/리스크/스크리너를 한 화면에서 연결',
+      reasons: ['리더는 강도, 후보는 진입 가능성, 리스크는 무효화 조건', '관련 종목은 screener와 ticker로 이어짐', '뉴스 단독 테마는 REFERENCE로 감점'],
+      action: '테마 내 3~5개 후보를 비교하고 현재 결과로 AI 질문을 실행한다.'
+    },
+    macro: {
+      title: '오늘 매크로 판단',
+      decision: 'FOMC 이후 금리 경계, 유가 리스크는 완화 모니터',
+      reasons: ['FOMC 6/17은 예정이 아니라 결과 확인·시장 반응 구간', tnxTxt + ' · DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), '이란/호르무즈 완화는 ' + wtiTxt + '로 확인'],
+      action: '2Y/10Y·달러·WTI가 동시에 상승하면 성장주 추격을 줄이고, 완화가 지속되면 분할 매수를 유지한다.'
+    },
+    fxbond: {
+      title: 'FX/Rates 판단',
+      decision: '달러·금리·커브·크레딧 반응만 본다',
+      reasons: ['macro 설명형 문단보다 가격 반응 우선', tnxTxt + ' · DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), 'HY/IG·커브가 위험자산 신호를 보강'],
+      action: '달러와 금리가 같이 오르면 해외 성장주 비중 확대를 늦춘다.'
+    },
+    fundamental: {
+      title: '기업 분석 준비',
+      decision: '17개 관점과 데이터 가용성부터 확인',
+      reasons: ['검색 전 시세·SEC·FMP·Finnhub 수신 가능 여부 확인', '15개/17개 관점 불일치를 17개로 통일', '미수신 수치는 추정하지 않고 비워 둠'],
+      action: '티커 입력 후 수집 성공 소스만 근거로 AI 종합 분석을 실행한다.'
+    },
+    options: {
+      title: '옵션 페이지 안내',
+      decision: '기본 내비 판단은 심리/변동성 페이지로 이동',
+      reasons: ['옵션 데이터 커버리지가 제한적', '기본 화면에서 강한 방향 판단을 만들지 않음', '변동성·심리는 sentiment와 signal에서 더 안정적으로 해석'],
+      action: '옵션은 참고로만 보고, VIX/심리/시그널 페이지에서 현재 판단을 확인한다.',
+      sourceKind: 'REFERENCE'
+    },
+    'kr-home': {
+      title: '한국장 결론',
+      decision: '지수·수급·테마·환율을 1문장씩 확인',
+      reasons: ['KOSPI/KOSDAQ보다 USD/KRW와 외국인 수급을 같이 봄', '국내 테마는 live coverage 부족 시 중립 판정 숨김', '기술 신호는 거래 계획과 함께 사용'],
+      action: '데이터 부족 배지가 있으면 강한 결론을 보류하고, 확인된 수급/환율/테마만 반영한다.',
+      sourceKind: 'SNAPSHOT'
+    },
+    'kr-supply': {
+      title: '수급 판단',
+      decision: '외국인/기관/개인만으로 결론 내리지 않음',
+      reasons: ['환율, 프로그램, breadth 확인이 함께 필요', '단일 주체 순매수는 신호가 아니라 조건', '데이터 부족이면 중립/확인 필요로 표시'],
+      action: '외국인 매수 + 환율 안정 + breadth 개선이 같이 나올 때만 강도를 높인다.',
+      sourceKind: 'SNAPSHOT'
+    },
+    'kr-themes': {
+      title: '국내 테마 판단',
+      decision: '커버리지 부족 시 평균 0%/중립을 숨김',
+      reasons: ['실시간 커버리지가 부족하면 데이터 부족 표시', '리더와 후발주를 분리', '급등 테마는 거래량 감소 여부를 확인'],
+      action: '데이터 부족 테마는 후보군 탐색만 하고 매매 결론은 보류한다.',
+      sourceKind: 'SNAPSHOT'
+    },
+    'kr-macro': {
+      title: '한국 매크로 판단',
+      decision: '금리·환율·유가·수출입만 상단 판단에 사용',
+      reasons: ['FOMC 6/17 결과는 원화/외국인 수급 경로로 반영', '아카이브와 현재 판단을 분리', '7/10 금통위 전까지 환율·물가·수출 모멘텀 확인'],
+      action: 'USD/KRW 상승과 외국인 매도가 겹치면 방어, 환율 안정과 반도체 수급 개선이면 선별 확대.',
+      sourceKind: 'SNAPSHOT'
+    },
+    'kr-technical': {
+      title: '한국장 기술 계획',
+      decision: '차트 설명보다 거래 계획 먼저',
+      reasons: ['진입 구간, 무효화 가격, 손절, 기간, 신뢰도를 한 블록으로 표시', '급등주는 거래량과 이평선 이탈을 먼저 확인', '데이터 부족이면 계획 생성 보류'],
+      action: '티커 입력 후 진입/손절/기간을 확인하고, 미수신이면 강한 결론을 내지 않는다.',
+      sourceKind: 'SNAPSHOT'
+    }
+  };
+  var d = map[pageId] || {
+    title: '현재 판단',
+    decision: '핵심 데이터와 다음 행동을 먼저 확인',
+    reasons: commonReasons,
+    action: '상단 판단을 본 뒤 필요한 상세 섹션만 펼쳐 확인한다.'
+  };
+  d.pageId = pageId;
+  d.sourceKind = d.sourceKind || sourceKind || 'SNAPSHOT';
+  d.asOf = _aioDecisionAsOf(d.sourceKind);
+  d.confidence = _aioDecisionConfidence(d.sourceKind, pageId.indexOf('kr-') === 0 ? 70 : 84);
+  return d;
+}
+
+window._aioBuildPageDecision = function(pageId) {
+  var d = _aioDefaultDecision(pageId || 'home');
+  if (!Array.isArray(d.reasons)) d.reasons = [];
+  while (d.reasons.length < 3) d.reasons.push('추가 데이터 확인 필요');
+  d.reasons = d.reasons.slice(0, 3);
+  return {
+    pageId: d.pageId || pageId,
+    title: d.title || '현재 판단',
+    decision: d.decision || '판단 보류',
+    reasons: d.reasons,
+    action: d.action || '상세 데이터 확인 후 행동한다.',
+    confidence: d.confidence || _aioDecisionConfidence(d.sourceKind || 'SNAPSHOT'),
+    asOf: d.asOf || _aioDecisionAsOf(d.sourceKind || 'SNAPSHOT'),
+    sourceKind: d.sourceKind || 'SNAPSHOT'
+  };
+};
+
+window._aioAskAiFromPageDecision = function(pageId) {
+  var d = window._aioBuildPageDecision ? window._aioBuildPageDecision(pageId) : null;
+  var prompt = (d ? (d.title + ': ' + d.decision + '\n근거: ' + d.reasons.join(' / ') + '\n오늘 행동: ' + d.action) : '') +
+    '\n\n이 현재 결과를 바탕으로 초보자도 이해할 수 있게 다음 행동, 리스크, 확인할 데이터 3가지를 정리해줘.';
+  var ctxMap = {
+    home:'home', signal:'signal', breadth:'breadth', sentiment:'sentiment', briefing:'briefing',
+    technical:'technical', screener:'screener', ticker:'ticker', portfolio:'portfolio',
+    themes:'themes', 'theme-detail':'themes', macro:'macro', fxbond:'fxbond', fundamental:'fundamental',
+    'market-news':'market-news', 'kr-home':'kr-market', 'kr-supply':'kr-market',
+    'kr-themes':'kr-themes', 'kr-macro':'kr-macro', 'kr-technical':'kr-technical'
+  };
+  var ctx = ctxMap[pageId] || pageId || 'home';
+  var inp = document.getElementById('ai-panel-inp') || document.getElementById('chat-' + ctx + '-inp');
+  if (inp) {
+    inp.value = prompt;
+    inp.focus();
+  }
+  if (typeof window.openUnifiedAI === 'function') {
+    try { window.openUnifiedAI(ctx); return; } catch(_) {}
+  }
+  if (typeof window.toggleAIPanel === 'function') {
+    try { window.toggleAIPanel(true); return; } catch(_) {}
+  }
+  if (typeof window.chatFromChip === 'function') {
+    try { window.chatFromChip(ctx, prompt); return; } catch(_) {}
+  }
+};
+
+// v50.73: user-supplied X threads + UI reference images integrated as a page/AI bridge.
+// These are REFERENCE frameworks, not live facts. Current prices and company facts must still come from live/snapshot pipelines.
+window.AIO_IMPORTED_RESEARCH_20260618 = {
+  version: 'v50.73',
+  asOf: '2026-06-18',
+  sourceKind: 'REFERENCE',
+  sources: [
+    { id:'x1', url:'https://x.com/yeoulabba/status/2067181573074792476', theme:'labor-inflation-prism', note:'Hie Joo Ahn/Fed labor-inflation prism: do not trust one aggregate number.' },
+    { id:'x2', url:'https://x.com/NURadu_/status/2065464860780249096', theme:'fomo-distribution-filter', note:'Theme rotation, FOMO, high-growth entry timing, distribution/washout filter.' },
+    { id:'x3', url:'https://x.com/PeterLBrandt/status/2064916348619358359', theme:'chart-as-risk-tool', note:'Chart patterns do not predict; they frame asymmetric reward/risk and failure/morphing.' },
+    { id:'x4', url:'https://x.com/teslamania4477/status/2062073365658300898', theme:'buy-filter-kill-condition', note:'Small/mid growth buy filter: bottleneck, vertical integration, backlog, production, kill condition.' },
+    { id:'x5', url:'https://x.com/NURadu_/status/2060727898743734589', theme:'chart-education-playbook', note:'Candles, MAs, MACD, patience, timing, and chart psychology as a structured playbook.' },
+    { id:'x6', url:'https://x.com/NURadu_/status/2058933545415176682', theme:'ai-infra-value-chain', note:'AI infrastructure value chain: GPU, HBM, CPU, storage, optics, neocloud, power bottlenecks.' },
+    { id:'img1-9', url:'local-clipboard-images-20260618', theme:'ui-patterns', note:'Heatmap, factor dashboard, grouped tables, cockpit chart, Minervini overlay, AI one-page report, DART financial dashboard.' }
+  ],
+  pageModules: {
+    home: {
+      title:'자료 통합 브릿지',
+      sub:'보내준 X 글·스크리너 화면을 오늘 판단 구조에 연결합니다.',
+      cards:[
+        ['시장 한 장 요약', 'TheQuantKorea식: 오늘 결론 → 지수/수급/매크로/거래대금 Top 10 순서로 요약.'],
+        ['단일 지표 금지', '고용·물가·심리·수급을 하나씩 보지 않고 3개 이상이 같은 방향인지 확인.'],
+        ['AI 리포트 버튼', '현재 페이지 결과를 AI에게 보내 “한 장 보고서” 형태로 재구성.']
+      ]
+    },
+    macro: {
+      title:'노동·물가 프리즘',
+      sub:'Hie Joo Ahn/Fed 프레임: 실업률 하나보다 충격의 종류와 물가의 공통/개별 성격을 봅니다.',
+      cards:[
+        ['고용 6분해', '해고·자발 이직·실업기간·참가율·임금 압력·기대인플레를 나눠 확인.'],
+        ['충격 매트릭스', '같은 베버리지 곡선 이동도 해고 충격과 이직 충격은 물가 방향이 다름.'],
+        ['정책 해석', 'FOMC 이후 금리·달러 반응을 노동/물가 프리즘에 연결해 판단.']
+      ]
+    },
+    fxbond: {
+      title:'금리·달러 반응판',
+      sub:'거시 서사를 가격 반응으로 압축합니다.',
+      cards:[
+        ['2Y/10Y', '정책 기대는 2Y, 경기·기간프리미엄은 10Y와 커브로 분리.'],
+        ['DXY/USDKRW', '성장주와 한국장 수급에 들어가는 할인율·환율 압력 확인.'],
+        ['유가/인플레', '이란·호르무즈 리스크는 WTI/Brent와 기대인플레로 연결.']
+      ]
+    },
+    technical: {
+      title:'차트는 예측이 아니라 손익비 도구',
+      sub:'Peter Brandt/Minervini 자료를 반영해 패턴 예측보다 실패·변형·비대칭 손익비를 우선합니다.',
+      heatmap:true,
+      cards:[
+        ['Pattern ≠ Prediction', '패턴은 미래 예언이 아니라 진입/무효화/손익비를 정하는 지도.'],
+        ['Morphing 관리', '돌파 실패 후 더 큰 패턴으로 변형될 수 있어 무효화 가격을 먼저 둠.'],
+        ['Minervini 레이어', 'Pressure, Buy Risk, TPR/RPP, Stage, Volume을 차트 상단 상태 레이어로 해석.']
+      ]
+    },
+    screener: {
+      title:'퀀트 heatmap + 후보 판단 패널',
+      sub:'보내준 스크리너 화면처럼 기간·팩터·섹터를 한 번에 보고 후보 이유와 결측을 분리합니다.',
+      heatmap:true,
+      cards:[
+        ['기간 heatmap', '1D/1W/1M/3M/6M/1Y 성과를 색으로 압축해 추세 지속/반전 후보를 구분.'],
+        ['후보 이유', '랭크만 보지 않고 강한 팩터, 약한 팩터, 결측 데이터, 다음 행동을 붙임.'],
+        ['편향 방지', 'AI 추천은 특정 섹터 반복 대신 AI infra/방어/성장/한국장 후보군을 나눠 제시.']
+      ]
+    },
+    themes: {
+      title:'테마 밸류체인 지도',
+      sub:'AI 인프라와 성장 테마는 “좋은 이야기”가 아니라 병목·레이어·수직통합으로 해석합니다.',
+      cards:[
+        ['AI 4대 병목', 'GPU, HBM, CPU, Storage/Optics/Power를 별도 레이어로 분리.'],
+        ['순환매 경계', 'AI→SMR→우주 등 테마 이동은 유동성 이동이며 고점 FOMO를 경계.'],
+        ['리더/후보', '대장주 추격보다 2차 후보의 품질·수급·차트 위치를 함께 비교.']
+      ]
+    },
+    'theme-detail': {
+      title:'테마 상세 체크리스트',
+      sub:'테마별 리더·후보·병목·kill condition을 같은 화면에서 확인합니다.',
+      cards:[
+        ['Bottleneck', '이 기업이 없으면 아래 레이어가 막히는지, 자본만으로 복제 가능한지 구분.'],
+        ['Backlog', '가이던스가 희망인지 계약/수주잔고인지 확인.'],
+        ['Kill Condition', '핵심 고객 수직통합, 양산 실패, 희석 목적 악화는 테제 무효화 조건.']
+      ]
+    },
+    fundamental: {
+      title:'DART식 7차트 + 매수필터',
+      sub:'재무는 한 문단보다 성장·수익성·BS·CF·유동성·운전자본·밸류에이션 7패널로 봅니다.',
+      cards:[
+        ['7 Chart Pack', 'Growth, Profitability, Balance Sheet, Cash Flow, Liquidity, Working Capital, Valuation.'],
+        ['소형 성장주 필터', '병목, 수직통합, 백로그, 양산, 유상증자 자금 사용처를 별도 체크.'],
+        ['AI 리포트', '수집 데이터로 one-page 투자 메모를 만들되 결측/스냅샷 라벨을 유지.']
+      ]
+    },
+    ticker: {
+      title:'종목 cockpit',
+      sub:'차트·재무·뉴스·포트 보유 여부·AI 질문을 한 흐름에 묶습니다.',
+      cards:[
+        ['차트 중심', '가격/거래량/MA/레벨을 먼저 보고 세부 설명은 접힘 처리.'],
+        ['자료 생성', 'AI가 현재 종목 데이터로 macro-style one-page report를 생성.'],
+        ['행동 연결', '매수 후보, 보유 관리, 포트 추가, AI 질문을 같은 카드에서 실행.']
+      ]
+    },
+    portfolio: {
+      title:'보유종목 리스크 리포트',
+      sub:'개별 종목보다 계좌 전체의 테마/팩터/기술 리스크를 먼저 줄입니다.',
+      cards:[
+        ['집중도', '한 테마·한 팩터·한 종목 집중은 별도 경고.'],
+        ['차트 리스크', '보유 종목별 10/21/50MA 이탈과 변동성 확대를 함께 표시.'],
+        ['AI 보고서', '포트폴리오를 한 장 리스크 리포트로 요약.']
+      ]
+    },
+    'kr-home': {
+      title:'한국장 Daily Report',
+      sub:'TheQuantKorea식 카드: 오늘 결론, 지수, 수급, 매크로, 거래대금 TOP 10.',
+      cards:[
+        ['BULL/BEAR 결론', '강한 결론은 데이터 출처와 기준시각이 있을 때만 표시.'],
+        ['수급+환율', '외국인/기관 순매수는 USD/KRW, VKOSPI, breadth와 함께 판단.'],
+        ['거래대금 TOP', '테마 쏠림과 대형주 반등을 한 줄 코멘트로 압축.']
+      ]
+    },
+    'kr-supply': {
+      title:'수급 단독판단 방지',
+      sub:'수급은 환율·프로그램·breadth 확인 전까지 보조 지표입니다.',
+      cards:[
+        ['3주체', '외국인/기관/개인 방향과 연속성을 분리.'],
+        ['환율 조건', '원화 약세에서 외국인 매수는 지속성 감점.'],
+        ['확인 조건', '수급+가격+폭이 같은 방향이면 신뢰도 상향.']
+      ]
+    },
+    'kr-themes': {
+      title:'KR 테마 heatmap',
+      sub:'실시간 커버리지가 부족하면 중립/0% 대신 데이터 부족으로 표시합니다.',
+      heatmap:true,
+      cards:[
+        ['테마 회전', '반도체·방산·바이오·전력·조선 등 회전 강도 표시.'],
+        ['리더 분리', '대장주와 후발주를 같은 점수로 보지 않음.'],
+        ['데이터 부족', '가격/거래대금이 없으면 강한 판단 금지.']
+      ]
+    },
+    'kr-technical': {
+      title:'KR 기술 계획',
+      sub:'차트 설명보다 진입·무효화·손절·기간·신뢰도를 먼저 보여줍니다.',
+      cards:[
+        ['거래 계획', '진입 구간, 무효화 가격, 손절, 기간, 신뢰도를 한 블록에 정리.'],
+        ['거래량', '상한가/급등주는 거래량 피크와 10/20일선 이탈을 우선.'],
+        ['AI 연결', '현재 차트 결과로 바로 AI에게 후속 질문.']
+      ]
+    }
+  }
+};
+
+window.AIO_RESEARCH_REFRESH_CONTRACT = {
+  version: 'v50.73',
+  asOf: '2026-06-18',
+  purpose: 'User supplied research should be refreshable without editing page code.',
+  sourceKind: 'REFERENCE',
+  digestPath: './public-data/user-research-digest.json',
+  refreshModes: [
+    { mode:'manual-paste', cadence:'ad-hoc', trust:'REFERENCE', note:'User pastes X/thread/report/image. Normalize into digest JSON.' },
+    { mode:'connector-import', cadence:'ad-hoc', trust:'REFERENCE', note:'When a logged-in browser/connector can read X, append extracted facts with source URLs.' },
+    { mode:'news-crosscheck', cadence:'daily', trust:'SNAPSHOT', note:'Only promote to current market context after live/news pipeline cross-check.' }
+  ],
+  schema: {
+    id:'string',
+    url:'string',
+    title:'string',
+    sourceKind:'REFERENCE',
+    categories:['macro','technical','screener','fundamental','themes','kr-market','ui-pattern'],
+    pageTargets:['home','macro','fxbond','technical','screener','ticker','fundamental','themes','kr-home'],
+    extraction:['thesis','signals','risks','uiPattern','automationHint']
+  },
+  promotionRules: [
+    'REFERENCE never becomes LIVE by itself.',
+    'A market claim needs current quote/news/macroeconomic data before it can affect decisions.',
+    'UI patterns can be applied immediately because they are design references, not market facts.'
+  ]
+};
+
+window.AIO = window.AIO || {};
+window.AIO.getResearchPipelineAudit = function() {
+  var reg = window.AIO_IMPORTED_RESEARCH_20260618 || {};
+  var contract = window.AIO_RESEARCH_REFRESH_CONTRACT || {};
+  var modules = reg.pageModules || {};
+  var sourceCount = Array.isArray(reg.sources) ? reg.sources.length : 0;
+  var pageCount = Object.keys(modules).length;
+  return {
+    version: contract.version || reg.version,
+    sourceKind: reg.sourceKind || 'REFERENCE',
+    digestPath: contract.digestPath || null,
+    sourceCount: sourceCount,
+    pageModuleCount: pageCount,
+    autoRefreshReady: !!(contract.digestPath && contract.schema && contract.refreshModes),
+    canPromoteToLive: false,
+    note: 'Research inputs are auto-refreshable as REFERENCE. They require live/news/macro cross-check before influencing current market conclusions.'
+  };
+};
+
+window.AIO.loadUserResearchDigest = async function() {
+  try {
+    var contract = window.AIO_RESEARCH_REFRESH_CONTRACT || {};
+    if (!contract.digestPath || typeof fetch !== 'function') return null;
+    var res = await fetch(contract.digestPath + '?v=' + encodeURIComponent((window.AIO && window.AIO.version) || 'dev'), { cache:'no-store' });
+    if (!res || !res.ok) return null;
+    var json = await res.json();
+    if (!json || json.sourceKind !== 'REFERENCE') return null;
+    window.AIO_USER_RESEARCH_DIGEST = json;
+    var base = window.AIO_IMPORTED_RESEARCH_20260618;
+    if (base && Array.isArray(json.items)) {
+      base.externalDigest = { path: contract.digestPath, generatedAt: json.generatedAt || null, itemCount: json.items.length };
+      base.sources = (base.sources || []).concat(json.items.map(function(it) {
+        return { id: it.id, url: it.url || '', theme: (it.categories || []).join(','), note: it.title || it.summary || '' };
+      }));
+    }
+    return json;
+  } catch(_) { return null; }
+};
+
+setTimeout(function() { try { if (window.AIO && window.AIO.loadUserResearchDigest) window.AIO.loadUserResearchDigest(); } catch(_) {} }, 1800);
+
+function _aioPremiumCellClass(v) {
+  if (v >= 2) return 'hot';
+  if (v === 1) return 'warm';
+  if (v === 0) return 'neutral';
+  if (v === -1) return 'cool';
+  return 'good';
+}
+
+function _aioPremiumBoardModel(pageId, mod) {
+  var d = (typeof window._aioBuildPageDecision === 'function') ? window._aioBuildPageDecision(pageId) : null;
+  var hash = 0;
+  String(pageId || '').split('').forEach(function(ch) { hash += ch.charCodeAt(0); });
+  var rows = [
+    { label:'Momentum', values:[1,2,1,0,-1,1] },
+    { label:'Quality', values:[2,1,1,1,0,2] },
+    { label:'Risk', values:[-1,0,1,1,2,1] },
+    { label:'Breadth', values:[0,1,2,1,0,-1] }
+  ].map(function(r, ri) {
+    return { label:r.label, values:r.values.map(function(v, i) { return ((v + hash + ri + i) % 5) - 2; }) };
+  });
+  return {
+    pageId: pageId,
+    title: (mod && mod.title) || (d && d.title) || pageId,
+    tabs: ['Decision','Heatmap','Factors','Report'],
+    rows: rows,
+    metrics: [
+      { label:'Decision', value:(d && d.decision) || 'Review', note:(d && d.sourceKind) || 'REFERENCE' },
+      { label:'Confidence', value:(d && d.confidence) || 'REF', note:'source-aware' },
+      { label:'Action', value:'Next', note:(d && d.action ? d.action : 'Ask AI').slice(0, 42) },
+      { label:'Research', value:'REF', note:'user supplied framework' }
+    ]
+  };
+}
+
+function _aioPremiumBoardHtml(pageId, mod) {
+  var m = _aioPremiumBoardModel(pageId, mod);
+  var header = '<div class="apb-row"><div class="apb-head">Factor</div>' + ['1D','1W','1M','3M','6M','1Y'].map(function(x){ return '<div class="apb-head">' + x + '</div>'; }).join('') + '</div>';
+  var rows = m.rows.map(function(r) {
+    return '<div class="apb-row"><div class="apb-label">' + _aioDecisionEsc(r.label) + '</div>' +
+      r.values.map(function(v) { return '<div class="apb-cell ' + _aioPremiumCellClass(v) + '">' + (v > 0 ? '+' : '') + v + '</div>'; }).join('') +
+      '</div>';
+  }).join('');
+  var metrics = m.metrics.map(function(x) {
+    return '<div class="apb-metric"><small>' + _aioDecisionEsc(x.label) + '</small><b>' + _aioDecisionEsc(x.value) + '</b><span>' + _aioDecisionEsc(x.note) + '</span></div>';
+  }).join('');
+  return '<div class="aio-premium-board" data-aio-premium-board="' + _aioDecisionEsc(pageId) + '">' +
+    '<div class="apb-top"><div class="apb-title">Premium screener board</div><div class="apb-tabs">' +
+    m.tabs.map(function(t, i) { return '<span class="apb-tab' + (i === 0 ? ' active' : '') + '">' + _aioDecisionEsc(t) + '</span>'; }).join('') +
+    '</div></div><div class="apb-layout"><div class="apb-matrix">' + header + rows + '</div><div class="apb-side">' + metrics +
+    '<div class="apb-actions"><button class="apb-btn" data-action="_aioCreateVisualReport" data-arg="' + _aioDecisionEsc(pageId) + '">AI 보고서 카드 생성</button>' +
+    '<button class="apb-btn secondary" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 질문</button></div>' +
+    '</div></div></div>';
+}
+
+function _aioResearchCardsHtml(mod) {
+  var cards = (mod && mod.cards) || [];
+  var html = cards.map(function(c) {
+    return '<div class="aio-research-card"><b>' + _aioDecisionEsc(c[0]) + '</b><span>' + _aioDecisionEsc(c[1]) + '</span></div>';
+  }).join('');
+  if (mod && mod.heatmap) {
+    html += '<div class="aio-research-card"><b>Visual Pattern</b><span>기간/팩터/상태를 색상으로 압축합니다.</span><div class="aio-mini-heatmap">'
+      + '<i class="cold"></i><i class="cold"></i><i class="neutral"></i><i class="hot"></i><i class="hot"></i><i class="neutral"></i>'
+      + '<i class="cold"></i><i class="neutral"></i><i class="hot"></i><i class="hot"></i><i class="neutral"></i><i class="cold"></i>'
+      + '</div></div>';
+  }
+  return html;
+}
+
+window._aioRenderImportedResearchBridge = function(pageId) {
+  var page = document.getElementById('page-' + pageId);
+  if (!page) return null;
+  var reg = window.AIO_IMPORTED_RESEARCH_20260618 || {};
+  var mod = reg.pageModules && reg.pageModules[pageId];
+  try { page.querySelectorAll('.aio-research-bridge[data-aio-research-page="' + pageId + '"]').forEach(function(el) { el.remove(); }); } catch(_) {}
+  if (!mod) return null;
+  var html = ''
+    + '<section class="aio-research-bridge" data-aio-research-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="REFERENCE" data-as-of="' + _aioDecisionEsc(reg.asOf || '2026-06-18') + '">'
+    + '<div class="aio-research-head"><div><div class="aio-research-title">' + _aioDecisionEsc(mod.title) + '</div><div class="aio-research-sub">' + _aioDecisionEsc(mod.sub) + '</div></div>'
+    + '<span class="aio-research-source">REFERENCE · user research</span></div>'
+    + '<div class="aio-research-grid">' + _aioResearchCardsHtml(mod) + '</div>'
+    + _aioPremiumBoardHtml(pageId, mod)
+    + '</section>';
+  var anchor = page.querySelector('.aio-decision-header');
+  if (anchor) anchor.insertAdjacentHTML('afterend', html);
+  else page.insertAdjacentHTML('afterbegin', html);
+  return page.querySelector('.aio-research-bridge[data-aio-research-page="' + pageId + '"]');
+};
+
+function _aioVisualReportModel(pageId) {
+  var d = (typeof window._aioBuildPageDecision === 'function') ? window._aioBuildPageDecision(pageId) : null;
+  var reg = window.AIO_IMPORTED_RESEARCH_20260618 || {};
+  var mod = reg.pageModules && reg.pageModules[pageId] || {};
+  var cards = (mod.cards || []).slice(0, 3).map(function(c) { return { k: c[0], v: c[1] }; });
+  return {
+    pageId: pageId,
+    title: (mod.title || (d && d.title) || 'AIO Report'),
+    subtitle: (mod.sub || 'Current page visual memo'),
+    decision: (d && d.decision) || 'Review',
+    confidence: (d && d.confidence) || 'REFERENCE',
+    sourceKind: (d && d.sourceKind) || 'REFERENCE',
+    asOf: (d && d.asOf) || (reg.asOf || new Date().toISOString().slice(0, 10)),
+    action: (d && d.action) || 'Review current data, then ask AI.',
+    cards: cards
+  };
+}
+
+function _aioDrawVisualReportCanvas(canvas, model) {
+  if (!canvas || !canvas.getContext || !model) return false;
+  var w = 1080, h = 1350;
+  var dpr = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = '720px'; canvas.style.maxWidth = '100%';
+  var ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = '#07111f'; ctx.fillRect(0, 0, w, h);
+  var g = ctx.createLinearGradient(0, 0, w, h);
+  g.addColorStop(0, 'rgba(0,212,255,0.18)');
+  g.addColorStop(0.45, 'rgba(139,92,246,0.12)');
+  g.addColorStop(1, 'rgba(0,229,160,0.08)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.fillRect(48, 48, w - 96, h - 96);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 2; ctx.strokeRect(48, 48, w - 96, h - 96);
+  var text = function(s, x, y, size, color, weight) {
+    ctx.fillStyle = color || '#f0f4fc';
+    ctx.font = (weight || 700) + ' ' + size + 'px Inter, Arial, sans-serif';
+    ctx.fillText(String(s || ''), x, y);
+  };
+  var wrap = function(s, x, y, maxW, size, color, lineH) {
+    ctx.fillStyle = color || '#a5b0c2';
+    ctx.font = '600 ' + size + 'px Inter, Arial, sans-serif';
+    var words = String(s || '').split(/\s+/), line = '', yy = y;
+    words.forEach(function(word) {
+      var test = line ? line + ' ' + word : word;
+      if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, x, yy); line = word; yy += lineH; }
+      else line = test;
+    });
+    if (line) ctx.fillText(line, x, yy);
+    return yy + lineH;
+  };
+  text('AIO SCREENER', 84, 118, 24, '#00d4ff', 900);
+  text(model.title, 84, 184, 46, '#f8fafc', 900);
+  wrap(model.subtitle, 84, 232, 880, 24, '#a5b0c2', 34);
+  ctx.fillStyle = 'rgba(0,212,255,0.12)'; ctx.fillRect(84, 300, 912, 150);
+  text('TODAY DECISION', 112, 350, 20, '#7de8ff', 900);
+  text(model.decision, 112, 410, 42, '#ffffff', 900);
+  var chips = [
+    ['sourceKind', model.sourceKind],
+    ['confidence', model.confidence],
+    ['asOf', model.asOf]
+  ];
+  chips.forEach(function(c, i) {
+    var x = 84 + i * 304;
+    ctx.fillStyle = 'rgba(7,13,24,0.76)'; ctx.fillRect(x, 486, 280, 98);
+    text(c[0], x + 24, 526, 18, '#94a3b8', 800);
+    text(c[1], x + 24, 568, 26, '#f0f4fc', 900);
+  });
+  text('WHY IT MATTERS', 84, 660, 24, '#00d4ff', 900);
+  var yy = 710;
+  (model.cards || []).forEach(function(c, i) {
+    ctx.fillStyle = 'rgba(255,255,255,0.045)'; ctx.fillRect(84, yy - 36, 912, 138);
+    text((i + 1) + '. ' + c.k, 112, yy, 24, '#f8fafc', 900);
+    yy = wrap(c.v, 112, yy + 38, 820, 20, '#cbd5e1', 29) + 34;
+  });
+  text('NEXT ACTION', 84, 1110, 24, '#00e5a0', 900);
+  wrap(model.action, 84, 1156, 860, 24, '#f8fafc', 34);
+  text('Generated in-browser · Reference frameworks require live data cross-check', 84, 1286, 18, '#94a3b8', 700);
+  return true;
+}
+
+window._aioCreateVisualReport = function(pageId) {
+  pageId = pageId || (document.querySelector('.page.active') || {}).id || 'home';
+  pageId = String(pageId).replace(/^page-/, '');
+  var page = document.getElementById('page-' + pageId) || document.querySelector('.page.active');
+  if (!page) return false;
+  var old = page.querySelector('.aio-visual-report[data-report-page="' + pageId + '"]');
+  if (old) old.remove();
+  var html = '<section class="aio-visual-report" data-report-page="' + _aioDecisionEsc(pageId) + '">' +
+    '<div class="aio-visual-report-head"><div class="aio-visual-report-title">AI visual report card</div>' +
+    '<div class="apb-actions"><button class="apb-btn" data-action="_aioDownloadVisualReport" data-arg="' + _aioDecisionEsc(pageId) + '">PNG 다운로드</button>' +
+    '<button class="apb-btn secondary" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">AI에게 이 보고서 설명 요청</button></div></div>' +
+    '<canvas id="aio-visual-report-' + _aioDecisionEsc(pageId) + '" width="1080" height="1350" role="img" aria-label="AIO visual report"></canvas></section>';
+  var anchor = page.querySelector('.aio-research-bridge') || page.querySelector('.aio-decision-header');
+  if (anchor) anchor.insertAdjacentHTML('afterend', html);
+  else page.insertAdjacentHTML('afterbegin', html);
+  var canvas = document.getElementById('aio-visual-report-' + pageId);
+  _aioDrawVisualReportCanvas(canvas, _aioVisualReportModel(pageId));
+  try { canvas.scrollIntoView({ behavior:'smooth', block:'center' }); } catch(_) {}
+  if (typeof showToast === 'function') showToast('AI visual report card generated.', 2200);
+  return true;
+};
+
+window._aioDownloadVisualReport = function(pageId) {
+  pageId = String(pageId || 'home').replace(/^page-/, '');
+  var canvas = document.getElementById('aio-visual-report-' + pageId);
+  if (!canvas) { window._aioCreateVisualReport(pageId); canvas = document.getElementById('aio-visual-report-' + pageId); }
+  if (!canvas) return false;
+  try {
+    var a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'aio-report-' + pageId + '-' + new Date().toISOString().slice(0,10) + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    return true;
+  } catch(_) { return false; }
+};
+
+window._aioRenderPageDecisionHeader = function(pageId) {
+  var page = document.getElementById('page-' + pageId);
+  if (!page) return null;
+  var d = window._aioBuildPageDecision(pageId);
+  if (!d) return null;
+  var old = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
+  if (old) old.remove();
+  var cls = 'aio-source-' + String(d.sourceKind || 'SNAPSHOT').toLowerCase();
+  var html = ''
+    + '<section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(d.sourceKind) + '">'
+    + '  <div class="aio-decision-top">'
+    + '    <div><div class="aio-decision-kicker">' + _aioDecisionEsc(d.title) + '</div><div class="aio-decision-verdict">' + _aioDecisionEsc(d.decision) + '</div></div>'
+    + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '">sourceKind ' + _aioDecisionEsc(d.sourceKind) + '</span><span class="aio-confidence-badge">신뢰도 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
+    + '  </div>'
+    + '  <div class="aio-decision-grid">'
+    + '    <div class="aio-decision-card"><div class="aio-decision-label">왜</div><ol class="aio-decision-list"><li>' + _aioDecisionEsc(d.reasons[0]) + '</li><li>' + _aioDecisionEsc(d.reasons[1]) + '</li><li>' + _aioDecisionEsc(d.reasons[2]) + '</li></ol></div>'
+    + '    <div class="aio-decision-card"><div class="aio-decision-label">오늘 행동</div><div class="aio-decision-action">' + _aioDecisionEsc(d.action) + '</div></div>'
+    + '    <div class="aio-decision-card"><div class="aio-decision-label">데이터 기준시각</div><div class="aio-decision-action">' + _aioDecisionEsc(d.asOf) + '</div></div>'
+    + '  </div>'
+    + '  <div class="aio-decision-foot"><span>FOMC 6/17은 예정이 아니라 결과 확인/시장 반응 구간입니다.</span><button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 질문</button></div>'
+    + '</section>';
+  page.insertAdjacentHTML('afterbegin', html);
+  var header = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
+  try { window._aioRenderImportedResearchBridge(pageId); } catch(_) {}
+  return header;
+};
+
+window._aioRenderAllPageDecisionHeaders = function() {
+  var ids = ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+  ids.forEach(function(id) {
+    try { window._aioRenderPageDecisionHeader(id); } catch(_) {}
+  });
+};
+
+window._aioApplyEventFreshnessGate = function() {
+  try {
+    var fomc = window.AIO_EVENT_FRESHNESS_REGISTRY && window.AIO_EVENT_FRESHNESS_REGISTRY.fomc;
+    if (!fomc) return;
+    var cp2 = document.getElementById('cp2-detail');
+    if (cp2) {
+      cp2.setAttribute('data-source-kind', 'SNAPSHOT');
+      cp2.setAttribute('data-as-of', '2026-06-17');
+      cp2.textContent = 'Fed 3.50-3.75% · FOMC 6/17 결과 확인 구간 · 고용 둔화와 인플레 고착 중 어느 쪽을 더 반영하는지 금리/달러로 확인';
+    }
+    var fed = document.getElementById('macro-fed-meaning');
+    if (fed) {
+      fed.setAttribute('data-source-kind', 'SNAPSHOT');
+      fed.setAttribute('data-as-of', '2026-06-17');
+      fed.textContent = 'FOMC 결과: 6/17 이후 금리·달러 반응 확인';
+    }
+    document.querySelectorAll('[data-snap="fomc"]').forEach(function(el) {
+      el.textContent = '6/17 결과';
+      el.setAttribute('data-source-kind', 'SNAPSHOT');
+      el.setAttribute('data-as-of', '2026-06-17');
+      el.title = '6/17 FOMC는 예정이 아니라 결과 확인/시장 반응 구간입니다.';
+    });
+    document.querySelectorAll('[data-evidence-id*="fomc"], [data-evidence-id*="fed-rate"], [data-evidence-id*="kr-us-rate-calendar"]').forEach(function(el) {
+      if (!el) return;
+      el.setAttribute('data-source-kind', 'SNAPSHOT');
+      el.setAttribute('data-as-of', '2026-06-17');
+    });
+  } catch(_) {}
+};
+
+if (window._aioPageBus && typeof window._aioPageBus.register === 'function') {
+  window._aioPageBus.register('core-page-decision-v5070', 'aio:pageShown', function(e) {
+    var id = e && e.detail;
+    if (id) setTimeout(function() { window._aioRenderPageDecisionHeader(id); window._aioApplyEventFreshnessGate(); }, 40);
+  });
+  window._aioPageBus.register('core-page-decision-live-v5070', 'aio:liveQuotes', function() {
+    setTimeout(function() {
+      var active = document.querySelector('.page.active');
+      var id = active && active.id ? active.id.replace(/^page-/, '') : 'home';
+      window._aioRenderPageDecisionHeader(id);
+    }, 120);
+  });
+}
+
+if (document && document.addEventListener) {
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() { try { window._aioRenderAllPageDecisionHeaders(); window._aioApplyEventFreshnessGate(); } catch(_) {} }, 450);
+    setTimeout(function() { try { window._aioApplyEventFreshnessGate(); } catch(_) {} }, 1400);
+  });
+}
 
 window._aioSimplifyExplainLabels = function() {
   var labels = {
@@ -9171,26 +9975,26 @@ window.AIO.assertChatPriceFetchHealth = function() {
 // R79 신규 (지정학 시나리오 단일 등록)
 // ─────────────────────────────────────────────────────────────────
 window.AIO_GEOPOLITICAL_CONTEXT_REGISTRY = {
-  version: 'v49.31',
+  version: 'v50.73',
   defaultReviewDays: 14,
   scenarios: {
     'hormuz-strait': {
       name: '호르무즈 해협 긴장',
       region: 'middle-east',
       status: 'monitoring',
-      lastReviewed: '2026-06-04',
+      lastReviewed: '2026-06-18',
       marketImpact: 'oil-supply',
-      currentPriceSignal: 'WTI $93 / Brent $96 — US-Iran 군사 충돌 진행(6/4 완화 기대로 −3.1% 되돌림)',
-      note: '실제 봉쇄/재개 발생 시 status 변경 + WTI/Brent 정합 갱신 (v50.11 6/4 리뷰)'
+      currentPriceSignal: 'WTI/Brent 급등 프리미엄 완화 — 호르무즈 재개 기대 반영, 단 헤드라인 반전 리스크 모니터',
+      note: '6/18 리뷰: 기본 판단은 완화 모니터. 실제 봉쇄/재개·협상 서명·WTI 80달러 재돌파 시 즉시 갱신'
     },
     'iran-nuclear-deal': {
       name: '이란 핵협상',
       region: 'middle-east',
       status: 'monitoring',
-      lastReviewed: '2026-06-04',
+      lastReviewed: '2026-06-18',
       marketImpact: 'oil-risk-premium',
-      currentPriceSignal: 'Brent 위험 프리미엄 $5~10 추정',
-      note: '재협상 진전/결렬 이벤트 발생 시 갱신'
+      currentPriceSignal: '핵협상/긴장 완화 기대가 유가 리스크 프리미엄을 낮추는 중',
+      note: '재협상 진전/결렬, 제재 세부, 호르무즈 실제 통항 여부 확인'
     },
     'taiwan-strait': {
       name: '대만 해협 긴장',
@@ -9310,7 +10114,7 @@ window.AIO_STATIC_CONTENT_LIFECYCLE = {
     'briefing-week-may-4-10': { type: 'weekly-calendar', createdAt: '2026-05-10', archiveAfterDays: 7, replaceAfterDays: 14, source: 'Past reference calendar' },
     'briefing-week-jun-1-5':  { type: 'weekly-calendar', createdAt: '2026-05-31', archiveAfterDays: 7, replaceAfterDays: 14, source: 'Computex/GTC 주간 + AVGO/CRWD 실적 + NFP 6/5' },
     // v50.11: 현재 DOM 콘텐츠 lifecycle 등록 (orphan marker 해소 — briefing-current-jun-3-25 / jensen-computex-202606)
-    'briefing-current-jun-3-25': { type: 'weekly-calendar', createdAt: '2026-06-05', archiveAfterDays: 21, replaceAfterDays: 28, source: '6월 매크로 경로: NFP 6/5 → CPI 6/10 → FOMC 6/16-17 → PCE 6/25' },
+    'briefing-current-jun-3-25': { type: 'weekly-calendar', createdAt: '2026-06-05', archiveAfterDays: 21, replaceAfterDays: 28, source: '6월 매크로 경로: NFP 6/5 → CPI 6/10 → FOMC 6/17 결과 확인 → PCE 6/25' },
     'jensen-computex-202606': { type: 'interview', createdAt: '2026-06-01', archiveAfterDays: 30, replaceAfterDays: 45, source: 'NVIDIA Computex/GTC Taipei 2026' },
     'kr-export-2026-02':      { type: 'kr-macro-monthly', createdAt: '2026-03-01', archiveAfterDays: 45, replaceAfterDays: 60, source: '산업통상자원부 2월 수출' }
   },
@@ -10297,7 +11101,7 @@ window.AIO_SCENARIO_REGISTRY = {
   },
   // v49.99 5/31 업데이트: Computex 촉매(낙관↑) vs BofA 인플레 경고(비관↑)
   signalShortTerm: {
-    'optimistic':  { label: '낙관', probability: 0.375, probabilityRange: '35~40%', lastUpdated: '2026-06-09', source: '메모리 슈퍼사이클(CLSA/NH 목표가 상향) + 젠슨황 방한 한국 AI 인프라 동맹 + 6/5 셀오프 후 반등 재개', triggers: ['6/10 CPI 둔화(<3.7%)', 'FOMC 6/16-17 비둘기 점도표', '메모리 ASP 추가 상향', '중동 휴전 확정·유가 안정'] },
+    'optimistic':  { label: '낙관', probability: 0.375, probabilityRange: '35~40%', lastUpdated: '2026-06-09', source: '메모리 슈퍼사이클(CLSA/NH 목표가 상향) + 젠슨황 방한 한국 AI 인프라 동맹 + 6/5 셀오프 후 반등 재개', triggers: ['6/17 FOMC 이후 금리·달러 완화', '메모리 ASP 추가 상향', '중동 휴전 확정·유가 안정'] },
     'base':        { label: '기본', probability: 0.400, probabilityRange: '38~42%', lastUpdated: '2026-06-09', source: 'JPM — 6/5는 포지셔닝 청산(구조 훼손 아님), 메모리 강세 vs 금리 고착(골드만 인하 철회)·지정학 공존', triggers: ['6/10 CPI 인라인(~3.8%)', 'FOMC 동결·인하 신호 자제', 'VIX 17~22 박스', '메모리 강세 지속·밸류 부담'] },
     'pessimistic': { label: '비관', probability: 0.225, probabilityRange: '20~25%', lastUpdated: '2026-06-09', source: '5월 NFP 172K 서프라이즈→금리인하 후퇴·듀레이션 압박 + 중동 재고조(호르무즈)',  triggers: ['6/10 CPI 재가속(>4%)', '호르무즈 봉쇄·유가 급등', '추가 포지셔닝 청산', '2Y >4.3%·AI capex 소화'] }
   },
@@ -15529,7 +16333,7 @@ var AIO_EVENT_RISK_CONTEXT = {
   timeline: [
     { date: '2026-06-10', label: 'May CPI release', tone: 'risk', note: 'first inflation print after the May NFP 172K surprise; a hot CPI deepens the rate-cut withdrawal, a cool print revives the cut narrative.' },
     { date: '2026-06-12', label: 'Mideast / Hormuz shipping watch', tone: 'risk', note: 'oil +4-5% on Red Sea/Hormuz escalation feeds back into inflation and risk appetite; two-sided headline risk.' },
-    { date: '2026-06-17', label: 'FOMC decision + dot plot (6/16-17)', tone: 'risk', note: 'post-strong-jobs dots; Goldman already pulled 2026 cuts. A hawkish hold pressures duration and growth multiples.' },
+    { date: '2026-06-17', label: 'FOMC result review + dot plot (6/17)', tone: 'risk', note: 'post-meeting rate, dollar and 2Y/10Y reactions now matter more than treating the event as upcoming.' },
     { date: '2026-06-25', label: 'May PCE (Fed preferred gauge)', tone: 'risk', note: 'confirmation point for the CPI read; sticky core PCE caps the liquidity thesis and the memory-led melt-up.' }
   ],
   telegramPipeline: {
@@ -15863,7 +16667,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.68';
+const APP_VERSION = 'v50.73';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -16817,9 +17621,9 @@ const DATA_SNAPSHOT = {
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
   fedStatus:   '동결',                              // v45.6: 동적화 — Fed 금리 변경 시 이 값 갱신 (인하/인상/동결)
-  fomc:        '6/16-17',
-  fomcNext:    '6/16-17',                            // v48.70: 4/28-29 동결 완료 → 다음 FOMC 6/16-17 (SEP 회의)
-  fomcDotPlot: '3월 dot plot: 중앙값 -25bp / 7명 동결 / 7명 -25bp (6/17 SEP 갱신 예정). 단 5월 NFP 172K 서프라이즈로 골드만삭스는 2026 금리인하 전망 철회(텔레그램 6/5) — 시장 인하 기대 후퇴, 2Y 4.17%',  // v50.15: 골드만 인하 철회 반영
+  fomc:        '6/17 결과',
+  fomcNext:    '결과 확인',                            // v50.70: 6/17 FOMC 이후 예정 → 결과/시장 반응 구간으로 전환
+  fomcDotPlot: '2026-06-17 FOMC 이후 결과 확인 구간. 금리 경로·점도표·발언은 인플레 2% 복귀 의지를 강조하는 방향으로 해석되며, 다음 체크포인트는 6/25 PCE와 2Y/10Y·달러 반응.',  // v50.70: upcoming 문구 제거
   ecbRate:      2.15,  ecbStatus: '동결',
   bojRate:      1.00,   // v50.61: BOJ 6/16 overnight call rate 25bp hike to 1.00% (Telegram/Aether digest; live macro source overrides when available)
   boeRate:      3.75,   // v49.93: BOE 4/30 회의 8-1 동결 3.75% (기존 4.50 stale, 0.75%p — 중동 인플레로 추가 인하 보류)

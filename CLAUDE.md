@@ -3,8 +3,13 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v50.68**
+- 현재 버전: **v50.73**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v50.73 premium research board + visual report**: 사용자 제공 X/이미지 자료를 `public-data/user-research-digest.json` 자동 보강 계약에 편입. 1~5번 스크리너 이미지의 heatmap/table/metric/cockpit 구조를 공통 premium board로 반영하고, AI 채팅/페이지에서 현재 결과를 PNG형 visual report card로 생성·다운로드 가능하게 보강. T840 추가.
+- **v50.72 imported research bridge**: 사용자 제공 X 링크 6개와 UI/UX 참고 이미지 9개를 `REFERENCE` 자료 브리지로 구조화. home/macro/fxbond/technical/screener/ticker/fundamental/portfolio/themes/KR 페이지에 반영하고 AI 채팅 컨텍스트에도 주입하되, 라이브 가격/실적/뉴스처럼 확정 인용하지 않도록 sourceKind 계약을 유지. T839 추가.
+- **v50.71 잔여 심층 점검 보강**: 자동 API 온보딩 모달을 opt-in으로 전환, guide decision header 누락 보강, screener/ticker 전용 AI persona 추가, FOMC 과거 이벤트 정적 문구 제거, 주요 빈 상태 문구를 간결하게 정리. T838 추가.
+- **v50.70 페이지별 decision/sourceKind UX 개편**: 모든 주요 페이지 상단에 오늘 판단·근거 3개·오늘 행동·데이터 기준시각·sourceKind·신뢰도를 먼저 표시. FOMC 6/17은 upcoming이 아니라 결과 확인/시장 반응 구간으로 전환하고, screener/ticker 결과에서 바로 AI 질문 액션을 연결. 기업 분석 프레임워크는 17개 관점으로 통일. T837 추가.
+- **v50.69 매크로·브리핑 의사결정형 UX 개편**: 로컬 8877 실화면 점검에서 매크로 장문/장(章)형 설명과 브리핑 뉴스목록 중심 UX가 확인되어, 매크로를 FOMC/금리·이란/유가·달러/유동성·시장 톤 결론 카드로 전환. 브리핑은 AI 키가 없어도 시장 상황 요약과 오늘 행동을 뉴스 목록보다 먼저 표시. T836 추가.
 - **v50.68 데이터 최신화 + 라이브 UX 정리 배포본**: 2026-06-17 네트워크 허용 상태로 `fetch-data`와 `fetch-telegram-digest` 재실행. quotes 77/77, F&G 40, news 25, history 185d, screener 851/869, Telegram 7일 807건(3채널) 갱신. v50.67의 가이드/API 설정/브리핑/포트폴리오 문구 과밀도 정리 포함.
 - **v50.63 Telegram digest 자동 최신화 루프 보강**: `refresh-data.yml` 깨진 `run:` 배선을 복구하고 정기 작업에 `scripts/fetch-telegram-digest.mjs --out public-data/telegram-digest.json`를 추가. 앱 부팅 시 동적 digest를 읽어 `AIO_TELEGRAM_WEEKLY_DIGEST`, category registry, page map, DATA_SNAPSHOT digest freshness, Telegram pipeline audit에 반영. T831 추가.
 - **v50.62 Telegram 3채널 1주일 다이제스트 통합**: @aetherjapanresearch·@insidertracking·@bornlupin 공개 미러 796개 포스트를 수집해 HOME_WEEKLY_NEWS, `AIO_TELEGRAM_WEEKLY_DIGEST`, SCREENER_DB 메모 오버레이, MACRO/TECH 키워드, AI 채팅 컨텍스트에 반영. BOJ 1%·US-Iran/Hormuz·Anthropic Fable/Mythos export-control·NVDA EML/CW laser·CPO/NPO·800V HVDC/SOFC·MU/SK Hynix HBM4E·MLCC/WF6 테마 통합. `scripts/fetch-telegram-digest.mjs` 추가, T829 추가.
