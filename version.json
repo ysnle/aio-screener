@@ -1,5 +1,1 @@
-{
-  "version": "v50.74",
-  "built": "2026-06-18T12:00:00+09:00",
-  "note": "v50.74 structural fix: decision header reads live trading score (5-band), FOMC text sourced from AIO_EVENT_FRESHNESS_REGISTRY, footer conditional per page, route list synced to AIO_ALL_ROUTE_PAGE_IDS."
-}
+﻿{"version":"v50.75","built":"2026-06-18T14:00:00+09:00","note":"v50.75 home dashboard cleanup: remove Codex fake heatmap (AIO_IMPORTED_RESEARCH/premium-board/research-bridge), add real _aioRenderMarketHeatmap from SPX/VIX/F&G/TNX history, hide duplicate market-analysis and action-item cards."}

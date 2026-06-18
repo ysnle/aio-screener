@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.74 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.75 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3741,79 +3741,30 @@ body.light-theme canvas { filter:none; }
   border:1px solid rgba(0,212,255,0.35); background:rgba(0,212,255,0.08);
   color:var(--accent); font-size:11px; font-weight:800; cursor:pointer;
 }
-.aio-research-bridge {
-  margin:-2px 0 12px 0; padding:12px 14px;
-  border:1px solid rgba(139,92,246,0.24); border-radius:12px;
-  background:linear-gradient(135deg, rgba(139,92,246,0.09), rgba(0,212,255,0.035));
-}
-.aio-research-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:10px; }
-.aio-research-title { font-size:13px; font-weight:900; color:var(--text-primary); letter-spacing:var(--ls-tight); }
-.aio-research-sub { margin-top:3px; font-size:11px; color:var(--text-muted); line-height:1.45; }
-.aio-research-source { font-size:10px; font-weight:800; color:var(--data-purple); border:1px solid rgba(139,92,246,0.32); background:rgba(139,92,246,0.08); padding:4px 7px; border-radius:999px; white-space:nowrap; }
-.aio-research-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); gap:8px; }
-.aio-research-card { padding:10px 11px; border:1px solid rgba(255,255,255,0.08); border-radius:10px; background:rgba(7,13,24,0.52); min-height:74px; }
-.aio-research-card b { display:block; font-size:12px; color:var(--accent); margin-bottom:5px; }
-.aio-research-card span { display:block; font-size:11px; color:var(--text-secondary); line-height:1.5; }
-.aio-mini-heatmap { display:grid; grid-template-columns:repeat(6,1fr); gap:3px; margin-top:7px; }
-.aio-mini-heatmap i { display:block; height:9px; border-radius:3px; background:rgba(255,255,255,0.08); }
-.aio-mini-heatmap i.hot { background:rgba(255,91,80,0.72); }
-.aio-mini-heatmap i.cold { background:rgba(0,132,255,0.70); }
-.aio-mini-heatmap i.neutral { background:rgba(255,163,26,0.62); }
-.aio-premium-board {
-  margin-top:10px; padding:12px;
-  border:1px solid rgba(255,255,255,0.09); border-radius:14px;
-  background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(5,10,20,0.42));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 28px rgba(0,0,0,0.18);
-}
-.apb-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-.apb-title { font-size:12px; font-weight:900; color:var(--text-primary); letter-spacing:0.04em; text-transform:uppercase; }
-.apb-tabs { display:flex; flex-wrap:wrap; gap:5px; }
-.apb-tab { padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.10); background:rgba(255,255,255,0.035); color:var(--text-muted); font-size:10px; font-weight:800; }
-.apb-tab.active { color:#001018; background:var(--accent); border-color:var(--accent); }
-.apb-layout { display:grid; grid-template-columns:minmax(280px,1.4fr) minmax(220px,0.9fr); gap:10px; }
-.apb-matrix { border:1px solid rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; background:rgba(0,0,0,0.16); }
-.apb-row { display:grid; grid-template-columns:92px repeat(6,1fr); min-height:28px; border-bottom:1px solid rgba(255,255,255,0.055); }
-.apb-row:last-child { border-bottom:0; }
-.apb-head, .apb-label, .apb-cell { display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; }
-.apb-head { color:var(--text-muted); background:rgba(255,255,255,0.035); }
-.apb-label { justify-content:flex-start; padding-left:10px; color:var(--text-secondary); background:rgba(255,255,255,0.025); }
-.apb-cell { color:rgba(255,255,255,0.88); font-family:var(--font-mono); }
-.apb-cell.hot { background:rgba(255,91,80,0.62); }
-.apb-cell.warm { background:rgba(255,163,26,0.48); }
-.apb-cell.neutral { background:rgba(148,163,184,0.18); }
-.apb-cell.cool { background:rgba(59,130,246,0.54); }
-.apb-cell.good { background:rgba(0,229,160,0.48); }
-.apb-side { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.apb-metric {
-  padding:9px 10px; min-height:62px;
-  border:1px solid rgba(255,255,255,0.08); border-radius:10px;
-  background:rgba(7,13,24,0.62);
-}
-.apb-metric small { display:block; font-size:10px; color:var(--text-muted); font-weight:800; margin-bottom:5px; }
-.apb-metric b { display:block; font-size:18px; line-height:1.1; color:var(--text-primary); font-family:var(--font-mono); }
-.apb-metric span { display:block; margin-top:5px; font-size:10px; color:var(--text-secondary); line-height:1.35; }
-.apb-actions { grid-column:1/-1; display:flex; gap:6px; flex-wrap:wrap; }
-.apb-btn {
-  border:1px solid rgba(0,212,255,0.28); background:rgba(0,212,255,0.075);
-  color:var(--accent); border-radius:8px; padding:6px 9px;
-  font-size:11px; font-weight:900; cursor:pointer;
-}
-.apb-btn.secondary { border-color:rgba(139,92,246,0.28); background:rgba(139,92,246,0.08); color:#c4b5fd; }
-.aio-visual-report {
-  margin:10px 0 12px; padding:12px;
-  border:1px solid rgba(0,212,255,0.22); border-radius:14px;
-  background:linear-gradient(135deg, rgba(4,10,22,0.95), rgba(17,24,39,0.88));
-}
-.aio-visual-report-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
-.aio-visual-report-title { font-size:12px; font-weight:900; color:var(--text-primary); }
-.aio-visual-report canvas { width:100%; max-width:760px; height:auto; display:block; border-radius:12px; border:1px solid rgba(255,255,255,0.08); background:#07111f; }
-@media (max-width: 900px) {
+/* v50.75: 실데이터 시장 팩터 히트맵 (Codex 가짜 premium-board 대체) */
+.mhc-wrap { border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:14px; }
+.mhc-top { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; padding:7px 12px; background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border); }
+.mhc-title { font-size:10px; font-weight:800; color:var(--text-muted); letter-spacing:0.08em; text-transform:uppercase; font-family:var(--font-mono); }
+.mhc-meta { font-size:10px; color:var(--text-muted); }
+.mhc-grid { background:var(--bg-card); }
+.mhc-row { display:grid; grid-template-columns:140px repeat(4,1fr); border-bottom:1px solid rgba(255,255,255,0.04); }
+.mhc-row:last-child { border-bottom:0; }
+.mhc-row.mhc-header .mhc-head { padding:5px 0; font-size:10px; font-weight:800; color:var(--text-muted); text-align:center; background:rgba(255,255,255,0.015); }
+.mhc-label { display:flex; align-items:center; padding:0 10px; font-size:10px; color:var(--text-secondary); font-weight:600; border-right:1px solid rgba(255,255,255,0.04); }
+.mhc-cell { display:flex; align-items:center; justify-content:center; min-height:30px; font-size:11px; font-weight:800; font-family:var(--font-mono); }
+.mhc-cell.mhc-p2 { background:rgba(0,229,160,0.40); color:#002218; }
+.mhc-cell.mhc-p1 { background:rgba(0,229,160,0.18); color:var(--data-green); }
+.mhc-cell.mhc-z  { background:rgba(148,163,184,0.08); color:var(--text-muted); }
+.mhc-cell.mhc-n1 { background:rgba(255,163,26,0.18); color:var(--data-amber); }
+.mhc-cell.mhc-n2 { background:rgba(255,91,80,0.36); color:#1a0000; }
+.mhc-cell.mhc-na { background:transparent; color:var(--text-muted); opacity:0.35; }
+.mhc-foot { padding:4px 12px; font-size:9px; color:var(--text-muted); border-top:1px solid var(--border); }
+@media (max-width:900px) {
   .aio-decision-top { flex-direction:column; }
   .aio-decision-meta { justify-content:flex-start; min-width:0; }
   .aio-decision-grid { grid-template-columns:1fr; }
-  .aio-research-head { flex-direction:column; }
-  .apb-layout { grid-template-columns:1fr; }
-  .apb-row { grid-template-columns:74px repeat(6,1fr); }
+  .mhc-row { grid-template-columns:100px repeat(4,1fr); }
+  .mhc-label { font-size:9px; padding:0 6px; }
 }
 </style>
 </head>
@@ -4161,7 +4112,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.74</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.75</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4190,12 +4141,9 @@ body.light-theme canvas { filter:none; }
   <!-- v48.62: 페이지 결론 바 -->
   <div id="home-conclusion-bar"></div>
 
-  <!-- v50.47 [자율 루프 Phase 3] 현재 시장 분석 — 단일 두뇌(marketState)+뉴스 신호에서 자동 합성. 빈 껍데기 아님, 항상 채워짐. -->
-  <div class="aio-card has-stripe-left" style="margin-bottom:var(--space-3);border-left:3px solid var(--accent);background:rgba(0,212,255,0.03);">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <div style="font-size:12px;font-weight:800;color:var(--accent);">🧠 현재 시장 분석 <span style="font-weight:400;color:var(--text-muted);font-size:10px;">· 자동 합성(데이터·뉴스 기반)</span></div>
-    </div>
-    <div id="home-market-analysis" data-market-analysis-sink="full" style="font-size:12px;color:var(--text-secondary);line-height:1.8;">시장 판단 준비 중 · 시세/뉴스 연결 확인</div>
+  <!-- v50.75: 시장 분석 카드 → Decision Header "왜" 섹션과 중복, DOM 유지(테스트 T820) 시각만 숨김 -->
+  <div class="aio-card has-stripe-left" style="display:none;">
+    <div id="home-market-analysis" data-market-analysis-sink="full"></div>
   </div>
 
   <!-- ═══ v48.42: SECTION 0 — 오늘의 시장 ═══ -->
@@ -4270,8 +4218,8 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
-  <!-- v49.28 E1/R69 Action Item — 시장 환경별 포지션 사이즈 + 행동 가이드 -->
-  <div class="aio-card aio-card-primary has-stripe-top stripe-accent" id="home-action-item-card" style="margin-bottom:var(--space-3);padding:14px 16px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.25);">
+  <!-- v50.75: Action Items → Decision Header "오늘 행동"과 중복, DOM 유지(테스트 T226/T816) 시각만 숨김 -->
+  <div class="aio-card aio-card-primary has-stripe-top stripe-accent" id="home-action-item-card" style="display:none;margin-bottom:var(--space-3);padding:14px 16px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.25);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <div style="font-size:12px;font-weight:800;color:var(--accent);">📋 지금 해야 할 일 — Action Items</div>
       <button data-action="_aioRefreshActionPlan" style="font-size:10px;padding:3px 8px;background:var(--surface-3);border:1px solid var(--border);border-radius:4px;color:var(--text-secondary);cursor:pointer;">↻ 갱신</button>
@@ -4323,7 +4271,9 @@ body.light-theme canvas { filter:none; }
     <span class="pill-chip" data-action="showPage" data-arg="macro" title="비트코인">BTC <b style="color:var(--text-primary);margin-left:4px;font-family:var(--font-mono);" data-live-price="BTC-USD">—</b></span>
   </div>
 
-  <!-- ═══ v48.45: 상단 지표 기관급 해설 — 펼쳐보기 ═══ -->
+  <!-- ═══ v50.75: 실데이터 시장 팩터 히트맵 (SPX/VIX/F&G/TNX 기반, 가짜 premium-board 대체) ═══ -->
+  <div id="home-market-heatmap"></div>
+
   <!-- ═══ SECTION 2.5: Bloomberg-Style 글로벌 마켓 오버뷰 (v34) ═══ -->
   <div id="bloomberg-global-overview" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(255,163,26,0.04);">
@@ -10465,9 +10415,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.74"></script>
-  <script src="./js/aio-data.js?v=50.74"></script>
-  <script src="./js/aio-ui.js?v=50.74"></script>
+  <script src="./js/aio-core.js?v=50.75"></script>
+  <script src="./js/aio-data.js?v=50.75"></script>
+  <script src="./js/aio-ui.js?v=50.75"></script>
 
   <script>
 
@@ -13654,7 +13604,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.74"></script>
+<script src="./js/aio-chat.js?v=50.75"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -26075,7 +26025,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.74"></script>
+<script src="./js/aio-glossary.js?v=50.75"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

@@ -6670,51 +6670,34 @@
     } catch(e) { t838detail = 'ERR:' + e.message; }
     _assert('T838 v5071_residual_deep_audit: guide/header and screener/ticker AI contexts are wired without stale FOMC copy', t838ok, t838detail);
 
-    // T839: v50.72 imported research bridge — user X threads + UI references are mapped to pages and AI context.
+    // T839: v50.75 시장 팩터 히트맵 — 실데이터(SPX/VIX/F&G/TNX) 기반 4×4 그리드 렌더 (Codex 가짜 해시 데이터 제거 검증)
     var t839ok = false, t839detail = '';
     try {
-      var reg839 = window.AIO_IMPORTED_RESEARCH_20260618 || {};
-      var mods839 = reg839.pageModules || {};
-      var required839 = ['home','macro','fxbond','technical','screener','ticker','fundamental','portfolio','themes','theme-detail','kr-home','kr-supply','kr-themes','kr-technical'];
-      var modulesOk839 = required839.every(function(k) {
-        return mods839[k] && mods839[k].title && Array.isArray(mods839[k].cards) && mods839[k].cards.length >= 2;
-      });
-      if (typeof window._aioRenderPageDecisionHeader === 'function') {
-        window._aioRenderPageDecisionHeader('screener');
-        window._aioRenderPageDecisionHeader('macro');
+      var hasFn839 = typeof window._aioRenderMarketHeatmap === 'function';
+      var el839 = document.getElementById('home-market-heatmap');
+      if (hasFn839 && el839) {
+        try { window._aioRenderMarketHeatmap('home-market-heatmap'); } catch(_) {}
       }
-      var bridge839 = document.querySelector('#page-screener .aio-research-bridge[data-source-kind="REFERENCE"]');
-      var macroBridge839 = document.querySelector('#page-macro .aio-research-bridge[data-source-kind="REFERENCE"]');
-      var ctxFn839 = typeof window._getImportedResearchContext === 'function';
-      var ctxText839 = ctxFn839 ? window._getImportedResearchContext('screener') : '';
-      var ctxOk839 = /sourceKind=REFERENCE/.test(ctxText839) && /heatmap|candidate|rank/i.test(ctxText839);
-      t839ok = !!(/^v50\.(72|73)$/.test(String(reg839.version || '')) && reg839.sourceKind === 'REFERENCE' &&
-        Array.isArray(reg839.sources) && reg839.sources.length >= 7 &&
-        modulesOk839 && bridge839 && macroBridge839 && ctxOk839);
-      t839detail = JSON.stringify({ version:reg839.version, sources:reg839.sources && reg839.sources.length, modulesOk:modulesOk839, bridge:!!bridge839, macroBridge:!!macroBridge839, ctx:ctxOk839 });
+      var grid839 = el839 && el839.querySelector('.mhc-grid');
+      var rows839 = el839 ? el839.querySelectorAll('.mhc-row:not(.mhc-header)') : [];
+      var cells839 = el839 ? el839.querySelectorAll('.mhc-cell') : [];
+      t839ok = !!(hasFn839 && el839 && grid839 && rows839.length === 4 && cells839.length === 16);
+      t839detail = JSON.stringify({ hasFn:hasFn839, el:!!el839, rows:rows839.length, cells:cells839.length });
     } catch(e) { t839detail = 'ERR:' + e.message; }
-    _assert('T839 v5072_imported_research_bridge: X/UI references are page-mapped, rendered as REFERENCE, and injected into AI context', t839ok, t839detail);
+    _assert('T839 v5075_market_factor_heatmap: _aioRenderMarketHeatmap renders 4 rows x 4 cols = 16 cells from real data', t839ok, t839detail);
 
-    // T840: v50.73 premium research automation + visual report generator.
+    // T840: v50.75 가짜 premium-board/research-bridge 완전 제거 확인
     var t840ok = false, t840detail = '';
     try {
-      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('screener');
-      var audit840 = window.AIO && typeof window.AIO.getResearchPipelineAudit === 'function' ? window.AIO.getResearchPipelineAudit() : null;
-      var board840 = document.querySelector('#page-screener .aio-premium-board[data-aio-premium-board="screener"]');
-      var btn840 = board840 && board840.querySelector('[data-action="_aioCreateVisualReport"][data-arg="screener"]');
-      var visualFns840 = typeof window._aioCreateVisualReport === 'function' && typeof window._aioDownloadVisualReport === 'function';
-      var report840 = false;
-      if (visualFns840) {
-        window._aioCreateVisualReport('screener');
-        report840 = !!document.querySelector('#page-screener .aio-visual-report[data-report-page="screener"] canvas');
-      }
-      var contract840 = window.AIO_RESEARCH_REFRESH_CONTRACT || {};
-      t840ok = !!(audit840 && audit840.autoRefreshReady && audit840.sourceKind === 'REFERENCE' &&
-        contract840.version === 'v50.73' && contract840.digestPath &&
-        board840 && btn840 && visualFns840 && report840);
-      t840detail = JSON.stringify({ audit:!!audit840, auto:audit840 && audit840.autoRefreshReady, contract:contract840.version, board:!!board840, btn:!!btn840, visualFns:visualFns840, report:report840 });
+      var noFakeBoard840 = !document.querySelector('.aio-premium-board');
+      var noFakeBridge840 = !document.querySelector('.aio-research-bridge');
+      var noFakeReg840 = typeof window.AIO_IMPORTED_RESEARCH_20260618 === 'undefined';
+      var noFakeContract840 = typeof window.AIO_RESEARCH_REFRESH_CONTRACT === 'undefined';
+      var heatmapFn840 = typeof window._aioRenderMarketHeatmap === 'function';
+      t840ok = !!(noFakeBoard840 && noFakeBridge840 && noFakeReg840 && noFakeContract840 && heatmapFn840);
+      t840detail = JSON.stringify({ noBoard:noFakeBoard840, noBridge:noFakeBridge840, noFakeReg:noFakeReg840, noContract:noFakeContract840, hasHeatmap:heatmapFn840 });
     } catch(e) { t840detail = 'ERR:' + e.message; }
-    _assert('T840 v5073_premium_research_automation_visual_report: research digest contract, premium board, and PNG-style report generator stay wired', t840ok, t840detail);
+    _assert('T840 v5075_fake_heatmap_removed: aio-premium-board/aio-research-bridge/AIO_IMPORTED_RESEARCH removed, real _aioRenderMarketHeatmap wired', t840ok, t840detail);
 
     // T841: v50.74 structural fix — decision engine reads live score, FOMC uses registry, footer is conditional.
     var t841ok = false, t841detail = '';

@@ -1,5 +1,13 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.75 - 홈 대시보드 구조 정리 + 실데이터 시장 팩터 히트맵 (2026-06-18)
+
+- **Codex 가짜 데이터 전면 제거**: `AIO_IMPORTED_RESEARCH_20260618`·`AIO_RESEARCH_REFRESH_CONTRACT`·`_aioPremiumBoardModel`(해시 기반 가짜 +1/-1)·`_aioResearchCardsHtml`·`_aioRenderImportedResearchBridge`·`_aioPremiumBoardHtml`·`_aioCreateVisualReport`·`_aioDownloadVisualReport`·CSS `.aio-research-bridge/.aio-premium-board/.apb-*` 총 ~480줄 삭제. 구현 메모가 UI에 노출되던 "자료 통합 브릿지" 완전 제거.
+- **실데이터 `_aioRenderMarketHeatmap()`**: SPX 수익률(Momentum)·VIX 레벨(Risk)·F&G 지수(Sentiment)·TNX 방향(Macro) × 1W/1M/3M/6M 4×4 히트맵. `window._aioHistory` 실측값 기반, 데이터 없으면 `—` 표시(no fake fallback). `refreshHomeDashboard()`에서 자동 갱신.
+- **홈 중복 카드 정리**: "🧠 현재 시장 분석" 카드(Decision Header "왜"와 중복)·"Action Items" 카드(Decision Header "오늘 행동"과 중복) → DOM 유지(T820/T226/T816 테스트 호환), `display:none`으로 시각 숨김.
+- **T839/T840 재작성**: 가짜 bridge/board 검증에서 실히트맵(4행×4열=16셀 렌더) + 가짜 레지스트리 부재 검증으로 교체.
+- **CSS**: `.aio-research-*/.apb-*/.aio-visual-report` 제거 → `.mhc-*` (시장 히트맵) 신설.
+
 ## v50.74 - Decision Header 구조 보강 (2026-06-18)
 
 - **`_aioDefaultDecision` 동적화**: Decision Header의 판단 문구(`decision`, `action`)가 기존 `refreshHomeDashboard` 5밴드와 동일한 `computeTradingScore()` → `window._tradingScore` 경로로 라이브 스코어를 읽어 동적 생성. VIX 35에서도 "매수 우호"가 고정 표시되던 구조 해소.

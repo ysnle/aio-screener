@@ -13952,6 +13952,8 @@ function refreshHomeDashboard() {
     //   이전엔 동일 ACTION_RULES 로직이 여기 + aio-core.js _aioRefreshActionPlan 두 곳에 중복. 한쪽만 고쳐지는 버그 클래스 제거.
     //   _aioRefreshActionPlan은 AIO.marketState.actionPlan(단일 두뇌) 우선 + 폴백 내장. Action Item 실패해도 home 렌더 차단 X.
     try { if (typeof window._aioRefreshActionPlan === 'function') window._aioRefreshActionPlan(); } catch(actErr) {}
+    // v50.75: 실데이터 시장 팩터 히트맵 갱신
+    try { if (typeof window._aioRenderMarketHeatmap === 'function') window._aioRenderMarketHeatmap('home-market-heatmap'); } catch(_) {}
 
     // v34.5: 홈 상단 리스크 뱃지 동적 업데이트
     var riskBadge = document.getElementById('home-risk-regime-badge');

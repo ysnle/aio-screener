@@ -1,11 +1,11 @@
-// AIO Screener Service Worker — offline-first v48.27 (P3-4 1단계)
+﻿// AIO Screener Service Worker — offline-first v48.27 (P3-4 1단계)
 // 전략: shell (index.html/version.json/js)은 Network-First, API는 Network-First + 캐시 폴백
 // 제약: GitHub Pages HTTPS + 정적 호스팅 (POST 캐싱 불가, CORS 프록시는 제3자 도메인)
 // v48.27 (QA-3): SW_VERSION을 APP_VERSION과 동기화 — activate 시 신규 캐시로 전환 (R1 7번째 동기화 지점)
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v50.74';
+const SW_VERSION = 'v50.75';
 const SW_BUILD = '2026-06-18T12:00:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
