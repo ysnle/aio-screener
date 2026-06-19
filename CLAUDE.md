@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v50.82**
+- 현재 버전: **v50.83**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v50.83 Phase 3: AI 채팅 자동 시각화**: `window._aioChatAutoVis(q, response, tickers)` 추가. AI 응답 완료 후 질문·응답 텍스트 정규식 스캔 → 가장 관련 높은 다이어그램(score-breakdown/yield-curve/sentiment-gauge/economic-cycle/market-regime/factor-backtest/factor-radar/price-position) 1개 자동 주입. `aio-chat.js` 후속질문 블록 직후 훅, 전체 try/catch 격리.
 - **v50.82 Phase 2: 10개 페이지 SVG 다이어그램 시각화 통합**: CSS `.aio-vis-panel` 그리드 + 10개 페이지에 `<div id="vis-{page}">` 플레이스홀더. `js/aio-ui.js`에 `_aioRenderPageDiagram(pid)` IIFE 추가 — `aio:pageShown` 훅으로 페이지 진입 시 자동 렌더. home(score+regime)·signal(score)·breadth(regime)·sentiment(gauge)·briefing(pipeline+cycle)·technical(price)·macro(cycle+yield)·fxbond(yield)·screener(backtest). fundamental은 `window._aioRenderFundamentalRadar(ticker,row)` 티커 검색 후 동적 렌더.
 - **v50.81 _aioDiagram 10-type SVG 다이어그램 엔진 (Phase 1)**: `js/aio-ui.js` 끝에 `window._aioDiagram` IIFE 추가. 외부 라이브러리 없이 JS→SVG 문자열 생성, `render(type,el,data)` + `getSvg(type,data)` API. 10 타입: score-breakdown·market-regime·factor-radar·pipeline-status·economic-cycle·price-position·sector-bubble·yield-curve·sentiment-gauge·factor-backtest.
 - **v50.80 자가 운영 구조 근본 보강**: 서버 FRED 미설정 시 클라이언트 `aio_fred_key` 자동 브릿지(`_aioLoadServerData` step 2-B). `fredHasKey`/`fredFetchOk` 세분화(키 미등록 vs API 실패 구분). `data-watchdog.yml`에 F&G/FRED/screener age 경보 추가. `refresh-data.yml` job summary(KST 시각·심볼·FRED·LLM 상태 테이블).

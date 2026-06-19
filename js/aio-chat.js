@@ -6155,6 +6155,25 @@ async function chatSend(ctxId) {
             aiBubble.parentNode.appendChild(_fuqDiv);
           }
         } catch(_fuqErr) { /* 후속 질문 실패해도 응답 렌더 차단 X */ }
+
+        // v50.82 Phase 3: AI 채팅 자동 시각화 — 토픽 감지 → SVG 다이어그램 주입
+        try {
+          if (typeof window._aioChatAutoVis === 'function' && typeof window._aioDiagram !== 'undefined'
+              && aiBubble && aiBubble.parentNode) {
+            var _vis3 = window._aioChatAutoVis(q, visible, detectedTickers);
+            if (_vis3) {
+              var _vis3Svg = window._aioDiagram.getSvg(_vis3.type, _vis3.data);
+              if (_vis3Svg) {
+                var _vis3Div = document.createElement('div');
+                _vis3Div.className = 'aio-chat-vis';
+                _vis3Div.style.cssText = 'margin:8px 0 4px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;overflow:hidden;';
+                _vis3Div.innerHTML = '<div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">' +
+                  escHtml(_vis3.label) + ' <span style="font-weight:400;opacity:.55;">· 자동 시각화</span></div>' + _vis3Svg;
+                aiBubble.parentNode.appendChild(_vis3Div);
+              }
+            }
+          }
+        } catch(_vis3Err) {}
       }
 
       // v36.2: 웹검색 출처 링크 추가

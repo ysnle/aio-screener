@@ -3823,4 +3823,64 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
   };
 
   window._aioRenderPageDiagram = _aioRenderPageDiagram;
+
+  // ── Phase 3: AI 채팅 자동 시각화 ─────────────────────────────
+  // 토픽 감지(q + response text) → 가장 관련 높은 다이어그램 반환 {type, data, label}
+  function _findRow(sym) {
+    if (typeof SCREENER_DB === 'undefined') return null;
+    for (var i = 0; i < SCREENER_DB.length; i++) {
+      if (SCREENER_DB[i].sym === sym) return SCREENER_DB[i];
+    }
+    return null;
+  }
+
+  window._aioChatAutoVis = function (question, responseText, tickers) {
+    try {
+      var q = ((question    || '') + ' ' + (responseText || '')).toLowerCase();
+      // 우선순위 순으로 가장 명확한 매치만 반환 (과잉 삽입 방지)
+      if (/매매 점수|거래 점수|trading score|점수 분해/.test(q)) {
+        return { type: 'score-breakdown', data: _buildScore(),    label: '매매 점수 분해' };
+      }
+      if (/수익률 곡선|yield curve|장단기 금리|금리 역전|inverted yield|tyx/.test(q)) {
+        return { type: 'yield-curve',     data: _buildYield(),    label: '수익률 곡선' };
+      }
+      if (/fear.*greed|공포.*탐욕|탐욕.*공포|심리 게이지|sentiment gauge|심리 지수/.test(q)) {
+        return { type: 'sentiment-gauge', data: _buildSentiment(),label: '시장 심리 게이지' };
+      }
+      if (/경기 사이클|business cycle|침체 국면|recessio|확장 국면|후기 사이클|초기 확장/.test(q)) {
+        return { type: 'economic-cycle',  data: _buildEcon(),     label: '경기 사이클' };
+      }
+      if (/시장 국면|market regime|레짐 포지셔닝|bull.*bear.*사분면/.test(q)) {
+        return { type: 'market-regime',   data: _buildRegime(),   label: '시장 국면 레짐' };
+      }
+      if (/팩터 백테스트|factor backtest|정보계수|ic.*모멘텀|spearman/.test(q)) {
+        return { type: 'factor-backtest', data: _buildBacktest(), label: '팩터 백테스트 IC' };
+      }
+      if (tickers && tickers.length > 0 && /팩터 레이더|factor radar|퀀트 랭크|quantrank|rsi.*팩터|팩터.*분석/.test(q)) {
+        var row = _findRow(tickers[0]);
+        if (row) {
+          return {
+            type: 'factor-radar',
+            label: tickers[0] + ' 팩터 레이더',
+            data: {
+              sym: tickers[0],
+              rank: row.quantRank != null ? row.quantRank : null,
+              factors: {
+                momentum: _cl(row.momentum || 50, 0, 100),
+                trend:    _cl(row.trend    || 50, 0, 100),
+                lowvol:   _cl(100 - (row.lowvol || 50), 0, 100),
+                rsi:      _cl(row.rsi      || 50, 0, 100),
+                quality:  _cl(row.quality  || 50, 0, 100),
+                value:    _cl(row.value    || 50, 0, 100),
+              },
+            },
+          };
+        }
+      }
+      if (/200일선|50일선|spy.*sma|sma.*spy|price position|가격 포지션|지지.*저항/.test(q)) {
+        return { type: 'price-position',  data: _buildPrice(),    label: 'SPY 가격 포지션' };
+      }
+    } catch (e) {}
+    return null;
+  };
 })();

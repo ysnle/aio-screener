@@ -1,5 +1,14 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.83 - Phase 3: AI 채팅 자동 시각화 (2026-06-19)
+
+- **`window._aioChatAutoVis(q, response, tickers)`** (`js/aio-ui.js` Phase 2 IIFE 내 추가): 질문·응답 텍스트를 정규식으로 스캔해 가장 관련 높은 다이어그램 타입 반환
+  - 매매 점수 → `score-breakdown`, 수익률 곡선 → `yield-curve`, 심리 게이지 → `sentiment-gauge`
+  - 경기 사이클 → `economic-cycle`, 시장 국면 → `market-regime`, 팩터 백테스트 → `factor-backtest`
+  - 티커 + 팩터 키워드 → `factor-radar` (SCREENER_DB 조회), 가격/이평선 → `price-position`
+- **`js/aio-chat.js` 주입 훅** (후속 질문 블록 직후): `_aioChatAutoVis` 호출 → 매치 시 `aiBubble.parentNode.appendChild()` 로 `aio-chat-vis` div 자동 삽입
+- 오버 인젝션 방지: 가장 명확한 단일 매치만 반환(최대 1개 다이어그램/응답), 전체 try/catch 격리
+
 ## v50.82 - Phase 2: 10개 페이지 SVG 다이어그램 시각화 통합 (2026-06-19)
 
 - **CSS**: `.aio-vis-panel` 그리드 레이아웃 + `.aio-vis-card` 카드 래퍼 추가 (index.html 2733 이후)
