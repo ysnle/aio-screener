@@ -3143,4 +3143,463 @@ window.renderCandleRiskBadge = renderCandleRiskBadge;
 window.renderDataQualityBadge = renderDataQualityBadge;
 window.renderNewsImpactBadge = renderNewsImpactBadge;
 window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
+
+// ──────────────────────────────────────────────────────────────────────────────
+// v50.81 _aioDiagram — 10-type 인라인 SVG 다이어그램 엔진
+// 외부 라이브러리 불필요. JS → SVG 문자열 생성 → innerHTML 주입.
+// API: window._aioDiagram.render(type, el, data) / .getSvg(type, data)
+// 용도: 10개 페이지 시각 패널(Phase2) + AI 채팅 자동 시각화(Phase3)
+// ──────────────────────────────────────────────────────────────────────────────
+window._aioDiagram = (function () {
+  var C = {
+    green:  '#50c87a', amber:  '#ffb43c', red:    '#ff5b50',
+    cyan:   '#00d4ff', blue:   '#4ca0ff', muted:  '#5a7080',
+    text:   '#dce6f0', bg:     '#0d0f14', surface:'#131820', border: '#1e2736',
+  };
+  function _esc(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function _n(v, d) { return (typeof v === 'number' && isFinite(v)) ? v.toFixed(d || 0) : '—'; }
+  function _cl(v, lo, hi) { return Math.max(lo, Math.min(hi, v || 0)); }
+  function _pctCol(v) { return v > 0 ? C.green : v < 0 ? C.red : C.muted; }
+  function _scoreCol(s) { return s >= 75 ? C.green : s >= 60 ? C.cyan : s >= 45 ? C.amber : C.red; }
+  function _alphaRgb(hex, a) {
+    // Convert #rrggbb → rgba(r,g,b,a)
+    var r = parseInt(hex.slice(1, 3), 16),
+        g = parseInt(hex.slice(3, 5), 16),
+        b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  }
+  function _svg(w, h, body) {
+    return '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg"' +
+      ' style="width:100%;max-width:' + w + 'px;display:block;font-family:\'JetBrains Mono\',monospace"' +
+      ' font-size="10">' + body + '</svg>';
+  }
+  function _r(x, y, w, h, fill, rx, stroke, sw) {
+    return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '"' +
+      (rx ? ' rx="' + rx + '"' : '') + ' fill="' + fill + '"' +
+      (stroke ? ' stroke="' + stroke + '" stroke-width="' + (sw || 1) + '"' : '') + '/>';
+  }
+  function _t(x, y, s, fill, fs, fw, anchor) {
+    return '<text x="' + x + '" y="' + y + '" fill="' + fill + '" font-size="' + (fs || 10) + '"' +
+      (fw ? ' font-weight="' + fw + '"' : '') + (anchor ? ' text-anchor="' + anchor + '"' : '') +
+      '>' + _esc(s) + '</text>';
+  }
+  function _l(x1, y1, x2, y2, stroke, sw) {
+    return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 +
+      '" stroke="' + stroke + '" stroke-width="' + (sw || 1) + '"/>';
+  }
+  function _o(cx, cy, r, fill, stroke, sw) {
+    return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + (fill || 'none') + '"' +
+      (stroke ? ' stroke="' + stroke + '" stroke-width="' + (sw || 1) + '"' : '') + '/>';
+  }
+
+  // ── 1. score-breakdown: 거래 점수 분해 플로우 ─────────────────
+  function _scoreBreakdown(d) {
+    var total = _cl(d.total || 0, 0, 100);
+    var comps = d.components || [
+      { label: 'VIX 레짐',   value: d.vixScore || 0,  max: 20 },
+      { label: 'SPX 추세',   value: d.spxScore || 0,  max: 20 },
+      { label: '시장 폭',    value: d.breadth  || 0,  max: 20 },
+      { label: 'F&G 심리',  value: d.fg       || 0,  max: 20 },
+      { label: 'M7 모멘텀', value: d.m7       || 0,  max: 20 },
+    ];
+    var col = _scoreCol(total);
+    var W = 460, H = 200, out = '';
+    out += _r(0, 0, W, H, C.bg, 8, C.border);
+    out += _t(14, 20, '거래 점수 분해', C.text, 10, 700);
+    var cx = 390, cy = 100, r = 46;
+    out += _o(cx, cy, r, _alphaRgb(C.bg, 0.6), col, 2.5);
+    out += _t(cx, cy - 3, _n(total), col, 26, 900, 'middle');
+    out += _t(cx, cy + 14, '/ 100', C.muted, 9, 400, 'middle');
+    var band = total >= 75 ? 'SEPA Zone' : total >= 60 ? 'Buy Ready' : total >= 45 ? 'Neutral' : total >= 30 ? '주의' : 'Avoid';
+    out += _r(cx - 32, cy + 22, 64, 15, _alphaRgb(col, 0.14), 4, col, 1);
+    out += _t(cx, cy + 33, band, col, 8, 700, 'middle');
+    var y0 = 34;
+    comps.forEach(function (c, i) {
+      var y = y0 + i * 30;
+      var pct = _cl(c.value / (c.max || 20), 0, 1);
+      var cc = _scoreCol(pct * 100);
+      out += _t(14, y + 11, c.label, C.muted, 8.5);
+      out += _r(90, y + 3, 190, 10, 'rgba(255,255,255,0.05)', 3);
+      out += _r(90, y + 3, Math.round(190 * pct), 10, _alphaRgb(cc, 0.65), 3);
+      out += _t(286, y + 12, _n(c.value, 0) + '/' + c.max, cc, 8.5, 700);
+      if (i === 2) out += _l(310, y + 8, 352, cy, 'rgba(255,255,255,0.1)');
+    });
+    out += _l(310, 44, 348, cy, 'rgba(255,255,255,0.06)');
+    out += _l(310, 164, 348, cy, 'rgba(255,255,255,0.06)');
+    return _svg(W, H, out);
+  }
+
+  // ── 2. market-regime: 시장 레짐 포지셔닝 사분면 ──────────────
+  function _marketRegime(d) {
+    var regime = d.regime || 'NEUTRAL';
+    var score = _cl(d.score || 50, 0, 100);
+    var vix = d.vix || 20;
+    var spyPct = _cl(d.spyScore || 50, 0, 100);
+    var vixPct = _cl(d.vixScore || 50, 0, 100);
+    var W = 440, H = 200, out = '';
+    out += _r(0, 0, W, H, C.bg, 8, C.border);
+    out += _t(14, 18, '시장 레짐 포지셔닝', C.text, 10, 700);
+    var qx = 110, qy = 26, qw = 200, qh = 155;
+    out += _r(qx, qy, qw / 2, qh / 2, _alphaRgb(C.red, 0.07), 0, C.border, 0.5);
+    out += _r(qx + qw / 2, qy, qw / 2, qh / 2, _alphaRgb(C.green, 0.07), 0, C.border, 0.5);
+    out += _r(qx, qy + qh / 2, qw / 2, qh / 2, _alphaRgb(C.amber, 0.07), 0, C.border, 0.5);
+    out += _r(qx + qw / 2, qy + qh / 2, qw / 2, qh / 2, _alphaRgb(C.cyan, 0.07), 0, C.border, 0.5);
+    out += _l(qx + qw / 2, qy, qx + qw / 2, qy + qh, 'rgba(255,255,255,0.10)');
+    out += _l(qx, qy + qh / 2, qx + qw, qy + qh / 2, 'rgba(255,255,255,0.10)');
+    out += _t(qx + qw / 2, qy - 5, '위험선호', C.muted, 7.5, 600, 'middle');
+    out += _t(qx + qw / 2, qy + qh + 12, '위험회피', C.muted, 7.5, 600, 'middle');
+    out += _t(qx + qw / 4, qy + 11, 'Bear Rally', C.red, 7.5, 600, 'middle');
+    out += _t(qx + qw * 3 / 4, qy + 11, 'Bull Trend', C.green, 7.5, 600, 'middle');
+    out += _t(qx + qw / 4, qy + qh - 6, '방어 포지션', C.amber, 7.5, 600, 'middle');
+    out += _t(qx + qw * 3 / 4, qy + qh - 6, '회복 추세', C.cyan, 7.5, 600, 'middle');
+    var dotX = qx + _cl((spyPct / 100) * qw, 8, qw - 8);
+    var dotY = qy + _cl(((100 - vixPct) / 100) * qh, 8, qh - 8);
+    var col = _scoreCol(score);
+    out += _o(dotX, dotY, 9, _alphaRgb(col, 0.18), col, 2);
+    out += _o(dotX, dotY, 3.5, col);
+    var rx = 332, ry = 56;
+    out += _r(rx, ry, 94, 68, _alphaRgb(col, 0.10), 6, col, 1);
+    out += _t(rx + 47, ry + 16, regime, col, 9, 700, 'middle');
+    out += _t(rx + 47, ry + 31, '점수 ' + _n(score), C.muted, 8, 600, 'middle');
+    out += _t(rx + 47, ry + 47, 'VIX ' + _n(vix, 1), vix >= 25 ? C.red : vix >= 18 ? C.amber : C.green, 10, 700, 'middle');
+    out += _t(rx + 47, ry + 61, vix >= 25 ? '고변동 경계' : vix >= 18 ? '주의 구간' : '저변동 안정', C.muted, 7.5, 400, 'middle');
+    return _svg(W, H, out);
+  }
+
+  // ── 3. factor-radar: 팩터 레이더 (6각형) ─────────────────────
+  function _factorRadar(d) {
+    var sym = d.sym || '—';
+    var f = d.factors || {};
+    var axes = [
+      { label: '모멘텀', v: _cl((f.momentum || 50) / 100, 0, 1) },
+      { label: '추세',   v: _cl((f.trend    || 50) / 100, 0, 1) },
+      { label: '저변동', v: _cl((f.lowvol   || 50) / 100, 0, 1) },
+      { label: 'RSI',    v: _cl(1 - Math.abs((f.rsi || 50) - 50) / 50, 0, 1) },
+      { label: '퀄리티', v: _cl((f.quality  || 50) / 100, 0, 1) },
+      { label: '밸류',   v: _cl((f.value    || 50) / 100, 0, 1) },
+    ];
+    var W = 320, H = 240, cx = 160, cy = 130, R = 80, n = axes.length, out = '';
+    out += _r(0, 0, W, H, C.bg, 8, C.border);
+    out += _t(W / 2, 16, sym + ' 팩터 레이더', C.text, 10, 700, 'middle');
+    [0.25, 0.5, 0.75, 1].forEach(function (scale) {
+      var pts = [];
+      for (var i = 0; i < n; i++) {
+        var a = (i / n) * Math.PI * 2 - Math.PI / 2;
+        pts.push((cx + R * scale * Math.cos(a)).toFixed(1) + ',' + (cy + R * scale * Math.sin(a)).toFixed(1));
+      }
+      out += '<polygon points="' + pts.join(' ') + '" fill="none" stroke="rgba(255,255,255,' + (scale === 1 ? 0.12 : 0.05) + ')" stroke-width="1"/>';
+    });
+    axes.forEach(function (ax, i) {
+      var a = (i / n) * Math.PI * 2 - Math.PI / 2;
+      var ex = cx + R * Math.cos(a), ey = cy + R * Math.sin(a);
+      out += _l(cx, cy, ex.toFixed(1), ey.toFixed(1), 'rgba(255,255,255,0.07)');
+      var lx = cx + (R + 16) * Math.cos(a), ly = cy + (R + 16) * Math.sin(a);
+      out += _t(lx.toFixed(1), (ly + 3).toFixed(1), ax.label, C.muted, 8, 600, 'middle');
+    });
+    var pts = axes.map(function (ax, i) {
+      var a = (i / n) * Math.PI * 2 - Math.PI / 2;
+      return (cx + R * ax.v * Math.cos(a)).toFixed(1) + ',' + (cy + R * ax.v * Math.sin(a)).toFixed(1);
+    });
+    out += '<polygon points="' + pts.join(' ') + '" fill="' + _alphaRgb(C.cyan, 0.12) + '" stroke="' + C.cyan + '" stroke-width="1.5"/>';
+    axes.forEach(function (ax, i) {
+      var a = (i / n) * Math.PI * 2 - Math.PI / 2;
+      var px = cx + R * ax.v * Math.cos(a), py = cy + R * ax.v * Math.sin(a);
+      var fc = ax.v >= 0.7 ? C.green : ax.v >= 0.4 ? C.amber : C.red;
+      out += _o(px.toFixed(1), py.toFixed(1), 3, fc);
+    });
+    if (d.rank != null) {
+      var rc = _scoreCol(d.rank);
+      out += _r(W - 66, H - 28, 58, 20, _alphaRgb(rc, 0.14), 4, rc, 1);
+      out += _t(W - 37, H - 14, '랭크 ' + d.rank, rc, 8.5, 700, 'middle');
+    }
+    return _svg(W, H, out);
+  }
+
+  // ── 4. pipeline-status: 데이터 파이프라인 현황 ───────────────
+  function _pipelineStatus(d) {
+    var meta = d.meta || {};
+    var items = [
+      { label: 'Yahoo 시세',   ok: (meta.symbolsOk || 0) >= 60, val: (meta.symbolsOk || 0) + ' 심볼' },
+      { label: 'Fear & Greed', ok: !!meta.fearGreedOk,           val: d.fg != null ? String(d.fg) : '—' },
+      { label: 'FRED 매크로',  ok: !!meta.fredFetchOk,           val: meta.fredHasKey ? (meta.fredFetchOk ? (meta.macroKeyCount || '?') + '개' : '키↑실패') : 'Secret 미등록' },
+      { label: '뉴스 RSS',     ok: !!meta.newsOk,                val: (meta.newsCount || 0) + '건' },
+      { label: 'Telegram',     ok: !!d.telegramOk,               val: d.telegramCount ? d.telegramCount + '건' : '—' },
+      { label: 'Screener',     ok: !!d.screenerOk,               val: d.screenerCount ? d.screenerCount + '/' + (d.screenerUniverse || '?') : '—' },
+    ];
+    var W = 420, H = 185, out = '';
+    out += _r(0, 0, W, H, C.bg, 8, C.border);
+    out += _t(14, 19, '데이터 파이프라인 현황', C.text, 10, 700);
+    var ageMin = meta.ageMin;
+    var ageCol = ageMin == null ? C.muted : ageMin < 60 ? C.green : ageMin < 180 ? C.amber : C.red;
+    out += _t(W - 14, 19, ageMin != null ? ageMin + '분 전' : '—', ageCol, 8.5, 600, 'end');
+    items.forEach(function (it, i) {
+      var col2 = i % 2, row = Math.floor(i / 2);
+      var x = 14 + col2 * 204, y = 34 + row * 42;
+      out += _r(x, y, 196, 34, 'rgba(255,255,255,0.025)', 5, it.ok ? _alphaRgb(C.green, 0.22) : _alphaRgb(C.red, 0.18), 1);
+      out += _t(x + 10, y + 13, it.label, C.muted, 8.5, 600);
+      out += _t(x + 10, y + 27, it.val, it.ok ? C.green : C.red, 9, 700);
+      out += _t(x + 186, y + 13, it.ok ? '✓' : '✗', it.ok ? C.green : C.red, 11, 900, 'end');
+    });
+    return _svg(W, H, out);
+  }
+
+  // ── 5. economic-cycle: 경기 사이클 위치 ──────────────────────
+  function _economicCycle(d) {
+    var stage = d.stage || 'MID';
+    var W = 390, H = 210, cx = 130, cy = 115, R = 70, out = '';
+    var stageMap = { EARLY: 0, MID: 1, LATE: 2, CONTRACTION: 3 };
+    var stageNames = ['초기 확장', '중기 성장', '후기 사이클', '수축'];
+    var stageCols = [C.green, C.cyan, C.amber, C.red];
+    out += _r(0, 0, W, H, C.bg, 8, C.border);
+    out += _t(14, 18, '경기 사이클 포지셔닝', C.text, 10, 700);
+    for (var i = 0; i < 4; i++) {
+      var a0 = (i / 4) * Math.PI * 2 - Math.PI / 2;
+      var a1 = ((i + 1) / 4) * Math.PI * 2 - Math.PI / 2;
+      var active = (stageMap[stage] || 0) === i;
+      var col = stageCols[i];
+      var inner = R * 0.35;
+      var x0 = cx + inner * Math.cos(a0), y0 = cy + inner * Math.sin(a0);
+      var x1 = cx + R * Math.cos(a0),     y1 = cy + R * Math.sin(a0);
+      var x2 = cx + R * Math.cos(a1),     y2 = cy + R * Math.sin(a1);
+      var x3 = cx + inner * Math.cos(a1), y3 = cy + inner * Math.sin(a1);
+      out += '<path d="M' + x0.toFixed(1) + ',' + y0.toFixed(1) +
+        'L' + x1.toFixed(1) + ',' + y1.toFixed(1) +
+        'A' + R + ',' + R + ',0,0,1,' + x2.toFixed(1) + ',' + y2.toFixed(1) +
+        'L' + x3.toFixed(1) + ',' + y3.toFixed(1) +
+        'A' + inner + ',' + inner + ',0,0,0,' + x0.toFixed(1) + ',' + y0.toFixed(1) + 'Z"' +
+        ' fill="' + (active ? _alphaRgb(col, 0.25) : 'rgba(255,255,255,0.03)') + '"' +
+        ' stroke="' + (active ? col : 'rgba(255,255,255,0.08)') + '" stroke-width="' + (active ? 2 : 0.5) + '"/>';
+      var lam = (a0 + a1) / 2;
+      var lx = cx + R * 0.66 * Math.cos(lam), ly = cy + R * 0.66 * Math.sin(lam);
+      out += _t(lx.toFixed(1), (ly + 3).toFixed(1), stageNames[i], active ? col : C.muted, 7.5, active ? 700 : 400, 'middle');
+    }
+    out += _o(cx, cy, inner, _alphaRgb(C.bg, 0.8));
+    out += _t(cx, cy + 4, stage, stageCols[stageMap[stage] || 0], 8.5, 900, 'middle');
+    var indicators = [
+      ['CPI',  _n(d.cpi || 3.0, 1) + '%',  (d.cpi || 3) > 3.5 ? C.red : (d.cpi || 3) > 2 ? C.amber : C.green],
+      ['금리', _n(d.fedRate || 4.5, 2) + '%', (d.fedRate || 4.5) > 4.5 ? C.red : C.amber],
+      ['실업', _n(d.unemployment || 4.0, 1) + '%', (d.unemployment || 4) > 4.5 ? C.red : C.green],
+    ];
+    indicators.forEach(function (row, i) {
+      var ry = 30 + i * 54;
+      out += _r(225, ry, 146, 46, 'rgba(255,255,255,0.03)', 5, _alphaRgb(row[2], 0.2), 1);
+      out += _t(233, ry + 15, row[0], C.muted, 8, 600);
+      out += _t(233, ry + 34, row[1], row[2], 14, 900);
+    });
+    return _svg(W, H, out);
+  }
+
+  // ── 6. price-position: 가격 위치 (MA/ATH 슬라이더) ──────────
+  function _pricePosition(d) {
+    var sym = d.sym || '—', price = d.price || 0, sma50 = d.sma50 || price * 0.96;
+    var sma200 = d.sma200 || price * 0.88, ath = d.ath || price * 1.10;
+    var ret3m = d.ret3m || 0, rsi = d.rsi || 50;
+    var W = 420, H = 170, out = '';
+    out += _r(0, 0, W, H, C.bg, 8, C.border);
+    out += _t(14, 18, sym + ' 가격 포지셔닝', C.text, 10, 700);
+    var lo = Math.min(sma200, price) * 0.96, hi = Math.max(ath, price) * 1.03;
+    var range = hi - lo || 1;
+    var tx = function (v) { return 18 + Math.min(((v - lo) / range) * 366, 366); };
+    var slY = 48;
+    out += _r(18, slY, 366, 8, 'rgba(255,255,255,0.05)', 4);
+    out += _r(18, slY, _cl(tx(sma200) - 18, 0, 366), 8, _alphaRgb(C.red, 0.18), 4);
+    out += _r(tx(sma200), slY, _cl(tx(sma50) - tx(sma200), 0, 366), 8, _alphaRgb(C.amber, 0.22));
+    out += _r(tx(sma50), slY, _cl(tx(ath) - tx(sma50), 0, 366), 8, _alphaRgb(C.green, 0.22));
+    [[sma200, '200MA', C.amber], [sma50, '50MA', C.cyan], [ath, 'ATH', C.green]].forEach(function (m) {
+      var mx = tx(m[0]);
+      out += _l(mx, slY - 2, mx, slY + 10, m[2], 1.5);
+      out += _t(mx, slY + 21, m[1], m[2], 7.5, 600, 'middle');
+      out += _t(mx, slY + 31, '$' + _n(m[0]), m[2], 7, 400, 'middle');
+    });
+    var prx = tx(price);
+    out += _r(prx - 7, slY - 6, 14, 20, C.text, 3, C.text, 1.5);
+    out += _t(prx, slY + 5, '$' + _n(price), C.bg, 7.5, 900, 'middle');
+    out += _t(prx, slY - 10, sym, C.text, 7.5, 700, 'middle');
+    var stats = [
+      ['3M 수익', _n(ret3m, 1) + '%', _pctCol(ret3m)],
+      ['RSI', _n(rsi, 1), rsi >= 70 ? C.red : rsi <= 30 ? C.green : C.cyan],
+      ['vs 50MA', _n((price / (sma50 || 1) - 1) * 100, 1) + '%', price > sma50 ? C.green : C.red],
+      ['vs ATH', _n((price / (ath || 1) - 1) * 100, 1) + '%', price >= ath * 0.97 ? C.green : price >= ath * 0.9 ? C.amber : C.red],
+    ];
+    stats.forEach(function (s, i) {
+      var x = 14 + i * 100;
+      out += _r(x, H - 50, 92, 40, 'rgba(255,255,255,0.025)', 4, C.border, 1);
+      out += _t(x + 6, H - 34, s[0], C.muted, 8);
+      out += _t(x + 6, H - 16, s[1], s[2], 11, 700);
+    });
+    return _svg(W, H, out);
+  }
+
+  // ── 7. sector-bubble: 섹터 배분 버블 ─────────────────────────
+  function _sectorBubble(d) {
+    var sectors = (d.sectors && d.sectors.length) ? d.sectors : [{ name: '데이터없음', weight: 100, perf: 0 }];
+    var W = 430, H = 200, out = '';
+    out += _r(0, 0, W, H, C.bg, 8, C.border);
+    out += _t(14, 18, '섹터 집중도 분석', C.text, 10, 700);
+    var maxW = Math.max.apply(null, sectors.map(function (s) { return s.weight || 0; })) || 1;
+    var x = 18;
+    sectors.slice(0, 8).forEach(function (s, i) {
+      var r = 14 + (s.weight / maxW) * 28;
+      var col = (s.perf || 0) > 1 ? C.green : (s.perf || 0) < -1 ? C.red : C.amber;
+      var cy2 = H / 2 + (i % 2 === 0 ? -10 : 10);
+      out += _o((x + r).toFixed(0), cy2.toFixed(0), r.toFixed(0), _alphaRgb(col, 0.12), col, 1.5);
+      out += _t((x + r).toFixed(0), (cy2 - 4).toFixed(0), s.name || '?', C.text, 7.5, 700, 'middle');
+      out += _t((x + r).toFixed(0), (cy2 + 8).toFixed(0), Math.round(s.weight || 0) + '%', col, 8, 700, 'middle');
+      x += r * 2 + 6;
+    });
+    return _svg(W, H, out);
+  }
+
+  // ── 8. yield-curve: 금리 기간구조 ────────────────────────────
+  function _yieldCurve(d) {
+    var pts = [
+      { term: '1M',  rate: d.irx  || 5.2 },
+      { term: '2Y',  rate: d.twoY || 4.8 },
+      { term: '5Y',  rate: d.fvx  || 4.5 },
+      { term: '10Y', rate: d.tnx  || 4.5 },
+      { term: '30Y', rate: d.tyx  || 4.8 },
+    ];
+    var W = 380, H = 180, out = '';
+    var minR = Math.min.apply(null, pts.map(function (p) { return p.rate; })) - 0.3;
+    var maxR = Math.max.apply(null, pts.map(function (p) { return p.rate; })) + 0.3;
+    out += _r(0, 0, W, H, C.bg, 8, C.border);
+    out += _t(14, 18, '금리 기간구조 (수익률곡선)', C.text, 10, 700);
+    var cX = 44, cY = 28, cW = 310, cH = 120;
+    [0, 0.5, 1].forEach(function (t) {
+      var y = (cY + cH - t * cH).toFixed(0);
+      out += _l(cX, y, cX + cW, y, 'rgba(255,255,255,0.06)');
+      out += _t(cX - 4, (+y + 3).toFixed(0), (minR + t * (maxR - minR)).toFixed(1) + '%', C.muted, 7.5, 400, 'end');
+    });
+    var mapped = pts.map(function (p, i) {
+      var x = (cX + i * (cW / (pts.length - 1))).toFixed(1);
+      var y = (cY + cH - ((p.rate - minR) / (maxR - minR)) * cH).toFixed(1);
+      return { x: x, y: y, term: p.term, rate: p.rate };
+    });
+    var areaD = 'M' + mapped[0].x + ',' + mapped[0].y;
+    mapped.slice(1).forEach(function (p) { areaD += 'L' + p.x + ',' + p.y; });
+    areaD += 'L' + mapped[mapped.length - 1].x + ',' + (cY + cH) + 'L' + mapped[0].x + ',' + (cY + cH) + 'Z';
+    out += '<path d="' + areaD + '" fill="' + _alphaRgb(C.cyan, 0.08) + '"/>';
+    var lineD = 'M' + mapped[0].x + ',' + mapped[0].y;
+    mapped.slice(1).forEach(function (p) { lineD += 'L' + p.x + ',' + p.y; });
+    out += '<path d="' + lineD + '" fill="none" stroke="' + C.cyan + '" stroke-width="2"/>';
+    mapped.forEach(function (p) {
+      out += _o(p.x, p.y, 3.5, C.cyan);
+      out += _t(p.x, (+p.y - 7).toFixed(0), p.term, C.muted, 7.5, 600, 'middle');
+      out += _t(p.x, (+p.y + 14).toFixed(0), p.rate.toFixed(2), C.cyan, 7.5, 700, 'middle');
+    });
+    var inverted = d.twoY && d.tnx && d.twoY > d.tnx;
+    var shape = inverted ? '역전 Inverted' : '정상 Normal';
+    var shapeCol = inverted ? C.red : C.green;
+    out += _r(W - 104, H - 24, 96, 18, _alphaRgb(shapeCol, 0.12), 4, shapeCol, 1);
+    out += _t(W - 56, H - 11, shape, shapeCol, 8, 700, 'middle');
+    return _svg(W, H, out);
+  }
+
+  // ── 9. sentiment-gauge: 다중 심리 게이지 ─────────────────────
+  function _sentimentGauge(d) {
+    var gauges = [
+      { label: 'Fear & Greed', v: _cl(d.fg      || 50, 0, 100), min: 0, max: 100, inv: false, lo: '공포', hi: '탐욕',   unit: '' },
+      { label: 'VIX',          v: _cl(d.vix     || 20, 0, 60),  min: 0, max: 60,  inv: true,  lo: '안정', hi: '극공포', unit: '' },
+      { label: 'VVIX',         v: _cl(d.vvix    || 100, 70, 180), min: 70, max: 180, inv: true, lo: '안정', hi: '극공포', unit: '' },
+      { label: 'AAII Bear%',   v: _cl(d.aaiiBear|| 40, 0, 70),  min: 0, max: 70,  inv: true,  lo: '낙관', hi: '비관',   unit: '%' },
+    ];
+    var W = 420, H = 192, out = '';
+    out += _r(0, 0, W, H, C.bg, 8, C.border);
+    out += _t(14, 18, '시장 심리 게이지', C.text, 10, 700);
+    gauges.forEach(function (g, i) {
+      var y = 30 + i * 40;
+      var norm = (g.v - g.min) / (g.max - g.min);
+      if (g.inv) norm = 1 - norm;
+      var col = norm >= 0.66 ? C.green : norm >= 0.33 ? C.amber : C.red;
+      out += _t(14, y + 13, g.label, C.muted, 8.5, 600);
+      out += _r(120, y + 2, 224, 10, 'rgba(255,255,255,0.05)', 3);
+      out += _r(120, y + 2, Math.round(224 * 0.40), 10, _alphaRgb(C.green, 0.28), 3);
+      out += _r(120 + Math.round(224 * 0.40), y + 2, Math.round(224 * 0.33), 10, _alphaRgb(C.amber, 0.28));
+      out += _r(120 + Math.round(224 * 0.73), y + 2, Math.round(224 * 0.27), 10, _alphaRgb(C.red, 0.28));
+      var nx = 120 + Math.round(224 * _cl(norm, 0, 1));
+      out += _r(nx - 1, y - 1, 3, 14, col, 1);
+      out += _t(350, y + 13, _n(g.v, g.unit === '%' ? 1 : 1) + g.unit, col, 9, 700);
+      out += _t(120, y + 25, g.lo, C.muted, 7.5);
+      out += _t(344, y + 25, g.hi, C.muted, 7.5, 400, 'end');
+    });
+    return _svg(W, H, out);
+  }
+
+  // ── 10. factor-backtest: 팩터 IC 백테스트 ────────────────────
+  function _factorBacktest(d) {
+    var bt = d.backtest || {};
+    var ic = bt.ic || { momentum: 0, trend: 0, lowvol: 0, composite: 0 };
+    var spread = bt.quantileSpread || 0, hit = bt.hitRate || 0, n = bt.n || 0;
+    var factors = [
+      { label: '모멘텀', key: 'momentum' },
+      { label: '추세',   key: 'trend' },
+      { label: '저변동', key: 'lowvol' },
+      { label: '종합',   key: 'composite' },
+    ];
+    var W = 400, H = 192, out = '';
+    out += _r(0, 0, W, H, C.bg, 8, C.border);
+    out += _t(14, 18, '팩터 IC 백테스트', C.text, 10, 700);
+    out += _t(W - 14, 18, 'n=' + n, C.muted, 8.5, 400, 'end');
+    factors.forEach(function (f, i) {
+      var v = ic[f.key] || 0;
+      var y = 28 + i * 36;
+      var col = v > 0.05 ? C.green : v > 0 ? C.cyan : v > -0.05 ? C.amber : C.red;
+      var barW = Math.round(Math.abs(v) * 700);
+      var midX = 182;
+      out += _t(14, y + 13, f.label, C.muted, 8.5, 600);
+      out += _r(70, y + 3, 224, 12, 'rgba(255,255,255,0.04)', 2);
+      out += _l(midX, y, midX, y + 18, 'rgba(255,255,255,0.14)');
+      if (v >= 0) {
+        out += _r(midX, y + 3, Math.min(barW, 112), 12, _alphaRgb(col, 0.55), 2);
+      } else {
+        out += _r(Math.max(midX - Math.min(barW, 112), 70), y + 3, Math.min(barW, 112), 12, _alphaRgb(col, 0.55), 2);
+      }
+      out += _t(300, y + 13, 'IC ' + _n(v, 3), col, 8.5, 700);
+    });
+    out += _r(14, H - 46, 180, 36, 'rgba(255,255,255,0.025)', 4, C.border, 1);
+    out += _t(20, H - 29, '분위 스프레드', C.muted, 8);
+    out += _t(20, H - 13, _n(spread, 2) + '%', spread > 2 ? C.green : spread > 0 ? C.amber : C.red, 12, 700);
+    out += _r(204, H - 46, 180, 36, 'rgba(255,255,255,0.025)', 4, C.border, 1);
+    out += _t(210, H - 29, '방향 적중률', C.muted, 8);
+    out += _t(210, H - 13, _n(hit, 1) + '%', hit > 55 ? C.green : hit > 45 ? C.amber : C.red, 12, 700);
+    return _svg(W, H, out);
+  }
+
+  var _fns = {
+    'score-breakdown': _scoreBreakdown,
+    'market-regime':   _marketRegime,
+    'factor-radar':    _factorRadar,
+    'pipeline-status': _pipelineStatus,
+    'economic-cycle':  _economicCycle,
+    'price-position':  _pricePosition,
+    'sector-bubble':   _sectorBubble,
+    'yield-curve':     _yieldCurve,
+    'sentiment-gauge': _sentimentGauge,
+    'factor-backtest': _factorBacktest,
+  };
+
+  return {
+    // el: DOM element 또는 element ID
+    render: function (type, el, data) {
+      if (typeof el === 'string') el = document.getElementById(el);
+      if (!el) return;
+      var fn = _fns[type];
+      if (!fn) {
+        el.innerHTML = '<div style="color:#5a7080;font-size:11px;padding:8px">다이어그램 없음: ' + _esc(type) + '</div>';
+        return;
+      }
+      try { el.innerHTML = fn(data || {}); }
+      catch (e) { if (typeof _aioLog === 'function') _aioLog('warn', 'ui', '_aioDiagram.render 오류:' + type + ' ' + e.message); }
+    },
+    // AI 채팅용: SVG 문자열 반환
+    getSvg: function (type, data) {
+      var fn = _fns[type];
+      if (!fn) return '';
+      try { return fn(data || {}); } catch (e) { return ''; }
+    },
+    types: function () { return Object.keys(_fns); },
+  };
+})();
 window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;

@@ -1,5 +1,12 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.81 - _aioDiagram 10-type SVG 다이어그램 엔진 Phase 1 (2026-06-19)
+
+- **`window._aioDiagram` IIFE 추가** (`js/aio-ui.js` 끝): 외부 라이브러리 없이 JS로 SVG 문자열 생성. `render(type, el, data)` — DOM 주입, `getSvg(type, data)` — 문자열 반환(AI 채팅용). 10개 타입 등록.
+- **10 다이어그램 타입**: score-breakdown(거래 점수 분해 플로우) · market-regime(레짐 4분면) · factor-radar(6각형 팩터 레이더) · pipeline-status(파이프라인 6항목) · economic-cycle(경기 사이클 4분면 시계) · price-position(SMA50/200/ATH 슬라이더) · sector-bubble(섹터 배분 버블) · yield-curve(금리 기간구조 곡선) · sentiment-gauge(F&G/VIX/VVIX/AAII 멀티 게이지) · factor-backtest(IC 막대 + 스프레드/적중률 패널).
+- **다크 테마 내장**: CSS 변수 의존 없이 16진 색상 팔레트 직접 참조. `viewBox` + `width:100%`로 반응형.
+- **Phase 2/3 준비 완료**: Phase 2에서 10개 페이지 패널 삽입, Phase 3에서 AI 채팅 자동 시각화 대응 구조.
+
 ## v50.80 - 자가 운영 구조 근본 보강 (2026-06-19)
 
 - **FRED 클라이언트 자동 브릿지**: `_aioLoadServerData` step 2-B 추가 — 서버 data.json에 FRED 매크로가 없을 때(fredFetchOk=false) 브라우저 `aio_fred_key`가 있으면 `fetchAllFredData()` 자동 호출. GitHub Actions Secret 미등록이어도 사용자 키 보유 시 매크로 자동 갱신.
