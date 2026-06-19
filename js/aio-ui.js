@@ -3603,3 +3603,224 @@ window._aioDiagram = (function () {
   };
 })();
 window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
+
+// ──────────────────────────────────────────────────────────────────────────────
+// v50.82 Phase 2: 페이지별 SVG 다이어그램 렌더러
+// 각 페이지 진입(aio:pageShown) 시 _aioDiagram 엔진으로 시각화 주입
+// ──────────────────────────────────────────────────────────────────────────────
+(function () {
+  function _snap() { return window.DATA_SNAPSHOT || {}; }
+  function _ld(sym) {
+    var live = window._liveData || {};
+    var e = live[sym];
+    return (e && typeof e.price === 'number') ? e.price : null;
+  }
+  function _cl(v, lo, hi) { return Math.max(lo, Math.min(hi, isFinite(v) ? v : lo)); }
+
+  function _getScore() {
+    try {
+      if (typeof computeTradingScore === 'function') return computeTradingScore() || {};
+    } catch (e) {}
+    return {};
+  }
+
+  function _econStage(snap) {
+    var cpi = snap.cpi || 3, rate = snap.fedRate || 4.5, u = snap.usUnemploy || 4.0;
+    if (u >= 5.2 || (u >= 4.8 && cpi < 2.5)) return 'CONTRACTION';
+    if (cpi >= 3.8 && rate >= 4.8) return 'LATE';
+    if (cpi >= 2.5 || rate >= 3.0) return 'MID';
+    return 'EARLY';
+  }
+
+  function _buildScore() {
+    var s = _getScore();
+    var total = s.total || 0;
+    return {
+      total: total,
+      components: [
+        { label: 'VIX 레짐',  value: Math.round(_cl(s.volScore    || 0, 0, 100) * 0.25), max: 25 },
+        { label: 'F&G 심리', value: Math.round(_cl(s.momScore     || 0, 0, 100) * 0.25), max: 25 },
+        { label: 'SPX 추세',  value: Math.round(_cl(s.trendScore  || 0, 0, 100) * 0.20), max: 20 },
+        { label: '시장 폭',   value: Math.round(_cl(s.breadthScore|| 0, 0, 100) * 0.20), max: 20 },
+        { label: '매크로',    value: Math.round(_cl(s.macroScore  || 0, 0, 100) * 0.10), max: 10 },
+      ],
+    };
+  }
+
+  function _buildRegime() {
+    var s = _getScore();
+    var snap = _snap();
+    var total = s.total || 50;
+    var vix = _ld('^VIX') || snap.vix || 20;
+    var regime = total >= 75 ? 'BULL' : total >= 60 ? '매수우호' : total >= 45 ? 'NEUTRAL' : total >= 30 ? '경계' : 'BEAR';
+    var spyScore = _cl(s.trendScore || 50, 0, 100);
+    var vixScore = vix >= 35 ? 8 : vix >= 25 ? 28 : vix >= 18 ? 55 : vix >= 14 ? 78 : 92;
+    return { regime: regime, score: total, vix: vix, spyScore: spyScore, vixScore: vixScore };
+  }
+
+  function _buildSentiment() {
+    var snap = _snap();
+    return {
+      fg:       _cl(window._lastFG != null ? window._lastFG : (snap.fearGreed || 50), 0, 100),
+      vix:      _ld('^VIX')  || snap.vix   || 20,
+      vvix:     _ld('^VVIX') || 100,
+      aaiiBear: _cl(window._aaiiBearish || 40, 0, 70),
+    };
+  }
+
+  function _buildPipeline() {
+    var snap = _snap();
+    var live = window._liveData || {};
+    var lk = Object.keys(live);
+    var symOk = lk.filter(function (k) { return live[k] && typeof live[k].price === 'number'; }).length;
+    var fg = window._lastFG != null ? window._lastFG : (snap.fearGreed != null ? snap.fearGreed : null);
+    var ageMin = null;
+    try {
+      var ts = snap._snapshotDate || snap.ts;
+      if (ts) ageMin = Math.floor((Date.now() - new Date(ts).getTime()) / 60000);
+    } catch (e) {}
+    var scrLen = (typeof SCREENER_DB !== 'undefined' && SCREENER_DB) ? SCREENER_DB.length : 0;
+    return {
+      fg: fg,
+      telegramOk: !!(window._telegramDigest),
+      telegramCount: (window._telegramDigest && window._telegramDigest.posts) || 0,
+      screenerOk: scrLen > 0,
+      screenerCount: scrLen,
+      screenerUniverse: scrLen || '?',
+      meta: {
+        symbolsOk: symOk,
+        fearGreedOk: fg != null,
+        fredFetchOk: !!(snap.cpi || snap.fedRate),
+        fredHasKey: !!(snap.cpi),
+        macroKeyCount: [snap.cpi, snap.fedRate, snap.usUnemploy, snap.tnx2y, snap.dxy].filter(Boolean).length,
+        newsOk: !!(window._newsItems && window._newsItems.length > 0),
+        newsCount: (window._newsItems && window._newsItems.length) || 0,
+        ageMin: ageMin,
+      },
+    };
+  }
+
+  function _buildEcon() {
+    var snap = _snap();
+    return {
+      stage:        _econStage(snap),
+      cpi:          snap.cpi || snap.coreCpi || 3.0,
+      fedRate:      snap.fedRate || 4.5,
+      unemployment: snap.usUnemploy || 4.0,
+    };
+  }
+
+  function _buildPrice() {
+    var snap = _snap();
+    var price  = _ld('SPY') || snap.spyClose || 550;
+    // SPX MA를 10으로 나눠 SPY 근사. _spxMA 없으면 가격 기반 추정
+    var sma50  = (window._spxMA && window._spxMA[50])  ? window._spxMA[50]  / 10 : price * 0.965;
+    var sma200 = (window._spxMA && window._spxMA[200]) ? window._spxMA[200] / 10 : price * 0.89;
+    var ath = snap.spxATH ? snap.spxATH / 10 : price * 1.03;
+    if (ath < price) ath = price * 1.01;
+    return { sym: 'SPY', price: price, sma50: sma50, sma200: sma200, ath: ath, ret3m: snap.spy3m || 0, rsi: snap.spyRsi || 50 };
+  }
+
+  function _buildYield() {
+    var snap = _snap();
+    var tnx = _ld('^TNX') || snap.tnx || 4.5;
+    return {
+      irx:  snap.irx  || 5.2,
+      twoY: snap.tnx2y || tnx * 0.97,
+      fvx:  snap.fvx  || tnx * 0.98,
+      tnx:  tnx,
+      tyx:  snap.tyx  || tnx * 1.06,
+    };
+  }
+
+  function _buildBacktest() {
+    return { backtest: window._aioFactorBacktest || {} };
+  }
+
+  function _render(elId, type, data) {
+    var el = document.getElementById(elId);
+    if (el && window._aioDiagram) window._aioDiagram.render(type, el, data);
+  }
+
+  function _aioRenderPageDiagram(pid) {
+    try {
+      switch (pid) {
+        case 'home':
+          _render('vis-home-score',  'score-breakdown', _buildScore());
+          _render('vis-home-regime', 'market-regime',   _buildRegime());
+          break;
+        case 'signal':
+          _render('vis-signal-score', 'score-breakdown', _buildScore());
+          break;
+        case 'breadth':
+          _render('vis-breadth-regime', 'market-regime', _buildRegime());
+          break;
+        case 'sentiment':
+          _render('vis-sentiment-gauge', 'sentiment-gauge', _buildSentiment());
+          break;
+        case 'briefing':
+          _render('vis-briefing-pipeline', 'pipeline-status', _buildPipeline());
+          _render('vis-briefing-cycle',    'economic-cycle',   _buildEcon());
+          break;
+        case 'technical':
+          _render('vis-technical-price', 'price-position', _buildPrice());
+          break;
+        case 'macro':
+          _render('vis-macro-cycle', 'economic-cycle', _buildEcon());
+          _render('vis-macro-yield', 'yield-curve',    _buildYield());
+          break;
+        case 'fxbond':
+          _render('vis-fxbond-yield', 'yield-curve', _buildYield());
+          break;
+        case 'screener':
+          _render('vis-screener-backtest', 'factor-backtest', _buildBacktest());
+          break;
+      }
+    } catch (e) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'ui', 'vis-phase2 render err:' + pid + ' ' + (e && e.message));
+    }
+  }
+
+  var VIS_PAGES = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','screener'];
+
+  // 페이지 전환 훅
+  if (window._aioPageBus) {
+    _aioPageBus.register('vis-phase2', 'aio:pageShown', function (e) {
+      var pid = e && e.detail;
+      if (pid && VIS_PAGES.indexOf(pid) !== -1) _aioRenderPageDiagram(pid);
+    });
+  }
+
+  // 시장 상태 갱신 시 현재 페이지 재렌더
+  document.addEventListener('aio:marketStateUpdated', function () {
+    try {
+      var active = document.querySelector('[id^="page-"].page-active') || document.querySelector('.page[id^="page-"]');
+      if (!active) return;
+      var pid = (active.id || '').replace('page-', '');
+      if (VIS_PAGES.indexOf(pid) !== -1) _aioRenderPageDiagram(pid);
+    } catch (e) {}
+  });
+
+  // 펀더멘털 티커 검색 후 팩터 레이더 렌더 (외부 호출용)
+  window._aioRenderFundamentalRadar = function (ticker, row) {
+    var wrap = document.getElementById('vis-fundamental');
+    var el   = document.getElementById('vis-fundamental-radar');
+    if (!wrap || !el || !window._aioDiagram) return;
+    if (!row) { wrap.style.display = 'none'; return; }
+    wrap.style.display = '';
+    window._aioDiagram.render('factor-radar', el, {
+      sym: ticker,
+      factors: {
+        momentum: _cl(row.momentum || 50, 0, 100),
+        trend:    _cl(row.trend    || 50, 0, 100),
+        lowvol:   _cl(100 - (row.lowvol || 50), 0, 100),
+        rsi:      _cl(row.rsi     || 50, 0, 100),
+        quality:  _cl(row.quality || 50, 0, 100),
+        value:    _cl(row.value   || 50, 0, 100),
+      },
+      rank: (row.quantRank != null) ? row.quantRank : (row.rank != null ? row.rank : null),
+    });
+  };
+
+  window._aioRenderPageDiagram = _aioRenderPageDiagram;
+})();

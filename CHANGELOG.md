@@ -1,5 +1,25 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.82 - Phase 2: 10개 페이지 SVG 다이어그램 시각화 통합 (2026-06-19)
+
+- **CSS**: `.aio-vis-panel` 그리드 레이아웃 + `.aio-vis-card` 카드 래퍼 추가 (index.html 2733 이후)
+- **HTML**: 10개 페이지에 `<div id="vis-{page}" class="aio-vis-panel">` 플레이스홀더 삽입
+  - home → score-breakdown + market-regime (2패널)
+  - signal → score-breakdown (1패널)
+  - breadth → market-regime (1패널)
+  - sentiment → sentiment-gauge (1패널)
+  - briefing → pipeline-status + economic-cycle (2패널)
+  - technical → price-position SPY (1패널)
+  - macro → economic-cycle + yield-curve (2패널)
+  - fxbond → yield-curve (1패널)
+  - fundamental → factor-radar (티커 검색 후 동적 렌더, 초기 hidden)
+  - screener → factor-backtest IC (1패널)
+- **JS** (`js/aio-ui.js` 끝): `_aioRenderPageDiagram(pid)` + IIFE
+  - `aio:pageShown` 이벤트 훅 (`_aioPageBus.register('vis-phase2', ...)`)
+  - `aio:marketStateUpdated` 리슨 → 현재 페이지 재렌더
+  - `window._aioRenderFundamentalRadar(ticker, row)` 외부 노출 (fundamental 페이지용)
+- **데이터 빌더**: `computeTradingScore()`, `DATA_SNAPSHOT`, `window._liveData`, `window._aioFactorBacktest`, `SCREENER_DB` 활용
+
 ## v50.81 - _aioDiagram 10-type SVG 다이어그램 엔진 Phase 1 (2026-06-19)
 
 - **`window._aioDiagram` IIFE 추가** (`js/aio-ui.js` 끝): 외부 라이브러리 없이 JS로 SVG 문자열 생성. `render(type, el, data)` — DOM 주입, `getSvg(type, data)` — 문자열 반환(AI 채팅용). 10개 타입 등록.

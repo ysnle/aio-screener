@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.81 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.82 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2729,6 +2729,12 @@ body { background: #0d1521 !important; }
 .yc-chart-wrap canvas{width:100%!important;height:var(--chart-h-md)!important;}
 /* v41.1: breadth 차트 캔버스 높이 토큰화 */
 #page-breadth canvas[id^="bp-"],#page-breadth canvas[id^="bh-"]{height:var(--chart-h-sm)!important;}
+/* v50.82: 페이지별 SVG 다이어그램 시각화 패널 */
+.aio-vis-panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px;}
+.aio-vis-panel.is-single{grid-template-columns:1fr;max-width:540px;}
+.aio-vis-panel.is-wide{grid-template-columns:1fr;}
+.aio-vis-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow:hidden;}
+.aio-vis-card-title{font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;}
 /* v42.1: 마켓 펄스 바 — 페이지 간 유기적 연결 */
 .market-pulse-bar{display:flex;align-items:center;gap:6px;padding:5px 14px;background:var(--bg-surface);border-bottom:1px solid var(--border);font-size:10px;overflow-x:auto;white-space:nowrap;}
 .pulse-seg{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;cursor:pointer;transition:background 0.15s,transform 0.1s;background:var(--surface-2);border:1px solid rgba(255,255,255,0.06);}
@@ -4139,7 +4145,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.81</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.82</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4167,6 +4173,12 @@ body.light-theme canvas { filter:none; }
 
   <!-- v48.62: 페이지 결론 바 -->
   <div id="home-conclusion-bar"></div>
+
+  <!-- v50.82: 시각화 패널 (score-breakdown + market-regime) -->
+  <div id="vis-home" class="aio-vis-panel">
+    <div class="aio-vis-card"><div class="aio-vis-card-title">매매 점수 분해</div><div id="vis-home-score"></div></div>
+    <div class="aio-vis-card"><div class="aio-vis-card-title">시장 국면</div><div id="vis-home-regime"></div></div>
+  </div>
 
   <!-- v50.75: 시장 분석 카드 → Decision Header "왜" 섹션과 중복, DOM 유지(테스트 T820) 시각만 숨김 -->
   <div class="aio-card has-stripe-left" style="display:none;">
@@ -4385,6 +4397,11 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ v48.45: 시그널 페이지 기관급 해설 ═══ -->
   <!-- v48.62: 페이지 결론 바 -->
   <div id="signal-conclusion-bar"></div>
+
+  <!-- v50.82: 시각화 패널 (score-breakdown) -->
+  <div id="vis-signal" class="aio-vis-panel is-single">
+    <div class="aio-vis-card"><div class="aio-vis-card-title">매매 점수 분해</div><div id="vis-signal-score"></div></div>
+  </div>
 
   <!-- ══════════════════════════════════════════════════════════
        AIO · "지금 거래해야 할까?" Bloomberg Terminal Dashboard
@@ -5156,6 +5173,11 @@ body.light-theme canvas { filter:none; }
     </div>
   </div>
 
+  <!-- v50.82: 시각화 패널 (market-regime) -->
+  <div id="vis-breadth" class="aio-vis-panel is-single">
+    <div class="aio-vis-card"><div class="aio-vis-card-title">시장 국면 · 시장폭 매트릭스</div><div id="vis-breadth-regime"></div></div>
+  </div>
+
   <!-- SECTION 1: 3 BIG VISUAL BREADTH BARS -->
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;">
 
@@ -5409,6 +5431,11 @@ body.light-theme canvas { filter:none; }
   <!-- v48.62: 페이지 결론 바 -->
   <div id="sentiment-conclusion-bar"></div>
 
+  <!-- v50.82: 시각화 패널 (sentiment-gauge) -->
+  <div id="vis-sentiment" class="aio-vis-panel is-single">
+    <div class="aio-vis-card"><div class="aio-vis-card-title">투자 심리 게이지</div><div id="vis-sentiment-gauge"></div></div>
+  </div>
+
     <!-- 헤더 -->
     <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:6px;">
@@ -5648,6 +5675,12 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
+    <!-- v50.82: 시각화 패널 (pipeline-status + economic-cycle) -->
+    <div id="vis-briefing" class="aio-vis-panel">
+      <div class="aio-vis-card"><div class="aio-vis-card-title">데이터 파이프라인 상태</div><div id="vis-briefing-pipeline"></div></div>
+      <div class="aio-vis-card"><div class="aio-vis-card-title">경기 사이클 위치</div><div id="vis-briefing-cycle"></div></div>
+    </div>
+
     <!-- v50.76: 시장 현황 요약 바 -->
     <div id="briefing-market-strip" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
@@ -5850,6 +5883,11 @@ body.light-theme canvas { filter:none; }
   <div class="page" id="page-technical">
   <div class="insight-box box-collapsed">
     <strong>언제 사고 팔까? — RSI·MACD·볼린저밴드·지지/저항으로 타이밍 판단</strong>
+  </div>
+
+  <!-- v50.82: 시각화 패널 (price-position) -->
+  <div id="vis-technical" class="aio-vis-panel is-single">
+    <div class="aio-vis-card"><div class="aio-vis-card-title">SPY 가격 포지션 · 지지/저항</div><div id="vis-technical-price"></div></div>
   </div>
 
   <!-- ═══ v48.45: 기술 분석 기관급 해설 ═══ -->
@@ -6279,6 +6317,12 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ v48.45: 거시경제 기관급 해설 ═══ -->
   <!-- v48.62: 페이지 결론 바 -->
   <div id="macro-conclusion-bar"></div>
+
+  <!-- v50.82: 시각화 패널 (economic-cycle + yield-curve) -->
+  <div id="vis-macro" class="aio-vis-panel">
+    <div class="aio-vis-card"><div class="aio-vis-card-title">경기 사이클 위치</div><div id="vis-macro-cycle"></div></div>
+    <div class="aio-vis-card"><div class="aio-vis-card-title">수익률 곡선 (국채)</div><div id="vis-macro-yield"></div></div>
+  </div>
 
   <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
@@ -6856,6 +6900,11 @@ body.light-theme canvas { filter:none; }
         <span class="freshness-badge fb-live">● LIVE</span>
       </div>
     </div>
+  </div>
+
+  <!-- v50.82: 시각화 패널 (yield-curve) -->
+  <div id="vis-fxbond" class="aio-vis-panel is-single">
+    <div class="aio-vis-card"><div class="aio-vis-card-title">수익률 곡선 · 크레딧 스프레드</div><div id="vis-fxbond-yield"></div></div>
   </div>
 
   <!-- ══ v48.50: CROSS-ASSET MATRIX — FX × Bond × Credit 유기적 통합 대시보드 ══ -->
@@ -7541,6 +7590,11 @@ body.light-theme canvas { filter:none; }
           <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);background:var(--surface-2);border:1px solid var(--border);padding:3px 8px;border-radius:4px;">SEC EDGAR + FMP + Yahoo Finance</span>
         </div>
       </div>
+    </div>
+
+    <!-- v50.82: 시각화 패널 (factor-radar) — 티커 검색 후 동적 렌더 -->
+    <div id="vis-fundamental" class="aio-vis-panel is-single" style="display:none;">
+      <div class="aio-vis-card"><div class="aio-vis-card-title">팩터 레이더 (종목 분석)</div><div id="vis-fundamental-radar"></div></div>
     </div>
 
     <!-- Ticker Search -->
@@ -8835,6 +8889,12 @@ body.light-theme canvas { filter:none; }
       <span id="screener-factor-coverage" style="display:block;margin-top:3px;color:var(--text-muted);"></span>
     </div>
     <div id="screener-backtest-panel" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:12px;"><div style="font-size:11px;color:var(--text-muted);">팩터 검증 파일 확인 중...</div></div>
+
+    <!-- v50.82: 시각화 패널 (factor-backtest) -->
+    <div id="vis-screener" class="aio-vis-panel is-wide">
+      <div class="aio-vis-card"><div class="aio-vis-card-title">팩터 백테스트 IC (정보계수)</div><div id="vis-screener-backtest"></div></div>
+    </div>
+
     <!-- 필터 바 -->
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
       <select id="scr-market" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 지수</option></select>
