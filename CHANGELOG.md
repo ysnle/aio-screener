@@ -1,10 +1,27 @@
 ﻿# AIO 스크리너 변경 이력 (Changelog)
 
+## v50.87 - 코드 리뷰 버그 수정 — 다이어그램 재렌더 완전 수정 + XSS 방어 + kr-home AI (2026-06-19)
+
+- **BUG-A Critical 수정**: `aio:marketStateUpdated` 핸들러 이중 버그 제거 — `document.addEventListener` → `window.addEventListener`(이벤트 발행 대상 일치), `.page-active` → `.page.active[id^="page-"]`(실제 활성 클래스 일치). 이전엔 시장 상태 갱신 시 다이어그램 재렌더가 완전히 불동작. `js/aio-ui.js:3841,3843`
+- **BUG-B Critical 수정**: AI 채팅 자동 SVG 삽입을 `DOMPurify.sanitize(_vis3Svg, {USE_PROFILES:{svg:true}})`로 경유. screener.json 외부 데이터가 SVG text에 흘러들어 DOMPurify 없이 innerHTML 직접 삽입되던 XSS 경로 차단. `js/aio-chat.js:6197`
+- **BUG-C Critical 수정**: `CHAT_CONTEXTS['kr-home']` 신설 — v50.85 CHANGELOG 약속 실제 이행. `_aiCtxMap['kr-home']` 매핑은 존재했지만 대응 컨텍스트 객체 없어 undefined fallback하던 문제 해소. KOSPI/KOSDAQ 종가 기준·KRW·글로벌 지수 주입. `index.html`
+- **BUG-D R15 수정**: M7 상승 카운트 `(d.pct||0)>0` → `d.pct != null && d.pct > 0`. 미수신(null)을 0%로 취급해 하락 오분류하던 R15 위반 제거. `index.html:21835`
+- **R3 준수**: P510·P511 BUG-POSTMORTEM 항목 추가 (v50.86의 fold/market-news 버그 사후 분석)
+- **C3 준수**: CHANGELOG 버전 순서를 v50.86→v50.85→v50.84→v50.83 단조 증가 순으로 정렬
+
+## v50.86 - 구조 통합 보강 — fold 결함 수정 + portfolio 섹터 버블 + v50.77 이력 복원 (2026-06-19)
+
+- **`_aioFoldDensePageControls` 결함 수정**: screener fold가 `#vis-screener`(SVG 다이어그램)까지 접던 버그 수정 → `#screener-backtest-panel`(텍스트 IC 로그)만 접기. market-news textContent 기반 소스 매칭을 `#news-source-guide` ID 직접 지정으로 교체(취약 선택자 제거). 접힌 섹션이 원래 위치 바로 앞에 삽입되도록 anchor 로직 개선.
+- **portfolio 섹터 버블**: `_buildSectors()` 추가 — localStorage `aio_portfolio` × SCREENER_DB `sector` × `_liveData` 가격으로 섹터별 시장가치 비중·3M 수익 계산. `vis-portfolio` 플레이스홀더(portfolio 페이지 분석 대시보드 위) 추가, 보유 종목 있을 때만 표시.
+- **VIS_PAGES 확장**: `'portfolio'` 추가 — `aio:pageShown` 훅으로 진입 시 자동 렌더.
+- **`#news-source-guide` ID**: market-news 소스 안내 div에 ID 부여 — fold 타깃 안정화.
+- **v50.77 CHANGELOG 이력 복원**: 커밋 v50.77의 Minervini UI 항목이 CHANGELOG에 누락된 상태를 기록으로 보완.
+
 ## v50.85 - Page Body Redesign + AI Flow Integration (2026-06-19)
 
 - **전 페이지 Action Hub**: `AIO_PAGE_ACTION_HUBS` + `_aioApplyPageBodyRedesign()` 추가. 22개 route 페이지가 결론 -> 핵심 지표 -> 운용 포인트 -> AI 분석 흐름을 공통 UX 계약으로 갖도록 재구성.
 - **본문 과밀 정리**: `market-news`의 소스 taxonomy/progress, `screener`의 팩터 검증/시각화, `signal`의 Lockout/OPEX 고급 조건을 상세 섹션으로 이동. 뉴스 국가/토픽/타입 필터와 스크리너 핵심 필터는 능동 조작 도구로 기본 화면에 유지.
-- **AI 연결 보강**: 통합 AI 패널 `_aiCtxMap`에 `home`, `screener`, `ticker`, `kr-home`, `kr-supply` 추가. `CHAT_CONTEXTS['kr-home']`을 신설해 한국장 홈에서도 AI 분석이 끊기지 않도록 보강.
+- **AI 연결 보강**: 통합 AI 패널 `_aiCtxMap`에 `home`, `screener`, `ticker`, `kr-home`, `kr-supply` 추가. `CHAT_CONTEXTS['kr-home']`을 신설해 한국장 홈에서도 AI 분석이 끊기지 않도록 보강. (실제 컨텍스트 객체 신설은 v50.87에서 이행)
 - **회귀 방지 게이트**: `AIO.getPageRedesignAudit()` 추가 및 `scripts/ci-runtime-contract-check.mjs`에 페이지 허브/접힘/AI 맵 계약 검증 추가.
 
 ## v50.84 - Phase 4: 10개 페이지 시각화 구조적 통합 (2026-06-19)
@@ -18,14 +35,6 @@
 - **MACRO**: standalone `vis-macro` 제거 → "오늘 매크로 결론" 스토리라인 카드 내부 `macro-summary-line` 뒤에 경기 사이클+수익률 곡선 배치 (문서→시각 결론 플로우)
 - **FXBOND**: `vis-fxbond`를 Cross-Asset 매트릭스 내부로 이동 — 4-col 수치 격자 바로 위 수익률 곡선 시각화
 - **SCREENER**: `screener-backtest-panel` + `vis-screener`를 단일 cyan 테두리 섹션으로 래핑 — 텍스트 IC + 차트 IC를 하나의 "팩터 검증·백테스트" 통합 패널로 표시
-
-## v50.86 - 구조 통합 보강 — fold 결함 수정 + portfolio 섹터 버블 + v50.77 이력 복원 (2026-06-19)
-
-- **`_aioFoldDensePageControls` 결함 수정**: screener fold가 `#vis-screener`(SVG 다이어그램)까지 접던 버그 수정 → `#screener-backtest-panel`(텍스트 IC 로그)만 접기. market-news textContent 기반 소스 매칭을 `#news-source-guide` ID 직접 지정으로 교체(취약 선택자 제거). 접힌 섹션이 원래 위치 바로 앞에 삽입되도록 anchor 로직 개선.
-- **portfolio 섹터 버블**: `_buildSectors()` 추가 — localStorage `aio_portfolio` × SCREENER_DB `sector` × `_liveData` 가격으로 섹터별 시장가치 비중·3M 수익 계산. `vis-portfolio` 플레이스홀더(portfolio 페이지 분석 대시보드 위) 추가, 보유 종목 있을 때만 표시.
-- **VIS_PAGES 확장**: `'portfolio'` 추가 — `aio:pageShown` 훅으로 진입 시 자동 렌더.
-- **`#news-source-guide` ID**: market-news 소스 안내 div에 ID 부여 — fold 타깃 안정화.
-- **v50.77 CHANGELOG 이력 복원**: 커밋 v50.77의 Minervini UI 항목이 CHANGELOG에 누락된 상태를 기록으로 보완.
 
 ## v50.83 - Phase 3: AI 채팅 자동 시각화 (2026-06-19)
 

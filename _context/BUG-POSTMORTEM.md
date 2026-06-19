@@ -1,12 +1,26 @@
 ---
 verified_by: agent
-last_verified: 2026-06-16
+last_verified: 2026-06-19
 confidence: high
-latest_version: v50.63
-latest_P_number: P509
-total_entries: 508
-next_P_number: P510
+latest_version: v50.87
+latest_P_number: P511
+total_entries: 510
+next_P_number: P512
 ---
+
+## P511 - v50.86 - market-news fold가 textContent 매칭으로 취약 선택자 사용
+
+- **Symptom**: `_aioFoldDensePageControls('market-news')`가 `BornLupin|Aether Japan|Reuters|TrendForce|Platts` 텍스트를 포함하는 모든 div를 텍스트스캔으로 fold 대상으로 선택. 뉴스 기사 본문에 해당 텍스트가 포함되면 의도치 않은 섹션이 접힐 수 있었음.
+- **Root cause**: 원래 코드가 DOM 구조 변경에 취약한 텍스트 콘텐츠 기반 선택자(`textContent.includes`)를 사용해 소스 안내 div를 찾음. ID 없이 내용으로 탐색하는 패턴.
+- **Fix**: market-news 소스 안내 div에 `id="news-source-guide"` 부여(index.html). `_aioFoldDensePageControls` 선택자를 `'#news-source-guide'` ID 직접 지정으로 교체.
+- **Prevention**: DOM 섹션 fold 타깃은 반드시 고유 ID를 부여해 선택. 텍스트 콘텐츠 기반 선택 금지(R_NEW).
+
+## P510 - v50.86 - _aioFoldDensePageControls가 screener SVG 다이어그램 패널을 접던 버그
+
+- **Symptom**: screener 페이지 진입 시 `_aioFoldDensePageControls('screener')`가 `#vis-screener`(팩터 백테스트 SVG 차트)와 `#screener-backtest-panel`(텍스트 IC 로그) 모두를 `<details>` 안으로 이동시켜 숨김. 의도: 텍스트 IC 로그만 접어야 했음.
+- **Root cause**: 선택자 배열에 `'#vis-screener'`가 포함되어 있었고, 삽입 위치 계산 로직이 `closest('div[style*="linear-gradient"]')`처럼 인라인 스타일에 의존해 불안정함.
+- **Fix**: 선택자에서 `'#vis-screener'` 제거. 인라인 스타일 기반 ancestor 탐색 제거. 첫 fold 대상 노드 바로 앞에 `<details>` 삽입하도록 anchor 로직 개선.
+- **Prevention**: fold 대상 선택자를 추가할 때 해당 페이지의 vis-* 패널을 실수로 포함하지 않도록 추가 전 명시적 확인. R_NEW 참조.
 
 ## P509 - v50.63 - Telegram digest collection was not in the scheduled consumption loop
 

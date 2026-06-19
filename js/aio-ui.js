@@ -3837,10 +3837,10 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     });
   }
 
-  // 시장 상태 갱신 시 현재 페이지 재렌더
-  document.addEventListener('aio:marketStateUpdated', function () {
+  // 시장 상태 갱신 시 현재 페이지 재렌더 (window에서 dispatch됨 — document 아님)
+  window.addEventListener('aio:marketStateUpdated', function () {
     try {
-      var active = document.querySelector('[id^="page-"].page-active') || document.querySelector('.page[id^="page-"]');
+      var active = document.querySelector('.page.active[id^="page-"]');
       if (!active) return;
       var pid = (active.id || '').replace('page-', '');
       if (VIS_PAGES.indexOf(pid) !== -1) _aioRenderPageDiagram(pid);

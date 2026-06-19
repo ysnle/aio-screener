@@ -6194,8 +6194,11 @@ async function chatSend(ctxId) {
                 var _vis3Div = document.createElement('div');
                 _vis3Div.className = 'aio-chat-vis';
                 _vis3Div.style.cssText = 'margin:8px 0 4px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;overflow:hidden;';
+                var _vis3SvgSafe = (typeof DOMPurify !== 'undefined')
+                  ? DOMPurify.sanitize(_vis3Svg, {USE_PROFILES: {svg: true}})
+                  : _vis3Svg;
                 _vis3Div.innerHTML = '<div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">' +
-                  escHtml(_vis3.label) + ' <span style="font-weight:400;opacity:.55;">· 자동 시각화</span></div>' + _vis3Svg;
+                  escHtml(_vis3.label) + ' <span style="font-weight:400;opacity:.55;">· 자동 시각화</span></div>' + _vis3SvgSafe;
                 aiBubble.parentNode.appendChild(_vis3Div);
               }
             }

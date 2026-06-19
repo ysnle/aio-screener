@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.86 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.87 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4227,7 +4227,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.86</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.87</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -16432,6 +16432,28 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         _getChatRules();
     }
   };
+  // v50.85: kr-home 한국장 홈 AI 컨텍스트 신설 (CHANGELOG v50.85 약속 이행)
+  window.CHAT_CONTEXTS['kr-home'] = {
+    title: 'AI 한국장 홈 분석가',
+    system: function() {
+      var s = _liveSnap();
+      var S = DATA_SNAPSHOT;
+      var ld = window._liveData || {};
+      var kospi = ld['^KS11'] || {};
+      var kosdaq = ld['^KQ11'] || {};
+      var kospiClose = _closingVal('^KS11');
+      var kosdaqClose = _closingVal('^KQ11');
+      return '당신은 한국 주식시장 전문 투자 분석가입니다. 한국 홈(kr-home) 페이지에서 대화 중입니다.\n\n' +
+        '【한국 시장 현황 (신선도: ' + s._freshness + ')】\n' +
+        '• KOSPI: ' + (kospiClose ? kospiClose.toFixed(2) : (kospi.price ? kospi.price.toFixed(2) : '—')) +
+          ' (' + (kospi.pct != null ? ((kospi.pct>=0?'+':'') + kospi.pct.toFixed(2) + '%') : 'N/A') + ')\n' +
+        '• KOSDAQ: ' + (kosdaqClose ? kosdaqClose.toFixed(2) : (kosdaq.price ? kosdaq.price.toFixed(2) : '—')) +
+          ' (' + (kosdaq.pct != null ? ((kosdaq.pct>=0?'+':'') + kosdaq.pct.toFixed(2) + '%') : 'N/A') + ')\n' +
+        '• 원/달러: ' + s.krw + ' | 글로벌: S&P ' + s.spx + ' | DXY ' + s.dxy + ' | US 10Y ' + s.tnx + '%\n' +
+        '국내 테마·수급·매크로·기술 분석 페이지와 연동됨. 답변에 관련 AIO 페이지(한국 테마/한국 매크로/한국 기술 분석)를 안내할 것.\n' +
+        _getChatRules();
+    }
+  };
   // v34.6: kr-tech 차트/기술 분석 컨텍스트 추가
   window.CHAT_CONTEXTS['kr-tech'] = {
     title: 'AI 한국장 기술 분석가',
@@ -21832,7 +21854,7 @@ function refreshSignalDashboard() {
       var fgCol77 = fg77 != null ? (fg77 >= 60 ? 'var(--data-green)' : fg77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') : 'var(--text-muted)';
       var tsGrade77 = ts77 >= 75 ? 'A' : ts77 >= 60 ? 'B' : ts77 >= 45 ? 'C' : ts77 >= 30 ? 'D' : 'F';
       var m7Up77 = 0, m7Tot77 = 0;
-      ['AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'].forEach(function(t){ var d = ld77[t]; if(d){m7Tot77++;if((d.pct||0)>0)m7Up77++;} });
+      ['AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'].forEach(function(t){ var d = ld77[t]; if(d){m7Tot77++;if(d.pct != null && d.pct > 0)m7Up77++;} });
       var m7Col77 = m7Tot77 > 0 ? (m7Up77/m7Tot77 >= 0.7 ? 'var(--data-green)' : m7Up77/m7Tot77 >= 0.4 ? 'var(--data-amber)' : 'var(--data-red)') : 'var(--text-muted)';
       var spyChg77 = (ld77['SPY'] && ld77['SPY'].pct != null) ? ld77['SPY'].pct : null;
       var spyStr77 = spyChg77 != null ? ((spyChg77 >= 0 ? '+' : '') + spyChg77.toFixed(2) + '%') : '—';
