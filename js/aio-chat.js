@@ -7,8 +7,6 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 function _getImportedResearchContext(ctxId) {
   try {
-    var reg = window.AIO_IMPORTED_RESEARCH_20260618;
-    if (!reg || !reg.pageModules) return '';
     var map = {
       home:'home', briefing:'home', macro:'macro', fxbond:'fxbond',
       technical:'technical', signal:'technical', screener:'screener',
@@ -19,14 +17,24 @@ function _getImportedResearchContext(ctxId) {
       'kr-technical':'kr-technical'
     };
     var key = map[ctxId] || ctxId;
-    var mod = reg.pageModules[key];
+    var modules = window.AIO_USER_RESEARCH_PAGE_MODULES || {};
+    var digest = window.AIO_USER_RESEARCH_DIGEST || null;
+    var mod = modules[key];
+    if (!mod && window.AIO_IMPORTED_RESEARCH_20260618 && window.AIO_IMPORTED_RESEARCH_20260618.pageModules) {
+      mod = window.AIO_IMPORTED_RESEARCH_20260618.pageModules[key];
+      digest = window.AIO_IMPORTED_RESEARCH_20260618;
+    }
     if (!mod) return '';
-    var lines = (mod.cards || []).map(function(c) { return '- ' + c[0] + ': ' + c[1]; }).join('\n');
-    return '\n\n[User supplied research integration | sourceKind=REFERENCE | asOf=' + (reg.asOf || '2026-06-18') + ']\n' +
-      mod.title + ' - ' + mod.sub + '\n' +
+    var cards = Array.isArray(mod.cards) ? mod.cards : [];
+    var lines = cards.slice(0, 6).map(function(c) {
+      if (Array.isArray(c)) return '- ' + c[0] + ': ' + c[1];
+      return '- ' + (c.title || c.id || 'reference') + ': ' + (c.thesis || c.automationHint || '');
+    }).join('\n');
+    return '\n\n[User supplied research digest | sourceKind=REFERENCE | asOf=' + ((digest && (digest.generatedAt || digest.asOf)) || '2026-06-18') + ']\n' +
+      'page=' + key + ' | items=' + cards.length + '\n' +
       lines + '\n' +
       'Rule: use this as a decision framework and UI pattern, not as live market data. For current prices, fundamentals, macro numbers, or trade decisions, cite only LIVE/SNAPSHOT/verified data blocks already injected into the prompt.\n' +
-      'Visual report rule: if the user asks for an image, infographic, report card, one-page memo, or visual material, explain that AIO can create an in-browser PNG-style visual report from the current page via _aioCreateVisualReport("' + key + '"). The visual must show sourceKind/asOf and must not make stale REFERENCE material look live.\n';
+      'Visual report rule: if the user asks for an image, infographic, report card, one-page memo, or visual material, AIO can create an in-browser PNG-style visual report from the current page via _aioCreateVisualReport("' + key + '") when that function is available. The visual must show sourceKind/asOf and must not make stale REFERENCE material look live.\n';
   } catch(_) { return ''; }
 }
 if (typeof window !== 'undefined') window._getImportedResearchContext = _getImportedResearchContext;
@@ -5974,7 +5982,7 @@ async function chatSend(ctxId) {
               }
               var _alDiv = document.createElement('div');
               _alDiv.style.cssText = 'margin:8px 0;padding:8px 10px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:4px;font-size:11px;color:var(--text-primary);';
-              _alDiv.innerHTML = '🔔 <strong>알람 등록 완료</strong>: ' + escHtml(_newAlert.label) + ' · 1분마다 자동 점검 + 브라우저 알림 (권한 필요).<br><span style="font-size:10px;color:var(--text-muted);">콘솔: AIO.getAlerts() 확인 / AIO.removeAlert("' + escHtml(_newAlert.id) + '") 삭제</span>';
+              _alDiv.innerHTML = '🔔 <strong>알람 등록 완료</strong>: ' + escHtml(_newAlert.label) + ' · 1분마다 자동 점검합니다.<br><span style="font-size:10px;color:var(--text-muted);">브라우저 알림 권한을 허용하면 조건 충족 시 알림을 받을 수 있습니다.</span>';
               aiBubble.parentNode.appendChild(_alDiv);
             }
           }
@@ -6209,7 +6217,7 @@ async function chatSend(ctxId) {
       var _errCat, _errIcon, _errGuide;
       if (/401|unauthorized|invalid.*key|API.*key/i.test(errMsg)) {
         _errCat = 'API 키 무효'; _errIcon = '🔑';
-        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>사이드바 → "Claude API 키" 입력 (<code>sk-ant-api03-…</code> 형식)</li><li><a href="https://console.anthropic.com" target="_blank" style="color:#00d4ff;">console.anthropic.com</a>에서 키 발급 또는 만료 확인</li><li>v49.45 키 백업 복원: 콘솔 <code>AIO.recoverApiKeysFromIdb()</code></li></ul>';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>사이드바의 Claude API 키 입력란을 확인하세요.</li><li><a href="https://console.anthropic.com" target="_blank" style="color:#00d4ff;">Anthropic Console</a>에서 키 발급/만료 상태를 확인하세요.</li><li>키를 다시 저장한 뒤 같은 질문을 재시도하세요.</li></ul>';
       } else if (/429|rate.*limit|too many/i.test(errMsg)) {
         _errCat = 'API 사용량 한도 초과'; _errIcon = '⏱';
         _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>1분 후 재시도 (Anthropic rate limit 회복 대기)</li><li>console.anthropic.com에서 사용량/한도 확인</li><li>모델 변경: Sonnet → Haiku (사이드바 모델 선택)</li></ul>';
@@ -6218,10 +6226,10 @@ async function chatSend(ctxId) {
         _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>1~2분 후 재시도 (Anthropic 일시 부하)</li><li><a href="https://status.anthropic.com" target="_blank" style="color:#00d4ff;">status.anthropic.com</a> 상태 확인</li><li>모델 변경: Sonnet-Thinking → Sonnet → Haiku 순서로 fallback 권장</li></ul>';
       } else if (/network|fetch|cors/i.test(errMsg)) {
         _errCat = '네트워크 오류'; _errIcon = '📡';
-        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>인터넷 연결 확인</li><li>Cloudflare Worker proxy 상태 확인 (corsproxy/allorigins)</li><li>콘솔 <code>AIO.diagnose()</code> 실행 후 결과 확인</li></ul>';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>인터넷 연결을 확인하세요.</li><li>잠시 후 다시 시도하세요.</li><li>계속 실패하면 데이터 연결 상태를 새로고침하세요.</li></ul>';
       } else {
         _errCat = '알 수 없는 오류'; _errIcon = '❓';
-        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>콘솔 (F12) 에러 메시지 확인</li><li>콘솔 <code>AIO.diagnose()</code> 실행 후 권장 조치 확인</li><li>페이지 새로고침 (Ctrl+Shift+R)</li></ul>';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>페이지를 새로고침한 뒤 다시 질문하세요.</li><li>다른 모델을 선택해 재시도하세요.</li><li>같은 문제가 반복되면 API 키와 네트워크 상태를 확인하세요.</li></ul>';
       }
       var _errBox = '<div style="padding:10px 12px;background:rgba(248,113,113,0.08);border:1px solid #f87171;border-radius:6px;color:var(--text-primary);font-size:12px;line-height:1.5;">' +
         '<div style="font-size:13px;font-weight:700;color:#ff5b50;margin-bottom:4px;">' + _errIcon + ' ' + _errCat + ' — 답변 생성 실패</div>' +

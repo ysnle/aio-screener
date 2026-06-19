@@ -2110,3 +2110,17 @@ P140/R34: CDN SRI integrity 속성 존재 여부 — `grep -c 'integrity=' index
 P141/R9: setInterval ID 전역 저장 여부 — `grep -n 'setInterval(' js/aio-core.js | grep -v 'window\._.*Timer'` → 0건 (결과 있으면 ID 미저장 타이머)
 P142/R15: aio-data.js extPct/F&G `|| 0` 재발 검사 — `grep -n '|| 0' js/aio-data.js | grep -i 'pct\|fg\|score'` → 0건
 P143: _lastFetch 키 정합 — `grep -n '_lastFetch\.' js/aio-core.js` 결과에서 저장 키('quote')와 조회 키('quote'||'liveQuotes') 대칭 확인
+
+--- v50.78 contract-recovery checks (2026-06-18) ---
+P510-Q1: After page redesign, run `node scripts/ci-version-check.mjs` and verify all five static JS cachebusters match `APP_VERSION`.
+P510-Q2: Search AI prompt/tool text for callable names such as `_aioCreateVisualReport`; each referenced callable must exist on `window` in the loaded runtime.
+P510-Q3: Any generated `public-data/*digest*.json` artifact must have one of: runtime loader + audit, documented manual-only status, or explicit retirement.
+P510-Q4: Imported/user research used in AI context must carry `sourceKind=REFERENCE` and must not be promoted as LIVE market evidence.
+P510-Q5: Visual/report generation must be backed by current page decision data and include as-of/source/confidence labels.
+
+--- v50.79 runtime/share readiness checks (2026-06-18) ---
+P511-Q1: Run `node scripts/ci-runtime-contract-check.mjs` after any AI prompt, digest, visual report, cachebuster, or external-sharing change.
+P511-Q2: In browser, `AIO.getRuntimeContractAudit().status` must not be `fail`.
+P511-Q3: In browser, `AIO.getShareReadinessAudit({ skipEssence: true }).shareable` must be boolean and blockers must be empty before public sharing.
+P511-Q4: Every generated digest/artifact must be consumed by page/AI/audit/CI or explicitly retired.
+P511-Q5: Removing UI must include a grep for prompt/test references to the removed runtime functions.

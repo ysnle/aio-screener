@@ -3839,6 +3839,105 @@ window._aioAskAiFromPageDecision = function(pageId) {
   }
 };
 
+// v50.79: user-supplied research digest consumption. Data-only: no fake premium board UI.
+window.AIO_USER_RESEARCH_REFRESH_CONTRACT = {
+  version: 'v50.79',
+  sourceKind: 'REFERENCE',
+  digestPath: './public-data/user-research-digest.json',
+  uiPolicy: 'data-only-no-premium-board',
+  rule: 'Use as framework/design reference only. Never promote to LIVE without verified market evidence.'
+};
+
+function _aioNormalizeUserResearchDigest(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  var items = Array.isArray(raw.items) ? raw.items : [];
+  var pageModules = {};
+  items.forEach(function(item) {
+    if (!item) return;
+    var targets = Array.isArray(item.pageTargets) ? item.pageTargets : [];
+    targets.forEach(function(pageId) {
+      if (!pageId) return;
+      if (!pageModules[pageId]) {
+        pageModules[pageId] = { pageId: pageId, cards: [], itemIds: [] };
+      }
+      var ex = item.extraction || {};
+      pageModules[pageId].cards.push({
+        id: item.id || '',
+        title: item.title || item.id || 'User research',
+        thesis: ex.thesis || '',
+        signals: Array.isArray(ex.signals) ? ex.signals.slice(0, 5) : [],
+        risks: Array.isArray(ex.risks) ? ex.risks.slice(0, 3) : [],
+        automationHint: ex.automationHint || '',
+        categories: Array.isArray(item.categories) ? item.categories : [],
+        url: item.url || ''
+      });
+      pageModules[pageId].itemIds.push(item.id || '');
+    });
+  });
+  return {
+    version: raw.version || 'unknown',
+    generatedAt: raw.generatedAt || null,
+    sourceKind: raw.sourceKind || 'REFERENCE',
+    description: raw.description || '',
+    items: items,
+    pageModules: pageModules
+  };
+}
+
+window.AIO.applyUserResearchDigestPayload = function(raw) {
+  var normalized = _aioNormalizeUserResearchDigest(raw);
+  if (!normalized) return false;
+  window.AIO_USER_RESEARCH_DIGEST = normalized;
+  window.AIO_USER_RESEARCH_PAGE_MODULES = normalized.pageModules || {};
+  window._aioUserResearchDigestMeta = {
+    status: 'ready',
+    loadedAt: Date.now(),
+    sourceKind: normalized.sourceKind,
+    generatedAt: normalized.generatedAt,
+    itemCount: normalized.items.length,
+    pageModuleCount: Object.keys(normalized.pageModules || {}).length
+  };
+  return true;
+};
+
+window.AIO.loadUserResearchDigest = async function() {
+  try {
+    var c = window.AIO_USER_RESEARCH_REFRESH_CONTRACT || {};
+    if (!c.digestPath || typeof fetch !== 'function') return false;
+    var res = await fetch(c.digestPath + '?v=' + encodeURIComponent((window.AIO && window.AIO.version) || 'dev'), { cache: 'no-store' });
+    if (!res || !res.ok) {
+      window._aioUserResearchDigestMeta = { status: 'unavailable', checkedAt: Date.now(), detail: 'HTTP ' + (res && res.status) };
+      return false;
+    }
+    var json = await res.json();
+    var ok = window.AIO.applyUserResearchDigestPayload(json);
+    if (!ok) window._aioUserResearchDigestMeta = { status: 'unavailable', checkedAt: Date.now(), detail: 'invalid payload' };
+    return ok;
+  } catch(e) {
+    window._aioUserResearchDigestMeta = { status: 'unavailable', checkedAt: Date.now(), detail: (e && e.message) || 'fetch failed' };
+    return false;
+  }
+};
+
+window.AIO.getUserResearchPipelineAudit = function() {
+  var d = window.AIO_USER_RESEARCH_DIGEST || {};
+  var meta = window._aioUserResearchDigestMeta || { status: 'not_loaded' };
+  var modules = window.AIO_USER_RESEARCH_PAGE_MODULES || {};
+  return {
+    status: meta.status,
+    sourceKind: d.sourceKind || 'REFERENCE',
+    digestPath: (window.AIO_USER_RESEARCH_REFRESH_CONTRACT || {}).digestPath,
+    itemCount: Array.isArray(d.items) ? d.items.length : 0,
+    pageModuleCount: Object.keys(modules).length,
+    canPromoteToLive: false,
+    uiPolicy: (window.AIO_USER_RESEARCH_REFRESH_CONTRACT || {}).uiPolicy
+  };
+};
+
+setTimeout(function() {
+  try { if (window.AIO && window.AIO.loadUserResearchDigest) window.AIO.loadUserResearchDigest(); } catch(_) {}
+}, 1800);
+
 
 // v50.75: 실데이터 기반 시장 팩터 히트맵 — history.json SPX/VIX/F&G/TNX로 실제 신호 계산
 // Codex 가짜 해시 데이터(_aioPremiumBoardModel) 완전 대체
@@ -3965,6 +4064,155 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   page.insertAdjacentHTML('afterbegin', html);
   var header = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
   return header;
+};
+
+function _aioVisualReportModel(pageId) {
+  pageId = String(pageId || 'home').replace(/^page-/, '');
+  var d = (typeof window._aioBuildPageDecision === 'function') ? window._aioBuildPageDecision(pageId) : null;
+  var modules = window.AIO_USER_RESEARCH_PAGE_MODULES || {};
+  var mod = modules[pageId] || {};
+  var cards = Array.isArray(mod.cards) ? mod.cards.slice(0, 2) : [];
+  return {
+    pageId: pageId,
+    title: d ? d.title : 'AIO Report',
+    decision: d ? d.decision : '현재 판단 확인',
+    action: d ? d.action : '상단 판단을 먼저 확인',
+    reasons: d && Array.isArray(d.reasons) ? d.reasons.slice(0, 3) : [],
+    sourceKind: d ? d.sourceKind : 'SNAPSHOT',
+    asOf: d ? d.asOf : '',
+    confidence: d ? d.confidence : '',
+    references: cards.map(function(c) { return c.title || c.id || ''; }).filter(Boolean)
+  };
+}
+
+function _aioWrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+  var words = String(text || '').split(/\s+/);
+  var line = '';
+  var lines = 0;
+  for (var i = 0; i < words.length; i++) {
+    var test = line ? line + ' ' + words[i] : words[i];
+    if (ctx.measureText(test).width > maxWidth && line) {
+      ctx.fillText(line, x, y);
+      y += lineHeight;
+      lines++;
+      line = words[i];
+      if (maxLines && lines >= maxLines) return y;
+    } else {
+      line = test;
+    }
+  }
+  if (line && (!maxLines || lines < maxLines)) {
+    ctx.fillText(line, x, y);
+    y += lineHeight;
+  }
+  return y;
+}
+
+function _aioDrawVisualReportCanvas(canvas, model) {
+  if (!canvas || !canvas.getContext) return false;
+  var ctx = canvas.getContext('2d');
+  canvas.width = 1080;
+  canvas.height = 1350;
+  ctx.fillStyle = '#08111f';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#0f1b2f';
+  ctx.fillRect(48, 48, 984, 1254);
+  ctx.strokeStyle = 'rgba(0,212,255,0.35)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(48, 48, 984, 1254);
+
+  ctx.fillStyle = '#00d4ff';
+  ctx.font = '700 30px Inter, Arial, sans-serif';
+  ctx.fillText('AIO SCREENER', 86, 112);
+  ctx.fillStyle = '#8ea0b8';
+  ctx.font = '22px Inter, Arial, sans-serif';
+  ctx.fillText(model.pageId + ' · ' + model.sourceKind + ' · ' + model.asOf, 86, 152);
+
+  ctx.fillStyle = '#f8fbff';
+  ctx.font = '900 54px Inter, Arial, sans-serif';
+  _aioWrapCanvasText(ctx, model.decision, 86, 255, 900, 66, 3);
+
+  ctx.fillStyle = '#101f36';
+  ctx.fillRect(86, 356, 908, 120);
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.strokeRect(86, 356, 908, 120);
+  ctx.fillStyle = '#00e5a0';
+  ctx.font = '800 24px Inter, Arial, sans-serif';
+  ctx.fillText('TODAY ACTION', 112, 398);
+  ctx.fillStyle = '#dce7f5';
+  ctx.font = '28px Inter, Arial, sans-serif';
+  _aioWrapCanvasText(ctx, model.action, 112, 440, 850, 36, 2);
+
+  ctx.fillStyle = '#00d4ff';
+  ctx.font = '800 26px Inter, Arial, sans-serif';
+  ctx.fillText('WHY IT MATTERS', 86, 550);
+  ctx.font = '25px Inter, Arial, sans-serif';
+  ctx.fillStyle = '#dce7f5';
+  var y = 600;
+  (model.reasons || []).forEach(function(r, idx) {
+    ctx.fillStyle = idx === 0 ? '#00e5a0' : '#dce7f5';
+    ctx.fillText(String(idx + 1) + '.', 100, y);
+    ctx.fillStyle = '#dce7f5';
+    y = _aioWrapCanvasText(ctx, r, 145, y, 820, 34, 2) + 18;
+  });
+
+  if (model.references && model.references.length) {
+    ctx.fillStyle = '#ffa31a';
+    ctx.font = '800 24px Inter, Arial, sans-serif';
+    ctx.fillText('REFERENCE FRAMEWORKS', 86, 895);
+    ctx.fillStyle = '#c8d4e3';
+    ctx.font = '22px Inter, Arial, sans-serif';
+    var ry = 935;
+    model.references.forEach(function(r) {
+      ry = _aioWrapCanvasText(ctx, '- ' + r, 110, ry, 840, 30, 1) + 10;
+    });
+  }
+
+  ctx.fillStyle = '#0b1628';
+  ctx.fillRect(86, 1160, 908, 82);
+  ctx.fillStyle = '#8ea0b8';
+  ctx.font = '22px Inter, Arial, sans-serif';
+  ctx.fillText('sourceKind: ' + model.sourceKind + '   confidence: ' + model.confidence, 112, 1208);
+  ctx.fillText('Investment aid only. Verify live data before trading.', 112, 1238);
+  return true;
+}
+
+window._aioCreateVisualReport = function(pageId) {
+  pageId = String(pageId || ((document.querySelector('.page.active') || {}).id || 'home')).replace(/^page-/, '');
+  var page = document.getElementById('page-' + pageId) || document.querySelector('.page.active');
+  if (!page) return false;
+  var old = page.querySelector('.aio-visual-report[data-report-page="' + pageId + '"]');
+  if (old) old.remove();
+  var id = 'aio-visual-report-' + pageId;
+  var html = '<section class="aio-visual-report" data-report-page="' + _aioDecisionEsc(pageId) + '">'
+    + '<div class="aio-visual-report-head"><div class="aio-visual-report-title">AI 시각 리포트 카드</div>'
+    + '<div><button type="button" class="aio-ai-context-btn" data-action="_aioDownloadVisualReport" data-arg="' + _aioDecisionEsc(pageId) + '">PNG 다운로드</button></div></div>'
+    + '<canvas id="' + _aioDecisionEsc(id) + '" aria-label="AIO visual report"></canvas>'
+    + '</section>';
+  var anchor = page.querySelector('.aio-decision-header') || page.firstElementChild;
+  if (anchor) anchor.insertAdjacentHTML('afterend', html);
+  else page.insertAdjacentHTML('afterbegin', html);
+  var canvas = document.getElementById(id);
+  var ok = _aioDrawVisualReportCanvas(canvas, _aioVisualReportModel(pageId));
+  try { if (canvas && canvas.scrollIntoView) canvas.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(_) {}
+  return ok;
+};
+
+window._aioDownloadVisualReport = function(pageId) {
+  pageId = String(pageId || 'home').replace(/^page-/, '');
+  var canvas = document.getElementById('aio-visual-report-' + pageId);
+  if (!canvas) {
+    window._aioCreateVisualReport(pageId);
+    canvas = document.getElementById('aio-visual-report-' + pageId);
+  }
+  if (!canvas || !canvas.toDataURL) return false;
+  var a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = 'aio-report-' + pageId + '-' + new Date().toISOString().slice(0, 10) + '.png';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  return true;
 };
 
 window._aioRenderAllPageDecisionHeaders = function() {
@@ -11805,6 +12053,7 @@ window.AIO.getAutoOpsReadiness = function() {
   var connectiveLayer = window.AIO.getConnectiveLayerAudit ? window.AIO.getConnectiveLayerAudit() : null;
   // v50.48: 자율 운영 루프 5단계 연결(ingest→signal→brain→text→reflect)
   var autonomousLoop = window.AIO.getAutonomousLoopAudit ? window.AIO.getAutonomousLoopAudit() : null;
+  var runtimeContract = window.AIO.getRuntimeContractAudit ? window.AIO.getRuntimeContractAudit() : null;
   var issues = [];
   if (visibleDevMarker && visibleDevMarker.violationCount) issues.push(visibleDevMarker.violationCount + ' visible developer/version marker(s) [v50.14/R206]: ' + visibleDevMarker.violations.slice(0, 4).map(function(v){ return v.pageId + ':' + v.marker; }).join(', '));
   if (freshness && freshness.status !== 'ok') issues = issues.concat(freshness.issues || []);
@@ -11863,6 +12112,9 @@ window.AIO.getAutoOpsReadiness = function() {
   if (marketStateCoherence && marketStateCoherence.status !== 'ok') issues.push('marketState coherence: ' + marketStateCoherence.status + (marketStateCoherence.stale ? ' (stale ' + marketStateCoherence.ageSec + 's)' : '') + ' [v50.42/MarketStateCore]');
   if (connectiveLayer && connectiveLayer.status && connectiveLayer.status !== 'ok') issues.push('connective layer: ' + connectiveLayer.status + ' [v50.41/42]');
   if (autonomousLoop && autonomousLoop.status === 'fail') issues.push('자율 운영 루프 끊김(' + autonomousLoop.connected + '): ' + (autonomousLoop.brokenStages || []).join(',') + ' [v50.48/Phase4]');
+  if (!runtimeContract) issues.push('runtime contract audit unavailable [v50.79]');
+  else if (runtimeContract.status === 'fail') issues.push('runtime contract fail: ' + runtimeContract.failures.slice(0, 3).join(' | '));
+  else if (runtimeContract.status === 'warn') issues.push('runtime contract warn: ' + runtimeContract.warnings.slice(0, 3).join(' | '));
   return {
     status: issues.length ? 'warn' : 'ok',
     issues: issues,
@@ -11930,6 +12182,8 @@ window.AIO.getAutoOpsReadiness = function() {
       connectiveLayer: 'AIO.getConnectiveLayerAudit()',
       autonomousLoop: 'AIO.getAutonomousLoopAudit()',
       marketAnalysis: 'AIO.synthesizeMarketAnalysis()',
+      runtimeContract: 'AIO.getRuntimeContractAudit()',
+      shareReadiness: 'AIO.getShareReadinessAudit({ skipEssence: true })',
       deploymentGate: 'AIO.getDeploymentGateAudit({ strict: true })'
     },
     freshness: freshness,
@@ -11975,6 +12229,7 @@ window.AIO.getAutoOpsReadiness = function() {
     fourthFifthPass: fourthFifthPass,
     marketStateCoherence: marketStateCoherence,
     connectiveLayer: connectiveLayer,
+    runtimeContract: runtimeContract,
     generatedAt: new Date().toISOString()
   };
 };
@@ -12043,6 +12298,82 @@ window.AIO.getSnapshotDateSourceAudit = function() {
   };
 };
 
+// v50.79: runtime contract gate.
+// It catches the failure class where UI edits remove or rename runtime callables
+// while AI prompts, digest artifacts, or cachebusters still depend on them.
+window.AIO.getRuntimeContractAudit = function() {
+  var failures = [];
+  var warnings = [];
+  var scripts = [];
+  try {
+    scripts = Array.prototype.slice.call(document.scripts || [])
+      .map(function(s) { return s.getAttribute('src') || ''; })
+      .filter(Boolean);
+  } catch(_) {}
+
+  function requireFn(name, owner) {
+    var ok = typeof window[name] === 'function';
+    if (!ok) failures.push((owner || 'runtime') + ' callable missing: ' + name);
+    return ok;
+  }
+  function requireAioFn(name, owner) {
+    var ok = !!(window.AIO && typeof window.AIO[name] === 'function');
+    if (!ok) failures.push((owner || 'AIO') + ' method missing: AIO.' + name + '()');
+    return ok;
+  }
+
+  var ver = (window.AIO && window.AIO.version) || (typeof APP_VERSION === 'string' ? APP_VERSION : '');
+  var verNum = String(ver || '').replace(/^v/, '');
+  var jsScripts = scripts.filter(function(src) { return /\/?js\/aio-/.test(src); });
+  var wrongBusters = verNum ? jsScripts.filter(function(src) {
+    var m = src.match(/\?v=([\d.]+)/);
+    return m && m[1] !== verNum;
+  }) : [];
+  if (wrongBusters.length) failures.push('JS cachebuster drift: ' + wrongBusters.join(', '));
+  if (jsScripts.length && verNum && jsScripts.filter(function(src) { return src.indexOf('?v=' + verNum) >= 0; }).length < 5) {
+    warnings.push('expected five versioned aio JS scripts; found ' + jsScripts.length);
+  }
+
+  requireFn('_aioCreateVisualReport', 'AI visual report');
+  requireFn('_aioDownloadVisualReport', 'AI visual report');
+  requireFn('_getImportedResearchContext', 'AI imported research');
+  requireAioFn('applyUserResearchDigestPayload', 'research digest');
+  requireAioFn('loadUserResearchDigest', 'research digest');
+  requireAioFn('getUserResearchPipelineAudit', 'research digest');
+
+  var digestContract = window.AIO_USER_RESEARCH_REFRESH_CONTRACT || {};
+  if (digestContract.sourceKind !== 'REFERENCE') failures.push('user research digest must remain sourceKind=REFERENCE');
+  if (digestContract.uiPolicy !== 'data-only-no-premium-board') failures.push('user research digest uiPolicy drift');
+  if (!digestContract.digestPath) warnings.push('user research digest path unavailable');
+
+  var digestAudit = window.AIO && window.AIO.getUserResearchPipelineAudit ? window.AIO.getUserResearchPipelineAudit() : null;
+  if (!digestAudit) failures.push('user research pipeline audit unavailable');
+  else {
+    if (digestAudit.sourceKind !== 'REFERENCE') failures.push('user research audit sourceKind drift: ' + digestAudit.sourceKind);
+    if (digestAudit.canPromoteToLive !== false) failures.push('REFERENCE research canPromoteToLive must be false');
+    if (digestAudit.uiPolicy !== 'data-only-no-premium-board') failures.push('research digest must not recreate premium-board UI');
+    if (digestAudit.status === 'unavailable') warnings.push('user research digest unavailable: ' + (digestAudit.detail || digestAudit.digestPath || 'unknown'));
+  }
+
+  var fakeUi = 0;
+  try {
+    fakeUi = document.querySelectorAll('.aio-premium-board,.aio-research-bridge,.apb-board').length;
+  } catch(_) {}
+  if (fakeUi) failures.push('removed fake research UI visible: ' + fakeUi + ' node(s)');
+
+  return {
+    status: failures.length ? 'fail' : (warnings.length ? 'warn' : 'ok'),
+    failureCount: failures.length,
+    warningCount: warnings.length,
+    failures: failures,
+    warnings: warnings,
+    version: ver || null,
+    scriptCount: jsScripts.length,
+    digest: digestAudit,
+    generatedAt: new Date().toISOString()
+  };
+};
+
 window.AIO.getDeploymentGateAudit = function(opts) {
   opts = opts || {};
   var strict = opts.strict !== false;
@@ -12058,6 +12389,7 @@ window.AIO.getDeploymentGateAudit = function(opts) {
   var fullSurface = window.AIO.getFullSurfaceAudit ? window.AIO.getFullSurfaceAudit() : null;
   var deepReview = window.AIO.getDeepReviewAudit ? window.AIO.getDeepReviewAudit() : null;
   var fourthFifth = window.AIO.getFourthFifthPassAudit ? window.AIO.getFourthFifthPassAudit() : null;
+  var runtimeContract = window.AIO.getRuntimeContractAudit ? window.AIO.getRuntimeContractAudit() : null;
   var blocking = [];
   var warnings = [];
 
@@ -12081,6 +12413,9 @@ window.AIO.getDeploymentGateAudit = function(opts) {
   else if (deepReview && deepReview.status !== 'ok') warnings.push('deep review audit warn: ' + deepReview.warningCount + ' warning(s)');
   if (fourthFifth && fourthFifth.status === 'fail') blocking.push('fourth/fifth pass audit fail: ' + fourthFifth.issueCount + ' issue(s)');
   else if (fourthFifth && fourthFifth.status !== 'ok') warnings.push('fourth/fifth pass audit warn: ' + fourthFifth.warningCount + ' warning(s)');
+  if (!runtimeContract) blocking.push('runtime contract audit unavailable');
+  else if (runtimeContract.status === 'fail') blocking = blocking.concat(runtimeContract.failures.map(function(x) { return 'runtime contract: ' + x; }));
+  else if (runtimeContract.status === 'warn') warnings = warnings.concat(runtimeContract.warnings.map(function(x) { return 'runtime contract: ' + x; }));
   if (strict && warnings.length) blocking = blocking.concat(warnings);
 
   return {
@@ -12101,6 +12436,43 @@ window.AIO.getDeploymentGateAudit = function(opts) {
     fullSurfaceAudit: fullSurface,
     deepReviewAudit: deepReview,
     fourthFifthPass: fourthFifth,
+    runtimeContract: runtimeContract,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+window.AIO.getShareReadinessAudit = function(opts) {
+  opts = opts || {};
+  var deployment = window.AIO.getDeploymentGateAudit ? window.AIO.getDeploymentGateAudit({ strict: false, skipEssence: !!opts.skipEssence }) : null;
+  var runtime = window.AIO.getRuntimeContractAudit ? window.AIO.getRuntimeContractAudit() : null;
+  var readiness = window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null;
+  var blockers = [];
+  var warnings = [];
+
+  if (!deployment) blockers.push('deployment gate unavailable');
+  else {
+    blockers = blockers.concat((deployment.blocking || []).map(function(x) { return 'deployment: ' + x; }));
+    warnings = warnings.concat((deployment.warnings || []).map(function(x) { return 'deployment: ' + x; }));
+  }
+  if (!runtime) blockers.push('runtime contract unavailable');
+  else if (runtime.status === 'fail') blockers = blockers.concat(runtime.failures.map(function(x) { return 'runtime: ' + x; }));
+  else if (runtime.status === 'warn') warnings = warnings.concat(runtime.warnings.map(function(x) { return 'runtime: ' + x; }));
+
+  if (readiness && readiness.issues && readiness.issues.length) {
+    warnings.push('auto-ops has ' + readiness.issues.length + ' warning(s); check AIO.getAutoOpsReadiness() before public sharing');
+  }
+
+  return {
+    status: blockers.length ? 'not-shareable' : (warnings.length ? 'share-with-warnings' : 'shareable'),
+    shareable: blockers.length === 0,
+    blockers: blockers,
+    warnings: warnings,
+    nextActions: blockers.length
+      ? ['Fix blockers before sharing externally.', 'Run node scripts/ci-version-check.mjs', 'Run node scripts/ci-runtime-contract-check.mjs']
+      : (warnings.length ? ['Review warnings and label stale/REFERENCE data clearly.'] : ['Ready for external smoke review.']),
+    runtimeContract: runtime,
+    deploymentGate: deployment,
+    readinessStatus: readiness && readiness.status || null,
     generatedAt: new Date().toISOString()
   };
 };
@@ -16384,7 +16756,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.76';
+const APP_VERSION = 'v50.79';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -21924,6 +22296,37 @@ function showTicker(tkr) {
     html += '</div>';
     ecDiv.innerHTML = html;
   }
+
+  // v50.77: Minervini-style 메트릭 스트립 (SR·RSI·3M·TPR·SIG)
+  try {
+    var mvEl = document.getElementById('ticker-mv-strip');
+    if (mvEl) {
+      var sd77 = typeof SCREENER_DB !== 'undefined' ? SCREENER_DB.find(function(r){ return r.sym === tkr; }) : null;
+      if (sd77) {
+        var rk77 = typeof sd77.rank === 'number' ? sd77.rank : null;
+        var g77 = rk77 != null ? (rk77 >= 80 ? 'A' : rk77 >= 65 ? 'B' : rk77 >= 50 ? 'C' : rk77 >= 35 ? 'D' : 'F') : '—';
+        var rsi77 = sd77.rsi != null ? sd77.rsi : '—';
+        var rsiCol77 = sd77.rsi != null ? (sd77.rsi >= 70 ? 'var(--data-red)' : sd77.rsi <= 30 ? 'var(--data-green)' : 'var(--data-amber)') : 'var(--text-muted)';
+        var r3m77 = typeof sd77.ret3m === 'number' ? ((sd77.ret3m >= 0 ? '+' : '') + sd77.ret3m.toFixed(1) + '%') : '—';
+        var r3mCol77 = typeof sd77.ret3m === 'number' ? (sd77.ret3m >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+        var sig77 = sd77.signal || '—';
+        var sigCol77 = sig77 === 'BUY' ? 'var(--data-green)' : sig77 === 'SELL' ? 'var(--data-red)' : sig77 === 'WATCH' ? 'var(--data-amber)' : 'var(--text-muted)';
+        var fs77 = sd77.factorScores || {};
+        var mom77 = fs77.momentum != null ? fs77.momentum : null;
+        mvEl.innerHTML =
+          '<span class="mv-pill"><span class="mv-pill-lbl">SR</span><span style="color:var(--data-cyan);">' + (rk77 != null ? rk77 : '—') + '</span></span>' +
+          '<span class="mv-pill"><span class="mv-pill-lbl">TPR</span><span class="mv-grade mv-grade-' + g77 + '">' + g77 + '</span></span>' +
+          '<span class="mv-pill-sep"></span>' +
+          '<span class="mv-pill"><span class="mv-pill-lbl">RSI</span><span style="color:' + rsiCol77 + ';">' + rsi77 + '</span></span>' +
+          '<span class="mv-pill"><span class="mv-pill-lbl">3M</span><span style="color:' + r3mCol77 + ';">' + r3m77 + '</span></span>' +
+          (mom77 != null ? '<span class="mv-pill"><span class="mv-pill-lbl">MOM</span><span style="color:' + (mom77 >= 60 ? 'var(--data-green)' : mom77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') + ';">' + mom77 + '</span></span>' : '') +
+          '<span class="mv-pill-sep"></span>' +
+          '<span class="mv-pill"><span class="mv-pill-lbl">SIG</span><span style="color:' + sigCol77 + ';font-weight:900;">' + sig77 + '</span></span>';
+      } else {
+        mvEl.innerHTML = '<span style="font-size:10px;color:var(--text-muted);">SCREENER_DB 미등록 — 시장 데이터 기반 기본 분석 사용</span>';
+      }
+    }
+  } catch(_) {}
 
   showPage('ticker', null);
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));

@@ -1580,6 +1580,8 @@ function renderScreenerResults() {
     var mcapStr = (r.mcap >= 1000) ? '$' + (r.mcap/1000).toFixed(1) + 'T' : '$' + (r.mcap||0) + 'B';
     var rank = (typeof r.rank === 'number') ? r.rank : null;
     var rkColor = rank == null ? '#7b8599' : rank >= 80 ? '#00e5a0' : rank >= 60 ? '#7ddf8f' : rank >= 40 ? '#ffa31a' : '#ff5b50';
+    var grade = rank == null ? '—' : rank >= 80 ? 'A' : rank >= 65 ? 'B' : rank >= 50 ? 'C' : rank >= 35 ? 'D' : 'F';
+    var gradeClass = rank == null ? '' : 'mv-grade-' + grade;
     var fs = r.factorScores || {};
     var ret3 = (typeof r.ret3m === 'number') ? ((r.ret3m>=0?'+':'')+r.ret3m.toFixed(1)+'%') : '—';
     var ret3c = (typeof r.ret3m === 'number') ? (r.ret3m>=0?'#00e5a0':'#ff5b50') : '#5a6678';
@@ -1594,6 +1596,7 @@ function renderScreenerResults() {
           : '<span style="color:#5a6678;">—</span>') +
         (r.quantSignal ? '<div style="font-size:9px;color:'+rkColor+';margin-top:2px;">'+escHtml(r.quantSignal)+'</div>' : '') +
       '</td>' +
+      '<td style="text-align:center;padding:5px 6px;"><span class="mv-grade ' + gradeClass + '" style="font-size:11px;">' + grade + '</span></td>' +
       '<td style="padding:6px 8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:10px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
       '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);">' + escHtml(r.sector||'') + '</td>' +
       _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) +
@@ -1605,7 +1608,7 @@ function renderScreenerResults() {
     '</tr>';
   });
 
-  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="13" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
+  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="14" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
   // 스파크라인 미니차트 렌더링
   requestAnimationFrame(function() { renderSparklines(filtered); });
   document.getElementById('screener-result-count').textContent = filtered.length;

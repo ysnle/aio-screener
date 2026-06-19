@@ -4463,3 +4463,19 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **수정**: 시장 폭(breadth) = 5/20/50일선만으로 확정. signal 정적진단 200 제거, 골드크로스 카드 제거, `breadth200sma` 시드+alias+applyDataSnapshot 매핑 제거, 점수 라벨 "200SMA Above/보조" → "시장 폭/20일선"으로 정직화, `_fallback.breadth200`은 20일값(57)으로 정합. 200일선은 추세 판별(Weinstein Stage, 가격 vs 200MA)에만 유지. T324/T325 현행화 + T768 신규(200 재유입 방지 가드).
 - **violated_rule**: R57(정적 stale) 연장 + breadth 정의 일관성. P481 신규.
 - **prevention**: "시장 폭(breadth participation)=5/20/50일선" 단일 정의 확정. 200일선은 추세 전용. T768이 breadth200sma 시드/카드/진단 부재를 회귀 검증. breadth 관련 신규 코드는 5/20/50만 사용.
+
+## P510 · v50.78 · Runtime contract drift after UI redesign
+
+- **symptom**: v50.77 UI redesign looked visually improved, but runtime contracts were broken underneath: `index.html` still loaded JS with `?v=50.75`, `aio-chat.js` still referenced `_aioCreateVisualReport` after that function had been removed, and `public-data/user-research-digest.json` existed without a runtime consumer.
+- **root_cause**: The redesign removed fake/premium-looking UI correctly, but also removed real integration hooks and did not re-run the full R1/version/cachebuster and AI tool-contract checks. External research artifacts were treated as static documentation instead of a data pipeline that must be loaded, labeled, and consumed.
+- **fix**: v50.78 synchronized all cachebusters/version surfaces, restored `_aioCreateVisualReport`/download canvas output as a data-backed report helper, added `AIO.loadUserResearchDigest()` + `AIO.applyUserResearchDigestPayload()` + `AIO.getUserResearchPipelineAudit()`, and routed imported research into `_getImportedResearchContext()` as `sourceKind=REFERENCE` data-only context.
+- **violated_rule**: R1 version synchronization and the data-refresh contract: produced artifacts must be consumed or explicitly retired. AI prompt/tool contracts must be checked after removing UI/functionality.
+- **prevention**: Add regression coverage for imported research pipeline consumption, visual report availability, cachebuster sync, and v50.77 metric strip/table UI. Do not remove a runtime callable merely because a surrounding UI looked excessive; first find every prompt/test/page reference.
+
+## P511 · v50.79 · Notes without gates allowed repeated regressions
+
+- **symptom**: Similar problems kept recurring despite many postmortems: user research files were generated but not consumed, AI prompts referenced removed functions, and version/cachebuster drift reached the browser.
+- **root_cause**: Lessons were recorded as text but not promoted into executable gates. The system had many audits, but no focused runtime/share-readiness contract for prompt-callable, digest-consumer, fake-UI, and cachebuster coherence.
+- **fix**: Added `AIO.getRuntimeContractAudit()`, `AIO.getShareReadinessAudit()`, deployment/auto-ops wiring, `scripts/ci-runtime-contract-check.mjs`, and T844. The completion definition is now page/AI/audit/CI consumption, not file creation.
+- **violated_rule**: R218 newly added. Existing R1 and data-refresh artifact-consumption principles were not sufficiently enforceable.
+- **prevention**: Any future edit touching AI, imported research, visual reports, cachebusters, or shareability must pass `ci-runtime-contract-check` and browser runtime/share audits before being called done.

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.76 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.79 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3759,6 +3759,33 @@ body.light-theme canvas { filter:none; }
 .mhc-cell.mhc-n2 { background:rgba(255,91,80,0.36); color:#1a0000; }
 .mhc-cell.mhc-na { background:transparent; color:var(--text-muted); opacity:0.35; }
 .mhc-foot { padding:4px 12px; font-size:9px; color:var(--text-muted); border-top:1px solid var(--border); }
+/* v50.77: Minervini-style metric pills + indicator strips */
+.mv-metric-strip { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:8px 12px; background:var(--surface-1); border:1px solid var(--border); border-radius:7px; }
+.mv-pill { display:inline-flex; align-items:center; gap:3px; padding:3px 7px; border-radius:4px; font-size:10px; font-weight:800; font-family:var(--font-mono); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); white-space:nowrap; }
+.mv-pill-lbl { font-size:9px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-right:2px; }
+.mv-pill-sep { width:1px; height:14px; background:var(--border); flex-shrink:0; }
+.mv-grade { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:3px; font-size:10px; font-weight:900; font-family:var(--font-mono); }
+.mv-grade-A { background:rgba(0,229,160,0.15); color:var(--data-green); border:1px solid rgba(0,229,160,0.3); }
+.mv-grade-B { background:rgba(0,229,160,0.08); color:#7ddf8f; border:1px solid rgba(0,229,160,0.15); }
+.mv-grade-C { background:rgba(255,163,26,0.12); color:var(--data-amber); border:1px solid rgba(255,163,26,0.25); }
+.mv-grade-D { background:rgba(251,146,60,0.12); color:#fb923c; border:1px solid rgba(251,146,60,0.25); }
+.mv-grade-F { background:rgba(255,91,80,0.12); color:var(--data-red); border:1px solid rgba(255,91,80,0.25); }
+/* Indicator strips (Pressure / Buy Risk / Trend Phase) */
+.mv-ind-wrap { display:flex; flex-direction:column; gap:5px; }
+.mv-ind-row { display:grid; grid-template-columns:90px 1fr; align-items:center; gap:8px; }
+.mv-ind-lbl { font-size:9px; font-weight:700; color:var(--text-muted); text-align:right; text-transform:uppercase; letter-spacing:0.05em; }
+.mv-ind-track { height:8px; border-radius:2px; overflow:hidden; background:rgba(255,255,255,0.05); }
+.mv-ind-seg { height:100%; border-radius:2px; transition:width 0.4s; }
+/* Buy phase label (Buy Alert / Buy Ready / SEPA style) */
+.mv-phase-lbl { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:4px; font-size:11px; font-weight:900; letter-spacing:0.04em; }
+.mv-phase-alert { background:rgba(255,163,26,0.15); border:1px solid rgba(255,163,26,0.35); color:var(--data-amber); }
+.mv-phase-ready { background:rgba(0,229,160,0.12); border:1px solid rgba(0,229,160,0.3); color:var(--data-green); }
+.mv-phase-sepa  { background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3); color:#60a5fa; }
+.mv-phase-avoid { background:rgba(255,91,80,0.12); border:1px solid rgba(255,91,80,0.3); color:var(--data-red); }
+.aio-visual-report { margin:12px 0 14px; padding:12px; border:1px solid var(--border); border-radius:10px; background:var(--bg-card); }
+.aio-visual-report-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+.aio-visual-report-title { font-size:12px; font-weight:900; color:var(--text-primary); }
+.aio-visual-report canvas { width:100%; max-width:540px; border-radius:10px; border:1px solid rgba(255,255,255,0.10); background:#08111f; display:block; }
 @media (max-width:900px) {
   .aio-decision-top { flex-direction:column; }
   .aio-decision-meta { justify-content:flex-start; min-width:0; }
@@ -4112,7 +4139,7 @@ body.light-theme canvas { filter:none; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.76</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.79</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4518,6 +4545,14 @@ body.light-theme canvas { filter:none; }
       <div id="score-decision-sub" style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:4px;">점수 입력 수신 대기…</div>
       <div id="score-ts" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">—</div>
     </div>
+  </div>
+
+  <!-- v50.77: Minervini-style 메트릭 필 + 매수 국면 레이블 -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+    <div id="signal-mv-strip" class="mv-metric-strip" style="flex:1;min-width:0;">
+      <span style="font-size:10px;color:var(--text-muted);">시장 메트릭 로딩 중…</span>
+    </div>
+    <div id="signal-phase-label" style="flex-shrink:0;"></div>
   </div>
 
   <!-- ─ 점수 구성 + 실행 타이밍 ─ -->
@@ -5827,6 +5862,25 @@ body.light-theme canvas { filter:none; }
       <div style="display:flex;gap:6px;align-items:center;">
         <span id="tech-health-pill" class="status-pill sp-neutral">— 시장 건강도 수신 대기</span>
         <span class="freshness-badge fb-live">● LIVE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- v50.77: Minervini-style 시장 상태 인디케이터 스트립 (Pressure / Buy Risk / Trend Phase) -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:10px;">
+    <div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Market Indicators</div>
+    <div class="mv-ind-wrap">
+      <div class="mv-ind-row">
+        <div class="mv-ind-lbl">Pressure</div>
+        <div class="mv-ind-track"><div class="mv-ind-seg" id="ind-pressure-fill" style="width:50%;background:var(--data-amber);"></div></div>
+      </div>
+      <div class="mv-ind-row">
+        <div class="mv-ind-lbl">Buy Risk</div>
+        <div class="mv-ind-track"><div class="mv-ind-seg" id="ind-buyrisk-fill" style="width:60%;background:var(--data-green);"></div></div>
+      </div>
+      <div class="mv-ind-row">
+        <div class="mv-ind-lbl">Trend Phase</div>
+        <div class="mv-ind-track"><div class="mv-ind-seg" id="ind-trend-fill" style="width:65%;background:var(--data-cyan);"></div></div>
       </div>
     </div>
   </div>
@@ -8446,6 +8500,11 @@ body.light-theme canvas { filter:none; }
       </div>
     </div>
 
+    <!-- v50.77: Minervini-style 메트릭 스트립 (SR·RSI·3M·TPR·SIG) -->
+    <div id="ticker-mv-strip" class="mv-metric-strip" style="margin-bottom:10px;">
+      <span style="font-size:10px;color:var(--text-muted);">종목 선택 대기</span>
+    </div>
+
     <!-- 진입 적합성 판단 (Jeff Sun CFTe) -->
     <div id="ticker-entry-check" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:10px;"></div>
 
@@ -8791,6 +8850,7 @@ body.light-theme canvas { filter:none; }
         <thead>
           <tr style="border-bottom:2px solid var(--surface-5);">
             <th data-scr-sort="rank" data-action="_aioScreenerSort" data-arg="rank" role="button" style="cursor:pointer;text-align:center;padding:7px 8px;font-size:10px;">순위<span class="scr-arrow"></span></th>
+            <th style="text-align:center;padding:7px 8px;font-size:10px;">등급</th>
             <th data-scr-sort="sym" data-action="_aioScreenerSort" data-arg="sym" role="button" style="cursor:pointer;text-align:left;padding:7px 8px;font-size:10px;">종목<span class="scr-arrow"></span></th>
             <th data-scr-sort="sector" data-action="_aioScreenerSort" data-arg="sector" role="button" style="cursor:pointer;text-align:left;padding:7px 8px;font-size:10px;">섹터<span class="scr-arrow"></span></th>
             <th data-scr-sort="momentum" data-action="_aioScreenerSort" data-arg="momentum" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">모멘텀<span class="scr-arrow"></span></th>
@@ -8805,7 +8865,7 @@ body.light-theme canvas { filter:none; }
             <th style="text-align:center;padding:7px 8px;font-size:10px;">시그널</th>
           </tr>
         </thead>
-        <tbody id="screener-results-body"><tr><td colspan="13" style="text-align:center;padding:20px;color:var(--text-muted);">조건을 선택하면 스크리닝 결과를 표시합니다.</td></tr></tbody>
+        <tbody id="screener-results-body"><tr><td colspan="14" style="text-align:center;padding:20px;color:var(--text-muted);">조건을 선택하면 스크리닝 결과를 표시합니다.</td></tr></tbody>
       </table>
     </div>
     <div style="font-size:10px;color:var(--text-muted);margin-top:8px;">행 클릭 → 종목 심층 분석. 서버 팩터 파일 미수신 시 랭크·백테스트는 비활성화되고 정적 시그널만 유지됩니다. 밸류·퀄리티의 ‘—’는 FMP 데이터 미수신으로 해당 팩터가 랭크에서 제외됐다는 뜻입니다.</div>
@@ -10451,9 +10511,9 @@ body.light-theme canvas { filter:none; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.75"></script>
-  <script src="./js/aio-data.js?v=50.75"></script>
-  <script src="./js/aio-ui.js?v=50.75"></script>
+  <script src="./js/aio-core.js?v=50.79"></script>
+  <script src="./js/aio-data.js?v=50.79"></script>
+  <script src="./js/aio-ui.js?v=50.79"></script>
 
   <script>
 
@@ -13640,7 +13700,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.75"></script>
+<script src="./js/aio-chat.js?v=50.79"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -13761,6 +13821,19 @@ function computeMarketHealth() {
     var sb = document.getElementById('hc-spy-bar'); if (sb) { sb.style.width = spyW + '%'; sb.style.background = spyCol; }
     var qb = document.getElementById('hc-qqq-bar'); if (qb) { qb.style.width = qqqW + '%'; qb.style.background = qqqCol; }
     var vb = document.getElementById('hc-vix-bar'); if (vb) { vb.style.width = vixW + '%'; vb.style.background = vixCol; }
+  })();
+  // v50.77: Minervini-style indicator strips (Pressure / Buy Risk / Trend Phase)
+  (function() {
+    var vixLvl = vp || 20;
+    var pressureW = Math.min(100, Math.max(0, (vixLvl - 10) / 30 * 100));
+    var pressureCol = vixLvl < 20 ? 'var(--data-green)' : vixLvl < 25 ? 'var(--data-amber)' : vixLvl < 30 ? '#fb923c' : 'var(--data-red)';
+    var buyRiskW = Math.max(0, 100 - pressureW);
+    var buyRiskCol = buyRiskW > 60 ? 'var(--data-green)' : buyRiskW > 40 ? 'var(--data-amber)' : 'var(--data-red)';
+    var trendW = (ma50 && ma200 && spyPrice) ? (ma50 > ma200 && spyPrice > ma50 ? 85 : ma50 > ma200 ? 60 : spyPrice > ma50 ? 40 : 20) : 50;
+    var trendCol = trendW >= 70 ? 'var(--data-cyan)' : trendW >= 50 ? 'var(--data-amber)' : 'var(--data-red)';
+    var pf = document.getElementById('ind-pressure-fill'); if (pf) { pf.style.width = pressureW + '%'; pf.style.background = pressureCol; }
+    var bf = document.getElementById('ind-buyrisk-fill'); if (bf) { bf.style.width = buyRiskW + '%'; bf.style.background = buyRiskCol; }
+    var tf = document.getElementById('ind-trend-fill'); if (tf) { tf.style.width = trendW + '%'; tf.style.background = trendCol; }
   })();
   el = document.getElementById('tech-health-pill');
   if (el) {
@@ -21612,6 +21685,44 @@ function refreshSignalDashboard() {
 
   // v42.1: 마켓 펄스 바 업데이트
   try { updateMarketPulse(); } catch(e) {}
+
+  // v50.77: Minervini-style 메트릭 필 + 매수 국면 레이블 업데이트
+  try {
+    var mvStrip = document.getElementById('signal-mv-strip');
+    var phaseEl = document.getElementById('signal-phase-label');
+    if (mvStrip) {
+      var ld77 = window._liveData || {};
+      var vixVal = (ld77['^VIX'] && ld77['^VIX'].price) ? ld77['^VIX'].price : 20;
+      var fg77 = window._fearGreedValue;
+      var ts77 = total;
+      var vixCol77 = vixVal < 20 ? 'var(--data-green)' : vixVal < 25 ? 'var(--data-amber)' : 'var(--data-red)';
+      var fgCol77 = fg77 != null ? (fg77 >= 60 ? 'var(--data-green)' : fg77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') : 'var(--text-muted)';
+      var tsGrade77 = ts77 >= 75 ? 'A' : ts77 >= 60 ? 'B' : ts77 >= 45 ? 'C' : ts77 >= 30 ? 'D' : 'F';
+      var m7Up77 = 0, m7Tot77 = 0;
+      ['AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'].forEach(function(t){ var d = ld77[t]; if(d){m7Tot77++;if((d.pct||0)>0)m7Up77++;} });
+      var m7Col77 = m7Tot77 > 0 ? (m7Up77/m7Tot77 >= 0.7 ? 'var(--data-green)' : m7Up77/m7Tot77 >= 0.4 ? 'var(--data-amber)' : 'var(--data-red)') : 'var(--text-muted)';
+      var spyChg77 = (ld77['SPY'] && ld77['SPY'].pct != null) ? ld77['SPY'].pct : null;
+      var spyStr77 = spyChg77 != null ? ((spyChg77 >= 0 ? '+' : '') + spyChg77.toFixed(2) + '%') : '—';
+      var spyCol77 = spyChg77 != null ? (spyChg77 >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+      mvStrip.innerHTML =
+        '<span class="mv-pill"><span class="mv-pill-lbl">VIX</span><span style="color:' + vixCol77 + ';">' + vixVal.toFixed(1) + '</span></span>' +
+        '<span class="mv-pill"><span class="mv-pill-lbl">F&amp;G</span><span style="color:' + fgCol77 + ';">' + (fg77 != null ? fg77 : '—') + '</span></span>' +
+        '<span class="mv-pill"><span class="mv-pill-lbl">SPY</span><span style="color:' + spyCol77 + ';">' + spyStr77 + '</span></span>' +
+        '<span class="mv-pill-sep"></span>' +
+        '<span class="mv-pill"><span class="mv-pill-lbl">SCORE</span><span style="color:var(--data-cyan);font-weight:900;">' + ts77 + '</span></span>' +
+        '<span class="mv-pill"><span class="mv-pill-lbl">TPR</span><span class="mv-grade mv-grade-' + tsGrade77 + '">' + tsGrade77 + '</span></span>' +
+        '<span class="mv-pill-sep"></span>' +
+        '<span class="mv-pill"><span class="mv-pill-lbl">M7</span><span style="color:' + m7Col77 + ';">' + m7Up77 + '/' + m7Tot77 + '</span></span>';
+    }
+    if (phaseEl) {
+      var phaseClass77, phaseText77;
+      if (total >= 75) { phaseClass77 = 'mv-phase-sepa'; phaseText77 = '▲ SEPA Zone'; }
+      else if (total >= 60) { phaseClass77 = 'mv-phase-ready'; phaseText77 = '● Buy Ready'; }
+      else if (total >= 45) { phaseClass77 = 'mv-phase-alert'; phaseText77 = '○ Buy Alert'; }
+      else { phaseClass77 = 'mv-phase-avoid'; phaseText77 = '✕ Avoid'; }
+      phaseEl.innerHTML = '<span class="mv-phase-lbl ' + phaseClass77 + '">' + phaseText77 + '</span>';
+    }
+  } catch(_) {}
 }
 
 // v42.1: 마켓 펄스 바 — 전 페이지 상단 시장 상태 요약
@@ -26073,7 +26184,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.75"></script>
+<script src="./js/aio-glossary.js?v=50.79"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

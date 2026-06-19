@@ -1,5 +1,12 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.79 - Runtime contract + share-readiness gate (2026-06-18)
+
+- **런타임 계약 감사 추가**: AI 채팅이 호출하는 `_aio*` 함수, 사용자 리서치 digest 계약, fake premium board 재도입 여부, cachebuster drift를 `AIO.getRuntimeContractAudit()`에서 직접 점검.
+- **공유 가능성 게이트 추가**: `AIO.getShareReadinessAudit()`가 배포 게이트, 런타임 계약, 자동운영 준비도를 합쳐 `shareable / share-with-warnings / not-shareable`로 판정.
+- **CI 회귀 방지 강화**: `scripts/ci-runtime-contract-check.mjs` 추가, `ci-version-check.mjs`를 ASCII 기반의 명확한 버전 동기화 게이트로 재작성.
+- **테스트/문서 환류**: T844 추가, R218/P511/QA 항목으로 “기록만 남고 실행 게이트가 없는 문제”를 재발 방지 규칙에 반영.
+
 ## v50.76 - 5페이지 구조적 개편 — 레퍼런스 flat design 반영 (2026-06-18)
 
 - **page-signal 스코어 히어로**: 원형 canvas 게이지 → 플랫 대형 숫자(54px) + 수직 구분선 + 판정 배지 가로 배치. canvas는 `display:none` 유지(JS 호환). 점수 구성 바·실행 윈도우를 2열 카드로 재배치.

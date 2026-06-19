@@ -2576,3 +2576,10 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - Regression tests must exercise both the payload application function and the loader wiring string or equivalent route.
 
 **Validation**: T831 checks dynamic Telegram digest application, `public-data/telegram-digest.json` loader wiring, freshness metadata update, category/page-map preservation, and Telegram pipeline audit visibility.
+
+## R218. Runtime contract / share readiness gate is mandatory (v50.79)
+
+- If an edit touches AI prompts, imported research, visual report generation, cachebusters, digest artifacts, or public-sharing UX, it must update both runtime and CI gates.
+- Required checks: `AIO.getRuntimeContractAudit()`, `AIO.getShareReadinessAudit({ skipEssence: true })`, and `node scripts/ci-runtime-contract-check.mjs`.
+- Completion means the artifact is consumed by page/AI/audit/CI, not merely created as a file.
+- Removing a UI surface does not permit removing runtime callables until all prompt/test/page references are updated or retired.

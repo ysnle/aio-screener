@@ -6728,6 +6728,70 @@
       t841detail = JSON.stringify({ band:bandInDecision841, score:scoreInDecision841, fomcDynamic:fomcReasonDynamic841, noFomcPortfolio:noFomcFooter841, fomcMacro:fomcFooterOnMacro841, routeIds:routeIds841 });
     } catch(e) { t841detail = 'ERR:' + e.message; }
     _assert('T841 v5074_structural_fix: decision reads live score, FOMC uses registry, footer is page-conditional, route-ids wired', t841ok, t841detail);
+
+    // T842: v50.78 user research digest is consumed as data-only context and visual reports exist.
+    var t842ok = false, t842detail = '';
+    try {
+      var sample842 = {
+        version: 'v50.78-test',
+        generatedAt: '2026-06-18T00:00:00+09:00',
+        sourceKind: 'REFERENCE',
+        items: [{
+          id: 'test-research',
+          title: 'Test user research framework',
+          pageTargets: ['screener', 'ticker'],
+          categories: ['ui-pattern'],
+          extraction: { thesis: 'Use as framework only.', signals: ['matrix'], risks: ['stale authority'], automationHint: 'Keep REFERENCE.' }
+        }]
+      };
+      var applied842 = window.AIO && typeof window.AIO.applyUserResearchDigestPayload === 'function' && window.AIO.applyUserResearchDigestPayload(sample842);
+      var audit842 = window.AIO && typeof window.AIO.getUserResearchPipelineAudit === 'function' ? window.AIO.getUserResearchPipelineAudit() : null;
+      var ctx842 = typeof window._getImportedResearchContext === 'function' ? window._getImportedResearchContext('screener') : '';
+      var noFakeUi842 = !document.querySelector('.aio-premium-board') && !document.querySelector('.aio-research-bridge');
+      if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('screener');
+      var report842 = typeof window._aioCreateVisualReport === 'function' && window._aioCreateVisualReport('screener');
+      var canvas842 = document.querySelector('.aio-visual-report[data-report-page="screener"] canvas');
+      t842ok = !!(applied842 && audit842 && audit842.sourceKind === 'REFERENCE' && audit842.canPromoteToLive === false &&
+        ctx842.indexOf('User supplied research digest') >= 0 && ctx842.indexOf('REFERENCE') >= 0 &&
+        noFakeUi842 && report842 && canvas842 && canvas842.width === 1080);
+      t842detail = JSON.stringify({ applied:!!applied842, audit:audit842, ctx:ctx842.slice(0, 60), noFakeUi:noFakeUi842, report:!!report842, canvas:!!canvas842 });
+    } catch(e) { t842detail = 'ERR:' + e.message; }
+    _assert('T842 v5078_user_research_digest_visual_report: data-only digest feeds chat and in-browser PNG report exists', t842ok, t842detail);
+
+    // T843: v50.77 Minervini-style UI additions are wired to DOM/render paths.
+    var t843ok = false, t843detail = '';
+    try {
+      var signalStrip843 = document.getElementById('signal-mv-strip');
+      var tickerStrip843 = document.getElementById('ticker-mv-strip');
+      var ind843 = ['ind-pressure-fill','ind-buyrisk-fill','ind-trend-fill'].every(function(id) { return !!document.getElementById(id); });
+      var css843 = Array.from(document.querySelectorAll('style')).some(function(s) {
+        return (s.textContent || '').indexOf('.mv-metric-strip') >= 0 && (s.textContent || '').indexOf('.aio-visual-report') >= 0;
+      });
+      var screenerHead843 = Array.from(document.querySelectorAll('#page-screener thead th')).some(function(th) {
+        return /등급|grade/i.test(th.textContent || '');
+      });
+      t843ok = !!(signalStrip843 && tickerStrip843 && ind843 && css843 && screenerHead843);
+      t843detail = JSON.stringify({ signal:!!signalStrip843, ticker:!!tickerStrip843, indicators:ind843, css:css843, grade:screenerHead843 });
+    } catch(e) { t843detail = 'ERR:' + e.message; }
+    _assert('T843 v5077_minervini_ui_contract: metric strips, indicator strips, visual CSS, and screener grade column are present', t843ok, t843detail);
+
+    // T844: v50.79 runtime/share gate — prompts, digest artifacts, cachebusters, and public-share status share one contract.
+    var t844ok = false, t844detail = '';
+    try {
+      var runtime844 = window.AIO && typeof window.AIO.getRuntimeContractAudit === 'function' ? window.AIO.getRuntimeContractAudit() : null;
+      var share844 = window.AIO && typeof window.AIO.getShareReadinessAudit === 'function' ? window.AIO.getShareReadinessAudit({ skipEssence: true }) : null;
+      var deploy844 = window.AIO && typeof window.AIO.getDeploymentGateAudit === 'function' ? window.AIO.getDeploymentGateAudit({ strict: false, skipEssence: true }) : null;
+      var scripts844 = Array.from(document.scripts || []).map(function(s) { return s.getAttribute('src') || ''; }).filter(function(src) { return src.indexOf('./js/aio-') >= 0; });
+      var oldCache844 = scripts844.some(function(src) { return /\?v=50\.(75|76|77|78)/.test(src); });
+      t844ok = !!(runtime844 && runtime844.status !== 'fail' &&
+        share844 && typeof share844.shareable === 'boolean' &&
+        deploy844 && deploy844.runtimeContract &&
+        !oldCache844 &&
+        typeof window._aioCreateVisualReport === 'function' &&
+        typeof window._getImportedResearchContext === 'function');
+      t844detail = JSON.stringify({ runtime:runtime844 && runtime844.status, share:share844 && share844.status, deploy:deploy844 && deploy844.status, oldCache:oldCache844, scripts:scripts844.length });
+    } catch(e) { t844detail = 'ERR:' + e.message; }
+    _assert('T844 v5079_runtime_contract_share_gate: AI callables, digest contract, cachebusters, deployment gate, and share readiness are wired', t844ok, t844detail);
   }
 
   window.AIO = window.AIO || {};
