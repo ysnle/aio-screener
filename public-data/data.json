@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-06-19T21:50:04.992Z",
+  "generatedAt": "2026-06-19T23:15:31.990Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -10,7 +10,7 @@
   "macroKeyCount": 0,
   "newsOk": true,
   "newsCount": 25,
-  "elapsedMs": 1721,
+  "elapsedMs": 5297,
   "schema": 1,
   "marketAnalysisOk": false
  },
@@ -153,8 +153,8 @@
   },
   {
    "symbol": "DX-Y.NYB",
-   "regularMarketPrice": 100.849,
-   "regularMarketChangePercent": 1.2235270500853241,
+   "regularMarketPrice": 100.85,
+   "regularMarketChangePercent": 1.2245307638261558,
    "regularMarketPreviousClose": 99.63,
    "chartPreviousClose": 99.63,
    "_source": "live:yahoo-gh"
@@ -385,16 +385,16 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 63060.36,
-   "regularMarketChangePercent": -4.871269205530287,
+   "regularMarketPrice": 63216.78,
+   "regularMarketChangePercent": -4.635304233702172,
    "regularMarketPreviousClose": 66289.5,
    "chartPreviousClose": 66289.5,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1701.82,
-   "regularMarketChangePercent": -5.18903695522778,
+   "regularMarketPrice": 1703.54,
+   "regularMarketChangePercent": -5.093213156919492,
    "regularMarketPreviousClose": 1794.9612,
    "chartPreviousClose": 1794.9612,
    "_source": "live:yahoo-gh"
@@ -643,16 +643,34 @@
  },
  "news": [
   {
-   "title": "The earnings bedrock - RBC Wealth Management",
-   "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE56eE50c3RERmJPZ2oxRFJmdkhPQkRrMlpKb1RFaUV5WU1XQ3BTTGtxalJJcklMVVhzOHVyd2FJdllYcmI5MjlGX2NBNmxDOXZEZHg5ZlVnTWhITjJRdExiQzdLQmRUc2Q5T3BHVmdITWNJTGRhcDNYN1F1bw?oc=5",
-   "source": "RBC Wealth Management",
-   "pubDate": "Fri, 19 Jun 2026 20:43:09 GMT"
+   "title": "Broadcom Builds Custom Chips for Google, Meta, Anthropic, and OpenAI. At 25 Times Forward Earnings, It's the Cheapest Mega-Cap AI Stock Nobody Talks About. - Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNYXEyc3Jpb3FtVnNnVF9Nem12WlJqU3hWYjdOeUlWY3kwMFd6Y1I0TTJ2aXpLVGxVQ0hWLWtvS0FUY3UtNkp1NloyX2o2MGNkNmh1MUJyY1FmT25RSnVRbk5Cc2l0c3o1NHpjczJNLWRnRjhKMTVSM3hoUzdNUkN1UTQxV2JGMkJLa0VHb2l1bUEtN1V4aV82eC00VWlDQlhL?oc=5",
+   "source": "Yahoo Finance",
+   "pubDate": "Fri, 19 Jun 2026 21:50:00 GMT"
+  },
+  {
+   "title": "Beyond the Trillion-Dollar Club: 3 High-Growth Tech Stocks to Buy Right Now - Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxQcl9pTjRHc0VMamhsTVpiekMyYXFaRkJZblFTU1dFMkNhYS1uVnVTLWlyWkRwaFRlNFdKZkI1WXN2Qkc5SjYzZEt4YzVlc0djLWJKdlNEM2hnQ3d0dzM2NXdjTFZIWTcyMHp5WkEzRmxTSHFVMkpyRk9fRnRxM3hMQlEza0RXSEl4Sm92NGhKZHljdHNBY05qS1Z3?oc=5",
+   "source": "Yahoo Finance",
+   "pubDate": "Fri, 19 Jun 2026 21:41:00 GMT"
+  },
+  {
+   "title": "Futures Fall, 5 Stocks Setting Up; Watch For This SpaceX Move - Investor's Business Daily",
+   "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPNEhrdlloWm5pS3hyaVF6azNTZW9TbnJFU01aTmJNems5Tk1ROUl1aGxhY3BfTkZYNlZOMkJtTDRuWXNvcFJEb2FnQ1duY0VOU20zNGIxaXhmcHU1WXMzNTNiYl9IZmZRTzlfT0k5NnA5ejQ1MGJlR21melNMOFVsbVpvc1RzdmdCOWszMnluZ2ctbkY4ajFZZDVsakZTZENyanJjWmozcGhJNDJneTZxU1luT3h2Zw?oc=5",
+   "source": "Investor's Business Daily",
+   "pubDate": "Fri, 19 Jun 2026 21:00:00 GMT"
   },
   {
    "title": "US markets shut for Juneteenth after S&P 500, Nasdaq end week up - TechStock²",
    "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxQMVVxYzRtWUVmNHYySlR1UUlfRHM2WEtoVzB6cXpNMkhDd1dlTFlFYTFOenUyZ1pqSExELXVGOFRVcERqT3ZlWG9ZSHJhdF84RmRmTFZua080UktZa0xiZGlfRm9HdXQ3bHRzX2QwVWxYR1Uwd2ZQTmxWYUFZWVhxSFp2a1NERWdXUEJB?oc=5",
    "source": "TechStock²",
    "pubDate": "Fri, 19 Jun 2026 20:31:25 GMT"
+  },
+  {
+   "title": "SOUN, PLTR, PATH: 3 Beaten-Down AI Stocks With Up to 79% Upside, According to Analysts - Moomoo",
+   "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQMVlaS1BkT2lRQzlWbE5zSlhidlhBUzREaGtIYV9FTFpWUGw5VFdsTmdfeDkzSEdtZktoRVFsUm9pRl9wcGdoSHZlU2QtR0hac0xqVTZBWTN3RE9WZkRyWkFTck1QWVVPdWw2YmVPM2VwTWFSUDVyZVpXb2E4em1JQXV1RG5XZ2wyMk1tUkhqSEFFb0l6b3V1SzB0LVZ0dFNwNWc?oc=5",
+   "source": "Moomoo",
+   "pubDate": "Fri, 19 Jun 2026 20:28:00 GMT"
   },
   {
    "title": "Q1 Earnings Highs And Lows: Entegris (NASDAQ:ENTG) Vs The Rest Of The Semiconductor Manufacturing Stocks - Yahoo Finance",
@@ -667,16 +685,10 @@
    "pubDate": "Fri, 19 Jun 2026 19:40:07 GMT"
   },
   {
-   "title": "Markets are clinging to a Federal Reserve that no longer exists – analyst - MSN",
-   "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxPdmM4S2ZneXVpQ09VSjZMX3NsQno5enFEeFVLMWltM29GTGlVcjFWOXlGdWx1UExjWkZ3UEFrc2gxc2FIdDZ2b2Y4bXNoSTRmYVMzN2Vha0UwdkZRQjBsNkJKLUtxd3FKRG9PS3BwYjdKNlpzSG41QWc4c1RST2I2bDU5VkZ3VDlBVndPZHFXRkc0NHhBS2xydzNUSXdyaGlSbTAzQmFLU1FVUVFSLUdNdGpuTnNPYm5sUVZBQThtMDQ?oc=5",
-   "source": "MSN",
-   "pubDate": "Fri, 19 Jun 2026 19:30:00 GMT"
-  },
-  {
-   "title": "Microsoft, Meta And Google Just Silenced AI Spending Critics In One Earnings Night As Big Tech Capex Swells To $725B - Stocktwits",
-   "link": "https://news.google.com/rss/articles/CBMiiwJBVV95cUxNQ2ZDQkRWWGZaNVdBV1UwS0FEY0RvVVJqUFUxNXd2eHpWM1haeXltLUNpaXB2TW5kcHlJRFo0WFNOQWZFaGNDZ2p3WlcwZjhPVndrYkQwWVAxR0tVVnotaFdDNnZHT1IxZ1BJVHJXZXFpVG5ROUlMcGZoR29iczhkOGM4VG9UMEVWWHJoUEY5TlBCN0RiTEotLTFWNVdFZHZpUmVBOHBuYWVaN0xYMEJzSkgtSno4WHhuc2x4TmpMUkV5bHJDaTNqVHFKalBIMl9pZ01MSjF2a0hpczUtYjMxUHk1OGt0VUxxbHRuaHZ3Nkt4ekRLTl9YZzVQX04wYjFUS25wLUZwWUJwTFU?oc=5",
-   "source": "Stocktwits",
-   "pubDate": "Fri, 19 Jun 2026 18:21:11 GMT"
+   "title": "S&P 500 stocks are up today while Bitcoin falls below $63. - Bitget",
+   "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE53WTdFUFNfbWlyUXBzUkpOWE1pY2lNeExOMGhKa1B0UUF6eTB4RElzNUY4eGRBRDJNYkJab0RqZUFqU3pEdUNVVWFiR3E2MXQ3bnNZbVlZTm9FWlYyV3ptb1BQQdIBY0FVX3lxTE53WTdFUFNfbWlyUXBzUkpOWE1pY2lNeExOMGhKa1B0UUF6eTB4RElzNUY4eGRBRDJNYkJab0RqZUFqU3pEdUNVVWFiR3E2MXQ3bnNZbVlZTm9FWlYyV3ptb1BQQQ?oc=5",
+   "source": "Bitget",
+   "pubDate": "Fri, 19 Jun 2026 17:58:55 GMT"
   },
   {
    "title": "Analyst Warns Intel Valuation ‘Doesn’t Make Sense.’ Suggests NVIDIA, AMD, Micron, and Broadcom as Alternatives. - Yahoo Finance",
@@ -691,10 +703,10 @@
    "pubDate": "Fri, 19 Jun 2026 17:33:00 GMT"
   },
   {
-   "title": "Futures Fall With U.S. Markets Shut; Watch For This SpaceX Move - Investor's Business Daily",
-   "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPNEhrdlloWm5pS3hyaVF6azNTZW9TbnJFU01aTmJNems5Tk1ROUl1aGxhY3BfTkZYNlZOMkJtTDRuWXNvcFJEb2FnQ1duY0VOU20zNGIxaXhmcHU1WXMzNTNiYl9IZmZRTzlfT0k5NnA5ejQ1MGJlR21melNMOFVsbVpvc1RzdmdCOWszMnluZ2ctbkY4ajFZZDVsakZTZENyanJjWmozcGhJNDJneTZxU1luT3h2Zw?oc=5",
-   "source": "Investor's Business Daily",
-   "pubDate": "Fri, 19 Jun 2026 17:12:00 GMT"
+   "title": "Missed Out on the AI Memory Rally? These 3 Stocks Are Just Getting Started. - The Motley Fool",
+   "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxPUkg4eGFOa2trUzdITklXV0lfTXZ1YlRDMGsxdUFQMS1HNGxnMUpiVzd5all3OWI3Z3gzUTNUejBMbERXVTVSUDFKSktodkNOV0E3czlOdXRtUWwzOGhMUGlLdGFoSjN4VTgxcXllZ0l5VGtWVnJ5NjBQRXByMzRGaXZjbUdZNkg1LWpz?oc=5",
+   "source": "The Motley Fool",
+   "pubDate": "Fri, 19 Jun 2026 17:30:00 GMT"
   },
   {
    "title": "3 Stocks to Buy Now Before Wall Street Catches On - 24/7 Wall St.",
@@ -703,28 +715,10 @@
    "pubDate": "Fri, 19 Jun 2026 17:05:23 GMT"
   },
   {
-   "title": "Missed Out on the AI Memory Rally? These 3 Stocks Are Just Getting Started. - The Motley Fool",
-   "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxPUkg4eGFOa2trUzdITklXV0lfTXZ1YlRDMGsxdUFQMS1HNGxnMUpiVzd5all3OWI3Z3gzUTNUejBMbERXVTVSUDFKSktodkNOV0E3czlOdXRtUWwzOGhMUGlLdGFoSjN4VTgxcXllZ0l5VGtWVnJ5NjBQRXByMzRGaXZjbUdZNkg1LWpz?oc=5",
-   "source": "The Motley Fool",
-   "pubDate": "Fri, 19 Jun 2026 16:59:16 GMT"
-  },
-  {
-   "title": "3 Semiconductor Stocks We Find Risky - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQYnR0cGFmNmhwcEJBRVZsNEVzRWRxMlVqcVB6R1pjd2NqZ2hvdjdIMDZsOGMzczNVanJLV1h1UjNwUVUwR2JNblo5aUFmS21zR29VRWtlNmtGUnk3LTNlWkw3VllXNjVuV1N0WFlYcTNkbXhoTno2dkNoUmxVVXVCLWxXMUtvOTVwb3VZZlpxU3lONFh6dUJYcg?oc=5",
+   "title": "3 Stocks to Buy Now Before Wall Street Catches On - Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQUVkxQ1ViaFdiVlpVTWlVUVZvRThzV2ktVUpzS2U0U0JyZEpnNDNJMWFrZEo2NDRULWpxMmZwZi1oMTJlYjNNUE5JbldSVkZUWUdKaXo2VmJkUy1qTVNxcjVRQjdoSXV0b0xXYmEzdURSMmpYNVZPc3ZYVFhuY2F6aGtyZkJsaHQyeC1QS0hlcw?oc=5",
    "source": "Yahoo Finance",
-   "pubDate": "Fri, 19 Jun 2026 15:08:58 GMT"
-  },
-  {
-   "title": "Why Lumentum (LITE) Remains Tied to the Optical Bottleneck Inside AI Data Centers - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNMVp6S1lnTGw0ZmZFWjA5ZHNZMXRfRUFDRTdBbTJYVDhUMlNkOWFjeUJBX2FVWWZLX0g5Q0x0aWNPbnlzS3pVWHQ5RkRCVmxlMzBXbWpQWTRPVTJWcVRPQjdCTDctQ3NEN29XM2tuM3lLWmlCa1JUeXZZREpxVEtXRmVXVXNJMUpQS3BPT2FHV0VKMGoxYmZpQmVBVQ?oc=5",
-   "source": "Yahoo Finance",
-   "pubDate": "Fri, 19 Jun 2026 14:34:29 GMT"
-  },
-  {
-   "title": "Why Super Micro Computer (SMCI) Needs Fresh Capital to Support Its AI Server Order Surge - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNaFdrSWFXcXZrdWJta0hqc3pSR3o0OUlsTnlWdXZlTDFnSjVxdXcxN0RuOWZndmk5WEp3WVZzclVZQVlQRWI0akt2d3J5YlhQNy1wUk5KLW5CN2UwTldQbF80c2FwSFp0dzRVSzVfVXlGM2Z1dFJ1UXFPaS1UYXFQTnlHTlduWTRoSVJWSHUwOW5KNzQwWFFPQVlR?oc=5",
-   "source": "Yahoo Finance",
-   "pubDate": "Fri, 19 Jun 2026 14:34:12 GMT"
+   "pubDate": "Fri, 19 Jun 2026 17:05:23 GMT"
   },
   {
    "title": "Prediction: This Stock is Going to Plummet in The Second Half of 2026 - Yahoo Finance",
@@ -739,10 +733,16 @@
    "pubDate": "Fri, 19 Jun 2026 13:08:58 GMT"
   },
   {
-   "title": "Why the Roku Buyout Is a Cautionary Tale for AI Stocks - Barchart.com",
-   "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQVU9heXhSeXpBejRDU09uVjk4QkpfSVhKazZ3dFpiTzlQQk1TbFhlOXpKUlRDekdSS3RmY3p2WkRzOF9YcEowcUtUcXRxd0hjZGp4djhwRFJXQmQ0MDU1RjZBWTJBaXFOUllqbkxiX0p2QXMzUkdDNjJEMFl0Q3drUEk3NDIwcTJNYkRIblJqbnF2RXZXMzNHYUxPeUJmdTA?oc=5",
-   "source": "Barchart.com",
-   "pubDate": "Fri, 19 Jun 2026 13:00:02 GMT"
+   "title": "Is Juneteenth a federal holiday? What's open and closed Friday - NBC 5 Chicago",
+   "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNXzBnX3VwODB0VWhuTGxHN2pLTkZ0c3dBQkFDVEJVbkVtTnVJOHNfZ29rRkFzMTBGaXBQY0dkNjB0TENqR3ZmX19Va0NUdkFnYi1PbkdpMzh5d24wY0FfNnd4WlNjVHFhUVdNQW9iM3ZpUmRlREVDUWxCNWw4TVp2dkZPczk5bHA0THMzU0pkcHU4TEMtakJEWE1PNi1rWWstNktDSUFaOWN4Z0XSAbMBQVVfeXFMUGZoZXBBVzNtXy00VjlhNnprNXVTbHdib3pBWUNKNHR2ZzdjY1ExSHRtNkl0dS03RlY5OGprTHc4OXkwUXhJUFRtTlBJX1lHeHlGNk43Uy1MdEpHZXdrbXRCaWFQeWxxdzRWdnJfSGFoSllkMUdUdm5USmhNLV9hdkt3Rm5mLW5RN04zd3FnMnc0b21QUERCMDJBZHFwV0ZlaUgwWUFQRTdzUWRsTEJOVUM1NmM?oc=5",
+   "source": "NBC 5 Chicago",
+   "pubDate": "Fri, 19 Jun 2026 11:55:56 GMT"
+  },
+  {
+   "title": "3 Semiconductor Stocks We Find Risky - StockStory",
+   "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOenJNZTZEaFY1RFc4bnVFVTFJZlJYSkdKTWV3TXJuWDBlZEEwN3Fmck0wVkxvU2FJcXRTaTBQVzBqTHZQdEpYRnVkM3BQbDlfaXZzRklGc2szekpMZjFDZzhXZllZVWQ5bUVsNVNwSXkxUVdhbXh6em9FSXY2Qy1WVDJKUWhOTXBxRVY4T19JZnR3TTZ0YWVydlJGbThTLWs?oc=5",
+   "source": "StockStory",
+   "pubDate": "Fri, 19 Jun 2026 10:41:11 GMT"
   },
   {
    "title": "3 AI Stocks to Buy on the Recent Tech Dip - Yahoo Finance",
