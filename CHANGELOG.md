@@ -1,5 +1,12 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.80 - 자가 운영 구조 근본 보강 (2026-06-19)
+
+- **FRED 클라이언트 자동 브릿지**: `_aioLoadServerData` step 2-B 추가 — 서버 data.json에 FRED 매크로가 없을 때(fredFetchOk=false) 브라우저 `aio_fred_key`가 있으면 `fetchAllFredData()` 자동 호출. GitHub Actions Secret 미등록이어도 사용자 키 보유 시 매크로 자동 갱신.
+- **fredHasKey / fredFetchOk 세분화**: 기존 `fredOk` 단일 bool을 `fredHasKey`(Secret 등록 여부)·`fredFetchOk`(실제 API 수신 여부)로 분리. 경고 메시지도 원인별 구분.
+- **data-watchdog.yml 강화**: `fearGreedOk`/`fredHasKey`/`fredFetchOk`/screener.json age(24h 경보) 추가 감시. 실패가 아닌 경고(`⚠️`)로 처리 — 사이트 동작은 유지하면서 운영자 가시성 확보.
+- **refresh-data.yml job summary**: 매 cron 실행 후 GitHub Actions Summary 탭에 KST 시각·시세 심볼·F&G·FRED·뉴스·LLM 분석 상태 마크다운 테이블 출력.
+
 ## v50.79 - Runtime contract + share-readiness gate (2026-06-18)
 
 - **런타임 계약 감사 추가**: AI 채팅이 호출하는 `_aio*` 함수, 사용자 리서치 digest 계약, fake premium board 재도입 여부, cachebuster drift를 `AIO.getRuntimeContractAudit()`에서 직접 점검.

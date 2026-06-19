@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v50.79**
+- 현재 버전: **v50.80**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v50.80 자가 운영 구조 근본 보강**: 서버 FRED 미설정 시 클라이언트 `aio_fred_key` 자동 브릿지(`_aioLoadServerData` step 2-B). `fredHasKey`/`fredFetchOk` 세분화(키 미등록 vs API 실패 구분). `data-watchdog.yml`에 F&G/FRED/screener age 경보 추가. `refresh-data.yml` job summary(KST 시각·심볼·FRED·LLM 상태 테이블).
 - **v50.79 공유 가능성 게이트 보강**: 런타임 계약 감사, 공유 준비도 감사, 자동운영 게이트, CI runtime contract check를 연결해 “기록만 남고 실제 회귀는 통과되는” 구조를 차단.
 - **v50.75 홈 대시보드 구조 정리**: Codex 가짜 히트맵(`AIO_IMPORTED_RESEARCH`/`_aioPremiumBoardModel`/`_aioRenderImportedResearchBridge` 등 ~480줄) 전면 제거. 실데이터 `_aioRenderMarketHeatmap()` 신설(SPX/VIX/F&G/TNX × 1W/1M/3M/6M). "🧠 현재 시장 분석"·"Action Items" 카드 시각 숨김(중복 제거). T839/T840 재작성.
 - **v50.74 Decision Header 구조 보강**: `_aioDefaultDecision`이 `computeTradingScore()` 기반 라이브 5밴드로 판단 문구를 동적 생성. FOMC 텍스트 9곳 하드코딩을 `AIO_EVENT_FRESHNESS_REGISTRY` 단일 경로로 전환. 무관 페이지(포트폴리오 등)의 FOMC footer 제거. `_aioRenderAllPageDecisionHeaders`가 `AIO_ALL_ROUTE_PAGE_IDS` 참조. T841 추가.

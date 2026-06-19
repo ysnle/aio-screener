@@ -4730,13 +4730,25 @@ async function _aioLoadServerData() {
       applyLiveQuotes(d.quotes);
     }
     // 2) 매크로 → DATA_SNAPSHOT (FRED 서버값, 채팅/macro 페이지가 소비)
+    var _serverMacroApplied = 0;
     if (d.macro && window.DATA_SNAPSHOT) {
       ['cpi','coreCpi','pce','corePce','fedRate','unemployment','nfp'].forEach(function(k){
         if (typeof d.macro[k] === 'number' && isFinite(d.macro[k])) {
           window.DATA_SNAPSHOT[k] = d.macro[k];
           window.DATA_SNAPSHOT['_' + k + '_src'] = 'fred-gh';
+          _serverMacroApplied++;
         }
       });
+    }
+    // v50.78: 서버 FRED 공백(fredHasKey=false 또는 fredFetchOk=false) + 클라이언트 키 있으면 자동 브릿지.
+    // GitHub Actions Secret에 FRED_API_KEY 미등록이어도 사용자 브라우저 키(aio_fred_key)로 매크로 갱신.
+    if (_serverMacroApplied === 0 && !d.meta.fredFetchOk) {
+      var _clientFredKey = (typeof DATA_APIS !== 'undefined' && DATA_APIS.fred) ? DATA_APIS.fred.key() : '';
+      if (_clientFredKey && typeof fetchAllFredData === 'function') {
+        setTimeout(function() {
+          fetchAllFredData().catch(function(){});
+        }, 1500);
+      }
     }
     // 3) Fear & Greed
     if (d.fearGreed && typeof d.fearGreed.score === 'number' && isFinite(d.fearGreed.score)) {

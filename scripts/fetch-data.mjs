@@ -584,9 +584,13 @@ async function main() {
   const failed = quotesRaw.filter(q => q && q.__error).map(q => q.item);
 
   // v50.24/WO-1: F&G·FRED 실패를 meta에 노출(이전엔 조용히 통과). 사이트 나이 배지/감사가 surfacing.
+  // v50.78: fredHasKey(Secret 등록 여부) / fredFetchOk(실제 데이터 수신 여부) 세분화.
+  //   fredHasKey=false → GitHub Secrets 미등록. fredHasKey=true && fredFetchOk=false → 키 있으나 API 실패.
   const macroKeys = Object.keys(macro).filter(k => k[0] !== '_');
   const fearGreedOk = typeof fearGreed.score === 'number' && isFinite(fearGreed.score);
-  const fredOk = !!process.env.FRED_API_KEY && macroKeys.length > 0;
+  const fredHasKey = !!process.env.FRED_API_KEY;
+  const fredFetchOk = fredHasKey && macroKeys.length > 0;
+  const fredOk = fredFetchOk; // 하위 호환 유지
 
   const data = {
     meta: {
@@ -596,6 +600,8 @@ async function main() {
       symbolsFail: failed.length,
       failedSymbols: failed,
       fearGreedOk,
+      fredHasKey,
+      fredFetchOk,
       fredOk,
       macroKeyCount: macroKeys.length,
       newsOk: Array.isArray(news) && news.length > 0,
@@ -615,7 +621,8 @@ async function main() {
   else { data.meta.marketAnalysisOk = false; }
 
   if (!fearGreedOk) console.warn('[fetch-data] 경고: F&G 수집 실패 (사이트는 정적 폴백 사용)');
-  if (process.env.FRED_API_KEY && !fredOk) console.warn('[fetch-data] 경고: FRED 키 있으나 매크로 0건 — 키/한도 확인');
+  if (!fredHasKey) console.warn('[fetch-data] 경고: FRED_API_KEY GitHub Secret 미등록 — 매크로 서버갱신 비활성. 클라이언트 aio_fred_key로 브릿지 가능.');
+  if (fredHasKey && !fredFetchOk) console.warn('[fetch-data] 경고: FRED 키 있으나 매크로 0건 — 키 유효성/레이트리밋 확인');
 
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, JSON.stringify(data, null, 1));

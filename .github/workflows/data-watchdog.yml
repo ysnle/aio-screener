@@ -61,5 +61,18 @@ jobs:
           checkAge('telegram-digest.json generatedAt', tg && tg.generatedAt);
           console.log(`telegramCount=${tg.count} channels=${Array.isArray(tg.channels) ? tg.channels.length : 0}`);
 
+          // v50.78: F&G, FRED, screener.json 상태 경보 (실패 아닌 경고 — 사이트는 폴백 동작)
+          if (!data.meta.fearGreedOk) console.warn('⚠️  fearGreedOk=false — CNN F&G fetch 실패. 정적 폴백 사용 중.');
+          if (!data.meta.fredHasKey) console.warn('⚠️  FRED_API_KEY Secret 미등록 — 매크로 서버 갱신 비활성. 클라이언트 aio_fred_key 브릿지로 보완 가능.');
+          else if (!data.meta.fredFetchOk) console.warn('⚠️  FRED 키 있으나 fetchOk=false — 키 유효성/레이트리밋 확인 필요.');
+
+          try {
+            const scr = readJson('public-data/screener.json');
+            const scrAge = scr && scr.asOf ? Math.round((Date.now() - new Date(scr.asOf).getTime()) / 3600000) : null;
+            if (scrAge === null) console.warn('⚠️  screener.json asOf 없음 — enrichment 미실행 가능성.');
+            else if (scrAge > 24) console.warn(`⚠️  screener.json ${scrAge}h 경과 — enrichment 지연 가능. (ok=${scr.ok}/${scr.universe})`);
+            else console.log(`screener.json asOf=${scr.asOf} age=${scrAge}h ok=${scr.ok}/${scr.universe}`);
+          } catch(e) { console.warn('⚠️  screener.json 읽기 실패:', e.message); }
+
           console.log('public-data freshness OK');
           NODE
