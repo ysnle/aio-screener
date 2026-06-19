@@ -1138,6 +1138,33 @@ const CHAT_CONTEXTS = {
   }
 ,
   // P212: KR 시장 컨텍스트 (v49.21) — CHAT_CONTEXTS에 추가
+  'kr-home': {
+    title: 'AI 한국장 종합',
+    label: '한국장 홈',
+    icon: 'KR',
+    system: function() {
+      var s = _liveSnap();
+      var kospi = _ld('^KS11','price') || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.kospi) || '미수신';
+      var kosdaq = _ld('^KQ11','price') || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.kosdaq) || '미수신';
+      var krw = s.krw || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.usdkrw) || '미수신';
+      return '당신은 AIO Screener의 한국장 종합 분석가입니다. 사용자가 한국장 홈에서 질문하고 있습니다.\n\n' +
+        '목표: KOSPI/KOSDAQ, 외국인·기관 수급, USD/KRW, 주도 테마, 기술 위치를 한 흐름으로 묶어 운용 판단에 필요한 맥락을 제공합니다.\n' +
+        '강한 결론은 live/snapshot 근거가 있을 때만 내리고, 데이터 부족이면 "데이터 부족"이라고 먼저 말합니다.\n\n' +
+        '[현재 한국장 요약]\n' +
+        '- KOSPI: ' + kospi + '\n' +
+        '- KOSDAQ: ' + kosdaq + '\n' +
+        '- USD/KRW: ' + krw + '\n' +
+        '- 데이터 신선도: ' + (s._freshness || '확인 필요') + '\n' +
+        _closeSnap(s) +
+        '\n[답변 구조]\n' +
+        '1) 오늘 한국장 결론 1문장\n' +
+        '2) 수급·환율·테마·기술 중 실제로 확인된 근거 3가지\n' +
+        '3) 운용 포인트: 관망/선별/축소 중 하나와 확인할 데이터\n' +
+        _getV48IntegratedContext('macro') +
+        _getImportedResearchContext('kr-home') +
+        _getChatRules();
+    }
+  },
   'kr-macro': {
     label: '한국 거시경제',
     icon: '🇰🇷',
@@ -6094,7 +6121,7 @@ async function chatSend(ctxId) {
             var _bcDiv = document.createElement('div');
             _bcDiv.className = 'aio-beginner-chart-reading';
             _bcDiv.innerHTML = '<div style="margin:8px 0;padding:10px 12px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:6px;font-size:12px;line-height:1.6;color:var(--text-primary);">' +
-              '<div style="font-weight:800;color:var(--data-cyan);margin-bottom:6px;">📈 ' + escHtml(_tcP) + ' 초보자 차트 읽기 <span style="font-weight:500;color:var(--text-muted);font-size:10px;">(라이브 OHLCV 실측)</span></div>' +
+              '<div style="font-weight:800;color:var(--data-cyan);margin-bottom:6px;">📈 ' + escHtml(_tcP) + ' 차트 핵심 판독 <span style="font-weight:500;color:var(--text-muted);font-size:10px;">(라이브 OHLCV 실측)</span></div>' +
               '<div style="display:grid;gap:3px;">' +
                 '<div><b style="color:' + _trendColor + ';">추세</b> · ' + escHtml(_trendTxt) + '</div>' +
                 '<div><b style="color:var(--text-secondary);">위치</b> · ' + escHtml(_posTxt) + '</div>' +

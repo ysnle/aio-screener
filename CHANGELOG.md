@@ -1,4 +1,23 @@
-# AIO 스크리너 변경 이력 (Changelog)
+﻿# AIO 스크리너 변경 이력 (Changelog)
+
+## v50.85 - Page Body Redesign + AI Flow Integration (2026-06-19)
+
+- **전 페이지 Action Hub**: `AIO_PAGE_ACTION_HUBS` + `_aioApplyPageBodyRedesign()` 추가. 22개 route 페이지가 결론 -> 핵심 지표 -> 운용 포인트 -> AI 분석 흐름을 공통 UX 계약으로 갖도록 재구성.
+- **본문 과밀 정리**: `market-news`의 소스 taxonomy/progress, `screener`의 팩터 검증/시각화, `signal`의 Lockout/OPEX 고급 조건을 상세 섹션으로 이동. 뉴스 국가/토픽/타입 필터와 스크리너 핵심 필터는 능동 조작 도구로 기본 화면에 유지.
+- **AI 연결 보강**: 통합 AI 패널 `_aiCtxMap`에 `home`, `screener`, `ticker`, `kr-home`, `kr-supply` 추가. `CHAT_CONTEXTS['kr-home']`을 신설해 한국장 홈에서도 AI 분석이 끊기지 않도록 보강.
+- **회귀 방지 게이트**: `AIO.getPageRedesignAudit()` 추가 및 `scripts/ci-runtime-contract-check.mjs`에 페이지 허브/접힘/AI 맵 계약 검증 추가.
+
+## v50.84 - Phase 4: 10개 페이지 시각화 구조적 통합 (2026-06-19)
+
+- **CSS 네이티브 스타일**: `.aio-vis-card`를 `border-left:3px solid var(--data-cyan)` + 미세 그라디언트 + cyan 타이틀로 교체 — AIO 터미널 고유 스타일
+- **HOME**: `vis-home`(점수 분해+시장 국면)을 `home-market-summary-banner` 내부로 이동 — "오늘의 시장" 카드에서 뉴스 하이라이트 바로 위에 배치
+- **SIGNAL**: `vis-signal`(점수 분해)을 Bloomberg 대시보드 헤더의 가중치 자막 아래로 이동 — 가중치 설명과 실제 점수 분해를 바로 이어서 표시
+- **BREADTH**: `vis-breadth`를 KPI 스트립에 4번째 카드로 병합 — 3-col → `repeat(3,1fr) 1.5fr` 4-col 그리드, 시장 국면이 상승/하락·시장폭·데이터소스와 동일 행
+- **SENTIMENT**: `vis-sentiment`(심리 게이지)를 투자 심리 페이지 헤더 내부로 이동 — 페이지 타이틀·자막 바로 아래 인라인 배치
+- **TECHNICAL**: `vis-technical`(SPY 가격 포지션)을 기술 분석 헤더 내부로 이동 — RSI·MACD 자막 아래 헤더 내 배치
+- **MACRO**: standalone `vis-macro` 제거 → "오늘 매크로 결론" 스토리라인 카드 내부 `macro-summary-line` 뒤에 경기 사이클+수익률 곡선 배치 (문서→시각 결론 플로우)
+- **FXBOND**: `vis-fxbond`를 Cross-Asset 매트릭스 내부로 이동 — 4-col 수치 격자 바로 위 수익률 곡선 시각화
+- **SCREENER**: `screener-backtest-panel` + `vis-screener`를 단일 cyan 테두리 섹션으로 래핑 — 텍스트 IC + 차트 IC를 하나의 "팩터 검증·백테스트" 통합 패널로 표시
 
 ## v50.83 - Phase 3: AI 채팅 자동 시각화 (2026-06-19)
 

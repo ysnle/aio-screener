@@ -850,6 +850,23 @@ window._aioLRU = function(name, cap) {
 (function() {
   if (window.__aioDelegateInstalled) return;
   window.__aioDelegateInstalled = true;
+  function normalizeDataActionA11y(root) {
+    try {
+      var scope = root && root.querySelectorAll ? root : document;
+      var els = scope.querySelectorAll('[data-action]');
+      Array.prototype.forEach.call(els, function(el) {
+        var tag = String(el.tagName || '').toUpperCase();
+        if (tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+        if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+        if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+        if (!el.getAttribute('aria-label')) {
+          var name = (el.textContent || el.getAttribute('title') || el.getAttribute('data-arg') || el.getAttribute('data-action') || '').replace(/\s+/g, ' ').trim();
+          if (name) el.setAttribute('aria-label', name.slice(0, 120));
+        }
+      });
+    } catch(_) {}
+  }
+  window._aioNormalizeDataActionA11y = normalizeDataActionA11y;
   function dispatch(e) {
     // data-open-url: 단축 패턴 — 외부 링크 새탭 오픈 (onclick="window.open(url,'_blank')" 대체)
     var urlEl = e.target.closest && e.target.closest('[data-open-url]');
@@ -891,6 +908,22 @@ window._aioLRU = function(name, cap) {
     }
   }
   document.addEventListener('click', dispatch);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { normalizeDataActionA11y(document); }, { once: true });
+  } else {
+    normalizeDataActionA11y(document);
+  }
+  try {
+    var mo = new MutationObserver(function(records) {
+      for (var i = 0; i < records.length; i++) {
+        if (records[i].addedNodes && records[i].addedNodes.length) {
+          normalizeDataActionA11y(document);
+          break;
+        }
+      }
+    });
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+  } catch(_) {}
   // Enter/Space keyboard activation for role=button (A11y parity with onclick)
   document.addEventListener('keydown', function(e) {
     if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -3675,13 +3708,13 @@ function _aioDefaultDecision(pageId) {
     briefing: {
       title: '시장 요약',
       decision: _band.label + ' — ' + (_fomcReg.nextCheckpoint ? _fomcReg.nextCheckpoint.slice(0, 30) : '주요 이벤트 확인'),
-      reasons: ['시장 요약 → 오늘 할 일 → 핵심 뉴스 순서로 읽기', _fomcReason, _iranReason],
-      action: '뉴스는 Top 3~5개만 먼저 확인하고, 보유 종목 관련 뉴스만 AI 질문으로 넘긴다.'
+      reasons: ['시장 요약 → 운용 포인트 → 핵심 뉴스 순서로 확인', _fomcReason, _iranReason],
+      action: '뉴스는 Top 3~5개만 선별하고, 보유 종목 관련 뉴스는 AI 분석으로 넘긴다.'
     },
     'market-news': {
       title: '뉴스 판단',
       decision: 'Top 5와 소스 신뢰도부터 확인',
-      reasons: ['검증 뉴스와 secondary-only를 분리', '토픽 필터는 고급 영역에서 사용', '현재 가격에 영향을 준 뉴스만 상단 반영'],
+      reasons: ['검증 뉴스와 secondary-only를 분리', '토픽/국가 필터는 기본 조작 도구로 유지', '현재 가격에 영향을 준 뉴스만 상단 반영'],
       action: '미검증/텔레그램 단독 뉴스는 매매 근거로 쓰지 말고 확인 필요로 둔다.'
     },
     technical: {
@@ -3694,13 +3727,13 @@ function _aioDefaultDecision(pageId) {
       title: '후보 판단',
       decision: '랭크 이유와 결측 데이터를 같이 본다',
       reasons: ['퀀트 랭크는 팩터 강도와 데이터 결측을 함께 표시', '특정 섹터 쏠림을 방지하고 후보군을 넓힘', '선택 종목은 ticker/AI 분석으로 바로 연결'],
-      action: '후보 선택 → 왜 랭크됐는지 확인 → 현재 결과로 AI 질문 → 티커 cockpit으로 이동.'
+      action: '후보 선택 → 랭크 근거 확인 → 현재 결과로 AI 분석 → 티커 cockpit으로 이동.'
     },
     ticker: {
       title: '종목 cockpit',
       decision: '기술·재무·뉴스·포트 보유 여부를 한 흐름으로 확인',
-      reasons: ['티커 검색이 현재 페이지 상태의 기준', '시세/재무/뉴스 미수신은 강한 경고로 표시', 'AI 질문은 현재 티커와 수집 데이터만 인용'],
-      action: '티커 입력 후 차트, 재무, 뉴스, 포트 비중을 확인하고 AI에게 다음 행동을 묻는다.'
+      reasons: ['티커 검색이 현재 페이지 상태의 기준', '시세/재무/뉴스 미수신은 강한 경고로 표시', 'AI 분석은 현재 티커와 수집 데이터만 인용'],
+      action: '티커 입력 후 차트, 재무, 뉴스, 포트 비중을 확인하고 AI로 실행/보류 조건을 검증한다.'
     },
     portfolio: {
       title: '포트폴리오 판단',
@@ -3718,7 +3751,7 @@ function _aioDefaultDecision(pageId) {
       title: '테마 상세 판단',
       decision: '리더/후보/리스크/스크리너를 한 화면에서 연결',
       reasons: ['리더는 강도, 후보는 진입 가능성, 리스크는 무효화 조건', '관련 종목은 screener와 ticker로 이어짐', '뉴스 단독 테마는 REFERENCE로 감점'],
-      action: '테마 내 3~5개 후보를 비교하고 현재 결과로 AI 질문을 실행한다.'
+      action: '테마 내 3~5개 후보를 비교하고 현재 결과로 AI 분석을 실행한다.'
     },
     macro: {
       title: '오늘 매크로 판단',
@@ -3813,13 +3846,13 @@ window._aioBuildPageDecision = function(pageId) {
 
 window._aioAskAiFromPageDecision = function(pageId) {
   var d = window._aioBuildPageDecision ? window._aioBuildPageDecision(pageId) : null;
-  var prompt = (d ? (d.title + ': ' + d.decision + '\n근거: ' + d.reasons.join(' / ') + '\n오늘 행동: ' + d.action) : '') +
-    '\n\n이 현재 결과를 바탕으로 초보자도 이해할 수 있게 다음 행동, 리스크, 확인할 데이터 3가지를 정리해줘.';
+  var prompt = (d ? (d.title + ': ' + d.decision + '\n근거: ' + d.reasons.join(' / ') + '\n운용 포인트: ' + d.action) : '') +
+    '\n\n이 현재 결과를 기준으로 운용 관점에서 1) 핵심 판단 2) 리스크 3) 추가 확인 데이터 4) 실행/보류 조건을 간결하게 정리해줘.';
   var ctxMap = {
     home:'home', signal:'signal', breadth:'breadth', sentiment:'sentiment', briefing:'briefing',
     technical:'technical', screener:'screener', ticker:'ticker', portfolio:'portfolio',
-    themes:'themes', 'theme-detail':'themes', macro:'macro', fxbond:'fxbond', fundamental:'fundamental',
-    'market-news':'market-news', 'kr-home':'kr-market', 'kr-supply':'kr-market',
+    themes:'themes', 'theme-detail':'theme-detail', macro:'macro', fxbond:'fxbond', fundamental:'fundamental',
+    'market-news':'market-news', 'kr-home':'kr-home', 'kr-supply':'kr-supply',
     'kr-themes':'kr-themes', 'kr-macro':'kr-macro', 'kr-technical':'kr-technical'
   };
   var ctx = ctxMap[pageId] || pageId || 'home';
@@ -3837,6 +3870,266 @@ window._aioAskAiFromPageDecision = function(pageId) {
   if (typeof window.chatFromChip === 'function') {
     try { window.chatFromChip(ctx, prompt); return; } catch(_) {}
   }
+};
+
+window.AIO_PAGE_ACTION_HUBS = {
+  home: {
+    title:'시장 Cockpit',
+    subtitle:'시장 레짐, 리스크, 주도 흐름을 한 화면에서 교차 확인합니다.',
+    cards:[['핵심 지표','SPX·VIX·F&G·금리·주도 섹터'],['운용 포인트','포지션 크기와 신규 매수 가능 여부 확인'],['AI 분석','시장 요약과 리스크 3가지를 분석']],
+    links:[['매매 시그널','signal'],['브리핑','briefing'],['뉴스','market-news']]
+  },
+  signal: {
+    title:'매매 실행 화면',
+    subtitle:'상단은 신규 매수 가능 여부, 포지션 크기, 손절/헤지만 남깁니다.',
+    cards:[['핵심 지표','거래 점수 · VIX · breadth · 추세'],['운용 포인트','신규 진입/추가매수/축소 중 하나로 판단'],['상세 도구','Lockout/OPEX/기관 용어는 상세 섹션에서 확인']],
+    links:[['스크리너','screener'],['차트 분석','technical'],['AI 분석','ai']]
+  },
+  breadth: {
+    title:'시장 폭 판단',
+    subtitle:'5/20/50일선 참여율로 지수 상승의 폭과 지속성을 검증합니다.',
+    cards:[['핵심 지표','5일·20일·50일선 위 종목 비율'],['운용 포인트','상승 확산인지 대형주 편중인지 확인'],['신뢰도','SNAPSHOT이면 결론 강도를 낮춤']],
+    links:[['시그널','signal'],['투자 심리','sentiment'],['AI 분석','ai']]
+  },
+  sentiment: {
+    title:'심리 결론',
+    subtitle:'F&G, VIX, AAII, Put/Call을 하나의 위험 온도로 읽습니다.',
+    cards:[['핵심 지표','F&G · VIX · AAII · Put/Call'],['운용 포인트','과열/공포 신호를 진입 강도와 헤지에 반영'],['신뢰도','정적 심리 지표는 참고 라벨을 확인']],
+    links:[['시장 폭','breadth'],['시그널','signal'],['AI 분석','ai']]
+  },
+  briefing: {
+    title:'오늘 브리핑',
+    subtitle:'시장 요약, 운용 포인트, 핵심 뉴스, 확인 필요 이벤트를 분리합니다.',
+    cards:[['핵심 지표','시장 레짐 · 핵심 뉴스 · 확인 필요 이벤트'],['운용 포인트','포지션 영향이 큰 이슈만 추적'],['AI 분석','내 포트폴리오 영향 분석']],
+    links:[['시장 뉴스','market-news'],['홈','home'],['AI 분석','ai']]
+  },
+  'market-news': {
+    title:'뉴스 인텔리전스',
+    subtitle:'Top 뉴스와 시장 영향은 상단, 필터는 분석 목적에 맞게 직접 조정합니다.',
+    cards:[['핵심 지표','Top 5 뉴스 · 24h 건수 · 리스크 뉴스'],['운용 포인트','시장/섹터/보유 종목 영향만 선별'],['상세 도구','소스 상태와 원문 목록은 상세에서 확인']],
+    links:[['브리핑','briefing'],['매크로','macro'],['AI 분석','ai']]
+  },
+  technical: {
+    title:'차트 거래 계획',
+    subtitle:'차트 설명보다 진입, 무효화, 손절, 기간, 신뢰도를 먼저 봅니다.',
+    cards:[['핵심 지표','가격 위치 · RSI/MACD · 거래량 · 주요 이평선'],['운용 포인트','진입 가능/대기/축소 조건 정리'],['AI 분석','현재 차트로 매매 계획 생성']],
+    links:[['티커 상세','ticker'],['스크리너','screener'],['AI 분석','ai']]
+  },
+  screener: {
+    title:'후보 발굴 화면',
+    subtitle:'랭크, 팩터, 결측, 후속 분석 경로를 같은 화면에서 연결합니다.',
+    cards:[['핵심 지표','랭크 · 강한 팩터 · 약한 팩터 · 결측'],['운용 포인트','후보 선택 -> 티커 분석 -> 포트폴리오 반영'],['AI 분석','후보군 분산 재랭킹']],
+    links:[['티커 분석','ticker'],['포트폴리오','portfolio'],['AI 분석','ai']]
+  },
+  ticker: {
+    title:'종목 Cockpit',
+    subtitle:'기술, 재무, 뉴스, 포트 보유 여부, AI 분석을 한 흐름으로 연결합니다.',
+    cards:[['핵심 지표','시세 · 추세 · 재무 · 뉴스 · 보유 여부'],['운용 포인트','매수/관망/축소 판단 전 결측 데이터 확인'],['AI 분석','현재 종목 17관점 분석']],
+    links:[['기업 분석','fundamental'],['차트 분석','technical'],['AI 분석','ai']]
+  },
+  portfolio: {
+    title:'포트폴리오 위험 관리',
+    subtitle:'추가/수정 후 가격, 집중도, 손실 위험, 기술 리스크를 함께 확인합니다.',
+    cards:[['핵심 지표','비중 · P/L · VaR · 집중도 · 기술 리스크'],['운용 포인트','미확인 티커와 가격 fallback 정리'],['AI 분석','리밸런싱 후보와 헤지 전략']],
+    links:[['스크리너','screener'],['티커 상세','ticker'],['AI 분석','ai']]
+  },
+  themes: {
+    title:'테마 회전 지도',
+    subtitle:'강한 테마, 약한 테마, 리더 후보, 리스크를 분리해서 봅니다.',
+    cards:[['핵심 지표','상대강도 · 모멘텀 · 리더 종목'],['운용 포인트','테마 강도와 후보/리스크 동시 확인'],['AI 분석','테마별 대장주와 후발주 비교']],
+    links:[['테마 상세','theme-detail'],['스크리너','screener'],['AI 분석','ai']]
+  },
+  'theme-detail': {
+    title:'테마 상세',
+    subtitle:'리더, 후보, 리스크, 스크리너 진입점을 한 화면에서 확인합니다.',
+    cards:[['핵심 지표','리더/후보/리스크/촉매'],['운용 포인트','대장주와 후발주를 나눠 검토'],['AI 분석','이 테마의 진입 조건']],
+    links:[['테마','themes'],['스크리너','screener'],['AI 분석','ai']]
+  },
+  macro: {
+    title:'매크로 판단',
+    subtitle:'정책, 물가, 고용, 이벤트가 오늘 시장에 주는 압력을 먼저 봅니다.',
+    cards:[['핵심 지표','FOMC 결과 · 금리 · 달러 · 유가 · 고용/물가'],['운용 포인트','다음 체크포인트와 시장 반응 분리'],['AI 분석','FOMC/이란/유가 포지션 영향']],
+    links:[['환율·채권','fxbond'],['브리핑','briefing'],['AI 분석','ai']]
+  },
+  fxbond: {
+    title:'FX·Rates·Credit',
+    subtitle:'달러, 금리곡선, 크레딧, 원유를 설명문보다 지표 중심으로 읽습니다.',
+    cards:[['핵심 지표','DXY · 2Y/10Y · HYG · WTI · USD/KRW'],['운용 포인트','달러·금리·유가가 동시에 위험선호인지 확인'],['상세 도구','인과 설명은 상세에서 확인']],
+    links:[['매크로','macro'],['시장 뉴스','market-news'],['AI 분석','ai']]
+  },
+  fundamental: {
+    title:'기업 분석 17관점',
+    subtitle:'검색 전 데이터 가용성을 확인하고, 수집된 정보만 분석합니다.',
+    cards:[['핵심 지표','프로필 · 재무 · 경영진 · 제품 · 뉴스 · 밸류'],['운용 포인트','티커 검색 후 결측 매트릭스 확인'],['AI 분석','수집 데이터 기준 17관점 보고서 생성']],
+    links:[['티커 상세','ticker'],['포트폴리오','portfolio'],['AI 분석','ai']]
+  },
+  options: {
+    title:'옵션 페이지 정리',
+    subtitle:'옵션체인 미연결 영역은 변동성/심리 페이지로 통합했습니다.',
+    cards:[['핵심 지표','VIX/VVIX와 심리 페이지 사용'],['운용 포인트','실시간 옵션체인 없는 결론은 사용하지 않음'],['이동','투자 심리에서 변동성 확인']],
+    links:[['투자 심리','sentiment'],['시그널','signal']]
+  },
+  'kr-home': {
+    title:'한국장 요약',
+    subtitle:'지수, 수급, 테마, 매크로, 기술을 각각 1문장 결론으로 봅니다.',
+    cards:[['핵심 지표','KOSPI/KOSDAQ · 외국인/기관 · 환율 · 주도 테마'],['운용 포인트','데이터 부족과 중립 신호를 구분'],['AI 분석','한국장 핵심 변수 요약']],
+    links:[['수급','kr-supply'],['국내 테마','kr-themes'],['AI 분석','ai']]
+  },
+  'kr-supply': {
+    title:'한국 수급',
+    subtitle:'외국인/기관/개인만으로 강한 결론을 내지 않고 환율·프로그램·breadth를 함께 봅니다.',
+    cards:[['핵심 지표','외국인 · 기관 · 개인 · 환율 · 프로그램'],['운용 포인트','수급 방향과 가격 확인 일치 여부 점검'],['AI 분석','수급의 시장 영향 분석']],
+    links:[['한국 홈','kr-home'],['한국 기술','kr-technical'],['AI 분석','ai']]
+  },
+  'kr-themes': {
+    title:'국내 테마',
+    subtitle:'live coverage가 부족하면 평균 0%/중립 대신 데이터 부족으로 표시합니다.',
+    cards:[['핵심 지표','테마별 수익률 · 리더 종목 · 거래대금'],['운용 포인트','데이터 부족 테마와 실제 강세 테마 분리'],['AI 분석','국내 테마 리더/후발주 비교']],
+    links:[['한국 홈','kr-home'],['스크리너','screener'],['AI 분석','ai']]
+  },
+  'kr-macro': {
+    title:'한국 매크로',
+    subtitle:'현재 판단과 아카이브를 분리하고 금리·환율·유가·수출입만 상단에 둡니다.',
+    cards:[['핵심 지표','금리 · 환율 · 유가 · 수출입 · BOK 일정'],['운용 포인트','원화 약세와 외국인 수급 동시 악화 여부 확인'],['AI 분석','한국장 매크로 리스크 정리']],
+    links:[['한국 홈','kr-home'],['수급','kr-supply'],['AI 분석','ai']]
+  },
+  'kr-technical': {
+    title:'한국장 기술 계획',
+    subtitle:'진입 구간, 무효화 가격, 손절, 기간, 신뢰도를 한 블록으로 봅니다.',
+    cards:[['핵심 지표','KOSPI/KOSDAQ · 종목 차트 · 거래량 · 이평선'],['운용 포인트','티커 입력 후 계획과 무효화 조건 확인'],['AI 분석','한국 종목 차트 계획']],
+    links:[['한국 홈','kr-home'],['수급','kr-supply'],['AI 분석','ai']]
+  },
+  guide: {
+    title:'설정/레퍼런스',
+    subtitle:'기본 화면이 아니라 필요할 때 찾아보는 참고/아카이브입니다.',
+    cards:[['핵심 지표','설정 · API · 사용법'],['운용 포인트','막힌 기능만 검색해서 확인'],['주의','투자 판단 화면과 분리']],
+    links:[['홈','home'],['AI 분석','ai']]
+  }
+};
+
+function _aioRenderPageActionHub(pageId) {
+  var page = document.getElementById('page-' + pageId);
+  if (!page) return null;
+  var cfg = (window.AIO_PAGE_ACTION_HUBS || {})[pageId];
+  if (!cfg) return null;
+  var old = page.querySelector('.aio-action-hub[data-aio-hub-page="' + pageId + '"]');
+  if (old) old.remove();
+  var decision = window._aioBuildPageDecision ? window._aioBuildPageDecision(pageId) : null;
+  var cards = (cfg.cards || []).slice(0, 3).map(function(c) {
+    return '<div class="aio-action-hub-card"><div class="aio-action-hub-label">' + _aioDecisionEsc(c[0]) + '</div><div class="aio-action-hub-value">' + _aioDecisionEsc(c[1]) + '</div></div>';
+  }).join('');
+  var links = (cfg.links || []).map(function(l) {
+    if (l[1] === 'ai') return '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">AI 분석으로 넘기기</button>';
+    return '<button type="button" class="aio-compact-chip" data-action="showPage" data-arg="' + _aioDecisionEsc(l[1]) + '">' + _aioDecisionEsc(l[0]) + '</button>';
+  }).join('');
+  var html = '<section class="aio-action-hub" data-aio-hub-page="' + _aioDecisionEsc(pageId) + '">'
+    + '<div class="aio-action-hub-top"><div><div class="aio-action-hub-title">' + _aioDecisionEsc(cfg.title) + '</div>'
+    + '<div class="aio-action-hub-sub">' + _aioDecisionEsc(cfg.subtitle) + '</div></div>'
+    + '<div class="aio-action-hub-links">' + links + '</div></div>'
+    + '<div class="aio-action-hub-grid">' + cards + '</div>'
+    + (decision ? '<div class="aio-action-hub-sub" style="margin-top:9px;">현재 판단: <b style="color:var(--text-primary);">' + _aioDecisionEsc(decision.decision) + '</b></div>' : '')
+    + '</section>';
+  var header = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
+  if (header) header.insertAdjacentHTML('afterend', html);
+  else page.insertAdjacentHTML('afterbegin', html);
+  page.classList.add('has-aio-redesign-hub');
+  return page.querySelector('.aio-action-hub[data-aio-hub-page="' + pageId + '"]');
+}
+
+function _aioFoldDensePageControls(pageId) {
+  var page = document.getElementById('page-' + pageId);
+  if (!page || page.querySelector('.aio-page-advanced-toggle[data-fold-page="' + pageId + '"]')) return;
+  var selectors = [];
+  if (pageId === 'market-news') selectors = [
+    '#news-progress-wrap'
+  ];
+  if (pageId === 'screener') selectors = [
+    '#screener-backtest-panel',
+    '#vis-screener'
+  ];
+  if (pageId === 'signal') selectors = ['#signal-lockout-control'];
+  if (pageId === 'fxbond') selectors = ['.insight-box.box-collapsed'];
+  if (pageId === 'guide') selectors = ['.insight-box.box-collapsed'];
+  var nodes = [];
+  selectors.forEach(function(sel) {
+    try {
+      page.querySelectorAll(sel).forEach(function(node) {
+        var target = node;
+        if (pageId === 'screener' && (node.id === 'screener-backtest-panel' || node.id === 'vis-screener')) {
+          target = node.closest('div[style*="linear-gradient"]') || node.parentElement;
+        }
+        if (target && nodes.indexOf(target) < 0 && !target.closest('.aio-page-advanced-toggle')) nodes.push(target);
+      });
+    } catch(_) {}
+  });
+  if (pageId === 'market-news') {
+    Array.prototype.slice.call(page.children || []).forEach(function(child) {
+      var txt = (child.textContent || '').replace(/\s+/g, ' ');
+      if (/BornLupin|Aether Japan|Insider Tracking|Reuters|TrendForce|Platts/.test(txt)) {
+        if (nodes.indexOf(child) < 0 && !child.closest('.aio-page-advanced-toggle')) nodes.push(child);
+      }
+      if (/정렬:|자동 한국어 번역/.test(txt)) {
+        if (nodes.indexOf(child) < 0 && !child.closest('.aio-page-advanced-toggle')) nodes.push(child);
+      }
+    });
+  }
+  nodes = nodes.filter(function(n) { return n && n.parentNode === page || (n && n.parentNode && n.closest('#page-' + pageId)); });
+  if (!nodes.length) return;
+  var details = document.createElement('details');
+  details.className = 'aio-page-advanced-toggle';
+  details.setAttribute('data-fold-page', pageId);
+  var label = pageId === 'market-news' ? '고급 필터·소스 상태'
+    : pageId === 'screener' ? '고급 필터·팩터 검증'
+    : pageId === 'signal' ? '고급 매매 조건'
+    : '참고/상세 내용';
+  details.innerHTML = '<summary>' + label + '</summary><div class="aio-page-advanced-body"></div>';
+  var body = details.querySelector('.aio-page-advanced-body');
+  var anchor = page.querySelector('.aio-action-hub') || page.querySelector('.aio-decision-header') || page.firstElementChild;
+  if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(details, anchor.nextSibling);
+  nodes.forEach(function(node) {
+    node.classList.add('aio-page-dense-folded');
+    body.appendChild(node);
+  });
+}
+
+window._aioApplyPageBodyRedesign = function(pageId) {
+  pageId = String(pageId || '').replace(/^page-/, '');
+  if (!pageId) return;
+  try { _aioRenderPageActionHub(pageId); } catch(_) {}
+  try { _aioFoldDensePageControls(pageId); } catch(_) {}
+};
+
+window.AIO.getPageRedesignAudit = function() {
+  var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
+    ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
+    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+  var hubs = window.AIO_PAGE_ACTION_HUBS || {};
+  var details = ids.map(function(id) {
+    var page = document.getElementById('page-' + id);
+    return {
+      pageId: id,
+      hasConfig: !!hubs[id],
+      hasDecision: !!(page && page.querySelector('.aio-decision-header')),
+      hasHub: !!(page && page.querySelector('.aio-action-hub')),
+      hasAiAction: !!(page && page.querySelector('[data-action="_aioAskAiFromPageDecision"]')),
+      foldedSections: page ? page.querySelectorAll('.aio-page-advanced-toggle').length : 0
+    };
+  });
+  var missingConfig = details.filter(function(d){ return !d.hasConfig; }).map(function(d){ return d.pageId; });
+  var missingHub = details.filter(function(d){ return !d.hasHub; }).map(function(d){ return d.pageId; });
+  var criticalFolded = ['market-news','screener','signal'].filter(function(id) {
+    var d = details.filter(function(x){ return x.pageId === id; })[0];
+    return !d || d.foldedSections < 1;
+  });
+  return {
+    status: (!missingConfig.length && !missingHub.length && !criticalFolded.length) ? 'pass' : 'warn',
+    routeCount: ids.length,
+    configuredCount: Object.keys(hubs).length,
+    missingConfig: missingConfig,
+    missingHub: missingHub,
+    criticalFolded: criticalFolded,
+    details: details
+  };
 };
 
 // v50.79: user-supplied research digest consumption. Data-only: no fake premium board UI.
@@ -4048,21 +4341,34 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   var _fomcFoot = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
   var _fomcFootNote = (_fomcFooterPages[pageId] && _fomcFoot.result)
     ? _fomcFoot.result.slice(0, 70) : '';
+  var sourceLabelMap = {
+    LIVE: '데이터: 실시간',
+    DELAYED: '데이터: 지연',
+    SNAPSHOT: '데이터: 스냅샷',
+    REFERENCE: '데이터: 참고',
+    UNAVAILABLE: '데이터: 미수신'
+  };
+  var sourceKind = String(d.sourceKind || 'SNAPSHOT').toUpperCase();
+  var sourceLabel = sourceLabelMap[sourceKind] || '데이터: 확인 필요';
   var html = ''
     + '<section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(d.sourceKind) + '">'
     + '  <div class="aio-decision-top">'
     + '    <div><div class="aio-decision-kicker">' + _aioDecisionEsc(d.title) + '</div><div class="aio-decision-verdict">' + _aioDecisionEsc(d.decision) + '</div></div>'
-    + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '">sourceKind ' + _aioDecisionEsc(d.sourceKind) + '</span><span class="aio-confidence-badge">신뢰도 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
+    + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span><span class="aio-confidence-badge">신뢰도 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
     + '  </div>'
     + '  <div class="aio-decision-grid">'
     + '    <div class="aio-decision-card"><div class="aio-decision-label">왜</div><ol class="aio-decision-list"><li>' + _aioDecisionEsc(d.reasons[0]) + '</li><li>' + _aioDecisionEsc(d.reasons[1]) + '</li><li>' + _aioDecisionEsc(d.reasons[2]) + '</li></ol></div>'
     + '    <div class="aio-decision-card"><div class="aio-decision-label">오늘 행동</div><div class="aio-decision-action">' + _aioDecisionEsc(d.action) + '</div></div>'
     + '    <div class="aio-decision-card"><div class="aio-decision-label">데이터 기준시각</div><div class="aio-decision-action">' + _aioDecisionEsc(d.asOf) + '</div></div>'
     + '  </div>'
-    + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : '') + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 질문</button></div>'
+    + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : '') + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 분석</button></div>'
     + '</section>';
   page.insertAdjacentHTML('afterbegin', html);
   var header = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
+  if (header) page.classList.add('has-aio-decision-header');
+  if (typeof window._aioApplyPageBodyRedesign === 'function') {
+    try { window._aioApplyPageBodyRedesign(pageId); } catch(_) {}
+  }
   return header;
 };
 
@@ -4315,21 +4621,21 @@ window._aioSimplifyExplainLabels = function() {
 };
 
 var AIO_EXPLAIN_SUMMARIES = {
-  'explain-decision-dash': '초보자는 <strong>매매 신호 → 시장 품질 → 시장 국면</strong> 순서로만 보세요. 셋 중 2개 이상이 위험이면 신규 매수보다 현금/관망이 우선입니다.',
+  'explain-decision-dash': '<strong>매매 신호 → 시장 품질 → 시장 국면</strong> 순서로 확인하세요. 셋 중 2개 이상이 위험이면 신규 매수보다 현금/관망이 우선입니다.',
   'explain-top-indicators': '상단 지표는 시장 체온계입니다. <strong>지수 방향, VIX, F&G</strong>가 서로 같은 말을 하는지 확인하고, 서로 다르면 세부 페이지로 내려갑니다.',
-  'explain-gmo-and-flow': '자금 흐름은 “돈이 어디로 이동하는가”를 보는 영역입니다. 초보자는 주도 섹터와 방어 섹터가 바뀌는지만 먼저 확인하세요.',
+  'explain-gmo-and-flow': '자금 흐름은 “돈이 어디로 이동하는가”를 보는 영역입니다. 주도 섹터와 방어 섹터가 바뀌는지 먼저 확인하세요.',
   'explain-signal-page': '이 페이지의 결론은 점수가 아니라 <strong>신규 매수/보유/축소/헤지</strong>입니다. 점수가 좋아도 과열·OPEX·폭 부진이 있으면 추격은 줄입니다.',
-  'explain-breadth-page': '시장 폭은 상승의 품질입니다. 지수만 오르고 참여 종목이 줄면 초보자는 신규 매수를 늦추고 보유 종목 방어선을 확인하세요.',
+  'explain-breadth-page': '시장 폭은 상승의 품질입니다. 지수만 오르고 참여 종목이 줄면 신규 매수를 늦추고 보유 종목 방어선을 확인하세요.',
   'explain-sentiment-page': '심리는 반대로만 쓰지 않습니다. 탐욕은 “바로 매도”가 아니라 <strong>추격 금지</strong>, 공포는 “바로 매수”가 아니라 <strong>분할 확인</strong> 신호입니다.',
   'explain-briefing-page': '브리핑은 오늘 행동을 정하는 페이지입니다. 모든 뉴스를 읽지 말고 <strong>시장 국면을 바꿀 뉴스, 내 보유 종목 뉴스, 오늘 일정</strong>만 남기세요.',
   'explain-technical-page': '기술 분석은 매도/축소 기준을 정하는 도구입니다. RSI보다 <strong>ATR 확장, 거래량, 종가 위치, 10/21/50일선 이탈</strong>을 우선합니다.',
-  'explain-macro-page': '매크로는 배경입니다. 초보자는 CPI/PCE/고용 숫자 자체보다 <strong>연준이 금리를 올릴지, 내릴지, 오래 유지할지</strong>를 판단하세요.',
+  'explain-macro-page': '매크로는 배경입니다. CPI/PCE/고용 숫자 자체보다 <strong>연준이 금리를 올릴지, 내릴지, 오래 유지할지</strong>를 판단하세요.',
   'explain-fxbond-page': '환율·채권은 주식의 압박 게이지입니다. 달러와 금리가 동시에 오르면 성장주 추격매수는 보수적으로 봅니다.',
   'explain-fundamental-page': '기업 분석은 “좋은 회사”와 “지금 살 자리”를 분리합니다. 재무가 좋아도 차트와 뉴스 리스크가 나쁘면 진입은 늦춥니다.',
   'explain-themes-page': '테마는 스토리가 아니라 돈의 흐름입니다. 테마명보다 <strong>대장주, 상대강도, 밸류체인 병목</strong>을 먼저 확인하세요.',
   'explain-portfolio-page': '포트폴리오는 수익률보다 생존이 먼저입니다. 단일 종목/섹터 집중과 최대 손실 가능성을 확인한 뒤 줄일 순서를 정하세요.',
   'explain-ticker-page': '티커 상세는 최종 확인용입니다. 가격 추세, 실적/뉴스, 포트폴리오 비중이 모두 맞을 때만 행동으로 옮깁니다.',
-  'explain-news-page': '뉴스는 많을수록 위험합니다. 초보자는 <strong>가격에 영향 줄 뉴스</strong>와 단순 소음을 분리하고, 영향 섹터/종목만 추적하세요.',
+  'explain-news-page': '뉴스는 많을수록 위험합니다. <strong>가격에 영향 줄 뉴스</strong>와 단순 소음을 분리하고, 영향 섹터/종목만 추적하세요.',
   'explain-options-page': '옵션은 방향보다 보험료를 보는 페이지입니다. IV가 높으면 프리미엄 매도 후보, IV가 낮으면 옵션 매수 후보를 검토하되 손실 한도를 먼저 정합니다.',
   'explain-kr-page': '한국장은 환율과 외국인 수급이 핵심입니다. KOSPI/KOSDAQ보다 <strong>외국인 순매수, USD/KRW, 반도체</strong>를 먼저 보세요.',
   'explain-kr-supply-page': '수급 분석은 누가 사고 파는지 확인합니다. 가격 상승과 외국인/기관 순매수가 동시에 나올 때 신뢰도가 높습니다.',
@@ -4350,7 +4656,7 @@ window._aioInjectExplainSummaries = function() {
     var summary = document.createElement('div');
     summary.className = 'aio-explain-summary';
     summary.innerHTML =
-      '<div class="aio-explain-summary-title">초보자 핵심만 먼저</div>' +
+      '<div class="aio-explain-summary-title">핵심 운용 메모</div>' +
       '<div class="aio-explain-summary-body">' + AIO_EXPLAIN_SUMMARIES[id] + '</div>';
     content.insertBefore(summary, content.firstChild);
   });
@@ -5024,7 +5330,7 @@ window.AIO.getEssenceAlignmentAudit = function(opts) {
     actions.push('로딩 중/계산 중 초기 문구를 수신 대기/수집 대기 + reference-only lineage로 정규화');
   }
   if (consoleOnlyHints > 0) {
-    issues.push('초보자에게 콘솔 명령으로만 안내되는 진단 경로 존재');
+    issues.push('사용자에게 콘솔 명령으로만 안내되는 진단 경로 존재');
     actions.push('콘솔 전용 audit은 사이드바/가이드 버튼으로 노출');
   }
   if (uxAudit && uxAudit.issueCount) {
@@ -14837,6 +15143,7 @@ window._aioRefreshAuditWidget = function() {
     try {
       var devMode = false;
       try { devMode = localStorage.getItem('aio_audit_mode') === 'detailed'; } catch(_) {}
+      if (document.body) document.body.classList.toggle('aio-dev-mode', !!devMode);
       var toggleInput = document.getElementById('aio-audit-mode-toggle');
       if (toggleInput) toggleInput.checked = devMode;
       var allRows = container.querySelectorAll('[data-audit-key]');
@@ -14863,6 +15170,7 @@ window._aioAuditModeToggle = function(checked, el) {
   try {
     localStorage.setItem('aio_audit_mode', checked ? 'detailed' : 'simple');
   } catch(_) {}
+  try { if (document.body) document.body.classList.toggle('aio-dev-mode', !!checked); } catch(_) {}
   // 즉시 재렌더
   try { window._aioRefreshAuditWidget(); } catch(_) {}
 };
@@ -16756,7 +17064,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.83';
+const APP_VERSION = 'v50.85';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
