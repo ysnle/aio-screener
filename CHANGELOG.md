@@ -19,6 +19,14 @@
 - **FXBOND**: `vis-fxbond`를 Cross-Asset 매트릭스 내부로 이동 — 4-col 수치 격자 바로 위 수익률 곡선 시각화
 - **SCREENER**: `screener-backtest-panel` + `vis-screener`를 단일 cyan 테두리 섹션으로 래핑 — 텍스트 IC + 차트 IC를 하나의 "팩터 검증·백테스트" 통합 패널로 표시
 
+## v50.86 - 구조 통합 보강 — fold 결함 수정 + portfolio 섹터 버블 + v50.77 이력 복원 (2026-06-19)
+
+- **`_aioFoldDensePageControls` 결함 수정**: screener fold가 `#vis-screener`(SVG 다이어그램)까지 접던 버그 수정 → `#screener-backtest-panel`(텍스트 IC 로그)만 접기. market-news textContent 기반 소스 매칭을 `#news-source-guide` ID 직접 지정으로 교체(취약 선택자 제거). 접힌 섹션이 원래 위치 바로 앞에 삽입되도록 anchor 로직 개선.
+- **portfolio 섹터 버블**: `_buildSectors()` 추가 — localStorage `aio_portfolio` × SCREENER_DB `sector` × `_liveData` 가격으로 섹터별 시장가치 비중·3M 수익 계산. `vis-portfolio` 플레이스홀더(portfolio 페이지 분석 대시보드 위) 추가, 보유 종목 있을 때만 표시.
+- **VIS_PAGES 확장**: `'portfolio'` 추가 — `aio:pageShown` 훅으로 진입 시 자동 렌더.
+- **`#news-source-guide` ID**: market-news 소스 안내 div에 ID 부여 — fold 타깃 안정화.
+- **v50.77 CHANGELOG 이력 복원**: 커밋 v50.77의 Minervini UI 항목이 CHANGELOG에 누락된 상태를 기록으로 보완.
+
 ## v50.83 - Phase 3: AI 채팅 자동 시각화 (2026-06-19)
 
 - **`window._aioChatAutoVis(q, response, tickers)`** (`js/aio-ui.js` Phase 2 IIFE 내 추가): 질문·응답 텍스트를 정규식으로 스캔해 가장 관련 높은 다이어그램 타입 반환
@@ -68,6 +76,16 @@
 - **공유 가능성 게이트 추가**: `AIO.getShareReadinessAudit()`가 배포 게이트, 런타임 계약, 자동운영 준비도를 합쳐 `shareable / share-with-warnings / not-shareable`로 판정.
 - **CI 회귀 방지 강화**: `scripts/ci-runtime-contract-check.mjs` 추가, `ci-version-check.mjs`를 ASCII 기반의 명확한 버전 동기화 게이트로 재작성.
 - **테스트/문서 환류**: T844 추가, R218/P511/QA 항목으로 “기록만 남고 실행 게이트가 없는 문제”를 재발 방지 규칙에 반영.
+
+## v50.77 - Minervini Markets 360 스타일 UI 통합 (2026-06-18)
+
+- **CSS 유틸리티**: `.mv-pill` / `.mv-grade-A~F` / `.mv-ind-*` / `.mv-phase-*` 신설 — 터미널 스타일 데이터 pill 및 등급 배지.
+- **page-signal**: `signal-mv-strip`(VIX/F&G/SPY/SCORE/TPR/M7 pill 1행) + `signal-phase-label`(SEPA/Buy Ready/Buy Alert/Avoid 국면 배지) 추가.
+- **page-technical**: Pressure / Buy Risk / Trend Phase 인디케이터 스트립 3행 (`computeMarketHealth` 연동 실시간 업데이트).
+- **page-ticker**: `ticker-mv-strip`(SR/TPR/RSI/3M/MOM/SIG pill) — SCREENER_DB 자동 채움.
+- **page-screener**: 등급 컬럼 A/B/C/D/F 추가, 헤더 colspan 13→14.
+- **문서 환류**: T844(회귀), BUG-POSTMORTEM P511, QA-CHECKLIST, RULES R218 추가.
+- *(참고: 이 커밋은 git log상 v50.77이나 CHANGELOG에 v50.79 항목으로 통합되어 있던 상태 — v50.86에서 이력 복원)*
 
 ## v50.76 - 5페이지 구조적 개편 — 레퍼런스 flat design 반영 (2026-06-18)
 

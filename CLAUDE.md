@@ -3,9 +3,10 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v50.85**
+- 현재 버전: **v50.86**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
-- **v50.85 Phase 4: 10개 페이지 시각화 구조적 통합**: `.aio-vis-card` CSS를 cyan border-left+그라디언트 네이티브 스타일로 교체. vis-* 패널을 각 페이지 네이티브 섹션 내부로 이동 — HOME→배너, SIGNAL→대시보드 헤더, BREADTH→4-col KPI 병합, SENTIMENT/TECHNICAL→헤더 인라인, MACRO→스토리라인 카드, FXBOND→Cross-Asset 매트릭스, SCREENER→통합 검증 패널.
+- **v50.86 구조 통합 보강**: `_aioFoldDensePageControls` screener 결함 수정(vis-screener 다이어그램 접기 버그 제거, 텍스트 IC만 접기). market-news textContent 매칭 → `#news-source-guide` ID 기반 전환. `_buildSectors()` 추가 — portfolio × SCREENER_DB × liveData 섹터 비중 계산. vis-portfolio 플레이스홀더 + VIS_PAGES 확장으로 portfolio 섹터 버블 자동 렌더.
+- **v50.85 Phase 4+5: vis 위치 통합 + Action Hub**: `.aio-vis-card` CSS를 cyan border-left+그라디언트 네이티브 스타일로 교체. vis-* 패널을 각 페이지 네이티브 섹션 내부로 이동 — HOME→배너, SIGNAL→대시보드 헤더, BREADTH→4-col KPI 병합, SENTIMENT/TECHNICAL→헤더 인라인, MACRO→스토리라인 카드, FXBOND→Cross-Asset 매트릭스, SCREENER→통합 검증 패널.
 - **v50.83 Phase 3: AI 채팅 자동 시각화**: `window._aioChatAutoVis(q, response, tickers)` 추가. AI 응답 완료 후 질문·응답 텍스트 정규식 스캔 → 가장 관련 높은 다이어그램(score-breakdown/yield-curve/sentiment-gauge/economic-cycle/market-regime/factor-backtest/factor-radar/price-position) 1개 자동 주입. `aio-chat.js` 후속질문 블록 직후 훅, 전체 try/catch 격리.
 - **v50.82 Phase 2: 10개 페이지 SVG 다이어그램 시각화 통합**: CSS `.aio-vis-panel` 그리드 + 10개 페이지에 `<div id="vis-{page}">` 플레이스홀더. `js/aio-ui.js`에 `_aioRenderPageDiagram(pid)` IIFE 추가 — `aio:pageShown` 훅으로 페이지 진입 시 자동 렌더. home(score+regime)·signal(score)·breadth(regime)·sentiment(gauge)·briefing(pipeline+cycle)·technical(price)·macro(cycle+yield)·fxbond(yield)·screener(backtest). fundamental은 `window._aioRenderFundamentalRadar(ticker,row)` 티커 검색 후 동적 렌더.
 - **v50.81 _aioDiagram 10-type SVG 다이어그램 엔진 (Phase 1)**: `js/aio-ui.js` 끝에 `window._aioDiagram` IIFE 추가. 외부 라이브러리 없이 JS→SVG 문자열 생성, `render(type,el,data)` + `getSvg(type,data)` API. 10 타입: score-breakdown·market-regime·factor-radar·pipeline-status·economic-cycle·price-position·sector-bubble·yield-curve·sentiment-gauge·factor-backtest.

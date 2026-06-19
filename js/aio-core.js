@@ -4039,14 +4039,11 @@ function _aioRenderPageActionHub(pageId) {
 function _aioFoldDensePageControls(pageId) {
   var page = document.getElementById('page-' + pageId);
   if (!page || page.querySelector('.aio-page-advanced-toggle[data-fold-page="' + pageId + '"]')) return;
+  // ID 기반 직접 지정 — 텍스트/인라인 스타일 의존 제거
   var selectors = [];
-  if (pageId === 'market-news') selectors = [
-    '#news-progress-wrap'
-  ];
-  if (pageId === 'screener') selectors = [
-    '#screener-backtest-panel',
-    '#vis-screener'
-  ];
+  if (pageId === 'market-news') selectors = ['#news-source-guide', '#news-progress-wrap'];
+  // screener: 텍스트 백테스트 패널만 접기. vis-screener(SVG 다이어그램)는 항상 노출 유지.
+  if (pageId === 'screener') selectors = ['#screener-backtest-panel'];
   if (pageId === 'signal') selectors = ['#signal-lockout-control'];
   if (pageId === 'fxbond') selectors = ['.insight-box.box-collapsed'];
   if (pageId === 'guide') selectors = ['.insight-box.box-collapsed'];
@@ -4054,38 +4051,30 @@ function _aioFoldDensePageControls(pageId) {
   selectors.forEach(function(sel) {
     try {
       page.querySelectorAll(sel).forEach(function(node) {
-        var target = node;
-        if (pageId === 'screener' && (node.id === 'screener-backtest-panel' || node.id === 'vis-screener')) {
-          target = node.closest('div[style*="linear-gradient"]') || node.parentElement;
-        }
-        if (target && nodes.indexOf(target) < 0 && !target.closest('.aio-page-advanced-toggle')) nodes.push(target);
+        if (node && nodes.indexOf(node) < 0 && !node.closest('.aio-page-advanced-toggle')) nodes.push(node);
       });
     } catch(_) {}
   });
-  if (pageId === 'market-news') {
-    Array.prototype.slice.call(page.children || []).forEach(function(child) {
-      var txt = (child.textContent || '').replace(/\s+/g, ' ');
-      if (/BornLupin|Aether Japan|Insider Tracking|Reuters|TrendForce|Platts/.test(txt)) {
-        if (nodes.indexOf(child) < 0 && !child.closest('.aio-page-advanced-toggle')) nodes.push(child);
-      }
-      if (/정렬:|자동 한국어 번역/.test(txt)) {
-        if (nodes.indexOf(child) < 0 && !child.closest('.aio-page-advanced-toggle')) nodes.push(child);
-      }
-    });
-  }
-  nodes = nodes.filter(function(n) { return n && n.parentNode === page || (n && n.parentNode && n.closest('#page-' + pageId)); });
+  // page 내부에 존재하는 노드만 유지 (직접 자식 또는 하위)
+  nodes = nodes.filter(function(n) { return n && n.closest && n.closest('#page-' + pageId); });
   if (!nodes.length) return;
   var details = document.createElement('details');
   details.className = 'aio-page-advanced-toggle';
   details.setAttribute('data-fold-page', pageId);
-  var label = pageId === 'market-news' ? '고급 필터·소스 상태'
-    : pageId === 'screener' ? '고급 필터·팩터 검증'
+  var label = pageId === 'market-news' ? '소스 안내·상태'
+    : pageId === 'screener' ? '팩터 검증 텍스트 로그'
     : pageId === 'signal' ? '고급 매매 조건'
     : '참고/상세 내용';
   details.innerHTML = '<summary>' + label + '</summary><div class="aio-page-advanced-body"></div>';
   var body = details.querySelector('.aio-page-advanced-body');
-  var anchor = page.querySelector('.aio-action-hub') || page.querySelector('.aio-decision-header') || page.firstElementChild;
-  if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(details, anchor.nextSibling);
+  // 접힌 섹션의 anchor: 첫 번째 노드의 다음 형제 앞에 삽입
+  var firstNode = nodes[0];
+  if (firstNode && firstNode.parentNode) {
+    firstNode.parentNode.insertBefore(details, firstNode);
+  } else {
+    var anchor = page.querySelector('.aio-action-hub') || page.querySelector('.aio-decision-header') || page.firstElementChild;
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(details, anchor.nextSibling);
+  }
   nodes.forEach(function(node) {
     node.classList.add('aio-page-dense-folded');
     body.appendChild(node);
@@ -17064,7 +17053,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.85';
+const APP_VERSION = 'v50.86';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

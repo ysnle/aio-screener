@@ -3737,6 +3737,41 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     return { backtest: window._aioFactorBacktest || {} };
   }
 
+  function _buildSectors() {
+    var pf = [];
+    try {
+      var raw = (typeof safeLSGetJSON === 'function')
+        ? safeLSGetJSON('aio_portfolio')
+        : JSON.parse(localStorage.getItem('aio_portfolio') || 'null');
+      if (Array.isArray(raw)) pf = raw;
+    } catch (e) {}
+    if (!pf.length) return { sectors: [] };
+    var live = window._liveData || {};
+    var db = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : [];
+    var sMap = {};
+    pf.forEach(function (entry) {
+      var sym = (entry.sym || '').toUpperCase();
+      var row = null;
+      for (var i = 0; i < db.length; i++) {
+        if ((db[i].sym || '').toUpperCase() === sym) { row = db[i]; break; }
+      }
+      var sector = (row && row.sector) ? row.sector : 'Other';
+      var price = (live[sym] && typeof live[sym].price === 'number') ? live[sym].price : (entry.cost || 0);
+      var mv = (entry.qty || 0) * price;
+      if (!sMap[sector]) sMap[sector] = { mv: 0, perfSum: 0, count: 0 };
+      sMap[sector].mv += mv;
+      sMap[sector].perfSum += (row && row.ret3m != null) ? row.ret3m : 0;
+      sMap[sector].count++;
+    });
+    var total = Object.keys(sMap).reduce(function (s, k) { return s + sMap[k].mv; }, 0);
+    if (!total) return { sectors: [] };
+    var sectors = Object.keys(sMap).map(function (k) {
+      var s = sMap[k];
+      return { name: k, weight: Math.round((s.mv / total) * 100), perf: s.count ? s.perfSum / s.count : 0 };
+    }).sort(function (a, b) { return b.weight - a.weight; });
+    return { sectors: sectors };
+  }
+
   function _render(elId, type, data) {
     var el = document.getElementById(elId);
     if (el && window._aioDiagram) window._aioDiagram.render(type, el, data);
@@ -3775,13 +3810,24 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
         case 'screener':
           _render('vis-screener-backtest', 'factor-backtest', _buildBacktest());
           break;
+        case 'portfolio': {
+          var _pfSec = _buildSectors();
+          var _pfWrap = document.getElementById('vis-portfolio');
+          if (_pfSec.sectors && _pfSec.sectors.length) {
+            if (_pfWrap) _pfWrap.style.display = '';
+            _render('vis-portfolio-sectors', 'sector-bubble', _pfSec);
+          } else {
+            if (_pfWrap) _pfWrap.style.display = 'none';
+          }
+          break;
+        }
       }
     } catch (e) {
       if (typeof _aioLog === 'function') _aioLog('warn', 'ui', 'vis-phase2 render err:' + pid + ' ' + (e && e.message));
     }
   }
 
-  var VIS_PAGES = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','screener'];
+  var VIS_PAGES = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','screener','portfolio'];
 
   // 페이지 전환 훅
   if (window._aioPageBus) {
