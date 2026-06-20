@@ -1,5 +1,13 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.74 - Telegram 3채널 다이제스트 갱신 (2026-06-20)
+
+- **3채널 1주일 데이터 통합**: @aetherjapanresearch(117건)·@insidertracking(100건)·@bornlupin(109건) 6/13~6/20 KST 총 326건 스크랩 반영. `public-data/telegram-digest.json` 갱신.
+- **`AIO_TELEGRAM_WEEKLY_DIGEST` 업데이트**: asOf 6/20, window 6/13~6/20, counts 총 326건, topicCounts·tickerCounts·themes·catalysts·categories·pageMap 전체 갱신.
+- **핵심 이슈 반영**: BOJ 25bp→1%·닛케이 70,000/FOMC 18명 중 9명 매파·Kevin Warsh 의장/US-Iran MOU 14조항·호르무즈 기뢰제거·이란재건펀드 $3,000억/SK하이닉스 HBM4E 12단·핀당 16Gbps/MU 목표주가 Wedbush $1,300·DB $1,500·Citi $1,200/SpaceX IPO +18%·아마존 추월/최태원-머스크 AI5 HBM 회동/NVDA Jensen Jail CUDA 90%/존 점퍼 Anthropic 합류/ASML EUV 중국 유출 우려.
+- **catalysts 갱신**: MU·000660.KS·NVDA·INTC·SPACE·AMD·AMAT·009150.KS·AAPL·ASML 10종목 촉매 업데이트.
+- **categories/pageMap 갱신**: macro-geo·japan-rates·fomc-fed·ai-policy·optical-interconnect·power-grid·memory-materials·equity-analyst·space-leo·korea-supplychain 10개 카테고리, 12개 페이지 매핑 업데이트.
+
 ## v50.73 - 프리미엄 스크리너 보드 + 자동 보강형 리서치 + 시각 리포트 (2026-06-18)
 
 - **자동 보강 구조 편입**: 사용자 제공 X/이미지 자료를 `public-data/user-research-digest.json` 스키마로 정규화하고, 앱 런타임에 `AIO_RESEARCH_REFRESH_CONTRACT` + `AIO.loadUserResearchDigest()`로 읽을 수 있게 연결. 자료는 기본 `REFERENCE`이며, 라이브 가격/뉴스/매크로 검증 없이는 현재 시장 결론으로 승격하지 않도록 명시.
