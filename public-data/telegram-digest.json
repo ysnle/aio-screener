@@ -1,52 +1,53 @@
 {
-  "generatedAt": "2026-06-20T01:32:40.705Z",
-  "since": "2026-06-13T01:32:19.074Z",
-  "until": "2026-06-20T01:32:19.074Z",
+  "generatedAt": "2026-06-20T06:03:53.855Z",
+  "since": "2026-06-13T06:03:29.724Z",
+  "until": "2026-06-20T06:03:29.724Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
       "channel": "aetherjapanresearch",
       "pages": 10,
       "reachedOlder": true,
-      "count": 165,
+      "count": 166,
       "error": null
     },
     {
       "channel": "insidertracking",
       "pages": 30,
       "reachedOlder": false,
-      "count": 521,
+      "count": 513,
       "error": null
     },
     {
       "channel": "bornlupin",
       "pages": 6,
       "reachedOlder": true,
-      "count": 112,
+      "count": 111,
       "error": null
     }
   ],
-  "count": 798,
+  "count": 790,
   "topicCounts": {
-    "geo": 272,
-    "semi": 179,
-    "macro": 220,
-    "crypto": 30,
-    "market-note": 321,
-    "power": 82,
+    "market-note": 319,
+    "geo": 268,
+    "semi": 180,
+    "ai-policy": 37,
     "equity": 229,
-    "optical": 30,
-    "ai-policy": 38
+    "macro": 215,
+    "optical": 31,
+    "power": 83,
+    "crypto": 30
   },
   "tickerCounts": {
-    "MU": 81,
-    "005930.KS": 25,
-    "000660.KS": 43,
+    "MU": 85,
+    "MRVL": 16,
+    "ORCL": 11,
+    "RKLB": 11,
+    "005930.KS": 24,
+    "000660.KS": 42,
     "NVDA": 51,
     "META": 29,
-    "MRVL": 14,
     "BE": 7,
-    "RKLB": 10,
     "AMD": 25,
     "AAOI": 3,
     "6600.T": 7,
@@ -56,13 +57,32 @@
     "ALAB": 2,
     "ADBE": 3,
     "COHR": 4,
-    "ORCL": 10,
     "6981.T": 6,
     "LITE": 5,
     "MTSI": 1,
     "SMCI": 1
   },
   "topItems": [
+    {
+      "id": "insidertracking/56003",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56003",
+      "datetime": "2026-06-20T02:55:37.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "macro",
+        "optical",
+        "power"
+      ],
+      "tickers": [
+        "MU",
+        "MRVL",
+        "ORCL",
+        "RKLB"
+      ],
+      "score": 83,
+      "text": "서학개미 순매수 미국 주식 TOP 50\n\n> 기간: 2026/06/01 ~ 2026/06/19 (6월 누적)\n\n1위: SPACE EXPLORATION TECHN-CL A (38.66%)\n2위: MARVELL TECHNOLOGY INC (6.14%)\n3위: MICRON TECHNOLOGY INC (5.56%)\n4위: INVESCO NASDAQ 100 ETF (3.70%)\n5위: PROSHARES ULTRA QQQ ETF (3.05%)\n6위: ARM HOLDINGS PLC (3.01%)\n7위: ROUNDHILL MEMORY ETF (2.88%)\n8위: BROADCOM INC (2.39%)\n9위: DXN MU BUL2X ETF (2.11%)\n10위: CoreWeave Inc (2.10%)\n\n11위: INVESCO QQQ TRUST SRS 1 ETF (2.08%)\n12위: VANGUARD SP 500 ETF (1.87%)\n13위: SNOWFLAKE INC (1.80%)\n14위: ISHARES SEMICONDUCTOR ETF (1.76%)\n15위: FLUENCE ENERGY INC (1.69%)\n16위: DIREXION DAILY MSCI SOUTH KOREA BULL ETF (1.59%)\n17위: INTERNATIONAL BUSINESS MACHINES CORP (1.51%)\n18위: SCHWAB US DIVIDEND EQUITY ETF (1.50%)\n19위: GRANITESHARES 2X LONG MRVL DAILY ETF (1.38%)\n20위: LEVERAGE SHARES 2X LONG SPCX DAILY ETF (1.25%)\n\n21위: DEFIANCE DAILY TARGET 2X LONG RKLB ETF (1.18%)\n22위: DIGITALOCEAN HOLDINGS INC (0.92%)\n23위: TRADR 2X LONG ASTS DAILY ETF (0.80%)\n24위: DIREXION SHARES ETF TRUST DAILY SEMICONDUCTOR BEAR 3X SHS (0.79%)\n25위: INNODATA CORP (0.79%)\n26위: YANDEX NV CL A (0.78%)\n27위: APPLIED MATERIALS INC (0.77%)\n28위: T-REX 2X LONG RDW DAILY TARGET ETF (0.76%)\n29위: LAM RESEARCH CORP (0.71%)\n30위: T-REX 2X LONG MSTR DAILY TARGET ETF (0.71%)\n\n31위: CEREBRAS SYSTEMS INC (0.71%)\n32위: SOLAREDGE TECHNOLOGIES INC (0.69%)\n33위: LEVERAGE SHARES 2X CRWV (0.69%)\n34위: VOLATILITY SHARES TRUST 2X ETHER ETF (0.68%)\n35위: NEOS NASDAQ 100 HIGH INCOME ETF (0.67%)\n36위: SILICON MOTION TECHNOLOGY CORP ADR (0.59%)\n37위: ORACLE CORP (0.59%)\n38위: Direxion Daily AVGO Bull 2X Shares (0.55%)\n39위: NUSCALE POWER CORP CL A (0.53%)\n40위: SPDR PORTFOLIO SP 500 ETF (0.53%)\n\n41위: DEFIANCE DAILY TARGET 2X LONG AVGO ETF (0.51%)\n42위: DEFIANCE DAILY TARGET 2X LONG PL ETF (0.50%)\n43위: PROSHARES ULTRA SEMICONDUCTORS ETF (0.49%)\n44위: MONGODB INC (0.48%)\n45위: DELL TECHNOLOGIES INC CL C (0.46%)\n46위: PROSHARES ULTRAPRO QQQ ETF (0.46%)\n47위: WESTERN DIGITAL CORP (0.43%)\n48위: NEXTRACKER INC (0.41%)\n49위: ASML HOLDING NV ADR (0.39%)\n50위: VANECK SEMICONDUCTOR ETF (0.36%)\n\n ✅ 요약 분석\n총 순매수 금액: 5,042,859,111 USD\n(약 7조 6,904억 원, 평균 환율 1,525원 기준)\n\n ✅ 각 종목 옆에 있는 %는 TOP 50 금액중에서 비중을 뜻합니다\n\n작성자: 미국 주식 인사이더\n출처: 한국예탁결제원"
+    },
     {
       "id": "bornlupin/18637",
       "channel": "bornlupin",
@@ -812,31 +832,183 @@
       ],
       "score": 77,
       "text": "팀 쿡 \"메모리칩 가격 폭등에 제품값 인상 불가피\"…아이폰도 오르나\n\n팀 쿡 \"고객 부담 막으려 했지만 더는 지속 불가능\"\nAI 데이터센터 투자 경쟁에 D램·낸드 가격 1년 새 4배 급등\n아이폰18·맥·아이패드 가격 인상 가능성 주목\n\"40년 공급망 경험 중 이런 상황 처음…100년에 한 번 올 위기\"\n\n팀 쿡 애플 최고경영자(CEO)가 인공지능(AI) 산업 확산에 따른 메모리 반도체 공급 부족과 가격 급등을 이유로 자사 제품 가격 인상 가능성을 공식 시사했다.\n\n월스트리트저널(WSJ)과 인터뷰에서 “안타깝게도 가격 인상은 불가피하다 ”며 “우리는 공급업체로부터 전가되는 막대한 비용 상승을 완화하기 위해 최선을 다해왔고 고객들에게 부담을 전가하지 않으려 노력했지만 현재 상황은 더 이상 지속 가능하지 않다”고 밝혔다.\n\n쿡 CEO는 가격 인상 시기와 폭, 대상 제품에 대해서는 구체적으로 언급하지 않았다. 다만 업계에서는 오는 9월 공개가 예상되는 아이폰18 시리즈가 주요 가격 조정 대상이 될 가능성에 주목하고 있다. 애플은 지난달에도 맥 미니(Mac Mini)의 시작 가격을 인상한 바 있어 맥과 아이패드 제품군 역시 영향을 받을 수 있다는 전망이 나온다.\n\n 애플의 가격 인상 검토는 AI 산업의 폭발적인 성장에 따른 메모리 반도체 수급 불균형 때문이다 . 구글과 마이크로소프트, 메타, 아마존 등 빅테크 기업들이 AI 데이터센터 구축 경쟁에 나서면서 D램(DRAM)과 낸드플래시(NAND) 가격은 지난해 이후 약 4배 급등했다. 시장조사업체 테크인사이츠는 이러한 가격 상승세가 2027년까지 이어질 것으로 전망했다.\n\n 쿡 CEO는 특히 AI 서버용 고대역폭메모리(HBM) 생산 확대가 일반 소비자용 D램 공급 부족을 초래하고 있다고 지적했다 . 그는 “소비자들은 여전히 기기를 원하고 있지만 공급은 줄어들고 있고 메모리 업체들은 큰 폭의 가격 인상을 전가하고 있다”며 “소비자용 제품 시장을 위해 메모리 가격과 공급이 합리적인 수준으로 돌아와야 한다”고 말했다.\n\n월스트리트저널은 애플이 증가한 비용을 소비자에게 그대로 전가하면서 현재 수익성을 유지할 경우 차기 아이폰 프로 모델 가격이 약 270달러 인상될 수 있다고 전했다. 이에 따라 아이폰18 프로 가격이 1299달러 수준까지 오를 가능성도 제기된다.\n\n현재 글로벌 D램 시장은 삼성전자와 SK하이닉스, 마이크론이 주도하고 있다. 낸드 시장 역시 이들 업체를 중심으로 키옥시아, 샌디스크 등이 경쟁하고 있다. 메모리 업체들은 생산능력 확대에 나서고 있지만 AI용 반도체 생산을 우선하면서 소비자 전자기기용 공급은 여전히 부족한 상황이다 . 모건스탠리는 2027년까지 D램 웨이퍼 생산능력이 30% 증가하더라도 소비자용 물량은 수요 대비 최대 15% 부족할 것으로 예상했다.\n\n쿡 CEO는 애플이 메모리 공급 확대를 위해 자금 지원에 나설 의향도 있다고 밝혔다. 그는 “우리는 해결책의 일부가 되기 위해 재무적 역량을 활용할 준비가 돼 있다 ”며 “ 분명히 더 많은 생산능력이 필요하다”고 말했다. 다만 자체 메모리 공장을 건설할 계획은 없다 고 선을 그었다.\n\n그는 또 중국 메모리 업체와의 거래 규제 완화 필요성을 묻는 질문에 “모든 가능성을 검토해야 한다”며 “모든 공급원을 살펴봐야 한다”고 답했다.\n\n쿡 CEO는 “IBM과 컴팩, 애플에서 공급망 업무를 담당했던 지난 40여 년 동안 이번과 같은 원자재 가격 급등은 본 적이 없다”며 “이는 100년에 한 번 있을 만한 홍수 같은 상황 ”이라고 말했다. 이어 “40년 넘게 업계에 몸담았지만 어느 분야에서도 이런 일을 본 적이 없다 ”고 덧붙였다.\n\n https://www.edaily.co.kr/News/Read?newsId=02646966645483032&mediaCodeNo=257&OutLnkChk=Y"
-    },
-    {
-      "id": "insidertracking/55726",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55726",
-      "datetime": "2026-06-17T20:18:35.000Z",
-      "localDateKst": "2026-06-18",
-      "tags": [
-        "macro",
-        "optical",
-        "power",
-        "equity"
-      ],
-      "tickers": [
-        "AMD",
-        "MRVL",
-        "LITE",
-        "BE",
-        "RKLB"
-      ],
-      "score": 87,
-      "text": "2026년 6월 17일 서학개미 순매수 미국 주식 TOP 50\n\n1위: SPACE EXPLORATION TECHN-CL A (39.76%)\n2위: ALPHABET INC CL A (17.53%)\n3위: ISHARES SEMICONDUCTOR ETF (8.08%)\n4위: ARM HOLDINGS PLC (2.91%)\n5위: CEREBRAS SYSTEMS INC (2.71%)\n6위: INVESCO QQQ TRUST SRS 1 ETF (2.64%)\n7위: INVESCO NASDAQ 100 ETF (2.58%)\n8위: ROUNDHILL MEMORY ETF (2.54%)\n9위: BLOOM ENERGY CORP CL A (2.49%)\n10위: PROSHARES ULTRA QQQ ETF (1.57%)\n\n11위: TRADR 2X LONG SNDK DAILY ETF (1.51%)\n12위: INTEL CORP (1.49%)\n13위: MARVELL TECHNOLOGY INC (1.46%)\n14위: MICROSOFT CORP (1.41%)\n15위: DIREXION SHARES ETF TRUST DAILY SEMICONDUCTOR BEAR 3X SHS (1.41%)\n16위: TRADR 2X LONG ASTS DAILY ETF (1.38%)\n17위: ASML HOLDING NV ADR (1.38%)\n18위: Circle Internet (1.31%)\n19위: BROADCOM INC (1.31%)\n20위: SCHWAB US DIVIDEND EQUITY ETF (1.18%)\n\n21위: APPLIED MATERIALS INC (1.17%)\n22위: VANGUARD SP 500 ETF (1.13%)\n23위: VISHAY PRECISION GROUP INC (1.10%)\n24위: PROSHARES ULTRA SEMICONDUCTORS ETF (0.95%)\n25위: DEFIANCE DAILY TARGET 2X LONG RKLB ETF (0.84%)\n26위: ISHARES MSCI ACWI ETF (0.76%)\n27위: NEOS NASDAQ 100 HIGH INCOME ETF (0.75%)\n28위: SPDR SP 500 ETF TRUST (0.64%)\n29위: DIREXION DAILY MSFT BULL 1.5X ETF (0.64%)\n30위: ALPHABET INC CL C (0.61%)\n\n31위: BITMINE IMMERSION TECHNOLOGI (0.59%)\n32위: CORNING INC (0.59%)\n33위: SERVICENOW INC (0.57%)\n34위: MICROSTRATEGY INC CL A (0.56%)\n35위: YANDEX NV CL A (0.54%)\n36위: NAVITAS SEMICONDUCTOR CORP (0.48%)\n37위: IONQ INC (0.46%)\n38위: SPDR PORTFOLIO SP 500 ETF (0.45%)\n39위: ADVANCED MICRO DEVICES INC (0.45%)\n40위: INVESCO SP 500 MOMENTUM ETF (0.44%)\n\n41위: NUSCALE POWER CORP CL A (0.43%)\n42위: VOLATILITY SHARES TRUST 2X ETHER ETF (0.43%)\n43위: ISHARES SILVER TRUST ETF (0.43%)\n44위: GE Vernova (0.39%)\n45위: VERTIV HOLDINGS CO (0.39%)\n46위: SNDSK CRP ORD WI (0.36%)\n47위: PROSHARES ULTRA SPACEX (0.36%)\n48위: LEVERAGE SHARES 2X LONG SPCX DAILY ETF (0.33%)\n49위: LUMENTUM HOLDINGS INC (0.33%)\n50위: INFLEQTION INC (0.32%)\n\n ✅ 요약 분석\n총 순매수 금액: 872,364,333 USD\n(약 1조 3,337억 원, 환율 1,529원 기준)\n\n ✅ 각 종목 옆에 있는 %는 TOP 50 금액중에서 비중을 뜻합니다\n\n작성자: 미국 주식 인사이더\n출처: 한국예탁결제원"
     }
   ],
   "items": [
+    {
+      "id": "insidertracking/56007",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56007",
+      "datetime": "2026-06-20T05:58:51.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n이스라엘이 레바논 남부 나바티예 시와 나바티예 알포카 지역을 대상으로 공습 감행."
+    },
+    {
+      "id": "aetherjapanresearch/22868",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/22868",
+      "datetime": "2026-06-20T05:17:30.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "챗GPT는 ‘대중형’, 클로드는 ‘업무형’, 제미나이는 ‘크리에이터형’…AI 비서 시장 3강 구도\n https://n.news.naver.com/article/018/0006310680?ntype=RANKING"
+    },
+    {
+      "id": "aetherjapanresearch/22867",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/22867",
+      "datetime": "2026-06-20T05:07:22.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "geo",
+        "semi",
+        "ai-policy",
+        "equity"
+      ],
+      "tickers": [],
+      "score": 69,
+      "text": "✅ 내가 휴머노이드가 거품이라고 생각하는 이유\n\n요즘 휴머노이드 로봇에 대한 기대감이 지나치게 뜨겁다. 공장에 투입되고, 사람 일을 대신하고, 24시간 생산 체계를 만들고, 결국 인류의 노동 구조를 바꿀 것이라는 이야기가 쏟아진다. 영상만 보면 이미 미래가 도착한 것처럼 보인다. 로봇이 걷고, 물건을 집고, 상자를 옮기고, 공장에서 일하는 모습은 분명 인상적이다.\n\n하지만 나는 이 기대감에 상당한 거품이 섞여 있다고 본다. 이유는 단순하다.\n휴머노이드가 기술적으로 가능하냐의 문제가 아니라, 경제적으로 굳이 써야 할 이유가 있느냐의 문제 이기 때문이다.\n\n 1️⃣ 이미 산업 현장에는 자동화가 넓게 깔려 있다.\n\n> 자동차 공장에는 용접 로봇이 있고, 반도체 공장에는 웨이퍼 이송 시스템이 있고, 물류센터에는 컨베이어와 AMR이 있고, 스마트팩토리에는 센서, 비전 검사, 로봇팔, 자동창고 시스템이 들어가 있다.\n이런 환경에서 굳이 사람처럼 생긴 로봇이 들어와야 할 이유는 생각보다 약하다.\n 반복적이고 정밀한 공정에서는 기존 산업용 로봇이 휴머노이드보다 훨씬 낫다 . 더 빠르고, 더 정확하고, 더 싸고, 더 안정적이다. 용접, 도장, 포장, 검사, 이송처럼 정형화된 작업에서는 사람형 로봇이 아니라 전용 자동화 장비가 정답이다. 이건 감성의 문제가 아니라 생산성의 문제다. 공장은 멋진 데모 영상을 사는 곳이 아니다. 멈추지 않고, 불량을 줄이고, 돈을 벌어주는 장비를 산다.\n휴머노이드가 의미를 가지려면 기존 자동화가 처리하지 못한 영역을 해결해야 한다. 예를 들면 부품 운반, 박스 정리, 키팅, 라인 보급, 단순 검수, 사람용 작업대에서의 반복작업 같은 것들이다. 다시 말해 휴머노이드는 핵심 생산라인을 대체하는 장비라기보다, 아직 사람이 하고 있는 주변 잡무를 자동화하려는 시도에 가깝다.\n그런데 여기서도 문제가 생긴다. 사람을 대체하려면 로봇이 사람만큼 싸거나, 빠르거나, 안정적이어야 한다. 현실은 아직 그렇지 않다.\n\n 2️⃣ 휴머노이드는 비싸다 .\n\n> 비싼 이유가 단순히 GPU 때문만은 아니다. 로봇 안에 데이터센터용 GPU가 여러 개 들어가서 비싼 구조라기보다는, 관절 모터, 감속기, 토크 센서, 배터리, 손, 촉각 센서, 카메라, 안전 시스템, 유지보수 비용이 모두 합쳐져 비싸진다.\n여기에 소프트웨어, 현장 통합, 고장 대응, 보험, 감독 인력까지 붙는다.\n그래서 “로봇 한 대가 사람 한 명을 대체한다”는 말은 너무 단순하다. 사람 한 명의 임금과 로봇 한 대의 구매가만 비교하면 안 된다. 비교해야 할 것은 총비용이다. 사람에게는 임금, 보험, 교육, 이직, 결근, 산재 비용이 있다. 로봇에게는 구매비, 유지보수, 배터리, 부품 교체, 다운타임, 소프트웨어 비용, 안전관리, 운영 인력 이 있다.\n만약 로봇이 사람보다 느리다면, 로봇은 사람보다 훨씬 싸야 한다. 사람이 1시간에 100개를 처리하고 로봇이 50개를 처리한다면, 로봇은 사람 인건비의 절반 이하 총비용이어야 경제성이 나온다. 그런데 지금의 휴머노이드는 대체로 그 수준을 명확히 증명하지 못하고 있다.\n\n 3️⃣ 더 근본적인 문제는 생산성에 대한 착각이다.\n\n> 많은 사람들은 휴머노이드가 들어오면 공장이 24시간 돌아가고, 생산성이 폭발하고, 기업의 이익이 크게 늘어날 것처럼 말한다. 하지만 공장은 많이 만든다고 돈을 버는 곳이 아니다. 팔 수 있는 것을 만들어야 돈을 번다.\n수요가 없으면 24시간 생산은 의미가 없다. 생산능력이 늘어나도 소비자가 사주지 않으면 재고 가 된다. 재고는 자산처럼 보이지만, 시간이 지나면 창고비, 할인판매, 폐기비용, 현금흐름 악화로 돌아온다. 공급을 늘린다고 수요가 자동으로 생기는 것은 아니다.\n물론 생산성 향상이 항상 무의미하다는 뜻은 아니다. 생산성은 단순히 더 많이 만드는 것만 뜻하지 않는다. 같은 물량을 더 적은 비용으로 만들거나, 불량률을 낮추거나, 납기를 줄이거나, 위험 작업을 줄이거나, 인력난을 완화하는 것도 생산성이다. 이런 면에서 휴머노이드가 일부 효과를 낼 가능성은 있다.\n하지만 그 효과는 제한적이다. 특히 원재료비 비중이 큰 산업에서는 노동비 절감이 최종 제품 가격을 크게 낮추지 못한다 . 철강, 배터리, 자동차, 가전 같은 하드웨어 산업에서는 원재료, 부품, 설비 감가상각, 물류, 에너지 비용이 크다. 인건비가 전체 원가의 10%라면, 인건비를 30% 줄여도 전체 원가는 3%밖에 줄지 않는다. 여기에 로봇 운영비가 추가되면 실제 절감폭은 더 작아질 수 있다.\n\n즉 휴머노이드가 들어온다고 제품 가격이 극적으로 싸지고, 수요가 폭발하고, 기업들이 모두 더 많이 팔 수 있다는 서사는 지나치게 낙관적이다. 경쟁 기업들도 같은 자동화를 도입하면 가격 경쟁은 더 심해진다. 결국 모두가 더 많이 만들 수 있어도, 모두가 더 많이 팔 수 있는 것은 아니다.\n\n 4️⃣ 사회적 문제도 간단하지 않다.\n\n> 휴머노이드가 사람을 대체하면 기업 입장에서는 비용 절감일 수 있지만, 사회 전체로 보면 노동소득이 자본소득으로 이동하는 문제 가 생긴다. 로봇을 보유한 기업과 주주는 이익을 얻지만, 대체된 노동자는 임금 손실을 볼 수 있다. 저숙련 반복노동의 협상력은 약해질 수 있고, 지역경제도 영향을 받는다. 공장 노동자는 단순한 비용 항목이 아니라 주변 식당, 소매, 임대, 서비스업 수요를 만드는 소비자이기도 하다.\n그렇다고 휴머노이드가 완전히 쓸모없다는 말은 아니다. 이 부분은 구분해야 한다. 나는 휴머노이드라는 기술 전체를 부정하는 것이 아니라, 현재의 기대 수준이 과도 하다고 보는 것이다.\n휴머노이드가 실제로 의미를 가지는 영역은 있다. 인력난이 심하고, 작업이 반복적이며, 기존 자동화 설비를 새로 깔기 애매하고, 사람용 공간을 그대로 써야 하며, 하루 16시간 이상 굴릴 수 있고, 로봇의 총비용이 사람보다 낮은 경우 다. 예를 들면 물류센터의 토트 운반, 공장 내 부품 보급, 빈 박스 정리, 야간 순찰, 위험 작업 보조, 단순 검수 같은 영역이다.\n\n이런 곳에서는 휴머노이드가 생산성을 올릴 수 있다. 하지만 이것은 “인간 노동자의 전면 대체”가 아니다. 현실적인 그림은 사람 10명을 0명으로 줄이는 것이 아니라, 사람 10명이 하던 작업 중 일부 반복적이고 힘든 일을 로봇이 맡고, 사람은 감독·예외처리·품질관리·고난도 작업으로 이동하는 방식에 가깝다.\n\n 5️⃣ 휴머노이드가 사람 노동자만큼 판단력 있고, 유연하고, 빠르게 일할 수 있느냐.\n\n> 나는 여기에 대해 매우 회의적이다. 사람 노동은 생각보다 고난도 다. 단순노동이라고 부르는 일에도 수많은 판단이 들어간다. 물건이 찢어졌는지, 부품 방향이 틀렸는지, 사람이 지나가니 멈춰야 하는지, 매뉴얼에 없는 상황을 어떻게 처리해야 하는지, 손에 힘을 얼마나 줘야 하는지, 미끄러운 바닥에서 어떻게 균형을 잡아야 하는지 계속 판단한다.\n\n식당 일을 생각해봐도 그렇다. 접시를 치우고, 뜨거운 국물을 옮기고, 젖은 바닥을 피하고, 손님 동선을 보고, 남길 것과 버릴 것을 구분하고, 냉장고 상태를 확인하고, 갑작스러운 상황에 대응한다. 사람에게는 쉬워 보이지만 로봇에게는 시각, 촉각, 균형, 추론, 기억, 언어 이해, 힘 조절이 동시에 필요한 복합 문제다.\n\n공장도 마찬가지다. 숙련 작업자는 매뉴얼대로만 움직이지 않는다. 소리, 냄새, 진동, 부품의 미세한 변형, 동료의 움직임, 라인의 분위기를 읽는다. 이것이 진짜 현장 지능이다. 휴머노이드가 사람처럼 일하려면 단순히 걷고 팔을 움직이는 수준을 넘어, 실패했을 때 스스로 복구하고, 새로운 작업을 배우고, 예외 상황을 판단하고, 하루 종일 안정적으로 움직여야 한다.\n\n현재의 휴머노이드 영상은 대부분 성공 장면 중심이다. 하지만 산업 현장에서 중요한 것은 멋진 30초 영상이 아니다. 중요한 것은 평균 작업 성공률, 시간당 처리량, 실패 복구율, 업타임, 유지보수 주기, 사고율, 작업 전환 시간이다. 이 지표들이 공개되고 검증되지 않는다면 “사람을 대체한다”는 말은 아직 마케팅에 가깝다. 심지어 중국은 매일 쿵푸나 댄스만 하고 있다.\n\n 6️⃣ 또 하나의 착각은 AI가 좋아지면 로봇도 곧바로 좋아질 것이라는 믿음이다 .\n\n> AI 모델은 빠르게 발전할 수 있다. 하지만 물리 로봇은 다르다. 로봇은 현실 세계에서 움직인다. 넘어지면 망가지고, 관절은 마모되고, 배터리는 닳고, 센서는 오염되고, 손은 물체를 놓치고, 안전 기준은 까다롭다. 언어모델이 발전하는 속도와 로봇 몸체가 발전하는 속도는 같지 않다.\n\n가장 큰 병목은 오히려 몸이다. 손, 관절, 배터리, 내구성, 촉각, 안전한 고속 동작, 실패 복구 능력이 핵심이다. 사람 손은 엄청난 범용 도구다. 얇은 비닐, 케이블, 나사, 천, 뜨거운 그릇, 미끄러운 물체, 찌그러진 박스를 모두 다룬다. 로봇 손은 아직 이 수준에 크게 못 미친다.\n\n그래서 나는 사람 노동자 수준의 휴머노이드가 단기간에 온다고 보지 않는다. 제한된 환경에서 단순 반복작업을 하는 휴머노이드는 2020년대 후반부터 점점 늘어날 수 있다. 물류나 공장 보조업무에서 일부 인력 대체가 일어나는 것은 2030년대 초중반에 가능할 수 있다. 그러나 일반 노동자처럼 판단력 있고, 빠르고, 유연하고, 여러 작업을 바꿔가며 처리하는 수준은 최소 10년 이상, 현실적으로는 15~20년 이상 걸릴 가능성이 높다.\n\n가정, 식당, 건설현장처럼 복잡하고 비정형적인 환경에서는 더 오래 걸릴 수 있다. 어쩌면 완전한 인간형 로봇보다 바퀴 달린 이동 플랫폼에 양팔과 좋은 손을 붙인 형태가 먼저 상용화 될지도 모른다.\n 진짜 시장이 원하는 것은 사람처럼 생긴 로봇이 아니라, 사람 일을 가장 싸고 안정적으로 처리하는 기계 이기 때문이다.\n\n결국 내 생각은 이렇다.\n휴머노이드가 미래에 아무 의미도 없다는 것은 아니다. 장기적으로는 분명 일부 노동을 대체하고, 공장과 물류센터의 구조를 바꾸고, 위험하거나 반복적인 일을 줄일 수 있다. 하지만 지금 시장에서 말하는 것처럼 빠르게 사람을 대체하고, 공장을 24시간 완전 자동화하고, 생산성 혁명을 일으킨다는 주장은 과장되어 있다.\n\n 💡 휴머노이드가 진짜 생산성을 올리려면 몇 가지 질문에 답해야 한다.\n\n> 사람보다 빠른가.\n\n사람보다 총비용이 낮은가.\n\n하루 종일 멈추지 않는가.\n\n실패했을 때 스스로 복구하는가.\n\n새 작업을 쉽게 배울 수 있는가.\n\n기존 자동화보다 나은가.\n\n그리고 무엇보다, 더 많이 만들어도 팔 수 있는 수요가 있는가.\n\n2026년 현재 대부분의 휴머노이드는 이 질문들에 명확하게 “그렇다”고 답하지 못한다. 그래서 나는 지금의 휴머노이드 열풍을 미래 기술에 대한 합리적 기대라기보다, 상당 부분 투자 스토리와 마케팅이 섞인 과열 로 본다.\n\n휴머노이드의 진짜 미래는 거대한 혁명처럼 한 번에 오지 않을 가능성이 높다. 더 현실적인 경로는 이렇다. 핵심 생산라인은 기존 산업용 로봇이 계속 맡고, 휴머노이드는 라인 주변의 운반, 정리, 검수, 야간 보조 같은 일을 조금씩 가져간다. 사람을 완전히 없애기보다 일부 반복노동을 줄이고, 사람은 감독과 예외처리로 이동한다. 그리고 경제성이 검증되는 좁은 영역부터 천천히 확산된다.\n\n그러므로 내가 휴머노이드가 거품이라고 생각하는 이유는 기술 자체가 불가능해서가 아니다. 기대의 속도가 현실의 경제성보다 너무 빠르기 때문 이다.\n\n휴머노이드는 언젠가 중요한 기술이 될 수 있다. 하지만 지금 당장 인간 노동자를 대체할 만능 생산성 기계처럼 보는 것은 위험하다.\n공장은 유행을 사지 않는다. 공장은 계산이 맞는 장비만 산다. 그리고 아직 휴머노이드는 그 계산을 충분히 증명하지 못했다.\n\n #휴머노이드 #그냥생각 #개인의견 #AI #칼럼"
+    },
+    {
+      "id": "insidertracking/56006",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56006",
+      "datetime": "2026-06-20T04:12:05.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "가을 총선 앞둔 네타냐후…美 “종전 판 깨질 수도 ”"
+    },
+    {
+      "id": "aetherjapanresearch/22866",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/22866",
+      "datetime": "2026-06-20T04:00:18.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "트럼프: 앤스로픽은 국가 안보위협이 아닙니다."
+    },
+    {
+      "id": "insidertracking/56005",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56005",
+      "datetime": "2026-06-20T03:45:17.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "https://www.yna.co.kr/amp/view/AKR20260619067000009"
+    },
+    {
+      "id": "insidertracking/56004",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56004",
+      "datetime": "2026-06-20T02:57:10.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [
+        "MU",
+        "MRVL"
+      ],
+      "score": 53,
+      "text": "6월 1일부터 지금까지 순매수 미국 주식 TOP 50 보면....\n\n40% 가까이 스페이스X 매수했고, 마이크론이랑 마벨도 상위권.\n\n스노우 플레이크, 플루언스 에너지 같은 주식도 관심 가지고....\n\n세라브레스도 관심 가지네요."
+    },
+    {
+      "id": "insidertracking/56003",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56003",
+      "datetime": "2026-06-20T02:55:37.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "macro",
+        "optical",
+        "power"
+      ],
+      "tickers": [
+        "MU",
+        "MRVL",
+        "ORCL",
+        "RKLB"
+      ],
+      "score": 83,
+      "text": "서학개미 순매수 미국 주식 TOP 50\n\n> 기간: 2026/06/01 ~ 2026/06/19 (6월 누적)\n\n1위: SPACE EXPLORATION TECHN-CL A (38.66%)\n2위: MARVELL TECHNOLOGY INC (6.14%)\n3위: MICRON TECHNOLOGY INC (5.56%)\n4위: INVESCO NASDAQ 100 ETF (3.70%)\n5위: PROSHARES ULTRA QQQ ETF (3.05%)\n6위: ARM HOLDINGS PLC (3.01%)\n7위: ROUNDHILL MEMORY ETF (2.88%)\n8위: BROADCOM INC (2.39%)\n9위: DXN MU BUL2X ETF (2.11%)\n10위: CoreWeave Inc (2.10%)\n\n11위: INVESCO QQQ TRUST SRS 1 ETF (2.08%)\n12위: VANGUARD SP 500 ETF (1.87%)\n13위: SNOWFLAKE INC (1.80%)\n14위: ISHARES SEMICONDUCTOR ETF (1.76%)\n15위: FLUENCE ENERGY INC (1.69%)\n16위: DIREXION DAILY MSCI SOUTH KOREA BULL ETF (1.59%)\n17위: INTERNATIONAL BUSINESS MACHINES CORP (1.51%)\n18위: SCHWAB US DIVIDEND EQUITY ETF (1.50%)\n19위: GRANITESHARES 2X LONG MRVL DAILY ETF (1.38%)\n20위: LEVERAGE SHARES 2X LONG SPCX DAILY ETF (1.25%)\n\n21위: DEFIANCE DAILY TARGET 2X LONG RKLB ETF (1.18%)\n22위: DIGITALOCEAN HOLDINGS INC (0.92%)\n23위: TRADR 2X LONG ASTS DAILY ETF (0.80%)\n24위: DIREXION SHARES ETF TRUST DAILY SEMICONDUCTOR BEAR 3X SHS (0.79%)\n25위: INNODATA CORP (0.79%)\n26위: YANDEX NV CL A (0.78%)\n27위: APPLIED MATERIALS INC (0.77%)\n28위: T-REX 2X LONG RDW DAILY TARGET ETF (0.76%)\n29위: LAM RESEARCH CORP (0.71%)\n30위: T-REX 2X LONG MSTR DAILY TARGET ETF (0.71%)\n\n31위: CEREBRAS SYSTEMS INC (0.71%)\n32위: SOLAREDGE TECHNOLOGIES INC (0.69%)\n33위: LEVERAGE SHARES 2X CRWV (0.69%)\n34위: VOLATILITY SHARES TRUST 2X ETHER ETF (0.68%)\n35위: NEOS NASDAQ 100 HIGH INCOME ETF (0.67%)\n36위: SILICON MOTION TECHNOLOGY CORP ADR (0.59%)\n37위: ORACLE CORP (0.59%)\n38위: Direxion Daily AVGO Bull 2X Shares (0.55%)\n39위: NUSCALE POWER CORP CL A (0.53%)\n40위: SPDR PORTFOLIO SP 500 ETF (0.53%)\n\n41위: DEFIANCE DAILY TARGET 2X LONG AVGO ETF (0.51%)\n42위: DEFIANCE DAILY TARGET 2X LONG PL ETF (0.50%)\n43위: PROSHARES ULTRA SEMICONDUCTORS ETF (0.49%)\n44위: MONGODB INC (0.48%)\n45위: DELL TECHNOLOGIES INC CL C (0.46%)\n46위: PROSHARES ULTRAPRO QQQ ETF (0.46%)\n47위: WESTERN DIGITAL CORP (0.43%)\n48위: NEXTRACKER INC (0.41%)\n49위: ASML HOLDING NV ADR (0.39%)\n50위: VANECK SEMICONDUCTOR ETF (0.36%)\n\n ✅ 요약 분석\n총 순매수 금액: 5,042,859,111 USD\n(약 7조 6,904억 원, 평균 환율 1,525원 기준)\n\n ✅ 각 종목 옆에 있는 %는 TOP 50 금액중에서 비중을 뜻합니다\n\n작성자: 미국 주식 인사이더\n출처: 한국예탁결제원"
+    },
+    {
+      "id": "insidertracking/56002",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56002",
+      "datetime": "2026-06-20T02:47:27.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "tickers": [],
+      "score": 52,
+      "text": "합동해상정보센터(JMIC)가 6월 20일 권고문을 통해 호르무즈 해협이 개방된 상태라고 발표.\n\n미국과 이란이 해협 개방 의사를 밝힌 이후 호르무즈 해협의 해상 보안 위협 수준은 '보통(MODERATE)'으로 유지 중.\n\n기뢰 제거 작업이 계속 진행되고 있어 항해 지연 가능성이 있으며, 통항량 증가로 일부 혼잡도 예상된다고 안내.\n\n선박들은 남부 항로를 주야간 모두 이용할 수 있으며, AIS를 활성화하고 레이더 및 항해등을 정상 운용하며 VHF 통신을 유지할 것을 권고.\n\n미 해군 NCAGS와의 연락 및 기존 보고·조정 절차 유지가 강력히 권장되나, 조정은 의무 사항이 아니며 선박은 별도 조정 없이도 남부 항로 통항 가능.\n\n안전한 항로 정보 제공을 위해 선박들은 계속해서 미 해군 NCAGS와 통신할 것을 권고."
+    },
+    {
+      "id": "insidertracking/56001",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56001",
+      "datetime": "2026-06-20T02:13:26.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [
+        "MU"
+      ],
+      "score": 49,
+      "text": "마이크론 주주들 99.24%는 0.1%라도 수익보고 있는 상태"
+    },
+    {
+      "id": "insidertracking/56000",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56000",
+      "datetime": "2026-06-20T02:11:25.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [
+        "MU"
+      ],
+      "score": 44,
+      "text": "미국 거주하는 한국 누님들은 차주 마이크론 실적 발표전에 포지션 어떻게 취할지 고민중...."
+    },
+    {
+      "id": "insidertracking/55999",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/55999",
+      "datetime": "2026-06-20T01:52:36.000Z",
+      "localDateKst": "2026-06-20",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "미국 공화당 의원들이 국회의원 및 그 가족의 예측시장 내 정치·정책 결과 베팅을 금지하는 법안 발의."
+    },
     {
       "id": "insidertracking/55996",
       "channel": "insidertracking",
@@ -11545,236 +11717,6 @@
       "text": "ADATA 천리바이 회장: AI가 바꾼 메모리 산업의 새로운 법칙\n\nADATA의 천리바이 회장은 최근 인터뷰를 통해 A I가 지난 40년간 지속되어 온 메모리 산업의 경기 순환 논리를 근본적으로 재편하고 있다고 진단 했습니다. 이제 메모리 시장은 단순한 호황과 불황의 반복이 아닌, '전 세계적인 컴퓨팅 파워 경쟁'의 시대로 진입했습니다.\n\n 1. 경기 순환에서 '컴퓨팅 파워 경쟁'으로의 전환\n과거 메모리 산업은 약 4년을 주기로 수요와 공급이 맞물리는 전형적인 경기 순환을 겪어왔습니다. 그러나 2025년 하반기부터 이 공식은 깨졌습니다. 이제 메모리는 단순한 IT 기기용 부품이 아니라, AI를 통해 미래 현금 흐름을 창출하는 필수적인 '생산 도구'로 자리 잡았습니다.\n\n 2. 수요처의 근본적 변화\n과거에는 PC, 스마트폰 등 소비재 제조업체가 주요 구매자였으나, 현재는 구글, 마이크로소프트, 메타, 아마존 등 대형 클라우드 서비스 제공업체(CSP)가 수요를 주도하고 있습니다. 이들은 데이터센터를 구축하여 토큰(Token) 생성과 AI 모델 서비스를 통해 수익을 창출하며, AI 주도권을 잡기 위해 대규모 자본을 쏟아붓고 있습니다. 기업 간 경쟁은 이제 제품 점유율이 아닌 '컴퓨팅 파워 규모'의 경쟁으로 옮겨갔으며, \"먼저 컴퓨팅 파워를 구축하는 자가 승리한다\"는 인식 때문에 경쟁 기업들은 투자를 멈출 수 없는 상황입니다.\n\n 3. 공급 부족은 2028년까지 지속\n시장 일각에서는 공급 과잉을 우려하기도 하지만, 천리바이 회장은 이러한 시각에 동의하지 않습니다.\n\n 수요가 공급을 압도: AI 데이터센터 구축뿐만 아니라 AI PC, 로봇, 자율주행 등 다양한 분야에서 수요가 폭증하고 있습니다.\n\n 공급 증대 속도의 한계: SK하이닉스 등 주요 제조사가 생산 능력을 확대하고 있으나, 천 회장은 이를 연평균 성장률(CAGR) 약 15% 수준으로 분석하며, 이는 폭발적인 AI 수요를 따라가기에 턱없이 부족한 수준이라고 평가했습니다.\n\n 결론: 메모리 공급 부족 현상은 최소 2028년 전후까지 이어질 가능성이 높습니다.\n\n 4. AI 인프라가 곧 국가 경쟁력\n천 회장은 현재의 AI 산업을 PC 시대의 태동기와 비교합니다 . 당시 PC가 정보 산업의 정의를 바꿨듯이 , AI 역시 그보다 훨씬 더 거대한 영향력을 발휘하고 있습니다 . 이제 컴퓨팅 파워는 단순한 기업의 투자 계획을 넘어 '미래 국가 경쟁력'의 척도가 되었습니다.\n향후 AI 시장은 '승자 독식(Winner takes all)' 구조로 재편될 것이며, 산업이 정리되기 전까지는 모든 기업이 도태되지 않기 위해 지속적으로 자본을 투입할 수밖에 없는 환경이 이어질 전망 입니다.\n\n https://www.ctee.com.tw/news/20260615700095-430505"
     },
     {
-      "id": "insidertracking/55372",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55372",
-      "datetime": "2026-06-14T22:58:19.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n 이란-미국 전쟁 종식 합의에 관한 최고국가안보회의 사무국 성명\n\n알라의 이름으로\n\n존경하는 이란 국민 여러분께 알려드립니다.\n\n이란 이슬람공화국은 미국-이스라엘 적에 대한 우위를 완성하였으며, 최고지도자의 지도와 국민 각계각층의 지지, 그리고 이슬람 전사들의 헌신적인 노력에 힘입어 수개월간의 어렵고 집중적인 협상을 거친 끝에 최고국가안보회의 결의에 따라 6월 14일 저녁 이란과 미국 간 전쟁 종식 협상(이슬라마바드 협상)에 관한 양해각서 초안을 최종 확정하였습니다.\n\n합의 내용에 따라 레바논을 포함한 모든 전선에서의 전쟁과 군사작전은 오늘 밤부터 즉시 그리고 영구적으로 종료됩니다. 또한 이란에 대한 해상 봉쇄는 즉각적이고 완전하게 해제됩니다.\n\n이 양해각서는 6월 19일 공식 서명될 예정입니다. 최종 협정에 관한 협상은 상대방이 양해각서에 따른 의무를 이행한 이후 진행될 것입니다.\n\n이란 이슬람공화국은 파키스탄 이슬람공화국과 카타르 정부의 노력에 감사를 표합니다.\n\n알라의 평화와 자비, 축복이 함께하기를 바랍니다.\n\n이란 최고국가안보회의 사무국"
-    },
-    {
-      "id": "insidertracking/55371",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55371",
-      "datetime": "2026-06-14T22:54:53.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "https://n.news.naver.com/article/014/0005534701?cds=news_edit"
-    },
-    {
-      "id": "insidertracking/55370",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55370",
-      "datetime": "2026-06-14T22:48:48.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "백악관:\n\n잇츠 파이트 나이뜨&#33;&#33;\n\nㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ"
-    },
-    {
-      "id": "insidertracking/55369",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55369",
-      "datetime": "2026-06-14T22:39:20.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 57,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n이란 메흐르통신에 따르면 이란과 미국 간 14개 조항의 양해각서 초안 세부 내용이 공개됨.\n\n> • 레바논을 포함한 모든 전선에서 전쟁을 영구적이고 즉각적으로 중단\n\n• 미국은 이란 내정에 개입하지 않고 이란 이슬람공화국의 주권을 존중하기로 약속\n\n• 30일 이내 해상 봉쇄 전면 해제\n\n• 미국은 이란 주변 지역에서 자국 병력을 철수하기로 약속\n\n• 이란 측 관리 체계에 따라 30일 이내 호르무즈 해협 재개방\n\n• 원유·석유화학 제품 및 파생상품 판매 관련 제재를 중단하고, 해당 수익에 대한 이란의 자금 접근을 전면 허용\n\n• 미국과 동맹국들이 최소 3,000억 달러 규모의 이란 재건 계획을 제시해야 함\n\n• 핵 문제와 미국의 1·2차 제재, 유엔 안전보장이사회 및 국제원자력기구 이사회 결의 해제를 기반으로 최종 합의를 도출하기 위해 60일간 협상 진행\n\n• 이란은 핵확산금지조약(NPT)에 따른 핵무기 비보유 의무를 재확인\n\n• 협상 기간 동안 미국은 중동 지역 병력을 증강하지 않고 새로운 제재도 부과하지 않기로 약속\n\n• 최종 협상 60일 동안 동결된 이란 자금 240억 달러를 해제하며, 이 중 절반은 협상 개시 전에 이란이 사용할 수 있어야 함\n\n• 합의 이행을 감독할 감시 체계 구축\n\n• 최종 합의는 유엔 안전보장이사회 결의로 승인 예정\n\n• 동결 자금 절반 해제, 이란 원유 제재 중단, 해상 봉쇄 해제 이전에는 최종 협상이 시작되지 않으며, 최종 협상 의제는 농축 우라늄 및 농축 활동의 처리, 제재 해제, 이란 경제 재건에 한정됨. 이란의 미사일 프로그램과 저항세력 지원 문제는 협상 의제에서 제외된 상태."
-    },
-    {
-      "id": "insidertracking/55367",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55367",
-      "datetime": "2026-06-14T22:29:22.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n이 위대한 합의는 중동 전역에 평화와 안보를 가져올 것이다.\n\n많은 대통령들이 이란과의 평화를 시도했지만, 나 이전에는 모두 실패했다. 중동 지도자들은 역사상 처음으로 진정한 평화를 이룰 수 있도록 도와줄 대통령을 찾게 됐다.\n\n금요일 합의 서명과 동시에 해협이 개방되면, 기뢰 제거 작업을 위해 통행이 재개되고, 중동과 전 세계를 향해 석유가 다시 양방향으로 흐르게 될 것이다.\n\n도널드 J. 트럼프 대통령."
-    },
-    {
-      "id": "insidertracking/55366",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55366",
-      "datetime": "2026-06-14T22:22:07.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "오늘 새벽, 미국과 이란이 극적으로 협상을 타결하고 호르무즈 해협도 다시 개방된다는 소식이 전해졌네요&#33;&#33;&#33;\n\n2월 28일 전쟁이 시작된 이후 어느덧 약 4개월이라는 시간이 흘렀습니다. 그동안 국제 정세가 급변하면서 시장도 큰 변동성을 보였고, 많은 분들께서 불안한 마음으로 관련 소식을 지켜보셨을 것 같습니다.\n\n저 역시 하루하루 쏟아지는 뉴스와 각종 정보를 최대한 빠르게 확인하며 전달해 드리기 위해 노력해 왔습니다. 부족한 점도 많았지만, 많은 분들께서 관심을 가져주시고 응원해 주신 덕분에 지금까지 꾸준히 활동할 수 있었습니다.\n\n저는 공식 언론사도 아니고 전문 취재 기관도 아닙니다. 하지만 그만큼 더욱 신중하게 접근하려고 노력해 왔습니다. 단순히 조회수를 위한 자극적인 내용이나 확인되지 않은 소문을 전달하기보다는, 최대한 사실에 근거한 정보와 검증된 내용만 공유해 드리고자 했습니다.\n\n앞으로도 지금과 같은 원칙을 지키겠습니다.\n빠른 전달도 중요하지만, 무엇보다 정확성이 우선이라는 생각으로 오보 없이 팩트 중심의 정보만 전달해 드리겠습니다. 시장에 영향을 줄 수 있는 중요한 이슈일수록 여러 자료를 교차 확인하고, 확인되지 않은 내용은 확인되지 않았다고 명확하게 말씀드리겠습니다.\n\n지난 4개월 동안 함께해 주신 모든 분들께 진심으로 감사드립니다. 여러분의 관심과 응원이 큰 힘이 되었고, 앞으로도 신뢰할 수 있는 정보를 전달할 수 있도록 더욱 노력하겠습니다.\n\n항상 관심 가져주시고 함께해 주셔서 진심으로 감사합니다.\n\n미국 주식 인사이더 드림"
-    },
-    {
-      "id": "insidertracking/55365",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55365",
-      "datetime": "2026-06-14T22:12:56.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n받) 밴스 부통령은 미국·이란 합의 서명을 위해 제네바를 방문할 예정이라고 밝힘.\n\n트럼프 대통령의 참석 여부는 일정에 따라 결정될 예정이라고 언급."
-    },
-    {
-      "id": "insidertracking/55364",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55364",
-      "datetime": "2026-06-14T22:12:21.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "이스라엘 언론사 가보면 트럼프의 협상 타결에 대해서 부정적 반응이 많네요."
-    },
-    {
-      "id": "insidertracking/55363",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55363",
-      "datetime": "2026-06-14T22:09:25.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "유가 하락"
-    },
-    {
-      "id": "insidertracking/55362",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55362",
-      "datetime": "2026-06-14T22:09:00.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 57,
-      "text": "미국과 이란 간 평화 합의 소식이 전해지면서 미국 주가지수 선물이 급등하고 국제유가는 급락.\n\n• 나스닥100 선물 1.25% 상승, 러셀2000 선물 1.46% 상승, S&P500 선물 0.80% 상승, 다우 선물 0.58% 상승\n\n• 서부텍사스산원유(WTI)는 약 5% 하락. 시장은 호르무즈 해협 재개방과 이란 제재 완화 가능성을 반영하는 모습\n\n• 복수의 관계자들은 미국과 이란이 평화 합의에 도달했다고 밝혔으며, 공식 서명식은 6월 19일 스위스에서 진행될 예정"
-    },
-    {
-      "id": "insidertracking/55361",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55361",
-      "datetime": "2026-06-14T22:05:10.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "https://naver.me/xxotwspN"
-    },
-    {
-      "id": "insidertracking/55360",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55360",
-      "datetime": "2026-06-14T22:04:11.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ],
-      "score": 53,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n 삼전 & 하닉 시세 현황 (크립토 기반)\n\n> 📈 삼성전자 - ₩342,508 +6.20%\n\n 📈 SK하이닉스 - ₩2,353,218 +9.45%\n\n전닉 심리 볼 수 있어서 유용한듯&#33;&#33;\n(재미로만 보세요)\n\n https://raoni.xyz/"
-    },
-    {
-      "id": "insidertracking/55359",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55359",
-      "datetime": "2026-06-14T22:03:11.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 45,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n지수 선물 현황\n\n 📈 US 30 - 51,514.00 +0.61%\n 📈 US 500 - 7,490.50 +0.80%\n 📈 US Tech 100 - 29,999.40 +1.23%\n 📈 US 2000 - 2,988.80 +1.52%"
-    },
-    {
-      "id": "insidertracking/55358",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55358",
-      "datetime": "2026-06-14T22:02:01.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "와&#33;&#33;&#33;"
-    },
-    {
-      "id": "insidertracking/55357",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55357",
-      "datetime": "2026-06-14T22:01:49.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "💬 💬 💬 💬 💬 💬\n금일 한국시간 (KST) 기준 경제지표 및 주요 일정\n\n> 특이사항 없음"
-    },
-    {
-      "id": "insidertracking/55356",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55356",
-      "datetime": "2026-06-14T22:01:18.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "금일 실적 발표 리스트"
-    },
-    {
-      "id": "insidertracking/55355",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55355",
-      "datetime": "2026-06-14T22:00:54.000Z",
-      "localDateKst": "2026-06-15",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 57,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n금주 한국시간 (KST) 기준 경제지표 및 주요 일정\n\n━━━━━━━━━━━━━━\n\n 2026년 6월 17일 수요일\n\n21:30 – 소매판매 (MoM) (5월)\n21:30 – 근원 소매판매 (MoM) (5월)\n23:30 – 원유재고\n\n━━━━━━━━━━━━━━\n\n 2026년 6월 18일 목요일\n\n03:00 – 금리결정\n03:00 – 연방공개시장위원회 성명서\n03:00 – 연방공개시장위원회 경제전망\n03:30 – FOMC 기자회견\n21:30 – 필라델피아 연은 제조업협회지수 (6월)\n21:30 – 신규 실업수당청구건수\n\n━━━━━━━━━━━━━━\n\n 2026년 6월 19일 금요일\n\n하루 종일 – 미국 Juneteenth (휴장)\n\n━━━━━━━━━━━━━━\n\n> 6월 18일 목요일 새벽에는 FOMC가 있습니다.\n폴리마켓 기준 동결 확률 99%\n\n그리고 6월 19일은 준틴스 데이라고 흑인 해방? 이런거 기념하는날이라서 휴장입니다."
-    },
-    {
       "id": "bornlupin/18547",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/18547",
@@ -12359,46 +12301,6 @@
       ],
       "score": 81,
       "text": "JP모건) 무라타; 최고의 AI 수혜주로 부상, 목표주가 상향\n\n당사는 실적 전망을 상향하고, 2026년 12월 말 기준 목표주가를 기존 7,000엔에서 15,200엔으로 상향하며, 투자의견 비중확대를 유지합니다. 당사는 이전에도 MLCC의 수급 제약으로 실적 모멘텀이 개선될 것으로 예상했으나, 이제는 AI 서버용 MLCC 수요가 예상보다 빠르게 증가하고, 첨단 제품 수요 증가에 따른 제품 믹스와 한계이익률이 개선되며, AI 서버 애플리케이션 수요가 예상보다 강해 타이트한 수급이 장기화되는 등의 요인으로 이전보다 훨씬 강한 실적 성장을 예상합니다. 주가는 4월 1일부터 6월 1일까지 2.9배 상승했으며 같은 기간 TOPIX는 4.2% 상승했습니다. 이에 따라 주가 상승 속도는 둔화될 것으로 보지만, FY2026 하반기부터 FY2027에 걸쳐 수익성이 개선될 경우 주가는 다시 상승세를 시작할 수 있다고 판단합니다.\n\n실적 전망: 당사는 FY2025 실적, 향후 AI 서버용 MLCC 수요 추이와 믹스 개선, MLCC 시장의 타이트한 수급 장기화를 반영해 영업이익 전망을 상향합니다. FY2026 전망은 기존 3,838억 엔에서 4,117억 엔으로 상향합니다. 회사 가이던스는 3,800억 엔이며, 블룸버그 컨센서스는 3,977억 엔입니다. FY2027 전망은 기존 5,680억 엔에서 6,720억 엔으로 상향합니다. 블룸버그 컨센서스는 5,084억 엔입니다. FY2028 전망은 기존 7,502억 엔에서 1조104억 엔으로 상향합니다. 블룸버그 컨센서스는 6,595억 엔입니다. 또한 FY2029 영업이익 전망 1조2,670억 엔, FY2030 전망 1조5,672억 엔을 새롭게 제시합니다.\n\n향후 핵심 포인트: 첫째, 가동률입니다. 당사는 MLCC 업계 가동률이 2026년 4~6월 분기에 마침내 90%를 넘어설 것으로 예상합니다. 과거 사이클을 기준으로 보면 가동률이 90%를 넘으면 고객사의 가격 인하 압력이 크게 줄어드는 경향이 있습니다. 가격 하락은 빠르면 7~9월 분기부터, 늦어도 10~12월 분기 이후에는 안정화될 것으로 예상합니다. 초봄에는 AI 서버 관련 고객 외의 IT 고객들 사이에서 MLCC 공급 우려가 커졌으나, 현재는 자동차 OEM과 Tier 1 공급업체들 사이에서도 MLCC 조달 리스크에 대한 우려가 나타나기 시작했습니다.\n\n둘째, 수급 제약 장기화 우려와 AI 서버 외 용도에서도 소형·고용량 제품으로의 전환 가능성에 따른 가격 인상입니다. 주요 MLCC 업체들은 자체 제작 생산장비 비중이 높기 때문에 업계 전체적으로 20% 이상 생산능력을 늘리기 어렵습니다. 또한 2028년부터는 공장 공간 자체도 부족해지기 시작할 것으로 보이며, MLCC 업체들이 가격을 인상할 가능성도 있습니다. 이에 따라 고객사들이 공급 확보를 위해 가격 인상을 제안하거나, 더 작고 고용량인 제품을 통해 공급을 확보하려 할 수 있습니다.\n\n셋째, AI 서버용 첨단 MLCC 수요 증가에 따른 믹스 개선입니다. AI 서버에서는 사이드 포밍과 소입경 티탄산바륨을 사용하는 1005 사이즈 47uF 커패시터 수요가 2026년 하반기부터 2027~2028년에 걸쳐 크게 증가할 것으로 예상됩니다. 당사는 이 제품의 가격이 매우 높을 가능성이 크다고 판단하며, 이는 매출 증가에 기여할 뿐만 아니라 한계이익률의 추가 개선으로도 이어질 것으로 봅니다. 이에 따라 FY2026 하반기 이후 수익성 개선이 가속화될 것으로 예상합니다."
-    },
-    {
-      "id": "aetherjapanresearch/22678",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/22678",
-      "datetime": "2026-06-13T02:42:54.000Z",
-      "localDateKst": "2026-06-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 45,
-      "text": "최근 H100의 대여비용이 25년 4분기 저점읕 통과한뒤 다시 30~40%가량 상승중\n https://twitter.com/SemiAnalysis_/status/2065422860311478628"
-    },
-    {
-      "id": "aetherjapanresearch/22677",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/22677",
-      "datetime": "2026-06-13T02:34:52.000Z",
-      "localDateKst": "2026-06-13",
-      "tags": [
-        "ai-policy",
-        "equity"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "Anthropic 공식 트윗 요약 (2026년 6월 13일)\n\n 주요 내용:\n• 미국 정부가 국가 안보를 이유로 Fable 5 와 Mythos 5 모델에 대한 수출 통제 지시\n• 이로 인해 외국인(미국 내 포함) 및 Anthropic의 외국인 직원까지 모든 접근이 금지\n• Anthropic은 규정 준수를 위해 전 세계 고객에게 해당 모델 접근을 일시 중단\n• 다른 Claude 모델들은 정상 이용 가능\n• 회사는 “이해하기 어려운 조치” 유감 표명, 최대한 빨리 복구하겠다는 계획\n\n 연결된 트윗 주요 의견 요약\n\n 부정적/비판적 의견 :\n• “자국 AI 기업을 스스로 묶는 자해 행위”, “국가 안보를 명분으로 혁신을 죽인다”는 비판\n• Dario Amodei가 최근 AI 규제 강화 에세이 연관 “네가 원하던 대로 됐다”는 조롱\n• 유럽·비미국 사용자들: “미국 의존 탈피해야 한다”\n• “&#036;200짜리 고가 플랜 사서 Fable 5 쓰려던 사람들” 피해 호소와 환불 요구\n• “프론티어 모델 공개 접근 시대의 끝”, “정부·빅랩만 강력 모델 독점” 우려\n• “탈중앙화·오픈소스 모델이 더 중요해졌다”는 목소리 강함\n\n 기타 의견:\n• 모델이 너무 강력해서 나온 조치로 해석\n• 개발자·창업자들: 갑작스러운 중단으로 프로젝트가 망가졌다는 실망감"
-    },
-    {
-      "id": "bornlupin/18529",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/18529",
-      "datetime": "2026-06-13T02:29:15.000Z",
-      "localDateKst": "2026-06-13",
-      "tags": [
-        "ai-policy"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "앤스로픽 성명: Fable 5 및 Mythos 5 서비스 중단 지침\n\n 1. 정부의 지침 및 영향\n 미국 정부는 국가 안보를 이유로, 미국 국내외를 막론하고 모든 외국인(앤스로픽 직원 포함)의 Fable 5 및 Mythos 5 접근을 금지하는 수출 통제 지침을 내렸습니다. 이에 따라 앤스로픽은 고객들이 해당 모델을 이용할 수 없도록 조치했습니다. (기타 모델들은 영향을 받지 않습니다.)\n\n 2. 탈옥(Jailbreak) 논란에 대한 입장\n정부는 특정 탈옥 방법을 이유로 들었으나, 앤스로픽의 조사 결과 이는 이미 다른 공개 모델들도 수행할 수 있는 사소한 취약점에 불과합니다 . 앤스로픽은 Fable 5 출시 전, 수천 시간의 테스트를 거쳐 업계 최고 수준의 안전장치를 마련했으며, 현재까지 모델의 모든 안전장치를 완전히 무력화하는 '범용 탈옥'은 발견되지 않았습니다.\n\n 3. 앤스로픽의 '심층 방어(Defense in Depth)' 전략\n 앤스로픽은 완벽한 탈옥 방지가 불가능하다는 점을 인지하고, 탈옥을 어렵게 만들거나 발견 시 즉각 대응하는 '심층 방어' 전략을 취해왔습니다 . 고객 데이터 보관 정책 또한 이러한 보안 연구와 위협 대응을 위해 필요한 조치였습니다.\n\n 4. 정부 조치에 대한 비판 및 향후 계획\n 앤스로픽은 이번 조치가 부당하다고 생각합니다.\n정부가 제시한 증거는 매우 제한적이며, 일상적인 시스템 방어 도구 수준의 기능에 불과합니다.\n 정부의 이번 조치는 투명하고 공정한 절차를 따르지 않았습니다.\n앤스로픽은 이번 사안이 오해에서 비롯된 것으로 보고, 정부와 소통하여 서비스를 조속히 재개할 수 있도록 최선을 다할 것입니다.\n\n https://www.anthropic.com/news/fable-mythos-access"
     }
   ]
 }
