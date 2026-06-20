@@ -5278,6 +5278,31 @@ function _suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers
 }
 window._suggestFollowUpQuestions = _suggestFollowUpQuestions;
 
+// chatSend + chatSendUnified 공통 freshness 계산 — 날짜(KST)·liveData stale·snapAge
+window._aioChatFreshnessInfo = function() {
+  var todayStr;
+  try {
+    var nowKst = new Date(new Date().getTime() + (9*60 - new Date().getTimezoneOffset()) * 60000);
+    todayStr = nowKst.toISOString().slice(0,10) + ' (KST)';
+  } catch(e) { todayStr = new Date().toISOString().slice(0,10); }
+  var ldAgeMin = null;
+  try {
+    if (window._quoteTimestamps) {
+      var ts = Object.values(window._quoteTimestamps);
+      if (ts.length > 0) ldAgeMin = Math.round((Date.now() - Math.max.apply(null, ts)) / 60000);
+    }
+  } catch(e) {}
+  var liveStatus;
+  if (!isFinite(ldAgeMin) || Object.keys(window._liveData||{}).length <= 10)
+    liveStatus = '✗ 미수신 — 가격 수치 인용 자체 금지. "실시간 연결 중" 안내만';
+  else if (ldAgeMin >= 10) liveStatus = '⚠ ' + ldAgeMin + '분 전 데이터 — 가격 수치 인용 시 "약 N분 지연" 명시 필수';
+  else if (ldAgeMin >= 5)  liveStatus = '⚠ ' + ldAgeMin + '분 지연 — 주의';
+  else liveStatus = '✓ 정상 (' + ldAgeMin + '분 전 갱신)';
+  var snapAge = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._updated)
+    ? Math.round((Date.now() - new Date(DATA_SNAPSHOT._updated).getTime()) / 3600000) : 999;
+  return { todayStr: todayStr, ldAgeMin: ldAgeMin, liveStatus: liveStatus, snapAge: snapAge };
+};
+
 async function chatSend(ctxId) {
   // v49.77 P410 R153: chatSend silent return 5+ 경로 모두 사용자 피드백 (사용자 좌절 시정)
   // 사용자 발견 — home 채팅 안 됨 등 silent fail 경험. 모든 early return에 toast/inline 안내.
@@ -5580,22 +5605,11 @@ async function chatSend(ctxId) {
   // 1) 오늘 날짜 + Claude 커트오프  2) 추세 해석 필수 규칙  3) [주가 추이] 주입 여부 체크
   // 4) _liveData 분 단위 stale 체크  5) DATA_SNAPSHOT 72h+ 수치 인용 금지
 
-  // 오늘 날짜 (KST)
-  var _todayCS;
-  try {
-    var _nowKstCS = new Date(new Date().getTime() + (9*60 - new Date().getTimezoneOffset()) * 60000);
-    _todayCS = _nowKstCS.toISOString().slice(0,10) + ' (KST)';
-  } catch(e) { _todayCS = new Date().toISOString().slice(0,10); }
-
-  // _liveData 분 단위 stale
-  var _ldAge = window._quoteTimestamps ? Math.round((Date.now() - Math.max.apply(null, Object.values(window._quoteTimestamps))) / 60000) : null;
-  var _liveStatusCS;
-  if (_ldAge == null || !isFinite(_ldAge) || Object.keys(window._liveData||{}).length <= 10) _liveStatusCS = '✗ 미수신 — 가격 수치 인용 자체 금지';
-  else if (_ldAge >= 10) _liveStatusCS = '⚠ ' + _ldAge + '분 전 데이터 — 가격 수치 인용 시 "약 ' + _ldAge + '분 지연" 명시 필수';
-  else if (_ldAge >= 5) _liveStatusCS = '⚠ ' + _ldAge + '분 지연 — 주의';
-  else _liveStatusCS = '✓ 정상 (' + _ldAge + '분 전 갱신)';
-
-  var _snapAge = DATA_SNAPSHOT._updated ? Math.round((Date.now() - new Date(DATA_SNAPSHOT._updated).getTime()) / 3600000) : 999;
+  var _fi = window._aioChatFreshnessInfo ? window._aioChatFreshnessInfo() : {};
+  var _todayCS = _fi.todayStr || new Date().toISOString().slice(0,10);
+  var _ldAge = _fi.ldAgeMin;
+  var _liveStatusCS = _fi.liveStatus || '✗ 미수신 — 가격 수치 인용 자체 금지';
+  var _snapAge = _fi.snapAge != null ? _fi.snapAge : 999;
   var _hasTrendCS = (tickerDataStr || '').indexOf('[주가 추이]') !== -1;
   var _answerPolicyCS = (typeof _aioChatAnswerPolicy === 'function') ? _aioChatAnswerPolicy(q, ctxId, detectedTickers, screenerResult) : { needsFullStockMemo: detectedTickers.length > 0, needsScreenerGuide: !!screenerStr, needsGeneralGuide: detectedTickers.length === 0 && !screenerStr };
 

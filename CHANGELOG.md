@@ -1,5 +1,12 @@
 ﻿# AIO 스크리너 변경 이력 (Changelog)
 
+## v50.92 - Simplify — FX/Bond dead DOM 제거 + freshness 헬퍼 추출 (2026-06-20)
+
+- **index.html**: `fx-dynamic-comment`·`bond-dynamic-comment` 두 섹션 제거 — JS 참조 0건, "분석 입력 수신 대기…" 텍스트만 영구 표시하던 dead placeholder
+- **aio-chat.js**: `window._aioChatFreshnessInfo()` 헬퍼 추출 — 오늘 날짜(KST)·`_liveData` stale·`DATA_SNAPSHOT` snapAge 계산을 단일 함수로 통합
+- **aio-chat.js** `chatSend`: freshness 계산 블록(~12줄) 제거 → `_aioChatFreshnessInfo()` 호출로 교체
+- **index.html** `chatSendUnified`: freshness 계산 블록(~16줄) 제거 → `_aioChatFreshnessInfo()` 호출로 교체
+
 ## v50.91 - Simplify 3항목 — 레이더 연결·패널 통합·escape 헬퍼 수렴 (2026-06-20)
 
 - **aio-chat.js**: `fundamentalSearch` 두 경로(신규/캐시) 모두에 `_aioRenderFundamentalRadar(ticker, screenerRow)` 호출 추가 — `#vis-fundamental` 팩터 레이더 패널이 실제로 렌더됨

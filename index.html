@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.91 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.92 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4227,7 +4227,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.91</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.92</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -7133,16 +7133,6 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       </div>
     </div>
 
-    <!-- FX 시장 동적 해설 (라이브 데이터 기반) -->
-    <div class="fxb-dynamic-comment" id="fx-dynamic-comment">
-      <div class="dc-title">외환시장 실시간 분석</div>
-      <div class="dc-grid" id="fx-dynamic-grid">
-        <div><b style="color:var(--text-secondary);">달러 강세 배경:</b> <span id="fx-dc-dxy">분석 입력 수신 대기…</span></div>
-        <div><b style="color:var(--text-secondary);">원화 동향:</b> <span id="fx-dc-krw">분석 입력 수신 대기…</span></div>
-        <div><b style="color:var(--text-secondary);">엔화 시사점:</b> <span id="fx-dc-jpy">분석 입력 수신 대기…</span></div>
-        <div><b style="color:var(--text-secondary);">위안화 리스크:</b> <span id="fx-dc-cny">분석 입력 수신 대기…</span></div>
-      </div>
-    </div>
 
     <!--  환율 분석 가이드 -->
   </div>
@@ -7244,17 +7234,6 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         <div class="sc-val" id="sc-5s30s" style="color:var(--data-green);">+0.42%</div>
         <div class="sc-status" style="color:var(--data-green);">스티프닝 진행 중</div>
         <div class="sc-note">장기금리 상대적 상승 = 인플레 기대 상존 또는 재정 우려 반영.</div>
-      </div>
-    </div>
-
-    <!-- 채권 동적 해석 (라이브 데이터 기반) -->
-    <div class="fxb-dynamic-comment" id="bond-dynamic-comment" style="border-color:rgba(255,91,80,0.15);background:rgba(255,91,80,0.04);">
-      <div class="dc-title" style="color:var(--data-red);">수익률 곡선 실시간 해석</div>
-      <div class="dc-grid" id="bond-dynamic-grid">
-        <div><b style="color:var(--text-secondary);">곡선 상태:</b> <span id="bond-dc-curve">분석 입력 수신 대기…</span></div>
-        <div><b style="color:var(--text-secondary);">10Y 금리 영향:</b> <span id="bond-dc-10y">분석 입력 수신 대기…</span></div>
-        <div><b style="color:var(--text-secondary);">크레딧 상태:</b> <span id="bond-dc-credit">분석 입력 수신 대기…</span></div>
-        <div><b style="color:var(--text-secondary);">투자 시사점:</b> <span id="bond-dc-implication">분석 입력 수신 대기…</span></div>
       </div>
     </div>
 
@@ -10643,9 +10622,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.91"></script>
-  <script src="./js/aio-data.js?v=50.91"></script>
-  <script src="./js/aio-ui.js?v=50.91"></script>
+  <script src="./js/aio-core.js?v=50.92"></script>
+  <script src="./js/aio-data.js?v=50.92"></script>
+  <script src="./js/aio-ui.js?v=50.92"></script>
 
   <script>
 
@@ -13833,7 +13812,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.91"></script>
+<script src="./js/aio-chat.js?v=50.92"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -26348,7 +26327,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.91"></script>
+<script src="./js/aio-glossary.js?v=50.92"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -29288,33 +29267,16 @@ async function chatSendUnified() {
   // sysPrompt 방어 — ctx.system() 실패 시 빈 문자열 폴백
   if (!sysPrompt) sysPrompt = '';
 
-  // v48.11: 환각 방지 5중 강화 — 오늘 날짜 + Claude 커트오프 + 추세 해석 규칙 + 분 단위 stale + 72h 금지
-  // v46.6: AI 패널 할루시네이션 방지 — 데이터 검증 태그 주입
+  // 환각 방지 — 날짜/stale 계산은 _aioChatFreshnessInfo 헬퍼로 통합 (aio-chat.js)
   var _pHasNews = sysPrompt.indexOf('최근 시장 뉴스') !== -1;
   var _pHasWeb = sysPrompt.indexOf('웹검색') !== -1 || sysPrompt.indexOf('검색 결과') !== -1;
   var _pHasFMP = sysPrompt.indexOf('P/E') !== -1 || sysPrompt.indexOf('ROE') !== -1;
   var _pHasTrend = sysPrompt.indexOf('[주가 추이]') !== -1;
-  var _pSnapAge = DATA_SNAPSHOT._updated ? Math.round((Date.now() - new Date(DATA_SNAPSHOT._updated).getTime()) / 3600000) : 999;
-  // v48.11: _liveData 분 단위 stale 체크 (_quoteTimestamps 활용)
-  var _ldAgeMin = null;
-  try {
-    if (window._quoteTimestamps) {
-      var ts = Object.values(window._quoteTimestamps);
-      if (ts.length > 0) _ldAgeMin = Math.round((Date.now() - Math.max.apply(null, ts)) / 60000);
-    }
-  } catch(e) {}
-  var _liveStatus;
-  if (Object.keys(window._liveData||{}).length <= 10) _liveStatus = '✗ 미수신 — 가격 수치 인용 자체 금지. "실시간 연결 중" 안내만';
-  else if (_ldAgeMin != null && _ldAgeMin >= 10) _liveStatus = '⚠ ' + _ldAgeMin + '분 전 데이터 — 가격 수치 인용 시 "약 N분 지연" 명시 필수';
-  else if (_ldAgeMin != null && _ldAgeMin >= 5) _liveStatus = '⚠ ' + _ldAgeMin + '분 지연 — 주의';
-  else _liveStatus = '✓ 정상' + (_ldAgeMin != null ? ' (' + _ldAgeMin + '분 전)' : '');
-
-  // v48.11: 오늘 날짜 + Claude 학습 커트오프 경고 블록 (환각 근본 방지)
-  var _todayStr;
-  try {
-    var _nowKst = new Date(new Date().getTime() + (9*60 - new Date().getTimezoneOffset()) * 60000);
-    _todayStr = _nowKst.toISOString().slice(0,10) + ' (KST)';
-  } catch(e) { _todayStr = new Date().toISOString().slice(0,10); }
+  var _fi2 = window._aioChatFreshnessInfo ? window._aioChatFreshnessInfo() : {};
+  var _pSnapAge = _fi2.snapAge != null ? _fi2.snapAge : 999;
+  var _ldAgeMin = _fi2.ldAgeMin;
+  var _liveStatus = _fi2.liveStatus || '✗ 미수신 — 가격 수치 인용 자체 금지. "실시간 연결 중" 안내만';
+  var _todayStr = _fi2.todayStr || new Date().toISOString().slice(0,10);
 
   sysPrompt += '\n\n【오늘 날짜 + 학습 데이터 커트오프】\n';
   sysPrompt += '• 오늘: ' + _todayStr + '\n';
