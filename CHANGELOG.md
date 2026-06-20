@@ -1,5 +1,15 @@
 ﻿# AIO 스크리너 변경 이력 (Changelog)
 
+## v50.90 - 코드 품질 정리 — 테스트 T번호 중복 수정 + dead 함수 제거 + 타이머 정리 (2026-06-20)
+
+- **aio-tests.js**: T551~T558(2회 정의)을 T845~T852로, T561~T565(2회 정의)를 T853~T857로 재번호 — 동일 T번호가 runTests에서 2회 실행돼 결과가 오염되던 문제 수정
+- **aio-tests.js**: T760 `_snapshotDate === '2026-06-11'` 하드코딩을 YYYY-MM-DD 형식 존재 여부 체크로 전환 (데이터 자동 갱신 시 항상 FAIL 문제 수정)
+- **aio-tests.js**: T761 특정 뉴스 키워드 하드코딩을 HOME_WEEKLY_NEWS 구조 체크(length ≥ 5, title/source 필드)로 전환
+- **aio-data.js**: `fetchOHLCVBundleWithFallback` (L2451, ~5줄), `fetchWithProxy` (L9743, ~14줄) dead 함수 제거 — 코드베이스 전체 호출 0건 확인
+- **aio-core.js**: `_aioAutoBackupKeys`, `_aioRefreshAuditWidget` raw `setInterval` 2개를 `_aioRegisterTimer('autoBackup'/'auditWidget', ...)` 등록으로 전환 — 메모리 누수 방지
+- **aio-core.js**: `beforeunload` 핸들러에 `_aioClearAllTimers()` 추가 — 레지스트리 타이머 일괄 정리
+- **index.html**: `_aiCtxMap`에 `'options':'options'` 추가 — options 페이지 AI 패널이 CHAT_CONTEXTS와 미연결 상태였던 버그 수정
+
 ## v50.89 - semantic review and workflow compaction gate (2026-06-19)
 
 - **Structural fix**: Added P513/R219 so audit functions, shape checks, coverage percentages, and sidebar rows can no longer stand in for semantic review.

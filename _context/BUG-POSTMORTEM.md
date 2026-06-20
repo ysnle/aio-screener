@@ -1,12 +1,20 @@
 ---
 verified_by: agent
-last_verified: 2026-06-19
+last_verified: 2026-06-20
 confidence: high
-latest_version: v50.89
-latest_P_number: P514
-total_entries: 513
-next_P_number: P515
+latest_version: v50.90
+latest_P_number: P515
+total_entries: 514
+next_P_number: P516
 ---
+
+## P515 - v50.90 - aio-tests.js T번호 중복 + dead 함수 + 타이머 정리 누락
+
+- **symptom**: (1) T551~T558과 T561~T565가 두 개의 서로 다른 테스트 함수에서 각각 정의되어 runTests() 실행 시 동일 T번호가 2~3회 중복 실행 → _testResults 오염. (2) T760이 `_snapshotDate === '2026-06-11'` 하드코딩으로 데이터 자동 갱신 후 항상 FAIL. (3) `fetchWithProxy`/`fetchOHLCVBundleWithFallback` dead 함수가 ~19줄 잔존. (4) setInterval 2개가 _aioTimerRegistry 없이 raw 호출되어 beforeunload 정리 불가. (5) options 페이지가 _aiCtxMap에 누락되어 CHAT_CONTEXTS['options']가 dead.
+- **root_cause**: append-only 패턴으로 새 테스트 추가 시 기존 T번호 사용 여부 확인 없이 재사용. T760은 특정 스냅샷 날짜를 단언으로 박아 넣었으나 데이터 파이프라인 갱신 시 자동 stale화. dead 함수는 리팩토링 중 호출부 제거 후 정의만 잔존.
+- **fix**: T551~558→T845~852, T561~565→T853~857 재번호. T760/T761 구조적 체크로 전환. dead 함수 제거. _aioRegisterTimer('autoBackup'/'auditWidget',...) 등록 + beforeunload _aioClearAllTimers() 추가. _aiCtxMap에 'options':'options' 추가.
+- **violated_rule**: R3 (버그 수정 시 postmortem 기록). 추가 관련: aio-tests.js T번호 단조 증가 미준수.
+- **prevention**: 새 테스트 추가 전 최고 T번호 grep 확인. 스냅샷 날짜 등 갱신 가능한 값은 범위/형식 체크로 작성. dead 함수는 호출 grep 후 즉시 제거.
 
 ## P514 - v50.89 - workflow helpers and skills were becoming append-only memory
 

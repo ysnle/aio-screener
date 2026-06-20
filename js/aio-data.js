@@ -2448,11 +2448,6 @@ async function fetchLockoutMarketBundle(symbols) {
 }
 window.fetchLockoutMarketBundle = fetchLockoutMarketBundle;
 
-async function fetchOHLCVBundleWithFallback(symbol, interval, bars) {
-  var data = await fetchOHLCVWithFallback(symbol, interval, bars);
-  return { data: Array.isArray(data) ? data : [], dataQuality: data && data.dataQuality ? data.dataQuality : (typeof window.calcDataQuality === 'function' ? window.calcDataQuality({ source: 'unknown', missing: true }) : null) };
-}
-window.fetchOHLCVBundleWithFallback = fetchOHLCVBundleWithFallback;
 
 var _NAVER_NYSE = 'JPM V XOM MA UNH JNJ HD PG ABBV MRK CVX BAC DIS WMT KO PEP MCD TMO LLY GS MS BMY RTX HON CAT DE UPS IBM GE NKE VZ T PM AXP C WFC PFE ABT DHR LOW SYK BDX ZTS CME ICE APD SHW ECL EMR ETN ITW NSC UNP LMT NOC GD BA F GM SO NEE DUK SPGI MCO BLK MMC AON CL WMB KMI MPC VLO PSX SLB HAL FCX NUE URI DD HCA SYY YUM WM PLD SPG PSA O AEP EXC SRE WEC DOW COP OXY EOG BKR COF BK MET PRU AIG AFL TRV CB RSG TFC PNC USB HUBB GPN OTIS STE VRSK EFX NRG PCAR KHC MCK MAR IQV STZ CNC CI MDLZ BSX TJX GEV VRT DELL HPE GLW CCJ PGR TDG RMD TRGP ROP CARR WELL TSM BABA NVO NVS AZN HSBC TM SHEL RIO BHP UBS UL BUD TTE BP TD RY SONY HUM A'.split(' ').reduce(function(s,t){s[t]=1;return s;},{});
 
@@ -9739,22 +9734,6 @@ const PROXY_CHAIN = [
   u => CORS_PROXY3 + encodeURIComponent(u),
   u => CORS_PROXY5 + encodeURIComponent(u),
 ];
-// Multi-proxy fetch wrapper — v46.9: _PROXY_REGISTRY 통합 (fetchViaProxy 위임)
-async function fetchWithProxy(url, ms) {
-  ms = ms || 8000;
-  try {
-    var r = await fetchWithTimeout(url, {headers:{'Accept':'application/json'}}, ms);
-    if(r.ok) return {ok:true,data:await r.json(),source:'direct'};
-  } catch(e){ _debugWarn('[AIO] Direct fetch failed:', e); }
-  // _PROXY_REGISTRY 기반 프록시 체인 활용 (fetchViaProxy와 동일 경로)
-  if (typeof fetchViaProxy === 'function') {
-    try {
-      var resp = await fetchViaProxy(url, {timeout: ms, parseJson: true});
-      if (resp) return {ok:true, data:resp, source:'proxyRegistry'};
-    } catch(e) { _debugWarn('[AIO] ProxyRegistry fetch failed:', e); }
-  }
-  return {ok:false};
-}
 
 
 // v29.3: rss2json 연속 실패 시 세션 내 스킵 플래그

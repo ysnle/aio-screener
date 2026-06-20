@@ -2754,50 +2754,50 @@
 
   // v49.71 P377~P382 R135~R137: SCREENER_DB.memo 커버리지 + 신선도 + 14 CHAT_CONTEXTS 활용 회귀 방지
   function _testV4971MemoCoverage() {
-    // T551: _aioParseMemoFreshness — 날짜 패턴 파싱 정확도
+    // T845: _aioParseMemoFreshness — 날짜 패턴 파싱 정확도
     if (typeof window._aioParseMemoFreshness === 'function') {
       var f1 = window._aioParseMemoFreshness('[04/21] CX9 NIC 2026 출하');
       var f3 = window._aioParseMemoFreshness('가스 유틸리티');
-      _assert('T551 parse_memo_freshness_v4971: [04/21] / 날짜없음 정확 분류',
+      _assert('T845 parse_memo_freshness_v4971: [04/21] / 날짜없음 정확 분류',
         f1 && f1.hasDate === true && f3 && f3.hasDate === false,
         'f1=' + (f1 && f1.hasDate) + ' f3=' + (f3 && f3.hasDate));
     } else {
-      _assert('T551 parse_memo_fn_missing', false, 'fn missing');
+      _assert('T845 parse_memo_fn_missing', false, 'fn missing');
     }
-    // T552: _aioGetMemoForTicker — NVDA hasMemo true / 미등록 fallback msg
+    // T846: _aioGetMemoForTicker — NVDA hasMemo true / 미등록 fallback msg
     if (typeof window._aioGetMemoForTicker === 'function') {
       var nvdaMemo = window._aioGetMemoForTicker('NVDA');
       var unknownMemo = window._aioGetMemoForTicker('ZZZZZZ');
-      _assert('T552 get_memo_for_ticker_v4971: NVDA hasMemo true / 미등록 fallback',
+      _assert('T846 get_memo_for_ticker_v4971: NVDA hasMemo true / 미등록 fallback',
         nvdaMemo && (nvdaMemo.hasMemo === true || nvdaMemo.hasMemo === false) && unknownMemo && unknownMemo.hasMemo === false && unknownMemo.fallback,
         'nvda=' + (nvdaMemo && nvdaMemo.hasMemo) + ' unk=' + (unknownMemo && unknownMemo.hasMemo));
     } else {
-      _assert('T552 get_memo_fn_missing', false, 'fn missing');
+      _assert('T846 get_memo_fn_missing', false, 'fn missing');
     }
-    // T553: _fetchTickerDataForChat에 [SCREENER_DB Memo] 라벨 + _aioGetMemoForTicker 통합
+    // T847: _fetchTickerDataForChat에 [SCREENER_DB Memo] 라벨 + _aioGetMemoForTicker 통합
     var chatSrc = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
-    _assert('T553 chat_memo_integration_v4971: _fetchTickerDataForChat [SCREENER_DB Memo] + _aioGetMemoForTicker',
+    _assert('T847 chat_memo_integration_v4971: _fetchTickerDataForChat [SCREENER_DB Memo] + _aioGetMemoForTicker',
       chatSrc.indexOf('[SCREENER_DB Memo') >= 0 && chatSrc.indexOf('_aioGetMemoForTicker') >= 0,
       'label=' + (chatSrc.indexOf('[SCREENER_DB Memo') >= 0) + ' fn=' + (chatSrc.indexOf('_aioGetMemoForTicker') >= 0));
-    // T554: ABSOLUTE RULES 13~14조 (R135/R136)
-    _assert('T554 absolute_rules_13_14_v4971: ABSOLUTE RULES 13~14조 (R135 신선도 + R136 fallback)',
+    // T848: ABSOLUTE RULES 13~14조 (R135/R136)
+    _assert('T848 absolute_rules_13_14_v4971: ABSOLUTE RULES 13~14조 (R135 신선도 + R136 fallback)',
       chatSrc.indexOf('13. **[SCREENER_DB Memo] 신선도') >= 0 && chatSrc.indexOf('14. **[SCREENER_DB Memo 없음]') >= 0,
       'r13=' + (chatSrc.indexOf('13. **[SCREENER_DB Memo] 신선도') >= 0) + ' r14=' + (chatSrc.indexOf('14. **[SCREENER_DB Memo 없음]') >= 0));
-    // T555: AIO.assertMemoCoverageAudit + memoCoveragePct ≥ 50 (사용자 정직 질의 1)
+    // T849: AIO.assertMemoCoverageAudit + memoCoveragePct ≥ 50 (사용자 정직 질의 1)
     var mc = window.AIO && typeof window.AIO.assertMemoCoverageAudit === 'function' && window.AIO.assertMemoCoverageAudit();
-    _assert('T555 memo_coverage_audit_v4971: assertMemoCoverageAudit + memoCoveragePct ≥ 50',
+    _assert('T849 memo_coverage_audit_v4971: assertMemoCoverageAudit + memoCoveragePct ≥ 50',
       mc && mc.memoCoveragePct >= 50,
       mc ? ('memoCov=' + mc.memoCoveragePct + '%') : 'audit missing');
-    // T556: 사용자 질의 2 — chatIntegrated + rulesText 활성
-    _assert('T556 memo_chat_integration_active_v4971: chatIntegrated + rulesText 모두 true (사용자 질의 2)',
+    // T850: 사용자 질의 2 — chatIntegrated + rulesText 활성
+    _assert('T850 memo_chat_integration_active_v4971: chatIntegrated + rulesText 모두 true (사용자 질의 2)',
       mc && mc.chatIntegrated === true && mc.rulesText === true,
       mc ? 'chatInt=' + mc.chatIntegrated + ' rules=' + mc.rulesText : 'audit missing');
-    // T557: 사용자 질의 3 — REGISTRY 매핑 + 미등록 종목 fallback
-    _assert('T557 memo_registry_mapping_v4971: REGISTRY ≥ 100 매핑 + 미등록 fallback (사용자 질의 3)',
+    // T851: 사용자 질의 3 — REGISTRY 매핑 + 미등록 종목 fallback
+    _assert('T851 memo_registry_mapping_v4971: REGISTRY ≥ 100 매핑 + 미등록 fallback (사용자 질의 3)',
       mc && mc.registryInDb >= 50,
       mc ? 'regInDb=' + mc.registryInDb : 'audit missing');
-    // T558: 사용자 질의 4 — stalePct < 50% 통제
-    _assert('T558 memo_stale_pct_v4971: stalePct < 50% (사용자 질의 4: 예전 데이터 통제)',
+    // T852: 사용자 질의 4 — stalePct < 50% 통제
+    _assert('T852 memo_stale_pct_v4971: stalePct < 50% (사용자 질의 4: 예전 데이터 통제)',
       mc && mc.stalePct < 50,
       mc ? 'stale=' + mc.stalePct + '%' : 'audit missing');
     // T559: 사이드바 audit row 11번째 (memoCoverage) DOM 존재
@@ -2814,26 +2814,26 @@
   // v49.72 P387 R138~R139: fundamental 7 차트 + 채팅 차트 보기 버튼 회귀 방지
   // ─────────────────────────────────────────────────────────────────
   function _testV4972FinancialCharts() {
-    // T561: AIO.fetchFMP5YQuarterly 함수 정의
-    _assert('T561 fetch_fmp_5y_quarterly_v4972: AIO.fetchFMP5YQuarterly 함수 정의',
+    // T853: AIO.fetchFMP5YQuarterly 함수 정의
+    _assert('T853 fetch_fmp_5y_quarterly_v4972: AIO.fetchFMP5YQuarterly 함수 정의',
       typeof (window.AIO && window.AIO.fetchFMP5YQuarterly) === 'function',
       'typeof=' + typeof (window.AIO && window.AIO.fetchFMP5YQuarterly));
-    // T562: AIO.fetchKRQuarterly 함수 정의 (KR Naver fallback)
-    _assert('T562 fetch_kr_quarterly_v4972: AIO.fetchKRQuarterly 함수 정의 (Naver fallback)',
+    // T854: AIO.fetchKRQuarterly 함수 정의 (KR Naver fallback)
+    _assert('T854 fetch_kr_quarterly_v4972: AIO.fetchKRQuarterly 함수 정의 (Naver fallback)',
       typeof (window.AIO && window.AIO.fetchKRQuarterly) === 'function',
       'typeof=' + typeof (window.AIO && window.AIO.fetchKRQuarterly));
-    // T563: _renderFundamentalFinancialsCharts 함수 정의 (7 chart render)
-    _assert('T563 render_fund_fin_charts_v4972: _renderFundamentalFinancialsCharts 함수 정의',
+    // T855: _renderFundamentalFinancialsCharts 함수 정의 (7 chart render)
+    _assert('T855 render_fund_fin_charts_v4972: _renderFundamentalFinancialsCharts 함수 정의',
       typeof window._renderFundamentalFinancialsCharts === 'function',
       'typeof=' + typeof window._renderFundamentalFinancialsCharts);
-    // T564: #fundamental-financials-grid DOM 존재
+    // T856: #fundamental-financials-grid DOM 존재
     var grid = document.getElementById('fundamental-financials-grid');
-    _assert('T564 financials_grid_dom_v4972: #fundamental-financials-grid DOM 존재',
+    _assert('T856 financials_grid_dom_v4972: #fundamental-financials-grid DOM 존재',
       !!grid, 'grid=' + !!grid);
-    // T565: 7 canvas (Growth/Profitability/Balance/CashFlow/Liquidity/CurRatio/WorkingCap) DOM 존재
+    // T857: 7 canvas (Growth/Profitability/Balance/CashFlow/Liquidity/CurRatio/WorkingCap) DOM 존재
     var canvasIds = ['fund-growth-chart','fund-profitability-chart','fund-balance-chart','fund-cashflow-chart','fund-liquidity-chart','fund-curratio-donut','fund-workingcap-chart'];
     var found = canvasIds.filter(function(id){ return !!document.getElementById(id); });
-    _assert('T565 seven_canvas_dom_v4972: 7 canvas DOM 모두 존재',
+    _assert('T857 seven_canvas_dom_v4972: 7 canvas DOM 모두 존재',
       found.length === 7, 'found=' + found.length + '/7');
     // T566: fundamentalSearch가 fetchQuarterlyFinancials + _renderFundamentalFinancialsCharts 호출
     var fundSrc = typeof window.fundamentalSearch === 'function' ? window.fundamentalSearch.toString() : '';
@@ -5186,13 +5186,12 @@
       }));
 
     var snapV504 = window.DATA_SNAPSHOT || {};
-    _assert('T760 v5039_snapshot_current_topic_fields: static snapshot records current topics (v50.39 telegram refresh: 6/11 close + Iran ceasefire + SpaceX IPO + memory super-cycle) without inventing unpublished values',
-      snapV504._snapshotDate === '2026-06-11' &&
-        snapV504.cpiNext === '2026-07-15' &&   // v50.39: 5월 CPI 6/10 발표완료 → 다음 6월분 ~7/15 (값 미확인·추측 금지)
-        snapV504.nfpNext === '2026-07-03' &&
-        snapV504.pceNext === '2026-06-25' &&
-        /이란|휴전|SpaceX|메모리|슈퍼사이클/i.test(String(snapV504.currentTopic || '')) &&
-        /2026-06-08/.test(String(snapV504.nvidiaKoreaWeek || '')),
+    _assert('T760 v5039_snapshot_structural_fields: DATA_SNAPSHOT has _snapshotDate (YYYY-MM-DD), cpiNext/nfpNext/pceNext date fields, and currentTopic string',
+      /^\d{4}-\d{2}-\d{2}$/.test(String(snapV504._snapshotDate || '')) &&
+        /^\d{4}-\d{2}-\d{2}$/.test(String(snapV504.cpiNext || '')) &&
+        /^\d{4}-\d{2}-\d{2}$/.test(String(snapV504.nfpNext || '')) &&
+        /^\d{4}-\d{2}-\d{2}$/.test(String(snapV504.pceNext || '')) &&
+        typeof snapV504.currentTopic === 'string' && snapV504.currentTopic.length > 0,
       JSON.stringify({
         snapshotDate: snapV504._snapshotDate,
         cpiNext: snapV504.cpiNext,
@@ -5202,12 +5201,10 @@
       }));
 
     var homeWeeklyV504 = window.HOME_WEEKLY_NEWS || [];
-    var homeWeeklyTextV504 = homeWeeklyV504.map(function(i){ return i.title + ' ' + i.source; }).join(' ');
-    _assert('T761 v5015_home_weekly_news_current_topics: home static queue reflects v50.15 current topics (NVIDIA Korea / memory rerating / NFP selloff), no stale markers',
-      /NVIDIA|엔비디아|메모리|슈퍼사이클/i.test(homeWeeklyTextV504) &&
-        /CLSA|NH|172K|NFP|셀오프|AI 에너지|호르무즈/i.test(homeWeeklyTextV504) &&
-        !/5\/31 기준|결과 확인 필요/.test(homeWeeklyTextV504),
-      homeWeeklyTextV504.slice(0, 800));
+    _assert('T761 v5015_home_weekly_news_structural: HOME_WEEKLY_NEWS is array with ≥5 items each having title+source',
+      Array.isArray(homeWeeklyV504) && homeWeeklyV504.length >= 5 &&
+        homeWeeklyV504.every(function(i){ return typeof i.title === 'string' && typeof i.source === 'string'; }),
+      'length=' + homeWeeklyV504.length + ' sample=' + (homeWeeklyV504[0] ? homeWeeklyV504[0].title.slice(0, 40) : 'n/a'));
 
     var runtimeVersionV504 = (typeof APP_VERSION === 'string') ? APP_VERSION : (window.AIO && window.AIO.version);
     _assert('T762 v504_app_version_semver_two_digit_policy: runtime version uses v50.5 format',

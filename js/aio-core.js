@@ -14341,7 +14341,7 @@ window.AIO.recoverApiKeysFromIdb = async function() {
 // 자동 백업 트리거 — 페이지 로드 후 5초, 그 후 5분마다
 setTimeout(function() {
   try { window._aioAutoBackupKeys(); } catch(_e) {}
-  setInterval(function() {
+  window._aioRegisterTimer('autoBackup', function() {
     try { window._aioAutoBackupKeys(); } catch(_e) {}
   }, 5 * 60 * 1000);
 }, 5000);
@@ -15180,7 +15180,7 @@ window._aioAuditModeToggle = function(checked, el) {
 // 페이지 로드 후 자동 1회 + 5분마다 갱신
 setTimeout(function() {
   try { window._aioRefreshAuditWidget(); } catch(_e) {}
-  setInterval(function() {
+  window._aioRegisterTimer('auditWidget', function() {
     try { window._aioRefreshAuditWidget(); } catch(_e) {}
   }, 5 * 60 * 1000);
 }, 3000);
@@ -15384,6 +15384,7 @@ window.addEventListener('beforeunload', function() {
   if (_AioVault._publicMode) {
     _AIO_SENSITIVE_KEYS.forEach(function(k) { try { sessionStorage.removeItem(k); } catch(e){} });
   }
+  if (typeof window._aioClearAllTimers === 'function') window._aioClearAllTimers();
 });
 
 // ═══ v30.11: KRX 장시간 감지 + 시장 상태 배지 ══════════════════════
@@ -17052,7 +17053,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.89';
+const APP_VERSION = 'v50.90';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
