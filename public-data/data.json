@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-06-20T11:34:41.624Z",
+  "generatedAt": "2026-06-20T13:13:16.945Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -10,7 +10,7 @@
   "macroKeyCount": 0,
   "newsOk": true,
   "newsCount": 25,
-  "elapsedMs": 1079,
+  "elapsedMs": 914,
   "schema": 1,
   "marketAnalysisOk": false
  },
@@ -385,16 +385,16 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 63621.05,
-   "regularMarketChangePercent": -3.017638242553726,
+   "regularMarketPrice": 63552.61,
+   "regularMarketChangePercent": -3.1219664930098223,
    "regularMarketPreviousClose": 65600.64,
    "chartPreviousClose": 65600.64,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1724.72,
-   "regularMarketChangePercent": -3.6683463676791352,
+   "regularMarketPrice": 1724.2,
+   "regularMarketChangePercent": -3.6973901892204895,
    "regularMarketPreviousClose": 1790.398,
    "chartPreviousClose": 1790.398,
    "_source": "live:yahoo-gh"
@@ -643,16 +643,88 @@
  },
  "news": [
   {
+   "title": "3 Japanese AI Stocks With ROE P E And Borrowing Risk - simplywall.st",
+   "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPX29PWGRGc21wRUQ3SHdqblo4WFZoV1hnTDMxQkw5NUtfRzhjX3FFSHpXdGVjLVNlZ1RyX2M4LWc4YkpvazdaNEZZWTM5MmFnUGdsVVMzczJFa2l2bzI2cnJYc1N2NWxzNVd0TS1lWUJMVERMMFg5SE1pVnZDQlFKRXVrUHgxaUFESGxsN3NBNzNSSUVPOHZwMk42anZ2QjEwOHhMNDAwSkNNS1dVdUhVMU9qLXBnY2JaeE9XMTZYcDRIYnE30gHKAUFVX3lxTE5ac2lKTF9PczlJU0tXb1Jlcm9uejIwcGhYMVJQbnNyTFNqa3FtVDZYSW1LM0NWS3V6bUd1YlFfSklIY1NENzNEdmpFSF9ZZWxhbFltaDMxazlETl94RkpzRDlaV29ZV3NLQko0YWRFNmJheU1ydUMxQ0VDeTFRWjhZMU95ajdQTmd0dlcwM0lyWjRDWmh1aGhCcGhwNVgwaTJpN0FtTkZUSFE0b05RcFdSOHZ4enhHcWdTUEVFSE5RM0NWRHFVbE1GOEE?oc=5",
+   "source": "simplywall.st",
+   "pubDate": "Sat, 20 Jun 2026 12:52:34 GMT"
+  },
+  {
+   "title": "Warsh's gamble: A quieter Federal Reserve could mean volatile markets, higher rates - Seattlepi.com",
+   "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNOWM1ZTdqQmE2cWcyMV9hQm1QUUJRSkxfSXVhX0tXNkpVSk1vY0xyNUl1Sk9qaV9VcXRwbTBHTUk1dDd2VFNJaWtibEYzdklSd3FXQnJzMG9aUzAzQjhIeTFTT0ZDeFhTQkNVSERRWEJQY1JtVjktc1UtY3FnMVNJcGJYZVVzZlI3dnN0WTFpUUJYczZjekFTM05RTnM?oc=5",
+   "source": "Seattlepi.com",
+   "pubDate": "Sat, 20 Jun 2026 12:51:38 GMT"
+  },
+  {
+   "title": "Cerebras vs. SpaceX: Which Is the Better AI IPO Stock to Buy and Hold for the Next 10 Years? - The Globe and Mail",
+   "link": "https://news.google.com/rss/articles/CBMihwJBVV95cUxQZThaQnFHSW9LQ04wVEo4R3YwLUpHSnh6VHpXbHhRZThfV3EtUGVyWFdGbDBpWm9NTnk0cHdBV0NXUHl3dXdLRTFOcGlNR29LdG85STFKVGJjQW9xeThjdFpLUy1SdkZNOUFybGRfT0NybHhZaGxWWmIyOUN1a3BDM1dpcTMzS1B4dUpNQW5QVDZHNElXaDAzZnlDOU4xWURSSS1hdERwM2JjQ0M2OHVLZE5laUh5elhFckptZU1DUG8tSkhlSFFKNld2S2FlZHJsZkhhN2Fic2gwNEtCQWJCb1hHWWJzc0JPN0JiVDgtR09MQXVyWkI5T1VPTlYwRjh0d0NXdFg3bw?oc=5",
+   "source": "The Globe and Mail",
+   "pubDate": "Sat, 20 Jun 2026 12:45:43 GMT"
+  },
+  {
+   "title": "Digital Realty Trust (DLR) Stock Could Be 14% Undervalued After AI Launch And Earnings - simplywall.st",
+   "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxPNlRDYmY5dFBwV3lHRWdLU1RQeU1Wc1hIOEN4ZnJsTFVhLUp4ekFGTTMtSzdFTTVtLTlJV2U1VVRUa1VQcUhJOGZmYUwzZDRWNHk2VVp4dFVhUTl0N2l5cXpLWGFkSjlfbnk3UWRQYTczY19ORHhZTDFGWFZMS1FWaFZuLXkwbjh1RDNQemxsSWlqVzRucHgzejA2M1RyLVhYd0gtc3RDd1ZKczhZNjRXMDltcHc1S0IxODZDMERKYlQ1ZFl0UjFWMUtwai1jVFdlcFpRR19n0gHbAUFVX3lxTE1pQTZVZzYwb25pNEt2M2VuRzJYSGY2T3M1cERvcmJ2NjdFa2lBaDIwdUIzQ1RiblN4ZW94eDlkQmdfclVVUjR0TDh1bjdXSjJIa3F3bG9oZ0thQ3Mwell1ejdXVHVlekNjd2tJSGRxSWhCTk52OGNPSkVWREEwYVgwejJTZVRHWjh4ZUlQVVBidFBTZkdiN2N4bWh4aXRjVDhfRUI5dWRQU2FRTXJMaWlBU29vVmExdk0zaDJGMGgxemIyUWY5aVZaaHVTU0QtUFMycUN2LUJSSU9MRQ?oc=5",
+   "source": "simplywall.st",
+   "pubDate": "Sat, 20 Jun 2026 12:29:15 GMT"
+  },
+  {
+   "title": "Does KLA’s Stock Split And AI Spotlight Reshape The Bull Case For KLA (KLAC)? - simplywall.st",
+   "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQQjZHQzhXQnctWXZ4Z0VLR01ubnZrbEhKbVFtaDAzel9kMnRzd29KZ3duSXpBVWVfMkJmNGZPZTlKU0pOZU5qby1aZ3lxWkpMMV9NbHU4YmQ1alpkTVptOERqRUFocUpRS0kwUXhmclZLZ0FnSnBVUTFfQ1F2SjR1UXVnOGx5dTdiWmE3QU9FNUMtYzVuejg5ZUxEZkFjM2ZrYlhjUjZFaUVEQWJtQks0eUhYeTF0X0NDMlFkTEh3NXNGcGtBSE5j0gHMAUFVX3lxTE5GTFQ5c2lHTmVySW16MExzUk1aRnZSS1d0WHV0aVBmVWZGZVJwbzA5VmVrMzhHUklTRnU4SjZDaU9aSklwdFlRT3JHZ2tNMTNlVVdsMXdfR1NKRkNqdk9wYnlmX2VSRFh4dndLTnFCWGo2TTJVNVJaYWZKQzBSbTUtZXVVS2hKS3U3RTl3d1BWZGp5T2Npd3VicGlCRnVHZVhwLUdrS2thVTc5dEhDT2tId3h6ckt6aUNBdE5WNGlLUUZ6YXltLWVEdkJ5Rw?oc=5",
+   "source": "simplywall.st",
+   "pubDate": "Sat, 20 Jun 2026 12:29:15 GMT"
+  },
+  {
+   "title": "2 Brilliant Industrial Stocks to Buy for the AI Spending Boom - The Motley Fool",
+   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOMGxmaTk3aHdmRWJzZy1UTjNiVHdUc2tTTG01MlM2aXVCZDd2ekktb2pTakMwQVdDRFh1RzBibUdEZDIwaW9YNUY3cTRTUmd6am9Qa21CRm1Fdi1uWThYY056Tzg5dXBKTzl5cU9YZVFIQlg0VlY0b18xSTJMZlY3X0V2YlRVQVJrYnBEUGlIMXRsSFg0?oc=5",
+   "source": "The Motley Fool",
+   "pubDate": "Sat, 20 Jun 2026 12:23:50 GMT"
+  },
+  {
+   "title": "Weekly Outlook: Uncertainty Remains in US-Iran Ceasefire, PCE and Federal Reserve Officials to Make Appearances, Gold Troubles Not Over Yet - Bitget",
+   "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE1OUExyTTdHUlRGY1l0d3NpR3ZTVDFPc1g2Ym9TMjJ4SVNiVV9DTXFWZVRGN1F1c0F1Mkl2N1lmWXktZWNuTHVockc2WjJ4SmxndW9VZVZ2bFBtT1RnSHM3TnlnZ9IBY0FVX3lxTE1OUExyTTdHUlRGY1l0d3NpR3ZTVDFPc1g2Ym9TMjJ4SVNiVV9DTXFWZVRGN1F1c0F1Mkl2N1lmWXktZWNuTHVockc2WjJ4SmxndW9VZVZ2bFBtT1RnSHM3TnlnZw?oc=5",
+   "source": "Bitget",
+   "pubDate": "Sat, 20 Jun 2026 12:23:37 GMT"
+  },
+  {
+   "title": "Dow Jones Futures Fall; Nvidia Leads 5 Stocks Near Buy Points, SpaceX Needs This - Investor's Business Daily",
+   "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPNEhrdlloWm5pS3hyaVF6azNTZW9TbnJFU01aTmJNems5Tk1ROUl1aGxhY3BfTkZYNlZOMkJtTDRuWXNvcFJEb2FnQ1duY0VOU20zNGIxaXhmcHU1WXMzNTNiYl9IZmZRTzlfT0k5NnA5ejQ1MGJlR21melNMOFVsbVpvc1RzdmdCOWszMnluZ2ctbkY4ajFZZDVsakZTZENyanJjWmozcGhJNDJneTZxU1luT3h2Zw?oc=5",
+   "source": "Investor's Business Daily",
+   "pubDate": "Sat, 20 Jun 2026 12:01:00 GMT"
+  },
+  {
+   "title": "Microsoft’s CEO Just Warned the Entire AI Industry: Your Dominance Will Trigger a Backlash - 24/7 Wall St.",
+   "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxOV1JTNzJDcm5iRDNBelBZUWtzNDJrbmV0bzZYY1ptbTBKa2NiTm9yMVp4THZCM0xpOEdIYnhpZmNyOXVxU1BOeGZlM2FDOVpmZjJScE9ESmZsejRIQTFZa2xUMlFiWkh4YmhpM01vWGZ2ZUpZVWM1a29pT0dQbTEtN3lRTFFhbjVISUk1VnVxLUFvSFFNcXAySG96X19fZ2Z6Y19McElDR0RueENhTkUtYXhqTmdnRGZzRlNuNEtpVV9EOThWSnVuYmZMY3E?oc=5",
+   "source": "24/7 Wall St.",
+   "pubDate": "Sat, 20 Jun 2026 12:00:27 GMT"
+  },
+  {
+   "title": "Five Stocks Near Buy Points. Most Are In This Hot AI Space. - Investor's Business Daily",
+   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPeHU3cU5yTG5nR2paNGhqRWRoRkllRW1CSzkwTWZKLXU5Z3NXcGRxaHV3WldaanhjUllDZzNVelZMMDMwOWxoZWI1YTNLem5qUklLNUxFTkFuV3lJZXBDYWp1N2xBNTdEUWNBczJHcklwbzlzXzl4UWdRQzcyLUhFTg?oc=5",
+   "source": "Investor's Business Daily",
+   "pubDate": "Sat, 20 Jun 2026 12:00:00 GMT"
+  },
+  {
+   "title": "Kevin Warsh Succeeds Jerome Powell as Fed Chair: Impact on Markets and Inflation - News and Statistics - IndexBox",
+   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxORHNkekExYUtnc0trN2ZjaHNTR3Nuak83eHp1S2lpTV9PQ0k5MElrMzFuUlQyeW8wRU5NMXJvUUVPMVBHRWlSNXA3NjlyUEd5dzhKX1NqbERoQWxkVDI4cUJJTnA3U3RPZ0c0WmY1TnIxbHYyWElSaV9WbXRLczh0UTZhLTdHbUppTlBSY0xsRjNDb0RuaTBxOTk5ajMydEwyNXhCS1NpdGlhR2ptX3ZBbmMwUW9LcWF6?oc=5",
+   "source": "IndexBox",
+   "pubDate": "Sat, 20 Jun 2026 11:50:00 GMT"
+  },
+  {
+   "title": "3 US AI Infrastructure Stocks With Founder Backing And Growth Risk - simplywall.st",
+   "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxQSFJ2bXlST2tyT21VODB1TndiNVo3VmNSbnZTZFhZQ044bUlZeTYxVUpYcUFKUFVVZjcwb3BJcVY4Sll3MTRPb2F0ZVN2cWotUy1fU2RIdHJneUh2MFluVUNScllINkF3Z3F4VTM3MXlhOXVaUVBoQnlfTDZlQmtYYzZ4eXhrODRFMC0taFJib210cFFHOUJ0MEVYOXlzQkM1bDJFZC1xVXUyRXJIVXVUYXNnYjRUdng1Yk9BNEVrdnVtOUU2MFFhaGUxZk8yeGV3QnfSAdcBQVVfeXFMUHR1LV9aNGJJRXFySnNoc2lqQXhjc1B0cE1XaGtDb1NiQlFfNmpDa0JzS2F3NlpIVkVPYmhLYXgyakFFR1dpMTl2Nk8xQnJNUnR6ZGtBYlFNUzNMN0NRanNYazhpUmxOUXZBUERQdWtrSFpUYkhudU5mREFoajAxbkdWUzdkMkp5UFlyaHRndGRBSVRGWXE1SGxDeVpRQWtlZkxZYUs1YUc1SThjSGpPcHVUa1JNTWctZm8yX1lNNGZ0YWpHYUx3dG5vZzVkVjFST2JJTzN6ekU?oc=5",
+   "source": "simplywall.st",
+   "pubDate": "Sat, 20 Jun 2026 11:42:54 GMT"
+  },
+  {
+   "title": "Move Over Marvell, Here Are the Next 2 $1 Trillion Semiconductor Stocks - The Globe and Mail",
+   "link": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxPTm5XY3c1NGFia2pIemJmcEw0VEtQMVRRWjViaEdrdEE2cUhDNnNhT054b1RLRms2Yl9CMFk4M3pobVJLQ05ULTh2eEFpV0NWWmo1MXhZT1ZSQlhNWTQ1TmJyVUhwaVExS2FPMzlNbFdsNU5VMUctU2ZXTXpUSjJ3ZzVaSDNCV0gtR2JjTzhhNnJlUUF4eHpVTTRPMmQwWGpMVFUzYVUyOUpnMlVnV3BEM0tFaUd6R3EtSThvcmFBdkVxVFlaWm1LQkRvSy1IS0puWUVGQ2E1T080ZjE4WTBxYV83MnhGcHA4bHc?oc=5",
+   "source": "The Globe and Mail",
+   "pubDate": "Sat, 20 Jun 2026 11:32:15 GMT"
+  },
+  {
    "title": "3 Stocks That Have Made Long-Term Investors Rich and Could Do It Again - 24/7 Wall St.",
    "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxOT3dPaU9UN1dqdFJPTDdZY3BkWVFoM2VDREFGV253RE9CMEwwUUx0UWk1NmYyVUMxNmlNT1k5czVhUVRVbURlM0d0eC0yS1phSWp4MVRQSzZ3bnlqdERPOUUzWGcza2d6Sm9CaTdiQkVxbDZFQURMbXdjYUI5aUNyYWxNZzFKU1pqd09XcjM4UUpGUENXSURVNHVWaFo1dWtUdjQ0bmo3U0t1ZkNVUDR1ZFlFdXV6NEU?oc=5",
    "source": "24/7 Wall St.",
    "pubDate": "Sat, 20 Jun 2026 11:30:56 GMT"
-  },
-  {
-   "title": "Move Over Marvell, Here Are the Next 2 $1 Trillion Semiconductor Stocks - The Motley Fool",
-   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNV2MxdGxSczUzWU1QSjZfRDM3dllFb3NaV01XOFdoTV9zWFJ1V291UGJxcnBWZzFEVGFHUmNScjFuQ21YajF6enBvMUpsRGNvWmx6ZDNTS0RDR2JIT0pvNGMxczhSUnhjZ0htQ2c4QktHTHBXbk9wbDhKNXhjaGJNRERWTEY4Y0IwOE4yZ1RxVXlwZ1df?oc=5",
-   "source": "The Motley Fool",
-   "pubDate": "Sat, 20 Jun 2026 11:13:31 GMT"
   },
   {
    "title": "Up over 250%, are these AI names still among the top stocks to buy? - twelfthmagpie.com",
@@ -673,12 +745,6 @@
    "pubDate": "Sat, 20 Jun 2026 10:22:40 GMT"
   },
   {
-   "title": "Is DXC (DXC) Turning Its Anthropic AI Bet Into a Durable Edge in Enterprise IT? - simplywall.st",
-   "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQSUVtQTM3dFg4WXZTUWo4ZzB0b1h1cEhiZGFPdVdwdVVKMkN3ejZ0RlF4a2dYWmEzMXlsU1UyY3JBcjVVRWFENmJCRTYxZjVVZHBIZk5vMm1wZTdEcnU4X3hReW5Gamd5aFJoM0tEcE4zcXlrOHZDTV8tMkRPb09Cd0xfS2VWbW1QSVRpMzRaR1ZIWnhYZnVWUmhSUjFKbEd3MTNHVHBvcGpsTHlLZWdtQ2VqUHgySVdmSm9VMDFUVUNuaFlJSVpsNENKWDk5UdIBzgFBVV95cUxQSUVtQTM3dFg4WXZTUWo4ZzB0b1h1cEhiZGFPdVdwdVVKMkN3ejZ0RlF4a2dYWmEzMXlsU1UyY3JBcjVVRWFENmJCRTYxZjVVZHBIZk5vMm1wZTdEcnU4X3hReW5Gamd5aFJoM0tEcE4zcXlrOHZDTV8tMkRPb09Cd0xfS2VWbW1QSVRpMzRaR1ZIWnhYZnVWUmhSUjFKbEd3MTNHVHBvcGpsTHlLZWdtQ2VqUHgySVdmSm9VMDFUVUNuaFlJSVpsNENKWDk5UQ?oc=5",
-   "source": "simplywall.st",
-   "pubDate": "Sat, 20 Jun 2026 08:36:26 GMT"
-  },
-  {
    "title": "2 Magnificent Artificial Intelligence (AI) Stocks to Buy and Hold for the Next 20 Years - AOL.com",
    "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPelB4cGxwaVZ4a1ZxaUZCVU1nVlJ5R0E3OTRRT2pKQmVJLUh1dmt5c0FuR3dPWEFKTHJpRTRfNG44aExacWwyRnlsSzNtRTJrRUZVSUVQTFJ2SzM1NUVaWlVONVB6OFpqX3gzMEZnSGsxSHJNOXk5Zm92TXZPSmdKZ2pOTVRhSk1zYzl1Vg?oc=5",
    "source": "AOL.com",
@@ -689,18 +755,6 @@
    "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOMU40R1Zlc0MyQTB3RzBBVmxuZFJuWUt2V3NTUzVaWVJLaUlSbHpVVzBRMW9EdjU2UUJiaVZDQTBXbjI0azFORDVWNDhkeVl5UkZzcDlNc2Y5Vy1ubDRZeVBYRWlySDRUUWVLUDFnUmhnNFUzU3IzdmNWcTdLdFJIY2ZMNEhTaVBabUdsRE8zSmkxa3hvXzNxai1XTEJxRHM?oc=5",
    "source": "Investing.com South Africa",
    "pubDate": "Sat, 20 Jun 2026 08:12:16 GMT"
-  },
-  {
-   "title": "AI BOOM Check: NVIDIA Earnings Could Move Markets Olivia Culpo (Zfcon9UPtx) - Mshale",
-   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFBlREU3SVMyTjhaR1cyQk90ZjQ2WDRPcW5FRW1tckxTYkUwS19Vb1FlY1ZPbU1TT2ZWeTRXNDAtNU4yZUJfRUpzSDFaWHpIMVlBZzg4Z29oVjY1ZGs?oc=5",
-   "source": "Mshale",
-   "pubDate": "Sat, 20 Jun 2026 07:56:22 GMT"
-  },
-  {
-   "title": "Arm Stock And 2 US AI Infrastructure Picks With Growth Risk - simplywall.st",
-   "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxOUnVUOXlKYk9KQUtYZUc3UFdUQVcyMHJWZ2VKS1Rnai01OXc0MEdfdXA2cUNHSE5zTExiOVpOdEJTZU5zWWc0czdaX2ZGSG1EVk90dno2WXQzSXByVXhZZDFGdVhodEF4ZWhPaFM5VV94ZDBFME1EM01CVGV2VzVOX3dGV3E0X2FnUTc1S0MwbGNMZG05anI3dWIta3hfUm05VE9zbGoyQkFxNGJySDVidzVFZ0gxeTJzRi1rSnhIQXdXV0ZHZEIwMEtHMWk0akM1MkVnamhHWUVjQdIB3wFBVV95cUxPY3JWcDlLRG5KTlA2bVVLcER1RDI2MUlGbUF0YzFKR0xfSktXZnZoLUo4cE5sRGMzNlZobHNsbk13LWZ4clFvNWt6WlVxZ3RaZHlieDFnZ2tzeDhNX1JoaTVTN0lXZm0wUm1WNnp0VExkZVdFakdxdklGY2E1QjVyQmVJaU9wOHVnZUJvdUpJbTZBNXU5N011V0xndGtWVk1qMURySlY0dzhncTh0NFlxTXM1T0Jqd05KX2ZESVF3WDBNMkl3cW8yR28yN3AyY3U2YzZMdldWMi1ubHZOUHVz?oc=5",
-   "source": "simplywall.st",
-   "pubDate": "Sat, 20 Jun 2026 07:38:21 GMT"
   },
   {
    "title": "Jensen Huang Says Software Companies Are About to Benefit From AI. These 2 Stocks Could Win Big - The Motley Fool",
@@ -721,28 +775,10 @@
    "pubDate": "Sat, 20 Jun 2026 03:37:03 GMT"
   },
   {
-   "title": "Dow Jones Futures Fall; Nvidia Leads 5 Stocks Near Buy Points, SpaceX Needs This - Investor's Business Daily",
-   "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPNEhrdlloWm5pS3hyaVF6azNTZW9TbnJFU01aTmJNems5Tk1ROUl1aGxhY3BfTkZYNlZOMkJtTDRuWXNvcFJEb2FnQ1duY0VOU20zNGIxaXhmcHU1WXMzNTNiYl9IZmZRTzlfT0k5NnA5ejQ1MGJlR21melNMOFVsbVpvc1RzdmdCOWszMnluZ2ctbkY4ajFZZDVsakZTZENyanJjWmozcGhJNDJneTZxU1luT3h2Zw?oc=5",
-   "source": "Investor's Business Daily",
-   "pubDate": "Sat, 20 Jun 2026 02:47:00 GMT"
-  },
-  {
    "title": "The market has \"forgiven the war,\" but has not understood the Federal Reserve. - Bitget",
    "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTFB3OXBQQXBHS2JHNk5jZkFUQVVmWHFzOXdhaldnY2oxQVliY3BjNGNfTWZfNHRkUGExZnJRTnVOMlVxUUFxYThraXUyWDEwVm1oWDZEQUdLc3dRaTVseV9qeGRYQdIBY0FVX3lxTFB3OXBQQXBHS2JHNk5jZkFUQVVmWHFzOXdhaldnY2oxQVliY3BjNGNfTWZfNHRkUGExZnJRTnVOMlVxUUFxYThraXUyWDEwVm1oWDZEQUdLc3dRaTVseV9qeGRYQQ?oc=5",
    "source": "Bitget",
    "pubDate": "Sat, 20 Jun 2026 00:59:54 GMT"
-  },
-  {
-   "title": "Microsoft vs. Nvidia: Which AI Giant Is the Better Dividend Stock for the Long Haul? - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOOUxLei1OVUtsRHpKZ1Nibkc4U0UzOXNHc2hwUkRiVG5xM0xkVmltdWoyZTRZZDhSX1ZJNjBxRjFPOG5fa0N2WXJza0J4UFhxNTI2SXZGN200WUwza3k0d2FfNktRSTJUbWk2eVBLbXRVTDB5c2Y2TUZSSkRvZUJEWUJZVmluRlpfN3gwaHFNVGdQcHdFcDU1bA?oc=5",
-   "source": "Yahoo Finance",
-   "pubDate": "Fri, 19 Jun 2026 23:00:02 GMT"
-  },
-  {
-   "title": "Broadcom Builds Custom Chips for Google, Meta, Anthropic, and OpenAI. At 25 Times Forward Earnings, It's the Cheapest Mega-Cap AI Stock Nobody Talks About. - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNYXEyc3Jpb3FtVnNnVF9Nem12WlJqU3hWYjdOeUlWY3kwMFd6Y1I0TTJ2aXpLVGxVQ0hWLWtvS0FUY3UtNkp1NloyX2o2MGNkNmh1MUJyY1FmT25RSnVRbk5Cc2l0c3o1NHpjczJNLWRnRjhKMTVSM3hoUzdNUkN1UTQxV2JGMkJLa0VHb2l1bUEtN1V4aV82eC00VWlDQlhL?oc=5",
-   "source": "Yahoo Finance",
-   "pubDate": "Fri, 19 Jun 2026 21:50:00 GMT"
   },
   {
    "title": "US markets shut for Juneteenth after S&P 500, Nasdaq end week up - TechStock²",
@@ -751,46 +787,10 @@
    "pubDate": "Fri, 19 Jun 2026 20:31:25 GMT"
   },
   {
-   "title": "SOUN, PLTR, PATH: 3 Beaten-Down AI Stocks With Up to 79% Upside, According to Analysts - Moomoo",
-   "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQMVlaS1BkT2lRQzlWbE5zSlhidlhBUzREaGtIYV9FTFpWUGw5VFdsTmdfeDkzSEdtZktoRVFsUm9pRl9wcGdoSHZlU2QtR0hac0xqVTZBWTN3RE9WZkRyWkFTck1QWVVPdWw2YmVPM2VwTWFSUDVyZVpXb2E4em1JQXV1RG5XZ2wyMk1tUkhqSEFFb0l6b3V1SzB0LVZ0dFNwNWc?oc=5",
-   "source": "Moomoo",
-   "pubDate": "Fri, 19 Jun 2026 20:28:00 GMT"
-  },
-  {
    "title": "S&P 500 stocks are up today while Bitcoin falls below $63. - Bitget",
    "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE53WTdFUFNfbWlyUXBzUkpOWE1pY2lNeExOMGhKa1B0UUF6eTB4RElzNUY4eGRBRDJNYkJab0RqZUFqU3pEdUNVVWFiR3E2MXQ3bnNZbVlZTm9FWlYyV3ptb1BQQdIBY0FVX3lxTE53WTdFUFNfbWlyUXBzUkpOWE1pY2lNeExOMGhKa1B0UUF6eTB4RElzNUY4eGRBRDJNYkJab0RqZUFqU3pEdUNVVWFiR3E2MXQ3bnNZbVlZTm9FWlYyV3ptb1BQQQ?oc=5",
    "source": "Bitget",
    "pubDate": "Fri, 19 Jun 2026 17:58:55 GMT"
-  },
-  {
-   "title": "Missed Out on the AI Memory Rally? These 3 Stocks Are Just Getting Started. - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPY0l0SmFoMHp1S1RXbTdXeXpfVnRCelN2OHd3OVdqN3pJcDJGSHJPeHNmdjExN2FmNl8xODlFYWpoQWRoMzNsNmo5a3FqY3BQRnZ1WlB1a2o1NVd2RUF1QjlnY2hIaTJOTWxDQV9KcWltSFowN05jU25pQm1NQnJ5YU85UVlZUGZ6WlFiWDZqYlItbVU?oc=5",
-   "source": "Yahoo Finance",
-   "pubDate": "Fri, 19 Jun 2026 16:50:00 GMT"
-  },
-  {
-   "title": "3 Semiconductor Stocks We’re Skeptical Of - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxPYXJNM0VjMnZrX0dKUXJSVkZSUW9pS19LenNTa3JLSXVhRGxzdjU0VjExYVJncnlXc3hNbU9pSTVWb2JnT0g3WXVHNkVpTzJrNm1IMzJSQmxYSmhqUEUyUko5SENpQklsRnpaQmlyalFRNmRtV2l6cHdnaXRxRGxMeEJpNTZLWDk2ZWllRVVBV08wVU1LY3hFd1RhOTdFZw?oc=5",
-   "source": "Yahoo Finance",
-   "pubDate": "Fri, 19 Jun 2026 13:08:58 GMT"
-  },
-  {
-   "title": "World shares are mixed and US futures fall after a tech-led rally on Wall St - WOWK 13 News",
-   "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxNNDFFblY5UmROWC1jRmZKRy02ZkRxal9RTmFFdHpmcU1jSFVCNmpQM0d0LXZTV2pXX0F5VmZDRHJXR3J2anFzT1ZCU01DUFl5SjVlMTdvSThtS0VSNjc0VmdzeXRINTdJOTJfMXNXZmR5aGZoYnhWekJ3ZTQ4dzJsRjZ1VV9qQkhuam1KaGx3dXNhanRxUGttS0NxSk1GTUE3S0lYdEQyclZQYy04czY2REV4N0E4UkdnOUlwcNIBwgFBVV95cUxPbklvbGdEUTZsS0JyMHNEemFjaHhzSmxzb2lldHp2aDA4X2ZzNjA5VUhZNzN4b195WDc1bUgwOHoxWnZONGxPUVh6M2FMamJLcGl5MGE0emVYaUJJUUJzeWk1VnBQb05WWjZXdVl2aXQzV1ZRTzZfYUNnOWp2dVpYQVVuSnZzRTRWVXBtOG9HZmJENklBM0pnQjFEWW56cmNDMlh5ejRPYnJkNTVQTDRKT3h3YTJ4V3pISXM1TWN3RjA3Zw?oc=5",
-   "source": "WOWK 13 News",
-   "pubDate": "Fri, 19 Jun 2026 10:34:08 GMT"
-  },
-  {
-   "title": "Is stock market open today, Juneteenth 2026? Is stock market closed today for a federal holiday? - IndyStar",
-   "link": "https://news.google.com/rss/articles/CBMi8gFBVV95cUxPSUVoUmdjLTRTOUc2NmdCSWZkeDZVaERwTUFZV2JfUzQ2LUpraWNockU5V2FfRU1TMldhd21lZ0MyX2dabUE0YXpVb25zT09qSnFzMjQ1OEE0VlZONHBIZFRLX0JqcWJfNDlOTTlmMHV4dXBwZndXTzE0SGVUeHJQMHpaS2ZSZGVxb29ZcXc4Mll0S3Iza002MjlfSWZSS3dRWENuRWJPRGNBR3ZfQ3dBd0Z4by1wVm5nampvTHNIT2JIalJDZF9sUEp0QlljUlFlZnZqT1lsNXI2U1p0eW14RGpZTTktLTZrMVY4djVLWHMwZw?oc=5",
-   "source": "IndyStar",
-   "pubDate": "Fri, 19 Jun 2026 09:11:00 GMT"
-  },
-  {
-   "title": "US Stock Market Today: S&P 500 Futures Climb On Strong Consumer Data And Fed Caution - simplywall.st",
-   "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNeG45SkFqRm9qaDZlM05UMm45S05LMVRfR2YtNjhleURiZkNvNVNNNEhHa0VidzlkY3J5aUJ6ZW5mSVZMUE1jc0U3dnpqeVpfcFZjNHRWUHdjcnNXN05ickg0M3BwZzh2Xy1EWVNmYzFMaV84VW5xcnFwRTdyM19QT0Y3NV9PSTVUVTRvTkNvcnNiYmdkQWhkcHE5WlRqWVJ0R3I2THN5M1dZMHdoSFJsdkw2Q2NKT2VoVm52bm9sX0llTHA5cHJkYzc2dWvSAdIBQVVfeXFMTlVOTzFlQlpEWExaRlRaOFZEdXFZMFgwamxNNnpoelQ4dEdibnRScUVYUjVfbHQtSWdWUC1wNzdweWhuSHRGbGlxX2NiTk1YTUJKaUExMmVVNjhfaDVKa1ptcTY2bl9TanUxMzJGNW5BZUh0SWpZVi12UFNneFY4cXk4Z1RVM3k1X3hqbERpeXFia0lOZHB4Sm00UVhFNHRGRWlaTVNCUEtBdTRKVmkyNUplODRoN0NPcFh4dzh0TWNGNkJ0Sl9fYjJmYmc3dUVWVlBB?oc=5",
-   "source": "simplywall.st",
-   "pubDate": "Fri, 19 Jun 2026 08:47:11 GMT"
   }
  ]
 }
