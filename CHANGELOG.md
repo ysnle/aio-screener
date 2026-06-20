@@ -1,5 +1,24 @@
 ﻿# AIO 스크리너 변경 이력 (Changelog)
 
+## v50.89 - semantic review and workflow compaction gate (2026-06-19)
+
+- **Structural fix**: Added P513/R219 so audit functions, shape checks, coverage percentages, and sidebar rows can no longer stand in for semantic review.
+- **New CI gate**: Added `scripts/ci-semantic-review-check.mjs` to inventory audit/readiness definitions and shape/coverage-style tests, then require R219/P513 governance hooks and direct high-risk semantic gates.
+- **Runtime contract link**: Extended `scripts/ci-runtime-contract-check.mjs` so runtime/share-readiness work must keep the semantic review gate documented and runnable.
+- **Workflow compaction direction**: Captured the next structural requirement: helper files and skills must be compressed, retired, or split into references instead of continuously appending long SKILL.md/checklist blocks.
+- **QA loop**: Added P513-Q1..Q6 to require function -> consumer -> visible output checks for trading, AI, data/source, UX, and page redesign work.
+- **Cachebusters**: Synced R1 version surfaces and JS cachebusters to `50.89`.
+
+## v50.88 - 트레이딩 로직 감사 수정 — score alias + breadth 중립 fallback (2026-06-19)
+
+- **트레이딩 점수 소비자 호환 수정**: `computeTradingScore()` 반환값에 `score: total` alias 추가. 기존 일부 섹션이 `.score`를 읽어 실제 점수 대신 기본값 50으로 떨어지던 연결 오류를 제거.
+- **레짐 낙관 편향 제거**: `classifyMarketRegime()`의 breadth 미수신 기본값 75를 제거하고 `window._breadth20` → `DATA_SNAPSHOT.breadth20sma` → `_fallback.breadth200` → 중립 57 순서로 통일.
+- **매매 판단 단정 표현 완화**: `getScoreAdvice()`, signal decision, conclusion bar, ticker deep verdict의 “적극 매수/STRONG BUY/매수 신호/숏” 계열 문구를 `매수 우호/선별 매수/분할 진입 검토/무효화 가격 확인` 중심으로 수정.
+- **티커 분석 시장 맥락 연결**: `analyzeTickerDeep()`이 개별 종목 차트 셋업만으로 매수 결론을 내리지 않고 `computeTradingScore('swing')` 시장 점수와 함께 진입 보류/보수 운용 여부를 표시.
+- **이벤트 리스크 최신화**: `AIO_EVENT_RISK_CONTEXT`를 2026-06-19 Post-FOMC hawkish hold + Hormuz/oil risk watch 기준으로 갱신해 blowoff/sell-pressure 엔진이 6/9 CPI runway에 묶이지 않도록 수정.
+- **회귀 방지 게이트**: `scripts/ci-runtime-contract-check.mjs`에 `computeTradingScore` total/score alias 계약, `classifyMarketRegime` 낙관 기본값 금지, score advice 공격적 매수 표현 금지, ticker market-score gate, event context freshness 검사를 추가.
+- **캐시버스터 동기화**: JS cachebuster를 `50.88`로 동기화해 로컬/배포 브라우저가 낡은 v50.85 JS를 잡는 문제를 차단.
+
 ## v50.87 - 코드 리뷰 버그 수정 — 다이어그램 재렌더 완전 수정 + XSS 방어 + kr-home AI (2026-06-19)
 
 - **BUG-A Critical 수정**: `aio:marketStateUpdated` 핸들러 이중 버그 제거 — `document.addEventListener` → `window.addEventListener`(이벤트 발행 대상 일치), `.page-active` → `.page.active[id^="page-"]`(실제 활성 클래스 일치). 이전엔 시장 상태 갱신 시 다이어그램 재렌더가 완전히 불동작. `js/aio-ui.js:3841,3843`

@@ -82,3 +82,11 @@ AIO/
 ## Maintenance Rule
 
 When a new `_context` document is added or removed, update this file and `_context/CLAUDE.md` in the same change.
+
+## Workflow Compaction
+
+- Current active gates: R219 semantic review and R220 workflow compaction.
+- Run `node scripts/ci-semantic-review-check.mjs` when audit/readiness/page/AI/data/trading gates change.
+- Run `node scripts/ci-workflow-compaction-check.mjs` when `_context`, `CLAUDE.md`, QA, postmortem, or skill guidance changes.
+- Treat `BUG-POSTMORTEM.md`, `RULES.md`, and `QA-CHECKLIST.md` as archives plus active gates. Do not expand them without checking whether older guidance can be removed, merged, compressed, or moved into a reference.
+- Root `.agents/skills/*/SKILL.md` files are compaction candidates when they exceed 300 lines or 15KB; prefer concise SKILL.md routing plus `references/` and scripts.

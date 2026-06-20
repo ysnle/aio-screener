@@ -2,10 +2,27 @@
 verified_by: agent
 last_verified: 2026-06-19
 confidence: high
-latest_version: v50.87
-latest_P_number: P511
-total_entries: 510
-next_P_number: P512
+latest_version: v50.89
+latest_P_number: P514
+total_entries: 513
+next_P_number: P515
+---
+
+## P514 - v50.89 - workflow helpers and skills were becoming append-only memory
+
+- **symptom**: The codebase was not the only append-only surface. `_context/BUG-POSTMORTEM.md` exceeded 500KB, `RULES.md` and `QA-CHECKLIST.md` exceeded 100KB, and several root `.agents/skills/*/SKILL.md` files were large enough to load history, examples, and operational notes directly into context. This made agents read too much, miss the actual request, and repeatedly add new audits instead of removing, merging, or compacting stale guidance.
+- **root_cause**: The workflow rewarded recording lessons but did not require retiring superseded guidance or splitting large skills into progressive-disclosure references. Skills became mini-archives instead of concise procedural entry points. Helper files accumulated old rules and P entries without a binary compaction gate.
+- **fix**: Added R220, P514-Q1..Q5, and `scripts/ci-workflow-compaction-check.mjs`. The new gate reports oversized `_context` and skill surfaces, requires compaction governance hooks, and keeps the semantic review gate paired with workflow-memory hygiene.
+- **violated_rule**: NEW -> R220. Workflow memory must be compacted before it is extended.
+- **prevention**: Before adding workflow docs or skill instructions, choose remove, merge, compress, split into references, or script. Only add new text after the old surface is accounted for.
+
+## P513 - v50.89 - audit-only completion pattern hid semantic gaps
+
+- **symptom**: Repeated user requests asked for deep page/AI/data/trading review, but several completed changes primarily added audit/readiness functions, shape assertions, coverage percentages, or sidebar rows. A fresh inventory found roughly 85 audit/readiness definitions, 225 audit/gate-like assertions, and 112 shape/coverage/DOM-style audit assertions. Those checks are useful as prevention, but they can falsely imply that user intent, domain meaning, downstream consumers, and visible output were reviewed.
+- **root_cause**: The completion standard rewarded "audit exists" and "coverage is high" more than function -> consumer -> visible output verification. Skills and helper files recorded many lessons, but the workflow did not force each request to close the semantic path. That made it possible to inspect an audit helper instead of the actual trading rule, AI answer policy, source pipeline, page hierarchy, or user scenario.
+- **fix**: Added R219 and P513-Q1..Q6, created `scripts/ci-semantic-review-check.mjs`, and wired `ci-runtime-contract-check.mjs` to require the semantic review contract. The new gate inventories audit-only risk, verifies governance hooks, and keeps direct high-risk semantic gates for trading score aliases, breadth fallback, ticker entry gating, and current event-risk context.
+- **violated_rule**: R218 was necessary but too narrow. New R219 states that audit/gate is not semantic review.
+- **prevention**: Every future page, AI, data/source, trading, technical, ticker, portfolio, or UX edit must document and test the path from user request to affected function/criteria, downstream consumer, visible output, and market/domain meaning. Audit-only checks must have a semantic companion or remain explicitly unresolved.
 ---
 
 ## P511 - v50.86 - market-news fold가 textContent 매칭으로 취약 선택자 사용
@@ -4493,3 +4510,11 @@ Agent 종합 점수: **8.2/10 → 9.3/10** 진입 (상위 1% 단일 HTML 금융 
 - **fix**: Added `AIO.getRuntimeContractAudit()`, `AIO.getShareReadinessAudit()`, deployment/auto-ops wiring, `scripts/ci-runtime-contract-check.mjs`, and T844. The completion definition is now page/AI/audit/CI consumption, not file creation.
 - **violated_rule**: R218 newly added. Existing R1 and data-refresh artifact-consumption principles were not sufficiently enforceable.
 - **prevention**: Any future edit touching AI, imported research, visual reports, cachebusters, or shareability must pass `ci-runtime-contract-check` and browser runtime/share audits before being called done.
+
+## P512 · v50.88 · Trading logic contract drift and aggressive entry wording
+
+- **symptom**: Deep trading inspection found that `computeTradingScore()` returned `total` while several consumers read `.score`, causing some sections to fall back to 50. `classifyMarketRegime()` used an optimistic breadth fallback of 75 when breadth was unavailable. Ticker deep analysis could say “매수 신호/숏” from chart-only logic without checking market score, and the event-risk context was still anchored to 2026-06-09 CPI/FOMC runway.
+- **root_cause**: Prior edits added decision headers, diagrams, and audit helpers, but did not fully trace the real function return contracts and downstream consumers. Trading terminology was treated as UX copy, even though it changes user behavior. Static event context had a freshness audit, but the sell-pressure/blowoff engine still consumed stale context until a deeper function-level review.
+- **fix**: `computeTradingScore()` now returns `score: total`; `classifyMarketRegime()` uses live/snapshot/neutral breadth fallback instead of default 75; `getScoreAdvice()`, signal decision copy, conclusion bars, and `analyzeTickerDeep()` use softer action labels and market-score gating; `AIO_EVENT_RISK_CONTEXT` is refreshed to 2026-06-19 post-FOMC/Hormuz watch.
+- **violated_rule**: R1/R57/R218 class failure. Function contracts and stale event context must be tested, not only documented.
+- **prevention**: `scripts/ci-runtime-contract-check.mjs` now checks the total/score alias contract, bans optimistic breadth default 75, rejects aggressive “적극 매수” wording in `getScoreAdvice()`, verifies ticker analysis uses `computeTradingScore('swing')`, and verifies event context is 2026-06-19 post-FOMC/Hormuz.

@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v50.87**
+- 현재 버전: **v50.89**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v50.89 semantic review + workflow compaction gate**: 감사 함수/shape/coverage/DOM 존재 확인이 실제 의미 검토를 대체하지 못하도록 R219/P513 + `ci-semantic-review-check.mjs` 추가. `_context`/CLAUDE/skills가 append-only로 비대해지는 문제를 R220/P514 + `ci-workflow-compaction-check.mjs`로 관리.
 - **v50.87 코드리뷰 버그수정**: `aio:marketStateUpdated` `window`/`document` 불일치 + `.page-active`→`.page.active` 이중 버그(다이어그램 재렌더 완전 불동작 수정). AI 채팅 SVG를 DOMPurify.sanitize(SVG profile)로 XSS 방어. `CHAT_CONTEXTS['kr-home']` 신설(v50.85 약속 이행). M7 카운트 `d.pct||0` R15 위반 수정. CHANGELOG 순서 정렬(v50.87→v50.86→v50.85→v50.84→v50.83). R3 BUG-POSTMORTEM P510/P511 추가.
 - **v50.86 구조 통합 보강**: `_aioFoldDensePageControls` screener 결함 수정(vis-screener 다이어그램 접기 버그 제거, 텍스트 IC만 접기). market-news textContent 매칭 → `#news-source-guide` ID 기반 전환. `_buildSectors()` 추가 — portfolio × SCREENER_DB × liveData 섹터 비중 계산. vis-portfolio 플레이스홀더 + VIS_PAGES 확장으로 portfolio 섹터 버블 자동 렌더.
 - **v50.85 Phase 4+5: vis 위치 통합 + Action Hub**: `.aio-vis-card` CSS를 cyan border-left+그라디언트 네이티브 스타일로 교체. vis-* 패널을 각 페이지 네이티브 섹션 내부로 이동 — HOME→배너, SIGNAL→대시보드 헤더, BREADTH→4-col KPI 병합, SENTIMENT/TECHNICAL→헤더 인라인, MACRO→스토리라인 카드, FXBOND→Cross-Asset 매트릭스, SCREENER→통합 검증 패널.

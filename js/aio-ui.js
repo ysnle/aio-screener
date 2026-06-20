@@ -720,7 +720,10 @@ function updateWSAnalysis() {
   var spy = ld['SPY'], rsp = ld['RSP'];
 
   var spyPct = spy ? (spy.pct != null ? spy.pct : 0) : 0;
-  var breadth = (typeof window._breadth200 === 'number') ? window._breadth200 : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.breadth200 : 75);
+  var breadth = (typeof window._breadth200 === 'number') ? window._breadth200 :
+                (typeof window._breadth20 === 'number') ? window._breadth20 :
+                ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
+                ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback && DATA_SNAPSHOT._fallback.breadth200 != null) ? DATA_SNAPSHOT._fallback.breadth200 : 57));
 
   var stage, color, advice;
   if (breadth > 65 && spyPct > 0) {

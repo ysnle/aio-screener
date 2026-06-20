@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.87 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.89 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4227,7 +4227,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.87</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.89</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -10643,9 +10643,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.85"></script>
-  <script src="./js/aio-data.js?v=50.85"></script>
-  <script src="./js/aio-ui.js?v=50.85"></script>
+  <script src="./js/aio-core.js?v=50.89"></script>
+  <script src="./js/aio-data.js?v=50.89"></script>
+  <script src="./js/aio-ui.js?v=50.89"></script>
 
   <script>
 
@@ -13833,7 +13833,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.85"></script>
+<script src="./js/aio-chat.js?v=50.89"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -14130,7 +14130,10 @@ function updateWeinsteinStage() {
   var fvx = _ldSafe('^FVX','price');
   var hygPrice = _ldSafe('HYG','price');
   var hygChg = ld['HYG'] ? (ld['HYG'].pct != null ? ld['HYG'].pct : 0) : 0;
-  var breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.breadth200 : 75);
+  var breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
+                   (typeof window._breadth20 === 'number') ? window._breadth20 :
+                   ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
+                   ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback && DATA_SNAPSHOT._fallback.breadth200 != null) ? DATA_SNAPSHOT._fallback.breadth200 : 57));
   var breadthData = window._breadthLiveData || {};
   var abv50 = breadthData.abv50 != null ? breadthData.abv50 : 28;
 
@@ -14321,7 +14324,10 @@ function updateMTF() {
   var hygChg = ld['HYG'] ? (ld['HYG'].pct != null ? ld['HYG'].pct : 0) : 0;
   var breadthData = window._breadthLiveData || {};
   var abv50 = breadthData.abv50 != null ? breadthData.abv50 : 28;
-  var breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.breadth200 : 75);
+  var breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
+                   (typeof window._breadth20 === 'number') ? window._breadth20 :
+                   ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
+                   ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback && DATA_SNAPSHOT._fallback.breadth200 != null) ? DATA_SNAPSHOT._fallback.breadth200 : 57));
   var rsp = ld['RSP'];
   var rspChg = rsp ? (rsp.pct != null ? rsp.pct : 0) : chg;
 
@@ -20793,15 +20799,15 @@ function computeTradingScore(mode) {
   const total = Math.max(5, Math.min(100, compositeScore));
 
   var evidenceAudit = (window.AIO && window.AIO.getTradingDecisionInputEvidence) ? window.AIO.getTradingDecisionInputEvidence() : null;
-  return { total, volScore, momScore, trendScore, breadthScore, macroScore, evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit };
+  return { total, score: total, volScore, momScore, trendScore, breadthScore, macroScore, evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit };
 }
 
 // ── Score Advice: Convert Score to Action Guidance ────────────────
 function getScoreAdvice(score) {
-  if (score >= 75) return {text:'적극 매수 구간 — 시장 환경이 매우 우호적입니다. 관심 종목이 있다면 진입을 고려할 수 있습니다.', color:'var(--data-green)', action:'매수 고려'};
-  if (score >= 60) return {text:' 매수 우호 구간 — 시장 환경이 양호합니다. 다만 포지션 크기는 평소의 70-80%로 조절하세요.', color:'#4ade80', action:'소폭 매수'};
-  if (score >= 45) return {text:' 중립 구간 — 시장 방향이 불분명합니다. 새로운 포지션보다는 기존 포지션 관리에 집중하세요.', color:'var(--data-amber)', action:'관망/보유'};
-  if (score >= 30) return {text:' 주의 구간 — 시장 환경이 불리합니다. 매수는 자제하고 손절선을 점검하세요.', color:'var(--data-amber)', action:'매수 자제'};
+  if (score >= 75) return {text:'매수 우호 구간 — 시장 환경이 매우 우호적입니다. 관심 종목은 분할 진입과 명확한 무효화 가격을 함께 검토하세요.', color:'var(--data-green)', action:'매수 우호'};
+  if (score >= 60) return {text:'선별 매수 구간 — 시장 환경은 양호하지만 포지션 크기는 평소의 60-80%로 조절하세요.', color:'#4ade80', action:'선별 매수'};
+  if (score >= 45) return {text:'중립 구간 — 시장 방향이 혼재되어 있습니다. 신규 진입보다 기존 포지션 관리와 후보 관찰을 우선하세요.', color:'var(--data-amber)', action:'관망/보유'};
+  if (score >= 30) return {text:'주의 구간 — 시장 환경이 불리합니다. 신규 매수는 줄이고 손절선과 헤지 조건을 점검하세요.', color:'var(--data-amber)', action:'매수 자제'};
   return {text:' 위험 구간 — 시장이 매우 불안합니다. 현금 비중을 늘리고 방어적으로 대응하세요. 패닉 매도는 금물!', color:'#ef4444', action:'현금 확보'};
 }
 
@@ -20874,7 +20880,10 @@ function classifyMarketRegime() {
   const spx200ma = (window._spxMA && window._spxMA[200]) || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.spx200ma : null);
   const spx50ma  = (window._spxMA && window._spxMA[50])  || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.spx50ma  : null);
   const vix = _ldSafe('^VIX','price') || (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.vix : 20);
-  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.breadth200 : 75);
+  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
+                     (typeof window._breadth20 === 'number') ? window._breadth20 :
+                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
+                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback && DATA_SNAPSHOT._fallback.breadth200 != null) ? DATA_SNAPSHOT._fallback.breadth200 : 57));
 
   let regime = 'CHOP';
   let label = '횡보·혼조';
@@ -21608,7 +21617,7 @@ function updateBottomProcess() {
       actionEl.innerHTML = ' <b>현재 행동:</b> 리테스트 결과 관찰. 매도 압력 감소 확인 시 선별적 매수 시작. 셋업이 완성된 리더주 위주로 점진적 포지션 확대.';
       actionEl.style.borderColor = 'var(--data-cyan)';
     } else {
-      actionEl.innerHTML = ' <b>현재 행동:</b> 바닥 확인. 리더주 셋업 완성 시 적극 매수 가능. 트레일링 스탑으로 수익 보호. 시장폭 유지 여부 지속 모니터링.';
+      actionEl.innerHTML = ' <b>현재 행동:</b> 바닥 확인. 리더주 셋업 완성 시 분할 진입 검토. 트레일링 스탑으로 수익 보호. 시장폭 유지 여부 지속 모니터링.';
       actionEl.style.borderColor = 'var(--data-green)';
     }
   }
@@ -21775,25 +21784,25 @@ function refreshSignalDashboard() {
   // Decision — 5-tier system
   var decision, decColor, decBg, decSub;
   if (total >= 75) {
-    decision = ' STRONG BUY — 적극 매수 타이밍';
+    decision = ' 매수 우호 — 리스크 관리 후 진입 검토';
     decColor = '#10b981'; decBg = 'rgba(0,229,160,0.15)';
-    decSub = '종합 지표 매우 양호. 풀 포지션 진입 고려. 손절은 -5% 수준.';
+    decSub = '종합 지표 매우 양호. 풀 포지션보다 분할 진입과 무효화 가격을 먼저 확인.';
   } else if (total >= 60) {
-    decision = ' BUY with CAUTION — 조건부 매수 가능';
+    decision = ' 선별 매수 — 조건부 진입 가능';
     decColor = 'var(--data-green)'; decBg = 'rgba(0,229,160,0.15)';
-    decSub = '거래 환경 양호. 규모 60~80% 진입, 손절 -7% 설정.';
+    decSub = '거래 환경 양호. 규모 60~80% 이내, ATR 손절과 이벤트 리스크 확인.';
   } else if (total >= 45) {
-    decision = ' NEUTRAL — WAIT — 관망 추천';
+    decision = ' 중립 — 관망 우선';
     decColor = 'var(--data-cyan)'; decBg = 'rgba(0,212,255,0.15)';
     decSub = '시장 신호 혼합. 50% 현금 유지, 좋은 기회까지 대기.';
   } else if (total >= 30) {
-    decision = ' REDUCE — 비중 축소 권장';
+    decision = ' 주의 — 비중 축소 검토';
     decColor = 'var(--data-amber)'; decBg = 'rgba(245,158,11,0.15)';
-    decSub = '리스크 증가. 기존 포지션 50% 청산, 현금 확보.';
+    decSub = '리스크 증가. 기존 포지션의 방어선, 현금 비중, 헤지 조건 점검.';
   } else {
-    decision = ' AVOID — 매매 자제';
+    decision = ' 위험 — 방어 우선';
     decColor = '#ef4444'; decBg = 'rgba(255,91,80,0.15)';
-    decSub = 'Extreme Risk. 현금 최대화, 헷지 강화. VIX 추적 필수.';
+    decSub = '극단 리스크. 신규 진입 중단, 현금·헤지·VIX 추적 우선.';
   }
 
   // Update gauge
@@ -21991,8 +22000,8 @@ function _updateAllConclusionBars() {
     var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : null;
     if (t !== null) {
       var sColor = t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-      var sLabel = t >= 75 ? '적극매수' : t >= 60 ? '선별매수' : t >= 45 ? '관망' : t >= 30 ? '비중축소' : '매매자제';
-      var sAction = t >= 60 ? 'ATR 스톱 설정 후 2% 룰 적용, 신규 진입 가능' :
+      var sLabel = t >= 75 ? '매수 우호' : t >= 60 ? '선별매수' : t >= 45 ? '관망' : t >= 30 ? '비중축소' : '매매자제';
+      var sAction = t >= 60 ? 'ATR 스톱 설정 후 2% 룰 기준으로 분할 진입 검토' :
                     t >= 45 ? '기존 포지션 유지, 신규 진입 자제' :
                     '리스크 자산 비중 축소, 현금 확보';
       var sOpts = { conclusion: t + '점 · ' + sLabel, conclusionColor: sColor, action: sAction, fetchKey: 'quote' };
@@ -26339,7 +26348,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.85"></script>
+<script src="./js/aio-glossary.js?v=50.89"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -27392,6 +27401,18 @@ async function analyzeTickerDeep(ticker) {
 
   var currentPrice = c[c.length - 1];
   var priceChange = c.length > 1 ? ((c[c.length - 1] - c[c.length - 2]) / c[c.length - 2]) * 100 : 0;
+  var marketScore = null, marketBand = '시장 점수 미확인';
+  try {
+    var _mScore = (typeof computeTradingScore === 'function') ? computeTradingScore('swing') : null;
+    marketScore = _mScore && typeof _mScore.total === 'number' && isFinite(_mScore.total) ? _mScore.total : null;
+    marketBand = marketScore == null ? '시장 점수 미확인' :
+      marketScore >= 75 ? '매수 우호' :
+      marketScore >= 60 ? '선별 매수' :
+      marketScore >= 45 ? '중립' :
+      marketScore >= 30 ? '주의' : '위험';
+  } catch(_) {}
+  var marketAllowsEntry = marketScore == null ? true : marketScore >= 60;
+  var marketCaution = marketScore != null && marketScore < 60;
 
   // Color scheme
   var stageColors = ['#999', 'var(--data-cyan)', 'var(--data-green)', 'var(--data-amber)', 'var(--data-red)'];
@@ -27486,13 +27507,15 @@ async function analyzeTickerDeep(ticker) {
   // Overall assessment paragraph
   var verdict = '';
   if (stageData.stage === 2 && trendData.alignment > 80 && entryData.grade.charAt(0) === 'A') {
-    verdict = '강력한 상승 추세. 이동평균 완벽 정배열 + A등급 진입. 매수 신호!';
+    verdict = marketAllowsEntry
+      ? '상승 추세와 진입 품질이 모두 양호합니다. 다만 즉시 추격보다 분할 진입, ATR 손절, 이벤트 리스크 확인이 우선입니다.'
+      : '종목 셋업은 강하지만 현재 시장 점수가 낮아 신규 진입은 보류하고 돌파 유지·거래량·시장 회복을 함께 확인하세요.';
   } else if (stageData.stage === 2 && trendData.alignment > 50) {
-    verdict = '상승 추세이나 정렬도 떨어짐. 조정 후 재진입 대기.';
+    verdict = '상승 추세이나 정렬도가 약합니다. 조정 후 재진입 후보로 관리하고, 20/50일선 회복과 거래량을 확인하세요.';
   } else if (stageData.stage === 1) {
-    verdict = '바닥권 형성 중. 상승 신호 확인 후 매수 고려.';
+    verdict = '바닥권 형성 중입니다. 상승 전환 신호가 확인되기 전까지는 관찰 후보로 두는 편이 안전합니다.';
   } else if (stageData.stage === 3 || stageData.stage === 4) {
-    verdict = '약세. 신규 매수 보류. 숏 또는 현금화 고려.';
+    verdict = '약세 또는 분배 가능성이 큽니다. 신규 매수는 보류하고 보유분은 무효화 가격과 손절 조건을 우선 점검하세요.';
   } else {
     verdict = '전환점. 추가 신호 확인 필요.';
   }
@@ -27504,13 +27527,14 @@ async function analyzeTickerDeep(ticker) {
       '<b style="color:' + trendColor + ';">' + trendData.position + '</b> 위치에서 ' +
       '<b style="color:' + entryColor + ';">' + entryData.grade + '등급</b> 진입 기회. ' +
       verdict +
+      (marketCaution ? ' <b style="color:var(--data-amber);">시장 점수 ' + marketScore + '/100(' + marketBand + ')이므로 포지션 크기와 타이밍을 보수적으로 잡으세요.</b>' : '') +
     '</div>' +
   '</div>';
 
   // Price info footer
   html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:8px;margin-top:8px;font-size:11px;color:var(--text-muted);text-align:center;">' +
     '현재가: $' + currentPrice.toFixed(2) + ' (' + (priceChange > 0 ? '+' : '') + priceChange.toFixed(2) + '%) | ' +
-    '데이터: 1년 일봉 | 업데이트: ' + new Date().toLocaleTimeString('ko-KR') +
+    '데이터: 1년 일봉 | 시장: ' + marketBand + (marketScore == null ? '' : ' ' + marketScore + '/100') + ' | 업데이트: ' + new Date().toLocaleTimeString('ko-KR') +
   '</div>';
 
   resultEl.innerHTML = html;

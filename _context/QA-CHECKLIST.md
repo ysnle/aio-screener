@@ -2124,3 +2124,25 @@ P511-Q2: In browser, `AIO.getRuntimeContractAudit().status` must not be `fail`.
 P511-Q3: In browser, `AIO.getShareReadinessAudit({ skipEssence: true }).shareable` must be boolean and blockers must be empty before public sharing.
 P511-Q4: Every generated digest/artifact must be consumed by page/AI/audit/CI or explicitly retired.
 P511-Q5: Removing UI must include a grep for prompt/test references to the removed runtime functions.
+
+--- v50.88 trading logic contract checks (2026-06-19) ---
+P512-Q1: Run `node scripts/ci-runtime-contract-check.mjs`; it must verify `computeTradingScore()` returns both `total` and `score`.
+P512-Q2: `classifyMarketRegime()` must not use optimistic fallback breadth 75; unavailable breadth should fall back to live/snapshot/neutral only.
+P512-Q3: `getScoreAdvice()` must not label 75+ as “적극 매수”; use market-environment wording such as `매수 우호` and pair it with risk controls.
+P512-Q4: `analyzeTickerDeep()` must gate entry verdicts with `computeTradingScore('swing')`, so strong single-stock charts do not override weak market conditions.
+P512-Q5: `AIO_EVENT_RISK_CONTEXT.asOf` must reflect the current market event window before sell-pressure/blowoff logic is trusted.
+
+--- v50.89 semantic review contract checks (2026-06-19) ---
+P513-Q1: Run `node scripts/ci-semantic-review-check.mjs`; it must inventory audit/readiness tests and verify R219/P513 hooks.
+P513-Q2: For every new audit/readiness/coverage assertion, add a semantic companion check or record the unresolved semantic backlog.
+P513-Q3: For trading, market, technical, ticker, portfolio, AI chat, data/source, or page redesign work, document function -> consumer -> visible output.
+P513-Q4: For AI chat work, verify prompt intent -> data/source block -> answer policy -> user-visible answer, not only callable existence.
+P513-Q5: For data/source work, verify collect/source -> loader -> normalized model -> page/chat consumer -> source/stale label.
+P513-Q6: For page UX work, inspect the first-screen hierarchy and at least one real beginner/intermediate/advanced user scenario for each touched route.
+
+--- v50.89 workflow compaction checks (2026-06-19) ---
+P514-Q1: Run `node scripts/ci-workflow-compaction-check.mjs` after workflow, helper-file, skill, QA, rule, or postmortem changes.
+P514-Q2: Before adding a new workflow rule or skill section, identify whether an old rule/section should be removed, merged, compressed, or split into a reference.
+P514-Q3: Treat any `SKILL.md` over 300 lines or 15KB as a compaction candidate; move details into `references/` or scripts instead of appending.
+P514-Q4: Treat `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, and `_context/QA-CHECKLIST.md` as archives plus active gates; do not require full-file rereads for ordinary tasks.
+P514-Q5: Keep `CLAUDE.md` as a routing guide to current contracts, not a duplicate of every historical lesson.

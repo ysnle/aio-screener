@@ -3653,8 +3653,8 @@ function _aioDefaultDecision(pageId) {
     if (typeof computeTradingScore === 'function') { _sc = computeTradingScore().total; }
     else if (window._tradingScore != null) { _sc = window._tradingScore; }
   } catch(_) { _sc = window._tradingScore != null ? window._tradingScore : 50; }
-  var _band = _sc >= 75 ? { label:'적극 매수', action:'손절선 확인 후 신규 진입 가능. 80+ 구간은 차익실현 병행.' }
-    : _sc >= 60 ? { label:'매수 우호', action:'ATR 손절선 설정 후 분할 진입. 추격보다 1차 매수 우선.' }
+  var _band = _sc >= 75 ? { label:'매수 우호', action:'ATR 손절선과 무효화 가격을 정한 뒤 분할 진입 검토. 80+ 구간은 차익실현 병행.' }
+    : _sc >= 60 ? { label:'선별 매수', action:'ATR 손절선 설정 후 선별 분할 진입. 추격보다 1차 매수 우선.' }
     : _sc >= 45 ? { label:'중립 · 관망', action:'신규 진입 자제. 기존 포지션 방어선과 손절을 먼저 확인.' }
     : _sc >= 30 ? { label:'주의 · 축소', action:'리스크 자산 비중 축소. 현금 비율 높이고 헤지 검토.' }
     : { label:'위험 · 방어', action:'신규 매수 중단. 방어 운용 후 스코어 45+ 복귀 확인 후 재개.' };
@@ -3683,7 +3683,7 @@ function _aioDefaultDecision(pageId) {
     },
     signal: {
       title: '신규 매수 가능 여부',
-      decision: _sc >= 75 ? '적극 진입 가능' : _sc >= 60 ? '선별 진입 가능' : _sc >= 45 ? '신규 진입 보류' : '진입 금지 · 방어',
+      decision: _sc >= 75 ? '매수 우호 · 분할 진입 검토' : _sc >= 60 ? '선별 진입 가능' : _sc >= 45 ? '신규 진입 보류' : '진입 금지 · 방어',
       reasons: [
         '스코어 ' + Math.round(_sc) + '/100 → ' + _band.label,
         'Lockout/OPEX 같은 고급 조건보다 손절·헤지가 먼저',
@@ -16699,28 +16699,27 @@ function calcLockoutAction(modules) {
 }
 
 var AIO_EVENT_RISK_CONTEXT = {
-  asOf: '2026-06-09',
-  title: 'May NFP 172K surprise + June CPI/FOMC runway (post 6/5 positioning unwind)',
+  asOf: '2026-06-19',
+  title: 'Post-FOMC hawkish hold + Hormuz/oil risk normalization watch',
   cpi: {
-    releaseDate: '2026-05-12',
+    releaseDate: '2026-06-11',
     headlineMoM: 0.6,
     headlineYoY: 3.8,
     coreMoM: 0.4,
     coreYoY: 2.8,
     energyMoM: 3.8,
     energyYoY: 17.9,
-    interpretation: 'Last official CPI is April (3.8% headline / 2.8% core, released 5/12). After May NFP came in hot at 172K (6/5), Goldman pulled its 2026 cuts; the 6/10 May CPI is the next confirmation point — treat lower rates as a later liquidity thesis, not an immediate green light.'
+    interpretation: 'Post-6/17 FOMC, the rate path is not an immediate liquidity green light. Treat sticky inflation and energy feed-through as risk overlays until PCE/2Y/10Y/DXY confirm easing.'
   },
   liquidityThesis: {
-    label: 'H2 liquidity optionality',
+    label: 'H2 liquidity optionality delayed by policy risk',
     drivers: ['eSLR/bank regulation relief', 'possible TGA drawdown', 'fiscal impulse', 'eventual rate cuts'],
-    caveat: 'Hot May NFP (172K) and a sticky CPI can delay or cap the liquidity impulse; use it as medium-term backdrop, not a reason to chase extended candles.'
+    caveat: 'The 6/17 FOMC hold at 3.50-3.75% and hawkish guidance can delay or cap the liquidity impulse; use it as medium-term backdrop, not a reason to chase extended candles.'
   },
   timeline: [
-    { date: '2026-06-10', label: 'May CPI release', tone: 'risk', note: 'first inflation print after the May NFP 172K surprise; a hot CPI deepens the rate-cut withdrawal, a cool print revives the cut narrative.' },
-    { date: '2026-06-12', label: 'Mideast / Hormuz shipping watch', tone: 'risk', note: 'oil +4-5% on Red Sea/Hormuz escalation feeds back into inflation and risk appetite; two-sided headline risk.' },
-    { date: '2026-06-17', label: 'FOMC result review + dot plot (6/17)', tone: 'risk', note: 'post-meeting rate, dollar and 2Y/10Y reactions now matter more than treating the event as upcoming.' },
-    { date: '2026-06-25', label: 'May PCE (Fed preferred gauge)', tone: 'risk', note: 'confirmation point for the CPI read; sticky core PCE caps the liquidity thesis and the memory-led melt-up.' }
+    { date: '2026-06-17', label: 'FOMC result review', tone: 'risk', note: 'rates held at 3.50-3.75%; monitor 2Y/10Y, dollar and long-duration leadership instead of treating FOMC as upcoming.' },
+    { date: '2026-06-19', label: 'Hormuz/oil reopening watch', tone: 'risk', note: 'oil risk premium eased, but shipping/logistics and energy inflation feed-through remain the key reversal triggers.' },
+    { date: '2026-06-25', label: 'May PCE (Fed preferred gauge)', tone: 'risk', note: 'confirmation point for CPI/FOMC reaction; sticky core PCE caps the liquidity thesis and increases no-chase discipline.' }
   ],
   telegramPipeline: {
     channel: 'aetherjapanresearch',
@@ -17053,7 +17052,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.87';
+const APP_VERSION = 'v50.89';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

@@ -2583,3 +2583,36 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - Required checks: `AIO.getRuntimeContractAudit()`, `AIO.getShareReadinessAudit({ skipEssence: true })`, and `node scripts/ci-runtime-contract-check.mjs`.
 - Completion means the artifact is consumed by page/AI/audit/CI, not merely created as a file.
 - Removing a UI surface does not permit removing runtime callables until all prompt/test/page references are updated or retired.
+
+## R219. Audit/gate is not semantic review (v50.89, P513 root)
+
+**Rule**: A task is not complete just because an audit function exists, an object has the expected shape, a coverage percentage is high, or a sidebar row/DOM marker is present. For any request touching pages, AI chat, data/source pipelines, trading logic, technical analysis, ticker analysis, portfolio logic, market text, or public-sharing UX, the review must close the real semantic path:
+
+- user request/intent -> affected function(s) and criteria
+- affected function(s) -> downstream consumer(s)
+- downstream consumer(s) -> visible page/chat/report output
+- visible output -> market/domain meaning, currentness, source confidence, and user action risk
+
+**Required**:
+- Every new audit/readiness/coverage test must have either a direct semantic companion check or a documented semantic backlog item.
+- Trading and market-decision edits must include at least one direct function contract and one user-visible wording/action check.
+- AI chat edits must verify the route from user prompt intent to data/source block to answer policy/output, not only callable existence.
+- UI/page redesign edits must inspect the first-screen visible hierarchy and at least one real user scenario for the touched route.
+- Data/source edits must verify collect -> artifact/source -> loader -> normalized model -> page/chat consumer -> stale/source label.
+- `node scripts/ci-semantic-review-check.mjs` must pass whenever `ci-runtime-contract-check.mjs`, AI/data/trading audits, or page redesign gates are touched.
+
+**Validation**: `scripts/ci-semantic-review-check.mjs` inventories audit-only risk, verifies R219/P513 governance hooks, and asserts that high-risk trading/currentness gates remain semantic rather than shape-only.
+
+## R220. Workflow memory must be compacted before it is extended (v50.89, P514 root)
+
+**Rule**: `_context`, `CLAUDE.md`, QA checklists, postmortems, and `.agents/skills/*/SKILL.md` are operating surfaces, not infinite append-only logs. When a repeated problem appears, prefer one of these actions in order: remove stale guidance, merge duplicate rules, compress history into an indexable summary, split large skill details into `references/`, then add a new rule/check only if none of the above closes the loop.
+
+**Required**:
+- Do not add a long SKILL.md section when the material can live in a referenced file or deterministic script.
+- A skill over 300 lines or 15KB must be treated as a compaction candidate unless it has a clear progressive-disclosure structure.
+- `_context/BUG-POSTMORTEM.md` remains an archive, but latest failure patterns must be summarized into active RULES/QA/CI gates rather than re-read wholesale.
+- `_context/RULES.md` additions must retire or merge superseded rules when a newer rule covers the same surface.
+- `CLAUDE.md` must point to current operating contracts, not duplicate every historical caution.
+- Any task that updates workflow docs or skills must run `node scripts/ci-workflow-compaction-check.mjs`.
+
+**Validation**: `scripts/ci-workflow-compaction-check.mjs` reports oversized context/skill surfaces and fails if R220/P514 governance hooks are missing.

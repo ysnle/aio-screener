@@ -1,0 +1,98 @@
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { basename, dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const worktreeRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+const read = (path) => readFileSync(join(worktreeRoot, path), 'utf8');
+const exists = (path) => existsSync(join(worktreeRoot, path));
+
+const errors = [];
+const warnings = [];
+const check = (label, condition, detail = '') => {
+  if (!condition) errors.push(label + (detail ? ': ' + detail : ''));
+};
+
+const version = JSON.parse(read('version.json')).version;
+const rules = read('_context/RULES.md');
+const qa = read('_context/QA-CHECKLIST.md');
+const postmortem = read('_context/BUG-POSTMORTEM.md');
+const index = read('_context/INDEX.md');
+const changelog = read('CHANGELOG.md');
+
+function findProjectRoot(start) {
+  let dir = resolve(start);
+  for (let i = 0; i < 8; i += 1) {
+    if (existsSync(join(dir, '.agents', 'skills'))) return dir;
+    const next = dirname(dir);
+    if (next === dir) break;
+    dir = next;
+  }
+  return null;
+}
+
+function walkFiles(dir, out = []) {
+  if (!existsSync(dir)) return out;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) walkFiles(full, out);
+    else out.push(full);
+  }
+  return out;
+}
+
+const contextFiles = walkFiles(join(worktreeRoot, '_context')).filter((file) => file.endsWith('.md'));
+const contextStats = contextFiles.map((file) => ({
+  name: basename(file),
+  bytes: statSync(file).size,
+  lines: readFileSync(file, 'utf8').split(/\r?\n/).length
+})).sort((a, b) => b.bytes - a.bytes);
+
+const projectRoot = findProjectRoot(worktreeRoot);
+const skillFiles = projectRoot
+  ? walkFiles(join(projectRoot, '.agents', 'skills')).filter((file) => basename(file) === 'SKILL.md')
+  : [];
+const skillStats = skillFiles.map((file) => ({
+  name: file.replace(projectRoot + '\\', '').replace(projectRoot + '/', ''),
+  bytes: statSync(file).size,
+  lines: readFileSync(file, 'utf8').split(/\r?\n/).length,
+  hasReferences: existsSync(join(dirname(file), 'references')),
+  hasScripts: existsSync(join(dirname(file), 'scripts'))
+})).sort((a, b) => b.bytes - a.bytes);
+
+const oversizedContext = contextStats.filter((item) => item.bytes > 100_000);
+const oversizedSkills = skillStats.filter((item) => item.lines > 300 || item.bytes > 15_000);
+
+check('workflow compaction rule R220 exists', /R220/.test(rules) && /Workflow memory must be compacted/.test(rules));
+check('workflow compaction QA P514 exists', /P514-Q1/.test(qa) && /ci-workflow-compaction-check\.mjs/.test(qa));
+check('workflow compaction postmortem P514 exists', /P514/.test(postmortem) && /compaction/.test(postmortem));
+check('workflow compaction changelog entry exists', /workflow compaction/i.test(changelog) && /v50\.89/.test(changelog));
+check('context index acknowledges compaction policy', /Workflow Compaction/.test(index) || /WORKFLOW-COMPACTION/.test(index));
+check('semantic gate remains present', exists('scripts/ci-semantic-review-check.mjs') && /R219/.test(rules));
+
+if (oversizedContext.length) {
+  warnings.push('Oversized context files: ' + oversizedContext.map((item) => `${item.name}:${item.bytes}`).join(', '));
+}
+if (oversizedSkills.length) {
+  warnings.push('Oversized skills: ' + oversizedSkills.map((item) => `${item.name}:${item.lines}l`).join(', '));
+}
+if (!projectRoot) warnings.push('No project-level .agents/skills directory found from worktree root');
+
+if (errors.length) {
+  console.error('Workflow compaction check failed:');
+  errors.forEach((error) => console.error(' - ' + error));
+  console.error('Context stats:');
+  contextStats.slice(0, 10).forEach((item) => console.error(` - ${item.name}: ${item.lines} lines, ${item.bytes} bytes`));
+  console.error('Skill stats:');
+  skillStats.forEach((item) => console.error(` - ${item.name}: ${item.lines} lines, ${item.bytes} bytes, refs=${item.hasReferences}`));
+  if (warnings.length) warnings.forEach((warning) => console.error('WARN: ' + warning));
+  process.exit(1);
+}
+
+console.log(`Workflow compaction check OK: ${version}.`);
+console.log('Largest context files:');
+contextStats.slice(0, 5).forEach((item) => console.log(` - ${item.name}: ${item.lines} lines, ${item.bytes} bytes`));
+console.log('Skill compaction candidates:');
+skillStats.filter((item) => item.lines > 250 || item.bytes > 10_000).forEach((item) => {
+  console.log(` - ${item.name}: ${item.lines} lines, ${item.bytes} bytes, refs=${item.hasReferences}, scripts=${item.hasScripts}`);
+});
+if (warnings.length) warnings.forEach((warning) => console.warn('WARN: ' + warning));
