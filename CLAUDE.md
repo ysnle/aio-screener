@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v50.75**
+- 현재 버전: **v50.76**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v50.76 전체 데이터 최신화**: 2026-06-18 마켓 스냅샷. KOSPI 9,063(사상 첫 9,000 돌파)·SPX 7,500·VIX 18.44(FOMC 매파 충격)·Gold $4,157·DXY 100.79·F&G 37. 차트 시계열 6/18 연장(bpLabels 47→50, labels20 43→46). FOMC 다음 일정 7/29.
 - **v50.75 S&F 기능 통합**: G×L 성장×유동성 판단 프레임(홈 매매그리드 하단 3칸), 엔캐리 언와인드 위험 복합 스코어(fxbond 페이지 Cross-Asset 매트릭스 직하, USD/JPY·VIX·미일금리차·HYG 0~100 게이지). Signal & Flow 벤치마크. `_aioRenderGxLFrame` / `_aioRenderCarryUnwindRisk` 추가.
 - **v50.74 Telegram 3채널 다이제스트 갱신**: @aetherjapanresearch·@insidertracking·@bornlupin 6/13~6/20 KST 326건. BOJ 1%·FOMC 매파(9/18명)·US-Iran MOU·SK하이닉스 HBM4E 12단·MU 목표$1,500·SpaceX IPO 아마존 추월·최태원-머스크 AI5 HBM 회동·NVDA Jensen Jail·존 점퍼 Anthropic·ASML EUV 중국 우려. AIO_TELEGRAM_WEEKLY_DIGEST 전체 갱신.
 - **v50.73 premium research board + visual report**: 사용자 제공 X/이미지 자료를 `public-data/user-research-digest.json` 자동 보강 계약에 편입. 1~5번 스크리너 이미지의 heatmap/table/metric/cockpit 구조를 공통 premium board로 반영하고, AI 채팅/페이지에서 현재 결과를 PNG형 visual report card로 생성·다운로드 가능하게 보강. T840 추가.

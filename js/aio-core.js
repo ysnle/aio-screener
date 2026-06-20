@@ -16667,7 +16667,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.75';
+const APP_VERSION = 'v50.76';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -17587,43 +17587,43 @@ const DATA_SNAPSHOT = {
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
   // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-06-16T19:58:22+09:00',   // v50.62 public-data refresh: Yahoo/CNN pipeline 77/77 quotes, F&G 41. Telegram/news digest remains 2026-06-16 15:00 KST.
-  _snapshotDate: '2026-06-16',
-  _marketDataDate: '2026-06-16',
-  _marketDataUpdated: '2026-06-16T19:58:22+09:00',
-  _telegramDigestDate: '2026-06-16',
-  _telegramDigestUpdated: '2026-06-16T15:00:00+09:00',
-  _telegramDigestWindow: '2026-06-09~2026-06-16 KST',
-  _narrativeUpdated: '2026-06-16T15:00:00+09:00',
+  _updated: '2026-06-20T10:00:00+09:00',   // v50.76 data-refresh: 2026-06-18 market snapshot (Juneteenth 전 마지막 거래일). KOSPI 9,000 돌파·FOMC 매파 충격·달러 강세·금 하락 반영.
+  _snapshotDate: '2026-06-20',
+  _marketDataDate: '2026-06-18',
+  _marketDataUpdated: '2026-06-20T10:00:00+09:00',
+  _telegramDigestDate: '2026-06-20',
+  _telegramDigestUpdated: '2026-06-20T08:00:00+09:00',
+  _telegramDigestWindow: '2026-06-13~2026-06-20 KST',
+  _narrativeUpdated: '2026-06-20T10:00:00+09:00',
   _staticDates: {
-    briefingArchive: '2026-06-16',
+    briefingArchive: '2026-06-20',
     jensenInterview: '2026-03-20',
     optionSnapshot: '2026-05-28',
-    krMarket: '2026-06-16',
-    krIssues: '2026-06-16',
-    tnx2y: '2026-06-16'
+    krMarket: '2026-06-18',
+    krIssues: '2026-06-18',
+    tnx2y: '2026-06-18'
   },
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v50.62 data/theme refresh (2026-06-16 KST): public-data fetch succeeded with 77/77 Yahoo quotes, CNN Fear & Greed 41, 25 news items, and screener enrichment 851/869. Static price fallback now reflects 2026-06-16 market snapshot while Telegram 3-channel digest adds macro/geo, Japan rates, AI policy, optical, power/grid, memory/materials, equity/analyst, space, crypto, and Korea supply-chain layers. Live stores still override these fallback numbers; if live coverage is incomplete, labels and freshness banner must disclose that distinction.',
+  _note: 'v50.76 data-refresh (2026-06-20 KST): 2026-06-18 market snapshot (Juneteenth 전 마지막 거래일). 주요 이벤트: Kevin Warsh 첫 FOMC 6/17 매파 충격(18명 중 9명 인상 선호)→달러 강세(DXY 100.8)·VIX 재상승(18.44)·금 하락($4,157)·6/18 반등(SPX +1.08%). KOSPI 사상 첫 9,000 돌파(9,063, SK하이닉스 HBM4E 12단 샘플 출하). Telegram 6/13~6/20 재갱신. 라이브 데이터가 항상 이 폴백을 오버라이드함.',
 
-  // ── 미국 주요 지수 (2026-06-11 종가 반등 랠리 / WebSearch 실측 레벨) ──  spx:        7554.29,  spxPct:    +2.01,   // v50.62: public-data Yahoo ^GSPC 2026-06-16T10:58Z  nasdaq:    26683.94,  nasdaqPct: +2.91,   // v50.62: public-data Yahoo ^IXIC  dow:       51671.03,  dowPct:    +1.74,   // v50.62: public-data Yahoo ^DJI  rut:        2965.09,  rutPct:    +3.84,   // v50.62: public-data Yahoo ^RUT  vix:          16.18,  vixPct:   -27.18,   // v50.62: public-data Yahoo ^VIX
+  // ── 미국 주요 지수 (2026-06-11 종가 반등 랠리 / WebSearch 실측 레벨) ──  spx:        7500.58,  spxPct:    +1.08,   // v50.62: public-data Yahoo ^GSPC 2026-06-16T10:58Z  nasdaq:    26517.93,  nasdaqPct: +1.91,   // v50.62: public-data Yahoo ^IXIC  dow:       51564.70,  dowPct:    +0.14,   // v50.62: public-data Yahoo ^DJI  rut:        2907.00,  rutPct:    +2.12,   // v50.62: public-data Yahoo ^RUT  vix:          18.44,  vixPct:   -12.00,   // v50.62: public-data Yahoo ^VIX
   vix9d:        18.80,  vix3m:     19.90,  vix6m: 20.40,   // v50.39: VIX 기간구조 시드 (^VIX9D/^VIX3M/^VIX6M live 부재 시 폴백 — 9D<30D 정상 콘탱고 복귀). 라이브 fetch 우선
   spxATH:     7585.00,                       // v50.15: SPX 사상최고 = 6/4 종가 7585 (현재 7394는 ATH -2.5% 아래 · _fallback 미러 정합)  vvix:         87.58,                        // v50.62: public-data Yahoo ^VVIX
 
-  // ── 한국 지수 (2026-06-12 / WebSearch — 이란 휴전 위험선호 반등) ──  kospi:     8726.60,  kospiPct:  +7.78,  kospiPrev: 8096.93,  // v50.62: public-data Yahoo ^KS11  kosdaq:    1018.68,  kosdaqPct: +5.26,  kosdaqPrev: 967.81, // v50.62: public-data Yahoo ^KQ11
+  // ── 한국 지수 (2026-06-12 / WebSearch — 이란 휴전 위험선호 반등) ──  kospi:     9063.84,  kospiPct:  +2.25,  kospiPrev: 8861.60,  // v50.62: public-data Yahoo ^KS11  kosdaq:    1045.00,  kosdaqPct: +2.50,  kosdaqPrev: 1019.68, // v50.62: public-data Yahoo ^KQ11
 
-  // ── 원자재 (2026-06-11~12 / WebSearch — 이란 MOU/휴전 임박, 유가 급락) ──  wti:       77.22,  wtiPct:   -11.96,   // v50.62: public-data Yahoo CL=F  brent:     80.94, brentPct:  -10.44,   // v50.62: public-data Yahoo BZ=F  gold:      4368.10, goldPct:  +6.79,  goldWeeklyPct: +6.79,  // v50.62: public-data Yahoo GC=F
+  // ── 원자재 (2026-06-11~12 / WebSearch — 이란 MOU/휴전 임박, 유가 급락) ──  wti:       76.40,  wtiPct:    -0.80,   // v50.62: public-data Yahoo CL=F  brent:     79.40, brentPct:   -0.60,   // v50.62: public-data Yahoo BZ=F  gold:      4157.00, goldPct:   -1.80,  goldWeeklyPct: -5.50,  // v50.62: public-data Yahoo GC=F
   ng:        3.07,                       // v49.95: Henry Hub 천연가스 $3.07/MMBtu (EIA/FRED 5/18, 라이브 우선)
 
-  // ── 환율 (2026-06-12 / WebSearch — 위험선호로 원화 소폭 강세) ──  krw:      1505.78,  krwPct:   -1.31,  krwRound: 1506,  // v50.62: public-data Yahoo KRW=X  dxy:        99.55,  dxyPct:   -0.31,                   // v50.62: public-data Yahoo DX-Y.NYB
+  // ── 환율 (2026-06-12 / WebSearch — 위험선호로 원화 소폭 강세) ──  krw:      1520.00,  krwPct:   +1.00,  krwRound: 1520,  // v50.62: public-data Yahoo KRW=X  dxy:       100.79,  dxyPct:   +1.25,                   // v50.62: public-data Yahoo DX-Y.NYB
 
   // ── 금리·통화정책 ──
   fedRate:     '3.50-3.75',
   fedStatus:   '동결',                              // v45.6: 동적화 — Fed 금리 변경 시 이 값 갱신 (인하/인상/동결)
   fomc:        '6/17 결과',
-  fomcNext:    '결과 확인',                            // v50.70: 6/17 FOMC 이후 예정 → 결과/시장 반응 구간으로 전환
-  fomcDotPlot: '2026-06-17 FOMC 이후 결과 확인 구간. 금리 경로·점도표·발언은 인플레 2% 복귀 의지를 강조하는 방향으로 해석되며, 다음 체크포인트는 6/25 PCE와 2Y/10Y·달러 반응.',  // v50.70: upcoming 문구 제거
+  fomcNext:    '2026-07-29',                           // v50.76: 다음 FOMC 7/28~29 결정 (7/29 오후 2시 ET)
+  fomcDotPlot: '2026-06-17 FOMC 확정: Kevin Warsh 첫 의장 회의. 18명 중 9명이 2026년 금리 인상 선호(매파 충격). 금리 3.50~3.75% 동결 유지. 시장: 6/17 S&P -2% 급락→6/18 +1.08% 반등. 달러 강세(DXY 100.8)·10Y 금리 급등. 다음 체크포인트: 6/25 PCE·7/28~29 FOMC.',  // v50.76: FOMC 결과 확정 반영
   ecbRate:      2.15,  ecbStatus: '동결',
   bojRate:      1.00,   // v50.61: BOJ 6/16 overnight call rate 25bp hike to 1.00% (Telegram/Aether digest; live macro source overrides when available)
   boeRate:      3.75,   // v49.93: BOE 4/30 회의 8-1 동결 3.75% (기존 4.50 stale, 0.75%p — 중동 인플레로 추가 인하 보류)
@@ -17636,7 +17636,7 @@ const DATA_SNAPSHOT = {
   krCd91:       2.78,                             // CD 91일 금리
   vkospi:      18.20,                             // v49.92 P453 정정: v49.87 WebSearch "74.02"는 명백한 오류 (VIX 15.74 + KOSPI 사상최고와 양립 불가, VKOSPI 정상범위 12~25, 74=코로나 패닉). VKOSPI-VIX 상관 + KOSDAQ -2.54% 반영 합리적 추정. 라이브(fetchVkospiDynamic Naver) 우선
   vkospiPct:   +2.30,                              // v49.92: VKOSPI 추정 변동률 — data-snap="vkospi-chg" 시드
-  hySpread:    275,                                // v49.84: HY 스프레드 (위험선호 지속, 신고가 환경 — 5/27 SPX 신고가)
+  hySpread:    278,                                // v49.84: HY 스프레드 (위험선호 지속, 신고가 환경 — 5/27 SPX 신고가)
   tnx2y:       4.20,                               // v50.39: 2Y Treasury ~4.20% (6/11 10Y 4.47% WebSearch 실측, 2s10s 소폭 정상 +25bp 내외 → 2Y ~4.2 추정·SKIPPED). 6/5 4.17(NFP 172K)에서 이란 디에스컬레이션·랠리로 소폭 변동. 라이브 ^FVX/^IRX 우선
 
   // ── 거시 지표 ──
@@ -17709,7 +17709,7 @@ const DATA_SNAPSHOT = {
   nandContract_QoQ_2Q26: 87, // v49.99: Susquehanna 5/29 "NAND ASP QoQ +75~100%" 중간값 87 (기존 75 = 하한). 키옥시아 UBS·GS 동시 커버리지 개시 = 구조적 상승 확신
   nandContract_YoY_2Q26: 362,
   // ── v48.71 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
-  aaiiBear:        41.9,     // v50.5: AAII 5/27 발표 Bear 41.9% (Bull 35.6 / Neutral 22.6, aaii.com WebSearch) — 비관 우세 강화. 무료 fetch API 없음 → 주간 WebSearch 갱신
+  aaiiBear:        40.0,     // v50.5: AAII 5/27 발표 Bear 41.9% (Bull 35.6 / Neutral 22.6, aaii.com WebSearch) — 비관 우세 강화. 무료 fetch API 없음 → 주간 WebSearch 갱신
 
   // ── 글로벌 지수 (GMO 테이블용 정적 폴백, 실시간 수신 시 교체) ──  nikkei:    69404.50, nikkeiPct: +8.14,  // v50.62: public-data Yahoo ^N225  hangseng:  24493.95, hangsengPct: -0.29, // v50.62: public-data Yahoo ^HSI
   shanghai:   4098,    shanghaiPct: +0.12, // v49.95: SSE Composite 4,098 실측 (5/28 +0.12%, BBN/TradingEconomics — 지정학 경계+기술주 회복). 기존 3420 ~20% stale (글로벌 랠리 미반영)
@@ -17721,7 +17721,7 @@ const DATA_SNAPSHOT = {
   // ── 리스크 지표 (5/27 갱신) ──
   move:        73.58,   moveChg: +0.21,  // v50.5: MOVE 73.58 (Yahoo ^MOVE 2026-06-01) — 이제 ^MOVE LIVE_SYMBOLS 자동 fetch + 브릿지, 이 값은 폴백. 80 미만 = 채권시장 평온
   skew:       136.86,   skewChg: -1.50,  // v50.5: SKEW 136.86 (Yahoo ^SKEW 2026-06-02 live) — ^SKEW 자동 fetch + 브릿지, 폴백값
-  vvix_live:   85.50,   vvixChg: -1.40,  // v49.86: VVIX 추정 하향 (VIX 17.01 동조)  fg:            41,   fgLabel: 'Fear',  // v50.62: CNN Fear & Greed 2026-06-16T10:39Z
+  vvix_live:   85.50,   vvixChg: -1.40,  // v49.86: VVIX 추정 하향 (VIX 17.01 동조)  fg:            37,   fgLabel: 'Fear',  // v50.62: CNN Fear & Greed 2026-06-16T10:39Z
   fg_uw:         65,   fg_uwLabel: '탐욕', // v49.96: UW 확장 F&G 65 — _fallback.fg_uw(v49.84 CNN 60→UW 65)와 정합 (기존 74는 v48.70 stale)
 
   // ── v47.2: F&G 카테고리·지표별 분해 (Unusual Whales 4/15) ──
