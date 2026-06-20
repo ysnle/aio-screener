@@ -1,5 +1,13 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v50.75 - S&F 기능 통합 (2026-06-20)
+
+- **G×L 성장×유동성 판단 프레임**: 홈 페이지 매매 그리드 하단에 3칸 패널 추가. G(성장)=marketState regime+SPY 모멘텀+VIX, L(유동성)=10Y 국채+DXY 기반 실시간 스코어링. G×L 조합으로 공격적 비중확대/선별 비중확대/중립/방어/현금 5단계 포지션 제안.
+- **엔캐리 언와인드 위험 복합 스코어**: 환율·채권 페이지 Cross-Asset 매트릭스 직하에 추가. USD/JPY·VIX·미일 금리차·HYG 4축 합산 0~100점 위험도 게이지 + 텍스트 판정. BOJ 1% 인상 컨텍스트(Telegram 6/20 확인) 반영.
+- **Signal & Flow 벤치마크**: signalnflow.com의 G×L 프레임워크 및 엔캐리 대시보드 구조를 AIO 기존 다크테마·aio-card·라이브 데이터 파이프라인에 통합.
+- **fxbond 페이지 진입 훅**: `showPage('fxbond')` 시 `_aioRenderCarryUnwindRisk()` 자동 실행. FRED 데이터 fetch와 동시.
+- **`_aioRenderGxLFrame()`/`_aioRenderCarryUnwindRisk()`**: `refreshHomeDashboard()` 체인에 G×L 자동 갱신 추가. 두 함수 모두 `window.*` 전역 노출.
+
 ## v50.74 - Telegram 3채널 다이제스트 갱신 (2026-06-20)
 
 - **3채널 1주일 데이터 통합**: @aetherjapanresearch(117건)·@insidertracking(100건)·@bornlupin(109건) 6/13~6/20 KST 총 326건 스크랩 반영. `public-data/telegram-digest.json` 갱신.
