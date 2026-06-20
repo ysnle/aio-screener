@@ -2686,11 +2686,6 @@ function _itbSafeRemoveChart(chart) {
   try { chart.remove(); } catch(e) {}
 }
 
-function _itbEsc(v) {
-  if (typeof escHtml === 'function') return escHtml(v);
-  return String(v == null ? '' : v).replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); });
-}
-
 function _itbNum(v, digits) {
   if (v === null || v === undefined || !isFinite(Number(v))) return '--';
   return Number(v).toFixed(digits == null ? 2 : digits);
@@ -2698,7 +2693,7 @@ function _itbNum(v, digits) {
 
 function _itbBadge(label, tone) {
   var color = tone === 'risk' ? 'var(--data-red)' : tone === 'warn' ? 'var(--data-amber)' : tone === 'bull' ? 'var(--data-green)' : 'var(--data-cyan)';
-  return '<span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;background:' + color + '1f;color:' + color + ';border:1px solid ' + color + '55;font-size:10px;font-weight:800;">' + _itbEsc(label) + '</span>';
+  return '<span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;background:' + color + '1f;color:' + color + ';border:1px solid ' + color + '55;font-size:10px;font-weight:800;">' + escHtml(label) + '</span>';
 }
 
 function _itbActionTone(action) {
@@ -2717,7 +2712,7 @@ function renderDataQualityBadge(quality) {
   var tone = label === 'HIGH' ? 'bull' : label === 'MEDIUM' ? 'warn' : 'risk';
   var conf = confNum !== null ? ' ' + _itbNum(confNum, 0) + '%' : '';
   var source = quality.source ? ' · ' + quality.source : '';
-  return _itbBadge('Data ' + label + conf, tone) + '<span style="font-size:10px;color:var(--text-muted);margin-left:6px;">' + _itbEsc((quality.freshness || 'UNKNOWN') + source) + '</span>';
+  return _itbBadge('Data ' + label + conf, tone) + '<span style="font-size:10px;color:var(--text-muted);margin-left:6px;">' + escHtml((quality.freshness || 'UNKNOWN') + source) + '</span>';
 }
 
 function renderNewsImpactBadge(vector) {
@@ -2739,7 +2734,7 @@ function renderPortfolioTechnicalRisk(result) {
   var rows = result.items.slice().sort(function(a, b) { return (b.score || 0) - (a.score || 0); }).map(function(item) {
     var rowTone = _itbActionTone(item.action);
     return '<tr style="border-top:1px solid rgba(255,255,255,0.06);">' +
-      '<td style="padding:6px 4px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbEsc(item.ticker || '-') + '</td>' +
+      '<td style="padding:6px 4px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + escHtml(item.ticker || '-') + '</td>' +
       '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);">' + _itbNum(item.weightPct, 1) + '%</td>' +
       '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);color:' + ((item.pnlPct || 0) >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + _itbNum(item.pnlPct, 1) + '%</td>' +
       '<td style="padding:6px 4px;text-align:right;font-family:var(--font-mono);font-weight:900;">' + _itbNum(item.score, 0) + '</td>' +
@@ -2756,7 +2751,7 @@ function renderPortfolioTechnicalRisk(result) {
 function _itbRenderMiniChart(slotId, label, ohlcv) {
   var el = document.getElementById(slotId);
   if (!el) return;
-  el.innerHTML = '<div style="height:22px;padding:5px 7px;font-size:10px;font-weight:800;color:var(--text-muted);display:flex;justify-content:space-between;"><span>' + _itbEsc(label) + '</span><span>OHLCV</span></div><div class="itb-chart-body" style="height:166px;"></div>';
+  el.innerHTML = '<div style="height:22px;padding:5px 7px;font-size:10px;font-weight:800;color:var(--text-muted);display:flex;justify-content:space-between;"><span>' + escHtml(label) + '</span><span>OHLCV</span></div><div class="itb-chart-body" style="height:166px;"></div>';
   var body = el.querySelector('.itb-chart-body');
   var bars = (ohlcv || []).slice(-160);
   if (!body || !bars.length) {
@@ -2780,7 +2775,7 @@ function _itbRenderMiniChart(slotId, label, ohlcv) {
       return '<line x1="' + cx.toFixed(1) + '" y1="' + yh.toFixed(1) + '" x2="' + cx.toFixed(1) + '" y2="' + yl.toFixed(1) + '" stroke="' + color + '" stroke-opacity=".65"/>' +
         '<rect x="' + (cx - step * 0.35).toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + (step * 0.7).toFixed(1) + '" height="' + height.toFixed(1) + '" fill="' + color + '" opacity=".85"/>';
     }).join('');
-    body.innerHTML = '<svg role="img" aria-label="' + _itbEsc(label) + ' fallback OHLC chart" viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="166" style="display:block;background:#0b1222;">' +
+    body.innerHTML = '<svg role="img" aria-label="' + escHtml(label) + ' fallback OHLC chart" viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="166" style="display:block;background:#0b1222;">' +
       '<path d="' + line + '" fill="none" stroke="#00d4ff" stroke-width="1.4" opacity=".75"/>' + candles +
       '<text x="10" y="158" fill="#8fa3b5" font-size="10">SVG fallback</text></svg>';
     return;
@@ -2862,15 +2857,15 @@ function renderExitPlanPanel(plan) {
   if (!el) return;
   plan = plan || {};
   el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Exit Plan</div>' +
-    '<div style="font-size:11px;color:var(--text-primary);line-height:1.5;font-weight:700;margin-bottom:7px;">' + _itbEsc(plan.primary || 'No plan available') + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;">' + _itbEsc(plan.tradingLot || '') + '<br>' + _itbEsc(plan.swingLot || '') + '<br>' + _itbEsc(plan.thesisLine || '') + '</div>';
+    '<div style="font-size:11px;color:var(--text-primary);line-height:1.5;font-weight:700;margin-bottom:7px;">' + escHtml(plan.primary || 'No plan available') + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;">' + escHtml(plan.tradingLot || '') + '<br>' + escHtml(plan.swingLot || '') + '<br>' + escHtml(plan.thesisLine || '') + '</div>';
 }
 
 function renderBeginnerExplanation(result) {
   var el = document.getElementById('tech-brief-beginner');
   if (!el || !result) return;
   var s = result.snapshot || {}, sp = result.sellPressure || {}, plan = result.exitPlan || {};
-  el.innerHTML = '<b style="color:var(--data-cyan);">Beginner translation:</b> RSI 70+ 자체는 매도 버튼이 아닙니다. 강한 장에서는 과열이 오래 유지될 수 있습니다. 지금 엔진은 50일선 대비 ATR 이격(' + _itbNum(s.dist50Atr, 1) + 'x), RVOL(' + _itbNum(s.rvol20, 1) + 'x), 종가 위치(' + _itbNum((s.closePosition || 0) * 100, 0) + '%), 볼린저 재진입, 10/21/50선 이탈을 함께 보고 <b>' + _itbEsc(sp.action || 'HOLD_CORE') + '</b>로 결론냅니다. ' + _itbEsc(plan.beginner || '');
+  el.innerHTML = '<b style="color:var(--data-cyan);">Beginner translation:</b> RSI 70+ 자체는 매도 버튼이 아닙니다. 강한 장에서는 과열이 오래 유지될 수 있습니다. 지금 엔진은 50일선 대비 ATR 이격(' + _itbNum(s.dist50Atr, 1) + 'x), RVOL(' + _itbNum(s.rvol20, 1) + 'x), 종가 위치(' + _itbNum((s.closePosition || 0) * 100, 0) + '%), 볼린저 재진입, 10/21/50선 이탈을 함께 보고 <b>' + escHtml(sp.action || 'HOLD_CORE') + '</b>로 결론냅니다. ' + escHtml(plan.beginner || '');
 }
 
 function _renderSemiHeatPanel(heat) {
@@ -2905,10 +2900,10 @@ function renderLockoutDashboard(result) {
   var breadth = result.breadthRotation || {};
   var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;">' +
     '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Lockout Action</div><div style="margin-top:5px;">' + _itbBadge(lock.action || 'HOLD_CORE', _itbActionTone(lock.action)) + '</div></div>' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Regime</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + _itbEsc(lock.regime || 'LOCKOUT_CONTINUATION') + '</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Regime</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(lock.regime || 'LOCKOUT_CONTINUATION') + '</div></div>' +
     '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Risk</div><div style="font-size:18px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(lock.score, 0) + '/100</div></div>' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">OPEX</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + _itbEsc(opex.daysToOpex == null ? 'n/a' : ('D-' + opex.daysToOpex)) + '</div></div>' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Candle</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + _itbEsc(candle.type || 'NEUTRAL') + '</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">OPEX</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(opex.daysToOpex == null ? 'n/a' : ('D-' + opex.daysToOpex)) + '</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Candle</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(candle.type || 'NEUTRAL') + '</div></div>' +
   '</div>' +
   '<div style="font-size:10px;color:var(--text-muted);line-height:1.55;margin-top:8px;">Lockout rallies do not end because RSI is hot. Risk rises when demand weakens, breakouts fail, OPEX gamma support decays, or price loses the 10/21/50-day lines.</div>' +
   _renderFlagList([].concat(lock.flags || [], ext.flags || [], breadth.flags || []).slice(0, 10));
@@ -2936,14 +2931,14 @@ function renderBlowoffTopPanel(blowoffTop) {
     var dot = positive ? (ok ? '●' : '○') : (ok ? '●' : '○');
     return '<div style="display:flex;gap:7px;align-items:flex-start;font-size:11px;line-height:1.55;margin:6px 0;color:var(--text-secondary);">' +
       '<span aria-hidden="true" style="color:' + color + ';font-size:12px;line-height:1.3;">' + dot + '</span>' +
-      '<span><b style="color:' + color + ';">' + _itbEsc(item && item.label || '--') + '</b><br><span style="color:var(--text-muted);">' + _itbEsc(item && item.detail || '') + '</span></span>' +
+      '<span><b style="color:' + color + ';">' + escHtml(item && item.label || '--') + '</b><br><span style="color:var(--text-muted);">' + escHtml(item && item.detail || '') + '</span></span>' +
     '</div>';
   }
   var timeline = (eventCtx.timeline || []).map(function(e) {
     var etone = e.tone === 'risk' ? 'risk' : e.tone === 'hope' ? 'bull' : 'warn';
     return '<div style="border-left:2px solid ' + (etone === 'risk' ? '#ff5b50' : etone === 'bull' ? '#5cff95' : '#f6c85f') + ';padding:4px 0 5px 8px;">' +
-      '<div style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);">' + _itbEsc(e.date || '') + '</div>' +
-      '<div style="font-size:11px;font-weight:800;color:var(--text-primary);">' + _itbEsc(e.label || '') + '</div>' +
+      '<div style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);">' + escHtml(e.date || '') + '</div>' +
+      '<div style="font-size:11px;font-weight:800;color:var(--text-primary);">' + escHtml(e.label || '') + '</div>' +
     '</div>';
   }).join('');
   el.innerHTML =
@@ -2973,49 +2968,47 @@ function renderBlowoffTopPanel(blowoffTop) {
     '</div>';
 }
 
-function renderExtensionHeatPanel(extensionHeat) {
-  var el = document.getElementById('tech-lockout-extension');
+function _renderMiniPanel(elId, title, badge, tone, score, metricsHtml, flags) {
+  var el = document.getElementById(elId);
   if (!el) return;
+  el.innerHTML =
+    '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">' + title + '</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(badge, tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(score, 0) + '</span></div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:7px;">' + metricsHtml + '</div>' +
+    _renderFlagList(flags);
+}
+
+function renderExtensionHeatPanel(extensionHeat) {
   extensionHeat = extensionHeat || {};
   var tone = extensionHeat.score >= 50 ? 'risk' : extensionHeat.score >= 25 ? 'warn' : 'bull';
-  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Extension Heat</div>' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(extensionHeat.state || 'NORMAL', tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(extensionHeat.score, 0) + '</span></div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:7px;">20MA ATR: ' + _itbNum(extensionHeat.dist20Atr, 1) + 'x<br>20MA ADR: ' + _itbNum(extensionHeat.dist20Adr, 1) + 'x<br>50SMA ATR: ' + _itbNum(extensionHeat.dist50Atr, 1) + 'x</div>' +
-    _renderFlagList(extensionHeat.flags);
+  _renderMiniPanel('tech-lockout-extension', 'Extension Heat', extensionHeat.state || 'NORMAL', tone, extensionHeat.score,
+    '20MA ATR: ' + _itbNum(extensionHeat.dist20Atr, 1) + 'x<br>20MA ADR: ' + _itbNum(extensionHeat.dist20Adr, 1) + 'x<br>50SMA ATR: ' + _itbNum(extensionHeat.dist50Atr, 1) + 'x',
+    extensionHeat.flags);
 }
 
 function renderOpexGammaPanel(opexGamma) {
-  var el = document.getElementById('tech-lockout-opex');
-  if (!el) return;
   opexGamma = opexGamma || {};
   var tone = opexGamma.regime === 'GAMMA_UNWIND_RISK' ? 'risk' : opexGamma.regime === 'GAMMA_DECAY_WATCH' ? 'warn' : 'bull';
-  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">OPEX / Gamma</div>' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(opexGamma.regime || 'GAMMA_SUPPORT', tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(opexGamma.score, 0) + '</span></div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:7px;">Next OPEX: ' + _itbEsc(opexGamma.nextOpexDate || '--') + '<br>Equity PCR: ' + _itbNum(opexGamma.equityPutCall, 2) + '<br>Index PCR: ' + _itbNum(opexGamma.indexPutCall, 2) + '</div>' +
-    _renderFlagList(opexGamma.flags);
+  _renderMiniPanel('tech-lockout-opex', 'OPEX / Gamma', opexGamma.regime || 'GAMMA_SUPPORT', tone, opexGamma.score,
+    'Next OPEX: ' + escHtml(opexGamma.nextOpexDate || '--') + '<br>Equity PCR: ' + _itbNum(opexGamma.equityPutCall, 2) + '<br>Index PCR: ' + _itbNum(opexGamma.indexPutCall, 2),
+    opexGamma.flags);
 }
 
 function renderBreadthRotationPanel(breadthRotation) {
-  var el = document.getElementById('tech-lockout-breadth');
-  if (!el) return;
   breadthRotation = breadthRotation || {};
   var tone = breadthRotation.regime === 'FAILED_ROTATION' ? 'risk' : breadthRotation.regime === 'BREADTH_BROADENING' ? 'bull' : 'warn';
-  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Breadth / Rotation</div>' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(breadthRotation.regime || 'NARROW_LEADERSHIP', tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(breadthRotation.score, 0) + '</span></div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:7px;">IWM vs QQQ: ' + _itbNum(breadthRotation.iwmVsQqqRS_5d, 2) + '%<br>RSP vs SPY: ' + _itbNum(breadthRotation.rspVsSpyRS_5d, 2) + '%</div>' +
-    _renderFlagList(breadthRotation.flags);
+  _renderMiniPanel('tech-lockout-breadth', 'Breadth / Rotation', breadthRotation.regime || 'NARROW_LEADERSHIP', tone, breadthRotation.score,
+    'IWM vs QQQ: ' + _itbNum(breadthRotation.iwmVsQqqRS_5d, 2) + '%<br>RSP vs SPY: ' + _itbNum(breadthRotation.rspVsSpyRS_5d, 2) + '%',
+    breadthRotation.flags);
 }
 
 function renderCandleRiskBadge(candleRisk) {
-  var el = document.getElementById('tech-lockout-candle');
-  if (!el) return;
   candleRisk = candleRisk || {};
   var m = candleRisk.metrics || {};
   var tone = candleRisk.score >= 55 ? 'risk' : candleRisk.score >= 25 ? 'warn' : 'bull';
-  el.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--text-secondary);margin-bottom:7px;">Terminal Candle</div>' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;">' + _itbBadge(candleRisk.type || 'NEUTRAL', tone) + '<span style="font-size:18px;font-weight:900;font-family:var(--font-mono);">' + _itbNum(candleRisk.score, 0) + '</span></div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:7px;">Close position: ' + _itbNum((m.closePosition || 0) * 100, 0) + '%<br>Upper wick: ' + _itbNum((m.upperWickPct || 0) * 100, 0) + '%<br>Gap: ' + _itbNum(m.gapUpPct, 2) + '%</div>' +
-    _renderFlagList(candleRisk.flags);
+  _renderMiniPanel('tech-lockout-candle', 'Terminal Candle', candleRisk.type || 'NEUTRAL', tone, candleRisk.score,
+    'Close position: ' + _itbNum((m.closePosition || 0) * 100, 0) + '%<br>Upper wick: ' + _itbNum((m.upperWickPct || 0) * 100, 0) + '%<br>Gap: ' + _itbNum(m.gapUpPct, 2) + '%',
+    candleRisk.flags);
 }
 
 function renderTechnicalBrief(symbol, result) {
@@ -3054,7 +3047,7 @@ async function runInstitutionalTechnicalBrief(arg) {
   }
   if (!symbol || symbol === '[OBJECT HTMLBUTTONELEMENT]') symbol = 'NVDA';
   var row = document.getElementById('tech-brief-regime-row');
-  if (row) row.innerHTML = '<div style="grid-column:1/-1;padding:10px;color:var(--text-muted);font-size:11px;">Institutional technical brief input pending for ' + _itbEsc(symbol) + '...</div>';
+  if (row) row.innerHTML = '<div style="grid-column:1/-1;padding:10px;color:var(--text-muted);font-size:11px;">Institutional technical brief input pending for ' + escHtml(symbol) + '...</div>';
   try {
     var fetcher = window.fetchOHLCVWithFallback || window.fetchOHLCV;
     var settled = await Promise.allSettled([

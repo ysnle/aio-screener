@@ -1,5 +1,11 @@
 ﻿# AIO 스크리너 변경 이력 (Changelog)
 
+## v50.91 - Simplify 3항목 — 레이더 연결·패널 통합·escape 헬퍼 수렴 (2026-06-20)
+
+- **aio-chat.js**: `fundamentalSearch` 두 경로(신규/캐시) 모두에 `_aioRenderFundamentalRadar(ticker, screenerRow)` 호출 추가 — `#vis-fundamental` 팩터 레이더 패널이 실제로 렌더됨
+- **aio-ui.js**: `renderExtensionHeatPanel`·`renderOpexGammaPanel`·`renderBreadthRotationPanel`·`renderCandleRiskBadge` 4개를 공통 `_renderMiniPanel(elId, title, badge, tone, score, metricsHtml, flags)` 헬퍼로 통합 — 반복 HTML 템플릿 제거
+- **aio-ui.js**: `_itbEsc` wrapper 제거, 모든 호출 사이트를 직접 `escHtml()`로 교체 (~4줄 wrapper 제거)
+
 ## v50.90 - 코드 품질 정리 — 테스트 T번호 중복 수정 + dead 함수 제거 + 타이머 정리 (2026-06-20)
 
 - **aio-tests.js**: T551~T558(2회 정의)을 T845~T852로, T561~T565(2회 정의)를 T853~T857로 재번호 — 동일 T번호가 runTests에서 2회 실행돼 결과가 오염되던 문제 수정

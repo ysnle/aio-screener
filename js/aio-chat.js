@@ -6657,6 +6657,12 @@ async function fundamentalSearch() {
     // AI 채팅 입력창 세팅 (기존 동작 유지)
     var _chatInpC = document.getElementById('chat-fundamental-inp');
     if (_chatInpC) _chatInpC.value = ticker + ' 종합 기업 분석해줘. 17개 관점과 데이터 가용성 매트릭스 적용.';
+    try {
+      if (typeof window._aioRenderFundamentalRadar === 'function') {
+        var _scrRowC = (window.SCREENER_DB || []).find(function(r){ return r.sym === ticker; });
+        window._aioRenderFundamentalRadar(ticker, _scrRowC || null);
+      }
+    } catch(_) {}
     return;
   }
 
@@ -6867,6 +6873,12 @@ async function fundamentalSearch() {
   if (typeof _renderFundVariance === 'function') _renderFundVariance(collected);    // v48.90
   if (typeof _renderFundNews === 'function') _renderFundNews(collected);            // v48.13
   _renderFundSources(collected);
+  try {
+    if (typeof window._aioRenderFundamentalRadar === 'function') {
+      var _scrRow = (window.SCREENER_DB || []).find(function(r){ return r.sym === ticker; });
+      window._aioRenderFundamentalRadar(ticker, _scrRow || null);
+    }
+  } catch(_) {}
 
   // v49.72 R138: 7 차트 fundamental UI 자동 렌더 (FMP/Naver 5년 분기 데이터, 5분 캐시)
   try {
