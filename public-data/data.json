@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-06-21T10:21:57.472Z",
+  "generatedAt": "2026-06-21T12:30:25.366Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -15,8 +15,8 @@
   "newsSourceCount": 6,
   "serverNewsScored": true,
   "newsScoreMin": 53,
-  "newsScoreMax": 86,
-  "elapsedMs": 2463,
+  "newsScoreMax": 82,
+  "elapsedMs": 2070,
   "schema": 1,
   "marketAnalysisOk": true
  },
@@ -391,16 +391,16 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 64220.31,
-   "regularMarketChangePercent": -0.30757495000073665,
+   "regularMarketPrice": 63941.36,
+   "regularMarketChangePercent": -0.7406030990037079,
    "regularMarketPreviousClose": 64418.445,
    "chartPreviousClose": 64418.445,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1732.36,
-   "regularMarketChangePercent": -0.8882446819314075,
+   "regularMarketPrice": 1716.6,
+   "regularMarketChangePercent": -1.78990557447843,
    "regularMarketPreviousClose": 1747.8855,
    "chartPreviousClose": 1747.8855,
    "_source": "live:yahoo-gh"
@@ -670,21 +670,57 @@
    "topic": "macro",
    "country": "us",
    "tier": 1,
-   "score": 86,
-   "selectionReason": "base+20 | tier1+14 | recency+6 | macro-rates+14 | geopolitics-energy+14 | earnings-guidance+10 | fx-bonds-commodities+8",
+   "score": 82,
+   "selectionReason": "base+20 | tier1+14 | recency+2 | macro-rates+14 | geopolitics-energy+14 | earnings-guidance+10 | fx-bonds-commodities+8",
    "feedSource": "Google News - US markets"
   },
   {
-   "title": "Micron earnings steer South Korea chip rally as inflation gauges loom - CHOSUNBIZ - Chosunbiz",
-   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOdDBiOE4yMjNqc2stc1Zzd1B4bVg2MzYzQ2pkTElqXzQwOFRTYWRDSDlvX1luSDk3eURjcHk2TzU2V05LY0JFRFlzcWl4TERLMWNkNEI0NE5yU050alQ2S0tJYXRUejZMRGxzVldxMEIwVXZTaDduRGNVcVNNbHNtcdIBlAFBVV95cUxNNXVHOUpHUGR6YzZkVkYxUVJZSHRsSGhSYVpQUU0tTXY4bmZtZEpGRUZLWkhRUHFyekxnWi1JYjdTRDFRNkdvaVoyb2ZfU183UEM5R3hzdUhpcXJTUmpxVFM3YVlCWS1ad05xUDA2V1phZk9MOHo2V0dTV1E0ZWJNbkVRTk9oQWhyckRsTVBNRlhHRVdx?oc=5",
-   "source": "Chosunbiz",
-   "pubDate": "Sat, 20 Jun 2026 21:00:00 GMT",
-   "topic": "semi",
-   "country": "us",
+   "title": "Iran Closes Strait of Hormuz Again: Are Fed Rate Hikes Back on the Table? - 24/7 Wall St.",
+   "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQUWZtOERyNE0zMkw5RjBZRFBaZ0JCUjVJYS1UVjFsQ3VkNHBfV2dzeEpYWDJMcE9VNEJ5VTZJb2V6TnhJMFJadmtlLW44OTg2Y2pOVmFfWjlXSlJIS0loUlVsem41Mko0YklhVXl6WENnb3NCZmdadzF6X2ZTSndQS3lVcWlheFhfOXh6Q2I2NmxLc2pQQlNROTBrNFdTNlQzd1BZZGhUTWtxT013aTcyN2IwWXNCQQ?oc=5",
+   "source": "24/7 Wall St.",
+   "pubDate": "Sun, 21 Jun 2026 12:15:57 GMT",
+   "topic": "geo",
+   "country": "global",
    "tier": 1,
-   "score": 77,
-   "selectionReason": "base+20 | tier1+14 | recency+6 | macro-rates+14 | ai-semis+13 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis"
+   "score": 80,
+   "selectionReason": "base+20 | tier1+14 | recency+18 | macro-rates+14 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy"
+  },
+  {
+   "title": "Gold Outlook: US-Iran Talks, Crude Oil Prices, Macro Data To Dictate Bullion This Week - NDTV Profit",
+   "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxOdFFGTWFLVGVjQnlNdy1RWGgycFg2QmNZdm9ha2JuRjhPaWJHcE5MREhtb2xTYnd5NXJQNHB3LTJnZWdoMXRaMEt1UFVoNE4yQ2tkajVnZktMZ2NBLS1mRzF2OGdlSG1wQ09NN3h3V3NsV3pZNjZzSGpMbkdDMjA0VV9PVnppdkxHYVdnbkRiRW5tb3FzZHNBdmdCRVo1Um9EQlhJZnZMM2ZFSWlSZHRnRU9qWUlNM241Q2VnWDdiM3FXX291YzlOY0xJTkPSAdQBQVVfeXFMTVphNURBQ29uTmZDSTQ0eDBLdlEzeGtZTzBETTZLdWJjTTFUQTFwTkJVTGhlczZvM3otM1NSMnJEenFQLUFfeEFsSHpWbHl4ZVI4ZGF2MlFOQmxUYWc0N2lsZjBrbnlXaF8xY2pMc2VFUDVBSTBHbUFkN2xWMmVmdm8ycXdzQ19aVnBCZnltSzhrZHdIT1dzRkdGdlJ4RmFlem9YRl95d3FlODd1V3JxTGd1TVAyLUp2SFRHZU5NcWpYWUQ5cmZoLTVTVXliSklVUEhKRzE?oc=5",
+   "source": "NDTV Profit",
+   "pubDate": "Sun, 21 Jun 2026 11:19:14 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 1,
+   "score": 78,
+   "selectionReason": "base+20 | tier1+14 | recency+12 | geopolitics-energy+14 | earnings-guidance+10 | fx-bonds-commodities+8",
+   "feedSource": "Google News - Geopolitics/Energy"
+  },
+  {
+   "title": "Fed Rate Cuts and Gold Prices: A Investor’s Guide 2026 - Discovery Alert",
+   "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxNbTluWjNHN0RWdElObVVUOEJFT3IzVHFWRkNpLVlveWRYSDJYaXBFSHZjTmhfbkhkbXlqQWlQb0ppcHFWZlF0VXNvYmtJOTVyVXdoemZpUFlrWTV2Q0t3Y0JXT3lGLUxldThrOFR6WnhGTWM4eDBDVXo3a05IV3QyWnNsZmZGRW4yakE?oc=5",
+   "source": "Discovery Alert",
+   "pubDate": "Sun, 21 Jun 2026 12:13:25 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 1,
+   "score": 74,
+   "selectionReason": "base+20 | tier1+14 | recency+18 | macro-rates+14 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds"
+  },
+  {
+   "title": "Gold Plunges After the Fed Holds Rates Steady in 2026 - Discovery Alert",
+   "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxQdi1XMXJXMjZUUDM5Nzd5Q2E0dFVlUE1HMHJMczJjWEV1YUNVeFdhVk5rTTd4Y09iTjVhWWpCWjY4NzltbkVZSmtBa093V1N6cm9FdHVRaWJPUWtIaFgzV2t2ZndIeUhZMGFyeTRiZUFTcmVXSkdRd1JmVmhKX0hLaXFSeldGMmM?oc=5",
+   "source": "Discovery Alert",
+   "pubDate": "Sun, 21 Jun 2026 12:13:25 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 1,
+   "score": 74,
+   "selectionReason": "base+20 | tier1+14 | recency+18 | macro-rates+14 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds"
   },
   {
    "title": "Nasdaq gets boost from AI chip stocks; Fed rate question stays in focus - TechStock²",
@@ -735,6 +771,18 @@
    "feedSource": "Google News - AI/Semis"
   },
   {
+   "title": "Micron Technology (MU): What to Expect From the June 24 Earnings Report - TradingKey",
+   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOOExtdVdnZzdFdU1yMDNoenlGSk9abDJVZllpUXFWUmtrVUZNYmxMNklXbEg0d0ZsY3pyMXBQOUF4Zzk2WEpvQ2V2V1oyWWFOckpDS2djLVdZRDJBR0RLeFMzNWJULXZBckpqRjljWVIzOXhHVU9IRVhZa09FamtXM0UtTFNDRHdIR19kUjlXSmNnLVpqR0tFNXJBOVdtY0JkUFNGN3hzUHkwZw?oc=5",
+   "source": "TradingKey",
+   "pubDate": "Sun, 21 Jun 2026 12:03:11 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 1,
+   "score": 62,
+   "selectionReason": "base+20 | tier1+14 | recency+18 | earnings-guidance+10",
+   "feedSource": "Google News - AI/Semis"
+  },
+  {
    "title": "US May PCE Preview: Inflation May Continue to Heat Up, How Will US Stocks, Dollar and Gold React in the Short Term? - TradingKey",
    "link": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxNMUhUb04zVTRDQWlTWlhIQlpLNHR5Zm5YTGV1VENkTmxnbVJNTi1laFJ3NGlaaWlWSDZaNXpUSndZTXpwMld0Y3RtM01RcklSMmYyd2dJaS1mNlZwRW1zTXZVSm9taklYUzBvTVVxUUJYekxBbmNuSlByazQxV1lfbUVzVWlIUUFHUkc0cGxDSWlVN01rYzRpWDRLWGhsdzgwbnZINW1KaUVZdEtTQnY2ZndUckpoWHhINnNGMFFpcW9YUU5LNHU0TE9zb3hiZlhWcDFQOHlMR1RZb3BlX1RxZFJfb1QxSE0?oc=5",
    "source": "TradingKey",
@@ -747,10 +795,10 @@
    "feedSource": "Google News - US markets"
   },
   {
-   "title": "Gold slides toward $4,000 as Fed stance fuels selloff - MSN",
-   "link": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxPb2RXejdDTDJwdWg3MC13Sl9TREphbXJKY3hPaVc5cnVkazBWelFlSFhDaVNyc1lwamR0RzcyX3NiaGxUWThFblVkdnZ3QlZTZXR1MXM4SHpkb3Y3eTlXX1d2LWdka2tsbXVmQmxfa1FpeXUwak9qaUVuWExBZnN1cDFhcUJBVlRzOEYyaXZIRVp6T0pNRVhaWW8wNGhNMGh2VWFycDFVYnpFR0xDTnJ3MWNtSnpmUTV5U25nSmpFMW9EMGZVeXRXYVJveEFSTHVzSnRzSWRObFVMUGNCSEJPcVE1SjJheTd6UEE?oc=5",
+   "title": "Gold slides to $4,169 as Fed stance fuels bear market fears - MSN",
+   "link": "https://news.google.com/rss/articles/CBMi8gFBVV95cUxNWW0tbzJvbk81LU9NbUpGZmJCYVdtUnRJalBHWFVpOElnMUZVUVdaenV3NTh2U2UwOWVkWU9Wdkh4cUJvczVPVWdMVlV3ZXJlMkVZVlUtc2lRMUI3aDB5RkwxYlplUmtmNnFjTmlzQWFqQXFWeXVjS3dacTZrOXNJZ21KNnFzVENJc0dFSWJPODEyRzdYYlp3YWMtbjc4UWd6Y3lwampuMWFmdTl4amlMaE5XNmFlMmVuSTJXOHdLdkExUEl1MDZLb1Fja1dydkFxQ2JHeVRBV2dxaVZBZS1XaUVkX3RtM1VmcTRzak5PYkUxdw?oc=5",
    "source": "MSN",
-   "pubDate": "Sat, 20 Jun 2026 11:23:55 GMT",
+   "pubDate": "Sat, 20 Jun 2026 18:49:01 GMT",
    "topic": "fxbond",
    "country": "global",
    "tier": 1,
@@ -771,10 +819,10 @@
    "feedSource": "Google News - AI/Semis"
   },
   {
-   "title": "Vance Issues Blunt Warning to Israel as He Defends Trump’s Deal - The New York Times",
-   "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1wdDdJdGdoOXdsZTF6ZUhRS1I1akpzQWdiNE1EcTFCMjA2SnFqQkNmMEFUc1Q1X1RMNzNpMG9sUmE1dTgzYlAxUlI4TDdxcVJlMncwWUF3a3RmUjBrZ3dFTlc3blA4X1JObDh4OHV2T0pMOUc0R2VV?oc=5",
-   "source": "The New York Times",
-   "pubDate": "Sun, 21 Jun 2026 09:09:33 GMT",
+   "title": "US-Iran Talks, Crude Prices, FII Activity to Dictate Markets - Rediff",
+   "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxNTnRWR2NjS2E4R2NZWF9fVjBYWGpwc0cwOThRUHNBTEZkSG1vR2JMWDQwMGljbUF0eWV1NVhFYVpnclhobDlIdGFmTFdqUzZFMlpyTFNMM3dKY21FTE1OMWgyUm1EWVFEdGtFd1d6aTVyWTdHeXB3Y1g0NDl1eVJ6d0QtWTBYaWZRaXF2cmhQN1Y5MEhtU0Nnb2paMUd1dG9kMWRUTHhDWXZCRHZhYW5nTTBJVmxPQ1N0WndkdFRLM3hsZ0JJNjllN1o4bTBQYVozSS1UM2JR0gHWAUFVX3lxTE1OdFZHY2NLYThHY1lYX19WMFhYanBzRzA5OFFQc0FMRmRIbW9HYkxYNDAwaWNtQXR5ZXU1WEVhWmdyWGhsOUh0YWZMV2pTNkUyWnJMU0wzd0pjbUVMTU4xaDJSbURZUUR0a0V3V3ppNXJZN0d5cHdjWDQ0OXV5Unp3RC1ZMFhpZlFpcXZyaFA3VjkwSG1TQ2dvaloxR3V0b2QxZFRMeENZdkJEdmFhbmdNMElWbE9DU3Rad2R0VEszeGxnQkk2OWU3WjhtMFBhWjNJLVQzYlE?oc=5",
+   "source": "Rediff",
+   "pubDate": "Sun, 21 Jun 2026 09:33:39 GMT",
    "topic": "geo",
    "country": "global",
    "tier": 1,
@@ -807,40 +855,28 @@
    "feedSource": "Google News - Geopolitics/Energy"
   },
   {
-   "title": "Strait of Hormuz Tensions Put Oil Markets on Edge: Why Azerbaijan Is Watching Closely - Caspian Post",
-   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxNbmVqdlNiOHhOdTdDdEtWOEFfT2xOV29WMlB4RW1PRmNFdTdFX19nek9id0FUMFpIS01nZnhFX0ctYnNFYkVkcElxOGZmUURUM2Zya3hkaTk1WXJacDlYWm9qTHFoUjVkVHlPa2E3a1hteERVSmRWbmd5RnNNMDdIUW9GazhWZnkwZWJ1Sm1hcjNtMFN4Z0JmZGV1R3NidmZtVm5RRTJieFFaS1NJYm1Bb3h3czktQ0RKLVE?oc=5",
-   "source": "Caspian Post",
-   "pubDate": "Sun, 21 Jun 2026 06:26:30 GMT",
-   "topic": "geo",
+   "title": "Market News: Gold Braces for a Data-Dependent Week — Core PCE Could Trigger a Test of $4,000 - Binance",
+   "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9QWkJqT1ZfZzktclJMWGJjZXZfb2NVc1YwLTZsZTJLczVqV0U5N1lIQVhRRUU5SGxlMlFlQnMxNHVCckdsdTRyelk5SDFSVWx5UUdsMkhDcVlhaGxnM25uNVRTWnlxY1A2?oc=5",
+   "source": "Binance",
+   "pubDate": "Sat, 20 Jun 2026 12:15:08 GMT",
+   "topic": "fxbond",
    "country": "global",
    "tier": 1,
-   "score": 60,
-   "selectionReason": "base+20 | tier1+14 | recency+12 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy"
+   "score": 58,
+   "selectionReason": "base+20 | tier1+14 | recency+2 | macro-rates+14 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds"
   },
   {
-   "title": "Petrol prices in Australia are now lower than before the Iran war began. Is the oil crisis over and what happens next? - The Guardian",
-   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOTkcyTFA4ZHFSb2J6eUlHc1J6WXBvUk1RNlZaa0hqRl9Gc0o3NTl5aWFnMGVWZGNBTU9zcWpEdk9iVXBON2piWUdmcUxhZnhOYTVRTW1FMUI3ZW1GWldEOUVERllmM0xXQWpuQVYySlJhd2lIUk9rOUtRLUY1S29vcFkwMGtqNk9zVU1EYnRCYlFxYlZBbDk1ajduRnpGb0RETHp5a2tlWnFEZWdhSk43bXdmT1E5cV8ybEE?oc=5",
-   "source": "The Guardian",
-   "pubDate": "Sun, 21 Jun 2026 06:07:00 GMT",
-   "topic": "geo",
+   "title": "Gold slides toward $4,000 as Fed stance fuels selloff - MSN",
+   "link": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxPb2RXejdDTDJwdWg3MC13Sl9TREphbXJKY3hPaVc5cnVkazBWelFlSFhDaVNyc1lwamR0RzcyX3NiaGxUWThFblVkdnZ3QlZTZXR1MXM4SHpkb3Y3eTlXX1d2LWdka2tsbXVmQmxfa1FpeXUwak9qaUVuWExBZnN1cDFhcUJBVlRzOEYyaXZIRVp6T0pNRVhaWW8wNGhNMGh2VWFycDFVYnpFR0xDTnJ3MWNtSnpmUTV5U25nSmpFMW9EMGZVeXRXYVJveEFSTHVzSnRzSWRObFVMUGNCSEJPcVE1SjJheTd6UEE?oc=5",
+   "source": "MSN",
+   "pubDate": "Sat, 20 Jun 2026 11:23:55 GMT",
+   "topic": "fxbond",
    "country": "global",
    "tier": 1,
-   "score": 60,
-   "selectionReason": "base+20 | tier1+14 | recency+12 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy"
-  },
-  {
-   "title": "Fed Holds Rates and Leans Toward Fighting Inflation With Future Increases - The New York Times",
-   "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOWlo2eWRfMHQzRGk2MTdTdkR4R3FLWHlxWjdRekZCOWRhWk42ajJxamdDcmZlbER4TzVxZlFMa0F5d0wycHVMejh1Qk1vTGtWQW1qV05HdXp6ZFFOd3FEOXdaRmw5ZC1HdDd6WGl1Q3NnOS0xc3Y0YUdyQ3htLUlzTVJqRG9oalZM?oc=5",
-   "source": "The New York Times",
-   "pubDate": "Sun, 21 Jun 2026 06:01:16 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 1,
-   "score": 60,
-   "selectionReason": "base+20 | tier1+14 | recency+12 | macro-rates+14",
-   "feedSource": "Google News - US markets"
+   "score": 58,
+   "selectionReason": "base+20 | tier1+14 | recency+2 | macro-rates+14 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds"
   },
   {
    "title": "Gold heads for third weekly loss as Fed’s hawkish stance lifts dollar and Treasury yields - VT Markets",
@@ -891,18 +927,6 @@
    "feedSource": "Google News - FX/Bonds"
   },
   {
-   "title": "Gold price extends selloff as Fed repricing lifts USD and yields - FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNcEVndThLX0JlZGhCMnFES3JURUdya0NORFpqRjJrZ28ycWpLOXRFSzRlUUVDS3dqWVFOc24wUEVzR3FHX3NnNGNhdV9ZaVQtT0lRMHFyV0RJOHJvMmo1RjRvYmJFMFFBaTc4UldrYnBMMmxkMTF6RG9QWnRmeGlzemJMTmxzLUVPMHg4QlRQUnFIam9LRXg2Q0RyOThwdldPVmN0RklMRFloVmM?oc=5",
-   "source": "FXStreet",
-   "pubDate": "Fri, 19 Jun 2026 17:46:10 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 1,
-   "score": 58,
-   "selectionReason": "base+20 | tier1+14 | recency+2 | macro-rates+14 | fx-bonds-commodities+8",
-   "feedSource": "Google News - FX/Bonds"
-  },
-  {
    "title": "Nasdaq, S&P 500 Futures Edge Higher, Dow Futures Flat Ahead Of Nvidia Results: IBRX, SLS, NVDA, CHWY Stocks In Focus - Stocktwits",
    "link": "https://news.google.com/rss/articles/CBMiigJBVV95cUxPY0JYOHljWHVQRHFsTTdtVm5VRFdyTHJyZW8zblNwei1WdXlxaXl1d1FIZlZaZlpGZTlTN3Y3QU92N1BCOERUTmFoelluNDNxR3BhREZBVFctSU9tOFZNaHcyZ0JTbFltanZCT2FSZjVNQVRUazBIX0hGanFhRldtalF4MjNnbHFaX1FRTnUweC1vbVBXNjFNSWVuV3kwUEtIZ0FYbXA0VERXbjFqVm5hUnRYa0NMZm1nbTNBRmEycGlOcnVhQzV1NU5oSDZ4R3BOVldZaGFCUlA1NFpCWEhyRHFTQ3dDMld0VlpBUU51bUNMZXJiS1BWSnBFdk9Uelh5V2hUMGF2a2NTdw?oc=5",
    "source": "Stocktwits",
@@ -939,52 +963,52 @@
    "feedSource": "Google News - AI/Semis"
   },
   {
-   "title": "Buy The Dip In This Nvidia Partner And Top AI Data Center Cooling Stock? Vertiv (VRT Stock) Analysis Taylor Frankie Paul (FSOUULI3wM) - Mshale",
-   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFBvWWtmbXh5SnhKMW1QSXhZbG5IYUZqZGYzNjRxRTFuNUZFZ1ZSS3BfTERocHNjd0Y3TDhjV2RPS0JRanZQNFJwTWR6azNvS0cxMnRHX0hpM0hSUEk?oc=5",
-   "source": "Mshale",
-   "pubDate": "Fri, 19 Jun 2026 11:10:11 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 1,
-   "score": 57,
-   "selectionReason": "base+20 | tier1+14 | recency+2 | ai-semis+13 | mega-cap+8",
-   "feedSource": "Google News - AI/Semis"
-  },
-  {
-   "title": "Dow, S&P 500, Nasdaq Futures Climb As AI Frenzy Drives Record Rally: Why CSCO, LUNR, ONDS, NVDA, NOK Are In Focus - Stocktwits",
-   "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxOMlRlYjR4azlSZVZmbVdnNHlGR2RfOUxRellPU1FieFJRUTNUOUFUckRWYVBZaS1ha1E2d0JxX0hhdmJldW53Ui1HWnVqNVR0UHp4UlV2Nk5hYzVDalBDaXp3NGRlTEhTdElPbFNGRGlITnlNRFlhZy1JUEFteWZzQ1RRUzVWWUFnV056Tk8zUjM3dmxVTGpXaVB6ejRJaXFPQ3FWMEVJM0dEdEhnUFVOMGx0RkoyT2tlbmlvUE9B?oc=5",
-   "source": "Stocktwits",
-   "pubDate": "Fri, 19 Jun 2026 10:43:56 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 1,
-   "score": 57,
-   "selectionReason": "base+20 | tier1+14 | recency+2 | ai-semis+13 | mega-cap+8",
-   "feedSource": "Google News - US markets"
-  },
-  {
-   "title": "Will Cintas' (CTAS) Revenue Beat but Steady Guidance Change Its Earnings Momentum Narrative? - simplywall.st",
-   "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxQUFJjTGJ2QXlhY0dPMzFCekpQUDJHb0xzVm8zRUg5TktfQ1FVclNDbC10VkJKVGg1MkM5bzIxaUljWHJ4dll5VGdObDRjWWhfam1sT1lnWTNVQUwzRzV3S0hsakRCUTdRZWRQWFhmZ19QV1diOW54V2dRcFFpX2FLOWFTTGtHcmVnb2Y5aFJDdGFMUVZDYTA0NVYxNk9QakhiRXZqRzhvcVBGVFZ6RklPcER5M0ZONTlZX283X2M2TEhmRHlYXzdZM1lCdXNhWUx5TFHSAdcBQVVfeXFMTlJRbml3b3VuVEdhS2xJb2VneTVWRzMtdjB1SjN5Uks1eXNmV043czlNT2Uyb1dpT2FyV2M1blpvcUdpY0hpcDlOTUI5X3BqeW1uNFdGYUk2Y3pnbHBPUDBZNVNFRzByQ245ZnBMMlRuN1hrQWFyQ0Y4eWpmcTgySnY3M0FjaDZ3ZUlyRmpRT2d0Zmc2NkdfYjA1WUJiWmJSa3ZfN0QyZm9pcG5JMkxSaXk5OVpOQTA0TzhBTUdSNzhOelFMck14VlNNVE9VeVBTcElYNFh3S2M?oc=5",
-   "source": "simplywall.st",
-   "pubDate": "Sun, 21 Jun 2026 04:38:43 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 1,
-   "score": 56,
-   "selectionReason": "base+20 | tier1+14 | recency+12 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis"
-  },
-  {
-   "title": "Oil prices fall after de-escalation of Iran war - People Daily",
-   "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPcFlobUxpWUxvVkhrMmpuWWwyNEVDRjNPRkFhY3dTVHB2SXg3bmlVeGpsaFFvbkdNdEVpQnh5ZUx1MU5SSDMtSXZzMFAwaXRhRzhwN1BYcURWZHNPNUJ6bVZVaXFaZXVkLTVzbms2SWhlODIwWFRTTXc5ajctSTM5WXJqS0xMNllObDlBMw?oc=5",
-   "source": "People Daily",
-   "pubDate": "Sun, 21 Jun 2026 04:07:43 GMT",
+   "title": "Strait of Hormuz Tensions Put Oil Markets on Edge: Why Azerbaijan Is Watching Closely - Caspian Post",
+   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxNbmVqdlNiOHhOdTdDdEtWOEFfT2xOV29WMlB4RW1PRmNFdTdFX19nek9id0FUMFpIS01nZnhFX0ctYnNFYkVkcElxOGZmUURUM2Zya3hkaTk1WXJacDlYWm9qTHFoUjVkVHlPa2E3a1hteERVSmRWbmd5RnNNMDdIUW9GazhWZnkwZWJ1Sm1hcjNtMFN4Z0JmZGV1R3NidmZtVm5RRTJieFFaS1NJYm1Bb3h3czktQ0RKLVE?oc=5",
+   "source": "Caspian Post",
+   "pubDate": "Sun, 21 Jun 2026 06:26:30 GMT",
    "topic": "geo",
    "country": "global",
    "tier": 1,
    "score": 54,
    "selectionReason": "base+20 | tier1+14 | recency+6 | geopolitics-energy+14",
    "feedSource": "Google News - Geopolitics/Energy"
+  },
+  {
+   "title": "Petrol prices in Australia are now lower than before the Iran war began. Is the oil crisis over and what happens next? - The Guardian",
+   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOTkcyTFA4ZHFSb2J6eUlHc1J6WXBvUk1RNlZaa0hqRl9Gc0o3NTl5aWFnMGVWZGNBTU9zcWpEdk9iVXBON2piWUdmcUxhZnhOYTVRTW1FMUI3ZW1GWldEOUVERllmM0xXQWpuQVYySlJhd2lIUk9rOUtRLUY1S29vcFkwMGtqNk9zVU1EYnRCYlFxYlZBbDk1ajduRnpGb0RETHp5a2tlWnFEZWdhSk43bXdmT1E5cV8ybEE?oc=5",
+   "source": "The Guardian",
+   "pubDate": "Sun, 21 Jun 2026 06:07:00 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 1,
+   "score": 54,
+   "selectionReason": "base+20 | tier1+14 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy"
+  },
+  {
+   "title": "Fed Holds Rates and Leans Toward Fighting Inflation With Future Increases - The New York Times",
+   "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOWlo2eWRfMHQzRGk2MTdTdkR4R3FLWHlxWjdRekZCOWRhWk42ajJxamdDcmZlbER4TzVxZlFMa0F5d0wycHVMejh1Qk1vTGtWQW1qV05HdXp6ZFFOd3FEOXdaRmw5ZC1HdDd6WGl1Q3NnOS0xc3Y0YUdyQ3htLUlzTVJqRG9oalZM?oc=5",
+   "source": "The New York Times",
+   "pubDate": "Sun, 21 Jun 2026 06:01:16 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 1,
+   "score": 54,
+   "selectionReason": "base+20 | tier1+14 | recency+6 | macro-rates+14",
+   "feedSource": "Google News - US markets"
+  },
+  {
+   "title": "US stocks decline as inflation fears and rate hikes persist - scanx.trade",
+   "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOT3JnWVd4YWt6R3RWZTVxTmNFcTk3MzdNX1cxVGpKQ0UzX09Vd1VwUy1FdU1NSTZhb1plOUFzeUlSRUtTaGdzY0ZGaHRtUDRaUEFsV0o2UkJuekNXOXZnWDZnQlhOTm1PNGQ2YW1TT3hkQ1VqZVNHQy1RNkVPdlBYRWVPU2RZOHd3U2FoaWtiRHVPSzVuQ25WdnkyQklWY0JJSHlYTWJ5SWF0d215b0FtOVJuOA?oc=5",
+   "source": "scanx.trade",
+   "pubDate": "Sun, 21 Jun 2026 04:48:18 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 1,
+   "score": 54,
+   "selectionReason": "base+20 | tier1+14 | recency+6 | macro-rates+14",
+   "feedSource": "Google News - US markets"
   },
   {
    "title": "US Fed's key inflation gauge likely to show rising price pressures - Business Standard",
@@ -997,18 +1021,6 @@
    "score": 54,
    "selectionReason": "base+20 | tier1+14 | recency+6 | macro-rates+14",
    "feedSource": "Google News - US markets"
-  },
-  {
-   "title": "STRAIT OF HORMUZ CLOSED AGAIN JUST IN: Iran's joint military command says that the Strait of Hormuz is closed again and cites Israeli attacks in Lebanon. | via Associated Press - facebook.com",
-   "link": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxPMTFjWml3SkxEelhtWXB5UTQySVhCY01penUxLWFtMVAySF9NcVhRMGlRcVMxWmU1djVkakxsUWVqVEIxZHNzSS1WQjQtZlhvUnVablRacWZ1X0FiZDljRUZZVG9MUnJYbGx5LWFRQ2QybWpzOG5XQTMtcHcwZ3JheDZHLWhXSldtTS00c1JkTnBDTk5tM090N3dLQkNtZGxHSmlCNkxGZmRUNGZYaXZmazVIdjVFb0ZuN285VVAxSWFqaWpiM0hzQWx5R3pKNmkyeWxLZ2JXT2M3c19h?oc=5",
-   "source": "facebook.com",
-   "pubDate": "Sun, 21 Jun 2026 01:45:17 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 1,
-   "score": 54,
-   "selectionReason": "base+20 | tier1+14 | recency+6 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy"
   },
   {
    "title": "How Deal With U.S. Could Reconnect Iran to the Global Economy - The New York Times",
@@ -1095,18 +1107,6 @@
    "feedSource": "Google News - US markets"
   },
   {
-   "title": "Kevin Warsh Succeeds Jerome Powell as Fed Chair: Impact on Markets and Inflation - News and Statistics - IndexBox",
-   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxORHNkekExYUtnc0trN2ZjaHNTR3Nuak83eHp1S2lpTV9PQ0k5MElrMzFuUlQyeW8wRU5NMXJvUUVPMVBHRWlSNXA3NjlyUEd5dzhKX1NqbERoQWxkVDI4cUJJTnA3U3RPZ0c0WmY1TnIxbHYyWElSaV9WbXRLczh0UTZhLTdHbUppTlBSY0xsRjNDb0RuaTBxOTk5ajMydEwyNXhCS1NpdGlhR2ptX3ZBbmMwUW9LcWF6?oc=5",
-   "source": "IndexBox",
-   "pubDate": "Sat, 20 Jun 2026 11:50:00 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 1,
-   "score": 54,
-   "selectionReason": "base+20 | tier1+14 | recency+6 | macro-rates+14",
-   "feedSource": "Google News - US markets"
-  },
-  {
    "title": "Qualcomm Rose 6% Today as AI Data Center Hopes Build. Here’s Where the Stock Could Head in 2026 - TIKR.com",
    "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPS25pVFNSTnpNamVic3d1Z2JVZmlvMlRMTDY2MldEUFpuTF95UG52U1JkTzBDcFZqX1VCSFVuVTd3cUY1YW5KV3RhQU5RREx1Y3NVYjRMX0JzMlVZLXUwUnJ1dG1zR2lvSkxrc3dqZjM5V1ZBYnp0R1R4X0hLSVJfckNDajRqUUhUYm95bHZsTTlUNUU5bENnWUdFWDdPcGhwMTVsMXA4THRhdm5Edzdhc183RVdWdEQyZFE?oc=5",
    "source": "TIKR.com",
@@ -1144,9 +1144,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**한 줄 요약:** Fear&Greed 37(공포)에서 VIX 상승세 속 PCE·Fed 정책 신호 대기 중이며, AI칩 수요 강세가 나스닥을 견인하고 있습니다.\n\n**①변동성/심리** - Fear&Greed 지수 37로 공포심리 우세 중이며, 인플레이션 데이터(CPI 4.2%) 발표 임박으로 변동성 확대 예상됩니다.\n\n**②거시/금리** - Fed 기준금리 3.63% 유지 상황에서 PCE 발표 앞 통화정책 신호 해석에 시장 초점이 집중되어 있습니다.\n\n**③주도 뉴스/리스크** - 마이크론 실적 호재에 반도체주가 주도하는 가운데, 미-이란 휴전 불확실성과 금값 하락세(4,000 근처)가 위험요소로 작용 중입니다.",
+  "full": "# 현재 시장 분석\n\n**미국 인플레이션(CPI 4.2%)과 연방기금율(3.63%) 속 금리 방향성 불확실성이 시장의 주요 변수로 작용 중입니다.**\n\n① **변동성/심리**: VIX 37로 상승하며 시장 불안심리가 고조되었으나, 인플레이션 둔화 신호에 월가가 부분적 안도감을 보이고 있습니다.\n\n② **거시/금리**: CPI 4.2%와 현 기금율 3.63% 수준에서 연방준비제도의 금리 정책 방향 논의가 진행 중이며, PCE 등 추가 거시지표 발표를 시장이 주시하고 있습니다.\n\n③ **주도 뉴스/리스크**: 미-이란 휴전 협상 불확실성, 호르무즈 해협 폐쇄 우려가 유가(WTI) 변동성을 높이고 있으며, AI 칩 섹터의 상승에도 불구하고 금리 정책 불확실성이 광범위한 리스크 요인으로 평가됩니다.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-06-21T10:22:02.133Z",
+  "generatedAt": "2026-06-21T12:30:32.588Z",
   "model": "claude-haiku-4-5"
  }
 }
