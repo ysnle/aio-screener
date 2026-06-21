@@ -1,5 +1,48 @@
 ﻿# AIO 스크리너 변경 이력 (Changelog)
 
+## v50.98 - Market-impact news selection audit (2026-06-21)
+
+- **GitHub Secrets 확인**: `ANTHROPIC_API_KEY`, `FMP_API_KEY`, `FRED_API_KEY` 이름은 Actions workflow가 기대하는 이름과 일치. GitHub는 Secret 값을 재조회할 수 없으므로 새 `refresh-data` 실행 후 `fredFetchOk`/`marketAnalysisOk`/FMP enrichment 결과로 유효성을 확인해야 함.
+- **서버 뉴스 선별 강화**: `scripts/fetch-data.mjs` 서버 백스톱 뉴스를 2개 최신순 RSS 쿼리에서 6개 시장 축(매크로, AI·반도체, 지정학·에너지, FX·채권, 애널리스트·실적, 한국시장)으로 확장. 각 기사에 `topic`/`country`/`tier`/`feedSource`/`score`/`selectionReason`을 기록하고, `data.json.meta`에 `serverNewsScored`, `newsSourceCount`, `newsScoreMin`, `newsScoreMax`를 노출.
+- **점수 기준 보강**: 서버 점수는 신선도, 소스 tier, 매크로·금리, 지정학·에너지, AI·반도체, 실적·가이던스, 애널리스트 액션, FX·채권·원자재, 메가캡, 미확인/프로모션/클릭베이트 패널티를 반영. LLM 시장 분석 입력도 단순 최신순이 아니라 시장 영향도순 뉴스가 먼저 들어감.
+- **런타임 감사 강화**: 클라이언트 `scoreItem()`이 `_scoreReasons`를 남기고 미확인 소식통성 기사에 감점을 적용. `AIO.getNewsSelectionAudit()` 추가로 점수 구간, 토픽/소스/tier 분포, 검증 상태, home/briefing/market-news 노출 가능 건수를 진단.
+- **계약 게이트**: `scripts/ci-data-pipeline-contract-check.mjs`가 서버 뉴스 점수화, 선정 이유, score meta, 런타임 selection audit 제거를 실패로 잡도록 확장. R226/P521/v50.98 QA 항목 추가.
+
+## v50.97 - Korean market-news rewrite brief (2026-06-21)
+
+- **news rewrite UI**: 시장 뉴스 상단에 `Market Summary - YYYY년 M월 D일` 형식의 한국어 재작성 브리프를 추가. 외신/RSS/Telegram 뉴스를 미국 정치, 국제외교, 지정학, 연준/경제, AI/빅테크, 원자재/에너지 등 섹션으로 묶어 표시.
+- **rewrite contract**: 번역 캐시에 `ko_rewrite`, `ko_section`, `ko_market`을 추가하고, Claude/Anthropic 프롬프트도 section/rewrite/market JSON을 요구하도록 확장.
+- **fallback quality**: API 키가 없어도 로컬 인사이트가 보수적인 한국어 브리핑 문장과 시장 확인 포인트를 생성하도록 보강.
+- **CI gate**: data-pipeline contract check가 한국어 재작성 브리프 컨테이너와 rewrite 필드를 정적 검증.
+
+## v50.96 - Multi-agent QA version sync + stale/currentness UX (2026-06-21)
+
+- **version sync**: v50.95 → v50.96 R1 표면 동기화 — title, badge, JS cachebusters, `APP_VERSION`, `SW_VERSION`, `version.json`, CLAUDE/context 문서.
+- **ticker UX**: ticker 페이지 진입 후에도 바로 종목을 바꿔 분석할 수 있도록 직접 검색창과 주요 티커 quick chips를 추가.
+- **currentness UX**: 뉴스 stale 배너, FRED 폴백 배너, KR 수급 폴백 경고를 표시해 자동 수집/정적 폴백 상태를 사용자가 구분할 수 있게 보강.
+- **KR/theme navigation**: KR 홈·테마·티커 연결부에서 종목명/티커 클릭 시 상세 분석으로 이어지도록 QA 보강.
+
+## v50.95 - Korean news translation insight fallback + chat context hardening (2026-06-20)
+
+- **news translation fallback**: `_aioBuildNewsLocalKoreanInsight()`/`_aioGetNewsTranslation()` 추가. Claude/Google 번역이 없거나 실패해도 모든 뉴스에 한국어 요약, 해석, 영향, 확인 액션을 생성.
+- **news UI**: market-news 카드에 요약뿐 아니라 해석/확인 액션을 표시하고, home top-news에도 한국어 요약 한 줄을 노출.
+- **chat context**: `_buildNewsContext()`가 원문 headline/desc 대신 한국어 제목·요약·해석·영향·확인 필드를 주입해 LLM 답변의 설명 근거를 강화.
+- **operation gate**: `AIO.getNewsTranslationQualityAudit()`와 `ci-data-pipeline-contract-check.mjs` 항목을 추가해 한국어 뉴스 해석 fallback과 chat 소비 경로를 회귀 방지.
+
+## v50.94 - Data pipeline contract gate + public-data operational audit (2026-06-20)
+
+- **CI**: `scripts/ci-data-pipeline-contract-check.mjs` 추가 — `refresh-data.yml` → `public-data/*.json` → `_aioLoadServerData()` → `AIO.getDataPipelineAudit()` → chat/news/memo 소비 경로를 정적 계약으로 검증.
+- **Actions watchdog**: `data-watchdog.yml`가 freshness뿐 아니라 `symbolsOk >= 70`, `newsCount >= 10`, Telegram digest `count >= 100/channels >= 2`를 hard gate로 확인. FRED/LLM 비활성은 경고로 명시.
+- **runtime audit**: `_serverDataMeta`에 FRED/F&G/news/LLM/Telegram/screener 상태를 보존하고, `AIO.getDataPipelineAudit().layers.sources.publicData`로 노출.
+- **contract wiring**: runtime contract gate가 새 data-pipeline gate 존재와 CI 연결을 요구하도록 확장.
+
+## v50.93 - Telegram digest memo overlay + CI gate wiring (2026-06-20)
+
+- **aio-data.js**: `public-data/telegram-digest.json` 로드 시 `topItems/items`의 ticker를 `SCREENER_DB.memo` 동적 `[TG YYYY-MM-DD · auto]` overlay로 반영. 기존 정적 `[TG 06/16]` 메모는 보존하고 최신 overlay를 앞에 배치.
+- **audit/test**: `getTelegramPipelineAudit()`에 `memoOverlay` 적용 수/종목을 노출. T831이 digest/freshness/page-map뿐 아니라 `SCREENER_DB` memo 주입까지 확인.
+- **CI**: `.github/workflows/ci.yml`에 runtime contract, semantic review, workflow compaction gate를 연결. `ci-runtime-contract-check.mjs`가 Telegram digest→memo 계약을 정적 검증.
+- **context**: 누락된 `_context/WORKFLOW-GOVERNANCE.md`를 워크트리에 통합하고 INDEX/_context CLAUDE/QA/RULES/POSTMORTEM에 실행 게이트를 연결.
+
 ## v50.92 - Simplify — FX/Bond dead DOM 제거 + freshness 헬퍼 추출 (2026-06-20)
 
 - **index.html**: `fx-dynamic-comment`·`bond-dynamic-comment` 두 섹션 제거 — JS 참조 0건, "분석 입력 수신 대기…" 텍스트만 영구 표시하던 dead placeholder

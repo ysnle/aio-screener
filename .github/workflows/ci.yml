@@ -51,6 +51,18 @@ jobs:
       - name: Structural regression checks
         run: node scripts/ci-structural-check.mjs
 
+      - name: Runtime contract checks
+        run: node scripts/ci-runtime-contract-check.mjs
+
+      - name: Data pipeline contract checks
+        run: node scripts/ci-data-pipeline-contract-check.mjs
+
+      - name: Semantic review checks
+        run: node scripts/ci-semantic-review-check.mjs
+
+      - name: Workflow compaction checks
+        run: node scripts/ci-workflow-compaction-check.mjs
+
       - name: stray 임시/백업 파일 검사
         run: |
           set -e

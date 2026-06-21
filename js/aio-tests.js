@@ -6486,11 +6486,16 @@
         ],
         count: 796,
         topicCounts: { macro:244, semi:187, optical:45, power:80 },
-        tickerCounts: { NVDA:66, MU:56 }
+        tickerCounts: { NVDA:66, MU:56 },
+        topItems: [
+          { channel:'insidertracking', datetime:'2026-06-16T05:00:00.000Z', tickers:['NVDA','MU'], score:94, text:'NVDA and MU memory supply update: HBM allocation, AI server demand, and optical capacity pressure.' },
+          { channel:'bornlupin', datetime:'2026-06-16T04:00:00.000Z', tickers:['NVDA'], score:88, text:'NVDA Rubin supply-chain memo and hyperscaler capex check from Telegram public mirror.' }
+        ]
       };
       var applied831 = typeof window._aioApplyTelegramDigestPayload === 'function' && window._aioApplyTelegramDigestPayload(sample831);
       var tg831 = window.AIO_TELEGRAM_WEEKLY_DIGEST || {};
       var audit831 = window.AIO && typeof window.AIO.getTelegramPipelineAudit === 'function' ? window.AIO.getTelegramPipelineAudit() : null;
+      var memoRow831 = (typeof SCREENER_DB !== 'undefined' && Array.isArray(SCREENER_DB)) ? SCREENER_DB.find(function(r) { return r && r.sym === 'NVDA'; }) : null;
       t831ok = !!(applied831 &&
         tg831.dynamicDigestLoaded === true &&
         tg831.counts && tg831.counts.total === 796 &&
@@ -6498,16 +6503,21 @@
         window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP && Array.isArray(window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP.home) &&
         window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._telegramDigestUpdated === '2026-06-16T06:08:15.307Z' &&
         String(window._aioLoadServerTelegramDigest || '').indexOf('telegram-digest.json') >= 0 &&
-        audit831 && audit831.digest && audit831.digest.dynamicLoaded === true);
+        audit831 && audit831.digest && audit831.digest.dynamicLoaded === true &&
+        audit831.memoOverlay && audit831.memoOverlay.appliedCount >= 1 &&
+        memoRow831 && String(memoRow831.memo || '').indexOf('[TG 2026-06-16') === 0 &&
+        String(memoRow831._telegramMemoOverlay || '').indexOf('auto') >= 0);
       t831detail = JSON.stringify({
         applied: applied831,
         dynamic: tg831.dynamicDigestLoaded,
         count: tg831.counts && tg831.counts.total,
         digestStatus: audit831 && audit831.digest && audit831.digest.status,
+        memoApplied: audit831 && audit831.memoOverlay && audit831.memoOverlay.appliedCount,
+        memoTickers: audit831 && audit831.memoOverlay && audit831.memoOverlay.tickers,
         telegramDigestUpdated: window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._telegramDigestUpdated
       });
     } catch(e) { t831detail = 'ERR:' + e.message; }
-    _assert('T831 v5063_telegram_digest_auto_refresh_loop: public-data Telegram digest can update digest, freshness, page-map, and audit layers', t831ok, t831detail);
+    _assert('T831 v5063_telegram_digest_auto_refresh_loop: public-data Telegram digest can update digest, freshness, page-map, SCREENER_DB memo, and audit layers', t831ok, t831detail);
 
     // T832: v50.64 WebSearch setup integrity — Google CSE requires both key+cx, and cx is persisted like other keys.
     var t832ok = false, t832detail = '';

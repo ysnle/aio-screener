@@ -3,8 +3,13 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v50.89**
+- 현재 버전: **v50.98**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v50.98 Market-impact news selection**: Actions 뉴스 백스톱을 매크로/AI·반도체/지정학·에너지/FX·채권/애널리스트·한국시장 6축으로 확장. 서버 뉴스에도 `score`/`selectionReason`/`serverNewsScored`를 부여하고 `AIO.getNewsSelectionAudit()`로 선별 기준을 감사.
+- **v50.96 multi-agent QA version sync**: ticker 페이지 직접 검색 진입, KR 수급 폴백 경고, 뉴스 stale 배너/데이터 신선도 표시, v50.95 한국어 뉴스 insight 보강을 R1 버전 표면까지 최종 동기화.
+- **v50.95 Korean news insight fallback**: Claude/Google 번역이 없거나 약해도 `_aioBuildNewsLocalKoreanInsight()`가 모든 뉴스에 한국어 요약·해석·영향·확인 액션을 생성하고, market-news/home/chat 컨텍스트가 이를 소비. `getNewsTranslationQualityAudit()`와 data-pipeline contract gate가 회귀를 감시.
+- **v50.94 data pipeline contract gate**: refresh-data/data-watchdog/scripts/app 소비 경로를 `ci-data-pipeline-contract-check.mjs`로 묶고, `AIO.getDataPipelineAudit()`가 public-data/FRED/LLM/Telegram/screener 운영 상태를 드러냄.
+- **v50.93 Telegram digest memo + CI gate wiring**: Actions가 생성한 `public-data/telegram-digest.json`이 `SCREENER_DB.memo` 동적 `[TG YYYY-MM-DD · auto]` overlay까지 반영되도록 연결. `getTelegramPipelineAudit()`/T831/runtime contract gate가 memo 주입을 검증하고, CI가 runtime/semantic/workflow gates를 모두 실행.
 - **v50.89 semantic review + workflow compaction gate**: 감사 함수/shape/coverage/DOM 존재 확인이 실제 의미 검토를 대체하지 못하도록 R219/P513 + `ci-semantic-review-check.mjs` 추가. `_context`/CLAUDE/skills가 append-only로 비대해지는 문제를 R220/P514 + `ci-workflow-compaction-check.mjs`로 관리.
 - **v50.87 코드리뷰 버그수정**: `aio:marketStateUpdated` `window`/`document` 불일치 + `.page-active`→`.page.active` 이중 버그(다이어그램 재렌더 완전 불동작 수정). AI 채팅 SVG를 DOMPurify.sanitize(SVG profile)로 XSS 방어. `CHAT_CONTEXTS['kr-home']` 신설(v50.85 약속 이행). M7 카운트 `d.pct||0` R15 위반 수정. CHANGELOG 순서 정렬(v50.87→v50.86→v50.85→v50.84→v50.83). R3 BUG-POSTMORTEM P510/P511 추가.
 - **v50.86 구조 통합 보강**: `_aioFoldDensePageControls` screener 결함 수정(vis-screener 다이어그램 접기 버그 제거, 텍스트 IC만 접기). market-news textContent 매칭 → `#news-source-guide` ID 기반 전환. `_buildSectors()` 추가 — portfolio × SCREENER_DB × liveData 섹터 비중 계산. vis-portfolio 플레이스홀더 + VIS_PAGES 확장으로 portfolio 섹터 버블 자동 렌더.

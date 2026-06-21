@@ -168,10 +168,66 @@ async function fetchFearGreed() {
 //     없으므로 안정적으로 RSS를 받아 data.json.news로 떨군다. 클라이언트는 자체 뉴스가 비었을
 //     때만 이걸 폴백으로 렌더(작동 중이면 손대지 않음 — additive). Google News RSS는 서버 fetch에
 //     안정적이고 <source> 태그로 실제 매체명을 준다.
+function _googleNewsSearchUrl(query, hl = 'en-US', gl = 'US', ceid = 'US:en') {
+  return 'https://news.google.com/rss/search?q=' + encodeURIComponent(query) + '&hl=' + hl + '&gl=' + gl + '&ceid=' + ceid;
+}
+
 const NEWS_FEEDS = [
-  { url: 'https://news.google.com/rss/search?q=stock%20market%20OR%20S%26P%20500%20OR%20Federal%20Reserve%20when:2d&hl=en-US&gl=US&ceid=US:en', source: 'Google News' },
-  { url: 'https://news.google.com/rss/search?q=nvidia%20OR%20semiconductor%20OR%20AI%20stocks%20OR%20earnings%20when:2d&hl=en-US&gl=US&ceid=US:en', source: 'Google News' },
+  { query: 'stock market OR S&P 500 OR Nasdaq OR Federal Reserve OR Treasury yield OR inflation when:2d', source: 'Google News - US markets', topic: 'macro', country: 'us', tier: 1 },
+  { query: 'Nvidia OR semiconductor OR AI stocks OR data center OR earnings guidance when:2d', source: 'Google News - AI/Semis', topic: 'semi', country: 'us', tier: 1 },
+  { query: 'Iran OR Hormuz OR Red Sea OR oil prices OR geopolitics OR sanctions when:2d', source: 'Google News - Geopolitics/Energy', topic: 'geo', country: 'global', tier: 1 },
+  { query: 'dollar OR yen OR Treasury yields OR bond market OR credit spreads OR gold when:2d', source: 'Google News - FX/Bonds', topic: 'fxbond', country: 'global', tier: 1 },
+  { query: 'upgrade OR downgrade OR price target OR analyst rating OR earnings guidance stock when:2d', source: 'Google News - Analyst/Earnings', topic: 'analyst', country: 'us', tier: 2 },
+  { query: 'KOSPI OR Samsung Electronics OR SK Hynix OR Korean exports OR won dollar when:2d', source: 'Google News - Korea markets', topic: 'korea', country: 'kr', tier: 2 },
+].map(feed => ({ ...feed, url: _googleNewsSearchUrl(feed.query, feed.country === 'kr' ? 'ko' : 'en-US', feed.country === 'kr' ? 'KR' : 'US', feed.country === 'kr' ? 'KR:ko' : 'US:en') }));
+
+const SERVER_NEWS_PRIORITY_RULES = [
+  { label: 'macro-rates', points: 14, re: /\b(fed|fomc|powell|rate cut|rate hike|inflation|cpi|ppi|pce|payroll|jobs report|recession|soft landing|treasury yield|bond yield)\b/i },
+  { label: 'geopolitics-energy', points: 14, re: /\b(iran|hormuz|red sea|israel|lebanon|ukraine|sanction|tariff|export control|oil prices?|wti|brent|lng|opec)\b/i },
+  { label: 'ai-semis', points: 13, re: /\b(nvidia|nvda|semiconductor|chip|hbm|dram|sk hynix|samsung electronics|tsmc|asml|blackwell|rubin|data center|ai infrastructure)\b/i },
+  { label: 'earnings-guidance', points: 10, re: /\b(earnings|revenue|eps|guidance|outlook|margin|buyback|dividend|preannounces?)\b/i },
+  { label: 'analyst-action', points: 8, re: /\b(upgrade|downgrade|price target|rating|initiates|overweight|underweight|buy rating|sell rating)\b/i },
+  { label: 'fx-bonds-commodities', points: 8, re: /\b(dollar|yen|euro|yuan|won|dxy|forex|gold|copper|credit spread|yield curve)\b/i },
+  { label: 'mega-cap', points: 8, re: /\b(aapl|apple|msft|microsoft|nvda|nvidia|amzn|amazon|meta|tesla|tsla|googl|google|avgo|broadcom|amd|oracle|orcl|jpm|exxon|xom)\b/i },
 ];
+
+const SERVER_NEWS_CLICKBAIT_RE = /\b(next nvidia|next tesla|must buy|guaranteed return|millionaire|hidden gem|penny stock|to the moon|won't believe|don't miss|best stocks? to buy now)\b/i;
+const SERVER_NEWS_UNVERIFIED_RE = /\b(people familiar|sources say|according to sources|unconfirmed|rumor|reportedly|may be considering|is said to)\b/i;
+
+function scoreServerNewsItem(item) {
+  const text = `${item.title || ''} ${item.source || ''} ${item.topic || ''}`;
+  if (SERVER_NEWS_CLICKBAIT_RE.test(text)) return { score: 0, selectionReason: 'clickbait-filter' };
+
+  let score = 20;
+  const reasons = ['base+20'];
+  const tierBonus = item.tier === 1 ? 14 : item.tier === 2 ? 8 : 3;
+  score += tierBonus;
+  reasons.push(`tier${item.tier || 3}+${tierBonus}`);
+
+  const ageH = item.ts ? (Date.now() - item.ts) / 3600000 : 48;
+  const recency = ageH <= 1 ? 18 : ageH <= 6 ? 12 : ageH <= 24 ? 6 : ageH <= 48 ? 2 : -8;
+  score += recency;
+  reasons.push(`recency${recency >= 0 ? '+' : ''}${recency}`);
+
+  for (const rule of SERVER_NEWS_PRIORITY_RULES) {
+    if (rule.re.test(text)) {
+      score += rule.points;
+      reasons.push(`${rule.label}+${rule.points}`);
+    }
+  }
+
+  if (SERVER_NEWS_UNVERIFIED_RE.test(text)) {
+    score -= 8;
+    reasons.push('unverified-8');
+  }
+  if (/\b(opinion|sponsored|partner content|advertisement)\b/i.test(text)) {
+    score -= 18;
+    reasons.push('promo-opinion-18');
+  }
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return { score, selectionReason: reasons.slice(0, 7).join(' | ') };
+}
 function _decodeNewsEntities(s) {
   return String(s || '')
     .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
@@ -200,20 +256,43 @@ async function fetchNews() {
         const srcTag = _decodeNewsEntities((b.match(/<source[^>]*>([\s\S]*?)<\/source>/i) || [])[1]);
         if (!title || !link) continue;
         const t = pub ? new Date(pub).getTime() : 0;
-        items.push({ title: title.slice(0, 200), link, source: srcTag || feed.source, pubDate: pub || null, ts: isFinite(t) ? t : 0 });
+        const item = {
+          title: title.slice(0, 200),
+          link,
+          source: srcTag || feed.source,
+          pubDate: pub || null,
+          ts: isFinite(t) ? t : 0,
+          topic: feed.topic,
+          country: feed.country,
+          tier: feed.tier,
+          feedSource: feed.source,
+        };
+        Object.assign(item, scoreServerNewsItem(item));
+        items.push(item);
       }
     } catch (e) { /* 피드별 실패 무시 */ }
   }
   // 중복(제목) 제거 + 최신순 + 25건 cap
-  items.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  items.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.ts || 0) - (a.ts || 0));
   const seen = new Set();
   const out = [];
   for (const it of items) {
     const k = it.title.toLowerCase().slice(0, 60);
     if (seen.has(k)) continue;
     seen.add(k);
-    out.push({ title: it.title, link: it.link, source: it.source, pubDate: it.pubDate });
-    if (out.length >= 25) break;
+    out.push({
+      title: it.title,
+      link: it.link,
+      source: it.source,
+      pubDate: it.pubDate,
+      topic: it.topic,
+      country: it.country,
+      tier: it.tier,
+      score: it.score,
+      selectionReason: it.selectionReason,
+      feedSource: it.feedSource,
+    });
+    if (out.length >= 40) break;
   }
   return out;
 }
@@ -590,6 +669,7 @@ async function main() {
   const fearGreedOk = typeof fearGreed.score === 'number' && isFinite(fearGreed.score);
   const fredHasKey = !!process.env.FRED_API_KEY;
   const fredFetchOk = fredHasKey && macroKeys.length > 0;
+  const newsScores = Array.isArray(news) ? news.map(n => Number(n.score)).filter(n => isFinite(n)) : [];
   const fredOk = fredFetchOk; // 하위 호환 유지
 
   const data = {
@@ -606,6 +686,10 @@ async function main() {
       macroKeyCount: macroKeys.length,
       newsOk: Array.isArray(news) && news.length > 0,
       newsCount: Array.isArray(news) ? news.length : 0,
+      newsSourceCount: NEWS_FEEDS.length,
+      serverNewsScored: true,
+      newsScoreMin: newsScores.length ? Math.min(...newsScores) : null,
+      newsScoreMax: newsScores.length ? Math.max(...newsScores) : null,
       elapsedMs: Date.now() - t0,
       schema: 1,
     },

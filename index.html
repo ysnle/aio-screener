@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v50.92 — 올인원 투자 터미널</title>
+  <title>AIO Screener v50.98 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4227,7 +4227,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.92</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v50.98</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4532,7 +4532,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="^GSPC">—</div>
       <div style="font-size:10px;" data-live-chg="^GSPC">—</div>
       <div data-idx-futures="^GSPC" style="display:none;font-size:11px;margin-top:2px;"></div>
-      <div id="mkt-regime-sub" style="font-size:11px;color:var(--text-muted);margin-top:3px;">ATH 수신 대기</div>
+      <div id="mkt-regime-sub" style="font-size:11px;color:var(--text-muted);margin-top:3px;">ATH -0.4% · Near ATH</div>
     </div>
     <div id="snap-ixic" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-cyan);border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="technical" title="차트 분석 →">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">NASDAQ</div>
@@ -4542,10 +4542,10 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     </div>
     <div id="snap-vix" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-amber);border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="sentiment" title="투자 심리 →">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">VIX 공포지수</div>
-      <div id="snap-vix-val" style="font-size:14px;font-weight:800;font-family:var(--font-mono);color:var(--data-amber);">—</div>
-      <div id="snap-vix-lbl" style="font-size:11px;color:var(--text-muted);">레벨 수신 대기</div>
-      <div id="vol-regime-val" style="font-size:11px;font-weight:700;margin-top:3px;">—</div>
-      <div id="vol-regime-sub" style="font-size:11px;color:var(--text-muted);">VIX %ile 수신 대기</div>
+      <div id="snap-vix-val" style="font-size:14px;font-weight:800;font-family:var(--font-mono);color:var(--data-green);">16.18</div>
+      <div id="snap-vix-lbl" style="font-size:11px;color:var(--text-muted);">안정</div>
+      <div id="vol-regime-val" style="font-size:11px;font-weight:700;margin-top:3px;color:var(--data-green);">안정</div>
+      <div id="vol-regime-sub" style="font-size:11px;color:var(--text-muted);">VIX 16 · 정상 구간</div>
     </div>
     <div id="snap-oil" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-purple);border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="macro" title="거시경제 →">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">WTI 원유</div>
@@ -4829,22 +4829,24 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <div class="risk-mon-cell">
         <div class="rm-label">
           <span class="term-tooltip">딜러 감마<span class="tip-icon">?</span>
-            <span class="tip-body">옵션 딜러의 감마 포지션. 숏감마=하방 증폭, 롱감마=안정. S&P -1.5% 시 $50억 노출</span>
+            <span class="tip-body">옵션 딜러의 감마 포지션. 숏감마=하방 증폭, 롱감마=안정. 수동 업데이트 필요 (GEX 전용 데이터 소스 미연동)</span>
           </span>
         </div>
-        <div class="rm-val" id="rm-gamma-val" style="color:var(--data-red);">숏감마</div>
-        <div class="rm-status" style="color:var(--data-red);background:rgba(255,91,80,0.1);">하방 증폭</div>
-        <div class="rm-bar-wrap"><div class="rm-bar" style="width:80%;background:var(--data-red);"></div></div>
+        <div class="rm-val" id="rm-gamma-val" style="color:var(--text-muted);">참고값</div>
+        <div class="rm-status" style="color:var(--text-muted);background:rgba(255,255,255,0.04);">갱신 미정</div>
+        <div style="font-size:10px;color:var(--data-amber);margin-top:3px;">⚠ 실시간 아님 · 수동 참고</div>
+        <div class="rm-bar-wrap"><div class="rm-bar" style="width:50%;background:var(--text-muted);"></div></div>
       </div>
       <div class="risk-mon-cell">
         <div class="rm-label">
           <span class="term-tooltip">기관 매매<span class="tip-icon">?</span>
-            <span class="tip-body">GS 데스크 플로우: 롱온리 +24% 매수 우위 · JPM "전술적 강세" 전환 · 바이백 블랙아웃 해제 후 기업 자사주 매수 재개</span>
+            <span class="tip-body">GS/JPM 기관 플로우 추적. 바이백 블랙아웃 해제·롱온리 수급 확인. 수동 업데이트 필요 — 정확한 수치는 블룸버그/GS 데스크 플로우 리포트 참고</span>
           </span>
         </div>
-        <div class="rm-val" id="rm-inst-val" style="color:var(--data-red);">-$96억</div>
-        <div class="rm-status" style="color:var(--data-red);background:rgba(255,91,80,0.1);">역대 최대 매도</div>
-        <div class="rm-bar-wrap"><div class="rm-bar" style="width:95%;background:var(--data-red);"></div></div>
+        <div class="rm-val" id="rm-inst-val" style="color:var(--text-muted);">참고값</div>
+        <div class="rm-status" style="color:var(--text-muted);background:rgba(255,255,255,0.04);">갱신 미정</div>
+        <div style="font-size:10px;color:var(--data-amber);margin-top:3px;">⚠ 실시간 아님 · 수동 참고</div>
+        <div class="rm-bar-wrap"><div class="rm-bar" style="width:50%;background:var(--text-muted);"></div></div>
       </div>
       <div class="risk-mon-cell">
         <div class="rm-label">
@@ -5430,6 +5432,41 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     <div style="position:relative;height:140px;"><canvas id="bp-ad-ratio-chart" role="img" aria-label="상승하락 비율 차트"></canvas></div>
   </div>
 
+  <!-- SECTION 4B: 52주 신고가/신저가 비율 -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+      <div>
+        <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">52주 신고가/신저가 비율<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="신고가/신저가 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">신고가·신저가 비율</span>NYSE 52주 신고가 종목수 / (신고가+신저가). <strong>70%+ 강세</strong> · <strong>30%↓ 약세 경보</strong>. 시장 폭(SMA 비율)과 함께 확인. 신고가 소멸 + SMA 하락 = 추세 전환 신호.</span></span></span>
+        <span style="font-size:11px;color:var(--text-muted);margin-left:6px;">NYSE 기준 · 수동 갱신</span>
+      </div>
+      <span style="font-size:11px;color:var(--data-amber);background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.2);border-radius:4px;padding:2px 8px;">⚠ 수동 갱신 · 실시간 미연결</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr) 1.5fr;gap:10px;align-items:center;">
+      <div style="text-align:center;">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">신고가 (52W High)</div>
+        <div id="breadth-new-highs" style="font-size:26px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);">—</div>
+        <div style="font-size:10px;color:var(--text-muted);">NYSE 종목</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">신저가 (52W Low)</div>
+        <div id="breadth-new-lows" style="font-size:26px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);">—</div>
+        <div style="font-size:10px;color:var(--text-muted);">NYSE 종목</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">고저 비율</div>
+        <div id="breadth-hl-ratio" style="font-size:26px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);">—</div>
+        <div style="font-size:10px;color:var(--text-muted);">신고가/(고+저)</div>
+      </div>
+      <div style="background:var(--surface-1);border-radius:6px;padding:10px;font-size:11px;color:var(--text-muted);line-height:1.6;">
+        <b style="color:var(--data-amber);">판단 기준:</b><br>
+        ≥70% → 강세 유지<br>
+        50~70% → 혼조 · 추세 확인<br>
+        ≤30% → 약세 경보<br>
+        <span style="font-size:10px;opacity:0.7;">출처: NYSE.com · Barchart $NYHGH/$NYLOW</span>
+      </div>
+    </div>
+  </div>
+
   <!-- SECTION 5: BREADTH PRICE & PANEL CHARTS (S&P500·나스닥100 듀얼라인, 전체 사이클 일별) -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
     <!-- Price Chart (SPY/QQQ) -->
@@ -5629,11 +5666,11 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         <!-- NAAIM + II Row -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;">
           <div class="aio-widget" style="padding:12px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;"><span class="term-tooltip">NAAIM 주식노출도<span class="tip-icon">?</span><span class="tip-body">전문 펀드매니저 주식 비중. 30↓=저점 신호.</span></span></div>
+            <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;"><span class="term-tooltip">NAAIM 주식노출도<span class="tip-icon">?</span><span class="tip-body">전문 펀드매니저 주식 비중. 30↓=저점 신호.</span></span><span style="font-size:10px;color:var(--data-amber);">⚠ <span data-snap-date="naaim-survey">2026-05-28</span></span></div>
             <div style="position:relative;height:140px;"><canvas id="naaim-chart" role="img" aria-label="NAAIM 투자매니저 노출도 차트"></canvas></div>
           </div>
           <div class="aio-widget" style="padding:12px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;"><span class="term-tooltip">투자전문가 황소/곰 비율<span class="tip-icon">?</span><span class="tip-body">뉴스레터 강세/약세 비율. 하위20%=Buy신호, 상위20%=과열.</span></span></div>
+            <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;"><span class="term-tooltip">투자전문가 황소/곰 비율<span class="tip-icon">?</span><span class="tip-body">뉴스레터 강세/약세 비율. 하위20%=Buy신호, 상위20%=과열.</span></span><span style="font-size:10px;color:var(--data-amber);">⚠ <span data-snap-date="ii-survey">2026-05-27</span></span></div>
             <div style="position:relative;height:140px;"><canvas id="ii-chart" role="img" aria-label="Investors Intelligence 강세/약세 차트"></canvas></div>
           </div>
         </div>
@@ -5660,17 +5697,17 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         <div id="aaii-text-fallback" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <div>
-              <span style="color:var(--data-red);font-weight:800;font-size:14px;font-family:var(--font-mono);" id="aaii-bear-val">43.0%</span>
+              <span style="color:var(--data-red);font-weight:800;font-size:14px;font-family:var(--font-mono);" id="aaii-bear-val">41.9%</span>
               <span style="color:var(--text-muted);font-size:11px;"> 약세</span>
             </div>
             <div style="text-align:right;">
-              <span style="color:var(--data-green);font-size:10px;font-family:var(--font-mono);" id="aaii-bull-val">35.7%</span>
+              <span style="color:var(--data-green);font-size:10px;font-family:var(--font-mono);" id="aaii-bull-val">35.6%</span>
               <span style="color:var(--text-muted);font-size:11px;"> 강세</span>
             </div>
           </div>
-          <div style="margin-top:4px;font-size:11px;color:var(--text-muted);" id="aaii-date-label">AAII 주간 설문 · 최신값 수집 대기</div>
+          <div style="margin-top:4px;font-size:11px;color:var(--text-muted);" id="aaii-date-label">AAII 주간 설문 · <span data-snap-date="aaii-survey">2026-05-27</span> (<span id="aaii-stale-days" style="color:var(--data-amber);">경과 산출 대기</span>) · <span style="color:var(--data-amber);font-weight:700;">⚠ 수동 갱신 필요</span></div>
           <div style="margin-top:3px;" id="aaii-signal-badge">
-            <span style="font-size:11px;font-weight:700;color:var(--data-amber);">● 중정도 비관 (-7.3% spread)</span>
+            <span style="font-size:11px;font-weight:700;color:var(--data-amber);">● 비관 우세 (-6.3% spread)</span>
             <span style="font-size:11px;color:var(--text-muted);margin-left:4px;">(극단 비관은 spread &lt; -20% 기준)</span>
           </div>
         </div>
@@ -5923,16 +5960,28 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
 
       <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:5px;">🌐 공식 매크로 캘린더 · 지난 이벤트는 라이브 데이터/뉴스에서 확인</div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:52px;">6/17</span>
-        <span style="color:var(--data-amber);flex-shrink:0;min-width:32px;">결과</span>
-        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">FOMC</span>
-        <span><b style="color:var(--data-amber);">FOMC 결과 확인</b> — 금리·달러·2Y/10Y 반응으로 정책 경로를 재평가합니다.</span>
+        <span style="font-family:var(--font-mono);color:var(--data-green);flex-shrink:0;min-width:52px;">6/25</span>
+        <span style="color:var(--data-green);flex-shrink:0;min-width:32px;">목</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">21:30 KST</span>
+        <span><b style="color:var(--data-green);">BEA May PCE (핵심 물가)</b> — Fed 선호 인플레 지표. 발표 전 수치 생성 금지.</span>
       </div>
       <div class="cal-row">
-        <span style="font-family:var(--font-mono);color:var(--data-amber);flex-shrink:0;min-width:52px;">6/25</span>
-        <span style="color:var(--data-amber);flex-shrink:0;min-width:32px;">목</span>
+        <span style="font-family:var(--font-mono);color:var(--text-muted);flex-shrink:0;min-width:52px;">7/3</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:32px;">목</span>
         <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">21:30 KST</span>
-        <span><b style="color:var(--data-amber);">BEA May Personal Income and Outlays</b> — Fed 선호 물가의 후속 확인점입니다. 발표 전 수치는 생성하지 않습니다.</span>
+        <span><b style="color:var(--text-secondary);">BLS 6월 NFP</b> — 비농업 신규고용. 5월 +172K(예상 대폭 상회) 이후 추세 확인.</span>
+      </div>
+      <div class="cal-row">
+        <span style="font-family:var(--font-mono);color:var(--text-muted);flex-shrink:0;min-width:52px;">7/10</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:32px;">목</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">BOK</span>
+        <span><b style="color:var(--text-secondary);">한국은행 금통위</b> — 기준금리 결정. 현행 2.50%. 원화 환율·내수 지표 확인.</span>
+      </div>
+      <div class="cal-row">
+        <span style="font-family:var(--font-mono);color:var(--text-muted);flex-shrink:0;min-width:52px;">7/15</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:32px;">수</span>
+        <span style="color:var(--text-muted);flex-shrink:0;min-width:88px;font-size:10px;">21:30 KST</span>
+        <span><b style="color:var(--text-secondary);">BLS 6월 CPI</b> — 소비자물가. 발표 전 수치 생성 금지.</span>
       </div>
 
       <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;margin-top:10px;margin-bottom:5px;">🧠 판단 원칙</div>
@@ -6664,6 +6713,16 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   </div>
 
   <!-- v50.5: 인플레이션·고용 핵심 (FRED 공식 발표 자동 갱신 — 키 설정 시 BLS/BEA 최신 릴리스 YoY, 미설정 시 스냅샷 폴백) -->
+  <div id="macro-fred-stale-banner" style="font-size:10px;color:var(--data-amber);background:rgba(255,163,26,0.07);border:1px solid rgba(255,163,26,0.2);border-radius:6px;padding:6px 12px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+    <span>⚠</span><span>CPI/PCE: <b>스냅샷 폴백</b> · FRED API 키 미설정 시 DATA_SNAPSHOT 값 표시 (CPI·PCE 2026-04~05 기준) · 6/25 May PCE 발표 후 갱신 예정</span>
+  </div>
+  <script>
+    (function(){
+      var fredOk = !!(window._fredData && (window._fredData.CPIAUCSL || window._fredData.PCEPI));
+      var banner = document.getElementById('macro-fred-stale-banner');
+      if (banner && fredOk) banner.style.display = 'none';
+    })();
+  </script>
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;">
     <div class="macro-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">CPI 인플레</div>
@@ -6678,22 +6737,22 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <div style="font-size:11px;color:var(--data-red);margin-top:3px;">끈질긴 인플레 측정</div>
     </div>
     <div class="macro-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">PCE</div>
+      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">PCE <span style="font-size:9px;color:var(--data-amber);">4월</span></div>
       <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);"><span data-snap="pce-yoy">3.8%</span></div>
       <div style="font-size:11px;color:var(--text-muted);">YoY · 헤드라인</div>
-      <div style="font-size:11px;color:var(--data-amber);margin-top:3px;">연준 선호 지표</div>
+      <div style="font-size:11px;color:var(--data-amber);margin-top:3px;">연준 선호 지표 · 6/25 May 발표</div>
     </div>
     <div class="macro-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">근원 PCE</div>
+      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">근원 PCE <span style="font-size:9px;color:var(--data-amber);">4월</span></div>
       <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);"><span data-snap="core-pce-yoy">3.3%</span></div>
       <div style="font-size:11px;color:var(--text-muted);">YoY · 2% 목표 기준</div>
       <div style="font-size:11px;color:var(--data-red);margin-top:3px;">Fed 금리 핵심 변수</div>
     </div>
     <div class="macro-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">NFP 신규고용</div>
-      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-cyan);"><span data-snap="nfp">+115K</span></div>
-      <div style="font-size:11px;color:var(--text-muted);">MoM · 비농업</div>
-      <div style="font-size:11px;color:var(--data-cyan);margin-top:3px;">고용 강세 vs 둔화</div>
+      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-cyan);"><span data-snap="nfp">+172K</span></div>
+      <div style="font-size:11px;color:var(--text-muted);">MoM · 비농업 (5월)</div>
+      <div style="font-size:11px;color:var(--data-cyan);margin-top:3px;">예상 85K 상회 · 금리인하 기대 후퇴</div>
     </div>
   </div>
 
@@ -7074,7 +7133,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         <div class="fx-pair">USD/JPY</div>
         <div class="fx-rate" data-live-price="JPY=X">—</div>
         <div class="fx-chg" data-live-chg="JPY=X">—</div>
-        <div class="fx-note" id="fx-note-jpy">BOJ 인상 기대로 150엔 저항. 개입 경계선 근접</div>
+        <div class="fx-note" id="fx-note-jpy">BOJ 1.00% 인상 완료. 160엔대 지속 — 추가 인상 or 엔-캐리 청산 모니터링</div>
         <div class="fx-signal fx-warn">개입 경계</div>
       </div>
       <!-- EUR/USD -->
@@ -7092,7 +7151,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         <div class="fx-pair">GBP/USD</div>
         <div class="fx-rate" data-live-price="GBPUSD=X">—</div>
         <div class="fx-chg" data-live-chg="GBPUSD=X">—</div>
-        <div class="fx-note">BOE 동결 기조. 영국 경제 둔화 vs 인플레 점착</div>
+        <div class="fx-note">BOE 3.75%로 인하 진행 중. 인플레 점착 vs 경기 침체 우려로 속도 조절</div>
         <div class="fx-signal fx-neutral">중립</div>
       </div>
       <!-- USD/CNY -->
@@ -7393,29 +7452,29 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 10px;"><span style="font-size:13px;">🇯🇵</span> <b>일본</b></td>
             <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);">BOJ</td>
-            <td style="text-align:center;padding:7px 10px;"><b style="color:var(--data-cyan);font-family:var(--font-mono);">0.50%</b></td>
+            <td style="text-align:center;padding:7px 10px;"><b style="color:var(--data-cyan);font-family:var(--font-mono);">1.00%</b></td>
             <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);">1.54%</td>
             <td style="text-align:center;padding:7px 10px;"><span style="background:rgba(255,91,80,0.1);color:var(--data-red);border-radius:4px;padding:2px 7px;font-size:11px;">인상 중</span></td>
             <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);">공식 일정 확인</td>
-            <td style="padding:7px 10px;font-size:11px;color:var(--text-muted);">엔화 150엔 저항. 추가 인상 시 엔-캐리 청산</td>
+            <td style="padding:7px 10px;font-size:11px;color:var(--text-muted);">엔화 160엔대. BOJ 1.00% 인상 완료, 엔-캐리 청산 리스크 지속</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 10px;"><span style="font-size:13px;">🇬🇧</span> <b>영국</b></td>
             <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);">BOE</td>
-            <td style="text-align:center;padding:7px 10px;"><b style="color:var(--data-amber);font-family:var(--font-mono);">4.50%</b></td>
+            <td style="text-align:center;padding:7px 10px;"><b style="color:var(--data-amber);font-family:var(--font-mono);">3.75%</b></td>
             <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);">4.67%</td>
             <td style="text-align:center;padding:7px 10px;"><span style="background:rgba(255,163,26,0.1);color:var(--data-amber);border-radius:4px;padding:2px 7px;font-size:11px;">점진 인하</span></td>
             <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);">공식 일정 확인</td>
-            <td style="padding:7px 10px;font-size:11px;color:var(--text-muted);">영국 인플레 점착 vs 경기 침체 우려</td>
+            <td style="padding:7px 10px;font-size:11px;color:var(--text-muted);">BOE 4/30 인하로 3.75%. 인플레 점착 vs 경기 둔화 균형</td>
           </tr>
           <tr style="border-bottom:1px solid var(--surface-3);">
             <td style="padding:7px 10px;"><span style="font-size:13px;">🇨🇳</span> <b>중국</b></td>
             <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);">PBOC</td>
-            <td style="text-align:center;padding:7px 10px;"><b style="color:var(--data-green);font-family:var(--font-mono);">3.10%</b></td>
+            <td style="text-align:center;padding:7px 10px;"><b style="color:var(--data-green);font-family:var(--font-mono);">3.00%</b></td>
             <td style="text-align:center;padding:7px 10px;font-family:var(--font-mono);">1.83%</td>
             <td style="text-align:center;padding:7px 10px;"><span style="background:rgba(0,229,160,0.1);color:var(--data-green);border-radius:4px;padding:2px 7px;font-size:11px;">완화 기조</span></td>
             <td style="text-align:center;padding:7px 10px;font-size:11px;color:var(--text-muted);">수시</td>
-            <td style="padding:7px 10px;font-size:11px;color:var(--text-muted);">디플레 압력 · 위안화 관리 · 미중 무역 갈등</td>
+            <td style="padding:7px 10px;font-size:11px;color:var(--text-muted);">PBOC 1년 LPR 3.00% (12개월 동결). 디플레 압력 · 위안화 관리</td>
           </tr>
           <tr>
             <td style="padding:7px 10px;"><span style="font-size:13px;"></span> <b>한국</b></td>
@@ -7946,6 +8005,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         <span style="color:var(--data-cyan);"> 개선(Improving)</span>
         <span style="color:var(--data-amber);"> 약화(Weakening)</span>
         <span style="color:var(--data-red);"> 후행(Lagging)</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text-muted);background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.2);border-radius:4px;padding:2px 8px;">⚠ 라이브 시세 기반 · 갱신 시 자동 업데이트 · 장 마감 후는 전일 위치</span>
       </div>
     </div>
 
@@ -8605,7 +8665,24 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       </div>
     </div>
 
-    <!-- v50.77: Minervini-style 메트릭 스트립 (SR·RSI·3M·TPR·SIG) -->
+    <!-- v50.96: Ticker 직접 검색창 (page 진입 시에도 검색 가능) -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;">
+      <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">종목 검색</span>
+      <input id="ticker-direct-search" type="text" placeholder="티커 입력 (예: NVDA, AAPL, TSLA)" aria-label="종목 티커 검색"
+        style="flex:1;padding:8px 12px;background:var(--surface-4);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);text-transform:uppercase;"
+        data-on-enter="showTicker:__value_upper"
+        oninput="this.value=this.value.toUpperCase()"/>
+      <button class="btn-accent --blue" onclick="(function(){var v=document.getElementById('ticker-direct-search').value.trim().toUpperCase();if(v)showTicker(v);})()" style="white-space:nowrap;">분석 →</button>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        <span class="q-chip" style="font-size:10px;cursor:pointer;" onclick="showTicker('NVDA')">NVDA</span>
+        <span class="q-chip" style="font-size:10px;cursor:pointer;" onclick="showTicker('AAPL')">AAPL</span>
+        <span class="q-chip" style="font-size:10px;cursor:pointer;" onclick="showTicker('TSLA')">TSLA</span>
+        <span class="q-chip" style="font-size:10px;cursor:pointer;" onclick="showTicker('MSFT')">MSFT</span>
+        <span class="q-chip" style="font-size:10px;cursor:pointer;" onclick="showTicker('AMZN')">AMZN</span>
+      </div>
+    </div>
+
+  <!-- v50.77: Minervini-style 메트릭 스트립 (SR·RSI·3M·TPR·SIG) -->
     <div id="ticker-mv-strip" class="mv-metric-strip" style="margin-bottom:10px;">
       <span style="font-size:10px;color:var(--text-muted);">종목 선택 대기</span>
     </div>
@@ -8841,6 +8918,21 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <strong style="color:var(--data-purple);">아시아</strong>: Nikkei · SCMP · Caixin · Taiwan News · Economic Times
     </div>
 
+    <!-- 뉴스 데이터 스테일 경고 배너 (JS가 제어 — 데이터 1시간 초과 시 표시) -->
+    <div id="news-stale-banner" style="display:none;background:rgba(255,163,26,0.10);border:1px solid rgba(255,163,26,0.35);border-radius:6px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:var(--data-amber);align-items:center;gap:8px;flex-wrap:wrap;">
+      <span>⚠</span>
+      <span>뉴스 데이터가 <b id="news-stale-age">1시간</b> 이상 경과했습니다 — GitHub Actions 캐시 기준. 최신 뉴스를 보려면 <b>↻ 새로고침</b>을 클릭하세요.</span>
+    </div>
+    <!-- 뉴스 데이터 출처 타임스탬프 표시줄 -->
+    <div style="font-size:11px;color:var(--text-muted);padding:5px 10px;background:var(--surface-1);border:1px solid var(--border);border-radius:5px;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span>캐시 갱신:</span>
+      <span id="news-cache-ts" style="font-family:var(--font-mono);color:var(--text-secondary);">데이터 로딩 중...</span>
+      <span style="color:var(--border);">|</span>
+      <span>주기: 45분 자동 갱신 (GitHub Actions)</span>
+      <span style="color:var(--border);">|</span>
+      <span>필터: 48시간 이내 · 중요도 30점+</span>
+    </div>
+
     <!-- v27.3: 뉴스 센티먼트 바 + 소스 라벨 -->
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;align-items:center;padding:6px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;">
       <div style="display:flex;align-items:center;gap:4px;font-size:11px;">
@@ -8909,6 +9001,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       </div>
     </div>
 
+    <!-- v50.97: 한국어 재작성 시장 브리프 -->
+    <div id="news-korean-rewrite-brief" style="display:none;margin-bottom:12px;"></div>
+
     <!-- 뉴스 피드 컨테이너 (단일) -->
     <div id="live-news-feed" style="display:flex;flex-direction:column;gap:6px;">
       <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">
@@ -8936,6 +9031,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     </div>
     <div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;">
       <strong style="color:var(--text-secondary);">퀀트 랭크(0~100)</strong> = 섹터 상대 멀티팩터 합성 — 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈(+밸류/퀄리티는 FMP 키 시). 높을수록 우수. <strong>시그널</strong>은 editorial(애널리스트 노트)이라 구분.
+      <span style="color:var(--data-amber);font-size:10px;">⚠ <b>저변동 팩터는 역방향</b>: 변동성이 낮을수록 순위 상승 (랭크↑ = 안정). 고변동 종목은 저변동 점수가 낮아도 모멘텀·추세에서 보상될 수 있습니다.</span>
       <span id="screener-regime-note" style="display:block;margin-top:4px;color:var(--accent);font-weight:600;"></span>
       <span id="screener-factor-coverage" style="display:block;margin-top:3px;color:var(--text-muted);"></span>
     </div>
@@ -9005,7 +9101,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     <div class="kr-index-grid">
       <div class="kr-idx-card up">
         <div class="kr-idx-label">KOSPI</div>
-        <div class="kr-idx-val" id="kr-kospi-price" style="color:var(--green)" data-snap="kospi" data-live-price="^KS11">7,844.01</div>
+        <div class="kr-idx-val" id="kr-kospi-price" style="color:var(--green)" data-snap="kospi" data-live-price="^KS11">8,726.60</div>
         <div class="kr-idx-chg" style="color:var(--green)"><span data-live-kr-change="^KS11">▲ 200.86 (<span data-snap="kospi-pct" data-live-chg="^KS11">+2.63%</span>)</span> <span data-date-ref="kr-last"></span></div>
         <div id="kr-idx-kospi-comment" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kospi-prev" data-live-prev-close="^KS11">7,643.15</span></div>
@@ -9026,7 +9122,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       </div>
       <div class="kr-idx-card up">
         <div class="kr-idx-label">VKOSPI</div>
-        <div class="kr-idx-val" id="kr-vkospi-val" style="color:var(--data-amber)" data-snap="vkospi" title="VKOSPI(한국 변동성지수) — 정상 범위 risk-on">17.80</div>
+        <div class="kr-idx-val" id="kr-vkospi-val" style="color:var(--data-amber)" data-snap="vkospi" title="VKOSPI(한국 변동성지수) — 정상 범위 risk-on">18.20</div>
         <div class="kr-idx-chg" style="color:var(--data-amber)" data-snap="vkospi-chg">— (정적 폴백)</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">변동성 지수 (KRX 공포지수)</div>
         <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">15~20: 정상 · 30 이상: 극단적 공포</div>
@@ -9149,7 +9245,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <div id="kr-issues-container" style="display:flex;flex-direction:column;gap:6px;padding:4px 0;">
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;background:rgba(255,163,26,0.05);border:1px solid rgba(255,163,26,0.12);">
           <span style="width:8px;height:8px;border-radius:50%;background:var(--data-amber);display:inline-block;flex-shrink:0;margin-top:3px;"></span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);">한국은행 금통위 기준금리 2.50% 유지</div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">환율 상승 압박 속 내수 침체 우려로 동결 결정. 5월 인하 기대 존재. FOMC 추이 주시</div></div>
+          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);">한국은행 5/28 금통위 2.50% 동결 — 다음 금통위 7/10</div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">신현송 총재 첫 회의 동결 결정. 원화 환율·내수 지표 확인 후 7월 방향 결정. 한미 금리차 유지.</div></div>
         </div>
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.12);">
           <span style="width:8px;height:8px;border-radius:50%;background:var(--data-green);display:inline-block;flex-shrink:0;margin-top:3px;"></span>
@@ -9157,11 +9253,11 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         </div>
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;background:rgba(255,91,80,0.05);border:1px solid rgba(255,91,80,0.15);">
           <span style="width:8px;height:8px;border-radius:50%;background:var(--data-red);display:inline-block;flex-shrink:0;margin-top:3px;"></span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);">원/달러 1,500원대 돌파 — Fed 금리 장기화 · 관세 리스크</div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">원/달러 1,505원 돌파. 수출기업 수혜 vs 원자재·에너지 수입 부담 확대. 한미 금리차 1.75%p 유지</div></div>
+          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);">원/달러 환율 — 라이브 데이터 확인 필요 <span style="font-size:10px;color:var(--data-amber);">(정적 참고)</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">수출기업 수혜 vs 에너지·원자재 수입 부담 구도 유지. 엔·위안 동반 움직임 주시.</div></div>
         </div>
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.12);">
           <span style="width:8px;height:8px;border-radius:50%;background:var(--data-green);display:inline-block;flex-shrink:0;margin-top:3px;"></span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);">K-방산 수출 확대 — NATO 추가 주문 가능성</div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">한화에어로스페이스, 한화오션, HD현대중공업 외인 매수세. 방산 업종 주간 +8.4%</div></div>
+          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);">K-방산 수출 확대 — 한화에어로·HD현대중공업 등 수혜</div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">NATO 및 중동 방위 수요 지속. 외국인 방산 업종 매수세. 최신 수급은 Naver 확인 권장.</div></div>
         </div>
       </div>
     </div>
@@ -9292,6 +9388,11 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     <!-- 동적 분석 컨테이너 -->
     <div id="kr-supply-analysis" class="aio-widget" style="margin-bottom:12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);">
       <div id="kr-supply-analysis-text" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">수급 데이터 수신 대기...</div>
+    </div>
+    <!-- v50.96: 수급 stale 경고 — Naver CORS 제약으로 라이브 수급 미수신 시 정적 폴백 표시 -->
+    <div style="font-size:10px;color:var(--data-amber);background:rgba(255,163,26,0.07);border:1px solid rgba(255,163,26,0.2);border-radius:6px;padding:7px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+      <span>⚠</span>
+      <span>아래 수급 수치는 <b>참고 폴백값</b>입니다. Naver API CORS 제약으로 라이브 데이터 미수신 시 정적값이 표시됩니다. 실제 수급은 <a href="https://finance.naver.com/sise/investor.naver" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">Naver 투자자별 매매동향 ↗</a>에서 확인하세요.</span>
     </div>
 
     <!-- 지수 현황 카드 -->
@@ -9563,7 +9664,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
           <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">다음 금통위</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:4px;" data-snap="bok-next">2026-05-29</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:4px;" data-snap="bok-next">2026-07-10</div>
           <div style="font-size:11px;color:var(--yellow);" data-snap="bok-status">동결</div>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
@@ -9630,7 +9731,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
           </div>
         </div>
         <div style="margin-top:10px;padding:8px;background:rgba(255,91,80,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-          제조업 PMI 50 상회 (반도체 호황). GDP는 Q4 역성장 (-0.2%)
+          제조업 PMI 50 상회 (반도체 호황). GDP는 Q1 2026 QoQ -0.2% (BOK 4/26 발표). 5월 수출 +64.8% YoY (20일 기준).
         </div>
       </div>
     </div>
@@ -9698,9 +9799,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     <!-- ═══ 섹션 4: 수출입 동향 ═══ -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
       <div class="aio-widget">
-        <div class="widget-title">주요 수출 동향</div>
+        <div class="widget-title">주요 수출 동향 <span style="font-size:10px;color:var(--data-amber);font-weight:400;">📦 2026-02 아카이브 · 최신: 5월 +64.8% YoY</span></div>
         <table class="kr-flow-table" data-aio-archive="true" data-text-role="reference-archive" data-lifecycle-id="kr-export-2026-02" title="Archived export table. Current-use data requires refresh evidence.">
-          <tr><th>품목</th><th>2월 수출 (2026-02)</th><th>YoY</th></tr>
+          <tr><th>품목</th><th>2월 수출 (참고)</th><th>YoY</th></tr>
           <tr><td>반도체</td><td style="color:var(--green);" data-snap="kr-semi-export-feb">251.6억 USD</td><td style="color:var(--green);">+157.9%</td></tr>
           <tr><td>자동차</td><td style="color:var(--text-muted);">58억 USD</td><td style="color:var(--green);">+3.2%</td></tr>
           <tr><td>디스플레이</td><td style="color:var(--text-muted);">22억 USD</td><td style="color:var(--green);">+12.8%</td></tr>
@@ -9713,9 +9814,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       </div>
 
       <div class="aio-widget">
-        <div class="widget-title">주요 수입 동향</div>
-        <table class="kr-flow-table">
-          <tr><th>품목</th><th>2월 수입</th><th>YoY</th></tr>
+        <div class="widget-title">주요 수입 동향 <span style="font-size:10px;color:var(--data-amber);font-weight:400;">📦 2026-02 아카이브</span></div>
+        <table class="kr-flow-table" data-aio-archive="true" data-text-role="reference-archive" data-lifecycle-id="kr-import-2026-02">
+          <tr><th>품목</th><th>2월 수입 (참고)</th><th>YoY</th></tr>
           <tr><td>원유</td><td style="color:var(--text-muted);">28억 USD</td><td style="color:var(--green);">+1.2%</td></tr>
           <tr><td>가스</td><td style="color:var(--text-muted);">24억 USD</td><td style="color:var(--green);">+3.8%</td></tr>
           <tr><td>반도체 부품</td><td style="color:var(--text-muted);">32억 USD</td><td style="color:var(--green);">+18.4%</td></tr>
@@ -9723,7 +9824,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
           <tr><td>식품</td><td style="color:var(--text-muted);">15억 USD</td><td style="color:var(--red);">-3.2%</td></tr>
         </table>
         <div style="margin-top:10px;padding:8px;background:rgba(255,163,26,0.05);border-radius:6px;font-size:10px;color:var(--text-secondary);">
-          에너지 수입 부담 (WTI $102, Brent $108 — 공급 제약 지속). 원유 안정 시 원화 강세+무역수지 개선 기대. 단 봉쇄 지속 중이며 구조적 공급 감소 잔존. 반도체 설비 수입 대폭 증가
+          에너지 수입 부담 완화 (WTI ~$74, Brent ~$77 — OPEC+ 증산으로 공급 압력 해소). 원유 안정으로 수입 비용 감소 → 원화·무역수지 긍정 요인. 반도체 설비 수입 대폭 증가
         </div>
       </div>
     </div>
@@ -9803,7 +9904,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <div class="widget-title">글로벌 비교 — 한국 vs 주요국</div>
       <table class="kr-flow-table">
         <tr><th>지표</th><th>한국</th><th>미국</th><th>일본</th><th>중국</th></tr>
-        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">2.50%</td><td data-snap="fed-rate">3.50-3.75</td><td>0.50%</td><td>3.10%</td></tr>
+        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">2.50%</td><td data-snap="fed-rate">3.50-3.75</td><td>1.00%</td><td>3.00%</td></tr>
         <tr><td>CPI (YoY)</td><td data-snap="kr-cpi">2.0%</td><td data-snap="cpi">2.4%</td><td>+3.7%</td><td>-0.7%</td></tr>
         <tr><td>GDP 성장률</td><td style="color:var(--red);" data-snap="kr-gdp">-0.2%</td><td style="color:var(--green);">+2.3% YoY</td><td>+0.6%</td><td>+5.4%</td></tr>
         <tr><td>환율 (vs USD)</td><td style="color:var(--red);" data-snap="krw">1,506</td><td>-</td><td>149.2</td><td>7.24</td></tr>
@@ -9865,15 +9966,15 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;"> 한국 시장 건강 점수</div>
         <div id="kr-health-score" style="text-align:center;margin-bottom:8px;">
-          <div style="font-size:42px;font-weight:900;font-family:var(--font-mono);color:var(--red);" id="kr-health-val">32</div>
-          <div style="font-size:10px;font-weight:600;color:var(--red);" id="kr-health-label">약세 · 경계 필요</div>
+          <div style="font-size:42px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);" id="kr-health-val">—</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text-muted);" id="kr-health-label">산출 중...</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;">
-          <div style="padding:4px 6px;background:rgba(255,91,80,0.08);border-radius:4px;">
-            <span style="color:var(--text-muted);">KOSPI 추세:</span> <span style="color:var(--red);font-weight:700;">50MA 하회</span>
+          <div style="padding:4px 6px;background:rgba(255,255,255,0.04);border-radius:4px;">
+            <span style="color:var(--text-muted);">KOSPI 추세:</span> <span id="kr-health-trend" style="color:var(--text-muted);font-weight:700;">수신 대기</span>
           </div>
           <div style="padding:4px 6px;background:rgba(255,91,80,0.08);border-radius:4px;">
-            <span style="color:var(--text-muted);">VKOSPI:</span> <span style="color:var(--data-amber);font-weight:700;" id="kr-health-vkospi" data-snap="vkospi" title="VKOSPI(한국 변동성지수)">17.80 (정상)</span>
+            <span style="color:var(--text-muted);">VKOSPI:</span> <span style="color:var(--data-amber);font-weight:700;" id="kr-health-vkospi" data-snap="vkospi" title="VKOSPI(한국 변동성지수)">18.20 (정상)</span>
           </div>
           <div style="padding:4px 6px;background:rgba(255,91,80,0.08);border-radius:4px;">
             <span style="color:var(--text-muted);">외국인 수급:</span> <span id="kr-health-foreign-streak" style="color:var(--red);font-weight:700;">7일 연속 매도</span>
@@ -10622,9 +10723,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=50.92"></script>
-  <script src="./js/aio-data.js?v=50.92"></script>
-  <script src="./js/aio-ui.js?v=50.92"></script>
+  <script src="./js/aio-core.js?v=50.98"></script>
+  <script src="./js/aio-data.js?v=50.98"></script>
+  <script src="./js/aio-ui.js?v=50.98"></script>
 
   <script>
 
@@ -12208,10 +12309,19 @@ _aioPageBus.register('html-portfolio-render-live', 'aio:liveQuotes', function() 
   if (pfPage && pfPage.classList.contains('active')) { renderPortfolio(); }
 });
 
-// v31.9: Portfolio pageShown — 페이지 진입 시 즉시 렌더
+// v31.9: Portfolio pageShown — 페이지 진입 시 즉시 렌더 + 리스크 자동 계산
 _aioPageBus.register('html-portfolio-render-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'portfolio') {
     try { renderPortfolio(); } catch(err) { _aioLog('warn', 'init', 'Portfolio init error: ' + (err && err.message || err)); }
+    // 포지션이 있을 때만 리스크 자동 계산 (500ms 지연 — renderPortfolio 완료 후)
+    setTimeout(function() {
+      try {
+        var _pfPos = getPortfolioData ? getPortfolioData() : [];
+        if (_pfPos && _pfPos.length >= 1 && typeof refreshPortfolioRisk === 'function') {
+          refreshPortfolioRisk();
+        }
+      } catch(_pfe) {}
+    }, 500);
   }
 });
 
@@ -13812,7 +13922,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=50.92"></script>
+<script src="./js/aio-chat.js?v=50.98"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17108,7 +17218,7 @@ function showKrThemeDetail(themeId) {
     var pcs=pct!==null?((pct>=0?'+':'')+pct.toFixed(2)+'%'):'—';
     var lt=d?'<span style="color:var(--data-green);font-size:11px;">● LIVE</span>':'<span style="color:var(--text-muted);font-size:11px;">○</span>';
     var rankIcon=idx===0?' ':idx===1?' ':idx===2?' ':'';
-    rows+='<tr style="background:'+(idx%2===0?'rgba(255,255,255,0.015)':'transparent')+';border-bottom:1px solid var(--surface-2);"><td style="padding:7px 8px;font-size:12px;font-weight:700;white-space:nowrap;">'+rankIcon+(info.name||t.code)+'<div style="font-size:11px;color:var(--text-muted);font-weight:400;">'+(info.sector||'')+' · '+t.code+'</div></td><td style="padding:7px 8px;font-size:13px;font-weight:800;font-family:var(--font-mono);text-align:right;">'+ps+'</td><td style="padding:7px 8px;font-size:13px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+pCol+';">'+pcs+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;color:var(--text-muted);">'+(info.mcap||'—')+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;">'+t.w+'%</td><td style="padding:7px 8px;text-align:center;">'+lt+'</td></tr>';
+    rows+='<tr style="background:'+(idx%2===0?'rgba(255,255,255,0.015)':'transparent')+';border-bottom:1px solid var(--surface-2);"><td style="padding:7px 8px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;" onclick="showTicker(\''+sym+'\')" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span style="color:var(--accent);">'+(info.name||t.code)+'</span> <span style="font-size:9px;opacity:0.6;">↗</span><div style="font-size:11px;color:var(--text-muted);font-weight:400;">'+(info.sector||'')+' · '+t.code+'</div></td><td style="padding:7px 8px;font-size:13px;font-weight:800;font-family:var(--font-mono);text-align:right;">'+ps+'</td><td style="padding:7px 8px;font-size:13px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+pCol+';">'+pcs+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;color:var(--text-muted);">'+(info.mcap||'—')+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;">'+t.w+'%</td><td style="padding:7px 8px;text-align:center;">'+lt+'</td></tr>';
   });
 
   var tn=(CN[themeId]||themeId).replace(/[^가-힣a-zA-Z0-9\/\s]/g,'').trim();
@@ -24324,8 +24434,8 @@ function showThemeDetail(themeId) {
     var tPrice = hasData ? d.price : null;
     var tColor = tChg === null ? 'var(--text-muted)' : (tChg >= 0 ? 'var(--data-green)' : 'var(--data-red)');
     var pctStr = tChg === null ? '—' : ((tChg >= 0 ? '+' : '') + tChg.toFixed(2) + '%');
-    html += '<div style="background:var(--surface-2);border:1px solid var(--surface-5);border-radius:6px;padding:6px 8px;min-width:70px;">' +
-      '<div style="font-size:13px;font-weight:800;font-family:var(--font-mono);">' + t + '</div>' +
+    html += '<div style="background:var(--surface-2);border:1px solid var(--surface-5);border-radius:6px;padding:6px 8px;min-width:70px;cursor:pointer;" onclick="showTicker(\'' + t + '\')" title="' + t + ' 상세 분석 →">' +
+      '<div style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:var(--accent);">' + t + ' <span style="font-size:9px;opacity:0.6;">↗</span></div>' +
       '<div style="font-size:12px;font-family:var(--font-mono);color:' + tColor + ';">' +
         (tPrice != null ? '$' + tPrice.toFixed(2) : '—') +
         ' <span style="font-size:11px;">' + pctStr + '</span>' +
@@ -24353,7 +24463,7 @@ function showThemeDetail(themeId) {
         var tc = hasD ? d.pct : null;
         var tcol = tc === null ? 'var(--text-muted)' : (tc >= 0 ? 'var(--data-green)' : 'var(--data-red)');
         var tcStr = tc === null ? '—' : ((tc>=0?'+':'') + tc.toFixed(1) + '%');
-        html += '<span style="font-size:11px;font-family:var(--font-mono);color:' + tcol + ';background:var(--surface-1);padding:2px 4px;border-radius:3px;">' + t + ' ' + tcStr + '</span>';
+        html += '<span style="font-size:11px;font-family:var(--font-mono);color:' + tcol + ';background:var(--surface-1);padding:2px 6px;border-radius:3px;cursor:pointer;" onclick="showTicker(\'' + t + '\')" title="' + t + ' 분석">' + t + ' ' + tcStr + '</span>';
       });
       html += '</div></div>';
     });
@@ -24369,6 +24479,80 @@ function showThemeDetail(themeId) {
   container.innerHTML = html;
   container.style.display = 'block';
   container.dataset.currentTheme = themeId;
+  renderPageThemeDetail(themeId);
+}
+
+function renderPageThemeDetail(themeId) {
+  var idx = THEME_INDEX[themeId];
+  if (idx === undefined) return;
+  var theme = THEME_MAP[idx];
+  var ld = window._liveData || {};
+
+  // 헤더 업데이트
+  var titleEl = document.getElementById('theme-detail-title');
+  var iconEl = document.getElementById('theme-detail-icon');
+  var nameEl = document.getElementById('theme-detail-name');
+  var breadcrumbEl = document.getElementById('ticker-breadcrumb-parent');
+  var modeDescEl = document.getElementById('theme-mode-desc');
+  if (titleEl) titleEl.textContent = theme.nameKr;
+  if (iconEl) iconEl.textContent = theme.emoji || '';
+  if (nameEl) nameEl.textContent = theme.nameKr;
+  if (breadcrumbEl) breadcrumbEl.textContent = 'Themes > ' + theme.nameKr;
+  if (modeDescEl) modeDescEl.textContent = theme.nameKr + ' 주요 ETF 및 대장주';
+
+  // ETF 뷰 테이블 업데이트
+  var etfView = document.getElementById('etf-view');
+  if (etfView) {
+    var tickers = [];
+    if (theme.etf) tickers.push({ sym: theme.etf, label: theme.etfName || theme.etf, holdings: 'ETF' });
+    (theme.leaderHighlight || []).slice(0, 4).forEach(function(t) {
+      tickers.push({ sym: t, label: t, holdings: '대장주' });
+    });
+    var rowsHtml = tickers.map(function(item) {
+      var d = ld[item.sym];
+      var price = d && d.price != null ? '$' + d.price.toFixed(2) : '—';
+      return '<tr style="border-bottom:1px solid var(--border);">' +
+        '<td style="padding:8px;cursor:pointer;" onclick="showTicker(\'' + item.sym + '\')" title="' + item.sym + ' 분석 →"><b style="color:var(--accent);">' + item.sym + '</b> <span style="font-size:9px;opacity:0.6;">↗</span><span style="font-size:10px;color:var(--text-muted);margin-left:4px;">' + item.label + '</span></td>' +
+        '<td style="text-align:center;padding:8px;" data-live-price="' + item.sym + '">' + price + '</td>' +
+        '<td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-ytd="' + item.sym + '">수신 대기</td>' +
+        '<td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-1y="' + item.sym + '">수신 대기</td>' +
+        '<td style="text-align:center;padding:8px;font-size:10px;color:var(--text-muted);">' + item.holdings + '</td>' +
+      '</tr>';
+    }).join('');
+    etfView.querySelector('.widget-title').textContent = '주요 ' + theme.nameKr + ' ETF';
+    var tbody = etfView.querySelector('tbody');
+    if (tbody) tbody.innerHTML = rowsHtml;
+  }
+
+  // 서브테마 뷰 업데이트
+  var subView = document.getElementById('subtheme-view');
+  if (subView) {
+    subView.querySelector('.widget-title').textContent = theme.nameKr + ' 부테마';
+    var subGrid = subView.querySelector('div[style*="grid"]');
+    if (subGrid && theme.subThemes && theme.subThemes.length > 0) {
+      subGrid.innerHTML = theme.subThemes.map(function(sub) {
+        var subTickers = (sub.tickers || []).slice(0, 4).join(' · ');
+        return '<div style="padding:8px;background:rgba(0,229,160,0.08);border-radius:5px;">' +
+          '<div style="font-size:10px;font-weight:700;">' + sub.name + (sub.etf ? ' <span style="color:var(--text-muted);">' + sub.etf + '</span>' : '') + '</div>' +
+          '<div style="font-size:10px;color:var(--text-secondary);margin-top:3px;">' + subTickers + '</div>' +
+        '</div>';
+      }).join('');
+    }
+  }
+
+  // 채팅 퀵칩 업데이트
+  var chips = document.getElementById('chat-theme-detail-chips');
+  if (chips) {
+    var thName = theme.nameKr;
+    chips.innerHTML = [
+      thName + ' 트렌드',
+      thName + ' 경쟁 구도',
+      thName + ' 위험 요소',
+      thName + ' 대장주 추천'
+    ].map(function(txt) {
+      return '<div class="q-chip" data-action="_aioChatFromChipText" data-arg="theme-detail" data-pass-el="1">' + txt + '</div>';
+    }).join('');
+  }
 }
 
 // ═══ 미국 테마 심층 분석 생성 ═══
@@ -26327,7 +26511,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=50.92"></script>
+<script src="./js/aio-glossary.js?v=50.98"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -27931,6 +28115,15 @@ function calcKrHealthScore() {
   var lblEl = document.getElementById('kr-health-label');
   if (valEl) { valEl.textContent = score; valEl.style.color = color; }
   if (lblEl) { lblEl.textContent = grade + ' — ' + label; lblEl.style.color = color; }
+  // KOSPI 추세 라벨 동적 업데이트
+  var trendEl = document.getElementById('kr-health-trend');
+  if (trendEl) {
+    var trendTxt = kospiPct > 1 ? '상승 추세' : kospiPct > 0 ? '소폭 상승' : kospiPct > -1 ? '소폭 하락' : '하락 추세';
+    var trendCol = kospiPct > 0 ? 'var(--data-green)' : kospiPct > -1 ? 'var(--data-amber)' : 'var(--data-red)';
+    trendEl.textContent = trendTxt + ' (' + (kospiPct >= 0 ? '+' : '') + kospiPct.toFixed(2) + '%)';
+    trendEl.style.color = trendCol;
+    trendEl.parentElement.style.background = kospiPct > 0 ? 'rgba(0,229,160,0.08)' : 'rgba(255,91,80,0.08)';
+  }
 
   // VKOSPI 서브 표시
   // v49.58 P278 보정: 임계값 표준화 — 정상(<20) / 경계(20~25) / 공포(25~35) / 극단공포(35+)
@@ -28199,6 +28392,9 @@ async function analyzeKrTickerDeep(ticker) {
       escHtml(trendData.position) + ' 위치에서 ' + escHtml(entryData.grade) + '등급 진입 기회. ' +
       (stageData.stage === 2 && trendData.alignment > 80 ? '강력한 상승 추세!' : '신호 확인 필요.') +
     '</div>' +
+  '</div>';
+  html += '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">' +
+    '<button onclick="showTicker(\'' + escHtml(ticker) + '\')" style="padding:6px 14px;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);color:var(--data-cyan);font-size:11px;border-radius:5px;cursor:pointer;font-weight:700;">Ticker 상세 분석 → ↗</button>' +
   '</div>';
 
   resultEl.innerHTML = html;

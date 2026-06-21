@@ -17053,7 +17053,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.92';
+const APP_VERSION = 'v50.98';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -17718,6 +17718,30 @@ window.AIO.getDataPipelineAudit = function() {
   var missingFns = requiredFns.filter(function(name) { return !exists(name); });
   var freshness = null;
   try { freshness = window.AIO.getDataFreshnessAudit(); } catch(_) {}
+  var serverPublicData = null;
+  try {
+    if (window._serverDataMeta) {
+      var sm = window._serverDataMeta;
+      serverPublicData = {
+        generatedAt: sm.generatedAt || null,
+        ageMin: sm.ageMin,
+        symbolsOk: sm.symbolsOk,
+        symbolsFail: sm.symbolsFail,
+        fearGreedOk: !!sm.fearGreedOk,
+        fredHasKey: !!sm.fredHasKey,
+        fredFetchOk: !!sm.fredFetchOk,
+        macroKeyCount: sm.macroKeyCount || 0,
+        newsOk: !!sm.newsOk,
+        newsCount: sm.newsCount || 0,
+        marketAnalysisOk: !!sm.marketAnalysisOk,
+        artifacts: sm.artifacts || {},
+        telegramDigestStatus: sm.telegramDigest && sm.telegramDigest.status || null,
+        telegramMemoApplied: sm.telegramMemoOverlay && sm.telegramMemoOverlay.appliedCount || 0,
+        screenerStatus: sm.screener && sm.screener.status || null,
+        screenerCount: sm.screener && sm.screener.count || null
+      };
+    }
+  } catch(_) {}
   var stores = {
     price: window.PriceStore && typeof window.PriceStore.health === 'function' ? window.PriceStore.health() : null,
     macro: window.MacroStore && typeof window.MacroStore.health === 'function' ? window.MacroStore.health() : null,
@@ -17732,6 +17756,15 @@ window.AIO.getDataPipelineAudit = function() {
   if (missingLiveBindings.length > Math.max(20, livePriceSymbols.length * 0.5)) issues.push('many live DOM sinks are not backed by liveData yet');
   if (missingPctSymbols.length > 10) issues.push('many live quotes have price but missing change percent');
   if (chartA11yGaps.length > 0) issues.push('chart canvas accessibility labels missing: ' + chartA11yGaps.slice(0, 5).join(', '));
+  if (serverPublicData) {
+    if (!serverPublicData.newsOk) issues.push('server public-data news backstop unavailable');
+    if (!serverPublicData.fearGreedOk) issues.push('server public-data Fear & Greed unavailable');
+    if (!serverPublicData.fredHasKey) issues.push('server FRED_API_KEY not configured; macro auto-refresh is client-key dependent');
+    else if (!serverPublicData.fredFetchOk) issues.push('server FRED fetch failed despite configured key');
+    if (!serverPublicData.marketAnalysisOk) issues.push('server LLM market analysis unavailable; ANTHROPIC_API_KEY likely missing');
+    if (serverPublicData.telegramDigestStatus && serverPublicData.telegramDigestStatus !== 'ready') issues.push('telegram digest artifact not ready: ' + serverPublicData.telegramDigestStatus);
+    if (serverPublicData.screenerStatus && serverPublicData.screenerStatus !== 'ready') issues.push('screener enrichment not ready: ' + serverPublicData.screenerStatus);
+  }
 
   return {
     status: issues.length ? 'warn' : 'ok',
@@ -17741,7 +17774,8 @@ window.AIO.getDataPipelineAudit = function() {
       sources: {
         dataApis: dataApiSummary(),
         newsSourceCount: (typeof AIO_NEWS_SOURCES !== 'undefined' && Array.isArray(AIO_NEWS_SOURCES)) ? AIO_NEWS_SOURCES.length : null,
-        sourceCounts: sourceCounts()
+        sourceCounts: sourceCounts(),
+        publicData: serverPublicData
       },
       transport: {
         fetchWithTimeout: exists('fetchWithTimeout'),

@@ -2,11 +2,59 @@
 verified_by: agent
 last_verified: 2026-06-20
 confidence: high
-latest_version: v50.90
-latest_P_number: P515
-total_entries: 514
-next_P_number: P516
+latest_version: v50.98
+latest_P_number: P521
+total_entries: 520
+next_P_number: P522
 ---
+
+## P521 - v50.98 - server news backstop selected latest headlines before market-impact scoring
+
+- **symptom**: GitHub Actions public-data news was operational, but the server backstop used only two Google News queries, deduped by title, sorted by latest timestamp, and capped at 25. LLM market analysis therefore received recent headlines rather than the most market-relevant headlines.
+- **root_cause**: Client-side `scoreItem()` had mature source/tier/freshness/topic filtering, but `scripts/fetch-data.mjs` did not mirror those selection criteria for server-generated `data.json.news`.
+- **fix**: Expanded server news feeds to six market axes, added `scoreServerNewsItem()` with source tier, recency, macro/rates, geopolitics/energy, AI/semis, earnings/analyst, FX/bonds/commodities, mega-cap, unverified, and promo/clickbait handling. Added `selectionReason`, `serverNewsScored`, score range metadata, unverified score penalty in client `scoreItem()`, and `AIO.getNewsSelectionAudit()`.
+- **violated_rule**: NEW -> R226. Server news backstop must rank by market impact, not arrival order.
+- **prevention**: Data-pipeline contract now asserts server scoring, selection reasons, scoring metadata, and runtime selection audit.
+
+## P520 - v50.97 - news Korean layer existed but did not provide a market-summary rewrite surface
+
+- **symptom**: The news pipeline had Korean titles, summaries, explanations, and actions, but the market-news page still presented item cards rather than a grouped Korean market brief. This did not match the desired Telegram-style investor digest and could feel like translated foreign headlines instead of Korean market commentary.
+- **root_cause**: v50.95 fixed per-item Korean fallback fields but did not add a sectioned rewrite model or UI surface. The Anthropic prompt also did not require `section`, `rewrite`, or `market` fields, so high-quality semantic rewriting was not contractually preserved.
+- **fix**: Added `_aioBuildNewsKoreanRewriteBrief()` and `_aioRenderNewsKoreanRewriteBrief()`, a `#news-korean-rewrite-brief` surface, section normalization, `ko_rewrite`/`ko_section`/`ko_market` cache fields, Claude prompt schema expansion, and CI contract checks.
+- **violated_rule**: NEW -> R225. Translation-only or card-only news is insufficient for the Korean market summary surface.
+- **prevention**: Future news pipeline edits must preserve the grouped rewrite brief and data-pipeline contract checks for `ko_rewrite`, `ko_section`, `ko_market`, and the visible brief container.
+
+## P519 - v50.96 - currentness/fallback fixes were partially versioned and could be hidden by stale cachebusters
+
+- **symptom**: Multi-agent QA work added ticker direct entry and several currentness/fallback warnings, but the interrupted session left R1 version surfaces split: `APP_VERSION`/`SW_VERSION` were already v50.96 while badge, JS cachebusters, `version.json`, and docs still showed v50.95.
+- **root_cause**: The final version-up step was interrupted after only part of the seven version surfaces changed. This can make browser caches serve old JS/CSS and make users miss newly added stale/fallback warnings.
+- **fix**: Completed v50.96 R1 sync across index title/badge/cachebusters, `APP_VERSION`, `SW_VERSION`, `version.json`, root/context docs, CHANGELOG, QA, and rules. Added R224 to require visible currentness/fallback state at consumer surfaces.
+- **violated_rule**: R1/R223 pattern. User-facing currentness fixes must not be hidden by stale cachebusters or only documented in audits.
+- **prevention**: Run `scripts/ci-version-check.mjs` and runtime/data-pipeline contract gates after any QA/currentness UI edit before ending the session.
+
+## P518 - v50.95 - news was fetched but Korean translation/summary/explanation could degrade to raw headline context
+
+- **symptom**: News/Telegram/public-data ingestion was running, but when `ANTHROPIC_API_KEY` was absent or browser Claude translation was unavailable, visible news and chat context could fall back to English titles or thin title-only Google Translate output. Summaries, explanation, impact, and user-facing interpretation were weak.
+- **root_cause**: The news pipeline treated translation as an optional post-processing layer. `freeTranslateNews()` translated titles only, `localEnrichSingle()` stored empty `ko_summary`, and `_buildNewsContext()` injected raw `title/desc` instead of normalized Korean insight fields.
+- **fix**: Added `_aioBuildNewsLocalKoreanInsight()` and `_aioGetNewsTranslation()` to synthesize conservative Korean summary/explanation/impact/action from topic, sentiment, impact vector, and ticker extraction. Wired market-news/home/chat consumers to use the normalized fields and added `AIO.getNewsTranslationQualityAudit()` plus CI contract checks.
+- **violated_rule**: NEW -> R223. News ingestion must degrade to Korean insight, not raw English-only context.
+- **prevention**: Future news/API pipeline edits must preserve Korean insight fields across UI and chat consumers, and `ci-data-pipeline-contract-check.mjs` must assert the fallback and consumer wiring.
+
+## P517 - v50.94 - public-data freshness existed without a full source-to-consumer CI contract
+
+- **symptom**: GitHub Actions could be green while important market-current layers were only partially represented: data freshness was checked, but CI did not prove that refresh workflow, watchdog quality floors, fetch scripts, runtime public-data meta, Telegram memo sink, screener enrichment, and chat/news consumers stayed wired together.
+- **root_cause**: The project had many runtime audits and the data watchdog checked age, but no single static contract tied Actions -> artifacts -> runtime loader -> audit -> chat/memo consumers. Optional services such as FRED and LLM market analysis were warned in logs but not surfaced in `getDataPipelineAudit()`.
+- **fix**: Added `scripts/ci-data-pipeline-contract-check.mjs`, wired it into CI, hardened `data-watchdog.yml` with symbols/news/Telegram minimum floors, and exposed public-data/FRED/LLM/Telegram/screener status through `_serverDataMeta` and `AIO.getDataPipelineAudit().layers.sources.publicData`.
+- **violated_rule**: R219/R221 pattern. Audit/freshness checks existed, but the complete operating path was not contract-tested.
+- **prevention**: Any future data/API/news pipeline change must update the data-pipeline contract gate and preserve Actions -> public-data -> runtime audit -> visible/chat/memo consumer wiring.
+
+## P516 - v50.93 - Telegram digest auto-refresh did not update SCREENER_DB memo
+
+- **symptom**: GitHub Actions successfully generated `public-data/telegram-digest.json` and the app loaded it into `AIO_TELEGRAM_WEEKLY_DIGEST`, freshness fields, page maps, and chat digest context, but `SCREENER_DB.memo` still only had the older static `[TG 06/16]` overlay. Chat/ticker flows that read `_aioGetMemoForTicker()` therefore did not receive the latest Telegram/news items through the DB memo path.
+- **root_cause**: The v50.63 auto-refresh loop stopped at digest registry/freshness/audit updates. It did not include a ticker-level sink that mapped digest `topItems/items[].tickers` back into `SCREENER_DB` rows, and T831 only checked digest/audit layers.
+- **fix**: Added `_aioApplyTelegramDigestToScreenerDb(raw, merged)` so dynamic Telegram digest items prepend `[TG YYYY-MM-DD · auto]` memo overlays per ticker. `getTelegramPipelineAudit()` now exposes `memoOverlay`, T831 checks NVDA memo mutation, and `ci-runtime-contract-check.mjs` enforces the digest-to-memo contract.
+- **violated_rule**: R217/R219. A pipeline audit existed, but the downstream consumer path to DB memo/chat memo was not semantically closed.
+- **prevention**: Telegram/news auto-refresh changes must verify source artifact -> normalized digest -> ticker memo overlay -> chat/ticker consumer -> audit/test/CI gate in one path.
 
 ## P515 - v50.90 - aio-tests.js T번호 중복 + dead 함수 + 타이머 정리 누락
 

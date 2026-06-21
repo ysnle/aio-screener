@@ -1,10 +1,53 @@
 ---
 verified_by: agent
-last_verified: 2026-06-03
+last_verified: 2026-06-20
 confidence: high
-target_version: v50.63
+target_version: v50.98
 
 ---
+
+## R226. Server news backstop must rank by market impact, not arrival order (v50.98)
+
+- Scheduled public-data news refresh is not complete when it only fetches recent RSS titles. Server-side news must carry `score`, `selectionReason`, topic, country, tier, and scoring metadata so LLM market analysis and runtime backstops consume market-impact-ranked items.
+- Required score axes: recency, source tier/trust, macro/rates, geopolitics/energy, AI/semis, earnings/analyst actions, FX/bonds/commodities, mega-cap relevance, and unverified/promo penalties.
+- `data.json.meta` must expose `serverNewsScored`, `newsSourceCount`, and score range fields. Client runtime must expose a selection audit covering score buckets, topics, sources, tiers, verification status, and surface eligibility.
+- `scripts/ci-data-pipeline-contract-check.mjs` must fail if server scoring, selection reasons, or `AIO.getNewsSelectionAudit()` are removed.
+
+## R225. News surfaces must provide Korean market rewrite, not translation-only headlines (v50.97)
+
+- News ingestion is not complete when it only translates foreign headlines. Market-news must expose a grouped Korean rewrite brief that reads like an investor-facing market summary.
+- The normalized news object must preserve `ko_rewrite`, `ko_section`, and `ko_market` so visible cards, summary brief, cache, and chat consumers can share the same interpretation layer.
+- Claude/Anthropic enrichment should produce section/rewrite/market fields; no-key or API-failure paths must still synthesize conservative local rewrite text without inventing facts beyond headline/description/source/tickers.
+- `scripts/ci-data-pipeline-contract-check.mjs` must assert the rewrite brief container and data fields.
+
+## R224. Currentness and fallback data must be visible at the consumer surface (v50.96)
+
+- Pages that show cached, static fallback, or optional-secret-dependent data must label that state at the visible consumer surface, not only in logs/audits.
+- News freshness must expose stale age when server/cache data is older than the runtime threshold and hide the warning when fresh data arrives.
+- Macro/FRED and KR supply fallback values must be marked as reference/fallback and point to the authoritative source or missing key/action when applicable.
+- Ticker/theme/KR rows that imply a security must provide a direct path to ticker detail analysis when the ticker identity is known.
+- R1 version sync must be completed after currentness UX or QA review changes because stale cachebusters can hide the fix.
+
+## R223. News translation must degrade to Korean insight, not raw English-only context (v50.95)
+
+- News ingestion is not complete when English headlines are merely fetched or title-translated. Every visible/chat news consumer must have a Korean `ko_summary` plus at least one Korean explanation/impact/action field.
+- If `ANTHROPIC_API_KEY` or browser Claude key is unavailable, `_aioBuildNewsLocalKoreanInsight()` must synthesize conservative Korean summary/explanation/impact/action from topic, sentiment, impact vector, source, and ticker extraction without inventing facts beyond the headline/description.
+- `market-news`, `home` top news, and `_buildNewsContext()` must consume `_aioGetNewsTranslation()` rather than raw title/desc only.
+- `AIO.getNewsTranslationQualityAudit()` and `scripts/ci-data-pipeline-contract-check.mjs` are the regression gate for this rule.
+
+## R222. Public-data pipelines require an Actions-to-consumer contract gate (v50.94)
+
+- Market/news auto-refresh is complete only when the path is contract-tested end to end: GitHub Actions schedule -> fetch script -> committed `public-data/*.json` artifact -> runtime loader -> runtime audit -> visible/chat/memo consumer.
+- `data-watchdog.yml` must fail on stale or too-thin core artifacts, not only malformed JSON. Minimum floors: `symbolsOk >= 70`, `newsCount >= 10`, Telegram digest `count >= 100` and at least 2 channels.
+- Optional services that depend on secrets (FRED, LLM market analysis, FMP fundamentals) may degrade without failing the site, but their status must be visible in `AIO.getDataPipelineAudit().layers.sources.publicData`.
+- `scripts/ci-data-pipeline-contract-check.mjs` is the static gate for this rule and must be run by CI.
+
+## R221. Telegram/news auto-refresh must close the ticker memo consumer path (v50.93)
+
+- Scheduled Telegram/news digest updates are not complete when only the digest registry, freshness fields, or audit metadata change.
+- If the payload includes ticker-linked items (`topItems/items[].tickers`), the app must map them into `SCREENER_DB.memo` via a dynamic `[TG YYYY-MM-DD · auto]` overlay.
+- The path must remain verifiable through `getTelegramPipelineAudit().memoOverlay`, T831, and `scripts/ci-runtime-contract-check.mjs`.
+- Static fallback memo overlays may remain, but dynamic overlays must be prepended and replace prior dynamic overlays on reload/reapply.
 
 ## R165. AIO_TICKER_NAME_REGISTRY 의미적 정확성 + 한글 별명 일관성 의무 (v49.80 Codex)
 

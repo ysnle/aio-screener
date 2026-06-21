@@ -1,9 +1,9 @@
 ---
 verified_by: agent
-last_verified: 2026-06-04
+last_verified: 2026-06-20
 confidence: high
 auto_refresh: true
-target_version: v50.4
+target_version: version.json
 ---
 
 # _context Index
@@ -15,6 +15,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 | Document | Role | Refresh trigger |
 |---|---|---|
 | `CLAUDE.md` | Project structure, Git-tracked skills, hook caveats, context loop | Structure or workflow changes |
+| `WORKFLOW-GOVERNANCE.md` | Agent preflight, postmortem-to-gate rule, skill/self-operation closure contract | Workflow, skill, or CI gate changes |
 | `RULES.md` | Master rules for versioning, edits, QA, safety, deployment | New recurring failure or process rule |
 | `BUG-POSTMORTEM.md` | Bug history and P-number recurrence tracking | Bug fix |
 | `QA-CHECKLIST.md` | Manual/automated QA checklist | QA finding or new risky surface |
@@ -70,6 +71,7 @@ AIO/
 ## Backlink Map
 
 - `RULES.md` links recurring failures to enforceable rules.
+- `WORKFLOW-GOVERNANCE.md` turns lessons into runnable gates and defines the required preflight for agents/skills.
 - `BUG-POSTMORTEM.md` records bug causes and promotes repeated patterns into rules.
 - `QA-CHECKLIST.md` turns rules and bugs into runnable checks.
 - `CODE-MAP.md` prevents partial patches from targeting stale line ranges.

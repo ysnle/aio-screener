@@ -3720,10 +3720,16 @@ function _buildNewsContext(ctxId, query) {
   var lines = top.map(function(s, idx) {
     var it = s.item;
     var age = it.pubDate ? Math.round((now - new Date(it.pubDate).getTime()) / 3600000) : '?';
-    var title = (it.title || '').substring(0, 100);
-    var descRaw = (it.desc || it.summary || it.description || '').toString().replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+    var tr = (window._aioGetNewsTranslation && typeof window._aioGetNewsTranslation === 'function') ? window._aioGetNewsTranslation(it) : null;
+    var title = ((tr && tr.ko_title) || it.title || '').substring(0, 120);
+    var descRaw = ((tr && (tr.ko_rewrite || tr.ko_summary || tr.ko_desc)) || it.desc || it.summary || it.description || '').toString().replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+    var explainRaw = tr && tr.ko_explain ? String(tr.ko_explain).replace(/\s+/g, ' ').trim() : '';
+    var impactRaw = tr && tr.ko_impact ? String(tr.ko_impact).replace(/\s+/g, ' ').trim() : '';
+    var actionRaw = tr && tr.ko_action ? String(tr.ko_action).replace(/\s+/g, ' ').trim() : '';
+    var marketRaw = tr && tr.ko_market ? String(tr.ko_market).replace(/\s+/g, ' ').trim() : '';
     var descShort = descRaw ? descRaw.substring(0, 140) + (descRaw.length > 140 ? '…' : '') : '';
     // v48.55: 각 뉴스 item의 티커 수집 (extractTickers + cached 티커 병합)
+    descShort = descRaw ? descRaw.substring(0, 160) + (descRaw.length > 160 ? '...' : '') : '';
     var itemTickers = [];
     try {
       if (typeof getDisplayTickers === 'function') itemTickers = getDisplayTickers(it) || [];
@@ -3734,6 +3740,10 @@ function _buildNewsContext(ctxId, query) {
     var tickerTag = itemTickers.length > 0 ? ' [' + itemTickers.slice(0, 3).join(' ') + ']' : '';
     var line = (idx + 1) + '. [' + (it.source || '?') + ' · ' + age + 'h전]' + tickerTag + ' ' + title;
     if (descShort) line += '\n   └ ' + descShort;
+    if (marketRaw) line += '\n   시장 의미: ' + marketRaw.substring(0, 130) + (marketRaw.length > 130 ? '...' : '');
+    if (explainRaw) line += '\n   해석: ' + explainRaw.substring(0, 150) + (explainRaw.length > 150 ? '...' : '');
+    if (impactRaw) line += '\n   영향: ' + impactRaw.substring(0, 130) + (impactRaw.length > 130 ? '...' : '');
+    if (actionRaw) line += '\n   확인: ' + actionRaw.substring(0, 130) + (actionRaw.length > 130 ? '...' : '');
     return line;
   });
 
@@ -3828,8 +3838,9 @@ function _aioTickerNewsFromCache(ticker, opts) {
     var top = matched.slice(0, opts.max || 6);
     var lines = top.map(function(it, idx) {
       var age = it.pubDate ? Math.round((now - new Date(it.pubDate).getTime()) / 3600000) + 'h전' : '?';
-      var title = (it.title || '').toString().replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').substring(0, 110);
-      var descRaw = (it.desc || it.summary || it.description || '').toString().replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      var tr = (window._aioGetNewsTranslation && typeof window._aioGetNewsTranslation === 'function') ? window._aioGetNewsTranslation(it) : null;
+      var title = ((tr && tr.ko_title) || it.title || '').toString().replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').substring(0, 120);
+      var descRaw = ((tr && (tr.ko_rewrite || tr.ko_summary || tr.ko_desc)) || it.desc || it.summary || it.description || '').toString().replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
       var descShort = descRaw ? '\n     └ ' + descRaw.substring(0, 150) + (descRaw.length > 150 ? '…' : '') : '';
       return '    ' + (idx + 1) + '. [' + (it.source || '?') + ' · ' + age + '] ' + title + descShort;
     });

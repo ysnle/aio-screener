@@ -56,15 +56,28 @@ jobs:
           const data = readJson('public-data/data.json');
           checkAge('data.json meta.generatedAt', data && data.meta && data.meta.generatedAt);
           console.log(`symbolsOk=${data.meta && data.meta.symbolsOk} fearGreedOk=${data.meta && data.meta.fearGreedOk} fredOk=${data.meta && data.meta.fredOk}`);
+          if (!data.meta || data.meta.symbolsOk < 70) {
+            console.error(`symbolsOk too low: ${data.meta && data.meta.symbolsOk}`);
+            process.exit(1);
+          }
+          if (!data.meta.newsOk || data.meta.newsCount < 10) {
+            console.error(`news backstop too thin: newsOk=${data.meta.newsOk} newsCount=${data.meta.newsCount}`);
+            process.exit(1);
+          }
 
           const tg = readJson('public-data/telegram-digest.json');
           checkAge('telegram-digest.json generatedAt', tg && tg.generatedAt);
           console.log(`telegramCount=${tg.count} channels=${Array.isArray(tg.channels) ? tg.channels.length : 0}`);
+          if (!tg || tg.count < 100 || !Array.isArray(tg.channels) || tg.channels.length < 2) {
+            console.error(`telegram digest too thin: count=${tg && tg.count} channels=${tg && Array.isArray(tg.channels) ? tg.channels.length : 0}`);
+            process.exit(1);
+          }
 
           // v50.78: F&G, FRED, screener.json 상태 경보 (실패 아닌 경고 — 사이트는 폴백 동작)
           if (!data.meta.fearGreedOk) console.warn('⚠️  fearGreedOk=false — CNN F&G fetch 실패. 정적 폴백 사용 중.');
           if (!data.meta.fredHasKey) console.warn('⚠️  FRED_API_KEY Secret 미등록 — 매크로 서버 갱신 비활성. 클라이언트 aio_fred_key 브릿지로 보완 가능.');
           else if (!data.meta.fredFetchOk) console.warn('⚠️  FRED 키 있으나 fetchOk=false — 키 유효성/레이트리밋 확인 필요.');
+          if (!data.meta.marketAnalysisOk) console.warn('⚠️  marketAnalysisOk=false — ANTHROPIC_API_KEY Secret 미등록 또는 LLM 분석 생성 실패. 정적/클라이언트 분석으로 보완 중.');
 
           try {
             const scr = readJson('public-data/screener.json');

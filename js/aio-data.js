@@ -1076,9 +1076,86 @@ function _aioNormalizeTelegramDigestPayload(raw) {
   return merged;
 }
 
+function _aioTelegramDigestMemoDate(raw, merged) {
+  var iso = (raw && (raw.generatedAt || raw.until)) || (merged && merged.asOf) || '';
+  try {
+    if (iso) return new Date(iso).toISOString().slice(0, 10);
+  } catch(_) {}
+  return String(iso || '').slice(0, 10) || 'latest';
+}
+
+function _aioCleanTelegramMemoText(text) {
+  var s = String(text || '')
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (s.length > 190) s = s.slice(0, 187).replace(/\s+\S*$/, '') + '...';
+  return s;
+}
+
+function _aioBuildTelegramMemoOverlay(raw, merged) {
+  var items = [];
+  if (raw && Array.isArray(raw.topItems) && raw.topItems.length) items = raw.topItems;
+  else if (raw && Array.isArray(raw.items)) items = raw.items.slice(0, 80);
+  var date = _aioTelegramDigestMemoDate(raw, merged);
+  var byTicker = {};
+  items.forEach(function(item) {
+    if (!item || !Array.isArray(item.tickers) || !item.tickers.length) return;
+    var text = _aioCleanTelegramMemoText(item.text || item.title || item.summary || '');
+    if (!text) return;
+    var score = Number(item.score || 0) || 0;
+    item.tickers.forEach(function(t) {
+      var sym = String(t || '').toUpperCase().trim();
+      if (!sym) return;
+      if (!byTicker[sym]) byTicker[sym] = [];
+      if (byTicker[sym].length < 3) byTicker[sym].push({ text:text, score:score, channel:item.channel || '', url:item.url || '' });
+    });
+  });
+  var overlays = {};
+  Object.keys(byTicker).forEach(function(sym) {
+    var rows = byTicker[sym].sort(function(a, b) { return (b.score || 0) - (a.score || 0); }).slice(0, 2);
+    if (!rows.length) return;
+    var body = rows.map(function(r) { return r.text; }).join(' / ');
+    var suffix = rows.length > 1 ? ' · auto ' + rows.length + ' posts' : ' · auto';
+    overlays[sym] = '[TG ' + date + suffix + '] ' + body;
+  });
+  return { date:date, source:(raw && raw.source) || (merged && merged.dynamicDigestSource) || 'telegram-public-mirror', byTicker:overlays, candidateItems:items.length };
+}
+
+function _aioApplyTelegramDigestToScreenerDb(raw, merged) {
+  var db = (typeof SCREENER_DB !== 'undefined' && Array.isArray(SCREENER_DB)) ? SCREENER_DB : null;
+  var built = _aioBuildTelegramMemoOverlay(raw, merged);
+  var audit = { status:'unavailable', date:built.date, source:built.source, candidateItems:built.candidateItems, appliedCount:0, tickers:[], updatedAt:Date.now() };
+  if (!db || !db.length) {
+    try { window._aioTelegramMemoOverlayAudit = audit; } catch(_) {}
+    return audit;
+  }
+  db.forEach(function(r) {
+    if (!r || !r.sym) return;
+    var sym = String(r.sym).toUpperCase();
+    var overlay = built.byTicker && built.byTicker[sym];
+    if (!overlay) return;
+    var memo = String(r.memo || '');
+    if (r._telegramMemoOverlay && memo.indexOf(r._telegramMemoOverlay) === 0) {
+      memo = memo.slice(String(r._telegramMemoOverlay).length).replace(/^\s+/, '');
+    }
+    r._telegramMemoOverlay = overlay;
+    r._telegramMemoAsOf = built.date;
+    r._telegramMemoSource = built.source;
+    r._telegramMemoItems = (built.byTicker[sym].match(/posts\]/) ? Number((built.byTicker[sym].match(/auto\s+(\d+)\s+posts/) || [])[1] || 2) : 1);
+    r.memo = overlay + (memo ? ' ' + memo : '');
+    audit.appliedCount++;
+    audit.tickers.push(sym);
+  });
+  audit.status = audit.appliedCount ? 'ready' : 'no_match';
+  try { window._aioTelegramMemoOverlayAudit = audit; } catch(_) {}
+  return audit;
+}
+
 function _aioApplyTelegramDigestPayload(raw) {
   var merged = _aioNormalizeTelegramDigestPayload(raw);
   if (!merged) return false;
+  var memoOverlay = _aioApplyTelegramDigestToScreenerDb(raw, merged);
   AIO_TELEGRAM_WEEKLY_DIGEST = merged;
   AIO_TELEGRAM_CATEGORY_REGISTRY = merged.categories || [];
   AIO_TELEGRAM_PAGE_INTEGRATION_MAP = merged.pageMap || {};
@@ -1092,7 +1169,8 @@ function _aioApplyTelegramDigestPayload(raw) {
       asOf: merged.asOf,
       window: merged.window,
       count: merged.counts && merged.counts.total,
-      source: merged.dynamicDigestSource
+      source: merged.dynamicDigestSource,
+      memoOverlay: memoOverlay
     };
     if (window.DATA_SNAPSHOT && merged.asOf) {
       window.DATA_SNAPSHOT._telegramDigestUpdated = merged.asOf;
@@ -1125,6 +1203,7 @@ async function _aioLoadServerTelegramDigest() {
 try {
   window._aioNormalizeTelegramDigestPayload = _aioNormalizeTelegramDigestPayload;
   window._aioApplyTelegramDigestPayload = _aioApplyTelegramDigestPayload;
+  window._aioApplyTelegramDigestToScreenerDb = _aioApplyTelegramDigestToScreenerDb;
   window._aioLoadServerTelegramDigest = _aioLoadServerTelegramDigest;
 } catch(_) {}
 
@@ -1707,12 +1786,13 @@ window._aioRenderScreenerBacktest = function() {
     } else if (state.status === 'partial') {
       el.innerHTML = '<div style="font-size:11px;color:var(--data-amber);">팩터 데이터는 수신했지만 백테스트 결과가 없습니다.</div>';
     } else {
-      el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">팩터 검증 파일 확인 중...</div>';
+      el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">팩터 백테스트 대기 중 — history.json 1년 누적 후 자동 생성 (GitHub Actions cron)' +
+        '<div style="margin-top:4px;font-size:10px;color:var(--text-muted);opacity:0.7;">⚠ 저변동 팩터는 역방향(낮을수록 우수). IC 계산은 서버 사이드. 현재 정적 팩터 랭킹은 정상 작동 중.</div></div>';
     }
     return;
   }
   var fmtIC = function(v){ if (v == null) return '—'; var c = v>=0.05?'#00e5a0':v<=-0.05?'#ff5b50':'#ffa31a'; return '<span style="color:'+c+';font-weight:700;">'+v.toFixed(3)+'</span>'; };
-  var rows = [['모멘텀','momentum'],['추세','trend'],['저변동','lowvol'],['종합','composite']].map(function(p){
+  var rows = [['모멘텀','momentum',false],['추세','trend',false],['저변동 <span style="font-size:9px;color:var(--data-amber);">↓우수·역방향</span>','lowvol',true],['종합','composite',false]].map(function(p){
     return '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">'+p[0]+' IC</span>'+fmtIC(bt.ic[p[1]])+'</div>';
   }).join('');
   var spread = (bt.quantileSpread != null) ? ((bt.quantileSpread>=0?'+':'')+bt.quantileSpread.toFixed(1)+'%') : '—';
@@ -4718,7 +4798,23 @@ async function _aioLoadServerData() {
     }
 
     var ageMin = d.meta.generatedAt ? Math.round((Date.now() - new Date(d.meta.generatedAt).getTime()) / 60000) : null;
-    window._serverDataMeta = { generatedAt: d.meta.generatedAt, ageMin: ageMin, symbolsOk: d.meta.symbolsOk, loadedAt: Date.now() };
+    window._serverDataMeta = {
+      generatedAt: d.meta.generatedAt,
+      ageMin: ageMin,
+      symbolsOk: d.meta.symbolsOk,
+      symbolsFail: d.meta.symbolsFail,
+      failedSymbols: d.meta.failedSymbols || [],
+      fearGreedOk: !!d.meta.fearGreedOk,
+      fredHasKey: !!d.meta.fredHasKey,
+      fredFetchOk: !!d.meta.fredFetchOk,
+      fredOk: !!d.meta.fredOk,
+      macroKeyCount: d.meta.macroKeyCount || 0,
+      newsOk: !!d.meta.newsOk,
+      newsCount: d.meta.newsCount || (Array.isArray(d.news) ? d.news.length : 0),
+      marketAnalysisOk: !!d.meta.marketAnalysisOk,
+      loadedAt: Date.now(),
+      artifacts: { dataJson: 'ready', telegramDigest: 'pending', screenerJson: 'pending' }
+    };
 
     // 1) 시세 → applyLiveQuotes (앱 전체 갱신 + aio:liveQuotes 발화)
     if (Array.isArray(d.quotes) && d.quotes.length && typeof applyLiveQuotes === 'function') {
@@ -4758,7 +4854,14 @@ async function _aioLoadServerData() {
       try { _aioApplyNewsBackstop(false); } catch(_) {}
     }
     try {
-      if (typeof _aioLoadServerTelegramDigest === 'function') await _aioLoadServerTelegramDigest();
+      if (typeof _aioLoadServerTelegramDigest === 'function') {
+        await _aioLoadServerTelegramDigest();
+        if (window._serverDataMeta) {
+          window._serverDataMeta.artifacts.telegramDigest = window._aioTelegramDigestMeta && window._aioTelegramDigestMeta.status || 'checked';
+          window._serverDataMeta.telegramDigest = window._aioTelegramDigestMeta || null;
+          window._serverDataMeta.telegramMemoOverlay = window._aioTelegramMemoOverlayAudit || null;
+        }
+      }
     } catch(_) {}
     // 5) v50.48/Phase 4: 서버 LLM 시장 분석문(운영자 키 있을 때 cron 생성) — 있으면 합성 sink가 템플릿 대신 우선 사용.
     if (d.marketAnalysis && (d.marketAnalysis.full || d.marketAnalysis.oneLine)) {
@@ -4775,14 +4878,30 @@ async function _aioLoadServerData() {
           window._aioScreenerLoadState = { status:sd.backtest ? 'ready' : 'partial', checkedAt:Date.now(), asOf:sd.asOf || null, count:Object.keys(sd.data).length };
           window._aioServerScreener = sd;
           if (typeof _aioApplyServerScreener === 'function') _aioApplyServerScreener(sd);
+          if (window._serverDataMeta) {
+            window._serverDataMeta.artifacts.screenerJson = window._aioScreenerLoadState.status;
+            window._serverDataMeta.screener = window._aioScreenerLoadState;
+          }
         } else {
           window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'invalid payload' };
+          if (window._serverDataMeta) {
+            window._serverDataMeta.artifacts.screenerJson = 'unavailable';
+            window._serverDataMeta.screener = window._aioScreenerLoadState;
+          }
         }
       } else {
         window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'HTTP ' + sr.status };
+        if (window._serverDataMeta) {
+          window._serverDataMeta.artifacts.screenerJson = 'unavailable';
+          window._serverDataMeta.screener = window._aioScreenerLoadState;
+        }
       }
     } catch(e) {
       window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:(e && e.message) || 'fetch failed' };
+      if (window._serverDataMeta) {
+        window._serverDataMeta.artifacts.screenerJson = 'unavailable';
+        window._serverDataMeta.screener = window._aioScreenerLoadState;
+      }
     }
     try { if (typeof _aioRenderScreenerBacktest === 'function') _aioRenderScreenerBacktest(); } catch(_) {}
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
@@ -4834,6 +4953,25 @@ function _aioApplyNewsBackstop(force) {
     if (typeof renderBriefingFeed === 'function') renderBriefingFeed(items);
     window._newsBackstopApplied = { count: items.length, at: Date.now() };
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server 뉴스 백스톱 적용: ' + items.length + '건 (클라이언트 뉴스 부재)');
+    // 뉴스 캐시 타임스탬프 + 스테일 배너
+    try {
+      var _meta = window._serverDataMeta;
+      var _ageMin = _meta && _meta.ageMin != null ? _meta.ageMin : null;
+      var _genAt = _meta && _meta.generatedAt ? new Date(_meta.generatedAt) : null;
+      var _cacheTs = document.getElementById('news-cache-ts');
+      if (_cacheTs) _cacheTs.textContent = _genAt ? _genAt.toLocaleString('ko-KR', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) + ' (서버 캐시)' : '서버 캐시';
+      var _staleBanner = document.getElementById('news-stale-banner');
+      if (_staleBanner) {
+        if (_ageMin != null && _ageMin > 60) {
+          var _ageStr = _ageMin >= 120 ? Math.round(_ageMin / 60) + '시간' : _ageMin + '분';
+          var _ageEl = document.getElementById('news-stale-age');
+          if (_ageEl) _ageEl.textContent = _ageStr;
+          _staleBanner.style.display = 'flex';
+        } else {
+          _staleBanner.style.display = 'none';
+        }
+      }
+    } catch (_sb) {}
     return true;
   } catch (e) {
     if (typeof _aioLog === 'function') _aioLog('warn', 'data', '뉴스 백스톱 적용 실패: ' + (e && e.message || e));
@@ -7019,7 +7157,7 @@ function _scoreItemCachePut(item, score) {
     item.impactVector = calcNewsImpactVector(item);
   }
   if (_scoreItemCache) {
-    _scoreItemCache.set(_scoreItemKey(item), { s: score, tm: item._tickerMentions || 0, bl: !!item._blacklisted });
+    _scoreItemCache.set(_scoreItemKey(item), { s: score, tm: item._tickerMentions || 0, bl: !!item._blacklisted, sr: item._scoreReasons || [] });
   }
   return score;
 }
@@ -7085,12 +7223,14 @@ function scoreItem(item) {
     if (_cached !== null && _cached !== undefined) {
       item._tickerMentions = _cached.tm;
       if (_cached.bl) item._blacklisted = true;
+      item._scoreReasons = _cached.sr || [];
       item.impactVector = calcNewsImpactVector(item);
       return _cached.s;
     }
   }
 
   let score = 0;
+  const scoreReasons = [];
   const text = ((item.title || '') + ' ' + (item.desc || '')).toLowerCase();
 
   // ── 1. 키워드 매칭 점수 (v42.5: 제목 가중치 + 키워드 길이 가중치) ──────
@@ -7433,10 +7573,30 @@ function scoreItem(item) {
   }
 
   // 너무 짧은 제목 (스팸 가능성)
-  if ((item.title || '').length < 15) score -= 10;
+  if (macroHits > 0) scoreReasons.push('macroHits=' + Math.round(macroHits * 10) / 10);
+  if (techHits > 0) scoreReasons.push('techHits=' + Math.round(techHits * 10) / 10);
+  if (medHits > 0) scoreReasons.push('medHits=' + Math.round(medHits * 10) / 10);
+  if (analystHits > 0) scoreReasons.push('analystHits=' + Math.round(analystHits * 10) / 10);
+  if (item.tier != null) scoreReasons.push('tier=' + item.tier);
+  if (foundTickers.length) scoreReasons.push('tickers=' + foundTickers.slice(0, 5).join(','));
+  if (priorityHits > 0) scoreReasons.push('priorityHits=' + priorityHits);
+  if (hasKeyFigure) scoreReasons.push('keyFigure');
+
+  try {
+    if (typeof isUnverifiedClaim === 'function' && isUnverifiedClaim(item)) {
+      score -= 8;
+      scoreReasons.push('unverified=-8');
+    }
+  } catch (_) {}
+
+  if ((item.title || '').length < 15) {
+    score -= 10;
+    scoreReasons.push('shortTitle=-10');
+  }
 
   // ── 7. 최소 0점 보장 ────────────────────────────────────
   var _finalScore = Math.max(0, Math.round(score));
+  item._scoreReasons = scoreReasons.slice(0, 10);
   // LRU 캐시 저장 (P182: 재채점 방지)
   return _scoreItemCachePut(item, _finalScore);
 }
@@ -7546,7 +7706,7 @@ function setNewsSortMode(mode, el) {
    - 한국어 뉴스는 번역 스킵
    - 번역 결과 캐시하여 중복 번역 방지
    ══════════════════════════════════════════════════════════════════ */
-const _translationCache = new Map(); // normalizedKey -> { ko_title, ko_desc, ko_summary, tickers, _failed }
+const _translationCache = new Map(); // normalizedKey -> { ko_title, ko_desc, ko_summary, ko_explain, ko_impact, ko_action, tickers, _failed }
 let _translationInProgress = false;
 
 // v27.3: 캐시 키 정규화 — 공백/대소문자/특수문자 차이로 인한 lookup 실패 방지
@@ -7575,7 +7735,7 @@ function _tcSaveToStorage() {
     var count = 0;
     _translationCache.forEach(function(val, key) {
       if (count < 500 && !val._failed) { // 성공한 번역만 저장
-        obj[key] = { t: val.ko_title, d: val.ko_desc, s: val.ko_summary, k: val.tickers };
+        obj[key] = { t: val.ko_title, d: val.ko_desc, s: val.ko_summary, e: val.ko_explain, i: val.ko_impact, a: val.ko_action, r: val.ko_rewrite, sec: val.ko_section, m: val.ko_market, k: val.tickers };
         count++;
       }
     });
@@ -7595,6 +7755,8 @@ function _tcLoadFromStorage() {
         var v = obj[key];
         _translationCache.set(key, {
           ko_title: v.t, ko_desc: v.d || '', ko_summary: v.s || '',
+          ko_explain: v.e || '', ko_impact: v.i || '', ko_action: v.a || '',
+          ko_rewrite: v.r || '', ko_section: v.sec || '', ko_market: v.m || '',
           tickers: v.k || [], _failed: false
         });
         loaded++;
@@ -7728,6 +7890,266 @@ function _isKoreanTranslationValid(text) {
 }
 
 /* ── v30.12: Claude 키 없을 때 Google Translate 무료 배치 번역 수행 ── */
+function _aioNewsTopicKo(topic) {
+  var t = String(topic || 'general').toLowerCase();
+  var map = {
+    macro: '매크로', fed: '연준/금리', rates: '금리', bond: '채권', fx: '환율',
+    geo: '지정학', geopolitics: '지정학', energy: '에너지', oil: '에너지',
+    semi: '반도체/AI 인프라', ai: 'AI', 'ai-policy': 'AI 정책',
+    earnings: '실적', equity: '주식', analyst: '애널리스트', policy: '정책',
+    trade: '무역/관세', crypto: '크립토', healthcare: '헬스케어',
+    defense: '방산', shipbuilding: '조선', space: '우주'
+  };
+  return map[t] || '시장';
+}
+
+function _aioNewsSentimentKo(sent) {
+  var s = String(sent || 'neut').toLowerCase();
+  if (s === 'bull' || s === 'positive') return '긍정';
+  if (s === 'bear' || s === 'negative') return '부정';
+  if (s === 'warn' || s === 'caution') return '경계';
+  return '중립';
+}
+
+function _aioCleanNewsText(text, maxLen) {
+  var out = String(text || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!out) return '';
+  maxLen = maxLen || 180;
+  return out.length > maxLen ? out.slice(0, maxLen - 1) + '…' : out;
+}
+
+var _AIO_NEWS_REWRITE_SECTION_LABELS = {
+  'us-politics': '미국 정치',
+  'diplomacy': '국제외교',
+  'geo': '지정학',
+  'middle-east': '중동 전쟁 및 지정학',
+  'fed-econ': '연준 및 미국 경제',
+  'ai-bigtech': 'AI 및 빅테크',
+  'us-equity': '미국 주식 및 기업',
+  'crypto': '암호화폐',
+  'energy': '원자재 및 에너지',
+  'global-econ': '글로벌 경제 및 중앙은행',
+  'analyst': '투자의견 및 목표가',
+  'semi': '반도체·AI 인프라',
+  'market': '시장 종합'
+};
+
+function _aioNewsRewriteSectionLabel(key) {
+  return _AIO_NEWS_REWRITE_SECTION_LABELS[key] || _AIO_NEWS_REWRITE_SECTION_LABELS.market;
+}
+
+function _aioNormalizeNewsRewriteSectionKey(value) {
+  var raw = String(value || '').trim();
+  if (_AIO_NEWS_REWRITE_SECTION_LABELS[raw]) return raw;
+  for (var key in _AIO_NEWS_REWRITE_SECTION_LABELS) {
+    if (_AIO_NEWS_REWRITE_SECTION_LABELS[key] === raw) return key;
+  }
+  var lower = raw.toLowerCase();
+  if (/정치|trump|white house/.test(lower)) return 'us-politics';
+  if (/외교|협상|diplomacy|talk/.test(lower)) return 'diplomacy';
+  if (/중동|이스라엘|이란|middle/.test(lower)) return 'middle-east';
+  if (/지정학|geo|전쟁/.test(lower)) return 'geo';
+  if (/연준|금리|경제|fed|macro/.test(lower)) return 'fed-econ';
+  if (/ai|빅테크|big tech/.test(lower)) return 'ai-bigtech';
+  if (/주식|기업|equity/.test(lower)) return 'us-equity';
+  if (/암호|crypto|bitcoin/.test(lower)) return 'crypto';
+  if (/원자재|에너지|oil|energy/.test(lower)) return 'energy';
+  if (/글로벌|중앙은행|global/.test(lower)) return 'global-econ';
+  if (/투자의견|목표가|analyst/.test(lower)) return 'analyst';
+  if (/반도체|semi|hbm/.test(lower)) return 'semi';
+  return raw ? 'market' : '';
+}
+
+function _aioNewsRewriteSectionKey(item) {
+  item = item || {};
+  var topic = String(item.topic || (typeof classifyTopic === 'function' ? classifyTopic(item) : '') || '').toLowerCase();
+  var blob = [item.title, item.ko_title, item.desc, item.description, item.source, topic].join(' ').toLowerCase();
+  if (/analyst|upgrade|downgrade|initiates|coverage|target price|price target|overweight|underweight|buy rating|sell rating|neutral/.test(blob) || topic === 'analyst') return 'analyst';
+  if (/trump|vance|white house|congress|senate|republican|democrat|election|tariff|us government|washington/.test(blob)) return 'us-politics';
+  if (/witkoff|kushner|switzerland|qatar|pakistan|negotiation|memorandum|geneva|diplomat|talks/.test(blob)) return 'diplomacy';
+  if (/iran|hormuz|lebanon|israel|hezbollah|centcom|middle east|ceasefire|strait|red sea|ukraine|russia|war/.test(blob) || topic === 'geo' || topic === 'geopolitics') {
+    if (/lebanon|israel|hezbollah|ceasefire|middle east|iran|hormuz/.test(blob)) return 'middle-east';
+    return 'geo';
+  }
+  if (/fed|fomc|powell|rate cut|interest rate|treasury yield|cpi|pce|jobs report|inflation|recession|dollar/.test(blob) || ['macro','fed','rates','bond','fx'].indexOf(topic) !== -1) return 'fed-econ';
+  if (/oil|brent|wti|natural gas|natgas|lng|opec|energy|crude|barrel|shipping|tanker/.test(blob) || topic === 'energy' || topic === 'oil') return 'energy';
+  if (/bitcoin|ethereum|crypto|solana|avalanche|btc|eth|stablecoin|on-chain|mev/.test(blob) || topic === 'crypto') return 'crypto';
+  if (/ai|anthropic|openai|nvidia|nvda|data center|cloud|musk|meta|alphabet|microsoft|big tech/.test(blob) || topic === 'ai' || topic === 'ai-policy') return 'ai-bigtech';
+  if (/semiconductor|hbm|memory|dram|tsmc|sk hynix|samsung|micron|broadcom|marvell|smh|soxx|chip/.test(blob) || topic === 'semi') return 'semi';
+  if (/boj|ecb|boe|canada|mexico|japan|china|europe|iaea|imf|world bank|central bank/.test(blob)) return 'global-econ';
+  if (/earnings|guidance|revenue|margin|shares|stock|nasdaq|s&p|dow|company|deal|ipo|merger/.test(blob) || ['equity','earnings'].indexOf(topic) !== -1) return 'us-equity';
+  return 'market';
+}
+
+function _aioNewsMarketMeaning(item, sectionKey) {
+  item = item || {};
+  var tickers = [];
+  try { tickers = typeof getDisplayTickers === 'function' ? getDisplayTickers(item) : (extractTickers(item) || []).map(function(t) { return '$' + t; }); } catch(_) {}
+  tickers = Array.isArray(tickers) ? tickers.filter(Boolean).slice(0, 4) : [];
+  var label = _aioNewsRewriteSectionLabel(sectionKey);
+  if (tickers.length) return tickers.join(', ') + ' 관련 가격·거래량·섹터 강도를 함께 확인할 필요가 있습니다.';
+  if (sectionKey === 'energy') return '유가와 인플레이션 기대, 에너지·운송 섹터의 변동성으로 연결될 수 있습니다.';
+  if (sectionKey === 'fed-econ') return '금리·달러·성장주 밸류에이션 경로를 다시 확인해야 하는 변수입니다.';
+  if (sectionKey === 'middle-east' || sectionKey === 'geo' || sectionKey === 'diplomacy') return '헤드라인보다 실제 물류·원자재 가격·위험자산 반응을 우선 확인해야 합니다.';
+  if (sectionKey === 'crypto') return '위험자산 심리와 유동성 변화가 코인 및 관련주에 반영되는지 봐야 합니다.';
+  if (sectionKey === 'analyst') return '목표가 변화보다 실적 추정치와 실제 수급 반응 동반 여부가 중요합니다.';
+  return label + ' 관련 시장 영향은 가격 반응과 후속 보도로 교차검증해야 합니다.';
+}
+
+function _aioBuildNewsRewriteBullet(item, tr) {
+  item = item || {};
+  tr = tr || _aioGetNewsTranslation(item);
+  var sectionKey = _aioNormalizeNewsRewriteSectionKey(tr.ko_section) || _aioNewsRewriteSectionKey(item);
+  var rewrite = _aioCleanNewsText(tr.ko_rewrite || tr.ko_title || item.ko_title || item.title || '', 170);
+  var explain = _aioCleanNewsText(tr.ko_market || tr.ko_explain || tr.ko_summary || '', 130);
+  if (!rewrite) rewrite = _aioCleanNewsText(item.desc || item.description || '', 170);
+  if (!rewrite) rewrite = '확인 가능한 원문 제목이 부족해 후속 데이터 교차검증이 필요합니다.';
+  if (!/[.?!다요음임함됨니다]$/.test(rewrite)) rewrite += '라고 전해졌습니다.';
+  if (explain && rewrite.indexOf(explain) === -1) rewrite += ' ' + explain;
+  else if (!explain) rewrite += ' ' + _aioNewsMarketMeaning(item, sectionKey);
+  return rewrite.replace(/\s+/g, ' ').trim();
+}
+
+function _aioBuildNewsKoreanRewriteBrief(items, opts) {
+  opts = opts || {};
+  var maxSections = opts.maxSections || 8;
+  var maxItemsPerSection = opts.maxItemsPerSection || 5;
+  var src = Array.isArray(items) ? items : [];
+  var groups = {};
+  var order = ['us-politics','diplomacy','geo','middle-east','fed-econ','ai-bigtech','us-equity','analyst','semi','crypto','energy','global-econ','market'];
+  src.slice(0, opts.maxScan || 60).forEach(function(item) {
+    if (!item) return;
+    var tr = _aioGetNewsTranslation(item);
+    var key = _aioNormalizeNewsRewriteSectionKey(tr.ko_section) || _aioNewsRewriteSectionKey(item);
+    if (!groups[key]) groups[key] = [];
+    if (groups[key].length >= maxItemsPerSection) return;
+    groups[key].push({
+      bullet: _aioBuildNewsRewriteBullet(item, tr),
+      source: item.source || '',
+      tickers: tr.tickers || []
+    });
+  });
+  var sections = order.filter(function(key) { return groups[key] && groups[key].length; }).slice(0, maxSections).map(function(key) {
+    return { key: key, label: _aioNewsRewriteSectionLabel(key), items: groups[key] };
+  });
+  var now = new Date();
+  var dateLabel = now.getFullYear() + '년 ' + (now.getMonth() + 1) + '월 ' + now.getDate() + '일';
+  return {
+    generatedAt: now.toISOString(),
+    dateLabel: dateLabel,
+    sections: sections,
+    count: sections.reduce(function(sum, sec) { return sum + sec.items.length; }, 0)
+  };
+}
+
+function _aioRenderNewsKoreanRewriteBrief(items, targetId) {
+  var el = document.getElementById(targetId || 'news-korean-rewrite-brief');
+  if (!el) return null;
+  var brief = _aioBuildNewsKoreanRewriteBrief(items, { maxSections: 8, maxItemsPerSection: 5, maxScan: 60 });
+  if (!brief.sections.length) {
+    el.innerHTML = '';
+    el.style.display = 'none';
+    return brief;
+  }
+  var sectionHtml = brief.sections.map(function(sec) {
+    var bullets = sec.items.map(function(row) {
+      return '<div style="font-size:11px;line-height:1.58;color:var(--text-secondary);margin:3px 0;">· ' + escHtml(row.bullet) + '</div>';
+    }).join('');
+    return '<div style="padding:10px 12px;border-top:1px solid var(--border);">' +
+      '<div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">📍' + escHtml(sec.label) + '</div>' +
+      bullets +
+      '</div>';
+  }).join('');
+  el.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
+    '<div style="padding:10px 12px;background:var(--surface-1);display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;">' +
+    '<div style="font-size:12px;font-weight:900;color:var(--text-primary);">Market Summary - ' + escHtml(brief.dateLabel) + '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">rewrite · ' + brief.count + ' items</div>' +
+    '</div>' + sectionHtml +
+    '<div style="padding:8px 12px;border-top:1px solid var(--border);font-size:10px;line-height:1.5;color:var(--text-muted);">외신·Telegram·RSS를 한국어 투자 브리핑 문장으로 재작성한 요약입니다. 원문 확인과 가격·거래량 교차검증이 필요합니다.</div>' +
+    '</div>';
+  el.style.display = 'block';
+  return brief;
+}
+
+function _aioBuildNewsLocalKoreanInsight(item, preferredTitle) {
+  item = item || {};
+  var title = _aioCleanNewsText(preferredTitle || item.ko_title || item.title || '', 160);
+  var topic = item.topic || (typeof classifyTopic === 'function' ? classifyTopic(item) : 'general');
+  var sectionKey = _aioNewsRewriteSectionKey(item);
+  var topicKo = _aioNewsTopicKo(topic);
+  var vec = item.impactVector || null;
+  try { if (!vec && typeof calcNewsImpactVector === 'function') vec = calcNewsImpactVector(item); } catch(_) {}
+  vec = vec || {};
+  var sent = vec.sentiment || item.sentiment || null;
+  try { if (!sent && typeof getSentimentFromText === 'function') sent = getSentimentFromText((item.title || '') + ' ' + (item.desc || '')); } catch(_) {}
+  var sentimentKo = _aioNewsSentimentKo(sent);
+  var tickers = [];
+  try { tickers = typeof getDisplayTickers === 'function' ? getDisplayTickers(item) : (extractTickers(item) || []).map(function(t) { return '$' + t; }); } catch(_) {}
+  tickers = Array.isArray(tickers) ? tickers.filter(Boolean).slice(0, 5) : [];
+  var factor = String(vec.factor || topic || 'GENERAL').toUpperCase();
+  var urgency = vec.urgency ? String(vec.urgency).toUpperCase() : '';
+  var technical = vec.technicalImpact ? String(vec.technicalImpact).toUpperCase() : '';
+  var summary = topicKo + ' 뉴스입니다. 헤드라인 기준 톤은 ' + sentimentKo + '이고' + (tickers.length ? ', 관련 티커는 ' + tickers.join(', ') + '입니다.' : ', 시장 전체 영향 여부를 확인해야 합니다.');
+  var explainMap = {
+    macro: '금리, 달러, 성장률 기대와 주식 밸류에이션 경로를 같이 확인하세요.',
+    fed: '정책금리 기대, 장단기 금리, 달러와 성장주 할인율에 미치는 영향을 같이 보세요.',
+    rates: '채권금리 변화가 성장주/배당주/금융주 상대강도에 반영되는지 확인하세요.',
+    bond: '채권금리와 신용스프레드 변화가 위험자산 선호를 바꾸는지 확인하세요.',
+    fx: '달러와 환율 변화가 원자재, 해외 매출주, 외국인 수급에 미치는 영향을 보세요.',
+    geo: '지정학 리스크는 유가, 방산, 운송, 안전자산 선호로 전이되는지 확인하세요.',
+    geopolitics: '지정학 리스크는 유가, 방산, 운송, 안전자산 선호로 전이되는지 확인하세요.',
+    energy: '유가와 에너지 스프레드가 인플레이션 기대와 섹터 로테이션을 흔드는지 보세요.',
+    semi: 'AI 인프라, 메모리, 장비, 전력/광통신 밸류체인으로 영향이 확산되는지 보세요.',
+    ai: '모델/클라우드/데이터센터 투자와 규제 리스크가 관련 밸류체인에 반영되는지 확인하세요.',
+    'ai-policy': '수출통제, 주권 AI, 클라우드 접근 규칙이 AI 공급망과 수요에 미치는 영향을 보세요.',
+    earnings: '실적, 가이던스, 마진, 컨센서스 변화가 주가 추세와 거래량에 확인되는지 보세요.',
+    equity: '개별주 뉴스는 지수보다 해당 종목의 가격/거래량/상대강도 확인이 우선입니다.',
+    analyst: '목표가/등급 변경은 컨센서스 방향성과 실제 추정치 변화가 동반되는지 확인하세요.',
+    policy: '정책 뉴스는 시행 시점, 수혜/피해 업종, 규제 강도를 분리해 보세요.',
+    trade: '관세와 무역규칙 변화는 비용, 공급망, 지역별 매출 노출로 나눠 확인하세요.'
+  };
+  var explain = explainMap[String(topic || '').toLowerCase()] || '원문 헤드라인만으로 단정하지 말고 가격, 거래량, 관련 지표와 교차 확인하세요.';
+  var impactParts = ['분류=' + topicKo, '톤=' + sentimentKo];
+  if (factor) impactParts.push('팩터=' + factor);
+  if (technical) impactParts.push('기술=' + technical);
+  if (urgency) impactParts.push('긴급도=' + urgency);
+  var action = (tickers.length ? tickers.join(', ') + '의 ' : '관련 자산의 ') + '당일 추세, 거래량, 섹터 상대강도와 원문을 함께 확인하세요.';
+  var market = _aioNewsMarketMeaning(item, sectionKey);
+  var rewrite = title ? title.replace(/\s+/g, ' ').trim() : '';
+  if (rewrite && !/[.?!다요음임함됨니다]$/.test(rewrite)) rewrite += '라고 전해졌습니다.';
+  if (rewrite && market) rewrite += ' ' + market;
+  return {
+    ko_title: title,
+    ko_desc: _aioCleanNewsText(item.ko_desc || item.desc || item.description || '', 220),
+    ko_summary: summary,
+    ko_explain: explain,
+    ko_impact: impactParts.join(' · '),
+    ko_action: action,
+    ko_rewrite: rewrite,
+    ko_section: sectionKey,
+    ko_market: market,
+    tickers: tickers
+  };
+}
+
+function _aioGetNewsTranslation(item) {
+  item = item || {};
+  var cached = item.title ? _translationCache.get(_tcKey(item.title)) : null;
+  var local = _aioBuildNewsLocalKoreanInsight(item, cached && cached.ko_title);
+  var merged = Object.assign({}, local, cached || {});
+  if (!merged.ko_title) merged.ko_title = item.title || '';
+  if (!merged.ko_desc) merged.ko_desc = local.ko_desc || '';
+  if (!merged.ko_summary) merged.ko_summary = local.ko_summary || '';
+  if (!merged.ko_explain) merged.ko_explain = local.ko_explain || '';
+  if (!merged.ko_impact) merged.ko_impact = local.ko_impact || '';
+  if (!merged.ko_action) merged.ko_action = local.ko_action || '';
+  if (!merged.ko_rewrite) merged.ko_rewrite = local.ko_rewrite || '';
+  merged.ko_section = _aioNormalizeNewsRewriteSectionKey(merged.ko_section) || local.ko_section || _aioNewsRewriteSectionKey(item);
+  if (!merged.ko_market) merged.ko_market = local.ko_market || _aioNewsMarketMeaning(item, merged.ko_section);
+  if (!merged.tickers || !merged.tickers.length) merged.tickers = local.tickers || [];
+  return merged;
+}
+
 async function freeTranslateNews(items) {
   var statusEl = document.getElementById('translate-status');
   if (statusEl) statusEl.innerHTML = '번역 준비 중...';
@@ -7740,7 +8162,8 @@ async function freeTranslateNews(items) {
     return i.title && isKoreanText(i.title) && !_translationCache.has(_tcKey(i.title));
   }).forEach(function(i) {
     var tickers = extractTickers(i).map(function(t) { return '$' + t; });
-    _tcPut(i.title, { ko_title: i.title, ko_desc: i.desc || '', ko_summary: '', tickers: tickers });
+    var local = _aioBuildNewsLocalKoreanInsight(i, i.title);
+    _tcPut(i.title, Object.assign({}, local, { ko_title: i.title, ko_desc: i.desc || local.ko_desc || '', tickers: tickers.length ? tickers : local.tickers }));
   });
 
   if (needTrans.length === 0) {
@@ -7777,11 +8200,18 @@ async function freeTranslateNews(items) {
           failed++;
           failedItems.push(item);
         }
+        var localInsight = _aioBuildNewsLocalKoreanInsight(item, koTitle || item.title);
         _tcPut(item.title, {
           ko_title: koTitle || item.title,
           ko_desc: item.desc || '',
-          ko_summary: '',
-          tickers: tickers,
+          ko_summary: localInsight.ko_summary,
+          ko_explain: localInsight.ko_explain,
+          ko_impact: localInsight.ko_impact,
+          ko_action: localInsight.ko_action,
+          ko_rewrite: localInsight.ko_rewrite,
+          ko_section: localInsight.ko_section,
+          ko_market: localInsight.ko_market,
+          tickers: tickers.length ? tickers : localInsight.tickers,
           _failed: !koTitle  // P2 수정: 번역 실패 플래그
         });
       }
@@ -7790,9 +8220,16 @@ async function freeTranslateNews(items) {
       for (var fi = 0; fi < batch.length; fi++) {
         var fItem = batch[fi];
         var fTickers = extractTickers(fItem).map(function(t) { return '$' + t; });
+        var fLocal = _aioBuildNewsLocalKoreanInsight(fItem, fItem.title);
         _tcPut(fItem.title, {
-          ko_title: fItem.title, ko_desc: fItem.desc || '', ko_summary: '',
-          tickers: fTickers, _failed: true
+          ko_title: fItem.title, ko_desc: fItem.desc || fLocal.ko_desc || '', ko_summary: fLocal.ko_summary,
+          ko_explain: fLocal.ko_explain,
+          ko_impact: fLocal.ko_impact,
+          ko_action: fLocal.ko_action,
+          ko_rewrite: fLocal.ko_rewrite,
+          ko_section: fLocal.ko_section,
+          ko_market: fLocal.ko_market,
+          tickers: fTickers.length ? fTickers : fLocal.tickers, _failed: true
         });
         failed++;
         failedItems.push(fItem);
@@ -7822,9 +8259,16 @@ async function freeTranslateNews(items) {
           if (rResults[ri]) {
             var rItem = rSlice[ri];
             var rTickers = extractTickers(rItem).map(function(t) { return '$' + t; });
+            var rLocal = _aioBuildNewsLocalKoreanInsight(rItem, rResults[ri]);
             _tcPut(rItem.title, {
-              ko_title: rResults[ri], ko_desc: rItem.desc || '', ko_summary: '',
-              tickers: rTickers, _failed: false
+              ko_title: rResults[ri], ko_desc: rItem.desc || rLocal.ko_desc || '', ko_summary: rLocal.ko_summary,
+              ko_explain: rLocal.ko_explain,
+              ko_impact: rLocal.ko_impact,
+              ko_action: rLocal.ko_action,
+              ko_rewrite: rLocal.ko_rewrite,
+              ko_section: rLocal.ko_section,
+              ko_market: rLocal.ko_market,
+              tickers: rTickers.length ? rTickers : rLocal.tickers, _failed: false
             });
             translated++;
             failed--;
@@ -7872,11 +8316,18 @@ async function autoTranslateNews(items) {
   // 이미 한국어인 뉴스도 해석/티커 없으면 로컬 enrichment
   items.filter(i => i.title && isKoreanText(i.title) && !_translationCache.has(_tcKey(i.title))).forEach(i => {
     const tickers = extractTickers(i).map(t => '$' + t);
+    const local = _aioBuildNewsLocalKoreanInsight(i, i.title);
     _tcPut(i.title, {
       ko_title: i.title,
-      ko_desc: i.desc || '',
-      ko_summary: '',
-      tickers: tickers
+      ko_desc: i.desc || local.ko_desc || '',
+      ko_summary: local.ko_summary,
+      ko_explain: local.ko_explain,
+      ko_impact: local.ko_impact,
+      ko_action: local.ko_action,
+      ko_rewrite: local.ko_rewrite,
+      ko_section: local.ko_section,
+      ko_market: local.ko_market,
+      tickers: tickers.length ? tickers : local.tickers
     });
   });
 
@@ -7910,20 +8361,23 @@ async function autoTranslateNews(items) {
           max_tokens: 4000,
           messages: [{
             role: 'user',
-            content: `다음 영어 금융/시장 뉴스를 한국어로 번역하고 해석을 추가하세요.
+            content: `다음 영어 금융/시장 뉴스를 한국어로 번역하고, 한국 투자자가 바로 읽을 수 있는 브리핑 문장으로 재작성하세요.
 
 규칙:
 1. title: 한국어 제목 (한국 경제 뉴스 헤드라인 스타일, 간결하게)
 2. desc: 핵심 내용 1-2문장 한국어 요약. desc 없으면 제목에서 유추
 3. summary: 투자자 관점 해석 1문장 (예: "반도체 업종 전반에 긍정적 시그널", "단기 변동성 확대 주의")
-4. tickers: 관련 주식 티커 배열 ($ 포함, 예: ["$NVDA","$TSLA"]). 관련 없으면 빈 배열
+4. section: 아래 중 하나만 선택 — 미국 정치, 국제외교, 지정학, 중동 전쟁 및 지정학, 연준 및 미국 경제, AI 및 빅테크, 미국 주식 및 기업, 암호화폐, 원자재 및 에너지, 글로벌 경제 및 중앙은행, 투자의견 및 목표가, 반도체·AI 인프라, 시장 종합
+5. rewrite: 원문 직역 금지. "누가 무엇을 밝혔다/보도했다 + 시장이 봐야 할 포인트" 형태의 한국어 브리핑 문장 1개
+6. market: 투자자가 확인해야 할 시장 의미 1문장
+7. tickers: 관련 주식 티커 배열 ($ 포함, 예: ["$NVDA","$TSLA"]). 관련 없으면 빈 배열
    - 직접 언급된 종목 + 영향받을 종목 포함
    - 섹터 ETF도 해당시 포함 (예: $XLK, $SMH, $XLE)
 
 금융 전문용어 정확히 사용 (rate cut→금리 인하, earnings beat→실적 상회, rally→랠리, selloff→매도세)
 
 JSON 배열로만 반환 (다른 텍스트 없이):
-[{"idx":1,"title":"한국어 제목","desc":"한국어 요약","summary":"투자자 관점 해석","tickers":["$NVDA"]}]
+[{"idx":1,"title":"한국어 제목","desc":"한국어 요약","summary":"투자자 관점 해석","section":"AI 및 빅테크","rewrite":"엔비디아 관련 AI 인프라 수요가 다시 부각됐으며 반도체·전력 인프라 밸류체인 반응을 함께 확인해야 합니다.","market":"$NVDA와 $SMH의 가격·거래량 반응이 후속 확인 포인트입니다.","tickers":["$NVDA","$SMH"]}]
 
 ${prompt}`
           }]
@@ -7944,12 +8398,19 @@ ${prompt}`
                 const localTickers = extractTickers(orig).map(tk => '$' + tk);
                 const apiTickers = Array.isArray(t.tickers) ? t.tickers.filter(tk => typeof tk === 'string') : [];
                 const mergedTickers = [...new Set([...apiTickers, ...localTickers])].slice(0, 6);
+                const localInsight = _aioBuildNewsLocalKoreanInsight(orig, t.title);
                 // v30.12: _tcPut으로 LRU 캐시 관리 통합
                 _tcPut(orig.title, {
                   ko_title: t.title,
-                  ko_desc: t.desc || '',
-                  ko_summary: t.summary || '',
-                  tickers: mergedTickers
+                  ko_desc: t.desc || localInsight.ko_desc || '',
+                  ko_summary: t.summary || localInsight.ko_summary,
+                  ko_explain: localInsight.ko_explain,
+                  ko_impact: localInsight.ko_impact,
+                  ko_action: localInsight.ko_action,
+                  ko_rewrite: t.rewrite || localInsight.ko_rewrite,
+                  ko_section: t.section || localInsight.ko_section,
+                  ko_market: t.market || localInsight.ko_market,
+                  tickers: mergedTickers.length ? mergedTickers : localInsight.tickers
                 });
                 translated++;
               }
@@ -8030,11 +8491,18 @@ function localEnrichNews(items) {
 function localEnrichSingle(item) {
   if (!item || !item.title || _translationCache.has(_tcKey(item.title))) return;
   var tickers = extractTickers(item).map(function(t) { return '$' + t; });
+  var local = _aioBuildNewsLocalKoreanInsight(item, item.title);
   _tcPut(item.title, {
     ko_title: item.title,
-    ko_desc: item.desc || '',
-    ko_summary: '',
-    tickers: tickers,
+    ko_desc: item.desc || local.ko_desc || '',
+    ko_summary: local.ko_summary,
+    ko_explain: local.ko_explain,
+    ko_impact: local.ko_impact,
+    ko_action: local.ko_action,
+    ko_rewrite: local.ko_rewrite,
+    ko_section: local.ko_section,
+    ko_market: local.ko_market,
+    tickers: tickers.length ? tickers : local.tickers,
     _failed: !isKoreanText(item.title) // 영문 원문 유지 = 번역 실패
   });
 }
@@ -8055,16 +8523,14 @@ function getDisplayTitle(item) {
 }
 function getDisplayDesc(item) {
   if (_translationCache.has(_tcKey(item.title))) {
-    return _translationCache.get(_tcKey(item.title)).ko_desc || '';
+    return _aioGetNewsTranslation(item).ko_desc || '';
   }
   return (item.desc || '').slice(0, 200);
 }
 /* v27.2: 투자자 관점 해석 반환 — v27.4: 폴백 추가 */
 function getDisplaySummary(item) {
-  if (_translationCache.has(_tcKey(item.title))) {
-    const cached = _translationCache.get(_tcKey(item.title));
-    if (cached.ko_summary) return cached.ko_summary;
-  }
+  const translated = _aioGetNewsTranslation(item);
+  if (translated.ko_summary) return translated.ko_summary;
   // 폴백: 번역 완료 전이라도 빈 문자열 대신 원문 설명 축약 표시
   const desc = item.desc || item.description || '';
   if (desc.length > 0) {
@@ -8073,6 +8539,36 @@ function getDisplaySummary(item) {
   }
   return '';
 }
+function getDisplayExplain(item) {
+  return _aioGetNewsTranslation(item).ko_explain || '';
+}
+function getDisplayImpactText(item) {
+  return _aioGetNewsTranslation(item).ko_impact || '';
+}
+function getDisplayAction(item) {
+  return _aioGetNewsTranslation(item).ko_action || '';
+}
+window._aioBuildNewsLocalKoreanInsight = _aioBuildNewsLocalKoreanInsight;
+window._aioGetNewsTranslation = _aioGetNewsTranslation;
+window._aioBuildNewsKoreanRewriteBrief = _aioBuildNewsKoreanRewriteBrief;
+window._aioRenderNewsKoreanRewriteBrief = _aioRenderNewsKoreanRewriteBrief;
+window.AIO = window.AIO || {};
+window.AIO.getNewsTranslationQualityAudit = function(items) {
+  var src = items || window.newsCache || window._allNewsItems || [];
+  var sample = Array.isArray(src) ? src.slice(0, 80) : [];
+  var audit = { checked: sample.length, koTitle: 0, koSummary: 0, koExplain: 0, koImpact: 0, koRewrite: 0, failed: 0, generatedAt: new Date().toISOString() };
+  sample.forEach(function(item) {
+    var t = _aioGetNewsTranslation(item);
+    if (t.ko_title && isKoreanText(t.ko_title)) audit.koTitle++;
+    if (t.ko_summary) audit.koSummary++;
+    if (t.ko_explain) audit.koExplain++;
+    if (t.ko_impact) audit.koImpact++;
+    if (t.ko_rewrite) audit.koRewrite++;
+    if (t._failed) audit.failed++;
+  });
+  audit.ok = audit.checked === 0 || (audit.koSummary >= Math.min(10, audit.checked) && audit.koExplain >= Math.min(10, audit.checked));
+  return audit;
+};
 /* v27.2: 캐시된 티커 ($ 포함) 반환 — v27.4: 빈 배열 캐시 충돌 수정 */
 function getDisplayTickers(item) {
   // v27.4 근본 개편: API 결과 + 로컬 추출을 항상 합침 (풀리지 않는 구조)
@@ -8366,6 +8862,54 @@ var AIO_NEWS_SURFACE_CONTRACTS = {
   breadth:     { surfaceId: 'breadth',     role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['semi','macro','market-note','equity','crypto','memory'], sortMode: 'score' }
 };
 window.AIO_NEWS_SURFACE_CONTRACTS = AIO_NEWS_SURFACE_CONTRACTS;
+
+window.AIO.getNewsSelectionAudit = function(items) {
+  var sourceItems = Array.isArray(items) ? items : (typeof newsCache !== 'undefined' && Array.isArray(newsCache) ? newsCache : []);
+  var audit = {
+    generatedAt: new Date().toISOString(),
+    checked: sourceItems.length,
+    scoreBuckets: { gte90: 0, gte70: 0, gte50: 0, gte30: 0, lt30: 0 },
+    topics: {},
+    sources: {},
+    tiers: {},
+    verification: { verifiedCurrent: 0, current: 0, secondaryOnly: 0, unverified: 0, stale: 0 },
+    homeEligible: 0,
+    briefingEligible: 0,
+    marketNewsEligible: 0,
+    scoreReasons: {},
+  };
+
+  sourceItems.forEach(function(item) {
+    var score = Number(item && item.score);
+    if (!isFinite(score) && typeof scoreItem === 'function') {
+      try { score = scoreItem(item); } catch (_) { score = 0; }
+    }
+    var topic = item && (item.topic || (typeof classifyTopic === 'function' ? classifyTopic(item) : 'general')) || 'general';
+    var source = String(item && item.source || 'unknown');
+    var tier = String(_aioNewsSourceTier(item));
+    var status = (typeof _aioNewsVerificationStatus === 'function') ? _aioNewsVerificationStatus(item) : 'current';
+    var reasons = Array.isArray(item && item._scoreReasons) ? item._scoreReasons : [];
+
+    if (score >= 90) audit.scoreBuckets.gte90++;
+    else if (score >= 70) audit.scoreBuckets.gte70++;
+    else if (score >= 50) audit.scoreBuckets.gte50++;
+    else if (score >= 30) audit.scoreBuckets.gte30++;
+    else audit.scoreBuckets.lt30++;
+
+    audit.topics[topic] = (audit.topics[topic] || 0) + 1;
+    audit.sources[source] = (audit.sources[source] || 0) + 1;
+    audit.tiers[tier] = (audit.tiers[tier] || 0) + 1;
+    audit.verification[status] = (audit.verification[status] || 0) + 1;
+    reasons.slice(0, 5).forEach(function(reason) {
+      audit.scoreReasons[reason] = (audit.scoreReasons[reason] || 0) + 1;
+    });
+  });
+
+  try { audit.homeEligible = buildNewsSurfaceModel('home', sourceItems, {}).items.length; } catch (_) {}
+  try { audit.briefingEligible = buildNewsSurfaceModel('briefing', sourceItems, {}).items.length; } catch (_) {}
+  try { audit.marketNewsEligible = buildNewsSurfaceModel('market-news', sourceItems, {}).items.length; } catch (_) {}
+  return audit;
+};
 
 function _aioNewsPubMs(item) {
   var t = item && item.pubDate ? new Date(item.pubDate).getTime() : 0;
@@ -8707,6 +9251,7 @@ function renderFeed(items) {
     items = marketNewsModelV502.items || [];
   }
   if (!items || items.length === 0) {
+    try { _aioRenderNewsKoreanRewriteBrief([], 'news-korean-rewrite-brief'); } catch(_) {}
     if (marketNewsContainerV502) {
       var emptyReasonV502 = marketNewsModelV502 && marketNewsModelV502.emptyReason || 'no-input-news';
       marketNewsContainerV502.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:12px;line-height:1.6;">현재 필터에서 검증 뉴스가 없습니다<br><span style="font-family:var(--font-mono);font-size:10px;">소스 상태/필터 확인 · ' + escHtml(emptyReasonV502) + '</span></div>';
@@ -8801,11 +9346,13 @@ function renderFeed(items) {
       (emptyFilters.length ? '<br><span style="font-family:var(--font-mono);font-size:11px;">' + escHtml(emptyFilters.join(' · ')) + '</span><br>필터를 전체로 바꾸거나 새로고침하세요.' : '') + '</div>';
     var emptyCount = document.getElementById('market-news-count');
     if (emptyCount) emptyCount.textContent = '0건';
+    try { _aioRenderNewsKoreanRewriteBrief([], 'news-korean-rewrite-brief'); } catch(_) {}
     return;
   }
 
   // v42.0: 카테고리별 그룹 뷰
   if (_newsTypeTab === 'category') {
+    try { _aioRenderNewsKoreanRewriteBrief(filtered.slice(0, 40), 'news-korean-rewrite-brief'); } catch(_) {}
     _renderCategoryGroupView(filtered, container);
     var countEl2 = document.getElementById('market-news-count');
     if (countEl2) countEl2.textContent = filtered.length + '건';
@@ -8820,6 +9367,7 @@ function renderFeed(items) {
   // v40.4: 건수 상한 150건 (브리핑 20건보다 넓지만 과부하 방지)
   var eligibleCount = filtered.length;
   filtered = filtered.slice(0, 150);
+  try { _aioRenderNewsKoreanRewriteBrief(filtered.slice(0, 40), 'news-korean-rewrite-brief'); } catch(_) {}
   const html = filtered.map((item, idx) => {
     // 기업 뉴스 간결 불릿 형식
     if (useCompanyBulletFormat) {
@@ -8862,8 +9410,12 @@ function renderFeed(items) {
     const displayTitle = escHtml(getDisplayTitle(item));
     const displayDesc = getDisplayDesc(item);
     const displaySummary = getDisplaySummary(item);
+    const displayExplain = getDisplayExplain(item);
+    const displayAction = getDisplayAction(item);
     const descHtml = displayDesc ? `<div class="news-item-desc" style="font-size:10px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">${escHtml(displayDesc)}</div>` : '';
     const summaryHtml = displaySummary ? `<div style="font-size:11px;color:#a78bfa;margin-top:2px;font-style:italic;line-height:1.3;">${escHtml(displaySummary)}</div>` : '';
+    const explainHtml = displayExplain ? `<div style="font-size:10.5px;color:var(--text-secondary);margin-top:3px;line-height:1.35;">${escHtml(displayExplain)}</div>` : '';
+    const actionHtml = displayAction ? `<div style="font-size:10px;color:#7dd3fc;margin-top:2px;line-height:1.3;">${escHtml(displayAction)}</div>` : '';
 
     // 스코어 바
     const scoreBar = item.score > 0 ? `<span style="font-size:11px;color:${item.score > 50 ? '#00e5a0' : item.score > 30 ? '#ffa31a' : 'var(--text-muted)'};font-family:var(--font-mono);">■${item.score}</span>` : '';
@@ -8887,6 +9439,8 @@ function renderFeed(items) {
         <div class="news-item-headline">${tickerHtml}${displayTitle}</div>
         ${descHtml}
         ${summaryHtml}
+        ${explainHtml}
+        ${actionHtml}
         <div class="news-item-meta">${item._tgChannel ? '<span style="background:var(--data-purple-border);color:#a78bfa;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">TG</span>' : ''}${unverifiedBadge}${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo} ${scoreBar} ${impactHtml} <span style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);margin-left:4px;">T${escHtml(String(item.sourceTier || '?'))} · ${escHtml(String(item.verificationStatus || 'unchecked'))}${isFinite(item.ageHours) ? ' · ' + escHtml(String(item.ageHours)) + 'h' : ''}</span></div>
       </div>
       ${topicBadge}
@@ -8960,6 +9514,8 @@ function renderHomeFeed(items) {
         var sentIcon = sent === 'bull' ? '<span class="sd sd-g"></span>' : sent === 'bear' ? '<span class="sd sd-r"></span>' : sent === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-w"></span>';
         var timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
         var displayTitle = escHtml(getDisplayTitle(item));
+        var displaySummary = escHtml(getDisplaySummary(item));
+        var summaryLine = displaySummary ? '<div style="font-size:10px;color:var(--text-secondary);margin-top:1px;line-height:1.35;">' + displaySummary + '</div>' : '';
         var hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','geo','bond','fx'];
         var tickers = hMacroTopics.indexOf(item.topic) === -1 ? getDisplayTickers(item) : [];
         var tickerStr = tickers.length > 0
@@ -8969,6 +9525,7 @@ function renderHomeFeed(items) {
           '<span style="flex-shrink:0;font-size:10px;line-height:1.6;">' + sentIcon + '</span>' +
           '<div style="flex:1;min-width:0;">' +
             '<div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">' + tickerStr + displayTitle + '</div>' +
+            summaryLine +
             '<div style="font-size:10px;color:var(--text-muted);margin-top:1px;font-family:var(--font-mono);">' + escHtml(item.inclusionReason || '') + ' · ' + escHtml(item.source || '') + ' · ' + escHtml(timeAgo) + '</div>' +
           '</div>' +
         '</div>';
@@ -9059,6 +9616,8 @@ function renderHomeFeed(items) {
     const timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
     const displayTitle = escHtml(getDisplayTitle(item));
     // v39.0e: 티커는 매크로/지정학/정책 뉴스에서 숨김
+    const displaySummary = escHtml(getDisplaySummary(item));
+    const summaryLine = displaySummary ? `<div style="font-size:10px;color:var(--text-secondary);margin-top:1px;line-height:1.35;">${displaySummary}</div>` : '';
     const _hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade'];
     const tickers = !_hMacroTopics.includes(item.topic) ? getDisplayTickers(item) : [];
     // v48.55: 홈 피드 티커 클릭 → ticker 페이지 이동
@@ -9069,6 +9628,7 @@ function renderHomeFeed(items) {
       <span style="flex-shrink:0;font-size:10px;line-height:1.6;">${sentIcon}</span>
       <div style="flex:1;min-width:0;">
         <div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">${tickerStr}${displayTitle}</div>
+        ${summaryLine}
         <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${escHtml(item.source||'')} · ${timeAgo}</div>
       </div>
     </div>`;
@@ -9697,6 +10257,7 @@ window.AIO.getTelegramPipelineAudit = function() {
   var aetherItems = all.filter(function(it) { return it._tgChannel === 'aetherjapanresearch' || /Aether Japan/i.test(String(it.feed || it.source || '')); });
   var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || null;
   var digestMeta = window._aioTelegramDigestMeta || null;
+  var memoOverlay = window._aioTelegramMemoOverlayAudit || (digestMeta && digestMeta.memoOverlay) || null;
   return {
     status: aetherSource ? 'OK' : 'MISSING_AETHER_SOURCE',
     telegramSourceCount: sources.length,
@@ -9711,8 +10272,15 @@ window.AIO.getTelegramPipelineAudit = function() {
       window: digest.window || null,
       count: digest.counts && digest.counts.total || null,
       categoryCount: Array.isArray(digest.categories) ? digest.categories.length : 0,
-      pageMapCount: digest.pageMap ? Object.keys(digest.pageMap).length : 0
+      pageMapCount: digest.pageMap ? Object.keys(digest.pageMap).length : 0,
+      memoOverlay: memoOverlay ? {
+        status: memoOverlay.status || null,
+        date: memoOverlay.date || null,
+        appliedCount: memoOverlay.appliedCount || 0,
+        tickers: memoOverlay.tickers || []
+      } : null
     } : null,
+    memoOverlay: memoOverlay,
     recentTelegramItems: all.length,
     recentAetherItems: aetherItems.length,
     verificationPolicy: 'Telegram items are fast secondary inputs. Confirm with primary source or market data before presenting as live trade facts.'
@@ -10450,6 +11018,11 @@ async function fetchAllNews(forceRefresh = false) {
   if (pageProgWrap) setTimeout(function(){ pageProgWrap.style.display = 'none'; }, 2500);
   const ftEl = document.getElementById('last-fetch-time');
   if (ftEl) ftEl.textContent = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+  // 뉴스 캐시 타임스탬프 + 스테일 배너 (RSS 성공 시 항상 신선)
+  var _newsCacheTs = document.getElementById('news-cache-ts');
+  if (_newsCacheTs) _newsCacheTs.textContent = new Date().toLocaleString('ko-KR', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) + ' (RSS 직접)';
+  var _newsStaleBanner = document.getElementById('news-stale-banner');
+  if (_newsStaleBanner) _newsStaleBanner.style.display = 'none';
 
   // 소스 라벨 업데이트
   const sl = document.getElementById('news-sources-label');

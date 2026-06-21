@@ -1,13 +1,62 @@
 ---
 verified_by: agent
-last_verified: 2026-06-16
+last_verified: 2026-06-20
 confidence: high
 version: v3.7
-checklist_version: v50.63
-total_items: 315
+checklist_version: v50.98
+total_items: 335
 stages: 21
-latest_P_covered: P509
+latest_P_covered: P521
 ---
+
+## v50.98 - Market-impact news selection audit (P521/R226)
+
+- [ ] `scripts/fetch-data.mjs` uses at least six server news query axes covering macro, AI/semis, geopolitics/energy, FX/bonds, analyst/earnings, and Korea.
+- [ ] Server `data.json.news[]` items include `topic`, `country`, `tier`, `score`, `selectionReason`, and `feedSource`.
+- [ ] `data.json.meta` includes `serverNewsScored`, `newsSourceCount`, `newsScoreMin`, and `newsScoreMax`.
+- [ ] Client `scoreItem()` records `_scoreReasons` and applies an unverified-claim penalty.
+- [ ] `AIO.getNewsSelectionAudit()` reports score buckets, topic/source/tier distribution, verification state, and home/briefing/market-news eligibility.
+- [ ] `scripts/ci-data-pipeline-contract-check.mjs` fails if server scoring or the selection audit is removed.
+
+## v50.97 - Korean market-news rewrite brief (P520/R225)
+
+- [ ] Market-news page contains `#news-korean-rewrite-brief` above the card feed.
+- [ ] `_aioBuildNewsKoreanRewriteBrief()` groups recent news into Korean sections such as 미국 정치, 지정학, 연준 및 미국 경제, AI 및 빅테크, 원자재 및 에너지.
+- [ ] `_aioGetNewsTranslation()` returns `ko_rewrite`, `ko_section`, and `ko_market` even when Anthropic/Claude keys are unavailable.
+- [ ] Anthropic translation prompt requests `section`, `rewrite`, and `market` fields and stores them in the translation cache.
+- [ ] `scripts/ci-data-pipeline-contract-check.mjs` fails if the Korean rewrite brief or fields are removed.
+
+## v50.96 - Multi-agent QA currentness/ticker UX sync (P519/R224)
+
+- [ ] R1 version surfaces are all v50.96: title, badge, JS cachebusters, `APP_VERSION`, `SW_VERSION`, `version.json`, root/context docs.
+- [ ] Ticker page direct search input calls `showTicker()` and provides quick chips for common symbols.
+- [ ] News stale banner exists and is hidden/shown by server/RSS freshness logic.
+- [ ] FRED macro fallback banner is visible when FRED data is unavailable and hidden when live FRED data loads.
+- [ ] KR supply page clearly marks static fallback values and links to Naver investor flow.
+- [ ] KR/theme ticker rows remain clickable into ticker detail analysis.
+
+## v50.95 - Korean news translation insight fallback (P518/R223)
+
+- [ ] `_aioBuildNewsLocalKoreanInsight()` returns Korean `ko_summary`, `ko_explain`, `ko_impact`, and `ko_action` for an English news item even without API keys.
+- [ ] `freeTranslateNews()` and `localEnrichSingle()` store local insight fields when Google/Claude translation is missing or fails.
+- [ ] market-news cards show Korean summary plus explanation/action lines without relying on Anthropic API.
+- [ ] home top-news surfaces include a Korean summary line for dynamic RSS/news items.
+- [ ] `_buildNewsContext()` injects Korean news summary/explanation/impact/action into chat context.
+
+## v50.94 - Data pipeline contract gate + public-data operational audit (P517/R222)
+
+- [ ] `scripts/ci-data-pipeline-contract-check.mjs` verifies refresh-data, data-watchdog, fetch scripts, runtime loader, audit, chat/news, and Telegram memo consumers.
+- [ ] `.github/workflows/ci.yml` runs `node scripts/ci-data-pipeline-contract-check.mjs`.
+- [ ] `data-watchdog.yml` fails on low core artifact quality: `symbolsOk < 70`, `newsCount < 10`, Telegram digest `count < 100` or `<2` channels.
+- [ ] `_serverDataMeta` preserves FRED/F&G/news/LLM/Telegram/screener state after `_aioLoadServerData()`.
+- [ ] `AIO.getDataPipelineAudit().layers.sources.publicData` exposes server public-data status and degraded optional services.
+
+## v50.93 - Telegram digest dynamic memo overlay + CI gate wiring (P516/R221/T831)
+
+- [ ] `_aioApplyTelegramDigestPayload(raw)` calls `_aioApplyTelegramDigestToScreenerDb(raw, merged)` after normalizing `public-data/telegram-digest.json`.
+- [ ] A sample digest `topItems[].tickers` entry prepends `[TG YYYY-MM-DD · auto]` to the matching `SCREENER_DB.memo` row without removing older static memo context.
+- [ ] `getTelegramPipelineAudit().memoOverlay.appliedCount` and ticker list show the digest-to-memo sink result.
+- [ ] CI runs `ci-runtime-contract-check.mjs`, `ci-semantic-review-check.mjs`, and `ci-workflow-compaction-check.mjs` in `.github/workflows/ci.yml`.
 
 ## v50.63 - Telegram digest auto-refresh consumption loop (P509/R217/T831)
 
