@@ -14529,6 +14529,8 @@ function refreshHomeDashboard() {
     try { if (typeof window._aioRefreshActionPlan === 'function') window._aioRefreshActionPlan(); } catch(actErr) {}
     // v50.75: 실데이터 시장 팩터 히트맵 갱신
     try { if (typeof window._aioRenderMarketHeatmap === 'function') window._aioRenderMarketHeatmap('home-market-heatmap'); } catch(_) {}
+    // v51.07: G×L 성장×유동성 판단 프레임
+    try { if (typeof window._aioRenderGxLFrame === 'function') window._aioRenderGxLFrame(); } catch(_) {}
 
     // v34.5: 홈 상단 리스크 뱃지 동적 업데이트
     var riskBadge = document.getElementById('home-risk-regime-badge');
@@ -14610,6 +14612,10 @@ window.showPage = function(pageId, ...args) {
         try { fetchAllFredData(); } catch(_){}
       }
     }, 500);
+  }
+  // v51.07: 엔캐리 언와인드 위험도 — FRED 로드 후 렌더 (600ms 지연)
+  if (pageId === 'fxbond') {
+    setTimeout(function(){ try { if (typeof window._aioRenderCarryUnwindRisk === 'function') window._aioRenderCarryUnwindRisk(); } catch(_){} }, 600);
   }
   if (pageId === 'kr-macro' || pageId === 'kr-home') {
     setTimeout(function(){
@@ -15222,4 +15228,118 @@ async function fetchHYSpread() {
     } catch(_){}
   }
 }
+
+// ═══ v51.07: G×L 성장×유동성 판단 프레임 (Signal & Flow 방식) ══════════════════
+// 홈 페이지 home-gxl-frame 패널 갱신. refreshHomeDashboard + aio:marketStateUpdated 훅으로 호출.
+function _aioRenderGxLFrame() {
+  var ld = window._liveData || {};
+  var vixP = (ld['^VIX'] && ld['^VIX'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.vix) || 18;
+  var tnxP = (ld['^TNX'] && ld['^TNX'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.tnx) || 4.5;
+  var dxyP = (ld['DX-Y.NYB'] && ld['DX-Y.NYB'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.dxy) || 104;
+  var spxPct = (ld['^GSPC'] && ld['^GSPC'].pct != null) ? ld['^GSPC'].pct : null;
+
+  // G (성장): marketState regime + SPX 모멘텀 + VIX
+  var ms = (window.AIO && window.AIO.marketState) || {};
+  var regime = (ms.regime || '').toUpperCase();
+  var gScore = 0;
+  if (regime === 'UPTREND') gScore += 2;
+  else if (regime === 'PULLBACK') gScore += 1;
+  else if (regime === 'CORRECTION') gScore -= 1;
+  else if (regime === 'DOWNTREND') gScore -= 2;
+  if (spxPct != null) { if (spxPct > 0.5) gScore += 1; else if (spxPct < -0.5) gScore -= 1; }
+  if (vixP < 16) gScore += 1; else if (vixP > 25) gScore -= 1;
+
+  var gLabel, gColor, gNote;
+  if (gScore >= 3)       { gLabel = '▲ 성장 강세'; gColor = 'var(--data-green)'; gNote = '추세 상승 · 모멘텀 양호'; }
+  else if (gScore >= 1)  { gLabel = '→ 성장 중립'; gColor = 'var(--data-cyan)';  gNote = '방향 탐색 · 선별 진입'; }
+  else if (gScore >= -1) { gLabel = '◐ 성장 약화'; gColor = 'var(--data-amber)'; gNote = '추세 불안정 · 방어 고려'; }
+  else                   { gLabel = '▼ 성장 역풍'; gColor = 'var(--data-red)';   gNote = '하락 레짐 · 방어 포지션'; }
+
+  // L (유동성): 10Y 국채 + DXY
+  var lScore = 0;
+  if (tnxP < 4.0) lScore += 2; else if (tnxP < 4.5) lScore += 1; else if (tnxP > 5.0) lScore -= 2; else lScore -= 1;
+  if (dxyP < 100) lScore += 1; else if (dxyP > 106) lScore -= 1;
+
+  var lLabel, lColor, lNote;
+  if (lScore >= 2)       { lLabel = '▲ 유동성 충분'; lColor = 'var(--data-green)'; lNote = '금리·달러 우호 · 레버리지 여건 양호'; }
+  else if (lScore >= 0)  { lLabel = '→ 유동성 중립'; lColor = 'var(--data-cyan)';  lNote = '금리 압박 부분 존재'; }
+  else if (lScore >= -1) { lLabel = '◐ 유동성 긴축'; lColor = 'var(--data-amber)'; lNote = '고금리·강달러 위협'; }
+  else                   { lLabel = '▼ 유동성 역풍'; lColor = 'var(--data-red)';   lNote = '강달러+고금리 동반 · 청산 주의'; }
+
+  // G×L 종합 포지션 권고
+  var combined = gScore + lScore;
+  var posLabel, posColor, posNote;
+  if (combined >= 4)       { posLabel = '공격적 비중확대'; posColor = 'var(--data-green)';     posNote = '성장+유동성 모두 우호'; }
+  else if (combined >= 2)  { posLabel = '선별 비중확대';   posColor = 'var(--data-cyan)';      posNote = '한 축 우호 · 한 축 관찰'; }
+  else if (combined >= 0)  { posLabel = '중립 유지';       posColor = 'var(--text-secondary)'; posNote = '방향 확인 후 진입'; }
+  else if (combined >= -2) { posLabel = '방어적 포지션';   posColor = 'var(--data-amber)';     posNote = '역풍 구간 · 비중 축소'; }
+  else                     { posLabel = '현금 비중 확대';   posColor = 'var(--data-red)';       posNote = '양 축 역풍 · 관망'; }
+
+  var e;
+  e = document.getElementById('gxl-growth-label');    if (e) { e.textContent = gLabel;   e.style.color = gColor; }
+  e = document.getElementById('gxl-growth-note');     if (e) e.textContent = gNote;
+  e = document.getElementById('gxl-liquidity-label'); if (e) { e.textContent = lLabel;   e.style.color = lColor; }
+  e = document.getElementById('gxl-liquidity-note');  if (e) e.textContent = lNote;
+  e = document.getElementById('gxl-position');        if (e) { e.textContent = posLabel; e.style.color = posColor; }
+  e = document.getElementById('gxl-position-note');   if (e) e.textContent = posNote;
+}
+window._aioRenderGxLFrame = _aioRenderGxLFrame;
+
+// ═══ v51.07: 엔캐리 언와인드 위험 복합 스코어 ══════════════════════════════════
+// FxBond 페이지 carry-unwind-risk 패널 갱신. fxbond showPage 훅으로 호출.
+function _aioRenderCarryUnwindRisk() {
+  var ld = window._liveData || {};
+  var jpy = (ld['JPY=X'] && ld['JPY=X'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.jpy) || 155;
+  var vix = (ld['^VIX'] && ld['^VIX'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.vix) || 18;
+  var tnx = (ld['^TNX'] && ld['^TNX'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.tnx) || 4.5;
+  var hyg = (ld['HYG'] && ld['HYG'].price) || 80;
+
+  // BOJ 정책금리 (주석에 갱신일 기록)
+  var bojRate = 0.5; // BOJ 0.5% (2026-06-22 기준 — BOJ 추가 인상 확인 시 갱신)
+  var rateDiff = parseFloat(tnx) - bojRate;
+
+  // 스코어 (0~100, 높을수록 언와인드 위험 높음)
+  var score = 0;
+  // USD/JPY: 158↑=BOJ 압박 극단, 145↓=급격 엔강세(이미 언와인드 중)
+  if (jpy > 158) score += 35; else if (jpy > 152) score += 25; else if (jpy > 145) score += 15; else score += 30;
+  // VIX: 변동성 충격 → 레버리지 청산 촉발
+  if (vix > 30) score += 30; else if (vix > 22) score += 20; else if (vix > 15) score += 10; else score += 5;
+  // 미일 금리차: 축소 시 캐리 매력 하락 → 언와인드 압력
+  if (rateDiff < 2.5) score += 20; else if (rateDiff < 3.5) score += 10; else score += 5;
+  // HYG: 크레딧 스프레드 확대 시 리스크-오프 연동
+  if (hyg < 78) score += 15; else if (hyg < 82) score += 8; else score += 3;
+  score = Math.min(100, score);
+
+  // v51.06 팔레트: --data-red #ef4444, --data-amber #f59e0b, --data-green #10c98b
+  var riskLevel, riskColor;
+  if (score >= 70)      { riskLevel = '⚠ 고위험';  riskColor = '#ef4444'; }
+  else if (score >= 45) { riskLevel = '⚡ 중위험'; riskColor = '#f59e0b'; }
+  else if (score >= 25) { riskLevel = '● 저위험';  riskColor = '#10c98b'; }
+  else                  { riskLevel = '● 안전';     riskColor = '#10c98b'; }
+
+  var jpyRisk  = jpy > 155 ? 'BOJ 개입 경계선 근접' : jpy > 148 ? '고점 압박 · BOJ 긴축 지속' : '엔화 강세 전환 · 언와인드 압력';
+  var vixRisk  = vix > 22  ? '리스크-오프 · 청산 압박' : vix > 16 ? '변동성 경계' : '안정적 환경';
+  var rateRisk = rateDiff < 3 ? '금리차 축소 · 캐리 매력 감소' : '금리차 ' + rateDiff.toFixed(1) + '%p — 캐리 우호';
+  var hygRisk  = hyg < 80  ? '크레딧 스프레드 확대 경계' : '크레딧 안정';
+
+  var verdict;
+  if (score >= 70)
+    verdict = '엔캐리 위험 ' + score + '점 — BOJ 긴축과 USD/JPY ' + Math.round(jpy) + '엔 구간은 글로벌 레버리지 청산을 촉발할 수 있습니다. 포지션 헤지와 변동성 노출 점검 필요.';
+  else if (score >= 45)
+    verdict = '엔캐리 위험 ' + score + '점 — USD/JPY ' + Math.round(jpy) + '엔·VIX ' + parseFloat(vix).toFixed(1) + ' 구간에서 중간 수준 주의. BOJ 추가 발언 또는 미 고용·물가 충격 시 급속 언와인드 가능.';
+  else
+    verdict = '엔캐리 위험 ' + score + '점 — 현재 USD/JPY ' + Math.round(jpy) + '엔·미일 금리차 ' + rateDiff.toFixed(1) + '%p는 캐리트레이드에 비교적 우호적. BOJ 정책 전환 신호 주시.';
+
+  var e;
+  e = document.getElementById('carry-jpy-risk');   if (e) e.textContent = jpyRisk;
+  e = document.getElementById('carry-vix-risk');   if (e) e.textContent = vixRisk;
+  e = document.getElementById('carry-rate-diff');  if (e) e.textContent = rateDiff.toFixed(1) + '%p';
+  e = document.getElementById('carry-rate-risk');  if (e) e.textContent = rateRisk;
+  e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = hygRisk;
+  e = document.getElementById('carry-score-bar');  if (e) e.style.width = score + '%';
+  e = document.getElementById('carry-score-text'); if (e) e.textContent = score;
+  e = document.getElementById('carry-verdict');    if (e) e.textContent = verdict;
+  e = document.getElementById('carry-risk-level'); if (e) { e.textContent = riskLevel; e.style.color = riskColor; }
+}
+window._aioRenderCarryUnwindRisk = _aioRenderCarryUnwindRisk;
 

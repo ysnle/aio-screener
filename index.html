@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.06 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.07 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4542,7 +4542,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.06</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.07</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4658,6 +4658,25 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <div class="aio-metric-value is-sm" id="home-market-regime" style="color:var(--data-green);margin-bottom:4px;letter-spacing:0.02em;font-size:20px;font-weight:800;">UPTREND</div>
       <div id="home-regime-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">ATH 근접 · VIX 18↓ (정상 Risk-On) · 단기 과열 경계</div>
       <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">가중치: 200MA slope 30 + price vs 200MA 25 + Breadth 25 + VIX 20 = 100</div>
+    </div>
+  </div>
+
+  <!-- v51.07: G×L 성장×유동성 판단 프레임 — 레짐·10Y·DXY·VIX 라이브 기반 포지션 권고 -->
+  <div id="home-gxl-frame" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 14px;">
+      <div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.12em;margin-bottom:4px;">G 성장 판단</div>
+      <div id="gxl-growth-label" style="font-size:14px;font-weight:800;color:var(--text-muted);">—</div>
+      <div id="gxl-growth-note" style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4;">SPY 추세·레짐 기반</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 14px;">
+      <div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.12em;margin-bottom:4px;">L 유동성 판단</div>
+      <div id="gxl-liquidity-label" style="font-size:14px;font-weight:800;color:var(--text-muted);">—</div>
+      <div id="gxl-liquidity-note" style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4;">10Y·DXY 기반</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid rgba(0,188,212,0.2);border-radius:4px;padding:10px 14px;">
+      <div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.12em;margin-bottom:4px;">G×L 포지션</div>
+      <div id="gxl-position" style="font-size:14px;font-weight:800;color:var(--text-muted);">—</div>
+      <div id="gxl-position-note" style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4;">레짐 기반 권고</div>
     </div>
   </div>
 
@@ -7473,6 +7492,51 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     <div id="cam-verdict" style="margin-top:10px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:3px;font-size:11px;color:var(--text-secondary);line-height:1.6;">
       <strong style="color:var(--data-amber);">통합 판정:</strong> <span id="cam-verdict-text">4축 데이터 수신 대기 — 정렬 확인 필요</span>
     </div>
+  </div>
+
+  <!-- v51.07: 엔캐리 언와인드 위험 복합 스코어 — USD/JPY·VIX·미일 금리차·HYG 4축 합산 -->
+  <div id="carry-unwind-risk" style="background:linear-gradient(135deg,rgba(245,158,11,0.05),rgba(239,68,68,0.03));border:1px solid rgba(245,158,11,0.2);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+      <div>
+        <span style="font-size:12px;font-weight:700;color:var(--data-amber);">엔캐리 언와인드 위험도</span>
+        <span style="font-size:10px;color:var(--text-muted);margin-left:8px;">USD/JPY · VIX · 미일 금리차 · HYG 복합 스코어</span>
+      </div>
+      <span id="carry-risk-level" style="font-size:11px;font-weight:800;padding:3px 10px;border-radius:4px;background:rgba(245,158,11,0.12);color:var(--data-amber);">계산 중</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
+      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">USD/JPY</div>
+        <div id="carry-jpy-val" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);" data-live-price="JPY=X">—</div>
+        <div id="carry-jpy-risk" style="font-size:10px;color:var(--text-muted);margin-top:2px;">BOJ 1% 인상 압박</div>
+      </div>
+      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">VIX</div>
+        <div id="carry-vix-val" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);" data-live-price="^VIX">—</div>
+        <div id="carry-vix-risk" style="font-size:10px;color:var(--text-muted);margin-top:2px;">변동성 충격 강도</div>
+      </div>
+      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">미일 금리차</div>
+        <div id="carry-rate-diff" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);">—</div>
+        <div id="carry-rate-risk" style="font-size:10px;color:var(--text-muted);margin-top:2px;">US-JP 수익률 스프레드</div>
+      </div>
+      <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">크레딧 (HYG)</div>
+        <div id="carry-hyg-val" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);" data-live-price="HYG">—</div>
+        <div id="carry-hyg-risk" style="font-size:10px;color:var(--text-muted);margin-top:2px;">크레딧 위험 신호</div>
+      </div>
+    </div>
+    <div style="margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:10px;color:var(--data-green);">안전</span>
+        <span style="font-size:10px;font-weight:700;color:var(--text-secondary);">엔캐리 위험 <span id="carry-score-text">—</span>/100</span>
+        <span style="font-size:10px;color:var(--data-red);">고위험</span>
+      </div>
+      <div style="background:var(--surface-3);border-radius:4px;height:10px;overflow:hidden;position:relative;">
+        <div style="background:linear-gradient(90deg,var(--data-green),var(--data-amber),var(--data-red));width:100%;height:100%;opacity:0.25;position:absolute;top:0;left:0;"></div>
+        <div id="carry-score-bar" style="position:absolute;top:0;left:0;height:100%;width:0%;background:var(--data-amber);opacity:0.7;transition:width 0.4s;"></div>
+      </div>
+    </div>
+    <div id="carry-verdict" style="padding:8px 10px;background:var(--surface-2);border-radius:4px;font-size:11px;color:var(--text-secondary);line-height:1.55;">USD/JPY · VIX · 금리차 · HYG 데이터 수신 대기</div>
   </div>
 
   <!-- ══ SECTION A: 달러 인덱스 & 주요 외환 ══════════════════════ -->
@@ -11174,9 +11238,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.06"></script>
-  <script src="./js/aio-data.js?v=51.06"></script>
-  <script src="./js/aio-ui.js?v=51.06"></script>
+  <script src="./js/aio-core.js?v=51.07"></script>
+  <script src="./js/aio-data.js?v=51.07"></script>
+  <script src="./js/aio-ui.js?v=51.07"></script>
 
   <script>
 
@@ -14373,7 +14437,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.06"></script>
+<script src="./js/aio-chat.js?v=51.07"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -26962,7 +27026,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.06"></script>
+<script src="./js/aio-glossary.js?v=51.07"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

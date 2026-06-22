@@ -1,5 +1,22 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v51.07 - G×L 성장×유동성 판단 프레임 + 엔캐리 언와인드 위험 스코어 (2026-06-22)
+
+**미통합 작업 복구**: dazzling-herschel 워크트리의 v50.75 커밋(2026-06-20)에서 기존 main에 머지되지 않은 2개 기능을 v51.06 스타일로 적응·통합.
+
+**[A] G×L 성장×유동성 판단 프레임 (`js/aio-data.js` + `index.html`)**
+- 홈 페이지 home-trading-grid 직후에 3칸 패널 추가: G 성장 판단 / L 유동성 판단 / G×L 포지션 권고
+- `_aioRenderGxLFrame()`: AIO.marketState.regime(UPTREND~DOWNTREND) + SPX 모멘텀 + VIX → G스코어, 10Y yield + DXY → L스코어, 합산 → 5단계 포지션 권고 (공격적비중확대/선별비중확대/중립/방어/현금)
+- `refreshHomeDashboard` 및 `aio:marketStateUpdated` 이벤트에서 자동 갱신
+
+**[B] 엔캐리 언와인드 위험 스코어 (`js/aio-data.js` + `index.html`)**
+- FxBond 페이지 Cross-Asset 매트릭스 직후에 4축 복합 스코어 패널 추가
+- `_aioRenderCarryUnwindRisk()`: USD/JPY (언와인드 방향 포함) + VIX + 미일 금리차(BOJ 정책금리 대비) + HYG 크레딧 → 0~100점 위험도
+- 위험 수준 4단계 (안전/저위험/중위험/고위험), 게이지 바, 종합 판정 텍스트
+- FxBond showPage 진입 시 600ms 지연 후 자동 실행 (FRED 로드 대기)
+
+**v51.06 호환 적용**: border-radius 4px, 팔레트 --data-cyan #00bcd4, #ef4444, #f59e0b, #10c98b
+
 ## v51.06 - 통합 배포: self-verifying data loop + visual hierarchy + AI 채팅 결함 수정 (2026-06-22)
 
 **이번 배포는 병렬로 진행된 두 세션의 작업을 통합한다.**

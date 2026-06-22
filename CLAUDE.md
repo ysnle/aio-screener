@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.06**
+- 현재 버전: **v51.07**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
 - **v50.98 Market-impact news selection**: Actions 뉴스 백스톱을 매크로/AI·반도체/지정학·에너지/FX·채권/애널리스트·한국시장 6축으로 확장. 서버 뉴스에도 `score`/`selectionReason`/`serverNewsScored`를 부여하고 `AIO.getNewsSelectionAudit()`로 선별 기준을 감사.
 - **v50.96 multi-agent QA version sync**: ticker 페이지 직접 검색 진입, KR 수급 폴백 경고, 뉴스 stale 배너/데이터 신선도 표시, v50.95 한국어 뉴스 insight 보강을 R1 버전 표면까지 최종 동기화.
