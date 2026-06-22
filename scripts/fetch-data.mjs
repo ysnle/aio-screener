@@ -104,6 +104,25 @@ async function fetchQuote(symbol) {
   throw lastErr;
 }
 
+// v50.99: fetch 성공처럼 보이는 데이터 품질 검증.
+// Yahoo가 에러 없이 stale/비정상 데이터를 반환할 수 있음 — 전일 종가 대비 변동폭으로 판별.
+// 허용 범위: 금리(±5%p) / 크립토(±50%) / 그 외(±30%). 범위 초과 시 재시도 대상.
+function _quoteVerifyTol(symbol) {
+  if (/^\^(TNX|TYX|FVX|IRX)$/.test(symbol)) return 5;
+  if (/-USD$/.test(symbol)) return 50;
+  return 30;
+}
+function _quoteOk(q) {
+  if (!q || q.__error) return false;
+  const price = q.regularMarketPrice, prev = q.regularMarketPreviousClose || q.chartPreviousClose;
+  if (typeof price !== 'number' || price <= 0) return false;
+  if (prev > 0) {
+    const chg = Math.abs((price - prev) / prev) * 100;
+    if (chg > _quoteVerifyTol(q.symbol)) return false;
+  }
+  return true;
+}
+
 // 동시성 제한 배치 실행
 async function mapLimit(items, limit, fn) {
   const out = [];
@@ -659,8 +678,18 @@ async function main() {
     fetchNews(),
   ]);
 
-  const quotes = quotesRaw.filter(q => q && !q.__error);
-  const failed = quotesRaw.filter(q => q && q.__error).map(q => q.item);
+  // v50.99: 검증 패스 — 의심 항목 재시도 후 최종 확정
+  const pass1 = quotesRaw.filter(q => _quoteOk(q));
+  const toRetry = quotesRaw.filter(q => !_quoteOk(q)).map(q => q && q.symbol ? q.symbol : (q && q.item)).filter(Boolean);
+  let pass2 = [];
+  if (toRetry.length) {
+    console.log(`[fetch-data] verify-retry: ${toRetry.length}개 재시도 (에러 또는 비정상 변동폭): ${toRetry.join(',')}`);
+    const retried = await mapLimit(toRetry, 3, sym => fetchQuote(sym).catch(() => ({ __error: true, item: sym })));
+    pass2 = retried.filter(q => _quoteOk(q));
+    console.log(`[fetch-data] verify-result: ${pass2.length}/${toRetry.length} 복구`);
+  }
+  const quotes = [...pass1, ...pass2];
+  const failed = toRetry.filter(s => !pass2.find(q => q && q.symbol === s));
 
   // v50.24/WO-1: F&G·FRED 실패를 meta에 노출(이전엔 조용히 통과). 사이트 나이 배지/감사가 surfacing.
   // v50.78: fredHasKey(Secret 등록 여부) / fredFetchOk(실제 데이터 수신 여부) 세분화.
@@ -679,6 +708,7 @@ async function main() {
       symbolsOk: quotes.length,
       symbolsFail: failed.length,
       failedSymbols: failed,
+      verifyStats: { pass1: pass1.length, retried: toRetry.length, recovered: pass2.length, failed: failed.length },
       fearGreedOk,
       fredHasKey,
       fredFetchOk,
@@ -715,7 +745,7 @@ async function main() {
   // v50.52 Track1: 스크리너 팩터 enrichment (일 1회 자가 스로틀 — screener.json)
   let scrInfo = null;
   try { scrInfo = await enrichScreener(); } catch (e) { console.warn('[fetch-data] screener enrich 실패(무시):', e && e.message || e); }
-  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} (실패 ${failed.length}: ${failed.join(',') || '-'}), macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe) : 'n/a'}, ${data.meta.elapsedMs}ms`);
+  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} [verify: 1차ok=${pass1.length} retry=${toRetry.length} 복구=${pass2.length} 최종실패=${failed.length}], macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe) : 'n/a'}, ${data.meta.elapsedMs}ms`);
 
   // 핵심 심볼이 절반 미만이면 비정상 — 비0 종료로 워크플로가 알림
   if (quotes.length < SYMBOLS.length * 0.5) {

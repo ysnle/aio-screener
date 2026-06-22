@@ -1388,7 +1388,7 @@ function renderMarkdownLight(text) {
     // v31.1: 5컬럼 초과 시 테이블 대신 리스트로 변환 (가로 깨짐 방지)
     if (hdr.length > 5) {
       for (var r = 1; r < tableRows.length; r++) {
-        var item = '<div style="margin:6px 0;padding:8px 10px;background:var(--surface-2);border-radius:6px;border:1px solid var(--border);">';
+        var item = '<div style="margin:6px 0;padding:8px 10px;background:var(--surface-2);border-radius:3px;border:1px solid var(--border);">';
         for (var c = 0; c < hdr.length; c++) {
           if (tableRows[r][c]) item += '<div style="margin:2px 0;"><strong style="color:var(--text-muted);font-size:0.9em;">' + hdr[c] + ':</strong> ' + tableRows[r][c] + '</div>';
         }
@@ -1536,12 +1536,18 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   opts = opts || {};
   var modelCfg = getModelConfig(opts.modelKey);
 
-  // v46.6: systemPrompt + messages 크기 모니터링
-  var _totalChars = (system || '').length + messages.reduce(function(s,m){return s+(m.content||'').length;},0);
-  console.log('[AIO] callClaude: system=' + Math.round((system||'').length/1000) + 'K + msgs=' + Math.round((_totalChars-(system||'').length)/1000) + 'K = ' + Math.round(_totalChars/1000) + 'K자 (' + modelCfg.label + ')');
-  if (_totalChars > 100000) {
-    _aioLog('warn', 'fetch', '⚠ 프롬프트 100K자 초과 — 토큰 비용 높음, 새 대화 권장');
+  // v51.04: systemPrompt + messages 크기 모니터링 + 자동 트리밍 (90K+ 시 oldest 제거, system 보존)
+  var _sysLen = (system || '').length;
+  var _trimmedMessages = messages.slice();
+  var _totalChars = _sysLen + _trimmedMessages.reduce(function(s,m){return s+(m.content||'').length;},0);
+  if (_totalChars > 90000 && _trimmedMessages.length > 2) {
+    while (_totalChars > 90000 && _trimmedMessages.length > 2) {
+      var _oldest = _trimmedMessages.shift();
+      _totalChars -= (_oldest.content || '').length;
+    }
+    _aioLog('warn', 'fetch', '⚠ 프롬프트 자동 트리밍: ' + messages.length + '→' + _trimmedMessages.length + '턴, ' + Math.round(_totalChars/1000) + 'K자');
   }
+  console.log('[AIO] callClaude: system=' + Math.round(_sysLen/1000) + 'K + msgs=' + Math.round((_totalChars-_sysLen)/1000) + 'K = ' + Math.round(_totalChars/1000) + 'K자 (' + modelCfg.label + ')');
 
   // v30.5: AbortController — 연결 30초 + 청크 간 15초 타임아웃
   // v31.3: thinking 모드는 60초 (추론 시간 필요)
@@ -1574,7 +1580,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     max_tokens: opts.maxTokens || (modelCfg.thinking ? 16000 : 12000),
     stream: true,
     system: _systemField,
-    messages: messages
+    messages: _trimmedMessages
   };
   // Extended Thinking 설정
   if (modelCfg.thinking) {
@@ -1901,6 +1907,10 @@ function _aioBuildDiversifiedRecommendationRows(db, live, opts) {
       market: market, capBucket: _aioCapBucket(s.mcap), diversityScore: Math.round(score), repeatPenalty: repeatPenalty
     };
   }).sort(function(a, b) { return b.diversityScore - a.diversityScore; });
+
+  // v51.04: 최근 추천 반복 억제 — 비중복 후보 20개 이상이면 중복 티커 완전 제외
+  var _nonRepeat = eligible.filter(function(r) { return r.repeatPenalty === 0; });
+  if (_nonRepeat.length >= 20) { eligible = _nonRepeat; }
 
   function pickRows(sectorLimit, marketLimit, maxRows) {
     var picked = [], secCount = {}, marketCount = {};
@@ -3854,7 +3864,7 @@ function _aioChatTokens(text) {
     .replace(/[^a-z0-9가-힣$.\s]/g, ' ')
     .split(/\s+/)
     .filter(function(w) { return w && w.length >= 2; })
-    .slice(0, 80);
+    .slice(0, 120);
 }
 
 function _classifyChatIntent(query, ctxId) {
@@ -3948,6 +3958,9 @@ function _buildChatAnswerCoverageContext(ctxId, query, flags) {
   if (required.indexOf('fundamentals/valuation') >= 0 && !has.company) missing.push('fundamentals/valuation');
   if (required.indexOf('news/web/filings') >= 0 && !(has.news || has.web)) missing.push('news/web/filings');
   if (required.indexOf('position/weight/risk') >= 0 && !has.portfolio) missing.push('position/weight/risk');
+  // v51.05: 누락됐던 3개 axes 검사 추가
+  if (required.indexOf('macro cross-asset context') >= 0 && !has.domain) missing.push('macro cross-asset context');
+  if (required.indexOf('quote/source') >= 0 && !has.quote && Array.isArray(flags.tickers) && flags.tickers.length > 0) missing.push('quote/source');
 
   return '\n\n[AI Answer Coverage + Current Data Contract v49.108]\n' +
     'mode=' + mode + ' | ctx=' + ctxId + ' | intents=' + intents.join(',') + '\n' +
@@ -4064,7 +4077,7 @@ function _buildChatMemoryContext(ctxId, query) {
       var text = (h.q || '') + ' ' + (h.a || '');
       var overlap = _aioChatTokens(text).reduce(function(n, t) { return n + (qSet[t] ? 1 : 0); }, 0);
       return { item: h, overlap: overlap };
-    }).filter(function(x) { return x.overlap >= 2; });
+    }).filter(function(x) { return x.overlap >= 3; });
     scored.sort(function(a, b) { return b.overlap - a.overlap || (b.item.ts || 0) - (a.item.ts || 0); });
     var picked = (scored.length ? scored : history.map(function(h) { return { item: h, overlap: 0 }; }).slice(-3)).slice(0, 3);
     if (!picked.length) return '';
@@ -4104,7 +4117,7 @@ function _buildChatIntentContext(ctxId, query, flags) {
 function _shouldSingleDeepAnalyzeChat(ctxId, query, detectedTickers, deepCompareStr) {
   if (!detectedTickers || detectedTickers.length !== 1 || deepCompareStr) return false;
   var deepCtx = ctxId === 'fundamental' || ctxId === 'ticker' || ctxId === 'technical' || ctxId === 'options' || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'portfolio';
-  return deepCtx || detectedTickers.length === 1 || (typeof _hasDeepAnalysisKw === 'function' && _hasDeepAnalysisKw(query));
+  return deepCtx || (typeof _hasDeepAnalysisKw === 'function' && _hasDeepAnalysisKw(query));
 }
 window._classifyChatIntent = _classifyChatIntent;
 window._buildChatMemoryContext = _buildChatMemoryContext;
@@ -5827,7 +5840,7 @@ async function chatSend(ctxId) {
             var _safeQ2 = escHtml(q).replace(/'/g, '&#39;');
             var _dataMissBox = document.createElement('div');
             _dataMissBox.className = 'aio-data-missing-banner';
-            _dataMissBox.style.cssText = 'margin:6px 0;padding:8px 10px;background:rgba(255,163,26,0.10);border:1px solid var(--data-amber);border-radius:6px;color:var(--text-primary);font-size:12px;line-height:1.5;';
+            _dataMissBox.style.cssText = 'margin:6px 0;padding:8px 10px;background:rgba(255,163,26,0.10);border:1px solid var(--data-amber);border-radius:3px;color:var(--text-primary);font-size:12px;line-height:1.5;';
             var _missList = [];
             if (_liveMissing) _missList.push('실시간 시세');
             if (_financialMissing && detectedTickers && detectedTickers.length > 0) _missList.push('재무 데이터');
@@ -5900,7 +5913,7 @@ async function chatSend(ctxId) {
                 var _safeQ = escHtml(q).replace(/'/g, '\\\'');
                 var _hallBox = document.createElement('div');
                 _hallBox.className = 'aio-hallucination-warning';
-                _hallBox.style.cssText = 'margin:6px 0;padding:10px 12px;background:rgba(255,91,80,0.12);border:1px solid #ff5b50;border-radius:6px;color:#ff5b50;font-size:12px;line-height:1.5;';
+                _hallBox.style.cssText = 'margin:6px 0;padding:10px 12px;background:rgba(255,91,80,0.12);border:1px solid #ff5b50;border-radius:3px;color:#ff5b50;font-size:12px;line-height:1.5;';
                 _hallBox.innerHTML = '<div style="font-weight:700;margin-bottom:4px;">⚠️ 환각 경고 (v49.74 R145)</div>' +
                   '<div style="color:#f87171;font-weight:500;margin-bottom:4px;">AI 답변에 "학습 데이터" / "기억 속" / "2025년 초" 등 자기 환각 자백 표현이 감지됐습니다. 이 답변의 가격·시점 정량 정보는 신뢰하지 마세요.</div>' +
                   '<div style="color:var(--text-muted);font-weight:500;font-size:11px;">검출 패턴: ' + _hall.patterns.join(' · ') + '</div>' +
@@ -6145,7 +6158,7 @@ async function chatSend(ctxId) {
             else _verdict = '방향 불명확 — 50일선 회복 여부 확인 후 대응.';
             var _bcDiv = document.createElement('div');
             _bcDiv.className = 'aio-beginner-chart-reading';
-            _bcDiv.innerHTML = '<div style="margin:8px 0;padding:10px 12px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:6px;font-size:12px;line-height:1.6;color:var(--text-primary);">' +
+            _bcDiv.innerHTML = '<div style="margin:8px 0;padding:10px 12px;background:rgba(0,212,255,0.06);border-left:3px solid var(--data-cyan);border-radius:3px;font-size:12px;line-height:1.6;color:var(--text-primary);">' +
               '<div style="font-weight:800;color:var(--data-cyan);margin-bottom:6px;">📈 ' + escHtml(_tcP) + ' 차트 핵심 판독 <span style="font-weight:500;color:var(--text-muted);font-size:10px;">(라이브 OHLCV 실측)</span></div>' +
               '<div style="display:grid;gap:3px;">' +
                 '<div><b style="color:' + _trendColor + ';">추세</b> · ' + escHtml(_trendTxt) + '</div>' +
@@ -6274,7 +6287,7 @@ async function chatSend(ctxId) {
             function(e2) { state.streaming=false; state._retryCount=0; if(ctxId==='fundamental') state._fundDepth=0; if(btn){btn.disabled=false;btn.textContent='전송 ▶';} chatAppendMsg(ctxId,'ai',''+_aioSafeMD(e2)); },  // v48.94 P158+P160
             { modelKey: nextModel, webSearch: _useClaudeWebSearch }
           );
-        }, 2000);
+        }, 5000);
         return;
       }
       state.streaming = false;
@@ -6305,7 +6318,7 @@ async function chatSend(ctxId) {
         _errCat = '알 수 없는 오류'; _errIcon = '❓';
         _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>페이지를 새로고침한 뒤 다시 질문하세요.</li><li>다른 모델을 선택해 재시도하세요.</li><li>같은 문제가 반복되면 API 키와 네트워크 상태를 확인하세요.</li></ul>';
       }
-      var _errBox = '<div style="padding:10px 12px;background:rgba(248,113,113,0.08);border:1px solid #f87171;border-radius:6px;color:var(--text-primary);font-size:12px;line-height:1.5;">' +
+      var _errBox = '<div style="padding:10px 12px;background:rgba(248,113,113,0.08);border:1px solid #f87171;border-radius:3px;color:var(--text-primary);font-size:12px;line-height:1.5;">' +
         '<div style="font-size:13px;font-weight:700;color:#ff5b50;margin-bottom:4px;">' + _errIcon + ' ' + _errCat + ' — 답변 생성 실패</div>' +
         '<div style="color:var(--text-muted);font-family:var(--font-mono);font-size:11px;margin-bottom:6px;padding:4px 6px;background:rgba(0,0,0,0.2);border-radius:3px;overflow-x:auto;">' + escHtml(errMsg).slice(0, 200) + '</div>' +
         '<div style="font-size:11px;font-weight:600;color:var(--text-secondary);">권장 조치:</div>' +
@@ -7000,8 +7013,8 @@ function _renderFundHeader(d) {
     html += '<span style="color:' + _posColor + ';font-weight:700;">' + _posLabel + ' · ' + _pos.toFixed(0) + '%</span>';
     html += '<span style="color:var(--text-muted);font-family:var(--font-mono);">52W고 $' + _w52High.toFixed(2) + '</span>';
     html += '</div>';
-    html += '<div style="height:10px;background:var(--surface-5);border-radius:5px;position:relative;overflow:visible;">';
-    html += '<div style="height:100%;width:100%;background:linear-gradient(90deg,#f87171 0%,#fbbf24 50%,#3ddba5 100%);border-radius:5px;opacity:0.35;"></div>';
+    html += '<div style="height:10px;background:var(--surface-5);border-radius:3px;position:relative;overflow:visible;">';
+    html += '<div style="height:100%;width:100%;background:linear-gradient(90deg,#f87171 0%,#fbbf24 50%,#3ddba5 100%);border-radius:3px;opacity:0.35;"></div>';
     html += '<div style="position:absolute;top:-3px;left:' + _pos + '%;width:4px;height:16px;background:#fff;transform:translateX(-50%);box-shadow:0 0 6px rgba(255,255,255,0.8);border-radius:2px;"></div>';
     html += '</div>';
     html += '</div>';
@@ -7016,7 +7029,7 @@ function _renderFundHeader(d) {
     else { _volLabel = '거래량 정상'; _volColor = '#00e5a0'; }
     var _vol10dRatio = (_avgVol10D && _avgVol10D > 0) ? (_vol / _avgVol10D) : null;
     html += '<div style="margin-top:8px;display:flex;gap:8px;font-size:11px;align-items:center;flex-wrap:wrap;">';
-    html += '<span style="padding:3px 10px;background:' + _volColor + '22;border:1px solid ' + _volColor + ';color:' + _volColor + ';border-radius:12px;font-weight:700;">' + _volLabel + ' ' + _volRatio.toFixed(1) + 'x</span>';
+    html += '<span style="padding:3px 10px;background:' + _volColor + '22;border:1px solid ' + _volColor + ';color:' + _volColor + ';border-radius:4px;font-weight:700;">' + _volLabel + ' ' + _volRatio.toFixed(1) + 'x</span>';
     html += '<span style="color:var(--text-muted);">3개월 평균 대비 · 오늘 ' + Number(_vol).toLocaleString() + '주';
     if (_vol10dRatio != null) html += ' · 10일 평균 대비 ' + _vol10dRatio.toFixed(1) + 'x';
     html += '</span>';
@@ -7039,9 +7052,9 @@ function _renderFundSEC(d) {
   var s = d.sec;
   // v48.91: SEC API 응답 escHtml() 처리 — XSS 방지
   var html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">';
-  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:6px;font-size:10px;"><span style="color:var(--text-muted);">CIK:</span> ' + escHtml(s.cik||'N/A') + '</div>';
-  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:6px;font-size:10px;"><span style="color:var(--text-muted);">SIC:</span> ' + escHtml(s.sicDescription||'N/A') + '</div>';
-  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:6px;font-size:10px;"><span style="color:var(--text-muted);">거래소:</span> ' + escHtml((s.exchanges||[]).join(', ')||'N/A') + '</div>';
+  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:3px;font-size:10px;"><span style="color:var(--text-muted);">CIK:</span> ' + escHtml(s.cik||'N/A') + '</div>';
+  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:3px;font-size:10px;"><span style="color:var(--text-muted);">SIC:</span> ' + escHtml(s.sicDescription||'N/A') + '</div>';
+  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:3px;font-size:10px;"><span style="color:var(--text-muted);">거래소:</span> ' + escHtml((s.exchanges||[]).join(', ')||'N/A') + '</div>';
   html += '</div>';
   if (s.filings && s.filings.form) {
     html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">최근 주요 공시 (10-K/10-Q/8-K/DEF 14A)</div>';
@@ -7116,7 +7129,7 @@ function _renderFundFinancials(d) {
   var secPE = (secEpsVal && d.price) ? d.price / secEpsVal : null;
 
   function card(label, value, sub, color) {
-    return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">' +
+    return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
       '<div style="font-size:11px;color:var(--text-muted);">' + label + '</div>' +
       '<div style="font-size:16px;font-weight:800;color:' + (color||'var(--text-primary)') + ';font-family:var(--font-mono);margin-top:2px;">' + value + '</div>' +
       (sub ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + sub + '</div>' : '') + '</div>';
@@ -7196,7 +7209,7 @@ function _renderFundFinancials(d) {
       var myValStr = (unit === 'USD' || !unit) ? '$' + _fmtNum(rr.myVal) : rr.myVal.toFixed(2) + (unit||'');
       var avgStr = '$' + _fmtNum(rr.avg);
       var medStr = '$' + _fmtNum(rr.median);
-      var html = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">';
+      var html = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">';
       html += '<div style="font-size:10px;color:var(--text-muted);font-weight:600;">' + title + ' (' + (rr.period||'') + ')</div>';
       html += '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px;">';
       html += '<span style="font-size:15px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);">' + myValStr + '</span>';
@@ -7255,10 +7268,10 @@ function _renderFundFinancials(d) {
         else { _verdict = '중립'; _verdictColor = '#ffa31a'; }
         recHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px;">';
         recHtml += '<span style="color:var(--text-muted);">총 ' + _total + '명 애널리스트</span>';
-        recHtml += '<span style="padding:3px 10px;background:' + _verdictColor + '22;border:1px solid ' + _verdictColor + ';color:' + _verdictColor + ';border-radius:12px;font-weight:700;">' + _verdict + '</span>';
+        recHtml += '<span style="padding:3px 10px;background:' + _verdictColor + '22;border:1px solid ' + _verdictColor + ';color:' + _verdictColor + ';border-radius:4px;font-weight:700;">' + _verdict + '</span>';
         recHtml += '</div>';
         // 누적 바 (height 22px)
-        recHtml += '<div style="display:flex;height:22px;border-radius:6px;overflow:hidden;font-size:10px;font-weight:700;">';
+        recHtml += '<div style="display:flex;height:22px;border-radius:3px;overflow:hidden;font-size:10px;font-weight:700;">';
         if (_sb > 0) recHtml += '<div style="width:' + _pSB + '%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center;" title="Strong Buy ' + _sb + '명">' + (parseFloat(_pSB) >= 8 ? _sb : '') + '</div>';
         if (_b > 0)  recHtml += '<div style="width:' + _pB  + '%;background:#3ddba5;color:#0f1623;display:flex;align-items:center;justify-content:center;" title="Buy ' + _b + '명">' + (parseFloat(_pB) >= 8 ? _b : '') + '</div>';
         if (_h > 0)  recHtml += '<div style="width:' + _pH  + '%;background:#fbbf24;color:#0f1623;display:flex;align-items:center;justify-content:center;" title="Hold ' + _h + '명">' + (parseFloat(_pH) >= 8 ? _h : '') + '</div>';
@@ -7287,7 +7300,7 @@ function _renderFundFinancials(d) {
         recHtml += '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--surface-5);display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11px;">';
         recHtml += '<span style="font-weight:700;color:var(--text-secondary);">FMP 목표가 컨센서스</span>';
         recHtml += '<span style="font-family:var(--font-mono);font-size:14px;font-weight:800;color:' + _upColor + ';">$' + _tgtC.toFixed(2) + '</span>';
-        recHtml += '<span style="padding:2px 8px;background:' + _upColor + '22;border:1px solid ' + _upColor + ';color:' + _upColor + ';border-radius:10px;font-weight:700;">' + (_upside >= 0 ? '+' : '') + _upside.toFixed(1) + '% upside</span>';
+        recHtml += '<span style="padding:2px 8px;background:' + _upColor + '22;border:1px solid ' + _upColor + ';color:' + _upColor + ';border-radius:4px;font-weight:700;">' + (_upside >= 0 ? '+' : '') + _upside.toFixed(1) + '% upside</span>';
         if (_tgtH && _tgtL) recHtml += '<span style="color:var(--text-muted);">범위 $' + _tgtL.toFixed(2) + ' ~ $' + _tgtH.toFixed(2) + '</span>';
         recHtml += '</div>';
       }
@@ -7557,7 +7570,7 @@ function _renderFundamentalFinancialsCharts(data) {
   var vcards = document.getElementById('fund-valuation-cards');
   if (vcards) {
     function _vCard(label, val, color) {
-      return '<div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:6px 4px;text-align:center;">' +
+      return '<div style="background:rgba(255,255,255,0.04);border-radius:3px;padding:6px 4px;text-align:center;">' +
         '<div style="font-size:11px;color:var(--text-muted);">' + label + '</div>' +
         '<div style="font-size:14px;font-weight:800;color:' + color + ';font-family:var(--font-mono);margin-top:2px;">' + (val != null && isFinite(val) ? Number(val).toFixed(2) + 'x' : '—') + '</div>' +
       '</div>';
@@ -7725,7 +7738,7 @@ function _renderFundPeers(d) {
   if (!el || !body || !d.peers || !d.peers.length) return;
   var html = '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
   d.peers.slice(0, 12).forEach(function(p) {
-    html += '<div style="padding:6px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-primary);cursor:pointer;font-weight:600;" data-action="_aioFundSearchFill" data-arg="' + escHtml(p) + '">' + p + '</div>';
+    html += '<div style="padding:6px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:3px;font-size:11px;color:var(--text-primary);cursor:pointer;font-weight:600;" data-action="_aioFundSearchFill" data-arg="' + escHtml(p) + '">' + p + '</div>';
   });
   html += '</div>';
   html += '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">클릭하면 해당 기업 분석으로 이동합니다</div>';
@@ -7751,10 +7764,10 @@ function _renderFundEarnings(d) {
     d.finnhubEarnings.slice(0, 5).forEach(function(e) {
       var hourLabel = e.hour === 'bmo' ? '장전' : e.hour === 'amc' ? '장후' : e.hour === 'dmh' ? '장중' : '';
       var quarter = (e.year && e.quarter) ? (e.year + ' Q' + e.quarter) : '';
-      html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:8px 10px;">';
+      html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:8px 10px;">';
       html += '<div style="display:flex;justify-content:space-between;align-items:baseline;">';
       html += '<span style="font-size:12px;font-weight:700;color:var(--accent);font-family:var(--font-mono);">' + (e.date || '-') + '</span>';
-      if (hourLabel) html += '<span style="font-size:11px;color:var(--text-muted);padding:2px 6px;background:var(--surface-3);border-radius:8px;">' + hourLabel + '</span>';
+      if (hourLabel) html += '<span style="font-size:11px;color:var(--text-muted);padding:2px 6px;background:var(--surface-3);border-radius:4px;">' + hourLabel + '</span>';
       html += '</div>';
       if (quarter) html += '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">' + quarter + '</div>';
       if (e.epsEstimate != null) html += '<div style="font-size:10px;color:var(--text-secondary);margin-top:3px;">예상 EPS $' + Number(e.epsEstimate).toFixed(2) + '</div>';
@@ -8024,16 +8037,16 @@ function _renderFundVariance(d) {
     var lastPct = last.estimatedEarning ? (lastDiff / Math.abs(last.estimatedEarning) * 100) : 0;
 
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px;">';
-    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:8px 10px;">' +
+    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">' +
       '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">EPS Beat율</div>' +
       '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + beatColor + ';">' + beatRate + '%</div>' +
       '<div style="font-size:10px;color:var(--text-muted);">최근 ' + surprises.length + '분기</div></div>';
-    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:8px 10px;">' +
+    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">' +
       '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">평균 서프라이즈</div>' +
       '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + (avgSurprise >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' +
       (avgSurprise >= 0 ? '+' : '') + avgSurprise.toFixed(1) + '%</div>' +
       '<div style="font-size:10px;color:var(--text-muted);">EPS 컨센서스 대비</div></div>';
-    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:8px 10px;">' +
+    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">' +
       '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">최근 서프라이즈</div>' +
       '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + (lastDiff >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' +
       (lastDiff >= 0 ? 'Beat' : 'Miss') + ' ' + (lastDiff >= 0 ? '+' : '') + lastPct.toFixed(1) + '%</div>' +

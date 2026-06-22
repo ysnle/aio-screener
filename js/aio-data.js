@@ -8060,7 +8060,7 @@ function _aioRenderNewsKoreanRewriteBrief(items, targetId) {
       bullets +
       '</div>';
   }).join('');
-  el.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
+  el.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;overflow:hidden;">' +
     '<div style="padding:10px 12px;background:var(--surface-1);display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;">' +
     '<div style="font-size:12px;font-weight:900;color:var(--text-primary);">Market Summary - ' + escHtml(brief.dateLabel) + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">rewrite · ' + brief.count + ' items</div>' +
@@ -9693,15 +9693,15 @@ function _buildBriefingDecisionSummary(items, totalCount, bw) {
   if (oilTone.indexOf('완화') >= 0) action += ' 유가 안정은 인플레 부담을 낮추지만 중동 뉴스는 꼬리위험으로 유지.';
   var fgText = fg != null ? ' · F&G ' + fg : '';
   var meta = '선별 뉴스 ' + totalCount + '건 · FOMC/금리 ' + fedHits + ' · 이란/유가 ' + iranHits + ' · 매크로 ' + macroHits;
-  return '<div style="margin-bottom:12px;padding:12px;background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(168,85,247,0.04));border:1px solid rgba(0,212,255,0.20);border-radius:10px;">' +
+  return '<div style="margin-bottom:12px;padding:12px;background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(168,85,247,0.04));border:1px solid rgba(0,212,255,0.20);border-radius:4px;">' +
     '<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:9px;">' +
     '<div style="font-size:13px;font-weight:900;color:var(--text-primary);">시장 상황 요약</div>' +
     '<div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">' + escLocal(meta) + '</div>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;">' +
-    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:8px;padding:9px;"><b style="color:var(--data-cyan);">' + escLocal(marketTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">SPY ' + pct(spyPct) + ' · VIX ' + Number(vix).toFixed(1) + fgText + '</div></div>' +
-    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:8px;padding:9px;"><b style="color:var(--data-amber);">' + escLocal(fedTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">10Y ' + Number(tnx).toFixed(2) + '% · DXY ' + pct(dxyPct) + '</div></div>' +
-    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:8px;padding:9px;"><b style="color:var(--data-green);">' + escLocal(oilTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">WTI $' + Number(wti).toFixed(1) + ' (' + pct(wtiPct) + ') · 중동 뉴스 확인</div></div>' +
+    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:4px;padding:9px;"><b style="color:var(--data-cyan);">' + escLocal(marketTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">SPY ' + pct(spyPct) + ' · VIX ' + Number(vix).toFixed(1) + fgText + '</div></div>' +
+    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:4px;padding:9px;"><b style="color:var(--data-amber);">' + escLocal(fedTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">10Y ' + Number(tnx).toFixed(2) + '% · DXY ' + pct(dxyPct) + '</div></div>' +
+    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:4px;padding:9px;"><b style="color:var(--data-green);">' + escLocal(oilTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">WTI $' + Number(wti).toFixed(1) + ' (' + pct(wtiPct) + ') · 중동 뉴스 확인</div></div>' +
     '</div>' +
     '<div style="margin-top:9px;font-size:11px;color:var(--text-secondary);line-height:1.5;"><b style="color:var(--accent);">오늘 행동</b> ' + escLocal(action) + '</div>' +
     '</div>';
@@ -9754,13 +9754,13 @@ function renderBriefingFeed(items) {
       var emptyReasonBriefingV502 = briefingModelV502.emptyReason || 'no-briefing-news';
       var emptyPeriodStartV5069 = new Date(bw.start).toLocaleDateString('ko-KR', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
       var emptyPeriodEndV5069 = new Date(bw.end).toLocaleDateString('ko-KR', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-      var emptyHeaderV5069 = '<div style="margin-bottom:14px;padding:10px 12px;background:var(--data-purple-faint);border-radius:8px;border:1px solid var(--data-purple-soft);">' +
+      var emptyHeaderV5069 = '<div style="margin-bottom:14px;padding:10px 12px;background:var(--data-purple-faint);border-radius:4px;border:1px solid var(--data-purple-soft);">' +
         '<div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">오늘의 시장 브리핑</div>' +
         '<div style="font-size:11px;color:var(--text-muted);">' + emptyPeriodStartV5069 + ' ~ ' + emptyPeriodEndV5069 + ' KST · 검증 뉴스 0건</div>' +
         '</div>';
       var emptyDecisionV5069 = _buildBriefingDecisionSummary(items || [], 0, bw);
       container.innerHTML = emptyHeaderV5069 + emptyDecisionV5069 +
-        '<div style="text-align:center;padding:14px;color:var(--text-muted);font-size:11px;line-height:1.6;background:var(--surface-2);border-radius:8px;">08:00 KST 윈도우의 검증 뉴스는 아직 없습니다.<br><span style="font-family:var(--font-mono);font-size:10px;">' + escHtml(emptyReasonBriefingV502) + '</span></div>';
+        '<div style="text-align:center;padding:14px;color:var(--text-muted);font-size:11px;line-height:1.6;background:var(--surface-2);border-radius:4px;">08:00 KST 윈도우의 검증 뉴스는 아직 없습니다.<br><span style="font-family:var(--font-mono);font-size:10px;">' + escHtml(emptyReasonBriefingV502) + '</span></div>';
       return;
     }
   }
@@ -9821,7 +9821,7 @@ function renderBriefingFeed(items) {
   // 브리핑 헤더 (날짜 범위 표시)
   var periodStart = new Date(bw.start).toLocaleDateString('ko-KR', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
   var periodEnd = new Date(bw.end).toLocaleDateString('ko-KR', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-  var briefingHeader = '<div style="margin-bottom:14px;padding:10px 12px;background:var(--data-purple-faint);border-radius:8px;border:1px solid var(--data-purple-soft);">' +
+  var briefingHeader = '<div style="margin-bottom:14px;padding:10px 12px;background:var(--data-purple-faint);border-radius:4px;border:1px solid var(--data-purple-soft);">' +
     '<div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">오늘의 시장 브리핑</div>' +
     '<div style="font-size:11px;color:var(--text-muted);">' + periodStart + ' ~ ' + periodEnd + ' KST · 총 ' + totalCount + '건 선별</div>' +
     '</div>';
@@ -9840,7 +9840,7 @@ function renderBriefingFeed(items) {
     _generateAIBriefing(summaryLines.join('\n'), bw, bulletHtml, cacheKey, briefingHeader + briefingDecisionHtml, briefingModelV502);
   } else {
     // API 키 없어도 분석 글 형태로 표시
-    var noAiNote = apiKey ? '' : '<div style="padding:8px 10px;font-size:10px;color:var(--text-muted);background:var(--surface-2);border-radius:6px;margin-bottom:10px;line-height:1.5;">' +
+    var noAiNote = apiKey ? '' : '<div style="padding:8px 10px;font-size:10px;color:var(--text-muted);background:var(--surface-2);border-radius:3px;margin-bottom:10px;line-height:1.5;">' +
       'AI 키를 추가하면 이 뉴스 묶음을 한 문단 브리핑으로 요약할 수 있습니다.</div>';
     var finalHtml = briefingHeader + briefingDecisionHtml + noAiNote + bulletHtml;
     _briefingCacheKey = cacheKey;
@@ -9982,7 +9982,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
 
     var finalHtml = briefingHeader +
       '<div style="padding:2px 0;">' +
-      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;padding:10px 12px;background:var(--data-purple-soft);border-radius:8px;border:1px solid var(--data-purple-border);">' +
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;padding:10px 12px;background:var(--data-purple-soft);border-radius:4px;border:1px solid var(--data-purple-border);">' +
       '<span style="font-size:16px;">🤖</span>' +
       '<div style="flex:1;">' +
       '<div style="font-size:12px;font-weight:700;color:#a78bfa;">AI 종합 분석 브리핑</div>' +
@@ -10003,7 +10003,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
   } catch(e) {
     _aioLog('warn', 'fetch', 'AI 브리핑 생성 실패: ' + (e.message || e));
     // 폴백: 카테고리별 분석 글
-    var errNote = '<div style="padding:8px 10px;font-size:11px;color:#fbbf24;background:var(--data-amber-faint);border-radius:6px;margin-bottom:10px;">AI 분석 브리핑 생성 실패 (' + escHtml(e.message || '알 수 없는 오류') + ') — 카테고리별 뉴스 상세로 표시합니다.</div>'; // v42.5: XSS 방어
+    var errNote = '<div style="padding:8px 10px;font-size:11px;color:#fbbf24;background:var(--data-amber-faint);border-radius:3px;margin-bottom:10px;">AI 분석 브리핑 생성 실패 (' + escHtml(e.message || '알 수 없는 오류') + ') — 카테고리별 뉴스 상세로 표시합니다.</div>'; // v42.5: XSS 방어
     var finalHtml = briefingHeader + errNote + fallbackHtml;
     _briefingCacheKey = cacheKey;
     _briefingCachedHtml = finalHtml;
@@ -10044,7 +10044,7 @@ function _markdownToHtml(md) {
   });
   html = html.replace(/^##\s+(.+)$/gm, function(m, t) {
     var icon = _mdSectionIcon(t);
-    return '</div><div class="briefing-section" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:12px 0;">' +
+    return '</div><div class="briefing-section" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin:12px 0;">' +
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">' +
       '<span style="font-size:15px;">' + icon + '</span>' +
       '<span style="font-size:12px;font-weight:800;color:var(--text-primary);letter-spacing:0.3px;">' + t + '</span>' +
@@ -10066,7 +10066,7 @@ function _markdownToHtml(md) {
     // 화살표 체인(→) 포함 시 강조
     var hasChain = t.indexOf('→') !== -1;
     var style = hasChain
-      ? 'display:flex;gap:8px;padding:4px 8px;margin:2px 0;background:var(--accent-faint);border-radius:5px;'
+      ? 'display:flex;gap:8px;padding:4px 8px;margin:2px 0;background:var(--accent-faint);border-radius:3px;'
       : 'display:flex;gap:8px;padding:3px 0;';
     return '<div style="' + style + '">' +
       '<span style="color:' + (hasChain ? '#a855f7' : 'var(--accent)') + ';flex-shrink:0;font-size:11px;margin-top:3px;">' + (hasChain ? '⟶' : '●') + '</span>' +
@@ -10084,7 +10084,7 @@ function _markdownToHtml(md) {
 
 // v46.6: 브리핑 섹션 카드 렌더링 — AI 브리핑과 동일한 카드 UI
 function _renderBriefingSection(icon, label, bulletsHtml, totalInGroup) {
-  var out = '<div class="briefing-section" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">';
+  var out = '<div class="briefing-section" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">';
   out += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">';
   out += '<span style="font-size:15px;">' + icon + '</span>';
   out += '<span style="font-size:12px;font-weight:800;color:var(--text-primary);letter-spacing:0.3px;">' + escHtml(label) + '</span>';
@@ -10113,7 +10113,7 @@ function _renderBriefingBullet(item) {
   var unverBadge = isUnverifiedClaim(item) ? '<span style="font-size:11px;font-weight:700;background:var(--data-amber-mid);color:#fbbf24;padding:1px 5px;border-radius:3px;border:1px solid var(--data-amber-soft);">미확인</span>' : '';
   var scoreBadge = item.score ? '<span style="font-size:11px;font-weight:700;color:' + (item.score >= 80 ? '#ff5b50' : item.score >= 60 ? '#ffa31a' : '#7b8599') + ';font-family:var(--font-mono);">' + item.score + '</span>' : '';
 
-  var out = '<div class="briefing-news-card aio-hover-news-card" style="padding:10px 12px;margin-bottom:8px;border-radius:8px;cursor:pointer;" data-open-url="' + escHtml(escUrl(item.link)) + '">';
+  var out = '<div class="briefing-news-card aio-hover-news-card" style="padding:10px 12px;margin-bottom:8px;border-radius:4px;cursor:pointer;" data-open-url="' + escHtml(escUrl(item.link)) + '">';
   // 상단: 출처 + 시간 + 점수
   out += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap;">';
   out += '<span style="font-size:11px;font-weight:700;color:var(--accent);background:var(--data-cyan-light);padding:1px 6px;border-radius:3px;">' + escHtml(item.source||'') + '</span>';
@@ -10705,7 +10705,7 @@ async function fetchAllNews(forceRefresh = false) {
   try { // v27.3: try-finally로 isFetching 영구 잠김 방지
 
   if (feed) feed.innerHTML = `
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:16px 20px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <span style="font-size:20px;">⟳</span>
         <div>
@@ -11128,10 +11128,10 @@ async function fetchAllNews(forceRefresh = false) {
     // v46.6: 시장 뉴스 페이지 feed 영역에도 에러 안내
     var feedEl = document.getElementById('live-news-feed');
     if (feedEl && !feedEl.querySelector('.news-item-card')) {
-      feedEl.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--data-red-dim);border-radius:8px;padding:16px;text-align:center;color:var(--text-muted);font-size:10px;">' +
+      feedEl.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--data-red-dim);border-radius:4px;padding:16px;text-align:center;color:var(--text-muted);font-size:10px;">' +
         '<div style="font-size:12px;color:#f87171;margin-bottom:6px;">뉴스 수집 실패</div>' +
         '<div>네트워크 상태를 확인하거나 잠시 후 다시 시도해주세요.</div>' +
-        '<button data-action="_aioRetryNews" style="background:var(--data-cyan-soft);border:1px solid var(--border-accent-dim);color:#60a5fa;font-size:10px;padding:5px 14px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button></div>';
+        '<button data-action="_aioRetryNews" style="background:var(--data-cyan-soft);border:1px solid var(--border-accent-dim);color:#60a5fa;font-size:10px;padding:5px 14px;border-radius:3px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button></div>';
     }
   } finally {
     isFetching = false; // v27.3: 어떤 에러가 나도 반드시 잠금 해제
@@ -13965,7 +13965,7 @@ function generateDynamicBriefing() {
   var html = '';
 
   // ── 핵심 요약 박스 ──
-  html += '<div style="background:var(--accent-faint);border:1px solid var(--data-cyan-dim);border-radius:8px;padding:10px 14px;margin-bottom:12px;">';
+  html += '<div style="background:var(--accent-faint);border:1px solid var(--data-cyan-dim);border-radius:4px;padding:10px 14px;margin-bottom:12px;">';
   html += '<div style="font-size:10px;font-weight:700;color:#5ba8ff;margin-bottom:6px;">실시간 시장 요약 (' + dateStr + ' ' + timeStr + ' 기준)</div>';
   html += '<div style="font-size:11px;color:var(--text-secondary);line-height:1.8;">';
   html += '<div>① <b style="color:' + mktColor + ';">시장 ' + mktStatus + '</b> — S&P ' + fmt(spxPrice,0) + ' (' + fmtPct(spxChg) + '), VIX ' + fmt(vixPrice,1) + ' | F&G <span style="color:' + fgColor + ';">' + fmt(fgVal) + ' ' + fgLabel + '</span></div>';
@@ -13978,18 +13978,18 @@ function generateDynamicBriefing() {
   html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">';
   // S&P
   var spxBorderColor = spxChg < 0 ? 'var(--data-red-dim)' : 'var(--data-green-dim)';
-  html += '<div style="background:var(--bg-card);border:1px solid ' + spxBorderColor + ';border-radius:8px;padding:12px;text-align:center;">';
+  html += '<div style="background:var(--bg-card);border:1px solid ' + spxBorderColor + ';border-radius:4px;padding:12px;text-align:center;">';
   html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">S&P 500</div>';
   html += '<div style="font-size:22px;font-weight:900;font-family:var(--font-mono);color:' + mktColor + ';">' + fmt(spxPrice,0) + '</div>';
   html += '<div style="font-size:11px;color:' + mktColor + ';margin-top:3px;">' + fmtPct(spxChg) + ' · ' + mktStatus + '</div></div>';
   // WTI
   var oilColor = wtiPrice >= 85 ? '#ff5b50' : '#00e5a0';
-  html += '<div style="background:var(--bg-card);border:1px solid ' + (wtiPrice >= 85 ? 'var(--data-red-dim)' : 'var(--border)') + ';border-radius:8px;padding:12px;text-align:center;">';
+  html += '<div style="background:var(--bg-card);border:1px solid ' + (wtiPrice >= 85 ? 'var(--data-red-dim)' : 'var(--border)') + ';border-radius:4px;padding:12px;text-align:center;">';
   html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">WTI 원유</div>';
   html += '<div style="font-size:22px;font-weight:900;font-family:var(--font-mono);color:' + oilColor + ';">$' + fmt(wtiPrice,1) + '</div>';
   html += '<div style="font-size:11px;color:' + oilColor + ';margin-top:3px;">Brent $' + fmt(brentPrice,1) + '</div></div>';
   // VIX
-  html += '<div style="background:var(--bg-card);border:1px solid ' + (vixPrice >= 25 ? 'var(--data-red-dim)' : 'var(--border)') + ';border-radius:8px;padding:12px;text-align:center;">';
+  html += '<div style="background:var(--bg-card);border:1px solid ' + (vixPrice >= 25 ? 'var(--data-red-dim)' : 'var(--border)') + ';border-radius:4px;padding:12px;text-align:center;">';
   html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">VIX 변동성</div>';
   html += '<div style="font-size:22px;font-weight:900;font-family:var(--font-mono);color:' + vixColor + ';">' + fmt(vixPrice,1) + '</div>';
   html += '<div style="font-size:11px;color:' + vixColor + ';margin-top:3px;">' + fmtPct(vixChg) + ' · ' + vixLabel + '</div></div>';
@@ -14007,17 +14007,17 @@ function generateDynamicBriefing() {
   if (ndxPrice > 0 || goldPrice > 0 || krwPrice > 0) {
     html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">';
     // NASDAQ
-    html += '<div style="background:var(--bg-card);border:1px solid ' + (ndxChg<0?'var(--data-red-dim)':'var(--data-green-dim)') + ';border-radius:8px;padding:12px;text-align:center;">';
+    html += '<div style="background:var(--bg-card);border:1px solid ' + (ndxChg<0?'var(--data-red-dim)':'var(--data-green-dim)') + ';border-radius:4px;padding:12px;text-align:center;">';
     html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">NASDAQ</div>';
     html += '<div style="font-size:22px;font-weight:900;font-family:var(--font-mono);color:' + ndxColor + ';">' + fmt(ndxPrice,0) + '</div>';
     html += '<div style="font-size:11px;color:' + ndxColor + ';margin-top:3px;">' + fmtPct(ndxChg) + '</div></div>';
     // Gold
-    html += '<div style="background:var(--bg-card);border:1px solid var(--data-amber-soft);border-radius:8px;padding:12px;text-align:center;">';
+    html += '<div style="background:var(--bg-card);border:1px solid var(--data-amber-soft);border-radius:4px;padding:12px;text-align:center;">';
     html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Gold</div>';
     html += '<div style="font-size:22px;font-weight:900;font-family:var(--font-mono);color:' + goldColor2 + ';">$' + fmt(goldPrice,0) + '</div>';
     html += '<div style="font-size:11px;color:' + goldColor2 + ';margin-top:3px;">' + fmtPct(goldChg) + '</div></div>';
     // USD/KRW
-    html += '<div style="background:var(--bg-card);border:1px solid ' + (krwPrice>=1400?'var(--data-red-dim)':'var(--border)') + ';border-radius:8px;padding:12px;text-align:center;">';
+    html += '<div style="background:var(--bg-card);border:1px solid ' + (krwPrice>=1400?'var(--data-red-dim)':'var(--border)') + ';border-radius:4px;padding:12px;text-align:center;">';
     html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">USD/KRW</div>';
     html += '<div style="font-size:22px;font-weight:900;font-family:var(--font-mono);color:' + krwColor + ';">' + fmt(krwPrice,0) + '</div>';
     html += '<div style="font-size:11px;color:' + krwColor + ';margin-top:3px;">' + fmtPct(krwChg) + '</div></div>';
@@ -14037,7 +14037,7 @@ function generateDynamicBriefing() {
   else if (tsScore >= 35) { tsLabel = '관망'; tsColor = '#ffa31a'; }
   else { tsLabel = '방어 모드'; tsColor = '#ff5b50'; }
   var tsPct = Math.min(100, Math.max(0, tsScore));
-  html += '<div style="background:var(--bg-card);border:1px solid var(--border-accent-dim);border-radius:8px;padding:10px 14px;margin-bottom:12px;">';
+  html += '<div style="background:var(--bg-card);border:1px solid var(--border-accent-dim);border-radius:4px;padding:10px 14px;margin-bottom:12px;">';
   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
   html += '<span style="font-size:11px;font-weight:700;color:#5ba8ff;">매매 환경 스코어</span>';
   html += '<span style="font-size:12px;font-weight:900;font-family:var(--font-mono);color:' + tsColor + ';">' + tsScore + '/100 · ' + tsLabel + '</span>';
@@ -14051,7 +14051,7 @@ function generateDynamicBriefing() {
   var secHasData = false;
   sectorETFs.forEach(function(e) { if (ld[e.s] && ld[e.s].pct != null) secHasData = true; });
   if (secHasData) {
-    html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:12px;">';
+    html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:8px 12px;margin-bottom:12px;">';
     html += '<div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">섹터 히트맵</div>';
     html += '<div style="display:flex;flex-wrap:wrap;gap:4px;">';
     sectorETFs.forEach(function(e) {
@@ -14074,7 +14074,7 @@ function generateDynamicBriefing() {
   m7syms.forEach(function(t) { if (ld[t] && ld[t].pct != null) m7Has = true; });
   if (m7Has) {
     var m7UpCnt = 0;
-    html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:12px;">';
+    html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:8px 12px;margin-bottom:12px;">';
     html += '<div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">M7 리더십</div>';
     html += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
     m7syms.forEach(function(t) {
@@ -14862,7 +14862,7 @@ function _renderFGComponents() {
     var score = c.score;
     var rating = c.rating || '';
     var color = score <= 25 ? '#ef4444' : score <= 45 ? '#ff5b50' : score <= 55 ? '#ffa31a' : score <= 75 ? '#34d399' : '#10b981';
-    html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:7px 9px;">' +
+    html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:7px 9px;">' +
       '<div style="font-size:11px;color:var(--text-muted);font-weight:600;">' + labels[k] + '</div>' +
       '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:2px;">' +
       '<span style="font-size:16px;font-weight:800;color:' + color + ';font-family:var(--font-mono);">' + score + '</span>' +
@@ -14898,7 +14898,7 @@ function _renderCryptoTempo() {
   var g = window._cgGlobal;
   var html = '';
   function card(label, value, sub, color) {
-    return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:7px 9px;">' +
+    return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:7px 9px;">' +
       '<div style="font-size:11px;color:var(--text-muted);font-weight:600;">' + label + '</div>' +
       '<div style="font-size:15px;font-weight:800;color:' + (color || 'var(--text-primary)') + ';font-family:var(--font-mono);margin-top:2px;">' + value + '</div>' +
       (sub ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + sub + '</div>' : '') +
