@@ -1,12 +1,36 @@
 ---
 verified_by: agent
-last_verified: 2026-06-20
+last_verified: 2026-06-22
 confidence: high
-latest_version: v50.98
-latest_P_number: P521
-total_entries: 520
-next_P_number: P522
+latest_version: v51.08
+latest_P_number: P524
+total_entries: 523
+next_P_number: P525
 ---
+
+## P524 - v51.08 - fetchKrDynamicData undefined — krDynamic scheduler silently no-op for entire session
+
+- **symptom**: `REFRESH_SCHEDULE.krDynamic` ran on 30-min interval but returned null every time because `typeof fetchKrDynamicData === 'function'` was always false. KR BOK/KOSIS data was only fetched on kr-home/kr-macro page entry, never refreshed in the background.
+- **root_cause**: The scheduler referenced `fetchKrDynamicData` which was never defined anywhere in the codebase. The function name was reserved but never implemented.
+- **fix**: Added `fetchKrDynamicData()` function that runs `fetchAllBokData` + `fetchAllKosisData` + `fetchKrNaverQuotes` in parallel via `Promise.allSettled`.
+- **violated_rule**: R3 (bug postmortem required).
+- **prevention**: Scheduler `fn` assignments that reference future functions should have a TODO comment with the expected definition location.
+
+## P523 - v51.08 - fetchAllNews overwrites news cache with empty array on CORS failure
+
+- **symptom**: When all 84 RSS feeds fail (CORS blocked environment), `fetchAllNews` ran to completion with `filteredItems = []`, then set `newsCache = []` and called `renderFeed([])`, wiping out the server backstop that had been loaded at startup.
+- **root_cause**: The backstop-application logic checked `clientEmpty` to avoid overwriting live RSS data, but `fetchAllNews` final assignment ran unconditionally, overwriting the backstop with the empty result.
+- **fix**: Added guard before `newsCache = filteredItems`: if `filteredItems.length === 0` and backstop is available, call `_aioApplyNewsBackstop(true)` and return early.
+- **violated_rule**: R3 (bug postmortem required).
+- **prevention**: Any code path that writes `newsCache = []` must check backstop availability first.
+
+## P522 - v51.08 - screener page renders empty table on first navigation
+
+- **symptom**: First navigation to the screener page showed an empty table. Refreshing the page or triggering a quote update fixed it, but the cold-load user saw no data.
+- **root_cause**: `_aioApplyServerScreener` called `renderScreenerResults()` at load time before the `screener` page was active. The `showPage` wrapper had no handler for `pageId==='screener'`, so navigating to it never triggered a re-render.
+- **fix**: Added `screener` block to `showPage` wrapper: calls `_aioComputeFactorRanks()` then `renderScreenerResults()` with 200ms delay on first navigation.
+- **violated_rule**: R3 (bug postmortem required).
+- **prevention**: All 22 pages must be in both `AIO_PAGE_REFRESH_MAP` and `showPage` wrapper if they display dynamic data.
 
 ## P521 - v50.98 - server news backstop selected latest headlines before market-impact scoring
 

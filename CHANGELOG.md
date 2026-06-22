@@ -1,5 +1,19 @@
 # AIO 스크리너 변경 이력 (Changelog)
 
+## v51.08 - 구조 개편: 22페이지 자동갱신 + 뉴스 백스톱 보호 + RSS 피드 수정 + KR 스케줄러 완결 (2026-06-22)
+
+**BUG-1 (P512)** 스크리너 첫 진입 시 빈 테이블: `showPage` 래퍼에 `pageId==='screener'` 핸들러 추가 → `_aioComputeFactorRanks()` + `renderScreenerResults()` 200ms 지연 호출.
+
+**BUG-2 (P513)** CORS 완전 실패 시 뉴스 빈 화면: `fetchAllNews` 완료 시 `filteredItems.length===0`이면 기존 백스톱(`_serverNewsBackstop`)을 재적용하도록 보호 로직 추가.
+
+**BUG-3 (P514)** 12개 페이지 `AIO_PAGE_REFRESH_MAP` 누락: `screener` / `portfolio` / `market-news` / `kr-home` / `kr-supply` / `kr-themes` / `kr-macro` / `kr-technical` 8개 페이지 추가 (10→18개).
+
+**market-news 페이지 진입 핸들러**: `showPage` 래퍼에 `pageId==='market-news'` 블록 추가 → `newsCache` 있으면 `renderFeed`, 없으면 `_aioApplyNewsBackstop(true)`.
+
+**RSS 피드 교체 (5개)**: `feeds.reuters.com` RSS 서비스 중단 + CNBC `search.cnbc.com` 파트너 피드 차단 → Reuters Markets·World를 `rsshub.app/reuters/market·world`로, CNBC 3개를 `cnbc.com/id/.../device/rss/rss.html`로 교체.
+
+**`fetchKrDynamicData` 구현 완결**: `REFRESH_SCHEDULE.krDynamic`이 참조하던 미정의 함수를 신설 — `fetchAllBokData` + `fetchAllKosisData` + `fetchKrNaverQuotes`를 `Promise.allSettled`로 병렬 실행.
+
 ## v51.07 - G×L 성장×유동성 판단 프레임 + 엔캐리 언와인드 위험 스코어 (2026-06-22)
 
 **미통합 작업 복구**: dazzling-herschel 워크트리의 v50.75 커밋(2026-06-20)에서 기존 main에 머지되지 않은 2개 기능을 v51.06 스타일로 적응·통합.

@@ -3744,16 +3744,24 @@ function startDataScheduler() {
 // 디바운스: 동일 태스크 동시 진입 폭주 방지 (cfg._inFlight + per-task 최소 간격).
 // ─────────────────────────────────────────────────────────────────
 var AIO_PAGE_REFRESH_MAP = {
-  home:      ['quotes', 'news', 'sentiment', 'breadth', 'technicals'],
-  signal:    ['quotes', 'sentiment', 'breadth', 'technicals', 'vixHistory', 'hySpread'],
-  breadth:   ['quotes', 'breadth', 'technicals'],
-  sentiment: ['quotes', 'sentiment', 'vixHistory', 'hySpread'],
-  briefing:  ['quotes', 'news', 'sentiment', 'breadth', 'fred', 'technicals'],
-  technical: ['quotes', 'technicals', 'breadth', 'sentiment', 'vixHistory'],
-  macro:     ['quotes', 'fred', 'news', 'sentiment'],
-  fxbond:    ['quotes', 'fred', 'hySpread', 'news'],
+  home:        ['quotes', 'news', 'sentiment', 'breadth', 'technicals'],
+  signal:      ['quotes', 'sentiment', 'breadth', 'technicals', 'vixHistory', 'hySpread'],
+  breadth:     ['quotes', 'breadth', 'technicals'],
+  sentiment:   ['quotes', 'sentiment', 'vixHistory', 'hySpread'],
+  briefing:    ['quotes', 'news', 'sentiment', 'breadth', 'fred', 'technicals'],
+  technical:   ['quotes', 'technicals', 'breadth', 'sentiment', 'vixHistory'],
+  macro:       ['quotes', 'fred', 'news', 'sentiment'],
+  fxbond:      ['quotes', 'fred', 'hySpread', 'news'],
   fundamental: ['quotes', 'news', 'technicals'],
-  themes:    ['quotes', 'news', 'technicals']
+  themes:      ['quotes', 'news', 'technicals'],
+  screener:    ['quotes', 'technicals'],
+  portfolio:   ['quotes', 'technicals'],
+  'market-news': ['quotes', 'news'],
+  'kr-home':   ['quotes', 'news'],
+  'kr-supply': ['quotes'],
+  'kr-themes': ['quotes', 'news', 'technicals'],
+  'kr-macro':  ['quotes', 'fred'],
+  'kr-technical': ['quotes', 'technicals']
 };
 window.AIO_PAGE_REFRESH_MAP = AIO_PAGE_REFRESH_MAP;
 window.AIO_CRITICAL_10_PAGE_IDS = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
@@ -5179,10 +5187,10 @@ const AIO_NEWS_SOURCES = [
   // ═══════════════════════════════════════════════════════════════════
 
   // ═══ TIER 1: 🇺🇸 미국 주요 외신 (탑티어 — 최우선 노출) ═══
-  {name:'Reuters Markets',     url:'https://feeds.reuters.com/reuters/businessNews',              country:'us', tier:1, flag:'US', topics:['macro','equity']},
-  {name:'CNBC Top News',       url:'https://search.cnbc.com/rs/search/combinedcombined?partnerId=wrss&id=100003114', country:'us', tier:1, flag:'US', topics:['macro','equity']},
-  {name:'CNBC Investing',      url:'https://search.cnbc.com/rs/search/combinedcombined?partnerId=wrss&id=15839069', country:'us', tier:1, flag:'US', topics:['equity','earnings']},
-  {name:'CNBC Economy',        url:'https://search.cnbc.com/rs/search/combinedcombined?partnerId=wrss&id=20910258', country:'us', tier:1, flag:'US', topics:['macro']},
+  {name:'Reuters Markets',     url:'https://rsshub.app/reuters/market',                           country:'us', tier:1, flag:'US', topics:['macro','equity']},
+  {name:'CNBC Top News',       url:'https://www.cnbc.com/id/100003114/device/rss/rss.html',       country:'us', tier:1, flag:'US', topics:['macro','equity']},
+  {name:'CNBC Investing',      url:'https://www.cnbc.com/id/15839069/device/rss/rss.html',        country:'us', tier:1, flag:'US', topics:['equity','earnings']},
+  {name:'CNBC Economy',        url:'https://www.cnbc.com/id/20910258/device/rss/rss.html',        country:'us', tier:1, flag:'US', topics:['macro']},
   {name:'WSJ Markets',         url:'https://feeds.a.dj.com/rss/RSSMarketsMain.xml',              country:'us', tier:1, flag:'US', topics:['macro','equity']},
   {name:'WSJ World',           url:'https://feeds.a.dj.com/rss/RSSWorldNews.xml',                country:'us', tier:1, flag:'US', topics:['geo','macro']},
   {name:'Bloomberg',           url:'https://feeds.bloomberg.com/markets/news.rss',                country:'us', tier:1, flag:'US', topics:['macro','equity']},
@@ -5260,7 +5268,7 @@ const AIO_NEWS_SOURCES = [
   {name:'DL News',             url:'https://www.dlnews.com/rss/',                                 country:'us', tier:2, flag:'', topics:['crypto']},
 
   // ═══ TIER 2: 지정학·방산 ═══
-  {name:'Reuters World',       url:'https://feeds.reuters.com/Reuters/worldNews',                 country:'us', tier:2, flag:'', topics:['geo']},
+  {name:'Reuters World',       url:'https://rsshub.app/reuters/world',                           country:'us', tier:2, flag:'', topics:['geo']},
   {name:'AP Business',         url:'https://rsshub.app/apnews/topics/business',                  country:'us', tier:2, flag:'US', topics:['macro']},
   {name:'Defense One',         url:'https://www.defenseone.com/rss/all/',                         country:'us', tier:2, flag:'', topics:['geo','defense']},
   // v37.2: 중동·지정학 커버리지 보강
@@ -11001,6 +11009,11 @@ async function fetchAllNews(forceRefresh = false) {
   const removedCount = allItems.length - filteredItems.length;
   if (removedCount > 0) console.log(`[NewsStore] ${removedCount}건 필터링됨 (중복/품질)`);
 
+  // v51.08: CORS 완전 실패 시 빈 배열로 백스톱을 덮어쓰지 않도록 보호
+  if (filteredItems.length === 0 && typeof _aioApplyNewsBackstop === 'function' && window._serverNewsBackstop && window._serverNewsBackstop.length > 0) {
+    _aioApplyNewsBackstop(true);
+    return;
+  }
   newsCache = filteredItems;
   window._allNewsItems = filteredItems;  // v29: 텔레그램 필터 등에서 참조
   lastFetchTime = Date.now();
@@ -11638,6 +11651,16 @@ async function fetchKrNaverQuotes() {
 
   var elapsed = Date.now() - _startTs;
   console.log('[KR-Naver] 네이버 파이낸스 완료:', results.length + '개 (' + elapsed + 'ms)');
+  return results;
+}
+
+// v51.08: krDynamic 스케줄러가 참조하는 통합 KR 동적 데이터 갱신 함수
+async function fetchKrDynamicData() {
+  const results = await Promise.allSettled([
+    typeof fetchAllBokData === 'function' ? fetchAllBokData() : Promise.resolve(null),
+    typeof fetchAllKosisData === 'function' ? fetchAllKosisData() : Promise.resolve(null),
+    typeof fetchKrNaverQuotes === 'function' ? fetchKrNaverQuotes() : Promise.resolve(null)
+  ]);
   return results;
 }
 
@@ -14626,6 +14649,25 @@ window.showPage = function(pageId, ...args) {
         try { fetchAllKosisData(); } catch(_){}
       }
     }, 500);
+  }
+  // v51.08 BUG-1: 스크리너 첫 진입 시 빈 테이블 수정 — 랭킹 재계산 + 결과 렌더
+  if (pageId === 'screener') {
+    setTimeout(function(){
+      try { if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); } catch(_){}
+      try { if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(_){}
+    }, 200);
+  }
+  // v51.08: market-news 페이지 진입 시 뉴스 캐시 재렌더 (백스톱 포함)
+  if (pageId === 'market-news') {
+    setTimeout(function(){
+      try {
+        if (newsCache && newsCache.length > 0) {
+          if (typeof renderFeed === 'function') renderFeed(newsCache);
+        } else if (typeof _aioApplyNewsBackstop === 'function') {
+          _aioApplyNewsBackstop(true);
+        }
+      } catch(_){}
+    }, 150);
   }
   return result;
 };
