@@ -1,5 +1,12 @@
 ﻿# AIO 스크리너 변경 이력 (Changelog)
 
+## v50.99 - Self-verifying data quality loop (2026-06-22)
+
+- **핵심 아이디어 출처**: @0xRicker Self-Verifying Loop 아티클(2026-06-18) — "raw swarm은 자신감 있는 쓰레기를 반환한다. 검증 스텝이 품질을 결정한다."
+- **적용**: `scripts/fetch-data.mjs`에 `_quoteOk()` / `_quoteVerifyTol()` 검증 함수 추가. 야후에서 가격을 받았더라도 전일 종가 대비 변동폭이 허용 범위를 초과하면 1차 통과 불가 (금리 ±5%p, 크립토 ±50%, 주식·ETF ±30%).
+- **재시도 루프**: 검증 불통과 심볼을 `toRetry` 배열로 분류 → `mapLimit(3)` 재시도 → `_quoteOk()` 재검증 → 최종 합격만 `quotes` 배열에 합류. 데이터가 없는 에러가 아니라 "데이터가 있지만 이상한" 케이스를 잡는 것이 핵심.
+- **감사 노출**: `data.json.meta.verifyStats` = `{ pass1, retried, recovered, failed }` 추가. Actions 로그에 `[verify: 1차ok=N retry=N 복구=N 최종실패=N]` 출력.
+
 ## v50.98 - Market-impact news selection audit (2026-06-21)
 
 - **GitHub Secrets 확인**: `ANTHROPIC_API_KEY`, `FMP_API_KEY`, `FRED_API_KEY` 이름은 Actions workflow가 기대하는 이름과 일치. GitHub는 Secret 값을 재조회할 수 없으므로 새 `refresh-data` 실행 후 `fredFetchOk`/`marketAnalysisOk`/FMP enrichment 결과로 유효성을 확인해야 함.
