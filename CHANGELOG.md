@@ -1,11 +1,122 @@
-﻿# AIO 스크리너 변경 이력 (Changelog)
+# AIO 스크리너 변경 이력 (Changelog)
 
-## v50.99 - Self-verifying data quality loop (2026-06-22)
+## v51.06 - 통합 배포: self-verifying data loop + visual hierarchy + AI 채팅 결함 수정 (2026-06-22)
 
-- **핵심 아이디어 출처**: @0xRicker Self-Verifying Loop 아티클(2026-06-18) — "raw swarm은 자신감 있는 쓰레기를 반환한다. 검증 스텝이 품질을 결정한다."
-- **적용**: `scripts/fetch-data.mjs`에 `_quoteOk()` / `_quoteVerifyTol()` 검증 함수 추가. 야후에서 가격을 받았더라도 전일 종가 대비 변동폭이 허용 범위를 초과하면 1차 통과 불가 (금리 ±5%p, 크립토 ±50%, 주식·ETF ±30%).
-- **재시도 루프**: 검증 불통과 심볼을 `toRetry` 배열로 분류 → `mapLimit(3)` 재시도 → `_quoteOk()` 재검증 → 최종 합격만 `quotes` 배열에 합류. 데이터가 없는 에러가 아니라 "데이터가 있지만 이상한" 케이스를 잡는 것이 핵심.
-- **감사 노출**: `data.json.meta.verifyStats` = `{ pass1, retried, recovered, failed }` 추가. Actions 로그에 `[verify: 1차ok=N retry=N 복구=N 최종실패=N]` 출력.
+**이번 배포는 병렬로 진행된 두 세션의 작업을 통합한다.**
+
+**[A] Self-verifying data quality loop (scripts/fetch-data.mjs):**
+- _quoteOk() / _quoteVerifyTol() 검증 함수 추가. Yahoo Finance에서 가격을 받았더라도 전일 종가 대비 변동폭이 허용 범위를 초과하면 1차 통과 불가 (금리 ±5%p, 크립토 ±50%, 주식·ETF ±30%).
+- 검증 불통과 심볼 재시도 루프: 	oRetry → mapLimit(3) 재시도 → _quoteOk() 재검증 → 최종 합격만 합류. "데이터가 있지만 이상한" 케이스를 잡는 것이 핵심.
+- data.json.meta.verifyStats = { pass1, retried, recovered, failed } 감사 노출.
+
+**[B] v51.05 AI 채팅 결함 수정 + v51.00-v51.04 Bloomberg-style UI 개편 + v50.99-v51.04 페이지 구조 보강이 함께 포함됨.**
+## v51.05 - AI 채팅 심층 감사 결함 수정 (2026-06-22)
+
+**방향**: 전수 감사에서 발견된 3개 실결함 수정 — coverage contract 오보고, 불필요한 무조건 심층분석, 대화 메모리 관련성 계산 오류.
+
+**수정 내용 (`js/aio-chat.js`):**
+- **`_buildChatAnswerCoverageContext` missing_axes 검사 누락 수정**: `required` 배열에 항상 포함되는 `quote/source`(티커 있을 때)와 `macro cross-asset context`(macro/fxbond 페이지)가 `missing` 검사에서 빠져 LLM에게 "missing_axes=none"으로 잘못 보고되던 문제 수정. 2개 axes 검사 추가.
+- **`_shouldSingleDeepAnalyzeChat` dead code 제거**: `detectedTickers.length === 1`이 가드 조건(line 4115)에 의해 항상 true인 상태에서 return 조건에 그대로 있어 모든 단일 티커 질문이 무조건 deep analyze되던 문제. `deepCtx || _hasDeepAnalysisKw(query)`로 단순화 — 전용 페이지거나 심층 키워드가 있을 때만 deep analyze.
+- **`_buildChatMemoryContext` 관련성 임계값 강화**: `_aioChatTokens` 토큰 상한 80→120, overlap 임계값 2→3. 공통 단어 2개만 일치해도 "관련 대화"로 포함되던 과다 포함 문제 수정.
+
+## v51.04 - AI 채팅 알고리즘 보강 (2026-06-22)
+
+**방향**: AI 채팅 로직 3개 실결함 수정 — 대화가 길어질수록 토큰 비용이 무제한 증가하던 문제, 같은 종목이 반복 추천되던 편향, 서버 과부하 시 재시도가 너무 빠른 문제.
+
+**수정 내용 (`js/aio-chat.js`):**
+- **프롬프트 자동 트리밍** (`callClaude`): 시스템 프롬프트 + 메시지 총합이 90K자 초과 시 oldest 메시지부터 제거 (system 보존, 최소 2턴 유지). 기존 경고만 하던 구조를 실제 트리밍으로 전환.
+- **반복 추천 티커 완전 제외** (`_aioBuildDiversifiedRecommendationRows`): 최근 8턴 추천 티커가 비중복 후보 20개 이상일 때 `eligible` 풀에서 완전 제거. 기존 25점 패널티만으론 NVDA 같은 고랭크 종목이 계속 상위에 노출되던 편향 수정.
+- **재시도 대기 시간** (`onError` retry): 서버 과부하(529/overloaded) 재시도 딜레이 2000ms → 5000ms로 연장. 너무 빠른 재시도가 같은 오류를 유발하던 문제 수정.
+
+## v51.03 - 페이지 간 유기적 연결 전수 보강 (2026-06-22)
+
+**방향**: 22페이지 전수 감사 후 발견된 고립 페이지·단방향 연결·흐름 단절 5건 수정. 페이지 내부 흐름(data→analysis→verdict)과 페이지 간 경로(cross-link)를 동시에 완결.
+
+**페이지 내부 흐름 추가:**
+- **Technical 페이지**: 페이지 레벨 ①②③ `aio-flow-steps` 추가 (① 차트 → ② RSI·MACD·이동평균 → ③ 건강도 점수). `cross-link` → Signal, Breadth.
+- **Fundamental 페이지**: ①②③ flow steps (Screener 발굴 → 펀더멘털 확인 → Ticker 타이밍). `cross-link` → Screener, Ticker, Themes.
+- **Market-News 페이지**: `aio-why` 맥락 설명 추가. `cross-link` → Macro, Signal, Briefing, Themes.
+- **Macro 페이지**: ①②③ flow steps (인터커넥션 맵 → 선행지표 → 종합 결론). `cross-link` → FxBond, Signal, Market-News.
+- **FxBond 페이지**: `cross-link` → Macro, Signal, KR-Macro.
+- **KR-Macro 페이지**: ①②③ flow steps (기준금리·물가 → 환율·수출입 → KR-Technical). "한국 기술 분석 →" 버튼 추가.
+- **KR-Technical 페이지**: "← 한국 매크로" 버튼 + `aio-why` 추가. KR-Macro ↔ KR-Technical 양방향 연결 완성.
+
+**페이지 간 cross-link 추가:**
+- **Briefing**: `cross-link` → Market-News (뉴스 전체 보기) 추가.
+- **Screener**: 결과 테이블 위 "종목 발굴 후 →" cross-link → Fundamental, Ticker, Themes.
+- **Signal**: Exit Triggers 하단 "시그널 확인 후 →" cross-link → Technical, Breadth, Screener, Macro.
+
+**유기적 연결 맵 (v51.03 기준):**
+```
+Home → Signal / Briefing / Macro / Market-News / Portfolio / KR-Home
+Briefing → Macro / Signal / Market-News ↔ Macro / Signal / Briefing / Themes
+Signal → Technical / Breadth / Screener / Macro (하단 CTA 완성)
+Technical → Signal / Breadth
+Macro → FxBond / Signal / Market-News
+FxBond → Macro / Signal / KR-Macro
+Screener → Fundamental / Ticker / Themes
+Fundamental → Screener / Ticker / Themes (양방향)
+KR-Macro ↔ KR-Technical (양방향 완성)
+```
+
+## v51.02 - 페이지별 데이터→분석→결론 구조 개편 (2026-06-21)
+
+**방향**: v51.01 CSS 인프라를 실제 DOM 콘텐츠에 적용. 판정/결론이 히어로이던 페이지들을 "데이터 → 분석 → 결론" 흐름으로 재편. 스크리너는 답지가 아닌 사용자 이해 지원 도구 원칙.
+
+- **Signal 페이지**: ①②③ `aio-flow-steps` 삽입 (① 스냅샷 데이터 → ② 팩터 5개 분해 → ③ 종합 점수). 점수 라벨에 "③ 결론" 태그 부가. `aio-why` 설명 추가. 팩터 섹션 앞에 `aio-section-rule` "② 팩터별 기여도" 삽입.
+- **Home 페이지**: 판단 카드 3개 위에 ①②③ `aio-flow-steps` 추가 (원시 데이터 → 팩터 분해 → 종합 판단). "지금 매매해도 될까?" 카드에 `aio-why` 연결 링크 추가 (시그널 페이지 팩터 분해로 연결).
+- **Technical 페이지**: 시장 건강도 종합 점수 앞에 `aio-section-rule` "② 위 RSI·MACD·이동평균 지표의 가중 합산" + `aio-why` 설명 삽입.
+- **Macro 페이지**: "오늘 매크로 결론" → "매크로 종합 결론" 제목 변경. `aio-why` "이 결론은 아래 인터커넥션 맵·선행지표·시장물가 섹션의 데이터에서 도출" 추가.
+- **Screener 페이지**: 결과 테이블 앞에 ①②③ `aio-flow-steps` 삽입 (① 팩터 설명 → ② 백테스트 IC 검증 → ③ 종목별 퀀트 랭크).
+- **Breadth 페이지**: 종합 진단 섹션 앞에 ①①①② `aio-flow-steps` (5SMA → 20SMA → 50SMA → ② 종합 진단). 종합 진단 제목에 "위 3개 SMA 비율의 결론" 부제 추가.
+- **Sentiment 페이지**: F&G 섹션 앞에 ①②③ `aio-flow-steps` (F&G·VIX·Put/Call → NAAIM·II·HY Spread → 위 배지 종합 판정).
+- **FxBond 페이지**: Cross-Asset Matrix 앞에 ①②③ `aio-flow-steps` (달러·원/달러 → 10Y 국채·HY 스프레드 → 매트릭스 종합).
+- **KR-Home 페이지**: 핵심 지수 카드 앞에 ①②③ `aio-flow-steps` (KOSPI·KOSDAQ·KRW → 수급 → 매크로 판단).
+- **KR-Technical 페이지**: 한국 시장 건강 점수 앞에 `aio-section-rule` "② 종합 점수" + `aio-why` 추가.
+- **P3 완결**: ETF 테이블 "수신 대기"→"—", KR-Technical "Ticker 분석 →" 버튼, Screener 저변동 ↓역방향 annotation.
+
+## v51.01 - Data-flow hierarchy — 판정 축소·데이터→분석→결론 흐름 강조 (2026-06-21)
+
+**방향 교정**: v51.00이 판정/결론을 시각 히어로로 만든 것을 교정. 스크리너는 답지가 아니라 사용자가 데이터→분석→판단을 스스로 읽는 도구여야 한다는 원칙 적용.
+
+- **Primary 카드 수치 크기 정상화**: `.aio-card-primary .aio-metric-value` 44px 오버라이드 제거. 판정 숫자는 입력 데이터와 같은 계층 유지.
+- **`.aio-factor-row/bar/score`**: 기여 인자(팩터) 분해 뷰 컴포넌트. `grid(1fr auto 72px auto)` 레이아웃으로 인자명·값·바·가중치를 한 행에 표시. 5px bar-fill로 기여도를 시각화. bull/bear/warn 색상 variant.
+- **`.aio-threshold`**: 수치 옆 임계값 컨텍스트 태그. `<span class="aio-threshold pass">&lt;20 안전</span>` 형태. pass/fail/warn variant. 데이터가 기준을 통과했는지 인라인으로 표시.
+- **`.aio-why`**: 데이터→판단 연결 설명 텍스트 전용 클래스. `font-size: 13px`(기존 11-12px에서 상향), `line-height: 1.7`, `color: text-secondary`. 내부 `.key`는 accent-text mono 강조.
+- **`.aio-data-pair`**: 지표명 + 값 쌍 인라인 컴포넌트. 레이블 `text-muted 11px uppercase`, 값 `mono 16px bold`. 판정보다 값이 돋보이도록.
+- **`.aio-flow-steps` / `.aio-flow-step` / `.aio-flow-step-num`**: ①②③ 단계 흐름 표시. active step은 accent 색상, 비활성은 muted. 화살표 구분자(`›`) 포함.
+- **`.aio-synthesis-zone` / `.aio-synthesis-label`**: 결론 도달 영역 — Primary 카드 하단에 `border-top`으로 구분되는 결론 구역. "SYNTHESIS" 라벨 + 우측 rule선.
+- **판정 배지 18px → 15px**: `#score-decision-badge` `font-size: var(--fs-md)` — 태그 역할로 축소.
+- **설명 텍스트 11-12px → 13px**: `#home-trading-explanation`, `#home-regime-explanation`, `#home-quality-label`, `#score-decision-sub` → `var(--fs-sm)` + `line-height:1.6`.
+- **`#score-bars-container` 시각 부각**: `border + background + padding` — 스코어 분해 바가 페이지의 시각적 중심이 되도록.
+- **영향 범위**: 전체 22개 페이지. JS 코드 변경 없음. CSS-only cascade.
+
+## v51.00 - Visual hierarchy system — Primary/Secondary/Verdict 3-tier (2026-06-21)
+
+- **`.aio-card-primary` CSS 구현**: 클래스가 HTML에만 있고 CSS 규칙이 없던 문제 해소. 페이지의 #1 결정 카드에 cyan-tinted gradient 배경(`rgba(0,188,212,0.055)`), 강화된 테두리(`0.32 opacity`), `0 0 0 1px` glow 레이어 추가. Primary 카드 제목은 `accent-text` 색상으로 구분.
+- **Primary 카드 수치 36~44px**: `.aio-card-primary .aio-metric-value`를 `!important 36px`로 오버라이드. `.is-lg`는 44px. 기존 인라인 `font-size:20-24px`를 극복. Home 트레이딩 신호가 즉시 눈에 들어옴.
+- **Secondary 카드 수치 28px**: `.aio-card-secondary .aio-metric-value`를 `!important 28px`. 지원 데이터도 크기 차별화로 계층 형성.
+- **`.aio-verdict-badge`**: BUY/SELL/UPTREND 등 판정 결과 전용 18px 모노스페이스 라벨. bull/bear/warn/neut 4 variant + soft background + colored border. 기존 판정 텍스트가 본문에 묻히던 문제 해소.
+- **`.aio-section-rule`**: 섹션 경계선 + 레이블 컴포넌트. `::before/::after` pseudo로 양측 horizontal rule 생성. 산만한 섹션 경계를 시각적으로 명확히 구분.
+- **`.aio-callout`**: 핵심 메시지·행동 강조 블록. border-left 3px + faint background. bull/bear/warn 3 variant + heading(uppercase label) + body.
+- **테이블 강조**: `.aio-table td.key-col` 핵심 컬럼 primary 색상. `tr.is-highlight` 행 cyan tint. `.signal-col` mono 굵게.
+- **`.aio-dv` 인라인 수치**: 텍스트 단락 내 수치 강조 전용 mono 클래스. bull/bear/warn/cyan 4 variant.
+- **`.aio-metric-value` 색상 modifier**: `.is-bull/.is-bear/.is-warn/.is-cyan` — JS에서 class 추가만으로 색상 지정 가능.
+- **ID-targeted fixes**: `#score-decision-badge` 13→18px. 스냅샷 카드 가격 14→18px. `#regime-nyse-sell/aaii/pcr` 13→15px. `#exec-window-score` 20→28px. `#breadth-diag-signal` 18→26px.
+- **Pill-chip 수치 pop**: `.pill-chip b/strong { font-weight:800; color:var(--text-primary) }` — DXY/10Y/Gold/WTI/KOSPI/BTC 값이 라벨보다 명확히 돋보임.
+- **Metric delta 13px**: `.aio-metric-delta { font-size: var(--fs-sm) !important }` — 12px → 13px 전반 상향.
+- **영향 범위**: 전체 22개 페이지에 CSS cascade 적용. JS 코드 변경 없음.
+
+## v50.99 - Professional terminal redesign — Bloomberg-style UI overhaul (2026-06-21)
+
+- **Design system radius 전면 축소**: `--radius-lg: 14px→5px`, `--radius-xl: 18px→6px`, `--radius-2xl: 24px→8px`, `--radius: 8px→4px`. 전체 22페이지 + JS 5모듈 인라인 border-radius 일괄 교체(8px→4px, 6px→3px 등 ~1000개). `.nav-item 8px→3px`, `.aio-section-title::before` 둥근 bar→직선(border-radius:0).
+- **Badge/Chip 직사각형화**: `.aio-badge` `border-radius: var(--radius-pill)→3px` + `font-family: var(--font-mono)` + uppercase 적용. `.pill-chip` `999px→3px`. `.aio-profile-chip` `999px→var(--radius-sm)`. 유치한 bubble 제거.
+- **Nav 글로우 제거**: `.nav-item:hover .nav-icon` 및 `.nav-item.active .nav-icon` 의 `box-shadow` glow 전면 제거. active item은 left-border accent + subtle cyan bg로 전환.
+- **Border 구조감 강화**: `--border: 0.06→0.10`, `--border-strong: 0.11→0.18`. 카드·섹션 경계 명확해짐.
+- **배경 계층 심화**: `--bg-base: #080d1a→#060b15`, `--bg-card: #111a2f→#0d1828`, `--bg-elevated: #172241→#132035`. 배경 간 구분도 향상.
+- **색상 팔레트 정제**: 과도한 네온 → 전문적 톤. cyan `#00d4ff→#00bcd4`, green `#00e5a0→#10c98b`, red `#ff5b50→#ef4444`, amber `#ffa31a→#f59e0b`, magenta `#ff4d97→#e0457a`, purple `#a855f7→#9b59d0`. soft/faint 토큰·차트 팔레트 동기화.
+- **Canvas 색상 동기화**: RRG 사분면 레이블, 포트폴리오 차트 선, alpha 계산 등 canvas API hex 직접 사용처 신규 값으로 일괄 교체.
+- **인라인 CSS→변수 전환**: Fundamental 메트릭 헤더(Growth/Profitability/Balance Sheet/Cash Flow/Liquidity) 하드코딩 hex → `var(--data-*)` 적용.
 
 ## v50.98 - Market-impact news selection audit (2026-06-21)
 

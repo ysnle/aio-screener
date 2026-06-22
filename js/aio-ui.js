@@ -2162,7 +2162,7 @@ try { if (!window._aioPopstateRegistered) window.addEventListener('popstate', (e
     layer.id = 'aio-refresh-progress-layer';
     layer.setAttribute('role', 'status');
     layer.setAttribute('aria-live', 'polite');
-    layer.style.cssText = 'display:none;position:fixed;right:14px;top:58px;z-index:99998;width:min(360px,calc(100vw - 28px));background:var(--surface-2,#111827);border:1px solid var(--border,#2b3440);border-radius:8px;box-shadow:0 14px 34px rgba(0,0,0,.35);padding:10px 12px;color:var(--text-primary,#e5edf5);font-family:var(--font-sans,system-ui);';
+    layer.style.cssText = 'display:none;position:fixed;right:14px;top:58px;z-index:99998;width:min(360px,calc(100vw - 28px));background:var(--surface-2,#111827);border:1px solid var(--border,#2b3440);border-radius:4px;box-shadow:0 14px 34px rgba(0,0,0,.35);padding:10px 12px;color:var(--text-primary,#e5edf5);font-family:var(--font-sans,system-ui);';
     layer.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;"><div id="aio-refresh-progress-title" style="font-size:12px;font-weight:800;">전체 데이터 최신화</div><div id="aio-refresh-progress-count" style="font-size:11px;font-family:var(--font-mono,monospace);color:var(--data-cyan,#00d4ff);">0/0</div></div><div style="height:4px;background:var(--surface-4,#253040);border-radius:4px;overflow:hidden;margin-bottom:8px;"><div id="aio-refresh-progress-bar" style="height:100%;width:0%;background:var(--data-cyan,#00d4ff);transition:width .25s ease;"></div></div><div id="aio-refresh-progress-current" style="font-size:11px;color:var(--text-muted,#8b98a5);margin-bottom:8px;">대기 중</div><div id="aio-refresh-progress-list" style="display:grid;gap:4px;max-height:190px;overflow:auto;"></div>';
     document.body.appendChild(layer);
     return layer;
@@ -2815,13 +2815,13 @@ function renderTechnicalRegimeRow(result) {
   var heat = result.semiHeat || {};
   var regimeTone = s.above50SMA === false ? 'risk' : sp.score >= 38 ? 'warn' : 'bull';
   el.innerHTML =
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:8px;">' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
       '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Action</div><div style="margin-top:4px;">' + _itbBadge(sp.action || 'HOLD_CORE', _itbActionTone(sp.action)) + '</div></div>' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:8px;">' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
       '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Sell Pressure</div><div style="font-size:18px;font-weight:900;color:var(--text-primary);font-family:var(--font-mono);">' + _itbNum(sp.score, 0) + '/100</div></div>' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:8px;">' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
       '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Trend Regime</div><div style="margin-top:4px;">' + _itbBadge((s.above50SMA === false ? 'Below 50SMA' : 'Above key MAs'), regimeTone) + '</div></div>' +
-    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:7px;padding:8px;">' +
+    '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:8px;">' +
       '<div style="font-size:10px;color:var(--text-muted);font-weight:700;">Semi Heat</div><div style="margin-top:4px;">' + _itbBadge(heat.state || 'DATA', heat.state === 'SEMI_MANIA' ? 'risk' : heat.state === 'SEMI_HEATED' ? 'warn' : 'bull') + '</div></div>';
 }
 
@@ -2899,11 +2899,11 @@ function renderLockoutDashboard(result) {
   var opex = result.opexGammaRisk || {};
   var breadth = result.breadthRotation || {};
   var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;">' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Lockout Action</div><div style="margin-top:5px;">' + _itbBadge(lock.action || 'HOLD_CORE', _itbActionTone(lock.action)) + '</div></div>' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Regime</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(lock.regime || 'LOCKOUT_CONTINUATION') + '</div></div>' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Risk</div><div style="font-size:18px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(lock.score, 0) + '/100</div></div>' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">OPEX</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(opex.daysToOpex == null ? 'n/a' : ('D-' + opex.daysToOpex)) + '</div></div>' +
-    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Candle</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(candle.type || 'NEUTRAL') + '</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Lockout Action</div><div style="margin-top:5px;">' + _itbBadge(lock.action || 'HOLD_CORE', _itbActionTone(lock.action)) + '</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Regime</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(lock.regime || 'LOCKOUT_CONTINUATION') + '</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Risk</div><div style="font-size:18px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(lock.score, 0) + '/100</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">OPEX</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(opex.daysToOpex == null ? 'n/a' : ('D-' + opex.daysToOpex)) + '</div></div>' +
+    '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:8px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Candle</div><div style="font-size:11px;font-weight:900;color:var(--text-primary);margin-top:5px;">' + escHtml(candle.type || 'NEUTRAL') + '</div></div>' +
   '</div>' +
   '<div style="font-size:10px;color:var(--text-muted);line-height:1.55;margin-top:8px;">Lockout rallies do not end because RSI is hot. Risk rises when demand weakens, breakouts fail, OPEX gamma support decays, or price loses the 10/21/50-day lines.</div>' +
   _renderFlagList([].concat(lock.flags || [], ext.flags || [], breadth.flags || []).slice(0, 10));
@@ -2948,20 +2948,20 @@ function renderBlowoffTopPanel(blowoffTop) {
       '<div style="display:flex;gap:6px;align-items:center;">' + _itbBadge(blowoffTop.state || 'DATA', tone) + _itbBadge(blowoffTop.action || 'HOLD_CORE', tone) + '<span style="font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _itbNum(blowoffTop.score, 0) + '/100</span></div>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">' +
-      '<div style="background:#0e1622;border:1px solid rgba(255,91,80,0.28);border-radius:6px;padding:10px;border-left:3px solid #ff5b50;">' +
+      '<div style="background:#0e1622;border:1px solid rgba(255,91,80,0.28);border-radius:3px;padding:10px;border-left:3px solid #ff5b50;">' +
         '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:5px;">현재 충족 조건 (위험 신호)</div>' +
         checks.map(function(c) { return renderLine(c, false); }).join('') +
       '</div>' +
-      '<div style="background:#0e1622;border:1px solid rgba(92,255,149,0.24);border-radius:6px;padding:10px;border-left:3px solid #5cff95;">' +
+      '<div style="background:#0e1622;border:1px solid rgba(92,255,149,0.24);border-radius:3px;padding:10px;border-left:3px solid #5cff95;">' +
         '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:5px;">아직 미충족 조건 (상승 유지 근거)</div>' +
         supports.map(function(c) { return renderLine(c, true); }).join('') +
       '</div>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px;">' +
-      '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:10px;">' +
+      '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:3px;padding:10px;">' +
         '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:7px;">Event Runway</div>' + (timeline || '<div style="font-size:11px;color:var(--text-muted);">No event context</div>') +
       '</div>' +
-      '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:10px;">' +
+      '<div style="background:#0b1222;border:1px solid rgba(255,255,255,0.07);border-radius:3px;padding:10px;">' +
         '<div style="font-size:10px;font-weight:900;color:var(--text-muted);margin-bottom:7px;">Beginner Translation</div>' +
         '<div style="font-size:11px;color:var(--text-secondary);line-height:1.65;">상승장이 강해도 가격이 20일선·50일선에서 너무 멀고, 거래량 급증 뒤 종가가 약하거나 이벤트가 끝나면 추격매수보다 스탑 상향과 일부 익절이 먼저입니다. 반대로 10/21EMA와 수급 확산이 살아 있으면 전량 매도 신호로 보지 않습니다.</div>' +
       '</div>' +

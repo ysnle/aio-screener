@@ -2332,10 +2332,10 @@ if (typeof document !== 'undefined') {
         if (on) {
           var dateStr = drift.stamp.date || '최근';
           var reasonsHtml = drift.reasons.filter(function(r){ return r.sev === 'severe'; }).map(function(r){ return r.msg; }).join(' · ');
-          banner.style.cssText = 'display:block;margin:0 0 10px 0;padding:9px 12px;background:rgba(255,90,80,0.12);border:1px solid rgba(255,90,80,0.45);border-radius:8px;font-size:12px;line-height:1.55;color:var(--text-primary);';
+          banner.style.cssText = 'display:block;margin:0 0 10px 0;padding:9px 12px;background:rgba(255,90,80,0.12);border:1px solid rgba(255,90,80,0.45);border-radius:4px;font-size:12px;line-height:1.55;color:var(--text-primary);';
           banner.innerHTML = '<strong style="color:#ff7a70;">⚠ 정적 분석 텍스트는 ' + dateStr + ' 기준입니다 — 현재 시장이 그때와 크게 다릅니다.</strong>' +
             '<span style="color:var(--text-secondary);"> ' + reasonsHtml + '. 시나리오·해설·주간 요약 텍스트는 <b>참고용</b>으로만 보시고, 상단의 실시간 시세·지표를 우선하세요.</span>' +
-            ' <button data-action="_aioDismissRegimeDrift" style="margin-left:6px;background:none;border:1px solid rgba(255,90,80,0.5);color:#ff7a70;border-radius:5px;font-size:11px;padding:2px 8px;cursor:pointer;">닫기</button>';
+            ' <button data-action="_aioDismissRegimeDrift" style="margin-left:6px;background:none;border:1px solid rgba(255,90,80,0.5);color:#ff7a70;border-radius:3px;font-size:11px;padding:2px 8px;cursor:pointer;">닫기</button>';
         } else {
           banner.style.display = 'none';
           banner.innerHTML = '';
@@ -2512,7 +2512,7 @@ if (typeof document !== 'undefined') {
         host = document.createElement('div');
         host.id = 'briefing-digest';
         // v50.32: 브리핑 본론 카드로 격상 (accent 좌측 스트립 + 또렷한 배경)
-        host.style.cssText = 'margin:10px 0 14px;padding:14px 16px;background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(0,212,255,0.02));border:1px solid rgba(0,212,255,0.28);border-left:3px solid var(--accent);border-radius:10px;font-size:12.5px;line-height:1.8;color:var(--text-secondary);';
+        host.style.cssText = 'margin:10px 0 14px;padding:14px 16px;background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(0,212,255,0.02));border:1px solid rgba(0,212,255,0.28);border-left:3px solid var(--accent);border-radius:4px;font-size:12.5px;line-height:1.8;color:var(--text-secondary);';
         var headRow = section.firstElementChild;
         if (headRow) headRow.insertAdjacentElement('afterend', host); else section.insertBefore(host, section.firstChild);
       }
@@ -2899,7 +2899,7 @@ if (typeof document !== 'undefined') {
         host = document.createElement('div');
         host.id = hostId;
         host.className = 'aio-page-news-strip';
-        host.style.cssText = 'margin:8px 0 12px;padding:8px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;';
+        host.style.cssText = 'margin:8px 0 12px;padding:8px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;';
         var anchor = page.querySelector('.insight-box');
         while (anchor && anchor.parentElement !== page) anchor = anchor.parentElement;
         if (anchor && anchor.parentElement === page) anchor.insertAdjacentElement('afterend', host);
@@ -3086,7 +3086,7 @@ window._aioShowOnboarding = function() {
   modal.setAttribute('aria-labelledby', 'aio-onboard-title');
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
   modal.innerHTML = '' +
-    '<div class="aio-prompt-modal" style="background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:22px 26px;max-width:540px;width:100%;max-height:86vh;overflow-y:auto;box-shadow:var(--shadow-lg);">' +
+    '<div class="aio-prompt-modal" style="background:var(--bg-card);border:1px solid var(--border-strong);border-radius:4px;padding:22px 26px;max-width:540px;width:100%;max-height:86vh;overflow-y:auto;box-shadow:var(--shadow-lg);">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">' +
         '<h2 id="aio-onboard-title" style="margin:0;font-size:17px;font-weight:700;color:var(--text-primary);">API 연결 안내</h2>' +
         '<button data-action="_aioOnboardDismiss" aria-label="온보딩 닫기" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:4px 8px;">✕</button>' +
@@ -3095,28 +3095,28 @@ window._aioShowOnboarding = function() {
         '본 터미널은 <strong>5개 무료 API</strong>를 조합하여 실시간 시장 분석 · 포트폴리오 · AI 채팅을 제공합니다. 아래 순서로 API 키를 설정하세요 (모두 무료, 신용카드 불필요).' +
       '</div>' +
       '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">' +
-        '<div style="padding:10px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:7px;">' +
+        '<div style="padding:10px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:3px;">' +
           '<div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--data-cyan);margin-bottom:4px;">' +
             '<span style="background:var(--data-cyan);color:#001018;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">1</span>' +
             '<span>Claude API (필수) — AI 채팅·분석</span>' +
           '</div>' +
           '<div style="font-size:11px;color:var(--text-muted);padding-left:28px;line-height:1.6;"><a href="https://console.anthropic.com" target="_blank" rel="noopener" style="color:var(--data-cyan);">console.anthropic.com</a>에서 발급 · $5 무료 크레딧</div>' +
         '</div>' +
-        '<div style="padding:10px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:7px;">' +
+        '<div style="padding:10px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:3px;">' +
           '<div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--data-amber);margin-bottom:4px;">' +
             '<span style="background:var(--data-amber);color:#001018;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">2</span>' +
             '<span>Finnhub (강력 권장) — 실시간 시세·어닝·뉴스</span>' +
           '</div>' +
           '<div style="font-size:11px;color:var(--text-muted);padding-left:28px;line-height:1.6;"><a href="https://finnhub.io/register" target="_blank" rel="noopener" style="color:var(--data-amber);">finnhub.io/register</a> · 60 req/min 무료</div>' +
         '</div>' +
-        '<div style="padding:10px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:7px;">' +
+        '<div style="padding:10px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:3px;">' +
           '<div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--data-green);margin-bottom:4px;">' +
             '<span style="background:var(--data-green);color:#001018;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">3</span>' +
             '<span>FMP (권장) — 기업 재무·밸류에이션</span>' +
           '</div>' +
           '<div style="font-size:11px;color:var(--text-muted);padding-left:28px;line-height:1.6;"><a href="https://financialmodelingprep.com/developer" target="_blank" rel="noopener" style="color:var(--data-green);">financialmodelingprep.com</a> · 250 req/day 무료</div>' +
         '</div>' +
-        '<div style="padding:10px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;">' +
+        '<div style="padding:10px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:3px;">' +
           '<div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;">' +
             '<span style="background:var(--text-muted);color:#001018;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">4</span>' +
             '<span>FRED (선택) — 매크로 지표</span>' +
@@ -3124,7 +3124,7 @@ window._aioShowOnboarding = function() {
           '<div style="font-size:11px;color:var(--text-muted);padding-left:28px;line-height:1.6;"><a href="https://fred.stlouisfed.org/docs/api/api_key.html" target="_blank" rel="noopener" style="color:var(--text-secondary);">fred.stlouisfed.org</a> · 무제한 무료</div>' +
         '</div>' +
       '</div>' +
-      '<div style="padding:10px 12px;background:var(--data-cyan-light);border:1px solid var(--accent-border);border-radius:7px;margin-bottom:14px;font-size:11px;color:var(--text-secondary);line-height:1.6;">' +
+      '<div style="padding:10px 12px;background:var(--data-cyan-light);border:1px solid var(--accent-border);border-radius:3px;margin-bottom:14px;font-size:11px;color:var(--text-secondary);line-height:1.6;">' +
         '<strong style="color:var(--data-cyan);">키 없이도 사용 가능</strong> — Yahoo/Stooq/Naver/CoinGecko 공개 시세 + 정적 스냅샷 데이터. 단 AI 채팅·기업 재무는 키 필요.' +
       '</div>' +
       '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
@@ -13685,7 +13685,7 @@ function _showChartFallback(canvas, chartName, reason) {
   var overlay = document.createElement('div');
   overlay.className = 'aio-chart-fallback';
   overlay.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;' +
-    'width:100%;min-height:120px;background:rgba(0,0,0,0.15);border-radius:8px;padding:16px;box-sizing:border-box;';
+    'width:100%;min-height:120px;background:rgba(0,0,0,0.15);border-radius:4px;padding:16px;box-sizing:border-box;';
   overlay.innerHTML = '<div style="font-size:24px;margin-bottom:6px;opacity:0.5;"></div>' +
     '<div style="font-size:11px;color:var(--text-muted);font-weight:600;">' + (chartName || '차트') + '</div>' +
     '<div class="aio-chart-fb-reason" style="font-size:10px;color:#f87171;margin-top:2px;">' + reason + '</div>' +
@@ -17053,7 +17053,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v50.99';
+const APP_VERSION = 'v51.06';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -22290,7 +22290,7 @@ function _initBriefingPage() {
       } else {
         bc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' +
           '뉴스 수신 시간 초과 — 네트워크 상태를 확인하세요.<br>' +
-          '<button data-action="_aioBriefingRetry" style="background:var(--data-cyan-soft);border:1px solid var(--data-cyan-dim);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:5px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
+          '<button data-action="_aioBriefingRetry" style="background:var(--data-cyan-soft);border:1px solid var(--data-cyan-dim);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:3px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
           '</div>';
       }
     }
