@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v51.08';
-const SW_BUILD = '2026-06-22T16:00:00+09:00';
+const SW_VERSION = 'v51.20';
+const SW_BUILD = '2026-06-23T00:00:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -119,7 +119,7 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
-  // 1) 앱 셸 — Cache-First (네트워크 실패 시에도 즉시 응답)
+  // 1) 앱 셸 — Network-First (응답 후 캐시 갱신, 오프라인 시 캐시 폴백)
   const reqUrl = new URL(url);
   const scopeUrl = new URL(self.registration.scope);
   const isShell = SHELL_ASSETS.some(function(asset) {
@@ -147,30 +147,6 @@ self.addEventListener('fetch', function(event) {
     );
     return;
   }
-  if (isShell) {
-    event.respondWith(
-      caches.match(request).then(function(cached) {
-        if (cached) {
-          // 백그라운드 갱신 (stale-while-revalidate)
-          fetch(request).then(function(fresh) {
-            if (fresh && fresh.ok) {
-              caches.open(SHELL_CACHE).then(function(c) { c.put(request, fresh.clone()); });
-            }
-          }).catch(function(){});
-          return cached;
-        }
-        return fetch(request).then(function(resp) {
-          if (resp && resp.ok) {
-            var clone = resp.clone();
-            caches.open(SHELL_CACHE).then(function(c) { c.put(request, clone); });
-          }
-          return resp;
-        });
-      })
-    );
-    return;
-  }
-
   // 2) 데이터/API — Network-First + 캐시 폴백 (offline 시 마지막 캐시 응답)
   const isData = DATA_URL_PATTERNS.some(function(re) { return re.test(url); });
   const isNews = NEWS_URL_PATTERNS.some(function(re) { return re.test(url); });
@@ -253,3 +229,5 @@ self.addEventListener('message', function(event) {
     });
   }
 });
+
+

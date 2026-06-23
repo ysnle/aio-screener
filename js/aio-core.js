@@ -40,7 +40,7 @@ document.addEventListener('error', function(e) {
   var _buf = [];
   var _rateCounter = { warn: 0, error: 0, lastReset: Date.now() };
   var _consoleMap = { debug: 'log', info: 'log', warn: 'warn', error: 'error' };
-  var _colorMap = { debug: '#7b8599', info: '#00d4ff', warn: '#ffa31a', error: '#ff5b50' };
+  var _colorMap = { debug: '#7b8599', info: '#00bcd4', warn: '#ffa31a', error: '#ff5b50' };
 
   function _resetRateIfNeeded() {
     var now = Date.now();
@@ -570,7 +570,7 @@ window._aioClearAllTimers = function() {
     seriesList.forEach(function(s, si) {
       var data = (s.data || []).map(Number).filter(function(v) { return isFinite(v); });
       if (!data.length) return;
-      ctx.strokeStyle = s.color || '#00d4ff';
+      ctx.strokeStyle = s.color || '#00bcd4';
       ctx.lineWidth = s.width || 2;
       ctx.beginPath();
       data.forEach(function(v, i) {
@@ -580,7 +580,7 @@ window._aioClearAllTimers = function() {
       });
       ctx.stroke();
       var last = data[data.length - 1];
-      ctx.fillStyle = s.color || '#00d4ff';
+      ctx.fillStyle = s.color || '#00bcd4';
       ctx.beginPath(); ctx.arc(width - padR - 3, yFor(last), 3, 0, Math.PI * 2); ctx.fill();
       if (si === 0 && opts.fill !== false) {
         ctx.lineTo(width - padR, padT + plotH);
@@ -630,7 +630,7 @@ window._aioClearAllTimers = function() {
     var page = pageId ? document.getElementById('page-' + pageId) : (document.querySelector('.page.active') || document);
     if (!page) return 0;
     var presets = {
-      'bp-ad-ratio-chart': { label: 'Breadth live feed unavailable', color: '#00d4ff', data: [50, 49, 51, 50, 50, 50] },
+      'bp-ad-ratio-chart': { label: 'Breadth live feed unavailable', color: '#00bcd4', data: [50, 49, 51, 50, 50, 50] },
       'bp-price-chart': { label: 'SPX breadth price unavailable', color: '#a78bfa', data: [100, 100.1, 99.9, 100.2, 100.0, 100.1] },
       'bp-5ma-chart': { label: '5DMA breadth unavailable', color: '#00e5a0', data: [50, 50, 50, 50, 50, 50] },
       'bp-20ma-chart': { label: '20DMA breadth unavailable', color: '#ffa31a', data: [50, 50, 50, 50, 50, 50] },
@@ -641,11 +641,11 @@ window._aioClearAllTimers = function() {
       'bh-50ma-chart': { label: 'NDX 50DMA breadth unavailable', color: '#ff5b50', data: [50, 50, 50, 50, 50, 50] },
       'fred-unrate-chart': { label: 'FRED unemployment (참고)', color: '#ff5b50', data: [4.1, 4.2, 4.2, 4.3, 4.3, 4.3], status: 'fred-chart-status' },
       'fred-cpi-chart': { label: 'FRED CPI (참고)', color: '#ffa31a', data: [3.5, 3.6, 3.7, 3.8, 3.8, 3.8], status: 'fred-chart-status' },  // v50.15: 2.9→3.8 (현재 CPI YoY 정합, 기존 stale)
-      'fred-fedfunds-chart': { label: 'FRED Fed Funds (참고)', color: '#00d4ff', data: [4.0, 3.75, 3.75, 3.625, 3.625, 3.625], status: 'fred-chart-status' },  // v50.15: 4.5-5.25→3.625 (현재 3.50-3.75% 정합)
+      'fred-fedfunds-chart': { label: 'FRED Fed Funds (참고)', color: '#00bcd4', data: [4.0, 3.75, 3.75, 3.625, 3.625, 3.625], status: 'fred-chart-status' },  // v50.15: 4.5-5.25→3.625 (현재 3.50-3.75% 정합)
       'rrg-canvas': { label: 'RRG live data unavailable', color: '#00e5a0', data: [96, 98, 101, 103, 102, 104], status: 'rrg-chart-status' },
-      'sector-20d-chart': { label: 'Sector 20D live unavailable', color: '#00d4ff', data: [0, 0.2, -0.1, 0.4, 0.7, 0.5], status: 'sector-20d-status' },
+      'sector-20d-chart': { label: 'Sector 20D live unavailable', color: '#00bcd4', data: [0, 0.2, -0.1, 0.4, 0.7, 0.5], status: 'sector-20d-status' },
       'fund-var-chart': { label: 'Fundamental chart awaits ticker', color: '#a78bfa', data: [0, 1, 0.5, 1.8, 1.3, 2.2] },
-      'pf-benchmark-chart': { label: 'Portfolio benchmark awaits holdings', color: '#00d4ff', data: [100, 100.4, 100.1, 100.8, 101.2, 101.0] },
+      'pf-benchmark-chart': { label: 'Portfolio benchmark awaits holdings', color: '#00bcd4', data: [100, 100.4, 100.1, 100.8, 101.2, 101.0] },
       'pf-position-donut': { type: 'message', label: 'Portfolio awaits holdings' },
       'ticker-price-chart': { label: 'Ticker price reference', color: '#00e5a0', data: [100, 101.2, 100.7, 102.4, 103.1, 102.8] },
       'kr-vkospi-chart': { label: 'VKOSPI reference', color: '#ff5b50', data: [17.5, 17.8, 17.6, 17.3, 17.0, 18.2, 21.0] }  // v50.15: 오류값(82.0 등) 정정 — VKOSPI 정상 12~25
@@ -1549,7 +1549,7 @@ window._aioBreadthCanvasRender = function() {
     'bh-50ma-chart':     seriesOrFallback('bh-50ma-chart', bld.ndx50Series, b50, null)
   };
   var colorMap = {
-    'bp-ad-ratio-chart': '#00d4ff',
+    'bp-ad-ratio-chart': '#00bcd4',
     'bp-price-chart':    '#a855f7',
     'bp-5ma-chart':      '#00e5a0',
     'bp-20ma-chart':     '#ffa31a',
@@ -3570,11 +3570,11 @@ window.AIO_EVENT_FRESHNESS_REGISTRY = {
   },
   iranHormuzOil: {
     label: 'Iran/Hormuz/Oil',
-    eventDate: '2026-06-18',
-    status: 'REACTION_MONITOR',
-    result: '호르무즈 재개 기대와 유가 리스크 완화가 반영됐지만 꼬리위험은 잔존',
-    marketReaction: 'WTI/Brent 급락은 인플레 압력을 낮추나, 헤드라인 반전에는 민감',
-    nextCheckpoint: '협상 서명 여부, 실제 통항, WTI 75/80달러 회복 여부'
+    eventDate: '2026-06-23',
+    status: 'RESULT_REVIEW',
+    result: '미 재무부 이란산 원유·석유제품 판매 60일 한시 일반면허 발급(2026-06-23). WTI $74.82(-2.32%)·브렌트 $77.90(-3.31%). 중동 전쟁 프리미엄 대부분 제거 → 시장 관심이 지정학→공급 과잉으로 이동. 미 SPR 3.312억 배럴(1983년 이후 최저). 트럼프: 호르무즈 완전 개방·협상 순조. 이란: 핵프로그램 신규 약속 없다 반박(불확실성 잔존). 후속 기술 협상 이번 주 예정.',
+    marketReaction: 'WTI $74 구간 = 인플레 추가 완화, 항공·운송·소비재 비용 이점. 에너지주는 수익성 압박. 공급 과잉 우려 현실화 시 WTI $70 테스트 가능. SPR 저점 = 추가 방출 여력 제한.',
+    nextCheckpoint: '60일 로드맵 이행 첫 점검(7월말), 이란 동결자산 해제 시점, WTI $70 하방 돌파 여부, 후속 기술 협상 결과, 루비오 걸프협력회의 결과'
   }
 };
 
@@ -4416,7 +4416,7 @@ function _aioDrawVisualReportCanvas(canvas, model) {
   ctx.lineWidth = 2;
   ctx.strokeRect(48, 48, 984, 1254);
 
-  ctx.fillStyle = '#00d4ff';
+  ctx.fillStyle = '#00bcd4';
   ctx.font = '700 30px Inter, Arial, sans-serif';
   ctx.fillText('AIO SCREENER', 86, 112);
   ctx.fillStyle = '#8ea0b8';
@@ -4438,7 +4438,7 @@ function _aioDrawVisualReportCanvas(canvas, model) {
   ctx.font = '28px Inter, Arial, sans-serif';
   _aioWrapCanvasText(ctx, model.action, 112, 440, 850, 36, 2);
 
-  ctx.fillStyle = '#00d4ff';
+  ctx.fillStyle = '#00bcd4';
   ctx.font = '800 26px Inter, Arial, sans-serif';
   ctx.fillText('WHY IT MATTERS', 86, 550);
   ctx.font = '25px Inter, Arial, sans-serif';
@@ -13475,7 +13475,7 @@ if (typeof Chart !== 'undefined') {
 
 // v48.42: 차트 데이터 색 팔레트 — 모든 코드에서 사용 가능
 window.AIO_CHART_PALETTE = {
-  cyan:    '#00d4ff',
+  cyan:    '#00bcd4',
   magenta: '#ff4d97',
   purple:  '#a855f7',
   amber:   '#ffa31a',
@@ -13485,7 +13485,7 @@ window.AIO_CHART_PALETTE = {
   blue:    '#4a9eff',
   grid:    'rgba(255,255,255,0.06)',
   axis:    'rgba(255,255,255,0.10)',
-  series:  ['#00d4ff', '#ff4d97', '#a855f7', '#00e5a0', '#ffa31a', '#ffd93d', '#4a9eff', '#ff5b50']
+  series:  ['#00bcd4', '#ff4d97', '#a855f7', '#00e5a0', '#ffa31a', '#ffd93d', '#4a9eff', '#ff5b50']
 };
 
 window._aioVaultPublicMode = function(el) {
@@ -15278,7 +15278,7 @@ function _vaultSetPin() {
   var v1 = pin1.value.trim(), v2 = pin2.value.trim();
   if (v1.length < 4) { msg.textContent = 'PIN은 4자리 이상'; msg.style.color = '#ff5b50'; return; }
   if (v1 !== v2) { msg.textContent = 'PIN이 일치하지 않습니다'; msg.style.color = '#ff5b50'; return; }
-  msg.textContent = '암호화 중…'; msg.style.color = '#00d4ff';
+  msg.textContent = '암호화 중…'; msg.style.color = '#00bcd4';
   _AioVault.unlock(v1).then(function() {
     return _migrateToEncrypted();
   }).then(function() {
@@ -15296,7 +15296,7 @@ function _vaultUnlock() {
   if (!pin) return;
   var v = pin.value.trim();
   if (!v) { msg.textContent = 'PIN을 입력하세요'; msg.style.color = '#ff5b50'; return; }
-  msg.textContent = '잠금 해제 중…'; msg.style.color = '#00d4ff';
+  msg.textContent = '잠금 해제 중…'; msg.style.color = '#00bcd4';
   _AioVault.unlock(v).then(function() {
     // 복호화된 키를 input 필드에 복원
     return _restoreDecryptedKeys();
@@ -16037,7 +16037,7 @@ window.AIO.charts = {
         crosshair: { mode: LightweightCharts.CrosshairMode.Normal }
       });
       var series = chart.addLineSeries({
-        color: options.color || '#00d4ff',
+        color: options.color || '#00bcd4',
         lineWidth: options.lineWidth || 2,
         priceFormat: options.priceFormat || { type: 'price', precision: 2, minMove: 0.01 }
       });
@@ -16102,7 +16102,7 @@ window.AIO.charts = {
       var seriesList = [];
       for (var i = 0; i < seriesConfig.length; i++) {
         var cfg = seriesConfig[i];
-        var s = chart.addLineSeries({ color: cfg.color || '#00d4ff', lineWidth: cfg.lineWidth || 2, title: cfg.name });
+        var s = chart.addLineSeries({ color: cfg.color || '#00bcd4', lineWidth: cfg.lineWidth || 2, title: cfg.name });
         if (Array.isArray(cfg.data)) s.setData(cfg.data);
         seriesList.push(s);
       }
@@ -17053,7 +17053,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.08';
+const APP_VERSION = 'v51.20';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -22842,9 +22842,9 @@ window.AIO.getColorContrastAudit = function() {
     { label: '--text-primary',        fg: '#f0f4fc', bg: bg },
     { label: '--data-green (bull)',    fg: '#00e5a0', bg: bg },
     { label: '--data-red (bear)',      fg: '#ff5b50', bg: bg },
-    { label: '--accent (cyan)',        fg: '#00d4ff', bg: bg },
+    { label: '--accent (cyan)',        fg: '#00bcd4', bg: bg },
     { label: '--data-amber',           fg: '#ffa31a', bg: bg },
-    { label: 'fund-tab active bg',     fg: '#00d4ff', bg: '#1a2035' },
+    { label: 'fund-tab active bg',     fg: '#00bcd4', bg: '#1a2035' },
   ];
   var results = pairs.map(function(p) {
     var r = _ratio(p.fg, p.bg);
@@ -22855,3 +22855,21 @@ window.AIO.getColorContrastAudit = function() {
   return { pairs: results, allPass: allPass, failCount: failCount,
     summary: 'WCAG AA (' + (allPass ? '✓ 전체 통과' : '✗ ' + failCount + '건 미달') + ')' };
 };
+
+// ── 공유 포맷 유틸 (원소유: aio-chat.js → aio-core.js 승격 v51.16) ────────
+// 의존: window._aioFiniteNum (이 파일 line ~788). aio-ui.js·aio-chat.js에서 local alias로 사용.
+function _fmtNum(v) {
+  var fv = (typeof window._aioFiniteNum === 'function') ? window._aioFiniteNum(v) : (v != null && isFinite(v) ? v : null);
+  if (fv === null) return '—';
+  var abs = Math.abs(fv);
+  if (abs >= 1e12) return (fv/1e12).toFixed(2) + 'T';
+  if (abs >= 1e9)  return (fv/1e9).toFixed(2)  + 'B';
+  if (abs >= 1e6)  return (fv/1e6).toFixed(1)  + 'M';
+  if (abs >= 1e3)  return (fv/1e3).toFixed(1)  + 'K';
+  return fv.toFixed(2);
+}
+function _fmtPct(v) { return v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : 'N/A'; }
+window._fmtNum = _fmtNum;
+window._fmtPct = _fmtPct;
+
+

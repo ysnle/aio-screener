@@ -23,7 +23,7 @@ var SCREENER_DB = [
   // ══════════════════════════════════════════════════════════════
   { sym:'NVDA', name:'NVIDIA', sector:'Technology', signal:'BUY', memo:'[Computex GTC 타이페이 06/01~] 젠슨 황 기조연설+Windows PC 진출(MS 서피스·DELL 협력) · 폭스콘 Vera Rubin 2H26 출하 낙관 · 젠슨 황 2026 매출 성장률 ~100%·2027년도 동등 규모 · 린스에쿼티 단기 $250 근접 · [Q1 FY27 어닝 05/20] EPS $1.87(컨센 $1.76, +6.25%beat) Next 8/26 · [Citi+JPM 04/21] CX9 NIC 일부 2027 이월(CX8 대체불가) · Vera CPU 2H 마진·CPO 순풍·Rubin Ultra 회복 · AVGO/MRVL ASIC 경쟁 리스크 · Alpamayo 오픈소스 AV', mcap:4197, rsi:48, index:'SP500' },
   { sym:'AAPL', name:'Apple', sector:'Technology', signal:'HOLD', memo:'[Q2 FY26 어닝 04/30] 매출 $111.2B (+17% YoY, beat) · EPS $2.01 (+22% YoY, beat) · GM 49.3% (guidance 상회) · Next 7/30. [JPM 04/21] CEO 전환 Tim Cook→John Ternus(50세) 2026-09-01 · 하드웨어 중심 리더십(아이폰/맥/에어팟/비전프로 총괄, M시리즈 전환 주역) · 팀쿡 Executive Chairman 잔류(정책·관세) · Johny Srouji CHO 승격(A4 설계자) · Arthur Levinson lead independent director · 긍정 평가(스마트폰 이후 폼팩터+AI 매개체 대비) · 투자자 관심: (1)팀쿡급 실행력 지속 (2)서비스 우선순위 (3)AI 전략·개인화 Siri WWDC 주목', mcap:3645, rsi:52, index:'SP500' },
-  { sym:'GOOGL', name:'Alphabet', sector:'Technology', signal:'BUY', memo:'[JPM 04/29] PT$460 OW유지 · 검색+19%(사상최고 쿼리) Cloud$20B(+63%) · Cloud 백로그$4,620억(전분기 거의 2배) · GenAI 매출+800%YoY · CY26 CapEx $1,800-1,900억(기존$1,750-1,850 상향) · CY27 대폭증가 예고 · Gemini 분당160억토큰(QoQ+60%) · Fabric 유료고객35,000(+60%YoY) · AI 풀스택 역량 전면발현 · [TDCowen PT$375↑] CAGR13.6%·Waymo 2030 49시장·AV예약2035 $200억+ · FCF-P/E 28.3x', mcap:3641, rsi:52, index:'SP500' },
+  { sym:'GOOGL', name:'Alphabet', sector:'Technology', signal:'HOLD', memo:'[2026-06-23 ⚠️] DeepMind 핵심 인재 연이은 이탈·Anthropic 이동 → 투자심리 악화. GOOG -7%(13개월 최대 낙폭). A24 AI 협력 $7,500만 투자. SpaceX 지분가치 하락 부담. [JPM 04/29] PT$460 OW유지 · 검색+19%(사상최고 쿼리) Cloud$20B(+63%) · Cloud 백로그$4,620억(전분기 거의 2배) · GenAI 매출+800%YoY · CY26 CapEx $1,800-1,900억 · CY27 대폭증가 · Gemini 분당160억토큰(QoQ+60%) · Fabric 유료고객35,000(+60%YoY) · [TDCowen PT$375↑] CAGR13.6%·Waymo 2030 49시장 · FCF-P/E 28.3x · Interactions API GA', mcap:3641, rsi:52, index:'SP500' },
   { sym:'MSFT', name:'Microsoft', sector:'Technology', signal:'BUY', memo:'[Computex 06/02] 서피스 브랜드로 NVDA ARM칩 기반 Windows PC 공식 출시 협력 · 로컬 AI 에이전트 강화(클라우드 비용 절감·온디바이스 AI) · [JPM 04/29] PT$550 Azure+39%CC · F4Q 가이던스 39-40%CC · Copilot 2,000만석(FQ2→FQ3 +33%) · AI ARR $37B(+123%YoY) · CY26 CapEx $1,900억(메모리가격상승 $250억 포함) · [Citi] PT$620↑ · E7 $99/월(Copilot+Entra+Agent) · 삼성→MS LTA 선지급 $100억+(메모리 공급 확보)', mcap:2838, rsi:50, index:'SP500' },
   { sym:'AMZN', name:'Amazon', sector:'Technology', signal:'BUY', memo:'[JPM 04/29] PT$330 OW유지 · AWS+28%(15분기 최고) 런레이트$1,500억 · 백로그$3,640억(전분기 거의 2배·Anthropic $100B 미포함) · Trainium $2,250억 약정 · Bedrock+170% QoQ · 칩 런레이트$20B+ · 2026 Capex $2,000억 · [Citi PT$285/Jefferies $300/WF $305] · Globalstar 인수', mcap:2205, rsi:48, index:'SP500' },
   { sym:'META', name:'Meta Platforms', sector:'Technology', signal:'HOLD', memo:'[하드웨어 로드맵 05/30] AI 펜던트 2027 테스트 시작 + AI 안경 라인업 대폭 확대 + "업무용 웨어러블(Wearables for Work)" 서비스 신설(The Information 내부문건). 하드웨어 적자 만회용 수익화 전략 구체화. [JPM 04/29] 하향 OW→N PT$725(기존$825↓) · 광고+33% 강하나 CapEx $1,250-1,450억↑ · FCF 2026E -$40억/2027E -$240억 전환 · [번스타인 PT$900] Muse Spark 첫 진전·메타AI 세션 두자릿수 증가 · 릴스+10%YoY · CoreWeave $350억(2032)', mcap:1502, rsi:48, index:'SP500' },
@@ -58,13 +58,13 @@ var SCREENER_DB = [
   { sym:'CSCO', name:'Cisco Systems', sector:'Technology', signal:'HOLD', memo:'네트워킹 장비 · AI 인프라 스위칭 수요', mcap:230, rsi:52, index:'DOW30' },
   { sym:'DIS', name:'Walt Disney', sector:'Communication Services', signal:'HOLD', memo:'스트리밍 흑자 전환 · 테마파크 · ESPN 재편', mcap:195, rsi:45, index:'DOW30' },
   { sym:'PLTR', name:'Palantir', sector:'Technology', signal:'BUY', memo:'[Citi PT$210 / Mizuho PT$185 (v48.87 05/07)] 1Q26 확정: 매출 +85% YoY(비트). US Commercial +133% YoY, US Government +76% YoY. Rule of 40 = 145%. NDR 150%. FY26 가이던스 +71%. AIP 플랫폼 고착도 극단화 → 탈출 비용 구조 진입. [기존] 골든돔 $1,850억 소프트웨어 레이어 핵심 · Maven 공식 전력화 프로그램 지정 · ShipOS/GE 에어로스페이스 다년 파트너십 · NVIDIA 소버린 AI OS 레퍼런스(블랙웰 울트라) · "Rule of 120+" · 리스크: NHS FDP 규제 · EV/매출 27E 47x', mcap:360, rsi:55, index:'SP500' },
-  { sym:'MU', name:'Micron Technology', sector:'Technology', signal:'BUY', memo:'[Susquehanna 05/29] PT$1750(기존$600↑↑) · Q2 DRAM ASP +50~60%QoQ · Q2 NAND ASP +75~100%QoQ · [JPM 05/29] NVDA용 HBM 점유 ~20%(2중 체제 참여) + ASIC용 HBM도 2중 체제 참여 = 양쪽 성장 · 글로벌 메모리 선호주 ③위 · TrendForce DRAM 2026E $619B(+303%YoY)·2027E $903B(+46%) · Dell 공급 제약 ①NAND ②DRAM 실증 · [DA Davidson 04/29] PT$1000 FY30 매출$393B 5년SCA · [Melius 04/29] PT$700 역SaaS G1-G4 · HBM4 CY26 완판 · AVGO 연중반 HBM+CoWoS 주문 압박', mcap:477, rsi:42, index:'SP500' },
+  { sym:'MU', name:'Micron Technology', sector:'Technology', signal:'BUY', memo:'[2026-06-23] Anthropic 전략제휴 확정 — HBM·DRAM·SSD 공급계약 + AI 메모리 아키텍처 공동개발. Micron = Anthropic 시리즈A 투자자 확인. AI 메모리 수요 장기화 구조 재확인. [Needham] 메모리 가격 상승+AI 수요 근거 목표가 상향. [Susquehanna 05/29] PT$1750(기존$600↑↑) · Q2 DRAM ASP +50~60%QoQ · Q2 NAND ASP +75~100%QoQ · [JPM 05/29] NVDA용 HBM 점유 ~20% + ASIC용 HBM 양쪽 성장 · TrendForce DRAM 2026E $619B(+303%YoY)·2027E $903B(+46%) · [DA Davidson 04/29] PT$1000 FY30 매출$393B · [Melius] PT$700 역SaaS G1-G4 · HBM4 CY26 완판', mcap:477, rsi:42, index:'SP500' },
   { sym:'CAT', name:'Caterpillar', sector:'Industrials', signal:'BUY', memo:'[Citi 04/09] DC백업 발전기 MW당$100만(엔진$50만) · 리드타임 디젤12~18월/왕복36월 · 추론DC전환→스탠바이MW↑(100IT→175백업) · 발전부문 매출 상향여지', mcap:319, rsi:58, index:'DOW30' },
-  { sym:'RTX', name:'Raytheon Tech', sector:'Industrials', signal:'BUY', memo:'F-35/패트리엇 · 글로벌 방위비 증가 수혜', mcap:267, rsi:59, index:'SP500' },
+  { sym:'RTX', name:'Raytheon Tech', sector:'Industrials', signal:'BUY', memo:'[2026-06-23] 트럼프 방산 CEO 회동 참여(6/25) + 국방부 $52.9B 예산 요청(토마호크 생산 확대 포함) · F-35/패트리엇 · 중동 전후 탄약재고 보충 수요 · 글로벌 방위비 증가 수혜', mcap:267, rsi:59, index:'SP500' },
   { sym:'GS', name:'Goldman Sachs', sector:'Financials', signal:'HOLD', memo:'M&A/IPO 수수료 회복 · 자산관리 확대 · 4/13 어닝발표 — 바이백 블랙아웃 해제 후 첫 실적 · 롱온리 +24% 매수우위(데스크플로우) · 금리 H4L 환경 NII 안정', mcap:244, rsi:52, index:'DOW30' },
   { sym:'GE', name:'GE Aerospace', sector:'Industrials', signal:'BUY', memo:'항공 엔진 독점 듀오폴리(RR과) · LEAP+GE9X 수주잔고 $150B+ · MRO 서비스 매출 성장 · GE Vernova 분사 완료(전력+풍력) · 항공 여행 구조적 회복 · 국방 예산 확대 수혜 · PER 38x', mcap:220, rsi:58, index:'DOW30' },
   { sym:'INTC', name:'Intel', sector:'Technology', signal:'BUY', memo:'[NVDA PC 위협 06/01] NVDA ARM기반 Windows PC 진출 = x86 독점 침식 위협. 단, 에이전틱 AI에서 CPU 수요 구조적 증가(Dell 어닝콜: AI가 CPU 하네스 필수 확인)로 서버 DCAI 실질 수혜는 유지. [Citi BUY $95/Keybanc OW $110 04/25] 에이전틱 AI 주도 서버 CPU: GPU:CPU 1:8→1:4→대등 방향 · 1Q26 DCAI +22%YoY EPS $0.29 컨센 대폭 상회 · 18A 수율 내부 예상 초과 · 2H26 14A 수주 발표 예상 · 파운드리 2027말 손익분기점', mcap:100, rsi:55, index:'DOW30' },
-  { sym:'LMT', name:'Lockheed Martin', sector:'Industrials', signal:'BUY', memo:'트럼프 FY2027 $1.5T 국방예산(WWII후 최대증액) · F-35 조달 포함 · Golden Dome $185B · 인도태평양 억제력 강화 · 무기재고 재건', mcap:145, rsi:61, index:'SP500' },
+  { sym:'LMT', name:'Lockheed Martin', sector:'Industrials', signal:'BUY', memo:'[2026-06-23] 트럼프 방산 CEO 회동(6/25) + 국방부 $52.9B 예산 요청(패트리엇·THAAD·토마호크 생산 확대) · 중동 전후 탄약재고 보충 수요 부각 · [기존] 트럼프 FY2027 $1.5T 국방예산(WWII후 최대증액) · F-35 조달 · Golden Dome $185B · 인도태평양 억제력 강화', mcap:145, rsi:61, index:'SP500' },
   { sym:'ARM', name:'ARM Holdings', sector:'Technology', signal:'BUY', memo:'[JPM OW PT$240 / UBS PT$245 (v48.87 05/07)] AGI CPU 파이프라인 6주 만에 $1B→$2B+ 급증 — 공급이 수요 제약(TSMC/ASE 병목). FY27 DC 로열티 2x YoY 전망. ARM ISA 점유율 15%→40-45%(2030) 목표. Neoverse V3 에이전틱 오케스트레이션 최적. CPU:GPU 비율 재편 핵심 수혜자. AI CPU1→CPU2→CPU3 자체 설계 마진 성장 여정 지속. AVGO ASIC+MRVL NVLink Fusion 파트너십 상승여지. 리스크: 고객(Arm IP사용자)과 직접 경쟁·IP 침해 우려 · TSMC 3nm 공급 제약 2026 → 2027H2 완화 기대. [기존 JPM 04/21] Masa "NVDA 신뢰할 2위 부재→ARM" · GW당 $12-13B 콘텐츠', mcap:141, rsi:48, index:'SP500' },
   { sym:'QCOM', name:'Qualcomm', sector:'Technology', signal:'BUY', memo:'[NVDA PC 진출 영향 06/01] NVDA ARM기반 Windows PC = QCOM 스냅드래곤 X Elite와 유사 비x86 아키텍처 → 경쟁 격화 우려. 그러나 비x86 생태계 확장 선례 강화·시장 자체 확대 효과도 있음. 6월 Investor Day에서 QCOM 대응 전략 공개 예정. [Q2 FY2026 어닝 04/29] 매출$10.6B EPS$2.65(+상회) 주가+16% · 자동차$1.326B(+38%YoY 역대최고) · DC ASIC 대형하이퍼스케일러 12월출하 · 중국 FQ3 저점 반등 · Citi/JPM/WF PT$160↑', mcap:139, rsi:52, index:'SP500' },
   { sym:'PANW', name:'Palo Alto Networks', sector:'Technology', signal:'BUY', memo:'[실적 06/02 장후] 플랫폼화 진행도·ARR 가이던스 주목. [Citi AI서밋 04/21] Glasswing 창립파트너(CRWD와 공동 유일 순수사이버) · AI 기반 공격 규모·속도·정교함 대응 수혜 · 런타임 제어 전환=인라인 제어포인트 보유자 우위 · 섀도AI 확산 보안예산 확대 · Citi 2등급 선호(CRWD 다음) · Cortex XSIAM 플랫폼 통합', mcap:133, rsi:52, index:'SP500' },
@@ -86,7 +86,7 @@ var SCREENER_DB = [
   // ══════════════════════════════════════════════════════════════
   // S&P 500 — 추가 대형주
   // ══════════════════════════════════════════════════════════════
-  { sym:'ASML', name:'ASML Holdings', sector:'Technology', signal:'BUY', memo:'[Citi PT €1600 JPM OW AFL] 1Q26 매출 €87.7억(컨센상회 €86.9, 가이던스 €82-89 상단), GM 53.0%(상단), EPS €7.15(+10.5% JPM) · 2026 매출 가이던스 €360-400억(중간값 €380억, 기존 €365억 대비 상향) · 2027 Low NA EUV 최소 80대 공약(VA 컨센 72 대비 상승여력) · 삼성 P5 EUV 20대 오더 · "고객 단기·중기 수요 상향" = 매우 강한 수주 · 3800F 처리량 증가=2027 ASP 긍정 · 新가이던스 체계: 보수 제시→연중 상향 전환 · 2Q26 가이던스 €84-90억(컨센 하회 €90.7) 보수적 의도', mcap:290, rsi:48, index:'SP500' },
+  { sym:'ASML', name:'ASML Holdings', sector:'Technology', signal:'BUY', memo:'[Citi PT €1600 JPM OW AFL] 1Q26 매출 €87.7억(컨센상회 €86.9, 가이던스 €82-89 상단), GM 53.0%(상단), EPS €7.15(+10.5% JPM) · 2026 매출 가이던스 €360-400억(중간값 €380억, 기존 €365억 대비 상향) · 2027 Low NA EUV 최소 80대 공약(VA 컨센 72 대비 상승여력) · 삼성 P5 EUV 20대 오더 · "고객 단기·중기 수요 상향" = 매우 강한 수주 · 3800F 처리량 증가=2027 ASP 긍정 · 新가이던스 체계: 보수 제시→연중 상향 전환 · 2Q26 가이던스 €84-90억(컨센 하회 €90.7) 보수적 의도 · [2026-06-22] 루턱 상무장관의 EUV 중국 반출 비난에도 ASML 미반출 공식 확인 — 정치 헤드라인 노이즈 vs 실제 리스크 괴리 → 수출통제 리스크 오버프라이싱 해소 논리', mcap:290, rsi:48, index:'SP500' },
   { sym:'LIN', name:'Linde', sector:'Materials', signal:'HOLD', memo:'산업가스 세계 1위 · 반도체+에너지 수혜', mcap:220, rsi:52, index:'SP500' },
   { sym:'INTU', name:'Intuit', sector:'Technology', signal:'HOLD', memo:'TurboTax+QuickBooks · AI 기반 금융 SW', mcap:170, rsi:48, index:'SP500' },
   { sym:'BLK', name:'BlackRock', sector:'Financials', signal:'HOLD', memo:'세계 최대 자산운용사 · ETF · iShares', mcap:150, rsi:52, index:'SP500' },
@@ -110,6 +110,7 @@ var SCREENER_DB = [
   { sym:'SQ', name:'Block Inc', sector:'Financials', signal:'HOLD', memo:'Cash App 성장 · 비트코인 전략 · Square 결제', mcap:36, rsi:45, index:'SP500' },
   { sym:'COP', name:'ConocoPhillips', sector:'Energy', signal:'HOLD', memo:'E&P 대형주 · Marathon 인수 · 생산 확대', mcap:125, rsi:52, index:'SP500' },
   { sym:'SBUX', name:'Starbucks', sector:'Consumer', signal:'HOLD', memo:'중국 회복 · 미국 가격 전략 · 글로벌 확장', mcap:105, rsi:45, index:'SP500' },
+  { sym:'BROS', name:'Dutch Bros', sector:'Consumer', signal:'BUY', memo:'[2026-01~02 Minervini VCP 돌파 사례] Jan 14 ~$43.65 매수 → Feb 13 ~$86(+45%) 목표가 TPR 달성 매도 · 현재 수익실현 후 조정구간 — 지지선 $75.31/$70.72/$59.76 · 서부 드라이브스루 커피 고성장 체인(점포 수 900+, 25-26 공격 확장) · 스타벅스 대비 틈새 + 빠른 서비스 모델 · 재돌파 시 Minervini 패턴 재진입 조건 확인', mcap:17, rsi:52, index:'SMID' },
   { sym:'GILD', name:'Gilead Sciences', sector:'Healthcare', signal:'HOLD', memo:'HIV+간염 치료 · 항암 파이프라인 · 고배당', mcap:110, rsi:50, index:'SP500' },
   // ══════════════════════════════════════════════════════════════
   // NASDAQ-100 전용 (S&P500 미포함 또는 나스닥 특성 강조)
@@ -127,9 +128,9 @@ var SCREENER_DB = [
   { sym:'SNOW', name:'Snowflake', sector:'Technology', signal:'WATCH', memo:'AI 투자 ROI 견조 — 문제해결 수일→10~15분 · AI 판매데모/고객지원/시스템 신뢰성 수익 확보 · 클라우드 데이터 웨어하우스', mcap:52, rsi:42, index:'NASDAQ100' },
   { sym:'ZS', name:'Zscaler', sector:'Technology', signal:'BUY', memo:'[WF 04/21] OpenAI TAC 14파트너 진입(순수사이버 CRWD와 함께 2곳) · Glasswing 제외됐으나 TAC 포지션 확보=AI 보안 대열 합류 · 제로트러스트+SASE+클라우드 보안 · 포스트양자 암호화 SASE 확장 · AI 크롤/에이전트 트래픽 신규 가시성 · 14 중 절반 금융·나머지(CSCO/CRWD/NVDA/ORCL/ZS)+스타트업(SpecterOps/iVerify) · CAISI/AISI 연방 기관 배포 → 정부 표준화 경로 · GPT-5.4-Cyber 접근', mcap:30, rsi:45, index:'NASDAQ100' },
   { sym:'TTD', name:'The Trade Desk', sector:'Technology', signal:'HOLD', memo:'프로그래매틱 광고 · CTV · 리테일 미디어', mcap:40, rsi:40, index:'NASDAQ100' },
-  { sym:'SMCI', name:'Super Micro Computer', sector:'Technology', signal:'WATCH', memo:'AI 서버 하드웨어 · 고성장 vs 회계 리스크', mcap:22, rsi:38, index:'NASDAQ100' },
+  { sym:'SMCI', name:'Super Micro Computer', sector:'Technology', signal:'BUY', memo:'[2026-06-23] NVIDIA Vera Rubin 기반 AI DC 플랫폼 공개 — 최대 1,152개 Rubin GPU 수용 초대형 클러스터 설계 발표. AI 인프라 투자 확대 핵심 수혜. Dell 동시 발표로 Vera Rubin 생태계 경쟁 격화. 회계 이슈 재감사 완료·상장 유지 확인. AI 서버 고성장 vs 회계 리스크 잔존', mcap:22, rsi:38, index:'NASDAQ100' },
   { sym:'IONQ', name:'IonQ', sector:'Technology', signal:'WATCH', memo:'[Quantinuum H2 마일스톤 05/24] Honeywell Quantinuum H2, 32큐비트 GHz(Greenberger-Horne-Zeilinger) 상태 기록 달성 — 양자컴퓨팅 업계 기록. 경쟁사 마일스톤이지만 섹터 전반 재부각 촉매. IonQ 트랩 이온 방식 차별화 포지션 재확인. Forte Enterprise · 정부 계약 · 이온트랩 방식 장기 우위', mcap:11, rsi:48, index:'NASDAQ100' },
-  { sym:'RKLB', name:'Rocket Lab USA', sector:'Industrials', signal:'BUY', memo:'[2026-04-25] Electron 2025년 21회 무사고 · Neutron 중형로켓 Q4 2026 데뷔(탱크 테스트 실패로 재연기) · SDA Tranche 3 $805M · NSSL Lane 1 온램프 · Mynaric $155M 인수 완료(레이저 통신 수직계열화) · Q4 2025 매출 $179M(+36%) · Q1 2026 가이던스 $185-200M · 시총 $48.8B · PSR 44배', mcap:48, rsi:55, index:'NASDAQ100' },
+  { sym:'RKLB', name:'Rocket Lab USA', sector:'Industrials', signal:'BUY', memo:'[2026-04-25] Electron 2025년 21회 무사고 · Neutron 중형로켓 Q4 2026 데뷔(탱크 테스트 실패로 재연기) · SDA Tranche 3 $805M · NSSL Lane 1 온램프 · Mynaric $155M 인수 완료(레이저 통신 수직계열화) · Q4 2025 매출 $179M(+36%) · Q1 2026 가이던스 $185-200M · 시총 $48.8B · PSR 44배 · [2026-06-22] 나스닥100 신규 편입(인덱스 수급 수혜 기대)', mcap:48, rsi:55, index:'NASDAQ100' },
   { sym:'ASTS', name:'AST SpaceMobile', sector:'Technology', signal:'WATCH', memo:'[2026-04-25] BlueBird 7 2단 분리 실패·디오빗(2026-04-16) · 차세대 BlueBird 45기 연말 목표(월 1-2기) · D2D 50+ MNO 계약 · PSR 338배+연 $1.2B burn = 고위험 · Amazon-Globalstar $11.6B 인수(D2D 경쟁 격화) · 2026 YTD -30% 조정', mcap:26, rsi:50, index:'NASDAQ100' },
   // ══════════════════════════════════════════════════════════════
   // Russell 2000 — 주요 소형주
@@ -155,8 +156,8 @@ var SCREENER_DB = [
   { sym:'QUBT', name:'Quantum Computing', sector:'Technology', signal:'WATCH', memo:'양자컴퓨팅 · 광자 기반 · 초기 매출', mcap:2, rsi:55, index:'RUSSELL2000' },
   { sym:'CAVA', name:'CAVA Group', sector:'Consumer', signal:'BUY', memo:'지중해 패스트캐주얼 · 고성장 외식 체인 · 미국 확장', mcap:15, rsi:58, index:'RUSSELL2000' },
   { sym:'SOUN', name:'SoundHound AI', sector:'Technology', signal:'WATCH', memo:'음성 AI 플랫폼 · 자동차+레스토랑 · 고평가', mcap:5, rsi:50, index:'RUSSELL2000' },
-  { sym:'CRWV', name:'CoreWeave', sector:'Technology', signal:'BUY', memo:'[5/31 마이클 델] CoreWeave에 첫 번째 NVIDIA Vera Rubin NVL72 설치 인증 — Vera Rubin 실물 출하 세계 최초 확인. [Citi 04/29] PT$155(기존$126↑) 백로그 QoQ+35-40% · Jane Street+META 신규계약 · ARR $300억 잠재 · [DA Davidson PT$175↑ Mizuho PT$105 BofA PT$120] 프론티어 랩 독점 네오클라우드 — Meta $21B(신규 2032 Vera Rubin)+Meta $14B+OpenAI $22B+Anthropic 수십억 = 합산 $58B+ · NVIDIA 긴밀관계=비NVDA 호스팅 차단 · 1Q26E 매출 $19.5B(+99%YoY) · 2026 매출 $120-130B', mcap:23, rsi:52, index:'NASDAQ100' },
-  { sym:'NBIS', name:'Nebius Group', sector:'Technology', signal:'BUY', memo:'[GS PT $205↑, BofA PT $175↑] Meta $270억+MSFT 장기계약+NVDA $20억 전략투자 · 핀란드+앨라배마 DC 확장 · BofA 2027E EV/Sales 5.0x(피어 하단) · 글로벌 AI 인프라 핵심 공급자 입지', mcap:6, rsi:48, index:'NASDAQ100' },
+  { sym:'CRWV', name:'CoreWeave', sector:'Technology', signal:'BUY', memo:'[5/31 마이클 델] CoreWeave에 첫 번째 NVIDIA Vera Rubin NVL72 설치 인증 — Vera Rubin 실물 출하 세계 최초 확인. [Citi 04/29] PT$155(기존$126↑) 백로그 QoQ+35-40% · Jane Street+META 신규계약 · ARR $300억 잠재 · [DA Davidson PT$175↑ Mizuho PT$105 BofA PT$120] 프론티어 랩 독점 네오클라우드 — Meta $21B(신규 2032 Vera Rubin)+Meta $14B+OpenAI $22B+Anthropic 수십억 = 합산 $58B+ · NVIDIA 긴밀관계=비NVDA 호스팅 차단 · 1Q26E 매출 $19.5B(+99%YoY) · 2026 매출 $120-130B · [2026-06-22] 나스닥100 신규 편입(인덱스 수급 수혜 기대)', mcap:23, rsi:52, index:'NASDAQ100' },
+  { sym:'NBIS', name:'Nebius Group', sector:'Technology', signal:'BUY', memo:'[GS PT $205↑, BofA PT $175↑] Meta $270억+MSFT 장기계약+NVDA $20억 전략투자 · 핀란드+앨라배마 DC 확장 · BofA 2027E EV/Sales 5.0x(피어 하단) · 글로벌 AI 인프라 핵심 공급자 입지 · [2026-06-22] 나스닥100 신규 편입(인덱스 수급 수혜 기대)', mcap:6, rsi:48, index:'NASDAQ100' },
   { sym:'IREN', name:'IREN Limited', sector:'Technology', signal:'BUY', memo:'[GS 05/29] PT$50(기존$44↑) · Dell과 $16억 Blackwell 기반 AI 시스템 구매계약(2027초 텍사스 가동) · 약 26,000개 B200 GPU 확보 · GPU 조달비용 기존 예상($20~25억) 하회 = 마진 개선 기대 · NVDA 5년 $34억 계약 이행 중 · FY26~28 EBITDA 14% 하향(BTC채굴 축소) · [Cantor OW] MSFT 5년 $97억 Take-or-pay(76K GB300, 200MW) · Childress 750MW+Sweetwater 2GW+Oklahoma 1.6GW 전력 · BTC마이너→AI DC 전환 선도', mcap:4, rsi:48, index:'RUSSELL2000' },
   { sym:'CORZ', name:'Core Scientific', sector:'Technology', signal:'BUY', memo:'[Cantor Top Pick PT$29] AI DC 전환 선도 · CRWV 최초 딜 파트너(2024.06) · 딜 가치 기준 가장 큰 할인 거래 · DC 사상 최고 딜+선점 효과 · BTC마이너→AI 인프라', mcap:5, rsi:45, index:'NASDAQ' },
   { sym:'BIRD', name:'Allbirds', sector:'Consumer', signal:'SELL', memo:'친환경 신발 · 매출 감소 · 구조조정', mcap:0.1, rsi:28, index:'RUSSELL2000' },
@@ -168,12 +169,12 @@ var SCREENER_DB = [
   { sym:'AAOI', name:'Applied Optoelectronics', sector:'Technology', signal:'WATCH', memo:'[시트론 공매도 04/11] 선행PER 112x(NVDA 버블정점40x의 3배) · GM 31%(NVDA 75%대비) · 앵커 ORCL(재무취약) vs LITE 앵커 NVDA · 범용HW마진에 독점배수 · 이노라이트 가격인하 리스크 · 2주전 $85→$140 급등', mcap:2.5, rsi:62, index:'RUSSELL2000' },
   { sym:'COHR', name:'Coherent Corp', sector:'Technology', signal:'BUY', memo:'[JPM OW PT$380 (v48.87 05/07)] NVIDIA $20억 전략투자(2026.03) + 수십억 달러 10년+ 장기 매입 계약. InP 6인치 캐파 2배 달성 1분기 앞당김(목표 9월). F4Q26 가이던스 +$170M QoQ. FY27 매출 성장 FY26 초과 + GPM 42%+ 목표. OCS TAM OFC 이후 2배 상향. CPO scale-out H2\'26 매출 시작, scale-up 2027H2. $15B+ CPO TAM. InP 수직통합 → 공급망 병목 해소. SiPh+레이저 양대산맥. 800G/1.6T CPO 모듈. CHIPS Act $33M. OFC2026 CPO TAM $21B 확인', mcap:15, rsi:55, index:'SP500' },
   { sym:'LITE', name:'Lumentum', sector:'Technology', signal:'BUY', memo:'[Citi AI서밋 04/21] CEO Michael Hurlston: NVDA $2B 전략적 투자 확보(CPO 다년 R&D 협력) · InP 공급 2028-2029 수요 부족 지속 · 2028말~2029초 3.2T 노드 구리 유효거리 1.5-2m 급락=광학 주 백플레인 변곡점 · 분기 매출 $1.5-2B 목표 · 광학 업계 사상 처음 공급자 가격 인상+원가 전가 구조 · Scale-up CPO Rosa-Feynman 2028 · OCS 수주잔고 $400M+ · 미즈호 PT $930 · AVGO PA 레이저 4배 확장도 판도 영향 미미', mcap:6, rsi:48, index:'NASDAQ100' },
-  { sym:'CRDO', name:'Credo Technology', sector:'Technology', signal:'BUY', memo:'[실적 06/01 장후 ★] [BofA PT$210↑(160→210)] DustPhotonics 인수 후속 — FY27 광학 run-rate $5억+(기존 $1억+ 대비 대폭상향), FY27 총매출 $2.3B(+75%YoY)(컨센 +$3억) · ZR광 트랜시버+광DSP+SiPho 수직통합 · GM 63-65%/OpM 50% · EPS $10-11(AI TAM $96B 5% 점유) · CRDO CY27E PE 23배 vs 광학동종 40-50배 · AEC 800G(FY26-27) 1.6T(FY27-28) · AMZN/MSFT/xAI/META 지속 · 2029E AEC TAM $10B+', mcap:10, rsi:45, index:'NASDAQ100' },
+  { sym:'CRDO', name:'Credo Technology', sector:'Technology', signal:'BUY', memo:'[2026-06-23] Evercore PT$325↑ + Stifel PT$350↑ 동시 상향 — AI 투자 사이클이 GPU에서 네트워크·광통신 계층으로 확산. [실적 06/01 장후 ★] [BofA PT$210↑(160→210)] DustPhotonics 인수 후속 — FY27 광학 run-rate $5억+(기존 $1억+ 대비 대폭상향), FY27 총매출 $2.3B(+75%YoY)(컨센 +$3억) · ZR광 트랜시버+광DSP+SiPho 수직통합 · GM 63-65%/OpM 50% · EPS $10-11(AI TAM $96B 5% 점유) · CRDO CY27E PE 23배 vs 광학동종 40-50배 · AEC 800G(FY26-27) 1.6T(FY27-28) · AMZN/MSFT/xAI/META 지속 · 2029E AEC TAM $10B+', mcap:10, rsi:45, index:'NASDAQ100' },
   { sym:'POET', name:'POET Technologies', sector:'Technology', signal:'WATCH', memo:'광인터포저(Teralight) · 포토닉스 반도체화 · EML 4개(업계 8~16) · Luxshare/FIT/LITEON 파트너 · 1.6T 프로토 2026말 · Celestial AI(MRVL 인수) Photonic Fabric 핵심부품 공급 가능성 · NVIDIA 광학 supply chain 빈칸 후보 · 프리레버뉴 · 현금 $450M(시총57%)', mcap:0.8, rsi:44, index:'OTC' },
   { sym:'CIEN', name:'Ciena', sector:'Technology', signal:'BUY', memo:'광네트워킹 장비 · AI 트래픽 증가 수혜', mcap:9, rsi:52, index:'SP500' },
   { sym:'GLW', name:'Corning', sector:'Technology', signal:'WATCH', memo:'[JPM 04/17: OW→N 하향] PT$175(기존$115↑ but 밸류에이션 우려) · NTM PE 50배+, 2027E 40배+ = 펀더멘털보다 앞서감 · AI 광학 섹터 프리미엄 과거 평균 대비 +83% · 광섬유 · AI DC 광케이블 수요 폭증 · Gorilla Glass · 펀더멘털 강세 유지되나 2028년 이익 봐야 밸류에이션 정당화', mcap:40, rsi:55, index:'SP500' },
   { sym:'VRT', name:'Vertiv Holdings', sector:'Industrials', signal:'BUY', memo:'[Citi $353 / JPM Q1강세 — 04/25] 1Q26: 유기적 매출 +23%·EPS $1.17 예상상회·2026 가이던스 상향 · 수주잔고+슬롯 100GW 조기 달성→110GW 상향 · EMEA 1Q 수주 탄탄(2H26 YoY+ 예상) · BMarko 인수완료/ThermoKey 2Q완료 · 순레버리지 0.2배 M&A 여력 · 관세 실질 상쇄 기대 · 투자자 데이 5/19-20 차기 촉매 · [기존] DC 파이프라인 415GW 누적·낙관 EPS 2026 $8/2027 $13', mcap:42, rsi:48, index:'SP500' },
-  { sym:'DELL', name:'Dell Technologies', sector:'Technology', signal:'BUY', memo:'[FY1Q27 어닝 05/29] 매출 $43.8B(+88%YoY) EPS $4.86(+214%) OP $4.2B(+154%) · AI서버 매출 $16.1B · 수주 $24.4B · 잔고 $51.3B · 고객 5,000개+ · 전통서버 $8.5B(+92%YoY) · CSG PC $14.6B(+17%YoY) · 2Q 가이던스 $44-45B(+50%YoY) ISG+75%/CSG+20% · FY27 연간 $165-169B(+50%YoY) AI서버 $60B · [Susquehanna 05/29] PT$700(기존$138↑↑) 중립→긍정 상향 · 공급 제약 ①NAND ②DRAM ③CPU ④HDD · Computex NVDA ARM칩 기반 Windows PC 협력', mcap:80, rsi:45, index:'SP500' },
+  { sym:'DELL', name:'Dell Technologies', sector:'Technology', signal:'BUY', memo:'[2026-06-23] NVIDIA Vera Rubin 기반 차세대 AI DC 플랫폼 공개(SMCI와 동시). Vera Rubin 슈퍼컴퓨터 1순위 OEM 수혜. [FY1Q27 어닝 05/29] 매출 $43.8B(+88%YoY) EPS $4.86(+214%) OP $4.2B(+154%) · AI서버 매출 $16.1B · 수주 $24.4B · 잔고 $51.3B · 2Q 가이던스 $44-45B(+50%YoY) ISG+75% · FY27 연간 $165-169B AI서버 $60B · [Susquehanna 05/29] PT$700(기존$138↑↑) · 공급 제약 ①NAND ②DRAM ③CPU ④HDD · Computex ARM칩 기반 PC 협력', mcap:80, rsi:45, index:'SP500' },
   { sym:'HPE', name:'Hewlett Packard Enterprise', sector:'Technology', signal:'HOLD', memo:'AI 서버/네트워킹 · Juniper 인수 · 하이브리드 클라우드', mcap:28, rsi:48, index:'SP500' },
   // ── 헬스케어 / 비만치료 / 텔레헬스 ──
   { sym:'HIMS', name:'Hims & Hers Health', sector:'Healthcare', signal:'BUY', memo:'텔레헬스 · GLP-1 비만치료 · D2C 헬스케어 급성장', mcap:8, rsi:65, index:'RUSSELL2000' },
@@ -427,7 +428,7 @@ var SCREENER_DB = [
   { sym:'ZTS', name:'Zoetis', sector:'Healthcare', signal:'HOLD', memo:'동물 의약품 글로벌 1위', mcap:49, rsi:46, index:'SP500' },
   { sym:'CAH', name:'Cardinal Health', sector:'Healthcare', signal:'HOLD', memo:'의약품 유통 · 배당', mcap:49, rsi:52, index:'SP500' },
   { sym:'XEL', name:'Xcel Energy', sector:'Utilities', signal:'HOLD', memo:'재생에너지 유틸리티', mcap:48, rsi:50, index:'SP500' },
-  { sym:'TER', name:'Teradyne', sector:'Technology', signal:'BUY', memo:'[JPM 04/29] OW 상향 PT$400 · GPU 테스터 점유율 확대(HBM처럼 0%→50% 경로 예상) · HBM TAM 테스트 확대(삽입 3배) · SiPh/CPO 테스트 TAM $3억+ · 자동차/산업 경기회복 추가 레버 · FY27/28 EPS 40% 성장 · 35-40x PER 정당화 · [UBS] CPO Teach-in 재조명 CoPoS 앞당김 수혜 · Rubin Ultra 2-die 전환→288랙=2x 테스트 수량', mcap:48, rsi:52, index:'SP500' },
+  { sym:'TER', name:'Teradyne', sector:'Technology', signal:'BUY', memo:'[JPM 04/29] OW 상향 PT$400 · GPU 테스터 점유율 확대(HBM처럼 0%→50% 경로 예상) · HBM TAM 테스트 확대(삽입 3배) · SiPh/CPO 테스트 TAM $3억+ · 자동차/산업 경기회복 추가 레버 · FY27/28 EPS 40% 성장 · 35-40x PER 정당화 · [UBS] CPO Teach-in 재조명 CoPoS 앞당김 수혜 · Rubin Ultra 2-die 전환→288랙=2x 테스트 수량 · [2026-06-22] 나스닥100 신규 편입(인덱스 수급 수혜 기대)', mcap:48, rsi:52, index:'NASDAQ100' },
   { sym:'MTK', name:'MediaTek', sector:'Technology', signal:'BUY', memo:'[JPM 04/29] OW 상향 PT NT$3,400(Jun-27) · FY26 DC ASIC $20억 가이던스 · FY27 TAM $700-800억 목표 10-15% 점유 · TPUv9(Humufish) 2027말 양산 · CoWoS-L+EMIB-T 이중 패키징 경로 · 패키징 병목 우려 해소 · FY26 EPS+9%/FY27+29%/FY28+81% 상향 · 3-4건 신규 DC ASIC RFQ 진행 · AVGO Google TPU 의존 분산 수혜 · 모바일 하반기 스마트폰 부진 단기 역풍', mcap:38, rsi:50, index:'TWSE' },
   { sym:'EW', name:'Edwards Lifesciences', sector:'Healthcare', signal:'HOLD', memo:'심장 판막 · 구조적 심장질환', mcap:48, rsi:48, index:'SP500' },
   { sym:'ETR', name:'Entergy', sector:'Utilities', signal:'HOLD', memo:'유틸리티 · 원전 · 데이터센터 전력', mcap:46, rsi:50, index:'SP500' },
@@ -967,7 +968,7 @@ var SCREENER_DB = [
   { sym:'020560.KS', name:'아시아나항공', sector:'Industrials', signal:'WATCH', memo:'대한항공 합병 진행 · 저가 항공 경쟁', mcap:2, rsi:40, index:'KOSPI' },
   { sym:'180640.KS', name:'한진칼', sector:'Industrials', signal:'HOLD', memo:'대한항공 모회사 · 항공 지주', mcap:3, rsi:46, index:'KOSPI' },
   { sym:'326030.KS', name:'SK바이오팜', sector:'Healthcare', signal:'HOLD', memo:'세노바메이트(엑코프리) · 뇌질환 신약 · 글로벌 매출', mcap:4, rsi:47, index:'KOSPI' },
-  { sym:'ALAB', name:'Astera Labs', sector:'Technology', signal:'BUY', memo:'[JPM OW PT$240 (v48.87 05/07)] 1Q26 $308M(+94%YoY, 8분기 연속 비트). 2Q26 가이던스 $360M. Scorpio XPU 콘텐츠 $1,000+ 상승 중. Trainium3+Scorpio X H2 램프업 초기 단계. NVLink Fusion/KV캐시 오프로드/CXL 메모리확장 신규 벡터. CPO/NPO 2027~2028 매출 기여. FY26 매출 +80% Non-GAAP EPS $2.88 전망. [기존 04/25] Amazon-Anthropic 5GW Trainium 약정 핵심 수혜 · T3 XPU Scorpio-X 물량 · T4 UALink/NVLink 스위치 기회 · 스케일업·스케일아웃 이중 네트워킹 포지션', mcap:30, rsi:60, index:'NASDAQ100' },
+  { sym:'ALAB', name:'Astera Labs', sector:'Technology', signal:'BUY', memo:'[JPM OW PT$240 (v48.87 05/07)] 1Q26 $308M(+94%YoY, 8분기 연속 비트). 2Q26 가이던스 $360M. Scorpio XPU 콘텐츠 $1,000+ 상승 중. Trainium3+Scorpio X H2 램프업 초기 단계. NVLink Fusion/KV캐시 오프로드/CXL 메모리확장 신규 벡터. CPO/NPO 2027~2028 매출 기여. FY26 매출 +80% Non-GAAP EPS $2.88 전망. [기존 04/25] Amazon-Anthropic 5GW Trainium 약정 핵심 수혜 · T3 XPU Scorpio-X 물량 · T4 UALink/NVLink 스위치 기회 · 스케일업·스케일아웃 이중 네트워킹 포지션 · [2026-06-22] 나스닥100 신규 편입(인덱스 수급 수혜 기대)', mcap:30, rsi:60, index:'NASDAQ100' },
   { sym:'LSCC', name:'Lattice Semiconductor', sector:'Technology', signal:'BUY', memo:'[Stiefel BUY $130 04/19] AI 서버 FPGA 탑재율 $1→$3-4로 구조적 증가 · 2025 서버기반 매출 +85% · 재고 조정 극복 완료 · CPU 공급 제약 단기 변동성·장기 성장 궤도 무결 · 낮은 전력·실시간 제어 특화', mcap:12, rsi:50, index:'NASDAQ100' },
 ];
 
@@ -3056,7 +3057,7 @@ async function _renderFredCharts() {
   var fallbackSeriesMeta = [
     { id: 'UNRATE', canvas: 'fred-unrate-chart', color: '#ff5b50', label: 'Unemployment (%)' },
     { id: 'CPIAUCSL', canvas: 'fred-cpi-chart', color: '#ffa31a', label: 'CPI YoY (%)' },
-    { id: 'FEDFUNDS', canvas: 'fred-fedfunds-chart', color: '#00d4ff', label: 'Fed Funds (%)' }
+    { id: 'FEDFUNDS', canvas: 'fred-fedfunds-chart', color: '#00bcd4', label: 'Fed Funds (%)' }
   ];
   function _stampFredReference(canvas, label) {
     if (!canvas || !canvas.setAttribute) return;
@@ -3106,7 +3107,7 @@ async function _renderFredCharts() {
   var series = [
     { id: 'UNRATE', canvas: 'fred-unrate-chart', color: '#ff5b50', label: '실업률 (%)' },
     { id: 'CPIAUCSL', canvas: 'fred-cpi-chart', color: '#ffa31a', label: 'CPI (지수)', transform: 'yoy' },
-    { id: 'FEDFUNDS', canvas: 'fred-fedfunds-chart', color: '#00d4ff', label: '기준금리 (%)' }
+    { id: 'FEDFUNDS', canvas: 'fred-fedfunds-chart', color: '#00bcd4', label: '기준금리 (%)' }
   ];
   for (var si = 0; si < series.length; si++) {
     var s = series[si];
@@ -3346,12 +3347,16 @@ async function fetchFinnhubNewsFormatted() {
 
 // ═══ 7. 시장 폭 (Breadth) — Yahoo Finance 기반 동적 계산 ═══════
 async function fetchBreadthData() {
+  // B계층 갭: MMFI/MMTW/MMFD는 심볼 목록에만 존재하고 실 fetch 미구현.
+  //   이유: NYSE Advance/Decline 실측 API 없음 — Seeking Alpha/CBOE는 유료.
+  //   실제 동작: (1) Alpha Vantage TOP_GAINERS_LOSERS 비율 또는 (2) RSP/SPY 비율 프록시만 사용.
+  //   실측 %aboveMA 필요 시 CBOE 유료 API 또는 서버-사이드 계산 필요 (B계층 WO-1 참고).
   // Use SPY component ETFs to approximate breadth
   const breadthSymbols = [
     { sym: 'RSP', name: 'Equal Weight S&P' },    // RSP vs SPY ratio = breadth proxy
-    { sym: 'MMFI', name: '50D% Index' },          // % above 50MA
-    { sym: 'MMTW', name: '20D% Index' },          // % above 20MA
-    { sym: 'MMFD', name: '200D% Index' },         // % above 200MA
+    { sym: 'MMFI', name: '50D% Index' },          // % above 50MA (목록만, 미fetch)
+    { sym: 'MMTW', name: '20D% Index' },          // % above 20MA (목록만, 미fetch)
+    { sym: 'MMFD', name: '200D% Index' },         // % above 200MA (목록만, 미fetch)
   ];
 
   // Also fetch advance/decline via ETFs
@@ -4927,6 +4932,45 @@ async function _aioLoadServerData() {
 }
 window._aioLoadServerData = _aioLoadServerData;
 
+// v51.18: 운영자 노트 — public-data/operator-note.json 로드 + 홈 카드 렌더
+async function _aioLoadOperatorNote() {
+  try {
+    var url = './public-data/operator-note.json?t=' + Math.floor(Date.now() / 300000);
+    var r = await fetch(url, { cache: 'no-cache' });
+    if (!r.ok) return;
+    var d = await r.json();
+    if (d && d.visible !== false) {
+      window._aioOperatorNote = d;
+      if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote();
+    }
+  } catch(_) {}
+}
+window._aioLoadOperatorNote = _aioLoadOperatorNote;
+
+function _aioRenderOperatorNote() {
+  var el = document.getElementById('home-operator-note');
+  if (!el) return;
+  var note = window._aioOperatorNote;
+  if (!note || note.visible === false) { el.style.display = 'none'; return; }
+  function _esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  var tags = (note.tags || []).map(function(t) {
+    return '<span style="display:inline-block;font-size:10px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:var(--radius-sm,3px);padding:2px 8px;color:var(--accent,#00bcd4);margin-right:4px;margin-top:6px;">' + _esc(t) + '</span>';
+  }).join('');
+  var bodyHtml = _esc(note.body || '').replace(/\n/g, '<br>');
+  el.innerHTML =
+    '<div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.18);border-left:3px solid var(--accent,#00bcd4);border-radius:var(--radius,4px);padding:12px 16px;margin-bottom:12px;">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+        '<span style="font-size:10px;font-weight:700;color:var(--accent,#00bcd4);letter-spacing:0.8px;text-transform:uppercase;">운영자 노트</span>' +
+        '<span style="font-size:11px;color:var(--text-muted);">' + (note.updated || '') + '</span>' +
+      '</div>' +
+      '<div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">' + (note.title || '') + '</div>' +
+      '<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">' + bodyHtml + '</div>' +
+      (tags ? '<div>' + tags + '</div>' : '') +
+    '</div>';
+  el.style.display = 'block';
+}
+window._aioRenderOperatorNote = _aioRenderOperatorNote;
+
 // v50.28/WO-6: 서버 뉴스 백스톱 적용 — 클라이언트 뉴스(프록시)가 비었을 때만 채운다(additive).
 // 작동 중인 뉴스 파이프라인은 절대 건드리지 않음(force=true는 검증/수동 전용).
 // 서버 아이템을 클라이언트 뉴스 모델 형태로 매핑 → scoreItem/classifyTopic → renderFeed/home/briefing.
@@ -5100,6 +5144,7 @@ async function initV20DataEngine() {
   try { _aioStartServerDataPolling(); } catch(_) {}
   // v50.27/WO-7: 일별 히스토리 로드(차트 소비자 데이터 레이어, 충분히 누적 시 시드 대체)
   try { _aioLoadHistory(); } catch(_) {}
+  try { _aioLoadOperatorNote(); } catch(_) {}
   console.log('[AIO v20] ═══════════════════════════════════════');
 
   cleanupProxyCache();
@@ -5711,6 +5756,35 @@ const MACRO_KW = [
   'smartphone unit decline','스마트폰 유닛 감소','smartphone YoY negative','PC demand 2H26',
   'TSMC 3nm constraint','TSMC capacity constraint','TSMC AMD allocation',
   '153K wafers','TSMC N3 supply','AMD supply bottleneck',
+  // v51.09 (integrate 2026-06-22): 스위스 미이란 협상 + BOJ 비둘기 + 중국 희토류 + 영국 스타머 + WTI $75
+  'Iran 60-day roadmap','Iran Switzerland talks','Iran final agreement','미이란 60일 로드맵','이란 스위스 협상',
+  'Iran reconstruction fund','이란 재건 개발','Iran petrochemical export exemption','이란 석유화학 수출 면제',
+  'Iran frozen assets release','이란 동결자산 해제','Lebanon ceasefire Iran','레바논 종식 이란',
+  'BOJ dovish','BOJ accommodative','BOJ accommodation continue','일본은행 비둘기','BOJ 완화 지속',
+  'yen carry continuation','엔 캐리 지속','carry unwind risk low','carry risk elimination',
+  'China rare earth entity list','China rare earth 10 companies','중국 희토류 수출통제 기업','희토류 10개사 제재',
+  'China rare earth retaliation','중국 희토류 보복','미중 기술갈등 희토류',
+  'Starmer resignation','UK political uncertainty','스타머 사임','영국 정치 불안','Starmer PM',
+  'UK political risk','영국 불확실성','브렉시트 방향성','post-Brexit policy',
+  'WTI below 75','WTI $75','WTI 75달러','원유 $75 이하','유가 $75',
+  'Trump Anthropic','Trump AI security','트럼프 앤트로픽','AI 안보 정책 완화',
+  // v51.13 (integrate 2026-06-23): GS 침체 하향 + 순환매 + 이란 라이선스 + 유가 + 분기말 리스크 + ECB
+  'Goldman Sachs recession 15','GS recession probability','GS 침체 확률','recession probability down',
+  'Goldman Sachs soft landing','GS soft landing','경기침체 확률 하향','GS 15 percent recession',
+  'quarter-end rebalancing','분기말 리밸런싱','Q-end sell pressure','quarter end selling',
+  'hedge fund leverage 5-year','HF leverage high','헤지펀드 레버리지','leveraged portfolio risk',
+  'JPMorgan 165 billion rebalancing','JPM quarter rebalancing','165 billion equity sell',
+  'Iran general license','이란 일반면허','Iran 60-day oil license','60일 원유 허가',
+  'Iran oil license oil sales','이란 원유 판매 허가','Iran oil supply increase',
+  'WTI 74','WTI 75 below','WTI 74.82','원유 74달러','브렌트 77','Brent 77',
+  'SPR strategic reserve low','SPR 1983 low','전략비축유 최저','미국 전략비축유 감소',
+  'oil supply glut','공급 과잉 우려','oil oversupply','OPEC supply concern',
+  'BofA Fed hike 2026','Bank of America three hikes','BoA 3회 인상','연준 인상 전망 변경',
+  'Julius Baer Fed freeze','Julius Baer 10Y','10년물 4.3 하반기','유럽계 연준 동결',
+  'ECB Lagarde service slowdown','라가르드 서비스 둔화','ECB growth risk','유럽 경기 둔화',
+  'yuan undervalued G7','위안화 저평가 G7','G7 imbalance','라가르드 위안화',
+  'reverse repo surge','역레포 급증','Fed reverse repo','역환매조건부채권 급증',
+  'Greenspan death','앨런 그린스펀 별세','Greenspan passed away',
 ];
 // TECH_KW: 기술/AI 주요 이벤트 → 섹터 관련 (+15점)
 const TECH_KW = [
@@ -6242,6 +6316,31 @@ const TECH_KW = [
   'BootDrive NVMe boot server','NVMe OS drive server',
   'QCOM DC ASIC','Qualcomm hyperscaler ASIC','Snapdragon ASIC datacenter',
   'QCOM automotive record','Snapdragon Digital Chassis','자동차 반도체 QCOM',
+  // v51.09 (integrate 2026-06-22): Minervini 차트 분석 + BROS VCP 돌파 예시
+  'Minervini','Minervini pressure','Minervini Buy Risk','Minervini TPR',
+  'TPR','Trend Persistence Ratio','RPR','Relative Price Ratio',
+  'Dutch Bros','BROS','Dutch Bros Coffee',
+  'ASML EUV clarification','ASML EUV no export','ASML China EUV',
+  'SK Hynix number one','SK Hynix market cap 1st','SK하이닉스 시총 1위','하이닉스 삼성 역전',
+  'HBM leadership','HBM market leader','HBM 주도권 교체',
+  // v51.13 (integrate 2026-06-23): HALOS + Vera Rubin EU + Micron Anthropic + CRDO 상향 + SpaceX 회사채 + DeepMind
+  'HALOS platform','NVIDIA HALOS','HALOS safety','HALOS humanoid','엔비디아 HALOS','HALOS 로봇 안전',
+  'AI factory Europe','European AI factory','유럽 AI 팩토리','AI 슈퍼컴퓨터 유럽','Europe 35 AI',
+  'Vera Rubin supercomputer','Vera Rubin EU','Vera Rubin 35 countries','베라 루빈 유럽',
+  'Micron Anthropic partnership','MU Anthropic','Micron AI memory','AI memory architecture',
+  'AI 메모리 아키텍처','마이크론 앤트로픽','Micron HBM Anthropic','memory co-development',
+  'Reflection AI','Reflection computing','리플렉션 AI','SpaceX Reflection 63 billion',
+  'SpaceX bond','SpaceX 회사채','SpaceX debt issuance','스페이스엑스 채권',
+  'SpaceX IPO low','SpaceX stock drop','스페이스엑스 IPO 최저','SpaceX market cap decline',
+  'Credo Evercore 325','CRDO Stifel 350','Credo PT upgrade','크레도 목표주가 상향',
+  'DeepMind exodus','DeepMind talent leaving','딥마인드 인재 이탈','DeepMind Anthropic move',
+  'Alphabet DeepMind','Google DeepMind researchers','딥마인드 연구원','GOOG 7 percent drop',
+  'Amazon Prime Day 2026','Prime Day 26 billion','프라임데이 2026','Prime Day 263',
+  'silver 67','silver spot ounce','은 현물 67달러','silver rally 3 percent',
+  'defense CEO meeting','방산 CEO 회동','Pentagon 52 billion','국방부 529억',
+  'Patriot THAAD tomahawk expansion','패트리엇 THAAD 토마호크','탄약 재고 보충',
+  'Russell 2000 3000','RUT 3000','소형주 3000','Russell record high',
+  'bank stocks record','KBW bank record','은행주 신고가','banks all-time high',
 ];
 // MED_KW: 일반 기업/시장 이슈 → 보통 중요도 (+6점)
 const MED_KW = [
@@ -9475,11 +9574,12 @@ var HOME_WEEKLY_NEWS = [
   { title: '반도체·AI 개별 촉매가 이어집니다. 엔비디아는 S&P 신용등급 AA(안정) 상향 + 중국용 Vera 데이터센터 CPU를 8월 출시(올 회계연도 ~$200억 목표)합니다. AMD는 Citi Buy·$575(Venice 2.5D 패키징 부족, ASE 2028까지 풀가동), 메타 BofA $835, 노키아는 JPM 커버 개시 $21(광 네트워크 AI 수주·구글 DC 스위칭). 나스닥100은 6/22부로 NBIS·RKLB·ALAB·CRWV·TER을 편입합니다.', source: 'Telegram·S&P/Citi/JPM 2026-06-13', date: '2026-06-13', sentiment: 'bull', topic: 'semi' },
 ];
 HOME_WEEKLY_NEWS = [
-  { title: 'Telegram 3-channel 7d digest: 796 public-mirror posts processed from Aether Japan Research, Insider Tracking, and BornLupin. Main market tape shifted to US-Iran/Hormuz risk-on: WTI near $80, 10Y below 4.45%, GS Q2 GDP tracker 2.4%, Nasdaq led by mega-tech while breadth lagged.', source: 'Telegram public mirrors 2026-06-16', date: '2026-06-16', sentiment: 'bull', topic: 'macro' },
-  { title: 'Japan macro moved into the foreground: BOJ raised the overnight call rate 25bp to 1%, maintained JGB purchase taper path, and Nikkei briefly crossed 70,000. Citi framed another hike before December as only ~25% probability, so yen/rate sensitivity is a live macro input.', source: 'Aether Japan Research 2026-06-16', date: '2026-06-16', sentiment: 'neutral', topic: 'macro' },
-  { title: 'AI policy is now an investable risk factor: Anthropic Fable/Mythos export-control talks with US Commerce remain unresolved, with nationality/access rules and sovereign-AI security concerns affecting model vendors, cloud distribution, and sovereign data-center duplication.', source: 'Insider Tracking 2026-06-16', date: '2026-06-16', sentiment: 'neutral', topic: 'ai-policy' },
-  { title: 'AI infra bottleneck broadened beyond GPUs: NVDA appears to have locked EML capacity and is securing CW-laser supply, while AMD/Amazon/Meta are later buyers. CPO/NPO, 800V HVDC, SOFC onsite power, grid gear, and optical suppliers now matter alongside accelerators.', source: 'Insider Tracking/BornLupin 2026-06-16', date: '2026-06-16', sentiment: 'bull', topic: 'semi' },
-  { title: 'Memory/materials cycle extended: TD Cowen lifted MU target to $1,500; SK Hynix HBM4E samples were pulled into Jun-Jul; AI-server MLCC lead times stretched toward 24 weeks; Samsung Electro-Mechanics silicon capacitors and WF6/tungsten hexafluoride supply shock entered the watchlist.', source: 'BornLupin/Insider Tracking 2026-06-15~16', date: '2026-06-16', sentiment: 'bull', topic: 'semi' }
+  // v51.13 (integrate 2026-06-23): 6/23 미국 증시 브리핑 통합
+  { title: 'GS 경기침체 확률 25%→15% 하향 + 은행·소형주 ATH — 골드만삭스 침체 확률 대폭 하향. 러셀2000 선물 3,000선 돌파 시도·은행주 사상 최고치. 대형기술→중소형주·경기민감주 순환매 뚜렷. 단, JPM 경고: 분기말 리밸런싱 $1,650억 매도 + HF 레버리지 5년래 최고 = 단기 변동성 경보.', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bull', topic: 'macro' },
+  { title: '이란 60일 일반면허 — WTI $74.82(-2.32%) — 미 재무부 이란산 원유 판매 60일 한시 허용. WTI $74.82·브렌트 $77.90(-3.31%). 중동 전쟁 프리미엄 대부분 제거 → 시장이 공급 과잉 가능성으로 관심 이동. SPR 3.312억 배럴(1983년 이후 최저). 유가 안정 = 인플레 완화·소비 여력 확보.', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bull', topic: 'geo' },
+  { title: 'Micron+Anthropic 전략제휴 — AI 메모리 아키텍처 공동개발 + HBM 장기 공급계약. Micron이 Anthropic 시리즈A 투자자임도 확인. AI 계층 이동 패러다임 강화: GPU 독점 → 메모리·광통신 공급망 수혜 확산(MU/CRDO/ALAB 구조적 수혜).', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bull', topic: 'semi' },
+  { title: 'NVIDIA HALOS 안전 플랫폼 + 유럽 35개 AI 팩토리 + CRDO Evercore PT$325·Stifel PT$350 — HALOS(휴머노이드 AI 안전) 공개. 유럽 23개국 35개 AI 슈퍼컴퓨터 90%+ NVDA 인프라. Credo Technology 애널리스트 동시 상향 = 광통신·AI 연결 계층 확산 수혜.', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bull', topic: 'semi' },
+  { title: 'BoA 연준 2026년 3회 인상 전망 + GOOG -7% DeepMind 인재 이탈 + SpaceX -13% — BoA 매파 전환: 강한 데이터+Fed → 2026년 3회 인상. Julius Baer: 올해 동결·10Y 4.3%. GOOG -7%(13개월 최대): DeepMind 핵심 Anthropic 이탈. SpaceX -13% IPO 이후 최저 but Reflection AI $63억 컴퓨팅 계약 + $200억 회사채 발행.', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bear', topic: 'macro' },
 ];
 window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
 
@@ -9684,32 +9784,54 @@ function _buildBriefingDecisionSummary(items, totalCount, bw) {
   var wtiPct = live('CL=F', 'pct', 0);
   var tnx = live('^TNX', 'price', 4.3);
   var dxyPct = live('DX-Y.NYB', 'pct', 0);
+  var usdJpy = live('JPY=X', 'price', 145);
+  var nvdaPct = live('NVDA', 'pct', 0);
   var snap = window.DATA_SNAPSHOT || {};
   var fg = (snap.fg && snap.fg.value) || snap.fearGreed || null;
   var textBlob = (items || []).slice(0, 40).map(function(i) {
     return [i.title, i.desc, i.topic, i.source].join(' ');
   }).join(' ').toLowerCase();
+  // v51.12 6-축 신호 감지
   var fedHits = (textBlob.match(/fomc|fed|warsh|dot plot|rate|yield|금리|점도표/g) || []).length;
   var iranHits = (textBlob.match(/iran|hormuz|oil|brent|wti|middle east|이란|호르무즈|유가|중동/g) || []).length;
   var macroHits = (textBlob.match(/macro|inflation|cpi|pce|dollar|fx|인플레|달러/g) || []).length;
+  var bojHits = (textBlob.match(/boj|bank of japan|yen carry|엔화|일본은행|엔캐리|ueda|우에다/g) || []).length;
+  var semiHits = (textBlob.match(/nvidia|nvda|hynix|하이닉스|tsmc|amd|semiconductor|반도체|hbm|엔비디아|ai infra|capex/g) || []).length;
+  var krHits = (textBlob.match(/kospi|korea|외국인|기관|수급|원달러|달러원|한국|삼성전자|sk하이닉스/g) || []).length;
+  // 6-축 톤 판단
   var marketTone = spyPct > 0.6 && vix < 20 ? '위험선호 우위' : (spyPct < -0.6 || vix >= 22 ? '위험회피 경계' : '관망 혼합');
   var fedTone = tnx >= 4.4 || fedHits >= 2 ? '금리/점도표 경계' : '금리 부담 중립';
-  var oilTone = wti < 85 && wtiPct <= 0.5 ? '유가 리스크 완화' : '유가 헤드라인 경계';
-  var action = (fedTone.indexOf('경계') >= 0)
-    ? '추격 매수보다 분할 진입. 장기금리 민감주와 레버리지 노출을 먼저 확인.'
-    : '추세가 확인된 업종 위주로 선별. 뉴스는 가격 반응이 동반될 때만 가중.';
-  if (oilTone.indexOf('완화') >= 0) action += ' 유가 안정은 인플레 부담을 낮추지만 중동 뉴스는 꼬리위험으로 유지.';
+  var oilTone = wti < 75 && wtiPct <= 0.5 ? '유가 리스크 완화' : (wti >= 85 ? '유가 헤드라인 경계' : '유가 중립');
+  var bojTone = bojHits >= 2 ? '엔캐리 리스크 경계' : (usdJpy < 145 ? '엔화 강세 모니터' : '엔캐리 안정');
+  var semiTone = semiHits >= 3 ? 'AI·반도체 촉매 활성' : (nvdaPct > 1.0 ? 'AI·반도체 강세' : 'AI·반도체 중립');
+  var krTone = krHits >= 2 ? '한국장 수급 주목' : '한국장 중립';
+  // 6축 기반 오늘 행동
+  var actions = [];
+  if (fedTone.indexOf('경계') >= 0) actions.push('금리 민감주·레버리지 노출 확인 후 분할 진입');
+  if (oilTone.indexOf('경계') >= 0) actions.push('에너지·중동 가격 반응 확인 필요');
+  if (bojTone.indexOf('경계') >= 0) actions.push('엔캐리 청산 신호 시 위험자산 노출 축소');
+  if (semiTone.indexOf('활성') >= 0 || semiTone.indexOf('강세') >= 0) actions.push('AI·반도체 모멘텀 유효 — 추세 추종');
+  if (oilTone.indexOf('완화') >= 0 && !actions.length) actions.push('유가 안정은 인플레 부담 완화 — 꼬리위험은 유지');
+  if (krTone.indexOf('주목') >= 0) actions.push('한국장 외인 수급 방향 확인');
+  if (!actions.length) actions.push('추세가 확인된 업종 위주로 선별. 뉴스는 가격 반응이 동반될 때만 가중.');
+  var action = actions.join(' · ');
   var fgText = fg != null ? ' · F&G ' + fg : '';
-  var meta = '선별 뉴스 ' + totalCount + '건 · FOMC/금리 ' + fedHits + ' · 이란/유가 ' + iranHits + ' · 매크로 ' + macroHits;
+  var meta = '선별 뉴스 ' + totalCount + '건 · Fed ' + fedHits + ' · 지정학 ' + iranHits + ' · 매크로 ' + macroHits + ' · BOJ ' + bojHits + ' · 반도체 ' + semiHits + ' · 한국 ' + krHits;
+  function tile(tone, color, sub) {
+    return '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:4px;padding:9px;"><b style="color:' + color + ';">' + escLocal(tone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">' + escLocal(sub) + '</div></div>';
+  }
   return '<div style="margin-bottom:12px;padding:12px;background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(168,85,247,0.04));border:1px solid rgba(0,212,255,0.20);border-radius:4px;">' +
     '<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:9px;">' +
-    '<div style="font-size:13px;font-weight:900;color:var(--text-primary);">시장 상황 요약</div>' +
+    '<div style="font-size:13px;font-weight:900;color:var(--text-primary);">시장 상황 요약 <span style="font-size:10px;font-weight:400;color:var(--text-muted);">(6-축)</span></div>' +
     '<div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">' + escLocal(meta) + '</div>' +
     '</div>' +
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;">' +
-    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:4px;padding:9px;"><b style="color:var(--data-cyan);">' + escLocal(marketTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">SPY ' + pct(spyPct) + ' · VIX ' + Number(vix).toFixed(1) + fgText + '</div></div>' +
-    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:4px;padding:9px;"><b style="color:var(--data-amber);">' + escLocal(fedTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">10Y ' + Number(tnx).toFixed(2) + '% · DXY ' + pct(dxyPct) + '</div></div>' +
-    '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:4px;padding:9px;"><b style="color:var(--data-green);">' + escLocal(oilTone) + '</b><div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">WTI $' + Number(wti).toFixed(1) + ' (' + pct(wtiPct) + ') · 중동 뉴스 확인</div></div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;">' +
+    tile(marketTone, 'var(--data-cyan)', 'SPY ' + pct(spyPct) + ' · VIX ' + Number(vix).toFixed(1) + fgText) +
+    tile(fedTone, 'var(--data-amber)', '10Y ' + Number(tnx).toFixed(2) + '% · DXY ' + pct(dxyPct)) +
+    tile(oilTone, 'var(--data-green)', 'WTI $' + Number(wti).toFixed(1) + ' (' + pct(wtiPct) + ')') +
+    tile(bojTone, 'var(--data-purple)', 'USD/JPY ' + Number(usdJpy).toFixed(1) + ' · BOJ ' + bojHits + '건') +
+    tile(semiTone, 'var(--data-blue)', 'NVDA ' + pct(nvdaPct) + ' · 뉴스 ' + semiHits + '건') +
+    tile(krTone, 'var(--data-magenta)', 'KOSPI · 외인수급 뉴스 ' + krHits + '건') +
     '</div>' +
     '<div style="margin-top:9px;font-size:11px;color:var(--text-secondary);line-height:1.5;"><b style="color:var(--accent);">오늘 행동</b> ' + escLocal(action) + '</div>' +
     '</div>';
@@ -9834,6 +9956,8 @@ function renderBriefingFeed(items) {
     '<div style="font-size:11px;color:var(--text-muted);">' + periodStart + ' ~ ' + periodEnd + ' KST · 총 ' + totalCount + '건 선별</div>' +
     '</div>';
   var briefingDecisionHtml = _buildBriefingDecisionSummary(filtered, totalCount, bw);
+  // v51.14: 핵심 5선 — score 상위 항목을 확장 카드로 렌더 (API 키 유무 무관 항상 표시)
+  var topStoriesHtml = typeof _renderBriefingTopStories === 'function' ? _renderBriefingTopStories(filtered, 5) : '';
 
   // AI 브리핑 생성 시도 (v50.53 2C: 서버 키 모드 시 개인 키 없이도 생성)
   var apiKey = typeof getApiKey === 'function' ? getApiKey() : '';
@@ -9845,12 +9969,12 @@ function renderBriefingFeed(items) {
       '<div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;">' + totalCount + '건의 뉴스를 분석·해석하고 있습니다. 30초~1분 소요될 수 있습니다.</div>' +
       '<div style="width:40px;height:40px;border:3px solid var(--data-cyan-dim);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto;"></div>' +
       '</div>';
-    _generateAIBriefing(summaryLines.join('\n'), bw, bulletHtml, cacheKey, briefingHeader + briefingDecisionHtml, briefingModelV502);
+    _generateAIBriefing(summaryLines.join('\n'), bw, topStoriesHtml + bulletHtml, cacheKey, briefingHeader + briefingDecisionHtml, briefingModelV502);
   } else {
     // API 키 없어도 분석 글 형태로 표시
     var noAiNote = apiKey ? '' : '<div style="padding:8px 10px;font-size:10px;color:var(--text-muted);background:var(--surface-2);border-radius:3px;margin-bottom:10px;line-height:1.5;">' +
-      'AI 키를 추가하면 이 뉴스 묶음을 한 문단 브리핑으로 요약할 수 있습니다.</div>';
-    var finalHtml = briefingHeader + briefingDecisionHtml + noAiNote + bulletHtml;
+      'AI 키를 추가하면 이 뉴스 묶음을 AI 종합 분석 브리핑으로 생성할 수 있습니다.</div>';
+    var finalHtml = briefingHeader + briefingDecisionHtml + topStoriesHtml + noAiNote + bulletHtml;
     _briefingCacheKey = cacheKey;
     _briefingCachedHtml = finalHtml;
     container.innerHTML = finalHtml || '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">해당 기간 뉴스가 없습니다</div>';
@@ -9934,41 +10058,66 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     newsText + '\n\n' +
     _briefingMacroContext +
     '위 검증 뉴스와 런타임 매크로 데이터만 교차 분석해 기관급 모닝 브리핑을 작성하세요. 과거 고정 투자논지·목표가·이벤트를 현재 사실처럼 재사용하지 마세요.\n\n' +
+
+    '=== 뉴스 선별 기준 (6축) ===\n' +
+    '브리핑에 포함할 뉴스는 아래 6축 중 하나 이상 해당하고, "이 뉴스 없으면 오늘 포지션을 바꿔야 하는가?"에 YES인 것만:\n' +
+    '① 매크로/정책 — Fed 스탠스 변화, 재정 충격, 금리 경로\n' +
+    '② 지정학/에너지 — 분쟁 확전·완화, 호르무즈·공급망, 유가 5%+ 이동\n' +
+    '③ AI/반도체 — 빅테크 Capex 결정, 수출통제 실질 변화, 칩 공급망\n' +
+    '④ 메모리/소재 — HBM 수급, MLCC/희토류 공급 쇼크, 사이클 전환\n' +
+    '⑤ 개별 촉매 — 어닝 서프라이즈, M&A, 지수 편입, 신용등급\n' +
+    '⑥ 한국 시장 — 외인 수급 방향, 삼성/하이닉스 촉매, 원/달러 임계점\n\n' +
+
     '=== 작성 원칙 ===\n' +
     '1. 뉴스를 "나열"하지 마라. 서사(narrative)로 엮어라. 마치 골드만삭스 CIO가 고객에게 보내는 데일리 노트처럼.\n' +
     '2. 모든 팩트에 출처를 붙여라 (예: "Reuters에 따르면", "Bloomberg 보도", "WSJ 단독").\n' +
-    '3. "왜 중요한지"를 반드시 수치·선례·인과관계로 설명하라.\n' +
-    '4. 인과관계 체인은 → 화살표로 연결 (예: CPI 상회 → 금리인하 기대 후퇴 → 성장주 멀티플 압축 → 나스닥 -2%).\n' +
-    '5. 각 섹션 끝에 "주시 포인트"를 넣어 투자자가 바로 행동할 수 있게 하라.\n\n' +
+    '3. 인과관계는 반드시 E→M→I→A 4단계로 전개하라:\n' +
+    '   EVENT(사건) → MECHANISM(작동 경로) → MARKET IMPACT(시장 충격) → ACTION(투자자 행동)\n' +
+    '   예: "US-이란 60일 로드맵 확정(E) → 호르무즈 재개·제재완화(M) → WTI $75 이하·인플레 완화(I) → 에너지 비중 축소/성장주 홀딩(A)"\n' +
+    '4. 패러다임 전환 탐지: 단순 이벤트인가 vs 기존 분석 틀을 깨는 구조 변화인가를 구분하라.\n' +
+    '   • 표면 이벤트: "SK하이닉스 시총이 삼성을 역전했다"\n' +
+    '   • 패러다임 전환: "메모리=사이클주 패러다임 → HBM 리더십=구조적 성장주 리레이팅 패러다임"\n' +
+    '   전환이 감지되면 "기존 틀 vs 새 틀"을 명시적으로 대비시켜라.\n' +
+    '5. 이중 안전망 탐지: 복수의 독립 꼬리위험이 같은 날 동시 해소되면 단순 합산이 아닌 구조적 리스크온 신호로 명시하라.\n' +
+    '6. 헤드라인 노이즈 vs 실제 리스크 분리: 정치 발언·단독 보도가 실제 규제 집행과 다를 경우 반드시 구분 표기.\n' +
+    '7. 각 섹션 끝에 "오늘 행동"(구체적 종목·섹터·액션 1가지)을 넣어라.\n\n' +
+
     '=== 형식 규칙 (반드시 준수) ===\n' +
     '- 마크다운 ## 으로 섹션 구분 (시스템이 자동으로 카드 UI로 변환함)\n' +
     '- ####, ---, 수평선 절대 사용 금지\n' +
     '- ### 은 섹션 내 소제목에만 사용\n' +
     '- 한국어 작성, 전문용어는 괄호 안 쉬운 설명\n\n' +
+
     '=== 섹션 구조 (이 순서대로) ===\n\n' +
-    '## 핵심 요약\n' +
-    '오늘 시장의 핵심을 3~5문장으로. "투자자가 딱 하나만 읽는다면 이것"이라는 마음으로.\n\n' +
+    '## 오늘의 판단\n' +
+    '한 줄 결론: 오늘 가장 중요한 임플리케이션(무엇이 달라졌는가)을 첫 문장으로. 사건이 아닌 "그래서 무엇이 바뀌는가"로 시작하라.\n' +
+    '이어서 주요 2~3개 이벤트를 E→M→I→A 체인으로. 패러다임 전환이 있으면 강조.\n\n' +
     '## 매크로·통화정책\n' +
-    '(해당 뉴스가 있을 때만) 금리, CPI, 고용, Fed 발언 등. 출처 명시. 시장 영향 분석.\n\n' +
+    '(해당 뉴스가 있을 때만) 금리, CPI, 고용, Fed 발언 등. 출처 명시. E→M→I→A 체인 포함.\n\n' +
     '## 지정학·무역\n' +
-    '(해당 뉴스가 있을 때만) 관세, 제재, 분쟁, 외교. 투자 함의 중심.\n\n' +
+    '(해당 뉴스가 있을 때만) 관세, 제재, 분쟁, 외교. 헤드라인 노이즈 vs 실제 규제 집행 분리 필수.\n\n' +
     '## 반도체·AI\n' +
-    '(해당 뉴스가 있을 때만) 실적, 수급, 기술 트렌드. 밸류체인 영향.\n\n' +
+    '(해당 뉴스가 있을 때만) 실적, 수급, 기술 트렌드. 밸류체인 영향. 패러다임 전환 신호 탐지.\n\n' +
     '## 에너지·원자재\n' +
-    '(해당 뉴스가 있을 때만) 유가, 금, 원자재. 인플레 연결.\n\n' +
+    '(해당 뉴스가 있을 때만) 유가, 금, 원자재. 인플레 연결. E→M→I→A 포함.\n\n' +
     '## 개별 주식·실적\n' +
     '(해당 뉴스가 있을 때만) 어닝, 가이던스, 투자의견 변경.\n\n' +
     '## 연결고리\n' +
-    '서로 다른 섹션의 뉴스가 어떻게 연결되는지. 최소 2개의 인과관계 체인을 → 로 보여줘라.\n\n' +
-    '## 리스크 & 기회\n' +
-    '구체적 시나리오 + 트리거 + 영향받는 자산을 명시.\n\n' +
+    '서로 다른 섹션의 뉴스가 어떻게 연결되는지. 최소 2개의 E→M→I→A 체인. 이중 안전망 구조가 있으면 명시.\n\n' +
+    '## Bull/Bear 분기점\n' +
+    '오늘의 판단을 뒤집는 조건을 각각 한 줄로:\n' +
+    '• Bull case가 틀리려면: [구체적 트리거]\n' +
+    '• Bear case가 틀리려면: [구체적 트리거]\n' +
+    '투자자가 언제 뷰를 바꿔야 하는지 명확히.\n\n' +
     '## 향후 48시간 이벤트\n' +
-    '날짜, 시간(KST), 종목/지표를 테이블 형식으로.\n\n' +
+    '날짜, 시간(KST), 종목/지표, 예상 시장 영향을 테이블 형식으로.\n\n' +
+
     '=== 금지 사항 ===\n' +
     '- #### 사용 금지\n' +
     '- --- 수평선 금지\n' +
     '- "사실:", "해석:", "영향:" 같은 기계적 라벨 금지 — 자연스러운 문장으로 녹여라\n' +
-    '- 뉴스 원문 그대로 복붙 금지 — 반드시 분석·해석·연결해서 서사를 만들어라';
+    '- 뉴스 원문 그대로 복붙 금지 — 반드시 분석·해석·연결해서 서사를 만들어라\n' +
+    '- 단순 사실 나열 금지 — E→M→I→A 없는 문단은 쓰지 마라';
 
   try {
     var resp = await fetch(_ct.url, {
@@ -10101,6 +10250,92 @@ function _renderBriefingSection(icon, label, bulletsHtml, totalInGroup) {
   out += '<div>' + bulletsHtml + '</div>';
   out += '</div>';
   return out;
+}
+
+// v51.14: 브리핑 핵심 5선 — score 상위 N건을 "브리핑 문장 + 시장 의미 + 확인 포인트" 확장 카드로 렌더
+function _renderBriefingTopStories(items, maxN) {
+  maxN = maxN || 5;
+  var top = (items || []).filter(function(i) { return (i.score || 0) >= 50; })
+    .sort(function(a, b) { return (b.score || 0) - (a.score || 0); })
+    .slice(0, maxN);
+  if (!top.length) return '';
+  var TOPIC_COLORS = {
+    macro:'var(--data-amber)', geo:'var(--data-red)', semi:'var(--data-blue)',
+    'ai-policy':'var(--data-purple)', earnings:'var(--data-green)', energy:'var(--data-amber)',
+    equity:'var(--data-cyan)', bond:'var(--data-blue)', fx:'var(--data-cyan)',
+    analyst:'var(--data-green)', defense:'var(--data-red)', memory:'var(--data-blue)',
+    power:'var(--data-cyan)', 'market-note':'var(--text-secondary)', optical:'var(--data-blue)',
+    crypto:'var(--data-purple)', healthcare:'var(--data-green)', space:'var(--data-purple)'
+  };
+  var TOPIC_LABEL = {
+    macro:'매크로', geo:'지정학', semi:'반도체·AI', 'ai-policy':'AI정책',
+    earnings:'실적', energy:'에너지', equity:'주식', bond:'채권',
+    fx:'외환', analyst:'애널리스트', defense:'방산', memory:'메모리',
+    power:'전력', 'market-note':'시장노트', crypto:'암호화폐',
+    optical:'광통신', healthcare:'헬스케어', space:'우주·위성'
+  };
+  var rankColors = ['var(--data-amber)','var(--text-secondary)','var(--text-muted)','var(--text-muted)','var(--text-muted)'];
+  var html = '<div style="margin-bottom:14px;">';
+  html += '<div style="font-size:12px;font-weight:900;color:var(--text-primary);margin-bottom:10px;display:flex;align-items:center;gap:8px;">';
+  html += '<span style="background:var(--data-cyan);color:#0a0f1e;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;flex-shrink:0;">핵심 ' + top.length + '선</span>';
+  html += '오늘의 핵심 소식 해석';
+  html += '<span style="font-size:10px;font-weight:400;color:var(--text-muted);margin-left:auto;">score 상위 · 투자 해석 포함</span>';
+  html += '</div>';
+  top.forEach(function(item, idx) {
+    var tr = _aioGetNewsTranslation(item);
+    var title = escHtml(getDisplayTitle(item));
+    var rewrite = tr.ko_rewrite || '';
+    var market = tr.ko_market || '';
+    var explain = tr.ko_explain || '';
+    var summary = tr.ko_summary || '';
+    var tickers = [];
+    try { tickers = typeof getDisplayTickers === 'function' ? (getDisplayTickers(item) || []) : []; } catch(_e2) {}
+    var score = item.score || 0;
+    var topic = item.topic || 'general';
+    var topicColor = TOPIC_COLORS[topic] || 'var(--text-muted)';
+    var topicLabel = TOPIC_LABEL[topic] || topic;
+    var absTime = typeof getAbsoluteTime === 'function' ? getAbsoluteTime(item.pubDate) : '';
+    var timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
+    var sent = typeof getSentimentFromText === 'function' ? getSentimentFromText((item.title || '') + ' ' + (item.desc || '')) : '';
+    var sentColor = sent === 'bull' ? 'var(--data-green)' : sent === 'bear' ? 'var(--data-red)' : 'var(--data-amber)';
+    var sentLabel = sent === 'bull' ? '긍정' : sent === 'bear' ? '부정' : sent === 'warn' ? '주의' : '';
+    var tickerHtml = Array.isArray(tickers) ? tickers.slice(0, 4).map(function(t) {
+      var s = (t || '').replace('$', '');
+      return '<span data-action="_aioNewsTickerClick" data-arg="' + escHtml(s) + '" role="button" tabindex="0" style="font-size:10px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;cursor:pointer;margin-right:2px;">' + escHtml(t) + '</span>';
+    }).join('') : '';
+    html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;margin-bottom:8px;border-left:3px solid ' + topicColor + ';">';
+    // 헤더: 순위 + 토픽 + 출처 + 시간 + 감성 + score
+    html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;flex-wrap:wrap;">';
+    html += '<span style="font-size:13px;font-weight:900;color:' + rankColors[idx] + ';font-family:var(--font-mono);min-width:22px;">#' + (idx + 1) + '</span>';
+    html += '<span style="font-size:11px;font-weight:700;color:' + topicColor + ';background:' + topicColor + '18;padding:1px 6px;border-radius:3px;">' + escHtml(topicLabel) + '</span>';
+    if (item.source) html += '<span style="font-size:11px;font-weight:700;color:var(--accent);background:var(--data-cyan-light);padding:1px 6px;border-radius:3px;">' + escHtml(item.source) + '</span>';
+    html += '<span style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">' + escHtml(absTime || timeAgo) + '</span>';
+    if (sentLabel) html += '<span style="font-size:10px;font-weight:700;color:' + sentColor + ';background:' + sentColor + '15;padding:1px 5px;border-radius:3px;">' + escHtml(sentLabel) + '</span>';
+    if (score) html += '<span style="margin-left:auto;font-size:11px;font-weight:700;color:' + (score >= 80 ? 'var(--data-red)' : score >= 60 ? 'var(--data-amber)' : 'var(--text-muted)') + ';font-family:var(--font-mono);">' + score + '</span>';
+    html += '</div>';
+    // 제목
+    html += '<div style="font-size:12px;font-weight:800;color:var(--text-primary);line-height:1.5;margin-bottom:6px;">' + title + '</div>';
+    // 브리핑 문장 (ko_rewrite 우선, 없으면 ko_summary)
+    var bodyText = rewrite || summary;
+    if (bodyText) {
+      html += '<div style="font-size:11px;color:var(--text-secondary);line-height:1.65;margin-bottom:6px;padding:7px 10px;background:var(--surface-1);border-radius:3px;border-left:2px solid ' + topicColor + ';">' + escHtml(bodyText) + '</div>';
+    }
+    // 시장 의미 (ko_market)
+    if (market) {
+      html += '<div style="font-size:11px;color:var(--data-amber);line-height:1.5;margin-bottom:4px;"><b style="color:var(--data-amber);">시장 의미</b> · ' + escHtml(market) + '</div>';
+    }
+    // 확인 포인트 (ko_explain) — market과 다를 때만
+    if (explain && explain !== market) {
+      html += '<div style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-bottom:4px;"><b style="color:var(--text-secondary);">확인 포인트</b> ' + escHtml(explain) + '</div>';
+    }
+    // 관련 티커
+    if (tickerHtml) {
+      html += '<div style="margin-top:5px;">' + tickerHtml + '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
 }
 
 // v46.6: 브리핑 기사 아이템 렌더링 — 카드형 + 출처/시간 강조 + 점수 뱃지
@@ -12784,7 +13019,7 @@ window._aioVixPercentile = _aioVixPercentile;
 
 function vixRegime(vix) {
   if (vix < 12) return { label: 'Subdued', color: '#00e5a0' };
-  if (vix < 16) return { label: 'Low', color: '#00d4ff' };
+  if (vix < 16) return { label: 'Low', color: '#00bcd4' };
   if (vix < 20) return { label: 'Normal', color: '#a8b5c8' };
   if (vix < 25) return { label: 'Elevated', color: '#ffa31a' };
   if (vix < 30) return { label: 'Stressed', color: '#ffa31a' };
@@ -13261,10 +13496,13 @@ function _aioLiveDataFor(sym) {
   return ld[sym] || ld[String(sym || '').trim()] || null;
 }
 
+// _aioLiveNum: Number(v) 변환 후 isFinite — 문자열 "42" 허용 (API 응답 원시값용)
+// window._aioFiniteNum(aio-core.js): typeof v !== 'number' 선가드 — 내부 연산용, 타입 변환 없음
 function _aioLiveNum(v) {
   var n = Number(v);
   return isFinite(n) ? n : null;
 }
+window._aioLiveNum = _aioLiveNum;
 
 function _aioLivePrice(d) {
   if (!d) return null;
@@ -14056,7 +14294,7 @@ function generateDynamicBriefing() {
     }
   } catch(e) {}
   if (tsScore >= 75) { tsLabel = '적극 매수 OK'; tsColor = '#00e5a0'; }
-  else if (tsScore >= 55) { tsLabel = '선별적 매수'; tsColor = '#00d4ff'; }
+  else if (tsScore >= 55) { tsLabel = '선별적 매수'; tsColor = '#00bcd4'; }
   else if (tsScore >= 35) { tsLabel = '관망'; tsColor = '#ffa31a'; }
   else { tsLabel = '방어 모드'; tsColor = '#ff5b50'; }
   var tsPct = Math.min(100, Math.max(0, tsScore));
@@ -14151,6 +14389,9 @@ function _aioApplyServerScreener(sd) {
     if (typeof f.pctSma200 === 'number') item.pctSma200 = f.pctSma200;
     // v50.54 3B/3C: FMP 밸류/퀄리티/어닝(키 있을 때만 존재)
     ['pe','pb','evEbitda','roe','margin','revGrowth','epsSurprise'].forEach(function(k){ if (typeof f[k] === 'number') item[k] = f[k]; });
+    // v51.15: 개별 종목 뉴스 메모 자동 병합 (Actions 1일 1회 수집 → screener.json.newsMemo)
+    if (f.newsMemo) item.newsMemo = f.newsMemo;
+    if (f.newsTs) item.newsTs = f.newsTs;
     item._factorAsOf = sd.asOf;
     n++;
   });
@@ -14444,6 +14685,7 @@ function refreshSignal() {
 
 // ═══ HOME PAGE DASHBOARD REFRESH ═══════════════════════════════════
 function refreshHomeDashboard() {
+  try { if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote(); } catch(_) {}
   const ld = window._liveData || {};
   const spx = ld['^GSPC'] || {};
   const vix = ld['^VIX'] || {};
@@ -14956,7 +15198,7 @@ function _renderCryptoTempo() {
   if (g.btcDominance != null) {
     var bd = g.btcDominance;
     var bdSub = bd >= 55 ? '알트 약세 · BTC 피신 신호' : bd >= 48 ? '중립 상단' : bd >= 42 ? '중립 하단' : '알트시즌 임박';
-    var bdColor = bd >= 55 ? '#ff5b50' : bd >= 48 ? '#ffa31a' : bd >= 42 ? '#00e5a0' : '#00d4ff';
+    var bdColor = bd >= 55 ? '#ff5b50' : bd >= 48 ? '#ffa31a' : bd >= 42 ? '#00e5a0' : '#00bcd4';
     html += card('BTC 도미넌스', bd.toFixed(1) + '%', bdSub, bdColor);
   }
   // ETH 도미넌스
@@ -15384,4 +15626,316 @@ function _aioRenderCarryUnwindRisk() {
   e = document.getElementById('carry-risk-level'); if (e) { e.textContent = riskLevel; e.style.color = riskColor; }
 }
 window._aioRenderCarryUnwindRisk = _aioRenderCarryUnwindRisk;
+
+// ── 스크리너 질의 엔진 — aio-chat.js에서 이동 (v51.17) ─────────────────────────────
+const _SECTOR_KEYWORDS = {
+  'technology':['Technology'], 'tech':['Technology'], '기술':['Technology'], '기술주':['Technology'], 'IT':['Technology'],
+  'software':['Technology'], '소프트웨어':['Technology','SW','ERP','IT서비스','IT플랫폼','CNS'],
+  'semiconductor':['Technology'], '반도체':['Technology','반도체','반도체장비','반도체소재','파운드리','MLCC'],
+  'ai':['Technology','AI'], 'AI':['Technology','AI'],
+  'financial':['Financials'], 'financials':['Financials'], '금융':['Financials','금융','보험','핀테크','거래소'],
+  'bank':['Financials'], '은행':['Financials','금융'],
+  'healthcare':['Healthcare'], 'health':['Healthcare'], '헬스케어':['Healthcare'], '의료':['Healthcare'],
+  'biotech':['Healthcare'], '바이오':['Healthcare','바이오','바이오시밀러','보톡스','CDMO','항암제','제약'],
+  'pharma':['Healthcare'], '제약':['Healthcare','제약','바이오'],
+  'consumer':['Consumer','Consumer Defensive'], '소비재':['Consumer','Consumer Defensive'],
+  'energy':['Energy'], '에너지':['Energy'], '원유':['Energy'], '석유':['Energy'],
+  'utility':['Utilities'], 'utilities':['Utilities'], '유틸리티':['Utilities'],
+  'industrial':['Industrials'], 'industrials':['Industrials'], '산업재':['Industrials'],
+  'defense':['Industrials'], '방산':['Industrials','방산','방산지주','방산IT','탄약'],
+  'material':['Materials'], 'materials':['Materials'], '소재':['Materials','소재'],
+  'realestate':['Real Estate'], '부동산':['Real Estate'],
+  'communication':['Communication Services'], '통신':['Communication Services','통신'],
+  'etf':['ETF'], 'ETF':['ETF'],
+  '2차전지':['2차전지','양극재'], '배터리':['2차전지','양극재'],
+  '조선':['조선','조선지주'], '자동차':['자동차','자동차부품','가전/전장','전장'],
+  '원전':['원전','원전설계','원전정비','원전기자재'], '전력':['전력기기','전력지주','배전','전선'],
+  '로봇':['로봇','산업로봇','서비스로봇','협동로봇'],
+  '화장품':['화장품','뷰티브랜드','스킨케어','색조'],
+  '게임':['게임','게임/블록체인','엔터','미디어','드라마'],
+};
+window.AIO_SECTOR_KEYWORDS = _SECTOR_KEYWORDS;
+
+function _detectSectorQuery(text) {
+  var lower = text.toLowerCase();
+  var intentPatterns = ['비교','추천','찾아','뽑아','골라','싼','저평가','고평가','성장','배당','수익률','밸류','가치','cheapest','best','top','compare','recommend','undervalued','overvalued','screen','pick','find'];
+  var hasIntent = intentPatterns.some(function(p) { return lower.indexOf(p) >= 0; });
+  if (!hasIntent) return null;
+  var matched = null, matchedKey = '';
+  Object.keys(_SECTOR_KEYWORDS).forEach(function(kw) {
+    if (lower.indexOf(kw.toLowerCase()) >= 0 && (!matched || kw.length > matchedKey.length)) { matched = _SECTOR_KEYWORDS[kw]; matchedKey = kw; }
+  });
+  if (!matched) return null;
+  var stocks = (typeof SCREENER_DB !== 'undefined' ? SCREENER_DB : [])
+    .filter(function(s) { return matched.some(function(sec) { return s.sector === sec; }); })
+    .sort(function(a,b) { return (b.mcap||0) - (a.mcap||0); }).slice(0, 8);
+  return stocks.length > 0 ? { sectorLabel: matchedKey, stocks: stocks } : null;
+}
+window._detectSectorQuery = _detectSectorQuery;
+
+function _aioIsBroadRecommendationQuery(query) {
+  var q = String(query || '').toLowerCase();
+  if (!q) return false;
+  return /(종목\s*)?(추천|골라|뽑아|찾아줘|아이디어|후보|리스트)|recommend|stock\s*ideas?|top\s*picks?|best\s*stocks?|pick\s*stocks?/i.test(q);
+}
+window._aioIsBroadRecommendationQuery = _aioIsBroadRecommendationQuery;
+
+function _aioInferTickerMarket(sym, index) {
+  var s = String(sym || '');
+  if (/\.KS$|\.KQ$/.test(s)) return 'KR';
+  if (/\.T$/.test(s)) return 'Japan';
+  if (/\.TW$/.test(s)) return 'Taiwan';
+  if (/\.HK$/.test(s)) return 'Hong Kong';
+  if (/ADR/i.test(index || '')) return 'ADR';
+  return 'US';
+}
+window._aioInferTickerMarket = _aioInferTickerMarket;
+
+function _aioCapBucket(mcap) {
+  var v = Number(mcap || 0);
+  if (v >= 500) return 'mega';
+  if (v >= 100) return 'large';
+  if (v >= 10) return 'mid';
+  if (v > 0) return 'small';
+  return 'unknown';
+}
+window._aioCapBucket = _aioCapBucket;
+
+function _aioExtractRecentRecommendationTickers(messages) {
+  try {
+    var db = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : (window.SCREENER_DB || []);
+    var known = {};
+    (Array.isArray(db) ? db : []).forEach(function(s) { if (s && s.sym) known[s.sym] = true; });
+    var out = {};
+    (messages || []).slice(-8).forEach(function(m) {
+      var text = String((m && m.content) || '');
+      var hits = text.match(/\b[A-Z][A-Z0-9.-]{1,9}(?:\.(?:KS|KQ|T|TW|HK))?\b|\b\d{6}\.(?:KS|KQ)\b/g) || [];
+      hits.forEach(function(t) { if (known[t]) out[t] = true; });
+    });
+    return Object.keys(out);
+  } catch(_) { return []; }
+}
+window._aioExtractRecentRecommendationTickers = _aioExtractRecentRecommendationTickers;
+
+function _aioBuildDiversifiedRecommendationRows(db, live, opts) {
+  opts = opts || {}; live = live || {};
+  var recent = {};
+  (opts.recentTickers || []).forEach(function(t) { recent[t] = true; });
+  var seen = {};
+  var eligible = (Array.isArray(db) ? db : []).filter(function(s) {
+    if (!s || !s.sym || seen[s.sym]) return false;
+    seen[s.sym] = true;
+    if (s.signal === 'SELL') return false;
+    if (s.sector === 'ETF') return false;
+    if (/^\^|=|-USD$/i.test(s.sym)) return false;
+    return true;
+  }).map(function(s) {
+    var ld = live[s.sym] || {};
+    var rank = (typeof s.rank === 'number') ? s.rank : 50;
+    var signalScore = ({ BUY: 18, WATCH: 8, HOLD: 2 })[s.signal] || 0;
+    var rsi = Number(s.rsi);
+    var rsiScore = isFinite(rsi) ? (rsi >= 35 && rsi <= 62 ? 5 : rsi > 75 ? -12 : rsi < 25 ? -6 : 0) : 0;
+    var capScore = Math.min(10, Math.max(0, Math.log10(Math.max(1, Number(s.mcap || 1))) * 2));
+    var pct = (ld && ld.pct != null && isFinite(Number(ld.pct))) ? Number(ld.pct) : null;
+    var liveScore = pct == null ? 0 : Math.max(-5, Math.min(5, pct));
+    var repeatPenalty = recent[s.sym] ? 25 : 0;
+    var market = _aioInferTickerMarket(s.sym, s.index);
+    var score = rank + signalScore + rsiScore + capScore + liveScore - repeatPenalty;
+    return {
+      sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
+      rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
+      ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
+      price: ld.price != null ? ld.price : null, pct: pct, memo: (s.memo || '').slice(0, 90),
+      market: market, capBucket: _aioCapBucket(s.mcap), diversityScore: Math.round(score), repeatPenalty: repeatPenalty
+    };
+  }).sort(function(a, b) { return b.diversityScore - a.diversityScore; });
+
+  var _nonRepeat = eligible.filter(function(r) { return r.repeatPenalty === 0; });
+  if (_nonRepeat.length >= 20) { eligible = _nonRepeat; }
+
+  function pickRows(sectorLimit, marketLimit, maxRows) {
+    var picked = [], secCount = {}, marketCount = {};
+    eligible.forEach(function(r) {
+      if (picked.length >= maxRows) return;
+      var sec = r.sector || 'Unknown', mkt = r.market || 'US';
+      if ((secCount[sec] || 0) >= sectorLimit) return;
+      if ((marketCount[mkt] || 0) >= (marketLimit[mkt] || marketLimit._default || maxRows)) return;
+      picked.push(r);
+      secCount[sec] = (secCount[sec] || 0) + 1;
+      marketCount[mkt] = (marketCount[mkt] || 0) + 1;
+    });
+    return { rows: picked, secCount: secCount, marketCount: marketCount };
+  }
+
+  var first = pickRows(2, { US: 7, KR: 5, Japan: 2, Taiwan: 2, 'Hong Kong': 2, ADR: 2, _default: 3 }, 16);
+  if (first.rows.length < 12) first = pickRows(3, { US: 10, KR: 7, Japan: 3, Taiwan: 3, 'Hong Kong': 3, ADR: 3, _default: 4 }, 16);
+  var sectors = {}, markets = {}, capBuckets = {};
+  var recentSuppressed = eligible.filter(function(r) { return r.repeatPenalty > 0; }).length;
+  first.rows.forEach(function(r) {
+    sectors[r.sector || 'Unknown'] = true;
+    markets[r.market || 'US'] = true;
+    capBuckets[r.capBucket || 'unknown'] = true;
+  });
+  return {
+    rows: first.rows, totalMatched: eligible.length, recentSuppressed: recentSuppressed,
+    diversity: { sectorCount: Object.keys(sectors).length, marketCount: Object.keys(markets).length, capBucketCount: Object.keys(capBuckets).length }
+  };
+}
+window._aioBuildDiversifiedRecommendationRows = _aioBuildDiversifiedRecommendationRows;
+
+function _aioRunScreenerQuery(query, opts) {
+  try {
+    opts = opts || {};
+    var db = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : (window.SCREENER_DB || null);
+    if (!Array.isArray(db) || !db.length) return null;
+    var q = String(query || '').toLowerCase();
+    var crit = {}, labels = [];
+
+    if (/매수\s*(시그널|종목)?|buy\b|사야|살\s*만|저평가\s*매수/.test(q)) crit.signal = 'BUY';
+    else if (/관망|watch\b/.test(q)) crit.signal = 'WATCH';
+    else if (/매도|sell\b|팔\s*/.test(q)) crit.signal = 'SELL';
+    else if (/보유|hold\b/.test(q)) crit.signal = 'HOLD';
+    if (crit.signal) labels.push('시그널=' + crit.signal);
+
+    var rsiUnder = q.match(/rsi\s*(\d{1,3})\s*(?:이하|미만|under|below|아래|<=?)/) || q.match(/(?:이하|미만|under|below)\s*rsi\s*(\d{1,3})/);
+    var rsiOver  = q.match(/rsi\s*(\d{1,3})\s*(?:이상|초과|over|above|위|>=?)/) || q.match(/(?:이상|초과|over|above)\s*rsi\s*(\d{1,3})/);
+    if (rsiUnder) { crit.rsiMax = +rsiUnder[1]; labels.push('RSI≤' + crit.rsiMax); }
+    if (rsiOver)  { crit.rsiMin = +rsiOver[1];  labels.push('RSI≥' + crit.rsiMin); }
+    if (crit.rsiMax == null && crit.rsiMin == null) {
+      if (/과매도|oversold|침체\s*구간/.test(q)) { crit.rsiMax = 35; labels.push('과매도(RSI≤35)'); }
+      else if (/과매수|과열|overbought/.test(q)) { crit.rsiMin = 65; labels.push('과매수(RSI≥65)'); }
+    }
+
+    if (/메가캡|mega\s*-?cap/.test(q)) { crit.mcapMin = 500; labels.push('메가캡(≥$500B)'); }
+    else if (/대형주|large\s*-?cap/.test(q)) { crit.mcapMin = 100; labels.push('대형주(≥$100B)'); }
+    else if (/중형주|mid\s*-?cap/.test(q)) { crit.mcapMin = 10; crit.mcapMax = 100; labels.push('중형주($10~100B)'); }
+    else if (/소형주|small\s*-?cap/.test(q)) { crit.mcapMax = 10; labels.push('소형주(<$10B)'); }
+
+    var matchedSector = null, secKey = '';
+    Object.keys(_SECTOR_KEYWORDS).forEach(function(kw) {
+      if (q.indexOf(kw.toLowerCase()) >= 0 && (!matchedSector || kw.length > secKey.length)) { matchedSector = _SECTOR_KEYWORDS[kw]; secKey = kw; }
+    });
+
+    var themeTickers = null, themeKey = '';
+    var aliases = (typeof SCR_KEYWORD_ALIASES !== 'undefined') ? SCR_KEYWORD_ALIASES : (window.SCR_KEYWORD_ALIASES || {});
+    Object.keys(aliases).forEach(function(kw) {
+      if (q.indexOf(kw.toLowerCase()) >= 0 && Array.isArray(aliases[kw]) && (!themeTickers || kw.length > themeKey.length)) { themeTickers = aliases[kw]; themeKey = kw; }
+    });
+    if (themeTickers && themeTickers.length && themeKey.length >= secKey.length) {
+      crit.themeSet = {}; themeTickers.forEach(function(t) { crit.themeSet[t] = true; }); labels.push('테마=' + themeKey);
+    } else if (matchedSector) { crit.sectors = matchedSector; labels.push('섹터=' + secKey); }
+
+    if (/s&p|sp\s*500|에스앤피/.test(q)) { crit.index = 'SP500'; labels.push('S&P500'); }
+    else if (/다우|dow\b/.test(q)) { crit.index = 'DOW30'; labels.push('다우30'); }
+    else if (/나스닥|nasdaq/.test(q)) { crit.index = 'NASDAQ'; labels.push('나스닥'); }
+
+    if (/급등|상승\s*(종목|률)?|오른|gainer|올라/.test(q)) { crit.dir = 'up'; labels.push('상승 종목'); }
+    else if (/급락|하락\s*(종목|률)?|내린|loser|떨어/.test(q)) { crit.dir = 'down'; labels.push('하락 종목'); }
+
+    if (/퀀트|quant|팩터|factor|랭킹|순위|우량|상위\s*종목|best\b|top\s*\d*/.test(q)) { crit.byRank = true; labels.push('퀀트 랭킹순'); }
+
+    if (typeof _aioComputeFactorRanks === 'function' && !db.some(function(s){ return s.rank != null; })) { try { _aioComputeFactorRanks(); } catch(_) {} }
+
+    var isBroadRecommendation = _aioIsBroadRecommendationQuery(q);
+    var onlyGenericRank = crit.byRank && labels.length === 1 && !crit.signal && crit.rsiMax == null && crit.rsiMin == null &&
+      crit.mcapMin == null && crit.mcapMax == null && !crit.sectors && !crit.themeSet && !crit.index && !crit.dir;
+    if (isBroadRecommendation && (labels.length === 0 || onlyGenericRank)) {
+      var diversified = _aioBuildDiversifiedRecommendationRows(db, window._liveData || {}, opts);
+      return { matched: true, mode: 'diversified-recommendation',
+        criteria: onlyGenericRank ? ['균형 추천 후보', '퀀트 랭킹 참고'] : ['균형 추천 후보'],
+        rows: diversified.rows, totalMatched: diversified.totalMatched, diversity: diversified.diversity, recentSuppressed: diversified.recentSuppressed };
+    }
+
+    if (labels.length === 0) return null;
+
+    var live = window._liveData || {};
+    var rows = db.filter(function(s) {
+      if (crit.signal && s.signal !== crit.signal) return false;
+      if (crit.rsiMax != null && !(s.rsi != null && s.rsi <= crit.rsiMax)) return false;
+      if (crit.rsiMin != null && !(s.rsi != null && s.rsi >= crit.rsiMin)) return false;
+      if (crit.mcapMin != null && !((s.mcap || 0) >= crit.mcapMin)) return false;
+      if (crit.mcapMax != null && !((s.mcap || 0) < crit.mcapMax)) return false;
+      if (crit.sectors && !crit.sectors.some(function(sec) { return s.sector === sec; })) return false;
+      if (crit.index && s.index !== crit.index) return false;
+      if (crit.themeSet && !crit.themeSet[s.sym]) return false;
+      if (crit.dir) {
+        var ldp = live[s.sym]; var pct = (ldp && ldp.pct != null) ? ldp.pct : null;
+        if (pct == null) return false;
+        if (crit.dir === 'up' && !(pct > 0)) return false;
+        if (crit.dir === 'down' && !(pct < 0)) return false;
+      }
+      return true;
+    }).map(function(s) {
+      var ld = live[s.sym] || {};
+      return { sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
+        rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
+        ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
+        price: ld.price != null ? ld.price : null, pct: ld.pct != null ? ld.pct : null, memo: (s.memo || '').slice(0, 90),
+        newsMemo: (s.newsMemo || '').slice(0, 200) };
+    });
+
+    rows.sort(function(a, b) {
+      if (crit.byRank) return (b.rank == null ? -1 : b.rank) - (a.rank == null ? -1 : a.rank);
+      if (crit.dir === 'up') return (b.pct == null ? -999 : b.pct) - (a.pct == null ? -999 : a.pct);
+      if (crit.dir === 'down') return (a.pct == null ? 999 : a.pct) - (b.pct == null ? 999 : b.pct);
+      if (crit.rsiMax != null) return (a.rsi == null ? 999 : a.rsi) - (b.rsi == null ? 999 : b.rsi);
+      if (crit.rsiMin != null) return (b.rsi == null ? -999 : b.rsi) - (a.rsi == null ? -999 : a.rsi);
+      if (a.rank != null && b.rank != null) return b.rank - a.rank;
+      return (b.mcap || 0) - (a.mcap || 0);
+    });
+
+    return { matched: true, criteria: labels, rows: rows.slice(0, 12), totalMatched: rows.length };
+  } catch (e) { return null; }
+}
+window._aioRunScreenerQuery = _aioRunScreenerQuery;
+
+function _formatScreenerResultPrompt(result) {
+  if (!result || !result.matched || !result.rows || !result.rows.length) return '';
+  var _f = function(v, d) { return v != null && !isNaN(v) ? Number(v).toFixed(d || 1) : 'N/A'; };
+  var _pct = function(v) { return v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + Number(v).toFixed(2) + '%' : 'N/A'; };
+  var ts = '';
+  try { var n = new Date(); var p = function(x) { return String(x).padStart(2, '0'); }; ts = n.getFullYear() + '-' + p(n.getMonth() + 1) + '-' + p(n.getDate()) + ' ' + p(n.getHours()) + ':' + p(n.getMinutes()) + ' KST'; } catch(_) {}
+  var lines = [];
+  var isDiversified = result.mode === 'diversified-recommendation';
+  lines.push('═══════════════════════════════════════════════════');
+  lines.push(isDiversified ? '【균형 추천 후보 — AIO 종목 DB 분산 샘플링】' : '【스크리너 결과 — AIO 종목 DB 실시간 필터링】');
+  lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)');
+  lines.push('출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 기준 ' + ts);
+  var fAsOf = (typeof window !== 'undefined' && window._aioFactorRanksAsOf) ? window._aioFactorRanksAsOf.slice(0,10) : null;
+  lines.push('퀀트 랭크(0~100, 높을수록 우수) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. ' + (fAsOf ? '팩터 기준일 ' + fAsOf : '팩터 데이터 대기 — 시그널/메모는 editorial(애널리스트 노트)') + '.');
+  if (isDiversified) {
+    var dv = result.diversity || {};
+    lines.push('분산 설계: 섹터 ' + (dv.sectorCount || '?') + '개 · 시장/지역 ' + (dv.marketCount || '?') + '개 · 시총 버킷 ' + (dv.capBucketCount || '?') + '개. 최근 대화 반복 티커는 점수 감점: ' + (result.recentSuppressed || 0) + '개.');
+    lines.push('이 목록은 넓은 "종목 추천" 질문에서 특정 섹터/기업으로 과도하게 수렴하지 않도록 만든 후보군이다. 최종 답변은 이 후보군에서 3~5개만 골라야 하며, 같은 섹터·테마는 최대 2개까지만 선택하라.');
+  } else {
+    lines.push('이 목록은 앱 내부 종목 DB를 실제 필터링·랭킹한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.');
+  }
+  lines.push('═══════════════════════════════════════════════════');
+  result.rows.forEach(function(r, i) {
+    var rankStr = (r.rank != null) ? ('퀀트 ' + r.rank + '/100(' + (r.quantSignal || '') + ')') : '퀀트 N/A';
+    var fsStr = r.factorScores ? (' [모멘텀' + r.factorScores.momentum + '·추세' + r.factorScores.trend + '·저변동' + r.factorScores.lowvol + ']') : '';
+    var divStr = isDiversified ? (' · ' + (r.market || 'US') + '/' + (r.capBucket || 'unknown') + ' · 분산점수 ' + (r.diversityScore != null ? r.diversityScore : 'N/A')) : '';
+    lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + divStr + ' · ' + rankStr + fsStr +
+      ' · 시그널(editorial) ' + r.signal + ' · 시총 ' + (r.mcap ? '$' + r.mcap + 'B' : 'N/A') + ' · RSI ' + _f(r.rsi, 0) +
+      ' · 3M ' + _pct(r.ret3m) + ' · 가격 ' + (r.price != null ? '$' + _f(r.price, 2) : 'N/A') + ' (' + _pct(r.pct) + ')');
+    if (r.memo) lines.push('   메모: ' + r.memo);
+    if (r.newsMemo) lines.push('   최신뉴스: ' + r.newsMemo);
+  });
+  lines.push('');
+  if (isDiversified) {
+    lines.push('답변 지침: (1) 먼저 "후보군을 넓게 분산해 봤다"고 밝히고 (2) 성장/퀄리티/방어/경기민감/한국·글로벌 중 최소 3개 관점으로 3~5개를 선택 (3) 제외·보류 후보 2~3개와 이유 제시 (4) 사용자가 공격형/방어형/한국주 선호를 밝히면 다음 답변에서 재랭킹하겠다고 안내. CEG·전력·AVGO·AI 반도체 같은 기존 강한 테마가 포함돼도 자동 1순위로 두지 말고, 비AI/비전력 대안과 비교해 상대 우위가 있을 때만 선택하라. 최종 추천과 수치 근거는 후보군 안에서 제시하되, 사용자가 더 넓은 탐색을 원하면 어떤 조건(시장·섹터·시총·위험도)으로 SCREENER_DB를 다시 펼치면 되는지 안내하라.');
+  } else {
+    lines.push('답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 퀀트 랭크 기준 순위/표 (2) 상위 종목 선정 이유(어느 팩터가 강한지) (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 퀀트 랭크(객관·데이터)와 시그널/메모(editorial·애널리스트)를 구분해 설명하라. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.');
+  }
+  return '\n\n' + lines.join('\n') + '\n';
+}
+window._formatScreenerResultPrompt = _formatScreenerResultPrompt;
+// AIO.ScreenerQuery: 스크리너 공개 API (aio-data.js 이동 완료 v51.17)
+window.AIO = window.AIO || {};
+window.AIO.ScreenerQuery = {
+  run:            _aioRunScreenerQuery,
+  buildDiversified: _aioBuildDiversifiedRecommendationRows,
+  formatPrompt:   _formatScreenerResultPrompt,
+  detectSector:   _detectSectorQuery,
+};
 

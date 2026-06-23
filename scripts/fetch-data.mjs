@@ -71,6 +71,19 @@ async function fetchJSON(url, opts = {}, tries = 3) {
   throw lastErr;
 }
 
+// RSS/HTML 텍스트 fetch — 단일 시도, JSON API와 달리 retry 불요(피드별 실패는 호출자가 무시).
+async function _fetchRss(url, timeoutMs) {
+  timeoutMs = timeoutMs || 12000;
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const r = await fetch(url, { headers: UA, signal: ctrl.signal });
+    clearTimeout(to);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.text();
+  } catch (e) { clearTimeout(to); throw e; }
+}
+
 // v50.24/WO-1: Yahoo는 두 호스트(query1/query2)를 운영하고 차단/레이트리밋이 호스트마다 다르게
 // 걸리는 경우가 잦다. GitHub Actions 러너 IP가 한 호스트에서 막혀도 다른 호스트로 폴백 → 전량 실패
 // (= data.json 미갱신)를 줄인다. 2 호스트 × 2 시도 = 최대 4회. 그래도 다 실패하면 throw(해당 심볼만).
@@ -255,36 +268,36 @@ function _decodeNewsEntities(s) {
     .replace(/&#39;/g, "'").replace(/&apos;/g, "'").replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')
     .replace(/\s+/g, ' ').trim();
 }
+
+// RSS <item> 파서 — fetchNews/fetchTickerNewsItems 공용. needLink=true 시 link 없는 항목 제외.
+function _parseRssXml(xml, opts) {
+  const limit = (opts && opts.limit) || 20;
+  const titleLen = (opts && opts.titleLen) || 200;
+  const needLink = !!(opts && opts.needLink);
+  const items = [];
+  for (const b of xml.split(/<item>/i).slice(1, limit + 1)) {
+    const title = _decodeNewsEntities((b.match(/<title>([\s\S]*?)<\/title>/i) || [])[1]);
+    const link  = _decodeNewsEntities((b.match(/<link>([\s\S]*?)<\/link>/i)  || [])[1]);
+    const pub   = _decodeNewsEntities((b.match(/<pubDate>([\s\S]*?)<\/pubDate>/i) || [])[1]);
+    const src   = _decodeNewsEntities((b.match(/<source[^>]*>([\s\S]*?)<\/source>/i) || [])[1]);
+    if (!title || (needLink && !link)) continue;
+    const ts = pub ? new Date(pub).getTime() : 0;
+    items.push({ title: title.slice(0, titleLen), link: link || null, source: src || '', pubDate: pub || null, ts: isFinite(ts) ? ts : 0 });
+  }
+  return items;
+}
+
 async function fetchNews() {
   const items = [];
   for (const feed of NEWS_FEEDS) {
     try {
-      const xml = await (async () => {
-        const ctrl = new AbortController();
-        const to = setTimeout(() => ctrl.abort(), 12000);
-        const r = await fetch(feed.url, { headers: UA, signal: ctrl.signal });
-        clearTimeout(to);
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return await r.text();
-      })();
-      const blocks = xml.split(/<item>/i).slice(1);
-      for (const b of blocks.slice(0, 20)) {
-        const title = _decodeNewsEntities((b.match(/<title>([\s\S]*?)<\/title>/i) || [])[1]);
-        const link = _decodeNewsEntities((b.match(/<link>([\s\S]*?)<\/link>/i) || [])[1]);
-        const pub = _decodeNewsEntities((b.match(/<pubDate>([\s\S]*?)<\/pubDate>/i) || [])[1]);
-        const srcTag = _decodeNewsEntities((b.match(/<source[^>]*>([\s\S]*?)<\/source>/i) || [])[1]);
-        if (!title || !link) continue;
-        const t = pub ? new Date(pub).getTime() : 0;
+      const parsed = _parseRssXml(await _fetchRss(feed.url, 12000), { limit: 20, titleLen: 200, needLink: true });
+      for (const p of parsed) {
+        const t = p.ts;
         const item = {
-          title: title.slice(0, 200),
-          link,
-          source: srcTag || feed.source,
-          pubDate: pub || null,
-          ts: isFinite(t) ? t : 0,
-          topic: feed.topic,
-          country: feed.country,
-          tier: feed.tier,
-          feedSource: feed.source,
+          title: p.title, link: p.link, source: p.source || feed.source,
+          pubDate: p.pubDate, ts: isFinite(t) ? t : 0,
+          topic: feed.topic, country: feed.country, tier: feed.tier, feedSource: feed.source,
         };
         Object.assign(item, scoreServerNewsItem(item));
         items.push(item);
@@ -314,6 +327,26 @@ async function fetchNews() {
     if (out.length >= 40) break;
   }
   return out;
+}
+
+// ── v51.15: 개별 종목 뉴스 enrichment — Google News RSS per-ticker → screener.json newsMemo ──
+// _fetchRss + _parseRssXml 공용 헬퍼 기반으로 중복 없이 구현.
+async function fetchTickerNewsItems(sym, days) {
+  const url = 'https://news.google.com/rss/search?q=' + encodeURIComponent(sym + ' stock when:' + (days || 3) + 'd') + '&hl=en-US&gl=US&ceid=US:en';
+  try { return _parseRssXml(await _fetchRss(url, 8000), { limit: 5, titleLen: 130 }); }
+  catch (e) { return []; }
+}
+
+// 뉴스 아이템 배열 → 스크리너 메모 문자열 (최신 2건, "[MM-DD] 제목 (출처)" 형식)
+function _fmtTickerNewsMemo(items) {
+  if (!items || !items.length) return null;
+  const top = items.filter(i => i.title).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 2);
+  if (!top.length) return null;
+  return top.map(it => {
+    const d = it.ts ? new Date(it.ts).toISOString().slice(5, 10) : '';
+    const src = it.source ? ' (' + it.source + ')' : '';
+    return '[' + d + '] ' + it.title + src;
+  }).join(' · ');
 }
 
 const round = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
@@ -587,6 +620,40 @@ async function enrichFundamentals(syms) {
   return out;
 }
 
+// Phase 1: 심볼 배열 → 1y 가격 이력 fetch + 팩터 계산. results 배열은 backtest에 재사용.
+async function _enrichPriceFactors(syms) {
+  const results = await mapLimit(syms, 5, async (sym) => {
+    const rows = await fetchHistory(_yhSym(sym), '1y');
+    return { sym, closes: (rows || []).map(r => r.close) };
+  });
+  const data = {};
+  let ok = 0;
+  for (const r of results) {
+    if (!r || r.__error || !r.closes) continue;
+    const f = closesToFactors(r.closes);
+    if (f) { data[r.sym] = f; ok++; }
+  }
+  return { data, results, ok };
+}
+
+// Phase 3: 주요 종목 Google News RSS fetch → data[sym].newsMemo 인라인 갱신.
+//   prioSyms: 지수/선물/FX/크립토/KR 제외 후 전달. 동시성 3(레이트리밋 방어).
+async function _enrichTickerNews(prioSyms, data) {
+  const extraSyms = Object.keys(data).filter(s => !prioSyms.includes(s)).slice(0, 60);
+  const newsTargets = [...new Set([...prioSyms, ...extraSyms])].slice(0, 90);
+  const tickerNewsResults = await mapLimit(newsTargets, 3, async (sym) => {
+    const items = await fetchTickerNewsItems(sym, 3);
+    return { sym, items };
+  });
+  let ok = 0;
+  for (const nr of tickerNewsResults) {
+    if (!nr || nr.__error) continue;
+    const memo = _fmtTickerNewsMemo(nr.items);
+    if (memo && data[nr.sym]) { data[nr.sym].newsMemo = memo; data[nr.sym].newsTs = Date.now(); ok++; }
+  }
+  return ok;
+}
+
 async function enrichScreener() {
   // 자가 스로틀: screener.json이 20시간 내면 스킵(일 1회). BACKFILL/SCREENER_ENRICH=1로 강제.
   if (process.env.SCREENER_ENRICH !== '1' && process.env.BACKFILL !== '1') {
@@ -599,29 +666,31 @@ async function enrichScreener() {
   }
   const syms = await getScreenerSymbols();
   if (!syms.length) return { skipped: true, count: 0, reason: 'no-symbols' };
-  const results = await mapLimit(syms, 5, async (sym) => {
-    const rows = await fetchHistory(_yhSym(sym), '1y');
-    return { sym, closes: (rows || []).map(r => r.close) };
-  });
-  const data = {};
-  let ok = 0;
-  for (const r of results) {
-    if (!r || r.__error || !r.closes) continue;
-    const f = closesToFactors(r.closes);
-    if (f) { data[r.sym] = f; ok++; }
-  }
-  // v50.54 3B/3C: FMP 밸류/퀄리티/어닝 병합(키 있을 때만 — 가격 팩터에 합류, 없으면 4팩터)
+
+  // 1단계: 가격 팩터 계산
+  const { data, results, ok } = await _enrichPriceFactors(syms);
+
+  // 2단계: FMP 밸류/퀄리티/어닝 병합(키 있을 때만 — 없으면 4팩터 폴백)
   try {
     const fund = await enrichFundamentals(syms);
     if (fund) for (const sym in fund) { if (data[sym]) Object.assign(data[sym], fund[sym]); else data[sym] = fund[sym]; }
   } catch (e) { console.warn('[fetch-data] fundamentals 병합 실패(무시):', e && e.message || e); }
-  // v50.53 2B: 횡단면 팩터 백테스트(수집한 closes 재사용 — 1패스)
+
+  // 3단계: 개별 종목 뉴스 메모 (지수/선물/FX/크립토/KR 제외)
+  const prioSyms = SYMBOLS.filter(s => !/^\^|=F$|=X$|-USD$|\.KS$|\.KQ$/i.test(s));
+  let tickerNewsOk = 0;
+  try { tickerNewsOk = await _enrichTickerNews(prioSyms, data); }
+  catch (e) { console.warn('[fetch-data] ticker news 실패(무시):', e && e.message || e); }
+  console.log(`[fetch-data] ticker news: ${tickerNewsOk}종목 뉴스 메모 수집`);
+
+  // 4단계: 횡단면 팩터 백테스트(closes 재사용 — 1패스)
   let backtest = null;
   try { backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148)); }
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
+
   const payload = { asOf: new Date().toISOString(), source: 'github-actions:yahoo-1y', universe: syms.length, ok, data, backtest };
   await writeFile(SCREENER_OUT, JSON.stringify(payload));
-  return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite };
+  return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk };
 }
 
 // v50.48/Phase 4: 선택적 서버 LLM 시장 분석문 생성 (운영자 ANTHROPIC_API_KEY Secret 있을 때만).
@@ -745,7 +814,7 @@ async function main() {
   // v50.52 Track1: 스크리너 팩터 enrichment (일 1회 자가 스로틀 — screener.json)
   let scrInfo = null;
   try { scrInfo = await enrichScreener(); } catch (e) { console.warn('[fetch-data] screener enrich 실패(무시):', e && e.message || e); }
-  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} [verify: 1차ok=${pass1.length} retry=${toRetry.length} 복구=${pass2.length} 최종실패=${failed.length}], macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe) : 'n/a'}, ${data.meta.elapsedMs}ms`);
+  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} [verify: 1차ok=${pass1.length} retry=${toRetry.length} 복구=${pass2.length} 최종실패=${failed.length}], macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe + (scrInfo.tickerNews != null ? ' tickerNews=' + scrInfo.tickerNews : '')) : 'n/a'}, ${data.meta.elapsedMs}ms`);
 
   // 핵심 심볼이 절반 미만이면 비정상 — 비0 종료로 워크플로가 알림
   if (quotes.length < SYMBOLS.length * 0.5) {

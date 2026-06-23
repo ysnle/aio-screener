@@ -1,4 +1,4 @@
-// ╔═══════════════════════════════════════════════════════════════════════════╗
+﻿// ╔═══════════════════════════════════════════════════════════════════════════╗
 // ║  P3-1 PHASE 2 ▸ MODULE 4: CHAT START (실제 분할 적용 v48.26)              ║
 // ║  책임: CHAT_CONTEXTS (10 personas) + Briefing + Chip + Helpers            ║
 // ║  의존성: MODULE 1 + MODULE 2 + MODULE 3 (전체 맥락 접근, 가장 상위 레이어)  ║
@@ -68,6 +68,36 @@ const CHAT_CONTEXTS = {
         '• 200-MA 하향 종목 → 롱 진입 부적합\n' +
         '"이 종목 진입해도 될까?" 질문 시 위 기준으로 체크리스트 형태로 답변.\n' +
         '전문 용어는 분석 맥락 속에서 자연스럽게 의미가 전달되도록 사용. 예: "McClellan Oscillator가 -120으로 급락 → 매도 압력이 매수를 압도하고 있다는 뜻이고, 이 수준은 역사적으로 단기 바닥 근처에서 나타남".\n\n' +
+
+        '【마크 미너비니 SEPA 트레이딩 시스템 (완전판, v51.09)】\n' +
+        '종목 차트 질문 시 이 시스템의 해당 단계를 명시적으로 진단:\n\n' +
+        'VCP (변동성 수축 패턴 — Volatility Contraction Pattern):\n' +
+        '• 정의: 베이스 형성 중 연속 3~5회 고점-저점 범위가 줄고 거래량 감소 = 매도 압력이 고갈되고 있다는 구조적 신호\n' +
+        '• 필수 4조건: ①주가 200MA 위 ②200MA 30주+ 우상향 추세 ③각 수축 단계 고점이 직전보다 낮음 ④각 수축 단계 거래량 감소\n' +
+        '• 피벗(진입점): 마지막 수축 구간의 고점 + $0.10~0.15 (또는 0.5% 초과)\n' +
+        '• 돌파 조건: 피벗 돌파 + 거래량 평균 대비 1.5~3배 폭발 + 당일 상단 마감\n\n' +
+        'TPR (추세 지속 비율 — Trend Persistence Ratio):\n' +
+        '• 계산: 최근 N거래일 중 상승 마감 일수 ÷ N × 100%. 예: 30일 중 22일 상승 = TPR 73%\n' +
+        '• 65%+ = 강한 추세(홀딩·코어 유지 근거) / 50~65% = 추세 약화 경고(트레이딩 lot 축소) / 50% 이하 = 추세 붕괴(손절 또는 정리)\n' +
+        '• 실전 규칙: VCP 돌파 후 +35~45% 구간에서 TPR가 50% 이하로 붕괴하면 목표가 도달 전이라도 선행 매도\n\n' +
+        'Buy Risk (매수 위험도):\n' +
+        '• = (현재가 − 피벗/손절가) ÷ 현재가 × 100%\n' +
+        '• 이상: 1.5~2.5% → 진입 가능 / 2.5~3% → 허용 (시장 강세 시) / 3% 초과 → 늦은 진입, 패스 또는 조정 대기\n' +
+        '• 피벗 돌파 2~3일 후 재진입 시 Buy Risk 재계산 필수\n\n' +
+        'SEPA 진입 5체크 (모두 충족 시에만 진입):\n' +
+        '①VCP 완성 확인 ②피벗 돌파 + RVOL 1.5x+ ③시장 방향 상승(SPX > 200MA) ④섹터/그룹 상대강도(RS) 상위 ⑤Buy Risk ≤ 2.5%\n\n' +
+        '분배(Distribution) 경고 신호 — 다음 중 2개 이상 → 매도 검토:\n' +
+        '• 거래량 증가하면서 상승 폭 축소 (Churning = 공급 과잉)\n' +
+        '• 신고점 돌파 후 당일 역전 마감 (Climax Run 후 소멸)\n' +
+        '• 직전 저점 붕괴 + 거래량 증가 (수요 이탈)\n' +
+        '• 전 수축 구간의 저점 이탈 (베이스 붕괴)\n\n' +
+        '풀 트레이드 사이클 예시 (BROS 2026-01~02 실제 케이스):\n' +
+        '• VCP 완성: 4단계 수축 + 거래량 감소 확인\n' +
+        '• 매수: 2026-01-14 피벗 돌파 ~$43.65 (Buy Risk ~2.5%, 손절 ~$42.55)\n' +
+        '• 홀딩 근거: TPR 65%+ 유지, 섹터(소비재 드라이브스루) 강세\n' +
+        '• 매도: 2026-02-13 ~$86 (+45% / TPR 목표 달성)\n' +
+        '• 현재 상태: 수익실현 후 분배 국면 — 지지선 $75.31/$70.72/$59.76 이탈 여부 모니터. 재진입은 새 VCP 완성 확인 후.\n\n' +
+
         '【매크로-기술적 교차 분석 (v46.3)】\n' +
         '차트 분석은 진공 속에서 이뤄지지 않음. 매크로 환경이 기술적 패턴의 성공률을 좌우:\n' +
         '• VIX 30+ 환경: 돌파 매매 실패율↑ → 평균회귀 전략 우세. 볼린저밴드 하단 반등 확률↑.\n' +
@@ -147,9 +177,9 @@ const CHAT_CONTEXTS = {
         // v46.3: Fed 정책 경로 시나리오 — 최근 FOMC 의사록 듀얼 리스크 반영 (v49.64 일반화)
         '【Fed 정책 경로 시나리오】\n' +
         '• 현재 판단: 근원 PCE ' + (DATA_SNAPSHOT.corePce || '—') + '% + 노동시장 데이터 → 단기 동결 압박. 근원 인플레 완화 + 노동시장 이완 시 인하 경로 재개. 에너지 가격 재급등 시 동결 연장 가능.\n' +
-        '• 기본(60%): 2026 연말까지 3.50-3.75%에서 약 275-300bp로 -75bp 인하(Higher For Longer→점진 완화). 근원 PCE 완만한 하락 + 실업률 상승 시 트리거.\n' +
-        '• 동결(25%): 유가 재급등 or 기대인플레 불안정화 지속 시. FOMC "vast majority" 듀얼 리스크 이미 반영 — 비주거 서비스 끈적 + 유가발 기대인플레 상승.\n' +
-        '• 인상(15%): 유가 $120+ 지속 → 투입비용→근원물가 전이. "Some"이 인상 논의. 2026년은 2022년보다 취약(고금리 누적 + 가계 버퍼 소진 + 밸류에이션 비쌈).\n' +
+        '• 기본(50%): 2026 연말까지 점진적 동결 유지 후 소폭 인하. 유가 $74 안정 + 근원 PCE 완만 하락 시. Julius Baer: 올해 동결·10Y 4.3% 전망.\n' +
+        '• 인상(30%↑ — BoA 2026-06-23 전망 변경): Bank of America: 강한 경제지표+매파 Fed → 2026년 3회 인상. 가장 매파적 시나리오. 역레포 급증($2.51억→$39억) = 유동성 흡수 진행 중.\n' +
+        '• 동결(20%): 이란 60일 라이선스발 WTI $74 → 인플레 완화 + 성장 안정 = 선택적 동결. 가장 이상적 결과.\n' +
         '• 핵심 변수: ① 근원 PCE + 고용 — Data Dependence 기준 실측 ② Fed 의장 통화정책 방향 ③ 어닝 시즌 — 기업 실적 방어 여부.\n' +
         '• 재무부-연준 힘겨루기: 2023년 증거 — 연준 브레이크(5%+QT) vs 재무부 액셀(TGA방출+T-bill) → 액셀 승리(S&P+24%). 2026년 베센트(소로스 출신) = 유동성 조절 도구 보유. 감세(OBBBA $1,500~1,600억) + 중간선거 7개월 전 = 정치적 유동성 공급 인센티브.\n' +
         '→ "Fed가 다음에 할 수 있는 행동"과 "그에 따른 자산별 반응" + "재무부 유동성 대응"을 동시 시나리오로 제시.\n\n' +
@@ -165,13 +195,25 @@ const CHAT_CONTEXTS = {
         '• 정책 조정으로 물가 잡아도 코로나 이전 안정적 물가흐름 회복 불확실. 2% 목표 자체 구조적 재평가 필요 시점.\n' +
         '→ 매크로 분석 시 "2%가 정상"이라는 가정 자체를 검토. 중물가 환경에서 자산배분·리스크관리가 어떻게 달라지는가 제시.\n\n' +
 
-        '【JP모건 유가 에스컬레이션 래더】\n' +
-        '• $100/bbl(기본): 2Q 유지. 인플레 관리 가능. Fed 동결.\n' +
-        '• $120-130/bbl(리스크): 가솔린 $4+/gal = 소비자 한계점. K자형 심화.\n' +
-        '• $150+/bbl(테일): 강제적 수요 파괴 + 경기 침체. 에너지 압박 장기화 시 기업 방어적 고용.\n' +
-        '• 크로스에셋: 채권-주식 양의 상관(안전자산 실종). 2Y UST 롱. 호르무즈 재개통 = 필요조건이지 충분조건 아님.\n\n' +
+        '【유가 래더 (v51.13 업데이트 — 이란 60일 라이선스 발급 이후)】\n' +
+        '• WTI $70↓: 공급 과잉 우려 현실화. 에너지주 추가 압박. 소비/항공 수혜 극대화.\n' +
+        '• WTI $72-78(현재구간): 이란 60일 라이선스 발급 → 중동 전쟁 프리미엄 대부분 제거. 인플레 완화 기여. SPR 1983년 최저 = 추가 방출 여력 제한. 공급 과잉 vs SPR 지지 대립 구간.\n' +
+        '• WTI $82-88: 이란 협상 불발 또는 호르무즈 긴장 재부상 시. Fed 딜레마 재진입.\n' +
+        '• WTI $100+: 전쟁 재점화 또는 OPEC 대규모 감산 시. 스태그플레이션 위험.\n' +
+        '• 현재 WTI $' + s.wti + ' — 위 구간 진단 필요.\n\n' +
 
         // v40.4: 경기 사이클 위치 판별
+        '【순환매 패러다임 전환 (v51.13 — 2026-06-23)】\n' +
+        '• 기존 틀: S&P 강세 = 메가캡 기술주 주도 (M7 집중 현상).\n' +
+        '• 새 틀: 은행주·소형주 신고가 + 대형기술 상대적 약세 = 섹터 리더십 이전. 러셀2000 3,000선 시도·은행주 ATH(2026-06-23). Goldman Sachs 경기침체 확률 25%→15% 하향 촉매.\n' +
+        '• 패러다임 투자 함의: 경기민감·금융·소재 섹터 비중 확대 / 고밸류에이션 성장주 상대 축소 검토.\n' +
+        '• 이중 안전망: ① 이란 리스크 해소(WTI $74) → 소비 여력 ② GS 침체 확률 하향 → 경기 자신감. 단, JPM 경고: 분기말 $1,650억 매도 압력 + HF 레버리지 5년래 최고 = 6월 말 단기 변동성 확대 가능.\n' +
+        '• AI 계층 이동: GPU 중심(NVDA) → 네트워크·광통신(CRDO PT$350)·메모리(MU+Anthropic) 수혜 확산. 1차 투자 대비 2차 인프라 수혜층 부각.\n\n' +
+        '【Fed 정책 경로 — BoA 매파 전환 (v51.13 업데이트)】\n' +
+        '• BoA 전망 변경(2026-06-23): 강한 경제지표 + 매파 Fed → 2026년 3회 금리 인상. 시장 컨센서스 대비 가장 매파적 시나리오.\n' +
+        '• Julius Baer: 올해 동결 유지, 10Y 금리 하반기 4.3%로 하락 전망(비둘기적).\n' +
+        '• 역레포 사용 급증($2.51억→$39억): 단기 유동성 흡수 신호. 연준 QT 효과 잔존.\n' +
+        '→ 전망이 엇갈릴수록 연준 데이터 의존성 높아짐 — PCE/고용 발표마다 금리 민감도 상승.\n\n' +
         '【경기 사이클 현재 위치 판별】\n' +
         '• 확장 초기(Early): ISM↑ + 금리↓ + 실업↓ → 경기민감주/소형주 강세\n' +
         '• 확장 중기(Mid): ISM 50+ 안정 + 금리 상승 시작 → 테크/성장주 주도\n' +
@@ -499,7 +541,7 @@ const CHAT_CONTEXTS = {
       // ── v40.4: 최근 분기 시장 맥락 주입 (날짜 일반화 v49.64) ──
       prompt += '【최근 분기 시장 맥락 — 기업 분석 시 반영할 거시환경】\n';
       prompt += '• 고금리 장기화: Fed 기준금리 3.50-3.75%, 10Y ' + s.tnx + '%. 성장주 밸류에이션 압축 vs 금융주 순이자마진 개선.\n';
-      prompt += '• 유가 하향 안정(WTI $85 내외): US-이란 MOU/휴전 임박(호르무즈 30일내 재개·제재완화)으로 유가 급락 — 에너지 기업 마진 압박, 항공/운송/소비재 비용 완화 수혜. (합의 불발 시 역전 양방향 리스크)\n';
+      prompt += '• 유가 추가 하향(WTI $75 이하): US-이란 60일 로드맵 공식 타결(스위스 중재·호르무즈 재개·단계적 제재완화·동결자산 해제). 에너지 기업 마진 압박 지속, 항공/운송/소비재 비용 완화 수혜 구체화. 60일 이행 점검(7월말)이 다음 변수 — 이행 실패 시 WTI 반등 리스크.\n';
       prompt += '• AI CapEx 제2파동 + 메모리 슈퍼사이클: 빅테크 컴퓨트 수요 지속 + DDR5/HBM 가격 강세 2028 상반기까지(AMD VP) — AI 밸류체인·메모리 기업 실적 상향. SK하이닉스 나스닥 상장 추진.\n';
       prompt += '• 방산 예산 $1.5T: 국방 관련 기업 장기 수주 잔고 증가 기대.\n';
       prompt += '• 지정학 완화 국면: 중동 디에스컬레이션으로 에너지·운송 교역조건 개선 — 단 SpaceX IPO·금리 高 등 개별 변동성 상존.\n';
@@ -897,6 +939,7 @@ const CHAT_CONTEXTS = {
         '• Bull Flattening(장기금리 하락): 경기 둔화 → 채권 랠리, 방어주/유틸 강세\n\n' +
         '【캐리트레이드 & 글로벌 자금흐름】\n' +
         '• 엔캐리: 저금리 엔화 → 고금리 달러 투자. BOJ 인상 시 청산 → 글로벌 변동성 급등(2024.08 패턴)\n' +
+        '• [2026-06-22 현황] BOJ 비둘기(금리동결·완화지속) 확인 → 엔캐리 청산 위험 대폭 소멸. 2024.08 재현 시나리오 현재 낮음. 단, BOJ 스탠스 전환 시 즉각 재평가 필요.\n' +
         '• 원캐리: 한미 금리차 시 자금 유출, 원화 약세 압력\n' +
         '• 위험 신호: 엔/달러 급변동 + VIX 급등 + 신흥국 CDS 확대 = 캐리 청산 3중 경고\n\n' +
 
@@ -981,7 +1024,37 @@ const CHAT_CONTEXTS = {
         '【응답 원칙】\n' +
         '스코어 해석 → "지금 매매해야 하는가?" 명확 답변. 75+ 적극 매수 / 60~75 매수 우호 / 45~60 중립 / 30~45 주의 / 30↓ 위험.\n' +
         '바닥 판별 질문 시 → 미너비니 3단계 중 현재 어디인지 명시. "바닥이냐"에 대한 답은 3단계 완성 여부로 판단.\n' +
-        '차트 분석(기술 타이밍)·매크로(거시 환경)·투자 심리(공포/탐욕) 페이지 연결.' +
+        '차트 분석(기술 타이밍)·매크로(거시 환경)·투자 심리(공포/탐욕) 페이지 연결.\n\n' +
+
+        '【프리마켓 브리핑 선별기준·인과체인·전달력 프레임워크 (v51.09)】\n' +
+        '"오늘 브리핑 요약해줘" / "오늘 시장 어때?" 질문 시 아래 4단계 구조로 답변:\n\n' +
+        '[1단계: 선별 기준 — 무엇이 브리핑에 포함될 자격이 있는가?]\n' +
+        '6축 점검 (이 중 하나 이상 해당 시 포함):\n' +
+        '① 매크로/정책 — Fed 스탠스 변화, 재정 충격, 금리 움직임\n' +
+        '② 지정학/에너지 — 분쟁 확전·완화, 호르무즈·공급망, 유가 5%+ 이동\n' +
+        '③ AI/반도체 — 빅테크 Capex 결정, 수출통제 실질 변화, 칩 공급망\n' +
+        '④ 메모리/소재 — HBM 수급, MLCC/희토류 공급 쇼크, 사이클 전환 신호\n' +
+        '⑤ 개별 촉매 — 어닝 서프라이즈, M&A, 신용등급 변동, 지수 편입\n' +
+        '⑥ 한국 시장 — 외인 수급 방향, 삼성/하이닉스 촉매, 원/달러 임계점\n' +
+        '기준 질문: "이 뉴스 없으면 오늘 포지션을 바꿔야 하는가?" YES → 포함 / NO → 제외\n\n' +
+        '[2단계: 왜 — 인과 체인 (EVENT → MECHANISM → MARKET IMPACT → ACTION)]\n' +
+        '모든 항목을 이 4단계로 전개. 예:\n' +
+        '"US-이란 60일 로드맵 확정(E) → 호르무즈 재개·단계적 제재완화(M) → WTI $75 이하·인플레 추가 완화(I) → 에너지 비중 축소/성장주 홀딩(A)"\n' +
+        '"BOJ 비둘기 확인(E) → 엔캐리 청산 위험 소멸(M) → 글로벌 레버리지 해제 꼬리위험 제거(I) → 신흥국/한국 수급 안정·리스크온 지속(A)"\n' +
+        'MECHANISM 없는 단순 사실 나열 금지. 연결 고리가 핵심이다.\n\n' +
+        '[3단계: 로직 — 패러다임 전환 탐지]\n' +
+        '단순 이벤트인가 vs 기존 틀을 깨는 구조 변화인가를 구분:\n' +
+        '• 표면 이벤트: "SK하이닉스 시총이 삼성을 역전했다"\n' +
+        '• 패러다임 전환: "메모리=사이클주(PBR 1~2x) 패러다임 → HBM 리더십 프리미엄=구조적 성장주 리레이팅 패러다임"\n' +
+        '이중 안전망 탐지: 복수의 독립 꼬리위험이 동시 해소될 때 단순 합산이 아닌 구조적 리스크온 전환 신호로 읽는다.\n' +
+        '헤드라인 노이즈 vs 실제 리스크 분리: 정치적 발언이 규제 실행과 다를 때 반드시 명시 (예: ASML EUV 사례)\n\n' +
+        '[4단계: 전달력 — 응답 구조 순서]\n' +
+        '①한 줄 결론 (오늘의 핵심 임플리케이션 — 무엇이 달라졌는가)\n' +
+        '②주요 2~3개 이벤트 + 각각 E→M→I→A 체인\n' +
+        '③패러다임 전환 여부 (있으면 "기존 틀 vs 새 틀" 대비 형식으로)\n' +
+        '④Bull/Bear 분기점 (무엇이 이 판단을 뒤집는가 — 반드시 명시)\n' +
+        '⑤오늘 행동 1가지 (구체적 종목/섹터/액션)\n' +
+        '이 구조를 지키지 않은 브리핑 요약 = "자료 나열"에 불과. 구조가 전달력이다.\n' +
         _buildMarketLeadersSnapshot() +
         _getV48IntegratedContext('signal') +
         _getImportedResearchContext('technical') +
@@ -1770,355 +1843,16 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   }
 }
 
-// ── v34.2: 섹터/카테고리 질문 감지 → SCREENER_DB에서 종목 추출 → FMP 일괄 비교 ─
-// ──────────────────────────────────────────────────────────────────────────────
-
-// 섹터/카테고리 키워드 매핑 (한국어/영어 → SCREENER_DB sector 값)
-const _SECTOR_KEYWORDS = {
-  // 영문 섹터
-  'technology':['Technology'], 'tech':['Technology'], '기술':['Technology'], '기술주':['Technology'], 'IT':['Technology'],
-  'software':['Technology'], '소프트웨어':['Technology','SW','ERP','IT서비스','IT플랫폼','CNS'],
-  'semiconductor':['Technology'], '반도체':['Technology','반도체','반도체장비','반도체소재','파운드리','MLCC'],
-  'ai':['Technology','AI'], 'AI':['Technology','AI'],
-  'financial':['Financials'], 'financials':['Financials'], '금융':['Financials','금융','보험','핀테크','거래소'],
-  'bank':['Financials'], '은행':['Financials','금융'],
-  'healthcare':['Healthcare'], 'health':['Healthcare'], '헬스케어':['Healthcare'], '의료':['Healthcare'],
-  'biotech':['Healthcare'], '바이오':['Healthcare','바이오','바이오시밀러','보톡스','CDMO','항암제','제약'],
-  'pharma':['Healthcare'], '제약':['Healthcare','제약','바이오'],
-  'consumer':['Consumer','Consumer Defensive'], '소비재':['Consumer','Consumer Defensive'],
-  'energy':['Energy'], '에너지':['Energy'], '원유':['Energy'], '석유':['Energy'],
-  'utility':['Utilities'], 'utilities':['Utilities'], '유틸리티':['Utilities'],
-  'industrial':['Industrials'], 'industrials':['Industrials'], '산업재':['Industrials'],
-  'defense':['Industrials'], '방산':['Industrials','방산','방산지주','방산IT','탄약'],
-  'material':['Materials'], 'materials':['Materials'], '소재':['Materials','소재'],
-  'realestate':['Real Estate'], '부동산':['Real Estate'],
-  'communication':['Communication Services'], '통신':['Communication Services','통신'],
-  'etf':['ETF'], 'ETF':['ETF'],
-  // 한국 세부 섹터
-  '2차전지':['2차전지','양극재'], '배터리':['2차전지','양극재'],
-  '조선':['조선','조선지주'], '자동차':['자동차','자동차부품','가전/전장','전장'],
-  '원전':['원전','원전설계','원전정비','원전기자재'], '전력':['전력기기','전력지주','배전','전선'],
-  '로봇':['로봇','산업로봇','서비스로봇','협동로봇'],
-  '화장품':['화장품','뷰티브랜드','스킨케어','색조'],
-  '게임':['게임','게임/블록체인','엔터','미디어','드라마'],
-};
-
-// 사용자 질문에서 섹터/카테고리 감지
-function _detectSectorQuery(text) {
-  var lower = text.toLowerCase();
-  // 비교/추천/스크리닝 의도 키워드
-  var intentPatterns = ['비교','추천','찾아','뽑아','골라','싼','저평가','고평가','성장','배당','수익률','밸류','가치','cheapest','best','top','compare','recommend','undervalued','overvalued','screen','pick','find'];
-  var hasIntent = intentPatterns.some(function(p) { return lower.indexOf(p) >= 0; });
-  if (!hasIntent) return null;
-
-  // 섹터 키워드 매칭
-  var matched = null;
-  var matchedKey = '';
-  Object.keys(_SECTOR_KEYWORDS).forEach(function(kw) {
-    if (lower.indexOf(kw.toLowerCase()) >= 0 && (!matched || kw.length > matchedKey.length)) {
-      matched = _SECTOR_KEYWORDS[kw];
-      matchedKey = kw;
-    }
-  });
-  if (!matched) return null;
-
-  // SCREENER_DB에서 해당 섹터 종목 추출 (최대 8개, 시가총액 순)
-  var stocks = (typeof SCREENER_DB !== 'undefined' ? SCREENER_DB : [])
-    .filter(function(s) { return matched.some(function(sec) { return s.sector === sec; }); })
-    .sort(function(a,b) { return (b.mcap||0) - (a.mcap||0); })
-    .slice(0, 8);
-
-  return stocks.length > 0 ? { sectorLabel: matchedKey, stocks: stocks } : null;
-}
-
-function _aioIsBroadRecommendationQuery(query) {
-  var q = String(query || '').toLowerCase();
-  if (!q) return false;
-  return /(종목\s*)?(추천|골라|뽑아|찾아줘|아이디어|후보|리스트)|recommend|stock\s*ideas?|top\s*picks?|best\s*stocks?|pick\s*stocks?/i.test(q);
-}
-
-function _aioInferTickerMarket(sym, index) {
-  var s = String(sym || '');
-  if (/\.KS$|\.KQ$/.test(s)) return 'KR';
-  if (/\.T$/.test(s)) return 'Japan';
-  if (/\.TW$/.test(s)) return 'Taiwan';
-  if (/\.HK$/.test(s)) return 'Hong Kong';
-  if (/ADR/i.test(index || '')) return 'ADR';
-  return 'US';
-}
-
-function _aioCapBucket(mcap) {
-  var v = Number(mcap || 0);
-  if (v >= 500) return 'mega';
-  if (v >= 100) return 'large';
-  if (v >= 10) return 'mid';
-  if (v > 0) return 'small';
-  return 'unknown';
-}
-
-function _aioExtractRecentRecommendationTickers(messages) {
-  try {
-    var db = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : (window.SCREENER_DB || []);
-    var known = {};
-    (Array.isArray(db) ? db : []).forEach(function(s) { if (s && s.sym) known[s.sym] = true; });
-    var out = {};
-    (messages || []).slice(-8).forEach(function(m) {
-      var text = String((m && m.content) || '');
-      var hits = text.match(/\b[A-Z][A-Z0-9.-]{1,9}(?:\.(?:KS|KQ|T|TW|HK))?\b|\b\d{6}\.(?:KS|KQ)\b/g) || [];
-      hits.forEach(function(t) { if (known[t]) out[t] = true; });
-    });
-    return Object.keys(out);
-  } catch(_) {
-    return [];
-  }
-}
-window._aioExtractRecentRecommendationTickers = _aioExtractRecentRecommendationTickers;
-
-function _aioBuildDiversifiedRecommendationRows(db, live, opts) {
-  opts = opts || {};
-  live = live || {};
-  var recent = {};
-  (opts.recentTickers || []).forEach(function(t) { recent[t] = true; });
-  var seen = {};
-  var eligible = (Array.isArray(db) ? db : []).filter(function(s) {
-    if (!s || !s.sym || seen[s.sym]) return false;
-    seen[s.sym] = true;
-    if (s.signal === 'SELL') return false;
-    if (s.sector === 'ETF') return false;
-    if (/^\^|=|-USD$/i.test(s.sym)) return false;
-    return true;
-  }).map(function(s) {
-    var ld = live[s.sym] || {};
-    var rank = (typeof s.rank === 'number') ? s.rank : 50;
-    var signalScore = ({ BUY: 18, WATCH: 8, HOLD: 2 })[s.signal] || 0;
-    var rsi = Number(s.rsi);
-    var rsiScore = isFinite(rsi) ? (rsi >= 35 && rsi <= 62 ? 5 : rsi > 75 ? -12 : rsi < 25 ? -6 : 0) : 0;
-    var capScore = Math.min(10, Math.max(0, Math.log10(Math.max(1, Number(s.mcap || 1))) * 2));
-    var pct = (ld && ld.pct != null && isFinite(Number(ld.pct))) ? Number(ld.pct) : null;
-    var liveScore = pct == null ? 0 : Math.max(-5, Math.min(5, pct));
-    var repeatPenalty = recent[s.sym] ? 25 : 0;
-    var market = _aioInferTickerMarket(s.sym, s.index);
-    var score = rank + signalScore + rsiScore + capScore + liveScore - repeatPenalty;
-    return {
-      sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
-      rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
-      ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
-      price: ld.price != null ? ld.price : null, pct: pct, memo: (s.memo || '').slice(0, 90),
-      market: market, capBucket: _aioCapBucket(s.mcap), diversityScore: Math.round(score), repeatPenalty: repeatPenalty
-    };
-  }).sort(function(a, b) { return b.diversityScore - a.diversityScore; });
-
-  // v51.04: 최근 추천 반복 억제 — 비중복 후보 20개 이상이면 중복 티커 완전 제외
-  var _nonRepeat = eligible.filter(function(r) { return r.repeatPenalty === 0; });
-  if (_nonRepeat.length >= 20) { eligible = _nonRepeat; }
-
-  function pickRows(sectorLimit, marketLimit, maxRows) {
-    var picked = [], secCount = {}, marketCount = {};
-    eligible.forEach(function(r) {
-      if (picked.length >= maxRows) return;
-      var sec = r.sector || 'Unknown';
-      var mkt = r.market || 'US';
-      if ((secCount[sec] || 0) >= sectorLimit) return;
-      if ((marketCount[mkt] || 0) >= (marketLimit[mkt] || marketLimit._default || maxRows)) return;
-      picked.push(r);
-      secCount[sec] = (secCount[sec] || 0) + 1;
-      marketCount[mkt] = (marketCount[mkt] || 0) + 1;
-    });
-    return { rows: picked, secCount: secCount, marketCount: marketCount };
-  }
-
-  var first = pickRows(2, { US: 7, KR: 5, Japan: 2, Taiwan: 2, 'Hong Kong': 2, ADR: 2, _default: 3 }, 16);
-  if (first.rows.length < 12) first = pickRows(3, { US: 10, KR: 7, Japan: 3, Taiwan: 3, 'Hong Kong': 3, ADR: 3, _default: 4 }, 16);
-  var sectors = {}, markets = {}, capBuckets = {};
-  var recentSuppressed = eligible.filter(function(r) { return r.repeatPenalty > 0; }).length;
-  first.rows.forEach(function(r) {
-    sectors[r.sector || 'Unknown'] = true;
-    markets[r.market || 'US'] = true;
-    capBuckets[r.capBucket || 'unknown'] = true;
-  });
-  return {
-    rows: first.rows,
-    totalMatched: eligible.length,
-    recentSuppressed: recentSuppressed,
-    diversity: {
-      sectorCount: Object.keys(sectors).length,
-      marketCount: Object.keys(markets).length,
-      capBucketCount: Object.keys(capBuckets).length
-    }
-  };
-}
-window._aioBuildDiversifiedRecommendationRows = _aioBuildDiversifiedRecommendationRows;
-
-// v50.37 트랙1: 자연어 스크리너 질의 — 사용자 자연어 조건을 실제 SCREENER_DB에 필터링.
-//   일반 LLM이 구조적으로 못 하는 차별 기능(앱 내부 종목 DB + 실시간 시세 조인). 신규 API 0.
-//   조건 없으면 null 반환(자기 게이팅) → 일반 흐름으로.
-function _aioRunScreenerQuery(query, opts) {
-  try {
-    opts = opts || {};
-    var db = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : (window.SCREENER_DB || null);
-    if (!Array.isArray(db) || !db.length) return null;
-    var q = String(query || '').toLowerCase();
-    var crit = {};
-    var labels = [];
-
-    // 1) 시그널 (DB signal 필드: BUY/HOLD/WATCH/SELL)
-    if (/매수\s*(시그널|종목)?|buy\b|사야|살\s*만|저평가\s*매수/.test(q)) crit.signal = 'BUY';
-    else if (/관망|watch\b/.test(q)) crit.signal = 'WATCH';
-    else if (/매도|sell\b|팔\s*/.test(q)) crit.signal = 'SELL';
-    else if (/보유|hold\b/.test(q)) crit.signal = 'HOLD';
-    if (crit.signal) labels.push('시그널=' + crit.signal);
-
-    // 2) RSI — 명시 숫자 우선, 없으면 과매도/과매수 시맨틱
-    var rsiUnder = q.match(/rsi\s*(\d{1,3})\s*(?:이하|미만|under|below|아래|<=?)/) || q.match(/(?:이하|미만|under|below)\s*rsi\s*(\d{1,3})/);
-    var rsiOver  = q.match(/rsi\s*(\d{1,3})\s*(?:이상|초과|over|above|위|>=?)/) || q.match(/(?:이상|초과|over|above)\s*rsi\s*(\d{1,3})/);
-    if (rsiUnder) { crit.rsiMax = +rsiUnder[1]; labels.push('RSI≤' + crit.rsiMax); }
-    if (rsiOver)  { crit.rsiMin = +rsiOver[1];  labels.push('RSI≥' + crit.rsiMin); }
-    if (crit.rsiMax == null && crit.rsiMin == null) {
-      if (/과매도|oversold|침체\s*구간/.test(q)) { crit.rsiMax = 35; labels.push('과매도(RSI≤35)'); }
-      else if (/과매수|과열|overbought/.test(q)) { crit.rsiMin = 65; labels.push('과매수(RSI≥65)'); }
-    }
-
-    // 3) 시가총액 버킷 (mcap 단위 = $B)
-    if (/메가캡|mega\s*-?cap/.test(q)) { crit.mcapMin = 500; labels.push('메가캡(≥$500B)'); }
-    else if (/대형주|large\s*-?cap/.test(q)) { crit.mcapMin = 100; labels.push('대형주(≥$100B)'); }
-    else if (/중형주|mid\s*-?cap/.test(q)) { crit.mcapMin = 10; crit.mcapMax = 100; labels.push('중형주($10~100B)'); }
-    else if (/소형주|small\s*-?cap/.test(q)) { crit.mcapMax = 10; labels.push('소형주(<$10B)'); }
-
-    // 4) 섹터 (_SECTOR_KEYWORDS 재사용 — 가장 구체적 키 우선)
-    var matchedSector = null, secKey = '';
-    Object.keys(_SECTOR_KEYWORDS).forEach(function(kw) {
-      if (q.indexOf(kw.toLowerCase()) >= 0 && (!matchedSector || kw.length > secKey.length)) { matchedSector = _SECTOR_KEYWORDS[kw]; secKey = kw; }
-    });
-
-    // 5) 테마 키워드 (SCR_KEYWORD_ALIASES: { themeKey: [ticker...] }) → ticker 집합
-    var themeTickers = null, themeKey = '';
-    var aliases = (typeof SCR_KEYWORD_ALIASES !== 'undefined') ? SCR_KEYWORD_ALIASES : (window.SCR_KEYWORD_ALIASES || {});
-    Object.keys(aliases).forEach(function(kw) {
-      if (q.indexOf(kw.toLowerCase()) >= 0 && Array.isArray(aliases[kw]) && (!themeTickers || kw.length > themeKey.length)) { themeTickers = aliases[kw]; themeKey = kw; }
-    });
-    // 테마키가 섹터키보다 더 구체적(길면)이면 테마 우선, 아니면 섹터
-    if (themeTickers && themeTickers.length && themeKey.length >= secKey.length) {
-      crit.themeSet = {}; themeTickers.forEach(function(t) { crit.themeSet[t] = true; });
-      labels.push('테마=' + themeKey);
-    } else if (matchedSector) {
-      crit.sectors = matchedSector; labels.push('섹터=' + secKey);
-    }
-
-    // 6) 지수
-    if (/s&p|sp\s*500|에스앤피/.test(q)) { crit.index = 'SP500'; labels.push('S&P500'); }
-    else if (/다우|dow\b/.test(q)) { crit.index = 'DOW30'; labels.push('다우30'); }
-    else if (/나스닥|nasdaq/.test(q)) { crit.index = 'NASDAQ'; labels.push('나스닥'); }
-
-    // 7) 등락 방향 (실시간 _liveData pct)
-    if (/급등|상승\s*(종목|률)?|오른|gainer|올라/.test(q)) { crit.dir = 'up'; labels.push('상승 종목'); }
-    else if (/급락|하락\s*(종목|률)?|내린|loser|떨어/.test(q)) { crit.dir = 'down'; labels.push('하락 종목'); }
-
-    // 8) v50.52: 퀀트 멀티팩터 랭킹 정렬 의도
-    if (/퀀트|quant|팩터|factor|랭킹|순위|우량|상위\s*종목|best\b|top\s*\d*/.test(q)) { crit.byRank = true; labels.push('퀀트 랭킹순'); }
-
-    // v50.52: 팩터 랭크 보장 — screener.json 병합 후 산출되지만, 아직이면 즉시 계산(폴백 무회귀)
-    if (typeof _aioComputeFactorRanks === 'function' && !db.some(function(s){ return s.rank != null; })) { try { _aioComputeFactorRanks(); } catch(_) {} }
-
-    var isBroadRecommendation = _aioIsBroadRecommendationQuery(q);
-    var onlyGenericRank = crit.byRank && labels.length === 1 && !crit.signal && crit.rsiMax == null && crit.rsiMin == null &&
-      crit.mcapMin == null && crit.mcapMax == null && !crit.sectors && !crit.themeSet && !crit.index && !crit.dir;
-    if (isBroadRecommendation && (labels.length === 0 || onlyGenericRank)) {
-      var diversified = _aioBuildDiversifiedRecommendationRows(db, window._liveData || {}, opts);
-      return {
-        matched: true,
-        mode: 'diversified-recommendation',
-        criteria: onlyGenericRank ? ['균형 추천 후보', '퀀트 랭킹 참고'] : ['균형 추천 후보'],
-        rows: diversified.rows,
-        totalMatched: diversified.totalMatched,
-        diversity: diversified.diversity,
-        recentSuppressed: diversified.recentSuppressed
-      };
-    }
-
-    if (labels.length === 0) return null; // 스크리너 조건 미감지 → 일반 흐름
-
-    var live = window._liveData || {};
-    var rows = db.filter(function(s) {
-      if (crit.signal && s.signal !== crit.signal) return false;
-      if (crit.rsiMax != null && !(s.rsi != null && s.rsi <= crit.rsiMax)) return false;
-      if (crit.rsiMin != null && !(s.rsi != null && s.rsi >= crit.rsiMin)) return false;
-      if (crit.mcapMin != null && !((s.mcap || 0) >= crit.mcapMin)) return false;
-      if (crit.mcapMax != null && !((s.mcap || 0) < crit.mcapMax)) return false;
-      if (crit.sectors && !crit.sectors.some(function(sec) { return s.sector === sec; })) return false;
-      if (crit.index && s.index !== crit.index) return false;
-      if (crit.themeSet && !crit.themeSet[s.sym]) return false;
-      if (crit.dir) {
-        var ldp = live[s.sym]; var pct = (ldp && ldp.pct != null) ? ldp.pct : null;
-        if (pct == null) return false;
-        if (crit.dir === 'up' && !(pct > 0)) return false;
-        if (crit.dir === 'down' && !(pct < 0)) return false;
-      }
-      return true;
-    }).map(function(s) {
-      var ld = live[s.sym] || {};
-      return { sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
-        rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
-        ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
-        price: ld.price != null ? ld.price : null, pct: ld.pct != null ? ld.pct : null, memo: (s.memo || '').slice(0, 90) };
-    });
-
-    rows.sort(function(a, b) {
-      if (crit.byRank) return (b.rank == null ? -1 : b.rank) - (a.rank == null ? -1 : a.rank);
-      if (crit.dir === 'up') return (b.pct == null ? -999 : b.pct) - (a.pct == null ? -999 : a.pct);
-      if (crit.dir === 'down') return (a.pct == null ? 999 : a.pct) - (b.pct == null ? 999 : b.pct);
-      if (crit.rsiMax != null) return (a.rsi == null ? 999 : a.rsi) - (b.rsi == null ? 999 : b.rsi);
-      if (crit.rsiMin != null) return (b.rsi == null ? -999 : b.rsi) - (a.rsi == null ? -999 : a.rsi);
-      // v50.52: 기본 정렬을 퀀트 랭크 우선으로(있을 때) — 정적 mcap 정렬 대체. 폴백 mcap.
-      if (a.rank != null && b.rank != null) return b.rank - a.rank;
-      return (b.mcap || 0) - (a.mcap || 0);
-    });
-
-    return { matched: true, criteria: labels, rows: rows.slice(0, 12), totalMatched: rows.length };
-  } catch (e) { return null; }
-}
-window._aioRunScreenerQuery = _aioRunScreenerQuery;
-
-// v50.37 트랙1: 스크리너 결과 → 프롬프트 블록 (_formatSectorComparePrompt 패턴 미러)
-function _formatScreenerResultPrompt(result) {
-  if (!result || !result.matched || !result.rows || !result.rows.length) return '';
-  var _f = function(v, d) { return v != null && !isNaN(v) ? Number(v).toFixed(d || 1) : 'N/A'; };
-  var _pct = function(v) { return v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + Number(v).toFixed(2) + '%' : 'N/A'; };
-  var ts = '';
-  try { var n = new Date(); var p = function(x) { return String(x).padStart(2, '0'); }; ts = n.getFullYear() + '-' + p(n.getMonth() + 1) + '-' + p(n.getDate()) + ' ' + p(n.getHours()) + ':' + p(n.getMinutes()) + ' KST'; } catch(_) {}
-  var lines = [];
-  var isDiversified = result.mode === 'diversified-recommendation';
-  lines.push('═══════════════════════════════════════════════════');
-  lines.push(isDiversified ? '【균형 추천 후보 — AIO 종목 DB 분산 샘플링】' : '【스크리너 결과 — AIO 종목 DB 실시간 필터링】');
-  lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)');
-  lines.push('출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 기준 ' + ts);
-  var fAsOf = (typeof window !== 'undefined' && window._aioFactorRanksAsOf) ? window._aioFactorRanksAsOf.slice(0,10) : null;
-  lines.push('퀀트 랭크(0~100, 높을수록 우수) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. ' + (fAsOf ? '팩터 기준일 ' + fAsOf : '팩터 데이터 대기 — 시그널/메모는 editorial(애널리스트 노트)') + '.');
-  if (isDiversified) {
-    var dv = result.diversity || {};
-    lines.push('분산 설계: 섹터 ' + (dv.sectorCount || '?') + '개 · 시장/지역 ' + (dv.marketCount || '?') + '개 · 시총 버킷 ' + (dv.capBucketCount || '?') + '개. 최근 대화 반복 티커는 점수 감점: ' + (result.recentSuppressed || 0) + '개.');
-    lines.push('이 목록은 넓은 "종목 추천" 질문에서 특정 섹터/기업으로 과도하게 수렴하지 않도록 만든 후보군이다. 최종 답변은 이 후보군에서 3~5개만 골라야 하며, 같은 섹터·테마는 최대 2개까지만 선택하라.');
-  } else {
-    lines.push('이 목록은 앱 내부 종목 DB를 실제 필터링·랭킹한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.');
-  }
-  lines.push('═══════════════════════════════════════════════════');
-  result.rows.forEach(function(r, i) {
-    var rankStr = (r.rank != null) ? ('퀀트 ' + r.rank + '/100(' + (r.quantSignal || '') + ')') : '퀀트 N/A';
-    var fsStr = r.factorScores ? (' [모멘텀' + r.factorScores.momentum + '·추세' + r.factorScores.trend + '·저변동' + r.factorScores.lowvol + ']') : '';
-    var divStr = isDiversified ? (' · ' + (r.market || 'US') + '/' + (r.capBucket || 'unknown') + ' · 분산점수 ' + (r.diversityScore != null ? r.diversityScore : 'N/A')) : '';
-    lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + divStr + ' · ' + rankStr + fsStr +
-      ' · 시그널(editorial) ' + r.signal + ' · 시총 ' + (r.mcap ? '$' + r.mcap + 'B' : 'N/A') + ' · RSI ' + _f(r.rsi, 0) +
-      ' · 3M ' + _pct(r.ret3m) + ' · 가격 ' + (r.price != null ? '$' + _f(r.price, 2) : 'N/A') + ' (' + _pct(r.pct) + ')');
-    if (r.memo) lines.push('   메모: ' + r.memo);
-  });
-  lines.push('');
-  if (isDiversified) {
-    lines.push('답변 지침: (1) 먼저 "후보군을 넓게 분산해 봤다"고 밝히고 (2) 성장/퀄리티/방어/경기민감/한국·글로벌 중 최소 3개 관점으로 3~5개를 선택 (3) 제외·보류 후보 2~3개와 이유 제시 (4) 사용자가 공격형/방어형/한국주 선호를 밝히면 다음 답변에서 재랭킹하겠다고 안내. CEG·전력·AVGO·AI 반도체 같은 기존 강한 테마가 포함돼도 자동 1순위로 두지 말고, 비AI/비전력 대안과 비교해 상대 우위가 있을 때만 선택하라. 최종 추천과 수치 근거는 후보군 안에서 제시하되, 사용자가 더 넓은 탐색을 원하면 어떤 조건(시장·섹터·시총·위험도)으로 SCREENER_DB를 다시 펼치면 되는지 안내하라.');
-  } else {
-    lines.push('답변 지침: 위 목록을 사용자 조건에 맞춰 (1) 퀀트 랭크 기준 순위/표 (2) 상위 종목 선정 이유(어느 팩터가 강한지) (3) 주의·제외 사유 (4) 다음 행동 순으로 해설. 퀀트 랭크(객관·데이터)와 시그널/메모(editorial·애널리스트)를 구분해 설명하라. 가격은 위 값 그대로 인용하고 (기준시각) 괄호를 붙여라. 목록에 없는 종목을 새로 만들지 마라.');
-  }
-  return '\n\n' + lines.join('\n') + '\n';
-}
-window._formatScreenerResultPrompt = _formatScreenerResultPrompt;
+// ── 스크리너 함수 — aio-data.js로 이동됨 (v51.17). window.* 전역 alias ──
+var _SECTOR_KEYWORDS = window.AIO_SECTOR_KEYWORDS;
+var _detectSectorQuery = window._detectSectorQuery;
+var _aioIsBroadRecommendationQuery = window._aioIsBroadRecommendationQuery;
+var _aioInferTickerMarket = window._aioInferTickerMarket;
+var _aioCapBucket = window._aioCapBucket;
+var _aioExtractRecentRecommendationTickers = window._aioExtractRecentRecommendationTickers;
+var _aioBuildDiversifiedRecommendationRows = window._aioBuildDiversifiedRecommendationRows;
+var _aioRunScreenerQuery = window._aioRunScreenerQuery;
+var _formatScreenerResultPrompt = window._formatScreenerResultPrompt;
 
 // FMP API 다중 종목 밸류에이션 일괄 조회 (PER, PBR, 매출성장, FCF Yield, ROE 등)
 async function _fetchSectorCompareData(stocks) {
@@ -3659,9 +3393,15 @@ function _formatDeepComparePrompt(tickers, deepData) {
  * 웹검색이 필요한 질문인지 자동 판단
  * @returns {string|null} 검색 쿼리 또는 null
  */
-// ── v37.2: 뉴스 컨텍스트 주입 — newsCache에서 관련 뉴스를 추출해 LLM 시스템 프롬프트에 주입 ──
-// 컨텍스트별 관심 토픽 매핑
-// v37.4: 전체 CHAT_CONTEXTS에 뉴스 컨텍스트 주입 — 컨텍스트별 관심 토픽 매핑
+// ── 뉴스 컨텍스트 파이프라인 계약 ──────────────────────────────────────────────
+// 공급원 → 소비자 흐름:
+//   newsCache(aio-data.js fetchNews 24h) → _buildNewsContext → LLM 시스템 프롬프트
+//   AIO_TELEGRAM_WEEKLY_DIGEST → _buildTelegramContext → 동일 파이프라인
+//   screener.json newsMemo → _aioApplyServerScreener → _formatScreenerResultPrompt
+//
+// _CTX_TOPIC_MAP: 페이지ID → topic 배열. _buildNewsContext가 newsCache를 topic 필터로 선별.
+//   topic 값은 aio-data.js fetchNews의 item.topics 배열과 일치해야 함(계약 지점).
+//   새 페이지 추가 시 이 맵에도 등록 필요.
 var _CTX_TOPIC_MAP = {
   // ── 미국 시장 ──
   'home':        ['macro','geo','energy','semi','earnings','equity','healthcare','defense'],
@@ -6231,7 +5971,7 @@ async function chatSend(ctxId) {
               if (_vis3Svg) {
                 var _vis3Div = document.createElement('div');
                 _vis3Div.className = 'aio-chat-vis';
-                _vis3Div.style.cssText = 'margin:8px 0 4px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;overflow:hidden;';
+                _vis3Div.style.cssText = 'margin:8px 0 4px;background:var(--surface-2);border:1px solid rgba(0,212,255,0.18);border-left:3px solid var(--data-cyan);border-radius:var(--radius);padding:8px 10px;overflow:hidden;';
                 var _vis3SvgSafe = (typeof DOMPurify !== 'undefined')
                   ? DOMPurify.sanitize(_vis3Svg, {USE_PROFILES: {svg: true}})
                   : _vis3Svg;
@@ -6534,19 +6274,9 @@ function _parseSECFinancials(xbrlData) {
   return result;
 }
 
-// 숫자 포맷팅 (B/M/T)
-function _fmtNum(v) {
-  // v49.1 P187: _aioFiniteNum 위임 — NaN·Infinity·null 통합 차단 → '—' 반환
-  var fv = (typeof window._aioFiniteNum === 'function') ? window._aioFiniteNum(v) : (v != null && isFinite(v) ? v : null);
-  if (fv === null) return '—';
-  var abs = Math.abs(fv);
-  if (abs >= 1e12) return (fv/1e12).toFixed(2) + 'T';
-  if (abs >= 1e9) return (fv/1e9).toFixed(2) + 'B';
-  if (abs >= 1e6) return (fv/1e6).toFixed(1) + 'M';
-  if (abs >= 1e3) return (fv/1e3).toFixed(1) + 'K';
-  return fv.toFixed(2);
-}
-function _fmtPct(v) { return v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : 'N/A'; }
+// _fmtNum / _fmtPct — aio-core.js로 이동됨 (v51.16). window.* 전역 alias.
+var _fmtNum = window._fmtNum;
+var _fmtPct = window._fmtPct;
 
 // v33.4: 최근 검색 기록 관리
 function _fundRecentSearches(ticker) {
@@ -6952,1262 +6682,16 @@ async function fundamentalSearch() {
   }
 }
 
-// ── 렌더 함수들 ──────────────────────────────────────────────────
-
-function _renderFundHeader(d) {
-  var el = document.getElementById('fund-rpt-header');
-  if (!el) return;
-  var pctColor = d.pct != null ? (d.pct >= 0 ? '#00e5a0' : '#ff5b50') : '#7b8599';
-  var p = d.fmpProfile || {};
-  // v48.44: Ticker initial avatar (Figma profile chip 스타일)
-  var _initial = String(d.ticker || '?').slice(0, 2).toUpperCase();
-  var _avatarTone = (d.pct || 0) >= 0 ? 'tone-green' : 'tone-red';
-  var html = '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">';
-  html += '<div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">';
-  html += '<div class="aio-avatar is-lg ' + _avatarTone + '" style="font-family:var(--font-mono);">' + escHtml(_initial) + '</div>';
-  html += '<div style="min-width:0;flex:1;">';
-  html += '<div style="font-size:var(--fs-2xl);font-weight:800;color:var(--text-primary);letter-spacing:var(--ls-tight);font-family:var(--font-mono);">' + escHtml(d.ticker) + '</div>';
-  html += '<div style="font-size:var(--fs-md);color:var(--text-secondary);font-weight:600;">' + escHtml(d.name || '') + '</div>';
-  if (p.sector) html += '<div style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:3px;font-weight:500;">' + escHtml(p.sector) + ' · ' + escHtml(p.industry || '') + ' · ' + escHtml(p.country || 'US') + '</div>';
-  if (p.ceo) html += '<div style="font-size:var(--fs-xs);color:var(--text-muted);">CEO: ' + escHtml(p.ceo) + ' · 직원: ' + (p.fullTimeEmployees ? Number(p.fullTimeEmployees).toLocaleString() : 'N/A') + '명</div>';
-  html += '</div></div>';
-  html += '<div style="text-align:right;">';
-  if (d.price) {
-    html += '<div style="font-size:24px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);">$' + d.price.toFixed(2) + '</div>';
-    html += '<div style="font-size:14px;color:' + pctColor + ';font-weight:700;">' + _fmtPct(d.pct) + '</div>';
-  }
-  if (p.mktCap) html += '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">시가총액: $' + _fmtNum(p.mktCap) + '</div>';
-  // v38.8: 포트폴리오 추가 + 차트분석 연결 버튼
-  html += '<div style="display:flex;gap:6px;margin-top:6px;">';
-  html += '<button data-action="_aioAddToPortfolio" data-arg="' + escHtml(d.ticker) + '" class="aio-btn-table" style="font-size:11px;">포트폴리오에 추가</button>';
-  html += '<button data-action="_aioChartAnalyze" data-arg="' + escHtml(d.ticker) + '" class="aio-btn-table" style="font-size:11px;">차트 분석</button>';
-  html += '</div>';
-  // v48.37: SCREENER_DB memo staleness 배지 (애널리스트 리포트 노화 경고)
-  if (typeof window._aioStockStaleInfo === 'function') {
-    var _staleInfo = window._aioStockStaleInfo(d.ticker);
-    if (_staleInfo && _staleInfo.badge) {
-      html += '<div style="margin-top:4px;font-size:11px;color:var(--text-muted);">리포트 코멘트: ' + _staleInfo.badge + (_staleInfo.isStale ? ' <span style="color:#f87171;">· 최신 정보 재검증 권장</span>' : '') + '</div>';
-    }
-  }
-  html += '</div></div>';
-
-  // v48.6: 52주 위치 프로그레스 바 + 거래량 스파이크 배지 (Yahoo v7 배치 수집 필드 활용)
-  //   데이터 우선순위: _liveData(Yahoo v7/quote) > finnhubMetrics(v48.0)
-  //   52W 위치 0~100% — 저가 대비 현재가 백분위 / 거래량 = 오늘 거래량 ÷ 3개월 평균
-  var _ld = (window._liveData || {})[d.ticker] || {};
-  var _fh = d.finnhubMetrics || {};
-  var _w52High = _ld.fiftyTwoWeekHigh != null ? _ld.fiftyTwoWeekHigh : (_fh['52WeekHigh'] != null ? _fh['52WeekHigh'] : null);
-  var _w52Low = _ld.fiftyTwoWeekLow != null ? _ld.fiftyTwoWeekLow : (_fh['52WeekLow'] != null ? _fh['52WeekLow'] : null);
-  var _vol = _ld.regularMarketVolume != null ? _ld.regularMarketVolume : null;
-  var _avgVol3M = _ld.averageDailyVolume3Month != null ? _ld.averageDailyVolume3Month : null;
-  var _avgVol10D = _ld.averageDailyVolume10Day != null ? _ld.averageDailyVolume10Day : null;
-
-  if (d.price && _w52High && _w52Low && _w52High > _w52Low) {
-    var _pos = ((d.price - _w52Low) / (_w52High - _w52Low)) * 100;
-    _pos = Math.max(0, Math.min(100, _pos));
-    var _posColor = _pos > 75 ? '#00e5a0' : _pos < 25 ? '#ff5b50' : '#ffa31a';
-    var _posLabel = _pos > 90 ? '52주 고가 근접' : _pos > 75 ? '상단 구간' : _pos < 10 ? '52주 저가 근접' : _pos < 25 ? '하단 구간' : '중간 구간';
-    html += '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">';
-    html += '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;">';
-    html += '<span style="color:var(--text-muted);font-family:var(--font-mono);">52W저 $' + _w52Low.toFixed(2) + '</span>';
-    html += '<span style="color:' + _posColor + ';font-weight:700;">' + _posLabel + ' · ' + _pos.toFixed(0) + '%</span>';
-    html += '<span style="color:var(--text-muted);font-family:var(--font-mono);">52W고 $' + _w52High.toFixed(2) + '</span>';
-    html += '</div>';
-    html += '<div style="height:10px;background:var(--surface-5);border-radius:3px;position:relative;overflow:visible;">';
-    html += '<div style="height:100%;width:100%;background:linear-gradient(90deg,#f87171 0%,#fbbf24 50%,#3ddba5 100%);border-radius:3px;opacity:0.35;"></div>';
-    html += '<div style="position:absolute;top:-3px;left:' + _pos + '%;width:4px;height:16px;background:#fff;transform:translateX(-50%);box-shadow:0 0 6px rgba(255,255,255,0.8);border-radius:2px;"></div>';
-    html += '</div>';
-    html += '</div>';
-  }
-
-  if (_vol && _avgVol3M && _avgVol3M > 0) {
-    var _volRatio = _vol / _avgVol3M;
-    var _volLabel, _volColor;
-    if (_volRatio >= 2.0) { _volLabel = '거래량 폭증'; _volColor = '#ef4444'; }
-    else if (_volRatio >= 1.3) { _volLabel = '거래량 상승'; _volColor = '#ffa31a'; }
-    else if (_volRatio < 0.5) { _volLabel = '거래량 저조'; _volColor = '#7b8599'; }
-    else { _volLabel = '거래량 정상'; _volColor = '#00e5a0'; }
-    var _vol10dRatio = (_avgVol10D && _avgVol10D > 0) ? (_vol / _avgVol10D) : null;
-    html += '<div style="margin-top:8px;display:flex;gap:8px;font-size:11px;align-items:center;flex-wrap:wrap;">';
-    html += '<span style="padding:3px 10px;background:' + _volColor + '22;border:1px solid ' + _volColor + ';color:' + _volColor + ';border-radius:4px;font-weight:700;">' + _volLabel + ' ' + _volRatio.toFixed(1) + 'x</span>';
-    html += '<span style="color:var(--text-muted);">3개월 평균 대비 · 오늘 ' + Number(_vol).toLocaleString() + '주';
-    if (_vol10dRatio != null) html += ' · 10일 평균 대비 ' + _vol10dRatio.toFixed(1) + 'x';
-    html += '</span>';
-    html += '</div>';
-  }
-
-  if (p.description) {
-    // v48.91: escHtml() 적용 — FMP API 기업 설명 XSS 방지
-    var desc = p.description.length > 300 ? p.description.slice(0, 300) + '...' : p.description;
-    html += '<div style="margin-top:10px;font-size:11px;color:var(--text-secondary);line-height:1.6;border-top:1px solid var(--border);padding-top:8px;">' + escHtml(desc) + '</div>';
-  }
-  el.innerHTML = html;
-  el.style.display = 'block';
-}
-
-function _renderFundSEC(d) {
-  var el = document.getElementById('fund-rpt-sec');
-  var body = document.getElementById('fund-rpt-sec-body');
-  if (!el || !body || !d.sec) return;
-  var s = d.sec;
-  // v48.91: SEC API 응답 escHtml() 처리 — XSS 방지
-  var html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">';
-  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:3px;font-size:10px;"><span style="color:var(--text-muted);">CIK:</span> ' + escHtml(s.cik||'N/A') + '</div>';
-  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:3px;font-size:10px;"><span style="color:var(--text-muted);">SIC:</span> ' + escHtml(s.sicDescription||'N/A') + '</div>';
-  html += '<div style="padding:6px 8px;background:var(--surface-1);border-radius:3px;font-size:10px;"><span style="color:var(--text-muted);">거래소:</span> ' + escHtml((s.exchanges||[]).join(', ')||'N/A') + '</div>';
-  html += '</div>';
-  if (s.filings && s.filings.form) {
-    html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">최근 주요 공시 (10-K/10-Q/8-K/DEF 14A)</div>';
-    var shown = 0;
-    for (var i = 0; i < s.filings.form.length && shown < 8; i++) {
-      var form = s.filings.form[i];
-      if (['10-K','10-Q','8-K','DEF 14A','S-1','13F-HR'].indexOf(form) < 0) continue;
-      var date = s.filings.filingDate ? s.filings.filingDate[i] : '';
-      var desc = s.filings.primaryDocDescription ? s.filings.primaryDocDescription[i] : '';
-      var accession = s.filings.accessionNumber ? s.filings.accessionNumber[i] : '';
-      var formColor = form === '10-K' ? '#00e5a0' : form === '10-Q' ? '#00d4ff' : form === '8-K' ? '#ffa31a' : '#c084fc';
-      html += '<div style="font-size:10px;padding:4px 0;border-bottom:1px solid var(--surface-2);display:flex;gap:8px;align-items:center;">';
-      // v48.91: SEC 공시 데이터 escHtml() 적용
-      html += '<span style="color:' + formColor + ';font-weight:700;width:60px;font-family:var(--font-mono);">' + escHtml(form) + '</span>';
-      html += '<span style="color:var(--text-muted);width:80px;">' + escHtml(date) + '</span>';
-      html += '<span style="color:var(--text-secondary);flex:1;">' + escHtml(desc||'') + '</span>';
-      if (accession) {
-        var secUrl = 'https://www.sec.gov/Archives/edgar/data/' + (s.cik||'').replace(/^0+/,'') + '/' + accession.replace(/-/g,'') + '/' + accession + '-index.htm';
-        html += '<a href="' + secUrl + '" target="_blank" style="color:var(--accent);font-size:11px;text-decoration:none;">SEC ↗</a>';
-      }
-      html += '</div>';
-      shown++;
-    }
-  }
-  body.innerHTML = html;
-  el.style.display = 'block';
-}
-
-function _renderFundFinancials(d) {
-  var el = document.getElementById('fund-rpt-financials');
-  var grid = document.getElementById('fund-rpt-fin-grid');
-  if (!el || !grid) return;
-  var p = d.fmpProfile || {};
-  var m = (d.fmpMetrics && d.fmpMetrics[0]) || {};
-  var r = (d.fmpRatios && d.fmpRatios[0]) || {};
-  var inc = (d.fmpIncome && d.fmpIncome[0]) || {};
-  var ev = (d.fmpEV && d.fmpEV[0]) || {};
-
-  // SEC XBRL 폴백 데이터 준비
-  var sf = d.secFin || {};
-  var lastRev = (sf.revenue && sf.revenue.length > 0) ? sf.revenue[sf.revenue.length - 1] : null;
-  var lastNI = (sf.netIncome && sf.netIncome.length > 0) ? sf.netIncome[sf.netIncome.length - 1] : null;
-  var lastEps = (sf.eps && sf.eps.length > 0) ? sf.eps[sf.eps.length - 1] : null;
-  var lastAssets = (sf.totalAssets && sf.totalAssets.length > 0) ? sf.totalAssets[sf.totalAssets.length - 1] : null;
-  var lastEquity = (sf.equity && sf.equity.length > 0) ? sf.equity[sf.equity.length - 1] : null;
-  var lastGross = (sf.grossProfit && sf.grossProfit.length > 0) ? sf.grossProfit[sf.grossProfit.length - 1] : null;
-  var lastOpCF = (sf.opCashFlow && sf.opCashFlow.length > 0) ? sf.opCashFlow[sf.opCashFlow.length - 1] : null;
-  var lastCapex = (sf.capex && sf.capex.length > 0) ? sf.capex[sf.capex.length - 1] : null;
-  var lastDebt = (sf.totalDebt && sf.totalDebt.length > 0) ? sf.totalDebt[sf.totalDebt.length - 1] : null;
-
-  // SEC 값 헬퍼
-  function sv(item) { return item ? (item.val || item.value || 0) : 0; }
-  // v49.0 P183: API Infinity/NaN → 'N/A' 가드
-  var _fn = window._aioFiniteNum || function(v) { return (v != null && isFinite(v)) ? v : null; };
-
-  // SEC 기반 파생 지표 계산
-  var secRevVal = sv(lastRev);
-  var secNIVal = sv(lastNI);
-  var secEpsVal = sv(lastEps);
-  var secEquityVal = sv(lastEquity);
-  var secAssetsVal = sv(lastAssets);
-  var secGrossVal = sv(lastGross);
-  var secOpCFVal = sv(lastOpCF);
-  var secCapexVal = sv(lastCapex);
-  var secDebtVal = sv(lastDebt);
-  var secROE = (secEquityVal && secNIVal) ? secNIVal / secEquityVal : null;
-  var secGrossMargin = (secRevVal && secGrossVal) ? secGrossVal / secRevVal : null;
-  var secFCF = secOpCFVal - Math.abs(secCapexVal);
-  var secDE = (secEquityVal && secDebtVal) ? secDebtVal / secEquityVal : null;
-  var secMktCap = d.price ? d.price * (d.sharesOut || 0) : 0;
-  // PE from SEC
-  var secPE = (secEpsVal && d.price) ? d.price / secEpsVal : null;
-
-  function card(label, value, sub, color) {
-    return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);">' + label + '</div>' +
-      '<div style="font-size:16px;font-weight:800;color:' + (color||'var(--text-primary)') + ';font-family:var(--font-mono);margin-top:2px;">' + value + '</div>' +
-      (sub ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + sub + '</div>' : '') + '</div>';
-  }
-
-  // 값 선택: FMP 우선, SEC XBRL 폴백
-  var mktCap = p.mktCap || ev.marketCapitalization || secMktCap || 0;
-  var peVal = m.peRatio || p.pe || secPE;
-  var roeVal = r.returnOnEquity || secROE;
-  var epsVal = inc.epsdiluted || secEpsVal;
-  var revVal = inc.revenue || secRevVal;
-  var niVal = inc.netIncome || secNIVal;
-  var gmVal = r.grossProfitMargin || secGrossMargin;
-  var deVal = r.debtEquityRatio || secDE;
-  var revYear = inc.revenue ? (inc.calendarYear || inc.date || '').slice(0,4) : (lastRev ? (lastRev.end||'').slice(0,4) : '');
-  var isSEC = !inc.revenue && secRevVal; // SEC 폴백 사용 여부
-
-  var html = '';
-  html += card('시가총액', mktCap > 0 ? '$' + _fmtNum(mktCap) : 'N/A', p.sector || (isSEC ? 'SEC XBRL' : ''));
-  html += card('P/E (TTM)', _fn(peVal) !== null ? peVal.toFixed(1) + 'x' : 'N/A', peVal > 30 ? '고평가 영역' : peVal > 15 ? '적정' : (peVal ? '저평가 영역' : ''), peVal > 40 ? '#ff5b50' : peVal < 15 ? '#00e5a0' : '#ffa31a');
-  html += card('ROE', _fn(roeVal) !== null ? (roeVal * 100).toFixed(1) + '%' : 'N/A', roeVal > 0.2 ? '우수' : roeVal > 0.1 ? '양호' : (roeVal ? '주의' : ''), roeVal > 0.2 ? '#00e5a0' : roeVal > 0.1 ? '#ffa31a' : '#ff5b50');
-  html += card('EPS (TTM)', epsVal ? '$' + epsVal.toFixed(2) : 'N/A', '');
-  html += card('매출', revVal ? '$' + _fmtNum(revVal) : 'N/A', revYear ? 'FY ' + revYear : '');
-  html += card('순이익', niVal ? '$' + _fmtNum(niVal) : 'N/A', '', (niVal || 0) >= 0 ? '#00e5a0' : '#ff5b50');
-  html += card('Gross Margin', gmVal ? (gmVal * 100).toFixed(1) + '%' : 'N/A', '매출총이익률');
-  html += card('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : (secFCF && mktCap > 0 ? ((secFCF / mktCap) * 100).toFixed(1) + '%' : 'N/A'), '잉여현금흐름 수익률');
-  html += card('EV/EBITDA', _fn(m.enterpriseValueOverEBITDA) !== null ? m.enterpriseValueOverEBITDA.toFixed(1) + 'x' : 'N/A', '기업가치 대비');
-  html += card('P/B', _fn(m.pbRatio) !== null ? m.pbRatio.toFixed(2) + 'x' : (secEquityVal && d.price && secEquityVal > 0 ? (mktCap / secEquityVal).toFixed(2) + 'x' : 'N/A'), '주가순자산비율');
-  html += card('부채비율', _fn(deVal) !== null ? deVal.toFixed(2) + 'x' : 'N/A', deVal > 2 ? '높음' : (deVal ? '안정' : ''), deVal > 2 ? '#ff5b50' : '#00e5a0');
-  html += card('배당수익률', (p.lastDiv && d.price && d.price > 0) ? ((p.lastDiv / d.price) * 100).toFixed(2) + '%' : (p.lastDiv ? 'N/A' : '0%'), '연간 배당');
-
-  if (isSEC) { html += '<div style="grid-column:1/-1;text-align:center;font-size:11px;color:var(--text-muted);padding:4px;">SEC EDGAR XBRL 기반 데이터 (FMP API 키 설정 시 더 풍부한 지표 제공)</div>'; }
-
-  // v48.1: SEC XBRL 신규 8필드 품질/건전성 카드 추가
-  //   R&D Intensity (R&D/매출), SBC 희석 (SBC/매출), SG&A 비중, Cash 포지션, 운전자본(재고/매출채권/유동부채)
-  var lastRd = (sf.rd && sf.rd.length > 0) ? sv(sf.rd[sf.rd.length - 1]) : 0;
-  var lastSbc = (sf.sbc && sf.sbc.length > 0) ? sv(sf.sbc[sf.sbc.length - 1]) : 0;
-  var lastSga = (sf.sga && sf.sga.length > 0) ? sv(sf.sga[sf.sga.length - 1]) : 0;
-  var lastCash = (sf.cash && sf.cash.length > 0) ? sv(sf.cash[sf.cash.length - 1]) : 0;
-  var lastInv = (sf.inventory && sf.inventory.length > 0) ? sv(sf.inventory[sf.inventory.length - 1]) : 0;
-  var lastRcv = (sf.receivables && sf.receivables.length > 0) ? sv(sf.receivables[sf.receivables.length - 1]) : 0;
-  var lastCurDebt = (sf.currentDebt && sf.currentDebt.length > 0) ? sv(sf.currentDebt[sf.currentDebt.length - 1]) : 0;
-  var hasQuality = lastRd || lastSbc || lastSga || lastCash || lastInv || lastRcv || lastCurDebt;
-  if (hasQuality) {
-    var qHtml = '<div style="grid-column:1/-1;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--text-secondary);font-weight:600;">SEC XBRL — 성장주 품질 & 운전자본 (v48.1 신규)</div>';
-    if (lastRd && secRevVal) {
-      var rdRatio = (lastRd / secRevVal) * 100;
-      qHtml += card('R&D 강도', rdRatio.toFixed(1) + '%', 'R&D / 매출' + (rdRatio > 15 ? ' · 고투자' : rdRatio > 5 ? ' · 양호' : ''), rdRatio > 15 ? '#00d4ff' : rdRatio > 5 ? '#00e5a0' : '#7b8599');
-    }
-    if (lastSbc && secRevVal) {
-      var sbcRatio = (lastSbc / secRevVal) * 100;
-      qHtml += card('SBC 희석', sbcRatio.toFixed(1) + '%', 'SBC / 매출' + (sbcRatio > 10 ? ' · 높은 희석' : sbcRatio > 3 ? ' · 중간' : ''), sbcRatio > 10 ? '#ff5b50' : sbcRatio > 3 ? '#ffa31a' : '#00e5a0');
-    }
-    if (lastSga && secRevVal) qHtml += card('SG&A 비중', ((lastSga / secRevVal) * 100).toFixed(1) + '%', '판매관리비 / 매출');
-    if (lastCash) qHtml += card('현금 포지션', '$' + _fmtNum(lastCash), 'Cash & Equivalents');
-    if (lastInv) qHtml += card('재고', '$' + _fmtNum(lastInv), '');
-    if (lastRcv) qHtml += card('매출채권', '$' + _fmtNum(lastRcv), '');
-    if (lastCurDebt) qHtml += card('유동부채', '$' + _fmtNum(lastCurDebt), '1년 내 상환');
-    html += qHtml;
-  }
-
-  // v48.10: SEC XBRL Frames 섹터 백분위 순위 시각화 (수집만 하던 collected.secFrameRank UI 노출)
-  //   전 US-GAAP 보고 기업 중 본 기업의 Revenues/NetIncomeLoss 순위 → 섹터 내 상대 위치 정량화
-  var _sfr = d.secFrameRank || null;
-  if (_sfr && (_sfr.revenue || _sfr.netIncome)) {
-    var rankHtml = '<div style="grid-column:1/-1;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
-    rankHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
-    rankHtml += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);">SEC XBRL 섹터 백분위 (v48.10 신규)</div>';
-    rankHtml += '<div style="font-size:10px;color:var(--text-muted);">전 US-GAAP 보고 기업 대비</div>';
-    rankHtml += '</div>';
-    function _rankCard(title, rr, unit) {
-      if (!rr || rr.myVal == null) return '';
-      var topPct = rr.pctile != null ? (100 - rr.pctile) : null;
-      var topColor = topPct != null && topPct <= 5 ? '#10b981' : topPct != null && topPct <= 25 ? '#00e5a0' : topPct != null && topPct <= 50 ? '#ffa31a' : '#ff5b50';
-      var topLabel = topPct != null ? ('상위 ' + topPct.toFixed(1) + '%') : '';
-      var rankLabel = rr.rank != null ? ('Rank ' + rr.rank + ' / ' + rr.n) : '';
-      var myValStr = (unit === 'USD' || !unit) ? '$' + _fmtNum(rr.myVal) : rr.myVal.toFixed(2) + (unit||'');
-      var avgStr = '$' + _fmtNum(rr.avg);
-      var medStr = '$' + _fmtNum(rr.median);
-      var html = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">';
-      html += '<div style="font-size:10px;color:var(--text-muted);font-weight:600;">' + title + ' (' + (rr.period||'') + ')</div>';
-      html += '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px;">';
-      html += '<span style="font-size:15px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);">' + myValStr + '</span>';
-      html += '<span style="font-size:11px;color:' + topColor + ';font-weight:700;">' + topLabel + '</span>';
-      html += '</div>';
-      html += '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">' + rankLabel + '</div>';
-      html += '<div style="display:flex;gap:8px;margin-top:6px;font-size:11px;color:var(--text-muted);">';
-      html += '<span>평균 ' + avgStr + '</span>';
-      html += '<span>중위수 ' + medStr + '</span>';
-      html += '</div>';
-      html += '</div>';
-      return html;
-    }
-    rankHtml += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;">';
-    if (_sfr.revenue) rankHtml += _rankCard('Revenues', _sfr.revenue, 'USD');
-    if (_sfr.netIncome) rankHtml += _rankCard('Net Income', _sfr.netIncome, 'USD');
-    rankHtml += '</div>';
-    rankHtml += '</div>';
-    html += rankHtml;
-  }
-
-  // v48.7: Finnhub 애널리스트 추천 바 차트 + FMP 목표가 컨센서스 통합 섹션
-  //   Finnhub /stock/recommendation: { strongBuy, buy, hold, sell, strongSell } — 5구간 누적 바
-  //   FMP price-target-consensus: { targetConsensus, targetHigh, targetLow } — upside % 계산
-  //   둘 다 없으면 섹션 생략. 하나만 있어도 해당 부분만 렌더.
-  var _fhRec = d.finnhubRecommendation || null;
-  var _ptC = d.fmpPriceTarget || null;
-  if (_fhRec || _ptC) {
-    var recHtml = '<div style="grid-column:1/-1;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
-    recHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
-    recHtml += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);">애널리스트 컨센서스 (v48.7 신규)</div>';
-    if (_fhRec && _fhRec.period) recHtml += '<div style="font-size:10px;color:var(--text-muted);">Finnhub · ' + _fhRec.period + '</div>';
-    recHtml += '</div>';
-
-    if (_fhRec) {
-      var _sb = _fhRec.strongBuy || 0;
-      var _b = _fhRec.buy || 0;
-      var _h = _fhRec.hold || 0;
-      var _s = _fhRec.sell || 0;
-      var _ss = _fhRec.strongSell || 0;
-      var _total = _sb + _b + _h + _s + _ss;
-      if (_total > 0) {
-        // 5구간 누적 바 — Strong Buy / Buy / Hold / Sell / Strong Sell
-        var _pSB = (_sb / _total * 100).toFixed(1);
-        var _pB  = (_b  / _total * 100).toFixed(1);
-        var _pH  = (_h  / _total * 100).toFixed(1);
-        var _pS  = (_s  / _total * 100).toFixed(1);
-        var _pSS = (_ss / _total * 100).toFixed(1);
-        // 종합 판정: strongBuy+buy 비중이 우세면 Buy, sell+strongSell 우세면 Sell, 아니면 Hold
-        var _bullish = _sb + _b;
-        var _bearish = _s + _ss;
-        var _verdict, _verdictColor;
-        if (_bullish / _total >= 0.6) { _verdict = '매수 우세'; _verdictColor = '#10b981'; }
-        else if (_bullish / _total >= 0.4) { _verdict = '완만 매수'; _verdictColor = '#00e5a0'; }
-        else if (_bearish / _total >= 0.4) { _verdict = '매도 우세'; _verdictColor = '#ff5b50'; }
-        else { _verdict = '중립'; _verdictColor = '#ffa31a'; }
-        recHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px;">';
-        recHtml += '<span style="color:var(--text-muted);">총 ' + _total + '명 애널리스트</span>';
-        recHtml += '<span style="padding:3px 10px;background:' + _verdictColor + '22;border:1px solid ' + _verdictColor + ';color:' + _verdictColor + ';border-radius:4px;font-weight:700;">' + _verdict + '</span>';
-        recHtml += '</div>';
-        // 누적 바 (height 22px)
-        recHtml += '<div style="display:flex;height:22px;border-radius:3px;overflow:hidden;font-size:10px;font-weight:700;">';
-        if (_sb > 0) recHtml += '<div style="width:' + _pSB + '%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center;" title="Strong Buy ' + _sb + '명">' + (parseFloat(_pSB) >= 8 ? _sb : '') + '</div>';
-        if (_b > 0)  recHtml += '<div style="width:' + _pB  + '%;background:#3ddba5;color:#0f1623;display:flex;align-items:center;justify-content:center;" title="Buy ' + _b + '명">' + (parseFloat(_pB) >= 8 ? _b : '') + '</div>';
-        if (_h > 0)  recHtml += '<div style="width:' + _pH  + '%;background:#fbbf24;color:#0f1623;display:flex;align-items:center;justify-content:center;" title="Hold ' + _h + '명">' + (parseFloat(_pH) >= 8 ? _h : '') + '</div>';
-        if (_s > 0)  recHtml += '<div style="width:' + _pS  + '%;background:#f87171;color:#fff;display:flex;align-items:center;justify-content:center;" title="Sell ' + _s + '명">' + (parseFloat(_pS) >= 8 ? _s : '') + '</div>';
-        if (_ss > 0) recHtml += '<div style="width:' + _pSS + '%;background:#ef4444;color:#fff;display:flex;align-items:center;justify-content:center;" title="Strong Sell ' + _ss + '명">' + (parseFloat(_pSS) >= 8 ? _ss : '') + '</div>';
-        recHtml += '</div>';
-        // 범례
-        recHtml += '<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text-muted);font-weight:600;">';
-        recHtml += '<span><span style="display:inline-block;width:8px;height:8px;background:#10b981;border-radius:2px;margin-right:4px;"></span>Strong Buy ' + _sb + ' (' + _pSB + '%)</span>';
-        recHtml += '<span><span style="display:inline-block;width:8px;height:8px;background:#3ddba5;border-radius:2px;margin-right:4px;"></span>Buy ' + _b + ' (' + _pB + '%)</span>';
-        recHtml += '<span><span style="display:inline-block;width:8px;height:8px;background:#fbbf24;border-radius:2px;margin-right:4px;"></span>Hold ' + _h + ' (' + _pH + '%)</span>';
-        recHtml += '<span><span style="display:inline-block;width:8px;height:8px;background:#f87171;border-radius:2px;margin-right:4px;"></span>Sell ' + _s + ' (' + _pS + '%)</span>';
-        recHtml += '<span><span style="display:inline-block;width:8px;height:8px;background:#ef4444;border-radius:2px;margin-right:4px;"></span>Strong Sell ' + _ss + ' (' + _pSS + '%)</span>';
-        recHtml += '</div>';
-      }
-    }
-
-    // FMP 목표가 컨센서스 (있으면) — 현재가 대비 upside 시각화
-    if (_ptC) {
-      var _tgtC = _ptC.targetConsensus != null ? _ptC.targetConsensus : null;
-      var _tgtH = _ptC.targetHigh != null ? _ptC.targetHigh : null;
-      var _tgtL = _ptC.targetLow != null ? _ptC.targetLow : null;
-      if (_tgtC && d.price) {
-        var _upside = ((_tgtC - d.price) / d.price * 100);
-        var _upColor = _upside >= 15 ? '#10b981' : _upside >= 0 ? '#00e5a0' : _upside >= -10 ? '#ffa31a' : '#ff5b50';
-        recHtml += '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--surface-5);display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11px;">';
-        recHtml += '<span style="font-weight:700;color:var(--text-secondary);">FMP 목표가 컨센서스</span>';
-        recHtml += '<span style="font-family:var(--font-mono);font-size:14px;font-weight:800;color:' + _upColor + ';">$' + _tgtC.toFixed(2) + '</span>';
-        recHtml += '<span style="padding:2px 8px;background:' + _upColor + '22;border:1px solid ' + _upColor + ';color:' + _upColor + ';border-radius:4px;font-weight:700;">' + (_upside >= 0 ? '+' : '') + _upside.toFixed(1) + '% upside</span>';
-        if (_tgtH && _tgtL) recHtml += '<span style="color:var(--text-muted);">범위 $' + _tgtL.toFixed(2) + ' ~ $' + _tgtH.toFixed(2) + '</span>';
-        recHtml += '</div>';
-      }
-    }
-
-    recHtml += '</div>';
-    html += recHtml;
-  }
-
-  grid.innerHTML = html;
-  el.style.display = 'block';
-}
-
-// ─────────────────────────────────────────────────────────────────
-// v49.72 신규: _renderFundamentalFinancialsCharts — DART Financials 스타일 7 차트 렌더
-// 입력: { ticker, available, dataSource, period, latestQuarter, asOf, income[], balance[], cashflow[], ratios[] }
-// 의존: window.Chart (Chart.js) + window._aioChartRegistry (v48.96 P167)
-// R138: fundamental 종목 검색 시 7 차트 자동 렌더 의무
-// ─────────────────────────────────────────────────────────────────
-function _renderFundamentalFinancialsCharts(data) {
-  var card = document.getElementById('fund-rpt-fincharts');
-  if (!card) return;
-  card.style.display = 'block';
-  var meta = document.getElementById('fund-fin-meta');
-  if (meta) {
-    if (data && data.available) {
-      meta.textContent = (data.dataSource || 'FMP') + ' · period=' + (data.period || 'quarter') + (data.latestQuarter ? (' · 기준일 ' + data.latestQuarter) : '');
-    } else {
-      meta.textContent = (data && data.dataSource) ? (data.dataSource + ' · ' + (data.reason || '데이터 부재')) : '데이터 부재 — 외부 확인 권장';
-    }
-  }
-
-  // helper: 분기 시리즈 → {labels[], values[]} (오래된 → 최신 순으로 reverse)
-  function _series(arr, field) {
-    if (!Array.isArray(arr) || arr.length === 0) return { labels: [], values: [] };
-    var slice = arr.slice(0, 5).reverse();  // 최근 5분기
-    return {
-      labels: slice.map(function(q){ return (q.date || q.period || '').slice(0, 7); }),
-      values: slice.map(function(q){ var v = q[field]; return (v != null && isFinite(v)) ? Number(v) : null; })
-    };
-  }
-  function _fmt(n) {
-    if (n == null || !isFinite(n)) return '—';
-    var abs = Math.abs(n);
-    if (abs >= 1e12) return (n/1e12).toFixed(2) + 'T';
-    if (abs >= 1e9)  return (n/1e9 ).toFixed(2) + 'B';
-    if (abs >= 1e6)  return (n/1e6 ).toFixed(2) + 'M';
-    if (abs >= 1e3)  return (n/1e3 ).toFixed(2) + 'K';
-    return n.toFixed(2);
-  }
-  function _pct(n) { return (n != null && isFinite(n)) ? (n*100).toFixed(2) + '%' : '—'; }
-
-  var canvasIds = [
-    'fund-growth-chart', 'fund-profitability-chart', 'fund-balance-chart',
-    'fund-cashflow-chart', 'fund-liquidity-chart', 'fund-curratio-donut', 'fund-workingcap-chart'
-  ];
-  // 기존 차트 destroy (재렌더 시 중복 방지)
-  if (window._aioChartRegistry && typeof window._aioChartRegistry.destroyIfExists === 'function') {
-    canvasIds.forEach(function(id){ window._aioChartRegistry.destroyIfExists(id); });
-  }
-
-  // Chart.js 부재 / 데이터 부재 → placeholder
-  if (typeof window.Chart === 'undefined') {
-    canvasIds.forEach(function(id){
-      var cv = document.getElementById(id);
-      if (cv) cv.setAttribute('data-fallback', 'chart-js-missing');
-    });
-    return;
-  }
-  if (!data || !data.available) {
-    canvasIds.forEach(function(id){
-      var cv = document.getElementById(id);
-      if (cv) cv.setAttribute('data-operational-use', 'reference-only');
-    });
-    // 7번째 카드 (Valuation cards) 폴백
-    var vc = document.getElementById('fund-valuation-cards');
-    var cb = document.getElementById('fund-calc-basis');
-    if (vc) vc.innerHTML = '<div style="grid-column:1/-1;color:var(--text-muted);font-size:10px;padding:8px;text-align:center;">5년 분기 데이터 부재 — 외부 확인 권장</div>';
-    if (cb) cb.textContent = (data && data.reason) || '데이터 미수신';
-    return;
-  }
-
-  var COLORS = {
-    rev: '#00d4ff', op: '#ffa31a', net: '#00e5a0',
-    opM: '#ffa31a', netM: '#00e5a0', roe: '#a855f7',
-    assets: '#ffa31a', liab: '#ff5b50', equity: '#00e5a0',
-    opCF: '#00e5a0', invCF: '#ff5b50', finCF: '#a855f7',
-    cash: '#00e5a0', curLiab: '#ffa31a', totLiab: '#ff5b50',
-    recv: '#7dd3fc', inv: '#00d4ff', curAssets: '#00e5a0'
-  };
-
-  // ① Growth — Revenue/OpIncome/NetIncome (bar)
-  var gRev = _series(data.income, 'revenue');
-  var gOp  = _series(data.income, 'operatingIncome');
-  var gNI  = _series(data.income, 'netIncome');
-  var cv1 = document.getElementById('fund-growth-chart');
-  if (cv1) {
-    var ctx1 = cv1.getContext('2d');
-    var c1 = new Chart(ctx1, {
-      type: 'bar',
-      data: {
-        labels: gRev.labels,
-        datasets: [
-          { label: 'Revenue', data: gRev.values, backgroundColor: COLORS.rev },
-          { label: 'OpInc',   data: gOp.values,  backgroundColor: COLORS.op  },
-          { label: 'NetInc',  data: gNI.values,  backgroundColor: COLORS.net }
-        ]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
-    });
-    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-growth-chart', c1);
-  }
-  var tg = document.getElementById('fund-growth-table');
-  if (tg) {
-    tg.innerHTML = gRev.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>R ' + _fmt(gRev.values[i]) + ' · O ' + _fmt(gOp.values[i]) + ' · N ' + _fmt(gNI.values[i]) + '</span></div>';
-    }).join('');
-  }
-
-  // ② Profitability — OpMargin/NetMargin/ROE (line)
-  var pOpM  = _series(data.ratios, 'operatingProfitMargin');
-  var pNetM = _series(data.ratios, 'netProfitMargin');
-  var pROE  = _series(data.ratios, 'returnOnEquity');
-  var cv2 = document.getElementById('fund-profitability-chart');
-  if (cv2) {
-    var ctx2 = cv2.getContext('2d');
-    var c2 = new Chart(ctx2, {
-      type: 'line',
-      data: {
-        labels: pOpM.labels,
-        datasets: [
-          { label: 'OpMargin',  data: pOpM.values.map(function(v){return v!=null?v*100:null;}),  borderColor: COLORS.opM,  backgroundColor: 'transparent', tension: 0.3 },
-          { label: 'NetMargin', data: pNetM.values.map(function(v){return v!=null?v*100:null;}), borderColor: COLORS.netM, backgroundColor: 'transparent', tension: 0.3 },
-          { label: 'ROE',       data: pROE.values.map(function(v){return v!=null?v*100:null;}),  borderColor: COLORS.roe,  backgroundColor: 'transparent', tension: 0.3 }
-        ]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return v.toFixed(1) + '%'; } } } } }
-    });
-    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-profitability-chart', c2);
-  }
-  var tp = document.getElementById('fund-profitability-table');
-  if (tp) {
-    tp.innerHTML = pOpM.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>OpM ' + _pct(pOpM.values[i]) + ' · NM ' + _pct(pNetM.values[i]) + ' · ROE ' + _pct(pROE.values[i]) + '</span></div>';
-    }).join('');
-  }
-
-  // ③ Balance Sheet — Assets/Liab/Equity (bar)
-  var bA = _series(data.balance, 'totalAssets');
-  var bL = _series(data.balance, 'totalLiabilities');
-  var bE = _series(data.balance, 'totalStockholdersEquity');
-  var cv3 = document.getElementById('fund-balance-chart');
-  if (cv3) {
-    var ctx3 = cv3.getContext('2d');
-    var c3 = new Chart(ctx3, {
-      type: 'bar',
-      data: { labels: bA.labels, datasets: [
-        { label: 'Assets', data: bA.values, backgroundColor: COLORS.assets },
-        { label: 'Liab',   data: bL.values, backgroundColor: COLORS.liab },
-        { label: 'Equity', data: bE.values, backgroundColor: COLORS.equity }
-      ]},
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
-    });
-    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-balance-chart', c3);
-  }
-  var tb = document.getElementById('fund-balance-table');
-  if (tb) {
-    tb.innerHTML = bA.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>A ' + _fmt(bA.values[i]) + ' · L ' + _fmt(bL.values[i]) + ' · E ' + _fmt(bE.values[i]) + '</span></div>';
-    }).join('');
-  }
-
-  // ④ Cash Flow — Operating/Investing/Financing (bar)
-  var cOp = _series(data.cashflow, 'operatingCashFlow');
-  var cIn = _series(data.cashflow, 'netCashUsedForInvestingActivites');
-  var cFi = _series(data.cashflow, 'netCashUsedProvidedByFinancingActivities');
-  var cv4 = document.getElementById('fund-cashflow-chart');
-  if (cv4) {
-    var ctx4 = cv4.getContext('2d');
-    var c4 = new Chart(ctx4, {
-      type: 'bar',
-      data: { labels: cOp.labels, datasets: [
-        { label: 'Op CF',  data: cOp.values, backgroundColor: COLORS.opCF },
-        { label: 'Inv CF', data: cIn.values, backgroundColor: COLORS.invCF },
-        { label: 'Fin CF', data: cFi.values, backgroundColor: COLORS.finCF }
-      ]},
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
-    });
-    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-cashflow-chart', c4);
-  }
-  var tc = document.getElementById('fund-cashflow-table');
-  if (tc) {
-    tc.innerHTML = cOp.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>Op ' + _fmt(cOp.values[i]) + ' · Inv ' + _fmt(cIn.values[i]) + ' · Fin ' + _fmt(cFi.values[i]) + '</span></div>';
-    }).join('');
-  }
-
-  // ⑤ Liquidity — Cash / CurLiab / TotLiab (line) + Current Ratio (donut)
-  var lCash = _series(data.balance, 'cashAndCashEquivalents');
-  var lCL   = _series(data.balance, 'totalCurrentLiabilities');
-  var lTL   = _series(data.balance, 'totalLiabilities');
-  var cv5a = document.getElementById('fund-liquidity-chart');
-  if (cv5a) {
-    var ctx5a = cv5a.getContext('2d');
-    var c5a = new Chart(ctx5a, {
-      type: 'line',
-      data: { labels: lCash.labels, datasets: [
-        { label: 'Cash',     data: lCash.values, borderColor: COLORS.cash,    backgroundColor: 'transparent', tension: 0.3 },
-        { label: 'Cur Liab', data: lCL.values,   borderColor: COLORS.curLiab, backgroundColor: 'transparent', tension: 0.3 },
-        { label: 'Tot Liab', data: lTL.values,   borderColor: COLORS.totLiab, backgroundColor: 'transparent', tension: 0.3 }
-      ]},
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
-    });
-    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-liquidity-chart', c5a);
-  }
-  // Current Ratio Donut — latest quarter
-  var curRatio = data.ratios && data.ratios[0] && data.ratios[0].currentRatio;
-  var cv5b = document.getElementById('fund-curratio-donut');
-  if (cv5b && curRatio != null && isFinite(curRatio)) {
-    var ratioColor = curRatio >= 2 ? COLORS.cash : curRatio >= 1 ? COLORS.curLiab : COLORS.totLiab;
-    var ctx5b = cv5b.getContext('2d');
-    var displayVal = Math.min(curRatio, 3);  // 3.0 cap for donut visualization
-    var c5b = new Chart(ctx5b, {
-      type: 'doughnut',
-      data: { labels: ['Current Ratio', 'Remaining'], datasets: [{ data: [displayVal, Math.max(3 - displayVal, 0)], backgroundColor: [ratioColor, 'rgba(255,255,255,0.05)'], borderWidth: 0 }] },
-      options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c){ return c.dataIndex === 0 ? 'Current Ratio: ' + curRatio.toFixed(2) + 'x' : ''; } } } } }
-    });
-    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-curratio-donut', c5b);
-  }
-  var tl = document.getElementById('fund-liquidity-table');
-  if (tl) {
-    tl.innerHTML = lCash.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>Cash ' + _fmt(lCash.values[i]) + ' · CL ' + _fmt(lCL.values[i]) + ' · TL ' + _fmt(lTL.values[i]) + '</span></div>';
-    }).join('') + (curRatio != null ? '<div style="margin-top:4px;padding:4px;background:rgba(255,255,255,0.04);border-radius:4px;text-align:center;">Current Ratio: <strong>' + curRatio.toFixed(2) + 'x</strong> · ' + (curRatio >= 2 ? '강건' : curRatio >= 1 ? '정상' : '주의') + '</div>' : '');
-  }
-
-  // ⑥ Working Capital — Receivables/Inventory/CurAssets (line)
-  var wR = _series(data.balance, 'netReceivables');
-  var wI = _series(data.balance, 'inventory');
-  var wA = _series(data.balance, 'totalCurrentAssets');
-  var cv6 = document.getElementById('fund-workingcap-chart');
-  if (cv6) {
-    var ctx6 = cv6.getContext('2d');
-    var c6 = new Chart(ctx6, {
-      type: 'line',
-      data: { labels: wR.labels, datasets: [
-        { label: 'Recv',  data: wR.values, borderColor: COLORS.recv,      backgroundColor: 'transparent', tension: 0.3 },
-        { label: 'Inv',   data: wI.values, borderColor: COLORS.inv,       backgroundColor: 'transparent', tension: 0.3 },
-        { label: 'CurA',  data: wA.values, borderColor: COLORS.curAssets, backgroundColor: 'transparent', tension: 0.3 }
-      ]},
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
-    });
-    if (window._aioChartRegistry) window._aioChartRegistry.register('fund-workingcap-chart', c6);
-  }
-  var tw = document.getElementById('fund-workingcap-table');
-  if (tw) {
-    tw.innerHTML = wR.labels.map(function(lab, i){
-      return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted rgba(255,255,255,0.05);"><span>' + lab + '</span><span>R ' + _fmt(wR.values[i]) + ' · I ' + _fmt(wI.values[i]) + ' · CA ' + _fmt(wA.values[i]) + '</span></div>';
-    }).join('');
-  }
-
-  // ⑦ Valuation Multiples — P/E, P/B, P/S cards + Calculation Basis
-  var latestRatio = data.ratios && data.ratios[0] || {};
-  var pe = latestRatio.priceEarningsRatio || latestRatio.peRatio || null;
-  var pb = latestRatio.priceToBookRatio   || latestRatio.pbRatio || null;
-  var ps = latestRatio.priceToSalesRatio  || latestRatio.psRatio || null;
-  var vcards = document.getElementById('fund-valuation-cards');
-  if (vcards) {
-    function _vCard(label, val, color) {
-      return '<div style="background:rgba(255,255,255,0.04);border-radius:3px;padding:6px 4px;text-align:center;">' +
-        '<div style="font-size:11px;color:var(--text-muted);">' + label + '</div>' +
-        '<div style="font-size:14px;font-weight:800;color:' + color + ';font-family:var(--font-mono);margin-top:2px;">' + (val != null && isFinite(val) ? Number(val).toFixed(2) + 'x' : '—') + '</div>' +
-      '</div>';
-    }
-    vcards.innerHTML = _vCard('P/E', pe, '#00d4ff') + _vCard('P/B', pb, '#ffa31a') + _vCard('P/S', ps, '#00e5a0');
-  }
-  var basis = document.getElementById('fund-calc-basis');
-  if (basis) {
-    var ld = (window._liveData || {})[data.ticker] || {};
-    var lastClose = ld.price != null ? ld.price : null;
-    var latestEps = data.income && data.income[0] && (data.income[0].eps || data.income[0].epsdiluted);
-    basis.innerHTML = '<div style="border-top:1px dashed rgba(255,255,255,0.08);padding-top:4px;margin-top:4px;">' +
-      '<div>· Latest close: ' + (lastClose != null ? '$' + lastClose.toFixed(2) : '—') + '</div>' +
-      '<div>· Latest quarter: ' + (data.latestQuarter || '—') + '</div>' +
-      '<div>· Latest EPS (Q): ' + (latestEps != null ? '$' + Number(latestEps).toFixed(2) : '—') + '</div>' +
-      '<div>· Data source: ' + (data.dataSource || 'FMP') + '</div>' +
-      '</div>';
-  }
-}
-
-function _renderFundStatements(d) {
-  var el = document.getElementById('fund-rpt-statements');
-  var body = document.getElementById('fund-rpt-stmt-body');
-  if (!el || !body) return;
-
-  // FMP 데이터 우선, 없으면 SEC XBRL
-  var incomeData = d.fmpIncome || [];
-  var html = '';
-
-  if (incomeData.length > 0) {
-    // 연도 역순 → 정순으로
-    var years = incomeData.slice(0, 5).reverse();
-    html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:10px;">';
-    html += '<tr style="border-bottom:1px solid var(--border);">';
-    html += '<th style="text-align:left;padding:6px;color:var(--text-muted);font-weight:600;">항목</th>';
-    years.forEach(function(y) { html += '<th style="text-align:right;padding:6px;color:var(--text-muted);font-weight:600;">' + (y.calendarYear || (y.date||'').slice(0,4)) + '</th>'; });
-    html += '</tr>';
-
-    function row(label, key, isCurrency) {
-      var r = '<tr style="border-bottom:1px solid var(--surface-2);">';
-      r += '<td style="padding:5px 6px;color:var(--text-secondary);">' + label + '</td>';
-      years.forEach(function(y) {
-        var v = y[key];
-        var color = v != null && v < 0 ? '#ff5b50' : 'var(--text-primary)';
-        r += '<td style="text-align:right;padding:5px 6px;color:' + color + ';font-family:var(--font-mono);">' + (isCurrency ? '$' : '') + _fmtNum(v) + '</td>';
-      });
-      r += '</tr>';
-      return r;
-    }
-
-    html += row('매출 (Revenue)', 'revenue', true);
-    html += row('매출원가', 'costOfRevenue', true);
-    html += row('매출총이익', 'grossProfit', true);
-    html += row('영업이익', 'operatingIncome', true);
-    html += row('순이익', 'netIncome', true);
-    html += row('EPS', 'epsdiluted', false);
-    html += row('EBITDA', 'ebitda', true);
-
-    // 성장률 행 추가
-    html += '<tr style="border-top:2px solid var(--border);"><td style="padding:5px 6px;color:var(--accent);font-weight:700;">매출 성장률</td>';
-    years.forEach(function(y, i) {
-      if (i === 0) { html += '<td style="text-align:right;padding:5px 6px;color:var(--text-muted);">—</td>'; return; }
-      var prev = years[i-1].revenue;
-      var cur = y.revenue;
-      var growth = prev ? ((cur - prev) / Math.abs(prev) * 100) : 0;
-      var gc = growth >= 0 ? '#00e5a0' : '#ff5b50';
-      html += '<td style="text-align:right;padding:5px 6px;color:' + gc + ';font-family:var(--font-mono);font-weight:700;">' + _fmtPct(growth) + '</td>';
-    });
-    html += '</tr>';
-
-    html += '</table></div>';
-  } else if (d.secFin && d.secFin.revenue && d.secFin.revenue.length > 0) {
-    // SEC XBRL 폴백
-    html += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">SEC EDGAR XBRL 기반 (10-K 연간)</div>';
-    html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:10px;">';
-    html += '<tr style="border-bottom:1px solid var(--border);">';
-    html += '<th style="text-align:left;padding:6px;color:var(--text-muted);">항목</th>';
-    d.secFin.revenue.forEach(function(r) { html += '<th style="text-align:right;padding:6px;color:var(--text-muted);">' + (r.end||'').slice(0,4) + '</th>'; });
-    html += '</tr>';
-
-    function secRow(label, arr) {
-      var r = '<tr style="border-bottom:1px solid var(--surface-2);">';
-      r += '<td style="padding:5px 6px;color:var(--text-secondary);">' + label + '</td>';
-      (arr||[]).forEach(function(v) {
-        var val = v.val || v.value || 0;
-        var color = val < 0 ? '#ff5b50' : 'var(--text-primary)';
-        r += '<td style="text-align:right;padding:5px 6px;color:' + color + ';font-family:var(--font-mono);">$' + _fmtNum(val) + '</td>';
-      });
-      r += '</tr>';
-      return r;
-    }
-    html += secRow('매출', d.secFin.revenue);
-    html += secRow('순이익', d.secFin.netIncome);
-    html += secRow('총자산', d.secFin.totalAssets);
-    html += secRow('자기자본', d.secFin.equity);
-    html += secRow('영업CF', d.secFin.opCashFlow);
-    html += '</table></div>';
-  } else {
-    html += '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:10px;">재무제표 데이터 없음 (FMP API 키를 설정하면 풍부한 데이터를 볼 수 있습니다)</div>';
-  }
-
-  body.innerHTML = html;
-  el.style.display = 'block';
-}
-
-function _renderFundValuation(d) {
-  var el = document.getElementById('fund-rpt-valuation');
-  var body = document.getElementById('fund-rpt-val-body');
-  if (!el || !body) return;
-  // v35.4: TTM 데이터 우선, Annual fallback
-  var mt = d.fmpMetricsTTM || {};
-  var rt = d.fmpRatiosTTM || {};
-  var ma = (d.fmpMetrics && d.fmpMetrics[0]) || {};
-  var ra = (d.fmpRatios && d.fmpRatios[0]) || {};
-  var p = d.fmpProfile || {};
-  var hasTTM = !!(mt.peRatioTTM || rt.peRatioTTM);
-  if (!mt.peRatioTTM && !ma.peRatio && !ra.priceEarningsRatio) { el.style.display = 'none'; return; }
-  // v49.0 P183: Infinity/NaN → 'N/A' 가드 (API 0-분모 비율 대비)
-  var _fn = window._aioFiniteNum || function(v) { return (v != null && isFinite(v)) ? v : null; };
-  function _fv(a, b) { return _fn(a) !== null ? a : (_fn(b) !== null ? b : null); }
-  function _fv3(a, b, c) { return _fn(a) !== null ? a : (_fn(b) !== null ? b : (_fn(c) !== null ? c : null)); }
-
-  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
-
-  // 좌측: 밸류에이션 지표 (TTM 우선)
-  html += '<div>';
-  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">핵심 배수' + (hasTTM ? ' <span style="color:#3ddba5;font-size:11px;">TTM</span>' : ' <span style="color:#f59e0b;font-size:11px;">Annual</span>') + '</div>';
-  function valRow(label, val, bench) {
-    return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--surface-2);font-size:10px;">' +
-      '<span style="color:var(--text-secondary);">' + label + '</span>' +
-      '<span style="color:var(--text-primary);font-family:var(--font-mono);font-weight:600;">' + val + '</span></div>';
-  }
-  // v49.0 P183: _fv/_fn으로 || 0 패턴 제거 (0.0x 오표시·Infinityx 방지)
-  var _pe = _fv(mt.peRatioTTM, ma.peRatio); html += valRow('P/E (TTM)', _pe !== null ? _pe.toFixed(1) + 'x' : 'N/A');
-  html += valRow('Forward P/E', _fn(p.pe) !== null ? p.pe.toFixed(1) + 'x' : 'N/A');
-  var _pb = _fv(mt.priceToBookRatioTTM, ma.pbRatio); html += valRow('P/B', _pb !== null ? _pb.toFixed(2) + 'x' : 'N/A');
-  var _ps = _fv3(mt.priceToSalesRatioTTM, ma.priceToSalesRatio, ra.priceToSalesRatio); html += valRow('P/S', _ps !== null ? _ps.toFixed(2) + 'x' : 'N/A');
-  var _eveb = _fv(mt.enterpriseValueOverEBITDATTM, ma.enterpriseValueOverEBITDA); html += valRow('EV/EBITDA', _eveb !== null ? _eveb.toFixed(1) + 'x' : 'N/A');
-  var _evs = _fv(mt.evToSalesTTM, ma.evToSales); html += valRow('EV/Sales', _evs !== null ? _evs.toFixed(2) + 'x' : 'N/A');
-  html += valRow('PEG', _fn(rt.pegRatioTTM) !== null ? rt.pegRatioTTM.toFixed(2) + 'x' : 'N/A');
-  html += valRow('FCF Yield', _fn(mt.freeCashFlowYieldTTM) !== null ? (mt.freeCashFlowYieldTTM * 100).toFixed(1) + '%' : (_fn(ma.freeCashFlowYield) !== null ? (ma.freeCashFlowYield * 100).toFixed(1) + '%' : 'N/A'));
-  html += '</div>';
-
-  // 우측: 수익성 지표 (TTM 우선)
-  html += '<div>';
-  html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">수익성 & 효율성' + (hasTTM ? ' <span style="color:#3ddba5;font-size:11px;">TTM</span>' : ' <span style="color:#f59e0b;font-size:11px;">Annual</span>') + '</div>';
-  html += valRow('Gross Margin', (rt.grossProfitMarginTTM || ra.grossProfitMargin) ? ((rt.grossProfitMarginTTM || ra.grossProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('Operating Margin', (rt.operatingProfitMarginTTM || ra.operatingProfitMargin) ? ((rt.operatingProfitMarginTTM || ra.operatingProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('Net Margin', (rt.netProfitMarginTTM || ra.netProfitMargin) ? ((rt.netProfitMarginTTM || ra.netProfitMargin) * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('ROE', (rt.returnOnEquityTTM || ra.returnOnEquity) ? ((rt.returnOnEquityTTM || ra.returnOnEquity) * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('ROA', (rt.returnOnAssetsTTM || ra.returnOnAssets) ? ((rt.returnOnAssetsTTM || ra.returnOnAssets) * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('ROIC', (mt.roicTTM || ma.roic) ? ((mt.roicTTM || ma.roic) * 100).toFixed(1) + '%' : 'N/A');
-  html += valRow('유동비율', (rt.currentRatioTTM || ra.currentRatio) ? (rt.currentRatioTTM || ra.currentRatio).toFixed(2) + 'x' : 'N/A');
-  html += valRow('부채비율 (D/E)', (rt.debtEquityRatioTTM || ra.debtEquityRatio) ? (rt.debtEquityRatioTTM || ra.debtEquityRatio).toFixed(2) + 'x' : 'N/A');
-  html += '</div>';
-
-  html += '</div>';
-  body.innerHTML = html;
-  el.style.display = 'block';
-}
-
-function _renderFundPeers(d) {
-  var el = document.getElementById('fund-rpt-peers');
-  var body = document.getElementById('fund-rpt-peers-body');
-  if (!el || !body || !d.peers || !d.peers.length) return;
-  var html = '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
-  d.peers.slice(0, 12).forEach(function(p) {
-    html += '<div style="padding:6px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:3px;font-size:11px;color:var(--text-primary);cursor:pointer;font-weight:600;" data-action="_aioFundSearchFill" data-arg="' + escHtml(p) + '">' + p + '</div>';
-  });
-  html += '</div>';
-  html += '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">클릭하면 해당 기업 분석으로 이동합니다</div>';
-  body.innerHTML = html;
-  el.style.display = 'block';
-}
-
-function _renderFundEarnings(d) {
-  var el = document.getElementById('fund-rpt-earnings');
-  var body = document.getElementById('fund-rpt-earn-body');
-  if (!el || !body) return;
-  var hasSurprises = d.fmpSurprises && d.fmpSurprises.length > 0;
-  var hasUpcoming = d.finnhubEarnings && d.finnhubEarnings.length > 0;
-  if (!hasSurprises && !hasUpcoming) return;
-
-  var html = '';
-
-  // v48.10: 향후 어닝 일정 (Finnhub /calendar/earnings) — 수집만 하던 collected.finnhubEarnings UI 노출
-  if (hasUpcoming) {
-    html += '<div style="margin-bottom:10px;">';
-    html += '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">향후 어닝 일정 (Finnhub · v48.10)</div>';
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px;">';
-    d.finnhubEarnings.slice(0, 5).forEach(function(e) {
-      var hourLabel = e.hour === 'bmo' ? '장전' : e.hour === 'amc' ? '장후' : e.hour === 'dmh' ? '장중' : '';
-      var quarter = (e.year && e.quarter) ? (e.year + ' Q' + e.quarter) : '';
-      html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:8px 10px;">';
-      html += '<div style="display:flex;justify-content:space-between;align-items:baseline;">';
-      html += '<span style="font-size:12px;font-weight:700;color:var(--accent);font-family:var(--font-mono);">' + (e.date || '-') + '</span>';
-      if (hourLabel) html += '<span style="font-size:11px;color:var(--text-muted);padding:2px 6px;background:var(--surface-3);border-radius:4px;">' + hourLabel + '</span>';
-      html += '</div>';
-      if (quarter) html += '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">' + quarter + '</div>';
-      if (e.epsEstimate != null) html += '<div style="font-size:10px;color:var(--text-secondary);margin-top:3px;">예상 EPS $' + Number(e.epsEstimate).toFixed(2) + '</div>';
-      if (e.revenueEstimate != null) html += '<div style="font-size:10px;color:var(--text-secondary);">예상 매출 $' + _fmtNum(e.revenueEstimate) + '</div>';
-      html += '</div>';
-    });
-    html += '</div></div>';
-  }
-
-  // 기존 서프라이즈 테이블 (FMP)
-  if (hasSurprises) {
-    if (hasUpcoming) html += '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:10px 0 6px;padding-top:8px;border-top:1px solid var(--border);">과거 서프라이즈 (FMP)</div>';
-    html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;">';
-    html += '<tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:6px;color:var(--text-muted);font-size:10px;">분기</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">실제 EPS</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">예상 EPS</th><th style="text-align:right;padding:6px;color:var(--text-muted);font-size:10px;">서프라이즈</th></tr>';
-    d.fmpSurprises.forEach(function(s) {
-      var diff = s.actualEarningResult - s.estimatedEarning;
-      var pct = s.estimatedEarning ? (diff / Math.abs(s.estimatedEarning) * 100) : 0;
-      var c = diff >= 0 ? '#00e5a0' : '#ff5b50';
-      var label = diff >= 0 ? 'Beat' : 'Miss';
-      html += '<tr style="border-bottom:1px solid var(--surface-2);">';
-      html += '<td style="padding:6px;color:var(--text-secondary);">' + (s.date||'') + '</td>';
-      html += '<td style="text-align:right;padding:6px;color:var(--text-primary);font-family:var(--font-mono);">$' + (s.actualEarningResult||0).toFixed(2) + '</td>';
-      html += '<td style="text-align:right;padding:6px;color:var(--text-muted);font-family:var(--font-mono);">$' + (s.estimatedEarning||0).toFixed(2) + '</td>';
-      html += '<td style="text-align:right;padding:6px;color:' + c + ';font-weight:700;">' + label + ' ' + _fmtPct(pct) + '</td>';
-      html += '</tr>';
-    });
-    html += '</table></div>';
-  }
-
-  body.innerHTML = html;
-  el.style.display = 'block';
-}
-
-// v48.13: 최근 기업 뉴스 렌더 (Finnhub /company-news 14일) — 기존 _renderFund* 패턴 100% 준수
-function _renderFundNews(d) {
-  var el = document.getElementById('fund-rpt-news');
-  var body = document.getElementById('fund-rpt-news-body');
-  if (!el || !body || !d.finnhubNews || !d.finnhubNews.length) return;
-  var now = Date.now();
-  var html = '';
-  d.finnhubNews.slice(0, 10).forEach(function(n) {
-    var ageHours = n.datetime ? Math.round((now - n.datetime * 1000) / 3600000) : 0;
-    var ageLabel = ageHours < 24 ? ageHours + '시간 전' : Math.round(ageHours / 24) + '일 전';
-    var headlineSafe = escHtml((n.headline || '').substring(0, 140));
-    var summarySafe = n.summary ? escHtml(n.summary.substring(0, 180)) + (n.summary.length > 180 ? '…' : '') : '';
-    var sourceSafe = escHtml(n.source || '');
-    var urlSafe = n.url && /^https?:\/\//.test(n.url) ? n.url : '#';
-    html += '<div style="padding:8px 0;border-bottom:1px solid var(--surface-3);">';
-    html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">';
-    html += '<a href="' + escHtml(urlSafe) + '" target="_blank" rel="noopener" style="flex:1;font-size:12px;font-weight:700;color:var(--text-primary);text-decoration:none;line-height:1.4;">' + headlineSafe + '</a>';
-    html += '<span style="font-size:10px;color:var(--text-muted);white-space:nowrap;font-family:var(--font-mono);">' + ageLabel + '</span>';
-    html += '</div>';
-    html += '<div style="display:flex;justify-content:space-between;gap:10px;margin-top:4px;">';
-    html += '<span style="font-size:10px;color:var(--text-secondary);line-height:1.5;flex:1;">' + summarySafe + '</span>';
-    html += '</div>';
-    html += '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">' + sourceSafe + ' · ' + (n.date || '') + '</div>';
-    html += '</div>';
-  });
-  if (d.finnhubNews.length > 10) {
-    html += '<div style="font-size:10px;color:var(--text-muted);text-align:center;padding:6px 0;">+ ' + (d.finnhubNews.length - 10) + '건 더 (최신 14일)</div>';
-  }
-  body.innerHTML = html;
-  el.style.display = 'block';
-}
-
-function _renderFundSources(d) {
-  var el = document.getElementById('fund-rpt-sources');
-  var body = document.getElementById('fund-rpt-sources-body');
-  if (!el || !body) return;
-  var html = '';
-  d.sources.forEach(function(s) { html += '• ' + s + '<br>'; });
-  html += '• <b>AI 분석:</b> 위 수집 데이터를 Claude에 전달하여 17개 관점 종합 분석';
-  body.innerHTML = html;
-  el.style.display = 'block';
-}
-
-// ══════════════════════════════════════════════════════════════════════
-// v48.89: 다기간 재무 비교표 (finance:financial-statements 방법론)
-// Annual 최대 5년 · P/E · P/B · ROE · 매출 · 매출총이익률 · 영업이익 · 순이익 · EPS · 성장률
-// 데이터 소스: FMP (fmpIncome/fmpRatios/fmpGrowth) → SEC EDGAR (secFin) 폴백
-// ══════════════════════════════════════════════════════════════════════
-function _renderFundMultiPeriod(d) {
-  var el = document.getElementById('fund-rpt-multiperiod');
-  var body = document.getElementById('fund-rpt-mp-body');
-  if (!el || !body) return;
-
-  // FMP Annual 데이터 우선, 없으면 SEC EDGAR 폴백
-  var income = (d.fmpIncome && d.fmpIncome.length) ? d.fmpIncome.slice(0, 5) : [];
-  var ratios  = (d.fmpRatios  && d.fmpRatios.length)  ? d.fmpRatios.slice(0, 5)  : [];
-  var growth  = (d.fmpGrowth  && d.fmpGrowth.length)  ? d.fmpGrowth.slice(0, 5)  : [];
-
-  // 데이터가 전혀 없으면 패널 표시하지 않음
-  if (!income.length && !(d.secFin && d.secFin.revenue && d.secFin.revenue.length)) return;
-
-  // 연도 컬럼 목록 (income 기준, 없으면 ratios 기준)
-  var years = income.length
-    ? income.map(function(r) { return (r.date || '').slice(0, 4); })
-    : ratios.map(function(r) { return (r.date || '').slice(0, 4); });
-  if (!years.length && d.secFin && d.secFin.revenue) {
-    years = d.secFin.revenue.slice(0, 5).map(function(r) { return String(r.year || ''); });
-  }
-  if (!years.length) return;
-
-  // 헬퍼
-  function fv(obj, key) { // obj에서 key 값 추출 (null/undefined → null)
-    if (!obj) return null;
-    var v = obj[key];
-    return (v !== undefined && v !== null && !isNaN(Number(v))) ? Number(v) : null;
-  }
-  function fmtB(v) { // 매출/이익 → B/M/K
-    if (v === null) return '—';
-    var a = Math.abs(v);
-    if (a >= 1e9) return (v / 1e9).toFixed(1) + 'B';
-    if (a >= 1e6) return (v / 1e6).toFixed(0) + 'M';
-    return (v / 1e3).toFixed(0) + 'K';
-  }
-  function fmtR(v, d2) { // 비율/EPS → 소수점
-    if (v === null) return '—';
-    return v.toFixed(d2 !== undefined ? d2 : 1);
-  }
-  function fmtP(v) { // 퍼센트 (소수 → %)
-    if (v === null) return '—';
-    return (v * 100).toFixed(1) + '%';
-  }
-  function growthColor(v) {
-    if (v === null) return 'var(--text-muted)';
-    return v >= 0 ? 'var(--data-green)' : 'var(--data-red)';
-  }
-
-  // 행 데이터 정의
-  var rows = [
-    {
-      label: '매출', sub: 'Revenue',
-      vals: income.map(function(r) { return fv(r, 'revenue'); }),
-      fmt: fmtB, colorFn: null
-    },
-    {
-      label: '매출총이익률', sub: 'Gross Margin',
-      vals: income.map(function(r) {
-        var rev = fv(r, 'revenue'), gp = fv(r, 'grossProfit');
-        return (rev && rev > 0 && gp !== null) ? gp / rev : null;
-      }),
-      fmt: fmtP, colorFn: null
-    },
-    {
-      label: '영업이익', sub: 'Operating Income',
-      vals: income.map(function(r) { return fv(r, 'operatingIncome'); }),
-      fmt: fmtB, colorFn: null
-    },
-    {
-      label: '순이익', sub: 'Net Income',
-      vals: income.map(function(r) { return fv(r, 'netIncome'); }),
-      fmt: fmtB, colorFn: function(v) { return v !== null ? (v >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)'; }
-    },
-    {
-      label: '희석 EPS', sub: 'EPS (Diluted)',
-      vals: income.map(function(r) { return fv(r, 'epsDiluted') !== null ? fv(r, 'epsDiluted') : fv(r, 'eps'); }),
-      fmt: function(v) { return v === null ? '—' : '$' + v.toFixed(2); },
-      colorFn: function(v) { return v !== null ? (v >= 0 ? 'var(--text-primary)' : 'var(--data-red)') : 'var(--text-muted)'; }
-    },
-    {
-      label: '매출 성장률', sub: 'Revenue Growth YoY',
-      vals: growth.map(function(r) { return fv(r, 'revenueGrowth'); }),
-      fmt: function(v) { return v === null ? '—' : (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%'; },
-      colorFn: growthColor
-    },
-    {
-      label: 'P/E', sub: 'Price/Earnings',
-      vals: ratios.map(function(r) { return fv(r, 'priceEarningsRatio'); }),
-      fmt: function(v) { return v === null ? '—' : v.toFixed(1) + 'x'; }, colorFn: null
-    },
-    {
-      label: 'P/B', sub: 'Price/Book',
-      vals: ratios.map(function(r) { return fv(r, 'priceToBookRatio'); }),
-      fmt: function(v) { return v === null ? '—' : v.toFixed(1) + 'x'; }, colorFn: null
-    },
-    {
-      label: 'ROE', sub: 'Return on Equity',
-      vals: ratios.map(function(r) { return fv(r, 'returnOnEquity'); }),
-      fmt: function(v) { return v === null ? '—' : (v * 100).toFixed(1) + '%'; },
-      colorFn: function(v) { return v !== null ? (v >= 0.15 ? 'var(--data-green)' : v >= 0 ? 'var(--text-secondary)' : 'var(--data-red)') : 'var(--text-muted)'; }
-    },
-    {
-      label: '영업이익률', sub: 'Operating Margin',
-      vals: ratios.map(function(r) { return fv(r, 'operatingProfitMargin'); }),
-      fmt: fmtP, colorFn: null
-    }
-  ];
-
-  // 모든 값이 null인 행 제외
-  rows = rows.filter(function(row) {
-    return row.vals.some(function(v) { return v !== null; });
-  });
-
-  if (!rows.length) return;
-
-  // 테이블 렌더링
-  var html = '<div style="overflow-x:auto;">';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:11px;">';
-
-  // 헤더 (연도)
-  html += '<thead><tr style="border-bottom:2px solid var(--border);">';
-  html += '<th style="text-align:left;padding:7px 10px;color:var(--text-muted);font-size:10px;font-weight:700;min-width:110px;">지표</th>';
-  years.forEach(function(y) {
-    html += '<th style="text-align:right;padding:7px 8px;color:var(--text-secondary);font-size:10px;font-weight:700;white-space:nowrap;">' + y + '</th>';
-  });
-  html += '</tr></thead><tbody>';
-
-  // 행 렌더링
-  rows.forEach(function(row, ri) {
-    var bg = (ri % 2 === 0) ? 'var(--surface-1)' : 'transparent';
-    html += '<tr style="background:' + bg + ';border-bottom:1px solid var(--surface-2);">';
-    html += '<td style="padding:6px 10px;">' +
-      '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);">' + row.label + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);">' + row.sub + '</div>' +
-      '</td>';
-    // 최대 years.length 열
-    for (var ci = 0; ci < years.length; ci++) {
-      var val = (ci < row.vals.length) ? row.vals[ci] : null;
-      var formatted = row.fmt(val);
-      var color = row.colorFn ? row.colorFn(val) : 'var(--text-primary)';
-      html += '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:11px;font-weight:600;color:' + color + ';white-space:nowrap;">' + formatted + '</td>';
-    }
-    html += '</tr>';
-  });
-
-  html += '</tbody></table></div>';
-
-  // 데이터 소스 표시
-  var srcLabel = income.length ? 'FMP (Annual 손익계산서·재무비율·성장률)' : 'SEC EDGAR XBRL (폴백)';
-  html += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">소스: ' + srcLabel + ' · 최신 기준 좌측 정렬 · FMP API 미설정 시 일부 항목 N/A</div>';
-
-  body.innerHTML = html;
-  el.style.display = 'block';
-}
-
-// ══════════════════════════════════════════════════════════════════════
-// v48.90: 실적 분산 분석 (finance:variance-analysis 방법론)
-// EPS Beat 요약 · 분기 흐름 테이블 · Chart.js EPS 차트 · YoY 재무 분해
-// 데이터: fmpSurprises (분기 EPS) + fmpIncome (연간 손익계산서)
-// ══════════════════════════════════════════════════════════════════════
-function _renderFundVariance(d) {
-  var el = document.getElementById('fund-rpt-variance');
-  var body = document.getElementById('fund-rpt-var-body');
-  var canvas = document.getElementById('fund-var-chart');
-  if (!el || !body) return;
-
-  var surprises = (d.fmpSurprises && d.fmpSurprises.length >= 2) ? d.fmpSurprises : [];
-  var income = (d.fmpIncome && d.fmpIncome.length >= 2) ? d.fmpIncome : [];
-
-  if (!surprises.length && !income.length) return;
-
-  var html = '';
-
-  // ── 1. Beat/Miss 요약 (서프라이즈 통계) ──
-  if (surprises.length >= 2) {
-    var beats = surprises.filter(function(s) { return s.actualEarningResult >= s.estimatedEarning; }).length;
-    var beatRate = (beats / surprises.length * 100).toFixed(0);
-    var validForAvg = surprises.filter(function(s) { return s.estimatedEarning && s.estimatedEarning !== 0; });
-    var avgSurprise = validForAvg.length > 0
-      ? validForAvg.reduce(function(sum, s) { return sum + (s.actualEarningResult - s.estimatedEarning) / Math.abs(s.estimatedEarning) * 100; }, 0) / validForAvg.length
-      : 0;
-    var beatRatio = beats / surprises.length;
-    var beatColor = beatRatio >= 0.7 ? 'var(--data-green)' : beatRatio >= 0.5 ? 'var(--data-amber)' : 'var(--data-red)';
-    var last = surprises[0];
-    var lastDiff = last.actualEarningResult - last.estimatedEarning;
-    var lastPct = last.estimatedEarning ? (lastDiff / Math.abs(last.estimatedEarning) * 100) : 0;
-
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px;">';
-    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">EPS Beat율</div>' +
-      '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + beatColor + ';">' + beatRate + '%</div>' +
-      '<div style="font-size:10px;color:var(--text-muted);">최근 ' + surprises.length + '분기</div></div>';
-    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">평균 서프라이즈</div>' +
-      '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + (avgSurprise >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' +
-      (avgSurprise >= 0 ? '+' : '') + avgSurprise.toFixed(1) + '%</div>' +
-      '<div style="font-size:10px;color:var(--text-muted);">EPS 컨센서스 대비</div></div>';
-    html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">' +
-      '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:3px;">최근 서프라이즈</div>' +
-      '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + (lastDiff >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' +
-      (lastDiff >= 0 ? 'Beat' : 'Miss') + ' ' + (lastDiff >= 0 ? '+' : '') + lastPct.toFixed(1) + '%</div>' +
-      '<div style="font-size:10px;color:var(--text-muted);">' + (last.date || '').slice(0, 7) + '</div></div>';
-    html += '</div>';
-
-    // ── 2. EPS 분기 흐름 테이블 ──
-    var sorted = surprises.slice().reverse(); // 오름차순
-    html += '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">EPS 분기별 흐름</div>';
-    html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;">';
-    html += '<tr style="border-bottom:1px solid var(--border);">' +
-      '<th style="text-align:left;padding:5px 8px;color:var(--text-muted);font-size:10px;">분기</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">예상 EPS</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">실제 EPS</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">QoQ 변화</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">서프라이즈</th></tr>';
-    sorted.forEach(function(s, idx) {
-      var prev = idx > 0 ? sorted[idx - 1].actualEarningResult : null;
-      var qoq = (prev !== null) ? s.actualEarningResult - prev : null;
-      var diff = s.actualEarningResult - s.estimatedEarning;
-      var diffPct = s.estimatedEarning ? (diff / Math.abs(s.estimatedEarning) * 100) : 0;
-      var beatC = diff >= 0 ? 'var(--data-green)' : 'var(--data-red)';
-      var qoqC = qoq === null ? 'var(--text-muted)' : qoq >= 0 ? 'var(--data-green)' : 'var(--data-red)';
-      html += '<tr style="border-bottom:1px solid var(--surface-2);">';
-      html += '<td style="padding:5px 8px;color:var(--text-secondary);">' + (s.date || '').slice(0, 7) + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);">$' + (s.estimatedEarning || 0).toFixed(2) + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);font-weight:700;">$' + (s.actualEarningResult || 0).toFixed(2) + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);color:' + qoqC + ';">' +
-        (qoq === null ? '—' : (qoq >= 0 ? '+' : '') + '$' + qoq.toFixed(2)) + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-weight:700;color:' + beatC + ';">' +
-        (diff >= 0 ? 'Beat +' : 'Miss ') + diffPct.toFixed(1) + '%</td>';
-      html += '</tr>';
-    });
-    html += '</table></div>';
-  }
-
-  // ── 3. YoY 재무 분해 테이블 ──
-  if (income.length >= 2) {
-    var cur = income[0], prev_yr = income[1];
-    function diff_pct(a, b) { return (a != null && b != null && b !== 0) ? ((a - b) / Math.abs(b) * 100) : null; }
-    function fmtChg(a, b) {
-      var p = diff_pct(a, b);
-      if (p === null) return '—';
-      return (p >= 0 ? '+' : '') + p.toFixed(1) + '%';
-    }
-    function chgColor(a, b) {
-      var p = diff_pct(a, b);
-      if (p === null) return 'var(--text-muted)';
-      return p >= 0 ? 'var(--data-green)' : 'var(--data-red)';
-    }
-    var curGM  = (cur.revenue && cur.grossProfit)     ? cur.grossProfit     / cur.revenue : null;
-    var prevGM = (prev_yr.revenue && prev_yr.grossProfit)  ? prev_yr.grossProfit  / prev_yr.revenue : null;
-    var curOM  = (cur.revenue && cur.operatingIncome)  ? cur.operatingIncome  / cur.revenue : null;
-    var prevOM = (prev_yr.revenue && prev_yr.operatingIncome) ? prev_yr.operatingIncome / prev_yr.revenue : null;
-    var curNM  = (cur.revenue && cur.netIncome)        ? cur.netIncome        / cur.revenue : null;
-    var prevNM = (prev_yr.revenue && prev_yr.netIncome)    ? prev_yr.netIncome    / prev_yr.revenue : null;
-    var curY  = (cur.date || cur.calendarYear || '').slice(0, 4);
-    var prevY = (prev_yr.date || prev_yr.calendarYear || '').slice(0, 4);
-
-    html += '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin:10px 0 6px;padding-top:10px;border-top:1px solid var(--border);">YoY 재무 분해 (' + prevY + ' → ' + curY + ')</div>';
-    html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;">';
-    html += '<tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:5px 8px;color:var(--text-muted);font-size:10px;">항목</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">' + prevY + '</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">' + curY + '</th>' +
-      '<th style="text-align:right;padding:5px 6px;color:var(--text-muted);font-size:10px;">YoY</th></tr>';
-    var yoyRows = [
-      { label: '매출', a: cur.revenue, b: prev_yr.revenue, isVal: true },
-      { label: '매출총이익률', a: curGM, b: prevGM, isMargin: true },
-      { label: '영업이익', a: cur.operatingIncome, b: prev_yr.operatingIncome, isVal: true },
-      { label: '영업이익률', a: curOM, b: prevOM, isMargin: true },
-      { label: '순이익', a: cur.netIncome, b: prev_yr.netIncome, isVal: true },
-      { label: '순이익률', a: curNM, b: prevNM, isMargin: true },
-      { label: '희석 EPS', a: cur.epsDiluted || cur.eps, b: prev_yr.epsDiluted || prev_yr.eps, isEps: true }
-    ];
-    yoyRows.forEach(function(row, ri) {
-      var bg = (ri % 2 === 0) ? 'var(--surface-1)' : 'transparent';
-      var aFmt, bFmt, chgStr, chgC;
-      if (row.isMargin) {
-        aFmt = row.a != null ? (row.a * 100).toFixed(1) + '%' : '—';
-        bFmt = row.b != null ? (row.b * 100).toFixed(1) + '%' : '—';
-        var bps = (row.a != null && row.b != null) ? (row.a - row.b) * 10000 : null;
-        chgStr = bps !== null ? (bps >= 0 ? '+' : '') + bps.toFixed(0) + 'bps' : '—';
-        chgC = bps !== null ? (bps >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
-      } else if (row.isEps) {
-        aFmt = row.a != null ? '$' + Number(row.a).toFixed(2) : '—';
-        bFmt = row.b != null ? '$' + Number(row.b).toFixed(2) : '—';
-        chgStr = fmtChg(row.a, row.b); chgC = chgColor(row.a, row.b);
-      } else {
-        aFmt = row.a ? '$' + _fmtNum(row.a) : '—';
-        bFmt = row.b ? '$' + _fmtNum(row.b) : '—';
-        chgStr = fmtChg(row.a, row.b); chgC = chgColor(row.a, row.b);
-      }
-      html += '<tr style="background:' + bg + ';border-bottom:1px solid var(--surface-2);">';
-      html += '<td style="padding:5px 8px;font-size:11px;font-weight:700;color:var(--text-secondary);">' + row.label + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);color:var(--text-muted);">' + bFmt + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);font-weight:600;">' + aFmt + '</td>';
-      html += '<td style="text-align:right;padding:5px 6px;font-family:var(--font-mono);font-weight:700;color:' + chgC + ';">' + chgStr + '</td>';
-      html += '</tr>';
-    });
-    html += '</table></div>';
-    html += '<div style="font-size:10px;color:var(--text-muted);margin-top:5px;">마진 변화: bps(1%=100bps) · 소스: FMP Annual 손익계산서</div>';
-  }
-
-  body.innerHTML = html;
-  el.style.display = 'block';
-
-  // ── 4. Chart.js EPS 차트 (예상 vs 실제) ──
-  if (surprises.length >= 2 && canvas && typeof Chart !== 'undefined') {
-    try {
-      // v48.96 P1-5: _aioChartRegistry를 통한 destroy 보장 (메모리 누수 방지)
-      if (window._aioChartRegistry) {
-        window._aioChartRegistry.destroyIfExists('fund-variance');
-      } else if (canvas._chartInstance) {
-        canvas._chartInstance.destroy(); canvas._chartInstance = null;
-      }
-      canvas.style.display = 'block';
-      var sorted2 = surprises.slice().reverse();
-      var labels = sorted2.map(function(s) { return (s.date || '').slice(0, 7); });
-      var actuals = sorted2.map(function(s) { return s.actualEarningResult || 0; });
-      var estimates = sorted2.map(function(s) { return s.estimatedEarning || 0; });
-      var diffs2 = sorted2.map(function(s) { return s.actualEarningResult - s.estimatedEarning; });
-      var barColors = diffs2.map(function(dv) { return dv >= 0 ? 'rgba(0,229,160,0.75)' : 'rgba(255,91,80,0.75)'; });
-      var ctx2 = (window._aioSetupCanvas) ? window._aioSetupCanvas(canvas, canvas.offsetWidth || 400, canvas.offsetHeight || 220) : canvas.getContext('2d');  // v48.96 P2-3: DPR
-      var _newChart = new Chart(ctx2, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            { label: '예상 EPS', data: estimates, type: 'line', borderColor: 'rgba(100,160,255,0.7)',
-              backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4, 3],
-              pointRadius: 3, pointBackgroundColor: 'rgba(100,160,255,0.9)', tension: 0.3, order: 1 },
-            { label: '실제 EPS', data: actuals, backgroundColor: barColors,
-              borderColor: barColors.map(function(c) { return c.replace('0.75', '1'); }),
-              borderWidth: 1, borderRadius: 3, order: 2 }
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: {
-            legend: { display: true, labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 12 } },
-            tooltip: { callbacks: { label: function(ctx3) {
-              var idx = ctx3.dataIndex;
-              if (ctx3.datasetIndex === 1) {
-                var dv = diffs2[idx];
-                return ['실제 EPS: $' + actuals[idx].toFixed(2),
-                        '서프라이즈: ' + (dv >= 0 ? '+' : '') + '$' + dv.toFixed(2) + ' (' + (dv >= 0 ? 'Beat' : 'Miss') + ')'];
-              }
-              return '예상 EPS: $' + estimates[idx].toFixed(2);
-            }}}
-          },
-          scales: {
-            x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-            y: { ticks: { color: '#94a3b8', font: { size: 9 },
-                   callback: function(v) { return '$' + v.toFixed(2); } },
-                 grid: { color: 'rgba(255,255,255,0.06)' } }
-          }
-        }
-      });
-      // v48.96 P1-5: 레지스트리에 등록 (재렌더 시 destroy 가능)
-      if (window._aioChartRegistry) window._aioChartRegistry.register('fund-variance', _newChart);
-      else canvas._chartInstance = _newChart;
-    } catch(e) { if (canvas) canvas.style.display = 'none'; }
-  }
-}
+// ── 기업분석 렌더러 — aio-ui.js로 이동됨 (v51.17). window.* 전역 alias ──
+var _renderFundHeader = window._renderFundHeader;
+var _renderFundSEC = window._renderFundSEC;
+var _renderFundFinancials = window._renderFundFinancials;
+var _renderFundamentalFinancialsCharts = window._renderFundamentalFinancialsCharts;
+var _renderFundStatements = window._renderFundStatements;
+var _renderFundValuation = window._renderFundValuation;
+var _renderFundPeers = window._renderFundPeers;
+var _renderFundEarnings = window._renderFundEarnings;
+var _renderFundNews = window._renderFundNews;
+var _renderFundSources = window._renderFundSources;
+var _renderFundMultiPeriod = window._renderFundMultiPeriod;
+var _renderFundVariance = window._renderFundVariance;

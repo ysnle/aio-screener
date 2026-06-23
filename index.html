@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.08 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.20 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4009,14 +4009,14 @@ body.light-theme canvas { filter:none; }
 #aio-boot-loader #aio-boot-sub { font-size: 10px; color: var(--text-muted, #8b98a5); }
 #aio-boot-loader .aio-boot-spinner {
   width: 14px; height: 14px; flex-shrink: 0;
-  border: 2px solid rgba(0,212,255,0.25); border-top-color: var(--data-cyan, #00d4ff);
+  border: 2px solid rgba(0,212,255,0.25); border-top-color: var(--data-cyan, #00bcd4);
   border-radius: 50%; animation: aioBootSpin 0.8s linear infinite;
 }
 #aio-boot-loader.aio-boot-warn { border-color: rgba(255,163,26,0.45); }
 #aio-boot-loader.aio-boot-warn .aio-boot-spinner { border-top-color: var(--data-amber, #ffa31a); animation-duration: 1.6s; }
 #aio-boot-loader.aio-boot-hide { opacity: 0; transform: translateX(-50%) translateY(-12px); transition: opacity 0.5s ease, transform 0.5s ease; }
 .aio-boot-bar { display:block; margin-top:5px; height:3px; width:100%; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
-#aio-boot-bar-fill { display:block; height:100%; width:0%; background:var(--data-cyan,#00d4ff); border-radius:2px; transition:width 0.4s ease; }
+#aio-boot-bar-fill { display:block; height:100%; width:0%; background:var(--data-cyan,#00bcd4); border-radius:2px; transition:width 0.4s ease; }
 #aio-boot-loader.aio-boot-warn #aio-boot-bar-fill { background:var(--data-amber,#ffa31a); }
 @keyframes aioBootSpin { to { transform: rotate(360deg); } }
 @keyframes aioBootSlideIn { from { opacity: 0; transform: translateX(-50%) translateY(-12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
@@ -4542,7 +4542,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.08</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.20</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4571,6 +4571,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- v48.62: 페이지 결론 바 -->
   <div id="home-conclusion-bar"></div>
 
+  <!-- v51.18: 운영자 노트 카드 — public-data/operator-note.json -->
+  <div id="home-operator-note" style="display:none;"></div>
+
   <!-- v50.75: 시장 분석 카드 → Decision Header "왜" 섹션과 중복, DOM 유지(테스트 T820) 시각만 숨김 -->
   <div class="aio-card has-stripe-left" style="display:none;">
     <div id="home-market-analysis" data-market-analysis-sink="full"></div>
@@ -4595,7 +4598,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <div class="aio-vis-card"><div class="aio-vis-card-title">매매 점수 분해</div><div id="vis-home-score"></div></div>
       <div class="aio-vis-card"><div class="aio-vis-card-title">시장 국면</div><div id="vis-home-regime"></div></div>
     </div>
-    <div id="home-news-highlights" style="border-top:1px solid rgba(0,212,255,0.14);padding-top:10px;margin-top:4px;">
+    <div id="home-news-highlights" style="border-top:1px solid var(--border-accent-dim);padding-top:10px;margin-top:4px;">
       <div style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
         <span style="display:inline-block;width:8px;height:8px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></span>
         핵심 뉴스 수집 중...
@@ -4834,7 +4837,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         </div>
         <div class="page-subtitle">변동성(VIX) 25% · 모멘텀(F&G·추세추종) 25% · 추세(MA) 20% · 시장폭(20일선) 20% · 거시 10%</div>
         <!-- v50.84: 점수 분해 시각화 — 가중치 자막 바로 아래 인라인 배치 -->
-        <div id="vis-signal" style="margin-top:10px;max-width:520px;"><div class="aio-vis-card"><div class="aio-vis-card-title">매매 점수 분해</div><div id="vis-signal-score"></div></div></div>
+        <div id="vis-signal" style="margin-top:10px;max-width:560px;"><div class="aio-vis-card"><div class="aio-vis-card-title">매매 점수 분해</div><div id="vis-signal-score"></div></div></div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
         <button id="sig-sw-btn" class="aio-btn-table primary" data-action="toggleSignalMode" data-arg="swing" style="font-size:10px;">스윙</button>
@@ -5598,15 +5601,15 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
 
   <!-- ─ Breadth KPI Strip + 시장 국면 — 4-col 통합 (v50.84) ─ -->
   <div id="vis-breadth" style="display:grid;grid-template-columns:repeat(3,1fr) 1.5fr;gap:10px;margin-bottom:14px;">
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;text-align:center;">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">상승/하락 비율</div>
       <div id="breadth-advance-ratio" style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);">—</div>
     </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;text-align:center;">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">시장 폭 시그널</div>
       <div id="breadth-signal-val" style="font-size:14px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);">—</div>
     </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;text-align:center;">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">데이터 소스</div>
       <div id="breadth-source" style="font-size:11px;font-weight:600;color:var(--text-muted);">Live Data</div>
     </div>
@@ -5922,7 +5925,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
             · Fear&amp;Greed · VIX · NAAIM · Investor Intelligence · Put/Call · HY Spread
           </div>
           <!-- v50.84: 심리 게이지 시각화 — 헤더 내 인라인 배치 -->
-          <div id="vis-sentiment" style="margin-top:10px;max-width:460px;"><div class="aio-vis-card"><div class="aio-vis-card-title">투자 심리 게이지</div><div id="vis-sentiment-gauge"></div></div></div>
+          <div id="vis-sentiment" style="margin-top:10px;max-width:560px;"><div class="aio-vis-card"><div class="aio-vis-card-title">투자 심리 게이지</div><div id="vis-sentiment-gauge"></div></div></div>
         </div>
         <div style="display:flex;gap:6px;align-items:center;">
           <span id="sent-overall-badge" class="status-pill sp-neutral">심리 입력 수신 대기</span>
@@ -6388,7 +6391,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         <div class="page-title" style="font-size:17px;">차트·기술 분석</div>
         <div class="page-subtitle">RSI · MACD · 이동평균 · 볼린저밴드 · Weinstein 4단계 · 12가지 매매 셋업</div>
         <!-- v50.84: SPY 가격 포지션 — 기술 분석 헤더 내 인라인 배치 -->
-        <div id="vis-technical" style="margin-top:10px;max-width:520px;"><div class="aio-vis-card"><div class="aio-vis-card-title">SPY 가격 포지션 · 지지/저항</div><div id="vis-technical-price"></div></div></div>
+        <div id="vis-technical" style="margin-top:10px;max-width:560px;"><div class="aio-vis-card"><div class="aio-vis-card-title">SPY 가격 포지션 · 지지/저항</div><div id="vis-technical-price"></div></div></div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;">
         <span id="tech-health-pill" class="status-pill sp-neutral">— 시장 건강도 수신 대기</span>
@@ -8784,7 +8787,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     </div>
 
     <!-- v49.29 E5/R71 포트폴리오 분석 대시보드 — 이론 vs 실행 비대칭 해소 -->
-    <div id="pf-analysis-dashboard" style="margin-bottom:14px;padding:12px 14px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.25);border-radius:4px;">
+    <div id="pf-analysis-dashboard" class="aio-vis-card" style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <div style="font-size:12px;font-weight:800;color:var(--accent);">📊 리스크 분석 (Sharpe / Beta / MDD / Kelly)</div>
         <div style="font-size:10px;color:var(--text-muted);">실시간 리스크 지표</div>
@@ -9518,8 +9521,8 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <span id="screener-factor-coverage" style="display:block;margin-top:3px;color:var(--text-muted);"></span>
     </div>
     <!-- v50.84: 팩터 검증 + IC 차트 통합 섹션 -->
-    <div style="background:linear-gradient(135deg,rgba(0,212,255,0.04),rgba(168,85,247,0.02));border:1px solid rgba(0,212,255,0.18);border-left:3px solid var(--data-cyan);border-radius:var(--radius);padding:12px;margin-bottom:12px;">
-      <div style="font-size:10px;font-weight:700;color:var(--data-cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid rgba(0,212,255,0.15);display:flex;align-items:center;gap:4px;"><span style="font-size:8px;opacity:.6;">▸</span>팩터 검증 · 백테스트 IC</div>
+    <div class="aio-vis-card" style="margin-bottom:12px;">
+      <div class="aio-vis-card-title">팩터 검증 · 백테스트 IC</div>
       <div id="screener-backtest-panel"><div style="font-size:11px;color:var(--text-muted);">팩터 검증 파일 확인 중...</div></div>
       <div id="vis-screener" style="margin-top:10px;"><div id="vis-screener-backtest"></div></div>
     </div>
@@ -11238,9 +11241,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.07"></script>
-  <script src="./js/aio-data.js?v=51.07"></script>
-  <script src="./js/aio-ui.js?v=51.07"></script>
+  <script src="./js/aio-core.js?v=51.16"></script>
+  <script src="./js/aio-data.js?v=51.16"></script>
+  <script src="./js/aio-ui.js?v=51.16"></script>
 
   <script>
 
@@ -14437,7 +14440,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.07"></script>
+<script src="./js/aio-chat.js?v=51.16"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -27026,7 +27029,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.07"></script>
+<script src="./js/aio-glossary.js?v=51.16"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -29271,7 +29274,7 @@ async function updateBenchmarkChart() {
   ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
   ctx.beginPath(); ctx.moveTo(0, yZero); ctx.lineTo(W, yZero); ctx.stroke(); ctx.setLineDash([]);
 
-  // SPY 선 — v48.61 R43 Canvas hex (#00d4ff = data-cyan)
+  // SPY 선 — v48.61 R43 Canvas hex (#00bcd4 = --data-cyan)
   var spyPlot = spyPct.slice(-L);
   ctx.strokeStyle = '#00bcd4'; ctx.lineWidth = 2; ctx.beginPath();
   for (var i = 0; i < L; i++) {
@@ -30202,4 +30205,6 @@ _aioPageBus.register('html-ai-panel-shown', 'aio:pageShown', function(e) {
 
 </body>
 </html>
+
+
 
