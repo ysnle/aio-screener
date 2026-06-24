@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.23 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.24 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4543,7 +4543,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.23</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.24</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4988,13 +4988,18 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <div id="signal-advice-container" style="margin-bottom:12px;"></div>
 
   <!-- ─ 데이터→분석→결론 흐름 ─ -->
-  <div class="aio-flow-steps" style="margin-bottom:10px;">
-    <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 위 스냅샷 6카드 (시장 원시 데이터)</div>
-    <div class="aio-flow-arrow-sep">→</div>
-    <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 아래 5팩터 분해 (각 요소 기여도)</div>
-    <div class="aio-flow-arrow-sep">→</div>
-    <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 종합 거래 점수 (가중 합산)</div>
-  </div>
+  <details class="aio-page-advanced-toggle" style="margin-bottom:10px;">
+    <summary>분석 흐름 보기</summary>
+    <div class="aio-page-advanced-body">
+      <div class="aio-flow-steps">
+        <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 위 스냅샷 6카드 (시장 원시 데이터)</div>
+        <div class="aio-flow-arrow-sep">→</div>
+        <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 아래 5팩터 분해 (각 요소 기여도)</div>
+        <div class="aio-flow-arrow-sep">→</div>
+        <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 종합 거래 점수 (가중 합산)</div>
+      </div>
+    </div>
+  </details>
   <!-- ─ 스코어 히어로 (v50.76: flat — 원형 게이지 제거) ─ -->
   <canvas id="score-gauge-canvas" aria-label="트레이딩 스코어" width="110" height="110" style="display:none;" aria-hidden="true"></canvas>
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:20px;">
@@ -5712,15 +5717,20 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- v50.30 declutter: "시장 폭 해석 가이드" 임계 설명 블록 제거 — 임계값은 카드 색/툴팁이 이미 전달 -->
 
   <!-- SECTION 3: 종합 진단 -->
-  <div class="aio-flow-steps" style="margin-bottom:8px;">
-    <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 5SMA 비율 (단기)</div>
-    <div class="aio-flow-arrow-sep">→</div>
-    <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 20SMA 비율 (중단기)</div>
-    <div class="aio-flow-arrow-sep">→</div>
-    <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 50SMA 비율 (중기)</div>
-    <div class="aio-flow-arrow-sep">→</div>
-    <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 아래 종합 진단</div>
-  </div>
+  <details class="aio-page-advanced-toggle" style="margin-bottom:8px;">
+    <summary>분석 흐름 보기</summary>
+    <div class="aio-page-advanced-body">
+      <div class="aio-flow-steps">
+        <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 5SMA 비율 (단기)</div>
+        <div class="aio-flow-arrow-sep">→</div>
+        <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 20SMA 비율 (중단기)</div>
+        <div class="aio-flow-arrow-sep">→</div>
+        <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 50SMA 비율 (중기)</div>
+        <div class="aio-flow-arrow-sep">→</div>
+        <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 아래 종합 진단</div>
+      </div>
+    </div>
+  </details>
   <div style="background:linear-gradient(135deg,rgba(255,91,80,0.08),rgba(255,163,26,0.04));border:1px solid rgba(255,91,80,0.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
       <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">시장 폭 종합 진단 <span style="font-size:10px;color:var(--text-muted);font-weight:400;">— 위 3개 SMA 비율의 결론</span></div>
@@ -5951,13 +5961,18 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     </div>
 
     <!-- v50.30 declutter: "심리 지표 가이드" 설명 블록 제거 — 각 지표 위젯의 ? 툴팁이 동일 정보 전달 -->
-    <div class="aio-flow-steps" style="margin-bottom:12px;">
-      <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> F&G · VIX · Put/Call (원시 지표)</div>
-      <div class="aio-flow-arrow-sep">→</div>
-      <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> NAAIM · II · HY Spread (포지셔닝)</div>
-      <div class="aio-flow-arrow-sep">→</div>
-      <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 위 배지 (종합 판정)</div>
-    </div>
+    <details class="aio-page-advanced-toggle" style="margin-bottom:12px;">
+      <summary>분석 흐름 보기</summary>
+      <div class="aio-page-advanced-body">
+        <div class="aio-flow-steps">
+          <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> F&G · VIX · Put/Call (원시 지표)</div>
+          <div class="aio-flow-arrow-sep">→</div>
+          <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> NAAIM · II · HY Spread (포지셔닝)</div>
+          <div class="aio-flow-arrow-sep">→</div>
+          <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 위 배지 (종합 판정)</div>
+        </div>
+      </div>
+    </details>
 
     <!-- Fear & Greed Gauge + Top Row Charts -->
     <div style="display:grid;grid-template-columns:300px 1fr;gap:12px;margin-bottom:14px;">
@@ -6421,13 +6436,18 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     </div>
   </div>
 
-  <div class="aio-flow-steps" style="margin-bottom:10px;">
-    <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> TradingView 차트 · SPY 가격 포지션 (원시 시각 데이터)</div>
-    <div class="aio-flow-arrow-sep">→</div>
-    <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> RSI · MACD · 이동평균 · 볼린저밴드 (지표 분해)</div>
-    <div class="aio-flow-arrow-sep">→</div>
-    <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 시장 건강도 종합 점수 (가중 판정)</div>
-  </div>
+  <details class="aio-page-advanced-toggle" style="margin-bottom:10px;">
+    <summary>분석 흐름 보기</summary>
+    <div class="aio-page-advanced-body">
+      <div class="aio-flow-steps">
+        <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> TradingView 차트 · SPY 가격 포지션 (원시 시각 데이터)</div>
+        <div class="aio-flow-arrow-sep">→</div>
+        <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> RSI · MACD · 이동평균 · 볼린저밴드 (지표 분해)</div>
+        <div class="aio-flow-arrow-sep">→</div>
+        <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 시장 건강도 종합 점수 (가중 판정)</div>
+      </div>
+    </div>
+  </details>
   <div style="margin-bottom:10px;">
     <span class="cross-link" data-action="showPage" data-arg="signal" style="margin-right:8px;">매매 시그널 →</span>
     <span class="cross-link" data-action="showPage" data-arg="breadth">시장 폭 →</span>
@@ -6672,7 +6692,10 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- v48.47: SECTION 4.5 캔들 + 4.7 진입품질 → Ticker 페이지로 이동, 4.8 R:R → Portfolio 페이지로 이동 -->
 
   <!-- ══ SECTION 4: 12가지 매매 셋업 (screener_pro 통합) ══════════ -->
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
+  <details class="aio-page-advanced-toggle" style="margin-bottom:12px;">
+    <summary>12가지 매매 셋업 패턴 보기</summary>
+    <div class="aio-page-advanced-body">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:0;">
     <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px;">12가지 매매 셋업 패턴</div>
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">각 패턴의 의미와 실전 적용 근거를 정리했습니다</div>
 
@@ -6749,6 +6772,8 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     <!-- 스코어링 시스템 설명 -->
     <!-- v38.8: 스크리너 연결 버튼 -->
   </div>
+    </div>
+  </details>
 
   <!-- ══ SECTION 5: 멀티 타임프레임 + 종합 판단 ════════════════════ -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
@@ -6864,13 +6889,18 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     </div>
   </div>
 
-  <div class="aio-flow-steps" style="margin-bottom:10px;">
-    <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 인터커넥션 맵 (금리·유가·달러 인과관계)</div>
-    <div class="aio-flow-arrow-sep">→</div>
-    <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 선행지표 · 시장물가 (세부 수치)</div>
-    <div class="aio-flow-arrow-sep">→</div>
-    <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 아래 종합 결론 → 시그널 / 환율·채권</div>
-  </div>
+  <details class="aio-page-advanced-toggle" style="margin-bottom:10px;">
+    <summary>분석 흐름 보기</summary>
+    <div class="aio-page-advanced-body">
+      <div class="aio-flow-steps">
+        <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 인터커넥션 맵 (금리·유가·달러 인과관계)</div>
+        <div class="aio-flow-arrow-sep">→</div>
+        <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 선행지표 · 시장물가 (세부 수치)</div>
+        <div class="aio-flow-arrow-sep">→</div>
+        <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 아래 종합 결론 → 시그널 / 환율·채권</div>
+      </div>
+    </div>
+  </details>
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
     <span class="cross-link" data-action="showPage" data-arg="fxbond">환율·채권 →</span>
     <span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 →</span>
@@ -7455,13 +7485,18 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     </div>
   </div>
 
-  <div class="aio-flow-steps" style="margin-bottom:6px;">
-    <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 달러(DXY) · 원/달러 (FX 원시값)</div>
-    <div class="aio-flow-arrow-sep">→</div>
-    <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 10Y 국채 · HY 스프레드 (채권 신호)</div>
-    <div class="aio-flow-arrow-sep">→</div>
-    <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> Cross-Asset 매트릭스 종합 → 위 배지</div>
-  </div>
+  <details class="aio-page-advanced-toggle" style="margin-bottom:6px;">
+    <summary>분석 흐름 보기</summary>
+    <div class="aio-page-advanced-body">
+      <div class="aio-flow-steps">
+        <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 달러(DXY) · 원/달러 (FX 원시값)</div>
+        <div class="aio-flow-arrow-sep">→</div>
+        <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 10Y 국채 · HY 스프레드 (채권 신호)</div>
+        <div class="aio-flow-arrow-sep">→</div>
+        <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> Cross-Asset 매트릭스 종합 → 위 배지</div>
+      </div>
+    </div>
+  </details>
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
     <span class="cross-link" data-action="showPage" data-arg="macro">거시 영향 →</span>
     <span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 →</span>
@@ -8179,13 +8214,18 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       </div>
     </div>
 
-    <div class="aio-flow-steps" style="margin-bottom:10px;">
-      <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 스크리너에서 상위 종목 발굴</div>
-      <div class="aio-flow-arrow-sep">→</div>
-      <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 여기서 펀더멘털 확인 (재무·EPS·밸류)</div>
-      <div class="aio-flow-arrow-sep">→</div>
-      <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> Ticker에서 차트·매매 타이밍 결정</div>
-    </div>
+    <details class="aio-page-advanced-toggle" style="margin-bottom:10px;">
+      <summary>분석 흐름 보기</summary>
+      <div class="aio-page-advanced-body">
+        <div class="aio-flow-steps">
+          <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 스크리너에서 상위 종목 발굴</div>
+          <div class="aio-flow-arrow-sep">→</div>
+          <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 여기서 펀더멘털 확인 (재무·EPS·밸류)</div>
+          <div class="aio-flow-arrow-sep">→</div>
+          <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> Ticker에서 차트·매매 타이밍 결정</div>
+        </div>
+      </div>
+    </details>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
       <span class="cross-link" data-action="showPage" data-arg="screener">← 퀀트 스크리너 (종목 발굴)</span>
       <span class="cross-link" data-action="showPage" data-arg="ticker">Ticker 차트 분석 →</span>
@@ -9563,13 +9603,18 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <span style="font-size:11px;color:var(--text-muted);margin-left:auto;"><span id="screener-result-count">0</span>종목</span>
     </div>
     <!-- 결과 테이블 -->
-    <div class="aio-flow-steps" style="margin-bottom:6px;">
-      <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 위 팩터 설명 (각 지표 계산 방식)</div>
-      <div class="aio-flow-arrow-sep">→</div>
-      <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 백테스트 IC 검증 (예측력 확인)</div>
-      <div class="aio-flow-arrow-sep">→</div>
-      <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 아래 종목별 퀀트 랭크 → 기업 분석 / Ticker</div>
-    </div>
+    <details class="aio-page-advanced-toggle" style="margin-bottom:6px;">
+      <summary>분석 흐름 보기</summary>
+      <div class="aio-page-advanced-body">
+        <div class="aio-flow-steps">
+          <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 위 팩터 설명 (각 지표 계산 방식)</div>
+          <div class="aio-flow-arrow-sep">→</div>
+          <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 백테스트 IC 검증 (예측력 확인)</div>
+          <div class="aio-flow-arrow-sep">→</div>
+          <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 아래 종목별 퀀트 랭크 → 기업 분석 / Ticker</div>
+        </div>
+      </div>
+    </details>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
       <span style="font-size:10px;color:var(--text-muted);align-self:center;">종목 발굴 후 →</span>
       <span class="cross-link" data-action="showPage" data-arg="fundamental">기업 펀더멘털 →</span>
@@ -9622,13 +9667,18 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       </div>
     </div>
 
-    <div class="aio-flow-steps" style="margin-bottom:10px;">
-      <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> KOSPI·KOSDAQ·KRW (실시간 지수)</div>
-      <div class="aio-flow-arrow-sep">→</div>
-      <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 외국인·기관 수급 (매수/매도)</div>
-      <div class="aio-flow-arrow-sep">→</div>
-      <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 한국장 매크로 판단</div>
-    </div>
+    <details class="aio-page-advanced-toggle" style="margin-bottom:10px;">
+      <summary>분석 흐름 보기</summary>
+      <div class="aio-page-advanced-body">
+        <div class="aio-flow-steps">
+          <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> KOSPI·KOSDAQ·KRW (실시간 지수)</div>
+          <div class="aio-flow-arrow-sep">→</div>
+          <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 외국인·기관 수급 (매수/매도)</div>
+          <div class="aio-flow-arrow-sep">→</div>
+          <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 한국장 매크로 판단</div>
+        </div>
+      </div>
+    </details>
     <!-- ═══ 섹션 1: 핵심 지수 카드 (4열) ═══ -->
     <div class="kr-index-grid">
       <div class="kr-idx-card up">
@@ -10185,13 +10235,18 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         <button class="aio-btn-table" data-action="showPage" data-arg="kr-technical">한국 기술 분석 →</button>
       </div>
     </div>
-    <div class="aio-flow-steps" style="margin-bottom:10px;">
-      <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 기준금리 · 물가 (BOK 정책 변수)</div>
-      <div class="aio-flow-arrow-sep">→</div>
-      <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 환율 · 수출입 · 부동산 (실물 데이터)</div>
-      <div class="aio-flow-arrow-sep">→</div>
-      <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 한국 기술 분석으로 매매 타이밍 →</div>
-    </div>
+    <details class="aio-page-advanced-toggle" style="margin-bottom:10px;">
+      <summary>분석 흐름 보기</summary>
+      <div class="aio-page-advanced-body">
+        <div class="aio-flow-steps">
+          <div class="aio-flow-step"><span class="aio-flow-step-num">①</span> 기준금리 · 물가 (BOK 정책 변수)</div>
+          <div class="aio-flow-arrow-sep">→</div>
+          <div class="aio-flow-step"><span class="aio-flow-step-num">②</span> 환율 · 수출입 · 부동산 (실물 데이터)</div>
+          <div class="aio-flow-arrow-sep">→</div>
+          <div class="aio-flow-step"><span class="aio-flow-step-num">③</span> 한국 기술 분석으로 매매 타이밍 →</div>
+        </div>
+      </div>
+    </details>
 
     <!-- ═══ 섹션 1: 기준금리 현황 ═══ -->
     <div class="aio-widget" style="margin-bottom:12px;">

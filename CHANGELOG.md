@@ -1,4 +1,10 @@
-﻿## v51.23 - UX 8건: 사이드바 구분자·톱바 정리·홈 접기·시그널 고급·브리핑 파이프라인·스크리너 경고·KR 배지·AI 패널 (2026-06-24)
+﻿## v51.24 - UX 전페이지 A급: 9개 flow-steps 접기 + 기술분석 12-setup 섹션 접기 (2026-06-24)
+
+시그널·시장폭·심리·기술분석·매크로·환율채권·기업분석·스크리너·KR홈 9개 페이지의 `aio-flow-steps`를 `<details class="aio-page-advanced-toggle">` 로 래핑 — 기본 접힘, "분석 흐름 보기" 요약. 기술분석 "12가지 매매 셋업 패턴" 카드 섹션(12개 카드 3×4 그리드)을 `<details>` 로 접어 초기 페이지 부하 경감. R1 7곳 v51.24 동기화.
+
+---
+
+## v51.23 - UX 8건: 사이드바 구분자·톱바 정리·홈 접기·시그널 고급·브리핑 파이프라인·스크리너 경고·KR 배지·AI 패널 (2026-06-24)
 
 사이드바 `nav-section + nav-section` 구분선(I4). `data-status-panel` 톱바에서 숨김(I2). 홈 `aio-flow-steps`·`home-gxl-frame` 기본 접힘 `<details>` 래핑(I1). 시그널 `signal-lockout-control` "고급 매매 조건" `<details>` 래핑(I6). 브리핑 `vis-briefing` 파이프라인·경기사이클 `<details>` 래핑(I8). 스크리너 저변동 역방향 경고 인라인→`<details>` 분리(I3). KR 수급 3카드(신용잔고·예탁금·상승하락) "전일 종가" 배지(I5). AI 패널 `app.style.width` 명시 push·CSS transition `width` 추가(I7).
 
