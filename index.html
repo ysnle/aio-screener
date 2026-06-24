@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.25 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.26 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4543,7 +4543,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.25</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.26</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6270,11 +6270,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
 
 
     <!-- ── Section 7: Key Interview Insights ─────────────────────────── -->
-    <div style="margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
-        <span>주요 인사 인터뷰 인사이트</span>
-        <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">Jensen Huang · 트럼프 · 머스크 등 주요 발언 집중 분석</span>
-      </div>
+    <details class="aio-page-advanced-toggle" style="margin-bottom:14px;">
+      <summary>주요 인사 인터뷰 인사이트 보기 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">Jensen Huang · 트럼프 · 머스크 등</span></summary>
+      <div class="aio-page-advanced-body">
 
       <!-- Computex event card: reference-only until refreshed by verified news evidence -->
       <div class="interview-card" data-aio-archive="true" data-text-role="reference-archive" data-lifecycle-id="jensen-computex-202606" style="border:1px solid rgba(0,229,160,0.4);background:rgba(0,229,160,0.03);">
@@ -6363,7 +6361,8 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </details>
 
     <!-- ── 현재 시장 이벤트 레이어 ─────────────────────────────────────────── -->
     <div data-lifecycle-id="briefing-current-jun-3-25" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:13px;margin-bottom:14px;">
@@ -7510,7 +7509,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         Cross-Asset 신호 매트릭스
         <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="Cross-Asset 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">Cross-Asset이란?</span>달러(DXY) · 10Y 국채 · 하이일드 스프레드 3축이 <strong>같은 방향</strong>이면 강한 신호. 엇갈리면 레짐 전환 가능. 예: DXY↑ + 10Y↑ + HY스프레드↑ = <strong>Risk-Off 확정</strong>.</span></span>
       </div>
-      <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">4축 · _liveData 동기화</span>
+      <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">4축 · 실시간 자동 업데이트</span>
     </div>
     <!-- v50.84: 수익률 곡선 시각화 — 크로스에셋 매트릭스 내 통합 -->
     <div id="vis-fxbond" style="margin-bottom:10px;"><div class="aio-vis-card"><div class="aio-vis-card-title">수익률 곡선 · 크레딧 스프레드</div><div id="vis-fxbond-yield"></div></div></div>
@@ -8554,7 +8553,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
           시장 리더십 라이브
           <span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="시장 리더십 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">리더십이란?</span>Magnificent 7(AAPL·MSFT·NVDA·GOOGL·AMZN·META·TSLA)의 일간 등락과 GICS 11섹터 ETF 히트맵. <strong>7개 중 5개 이상 상승</strong>이면 기술 주도, 섹터 분산도 ≥4 녹색이면 breadth 양호.</span></span>
         </span>
-        <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">실시간 _liveData 동기화</span>
+        <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">실시간 자동 업데이트</span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px;">
         <div>
@@ -8971,7 +8970,10 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     </div>
 
     <!-- ══ v48.47: 위험/보상 계산기 (포지션 연동) — from technical ══ -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:14px;">
+    <details class="aio-page-advanced-toggle" style="margin-bottom:14px;">
+      <summary>위험/보상 계산기 (R:R Calculator)</summary>
+      <div class="aio-page-advanced-body">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">
           위험/보상 비율 계산기 (R:R Calculator)
@@ -9037,6 +9039,8 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         </div>
       </div>
     </div>
+      </div>
+    </details>
 
     <!-- 종목 추가 폼 -->
     <!-- v48.3: 라벨 9px→11px, 입력 10px→12px, 버튼 9~10px→11~12px 일괄 상향. 입력 필드 padding 확장으로 탭/모바일 터치 친화성 개선 -->
@@ -11195,6 +11199,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     </div>
 
     <!-- ═══ 섹션 4: 투자 필수 배경지식 ═══ -->
+    <details class="aio-page-advanced-toggle">
+      <summary>투자 필수 배경지식 — 주식·금리·외환·채권·기술분석·매크로 기초</summary>
+      <div class="aio-page-advanced-body">
     <div class="aio-widget">
       <div class="widget-title">알아두면 좋은 투자 배경지식</div>
 
@@ -11259,6 +11266,8 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         </div>
       </div>
     </div>
+      </div>
+    </details>
 
   </div>
 
@@ -23278,7 +23287,7 @@ function updateCrossAssetMatrix() {
     if (hygPct != null) { available++; if (hygPct >= 0.3) bullScore++; else if (hygPct <= -0.3) bearScore++; }
     if (spreadBp != null) { available++; if (spreadBp >= 20) bullScore++; else if (spreadBp < -20) bearScore++; }
     var txt;
-    if (available === 0) txt = '데이터 부족 — _liveData 로딩 대기';
+    if (available === 0) txt = '데이터 부족 — 시세 로딩 대기';
     else if (bullScore >= 3) txt = 'Risk-On 정렬 (' + bullScore + '/' + available + ') — Equity/Credit 비중 확대 유리';
     else if (bearScore >= 3) txt = 'Risk-Off 정렬 (' + bearScore + '/' + available + ') — 방어형 · TLT/Cash/Gold 선호';
     else if (bullScore > bearScore) txt = '약한 Risk-On 기조 — 선별 종목 위주, Beta 조절';

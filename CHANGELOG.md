@@ -1,4 +1,10 @@
-﻿## v51.25 - UX 전수감사 잔여 개선: 소스목록 접기 + 버튼 폰트 통일 (2026-06-24)
+﻿## v51.26 - UX 전수감사 구조 개선: 기술용어 정화 + 3개 섹션 접기 (2026-06-24)
+
+5개 에이전트 22페이지 전수감사 결과 반영. `_liveData` 내부 변수명 UI 노출 3곳(FxBond Cross-Asset, Themes 시장 리더십 헤더, JS FxBond 신호 빈 상태 텍스트)을 사용자 친화 문구("실시간 자동 업데이트", "시세 로딩 대기")로 교체. 브리핑 "주요 인사 인터뷰 인사이트"(80+줄 인터뷰 카드 3개) `<details>` 기본 접힘. 포트폴리오 "위험/보상 계산기(R:R Calculator)" `<details>` 기본 접힘. 가이드 "투자 필수 배경지식"(주식·금리·외환·채권·기술·매크로 6섹션) `<details>` 기본 접힘. R1 7곳 v51.26 동기화.
+
+---
+
+## v51.25 - UX 전수감사 잔여 개선: 소스목록 접기 + 버튼 폰트 통일 (2026-06-24)
 
 전수 UX 감사 후 잔여 개선 3건. market-news `#news-source-guide`(5줄 소스 목록) `<details>` 래핑 — 기본 접힘, "<span data-news-source-count>개 등록 소스 목록 보기". KR-Technical "차트 로드"·"Ticker 분석" 버튼 `font-size:10px→11px`. Portfolio PIN "잠금 해제" 버튼 `font-size:10px→11px`. 에이전트 전수감사 결과: KR-Macro border·GUIDE 콘텐츠·Portfolio 12px·Fundamental empty state는 오탐(정상).
 
