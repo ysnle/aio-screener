@@ -1,4 +1,10 @@
-﻿## v51.21 - Korea 뉴스 별도 슬롯 (2026-06-24)
+﻿## v51.22 - UI 구조 수정 4건: KR stale-days·bh-* 정리·클라이언트 KR 슬롯·newsMemo 컬럼 (2026-06-24)
+
+**F1** `_aioRenderSnapshotDates`(`aio-core.js`) 끝부분에 KR stale-days 루프 추가 — `dateByKey['kr-*']` 기준일로 `_aioStaleDaysLabel({warnDays:5, staleDays:14})` 호출해 `#kr-credit-stale-days` 등 5개 span 텍스트·색상 갱신(기존 "경과..." 영구 표시 해소). **W1** `_aioBreadthCanvasRender` bh-* 4캔버스 죽은 코드 전면 제거 — `ids`/`seriesMap`/`colorMap`/`scaleMap`에서 `bh-price-chart`·`bh-5ma-chart`·`bh-20ma-chart`·`bh-50ma-chart` 삭제, 미사용 `qqqLive`·`b200` 변수 제거, 주석 "9-canvas"→"5-canvas" 정정(v50.51 DOM 제거 후 방치된 코드). **W2** 클라이언트 RSS 파이프라인 KR 슬롯 주입 — CORS 보호 이후 `filteredItems`에 `window._serverNewsBackstop` kr/country=kr 항목 최대 3건을 `unshift` 보완(기존엔 서버 백스톱 경로에만 KR 슬롯이 있어 클라이언트 RSS 성공 시 Korea 뉴스 완전 탈락). **W3** 스크리너 테이블에 "최신뉴스" 컬럼 신설 — `index.html` 헤더 `<th>` 추가, `aio-data.js` 행 TD에 `r.newsMemo.slice(0,80)` + hover title 전문 표시, colspan 14→15 동기화(v50.54부터 채팅에만 존재하던 newsMemo를 테이블에서 직접 확인 가능).
+
+---
+
+## v51.21 - Korea 뉴스 별도 슬롯 (2026-06-24)
 
 `fetchNews()` 한국 피드를 `krItems[]`로 분리해 최대 3슬롯 예약 확보 — 영문 우선 점수 규칙(Korean 40점 대 US 70점)으로 인해 40건 cap에서 Korea 뉴스가 전면 탈락하던 구조 해소. topic `'korea'` → `'kr'` 정규화(서버 단). `getTopicBadge`에 `kr`(한국, nit-bull)·`fxbond`(FX·채권, nit-warn) 항목 추가. `_aioApplyNewsBackstop` `country` 하드코딩 `'us'` → `n.country || 'us'` passthrough 및 `selectionReason: n.selectionReason` 추가 — 백스톱 적용 시 Korea 아이템의 국기·배지 정상 표시.
 

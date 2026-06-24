@@ -1685,10 +1685,11 @@ function renderScreenerResults() {
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-weight:700;" data-live-price="' + escHtml(r.sym) + '">—</td>' +
       '<td style="text-align:center;padding:6px 8px;"><span style="background:' + sb + ';color:' + sc + ';padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
+      '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (r.newsMemo ? escHtml(r.newsMemo) : '') + '">' + (r.newsMemo ? escHtml(r.newsMemo.slice(0, 80)) : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
     '</tr>';
   });
 
-  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="14" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
+  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="15" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
   // 스파크라인 미니차트 렌더링
   requestAnimationFrame(function() { renderSparklines(filtered); });
   document.getElementById('screener-result-count').textContent = filtered.length;
@@ -11256,6 +11257,24 @@ async function fetchAllNews(forceRefresh = false) {
     _aioApplyNewsBackstop(true);
     return;
   }
+  // v51.22: KR 뉴스 슬롯 보완 — 클라이언트 RSS 파이프라인에 Korea 피드 없으므로 서버 백스톱 kr items 최대 3건 주입
+  try {
+    var _bsKr = (window._serverNewsBackstop || []).filter(function(n){ return n.topic === 'kr' || n.country === 'kr'; });
+    if (_bsKr.length > 0 && !filteredItems.some(function(x){ return x.topic === 'kr' || x.country === 'kr'; })) {
+      var _krSlots = _bsKr
+        .sort(function(a, b){ return (new Date(b.pubDate||0)) - (new Date(a.pubDate||0)); })
+        .slice(0, 3)
+        .map(function(n){
+          return { title: n.title, headline: n.title, link: n.link, url: n.link,
+                   source: n.source || 'Google News', pubDate: n.pubDate || new Date().toISOString(),
+                   desc: '', summary: '', country: n.country || 'kr', topic: n.topic || 'kr',
+                   score: n.score || 40, selectionReason: n.selectionReason || '',
+                   flag: typeof getCountryFlag === 'function' ? getCountryFlag('kr') : '',
+                   _serverKrSlot: true };
+        });
+      if (_krSlots.length > 0) filteredItems.unshift.apply(filteredItems, _krSlots);
+    }
+  } catch(_e) {}
   newsCache = filteredItems;
   window._allNewsItems = filteredItems;  // v29: 텔레그램 필터 등에서 참조
   lastFetchTime = Date.now();

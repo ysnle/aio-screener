@@ -1489,6 +1489,18 @@ window._aioRenderSnapshotDates = function() {
       if (!el.getAttribute('data-source-label')) el.setAttribute('data-source-label', 'DATA_SNAPSHOT:' + key);
       if (!el.title) el.title = d ? ('DATA_SNAPSHOT 기준일 ' + d + ' · 참고용 스냅샷') : 'DATA_SNAPSHOT 참고용 스냅샷';
     });
+    // KR 카드 stale-days span 갱신 — kr-* 5개 ID에 _aioStaleDaysLabel 호출
+    if (typeof window._aioStaleDaysLabel === 'function') {
+      ['kr-credit','kr-deposit','kr-52w-high','kr-52w-low','kr-advance'].forEach(function(k) {
+        var d = dateByKey[k];
+        if (!d) return;
+        var el = document.getElementById(k + '-stale-days');
+        if (!el) return;
+        var lbl = window._aioStaleDaysLabel(d, { warnDays: 5, staleDays: 14 });
+        el.textContent = lbl.text;
+        el.style.color = lbl.color;
+      });
+    }
   } catch(e) {
     if (window._aioLog) window._aioLog('warn', 'render', 'snapshotDates render error: ' + (e && e.message || e));
   }
@@ -1508,18 +1520,16 @@ if (typeof document !== 'undefined') {
   window._aioSnapshotDatesTimer = _aioRegisterTimer('snapshotDates', window._aioRenderSnapshotDates, 15 * 60 * 1000);
 }
 
-// v48.51: Breadth 9-canvas fallback 렌더러 — Chart.js 없이 2D 캔버스로 경량 sparkline
+// v48.51: Breadth 5-canvas fallback 렌더러 — Chart.js 없이 2D 캔버스로 경량 sparkline (v50.51 bh-* 4캔버스 DOM 제거로 bp-* 5개만 유지)
 window._aioBreadthCanvasRender = function() {
-  var ids = ['bp-ad-ratio-chart','bp-price-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart','bh-price-chart','bh-5ma-chart','bh-20ma-chart','bh-50ma-chart'];
+  var ids = ['bp-ad-ratio-chart','bp-price-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart'];
   var bld = window._breadthLiveData || {};
   var ld = window._liveData || {};
   // v48.60: 실제 _liveData 반영 — SPY/QQQ 최신 가격 우선 사용 (mock gen 값 제거)
   var spyLive = ld['SPY'] && ld['SPY'].price ? ld['SPY'].price : (ld['^GSPC'] && ld['^GSPC'].price ? ld['^GSPC'].price / 10 : null);
-  var qqqLive = ld['QQQ'] && ld['QQQ'].price ? ld['QQQ'].price : (ld['^NDX'] && ld['^NDX'].price ? ld['^NDX'].price / 40 : null);
   var b5 = (typeof window._breadth5 === 'number') ? window._breadth5 : null;
   var b20 = (typeof window._breadth20 === 'number') ? window._breadth20 : null;
   var b50 = (typeof window._breadth50 === 'number') ? window._breadth50 : null;
-  var b200 = (typeof window._breadth200 === 'number') ? window._breadth200 : null;
 
   // v48.60: 실제 데이터 기반 series (mock gen은 마지막 fallback)
   // v50.15 (사용자 지적: 폭 차트 일자 라인 + "데이터 대기 중"): (1)라이브 시계열 우선 (2)없으면 전역 하드코딩 시계열
@@ -1542,22 +1552,14 @@ window._aioBreadthCanvasRender = function() {
     'bp-price-chart':    seriesOrFallback('bp-price-chart', bld.spxSeries, spyLive, null),
     'bp-5ma-chart':      seriesOrFallback('bp-5ma-chart', bld.abv5Series, b5, null),
     'bp-20ma-chart':     seriesOrFallback('bp-20ma-chart', bld.abv20Series, b20, null),
-    'bp-50ma-chart':     seriesOrFallback('bp-50ma-chart', bld.abv50Series, b50, null),
-    'bh-price-chart':    seriesOrFallback('bh-price-chart', bld.qqqSeries, qqqLive, null),
-    'bh-5ma-chart':      seriesOrFallback('bh-5ma-chart', bld.ndx5Series, b5, null),
-    'bh-20ma-chart':     seriesOrFallback('bh-20ma-chart', bld.ndx20Series, b20, null),
-    'bh-50ma-chart':     seriesOrFallback('bh-50ma-chart', bld.ndx50Series, b50, null)
+    'bp-50ma-chart':     seriesOrFallback('bp-50ma-chart', bld.abv50Series, b50, null)
   };
   var colorMap = {
     'bp-ad-ratio-chart': '#00bcd4',
     'bp-price-chart':    '#a855f7',
     'bp-5ma-chart':      '#00e5a0',
     'bp-20ma-chart':     '#ffa31a',
-    'bp-50ma-chart':     '#ff5b50',
-    'bh-price-chart':    '#a855f7',
-    'bh-5ma-chart':      '#00e5a0',
-    'bh-20ma-chart':     '#ffa31a',
-    'bh-50ma-chart':     '#ff5b50'
+    'bp-50ma-chart':     '#ff5b50'
   };
   // v48.60: 차트 종류별 Y축 고정 스케일 (사용자 지적 "비율 이상 · 확대해서 봐야" 해소)
   var scaleMap = {
@@ -1565,10 +1567,7 @@ window._aioBreadthCanvasRender = function() {
     'bp-ad-ratio-chart': { min: 0, max: 100 },
     'bp-5ma-chart':      { min: 0, max: 100 },
     'bp-20ma-chart':     { min: 0, max: 100 },
-    'bp-50ma-chart':     { min: 0, max: 100 },
-    'bh-5ma-chart':      { min: 0, max: 100 },
-    'bh-20ma-chart':     { min: 0, max: 100 },
-    'bh-50ma-chart':     { min: 0, max: 100 }
+    'bp-50ma-chart':     { min: 0, max: 100 }
     // price 차트는 data 기반 min/max + padding (아래 로직)
   };
   ids.forEach(function(id) {
@@ -17053,7 +17052,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.21';
+const APP_VERSION = 'v51.22';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
