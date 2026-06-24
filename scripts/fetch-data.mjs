@@ -288,8 +288,10 @@ function _parseRssXml(xml, opts) {
 }
 
 async function fetchNews() {
-  const items = [];
+  const items = [];    // US/글로벌 피드
+  const krItems = [];  // 한국 전용 (reserved slot)
   for (const feed of NEWS_FEEDS) {
+    const isKr = feed.country === 'kr';
     try {
       const parsed = _parseRssXml(await _fetchRss(feed.url, 12000), { limit: 20, titleLen: 200, needLink: true });
       for (const p of parsed) {
@@ -297,34 +299,43 @@ async function fetchNews() {
         const item = {
           title: p.title, link: p.link, source: p.source || feed.source,
           pubDate: p.pubDate, ts: isFinite(t) ? t : 0,
-          topic: feed.topic, country: feed.country, tier: feed.tier, feedSource: feed.source,
+          topic: isKr ? 'kr' : feed.topic,  // 'korea' → 'kr' 정규화
+          country: feed.country, tier: feed.tier, feedSource: feed.source,
         };
         Object.assign(item, scoreServerNewsItem(item));
-        items.push(item);
+        if (isKr) { krItems.push(item); } else { items.push(item); }
       }
     } catch (e) { /* 피드별 실패 무시 */ }
   }
-  // 중복(제목) 제거 + 최신순 + 25건 cap
+  // US/글로벌: 점수순 정렬, 한국: 최신순 정렬
   items.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.ts || 0) - (a.ts || 0));
+  krItems.sort((a, b) => (b.ts || 0) - (a.ts || 0));
   const seen = new Set();
   const out = [];
-  for (const it of items) {
+  function pushItem(it) {
+    out.push({
+      title: it.title, link: it.link, source: it.source,
+      pubDate: it.pubDate, topic: it.topic, country: it.country,
+      tier: it.tier, score: it.score, selectionReason: it.selectionReason,
+      feedSource: it.feedSource,
+    });
+  }
+  // 한국 뉴스 최대 3슬롯 먼저 예약
+  const KR_SLOTS = 3;
+  for (const it of krItems) {
+    if (out.length >= KR_SLOTS) break;
     const k = it.title.toLowerCase().slice(0, 60);
     if (seen.has(k)) continue;
     seen.add(k);
-    out.push({
-      title: it.title,
-      link: it.link,
-      source: it.source,
-      pubDate: it.pubDate,
-      topic: it.topic,
-      country: it.country,
-      tier: it.tier,
-      score: it.score,
-      selectionReason: it.selectionReason,
-      feedSource: it.feedSource,
-    });
+    pushItem(it);
+  }
+  // 나머지 슬롯(최대 37개)을 US/글로벌 뉴스로 채움
+  for (const it of items) {
     if (out.length >= 40) break;
+    const k = it.title.toLowerCase().slice(0, 60);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    pushItem(it);
   }
   return out;
 }

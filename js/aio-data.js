@@ -4989,11 +4989,16 @@ function _aioApplyNewsBackstop(force) {
         source: n.source || 'News', feed: n.source || 'News',
         pubDate: n.pubDate || nowIso,
         desc: '', summary: '',
-        country: 'us',
+        country: n.country || 'us',
+        selectionReason: n.selectionReason || '',
+        topic: n.topic || '',
         _serverBackstop: true
       };
-      try { it.score = (typeof scoreItem === 'function') ? scoreItem(it) : 50; } catch(_) { it.score = 50; }
-      try { it.topic = (typeof classifyTopic === 'function') ? classifyTopic(it) : 'general'; } catch(_) { it.topic = 'general'; }
+      try { it.score = (typeof scoreItem === 'function') ? scoreItem(it) : (n.score || 50); } catch(_) { it.score = n.score || 50; }
+      // 서버 topic이 있으면 우선 사용, 없으면 classifyTopic fallback
+      if (!it.topic) {
+        try { it.topic = (typeof classifyTopic === 'function') ? classifyTopic(it) : 'general'; } catch(_) { it.topic = 'general'; }
+      }
       try { it.flag = (typeof getCountryFlag === 'function') ? getCountryFlag(it.country) : ''; } catch(_) {}
       return it;
     });
@@ -7770,6 +7775,8 @@ function getTopicBadge(topic) {
     shipbuilding:{ cls:'nit-neut', icon:'', label:'조선' },
     space:    { cls:'nit-neut', icon:'', label:'우주' },
     quantum:  { cls:'nit-neut', icon:'', label:'양자' },
+    kr:       { cls:'nit-bull', icon:'', label:'한국' },
+    fxbond:   { cls:'nit-warn', icon:'', label:'FX·채권' },
     general:  { cls:'nit-neut', icon:'', label:'일반' },
   };
   const m = map[topic] || map.general;

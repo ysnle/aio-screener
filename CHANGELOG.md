@@ -1,4 +1,10 @@
-﻿## v51.20 - UI/UX 통합 정비 2차: 잔여 이질감 요소 전면 교체 (2026-06-23)
+﻿## v51.21 - Korea 뉴스 별도 슬롯 (2026-06-24)
+
+`fetchNews()` 한국 피드를 `krItems[]`로 분리해 최대 3슬롯 예약 확보 — 영문 우선 점수 규칙(Korean 40점 대 US 70점)으로 인해 40건 cap에서 Korea 뉴스가 전면 탈락하던 구조 해소. topic `'korea'` → `'kr'` 정규화(서버 단). `getTopicBadge`에 `kr`(한국, nit-bull)·`fxbond`(FX·채권, nit-warn) 항목 추가. `_aioApplyNewsBackstop` `country` 하드코딩 `'us'` → `n.country || 'us'` passthrough 및 `selectionReason: n.selectionReason` 추가 — 백스톱 적용 시 Korea 아이템의 국기·배지 정상 표시.
+
+---
+
+## v51.20 - UI/UX 통합 정비 2차: 잔여 이질감 요소 전면 교체 (2026-06-23)
 
 `#00d4ff`(레거시 네온 cyan) 전면 제거 — `index.html`(부트 로더 CSS 폴백·주석), `aio-data.js`(FRED 기준금리 차트 2곳·VIX Low 레짐·tsColor·BTC 도미넌스), `aio-core.js`(차트 기본색·Canvas fillStyle 등 18곳), `aio-ui.js`(차트 라인·breadth 차트·NAAIM 등 27곳) 모두 → `#00bcd4`(`--data-cyan`). `#00c9a7`(운영자 노트 녹색-청색) 완전 제거 — `rgba(0,212,255,...)` + `var(--accent)`로 교체(v51.19에서 시작). `_aioChatAutoVis` 자동 시각화 div: `--bg-card` → `--surface-2` + `border-left:3px solid var(--data-cyan)`. `vis-breadth` KPI 3 카드 `border-radius:4px` → `var(--radius)`. `pf-analysis-dashboard` + `vis-screener` 팩터 검증 래퍼: 인라인 복사 스타일 → `.aio-vis-card` 클래스로 통일. `vis-signal`/`vis-sentiment`/`vis-technical` max-width 불일치(520/460/520px) → 560px 통일.
 
