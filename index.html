@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.26 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.28 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4197,6 +4197,119 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   .mhc-row { grid-template-columns:100px repeat(4,1fr); }
   .mhc-label { font-size:9px; padding:0 6px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   v51.27 구조 개편 — 반응형 강화 · 스켈레톤 로더 · 신선도 배지 통일
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 스켈레톤 로딩 — "수신 대기" 대체 기반 */
+@keyframes aio-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.aio-skel {
+  background: linear-gradient(90deg,
+    var(--surface-2) 25%, var(--surface-4) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: aio-shimmer 1.4s infinite;
+  border-radius: 2px;
+  display: inline-block;
+  min-height: 11px;
+  color: transparent !important;
+  pointer-events: none;
+}
+.aio-skel * { visibility: hidden; }
+
+/* 신선도 배지 보완 (fb-live는 기존 유지) */
+.fb-snap {
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;
+  background:rgba(255,163,26,0.10);border:1px solid rgba(255,163,26,0.25);
+  color:var(--data-amber);
+}
+.fb-stale {
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;
+  background:rgba(255,91,80,0.10);border:1px solid rgba(255,91,80,0.25);
+  color:var(--data-red);
+}
+
+/* 필터 버튼 활성 상태 — 전 페이지 통일 */
+.filter-btn.active,
+.news-filter-btn.active,
+.kr-filter-btn.active,
+.topic-btn.active,
+.sector-filter-btn.active,
+button[data-filter-active="true"] {
+  background: rgba(0,212,255,0.15) !important;
+  border-color: rgba(0,212,255,0.45) !important;
+  color: var(--accent) !important;
+  font-weight: 700 !important;
+}
+
+/* ═══ 640px: 중간 반응형 — 태블릿 세로/대형 폰 ═══ */
+@media (max-width: 640px) {
+  /* Sentiment F&G+분석 고정폭 레이아웃 → 세로 스택 */
+  [style*="grid-template-columns:300px 1fr"],
+  [style*="grid-template-columns: 300px 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* 6열 → 3열 (480px에서 2열로 재처리) */
+  [style*="grid-template-columns:repeat(6,1fr)"],
+  [style*="grid-template-columns: repeat(6, 1fr)"] {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  /* 5열 → 3열 */
+  [style*="grid-template-columns:repeat(5,1fr)"],
+  [style*="grid-template-columns: repeat(5, 1fr)"] {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  /* 포트폴리오 R:R 계산기 4-입력 → 2×2 */
+  [style*="grid-template-columns:1fr 1fr 1fr auto"],
+  [style*="grid-template-columns: 1fr 1fr 1fr auto"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  /* KR-Home 지수카드 3열 → 2열 */
+  .kr-index-grid { grid-template-columns: repeat(2,1fr) !important; }
+  /* 인터뷰 카드 2열 → 1열 */
+  [style*="grid-template-columns:1fr 1fr"][class*="interview"],
+  .interview-card [style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* 페이지 패딩 축소 */
+  .page { padding: 12px 10px !important; }
+  /* 사이드바 오버레이 → AI 패널 여백 축소 */
+  .aio-chat { min-width: 0; }
+}
+
+/* ═══ 768px: 가로 스크롤 필요 테이블 ═══ */
+@media (max-width: 768px) {
+  /* 포트폴리오 보유 테이블 */
+  #pf-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  #pf-table-wrap table { min-width: 620px; }
+  /* 기업 펀더멘털 재무표 */
+  #fund-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* 브리핑 인터뷰 카드 내 2열 그리드 → 1열 */
+  .interview-card [style*="grid-template-columns:1fr 1fr"],
+  .interview-card [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* 브리핑 투자 임플리케이션 3열 → 1열 */
+  .interview-card [style*="grid-template-columns:repeat(3,1fr)"],
+  .interview-card [style*="grid-template-columns: repeat(3, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ═══ 페이지 최대 너비 오버플로 방지 ═══ */
+.page, .aio-widget, .data-widget { max-width: 100%; box-sizing: border-box; }
+.aio-guide-group-header { font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); padding: 8px 0 6px; border-bottom: 1px solid var(--border); margin: 6px 0 10px; }
 </style>
 </head>
 <body>
@@ -4543,7 +4656,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.26</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.28</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4887,7 +5000,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- v50.29 declutter: "FOMC 일정 이전" 안내 스텁 제거 — 이전 공지는 사용자 가치 0 (FOMC는 거시경제 페이지/메뉴) -->
 
   <!-- ─ 시장 스냅샷 카드 (Live Quotes Overlay) ─ -->
-  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px;">
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,130px),1fr));gap:8px;margin-bottom:12px;">
     <div id="snap-gspc" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-green);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="technical" title="차트 분석 →">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">S&P 500</div>
       <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="^GSPC">—</div>
@@ -9517,27 +9630,33 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <span id="translate-status" style="font-size:11px;color:var(--green);font-family:var(--font-mono);">자동 한국어 번역</span>
     </div>
 
-    <!-- 국가 필터 -->
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="news-country-chips">
-      <span class="chip" data-action="filterNewsByCountry" data-arg="all" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--accent-border);border-radius:3px;background:var(--accent-dim);color:var(--accent);">전체</span>
-      <span class="chip" data-action="filterNewsByCountry" data-arg="us" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">🇺🇸 미국</span>
-      <span class="chip" data-action="filterNewsByCountry" data-arg="kr" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);"> 한국</span>
-      <span class="chip" data-action="filterNewsByCountry" data-arg="asia" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">아시아</span>
-      <span class="chip" data-action="filterNewsByCountry" data-arg="eu" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">🇪🇺 유럽</span>
-      <span class="chip" data-action="filterNewsByTelegramOnly" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid rgba(0,212,255,0.3);border-radius:3px;color:var(--data-cyan);background:rgba(0,212,255,0.08);">텔레그램</span>
-    </div>
-
-    <!-- 토픽 필터 -->
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="news-topic-chips">
-      <span class="chip" data-action="filterNewsByTopic" data-arg="all" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--accent-border);border-radius:3px;background:var(--accent-dim);color:var(--accent);">전체</span>
-      <span class="chip" data-action="filterNewsByTopic" data-arg="macro" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">매크로</span>
-      <span class="chip" data-action="filterNewsByTopic" data-arg="equity" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">주식</span>
-      <span class="chip" data-action="filterNewsByTopic" data-arg="semi" data-news-topic="semi" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">반도체·AI</span>
-      <span class="chip" data-action="filterNewsByTopic" data-arg="geo" data-news-topic="geo" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">지정학</span>
-      <span class="chip" data-action="filterNewsByTopic" data-arg="energy" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">에너지</span>
-      <span class="chip" data-action="filterNewsByTopic" data-arg="bond" data-news-topic="bond" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">채권·금리</span>
-      <span class="chip" data-action="filterNewsByTopic" data-arg="fx" data-news-topic="fx" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">외환</span>
-      <span class="chip" data-action="filterNewsByTopic" data-arg="crypto" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">크립토</span>
+    <!-- 필터 패널 (v51.28 국가+토픽 통합) -->
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-bottom:12px;">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">
+        <span style="font-size:10px;font-weight:700;color:var(--text-muted);padding-top:3px;min-width:30px;flex-shrink:0;">국가</span>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;" id="news-country-chips">
+          <span class="chip" data-action="filterNewsByCountry" data-arg="all" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--accent-border);border-radius:3px;background:var(--accent-dim);color:var(--accent);">전체</span>
+          <span class="chip" data-action="filterNewsByCountry" data-arg="us" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">🇺🇸 미국</span>
+          <span class="chip" data-action="filterNewsByCountry" data-arg="kr" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">🇰🇷 한국</span>
+          <span class="chip" data-action="filterNewsByCountry" data-arg="asia" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">아시아</span>
+          <span class="chip" data-action="filterNewsByCountry" data-arg="eu" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">🇪🇺 유럽</span>
+          <span class="chip" data-action="filterNewsByTelegramOnly" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid rgba(0,212,255,0.3);border-radius:3px;color:var(--data-cyan);background:rgba(0,212,255,0.08);">텔레그램</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:10px;font-weight:700;color:var(--text-muted);padding-top:3px;min-width:30px;flex-shrink:0;">토픽</span>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;" id="news-topic-chips">
+          <span class="chip" data-action="filterNewsByTopic" data-arg="all" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--accent-border);border-radius:3px;background:var(--accent-dim);color:var(--accent);">전체</span>
+          <span class="chip" data-action="filterNewsByTopic" data-arg="macro" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">매크로</span>
+          <span class="chip" data-action="filterNewsByTopic" data-arg="equity" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">주식</span>
+          <span class="chip" data-action="filterNewsByTopic" data-arg="semi" data-news-topic="semi" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">반도체·AI</span>
+          <span class="chip" data-action="filterNewsByTopic" data-arg="geo" data-news-topic="geo" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">지정학</span>
+          <span class="chip" data-action="filterNewsByTopic" data-arg="energy" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">에너지</span>
+          <span class="chip" data-action="filterNewsByTopic" data-arg="bond" data-news-topic="bond" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">채권·금리</span>
+          <span class="chip" data-action="filterNewsByTopic" data-arg="fx" data-news-topic="fx" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">외환</span>
+          <span class="chip" data-action="filterNewsByTopic" data-arg="crypto" data-pass-el="1" style="cursor:pointer;padding:3px 10px;font-size:11px;border:1px solid var(--surface-5);border-radius:3px;color:var(--text-secondary);">크립토</span>
+        </div>
+      </div>
     </div>
 
     <!-- v34.9: 뉴스 유형 탭 (전체/시장/기업) -->
@@ -9589,12 +9708,9 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <span id="screener-regime-note" style="display:block;margin-top:4px;color:var(--accent);font-weight:600;"></span>
       <span id="screener-factor-coverage" style="display:block;margin-top:3px;color:var(--text-muted);"></span>
     </div>
-    <details class="aio-page-advanced-toggle" style="margin-bottom:10px;">
-      <summary>팩터 이해하기 — 저변동 역방향 등 주의사항</summary>
-      <div class="aio-page-advanced-body" style="font-size:10px;color:var(--text-muted);line-height:1.6;">
-        <span style="color:var(--data-amber);">⚠ <b>저변동 팩터는 역방향</b>: 변동성이 낮을수록 순위 상승 (랭크↑ = 안정). 고변동 종목은 저변동 점수가 낮아도 모멘텀·추세에서 보상될 수 있습니다.</span>
-      </div>
-    </details>
+    <div style="font-size:10px;line-height:1.6;margin-bottom:10px;padding:6px 10px;background:rgba(255,163,26,0.06);border:1px solid rgba(255,163,26,0.2);border-radius:3px;">
+      <span style="color:var(--data-amber);">⚠ <b>저변동 팩터는 역방향</b>: 변동성이 낮을수록 순위 상승 (랭크↑ = 안정). 고변동 종목은 저변동 점수가 낮아도 모멘텀·추세에서 보상될 수 있습니다.</span>
+    </div>
     <!-- v50.84: 팩터 검증 + IC 차트 통합 섹션 -->
     <div class="aio-vis-card" style="margin-bottom:12px;">
       <div class="aio-vis-card-title">팩터 검증 · 백테스트 IC</div>
@@ -10884,6 +11000,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     <!-- ═══ 섹션 1: 대시보드별 사용법 ═══ -->
     <div class="aio-widget">
       <div class="widget-title"> 대시보드별 사용법</div>
+      <div class="aio-guide-group-header">시장 현황 판단</div>
 
       <!-- HOME (종합) -->
       <div style="background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
@@ -10925,6 +11042,8 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
         </div>
       </div>
 
+      <div class="aio-guide-group-header">분석 도구</div>
+
       <!-- BRIEFING -->
       <div style="background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
         <div style="font-size:12px;font-weight:800;color:var(--data-purple);margin-bottom:6px;">브리핑 (BRIEFING)</div>
@@ -10964,6 +11083,8 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
           <b>유의사항:</b> DXY↑=신흥국↓ 미국대형주↔. 원/달러 환율 함께 확인.
         </div>
       </div>
+
+      <div class="aio-guide-group-header">종목 발굴 · 관리</div>
 
       <!-- PORTFOLIO -->
       <div style="background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
@@ -11014,6 +11135,8 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
           <b>유의사항:</b> 뉴스 즉시 매매 위험 -- 큰 흐름 파악용으로 활용.
         </div>
       </div>
+
+      <div class="aio-guide-group-header">한국 시장 · 개별 종목</div>
 
       <!-- KR pages -->
       <div style="background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">

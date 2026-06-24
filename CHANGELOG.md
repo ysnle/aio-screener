@@ -1,4 +1,16 @@
-﻿## v51.26 - UX 전수감사 구조 개선: 기술용어 정화 + 3개 섹션 접기 (2026-06-24)
+﻿## v51.28 - 구조 개편: Guide 그룹 분류 + Market News 필터 통합 + SCREENER 경고 노출 (2026-06-24)
+
+Guide "대시보드별 사용법" 14개 카드 페이지를 4개 그룹으로 분류 — `.aio-guide-group-header` CSS 클래스 신설, **시장 현황 판단**(HOME·SIGNAL·BREADTH·SENTIMENT) / **분석 도구**(BRIEFING·TECHNICAL·MACRO·FX&BOND) / **종목 발굴·관리**(PORTFOLIO·SCREENER·OPTIONS·THEMES·MARKET NEWS) / **한국 시장·개별 종목**(KR·TICKER). Market News 필터 국가(6칩)+토픽(9칩) 2행을 **단일 패널**로 통합 — `<div>` 컨테이너에 "국가"/"토픽" 레이블 추가, `id="news-country-chips"`/`id="news-topic-chips"` 구조 유지(JS 영향 없음), 🇰🇷 한국 플래그 이모지 보정. SCREENER "저변동 팩터 역방향" 경고를 `<details>` 접힘→**항상 노출** amber 인라인 패널로 전환(안전 정보 숨김 해소). R1 7곳 v51.28.
+
+---
+
+## v51.27 - 반응형 구조 개편: CSS 브레이크포인트 시스템 + Signal 그리드 재설계 (2026-06-24)
+
+진짜 구조 개편. **CSS 반응형 시스템 신설** — 640px 중간 브레이크포인트(Sentiment `300px 1fr`→세로스택, 6열→3열, 5열→3열, R:R계산기 4-input→2열, 페이지 패딩 축소), 768px 테이블 가로스크롤(Portfolio/Fundamental), 인터뷰 카드 내부 2열/3열→1열. **Signal 스냅샷 그리드 구조 교체** — `repeat(6,1fr)` 고정→`repeat(auto-fill,minmax(min(100%,130px),1fr))` 자동 적응형(뷰포트에 따라 2~6열 자연 변환, CSS 오버라이드 불요). **스켈레톤 로더 CSS** — `aio-shimmer` 애니메이션 + `.aio-skel` 클래스 기반(수신 대기 대체 기반 신설). **데이터 신선도 배지 보완** — `.fb-snap`(황색 스냅샷), `.fb-stale`(적색 오래됨) CSS 추가(fb-live는 기존 유지). **필터 활성 상태 통일** — `.filter-btn.active`, `.news-filter-btn.active`, `.kr-filter-btn.active` 등 전 페이지 공통 CSS(시안 강조). **페이지 오버플로 방지** — `.page/.aio-widget/.data-widget` `max-width:100%;box-sizing:border-box`. R1 7곳 v51.27.
+
+---
+
+## v51.26 - UX 전수감사 구조 개선: 기술용어 정화 + 3개 섹션 접기 (2026-06-24)
 
 5개 에이전트 22페이지 전수감사 결과 반영. `_liveData` 내부 변수명 UI 노출 3곳(FxBond Cross-Asset, Themes 시장 리더십 헤더, JS FxBond 신호 빈 상태 텍스트)을 사용자 친화 문구("실시간 자동 업데이트", "시세 로딩 대기")로 교체. 브리핑 "주요 인사 인터뷰 인사이트"(80+줄 인터뷰 카드 3개) `<details>` 기본 접힘. 포트폴리오 "위험/보상 계산기(R:R Calculator)" `<details>` 기본 접힘. 가이드 "투자 필수 배경지식"(주식·금리·외환·채권·기술·매크로 6섹션) `<details>` 기본 접힘. R1 7곳 v51.26 동기화.
 
