@@ -1,4 +1,10 @@
-﻿## v51.22 - UI 구조 수정 4건: KR stale-days·bh-* 정리·클라이언트 KR 슬롯·newsMemo 컬럼 (2026-06-24)
+﻿## v51.23 - UX 8건: 사이드바 구분자·톱바 정리·홈 접기·시그널 고급·브리핑 파이프라인·스크리너 경고·KR 배지·AI 패널 (2026-06-24)
+
+사이드바 `nav-section + nav-section` 구분선(I4). `data-status-panel` 톱바에서 숨김(I2). 홈 `aio-flow-steps`·`home-gxl-frame` 기본 접힘 `<details>` 래핑(I1). 시그널 `signal-lockout-control` "고급 매매 조건" `<details>` 래핑(I6). 브리핑 `vis-briefing` 파이프라인·경기사이클 `<details>` 래핑(I8). 스크리너 저변동 역방향 경고 인라인→`<details>` 분리(I3). KR 수급 3카드(신용잔고·예탁금·상승하락) "전일 종가" 배지(I5). AI 패널 `app.style.width` 명시 push·CSS transition `width` 추가(I7).
+
+---
+
+## v51.22 - UI 구조 수정 4건: KR stale-days·bh-* 정리·클라이언트 KR 슬롯·newsMemo 컬럼 (2026-06-24)
 
 **F1** `_aioRenderSnapshotDates`(`aio-core.js`) 끝부분에 KR stale-days 루프 추가 — `dateByKey['kr-*']` 기준일로 `_aioStaleDaysLabel({warnDays:5, staleDays:14})` 호출해 `#kr-credit-stale-days` 등 5개 span 텍스트·색상 갱신(기존 "경과..." 영구 표시 해소). **W1** `_aioBreadthCanvasRender` bh-* 4캔버스 죽은 코드 전면 제거 — `ids`/`seriesMap`/`colorMap`/`scaleMap`에서 `bh-price-chart`·`bh-5ma-chart`·`bh-20ma-chart`·`bh-50ma-chart` 삭제, 미사용 `qqqLive`·`b200` 변수 제거, 주석 "9-canvas"→"5-canvas" 정정(v50.51 DOM 제거 후 방치된 코드). **W2** 클라이언트 RSS 파이프라인 KR 슬롯 주입 — CORS 보호 이후 `filteredItems`에 `window._serverNewsBackstop` kr/country=kr 항목 최대 3건을 `unshift` 보완(기존엔 서버 백스톱 경로에만 KR 슬롯이 있어 클라이언트 RSS 성공 시 Korea 뉴스 완전 탈락). **W3** 스크리너 테이블에 "최신뉴스" 컬럼 신설 — `index.html` 헤더 `<th>` 추가, `aio-data.js` 행 TD에 `r.newsMemo.slice(0,80)` + hover title 전문 표시, colspan 14→15 동기화(v50.54부터 채팅에만 존재하던 newsMemo를 테이블에서 직접 확인 가능).
 
