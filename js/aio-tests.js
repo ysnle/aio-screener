@@ -2835,6 +2835,26 @@
     var found = canvasIds.filter(function(id){ return !!document.getElementById(id); });
     _assert('T857 seven_canvas_dom_v4972: 7 canvas DOM 모두 존재',
       found.length === 7, 'found=' + found.length + '/7');
+    // T858: v51.30 Maker-Checker — _aioMakerCheckerVerify 함수 정의 + 퀀트 검증 구조
+    var t858ok = false, t858detail = '';
+    try {
+      var fn858 = typeof window._aioMakerCheckerVerify === 'function';
+      var r858null = fn858 ? window._aioMakerCheckerVerify([]) : 'skip';   // 빈 배열 → null
+      var r858str  = fn858 ? window._aioMakerCheckerVerify(['__NO_SUCH_SYM__']) : 'skip'; // 없는 티커 → null
+      var r858query = (typeof window._aioRunScreenerQuery === 'function') ? window._aioRunScreenerQuery('종목 추천') : null;
+      var r858cands = (r858query && Array.isArray(r858query.rows)) ? r858query.rows.slice(0, 5).map(function(r){ return r && r.sym; }).filter(Boolean) : [];
+      var r858broad = fn858 && r858cands.length ? window._aioMakerCheckerVerify(r858cands) : null;
+      var structOk858 = !r858null && !r858str;   // 데이터 없을 때 null 반환
+      var verdictOk858 = r858broad && r858broad.length > 0 && r858broad.every(function(row) {
+        return row && typeof row.verdict === 'string' && ['CONFIRMED','CAUTION','REJECTED'].indexOf(row.verdict) >= 0 &&
+          typeof row.rank === 'number' && Array.isArray(row.reasons);
+      });
+      var chatSrc858 = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
+      var chatWired858 = chatSrc858.indexOf('_aioMakerCheckerVerify') >= 0 && chatSrc858.indexOf('screenerResult.rows') >= 0 && chatSrc858.indexOf('aio-maker-checker') >= 0;
+      t858ok = fn858 && structOk858 && verdictOk858 && chatWired858 && r858cands.length > 0;
+      t858detail = 'fn=' + fn858 + ' nullGate=' + structOk858 + ' broadCandidates=' + r858cands.length + ' verdictOk=' + verdictOk858 + ' chatWired=' + chatWired858;
+    } catch(e) { t858detail = 'ERR:' + e.message; }
+    _assert('T858 v5130_maker_checker_verify: _aioMakerCheckerVerify 함수 + null 게이트 + verdict 구조 + chatSend 연결', t858ok, t858detail);
     // T566: fundamentalSearch가 fetchQuarterlyFinancials + _renderFundamentalFinancialsCharts 호출
     var fundSrc = typeof window.fundamentalSearch === 'function' ? window.fundamentalSearch.toString() : '';
     _assert('T566 fundamental_search_integrated_v4972: fundamentalSearch fetch + render 통합',

@@ -205,12 +205,13 @@ function _googleNewsSearchUrl(query, hl = 'en-US', gl = 'US', ceid = 'US:en') {
 }
 
 const NEWS_FEEDS = [
-  { query: 'stock market OR S&P 500 OR Nasdaq OR Federal Reserve OR Treasury yield OR inflation when:2d', source: 'Google News - US markets', topic: 'macro', country: 'us', tier: 1 },
-  { query: 'Nvidia OR semiconductor OR AI stocks OR data center OR earnings guidance when:2d', source: 'Google News - AI/Semis', topic: 'semi', country: 'us', tier: 1 },
+  { query: 'Reuters Bloomberg CNBC market moving stocks S&P 500 Nasdaq Federal Reserve Treasury yields oil when:1d', source: 'Google News - Market movers', topic: 'macro', country: 'us', tier: 1 },
+  { query: 'stock market OR S&P 500 OR Nasdaq OR Federal Reserve OR Treasury yield OR inflation when:2d', source: 'Google News - US markets', topic: 'macro', country: 'us', tier: 2 },
+  { query: 'Nvidia OR Micron OR semiconductor OR AI stocks OR data center OR earnings guidance when:2d', source: 'Google News - AI/Semis', topic: 'semi', country: 'us', tier: 2 },
   { query: 'Iran OR Hormuz OR Red Sea OR oil prices OR geopolitics OR sanctions when:2d', source: 'Google News - Geopolitics/Energy', topic: 'geo', country: 'global', tier: 1 },
   { query: 'dollar OR yen OR Treasury yields OR bond market OR credit spreads OR gold when:2d', source: 'Google News - FX/Bonds', topic: 'fxbond', country: 'global', tier: 1 },
   { query: 'upgrade OR downgrade OR price target OR analyst rating OR earnings guidance stock when:2d', source: 'Google News - Analyst/Earnings', topic: 'analyst', country: 'us', tier: 2 },
-  { query: 'KOSPI OR Samsung Electronics OR SK Hynix OR Korean exports OR won dollar when:2d', source: 'Google News - Korea markets', topic: 'korea', country: 'kr', tier: 2 },
+  { query: 'KOSPI Samsung Electronics SK Hynix AI semiconductor selloff rebound Micron foreign investors when:2d', source: 'Google News - Korea markets', topic: 'korea', country: 'kr', tier: 2 },
 ].map(feed => ({ ...feed, url: _googleNewsSearchUrl(feed.query, feed.country === 'kr' ? 'ko' : 'en-US', feed.country === 'kr' ? 'KR' : 'US', feed.country === 'kr' ? 'KR:ko' : 'US:en') }));
 
 const SERVER_NEWS_PRIORITY_RULES = [
@@ -225,6 +226,18 @@ const SERVER_NEWS_PRIORITY_RULES = [
 
 const SERVER_NEWS_CLICKBAIT_RE = /\b(next nvidia|next tesla|must buy|guaranteed return|millionaire|hidden gem|penny stock|to the moon|won't believe|don't miss|best stocks? to buy now)\b/i;
 const SERVER_NEWS_UNVERIFIED_RE = /\b(people familiar|sources say|according to sources|unconfirmed|rumor|reportedly|may be considering|is said to)\b/i;
+const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ|CNBC)\b/i;
+const SERVER_NEWS_TIER2_SOURCE_RE = /\b(MarketWatch|Barron's|Nikkei|Yonhap|Naver|Korea JoongAng|The Korea Herald|The Hill|Yahoo Finance)\b/i;
+const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad-hoc-news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks)\b/i;
+
+function getServerNewsSourceTier(source, feedTier) {
+  const src = String(source || '');
+  if (SERVER_NEWS_TIER1_SOURCE_RE.test(src)) return 1;
+  if (SERVER_NEWS_TIER2_SOURCE_RE.test(src)) return 2;
+  if (SERVER_NEWS_LOW_QUALITY_SOURCE_RE.test(src)) return 4;
+  if (!src && feedTier) return Math.max(2, feedTier);
+  return 3;
+}
 
 function scoreServerNewsItem(item) {
   const text = `${item.title || ''} ${item.source || ''} ${item.topic || ''}`;
@@ -232,9 +245,11 @@ function scoreServerNewsItem(item) {
 
   let score = 20;
   const reasons = ['base+20'];
-  const tierBonus = item.tier === 1 ? 14 : item.tier === 2 ? 8 : 3;
+  const sourceTier = getServerNewsSourceTier(item.source, item.feedTier || item.tier);
+  item.tier = sourceTier;
+  const tierBonus = sourceTier === 1 ? 16 : sourceTier === 2 ? 9 : sourceTier === 3 ? 2 : -8;
   score += tierBonus;
-  reasons.push(`tier${item.tier || 3}+${tierBonus}`);
+  reasons.push(`source-tier${sourceTier}${tierBonus >= 0 ? '+' : ''}${tierBonus}`);
 
   const ageH = item.ts ? (Date.now() - item.ts) / 3600000 : 48;
   const recency = ageH <= 1 ? 18 : ageH <= 6 ? 12 : ageH <= 24 ? 6 : ageH <= 48 ? 2 : -8;
@@ -255,6 +270,10 @@ function scoreServerNewsItem(item) {
   if (/\b(opinion|sponsored|partner content|advertisement)\b/i.test(text)) {
     score -= 18;
     reasons.push('promo-opinion-18');
+  }
+  if (sourceTier >= 4) {
+    score -= 8;
+    reasons.push('low-quality-source-8');
   }
 
   score = Math.max(0, Math.min(100, Math.round(score)));
@@ -300,7 +319,10 @@ async function fetchNews() {
           title: p.title, link: p.link, source: p.source || feed.source,
           pubDate: p.pubDate, ts: isFinite(t) ? t : 0,
           topic: isKr ? 'kr' : feed.topic,  // 'korea' → 'kr' 정규화
-          country: feed.country, tier: feed.tier, feedSource: feed.source,
+          country: feed.country,
+          tier: getServerNewsSourceTier(p.source || feed.source, feed.tier),
+          feedTier: feed.tier,
+          feedSource: feed.source,
         };
         Object.assign(item, scoreServerNewsItem(item));
         if (isKr) { krItems.push(item); } else { items.push(item); }
@@ -309,7 +331,7 @@ async function fetchNews() {
   }
   // US/글로벌: 점수순 정렬, 한국: 최신순 정렬
   items.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.ts || 0) - (a.ts || 0));
-  krItems.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  krItems.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.ts || 0) - (a.ts || 0));
   const seen = new Set();
   const out = [];
   function pushItem(it) {

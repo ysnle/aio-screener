@@ -1844,7 +1844,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
 }
 
 // ── 스크리너 함수 — aio-data.js로 이동됨 (v51.17). window.* 전역 alias ──
-var _SECTOR_KEYWORDS = window.AIO_SECTOR_KEYWORDS;
+// P512: var _SECTOR_KEYWORDS 제거 — aio-data.js const와 충돌해 line 1847 이후 chatSend 등 미실행 (v51.30 수정)
 var _detectSectorQuery = window._detectSectorQuery;
 var _aioIsBroadRecommendationQuery = window._aioIsBroadRecommendationQuery;
 var _aioInferTickerMarket = window._aioInferTickerMarket;
@@ -5982,6 +5982,44 @@ async function chatSend(ctxId) {
             }
           }
         } catch(_vis3Err) {}
+
+        // v51.30 Maker-Checker: AI 추천 종목 → 퀀트 팩터 독립 검증 패널
+        try {
+          var _isRecoQuery = /추천|시그널|매수|buy|best|top|우량|퀀트|랭킹|screener/i.test(q) || !!screenerResult;
+          if (_isRecoQuery && typeof window._aioMakerCheckerVerify === 'function') {
+            var _mcTickers = [];
+            var _addMcTicker = function(t) {
+              t = String(t || '').toUpperCase();
+              if (t && _mcTickers.indexOf(t) < 0 && _mcTickers.length < 5) _mcTickers.push(t);
+            };
+            var _answerTickers = (typeof _extractTickers === 'function') ? _extractTickers(fullText || '') : [];
+            (_answerTickers || []).forEach(_addMcTicker);
+            (detectedTickers || []).forEach(_addMcTicker);
+            if (screenerResult && Array.isArray(screenerResult.rows)) {
+              screenerResult.rows.slice(0, 5).forEach(function(r) { _addMcTicker(r && r.sym); });
+            }
+            var _mcr = _mcTickers.length ? window._aioMakerCheckerVerify(_mcTickers) : null;
+            if (_mcr && _mcr.length > 0 && aiBubble && aiBubble.parentNode) {
+              var _mcDiv = document.createElement('div');
+              _mcDiv.className = 'aio-maker-checker';
+              _mcDiv.style.cssText = 'margin:6px 0 4px;padding:6px 10px;background:rgba(0,0,0,0.2);border:1px solid var(--border);border-left:3px solid var(--text-muted);border-radius:var(--radius);';
+              var _mcHTML = '<div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Maker-Checker · 퀀트 검증</div>';
+              _mcHTML += '<div style="display:flex;flex-wrap:wrap;gap:5px;">';
+              _mcr.forEach(function(r) {
+                var col = r.verdict === 'CONFIRMED' ? '#22c55e' : r.verdict === 'CAUTION' ? '#f59e0b' : '#ef4444';
+                var icon = r.verdict === 'CONFIRMED' ? '✓' : r.verdict === 'CAUTION' ? '⚠' : '✗';
+                _mcHTML += '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:' + col + '18;border:1px solid ' + col + '44;border-radius:12px;font-size:11px;">' +
+                  '<span style="color:' + col + ';font-weight:700;">' + icon + '</span>' +
+                  '<b style="color:var(--text-primary);">' + escHtml(r.sym) + '</b>' +
+                  '<span style="color:var(--text-muted);">' + escHtml(r.reasons.join(' · ')) + '</span>' +
+                  '</span>';
+              });
+              _mcHTML += '</div>';
+              _mcDiv.innerHTML = _mcHTML;
+              aiBubble.parentNode.appendChild(_mcDiv);
+            }
+          }
+        } catch(_mcErr) {}
       }
 
       // v36.2: 웹검색 출처 링크 추가

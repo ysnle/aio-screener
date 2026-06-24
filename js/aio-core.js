@@ -2915,9 +2915,9 @@ if (typeof document !== 'undefined') {
           '<span style="color:' + senColor + ';">●</span> ' + esc(String(t).slice(0, 84)) +
           ' <span style="color:var(--text-muted);font-size:10px;">(' + esc(n.source || '') + (ageH != null ? ' · ' + ageH + 'h' : '') + ')</span></div>';
       }).join('');
-      host.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-          '<span style="font-size:10px;font-weight:700;color:var(--accent);">📰 관련 뉴스 ' + rows.length + '건 <span style="font-weight:400;color:var(--text-muted);">· 토픽 ' + esc(topics) + ' · 공유 뉴스캐시</span></span>' +
-          '<button data-action="showPage" data-arg="market-news" class="aio-btn-table" style="font-size:9px;padding:1px 6px;">전체 뉴스 →</button></div>' + lines;
+      host.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">' +
+          '<span style="min-width:0;font-size:10px;font-weight:700;color:var(--accent);overflow-wrap:anywhere;">📰 관련 뉴스 ' + rows.length + '건 <span style="font-weight:400;color:var(--text-muted);">· 토픽 ' + esc(topics) + ' · 공유 뉴스캐시</span></span>' +
+          '<button data-action="showPage" data-arg="market-news" class="aio-btn-table" style="font-size:9px;padding:1px 6px;flex-shrink:0;">전체 뉴스 →</button></div>' + lines;
     } catch(_){}
   };
   window._aioRenderActivePageNewsStrip = function(){
@@ -17052,7 +17052,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.29';
+const APP_VERSION = 'v51.30';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -22870,5 +22870,4 @@ function _fmtNum(v) {
 function _fmtPct(v) { return v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : 'N/A'; }
 window._fmtNum = _fmtNum;
 window._fmtPct = _fmtPct;
-
 

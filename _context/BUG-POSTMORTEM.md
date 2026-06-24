@@ -1,12 +1,68 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-06-22
+last_verified: 2026-06-24
 confidence: high
-latest_version: v51.11
-latest_P_number: P524
-total_entries: 523
-next_P_number: P525
+latest_version: v51.30
+latest_P_number: P531
+total_entries: 530
+next_P_number: P532
 ---
+
+## P531 - v51.30 - News self-injection was live but ranked weak/stale items as core news
+
+- **symptom**: Home core news and market briefing could show 1-2 day-old items and miss the real current market story. Local `public-data/data.json` at 2026-06-24 KST had 40 scored news items, but top-ranked headlines included weak/re-syndicated sources such as Ad-hoc-news, The Vibes, Pluang, and IndexBox while the actual current market theme was AI/semi selloff/rebound and Korea chip-stock pressure/recovery.
+- **root_cause**: `scripts/fetch-data.mjs` assigned `item.tier` from the Google News feed definition, then `scoreServerNewsItem()` treated that as article source tier. A high-priority Google search could therefore make a low-quality source receive a tier-1 bonus. Home news also allowed a 72h surface window, so stale but scored items could remain visible.
+- **fix**: Added actual source-tier detection with explicit low-quality source penalties, preserved feed tier separately as `feedTier`, added current Korea AI/semi market-mover query coverage, sorted KR reserved slots by score before recency, and tightened the home surface contract to 30h with fallback using the same contract value.
+- **violated_rule**: R3, R219, R222, R226.
+- **prevention**: Data/news refresh quality gates must test source tiering, low-quality penalties, current market-mover query coverage, and visible home freshness windows, not only artifact existence or news count.
+
+## P530 - v51.30 - Refresh workflow summary syntax break stopped public-data commits
+
+- **symptom**: Data freshness watchdog can fail repeatedly even though the collect -> artifact -> consume contract exists. Local artifact check at 2026-06-24 21:43 KST showed `public-data/data.json` generated at 2026-06-24 14:50 KST, age 416 minutes, exceeding the 180 minute watchdog threshold.
+- **root_cause**: `.github/workflows/refresh-data.yml` Pipeline status summary embedded Node heredoc had mojibake-corrupted strings and an unterminated quote. Fetch steps could succeed, but the summary step could throw a syntax error before the commit/push step, leaving public-data artifacts stale and causing watchdog failures.
+- **fix**: Rewrote the summary step with ASCII-safe labels and valid JavaScript. Strengthened `scripts/ci-data-pipeline-contract-check.mjs` to extract and syntax-parse Node heredoc blocks from `refresh-data.yml` and `data-watchdog.yml`.
+- **violated_rule**: R3, R222, R229.
+- **prevention**: Workflow-embedded scripts are executable code and must be parsed by CI, not only checked with regex wiring. Any scheduled refresh failure should be triaged as fetch, summary, commit, or watchdog separately.
+
+## P529 - v51.30 - Practical UX review found empty grid tracks and collapsed-noise blocks
+
+- **symptom**: User screenshots showed `home` market cards and `signal` snapshot cards occupying only the left side while the right side remained empty; collapsed "flow"/advanced blocks still consumed vertical attention; `breadth` had a visible Minervini framework card that duplicated existing breadth judgment; `sentiment` had duplicate gauges and a long left rail from F&G subcomponents/crypto temperature, leaving large unused right-side space.
+- **root_cause**: Finite card groups used CSS `auto-fill`, which preserves empty tracks and creates visible blank space when there are fewer cards than possible columns. Previous declutter work wrapped secondary explanations in collapsed `<details>` instead of removing them from the default path. Sentiment mixed primary market psychology and crypto/diagnostic subcomponents inside a narrow 300px rail, creating a tall left column and unbalanced page rhythm.
+- **fix**: Changed finite HOME/SIGNAL card grids to `auto-fit`; removed visible HOME score-flow/GxL, SIGNAL advanced lockout/flow, BREADTH flow/Minervini framework, and SENTIMENT duplicate gauge/flow/F&G subcomponent/crypto widgets from the default path. Extended the same pattern cleanup to technical/macro/fxbond/fundamental/screener/kr-home/kr-macro explanation toggles and all remaining user-facing finite `auto-fill` card grids. Preserved the important decision logic in the guide page as a compact methodology reference, so default routes are decluttered without losing core content. Signal lockout and rally-quality sinks remain hidden only to avoid breaking legacy runtime/test references. Sentiment top grid now uses `minmax(280px,360px) minmax(0,1fr)`.
+- **violated_rule**: R3, R214, R228.
+- **prevention**: Finite user-facing card groups must use `auto-fit` or explicit columns, and collapsed explanation-only panels must be removed from the default route unless they are directly actionable in-session. Important methodology content must be consolidated into the guide instead of deleted. `scripts/ci-ux-default-path-check.mjs` now fails CI if `auto-fill`, visible analysis-flow summaries, removed duplicate widgets, or the guide methodology reference regress.
+
+## P528 - v51.30 - Full route UI audit found mobile width leaks in news strip and portfolio chart
+
+- **symptom**: Full browser route audit found `page-fundamental` widening on 390px mobile because the shared page-news topic list used a long unbreakable slash-delimited string and `#fund-cards-grid` retained a too-wide two-column layout. `page-portfolio` widened because the benchmark canvas retained a large pixel width after chart rendering. `page-sentiment` leaked width from chart containers/news sentiment canvas, and `page-kr-technical` leaked from health/VKOSPI grids and canvases.
+- **root_cause**: The shared page-news strip header used a single inline flex row without `min-width:0` or forced wrapping. The fundamental card grid relied on fixed/re-overridden columns instead of an intrinsic responsive track. Chart renderers can leave inline canvas/container pixel widths that survive responsive layout unless CSS explicitly constrains them, while KR technical kept inline fixed 2-column/3-column grids on mobile.
+- **fix**: Page-news strip header now wraps and uses `overflow-wrap:anywhere`; the market-news button is non-shrinking. `#fund-cards-grid` now uses `auto-fit/minmax` and `min-width:0` children. Portfolio benchmark canvas, sentiment LWC/news sentiment canvases, and KR technical canvases are constrained to `max-width:100%`; KR technical inline grids collapse to one column on mobile.
+- **violated_rule**: R3, R214.
+- **prevention**: Full-route UI audits must include shared dynamic components, not just static page sections, and must check `page.scrollWidth > page.clientWidth` on 390px mobile.
+
+## P527 - v51.30 - Browser UI review found placeholder note, macro overflow, and mobile summary clipping
+
+- **symptom**: Actual browser review showed the home operator note rendering template copy, the macro page widening past the viewport on desktop, and the guide advanced summary clipping vertically on a 390px mobile viewport.
+- **root_cause**: `public-data/operator-note.json` shipped with `visible:true` before real content existed. The macro economic-cycle timeline used fixed non-wrapping flex widths and the FRED grid used a fixed three-column layout. `.aio-page-advanced-toggle > summary` kept the unfold label in a float with tight default line-height, leaving long mobile titles without enough vertical room.
+- **fix**: Operator note rendering now suppresses placeholder/template copy even when `visible:true`. The macro timeline wraps with flexible phase cards, the FRED grid uses responsive `auto-fit/minmax`, and advanced toggle summaries now reserve right-side space for the status label with normal wrapping and explicit line-height.
+- **violated_rule**: R3, R214.
+- **prevention**: UI/UX reviews must include actual browser viewport audits for desktop and mobile, with `scrollWidth/clientWidth` checks plus placeholder-content scans.
+
+## P526 - v51.30 - Maker-Checker panel skipped broad recommendation path + R1 gate failed
+
+- **symptom**: v51.30 claimed Maker-Checker verification and R1 sync, but `scripts/ci-version-check.mjs` failed and broad prompts such as "종목 추천해줘" did not render the Maker-Checker panel.
+- **root_cause**: `chatSend` only rendered Maker-Checker when `detectedTickers.length > 0`, while broad recommendation intentionally builds `screenerResult` only when no ticker is detected. Separately, index JS cachebusters stayed at `51.16`, root `CLAUDE.md` stayed at `v51.07`, and the CI changelog regex did not strip a leading BOM.
+- **fix**: Maker-Checker now derives targets from answer tickers, detected tickers, and `screenerResult.rows`; `_aioMakerCheckerVerify` computes ranks if missing. Synced cachebusters/root doc, made version CI BOM-tolerant, and hardened T858 to verify broad screener candidates.
+- **violated_rule**: R1, R3, R219.
+- **prevention**: Recommendation verification tests must exercise the no-ticker screener path, not only `chatSend.toString()` wiring. Version CI must run after every feature/review patch and tolerate repository BOMs.
+
+## P525 - v51.30 - aio-chat.js chatSend 미실행 — var _SECTOR_KEYWORDS가 const와 충돌
+
+- **symptom**: `chatSend`(line 5070)가 undefined — chat 전송 불가. line 1563 `chatAppendMsg`는 정의되나 line 1847 이후 전체 미실행.
+- **root_cause**: v51.17에서 `_SECTOR_KEYWORDS` 객체를 aio-chat.js→aio-data.js로 이동 시 `var _SECTOR_KEYWORDS = window.AIO_SECTOR_KEYWORDS;` alias를 삭제하지 않음. 브라우저가 line 1847 실행 시 aio-data.js의 `const _SECTOR_KEYWORDS`와 충돌(SyntaxError) → 이후 모든 함수 미정의.
+- **fix**: aio-chat.js line 1847 `var _SECTOR_KEYWORDS` 제거. `const _SECTOR_KEYWORDS`는 aio-data.js top-level에서 전역 접근 가능.
+- **violated_rule**: R3 (bug postmortem required).
+- **prevention**: `const`/`let` 선언 이동 시 기존 `var` alias 반드시 동시 제거. R1 동기화와 같은 체크리스트 항목으로 관리.
 
 ## P524 - v51.08 - fetchKrDynamicData undefined ??krDynamic scheduler silently no-op for entire session
 

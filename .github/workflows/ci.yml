@@ -51,6 +51,9 @@ jobs:
       - name: Structural regression checks
         run: node scripts/ci-structural-check.mjs
 
+      - name: Default-path UX checks
+        run: node scripts/ci-ux-default-path-check.mjs
+
       - name: Runtime contract checks
         run: node scripts/ci-runtime-contract-check.mjs
 

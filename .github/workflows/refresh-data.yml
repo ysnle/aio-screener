@@ -47,22 +47,25 @@ jobs:
           try {
             const d = JSON.parse(fs.readFileSync('public-data/data.json', 'utf8'));
             const m = d.meta || {};
-            const ts = m.generatedAt ? new Date(m.generatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) : '—';
+            const ts = m.generatedAt ? new Date(m.generatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) : 'n/a';
+            const totalSymbols = (m.symbolsOk || 0) + (m.symbolsFail || 0);
             const rows = [
-              `| 항목 | 상태 | 값 |`,
-              `|------|------|-----|`,
-              `| 시각 (KST) | ✅ | ${ts} |`,
-              `| 시세 심볼 | ${m.symbolsOk >= 70 ? '✅' : '⚠️'} | ${m.symbolsOk}/${(m.symbolsOk||0)+(m.symbolsFail||0)} (실패: ${(m.failedSymbols||[]).join(',') || '없음'}) |`,
-              `| Fear&Greed | ${m.fearGreedOk ? '✅' : '❌'} | ${d.fearGreed && d.fearGreed.score != null ? d.fearGreed.score : '—'} |`,
-              `| FRED Secret | ${m.fredHasKey ? '✅' : '❌ 미등록'} | fredFetchOk: ${m.fredFetchOk ? 'yes ('+m.macroKeyCount+'개)' : 'no'} |`,
-              `| 뉴스 | ${m.newsOk ? '✅' : '❌'} | ${m.newsCount}건 |`,
-              `| LLM 분석 | ${m.marketAnalysisOk ? '✅' : '—'} | ${m.marketAnalysisOk ? (d.marketAnalysis && d.marketAnalysis.model || '?') : 'ANTHROPIC_API_KEY 없음'} |`,
-              `| 소요시간 | ✅ | ${m.elapsedMs}ms |`,
+              '| Layer | Status | Value |',
+              '|------|------|-----|',
+              `| Generated (KST) | OK | ${ts} |`,
+              `| Quotes | ${m.symbolsOk >= 70 ? 'OK' : 'WARN'} | ${m.symbolsOk || 0}/${totalSymbols} failed: ${(m.failedSymbols || []).join(',') || 'none'} |`,
+              `| Fear&Greed | ${m.fearGreedOk ? 'OK' : 'WARN'} | ${d.fearGreed && d.fearGreed.score != null ? d.fearGreed.score : 'n/a'} |`,
+              `| FRED Secret | ${m.fredHasKey ? 'OK' : 'MISSING'} | fredFetchOk: ${m.fredFetchOk ? 'yes (' + (m.macroKeyCount || 0) + ' keys)' : 'no'} |`,
+              `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items |`,
+              `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : 'ANTHROPIC_API_KEY missing or generation failed'} |`,
+              `| Elapsed | OK | ${m.elapsedMs || 0}ms |`,
             ].join('\n');
-            const summary = `## 📊 데이터 갱신 요약\n\n${rows}\n`;
+            const summary = `## Data refresh summary\n\n${rows}\n`;
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY || '/dev/null', summary);
             console.log(summary);
-          } catch(e) { console.warn('summary 생성 실패(무시):', e.message); }
+          } catch(e) {
+            console.warn('summary generation failed (non-fatal):', e.message);
+          }
           NODE
 
       - name: Commit refreshed public data if changed

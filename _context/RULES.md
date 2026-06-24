@@ -1,8 +1,8 @@
 ---
 verified_by: agent
-last_verified: 2026-06-20
+last_verified: 2026-06-24
 confidence: high
-target_version: v50.98
+target_version: v51.30
 
 ---
 
@@ -12,6 +12,21 @@ target_version: v50.98
 - Required score axes: recency, source tier/trust, macro/rates, geopolitics/energy, AI/semis, earnings/analyst actions, FX/bonds/commodities, mega-cap relevance, and unverified/promo penalties.
 - `data.json.meta` must expose `serverNewsScored`, `newsSourceCount`, and score range fields. Client runtime must expose a selection audit covering score buckets, topics, sources, tiers, verification status, and surface eligibility.
 - `scripts/ci-data-pipeline-contract-check.mjs` must fail if server scoring, selection reasons, or `AIO.getNewsSelectionAudit()` are removed.
+
+## R228. Default-route UX must remove collapsed noise and avoid empty grid tracks (v51.30, P529)
+
+- Collapsed `<details>` is not a sufficient cleanup for explanation-only or advanced-framework content on a default route. If a block is not directly actionable in the current session, remove it from the visible path or keep only a hidden legacy sink when runtime/tests still reference an ID.
+- Removing content from a default route does not mean deleting the investment logic. Core formulas, decision flows, and framework explanations must be compressed into the guide/methodology reference or another deliberate secondary surface.
+- Finite user-facing card groups such as 3 decision cards or 6 snapshot cards must not use CSS `auto-fill`; use `auto-fit` or explicit responsive columns so empty tracks collapse instead of creating large right-side blank space.
+- A page should not put long secondary rails such as subcomponent lists, crypto widgets, or framework explanations beside a short primary chart if it creates a tall left column and blank right column. Promote the content to a balanced full-width section or remove it from the default path.
+- QA for UI/UX changes must inspect actual user screenshots or viewport captures for visual value density, not only `scrollWidth/clientWidth`.
+- `scripts/ci-ux-default-path-check.mjs` must stay wired into CI and must fail if default routes regain visible analysis-flow summaries, duplicate diagnostic widgets, `auto-fill` finite card grids, or lose the guide methodology reference.
+
+## R229. Scheduled workflow embedded scripts must be syntax-gated (v51.30, P530)
+
+- GitHub Actions YAML is not fully validated by checking file presence or regex wiring. Any `node - <<'NODE'` heredoc embedded in scheduled workflows must be extracted and syntax-parsed by CI.
+- Refresh automation failures must be classified by stage: data fetch, status summary, artifact commit/push, watchdog freshness threshold, and quality floor. Do not treat every watchdog failure as a source/API failure.
+- `scripts/ci-data-pipeline-contract-check.mjs` must fail if `refresh-data.yml` or `data-watchdog.yml` contains a syntactically invalid Node heredoc.
 
 ## R225. News surfaces must provide Korean market rewrite, not translation-only headlines (v50.97)
 
@@ -309,6 +324,7 @@ _context/                              ← 지식 베이스 (유일한 진실의
 5. `CHANGELOG.md` → 최상단 항목의 버전 번호
 6. **`const APP_VERSION`** — JS 상수 (`js/aio-core.js`). 이 값이 title과 badge를 JS에서 덮어씀. 놓치면 HTML은 v38.4인데 화면에 v38.3 표시
 7. **`SW_VERSION`** — Service Worker 캐시 네임스페이스 (`sw.js`). 놓치면 새 배포 후에도 구버전 shell/data cache가 남을 수 있음.
+8. **JS cachebusters** — `index.html`의 `./js/aio-*.js?v=` 값은 `version.json.version`의 숫자 부분과 반드시 일치해야 한다. CI는 5개 cachebuster를 모두 검사한다.
 
 > ⚠️ **v48.80 사고**: SW_VERSION이 v48.66에 머물러 stale cache 회전이 지연될 수 있었음. APP_VERSION과 SW_VERSION은 함께 동기화할 것.
 
@@ -321,6 +337,7 @@ grep 'SW_VERSION' sw.js | head -1
 cat version.json | grep version
 grep '현재 버전' _context/CLAUDE.md
 head -20 CHANGELOG.md | grep '## v'
+grep -o '\?v=[0-9.]*' index.html | sort -u
 ```
 
 ### R1-A. GitHub 배포 후 브라우저 버전 확인 (필수)
@@ -2646,6 +2663,12 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 
 **Validation**: `scripts/ci-semantic-review-check.mjs` inventories audit-only risk, verifies R219/P513 governance hooks, and asserts that high-risk trading/currentness gates remain semantic rather than shape-only.
 
+## R227. Recommendation verification must exercise the no-ticker screener path (v51.30, P526 root)
+
+**Rule**: AI recommendation verification panels/tests must cover broad recommendation prompts where `detectedTickers.length === 0` and candidates come from `screenerResult.rows`. Source-string checks are insufficient; the regression test must run `_aioRunScreenerQuery()` and feed real candidate symbols into the verifier.
+
+**Validation**: `AIO.runTests()` T858 must fail if Maker-Checker only handles user-supplied tickers and skips broad screener recommendations.
+
 ## R220. Workflow memory must be compacted before it is extended (v50.89, P514 root)
 
 **Rule**: `_context`, `CLAUDE.md`, QA checklists, postmortems, and `.agents/skills/*/SKILL.md` are operating surfaces, not infinite append-only logs. When a repeated problem appears, prefer one of these actions in order: remove stale guidance, merge duplicate rules, compress history into an indexable summary, split large skill details into `references/`, then add a new rule/check only if none of the above closes the loop.
@@ -2659,3 +2682,16 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - Any task that updates workflow docs or skills must run `node scripts/ci-workflow-compaction-check.mjs`.
 
 **Validation**: `scripts/ci-workflow-compaction-check.mjs` reports oversized context/skill surfaces and fails if R220/P514 governance hooks are missing.
+
+## R230. Dynamic news refresh must prove source quality and visible freshness (v51.30, P531 root)
+
+**Rule**: News automation is not complete when RSS items are merely fetched or `public-data/data.json.newsCount` is nonzero. The visible home/briefing news surfaces must prioritize current, market-moving, credible-source items and must expose stale/empty states instead of filling the page with weak or old headlines.
+
+**Required**:
+- Server news scoring must distinguish Google News feed priority from actual article source tier; a high-priority query must not upgrade weak/re-syndicated sources.
+- Low-quality/re-syndicated sources must receive an explicit penalty and must not dominate home core news.
+- Query coverage must include the active market-mover themes that drive the current session, including Korea/AI semiconductor pressure and rebound when relevant.
+- Home core news should use a tight decision window, currently 30h, unless the item is explicitly marked as a reference/static fallback.
+- CI must assert source-tier scoring, low-quality penalties, current market-mover query coverage, and the home freshness contract.
+
+**Validation**: `scripts/ci-data-pipeline-contract-check.mjs` checks source-tier scoring, low-quality source penalties, Korea AI/semi market-mover query coverage, and the 30h home news surface contract.

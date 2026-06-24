@@ -1,4 +1,19 @@
-﻿## v51.29 - 5페이지 구조 개편: 반응형 그리드 전환 + 섹션 그룹화 + 스토리라인 접기 (2026-06-24)
+﻿## v51.30 - Maker-Checker 퀀트 검증 패널 (2026-06-24)
+
+AI 채팅이 종목을 추천할 때 별도 퀀트 팩터 엔진이 독립적으로 검증하는 Maker-Checker 패턴 구현 (RohOnChain Loop Engineering 개념 적용).
+`_aioMakerCheckerVerify(tickers)` 추가 (`aio-data.js`): SCREENER_DB에서 각 종목의 `rank`·`quantSignal`을 조회해 CONFIRMED(랭크≥60) / CAUTION(40~60) / REJECTED(<40) 판정.
+`aio-chat.js` 응답 완료 후 훅: 추천 관련 질의 + 티커 감지 시 "Maker-Checker · 퀀트 검증" 패널 자동 주입 — 색상 배지(녹색✓/황색⚠/적색✗)로 AI 추천과 퀀트 팩터 일치 여부 시각화.
+T858 단위 테스트 추가 (함수 정의 + null 게이트 + verdict 구조 + chatSend 연결). R1 7곳 v51.30.
+Post-review 구조 보강: broad recommendation(`detectedTickers.length===0`)도 `screenerResult.rows` 후보로 Maker-Checker 패널을 렌더하도록 수정. R1 cachebuster/root doc 동기화, BOM-tolerant version CI, P526/R227/QA 체크 추가.
+Browser UI/UX review 보강(P527): 실제 로컬 브라우저에서 데스크톱/390px 모바일 화면을 비교 점검해 운영자 노트 템플릿 노출을 숨김 처리하고, 매크로 경기 사이클/FRED 영역 가로 오버플로우와 사용 설명서 긴 접힘 제목 모바일 클리핑을 수정.
+Full-route UI audit 보강(P528): 19개 내비게이션 route를 실제 브라우저에서 데스크톱/390px 모바일로 순회하며 발견한 `fundamental` 뉴스 토픽 긴 문자열·카드 그리드, `portfolio` benchmark canvas, `sentiment` LWC/뉴스 감성 차트, `kr-technical` health/VKOSPI grid·canvas 폭 누수를 보정.
+User-facing UX 재정리(P529): 스크린샷 실사용 기준으로 home/signal의 finite card grid `auto-fill` 빈 track을 `auto-fit`으로 교체해 우측 공백을 제거. HOME 점수흐름/G×L, SIGNAL 고급 매매 조건/분석흐름, BREADTH 분석흐름/랠리품질, SENTIMENT 중복 게이지/분석흐름/F&G 서브컴포넌트/크립토 온도계를 기본 화면에서 제거하고 sentiment 비율을 360px+fluid 구조로 재조정. 추가 전수 패턴 점검으로 technical/macro/fxbond/fundamental/screener/kr-home/kr-macro의 설명용 `분석 흐름 보기` 블록도 제거하고, 남은 user-facing finite card grid `auto-fill`을 전부 `auto-fit`으로 전환. 제거한 핵심 판단 근거는 사용 설명서의 `판단 방법론 레퍼런스`로 압축 통합해 보존. `scripts/ci-ux-default-path-check.mjs`를 CI에 연결해 기본 화면 소음/빈 grid track 회귀와 방법론 레퍼런스 누락을 차단.
+Auto-refresh 운영 루프 복구(P530): `refresh-data.yml`의 Pipeline status summary 인라인 Node 스크립트가 문자 깨짐으로 syntax error를 내 commit/push 단계 진입을 막을 수 있던 문제를 ASCII-safe summary로 복구. `ci-data-pipeline-contract-check.mjs`가 refresh/watchdog workflow의 Node heredoc 문법을 파싱하도록 보강해, fetch 성공 후 summary 단계에서 최신화 루프가 끊기는 회귀를 CI에서 차단.
+News self-injection 품질 보강(P531): 홈/브리핑 뉴스가 "수집됨"과 "실제 핵심 뉴스"를 혼동하던 경로를 수정. Google News 피드 tier를 기사 출처 tier처럼 쓰던 서버 점수화를 실제 출처 tier 기반으로 변경하고, Ad-hoc-news/MSN/IndexBox/Pluang 등 저품질·재송신 출처에는 감점 적용. 한국/KOSPI·삼성전자·SK하이닉스·Micron/AI 반도체 selloff/rebound 쿼리를 추가하고 KR 슬롯도 점수 우선 정렬로 전환. 홈 핵심 뉴스 표면은 72h 관성 노출 대신 30h 결정창을 사용하도록 압축했으며, `ci-data-pipeline-contract-check.mjs`가 source-tier/low-quality penalty/Korea market mover/home 30h 계약을 검증한다.
+
+---
+
+## v51.29 - 5페이지 구조 개편: 반응형 그리드 전환 + 섹션 그룹화 + 스토리라인 접기 (2026-06-24)
 
 **THEMES**: 섹터 타일 그리드 `repeat(4,1fr)` → `auto-fill minmax(140px)` (모바일 자동 적응). 페이지 내 "섹터 로테이션 분석" / "섹터 퍼포먼스·경기 사이클" 2개 `.aio-guide-group-header` 섹션 구분선 추가 — RRG+시장리더십 그룹, 섹터퍼포먼스+경기사이클 그룹.  
 **MACRO**: 인터커넥션 맵 `repeat(3,1fr)` → `auto-fill minmax(200px)`. 매크로 스토리라인 상세 분석(동적 `#macro-storyline`)을 `<details>` 접기 처리 — 앰버 한줄요약(`#macro-summary-line`)과 경기사이클·수익률곡선 시각화(`#vis-macro`)는 항상 표시.  

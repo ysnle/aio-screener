@@ -1,13 +1,61 @@
 ---
 verified_by: agent
-last_verified: 2026-06-20
+last_verified: 2026-06-24
 confidence: high
 version: v3.7
-checklist_version: v50.98
-total_items: 335
+checklist_version: v51.30
+total_items: 365
 stages: 21
-latest_P_covered: P521
+latest_P_covered: P531
 ---
+
+## v51.30 - News self-injection source quality + freshness gate (P531/R230)
+
+- [ ] `scripts/fetch-data.mjs` scores news by actual article source tier, while preserving Google feed tier separately as `feedTier`.
+- [ ] Low-quality/re-syndicated sources are explicitly penalized and cannot receive a tier-1 bonus from a high-priority Google News query.
+- [ ] Korea market-mover coverage includes KOSPI, Samsung Electronics, SK Hynix, AI semiconductor selloff/rebound, Micron, and foreign-investor context.
+- [ ] Home core news uses a 30h decision window in both the primary surface contract and fallback path.
+
+## v51.30 - Auto-refresh workflow syntax closure (P530/R229)
+
+- [ ] `scripts/ci-data-pipeline-contract-check.mjs` parses Node heredoc blocks embedded in `refresh-data.yml` and `data-watchdog.yml`.
+- [ ] `refresh-data.yml` Pipeline status summary runs without syntax error and does not block the commit refreshed public data step.
+- [ ] Data freshness failures are triaged by layer: fetch step, summary step, commit/push step, watchdog threshold, and artifact quality floors.
+
+## v51.30 - Practical default-path UX cleanup (P529/R228)
+
+- [ ] Finite HOME/SIGNAL card groups use `auto-fit` or explicit columns, not `auto-fill`, so empty tracks do not create right-side blank space.
+- [ ] HOME default viewport does not show collapsed score-flow or GxL advanced framework rows.
+- [ ] SIGNAL default viewport does not show collapsed Lockout/OPEX or analysis-flow rows; legacy lockout DOM, if retained, is hidden.
+- [ ] BREADTH default viewport does not show a Minervini framework block or collapsed analysis-flow row above the core breadth charts.
+- [ ] SENTIMENT default viewport does not show duplicate header gauge, F&G subcomponent rail, or crypto temperature widget.
+- [ ] SENTIMENT top content uses a balanced primary gauge + fluid analysis column without a tall left rail causing large right-side empty space.
+- [ ] No default-route page exposes a visible explanation-only `<summary>분석 흐름 보기</summary>` block.
+- [ ] `index.html` contains no user-facing `auto-fill` grid tracks; finite card groups use `auto-fit` or explicit responsive columns.
+- [ ] `scripts/ci-ux-default-path-check.mjs` is wired into CI and fails on default-path UX noise or empty-track regressions.
+- [ ] Removed default-route methodology content is preserved in `page-guide#guide-methodology`, including score formula, breadth/rally quality, sentiment, macro, and stock validation loops.
+
+## v51.30 - Full route UI width-leak audit (P528)
+
+- [ ] `page-fundamental` 390px mobile audit reports no `page.scrollWidth > page.clientWidth` from `.aio-page-news-strip` topic strings.
+- [ ] `#fund-cards-grid` uses responsive tracks and does not widen `page-fundamental` on 390px mobile.
+- [ ] `page-portfolio` 390px mobile audit reports no benchmark canvas width leak from `#pf-benchmark-chart`.
+- [ ] `page-sentiment` desktop/mobile audits report no page-width leak from LWC chart containers.
+- [ ] `#news-sentiment-chart` stays within its parent on 390px mobile after Chart.js writes inline canvas dimensions.
+- [ ] `page-kr-technical` health/VKOSPI grids collapse to one column and canvases stay within viewport on 390px mobile.
+
+## v51.30 - Browser UI review hardening (P527)
+
+- [ ] Home dashboard does not render operator-note placeholder text when `public-data/operator-note.json` has no real operator message.
+- [ ] Macro page desktop and 390px mobile viewport audits report no document/page horizontal overflow.
+- [ ] Long `.aio-page-advanced-toggle > summary` labels wrap without vertical clipping on 390px mobile viewport.
+
+## v51.30 - Maker-Checker broad recommendation + R1 sync gate (P526/T858)
+
+- [ ] `scripts/ci-version-check.mjs` passes with title, badge, `APP_VERSION`, `SW_VERSION`, `version.json`, root/context docs, CHANGELOG, and all five JS cachebusters on the same version.
+- [ ] `chatSend` Maker-Checker targets include `screenerResult.rows` when `detectedTickers.length === 0`.
+- [ ] `AIO.runTests()` T858 verifies broad screener recommendation candidates through `_aioMakerCheckerVerify`, not only source-string wiring.
+- [ ] `_aioMakerCheckerVerify()` computes factor ranks when SCREENER_DB exists but rank fields are not initialized.
 
 ## v50.98 - Market-impact news selection audit (P521/R226)
 
