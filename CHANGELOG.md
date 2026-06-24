@@ -1,4 +1,14 @@
-﻿## v51.28 - 구조 개편: Guide 그룹 분류 + Market News 필터 통합 + SCREENER 경고 노출 (2026-06-24)
+﻿## v51.29 - 5페이지 구조 개편: 반응형 그리드 전환 + 섹션 그룹화 + 스토리라인 접기 (2026-06-24)
+
+**THEMES**: 섹터 타일 그리드 `repeat(4,1fr)` → `auto-fill minmax(140px)` (모바일 자동 적응). 페이지 내 "섹터 로테이션 분석" / "섹터 퍼포먼스·경기 사이클" 2개 `.aio-guide-group-header` 섹션 구분선 추가 — RRG+시장리더십 그룹, 섹터퍼포먼스+경기사이클 그룹.  
+**MACRO**: 인터커넥션 맵 `repeat(3,1fr)` → `auto-fill minmax(200px)`. 매크로 스토리라인 상세 분석(동적 `#macro-storyline`)을 `<details>` 접기 처리 — 앰버 한줄요약(`#macro-summary-line`)과 경기사이클·수익률곡선 시각화(`#vis-macro`)는 항상 표시.  
+**PORTFOLIO**: 리스크 대시보드(Sharpe/Beta/MDD/Drift) `repeat(4,1fr)` → `auto-fill minmax(160px)`. CSS 640px `[style*="grid-template-columns:220px 1fr"]` 반응형 규칙 추가(포트폴리오 도넛+배분 레이아웃).  
+**FUNDAMENTAL**: 예시 티커 버튼 그리드 `repeat(4,1fr)` → `auto-fill minmax(140px)`.  
+**HOME**: 매매 판단 3카드 그리드 `1fr 1fr 1fr` → `auto-fill minmax(220px)` (모바일 1열, 태블릿 2열, 데스크탑 3열). R1 7곳 v51.29.
+
+---
+
+## v51.28 - 구조 개편: Guide 그룹 분류 + Market News 필터 통합 + SCREENER 경고 노출 (2026-06-24)
 
 Guide "대시보드별 사용법" 14개 카드 페이지를 4개 그룹으로 분류 — `.aio-guide-group-header` CSS 클래스 신설, **시장 현황 판단**(HOME·SIGNAL·BREADTH·SENTIMENT) / **분석 도구**(BRIEFING·TECHNICAL·MACRO·FX&BOND) / **종목 발굴·관리**(PORTFOLIO·SCREENER·OPTIONS·THEMES·MARKET NEWS) / **한국 시장·개별 종목**(KR·TICKER). Market News 필터 국가(6칩)+토픽(9칩) 2행을 **단일 패널**로 통합 — `<div>` 컨테이너에 "국가"/"토픽" 레이블 추가, `id="news-country-chips"`/`id="news-topic-chips"` 구조 유지(JS 영향 없음), 🇰🇷 한국 플래그 이모지 보정. SCREENER "저변동 팩터 역방향" 경고를 `<details>` 접힘→**항상 노출** amber 인라인 패널로 전환(안전 정보 숨김 해소). R1 7곳 v51.28.
 

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.28 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.29 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4251,7 +4251,9 @@ button[data-filter-active="true"] {
 @media (max-width: 640px) {
   /* Sentiment F&G+분석 고정폭 레이아웃 → 세로 스택 */
   [style*="grid-template-columns:300px 1fr"],
-  [style*="grid-template-columns: 300px 1fr"] {
+  [style*="grid-template-columns: 300px 1fr"],
+  [style*="grid-template-columns:220px 1fr"],
+  [style*="grid-template-columns: 220px 1fr"] {
     grid-template-columns: 1fr !important;
   }
   /* 6열 → 3열 (480px에서 2열로 재처리) */
@@ -4656,7 +4658,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.28</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.29</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4744,7 +4746,7 @@ button[data-filter-active="true"] {
       </div>
     </div>
   </details>
-  <div id="home-trading-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-2);margin-bottom:var(--space-3);">
+  <div id="home-trading-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:var(--space-2);margin-bottom:var(--space-3);">
     <!-- 매매 신호 (Primary — v49.28/R65 CARD_HIERARCHY primary) -->
     <div class="aio-card aio-card-primary is-interactive has-stripe-top stripe-data-green" data-action="showPage" data-arg="signal" data-card-level="primary" data-weight-key="TRADING_SCORE"
          title="거래 적합도 점수 (20점) = 추세 정렬 8점 + 상대강도(시장 대비 강함) 4점 + 거래량 3점 + 변동성 3점 + 돌파 2점 (총 20점)">
@@ -7023,15 +7025,20 @@ button[data-filter-active="true"] {
   <div style="background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(168,85,247,0.04));border:1px solid rgba(0,212,255,0.2);border-radius:4px;padding:16px;margin-bottom:12px;">
     <div style="font-size:12px;font-weight:800;color:var(--data-cyan);margin-bottom:4px;">매크로 종합 결론 — FOMC·유가·달러·금리</div>
     <div class="aio-why" style="margin-bottom:8px;">이 결론은 아래 인터커넥션 맵·선행지표·시장물가 섹션의 데이터에서 도출됩니다.</div>
-    <div id="macro-storyline" data-static-narrative="macro-storyline" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
-      <!-- 동적: generateMacroStoryline()에서 렌더 (v49.29 I6/R68 placeholder 표준 적용) -->
-      <div style="padding:8px 10px;background:rgba(0,212,255,0.04);border-radius:3px;border:1px dashed rgba(0,212,255,0.3);">
-        <strong style="color:var(--accent);">매크로 결론 준비 중</strong>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.6;">
-          핵심 수치와 뉴스 맥락을 연결해 오늘의 금리·유가·달러·위험심리 결론을 표시합니다.
+    <details class="aio-page-advanced-toggle" style="margin-bottom:4px;">
+      <summary>상세 분석 펼치기</summary>
+      <div class="aio-page-advanced-body">
+        <div id="macro-storyline" data-static-narrative="macro-storyline" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+          <!-- 동적: generateMacroStoryline()에서 렌더 (v49.29 I6/R68 placeholder 표준 적용) -->
+          <div style="padding:8px 10px;background:rgba(0,212,255,0.04);border-radius:3px;border:1px dashed rgba(0,212,255,0.3);">
+            <strong style="color:var(--accent);">매크로 결론 준비 중</strong>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.6;">
+              핵심 수치와 뉴스 맥락을 연결해 오늘의 금리·유가·달러·위험심리 결론을 표시합니다.
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </details>
     <div id="macro-summary-line" style="background:rgba(255,163,26,0.1);border-left:3px solid var(--data-amber);padding:10px 12px;margin-top:12px;border-radius:4px;font-size:11px;color:var(--data-amber);font-weight:700;line-height:1.5;">
       <!-- 동적: 한 줄 요약 -->
     </div>
@@ -7049,7 +7056,7 @@ button[data-filter-active="true"] {
       <button data-action="_aioMacroInterconToggle" data-pass-el="1" class="btn-accent --blue" style="font-size:10px;padding:3px 10px;">설명 보기 ▼</button>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr));gap:8px;">
       <!-- Fed 금리 -->
       <div style="background:rgba(255,91,80,0.04);border:1px solid rgba(255,91,80,0.15);border-radius:4px;padding:10px;position:relative;">
         <div style="font-size:11px;font-weight:800;color:var(--data-red);"> Fed 기준금리</div>
@@ -8367,7 +8374,7 @@ button[data-filter-active="true"] {
         SEC/FMP/Yahoo 데이터를 모아 개요·재무·뉴스를 한 번에 보여줍니다.<br>
         지원: S&P 500 · NASDAQ-100 · Russell 2000
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,140px),1fr));gap:6px;margin-top:8px;">
         <button class="aio-btn-table" data-action="fundamentalSearch" data-arg="NVDA" style="font-size:11px;padding:6px 10px;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);">예시: NVDA</button>
         <button class="aio-btn-table" data-action="fundamentalSearch" data-arg="AAPL" style="font-size:11px;padding:6px 10px;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);">예시: AAPL</button>
         <button class="aio-btn-table" data-action="fundamentalSearch" data-arg="TSLA" style="font-size:11px;padding:6px 10px;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);">예시: TSLA</button>
@@ -8631,6 +8638,8 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    <div class="aio-guide-group-header">섹터 로테이션 분석</div>
+
     <!-- ══ SECTION 1: RRG 4분면 Canvas 차트 ══════════════════════ -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:16px 18px;margin-bottom:14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
@@ -8686,7 +8695,7 @@ button[data-filter-active="true"] {
         </div>
       </div>
       <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:5px;">섹터 ETF 라이브 등락</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;" id="themes-sector-mirror">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,140px),1fr));gap:4px;" id="themes-sector-mirror">
         <div class="sec-tile" data-sym="XLK"><div class="sec-sym">XLK</div><div class="sec-name">기술주</div><div class="sec-chg" data-live-chg="XLK">—</div></div>
         <div class="sec-tile" data-sym="XLF"><div class="sec-sym">XLF</div><div class="sec-name">금융</div><div class="sec-chg" data-live-chg="XLF">—</div></div>
         <div class="sec-tile" data-sym="XLE"><div class="sec-sym">XLE</div><div class="sec-name">에너지</div><div class="sec-chg" data-live-chg="XLE">—</div></div>
@@ -8701,6 +8710,8 @@ button[data-filter-active="true"] {
         <div class="sec-tile" data-sym="GLD"><div class="sec-sym">GLD</div><div class="sec-name">금 (Gold)</div><div class="sec-chg" data-live-chg="GLD">—</div></div>
       </div>
     </div>
+
+    <div class="aio-guide-group-header" style="margin-top:14px;">섹터 퍼포먼스 · 경기 사이클</div>
 
     <!-- ══ SECTION 2: GICS 11섹터 + 서브섹터 ETF 퍼포먼스 ══════════ -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:16px 18px;margin-bottom:14px;">
@@ -8965,7 +8976,7 @@ button[data-filter-active="true"] {
         <div style="font-size:12px;font-weight:800;color:var(--accent);">📊 리스크 분석 (Sharpe / Beta / MDD / Kelly)</div>
         <div style="font-size:10px;color:var(--text-muted);">실시간 리스크 지표</div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,160px),1fr));gap:8px;">
         <div style="padding:8px 10px;background:var(--surface-2);border-radius:3px;text-align:center;">
           <div style="font-size:10px;color:var(--text-muted);font-weight:700;">Sharpe Ratio</div>
           <div id="pf-sharpe-val" style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);">—</div>
