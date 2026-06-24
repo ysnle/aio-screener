@@ -1,4 +1,10 @@
-﻿## v51.24 - UX 전페이지 A급: 9개 flow-steps 접기 + 기술분석 12-setup 섹션 접기 (2026-06-24)
+﻿## v51.25 - UX 전수감사 잔여 개선: 소스목록 접기 + 버튼 폰트 통일 (2026-06-24)
+
+전수 UX 감사 후 잔여 개선 3건. market-news `#news-source-guide`(5줄 소스 목록) `<details>` 래핑 — 기본 접힘, "<span data-news-source-count>개 등록 소스 목록 보기". KR-Technical "차트 로드"·"Ticker 분석" 버튼 `font-size:10px→11px`. Portfolio PIN "잠금 해제" 버튼 `font-size:10px→11px`. 에이전트 전수감사 결과: KR-Macro border·GUIDE 콘텐츠·Portfolio 12px·Fundamental empty state는 오탐(정상).
+
+---
+
+## v51.24 - UX 전페이지 A급: 9개 flow-steps 접기 + 기술분석 12-setup 섹션 접기 (2026-06-24)
 
 시그널·시장폭·심리·기술분석·매크로·환율채권·기업분석·스크리너·KR홈 9개 페이지의 `aio-flow-steps`를 `<details class="aio-page-advanced-toggle">` 로 래핑 — 기본 접힘, "분석 흐름 보기" 요약. 기술분석 "12가지 매매 셋업 패턴" 카드 섹션(12개 카드 3×4 그리드)을 `<details>` 로 접어 초기 페이지 부하 경감. R1 7곳 v51.24 동기화.
 

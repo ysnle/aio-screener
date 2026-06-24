@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.24 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.25 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4543,7 +4543,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.24</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.25</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -8885,7 +8885,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;">PIN 4자리를 입력하세요. 데이터는 브라우저에만 저장됩니다.</div>
       <input id="pf-pin-input" type="password" maxlength="4" aria-label="포트폴리오 PIN 입력" pattern="[0-9]*" inputmode="numeric" placeholder="••••" style="width:120px;text-align:center;font-size:20px;letter-spacing:8px;background:var(--surface-4);border:2px solid var(--accent-border);border-radius:4px;padding:10px;color:var(--text-primary);outline:none;" data-on-enter="unlockPortfolio">
       <br>
-      <button class="aio-btn-table primary" data-action="unlockPortfolio" style="margin-top:12px;font-size:10px;">잠금 해제</button>
+      <button class="aio-btn-table primary" data-action="unlockPortfolio" style="margin-top:12px;font-size:11px;">잠금 해제</button>
       <div style="margin-top:12px;">
         <button class="aio-btn-table" data-action="setupPortfolioPin" style="font-size:11px;color:var(--text-muted);">PIN 설정/변경</button>
         <button class="aio-btn-table" data-action="resetPortfolioPin" style="font-size:11px;color:var(--text-muted);">PIN 초기화</button>
@@ -9454,15 +9454,20 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
     </div>
 
     <!-- 소스 안내 -->
-    <div id="news-source-guide" style="font-size:11px;color:var(--text-muted);padding:6px 10px;background:var(--surface-1);border-radius:3px;border:1px solid var(--border);margin-bottom:10px;line-height:1.7;">
-      <strong style="color:var(--data-cyan);">텔레그램</strong>: BornLupin · Aether Japan Research · Insider Tracking &nbsp;|&nbsp;
-      <strong style="color:#e2e8f0;">글로벌</strong>: Reuters · CNBC · WSJ · FT · Bloomberg · Barrons · CNN · NYT · BBC &nbsp;|&nbsp;
-       <strong style="color:var(--data-green);">테크/반도체</strong>: Digitimes · TrendForce · SemiAnalysis · EE Times &nbsp;|&nbsp;
-      <strong style="color:var(--data-amber);">에너지/원자재</strong>: OilPrice · Rigzone · Platts &nbsp;|&nbsp;
-       <strong style="color:var(--data-amber);">크립토</strong>: CoinDesk &nbsp;|&nbsp;
-       <strong style="color:var(--data-amber);">한국</strong>: 구글뉴스(금융·경제·기술) · 연합뉴스 · 한경 · 매경 · 서울경제 · 조선비즈 · 머니투데이 · 이데일리 &nbsp;|&nbsp;
-      <strong style="color:var(--data-purple);">아시아</strong>: Nikkei · SCMP · Caixin · Taiwan News · Economic Times
-    </div>
+    <details class="aio-page-advanced-toggle" style="margin-bottom:10px;">
+      <summary><span data-news-source-count>—</span>개 등록 소스 목록 보기</summary>
+      <div class="aio-page-advanced-body">
+        <div id="news-source-guide" style="font-size:11px;color:var(--text-muted);padding:6px 10px;background:var(--surface-1);border-radius:3px;border:1px solid var(--border);line-height:1.7;">
+          <strong style="color:var(--data-cyan);">텔레그램</strong>: BornLupin · Aether Japan Research · Insider Tracking &nbsp;|&nbsp;
+          <strong style="color:#e2e8f0;">글로벌</strong>: Reuters · CNBC · WSJ · FT · Bloomberg · Barrons · CNN · NYT · BBC &nbsp;|&nbsp;
+          <strong style="color:var(--data-green);">테크/반도체</strong>: Digitimes · TrendForce · SemiAnalysis · EE Times &nbsp;|&nbsp;
+          <strong style="color:var(--data-amber);">에너지/원자재</strong>: OilPrice · Rigzone · Platts &nbsp;|&nbsp;
+          <strong style="color:var(--data-amber);">크립토</strong>: CoinDesk &nbsp;|&nbsp;
+          <strong style="color:var(--data-amber);">한국</strong>: 구글뉴스(금융·경제·기술) · 연합뉴스 · 한경 · 매경 · 서울경제 · 조선비즈 · 머니투데이 · 이데일리 &nbsp;|&nbsp;
+          <strong style="color:var(--data-purple);">아시아</strong>: Nikkei · SCMP · Caixin · Taiwan News · Economic Times
+        </div>
+      </div>
+    </details>
 
     <!-- 뉴스 데이터 스테일 경고 배너 (JS가 제어 — 데이터 1시간 초과 시 표시) -->
     <div id="news-stale-banner" style="display:none;background:rgba(255,163,26,0.10);border:1px solid rgba(255,163,26,0.35);border-radius:3px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:var(--data-amber);align-items:center;gap:8px;flex-wrap:wrap;">
@@ -10551,8 +10556,8 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
       <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">TradingView 한국 종목 차트</div>
       <div style="display:flex;gap:6px;">
         <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" style="width:120px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" data-on-enter="loadTVChart:kr" />
-        <button data-action="loadTVChart" data-arg="kr" class="aio-btn-table" style="font-size:10px;">차트 로드</button>
-        <button onclick="(function(){var c=document.getElementById('tv-kr-sym').value.trim();if(c)showTicker(typeof krTickerToYahoo==='function'?krTickerToYahoo(c):c);})()" class="aio-btn-table" style="font-size:10px;">Ticker 분석 →</button>
+        <button data-action="loadTVChart" data-arg="kr" class="aio-btn-table" style="font-size:11px;">차트 로드</button>
+        <button onclick="(function(){var c=document.getElementById('tv-kr-sym').value.trim();if(c)showTicker(typeof krTickerToYahoo==='function'?krTickerToYahoo(c):c);})()" class="aio-btn-table" style="font-size:11px;">Ticker 분석 →</button>
       </div>
     </div>
     <div id="tv-widget-kr" style="height:400px;border-radius:4px;overflow:hidden;background:#131722;"></div>
