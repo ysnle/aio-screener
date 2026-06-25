@@ -7244,9 +7244,9 @@ const _FINANCE_RELEVANCE_KW = [
 // ── 시간창(Time Window) 설정 ─────────────────────────────────────
 // 섹션별 뉴스 노출 기간 (단위: 시간)
 // v30.12 P5: 시간창 조정 — 홈 7일→48시간, 시장 3일→48시간 (stale 뉴스 제거)
-const TW_HOME_H     = 48;    // 대시보드 상단: 48시간 (기존 168→48)
-const TW_MARKET_H   = 48;    // v40.4: 시장 소식: 48시간 — 과부하 방지 + 브리핑(24h)보다 넓은 커버리지
-const TW_BRIEFING_H = 24;    // 데일리 브리핑: 24시간 이내 (유지)
+const TW_HOME_H     = 24;    // v51.31: 전체 뉴스/소식은 08:00 KST 기준 24h 사이클
+const TW_MARKET_H   = 24;    // v51.31: 시장 소식도 일간 사이클로 통일
+const TW_BRIEFING_H = 24;    // 데일리 브리핑: 24시간 이내
 
 // pubDate 기반 나이 필터 (pubDate 없으면 최신으로 간주)
 function filterByAge(items, maxHours) {
@@ -7256,6 +7256,17 @@ function filterByAge(items, maxHours) {
     if (!i.pubDate) return true;
     const t = new Date(i.pubDate).getTime();
     return isNaN(t) ? true : t >= cutoff;
+  });
+}
+
+function filterByKst0800NewsCycle(items) {
+  if (!items) return [];
+  var bw = typeof _getBriefingWindowKST === 'function' ? _getBriefingWindowKST() : null;
+  if (!bw) return filterByAge(items, 24);
+  return items.filter(function(i) {
+    if (!i || !i.pubDate) return false;
+    var t = new Date(i.pubDate).getTime();
+    return isFinite(t) && t >= bw.start && t < bw.end;
   });
 }
 
@@ -8950,7 +8961,9 @@ var AIO_NEWS_SURFACE_CONTRACTS = {
   home: {
     surfaceId: 'home',
     role: 'core-market-judgment',
-    windowHours: 30,
+    newsCyclePolicy: 'kst-0800-completed-24h',
+    anchor: '08:00 KST',
+    windowHours: 24,
     maxItems: 3,
     minScoreCascade: [90, 70, 50],
     excludedTopics: ['analyst'],
@@ -8960,6 +8973,7 @@ var AIO_NEWS_SURFACE_CONTRACTS = {
   briefing: {
     surfaceId: 'briefing',
     role: 'kst-0800-24h-decision-briefing',
+    newsCyclePolicy: 'kst-0800-completed-24h',
     anchor: '08:00 KST',
     windowHours: 24,
     maxItems: 40,
@@ -8969,8 +8983,10 @@ var AIO_NEWS_SURFACE_CONTRACTS = {
   },
   'market-news': {
     surfaceId: 'market-news',
-    role: '48h-exploration-and-filtering',
-    windowHours: 48,
+    role: 'kst-0800-24h-exploration-and-filtering',
+    newsCyclePolicy: 'kst-0800-completed-24h',
+    anchor: '08:00 KST',
+    windowHours: 24,
     maxItems: 150,
     minScore: 30,
     allowFilters: true,
@@ -8978,14 +8994,14 @@ var AIO_NEWS_SURFACE_CONTRACTS = {
   },
   // v50.41 선순환 연결 계층: 분석 페이지를 같은 뉴스캐시에 토픽 필터로 연결 (사일로 해소 — 단일 인텔 소스 → 다수 surface).
   //   topics = classifyTopic 실존 키(macro/geo/semi/earnings/energy)만 사용. role='analysis-page-topic-strip'.
-  macro:       { surfaceId: 'macro',       role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','ai-policy','power','energy'], sortMode: 'score' },
-  fxbond:      { surfaceId: 'fxbond',      role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','bond','fx'],                 sortMode: 'score' },
-  technical:   { surfaceId: 'technical',   role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['semi','optical','power','memory','materials','market-note'], sortMode: 'score' },
-  themes:      { surfaceId: 'themes',      role: 'analysis-page-topic-strip', windowHours: 72, maxItems: 8, minScore: 35, topics: ['semi','optical','power','memory','materials','ai-policy','energy','space','crypto','equity'], sortMode: 'score' },
-  sentiment:   { surfaceId: 'sentiment',   role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','crypto','equity','ai-policy'], sortMode: 'score' },
-  signal:      { surfaceId: 'signal',      role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','semi','optical','power','memory'], sortMode: 'score' },
-  fundamental: { surfaceId: 'fundamental', role: 'analysis-page-topic-strip', windowHours: 72, maxItems: 8, minScore: 35, topics: ['earnings','equity','analyst','semi','optical','power','memory','materials','ai-policy'], sortMode: 'score' },
-  breadth:     { surfaceId: 'breadth',     role: 'analysis-page-topic-strip', windowHours: 48, maxItems: 6, minScore: 35, topics: ['semi','macro','market-note','equity','crypto','memory'], sortMode: 'score' }
+  macro:       { surfaceId: 'macro',       role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','ai-policy','power','energy'], sortMode: 'score' },
+  fxbond:      { surfaceId: 'fxbond',      role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','bond','fx'],                 sortMode: 'score' },
+  technical:   { surfaceId: 'technical',   role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['semi','optical','power','memory','materials','market-note'], sortMode: 'score' },
+  themes:      { surfaceId: 'themes',      role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 8, minScore: 35, topics: ['semi','optical','power','memory','materials','ai-policy','energy','space','crypto','equity'], sortMode: 'score' },
+  sentiment:   { surfaceId: 'sentiment',   role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','crypto','equity','ai-policy'], sortMode: 'score' },
+  signal:      { surfaceId: 'signal',      role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','semi','optical','power','memory'], sortMode: 'score' },
+  fundamental: { surfaceId: 'fundamental', role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 8, minScore: 35, topics: ['earnings','equity','analyst','semi','optical','power','memory','materials','ai-policy'], sortMode: 'score' },
+  breadth:     { surfaceId: 'breadth',     role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['semi','macro','market-note','equity','crypto','memory'], sortMode: 'score' }
 };
 window.AIO_NEWS_SURFACE_CONTRACTS = AIO_NEWS_SURFACE_CONTRACTS;
 
@@ -9094,6 +9110,16 @@ function _aioNewsVerificationStatus(item, ageHours, contract) {
   return 'current';
 }
 
+function _aioNewsCycleWindowForContract(contract, opts) {
+  opts = opts || {};
+  if (opts.windowStart != null && opts.windowEnd != null) {
+    return { start: opts.windowStart, end: opts.windowEnd, anchorDate: opts.anchorDate || '' };
+  }
+  if (!contract || contract.newsCyclePolicy !== 'kst-0800-completed-24h' || typeof _getBriefingWindowKST !== 'function') return null;
+  var bw = _getBriefingWindowKST();
+  return { start: bw.start, end: bw.end, anchorDate: bw.anchorDate ? bw.anchorDate.toISOString().slice(0, 10) : '' };
+}
+
 function _aioNewsInclusionReason(row, surfaceId) {
   var topic = _aioNewsTopicLabel(row.topic);
   var tier = row.sourceTier ? ('Tier ' + row.sourceTier) : 'source';
@@ -9102,9 +9128,11 @@ function _aioNewsInclusionReason(row, surfaceId) {
   return 'Score ' + row.score + ' · ' + topic + ' · ' + row.verificationStatus;
 }
 
-function _aioNormalizeNewsItem(surfaceId, item, contract, nowMs) {
+function _aioNormalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow) {
   var pubMs = _aioNewsPubMs(item);
   var ageHours = pubMs ? Math.max(0, Math.round((nowMs - pubMs) / 3600000 * 10) / 10) : Infinity;
+  var inNewsCycle = !!(cycleWindow && pubMs && pubMs >= cycleWindow.start && pubMs < cycleWindow.end);
+  var statusAgeHours = inNewsCycle && contract.newsCyclePolicy === 'kst-0800-completed-24h' ? Math.min(ageHours, contract.windowHours || 24) : ageHours;
   var tickers = [];
   try { tickers = typeof getDisplayTickers === 'function' ? getDisplayTickers(item) : (item.tickers || []); } catch(_) { tickers = item && item.tickers || []; }
   var row = Object.assign({}, item || {});
@@ -9113,11 +9141,17 @@ function _aioNormalizeNewsItem(surfaceId, item, contract, nowMs) {
   row.source = row.source || '';
   row.pubDate = row.pubDate || null;
   row.ageHours = ageHours;
+  row.newsCyclePolicy = row.newsCyclePolicy || contract.newsCyclePolicy || null;
+  if (cycleWindow && contract.newsCyclePolicy === 'kst-0800-completed-24h') {
+    row.newsCycleStart = row.newsCycleStart || new Date(cycleWindow.start).toISOString();
+    row.newsCycleEnd = row.newsCycleEnd || new Date(cycleWindow.end).toISOString();
+    row.inNewsCycle = inNewsCycle;
+  }
   row.score = Number(row.score || 0);
   row.topic = row.topic || 'general';
   row.tickers = Array.isArray(tickers) ? tickers : [];
   row.sourceTier = _aioNewsSourceTier(row);
-  row.verificationStatus = _aioNewsVerificationStatus(row, ageHours, contract);
+  row.verificationStatus = _aioNewsVerificationStatus(row, statusAgeHours, contract);
   row.staleStatus = row.verificationStatus === 'stale' ? 'stale' : 'current-window';
   row.sourcePolicy = surfaceId === 'briefing' ? contract.aiPolicy : 'surface-contract';
   row.inclusionReason = _aioNewsInclusionReason(row, surfaceId);
@@ -9162,13 +9196,14 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
   var contract = AIO_NEWS_SURFACE_CONTRACTS[surfaceId];
   if (!contract) throw new Error('Unknown news surface: ' + surfaceId);
   var nowMs = Number(opts.nowMs || Date.now());
+  var cycleWindow = _aioNewsCycleWindowForContract(contract, opts);
   var input = Array.isArray(items) ? items : [];
   var normalized = input.filter(function(i) { return !_aioNewsIsBlacklisted(i); })
-    .map(function(i) { return _aioNormalizeNewsItem(surfaceId, i, contract, nowMs); });
+    .map(function(i) { return _aioNormalizeNewsItem(surfaceId, i, contract, nowMs, cycleWindow); });
   var windowRows = normalized.filter(function(row) {
-    if (opts.windowStart != null && opts.windowEnd != null) {
+    if (cycleWindow) {
       var t = _aioNewsPubMs(row);
-      return t >= opts.windowStart && t < opts.windowEnd;
+      return t >= cycleWindow.start && t < cycleWindow.end;
     }
     return row.ageHours <= (contract.windowHours || 48);
   });
@@ -9244,7 +9279,8 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
     sourceCount: Object.keys(sourceSet).length,
     lastFetch: window.lastNewsFetchAt || window._lastNewsFetchAt || lastFetchTime || null,
     latestPubDate: latestPubMs ? new Date(latestPubMs).toISOString() : null,
-    cacheKey: surfaceId + '|' + (opts.anchorDate || '') + '|' + visible.map(function(i) { return i.newsId; }).join(',') + '|' + (latestPubMs || 0),
+    newsCycle: cycleWindow ? { start: new Date(cycleWindow.start).toISOString(), end: new Date(cycleWindow.end).toISOString(), anchorDate: cycleWindow.anchorDate || '' } : null,
+    cacheKey: surfaceId + '|' + (cycleWindow && cycleWindow.anchorDate || opts.anchorDate || '') + '|' + visible.map(function(i) { return i.newsId; }).join(',') + '|' + (latestPubMs || 0),
     emptyReason: visible.length ? null : _aioNewsEmptyReason(surfaceId, stats),
     stats: stats,
     generatedAt: new Date(nowMs).toISOString()
@@ -9423,7 +9459,7 @@ function renderFeed(items) {
   }
 
   // 시간 필터 (48h)
-  filtered = filterByAge(filtered, TW_MARKET_H);
+  filtered = filterByKst0800NewsCycle(filtered);
   // v40.4: 최소 선별도 — score 30+ (브리핑 45+보다 낮지만 쓸모없는 뉴스는 제거)
   filtered = filtered.filter(i => (i.score || 0) >= 30);
 
@@ -9593,12 +9629,12 @@ var HOME_WEEKLY_NEWS = [
   { title: '반도체·AI 개별 촉매가 이어집니다. 엔비디아는 S&P 신용등급 AA(안정) 상향 + 중국용 Vera 데이터센터 CPU를 8월 출시(올 회계연도 ~$200억 목표)합니다. AMD는 Citi Buy·$575(Venice 2.5D 패키징 부족, ASE 2028까지 풀가동), 메타 BofA $835, 노키아는 JPM 커버 개시 $21(광 네트워크 AI 수주·구글 DC 스위칭). 나스닥100은 6/22부로 NBIS·RKLB·ALAB·CRWV·TER을 편입합니다.', source: 'Telegram·S&P/Citi/JPM 2026-06-13', date: '2026-06-13', sentiment: 'bull', topic: 'semi' },
 ];
 HOME_WEEKLY_NEWS = [
-  // v51.13 (integrate 2026-06-23): 6/23 미국 증시 브리핑 통합
-  { title: 'GS 경기침체 확률 25%→15% 하향 + 은행·소형주 ATH — 골드만삭스 침체 확률 대폭 하향. 러셀2000 선물 3,000선 돌파 시도·은행주 사상 최고치. 대형기술→중소형주·경기민감주 순환매 뚜렷. 단, JPM 경고: 분기말 리밸런싱 $1,650억 매도 + HF 레버리지 5년래 최고 = 단기 변동성 경보.', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bull', topic: 'macro' },
-  { title: '이란 60일 일반면허 — WTI $74.82(-2.32%) — 미 재무부 이란산 원유 판매 60일 한시 허용. WTI $74.82·브렌트 $77.90(-3.31%). 중동 전쟁 프리미엄 대부분 제거 → 시장이 공급 과잉 가능성으로 관심 이동. SPR 3.312억 배럴(1983년 이후 최저). 유가 안정 = 인플레 완화·소비 여력 확보.', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bull', topic: 'geo' },
-  { title: 'Micron+Anthropic 전략제휴 — AI 메모리 아키텍처 공동개발 + HBM 장기 공급계약. Micron이 Anthropic 시리즈A 투자자임도 확인. AI 계층 이동 패러다임 강화: GPU 독점 → 메모리·광통신 공급망 수혜 확산(MU/CRDO/ALAB 구조적 수혜).', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bull', topic: 'semi' },
-  { title: 'NVIDIA HALOS 안전 플랫폼 + 유럽 35개 AI 팩토리 + CRDO Evercore PT$325·Stifel PT$350 — HALOS(휴머노이드 AI 안전) 공개. 유럽 23개국 35개 AI 슈퍼컴퓨터 90%+ NVDA 인프라. Credo Technology 애널리스트 동시 상향 = 광통신·AI 연결 계층 확산 수혜.', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bull', topic: 'semi' },
-  { title: 'BoA 연준 2026년 3회 인상 전망 + GOOG -7% DeepMind 인재 이탈 + SpaceX -13% — BoA 매파 전환: 강한 데이터+Fed → 2026년 3회 인상. Julius Baer: 올해 동결·10Y 4.3%. GOOG -7%(13개월 최대): DeepMind 핵심 Anthropic 이탈. SpaceX -13% IPO 이후 최저 but Reflection AI $63억 컴퓨팅 계약 + $200억 회사채 발행.', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bear', topic: 'macro' },
+  // v51.31 data-refresh (2026-06-24): AI/chip rout + KOSPI circuit breaker + global selloff
+  { title: 'KOSPI 서킷브레이커 발동(6/23)·삼성·SK하이닉스 반등(6/24) — 6/23 AI·반도체 쇼크로 KOSPI -9.99% 서킷브레이커 발동, 삼성전자·SK하이닉스 -12%+ 급락. MSCI 한국 DM 제외 논의·레버리지 ETF 리스크. 6/24 KOSPI 8,471(-4.44%)·KOSDAQ 909(-11.89%)로 부분 회복. 삼성·SK하이닉스 기술적 반등(저점 매수세 유입). 단기 변동성 극대 구간, 추가 하락 리스크 잔존.', source: 'public-data 2026-06-24', date: '2026-06-24', sentiment: 'bear', topic: 'kr' },
+  { title: 'AI·반도체 글로벌 쇼크 — NASDAQ -4.11%, SPX -2.50%, VIX +15.7%→18.97, F&G 27(Fear) — 6/17 FOMC 매파 이후 금리 인상 재기대(BoA 2026년 3회 인상 전망)로 성장주·AI·반도체 섹터 급락. NASDAQ 25,587(-4.11%). VIX 18.97(+15.7%), F&G 27(Fear). TNX 4.441%. 달러 강세(DXY 101.77, +0.92%). 현금·방어주로 자금 이동 국면.', source: 'public-data 2026-06-24', date: '2026-06-24', sentiment: 'bear', topic: 'macro' },
+  { title: '금·유가 동반 급락 — Gold $4,019(-4.86%), WTI $71.18(-7.08%) — 연준 금리 인상 재기대로 달러 강세+실질금리 상승 → 금 $4,019(-4.86%). 이란 60일 한시 면허(원유 수출 재개)+공급 과잉 우려로 WTI $71.18(-7.08%), 브렌트 $74.66(-6.50%). 에너지·원자재 약세. 인플레 완화 기대 vs 글로벌 성장 둔화 우려 교차.', source: 'public-data 2026-06-24', date: '2026-06-24', sentiment: 'bear', topic: 'geo' },
+  { title: 'SpaceX -13% + GOOG -7% + BoA 매파 전환(6/23) — SpaceX IPO 이후 최저(-13%, 분기말 리밸런싱). GOOG -7%(DeepMind 핵심인력 Anthropic 이탈). BoA: 강한 고용·인플레로 2026년 3회 인상 경로. 분기말 기관 리밸런싱 $1,650억 매도 압력+HF 레버리지 5년 최고 = 단기 추가 하락 리스크.', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bear', topic: 'macro' },
+  { title: 'Micron+Anthropic 전략제휴·NVIDIA HALOS·CRDO 목표가 동시 상향 — 쇼크 속에서도 구조적 AI 모멘텀: MU×Anthropic HBM 장기 공급계약. NVDA HALOS(AI 안전 플랫폼)+유럽 35개국 AI 팩토리. CRDO Evercore PT$325/Stifel PT$350 상향. 단기 매도세 vs 중기 AI 인프라 구조 수요는 여전.', source: '브리핑 2026-06-23', date: '2026-06-23', sentiment: 'bull', topic: 'semi' },
 ];
 window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
 
@@ -9692,8 +9728,7 @@ function renderHomeFeed(items) {
   // v51.30 P531: 홈 계약 시간창 이내 + score 90+ 진짜 시장 이동 이벤트만
   // v49.97 P462: 단계적 완화 — 90+ 가 0건이면 70+, 그래도 0이면 50+ 로 완화해 홈 핵심뉴스 영구공백 방지.
   //   (정적 큐레이션 만료 후 동적 뉴스가 90점 미만뿐이면 이전엔 빈 화면이었음 = "브리핑/뉴스 부실" 근본 2)
-  const homeFallbackWindowHours = (window.AIO_NEWS_SURFACE_CONTRACTS && window.AIO_NEWS_SURFACE_CONTRACTS.home && window.AIO_NEWS_SURFACE_CONTRACTS.home.windowHours) || 30;
-  let base = filterByAge(items, homeFallbackWindowHours).filter(i => !i._blacklisted && i.topic !== 'analyst');
+  let base = filterByKst0800NewsCycle(items).filter(i => !i._blacklisted && i.topic !== 'analyst');
   let filtered = base.filter(i => (i.score || 0) >= 90);
   if (filtered.length === 0) filtered = base.filter(i => (i.score || 0) >= 70);
   if (filtered.length === 0) filtered = base.filter(i => (i.score || 0) >= 50);
@@ -9724,7 +9759,7 @@ function renderHomeFeed(items) {
   // 미달 시 score 70+로 완화
   if (filtered.length < 2) {
     const existing = new Set(filtered.map(i => i.link));
-    const backup = filterByAge(items, homeFallbackWindowHours)
+    const backup = filterByKst0800NewsCycle(items)
       .filter(i => !existing.has(i.link) && !i._blacklisted && (i.score || 0) >= 70)
       .sort((a, b) => (b.score || 0) - (a.score || 0))
       .slice(0, 3 - filtered.length);
@@ -9766,6 +9801,21 @@ function renderHomeFeed(items) {
 /* ── renderBriefingFeed(): 브리핑 뉴스 (24시간) ───────────── */
 // v42.0: 브리핑 8AM KST 앵커 — 오전 8시 기준 24시간 윈도우
 function _getBriefingWindowKST() {
+  var nowMs = Date.now();
+  var KST_OFFSET_MS_LOCAL = 9 * 3600000;
+  var DAY_MS_LOCAL = 24 * 3600000;
+  var kstNow = new Date(nowMs + KST_OFFSET_MS_LOCAL);
+  var endMs = Date.UTC(kstNow.getUTCFullYear(), kstNow.getUTCMonth(), kstNow.getUTCDate(), 8, 0, 0, 0) - KST_OFFSET_MS_LOCAL;
+  if (nowMs < endMs) endMs -= DAY_MS_LOCAL;
+  var completedStart = endMs - DAY_MS_LOCAL;
+  return {
+    start: completedStart,
+    end: endMs,
+    nextRefresh: new Date(endMs + DAY_MS_LOCAL),
+    anchorDate: new Date(completedStart),
+    endAnchorDate: new Date(endMs),
+    policy: 'kst-0800-completed-24h'
+  };
   var now = new Date();
   // 오늘 8AM KST를 UTC로 계산
   var todayAnchor = new Date(now);
@@ -10408,10 +10458,28 @@ function _updateBriefingTimestamp(bw) {
   var now = Date.now();
   var remainH = Math.max(0, Math.floor((bw.end - now) / 3600000));
   var remainM = Math.max(0, Math.floor(((bw.end - now) % 3600000) / 60000));
+  var endStr = (bw.endAnchorDate || new Date(bw.end)).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) + ' 08:00';
+  var nextMs = bw.nextRefresh && typeof bw.nextRefresh.getTime === 'function' ? bw.nextRefresh.getTime() : Number(bw.end || 0);
+  var nextRemainH = Math.max(0, Math.floor((nextMs - now) / 3600000));
+  var nextRemainM = Math.max(0, Math.floor(((nextMs - now) % 3600000) / 60000));
   tsEl.textContent = anchorStr + ' ~ ' + nextStr + ' | 다음 갱신: ' + remainH + '시간 ' + remainM + '분 후';
 }
 
 /* ── 유틸리티: HTML 이스케이프 (use global escHtml) ────────── */
+var _aioUpdateBriefingTimestampBase = _updateBriefingTimestamp;
+_updateBriefingTimestamp = function(bw) {
+  _aioUpdateBriefingTimestampBase(bw);
+  var tsEl = document.getElementById('briefing-24h-ts');
+  if (!tsEl || !bw || !bw.anchorDate) return;
+  var startStr = bw.anchorDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) + ' 08:00';
+  var endStr = (bw.endAnchorDate || new Date(bw.end)).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) + ' 08:00';
+  var nextMs = bw.nextRefresh && typeof bw.nextRefresh.getTime === 'function' ? bw.nextRefresh.getTime() : Number(bw.end || 0);
+  var now = Date.now();
+  var remainH = Math.max(0, Math.floor((nextMs - now) / 3600000));
+  var remainM = Math.max(0, Math.floor(((nextMs - now) % 3600000) / 60000));
+  tsEl.textContent = startStr + ' ~ ' + endStr + ' | 다음 갱신: ' + remainH + '시간 ' + remainM + '분';
+};
+
 // escHtml defined globally at line ~8130
 
 /* ── 유틸리티: 상대 시간 표시 ─────────────────────────────── */

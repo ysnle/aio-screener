@@ -14654,3 +14654,8 @@ Signal ?섏씠吏瑜?Bloomberg Terminal湲?**"吏湲?嫄곕옒?댁빞 ?좉�
 - **Regression**: Added T831 to guard dynamic digest application and loader wiring. No commit/deploy performed.
 
 
+## v51.31 - 뉴스/소식 08:00 KST 완료 24h 사이클 통일 (2026-06-25)
+
+전체 뉴스/소식 운영 주기를 `kst-0800-completed-24h`로 통일. 서버 `fetch-data.mjs`는 Google News RSS를 넓게 수집하되 최종 `data.json.news[]`에는 직전 완료된 08:00 KST~08:00 KST 24시간 구간 기사만 저장하고, 각 뉴스와 `meta`에 `newsCyclePolicy/start/end/label/nextRefresh`를 기록한다. 뉴스 recency 점수는 실행 시각이 아니라 사이클 종료시각 기준으로 계산해 같은 일간 묶음 안의 뉴스가 불필요하게 stale 감점을 받지 않도록 조정. 홈/브리핑/시장뉴스/분석 페이지 topic-strip 모두 24h 사이클 계약을 사용하며, 브리핑 타임스탬프는 수집 구간과 다음 08:00 갱신 시각을 분리 표시. CI 데이터 파이프라인 계약과 T749 런타임 테스트도 08:00 KST 완료 24h 정책을 검증하도록 갱신.
+
+---

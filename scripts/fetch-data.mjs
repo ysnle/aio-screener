@@ -204,8 +204,37 @@ function _googleNewsSearchUrl(query, hl = 'en-US', gl = 'US', ceid = 'US:en') {
   return 'https://news.google.com/rss/search?q=' + encodeURIComponent(query) + '&hl=' + hl + '&gl=' + gl + '&ceid=' + ceid;
 }
 
+const NEWS_CYCLE_POLICY = 'kst-0800-completed-24h';
+const NEWS_CYCLE_CUTOFF_HOUR_KST = 8;
+const KST_OFFSET_MS = 9 * 3600000;
+const DAY_MS = 24 * 3600000;
+
+function _fmtKstCycleDate(ms) {
+  return new Date(ms + KST_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+function getKst0800NewsCycle(nowMs = Date.now()) {
+  const kstNow = new Date(nowMs + KST_OFFSET_MS);
+  const y = kstNow.getUTCFullYear();
+  const m = kstNow.getUTCMonth();
+  const d = kstNow.getUTCDate();
+  let endMs = Date.UTC(y, m, d, NEWS_CYCLE_CUTOFF_HOUR_KST, 0, 0, 0) - KST_OFFSET_MS;
+  if (nowMs < endMs) endMs -= DAY_MS;
+  const startMs = endMs - DAY_MS;
+  return {
+    policy: NEWS_CYCLE_POLICY,
+    cutoffHourKst: NEWS_CYCLE_CUTOFF_HOUR_KST,
+    startMs,
+    endMs,
+    start: new Date(startMs).toISOString(),
+    end: new Date(endMs).toISOString(),
+    label: `${_fmtKstCycleDate(startMs)} 08:00 KST ~ ${_fmtKstCycleDate(endMs)} 08:00 KST`,
+    nextRefresh: new Date(endMs + DAY_MS).toISOString(),
+  };
+}
+
 const NEWS_FEEDS = [
-  { query: 'Reuters Bloomberg CNBC market moving stocks S&P 500 Nasdaq Federal Reserve Treasury yields oil when:1d', source: 'Google News - Market movers', topic: 'macro', country: 'us', tier: 1 },
+  { query: 'Reuters Bloomberg CNBC market moving stocks S&P 500 Nasdaq Federal Reserve Treasury yields oil when:2d', source: 'Google News - Market movers', topic: 'macro', country: 'us', tier: 1 },
   { query: 'stock market OR S&P 500 OR Nasdaq OR Federal Reserve OR Treasury yield OR inflation when:2d', source: 'Google News - US markets', topic: 'macro', country: 'us', tier: 2 },
   { query: 'Nvidia OR Micron OR semiconductor OR AI stocks OR data center OR earnings guidance when:2d', source: 'Google News - AI/Semis', topic: 'semi', country: 'us', tier: 2 },
   { query: 'Iran OR Hormuz OR Red Sea OR oil prices OR geopolitics OR sanctions when:2d', source: 'Google News - Geopolitics/Energy', topic: 'geo', country: 'global', tier: 1 },
@@ -251,7 +280,7 @@ function scoreServerNewsItem(item) {
   score += tierBonus;
   reasons.push(`source-tier${sourceTier}${tierBonus >= 0 ? '+' : ''}${tierBonus}`);
 
-  const ageH = item.ts ? (Date.now() - item.ts) / 3600000 : 48;
+  const ageH = item.ts ? ((item.scoringNowMs || Date.now()) - item.ts) / 3600000 : 48;
   const recency = ageH <= 1 ? 18 : ageH <= 6 ? 12 : ageH <= 24 ? 6 : ageH <= 48 ? 2 : -8;
   score += recency;
   reasons.push(`recency${recency >= 0 ? '+' : ''}${recency}`);
@@ -307,6 +336,7 @@ function _parseRssXml(xml, opts) {
 }
 
 async function fetchNews() {
+  const cycle = getKst0800NewsCycle();
   const items = [];    // US/글로벌 피드
   const krItems = [];  // 한국 전용 (reserved slot)
   for (const feed of NEWS_FEEDS) {
@@ -315,6 +345,7 @@ async function fetchNews() {
       const parsed = _parseRssXml(await _fetchRss(feed.url, 12000), { limit: 20, titleLen: 200, needLink: true });
       for (const p of parsed) {
         const t = p.ts;
+        if (!isFinite(t) || t < cycle.startMs || t >= cycle.endMs) continue;
         const item = {
           title: p.title, link: p.link, source: p.source || feed.source,
           pubDate: p.pubDate, ts: isFinite(t) ? t : 0,
@@ -323,6 +354,11 @@ async function fetchNews() {
           tier: getServerNewsSourceTier(p.source || feed.source, feed.tier),
           feedTier: feed.tier,
           feedSource: feed.source,
+          scoringNowMs: cycle.endMs,
+          newsCyclePolicy: cycle.policy,
+          newsCycleStart: cycle.start,
+          newsCycleEnd: cycle.end,
+          newsCycleLabel: cycle.label,
         };
         Object.assign(item, scoreServerNewsItem(item));
         if (isKr) { krItems.push(item); } else { items.push(item); }
@@ -340,6 +376,10 @@ async function fetchNews() {
       pubDate: it.pubDate, topic: it.topic, country: it.country,
       tier: it.tier, score: it.score, selectionReason: it.selectionReason,
       feedSource: it.feedSource,
+      newsCyclePolicy: it.newsCyclePolicy,
+      newsCycleStart: it.newsCycleStart,
+      newsCycleEnd: it.newsCycleEnd,
+      newsCycleLabel: it.newsCycleLabel,
     });
   }
   // 한국 뉴스 최대 3슬롯 먼저 예약
@@ -801,6 +841,7 @@ async function main() {
   const fredHasKey = !!process.env.FRED_API_KEY;
   const fredFetchOk = fredHasKey && macroKeys.length > 0;
   const newsScores = Array.isArray(news) ? news.map(n => Number(n.score)).filter(n => isFinite(n)) : [];
+  const newsCycle = getKst0800NewsCycle();
   const fredOk = fredFetchOk; // 하위 호환 유지
 
   const data = {
@@ -819,6 +860,11 @@ async function main() {
       newsOk: Array.isArray(news) && news.length > 0,
       newsCount: Array.isArray(news) ? news.length : 0,
       newsSourceCount: NEWS_FEEDS.length,
+      newsCyclePolicy: newsCycle.policy,
+      newsCycleStart: newsCycle.start,
+      newsCycleEnd: newsCycle.end,
+      newsCycleLabel: newsCycle.label,
+      newsNextRefresh: newsCycle.nextRefresh,
       serverNewsScored: true,
       newsScoreMin: newsScores.length ? Math.min(...newsScores) : null,
       newsScoreMax: newsScores.length ? Math.max(...newsScores) : null,

@@ -2691,7 +2691,7 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - Server news scoring must distinguish Google News feed priority from actual article source tier; a high-priority query must not upgrade weak/re-syndicated sources.
 - Low-quality/re-syndicated sources must receive an explicit penalty and must not dominate home core news.
 - Query coverage must include the active market-mover themes that drive the current session, including Korea/AI semiconductor pressure and rebound when relevant.
-- Home core news should use a tight decision window, currently 30h, unless the item is explicitly marked as a reference/static fallback.
+- Home, briefing, market-news, and analysis-page news strips should use the same completed 08:00 KST to 08:00 KST 24h decision cycle unless the item is explicitly marked as a reference/static fallback.
 - CI must assert source-tier scoring, low-quality penalties, current market-mover query coverage, and the home freshness contract.
 
-**Validation**: `scripts/ci-data-pipeline-contract-check.mjs` checks source-tier scoring, low-quality source penalties, Korea AI/semi market-mover query coverage, and the 30h home news surface contract.
+**Validation**: `scripts/ci-data-pipeline-contract-check.mjs` checks source-tier scoring, low-quality source penalties, Korea AI/semi market-mover query coverage, server `newsCycle*` metadata, and the shared completed 08:00 KST 24h news surface contract.

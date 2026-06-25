@@ -3,8 +3,8 @@ verified_by: agent
 last_verified: 2026-06-24
 confidence: high
 version: v3.7
-checklist_version: v51.30
-total_items: 365
+checklist_version: v51.31
+total_items: 366
 stages: 21
 latest_P_covered: P531
 ---
@@ -14,7 +14,8 @@ latest_P_covered: P531
 - [ ] `scripts/fetch-data.mjs` scores news by actual article source tier, while preserving Google feed tier separately as `feedTier`.
 - [ ] Low-quality/re-syndicated sources are explicitly penalized and cannot receive a tier-1 bonus from a high-priority Google News query.
 - [ ] Korea market-mover coverage includes KOSPI, Samsung Electronics, SK Hynix, AI semiconductor selloff/rebound, Micron, and foreign-investor context.
-- [ ] Home core news uses a 30h decision window in both the primary surface contract and fallback path.
+- [ ] Home, briefing, market-news, and analysis-page news strips share the completed 08:00 KST to 08:00 KST 24h decision cycle.
+- [ ] `public-data/data.json.meta` exposes `newsCyclePolicy`, `newsCycleStart`, `newsCycleEnd`, `newsCycleLabel`, and `newsNextRefresh`.
 
 ## v51.30 - Auto-refresh workflow syntax closure (P530/R229)
 

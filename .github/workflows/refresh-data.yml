@@ -56,7 +56,7 @@ jobs:
               `| Quotes | ${m.symbolsOk >= 70 ? 'OK' : 'WARN'} | ${m.symbolsOk || 0}/${totalSymbols} failed: ${(m.failedSymbols || []).join(',') || 'none'} |`,
               `| Fear&Greed | ${m.fearGreedOk ? 'OK' : 'WARN'} | ${d.fearGreed && d.fearGreed.score != null ? d.fearGreed.score : 'n/a'} |`,
               `| FRED Secret | ${m.fredHasKey ? 'OK' : 'MISSING'} | fredFetchOk: ${m.fredFetchOk ? 'yes (' + (m.macroKeyCount || 0) + ' keys)' : 'no'} |`,
-              `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items |`,
+              `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items · ${m.newsCycleLabel || 'cycle n/a'} |`,
               `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : 'ANTHROPIC_API_KEY missing or generation failed'} |`,
               `| Elapsed | OK | ${m.elapsedMs || 0}ms |`,
             ].join('\n');

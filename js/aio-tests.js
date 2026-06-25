@@ -5123,9 +5123,9 @@
 
     var newsContracts = window.AIO_NEWS_SURFACE_CONTRACTS || {};
     _assert('T749 v502_news_surface_contracts: home/briefing/market-news policies exist',
-      newsContracts.home && newsContracts.home.windowHours === 72 && newsContracts.home.maxItems === 3 &&
-        newsContracts.briefing && newsContracts.briefing.windowHours === 24 && newsContracts.briefing.aiPolicy === 'verified-current-only' &&
-        newsContracts['market-news'] && newsContracts['market-news'].windowHours === 48 && newsContracts['market-news'].maxItems === 150,
+      newsContracts.home && newsContracts.home.windowHours === 24 && newsContracts.home.newsCyclePolicy === 'kst-0800-completed-24h' && newsContracts.home.maxItems === 3 &&
+        newsContracts.briefing && newsContracts.briefing.windowHours === 24 && newsContracts.briefing.newsCyclePolicy === 'kst-0800-completed-24h' && newsContracts.briefing.aiPolicy === 'verified-current-only' &&
+        newsContracts['market-news'] && newsContracts['market-news'].windowHours === 24 && newsContracts['market-news'].newsCyclePolicy === 'kst-0800-completed-24h' && newsContracts['market-news'].maxItems === 150,
       JSON.stringify(newsContracts));
 
     var nowT750 = Date.now();
