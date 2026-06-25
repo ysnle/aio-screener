@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-25T20:36:53.702Z",
-  "since": "2026-06-18T20:36:26.573Z",
-  "until": "2026-06-25T20:36:26.573Z",
+  "generatedAt": "2026-06-25T22:11:15.181Z",
+  "since": "2026-06-18T22:10:47.593Z",
+  "until": "2026-06-25T22:10:47.593Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -15,7 +15,7 @@
       "channel": "insidertracking",
       "pages": 30,
       "reachedOlder": false,
-      "count": 526,
+      "count": 528,
       "error": null
     },
     {
@@ -26,42 +26,62 @@
       "error": null
     }
   ],
-  "count": 802,
+  "count": 804,
   "topicCounts": {
     "market-note": 329,
-    "equity": 211,
-    "semi": 201,
-    "geo": 259,
-    "power": 64,
+    "equity": 217,
+    "semi": 204,
+    "power": 63,
+    "macro": 198,
+    "geo": 256,
     "ai-policy": 25,
-    "macro": 201,
-    "optical": 18,
-    "crypto": 23
+    "optical": 17,
+    "crypto": 22
   },
   "tickerCounts": {
-    "MU": 137,
-    "000660.KS": 53,
-    "NVDA": 52,
+    "ADBE": 2,
+    "NVDA": 54,
+    "MU": 135,
+    "AMD": 18,
+    "005930.KS": 34,
+    "000660.KS": 54,
     "META": 24,
-    "005930.KS": 33,
     "TSM": 14,
     "AMZN": 19,
     "6600.T": 15,
-    "AMD": 17,
-    "MRVL": 13,
+    "MRVL": 11,
     "BE": 8,
     "ALAB": 4,
     "AAOI": 2,
-    "ORCL": 7,
-    "RKLB": 6,
+    "ORCL": 6,
+    "RKLB": 5,
     "SMCI": 3,
     "LITE": 2,
-    "ADBE": 1,
     "COHR": 1,
     "6981.T": 1,
     "009150.KS": 3
   },
   "topItems": [
+    {
+      "id": "insidertracking/56605",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56605",
+      "datetime": "2026-06-25T20:37:06.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "semi",
+        "equity"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "MU",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "score": 72,
+      "text": "2019~2028년 반도체 기업들의 실제 및 추정 잉여현금흐름\n\n> 1위: 엔비디아\n2위권: 삼성전자, SK하이닉스\n그다음: 브로드컴, 마이크론\n상대적으로 작은 규모: AMD\n\n출처: 블룸버그"
+    },
     {
       "id": "insidertracking/56600",
       "channel": "insidertracking",
@@ -784,30 +804,310 @@
       "tickers": [],
       "score": 87,
       "text": "📌 JP모건 2026년 하반기 전망\n\n한 줄 결론은 ‘경기침체보다는 견조한 성장, 끈적한 인플레이션, 지속되는 AI 투자’입니다. JP모건은 에너지 공급 충격에도 글로벌 소비와 고용, AI 설비투자가 성장을 지지할 것으로 전망합니다. 다만 글로벌 근원물가는 약 3% 수준에서 쉽게 내려오지 않아, 중앙은행의 정책 기조는 기존 예상보다 매파적으로 유지될 가능성이 높습니다.\n\n 🌍 매크로\n\n미국은 2분기 약 3% 성장 이후 하반기 성장률이 1.5~1.75% 수준으로 둔화될 전망입니다. 경기침체 수준의 둔화는 아니며, 노동시장도 비교적 견조하게 유지돼 4분기 실업률은 4.1%로 예상됩니다.\n\n근원 PCE 물가는 2027년까지 2.5%를 웃돌 가능성이 높지만, JP모건은 Fed가 2026년에는 금리를 동결하고 첫 인상은 2027년에 단행할 것으로 봅니다. 즉 시장이 반영 중인 조기 인상보다는 느리지만, 통화정책의 다음 방향 자체는 인하가 아닌 인상이라는 전망입니다.\n\n유럽은 내수가 성장을 지지하고 있으나 에너지 가격 상승에 따른 물가 압력이 가장 큰 부담입니다. 중국은 수출과 기술 사이클이 버팀목 역할을 하겠지만, 내수 부진과 관세·지정학 리스크 때문에 하반기 성장 모멘텀이 둔화될 것으로 예상됩니다.\n\n 📈 주식\n\nJP모건은 AI 주도의 이익 성장 사이클이 계속될 것으로 보고 S&P 500 연말 목표치를 7,800으로 상향했습니다. 2026년 S&P 500 EPS는 350달러로 전년 대비 29%, 2027년에는 390달러로 15% 증가할 것으로 전망합니다.\n\n선호 스타일은 퀄리티 성장주, 대형주, 기술주입니다. 다만 AI·모멘텀 종목의 쏠림이 심해진 만큼 상승 경로는 직선적이지 않을 것으로 봅니다. 저품질 성장주와 투기적 성장주는 단기 급락 위험이 높으며, 기술적 조정은 추격 매수보다 분할 매수 기회로 활용하라는 입장입니다.\n\n지역별로는 신흥국 주식을 비중확대하고 있으며, AI 슈퍼사이클의 고베타 수혜 시장으로 한국, 대만, 중국 기술주를 선호합니다. 메모리 업종도 대규모 공급 증가가 본격화되는 시점이 2028년 이전에는 오기 어렵다는 점에서 상승 사이클이 더 이어질 것으로 평가합니다.\n\n 💵 금리·환율·크레딧\n\n미 국채 금리는 하반기 완만하게 상승해 연말 2년물 4.20%, 10년물 4.70%를 예상합니다. 성장 둔화 시 10년물이 4.20%까지 내려갈 수 있지만, 노동시장 과열과 추가 긴축 반영 시에는 4.80%까지 상승할 수 있습니다.\n\n달러에 대해서는 강세 전망을 유지합니다. AI 중심의 미국 예외주의, 견조한 성장, Fed 인상 가능성이 달러를 지지할 것으로 봅니다. 연말 전망치는 달러지수 109, EUR/USD 1.13, USD/JPY 164입니다.\n\n신흥국 통화는 전체적으로 비중확대하되 중남미와 EMEA의 고금리 통화를 선호하고, 금융여건 긴축에 취약한 아시아 통화는 비중축소합니다. 크레딧은 투자등급 스프레드의 소폭 확대를 예상하며, 기본 시나리오에서는 투자등급채보다 하이일드채를 선호합니다. 신흥국 국채와 회사채는 중립입니다.\n\n 🛢 원자재\n\n브렌트유는 3분기 평균 86달러, 4분기 평균 80달러, 연말 78달러를 예상합니다. 호르무즈 해협 정상화와 지정학적 긴장 완화가 전제된 전망입니다.\n\n산업금속에서는 구리와 알루미늄을 선호하며 연말 전망치는 각각 톤당 14,800달러와 3,700달러입니다. 금은 매파적인 Fed 때문에 단기적으로 박스권 압력이 예상되지만, 구조적 강세 논리는 유지하고 있습니다.\n\n 🤖 AI 투자 사이클\n\nAI와 데이터센터 관련 채권 발행액은 2026년 들어 이미 3,000억 달러를 넘어섰으며, 향후에는 회사채뿐 아니라 주식, 구조화금융, 프로젝트 파이낸싱 등 모든 자본시장이 동원될 것으로 예상됩니다.\n\nJP모건은 2030년까지 데이터센터 전력 용량이 138GW 증가할 것으로 전망합니다. 가장 큰 병목은 여전히 전력이며, 숙련 전기기술자 부족과 인건비 상승도 새로운 제약 요인으로 지목합니다. 그럼에도 고효율 GPU, 자체 ASIC, 독립 전력조달 등을 통해 AI 인프라 확장은 계속될 것으로 봅니다.\n\n ⚠️ 핵심 리스크\n\n하방 시나리오는 호르무즈 해협 재봉쇄와 유가 150달러 이상의 급등입니다. 이 경우 소비 위축과 중앙은행의 과잉 긴축이 경기침체로 연결되며, 주식과 신흥국 자산은 하락하고 달러와 금은 강세를 보일 가능성이 높습니다.\n\n반대로 해협이 정상화되고 AI 생산성 향상이 물가를 낮춘다면 골디락스 환경이 재현될 수 있습니다. 이 경우 상승세가 대형 AI주에서 중소형주, 경기민감주, 가치주와 미국 외 지역으로 확산되고 달러는 약세로 전환될 수 있습니다.\n\n결국 JP모건의 하반기 전략은 ‘위험자산 강세를 유지하되, AI·퀄리티·대형주에 집중하고 과도한 쏠림과 유가 리스크는 경계하라’로 요약할 수 있습니다.\n\n출처: J.P. Morgan Global Research, 2026 Mid-Year Outlook, 2026년 6월 24일. 본 내용은 보고서 요약이며 투자 권유가 아닙니다.\n*GPT로 요약함."
-    },
-    {
-      "id": "insidertracking/56464",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/56464",
-      "datetime": "2026-06-24T12:04:38.000Z",
-      "localDateKst": "2026-06-24",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "equity"
-      ],
-      "tickers": [
-        "MU",
-        "BE",
-        "000660.KS"
-      ],
-      "score": 91,
-      "text": "미국 레딧 게시물 분석\n(2026년 6월 24일 12:00~21:00 기준)\n\n> 🍔 WEN (Wendy's) - 오늘의 밈 주도주\n\n· WSB 전체가 사실상 WEN 종교 모드\n\n· \"Long &#036;WEN\"\n\n· \"Fuck it we WEN\"\n\n· \"Rise Wendy's Rise\"\n\n· 덤스터 밈 → 실제 매수 밈으로 진화\n\n· 50주 인증부터 콜옵션 인증까지 등장\n\n· Frosty DD가 AI DD보다 인기\n\n· PT &#036;11,025 같은 정신나간 목표가 등장\n\n· \"SpaceX보다 Wendy's가 낫다\" 밈 확산\n\n· 수익보다 밈이 강한 전형적 cult stock 분위기\n\n· YOLO 매수 계속 유입\n\n· 과열도 최상급\n\n━━━━━━━━━━━━━━\n\n 🚀 SPCX (SpaceX) - 신성장 vs 과대평가\n\n· IPO 이후 여전히 최다 언급 종목 중 하나\n\n· \"화성 간다\"\n\n· \"2조 달러 밸류 말이 되냐\"\n\n· 강세론과 조롱이 공존\n\n· WEN 밈의 주요 희생양\n\n· 적자 기업인데 시총 너무 크다는 공격 증가\n\n· 여전히 FOMO 세력 존재\n\n· 상승 시 숏스퀴즈 가능성 언급\n\n━━━━━━━━━━━━━━\n\n 🛢 OIL - 공급 과잉 숏 플레이\n\n· 보기 드물게 진지한 DD 등장\n\n· 이란 물량 복귀\n\n· 러시아 공급 확대\n\n· 베네수엘라 증산\n\n· UAE 변수\n\n· \"2014 유가 폭락 시즌2\"\n\n· Brent 50~60달러 주장 증가\n\n· 정유주 롱 + 원유 숏 아이디어 다수\n\n· 다만 WSB 반응은 \"좋은 DD, 하지만 난 콜 산다\"\n\n━━━━━━━━━━━━━━\n\n 🇰🇷 SK Hynix - ADR 상장 기대\n\n· ADR 상장 뉴스 반응 좋음\n\n· 미국 자금 유입 기대\n\n· AI 메모리 수혜주 서사 유지\n\n· HBM 최강자 이미지 강화\n\n· MU와 비교 글 다시 증가 예상\n\n· AI 메모리 테마는 여전히 살아있음\n\n━━━━━━━━━━━━━━\n\n ⚡️ FCEL / 데이터센터 전력\n\n· 데이터센터 전력 부족 서사 지속\n\n· AI 전력 수요 테마 재등장\n\n· \"다음 Bloom Energy?\"\n\n· AI 인프라 관련 저가주 찾기 시작\n\n· 고위험 고변동성 선호\n\n━━━━━━━━━━━━━━\n\n 🏦 BLK (BlackRock)\n\n· 사모대출 유동성 공포 반박 DD 등장\n\n· \"Private Credit 걱정 말고 BLK 사라\"\n\n· AUM 기반 수수료 사업 강조\n\n· 장기 투자론 증가\n\n· WSB 치고 드물게 정상적인 분석\n\n━━━━━━━━━━━━━━\n\n 🔥 현재 WSB 전체 시장 심리\n\n· 오늘은 AI보다 WEN\n\n· 덤스터 밈이 실제 매수 밈으로 변신\n\n· YOLO 분위기 매우 강함\n\n· 옵션 도박 지속\n\n· SPCX 과열 논쟁 계속\n\n· AI 메모리 강세론 유지\n\n· 유가 숏 아이디어 관심 증가\n\n· 데이터센터 전력 테마 재부상\n\n· \"펀더멘털은 모르겠고 밈은 안다\" 분위기\n\n· 숏스퀴즈 후보 계속 탐색 중\n\n· 시장이 너무 조용하면 WSB는 햄버거를 산다 🍔 🚀\n\n작성자: 미국 주식 인사이더\n t.me/insidertracking"
     }
   ],
   "items": [
+    {
+      "id": "insidertracking/56627",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56627",
+      "datetime": "2026-06-25T21:11:54.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "바이오 주식 파이프라인\n\n━━━━━━━━━━━━━━\n\n엘레돈 파마슈티컬스의 신장이식 거부반응 치료제 Tegoprubart(AT-1501)는 3상 개발 단계 진행. 2026년 6월 22일 공개된 미국이식학회(ATC) 2상 데이터에서 치료군은 시간이 지나도 평균 추정 사구체여과율(eGFR)을 더 높은 수준으로 유지했으며, 18개월 시점에서 타크로리무스 대비 약 12mL/min/1.73㎡의 통계적으로 유의한 개선 효과 확인. 회사는 2026년 하반기 3상 임상 개발 추진 예정.\n\n━━━━━━━━━━━━━━\n\n아테아 파마슈티컬스의 C형간염 치료제 Bemnifosbuvir·Ruzasvir(RZR)는 3상 개발 단계 진행. 2026년 6월 25일 기준 C-FORWARD 3상은 치료 경험이 없는 C형간염 환자 880명 이상에 대한 등록을 17개국에서 완료했으며, 소포스부비르·벨파타스비르와 비교 평가 진행 중. 톱라인 결과는 2026년 말 발표 예정.\n\n━━━━━━━━━━━━━━\n\n프로큐어 테라퓨틱스의 AX-0810은 1상 개발 단계 진행. 2026년 6월 25일 공개된 건강한 지원자 대상 1상에서 3mg/kg 및 6mg/kg 코호트 모두 주요 바이오마커에서 용량 의존적인 표적 결합 효과 확인. 9mg/kg 코호트 데이터와 12주 추적 결과는 2026년 말 공개 예정.\n\n━━━━━━━━━━━━━━\n\n카이메라 테라퓨틱스의 아토피 피부염 치료제 KT-621은 2b상 개발 단계 진행. BROADEN2 2b상은 예정보다 약 6개월 앞서 환자 등록 완료. 이에 따라 톱라인 결과는 2026년 말 발표 예정이며, 회사는 2027년 중반 3상 임상 착수 추진.\n\n━━━━━━━━━━━━━━\n\n패텀 파마슈티컬스의 호산구성 식도염 치료제 VOQUEZNA(vonoprazan)는 2상 개발 단계 진행. 2026년 6월 23일 기준 2상 환자 등록 완료. 톱라인 결과는 2026년 4분기 발표 예정이며, 해당 임상은 2025년 11월 4일 첫 환자 투약 개시.\n\n━━━━━━━━━━━━━━"
+    },
+    {
+      "id": "insidertracking/56626",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56626",
+      "datetime": "2026-06-25T21:10:45.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "equity"
+      ],
+      "tickers": [],
+      "score": 53,
+      "text": "바이오 주식 업데이트\n\n━━━━━━━━━━━━━━\n\nARS 파마슈티컬스의 에피네프린 비강 스프레이 네피가 상업 보험 적용을 확보하지 못했다고 발표. 회사는 네피에 대한 신규 보험 처방집 등재나 보장 결정이 없었다고 밝혔으며, 하반기 비용 절감과 지속적인 비용 관리 기조를 반영해 2026 회계연도 매출원가 제외 현금 기준 영업비용 가이던스를 약 2억4,800만 달러로 하향 조정. 주가는 24% 하락한 8.02달러에 마감.\n\n━━━━━━━━━━━━━━\n\n테이샤 진 테라퓨틱스가 보통주 3,250만1주를 주당 6.00달러에 공모한다고 발표. 중추신경계 질환 대상 AAV 유전자 치료제를 개발하는 회사로, 일부 투자자를 대상으로 주당 5.999달러의 선납형 워런트 83만3,333주도 함께 발행. 총 조달 규모는 추가 배정 옵션 제외 약 2억 달러로 예상되며, 거래는 일반적인 종결 조건 충족 시 2026년 6월 26일 완료될 예정. 주가는 11% 하락한 6.21달러에 마감.\n\n━━━━━━━━━━━━━━\n\n누베이션 바이오가 2032년 만기 2억 달러 규모 전환우선채 발행 계획을 발표. 조달 자금은 캡드콜 거래, 기존 선순위 담보대출 상환 및 일반 기업 운영 자금으로 사용할 예정. 재무 유연성은 강화되지만 향후 기존 주주 지분 희석 가능성이 존재. 주가는 10% 하락한 5.81달러에 마감.\n\n━━━━━━━━━━━━━━\n\n에르넥사 테라퓨틱스가 최고경영자 소통 플랫폼인 'CEO 코너'를 개설했다고 발표. 회사의 전략 방향과 연구개발 진행 상황, 범용 세포치료제 비전을 주주들에게 공유하기 위한 목적이며, 새로운 임상 결과나 자금 조달, 규제 관련 진전은 포함되지 않음. 주가는 17% 상승한 7.40달러에 마감.\n\n━━━━━━━━━━━━━━\n\n카이메라 테라퓨틱스가 중등도~중증 아토피 피부염 치료제 KT-621의 글로벌 BROADEN2 2b상 임상시험 환자 모집을 완료했다고 발표. 이번 조기 모집 완료로 주요 결과 발표 시점이 기존보다 6개월 앞당겨져 2026년 말 공개될 예정이며, 규제당국과 협의가 완료될 경우 2027년 중반 3상 임상에 착수할 계획. 주가는 17% 상승한 116.46달러에 마감.\n\n━━━━━━━━━━━━━━\n\n사텔로스 바이오사이언스가 ICNMD 2026 학회에서 SAT-3247 프로그램의 임상 진행 상황을 발표할 예정. 현재 2상 TRAILHEAD 연구에 참여 중인 1b상 환자의 6개월 추적 결과를 공개하며, 퇴행성 근육질환 치료제 개발 현황을 제시할 계획. 주가는 19% 상승한 6.69달러에 마감.\n\n━━━━━━━━━━━━━━\n\n인뮨 바이오가 열성 이영양성 수포성 표피박리증 치료제 에브스트로셀의 소아 개발계획(PIP)을 영국 의약품·의료제품규제청으로부터 90일 이내 승인받았다고 발표. 이번 승인으로 2026년 영국 판매허가 신청과 2027년 초 미국 가속승인 추진 계획에 탄력이 붙었으며, CORDStrom 플랫폼의 규제 절차도 간소화될 전망.\n\n━━━━━━━━━━━━━━\n\n헬러스 파마가 주당 4.85달러에 공모를 완료해 총 5,000만 달러를 조달했다고 발표. 확보한 자금은 주요우울장애 치료제 HLP003 개발과 2026년 4분기 예정인 APPROACH 3상 결과 발표 준비에 사용할 예정이며, 나머지 자금은 HLP004, HLP005 개발과 일반 기업 운영에 투입할 계획. 주가는 18% 상승한 6.02달러에 마감.\n\n━━━━━━━━━━━━━━\n\n오라메드 파마슈티컬스가 주주서한을 통해 러셀 2000 및 러셀 3000 지수 편입 사실을 공개. 경영진은 사이렉스 대출금의 상당 부분을 상환했으며, 2026년 3월 31일 기준 약 2억7,000만 달러의 현금 및 자산을 보유하고 있다고 설명. 또한 알파타우 투자에서 1억2,800만 달러의 평가이익을 기록하며 재무구조가 강화됐다고 강조. 주가는 16% 상승한 5.00달러에 마감.\n\n━━━━━━━━━━━━━━\n\n프로큐어 테라퓨틱스가 주당 1.81달러에 등록 직접공모를 실시해 총 5,000만 달러를 조달한다고 발표. 일라이 릴리도 기존 지분율 유지를 위해 920만 달러 규모의 동시 사모투자에 참여. 확보한 자금은 Axiomer RNA 편집 플랫폼 개발에 활용될 예정이나, 기존 주주 지분 희석 가능성도 발생. 주가는 14% 하락한 1.57달러에 마감."
+    },
+    {
+      "id": "insidertracking/56625",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56625",
+      "datetime": "2026-06-25T20:59:40.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "equity"
+      ],
+      "tickers": [
+        "ADBE"
+      ],
+      "score": 44,
+      "text": "마이클버리, 팔란티어 숏포지션 절반 거두고, Fiserv/징둥/Adobe는 추가 매입\n\n“大空头”Michael Burry：已经对Palantir空单回补一半的头寸。\n加仓Fiserv、京东、Adobe。\n\n========================\n\n~ Michael Burry said in his newsletter that he has covered half of his short position in Palantir\n\n https://x.com/wallstengine/status/2070236359038755181"
+    },
+    {
+      "id": "insidertracking/56624",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56624",
+      "datetime": "2026-06-25T20:59:22.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "목요일 오전 헬리콥터에서 촬영된 항공 영상에 따르면, 전날 발생한 규모 7.2와 7.5의 강진으로 베네수엘라 북부 해안 도시 마이케티아와 라과이라 일대가 대규모 피해를 입은 것으로 확인됨.\n\n두 차례의 강진은 카라카스 서쪽 해역에서 발생했으며, 대부분의 다층 건물이 심각한 구조적 손상을 입은 것으로 보이고 상당수 건물은 붕괴된 것으로 확인됨."
+    },
+    {
+      "id": "insidertracking/56623",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56623",
+      "datetime": "2026-06-25T20:57:34.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "미국 연방대법원이 6대 3 결정으로 트럼프 대통령의 이민 정책과 관련된 두 건의 사건에서 행정부의 손을 들어줌.\n\n첫 번째 판결에서는 미국 영토에 입국하기 전 망명 신청자를 국경에서 돌려보내는 조치가 가능하다고 판단.\n\n두 번째 판결에서는 35만 명이 넘는 아이티와 시리아 출신 이민자들에게 부여됐던 임시보호지위(TPS)가 종료될 수 있도록 허용."
+    },
+    {
+      "id": "insidertracking/56622",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56622",
+      "datetime": "2026-06-25T20:57:07.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 45,
+      "text": "미국 연방대법원이 6대 3 결정으로 일반에 개방된 대부분의 사유지에서 총기 휴대를 금지한 하와이주의 규정을 위헌으로 판단.\n\n연방대법원은 해당 규정이 미국 수정헌법 제2조(총기 소지 권리)와 제14조를 위반한다고 판시."
+    },
+    {
+      "id": "insidertracking/56621",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56621",
+      "datetime": "2026-06-25T20:55:49.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "tickers": [],
+      "score": 67,
+      "text": "온세미가 시냅틱스를 약 70억 달러 규모의 전액 주식 거래로 인수하기로 합의.\n\n이번 거래를 통해 온세미의 전력 반도체 및 센서 기술과 시냅틱스의 엣지 AI 및 인터페이스 기술이 결합되며, 통합 회사는 피지컬 AI 분야에서 더욱 강력한 경쟁력을 확보할 전망."
+    },
+    {
+      "id": "insidertracking/56619",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56619",
+      "datetime": "2026-06-25T20:54:36.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "미국과 우즈베키스탄이 양국 간 경제 협력 강화를 위해 초기 무역 합의(Early Harvest)에 도달하고, 상호무역 및 투자협정(Agreement on Reciprocal Trade and Investment) 체결을 위한 협상을 가속화하기로 합의."
+    },
+    {
+      "id": "insidertracking/56618",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56618",
+      "datetime": "2026-06-25T20:53:58.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "트럼프 대통령:\n\n“1776년의 애국자들처럼, 지난 17개월 동안 우리는 멀리 떨어진 정치 기득권 세력으로부터 권력을 되찾아왔습니다.\n\n우리는 주권을 되찾았고, 자유를 회복했으며, 번영을 되살렸고, 우리 나라를 구해냈습니다.\n\n모든 분야에서 우리는 다시 한번 ‘미국 우선주의(America First)’를 실현하고 있습니다.”\n\n— 트럼프 대통령, ‘아메리카 이즈 백(America Is Back)’ 기념행사 연설."
+    },
+    {
+      "id": "insidertracking/56617",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56617",
+      "datetime": "2026-06-25T20:50:57.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "equity"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n오픈AI가 기업공개(IPO)를 2027년까지 연기하는 방향으로 기울고 있는 것으로 전해짐.\n\n오픈AI는 당초 이르면 올해 안 상장도 준비해왔지만, 스페이스X의 상장 이후 주가 변동성과 기술주 시장의 불안정성이 이어지면서 자문사들이 보다 신중한 상장 일정을 권고한 것으로 알려짐."
+    },
+    {
+      "id": "insidertracking/56616",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56616",
+      "datetime": "2026-06-25T20:50:04.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "NVDA",
+        "MU"
+      ],
+      "score": 65,
+      "text": "블룸버그에 따르면 미국 증시에서 마이크론이 공식적으로 가장 활발하게 거래되는 종목으로 올라섬.\n\n마이크론의 일평균 거래대금은 사상 처음으로 700억 달러를 돌파하며 미국 증시에서 거래대금 1위를 기록.\n\n이는 2026년 초 대비 약 1,100% 증가한 수준.\n\n이로써 마이크론은 2025년 미국 증시에서 가장 활발하게 거래됐던 엔비디아와 테슬라의 거래 규모도 넘어섬."
+    },
+    {
+      "id": "insidertracking/56615",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56615",
+      "datetime": "2026-06-25T20:47:41.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "tickers": [],
+      "score": 52,
+      "text": "페르시아만 해협청(PGSA) 발표\n\nPGSA는 반복적으로 접수되는 문의에 대해 다음과 같이 알립니다.\n\nPGSA가 지정한 항로 체계 밖의 경로를 이용한 모든 항행은 안전한 통항 보장의 대상에 포함되지 않으며, 보험 보장 및 관련 책임 범위의 적용도 받을 수 없습니다.\n\n허가되지 않은 항로를 이용해 발생하는 모든 결과와 책임은 선박 소유자, 운영자 및 선장의 책임입니다.\n\n1405년 티르(Tir)월 4일 (이란력, 2026년 6월경)"
+    },
+    {
+      "id": "insidertracking/56614",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56614",
+      "datetime": "2026-06-25T20:46:37.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "tickers": [],
+      "score": 52,
+      "text": "이란 외무장관 세예드 압바스 아라그치에 따르면 최근 무스카트 공동성명 발표 이후 오만 외무장관 바드르 알부사이디와 생산적인 통화를 진행.\n\n양측은 향후 호르무즈 해협의 행정 운영과 해상 서비스 체계를 마련하기 위한 대화를 이란과 오만이 추진하기로 했다는 점을 재확인."
+    },
+    {
+      "id": "insidertracking/56613",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56613",
+      "datetime": "2026-06-25T20:45:23.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "영국 해사무역기구(UKMTO)는 국제해사기구(IMO)가 지원하는 선박 이동 관리 절차가 별도 공지가 있을 때까지 일시 중단됐다고 발표.\n\n이에 따라 UKMTO는 해당 기간 동안 IMO 항해 계획 배치(Planning Batches) 포함 여부와 관련한 선박 통보를 실시하지 않을 예정.\n\n선박 운영사와 선장, 해운사는 항해 계획과 위험 평가를 위해 IMO의 공식 공지, 연안국 지침, 항해자 공지(Notice to Mariners)를 지속적으로 확인할 것을 권고.\n\nUKMTO는 기존과 같이 선박 신고 접수와 정보 공유 기능을 유지하며, 해상 안전 정보를 제공하는 중립적인 창구 역할을 계속 수행할 예정.\n\n또한 선박 운영자들에게 ▲자발적 신고구역(VRA) 절차에 따른 UKMTO 신고 지속 ▲해양 보안 및 안전 관련 권고사항 상시 확인 ▲항해 전 적절한 위험 평가 실시 ▲최신 JMIC 지침 및 업계 권고사항 참고를 권고."
+    },
+    {
+      "id": "insidertracking/56612",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56612",
+      "datetime": "2026-06-25T20:45:04.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "영국 해사무역기구(UKMTO)에 따르면 오만 다히트(Dahit)에서 남동쪽으로 약 7.5해리 떨어진 해상에서 선박 피격 사건이 발생.\n\n화물선이 정체불명의 발사체에 우현(오른쪽) 측면을 맞아 선교(브리지)가 손상된 것으로 보고됨.\n\n선장은 인명 피해와 환경오염은 발생하지 않았다고 보고했으며, 당국은 사건을 조사 중.\n\nUKMTO는 인근을 항해하는 선박들에 주의 운항과 함께 의심스러운 활동을 발견할 경우 즉시 신고할 것을 권고."
+    },
+    {
+      "id": "insidertracking/56611",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56611",
+      "datetime": "2026-06-25T20:43:36.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "💬 💬 💬 💬 💬 💬\n금일 한국시간 (KST) 기준 경제지표 및 주요 일정\n\n> 특이사항 없음"
+    },
+    {
+      "id": "insidertracking/56610",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56610",
+      "datetime": "2026-06-25T20:43:15.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "금일 실적 발표 리스트는 특이사항 없음"
+    },
+    {
+      "id": "insidertracking/56609",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56609",
+      "datetime": "2026-06-25T20:41:54.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n로켓랩이 2027년 일렉트론(Electron) 로켓 발사 3건을 수행하는 계약을 NASA로부터 수주.\n\n이번 계약에 따라 폴시르(PolSIR) 임무를 위한 발사 2회는 2027년 6월 이후부터 뉴질랜드 발사장에서 진행될 예정이며, TSIS-2(Total and Spectral Solar Irradiance Sensor-2) 임무 발사 1회는 2027년 초로 예정."
+    },
+    {
+      "id": "insidertracking/56608",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56608",
+      "datetime": "2026-06-25T20:40:29.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 48,
+      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n트럼프 행정부가 보안 우려를 이유로 오픈AI에 GPT-5.6 출시를 단계적으로 진행해 달라고 요청한 것으로 전해짐.\n\n샘 올트먼 오픈AI CEO는 직원들에게 보낸 메모에서 연방정부의 요청에 따라 GPT-5.6을 우선 일부 파트너에게 제한적으로 공개하는 프리뷰 형태로 출시할 예정이라고 밝힘.\n\n올트먼은 프리뷰 기간 동안 정부가 고객별로 접근 권한을 승인하는 방식이 적용될 것이라고 설명.\n\n이번 요청은 오픈AI가 지난 한 달간 국가사이버국(Office of the National Cyber Director)과 백악관 과학기술정책실(Office of Science and Technology Policy) 등 정부 기관과 함께 모델을 사전 검토하는 과정을 거친 이후 나온 것으로 전해짐.\n\n더 인포메이션은 하워드 러트닉 상무장관도 다른 정부 기관들의 승인이 있기 전에는 GPT-5.6을 출시하지 말 것을 오픈AI에 권고했다고 보도.\n\n올트먼은 직원들에게 이러한 방식이 \"장기적으로 우리가 선호하는 모델은 아니다\"라며, 향후 모델 출시를 위한 보다 지속 가능한 절차를 마련하기 위해 정부 및 업계와 협력해 나갈 계획이라고 밝힘.\n\n출처: 더 인포메이션"
+    },
+    {
+      "id": "insidertracking/56607",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56607",
+      "datetime": "2026-06-25T20:39:22.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "equity"
+      ],
+      "tickers": [],
+      "score": 45,
+      "text": "골드만삭스에 따르면 올해 들어 미국 상장 레버리지 ETF의 일평균 거래량은 약 450억 달러로 집계됐으며, 이는 2025년 상반기 기록적인 거래 속도보다 50% 높은 수준.\n\n현재 거래 규모는 레버리지 ETF 전체 운용자산(AUM)의 약 30%가 매일 회전하는 수준으로, 레버리지 ETF 거래가 사상 최고 수준의 활발한 흐름을 보이고 있다는 분석."
+    },
+    {
+      "id": "insidertracking/56606",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56606",
+      "datetime": "2026-06-25T20:39:00.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "equity"
+      ],
+      "tickers": [],
+      "score": 45,
+      "text": "블룸버그와 네글리저블 캐피털에 따르면 2026년 6월 기준 구글, 오픈AI, 앤트로픽이 요청받은 토큰 비중은 전체의 33%로 감소했으며, 이는 1년 전 72%에서 크게 하락한 수준.\n\n토큰 사용량(Tokenomics)의 중요성이 앞으로 더욱 커질 것으로 예상되는 가운데, 중국 AI 기업들의 시장 점유율 확대가 두드러지고 있다는 분석."
+    },
+    {
+      "id": "insidertracking/56605",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/56605",
+      "datetime": "2026-06-25T20:37:06.000Z",
+      "localDateKst": "2026-06-26",
+      "tags": [
+        "semi",
+        "equity"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "MU",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "score": 72,
+      "text": "2019~2028년 반도체 기업들의 실제 및 추정 잉여현금흐름\n\n> 1위: 엔비디아\n2위권: 삼성전자, SK하이닉스\n그다음: 브로드컴, 마이크론\n상대적으로 작은 규모: AMD\n\n출처: 블룸버그"
+    },
     {
       "id": "insidertracking/56604",
       "channel": "insidertracking",
@@ -11414,125 +11714,6 @@
       "text": "트럼프: 앤스로픽은 국가 안보위협이 아닙니다."
     },
     {
-      "id": "insidertracking/56005",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/56005",
-      "datetime": "2026-06-20T03:45:17.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "https://www.yna.co.kr/amp/view/AKR20260619067000009"
-    },
-    {
-      "id": "insidertracking/56004",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/56004",
-      "datetime": "2026-06-20T02:57:10.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [
-        "MU",
-        "MRVL"
-      ],
-      "score": 53,
-      "text": "6월 1일부터 지금까지 순매수 미국 주식 TOP 50 보면....\n\n40% 가까이 스페이스X 매수했고, 마이크론이랑 마벨도 상위권.\n\n스노우 플레이크, 플루언스 에너지 같은 주식도 관심 가지고....\n\n세라브레스도 관심 가지네요."
-    },
-    {
-      "id": "insidertracking/56003",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/56003",
-      "datetime": "2026-06-20T02:55:37.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "macro",
-        "optical",
-        "power"
-      ],
-      "tickers": [
-        "MU",
-        "MRVL",
-        "ORCL",
-        "RKLB"
-      ],
-      "score": 83,
-      "text": "서학개미 순매수 미국 주식 TOP 50\n\n> 기간: 2026/06/01 ~ 2026/06/19 (6월 누적)\n\n1위: SPACE EXPLORATION TECHN-CL A (38.66%)\n2위: MARVELL TECHNOLOGY INC (6.14%)\n3위: MICRON TECHNOLOGY INC (5.56%)\n4위: INVESCO NASDAQ 100 ETF (3.70%)\n5위: PROSHARES ULTRA QQQ ETF (3.05%)\n6위: ARM HOLDINGS PLC (3.01%)\n7위: ROUNDHILL MEMORY ETF (2.88%)\n8위: BROADCOM INC (2.39%)\n9위: DXN MU BUL2X ETF (2.11%)\n10위: CoreWeave Inc (2.10%)\n\n11위: INVESCO QQQ TRUST SRS 1 ETF (2.08%)\n12위: VANGUARD SP 500 ETF (1.87%)\n13위: SNOWFLAKE INC (1.80%)\n14위: ISHARES SEMICONDUCTOR ETF (1.76%)\n15위: FLUENCE ENERGY INC (1.69%)\n16위: DIREXION DAILY MSCI SOUTH KOREA BULL ETF (1.59%)\n17위: INTERNATIONAL BUSINESS MACHINES CORP (1.51%)\n18위: SCHWAB US DIVIDEND EQUITY ETF (1.50%)\n19위: GRANITESHARES 2X LONG MRVL DAILY ETF (1.38%)\n20위: LEVERAGE SHARES 2X LONG SPCX DAILY ETF (1.25%)\n\n21위: DEFIANCE DAILY TARGET 2X LONG RKLB ETF (1.18%)\n22위: DIGITALOCEAN HOLDINGS INC (0.92%)\n23위: TRADR 2X LONG ASTS DAILY ETF (0.80%)\n24위: DIREXION SHARES ETF TRUST DAILY SEMICONDUCTOR BEAR 3X SHS (0.79%)\n25위: INNODATA CORP (0.79%)\n26위: YANDEX NV CL A (0.78%)\n27위: APPLIED MATERIALS INC (0.77%)\n28위: T-REX 2X LONG RDW DAILY TARGET ETF (0.76%)\n29위: LAM RESEARCH CORP (0.71%)\n30위: T-REX 2X LONG MSTR DAILY TARGET ETF (0.71%)\n\n31위: CEREBRAS SYSTEMS INC (0.71%)\n32위: SOLAREDGE TECHNOLOGIES INC (0.69%)\n33위: LEVERAGE SHARES 2X CRWV (0.69%)\n34위: VOLATILITY SHARES TRUST 2X ETHER ETF (0.68%)\n35위: NEOS NASDAQ 100 HIGH INCOME ETF (0.67%)\n36위: SILICON MOTION TECHNOLOGY CORP ADR (0.59%)\n37위: ORACLE CORP (0.59%)\n38위: Direxion Daily AVGO Bull 2X Shares (0.55%)\n39위: NUSCALE POWER CORP CL A (0.53%)\n40위: SPDR PORTFOLIO SP 500 ETF (0.53%)\n\n41위: DEFIANCE DAILY TARGET 2X LONG AVGO ETF (0.51%)\n42위: DEFIANCE DAILY TARGET 2X LONG PL ETF (0.50%)\n43위: PROSHARES ULTRA SEMICONDUCTORS ETF (0.49%)\n44위: MONGODB INC (0.48%)\n45위: DELL TECHNOLOGIES INC CL C (0.46%)\n46위: PROSHARES ULTRAPRO QQQ ETF (0.46%)\n47위: WESTERN DIGITAL CORP (0.43%)\n48위: NEXTRACKER INC (0.41%)\n49위: ASML HOLDING NV ADR (0.39%)\n50위: VANECK SEMICONDUCTOR ETF (0.36%)\n\n ✅ 요약 분석\n총 순매수 금액: 5,042,859,111 USD\n(약 7조 6,904억 원, 평균 환율 1,525원 기준)\n\n ✅ 각 종목 옆에 있는 %는 TOP 50 금액중에서 비중을 뜻합니다\n\n작성자: 미국 주식 인사이더\n출처: 한국예탁결제원"
-    },
-    {
-      "id": "insidertracking/56002",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/56002",
-      "datetime": "2026-06-20T02:47:27.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "합동해상정보센터(JMIC)가 6월 20일 권고문을 통해 호르무즈 해협이 개방된 상태라고 발표.\n\n미국과 이란이 해협 개방 의사를 밝힌 이후 호르무즈 해협의 해상 보안 위협 수준은 '보통(MODERATE)'으로 유지 중.\n\n기뢰 제거 작업이 계속 진행되고 있어 항해 지연 가능성이 있으며, 통항량 증가로 일부 혼잡도 예상된다고 안내.\n\n선박들은 남부 항로를 주야간 모두 이용할 수 있으며, AIS를 활성화하고 레이더 및 항해등을 정상 운용하며 VHF 통신을 유지할 것을 권고.\n\n미 해군 NCAGS와의 연락 및 기존 보고·조정 절차 유지가 강력히 권장되나, 조정은 의무 사항이 아니며 선박은 별도 조정 없이도 남부 항로 통항 가능.\n\n안전한 항로 정보 제공을 위해 선박들은 계속해서 미 해군 NCAGS와 통신할 것을 권고."
-    },
-    {
-      "id": "insidertracking/56001",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/56001",
-      "datetime": "2026-06-20T02:13:26.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [
-        "MU"
-      ],
-      "score": 49,
-      "text": "마이크론 주주들 99.24%는 0.1%라도 수익보고 있는 상태"
-    },
-    {
-      "id": "insidertracking/56000",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/56000",
-      "datetime": "2026-06-20T02:11:25.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [
-        "MU"
-      ],
-      "score": 44,
-      "text": "미국 거주하는 한국 누님들은 차주 마이크론 실적 발표전에 포지션 어떻게 취할지 고민중...."
-    },
-    {
-      "id": "insidertracking/55999",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55999",
-      "datetime": "2026-06-20T01:52:36.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "미국 공화당 의원들이 국회의원 및 그 가족의 예측시장 내 정치·정책 결과 베팅을 금지하는 법안 발의."
-    },
-    {
-      "id": "insidertracking/55996",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55996",
-      "datetime": "2026-06-20T01:27:26.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "💬 💬 💬 💬 💬 💬\n안녕하세요. 미국 주식 인사이더입니다.\n\n5일 뒤면 6·25 전쟁이 발발한 지 75주년이 되는 날입니다.\n\n그동안 천안함 유가족과 6·25 전쟁 참전유공자분들께도 소액이나마 후원해 왔으며, 이번에도 기부에 동참하고자 합니다.\n\n또한 순직한 공군 조종사분들의 자녀들을 후원할 수 있는 재단법인 하늘사랑을 알게 되어, 작은 정성이지만 마음을 보탰습니다.\n\n항상 국가를 위해 헌신해 주시는 모든 분들께 진심으로 감사드립니다.\n\n감사합니다.\n\n미국 주식 인사이더 드림"
-    },
-    {
       "id": "bornlupin/18641",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/18641",
@@ -11562,19 +11743,6 @@
       "tickers": [],
       "score": 52,
       "text": "트럼프 행정부 특사단, 이란 핵 협상차 스위스행\n\n미국 트럼프 행정부의 특사들이 이란과의 핵 합의 가능성을 논의하기 위해 스위스로 향했습니다.\n\n 특사단 현황 :\n 스티브 윗코프(Steve Witkoff) 백악관 특사가 스위스로 이동 중입니다.\n 재러드 쿠슈너(Jared Kushner) 특사는 이미 현지에 도착해 있습니다.\n\n 협상 목적 : 이란과의 핵 합의 가능성을 논의하기 위한 첫 라운드의 협상이 진행될 예정입니다.\n\n 진행 상황 및 변수 :\n 당초 금요일 시작 예정이었으나, 이스라엘과 헤즈볼라 간의 교전(레바논 사태)으로 인해 협상이 연기 되었습니다.\n 현재로서는 새로운 협상 일정이 확정되지 않은 상태 입니다.\n\n https://www.axios.com/2026/06/19/iran-talks-switzerland-witkoff-vance"
-    },
-    {
-      "id": "insidertracking/55995",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55995",
-      "datetime": "2026-06-20T00:00:20.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "crypto"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "유럽연합(EU)이 2027년 7월부터 새로운 자금세탁방지(AML) 규정을 시행할 예정.\n\n새 규정에 따라 상품 및 서비스에 대한 현금 결제 한도는 1만 유로로 제한되며, 3,000유로 이상 거래에 대해서는 고객확인(KYC) 및 신원 확인 절차를 의무적으로 진행해야 함.\n\n또한 가상자산 서비스 제공업체(CASP)는 1,000유로 이상의 일회성 거래에 대해 강화된 고객확인 절차를 적용해야 하며, 익명 계정과 프라이버시 코인 관련 서비스는 금지 대상에 포함됨.\n\n아울러 규제 범위는 축구 클럽, 고가 사치품 거래, 투자이민 프로그램, 크라우드펀딩 등 고위험 분야까지 확대되며, 실질적 소유자 등록 및 정보 공개 의무도 한층 강화될 예정.\n\n이번 조치는 유럽연합 전역의 자금세탁방지 체계를 통일하고 고위험 산업에 대한 감독 범위를 확대하기 위한 목적."
     },
     {
       "id": "bornlupin/18639",
@@ -11620,152 +11788,6 @@
       ],
       "score": 80,
       "text": "다음주 일정\n\n21일: 한국 ~20일 수출입\n\n22일: 중국 인민은행 대출우대금리\n\n23일: MSCI 연례 시장분류 리뷰(한국 관찰대상국 편입 여부), 미국 6월 S&P 글로벌 제조업, 서비스업 PMI, 유로존 6월 제조업, 서비스업 PMI\n\n24일: 마이크론 실적(장후), NVIDIA 2026 주주총회, Qualcomm 인베스터데이\n\n25일: 미국 5월 PCE, 1분기 GDP\n\n26일: 미국 6월 기대인플레이션, 소비자심리지수, 미국 5월 상품 무역수지"
-    },
-    {
-      "id": "insidertracking/55994",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55994",
-      "datetime": "2026-06-19T23:38:11.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n 예히엘 라이터 주미 이스라엘 대사:\n\n> 이스라엘은 즉각적인 휴전을 확고히 준수하고 있습니다. 오늘 오전 11시 30분부로 이스라엘은 모든 공세 작전을 중단했으며, 이에 반하는 헤즈볼라와 이란 측의 주장은 뻔뻔한 거짓말입니다.\n\n헤즈볼라가 합의를 준수하고 적대 행위를 중단한다면, 그들은 평온으로 응답받게 될 것입니다.\n\n이스라엘은 솔로몬 왕과 히람 왕 시절까지 거슬러 올라가는 관계를 가진 북쪽 이웃 국가인 레바논이 번영하고 민주적 자유를 누리기를 바랍니다. 그러나 어느 정상 국가와 마찬가지로 우리의 안보에 대해서는 결코 타협하지 않을 것입니다.\n\n이는 이란의 살인적 대리 세력인 헤즈볼라가 파괴될 때에만 가능할 것입니다.\n\n헤즈볼라의 종말은 우리 두 나라 사이의 아름다운 평화의 시작을 의미할 것입니다.\n\n이스라엘은 헤즈볼라를 제거하고 그들의 테러 인프라를 해체하기 위해 레바논 남부의 안보지대에 주둔하고 있습니다.\n\n우리는 그 임무가 완수될 때까지 그곳에 남을 것입니다.\n\n레바논 국민은 헤즈볼라의 지배에서 벗어난 미래를 누릴 자격이 있으며, 우리 두 나라 사이의 진정하고 실질적인 평화는 여전히 가능하고 결국 실현될 것입니다."
-    },
-    {
-      "id": "insidertracking/55993",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55993",
-      "datetime": "2026-06-19T23:37:14.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "이스라엘 기갑부대 호송대가 헤즈볼라의 매복 공격을 받았으며, 전차 2대가 화염에 휩싸인 것으로 전해짐."
-    },
-    {
-      "id": "insidertracking/55991",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55991",
-      "datetime": "2026-06-19T23:36:16.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "네타냐후:\n\n> 제가 약속한 대로, 이스라엘군은 레바논 내 헤즈볼라 목표물 150곳을 강력히 타격했으며 수십 명의 테러리스트를 제거했습니다."
-    },
-    {
-      "id": "insidertracking/55988",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55988",
-      "datetime": "2026-06-19T23:34:38.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n헤즈볼라와의 격렬한 교전이 계속되는 가운데 이스라엘 북부 키르야트슈모나에서 폭발음과 총성이 들리고 있음.\n\n남부 레바논에서는 알리 알타히르와 크파르 테브니트 일대를 중심으로 교전이 지속되는 중.\n\n이스라엘 북부 전선에서는 지난 30분 동안 키르야트슈모나 상공에서 요격 미사일 발사와 총성, 폭발음이 이어진 것으로 전해짐.\n\n레바논 측에서는 폭발과 포격이 계속되고 있으며, 헤즈볼라와 이스라엘군(IDF) 간 교전도 이어지는 상황."
-    },
-    {
-      "id": "insidertracking/55986",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55986",
-      "datetime": "2026-06-19T23:30:51.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "아샤르크 뉴스의 히바 나스르에 따르면, 백악관 당국자는 최근 이란 페르시아만 해협관리청(PGSA)이 발표한 호르무즈 해협 통항 지침과 관련해 미국과 이란 간 기존 합의 내용과 상충된다고 지적.\n\n해당 당국자는 이란이 60일 동안 호르무즈 해협을 무료로 개방하기로 약속한 내용이 새로운 PGSA 지침과 충돌하고 있으며, 미국은 합의된 틀에서 벗어나는 어떠한 조치도 용인하지 않을 것이라고 밝힘.\n\n앞서 이란은 모든 선박에 대해 PGSA가 승인한 보험 가입을 요구하는 새로운 규정을 발표했으며, 현재는 무료이나 향후 보험료를 부과할 권리를 보유한다고 밝힌 바 있음. 이는 미국·이란 간 임시 합의에 포함된 60일간 무료 통항 보장 조항과 충돌할 수 있다는 우려를 낳고 있음."
-    },
-    {
-      "id": "insidertracking/55985",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55985",
-      "datetime": "2026-06-19T23:29:28.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "트럼프 대통령은 카타르가 미국에 기증한 VC-25B 브리지 항공기가 오는 7월 4일 워싱턴 독립기념일 기념 비행 행사에 참가할 예정이라고 밝힘.\n\n트럼프 대통령에 따르면 이번 기념 비행에는 VC-25B 브리지를 비롯해 F-22 랩터, F-35 전투기 등 다양한 군용 항공기가 함께 참여할 예정."
-    },
-    {
-      "id": "insidertracking/55984",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55984",
-      "datetime": "2026-06-19T23:28:03.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n악시오스가 미국 당국자를 인용해 보도한 내용에 따르면, 스티브 위트코프 백악관 중동특사가 미국·카타르·파키스탄·이란 간 차기 회담 참석을 위해 스위스로 이동 중.\n\n해당 회담은 당초 예정됐다가 레바논 내 이스라엘의 군사적 긴장 고조로 인해 한 차례 취소된 바 있음.\n\n카타르 대표단은 이미 스위스에 도착해 스위스 당국자들과 회동을 진행한 것으로 전해짐.\n\n또한 악시오스 보도에 따르면 밴스 부통령이 미국 대표단을 이끌 예정."
-    },
-    {
-      "id": "insidertracking/55983",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55983",
-      "datetime": "2026-06-19T23:27:37.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "폭스뉴스에 따르면 트럼프 대통령이 새로운 에어포스원 전용기에서 내린 직후 메릴랜드주 앤드루스 합동기지에서 군 장병들의 환영을 받음."
-    },
-    {
-      "id": "insidertracking/55982",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55982",
-      "datetime": "2026-06-19T23:26:42.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "백악관:\n\n> 힘을 통한 평화"
-    },
-    {
-      "id": "insidertracking/55981",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55981",
-      "datetime": "2026-06-19T23:26:20.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "text": "백악관:\n\n> 뉴 에어포스원&#33;&#33;"
-    },
-    {
-      "id": "insidertracking/55980",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/55980",
-      "datetime": "2026-06-19T23:25:40.000Z",
-      "localDateKst": "2026-06-20",
-      "tags": [
-        "power"
-      ],
-      "tickers": [],
-      "score": 50,
-      "text": "미국 에너지부 (U.S. Department of Energy) :\n\n> 소형 모듈형 원자로(SMR) 한 기면\n\n미국의 2026년 월드컵 개최 경기장 11곳 전체에\n\n동시에 전력을 공급할 수 있습니다.\n\n미국의 에너지로 구동됩니다."
     },
     {
       "id": "aetherjapanresearch/22865",
