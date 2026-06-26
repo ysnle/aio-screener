@@ -982,7 +982,7 @@ var AIO_TELEGRAM_WEEKLY_DIGEST = {
   marketDataAsOf: '2026-06-26T03:00:00+09:00',
   sources: ['https://t.me/s/aetherjapanresearch', 'https://t.me/s/insidertracking', 'https://t.me/s/bornlupin'],
   counts: { total: 809, aetherjapanresearch: 187, insidertracking: 527, bornlupin: 95 },
-  pipelineNote: 'Public Telegram mirror scrape. topItems=45(score>=65), broadItems=200(score>=57, datetime-sorted news feed). KOSPI -5% sidecar, MLCC surge, Korea mega-project 6/29, Fed on-hold, OpenAI IPO delay.',
+  pipelineNote: 'Public Telegram mirror scrape. topItems=45(score>=65), broadItems=309(score>=50, ch-max 120, total 400, datetime-sorted news feed). KOSPI -5% sidecar, MLCC surge, Korea mega-project 6/29, Fed on-hold, OpenAI IPO delay.',
   topicCounts: { geo:266, 'market-note':329, macro:208, equity:217, semi:219, power:64, optical:18, 'ai-policy':26, crypto:22, 'kr-market':12 },
   tickerCounts: { MU:137, '000660.KS':57, NVDA:56, '005930.KS':36, AMZN:19, META:24, AMD:19, TSM:14, ORCL:6, RKLB:5, MRVL:11, ADBE:2, LITE:2, AAOI:2, '009150.KS':7, SMCI:3, ALAB:4, BE:8, COHR:1, AAPL:2 },
   themes: [
@@ -1068,7 +1068,7 @@ function _aioNormalizeTelegramDigestPayload(raw) {
     topicCounts: Object.assign({}, base.topicCounts || {}, raw.topicCounts || {}),
     tickerCounts: Object.assign({}, base.tickerCounts || {}, raw.tickerCounts || {}),
     rawTopItems: Array.isArray(raw.topItems) ? raw.topItems.slice(0, 45) : [],
-    rawBroadItems: Array.isArray(raw.broadItems) ? raw.broadItems.slice(0, 200) : [],
+    rawBroadItems: Array.isArray(raw.broadItems) ? raw.broadItems.slice(0, 400) : [],
     rawBroadItemCount: Array.isArray(raw.broadItems) ? raw.broadItems.length : 0,
     rawItemCount: Number(raw.count || 0) || 0,
     rawChannels: channelRows,

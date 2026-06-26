@@ -37,8 +37,8 @@ jobs:
 
       - name: Fetch Telegram digest
         env:
-          TG_PAGE_LIMIT: 30
-        run: node scripts/fetch-telegram-digest.mjs --days=7 --out=public-data/telegram-digest.json
+          TG_PAGE_LIMIT: 50
+        run: node scripts/fetch-telegram-digest.mjs --days=14 --out=public-data/telegram-digest.json
 
       - name: Pipeline status summary
         run: |
