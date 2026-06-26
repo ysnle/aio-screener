@@ -1,4 +1,29 @@
-﻿## v51.33 - 칼만 정밀화(innovZ/velConf) + 스크리너 컬럼 그룹 헤더 + 팩터·레짐 2-컬럼 패널 (2026-06-26)
+﻿## v51.34 - 텔레그램 digest 갱신(2026-06-19~06-26) + 선별 로직 개선 (2026-06-26)
+
+**Telegram digest 갱신 (public-data/telegram-digest.json)**
+- 수집 범위: 2026-06-19~06-26 KST, 3채널 809개 포스트, topItems 45개(min score 72).
+- 신규 5건 topItems 반영:
+  - `bornlupin/18730` (score 100): KOSPI -5% 매도사이드카 발동, 애플 -6% 메모리 가격상승 파장, 키움 한지영 홀딩 전략 유지.
+  - `bornlupin/18729` (score 85): 김용범 청와대 정책실장 "6/29 메가프로젝트 숫자 낯설 것", 삼성/SK하이닉스 기가와트 단위 투자 예고.
+  - `bornlupin/18728` (score 79): 삼성전기(009150) 나홀로 +7%, 라운드힐 MLCC+PCB ETF SEC 신고, 현대차증권 PT 280만원 상향.
+  - `insidertracking/56638` (score 77): 연준 윌리엄스/굴스비 발언(정책 적절), OpenAI IPO 내년 연기 검토, GPT-5.6 단계적 출시.
+  - `bornlupin/18727` (score 73): MLCC AI서버용 50~60% 급등, AMD MI450 +632%, NVDA Vera Rubin +56%, 리드타임 20주+.
+
+**선별 로직 개선 (scripts/fetch-telegram-digest.mjs)**
+- `classify()`: kr-market 태그(코스피/사이드카/키움) + geo(헤즈볼라/이스라엘), semi(MI450/HBM4/WF6), ai-policy(openai/gpt-5/gemini), macro(연준/메가프로젝트) 패턴 추가.
+- `extractTickers()`: AAPL·MSFT·GOOG·AVGO·SNDK 추가.
+- `isLowSignalPost()`: 트럼프 일정·채널 공지·단순 구호 포스트 패널티(score 20 고정).
+- `scoreItem()`: base 40→35, kr-market +8, 사이드카/서킷브레이커 +8, 메가프로젝트 +8, 분석가 리스트 확장(현대차증권/대신 등).
+- `topItems` 기준: score≥65(기존 70→완화), 채널당 최대 20개, 전체 최대 45개.
+
+**정적 AIO_TELEGRAM_WEEKLY_DIGEST 동기화 (js/aio-data.js)**
+- asOf/window/counts/themes/catalysts/categories/pageMap 2026-06-26 갱신.
+- 신규 테마 통합: 메모리 슈퍼사이클(BofA), KOSPI 사이드카 분석, MLCC 금값, 한국 AI 메가프로젝트 6/29, S&P Q3 조정론, 연준 on-hold, OpenAI IPO 연기, BOJ 금리 경로.
+- DATA_SNAPSHOT `_telegramDigestDate`: 2026-06-16 → 2026-06-26.
+
+R1 v51.34 7곳 동기화.
+
+## v51.33 - 칼만 정밀화(innovZ/velConf) + 스크리너 컬럼 그룹 헤더 + 팩터·레짐 2-컬럼 패널 (2026-06-26)
 
 **칼만 필터 정밀화 (innovZ + velConf)**
 `_kalmanTrend()`에서 `lastE`/`lastS` 루프 외 캡처 추가 → `innovZ = lastE / √lastS`(이노베이션 z-score, 마지막 관측의 표준화 잔차. |Z|>2 = 추세 이탈 신호) + `velConf = vel / (1 + √pt)`(P_trace 신뢰도가중 속도, 필터 불확실 시 신호 감쇠) 출력.

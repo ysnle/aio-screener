@@ -17052,7 +17052,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.33';
+const APP_VERSION = 'v51.34';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -18010,9 +18010,9 @@ const DATA_SNAPSHOT = {
   _snapshotDate: '2026-06-24',
   _marketDataDate: '2026-06-24',
   _marketDataUpdated: '2026-06-24T22:03:25+09:00',
-  _telegramDigestDate: '2026-06-16',
-  _telegramDigestUpdated: '2026-06-16T15:00:00+09:00',
-  _telegramDigestWindow: '2026-06-09~2026-06-16 KST',
+  _telegramDigestDate: '2026-06-26',
+  _telegramDigestUpdated: '2026-06-26T03:00:00+09:00',
+  _telegramDigestWindow: '2026-06-19~2026-06-26 KST',
   _narrativeUpdated: '2026-06-24T22:03:25+09:00',
   _staticDates: {
     briefingArchive: '2026-06-24',
