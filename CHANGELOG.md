@@ -1,4 +1,17 @@
-﻿## v51.38 - 스크리너 기관급 분석 로직 개선 (2026-06-26)
+## v51.40 - Operator note priority and default-path hardening (2026-06-26)
+
+**User-facing structure**
+- Kept Claude v51.39 trading tools as the base and promoted the home operator note into the first-screen pre-session card.
+- Moved #home-operator-note to the top of the home page and added dedicated aio-operator-note styles: 18px title, 14px body, and 1.8 line-height.
+- The operator note renderer now filters sample/example tags and escapes title, date, body, and tag text.
+
+**Default-route UX gate**
+- _aioFoldDensePageControls(signal) no longer revives hidden legacy #signal-lockout-control as a visible 고급 매매 조건 collapsed row.
+- scripts/ci-ux-default-path-check.mjs now guards operator-note priority, enlarged note typography, and the Signal fold regression.
+
+**R1 version sync**: title, badge, APP_VERSION, SW_VERSION, version.json, CLAUDE.md(root+_context), CHANGELOG.md, JS cachebusters 5곳 -> v51.40.
+
+## v51.38 - 스크리너 기관급 분석 로직 개선 (2026-06-26)
 
 **Kalman 필터 초기화 개선 (scripts/fetch-data.mjs)**
 - `s1 = 0` 초기화 → 5일 선형 기울기 시드로 교체: `(closes[min5] - closes[0]) / initN`.

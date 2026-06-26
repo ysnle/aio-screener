@@ -1050,6 +1050,15 @@ window._aioRetryNews = function() {
 };
 window._aioScreenerTicker = function(sym) {
   if (typeof window.prevPage !== 'undefined') window.prevPage = 'screener';
+  // v51.39: 종목 클릭 시 포지션 사이저에 심볼 자동 주입 (패널 열려있으면 업데이트)
+  try {
+    var ps = document.getElementById('scr-position-sizer');
+    if (ps && ps.classList.contains('active')) {
+      var symEl = document.getElementById('ps-sym');
+      if (symEl) symEl.textContent = sym;
+      if (typeof window._aioCalcPositionSize === 'function') window._aioCalcPositionSize();
+    }
+  } catch(_) {}
   if (typeof window.showTicker === 'function') window.showTicker(sym);
 };
 window._aioPortfolioTicker = function(sym) {
@@ -4043,7 +4052,8 @@ function _aioFoldDensePageControls(pageId) {
   if (pageId === 'market-news') selectors = ['#news-source-guide', '#news-progress-wrap'];
   // screener: 텍스트 백테스트 패널만 접기. vis-screener(SVG 다이어그램)는 항상 노출 유지.
   if (pageId === 'screener') selectors = ['#screener-backtest-panel'];
-  if (pageId === 'signal') selectors = ['#signal-lockout-control'];
+  // v51.40/P532: signal lockout is a hidden legacy sink, not a collapsible default-route section.
+  if (pageId === 'signal') selectors = [];
   if (pageId === 'fxbond') selectors = ['.insight-box.box-collapsed'];
   if (pageId === 'guide') selectors = ['.insight-box.box-collapsed'];
   var nodes = [];
@@ -4062,7 +4072,6 @@ function _aioFoldDensePageControls(pageId) {
   details.setAttribute('data-fold-page', pageId);
   var label = pageId === 'market-news' ? '소스 안내·상태'
     : pageId === 'screener' ? '팩터 검증 텍스트 로그'
-    : pageId === 'signal' ? '고급 매매 조건'
     : '참고/상세 내용';
   details.innerHTML = '<summary>' + label + '</summary><div class="aio-page-advanced-body"></div>';
   var body = details.querySelector('.aio-page-advanced-body');
@@ -4351,7 +4360,9 @@ window._aioRenderPageDecisionHeader = function(pageId) {
     + '  </div>'
     + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : '') + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 분석</button></div>'
     + '</section>';
-  page.insertAdjacentHTML('afterbegin', html);
+  var operatorNote = pageId === 'home' ? document.getElementById('home-operator-note') : null;
+  if (operatorNote && operatorNote.parentNode === page) operatorNote.insertAdjacentHTML('afterend', html);
+  else page.insertAdjacentHTML('afterbegin', html);
   var header = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
   if (header) page.classList.add('has-aio-decision-header');
   if (typeof window._aioApplyPageBodyRedesign === 'function') {
@@ -17052,7 +17063,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.38';
+const APP_VERSION = 'v51.40';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -22870,4 +22881,3 @@ function _fmtNum(v) {
 function _fmtPct(v) { return v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : 'N/A'; }
 window._fmtNum = _fmtNum;
 window._fmtPct = _fmtPct;
-

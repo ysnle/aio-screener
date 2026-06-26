@@ -47,7 +47,7 @@ const postmortem = read('_context/BUG-POSTMORTEM.md');
 check('refresh workflow runs twice hourly', /cron:\s*'17,47 \* \* \* \*'/.test(refresh));
 check('refresh workflow has write permission and no cancel-in-progress', /contents:\s*write/.test(refresh) && /cancel-in-progress:\s*false/.test(refresh));
 check('refresh workflow fetches market data with required optional secrets', /node scripts\/fetch-data\.mjs/.test(refresh) && /FRED_API_KEY/.test(refresh) && /FMP_API_KEY/.test(refresh) && /ANTHROPIC_API_KEY/.test(refresh));
-check('refresh workflow fetches Telegram digest artifact', /node scripts\/fetch-telegram-digest\.mjs --days=7 --out=public-data\/telegram-digest\.json/.test(refresh));
+check('refresh workflow fetches Telegram digest artifact', /node scripts\/fetch-telegram-digest\.mjs --days=(?:7|14) --out=public-data\/telegram-digest\.json/.test(refresh));
 check('refresh workflow commits all public-data artifacts', /git add public-data\/data\.json public-data\/history\.json/.test(refresh) && /public-data\/screener\.json/.test(refresh) && /public-data\/telegram-digest\.json/.test(refresh));
 check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(refresh) && /fearGreedOk/.test(refresh) && /fredFetchOk/.test(refresh) && /marketAnalysisOk/.test(refresh));
 checkNodeHeredocSyntax('refresh-data workflow', refresh);

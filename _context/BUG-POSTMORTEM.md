@@ -1,12 +1,20 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-06-24
+last_verified: 2026-06-26
 confidence: high
-latest_version: v51.30
-latest_P_number: P531
-total_entries: 530
-next_P_number: P532
+latest_version: v51.40
+latest_P_number: P532
+total_entries: 531
+next_P_number: P533
 ---
+
+## P532 - v51.40 - Operator note was buried below first-screen decision flow and Signal hidden sink could reappear
+
+- **symptom**: User screenshot review showed the operator note below the market status/decision flow, making the session-critical note easy to miss. The Signal default route also retained runtime folding logic that could wrap hidden `#signal-lockout-control` into a visible `고급 매매 조건` row.
+- **root_cause**: The operator note was treated as a secondary home card rather than a pre-session priority message, with small body text and no structural top-of-page contract. P529 hid the Signal lockout legacy sink in HTML, but `_aioFoldDensePageControls('signal')` still selected the hidden sink and could reintroduce it as a collapsed default-route control.
+- **fix**: Promoted `#home-operator-note` to the top of the home page, added larger dedicated operator-note CSS, filtered sample tags in the renderer, and disabled Signal lockout folding. Extended `ci-ux-default-path-check.mjs` to guard operator-note priority/typography and the Signal fold regression.
+- **violated_rule**: R3, R228.
+- **prevention**: Default-route UX gates must check not only removal of noisy blocks but also priority ordering for operator-facing session notes and ensure hidden legacy sinks are never revived by runtime folding helpers.
 
 ## P531 - v51.30 - News self-injection was live but ranked weak/stale items as core news
 

@@ -1,8 +1,8 @@
 ---
 verified_by: agent
-last_verified: 2026-06-24
+last_verified: 2026-06-26
 confidence: high
-target_version: v51.30
+target_version: v51.40
 
 ---
 
@@ -19,6 +19,8 @@ target_version: v51.30
 - Removing content from a default route does not mean deleting the investment logic. Core formulas, decision flows, and framework explanations must be compressed into the guide/methodology reference or another deliberate secondary surface.
 - Finite user-facing card groups such as 3 decision cards or 6 snapshot cards must not use CSS `auto-fill`; use `auto-fit` or explicit responsive columns so empty tracks collapse instead of creating large right-side blank space.
 - A page should not put long secondary rails such as subcomponent lists, crypto widgets, or framework explanations beside a short primary chart if it creates a tall left column and blank right column. Promote the content to a balanced full-width section or remove it from the default path.
+- Operator-facing session notes are priority context, not secondary decoration: if visible, the home operator note must appear before the decision/header flow with readable first-viewport typography.
+- Hidden legacy sinks retained for runtime/test compatibility must not be wrapped by default-route folding helpers or reintroduced as visible collapsed rows.
 - QA for UI/UX changes must inspect actual user screenshots or viewport captures for visual value density, not only `scrollWidth/clientWidth`.
 - `scripts/ci-ux-default-path-check.mjs` must stay wired into CI and must fail if default routes regain visible analysis-flow summaries, duplicate diagnostic widgets, `auto-fill` finite card grids, or lose the guide methodology reference.
 

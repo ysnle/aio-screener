@@ -1,13 +1,21 @@
 ---
 verified_by: agent
-last_verified: 2026-06-24
+last_verified: 2026-06-26
 confidence: high
 version: v3.7
-checklist_version: v51.31
-total_items: 366
+checklist_version: v51.40
+total_items: 371
 stages: 21
-latest_P_covered: P531
+latest_P_covered: P532
 ---
+
+## v51.40 - Operator-note priority + Signal default-route hardening (P532/R228)
+
+- [ ] Home desktop and mobile first viewport show the operator note before the decision/header flow when `public-data/operator-note.json.visible` is true.
+- [ ] Operator note title/body are visually prominent enough for first-screen scanning and do not expose sample/example tags.
+- [ ] SIGNAL default route does not show a collapsed `고급 매매 조건` row; retained `#signal-lockout-control` remains hidden only.
+- [ ] `scripts/ci-ux-default-path-check.mjs` fails if operator-note priority/typography or Signal fold regression returns.
+- [ ] R1 surfaces report v51.40 after the UX patch.
 
 ## v51.30 - News self-injection source quality + freshness gate (P531/R230)
 

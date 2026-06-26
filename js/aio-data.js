@@ -1776,6 +1776,14 @@ function renderScreenerResults() {
   var adrFilter = _v('scr-adr');
   var textQ = (_v('scr-text-search') || '').trim().toLowerCase();
   var ld = window._liveData || {};
+  // v51.39: 고급 필터 값 읽기
+  var minRank = parseInt(_v('scr-min-rank')) || 0;
+  var rsiMinV = parseFloat(_v('scr-rsi-min'));  var hasRsiMin = !isNaN(rsiMinV) && rsiMinV > 0;
+  var rsiMaxV = parseFloat(_v('scr-rsi-max'));  var hasRsiMax = !isNaN(rsiMaxV) && rsiMaxV < 100;
+  var minMomV = parseFloat(_v('scr-min-mom'));  var hasMom   = !isNaN(minMomV);
+  var wlCkEl  = document.getElementById('scr-watchlist-only');
+  var wlOnly  = wlCkEl && wlCkEl.checked;
+  var wlSet   = wlOnly ? (window._aioWatchlistGet ? window._aioWatchlistGet() : []) : null;
 
   // 텍스트 검색어에서 키워드 앨리어스 매칭
   var aliasMatched = null; // array of matched syms or signal string
@@ -1804,6 +1812,12 @@ function renderScreenerResults() {
     if (cap === 'LARGE' && (r.mcap < 10 || r.mcap >= 1000)) return false;
     if (cap === 'MID' && (r.mcap < 2 || r.mcap > 10)) return false; // v46.9: mcap=10 dead zone 수정 (>=10→>10)
     if (cap === 'SMALL' && r.mcap >= 2) return false;
+    // v51.39: 고급 필터
+    if (minRank > 0 && (typeof r.rank !== 'number' || r.rank < minRank)) return false;
+    if (hasRsiMin && (typeof r.rsi !== 'number' || r.rsi < rsiMinV)) return false;
+    if (hasRsiMax && (typeof r.rsi !== 'number' || r.rsi > rsiMaxV)) return false;
+    if (hasMom && (typeof r.ret3m !== 'number' || r.ret3m < minMomV)) return false;
+    if (wlSet && wlSet.indexOf(r.sym) < 0) return false;
     if (adrFilter) {
       var adrVal = getAdrEstimate(r);
       if (adrFilter === 'HIGH' && adrVal < 4) return false;
@@ -1879,6 +1893,8 @@ function renderScreenerResults() {
     var c = v>=66?'#00e5a0':v>=40?'#ffa31a':'#ff5b50';
     return '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+c+';">'+v+'</td>';
   };
+  // v51.39: 워치리스트 전체 조회 (행별 ★ 상태 결정)
+  var _wlArr = (typeof window._aioWatchlistGet === 'function') ? window._aioWatchlistGet() : [];
   filtered.forEach(function(r) {
     var sc = r.signal === 'BUY' ? '#00e5a0' : r.signal === 'SELL' ? '#ff5b50' : r.signal === 'WATCH' ? '#ffa31a' : '#7b8599';
     var sb = r.signal === 'BUY' ? 'var(--data-green-soft)' : r.signal === 'SELL' ? 'var(--data-red-soft)' : r.signal === 'WATCH' ? 'var(--data-amber-soft)' : 'var(--data-muted-soft)';
@@ -1890,8 +1906,14 @@ function renderScreenerResults() {
     var fs = r.factorScores || {};
     var ret3 = (typeof r.ret3m === 'number') ? ((r.ret3m>=0?'+':'')+r.ret3m.toFixed(1)+'%') : '—';
     var ret3c = (typeof r.ret3m === 'number') ? (r.ret3m>=0?'#00e5a0':'#ff5b50') : '#5a6678';
+    // v51.39: 워치리스트 ★ 상태
+    var inWL = _wlArr.indexOf(r.sym) >= 0;
+    var starHtml = '<span class="scr-star' + (inWL?' active':'') + '" data-action="_aioWLToggle" data-arg="' + escHtml(r.sym) + '" data-stop="1" data-wl-sym="' + escHtml(r.sym) + '" title="' + (inWL?'워치리스트에서 제거':'워치리스트에 추가') + '" role="button" tabindex="0" aria-label="워치리스트 ' + (inWL?'제거':'추가') + '">' + (inWL?'★':'☆') + '</span>';
+    // v51.39: 진입 타이밍 신호
+    var entryHtml = (typeof window._aioEntryTiming === 'function') ? window._aioEntryTiming(r) : '<span style="color:#5a6678;">—</span>';
     // 주의: r.memo는 내부 마커(vNN·RNN·Codex 등)를 포함할 수 있어 title 툴팁에 노출하지 않음(R206). 행 클릭 → 심층 분석.
     html += '<tr class="aio-hover-row" style="border-bottom:1px solid var(--surface-4);cursor:pointer;" data-action="_aioScreenerTicker" data-arg="' + escHtml(r.sym) + '">' +
+      '<td style="text-align:center;padding:4px 6px;width:28px;">' + starHtml + '</td>' +
       '<td style="text-align:center;padding:5px 8px;">' +
         (rank!=null
           ? '<div style="font-family:var(--font-mono);font-weight:800;font-size:11px;color:'+rkColor+';">' + rank + '</div>' +
@@ -1909,12 +1931,13 @@ function renderScreenerResults() {
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-weight:700;" data-live-price="' + escHtml(r.sym) + '">—</td>' +
-      '<td style="text-align:center;padding:6px 8px;"><span style="background:' + sb + ';color:' + sc + ';padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
-      '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (r.newsMemo ? escHtml(r.newsMemo) : '') + '">' + (r.newsMemo ? escHtml(r.newsMemo.slice(0, 80)) : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
+      '<td style="text-align:center;padding:4px 8px;border-left:1px solid var(--border);">' + entryHtml + '</td>' +
+      '<td style="text-align:center;padding:6px 8px;border-left:1px solid var(--border);"><span style="background:' + sb + ';color:' + sc + ';padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
+      '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (r.newsMemo ? escHtml(r.newsMemo) : '') + '">' + (r.newsMemo ? escHtml(r.newsMemo.slice(0, 70)) : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
     '</tr>';
   });
 
-  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="16" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
+  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="18" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
   // 스파크라인 미니차트 렌더링
   requestAnimationFrame(function() { renderSparklines(filtered); });
   document.getElementById('screener-result-count').textContent = filtered.length;
@@ -1982,12 +2005,172 @@ window._aioInitScreenerFilters = function() {
   };
   fill('scr-market', 'index', '전체 지수');
   fill('scr-sector', 'sector', '전체 섹터');
-  ['scr-market','scr-sector','scr-signal','scr-cap'].forEach(function(id){
+  ['scr-market','scr-sector','scr-signal','scr-cap','scr-min-rank'].forEach(function(id){
     var el = document.getElementById(id);
     if (el && !el.getAttribute('data-wired')) { el.addEventListener('change', function(){ renderScreenerResults(); }); el.setAttribute('data-wired','1'); }
   });
   var ts = document.getElementById('scr-text-search');
   if (ts && !ts.getAttribute('data-wired')) { ts.addEventListener('input', function(){ renderScreenerResults(); }); ts.setAttribute('data-wired','1'); }
+  // v51.39: 고급 필터 입력 배선
+  ['scr-rsi-min','scr-rsi-max','scr-min-mom'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el && !el.getAttribute('data-wired')) { el.addEventListener('input', function(){ renderScreenerResults(); }); el.setAttribute('data-wired','1'); }
+  });
+  var wlCk = document.getElementById('scr-watchlist-only');
+  if (wlCk && !wlCk.getAttribute('data-wired')) { wlCk.addEventListener('change', function(){ renderScreenerResults(); }); wlCk.setAttribute('data-wired','1'); }
+  // 포지션 사이저 입력 배선
+  ['ps-capital','ps-risk','ps-stop'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el && !el.getAttribute('data-ps-wired')) { el.addEventListener('input', function(){ if(document.getElementById('scr-position-sizer') && document.getElementById('scr-position-sizer').classList.contains('active')){ try { window._aioCalcPositionSize && window._aioCalcPositionSize(); } catch(_){} } }); el.setAttribute('data-ps-wired','1'); }
+  });
+  // 사용자 프로파일 초기화 — 저장된 프로파일로 버튼 상태 복원
+  try {
+    var savedProfile = localStorage.getItem('aio_trader_profile') || 'balanced';
+    document.querySelectorAll('.scr-profile-btn').forEach(function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-arg') === savedProfile);
+    });
+    var prof = window.AIO_TRADER_PROFILES && window.AIO_TRADER_PROFILES[savedProfile];
+    var descEl = document.getElementById('scr-profile-desc');
+    if (descEl && prof) descEl.textContent = prof.desc;
+  } catch(_) {}
+};
+
+// ─── v51.39: 트레이더 프로파일 시스템 ──────────────────────────────────────
+var AIO_TRADER_PROFILES = {
+  balanced: { label:'⚖ 균형',     desc:'레짐 기반 자동 가중 (권장)',            weights: null },
+  momentum: { label:'🚀 모멘텀',  desc:'단기 추세 추종 · 1~4주 보유',           weights: {momentum:0.40, trend:0.25, lowvol:0.08, size:0.05, value:0.06, quality:0.06, kalman:0.10} },
+  swing:    { label:'📈 스윙',    desc:'중기 기술적 매매 · 2~8주 보유',          weights: {momentum:0.30, trend:0.28, lowvol:0.12, size:0.07, value:0.07, quality:0.07, kalman:0.09} },
+  value:    { label:'💎 가치',    desc:'저평가 장기 투자 · 3~12개월 보유',        weights: {momentum:0.12, trend:0.15, lowvol:0.15, size:0.08, value:0.30, quality:0.15, kalman:0.05} },
+  lowrisk:  { label:'🛡 저리스크', desc:'방어적 저변동 우선 · 하락방어 포커스',    weights: {momentum:0.10, trend:0.15, lowvol:0.38, size:0.05, value:0.12, quality:0.15, kalman:0.05} }
+};
+window.AIO_TRADER_PROFILES = AIO_TRADER_PROFILES;
+
+// 현재 활성 프로파일 키 반환 (localStorage, 기본 'balanced')
+window._aioGetActiveProfile = function() {
+  var p = null;
+  try { p = localStorage.getItem('aio_trader_profile'); } catch(_) {}
+  return (p && AIO_TRADER_PROFILES[p]) ? p : 'balanced';
+};
+
+// 프로파일 설정 + UI 동기화 + 팩터 재계산
+window._aioSetProfile = function(key) {
+  if (!key || !AIO_TRADER_PROFILES[key]) key = 'balanced';
+  try { localStorage.setItem('aio_trader_profile', key); } catch(_) {}
+  document.querySelectorAll('.scr-profile-btn').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-arg') === key);
+  });
+  var prof = AIO_TRADER_PROFILES[key];
+  var descEl = document.getElementById('scr-profile-desc');
+  if (descEl && prof) descEl.textContent = prof.desc;
+  try { if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); } catch(_) {}
+  try { if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(_) {}
+};
+
+// 고급 필터 패널 토글
+window._aioToggleAdvFilters = function() {
+  var row = document.getElementById('scr-adv-filter-row');
+  if (!row) return;
+  row.classList.toggle('active');
+};
+// 고급 필터 초기화
+window._aioResetAdvFilters = function() {
+  ['scr-min-rank','scr-rsi-min','scr-rsi-max','scr-min-mom'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.value = (id === 'scr-min-rank') ? '0' : '';
+  });
+  var wlCk = document.getElementById('scr-watchlist-only');
+  if (wlCk) wlCk.checked = false;
+  try { if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(_) {}
+};
+
+// ─── v51.39: 진입 타이밍 신호 — RSI·랭크·모멘텀 3요소 조합 ─────────────────
+// ✓ 진입(ready): 랭크≥65 + RSI 38~68 + 모멘텀 양수 → 이상적 진입대
+// ◎ 대기(watch): 랭크≥48 + RSI 넓은 범위 → 관찰은 하되 진입 시기 검토
+// ⏸ 고RSI/저RSI: 과매수/과매도 구간, 역추세 진입 위험
+// ↓ 관망(avoid): 랭크<30 → 팩터 기반 약세
+window._aioEntryTiming = function(r) {
+  var rsi = (typeof r.rsi === 'number') ? r.rsi : null;
+  var rank = (typeof r.rank === 'number') ? r.rank : null;
+  var mom = (typeof r.ret1m === 'number') ? r.ret1m : (typeof r.ret3m === 'number' ? r.ret3m / 3 : null);
+  if (rank == null) return '<span style="color:#5a6678;font-size:10px;">—</span>';
+  if (rank < 30) return '<span class="scr-entry-chip entry-avoid">↓ 관망</span>';
+  if (rsi != null && rsi > 78) return '<span class="scr-entry-chip entry-wait">⏸ 고RSI</span>';
+  if (rsi != null && rsi < 22) return '<span class="scr-entry-chip entry-wait">⏸ 저RSI</span>';
+  if (rank >= 65 && (rsi == null || (rsi >= 38 && rsi <= 68)) && (mom == null || mom > 0))
+    return '<span class="scr-entry-chip entry-ready">✓ 진입</span>';
+  if (rank >= 48 && (rsi == null || (rsi >= 30 && rsi <= 74)))
+    return '<span class="scr-entry-chip entry-watch">◎ 대기</span>';
+  return '<span class="scr-entry-chip entry-wait">— 관망</span>';
+};
+
+// ─── v51.39: 개인 워치리스트 (localStorage, 최대 100종목) ─────────────────
+window._aioWatchlistGet = function() {
+  try { return JSON.parse(localStorage.getItem('aio_watchlist') || '[]'); } catch(_) { return []; }
+};
+window._aioWLToggle = function(sym) {
+  if (!sym) return;
+  var wl = window._aioWatchlistGet();
+  var idx = wl.indexOf(sym);
+  if (idx >= 0) { wl.splice(idx, 1); }
+  else { if (wl.length < 100) wl.push(sym); }
+  try { localStorage.setItem('aio_watchlist', JSON.stringify(wl)); } catch(_) {}
+  // ★ 아이콘 즉시 토글 (페이지 전체 재렌더 불요)
+  var inWL = wl.indexOf(sym) >= 0;
+  document.querySelectorAll('[data-wl-sym="' + sym + '"]').forEach(function(el){
+    el.classList.toggle('active', inWL);
+    el.textContent = inWL ? '★' : '☆';
+    el.title = inWL ? '워치리스트에서 제거' : '워치리스트에 추가';
+  });
+  // 워치리스트 필터 켜진 경우만 재렌더
+  var wlCk = document.getElementById('scr-watchlist-only');
+  if (wlCk && wlCk.checked) {
+    try { if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(_) {}
+  }
+};
+
+// ─── v51.39: 포지션 사이저 ─────────────────────────────────────────────────
+// 공식: 손실한도 = 자본금 × 리스크%, 포지션크기 = 손실한도 / 손절%
+window._aioCalcPositionSize = function() {
+  var capEl  = document.getElementById('ps-capital');
+  var riskEl = document.getElementById('ps-risk');
+  var stopEl = document.getElementById('ps-stop');
+  var symEl  = document.getElementById('ps-sym');
+  var out    = document.getElementById('ps-result');
+  if (!capEl || !out) return;
+  var capital = parseFloat(capEl.value) || 0;
+  var riskPct = parseFloat(riskEl && riskEl.value) || 1;
+  var stopPct = parseFloat(stopEl && stopEl.value) || 5;
+  var symStr  = symEl ? symEl.textContent.trim() : '';
+  if (capital <= 0 || riskPct <= 0 || stopPct <= 0) {
+    out.innerHTML = '<span style="color:var(--text-muted);">자본금·리스크%·손절% 모두 입력하세요</span>'; return;
+  }
+  var maxLoss   = capital * (riskPct / 100);
+  var posSize   = maxLoss / (stopPct / 100);
+  var price = 0;
+  try {
+    var ld = window._liveData || {};
+    if (symStr && ld[symStr] && ld[symStr].price) price = ld[symStr].price;
+  } catch(_) {}
+  var shares = (price > 0) ? Math.floor(posSize / price) : null;
+  var actualInvest = (shares != null && price > 0) ? shares * price : posSize;
+  var pctOfCapital = (actualInvest / capital * 100).toFixed(1);
+  out.innerHTML =
+    '<b style="color:var(--data-cyan);">최대 손실:</b> <b style="color:var(--data-red);">$' + maxLoss.toLocaleString('en-US',{maximumFractionDigits:0}) + '</b>' +
+    ' &nbsp;|&nbsp; <b style="color:var(--text-muted);">투자 금액:</b> <b style="color:var(--text-primary);">$' + actualInvest.toLocaleString('en-US',{maximumFractionDigits:0}) + '</b> (' + pctOfCapital + '% of 자본)' +
+    (shares != null && shares > 0 ? ' &nbsp;|&nbsp; <b style="color:var(--text-muted);">추천 주수:</b> <b style="color:var(--data-green);">' + shares.toLocaleString() + '주</b> <span style="font-size:9px;color:var(--text-muted);">@ $' + price.toFixed(2) + '</span>' : '') +
+    ' <span style="display:block;font-size:9px;color:var(--text-muted);margin-top:3px;">※ 리스크 ' + riskPct + '% · 손절 ' + stopPct + '% · 계산 결과는 참고용이며 투자 결정은 본인 판단으로 하세요.</span>';
+};
+window._aioHidePositionSizer = function() {
+  var p = document.getElementById('scr-position-sizer');
+  if (p) p.classList.remove('active');
+};
+window._aioShowPositionSizer = function(sym) {
+  var p = document.getElementById('scr-position-sizer');
+  if (!p) return;
+  var symEl = document.getElementById('ps-sym');
+  if (symEl) symEl.textContent = sym || '—';
+  p.classList.add('active');
+  try { window._aioCalcPositionSize && window._aioCalcPositionSize(); } catch(_) {}
 };
 
 // v51.32: 팩터·레짐 탭 2-컬럼 패널 렌더 (활성 가중·레짐 설명).
@@ -5259,6 +5442,37 @@ function _aioRenderOperatorNote() {
       '<div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">' + (note.title || '') + '</div>' +
       '<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">' + bodyHtml + '</div>' +
       (tags ? '<div>' + tags + '</div>' : '') +
+    '</div>';
+  el.style.display = 'block';
+}
+window._aioRenderOperatorNote = _aioRenderOperatorNote;
+
+// v51.40: prominent first-screen operator note renderer.
+function _aioRenderOperatorNote() {
+  var el = document.getElementById('home-operator-note');
+  if (!el) return;
+  var note = window._aioOperatorNote;
+  if (!note || note.visible === false || _aioIsOperatorNotePlaceholder(note)) { el.style.display = 'none'; return; }
+  function _esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function _isPlaceholderTag(t) {
+    var text = String(t || '').trim();
+    return !text || /^(sample|placeholder|tag)\d*$/i.test(text) || /예시|작성|샘플|placeholder/i.test(text);
+  }
+  var tags = (Array.isArray(note.tags) ? note.tags : []).filter(function(t) {
+    return !_isPlaceholderTag(t);
+  }).map(function(t) {
+    return '<span class="aio-operator-note-tag">' + _esc(t) + '</span>';
+  }).join('');
+  var bodyHtml = _esc(note.body || '').replace(/\n/g, '<br>');
+  el.innerHTML =
+    '<div class="aio-operator-note-card aio-operator-note-priority">' +
+      '<div class="aio-operator-note-meta">' +
+        '<span class="aio-operator-note-kicker">운영자 노트</span>' +
+        '<span class="aio-operator-note-date">' + _esc(note.updated || '') + '</span>' +
+      '</div>' +
+      '<div class="aio-operator-note-title">' + _esc(note.title || '') + '</div>' +
+      '<div class="aio-operator-note-body">' + bodyHtml + '</div>' +
+      (tags ? '<div class="aio-operator-note-tags">' + tags + '</div>' : '') +
     '</div>';
   el.style.display = 'block';
 }
@@ -14801,6 +15015,21 @@ window._aioApplyServerScreener = _aioApplyServerScreener;
 //   위험회피: 저변동·퀄리티↑·모멘텀↓ / 위험선호: 모멘텀·추세↑·저변동↓ / 후기사이클: 밸류↑.
 //   가중은 합=1 불요(_aioComputeFactorRanks가 present 팩터로 정규화). marketState 없으면 기본(무회귀).
 window._aioFactorWeights = function(ms) {
+  // v51.39: 사용자 프로파일 우선 — 'balanced'가 아닌 경우 프로파일 가중 직접 반환
+  try {
+    var profileKey = localStorage.getItem('aio_trader_profile');
+    if (profileKey && profileKey !== 'balanced' && typeof AIO_TRADER_PROFILES !== 'undefined') {
+      var prof = AIO_TRADER_PROFILES[profileKey];
+      if (prof && prof.weights) {
+        // 합=1 정규화 후 반환 (프로파일은 레짐 무시 — 사용자 선택 우선)
+        var pw = prof.weights, total = Object.keys(pw).reduce(function(s,k){ return s+(pw[k]||0); },0);
+        var nw = {};
+        if (total > 0 && Math.abs(total-1) > 0.005) { Object.keys(pw).forEach(function(k){ nw[k]=pw[k]/total; }); }
+        else { nw = pw; }
+        return { weights: nw, regimeLabel: prof.label + ' — ' + prof.desc };
+      }
+    }
+  } catch(_) {}
   // v51.37: 레짐 적응형 가중 (7팩터). 가중 합=1 명시 보장.
   // 중립: 균형. 위험회피: 저변동·퀄리티↑·모멘텀↓. 위험선호: 모멘텀·추세↑. 후기사이클: 밸류↑.
   var NEUTRAL  = { momentum:0.27, trend:0.20, lowvol:0.16, size:0.08, value:0.10, quality:0.09, kalman:0.10 };

@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const html = readFileSync(join(root, 'index.html'), 'utf8');
+const core = readFileSync(join(root, 'js/aio-core.js'), 'utf8');
+const data = readFileSync(join(root, 'js/aio-data.js'), 'utf8');
 const ci = readFileSync(join(root, '.github/workflows/ci.yml'), 'utf8');
 const qa = readFileSync(join(root, '_context/QA-CHECKLIST.md'), 'utf8');
 const rules = readFileSync(join(root, '_context/RULES.md'), 'utf8');
@@ -33,9 +35,20 @@ check(
   /id="signal-lockout-control"[^>]*style="display:none;"[^>]*aria-hidden="true"/.test(html)
 );
 check(
+  'signal lockout hidden sink must not be revived by page folding',
+  !/pageId === ['"]signal['"]\)\s*selectors\s*=\s*\[['"]#signal-lockout-control['"]\]/.test(core)
+);
+check(
   'rally-quality legacy sink must remain hidden if runtime still references it',
   /id="rally-quality-verdict"[^>]*style="display:none;"[^>]*aria-hidden="true"/.test(html)
 );
+const operatorNoteIndex = html.indexOf('id="home-operator-note"');
+const staleWarningIndex = html.indexOf('id="snapshot-stale-warning"');
+check('home operator note placeholder must exist exactly once', (html.match(/id="home-operator-note"/g) || []).length === 1);
+check('home operator note must be before the home header/status flow', operatorNoteIndex >= 0 && staleWarningIndex >= 0 && operatorNoteIndex < staleWarningIndex);
+check('home operator note must use prominent first-screen styling', /aio-operator-note-title[\s\S]*font-size:18px/.test(html) && /aio-operator-note-body[\s\S]*font-size:14px/.test(html));
+check('operator note renderer must filter sample tags', /_isPlaceholderTag/.test(data) && /aio-operator-note-tag/.test(data));
+check('home decision header must render below operator note when present', /operatorNote[\s\S]{0,240}insertAdjacentHTML\('afterend', html\)/.test(core));
 check('guide must preserve compact methodology reference', /id="guide-methodology"/.test(html));
 check('methodology reference must preserve core decision concepts', /SIGNAL 점수 산식/.test(html) && /시장폭·랠리 품질/.test(html) && /종목 발굴\/검증 루프/.test(html));
 
@@ -44,6 +57,7 @@ const divClose = (html.match(/<\/div>/g) || []).length;
 check('index.html div tags must remain balanced after UX pruning', divOpen === divClose);
 
 check('P529 QA checklist must mention the default-path UX gate', /P529/.test(qa) && /ci-ux-default-path-check\.mjs/.test(qa));
+check('P532 QA checklist must mention operator-note priority and Signal fold gate', /P532/.test(qa) && /operator note/i.test(qa) && /Signal/i.test(qa));
 check('default-path UX gate must be wired into CI', /ci-ux-default-path-check\.mjs/.test(ci));
 check('R228 must document default-route UX constraints', /R228/.test(rules) && /auto-fill/.test(rules) && /default route/.test(rules));
 

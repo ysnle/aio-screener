@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.38 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.40 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3690,6 +3690,25 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   outline-offset: 2px;
 }
 
+/* ═══ v51.39: 트레이더 스타일 · 워치리스트 · 진입 신호 · 포지션 사이저 ═══ */
+.scr-profile-btn { background:none; border:1px solid var(--border); border-radius:14px; padding:3px 10px; font-size:11px; cursor:pointer; color:var(--text-secondary); transition:all .15s; white-space:nowrap; }
+.scr-profile-btn.active { background:var(--accent); border-color:var(--accent); color:#0a0e14; font-weight:700; }
+.scr-profile-btn:hover:not(.active) { border-color:var(--accent); color:var(--accent); }
+.scr-star { cursor:pointer; font-size:13px; line-height:1; padding:1px 3px; color:var(--surface-5); transition:color .12s; display:inline-block; user-select:none; }
+.scr-star.active { color:#ffa31a; }
+.scr-star:hover { color:#ffa31a; }
+.scr-entry-chip { display:inline-block; padding:1px 5px; border-radius:3px; font-size:10px; font-weight:700; white-space:nowrap; }
+.entry-ready { background:rgba(0,229,160,0.14); color:#00e5a0; }
+.entry-watch { background:rgba(125,223,143,0.12); color:#7ddf8f; }
+.entry-wait  { background:rgba(255,163,26,0.10);  color:#ffa31a; }
+.entry-avoid { background:rgba(255,91,80,0.10);   color:#ff5b50; }
+#scr-position-sizer { display:none; background:var(--bg-card); border:1px solid var(--data-cyan); border-left:3px solid var(--data-cyan); border-radius:var(--radius); padding:10px 14px; margin-bottom:10px; }
+#scr-position-sizer.active { display:block; }
+#scr-adv-filter-row { display:none; background:rgba(0,212,255,0.03); border:1px solid var(--border); border-radius:var(--radius); padding:7px 10px; margin-bottom:8px; gap:6px; flex-wrap:wrap; align-items:center; }
+#scr-adv-filter-row.active { display:flex; }
+.ps-input { background:var(--surface-1); border:1px solid var(--border); border-radius:3px; color:var(--text-primary); font-size:11px; padding:3px 6px; width:72px; font-family:var(--font-mono); }
+.ps-input:focus { outline:1px solid var(--accent); border-color:var(--accent); }
+
 /* ═══ v30.13d: RRG Chart 비율 수정 — 동적 캔버스 + 왜곡 방지 ═══ */
 #rrg-canvas {
   max-height: 520px !important;
@@ -4149,6 +4168,71 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   padding:5px 9px; border-radius:3px;
   border:1px solid rgba(0,212,255,0.35); background:rgba(0,212,255,0.08);
   color:var(--accent); font-size:11px; font-weight:800; cursor:pointer;
+}
+#home-operator-note {
+  margin:0 0 14px;
+}
+#home-operator-note .aio-operator-note-card {
+  background:linear-gradient(135deg, rgba(0,212,255,0.10), rgba(7,13,24,0.94));
+  border:1px solid rgba(0,212,255,0.28);
+  border-left:4px solid var(--accent,#00bcd4);
+  border-radius:var(--radius,4px);
+  padding:16px 18px;
+  box-shadow:0 10px 28px rgba(0,0,0,0.22);
+}
+#home-operator-note .aio-operator-note-meta {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+  flex-wrap:wrap;
+}
+#home-operator-note .aio-operator-note-kicker {
+  font-size:11px;
+  font-weight:900;
+  color:var(--accent,#00bcd4);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+#home-operator-note .aio-operator-note-date {
+  font-size:12px;
+  color:var(--text-muted);
+  font-family:var(--font-mono);
+}
+#home-operator-note .aio-operator-note-title {
+  font-size:18px;
+  line-height:1.35;
+  font-weight:900;
+  color:var(--text-primary);
+  margin-bottom:8px;
+}
+#home-operator-note .aio-operator-note-body {
+  font-size:14px;
+  line-height:1.8;
+  color:var(--text-secondary);
+}
+#home-operator-note .aio-operator-note-tags {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:10px;
+}
+#home-operator-note .aio-operator-note-tag {
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:3px 9px;
+  border-radius:var(--radius-sm,3px);
+  background:rgba(0,212,255,0.10);
+  border:1px solid rgba(0,212,255,0.26);
+  color:var(--accent,#00bcd4);
+  font-size:11px;
+  font-weight:800;
+}
+@media (max-width:640px) {
+  #home-operator-note .aio-operator-note-card { padding:14px 15px; }
+  #home-operator-note .aio-operator-note-title { font-size:16px; }
+  #home-operator-note .aio-operator-note-body { font-size:14px; line-height:1.75; }
 }
 /* v50.85: page body redesign — decision -> action -> data -> AI, with dense legacy controls folded */
 .aio-action-hub {
@@ -4743,12 +4827,15 @@ button[data-filter-active="true"] {
           <!-- ═══════════════ PAGE: HOME (대시보드) ═══════════════ -->
   <div class="page active" id="page-home">
 
+  <!-- v51.40: 운영자 노트는 세션 시작 전 확인 카드로 최상단 배치 -->
+  <div id="home-operator-note" style="display:none;"></div>
+
   <!-- ═══ 데이터 경과 경고 배너 ═══ -->
   <div id="snapshot-stale-warning" style="display:none;background:rgba(255,163,26,0.12);border:1px solid rgba(255,163,26,0.3);border-radius:4px;padding:8px 14px;margin-bottom:10px;font-size:10px;color:var(--data-amber);font-weight:600;text-align:center;" data-source-kind="snapshot" data-operational-use="reference-only"></div>
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.38</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.40</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4776,9 +4863,6 @@ button[data-filter-active="true"] {
 
   <!-- v48.62: 페이지 결론 바 -->
   <div id="home-conclusion-bar"></div>
-
-  <!-- v51.18: 운영자 노트 카드 — public-data/operator-note.json -->
-  <div id="home-operator-note" style="display:none;"></div>
 
   <!-- v50.75: 시장 분석 카드 → Decision Header "왜" 섹션과 중복, DOM 유지(테스트 T820) 시각만 숨김 -->
   <div class="aio-card has-stripe-left" style="display:none;">
@@ -9616,7 +9700,7 @@ button[data-filter-active="true"] {
     변동성(VIX·VVIX)과 시장 심리는 <button data-action="showPage" data-arg="sentiment" class="aio-btn-table" style="font-size:11px;">투자 심리 →</button> 에서 확인하세요.
   </div>
 </div>
-  <!-- ═══════════════ PAGE: SCREENER (퀀트 스크리너) — v50.53 2A ═══════════════ -->
+  <!-- ═══════════════ PAGE: SCREENER (퀀트 스크리너) — v51.39 ═══════════════ -->
   <div class="page" id="page-screener">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
       <div>
@@ -9624,6 +9708,17 @@ button[data-filter-active="true"] {
         <div class="page-subtitle">멀티팩터 랭킹 · 전체 유니버스 · 헤더 클릭으로 정렬</div>
       </div>
       <span data-factor-asof style="font-size:11px;color:var(--data-amber);align-self:center;">팩터 데이터 대기</span>
+    </div>
+    <!-- v51.39: 트레이더 스타일 프로파일 선택 -->
+    <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:12px;padding:8px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius);">
+      <span style="font-size:10px;color:var(--text-muted);flex-shrink:0;letter-spacing:.03em;text-transform:uppercase;">내 투자 스타일</span>
+      <button class="scr-profile-btn active" data-action="_aioSetProfile" data-arg="balanced">⚖ 균형</button>
+      <button class="scr-profile-btn" data-action="_aioSetProfile" data-arg="momentum">🚀 모멘텀</button>
+      <button class="scr-profile-btn" data-action="_aioSetProfile" data-arg="swing">📈 스윙</button>
+      <button class="scr-profile-btn" data-action="_aioSetProfile" data-arg="value">💎 가치</button>
+      <button class="scr-profile-btn" data-action="_aioSetProfile" data-arg="lowrisk">🛡 저리스크</button>
+      <span id="scr-profile-desc" style="font-size:10px;color:var(--text-muted);margin-left:2px;font-style:italic;">레짐 기반 자동 가중 (권장)</span>
+      <button class="aio-btn-table" style="margin-left:auto;font-size:10px;" data-action="_aioToggleAdvFilters">⚙ 고급 필터</button>
     </div>
     <!-- v51.32: 4-KPI 상단 통계 바 -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;">
@@ -9692,14 +9787,51 @@ button[data-filter-active="true"] {
 
     <!-- 탭: 랭킹 (기본 표시) -->
     <div id="scr-tab-ranking">
-    <!-- 필터 바 -->
-    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+    <!-- 기본 필터 바 -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
       <select id="scr-market" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 지수</option></select>
       <select id="scr-sector" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 섹터</option></select>
       <select id="scr-signal" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 시그널</option><option value="BUY">BUY</option><option value="HOLD">HOLD</option><option value="WATCH">WATCH</option><option value="SELL">SELL</option></select>
       <select id="scr-cap" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 시총</option><option value="MEGA">메가캡 (≥$1T... )</option><option value="LARGE">대형 ($10B~1T)</option><option value="MID">중형 ($2~10B)</option><option value="SMALL">소형 (&lt;$2B)</option></select>
       <input id="scr-text-search" type="text" placeholder="티커·이름·메모 검색" class="aio-btn-table" style="font-size:11px;padding:4px 8px;min-width:160px;">
       <span style="font-size:11px;color:var(--text-muted);margin-left:auto;"><span id="screener-result-count">0</span>종목</span>
+    </div>
+    <!-- v51.39: 고급 필터 (⚙ 버튼으로 토글) -->
+    <div id="scr-adv-filter-row">
+      <span style="font-size:10px;color:var(--data-cyan);font-weight:700;letter-spacing:.03em;text-transform:uppercase;flex-shrink:0;">고급 필터</span>
+      <label style="font-size:11px;color:var(--text-muted);">랭크 ≥</label>
+      <select id="scr-min-rank" class="aio-btn-table" style="font-size:11px;padding:3px 7px;">
+        <option value="0">제한 없음</option><option value="40">40 (C등급)</option><option value="50">50 (C+)</option>
+        <option value="60">60 (B)</option><option value="70">70 (B+)</option><option value="80">80 (A등급)</option>
+      </select>
+      <span style="font-size:11px;color:var(--text-muted);margin-left:4px;">RSI</span>
+      <input id="scr-rsi-min" type="number" min="0" max="100" placeholder="최소" class="ps-input" style="width:56px;">
+      <span style="font-size:11px;color:var(--text-muted);">~</span>
+      <input id="scr-rsi-max" type="number" min="0" max="100" placeholder="최대" class="ps-input" style="width:56px;">
+      <span style="font-size:11px;color:var(--text-muted);margin-left:4px;">3M수익률 ≥</span>
+      <input id="scr-min-mom" type="number" placeholder="%" class="ps-input" style="width:56px;" step="5">
+      <label style="font-size:11px;color:var(--text-muted);margin-left:4px;white-space:nowrap;cursor:pointer;">
+        <input type="checkbox" id="scr-watchlist-only" style="margin-right:3px;cursor:pointer;">★ 내 워치리스트만
+      </label>
+      <button class="aio-btn-table" style="font-size:10px;margin-left:auto;" data-action="_aioResetAdvFilters">초기화</button>
+    </div>
+    <!-- v51.39: 포지션 사이저 -->
+    <div id="scr-position-sizer">
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+        <span style="font-size:11px;font-weight:700;color:var(--data-cyan);flex-shrink:0;">📐 포지션 사이저</span>
+        <span style="font-size:11px;color:var(--text-muted);">종목:</span>
+        <span id="ps-sym" style="font-size:12px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);background:var(--surface-1);padding:1px 8px;border-radius:3px;">—</span>
+        <span style="font-size:11px;color:var(--text-muted);">자본금 $</span>
+        <input id="ps-capital" type="number" class="ps-input" placeholder="50000" min="0">
+        <span style="font-size:11px;color:var(--text-muted);">리스크</span>
+        <input id="ps-risk" type="number" class="ps-input" placeholder="%" value="1" min="0.1" max="10" step="0.5">
+        <span style="font-size:11px;color:var(--text-muted);">% &nbsp;·&nbsp; 손절</span>
+        <input id="ps-stop" type="number" class="ps-input" placeholder="%" value="5" min="0.5" max="30" step="0.5">
+        <span style="font-size:11px;color:var(--text-muted);">%</span>
+        <button class="aio-btn-table primary" style="font-size:11px;" data-action="_aioCalcPositionSize">계산</button>
+        <button class="aio-btn-table" style="font-size:10px;padding:3px 7px;" data-action="_aioHidePositionSizer" title="닫기">✕</button>
+      </div>
+      <div id="ps-result" style="margin-top:8px;font-size:11px;line-height:1.8;color:var(--text-muted);">종목 행을 클릭하면 자동 설정 · 직접 입력 후 계산 버튼 누르세요.</div>
     </div>
     <!-- 결과 테이블 -->
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
@@ -9709,38 +9841,42 @@ button[data-filter-active="true"] {
       <span class="cross-link" data-action="showPage" data-arg="themes">섹터 테마 →</span>
     </div>
     <div style="overflow-x:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
-      <table class="aio-table is-mono is-compact" style="width:100%;min-width:760px;">
+      <table class="aio-table is-mono is-compact" style="width:100%;min-width:820px;">
         <thead>
           <tr style="border-bottom:1px solid var(--border);">
+            <th colspan="1" style="text-align:center;padding:4px 6px;font-size:9px;color:var(--text-muted);font-weight:500;background:rgba(255,255,255,.02);">★</th>
             <th colspan="4" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(255,255,255,.02);">기본 정보</th>
             <th colspan="6" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--data-cyan);font-weight:500;letter-spacing:.04em;background:rgba(0,200,220,.04);border-left:1px solid var(--border);">팩터 점수 (0~100)</th>
             <th colspan="4" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(255,255,255,.02);border-left:1px solid var(--border);">시장 데이터</th>
+            <th colspan="1" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--data-green);font-weight:500;letter-spacing:.04em;background:rgba(0,229,160,0.04);border-left:1px solid var(--border);">진입</th>
             <th colspan="1" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(255,255,255,.02);border-left:1px solid var(--border);">시그널</th>
             <th colspan="1" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(255,255,255,.02);border-left:1px solid var(--border);">뉴스</th>
           </tr>
           <tr style="border-bottom:2px solid var(--surface-5);">
+            <th style="text-align:center;padding:7px 6px;font-size:10px;color:var(--text-muted);" title="워치리스트 추가/제거">☆</th>
             <th data-scr-sort="rank" data-action="_aioScreenerSort" data-arg="rank" role="button" style="cursor:pointer;text-align:center;padding:7px 8px;font-size:10px;">순위<span class="scr-arrow"></span></th>
             <th style="text-align:center;padding:7px 8px;font-size:10px;">등급</th>
             <th data-scr-sort="sym" data-action="_aioScreenerSort" data-arg="sym" role="button" style="cursor:pointer;text-align:left;padding:7px 8px;font-size:10px;">종목<span class="scr-arrow"></span></th>
             <th data-scr-sort="sector" data-action="_aioScreenerSort" data-arg="sector" role="button" style="cursor:pointer;text-align:left;padding:7px 8px;font-size:10px;">섹터<span class="scr-arrow"></span></th>
             <th data-scr-sort="momentum" data-action="_aioScreenerSort" data-arg="momentum" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);">모멘텀<span class="scr-arrow"></span></th>
             <th data-scr-sort="trend" data-action="_aioScreenerSort" data-arg="trend" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">추세<span class="scr-arrow"></span></th>
-            <th data-scr-sort="lowvol" data-action="_aioScreenerSort" data-arg="lowvol" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">저변동 <span style="font-size:9px;color:var(--data-amber);font-weight:400;">↓역방향</span><span class="scr-arrow"></span></th>
+            <th data-scr-sort="lowvol" data-action="_aioScreenerSort" data-arg="lowvol" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">저변동 <span style="font-size:9px;color:var(--data-amber);font-weight:400;">↓역</span><span class="scr-arrow"></span></th>
             <th data-scr-sort="value" data-action="_aioScreenerSort" data-arg="value" role="button" title="밸류(저PER/PBR/EV-EBITDA) — FMP 키 필요" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">밸류<span class="scr-arrow"></span></th>
             <th data-scr-sort="quality" data-action="_aioScreenerSort" data-arg="quality" role="button" title="퀄리티(ROE/마진/매출성장) — FMP 키 필요" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">퀄리티<span class="scr-arrow"></span></th>
-            <th data-scr-sort="kalman" data-action="_aioScreenerSort" data-arg="kalman" role="button" title="칼만 추세 속도 — 90일 가격에서 추정한 숨겨진 추세 속도. 양수=상승, 음수=하락. 서버 팩터 파일이 있을 때만 활성." style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">K-vel<span class="scr-arrow"></span></th>
+            <th data-scr-sort="kalman" data-action="_aioScreenerSort" data-arg="kalman" role="button" title="칼만 추세 속도 — 양수=상승, 음수=하락." style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">K-vel<span class="scr-arrow"></span></th>
             <th data-scr-sort="ret3m" data-action="_aioScreenerSort" data-arg="ret3m" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);">3M<span class="scr-arrow"></span></th>
             <th data-scr-sort="rsi" data-action="_aioScreenerSort" data-arg="rsi" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">RSI<span class="scr-arrow"></span></th>
             <th data-scr-sort="mcap" data-action="_aioScreenerSort" data-arg="mcap" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">시총<span class="scr-arrow"></span></th>
             <th data-scr-sort="price" data-action="_aioScreenerSort" data-arg="price" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">가격<span class="scr-arrow"></span></th>
+            <th style="text-align:center;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);" title="RSI·랭크·모멘텀 조합 진입 타이밍 신호">진입?</th>
             <th style="text-align:center;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);">시그널</th>
-            <th style="text-align:left;padding:7px 8px;font-size:10px;min-width:120px;border-left:1px solid var(--border);">최신뉴스</th>
+            <th style="text-align:left;padding:7px 8px;font-size:10px;min-width:110px;border-left:1px solid var(--border);">최신뉴스</th>
           </tr>
         </thead>
-        <tbody id="screener-results-body"><tr><td colspan="16" style="text-align:center;padding:20px;color:var(--text-muted);">조건을 선택하면 스크리닝 결과를 표시합니다.</td></tr></tbody>
+        <tbody id="screener-results-body"><tr><td colspan="18" style="text-align:center;padding:20px;color:var(--text-muted);">조건을 선택하면 스크리닝 결과를 표시합니다.</td></tr></tbody>
       </table>
     </div>
-    <div style="font-size:10px;color:var(--text-muted);margin-top:8px;">행 클릭 → 종목 심층 분석. 서버 팩터 파일 미수신 시 랭크·백테스트는 비활성화되고 정적 시그널만 유지됩니다. 밸류·퀄리티의 ‘—‘는 FMP 데이터 미수신으로 해당 팩터가 랭크에서 제외됐다는 뜻입니다. <b>K-vel</b>은 칼만 추세 속도(서버 팩터 파일 필요).</div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.7;">★ = 개인 워치리스트 · <b>진입?</b> = RSI·랭크·모멘텀 조합 타이밍 신호 (참고용, 단독 매매 근거 아님). 서버 팩터 파일 미수신 시 랭크·백테스트 비활성화. 밸류·퀄리티 ‘—‘는 FMP 미수신. <b>K-vel</b>은 칼만 추세 속도(서버 팩터 파일 필요).</div>
     </div><!-- /scr-tab-ranking -->
   </div>
 
@@ -11457,9 +11593,9 @@ button[data-filter-active="true"] {
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.38"></script>
-  <script src="./js/aio-data.js?v=51.38"></script>
-  <script src="./js/aio-ui.js?v=51.38"></script>
+  <script src="./js/aio-core.js?v=51.40"></script>
+  <script src="./js/aio-data.js?v=51.40"></script>
+  <script src="./js/aio-ui.js?v=51.40"></script>
 
   <script>
 
@@ -14656,7 +14792,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.38"></script>
+<script src="./js/aio-chat.js?v=51.40"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -27245,7 +27381,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.38"></script>
+<script src="./js/aio-glossary.js?v=51.40"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
