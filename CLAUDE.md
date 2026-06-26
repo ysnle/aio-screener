@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.36**
+- 현재 버전: **v51.37**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v51.37 텔레그램 분석 카드 렌더러**: `_aioProcessTelegramItem()` 헬퍼 신설 — 감성 판단(bullKw/bearKw + score 보정), 카테고리→한국어 라벨+CSS 클래스, 헤드라인 추출(첫 문장 ≤220자), 수치 하이라이트(`<span class="tg-num">` 앰버색), 티커 방향 컬러링. `_aioRenderTelegramFeedHtml()` 전면 교체 — `.tg-card` 분석 카드 포맷(카테고리 pill·감성 인디케이터·헤드라인·본문 요약·티커). R1 7곳 v51.37.
 - **v51.36 텔레그램 자동최신화 루프 전면 연결**: broadItems 임계값 score≥50(309개), 14일·50페이지 수집 확장. CSS `.tg-live-feed` + HTML `tg-feed-*` 컨테이너 9곳(home·signal·breadth·sentiment·briefing·technical·macro·fxbond·market-news) + `_aioRenderTelegramFeedHtml()`·`_aioInjectAllTelegramFeeds()` 렌더러. `_aioApplyTelegramDigestPayload()` 완료 시 전체 갱신 + `aio:pageShown` 훅 per-page 재렌더. R1 7곳 v51.36.
 - **v51.35 broadItems(개별 뉴스피드) 구조 추가**: `public-data/telegram-digest.json`에 `broadItems` 필드 신설 — score≥57 재채점, 최대 200개, datetime 내림차순(뉴스피드). `_aioNormalizeTelegramDigestPayload()`→`rawBroadItems`, `_aioBuildTelegramMemoOverlay()` broadItems 우선 적용(더 많은 티커 커버), `window.AIO_TELEGRAM_BROAD_ITEMS` 노출. `_buildAioIntegratedAnswerContext()`: 쿼리 관련도 기반 상위 25개 개별 항목 AI채팅 컨텍스트 주입(날짜/채널/티커/텍스트 미리보기). `scripts/fetch-telegram-digest.mjs`에 broadItems 생성 로직 추가. R1 7곳 v51.35.
 - **v51.34 텔레그램 digest 갱신 + 선별 로직 개선**: `public-data/telegram-digest.json` 2026-06-19~06-26 KST 범위로 갱신(809개 포스트, topItems 45개). 신규 5건 반영: KOSPI -5% 매도사이드카, 삼성전기 나홀로 +7%(MLCC ETF), MLCC '금값' AI서버 50~60% 급등, 김용범 메가프로젝트 6/29 예고, 연준 윌리엄스/굴스비 발언+OpenAI IPO 연기 검토. `scripts/fetch-telegram-digest.mjs`: 분류 정확도 향상(kr-market 태그/사이드카 보너스/저신호 포스트 패널티), 스코어 base 40→35, topItems 기준 score≥65. 정적 `AIO_TELEGRAM_WEEKLY_DIGEST` 동기화. R1 7곳 v51.34.

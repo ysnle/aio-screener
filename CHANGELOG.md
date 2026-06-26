@@ -1,4 +1,23 @@
-﻿## v51.36 - broadItems 커버리지 대폭 확대 (2026-06-26)
+﻿## v51.37 - 텔레그램 분석·가공 카드 렌더러 (2026-06-26)
+
+**분석 카드 렌더러 전면 교체 (js/aio-data.js)**
+- `_aioProcessTelegramItem(it)` 헬퍼 신설: 원시 텍스트를 5단계로 가공.
+  1. **감성 판단**: bearKw 15개 / bullKw 15개 키워드 카운트 → bull/bear/neutral. score<45 시 중립 보정.
+  2. **카테고리 → 한국어 라벨**: kr-market→한국장, semi→반도체, macro→매크로, geo→지정학, ai-policy→AI정책, equity→주식분석, power→전력인프라, optical→광통신.
+  3. **헤드라인 추출**: 개행·대시 기준 첫 의미 문장(≥10자). 수치 하이라이트(`%/bp/억/조/$` → `<span class="tg-num">` 앰버색).
+  4. **본문 요약**: 헤드라인 이후 텍스트 최대 120자.
+  5. **티커 방향 컬러링**: 티커 주변 ±/▲▼ 패턴 탐지 → `.tg-ticker-bull`(초록) / `.tg-ticker-bear`(빨강).
+- `_aioRenderTelegramFeedHtml()` 전면 교체: 기존 원시 텍스트 덤프 → `.tg-card` 분석 카드 포맷.
+  - 카드 헤더: 카테고리 pill(`.tg-cat-kr/semi/macro/geo/ai/equity`) + 감성 인디케이터(▲ 상승/▼ 하락/● 중립) + 출처·날짜(우측 정렬).
+  - 헤드라인: 수치 앰버 하이라이트 포함, 최대 220자.
+  - 본문: 두 번째 정보 줄, 최대 120자(있을 때만).
+  - 티커 푸터: 방향별 색상 구분(있을 때만).
+
+**R1 버전 동기화**: title · badge · APP_VERSION · SW_VERSION · version.json · CLAUDE.md(root+_context) · CHANGELOG.md · JS cachebusters 5곳 → v51.37.
+
+---
+
+## v51.36 - broadItems 커버리지 대폭 확대 (2026-06-26)
 
 **broadItems 임계값·한도 확대 (public-data/telegram-digest.json)**
 - `broadItems` score 임계값 ≥57 → ≥50으로 낮춤: 기존 236개 → 437개 후보, 최종 309개(채널당 120개 한도).
