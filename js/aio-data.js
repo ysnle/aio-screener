@@ -1229,74 +1229,96 @@ var _TG_PAGE_TAGS = {
   'fxbond':      ['macro','geo'],
   'market-news': ['macro','geo','semi','equity','kr-market','ai-policy','optical','power','crypto'],
 };
-var _TG_PAGE_MAX = { 'home':5, 'briefing':7, 'market-news':10 };
+// [0]=표시라벨 [1]=최대건수 [2]=본문표시 [3]=정렬(score|date) [4]=compact
+var _TG_PAGE_CFG = {
+  'home':       ['오늘 시장 핵심',       3,  false, 'score', true ],
+  'signal':     ['방향성 시그널',         4,  false, 'score', true ],
+  'breadth':    ['시장 폭 동향',           3,  false, 'score', true ],
+  'sentiment':  ['시장 심리 동향',         4,  false, 'score', false],
+  'briefing':   ['채널 인사이트',           8,  true,  'date',  false],
+  'technical':  ['기술적 이슈',             3,  false, 'score', true ],
+  'macro':      ['거시·금리 동향',           5,  true,  'score', false],
+  'fxbond':     ['환율·채권 동향',           4,  false, 'score', false],
+  'market-news':['텔레그램 전체 피드',     12, true,  'date',  false],
+};
 
 // 카테고리 → 한국어 라벨 + CSS 클래스
 var _TG_CAT_MAP = {
-  'kr-market': { label:'한국장',   cls:'tg-cat-kr'     },
-  'semi':      { label:'반도체',   cls:'tg-cat-semi'   },
-  'macro':     { label:'매크로',   cls:'tg-cat-macro'  },
-  'geo':       { label:'지정학',   cls:'tg-cat-geo'    },
-  'ai-policy': { label:'AI정책',   cls:'tg-cat-ai'     },
-  'equity':    { label:'주식분석', cls:'tg-cat-equity' },
-  'power':     { label:'전력인프라', cls:'tg-cat-semi' },
-  'optical':   { label:'광통신',   cls:'tg-cat-semi'   },
-  'crypto':    { label:'크립토',   cls:'tg-cat-other'  },
-  'market-note':{ label:'시장소식', cls:'tg-cat-other' },
+  'kr-market':  { label:'한국장',     cls:'tg-cat-kr'     },
+  'semi':       { label:'반도체',     cls:'tg-cat-semi'   },
+  'macro':      { label:'매크로',     cls:'tg-cat-macro'  },
+  'geo':        { label:'지정학',     cls:'tg-cat-geo'    },
+  'ai-policy':  { label:'AI정책',     cls:'tg-cat-ai'     },
+  'equity':     { label:'주식분석',   cls:'tg-cat-equity' },
+  'power':      { label:'전력인프라', cls:'tg-cat-semi'   },
+  'optical':    { label:'광통신',     cls:'tg-cat-semi'   },
+  'crypto':     { label:'크립토',     cls:'tg-cat-other'  },
+  'market-note':{ label:'시장소식',   cls:'tg-cat-other'  },
 };
 var _TG_CH_SRC = {
   aetherjapanresearch: 'Aether·JP',
   insidertracking:     'Insider·US',
   bornlupin:           'BornLupin·KR',
 };
+var _TG_KR_NAME = {
+  '005930.KS':'삼성전자','000660.KS':'SK하이닉스','009150.KS':'삼성전기',
+  '6981.T':'무라타','6600.T':'키옥시아','000270.KS':'기아','005380.KS':'현대차',
+  '035420.KS':'NAVER','035720.KS':'카카오','051910.KS':'LG화학',
+};
 
 // 텍스트에서 핵심 정보 추출·가공
 function _aioProcessTelegramItem(it) {
   var raw = (it.text || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
 
-  // 1) 감성 판단 (키워드 기반)
-  var bearKw = ['급락','하락','하향','약세','사이드카','손실','주의','경계','붕괴','폭락','위험','매도','하락세','공포','리스크','충격','쇼크'];
-  var bullKw = ['급등','상승','상향','강세','호실적','목표주가 상향','매수','반등','돌파','신고가','수혜','호조','강한','강세','증가','성장','상회'];
+  // 1) 감성 판단
+  var bearKw = ['급락','하락','하향','약세','사이드카','손실','주의','경계','붕괴','폭락','위험','매도','하락세','공포','리스크','충격','쇼크','제재','관세','위기'];
+  var bullKw = ['급등','상승','상향','강세','호실적','목표주가 상향','매수','반등','돌파','신고가','수혜','호조','강한','증가','성장','상회','수주','호재','회복'];
   var t = raw;
   var bScore = bearKw.reduce(function(s,k){ return s + (t.indexOf(k)>=0?1:0); }, 0);
   var uScore = bullKw.reduce(function(s,k){ return s + (t.indexOf(k)>=0?1:0); }, 0);
   var sent = bScore > uScore ? 'bear' : uScore > bScore ? 'bull' : 'neutral';
-  // score 자체도 반영 (고점수=중요, 저점수=중립 가능성)
   if (it.score && it.score < 45) sent = 'neutral';
 
   // 2) 1차 카테고리
   var primaryTag = (it.tags || ['market-note'])[0];
   var cat = _TG_CAT_MAP[primaryTag] || { label: primaryTag, cls: 'tg-cat-other' };
 
-  // 3) 헤드라인 추출: 첫 번째 의미 있는 문장 (개행·— 기준)
-  var parts = raw.split(/\n|(?<=\S) — |(?<=\S) ─ /);
+  // 3) 헤드라인 추출: 첫 의미 있는 문장(개행·대시 기준, ≥10자)
+  var parts = raw.split(/\n|(?<=\S)[ ]+—[ ]+|(?<=\S)[ ]+─[ ]+/);
   var headline = '';
   for (var i = 0; i < parts.length; i++) {
     var p = parts[i].trim();
     if (p.length >= 10) { headline = p; break; }
   }
   if (!headline) headline = raw;
+  if (headline.length > 120) headline = headline.slice(0, 117) + '…';
 
-  // 4) 핵심 수치 하이라이트: 숫자+단위를 <span class="tg-num"> 로 감쌈
-  var numRe = /([+\-▲▼]?\d+(?:[,．.]\d+)*(?:\.\d+)?\s*(?:%|bp|억|조|\$|₩|만원|달러|pt|p|배|회|개))/g;
+  // 4) 수치 하이라이트
+  var numRe = /([+\-▲▼]?\d[\d,]*(?:\.\d+)?\s*(?:%|bp|억|조|\$|₩|만원|달러|pt|배|배p))/g;
   var hlHeadline = headline.replace(numRe, '<span class="tg-num">$1</span>');
-  if (hlHeadline.length > 220) hlHeadline = hlHeadline.slice(0, 217) + '…';
 
-  // 5) 본문 요약: 헤드라인 이후 내용, 최대 100자
-  var body = raw.slice(headline.length).replace(/^\s*[—─·:]\s*/, '').trim();
-  if (body.length > 120) body = body.slice(0, 117) + '…';
+  // 5) 본문 요약(헤드라인 이후, ≤100자)
+  var bodyRaw = raw.slice(headline.length).replace(/^\s*[—─·:\-]\s*/, '').trim();
+  // 두 번째 의미 있는 문장만 추출
+  var bodyParts = bodyRaw.split(/\n/);
+  var body = '';
+  for (var j = 0; j < bodyParts.length; j++) {
+    var bp = bodyParts[j].trim();
+    if (bp.length >= 12) { body = bp; break; }
+  }
+  if (!body && bodyRaw.length >= 12) body = bodyRaw;
+  if (body.length > 100) body = body.slice(0, 97) + '…';
 
-  // 6) 티커 방향 판단 (텍스트에서 +/- 근접 여부)
+  // 6) 티커 방향 (base class 항상 포함)
   var tickerHtml = (it.tickers || []).slice(0, 4).map(function(tk) {
-    var tkRe = new RegExp(tk.replace('.', '\\.') + '[^가-힣]{0,15}([+\\-▲▼]\\d)', 'i');
+    var tkRe = new RegExp(tk.replace(/\./g, '\\.') + '[^가-힣]{0,20}([+\\-▲▼]\\d)', 'i');
     var m = raw.match(tkRe);
-    var cls = 'tg-ticker';
-    if (m) cls = /[+▲]/.test(m[1]) ? 'tg-ticker-bull' : 'tg-ticker-bear';
-    else if (sent === 'bull') cls = 'tg-ticker-bull';
-    else if (sent === 'bear') cls = 'tg-ticker-bear';
-    // 한국 티커는 이름으로 표시
-    var label = { '005930.KS':'삼성전자','000660.KS':'SK하이닉스','009150.KS':'삼성전기','6981.T':'무라타','6600.T':'키옥시아' }[tk] || tk;
-    return '<span class="' + cls + '">' + label + '</span>';
+    var dirCls = '';
+    if (m) dirCls = /[+▲]/.test(m[1]) ? ' tg-ticker-bull' : ' tg-ticker-bear';
+    else if (sent === 'bull') dirCls = ' tg-ticker-bull';
+    else if (sent === 'bear') dirCls = ' tg-ticker-bear';
+    var label = _TG_KR_NAME[tk] || tk;
+    return '<span class="tg-ticker' + dirCls + '">' + label + '</span>';
   }).join('');
 
   return { sent: sent, cat: cat, hlHeadline: hlHeadline, body: body, tickerHtml: tickerHtml };
@@ -1306,24 +1328,51 @@ function _aioRenderTelegramFeedHtml(pageId) {
   try {
     var items = window.AIO_TELEGRAM_BROAD_ITEMS || [];
     var tags = _TG_PAGE_TAGS[pageId] || [];
+    var cfg = _TG_PAGE_CFG[pageId] || ['최신 소식', 5, false, 'date', false];
+    var feedLabel = cfg[0], maxItems = cfg[1], showBody = cfg[2], sortBy = cfg[3], compact = cfg[4];
+
     if (!items.length || !tags.length) return '';
-    var max = _TG_PAGE_MAX[pageId] || 5;
+
+    // 태그 필터
     var filtered = items.filter(function(it) {
       return (it.tags || []).some(function(t) { return tags.indexOf(t) >= 0; });
-    }).slice(0, max);
+    });
+
+    // score 정렬(중요도순) or 날짜순(이미 내림차순)
+    if (sortBy === 'score') {
+      filtered = filtered.slice().sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
+    }
+    filtered = filtered.slice(0, maxItems);
     if (!filtered.length) return '';
 
-    // 헤더: 가장 최신 날짜 기준
+    // 감성 집계 + 카드 사전 처리
+    var sentCounts = { bull: 0, bear: 0, neutral: 0 };
+    var cards = filtered.map(function(it) {
+      var info = _aioProcessTelegramItem(it);
+      sentCounts[info.sent]++;
+      return { it: it, info: info };
+    });
+
+    // 헤더
     var latestDate = (filtered[0].localDateKst || '').slice(5, 10);
-    var html = '<div class="tg-live-feed">';
+    var feedCls = 'tg-live-feed' + (compact ? ' tg-compact' : '');
+    var html = '<div class="' + feedCls + '">';
+
+    var sentBar = '';
+    if (sentCounts.bull)    sentBar += '<span class="tg-sb-bull">▲' + sentCounts.bull + '</span>';
+    if (sentCounts.neutral) sentBar += '<span class="tg-sb-neu">●' + sentCounts.neutral + '</span>';
+    if (sentCounts.bear)    sentBar += '<span class="tg-sb-bear">▼' + sentCounts.bear + '</span>';
+
     html += '<div class="tg-live-feed-hd">'
           + '<span class="tg-live-dot"></span>'
-          + '<span class="tg-live-hd-label">텔레그램 핵심 소식</span>'
-          + '<span class="tg-live-hd-ts">' + latestDate + ' 최신 · ' + filtered.length + '건</span>'
+          + '<span class="tg-live-hd-label">' + feedLabel + '</span>'
+          + (sentBar ? '<span class="tg-sent-bar">' + sentBar + '</span>' : '')
+          + '<span class="tg-live-hd-ts">' + latestDate + ' · ' + filtered.length + '건</span>'
           + '</div>';
 
-    filtered.forEach(function(it) {
-      var info = _aioProcessTelegramItem(it);
+    // 카드 렌더
+    cards.forEach(function(item) {
+      var it = item.it, info = item.info;
       var sentLabel = { bull:'▲ 상승', bear:'▼ 하락', neutral:'● 중립' }[info.sent];
       var sentCls   = { bull:'tg-sent-bull', bear:'tg-sent-bear', neutral:'tg-sent-neutral' }[info.sent];
       var src = _TG_CH_SRC[it.channel] || (it.channel || '');
@@ -1331,21 +1380,24 @@ function _aioRenderTelegramFeedHtml(pageId) {
 
       html += '<div class="tg-card">'
             + '<a href="' + (it.url || '#') + '" target="_blank" rel="noopener" class="tg-card-inner">'
-            // 헤더행: 카테고리 + 감성 + 출처
             + '<div class="tg-card-hd">'
             + '<span class="tg-cat ' + info.cat.cls + '">' + info.cat.label + '</span>'
             + '<span class="tg-sent ' + sentCls + '">' + sentLabel + '</span>'
             + '<span class="tg-card-src">' + src + ' · ' + date + '</span>'
             + '</div>'
-            // 헤드라인 (수치 하이라이트 포함)
             + '<div class="tg-card-headline">' + info.hlHeadline + '</div>'
-            // 본문 요약 (있을 때만)
-            + (info.body ? '<div class="tg-card-body">' + info.body + '</div>' : '')
-            // 관련 티커
+            + (showBody && info.body ? '<div class="tg-card-body">' + info.body + '</div>' : '')
             + (info.tickerHtml ? '<div class="tg-card-ft">' + info.tickerHtml + '</div>' : '')
             + '</a>'
             + '</div>';
     });
+
+    // 전체 피드 CTA (market-news 페이지 제외)
+    if (pageId !== 'market-news') {
+      html += '<div class="tg-feed-more">'
+            + '<span class="cross-link" data-action="showPage" data-arg="market-news">전체 채널 피드 →</span>'
+            + '</div>';
+    }
 
     html += '</div>';
     return html;

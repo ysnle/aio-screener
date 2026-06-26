@@ -3055,18 +3055,23 @@ body { background: #0d1521 !important; }
 .aio-vis-card-title::before{content:'▸';font-size:8px;opacity:.6;}
 /* v51.37: 텔레그램 분석 카드 피드 */
 .tg-live-feed{margin:0 0 10px;border-radius:6px;overflow:hidden;border:1px solid rgba(0,136,204,.2);background:var(--bg-card);}
-.tg-live-feed-hd{display:flex;align-items:center;gap:6px;padding:6px 10px;background:linear-gradient(90deg,rgba(0,136,204,.1),transparent);border-bottom:1px solid rgba(0,136,204,.15);font-size:10px;}
+.tg-live-feed-hd{display:flex;align-items:center;gap:6px;padding:6px 10px;background:linear-gradient(90deg,rgba(0,136,204,.1),transparent);border-bottom:1px solid rgba(0,136,204,.15);font-size:10px;flex-wrap:wrap;}
 .tg-live-dot{width:6px;height:6px;background:#0af;border-radius:50%;flex-shrink:0;animation:tg-pulse 2s infinite;}
 @keyframes tg-pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .tg-live-hd-label{color:#0af;font-weight:700;font-size:11px;letter-spacing:.04em;}
 .tg-live-hd-ts{margin-left:auto;font-size:9px;color:var(--text-muted);font-family:var(--font-mono);}
+/* 감성 요약 바 */
+.tg-sent-bar{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;font-family:var(--font-mono);}
+.tg-sb-bull{color:#00c864;}
+.tg-sb-neu{color:var(--text-muted);}
+.tg-sb-bear{color:#ff4040;}
 /* 분석 카드 */
 .tg-card{border-bottom:1px solid rgba(255,255,255,.04);transition:background .12s;}
 .tg-card:last-child{border-bottom:none;}
-.tg-card:hover{background:rgba(0,136,204,.04);}
+.tg-card:hover{background:rgba(0,136,204,.05);}
 .tg-card-inner{display:block;padding:8px 10px;text-decoration:none;color:inherit;}
 .tg-card-hd{display:flex;align-items:center;gap:5px;margin-bottom:4px;flex-wrap:wrap;}
-.tg-cat{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;letter-spacing:.03em;}
+.tg-cat{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;letter-spacing:.03em;}
 .tg-cat-kr{background:rgba(255,200,60,.12);color:#c8a000;}
 .tg-cat-semi{background:rgba(0,212,255,.12);color:var(--data-cyan);}
 .tg-cat-macro{background:rgba(168,85,247,.12);color:#a855f7;}
@@ -3074,18 +3079,25 @@ body { background: #0d1521 !important; }
 .tg-cat-ai{background:rgba(100,200,100,.12);color:#50c050;}
 .tg-cat-equity{background:rgba(0,180,255,.12);color:#00b4ff;}
 .tg-cat-other{background:rgba(140,140,140,.12);color:var(--text-muted);}
-.tg-sent{display:inline-flex;align-items:center;gap:2px;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;}
+.tg-sent{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;}
 .tg-sent-bull{background:rgba(0,200,100,.1);color:#00c864;}
 .tg-sent-bear{background:rgba(255,60,60,.1);color:#ff4040;}
 .tg-sent-neutral{background:rgba(140,140,140,.08);color:var(--text-muted);}
 .tg-card-src{margin-left:auto;font-size:9px;color:var(--text-muted);white-space:nowrap;}
-.tg-card-headline{font-size:12px;font-weight:600;color:var(--text-primary);line-height:1.45;margin-bottom:3px;}
+.tg-card-headline{font-size:12px;font-weight:600;color:var(--text-primary);line-height:1.45;margin-bottom:2px;}
 .tg-card-headline .tg-num{color:var(--data-amber);font-weight:700;}
 .tg-card-body{font-size:11px;color:var(--text-muted);line-height:1.45;margin-bottom:4px;}
-.tg-card-ft{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+.tg-card-ft{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;}
+/* 티커 칩: base + directional (기본 스타일은 항상 .tg-ticker 에서) */
 .tg-ticker{display:inline-block;background:rgba(0,212,255,.1);color:var(--data-cyan);padding:1px 5px;border-radius:3px;font-size:9px;font-family:var(--font-mono);font-weight:700;}
-.tg-ticker-bull{background:rgba(0,200,100,.1);color:#00c864;}
-.tg-ticker-bear{background:rgba(255,60,60,.1);color:#ff4040;}
+.tg-ticker.tg-ticker-bull{background:rgba(0,200,100,.12);color:#00c864;}
+.tg-ticker.tg-ticker-bear{background:rgba(255,60,60,.12);color:#ff4040;}
+/* compact 모드 (홈·시그널·기술분석 등 brief 페이지) */
+.tg-compact .tg-card-inner{padding:6px 10px;}
+.tg-compact .tg-card-headline{font-size:11.5px;}
+/* 전체 피드 푸터 */
+.tg-feed-more{padding:5px 10px;border-top:1px solid rgba(0,136,204,.1);background:rgba(0,136,204,.03);}
+.tg-feed-more .cross-link{font-size:10px;font-weight:600;}
 /* v42.1: 마켓 펄스 바 — 페이지 간 유기적 연결 */
 .market-pulse-bar{display:flex;align-items:center;gap:6px;padding:5px 14px;background:var(--bg-surface);border-bottom:1px solid var(--border);font-size:10px;overflow-x:auto;white-space:nowrap;}
 .pulse-seg{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;cursor:pointer;transition:background 0.15s,transform 0.1s;background:var(--surface-2);border:1px solid rgba(255,255,255,0.06);}

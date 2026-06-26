@@ -1,17 +1,28 @@
-﻿## v51.37 - 텔레그램 분석·가공 카드 렌더러 (2026-06-26)
+﻿## v51.37 - 텔레그램 분석 카드 + 페이지별 UX 최적화 (2026-06-26)
 
 **분석 카드 렌더러 전면 교체 (js/aio-data.js)**
 - `_aioProcessTelegramItem(it)` 헬퍼 신설: 원시 텍스트를 5단계로 가공.
-  1. **감성 판단**: bearKw 15개 / bullKw 15개 키워드 카운트 → bull/bear/neutral. score<45 시 중립 보정.
+  1. **감성 판단**: bearKw/bullKw 각 20개 키워드 카운트 → bull/bear/neutral. score<45 중립 보정.
   2. **카테고리 → 한국어 라벨**: kr-market→한국장, semi→반도체, macro→매크로, geo→지정학, ai-policy→AI정책, equity→주식분석, power→전력인프라, optical→광통신.
-  3. **헤드라인 추출**: 개행·대시 기준 첫 의미 문장(≥10자). 수치 하이라이트(`%/bp/억/조/$` → `<span class="tg-num">` 앰버색).
-  4. **본문 요약**: 헤드라인 이후 텍스트 최대 120자.
-  5. **티커 방향 컬러링**: 티커 주변 ±/▲▼ 패턴 탐지 → `.tg-ticker-bull`(초록) / `.tg-ticker-bear`(빨강).
-- `_aioRenderTelegramFeedHtml()` 전면 교체: 기존 원시 텍스트 덤프 → `.tg-card` 분석 카드 포맷.
-  - 카드 헤더: 카테고리 pill(`.tg-cat-kr/semi/macro/geo/ai/equity`) + 감성 인디케이터(▲ 상승/▼ 하락/● 중립) + 출처·날짜(우측 정렬).
-  - 헤드라인: 수치 앰버 하이라이트 포함, 최대 220자.
-  - 본문: 두 번째 정보 줄, 최대 120자(있을 때만).
-  - 티커 푸터: 방향별 색상 구분(있을 때만).
+  3. **헤드라인 추출**: 개행·대시 기준 첫 의미 문장(≥10자, ≤120자). 수치 하이라이트(`%/bp/억/조/$` → `<span class="tg-num">` 앰버색).
+  4. **본문 요약**: 두 번째 의미 줄 최대 100자.
+  5. **티커 방향 컬러링**: 주변 ±/▲▼ 패턴 탐지 → `tg-ticker tg-ticker-bull/bear`(base+directional 클래스 동시 적용, 이전 버그 수정).
+
+**페이지별 설정 분리 (js/aio-data.js)**
+- `_TG_PAGE_MAX` → `_TG_PAGE_CFG`로 교체: 9개 페이지별 라벨·건수·본문표시·정렬방식·compact 설정.
+  - compact 모드 (홈·시그널·기술분석·시장폭): 3~4건, score 내림차순, 본문 없음, 셀 패딩 축소.
+  - full 모드 (브리핑·매크로·FX채권): 5~8건, 본문 한 줄 표시.
+  - market-news: 12건, 날짜 내림차순, 본문 표시.
+- 정렬: 홈·시그널 등은 `score` 내림차순(중요도순), 브리핑·market-news는 `date` 내림차순(최신순).
+- 감성 요약 바: 피드 헤더에 `▲N ●N ▼N` 실시간 집계 표시.
+- "전체 채널 피드 →" CTA: market-news 제외 전 페이지 피드 하단에 추가.
+- 한국 주요 티커 이름 매핑 확장(삼성전자·SK하이닉스·삼성전기·기아·현대차·NAVER·카카오 등 12개).
+
+**CSS UI 개선 (index.html)**
+- `.tg-sent-bar` / `.tg-sb-bull/neu/bear`: 헤더 내 감성 카운트 인라인 표시.
+- `.tg-compact .tg-card-inner`: padding 6px (일반 8px 대비 압축).
+- `.tg-ticker.tg-ticker-bull/bear`: base + directional 셀렉터로 스타일 올바르게 상속.
+- `.tg-feed-more`: 피드 하단 border-top + 연하게 구분, `.cross-link` 스타일 재사용.
 
 **R1 버전 동기화**: title · badge · APP_VERSION · SW_VERSION · version.json · CLAUDE.md(root+_context) · CHANGELOG.md · JS cachebusters 5곳 → v51.37.
 
