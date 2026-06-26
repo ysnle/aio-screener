@@ -3781,12 +3781,40 @@ function _buildAioIntegratedAnswerContext(ctxId, query, flags) {
     if (tg && Array.isArray(tg.themes) && tg.themes.length) {
       tgLines += 'telegram_weekly_digest=' + (tg.window || '') + ' | posts=' + ((tg.counts && tg.counts.total) || 'unknown') + ' | sources=' + (tg.sources || []).join(',') + '\n';
       tgLines += 'telegram_topics=' + Object.keys(tg.topicCounts || {}).map(function(k) { return k + ':' + tg.topicCounts[k]; }).join(', ') + '\n';
-      tgLines += 'telegram_core_themes=' + tg.themes.slice(0, 5).join(' / ') + '\n';
+      tgLines += 'telegram_core_themes=' + tg.themes.slice(0, 6).join(' / ') + '\n';
       tgLines += 'telegram_catalysts=' + (tg.catalysts || []).map(function(c) { return c.key + ': ' + c.text; }).slice(0, 9).join(' / ') + '\n';
       tgLines += 'telegram_category_registry=' + (tg.categories || []).map(function(c) { return c.id + '=' + (c.topics || []).join('+') + ':' + c.focus; }).slice(0, 10).join(' / ') + '\n';
       tgLines += 'telegram_page_map=' + lowerCtx + ':' + ((tg.pageMap && tg.pageMap[lowerCtx]) || (tg.pageMap && tg.pageMap.home) || []).join(',') + '\n';
       tgLines += 'telegram_pipeline_note=' + (tg.pipelineNote || 'public mirror secondary source; verify before hard trading claims') + '\n';
     }
+    // broadItems 개별 항목 — 쿼리 관련 티커/태그 우선, 최대 25개
+    try {
+      var broadItems = window.AIO_TELEGRAM_BROAD_ITEMS || (tg && tg.rawBroadItems) || [];
+      if (broadItems.length) {
+        var qLower = String(query || '').toLowerCase();
+        var scored = broadItems.map(function(it) {
+          var rel = 0;
+          if (Array.isArray(it.tickers)) it.tickers.forEach(function(t) { if (qLower.indexOf(t.toLowerCase()) >= 0) rel += 4; });
+          if (Array.isArray(it.tags)) it.tags.forEach(function(tag) { if (qLower.indexOf(tag) >= 0) rel += 2; });
+          var textLower = (it.text || '').toLowerCase();
+          ['반도체','메모리','mlcc','금리','코스피','ai','etf','목표주가','달러','엔','상향','하향'].forEach(function(kw) {
+            if (qLower.indexOf(kw) >= 0 && textLower.indexOf(kw) >= 0) rel += 1;
+          });
+          return { it: it, rel: rel };
+        }).sort(function(a, b) { return (b.rel - a.rel) || (b.it.score - a.it.score); });
+        var picked = scored.slice(0, 25);
+        if (picked.length) {
+          tgLines += 'telegram_individual_items (' + broadItems.length + '건 중 관련 ' + picked.length + '건):\n';
+          picked.forEach(function(x) {
+            var it = x.it;
+            var preview = (it.text || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
+            if (preview.length > 200) preview = preview.slice(0, 197) + '...';
+            var tickers = (it.tickers || []).join(',');
+            tgLines += '  [' + (it.localDateKst || '').slice(5) + ' ' + it.channel + ' score=' + (it.score || 0) + (tickers ? ' t=' + tickers : '') + '] ' + preview + '\n';
+          });
+        }
+      }
+    } catch(_) {}
 
     return '\n\n[AIO Integrated Answer Pipeline v50.60]\n' +
       'special_edge: This screener chat is not a generic LLM. It must combine AIO page data, 현재 시장(live/stale-labeled market context), quant screener/technical signals, qualitative news/filings, and user portfolio/page intent into one answer.\n' +

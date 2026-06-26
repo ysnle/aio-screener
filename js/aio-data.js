@@ -982,7 +982,7 @@ var AIO_TELEGRAM_WEEKLY_DIGEST = {
   marketDataAsOf: '2026-06-26T03:00:00+09:00',
   sources: ['https://t.me/s/aetherjapanresearch', 'https://t.me/s/insidertracking', 'https://t.me/s/bornlupin'],
   counts: { total: 809, aetherjapanresearch: 187, insidertracking: 527, bornlupin: 95 },
-  pipelineNote: 'Public Telegram mirror scrape. insidertracking hit 30-page safety cap. topItems updated 2026-06-26 with KOSPI -5% sidecar, MLCC price surge, Korea mega-project 6/29 announcement.',
+  pipelineNote: 'Public Telegram mirror scrape. topItems=45(score>=65), broadItems=200(score>=57, datetime-sorted news feed). KOSPI -5% sidecar, MLCC surge, Korea mega-project 6/29, Fed on-hold, OpenAI IPO delay.',
   topicCounts: { geo:266, 'market-note':329, macro:208, equity:217, semi:219, power:64, optical:18, 'ai-policy':26, crypto:22, 'kr-market':12 },
   tickerCounts: { MU:137, '000660.KS':57, NVDA:56, '005930.KS':36, AMZN:19, META:24, AMD:19, TSM:14, ORCL:6, RKLB:5, MRVL:11, ADBE:2, LITE:2, AAOI:2, '009150.KS':7, SMCI:3, ALAB:4, BE:8, COHR:1, AAPL:2 },
   themes: [
@@ -1067,7 +1067,9 @@ function _aioNormalizeTelegramDigestPayload(raw) {
     counts: counts,
     topicCounts: Object.assign({}, base.topicCounts || {}, raw.topicCounts || {}),
     tickerCounts: Object.assign({}, base.tickerCounts || {}, raw.tickerCounts || {}),
-    rawTopItems: Array.isArray(raw.topItems) ? raw.topItems.slice(0, 40) : [],
+    rawTopItems: Array.isArray(raw.topItems) ? raw.topItems.slice(0, 45) : [],
+    rawBroadItems: Array.isArray(raw.broadItems) ? raw.broadItems.slice(0, 200) : [],
+    rawBroadItemCount: Array.isArray(raw.broadItems) ? raw.broadItems.length : 0,
     rawItemCount: Number(raw.count || 0) || 0,
     rawChannels: channelRows,
     dynamicDigestLoaded: true,
@@ -1096,7 +1098,9 @@ function _aioCleanTelegramMemoText(text) {
 
 function _aioBuildTelegramMemoOverlay(raw, merged) {
   var items = [];
-  if (raw && Array.isArray(raw.topItems) && raw.topItems.length) items = raw.topItems;
+  // broadItems 우선 (더 많은 티커 커버), 없으면 topItems 폴백
+  if (raw && Array.isArray(raw.broadItems) && raw.broadItems.length) items = raw.broadItems;
+  else if (raw && Array.isArray(raw.topItems) && raw.topItems.length) items = raw.topItems;
   else if (raw && Array.isArray(raw.items)) items = raw.items.slice(0, 80);
   var date = _aioTelegramDigestMemoDate(raw, merged);
   var byTicker = {};
@@ -1164,6 +1168,7 @@ function _aioApplyTelegramDigestPayload(raw) {
     window.AIO_TELEGRAM_WEEKLY_DIGEST = AIO_TELEGRAM_WEEKLY_DIGEST;
     window.AIO_TELEGRAM_CATEGORY_REGISTRY = AIO_TELEGRAM_CATEGORY_REGISTRY;
     window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP = AIO_TELEGRAM_PAGE_INTEGRATION_MAP;
+    window.AIO_TELEGRAM_BROAD_ITEMS = merged.rawBroadItems || merged.rawTopItems || [];
     window._aioTelegramDigestMeta = {
       status: 'ready',
       loadedAt: Date.now(),

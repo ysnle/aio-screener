@@ -1,4 +1,26 @@
-﻿## v51.34 - 텔레그램 digest 갱신(2026-06-19~06-26) + 선별 로직 개선 (2026-06-26)
+﻿## v51.35 - broadItems(개별 뉴스피드) 구조 신설 (2026-06-26)
+
+**broadItems 필드 신설 (public-data/telegram-digest.json)**
+- 기존 `topItems`(score≥65, 45개 고득점 큐레이션)과 별도로 `broadItems`(score≥57, 200개) 추가.
+- 기존 809개 아이템을 개선된 scoring 로직으로 재채점 후 315개 추출 → 채널당 70개, 전체 200개 제한.
+- 정렬: datetime 내림차순(뉴스피드 형식). 점수 분포: 100점대 13개, 90대 16개, 80대 37개, 70대 38개, 60대 56개, 57~59대 40개.
+- broadItems에 포함된 개별 항목 예시: Citi SanDisk $2,500↑, Susquehanna MU $2,000↑, DA Davidson MU $2,000↑, JPM MU OW, Apple 맥/아이패드 ~20% 가격인상(메모리비용), PGSA Hormuz 항행 통지, 이란 외무장관 발언, 도쿄 CPI 1.7% 등.
+
+**앱 소비 경로 확장 (js/aio-data.js)**
+- `_aioNormalizeTelegramDigestPayload()`: `rawBroadItems` + `rawBroadItemCount` 추가.
+- `_aioBuildTelegramMemoOverlay()`: `broadItems` 우선 사용 → 더 많은 티커에 memo 오버레이 적용(MU 분석 리포트 5개, SNDK, AAPL 등).
+- `_aioApplyTelegramDigestPayload()`: `window.AIO_TELEGRAM_BROAD_ITEMS` 노출.
+
+**AI채팅 컨텍스트 주입 (js/aio-chat.js)**
+- `_buildAioIntegratedAnswerContext()`: broadItems 중 쿼리 관련도 점수화(티커 +4, 태그 +2, 키워드 +1) 후 상위 25개 개별 항목을 `telegram_individual_items` 블록으로 삽입.
+- 형식: `[날짜 채널명 score=N t=TICKER] 텍스트 미리보기 200자`
+
+**fetch-telegram-digest.mjs 업데이트**
+- 신규 실행 시 `broadItems` 생성 로직 포함(score≥57, datetime 정렬, 채널당 70개, 최대 200개).
+
+R1 v51.35 7곳 동기화.
+
+## v51.34 - 텔레그램 digest 갱신(2026-06-19~06-26) + 선별 로직 개선 (2026-06-26)
 
 **Telegram digest 갱신 (public-data/telegram-digest.json)**
 - 수집 범위: 2026-06-19~06-26 KST, 3채널 809개 포스트, topItems 45개(min score 72).

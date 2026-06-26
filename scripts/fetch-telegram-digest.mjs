@@ -231,7 +231,7 @@ const digest = {
   count: items.length,
   topicCounts,
   tickerCounts,
-  // 개선된 topItems 선별: score>=65, 채널당 최대 20개, 전체 최대 45개
+  // topItems: score>=65, 채널당 최대 20개, 전체 최대 45개, score 내림차순
   topItems: (function() {
     const candidates = items.filter(x => x.score >= 65).sort((a, b) => b.score - a.score);
     const perChannel = {};
@@ -239,9 +239,23 @@ const digest = {
     for (const it of candidates) {
       const ch = it.channel || 'unknown';
       perChannel[ch] = (perChannel[ch] || 0) + 1;
-      if (perChannel[ch] > 20) continue; // 채널당 최대 20개
+      if (perChannel[ch] > 20) continue;
       out.push(it);
       if (out.length >= 45) break;
+    }
+    return out;
+  })(),
+  // broadItems: score>=57, 채널당 최대 70개, 전체 최대 200개, datetime 내림차순 (뉴스피드)
+  broadItems: (function() {
+    const candidates = items.filter(x => x.score >= 57).sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+    const perChannel = {};
+    const out = [];
+    for (const it of candidates) {
+      const ch = it.channel || 'unknown';
+      perChannel[ch] = (perChannel[ch] || 0) + 1;
+      if (perChannel[ch] > 70) continue;
+      out.push(it);
+      if (out.length >= 200) break;
     }
     return out;
   })(),
