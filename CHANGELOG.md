@@ -1,4 +1,22 @@
-﻿## v51.35 - broadItems(개별 뉴스피드) 구조 신설 (2026-06-26)
+﻿## v51.36 - broadItems 커버리지 대폭 확대 (2026-06-26)
+
+**broadItems 임계값·한도 확대 (public-data/telegram-digest.json)**
+- `broadItems` score 임계값 ≥57 → ≥50으로 낮춤: 기존 236개 → 437개 후보, 최종 309개(채널당 120개 한도).
+- 전체 한도 200→400개, 채널당 한도 70→120개로 확장.
+- 채널별: aetherjapanresearch 104개, bornlupin 85개, insidertracking 120개.
+- 파일 크기: 2,354KB → 2,543KB.
+
+**수집 스크립트 파라미터 2배 확장 (scripts/fetch-telegram-digest.mjs)**
+- `DEFAULT_DAYS`: 7일 → 14일 (2주 롤링 윈도우로 확대).
+- `PAGE_LIMIT`: 30 → 50페이지 (채널당 최대 50페이지 스크레이핑).
+- broadItems 임계값/한도 코드 동기화: score≥50, 채널당 120개, 전체 400개.
+- 다음 Actions 실행 시 약 1,500~2,000개 포스트 수집 예상(현재 809개 대비 2배).
+
+**R1 7곳 v51.36**: title, badge, APP_VERSION, SW_VERSION, version.json, CLAUDE.md(root+context), CHANGELOG.md. 캐시버스터 5곳.
+
+---
+
+## v51.35 - broadItems(개별 뉴스피드) 구조 신설 (2026-06-26)
 
 **broadItems 필드 신설 (public-data/telegram-digest.json)**
 - 기존 `topItems`(score≥65, 45개 고득점 큐레이션)과 별도로 `broadItems`(score≥57, 200개) 추가.

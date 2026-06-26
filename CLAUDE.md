@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.35**
+- 현재 버전: **v51.36**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v51.36 broadItems 커버리지 대폭 확대**: `broadItems` 임계값 score≥57→50(309개, 기존 200개 대비 55%↑), 채널당 한도 70→120개, 전체 한도 200→400개. `scripts/fetch-telegram-digest.mjs`: `DEFAULT_DAYS` 7→14(2주 수집), `PAGE_LIMIT` 30→50(채널당 최대 50페이지). 다음 Actions 실행 시 약 2배 분량의 Telegram 데이터 수집. R1 7곳 v51.36.
 - **v51.35 broadItems(개별 뉴스피드) 구조 추가**: `public-data/telegram-digest.json`에 `broadItems` 필드 신설 — score≥57 재채점, 최대 200개, datetime 내림차순(뉴스피드). `_aioNormalizeTelegramDigestPayload()`→`rawBroadItems`, `_aioBuildTelegramMemoOverlay()` broadItems 우선 적용(더 많은 티커 커버), `window.AIO_TELEGRAM_BROAD_ITEMS` 노출. `_buildAioIntegratedAnswerContext()`: 쿼리 관련도 기반 상위 25개 개별 항목 AI채팅 컨텍스트 주입(날짜/채널/티커/텍스트 미리보기). `scripts/fetch-telegram-digest.mjs`에 broadItems 생성 로직 추가. R1 7곳 v51.35.
 - **v51.34 텔레그램 digest 갱신 + 선별 로직 개선**: `public-data/telegram-digest.json` 2026-06-19~06-26 KST 범위로 갱신(809개 포스트, topItems 45개). 신규 5건 반영: KOSPI -5% 매도사이드카, 삼성전기 나홀로 +7%(MLCC ETF), MLCC '금값' AI서버 50~60% 급등, 김용범 메가프로젝트 6/29 예고, 연준 윌리엄스/굴스비 발언+OpenAI IPO 연기 검토. `scripts/fetch-telegram-digest.mjs`: 분류 정확도 향상(kr-market 태그/사이드카 보너스/저신호 포스트 패널티), 스코어 base 40→35, topItems 기준 score≥65. 정적 `AIO_TELEGRAM_WEEKLY_DIGEST` 동기화. R1 7곳 v51.34.
 - **v51.33 칼만 정밀화 + 스크리너 UX 심화**: `_kalmanTrend()` → `innovZ`(이노베이션 z-score `e/√S`) + `velConf`(신뢰도가중 속도 `vel/(1+√pt)`) 추가 출력. `screener.json`에 `kalmanInnovZ`/`kalmanVelConf` 필드 추가. `kalmanRaw`가 `velConf` 우선 사용. 스크리너 테이블: 그룹 헤더 행(기본 정보/팩터 점수 0~100/시장 데이터/시그널/뉴스) + 그룹 경계 구분선. 팩터·레짐 탭: 2-컬럼 Ops Console — 팩터 가중 막대차트(좌) + 레짐 설명·커버리지(우). `_aioRenderFactorTab()` 신설. R1 7곳 v51.33.
