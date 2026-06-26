@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.37**
+- 현재 버전: **v51.38**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v51.38 스크리너 기관급 분석 로직 개선**: Kalman 초기 속도 시드(s1=0→5일 기울기, 수렴 지연 제거), 레짐 가중 이진→점진 블렌드(riskScore 35~65 선형 보간), 가중 합=1 명시 정규화 보장, 모멘텀 1M(40%)+3M(40%)+6M(20%) 가중(6M·trend 중복 감소), 추세 SMA50(60%)+SMA200(40%), 퀄리티 ROE·마진·성장률 개별 클램핑 후 동일 스케일 평균, 섹터 소표본(2~5개) 완전 폴백→섹터·유니버스 블렌드, 백테스트에 kalman IC 추가·라이브 가중 동기화. R1 7곳 v51.38.
 - **v51.37 텔레그램 분석 카드 렌더러**: `_aioProcessTelegramItem()` 헬퍼 신설 — 감성 판단(bullKw/bearKw + score 보정), 카테고리→한국어 라벨+CSS 클래스, 헤드라인 추출(첫 문장 ≤220자), 수치 하이라이트(`<span class="tg-num">` 앰버색), 티커 방향 컬러링. `_aioRenderTelegramFeedHtml()` 전면 교체 — `.tg-card` 분석 카드 포맷(카테고리 pill·감성 인디케이터·헤드라인·본문 요약·티커). R1 7곳 v51.37.
 - **v51.36 텔레그램 자동최신화 루프 전면 연결**: broadItems 임계값 score≥50(309개), 14일·50페이지 수집 확장. CSS `.tg-live-feed` + HTML `tg-feed-*` 컨테이너 9곳(home·signal·breadth·sentiment·briefing·technical·macro·fxbond·market-news) + `_aioRenderTelegramFeedHtml()`·`_aioInjectAllTelegramFeeds()` 렌더러. `_aioApplyTelegramDigestPayload()` 완료 시 전체 갱신 + `aio:pageShown` 훅 per-page 재렌더. R1 7곳 v51.36.
 - **v51.35 broadItems(개별 뉴스피드) 구조 추가**: `public-data/telegram-digest.json`에 `broadItems` 필드 신설 — score≥57 재채점, 최대 200개, datetime 내림차순(뉴스피드). `_aioNormalizeTelegramDigestPayload()`→`rawBroadItems`, `_aioBuildTelegramMemoOverlay()` broadItems 우선 적용(더 많은 티커 커버), `window.AIO_TELEGRAM_BROAD_ITEMS` 노출. `_buildAioIntegratedAnswerContext()`: 쿼리 관련도 기반 상위 25개 개별 항목 AI채팅 컨텍스트 주입(날짜/채널/티커/텍스트 미리보기). `scripts/fetch-telegram-digest.mjs`에 broadItems 생성 로직 추가. R1 7곳 v51.35.

@@ -1,4 +1,45 @@
-﻿## v51.37 - 텔레그램 분석 카드 + 페이지별 UX 최적화 (2026-06-26)
+﻿## v51.38 - 스크리너 기관급 분석 로직 개선 (2026-06-26)
+
+**Kalman 필터 초기화 개선 (scripts/fetch-data.mjs)**
+- `s1 = 0` 초기화 → 5일 선형 기울기 시드로 교체: `(closes[min5] - closes[0]) / initN`.
+- 효과: 수렴 지연 20~30일 제거 → 짧은 데이터(예: 10~30일)에서 속도 추정 즉시 안정화.
+- 안전 조건: `closes[0] > 0` 체크, `initN = min(5, closes.length-1)` 경계 처리.
+
+**팩터 팩터 가중 이진 ON/OFF → 점진적 블렌드 (js/aio-data.js)**
+- 기존: riskScore ≥60 → full RISK_OFF, <35 → full RISK_ON (중간구간 12개 riskScore 단계 무시).
+- 변경: `lerpW(NEUTRAL, RISK_OFF, blend)` 선형 보간 — riskScore 50~65 구간 부드럽게 전환.
+  - blend=0 (중립) ~ blend=1 (full risk-off) 연속 값.
+  - riskScore 35~50: neutral, riskScore 50~65: 0→1 선형 전환.
+- 텍스트 신호 정규식: `\b...\b` 단어 경계 추가(false-positive 방지).
+- 가중 합=1 명시 정규화: `normalizeW()` 함수 — cyclePhase 등 추가 조정 후 sum≠1 방지.
+- 후기사이클 value shift: 과도 팽창 방지를 위해 `shift = min(0.08, w.value×0.5)` 상한 추가.
+
+**팩터 함수 개선 (js/aio-data.js `_aioComputeFactorRanks`)**
+- **Momentum**: 단순 평균(1M+3M+6M/3) → 가중 평균 1M(40%)+3M(40%)+6M(20%).
+  - 근거: ret6m은 pctSma200(trend 팩터)과 상관도 높아 중복 정보 과다 → 가중 축소.
+- **Trend**: 단순 평균 → SMA50(60%)+SMA200(40%) — 단기 추세가 포트폴리오 리밸 주기와 가까움.
+- **Quality**: ROE+마진+성장률 단순 평균 → 개별 클램핑 후 동일 스케일 평균.
+  - ROE: 클램핑(-30~60)/60, 마진: (-20~40)/40, 성장률: (-30~60)/60.
+  - 효과: 스케일 차이(50% 성장률이 20% ROE를 압도하던 문제) 해소.
+- **Value**: PE/PB/EV-EBITDA 수익률 변환 시 극단값 필터 추가(PE<200, PB<50, EV<100).
+
+**섹터 소표본 처리 개선 (js/aio-data.js)**
+- 기존: 섹터 n≥5 → 섹터 통계, n<5 → 유니버스 완전 폴백(정보 손실).
+- 변경: n≥6 → 섹터 순수, n=2~5 → 섹터+유니버스 블렌드(`blend = n/6`), n≤1 → 유니버스.
+  - 예: n=3 → 50% 섹터 + 50% 유니버스 (중간 편향만큼 반영).
+- `stats()` sd=0 방지: 표본 1개이면 sd=1 반환(0나누기 보호).
+
+**백테스트 IC 확대 (scripts/fetch-data.mjs)**
+- 기존 3팩터(mom/trend/lowvol) → 4팩터: **kalman IC 추가**.
+- 복합 가중치: `0.4×mom + 0.3×trend + 0.3×lowvol` → 라이브 중립 가중 동기화 `mom(30%)+trend(22%)+lowvol(20%)+kalman(12%)`.
+- 모멘텀 집계 동기화: 백테스트도 1M(40%)+3M(40%)+6M(20%) 가중(라이브와 일치).
+- 결과 JSON에 `compWeights` 필드 추가(검증 용이).
+
+**R1 버전 동기화**: title · badge · APP_VERSION · SW_VERSION · version.json · CLAUDE.md(root+_context) · CHANGELOG.md · JS cachebusters 5곳 → v51.38.
+
+---
+
+## v51.37 - 텔레그램 분석 카드 + 페이지별 UX 최적화 (2026-06-26)
 
 **분석 카드 렌더러 전면 교체 (js/aio-data.js)**
 - `_aioProcessTelegramItem(it)` 헬퍼 신설: 원시 텍스트를 5단계로 가공.

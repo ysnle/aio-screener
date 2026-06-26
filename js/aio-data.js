@@ -14801,21 +14801,64 @@ window._aioApplyServerScreener = _aioApplyServerScreener;
 //   위험회피: 저변동·퀄리티↑·모멘텀↓ / 위험선호: 모멘텀·추세↑·저변동↓ / 후기사이클: 밸류↑.
 //   가중은 합=1 불요(_aioComputeFactorRanks가 present 팩터로 정규화). marketState 없으면 기본(무회귀).
 window._aioFactorWeights = function(ms) {
-  // v51.32: kalman 7번째 팩터 포함. momentum+trend+kalman=추세 축, lowvol+quality=방어 축, value=밸류 축.
-  var w = { momentum:0.27, trend:0.20, lowvol:0.16, size:0.08, value:0.10, quality:0.09, kalman:0.10 };
-  var label = '중립 → 균형 가중';
+  // v51.37: 레짐 적응형 가중 (7팩터). 가중 합=1 명시 보장.
+  // 중립: 균형. 위험회피: 저변동·퀄리티↑·모멘텀↓. 위험선호: 모멘텀·추세↑. 후기사이클: 밸류↑.
+  var NEUTRAL  = { momentum:0.27, trend:0.20, lowvol:0.16, size:0.08, value:0.10, quality:0.09, kalman:0.10 };
+  var RISK_OFF = { momentum:0.12, trend:0.18, lowvol:0.28, size:0.05, value:0.10, quality:0.18, kalman:0.09 };
+  var RISK_ON  = { momentum:0.33, trend:0.24, lowvol:0.09, size:0.08, value:0.07, quality:0.07, kalman:0.12 };
+  // 가중 선형 보간 함수 (t=0→중립, t=1→target)
+  var lerpW = function(base, target, t) {
+    var out = {};
+    Object.keys(base).forEach(function(k) { out[k] = base[k] + t * ((target[k]||0) - base[k]); });
+    return out;
+  };
+  // 가중 합=1 정규화 (cyclePhase 등 추가 조정 후 보장)
+  var normalizeW = function(w) {
+    var total = Object.keys(w).reduce(function(s,k){ return s + (w[k]||0); }, 0);
+    if (total > 0 && Math.abs(total - 1) > 0.005) {
+      var out = {};
+      Object.keys(w).forEach(function(k){ out[k] = w[k] / total; });
+      return out;
+    }
+    return w;
+  };
+  var w = NEUTRAL, label = '중립 → 균형 가중';
   try {
     if (ms) {
       var risk = (typeof ms.riskScore === 'number') ? ms.riskScore : null;
       var fg = String(ms.fgZone || ''); var vb = String(ms.vixBand || ''); var rl = String(ms.riskLevel || '');
-      var riskOff = (risk != null && risk >= 60) || /패닉|경계|panic|caution|high|elevated/i.test(vb + ' ' + rl) || /극단\s*공포|공포|fear/i.test(fg);
-      var riskOn  = (risk != null && risk < 35) || /탐욕|greed/i.test(fg);
-      if (riskOff)      { w = { momentum:0.12, trend:0.18, lowvol:0.28, size:0.05, value:0.10, quality:0.18, kalman:0.09 }; label = '위험회피 → 저변동·퀄리티 가중↑'; }
-      else if (riskOn)  { w = { momentum:0.33, trend:0.24, lowvol:0.09, size:0.08, value:0.07, quality:0.07, kalman:0.12 }; label = '위험선호 → 모멘텀·추세·칼만 가중↑'; }
-      if (/late|후기|peak|침체|recession/i.test(String(ms.cyclePhase || ''))) { w.value += 0.06; w.momentum = Math.max(0, w.momentum - 0.06); label += ' · 후기사이클 밸류↑'; }
+      // 단어 경계 정규식으로 false-positive 방지
+      var txtOff = /\b(패닉|경계|panic|caution|elevated)\b/i.test(vb + ' ' + rl) || /\b(극단\s*공포|공포|extreme fear)\b/i.test(fg);
+      var txtOn  = /\b(탐욕|극단\s*탐욕|extreme greed)\b/i.test(fg);
+      // 이진 ON/OFF 대신 riskScore로 점진적 블렌드 (35~65 과도구간 처리)
+      var blend = 0; // 0=중립, +1=full risk-off, -1=full risk-on
+      if (risk != null) {
+        if      (risk >= 65) blend = 1.0;
+        else if (risk >= 50) blend = (risk - 50) / 15; // 0→1 선형 (50~65)
+        else if (risk <= 20) blend = -1.0;
+        else if (risk <= 35) blend = -(35 - risk) / 15; // -1→0 선형 (20~35)
+      }
+      // 텍스트 신호는 이진 (정량 신호 미부재 시 사용)
+      if (risk == null && txtOff) blend = 1.0;
+      else if (risk == null && txtOn) blend = -1.0;
+      // 텍스트가 정량보다 강한 신호일 때 최소 0.7 블렌드 보장
+      if (txtOff && blend < 0.7) blend = 0.7;
+      if (txtOn  && blend > -0.5) blend = -0.5;
+      if      (blend >= 0) w = lerpW(NEUTRAL, RISK_OFF, blend);
+      else                 w = lerpW(NEUTRAL, RISK_ON, -blend);
+      label = blend >= 0.7 ? '위험회피 → 저변동·퀄리티 가중↑' :
+              blend >= 0.3 ? '경계 → 방어 틸트' :
+              blend <= -0.7 ? '위험선호 → 모멘텀·추세·칼만 가중↑' :
+              blend <= -0.3 ? '낙관 → 공격 틸트' : '중립 → 균형 가중';
+      // 후기사이클: 밸류↑ · 모멘텀↓ (절댓값 균형 유지)
+      if (/\b(late|후기|peak|침체|recession)\b/i.test(String(ms.cyclePhase || ''))) {
+        var shift = Math.min(0.08, w.value * 0.5); // value의 50% 이상 과도 팽창 방지
+        w = Object.assign({}, w, { value: w.value + shift, momentum: Math.max(0.05, w.momentum - shift) });
+        label += ' · 후기사이클 밸류↑';
+      }
     }
   } catch(_) {}
-  return { weights: w, regimeLabel: label };
+  return { weights: normalizeW(w), regimeLabel: label };
 };
 
 function _aioComputeFactorRanks() {
@@ -14823,13 +14866,42 @@ function _aioComputeFactorRanks() {
   var items = SCREENER_DB.filter(function(r){ return r && (typeof r.ret3m === 'number' || typeof r.ret1m === 'number'); });
   if (items.length < 5) return null; // 데이터 부족 → 정적 폴백
   var avg = function(a){ return a.length ? a.reduce(function(x,y){return x+y;},0)/a.length : null; };
-  var momRaw = function(r){ var p=[]; ['ret1m','ret3m','ret6m'].forEach(function(k){ if(typeof r[k]==='number') p.push(r[k]); }); return p.length?avg(p):null; };
-  var trendRaw = function(r){ var p=[]; ['pctSma50','pctSma200'].forEach(function(k){ if(typeof r[k]==='number') p.push(r[k]); }); return p.length?avg(p):null; };
-  var lowvolRaw = function(r){ return typeof r.vol==='number' ? -r.vol : null; };           // 낮을수록 우수 → 음수화
+  // 모멘텀: 1M(40%)+3M(40%)+6M(20%) — 6M은 pctSma200(trend)와 중복이 크므로 가중 축소
+  var momRaw = function(r) {
+    var parts = [];
+    if (typeof r.ret1m === 'number') parts.push({ v: r.ret1m, w: 0.4 });
+    if (typeof r.ret3m === 'number') parts.push({ v: r.ret3m, w: 0.4 });
+    if (typeof r.ret6m === 'number') parts.push({ v: r.ret6m, w: 0.2 });
+    var denom = parts.reduce(function(s,p){return s+p.w;},0);
+    return denom > 0 ? parts.reduce(function(s,p){return s+p.v*p.w;},0)/denom : null;
+  };
+  // 추세: SMA50(60%)+SMA200(40%) — 단기 추세가 장기보다 반응 빠름
+  var trendRaw = function(r) {
+    var parts = [];
+    if (typeof r.pctSma50  === 'number') parts.push({ v: r.pctSma50,  w: 0.6 });
+    if (typeof r.pctSma200 === 'number') parts.push({ v: r.pctSma200, w: 0.4 });
+    var denom = parts.reduce(function(s,p){return s+p.w;},0);
+    return denom > 0 ? parts.reduce(function(s,p){return s+p.v*p.w;},0)/denom : null;
+  };
+  var lowvolRaw = function(r){ return typeof r.vol==='number' ? -r.vol : null; };     // 낮을수록 우수 → 음수화
   var sizeRaw = function(r){ return (typeof r.mcap==='number' && r.mcap>0) ? Math.log(r.mcap) : null; };
-  // v50.54 3B: 밸류(저PE/PB/EV-EBITDA = 수익률 환산 → 높을수록 우수)·퀄리티(ROE/마진/매출성장). FMP 데이터 있을 때만.
-  var valueRaw = function(r){ var p=[]; if(typeof r.pe==='number'&&r.pe>0)p.push(1/r.pe); if(typeof r.pb==='number'&&r.pb>0)p.push(1/r.pb); if(typeof r.evEbitda==='number'&&r.evEbitda>0)p.push(1/r.evEbitda); return p.length?avg(p):null; };
-  var qualityRaw = function(r){ var p=[]; ['roe','margin','revGrowth'].forEach(function(k){ if(typeof r[k]==='number') p.push(r[k]); }); return p.length?avg(p):null; };
+  // 밸류: 1/PE + 1/PB + 1/EV-EBITDA 각각 수익률로 변환 평균 (낮은 배수 = 높은 수익률 = 우수)
+  var valueRaw = function(r) {
+    var p = [];
+    if (typeof r.pe === 'number' && r.pe > 0 && r.pe < 200) p.push(1/r.pe);  // PE<200 극단 필터
+    if (typeof r.pb === 'number' && r.pb > 0 && r.pb < 50)  p.push(1/r.pb);  // PB<50 극단 필터
+    if (typeof r.evEbitda === 'number' && r.evEbitda > 0 && r.evEbitda < 100) p.push(1/r.evEbitda);
+    return p.length ? avg(p) : null;
+  };
+  // 퀄리티: ROE/마진/매출성장을 개별 클램핑 후 평균 — 스케일 차이(ROE%·마진%·성장%)로 인한 편향 방지
+  var qualityRaw = function(r) {
+    var p = [];
+    var clamp = function(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); };
+    if (typeof r.roe      === 'number') p.push(clamp(r.roe,      -30, 60) / 60);  // -0.5~1 정규화
+    if (typeof r.margin   === 'number') p.push(clamp(r.margin,   -20, 40) / 40);
+    if (typeof r.revGrowth=== 'number') p.push(clamp(r.revGrowth,-30, 60) / 60);
+    return p.length ? avg(p) : null;  // 동일 스케일(-0.5~1)로 평균
+  };
   // v51.32: 칼만 팩터 — velConf(신뢰도가중 속도) 우선, 없으면 raw vel 폴백. 양수=상승추세, 음수=하락.
   var kalmanRaw = function(r){ return typeof r.kalmanVelConf === 'number' ? r.kalmanVelConf : (typeof r.kalmanVel === 'number' ? r.kalmanVel : null); };
   // v50.54 3A: 팩터 집합은 데이터 가용에 따라 동적(가격 4팩터 + value/quality는 FMP 있을 때). 가중은 레짐 적응형.
@@ -14847,19 +14919,40 @@ function _aioComputeFactorRanks() {
   window._aioActiveFactorRegime = W ? W.regimeLabel : null;
   window._aioActiveFactorWeights = weights;
   window._aioActiveFactors = FACTORS.map(function(F){ return F.key; });
-  var stats = function(vals){ if(!vals.length) return {mu:0,sd:0}; var mu=avg(vals); var sd=vals.length>1?Math.sqrt(vals.reduce(function(s,v){return s+(v-mu)*(v-mu);},0)/(vals.length-1)):0; return {mu:mu,sd:sd}; };
-  var winz = function(x,mu,sd){ if(sd<=0||typeof x!=='number'||!isFinite(x)) return 0; var z=(x-mu)/sd; return Math.max(-3,Math.min(3,z)); };
+  var stats = function(vals){
+    if (!vals.length) return {mu:0,sd:1};
+    var mu = avg(vals);
+    var sd = vals.length > 1 ? Math.sqrt(vals.reduce(function(s,v){return s+(v-mu)*(v-mu);},0)/(vals.length-1)) : 1;
+    return {mu:mu, sd: sd > 0 ? sd : 1};
+  };
+  // winz: ±3σ 고정 (레짐 무관하게 극값 제한 — 추세 장세에서 극값도 신호이므로 빡빡하게 유지)
+  var winz = function(x,mu,sd){ if(typeof x!=='number'||!isFinite(x)) return 0; var z=(x-mu)/sd; return Math.max(-3,Math.min(3,z)); };
   var z2pct = function(z){ return Math.max(0,Math.min(100,Math.round(50+z*16.67))); }; // z≈±3 → 0~100
 
   var bySector = {};
   items.forEach(function(r){ var s=r.sector||'_'; (bySector[s]=bySector[s]||[]).push(r); });
+  var uniCache = {};   // 유니버스 전체 통계 캐시
 
   FACTORS.forEach(function(F){
-    var uni = stats(items.map(F.fn).filter(function(v){return typeof v==='number'&&isFinite(v);}));
+    var allVals = items.map(F.fn).filter(function(v){return typeof v==='number'&&isFinite(v);});
+    var uni = uniCache[F.key] = stats(allVals);
     Object.keys(bySector).forEach(function(s){
       var grp = bySector[s];
       var vals = grp.map(F.fn).filter(function(v){return typeof v==='number'&&isFinite(v);});
-      var st = vals.length>=5 ? stats(vals) : uni;      // 섹터 표본 충분하면 섹터 상대, 아니면 유니버스
+      var st;
+      if (vals.length >= 6) {
+        // 충분한 섹터 표본: 순수 섹터 상대 Z-score
+        st = stats(vals);
+      } else if (vals.length >= 2) {
+        // 소표본(2~5): 섹터·유니버스 블렌드 (표본 비례) — 완전 폴백보다 편향 작음
+        var sectorSt = stats(vals);
+        var blend = vals.length / 6;     // n=2→0.33, n=3→0.5, n=4→0.67, n=5→0.83
+        st = { mu: blend * sectorSt.mu + (1-blend) * uni.mu,
+               sd: blend * sectorSt.sd + (1-blend) * uni.sd };
+      } else {
+        // 1개 이하: 유니버스 기준
+        st = uni;
+      }
       grp.forEach(function(r){ r['_z_'+F.key] = winz(F.fn(r), st.mu, st.sd); });
     });
   });

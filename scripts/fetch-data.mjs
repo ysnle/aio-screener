@@ -584,7 +584,10 @@ function _rsi14(closes) {
 function _kalmanTrend(closes) {
   if (!Array.isArray(closes) || closes.length < 10) return null;
   const Ql = 1e-4, Qv = 1e-5, R = 1e-2;
-  let s0 = closes[0], s1 = 0;
+  // 초기 속도: 첫 5일 선형 기울기로 시드 (s1=0 시작 시 20~30일 수렴 지연 제거)
+  const initN = Math.min(5, closes.length - 1);
+  const s1Init = initN > 0 && closes[0] > 0 ? (closes[initN] - closes[0]) / initN : 0;
+  let s0 = closes[0], s1 = s1Init;
   let p00 = 1, p01 = 0, p10 = 0, p11 = 1;
   let lastE = 0, lastS = R;
   for (let i = 0; i < closes.length; i++) {
@@ -636,7 +639,11 @@ function _spearman(xs, ys) {
 function backtestFactors(stockData) {
   var OFFSETS = [147, 126, 105, 84, 63, 42], FWD = 21;     // 끝에서 N일 전 리밸 시점들
   var isNum = function(v){ return typeof v === 'number' && isFinite(v); };
-  var icS = { momentum:0, trend:0, lowvol:0, composite:0 }, icN = { momentum:0, trend:0, lowvol:0, composite:0 };
+  // 라이브 기본 가중치(중립)와 동기화 — momentum/trend/lowvol/kalman 4팩터 (value/quality는 FMP 의존 제외)
+  var COMP_W = { mom: 0.30, trend: 0.22, lowvol: 0.20, kalman: 0.12, size: 0.16 };
+  var IC_FACTORS = ['momentum','trend','lowvol','kalman','composite'];
+  var icS = {}, icN = {};
+  IC_FACTORS.forEach(function(k){ icS[k]=0; icN[k]=0; });
   var spreadSum = 0, spreadN = 0, hit = 0, hitN = 0;
   function rank01(vals) { // 값→0..1 percentile(null=0.5)
     var idx = vals.map(function(v, i){ return [v, i]; }).filter(function(p){ return isNum(p[0]); });
@@ -652,34 +659,54 @@ function backtestFactors(stockData) {
       var p = c.length - off; if (p < 63 || p + FWD > c.length - 1) return;
       var f = closesToFactors(c.slice(0, p + 1)); if (!f) return;
       var fwd = (c[p] > 0) ? (c[p + FWD] / c[p] - 1) : null; if (!isNum(fwd)) return;
-      var mom = [f.ret1m, f.ret3m, f.ret6m].filter(isNum); mom = mom.length ? _mean(mom) : null;
+      // 모멘텀: 1M(40%)+3M(40%)+6M(20%) — 6M은 추세(trend)와 중복 크므로 가중 축소
+      var momParts = [
+        isNum(f.ret1m) ? { v: f.ret1m, w: 0.4 } : null,
+        isNum(f.ret3m) ? { v: f.ret3m, w: 0.4 } : null,
+        isNum(f.ret6m) ? { v: f.ret6m, w: 0.2 } : null,
+      ].filter(Boolean);
+      var momSum = momParts.reduce(function(s,p){return s+p.w;},0);
+      var mom = momParts.length ? momParts.reduce(function(s,p){return s+p.v*p.w;},0)/momSum : null;
       var tr = [f.pctSma50, f.pctSma200].filter(isNum); tr = tr.length ? _mean(tr) : null;
-      rows.push({ mom: mom, trend: tr, lowvol: isNum(f.vol) ? -f.vol : null, fwd: fwd });
+      var kalman = isNum(f.kalmanVelConf) ? f.kalmanVelConf : (isNum(f.kalmanVel) ? f.kalmanVel : null);
+      rows.push({ mom: mom, trend: tr, lowvol: isNum(f.vol) ? -f.vol : null, kalman: kalman, fwd: fwd });
     });
     if (rows.length < 10) return;
-    [['mom','momentum'], ['trend','trend'], ['lowvol','lowvol']].forEach(function(pair) {
+    // 단일 팩터 Spearman IC
+    [['mom','momentum'], ['trend','trend'], ['lowvol','lowvol'], ['kalman','kalman']].forEach(function(pair) {
       var ps = rows.filter(function(r){ return isNum(r[pair[0]]); });
       if (ps.length < 10) return;
       var ic = _spearman(ps.map(function(r){ return r[pair[0]]; }), ps.map(function(r){ return r.fwd; }));
       if (isNum(ic)) { icS[pair[1]] += ic; icN[pair[1]]++; }
     });
-    var rm = rank01(rows.map(function(r){ return r.mom; })), rt = rank01(rows.map(function(r){ return r.trend; })), rl = rank01(rows.map(function(r){ return r.lowvol; }));
-    rows.forEach(function(r, i){ r.comp = 0.4 * rm[i] + 0.3 * rt[i] + 0.3 * rl[i]; });
+    // 복합 팩터: 라이브 가중과 동기화된 percentile 가중합
+    var rm  = rank01(rows.map(function(r){ return r.mom; }));
+    var rt  = rank01(rows.map(function(r){ return r.trend; }));
+    var rl  = rank01(rows.map(function(r){ return r.lowvol; }));
+    var rk  = rank01(rows.map(function(r){ return r.kalman; }));
+    rows.forEach(function(r, i){
+      var wTotal = COMP_W.mom + COMP_W.trend + COMP_W.lowvol
+                 + (isNum(r.kalman) ? COMP_W.kalman : 0);
+      r.comp = (COMP_W.mom * rm[i] + COMP_W.trend * rt[i] + COMP_W.lowvol * rl[i]
+               + (isNum(r.kalman) ? COMP_W.kalman * rk[i] : 0)) / wTotal;
+    });
     var icC = _spearman(rows.map(function(r){ return r.comp; }), rows.map(function(r){ return r.fwd; }));
     if (isNum(icC)) { icS.composite += icC; icN.composite++; }
+    // 상하위 20% 분위 스프레드 & 방향 적중률
     var sorted = rows.slice().sort(function(a, b){ return a.comp - b.comp; });
     var q = Math.max(1, Math.floor(sorted.length / 5));
     var botM = _mean(sorted.slice(0, q).map(function(r){ return r.fwd; }));
     var topM = _mean(sorted.slice(-q).map(function(r){ return r.fwd; }));
     if (isNum(topM) && isNum(botM)) { spreadSum += (topM - botM); spreadN++; hitN++; if (topM > botM) hit++; }
   });
-  var ic = {}; ['momentum','trend','lowvol','composite'].forEach(function(k){ ic[k] = icN[k] ? round(icS[k] / icN[k], 3) : null; });
+  var ic = {}; IC_FACTORS.forEach(function(k){ ic[k] = icN[k] ? round(icS[k] / icN[k], 3) : null; });
   return {
     asOf: new Date().toISOString(), fwdDays: FWD, dates: spreadN,
     n: stockData.filter(function(s){ return s.closes && s.closes.length >= 148; }).length,
     ic: ic,
     quantileSpread: spreadN ? round(spreadSum / spreadN * 100, 2) : null,
     hitRate: hitN ? round(hit / hitN * 100, 1) : null,
+    compWeights: COMP_W,
   };
 }
 
