@@ -1631,8 +1631,8 @@ function renderScreenerResults() {
     } else if (_scrSortCol === 'adr') {
       av = getAdrEstimate(a);
       bv = getAdrEstimate(b);
-    } else if (_scrSortCol === 'momentum' || _scrSortCol === 'trend' || _scrSortCol === 'lowvol' || _scrSortCol === 'value' || _scrSortCol === 'quality') {
-      // v50.53/54: 팩터 점수 정렬 (factorScores 중첩 — 모멘텀/추세/저변동/밸류/퀄리티)
+    } else if (_scrSortCol === 'momentum' || _scrSortCol === 'trend' || _scrSortCol === 'lowvol' || _scrSortCol === 'value' || _scrSortCol === 'quality' || _scrSortCol === 'kalman') {
+      // v50.53/54/51.32: 팩터 점수 정렬 (factorScores 중첩 — 모멘텀/추세/저변동/밸류/퀄리티/칼만)
       av = (a.factorScores && a.factorScores[_scrSortCol] != null) ? a.factorScores[_scrSortCol] : null;
       bv = (b.factorScores && b.factorScores[_scrSortCol] != null) ? b.factorScores[_scrSortCol] : null;
     } else {
@@ -1643,6 +1643,16 @@ function renderScreenerResults() {
     var c = av > bv ? 1 : (av < bv ? -1 : 0);
     return _scrSortAsc ? c : -c;
   });
+
+  // v51.32: 4-KPI 상단 통계 바 업데이트
+  try {
+    var _allDB = SCREENER_DB || [];
+    var _el = function(id){ return document.getElementById(id); };
+    if (_el('scr-kpi-total')) _el('scr-kpi-total').textContent = _allDB.length;
+    if (_el('scr-kpi-buy')) _el('scr-kpi-buy').textContent = _allDB.filter(function(r){ return r.signal === 'BUY'; }).length;
+    if (_el('scr-kpi-top')) _el('scr-kpi-top').textContent = _allDB.filter(function(r){ return typeof r.rank === 'number' && r.rank >= 80; }).length;
+    if (_el('scr-kpi-factors')) _el('scr-kpi-factors').textContent = (window._aioActiveFactors || []).length || '—';
+  } catch(_) {}
 
   var html = '';
   // v50.53 2A: 멀티팩터 퀀트 랭크 컬럼 + 팩터 점수(모멘텀/추세/저변동). editorial signal/메모는 보존(행 title).
@@ -1679,7 +1689,7 @@ function renderScreenerResults() {
       '<td style="text-align:center;padding:5px 6px;"><span class="mv-grade ' + gradeClass + '" style="font-size:11px;">' + grade + '</span></td>' +
       '<td style="padding:6px 8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:10px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
       '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);">' + escHtml(r.sector||'') + '</td>' +
-      _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) +
+      _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) + _fcell(fs.kalman, '칼만추세', false) +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+ret3c+';">' + ret3 + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
@@ -1689,7 +1699,7 @@ function renderScreenerResults() {
     '</tr>';
   });
 
-  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="15" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
+  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="16" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
   // 스파크라인 미니차트 렌더링
   requestAnimationFrame(function() { renderSparklines(filtered); });
   document.getElementById('screener-result-count').textContent = filtered.length;
@@ -1763,6 +1773,17 @@ window._aioInitScreenerFilters = function() {
   });
   var ts = document.getElementById('scr-text-search');
   if (ts && !ts.getAttribute('data-wired')) { ts.addEventListener('input', function(){ renderScreenerResults(); }); ts.setAttribute('data-wired','1'); }
+};
+
+// v51.32: 스크리너 서브-탭 전환 (랭킹|팩터·레짐|백테스트 IC). data-action="_aioScreenerTab" 훅.
+window._aioScreenerTab = function(tabId) {
+  var TABS = ['ranking','factors','backtest'];
+  TABS.forEach(function(t) {
+    var panel = document.getElementById('scr-tab-' + t);
+    if (panel) panel.style.display = (t === tabId) ? '' : 'none';
+    var btn = document.querySelector('[data-action="_aioScreenerTab"][data-arg="' + t + '"]');
+    if (btn) { btn.classList.toggle('is-active', t === tabId); btn.style.borderBottomColor = (t === tabId) ? 'var(--accent)' : 'transparent'; btn.style.color = (t === tabId) ? 'var(--accent)' : 'var(--text-secondary)'; }
+  });
 };
 
 // v50.53 2A: 스크리너 헤더 클릭 정렬 — 같은 컬럼 재클릭 시 방향 토글, 신규 컬럼은 기본 방향.
@@ -14520,16 +14541,17 @@ window._aioApplyServerScreener = _aioApplyServerScreener;
 //   위험회피: 저변동·퀄리티↑·모멘텀↓ / 위험선호: 모멘텀·추세↑·저변동↓ / 후기사이클: 밸류↑.
 //   가중은 합=1 불요(_aioComputeFactorRanks가 present 팩터로 정규화). marketState 없으면 기본(무회귀).
 window._aioFactorWeights = function(ms) {
-  var w = { momentum:0.30, trend:0.22, lowvol:0.18, size:0.10, value:0.10, quality:0.10 };
+  // v51.32: kalman 7번째 팩터 포함. momentum+trend+kalman=추세 축, lowvol+quality=방어 축, value=밸류 축.
+  var w = { momentum:0.27, trend:0.20, lowvol:0.16, size:0.08, value:0.10, quality:0.09, kalman:0.10 };
   var label = '중립 → 균형 가중';
   try {
     if (ms) {
-      var risk = (typeof ms.riskScore === 'number') ? ms.riskScore : null; // 0~100
+      var risk = (typeof ms.riskScore === 'number') ? ms.riskScore : null;
       var fg = String(ms.fgZone || ''); var vb = String(ms.vixBand || ''); var rl = String(ms.riskLevel || '');
       var riskOff = (risk != null && risk >= 60) || /패닉|경계|panic|caution|high|elevated/i.test(vb + ' ' + rl) || /극단\s*공포|공포|fear/i.test(fg);
       var riskOn  = (risk != null && risk < 35) || /탐욕|greed/i.test(fg);
-      if (riskOff)      { w = { momentum:0.15, trend:0.20, lowvol:0.30, size:0.05, value:0.10, quality:0.20 }; label = '위험회피 → 저변동·퀄리티 가중↑'; }
-      else if (riskOn)  { w = { momentum:0.38, trend:0.27, lowvol:0.10, size:0.10, value:0.07, quality:0.08 }; label = '위험선호 → 모멘텀·추세 가중↑'; }
+      if (riskOff)      { w = { momentum:0.12, trend:0.18, lowvol:0.28, size:0.05, value:0.10, quality:0.18, kalman:0.09 }; label = '위험회피 → 저변동·퀄리티 가중↑'; }
+      else if (riskOn)  { w = { momentum:0.33, trend:0.24, lowvol:0.09, size:0.08, value:0.07, quality:0.07, kalman:0.12 }; label = '위험선호 → 모멘텀·추세·칼만 가중↑'; }
       if (/late|후기|peak|침체|recession/i.test(String(ms.cyclePhase || ''))) { w.value += 0.06; w.momentum = Math.max(0, w.momentum - 0.06); label += ' · 후기사이클 밸류↑'; }
     }
   } catch(_) {}
@@ -14548,6 +14570,8 @@ function _aioComputeFactorRanks() {
   // v50.54 3B: 밸류(저PE/PB/EV-EBITDA = 수익률 환산 → 높을수록 우수)·퀄리티(ROE/마진/매출성장). FMP 데이터 있을 때만.
   var valueRaw = function(r){ var p=[]; if(typeof r.pe==='number'&&r.pe>0)p.push(1/r.pe); if(typeof r.pb==='number'&&r.pb>0)p.push(1/r.pb); if(typeof r.evEbitda==='number'&&r.evEbitda>0)p.push(1/r.evEbitda); return p.length?avg(p):null; };
   var qualityRaw = function(r){ var p=[]; ['roe','margin','revGrowth'].forEach(function(k){ if(typeof r[k]==='number') p.push(r[k]); }); return p.length?avg(p):null; };
+  // v51.32: 칼만 속도 팩터 — fetch-data 서버가 공급하는 kalmanVel(90일 칼만 추세 속도). 양수=상승 추세, 음수=하락.
+  var kalmanRaw = function(r){ return typeof r.kalmanVel === 'number' ? r.kalmanVel : null; };
   // v50.54 3A: 팩터 집합은 데이터 가용에 따라 동적(가격 4팩터 + value/quality는 FMP 있을 때). 가중은 레짐 적응형.
   var FACTORS = [
     { key:'momentum', fn:momRaw },
@@ -14557,8 +14581,9 @@ function _aioComputeFactorRanks() {
   ];
   if (items.some(function(r){ return valueRaw(r) != null; }))   FACTORS.push({ key:'value',   fn:valueRaw });
   if (items.some(function(r){ return qualityRaw(r) != null; })) FACTORS.push({ key:'quality', fn:qualityRaw });
+  if (items.some(function(r){ return kalmanRaw(r) != null; }))  FACTORS.push({ key:'kalman',  fn:kalmanRaw });
   var W = (typeof _aioFactorWeights === 'function') ? _aioFactorWeights(window.AIO && window.AIO.marketState) : null;
-  var weights = (W && W.weights) ? W.weights : { momentum:0.35, trend:0.25, lowvol:0.20, size:0.20, value:0, quality:0 };
+  var weights = (W && W.weights) ? W.weights : { momentum:0.32, trend:0.23, lowvol:0.18, size:0.18, value:0, quality:0, kalman:0.09 };
   window._aioActiveFactorRegime = W ? W.regimeLabel : null;
   window._aioActiveFactorWeights = weights;
   window._aioActiveFactors = FACTORS.map(function(F){ return F.key; });

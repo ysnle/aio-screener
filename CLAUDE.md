@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.31**
+- 현재 버전: **v51.32**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v51.32 칼만 추세 팩터 + Ops Console UI**: `_kalmanTrend(closes)` 상태공간 모델(90일, level+velocity) → `kalmanVel`/`kalmanPt`를 `screener.json` 팩터로 추가. `_aioComputeFactorRanks()`에 7번째 팩터(kalman, 10%) 동적 등록 + 레짐 적응형 가중. 스크리너 페이지: 4-KPI 상단 바(총 종목/강세 시그널/랭크≥80/활성 팩터), 3-서브탭(랭킹|팩터·레짐|백테스트 IC), K-vel 16번째 컬럼, `.is-compact` 셀 패딩 4px 압축. R1 7곳 v51.32.
 - **v50.98 Market-impact news selection**: Actions 뉴스 백스톱을 매크로/AI·반도체/지정학·에너지/FX·채권/애널리스트·한국시장 6축으로 확장. 서버 뉴스에도 `score`/`selectionReason`/`serverNewsScored`를 부여하고 `AIO.getNewsSelectionAudit()`로 선별 기준을 감사.
 - **v50.96 multi-agent QA version sync**: ticker 페이지 직접 검색 진입, KR 수급 폴백 경고, 뉴스 stale 배너/데이터 신선도 표시, v50.95 한국어 뉴스 insight 보강을 R1 버전 표면까지 최종 동기화.
 - **v50.95 Korean news insight fallback**: Claude/Google 번역이 없거나 약해도 `_aioBuildNewsLocalKoreanInsight()`가 모든 뉴스에 한국어 요약·해석·영향·확인 액션을 생성하고, market-news/home/chat 컨텍스트가 이를 소비. `getNewsTranslationQualityAudit()`와 data-pipeline contract gate가 회귀를 감시.

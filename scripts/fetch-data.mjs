@@ -578,17 +578,41 @@ function _rsi14(closes) {
   const rs = g / l;
   return round(100 - 100 / (1 + rs), 1);
 }
+// v51.32: 칼만 추세 필터 — 숨겨진 가격 레벨과 추세 속도(velocity)를 재귀 추정.
+// 노이즈 측정에서 실제 추세 속도를 분리 (Rolling OLS보다 연속적이고 안정적).
+// state=[level, velocity], F=[[1,1],[0,1]], H=[1,0], Q=diag(Ql,Qv), R=obs noise.
+function _kalmanTrend(closes) {
+  if (!Array.isArray(closes) || closes.length < 10) return null;
+  const Ql = 1e-4, Qv = 1e-5, R = 1e-2;
+  let s0 = closes[0], s1 = 0;
+  let p00 = 1, p01 = 0, p10 = 0, p11 = 1;
+  for (let i = 0; i < closes.length; i++) {
+    const y = closes[i]; if (typeof y !== 'number' || !isFinite(y)) continue;
+    const ps0 = s0 + s1, ps1 = s1;
+    const pp00 = p00 + p01 + p10 + p11 + Ql;
+    const pp01 = p01 + p11, pp10 = p10 + p11, pp11 = p11 + Qv;
+    const e = y - ps0, S = pp00 + R;
+    const k0 = pp00 / S, k1 = pp10 / S;
+    s0 = ps0 + k0 * e; s1 = ps1 + k1 * e;
+    p00 = (1 - k0) * pp00; p01 = (1 - k0) * pp01;
+    p10 = -k1 * pp00 + pp10; p11 = -k1 * pp01 + pp11;
+  }
+  return { vel: round(s1, 6), pt: round(p00 + p11, 6) };
+}
 function closesToFactors(closes) {
   if (!Array.isArray(closes) || closes.length < 30) return null;
   const price = closes[closes.length - 1];
   const sma50 = closes.length >= 50 ? _mean(closes.slice(-50)) : null;
   const sma200 = closes.length >= 200 ? _mean(closes.slice(-200)) : null;
+  const kalman = _kalmanTrend(closes.slice(-90));
   return {
     price: round(price, 2),
     ret1m: _retPct(closes, 21), ret3m: _retPct(closes, 63), ret6m: _retPct(closes, 126),
     vol: _annVol(closes, 60), rsi: _rsi14(closes),
     pctSma50: (sma50 && sma50 > 0) ? round((price / sma50 - 1) * 100, 2) : null,
     pctSma200: (sma200 && sma200 > 0) ? round((price / sma200 - 1) * 100, 2) : null,
+    kalmanVel: kalman ? kalman.vel : null,
+    kalmanPt:  kalman ? kalman.pt  : null,
   };
 }
 

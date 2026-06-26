@@ -1,4 +1,17 @@
-﻿## v51.30 - Maker-Checker 퀀트 검증 패널 (2026-06-24)
+﻿## v51.32 - 칼만 추세 팩터 + 스크리너 Ops Console UI 통합 (2026-06-26)
+
+**칼만 필터 7번째 팩터 (Phase 1)**
+`scripts/fetch-data.mjs`에 `_kalmanTrend(closes)` 추가: 90일 종가에 상태공간 모델(level+velocity, Q=[1e-4,1e-5], R=1e-2) 재귀 적용 → `kalmanVel`(추세 속도)/`kalmanPt`(불확실성) 출력. `closesToFactors()`가 이 두 값을 `screener.json` 팩터에 포함.
+`js/aio-data.js` `_aioComputeFactorRanks()`: `kalmanRaw(r)` 함수 추가, `screener.json` 수신 시 `FACTORS.push({ key:'kalman' })` 동적 등록, 섹터 상대 z-score → 0~100 백분위 변환. `_aioFactorWeights()`에 kalman 10% 가중(중립 레짐 기준; 위험선호 시 12%↑, 위험회피 시 9%). 폴백 가중도 kalman 9% 포함 7팩터로 업데이트.
+
+**스크리너 페이지 Ops Console UI 구조 통합 (Phase 2-3)**
+4-KPI 상단 통계 바: 총 종목 | 강세 시그널(BUY) | 랭크≥80 우량 | 활성 팩터 수 — 항상 표시, `renderScreenerResults()` 실행마다 자동 갱신.
+서브-탭 내비게이션 3개: [랭킹] (필터+테이블, 기본) | [팩터·레짐] (가중/레짐/팩터 설명) | [백테스트 IC] (IC 백테스트 패널). `window._aioScreenerTab(tabId)` + `data-action` 훅.
+K-vel 컬럼: 퀄리티 다음 16번째 컬럼, 서버 팩터 미수신 시 —, 클릭 정렬 지원.
+CSS 밀도 개선: `.aio-table.is-compact thead th` 7px→5px, `tbody td` 6px→4px (Manufacturing Ops Console 패턴 적용).
+R1 v51.32 7곳 동기화.
+
+## v51.30 - Maker-Checker 퀀트 검증 패널 (2026-06-24)
 
 AI 채팅이 종목을 추천할 때 별도 퀀트 팩터 엔진이 독립적으로 검증하는 Maker-Checker 패턴 구현 (RohOnChain Loop Engineering 개념 적용).
 `_aioMakerCheckerVerify(tickers)` 추가 (`aio-data.js`): SCREENER_DB에서 각 종목의 `rank`·`quantSignal`을 조회해 CONFIRMED(랭크≥60) / CAUTION(40~60) / REJECTED(<40) 판정.
