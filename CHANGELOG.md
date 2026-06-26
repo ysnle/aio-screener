@@ -12,6 +12,15 @@
 - broadItems 임계값/한도 코드 동기화: score≥50, 채널당 120개, 전체 400개.
 - 다음 Actions 실행 시 약 1,500~2,000개 포스트 수집 예상(현재 809개 대비 2배).
 
+**텔레그램 실시간 피드 9페이지 전면 연결 (index.html + js/aio-data.js)**
+- CSS `.tg-live-feed` 스타일 신설 (파란 좌측 테두리, 펄스 애니메이션 점, 채널별 색상 구분).
+- HTML `<div id="tg-feed-{page}">` 컨테이너 9곳 삽입: home·signal·breadth·sentiment·briefing·technical·macro·fxbond·market-news.
+- `_TG_PAGE_TAGS` 페이지별 태그 필터맵, `_aioRenderTelegramFeedHtml()` 렌더러, `_aioInjectTelegramFeed()` / `_aioInjectAllTelegramFeeds()` 주입 함수 추가.
+- 노출 건수: home/signal/breadth/sentiment/technical/macro/fxbond 각 5건, briefing 7건, market-news 10건 (태그 관련도 필터).
+- `_aioApplyTelegramDigestPayload()` 완료 시 `setTimeout(0)`으로 전체 피드 즉시 갱신.
+- `aio:pageShown` 훅: 해당 페이지 진입 시 80ms 지연 후 해당 피드만 재렌더.
+- Preview 검증: broadItems 309건 로드 → 9개 컨테이너 모두 FILLED, JS 오류 없음.
+
 **R1 7곳 v51.36**: title, badge, APP_VERSION, SW_VERSION, version.json, CLAUDE.md(root+context), CHANGELOG.md. 캐시버스터 5곳.
 
 ---

@@ -3053,6 +3053,21 @@ body { background: #0d1521 !important; }
 .aio-vis-card{background:linear-gradient(135deg,rgba(0,212,255,0.04) 0%,rgba(168,85,247,0.02) 100%);border:1px solid rgba(0,212,255,0.18);border-left:3px solid var(--data-cyan);border-radius:var(--radius);padding:10px 12px;overflow:hidden;}
 .aio-vis-card-title{font-size:10px;font-weight:700;color:var(--data-cyan);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid rgba(0,212,255,0.15);display:flex;align-items:center;gap:4px;}
 .aio-vis-card-title::before{content:'▸';font-size:8px;opacity:.6;}
+/* v51.36: 텔레그램 실시간 피드 */
+.tg-live-feed{margin:0 0 10px;border-radius:4px;overflow:hidden;border:1px solid rgba(0,136,204,.25);}
+.tg-live-feed-hd{display:flex;align-items:center;gap:6px;padding:5px 10px;background:rgba(0,136,204,.08);font-size:10px;font-weight:700;color:var(--text-muted);border-bottom:1px solid rgba(0,136,204,.15);}
+.tg-live-dot{width:7px;height:7px;background:#0af;border-radius:50%;flex-shrink:0;animation:tg-pulse 2s infinite;}
+@keyframes tg-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.tg-live-hd-label{color:#0af;font-size:11px;}
+.tg-live-hd-ts{margin-left:auto;font-size:10px;opacity:.6;font-family:var(--font-mono);}
+.tg-live-item{display:block;padding:6px 10px;border-bottom:1px solid rgba(0,136,204,.08);text-decoration:none;color:inherit;transition:background .12s;}
+.tg-live-item:last-child{border-bottom:none;}
+.tg-live-item:hover{background:rgba(0,136,204,.06);}
+.tg-live-item-meta{font-size:9px;color:var(--text-muted);display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-bottom:2px;}
+.tg-live-item-text{font-size:11px;color:var(--text-secondary);line-height:1.45;}
+.tg-tag{display:inline-block;background:rgba(0,136,204,.15);color:#0af;padding:0 4px;border-radius:2px;font-size:8px;font-weight:700;}
+.tg-ticker{display:inline-block;background:rgba(255,200,0,.12);color:#c8a000;padding:0 4px;border-radius:2px;font-size:8px;font-family:var(--font-mono);font-weight:700;}
+.tg-ch-aether{color:#a0c8ff;}.tg-ch-insider{color:#c0f0c0;}.tg-ch-born{color:#ffd0a0;}
 /* v42.1: 마켓 펄스 바 — 페이지 간 유기적 연결 */
 .market-pulse-bar{display:flex;align-items:center;gap:6px;padding:5px 14px;background:var(--bg-surface);border-bottom:1px solid var(--border);font-size:10px;overflow-x:auto;white-space:nowrap;}
 .pulse-seg{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;cursor:pointer;transition:background 0.15s,transform 0.1s;background:var(--surface-2);border:1px solid rgba(255,255,255,0.06);}
@@ -4759,6 +4774,7 @@ button[data-filter-active="true"] {
       <div class="aio-vis-card"><div class="aio-vis-card-title">매매 점수 분해</div><div id="vis-home-score"></div></div>
       <div class="aio-vis-card"><div class="aio-vis-card-title">시장 국면</div><div id="vis-home-regime"></div></div>
     </div>
+    <div id="tg-feed-home"></div>
     <div id="home-news-highlights" style="border-top:1px solid var(--border-accent-dim);padding-top:10px;margin-top:4px;">
       <div style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
         <span style="display:inline-block;width:8px;height:8px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></span>
@@ -5064,6 +5080,7 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+    <div id="tg-feed-signal"></div>
     <!-- 트레이딩 원칙 어드바이저 -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-lg);padding:12px 14px;">
       <div style="font-size:11px;font-weight:700;color:var(--data-cyan);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">트레이딩 원칙</div>
@@ -5698,6 +5715,7 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- ═══ v48.45: 시장 폭 (Breadth) 기관급 해설 ═══ -->
+  <div id="tg-feed-breadth"></div>
   <!-- 헤더 -->
   <div style="padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:16px;">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
@@ -5991,6 +6009,7 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- ═══ v48.45: 투자 심리 기관급 해설 ═══ -->
+  <div id="tg-feed-sentiment"></div>
   <!-- v48.62: 페이지 결론 바 -->
   <div id="sentiment-conclusion-bar"></div>
 
@@ -6268,6 +6287,7 @@ button[data-filter-active="true"] {
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;padding:5px 8px;background:var(--surface-1);border-radius:3px;">
         지난 24시간 핵심 뉴스를 테마별로 정리합니다.
       </div>
+      <div id="tg-feed-briefing"></div>
       <div id="briefing-live-news-list" style="display:flex;flex-direction:column;gap:6px;">
         <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">핵심 뉴스 확인 중</div>
       </div>
@@ -6462,7 +6482,7 @@ button[data-filter-active="true"] {
     <span class="cross-link" data-action="showPage" data-arg="signal" style="margin-right:8px;">매매 시그널 →</span>
     <span class="cross-link" data-action="showPage" data-arg="breadth">시장 폭 →</span>
   </div>
-
+  <div id="tg-feed-technical"></div>
   <!-- v50.77: Minervini-style 시장 상태 인디케이터 스트립 (Pressure / Buy Risk / Trend Phase) -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 14px;margin-bottom:10px;">
     <div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Market Indicators</div>
@@ -6904,7 +6924,7 @@ button[data-filter-active="true"] {
     <span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 →</span>
     <span class="cross-link" data-action="showPage" data-arg="market-news">관련 뉴스 →</span>
   </div>
-
+  <div id="tg-feed-macro"></div>
   <!-- ══ SECTION 0: 매크로 스토리라인 (서사형 분석) ══════════════ -->
   <div style="background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(168,85,247,0.04));border:1px solid rgba(0,212,255,0.2);border-radius:4px;padding:16px;margin-bottom:12px;">
     <div style="font-size:12px;font-weight:800;color:var(--data-cyan);margin-bottom:4px;">매크로 종합 결론 — FOMC·유가·달러·금리</div>
@@ -7493,7 +7513,7 @@ button[data-filter-active="true"] {
     <span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 →</span>
     <span class="cross-link" data-action="showPage" data-arg="kr-macro">한국 매크로 →</span>
   </div>
-
+  <div id="tg-feed-fxbond"></div>
   <!-- ══ v48.50: CROSS-ASSET MATRIX — FX × Bond × Credit 유기적 통합 대시보드 ══ -->
   <div style="background:linear-gradient(135deg,rgba(168,85,247,0.05),rgba(0,212,255,0.03));border:1px solid rgba(168,85,247,0.2);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
@@ -9472,6 +9492,7 @@ button[data-filter-active="true"] {
       <span>필터: 48시간 이내 · 중요도 30점+</span>
     </div>
 
+    <div id="tg-feed-market-news"></div>
     <!-- v27.3: 뉴스 센티먼트 바 + 소스 라벨 -->
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;align-items:center;padding:6px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:3px;">
       <div style="display:flex;align-items:center;gap:4px;font-size:11px;">

@@ -1184,6 +1184,10 @@ function _aioApplyTelegramDigestPayload(raw) {
       window.DATA_SNAPSHOT._telegramDigestWindow = merged.window || window.DATA_SNAPSHOT._telegramDigestWindow;
       window.DATA_SNAPSHOT._narrativeUpdated = merged.asOf;
     }
+    // v51.36: 데이터 로드 완료 → 모든 페이지 피드 즉시 갱신
+    setTimeout(function() {
+      try { if (typeof _aioInjectAllTelegramFeeds === 'function') _aioInjectAllTelegramFeeds(); } catch(_) {}
+    }, 0);
   } catch(_) {}
   return true;
 }
@@ -1212,6 +1216,72 @@ try {
   window._aioApplyTelegramDigestToScreenerDb = _aioApplyTelegramDigestToScreenerDb;
   window._aioLoadServerTelegramDigest = _aioLoadServerTelegramDigest;
 } catch(_) {}
+
+// ── v51.36: 텔레그램 페이지별 실시간 피드 렌더러 ─────────────────────
+var _TG_PAGE_TAGS = {
+  'home':        ['kr-market','macro','semi','ai-policy','equity','geo'],
+  'signal':      ['kr-market','equity','semi','macro'],
+  'breadth':     ['macro','equity','kr-market','geo'],
+  'sentiment':   ['macro','kr-market','equity','geo','crypto'],
+  'briefing':    ['macro','geo','semi','equity','kr-market','ai-policy','power','optical'],
+  'technical':   ['semi','equity','power','optical'],
+  'macro':       ['macro','geo','ai-policy'],
+  'fxbond':      ['macro','geo'],
+  'market-news': ['macro','geo','semi','equity','kr-market','ai-policy','optical','power','crypto'],
+};
+var _TG_PAGE_MAX = { 'home':5, 'briefing':7, 'market-news':10 };
+var _TG_CH_LABEL = { aetherjapanresearch:'🇯🇵 Aether', insidertracking:'🌐 Insider', bornlupin:'🇰🇷 BornLupin' };
+var _TG_CH_CLS   = { aetherjapanresearch:'tg-ch-aether', insidertracking:'tg-ch-insider', bornlupin:'tg-ch-born' };
+
+function _aioRenderTelegramFeedHtml(pageId) {
+  try {
+    var items = window.AIO_TELEGRAM_BROAD_ITEMS || [];
+    var tags = _TG_PAGE_TAGS[pageId] || [];
+    if (!items.length || !tags.length) return '';
+    var max = _TG_PAGE_MAX[pageId] || 5;
+    var filtered = items.filter(function(it) {
+      return (it.tags || []).some(function(t) { return tags.indexOf(t) >= 0; });
+    }).slice(0, max);
+    if (!filtered.length) return '';
+    var ts = filtered[0].localDateKst || '';
+    var html = '<div class="tg-live-feed">';
+    html += '<div class="tg-live-feed-hd"><span class="tg-live-dot"></span><span class="tg-live-hd-label">텔레그램 실시간</span><span class="tg-live-hd-ts">' + ts + ' 기준 · ' + filtered.length + '건</span></div>';
+    filtered.forEach(function(it) {
+      var preview = (it.text || '').replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ').trim();
+      if (preview.length > 160) preview = preview.slice(0, 157) + '…';
+      var chCls = _TG_CH_CLS[it.channel] || '';
+      var chLabel = _TG_CH_LABEL[it.channel] || (it.channel || '');
+      var tagHtml = (it.tags || []).slice(0,2).map(function(t){ return '<span class="tg-tag">'+t+'</span>'; }).join('');
+      var tkHtml  = (it.tickers || []).slice(0,3).map(function(t){ return '<span class="tg-ticker">'+t+'</span>'; }).join('');
+      var date = (it.localDateKst || '').slice(5);
+      html += '<a href="'+(it.url||'#')+'" target="_blank" rel="noopener" class="tg-live-item">';
+      html += '<div class="tg-live-item-meta"><span class="'+chCls+'">'+chLabel+'</span><span>'+date+'</span>'+tagHtml+tkHtml+'</div>';
+      html += '<div class="tg-live-item-text">'+preview+'</div>';
+      html += '</a>';
+    });
+    html += '</div>';
+    return html;
+  } catch(_) { return ''; }
+}
+
+function _aioInjectTelegramFeed(pageId) {
+  try {
+    var el = document.getElementById('tg-feed-' + pageId);
+    if (!el) return;
+    var html = _aioRenderTelegramFeedHtml(pageId);
+    el.innerHTML = html;
+  } catch(_) {}
+}
+
+function _aioInjectAllTelegramFeeds() {
+  Object.keys(_TG_PAGE_TAGS).forEach(_aioInjectTelegramFeed);
+}
+
+try {
+  window._aioInjectTelegramFeed = _aioInjectTelegramFeed;
+  window._aioInjectAllTelegramFeeds = _aioInjectAllTelegramFeeds;
+} catch(_) {}
+// ── END v51.36 텔레그램 피드 렌더러 ────────────────────────────────
 
 try {
   var _tgMemoOverlay = {
@@ -15107,6 +15177,12 @@ _aioPageBus.register('data-home-live', 'aio:liveQuotes', function() {
 // Initialize home dashboard on page show
 _aioPageBus.register('data-home-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'home') setTimeout(refreshHomeDashboard, 150);
+});
+
+// v51.36: 페이지 진입 시 텔레그램 피드 즉시 갱신
+_aioPageBus.register('tg-feed-on-page-shown', 'aio:pageShown', function(e) {
+  var pid = typeof e.detail === 'string' ? e.detail : (e.detail && (e.detail.pageId || e.detail.id)) || '';
+  if (pid && _TG_PAGE_TAGS[pid]) setTimeout(function() { _aioInjectTelegramFeed(pid); }, 80);
 });
 
 
