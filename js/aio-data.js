@@ -1775,6 +1775,49 @@ window._aioInitScreenerFilters = function() {
   if (ts && !ts.getAttribute('data-wired')) { ts.addEventListener('input', function(){ renderScreenerResults(); }); ts.setAttribute('data-wired','1'); }
 };
 
+// v51.32: 팩터·레짐 탭 2-컬럼 패널 렌더 (활성 가중·레짐 설명).
+window._aioRenderFactorTab = function() {
+  var FACTOR_LABELS = {
+    momentum:{ ko:'모멘텀', desc:'1~6M 가격 수익률',        color:'var(--data-green)' },
+    trend:   { ko:'추세',   desc:'SMA50/200 돌파 강도',      color:'var(--data-green)' },
+    lowvol:  { ko:'저변동', desc:'연율 변동성↓ (역방향)',     color:'var(--data-cyan)'  },
+    size:    { ko:'사이즈', desc:'시총 (대형주 역방향)',      color:'var(--text-muted)' },
+    value:   { ko:'밸류',   desc:'저PER/PBR (FMP 필요)',     color:'var(--data-amber)' },
+    quality: { ko:'퀄리티', desc:'ROE·마진·성장 (FMP 필요)', color:'var(--data-amber)' },
+    kalman:  { ko:'K-vel',  desc:'칼만 신뢰도가중 추세속도', color:'var(--accent)'     },
+  };
+  var REGIME_DESC = {
+    '위험회피 (risk-off)':'시장 불안 국면. 저변동·퀄리티 방어주 가중 상승, 모멘텀 가중 감소. 안정적 현금흐름 종목 선호.',
+    '위험선호 (risk-on)': '시장 공격 국면. 모멘텀·추세·K-vel 가중 상승. 성장주·고베타 종목 유리.',
+    '후기사이클':         '경기 후반부. 밸류·방어 팩터 가중 상승. 저평가 배당주 선호.',
+    '중립':               '레짐 불분명. 기본 균형 가중 적용. 어느 한쪽에 쏠리지 않는 균형 포트 유리.',
+  };
+  var weights = window._aioActiveFactorWeights || {};
+  var regime  = window._aioActiveFactorRegime  || '중립';
+  var activeFactors = window._aioActiveFactors || Object.keys(weights);
+  var wVals = activeFactors.map(function(k){ return weights[k]||0; });
+  var maxW  = wVals.length ? Math.max.apply(null, wVals) : 1;
+  var barsEl = document.getElementById('scr-factor-bars');
+  if (barsEl) {
+    barsEl.innerHTML = activeFactors.map(function(key) {
+      var w = weights[key] || 0;
+      var lbl = FACTOR_LABELS[key] || { ko:key, desc:'', color:'var(--text-secondary)' };
+      var pct = maxW > 0 ? Math.round(w / maxW * 100) : 0;
+      return '<div style="display:grid;grid-template-columns:50px 1fr 28px;gap:4px;align-items:center;" title="' + lbl.desc + '">' +
+        '<span style="font-size:9px;color:' + lbl.color + ';font-weight:600;">' + lbl.ko + '</span>' +
+        '<div style="background:rgba(255,255,255,.06);border-radius:2px;height:7px;overflow:hidden;">' +
+          '<div style="background:' + lbl.color + ';height:100%;width:' + pct + '%;opacity:.8;"></div>' +
+        '</div>' +
+        '<span style="font-size:9px;color:var(--text-muted);text-align:right;">' + Math.round(w*100) + '%</span>' +
+      '</div>';
+    }).join('');
+  }
+  var regNote = document.getElementById('screener-regime-note');
+  if (regNote) regNote.textContent = regime;
+  var regDesc = document.getElementById('scr-regime-desc');
+  if (regDesc) regDesc.textContent = REGIME_DESC[regime] || '레짐 기반으로 팩터 가중치가 자동 조정됩니다.';
+};
+
 // v51.32: 스크리너 서브-탭 전환 (랭킹|팩터·레짐|백테스트 IC). data-action="_aioScreenerTab" 훅.
 window._aioScreenerTab = function(tabId) {
   var TABS = ['ranking','factors','backtest'];
@@ -1784,6 +1827,8 @@ window._aioScreenerTab = function(tabId) {
     var btn = document.querySelector('[data-action="_aioScreenerTab"][data-arg="' + t + '"]');
     if (btn) { btn.classList.toggle('is-active', t === tabId); btn.style.borderBottomColor = (t === tabId) ? 'var(--accent)' : 'transparent'; btn.style.color = (t === tabId) ? 'var(--accent)' : 'var(--text-secondary)'; }
   });
+  if (tabId === 'factors') { try { window._aioRenderFactorTab(); } catch(_){} }
+  if (tabId === 'backtest') { try { window._aioRenderScreenerBacktest(); } catch(_){} }
 };
 
 // v50.53 2A: 스크리너 헤더 클릭 정렬 — 같은 컬럼 재클릭 시 방향 토글, 신규 컬럼은 기본 방향.
@@ -14570,8 +14615,8 @@ function _aioComputeFactorRanks() {
   // v50.54 3B: 밸류(저PE/PB/EV-EBITDA = 수익률 환산 → 높을수록 우수)·퀄리티(ROE/마진/매출성장). FMP 데이터 있을 때만.
   var valueRaw = function(r){ var p=[]; if(typeof r.pe==='number'&&r.pe>0)p.push(1/r.pe); if(typeof r.pb==='number'&&r.pb>0)p.push(1/r.pb); if(typeof r.evEbitda==='number'&&r.evEbitda>0)p.push(1/r.evEbitda); return p.length?avg(p):null; };
   var qualityRaw = function(r){ var p=[]; ['roe','margin','revGrowth'].forEach(function(k){ if(typeof r[k]==='number') p.push(r[k]); }); return p.length?avg(p):null; };
-  // v51.32: 칼만 속도 팩터 — fetch-data 서버가 공급하는 kalmanVel(90일 칼만 추세 속도). 양수=상승 추세, 음수=하락.
-  var kalmanRaw = function(r){ return typeof r.kalmanVel === 'number' ? r.kalmanVel : null; };
+  // v51.32: 칼만 팩터 — velConf(신뢰도가중 속도) 우선, 없으면 raw vel 폴백. 양수=상승추세, 음수=하락.
+  var kalmanRaw = function(r){ return typeof r.kalmanVelConf === 'number' ? r.kalmanVelConf : (typeof r.kalmanVel === 'number' ? r.kalmanVel : null); };
   // v50.54 3A: 팩터 집합은 데이터 가용에 따라 동적(가격 4팩터 + value/quality는 FMP 있을 때). 가중은 레짐 적응형.
   var FACTORS = [
     { key:'momentum', fn:momRaw },

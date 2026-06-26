@@ -586,18 +586,23 @@ function _kalmanTrend(closes) {
   const Ql = 1e-4, Qv = 1e-5, R = 1e-2;
   let s0 = closes[0], s1 = 0;
   let p00 = 1, p01 = 0, p10 = 0, p11 = 1;
+  let lastE = 0, lastS = R;
   for (let i = 0; i < closes.length; i++) {
     const y = closes[i]; if (typeof y !== 'number' || !isFinite(y)) continue;
     const ps0 = s0 + s1, ps1 = s1;
     const pp00 = p00 + p01 + p10 + p11 + Ql;
     const pp01 = p01 + p11, pp10 = p10 + p11, pp11 = p11 + Qv;
     const e = y - ps0, S = pp00 + R;
+    lastE = e; lastS = S;
     const k0 = pp00 / S, k1 = pp10 / S;
     s0 = ps0 + k0 * e; s1 = ps1 + k1 * e;
     p00 = (1 - k0) * pp00; p01 = (1 - k0) * pp01;
     p10 = -k1 * pp00 + pp10; p11 = -k1 * pp01 + pp11;
   }
-  return { vel: round(s1, 6), pt: round(p00 + p11, 6) };
+  const vel = s1, pt = p00 + p11;
+  const innovZ = lastS > 0 ? round(lastE / Math.sqrt(lastS), 4) : null;
+  const velConf = round(vel / (1 + Math.sqrt(Math.max(pt, 0))), 6);
+  return { vel: round(vel, 6), pt: round(pt, 6), innovZ, velConf };
 }
 function closesToFactors(closes) {
   if (!Array.isArray(closes) || closes.length < 30) return null;
@@ -611,8 +616,10 @@ function closesToFactors(closes) {
     vol: _annVol(closes, 60), rsi: _rsi14(closes),
     pctSma50: (sma50 && sma50 > 0) ? round((price / sma50 - 1) * 100, 2) : null,
     pctSma200: (sma200 && sma200 > 0) ? round((price / sma200 - 1) * 100, 2) : null,
-    kalmanVel: kalman ? kalman.vel : null,
-    kalmanPt:  kalman ? kalman.pt  : null,
+    kalmanVel:    kalman ? kalman.vel     : null,
+    kalmanPt:     kalman ? kalman.pt      : null,
+    kalmanInnovZ: kalman ? kalman.innovZ  : null,
+    kalmanVelConf:kalman ? kalman.velConf : null,
   };
 }
 

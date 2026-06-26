@@ -1,4 +1,20 @@
-﻿## v51.32 - 칼만 추세 팩터 + 스크리너 Ops Console UI 통합 (2026-06-26)
+﻿## v51.33 - 칼만 정밀화(innovZ/velConf) + 스크리너 컬럼 그룹 헤더 + 팩터·레짐 2-컬럼 패널 (2026-06-26)
+
+**칼만 필터 정밀화 (innovZ + velConf)**
+`_kalmanTrend()`에서 `lastE`/`lastS` 루프 외 캡처 추가 → `innovZ = lastE / √lastS`(이노베이션 z-score, 마지막 관측의 표준화 잔차. |Z|>2 = 추세 이탈 신호) + `velConf = vel / (1 + √pt)`(P_trace 신뢰도가중 속도, 필터 불확실 시 신호 감쇠) 출력.
+`closesToFactors()`에 `kalmanInnovZ` / `kalmanVelConf` 필드 추가 → `screener.json`에 포함.
+`kalmanRaw`가 `kalmanVelConf` 우선 사용(구버전 `kalmanVel` 폴백 유지).
+
+**스크리너 테이블 컬럼 그룹 헤더**
+기존 단일 thead 행 위에 그룹 헤더 행 추가: 기본 정보(4열) | 팩터 점수 0~100(6열, cyan 강조) | 시장 데이터(4열) | 시그널(1열) | 뉴스(1열). 그룹 경계 `border-left`로 열 구분.
+초보자도 각 열 그룹의 의미를 즉시 파악 가능하게 함.
+
+**팩터·레짐 탭 2-컬럼 Ops Console 패널**
+`_aioRenderFactorTab()` 신설: 좌측 — 활성 팩터 가중 막대차트(각 팩터명·비율 bar·퍼센트), 우측 — 현재 레짐 badge + 레짐별 한국어 설명 + 팩터 커버리지 현황.
+`_aioScreenerTab()` 탭 전환 시 자동 렌더(`factors`→`_aioRenderFactorTab`, `backtest`→`_aioRenderScreenerBacktest`).
+R1 v51.33 7곳 동기화.
+
+## v51.32 - 칼만 추세 팩터 + 스크리너 Ops Console UI 통합 (2026-06-26)
 
 **칼만 필터 7번째 팩터 (Phase 1)**
 `scripts/fetch-data.mjs`에 `_kalmanTrend(closes)` 추가: 90일 종가에 상태공간 모델(level+velocity, Q=[1e-4,1e-5], R=1e-2) 재귀 적용 → `kalmanVel`(추세 속도)/`kalmanPt`(불확실성) 출력. `closesToFactors()`가 이 두 값을 `screener.json` 팩터에 포함.
