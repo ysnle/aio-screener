@@ -1,3 +1,17 @@
+## v51.47 - Structural: stageEstimate slope, BB variance, Kalman R dynamic, watchdog gate (2026-06-27)
+
+**stageEstimate SMA50 기울기 도입**: `calcTechnicalSnapshot()`에 `sma50_5d`(5봉 전 SMA50) 계산 추가. `sma50Rising` 불리언으로 상승/하강 방향을 판별해 `trendState`·`stageEstimate` 분류를 정밀화 — 단기 배열 조건을 충족하더라도 SMA50이 하강 중이면 `STAGE_3_TOPPING`/`TOPPING`으로 표면화해 고점 회전 종목을 Stage 2와 구분.
+
+**Bollinger Band 표본 분산 보정**: `_calcBB()`의 분산 계산을 `/period`(모집단)에서 `/(period-1)`(표본)으로 수정. TradingView·Bloomberg 기본값과 일치.
+
+**Kalman R 파라미터 동적화**: `_kalmanTrend(closes)` → `_kalmanTrend(closes, vol)`. 측정 노이즈 공분산 `R`을 고정값(1e-2)에서 `(연간변동성/100/√252)²`로 교체해 변동성 낮은 종목에서 과도한 필터 지연을 억제. `closesToFactors()`에서 `vol60`을 미리 계산 후 전달.
+
+**screener 워치독 48h 경과 CI 실패 게이트**: `.github/workflows/data-watchdog.yml`에서 `scrAge > 48`인 경우 `console.warn`만 출력하던 분기에 `process.exit(1)` 추가 — 스크리너 데이터가 이틀 이상 갱신되지 않으면 워치독 CI가 실패해 운영자에게 경보.
+
+**R1 v51.47 7곳 동기화**.
+
+---
+
 ## v51.46 - Bug fixes: failedRetest signal + COMP_W dead key (2026-06-27)
 
 **P537 `failedRetest` 데드 코드 수정**: `classifyTerminalCandle()`이 `snapshot.failedRetest`를 참조하지만 `calcTechnicalSnapshot()`이 해당 필드를 반환하지 않아 FAILED_RETEST 시그널(score 58)이 절대 발동하지 않던 문제 수정. `calcTechnicalSnapshot()`에 `prior20High`(직전 20봉 최고가)·`rvol20` 변수 호이스트 추가, `failedRetest` 조건(고점 1% 이내 접근 + 직전봉 아래 마감 + RVOL≥1.2) 계산 후 반환 객체에 포함.

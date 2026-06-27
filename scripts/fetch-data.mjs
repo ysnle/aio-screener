@@ -581,13 +581,17 @@ function _rsi14(closes) {
 // v51.32: 칼만 추세 필터 — 숨겨진 가격 레벨과 추세 속도(velocity)를 재귀 추정.
 // 노이즈 측정에서 실제 추세 속도를 분리 (Rolling OLS보다 연속적이고 안정적).
 // state=[level, velocity], F=[[1,1],[0,1]], H=[1,0], Q=diag(Ql,Qv), R=obs noise.
-function _kalmanTrend(closes) {
+function _kalmanTrend(closes, vol) {
   if (!Array.isArray(closes) || closes.length < 10) return null;
   const series = closes
     .map(v => (typeof v === 'number' && isFinite(v) && v > 0) ? Math.log(v) : null)
     .filter(v => v !== null);
   if (series.length < 10) return null;
-  const Ql = 1e-4, Qv = 1e-5, R = 1e-2;
+  const Ql = 1e-4, Qv = 1e-5;
+  // R = daily observation noise. Use asset's own daily variance when available so
+  // high-vol stocks (VIX 70+) don't over-trust the signal and low-vol names don't lag.
+  const dailyVol = (typeof vol === 'number' && vol > 0) ? (vol / 100) / Math.sqrt(252) : null;
+  const R = dailyVol ? Math.max(1e-4, dailyVol * dailyVol) : 1e-2;
   // 초기 속도: 첫 5일 선형 기울기로 시드 (s1=0 시작 시 20~30일 수렴 지연 제거)
   const initN = Math.min(5, series.length - 1);
   const s1Init = initN > 0 ? (series[initN] - series[0]) / initN : 0;
@@ -616,11 +620,12 @@ function closesToFactors(closes) {
   const price = closes[closes.length - 1];
   const sma50 = closes.length >= 50 ? _mean(closes.slice(-50)) : null;
   const sma200 = closes.length >= 200 ? _mean(closes.slice(-200)) : null;
-  const kalman = _kalmanTrend(closes.slice(-90));
+  const vol60 = _annVol(closes, 60);
+  const kalman = _kalmanTrend(closes.slice(-90), vol60);
   return {
     price: round(price, 2),
     ret1m: _retPct(closes, 21), ret3m: _retPct(closes, 63), ret6m: _retPct(closes, 126),
-    vol: _annVol(closes, 60), rsi: _rsi14(closes),
+    vol: vol60, rsi: _rsi14(closes),
     pctSma50: (sma50 && sma50 > 0) ? round((price / sma50 - 1) * 100, 2) : null,
     pctSma200: (sma200 && sma200 > 0) ? round((price / sma200 - 1) * 100, 2) : null,
     kalmanVel:    kalman ? kalman.vel     : null,

@@ -16483,7 +16483,7 @@ function _calcBB(closes, period, mult) {
   if (nums.length < period) return null;
   var slice = nums.slice(-period);
   var mid = _calcSMA(nums, period);
-  var variance = slice.reduce(function(s, v) { return s + Math.pow(v - mid, 2); }, 0) / period;
+  var variance = slice.reduce(function(s, v) { return s + Math.pow(v - mid, 2); }, 0) / (period - 1);
   var sd = Math.sqrt(variance);
   var upper = mid + mult * sd;
   var lower = mid - mult * sd;
@@ -16581,6 +16581,8 @@ function calcTechnicalSnapshot(ohlcv) {
   var longBear = !!(sma50 && sma100 && sma200 && sma50 < sma100 && sma100 < sma200);
   var fullBull = !!(shortBull && sma20 && sma50 && sma20 > sma50 && longBull);
   var fullBear = !!(shortBear && sma20 && sma50 && sma20 < sma50 && longBear);
+  var sma50_5d = closes.length >= 55 ? _calcSMA(closes.slice(0, -5), 50) : null;
+  var sma50Rising = (sma50 && sma50_5d) ? sma50 > sma50_5d : null;
   var rvol20 = _calcRVOL(volumes, 20);
   var prior20High = highs.length > 1 ? _calcRecentLevel(highs.slice(0, -1), 20, Math.max) : null;
   var failedRetest = !!(prior20High && last.close >= prior20High * 0.99 && last.close < prior20High && last.close < prev.close && rvol20 !== null && rvol20 >= 1.2);
@@ -16604,8 +16606,9 @@ function calcTechnicalSnapshot(ohlcv) {
     longMAState: longBull ? 'LONG_BULL_STACK_50_100_200' : longBear ? 'LONG_BEAR_STACK_50_100_200' : 'LONG_MIXED',
     fullMAState: fullBull ? 'FULL_BULL_STACK_5_10_20_50_100_200' : fullBear ? 'FULL_BEAR_STACK_5_10_20_50_100_200' : 'PARTIAL_STACK',
     maStackScore: (shortBull ? 25 : shortBear ? 0 : 10) + (longBull ? 35 : longBear ? 0 : 15) + (fullBull ? 25 : fullBear ? 0 : 8) + ((sma50 && last.close >= sma50) ? 8 : 0) + ((sma200 && last.close >= sma200) ? 7 : 0),
-    trendState: fullBull || (sma50 && sma200 && last.close >= sma50 && sma50 >= sma200) ? 'UPTREND' : fullBear || (sma50 && last.close < sma50) ? 'TREND_DAMAGED' : 'MIXED',
-    stageEstimate: fullBull || (sma50 && sma200 && last.close >= sma50 && sma50 >= sma200) ? 'STAGE_2_ADVANCE' : fullBear || (sma50 && last.close < sma50) ? 'STAGE_4_OR_BASE_REPAIR' : 'STAGE_1_3_TRANSITION',
+    sma50Rising: sma50Rising,
+    trendState: fullBull && sma50Rising !== false ? 'UPTREND' : fullBull && sma50Rising === false ? 'TOPPING' : fullBear ? 'DOWNTREND' : sma50 && last.close < sma50 ? 'TREND_DAMAGED' : 'MIXED',
+    stageEstimate: fullBull && sma50Rising !== false ? 'STAGE_2_ADVANCE' : fullBull && sma50Rising === false ? 'STAGE_3_TOPPING' : fullBear ? 'STAGE_4_DECLINE' : sma50 && last.close < sma50 ? 'STAGE_4_OR_BASE_REPAIR' : 'STAGE_1_OR_3_TRANSITION',
     lastBar: last, prevBar: prev, raw: bars
   };
 }
@@ -17090,7 +17093,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.46';
+const APP_VERSION = 'v51.47';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

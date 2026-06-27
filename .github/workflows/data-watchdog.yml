@@ -83,6 +83,7 @@ jobs:
             const scr = readJson('public-data/screener.json');
             const scrAge = scr && scr.asOf ? Math.round((Date.now() - new Date(scr.asOf).getTime()) / 3600000) : null;
             if (scrAge === null) console.warn('⚠️  screener.json asOf 없음 — enrichment 미실행 가능성.');
+            else if (scrAge > 48) { console.error(`❌ screener.json ${scrAge}h 경과 — 48h 초과 CI 실패. (ok=${scr.ok}/${scr.universe})`); process.exit(1); }
             else if (scrAge > 24) console.warn(`⚠️  screener.json ${scrAge}h 경과 — enrichment 지연 가능. (ok=${scr.ok}/${scr.universe})`);
             else console.log(`screener.json asOf=${scr.asOf} age=${scrAge}h ok=${scr.ok}/${scr.universe}`);
           } catch(e) { console.warn('⚠️  screener.json 읽기 실패:', e.message); }

@@ -2,11 +2,43 @@
 verified_by: agent
 last_verified: 2026-06-27
 confidence: high
-latest_version: v51.46
-latest_P_number: P538
-total_entries: 537
-next_P_number: P539
+latest_version: v51.47
+latest_P_number: P542
+total_entries: 541
+next_P_number: P543
 ---
+
+## P542 - v51.47 - Screener watchdog 48h exit gate missing
+
+- **symptom**: `data-watchdog.yml` screener age check logged `console.warn` for `scrAge > 24` but never failed CI. A screener enrichment outage lasting >48h would pass watchdog silently and go unnoticed by the operator.
+- **root_cause**: The guard was written as a soft warning only, with no hard gate.
+- **fix**: Added `process.exit(1)` branch for `scrAge > 48` with `console.error`. The 24h soft warning is kept; only the >48h case now fails CI.
+- **violated_rule**: R1 data integrity — CI gates must enforce data freshness SLAs, not merely log warnings.
+- **prevention**: CI should always have at least one hard-fail branch for stale-data conditions that are operationally unacceptable.
+
+## P541 - v51.47 - Kalman measurement noise R was hardcoded, causing over-smoothing on low-volatility stocks
+
+- **symptom**: `_kalmanTrend()` used a fixed `R = 1e-2` regardless of the actual volatility of the underlying asset. Low-volatility stocks had the filter over-trusting the model (treating observations as noisy) while high-volatility stocks had it under-reacting to real trend breaks.
+- **root_cause**: R parameter was never connected to the per-symbol realized volatility available at the call site.
+- **fix**: `_kalmanTrend(closes, vol)` now accepts an optional annualized volatility. `R = (annVol/100/√252)²` is computed when vol is provided and positive; falls back to 1e-2 otherwise. `closesToFactors()` pre-computes `vol60` and passes it through.
+- **violated_rule**: R232 trading factor rigor — model parameters must match the statistical properties of the data they process.
+- **prevention**: Cross-asset factor models should parameterize noise from realized vol rather than tuning on a single scale.
+
+## P540 - v51.47 - Bollinger Band used population variance instead of sample variance
+
+- **symptom**: `_calcBB()` divided sum-of-squares by `period` (population variance). TradingView and Bloomberg both default to sample variance (`period-1`), causing AIO Bollinger Bands to be systematically narrower than the reference standard for small windows.
+- **root_cause**: Standard textbook BB formula uses population variance; the practitioner standard (Wilder, TradingView) uses sample.
+- **fix**: Changed `/period` → `/(period-1)` in `_calcBB()`.
+- **violated_rule**: R232 trading factor rigor — indicator implementations must match the de facto practitioner standard.
+- **prevention**: Technical indicator implementations should cite and match TradingView/Bloomberg reference calculations.
+
+## P539 - v51.47 - stageEstimate could not distinguish Stage 2 Advance from Stage 3 Topping
+
+- **symptom**: `stageEstimate` returned `STAGE_2_ADVANCE` for any stock in full bull MA order, even when SMA50 had already started declining — a defining characteristic of late-stage distribution (Stage 3). Operators screening for Stage 2 breakouts would receive false positives from topping structures.
+- **root_cause**: `calcTechnicalSnapshot()` computed only the current SMA50 value with no directionality check.
+- **fix**: Added `sma50_5d` (SMA50 computed on closes excluding the last 5 bars) and `sma50Rising` boolean. When `fullBull` is true but `sma50Rising === false`, `trendState` returns `TOPPING` and `stageEstimate` returns `STAGE_3_TOPPING`. `sma50Rising` is exposed in the return object for downstream consumers.
+- **violated_rule**: R232 trading factor rigor — stage classification must incorporate trend momentum, not just current price order.
+- **prevention**: Stage identification should always check directional momentum of the key trend proxy (SMA50) in addition to cross-sectional price order.
 
 ## P538 - v51.46 - COMP_W.size dead key skewed backtest weight display
 
