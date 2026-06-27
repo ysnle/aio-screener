@@ -16581,10 +16581,13 @@ function calcTechnicalSnapshot(ohlcv) {
   var longBear = !!(sma50 && sma100 && sma200 && sma50 < sma100 && sma100 < sma200);
   var fullBull = !!(shortBull && sma20 && sma50 && sma20 > sma50 && longBull);
   var fullBear = !!(shortBear && sma20 && sma50 && sma20 < sma50 && longBear);
+  var rvol20 = _calcRVOL(volumes, 20);
+  var prior20High = highs.length > 1 ? _calcRecentLevel(highs.slice(0, -1), 20, Math.max) : null;
+  var failedRetest = !!(prior20High && last.close >= prior20High * 0.99 && last.close < prior20High && last.close < prev.close && rvol20 !== null && rvol20 >= 1.2);
   return {
     ok: true, bars: bars.length, time: last.time, price: last.close, prevClose: prev.close, dayGainPct: dayGainPct,
     closePosition: closePosition, upperWickPct: candle.upperWickPct, lowerWickPct: candle.lowerWickPct, bodyPct: candle.bodyPct, gapUpPct: candle.gapUpPct,
-    atr14: atr14, adr20Pct: adr20Pct, rsi14: rsi14, macd: macd, bb20: bb20, rvol20: _calcRVOL(volumes, 20),
+    atr14: atr14, adr20Pct: adr20Pct, rsi14: rsi14, macd: macd, bb20: bb20, rvol20: rvol20, failedRetest: failedRetest,
     sma5: sma5, sma10: sma10, sma20: sma20, sma50: sma50, sma100: sma100, sma200: sma200, ema10: ema10, ema21: ema21,
     dist10Atr: dist10Atr, dist20Atr: dist20Atr, dist21Atr: dist21Atr, dist50Atr: dist50Atr,
     dist10ATR: dist10Atr, dist20ATR: dist20Atr, dist21ATR: dist21Atr, dist50ATR: dist50Atr,
@@ -17087,7 +17090,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.45';
+const APP_VERSION = 'v51.46';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

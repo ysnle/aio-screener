@@ -2,11 +2,27 @@
 verified_by: agent
 last_verified: 2026-06-27
 confidence: high
-latest_version: v51.45
-latest_P_number: P536
-total_entries: 535
-next_P_number: P537
+latest_version: v51.46
+latest_P_number: P538
+total_entries: 537
+next_P_number: P539
 ---
+
+## P538 - v51.46 - COMP_W.size dead key skewed backtest weight display
+
+- **symptom**: `backtestFactors()` COMP_W included `size: 0.16` but neither `wTotal` nor `r.comp` formula included size. Backtest IC report displayed `compWeights` with size field, implying a contribution that never happened. Comment "라이브 기본 가중치(중립)와 동기화" was also false.
+- **root_cause**: Size was added to COMP_W during an earlier iteration but the corresponding rank array (`rs`) and wTotal term were never added to the actual computation path. The field was decorative.
+- **fix**: Removed `size` from COMP_W. Redistributed to 4-factor sum=1.00: `{ mom:0.35, trend:0.25, lowvol:0.25, kalman:0.15 }`. Updated comment to accurately describe scope.
+- **violated_rule**: R1 (data integrity — displayed weights must match computed weights).
+- **prevention**: CI weight-sum check already exists; add assertion that `Object.keys(COMP_W)` matches fields actually used in `wTotal` formula.
+
+## P537 - v51.46 - FAILED_RETEST signal never fired due to missing failedRetest field
+
+- **symptom**: `classifyTerminalCandle()` checked `snapshot.failedRetest` at line 16646, but `calcTechnicalSnapshot()` never returned this field. FAILED_RETEST (score 58, second-highest severity after BEARISH_CONFIRMATION 68) was permanently dead. AI chat technical context injected the result without ever receiving this signal category.
+- **root_cause**: `failedRetest` logic was planned as part of the Minervini engine (identifying price that approaches the prior 20-day high but closes below it on elevated volume) but was only wired into `classifyTerminalCandle` — the field calculation was never added to `calcTechnicalSnapshot()`.
+- **fix**: Added `rvol20` variable hoist and `prior20High` (max of prior 20-bar highs) before the return statement. `failedRetest` is now `true` when: close ≥ prior20High × 0.99 AND close < prior20High AND close < prevClose AND rvol20 ≥ 1.2.
+- **violated_rule**: R232/R233 (technical factor rigor — signals declared must have corresponding calculation paths).
+- **prevention**: CI contract gate should assert that every signal type reachable via `classifyTerminalCandle.set()` has a corresponding field in `calcTechnicalSnapshot()` return object.
 
 ## P536 - v51.45 - Ticker technical analysis described Minervini logic more deeply than it calculated
 

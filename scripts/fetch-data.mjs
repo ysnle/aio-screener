@@ -644,8 +644,8 @@ function _spearman(xs, ys) {
 function backtestFactors(stockData) {
   var OFFSETS = [147, 126, 105, 84, 63, 42], FWD = 21;     // 끝에서 N일 전 리밸 시점들
   var isNum = function(v){ return typeof v === 'number' && isFinite(v); };
-  // 라이브 기본 가중치(중립)와 동기화 — momentum/trend/lowvol/kalman 4팩터 (value/quality는 FMP 의존 제외)
-  var COMP_W = { mom: 0.30, trend: 0.22, lowvol: 0.20, kalman: 0.12, size: 0.16 };
+  // 백테스트 4팩터 가중 (라이브 라이브 NEUTRAL과 비율 동일 기조, value/quality/size는 FMP 의존 또는 미시계열 제외)
+  var COMP_W = { mom: 0.35, trend: 0.25, lowvol: 0.25, kalman: 0.15 };
   var IC_FACTORS = ['momentum','trend','lowvol','kalman','composite'];
   var icS = {}, icN = {};
   IC_FACTORS.forEach(function(k){ icS[k]=0; icN[k]=0; });

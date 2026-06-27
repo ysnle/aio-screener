@@ -1,3 +1,13 @@
+## v51.46 - Bug fixes: failedRetest signal + COMP_W dead key (2026-06-27)
+
+**P537 `failedRetest` 데드 코드 수정**: `classifyTerminalCandle()`이 `snapshot.failedRetest`를 참조하지만 `calcTechnicalSnapshot()`이 해당 필드를 반환하지 않아 FAILED_RETEST 시그널(score 58)이 절대 발동하지 않던 문제 수정. `calcTechnicalSnapshot()`에 `prior20High`(직전 20봉 최고가)·`rvol20` 변수 호이스트 추가, `failedRetest` 조건(고점 1% 이내 접근 + 직전봉 아래 마감 + RVOL≥1.2) 계산 후 반환 객체에 포함.
+
+**P538 `COMP_W.size` 데드 키 제거**: `backtestFactors()`의 `COMP_W = { …size: 0.16 }` 정의가 `wTotal`·`r.comp` 합산에 포함되지 않아 백테스트 IC 보고서 가중치 표시가 실제 계산과 불일치하던 문제 수정. `size` 제거 후 4팩터 합계=1.00으로 재정규화: `{ mom:0.35, trend:0.25, lowvol:0.25, kalman:0.15 }`.
+
+**R1 v51.46 7곳 동기화**.
+
+---
+
 ## v51.45 - Institutional Minervini technical engine hardening (2026-06-27)
 
 **Fix**: expanded ticker deep analysis from a partial 5/10/20/50 trend read into a deterministic Minervini-style engine. The page now scores 5/10/20 short MA stack, 50/100/200 long MA stack, full 5/10/20/50/100/200 order, expanded 5/10·10/20·20/50·50/100·50/200·100/200 crosses, horizontal Volume Profile zones, POC, Value Area, nearest supply/resistance and support/defense bands, VCP contraction/volume dry-up, and Fibonacci-zone confluence.
