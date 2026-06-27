@@ -1,3 +1,15 @@
+## v51.48 - UI/UX: 매크로·기술분석 페이지 섹션 리듬 개편 (2026-06-27)
+
+**매크로 페이지 전 섹션 aio-section 전환**: 인터커넥션 맵(Section 1) 6개 서브카드 배경을 `rgba(X,Y,Z,0.04)` 컬러 그라디언트에서 `var(--surface-1)` + 컬러 보더로 교체. 경제 사이클 타임라인(1-B)·FRED 차트·라이브 매크로 지표(Section 2, 3개 그리드)·외환채권·수익률 곡선·경기 체온계·유가에너지·시나리오 트리·경제 캘린더 등 모든 섹션에서 `background:var(--bg-card);border:1px solid var(--border)` 불투명 박스를 `.aio-section` 오픈 구조로 교체. 요약 바·해석 박스·시나리오 카드 배경도 `surface-1` 통일.
+
+**기술분석 페이지 전 섹션 aio-section 전환**: Market Indicators 스트립, TradingView 차트, Market Health Dashboard, Institutional Technical Brief, S&P 500 실시간 기술지표, 빠른 종목 검색, 지지/저항·Weinstein 4단계(2-열 패널 → surface-1), 12가지 매매 셋업 카드(6개 컬러 그라디언트 → surface-1 + 컬러 보더), 멀티 타임프레임, 패턴 감지, 심층 기술 분석 헤더까지 전면 변환. tech-lockout-dashboard·tech-brief-beginner 청록 배경도 surface-1으로 중화.
+
+**전역 색상 조화**: `.tg-live-feed` 청록 그라디언트 헤더 제거(v51.43 `!important` 충돌 분리), `.aio-vis-card` 청록 그라디언트 → `surface-2` neutral, `.aio-section` 오픈 구분선 리듬(border-top + ::after 페이드 라인) 도입.
+
+**R1 v51.48 7곳 동기화**.
+
+---
+
 ## v51.47 - Structural: stageEstimate slope, BB variance, Kalman R dynamic, watchdog gate (2026-06-27)
 
 **stageEstimate SMA50 기울기 도입**: `calcTechnicalSnapshot()`에 `sma50_5d`(5봉 전 SMA50) 계산 추가. `sma50Rising` 불리언으로 상승/하강 방향을 판별해 `trendState`·`stageEstimate` 분류를 정밀화 — 단기 배열 조건을 충족하더라도 SMA50이 하강 중이면 `STAGE_3_TOPPING`/`TOPPING`으로 표면화해 고점 회전 종목을 Stage 2와 구분.

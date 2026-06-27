@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.47**
+- 현재 버전: **v51.48**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v51.48 UI/UX 매크로·기술분석 섹션 리듬 개편**: 두 페이지 전 섹션의 `background:var(--bg-card);border:1px solid var(--border)` 불투명 박스를 `.aio-section` 오픈 구조로 교체. 섹션 카드 배경 `rgba(X,Y,Z,0.04)` → `var(--surface-1)` + 컬러 보더로 통일. tg-live-feed·aio-vis-card 청록 그라디언트 제거. R1 7곳 v51.48.
 - **v51.47 구조적 개선 4건**: `calcTechnicalSnapshot()`에 `sma50_5d`·`sma50Rising` 추가로 stageEstimate가 SMA50 기울기 기반 STAGE_3_TOPPING을 표면화. `_calcBB()` 분산을 `/period`→`/(period-1)` 표본 분산으로 교정. `_kalmanTrend()` R 파라미터를 `(vol/100/√252)²` 동적화. watchdog 48h 초과 시 `process.exit(1)` 게이트 추가. R1 7곳 v51.47.
 - **v51.46 버그 수정 2건**: `calcTechnicalSnapshot()` 반환값에 `failedRetest` 필드 누락으로 FAILED_RETEST 시그널(score 58)이 절대 발동하지 않던 문제 수정(P537). 백테스트 `COMP_W.size: 0.16` 데드 키 제거 후 4팩터 합계=1.00 재정규화(P538). R1 7곳 v51.46.
 - **v51.45 기관급 기술분석 엔진 보강**: 종목 심층분석에 미너비니 기반 5/10/20 단기 배열, 50/100/200 장기 배열, 전체 5/10/20/50/100/200 정·역배열 점수, 확장 이동평균 크로스, 수평 매물대 Volume Profile(POC·Value Area·상단 매물벽·하단 방어선), VCP 수축/거래량 위축, 피보나치-매물대 중첩을 추가. `calcTechnicalSnapshot()`과 AI 채팅 입력도 동일 배열 체계로 동기화. R1 7곳 v51.45.
