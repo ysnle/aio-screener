@@ -2,9 +2,17 @@
 verified_by: agent
 last_verified: 2026-06-27
 confidence: high
-target_version: v51.44
+target_version: v51.45
 
 ---
+
+## R233. Ticker technical analysis must prioritize Minervini price/MA/volume/supply logic (v51.45, P536)
+
+- Primary ticker analysis must score price action, 5/10/20 short MA stack, 50/100/200 long MA stack, full 5/10/20/50/100/200 order, Stage 2/4 context, volume behavior, and horizontal supply/demand zones before RSI/MACD/Bollinger.
+- RSI, MACD, Bollinger, and Fibonacci are auxiliary context. They may confirm or warn, but they must not override failed trend, failed MA stack, distribution stage, or nearby overhead supply.
+- Horizontal volume-profile output must show POC, Value Area, nearest upper supply wall, nearest lower defense/support zone, and beginner-readable explanation. Do not reduce it to a vague "support/resistance" sentence.
+- `calcTechnicalSnapshot()` and AI chat context must expose the same MA stack fields used by the visible ticker page so AI answers do not drift from the UI.
+- `scripts/ci-runtime-contract-check.mjs` is the regression gate for this rule.
 
 ## R232. Cross-asset trading factors must use comparable scales (v51.44, P535)
 

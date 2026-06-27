@@ -3,11 +3,20 @@ verified_by: agent
 last_verified: 2026-06-27
 confidence: high
 version: v3.7
-checklist_version: v51.44
-total_items: 386
+checklist_version: v51.45
+total_items: 392
 stages: 22
-latest_P_covered: P535
+latest_P_covered: P536
 ---
+
+## v51.45 - Institutional Minervini technical engine (P536/R233)
+
+- [ ] Ticker deep analysis shows an institutional Minervini check before secondary RSI/MACD/Bollinger rows.
+- [ ] MA analysis includes 5/10/20 short stack, 50/100/200 long stack, full 5/10/20/50/100/200 order, and expanded 5/10·10/20·20/50·50/100·50/200·100/200 crosses.
+- [ ] Horizontal Volume Profile shows POC, Value Area, nearest upper supply wall, nearest lower defense/support zone, and beginner-readable guidance.
+- [ ] VCP contraction/volume dry-up and Fibonacci-zone confluence are shown as auxiliary confirmation, not as primary buy triggers.
+- [ ] `calcTechnicalSnapshot()` and AI chat context expose the same MA stack fields (`sma5`, `sma100`, `shortMAState`, `longMAState`, `fullMAState`, `maStackScore`).
+- [ ] `scripts/ci-runtime-contract-check.mjs` fails if the Minervini engine, MA stack coverage, Volume Profile guidance, or AI snapshot parity is removed.
 
 ## v51.44 - Trading logic/backtest factor audit hardening (P535/R232)
 

@@ -1,3 +1,15 @@
+## v51.45 - Institutional Minervini technical engine hardening (2026-06-27)
+
+**Fix**: expanded ticker deep analysis from a partial 5/10/20/50 trend read into a deterministic Minervini-style engine. The page now scores 5/10/20 short MA stack, 50/100/200 long MA stack, full 5/10/20/50/100/200 order, expanded 5/10·10/20·20/50·50/100·50/200·100/200 crosses, horizontal Volume Profile zones, POC, Value Area, nearest supply/resistance and support/defense bands, VCP contraction/volume dry-up, and Fibonacci-zone confluence.
+
+**Runtime parity**: `calcTechnicalSnapshot()` now exposes `sma5`, `sma100`, `shortMAState`, `longMAState`, `fullMAState`, and `maStackScore`; AI chat technical context prints the same MA stack instead of the older 10/21/50/200-only summary.
+
+**UX**: ticker analysis now shows the institutional check before secondary indicators, then explains horizontal supply zones in beginner-friendly language so POC, upper supply wall, lower defense zone, and Value Area are visible without reading code-like labels.
+
+**Gate**: `scripts/ci-runtime-contract-check.mjs` now asserts the Minervini engine helpers, 5/10/20 and 50/100/200 stack coverage, Volume Profile/POC/Value Area beginner guidance, and AI snapshot parity. R233/P536 document the prevention rule.
+
+**R1 version sync**: title, badge, APP_VERSION, SW_VERSION/SW_BUILD, version.json, CLAUDE.md(root+_context), CHANGELOG.md, JS cachebusters 5곳 -> v51.45.
+
 ## v51.44 - Trading logic and backtest factor audit hardening (2026-06-27)
 
 **Trading review finding**: full trading-surface review found that the market score UI had become more conservative, but some chat/static guidance still used "75+ aggressive buy" wording. The screener backtest Kalman factor also used raw price-level velocity, making cross-asset comparisons sensitive to nominal price and currency scale.

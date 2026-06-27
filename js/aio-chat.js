@@ -2311,8 +2311,11 @@ async function _fetchTechnicalDataForChat(tickers, opts) {
     var f = function(v, d) { return (v != null && !isNaN(v)) ? Number(v).toFixed(d == null ? 2 : d) : 'N/A'; };
     var q = settled[i] && settled[i].dataQuality ? settled[i].dataQuality : null;
     var qLine = q ? ('• 데이터 품질: ' + (q.label || q.confidence || 'UNKNOWN') + ' · source ' + (q.source || 'unknown') + (q.rows != null ? ' · rows ' + q.rows : '') + (q.timestamp ? ' · fetched ' + new Date(q.timestamp).toISOString() : '') + '\n') : '';
-    var maAlign = (snap.above10EMA && snap.above21EMA && snap.above50SMA && snap.above200SMA) ? '완전 정배열(10>21>50>200 위)' :
-                  (snap.above50SMA && snap.above200SMA) ? '중장기 정배열(50·200 위)' :
+    var maAlign = snap.fullMAState === 'FULL_BULL_STACK_5_10_20_50_100_200' ? '완전 정배열(5>10>20>50>100>200)' :
+                  snap.fullMAState === 'FULL_BEAR_STACK_5_10_20_50_100_200' ? '완전 역배열(5<10<20<50<100<200)' :
+                  snap.shortMAState === 'SHORT_BULL_STACK_5_10_20' && snap.longMAState === 'LONG_BULL_STACK_50_100_200' ? '단기·장기 정배열' :
+                  snap.shortMAState === 'SHORT_BULL_STACK_5_10_20' ? '단기 정배열 / 장기 확인 필요' :
+                  snap.longMAState === 'LONG_BULL_STACK_50_100_200' ? '장기 정배열 / 단기 혼조' :
                   (snap.above50SMA === false) ? '50일선 이탈(추세 훼손)' : '혼조';
     var stageKr = snap.stageEstimate === 'STAGE_2_ADVANCE' ? 'Stage 2(상승추세·매수 국면)' :
                   snap.stageEstimate === 'STAGE_4_OR_BASE_REPAIR' ? 'Stage 4 또는 바닥 다지기(회피/관망)' : 'Stage 1/3 전환 구간';
@@ -2320,7 +2323,7 @@ async function _fetchTechnicalDataForChat(tickers, opts) {
     var posVs20 = (hi20 && lo20 && hi20 > lo20) ? Math.round((snap.price - lo20) / (hi20 - lo20) * 100) : null;
     var lines = '━━ [' + t + ' 기술적 데이터 · OHLCV ' + snap.bars + '봉 일봉 실측] ━━\n';
     lines += '• 종가 $' + f(snap.price) + ' (' + (snap.dayGainPct >= 0 ? '+' : '') + f(snap.dayGainPct) + '%) · RSI(14) ' + f(snap.rsi14, 1) + (snap.rsi14 >= 70 ? ' 과매수' : snap.rsi14 <= 30 ? ' 과매도' : ' 중립') + '\n';
-    lines += '• 이동평균: 10EMA ' + f(snap.ema10) + ' · 21EMA ' + f(snap.ema21) + ' · 50SMA ' + f(snap.sma50) + ' · 200SMA ' + f(snap.sma200) + ' → ' + maAlign + '\n';
+    lines += '• 이동평균: 5SMA ' + f(snap.sma5) + ' · 10SMA ' + f(snap.sma10) + ' · 20SMA ' + f(snap.sma20) + ' · 50SMA ' + f(snap.sma50) + ' · 100SMA ' + f(snap.sma100) + ' · 200SMA ' + f(snap.sma200) + ' → ' + maAlign + ' (배열점수 ' + (snap.maStackScore != null ? snap.maStackScore : 'N/A') + '/100)\n';
     lines += '• 추세/Stage: ' + snap.trendState + ' · ' + stageKr + '\n';
     lines += '• 50SMA 이격 ' + (snap.dist50Atr != null ? f(snap.dist50Atr, 1) + ' ATR' : 'N/A') + ' · 20SMA 이격 ' + (snap.dist20Atr != null ? f(snap.dist20Atr, 1) + ' ATR' : 'N/A') + ' · ATR(14) $' + f(snap.atr14) + '\n';
     lines += '• MACD 히스토그램 ' + (snap.macd && snap.macd.hist != null ? f(snap.macd.hist) + (snap.macd.hist > 0 ? ' 상승모멘텀' : ' 하락모멘텀') : 'N/A') + ' · 볼린저 ' + (snap.bbReentry ? '상단 재진입(소진주의)' : snap.bbOutsideUpper ? '상단 돌파' : '밴드 내') + ' · RVOL20 ' + f(snap.rvol20, 1) + 'x\n';

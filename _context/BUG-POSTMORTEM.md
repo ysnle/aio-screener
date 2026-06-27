@@ -2,11 +2,19 @@
 verified_by: agent
 last_verified: 2026-06-27
 confidence: high
-latest_version: v51.44
-latest_P_number: P535
-total_entries: 534
-next_P_number: P536
+latest_version: v51.45
+latest_P_number: P536
+total_entries: 535
+next_P_number: P537
 ---
+
+## P536 - v51.45 - Ticker technical analysis described Minervini logic more deeply than it calculated
+
+- **symptom**: Trading review found that the product promised a Minervini/SEPA-style workflow, but the visible ticker/deep-analysis runtime mostly used 5/10/20/50 trend checks, 20/50 and 50/200 crosses, RSI/MACD/Bollinger auxiliaries, and simple support/resistance. It did not explicitly expose the requested 5/10/20 short stack, 50/100/200 long stack, full 5/10/20/50/100/200 order, horizontal volume-profile supply zones, POC/Value Area, VCP contraction, or Fibonacci-zone confluence.
+- **root_cause**: Strategy copy and chat prompts had advanced faster than the deterministic browser-side calculation surface. The ticker page and `calcTechnicalSnapshot()` shared no explicit MA-stack contract, so AI and UI could drift.
+- **fix**: Added `_buildMinerviniTechnicalEngine()` with `_calcMinerviniMAStack()`, `_buildHorizontalVolumeZones()`, `_calcVcpQuality()`, and `_calcFibonacciConfluence()`. Expanded `_detectCrossSignals()` to 5/10, 10/20, 20/50, 50/100, 50/200, and 100/200. Updated visible ticker analysis, deep-analysis key levels, `calcTechnicalSnapshot()`, and AI chat context to share 5/10/20 and 50/100/200 stack semantics.
+- **violated_rule**: R232 trading factor rigor extended -> R233.
+- **prevention**: `scripts/ci-runtime-contract-check.mjs` now asserts the Minervini helper set, short/long MA stack coverage, Volume Profile/POC/Value Area beginner guidance, and AI snapshot parity.
 
 ## P535 - v51.44 - Screener Kalman backtest factor used raw price scale and trading wording over-signaled
 

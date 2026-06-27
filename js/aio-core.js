@@ -16557,7 +16557,7 @@ function calcTechnicalSnapshot(ohlcv) {
   var volumes = bars.map(function(d) { return d.volume; });
   var last = bars[bars.length - 1], prev = bars[bars.length - 2] || last;
   var atr14 = _calcATR(bars, 14);
-  var sma10 = _calcSMA(closes, 10), sma20 = _calcSMA(closes, 20), sma50 = _calcSMA(closes, 50), sma200 = _calcSMA(closes, 200);
+  var sma5 = _calcSMA(closes, 5), sma10 = _calcSMA(closes, 10), sma20 = _calcSMA(closes, 20), sma50 = _calcSMA(closes, 50), sma100 = _calcSMA(closes, 100), sma200 = _calcSMA(closes, 200);
   var ema10 = _calcEMA(closes, 10), ema21 = _calcEMA(closes, 21);
   var rsi14 = _calcRSILast(closes, 14);
   var macd = _calcMACD(closes, 12, 26, 9);
@@ -16575,11 +16575,17 @@ function calcTechnicalSnapshot(ohlcv) {
   var dist20Pct = sma20 ? ((last.close - sma20) / sma20) * 100 : null;
   var dist20Adr = adr20Pct && dist20Pct !== null ? dist20Pct / adr20Pct : null;
   var bbReentry = !!(prevBB20 && bb20 && prev.close > prevBB20.upper && last.close <= bb20.upper);
+  var shortBull = !!(sma5 && sma10 && sma20 && sma5 > sma10 && sma10 > sma20);
+  var shortBear = !!(sma5 && sma10 && sma20 && sma5 < sma10 && sma10 < sma20);
+  var longBull = !!(sma50 && sma100 && sma200 && sma50 > sma100 && sma100 > sma200);
+  var longBear = !!(sma50 && sma100 && sma200 && sma50 < sma100 && sma100 < sma200);
+  var fullBull = !!(shortBull && sma20 && sma50 && sma20 > sma50 && longBull);
+  var fullBear = !!(shortBear && sma20 && sma50 && sma20 < sma50 && longBear);
   return {
     ok: true, bars: bars.length, time: last.time, price: last.close, prevClose: prev.close, dayGainPct: dayGainPct,
     closePosition: closePosition, upperWickPct: candle.upperWickPct, lowerWickPct: candle.lowerWickPct, bodyPct: candle.bodyPct, gapUpPct: candle.gapUpPct,
     atr14: atr14, adr20Pct: adr20Pct, rsi14: rsi14, macd: macd, bb20: bb20, rvol20: _calcRVOL(volumes, 20),
-    sma10: sma10, sma20: sma20, sma50: sma50, sma200: sma200, ema10: ema10, ema21: ema21,
+    sma5: sma5, sma10: sma10, sma20: sma20, sma50: sma50, sma100: sma100, sma200: sma200, ema10: ema10, ema21: ema21,
     dist10Atr: dist10Atr, dist20Atr: dist20Atr, dist21Atr: dist21Atr, dist50Atr: dist50Atr,
     dist10ATR: dist10Atr, dist20ATR: dist20Atr, dist21ATR: dist21Atr, dist50ATR: dist50Atr,
     dist20Pct: dist20Pct, dist20Adr: dist20Adr, dist20ADR: dist20Adr,
@@ -16591,8 +16597,12 @@ function calcTechnicalSnapshot(ohlcv) {
     recentHigh20: _calcRecentLevel(highs, 20, Math.max), recentLow20: _calcRecentLevel(lows, 20, Math.min),
     recentHigh50: _calcRecentLevel(highs, 50, Math.max), recentLow50: _calcRecentLevel(lows, 50, Math.min),
     prevLow: prev.low, prevHigh: prev.high,
-    trendState: sma50 && sma200 && last.close >= sma50 && sma50 >= sma200 ? 'UPTREND' : sma50 && last.close < sma50 ? 'TREND_DAMAGED' : 'MIXED',
-    stageEstimate: sma50 && sma200 && last.close >= sma50 && sma50 >= sma200 ? 'STAGE_2_ADVANCE' : sma50 && last.close < sma50 ? 'STAGE_4_OR_BASE_REPAIR' : 'STAGE_1_3_TRANSITION',
+    shortMAState: shortBull ? 'SHORT_BULL_STACK_5_10_20' : shortBear ? 'SHORT_BEAR_STACK_5_10_20' : 'SHORT_MIXED',
+    longMAState: longBull ? 'LONG_BULL_STACK_50_100_200' : longBear ? 'LONG_BEAR_STACK_50_100_200' : 'LONG_MIXED',
+    fullMAState: fullBull ? 'FULL_BULL_STACK_5_10_20_50_100_200' : fullBear ? 'FULL_BEAR_STACK_5_10_20_50_100_200' : 'PARTIAL_STACK',
+    maStackScore: (shortBull ? 25 : shortBear ? 0 : 10) + (longBull ? 35 : longBear ? 0 : 15) + (fullBull ? 25 : fullBear ? 0 : 8) + ((sma50 && last.close >= sma50) ? 8 : 0) + ((sma200 && last.close >= sma200) ? 7 : 0),
+    trendState: fullBull || (sma50 && sma200 && last.close >= sma50 && sma50 >= sma200) ? 'UPTREND' : fullBear || (sma50 && last.close < sma50) ? 'TREND_DAMAGED' : 'MIXED',
+    stageEstimate: fullBull || (sma50 && sma200 && last.close >= sma50 && sma50 >= sma200) ? 'STAGE_2_ADVANCE' : fullBear || (sma50 && last.close < sma50) ? 'STAGE_4_OR_BASE_REPAIR' : 'STAGE_1_3_TRANSITION',
     lastBar: last, prevBar: prev, raw: bars
   };
 }
@@ -17077,7 +17087,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.44';
+const APP_VERSION = 'v51.45';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
