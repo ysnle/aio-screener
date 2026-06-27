@@ -760,7 +760,7 @@ function updateRallyQualityVerdict() {
 
   var verdict = '', color = '', bg = '';
   if (b5 > 70 && b50 > 60) {
-    verdict = ' <b>브레드스 쓰러스트 수준</b> — 5SMA ' + b5.toFixed(0) + '% · 50SMA ' + b50.toFixed(0) + '%. 극히 높은 참여율. 진짜 바닥 확인 가능성. 리더주 셋업 완성 시 적극 매수.';
+    verdict = ' <b>브레드스 쓰러스트 수준</b> — 5SMA ' + b5.toFixed(0) + '% · 50SMA ' + b50.toFixed(0) + '%. 극히 높은 참여율. 진짜 바닥 확인 가능성. 리더주 셋업 완성 시 분할 진입 검토.';
     color = '#00e5a0'; bg = 'var(--data-green-faint)';
   } else if (b5 > 50 && b20 > 40) {
     verdict = ' <b>고품질 랠리</b> — 5SMA ' + b5.toFixed(0) + '% · 20SMA ' + b20.toFixed(0) + '%. 광범위 참여. Follow-through 진행 중. 리테스트 대기하며 선별 매수 가능.';

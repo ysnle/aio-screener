@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.42 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.44 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4234,6 +4234,233 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   #home-operator-note .aio-operator-note-title { font-size:16px; }
   #home-operator-note .aio-operator-note-body { font-size:14px; line-height:1.75; }
 }
+
+/* v51.43: visual hierarchy refresh - less terminal, more decision workstation */
+:root {
+  --bg-base:       #101318 !important;
+  --bg-dark:       #101318 !important;
+  --bg-surface:    #151a22 !important;
+  --bg-card:       #1a212b !important;
+  --bg-elevated:   #232b36 !important;
+  --bg-hover:      rgba(255,255,255,0.07) !important;
+  --bg-secondary:  #151a22 !important;
+  --border:        rgba(226,232,240,0.13) !important;
+  --border-strong: rgba(226,232,240,0.23) !important;
+  --border-subtle: rgba(226,232,240,0.08) !important;
+  --text-primary:   #f4f7fb !important;
+  --text-secondary: #c2ccd8 !important;
+  --text-muted:     #9ba9b8 !important;
+  --text-dim:       #687484 !important;
+  --data-cyan:    #38bdf8 !important;
+  --data-green:   #34d399 !important;
+  --data-amber:   #f4b860 !important;
+  --data-red:     #fb7185 !important;
+  --data-purple:  #a78bfa !important;
+  --data-magenta: #f472b6 !important;
+  --accent:         #38bdf8 !important;
+  --accent-text:    #9bdcff !important;
+  --accent-soft:    rgba(56,189,248,0.10) !important;
+  --accent-dim:     rgba(56,189,248,0.16) !important;
+  --accent-border:  rgba(56,189,248,0.34) !important;
+  --accent-faint:   rgba(56,189,248,0.06) !important;
+  --ls-tight: 0em !important;
+  --ls-wide: 0em !important;
+  --ls-wider: 0em !important;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.22) !important;
+  --shadow-sm: 0 8px 22px rgba(0,0,0,0.20), 0 1px 0 rgba(255,255,255,0.03) inset !important;
+  --shadow: 0 14px 34px rgba(0,0,0,0.24), 0 1px 0 rgba(255,255,255,0.04) inset !important;
+}
+body {
+  background: var(--bg-base) !important;
+}
+.content {
+  background:
+    linear-gradient(180deg, #121720 0%, var(--bg-base) 38%, #111419 100%) !important;
+}
+.sidebar,
+.topbar {
+  background: rgba(21,26,34,0.98) !important;
+  border-color: rgba(226,232,240,0.12) !important;
+}
+.logo {
+  background: rgba(255,255,255,0.015);
+}
+.logo::after {
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--data-amber), var(--data-cyan));
+}
+.logo-sub {
+  letter-spacing: 0 !important;
+}
+.nav-item {
+  border-radius: 6px !important;
+  color: var(--text-secondary) !important;
+}
+.nav-item::before {
+  width: 4px;
+  height: 24px;
+  border-radius: 0 4px 4px 0;
+  background: var(--data-amber);
+}
+.nav-item:hover {
+  background: rgba(255,255,255,0.055) !important;
+}
+.nav-item.active {
+  background: rgba(244,184,96,0.11) !important;
+  color: var(--text-primary) !important;
+}
+.nav-item.active .nav-icon,
+.nav-item:hover .nav-icon {
+  background: var(--data-amber) !important;
+}
+.nav-item.kr-item.active {
+  background: rgba(251,113,133,0.11) !important;
+}
+.page.active {
+  max-width: 1480px;
+  margin: 0 auto;
+}
+.aio-card,
+.data-widget,
+.aio-widget,
+.u-card,
+.kr-idx-card,
+.kr-supply-section,
+.kr-theme-card,
+.kr-screen-card,
+.tac-score-card,
+.alert-card,
+.tg-live-feed {
+  border-radius: 8px !important;
+  border-color: rgba(226,232,240,0.13) !important;
+  background: color-mix(in srgb, var(--bg-card) 92%, white 8%) !important;
+  box-shadow: var(--shadow-xs) !important;
+}
+.widget-title,
+.aio-card-title,
+.section-header {
+  color: var(--text-primary) !important;
+  letter-spacing: 0 !important;
+}
+.aio-decision-header {
+  border-radius: 8px !important;
+  border: 1px solid rgba(56,189,248,0.22) !important;
+  background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(26,33,43,0.94) 48%, rgba(244,184,96,0.045)) !important;
+  box-shadow: var(--shadow) !important;
+}
+.aio-decision-header[data-source-kind="SNAPSHOT"],
+.aio-decision-header[data-source-kind="REFERENCE"] {
+  border-color: rgba(244,184,96,0.32) !important;
+  background: linear-gradient(135deg, rgba(244,184,96,0.09), rgba(26,33,43,0.94) 48%, rgba(56,189,248,0.045)) !important;
+}
+.aio-decision-kicker {
+  color: var(--data-amber) !important;
+  letter-spacing: 0 !important;
+}
+.aio-decision-verdict {
+  font-size: 22px !important;
+  letter-spacing: 0 !important;
+}
+.aio-decision-card {
+  border-radius: 8px !important;
+  background: rgba(16,19,24,0.55) !important;
+}
+.aio-decision-label {
+  color: var(--data-amber) !important;
+  letter-spacing: 0 !important;
+}
+.aio-source-badge,
+.aio-confidence-badge,
+.status-pill,
+.pill-chip,
+.aio-compact-chip {
+  border-radius: 999px !important;
+  letter-spacing: 0 !important;
+}
+.aio-ai-context-btn {
+  border-radius: 6px !important;
+  color: var(--accent-text) !important;
+}
+#home-operator-note .aio-operator-note-card {
+  position: relative;
+  border-radius: 8px !important;
+  border: 1px solid rgba(244,184,96,0.32) !important;
+  border-left: 5px solid var(--data-amber) !important;
+  background: linear-gradient(135deg, rgba(244,184,96,0.12), rgba(26,33,43,0.96) 44%, rgba(56,189,248,0.045)) !important;
+  box-shadow: var(--shadow) !important;
+}
+#home-operator-note .aio-operator-note-kicker {
+  color: var(--data-amber) !important;
+  letter-spacing: 0 !important;
+}
+#home-operator-note .aio-operator-note-title {
+  font-size: 21px !important;
+  line-height: 1.34 !important;
+}
+#home-operator-note .aio-operator-note-lead {
+  font-size: 15px;
+  line-height: 1.78;
+  color: var(--text-primary);
+  font-weight: 650;
+  max-width: 1120px;
+}
+#home-operator-note .aio-operator-note-more {
+  margin-top: 10px;
+  border-top: 1px solid rgba(226,232,240,0.10);
+  padding-top: 8px;
+}
+#home-operator-note .aio-operator-note-more > summary {
+  cursor: pointer;
+  color: var(--accent-text);
+  font-size: 13px;
+  font-weight: 800;
+  min-height: 28px;
+}
+#home-operator-note .aio-operator-note-body {
+  font-size: 14px !important;
+  line-height: 1.78 !important;
+  color: var(--text-secondary) !important;
+}
+#home-operator-note .aio-operator-note-tag {
+  border-radius: 999px !important;
+  background: rgba(244,184,96,0.12) !important;
+  border-color: rgba(244,184,96,0.26) !important;
+  color: #ffd58a !important;
+}
+#page-kr-technical > .insight-box:first-child {
+  display: none !important;
+}
+#page-kr-technical .aio-decision-header {
+  margin-top: 0 !important;
+  border-color: rgba(244,184,96,0.34) !important;
+}
+#fund-cards-grid {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) !important;
+  gap: 12px !important;
+  overflow: hidden;
+}
+#fund-cards-grid > * {
+  min-width: 0 !important;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .content { padding: 12px !important; }
+  .aio-decision-top,
+  .aio-decision-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .aio-decision-meta {
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+  }
+  #home-operator-note .aio-operator-note-title {
+    font-size: 18px !important;
+  }
+  #home-operator-note .aio-operator-note-lead {
+    font-size: 14px;
+  }
+}
 /* v50.85: page body redesign — decision -> action -> data -> AI, with dense legacy controls folded */
 .aio-action-hub {
   margin:0 0 14px;
@@ -4835,7 +5062,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.42</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.44</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -4854,7 +5081,7 @@ button[data-filter-active="true"] {
 
   <!-- v48.42: 스코어 해석 범례 — aio-legend 스타일 -->
   <div class="aio-legend" style="margin:4px 0 var(--space-3);font-size:var(--fs-xs);color:var(--text-muted);">
-    <span class="aio-legend-item"><span class="aio-legend-dot" style="background:var(--data-green);"></span>75+ 적극 매수</span>
+    <span class="aio-legend-item"><span class="aio-legend-dot" style="background:var(--data-green);"></span>75+ 매수 우호</span>
     <span class="aio-legend-item"><span class="aio-legend-dot" style="background:var(--data-cyan);"></span>60-75 매수 우호</span>
     <span class="aio-legend-item"><span class="aio-legend-dot" style="background:var(--text-muted);"></span>45-60 중립</span>
     <span class="aio-legend-item"><span class="aio-legend-dot" style="background:var(--data-amber);"></span>30-45 주의</span>
@@ -5067,7 +5294,7 @@ button[data-filter-active="true"] {
   <div class="page" id="page-signal" data-page-purpose="signal">
   <!-- v50.29 declutter: "페이지 목적" 설명 박스 제거 (사용자 지시 — 원칙적 설명서 제거, 페이지=데이터/분석/액션) -->
   <div class="insight-box box-collapsed">
-    <strong>지금 매매해도 될까? — 75+ 적극 매수 | 60-75 매수 우호 | 45-60 중립 | 30-45 주의 | 30↓ 위험</strong>
+    <strong>지금 매매해도 될까? — 75+ 매수 우호 | 60-75 선별 매수 | 45-60 중립 | 30-45 주의 | 30↓ 위험</strong>
   </div>
 
   <div id="signal-lockout-control" style="display:none;" aria-hidden="true">
@@ -10999,7 +11226,7 @@ button[data-filter-active="true"] {
           <ul>
             <li><strong>1. 오늘의 브리핑</strong> — 전일 이벤트 + Action Item 5개 확인 (5분)</li>
             <li><strong>2. 홈 대시보드 KPI</strong> — SPX/NASDAQ/VIX/F&amp;G 수치 읽기 (1분)</li>
-            <li><strong>3. 매매 신호</strong> — 20점 스코어 확인 (75+ = 적극매수 · 45- = 주의)</li>
+            <li><strong>3. 매매 신호</strong> — 20점 스코어 확인 (75+ = 매수우호 · 45- = 주의)</li>
             <li><strong>4. 시장 품질 + 국면</strong> — Broad/Narrow · UPTREND/TOPPING/DOWN/BOTTOM 확인</li>
             <li><strong>5. 매크로</strong> — CPI/NFP/FOMC 일정 + Yield Curve (역전 여부)</li>
             <li><strong>6. 센티먼트</strong> — F&amp;G + AAII + Put/Call 극단값 체크</li>
@@ -11593,9 +11820,9 @@ button[data-filter-active="true"] {
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.42"></script>
-  <script src="./js/aio-data.js?v=51.42"></script>
-  <script src="./js/aio-ui.js?v=51.42"></script>
+  <script src="./js/aio-core.js?v=51.44"></script>
+  <script src="./js/aio-data.js?v=51.44"></script>
+  <script src="./js/aio-ui.js?v=51.44"></script>
 
   <script>
 
@@ -14165,7 +14392,7 @@ function _getChatRules() {
   '  [섹터별 핵심 지표] 기술주: 매출 성장률, 가이던스 상향 여부, AI 관련 매출 비중. 금융: NIM(순이자마진), 대손충당금, 트레이딩 수익. 에너지: 생산량, CapEx, 배당/자사주 규모. 소비재: SSS(동일점포매출), 마진 추이, 재고 수준.\n' +
   '  [Post-Earnings Announcement Drift(PEAD)] 실적 서프라이즈 방향으로 60~90일간 추가 드리프트 발생(학술적으로 검증된 이상현상). 서프라이즈 폭이 클수록 드리프트 강도↑.\n' +
   '28-4. 시장 레짐(체제) 판별 프레임워크:\n' +
-  '  [4대 레짐] ① 리스크온 확장(S&P↑+VIX↓+HY스프레드↓): 적극 매수 OK ② 불안정 상승(S&P↑+VIX↑): 헤지 준비 ③ 스트레스(S&P↓+VIX↑+HY스프레드↑): 포지션 축소 ④ 회복(S&P 바닥 형성+VIX 하락 시작): 선별 매수 개시.\n' +
+  '  [4대 레짐] ① 리스크온 확장(S&P↑+VIX↓+HY스프레드↓): 매수 우호(분할·무효화 우선) ② 불안정 상승(S&P↑+VIX↑): 헤지 준비 ③ 스트레스(S&P↓+VIX↑+HY스프레드↑): 포지션 축소 ④ 회복(S&P 바닥 형성+VIX 하락 시작): 선별 매수 개시.\n' +
   '  [레짐 전환 신호] 수익률곡선 역전 후 재정상화(bear steepening) = 침체 시작 경고. 크레딧 스프레드 200bp+ 급등 = 신용 경색 경고. VIX 구조 역전(VIX>VIX3M) = 단기 패닉.\n' +
   '  [섹터 로테이션 사이클] 경기회복(초기): 금융·소재·산업재 → 경기확장(중기): 기술·소비재·통신 → 경기정점(후기): 에너지·헬스케어 → 경기침체: 유틸리티·필수소비재·채권. 현재 사이클 위치 판단이 핵심.\n' +
   '  [유동성 사이클] Fed B/S 축소(QT) = 유동성↓ = 위험자산 압박. 역레포 잔고 감소 = 시장에 유동성 공급 효과. 재무부 TGA(재무부일반계정) 감소 = 유동성 방출.\n' +
@@ -14792,7 +15019,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.42"></script>
+<script src="./js/aio-chat.js?v=51.44"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -16695,7 +16922,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '2. Weinstein Stage 판단(주입된 stageEstimate 우선) + 핵심 가격 3개: **피봇포인트** **손절**(주입된 ATR·20/50일 저점 기반) **1차 목표** + RR비율.\n' +
         '3. SEPA 8대 조건 체크 — 서사적으로 풀되 간결하게.\n' +
         '4. Bull/Bear 시나리오 + 깨지는 신호.\n' +
-        '5. 시장 맥락은 마지막에 1~2문장: "참고로 현재 시장 스코어 {X}점, VIX {Y} — 적극 매수 환경은 아니다" 정도로 짧게.\n' +
+        '5. 시장 맥락은 마지막에 1~2문장: "참고로 현재 시장 스코어 {X}점, VIX {Y} — 무리한 추격 환경은 아니다" 정도로 짧게.\n' +
         '패턴 이름만 던지고 끝내지 마라. "이 패턴이 의미하는 것"과 "당신이 할 행동"까지 풀어줘라.\n' +
         '전문 용어는 분석 흐름 속에서 "이 지표가 왜 중요한지"와 함께 자연스럽게 전달할 것.\n\n' +
         '【v34.5: 종목 비교 분석 (기술적 관점)】\n' +
@@ -17468,7 +17695,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
         '   • 대차잔고: 공매도 잠재 매수세 — 대차잔고 급증 후 감소 = 숏커버 랠리 가능\n' +
         '   • 배당락일, 옵션만기일(매월 둘째 목요일), 선물만기일(3/6/9/12월) 왜곡 주의\n\n' +
         '3. 진입 등급 시스템 (A/B/C/D/F)\n' +
-        '   A등급: Stage 2 초기 + 거래량 확인 + 수급 동행 → 적극 매수\n' +
+        '   A등급: Stage 2 초기 + 거래량 확인 + 수급 동행 → 매수 우호\n' +
         '   B등급: 양호한 기술 신호 but 수급 미확인 → 소량 진입 후 추가 확인\n' +
         '   C등급: 혼합 신호 → 관망 우선, 명확한 신호 대기\n' +
         '   D등급: 부정적 신호 우세 → 보유 시 축소, 신규 진입 금지\n' +
@@ -20288,7 +20515,7 @@ function _generateKrMacroAnalysis(ld) {
     t += vp > 30 ? '<span style="color:var(--red);">글로벌 공포 확산. 코스피 동반 하락 가능성 높음. 방어주·현금비중 확대 구간.</span>' :
          vp > 22 ? '<span style="color:var(--yellow);">불안 심화. 코스피 변동성 확대. 단기 트레이딩 유의, 레버리지 축소 권장.</span>' :
          vp > 16 ? '<span style="color:var(--text-secondary);">정상 범위. 글로벌 리스크 제한적. 한국 시장 자체 재료(수급·실적)가 더 중요.</span>' :
-         '<span style="color:var(--green);">극저변동. 글로벌 안정기. 코스피 상승 탄력 기대. 성장테마 적극 매수 구간.</span>';
+         '<span style="color:var(--green);">극저변동. 글로벌 안정기. 코스피 상승 탄력 기대. 성장테마 선별 매수 구간.</span>';
     t += '<br>';
   }
   // v38.5: 환율 스트레스 인덱스 (KRW 등락률 + VIX 조합)
@@ -20440,7 +20667,7 @@ function _generateKrMacroAnalysis(ld) {
     }
     // 긍정 조합: VIX↓+원화↑
     if (vp2 < 18 && kp2 < 1350) {
-      t += '<span style="color:var(--green);">VIX ' + vp2.toFixed(0) + ' + 원화 강세(' + Math.round(kp2) + '원) = 외국인 유입 최적 환경. 성장테마 적극 매수 구간.</span><br>';
+      t += '<span style="color:var(--green);">VIX ' + vp2.toFixed(0) + ' + 원화 강세(' + Math.round(kp2) + '원) = 외국인 유입 우호 환경. 성장테마 선별 매수 구간.</span><br>';
     }
   }
 
@@ -22859,7 +23086,7 @@ function updateMarketPulse() {
     var sc = computeTradingScore('swing');
     var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : 50;
     var sColor = t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-    var sLabel = t >= 75 ? '적극매수' : t >= 60 ? '선별매수' : t >= 45 ? '관망' : t >= 30 ? '비중축소' : '매매자제';
+    var sLabel = t >= 75 ? '매수우호' : t >= 60 ? '선별매수' : t >= 45 ? '관망' : t >= 30 ? '비중축소' : '매매자제';
     var el1 = document.getElementById('mp-signal-score');
     var el1b = document.getElementById('mp-signal-label');
     if (el1) { el1.textContent = t; el1.style.color = sColor; }
@@ -27381,7 +27608,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.42"></script>
+<script src="./js/aio-glossary.js?v=51.44"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

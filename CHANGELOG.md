@@ -1,3 +1,23 @@
+## v51.44 - Trading logic and backtest factor audit hardening (2026-06-27)
+
+**Trading review finding**: full trading-surface review found that the market score UI had become more conservative, but some chat/static guidance still used "75+ aggressive buy" wording. The screener backtest Kalman factor also used raw price-level velocity, making cross-asset comparisons sensitive to nominal price and currency scale.
+
+**Fix**: changed the screener/backtest Kalman factor to run on log prices and emit daily percent velocity with `kalmanScale: "log_pct_day"`. Runtime screener merge now accepts Kalman fields only when that versioned scale marker is present, so legacy raw-price Kalman data is not silently consumed. Trading/AI guidance now uses "매수 우호/선별/분할/무효화 우선" wording instead of aggressive-buy language.
+
+**Gates**: `scripts/ci-data-pipeline-contract-check.mjs` now asserts the log-scale Kalman generation and versioned runtime merge. `scripts/ci-runtime-contract-check.mjs` now blocks regression to `75+ 적극 매수` wording.
+
+**R1 version sync**: title, badge, APP_VERSION, SW_VERSION/SW_BUILD, version.json, CLAUDE.md(root+_context), CHANGELOG.md, JS cachebusters 5곳 -> v51.44.
+
+## v51.43 - Visual hierarchy refresh and non-terminal lock-in guard (2026-06-27)
+
+**Visual review finding**: v51.42 was structurally functional, but the UI still leaned too hard on the early Bloomberg-terminal premise. The home operator note was top-priority but too long for the first viewport, most decision headers shared the same cyan-heavy visual weight, KR technical still exposed legacy intro content above a clean decision hierarchy, and the fundamental example-card grid had a small internal width leak.
+
+**Fix**: added a v51.43 visual refresh layer with calmer neutral surfaces, balanced amber/cyan/green/red/purple semantic accents, non-negative letter spacing, softer card depth, warmer priority styling for the operator note, KR technical legacy-intro suppression, and intrinsic `#fund-cards-grid` tracks. The operator-note renderer now extracts a short scan-ready lead and keeps the full memo behind `전체 메모 보기`.
+
+**Gate**: `scripts/ci-ux-default-path-check.mjs` now asserts the visual refresh marker, operator-note lead/full-memo split, KR technical suppression, fundamental grid overflow guard, and the new R231/QA memory.
+
+**R1 version sync**: title, badge, APP_VERSION, SW_VERSION, version.json, CLAUDE.md(root+_context), CHANGELOG.md, JS cachebusters 5곳 -> v51.43.
+
 ## v51.42 - Live default-path runtime hardening (2026-06-27)
 
 **Live QA finding**: deployed v51.40 rendered the promoted operator note correctly, but live console reported `aio-core.js?v=51.40` `Cannot read properties of undefined (reading 'toFixed')` during the default home load path.

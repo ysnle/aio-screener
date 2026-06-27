@@ -3,11 +3,27 @@ verified_by: agent
 last_verified: 2026-06-27
 confidence: high
 version: v3.7
-checklist_version: v51.42
-total_items: 376
-stages: 21
-latest_P_covered: P533
+checklist_version: v51.44
+total_items: 386
+stages: 22
+latest_P_covered: P535
 ---
+
+## v51.44 - Trading logic/backtest factor audit hardening (P535/R232)
+
+- [ ] Screener/backtest Kalman trend is computed on log prices and emits daily percent velocity, not raw price-unit velocity.
+- [ ] `_aioApplyServerScreener()` merges Kalman fields only when `kalmanScale === 'log_pct_day'`, so old raw-scale data is ignored until refreshed.
+- [ ] Trading score/chat/static guidance does not label `75+` as `적극 매수`; it uses risk-managed "매수 우호/선별/분할/무효화 우선" language.
+- [ ] `scripts/ci-data-pipeline-contract-check.mjs` fails if log-scale Kalman generation or versioned runtime merge is removed.
+- [ ] `scripts/ci-runtime-contract-check.mjs` fails if `75+ 적극 매수` wording returns.
+
+## v51.43 - Visual hierarchy refresh (P534/R231)
+
+- [ ] Home first viewport shows the operator note as a priority note with title, date, short lead, and expandable full memo instead of a full wall of text.
+- [ ] Core decision pages use a warmer, less one-note visual hierarchy with decision/action/data cards clearly distinguished from ordinary widgets.
+- [ ] KR technical default path does not show the legacy intro box above the decision flow.
+- [ ] Fundamental example cards use intrinsic `auto-fit/minmax` tracks and do not create internal width overflow.
+- [ ] `scripts/ci-ux-default-path-check.mjs` fails if the visual refresh layer, operator-note lead split, KR technical suppression, or fundamental grid guard is removed.
 
 ## v51.42 - Live default-path numeric safety (P533/R15/R228)
 

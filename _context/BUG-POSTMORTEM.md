@@ -2,11 +2,27 @@
 verified_by: agent
 last_verified: 2026-06-27
 confidence: high
-latest_version: v51.42
-latest_P_number: P533
-total_entries: 532
-next_P_number: P534
+latest_version: v51.44
+latest_P_number: P535
+total_entries: 534
+next_P_number: P536
 ---
+
+## P535 - v51.44 - Screener Kalman backtest factor used raw price scale and trading wording over-signaled
+
+- **symptom**: Trading review found that the screener/backtest Kalman fields in `public-data/screener.json` had extreme raw-price-scale values (`kalmanVelConf` p90 around 590 and `kalmanInnovZ` p90 above 33,000), making the Kalman factor incomparable across USD/KRW and high/low nominal price stocks. Several chat/static trading surfaces also still described `75+` market score as "적극 매수" even though the runtime score advice had already been softened to risk-managed entry language.
+- **root_cause**: `scripts/fetch-data.mjs` ran `_kalmanTrend()` on raw closes and emitted absolute price velocity. A $1,000 stock and a $50 stock with the same percent move therefore produced very different Kalman velocity magnitudes. Separately, prompt/static copy had drifted from the newer `getScoreAdvice()` semantics.
+- **fix**: `_kalmanTrend()` now filters on log prices and emits daily percent velocity with `scale: 'log_pct_day'`; `closesToFactors()` writes `kalmanScale`, and `_aioApplyServerScreener()` merges Kalman fields only when that marker is present. Trading guidance copy now uses "매수 우호/선별/분할/무효화 우선" instead of aggressive-buy wording.
+- **violated_rule**: R219 semantic path, R222 public-data consumer contract, R230 partial/safe runtime surface pattern.
+- **prevention**: `scripts/ci-data-pipeline-contract-check.mjs` asserts log-scale Kalman generation and versioned runtime merge; `scripts/ci-runtime-contract-check.mjs` blocks `75+ 적극 매수` wording regressions.
+
+## P534 - v51.43 - Visual hierarchy remained too close to the old terminal concept
+
+- **symptom**: Full-page visual audit showed that v51.42 was functionally organized but still felt too constrained by the early Bloomberg-terminal design premise. Home operator note was correctly promoted but rendered as a long wall of text above the decision flow, common page decision headers shared a near-identical cyan-heavy card treatment, `kr-technical` still surfaced legacy intro/chip content before a clean decision hierarchy, and the fundamental example-card grid had a small internal width leak.
+- **root_cause**: The v51.30-v51.42 work removed default-path noise and hardened runtime errors, but did not change the global visual system enough. The legacy design tokens, comments, and repeated cyan accents kept every priority level looking similar, while operator-note rendering treated a long note body as first-screen content instead of extracting the scan-ready lead.
+- **fix**: Added the v51.43 visual hierarchy refresh CSS layer with warmer neutral surfaces, balanced semantic accents, non-negative letter spacing, calmer cards, clearer decision headers, amber operator-note priority styling, KR technical legacy-intro suppression, and intrinsic `fund-cards-grid` tracks. Added a final operator-note renderer that exposes a short lead with expandable full memo.
+- **violated_rule**: R228 pattern extended -> R231.
+- **prevention**: `scripts/ci-ux-default-path-check.mjs` now asserts the visual refresh layer, operator-note lead/full-memo split, KR technical legacy-intro suppression, fundamental grid overflow guard, and R231/QA documentation.
 
 ## P533 - v51.42 - Live default path logged unsafe toFixed before full runtime confidence
 

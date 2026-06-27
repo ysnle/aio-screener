@@ -2,9 +2,25 @@
 verified_by: agent
 last_verified: 2026-06-27
 confidence: high
-target_version: v51.42
+target_version: v51.44
 
 ---
+
+## R232. Cross-asset trading factors must use comparable scales (v51.44, P535)
+
+- Screener, rank, and backtest factors that compare stocks across currencies, nominal price levels, or split histories must use returns, log prices, ratios, z-scores, or explicitly versioned normalized units. Raw price-unit velocity is not acceptable for cross-sectional ranking.
+- Public-data enrichment must carry a scale/version marker for derived factors whose meaning can change, such as `kalmanScale: "log_pct_day"`. Runtime consumers must merge those fields only when the expected marker is present.
+- Trading score copy must distinguish "market is favorable" from "buy aggressively now". `75+` can mean buy-friendly conditions, but visible/chat guidance must still mention position sizing, staged entry, invalidation price, or event risk.
+- Backtest summaries must be described as factor sanity/IC checks unless they include walk-forward portfolio construction, transaction costs, slippage, survivorship controls, and execution constraints.
+- `scripts/ci-data-pipeline-contract-check.mjs` and `scripts/ci-runtime-contract-check.mjs` are the regression gates for this rule.
+
+## R231. Visual hierarchy must not be locked to the old Bloomberg-terminal premise (v51.43, P534)
+
+- A page is not clean just because the runtime works and the default-route noise is hidden. The first viewport must make the primary decision, next action, data confidence, and most important note visually distinct from ordinary widgets.
+- Do not preserve Bloomberg-terminal styling as a constraint when it weakens readability. Dense market data is acceptable, but repeated cyan accents, identical dark cards, negative letter spacing, and long first-screen prose must be reduced when they flatten priority.
+- Operator-facing session notes are priority context, but long notes must render as a scan-ready title/lead with the full memo available behind an intentional expansion control.
+- KR and secondary pages must follow the same decision-first hierarchy as US/global pages. Legacy intro boxes, status chip bars, and educational prose must not appear above the page decision card unless they are the current primary action.
+- Visual hierarchy changes must be closed by a gate or checklist that checks the actual structural markers, not only screenshots or subjective notes.
 
 ## R226. Server news backstop must rank by market impact, not arrival order (v50.98)
 
@@ -1026,7 +1042,7 @@ var pcr = window._putCallRatio // 실제 전역 (aio-data.js:10478)
 **원칙**: 점수 시스템(20점 만점, 0~100 스케일 등)을 사용하는 모든 페이지는 **반드시** `window.AIO_SCORE_SCALES` 객체를 참조한다. 스케일 변환은 `convert(score, fromScale, toScale)` 함수만 사용.
 
 **근거 (L1)**: signal 페이지가 "20점 만점" 명시 + 표 구간 "75+/60~75/45~60/30~45/<30" (0~100 스케일) 혼합 표기 → 사용자 혼동
-**구조**: `TWENTY_POINT { min:0, max:20, components:{trend:8, rs:4, ...} }` + `HUNDRED_POINT { bands:[{min:75, label:'적극 매수'}, ...] }` + `convert()` + `getLabel100From20()`
+**구조**: `TWENTY_POINT { min:0, max:20, components:{trend:8, rs:4, ...} }` + `HUNDRED_POINT { bands:[{min:75, label:'매수 우호'}, ...] }` + `convert()` + `getLabel100From20()`
 **위반 시**: 페이지마다 임의 변환식 사용 → 같은 점수가 다른 라벨로 표시될 위험
 
 ---

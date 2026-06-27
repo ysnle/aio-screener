@@ -5481,6 +5481,46 @@ window._aioRenderOperatorNote = _aioRenderOperatorNote;
 // v50.28/WO-6: 서버 뉴스 백스톱 적용 — 클라이언트 뉴스(프록시)가 비었을 때만 채운다(additive).
 // 작동 중인 뉴스 파이프라인은 절대 건드리지 않음(force=true는 검증/수동 전용).
 // 서버 아이템을 클라이언트 뉴스 모델 형태로 매핑 → scoreItem/classifyTopic → renderFeed/home/briefing.
+// v51.43: concise first-screen operator note renderer.
+function _aioRenderOperatorNote() {
+  var el = document.getElementById('home-operator-note');
+  if (!el) return;
+  var note = window._aioOperatorNote;
+  if (!note || note.visible === false || _aioIsOperatorNotePlaceholder(note)) { el.style.display = 'none'; return; }
+  function _esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function _isPlaceholderTag(t) {
+    var text = String(t || '').trim();
+    return !text || /^(sample|placeholder|tag)\d*$/i.test(text) || /placeholder/i.test(text);
+  }
+  var tags = (Array.isArray(note.tags) ? note.tags : []).filter(function(t) {
+    return !_isPlaceholderTag(t);
+  }).map(function(t) {
+    return '<span class="aio-operator-note-tag">' + _esc(t) + '</span>';
+  }).join('');
+  var bodyText = String(note.body || '').trim();
+  var normalizedBody = bodyText.replace(/\s+/g, ' ');
+  var firstStop = normalizedBody.search(/[.!?。！？]|다\.|요\.|음\./);
+  var leadText = firstStop > 40 ? normalizedBody.slice(0, firstStop + 1) : normalizedBody.slice(0, 220);
+  var restText = normalizedBody.slice(leadText.length).trim();
+  if (!restText && bodyText.length > leadText.length) restText = bodyText.slice(leadText.length).trim();
+  var bodyHtml = _esc(restText || bodyText).replace(/\n/g, '<br>');
+  el.innerHTML =
+    '<div class="aio-operator-note-card aio-operator-note-priority">' +
+      '<div class="aio-operator-note-meta">' +
+        '<span class="aio-operator-note-kicker">운영자 노트</span>' +
+        '<span class="aio-operator-note-date">' + _esc(note.updated || '') + '</span>' +
+      '</div>' +
+      '<div class="aio-operator-note-title">' + _esc(note.title || '') + '</div>' +
+      (leadText ? '<div class="aio-operator-note-lead">' + _esc(leadText) + '</div>' : '') +
+      (restText
+        ? '<details class="aio-operator-note-more"><summary>전체 메모 보기</summary><div class="aio-operator-note-body">' + bodyHtml + '</div></details>'
+        : '<div class="aio-operator-note-body">' + bodyHtml + '</div>') +
+      (tags ? '<div class="aio-operator-note-tags">' + tags + '</div>' : '') +
+    '</div>';
+  el.style.display = 'block';
+}
+window._aioRenderOperatorNote = _aioRenderOperatorNote;
+
 function _aioApplyNewsBackstop(force) {
   try {
     var bs = window._serverNewsBackstop;
@@ -14897,7 +14937,7 @@ function generateDynamicBriefing() {
       tsScore = tsResult.score || 50;
     }
   } catch(e) {}
-  if (tsScore >= 75) { tsLabel = '적극 매수 OK'; tsColor = '#00e5a0'; }
+  if (tsScore >= 75) { tsLabel = '매수 우호'; tsColor = '#00e5a0'; }
   else if (tsScore >= 55) { tsLabel = '선별적 매수'; tsColor = '#00bcd4'; }
   else if (tsScore >= 35) { tsLabel = '관망'; tsColor = '#ffa31a'; }
   else { tsLabel = '방어 모드'; tsColor = '#ff5b50'; }
@@ -14991,6 +15031,12 @@ function _aioApplyServerScreener(sd) {
     if (typeof f.vol === 'number') item.vol = f.vol;
     if (typeof f.pctSma50 === 'number') item.pctSma50 = f.pctSma50;
     if (typeof f.pctSma200 === 'number') item.pctSma200 = f.pctSma200;
+    if (f.kalmanScale === 'log_pct_day') {
+      item.kalmanScale = f.kalmanScale;
+      ['kalmanVel','kalmanPt','kalmanInnovZ','kalmanVelConf'].forEach(function(k) {
+        if (typeof f[k] === 'number' && isFinite(f[k])) item[k] = f[k];
+      });
+    }
     // v50.54 3B/3C: FMP 밸류/퀄리티/어닝(키 있을 때만 존재)
     ['pe','pb','evEbitda','roe','margin','revGrowth','epsSurprise'].forEach(function(k){ if (typeof f[k] === 'number') item[k] = f[k]; });
     // v51.15: 개별 종목 뉴스 메모 자동 병합 (Actions 1일 1회 수집 → screener.json.newsMemo)
@@ -15000,7 +15046,13 @@ function _aioApplyServerScreener(sd) {
     n++;
   });
   window._aioScreenerFactorAsOf = sd.asOf;
-  if (sd.backtest) window._aioFactorBacktest = sd.backtest;   // v50.53 2B: 팩터 백테스트 결과 보관
+  if (sd.backtest && sd.backtest.kalmanScale === 'log_pct_day') {
+    window._aioFactorBacktest = sd.backtest;
+    window._aioFactorBacktestStaleReason = null;
+  } else if (sd.backtest) {
+    window._aioFactorBacktest = null;
+    window._aioFactorBacktestStaleReason = 'legacy_kalman_scale';
+  }
   // 팩터 들어왔으니 멀티팩터 랭킹 재계산(Track2) + 스크리너 표 재렌더(보이는 경우)
   try { if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); } catch(_) {}
   try { if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(_) {}
@@ -15444,7 +15496,7 @@ function refreshHomeDashboard() {
     //   모순(같은 62점이 카드 'CAUTION' vs 결론바 '선별매수')이라 사용자 혼란. 동일 라벨/임계로 통일.
     var sc = tradingScore;
     if (sc >= 75) {
-      signalEl.textContent = '적극 매수'; signalEl.style.color = '#00e5a0';
+      signalEl.textContent = '매수 우호'; signalEl.style.color = '#00e5a0';
       if (explanEl) explanEl.textContent = '시장 품질 우수 · 신호 강함 · 변동성 안정.' + (sc >= 80 ? ' 참고: 80+ 과열 구간 — 역사적으로 차익실현이 유효했던 사례.' : '');
     } else if (sc >= 60) {
       signalEl.textContent = '매수 우호'; signalEl.style.color = '#4ade80';

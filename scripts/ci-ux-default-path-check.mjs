@@ -48,6 +48,10 @@ check('home operator note placeholder must exist exactly once', (html.match(/id=
 check('home operator note must be before the home header/status flow', operatorNoteIndex >= 0 && staleWarningIndex >= 0 && operatorNoteIndex < staleWarningIndex);
 check('home operator note must use prominent first-screen styling', /aio-operator-note-title[\s\S]*font-size:18px/.test(html) && /aio-operator-note-body[\s\S]*font-size:14px/.test(html));
 check('operator note renderer must filter sample tags', /_isPlaceholderTag/.test(data) && /aio-operator-note-tag/.test(data));
+check('visual hierarchy refresh must move away from one-note terminal styling', /v51\.43: visual hierarchy refresh/.test(html) && /--data-amber:[\s\S]*--data-red:[\s\S]*--data-purple:/.test(html));
+check('operator note must expose a short first-screen lead with expandable full memo', /aio-operator-note-lead/.test(html) && /leadText/.test(data) && /전체 메모 보기/.test(data));
+check('KR technical default path must hide legacy intro above decision flow', /#page-kr-technical > \.insight-box:first-child[\s\S]*display:\s*none !important/.test(html));
+check('fundamental example card grid must be intrinsic and overflow-safe', /#fund-cards-grid[\s\S]*repeat\(auto-fit,\s*minmax\(170px,\s*1fr\)\)/.test(html) && /#fund-cards-grid > \*[\s\S]*overflow-wrap:\s*anywhere/.test(html));
 check('home decision header must render below operator note when present', /operatorNote[\s\S]{0,240}insertAdjacentHTML\('afterend', html\)/.test(core));
 check('guide must preserve compact methodology reference', /id="guide-methodology"/.test(html));
 check('methodology reference must preserve core decision concepts', /SIGNAL 점수 산식/.test(html) && /시장폭·랠리 품질/.test(html) && /종목 발굴\/검증 루프/.test(html));
@@ -58,8 +62,10 @@ check('index.html div tags must remain balanced after UX pruning', divOpen === d
 
 check('P529 QA checklist must mention the default-path UX gate', /P529/.test(qa) && /ci-ux-default-path-check\.mjs/.test(qa));
 check('P532 QA checklist must mention operator-note priority and Signal fold gate', /P532/.test(qa) && /operator note/i.test(qa) && /Signal/i.test(qa));
+check('P534 QA checklist must mention visual hierarchy refresh', /P534/.test(qa) && /visual hierarchy/i.test(qa));
 check('default-path UX gate must be wired into CI', /ci-ux-default-path-check\.mjs/.test(ci));
 check('R228 must document default-route UX constraints', /R228/.test(rules) && /auto-fill/.test(rules) && /default route/.test(rules));
+check('R231 must document visual hierarchy and non-Bloomberg lock-in', /R231/.test(rules) && /Bloomberg/.test(rules) && /visual hierarchy/i.test(rules));
 
 if (failures.length) {
   console.error('Default-path UX check failed:');

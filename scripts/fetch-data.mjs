@@ -583,15 +583,19 @@ function _rsi14(closes) {
 // state=[level, velocity], F=[[1,1],[0,1]], H=[1,0], Q=diag(Ql,Qv), R=obs noise.
 function _kalmanTrend(closes) {
   if (!Array.isArray(closes) || closes.length < 10) return null;
+  const series = closes
+    .map(v => (typeof v === 'number' && isFinite(v) && v > 0) ? Math.log(v) : null)
+    .filter(v => v !== null);
+  if (series.length < 10) return null;
   const Ql = 1e-4, Qv = 1e-5, R = 1e-2;
   // 초기 속도: 첫 5일 선형 기울기로 시드 (s1=0 시작 시 20~30일 수렴 지연 제거)
-  const initN = Math.min(5, closes.length - 1);
-  const s1Init = initN > 0 && closes[0] > 0 ? (closes[initN] - closes[0]) / initN : 0;
-  let s0 = closes[0], s1 = s1Init;
+  const initN = Math.min(5, series.length - 1);
+  const s1Init = initN > 0 ? (series[initN] - series[0]) / initN : 0;
+  let s0 = series[0], s1 = s1Init;
   let p00 = 1, p01 = 0, p10 = 0, p11 = 1;
   let lastE = 0, lastS = R;
-  for (let i = 0; i < closes.length; i++) {
-    const y = closes[i]; if (typeof y !== 'number' || !isFinite(y)) continue;
+  for (let i = 0; i < series.length; i++) {
+    const y = series[i];
     const ps0 = s0 + s1, ps1 = s1;
     const pp00 = p00 + p01 + p10 + p11 + Ql;
     const pp01 = p01 + p11, pp10 = p10 + p11, pp11 = p11 + Qv;
@@ -602,10 +606,10 @@ function _kalmanTrend(closes) {
     p00 = (1 - k0) * pp00; p01 = (1 - k0) * pp01;
     p10 = -k1 * pp00 + pp10; p11 = -k1 * pp01 + pp11;
   }
-  const vel = s1, pt = p00 + p11;
+  const vel = (Math.expm1(s1) * 100), pt = p00 + p11;
   const innovZ = lastS > 0 ? round(lastE / Math.sqrt(lastS), 4) : null;
   const velConf = round(vel / (1 + Math.sqrt(Math.max(pt, 0))), 6);
-  return { vel: round(vel, 6), pt: round(pt, 6), innovZ, velConf };
+  return { vel: round(vel, 6), pt: round(pt, 6), innovZ, velConf, scale: 'log_pct_day' };
 }
 function closesToFactors(closes) {
   if (!Array.isArray(closes) || closes.length < 30) return null;
@@ -623,6 +627,7 @@ function closesToFactors(closes) {
     kalmanPt:     kalman ? kalman.pt      : null,
     kalmanInnovZ: kalman ? kalman.innovZ  : null,
     kalmanVelConf:kalman ? kalman.velConf : null,
+    kalmanScale:  kalman ? kalman.scale   : null,
   };
 }
 
@@ -707,6 +712,7 @@ function backtestFactors(stockData) {
     quantileSpread: spreadN ? round(spreadSum / spreadN * 100, 2) : null,
     hitRate: hitN ? round(hit / hitN * 100, 1) : null,
     compWeights: COMP_W,
+    kalmanScale: 'log_pct_day',
   };
 }
 

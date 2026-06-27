@@ -11553,7 +11553,7 @@ window.AIO_SCORE_SCALES = {
   version: 'v49.25',
   TWENTY_POINT: { min: 0, max: 20, name: 'Trading Score (20점)', components: { trend: 8, rs: 4, volume: 3, volatility: 3, breakout: 2 } },
   HUNDRED_POINT: { min: 0, max: 100, name: 'Score Index (0~100)', bands: [
-    { min: 75, label: '적극 매수', color: 'data-green' },
+    { min: 75, label: '매수 우호', color: 'data-green' },
     { min: 60, label: '매수 우호', color: 'data-green' },
     { min: 45, label: '중립',     color: 'text-secondary' },
     { min: 30, label: '주의',     color: 'data-amber' },
@@ -17077,7 +17077,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.42';
+const APP_VERSION = 'v51.44';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

@@ -71,6 +71,7 @@ check('data-action accessibility normalizer is installed', /_aioNormalizeDataAct
 check('computeTradingScore returns both total and score aliases for legacy consumers', /function\s+computeTradingScore/.test(html) && /return\s*\{\s*total\s*,\s*score\s*:\s*total/.test(html));
 check('classifyMarketRegime does not use optimistic breadth default 75', /function\s+classifyMarketRegime/.test(html) && !/breadth200[\s\S]{0,220}:\s*75\)/.test(html));
 check('score advice no longer labels 75+ as aggressive buy', /function\s+getScoreAdvice/.test(html) && !/function\s+getScoreAdvice[\s\S]{0,500}적극\s*매수/.test(html));
+check('trading guidance avoids aggressive-buy wording on score 75+', !/75\+\s*(?:적극\s*매수|적극매수)/.test(html + '\n' + chat + '\n' + data + '\n' + ui));
 check('ticker deep analysis gates entry verdict with market score', /function\s+analyzeTickerDeep/.test(html) && /computeTradingScore\('swing'\)/.test(html) && /marketAllowsEntry/.test(html) && /marketCaution/.test(html));
 check('event risk context is refreshed to post-FOMC 2026-06-19', /AIO_EVENT_RISK_CONTEXT/.test(core) && /asOf:\s*'2026-06-19'/.test(core) && /Post-FOMC hawkish hold/.test(core) && /Hormuz\/oil reopening watch/.test(core));
 check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core) && /_aioApplyPageBodyRedesign/.test(core) && /getPageRedesignAudit/.test(core));
