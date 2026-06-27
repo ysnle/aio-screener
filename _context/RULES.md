@@ -1,8 +1,8 @@
 ---
 verified_by: agent
-last_verified: 2026-06-26
+last_verified: 2026-06-27
 confidence: high
-target_version: v51.40
+target_version: v51.42
 
 ---
 
@@ -29,6 +29,12 @@ target_version: v51.40
 - GitHub Actions YAML is not fully validated by checking file presence or regex wiring. Any `node - <<'NODE'` heredoc embedded in scheduled workflows must be extracted and syntax-parsed by CI.
 - Refresh automation failures must be classified by stage: data fetch, status summary, artifact commit/push, watchdog freshness threshold, and quality floor. Do not treat every watchdog failure as a source/API failure.
 - `scripts/ci-data-pipeline-contract-check.mjs` must fail if `refresh-data.yml` or `data-watchdog.yml` contains a syntactically invalid Node heredoc.
+
+## R230. Default-path numeric renderers must be partial-data safe (v51.42, P533)
+
+- Live/default-path renderers must not call `.toFixed()` directly on nested live, scenario, chart, or event-context fields. Normalize through `Number(...)` plus `Number.isFinite(...)`, or use `window._aioSafeFixed()`.
+- Treat `_liveData`, public-data JSON, scenario registry outputs, Chart.js tooltip payloads, and event-context objects as partial until proven otherwise.
+- `scripts/ci-runtime-contract-check.mjs` must fail if unsafe direct patterns such as `live.price.toFixed`, `sumCheck.sum.toFixed`, or `ctx.parsed.y.toFixed` return.
 
 ## R225. News surfaces must provide Korean market rewrite, not translation-only headlines (v50.97)
 

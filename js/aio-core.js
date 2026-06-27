@@ -119,7 +119,8 @@ document.addEventListener('error', function(e) {
   // window.onerror 전역 훅 — v48.27 (QA-5): 단일 핸들러 (이전 8774 첫 핸들러 제거됨)
   window.onerror = function(msg, src, line, col, err) {
     try {
-      window._aioLog('error', 'uncaught', String(msg), { src: src, line: line, col: col, stack: err && err.stack ? err.stack.substring(0, 500) : null });
+      var stack = err && err.stack ? String(err.stack).replace(/\s+/g, ' ').substring(0, 320) : '';
+      window._aioLog('error', 'uncaught', String(msg) + (stack ? ' | ' + stack : ''), { src: src, line: line, col: col, stack: err && err.stack ? err.stack.substring(0, 500) : null });
     } catch(e) {}
     return true; // 페이지 크래시 방지 (이전 동작 보존)
   };
@@ -197,6 +198,12 @@ window._aioRenderNum = function(v, suffix, decimals) {
   var n = parseFloat(v);
   var d = (typeof decimals === 'number' && decimals >= 0) ? decimals : 2;
   return Number.isFinite(n) ? (n.toFixed(d) + (suffix || '')) : '—';
+};
+
+window._aioSafeFixed = function(v, decimals, fallback) {
+  var n = Number(v);
+  var d = (typeof decimals === 'number' && decimals >= 0) ? decimals : 2;
+  return Number.isFinite(n) ? n.toFixed(d) : (fallback == null ? '—' : fallback);
 };
 
 // ═══ v48.97: _aioRedactPII — IndexedDB 저장 전 PII 제거 (P1-7) ═════════════
@@ -1231,15 +1238,18 @@ window.AIO.getApiUsage = function() {
     var todayUsage = (data.daily || {})[today] || { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
     var dailyKeys = Object.keys(data.daily || {}).sort();
     var last7 = dailyKeys.slice(-7).reduce(function(acc, d) {
-      var v = data.daily[d];
-      acc.calls += v.calls; acc.inputTokens += v.inputTokens; acc.outputTokens += v.outputTokens; acc.costUsd += v.costUsd;
+      var v = data.daily[d] || {};
+      acc.calls += Number(v.calls) || 0;
+      acc.inputTokens += Number(v.inputTokens) || 0;
+      acc.outputTokens += Number(v.outputTokens) || 0;
+      acc.costUsd += Number(v.costUsd) || 0;
       return acc;
     }, { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 });
     var lifetime = data.lifetime || { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
     var report = {
-      today: { date: today, calls: todayUsage.calls, inputTokens: todayUsage.inputTokens, outputTokens: todayUsage.outputTokens, costUsd: todayUsage.costUsd.toFixed(4), byModel: todayUsage.byModel || {} },
-      last7days: { calls: last7.calls, inputTokens: last7.inputTokens, outputTokens: last7.outputTokens, costUsd: last7.costUsd.toFixed(4) },
-      lifetime: { calls: lifetime.calls, inputTokens: lifetime.inputTokens, outputTokens: lifetime.outputTokens, costUsd: lifetime.costUsd.toFixed(4) },
+      today: { date: today, calls: Number(todayUsage.calls) || 0, inputTokens: Number(todayUsage.inputTokens) || 0, outputTokens: Number(todayUsage.outputTokens) || 0, costUsd: window._aioSafeFixed(todayUsage.costUsd, 4, '0.0000'), byModel: todayUsage.byModel || {} },
+      last7days: { calls: last7.calls, inputTokens: last7.inputTokens, outputTokens: last7.outputTokens, costUsd: window._aioSafeFixed(last7.costUsd, 4, '0.0000') },
+      lifetime: { calls: Number(lifetime.calls) || 0, inputTokens: Number(lifetime.inputTokens) || 0, outputTokens: Number(lifetime.outputTokens) || 0, costUsd: window._aioSafeFixed(lifetime.costUsd, 4, '0.0000') },
       dailyDetail: data.daily || {},
       note: 'v49.79 P427: Anthropic API 비용 자동 추적 (Sonnet $3/$15 · Haiku $0.25/$1.25 per 1M tok). 30일+ daily 자동 정리.'
     };
@@ -1588,7 +1598,7 @@ window._aioBreadthCanvasRender = function() {
     var w = cv.width = cv.clientWidth || 280;
     var h = cv.height = cv.clientHeight || 160;
     ctx.clearRect(0, 0, w, h);
-    var s = seriesMap[id];
+    var s = (seriesMap[id] || []).map(function(v) { return Number(v); }).filter(function(v) { return Number.isFinite(v); });
     if (!s || s.length < 2) {
       ctx.fillStyle = '#7b8599';
       ctx.font = '11px Inter, sans-serif';
@@ -1626,7 +1636,7 @@ window._aioBreadthCanvasRender = function() {
       ctx.moveTo(padX, y);
       ctx.lineTo(w - padX, y);
       ctx.stroke();
-      ctx.fillText(fixedScale ? gv + '%' : gv.toFixed(0), padX - 2, y + 3);
+      ctx.fillText(fixedScale ? gv + '%' : window._aioSafeFixed(gv, 0, '—'), padX - 2, y + 3);
     });
 
     // 배경 그라디언트 영역
@@ -1660,7 +1670,7 @@ window._aioBreadthCanvasRender = function() {
     ctx.font = 'bold 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'right';
     var curr = s[s.length - 1];
-    var currText = id.indexOf('price') >= 0 ? '$' + curr.toFixed(2) : curr.toFixed(1) + '%';
+    var currText = id.indexOf('price') >= 0 ? '$' + window._aioSafeFixed(curr, 2, '—') : window._aioSafeFixed(curr, 1, '—') + '%';
     // 흰색 배경 박스 (가독성)
     var textW = ctx.measureText(currText).width;
     ctx.fillStyle = colorMap[id] + 'dd';
@@ -1722,8 +1732,9 @@ window._aioRenderSignalRegime = function() {
     }
 
     // 2) AAII 약세 비율 — 실시간 window._aaiiBearish 우선 (v48.61 버그 수정)
-    var aaiiBear = (typeof window._aaiiBearish === 'number') ? window._aaiiBearish
-                 : (snap.aaiiBear != null ? snap.aaiiBear : 43.0);
+    var aaiiBear = Number((typeof window._aaiiBearish === 'number') ? window._aaiiBearish
+                 : (snap.aaiiBear != null ? snap.aaiiBear : 43.0));
+    if (!Number.isFinite(aaiiBear)) aaiiBear = 43.0;
     var aaiiEl = document.getElementById('regime-aaii');
     if (aaiiEl) {
       aaiiEl.textContent = aaiiBear.toFixed(1) + '%';
@@ -1757,10 +1768,10 @@ window._aioRenderSignalRegime = function() {
       var kst = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + 9 * 3600000);
       var mm = String(kst.getMonth() + 1).padStart(2, '0');
       var dd = String(kst.getDate()).padStart(2, '0');
-      var wti = ld['CL=F'] ? ld['CL=F'].price : (snap.wti || null);
-      var vix = ld['^VIX'] ? ld['^VIX'].price : (snap.vix || null);
+      var wti = Number(ld['CL=F'] ? ld['CL=F'].price : (snap.wti || null));
+      var vix = Number(ld['^VIX'] ? ld['^VIX'].price : (snap.vix || null));
       var contextNote = '';
-      if (wti && vix) contextNote = ' · WTI $' + wti.toFixed(0) + ' · VIX ' + vix.toFixed(1);
+      if (Number.isFinite(wti) && Number.isFinite(vix)) contextNote = ' · WTI $' + window._aioSafeFixed(wti, 0, '') + ' · VIX ' + window._aioSafeFixed(vix, 1, '');
       tsEl.textContent = kst.getFullYear() + '-' + mm + '-' + dd + ' 기준' + contextNote + ' · 실시간 갱신';
     }
   } catch(e) {
@@ -1944,7 +1955,7 @@ window._aioRenderVixTermRegime = function() {
         data: { labels: ptLabels, datasets: [{ data: ptData, borderColor: chartColor, backgroundColor: chartColor + '22', borderWidth: 2, pointRadius: 4, pointBackgroundColor: chartColor, fill: true, tension: 0.3 }] },
         options: {
           responsive: true, maintainAspectRatio: false, animation: false,
-          plugins: { legend: { display: false }, tooltip: { enabled: true, callbacks: { label: function(ctx){ return ctx.parsed.y.toFixed(2); } } } },
+          plugins: { legend: { display: false }, tooltip: { enabled: true, callbacks: { label: function(ctx){ return window._aioSafeFixed(ctx && ctx.parsed && ctx.parsed.y, 2, '—'); } } } },
           scales: {
             x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 9 } } },
             y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 9 }, maxTicksLimit: 4 } }
@@ -2059,7 +2070,8 @@ if (typeof document !== 'undefined') {
       var conflictEl = document.getElementById('breadth-consensus-conflict');
       var detailsEl = document.getElementById('breadth-consensus-details');
       if (verdictEl) {
-        verdictEl.textContent = consensus.verdict + ' (consensus ' + (consensus.consensus != null ? consensus.consensus.toFixed(2) : '—') + ')';
+        var consensusVal = Number(consensus.consensus);
+        verdictEl.textContent = consensus.verdict + ' (consensus ' + (Number.isFinite(consensusVal) ? window._aioSafeFixed(consensusVal, 2, '—') : '—') + ')';
         if (consensus.consensus > 0.1) verdictEl.style.color = 'var(--data-green)';
         else if (consensus.consensus < -0.1) verdictEl.style.color = 'var(--data-red)';
         else verdictEl.style.color = 'var(--data-amber)';
@@ -2098,7 +2110,8 @@ if (typeof document !== 'undefined') {
       var inputsEl = document.getElementById('cycle-dynamic-inputs');
       var rationaleEl = document.getElementById('cycle-dynamic-rationale');
       if (phaseEl) phaseEl.textContent = cycle.phase;
-      if (inputsEl) inputsEl.textContent = 'VIX ' + (isNaN(cycle.inputs.vix) ? '—' : cycle.inputs.vix.toFixed(1)) + ' · Breadth50 ' + (isNaN(cycle.inputs.breadth50) ? '—' : cycle.inputs.breadth50 + '%') + ' · 2s10s ' + (cycle.inputs.yield2s10s || 0).toFixed(2) + ' · SPX ' + cycle.inputs.spxTrend;
+      var cycleInputs = cycle.inputs || {};
+      if (inputsEl) inputsEl.textContent = 'VIX ' + window._aioSafeFixed(cycleInputs.vix, 1, '—') + ' · Breadth50 ' + (Number.isFinite(Number(cycleInputs.breadth50)) ? Number(cycleInputs.breadth50) + '%' : '—') + ' · 2s10s ' + window._aioSafeFixed(cycleInputs.yield2s10s, 2, '0.00') + ' · SPX ' + (cycleInputs.spxTrend || '—');
       if (rationaleEl) rationaleEl.textContent = '근거: ' + cycle.rationale.join(' · ');
     } catch(_e) { /* themes 페이지 진입 동적 사이클 실패 — 정적 진단으로 폴백 */ }
   };
@@ -2140,7 +2153,7 @@ if (typeof document !== 'undefined') {
         // 확률 합 검증 표시 (선택 — #signal-scenario-sum 있으면)
         var sumEl = document.getElementById('signal-scenario-sum');
         var sumCheck = reg.validateSignalSum();
-        if (sumEl) sumEl.textContent = sumCheck.sum.toFixed(2) + (sumCheck.valid ? ' ✓' : ' ⚠️');
+        if (sumEl) sumEl.textContent = window._aioSafeFixed(sumCheck && sumCheck.sum, 2, '—') + (sumCheck && sumCheck.valid ? ' ✓' : ' ⚠️');
 
         // v49.41 P296/R77 보강: signal CP2 fed-rate / fomc lastUpdated 메타 표시
         // MACRO_CALENDAR.us-fed-rate의 nextRelease (다음 FOMC) 대비 경과일 표시 + 지나면 stale 경고.
@@ -2190,7 +2203,7 @@ if (typeof document !== 'undefined') {
         }
         var sumEl = document.getElementById('macro-scenario-sum');
         var sumCheck = reg.validateSum();
-        if (sumEl) sumEl.textContent = sumCheck.sum.toFixed(2) + (sumCheck.valid ? ' ✓' : ' ⚠️');
+        if (sumEl) sumEl.textContent = window._aioSafeFixed(sumCheck && sumCheck.sum, 2, '—') + (sumCheck && sumCheck.valid ? ' ✓' : ' ⚠️');
       } catch(_e) {}
   };
   _aioPageBus.register('core-macro-scenario', 'aio:pageShown', function(e){
@@ -2304,8 +2317,8 @@ if (typeof document !== 'undefined') {
     if (stamp.vix != null && now.vix != null) {
       var vb0 = _vixBand(stamp.vix), vb1 = _vixBand(now.vix);
       var vpct = stamp.vix > 0 ? Math.abs((now.vix - stamp.vix) / stamp.vix * 100) : 0;
-      if (Math.abs(vb1 - vb0) >= 2 || vpct >= 35) { severe = true; reasons.push({ k:'VIX', sev:'severe', msg:'변동성 ' + _vixBandLabel(vb0) + '(' + stamp.vix.toFixed(1) + ') → ' + _vixBandLabel(vb1) + '(' + now.vix.toFixed(1) + ')' }); }
-      else if (Math.abs(vb1 - vb0) >= 1 || vpct >= 18) { mild = true; reasons.push({ k:'VIX', sev:'mild', msg:'VIX ' + stamp.vix.toFixed(1) + ' → ' + now.vix.toFixed(1) }); }
+      if (Math.abs(vb1 - vb0) >= 2 || vpct >= 35) { severe = true; reasons.push({ k:'VIX', sev:'severe', msg:'변동성 ' + _vixBandLabel(vb0) + '(' + window._aioSafeFixed(stamp.vix, 1, '—') + ') → ' + _vixBandLabel(vb1) + '(' + window._aioSafeFixed(now.vix, 1, '—') + ')' }); }
+      else if (Math.abs(vb1 - vb0) >= 1 || vpct >= 18) { mild = true; reasons.push({ k:'VIX', sev:'mild', msg:'VIX ' + window._aioSafeFixed(stamp.vix, 1, '—') + ' → ' + window._aioSafeFixed(now.vix, 1, '—') }); }
     }
     if (stamp.spx != null && now.spx != null && stamp.spx > 0) {
       var spct = (now.spx - stamp.spx) / stamp.spx * 100;
@@ -2528,7 +2541,8 @@ if (typeof document !== 'undefined') {
       // 1) 시장 상태 한 줄 (라이브 레짐)
       var r = window._aioRegimeNow ? window._aioRegimeNow() : null;
       if (r && (r.vix != null || r.fg != null)) {
-        var vixTxt = r.vix == null ? '' : ('VIX ' + r.vix.toFixed(1) + (r.vix < 18 ? ' (안정)' : r.vix < 25 ? ' (보통)' : r.vix < 32 ? ' (경계)' : ' (패닉)'));
+        var rvix = Number(r.vix);
+        var vixTxt = Number.isFinite(rvix) ? ('VIX ' + window._aioSafeFixed(rvix, 1, '—') + (rvix < 18 ? ' (안정)' : rvix < 25 ? ' (보통)' : rvix < 32 ? ' (경계)' : ' (패닉)')) : '';
         var fgTxt = r.fg == null ? '' : ('공포탐욕 ' + Math.round(r.fg) + (r.fg < 25 ? ' (극단공포)' : r.fg < 45 ? ' (공포)' : r.fg < 55 ? ' (중립)' : r.fg < 75 ? ' (탐욕)' : ' (극단탐욕)'));
         var spxTxt = (window._liveData && window._liveData['^GSPC'] && typeof window._liveData['^GSPC'].pct === 'number') ? ('S&P500 ' + (window._liveData['^GSPC'].pct >= 0 ? '+' : '') + window._liveData['^GSPC'].pct.toFixed(2) + '%') : '';
         rows.push('<b style="color:var(--text-primary);">시장</b> · ' + [spxTxt, vixTxt, fgTxt].filter(Boolean).join(' · '));
@@ -2831,7 +2845,7 @@ if (typeof document !== 'undefined') {
       var ns = ms.newsSignal || {};
       var num = function(v, d){ return (typeof v === 'number' && isFinite(v)) ? v : d; };
       // 1) 레짐 (변동성 + 심리)
-      var vixTxt = ms.vix != null ? ms.vix.toFixed(1) : '—';
+      var vixTxt = window._aioSafeFixed(ms.vix, 1, '—');
       var regimePart = '변동성 ' + (ms.vixBandLabel || '—') + '(VIX ' + vixTxt + ')'
         + ' · 투자심리 ' + (ms.fgZoneLabel || '—') + '(F&G ' + (ms.fg != null ? Math.round(ms.fg) : '—') + ')';
       // 2) 사이클 + 시장폭
@@ -11413,10 +11427,10 @@ window.AIO.getScenarioFreshnessAudit = function() {
   checkBlock('scenarios', reg.scenarios, reg.staleDaysThreshold);
   checkBlock('signalShortTerm', reg.signalShortTerm, reg.signalStaleDaysThreshold || 14);
   var sumCheck = reg.validateSum();
-  if (!sumCheck.valid) issues.push('scenarios probability sum ' + sumCheck.sum.toFixed(3) + ' ≠ 1.000');
+  if (!sumCheck.valid) issues.push('scenarios probability sum ' + window._aioSafeFixed(sumCheck && sumCheck.sum, 3, 'n/a') + ' ≠ 1.000');
   if (typeof reg.validateSignalSum === 'function') {
     var sigSum = reg.validateSignalSum();
-    if (!sigSum.valid) issues.push('signalShortTerm probability sum ' + sigSum.sum.toFixed(3) + ' ≠ 1.000');
+    if (!sigSum.valid) issues.push('signalShortTerm probability sum ' + window._aioSafeFixed(sigSum && sigSum.sum, 3, 'n/a') + ' ≠ 1.000');
   }
   return {
     status: issues.length ? 'warn' : 'ok',
@@ -16769,7 +16783,7 @@ function calcBlowoffTopChecklist(snapshot, context) {
   push(checks, rvol20 !== null && rvol20 >= 2.5 && closePosition !== null && closePosition < 0.55, 'Climax supply candle', 'RVOL ' + (rvol20 === null ? '--' : rvol20.toFixed(1)) + 'x / close position ' + (closePosition === null ? '--' : Math.round(closePosition * 100) + '%'), 'risk');
   push(checks, !!snapshot.bbReentry, 'Upper Bollinger re-entry', snapshot.bbReentry ? 'outside upper band then closed back inside' : 'no exhaustion re-entry yet', 'warn');
   push(checks, context.opexGammaRisk && context.opexGammaRisk.regime !== 'GAMMA_SUPPORT', 'OPEX/gamma decay watch', context.opexGammaRisk ? context.opexGammaRisk.regime : 'option context unavailable', 'warn');
-  push(checks, eventCtx && eventCtx.cpi && eventCtx.cpi.coreMoM >= 0.4, 'Hot CPI macro trigger', eventCtx.cpi ? ('core CPI +' + eventCtx.cpi.coreMoM.toFixed(1) + '% MoM / headline ' + eventCtx.cpi.headlineYoY.toFixed(1) + '% YoY') : 'CPI context unavailable', 'risk');
+  push(checks, eventCtx && eventCtx.cpi && eventCtx.cpi.coreMoM >= 0.4, 'Hot CPI macro trigger', eventCtx.cpi ? ('core CPI +' + window._aioSafeFixed(eventCtx.cpi.coreMoM, 1, '—') + '% MoM / headline ' + window._aioSafeFixed(eventCtx.cpi.headlineYoY, 1, '—') + '% YoY') : 'CPI context unavailable', 'risk');
 
   push(supports, snapshot.above10EMA !== false && snapshot.above21EMA !== false, '10/21 EMA trend alive', snapshot.above10EMA === false || snapshot.above21EMA === false ? 'short/swing line already violated' : 'short-term trend not broken', 'bull');
   push(supports, context.breadthRotation && context.breadthRotation.regime === 'BREADTH_BROADENING', 'Breadth broadening', context.breadthRotation ? context.breadthRotation.regime : 'breadth context unavailable', 'bull');
@@ -17063,7 +17077,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.40';
+const APP_VERSION = 'v51.42';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -22513,10 +22527,11 @@ function showTicker(tkr) {
   /* ── 동적 시세: _liveData에서 실시간 가격/변동률 가져오기 ── */
   var ld = window._liveData || {};
   var live = ld[tkr];
-  var livePrice = live ? '$' + live.price.toFixed(2) : '—';
-  var livePct = live ? live.pct : 0;
-  var chgStr = live ? ((livePct >= 0 ? '▲ +' : '▼ ') + Math.abs(livePct).toFixed(2) + '%') : '—';
-  var chgCls = live ? (livePct >= 0 ? 'up' : 'down') : '';
+  var livePriceNum = live ? Number(live.price) : NaN;
+  var livePct = live ? Number(live.pct) : NaN;
+  var livePrice = Number.isFinite(livePriceNum) ? '$' + window._aioSafeFixed(livePriceNum, 2, '—') : '—';
+  var chgStr = Number.isFinite(livePct) ? ((livePct >= 0 ? '▲ +' : '▼ ') + window._aioSafeFixed(Math.abs(livePct), 2, '—') + '%') : '—';
+  var chgCls = Number.isFinite(livePct) ? (livePct >= 0 ? 'up' : 'down') : '';
   var _tdn = document.getElementById('ticker-hero-name');
   if (_tdn) _tdn.textContent = tkr;
   // v48.47: 캔들/진입 섹션 심볼 라벨 동기화 + 자동 감지
@@ -22878,6 +22893,9 @@ function _fmtNum(v) {
   if (abs >= 1e3)  return (fv/1e3).toFixed(1)  + 'K';
   return fv.toFixed(2);
 }
-function _fmtPct(v) { return v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : 'N/A'; }
+function _fmtPct(v) {
+  var n = Number(v);
+  return Number.isFinite(n) ? (n >= 0 ? '+' : '') + window._aioSafeFixed(n, 1, '0.0') + '%' : 'N/A';
+}
 window._fmtNum = _fmtNum;
 window._fmtPct = _fmtPct;

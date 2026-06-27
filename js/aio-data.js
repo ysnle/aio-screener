@@ -14583,20 +14583,23 @@ function applyLiveQuotes(quotes) {
     else if (DATA_SNAPSHOT && DATA_SNAPSHOT.vix > 0) vixQ = { symbol: '^VIX', regularMarketPrice: DATA_SNAPSHOT.vix };
   }
   if (vixQ) {
-    const vp = vixQ.regularMarketPrice;
+    const _vixFixed = window._aioSafeFixed || function(v, d, fb) { const n = Number(v); return Number.isFinite(n) ? n.toFixed(d || 2) : (fb || '—'); };
+    let vp = Number(vixQ.regularMarketPrice);
+    if (!Number.isFinite(vp)) vp = Number(DATA_SNAPSHOT && DATA_SNAPSHOT.vix);
+    if (!Number.isFinite(vp)) vp = 0;
     const lvl = vp >= 30 ? '패닉 (매우 위험)' : vp >= 25 ? '공포 (경계)' : vp >= 20 ? '불안 (주의)' : vp >= 15 ? '안정' : '과도한 낙관';
     const col = vp >= 30 ? '#dc2626' : vp >= 25 ? '#ffa31a' : vp >= 20 ? '#ffa31a' : '#00e5a0';
     const vixLbl = document.getElementById('snap-vix-lbl');
     const vixVal = document.getElementById('snap-vix-val');
     if (vixLbl) vixLbl.textContent = lvl;
-    if (vixVal) { vixVal.textContent = vp.toFixed(2); vixVal.style.color = col; }
+    if (vixVal) { vixVal.textContent = _vixFixed(vp, 2, '—'); vixVal.style.color = col; }
     const vixCard = document.getElementById('snap-vix');
     if (vixCard) vixCard.style.borderLeftColor = col;
     // Update home page vol regime card
     const vrVal = document.getElementById('vol-regime-val');
     const vrSub = document.getElementById('vol-regime-sub');
     if (vrVal) { vrVal.textContent = vixRegime(vp).label; vrVal.style.color = col; }
-    if (vrSub) vrSub.textContent = 'VIX ' + vp.toFixed(2) + ' · ' + vixToPercentile(vp) + '%ile';
+    if (vrSub) vrSub.textContent = 'VIX ' + _vixFixed(vp, 2, '—') + ' · ' + vixToPercentile(vp) + '%ile';
     // v49.64 P334: VIX 파생 sink lineage (snap-vix-lbl/vol-regime-val/sub) — gauge 결과 표시
     var _vixTs = String(Date.now());
     [vixLbl, vrVal, vrSub].forEach(function(el) {
@@ -14617,7 +14620,7 @@ function applyLiveQuotes(quotes) {
       vixPctCell.setAttribute('data-source-label', 'derived:vix-percentile');
       vixPctCell.setAttribute('data-source-ts', _vixTs);
     }
-    document.querySelectorAll('[data-vix-badge]').forEach(el => el.textContent = 'VIX ' + vp.toFixed(2));
+    document.querySelectorAll('[data-vix-badge]').forEach(el => el.textContent = 'VIX ' + _vixFixed(vp, 2, '—'));
     const vixLabel = document.getElementById('vix-live-label');
     if (vixLabel) { vixLabel.textContent = lvl; vixLabel.style.color = col; }
     const vixLiveVal = document.getElementById('vix-live-val');
@@ -15407,10 +15410,14 @@ function refreshHomeDashboard() {
   const ts = new Date();
 
   // SECTION 0: One-line market summary
-  const spxChg = spx.pct != null ? spx.pct.toFixed(2) : '—'; // R15: null vs 0% 구분
-  const vixLevel = vix.price?.toFixed(2) || String(DATA_SNAPSHOT.vix);
-  const vixStatus = vix.price != null ? (vix.price < 15 ? '안정' : vix.price < 20 ? '주의' : vix.price < 25 ? '경계' : vix.price < 30 ? '공포' : '극단공포') : '—';
-  const marketMood = spx.pct != null ? (spx.pct > 0.5 ? '낙관' : spx.pct < -0.5 ? '경계' : '관망') : '—';
+  const _homeFixed = window._aioSafeFixed || function(v, d, fb) { const n = Number(v); return Number.isFinite(n) ? n.toFixed(d || 2) : (fb || '—'); };
+  const _homeNum = function(v) { const n = Number(v); return Number.isFinite(n) ? n : null; };
+  const spxPct = _homeNum(spx.pct);
+  const vixPrice = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix);
+  const spxChg = spxPct != null ? _homeFixed(spxPct, 2, '—') : '—'; // R15: null vs 0% 구분
+  const vixLevel = vixPrice != null ? _homeFixed(vixPrice, 2, String(DATA_SNAPSHOT.vix || '—')) : String(DATA_SNAPSHOT.vix || '—');
+  const vixStatus = vixPrice != null ? (vixPrice < 15 ? '안정' : vixPrice < 20 ? '주의' : vixPrice < 25 ? '경계' : vixPrice < 30 ? '공포' : '극단공포') : '—';
+  const marketMood = spxPct != null ? (spxPct > 0.5 ? '낙관' : spxPct < -0.5 ? '경계' : '관망') : '—';
   const summarytxt = spxChg !== '—'
     ? `S&P 500 ${parseFloat(spxChg) >= 0 ? '+' : ''}${spxChg}%, VIX ${vixLevel} ${vixStatus} — 시장 분위기: ${marketMood}`
     : `VIX ${vixLevel} ${vixStatus} — 시장 분위기: ${marketMood}`;
@@ -15524,10 +15531,10 @@ function refreshHomeDashboard() {
   const vixValueEl = document.getElementById('home-vix-value');
   const vixStatusEl = document.getElementById('home-vix-status');
   if (vixValueEl) {
-    const vp = vix.price || DATA_SNAPSHOT.vix;
-    vixValueEl.textContent = vp.toFixed(2);
-    const vixLabel = vp >= 30 ? '극단공포' : vp >= 25 ? '공포' : vp >= 20 ? '경계' : vp >= 15 ? '주의' : '안정';
-    const vixCol = vp >= 30 ? '#dc2626' : vp >= 25 ? '#ffa31a' : vp >= 20 ? '#ffa31a' : '#00e5a0';
+    const vp = _homeNum(vix.price != null ? vix.price : DATA_SNAPSHOT.vix);
+    vixValueEl.textContent = _homeFixed(vp, 2, '—');
+    const vixLabel = vp == null ? '—' : (vp >= 30 ? '극단공포' : vp >= 25 ? '공포' : vp >= 20 ? '경계' : vp >= 15 ? '주의' : '안정');
+    const vixCol = vp == null ? '#7b8599' : (vp >= 30 ? '#dc2626' : vp >= 25 ? '#ffa31a' : vp >= 20 ? '#ffa31a' : '#00e5a0');
     vixValueEl.style.color = vixCol;
     if (vixStatusEl) vixStatusEl.textContent = vixLabel;
   }

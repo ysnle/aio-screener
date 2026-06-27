@@ -1,13 +1,21 @@
 ---
 verified_by: agent
-last_verified: 2026-06-26
+last_verified: 2026-06-27
 confidence: high
 version: v3.7
-checklist_version: v51.40
-total_items: 371
+checklist_version: v51.42
+total_items: 376
 stages: 21
-latest_P_covered: P532
+latest_P_covered: P533
 ---
+
+## v51.42 - Live default-path numeric safety (P533/R15/R228)
+
+- [ ] Live home load has no `Cannot read properties of undefined (reading 'toFixed')` console error from `aio-core.js`.
+- [ ] `window._aioSafeFixed()` exists and is used for partial live/scenario/chart numeric renderers.
+- [ ] Ticker hero renders `—` instead of throwing when `_liveData[ticker]` is present without numeric `price` or `pct`.
+- [ ] Scenario sum and chart tooltip renderers handle missing numeric fields without runtime exceptions.
+- [ ] `scripts/ci-runtime-contract-check.mjs` fails if direct unsafe `live.price.toFixed`, `sumCheck.sum.toFixed`, or `ctx.parsed.y.toFixed` patterns return.
 
 ## v51.40 - Operator-note priority + Signal default-route hardening (P532/R228)
 

@@ -1,12 +1,20 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-06-26
+last_verified: 2026-06-27
 confidence: high
-latest_version: v51.40
-latest_P_number: P532
-total_entries: 531
-next_P_number: P533
+latest_version: v51.42
+latest_P_number: P533
+total_entries: 532
+next_P_number: P534
 ---
+
+## P533 - v51.42 - Live default path logged unsafe toFixed before full runtime confidence
+
+- **symptom**: Live v51.40 home load rendered the promoted operator note in the correct first-screen position, but browser console reported `aio-core.js?v=51.40` `Cannot read properties of undefined (reading 'toFixed')`. This weakened confidence that all default-path runtime modules were healthy for real users.
+- **root_cause**: Several default-path renderers formatted partially loaded numeric objects directly with `.toFixed()` (`live.price`, scenario sums, chart tooltip parsed values, VIX/CPI context). Static checks covered version/default-path layout, but not partial numeric payloads arriving as `undefined` or incomplete objects during live initialization.
+- **fix**: Added `window._aioSafeFixed()` and routed live/default-path numeric renderers through it in `js/aio-core.js` and home VIX renderers in `js/aio-data.js`. Extended `scripts/ci-runtime-contract-check.mjs` to block the specific unsafe patterns found during live QA.
+- **violated_rule**: R3, R15, R228.
+- **prevention**: Live/default-path renderers must treat all network and derived numeric fields as partial until normalized. CI must include binary guards for direct `.toFixed()` on nested live/scenario/chart fields.
 
 ## P532 - v51.40 - Operator note was buried below first-screen decision flow and Signal hidden sink could reappear
 

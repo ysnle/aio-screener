@@ -1,3 +1,13 @@
+## v51.42 - Live default-path runtime hardening (2026-06-27)
+
+**Live QA finding**: deployed v51.40 rendered the promoted operator note correctly, but live console reported `aio-core.js?v=51.40` `Cannot read properties of undefined (reading 'toFixed')` during the default home load path.
+
+**Fix**: added `window._aioSafeFixed()` and routed default-path numeric renderers through it: API usage cost totals, breadth canvas fallback labels/current value, signal regime context, breadth consensus, themes cycle inputs, signal/macro scenario sums, briefing digest VIX, synthesized market analysis VIX, home VIX summary/status cards, VIX snapshot badges, scenario freshness audit, regime drift messages, ticker hero live price/change, VIX term tooltip, CPI macro trigger, and shared `_fmtPct`.
+
+**Gate**: `scripts/ci-runtime-contract-check.mjs` now blocks direct unsafe patterns for `live.price.toFixed`, scenario sum `.toFixed`, and `ctx.parsed.y.toFixed`, and asserts the shared safe formatter exists.
+
+**R1 version sync**: title, badge, APP_VERSION, SW_VERSION, version.json, CLAUDE.md(root+_context), CHANGELOG.md, JS cachebusters 5곳 -> v51.42.
+
 ## v51.40 - Operator note priority and default-path hardening (2026-06-26)
 
 **User-facing structure**
