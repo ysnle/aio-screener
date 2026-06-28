@@ -1345,6 +1345,14 @@ function _aioRenderTelegramFeedHtml(pageId) {
       return (it.tags || []).some(function(t) { return tags.indexOf(t) >= 0; });
     });
 
+    // v51.56: 다이제스트형 포스트 제외 — 주간요약/전체브리핑 포스트는 개별 카드로 부적합
+    filtered = filtered.filter(function(it) {
+      var txt = it.text || '';
+      if (txt.includes('━━━━')) return false;  // 섹션 구분선 = 전체 요약 포스트
+      if (txt.length > 600) return false;       // 600자 초과 = 롱폼 다이제스트
+      return true;
+    });
+
     // score 정렬(중요도순) or 날짜순(이미 내림차순)
     if (sortBy === 'score') {
       filtered = filtered.slice().sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
@@ -7137,8 +7145,8 @@ const KR_TICKER_MAP = {
   '테슬라': 'TSLA', 'tesla': 'TSLA', '일론머스크': 'TSLA', 'elon musk': 'TSLA',
   '마이크로소프트': 'MSFT', 'microsoft': 'MSFT',
   '아마존': 'AMZN', 'amazon': 'AMZN', 'aws': 'AMZN',
-  '구글': 'GOOGL', '알파벳': 'GOOGL', 'google': 'GOOGL', 'alphabet': 'GOOGL',
-  '메타': 'META', 'facebook': 'META', '페이스북': 'META', '저커버그': 'META',
+  '구글': 'GOOGL', '알파벳': 'GOOGL',  // v51.56: 'google'/'alphabet' 제거 — "Google News Finance" 소스명 오탐 방지
+  '메타': 'META', '페이스북': 'META', '저커버그': 'META',  // v51.56: 'facebook' 제거 — 일반 영단어 오탐
   '넷플릭스': 'NFLX', 'netflix': 'NFLX',
   '디즈니': 'DIS', 'disney': 'DIS',
   '오라클': 'ORCL', 'oracle': 'ORCL',
@@ -8750,6 +8758,99 @@ function _aioRenderNewsKoreanRewriteBrief(items, targetId) {
   return brief;
 }
 
+// ── v51.56: 텔레그램 다이제스트 포스트 파싱 + 구조화 한국어 렌더러 ──────────
+// 목적: Weekend Summary / Market Summary 등 다이제스트 포스트를
+//       카테고리별 불릿 구조로 파싱해 market-news / briefing 페이지에 표시
+
+function _aioParseTgDigestSections(text) {
+  var lines = (text || '').split('\n');
+  var sections = [];
+  var cur = null;
+  lines.forEach(function(line) {
+    line = line.trim();
+    if (!line) return;
+    // 구분선/푸터/작성자 줄 건너뜀
+    if (/^━+$/.test(line) || /^작성자:|^t\.me\/|^위켄드 서머리/.test(line)) return;
+    // 섹션 헤더: 국기/핀/특수 이모지로 시작하는 40자 이하 줄
+    if (/^[📍🌎🇺🇸🇪🇺🌍🌏🌐◆■▶⚡💡🔴🟡🟢🇰🇷🇯🇵🇨🇳]/.test(line) && line.length <= 45) {
+      var label = line.replace(/^[^\w가-힣]+/, '').replace(/^\s+/, '').trim();
+      if (label && label.length > 1 && label !== '특이사항 없음') {
+        cur = { label: label, bullets: [] };
+        sections.push(cur);
+      }
+      return;
+    }
+    // 불릿 포인트: ·, •, - 로 시작
+    if (/^[·•\-]/.test(line) && cur) {
+      var bullet = line.replace(/^[·•\-\s]+/, '').trim();
+      if (bullet.length >= 10 && bullet !== '특이사항 없음') {
+        cur.bullets.push(bullet);
+      }
+    }
+  });
+  return sections.filter(function(s) { return s.bullets.length > 0; });
+}
+
+function _aioGetTgDigestPosts() {
+  return (window.AIO_TELEGRAM_BROAD_ITEMS || []).filter(function(it) {
+    return (it.text || '').includes('━━━━') || (it.text || '').length > 800;
+  }).sort(function(a, b) {
+    return (b.localDateKst || '').localeCompare(a.localDateKst || '');
+  });
+}
+
+function _aioRenderTgDigestBrief(targetId) {
+  var el = document.getElementById(targetId);
+  if (!el) return;
+  var digests = _aioGetTgDigestPosts();
+  if (!digests.length) { el.style.display = 'none'; return; }
+
+  var allSections = [];
+  var title = '';
+  var dateLabel = '';
+  var seenLabels = {};
+
+  digests.slice(0, 3).forEach(function(d) {
+    var firstLine = (d.text || '').split('\n')[0].replace(/━+/g, '').trim();
+    if (!title && firstLine.length > 3) {
+      title = firstLine;
+      dateLabel = (d.localDateKst || '').slice(0, 10);
+    }
+    _aioParseTgDigestSections(d.text).forEach(function(sec) {
+      if (!seenLabels[sec.label]) {
+        seenLabels[sec.label] = true;
+        allSections.push(sec);
+      }
+    });
+  });
+
+  if (!allSections.length) { el.style.display = 'none'; return; }
+
+  var html = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;overflow:hidden;">';
+  html += '<div style="padding:10px 12px;background:var(--surface-1);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">';
+  html += '<div style="font-size:12px;font-weight:900;color:var(--text-primary);">' + escHtml(title || 'Market Summary') + '</div>';
+  html += '<div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">' + escHtml(dateLabel) + ' · ' + allSections.length + '개 카테고리</div>';
+  html += '</div>';
+
+  allSections.forEach(function(sec) {
+    html += '<div style="padding:9px 12px;border-top:1px solid var(--border);">';
+    html += '<div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:5px;">📍 ' + escHtml(sec.label) + '</div>';
+    sec.bullets.forEach(function(bullet) {
+      html += '<div style="font-size:11px;line-height:1.62;color:var(--text-secondary);margin:3px 0 3px 6px;padding-left:8px;border-left:2px solid var(--border);">· ' + escHtml(bullet) + '</div>';
+    });
+    html += '</div>';
+  });
+
+  html += '<div style="padding:7px 12px;border-top:1px solid var(--border);font-size:10px;color:var(--text-muted);">@insidertracking 채널 원문 기반 주간 요약 · 투자 결정 전 원문과 가격 교차 확인 필요</div>';
+  html += '</div>';
+
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+try { window._aioRenderTgDigestBrief = _aioRenderTgDigestBrief; } catch(_) {}
+// ── END v51.56 텔레그램 다이제스트 렌더러 ──────────────────────────────────
+
 function _aioBuildNewsLocalKoreanInsight(item, preferredTitle) {
   item = item || {};
   var title = _aioCleanNewsText(preferredTitle || item.ko_title || item.title || '', 160);
@@ -9955,7 +10056,7 @@ function renderFeed(items) {
     items = marketNewsModelV502.items || [];
   }
   if (!items || items.length === 0) {
-    try { _aioRenderNewsKoreanRewriteBrief([], 'news-korean-rewrite-brief'); } catch(_) {}
+    try { _aioRenderTgDigestBrief('news-korean-rewrite-brief'); } catch(_) {}
     if (marketNewsContainerV502) {
       var emptyReasonV502 = marketNewsModelV502 && marketNewsModelV502.emptyReason || 'no-input-news';
       marketNewsContainerV502.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:12px;line-height:1.6;">현재 필터에서 검증 뉴스가 없습니다<br><span style="font-family:var(--font-mono);font-size:10px;">소스 상태/필터 확인 · ' + escHtml(emptyReasonV502) + '</span></div>';
@@ -10050,13 +10151,13 @@ function renderFeed(items) {
       (emptyFilters.length ? '<br><span style="font-family:var(--font-mono);font-size:11px;">' + escHtml(emptyFilters.join(' · ')) + '</span><br>필터를 전체로 바꾸거나 새로고침하세요.' : '') + '</div>';
     var emptyCount = document.getElementById('market-news-count');
     if (emptyCount) emptyCount.textContent = '0건';
-    try { _aioRenderNewsKoreanRewriteBrief([], 'news-korean-rewrite-brief'); } catch(_) {}
+    try { _aioRenderTgDigestBrief('news-korean-rewrite-brief'); } catch(_) {}
     return;
   }
 
   // v42.0: 카테고리별 그룹 뷰
   if (_newsTypeTab === 'category') {
-    try { _aioRenderNewsKoreanRewriteBrief(filtered.slice(0, 40), 'news-korean-rewrite-brief'); } catch(_) {}
+    try { _aioRenderTgDigestBrief('news-korean-rewrite-brief'); } catch(_) {}
     _renderCategoryGroupView(filtered, container);
     var countEl2 = document.getElementById('market-news-count');
     if (countEl2) countEl2.textContent = filtered.length + '건';
@@ -10071,7 +10172,7 @@ function renderFeed(items) {
   // v40.4: 건수 상한 150건 (브리핑 20건보다 넓지만 과부하 방지)
   var eligibleCount = filtered.length;
   filtered = filtered.slice(0, 150);
-  try { _aioRenderNewsKoreanRewriteBrief(filtered.slice(0, 40), 'news-korean-rewrite-brief'); } catch(_) {}
+  try { _aioRenderTgDigestBrief('news-korean-rewrite-brief'); } catch(_) {}
   const html = filtered.map((item, idx) => {
     // 기업 뉴스 간결 불릿 형식
     if (useCompanyBulletFormat) {
@@ -10453,6 +10554,10 @@ window._buildBriefingDecisionSummary = _buildBriefingDecisionSummary;
 function renderBriefingFeed(items) {
   const container = document.getElementById('briefing-live-news-list');
   if (!container) return;
+
+  // v51.56: 텔레그램 다이제스트 구조화 브리핑 먼저 렌더
+  try { _aioRenderTgDigestBrief('briefing-tg-digest'); } catch(_) {}
+
   if (!items || items.length === 0) {
     container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">뉴스 수집 중</div>';
     return;

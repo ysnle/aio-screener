@@ -1,4 +1,9 @@
-﻿## v51.55 (2026-06-29)
+﻿## v51.56 (2026-06-29)
+- **텔레그램 피드 다이제스트 필터**: _aioRenderTelegramFeedHtml()에 다이제스트 포스트 필터 추가. ━━━━ 구분선 포함 또는 600자 초과 포스트를 tg-feed 카드에서 제외 (Weekend Summary, Market Summary, 글로벌 뉴스 브리핑, 순매수 TOP 50 등)
+- **한국어 구조화 다이제스트 렌더러 신설**: _aioParseTgDigestSections() — 📍 카테고리 헤더 + · 불릿 포맷 파싱. _aioRenderTgDigestBrief() — 카테고리별 한국어 불릿 구조화 렌더. market-news #news-korean-rewrite-brief, briefing #briefing-tg-digest 연결
+- **GOOGL 티커 오탐 수정**: KR_TICKER_MAP에서 'google'/'alphabet'/'facebook' 영어 단어 제거 — "Google News Finance" 소스명이 desc에 포함돼 Ukraine 드론 기사에  오매칭되던 버그 수정
+- R1 7곳 v51.56
+## v51.55 (2026-06-29)
 
 **트레이딩 방법론 통합 + Apple CXMT 분석**
 
