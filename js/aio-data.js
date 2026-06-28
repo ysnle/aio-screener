@@ -10211,16 +10211,12 @@ function renderFeed(items) {
       ? `<span class="news-tickers">${tickers.map(t => `<span class="news-ticker-badge" style="color:#60a5fa;font-weight:800;font-size:11px;font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:3px;">${escHtml(t)}</span>`).join('')}</span>`
       : '';
 
-    // 번역된 제목/설명/해석
+    // v51.57: 번역된 제목만, desc/explain/action 제거, template summary 필터
     const displayTitle = escHtml(getDisplayTitle(item));
-    const displayDesc = getDisplayDesc(item);
     const displaySummary = getDisplaySummary(item);
-    const displayExplain = getDisplayExplain(item);
-    const displayAction = getDisplayAction(item);
-    const descHtml = displayDesc ? `<div class="news-item-desc" style="font-size:10px;color:var(--text-secondary);margin-top:2px;line-height:1.4;">${escHtml(displayDesc)}</div>` : '';
-    const summaryHtml = displaySummary ? `<div style="font-size:11px;color:#a78bfa;margin-top:2px;font-style:italic;line-height:1.3;">${escHtml(displaySummary)}</div>` : '';
-    const explainHtml = displayExplain ? `<div style="font-size:10.5px;color:var(--text-secondary);margin-top:3px;line-height:1.35;">${escHtml(displayExplain)}</div>` : '';
-    const actionHtml = displayAction ? `<div style="font-size:10px;color:#7dd3fc;margin-top:2px;line-height:1.3;">${escHtml(displayAction)}</div>` : '';
+    // template text("헤드라인 기준 톤은" / "뉴스입니다.") 제거 — 번역된 실제 insight만 표시
+    const _isTplSummary = !displaySummary || displaySummary.includes('헤드라인 기준 톤은') || /뉴스입니다\.$/.test(displaySummary.trim());
+    const summaryHtml = _isTplSummary ? '' : `<div class="news-item-summary" style="font-size:11px;color:var(--text-secondary);margin-top:3px;line-height:1.45;">${escHtml(displaySummary)}</div>`;
 
     // 스코어 바
     const scoreBar = item.score > 0 ? `<span style="font-size:11px;color:${item.score > 50 ? '#00e5a0' : item.score > 30 ? '#ffa31a' : 'var(--text-muted)'};font-family:var(--font-mono);">■${item.score}</span>` : '';
@@ -10242,11 +10238,8 @@ function renderFeed(items) {
       </div>
       <div class="news-item-body">
         <div class="news-item-headline">${tickerHtml}${displayTitle}</div>
-        ${descHtml}
         ${summaryHtml}
-        ${explainHtml}
-        ${actionHtml}
-        <div class="news-item-meta">${item._tgChannel ? '<span style="background:var(--data-purple-border);color:#a78bfa;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">TG</span>' : ''}${unverifiedBadge}${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo} ${scoreBar} ${impactHtml} <span style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);margin-left:4px;">T${escHtml(String(item.sourceTier || '?'))} · ${escHtml(String(item.verificationStatus || 'unchecked'))}${isFinite(item.ageHours) ? ' · ' + escHtml(String(item.ageHours)) + 'h' : ''}</span></div>
+        <div class="news-item-meta">${item._tgChannel ? '<span style="background:var(--data-purple-border);color:#a78bfa;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">TG</span>' : ''}${unverifiedBadge}${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo} ${scoreBar}</div>
       </div>
       ${topicBadge}
     </div>`;

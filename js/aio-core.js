@@ -4038,32 +4038,12 @@ window.AIO_PAGE_ACTION_HUBS = {
 };
 
 function _aioRenderPageActionHub(pageId) {
+  // v51.57: 과도한 설명 카드 제거 — action hub 미렌더
   var page = document.getElementById('page-' + pageId);
   if (!page) return null;
-  var cfg = (window.AIO_PAGE_ACTION_HUBS || {})[pageId];
-  if (!cfg) return null;
   var old = page.querySelector('.aio-action-hub[data-aio-hub-page="' + pageId + '"]');
   if (old) old.remove();
-  var decision = window._aioBuildPageDecision ? window._aioBuildPageDecision(pageId) : null;
-  var cards = (cfg.cards || []).slice(0, 3).map(function(c) {
-    return '<div class="aio-action-hub-card"><div class="aio-action-hub-label">' + _aioDecisionEsc(c[0]) + '</div><div class="aio-action-hub-value">' + _aioDecisionEsc(c[1]) + '</div></div>';
-  }).join('');
-  var links = (cfg.links || []).map(function(l) {
-    if (l[1] === 'ai') return '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">AI 분석으로 넘기기</button>';
-    return '<button type="button" class="aio-compact-chip" data-action="showPage" data-arg="' + _aioDecisionEsc(l[1]) + '">' + _aioDecisionEsc(l[0]) + '</button>';
-  }).join('');
-  var html = '<section class="aio-action-hub" data-aio-hub-page="' + _aioDecisionEsc(pageId) + '">'
-    + '<div class="aio-action-hub-top"><div><div class="aio-action-hub-title">' + _aioDecisionEsc(cfg.title) + '</div>'
-    + '<div class="aio-action-hub-sub">' + _aioDecisionEsc(cfg.subtitle) + '</div></div>'
-    + '<div class="aio-action-hub-links">' + links + '</div></div>'
-    + '<div class="aio-action-hub-grid">' + cards + '</div>'
-    + (decision ? '<div class="aio-action-hub-sub" style="margin-top:9px;">현재 판단: <b style="color:var(--text-primary);">' + _aioDecisionEsc(decision.decision) + '</b></div>' : '')
-    + '</section>';
-  var header = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
-  if (header) header.insertAdjacentHTML('afterend', html);
-  else page.insertAdjacentHTML('afterbegin', html);
-  page.classList.add('has-aio-redesign-hub');
-  return page.querySelector('.aio-action-hub[data-aio-hub-page="' + pageId + '"]');
+  return null;
 }
 
 function _aioFoldDensePageControls(pageId) {
@@ -4135,7 +4115,7 @@ window.AIO.getPageRedesignAudit = function() {
     };
   });
   var missingConfig = details.filter(function(d){ return !d.hasConfig; }).map(function(d){ return d.pageId; });
-  var missingHub = details.filter(function(d){ return !d.hasHub; }).map(function(d){ return d.pageId; });
+  var missingHub = []; // v51.57: action hub removed from all pages — check disabled
   var criticalFolded = ['market-news','screener','signal'].filter(function(id) {
     var d = details.filter(function(x){ return x.pageId === id; })[0];
     return !d || d.foldedSections < 1;
@@ -4369,16 +4349,12 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   };
   var sourceKind = String(d.sourceKind || 'SNAPSHOT').toUpperCase();
   var sourceLabel = sourceLabelMap[sourceKind] || '데이터: 확인 필요';
+  // v51.57: 3카드 그리드(왜/오늘행동/데이터기준시각) 제거 — 상단 판단 strip + AI 버튼만 유지
   var html = ''
     + '<section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(d.sourceKind) + '">'
     + '  <div class="aio-decision-top">'
     + '    <div><div class="aio-decision-kicker">' + _aioDecisionEsc(d.title) + '</div><div class="aio-decision-verdict">' + _aioDecisionEsc(d.decision) + '</div></div>'
     + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span><span class="aio-confidence-badge">신뢰도 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
-    + '  </div>'
-    + '  <div class="aio-decision-grid">'
-    + '    <div class="aio-decision-card"><div class="aio-decision-label">왜</div><ol class="aio-decision-list"><li>' + _aioDecisionEsc(d.reasons[0]) + '</li><li>' + _aioDecisionEsc(d.reasons[1]) + '</li><li>' + _aioDecisionEsc(d.reasons[2]) + '</li></ol></div>'
-    + '    <div class="aio-decision-card"><div class="aio-decision-label">오늘 행동</div><div class="aio-decision-action">' + _aioDecisionEsc(d.action) + '</div></div>'
-    + '    <div class="aio-decision-card"><div class="aio-decision-label">데이터 기준시각</div><div class="aio-decision-action">' + _aioDecisionEsc(d.asOf) + '</div></div>'
     + '  </div>'
     + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : '') + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 분석</button></div>'
     + '</section>';
@@ -17101,7 +17077,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.56';
+const APP_VERSION = 'v51.57';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
