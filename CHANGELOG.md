@@ -1,3 +1,11 @@
+## v51.51 - UI/UX: 타이포그래피·간격 정규화 시스템 (2026-06-28)
+
+**CSS 유틸리티 클래스 신설**: `.aio-subhd`(서브섹션 헤딩, 12px/700/uppercase/letter-spacing) · `.aio-body`(본문, 13px/1.7lh) · `.aio-note`(설명, 12px/muted) · `.aio-key`(인라인 라벨) · `.aio-block`(블록 여백) · `.aio-info-box`+`.is-warn`/`.is-danger`/`.is-success`(시맨틱 박스) · `.aio-divider`(구분선) · `.aio-row`/`.aio-row-label`/`.aio-row-val`(데이터 행). `.aio-section-label` font-size `11px→var(--fs-xs)`. `.insight-box` 배경 `var(--bg-card)→var(--surface-1) !important`. **HTML 16곳 업그레이드**: screener 팩터/레짐 서브헤딩 2건 `.aio-subhd` 전환 + is-warn 박스, signal 리스크모니터·포트폴리오배분·바닥4단계 3건, technical 핵심기술레벨 1건, breadth McClellan/나스닥/Weinstein/SPY-QQQ/5일·20일·50일선 8건 `.aio-subhd` 전환.
+
+**R1 v51.51 7곳 동기화**.
+
+---
+
 ## v51.50 - UI/UX: 전 페이지 세밀 섹션 리듬 개편 (2026-06-28)
 
 **20개 전 페이지 aio-section 세밀 재설계**: 매크로·기술분석 수준의 품질로 home·signal·breadth·sentiment·briefing·fxbond·fundamental·themes·theme-detail·portfolio·ticker·market-news·screener·kr-home·kr-supply·kr-themes·kr-macro·kr-technical·guide 페이지를 각각 전체 HTML을 읽고 논리적 섹션 경계를 직접 파악해 `.aio-section` 전환. 347개 `aio-section` 참조로 전체 터미널 통합. **홈**: bloomberg-global-overview bg-card → surface-1, GLOBAL MARKETS aio-section 래핑. **브리핑**: 브리핑헤더·과거참고자료 섹션 신설. **펀더멘털**: 기업분석헤더·종목검색 + fund-rpt-* 패널 surface-1 통일. **테마디테일**: 테마헤더·테마데이터 섹션. **포트폴리오**: 리스크분석·포트폴리오요약 신설. **티커**: 종목검색 섹션. **market-news**: 뉴스필터·소스·뉴스피드 섹션. **스크리너**: 퀀트스크리너 섹션. **kr-home**: 핵심지수·투자자수급요약·오늘의주요이슈·KRX섹터ETF·시장체감온도·상위모멘텀 6섹션. **kr-supply**: 수급분석요약·수급상세. **kr-macro**: 기준금리·물가경기·원달러환율·채권금리·수출입·부동산건설·매크로환경 7섹션. **guide**: 빠른이동·사용설명서·시스템설정·대시보드사용법·공통기능·판단방법론·유의사항·FAQ·투자배경지식 9섹션.

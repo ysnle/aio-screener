@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.50 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.51 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3058,7 +3058,47 @@ body { background: #0d1521 !important; }
 .aio-section+.aio-section{padding-top:18px;border-top:1px solid var(--border-subtle);}
 .aio-section-hd{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
 .aio-section-hd::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border-subtle),transparent);}
-.aio-section-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;flex-shrink:0;}
+.aio-section-label{font-size:var(--fs-xs);font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;flex-shrink:0;}
+
+/* ══════════════════════════════════════════════════════════════════════
+   v51.51: Typography & Spacing Normalization System
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ─── 1. 페이지 베이스 폰트 캐스케이드 — inline 미지정 요소에 12px 적용 ─── */
+.page{font-size:var(--fs-xs);line-height:var(--lh-body);color:var(--text-secondary);}
+
+/* ─── 2. insight-box: aio-section과 배경 통일 (bg-card → surface-1) ─── */
+.insight-box{background:var(--surface-1) !important;}
+
+/* ─── 3. Sub-section heading — 섹션 내부 2차 제목 유틸리티 클래스 ─── */
+.aio-subhd{font-size:var(--fs-xs);font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;line-height:var(--lh-snug);}
+
+/* ─── 4. Body text in sections ─── */
+.aio-body{font-size:var(--fs-sm);color:var(--text-secondary);line-height:var(--lh-body);}
+
+/* ─── 5. Note / explanation text ─── */
+.aio-note{font-size:var(--fs-xs);color:var(--text-muted);line-height:var(--lh-body);}
+
+/* ─── 6. Inline label (key in key:value pairs) ─── */
+.aio-key{font-size:var(--fs-xs);color:var(--text-muted);font-weight:600;letter-spacing:.04em;}
+
+/* ─── 7. Content block — consistent bottom margin ─── */
+.aio-block{margin-bottom:var(--space-3);}
+
+/* ─── 8. Semantic info/alert boxes ─── */
+.aio-info-box{padding:8px 12px;background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);font-size:var(--fs-xs);color:var(--text-muted);line-height:var(--lh-body);}
+.aio-info-box.is-warn{background:var(--data-amber-faint);border-color:rgba(245,158,11,.2);color:var(--text-secondary);}
+.aio-info-box.is-danger{background:var(--data-red-faint);border-color:rgba(239,68,68,.2);color:var(--text-secondary);}
+.aio-info-box.is-success{background:var(--data-green-faint);border-color:rgba(16,201,139,.2);color:var(--text-secondary);}
+
+/* ─── 9. Spacing divider inside long sections ─── */
+.aio-divider{height:1px;background:var(--border-subtle);margin:var(--space-4) 0;}
+
+/* ─── 10. Data row — label:value 행 레이아웃 ─── */
+.aio-row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-2);padding:5px 0;border-bottom:1px solid var(--border-subtle);}
+.aio-row:last-child{border-bottom:none;}
+.aio-row-label{font-size:var(--fs-xs);color:var(--text-muted);flex-shrink:0;}
+.aio-row-val{font-size:var(--fs-xs);font-weight:700;font-family:var(--font-mono);color:var(--text-primary);text-align:right;}
 /* v51.37: 텔레그램 분석 카드 피드 */
 .tg-live-feed{margin:0 0 10px;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:transparent;}
 .tg-live-feed-hd{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--surface-2);border-bottom:1px solid var(--border-subtle);font-size:10px;flex-wrap:wrap;}
@@ -5078,7 +5118,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.50</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.51</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5595,7 +5635,7 @@ button[data-filter-active="true"] {
   <div data-aio-archive="true" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
       <div>
-        <span style="font-size:10px;font-weight:700;color:var(--text-secondary);">리스크 모니터</span>
+        <span class="aio-subhd" style="margin-bottom:0;">리스크 모니터</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <div style="font-size:11px;color:var(--text-muted);">종합 리스크 점수:</div>
@@ -5965,7 +6005,7 @@ button[data-filter-active="true"] {
     <!-- 포트폴리오 도넛 차트 — 가로 레이아웃 (v42.2) -->
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;display:flex;align-items:flex-start;gap:16px;">
       <div>
-        <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;"> 추천 포트폴리오 배분</div>
+        <div class="aio-subhd"> 추천 포트폴리오 배분</div>
         <div style="position:relative;width:120px;height:120px;">
           <canvas id="portfolio-donut" role="img" aria-label="포트폴리오 자산 배분 도넛 차트" width="120" height="120"></canvas>
           <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
@@ -6007,7 +6047,7 @@ button[data-filter-active="true"] {
   <div class="aio-section-hd"><span class="aio-section-label">바닥 프로세스 4단계 — Mark Minervini</span></div>
   <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:10px;font-weight:700;color:var(--text-secondary);">바닥 프로세스 4단계 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">— Mark Minervini</span></div>
+      <div class="aio-subhd" style="margin-bottom:0;">바닥 프로세스 4단계 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">— Mark Minervini</span></div>
       <span id="bottom-process-stage" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;background:rgba(255,91,80,0.1);color:var(--data-red);">판별 중...</span>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
@@ -6263,7 +6303,7 @@ button[data-filter-active="true"] {
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
         <div>
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);">McClellan Summation Index (장기)</div>
+          <div class="aio-subhd" style="margin-bottom:0;">McClellan Summation Index (장기)</div>
           <div style="font-size:11px;color:var(--text-muted);">Oscillator 누적합 — 추세 방향 (Oscillator는 단기 ±100)</div>
         </div>
         <div style="font-size:11px;color:var(--data-amber);" data-mcclellan-signal="bearish">중립↓</div>
@@ -6280,7 +6320,7 @@ button[data-filter-active="true"] {
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
         <div>
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);">나스닥 구성주 현황</div>
+          <div class="aio-subhd" style="margin-bottom:0;">나스닥 구성주 현황</div>
           <div style="font-size:11px;color:var(--text-muted);">NASDAQ-100 광폭 분석</div>
         </div>
         <div style="font-size:11px;color:var(--data-red);">약세</div>
@@ -6306,7 +6346,7 @@ button[data-filter-active="true"] {
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
         <div>
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);">Stan Weinstein 30주선</div>
+          <div class="aio-subhd" style="margin-bottom:0;">Stan Weinstein 30주선</div>
           <div style="font-size:11px;color:var(--text-muted);">추세 구간 분석</div>
         </div>
         <div style="font-size:11px;color:var(--data-amber);">3경계</div>
@@ -6379,12 +6419,12 @@ button[data-filter-active="true"] {
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
     <!-- Price Chart (SPY/QQQ) -->
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;height:220px;">
-      <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">SPY vs QQQ (추세)</div>
+      <div class="aio-subhd">SPY vs QQQ (추세)</div>
       <canvas id="bp-price-chart" role="img" aria-label="SPY·QQQ 가격 추세 차트" style="width:100%;height:180px;"></canvas>
     </div>
     <!-- 5SMA Chart -->
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;height:220px;">
-      <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">5일선 상회 비율 (S&P500·나스닥)</div>
+      <div class="aio-subhd">5일선 상회 비율 (S&P500·나스닥)</div>
       <canvas id="bp-5ma-chart" role="img" aria-label="S&P500·나스닥100 5일 이동평균 위 종목 비율 차트" style="width:100%;height:180px;"></canvas>
     </div>
   </div>
@@ -6392,12 +6432,12 @@ button[data-filter-active="true"] {
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
     <!-- 20SMA Chart -->
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;height:220px;">
-      <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">20일선 상회 비율 (S&P500·나스닥)</div>
+      <div class="aio-subhd">20일선 상회 비율 (S&P500·나스닥)</div>
       <canvas id="bp-20ma-chart" role="img" aria-label="S&P500·나스닥100 20일 이동평균 위 종목 비율 차트" style="width:100%;height:180px;"></canvas>
     </div>
     <!-- 50SMA Chart -->
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;height:220px;">
-      <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">50일선 상회 비율 (S&P500·나스닥)</div>
+      <div class="aio-subhd">50일선 상회 비율 (S&P500·나스닥)</div>
       <canvas id="bp-50ma-chart" role="img" aria-label="S&P500·나스닥100 50일 이동평균 위 종목 비율 차트" style="width:100%;height:180px;"></canvas>
     </div>
   </div>
@@ -7325,7 +7365,7 @@ button[data-filter-active="true"] {
         </div>
         <!-- 핵심 기술 레벨 패널 -->
         <div id="deep-levels-panel" style="border-left:1px solid var(--border);padding-left:10px;">
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">핵심 기술 레벨</div>
+          <div class="aio-subhd">핵심 기술 레벨</div>
           <div id="deep-levels-content" style="font-size:10px;color:var(--text-muted);text-align:center;padding:20px 0;">분석 대기 중</div>
         </div>
       </div>
@@ -10207,13 +10247,13 @@ button[data-filter-active="true"] {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
         <!-- Left: 팩터 가중 현황 -->
         <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:10px;">
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);letter-spacing:.05em;margin-bottom:8px;text-transform:uppercase;">팩터 가중 현황</div>
+          <div class="aio-subhd">팩터 가중 현황</div>
           <div id="scr-factor-bars" style="display:flex;flex-direction:column;gap:5px;"></div>
           <div style="font-size:9px;color:var(--text-muted);margin-top:8px;">퀀트 랭크(0~100) = 각 팩터 점수를 섹터 내 상대 순위로 환산 후 가중합산. 막대 길이 = 현재 레짐에서의 가중치.</div>
         </div>
         <!-- Right: 시장 레짐 -->
         <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:10px;">
-          <div style="font-size:10px;font-weight:700;color:var(--text-secondary);letter-spacing:.05em;margin-bottom:8px;text-transform:uppercase;">시장 레짐</div>
+          <div class="aio-subhd">시장 레짐</div>
           <div id="scr-regime-display" style="margin-bottom:8px;">
             <span id="screener-regime-note" style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,255,255,.06);color:var(--accent);">감지 중...</span>
           </div>
@@ -10225,7 +10265,7 @@ button[data-filter-active="true"] {
         </div>
       </div>
       <!-- Info boxes (compact) -->
-      <div style="font-size:10px;line-height:1.6;padding:6px 10px;background:rgba(255,163,26,0.06);border:1px solid rgba(255,163,26,0.2);border-radius:3px;">
+      <div class="aio-info-box is-warn">
         <span style="color:var(--data-amber);">⚠ <b>저변동 팩터는 역방향</b>: 변동성이 낮을수록 순위 상승 (랭크↑ = 안정).</span>
         <span style="display:block;margin-top:3px;color:var(--text-muted);"><b>K-vel (칼만 신뢰도가중 속도)</b>: 양수=상승 추세 가속, 음수=하락. 90일 가격의 상태공간 필터 추정. <b>이노베이션 Z</b>: 마지막 관측의 표준화 잔차(|Z|>2 = 추세 이탈 신호).</span>
       </div>
@@ -12155,9 +12195,9 @@ button[data-filter-active="true"] {
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.50"></script>
-  <script src="./js/aio-data.js?v=51.50"></script>
-  <script src="./js/aio-ui.js?v=51.50"></script>
+  <script src="./js/aio-core.js?v=51.51"></script>
+  <script src="./js/aio-data.js?v=51.51"></script>
+  <script src="./js/aio-ui.js?v=51.51"></script>
 
   <script>
 
@@ -15354,7 +15394,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.50"></script>
+<script src="./js/aio-chat.js?v=51.51"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -27943,7 +27983,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.50"></script>
+<script src="./js/aio-glossary.js?v=51.51"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
