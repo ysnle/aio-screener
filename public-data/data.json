@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-06-28T16:48:32.568Z",
+  "generatedAt": "2026-06-28T18:18:13.153Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -17,7 +17,7 @@
   "fredOk": true,
   "macroKeyCount": 7,
   "newsOk": true,
-  "newsCount": 29,
+  "newsCount": 35,
   "newsSourceCount": 7,
   "newsCyclePolicy": "kst-0800-completed-24h",
   "newsCycleStart": "2026-06-26T23:00:00.000Z",
@@ -27,7 +27,7 @@
   "serverNewsScored": true,
   "newsScoreMin": 10,
   "newsScoreMax": 56,
-  "elapsedMs": 2393,
+  "elapsedMs": 2409,
   "schema": 1,
   "marketAnalysisOk": true
  },
@@ -58,8 +58,8 @@
   },
   {
    "symbol": "^RUT",
-   "regularMarketPrice": 3010.0845,
-   "regularMarketChangePercent": 1.0173436204807738,
+   "regularMarketPrice": 3010.084,
+   "regularMarketChangePercent": 1.0173268406621938,
    "regularMarketPreviousClose": 2979.77,
    "chartPreviousClose": 2979.77,
    "_source": "live:yahoo-gh"
@@ -210,8 +210,8 @@
   },
   {
    "symbol": "CNY=X",
-   "regularMarketPrice": 6.7897,
-   "regularMarketChangePercent": 0.311733593357558,
+   "regularMarketPrice": 6.7975,
+   "regularMarketChangePercent": 0.4269716041722092,
    "regularMarketPreviousClose": 6.7686,
    "chartPreviousClose": 6.7686,
    "_source": "live:yahoo-gh"
@@ -402,16 +402,16 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 59584.24,
-   "regularMarketChangePercent": -2.313123901213567,
+   "regularMarketPrice": 59544.54,
+   "regularMarketChangePercent": -2.3782110615284675,
    "regularMarketPreviousClose": 60995.133,
    "chartPreviousClose": 60995.133,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1566.94,
-   "regularMarketChangePercent": -3.270824468467638,
+   "regularMarketPrice": 1569.86,
+   "regularMarketChangePercent": -3.0905691986091504,
    "regularMarketPreviousClose": 1619.9249,
    "chartPreviousClose": 1619.9249,
    "_source": "live:yahoo-gh"
@@ -754,6 +754,38 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
+   "title": "US Inflation Threatens, Fed Rates Could Rise Again - VOI.id",
+   "link": "https://news.google.com/rss/articles/CBMiR0FVX3lxTE41dEJLWU1mRUVlNmQ1SU4xd0VESEE3MklYeDJoeUpBV1p3ZVVoRjNwU3JlX25fYmRvbGtDWXhTdlJQNTFzLXJ30gFCQVVfeXFMT3diLTVsdHVKMnlGUFRHMmFwTm1nQmh0TmZGRjl0cDZNZC1UaktQS3NVdkpnYUtmYXhUUkNYR1hLa0JB?oc=5",
+   "source": "VOI.id",
+   "pubDate": "Sat, 27 Jun 2026 19:48:16 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 48,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | macro-rates+14",
+   "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
+   "title": "The Fed Removed This 1 Key Phrase From the Inflation Report. What That Means for the Market. - The Globe and Mail",
+   "link": "https://news.google.com/rss/articles/CBMiiAJBVV95cUxOXzBLaVpmNW5ZV2ZvdTcyY3BaZjU1Q2o4bU00bmkybnFrcHRsQXRrblU1VTVYNG5xcWNkT2drWnlVOFh2b01ZOXQtUHk5NERpQ3Vza0twNmZINzlLS3hMYUM3cEZPMUstcVZ6SDl3ZnZhX1YzU0V2ZnNNTm9oSFRtNURPd0NCUVoxLXRMaDZBc09lVkx0M2xEWjVlN3ZBa2ZEc0hMeHpGMDVjZTJvWm1pdmFmTUxyNkFwcWVLN2pHUGJsZEVROWd3eHpoTHlWS3dPMmw2Yk4zRmRiM1ZJS3lDZzE0U2FMZG0tTXJfUWs5RHBmbTZuV1ZwcVVjd3dMeGJ1dEo5U1A1SXA?oc=5",
+   "source": "The Globe and Mail",
+   "pubDate": "Sat, 27 Jun 2026 18:26:12 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 48,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | macro-rates+14",
+   "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
    "title": "Semtech (SMTC) Is Down 5.4% After Raising Guidance on an Earnings Beat - What's Changed - Yahoo Finance",
    "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxNT3h6MWtJRmVpN0p5enltblhGTUlyby0wcmxENWRjWVRZeTJxLWs1WG9PRk5xeDFXNlRWMVphbmhlMHJkbXVJSktNTHVIZV84Y0FEQWhtd3J1YzZ6clJyOW9mTWFrNkpnNUpqT1VscUJXSjAzTlJjbHRkLWdaeUxOcGhwd28xQkdQQmt6VkJOZw?oc=5",
    "source": "Yahoo Finance",
@@ -828,6 +860,22 @@
    "score": 42,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14",
    "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
+   "title": "Iran Tensons Flare-Up, But Crude Moves Lower - Industrial Info Resources",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQeWZ2WlBSV2V2ZnR4WENMZXllaENyejNQdUQ1NWo1TzFmOVNOMGtyU3BodnNzR0oyTUhKajZocEdEaGxhdWYybTl0MlN6WjFmTVIwY29BbXlVa1lDem9pV1hiZy1nTFVuV1pEVy1PN1E0UnEzVUVqZDQtMHRIbWhkVXFySFB1ZkQ3Q3ZoWk1XWDBqNEVNdEJOcXNfQQ?oc=5",
+   "source": "Industrial Info Resources",
+   "pubDate": "Sat, 27 Jun 2026 08:54:12 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-06-26T23:00:00.000Z",
    "newsCycleEnd": "2026-06-27T23:00:00.000Z",
@@ -914,6 +962,22 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
+   "title": "Gold Posts a Fourth Consecutive Weekly Loss, Heads for Its Worst Monthly Performance of 2026 - Sada Elbalad english",
+   "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOTnVCYWJHUmtzdlE0WlRoOEliSFJsc1hPQVpxSU1hS3djMEFKNXBuRDVrS3VnNDJkTDFWYm9uSEt2V2hDTzZyTG9LWncyQXNOTE1hMGRjcFdLLXNDLTlPaXI0T2hFVmtOS0tWT2NnaDNFemJWWUZFZVNzZEt2ejM5bVpTeDhsNU5VejdidXNEUmk3Tm9CWm1ZRVg4eGhwaURLSXF5WmJsaG9BREJJ?oc=5",
+   "source": "Sada Elbalad english",
+   "pubDate": "Sat, 27 Jun 2026 15:21:03 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
    "title": "Indian issuers hold dollar bond plans amid demand for higher yields - The Economic Times",
    "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxNcWU0UXRWX3Flc3pkenRVUFBVT1NrUXJfc1h2U3ZBRlROXzFUXzBoOEtnbDZka3ljNVd3T3hocHh0eGgyU21kOWF4Vno0NXlqTmpxa1hydGNhMkZISTFXUERjR1lJdG0zeGwxVHpBRUR2aHFPNEVOWklHRzNhX1B1N3UtUzJPZ29tVnhsOV9vWjRKdGVneDg1MENGd1ZiVXVKbTdUUm0yaWxVRVZRY3NLT25xOXFkOFhfc1NkZ0VoX2lyYmJQRUpXbEpQNzhFZG1pcUI5aHlB0gHWAUFVX3lxTE1xZTRRdFZfcWVzemR6dFVQUFVPU2tRcl9zWHZTdkFGVE5fMVRfMGg4S2dsNmRreWM1V3dPeGhweHR4aDJTbWQ5YXhWejQ1eWpOanFrWHJ0Y2EyRkhJMVdQRGNHWUl0bTN4bDFUekFFRHZocU80RU5aSUdHM2FfUHU3dS1TMk9nb21WeGw5X29aNEp0ZWd4ODUwQ0Z3VmJVdUptN1RSbTJpbFVFVlFjc0tPbnE5cWQ4WF9zU2RnRWhfaXJiYlBFSldsSlA3OEVkbWlxQjloeUE?oc=5",
    "source": "The Economic Times",
@@ -930,10 +994,42 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
+   "title": "UBS raises TD Synnex stock price target to $352 on strong results - Investing.com South Africa",
+   "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxOMmY1a2Z2Zi1UdFlONnZmbzN5b3BJX0NPMG5HWXpzVlJDNTF1TDFwOTBPTGI5dTV6NzZ1YkF4ODRqRjhGU2dLQ3FIcWJvTmZPRUVYc3IwajliX0tCOThhSXFoV1d5RDhFZXE5eFVjU09vbEVMeW4xcFUxOWJULWVCSWkzVzljc1NsUXBPLTdyMXNaOFRFNTNoNHdES3ZiaVNiazdUQUUxMjB6WEpJeFVaaDE0OEFpU1loSWhteGp6OF9vV05waWx3N1Q3QjVLT1d6NDZJ?oc=5",
+   "source": "Investing.com South Africa",
+   "pubDate": "Sat, 27 Jun 2026 02:16:48 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | analyst-action+8",
+   "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
    "title": "UBS raises Darden Restaurants stock price target on brand strength By Investing.com - Investing.com South Africa",
    "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxQNmNTTmZRVmI3ZHZVcVJxTTZSdTF3TVZwTkc4SGRlYzRoQ0VlRzNZbkl1Qi0zdlJtSk1UUUVTLXJaWmpBNnE4VXVNLW1rSnQ4SWhqemw5dnBaRm9pYjlaUzJ6RkRWekVrbzVmUXdJVlhhOVc3bzVwU3Nvdm9vTXV6UTdyU3ltZjlyOTl1cV84MGo0M3F1elJwaXM1dVV4MWEyMEtaRmNJRHdhZkZnaU5sdlNha3dMS2t3SC1PZEJPR2hOUG1VS2RFRFJhWjd6M1FjTXFRdWJR?oc=5",
    "source": "Investing.com South Africa",
    "pubDate": "Sat, 27 Jun 2026 01:42:31 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | analyst-action+8",
+   "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
+   "title": "Piper Sandler raises Darden stock price target on solid results - Investing.com UK",
+   "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxOZFhCcVBvMjEtdGUyU1hQWkJwYWJwU04weHVoU01IU1B0SGZpM0tQUlFxcXZ2YmdFRXZ4VzZQZlZuZDdmREQ1MUsyWDg2RGdXaU5oV3NWdktHV05UWEwxTTM0UVpNZ19PSktycDdwSl9xRzlyT2U2c1Q5aHhlMWZlRUhTRjVjRDFfa3g3bDNuR3FDVUJaZlozT3BQbTVTME1hb3hkdGhaQ1RzSUxoSzBnTmdLdlJsX2R6dFlnS3A3RzUzWWw4ZmpyUXBTbWhrMVhBWVE?oc=5",
+   "source": "Investing.com UK",
+   "pubDate": "Sat, 27 Jun 2026 00:50:24 GMT",
    "topic": "analyst",
    "country": "us",
    "tier": 3,
@@ -1139,9 +1235,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**한 줄 요약:** CPI 4.2%, 연방기금율 3.63%, NFP 172K 수치 속에서 금리 인하 기대감이 금과 기술주를 부양하는 중입니다.\n\n①**변동성/심리** - VIX(F&G 25)는 낮은 수준을 유지 중이며, 금이 $4,000을 돌파해 인플레이션 우려에 따른 방어심리가 나타나고 있습니다.\n\n②**거시/금리** - CPI 4.2% 발표로 인한 기대 인하 심리가 작용하면서, 금리 전망 관련 논의가 2026년 기준리트 경로까지 확대되고 있습니다.\n\n③**주도 뉴스/리스크** - AI 반도체(Micron, Nvidia, AMD)와 관련한 강세 뉴스가 시장을 주도 중이며, 유가 하락(호르무즈 해협 탱커 이동 증가)은 에너지 섹터 압박 요인으로 작용합니다. NVDA 실적 발표 임박에 따른 변동성 주목 필요합니다.",
+  "full": "# 현재 시장 분석\n\n**한 줄 요약:** CPI 4.2%와 Fed Rate 3.63% 속 금리 경로 불확실성이 고조되는 가운데, 금(4,000달러 돌파)과 유가 약세가 상반된 인플레이션 시그널을 제시합니다.\n\n① **변동성/심리:** VIX 25로 변동성이 중등도 수준이며, 금이 4,000달러를 넘으면서 안전자산 선호 심리가 나타나고 있습니다.\n\n② **거시/금리:** CPI 4.2% 기반 금리 재인상 우려와 2026년 Fed 금리 경로에 대한 논의가 상충하는 상황입니다.\n\n③ **주도 뉴스/리스크:** 유가는 호르무즈 해협 유조선 통행 증가로 약세인 반면, 인플레이션 인쇄 둔화 해석과 Fed의 인플레이션 보고서 표현 변경, 그리고 본 후 시장 변동성 확대 가능성(Nvidia 실적 발표)이 단기 리스크입니다.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-06-28T16:48:37.138Z",
+  "generatedAt": "2026-06-28T18:18:17.779Z",
   "model": "claude-haiku-4-5"
  }
 }
