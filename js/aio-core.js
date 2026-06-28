@@ -3597,6 +3597,14 @@ window.AIO_EVENT_FRESHNESS_REGISTRY = {
     result: '(6/28) 더 많은 유조선이 호르무즈 해협 통과 → 유가 급락. WTI $69 선 근접, 브렌트 $71대. (6/23) 미 재무부 이란산 원유 60일 한시 일반면허 발급. 중동 전쟁 프리미엄 대부분 제거. 트럼프: 호르무즈 완전 개방·협상 순조. 이란: 핵프로그램 신규 약속 없다 반박(불확실성 잔존).',
     marketReaction: '유가 하락 = 항공·운송·소비재 비용 이점, 에너지주 수익성 압박. WTI $70 하방 시 인플레 추가 완화 기대. 단, 트럼프 휴전 재위반 경고(6/28) 잔존 — 헤드라인 반전 리스크.',
     nextCheckpoint: 'WTI $70 하방 안착 여부, 60일 로드맵 이행 첫 점검(7월말), 이란 핵협상 후속 결과, 트럼프 휴전 이행 확인'
+  },
+  appleCXMT: {
+    label: 'Apple CXMT 메모리 검토',
+    eventDate: '2026-06-28',
+    status: 'SHORT_TERM_NOISE',
+    result: '(6/28) 애플이 중국 CXMT DRAM 채택을 검토한다는 보도로 반도체 지수 조정. 단, 이 뉴스는 2026년 2월부터 반복 보도된 내용의 재소환. 핵심 판단: ① 미국 국가전략자산(HBM·첨단 DRAM)으로 지정된 상황에서 미국 시장 대규모 채택은 정치·규제 리스크 매우 높음 ② CXMT는 DDR5/LPDDR5X에서 성장 중이나 HBM은 2~3세대 뒤처짐 ③ 대다수 분석가는 중국 내수 시장용 한정 가능성으로 봄 ④ Apple 공급망 퀄리피케이션 최소 12~18개월 소요 ⑤ 트럼프 행정부 CXMT 승인 로비는 메모리 가격 협상 레버리지 성격 강함.',
+    marketReaction: '반도체 지수 단기 조정은 과민반응. 구조적 수혜: MU(CHIPS Act $100B+ 미국 내 DRAM 40% 목표) · SK하이닉스(HBM3E 독점) · 삼성(파운드리+HBM). 중국 공급망(CXMT·화웨이·샤오미)은 별도 생태계로 분기 중 — 이중 공급망 구조화가 5~10년 메가트렌드.',
+    nextCheckpoint: '트럼프 행정부 CXMT 수출면제 승인 여부, 애플 10-Q 공급망 공시, MU CHIPS Act 보조금 집행 일정'
   }
 };
 
@@ -17093,7 +17101,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.54';
+const APP_VERSION = 'v51.55';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

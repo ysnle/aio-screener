@@ -1,4 +1,13 @@
-﻿## v51.54 (2026-06-29)
+﻿## v51.55 (2026-06-29)
+
+**트레이딩 방법론 통합 + Apple CXMT 분석**
+
+- LLY SCREENER_DB memo: 2026-06-25 Minervini Triple Barrel 매수신호 추가 (진입 ,208, 손절 ,079, VCP 13.7%, RPR 87/ER 90/SR 96)
+- AIO_EVENT_FRESHNESS_REGISTRY.appleCXMT 신설: Apple CXMT 단기노이즈 판단 + 이중 공급망 분기 구조 분석 (MU/SK하이닉스/삼성 구조적 수혜)
+- index.html guide-strategies 섹션 신설: Qullamaggie 3셋업(돌파/EP/파라볼릭숏) + Minervini VCP/Triple Barrel/SEPA + 공통 리스크관리 원칙
+- aio-chat.js technical CHAT_CONTEXT: Triple Barrel 정의 + LLY 사례 + Qullamaggie 3셋업 프레임워크 + ORH 진입 로직 추가
+- _context/KNOWLEDGE-BASE.md TM-I(Qullamaggie), TM-II(Triple Barrel+LLY), TM-III(Apple CXMT) 3개 항목 추가
+## v51.54 (2026-06-29)
 
 **한국 시장 3개 페이지 텔레그램 피드 추가**
 

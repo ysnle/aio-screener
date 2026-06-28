@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.54 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.55 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5118,7 +5118,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.54</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.55</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -11958,6 +11958,96 @@ button[data-filter-active="true"] {
     </div>
     </div><!-- /aio-section 판단방법론 -->
 
+    <!-- ═══ 섹션: 매매 전략 (Qullamaggie + Minervini) ═══ -->
+    <div class="aio-section" id="guide-strategies">
+    <div class="aio-section-hd"><span class="aio-section-label">실전 매매 전략</span></div>
+    <div class="aio-widget" style="border-left:3px solid var(--data-green);">
+      <div class="widget-title">기관급 스윙트레이딩 프레임워크 — Qullamaggie · Minervini</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:10px;line-height:1.6;">
+        Kristján Qullamaggie Davídsson(스웨덴·누적 수익 수천만 달러)과 Mark Minervini(US Investing Championships 우승)의 실전 방법론 핵심 요약.
+      </div>
+
+      <!-- Qullamaggie 3 셋업 -->
+      <div class="aio-subhd" style="margin-bottom:8px;">Qullamaggie 3대 셋업</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:8px;margin-bottom:14px;">
+        <div style="background:var(--surface-2);border:1px solid rgba(34,197,94,0.25);border-radius:4px;padding:10px;">
+          <div style="font-size:11px;font-weight:800;color:var(--data-green);margin-bottom:5px;">1. 돌파 셋업 (Breakout)</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
+            <strong>조건:</strong> 1~3개월 내 30~100%+ 선행 상승 → 10/20MA 서핑하며 저점상승(Higher Lows) → 캔들범위 수축(Tight Range) → 거래량 동반 박스 상단 돌파<br>
+            <strong>진입:</strong> 박스 상단 돌파 초기 OR Opening Range High(1m/5m/60m 봉 고점)<br>
+            <strong>손절:</strong> 진입 당일 저가 (ATR 이내여야 유효)<br>
+            <strong>청산:</strong> 3~5일 후 1/3~1/2 익절 → 손절 본전 이동 → 나머지는 10일선 종가 이탈까지 보유
+          </div>
+        </div>
+        <div style="background:var(--surface-2);border:1px solid rgba(251,191,36,0.25);border-radius:4px;padding:10px;">
+          <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:5px;">2. 에피소딕 피벗 (Episodic Pivot · EP)</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
+            <strong>조건:</strong> 예상 못한 호재(어닝 서프라이즈·분기 매출 급등·신규 계약)로 10%+ 갭업, 첫 15~30분 평균 거래량 소화<br>
+            <strong>필터:</strong> 어닝 YoY 중간~세 자릿수 성장 + 컨센 대폭 상회 + 직전 3~6개월 횡보(진짜 서프라이즈)<br>
+            <strong>진입:</strong> Opening Range High 돌파<br>
+            <strong>손절:</strong> 당일 저가. 이후 10/20일선 추세 추종
+          </div>
+        </div>
+        <div style="background:var(--surface-2);border:1px solid rgba(239,68,68,0.25);border-radius:4px;padding:10px;">
+          <div style="font-size:11px;font-weight:800;color:var(--data-red);margin-bottom:5px;">3. 파라볼릭 숏 (Parabolic Short)</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
+            <strong>조건(숏):</strong> 대형주 수일~수주 내 50~100%+, 소형주 300~1000%+ 급등 후 3~5일+ 연속 상승<br>
+            <strong>진입:</strong> 첫 음봉 or VWAP 이탈 후 Opening Range Low<br>
+            <strong>손절:</strong> 당일 고가 or VWAP 재돌파<br>
+            <strong>목표:</strong> 10/20일선 복귀, 기대 손익비 5~10R<br>
+            <span style="color:var(--data-red);font-weight:700;">초보자 금지 — 계좌 $1M 이상 수익 경험 후 접근 권장</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Minervini 시스템 -->
+      <div class="aio-subhd" style="margin-bottom:8px;">Minervini SEPA + VCP + Triple Barrel</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:8px;margin-bottom:14px;">
+        <div style="background:var(--surface-2);border:1px solid rgba(0,212,255,0.2);border-radius:4px;padding:10px;">
+          <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:5px;">VCP (Volatility Contraction Pattern)</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
+            선행 큰 조정 → 고점·저점 범위가 단계적으로 줄어드는 수축 패턴(예: 25%→15%→8%→5%). 거래량도 함께 감소 → 마지막 수축 후 거래량 폭발적 돌파 시 진입. 손절: 피벗 포인트 하단
+          </div>
+        </div>
+        <div style="background:var(--surface-2);border:1px solid rgba(0,212,255,0.2);border-radius:4px;padding:10px;">
+          <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:5px;">Triple Barrel 매수 신호</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
+            3개 독립 지표가 동시 발화: Minervini Pressure(추세 압력) + Buy Risk Colors(진입 위험도 최저) + TPR(Timing Price Range 최상단). RPR 80+·ER 80+·SR 80+이면 더 강력. 6/25 LLY $1,208 Triple Barrel 발화 사례
+          </div>
+        </div>
+        <div style="background:var(--surface-2);border:1px solid rgba(0,212,255,0.2);border-radius:4px;padding:10px;">
+          <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:5px;">SEPA 기준 (Specific Entry Point Analysis)</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
+            ① 주가 ≥ 200MA ② 200MA 상향 ③ 150MA > 200MA ④ 50MA > 150/200MA ⑤ 주가 > 50MA ⑥ 52주 저점 대비 +25%+ ⑦ 52주 고점 대비 -25% 이내. 5개 이상 충족 시 Stage 2 진입 확인
+          </div>
+        </div>
+      </div>
+
+      <!-- 공통 리스크 관리 -->
+      <div class="aio-subhd" style="margin-bottom:8px;">공통 리스크 관리 원칙</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:6px;">
+        <div class="aio-info-box is-warn" style="font-size:10px;">
+          <strong>포지션 사이징:</strong> 1종목 최대 계좌 20~25%, 야간 보유 30% 한도. 1회 리스크 0.25~1% (계좌 대비)
+        </div>
+        <div class="aio-info-box" style="font-size:10px;">
+          <strong>손익비 원칙:</strong> 승률 25~30%여도 수익 가능. 작은 손실 + 큰 홈런(5~20R) 구조. 승률보다 R배수가 중요
+        </div>
+        <div class="aio-info-box" style="font-size:10px;">
+          <strong>ATR 진입 필터:</strong> 손절폭 &gt; ATR = 추격 매수. ATR 이내여야 유효 진입. ORH 진입 시 1m/5m보다 60m 돌파가 실패율 낮음
+        </div>
+        <div class="aio-info-box" style="font-size:10px;">
+          <strong>시장 환경:</strong> NASDAQ 10MA &gt; 20MA·상향 = 트레이딩 환경 우호. 10MA &lt; 20MA = 현금 비중 확대. 나쁜 장세에서 무리한 포지션 금지
+        </div>
+        <div class="aio-info-box" style="font-size:10px;">
+          <strong>스캔 루틴:</strong> 장마감 후 1M/3M/6M 상위 1~7% 스캔 → ADR 5%+ → 50종목 이내 압축 → 10/20/50MA 지지 + Higher Lows + Tight Range 확인
+        </div>
+        <div class="aio-info-box" style="font-size:10px;">
+          <strong>실적 전 주의:</strong> 어닝 발표 2~3일 전 신규 진입 금지. 갭다운 리스크로 손절가 의미 소멸 가능. EP 셋업은 발표 '이후' 반응을 거래
+        </div>
+      </div>
+    </div>
+    </div><!-- /aio-section 매매전략 -->
+
     <!-- ═══ 섹션 3: 핵심 유의사항 ═══ -->
     <div class="aio-section">
     <div class="aio-section-hd"><span class="aio-section-label">유의사항</span></div>
@@ -12214,9 +12304,9 @@ button[data-filter-active="true"] {
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.54"></script>
-  <script src="./js/aio-data.js?v=51.54"></script>
-  <script src="./js/aio-ui.js?v=51.54"></script>
+  <script src="./js/aio-core.js?v=51.55"></script>
+  <script src="./js/aio-data.js?v=51.55"></script>
+  <script src="./js/aio-ui.js?v=51.55"></script>
 
   <script>
 
@@ -15413,7 +15503,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.54"></script>
+<script src="./js/aio-chat.js?v=51.55"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28002,7 +28092,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.54"></script>
+<script src="./js/aio-glossary.js?v=51.55"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
