@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-06-28T09:47:43.260Z",
+  "generatedAt": "2026-06-28T11:58:48.339Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -17,7 +17,7 @@
   "fredOk": true,
   "macroKeyCount": 7,
   "newsOk": true,
-  "newsCount": 31,
+  "newsCount": 35,
   "newsSourceCount": 7,
   "newsCyclePolicy": "kst-0800-completed-24h",
   "newsCycleStart": "2026-06-26T23:00:00.000Z",
@@ -26,8 +26,8 @@
   "newsNextRefresh": "2026-06-28T23:00:00.000Z",
   "serverNewsScored": true,
   "newsScoreMin": 10,
-  "newsScoreMax": 54,
-  "elapsedMs": 2485,
+  "newsScoreMax": 56,
+  "elapsedMs": 2387,
   "schema": 1,
   "marketAnalysisOk": true
  },
@@ -402,16 +402,16 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 60263.64,
-   "regularMarketChangePercent": -1.199264538041096,
+   "regularMarketPrice": 60245.28,
+   "regularMarketChangePercent": -1.2293653003429024,
    "regularMarketPreviousClose": 60995.133,
    "chartPreviousClose": 60995.133,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1580.58,
-   "regularMarketChangePercent": -2.4288101257039787,
+   "regularMarketPrice": 1580.5,
+   "regularMarketChangePercent": -2.433748626248043,
    "regularMarketPreviousClose": 1619.9249,
    "chartPreviousClose": 1619.9249,
    "_source": "live:yahoo-gh"
@@ -674,6 +674,22 @@
  },
  "news": [
   {
+   "title": "Oil prices dive as more tankers move through Strait of Hormuz - Reuters",
+   "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPWjhLRmoxOGtYcldWSWt2aDlpcExleWFoYzhFendSc0pJV0d0bE0wbUpvVzF5R1JwbHNsWEtfWm9vcnByc3NERm1RanQwRnVrZ1FrNVJ0OTZHMG5uRmhxaVMtbThOTU96b21VbkF5Ny1sV3V4bE5FZEJ0LUNxMFIxaTJjOTd1dUJxVE9zYlp0WFhLLUozVWNQX2lrd2E2SlRMVjI0Ym9Sb0pkMWJESWFQTFdaa3FlRkJoT21yajlpSTdCRVh5?oc=5",
+   "source": "Reuters",
+   "pubDate": "Sat, 27 Jun 2026 01:02:47 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 1,
+   "score": 56,
+   "selectionReason": "base+20 | source-tier1+16 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
    "title": "US targets Chinese refinery in sweeping Iran oil crackdown, sanctions ‘shadow fleet’ tankers - AOL.com",
    "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPeENEUmRyaHd0TWRYUmt4SkU0Rzh5X1dhOUVOcDFDSFgxUW9KV0xlQlJqRmptenlDaHNNeGh0SFJEcmZiR05yOW53YzJDU3ZjTGNWY1d1RU04QVlEb210Y3U2UTBVWEJxZlVWcjJueTZxYTdtbmFiYlJxa0YxVXlmZ0M1OGlLaDg?oc=5",
    "source": "AOL.com",
@@ -738,22 +754,6 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
-   "title": "Gold Falls Below $4,000: Strong Dollar, Fed Rate-Hike Bets, and ETF Outflows Test the Bullion Rally - KuCoin",
-   "link": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxPdTNxTEVrSzJpR3U1VEtvaWp1cUdyQlAyMDl6Mk9haEliTTFLcDEtX2x4NVh6c2Z5RTFDeEJLRDJjN2RkSlEzLUxDWWFqZTBCckJVX1ZZbFdtekVuVkNsblZVN1NYNVRESXk5RktGWDB6Q2xXVjR0bHZFNXVrcHZadjA4ZlRxTTB0aDBXd1QtSFBGTFZaeVZhTHpFZmJXWGZlWnFUbE1QaDFDb3RseFBaMDVrTk15QVM4TWp2RE5MRmFyTHc?oc=5",
-   "source": "KuCoin",
-   "pubDate": "Sat, 27 Jun 2026 00:20:48 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 3,
-   "score": 50,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | fx-bonds-commodities+8",
-   "feedSource": "Google News - FX/Bonds",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-06-26T23:00:00.000Z",
-   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
-   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
-  },
-  {
    "title": "Nvidia Reports After the Bell Today — Five Things That Will Move NVDA After the Close - TradingKey",
    "link": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxOZkVmQ2FKc01fYmN0bXZ0M1J0eFM1STRQTzlsREJ4VXI3UzVOMm5DbVczRkp1WUJhWHBCS2M4dFNnSk1BVjgyUWsyZnAweV9xbFd5NTZ2LU1JamJKR0RzeTZQbTY2UjRqaW0wMkJTVE9rT2VwX25hR3N6N1VBNjFDNnFGT1NLdEpLb0xYeEhwNUpuUWNDcnk2Qkttckw0SEhDem5xamt4QTd6OHUtN2Q2WEFMMzVDbExIaVVKcGd1V1RoQUFwVFR4MEhnMnItd0pJS0RRY21sRWRkWEluX0luNlhnejJVNnZheTlvV0lnY0hXZ0tCSE1OZA?oc=5",
    "source": "TradingKey",
@@ -770,32 +770,16 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
-   "title": "PSEC Forecast — Price Target — Prediction for 2027 - TradingView",
-   "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE13ZEdNU0dhdEZKamF3cHF3dkU2QTNWRXBuYlNxajhiU1hwSnNaN1RwZ2lPMVJEaXc1dVZQLUlCcHowUEEyQXJ5bVRwMjdCY255a2lNZE15ckJNZEhlaDBpc1ZfQWFqLXhQeG43d2R4N0FSYTlyMXg3VTJR?oc=5",
-   "source": "TradingView",
-   "pubDate": "Sat, 27 Jun 2026 22:34:23 GMT",
-   "topic": "analyst",
+   "title": "The Fed Removed This 1 Key Phrase From the Inflation Report. What That Means for the Market. - The Globe and Mail",
+   "link": "https://news.google.com/rss/articles/CBMiiAJBVV95cUxOXzBLaVpmNW5ZV2ZvdTcyY3BaZjU1Q2o4bU00bmkybnFrcHRsQXRrblU1VTVYNG5xcWNkT2drWnlVOFh2b01ZOXQtUHk5NERpQ3Vza0twNmZINzlLS3hMYUM3cEZPMUstcVZ6SDl3ZnZhX1YzU0V2ZnNNTm9oSFRtNURPd0NCUVoxLXRMaDZBc09lVkx0M2xEWjVlN3ZBa2ZEc0hMeHpGMDVjZTJvWm1pdmFmTUxyNkFwcWVLN2pHUGJsZEVROWd3eHpoTHlWS3dPMmw2Yk4zRmRiM1ZJS3lDZzE0U2FMZG0tTXJfUWs5RHBmbTZuV1ZwcVVjd3dMeGJ1dEo5U1A1SXA?oc=5",
+   "source": "The Globe and Mail",
+   "pubDate": "Sat, 27 Jun 2026 18:26:12 GMT",
+   "topic": "macro",
    "country": "us",
    "tier": 3,
    "score": 48,
-   "selectionReason": "base+20 | source-tier3+2 | recency+18 | analyst-action+8",
-   "feedSource": "Google News - Analyst/Earnings",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-06-26T23:00:00.000Z",
-   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
-   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
-  },
-  {
-   "title": "RBC Capital raises Visteon stock price target on investor day outlook By Investing.com - Investing.com Australia",
-   "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxOQ3dITGpNVWhUb3NpM2hSYkpjWDdZbi1KQmRHcXA3MFJSOVFEdWV6VE5kSTdrM1duVDFhd0czbElNaDh3S21jVFhLNmZjOXNGcDZkZzN0eDZyem9lUnctNHVHd3JDNmhHRHhSbDN2MTg5MmRWVlFiQUJESF8wWVhTNlkwMm9xbXZ5YU5ZY0g0VzE0dkJ0cXo4ZEhLZlY4UWN3MVk5SkMwTmJySnhOc0J6V1F0WjJ3Um83czlhaDI5NXBjbVlxR0dWWkpVc2UtRjNGak0wUEM5MV8xdw?oc=5",
-   "source": "Investing.com Australia",
-   "pubDate": "Fri, 26 Jun 2026 23:28:36 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 46,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10 | analyst-action+8",
-   "feedSource": "Google News - Analyst/Earnings",
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | macro-rates+14",
+   "feedSource": "Google News - US markets",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-06-26T23:00:00.000Z",
    "newsCycleEnd": "2026-06-27T23:00:00.000Z",
@@ -882,6 +866,22 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
+   "title": "Trump chose oil prices over Netanyahu’s Iran strategy - Israel Hayom analysis - ایران اینترنشنال",
+   "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBZdFdzaVRhdHJ0QWg1ZUdXcDJNaGJTeFBkWE83WklzUlVwNHFUbGdQOVBJUVMyckRKSGRkZkd0NFRlczVPY2ZicWlEQXA1MUtCQ1E?oc=5",
+   "source": "ایران اینترنشنال",
+   "pubDate": "Sat, 27 Jun 2026 05:56:22 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
    "title": "Palantir Grew Revenue 85% and Raised Full-Year Guidance by 10 Points — So Why Is PLTR Down 26% YTD? - TradingKey",
    "link": "https://news.google.com/rss/articles/CBMiiwJBVV95cUxQNmM2SURNRGVLR0RMNmJYbUJidUVteEZBTkRuejNZX2JTMHo4SG5jVnhlbFBrd0FsUFpSTmg3ZGp6RlpzalpSNTlNVElFRGVJRVdQWjJQb2N4WndtWXpHNFZMQVNlLUJrNEpRMDd1X3kyUHk3cWtIeFBLNGpOOEF1MVc0cXBkUlZHcVhjenM2MDhmQ1NRbGk5TFVPV0xTbGNxRHQ2YlRMcnNINVhrOG9aUUZWQl9wa3BWRTItVmpMcHhVNUNoZXZuLTN4dUJ0Nm5HLWp4MTEtUFo0eFQ0RWYxa1VvVkZZR1JPdVh4XzhMdFBmNGY5MUY5a3NMVmxLSjBTWjlFOHBXb01mSkk?oc=5",
    "source": "TradingKey",
@@ -930,6 +930,38 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
+   "title": "Gold Posts a Fourth Consecutive Weekly Loss, Heads for Its Worst Monthly Performance of 2026 - Sada Elbalad english",
+   "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOTnVCYWJHUmtzdlE0WlRoOEliSFJsc1hPQVpxSU1hS3djMEFKNXBuRDVrS3VnNDJkTDFWYm9uSEt2V2hDTzZyTG9LWncyQXNOTE1hMGRjcFdLLXNDLTlPaXI0T2hFVmtOS0tWT2NnaDNFemJWWUZFZVNzZEt2ejM5bVpTeDhsNU5VejdidXNEUmk3Tm9CWm1ZRVg4eGhwaURLSXF5WmJsaG9BREJJ?oc=5",
+   "source": "Sada Elbalad english",
+   "pubDate": "Sat, 27 Jun 2026 15:21:03 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
+   "title": "Indian issuers hold dollar bond plans amid demand for higher yields - The Economic Times",
+   "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxNcWU0UXRWX3Flc3pkenRVUFBVT1NrUXJfc1h2U3ZBRlROXzFUXzBoOEtnbDZka3ljNVd3T3hocHh0eGgyU21kOWF4Vno0NXlqTmpxa1hydGNhMkZISTFXUERjR1lJdG0zeGwxVHpBRUR2aHFPNEVOWklHRzNhX1B1N3UtUzJPZ29tVnhsOV9vWjRKdGVneDg1MENGd1ZiVXVKbTdUUm0yaWxVRVZRY3NLT25xOXFkOFhfc1NkZ0VoX2lyYmJQRUpXbEpQNzhFZG1pcUI5aHlB0gHWAUFVX3lxTE1xZTRRdFZfcWVzemR6dFVQUFVPU2tRcl9zWHZTdkFGVE5fMVRfMGg4S2dsNmRreWM1V3dPeGhweHR4aDJTbWQ5YXhWejQ1eWpOanFrWHJ0Y2EyRkhJMVdQRGNHWUl0bTN4bDFUekFFRHZocU80RU5aSUdHM2FfUHU3dS1TMk9nb21WeGw5X29aNEp0ZWd4ODUwQ0Z3VmJVdUptN1RSbTJpbFVFVlFjc0tPbnE5cWQ4WF9zU2RnRWhfaXJiYlBFSldsSlA3OEVkbWlxQjloeUE?oc=5",
+   "source": "The Economic Times",
+   "pubDate": "Sat, 27 Jun 2026 09:07:00 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
    "title": "Gold climbs as softer dollar, easing Treasury yields temper Federal Reserve rate expectations - VT Markets",
    "link": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxQSmhSejlnalBZQnVFZHhiYkZXaFF4dXJ1WVc0QS1ieVVXVndFRy1aNFhVRFJNdkF6OVpSX3Z3ZHJNbmpvQm12Rmo3TERTMHZmRVRIQTMyZmtzeEFJcDZ6bmNHSDRrNHhOak5kTS1fMlVfellSNUIyN1JqS1djRG9RaDVxZHg2M3I2NnQzUTBtaVg0ajRjSEpqX3lhV2V4cjZJQjFMX3hxRWZGeTlncF9oZ082M1RFZUEyMGVRek52UlVIS1R6SU8zbmRvN2tzUlRuTHdIdw?oc=5",
    "source": "VT Markets",
@@ -946,6 +978,22 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
+   "title": "UBS raises TD Synnex stock price target to $352 on strong results - Investing.com South Africa",
+   "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxOMmY1a2Z2Zi1UdFlONnZmbzN5b3BJX0NPMG5HWXpzVlJDNTF1TDFwOTBPTGI5dTV6NzZ1YkF4ODRqRjhGU2dLQ3FIcWJvTmZPRUVYc3IwajliX0tCOThhSXFoV1d5RDhFZXE5eFVjU09vbEVMeW4xcFUxOWJULWVCSWkzVzljc1NsUXBPLTdyMXNaOFRFNTNoNHdES3ZiaVNiazdUQUUxMjB6WEpJeFVaaDE0OEFpU1loSWhteGp6OF9vV05waWx3N1Q3QjVLT1d6NDZJ?oc=5",
+   "source": "Investing.com South Africa",
+   "pubDate": "Sat, 27 Jun 2026 02:16:48 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | analyst-action+8",
+   "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
    "title": "UBS raises Darden Restaurants stock price target on brand strength By Investing.com - Investing.com South Africa",
    "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxQNmNTTmZRVmI3ZHZVcVJxTTZSdTF3TVZwTkc4SGRlYzRoQ0VlRzNZbkl1Qi0zdlJtSk1UUUVTLXJaWmpBNnE4VXVNLW1rSnQ4SWhqemw5dnBaRm9pYjlaUzJ6RkRWekVrbzVmUXdJVlhhOVc3bzVwU3Nvdm9vTXV6UTdyU3ltZjlyOTl1cV84MGo0M3F1elJwaXM1dVV4MWEyMEtaRmNJRHdhZkZnaU5sdlNha3dMS2t3SC1PZEJPR2hOUG1VS2RFRFJhWjd6M1FjTXFRdWJR?oc=5",
    "source": "Investing.com South Africa",
@@ -956,6 +1004,22 @@
    "score": 36,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | analyst-action+8",
    "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
+   "title": "Vanguard Total Bond Market ETF Tops iShares 3-7 Year Treasury Bond ETF on Yield and Cost. Does That make BND a Buy? - Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPWHk2S3o2dHI1QWdVOHlMenI5QlZBbGhWZklLTGh6VzYxOGlObXl1NVVJMUxXQlpzQ05YRHFCaXFsODZhUzZjWl90M2NiVmR1V0ZhMGpMOWZDaW1JNlJHN1lHY2gtRGJIMTBISHUzUGFpYkFaUGhKbS0zbjI3cGNYNjYxX0FBN0lLWEJTQjUtaUQ3QllUdEhHVXlHdw?oc=5",
+   "source": "Yahoo Finance",
+   "pubDate": "Sat, 27 Jun 2026 16:09:49 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 2,
+   "score": 35,
+   "selectionReason": "base+20 | source-tier2+9 | recency+6",
+   "feedSource": "Google News - US markets",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-06-26T23:00:00.000Z",
    "newsCycleEnd": "2026-06-27T23:00:00.000Z",
@@ -1042,22 +1106,6 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
-   "title": "Don't expect pre-war gas or airfare prices any time soon - Axios",
-   "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE5DRW92d3dMMzJNQkE3dEZsSHpTUVdtTS12YTNaa2t2UXR0b1hPM1J5aC1QQUw2Ull0WE9KWnJENlRlb2xpTEdJVEVXSDY4RDFDdS03NFlqQ0FFbE9CeEtFRF9LY1B4TVJxcV9SNy1aVmxSS3lD?oc=5",
-   "source": "Axios",
-   "pubDate": "Sat, 27 Jun 2026 10:25:57 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 28,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-06-26T23:00:00.000Z",
-   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
-   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
-  },
-  {
    "title": "Hormuz oil flows near prewar levels as prices tumble - MSN",
    "link": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxPOXVVQ1hOcmxwcm1kS2k4R1JkUHl2ZmVidzNaUUlZRF9GbnJfdzZ1ZFN6YzJpVkEySTZrdWRzcVZjc2xuSVhqVmlUZVMxM2ZhQmJRV05PWVdCU3ViRVd0dGVuNXdLS0hHMTZoQ0FPcFhPYVZqcFpFVUMzSEhXcnU0eENPNkdBejI3X2VWUU1YS18zbHFqTE5TSWdwc0J1LXFfRGhlQUFkcVYtbFRsUWFudXhFelluXzR5b0MxY1BLTWZESXc3WGhtWkxtQmd6djVEeENYeUp6cXBPMlB0QVdxNlV1N1BXTHZaNFE?oc=5",
    "source": "MSN",
@@ -1100,6 +1148,22 @@
    "score": 24,
    "selectionReason": "base+20 | source-tier4-8 | recency+6 | macro-rates+14 | low-quality-source-8",
    "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
+   "title": "FDX Stock Drops Over 5% As Weak Guidance Overshadows Post-Spin-Off Earnings Win - Stocktwits",
+   "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxQLWc2MS1PQ01oSHVSM1hzQVFtY2E0d1BSdHZnWmhVaEVuLU9Vc0VWUU0yX0p1a3cwTkZ3dEJVRzFtMXFyV0RXQXhDZG4tSXptS0N2eUNHTlJhYWRjVUJJTFh3N1psdHlOVVhzWGlHTFg2NE1DMGh4SnlGOEtqZWRjY01xamZTc1EtLTNoeFVvbThRZXJhc2s3a3hYXzlYRk54TllIc2F1RGI1eUNEaGUwMG4yLXc1NGRVaEhrVFVYQ2xWTVF1aDZyclF5UnhPUjdP?oc=5",
+   "source": "Stocktwits",
+   "pubDate": "Sat, 27 Jun 2026 15:50:17 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 4,
+   "score": 20,
+   "selectionReason": "base+20 | source-tier4-8 | recency+6 | earnings-guidance+10 | low-quality-source-8",
+   "feedSource": "Google News - AI/Semis",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-06-26T23:00:00.000Z",
    "newsCycleEnd": "2026-06-27T23:00:00.000Z",
@@ -1171,9 +1235,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**한 줄 요약:** CPI 4.2%와 Fed Rate 3.63% 수준에서 금리 인상 기대가 혼재하며, 금(Gold)의 변동성이 확대되고 있는 상황입니다.\n\n① **변동성/심리** — VIX 지표 미제시로 정확한 변동성 평가는 제한적이나, 금이 $4,000을 중심으로 등락하며 투자자 심리 불안정을 반영하고 있습니다.\n\n② **거시/금리** — CPI 4.2% 기록과 Fed Rate 3.63% 유지 속에서 금리 인상 여부에 대한 시장 의견이 엇갈리고 있으며, 2026년 금리 전망도 불확실성을 보이고 있습니다.\n\n③ **주도 뉴스/리스크** — Nvidia 실적 발표 임박, Micron HBM 부품 수급 부족(2026년까지 매진) 등 기술주 호재와 이란 원유 제재 강화로 인한 에너지 시장 리스크가 동시에 작용 중입니다.",
+  "full": "# 현재 시장 분석\n\n**미국 주식과 금이 동반 상승하며 금리 인하 기대감이 부각되는 가운데, 중동 지정학적 긴장과 기술주 실적이 시장 방향을 결정할 것으로 보임.**\n\n① **변동성/심리**: VIX 25 수준으로 시장 불안감이 중간 정도 유지되는 가운데, 금이 $4,000을 돌파하며 안전자산 선호 심리 강화.\n\n② **거시/금리**: CPI 4.2%, 연방기금금리 3.63%로 인플레이션 압박이 완화되면서 금리 인하 가능성에 대한 시장 기대감 증대.\n\n③ **주도 뉴స/리스크**: Nvidia 실적 발표(본장 마감 후), Micron의 HBM 수급 우위 등 AI칩 수요 강세가 긍정적 요인인 반면, 이란 제재 강화와 중동 유조선 통행 제약으로 에너지 가격 변동성 존재.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-06-28T09:47:47.171Z",
+  "generatedAt": "2026-06-28T11:58:56.493Z",
   "model": "claude-haiku-4-5"
  }
 }
