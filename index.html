@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.58 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.59 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1978,6 +1978,12 @@ body {
 }
 /* v51.58: insight-box 전 페이지 숨김 — 페이지 설명 카드 제거 */
 .insight-box { display: none !important; }
+/* v51.59: 잡음/중복 요소 제거 */
+#home-conclusion-bar, #signal-conclusion-bar,
+#sentiment-conclusion-bar, #macro-conclusion-bar { display: none !important; }
+.aio-why { display: none !important; }
+.tg-feed-more { display: none !important; }
+.aio-page-advanced-body .insight-box { display: none !important; }
 
 /* v48.42: Home quick nav — aio-btn 정렬 */
 .home-qnav-btn {
@@ -5120,7 +5126,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.58</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.59</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6111,13 +6117,6 @@ button[data-filter-active="true"] {
       <div> <b style="color:var(--data-red);">Flash Crash</b> 감지 — 개장 30분 내 SPX -3% 이탈 시</div>
     </div>
   </div>
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
-    <span style="font-size:10px;color:var(--text-muted);align-self:center;">시그널 확인 후 →</span>
-    <span class="cross-link" data-action="showPage" data-arg="technical">차트·기술 분석 →</span>
-    <span class="cross-link" data-action="showPage" data-arg="breadth">시장 폭 확인 →</span>
-    <span class="cross-link" data-action="showPage" data-arg="screener">종목 스크리닝 →</span>
-    <span class="cross-link" data-action="showPage" data-arg="macro">매크로 확인 →</span>
-  </div>
   </div><!-- /aio-section exit-triggers -->
 </div><!-- fix: page-signal outer close -->
 
@@ -6268,9 +6267,8 @@ button[data-filter-active="true"] {
       </div>
     </div>
     <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;padding:10px;background:rgba(0,0,0,0.2);border-radius:3px;border-left:3px solid var(--data-amber);">
-      <b style="color:var(--data-amber);">핵심:</b> <span id="breadth-diag-text">5/20SMA는 단기 반등 속도, 50SMA는 중기 추세 전환 여부를 봅니다.
+      <b style=”color:var(--data-amber);”>핵심:</b> <span id=”breadth-diag-text”>5/20SMA는 단기 반등 속도, 50SMA는 중기 추세 전환 여부를 봅니다.
       단기선은 회복됐는데 50일선 비율이 낮으면 “지수만 강한 장”일 수 있으므로 신규 매수는 섹터 확산 확인 후 진행합니다.</span>
-      <span style="display:flex;gap:8px;margin-top:6px;"><span class="cross-link" data-action="showPage" data-arg="sentiment">심리 지표 확인 →</span><span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 확인 →</span></span>
     </div>
   </div>
 
@@ -6682,9 +6680,6 @@ button[data-filter-active="true"] {
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
           <span id="briefing-regime-badge" class="status-pill sp-neutral">시장 국면 수신 대기</span>
           <span style="font-size:11px;color:var(--data-purple);background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);padding:2px 8px;border-radius:4px;font-weight:700;">08:00 KST 기준</span>
-          <span class="cross-link" data-action="showPage" data-arg="macro">매크로 상세 →</span>
-          <span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 →</span>
-          <span class="cross-link" data-action="showPage" data-arg="market-news">전체 뉴스 →</span>
         </div>
       </div>
     </div>
@@ -6946,10 +6941,6 @@ button[data-filter-active="true"] {
     </div>
   </div>
 
-  <div style="margin-bottom:10px;">
-    <span class="cross-link" data-action="showPage" data-arg="signal" style="margin-right:8px;">매매 시그널 →</span>
-    <span class="cross-link" data-action="showPage" data-arg="breadth">시장 폭 →</span>
-  </div>
   <div id="tg-feed-technical"></div>
   <!-- v50.77: Minervini-style 시장 상태 인디케이터 스트립 (Pressure / Buy Risk / Trend Phase) -->
   <div class="aio-section">
@@ -7387,11 +7378,6 @@ button[data-filter-active="true"] {
     </div>
   </div>
 
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-    <span class="cross-link" data-action="showPage" data-arg="fxbond">환율·채권 →</span>
-    <span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 →</span>
-    <span class="cross-link" data-action="showPage" data-arg="market-news">관련 뉴스 →</span>
-  </div>
   <div id="tg-feed-macro"></div>
   <!-- ══ SECTION 0: 매크로 스토리라인 (서사형 분석) ══════════════ -->
   <div class="aio-section">
@@ -7977,11 +7963,6 @@ button[data-filter-active="true"] {
     </div>
   </div>
 
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-    <span class="cross-link" data-action="showPage" data-arg="macro">거시 영향 →</span>
-    <span class="cross-link" data-action="showPage" data-arg="signal">매매 시그널 →</span>
-    <span class="cross-link" data-action="showPage" data-arg="kr-macro">한국 매크로 →</span>
-  </div>
   <div id="tg-feed-fxbond"></div>
   <!-- ══ v48.50: CROSS-ASSET MATRIX — FX × Bond × Credit 유기적 통합 대시보드 ══ -->
   <div class="aio-section">
@@ -8737,11 +8718,6 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 기업분석헤더 -->
 
     <div class="aio-section">
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-      <span class="cross-link" data-action="showPage" data-arg="screener">← 퀀트 스크리너 (종목 발굴)</span>
-      <span class="cross-link" data-action="showPage" data-arg="ticker">Ticker 차트 분석 →</span>
-      <span class="cross-link" data-action="showPage" data-arg="themes">섹터·테마 →</span>
-    </div>
 
     <!-- v50.82: 시각화 패널 (factor-radar) — 티커 검색 후 동적 렌더 -->
     <div id="vis-fundamental" class="aio-vis-panel is-single" style="display:none;">
@@ -10302,12 +10278,6 @@ button[data-filter-active="true"] {
       <div id="ps-result" style="margin-top:8px;font-size:11px;line-height:1.8;color:var(--text-muted);">종목 행을 클릭하면 자동 설정 · 직접 입력 후 계산 버튼 누르세요.</div>
     </div>
     <!-- 결과 테이블 -->
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
-      <span style="font-size:10px;color:var(--text-muted);align-self:center;">종목 발굴 후 →</span>
-      <span class="cross-link" data-action="showPage" data-arg="fundamental">기업 펀더멘털 →</span>
-      <span class="cross-link" data-action="showPage" data-arg="ticker">Ticker 차트 →</span>
-      <span class="cross-link" data-action="showPage" data-arg="themes">섹터 테마 →</span>
-    </div>
     <div style="overflow-x:auto;background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);">
       <table class="aio-table is-mono is-compact" style="width:100%;min-width:820px;">
         <thead>
@@ -12275,9 +12245,9 @@ button[data-filter-active="true"] {
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.58"></script>
-  <script src="./js/aio-data.js?v=51.58"></script>
-  <script src="./js/aio-ui.js?v=51.58"></script>
+  <script src="./js/aio-core.js?v=51.59"></script>
+  <script src="./js/aio-data.js?v=51.59"></script>
+  <script src="./js/aio-ui.js?v=51.59"></script>
 
   <script>
 
@@ -15474,7 +15444,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.58"></script>
+<script src="./js/aio-chat.js?v=51.59"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28063,7 +28033,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.58"></script>
+<script src="./js/aio-glossary.js?v=51.59"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
