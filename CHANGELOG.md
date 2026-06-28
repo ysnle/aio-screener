@@ -1,4 +1,12 @@
-﻿## v51.53 (2026-06-29)
+﻿## v51.54 (2026-06-29)
+
+**한국 시장 3개 페이지 텔레그램 피드 추가**
+
+- kr-home: _TG_PAGE_TAGS에 ['kr-market','semi','equity','macro'] 등록, _TG_PAGE_CFG '한국장 최신 소식'(4건·date정렬·compact), tg-feed-kr-home 컨테이너 신설
+- kr-supply: _TG_PAGE_TAGS에 ['kr-market','equity','geo'] 등록, _TG_PAGE_CFG '수급·외국인 동향'(3건·score정렬·compact), tg-feed-kr-supply 컨테이너 신설
+- kr-macro: _TG_PAGE_TAGS에 ['kr-market','macro','semi','ai-policy'] 등록, _TG_PAGE_CFG '한국 매크로 소식'(4건·score정렬·본문표시), tg-feed-kr-macro 컨테이너 신설
+- 텔레그램 자동 주입(aio:pageShown) 3개 한국 시장 페이지에 확대 적용
+## v51.53 (2026-06-29)
 
 **스크리너 7일 신선도 정책 구현**
 

@@ -1228,6 +1228,10 @@ var _TG_PAGE_TAGS = {
   'macro':       ['macro','geo','ai-policy'],
   'fxbond':      ['macro','geo'],
   'market-news': ['macro','geo','semi','equity','kr-market','ai-policy','optical','power','crypto'],
+  // v51.53: 한국 시장 페이지 텔레그램 피드 추가 (kr-home/kr-supply/kr-macro)
+  'kr-home':     ['kr-market','semi','equity','macro'],
+  'kr-supply':   ['kr-market','equity','geo'],
+  'kr-macro':    ['kr-market','macro','semi','ai-policy'],
 };
 // [0]=표시라벨 [1]=최대건수 [2]=본문표시 [3]=정렬(score|date) [4]=compact
 var _TG_PAGE_CFG = {
@@ -1240,6 +1244,9 @@ var _TG_PAGE_CFG = {
   'macro':      ['거시·금리 동향',           5,  true,  'score', false],
   'fxbond':     ['환율·채권 동향',           4,  false, 'score', false],
   'market-news':['텔레그램 전체 피드',     12, true,  'date',  false],
+  'kr-home':    ['한국장 최신 소식',        4,  false, 'date',  true ],
+  'kr-supply':  ['수급·외국인 동향',        3,  false, 'score', true ],
+  'kr-macro':   ['한국 매크로 소식',        4,  true,  'score', false],
 };
 
 // 카테고리 → 한국어 라벨 + CSS 클래스
