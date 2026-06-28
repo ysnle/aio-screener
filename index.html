@@ -1983,7 +1983,7 @@ body {
 #sentiment-conclusion-bar, #macro-conclusion-bar { display: none !important; }
 .aio-why { display: none !important; }
 .tg-feed-more { display: none !important; }
-.aio-page-advanced-body .insight-box { display: none !important; }
+#fg-signal-link { display: none !important; }
 
 /* v48.42: Home quick nav — aio-btn 정렬 */
 .home-qnav-btn {
@@ -4607,7 +4607,7 @@ body {
 .aio-page-advanced-toggle[open] > summary:after { content:'접기'; }
 .aio-page-advanced-body { padding:0 12px 12px; }
 .aio-page-dense-folded { display:none !important; }
-.aio-page-advanced-body .aio-page-dense-folded { display:block !important; }
+.aio-page-advanced-body .aio-page-dense-folded:not(.insight-box) { display:block !important; }
 .page.has-aio-redesign-hub .insight-box.box-collapsed:first-child { display:none !important; }
 .page.has-aio-redesign-hub .aio-legend { display:none !important; }
 /* v50.75: 실데이터 시장 팩터 히트맵 (Codex 가짜 premium-board 대체) */
