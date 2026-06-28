@@ -1,3 +1,11 @@
+## v51.49 - UI/UX: 전체 페이지 섹션 리듬 개편 완결 (2026-06-28)
+
+**나머지 18개 페이지 aio-section 전환 완결**: signal·breadth·sentiment·briefing·fxbond·fundamental·themes·theme-detail·portfolio·ticker·market-news·screener·kr-home·kr-supply·kr-themes·kr-macro·kr-technical·guide 전 페이지에서 `background:var(--bg-card);border:1px solid var(--border)` 불투명 박스를 `.aio-section` 오픈 구조로 교체. 섹션 카드 배경 `rgba(X,Y,Z,0.04)` 컬러 그라디언트 → `var(--surface-1)` + 컬러 보더로 통일. `section-divider`·`section-header` 레거시 구분자 → `aio-section-hd` + `aio-section-label` 표준 헤더로 교체. 기존 인라인 rgba 배경은 surface-1로 중화하되 컬러 보더(0.18~0.25 불투명도)는 유지해 시맨틱 컬러 신호를 보존.
+
+**R1 v51.49 7곳 동기화**.
+
+---
+
 ## v51.48 - UI/UX: 매크로·기술분석 페이지 섹션 리듬 개편 (2026-06-27)
 
 **매크로 페이지 전 섹션 aio-section 전환**: 인터커넥션 맵(Section 1) 6개 서브카드 배경을 `rgba(X,Y,Z,0.04)` 컬러 그라디언트에서 `var(--surface-1)` + 컬러 보더로 교체. 경제 사이클 타임라인(1-B)·FRED 차트·라이브 매크로 지표(Section 2, 3개 그리드)·외환채권·수익률 곡선·경기 체온계·유가에너지·시나리오 트리·경제 캘린더 등 모든 섹션에서 `background:var(--bg-card);border:1px solid var(--border)` 불투명 박스를 `.aio-section` 오픈 구조로 교체. 요약 바·해석 박스·시나리오 카드 배경도 `surface-1` 통일.
