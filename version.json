@@ -1,1 +1,1 @@
-{"version":"v51.52","built":"2026-06-29T00:00:00+09:00","note":"v51.52 content alignment: fix operator-note placeholder tags, strengthen _isPlaceholderTag filter, update Iran/Hormuz registry with June 28 tanker news (oil prices diving)"}
+{"version":"v51.53","built":"2026-06-29T01:00:00+09:00","note":"v51.53 screener 7-day freshness policy: SCREENER_DB_META staleAfterDays 30→7, _aioApplyServerScreener 7-day gate + auto-update lastBulkUpdate from screener.json asOf, per-entry newsTs freshness check (7일 초과 뉴스 메모 자동 제거)"}

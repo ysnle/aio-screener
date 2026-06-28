@@ -9,9 +9,9 @@
 // v49.31 H1/R75: SCREENER_DB 메타 — 메모 게시일 4월 중순~말. Q2 실적 시즌 진행 중. /data-refresh 정기 갱신 필요.
 var SCREENER_DB_META = {
   schemaVersion: 'v49.31',
-  lastBulkUpdate: '2026-04-29',  // 마지막 메모 일괄 게시일 (memo 헤더 04/21~04/29 기준)
-  staleAfterDays: 30,            // R75 lifecycle: 30일 경과 시 archive due (2026-05-29 기준 30일 경과 — archive 임계 도달, /data-refresh 권장)
-  replaceAfterDays: 60,          // 60일 경과 시 replace due (2026-06-28)
+  lastBulkUpdate: '2026-06-28',  // 동적으로 screener.json asOf로 자동 갱신됨 (_aioApplyServerScreener)
+  staleAfterDays: 7,             // 7일 경과 시 stale 경고 (screener.json Actions 일 1회 자동 갱신)
+  replaceAfterDays: 14,          // 14일 경과 시 replace due (Actions 장기 실패 시 데이터 비표시)
   source: 'JPM/Citi/TDCowen/Mizuho 04/21~04/29 게시',
   note: 'v50.62 Telegram/data refresh (2026-06-16 KST): scraped public mirrors for @aetherjapanresearch, @insidertracking, @bornlupin. 796 posts integrated as weekly themes, screener memo overlays, macro/tech keyword expansion, and chat context. Main clusters: US-Iran/Hormuz risk-on, BOJ 1% + JGB taper/Nikkei 70k, Anthropic Fable/Mythos export control, NVDA optical supply lock, CPO/NPO, 800V HVDC/SOFC power, MU/SK Hynix HBM4E, MLCC/silicon capacitor, WF6 supply shock.'
 };
@@ -15019,6 +15019,17 @@ function updateScreenerFromLiveData() {
 //   가격 파생 4팩터(모멘텀 ret1m/3m/6m · 저변동 vol · 추세 pctSma50/200 · RSI). 없으면 정적 폴백(무회귀).
 function _aioApplyServerScreener(sd) {
   if (!sd || !sd.data || typeof SCREENER_DB === 'undefined') return 0;
+  // 7-day freshness gate: screener.json이 7일 초과 stale이면 적용하지 않음
+  var asOfMs = sd.asOf ? new Date(sd.asOf).getTime() : 0;
+  var ageDays = asOfMs ? Math.floor((Date.now() - asOfMs) / 86400000) : 999;
+  if (window.SCREENER_DB_META) {
+    if (asOfMs) window.SCREENER_DB_META.lastBulkUpdate = sd.asOf.slice(0, 10);
+    window.SCREENER_DB_META.stale = ageDays > 7;
+  }
+  if (ageDays > 7) {
+    if (typeof _aioLog === 'function') _aioLog('warn', 'data', 'screener 팩터 7일 stale 초과 — 적용 건너뜀 (ageDays=' + ageDays + ')');
+    return 0;
+  }
   var n = 0;
   SCREENER_DB.forEach(function(item) {
     var f = sd.data[item.sym];
@@ -15040,8 +15051,16 @@ function _aioApplyServerScreener(sd) {
     // v50.54 3B/3C: FMP 밸류/퀄리티/어닝(키 있을 때만 존재)
     ['pe','pb','evEbitda','roe','margin','revGrowth','epsSurprise'].forEach(function(k){ if (typeof f[k] === 'number') item[k] = f[k]; });
     // v51.15: 개별 종목 뉴스 메모 자동 병합 (Actions 1일 1회 수집 → screener.json.newsMemo)
-    if (f.newsMemo) item.newsMemo = f.newsMemo;
-    if (f.newsTs) item.newsTs = f.newsTs;
+    // v51.53: newsTs 7일 freshness check — 7일 초과 오래된 뉴스 메모는 제거
+    if (f.newsMemo) {
+      var newsAge = f.newsTs ? Math.floor((Date.now() - f.newsTs) / 86400000) : ageDays;
+      if (newsAge <= 7) {
+        item.newsMemo = f.newsMemo;
+        if (f.newsTs) item.newsTs = f.newsTs;
+      } else {
+        item.newsMemo = null; // 7일 초과 뉴스는 제거
+      }
+    }
     item._factorAsOf = sd.asOf;
     n++;
   });

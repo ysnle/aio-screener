@@ -1,4 +1,15 @@
-﻿## v51.52 - 콘텐츠 정합성 보강 (2026-06-29)
+﻿## v51.53 (2026-06-29)
+
+**스크리너 7일 신선도 정책 구현**
+
+- SCREENER_DB_META.staleAfterDays 30→7, eplaceAfterDays 60→14, lastBulkUpdate 오늘 날짜로 초기화
+- _aioApplyServerScreener() 7-day freshness gate: screener.json.asOf > 7일이면 팩터 적용 건너뜀 + 경고 로그
+- screener.json.asOf 로드 시 SCREENER_DB_META.lastBulkUpdate 자동 갱신(정적 날짜 → 라이브 날짜)
+- per-entry 
+ewsTs 체크: 7일 초과 뉴스 메모 자동 제거(item.newsMemo = null)
+- GitHub Actions 일 1회 enrichScreener() 자동 실행 → 7일 정책이 실질적 SLA가 됨
+
+## v51.52 - 콘텐츠 정합성 보강 (2026-06-29)
 
 **운영자 노트 태그 수정**: placeholder 태그 "예시태그1/예시태그2" → 실제 내용 기반 태그 "애플/메모리반도체/7월조정". `_isPlaceholderTag` 필터에 `예시|작성|샘플` 패턴 추가로 미래 예시 태그 자동 차단. **Iran/Hormuz 레지스트리 갱신**: 6/28 더 많은 유조선 호르무즈 통과 → 유가 급락 반영. WTI $69 선 근접. 트럼프 휴전 재위반 경고 잔존 리스크 명시. **R1 v51.52 7곳 동기화**.
 

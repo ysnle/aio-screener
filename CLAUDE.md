@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.52**
+- 현재 버전: **v51.53**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v51.53 스크리너 7일 신선도 정책**: `SCREENER_DB_META.staleAfterDays` 30→7, `replaceAfterDays` 60→14. `_aioApplyServerScreener()` 7일 freshness gate 추가(7일 초과 screener.json은 적용 건너뜀) + `screener.json.asOf`로 `lastBulkUpdate` 자동 갱신. per-entry `newsTs` 체크로 7일 초과 뉴스 메모 자동 제거. R1 7곳 v51.53.
 - **v51.52 콘텐츠 정합성 보강**: 운영자 노트 placeholder 태그("예시태그1/2") → 실제 태그("애플/메모리반도체/7월조정"). `_isPlaceholderTag` 필터에 "예시|작성|샘플" 패턴 추가(미래 예시 태그 자동 차단). `AIO_EVENT_FRESHNESS_REGISTRY.iranHormuzOil` 6/28 유조선 호르무즈 통과·유가 급락 반영. R1 7곳 v51.52.
 - **v51.51 UI/UX 타이포그래피·간격 정규화 시스템**: `.aio-subhd`/`.aio-body`/`.aio-note`/`.aio-key`/`.aio-info-box`(+is-warn/danger/success)/`.aio-divider`/`.aio-row` CSS 유틸리티 클래스 신설. `.aio-section-label` 11px→`var(--fs-xs)`. `.insight-box` 배경 `var(--surface-1)` 통일. 스크리너·시그널·시장폭·기술분석 페이지 16곳 서브헤딩/경고박스 `.aio-subhd`/`.aio-info-box.is-warn` 전환. R1 7곳 v51.51.
 - **v51.50 UI/UX 전 페이지 세밀 섹션 리듬 개편**: 매크로·기술분석 수준 품질로 20개 전 페이지를 개별 분석해 논리적 섹션 경계 파악 후 aio-section 전환. 347개 aio-section 참조로 터미널 전 페이지 통합. guide 9섹션·kr-macro 7섹션·kr-home 6섹션·kr-supply 2섹션·market-news 2섹션·screener·ticker·portfolio·fundamental·theme-detail 신규 섹션 추가. R1 7곳 v51.50.
