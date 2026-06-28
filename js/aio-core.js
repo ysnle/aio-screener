@@ -3592,11 +3592,11 @@ window.AIO_EVENT_FRESHNESS_REGISTRY = {
   },
   iranHormuzOil: {
     label: 'Iran/Hormuz/Oil',
-    eventDate: '2026-06-23',
+    eventDate: '2026-06-28',
     status: 'RESULT_REVIEW',
-    result: '미 재무부 이란산 원유·석유제품 판매 60일 한시 일반면허 발급(2026-06-23). WTI $74.82(-2.32%)·브렌트 $77.90(-3.31%). 중동 전쟁 프리미엄 대부분 제거 → 시장 관심이 지정학→공급 과잉으로 이동. 미 SPR 3.312억 배럴(1983년 이후 최저). 트럼프: 호르무즈 완전 개방·협상 순조. 이란: 핵프로그램 신규 약속 없다 반박(불확실성 잔존). 후속 기술 협상 이번 주 예정.',
-    marketReaction: 'WTI $74 구간 = 인플레 추가 완화, 항공·운송·소비재 비용 이점. 에너지주는 수익성 압박. 공급 과잉 우려 현실화 시 WTI $70 테스트 가능. SPR 저점 = 추가 방출 여력 제한.',
-    nextCheckpoint: '60일 로드맵 이행 첫 점검(7월말), 이란 동결자산 해제 시점, WTI $70 하방 돌파 여부, 후속 기술 협상 결과, 루비오 걸프협력회의 결과'
+    result: '(6/28) 더 많은 유조선이 호르무즈 해협 통과 → 유가 급락. WTI $69 선 근접, 브렌트 $71대. (6/23) 미 재무부 이란산 원유 60일 한시 일반면허 발급. 중동 전쟁 프리미엄 대부분 제거. 트럼프: 호르무즈 완전 개방·협상 순조. 이란: 핵프로그램 신규 약속 없다 반박(불확실성 잔존).',
+    marketReaction: '유가 하락 = 항공·운송·소비재 비용 이점, 에너지주 수익성 압박. WTI $70 하방 시 인플레 추가 완화 기대. 단, 트럼프 휴전 재위반 경고(6/28) 잔존 — 헤드라인 반전 리스크.',
+    nextCheckpoint: 'WTI $70 하방 안착 여부, 60일 로드맵 이행 첫 점검(7월말), 이란 핵협상 후속 결과, 트럼프 휴전 이행 확인'
   }
 };
 
@@ -17093,7 +17093,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.51';
+const APP_VERSION = 'v51.52';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

@@ -5490,7 +5490,7 @@ function _aioRenderOperatorNote() {
   function _esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function _isPlaceholderTag(t) {
     var text = String(t || '').trim();
-    return !text || /^(sample|placeholder|tag)\d*$/i.test(text) || /placeholder/i.test(text);
+    return !text || /^(sample|placeholder|tag)\d*$/i.test(text) || /placeholder|예시|작성|샘플/i.test(text);
   }
   var tags = (Array.isArray(note.tags) ? note.tags : []).filter(function(t) {
     return !_isPlaceholderTag(t);

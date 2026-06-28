@@ -1,3 +1,9 @@
+﻿## v51.52 - 콘텐츠 정합성 보강 (2026-06-29)
+
+**운영자 노트 태그 수정**: placeholder 태그 "예시태그1/예시태그2" → 실제 내용 기반 태그 "애플/메모리반도체/7월조정". `_isPlaceholderTag` 필터에 `예시|작성|샘플` 패턴 추가로 미래 예시 태그 자동 차단. **Iran/Hormuz 레지스트리 갱신**: 6/28 더 많은 유조선 호르무즈 통과 → 유가 급락 반영. WTI $69 선 근접. 트럼프 휴전 재위반 경고 잔존 리스크 명시. **R1 v51.52 7곳 동기화**.
+
+---
+
 ## v51.51 - UI/UX: 타이포그래피·간격 정규화 시스템 (2026-06-28)
 
 **CSS 유틸리티 클래스 신설**: `.aio-subhd`(서브섹션 헤딩, 12px/700/uppercase/letter-spacing) · `.aio-body`(본문, 13px/1.7lh) · `.aio-note`(설명, 12px/muted) · `.aio-key`(인라인 라벨) · `.aio-block`(블록 여백) · `.aio-info-box`+`.is-warn`/`.is-danger`/`.is-success`(시맨틱 박스) · `.aio-divider`(구분선) · `.aio-row`/`.aio-row-label`/`.aio-row-val`(데이터 행). `.aio-section-label` font-size `11px→var(--fs-xs)`. `.insight-box` 배경 `var(--bg-card)→var(--surface-1) !important`. **HTML 16곳 업그레이드**: screener 팩터/레짐 서브헤딩 2건 `.aio-subhd` 전환 + is-warn 박스, signal 리스크모니터·포트폴리오배분·바닥4단계 3건, technical 핵심기술레벨 1건, breadth McClellan/나스닥/Weinstein/SPY-QQQ/5일·20일·50일선 8건 `.aio-subhd` 전환.
