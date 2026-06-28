@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.49 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.50 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5078,7 +5078,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.49</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.50</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5248,8 +5248,10 @@ button[data-filter-active="true"] {
   <div id="home-market-heatmap"></div>
 
   <!-- ═══ SECTION 2.5: Bloomberg-Style 글로벌 마켓 오버뷰 (v34) ═══ -->
-  <div id="bloomberg-global-overview" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(255,163,26,0.04);">
+  <div class="aio-section">
+  <div class="aio-section-hd"><span class="aio-section-label">글로벌 마켓</span></div>
+  <div id="bloomberg-global-overview" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface-2);">
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="font-size:10px;font-weight:700;color:var(--data-amber);letter-spacing:0.08em;text-transform:uppercase;font-family:var(--font-mono);">GLOBAL MARKETS</span>
         <span id="gmo-freshness-dot" style="width:7px;height:7px;border-radius:50%;background:var(--data-green);display:inline-block;" title="데이터 신선도"></span>
@@ -5275,6 +5277,7 @@ button[data-filter-active="true"] {
       </table>
     </div>
   </div>
+  </div><!-- /aio-section 글로벌마켓 -->
 
 
   <!-- ═══ SECTION 4: 주요 뉴스 — SECTION 1.5로 이동됨 (v39.0) ═══ -->
@@ -6636,6 +6639,7 @@ button[data-filter-active="true"] {
 
   <!-- ═══ v48.46: 브리핑 심층 해설 ═══ -->
     <!-- 헤더 -->
+    <div class="aio-section">
     <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
         <div>
@@ -6662,6 +6666,8 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+
+    </div><!-- /aio-section 브리핑헤더 -->
 
     <!-- v50.82: 시각화 패널 (pipeline-status + economic-cycle) -->
     <details class="aio-page-advanced-toggle" style="margin-bottom:12px;">
@@ -6729,6 +6735,8 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 주요뉴스 -->
 
     <!-- v48.14: 정적 콘텐츠 stale 배지 (경과일 자동 계산) -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">과거 참고 자료</span></div>
     <div data-aio-archive="true" style="background:rgba(255,163,26,0.12);border:1px solid rgba(255,163,26,0.3);border-radius:4px;padding:10px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:center;">
       <span style="font-size:18px;flex-shrink:0;">⚠</span>
       <div style="flex:1;">
@@ -6889,6 +6897,7 @@ button[data-filter-active="true"] {
     </div>
 
     </div><!-- /briefing-static-archive v34.5 -->
+    </div><!-- /aio-section 과거참고자료 -->
 
   </div>
     <!-- ═══════════════ PAGE: TECHNICAL (기술적 분석) ═══════════════ -->
@@ -8687,6 +8696,7 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- ═══ v48.45: 기업 분석 기관급 해설 ═══ -->
+    <div class="aio-section">
     <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div>
@@ -8700,6 +8710,9 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 기업분석헤더 -->
+
+    <div class="aio-section">
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
       <span class="cross-link" data-action="showPage" data-arg="screener">← 퀀트 스크리너 (종목 발굴)</span>
       <span class="cross-link" data-action="showPage" data-arg="ticker">Ticker 차트 분석 →</span>
@@ -8739,18 +8752,20 @@ button[data-filter-active="true"] {
     </div>
 
   <!-- v34.9: TradingView 기업분석 차트 -->
-  <div id="tv-chart-fundamental" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:14px;display:none;">
+  <div id="tv-chart-fundamental" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:14px;display:none;">
     <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">TradingView 차트</div>
     <div id="tv-widget-fundamental" style="height:350px;border-radius:4px;overflow:hidden;background:#131722;"></div>
   </div>
 
+    </div><!-- /aio-section 종목검색 -->
+
     <!--  종합 기업 분석 리포트 영역 (검색 시 동적 생성) -->
     <div id="fund-report-container" style="display:none;">
       <!-- ── 헤더: 기업명 + 실시간 가격 ── -->
-      <div id="fund-rpt-header" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:12px;"></div>
+      <div id="fund-rpt-header" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:12px;"></div>
 
       <!-- ── 데이터 수집 상태 표시 ── -->
-      <div id="fund-rpt-loading" style="background:var(--bg-card);border:1px solid rgba(168,85,247,0.3);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
+      <div id="fund-rpt-loading" style="background:var(--surface-1);border:1px solid rgba(168,85,247,0.3);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
         <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px;">데이터 요청 준비 중...</div>
         <div id="fund-rpt-progress" style="font-size:10px;color:var(--text-secondary);line-height:1.8;"></div>
       </div>
@@ -8763,7 +8778,7 @@ button[data-filter-active="true"] {
       </div>
 
       <!-- ── SEC EDGAR 공시 정보 ── [재무 상세 탭] -->
-      <div id="fund-rpt-sec" data-fund-tab="financial" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <div id="fund-rpt-sec" data-fund-tab="financial" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">SEC EDGAR 공시 정보</div>
         <div id="fund-rpt-sec-body"></div>
       </div>
@@ -8775,19 +8790,19 @@ button[data-filter-active="true"] {
       </div>
 
       <!-- ── 재무제표 3종 요약 (매출/이익/CF 트렌드) ── [재무 상세 탭] -->
-      <div id="fund-rpt-statements" data-fund-tab="financial" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <div id="fund-rpt-statements" data-fund-tab="financial" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">재무제표 트렌드 (최근 4개년)</div>
         <div id="fund-rpt-stmt-body"></div>
       </div>
 
       <!-- ── 밸류에이션 비교 ── [개요 탭] -->
-      <div id="fund-rpt-valuation" data-fund-tab="overview" class="fund-tab-active" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <div id="fund-rpt-valuation" data-fund-tab="overview" class="fund-tab-active" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">밸류에이션 분석</div>
         <div id="fund-rpt-val-body"></div>
       </div>
 
       <!-- v48.89: 다기간 재무 비교표 (finance:financial-statements) — Annual 5Y P/E·P/B·ROE·매출·EPS [개요 탭] -->
-      <div id="fund-rpt-multiperiod" data-fund-tab="overview" class="fund-tab-active" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <div id="fund-rpt-multiperiod" data-fund-tab="overview" class="fund-tab-active" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">다기간 재무 비교표</div>
           <div style="font-size:10px;color:var(--text-muted);">Annual · FMP / SEC EDGAR</div>
@@ -8797,7 +8812,7 @@ button[data-filter-active="true"] {
 
       <!-- v49.72 신규: DART Financials 스타일 7 차트 재무 분석 [재무 상세 탭] -->
       <!-- R138: fundamental 종목 검색 시 7 차트 자동 렌더 의무 (Growth/Profitability/Balance/CashFlow/Liquidity/WorkingCap/Valuation) -->
-      <div id="fund-rpt-fincharts" data-fund-tab="financial" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <div id="fund-rpt-fincharts" data-fund-tab="financial" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
           <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">7 섹션 재무 차트 (5년 분기)</div>
           <div id="fund-fin-meta" style="font-size:10px;color:var(--text-muted);">FMP · period=quarter</div>
@@ -8868,19 +8883,19 @@ button[data-filter-active="true"] {
       </style>
 
       <!-- ── 경쟁사 비교 (Peer Group) ── [외부 정보 탭] -->
-      <div id="fund-rpt-peers" data-fund-tab="external" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <div id="fund-rpt-peers" data-fund-tab="external" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;"> 경쟁사 비교 (Peer Group)</div>
         <div id="fund-rpt-peers-body"></div>
       </div>
 
       <!-- ── 실적 서프라이즈 히스토리 ── [재무 상세 탭] -->
-      <div id="fund-rpt-earnings" data-fund-tab="financial" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <div id="fund-rpt-earnings" data-fund-tab="financial" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">실적 서프라이즈 히스토리</div>
         <div id="fund-rpt-earn-body"></div>
       </div>
 
       <!-- v48.90: 실적 분산 분석 (finance:variance-analysis) — EPS Waterfall + YoY 분해 [재무 상세 탭] -->
-      <div id="fund-rpt-variance" data-fund-tab="financial" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <div id="fund-rpt-variance" data-fund-tab="financial" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">실적 분산 분석</div>
           <div style="font-size:10px;color:var(--text-muted);">EPS Waterfall · YoY 분해 · FMP</div>
@@ -8890,7 +8905,7 @@ button[data-filter-active="true"] {
       </div>
 
       <!-- v48.13: 최근 기업 뉴스 (Finnhub /company-news 14일) [외부 정보 탭] -->
-      <div id="fund-rpt-news" data-fund-tab="external" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
+      <div id="fund-rpt-news" data-fund-tab="external" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">최근 기업 뉴스 (14일)</div>
           <div style="font-size:10px;color:var(--text-muted);">Finnhub /company-news</div>
@@ -9224,6 +9239,7 @@ button[data-filter-active="true"] {
   <div class="insight-box box-collapsed">
     <strong>테마 상세 분석 — 대장주·구성종목·실시간 등락률·섹터 내 상대 강도</strong>
   </div>
+    <div class="aio-section">
     <div class="mb-4">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
         <button id="ticker-back-btn" class="aio-btn-table" data-action="showPage" data-arg="themes">← 돌아가기</button>
@@ -9236,7 +9252,11 @@ button[data-filter-active="true"] {
       <div id="theme-detail-name" style="display:none;">AI·반도체</div>
     </div>
 
+    </div><!-- /aio-section 테마헤더 -->
+
     <!-- Mode Toggle: ETF vs Subtheme -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">테마 데이터</span></div>
     <div style="display:flex;gap:8px;margin-bottom:14px;">
       <button id="etf-btn" class="aio-btn-table primary" data-action="switchThemeMode" data-arg="etf">ETF 뷰</button>
       <button id="sub-btn" class="aio-btn-table" data-action="switchThemeMode" data-arg="subtheme">세부 테마</button>
@@ -9305,6 +9325,8 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 테마데이터 -->
+
     <!-- Chat Panel -->
     <div class="aio-chat" id="chat-theme-detail" style="margin-top:16px;">
       <div class="acp-header">
@@ -9333,6 +9355,7 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- ═══ v48.45: 포트폴리오 기관급 해설 ═══ -->
+    <div class="aio-section">
     <div class="mb-4">
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <div>
@@ -9347,6 +9370,8 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 포트폴리오헤더 -->
+
     <!-- v50.86: 섹터 집중도 버블 차트 (sector-bubble 다이어그램, SCREENER_DB sector × 포트폴리오 비중) -->
     <div id="vis-portfolio" class="aio-vis-panel is-single" style="display:none;">
       <div class="aio-vis-card">
@@ -9356,6 +9381,8 @@ button[data-filter-active="true"] {
     </div>
 
     <!-- v49.29 E5/R71 포트폴리오 분석 대시보드 — 이론 vs 실행 비대칭 해소 -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">리스크 분석</span></div>
     <div id="pf-analysis-dashboard" class="aio-vis-card" style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <div style="font-size:12px;font-weight:800;color:var(--accent);">📊 리스크 분석 (Sharpe / Beta / MDD / Kelly)</div>
@@ -9386,8 +9413,10 @@ button[data-filter-active="true"] {
       <div id="pf-analysis-status" style="margin-top:8px;font-size:10px;color:var(--text-muted);text-align:center;">포트폴리오 등록 후 자동 계산됩니다.</div>
     </div>
 
+    </div><!-- /aio-section 리스크분석 -->
+
     <!-- 포트폴리오 PIN 잠금 -->
-    <div id="pf-lock-screen" style="display:none;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:30px;text-align:center;max-width:340px;margin:40px auto;">
+    <div id="pf-lock-screen" style="display:none;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:30px;text-align:center;max-width:340px;margin:40px auto;">
       <div style="font-size:32px;margin-bottom:12px;"></div>
       <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">포트폴리오 잠금</div>
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;">PIN 4자리를 입력하세요. 데이터는 브라우저에만 저장됩니다.</div>
@@ -9418,6 +9447,8 @@ button[data-filter-active="true"] {
     </div>
 
     <!-- Summary Cards -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">포트폴리오 요약</span></div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px;">
       <div class="aio-widget" style="padding:14px 16px;">
         <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">총 자산 가치</div>
@@ -9439,6 +9470,8 @@ button[data-filter-active="true"] {
         <div id="pf-allocation" style="font-size:12px;margin-top:6px;line-height:1.7;">포지션을 추가하세요</div>
       </div>
     </div>
+
+    </div><!-- /aio-section 포트폴리오요약 -->
 
     <!-- v40.4: 포트폴리오 비중 시각화 + 섹터 + 현금 -->
     <!-- v48.3: 타이틀 10px→12px, 현금 입력 라벨 8px→11px, 입력 10px→12px 상향 · 도넛 크기 150→170 확대 -->
@@ -9705,6 +9738,7 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- v50.70: Ticker 페이지 기관급 해설 (17개 관점 심층 분석 가이드) -->
+    <div class="aio-section">
     <div class="mb-4">
       <div style="display:flex;gap:8px;margin-bottom:8px;">
         <button id="ticker-back-btn-main" class="aio-btn-table" data-action="showPage" data-arg="portfolio">← 돌아가기</button>
@@ -9724,7 +9758,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 티커헤더 -->
+
     <!-- v50.96: Ticker 직접 검색창 (page 진입 시에도 검색 가능) -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">종목 검색</span></div>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 14px;">
       <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">종목 검색</span>
       <input id="ticker-direct-search" type="text" placeholder="티커 입력 (예: NVDA, AAPL, TSLA)" aria-label="종목 티커 검색"
@@ -9747,7 +9785,8 @@ button[data-filter-active="true"] {
     </div>
 
     <!-- 진입 적합성 판단 (Jeff Sun CFTe) -->
-    <div id="ticker-entry-check" style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px 14px;margin-bottom:10px;"></div>
+    <div id="ticker-entry-check" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 14px;margin-bottom:10px;"></div>
+    </div><!-- /aio-section 종목검색 -->
 
     <!-- Tabs -->
     <div class="page-tabs">
@@ -9955,6 +9994,7 @@ button[data-filter-active="true"] {
 
   <!-- ═══ v48.46: 시장 뉴스 심층 해설 ═══ -->
     <!-- 헤더 -->
+    <div class="aio-section">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
       <div>
         <div class="page-title">시장 뉴스</div>
@@ -9980,7 +10020,11 @@ button[data-filter-active="true"] {
       <span class="cross-link" data-action="showPage" data-arg="themes">섹터 테마 →</span>
     </div>
 
+    </div><!-- /aio-section 뉴스헤더 -->
+
     <!-- 소스 안내 -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">뉴스 필터 · 소스</span></div>
     <details class="aio-page-advanced-toggle" style="margin-bottom:10px;">
       <summary><span data-news-source-count>—</span>개 등록 소스 목록 보기</summary>
       <div class="aio-page-advanced-body">
@@ -10011,6 +10055,10 @@ button[data-filter-active="true"] {
       <span>필터: 48시간 이내 · 중요도 30점+</span>
     </div>
 
+    </div><!-- /aio-section 뉴스필터소스 -->
+
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">뉴스 피드</span></div>
     <div id="tg-feed-market-news"></div>
     <!-- v27.3: 뉴스 센티먼트 바 + 소스 라벨 -->
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;align-items:center;padding:6px 10px;background:var(--surface-1);border:1px solid var(--border);border-radius:3px;">
@@ -10095,6 +10143,7 @@ button[data-filter-active="true"] {
         검증 뉴스 준비 중 · <span style="color:var(--data-cyan);">소스 상태 확인</span>
       </div>
     </div>
+    </div><!-- /aio-section 뉴스피드 -->
   </div>
 <div class="page" id="page-options">
   <!-- v50.35: 옵션 페이지 콘텐츠 폐기 (사용자 요청). 실제 옵션체인 피드 미연결 — 스큐·옵션흐름·Greeks가 정적 스냅샷이었음.
@@ -10107,6 +10156,7 @@ button[data-filter-active="true"] {
 </div>
   <!-- ═══════════════ PAGE: SCREENER (퀀트 스크리너) — v51.39 ═══════════════ -->
   <div class="page" id="page-screener">
+    <div class="aio-section">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
       <div>
         <div class="page-title">퀀트 스크리너</div>
@@ -10283,6 +10333,7 @@ button[data-filter-active="true"] {
     </div>
     <div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.7;">★ = 개인 워치리스트 · <b>진입?</b> = RSI·랭크·모멘텀 조합 타이밍 신호 (참고용, 단독 매매 근거 아님). 서버 팩터 파일 미수신 시 랭크·백테스트 비활성화. 밸류·퀄리티 ‘—‘는 FMP 미수신. <b>K-vel</b>은 칼만 추세 속도(서버 팩터 파일 필요).</div>
     </div><!-- /scr-tab-ranking -->
+    </div><!-- /aio-section 퀀트스크리너 -->
   </div>
 
   <!-- ═══════════════ PAGE: KR-HOME (한국장 홈) ═══════════════ -->
@@ -10292,6 +10343,7 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- ═══ v48.45: 한국장 기관급 해설 ═══ -->
+    <div class="aio-section">
     <div class="row mb-4" style="align-items:flex-start;">
       <div>
         <div class="page-title">한국장 홈 <span class="kr-badge">KRX</span></div>
@@ -10304,7 +10356,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 한국장헤더 -->
+
     <!-- ═══ 섹션 1: 핵심 지수 카드 (4열) ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">핵심 지수</span></div>
     <div class="kr-index-grid">
       <div class="kr-idx-card up">
         <div class="kr-idx-label">KOSPI</div>
@@ -10336,7 +10392,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 핵심지수 -->
+
     <!-- ═══ 섹션 2: 수급 요약 (2열) ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">투자자 수급 요약</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
       <div class="kr-supply-section" id="kr-home-kospi-supply">
         <div class="kr-supply-title">최근 수급 (KOSPI) — <span data-date-ref="kr-last-basis">종가 기준</span></div>
@@ -10390,6 +10450,8 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+
+    </div><!-- /aio-section 투자자수급요약 -->
 
     <!-- ═══ 섹션 3: 한국 시장 대시보드 (신용·거래·공매도) ═══ -->
     <div class="aio-section">
@@ -10450,6 +10512,8 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 한국시장대시보드 -->
 
     <!-- ═══ 섹션 4: 오늘의 주요 이슈 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">오늘의 주요 이슈</span></div>
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">주요 이슈 <span id="kr-issues-status" style="font-size:11px;color:var(--text-muted);font-weight:400;">(뉴스 피드 자동 추출 · 갱신: <span data-snap-date="kr-issues">2026-05-16</span> · <span id="kr-issues-stale-days">경과 산출 대기</span>)</span> <span class="kr-tag">KR</span></div>
       <div id="kr-issues-container" style="display:flex;flex-direction:column;gap:6px;padding:4px 0;">
@@ -10472,7 +10536,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 오늘의주요이슈 -->
+
     <!-- ═══ 섹션 5: KRX 섹터 ETF 성과 (v35.5: data-live-price 바인딩) ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">KRX 섹터 ETF 성과</span></div>
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">KRX 섹터 & 주요 ETF 성과 <span id="kr-etf-ts" style="font-size:11px;color:var(--text-muted);font-weight:400;">(실시간)</span></div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;" id="kr-etf-grid">
@@ -10521,7 +10589,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section KRX섹터ETF -->
+
     <!-- ═══ 섹션 5.5: 한국 시장 체감 온도 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">시장 체감 온도</span></div>
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">시장 체감 온도 <span class="kr-tag" style="background:rgba(255,163,26,0.15);color:var(--data-amber);">LIVE</span></div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
@@ -10551,7 +10623,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 시장체감온도 -->
+
     <!-- ═══ 섹션 6: 상위 모멘텀 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">상위 모멘텀 종목</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div class="aio-widget">
         <div class="widget-title">KOSPI 상위 상승</div>
@@ -10574,6 +10650,7 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+    </div><!-- /aio-section 상위모멘텀종목 -->
 
   </div><!-- /page-kr-home -->
 
@@ -10585,6 +10662,7 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- ═══ v48.46: KR 수급 페이지 심층 해설 ═══ -->
+    <div class="aio-section">
     <div class="row mb-4" style="align-items:flex-start;">
       <div>
         <div class="page-title">수급 분석 <span class="kr-badge">KRX</span></div>
@@ -10594,8 +10672,11 @@ button[data-filter-active="true"] {
         <button class="aio-btn-table" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
       </div>
     </div>
+    </div><!-- /aio-section 수급분석헤더 -->
 
     <!-- 동적 분석 컨테이너 -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">수급 분석 요약</span></div>
     <div id="kr-supply-analysis" class="aio-widget" style="margin-bottom:12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);">
       <div id="kr-supply-analysis-text" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">수급 데이터 수신 대기...</div>
     </div>
@@ -10619,7 +10700,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 수급분석요약 -->
+
     <!-- Tabs -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">수급 상세</span></div>
     <div class="kr-tabs">
       <div class="kr-tab active" data-action="krSupplyTab" data-arg-first-el="1" data-arg="daily">오늘 수급</div>
       <div class="kr-tab" data-action="krSupplyTab" data-arg-first-el="1" data-arg="weekly">주간 트렌드</div>
@@ -10776,6 +10861,7 @@ button[data-filter-active="true"] {
     </div>
 
 
+    </div><!-- /aio-section 수급상세 -->
   </div><!-- /page-kr-supply -->
 
 
@@ -10857,6 +10943,7 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- ═══ v48.46: KR 매크로 심층 해설 ═══ -->
+    <div class="aio-section">
     <div class="row mb-4" style="align-items:flex-start;">
       <div>
         <div class="page-title">한국 매크로 <span class="kr-badge">BOK</span></div>
@@ -10867,7 +10954,11 @@ button[data-filter-active="true"] {
         <button class="aio-btn-table" data-action="showPage" data-arg="kr-technical">한국 기술 분석 →</button>
       </div>
     </div>
+    </div><!-- /aio-section 한국매크로헤더 -->
+
     <!-- ═══ 섹션 1: 기준금리 현황 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">기준금리 현황</span></div>
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">한국은행 기준금리 현황</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
@@ -10897,7 +10988,11 @@ button[data-filter-active="true"] {
       </table>
     </div>
 
+    </div><!-- /aio-section 기준금리현황 -->
+
     <!-- ═══ 섹션 2: 물가지표 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">물가 · 경기 지표</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
       <div class="aio-widget">
         <div class="widget-title">물가지표</div>
@@ -10950,7 +11045,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 물가경기지표 -->
+
     <!-- ═══ 섹션 3: 원/달러 환율 분석 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">원/달러 환율 분석</span></div>
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">원/달러 환율 분석</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
@@ -10993,7 +11092,11 @@ button[data-filter-active="true"] {
     </div>
 
 
+    </div><!-- /aio-section 원달러환율분석 -->
+
     <!-- ═══ 섹션 3B: 채권 금리 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">주요 채권 금리</span></div>
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">주요 채권 금리</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
@@ -11010,7 +11113,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 주요채권금리 -->
+
     <!-- ═══ 섹션 4: 수출입 동향 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">수출입 동향</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
       <div class="aio-widget">
         <div class="widget-title">주요 수출 동향 <span style="font-size:10px;color:var(--data-amber);font-weight:400;">📦 2026-02 아카이브 · 최신: 5월 +64.8% YoY</span></div>
@@ -11043,7 +11150,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 수출입동향 -->
+
     <!-- ═══ 섹션 5: 부동산 & 건설 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">부동산 · 건설 시장</span></div>
     <div class="aio-widget" style="margin-bottom:12px;">
       <div class="widget-title">부동산 / 건설 시장</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
@@ -11068,7 +11179,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    </div><!-- /aio-section 부동산건설시장 -->
+
     <!-- ═══ v37.8: 한국 매크로 동적 분석 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">매크로 환경 분석</span></div>
     <div class="aio-widget" id="kr-macro-dynamic-widget" style="margin-bottom:12px;">
       <div class="widget-title">매크로 환경 자동 판단</div>
       <div id="kr-macro-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">데이터 수신 대기...</div>
@@ -11129,6 +11244,7 @@ button[data-filter-active="true"] {
         한국과 미국의 금리차는 원화와 외국인 수급의 핵심 변수입니다. 6/17 FOMC 결과 이후 미국 금리·달러 반응과 6/25 PCE를 함께 확인하고, 한국은 7/10 금통위 전까지 환율·물가·수출 모멘텀을 함께 봅니다.
       </div>
     </div>
+    </div><!-- /aio-section 매크로환경분석 -->
 
     <!-- v46.3: 한국 반도체 구조 분석 (§57 삼성전자 + §64 Citi 포지셔닝) -->
     <div class="aio-section">
@@ -11383,6 +11499,8 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- v48.58: Guide 페이지 내비게이션 (TOC + 검색) — 18K줄 탐색성 개선 -->
+  <div class="aio-section">
+  <div class="aio-section-hd"><span class="aio-section-label">빠른 이동</span></div>
   <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px 14px;margin-bottom:14px;position:sticky;top:8px;z-index:10;">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
       <span style="font-size:12px;font-weight:700;color:var(--text-secondary);">빠른 이동</span>
@@ -11400,6 +11518,7 @@ button[data-filter-active="true"] {
     </div>
     <div id="guide-search-result" style="display:none;margin-top:8px;padding:8px 10px;background:var(--surface-2);border-radius:3px;font-size:10px;color:var(--text-muted);"></div>
   </div>
+  </div><!-- /aio-section 빠른이동 -->
 
   <!-- ═══ v48.46: 가이드 페이지 — 밸류체인 요약 ═══ -->
   <div class="aio-explain" id="explain-guide-overview">
@@ -11436,6 +11555,8 @@ button[data-filter-active="true"] {
     </div>
   </div>
 
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">사용 설명서</span></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);">
       <div>
         <div class="page-title">AIO Screener 사용 설명서</div>
@@ -11443,8 +11564,11 @@ button[data-filter-active="true"] {
       </div>
       <button data-action="openGlossary" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:var(--data-purple);font-size:10px;padding:6px 14px;border-radius:3px;cursor:pointer;font-weight:700;">용어 사전 열기</button>
     </div>
+    </div><!-- /aio-section 사용설명서 -->
 
     <!-- ═══ 섹션 0-A: 기기 및 브라우저 호환성 (v27.4) ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">시스템 설정</span></div>
     <div class="aio-widget" style="border-left:3px solid var(--data-cyan);">
       <div class="widget-title">기기 및 브라우저 호환성</div>
       <div style="font-size:11px;color:var(--text-secondary);line-height:1.7;">
@@ -11498,8 +11622,11 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+    </div><!-- /aio-section 시스템설정 -->
 
     <!-- ═══ 섹션 1: 대시보드별 사용법 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">대시보드 사용법</span></div>
     <div class="aio-widget">
       <div class="widget-title"> 대시보드별 사용법</div>
       <div class="aio-guide-group-header">시장 현황 판단</div>
@@ -11659,8 +11786,11 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+    </div><!-- /aio-section 대시보드사용법 -->
 
     <!-- ═══ 섹션 2: 공통 기능 사용법 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">공통 기능 · 한국 시장</span></div>
     <div class="aio-widget">
       <div class="widget-title"> 공통 기능 사용법</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
@@ -11714,8 +11844,11 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+    </div><!-- /aio-section 공통기능·한국시장 -->
 
     <!-- ═══ v51.30/P529: 기본 화면에서 제거한 설명성 판단 흐름을 가이드로 통합 보존 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">판단 방법론</span></div>
     <div class="aio-widget" id="guide-methodology" style="border-left:3px solid var(--data-cyan);">
       <div class="widget-title">판단 방법론 레퍼런스</div>
       <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;margin-bottom:10px;">
@@ -11764,8 +11897,11 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+    </div><!-- /aio-section 판단방법론 -->
 
     <!-- ═══ 섹션 3: 핵심 유의사항 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">유의사항</span></div>
     <div class="aio-widget" style="border-left:3px solid var(--data-amber);">
       <div class="widget-title">반드시 읽어야 할 유의사항</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
@@ -11813,8 +11949,11 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+    </div><!-- /aio-section 유의사항 -->
 
     <!-- ═══ 섹션 3-A: FAQ / 자주 묻는 질문 (v38.8) ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">FAQ · 문제 해결</span></div>
     <div class="aio-widget" style="border-left:3px solid var(--data-cyan);">
       <div class="widget-title"> 자주 묻는 질문 (FAQ)</div>
       <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
@@ -11872,8 +12011,11 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+    </div><!-- /aio-section FAQ·문제해결 -->
 
     <!-- ═══ 섹션 4: 투자 필수 배경지식 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">투자 배경지식</span></div>
     <details class="aio-page-advanced-toggle">
       <summary>투자 필수 배경지식 — 주식·금리·외환·채권·기술분석·매크로 기초</summary>
       <div class="aio-page-advanced-body">
@@ -11943,6 +12085,7 @@ button[data-filter-active="true"] {
     </div>
       </div>
     </details>
+    </div><!-- /aio-section 투자배경지식 -->
 
   </div>
 
@@ -12012,9 +12155,9 @@ button[data-filter-active="true"] {
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.49"></script>
-  <script src="./js/aio-data.js?v=51.49"></script>
-  <script src="./js/aio-ui.js?v=51.49"></script>
+  <script src="./js/aio-core.js?v=51.50"></script>
+  <script src="./js/aio-data.js?v=51.50"></script>
+  <script src="./js/aio-ui.js?v=51.50"></script>
 
   <script>
 
@@ -15211,7 +15354,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.49"></script>
+<script src="./js/aio-chat.js?v=51.50"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -27800,7 +27943,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.49"></script>
+<script src="./js/aio-glossary.js?v=51.50"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

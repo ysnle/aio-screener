@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.49**
+- 현재 버전: **v51.50**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v51.50 UI/UX 전 페이지 세밀 섹션 리듬 개편**: 매크로·기술분석 수준 품질로 20개 전 페이지를 개별 분석해 논리적 섹션 경계 파악 후 aio-section 전환. 347개 aio-section 참조로 터미널 전 페이지 통합. guide 9섹션·kr-macro 7섹션·kr-home 6섹션·kr-supply 2섹션·market-news 2섹션·screener·ticker·portfolio·fundamental·theme-detail 신규 섹션 추가. R1 7곳 v51.50.
 - **v51.49 UI/UX 전체 페이지 섹션 리듬 개편 완결**: v51.48 매크로·기술분석에 이어 나머지 18개 페이지(signal·breadth·sentiment·briefing·fxbond·fundamental·themes·portfolio·ticker·market-news·screener·kr-pages·guide) 전 섹션 불투명 박스 → `.aio-section` 오픈 구조로 교체 완결. 전 페이지 `rgba(X,Y,Z,0.04)` 배경 → `var(--surface-1)` + 컬러 보더 통일. R1 7곳 v51.49.
 - **v51.48 UI/UX 매크로·기술분석 섹션 리듬 개편**: 두 페이지 전 섹션의 `background:var(--bg-card);border:1px solid var(--border)` 불투명 박스를 `.aio-section` 오픈 구조로 교체. 섹션 카드 배경 `rgba(X,Y,Z,0.04)` → `var(--surface-1)` + 컬러 보더로 통일. tg-live-feed·aio-vis-card 청록 그라디언트 제거. R1 7곳 v51.48.
 - **v51.47 구조적 개선 4건**: `calcTechnicalSnapshot()`에 `sma50_5d`·`sma50Rising` 추가로 stageEstimate가 SMA50 기울기 기반 STAGE_3_TOPPING을 표면화. `_calcBB()` 분산을 `/period`→`/(period-1)` 표본 분산으로 교정. `_kalmanTrend()` R 파라미터를 `(vol/100/√252)²` 동적화. watchdog 48h 초과 시 `process.exit(1)` 게이트 추가. R1 7곳 v51.47.
