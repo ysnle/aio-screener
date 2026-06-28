@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-06-27T23:44:18.250Z",
+  "generatedAt": "2026-06-28T01:54:14.267Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -17,7 +17,7 @@
   "fredOk": true,
   "macroKeyCount": 7,
   "newsOk": true,
-  "newsCount": 30,
+  "newsCount": 32,
   "newsSourceCount": 7,
   "newsCyclePolicy": "kst-0800-completed-24h",
   "newsCycleStart": "2026-06-26T23:00:00.000Z",
@@ -27,7 +27,7 @@
   "serverNewsScored": true,
   "newsScoreMin": 10,
   "newsScoreMax": 54,
-  "elapsedMs": 2475,
+  "elapsedMs": 2554,
   "schema": 1,
   "marketAnalysisOk": true
  },
@@ -402,18 +402,18 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 59982.01,
-   "regularMarketChangePercent": -4.286093608829503,
-   "regularMarketPreviousClose": 62668.02,
-   "chartPreviousClose": 62668.02,
+   "regularMarketPrice": 60162.66,
+   "regularMarketChangePercent": -1.3648187307010184,
+   "regularMarketPreviousClose": 60995.133,
+   "chartPreviousClose": 60995.133,
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1572.95,
-   "regularMarketChangePercent": -5.553305895486392,
-   "regularMarketPreviousClose": 1665.4368,
-   "chartPreviousClose": 1665.4368,
+   "regularMarketPrice": 1573.82,
+   "regularMarketChangePercent": -2.846113421677761,
+   "regularMarketPreviousClose": 1619.9249,
+   "chartPreviousClose": 1619.9249,
    "_source": "live:yahoo-gh"
   },
   {
@@ -754,9 +754,9 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
-   "title": "SGL Carbon (XTRA:SGL) Stock Draws Fresh Price Target Split After Mixed Analyst Revisions - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOamQ3SDN5cUt2eGQ0THNMOEZoV2JtUTlZTWNrb0EweUNkMmh0N3pQQ0RQaVJuS0dZejdMN055U3NFdDhKMXhUdy1MQ0NSc1JUV3lKRlU4TVdvSVROcGF3TGxUenJFQXllQW1VOHlvSHRrLXpTM0pvWXdwU20xcTJyRTl1d29mMnB2azFtaV9ER2dnTUdV?oc=5",
-   "source": "Yahoo Finance",
+   "title": "SGL Carbon (XTRA:SGL) Stock Draws Fresh Price Target Split After Mixed Analyst Revisions - Yahoo Finance UK",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE41a183a0FxZ0JSdmYtSEV1T2tEbWFTelA4R0I4MFp3TGlMcUpJaENyVENSOUdCeDJkVVlWdWpsVURmblFZWnN5a0FGWTNXS0gzbmVhMkVtRUZrb3REbjlLQmh2dHdGNjlKYnpoTEY0VXRvZDNyeVZZb3NQWVhxanM?oc=5",
+   "source": "Yahoo Finance UK",
    "pubDate": "Sat, 27 Jun 2026 06:06:00 GMT",
    "topic": "analyst",
    "country": "us",
@@ -802,6 +802,38 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
+   "title": "Wall Street Eyes Jobs Report as Rate Hike Fears Weigh on Tech Rally - NiftyTrader",
+   "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxNbVdHYzNLOVNrWHlna21ZU2VuT0hKdHE4bW9pWWtGN090WXNSQjVTMEl0bFFmTHVENlpQYVpaMDNYNy1oV0FYOE5xNXdmcXJTY1NKOG9wdVlrRkc0cVhzblBGYjdSNTVNR3A0eFFKNTJNbUNDc1E0Zy1zOGFrRjF1V1BjZmhpREdDTHc?oc=5",
+   "source": "NiftyTrader",
+   "pubDate": "Sat, 27 Jun 2026 09:21:39 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14",
+   "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
+   "title": "Iran Tensons Flare-Up, But Crude Moves Lower - Industrial Info Resources",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQeWZ2WlBSV2V2ZnR4WENMZXllaENyejNQdUQ1NWo1TzFmOVNOMGtyU3BodnNzR0oyTUhKajZocEdEaGxhdWYybTl0MlN6WjFmTVIwY29BbXlVa1lDem9pV1hiZy1nTFVuV1pEVy1PN1E0UnEzVUVqZDQtMHRIbWhkVXFySFB1ZkQ3Q3ZoWk1XWDBqNEVNdEJOcXNfQQ?oc=5",
+   "source": "Industrial Info Resources",
+   "pubDate": "Sat, 27 Jun 2026 08:54:12 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
    "title": "Trump chose oil prices over Netanyahu’s Iran strategy - Israel Hayom analysis - ایران اینترنشنال",
    "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBZdFdzaVRhdHJ0QWg1ZUdXcDJNaGJTeFBkWE83WklzUlVwNHFUbGdQOVBJUVMyckRKSGRkZkd0NFRlczVPY2ZicWlEQXA1MUtCQ1E?oc=5",
    "source": "ایران اینترنشنال",
@@ -818,26 +850,26 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
-   "title": "Micron (MU) Weekend Outlook: After a Record Quarter, Is Another Breakout Coming? - TradingKey",
-   "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQeVBTWE1OV19mMlVibGNTMWY0LXFuaHNOX3hHVG1lZXlPSFIybGc3VGN3TVRPWVNBWjdseS1QZUdzVXZWMUpMNm1OUzF5OVpnMVZpU2Z0aUZlMVpGU295OFN2R0x6UGtITmRoYzNrR0dBOGxtTDFlbVFWdFp0eldiM0c5WXJmWUIwM0NhNDFtMDFmc01uanRrY1dnaVRRSm5ka25XSjJEQ1VUSnRkbU9hLWZjbWoyblFYOVdJREpVcWtETVpOalg3dm9ONG5zSWlSbm1uODRBZUdXY05vRjJIUmVzOA?oc=5",
+   "title": "UnitedHealth Beats Q1 2026 and Raises Guidance - Is UNH Stock a Buy After Jumping 8%? - TradingKey",
+   "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNeVh0WFN6TXVzUmhmdTNvWGdpOXJxdmFLUml1V09vZi1zSHZTMDduOUhZUXdWc2h1d3U5QnJUZDl4aHJqZXplcndqZnlIYmlvb0x0eVdSaHFEN1FrcENkV0s3N3BYM0g2NndDUmtJeVZnZnlOcDh6NXJXLVB0ZE1UVjZYLXBXRUt1WXAxQ1FMY1YwbmVpMWhkaV8wb2swaGs2VFVKekkySHVyT2hKYzNrcnJ2X3UwZEE?oc=5",
    "source": "TradingKey",
-   "pubDate": "Sat, 27 Jun 2026 13:05:04 GMT",
-   "topic": "semi",
+   "pubDate": "Sat, 27 Jun 2026 13:30:23 GMT",
+   "topic": "analyst",
    "country": "us",
    "tier": 3,
    "score": 38,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis",
+   "feedSource": "Google News - Analyst/Earnings",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-06-26T23:00:00.000Z",
    "newsCycleEnd": "2026-06-27T23:00:00.000Z",
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
-   "title": "SanDisk Is Up 509% YTD After a 251% Revenue Beat - Is the Pullback to $1,382 a Buying Opportunity? - TradingKey",
-   "link": "https://news.google.com/rss/articles/CBMi8wFBVV95cUxOWDVGZVNwNnZDSHFmRjRwcWJWTFg5TzBSaUZFR0dqdHh4aFdtSzdyak5aZ2p0RG1OMFhlb3JtOEttQm5INUFKNXNYdmZ4UlozVHU0cmpwYnZVQ2ZUM2V4US1kbjhRM3ljRVFKcjZMc0FqYTY5T2RReGJHYnREMHR0c2ZmdEdrWE5Dc0t3UTBxQTNhUTc4dDdTZ0t4M3hrR09HQXM1aVM4NF9PcTVOZEdobmFjdlk1S0tqcUxPMkE5b2RRcEM3ZWc5SHVQSkN5SlVXX1RtUmp4Z0tPWTlseklRT196OHhyWjByc2pNUGs4NTZOQUU?oc=5",
-   "source": "TradingKey",
-   "pubDate": "Fri, 26 Jun 2026 23:54:13 GMT",
+   "title": "Why Do Stocks Drop Even After Beating Earnings - Kavout | AI",
+   "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNamRKd3VacWlCUUVUbWp3LTgwaDl5LUhjRXN4Rm95dTZmaFdlS2Rpby1jb3R2OHNlYmt6ZEsyUUNueU5oYVo5UW1SeFhmSzJYektra1RET1hHVlY5RnVsVHExR3YxNVhHdGxEQlpRTmtxaTFCTW15TzZPc0NCaDk4YnVweXZRUFZ2?oc=5",
+   "source": "Kavout | AI",
+   "pubDate": "Sat, 27 Jun 2026 03:11:56 GMT",
    "topic": "semi",
    "country": "us",
    "tier": 3,
@@ -978,6 +1010,22 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
+   "title": "The Hidden Risk Building Inside the Most Popular AI Stocks Right Now - InvestorPlace",
+   "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxOZUYwa2VKQjJkYm5UcElNQUVSbk1jSTBWQzhyQ2VQT3dKcndPQWNHNFB3ZUdWV2hjQzctcDF5c2xlVkpDT25zSHpwbVZPRVdCeF9PaEJOTUpCOHFHQlZtU0pzVmpWY1BNdkgzTlFBVlgzUTRHbDBlTjJRV3pBd2YydkNsRlBBdjZsMm8xdWRydS1jQ2oxNFl4YmlqUnZqdGJ1cVdkMEJWN1pfdUZNTWFPNGpBTkVuTEMySHhOOWRFS2hpZw?oc=5",
+   "source": "InvestorPlace",
+   "pubDate": "Sat, 27 Jun 2026 13:52:57 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 28,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6",
+   "feedSource": "Google News - AI/Semis",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
    "title": "Why a 30-year low in bond-equity correlation matters for your portfolio - Investing.com",
    "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQX0RzOG1jRWdQaHZxYUZPMEMxMWhubmoxUEtuOTZhRFBUc3JZeVpJUmFGVEJ5ZVJfMjUxVF8tRW1CcnJCUVRWMElJOVpTRmdnSnVrbk9vNnBsTFFReW9rVEdHeEJuWHd2TVVRZ2ZEM1E5NXhqMHhMT0JCZ29XUFh1SzZvYVhTRko2Y282N0xfdk1YTTVEMkpOQnU1empTNGVBTU9CUFY2VDVoNGpRRnByUmZZZ2IycEhGdk0ySWtqMmNJMS1k?oc=5",
    "source": "Investing.com",
@@ -1010,42 +1058,10 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
-   "title": "Oil costs’ fall buoys Wall Street dragged by AI losses - The Arkansas Democrat-Gazette",
-   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPbVhvRDdBSFU0MFh3dXVJU0piU0VNcFU2WlI4ZVJ2WlJ3bXB5d3VZQWVVRHVNRk1PaXluUDEydzl2UmF6bkxMYlhKcWNGMmVnZk9fVEJpcWVJQ2lOeXhqRnRIeDZ1OU9RSXltSmZqeGZndzhzNHJ0NXZDQnlUTUdpNzZlc2JXdDFYelBzMWt5UG0ydU96aHMzVGU3NA?oc=5",
-   "source": "The Arkansas Democrat-Gazette",
-   "pubDate": "Sat, 27 Jun 2026 06:45:00 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 28,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-06-26T23:00:00.000Z",
-   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
-   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
-  },
-  {
-   "title": "The Hidden Risk Building Inside the Most Popular AI Stocks Right Now - InvestorPlace",
-   "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxOZUYwa2VKQjJkYm5UcElNQUVSbk1jSTBWQzhyQ2VQT3dKcndPQWNHNFB3ZUdWV2hjQzctcDF5c2xlVkpDT25zSHpwbVZPRVdCeF9PaEJOTUpCOHFHQlZtU0pzVmpWY1BNdkgzTlFBVlgzUTRHbDBlTjJRV3pBd2YydkNsRlBBdjZsMm8xdWRydS1jQ2oxNFl4YmlqUnZqdGJ1cVdkMEJWN1pfdUZNTWFPNGpBTkVuTEMySHhOOWRFS2hpZw?oc=5",
-   "source": "InvestorPlace",
-   "pubDate": "Sat, 27 Jun 2026 05:57:49 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 3,
-   "score": 28,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6",
-   "feedSource": "Google News - AI/Semis",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-06-26T23:00:00.000Z",
-   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
-   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
-  },
-  {
    "title": "Buckle up! The Federal Reserve's May inflation forecast points to fireworks on Wall Street. - MSN",
-   "link": "https://news.google.com/rss/articles/CBMisANBVV95cUxNTXlBVDZqN2FTT28yTlZnVzdJeTMyeWgtZDNOc2xuS3RPcXVxcE9yTFdFMXhJakdza0RvcV9NZnNsSWRCTWZ2UzRiQllYZ0V0ZlBFd3N6V3ZmWGVUNEFQVnNpYk9lZEdkWHFaSnc4WGprNG1Ob0ZCZUkwdkZMSTlWOWFieGo4MFNrQmp6aGZqd2VIdmJ6T1VMMWdaSmctT0JaSl9fOEtUYUlqVndLYUZmTTVJYWFzYlloZUdySDBrTmlBSlRlWUtSZS1tS2lsWTZtcVZhYXh4Yl9jLVpvRG9adXNCZV85ZnR3LURQdnlza1lxOTdQZjdZSUQ1Ni03WTlDa1BxXy15eXNTTXFqdXN1LVJpT0J3bFJ4aFluUlFyRmpkLWxTZmh6WGtpOUhFMGlYTWxCR1RRTXJGcTJWVDd3ekh1cDV4TzBFSE9vclhwMG95OC1UaVJqeTJnZkZKYV9EUmlNWDdXcGJzSEh6VmtVdFEtaHVYci00MHVFSTZqRWZSbnFac0FjQ3VHQkRHNFBtWjg1dUo5RnNVdlBTdjExSUxwVmVRUnQyWmRxUW81ZXk?oc=5",
+   "link": "https://news.google.com/rss/articles/CBMirwNBVV95cUxNZXRZLWptTlpoanRPUDEwTmsyOUhzRWotcW1uajR4WWMtNk8xNXJKZUYwWGJ6RzIxRFNTNVNaclNLanNyT2FsV2pSaTZxSENZemNKcWQzZmFnQkx3cU9xU29MNDBScEZ0RVF0UThqRm11T1R3T0RvdS1ORTJncWdVa1k3eTJ4OS14cjZOSEdRLUhzOFRUc3FGdzU4SkZOR29aM1NfODVnOWRienkwM19EV1dKM2JCSU16YXAzNUJUVUtxa0xaVE5UVEN5UmlNeE9RUGk2VFVxSVo3TEIxX3Uta056UkhTeDFhaklKckdFOGJBeFpZcmZuYjNaT1NnRXNzNlZRY2xlcktTZVQwWExlSTVUQ1VZMlYzNkN3Um5sRUZfcDZvR2VBem5XbEpVc3Z4Wll4bE9CNERKeXh6dUQxMS1ZRVRPanQ0ZWRhMU5oQ0Z0OVpmTEpUejdQUzAtaU41NldvNVFpaVctb0dBbExJYTN2X2Jsam1BNE1ZWlBoUFZESmZUS2tZVUhXazdVMmVYZ2NJUGFDNk96UlVkUWNxVEJ1OU1zejRTZkVBbWM3SQ?oc=5",
    "source": "MSN",
-   "pubDate": "Sat, 27 Jun 2026 07:11:40 GMT",
+   "pubDate": "Sat, 27 Jun 2026 07:04:36 GMT",
    "topic": "macro",
    "country": "us",
    "tier": 4,
@@ -1122,6 +1138,22 @@
    "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
   },
   {
+   "title": "Micron Technology highlights AI memory growth, shares track robust demand cycle - Ad-hoc-news.de",
+   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPNE8zQjMyUUZuQXJKRWVYS2pTeGxvcUhQT0NodTAxYmhtaXMtYUhSV3FwWVFRT1VqRFRzSEpwaHJ2OGNoTlljREdpdmhTRVp5WVlqMzFGT0dVTlZmMjRTRklpOW9DZ0xReHA2OHRVUDk2MTVTdkN1WUdXZGt6TFRvVWhmVlhscGhHYnkyRFFWbzVhWmNUX3lFZkd3TzVnaFl6dWpQNEk1U3hFYTZ5QUJvQ2R6T3QzR1g0WDR2Mm8xYXRySWpaZzBlUzJQZw?oc=5",
+   "source": "Ad-hoc-news.de",
+   "pubDate": "Sat, 27 Jun 2026 11:06:08 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 4,
+   "score": 10,
+   "selectionReason": "base+20 | source-tier4-8 | recency+6 | low-quality-source-8",
+   "feedSource": "Google News - AI/Semis",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-06-26T23:00:00.000Z",
+   "newsCycleEnd": "2026-06-27T23:00:00.000Z",
+   "newsCycleLabel": "2026-06-27 08:00 KST ~ 2026-06-28 08:00 KST"
+  },
+  {
    "title": "First Solar legal overhang grows, shares face cautious analyst split - Ad-hoc-news.de",
    "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPOFhPMW1SRTZuWmxrTGNfdWxTSG53YU02VUpxS244ZlAwcE1udFdkTV95VGl5SmlrMGNjcGs2LTFwOHlheDEwQ21YWlNqVHFsVHJkalhCMGIxX2pUTlJTcXZJVEJ4VUlaVmtXNENkenFzVUVaN2lsdEc5WTM0NnFqYUhIdGxPRWs5VEJGZ1ZBN3k5LVR1cG9uOTdrdnFiUm0wS1NNWGZNOFV2NUczS2paeUVwbEpMR25VR29DclNBWWdTc3U3?oc=5",
    "source": "Ad-hoc-news.de",
@@ -1155,9 +1187,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**한 줄 요약:** CPI 4.2%, 연방기금율 3.63%, NFP 172K 속 금값이 $4,000을 넘으며 인플레이션 우려와 금리 인상 기대 사이 혼재된 심리를 반영 중.\n\n① **변동성/심리:** VIX 지수와 시장 심리 수치가 명확하지 않으나, 금값 상승과 금리 인상 베팅 축소 뉴스가 공존하며 방향성이 불명확한 상태.\n\n② **거시/금리:** 인플레이션 지표(CPI 4.2%)와 연방 금리 전망이 엇갈려, 금리 인상 가능성 감소와 디스인플레이션 기대가 혼재된 상황.\n\n③ **주도 뉴스/리스크:** 이란 석유 제재 강화, 반도체(마이크론 HBM 수급 부족)와 소프트웨어(Intuit 실적 부진) 등 섹터별 편차 심화; 연방준비제도의 6월 인플레이션 전망 발표가 향후 방향성을 결정할 주요 변수.",
+  "full": "# 현재 시장 분석\n\n**한 줄 요약:** CPI 4.2%, 연방기금율 3.63%, NFP 172K 등 거시지표 속에서 금값이 $4,000 돌파하며 인플레이션 우려와 금리 인상 제한 심리가 혼재 중.\n\n① **변동성/심리**: VIX와 F&G 지수 등락이 제한적이며, 금이 $4,000을 넘어선 것은 인플레이션 헤지 수요를 반영하고 있습니다.\n\n② **거시/금리**: 4.2% CPI와 3.63% 연방기금율 수준에서 추가 금리 인상 가능성이 낮아지며, 2026년 금리 전망이 투자 심리에 영향을 미치고 있습니다.\n\n③ **주도 뉴스/리스크**: 이란 유가 제재 강화(WTI 영향), 마이크론 반도체 수급 강세(데이터센터 매출 150% 증가), 美 연준의 인플레이션 시나리오 혼재 등이 섹터별 쏠림을 주도 중입니다.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-06-27T23:44:22.729Z",
+  "generatedAt": "2026-06-28T01:54:18.446Z",
   "model": "claude-haiku-4-5"
  }
 }
