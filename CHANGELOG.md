@@ -1,4 +1,7 @@
-﻿## v51.57 (2026-06-29)
+﻿## v51.58 (2026-06-28)
+- **전 페이지 구조 간소화**: CSS `.insight-box { display:none !important }` 추가로 18개 페이지 설명 카드 전체 숨김. 홈 페이지 `aio-legend`(스코어 범례 바) + 빠른이동 pill-chip 행("시그널 브리핑 매크로 뉴스...") 제거. market-news `aio-why` 설명문("뉴스는 매크로 판단의 입력 데이터입니다...") + cross-link 네비행 제거. kr-technical `aio-why` 설명문 제거
+- R1 7곳 v51.58
+## v51.57 (2026-06-29)
 - **전 페이지 Action Hub 제거**: _aioRenderPageActionHub()를 빈 함수로 전환 — "뉴스 인텔리전스" / "시장 Cockpit" 등 3카드 설명 섹션 전 페이지 제거. getPageRedesignAudit missingHub 체크 비활성화
 - **Decision Header 3카드 그리드 제거**: 왜/오늘 행동/데이터 기준시각 카드 제거 — 상단 판단 strip(제목·verdict·신뢰도·데이터소스) + AI 분석 버튼만 유지
 - **뉴스 아이템 대폭 간소화**: desc(영문 설명)/explain(template 가이던스)/action(template 행동) 제거. summaryHtml은 "헤드라인 기준 톤은" 패턴 필터로 번역된 실제 insight만 표시. 메타 행에서 T{tier}/verificationStatus/ageHours/impactHtml 제거

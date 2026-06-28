@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.57**
+- 현재 버전: **v51.58**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v51.58 전 페이지 구조 간소화**: CSS `.insight-box { display:none }` 전 페이지 페이지 설명 카드 숨김(18개). 홈 `aio-legend`(스코어 범례) + 빠른이동 pill-chip 행 제거. market-news `aio-why` 설명문 + cross-link 네비행 제거. kr-technical `aio-why` 설명문 제거. R1 7곳 v51.58.
 - **v51.57 전 페이지 UI 간소화**: Action Hub(뉴스 인텔리전스/시장 Cockpit 3카드 설명 섹션) 전 페이지 제거. Decision Header에서 왜/오늘 행동/데이터 기준시각 3카드 그리드 제거 → 상단 판단 1줄+AI 버튼만 유지. 뉴스 아이템 desc/explain/action 제거 + template summary 필터("헤드라인 기준 톤은" 패턴 숨김) + 메타 행 T{tier}/verificationStatus/ageHours 제거. R1 7곳 v51.57.
 - **v51.56 텔레그램 피드 구조 개선**: 홈/브리핑/시그널 등 전 페이지 tg-feed에서 다이제스트형 포스트(━━━━ 포함 또는 600자 초과) 필터링. 새 _aioRenderTgDigestBrief() + _aioParseTgDigestSections()로 Weekend Summary/Market Summary를 카테고리별 한국어 불릿으로 파싱 → market-news #news-korean-rewrite-brief + briefing #briefing-tg-digest 구조화 표시. KR_TICKER_MAP에서 'google'/'alphabet'/'facebook' 영어 단어 제거(소스명 오탐 방지). R1 7곳 v51.56.
 - **v51.55 트레이딩 방법론 통합**: Qullamaggie 3셋업(돌파/EP/파라볼릭숏)·Minervini Triple Barrel·LLY 사례 SCREENER_DB 메모 추가. `AIO_EVENT_FRESHNESS_REGISTRY.appleCXMT` 신설(Apple CXMT 단기노이즈 판단 + 이중공급망 분기 구조 분석). guide-strategies 섹션 신설(index.html). `technical` CHAT_CONTEXT Qullamaggie EP+ORH+Triple Barrel 보강. `_context/KNOWLEDGE-BASE.md` TM-I/II/III 추가. R1 7곳 v51.55.
