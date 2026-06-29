@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.60**
+- 현재 버전: **v51.61**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v51.61 DATA_SNAPSHOT 전면 갱신**: 2026-06-28 종가 전체 반영. SPX 7354(-1.95%), NASDAQ 25298(-4.6%), KOSPI 8411(-7.08%), KOSDAQ 851(-11.92%), NVDA -8.6% Apple CXMT 반도체 쇼크. F&G 25 극단공포, VIX 18.41, WTI $69.85, TNX 4.37%, DXY 101.38, 글로벌 지수·크립토·breadth 추정치 전면 동기화. R1 7곳 v51.61.
 - **v51.60 UI 잡음 추가 제거**: 홈 매매신호 카드 `가중치:` 공식 3줄 HTML 제거. briefing 페이지 `지난 24시간 핵심 뉴스를 테마별로 정리합니다.` 설명 박스 제거. `#breadth-5sma-note`, `#breadth-20sma-note` CSS 숨김. R1 7곳 v51.60.
 - **v51.59 전 페이지 잡음 제거**: dual-verdict 4페이지(`home`/`signal`/`sentiment`/`macro`) 구 conclusion-bar CSS 숨김. `.aio-why` 설명 블록 전 페이지 CSS 숨김. `.tg-feed-more`("전체 채널 피드 →") CSS 숨김. cross-link 내비행 8곳 HTML 제거(`signal`/`breadth`/`briefing`/`technical`/`macro`/`fxbond`/`fundamental`/`screener`). `fxbond`/`guide` insight-box overriding rule 수정. R1 7곳 v51.59.
 - **v51.58 전 페이지 구조 간소화**: CSS `.insight-box { display:none }` 전 페이지 페이지 설명 카드 숨김(18개). 홈 `aio-legend`(스코어 범례) + 빠른이동 pill-chip 행 제거. market-news `aio-why` 설명문 + cross-link 네비행 제거. kr-technical `aio-why` 설명문 제거. R1 7곳 v51.58.
