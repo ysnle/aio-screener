@@ -16532,6 +16532,271 @@ function _calcRecentLevel(values, lookback, fn) {
   return fn.apply(null, nums);
 }
 
+// v51.68: VCP (Volatility Contraction Pattern) — Mark Minervini 방법론
+// Stage 2 확인 + 스윙 고/저 수축(폭 감소) + 거래량 고갈 + 피벗 돌파 감지
+function _calcVCP(bars, indicators) {
+  var n = bars.length;
+  if (n < 60) return { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
+  var closes  = bars.map(function(b) { return b.close; });
+  var highs   = bars.map(function(b) { return b.high; });
+  var lows    = bars.map(function(b) { return b.low; });
+  var volumes = bars.map(function(b) { return b.volume; });
+  var price = bars[n - 1].close;
+  var ind = indicators || {};
+  var sma50  = ind.sma50  || _calcSMA(closes, 50);
+  var sma200 = ind.sma200 || _calcSMA(closes, 200);
+  var sma150 = _calcSMA(closes, 150);
+  // 52주 고점 (최대 252바)
+  var lk52 = Math.min(252, n);
+  var h52 = highs.slice(n - lk52).reduce(function(m, v) { return v > m ? v : m; }, 0);
+  var pct52 = h52 > 0 ? (price - h52) / h52 * 100 : null;
+  // Stage 2: 가격 > SMA150 > SMA200, 가격 > SMA50, 52주 고점 -30% 이내
+  var stage2 = !!(sma50 && sma150 && sma200 && price > sma150 && sma150 > sma200 && price > sma50 && pct52 !== null && pct52 >= -30);
+  // 베이스 구간: 최근 65봉(또는 n-10)
+  var bLen = Math.min(65, n - 10);
+  var bH = highs.slice(n - bLen), bL = lows.slice(n - bLen), bV = volumes.slice(n - bLen);
+  // 스윙 고/저 감지 (좌우 N=4봉 기준)
+  var N = 4, swH = [], swL = [];
+  for (var i = N; i < bH.length - N; i++) {
+    var isHi = true, isLo = true;
+    for (var j = i - N; j <= i + N; j++) {
+      if (j === i) continue;
+      if (bH[j] >= bH[i]) isHi = false;
+      if (bL[j] <= bL[i]) isLo = false;
+    }
+    if (isHi) swH.push({ idx: i, p: bH[i] });
+    if (isLo)  swL.push({ idx: i, p: bL[i] });
+  }
+  // 수축 구간: 스윙고→다음 스윙저 쌍 (깊이 1~45%)
+  var ctrs = [];
+  for (var swhi = 0; swhi < swH.length; swhi++) {
+    var nl = null;
+    for (var swli = 0; swli < swL.length; swli++) { if (swL[swli].idx > swH[swhi].idx) { nl = swL[swli]; break; } }
+    if (!nl) continue;
+    var dep = (swH[swhi].p - nl.p) / swH[swhi].p * 100;
+    if (dep >= 1 && dep <= 45) ctrs.push({ depth: Math.round(dep * 10) / 10, highPx: swH[swhi].p, lowPx: nl.p });
+  }
+  var cnt = ctrs.length;
+  var shrink = cnt >= 2 && ctrs.every(function(c, ci) { return ci === 0 || ctrs[ci].depth < ctrs[ci - 1].depth; });
+  // 거래량 고갈: 후반부 평균 < 전반부 평균 × 0.85
+  var volDry = false;
+  if (bV.length >= 20) {
+    var half = Math.floor(bV.length / 2);
+    var fv = bV.slice(0, half).filter(function(v) { return v > 0; });
+    var sv = bV.slice(half).filter(function(v) { return v > 0; });
+    var fa = fv.length ? fv.reduce(function(s, v) { return s + v; }, 0) / fv.length : 0;
+    var sa = sv.length ? sv.reduce(function(s, v) { return s + v; }, 0) / sv.length : 0;
+    volDry = fa > 0 && sa > 0 && sa < fa * 0.85;
+  }
+  // 피벗: 베이스 최근 25봉 내 가장 최근 스윙고
+  var pivot = null;
+  var recSH = swH.filter(function(sh) { return sh.idx >= bH.length - 25; });
+  if (recSH.length) pivot = recSH[recSH.length - 1].p;
+  else if (swH.length) pivot = swH[swH.length - 1].p;
+  var nearPivot = !!(pivot && price >= pivot * 0.97 && price <= pivot * 1.03);
+  var rvol20 = (ind.rvol20 != null) ? ind.rvol20 : null;
+  var brk = !!(pivot && price > pivot && rvol20 !== null && rvol20 > 1.4);
+  // VCP 점수 (0~100)
+  var score = 0;
+  if (stage2)    score += 25;
+  if (cnt >= 2)  score += Math.min(20, cnt * 7);
+  if (shrink)    score += 20;
+  if (volDry)    score += 15;
+  if (nearPivot) score += 10;
+  if (brk)       score += 10;
+  score = Math.min(100, Math.round(score));
+  var vcpStage = !stage2 ? 'not_stage2' : brk ? 'breakout' : nearPivot ? 'near_pivot' : (cnt >= 2 && shrink) ? 'contracting' : cnt >= 1 ? 'basing' : 'stage2_only';
+  return {
+    ok: true, vcpScore: score, vcpStage: vcpStage, stage2: stage2,
+    contractionCount: cnt, contractionDepths: ctrs.map(function(c) { return c.depth; }),
+    isShrinking: shrink, volumeDrying: volDry, pivotLevel: pivot,
+    nearPivot: nearPivot, breakout: brk,
+    pctFrom52wHigh: pct52 !== null ? Math.round(pct52 * 10) / 10 : null
+  };
+}
+
+// v51.69: RSI 시리즈 전체 계산 (Wilder's smoothing) — divergence 감지용
+function _calcRSISeries(closes, period) {
+  period = period || 14;
+  var n = closes.length;
+  if (n < period + 2) return [];
+  var gains = [], losses = [];
+  for (var i = 1; i < n; i++) {
+    var d = closes[i] - closes[i - 1];
+    gains.push(d > 0 ? d : 0);
+    losses.push(d < 0 ? -d : 0);
+  }
+  var avgG = 0, avgL = 0;
+  for (var k = 0; k < period; k++) { avgG += gains[k]; avgL += losses[k]; }
+  avgG /= period; avgL /= period;
+  var rsi = [avgL === 0 ? 100 : avgG === 0 ? 0 : 100 - 100 / (1 + avgG / avgL)];
+  for (var m = period; m < gains.length; m++) {
+    avgG = (avgG * (period - 1) + gains[m]) / period;
+    avgL = (avgL * (period - 1) + losses[m]) / period;
+    rsi.push(avgL === 0 ? 100 : avgG === 0 ? 0 : 100 - 100 / (1 + avgG / avgL));
+  }
+  return rsi;
+}
+
+// v51.69: RSI 다이버전스 감지 — 정규·히든 불리시/베어리시
+// 불리시: 가격 저점↓ + RSI 저점↑ | 베어리시: 가격 고점↑ + RSI 고점↓
+function _calcRSIDivergence(bars) {
+  if (!bars || bars.length < 60) return null;
+  var closes = bars.map(function(b) { return b.close; });
+  var rsiSeries = _calcRSISeries(closes, 14);
+  if (rsiSeries.length < 30) return null;
+  var LOOK = Math.min(50, bars.length - 1);
+  var N = 4;
+  var cSlice = closes.slice(-LOOK), rSlice = rsiSeries.slice(-LOOK);
+  var pHighs = [], pLows = [], rHighs = [], rLows = [];
+  for (var i = N; i < cSlice.length - N; i++) {
+    var isPH = true, isPL = true, isRH = true, isRL = true;
+    for (var j = i - N; j <= i + N; j++) {
+      if (j === i) continue;
+      if (cSlice[j] >= cSlice[i]) isPH = false;
+      if (cSlice[j] <= cSlice[i]) isPL = false;
+      if (rSlice[j] >= rSlice[i]) isRH = false;
+      if (rSlice[j] <= rSlice[i]) isRL = false;
+    }
+    if (isPH) pHighs.push({ idx: i, v: cSlice[i] });
+    if (isPL) pLows.push({ idx: i, v: cSlice[i] });
+    if (isRH) rHighs.push({ idx: i, v: rSlice[i] });
+    if (isRL) rLows.push({ idx: i, v: rSlice[i] });
+  }
+  function nearest(arr, idx) {
+    if (!arr.length) return null;
+    return arr.reduce(function(b, s) { return Math.abs(s.idx - idx) < Math.abs(b.idx - idx) ? s : b; });
+  }
+  var bullish = false, bearish = false, hiddenBull = false, hiddenBear = false;
+  if (pHighs.length >= 2) {
+    var ph1 = pHighs[pHighs.length - 2], ph2 = pHighs[pHighs.length - 1];
+    var rh1 = nearest(rHighs, ph1.idx), rh2 = nearest(rHighs, ph2.idx);
+    if (rh1 && rh2 && rh1 !== rh2) {
+      if (ph2.v > ph1.v && rh2.v < rh1.v) bearish = true;
+      if (ph2.v < ph1.v && rh2.v > rh1.v) hiddenBear = true;
+    }
+  }
+  if (pLows.length >= 2) {
+    var pl1 = pLows[pLows.length - 2], pl2 = pLows[pLows.length - 1];
+    var rl1 = nearest(rLows, pl1.idx), rl2 = nearest(rLows, pl2.idx);
+    if (rl1 && rl2 && rl1 !== rl2) {
+      if (pl2.v < pl1.v && rl2.v > rl1.v) bullish = true;
+      if (pl2.v > pl1.v && rl2.v < rl1.v) hiddenBull = true;
+    }
+  }
+  var signal = bearish ? 'bearish' : bullish ? 'bullish' : hiddenBear ? 'hidden_bearish' : hiddenBull ? 'hidden_bullish' : 'none';
+  return { bullish: bullish, bearish: bearish, hiddenBullish: hiddenBull, hiddenBearish: hiddenBear, signal: signal };
+}
+
+// v51.69: 피보나치 되돌림 · 확장 레벨 계산
+// 최근 160봉 내 글로벌 스윙고/저 → 0.236/0.382/0.5/0.618/0.786 되돌림 + 1.0/1.272/1.618 확장
+function _calcFib(bars) {
+  if (!bars || bars.length < 60) return null;
+  var start = Math.max(0, bars.length - 160);
+  var slice = bars.slice(start);
+  var swH = slice.reduce(function(m, b) { return b.high > m ? b.high : m; }, 0);
+  var swL = slice.reduce(function(m, b) { return b.low < m ? b.low : m; }, Infinity);
+  if (swL === Infinity || !(swH > swL)) return null;
+  var range = swH - swL;
+  var current = bars[bars.length - 1].close;
+  function rnd(v) { return Math.round(v * 100) / 100; }
+  function distPct(price) { return current > 0 ? Math.round((price - current) / current * 1000) / 10 : 0; }
+  var ret = [0.236, 0.382, 0.5, 0.618, 0.786].map(function(r) {
+    var price = rnd(swH - range * r);
+    return { ratio: r, label: 'R' + (r * 100).toFixed(1) + '%', price: price, distPct: distPct(price), type: 'retracement' };
+  });
+  var ext = [1.0, 1.272, 1.618, 2.618].map(function(r) {
+    var price = rnd(swL + range * r);
+    return { ratio: r, label: 'E' + r.toFixed(3) + 'x', price: price, distPct: distPct(price), type: 'extension' };
+  });
+  var all = ret.concat(ext).sort(function(a, b) { return Math.abs(a.distPct) - Math.abs(b.distPct); });
+  return {
+    swingHigh: rnd(swH), swingLow: rnd(swL),
+    retracements: ret, extensions: ext,
+    nearest: all[0] || null,
+    nearestSupport: all.filter(function(l) { return l.distPct < 0; }).sort(function(a, b) { return b.distPct - a.distPct; })[0] || null,
+    nearestResistance: all.filter(function(l) { return l.distPct > 0; }).sort(function(a, b) { return a.distPct - b.distPct; })[0] || null
+  };
+}
+
+// v51.69: 매물대(Volume Profile) — 최근 160봉, 24구간 분할
+// Point of Control(POC) = 거래량 최다 구간, Value Area = 전체 거래량의 70% 구간
+function _calcVolProfile(bars) {
+  if (!bars || bars.length < 30) return null;
+  var BINS = 24, LOOK = 160;
+  var start = Math.max(0, bars.length - LOOK);
+  var rows = bars.slice(start).filter(function(b) { return b.high > 0 && b.low > 0 && b.close > 0; });
+  if (rows.length < 20) return null;
+  var minP = rows.reduce(function(m, b) { return b.low < m ? b.low : m; }, Infinity);
+  var maxP = rows.reduce(function(m, b) { return b.high > m ? b.high : m; }, 0);
+  var span = maxP - minP;
+  if (!(span > 0)) return null;
+  var step = span / BINS;
+  var bins = [];
+  for (var bi = 0; bi < BINS; bi++) {
+    bins.push({ lo: minP + step * bi, hi: minP + step * (bi + 1), mid: minP + step * (bi + 0.5), vol: 0 });
+  }
+  rows.forEach(function(b) {
+    var price = (b.high + b.low + b.close) / 3;
+    var idx = Math.max(0, Math.min(BINS - 1, Math.floor((price - minP) / step)));
+    bins[idx].vol += b.volume || 1;
+  });
+  var totalVol = bins.reduce(function(s, b) { return s + b.vol; }, 0) || 1;
+  var sorted = bins.slice().sort(function(a, b) { return b.vol - a.vol; });
+  var poc = sorted[0];
+  var vaVol = 0, vaBins = [];
+  for (var vi = 0; vi < sorted.length && vaVol / totalVol < 0.70; vi++) { vaBins.push(sorted[vi]); vaVol += sorted[vi].vol; }
+  var vaLo = vaBins.reduce(function(m, b) { return b.lo < m ? b.lo : m; }, Infinity);
+  var vaHi = vaBins.reduce(function(m, b) { return b.hi > m ? b.hi : m; }, 0);
+  var current = bars[bars.length - 1].close;
+  function rnd(v) { return Math.round(v * 100) / 100; }
+  var topZones = sorted.slice(0, 8).sort(function(a, b) { return a.mid - b.mid; });
+  var sup = topZones.filter(function(z) { return z.hi <= current * 0.998; }).sort(function(a, b) { return b.mid - a.mid; });
+  var res = topZones.filter(function(z) { return z.lo >= current * 1.002; }).sort(function(a, b) { return a.mid - b.mid; });
+  return {
+    poc: poc ? { lo: rnd(poc.lo), hi: rnd(poc.hi), mid: rnd(poc.mid), volShare: Math.round(poc.vol / totalVol * 1000) / 10 } : null,
+    valueArea: { lo: rnd(vaLo), hi: rnd(vaHi) },
+    insideVA: current >= vaLo && current <= vaHi,
+    nearestSupport: sup[0] ? { mid: rnd(sup[0].mid), volShare: Math.round(sup[0].vol / totalVol * 1000) / 10, distPct: Math.round((sup[0].mid - current) / current * 1000) / 10 } : null,
+    nearestResistance: res[0] ? { mid: rnd(res[0].mid), volShare: Math.round(res[0].vol / totalVol * 1000) / 10, distPct: Math.round((res[0].mid - current) / current * 1000) / 10 } : null
+  };
+}
+
+// v51.69: 주봉 시뮬레이션 — 일봉 5봉씩 묶어 OHLCV 주봉 생성 (멀티 타임프레임 기초)
+// 완전한 멀티타임프레임(1h/4h)은 Yahoo Finance 별도 interval 호출 필요 → 클라이언트 데이터 없음
+// 이 함수는 기존 일봉 데이터만으로 "주봉 추세 확인" 제공
+function _calcWeeklyContext(bars) {
+  if (!bars || bars.length < 10) return null;
+  var WEEK = 5;
+  var weekBars = [];
+  for (var i = WEEK - 1; i < bars.length; i += WEEK) {
+    var slice = bars.slice(Math.max(0, i - WEEK + 1), i + 1);
+    if (!slice.length) continue;
+    var wHigh = slice.reduce(function(m, b) { return b.high > m ? b.high : m; }, 0);
+    var wLow  = slice.reduce(function(m, b) { return b.low < m ? b.low : m; }, Infinity);
+    var wVol  = slice.reduce(function(s, b) { return s + b.volume; }, 0);
+    weekBars.push({ time: slice[slice.length - 1].time, open: slice[0].open, high: wHigh, low: wLow === Infinity ? slice[slice.length - 1].close : wLow, close: slice[slice.length - 1].close, volume: wVol });
+  }
+  if (weekBars.length < 4) return null;
+  var wCloses = weekBars.map(function(b) { return b.close; });
+  var wSma20 = _calcSMA(wCloses, Math.min(20, wCloses.length));
+  var wSma50 = _calcSMA(wCloses, Math.min(50, wCloses.length));
+  var wRsi   = _calcRSILast(wCloses, 14);
+  var lastW  = weekBars[weekBars.length - 1];
+  var prevW  = weekBars[weekBars.length - 2] || lastW;
+  var wTrend = (wSma20 && wSma50) ? (wSma20 > wSma50 ? 'bullish' : 'bearish') : null;
+  return {
+    bars: weekBars.length,
+    lastWeekClose: lastW.close,
+    prevWeekClose: prevW.close,
+    weekGainPct: prevW.close > 0 ? Math.round((lastW.close - prevW.close) / prevW.close * 1000) / 10 : null,
+    wSma20: wSma20, wSma50: wSma50, wRsi: wRsi,
+    aboveW20: wSma20 ? lastW.close >= wSma20 : null,
+    aboveW50: wSma50 ? lastW.close >= wSma50 : null,
+    wTrend: wTrend
+  };
+}
+
 function calcTechnicalSnapshot(ohlcv) {
   var bars = _aioCleanOHLCV(ohlcv);
   if (bars.length < 20) return { ok: false, reason: 'insufficient_ohlcv', bars: bars.length };
@@ -16568,8 +16833,14 @@ function calcTechnicalSnapshot(ohlcv) {
   var sma50_5d = closes.length >= 55 ? _calcSMA(closes.slice(0, -5), 50) : null;
   var sma50Rising = (sma50 && sma50_5d) ? sma50 > sma50_5d : null;
   var rvol20 = _calcRVOL(volumes, 20);
+  var vcp = bars.length >= 60 ? _calcVCP(bars, { sma50: sma50, sma200: sma200, rvol20: rvol20 }) : { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
   var prior20High = highs.length > 1 ? _calcRecentLevel(highs.slice(0, -1), 20, Math.max) : null;
   var failedRetest = !!(prior20High && last.close >= prior20High * 0.99 && last.close < prior20High && last.close < prev.close && rvol20 !== null && rvol20 >= 1.2);
+  // v51.69: 피보나치 · 매물대 · RSI 다이버전스 · 주봉 컨텍스트
+  var fib = bars.length >= 60 ? _calcFib(bars) : null;
+  var volProfile = bars.length >= 30 ? _calcVolProfile(bars) : null;
+  var rsiDiv = bars.length >= 60 ? _calcRSIDivergence(bars) : null;
+  var weeklyCtx = bars.length >= 10 ? _calcWeeklyContext(bars) : null;
   return {
     ok: true, bars: bars.length, time: last.time, price: last.close, prevClose: prev.close, dayGainPct: dayGainPct,
     closePosition: closePosition, upperWickPct: candle.upperWickPct, lowerWickPct: candle.lowerWickPct, bodyPct: candle.bodyPct, gapUpPct: candle.gapUpPct,
@@ -16593,6 +16864,11 @@ function calcTechnicalSnapshot(ohlcv) {
     sma50Rising: sma50Rising,
     trendState: fullBull && sma50Rising !== false ? 'UPTREND' : fullBull && sma50Rising === false ? 'TOPPING' : fullBear ? 'DOWNTREND' : sma50 && last.close < sma50 ? 'TREND_DAMAGED' : 'MIXED',
     stageEstimate: fullBull && sma50Rising !== false ? 'STAGE_2_ADVANCE' : fullBull && sma50Rising === false ? 'STAGE_3_TOPPING' : fullBear ? 'STAGE_4_DECLINE' : sma50 && last.close < sma50 ? 'STAGE_4_OR_BASE_REPAIR' : 'STAGE_1_OR_3_TRANSITION',
+    vcp: vcp, vcpScore: vcp.vcpScore, vcpStage: vcp.vcpStage, vcpPivot: vcp.pivotLevel || null,
+    fib: fib, fibNearest: fib && fib.nearest ? fib.nearest : null,
+    volProfile: volProfile, poc: volProfile && volProfile.poc ? volProfile.poc.mid : null,
+    rsiDiv: rsiDiv, rsiDivSignal: rsiDiv ? rsiDiv.signal : 'none',
+    weeklyCtx: weeklyCtx, wTrend: weeklyCtx ? weeklyCtx.wTrend : null,
     lastBar: last, prevBar: prev, raw: bars
   };
 }
@@ -17077,7 +17353,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.63';
+const APP_VERSION = 'v51.70';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -18028,8 +18304,14 @@ if (typeof window !== 'undefined') {
 //    HTML 본문에 직접 숫자를 수정하지 마세요!
 // ─────────────────────────────────────────────────────────────────
 const DATA_SNAPSHOT = {
+  // ── 설계 원칙 (v51.64 P545) ─────────────────────────────────────────────
+  // 이 객체의 가격/변동률 필드(spx, spxPct, nasdaq 등)는 수동 편집 금지.
+  // 실제 값은 _aioLoadServerData() → applyLiveQuotes() → _LIVE_SNAP_MAP 경로로
+  // public-data/data.json에서 자동 파생된다. (data.json 생성 시 OHLCV 기반 일간 pct 보장)
+  // 아래 리터럴은 data.json을 전혀 로드할 수 없을 때(API 100% 차단)에만 폴백으로 사용.
+  // _isFallback=true 상태에서는 UI가 "데이터 로드 중..." 경고를 표시함.
+  // ── 수정 허용 필드: 금리·일정·거시 텍스트(fedRate/fomc/bokNext 등) — 자동화 불가 항목만 ──
   // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
-  // 정적값이 표시되는 경우는 API 100% 차단 시 뿐이며, 이 때는 _updated로 사용자에게 폴백 경고 표시.
   // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
   _updated: '2026-06-29T08:48:00+09:00',   // v51.61 data refresh: public-data/data.json 77/0 quotes, F&G 25 (Extreme Fear). Generated 2026-06-28T23:48:02Z.
   _snapshotDate: '2026-06-29',
@@ -18048,6 +18330,26 @@ const DATA_SNAPSHOT = {
     tnx2y: '2026-06-28'
   },
   _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
+  // v51.66: 데이터 카테고리별 마지막 갱신 타임스탬프 — 런타임에 자동 기록됨
+  // prices: applyLiveQuotes() 호출 시 | macro_fred: FRED 적용 시 | screener: screener.json 로드 시
+  // fearGreed: F&G 적용 시 | manual_policy: 정책금리 마지막 편집 날짜 (코드 리뷰로만 갱신)
+  _fieldTs: {
+    prices:       null,          // 실시간 시세 (applyLiveQuotes 호출 시각)
+    fearGreed:    null,          // F&G 지수 (data.json.fearGreed.asOf)
+    macro_fred:   null,          // FRED 매크로 지표 (data.json.meta.generatedAt, fredFetchOk=true일 때만)
+    screener:     null,          // 스크리너 팩터 (screener.json.asOf)
+    serverData:   null,          // data.json 로드 시각 (meta.generatedAt)
+    // 수동 유지 정책 필드 — 코드 편집 시 갱신, 자동화 불가
+    fed_rate:     '2026-05-28',  // FOMC 마지막 금리결정 날짜
+    boj_rate:     '2026-06-16',  // BOJ 마지막 결정
+    bok_rate:     '2026-05-28',  // BOK 마지막 금통위
+    boe_rate:     '2026-04-30',  // BOE 마지막 결정
+    pboc_rate:    '2026-05-12',  // PBOC 마지막 LPR
+    kr_bond:      '2026-05-15',  // 국고채 수익률 (BOK snapshot 기준)
+    kr_macro:     '2026-04-30',  // 한국 CPI/PMI 등 (통계청 기준)
+    us_macro_manual: '2026-05-01', // 수동 유지 미국 매크로 (FRED 자동 오버라이드 전 기준)
+    breadth_sma:  '2026-06-26',  // 시장폭 SMA 추정치 마지막 갱신
+  },
   // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
   _note: 'v51.63 데이터 보정 (2026-06-26 종가 기준): Pct값=당일 변동률. SPX 7354 (-0.05%/주간-2%), NASDAQ 25298 (-0.24%/주간-4.6%), Dow (-0.09%), VIX 18.41 (-2.54%), KOSPI 8411 (-5.81%, 한국금요일), KOSDAQ 851 (-4.10%). WTI 69.85 (-4.6%), Gold 4072 (-1.4%), DXY 101.38. F&G 25 극단공포, TNX 4.37%. NVDA 주간-8.6%, SMH 주간-7.3%. Apple CXMT 채택검토 → AAPL +3.1% 상승(긍정). 이란/호르무즈 개방 유가 하락.',
 

@@ -6,6 +6,14 @@ target_version: v51.45
 
 ---
 
+## R234. 신규 UI 블록은 검증 전까지 기본값 hidden (v51.64, P545 예방)
+
+- 새로 추가하는 UI 섹션·카드·블록은 먼저 `display:none` 또는 `data-feature-gate` 속성으로 비노출 상태로 커밋. 실제 라이브 화면에서 가치가 확인된 후 노출로 전환.
+- 제거할 블록은 HTML에서 완전 삭제. CSS `display:none`으로만 숨기고 남기는 것은 허용하지 않는다 (dead-block 누적 방지).
+- `display:none !important` CSS 규칙 수는 30개 이하를 유지. CI [F] 임계값 위반 시 dead-block 정리 먼저.
+- 기능 추가 PR에는 반드시 "이 블록이 기본 노출인가, 아닌가"를 명시. 암묵적 노출 금지.
+- 근거: v51.57~v51.60 4버전 연속 "전 페이지 잡음 제거" 사이클 — 추가 기준 없이 구현→노출→제거 반복.
+
 ## R233. Ticker technical analysis must prioritize Minervini price/MA/volume/supply logic (v51.45, P536)
 
 - Primary ticker analysis must score price action, 5/10/20 short MA stack, 50/100/200 long MA stack, full 5/10/20/50/100/200 order, Stage 2/4 context, volume behavior, and horizontal supply/demand zones before RSI/MACD/Bollinger.

@@ -58,6 +58,7 @@ jobs:
               `| FRED Secret | ${m.fredHasKey ? 'OK' : 'MISSING'} | fredFetchOk: ${m.fredFetchOk ? 'yes (' + (m.macroKeyCount || 0) + ' keys)' : 'no'} |`,
               `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items · ${m.newsCycleLabel || 'cycle n/a'} |`,
               `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : 'ANTHROPIC_API_KEY missing or generation failed'} |`,
+              `| FMP Factors | ${m.fmpHasKey === false ? 'MISSING' : m.fmpOk ? 'OK' : m.fmpPlanError ? 'PLAN_ERROR' : m.fmpHasKey ? 'WARN(0/N)' : 'SKIP'} | hasKey=${m.fmpHasKey} ok=${m.fmpOk} count=${m.fmpCount || 0}${m.fmpPlanError ? ' ← Starter플랜($14.99/월) 이상 필요' : ''} |`,
               `| Elapsed | OK | ${m.elapsedMs || 0}ms |`,
             ].join('\n');
             const summary = `## Data refresh summary\n\n${rows}\n`;

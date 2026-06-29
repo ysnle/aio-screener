@@ -100,6 +100,77 @@ for (const [file, text] of userFacingFiles) {
 }
 check('core must not recreate fake premium board renderer', !/window\._aioPremiumBoardModel|function\s+_aioPremiumBoardHtml|window\._aioRenderImportedResearchBridge|function\s+_aioResearchCardsHtml/.test(core));
 
+// ── v51.64 구조적 계약 검사 (P545 방지 / Signal-Field / COMP_W / Scheduler / DATA_SNAPSHOT) ────────
+// [A] Signal/Field 계약: classifyTerminalCandle()의 snapshot.X 참조 → calcTechnicalSnapshot() 반환 필드 정합
+// snapshot.failedRetest는 P537에서 추가됐지만 P545 수준의 회귀 방지를 위해 CI에서 명시적으로 검증.
+check(
+  'classifyTerminalCandle snapshot.failedRetest is produced by calcTechnicalSnapshot',
+  /failedRetest\s*=\s*!!/.test(core) && /failedRetest\s*:/.test(core),
+  'calcTechnicalSnapshot must assign failedRetest field before return'
+);
+// snapshot 참조 패턴 목록 — 추후 새 signal이 snapshot.X를 쓰면 여기에 추가
+const snapshotSignalFields = ['failedRetest'];
+for (const field of snapshotSignalFields) {
+  check(
+    `calcTechnicalSnapshot returns '${field}' used by classifyTerminalCandle`,
+    new RegExp(`\\b${field}\\s*[=:]`).test(core),
+    `field '${field}' declared in classifyTerminalCandle but not found in aio-core.js`
+  );
+}
+
+// [B] fetchQuote OHLCV 기반 일간 Pct (P545 근본 수정 — chartPreviousClose 주간 오표시 방지)
+const fetchScript = exists('scripts/fetch-data.mjs') ? read('scripts/fetch-data.mjs') : '';
+check(
+  'fetchQuote uses OHLCV closes array for daily pct (not chartPreviousClose only)',
+  /indicators\?\.\s*quote\?\.\s*\[0\]\?\.\s*close|indicators\?\.quote\?\[0\]\?\.close|indicators\.quote\[0\]\.close/.test(fetchScript),
+  'scripts/fetch-data.mjs must derive pct from OHLCV closes[-2], not meta.chartPreviousClose'
+);
+check(
+  'fetchQuote emits _pctSource audit field',
+  /_pctSource/.test(fetchScript),
+  'scripts/fetch-data.mjs fetchQuote must include _pctSource field for auditability'
+);
+
+// [C] COMP_W 가중치 키 vs wTotal 계산식 정합 (P538 패턴 재발 방지)
+// COMP_W의 모든 키가 실제 r.comp 계산식에서 사용돼야 함.
+const compWMatch = fetchScript.match(/var\s+COMP_W\s*=\s*\{([^}]+)\}/);
+if (compWMatch) {
+  const compWKeys = [...compWMatch[1].matchAll(/(\w+)\s*:/g)].map(m => m[1]);
+  for (const key of compWKeys) {
+    check(
+      `COMP_W.${key} is used in wTotal formula`,
+      new RegExp(`COMP_W\\.${key}`).test(fetchScript.slice(fetchScript.indexOf('var wTotal'))),
+      `COMP_W.${key} declared but not used in wTotal computation — dead weight key`
+    );
+  }
+} else {
+  warnings.push('COMP_W not found in fetch-data.mjs — weight key validation skipped');
+}
+
+// [D] Scheduler fn typeof 가드 함수들이 실제로 정의됨 (P524 패턴 재발 방지)
+// REFRESH_SCHEDULE.*.fn = () => { return (typeof X === 'function') ? X() : null; } 패턴에서
+// 실제 X가 runtime bundle에 존재하는지 검증.
+const schedulerGuardedFns = [...data.matchAll(/typeof\s+(\w+)\s*===\s*'function'\)\s*\?\s*\1\(\)/g)].map(m => m[1]);
+for (const fn of new Set(schedulerGuardedFns)) {
+  const defined = new RegExp(`function\\s+${fn}\\b`).test(data) || new RegExp(`function\\s+${fn}\\b`).test(core);
+  if (!defined) warnings.push(`Scheduler references typeof-guarded fn '${fn}' that is not defined in aio-data.js or aio-core.js`);
+}
+
+// [E] DATA_SNAPSHOT 수동 편집 금지 원칙 명문화 확인 (P545 예방)
+check(
+  'DATA_SNAPSHOT comment declares manual price-field edit prohibition',
+  /수동\s*편집\s*금지/.test(core) && /data\.json에서\s*자동\s*파생/.test(core),
+  'aio-core.js DATA_SNAPSHOT must document the auto-derivation principle (added in v51.64)'
+);
+
+// [F] UI hidden block 누적 임계값 (UI 추가→제거 루프 조기 감지)
+// display:none !important CSS 블록이 임계값(30)을 초과하면 경고 — 적극 숨김 누적 신호.
+const hiddenImportantCount = (html.match(/display\s*:\s*none\s*!important/g) || []).length;
+const HIDDEN_BLOCK_THRESHOLD = 30;
+if (hiddenImportantCount > HIDDEN_BLOCK_THRESHOLD) {
+  warnings.push(`display:none !important count is ${hiddenImportantCount} (threshold ${HIDDEN_BLOCK_THRESHOLD}) — review for dead UI blocks`);
+}
+
 if (errors.length) {
   console.error('Runtime contract check failed:');
   errors.forEach((e) => console.error(' - ' + e));

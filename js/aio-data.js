@@ -1926,6 +1926,11 @@ function renderScreenerResults() {
     var starHtml = '<span class="scr-star' + (inWL?' active':'') + '" data-action="_aioWLToggle" data-arg="' + escHtml(r.sym) + '" data-stop="1" data-wl-sym="' + escHtml(r.sym) + '" title="' + (inWL?'워치리스트에서 제거':'워치리스트에 추가') + '" role="button" tabindex="0" aria-label="워치리스트 ' + (inWL?'제거':'추가') + '">' + (inWL?'★':'☆') + '</span>';
     // v51.39: 진입 타이밍 신호
     var entryHtml = (typeof window._aioEntryTiming === 'function') ? window._aioEntryTiming(r) : '<span style="color:#5a6678;">—</span>';
+    // v51.68: VCP 점수/단계
+    var vcpScore = typeof r.vcpScore === 'number' ? r.vcpScore : null;
+    var vcpStageKey = r.vcpStage || '';
+    var vcpStageShort = vcpStageKey === 'breakout' ? '돌파' : vcpStageKey === 'near_pivot' ? '피벗' : vcpStageKey === 'contracting' ? '수축' : vcpStageKey === 'basing' ? '기저' : vcpStageKey === 'stage2_only' ? 'S2' : '—';
+    var vcpColor = vcpScore == null ? '#5a6678' : vcpScore >= 70 ? '#00e5a0' : vcpScore >= 50 ? '#ffa31a' : '#ff5b50';
     // 주의: r.memo는 내부 마커(vNN·RNN·Codex 등)를 포함할 수 있어 title 툴팁에 노출하지 않음(R206). 행 클릭 → 심층 분석.
     html += '<tr class="aio-hover-row" style="border-bottom:1px solid var(--surface-4);cursor:pointer;" data-action="_aioScreenerTicker" data-arg="' + escHtml(r.sym) + '">' +
       '<td style="text-align:center;padding:4px 6px;width:28px;">' + starHtml + '</td>' +
@@ -1942,6 +1947,7 @@ function renderScreenerResults() {
       '<td style="padding:6px 8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:10px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
       '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);">' + escHtml(r.sector||'') + '</td>' +
       _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) + _fcell(fs.kalman, '칼만추세', false) +
+      '<td style="text-align:right;padding:4px 8px;" title="VCP 점수 '+( vcpScore != null ? vcpScore : '—' )+' · '+vcpStageKey+'">' + (vcpScore != null ? '<div style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:'+vcpColor+';">'+vcpScore+'</div><div style="font-size:9px;color:'+vcpColor+';">'+vcpStageShort+'</div>' : '<span style="color:#5a6678;">—</span>') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+ret3c+';">' + ret3 + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
@@ -1952,7 +1958,7 @@ function renderScreenerResults() {
     '</tr>';
   });
 
-  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="18" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
+  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="19" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
   // 스파크라인 미니차트 렌더링
   requestAnimationFrame(function() { renderSparklines(filtered); });
   document.getElementById('screener-result-count').textContent = filtered.length;
@@ -1965,8 +1971,11 @@ function renderScreenerResults() {
       var ar = th.querySelector('.scr-arrow');
       if (ar) ar.textContent = (th.getAttribute('data-scr-sort') === _scrSortCol) ? (_scrSortAsc ? ' ▲' : ' ▼') : '';
     });
-    var asEl = document.querySelector('#page-screener [data-factor-asof]');
-    if (asEl) asEl.textContent = window._aioScreenerFactorAsOf ? ('팩터 기준 ' + String(window._aioScreenerFactorAsOf).slice(0,10)) : '팩터 데이터 대기 (정적 시그널 폴백 중)';
+    // v51.66: 신선도 UI는 _aioRenderDataFreshness() 단일 경로로 위임
+    try { if (typeof _aioRenderDataFreshness === 'function') _aioRenderDataFreshness(); } catch(_) {
+      var asEl = document.querySelector('#page-screener [data-factor-asof]');
+      if (asEl) asEl.textContent = window._aioScreenerFactorAsOf ? ('팩터 기준 ' + String(window._aioScreenerFactorAsOf).slice(0,10)) : '팩터 데이터 대기 (정적 시그널 폴백 중)';
+    }
     var rnEl = document.getElementById('screener-regime-note');   // v50.54 3A: 레짐 적응 가중 표시
     if (rnEl) rnEl.textContent = window._aioActiveFactorRegime ? ('⚙️ 가중 레짐: ' + window._aioActiveFactorRegime) : '';
     var fcEl = document.getElementById('screener-factor-coverage');
@@ -5305,9 +5314,18 @@ async function _aioLoadServerData() {
       newsOk: !!d.meta.newsOk,
       newsCount: d.meta.newsCount || (Array.isArray(d.news) ? d.news.length : 0),
       marketAnalysisOk: !!d.meta.marketAnalysisOk,
+      fmpHasKey: d.meta.fmpHasKey != null ? !!d.meta.fmpHasKey : null, // null = screener skipped이라 미확인
+      fmpOk: !!d.meta.fmpOk,
+      fmpCount: d.meta.fmpCount || 0,
+      fmpPlanError: !!d.meta.fmpPlanError,
       loadedAt: Date.now(),
       artifacts: { dataJson: 'ready', telegramDigest: 'pending', screenerJson: 'pending' }
     };
+
+    // v51.66: _fieldTs.serverData — data.json 서버 생성 시각 기록
+    if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs && d.meta.generatedAt) {
+      window.DATA_SNAPSHOT._fieldTs.serverData = d.meta.generatedAt;
+    }
 
     // 1) 시세 → applyLiveQuotes (앱 전체 갱신 + aio:liveQuotes 발화)
     if (Array.isArray(d.quotes) && d.quotes.length && typeof applyLiveQuotes === 'function') {
@@ -5322,7 +5340,25 @@ async function _aioLoadServerData() {
           window.DATA_SNAPSHOT['_' + k + '_src'] = 'fred-gh';
           _serverMacroApplied++;
         }
+        // v51.67: FRED MoM delta 필드 소비
+        if (typeof d.macro[k + 'Delta'] === 'number' && isFinite(d.macro[k + 'Delta'])) {
+          window.DATA_SNAPSHOT['_' + k + 'Delta'] = d.macro[k + 'Delta'];
+        }
       });
+    }
+    // v51.67: F&G previousScore → _fearGreedDelta 계산
+    if (d.fearGreed && typeof d.fearGreed.score === 'number') {
+      if (typeof d.fearGreed.previousScore === 'number') {
+        window.DATA_SNAPSHOT._fearGreedDelta = d.fearGreed.score - d.fearGreed.previousScore;
+        window.DATA_SNAPSHOT._fearGreedPrev = d.fearGreed.previousScore;
+      }
+      if (typeof d.fearGreed.previousWeek === 'number') {
+        window.DATA_SNAPSHOT._fearGreedWeekDelta = d.fearGreed.score - d.fearGreed.previousWeek;
+      }
+    }
+    // v51.66: _fieldTs.macro_fred — FRED 매크로 마지막 적용 시각 기록
+    if (_serverMacroApplied > 0 && window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
+      window.DATA_SNAPSHOT._fieldTs.macro_fred = d.meta.generatedAt || new Date().toISOString();
     }
     // v50.78: 서버 FRED 공백(fredHasKey=false 또는 fredFetchOk=false) + 클라이언트 키 있으면 자동 브릿지.
     // GitHub Actions Secret에 FRED_API_KEY 미등록이어도 사용자 브라우저 키(aio_fred_key)로 매크로 갱신.
@@ -5340,6 +5376,10 @@ async function _aioLoadServerData() {
         _applyFearGreedScore({ score: d.fearGreed.score, sourceKind: 'live', sourceLabel: 'cnn-via-github-actions', sourceTs: d.fearGreed.asOf || d.meta.generatedAt });
       }
       window._lastFG = d.fearGreed.score;
+      // v51.66: _fieldTs.fearGreed — Fear & Greed 마지막 적용 시각 기록
+      if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
+        window.DATA_SNAPSHOT._fieldTs.fearGreed = d.fearGreed.asOf || d.meta.generatedAt || new Date().toISOString();
+      }
     }
     // 4) v50.28/WO-6: 서버 뉴스 백스톱 저장 + (클라이언트 뉴스 비었을 때만) 적용 — additive
     if (Array.isArray(d.news) && d.news.length) {
@@ -5371,6 +5411,10 @@ async function _aioLoadServerData() {
           window._aioScreenerLoadState = { status:sd.backtest ? 'ready' : 'partial', checkedAt:Date.now(), asOf:sd.asOf || null, count:Object.keys(sd.data).length };
           window._aioServerScreener = sd;
           if (typeof _aioApplyServerScreener === 'function') _aioApplyServerScreener(sd);
+          // v51.66: _fieldTs.screener — 스크리너 팩터 마지막 적용 시각 기록
+          if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs && sd.asOf) {
+            window.DATA_SNAPSHOT._fieldTs.screener = sd.asOf;
+          }
           if (window._serverDataMeta) {
             window._serverDataMeta.artifacts.screenerJson = window._aioScreenerLoadState.status;
             window._serverDataMeta.screener = window._aioScreenerLoadState;
@@ -5399,6 +5443,10 @@ async function _aioLoadServerData() {
     try { if (typeof _aioRenderScreenerBacktest === 'function') _aioRenderScreenerBacktest(); } catch(_) {}
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
     _aioRenderServerDataAge();  // v50.24/WO-4: 나이 배지 갱신
+    try { if (typeof _aioRenderPipelineStatus === 'function') _aioRenderPipelineStatus(); } catch(_) {} // v51.65: 파이프라인 상태 배너
+    try { _aioRenderDataFreshness(); } catch(_) {} // v51.66: 신선도 타임스탬프 UI
+    try { _aioCheckManualFieldStaleness(); } catch(_) {} // v51.66: 수동 필드 staleness 경고
+    try { _aioRenderDeltas(); } catch(_) {} // v51.67: 변화율 표시 (FRED MoM + F&G 전일 + 스코어)
     // v50.24/WO-4: 보이는 페이지 분석 텍스트도 새 데이터로 재생성 (숨은 페이지는 스킵)
     try { if (window.AIO && typeof window.AIO.refreshActivePageNarratives === 'function') window.AIO.refreshActivePageNarratives(); } catch(_) {}
     try { window.dispatchEvent(new CustomEvent('aio:serverDataLoaded', { detail: window._serverDataMeta })); } catch(_) {}
@@ -5411,6 +5459,236 @@ async function _aioLoadServerData() {
   }
 }
 window._aioLoadServerData = _aioLoadServerData;
+
+// v51.66: _fieldTs 유틸 — 카테고리별 마지막 갱신 시각을 KST HH:MM 또는 날짜 문자열로 반환
+window._aioGetFieldTs = function(category) {
+  var snap = window.DATA_SNAPSHOT;
+  if (!snap || !snap._fieldTs) return null;
+  var raw = snap._fieldTs[category];
+  if (!raw) return null;
+  try {
+    var d = new Date(raw);
+    if (isNaN(d.getTime())) return raw; // 이미 날짜 문자열(ex: '2026-05-28')
+    var kst = new Date(d.getTime() + 9 * 3600000);
+    var mm = String(kst.getUTCMonth() + 1).padStart(2, '0');
+    var dd = String(kst.getUTCDate()).padStart(2, '0');
+    var hh = String(kst.getUTCHours()).padStart(2, '0');
+    var min = String(kst.getUTCMinutes()).padStart(2, '0');
+    // 오늘 날짜면 HH:MM, 다른 날이면 MM-DD HH:MM
+    var today = new Date(Date.now() + 9 * 3600000);
+    var sameDay = kst.getUTCFullYear() === today.getUTCFullYear() && kst.getUTCMonth() === today.getUTCMonth() && kst.getUTCDate() === today.getUTCDate();
+    return sameDay ? hh + ':' + min + ' KST' : mm + '-' + dd + ' ' + hh + ':' + min + ' KST';
+  } catch(e) { return raw; }
+};
+
+// ═══ v51.67: 변화율(Delta) 표시 시스템 ══════════════════════════════════════
+// 지표별 극성: +1 = 오를수록 좋음(초록), -1 = 내릴수록 좋음(빨강), 0 = 중립(회색)
+var _AIO_DELTA_POLARITY = {
+  cpi: -1, coreCpi: -1, pce: -1, corePce: -1,  // 낮을수록 좋음 (인플레 둔화)
+  unemployment: -1,  // 낮을수록 좋음
+  nfp: +1,           // 높을수록 좋음 (고용 증가)
+  fedRate: 0,        // 중립 (금리 방향은 상황마다 다름)
+  fearGreed: 0,      // 중립 (극단적 탐욕·공포 모두 위험)
+  tradingScore: +1,
+  breadth5sma: +1, breadth20sma: +1, breadth50sma: +1,
+  vix: -1,
+};
+
+// delta 포맷: "+3.1pp" / "-0.5" / "±0" 형태로 반환. 표시 여부와 색상 클래스 포함
+function _aioFormatDelta(delta, polarity, opts) {
+  if (delta == null || !isFinite(delta)) return null;
+  var dec = (opts && opts.decimals != null) ? opts.decimals : 1;
+  var suffix = (opts && opts.suffix) ? opts.suffix : '';
+  var abs = Math.abs(delta);
+  if (abs < 0.005) return { text: '±0' + suffix, cls: 'is-flat' };
+  var sign = delta > 0 ? '+' : '';
+  var text = sign + delta.toFixed(dec) + suffix;
+  var cls = 'is-flat';
+  if (polarity !== 0) cls = (delta * polarity > 0) ? 'is-up' : 'is-down';
+  return { text: text, cls: cls };
+}
+
+// localStorage 기반 전일 대비 기준값 (트레이딩 스코어, 시장폭 — 실시간 계산값)
+var _AIO_DELTA_TODAY_KEY = 'aio_delta_today';
+var _AIO_DELTA_PREV_KEY  = 'aio_delta_prev';
+
+function _aioGetPrevDeltaRef() {
+  try {
+    var today = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
+    var raw = localStorage.getItem(_AIO_DELTA_TODAY_KEY);
+    if (raw) {
+      var snap = JSON.parse(raw);
+      if (snap.date && snap.date < today) {
+        // 날짜 바뀜 → 어제 스냅을 prev로 승격하고 today 초기화
+        localStorage.setItem(_AIO_DELTA_PREV_KEY, raw);
+        localStorage.removeItem(_AIO_DELTA_TODAY_KEY);
+      }
+    }
+    var prevRaw = localStorage.getItem(_AIO_DELTA_PREV_KEY);
+    return prevRaw ? JSON.parse(prevRaw) : null;
+  } catch(e) { return null; }
+}
+
+function _aioSaveDeltaRef() {
+  try {
+    var today = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
+    var snap = window.DATA_SNAPSHOT || {};
+    var tsVal = null;
+    try { if (typeof computeTradingScore === 'function') tsVal = computeTradingScore().total; } catch(e) {}
+    localStorage.setItem(_AIO_DELTA_TODAY_KEY, JSON.stringify({
+      date: today,
+      tradingScore: tsVal,
+      breadth5sma: typeof snap.breadth5sma === 'number' ? snap.breadth5sma : null,
+      breadth20sma: typeof snap.breadth20sma === 'number' ? snap.breadth20sma : null,
+      breadth50sma: typeof snap.breadth50sma === 'number' ? snap.breadth50sma : null,
+    }));
+  } catch(e) {}
+}
+
+// 단일 delta 엘리먼트 업데이트 헬퍼
+function _aioSetDeltaEl(id, delta, polarity, opts) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var fmt = _aioFormatDelta(delta, polarity, opts);
+  if (!fmt) { el.style.display = 'none'; return; }
+  el.textContent = fmt.text;
+  el.className = 'aio-metric-delta ' + fmt.cls;
+  el.style.cssText = 'display:inline;font-size:10px;font-family:var(--font-mono);margin-left:4px;';
+}
+
+// 통합 delta 렌더러 — 서버데이터 로드 후 + live quotes 갱신 후 호출
+function _aioRenderDeltas() {
+  var snap = window.DATA_SNAPSHOT || {};
+  var prev = _aioGetPrevDeltaRef();
+
+  // 1) FRED 매크로 MoM delta (서버에서 계산된 값)
+  _aioSetDeltaEl('cpi-yoy-delta',      snap._cpiDelta,        _AIO_DELTA_POLARITY.cpi,          { suffix: 'pp', decimals: 1 });
+  _aioSetDeltaEl('core-cpi-yoy-delta', snap._coreCpiDelta,    _AIO_DELTA_POLARITY.coreCpi,      { suffix: 'pp', decimals: 1 });
+  _aioSetDeltaEl('pce-yoy-delta',      snap._pceDelta,        _AIO_DELTA_POLARITY.pce,          { suffix: 'pp', decimals: 1 });
+  _aioSetDeltaEl('core-pce-yoy-delta', snap._corePceDelta,    _AIO_DELTA_POLARITY.corePce,      { suffix: 'pp', decimals: 1 });
+  _aioSetDeltaEl('nfp-delta-tag',      snap._nfpDelta != null ? snap._nfpDelta / 1000 : null,
+                                                               _AIO_DELTA_POLARITY.nfp,          { suffix: 'K vs 전월', decimals: 0 });
+  _aioSetDeltaEl('unemployment-delta', snap._unemploymentDelta, _AIO_DELTA_POLARITY.unemployment, { suffix: 'pp', decimals: 2 });
+  _aioSetDeltaEl('fed-rate-delta',     snap._fedRateDelta,    _AIO_DELTA_POLARITY.fedRate,      { suffix: 'pp', decimals: 2 });
+
+  // 2) Fear & Greed 전일 delta (서버 CNN API previousScore 기반)
+  _aioSetDeltaEl('home-fg-delta',      snap._fearGreedDelta,  _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0 });
+  _aioSetDeltaEl('sentiment-fg-delta', snap._fearGreedDelta,  _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0 });
+
+  // 3) 트레이딩 스코어 전일 delta (localStorage)
+  if (prev && typeof prev.tradingScore === 'number') {
+    try {
+      var ts = computeTradingScore();
+      if (ts && typeof ts.total === 'number') {
+        _aioSetDeltaEl('score-delta-tag', ts.total - prev.tradingScore, _AIO_DELTA_POLARITY.tradingScore, { decimals: 0 });
+      }
+    } catch(e) {}
+  }
+
+  // 4) 시장폭(Breadth) 전일 delta (localStorage)
+  if (prev) {
+    _aioSetDeltaEl('breadth-5sma-delta',
+      (typeof snap.breadth5sma  === 'number' && typeof prev.breadth5sma  === 'number') ? snap.breadth5sma  - prev.breadth5sma  : null,
+      _AIO_DELTA_POLARITY.breadth5sma, { suffix: 'pp', decimals: 0 });
+    _aioSetDeltaEl('breadth-20sma-delta',
+      (typeof snap.breadth20sma === 'number' && typeof prev.breadth20sma === 'number') ? snap.breadth20sma - prev.breadth20sma : null,
+      _AIO_DELTA_POLARITY.breadth20sma, { suffix: 'pp', decimals: 0 });
+    _aioSetDeltaEl('breadth-50sma-delta',
+      (typeof snap.breadth50sma === 'number' && typeof prev.breadth50sma === 'number') ? snap.breadth50sma - prev.breadth50sma : null,
+      _AIO_DELTA_POLARITY.breadth50sma, { suffix: 'pp', decimals: 0 });
+  }
+
+  // 5) localStorage 기준값 저장 (날짜가 바뀔 때 자동 승격)
+  _aioSaveDeltaRef();
+}
+window._aioRenderDeltas = _aioRenderDeltas;
+
+// v51.66: 전 페이지 데이터 신선도 UI — screener 듀얼 타임스탬프 + macro FRED 기준 시각
+function _aioRenderDataFreshness() {
+  try {
+    // 스크리너: 팩터 기준시각 | 가격 기준시각
+    var asEl = document.querySelector('#page-screener [data-factor-asof]');
+    if (asEl) {
+      var scrTs = window._aioGetFieldTs('screener');
+      var priceTs = window._aioGetFieldTs('prices');
+      if (scrTs && priceTs) {
+        asEl.textContent = '팩터 ' + scrTs + ' | 가격 ' + priceTs;
+      } else if (scrTs) {
+        asEl.textContent = '팩터 기준 ' + scrTs;
+      } else if (window._aioScreenerFactorAsOf) {
+        asEl.textContent = '팩터 기준 ' + String(window._aioScreenerFactorAsOf).slice(0, 10);
+      } else {
+        asEl.textContent = '팩터 데이터 대기 (정적 시그널 폴백 중)';
+      }
+    }
+    // 매크로: FRED 기준 시각 또는 폴백 날짜
+    var fredEl = document.getElementById('macro-fred-ts');
+    if (fredEl) {
+      var fredTs = window._aioGetFieldTs('macro_fred');
+      var snap = window.DATA_SNAPSHOT;
+      if (fredTs) {
+        fredEl.textContent = 'FRED ' + fredTs;
+        fredEl.style.display = 'inline';
+      } else if (snap && snap._fieldTs && snap._fieldTs.us_macro_manual) {
+        fredEl.textContent = 'FRED 폴백 (' + snap._fieldTs.us_macro_manual + ')';
+        fredEl.style.display = 'inline';
+      } else {
+        fredEl.style.display = 'none';
+      }
+    }
+  } catch(_) {}
+}
+window._aioRenderDataFreshness = _aioRenderDataFreshness;
+
+// v51.66: 수동 유지 _fieldTs 필드 staleness 경고 — >7일 경과 시 콘솔 warn + 배너 pill
+// 중앙은행 금리/매크로 정책 날짜는 자동 갱신 불가 — 운영자가 직접 aio-core.js에서 업데이트해야 함
+var _MANUAL_FIELDTS_LABELS = {
+  fed_rate:        'Fed 기준금리',
+  boj_rate:        'BOJ 정책금리',
+  bok_rate:        'BOK 기준금리',
+  boe_rate:        'BOE 정책금리',
+  pboc_rate:       'PBOC LPR',
+  kr_bond:         '한국 국고채',
+  kr_macro:        '한국 거시경제',
+  us_macro_manual: '미국 거시경제(수동)',
+  breadth_sma:     '시장 폭 SMA',
+};
+function _aioCheckManualFieldStaleness() {
+  var snap = window.DATA_SNAPSHOT;
+  if (!snap || !snap._fieldTs) return;
+  var staleResults = [];
+  var staleDaysFn = typeof window._aioStaleDays === 'function' ? window._aioStaleDays : function(d) {
+    return Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
+  };
+  Object.keys(_MANUAL_FIELDTS_LABELS).forEach(function(key) {
+    var dateStr = snap._fieldTs[key];
+    if (!dateStr) return;
+    var days = staleDaysFn(dateStr);
+    if (days > 7) {
+      staleResults.push({ key: key, label: _MANUAL_FIELDTS_LABELS[key], days: days, date: dateStr });
+      if (typeof _aioLog === 'function') {
+        _aioLog('warn', 'data', '[_fieldTs] ' + _MANUAL_FIELDTS_LABELS[key] + ' ' + days + '일 경과 (' + dateStr + ') — aio-core.js DATA_SNAPSHOT._fieldTs.' + key + ' 업데이트 필요');
+      }
+    }
+  });
+  // 배너에 stale 항목 표시 (파이프라인 상태 바 활용)
+  var bar = document.getElementById('aio-pipeline-status-bar');
+  if (bar && staleResults.length) {
+    // 기존 stale pill 제거 후 재주입
+    bar.querySelectorAll('.stale-manual-pill').forEach(function(el) { el.remove(); });
+    staleResults.forEach(function(r) {
+      var pill = document.createElement('span');
+      pill.className = 'stale-manual-pill';
+      pill.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:10px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;cursor:default;';
+      pill.title = r.label + ' — 마지막 업데이트 ' + r.date + ' (' + r.days + '일 경과). aio-core.js DATA_SNAPSHOT._fieldTs.' + r.key + ' 갱신 필요.';
+      pill.textContent = '⏰ ' + r.label + ' ' + r.days + '일 경과';
+      bar.appendChild(pill);
+    });
+    bar.style.display = 'flex';
+  }
+  return staleResults;
+}
+window._aioCheckManualFieldStaleness = _aioCheckManualFieldStaleness;
 
 // v51.18: 운영자 노트 — public-data/operator-note.json 로드 + 홈 카드 렌더
 function _aioIsOperatorNotePlaceholder(note) {
@@ -5613,13 +5891,17 @@ function _aioRenderServerDataAge() {
     var meta = window._serverDataMeta;
     if (!meta || !meta.generatedAt) { el.style.display = 'none'; return; }
     var age = Math.max(0, Math.round((Date.now() - new Date(meta.generatedAt).getTime()) / 60000));
+    // KST 시각 포맷 (UTC+9)
+    var d = new Date(new Date(meta.generatedAt).getTime() + 9 * 3600000);
+    var kst = (d.getUTCMonth()+1) + '-' + String(d.getUTCDate()).padStart(2,'0')
+            + ' ' + String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0') + ' KST';
     var txt, cls, title;
-    if (age < 60)       { txt = '🟢 서버 데이터 ' + age + '분 전'; cls = 'fb-live';   title = '서버(GitHub Actions)가 ' + age + '분 전 받아둔 데이터 — 신선'; }
-    else if (age < 180) { txt = '🟡 서버 데이터 ' + age + '분 전'; cls = 'fb-static'; title = '서버 데이터가 ' + age + '분 경과 — 자동 갱신 대기 중'; }
+    if (age < 60)       { txt = '🟢 ' + kst + ' 갱신'; cls = 'fb-live';   title = '서버(GitHub Actions)가 ' + age + '분 전 수집한 데이터 — 신선\n' + kst + ' | 시세 ' + (meta.symbolsOk||'?') + '개'; }
+    else if (age < 180) { txt = '🟡 ' + kst + ' 갱신'; cls = 'fb-static'; title = '서버 데이터 ' + age + '분 경과 (자동 갱신 대기)\n' + kst + ' | 시세 ' + (meta.symbolsOk||'?') + '개'; }
     else {
       var h = Math.floor(age / 60);
-      txt = '🔴 서버 데이터 ' + (h >= 1 ? h + '시간' : age + '분') + ' 전'; cls = 'fb-stale';
-      title = '서버 데이터가 ' + age + '분(약 ' + h + '시간) 경과 — 자동 갱신(GitHub Actions cron)이 지연/중단됐을 수 있음';
+      txt = '🔴 ' + kst + ' (' + h + 'h 전)'; cls = 'fb-stale';
+      title = '서버 데이터 ' + h + '시간 경과 — GitHub Actions cron이 지연/중단됐을 수 있음\n' + kst;
     }
     el.textContent = txt;
     el.className = 'freshness-badge ' + cls;
@@ -5629,6 +5911,62 @@ function _aioRenderServerDataAge() {
   } catch(_) {}
 }
 window._aioRenderServerDataAge = _aioRenderServerDataAge;
+
+// v51.65: 파이프라인 상태 배너 — marketAnalysisOk/fmpOk/fredOk 기반으로 경고 표시
+// 이슈가 없으면 숨김 유지 (R234 — 기본값 hidden)
+function _aioRenderPipelineStatus() {
+  try {
+    var bar = document.getElementById('aio-pipeline-status-bar');
+    if (!bar) return;
+    var meta = window._serverDataMeta;
+    if (!meta) { bar.style.display = 'none'; return; }
+
+    var msgs = [];
+    if (meta.marketAnalysisOk === false) {
+      msgs.push({ icon: '🤖', text: 'AI 시장 분석 비활성', detail: 'GitHub Secrets → ANTHROPIC_API_KEY 등록 시 자동 활성화', color: '#f59e0b' });
+    }
+    if (meta.fmpHasKey && meta.fmpOk === false) {
+      var fmpDetail = meta.fmpPlanError
+        ? 'FMP 키 등록됨 → HTTP 403 — Starter 플랜($14.99/월) 이상 필요 (ratios-ttm 엔드포인트)'
+        : 'FMP 키 등록됨 → 데이터 0건 — 키 유효성 또는 API 오류';
+      msgs.push({ icon: '📊', text: 'FMP 팩터 비활성 (밸류/퀄리티/어닝)', detail: fmpDetail, color: '#ef4444' });
+    }
+    if (!meta.fredHasKey) {
+      msgs.push({ icon: '🏦', text: 'FRED 매크로 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화 (클라이언트 키로 대체 가능)', color: '#94a3b8' });
+    }
+    if (meta.fredHasKey && meta.fredFetchOk === false) {
+      msgs.push({ icon: '🏦', text: 'FRED 매크로 수집 실패', detail: 'FRED_API_KEY 등록됨 → API 오류 또는 레이트리밋. 키 유효성 확인', color: '#ef4444' });
+    }
+
+    if (msgs.length === 0) { bar.style.display = 'none'; return; }
+
+    var html = msgs.map(function(m) {
+      return '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,0.25);border-left:2px solid ' + m.color + ';padding:3px 8px;border-radius:3px;font-size:10px;" title="' + m.detail.replace(/"/g,'&quot;') + '">'
+           + m.icon + ' <b>' + m.text + '</b>'
+           + ' <span style="color:var(--text-muted);font-size:9px;">' + m.detail + '</span>'
+           + '</span>';
+    }).join('');
+
+    bar.innerHTML = html;
+    bar.style.display = 'flex';
+
+    // 스크리너 페이지 FMP 상태 인라인 노트 업데이트
+    var scrFmpEl = document.getElementById('screener-fmp-status');
+    var scrFmpReason = document.getElementById('screener-fmp-reason');
+    if (scrFmpEl && meta.fmpHasKey != null) {
+      if (meta.fmpHasKey && meta.fmpOk === false) {
+        scrFmpEl.style.display = 'inline-flex';
+        if (scrFmpReason) scrFmpReason.textContent = meta.fmpPlanError ? 'FMP 키 등록됨 → 플랜 업그레이드 필요 (Starter $14.99/월)' : 'FMP 키 등록됨 → 데이터 0건';
+      } else if (!meta.fmpHasKey) {
+        scrFmpEl.style.display = 'inline-flex';
+        if (scrFmpReason) scrFmpReason.textContent = 'FMP_API_KEY 미등록 (4팩터 모드)';
+      } else {
+        scrFmpEl.style.display = 'none';
+      }
+    }
+  } catch(_) {}
+}
+window._aioRenderPipelineStatus = _aioRenderPipelineStatus;
 
 // v50.24/WO-4: 부팅 후에도 탭을 열어두면 data.json을 30분마다 재로드 (boot-only 갭 해소).
 // 배지 나이는 1분마다 재렌더(카운트업). 둘 다 _aioRegisterTimer로 등록(중복 방지·visibility pause 연계).
@@ -14918,6 +15256,15 @@ function applyLiveQuotes(quotes) {
   try {
     if (typeof applyDataSnapshot === 'function') applyDataSnapshot(window.DATA_SNAPSHOT);
   } catch(_snapRefreshErr) {}
+
+  // v51.66: _fieldTs.prices — 실시간 시세 마지막 적용 시각 기록
+  if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
+    window.DATA_SNAPSHOT._fieldTs.prices = new Date().toISOString();
+  }
+  // v51.66: 가격 갱신 후 신선도 UI 업데이트 (스크리너 듀얼 타임스탬프)
+  try { if (typeof _aioRenderDataFreshness === 'function') _aioRenderDataFreshness(); } catch(_) {}
+  // v51.67: 라이브 시세 갱신 후 트레이딩 스코어 delta 재계산
+  try { if (typeof _aioRenderDeltas === 'function') _aioRenderDeltas(); } catch(_) {}
 }
 
 // ═══ v35.8: 동적 시장 브리핑 생성기 ═══════════════════════════════════
@@ -15195,6 +15542,10 @@ function _aioApplyServerScreener(sd) {
     }
     // v50.54 3B/3C: FMP 밸류/퀄리티/어닝(키 있을 때만 존재)
     ['pe','pb','evEbitda','roe','margin','revGrowth','epsSurprise'].forEach(function(k){ if (typeof f[k] === 'number') item[k] = f[k]; });
+    // v51.68: VCP 패턴 인식 데이터 병합
+    if (typeof f.vcpScore === 'number') item.vcpScore = f.vcpScore;
+    if (f.vcpStage) item.vcpStage = f.vcpStage;
+    if (typeof f.vcpPivot === 'number') item.vcpPivot = f.vcpPivot;
     // v51.15: 개별 종목 뉴스 메모 자동 병합 (Actions 1일 1회 수집 → screener.json.newsMemo)
     // v51.53: newsTs 7일 freshness check — 7일 초과 오래된 뉴스 메모는 제거
     if (f.newsMemo) {

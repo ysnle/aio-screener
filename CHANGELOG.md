@@ -1,4 +1,61 @@
-﻿## v51.63 (2026-06-29)
+﻿## v51.70 (2026-06-30)
+- **RSI 다이버전스 UI 상세화**: `analyzeTickerDeep`에서 기존 단순 `_detectDivergence(c)` 대신 `calcTechnicalSnapshot()` 결과(`snap.rsiDiv`)를 사용. 4타입 명칭·구체 설명 렌더 — 강세(가격LL+RSIHL), 약세(가격HH+RSILH), 히든강세(가격HL+RSILL), 히든약세(가격LH+RSIHH). 다이버전스 없을 때도 항상 패널 표시(이전 버전: 감지 시만 표시). 다이버전스 타입별 테두리 색상(강세=초록, 약세=빨강, 없음=기본).
+- **주봉 컨텍스트 패널 추가**: `snap.weeklyCtx`(일봉 5봉 집계 시뮬레이션)에서 주봉 종가·SMA20·SMA50·RSI14를 4-그리드 카드로 표시. 현재가 vs 주봉 이평 색상(상위=초록/하위=빨강), RSI 과매수/과매도 색상. 주봉 추세(bullish/bearish) 우측 상단 레이블.
+- **캐시버스터 동기화 수정**: 이전 세션(v51.68/v51.69)에서 5개 JS 캐시버스터(`?v=51.67`)가 미갱신 — 이번에 `?v=51.70`으로 일괄 수정.
+- R1 7곳 v51.70
+
+## v51.69 (2026-06-29)
+- **피보나치 되돌림/확장 `_calcFib(bars)`**: 최근 160봉 글로벌 스윙고/저 자동 감지. 되돌림 0.236/0.382/0.5/0.618/0.786 + 확장 1.0/1.272/1.618/2.618 전 레벨 계산. 현재가 기준 최근접 레벨(`fibNearest`), 가장 가까운 지지·저항 레벨 분리. `calcTechnicalSnapshot()` 반환에 `fib`/`fibNearest` 추가 → 티커 분석·AI 채팅 컨텍스트에 자동 노출.
+- **매물대/Volume Profile `_calcVolProfile(bars)`**: 최근 160봉, 24구간 가격 분할. 구간별 OHLCV 전형가격((H+L+C)/3) × 거래량 가중 → POC(거래량 최다 구간 중심가)/Value Area(상위 70% 거래량 포함 구간)/가장 가까운 지지·저항 매물대 미드포인트. `volProfile`/`poc` 반환. 이미 index.html `_buildHorizontalVolumeZones()`와 동일 알고리즘을 aio-core.js로 이전.
+- **RSI 다이버전스 `_calcRSIDivergence(bars)`**: `_calcRSISeries(closes, 14)` — Wilder's 평활법으로 RSI 전체 시리즈 계산. 최근 50봉 내 가격·RSI 스윙고저(N=4봉) 감지 → 불리시(가격LL+RSIHL)/베어리시(가격HH+RSILH)/히든불리시(가격HL+RSILL)/히든베어리시(가격LH+RSIHH) 4종 감지. `rsiDiv`/`rsiDivSignal` 반환.
+- **주봉 시뮬레이션 `_calcWeeklyContext(bars)`**: 일봉 5봉 묶음으로 주봉 OHLCV 시뮬레이션. 주봉 SMA20/SMA50/RSI14 + 전주 대비 수익률 + 주봉 추세(bullish/bearish). 완전한 1h/4h 멀티타임프레임은 Yahoo Finance 별도 interval 호출이 필요하나, 이 함수가 "주봉 추세 확인" 제공. `weeklyCtx`/`wTrend` 반환.
+- **거래량 돌파 확인**: VCP `_calcVCP()`의 breakout 조건에 `rvol20 > 1.4`(평균 대비 40% 초과) 체크 내장 — "피벗 돌파 시 평균 대비 N배" 검증.
+- R1 7곳 v51.69
+
+## v51.68 (2026-06-29)
+- **VCP (Volatility Contraction Pattern) 자동 감지**: Mark Minervini 방법론을 클라이언트/서버 양방향으로 구현.
+  - **`_calcVCP(bars, indicators)`** (aio-core.js): Stage 2 확인(SMA150>SMA200, 가격>SMA50, 52주고점 -30% 이내) → 베이스 구간(최근 65봉) 스윙고/저 감지(좌우 N=4봉) → 수축 구간 쌍(H→L, 깊이 1~45%) → 이전 수축보다 폭이 좁은지(shrinking) → 거래량 고갈(후반평균 < 전반평균×0.85) → 피벗(최근 25봉 내 가장 최근 스윙고) → 돌파(가격>피벗 + RVOL>1.4). VCP 점수 = Stage2(25)+수축수(최대20)+수축폭감소(20)+거래량고갈(15)+피벗근처(10)+돌파(10). vcpStage = 'not_stage2'|'breakout'|'near_pivot'|'contracting'|'basing'|'stage2_only'.
+  - **`_calcVCPServer(closes, highs, lows, volumes)`** (fetch-data.mjs): 서버사이드 VCP — 동일 알고리즘, ESM 순수 함수. `_enrichPriceFactors()`에서 60봉 이상 시 자동 호출 → `screener.json` 각 심볼에 `vcpScore`/`vcpStage`/`vcpPivot` 필드 추가.
+  - **`fetchHistory()` OHLCV 확장**: Yahoo Finance `/v8/finance/chart/` 응답에서 close 외 `high`/`low`/`volume` 추출 → `_enrichPriceFactors()` VCP 계산에 사용. 기존 소비자(backfillHistory, closesToFactors)는 close 필드만 사용하므로 무회귀.
+  - **`_aioApplyServerScreener()`** (aio-data.js): `vcpScore`/`vcpStage`/`vcpPivot` 병합 추가.
+  - **스크리너 VCP 컬럼**: 팩터점수 그룹에 VCP 컬럼 추가(K-vel 우측). 점수(0~100) + 단계 약어(돌파/피벗/수축/기저/S2/—). 컬럼 헤더 클릭 정렬 지원. colspan 6→7, tbody placeholder 18→19.
+  - **`calcTechnicalSnapshot()`**: `vcp`/`vcpScore`/`vcpStage`/`vcpPivot` 반환 — 티커 상세·AI채팅 기술분석 컨텍스트에 VCP 데이터 자동 노출.
+- R1 7곳 v51.68
+
+## v51.67 (2026-06-29)
+- **변화율(Delta) 표시 시스템 신설**: 지표별 "좋아졌는지/나빠졌는지"를 맥락 인식 색상으로 표시.
+  - **FRED 매크로**: `fetchFred()`에서 `level` 시리즈(fedRate/unemployment)는 `obs[0] - obs[1]` MoM delta, `yoy` 시리즈(CPI/PCE 등)는 "이번 달 YoY 비율 - 지난 달 YoY 비율" delta 계산. `*Delta` 필드로 data.json 전달 → `_aioLoadServerData()`에서 `DATA_SNAPSHOT._*Delta`로 소비. CPI/근원CPI/PCE/근원PCE/NFP/실업률 카드에 delta span(`#cpi-yoy-delta` 등) 추가.
+  - **Fear & Greed**: CNN graphdata API의 `fg.previous_close` 필드 수집 → `fearGreed.previousScore` 저장 → `DATA_SNAPSHOT._fearGreedDelta = score - previousScore`. 홈(`#home-fg-delta`) + sentiment 페이지(`#sentiment-fg-delta`) 전일 delta 표시.
+  - **트레이딩 스코어**: localStorage(`aio_delta_today`/`aio_delta_prev`) 기반 날짜별 스냅샷 자동 로테이션. 전일 스코어 대비 delta → `#score-delta-tag`.
+  - **시장폭(Breadth)**: breadth5sma/20sma/50sma 전일 localStorage 비교 → `#breadth-{N}sma-delta`.
+- **맥락 인식 색상 극성 테이블** (`_AIO_DELTA_POLARITY`): CPI/실업률/VIX ↑=빨강, 시장폭/트레이딩스코어/NFP ↑=초록, F&G/Fed금리=중립(회색). 기존 `.aio-metric-delta.is-up/is-down/is-flat` CSS 재사용.
+- `_aioRenderDeltas()` 통합 함수: 서버 데이터 로드 후 + 라이브 시세 갱신 후 자동 호출.
+- R1 7곳 v51.67
+
+## v51.66 (2026-06-29)
+- **[구조적] _fieldTs 타임스탬프 추적 시스템 구축**: `DATA_SNAPSHOT._fieldTs` 객체에 카테고리별 마지막 갱신 시각을 런타임에 기록. 4개 자동 기록 포인트 추가 — `applyLiveQuotes()` 완료 시 `_fieldTs.prices`, `_aioLoadServerData()` 내 FRED 적용 후 `_fieldTs.macro_fred`, Fear&Greed 적용 후 `_fieldTs.fearGreed`, screener.json 로드 후 `_fieldTs.screener`. `window._aioGetFieldTs(category)` 유틸 신설 — ISO 타임스탬프를 KST HH:MM(당일) 또는 MM-DD HH:MM(다른 날)으로 포맷.
+- **[구조적] 전 페이지 데이터 신선도 UI**: `_aioRenderDataFreshness()` 통합 렌더러 추가. 스크리너 `data-factor-asof`를 "팩터 HH:MM KST | 가격 HH:MM KST" 듀얼 타임스탬프로 표시 — 팩터 계산 시각과 실시간 가격 수신 시각이 다름을 명시. 매크로 페이지 헤더에 `#macro-fred-ts` 스팬 추가 — FRED 갱신 시 "FRED HH:MM KST", 서버 미연결 시 "FRED 폴백 (YYYY-MM-DD)" 표시 (R234 기본 hidden).
+- **[구조적] 수동 필드 staleness 경고**: `_aioCheckManualFieldStaleness()` 신설. 중앙은행 금리·매크로 정책 9개 수동 날짜(`fed_rate`/`boj_rate`/`bok_rate`/`boe_rate`/`pboc_rate`/`kr_bond`/`kr_macro`/`us_macro_manual`/`breadth_sma`)가 7일 초과 경과 시 콘솔 warn + `#aio-pipeline-status-bar`에 "⏰ Fed 기준금리 N일 경과" amber pill 자동 주입. 운영자가 aio-core.js를 업데이트해야 할 시점을 명시적으로 노출.
+- `data-factor-asof` 렌더 경로를 `_aioRenderDataFreshness()` 단일 경로로 통합 (이전: 스크리너 렌더 함수 내 인라인).
+- R1 7곳 v51.66
+
+## v51.65 (2026-06-29)
+- **FMP API 진단 강화**: `enrichFundamentals()`에 플랜 오류 선진단 추가 — HTTP 403/401 감지 시 "Starter 플랜($14.99/월) 이상 필요" 명시적 경고. `fmpHasKey`, `fmpOk`, `fmpCount`, `fmpPlanError` 필드를 `screener.json` 페이로드 + `data.json meta`에 후기록. 에러를 조용히 삼키던 `.catch(() => null)` 패턴을 `fmpFetch()` 래퍼로 교체해 심볼별 오류를 콘솔 노출. Actions 파이프라인 summary에 FMP 상태 행 추가. FMP 시크릿 확인: 시크릿 이름이 `FMP_API_KEY`인지, 무료 키는 해당 엔드포인트 미지원임을 문서화.
+- **Screener 자가스로틀 20h → 6h**: `enrichScreener()` 스킵 조건을 6시간으로 단축, Actions 30분 cron 대비 하루 4회 팩터 갱신.
+- **데이터 신선도 KST 타임스탬프 UI**: `#server-data-age` 배지가 "N분 전" 대신 "🟢 06-29 14:00 KST 갱신" 절대시각 표시. 상태별 색상(신선/대기/지연) 및 hover tooltip에 시세 수신 심볼 수 추가.
+- **파이프라인 상태 배너 신설** (`#aio-pipeline-status-bar`): `_aioRenderPipelineStatus()` 함수 추가. AI분석 비활성(ANTHROPIC_API_KEY 미등록) / FMP 플랜오류 / FRED 미등록 중 하나라도 있으면 홈 페이지 상단에 경고 pills 표시(이슈 없으면 자동 숨김, R234 준수).
+- **스크리너 FMP 인라인 상태 노트**: 스크리너 페이지 헤더에 `#screener-fmp-status` 추가 — fmpOk=false 시 "밸류·퀄리티 팩터 비활성 — FMP 플랜 업그레이드 필요" 노출.
+- `_serverDataMeta`에 `fmpHasKey/fmpOk/fmpCount/fmpPlanError` 필드 추가. ANTHROPIC 미등록 경고 콘솔 메시지 추가.
+- R1 7곳 v51.65
+
+## v51.64 (2026-06-29)
+- **[구조적 개편 1] fetchQuote OHLCV 기반 일간 Pct (P545 근본 수정)**: `scripts/fetch-data.mjs`의 `fetchQuote()`가 Yahoo Finance `meta.chartPreviousClose` 대신 `res.indicators.quote[0].close` 배열(OHLCV)에서 `closes[-2]` = 실제 전일 거래일 종가를 추출해 일간 pct 계산. 주말/휴일 수집 시 주간변동률이 일간변동률로 오표시되던 구조적 원인 제거. `_pctSource` 필드('ohlcv-daily' / 'chart-meta-fallback') 추가로 pct 산출 경로 감사 가능.
+- **[구조적 개편 1] DATA_SNAPSHOT 자동파생 원칙 명문화**: `js/aio-core.js` DATA_SNAPSHOT 헤더에 "수동 편집 금지 / data.json에서 자동 파생" 설계 원칙 주석 추가. 폴백 리터럴은 data.json 100% 차단 시에만 사용, `_isFallback=true` UI 경고 연동.
+- **[구조적 개편 2~4] CI 런타임 계약 6개 신규 체크 추가** (`scripts/ci-runtime-contract-check.mjs`): [A] snapshot.failedRetest 생산자-소비자 계약, [B] fetchQuote OHLCV 패턴 + _pctSource 방출, [C] COMP_W 키 ↔ wTotal 수식 일치, [D] REFRESH_SCHEDULE fn 참조 존재 여부, [E] DATA_SNAPSHOT 수동편집 금지 주석 존재, [F] display:none !important 누적 임계값(30개) 경보.
+- **[구조적 개편 3] R234 규칙 추가** (`_context/RULES.md`): 신규 UI 블록은 검증 전까지 기본값 hidden — v51.57~v51.60 4버전 연속 "잡음 제거" 사이클 재발 방지.
+- R1 7곳 v51.64
+
+## v51.63 (2026-06-29)
 - **DATA_SNAPSHOT 구조 수정 + Pct 일간/주간 혼용 정정**: v51.61에서 `nasdaq`/`dow`/`rut`/`vix`/`kosdaq`/`brent`/`gold`/`dxy` 등 8개 핵심 속성이 한 줄에 `//` 주석과 다른 속성을 혼합 기재하면서 주석 내에 묻혀 실제 JS 프로퍼티로 미정의되던 버그 수정(각 속성을 별도 행으로 분리). `*Pct` 값은 data.json의 `regularMarketChangePercent`가 주간(weekly) 변동률이었으나 일간(daily)으로 잘못 사용한 것을 정정: `spxPct` -1.95→-0.05(당일), `nasdaqPct` -4.60→-0.24(당일), `dowPct` +0.60→-0.09(당일), `vixPct` +6.54→-2.54(당일), `kospiPct` -7.08→-5.81(당일), `kosdaqPct` -11.92→-4.10(당일). `kospiPrev` 9052→8930, `kosdaqPrev` 967→888 재산출. Apple CXMT 서사 수정: AAPL 실제 +3.1%(이중공급망 긍정). `vkospi` 28.5→27.0, `breadth5sma` 28→32, `breadth20sma` 42→38, `breadth50sma` 45→48 추정치 보정. `_marketDataDate` '2026-06-28'→'2026-06-26'(실제 금요일 종가 날짜). 2026-06-26 종가 기준
 - R1 7곳 v51.63
 ## v51.62 (2026-06-29)

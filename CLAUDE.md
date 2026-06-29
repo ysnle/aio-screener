@@ -3,8 +3,15 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.63**
+- 현재 버전: **v51.70**
 - **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- **v51.70 RSI 다이버전스 UI 상세화 + 주봉 컨텍스트 패널**: `analyzeTickerDeep`에서 `calcTechnicalSnapshot()` 호출 → `snap.rsiDiv`로 4타입(강세/약세/히든강세/히든약세) 다이버전스 + 구체 설명 렌더. `snap.weeklyCtx`로 주봉 SMA20/SMA50/RSI14/추세 4-그리드 패널 추가. 캐시버스터 v51.67→v51.70 동기화(이전 세션 누락 수정). R1 7곳 v51.70.
+- **v51.69 피보나치/매물대/RSI 다이버전스/주봉 — `calcTechnicalSnapshot()` 통합**: `_calcFib(bars)` 최근 160봉 스윙고저→0.236/0.382/0.5/0.618/0.786 되돌림 + 1.0/1.272/1.618/2.618 확장, 현재가 최근접 레벨. `_calcVolProfile(bars)` 160봉 24구간 Volume Profile — POC(거래량 최다 가격)/Value Area(±70%)/최근접 지지·저항 매물대. `_calcRSIDivergence(bars)` RSI 시리즈 계산 → 불리시(가격LL+RSIHL)/베어리시(가격HH+RSILH)/히든 불리시·베어리시 감지. `_calcWeeklyContext(bars)` 일봉 5봉 묶음→주봉 OHLCV 시뮬레이션→주봉 SMA20/SMA50/RSI/추세. R1 7곳 v51.69.
+- **v51.68 VCP 자동 감지**: `_calcVCP(bars, indicators)` — Minervini 방법론. Stage 2(SMA150>SMA200, 가격>SMA50, 52주고점-30%이내) + 스윙고저 수축패턴(N=4봉) + 거래량 고갈(후반<전반×0.85) + 피벗 돌파 감지 + VCP 점수(0~100). 서버사이드 `_calcVCPServer()` → `screener.json` `vcpScore/vcpStage/vcpPivot` 필드. 스크리너 테이블 VCP 컬럼(정렬 지원). `calcTechnicalSnapshot()` 반환에 `vcp/vcpScore/vcpStage/vcpPivot` 추가. R1 7곳 v51.68.
+- **v51.67 변화율(delta) 표시 시스템**: FRED MoM delta 서버계산 + CNN F&G 전일 delta + 트레이딩스코어/시장폭 localStorage 일별 비교 + `_AIO_DELTA_POLARITY` 맥락 인식 색상(CPI하락=녹색, VIX하락=녹색, NFP상승=녹색). `_aioRenderDeltas()` 통합 렌더러. R1 7곳 v51.67.
+- **v51.66 구조적 개편 3 — _fieldTs 타임스탬프 추적 + 전 페이지 신선도 UI + staleness 경고**: `DATA_SNAPSHOT._fieldTs` 카테고리별 갱신 시각 기록(prices/fearGreed/macro_fred/screener/serverData). `_aioGetFieldTs(category)` KST 포맷 유틸. `_aioRenderDataFreshness()` 통합 렌더러 — 스크리너 "팩터 HH:MM | 가격 HH:MM KST", 매크로 `#macro-fred-ts`. `_aioCheckManualFieldStaleness()` — 9개 정책 날짜 7일 초과 시 amber pill 경고. P547.
+- **v51.65 구조적 개편 2 — FMP API 진단 강화 + Screener 6h 갱신 + 파이프라인 상태 UI**: FMP `enrichFundamentals()`에 플랜오류(HTTP 403/401) 감지 + `fmpHasKey/fmpOk/fmpCount/fmpPlanError` meta 추적. Screener 자가스로틀 20h→6h. 서버데이터 나이 배지를 "06-29 14:00 KST" KST 절대시각 포맷으로 개선. `#aio-pipeline-status-bar` 파이프라인 상태 배너(AI미등록/FMP플랜오류/FRED미등록 경우에만 표시). 스크리너 페이지 FMP 상태 인라인 노트. `_aioRenderPipelineStatus()` 신설.
+- **v51.64 구조적 개편 1 — fetchQuote OHLCV 기반 일간 Pct + DATA_SNAPSHOT 자동파생 원칙**: `fetchQuote()`가 `chartPreviousClose`(주말 수집 시 전주 종가 반환 문제) 대신 `range=5d` OHLCV 배열 `closes[-2]`로 일간 변동률 계산. `_pctSource: 'ohlcv-daily'|'chart-meta-fallback'` 감사 필드 추가. DATA_SNAPSHOT 리터럴에 "가격/변동률 필드 수동 편집 금지 + data.json 자동 파생 원칙" 명문화. P545. R1 7곳 v51.64.
 - **v51.63 DATA_SNAPSHOT 구조 수정 + Pct 정정**: `nasdaq`/`dow`/`rut`/`vix`/`kosdaq`/`brent`/`gold`/`dxy` 등 8개 속성이 `//` 주석 내에 묻혀 실제 JS 프로퍼티로 미정의되던 버그 수정. `spxPct` -1.95→-0.05(당일), `nasdaqPct` -4.60→-0.24(당일), `dowPct` +0.60→-0.09(당일), `vixPct` +6.54→-2.54(당일), `kospiPct` -7.08→-5.81(당일), `kosdaqPct` -11.92→-4.10(당일). Apple CXMT 서사 수정(AAPL 실제 +3.1%). 2026-06-26 종가 기준. R1 7곳 v51.63.
 - **v51.62 구조적 데이터 동기화 브릿지**: `applyLiveQuotes()`에 `_LIVE_SNAP_MAP`(19개 심볼) 추가 — 라이브 시세 수신 시 `DATA_SNAPSHOT` 자동 갱신 후 `applyDataSnapshot()` 재호출. `data-live-price`와 `data-snap` 요소가 항상 동일 시각 데이터를 표시. R1 7곳 v51.62.
 - **v51.61 DATA_SNAPSHOT 전면 갱신**: 2026-06-26 종가(금요일) 반영. SPX 7354, NASDAQ 25298, KOSPI 8411, KOSDAQ 851, F&G 25 극단공포, VIX 18.41, WTI $69.85, TNX 4.37%, DXY 101.38. (v51.63에서 Pct값 오류 정정됨.) R1 7곳 v51.61.
@@ -94,7 +101,7 @@ AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터
 
 ## 절대 규칙 (R1~R3만 — 나머지 R4~R53은 `_context/RULES.md`)
 
-**R1. 버전 동기화**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · root/context docs · CHANGELOG.md · JS cachebusters
+**R1. 버전 동기화**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · root/context docs · CHANGELOG.md · JS cachebusters — **반드시 `node scripts/bump-version.mjs <버전>`으로 일괄 패치** (v51.64~)
 **R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (예: v48.76 → v48.77). 최신 실제 체계는 두 자리 patch 허용.
 **R3. 버그 수정 시 사후 분석**: `_context/BUG-POSTMORTEM.md`에 P번호 기록
 **R27. Commands↔Skills 동기화**: 새 스킬 시 command wrapper 동시 생성

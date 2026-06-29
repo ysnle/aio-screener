@@ -1,12 +1,37 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-06-27
+last_verified: 2026-06-29
 confidence: high
-latest_version: v51.63
-latest_P_number: P544
-total_entries: 543
-next_P_number: P545
+latest_version: v51.67
+latest_P_number: P547
+total_entries: 546
+next_P_number: P548
 ---
+
+## P547 - v51.66 - 카테고리별 데이터 기준 시각 추적 부재로 "누구는 1시간 전, 누구는 1일 전" 시간적 비일관성 노출 불가
+
+- **발생**: DATA_SNAPSHOT에 가격/Fear&Greed/FRED/스크리너 각각의 마지막 갱신 시각을 추적하는 구조가 없어 사용자가 "지금 화면에 표시된 각 데이터가 언제 기준인지" 알 수 없었음. 스크리너 팩터(6h 갱신)와 실시간 가격(30s 갱신)이 같은 화면에서 기준 시각 없이 혼재.
+- **원인**: 아키텍처적 추적 누락. `applyLiveQuotes()`, `_aioLoadServerData()` 모두 성공 시 별도 타임스탬프를 기록하지 않음. `DATA_SNAPSHOT`에 카테고리별 메타 필드 없음.
+- **수정**: `DATA_SNAPSHOT._fieldTs` 객체를 `aio-core.js`에 추가(prices/fearGreed/macro_fred/screener/serverData 런타임 필드 + 정책 날짜 9개). 4개 기록 포인트 추가: `applyLiveQuotes()` 완료 시 `_fieldTs.prices`, `_aioLoadServerData()` FRED/F&G/screener 단계별 `_fieldTs.*`. `window._aioGetFieldTs(category)` KST 포맷 유틸. `_aioRenderDataFreshness()` 통합 UI 렌더러 — 스크리너 "팩터 HH:MM | 가격 HH:MM KST" 듀얼 표시, 매크로 `#macro-fred-ts` FRED 기준시각. `_aioCheckManualFieldStaleness()` — 중앙은행/정책 날짜 7일 초과 시 amber pill 경고.
+- **violated_rule**: 데이터 신선도 명시 원칙 (신규 R 후보 — 이 버그 3회 재발 시 RULES.md 승격 예정).
+- **prevention**: 모든 데이터 카테고리 적용 시 `_fieldTs` 기록 의무화. `_aioRenderDataFreshness()` 호출을 두 핵심 경로(서버 데이터 로드 후, 라이브 시세 적용 후)에 고정.
+
+## P546 - v51.65 - FMP enrichFundamentals()가 HTTP 403/401 플랜 오류를 조용히 삼켜 밸류/퀄리티 팩터 미반영
+
+- **발생**: GitHub Secrets에 `FMP_API_KEY` 등록됐으나 `screener.json`에 pe/roe/margin 필드 없음. 사용자가 FMP API가 작동하지 않는다고 인지.
+- **원인**: `enrichFundamentals()`에서 FMP API 호출을 `.catch(() => null)`로 에러를 모두 삼켰음. FMP `ratios-ttm`/`financial-growth` 엔드포인트는 Starter 플랜($14.99/월) 이상 필요. 무료 키는 HTTP 403을 반환하지만 이것이 로그에 전혀 남지 않아 원인 불명 상태 지속. `out={}` 빈 객체가 truthy여서 병합도 no-op으로 처리.
+- **수정**: `enrichFundamentals()`에 플랜 선진단 추가 (첫 심볼로 ratios-ttm 호출 → HTTP 4xx 감지 시 즉시 `planError: true` 반환 + 경고 로그). `.catch(() => null)` → `fmpFetch()` 래퍼(심볼별 에러 콘솔 출력). 반환 타입을 `{data, hasKey, ok, total, planError}` 객체로 변경. `fmpHasKey/fmpOk/fmpCount/fmpPlanError`를 `screener.json` + `data.json meta` + `data.meta` 후기록 + refresh-data.yml summary에 추가. `_serverDataMeta`에 FMP 필드 전파. UI: `#aio-pipeline-status-bar` (홈 파이프라인 상태 배너), `#screener-fmp-status` (스크리너 인라인 노트).
+- **violated_rule**: R3 (에러 가시성 부재), 에러 삼킴 안티패턴.
+- **prevention**: FMP 엔드포인트별 HTTP 상태 로깅 의무화. `fmpOk/fmpPlanError` CI summary 항목 추가로 매 Actions 실행마다 가시적 확인 가능. FMP 무료 키 제한 문서화.
+- **user_action_needed**: FMP 무료 키라면 Starter 플랜($14.99/월) 이상으로 업그레이드 필요. 또는 시크릿 이름이 `FMP_API_KEY`인지 대소문자 포함 정확히 확인.
+
+## P545 - v51.64 - fetchQuote()가 chartPreviousClose(주말 수집 시 전주 종가)로 pct 계산해 주간 변동률을 일간으로 오표시
+
+- **발생**: 주말(토·일) 수집 시 Yahoo Finance `meta.chartPreviousClose`가 직전 거래일이 아닌 전주 금요일 종가를 반환. `fetch-data.mjs`의 `fetchQuote()`가 이를 그대로 `prev`로 사용해 주간 변동률을 `regularMarketChangePercent`로 기록. data.json → `applyLiveQuotes()` → `_LIVE_SNAP_MAP` → `DATA_SNAPSHOT.*Pct` 경로로 오값이 전파. (P544에서 수동 정정했으나 다음 cron 실행 시 재발 구조)
+- **원인**: `chartPreviousClose`는 Yahoo Chart API의 "차트 기준 전일 종가"로 주말에는 전주 종가를 의미. 직전 거래일 종가를 얻으려면 `range=5d` 응답의 OHLCV `closes[-2]`를 사용해야 함.
+- **수정**: `fetchQuote()`에서 `res.indicators.quote[0].close` 배열을 필터링해 `closes[-2]`를 실제 전일 종가로 사용. `closes`가 2개 미만일 때만 `chartPreviousClose` 폴백. `_pctSource: 'ohlcv-daily'|'chart-meta-fallback'` 감사 필드 추가. DATA_SNAPSHOT 헤더에 "가격/변동률 필드 수동 편집 금지, data.json에서 자동 파생" 원칙 명문화.
+- **violated_rule**: R1 (데이터 정확성 — 표시 변동률은 일간 거래일 기준이어야 함), R3.
+- **prevention**: `_pctSource` 필드를 CI watchdog에서 모니터링. `ohlcv-daily`가 아닌 경우 경고. DATA_SNAPSHOT 리터럴 가격 필드 직접 편집 시 R1 위반으로 간주.
 
 ## P544 - v51.63 - DATA_SNAPSHOT *Pct 값이 주간 변동률로 채워져 일간 변동률 오표시
 - **발생**: v51.61에서 data.json의 `regularMarketChangePercent`를 일간 변동률로 사용했으나 실제로는 Yahoo Finance가 주간(weekly) 변동률을 반환. 결과: `spxPct -1.95`(주간)가 당일 -0.05%로 오표시, `nasdaqPct -4.60`(주간)이 당일 -0.24%로 오표시 등.

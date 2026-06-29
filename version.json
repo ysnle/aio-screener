@@ -1,1 +1,1 @@
-{"version":"v51.63","built":"2026-06-29T11:30:00+09:00","note":"v51.63 DATA_SNAPSHOT 구조 수정 + Pct 일간/주간 혼용 정정: nasdaq/dow/rut/vix/kosdaq/brent/gold/dxy 등이 // 주석 안에 묻혀 실제 JS 프로퍼티로 정의되지 않던 버그 수정. spxPct -1.95→-0.05(당일), nasdaqPct -4.60→-0.24(당일), dowPct +0.60→-0.09(당일), vixPct +6.54→-2.54(당일), kospiPct -7.08→-5.81(당일), kosdaqPct -11.92→-4.10(당일). Apple CXMT 서사 수정: AAPL 실제 +3.1%(긍정). 2026-06-26 종가 기준."}
+{"version":"v51.70","built":"2026-06-30T02:00:00+09:00","note":"v51.70: RSI 다이버전스 UI 상세화(4타입+히든) + 주봉 컨텍스트 패널 — analyzeTickerDeep calcTechnicalSnapshot 연동"}

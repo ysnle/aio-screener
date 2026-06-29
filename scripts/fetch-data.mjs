@@ -90,6 +90,10 @@ async function _fetchRss(url, timeoutMs) {
 const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
 
 // ── Yahoo v8/chart: 한 심볼의 현재가 + 전일종가 (호스트 폴백 내성) ──
+// v51.64 P545: 주말/휴장 수집 시 Yahoo meta.chartPreviousClose가 전주 종가를 반환해
+// 주간 변동률이 일간으로 오표시되는 구조적 문제 수정.
+// → range=5d OHLCV 배열의 실제 전전일 종가(closes[-2])로 일간 Pct 계산.
+//   OHLCV 배열이 2개 미만일 때만 chartPreviousClose로 폴백.
 async function fetchQuote(symbol) {
   let lastErr;
   for (const host of YAHOO_HOSTS) {
@@ -100,16 +104,30 @@ async function fetchQuote(symbol) {
       const m = res?.meta;
       if (!m || typeof m.regularMarketPrice !== 'number') throw new Error('no meta');
       const price = m.regularMarketPrice;
-      const prev = (typeof m.chartPreviousClose === 'number' && m.chartPreviousClose > 0)
-        ? m.chartPreviousClose
-        : (typeof m.previousClose === 'number' ? m.previousClose : null);
-      const pct = (prev && prev > 0) ? ((price - prev) / prev) * 100 : null;
+
+      // OHLCV 배열에서 실제 전일 종가 추출 (주말 수집 시에도 정확한 trading-day 기준)
+      const rawCloses = res?.indicators?.quote?.[0]?.close || [];
+      const closes = rawCloses.filter(c => c != null && isFinite(c) && c > 0);
+      let prev, pct, pctSource;
+      if (closes.length >= 2) {
+        prev = closes[closes.length - 2];       // 실제 전일 거래일 종가
+        pct  = ((price - prev) / prev) * 100;
+        pctSource = 'ohlcv-daily';
+      } else {
+        // OHLCV 부족 시 메타 필드 폴백 (구형 동작 유지)
+        prev = (typeof m.chartPreviousClose === 'number' && m.chartPreviousClose > 0)
+          ? m.chartPreviousClose
+          : (typeof m.previousClose === 'number' ? m.previousClose : null);
+        pct  = (prev && prev > 0) ? ((price - prev) / prev) * 100 : null;
+        pctSource = 'chart-meta-fallback';
+      }
       return {
         symbol,
         regularMarketPrice: price,
         regularMarketChangePercent: pct,
         regularMarketPreviousClose: prev,
         chartPreviousClose: prev,
+        _pctSource: pctSource,
         _source: 'live:yahoo-gh',
       };
     } catch (e) { lastErr = e; }
@@ -163,12 +181,24 @@ async function fetchFred(key) {
       if (!obs.length) continue;
       if (spec.kind === 'level') {
         out[field] = round(obs[0].v, 3);
+        // MoM delta: 이번 달 레벨 - 지난 달 레벨
+        if (obs.length >= 2) out[field + 'Delta'] = round(obs[0].v - obs[1].v, 3);
       } else if (spec.kind === 'yoy') {
         const cur = obs[0];
         const yoy = obs.find(o => monthsBetween(o.d, cur.d) >= 12) || obs[obs.length - 1];
-        if (yoy && yoy.v) out[field] = round((cur.v / yoy.v - 1) * 100, 1);
+        const curYoY = (yoy && yoy.v) ? round((cur.v / yoy.v - 1) * 100, 1) : null;
+        if (curYoY !== null) out[field] = curYoY;
+        // MoM delta in YoY rate: 이번 달 YoY - 지난 달 YoY (인플레이션 속도 변화)
+        if (obs.length >= 2) {
+          const prev = obs[1];
+          const yoyPrev = obs.find(o => monthsBetween(o.d, prev.d) >= 12) || obs[obs.length - 1];
+          const prevYoY = (yoyPrev && yoyPrev.v && yoyPrev.d !== yoy.d) ? round((prev.v / yoyPrev.v - 1) * 100, 1) : null;
+          if (curYoY !== null && prevYoY !== null) out[field + 'Delta'] = round(curYoY - prevYoY, 1);
+        }
       } else if (spec.kind === 'mom_diff') {
         if (obs.length >= 2) out[field] = Math.round(obs[0].v - obs[1].v); // 천명
+        // 전월 대비 delta: 이번 달 변화 - 지난 달 변화
+        if (obs.length >= 3) out[field + 'Delta'] = Math.round((obs[0].v - obs[1].v) - (obs[1].v - obs[2].v));
       }
       out['_asOf_' + field] = obs[0].d;
     } catch (e) { /* 한 시리즈 실패는 무시 */ }
@@ -189,7 +219,15 @@ async function fetchFearGreed() {
     const j = await fetchJSON('https://production.dataviz.cnn.io/index/fearandgreed/graphdata', { headers });
     const fg = j?.fear_and_greed;
     if (fg && typeof fg.score === 'number') {
-      return { score: Math.round(fg.score), rating: fg.rating || null, _source: 'cnn', asOf: fg.timestamp || null };
+      return {
+        score: Math.round(fg.score),
+        rating: fg.rating || null,
+        _source: 'cnn',
+        asOf: fg.timestamp || null,
+        // CNN API의 previous_close = 전일 종가 시점 F&G 점수
+        previousScore: typeof fg.previous_close === 'number' ? Math.round(fg.previous_close) : null,
+        previousWeek: typeof fg.previous_1_week === 'number' ? Math.round(fg.previous_1_week) : null,
+      };
     }
   } catch (e) {}
   return { _source: 'cnn:fail' };
@@ -438,13 +476,21 @@ async function fetchHistory(symbol, range = '6mo') {
       const j = await fetchJSON(url, {}, 2);
       const res = j?.chart?.result?.[0];
       const ts = res?.timestamp;
-      const closes = res?.indicators?.quote?.[0]?.close;
+      const q0 = res?.indicators?.quote?.[0];
+      const closes = q0?.close;
       if (!Array.isArray(ts) || !Array.isArray(closes)) throw new Error('no history arrays');
       const out = [];
       for (let i = 0; i < ts.length; i++) {
         const c = closes[i];
         if (typeof c !== 'number' || !isFinite(c)) continue;
-        out.push({ date: new Date(ts[i] * 1000).toISOString().slice(0, 10), close: round(c, 2) });
+        const h = q0.high?.[i], l = q0.low?.[i], v = q0.volume?.[i];
+        out.push({
+          date: new Date(ts[i] * 1000).toISOString().slice(0, 10),
+          close: round(c, 2),
+          high:   typeof h === 'number' && isFinite(h) ? round(h, 2)    : round(c, 2),
+          low:    typeof l === 'number' && isFinite(l) ? round(l, 2)    : round(c, 2),
+          volume: typeof v === 'number' && isFinite(v) ? Math.round(v)  : 0,
+        });
       }
       return out;
     } catch (e) { /* 호스트 폴백 */ }
@@ -727,18 +773,42 @@ function backtestFactors(stockData) {
 const _fmpSym = (s) => s.replace(/^([A-Z]+)\.([A-Z])$/, '$1-$2');
 async function enrichFundamentals(syms) {
   const key = process.env.FMP_API_KEY;
-  if (!key) return null;
+  if (!key) return { data: null, hasKey: false, ok: 0, total: 0, planError: false };
   const base = 'https://financialmodelingprep.com/api/v3';
   const us = syms.filter(s => !/\.(KS|KQ)$/i.test(s));
   const out = {};
   let ok = 0;
+  let planError = false; // HTTP 403/401 = 플랜 미지원 또는 키 무효
+
+  // 첫 심볼로 플랜/키 유효성 선진단 (전체 실행 전에 문제 조기 감지)
+  const diagSym = encodeURIComponent(_fmpSym(us[0] || 'AAPL'));
+  try {
+    const diagR = await fetchJSON(`${base}/ratios-ttm/${diagSym}?apikey=${key}`, {}, 1);
+    if (Array.isArray(diagR) && diagR.length === 0) {
+      console.warn(`[fetch-data] FMP 선진단: ratios-ttm 응답 빈 배열 — 플랜 미지원 가능성. 심볼: ${us[0]}`);
+    }
+  } catch (e) {
+    const msg = e && e.message || String(e);
+    if (/HTTP 4(0[13])/.test(msg)) {
+      planError = true;
+      console.warn(`[fetch-data] FMP 키 오류 또는 플랜 불충분: ${msg}`);
+      console.warn('[fetch-data] FMP ratios-ttm/financial-growth는 Starter 플랜($14.99/월) 이상 필요. 무료 키는 이 엔드포인트를 지원하지 않습니다.');
+      console.warn('[fetch-data] GitHub Secret 이름이 FMP_API_KEY 인지 확인하세요.');
+      return { data: null, hasKey: true, ok: 0, total: us.length, planError: true };
+    }
+    console.warn(`[fetch-data] FMP 선진단 실패: ${msg} — 계속 진행`);
+  }
+
   await mapLimit(us, 4, async (sym) => {
     const s = encodeURIComponent(_fmpSym(sym));
     try {
+      const fmpFetch = (endpoint) =>
+        fetchJSON(`${base}/${endpoint}?apikey=${key}`, {}, 1)
+          .catch(e => { console.warn(`[fetch-data] FMP ${sym} ${endpoint}: ${e && e.message}`); return null; });
       const [ratios, growth, earn] = await Promise.all([
-        fetchJSON(`${base}/ratios-ttm/${s}?apikey=${key}`, {}, 1).catch(() => null),
-        fetchJSON(`${base}/financial-growth/${s}?period=annual&limit=1&apikey=${key}`, {}, 1).catch(() => null),
-        fetchJSON(`${base}/earnings-surprises/${s}?apikey=${key}`, {}, 1).catch(() => null),
+        fmpFetch(`ratios-ttm/${s}`),
+        fmpFetch(`financial-growth/${s}?period=annual&limit=1`),
+        fmpFetch(`earnings-surprises/${s}`),
       ]);
       const r = Array.isArray(ratios) ? ratios[0] : null;
       const g = Array.isArray(growth) ? growth[0] : null;
@@ -756,24 +826,109 @@ async function enrichFundamentals(syms) {
         rec.epsSurprise = round((e.actualEarningResult - e.estimatedEarning) / Math.abs(e.estimatedEarning) * 100, 1);
       }
       if (Object.keys(rec).length) { out[sym] = rec; ok++; }
-    } catch (_) {}
+    } catch (e) { console.warn(`[fetch-data] FMP ${sym} 처리 오류:`, e && e.message); }
   });
-  console.log(`[fetch-data] FMP fundamentals: ${ok}/${us.length}`);
-  return out;
+  console.log(`[fetch-data] FMP fundamentals: ${ok}/${us.length} 심볼 enriched`);
+  if (ok === 0 && us.length > 0) {
+    console.warn('[fetch-data] FMP enrichment 0건 — 키 유효하나 플랜 미지원이거나 네트워크 오류일 수 있습니다.');
+  }
+  return { data: out, hasKey: true, ok, total: us.length, planError: false };
+}
+
+// v51.68: VCP (Volatility Contraction Pattern) 서버 사이드 계산 — aio-core.js _calcVCP 대응
+function _calcVCPServer(closes, highs, lows, volumes) {
+  const n = closes.length;
+  if (n < 60) return null;
+  function sma(arr, p) {
+    if (arr.length < p) return null;
+    let s = 0; for (let i = arr.length - p; i < arr.length; i++) s += arr[i]; return s / p;
+  }
+  function avg(arr) { return arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : 0; }
+  const price = closes[n - 1];
+  const s50 = sma(closes, 50), s150 = sma(closes, 150), s200 = sma(closes, 200);
+  const lk52 = Math.min(252, n);
+  const h52 = highs.slice(n - lk52).reduce((m, v) => v > m ? v : m, 0);
+  const pct52 = h52 > 0 ? (price - h52) / h52 * 100 : null;
+  const stage2 = !!(s50 && s150 && s200 && price > s150 && s150 > s200 && price > s50 && pct52 !== null && pct52 >= -30);
+  const bLen = Math.min(65, n - 10);
+  const bH = highs.slice(n - bLen), bL = lows.slice(n - bLen), bV = volumes.slice(n - bLen);
+  const N = 4; const swH = [], swL = [];
+  for (let i = N; i < bH.length - N; i++) {
+    let h = true, l = true;
+    for (let j = i - N; j <= i + N; j++) {
+      if (j === i) continue;
+      if (bH[j] >= bH[i]) h = false;
+      if (bL[j] <= bL[i]) l = false;
+    }
+    if (h) swH.push({ idx: i, p: bH[i] });
+    if (l) swL.push({ idx: i, p: bL[i] });
+  }
+  const ctrs = [];
+  for (let hi = 0; hi < swH.length; hi++) {
+    let nl = null;
+    for (let li = 0; li < swL.length; li++) { if (swL[li].idx > swH[hi].idx) { nl = swL[li]; break; } }
+    if (!nl) continue;
+    const d = (swH[hi].p - nl.p) / swH[hi].p * 100;
+    if (d >= 1 && d <= 45) ctrs.push({ depth: Math.round(d * 10) / 10 });
+  }
+  const cnt = ctrs.length;
+  const shrink = cnt >= 2 && ctrs.every((c, i) => i === 0 || ctrs[i].depth < ctrs[i - 1].depth);
+  let volDry = false;
+  if (bV.length >= 20) {
+    const half = Math.floor(bV.length / 2);
+    const fv = bV.slice(0, half).filter(v => v > 0);
+    const sv = bV.slice(half).filter(v => v > 0);
+    const fa = avg(fv), sa = avg(sv);
+    volDry = fa > 0 && sa > 0 && sa < fa * 0.85;
+  }
+  let pivot = null;
+  const recSH = swH.filter(sh => sh.idx >= bH.length - 25);
+  if (recSH.length) pivot = recSH[recSH.length - 1].p;
+  else if (swH.length) pivot = swH[swH.length - 1].p;
+  const nearPivot = !!(pivot && price >= pivot * 0.97 && price <= pivot * 1.03);
+  const lv = volumes[n - 1];
+  const vs = volumes.slice(-21, -1).filter(v => v > 0);
+  const rvol = (vs.length >= 10 && lv > 0) ? lv / avg(vs) : null;
+  const brk = !!(pivot && price > pivot && rvol !== null && rvol > 1.4);
+  let score = 0;
+  if (stage2)    score += 25;
+  if (cnt >= 2)  score += Math.min(20, cnt * 7);
+  if (shrink)    score += 20;
+  if (volDry)    score += 15;
+  if (nearPivot) score += 10;
+  if (brk)       score += 10;
+  score = Math.min(100, Math.round(score));
+  const vcpStage = !stage2 ? 'not_stage2' : brk ? 'breakout' : nearPivot ? 'near_pivot' : (cnt >= 2 && shrink) ? 'contracting' : cnt >= 1 ? 'basing' : 'stage2_only';
+  return { vcpScore: score, vcpStage, pivotLevel: pivot,
+           contractionCount: cnt, isShrinking: shrink, volumeDrying: volDry,
+           pctFrom52wHigh: pct52 !== null ? Math.round(pct52 * 10) / 10 : null };
 }
 
 // Phase 1: 심볼 배열 → 1y 가격 이력 fetch + 팩터 계산. results 배열은 backtest에 재사용.
 async function _enrichPriceFactors(syms) {
   const results = await mapLimit(syms, 5, async (sym) => {
     const rows = await fetchHistory(_yhSym(sym), '1y');
-    return { sym, closes: (rows || []).map(r => r.close) };
+    return {
+      sym,
+      closes:  (rows || []).map(r => r.close),
+      highs:   (rows || []).map(r => r.high   || r.close),
+      lows:    (rows || []).map(r => r.low    || r.close),
+      volumes: (rows || []).map(r => r.volume || 0),
+    };
   });
   const data = {};
   let ok = 0;
   for (const r of results) {
     if (!r || r.__error || !r.closes) continue;
     const f = closesToFactors(r.closes);
-    if (f) { data[r.sym] = f; ok++; }
+    if (f) {
+      // v51.68: VCP 패턴 인식 — OHLCV 60봉 이상일 때 계산
+      if (r.closes.length >= 60 && r.highs && r.lows && r.volumes) {
+        const vcp = _calcVCPServer(r.closes, r.highs, r.lows, r.volumes);
+        if (vcp) { f.vcpScore = vcp.vcpScore; f.vcpStage = vcp.vcpStage; f.vcpPivot = vcp.pivotLevel; }
+      }
+      data[r.sym] = f; ok++;
+    }
   }
   return { data, results, ok };
 }
@@ -801,7 +956,7 @@ async function enrichScreener() {
   if (process.env.SCREENER_ENRICH !== '1' && process.env.BACKFILL !== '1') {
     try {
       const prev = JSON.parse(await readFile(SCREENER_OUT, 'utf8'));
-      if (prev && prev.asOf && (Date.now() - new Date(prev.asOf).getTime()) < 20 * 3600 * 1000) {
+      if (prev && prev.asOf && (Date.now() - new Date(prev.asOf).getTime()) < 6 * 3600 * 1000) {
         return { skipped: true, count: Object.keys(prev.data || {}).length };
       }
     } catch { /* 최초 실행 */ }
@@ -813,9 +968,15 @@ async function enrichScreener() {
   const { data, results, ok } = await _enrichPriceFactors(syms);
 
   // 2단계: FMP 밸류/퀄리티/어닝 병합(키 있을 때만 — 없으면 4팩터 폴백)
+  let fmpResult = { data: null, hasKey: false, ok: 0, total: 0, planError: false };
   try {
-    const fund = await enrichFundamentals(syms);
-    if (fund) for (const sym in fund) { if (data[sym]) Object.assign(data[sym], fund[sym]); else data[sym] = fund[sym]; }
+    fmpResult = await enrichFundamentals(syms);
+    if (fmpResult && fmpResult.data) {
+      for (const sym in fmpResult.data) {
+        if (data[sym]) Object.assign(data[sym], fmpResult.data[sym]);
+        else data[sym] = fmpResult.data[sym];
+      }
+    }
   } catch (e) { console.warn('[fetch-data] fundamentals 병합 실패(무시):', e && e.message || e); }
 
   // 3단계: 개별 종목 뉴스 메모 (지수/선물/FX/크립토/KR 제외)
@@ -830,9 +991,20 @@ async function enrichScreener() {
   try { backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148)); }
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
 
-  const payload = { asOf: new Date().toISOString(), source: 'github-actions:yahoo-1y', universe: syms.length, ok, data, backtest };
+  const payload = {
+    asOf: new Date().toISOString(),
+    source: 'github-actions:yahoo-1y',
+    universe: syms.length,
+    ok,
+    fmpHasKey: fmpResult.hasKey,
+    fmpOk: fmpResult.ok > 0,
+    fmpCount: fmpResult.ok,
+    fmpPlanError: fmpResult.planError,
+    data,
+    backtest,
+  };
   await writeFile(SCREENER_OUT, JSON.stringify(payload));
-  return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk };
+  return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk, fmpOk: fmpResult.ok > 0, fmpCount: fmpResult.ok, fmpHasKey: fmpResult.hasKey, fmpPlanError: fmpResult.planError };
 }
 
 // v50.48/Phase 4: 선택적 서버 LLM 시장 분석문 생성 (운영자 ANTHROPIC_API_KEY Secret 있을 때만).
@@ -954,6 +1126,7 @@ async function main() {
   if (!fearGreedOk) console.warn('[fetch-data] 경고: F&G 수집 실패 (사이트는 정적 폴백 사용)');
   if (!fredHasKey) console.warn('[fetch-data] 경고: FRED_API_KEY GitHub Secret 미등록 — 매크로 서버갱신 비활성. 클라이언트 aio_fred_key로 브릿지 가능.');
   if (fredHasKey && !fredFetchOk) console.warn('[fetch-data] 경고: FRED 키 있으나 매크로 0건 — 키 유효성/레이트리밋 확인');
+  if (!process.env.ANTHROPIC_API_KEY) console.warn('[fetch-data] 경고: ANTHROPIC_API_KEY 미등록 — AI 분석 비활성. 클라이언트 템플릿 폴백 사용.');
 
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, JSON.stringify(data, null, 1));
@@ -962,7 +1135,28 @@ async function main() {
   // v50.52 Track1: 스크리너 팩터 enrichment (일 1회 자가 스로틀 — screener.json)
   let scrInfo = null;
   try { scrInfo = await enrichScreener(); } catch (e) { console.warn('[fetch-data] screener enrich 실패(무시):', e && e.message || e); }
-  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} [verify: 1차ok=${pass1.length} retry=${toRetry.length} 복구=${pass2.length} 최종실패=${failed.length}], macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe + (scrInfo.tickerNews != null ? ' tickerNews=' + scrInfo.tickerNews : '')) : 'n/a'}, ${data.meta.elapsedMs}ms`);
+
+  // FMP 상태를 data.meta에 후기록 (screener 실행 결과 반영)
+  if (scrInfo && !scrInfo.skipped) {
+    data.meta.fmpHasKey = !!scrInfo.fmpHasKey;
+    data.meta.fmpOk = !!scrInfo.fmpOk;
+    data.meta.fmpCount = scrInfo.fmpCount || 0;
+    data.meta.fmpPlanError = !!scrInfo.fmpPlanError;
+    if (scrInfo.fmpHasKey && !scrInfo.fmpOk) {
+      if (scrInfo.fmpPlanError) console.warn('[fetch-data] FMP: 키 등록됨 → HTTP 403/401 — 플랜이 ratios-ttm을 지원하지 않습니다. Starter($14.99/월) 이상 필요.');
+      else console.warn('[fetch-data] FMP: 키 등록됨 → 0건 enriched — API 오류 또는 모든 심볼 실패.');
+    }
+  } else {
+    data.meta.fmpHasKey = !!process.env.FMP_API_KEY;
+  }
+
+  // scrInfo 반영 후 data.json 재기록 (fmpHasKey 등 meta 업데이트)
+  await writeFile(OUT, JSON.stringify(data, null, 1));
+
+  const fmpSummary = scrInfo && !scrInfo.skipped
+    ? `hasKey=${scrInfo.fmpHasKey} ok=${scrInfo.fmpOk} count=${scrInfo.fmpCount || 0}${scrInfo.fmpPlanError ? ' ⚠PLAN_ERROR' : ''}`
+    : `hasKey=${!!process.env.FMP_API_KEY} (screener skipped)`;
+  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} [verify: 1차ok=${pass1.length} retry=${toRetry.length} 복구=${pass2.length} 최종실패=${failed.length}], macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe + (scrInfo.tickerNews != null ? ' tickerNews=' + scrInfo.tickerNews : '')) : 'n/a'}, FMP ${fmpSummary}, ${data.meta.elapsedMs}ms`);
 
   // 핵심 심볼이 절반 미만이면 비정상 — 비0 종료로 워크플로가 알림
   if (quotes.length < SYMBOLS.length * 0.5) {

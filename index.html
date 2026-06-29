@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.63 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.70 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5128,7 +5128,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.63</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.70</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5142,6 +5142,9 @@ button[data-filter-active="true"] {
       <span id="llm-quota" style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);" title="오늘 남은 AI 호출 / 일일 한도 (5명 공유 키)">10/10</span>
     </div>
   </div>
+
+  <!-- v51.65: 파이프라인 상태 배너 — AI/FMP/FRED 이슈 있을 때만 표시 (R234: 기본 hidden) -->
+  <div id="aio-pipeline-status-bar" style="display:none;flex-wrap:wrap;gap:6px;padding:6px 0 2px;"></div>
 
   <!-- v50.30: 초보자 시작 패널 제거 (사용자 지시 — 추가형 안내 패널 금지, 페이지는 핵심 기능만) -->
 
@@ -5257,6 +5260,8 @@ button[data-filter-active="true"] {
       <div class="aio-card-title">Fear & Greed</div>
       <div class="aio-metric-value" id="home-fg-score">—</div>
       <div class="aio-metric-delta" id="home-fg-label">갱신 대기</div>
+      <!-- v51.69: 전일 대비 delta — _aioRenderDeltas()가 채움 -->
+      <span id="home-fg-delta" class="aio-metric-delta is-flat" style="display:none;font-size:10px;font-family:var(--font-mono);"></span>
     </div>
   </div>
 
@@ -5506,7 +5511,7 @@ button[data-filter-active="true"] {
     <div style="text-align:center;min-width:90px;flex-shrink:0;">
       <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">종합 거래 점수 <span style="color:var(--data-amber);font-weight:400;">③ 결론</span></div>
       <div id="score-gauge-val" style="font-size:54px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);line-height:1;">—</div>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">/100</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">/100 <span id="score-delta-tag" class="aio-metric-delta is-flat" style="display:none;font-size:10px;font-family:var(--font-mono);" title="전일 대비 점수 변화"></span></div>
     </div>
     <div style="width:1px;background:var(--border);align-self:stretch;flex-shrink:0;"></div>
     <div style="flex:1;min-width:0;">
@@ -6175,6 +6180,7 @@ button[data-filter-active="true"] {
       </div>
       <div style="margin-bottom:10px;">
         <div id="breadth-5sma-big" data-snap="breadth-5sma" style="font-size:36px;font-weight:900;color:var(--data-green);font-family:var(--font-mono);letter-spacing:-1px;">68%</div>
+        <span id="breadth-5sma-delta" class="aio-metric-delta" style="display:none;font-size:11px;font-family:var(--font-mono);" title="전일 대비 변화"></span>
       </div>
       <div style="width:100%;height:18px;background:rgba(0,0,0,0.2);border-radius:4px;overflow:hidden;margin-bottom:10px;border:1px solid rgba(0,229,160,0.2);">
         <div id="breadth-5sma-bar" style="width:68%;height:100%;background:linear-gradient(90deg,var(--data-green),#10b981);border-radius:4px;"></div>
@@ -6199,6 +6205,7 @@ button[data-filter-active="true"] {
       </div>
       <div style="margin-bottom:10px;">
         <div id="breadth-20sma-big" data-snap="breadth-20sma" data-threshold-key="BREADTH" title="20일선 위 종목 70% 초과 → 과열 구간(주의)" style="font-size:36px;font-weight:900;color:var(--data-amber);font-family:var(--font-mono);letter-spacing:-1px;">75%</div>
+        <span id="breadth-20sma-delta" class="aio-metric-delta" style="display:none;font-size:11px;font-family:var(--font-mono);" title="전일 대비 변화"></span>
       </div>
       <div style="width:100%;height:18px;background:rgba(0,0,0,0.2);border-radius:4px;overflow:hidden;margin-bottom:10px;border:1px solid rgba(255,163,26,0.2);">
         <div id="breadth-20sma-bar" style="width:75%;height:100%;background:linear-gradient(90deg,var(--data-amber),var(--data-amber));border-radius:4px;"></div>
@@ -6223,6 +6230,7 @@ button[data-filter-active="true"] {
       </div>
       <div style="margin-bottom:10px;">
         <div id="breadth-50sma-big" data-snap="breadth-50sma" style="font-size:36px;font-weight:900;color:var(--data-amber);font-family:var(--font-mono);letter-spacing:-1px;">46%</div>
+        <span id="breadth-50sma-delta" class="aio-metric-delta" style="display:none;font-size:11px;font-family:var(--font-mono);" title="전일 대비 변화"></span>
       </div>
       <div style="width:100%;height:18px;background:rgba(0,0,0,0.2);border-radius:4px;overflow:hidden;margin-bottom:10px;border:1px solid rgba(255,163,26,0.2);">
         <div id="breadth-50sma-bar" style="width:52%;height:100%;background:linear-gradient(90deg,var(--data-amber),var(--data-amber));border-radius:4px;"></div>
@@ -6492,7 +6500,7 @@ button[data-filter-active="true"] {
         </svg>
         <div style="margin-top:12px;text-align:center;">
           <div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:#ef4444;" id="fg-score-big">18</div>
-          <div style="font-size:11px;color:var(--text-muted);">점수: <span id="fg-score-val">18</span>/100</div>
+          <div style="font-size:11px;color:var(--text-muted);">점수: <span id="fg-score-val">18</span>/100 <span id="sentiment-fg-delta" class="aio-metric-delta" style="display:none;font-size:10px;font-family:var(--font-mono);" title="전일 대비 변화"></span></div>
           <div style="font-size:11px;color:var(--text-secondary);">등급: <span id="fg-rating-text" style="color:#dc2626;">극단 공포 (Extreme Fear)</span></div>
           <div id="fg-live-badge" style="font-size:11px;color:var(--green);margin-top:4px;font-weight:700;">● LIVE</div>
           <div id="fg-historical-ref" style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;"></div>
@@ -7366,6 +7374,8 @@ button[data-filter-active="true"] {
       <div id="macro-next-release" style="font-size:10px;color:var(--text-muted);margin-top:3px;">다음 주요 발표 일정 계산 중</div>
       <div style="display:flex;gap:6px;align-items:center;">
         <span id="macro-regime-pill" class="status-pill sp-risk-off">— 레짐 분석 중</span>
+        <!-- v51.66: FRED 데이터 기준 시각 — _aioRenderDataFreshness()가 채움 (R234: 기본 hidden) -->
+        <span id="macro-fred-ts" style="display:none;font-size:10px;color:var(--text-muted);font-family:var(--font-mono);"></span>
         <span class="freshness-badge fb-live">● LIVE</span>
       </div>
       <!-- v38.4: 매크로 레짐 상세 해설 -->
@@ -7656,31 +7666,31 @@ button[data-filter-active="true"] {
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;">
     <div class="macro-card" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">CPI 인플레</div>
-      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);"><span data-snap="cpi-yoy">3.8%</span></div>
+      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);"><span data-snap="cpi-yoy">3.8%</span> <span id="cpi-yoy-delta" class="aio-metric-delta" style="display:none;font-size:11px;" title="전월 대비 YoY 변화"></span></div>
       <div style="font-size:11px;color:var(--text-muted);">YoY · 헤드라인</div>
       <div style="font-size:11px;color:var(--data-amber);margin-top:3px;">2% 목표 vs 실제</div>
     </div>
     <div class="macro-card" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">근원 CPI</div>
-      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);"><span data-snap="core-cpi-yoy">2.8%</span></div>
+      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);"><span data-snap="core-cpi-yoy">2.8%</span> <span id="core-cpi-yoy-delta" class="aio-metric-delta" style="display:none;font-size:11px;" title="전월 대비 YoY 변화"></span></div>
       <div style="font-size:11px;color:var(--text-muted);">YoY · 식료·에너지 제외</div>
       <div style="font-size:11px;color:var(--data-red);margin-top:3px;">끈질긴 인플레 측정</div>
     </div>
     <div class="macro-card" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">PCE <span style="font-size:9px;color:var(--data-amber);">4월</span></div>
-      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);"><span data-snap="pce-yoy">3.8%</span></div>
+      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);"><span data-snap="pce-yoy">3.8%</span> <span id="pce-yoy-delta" class="aio-metric-delta" style="display:none;font-size:11px;" title="전월 대비 YoY 변화"></span></div>
       <div style="font-size:11px;color:var(--text-muted);">YoY · 헤드라인</div>
       <div style="font-size:11px;color:var(--data-amber);margin-top:3px;">연준 선호 지표 · 6/25 May 발표</div>
     </div>
     <div class="macro-card" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">근원 PCE <span style="font-size:9px;color:var(--data-amber);">4월</span></div>
-      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);"><span data-snap="core-pce-yoy">3.3%</span></div>
+      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-red);"><span data-snap="core-pce-yoy">3.3%</span> <span id="core-pce-yoy-delta" class="aio-metric-delta" style="display:none;font-size:11px;" title="전월 대비 YoY 변화"></span></div>
       <div style="font-size:11px;color:var(--text-muted);">YoY · 2% 목표 기준</div>
       <div style="font-size:11px;color:var(--data-red);margin-top:3px;">Fed 금리 핵심 변수</div>
     </div>
     <div class="macro-card" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">NFP 신규고용</div>
-      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-cyan);"><span data-snap="nfp">+172K</span></div>
+      <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-cyan);"><span data-snap="nfp">+172K</span> <span id="nfp-delta-tag" class="aio-metric-delta" style="display:none;font-size:11px;" title="전월 대비 변화"></span></div>
       <div style="font-size:11px;color:var(--text-muted);">MoM · 비농업 (5월)</div>
       <div style="font-size:11px;color:var(--data-cyan);margin-top:3px;">예상 85K 상회 · 금리인하 기대 후퇴</div>
     </div>
@@ -10146,7 +10156,13 @@ button[data-filter-active="true"] {
         <div class="page-title">퀀트 스크리너</div>
         <div class="page-subtitle">멀티팩터 랭킹 · 전체 유니버스 · 헤더 클릭으로 정렬</div>
       </div>
-      <span data-factor-asof style="font-size:11px;color:var(--data-amber);align-self:center;">팩터 데이터 대기</span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        <span data-factor-asof style="font-size:11px;color:var(--data-amber);">팩터 데이터 대기</span>
+        <!-- v51.65: FMP 상태 인라인 노트 — JS가 fmpOk=false일 때 display:inline-flex로 전환 -->
+        <span id="screener-fmp-status" style="display:none;font-size:10px;color:#f59e0b;gap:4px;align-items:center;" title="밸류/퀄리티/어닝 팩터는 FMP API Starter 플랜 이상에서 활성화됩니다">
+          ⚠ 밸류·퀄리티 팩터 비활성 — <span id="screener-fmp-reason">FMP API 상태 확인</span>
+        </span>
+      </div>
     </div>
     <!-- v51.39: 트레이더 스타일 프로파일 선택 -->
     <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:12px;padding:8px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius);">
@@ -10279,7 +10295,7 @@ button[data-filter-active="true"] {
           <tr style="border-bottom:1px solid var(--border);">
             <th colspan="1" style="text-align:center;padding:4px 6px;font-size:9px;color:var(--text-muted);font-weight:500;background:rgba(255,255,255,.02);">★</th>
             <th colspan="4" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(255,255,255,.02);">기본 정보</th>
-            <th colspan="6" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--data-cyan);font-weight:500;letter-spacing:.04em;background:rgba(0,200,220,.04);border-left:1px solid var(--border);">팩터 점수 (0~100)</th>
+            <th colspan="7" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--data-cyan);font-weight:500;letter-spacing:.04em;background:rgba(0,200,220,.04);border-left:1px solid var(--border);">팩터 점수 (0~100)</th>
             <th colspan="4" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(255,255,255,.02);border-left:1px solid var(--border);">시장 데이터</th>
             <th colspan="1" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--data-green);font-weight:500;letter-spacing:.04em;background:rgba(0,229,160,0.04);border-left:1px solid var(--border);">진입</th>
             <th colspan="1" style="text-align:center;padding:4px 8px;font-size:9px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(255,255,255,.02);border-left:1px solid var(--border);">시그널</th>
@@ -10297,6 +10313,7 @@ button[data-filter-active="true"] {
             <th data-scr-sort="value" data-action="_aioScreenerSort" data-arg="value" role="button" title="밸류(저PER/PBR/EV-EBITDA) — FMP 키 필요" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">밸류<span class="scr-arrow"></span></th>
             <th data-scr-sort="quality" data-action="_aioScreenerSort" data-arg="quality" role="button" title="퀄리티(ROE/마진/매출성장) — FMP 키 필요" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">퀄리티<span class="scr-arrow"></span></th>
             <th data-scr-sort="kalman" data-action="_aioScreenerSort" data-arg="kalman" role="button" title="칼만 추세 속도 — 양수=상승, 음수=하락." style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">K-vel<span class="scr-arrow"></span></th>
+            <th data-scr-sort="vcpScore" data-action="_aioScreenerSort" data-arg="vcpScore" role="button" title="VCP(Volatility Contraction Pattern) — Minervini 방법론. Stage2+수축+거래량고갈+피벗 점수 (0~100). 서버 팩터 파일 필요." style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">VCP<span class="scr-arrow"></span></th>
             <th data-scr-sort="ret3m" data-action="_aioScreenerSort" data-arg="ret3m" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);">3M<span class="scr-arrow"></span></th>
             <th data-scr-sort="rsi" data-action="_aioScreenerSort" data-arg="rsi" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">RSI<span class="scr-arrow"></span></th>
             <th data-scr-sort="mcap" data-action="_aioScreenerSort" data-arg="mcap" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">시총<span class="scr-arrow"></span></th>
@@ -10306,7 +10323,7 @@ button[data-filter-active="true"] {
             <th style="text-align:left;padding:7px 8px;font-size:10px;min-width:110px;border-left:1px solid var(--border);">최신뉴스</th>
           </tr>
         </thead>
-        <tbody id="screener-results-body"><tr><td colspan="18" style="text-align:center;padding:20px;color:var(--text-muted);">조건을 선택하면 스크리닝 결과를 표시합니다.</td></tr></tbody>
+        <tbody id="screener-results-body"><tr><td colspan="19" style="text-align:center;padding:20px;color:var(--text-muted);">조건을 선택하면 스크리닝 결과를 표시합니다.</td></tr></tbody>
       </table>
     </div>
     <div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.7;">★ = 개인 워치리스트 · <b>진입?</b> = RSI·랭크·모멘텀 조합 타이밍 신호 (참고용, 단독 매매 근거 아님). 서버 팩터 파일 미수신 시 랭크·백테스트 비활성화. 밸류·퀄리티 ‘—‘는 FMP 미수신. <b>K-vel</b>은 칼만 추세 속도(서버 팩터 파일 필요).</div>
@@ -12240,9 +12257,9 @@ button[data-filter-active="true"] {
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.63"></script>
-  <script src="./js/aio-data.js?v=51.63"></script>
-  <script src="./js/aio-ui.js?v=51.63"></script>
+  <script src="./js/aio-core.js?v=51.70"></script>
+  <script src="./js/aio-data.js?v=51.70"></script>
+  <script src="./js/aio-ui.js?v=51.70"></script>
 
   <script>
 
@@ -15439,7 +15456,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.63"></script>
+<script src="./js/aio-chat.js?v=51.70"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28028,7 +28045,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.63"></script>
+<script src="./js/aio-glossary.js?v=51.70"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -29272,6 +29289,15 @@ async function analyzeTickerDeep(ticker) {
   var bb = _calcBB(c, 20, 2);
   var instEngine = _buildMinerviniTechnicalEngine(o, h, l, c, v);
 
+  // v51.70: calcTechnicalSnapshot 연동 — RSI다이버전스·주봉컨텍스트 상세화
+  var snap = null;
+  try {
+    if (typeof window.calcTechnicalSnapshot === 'function' && _raw.length >= 60) {
+      var _snapBars = _raw.map(function(d) { return { close: d.c, open: d.o, high: d.h || d.c, low: d.l || d.c, volume: d.v || 0 }; });
+      snap = window.calcTechnicalSnapshot(_snapBars);
+    }
+  } catch(_e) { snap = null; }
+
   var currentPrice = c[c.length - 1];
   var priceChange = c.length > 1 ? ((c[c.length - 1] - c[c.length - 2]) / c[c.length - 2]) * 100 : 0;
   var marketScore = null, marketBand = '시장 점수 미확인';
@@ -29410,14 +29436,58 @@ async function analyzeTickerDeep(ticker) {
     '</div>';
   }
 
-  // Divergence row
-  if (divData.bearishDiv || divData.bullishDiv) {
+  // RSI 다이버전스 (v51.70: calcTechnicalSnapshot 연동 상세화)
+  var _rsiDivObj = (snap && snap.rsiDiv) ? snap.rsiDiv : null;
+  var _rsiDivSig = _rsiDivObj ? _rsiDivObj.signal : (divData.bullishDiv ? 'bullish' : divData.bearishDiv ? 'bearish' : 'none');
+  var _rsiDivColor = (_rsiDivSig === 'bullish' || _rsiDivSig === 'hidden_bullish') ? 'var(--data-green)' : (_rsiDivSig === 'bearish' || _rsiDivSig === 'hidden_bearish') ? 'var(--data-red)' : 'var(--text-muted)';
+  var _rsiDivLabel = _rsiDivSig === 'bullish' ? '강세 다이버전스' : _rsiDivSig === 'bearish' ? '약세 다이버전스' : _rsiDivSig === 'hidden_bullish' ? '히든 강세 다이버전스' : _rsiDivSig === 'hidden_bearish' ? '히든 약세 다이버전스' : '없음';
+  var _rsiDivNote = _rsiDivSig === 'bullish' ? '가격 저저(LL) + RSI 고저(HL) — 하방 모멘텀 약화, 반등 가능' :
+    _rsiDivSig === 'bearish' ? '가격 고고(HH) + RSI 저고(LH) — 상승 모멘텀 약화, 조정 주의' :
+    _rsiDivSig === 'hidden_bullish' ? '가격 고저(HL) + RSI 저저(LL) — 상승 추세 지속 강화 신호' :
+    _rsiDivSig === 'hidden_bearish' ? '가격 저고(LH) + RSI 고고(HH) — 하락 추세 지속 경고' :
+    'RSI와 가격 방향 일치 — 뚜렷한 다이버전스 없음';
+  html += '<div style="background:var(--surface-1);border:1px solid ' + (_rsiDivSig !== 'none' ? _rsiDivColor : 'var(--border)') + '50;border-radius:3px;padding:10px;margin-bottom:8px;font-size:11px;">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+      '<div style="font-weight:900;color:var(--text-bright);">RSI 다이버전스</div>' +
+      '<div style="font-family:var(--font-mono);font-weight:900;font-size:12px;color:' + _rsiDivColor + ';">' + _rsiDivLabel + '</div>' +
+    '</div>' +
+    '<div style="color:var(--text-muted);">' + _rsiDivNote + '</div>' +
+  '</div>';
+
+  // 주봉 컨텍스트 (v51.70: calcTechnicalSnapshot weeklyCtx — 일봉 5일 집계 시뮬레이션)
+  if (snap && snap.weeklyCtx) {
+    var _wc = snap.weeklyCtx;
+    var _wTrendColor = _wc.wTrend === 'bullish' ? 'var(--data-green)' : _wc.wTrend === 'bearish' ? 'var(--data-red)' : 'var(--text-muted)';
+    var _wTrendLabel = _wc.wTrend === 'bullish' ? '주봉 상승' : _wc.wTrend === 'bearish' ? '주봉 하락' : '—';
+    var _wSma20s = _wc.wSma20 ? '$' + _wc.wSma20.toFixed(2) : '—';
+    var _wSma50s = _wc.wSma50 ? '$' + _wc.wSma50.toFixed(2) : '—';
+    var _wRsis = _wc.wRsi14 ? _wc.wRsi14.toFixed(1) : '—';
+    var _wPrices = _wc.wClose ? '$' + _wc.wClose.toFixed(2) : '—';
+    var _wSma20Col = (_wc.wClose && _wc.wSma20) ? (_wc.wClose >= _wc.wSma20 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+    var _wSma50Col = (_wc.wClose && _wc.wSma50) ? (_wc.wClose >= _wc.wSma50 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+    var _wRsiCol = _wc.wRsi14 ? (_wc.wRsi14 >= 70 ? 'var(--data-red)' : _wc.wRsi14 <= 30 ? 'var(--data-green)' : 'var(--data-amber)') : 'var(--text-muted)';
     html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:8px;font-size:11px;">' +
-      '<div style="font-weight:900;color:var(--text-bright);margin-bottom:4px;">RSI 다이버전스</div>' +
-      '<div style="color:var(--text-muted);">' +
-        (divData.bearishDiv ? '약세 다이버전스 감지 ' : '') +
-        (divData.bullishDiv ? '강세 다이버전스 감지 ' : '') +
-        (!divData.bearishDiv && !divData.bullishDiv ? '감지 안 됨' : '') +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+        '<div style="font-weight:900;color:var(--text-bright);">주봉 컨텍스트 <span style="font-size:9px;color:var(--text-muted);font-weight:400;">(일봉 5일 집계)</span></div>' +
+        '<div style="font-family:var(--font-mono);font-weight:900;font-size:12px;color:' + _wTrendColor + ';">' + _wTrendLabel + '</div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">' +
+        '<div style="background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:3px;padding:7px;text-align:center;">' +
+          '<div style="color:var(--text-muted);margin-bottom:3px;">주봉 종가</div>' +
+          '<div style="font-family:var(--font-mono);font-weight:700;color:var(--text-bright);">' + _wPrices + '</div>' +
+        '</div>' +
+        '<div style="background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:3px;padding:7px;text-align:center;">' +
+          '<div style="color:var(--text-muted);margin-bottom:3px;">주봉 SMA20</div>' +
+          '<div style="font-family:var(--font-mono);font-weight:700;color:' + _wSma20Col + ';">' + _wSma20s + '</div>' +
+        '</div>' +
+        '<div style="background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:3px;padding:7px;text-align:center;">' +
+          '<div style="color:var(--text-muted);margin-bottom:3px;">주봉 SMA50</div>' +
+          '<div style="font-family:var(--font-mono);font-weight:700;color:' + _wSma50Col + ';">' + _wSma50s + '</div>' +
+        '</div>' +
+        '<div style="background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);border-radius:3px;padding:7px;text-align:center;">' +
+          '<div style="color:var(--text-muted);margin-bottom:3px;">주봉 RSI</div>' +
+          '<div style="font-family:var(--font-mono);font-weight:700;color:' + _wRsiCol + ';">' + _wRsis + '</div>' +
+        '</div>' +
       '</div>' +
     '</div>';
   }
