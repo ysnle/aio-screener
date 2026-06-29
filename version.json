@@ -1,1 +1,1 @@
-{"version":"v51.61","built":"2026-06-29T08:48:00+09:00","note":"v51.61 DATA_SNAPSHOT 전체 갱신: 2026-06-28 종가 반영(KOSPI -7.1%, NASDAQ -4.6%, NVDA -8.6% Apple CXMT 반도체 쇼크). F&G 25 극단공포, WTI $69.85, TNX 4.37%, 글로벌 지수·크립토·breadth 전면 동기화."}
+{"version":"v51.62","built":"2026-06-29T09:30:00+09:00","note":"v51.62 구조적 데이터 동기화 브릿지: applyLiveQuotes()에 _LIVE_SNAP_MAP 추가 — 라이브 시세 수신 시 DATA_SNAPSHOT 자동 갱신 후 applyDataSnapshot() 재호출로 data-snap/data-live-price 항상 동일 시각 반영"}

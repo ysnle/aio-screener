@@ -14470,6 +14470,29 @@ function applyLiveQuotes(quotes) {
   // v30.11: 데이터 출처 추적 — 'live:yahoo' | 'live:coingecko' | 'fx:open.er-api' | 'snapshot'
   window._dataSource = window._dataSource || {};
   const now = Date.now();
+  // v51.61: Yahoo symbol → [DATA_SNAPSHOT priceKey, pctKey] 매핑
+  // data-live-price와 data-snap이 항상 동일 시각의 데이터를 표시하기 위한 구조적 브릿지
+  var _LIVE_SNAP_MAP = {
+    '^GSPC':    ['spx',      'spxPct'],
+    '^IXIC':    ['nasdaq',   'nasdaqPct'],
+    '^DJI':     ['dow',      'dowPct'],
+    '^RUT':     ['rut',      'rutPct'],
+    '^VIX':     ['vix',      'vixPct'],
+    '^KS11':    ['kospi',    'kospiPct'],
+    '^KQ11':    ['kosdaq',   'kosdaqPct'],
+    'CL=F':     ['wti',      'wtiPct'],
+    'BZ=F':     ['brent',    'brentPct'],
+    'GC=F':     ['gold',     'goldPct'],
+    'KRW=X':    ['krw',      'krwPct'],
+    'DX-Y.NYB': ['dxy',      'dxyPct'],
+    '^TNX':     ['tnx2y',    null],
+    '^N225':    ['nikkei',   'nikkeiPct'],
+    '^HSI':     ['hangseng', 'hangsengPct'],
+    '^FTSE':    ['ftse',     'ftsePct'],
+    'BTC-USD':  ['btc',      'btcPct'],
+    'ETH-USD':  ['eth',      'ethPct'],
+    'SI=F':     ['silver',   'silverPct']
+  };
 
   quotes.forEach(q => {
     const rawPct = q.regularMarketChangePercent;
@@ -14485,6 +14508,17 @@ function applyLiveQuotes(quotes) {
       window.DATA_SNAPSHOT.vvix = price;
       window.DATA_SNAPSHOT._fallback = window.DATA_SNAPSHOT._fallback || {};
       window.DATA_SNAPSHOT._fallback.vvix = price;
+    }
+    // v51.61: 주요 시세 → DATA_SNAPSHOT 실시간 동기화
+    // data-live-price와 data-snap 요소가 항상 같은 시각의 데이터를 반영하도록 구조적 브릿지
+    if (window.DATA_SNAPSHOT && _LIVE_SNAP_MAP[q.symbol]) {
+      var _lsm = _LIVE_SNAP_MAP[q.symbol];
+      window.DATA_SNAPSHOT[_lsm[0]] = price;
+      if (_lsm[1] && hasPct) window.DATA_SNAPSHOT[_lsm[1]] = parseFloat(pct.toFixed(2));
+      if (q.symbol === 'KRW=X') window.DATA_SNAPSHOT.krwRound = Math.round(price);
+      if (q.symbol === 'GC=F' && hasPct) window.DATA_SNAPSHOT.goldWeeklyPct = parseFloat(pct.toFixed(2));
+      if (q.symbol === '^KS11') { var _ksPrev = q.regularMarketPreviousClose || q.chartPreviousClose; if (_ksPrev > 0) window.DATA_SNAPSHOT.kospiPrev = _ksPrev; }
+      if (q.symbol === '^KQ11') { var _kqPrev = q.regularMarketPreviousClose || q.chartPreviousClose; if (_kqPrev > 0) window.DATA_SNAPSHOT.kosdaqPrev = _kqPrev; }
     }
     window._previousPrices[q.symbol] = price;
     // v36.6: 프리/애프터마켓 시세 저장 (미국장 마감 후 방향성 추적)
@@ -14878,6 +14912,12 @@ function applyLiveQuotes(quotes) {
 
   // v35.8: 실시간 브리핑 갱신
   if (typeof generateDynamicBriefing === 'function') generateDynamicBriefing();
+
+  // v51.61: DATA_SNAPSHOT 일괄 갱신 후 data-snap DOM 요소 재동기화
+  // 모든 페이지의 data-snap 값이 data-live-price와 동일 시점 데이터를 표시
+  try {
+    if (typeof applyDataSnapshot === 'function') applyDataSnapshot(window.DATA_SNAPSHOT);
+  } catch(_snapRefreshErr) {}
 }
 
 // ═══ v35.8: 동적 시장 브리핑 생성기 ═══════════════════════════════════

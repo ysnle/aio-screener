@@ -1,4 +1,7 @@
-﻿## v51.61 (2026-06-29)
+﻿## v51.62 (2026-06-29)
+- **구조적 데이터 동기화 브릿지**: `applyLiveQuotes()`(aio-data.js)에 `_LIVE_SNAP_MAP` 19개 심볼 매핑 테이블 추가. 라이브 시세(data.json/Yahoo 폴링)가 수신될 때마다 `DATA_SNAPSHOT[priceKey]`·`[pctKey]`를 자동 갱신 후 `applyDataSnapshot()` 재호출. 결과: `data-live-price`와 `data-snap` 속성이 항상 동일 시각의 시세를 표시 — 누구는 2일 전, 누구는 5일 전 같은 중구난방 불일치 구조적 제거. 매핑 심볼: ^GSPC/^IXIC/^DJI/^RUT/^VIX/^KS11/^KQ11/CL=F/BZ=F/GC=F/KRW=X/DX-Y.NYB/^TNX/^N225/^HSI/^FTSE/BTC-USD/ETH-USD/SI=F. 특수 처리: KRW→krwRound 반올림, GC=F→goldWeeklyPct, KS11/KQ11→kospiPrev/kosdaqPrev
+- R1 7곳 v51.62
+## v51.61 (2026-06-29)
 - **DATA_SNAPSHOT 전면 갱신 (2026-06-28 종가)**: Apple CXMT DRAM 채택 검토 보도로 인한 반도체 쇼크(NVDA -8.62%, SMH -7.31%, AAPL -4.78%) 및 이란/호르무즈 개방 유가 하락 완전 반영. SPX 7354(-1.95%), NASDAQ 25298(-4.60%), KOSPI 8411(-7.08%), KOSDAQ 851(-11.92%), VIX 18.41(+6.54%), F&G 25 극단공포, WTI $69.85(-4.59%), Brent $73.09(-5.18%), Gold $4072(-1.41%), TNX 4.37%(-3.04%), DXY 101.38(-0.03%), KRW 1535(-0.26%), VVIX 89.02. 글로벌: Nikkei 69361(-4.14%), HangSeng 22672(-5.24%), FTSE 10508(+1.40%). 크립토: BTC 59648(-2.21%), ETH 1573(-2.92%), Silver 59.01(-4.85%). VKOSPI 28.5 추정(KOSPI -7.1% 반영). breadth5sma 28/20sma 42/50sma 45 추정. CPI 4.2%/PCE 4.1%(FRED data.json 동기화). currentTopic CXMT 반도체 쇼크 업데이트. 타임스탬프 전면 2026-06-28/29로 교체
 - R1 7곳 v51.61
 ## v51.60 (2026-06-29)
