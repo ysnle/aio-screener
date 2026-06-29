@@ -1,4 +1,7 @@
-﻿## v51.62 (2026-06-29)
+﻿## v51.63 (2026-06-29)
+- **DATA_SNAPSHOT 구조 수정 + Pct 일간/주간 혼용 정정**: v51.61에서 `nasdaq`/`dow`/`rut`/`vix`/`kosdaq`/`brent`/`gold`/`dxy` 등 8개 핵심 속성이 한 줄에 `//` 주석과 다른 속성을 혼합 기재하면서 주석 내에 묻혀 실제 JS 프로퍼티로 미정의되던 버그 수정(각 속성을 별도 행으로 분리). `*Pct` 값은 data.json의 `regularMarketChangePercent`가 주간(weekly) 변동률이었으나 일간(daily)으로 잘못 사용한 것을 정정: `spxPct` -1.95→-0.05(당일), `nasdaqPct` -4.60→-0.24(당일), `dowPct` +0.60→-0.09(당일), `vixPct` +6.54→-2.54(당일), `kospiPct` -7.08→-5.81(당일), `kosdaqPct` -11.92→-4.10(당일). `kospiPrev` 9052→8930, `kosdaqPrev` 967→888 재산출. Apple CXMT 서사 수정: AAPL 실제 +3.1%(이중공급망 긍정). `vkospi` 28.5→27.0, `breadth5sma` 28→32, `breadth20sma` 42→38, `breadth50sma` 45→48 추정치 보정. `_marketDataDate` '2026-06-28'→'2026-06-26'(실제 금요일 종가 날짜). 2026-06-26 종가 기준
+- R1 7곳 v51.63
+## v51.62 (2026-06-29)
 - **구조적 데이터 동기화 브릿지**: `applyLiveQuotes()`(aio-data.js)에 `_LIVE_SNAP_MAP` 19개 심볼 매핑 테이블 추가. 라이브 시세(data.json/Yahoo 폴링)가 수신될 때마다 `DATA_SNAPSHOT[priceKey]`·`[pctKey]`를 자동 갱신 후 `applyDataSnapshot()` 재호출. 결과: `data-live-price`와 `data-snap` 속성이 항상 동일 시각의 시세를 표시 — 누구는 2일 전, 누구는 5일 전 같은 중구난방 불일치 구조적 제거. 매핑 심볼: ^GSPC/^IXIC/^DJI/^RUT/^VIX/^KS11/^KQ11/CL=F/BZ=F/GC=F/KRW=X/DX-Y.NYB/^TNX/^N225/^HSI/^FTSE/BTC-USD/ETH-USD/SI=F. 특수 처리: KRW→krwRound 반올림, GC=F→goldWeeklyPct, KS11/KQ11→kospiPrev/kosdaqPrev
 - R1 7곳 v51.62
 ## v51.61 (2026-06-29)

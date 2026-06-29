@@ -2,11 +2,23 @@
 verified_by: agent
 last_verified: 2026-06-27
 confidence: high
-latest_version: v51.47
-latest_P_number: P542
-total_entries: 541
-next_P_number: P543
+latest_version: v51.63
+latest_P_number: P544
+total_entries: 543
+next_P_number: P545
 ---
+
+## P544 - v51.63 - DATA_SNAPSHOT *Pct 값이 주간 변동률로 채워져 일간 변동률 오표시
+- **발생**: v51.61에서 data.json의 `regularMarketChangePercent`를 일간 변동률로 사용했으나 실제로는 Yahoo Finance가 주간(weekly) 변동률을 반환. 결과: `spxPct -1.95`(주간)가 당일 -0.05%로 오표시, `nasdaqPct -4.60`(주간)이 당일 -0.24%로 오표시 등.
+- **원인**: Yahoo Finance `regularMarketChangePercent` 필드는 주말(토·일) 수집 시 직전 주 대비 변동률을 반환하는 경우 있음. 스크립트가 이를 구분하지 않고 일간으로 처리.
+- **수정**: v51.63에서 실측 일간 값으로 정정. spxPct -1.95→-0.05, nasdaqPct -4.60→-0.24, dowPct +0.60→-0.09, vixPct +6.54→-2.54, kospiPct -7.08→-5.81, kosdaqPct -11.92→-4.10.
+- **예방**: data.json 갱신 시 `regularMarketChangePercent` 가 주간/일간 어느 것인지 날짜로 교차 검증 필요.
+
+## P543 - v51.63 - nasdaq/dow/rut/vix/kosdaq/brent/gold/dxy가 // 주석 내에 묻혀 JS 프로퍼티 미정의
+- **발생**: v51.61 DATA_SNAPSHOT 수정 시 한 줄에 여러 속성을 `//` 주석으로 구분 기재. JavaScript `//`는 그 줄 끝까지 주석 처리하므로 첫 `//` 이후의 속성들(`nasdaq`, `dow`, `rut`, `vix`, `kosdaq`, `brent`, `gold`, `dxy`)이 모두 주석 내 텍스트로 처리돼 `DATA_SNAPSHOT`에 미정의.
+- **원인**: 단일 긴 줄에 "`속성, // 주석 속성, // 주석`" 패턴 기재 시 두 번째 속성부터 주석 처리됨. 파일 Read 도구가 이를 하나의 긴 줄로 렌더링해 시각적으로 구분이 어려웠음.
+- **수정**: v51.63에서 각 속성 쌍을 별도 행으로 분리하여 실제 JS 프로퍼티로 정의.
+- **예방**: DATA_SNAPSHOT 수정 시 한 줄에 `//` 이후에 속성을 절대 혼합하지 말 것. 각 속성 그룹은 항상 별도 행으로 기재.
 
 ## P542 - v51.47 - Screener watchdog 48h exit gate missing
 
