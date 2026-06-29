@@ -1,4 +1,7 @@
-﻿## v51.59 (2026-06-29)
+﻿## v51.60 (2026-06-29)
+- **UI 잡음 추가 제거**: 홈 매매신호 카드 `가중치:` 공식 3줄(추세/퀄리티/레짐 가중치) HTML 직접 제거. briefing 페이지 `지난 24시간 핵심 뉴스를 테마별로 정리합니다.` 설명 박스 HTML 제거. breadth 페이지 `#breadth-5sma-note`·`#breadth-20sma-note` CSS `display:none` 추가
+- R1 7곳 v51.60
+## v51.59 (2026-06-29)
 - **전 페이지 잡음 제거**: dual-verdict 4페이지(home/signal/sentiment/macro) 구 conclusion-bar CSS `display:none` 처리. `.aio-why` 설명 블록 전 페이지 CSS 숨김. `.tg-feed-more`("전체 채널 피드 →") CSS 숨김. cross-link 내비행 8곳 HTML 직접 제거(signal/breadth/briefing/technical/macro/fxbond/fundamental/screener). fxbond/guide insight-box 미적용 문제: `.aio-page-advanced-body .insight-box { display:none !important }` 추가(specificity 우선 수정)
 - R1 7곳 v51.59
 ## v51.58 (2026-06-28)

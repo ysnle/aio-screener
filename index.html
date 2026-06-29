@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.59 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.60 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -1984,6 +1984,8 @@ body {
 .aio-why { display: none !important; }
 .tg-feed-more { display: none !important; }
 #fg-signal-link { display: none !important; }
+/* v51.60: breadth 설명 note 박스 숨김 */
+#breadth-5sma-note, #breadth-20sma-note { display: none !important; }
 
 /* v48.42: Home quick nav — aio-btn 정렬 */
 .home-qnav-btn {
@@ -5126,7 +5128,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.59</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.60</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5189,8 +5191,6 @@ button[data-filter-active="true"] {
       <div id="home-trading-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">
         핵심 수치 연결 확인 중
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">가중치: 추세 8 + 상대강도 4 + 거래량 3 + 변동성 3 + 돌파 2 = 20점</div>
-      <div class="aio-why">세부 근거는 <span data-action="showPage" data-arg="signal" style="cursor:pointer;color:var(--accent);text-decoration:underline;">시그널 페이지 ② 팩터 분해 →</span></div>
     </div>
 
     <!-- 시장 품질 스코어 (Secondary) -->
@@ -5206,7 +5206,6 @@ button[data-filter-active="true"] {
         <div class="aio-metric-value" id="home-quality-score" style="color:var(--text-muted);font-size:20px;font-weight:800;">—</div>
       </div>
       <div id="home-quality-label" style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:var(--space-2);font-weight:600;letter-spacing:var(--ls-wide);">판정 입력 대기...</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">가중치: 50MA% 25 + A/D 20 + NHNL 20 + McClellan 20 + RSP/SPY 15 = 100</div>
     </div>
 
     <!-- 시장 국면 (Secondary) -->
@@ -5215,7 +5214,6 @@ button[data-filter-active="true"] {
       <div class="aio-card-title">시장 국면 (Regime)</div>
       <div class="aio-metric-value is-sm" id="home-market-regime" style="color:var(--data-green);margin-bottom:4px;letter-spacing:0.02em;font-size:20px;font-weight:800;">UPTREND</div>
       <div id="home-regime-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">ATH 근접 · VIX 18↓ (정상 Risk-On) · 단기 과열 경계</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">가중치: 200MA slope 30 + price vs 200MA 25 + Breadth 25 + VIX 20 = 100</div>
     </div>
   </div>
 
@@ -6739,9 +6737,6 @@ button[data-filter-active="true"] {
         <span style="font-size:11px;color:var(--data-amber);background:rgba(255,163,26,0.1);border:1px solid rgba(255,163,26,0.2);padding:1px 6px;border-radius:3px;font-weight:700;">1일 1회 · 08:00 KST</span>
         <span id="briefing-24h-count" style="font-size:11px;color:var(--data-cyan);font-family:var(--font-mono);background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:4px;padding:2px 8px;">-</span>
         <span id="briefing-24h-ts" style="font-size:11px;color:var(--text-muted);margin-left:auto;font-family:var(--font-mono);">갱신 대기중</span>
-      </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;padding:5px 8px;background:var(--surface-1);border-radius:3px;">
-        지난 24시간 핵심 뉴스를 테마별로 정리합니다.
       </div>
       <div id="tg-feed-briefing"></div>
       <!-- v51.56: 텔레그램 한국어 다이제스트 구조화 브리핑 (Weekend Summary / Market Summary 파싱) -->
@@ -12245,9 +12240,9 @@ button[data-filter-active="true"] {
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.59"></script>
-  <script src="./js/aio-data.js?v=51.59"></script>
-  <script src="./js/aio-ui.js?v=51.59"></script>
+  <script src="./js/aio-core.js?v=51.60"></script>
+  <script src="./js/aio-data.js?v=51.60"></script>
+  <script src="./js/aio-ui.js?v=51.60"></script>
 
   <script>
 
@@ -15444,7 +15439,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.59"></script>
+<script src="./js/aio-chat.js?v=51.60"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28033,7 +28028,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.59"></script>
+<script src="./js/aio-glossary.js?v=51.60"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
