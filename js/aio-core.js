@@ -3664,6 +3664,99 @@ function _aioDecisionAsOf(kind) {
   return '미수신';
 }
 
+window.AIO_PAGE_EVIDENCE_CONTRACT = {
+  home: { caveat: '시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다.' },
+  signal: { caveat: '신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다.' },
+  breadth: { maxSourceKind: 'SNAPSHOT', caveat: 'Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다.' },
+  sentiment: { maxSourceKind: 'SNAPSHOT', caveat: 'F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다.' },
+  briefing: { maxSourceKind: 'DELAYED', caveat: '브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다.' },
+  'market-news': { maxSourceKind: 'DELAYED', caveat: '뉴스는 08:00 KST 완료 24h 구간 기준이며 미검증/2차 소스는 매매 근거에서 제외합니다.' },
+  technical: { maxSourceKind: 'DELAYED', caveat: '기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다.' },
+  screener: { maxSourceKind: 'DELAYED', caveat: '스크리너 랭크는 생성 스냅샷과 live 보강값을 함께 표시합니다.' },
+  ticker: { maxSourceKind: 'DELAYED', requireLiveDom: true, emptyKind: 'UNAVAILABLE', caveat: '티커 선택과 현재 시세 수신 전에는 매수/매도 결론을 만들지 않습니다.' },
+  portfolio: { maxSourceKind: 'DELAYED', caveat: '가격 fallback 티커는 포트폴리오 판단에서 신뢰도를 낮춥니다.' },
+  themes: { maxSourceKind: 'DELAYED', caveat: '테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다.' },
+  'theme-detail': { maxSourceKind: 'SNAPSHOT', caveat: '테마 상세는 선택 테마의 리더/후발/촉매를 비교하는 보드이며 live 가격이 없으면 참고용입니다.' },
+  macro: { maxSourceKind: 'SNAPSHOT', caveat: 'FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다.' },
+  fxbond: { maxSourceKind: 'DELAYED', caveat: '금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다.' },
+  fundamental: { maxSourceKind: 'DELAYED', requireLiveDom: true, emptyKind: 'UNAVAILABLE', caveat: '티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다.' },
+  options: { maxSourceKind: 'REFERENCE', caveat: '실시간 옵션 체인 자동 수집은 제한되어 sentiment/volatility 확인용으로만 둡니다.' },
+  guide: { maxSourceKind: 'REFERENCE', caveat: '가이드 페이지는 방법론 문서이며 현재 시장 데이터 판단 페이지가 아닙니다.' },
+  'kr-home': { maxSourceKind: 'SNAPSHOT', caveat: '한국장은 환율/수급/지수 일부가 스냅샷 또는 fallback일 수 있어 강한 결론을 보류합니다.' },
+  'kr-supply': { maxSourceKind: 'SNAPSHOT', caveat: '국내 수급 API 실패 시 정적 스냅샷은 참고용이며 현재 매매 판단에서 제외합니다.' },
+  'kr-themes': { maxSourceKind: 'SNAPSHOT', caveat: '국내 테마 live 커버리지 부족 시 평균 0%/중립 결론을 숨기고 후보 탐색용으로만 사용합니다.' },
+  'kr-macro': { maxSourceKind: 'SNAPSHOT', caveat: '한국 매크로는 발표 주기와 스냅샷 기준일을 확인한 뒤 해석합니다.' },
+  'kr-technical': { maxSourceKind: 'SNAPSHOT', caveat: '한국 기술 분석은 종목별 live 수신 전 거래 계획 생성을 보류합니다.' }
+};
+
+function _aioSourceRank(kind) {
+  return ({ LIVE: 5, DELAYED: 4, SNAPSHOT: 3, REFERENCE: 2, UNAVAILABLE: 1 })[String(kind || '').toUpperCase()] || 1;
+}
+
+function _aioLimitSourceKind(kind, maxKind) {
+  kind = String(kind || 'SNAPSHOT').toUpperCase();
+  maxKind = String(maxKind || kind).toUpperCase();
+  return _aioSourceRank(kind) > _aioSourceRank(maxKind) ? maxKind : kind;
+}
+
+window.AIO.getPageEvidenceState = function(pageId, proposedKind) {
+  pageId = String(pageId || 'home').replace(/^page-/, '');
+  var contract = (window.AIO_PAGE_EVIDENCE_CONTRACT || {})[pageId] || {};
+  var page = typeof document !== 'undefined' ? document.getElementById('page-' + pageId) : null;
+  var liveDom = 0, snapshotDom = 0, referenceDom = 0, unavailableDom = 0;
+  if (page && page.querySelectorAll) {
+    try {
+      page.querySelectorAll('[data-live-price],[data-live-change],[data-source-kind]').forEach(function(el) {
+        var k = String(el.getAttribute('data-source-kind') || '').toLowerCase();
+        var txt = String(el.textContent || '').trim();
+        if (/^(live|derived|primary|exchange|proxy|cache)$/.test(k)) liveDom++;
+        else if (/snapshot|fallback|static/.test(k)) snapshotDom++;
+        else if (/reference|rule/.test(k)) referenceDom++;
+        else if (/unavailable|blocked|missing/.test(k) || txt === '-' || txt === '—' || /대기|미수신|없음|실패/.test(txt)) unavailableDom++;
+        else if (el.hasAttribute('data-live-price') && txt && txt !== '—') liveDom++;
+      });
+    } catch(_) {}
+  }
+  var sourceKind = String(proposedKind || contract.maxSourceKind || 'SNAPSHOT').toUpperCase();
+  sourceKind = _aioLimitSourceKind(sourceKind, contract.maxSourceKind || sourceKind);
+  if (contract.requireLiveDom && liveDom === 0) sourceKind = contract.emptyKind || 'UNAVAILABLE';
+  if (pageId === 'ticker' && page) {
+    try {
+      var actionTxt = (document.getElementById('ticker-action-btn') || {}).textContent || '';
+      var supportTxt = (document.getElementById('ticker-m-support') || {}).textContent || '';
+      var peTxt = (document.getElementById('ticker-m-pe') || {}).textContent || '';
+      if (/계획 대기|대기|—|-/.test(actionTxt) || /—|-/.test(supportTxt + peTxt)) sourceKind = 'UNAVAILABLE';
+    } catch(_) {}
+  }
+  if (pageId === 'fundamental' && page) {
+    try {
+      if (/티커 입력|데이터 로딩|API 키|—/.test(String(page.textContent || '').slice(0, 3000))) sourceKind = _aioLimitSourceKind(sourceKind, 'SNAPSHOT');
+    } catch(_) {}
+  }
+  if (pageId === 'theme-detail' && !window._currentThemeId && liveDom === 0) sourceKind = 'REFERENCE';
+  if (pageId === 'market-news') {
+    try {
+      var audit = window.AIO.getNewsSelectionAudit ? window.AIO.getNewsSelectionAudit() : null;
+      if (audit && audit.marketNewsEligible === 0) sourceKind = 'SNAPSHOT';
+    } catch(_) {}
+  }
+  var blockers = [];
+  if (contract.requireLiveDom && liveDom === 0) blockers.push('live-dom-empty');
+  if (unavailableDom > liveDom && unavailableDom > 3) blockers.push('visible-unavailable-values');
+  return {
+    pageId: pageId,
+    sourceKind: sourceKind,
+    caveat: contract.caveat || '',
+    liveDom: liveDom,
+    snapshotDom: snapshotDom,
+    referenceDom: referenceDom,
+    unavailableDom: unavailableDom,
+    blockers: blockers,
+    asOf: _aioDecisionAsOf(sourceKind),
+    confidence: _aioDecisionConfidence(sourceKind, pageId.indexOf('kr-') === 0 ? 70 : 84)
+  };
+};
+
 function _aioDefaultDecision(pageId) {
   var snap = window.DATA_SNAPSHOT || {};
   var vix = _aioDecisionMetric('^VIX', 'price', 'vix');
@@ -3862,6 +3955,15 @@ window._aioBuildPageDecision = function(pageId) {
   if (!Array.isArray(d.reasons)) d.reasons = [];
   while (d.reasons.length < 3) d.reasons.push('추가 데이터 확인 필요');
   d.reasons = d.reasons.slice(0, 3);
+  var evidence = null;
+  try { evidence = window.AIO.getPageEvidenceState ? window.AIO.getPageEvidenceState(d.pageId || pageId, d.sourceKind) : null; } catch(_) {}
+  if (evidence) {
+    d.sourceKind = evidence.sourceKind || d.sourceKind;
+    d.asOf = evidence.asOf || d.asOf;
+    d.confidence = evidence.confidence || d.confidence;
+    d.caveat = evidence.caveat || d.caveat;
+    d.evidence = evidence;
+  }
   return {
     pageId: d.pageId || pageId,
     title: d.title || '현재 판단',
@@ -3870,7 +3972,9 @@ window._aioBuildPageDecision = function(pageId) {
     action: d.action || '상세 데이터 확인 후 행동한다.',
     confidence: d.confidence || _aioDecisionConfidence(d.sourceKind || 'SNAPSHOT'),
     asOf: d.asOf || _aioDecisionAsOf(d.sourceKind || 'SNAPSHOT'),
-    sourceKind: d.sourceKind || 'SNAPSHOT'
+    sourceKind: d.sourceKind || 'SNAPSHOT',
+    caveat: d.caveat || '',
+    evidence: d.evidence || null
   };
 };
 
@@ -4350,13 +4454,15 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   var sourceKind = String(d.sourceKind || 'SNAPSHOT').toUpperCase();
   var sourceLabel = sourceLabelMap[sourceKind] || '데이터: 확인 필요';
   // v51.57: 3카드 그리드(왜/오늘행동/데이터기준시각) 제거 — 상단 판단 strip + AI 버튼만 유지
+  var caveatHtml = d.caveat ? '<span class="aio-decision-caveat">' + _aioDecisionEsc(d.caveat) + '</span>' : '';
   var html = ''
     + '<section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(d.sourceKind) + '">'
     + '  <div class="aio-decision-top">'
     + '    <div><div class="aio-decision-kicker">' + _aioDecisionEsc(d.title) + '</div><div class="aio-decision-verdict">' + _aioDecisionEsc(d.decision) + '</div></div>'
     + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span><span class="aio-confidence-badge">신뢰도 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
     + '  </div>'
-    + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : '') + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 분석</button></div>'
+    + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : caveatHtml) + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 분석</button></div>'
+    + (_fomcFootNote && caveatHtml ? '<div class="aio-decision-foot aio-decision-evidence-foot">' + caveatHtml + '</div>' : '')
     + '</section>';
   var operatorNote = pageId === 'home' ? document.getElementById('home-operator-note') : null;
   if (operatorNote && operatorNote.parentNode === page) operatorNote.insertAdjacentHTML('afterend', html);
@@ -4367,6 +4473,34 @@ window._aioRenderPageDecisionHeader = function(pageId) {
     try { window._aioApplyPageBodyRedesign(pageId); } catch(_) {}
   }
   return header;
+};
+
+window.AIO.getPageEvidenceCurrentnessAudit = function() {
+  var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
+    ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
+    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+  var rows = ids.map(function(id) {
+    var d = null;
+    try { d = window._aioBuildPageDecision ? window._aioBuildPageDecision(id) : null; } catch(_) {}
+    var e = d && d.evidence ? d.evidence : (window.AIO.getPageEvidenceState ? window.AIO.getPageEvidenceState(id, d && d.sourceKind) : null);
+    return {
+      pageId: id,
+      sourceKind: e && e.sourceKind || d && d.sourceKind || 'SNAPSHOT',
+      caveat: e && e.caveat || d && d.caveat || '',
+      liveDom: e && e.liveDom || 0,
+      unavailableDom: e && e.unavailableDom || 0,
+      blockers: e && e.blockers || []
+    };
+  });
+  var missingCaveat = rows.filter(function(r) { return !r.caveat; }).map(function(r) { return r.pageId; });
+  var liveOverstatement = rows.filter(function(r) { return r.sourceKind === 'LIVE' && r.unavailableDom > r.liveDom; }).map(function(r) { return r.pageId; });
+  return {
+    status: (!missingCaveat.length && !liveOverstatement.length) ? 'pass' : 'warn',
+    pageCount: rows.length,
+    missingCaveat: missingCaveat,
+    liveOverstatement: liveOverstatement,
+    rows: rows
+  };
 };
 
 function _aioVisualReportModel(pageId) {
@@ -16788,9 +16922,11 @@ function _calcWeeklyContext(bars) {
   return {
     bars: weekBars.length,
     lastWeekClose: lastW.close,
+    wClose: lastW.close,
     prevWeekClose: prevW.close,
     weekGainPct: prevW.close > 0 ? Math.round((lastW.close - prevW.close) / prevW.close * 1000) / 10 : null,
     wSma20: wSma20, wSma50: wSma50, wRsi: wRsi,
+    wRsi14: wRsi,
     aboveW20: wSma20 ? lastW.close >= wSma20 : null,
     aboveW50: wSma50 ? lastW.close >= wSma50 : null,
     wTrend: wTrend
@@ -17353,7 +17489,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.70';
+const APP_VERSION = 'v51.75';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -19180,7 +19316,7 @@ const DATE_ENGINE = (function() {
     if (dow === 0 || dow === 6) return { status: 'closed', label: '주말 휴장' };
     if (!isKrTradingDay(kst)) return { status: 'closed', label: '공휴일 휴장' };
     var t = kst.getHours() * 60 + kst.getMinutes();
-    if (t >= 540 && t < 900) return { status: 'open', label: '장중 (실시간)' };
+    if (t >= 540 && t < 900) return { status: 'open', label: '장중 (source 확인)' };
     if (t >= 900 && t < 930) return { status: 'after', label: '시간외 거래' };
     if (t >= 480 && t < 540) return { status: 'pre', label: '프리마켓' };
     return { status: 'closed', label: '장 마감' };
@@ -22790,6 +22926,22 @@ function showTheme(themeId) {
   document.getElementById('theme-detail-name').textContent = t.name;
   document.getElementById('theme-detail-icon').textContent = t.icon;
   document.getElementById('theme-detail-title').textContent = t.name;
+  var briefEl = document.getElementById('theme-detail-currentness-brief');
+  if (briefEl) {
+    var liveCount = 0;
+    try {
+      ['SMH','SOXX','QQQ','SPY'].forEach(function(sym) {
+        var row = window._liveData && window._liveData[sym];
+        if (row && row.price != null) liveCount++;
+      });
+    } catch(_) {}
+    briefEl.innerHTML = '<div class="dc-title">테마 현재성 요약</div>' +
+      '<div style="font-size:11px;color:var(--text-secondary);line-height:1.7;">' +
+      '<b>' + escHtml(t.name) + '</b>는 리더 상대강도, 2차 후보 확산, 뉴스 촉매, 깨지는 신호를 함께 보는 비교 보드입니다. ' +
+      '현재 대표 ETF/지수 live 수신 ' + liveCount + '/4개 기준이며, 부족하면 SNAPSHOT/REFERENCE로 낮춰 해석합니다. ' +
+      '실행 판단은 스크리너 후보와 티커 페이지의 현재 시세/기술 데이터로 재검증합니다.' +
+      '</div>';
+  }
   showPage('theme-detail', null);
   document.querySelectorAll('.nav-item').forEach(n=>{
     // v48.61 R45: data-arg 기반

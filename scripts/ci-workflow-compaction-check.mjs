@@ -22,7 +22,7 @@ const changelog = read('CHANGELOG.md');
 function findProjectRoot(start) {
   let dir = resolve(start);
   for (let i = 0; i < 8; i += 1) {
-    if (existsSync(join(dir, '.agents', 'skills'))) return dir;
+    if (existsSync(join(dir, '.claude', 'skills'))) return dir;
     const next = dirname(dir);
     if (next === dir) break;
     dir = next;
@@ -49,7 +49,7 @@ const contextStats = contextFiles.map((file) => ({
 
 const projectRoot = findProjectRoot(worktreeRoot);
 const skillFiles = projectRoot
-  ? walkFiles(join(projectRoot, '.agents', 'skills')).filter((file) => basename(file) === 'SKILL.md')
+  ? walkFiles(join(projectRoot, '.claude', 'skills')).filter((file) => basename(file) === 'SKILL.md')
   : [];
 const skillStats = skillFiles.map((file) => ({
   name: file.replace(projectRoot + '\\', '').replace(projectRoot + '/', ''),
@@ -75,7 +75,7 @@ if (oversizedContext.length) {
 if (oversizedSkills.length) {
   warnings.push('Oversized skills: ' + oversizedSkills.map((item) => `${item.name}:${item.lines}l`).join(', '));
 }
-if (!projectRoot) warnings.push('No project-level .agents/skills directory found from worktree root');
+if (!projectRoot) warnings.push('No project-level .claude/skills directory found from worktree root');
 
 if (errors.length) {
   console.error('Workflow compaction check failed:');

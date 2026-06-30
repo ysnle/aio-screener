@@ -1,21 +1,19 @@
-# /version-up — 버전 번호 올리기
+﻿# /version-up
 
-AIO Screener 버전을 올리세요. 인자로 새 버전 번호를 받거나, 자동으로 +0.1 증가합니다.
+Use the project script for version synchronization.
 
-## 절차
-1. 현재 버전 확인 (`const APP_VERSION` 읽기)
-2. 새 버전 계산 (R2 규칙: 소수점 1자리만. 38.9 → 39, 39 → 39.1)
-3. **6곳 동시 업데이트**:
-   - `<title>` 태그
-   - `#app-version-badge` 인라인 텍스트
-   - `const APP_VERSION` JS 상수
-   - `version.json` → version + built + note
-   - `CLAUDE.md` (루트) → 현재 버전
-   - `_context/CLAUDE.md` → 현재 버전
-4. CHANGELOG.md 최상단에 새 버전 헤더 추가
-5. 6곳 동기화 검증 (`grep` 명령으로 확인)
-6. 결과 보고
+## Required Workflow
 
-## 주의
-- 절대 31.10 같은 2자리 소수점 금지 (R2)
-- version.json의 built 필드는 현재 시각(KST)으로 갱신
+1. Choose the next version using R2: one decimal place only. Examples: `31.9 -> 32`, never `31.10`.
+2. Run `node scripts/bump-version.mjs vX.Y` with the bundled Node runtime when `node` is not on PATH.
+3. Update `version.json.note` with the actual change summary.
+4. Ensure `CHANGELOG.md` has the current version entry.
+5. Run `node scripts/ci-version-check.mjs`.
+
+## R1 Surfaces
+
+R1 means 7 synchronized surfaces: title, badge, APP_VERSION, `version.json`, `sw.js`, `CLAUDE.md`, `_context/CLAUDE.md`, plus matching CHANGELOG entry/check where applicable.
+
+## Final Output
+
+Report the new version and the exact validation command result.

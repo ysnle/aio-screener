@@ -1,23 +1,18 @@
-# /deploy — 버전 업 + 커밋 + GitHub Pages 배포
+﻿# /deploy
 
-AIO Screener 배포 워크플로우를 실행하세요:
+Deploy is allowed only when the user explicitly asks for `/deploy`, `deploy`, or `배포해줘`.
 
-1. **버전 동기화 검증** (6곳):
-   - `<title>` 태그
-   - `#app-version-badge` 인라인 텍스트
-   - `const APP_VERSION` JS 상수
-   - `version.json` → version 필드
-   - `CLAUDE.md` (루트) → 현재 버전
-   - `CHANGELOG.md` → 최상단 항목
+## Required Gates
 
-2. **div 균형 확인**: `grep -o '<div' index.html | wc -l` vs `grep -o '</div' index.html | wc -l`
+1. Run `node scripts/ci-version-check.mjs` to verify R1 7 synchronized surfaces.
+2. Run the relevant structural/runtime/data gates for the touched files.
+3. Confirm `CHANGELOG.md` has the current version entry.
+4. Confirm no unverified live/browser claim is included unless live/browser validation actually ran.
 
-3. **Claude Preview 스크린샷**: 로컬 서버에서 렌더링 정상 확인
+## Route
 
-4. **Git 커밋**: 변경 파일 스테이징 + 커밋 메시지 작성
+This is a deployment workflow wrapper, not a skill replacement. If the deploy is part of bug/data/QA work, first follow the matching skill and then run this deploy closeout.
 
-5. **GitHub push**: `git push origin main`
+## Final Output
 
-6. 배포 URL 안내: https://ysnle.github.io/aio-screener/
-
-문제 발견 시 배포 중단하고 보고하세요.
+Report commit/push/deploy status separately from local verification. If deployment is blocked, name the exact blocked command or permission.

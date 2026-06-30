@@ -10485,7 +10485,7 @@ function renderFeed(items) {
     if (currentCountryFilter !== 'all') emptyFilters.push('국가=' + currentCountryFilter);
     if (currentTopicFilter !== 'all') emptyFilters.push('토픽=' + currentTopicFilter);
     if (_newsTypeTab !== 'all') emptyFilters.push('유형=' + _newsTypeTab);
-    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:12px;line-height:1.7;">현재 조건에서 최근 48시간·중요도 30점 이상 뉴스가 없습니다.' +
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:12px;line-height:1.7;">현재 조건에서 08:00 KST 완료 24h · 중요도 30점 이상 뉴스가 없습니다.' +
       (emptyFilters.length ? '<br><span style="font-family:var(--font-mono);font-size:11px;">' + escHtml(emptyFilters.join(' · ')) + '</span><br>필터를 전체로 바꾸거나 새로고침하세요.' : '') + '</div>';
     var emptyCount = document.getElementById('market-news-count');
     if (emptyCount) emptyCount.textContent = '0건';
@@ -11512,7 +11512,9 @@ function computeNewsSentimentScore() {
 function computeNewsRiskSignals() {
   if (!newsCache) return [];
 
-  const recent = filterByAge(newsCache, 48); // 48시간 이내
+  const recent = typeof filterByKst0800NewsCycle === 'function'
+    ? filterByKst0800NewsCycle(newsCache)
+    : filterByAge(newsCache, 24);
   const riskSignals = [];
 
   // 지정학 리스크 카운트

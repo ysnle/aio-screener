@@ -1,4 +1,37 @@
-﻿## v51.70 (2026-06-30)
+## v51.75 (2026-06-30)
+- **Residual currentness cleanup**: Removed remaining static `● LIVE` / `LIVE RSS` / `BUY / LONG` style overstatement from visible page chrome and downgraded labels to source-aware wording.
+- **News 24h contract closure**: KR issue cards and news risk signals now reuse the KST 08:00 completed 24h cycle instead of rolling `filterByAge(newsCache, 48)`.
+- **Regression gates**: runtime/data contract checks now fail on visible static live/action overstatement and direct rolling 48h newsCache reuse.
+- P550/R238/QA v51.75 added. R1 7 surfaces v51.75.
+
+## v51.74 (2026-06-30)
+- **Page evidence/currentness contract**: `AIO_PAGE_EVIDENCE_CONTRACT`, `AIO.getPageEvidenceState()`, and `AIO.getPageEvidenceCurrentnessAudit()` added. Decision headers now inherit page-specific source caps and caveats so mixed snapshot/reference pages cannot look like raw LIVE decisions.
+- **Market-news contract alignment**: visible market-news labels and empty state now use the actual `08:00 KST 완료 24h` news-cycle contract instead of stale 48h wording. CI data-pipeline gate checks the UI copy against the surface contract.
+- **High-risk action language downgraded**: technical health score is now an environment diagnostic, ticker default action is neutral `계획 대기`, theme-detail shows a currentness brief, and `_liveSnap()` reports source-aware freshness instead of plain `실시간`.
+- **Regression gates/docs**: P549/R238/QA v51.74 added; runtime/data contract gates now assert page evidence, caveat rendering, source caps, and market-news 24h labels.
+- R1 7 surfaces v51.74
+
+## v51.73 (2026-06-30)
+- **스킬 라우터/reference 구조 분해**: 6개 주요 스킬(`autoresearch`, `bug-fix`, `data-refresh`, `integrate`, `knowledge-lint`, `post-edit-qa`)을 긴 단일 `SKILL.md`에서 concise router + `references/` 세부 문서 구조로 재설계.
+- **공통 운영 계약 단일화**: `.claude/skills/_shared/operating-contract.md`를 추가해 preflight, evidence closeout, binary self-eval을 공유 계약으로 분리. 각 스킬과 command wrapper가 이 파일을 직접 참조.
+- **wrapper thin-router화**: `/autoresearch`, `/bug-fix`, `/data-refresh`, `/integrate`, `/knowledge-lint`, `/qa`를 절차 중복 없는 얇은 라우팅 계층으로 재작성.
+- **CI 구조 게이트 강화**: `scripts/ci-skill-contract-check.mjs`가 v51.73 계약, shared contract link, required references, Reference Loading Map, router line/byte cap을 검사하도록 확장. R237과 QA v51.73 항목 추가.
+- R1 7곳 v51.73
+## v51.72 (2026-06-30)
+- **스킬 운영 계약 공통화**: `.claude/skills`의 6개 주요 스킬(`autoresearch`, `bug-fix`, `data-refresh`, `integrate`, `knowledge-lint`, `post-edit-qa`)에 AIO Skill Operating Contract v51.72를 추가. 각 스킬이 `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`, 자기 `SKILL.md`를 먼저 읽고 verified/blocked/unverified 표면을 구분하도록 고정.
+- **command wrapper 동기화**: `/autoresearch`, `/bug-fix`, `/data-refresh`, `/integrate`, `/knowledge-lint`, `/qa` wrapper에 동일 운영 계약을 추가하고, stale six-surface version wording을 R1 7곳 기준으로 교체.
+- **스킬 계약 CI 게이트 추가**: `scripts/ci-skill-contract-check.mjs`를 신설해 skill frontmatter, wrapper 연결, R1 7곳 문구, `.claude/skills` 경로, workflow/index 문서 연결을 검증. `.github/workflows/ci.yml`에 Skill contract checks 단계 추가.
+- **workflow compaction 경로 교정**: `scripts/ci-workflow-compaction-check.mjs`가 legacy agents skill path가 아니라 `.claude/skills`를 스캔하도록 수정. R236과 QA v51.72 항목 추가.
+- R1 7곳 v51.72
+
+## v51.71 (2026-06-30)
+- **calcTechnicalSnapshot 소비 경로 계약 폐쇄**: `_calcWeeklyContext()`가 `lastWeekClose/wClose`, `wRsi/wRsi14` alias를 함께 반환하고, 티커 주봉 패널은 두 필드명을 fallback으로 읽도록 수정. v51.70 주봉 종가/RSI가 `—`로 표시될 수 있던 생산자-소비자 명칭 불일치를 제거.
+- **AI 채팅 기술 컨텍스트 확장**: `_fetchTechnicalDataForChat()`이 VCP, Fibonacci/Volume Profile, RSI divergence, weekly context를 실제 프롬프트 입력에 포함. v51.68~v51.70에서 계산만 되고 답변에 반영되지 않던 기술 스냅샷 필드를 연결.
+- **VCP public-data artifact 갱신**: `scripts/fetch-data.mjs` 재실행으로 `public-data/screener.json` 852개 row에 numeric `vcpScore`와 `vcpStage`를 채움. VCP 컬럼이 데이터 갱신 전까지 전부 공백이 되는 상태를 해소.
+- **런타임 계약 게이트 보강**: `scripts/ci-runtime-contract-check.mjs`가 weekly alias/UI fallback/chat 소비 라인/fetch-data VCP 방출/public screener VCP 커버리지를 실패 조건으로 검사. P548 postmortem, R235, QA checklist를 함께 추가.
+- R1 7곳 v51.71
+
+## v51.70 (2026-06-30)
 - **RSI 다이버전스 UI 상세화**: `analyzeTickerDeep`에서 기존 단순 `_detectDivergence(c)` 대신 `calcTechnicalSnapshot()` 결과(`snap.rsiDiv`)를 사용. 4타입 명칭·구체 설명 렌더 — 강세(가격LL+RSIHL), 약세(가격HH+RSILH), 히든강세(가격HL+RSILL), 히든약세(가격LH+RSIHH). 다이버전스 없을 때도 항상 패널 표시(이전 버전: 감지 시만 표시). 다이버전스 타입별 테두리 색상(강세=초록, 약세=빨강, 없음=기본).
 - **주봉 컨텍스트 패널 추가**: `snap.weeklyCtx`(일봉 5봉 집계 시뮬레이션)에서 주봉 종가·SMA20·SMA50·RSI14를 4-그리드 카드로 표시. 현재가 vs 주봉 이평 색상(상위=초록/하위=빨강), RSI 과매수/과매도 색상. 주봉 추세(bullish/bearish) 우측 상단 레이블.
 - **캐시버스터 동기화 수정**: 이전 세션(v51.68/v51.69)에서 5개 JS 캐시버스터(`?v=51.67`)가 미갱신 — 이번에 `?v=51.70`으로 일괄 수정.
@@ -107,7 +140,7 @@
 - SCREENER_DB_META.staleAfterDays 30→7, eplaceAfterDays 60→14, lastBulkUpdate 오늘 날짜로 초기화
 - _aioApplyServerScreener() 7-day freshness gate: screener.json.asOf > 7일이면 팩터 적용 건너뜀 + 경고 로그
 - screener.json.asOf 로드 시 SCREENER_DB_META.lastBulkUpdate 자동 갱신(정적 날짜 → 라이브 날짜)
-- per-entry 
+- per-entry
 ewsTs 체크: 7일 초과 뉴스 메모 자동 제거(item.newsMemo = null)
 - GitHub Actions 일 1회 enrichScreener() 자동 실행 → 7일 정책이 실질적 SLA가 됨
 
@@ -423,10 +456,10 @@ News self-injection 품질 보강(P531): 홈/브리핑 뉴스가 "수집됨"과 
 
 ## v51.29 - 5페이지 구조 개편: 반응형 그리드 전환 + 섹션 그룹화 + 스토리라인 접기 (2026-06-24)
 
-**THEMES**: 섹터 타일 그리드 `repeat(4,1fr)` → `auto-fill minmax(140px)` (모바일 자동 적응). 페이지 내 "섹터 로테이션 분석" / "섹터 퍼포먼스·경기 사이클" 2개 `.aio-guide-group-header` 섹션 구분선 추가 — RRG+시장리더십 그룹, 섹터퍼포먼스+경기사이클 그룹.  
-**MACRO**: 인터커넥션 맵 `repeat(3,1fr)` → `auto-fill minmax(200px)`. 매크로 스토리라인 상세 분석(동적 `#macro-storyline`)을 `<details>` 접기 처리 — 앰버 한줄요약(`#macro-summary-line`)과 경기사이클·수익률곡선 시각화(`#vis-macro`)는 항상 표시.  
-**PORTFOLIO**: 리스크 대시보드(Sharpe/Beta/MDD/Drift) `repeat(4,1fr)` → `auto-fill minmax(160px)`. CSS 640px `[style*="grid-template-columns:220px 1fr"]` 반응형 규칙 추가(포트폴리오 도넛+배분 레이아웃).  
-**FUNDAMENTAL**: 예시 티커 버튼 그리드 `repeat(4,1fr)` → `auto-fill minmax(140px)`.  
+**THEMES**: 섹터 타일 그리드 `repeat(4,1fr)` → `auto-fill minmax(140px)` (모바일 자동 적응). 페이지 내 "섹터 로테이션 분석" / "섹터 퍼포먼스·경기 사이클" 2개 `.aio-guide-group-header` 섹션 구분선 추가 — RRG+시장리더십 그룹, 섹터퍼포먼스+경기사이클 그룹.
+**MACRO**: 인터커넥션 맵 `repeat(3,1fr)` → `auto-fill minmax(200px)`. 매크로 스토리라인 상세 분석(동적 `#macro-storyline`)을 `<details>` 접기 처리 — 앰버 한줄요약(`#macro-summary-line`)과 경기사이클·수익률곡선 시각화(`#vis-macro`)는 항상 표시.
+**PORTFOLIO**: 리스크 대시보드(Sharpe/Beta/MDD/Drift) `repeat(4,1fr)` → `auto-fill minmax(160px)`. CSS 640px `[style*="grid-template-columns:220px 1fr"]` 반응형 규칙 추가(포트폴리오 도넛+배분 레이아웃).
+**FUNDAMENTAL**: 예시 티커 버튼 그리드 `repeat(4,1fr)` → `auto-fill minmax(140px)`.
 **HOME**: 매매 판단 3카드 그리드 `1fr 1fr 1fr` → `auto-fill minmax(220px)` (모바일 1열, 태블릿 2열, 데스크탑 3열). R1 7곳 v51.29.
 
 ---
@@ -15067,3 +15100,9 @@ Signal ?섏씠吏瑜?Bloomberg Terminal湲?**"吏湲?嫄곕옒?댁빞 ?좉�
 전체 뉴스/소식 운영 주기를 `kst-0800-completed-24h`로 통일. 서버 `fetch-data.mjs`는 Google News RSS를 넓게 수집하되 최종 `data.json.news[]`에는 직전 완료된 08:00 KST~08:00 KST 24시간 구간 기사만 저장하고, 각 뉴스와 `meta`에 `newsCyclePolicy/start/end/label/nextRefresh`를 기록한다. 뉴스 recency 점수는 실행 시각이 아니라 사이클 종료시각 기준으로 계산해 같은 일간 묶음 안의 뉴스가 불필요하게 stale 감점을 받지 않도록 조정. 홈/브리핑/시장뉴스/분석 페이지 topic-strip 모두 24h 사이클 계약을 사용하며, 브리핑 타임스탬프는 수집 구간과 다음 08:00 갱신 시각을 분리 표시. CI 데이터 파이프라인 계약과 T749 런타임 테스트도 08:00 KST 완료 24h 정책을 검증하도록 갱신.
 
 ---
+## v51.73 (2026-06-30)
+- **스킬 라우터/reference 구조 분해**: 6개 주요 스킬(`autoresearch`, `bug-fix`, `data-refresh`, `integrate`, `knowledge-lint`, `post-edit-qa`)을 긴 단일 `SKILL.md`에서 concise router + `references/` 세부 문서 구조로 재설계.
+- **공통 운영 계약 단일화**: `.claude/skills/_shared/operating-contract.md`를 추가해 preflight, evidence closeout, binary self-eval을 공유 계약으로 분리. 각 스킬과 command wrapper가 이 파일을 직접 참조.
+- **wrapper thin-router화**: `/autoresearch`, `/bug-fix`, `/data-refresh`, `/integrate`, `/knowledge-lint`, `/qa`를 절차 중복 없는 얇은 라우팅 계층으로 재작성.
+- **CI 구조 게이트 강화**: `scripts/ci-skill-contract-check.mjs`가 v51.73 계약, shared contract link, required references, Reference Loading Map, router line/byte cap을 검사하도록 확장. R237과 QA v51.73 항목 추가.
+- R1 7곳 v51.73

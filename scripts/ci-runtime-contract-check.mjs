@@ -15,6 +15,7 @@ const check = (label, condition, detail = '') => {
 const version = JSON.parse(read('version.json')).version;
 const versionNum = version.replace(/^v/, '');
 const html = read('index.html');
+const visibleHtml = html.replace(/<!--[\s\S]*?-->/g, '');
 const core = read('js/aio-core.js');
 const data = read('js/aio-data.js');
 const ui = read('js/aio-ui.js');
@@ -79,6 +80,10 @@ check('ticker deep analysis exposes horizontal volume profile beginner guidance'
 check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(core) && /sma100/.test(core) && /shortMAState/.test(core) && /longMAState/.test(core) && /maStackScore/.test(core) && /5SMA/.test(chat) && /100SMA/.test(chat));
 check('event risk context is refreshed to post-FOMC 2026-06-19', /AIO_EVENT_RISK_CONTEXT/.test(core) && /asOf:\s*'2026-06-19'/.test(core) && /Post-FOMC hawkish hold/.test(core) && /Hormuz\/oil reopening watch/.test(core));
 check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core) && /_aioApplyPageBodyRedesign/.test(core) && /getPageRedesignAudit/.test(core));
+check('page evidence currentness contract exists', /AIO_PAGE_EVIDENCE_CONTRACT/.test(core) && /getPageEvidenceState/.test(core) && /getPageEvidenceCurrentnessAudit/.test(core));
+check('decision header renders page evidence caveat', /aio-decision-caveat/.test(core) && /d\.caveat/.test(core));
+check('high-risk pages are capped below raw LIVE when data is mixed', /technical:\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /'market-news':\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /ticker:\s*\{[\s\S]{0,160}emptyKind:\s*'UNAVAILABLE'/.test(core));
+check('visible static labels do not overstate live/action state', !/\u25cf\s*LIVE|LIVE RSS|BUY\s*\/\s*LONG|공격적 매매|\(실시간\)|실시간 감지|실시간 수급|FMP 실시간/.test(visibleHtml));
 for (const pageId of ['home','signal','market-news','technical','screener','ticker','portfolio','macro','fxbond','fundamental','kr-home','kr-supply','kr-themes','kr-macro','kr-technical']) {
   check(`page redesign config exists for ${pageId}`, new RegExp(`${pageId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`).test(core) || core.includes(`'${pageId}':`));
 }
@@ -91,6 +96,21 @@ check('ticker live price renderer does not call live.price.toFixed directly', !/
 check('scenario sum renderers guard missing sum before toFixed', !/sumCheck\.sum\.toFixed\(/.test(core) && !/sigSum\.sum\.toFixed\(/.test(core));
 check('Chart tooltip callbacks guard missing parsed.y before toFixed', !/ctx\.parsed\.y\.toFixed\(/.test(core));
 check('home dashboard VIX default path guards missing live price before toFixed', !/vix\.price\?\.toFixed\(/.test(data) && !/vp\.toFixed\(2\)/.test(data));
+check(
+  'technical snapshot weekly context exposes canonical and legacy aliases',
+  /lastWeekClose\s*:\s*lastW\.close/.test(core) && /wClose\s*:\s*lastW\.close/.test(core) && /wRsi\s*:\s*wRsi/.test(core) && /wRsi14\s*:\s*wRsi/.test(core),
+  '_calcWeeklyContext must return lastWeekClose/wClose and wRsi/wRsi14 together'
+);
+check(
+  'ticker weekly context renderer consumes aliases with fallback',
+  /_wc\.wClose\s*!=\s*null\s*\?\s*_wc\.wClose\s*:\s*_wc\.lastWeekClose/.test(html) && /_wc\.wRsi14\s*!=\s*null\s*\?\s*_wc\.wRsi14\s*:\s*_wc\.wRsi/.test(html),
+  'index.html analyzeTickerDeep must not depend on one weeklyCtx field spelling'
+);
+check(
+  'AI chat consumes calcTechnicalSnapshot VCP/Fib/Volume/RSI/weekly fields',
+  /• VCP:/.test(chat) && /• 피보나치\/매물대:/.test(chat) && /• RSI 다이버전스:/.test(chat) && /주봉 컨텍스트/.test(chat),
+  'js/aio-chat.js must surface new calcTechnicalSnapshot fields, not only compute them'
+);
 
 const userFacingFiles = [
   ['index.html', html]
@@ -130,6 +150,30 @@ check(
   /_pctSource/.test(fetchScript),
   'scripts/fetch-data.mjs fetchQuote must include _pctSource field for auditability'
 );
+check(
+  'fetch-data emits VCP screener fields',
+  /vcpScore/.test(fetchScript) && /vcpStage/.test(fetchScript) && /vcpPivot/.test(fetchScript),
+  'scripts/fetch-data.mjs must keep server-side VCP fields wired into screener.json'
+);
+
+try {
+  const screenerPayload = JSON.parse(read('public-data/screener.json'));
+  const rows = Object.values(screenerPayload.data || {});
+  const vcpRows = rows.filter((row) => row && typeof row.vcpScore === 'number');
+  const stages = new Set(rows.map((row) => row && row.vcpStage).filter(Boolean));
+  check(
+    'public screener artifact includes VCP scores',
+    rows.length > 0 && vcpRows.length >= Math.min(50, rows.length),
+    `found ${vcpRows.length}/${rows.length} row(s) with numeric vcpScore`
+  );
+  check(
+    'public screener artifact includes VCP stage labels',
+    stages.size > 0,
+    'expected at least one vcpStage label in public-data/screener.json'
+  );
+} catch (error) {
+  check('public screener artifact includes VCP scores', false, error.message);
+}
 
 // [C] COMP_W 가중치 키 vs wTotal 계산식 정합 (P538 패턴 재발 방지)
 // COMP_W의 모든 키가 실제 r.comp 계산식에서 사용돼야 함.

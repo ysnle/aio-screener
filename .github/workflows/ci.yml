@@ -66,6 +66,9 @@ jobs:
       - name: Workflow compaction checks
         run: node scripts/ci-workflow-compaction-check.mjs
 
+      - name: Skill contract checks
+        run: node scripts/ci-skill-contract-check.mjs
+
       - name: stray 임시/백업 파일 검사
         run: |
           set -e

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.70 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.75 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5128,7 +5128,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.70</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.75</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6470,7 +6470,7 @@ button[data-filter-active="true"] {
         </div>
         <div style="display:flex;gap:6px;align-items:center;">
           <span id="sent-overall-badge" class="status-pill sp-neutral">심리 입력 수신 대기</span>
-          <span class="freshness-badge fb-live">● LIVE</span>
+          <span class="freshness-badge fb-live">● SOURCE 확인</span>
         </div>
       </div>
     </div>
@@ -6502,7 +6502,7 @@ button[data-filter-active="true"] {
           <div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:#ef4444;" id="fg-score-big">18</div>
           <div style="font-size:11px;color:var(--text-muted);">점수: <span id="fg-score-val">18</span>/100 <span id="sentiment-fg-delta" class="aio-metric-delta" style="display:none;font-size:10px;font-family:var(--font-mono);" title="전일 대비 변화"></span></div>
           <div style="font-size:11px;color:var(--text-secondary);">등급: <span id="fg-rating-text" style="color:#dc2626;">극단 공포 (Extreme Fear)</span></div>
-          <div id="fg-live-badge" style="font-size:11px;color:var(--green);margin-top:4px;font-weight:700;">● LIVE</div>
+          <div id="fg-live-badge" style="font-size:11px;color:var(--green);margin-top:4px;font-weight:700;">● source 확인</div>
           <div id="fg-historical-ref" style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;"></div>
           <div id="fg-signal-link" style="margin-top:6px;display:none;"><span class="cross-link" data-action="showPage" data-arg="signal">진입 체크리스트 확인 →</span></div>
         </div>
@@ -6618,7 +6618,7 @@ button[data-filter-active="true"] {
         <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;">
           <div style="font-size:16px;font-weight:800;font-family:var(--font-mono);" id="pc-score-big">1.08</div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Needle Pos: <span id="pc-needle-pos">Neutral</span></div>
-          <div id="pc-live-badge" style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:700;">● LIVE</div>
+          <div id="pc-live-badge" style="font-size:11px;color:var(--accent);margin-top:4px;font-weight:700;">● source 확인</div>
         </div>
       </div>
     </div>
@@ -6939,7 +6939,7 @@ button[data-filter-active="true"] {
       </div>
       <div style="display:flex;gap:6px;align-items:center;">
         <span id="tech-health-pill" class="status-pill sp-neutral">— 시장 건강도 수신 대기</span>
-        <span class="freshness-badge fb-live">● LIVE</span>
+        <span class="freshness-badge fb-live">● SOURCE 확인</span>
       </div>
     </div>
   </div>
@@ -7041,7 +7041,7 @@ button[data-filter-active="true"] {
     <!-- 건강도 해석 -->
     <div id="health-interpretation" class="fxb-dynamic-comment" style="margin-top:10px;">
       <div class="dc-title">시장 건강도란?</div>
-      <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">SPY/QQQ 이평 + 골든크로스 + RSI + VIX 종합 점수. 80+=강상승장, 30-=약세장. 높을수록 공격적 매매.</div>
+      <div style="font-size:11px;color:var(--text-muted);line-height:1.7;">SPY/QQQ 이평 + 골든크로스 + RSI + VIX 종합 점수. 80+=기술 환경 우호, 30-=약세 경계. 단독 매수 신호가 아니며 시그널 점수와 시장폭을 함께 확인합니다.</div>
     </div>
   </div>
 
@@ -7376,7 +7376,7 @@ button[data-filter-active="true"] {
         <span id="macro-regime-pill" class="status-pill sp-risk-off">— 레짐 분석 중</span>
         <!-- v51.66: FRED 데이터 기준 시각 — _aioRenderDataFreshness()가 채움 (R234: 기본 hidden) -->
         <span id="macro-fred-ts" style="display:none;font-size:10px;color:var(--text-muted);font-family:var(--font-mono);"></span>
-        <span class="freshness-badge fb-live">● LIVE</span>
+        <span class="freshness-badge fb-live">● SOURCE 확인</span>
       </div>
       <!-- v38.4: 매크로 레짐 상세 해설 -->
       <div id="macro-regime-detail" style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-top:4px;padding:0 4px;"></div>
@@ -7963,7 +7963,7 @@ button[data-filter-active="true"] {
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
         <span id="fxbond-risk-pill" class="status-pill sp-risk-off"> 달러 강세 · 금리 압박</span>
-        <span class="freshness-badge fb-live">● LIVE</span>
+        <span class="freshness-badge fb-live">● SOURCE 확인</span>
       </div>
     </div>
   </div>
@@ -8260,7 +8260,7 @@ button[data-filter-active="true"] {
     <!--  수익률 곡선 Canvas 차트 (Chart.js) -->
     <div class="yc-chart-wrap">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">수익률 곡선 그래프 (실시간)</span>
+        <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">수익률 곡선 그래프 (source 확인)</span>
         <span id="yc-chart-status" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수집 대기…</span>
       </div>
       <canvas id="koreaCurveChart" role="img" aria-label="미 국채(US Treasury) 수익률 곡선 차트"></canvas>
@@ -8714,7 +8714,7 @@ button[data-filter-active="true"] {
           <div class="page-subtitle">SEC EDGAR · FMP · Yahoo Finance 데이터 기반 딥 다이브</div>
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-          <span id="fund-data-status" class="freshness-badge fb-live">● LIVE</span>
+          <span id="fund-data-status" class="freshness-badge fb-live">● DATA 확인</span>
           <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);background:var(--surface-2);border:1px solid var(--border);padding:3px 8px;border-radius:4px;">SEC EDGAR + FMP + Yahoo Finance</span>
         </div>
       </div>
@@ -9016,7 +9016,7 @@ button[data-filter-active="true"] {
         </div>
         <div style="display:flex;gap:6px;align-items:center;">
           <span id="theme-cycle-pill" class="status-pill sp-risk-off">— 사이클 분석 중</span>
-          <span class="freshness-badge fb-live">● LIVE</span>
+          <span class="freshness-badge fb-live">● SOURCE 확인</span>
         </div>
       </div>
     </div>
@@ -9255,6 +9255,12 @@ button[data-filter-active="true"] {
         <div class="page-title" id="theme-detail-title">AI·반도체</div>
       </div>
       <div id="theme-detail-name" style="display:none;">AI·반도체</div>
+      <div id="theme-detail-currentness-brief" class="fxb-dynamic-comment" style="margin-top:10px;">
+        <div class="dc-title">테마 현재성 요약</div>
+        <div style="font-size:11px;color:var(--text-secondary);line-height:1.7;">
+          선택 테마의 리더, 2차 후보, 촉매, 깨지는 신호를 비교합니다. live 가격 수신 전에는 참고 보드로만 사용하고, 종목별 실행은 티커/스크리너에서 재확인합니다.
+        </div>
+      </div>
     </div>
 
     </div><!-- /aio-section 테마헤더 -->
@@ -9831,7 +9837,7 @@ button[data-filter-active="true"] {
         <div class="aio-widget">
           <div class="widget-title">Action</div>
           <div style="padding:12px;">
-            <button id="ticker-action-btn" class="action-btn buy" style="width:100%;padding:10px;background:rgba(0,229,160,0.2);border:1px solid var(--green);color:var(--green);border-radius:3px;cursor:pointer;font-weight:700;font-size:11px;">BUY / LONG</button>
+            <button id="ticker-action-btn" class="action-btn neutral" style="width:100%;padding:10px;background:rgba(148,163,184,0.12);border:1px solid var(--border);color:var(--text-secondary);border-radius:3px;cursor:pointer;font-weight:700;font-size:11px;">계획 대기</button>
             <div style="margin-top:12px;font-size:11px;color:var(--text-muted);line-height:1.5;">
               <div>Support: <span id="ticker-m-support">—</span></div>
               <div>Resistance: <span id="ticker-m-resist">—</span></div>
@@ -9896,12 +9902,12 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
-    <!-- ══ v48.47: 캔들 패턴 갤러리 (Ticker 전용 실시간 감지) — from technical ══ -->
+    <!-- ══ v48.47: 캔들 패턴 갤러리 (Ticker 전용 현재 데이터 감지) — from technical ══ -->
     <div class="aio-section">
     <div class="aio-section-hd"><span class="aio-section-label">캔들 패턴 갤러리</span></div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-top:12px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">캔들 패턴 갤러리 (<span id="ticker-candle-symbol" style="color:var(--data-cyan);font-family:var(--font-mono);">—</span> 실시간)</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">캔들 패턴 갤러리 (<span id="ticker-candle-symbol" style="color:var(--data-cyan);font-family:var(--font-mono);">—</span> source 확인)</div>
         <button class="aio-btn-table" data-action="_aioDetectTickerPattern" style="font-size:11px;">패턴 감지 ↻</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
@@ -9926,7 +9932,7 @@ button[data-filter-active="true"] {
           <div style="font-size:11px;color:var(--text-muted);">3일 반전 (천장)</div>
         </div>
         <div style="background:linear-gradient(135deg,rgba(168,85,247,0.05),rgba(168,85,247,0.02));border:1px solid rgba(168,85,247,0.2);border-radius:3px;padding:10px;text-align:center;">
-          <div style="font-size:11px;font-weight:700;color:var(--data-purple);margin-bottom:4px;">실시간 감지</div>
+          <div style="font-size:11px;font-weight:700;color:var(--data-purple);margin-bottom:4px;">현재 데이터 감지</div>
           <div id="realtime-pattern-indicator" style="font-size:13px;margin:6px 0;font-weight:700;color:var(--text-primary);">종목 검색 필요</div>
           <div style="font-size:11px;color:var(--text-muted);">최근 3봉</div>
         </div>
@@ -10000,16 +10006,16 @@ button[data-filter-active="true"] {
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">
       <div>
         <div class="page-title">시장 뉴스</div>
-        <div class="page-subtitle"><span data-news-source-count>—</span>개 등록 소스 · <b style="color:var(--data-amber);">최근 48시간</b> · 중요도 30점 이상 · 45분 자동갱신</div>
+        <div class="page-subtitle"><span data-news-source-count>—</span>개 등록 소스 · <b style="color:var(--data-amber);">08:00 KST 완료 24h</b> · 중요도 30점 이상 · 45분 자동갱신</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--green);font-weight:700;">
           <span id="live-dot" style="width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;display:inline-block;"></span>
-          <span id="live-btn-label">LIVE RSS</span>
+          <span id="live-btn-label">RSS 확인</span>
         </span>
         <span id="last-fetch-time" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수신 대기...</span>
         <span id="market-news-count" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);"></span>
-        <span id="market-news-tw-label" style="font-size:11px;color:var(--yellow);font-family:var(--font-mono);background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.2);border-radius:4px;padding:2px 8px;">48시간 이내</span>
+        <span id="market-news-tw-label" style="font-size:11px;color:var(--yellow);font-family:var(--font-mono);background:rgba(255,163,26,0.08);border:1px solid rgba(255,163,26,0.2);border-radius:4px;padding:2px 8px;">08:00 KST 24h</span>
         <button id="news-refresh-btn" data-action="_aioFetchAllNewsForce" style="background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.4);color:var(--data-cyan);font-size:11px;padding:4px 10px;border-radius:3px;cursor:pointer;font-family:var(--font-mono);font-weight:600;transition:all 0.2s;">↻ 새로고침</button>
       </div>
     </div>
@@ -10046,7 +10052,7 @@ button[data-filter-active="true"] {
       <span style="color:var(--border);">|</span>
       <span>주기: 45분 자동 갱신 (GitHub Actions)</span>
       <span style="color:var(--border);">|</span>
-      <span>필터: 48시간 이내 · 중요도 30점+</span>
+      <span>필터: 08:00~08:00 KST 완료 24h · 중요도 30점+</span>
     </div>
 
     </div><!-- /aio-section 뉴스필터소스 -->
@@ -10342,7 +10348,7 @@ button[data-filter-active="true"] {
     <div class="row mb-4" style="align-items:flex-start;">
       <div>
         <div class="page-title">한국장 홈 <span class="kr-badge">KRX</span></div>
-        <div class="page-subtitle">실시간 지수 · KOSPI · KOSDAQ · KRW/USD · 투자자 수급 · 한국 시장 요약</div>
+        <div class="page-subtitle">source 확인 지수 · KOSPI · KOSDAQ · KRW/USD · 투자자 수급 · 한국 시장 요약</div>
       </div>
       <div class="page-actions">
         <button class="aio-btn-table" data-action="showPage" data-arg="kr-supply">수급 분석 →</button>
@@ -10441,7 +10447,7 @@ button[data-filter-active="true"] {
         </div>
         <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">
           <div id="kr-home-kosdaq-comment" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;"></div>
-          <div style="font-size:10px;color:var(--text-muted);"><span data-date-ref="kr-last-basis">종가 기준</span> 데이터. 실시간 수급은 API로 자동 갱신</div>
+          <div style="font-size:10px;color:var(--text-muted);"><span data-date-ref="kr-last-basis">종가 기준</span> 데이터. API 수급은 수신 성공 시 자동 갱신</div>
         </div>
       </div>
     </div>
@@ -10537,7 +10543,7 @@ button[data-filter-active="true"] {
     <div class="aio-section">
     <div class="aio-section-hd"><span class="aio-section-label">KRX 섹터 ETF 성과</span></div>
     <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">KRX 섹터 & 주요 ETF 성과 <span id="kr-etf-ts" style="font-size:11px;color:var(--text-muted);font-weight:400;">(실시간)</span></div>
+      <div class="widget-title">KRX 섹터 & 주요 ETF 성과 <span id="kr-etf-ts" style="font-size:11px;color:var(--text-muted);font-weight:400;">(source 확인)</span></div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;" id="kr-etf-grid">
         <div class="kr-etf-card" data-live-symbol="091160.KS" style="background:var(--surface-1);border-radius:4px;padding:10px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
@@ -12257,9 +12263,9 @@ button[data-filter-active="true"] {
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.70"></script>
-  <script src="./js/aio-data.js?v=51.70"></script>
-  <script src="./js/aio-ui.js?v=51.70"></script>
+  <script src="./js/aio-core.js?v=51.75"></script>
+  <script src="./js/aio-data.js?v=51.75"></script>
+  <script src="./js/aio-ui.js?v=51.75"></script>
 
   <script>
 
@@ -14081,6 +14087,11 @@ function _liveSnap() {
   if (!window._lastFG) stale.push('F&G');
   if (!window._tradingScore) stale.push('트레이딩스코어');
   if (!(window._spxMA && window._spxMA[50])) stale.push('이동평균');
+  var liveCoreCount = 0;
+  ['^GSPC','^VIX','CL=F','DX-Y.NYB','^TNX'].forEach(function(sym) {
+    var row = ld[sym];
+    if (row && row.price != null && !/snapshot|fallback|static/i.test(String(row.source || row.sourceKind || ''))) liveCoreCount++;
+  });
 
   // 세션 상태
   var usSession = (typeof _getUsSession === 'function') ? _getUsSession() : 'open';
@@ -14101,7 +14112,7 @@ function _liveSnap() {
   var vvixVixRatio = (window._vvixVixRatio && window._vvixVixRatio.ratio) ? window._vvixVixRatio : null;
 
   // v36.8: 지수는 항상 현물(종가) 표시, 선물은 별도 참고
-  var indexBasis = usSession === 'open' ? '정규장 실시간' : '종가 기준';
+  var indexBasis = usSession === 'open' ? '정규장 live 우선/source 확인' : '종가 기준';
 
   // v48.60: FRED/BOK/KOSIS 매크로 지표 AI 채팅 주입 (R37 준수 — 수집-AI 주입 페어링)
   var fredD = window._fredData || {};
@@ -14164,7 +14175,8 @@ function _liveSnap() {
     // v48.60: 매크로 지표 AI 주입 (FRED + BOK + KOSIS 전 소스)
     macro: macroBlock,
     _stale: stale,
-    _freshness: stale.length === 0 ? '실시간' : (stale.length <= 2 ? '부분 지연' : '대부분 폴백값')
+    _liveCoreCount: liveCoreCount,
+    _freshness: liveCoreCount >= 4 && stale.length <= 1 ? 'live 우선/source 확인' : (stale.length <= 2 ? 'live+snapshot 혼합' : '대부분 snapshot/fallback')
   };
 }
 
@@ -14236,7 +14248,7 @@ function _closeSnap() {
  * ├─────────────────┼───────────┼──────────────────────────────────────────┤
  * │ 시장 환경       │ _ldSafe   │ computeTradingScore(VIX,VVIX,DXY,TNX,   │
  * │ (VIX,DXY,TNX,   │ _ld       │   HYG,유가)                             │
- * │ HYG,CL=F,환율)  │ (실시간)   │ computeMarketHealth(VIX)                │
+ * │ HYG,CL=F,환율)  │ (source)   │ computeMarketHealth(VIX)                │
  * │                 │           │ classifyMarketRegime(VIX)               │
  * │                 │           │ CHAT: _closeSnap().envBasis=실시간       │
  * │                 │           │ CHAT: 모든 컨텍스트에서 VIX/DXY/TNX/환율 │
@@ -14270,19 +14282,15 @@ function _closingVal(sym, field) {
 }
 
 // ═══ v48.14: 한국 주요 이슈 카드 자동 렌더링 (Agent P1-21 — newsCache 재사용) ═══
-// kr-home 진입 시 호출. 48시간 이내 한국 관련 뉴스 Top 4 자동 추출해 카드 교체.
+// kr-home 진입 시 호출. 08:00 KST 완료 24h 한국 관련 뉴스 Top 4 자동 추출해 카드 교체.
 function renderKrIssues() {
   try {
     if (typeof newsCache === 'undefined' || !newsCache || newsCache.length === 0) return;
     var container = document.getElementById('kr-issues-container');
     if (!container) return;
     var krKeywords = /한국|KOSPI|KOSDAQ|삼성|SK하이닉스|LG에너지|현대차|기아|한화|원\/달러|KRW|한은|BOK|금통위|K-|원화|반도체|HBM|코스피|코스닥|\.KS|\.KQ/i;
-    var now = Date.now();
-    var H48 = 48 * 3600000;
-    var candidates = newsCache.filter(function(it) {
+    var candidates = (typeof filterByKst0800NewsCycle === 'function' ? filterByKst0800NewsCycle(newsCache) : newsCache).filter(function(it) {
       if (!it || !it.pubDate) return false;
-      var age = now - new Date(it.pubDate).getTime();
-      if (age < 0 || age > H48) return false;
       var text = (it.title || '') + ' ' + (it.desc || '') + ' ' + (it.summary || '');
       return krKeywords.test(text);
     });
@@ -14310,7 +14318,7 @@ function renderKrIssues() {
     }).join('');
     container.innerHTML = html;
     var statusEl = document.getElementById('kr-issues-status');
-    if (statusEl) statusEl.innerHTML = '(뉴스 피드 자동 추출 · ' + top4.length + '건 · 48시간 이내 · ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) + ' 갱신)';
+    if (statusEl) statusEl.innerHTML = '(뉴스 피드 자동 추출 · ' + top4.length + '건 · 08:00 KST 완료 24h · ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) + ' 갱신)';
   } catch(e) { _aioLog('warn', 'render', 'renderKrIssues 실패: ' + e.message); }
 }
 
@@ -15456,7 +15464,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.70"></script>
+<script src="./js/aio-chat.js?v=51.75"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -15604,8 +15612,16 @@ function computeMarketHealth() {
       '<div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">' +
       '<b style="color:' + gradeColor + ';">점수 ' + score + '/100 (' + grade + ')</b> — ' + regime + '<br>';
     details.forEach(function(d) { interpHTML += '• ' + d + '<br>'; });
-    if (score >= 65) interpHTML += '<br><b>전략:</b> 공격적 매매 가능. 상승 추세에 편승하되 과열 신호 주시.';
-    else if (score >= 40) interpHTML += '<br><b>전략:</b> 선별적 매매. 섹터 로테이션 주시, 포지션 사이즈 축소 고려.';
+    var compositeScore = null;
+    try {
+      if (typeof computeTradingScore === 'function') compositeScore = Number(computeTradingScore().total);
+      else if (window._tradingScore != null) compositeScore = Number(window._tradingScore);
+    } catch(_) {}
+    if (score >= 65) {
+      interpHTML += '<br><b>전략:</b> 기술 환경은 우호적입니다. 단독 매수 신호가 아니며 시그널 점수 60+와 시장폭 확산 확인 후 분할 접근.';
+      if (isFinite(compositeScore) && compositeScore < 60) interpHTML += ' 현재 종합 시그널 ' + Math.round(compositeScore) + '/100과 충돌하므로 신규 진입은 관망 우선.';
+    }
+    else if (score >= 40) interpHTML += '<br><b>전략:</b> 선별적 매매. 섹터 로테이션과 종합 시그널을 확인하고 포지션 사이즈 축소 고려.';
     else interpHTML += '<br><b>전략:</b> 방어적 자세. 현금비중 확대, 손절 타이트, 반등 시 매도 고려.';
     interpHTML += '</div>';
     el.innerHTML = interpHTML;
@@ -18314,7 +18330,7 @@ function initKoreaHome() {
   }
   if (_krxBadge) {
     var sessMap = {
-      'open':   { text: ' 장중 (실시간)',   bg: 'rgba(0,229,160,0.15)', color: 'var(--data-green)' },
+      'open':   { text: ' 장중 (source 확인)',   bg: 'rgba(0,229,160,0.15)', color: 'var(--data-green)' },
       'pre':    { text: ' 프리마켓',         bg: 'rgba(255,163,26,0.15)', color: 'var(--data-amber)' },
       'after':  { text: ' 시간외거래',       bg: 'rgba(255,163,26,0.15)', color: 'var(--data-amber)' },
       'closed': { text: ' 장 마감 (전일 종가)', bg: 'rgba(255,91,80,0.15)', color: 'var(--data-red)' }
@@ -18750,7 +18766,7 @@ function showKrThemeDetail(themeId) {
     var price=d?d.price:(info.price||0),pct=d&&d.pct!=null?d.pct:null,pCol=pct!==null?(pct>=0?'var(--data-green)':'var(--data-red)'):'var(--text-muted)';
     var ps=price>=1000?Math.round(price).toLocaleString()+'원':price+'원';
     var pcs=pct!==null?((pct>=0?'+':'')+pct.toFixed(2)+'%'):'—';
-    var lt=d?'<span style="color:var(--data-green);font-size:11px;">● LIVE</span>':'<span style="color:var(--text-muted);font-size:11px;">○</span>';
+    var lt=d?'<span style="color:var(--data-green);font-size:11px;">● 수신</span>':'<span style="color:var(--text-muted);font-size:11px;">○</span>';
     var rankIcon=idx===0?' ':idx===1?' ':idx===2?' ':'';
     rows+='<tr style="background:'+(idx%2===0?'rgba(255,255,255,0.015)':'transparent')+';border-bottom:1px solid var(--surface-2);"><td style="padding:7px 8px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;" onclick="showTicker(\''+sym+'\')" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span style="color:var(--accent);">'+(info.name||t.code)+'</span> <span style="font-size:9px;opacity:0.6;">↗</span><div style="font-size:11px;color:var(--text-muted);font-weight:400;">'+(info.sector||'')+' · '+t.code+'</div></td><td style="padding:7px 8px;font-size:13px;font-weight:800;font-family:var(--font-mono);text-align:right;">'+ps+'</td><td style="padding:7px 8px;font-size:13px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+pCol+';">'+pcs+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;color:var(--text-muted);">'+(info.mcap||'—')+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;">'+t.w+'%</td><td style="padding:7px 8px;text-align:center;">'+lt+'</td></tr>';
   });
@@ -18997,7 +19013,7 @@ async function fetchKrSupplyData() {
     _renderInvestorFallback();
     _renderKrWeeklySupplyFallback(e && e.message || 'KR supply fetch failed');
   }
-  _ensureKrSupplyAnalysisResolved('실시간 수급 데이터를 불러오지 못해 정적 스냅샷을 표시합니다.');
+  _ensureKrSupplyAnalysisResolved('현재 수급 데이터를 불러오지 못해 정적 스냅샷을 표시합니다.');
 }
 
 // v35.5: 수급 데이터 폴백 안내 표시
@@ -19017,7 +19033,7 @@ function _showKrSupplyFallbackNotice() {
   // v38.3: 분석 텍스트 "로딩 중..." 소거 — 실패 시에도 안내 표시
   var analysisEl = document.getElementById('kr-supply-analysis-text');
   if (analysisEl && analysisEl.textContent.indexOf('로딩') !== -1) {
-    analysisEl.innerHTML = '실시간 수급 데이터를 불러오지 못했습니다. 아래 스냅샷은 정적 데이터입니다.';
+    analysisEl.innerHTML = '현재 수급 데이터를 불러오지 못했습니다. 아래 스냅샷은 정적 데이터입니다.';
   }
 }
 
@@ -19026,7 +19042,7 @@ function _ensureKrSupplyAnalysisResolved(reason) {
   if (!analysisEl) return;
   var txt = (analysisEl.textContent || '').trim();
   if (txt && txt.indexOf('로딩') === -1) return;
-  analysisEl.innerHTML = reason || '실시간 수급 데이터가 지연되어 정적 스냅샷을 표시합니다.';
+  analysisEl.innerHTML = reason || '현재 수급 데이터가 지연되어 정적 스냅샷을 표시합니다.';
   _showKrSupplyFallbackNotice();
 }
 
@@ -24722,7 +24738,7 @@ async function _fetchEarningsCalendarFMP(body, fmpKey) {
     });
     body.innerHTML = eHtml;
     var st = document.getElementById('earn-cal-status');
-    if (st) st.textContent = filtered.length + '건 · ' + from + '~' + to + ' (FMP 실시간)';
+    if (st) st.textContent = filtered.length + '건 · ' + from + '~' + to + ' (FMP source 확인)';
     console.log('[AIO] FMP 실적 캘린더 ' + filtered.length + '건 로드');
   } catch(e) {
     _aioLog('warn', 'fetch', 'FMP 캘린더 fetch 실패: ' + e.message);
@@ -28045,7 +28061,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.70"></script>
+<script src="./js/aio-glossary.js?v=51.75"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -29459,13 +29475,15 @@ async function analyzeTickerDeep(ticker) {
     var _wc = snap.weeklyCtx;
     var _wTrendColor = _wc.wTrend === 'bullish' ? 'var(--data-green)' : _wc.wTrend === 'bearish' ? 'var(--data-red)' : 'var(--text-muted)';
     var _wTrendLabel = _wc.wTrend === 'bullish' ? '주봉 상승' : _wc.wTrend === 'bearish' ? '주봉 하락' : '—';
+    var _wClose = _wc.wClose != null ? _wc.wClose : _wc.lastWeekClose;
+    var _wRsi = _wc.wRsi14 != null ? _wc.wRsi14 : _wc.wRsi;
     var _wSma20s = _wc.wSma20 ? '$' + _wc.wSma20.toFixed(2) : '—';
     var _wSma50s = _wc.wSma50 ? '$' + _wc.wSma50.toFixed(2) : '—';
-    var _wRsis = _wc.wRsi14 ? _wc.wRsi14.toFixed(1) : '—';
-    var _wPrices = _wc.wClose ? '$' + _wc.wClose.toFixed(2) : '—';
-    var _wSma20Col = (_wc.wClose && _wc.wSma20) ? (_wc.wClose >= _wc.wSma20 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
-    var _wSma50Col = (_wc.wClose && _wc.wSma50) ? (_wc.wClose >= _wc.wSma50 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
-    var _wRsiCol = _wc.wRsi14 ? (_wc.wRsi14 >= 70 ? 'var(--data-red)' : _wc.wRsi14 <= 30 ? 'var(--data-green)' : 'var(--data-amber)') : 'var(--text-muted)';
+    var _wRsis = _wRsi != null ? _wRsi.toFixed(1) : '—';
+    var _wPrices = _wClose != null ? '$' + _wClose.toFixed(2) : '—';
+    var _wSma20Col = (_wClose != null && _wc.wSma20) ? (_wClose >= _wc.wSma20 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+    var _wSma50Col = (_wClose != null && _wc.wSma50) ? (_wClose >= _wc.wSma50 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+    var _wRsiCol = _wRsi != null ? (_wRsi >= 70 ? 'var(--data-red)' : _wRsi <= 30 ? 'var(--data-green)' : 'var(--data-amber)') : 'var(--text-muted)';
     html += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:8px;font-size:11px;">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
         '<div style="font-weight:900;color:var(--text-bright);">주봉 컨텍스트 <span style="font-size:9px;color:var(--text-muted);font-weight:400;">(일봉 5일 집계)</span></div>' +

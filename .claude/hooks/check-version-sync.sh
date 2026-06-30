@@ -1,5 +1,5 @@
 #!/bin/bash
-# AIO Screener — R1 버전 6곳 동기화 자동 검증
+# AIO Screener — R1 버전 7곳 동기화 자동 검증
 # PostToolUse(Edit|Write) hook: index.html, version.json, CLAUDE.md, CHANGELOG.md 수정 시
 # 6곳의 버전 번호가 일치하는지 자동 체크
 

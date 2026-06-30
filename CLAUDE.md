@@ -3,8 +3,11 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.70**
-- **전체 버전 이력 → `CHANGELOG.md`** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다 (WO-12 문서 다이어트 — 루트 CLAUDE.md는 매 세션 로드되므로 슬림 유지. 이전 요약은 CHANGELOG.md에 더 상세히 보존됨).
+- 현재 버전: **v51.75**
+- **전체 버전 이력 → CHANGELOG.md** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다.
+- **v51.73 스킬 라우터/reference 구조 분해**: 6개 주요 스킬을 concise `SKILL.md` router + `references/` 세부 문서로 재설계. `.claude/skills/_shared/operating-contract.md` 공통 계약 추가, 6개 command wrapper thin-router화, `ci-skill-contract-check.mjs`가 reference 존재/공통 계약/라우터 크기 제한을 검사. R237/QA v51.73. R1 7곳 v51.73.
+- **v51.73 스킬 운영 계약 게이트**: .claude/skills 6개 주요 스킬과 .claude/commands 6개 wrapper에 AIO Skill Operating Contract를 추가. scripts/ci-skill-contract-check.mjs 신설 + CI 연결, workflow compaction이 .claude/skills를 스캔하도록 수정. R236/QA v51.73. R1 7곳 v51.73.
+- **v51.71 calcTechnicalSnapshot 소비 경로 계약 폐쇄**: 주봉 컨텍스트 필드 alias(lastWeekClose/wClose, wRsi/wRsi14)와 티커 UI fallback을 맞추고, AI 채팅에 VCP/Fibonacci·Volume Profile/RSI divergence/weekly context를 주입. public-data/screener.json VCP score artifact 재생성 + ci-runtime-contract-check.mjs에 P548/R235 게이트 추가. R1 7곳 v51.71.
 - **v51.70 RSI 다이버전스 UI 상세화 + 주봉 컨텍스트 패널**: `analyzeTickerDeep`에서 `calcTechnicalSnapshot()` 호출 → `snap.rsiDiv`로 4타입(강세/약세/히든강세/히든약세) 다이버전스 + 구체 설명 렌더. `snap.weeklyCtx`로 주봉 SMA20/SMA50/RSI14/추세 4-그리드 패널 추가. 캐시버스터 v51.67→v51.70 동기화(이전 세션 누락 수정). R1 7곳 v51.70.
 - **v51.69 피보나치/매물대/RSI 다이버전스/주봉 — `calcTechnicalSnapshot()` 통합**: `_calcFib(bars)` 최근 160봉 스윙고저→0.236/0.382/0.5/0.618/0.786 되돌림 + 1.0/1.272/1.618/2.618 확장, 현재가 최근접 레벨. `_calcVolProfile(bars)` 160봉 24구간 Volume Profile — POC(거래량 최다 가격)/Value Area(±70%)/최근접 지지·저항 매물대. `_calcRSIDivergence(bars)` RSI 시리즈 계산 → 불리시(가격LL+RSIHL)/베어리시(가격HH+RSILH)/히든 불리시·베어리시 감지. `_calcWeeklyContext(bars)` 일봉 5봉 묶음→주봉 OHLCV 시뮬레이션→주봉 SMA20/SMA50/RSI/추세. R1 7곳 v51.69.
 - **v51.68 VCP 자동 감지**: `_calcVCP(bars, indicators)` — Minervini 방법론. Stage 2(SMA150>SMA200, 가격>SMA50, 52주고점-30%이내) + 스윙고저 수축패턴(N=4봉) + 거래량 고갈(후반<전반×0.85) + 피벗 돌파 감지 + VCP 점수(0~100). 서버사이드 `_calcVCPServer()` → `screener.json` `vcpScore/vcpStage/vcpPivot` 필드. 스크리너 테이블 VCP 컬럼(정렬 지원). `calcTechnicalSnapshot()` 반환에 `vcp/vcpScore/vcpStage/vcpPivot` 추가. R1 7곳 v51.68.
@@ -112,7 +115,7 @@ AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터
 
 - **자동 배포/커밋 금지** — `/deploy` 또는 "배포해줘" 명시 시에만
 - **전체 재작성 금지** — CODE-MAP.md 기반 부분 패치만
-- **코드 수정 시 자동 반영**: BUG-POSTMORTEM + QA-CHECKLIST + RULES + 버전 6곳 동기화
+- **코드 수정 시 자동 반영**: BUG-POSTMORTEM + QA-CHECKLIST + RULES + 버전 7곳 동기화
 
 ---
 

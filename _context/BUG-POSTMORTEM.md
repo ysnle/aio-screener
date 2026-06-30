@@ -1,12 +1,39 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-06-29
+last_verified: 2026-06-30
 confidence: high
-latest_version: v51.67
-latest_P_number: P547
-total_entries: 546
-next_P_number: P548
+latest_version: v51.75
+latest_P_number: P550
+total_entries: 549
+next_P_number: P551
 ---
+
+## P550 - v51.75 - Residual static LIVE and rolling 48h news labels survived page-level currentness contract
+
+- **발생**: P549에서 decision header source cap은 닫혔지만, 페이지 내부 보조 배지에 `● LIVE`, `LIVE RSS`, 한국 이슈 카드 `48시간 이내`, `filterByAge(newsCache, 48)` 소비 경로가 남아 있었다. 브라우저상 상단 header는 source-aware였지만 사용자가 실제로 보는 내부 카드/배지는 여전히 live/rolling 48h처럼 보일 수 있었다.
+- **원인**: P549의 구조 수정은 decision header와 market-news 대표 라벨에 집중했고, 페이지 내부 static badge와 보조 뉴스 소비 함수까지 같은 회귀 게이트로 묶지 못했다.
+- **수정**: visible static live/action labels를 `SOURCE 확인`, `DATA 확인`, `RSS 확인`, `수신`으로 낮췄다. `renderKrIssues()`와 `computeNewsRiskSignals()`가 rolling 48h 대신 `filterByKst0800NewsCycle()`을 재사용하게 했다. runtime/data CI에 `● LIVE|LIVE RSS|BUY/LONG|공격적 매매` 정적 라벨 금지와 rolling 48h newsCache 직접 필터 금지를 추가했다.
+- **violated_rule**: R238.
+- **prevention**: `scripts/ci-runtime-contract-check.mjs`와 `scripts/ci-data-pipeline-contract-check.mjs`가 P549 이후 남은 내부 라벨/소비 경로까지 검사한다.
+- **verification**: `node scripts/ci-runtime-contract-check.mjs`; `node scripts/ci-data-pipeline-contract-check.mjs`.
+
+## P549 - v51.74 - Page currentness overstatement and news-window label drift
+
+- **발생**: 전수 점검에서 일부 페이지가 소수 live 지표만으로 페이지 전체를 `LIVE`처럼 보이게 할 수 있었다. `market-news` 화면은 데이터 계약이 08:00 KST 완료 24h인데 UI에는 `최근 48시간/48시간 이내`가 남아 있었다. 기술 페이지는 시장 종합 시그널이 중립이어도 건강도 65+에서 `공격적 매매 가능`을 표시했고, 티커 기본 액션은 데이터 입력 전부터 `BUY / LONG`이었다. 테마 상세는 선택 테마의 데이터 현재성/의미를 충분히 보여주지 못했다.
+- **원인**: 페이지 판단 헤더가 공통 currentness/evidence 계약 없이 `_aioDefaultDecision()`의 일부 live 시장 지표만 근거로 sourceKind를 승격했다. 뉴스 surface 계약과 visible copy가 같은 게이트로 묶이지 않았고, 기술/티커/테마 상세 화면은 데이터 수신 전 기본 문구가 행동 신호처럼 보이는 것을 차단하지 못했다.
+- **수정**: `AIO_PAGE_EVIDENCE_CONTRACT`, `AIO.getPageEvidenceState()`, `AIO.getPageEvidenceCurrentnessAudit()`를 추가하고 `_aioBuildPageDecision()`/`_aioRenderPageDecisionHeader()`가 evidence caveat와 다운그레이드된 sourceKind를 반영하게 했다. 뉴스 UI를 `08:00 KST 완료 24h`로 통일하고 empty state를 같은 계약으로 덮어썼다. 기술 점수 해석을 환경 진단으로 낮추고 종합 시그널 충돌 시 관망 문구를 추가했다. 티커 기본 액션은 `계획 대기`로 바꾸고 테마 상세에는 현재성 요약 블록을 추가했다. `_liveSnap()` 신선도는 `live 우선/source 확인`, `live+snapshot 혼합`, `대부분 snapshot/fallback`으로 낮췄다.
+- **violated_rule**: R219(의미 검토), R216/R217(수집 freshness와 소비 coverage 분리), R230(뉴스 visible freshness), R512 계열 aggressive entry wording.
+- **prevention**: R238로 승격. `scripts/ci-runtime-contract-check.mjs`는 page evidence 계약/헤더 caveat/고위험 페이지 source cap을 검사하고, `scripts/ci-data-pipeline-contract-check.mjs`는 market-news UI와 empty state가 08:00 KST 완료 24h 계약을 유지하는지 검사한다.
+- **verification**: `node scripts/ci-runtime-contract-check.mjs`; `node scripts/ci-data-pipeline-contract-check.mjs`; browser에서 `AIO.getPageEvidenceCurrentnessAudit()`와 market-news/technical/ticker/theme-detail 표시 확인.
+
+## P548 - v51.71 - calcTechnicalSnapshot 신규 필드가 UI/AI/아티팩트 소비 경로에서 부분 미연결
+
+- **발생**: v51.68~v51.70에서 VCP, Fibonacci/Volume Profile, RSI divergence, weekly context가 `calcTechnicalSnapshot()`에 추가됐지만 일부 소비 경로가 닫히지 않았다. 티커 주봉 패널은 `_wc.wClose`/`_wc.wRsi14`를 읽었고 생산자는 `lastWeekClose`/`wRsi`만 반환해 주봉 종가/RSI가 `—`로 표시될 수 있었다. AI 채팅은 새 필드를 계산만 하고 VCP/Fib/매물대/다이버전스/주봉 컨텍스트를 답변 입력에 싣지 않았다. 서버 VCP 산출 경로는 있었지만 기존 `public-data/screener.json`에는 `vcpScore`가 없어 VCP 컬럼이 데이터 갱신 전까지 전부 공백이었다.
+- **원인**: 생산자 함수 확장, visible UI, AI chat context, public-data artifact, CI gate가 같은 변경 단위로 묶이지 않았다. 기존 게이트는 함수/필드 존재 위주였고 실제 소비 문자열·별칭·아티팩트 커버리지를 실패시키지 않았다.
+- **수정**: `_calcWeeklyContext()`가 `lastWeekClose/wClose`와 `wRsi/wRsi14`를 함께 반환하도록 alias를 추가하고, `analyzeTickerDeep()` 주봉 패널은 두 이름을 모두 fallback으로 읽게 했다. `_fetchTechnicalDataForChat()`에 VCP, Fibonacci/Volume Profile, RSI divergence, weekly context 라인을 추가했다. `scripts/fetch-data.mjs`를 재실행해 `public-data/screener.json` 852개 row에 numeric `vcpScore`와 `vcpStage`를 채웠다. `scripts/ci-runtime-contract-check.mjs`에 weekly alias, UI fallback, chat 소비 라인, fetch-data VCP 방출, public-data VCP 커버리지 검사를 추가했다.
+- **violated_rule**: R233(기술분석 UI/AI 동기화), R222(artifact-to-consumer contract), R219(의미 검토 누락), R1(버전/캐시버스터 동기화).
+- **prevention**: `calcTechnicalSnapshot()` 반환 필드 추가/이름 변경 시 생산자, visible UI, AI chat context, public-data artifact, CI runtime contract를 같은 작업 단위로 닫는다. 신규 서버 파생 컬럼은 `public-data/*.json`에 실제 값이 들어간 샘플 커버리지까지 확인한다. R235로 승격.
+- **verification**: `rg -n "wClose: lastW.close|wRsi14: wRsi" js/aio-core.js`; `rg -n "피보나치/매물대|RSI 다이버전스|주봉 컨텍스트|• VCP:" js/aio-chat.js`; `node scripts/ci-runtime-contract-check.mjs`; `node -e "const s=require('./public-data/screener.json'); const rows=Object.values(s.data||{}); console.log(rows.filter(r=>typeof r.vcpScore==='number').length, rows.length)"`
 
 ## P547 - v51.66 - 카테고리별 데이터 기준 시각 추적 부재로 "누구는 1시간 전, 누구는 1일 전" 시간적 비일관성 노출 불가
 

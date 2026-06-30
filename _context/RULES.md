@@ -2,9 +2,44 @@
 verified_by: agent
 last_verified: 2026-06-27
 confidence: high
-target_version: v51.45
+target_version: v51.74
 
 ---
+
+## R238. Page currentness must be source-capped before visible decisions (v51.74, P549)
+
+- Every major page decision header must pass through `AIO_PAGE_EVIDENCE_CONTRACT` or an equivalent page-level evidence contract before showing `LIVE`, high confidence, or action language.
+- A page with mixed live/snapshot/reference data must cap `sourceKind` to the weakest decision-relevant layer. Page-specific caveats must be visible near the decision header.
+- News UI copy must match the actual news surface contract. If the pipeline uses the 08:00 KST completed 24h cycle, visible labels and empty states must not say `48시간`.
+- Secondary news consumers such as KR issue cards and risk-signal summaries must reuse `filterByKst0800NewsCycle()` or the shared surface model; do not reintroduce `filterByAge(newsCache, 48)`.
+- Technical health, ticker, theme-detail, fundamental, KR pages, and options pages must not show buy/long/aggressive action language before the page has current data and a cross-page market signal check.
+- Static visible badges must not say `● LIVE` or `LIVE RSS` unless the text is produced from a source-aware runtime state; default labels should use `SOURCE 확인`, `DATA 확인`, `RSS 확인`, or an equivalent caveated phrase.
+- AI chat freshness must distinguish live/source-confirmed values from snapshot/fallback values; `_liveSnap()` must not equate "no missing field" with "fully real-time".
+- `scripts/ci-runtime-contract-check.mjs` and `scripts/ci-data-pipeline-contract-check.mjs` are the minimum regression gates for this rule.
+
+## R237. Skills must use router-plus-reference architecture (v51.73)
+
+- Frequently used `.claude/skills/*/SKILL.md` files must stay concise: frontmatter, AIO contract, purpose, reference loading map, core workflow, and binary self-eval only.
+- Long checklists, examples, category inventories, tier lists, and report templates must live under the skill's `references/` folder and be named from the `SKILL.md` reference loading map.
+- Command wrappers in `.claude/commands/*.md` must stay thin and must not duplicate skill procedure details.
+- Shared cross-skill obligations live in `.claude/skills/_shared/operating-contract.md`, not repeated as divergent prose in each skill.
+- `scripts/ci-skill-contract-check.mjs` must fail if a required skill lacks its references, omits the shared contract, or grows past the router compaction threshold.
+
+## R236. Skills and command wrappers must be contract-gated (v51.72)
+
+- Active project skills live under `.claude/skills/*/SKILL.md`; command wrappers live under `.claude/commands/*.md`.
+- Every frequently used skill must include the AIO Skill Operating Contract, point to `_context/WORKFLOW-GOVERNANCE.md` and `_context/INDEX.md`, and distinguish verified/blocked/unverified surfaces in final output.
+- Every command wrapper for a skill must point to the matching `SKILL.md` and remain a thin routing layer, not a second source of truth.
+- R1 means 7 synchronized surfaces. Skill and wrapper docs must not preserve obsolete six-surface wording.
+- `scripts/ci-skill-contract-check.mjs` is the regression gate for this rule and must stay wired into CI.
+
+## R235. calcTechnicalSnapshot fields must close producer-consumer-artifact-gate together (v51.71, P548)
+
+- When `calcTechnicalSnapshot()` adds or renames a field, visible UI and AI chat consumers must use the exact field name or an explicit fallback alias in the same patch.
+- New derived columns from server/public-data paths must be present in the committed `public-data/*.json` artifact, or the UI must clearly mark the column as pending instead of silently rendering all dashes.
+- `scripts/ci-runtime-contract-check.mjs` must assert producer return fields, visible UI fallback, AI chat context consumption, fetch-data emission, and artifact coverage for the new field family.
+- Shape-only checks are not enough. The gate must verify at least one semantic consumer string or rendered-data contract for every high-impact technical snapshot addition.
+- This rule applies especially to VCP, Fibonacci/Volume Profile, RSI divergence, weekly context, MA stack, stage classification, and future multi-timeframe fields.
 
 ## R234. 신규 UI 블록은 검증 전까지 기본값 hidden (v51.64, P545 예방)
 
@@ -2711,7 +2746,7 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 
 ## R220. Workflow memory must be compacted before it is extended (v50.89, P514 root)
 
-**Rule**: `_context`, `CLAUDE.md`, QA checklists, postmortems, and `.agents/skills/*/SKILL.md` are operating surfaces, not infinite append-only logs. When a repeated problem appears, prefer one of these actions in order: remove stale guidance, merge duplicate rules, compress history into an indexable summary, split large skill details into `references/`, then add a new rule/check only if none of the above closes the loop.
+**Rule**: `_context`, `CLAUDE.md`, QA checklists, postmortems, and `.claude/skills/*/SKILL.md` are operating surfaces, not infinite append-only logs. When a repeated problem appears, prefer one of these actions in order: remove stale guidance, merge duplicate rules, compress history into an indexable summary, split large skill details into `references/`, then add a new rule/check only if none of the above closes the loop.
 
 **Required**:
 - Do not add a long SKILL.md section when the material can live in a referenced file or deterministic script.

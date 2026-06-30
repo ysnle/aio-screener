@@ -2338,6 +2338,28 @@ async function _fetchTechnicalDataForChat(tickers, opts) {
     lines += '• 50SMA 이격 ' + (snap.dist50Atr != null ? f(snap.dist50Atr, 1) + ' ATR' : 'N/A') + ' · 20SMA 이격 ' + (snap.dist20Atr != null ? f(snap.dist20Atr, 1) + ' ATR' : 'N/A') + ' · ATR(14) $' + f(snap.atr14) + '\n';
     lines += '• MACD 히스토그램 ' + (snap.macd && snap.macd.hist != null ? f(snap.macd.hist) + (snap.macd.hist > 0 ? ' 상승모멘텀' : ' 하락모멘텀') : 'N/A') + ' · 볼린저 ' + (snap.bbReentry ? '상단 재진입(소진주의)' : snap.bbOutsideUpper ? '상단 돌파' : '밴드 내') + ' · RVOL20 ' + f(snap.rvol20, 1) + 'x\n';
     lines += '• 20일 고/저 $' + f(snap.recentHigh20) + '/$' + f(snap.recentLow20) + (posVs20 != null ? ' (레인지 ' + posVs20 + '% 위치)' : '') + ' · 50일 고/저 $' + f(snap.recentHigh50) + '/$' + f(snap.recentLow50) + '\n';
+    if (snap.vcp) {
+      var vcpLabel = snap.vcpStage === 'breakout' ? '돌파' : snap.vcpStage === 'near_pivot' ? '피벗 근접' : snap.vcpStage === 'contracting' ? '수축 진행' : snap.vcpStage === 'basing' ? '베이스' : snap.vcpStage === 'stage2_only' ? 'Stage2 단독' : snap.vcpStage === 'not_stage2' ? 'Stage2 미충족' : '데이터 부족';
+      lines += '• VCP: ' + vcpLabel + ' · 점수 ' + (snap.vcpScore != null ? snap.vcpScore : 'N/A') + '/100' + (snap.vcpPivot ? ' · 피벗 $' + f(snap.vcpPivot) : '') + (snap.vcp.volumeDrying ? ' · 거래량 고갈 확인' : '') + '\n';
+    }
+    if (snap.fibNearest || snap.volProfile) {
+      var fibLine = snap.fibNearest ? (snap.fibNearest.label + ' $' + f(snap.fibNearest.price) + ' (' + (snap.fibNearest.distPct >= 0 ? '+' : '') + f(snap.fibNearest.distPct, 1) + '%)') : 'N/A';
+      var vp = snap.volProfile || {};
+      var va = vp.valueArea ? ('$' + f(vp.valueArea.lo) + '~$' + f(vp.valueArea.hi)) : 'N/A';
+      var vpLine = (vp.poc ? 'POC $' + f(vp.poc.mid) : 'POC N/A') + ' · VA ' + va +
+        (vp.nearestResistance ? ' · 위 매물 $' + f(vp.nearestResistance.mid) : '') +
+        (vp.nearestSupport ? ' · 아래 방어 $' + f(vp.nearestSupport.mid) : '');
+      lines += '• 피보나치/매물대: 근접 Fib ' + fibLine + ' · ' + vpLine + '\n';
+    }
+    if (snap.rsiDiv || snap.weeklyCtx) {
+      var divSignal = snap.rsiDivSignal || (snap.rsiDiv && snap.rsiDiv.signal) || 'none';
+      var divLabel = divSignal === 'bullish' ? '강세(가격LL+RSIHL)' : divSignal === 'bearish' ? '약세(가격HH+RSILH)' : divSignal === 'hidden_bullish' ? '히든강세(가격HL+RSILL)' : divSignal === 'hidden_bearish' ? '히든약세(가격LH+RSIHH)' : '없음';
+      var wc = snap.weeklyCtx || {};
+      var wClose = wc.wClose != null ? wc.wClose : wc.lastWeekClose;
+      var wRsi = wc.wRsi14 != null ? wc.wRsi14 : wc.wRsi;
+      var wTrendLabel = wc.wTrend === 'bullish' ? '주봉 상승' : wc.wTrend === 'bearish' ? '주봉 하락' : '주봉 혼조/부족';
+      lines += '• RSI 다이버전스: ' + divLabel + ' · 주봉 컨텍스트: ' + wTrendLabel + (wClose != null ? ' 종가 $' + f(wClose) : '') + (wc.wSma20 != null ? ' / W20 $' + f(wc.wSma20) : '') + (wc.wSma50 != null ? ' / W50 $' + f(wc.wSma50) : '') + (wRsi != null ? ' / W-RSI ' + f(wRsi, 1) : '') + '\n';
+    }
     if (ext) lines += '• 확장도(Blow-off Risk): ' + ext.state + ' (' + ext.score + '/100' + (ext.flags && ext.flags.length ? ', ' + ext.flags.slice(0, 3).join('/') : '') + ')\n';
     lines += qLine;
     lines += '※ 위는 라이브 OHLCV 실측 계산값. 피봇/손절/목표는 이 수치 기준으로 제시하고 학습데이터 추측 금지.';

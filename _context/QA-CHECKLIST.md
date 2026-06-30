@@ -1,13 +1,55 @@
 ---
 verified_by: agent
-last_verified: 2026-06-27
+last_verified: 2026-06-30
 confidence: high
 version: v3.7
-checklist_version: v51.45
-total_items: 392
+checklist_version: v51.75
+total_items: 418
 stages: 22
-latest_P_covered: P536
+latest_P_covered: P550
 ---
+
+## v51.75 - Residual static LIVE / rolling 48h cleanup (P550/R238)
+
+- [ ] Search user-facing HTML for static `● LIVE`, `LIVE RSS`, `BUY / LONG`, and `공격적 매매`; only source-aware labels should remain.
+- [ ] Korea issue/news risk consumers use `filterByKst0800NewsCycle()` or the shared news surface model, not `filterByAge(newsCache, 48)`.
+- [ ] `scripts/ci-runtime-contract-check.mjs` fails on overconfident visible static live/action labels.
+- [ ] `scripts/ci-data-pipeline-contract-check.mjs` fails on direct rolling 48h newsCache reuse.
+
+## v51.74 - Page currentness and news-contract gate (P549/R238)
+
+- [ ] `AIO_PAGE_EVIDENCE_CONTRACT`, `AIO.getPageEvidenceState()`, and `AIO.getPageEvidenceCurrentnessAudit()` exist and are consumed by `_aioBuildPageDecision()`.
+- [ ] Decision headers show a page caveat and do not promote technical, market-news, ticker, fundamental, theme-detail, options, or KR pages to raw `LIVE` when source evidence is mixed or absent.
+- [ ] Market news page labels and empty states say `08:00 KST 완료 24h`, not `최근 48시간` or `48시간 이내`.
+- [ ] Technical health score wording is an environment diagnostic and does not say `공격적 매매 가능`; it warns when composite trading score is below 60.
+- [ ] Ticker page default action is neutral until a ticker/current data path populates it.
+- [ ] `_liveSnap()` freshness returns source-aware labels such as `live 우선/source 확인`, `live+snapshot 혼합`, or `대부분 snapshot/fallback`.
+- [ ] Run `node scripts/ci-runtime-contract-check.mjs` and `node scripts/ci-data-pipeline-contract-check.mjs`.
+
+## v51.73 - Skill router/reference decomposition gate (R237)
+
+- [ ] Frequent `SKILL.md` files are concise routers with frontmatter, AIO contract, reference loading map, core workflow, and binary self-eval.
+- [ ] Long workflow detail lives under each skill's `references/` directory and every required reference is linked from the router.
+- [ ] `.claude/skills/_shared/operating-contract.md` exists and all frequent skills/wrappers point to it.
+- [ ] `.claude/commands/*.md` wrappers stay thin and do not duplicate skill implementation details.
+- [ ] `scripts/ci-skill-contract-check.mjs` enforces v51.73 contract version, reference existence, shared contract links, and router size caps.
+- [ ] `scripts/ci-workflow-compaction-check.mjs` passes without oversized frequent-skill warnings.
+
+## v51.72 - Skill operating contract gate (R236)
+
+- [ ] All frequent `.claude/skills/*/SKILL.md` files include the AIO Skill Operating Contract and read `_context/WORKFLOW-GOVERNANCE.md` + `_context/INDEX.md` first.
+- [ ] Skill command wrappers in `.claude/commands/*.md` are thin routers that point to the matching `SKILL.md`.
+- [ ] Skill and wrapper docs use R1 7-surface wording, not stale 6-surface wording.
+- [ ] `scripts/ci-skill-contract-check.mjs` passes locally and is wired into `.github/workflows/ci.yml`.
+- [ ] `scripts/ci-workflow-compaction-check.mjs` scans `.claude/skills`, not legacy `.agents/skills`.
+
+## v51.71 - calcTechnicalSnapshot consumer contract closure (P548/R235)
+
+- [ ] Ticker weekly context panel reads `weeklyCtx.wClose/lastWeekClose` and `wRsi14/wRsi` with fallback, so weekly close/RSI do not render as `—` when source values exist.
+- [ ] AI chat technical data block includes VCP, Fibonacci/Volume Profile, RSI divergence, and weekly context lines from `calcTechnicalSnapshot()`.
+- [ ] `public-data/screener.json` includes numeric `vcpScore` for refreshed screener rows before the VCP column is considered ready.
+- [ ] `scripts/ci-runtime-contract-check.mjs` fails if weekly field aliases, chat consumer lines, or VCP artifact coverage regress.
+- [ ] Version surfaces and cachebusters are synced to v51.71 after the technical contract fixes.
 
 ## v51.45 - Institutional Minervini technical engine (P536/R233)
 
