@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.80**
+- 현재 버전: **v51.81**
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다.
 - **v51.80 Portfolio AI Workbench**: 포트폴리오 페이지에 보유종목 선택 기반 AI 운용 노트 패널 추가. 종합 분석/종목 점검/리밸런싱/학습 과제/매매 복기를 통합 AI 패널로 바로 실행하고, 브라우저 로컬 복기 노트를 프롬프트에 연결. R243/QA v51.80.
 - **v51.79 Portfolio Backtest Lab**: 포트폴리오 페이지에 Portfolio Visualizer식 월말 기반 장기 백테스트를 분리 추가. CAGR/MDD/Sharpe/Sortino/active risk/annual returns/worst drawdowns/attribution을 같은 모델에서 렌더하고 AI 컨텍스트와 runtime CI/T845에 연결. R242/QA v51.79.

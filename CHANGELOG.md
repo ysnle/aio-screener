@@ -1,3 +1,9 @@
+## v51.81 (2026-07-01)
+- **Structural & Quality Upgrade**: Meta-sync after code-level v51.81 completion. All core structural skills and currentness contracts updated to v51.81.
+- **Version Alignment**: version.json, CLAUDE.md, _context/CLAUDE.md, index.html, js/aio-core.js, sw.js, CHANGELOG.md unified to v51.81.
+- **No Breaking Changes**: Backwards-compatible meta upgrade. All runtime features from v51.75→v51.81 code work intact.
+- R244/QA v51.81 added. R1 7 surfaces v51.81.
+
 ## v51.80 (2026-07-01)
 - **Portfolio AI Workbench**: Added a first-screen portfolio action panel with holding selector, direct AI actions for portfolio overview, ticker review, rebalance plan, learning tasks, and trade journal reflection.
 - **Trade journal loop**: Added browser-local `aio_portfolio_journal_v1` entries, latest-note status, and journal-aware AI prompts so users can turn buy/sell notes into rules, mistakes, and next checks.
