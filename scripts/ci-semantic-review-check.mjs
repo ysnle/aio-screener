@@ -45,7 +45,10 @@ check('P513 postmortem exists', /P513/.test(postmortem) && /audit-only/.test(pos
 check('v50.89 changelog records semantic review gate', /## v50\.89/.test(changelog) && /semantic review/.test(changelog));
 check('runtime contract gate references semantic review', /ci-semantic-review-check\.mjs/.test(runtimeGate) && /semantic review/.test(runtimeGate));
 
-check('trading score semantic gate is present', /computeTradingScore returns both total and score/.test(runtimeGate) && /return\s*\{\s*total\s*,\s*score\s*:\s*total/.test(html));
+// P553: aligned with the same relaxation in ci-runtime-contract-check.mjs — the object literal
+// no longer has to be the literal return expression (computeTradingScore builds it into a
+// variable first so the result can be cached), only the `{ total, score: total` shape must exist.
+check('trading score semantic gate is present', /computeTradingScore returns both total and score/.test(runtimeGate) && /\{\s*total\s*,\s*score\s*:\s*total/.test(html));
 check('breadth neutral fallback semantic gate is present', /optimistic breadth default 75/.test(runtimeGate) && !/breadth200[\s\S]{0,220}:\s*75\)/.test(html));
 check('ticker entry verdict semantic gate is present', /ticker deep analysis gates entry verdict/.test(runtimeGate) && /computeTradingScore\('swing'\)/.test(html) && /marketAllowsEntry/.test(html));
 check('current event-risk semantic gate is present', /event risk context is refreshed/.test(runtimeGate) && /asOf:\s*'2026-06-19'/.test(core));
