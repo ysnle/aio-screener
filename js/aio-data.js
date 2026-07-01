@@ -10986,6 +10986,19 @@ function renderHomeFeed(items) {
     return;
   }
 
+  // P554/R245: 홈 "핵심 뉴스"는 _homeBoost(지정학/매크로/Tier-1 우대)로 선택되지만, 번역은
+  // newsCache 원본 순서 앞 6건만 즉시 처리하고 나머지는 data-news-idx 뷰포트 진입 시에만
+  // 번역되는 lazy observer에 의존한다. 홈 카드 DOM에는 data-news-idx가 없어 그 observer
+  // 대상이 아니므로, 정확히 "중요해서 부스트된" 뉴스일수록 [번역 대기]가 영구 고정되는
+  // 구조적 문제가 있었다. 선택된 상위 뉴스가 아직 캐시에 없으면 즉시 우선 번역을 요청한다
+  // (autoTranslateNews 완료 시 renderHomeFeed를 다시 호출하므로 별도 재렌더는 불필요).
+  try {
+    var _untranslated = filtered.filter(function(i) { return i.title && !_tcHas(i.title); });
+    if (_untranslated.length && typeof autoTranslateNews === 'function' && !_translationInProgress) {
+      autoTranslateNews(_untranslated).catch(function(){});
+    }
+  } catch(_) {}
+
   // v39.0c: 간결 불릿 — 한국어 제목, 기업 뉴스에만 티커, 클릭 시 원문
   container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">핵심 뉴스</div>' +
     filtered.map(item => {
@@ -16247,6 +16260,10 @@ function refreshHomeDashboard() {
   } else {
     tradingScore = window._tradingScore || 50;
   }
+  // P553/R244: "오늘 결론" 헤더(_aioRenderPageDecisionHeader)와 이 게이지가 서로 다른 이벤트
+  // (aio:liveQuotes vs aio:marketStateUpdated)에서 독립 갱신되어 같은 화면에 다른 점수가
+  // 동시에 보이던 문제 — 게이지가 갱신되는 시점에 헤더도 항상 함께 강제 재렌더해 절대 어긋나지 않게 한다.
+  try { if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('home'); } catch(_) {}
   const signalEl = document.getElementById('home-trading-signal');
   const explanEl = document.getElementById('home-trading-explanation');
   if (signalEl) {

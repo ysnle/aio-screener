@@ -1,13 +1,23 @@
 ---
 verified_by: agent
-last_verified: 2026-06-30
+last_verified: 2026-07-01
 confidence: high
 version: v3.7
-checklist_version: v51.80
-total_items: 446
+checklist_version: v51.82
+total_items: 453
 stages: 22
-latest_P_covered: P551
+latest_P_covered: P557
 ---
+
+## v51.82 - Live full-site audit fixes: score consistency, news catch-up, CI hint, CDN timing, CI-gated deploy (R244-R248)
+
+- [ ] Loading home twice in quick succession never shows a different number between the "오늘 결론" header verdict score and the "매매 점수 분해" gauge/card — both always match. `window._aioScoreCache` exists after any `computeTradingScore()` call.
+- [ ] `refreshHomeDashboard()` calls `window._aioRenderPageDecisionHeader('home')` in the same pass after computing `tradingScore`.
+- [ ] Home "핵심 뉴스" (top-3 boosted items) never stays on `[번역 대기]` placeholder titles for more than one translation batch cycle — `renderHomeFeed()` triggers `autoTranslateNews()` directly for any selected item not yet in `_translationCache`.
+- [ ] `scripts/ci-version-check.mjs` failure output includes the line `Fix: run "node scripts/bump-version.mjs <version>"...`.
+- [ ] Console never logs `[AIO] jsDelivr CDN 실패` before `DOMContentLoaded` has fired; the Chart.js fallback-detection block in index.html is wrapped in `document.addEventListener('DOMContentLoaded', ...)`.
+- [ ] `gh api repos/{owner}/{repo}/pages` reports `build_type: "workflow"` (not `"legacy"`). Pushing a commit that fails `validate` does not update the live site; pushing one that passes does.
+- [ ] The `deploy` job's staged artifact excludes every dot-prefixed and underscore-prefixed top-level path (`_context/`, `_archive/`, `_backup/`, `.github/`, `.claude/`, `.agents/`) — spot-check `https://ysnle.github.io/aio-screener/_context/RULES.md` still returns 404 after any deploy workflow change.
 
 ## v51.80 - Portfolio AI workbench + journal reflection learning loop (R243)
 

@@ -6,6 +6,42 @@ target_version: v51.80
 
 ---
 
+## R248. Deployment must be wired to the CI gate, not merely run alongside it (v51.82)
+
+- If a CI workflow exists specifically to catch bad states before they reach users, the deployment mechanism must actually depend on it (e.g. a `deploy` job with `needs: validate`), not run through an independent, unaware path (e.g. legacy branch-based GitHub Pages, which deploys on push regardless of workflow outcome).
+- Verify this after any deployment/CI config change: push a commit, confirm the deploy job only runs after validate succeeds, and confirm `gh api repos/{owner}/{repo}/pages` reports `build_type: "workflow"` (not `"legacy"`).
+- When migrating from legacy branch-deploy to an Actions-based `deploy-pages` job, the artifact staging step must reproduce whatever exclusions the legacy path silently applied (Jekyll's default dot/underscore exclusion here) — `actions/upload-pages-artifact` performs no such filtering itself, so a naive `path: '.'` would newly publish previously-hidden internal directories.
+- See P557/BUG-POSTMORTEM.md for the incident (Pages deployed live regardless of the 33%-failing CI gate).
+
+## R247. CDN/script load-failure detection must not race against `defer` (v51.82)
+
+- A plain synchronous inline `<script>` placed after a `<script defer src="...">` tag executes immediately at parse time — well before the deferred script has had any chance to run. Checking `typeof SomeGlobal === 'undefined'` at that point will (almost) always be true regardless of whether the CDN actually succeeded, producing a permanent false-positive "CDN failed" signal and loading unnecessary duplicate fallback resources on every page load.
+- Load-failure detection must either use the script tag's own `onerror` handler, or run inside a `DOMContentLoaded`/`load` listener (which always fires after all `defer`red scripts have executed) — never a bare synchronous check placed after the deferred tag in source order.
+- The Chart.js jsDelivr→cdnjs fallback (index.html, near the Chart.js/DOMPurify/lightweight-charts `defer` tags) is the concrete precedent — its detection now runs inside `document.addEventListener('DOMContentLoaded', ...)`.
+- See P556/BUG-POSTMORTEM.md for the incident (100% reproducible false "jsDelivr CDN 실패" on every load, not an actual outage).
+
+## R246. Version-bump commits must land atomically; never leave main in a partially-synced state (v51.82)
+
+- All 7 R1 locations (index.html title/badge/cachebusters, APP_VERSION, SW_VERSION, version.json, root CLAUDE.md, _context/CLAUDE.md, CHANGELOG.md) must change in the same commit that is pushed to main. Do not push a version.json bump and follow up with the remaining locations in a later commit.
+- Because GitHub Pages deploys every push to main independent of CI outcome (`build_type: legacy`), a partially-synced push is not just a CI failure risk — the inconsistent state is simultaneously live in production until fixed.
+- Any commit landing on main while a version-sync break is unresolved will inherit that CI failure even if it did not cause it (e.g. an unrelated operator-note.json content edit). If CI fails on a commit that provably touches unrelated files, look at the immediately preceding commit(s) for the real break rather than debugging the innocent commit.
+- `ci-version-check.mjs` prints the direct fix command (`node scripts/bump-version.mjs <version>`) on failure — use it immediately rather than re-deriving which location drifted.
+- See P555/BUG-POSTMORTEM.md for the incident (33% of recent CI runs failing, traced to this pattern).
+
+## R245. Prioritized/boosted content selection must guarantee its picks already ran through required enrichment (v51.82)
+
+- If a display surface reorders or filters a list by an importance/boost score, it must not assume the enrichment (translation, scoring, tagging) a normal reader would need was already applied — enrichment pipelines that process "the first N items in fetch order" or "items visible via a specific DOM marker" do not automatically cover an independently-selected top-N-by-importance subset.
+- Any such surface must check whether its selected items already carry the required enrichment and, if not, trigger it directly for exactly those items rather than relying on a generic/lazy mechanism that may never reach them.
+- `renderHomeFeed()`'s "핵심 뉴스" catch-up translation call (js/aio-data.js, guarded by `_tcHas`/`_translationInProgress`) is the concrete precedent.
+- See P554/BUG-POSTMORTEM.md for the incident (home page's boosted Tier-1/geopolitical headlines were exactly the ones permanently stuck on "[번역 대기]").
+
+## R244. A live-state value shown in multiple UI surfaces must not be computed independently per surface (v51.82)
+
+- If a function reads mutable live globals (quotes, breadth, put/call ratio, news sentiment, etc.) and is not pure, any UI surface displaying "the same current value" must share one cached computation per refresh cycle, or must be re-rendered together from a single trigger.
+- Independent per-surface recomputation on different event triggers (e.g. one surface on `aio:liveQuotes`, another on `aio:marketStateUpdated`) is prohibited — it lets two surfaces legitimately disagree at the same instant because live inputs shifted between the two independent calls.
+- `computeTradingScore()` now memoizes per `mode` for 20s (index.html) and `refreshHomeDashboard()` force-re-renders the decision header in the same pass (js/aio-data.js) as the concrete precedent. New composite/derived-score functions consumed by 2+ render paths must follow the same pattern.
+- See P553/BUG-POSTMORTEM.md for the incident (home page showed 52 vs 64 for the same trading score at the same instant).
+
 ## R243. Portfolio UX must close input -> AI analysis -> journal reflection -> learning loop (v51.80)
 
 - The portfolio page must provide a direct user workflow after holdings are entered: selected holding/all-holdings analysis, single-ticker review, rebalance planning, trade journal reflection, and learning tasks.

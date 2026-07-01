@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.81**
+- 현재 버전: **v51.82**
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다.
+- **v51.82 라이브 전수감사 대응 4건**: (1) `computeTradingScore()` 20초 TTL 캐시 + `refreshHomeDashboard()`가 게이지 갱신 시 결정헤더도 강제 재렌더 — 홈 "오늘 결론"과 "매매 점수 분해"가 동시에 다른 점수(52 vs 64)를 보이던 문제 근본 수정(P553/R244). (2) `renderHomeFeed()`가 선택한 "핵심 뉴스" 상위 3건이 캐시에 없으면 즉시 번역 요청 — 부스트되어 노출되는 뉴스일수록 번역이 영구 대기 상태에 머물던 문제 수정(P554/R245). (3) `ci-version-check.mjs` 실패 시 직접 수정 명령 출력 + 버전범프 원자성 커밋 규칙 명문화(P555/R246). (4) jsDelivr CDN 폴백 감지를 `DOMContentLoaded` 이후로 이동 — defer 스크립트 실행 전에 실패로 오판하던 타이밍 버그 수정(P556/R247).
 - **v51.80 Portfolio AI Workbench**: 포트폴리오 페이지에 보유종목 선택 기반 AI 운용 노트 패널 추가. 종합 분석/종목 점검/리밸런싱/학습 과제/매매 복기를 통합 AI 패널로 바로 실행하고, 브라우저 로컬 복기 노트를 프롬프트에 연결. R243/QA v51.80.
 - **v51.79 Portfolio Backtest Lab**: 포트폴리오 페이지에 Portfolio Visualizer식 월말 기반 장기 백테스트를 분리 추가. CAGR/MDD/Sharpe/Sortino/active risk/annual returns/worst drawdowns/attribution을 같은 모델에서 렌더하고 AI 컨텍스트와 runtime CI/T845에 연결. R242/QA v51.79.
 - **v51.78 public readiness source/asOf matrix**: 홈 상태판이 페이지별 `sourceKind/sourceLabel/asOf` 칩을 렌더하고, `AIO.getPublicShareReadiness()`가 `pageEvidenceRows/weakPages`를 반환. workflow compaction은 관리되는 장기 ledger와 unmanaged oversized context를 분리. R241/QA v51.78.

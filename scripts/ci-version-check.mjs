@@ -59,6 +59,12 @@ check(
 if (failures.length) {
   console.error(`Version sync failed. Canonical version: ${version}`);
   failures.forEach((failure) => console.error(` - ${failure}`));
+  // P555/R246: this gate has repeatedly failed on commits that could not possibly have
+  // caused the drift themselves (e.g. an operator-note.json content edit inherited a break
+  // left by an earlier incomplete version bump). Print the direct remediation command so
+  // whoever sees this failure — including someone with no context on R1 — can fix it in
+  // one step instead of re-deriving which of the 7 locations to touch.
+  console.error(`\nFix: run "node scripts/bump-version.mjs ${version}" and commit all resulting changes together, then re-run this check.`);
   process.exit(1);
 }
 

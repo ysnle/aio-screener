@@ -21,6 +21,9 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
+      # ↓↓↓ P557/R248: validate must fully pass before the deploy job below is allowed to
+      # run — this is the whole point of this change. Do not add `continue-on-error` to any
+      # step here without also revisiting deploy's `needs: validate` gate.
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -77,3 +80,49 @@ jobs:
             echo "❌ 추적된 stray 임시/백업 파일 발견:"; echo "$STRAY"; exit 1
           fi
           echo "✅ stray 파일 없음"
+
+  # P557/R248: GitHub Pages was on "legacy" branch-deploy, which republishes whatever is on
+  # main the instant it's pushed — completely independent of whether `validate` above passed
+  # or failed (confirmed live: 33% of recent CI runs failed, some of those pushes went live
+  # anyway). This job makes deployment depend on `validate` succeeding first via `needs:`,
+  # so a broken push simply does not update the live site instead of deploying broken.
+  deploy:
+    name: Deploy to GitHub Pages (gated on validate)
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Legacy branch-deploy ran the repo root through Jekyll, which by default silently
+      # excludes any dotfile/dot-directory and any underscore-prefixed file/directory
+      # (_context, _archive, _backup, .github, .claude, .agents, .git, ...) even with no
+      # _config.yml present. actions/upload-pages-artifact does not run Jekyll and has no
+      # such default, so uploading the raw checkout would newly expose all of that internal
+      # content publicly. This staging step reproduces Jekyll's dot/underscore exclusion
+      # exactly, so the public surface stays identical to what main already serves today.
+      - name: Stage public site (replicate Jekyll dot/underscore exclusion)
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/pages-dist"
+          rsync -a --exclude='.*' --exclude='_*' ./ "$RUNNER_TEMP/pages-dist/"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/pages-dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
