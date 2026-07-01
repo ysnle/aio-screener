@@ -6,6 +6,94 @@ target_version: v51.80
 
 ---
 
+## R262. Scheduled scrapers/fetchers hitting external feeds must self-throttle with a persisted cursor, not stateless full re-scans (v51.83)
+
+- Any scheduled fetch script that walks a paginated external feed (especially an unofficial one, like Telegram's public web mirror) must persist a cursor (last-seen id/timestamp) between runs and use it to stop early once caught up, rather than re-walking the entire window from scratch every cycle.
+- If the output artifact only persists a capped/filtered summary (not the full raw item list), carry forward and merge that summary with freshly-fetched items before recomputing derived fields — an early-stopped fetch must not silently shrink what the app actually consumes.
+- `fetch-telegram-digest.mjs`'s `lastPostId` cursor + `topItems`/`broadItems` merge pool is the concrete precedent.
+- See P571/BUG-POSTMORTEM.md for the incident (48 full-window re-scans/day of an unofficial scraping surface with zero throttle).
+
+## R261. A "single responsibility" canonical updater must include every DOM sink for its metric (v51.83)
+
+- When a function is documented as the single canonical place that updates all DOM sinks for a metric, any new sibling element added later to display that same metric must be added to that function's sink list in the same change. A forgotten sink silently freezes at its static HTML placeholder forever while the rest of the metric's displays update live.
+- `_applyFearGreedScore()`'s sink list (`big`, `val`, `homeFG`, `rat` — js/aio-data.js) is the concrete precedent.
+- See P570/BUG-POSTMORTEM.md for the incident (two different F&G numbers on the same sentiment-page card).
+
+## R259. Re-registerable event listeners must guard against duplicate registration consistently across sibling elements (v51.83)
+
+- If a function that can run more than once (page revisit, re-init) registers an event listener on more than one element, every element must use the same named-handler-plus-removal-guard pattern — an asymmetry where one sibling guards and another doesn't is a listener leak waiting to accumulate with each revisit.
+- The `bp-chart`/`bp-price-chart` canvases in `initBreadthPage()` (js/aio-ui.js) are the concrete precedent — both now guard identically.
+- See P568/BUG-POSTMORTEM.md for the incident.
+
+## R260. A function must never be redefined more than once at the same scope in the same file (v51.83)
+
+- If a newer version of a function supersedes an older one, delete the older definition in the same change. Do not leave a superseded `function foo() {...}` in place "just in case" — later definitions silently win, so the earlier ones become permanently dead code that still compiles and passes casual review, misleading anyone who edits them into thinking their fix took effect.
+- See P569/BUG-POSTMORTEM.md for the incident (`_aioRenderOperatorNote` defined 3 times, only the last ever executed).
+
+## R258. A hardening measure added to one surface must be checked against equivalent surfaces (v51.83)
+
+- When two or more surfaces in the app perform the same class of operation (e.g. rendering AI-generated content into the DOM), a security/hardening measure added to one (DOMPurify sanitization, input validation, escaping) must be checked against every equivalent surface, not assumed to be specific to where it was first added.
+- `_appendAIMsg()` (index.html, global chat panel) now routes through `window.safeHtml()` matching `_aioSafeMD()` (aio-core.js, per-page embedded chat) — both AI-response render paths now meet the same standard.
+- See P567/BUG-POSTMORTEM.md for the incident (the global chat panel was missing the DOMPurify gate the per-page chat already had).
+
+## R257. Persisted-and-later-rendered free text needs both input-boundary validation and escaped render (v51.83)
+
+- Any free-text input that gets persisted (localStorage, etc.) and rendered again later (search history, watchlists, notes) must be validated against its expected format at the input boundary AND have its render path escaped — relying on only one of the two leaves a gap (validation alone misses fields with no format constraint; escaping alone still persists junk/attack payloads even if the current render happens to be safe).
+- `fundamentalSearch()`'s ticker format check (`^[A-Z0-9.\-]{1,12}$`) plus `_fundRecentSearches()`'s `escHtml()`'d label (js/aio-chat.js) is the concrete precedent.
+- See P566/BUG-POSTMORTEM.md for the incident (ticker recent-search stored self-XSS).
+
+## R256. Every external data source in the fetch pipeline must track per-unit failures, not just an aggregate ok flag (v51.83)
+
+- Every external API/feed integrated into `scripts/fetch-data.mjs` must follow the same failure-detection standard `enrichFundamentals()` (FMP) established: explicit per-unit (per-series/per-symbol/per-feed) failure tracking surfaced into `data.meta`, not merely an aggregate "did anything succeed" flag that a partial failure can pass silently.
+- `fetchFred()`'s `_failedSeries` array (surfaced as `data.meta.fredFailedSeries`, logged individually, and shown in the `refresh-data.yml` job summary) is the concrete precedent for any future FRED-like multi-unit source.
+- See P565/BUG-POSTMORTEM.md for the incident (partial FRED failures were fully silent, a plausible cause of weeks-stale macro fields with no alert anywhere).
+
+## R255. Automated workflows pushing to a shared branch must rebase/retry on rejection, never push-once-and-drop (v51.83)
+
+- Any scheduled/automated workflow that commits and pushes to a branch also updated by other actors (humans via web UI, other workflows, other sessions) must handle push rejection by fetching + rebasing and retrying (bounded attempts), not by pushing once and silently dropping the work if it fails.
+- `refresh-data.yml`'s commit step (bounded 5-attempt fetch+rebase retry loop) is the concrete precedent.
+- See P564/BUG-POSTMORTEM.md for the incident (a real merge commit proved this race happens; a bare push would have failed outright and silently dropped that cycle's entire data refresh).
+
+## R254. External classification tags are not ground truth without independent keyword support, and AI prompts must verify tag-content consistency (v51.83)
+
+- When a news/content item's topic classification falls back to an externally-sourced tag (an RSS/API category, not our own keyword match), only accept it if it matches our own known vocabulary (`TOPIC_KEYWORDS` keys) — never trust an arbitrary source-provided string as-is. Default to `'general'` when there is no independent evidence.
+- Any AI prompt that could produce sector/topic-specific commentary anchored to a classification tag must explicitly instruct the model to verify the claim against the item's own text first, and describe what the text actually says if tag and content disagree.
+- `classifyTopic()`'s fallback guard and `_generateAIBriefing()`'s topic-tag caveat (both js/aio-data.js) are the concrete precedent.
+- See P563/BUG-POSTMORTEM.md for the incident (a SCOTUS/politics story tagged 반도체·AI produced fabricated-sounding semiconductor commentary).
+
+## R253. Multiple DOM bindings for the same metric must share one resolver, not independently-ordered fallback chains (v51.83)
+
+- If a metric is displayed in more than one place on the same card/page (a big number plus a bar width plus a descriptive sentence), all of them must resolve their value through the same function/priority order. Two independently-written `sourceA || sourceB` fallback chains for the "same" metric will diverge the moment only one of the underlying sources is updated.
+- `updateBreadthBars()`'s 50SMA block (js/aio-ui.js) is the concrete precedent — it now reads `DATA_SNAPSHOT.breadth50sma` first, matching the big-number `_snap` binding's own priority, instead of preferring a separately-simulated `window._breadth50`.
+- See P562/BUG-POSTMORTEM.md for the incident (48% big number vs 52% bar/readout on the same breadth card).
+
+## R252. A static/curated list overlaid with live per-item data must flag contradictions, not silently keep them (v51.83)
+
+- If a list's membership/ranking is static/hand-curated but individual items receive a live data overlay (price, % change), the live overlay must not be allowed to silently contradict the list's own framing (e.g. a "top gainers" card showing a live negative change). Detect the mismatch and visually flag it rather than leaving list position and live data disagreeing with no explanation.
+- The kr-home "KOSPI 상위 상승/하락" `.kr-sign-mismatch` class (js/aio-data.js live-quote update loop + index.html CSS) is the concrete precedent.
+- See P561/BUG-POSTMORTEM.md for the incident (a stock down -3.40% shown atop the Top Gainers list).
+
+## R251. XBRL/multi-source financial data must resolve to the freshest tag and validated period, and refresh handlers must have a real data source (v51.83)
+
+- When a financial concept can be reported under multiple historical XBRL tag names (e.g. revenue tag changes across an ASC-606 transition), always evaluate every alias and keep whichever has the most recent reporting date — never the first alias that merely has any data, since abandoned old tags keep their historical entries forever.
+- Annual (10-K) XBRL facts must be validated by actual start-end duration (~300-400 days), not just filing form type, before being compared against other concepts in a ratio — a stray quarterly/stub fact slipping into the "annual" set distorts cross-concept ratios (margins, ROE) even though each individual number looks plausible in isolation.
+- Any periodic (`aio:liveQuotes`/`aio:pageShown`/interval) UI-refresh handler must be verified to read from a data source that is actually written to somewhere in the codebase — a handler reading a permanently-empty cache object will silently overwrite good initial-render data with an empty/broken re-render on every tick.
+- See P560/BUG-POSTMORTEM.md for the incident (fundamental page showed impossible financials from 4 independent instances of these failure classes at once).
+
+## R250. A shared cross-page renderer must resolve each page's own parameters, not one hardcoded default (v51.83)
+
+- When a single renderer is shared across all pages (e.g. the decision header, built once for every `pageId`) and it calls a parameterized function that a specific page's own dashboard also calls with a non-default parameter (e.g. `computeTradingScore('swing')` on signal/ticker), the shared renderer must look up and use that same parameter for that page — not always call with a hardcoded default.
+- Register any such page-specific parameter in `AIO_PAGE_SCORE_MODE` (js/aio-core.js) rather than special-casing it inline; this is what `_aioDefaultDecision(pageId)` reads.
+- This is the second occurrence of the R244 bug class (independent computation of a live-state value from multiple call sites) — this time the divergence came from mode/parameter mismatch rather than pure timing, so R244's cache alone did not fully cover it.
+- See P559/BUG-POSTMORTEM.md for the incident (signal page reproduced the P553 home-page defect via a different mechanism).
+
+## R249. Externally-sourced text must be escaped at the pipeline entry point, not at each render call site (v51.83)
+
+- Any renderer that inserts text originating from an external source the app operator does not control (RSS/API news, scraped social/Telegram content, user input) into `innerHTML` must escape (`escHtml`) that text at the single point it enters the processing function, before any downstream transforms (highlighting, truncation, extraction) run on it — not rely on every render call site remembering to escape independently.
+- URLs from the same external sources must go through `escUrl` (blocks `javascript:`/`data:`/`vbscript:` schemes, percent-encodes quote/angle-bracket characters) before being placed in an `href` attribute, matching the pattern the six standard news-card renderers already use.
+- `_aioProcessTelegramItem()`/`_aioRenderTelegramFeedHtml()` (js/aio-data.js) is the concrete precedent and fix.
+- See P558/BUG-POSTMORTEM.md for the incident (raw Telegram post text reaching innerHTML unescaped on 9 pages).
+
 ## R248. Deployment must be wired to the CI gate, not merely run alongside it (v51.82)
 
 - If a CI workflow exists specifically to catch bad states before they reach users, the deployment mechanism must actually depend on it (e.g. a `deploy` job with `needs: validate`), not run through an independent, unaware path (e.g. legacy branch-based GitHub Pages, which deploys on push regardless of workflow outcome).

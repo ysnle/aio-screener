@@ -171,7 +171,12 @@ async function mapLimit(items, limit, fn) {
 // ── FRED ──
 async function fetchFred(key) {
   if (!key) return { _source: 'fred:no-key' };
-  const out = { _source: 'fred' };
+  // P565/R256: a single failed FRED series used to be swallowed with no log and no field-level
+  // flag — only the aggregate macroKeyCount dropped by one, with nothing telling anyone WHICH
+  // series broke. enrichFundamentals (FMP) already detects and surfaces plan/auth errors
+  // explicitly; this brings FRED to the same standard so a stale/broken series (the mechanism
+  // behind Fed/BOJ/BOK/BOE rates going 15-62 days stale) is visible instead of silent.
+  const out = { _source: 'fred', _failedSeries: [] };
   for (const [field, spec] of Object.entries(FRED_SERIES)) {
     try {
       const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${spec.id}` +
@@ -201,7 +206,10 @@ async function fetchFred(key) {
         if (obs.length >= 3) out[field + 'Delta'] = Math.round((obs[0].v - obs[1].v) - (obs[1].v - obs[2].v));
       }
       out['_asOf_' + field] = obs[0].d;
-    } catch (e) { /* 한 시리즈 실패는 무시 */ }
+    } catch (e) {
+      out._failedSeries.push(field);
+      console.warn(`[fetch-data] FRED series 실패: ${field} (${spec.id}) — ${e.message}`);
+    }
   }
   return out;
 }
@@ -1081,6 +1089,8 @@ async function main() {
   const fearGreedOk = typeof fearGreed.score === 'number' && isFinite(fearGreed.score);
   const fredHasKey = !!process.env.FRED_API_KEY;
   const fredFetchOk = fredHasKey && macroKeys.length > 0;
+  // P565/R256: per-series failures, now tracked instead of silently swallowed (see fetchFred).
+  const fredFailedSeries = Array.isArray(macro._failedSeries) ? macro._failedSeries : [];
   const newsScores = Array.isArray(news) ? news.map(n => Number(n.score)).filter(n => isFinite(n)) : [];
   const newsCycle = getKst0800NewsCycle();
   const fredOk = fredFetchOk; // 하위 호환 유지
@@ -1098,6 +1108,7 @@ async function main() {
       fredFetchOk,
       fredOk,
       macroKeyCount: macroKeys.length,
+      fredFailedSeries,
       newsOk: Array.isArray(news) && news.length > 0,
       newsCount: Array.isArray(news) ? news.length : 0,
       newsSourceCount: NEWS_FEEDS.length,
@@ -1126,6 +1137,10 @@ async function main() {
   if (!fearGreedOk) console.warn('[fetch-data] 경고: F&G 수집 실패 (사이트는 정적 폴백 사용)');
   if (!fredHasKey) console.warn('[fetch-data] 경고: FRED_API_KEY GitHub Secret 미등록 — 매크로 서버갱신 비활성. 클라이언트 aio_fred_key로 브릿지 가능.');
   if (fredHasKey && !fredFetchOk) console.warn('[fetch-data] 경고: FRED 키 있으나 매크로 0건 — 키 유효성/레이트리밋 확인');
+  // P565/R256: fredFetchOk only requires macroKeys.length > 0, so a partial failure (e.g. 6 of
+  // 9 series succeed) previously passed this check silently — the exact mechanism that let
+  // individual stale/broken series (Fed/BOJ/BOK/BOE rates) go unnoticed for weeks.
+  if (fredHasKey && fredFailedSeries.length > 0) console.warn(`[fetch-data] 경고: FRED 시리즈 ${fredFailedSeries.length}건 실패 — ${fredFailedSeries.join(', ')}`);
   if (!process.env.ANTHROPIC_API_KEY) console.warn('[fetch-data] 경고: ANTHROPIC_API_KEY 미등록 — AI 분석 비활성. 클라이언트 템플릿 폴백 사용.');
 
   await mkdir(dirname(OUT), { recursive: true });

@@ -55,7 +55,7 @@ jobs:
               `| Generated (KST) | OK | ${ts} |`,
               `| Quotes | ${m.symbolsOk >= 70 ? 'OK' : 'WARN'} | ${m.symbolsOk || 0}/${totalSymbols} failed: ${(m.failedSymbols || []).join(',') || 'none'} |`,
               `| Fear&Greed | ${m.fearGreedOk ? 'OK' : 'WARN'} | ${d.fearGreed && d.fearGreed.score != null ? d.fearGreed.score : 'n/a'} |`,
-              `| FRED Secret | ${m.fredHasKey ? 'OK' : 'MISSING'} | fredFetchOk: ${m.fredFetchOk ? 'yes (' + (m.macroKeyCount || 0) + ' keys)' : 'no'} |`,
+              `| FRED Secret | ${m.fredHasKey ? (m.fredFailedSeries && m.fredFailedSeries.length ? 'WARN' : 'OK') : 'MISSING'} | fredFetchOk: ${m.fredFetchOk ? 'yes (' + (m.macroKeyCount || 0) + ' keys)' : 'no'}${m.fredFailedSeries && m.fredFailedSeries.length ? ' · failed: ' + m.fredFailedSeries.join(',') : ''} |`,
               `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items · ${m.newsCycleLabel || 'cycle n/a'} |`,
               `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : 'ANTHROPIC_API_KEY missing or generation failed'} |`,
               `| FMP Factors | ${m.fmpHasKey === false ? 'MISSING' : m.fmpOk ? 'OK' : m.fmpPlanError ? 'PLAN_ERROR' : m.fmpHasKey ? 'WARN(0/N)' : 'SKIP'} | hasKey=${m.fmpHasKey} ok=${m.fmpOk} count=${m.fmpCount || 0}${m.fmpPlanError ? ' ← Starter플랜($14.99/월) 이상 필요' : ''} |`,
@@ -70,6 +70,13 @@ jobs:
           NODE
 
       - name: Commit refreshed public data if changed
+        # P564/R255: this used to `git push` once with no pull/rebase beforehand. main is also
+        # updated directly by humans (e.g. editing operator-note.json via the GitHub web UI)
+        # and by other sessions/workflows while this job's two fetch steps run for minutes —
+        # a real merge commit (34b9e1a) proved this race actually happens. A bare push that
+        # loses the race just fails outright with no retry, silently dropping that cycle's
+        # data refresh until the next scheduled run. Now rebase onto the latest main and retry
+        # a bounded number of times before giving up loudly.
         run: |
           git config user.name "aio-data-bot"
           git config user.email "actions@github.com"
@@ -78,9 +85,21 @@ jobs:
           [ -f public-data/telegram-digest.json ] && git add public-data/telegram-digest.json || true
           if git diff --staged --quiet; then
             echo "No public-data changes to commit"
-          else
-            ts=$(date -u +"%Y-%m-%dT%H:%MZ")
-            git commit -m "data: refresh market and news data ${ts} [skip ci]"
-            git push
-            echo "Pushed refreshed public-data files"
+            exit 0
           fi
+          ts=$(date -u +"%Y-%m-%dT%H:%MZ")
+          git commit -m "data: refresh market and news data ${ts} [skip ci]"
+          attempt=1
+          max_attempts=5
+          until git push; do
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "::error::git push failed after ${max_attempts} attempts — main moved faster than this job could catch up."
+              exit 1
+            fi
+            echo "push rejected (attempt ${attempt}/${max_attempts}) — fetching latest main and rebasing"
+            git fetch origin main
+            git rebase origin/main
+            attempt=$((attempt + 1))
+            sleep $((attempt * 3))
+          done
+          echo "Pushed refreshed public-data files"

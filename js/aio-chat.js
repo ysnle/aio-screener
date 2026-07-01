@@ -6351,7 +6351,19 @@ function _parseSECFinancials(xbrlData) {
   var result = {};
 
   // Helper: 특정 concept의 연간/분기 데이터 추출 (최근 N개)
+  // P560/R251: this used to return on the FIRST alias in conceptNames that had ANY data at
+  // all, regardless of how stale it was. Companies that switched XBRL tags mid-history (e.g.
+  // Apple stopped reporting under "Revenues" around its 2018 ASC-606 transition and moved to
+  // "RevenueFromContractWithCustomerExcludingAssessedTax") still have old entries under the
+  // first, now-abandoned tag — so this always returned 2018-era data as "the latest revenue"
+  // even though a newer tag with current data existed. Now every alias is evaluated and the
+  // one whose latest entry is most recent wins. A duration filter (annual entries must span
+  // ~300-400 days) also rejects stray stub/quarterly facts that slipped into a "10-K" filing,
+  // which is what let mismatched-period figures (e.g. an annual gross profit paired with a
+  // quarterly revenue) distort cross-concept ratios like gross margin above 100%.
   function extractSeries(conceptNames, formType, count) {
+    var best = null;
+    var bestEnd = '';
     for (var c = 0; c < conceptNames.length; c++) {
       var concept = gaap[conceptNames[c]];
       if (!concept || !concept.units) continue;
@@ -6363,6 +6375,16 @@ function _parseSECFinancials(xbrlData) {
         if (formType === '10-K') return d.form === '10-K' || d.form === '20-F' || d.form === '20-F/A';
         return d.form === formType;
       });
+      // P560: reject entries whose start-end span doesn't match the expected period length —
+      // a stray quarterly/stub fact tagged under a 10-K filing would otherwise be treated as
+      // a full-year figure and distort ratios against genuinely-annual concepts.
+      if (formType === '10-K') {
+        filtered = filtered.filter(function(d) {
+          if (!d.start) return true; // instant (point-in-time) facts have no start/duration
+          var days = (new Date(d.end) - new Date(d.start)) / 86400000;
+          return days >= 300 && days <= 400;
+        });
+      }
       // 연간은 filed 기준, frame으로 중복 제거
       var seen = {};
       var unique = [];
@@ -6370,9 +6392,12 @@ function _parseSECFinancials(xbrlData) {
         var key = filtered[i].end;
         if (!seen[key]) { seen[key] = true; unique.unshift(filtered[i]); }
       }
-      if (unique.length > 0) return unique.slice(-count);
+      if (unique.length > 0) {
+        var thisEnd = unique[unique.length - 1].end;
+        if (!best || thisEnd > bestEnd) { best = unique; bestEnd = thisEnd; }
+      }
     }
-    return [];
+    return best ? best.slice(-count) : [];
   }
 
   result.revenue = extractSeries(['Revenues','RevenueFromContractWithCustomerExcludingAssessedTax','RevenueFromContractWithCustomerIncludingAssessedTax','SalesRevenueNet'], '10-K', 5);
@@ -6390,6 +6415,16 @@ function _parseSECFinancials(xbrlData) {
   result.rd = extractSeries(['ResearchAndDevelopmentExpense','ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost'], '10-K', 5);
   result.sbc = extractSeries(['ShareBasedCompensation','StockBasedCompensation'], '10-K', 5);
   result.sga = extractSeries(['SellingGeneralAndAdministrativeExpense','GeneralAndAdministrativeExpense'], '10-K', 5);
+  // P560/R251: shares outstanding was never extracted, so the market-cap fallback
+  // (`d.price * (d.sharesOut || 0)`) always multiplied by 0 whenever FMP was unavailable —
+  // the concrete cause of "Market Cap: N/A" showing next to a live, non-null price.
+  var sharesSeries = extractSeries(['CommonStockSharesOutstanding'], '10-K', 1);
+  if (!sharesSeries.length) {
+    var deiFacts = (xbrlData.facts['dei'] || {})['EntityCommonStockSharesOutstanding'];
+    var deiArr = deiFacts && deiFacts.units && (deiFacts.units['shares'] || Object.values(deiFacts.units)[0]);
+    if (deiArr && deiArr.length) sharesSeries = [deiArr[deiArr.length - 1]];
+  }
+  result.sharesOut = sharesSeries;
   // v48.0: 현금 포지션·운전자본 건전성
   result.cash = extractSeries(['CashAndCashEquivalentsAtCarryingValue','Cash'], '10-K', 5);
   result.inventory = extractSeries(['InventoryNet','Inventories'], '10-K', 5);
@@ -6423,8 +6458,11 @@ function _fundRecentSearches(ticker) {
   var el = document.getElementById('fund-recent-searches');
   if (!el) return;
   if (arr.length === 0) { el.innerHTML = ''; return; }
+  // P566/R257: the visible label was inserted raw while the data-arg was escaped — ticker
+  // input has no charset whitelist, so typing/persisting an HTML payload rendered unescaped
+  // on next paint (stored self-XSS via this element's own localStorage-persisted history).
   el.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">최근:</span>' + arr.map(function(t) {
-    return '<span class="aio-hover-fund-ticker" data-action="fundSearchQuick" data-arg="' + escHtml(t) + '" style="font-size:11px;color:var(--accent);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:var(--font-mono);font-weight:600;">' + t + '</span>';
+    return '<span class="aio-hover-fund-ticker" data-action="fundSearchQuick" data-arg="' + escHtml(t) + '" style="font-size:11px;color:var(--accent);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:var(--font-mono);font-weight:600;">' + escHtml(t) + '</span>';
   }).join('');
 }
 
@@ -6523,6 +6561,18 @@ async function fundamentalSearch() {
   if (!inp) return;
   var ticker = inp.value.trim().toUpperCase();
   if (!ticker) return;
+  // P566/R257: reject anything that doesn't look like a plausible ticker symbol before it is
+  // persisted to localStorage / used as a search key — the display layer already escapes on
+  // render, but validating at the input boundary means non-ticker payloads are never stored
+  // or treated as a ticker in the first place. Covers US ("AAPL"), KR ("005930.KS"),
+  // class-share ("BRK-A") and similar international formats.
+  if (!/^[A-Z0-9.\-]{1,12}$/.test(ticker)) {
+    var _earlyProgressEl = document.getElementById('fund-rpt-progress');
+    var _earlyContainer = document.getElementById('fund-report-container');
+    if (_earlyContainer) _earlyContainer.style.display = 'block';
+    if (_earlyProgressEl) _earlyProgressEl.innerHTML = '<div style="color:#ff5b50;">올바른 티커 형식이 아닙니다 (예: AAPL, 005930.KS)</div>';
+    return;
+  }
   // v33.4: 검색 기록 추가
   _fundRecentSearches(ticker);
 

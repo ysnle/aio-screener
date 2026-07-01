@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.82**
+- 현재 버전: **v51.83**
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다.
+- **v51.83 전수 시스템 감사 대응 (4개 병렬 에이전트: 프론트엔드 22페이지·백엔드 로직·데이터 파이프라인·보안)**: **[치명적]** (1) 텔레그램 피드 XSS 구조적 수정 — `_aioProcessTelegramItem`에서 원문 텍스트 이스케이프(9개 페이지 영향, P558/R249). (2) 기업분석 페이지 불가능한 재무데이터 4건 근본수정 — SEC XBRL 태그 우선순위(FY2018 고착), 기간 불일치(총이익률 310%), shares outstanding 미추출(시가총액 N/A), 죽은 라이브갱신 핸들러가 정상 폴백 데이터를 덮어씀(P560/R251). (3) signal 페이지의 점수 불일치 재발 — mode별 캐시 미스매치를 `AIO_PAGE_SCORE_MODE`로 구조적 해결(P559/R250). (4) 한국장 홈 상위상승 목록에 하락종목 표시 — 정적 큐레이션+라이브 오버레이 불일치 시각적 플래그 추가(P561/R252). (5) 시장폭 50일선 48%↔52% 모순 — 두 표시 요소의 우선순위 통일(P562/R253). (6) 브리핑 뉴스 오분류로 AI 조작성 분석 방지 — 미검증 소스태그 신뢰 차단 + AI 프롬프트 가드(P563/R254). (7) 데이터 파이프라인 git push 레이스(실제 발생 확인) — rebase+재시도(P564/R255). (8) FRED 매크로 실패 무알림 — per-series 추적 추가(P565/R256). **[중간]** (9) 티커 검색 self-XSS(P566/R257), 전역AI채팅 DOMPurify 누락(P567/R258), breadth 리스너 누수(P568/R259), 죽은코드 3중정의 제거(P569/R260), F&G 이중값(P570/R261), 텔레그램 스크래퍼 무제한 재수집→커서 기반 스로틀(P571/R262).
 - **v51.82 라이브 전수감사 대응 4건**: (1) `computeTradingScore()` 20초 TTL 캐시 + `refreshHomeDashboard()`가 게이지 갱신 시 결정헤더도 강제 재렌더 — 홈 "오늘 결론"과 "매매 점수 분해"가 동시에 다른 점수(52 vs 64)를 보이던 문제 근본 수정(P553/R244). (2) `renderHomeFeed()`가 선택한 "핵심 뉴스" 상위 3건이 캐시에 없으면 즉시 번역 요청 — 부스트되어 노출되는 뉴스일수록 번역이 영구 대기 상태에 머물던 문제 수정(P554/R245). (3) `ci-version-check.mjs` 실패 시 직접 수정 명령 출력 + 버전범프 원자성 커밋 규칙 명문화(P555/R246). (4) jsDelivr CDN 폴백 감지를 `DOMContentLoaded` 이후로 이동 — defer 스크립트 실행 전에 실패로 오판하던 타이밍 버그 수정(P556/R247).
 - **v51.80 Portfolio AI Workbench**: 포트폴리오 페이지에 보유종목 선택 기반 AI 운용 노트 패널 추가. 종합 분석/종목 점검/리밸런싱/학습 과제/매매 복기를 통합 AI 패널로 바로 실행하고, 브라우저 로컬 복기 노트를 프롬프트에 연결. R243/QA v51.80.
 - **v51.79 Portfolio Backtest Lab**: 포트폴리오 페이지에 Portfolio Visualizer식 월말 기반 장기 백테스트를 분리 추가. CAGR/MDD/Sharpe/Sortino/active risk/annual returns/worst drawdowns/attribution을 같은 모델에서 렌더하고 AI 컨텍스트와 runtime CI/T845에 연결. R242/QA v51.79.

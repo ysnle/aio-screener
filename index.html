@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.82 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.83 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2519,6 +2519,10 @@ h3.chat-h{font-size:14px;}h4.chat-h{font-size:12.5px;}h5.chat-h{font-size:11.5px
 .kr-screen-stats{text-align:right;flex-shrink:0;}
 .kr-screen-chg{font-size:11px;font-weight:700;font-family:var(--font-mono);}
 .kr-screen-cap{font-size:11px;color:var(--text-muted);}
+/* P561/R252: KOSPI 상위 상승/하락 카드는 정적 큐레이션 목록 + 실시간 숫자 오버레이라, 라이브 부호가
+   뒤집혀도 목록 소속은 그대로다. 부호 모순 시 카드를 흐리게 표시 + 배지로 명확히 알린다. */
+.kr-screen-card.kr-sign-mismatch{opacity:0.45;position:relative;}
+.kr-screen-card.kr-sign-mismatch::after{content:"실시간 부호 반전 — 참고용";position:absolute;right:10px;bottom:2px;font-size:9px;color:var(--data-amber);font-weight:700;}
 .kr-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;}
 .kr-tab{padding:5px 12px;background:var(--surface-3);border:1px solid var(--surface-5);border-radius:var(--radius-md);color:var(--text-muted);font-size:10px;cursor:pointer;font-family:'Inter',var(--font-sans);transition:all 0.15s;}
 .kr-tab.active{background:rgba(255,91,80,0.12);border-color:rgba(255,91,80,0.35);color:var(--data-red);font-weight:600;}
@@ -5230,7 +5234,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.82</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.83</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12454,9 +12458,9 @@ button[data-filter-active="true"] {
   }); // DOMContentLoaded (P556/R247)
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.82"></script>
-  <script src="./js/aio-data.js?v=51.82"></script>
-  <script src="./js/aio-ui.js?v=51.82"></script>
+  <script src="./js/aio-core.js?v=51.83"></script>
+  <script src="./js/aio-data.js?v=51.83"></script>
+  <script src="./js/aio-ui.js?v=51.83"></script>
 
   <script>
 
@@ -15931,7 +15935,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.82"></script>
+<script src="./js/aio-chat.js?v=51.83"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -23935,6 +23939,12 @@ function refreshSignalDashboard() {
   var lr = document.getElementById('sig-last-refresh');
   if (lr) lr.textContent = '⟳ ' + new Date().toLocaleTimeString('ko-KR');
 
+  // P559/R250: force the shared decision header to re-render in lockstep with this gauge,
+  // same fix as refreshHomeDashboard (P553) — otherwise the header (built by _aioDefaultDecision,
+  // now reading the same 'swing' mode via AIO_PAGE_SCORE_MODE) could still momentarily lag
+  // this widget's own refresh cadence.
+  try { if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('signal'); } catch(_) {}
+
   // Render score bars
   renderScoreBars(scores);
 
@@ -25224,20 +25234,15 @@ async function _fetchEarningsCalendarFMP(body, fmpKey) {
   }
 }
 
-// Fundamental page live update hook
-// v48.99: _aioPageBus 마이그 (P180)
-_aioPageBus.register('html-fundamental-live', 'aio:liveQuotes', function() {
-  var fundPage = document.getElementById('page-fundamental');
-  if (fundPage && fundPage.classList.contains('active')) {
-    // Refresh card prices from live data
-    var grid = document.getElementById('fund-cards-grid');
-    if (grid && grid.children.length > 1) {
-      grid.innerHTML = FUND_TICKERS.map(function(sym) {
-        return buildFundCard(sym, _fundData[sym]);
-      }).join('');
-    }
-  }
-});
+// P560/R251: this handler used to fully rebuild #fund-cards-grid on every aio:liveQuotes tick
+// via buildFundCard(sym, _fundData[sym]) — but _fundData is never populated anywhere in the
+// codebase (FMP is unavailable without a paid plan), so buildFundCard always received an
+// empty/undefined `data` and rendered "P/E: — ROE: — EPS: $— MCap: $—" for every ticker,
+// silently destroying the good FUND_FALLBACK-sourced numbers that initFundamentalCards()
+// rendered on page load. Prices already update live through the app-wide generic
+// `[data-live-price]`/`[data-live-chg]` sink mechanism (see aio-core.js), so this handler was
+// not needed for that purpose either — removed rather than fixed-in-place, since there is no
+// live per-ticker fundamentals source to rebuild the cards from.
 
 // Init fundamental page on first visit
 var _fundInitDone = false;
@@ -28539,7 +28544,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.82"></script>
+<script src="./js/aio-glossary.js?v=51.83"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -31537,7 +31542,14 @@ function _appendAIMsg(role, html, id) {
   if (id) msg.id = id;
   var bubble = document.createElement('div');
   bubble.className = 'ai-bubble';
-  bubble.innerHTML = html;
+  // P567/R258: this set innerHTML directly with no DOMPurify pass, unlike the per-page
+  // embedded chat (_aioSafeMD, aio-core.js) which deliberately double-gates AI-rendered
+  // markdown through DOMPurify. No concrete bypass was found (renderMarkdownLight already
+  // HTML-escapes text before applying its own bold/list/table transforms), but a prompt-
+  // injection payload surfaced through a web-search result or news article is exactly the
+  // kind of untrusted content this second gate exists to catch — hardening for defense in
+  // depth so both chat surfaces meet the same standard.
+  bubble.innerHTML = (typeof window.safeHtml === 'function') ? window.safeHtml(html) : html;
   msg.appendChild(bubble);
   msgsEl.appendChild(msg);
   msgsEl.scrollTop = msgsEl.scrollHeight;

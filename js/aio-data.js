@@ -1275,7 +1275,13 @@ var _TG_KR_NAME = {
 
 // 텍스트에서 핵심 정보 추출·가공
 function _aioProcessTelegramItem(it) {
-  var raw = (it.text || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
+  // P558/R249: it.text originates from public Telegram channels the app operator does not
+  // control. This function used to build hlHeadline/body from the raw, unescaped text and
+  // _aioRenderTelegramFeedHtml inserted them straight into innerHTML — a post containing
+  // "<img src=x onerror=...>" would execute on every one of the 9 pages that render this
+  // feed. Escaping here, at the single point where the raw text enters this pipeline, fixes
+  // every downstream consumer at once instead of patching each render call site.
+  var raw = escHtml((it.text || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim());
 
   // 1) 감성 판단
   var bearKw = ['급락','하락','하향','약세','사이드카','손실','주의','경계','붕괴','폭락','위험','매도','하락세','공포','리스크','충격','쇼크','제재','관세','위기'];
@@ -1324,7 +1330,7 @@ function _aioProcessTelegramItem(it) {
     if (m) dirCls = /[+▲]/.test(m[1]) ? ' tg-ticker-bull' : ' tg-ticker-bear';
     else if (sent === 'bull') dirCls = ' tg-ticker-bull';
     else if (sent === 'bear') dirCls = ' tg-ticker-bear';
-    var label = _TG_KR_NAME[tk] || tk;
+    var label = _TG_KR_NAME[tk] || escHtml(tk);
     return '<span class="tg-ticker' + dirCls + '">' + label + '</span>';
   }).join('');
 
@@ -1394,7 +1400,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
       var date = (it.localDateKst || '').slice(5, 10);
 
       html += '<div class="tg-card">'
-            + '<a href="' + (it.url || '#') + '" target="_blank" rel="noopener" class="tg-card-inner">'
+            + '<a href="' + escHtml(escUrl(it.url || '#')) + '" target="_blank" rel="noopener" class="tg-card-inner">'
             + '<div class="tg-card-hd">'
             + '<span class="tg-cat ' + info.cat.cls + '">' + info.cat.label + '</span>'
             + '<span class="tg-sent ' + sentCls + '">' + sentLabel + '</span>'
@@ -5745,64 +5751,11 @@ async function _aioLoadOperatorNote() {
 }
 window._aioLoadOperatorNote = _aioLoadOperatorNote;
 
-function _aioRenderOperatorNote() {
-  var el = document.getElementById('home-operator-note');
-  if (!el) return;
-  var note = window._aioOperatorNote;
-  if (!note || note.visible === false || _aioIsOperatorNotePlaceholder(note)) { el.style.display = 'none'; return; }
-  function _esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  var tags = (note.tags || []).map(function(t) {
-    return '<span style="display:inline-block;font-size:10px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:var(--radius-sm,3px);padding:2px 8px;color:var(--accent,#00bcd4);margin-right:4px;margin-top:6px;">' + _esc(t) + '</span>';
-  }).join('');
-  var bodyHtml = _esc(note.body || '').replace(/\n/g, '<br>');
-  el.innerHTML =
-    '<div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.18);border-left:3px solid var(--accent,#00bcd4);border-radius:var(--radius,4px);padding:12px 16px;margin-bottom:12px;">' +
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
-        '<span style="font-size:10px;font-weight:700;color:var(--accent,#00bcd4);letter-spacing:0.8px;text-transform:uppercase;">운영자 노트</span>' +
-        '<span style="font-size:11px;color:var(--text-muted);">' + (note.updated || '') + '</span>' +
-      '</div>' +
-      '<div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">' + (note.title || '') + '</div>' +
-      '<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">' + bodyHtml + '</div>' +
-      (tags ? '<div>' + tags + '</div>' : '') +
-    '</div>';
-  el.style.display = 'block';
-}
-window._aioRenderOperatorNote = _aioRenderOperatorNote;
-
-// v51.40: prominent first-screen operator note renderer.
-function _aioRenderOperatorNote() {
-  var el = document.getElementById('home-operator-note');
-  if (!el) return;
-  var note = window._aioOperatorNote;
-  if (!note || note.visible === false || _aioIsOperatorNotePlaceholder(note)) { el.style.display = 'none'; return; }
-  function _esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function _isPlaceholderTag(t) {
-    var text = String(t || '').trim();
-    return !text || /^(sample|placeholder|tag)\d*$/i.test(text) || /예시|작성|샘플|placeholder/i.test(text);
-  }
-  var tags = (Array.isArray(note.tags) ? note.tags : []).filter(function(t) {
-    return !_isPlaceholderTag(t);
-  }).map(function(t) {
-    return '<span class="aio-operator-note-tag">' + _esc(t) + '</span>';
-  }).join('');
-  var bodyHtml = _esc(note.body || '').replace(/\n/g, '<br>');
-  el.innerHTML =
-    '<div class="aio-operator-note-card aio-operator-note-priority">' +
-      '<div class="aio-operator-note-meta">' +
-        '<span class="aio-operator-note-kicker">운영자 노트</span>' +
-        '<span class="aio-operator-note-date">' + _esc(note.updated || '') + '</span>' +
-      '</div>' +
-      '<div class="aio-operator-note-title">' + _esc(note.title || '') + '</div>' +
-      '<div class="aio-operator-note-body">' + bodyHtml + '</div>' +
-      (tags ? '<div class="aio-operator-note-tags">' + tags + '</div>' : '') +
-    '</div>';
-  el.style.display = 'block';
-}
-window._aioRenderOperatorNote = _aioRenderOperatorNote;
-
-// v50.28/WO-6: 서버 뉴스 백스톱 적용 — 클라이언트 뉴스(프록시)가 비었을 때만 채운다(additive).
-// 작동 중인 뉴스 파이프라인은 절대 건드리지 않음(force=true는 검증/수동 전용).
-// 서버 아이템을 클라이언트 뉴스 모델 형태로 매핑 → scoreItem/classifyTopic → renderFeed/home/briefing.
+// P569/R260: this was defined 3 times in this file (v-baseline, v51.40, v51.43) — only the
+// last definition below ever took effect (each `function` redeclaration + `window.x =`
+// silently overwrote the previous one), so the two earlier ~25-line copies were fully dead:
+// any future fix applied to them would compile fine and have zero effect. Removed rather than
+// left as unreachable code.
 // v51.43: concise first-screen operator note renderer.
 function _aioRenderOperatorNote() {
   var el = document.getElementById('home-operator-note');
@@ -8839,8 +8792,12 @@ function classifyTopic(item) {
     }
   });
 
-  // 소스의 topics 태그도 고려
-  if (bestScore === 0 && item.topics && item.topics.length > 0) {
+  // P563/R254: 소스(RSS/API) 제공 topics 태그를 우리 자체 키워드 매칭이 0건일 때 무검증으로
+  // 신뢰하면, SCOTUS/정치 기사가 소스 측 넓은 "Technology"/"AI Policy" 분류에 걸려 있었다는
+  // 이유만으로 "반도체·AI"로 표시되고, 그 태그를 근거로 AI 브리핑이 무관한 원문에 대해 구체적인
+  // 반도체 분석을 생성하는 문제로 이어졌다. 소스 태그는 우리 TOPIC_KEYWORDS 어휘에 실제로 존재하는
+  // 값일 때만 채택하고, 그렇지 않으면(우리 어휘에 없거나 자체 매칭도 0건) 정직하게 'general'로 둔다.
+  if (bestScore === 0 && item.topics && item.topics.length > 0 && TOPIC_KEYWORDS.hasOwnProperty(item.topics[0])) {
     bestTopic = item.topics[0];
   }
 
@@ -11308,7 +11265,15 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     }
   } catch(_we) {}
   var _evidenceOnlyNoteV502 = '[v50.2 evidence-only briefing rule] The list below contains only verified/current items approved by AIO_NEWS_SURFACE_CONTRACTS.briefing. ' +
-    'Do not summarize stale, secondary-only, Telegram-only, or unverified items as current facts. Excluded review items=' + reviewCountV502 + ', verified items=' + verifiedCountV502 + '.\n\n';
+    'Do not summarize stale, secondary-only, Telegram-only, or unverified items as current facts. Excluded review items=' + reviewCountV502 + ', verified items=' + verifiedCountV502 + '.\n\n' +
+    // P563/R254: a topic tag on a news item can be wrong (source-provided category, or a
+    // permissive keyword-fallback classification) — writing confident, specific sector
+    // analysis (e.g. semiconductor/AI supply-chain commentary) anchored to a tag rather than
+    // the item's actual headline/description text produced a fabricated-sounding briefing
+    // for an unrelated politics/SCOTUS story tagged "반도체·AI".
+    '[topic-tag caveat] A topic label attached to a news item is a classification hint, not a guarantee of content. ' +
+    'Before writing topic-specific analysis (semiconductor, AI, macro, etc.) about any single item, verify the claim is actually supported by that item\'s own headline/description text. ' +
+    'If the tag and the actual text disagree, describe what the text actually says and do not extend sector-specific speculation beyond it.\n\n';
   function _buildBriefingMacroContext() {
     var now = new Date();
     var snap = window.DATA_SNAPSHOT || {};
@@ -15249,6 +15214,22 @@ function applyLiveQuotes(quotes) {
       el.setAttribute('data-operational-use', hasPct && _chgContract && _chgContract.allowedUse ? 'decision' : 'reference-only');
       el.setAttribute('data-source-label', q._source || 'live:yahoo');
       el.setAttribute('data-source-ts', String(now));
+      // P561/R252: kr-home "KOSPI 상위 상승/하락" cards are a static curated list with a live
+      // price/pct overlay — membership never re-sorts, so a stock whose live sign has since
+      // flipped (a "gainer" now actually down) would otherwise sit unflagged under the wrong
+      // header. Flag the specific card visually instead of silently leaving the contradiction.
+      if (hasPct) {
+        var _krCard = el.closest('.kr-screen-card');
+        if (_krCard) {
+          var _krWidget = _krCard.closest('.aio-widget');
+          var _krTitle = _krWidget && _krWidget.querySelector('.widget-title');
+          var _krTxt = _krTitle ? _krTitle.textContent : '';
+          var _expectUp = _krTxt.indexOf('상승') >= 0;
+          var _expectDown = _krTxt.indexOf('하락') >= 0;
+          var _mismatch = (_expectUp && pct < 0) || (_expectDown && pct > 0);
+          _krCard.classList.toggle('kr-sign-mismatch', !!_mismatch);
+        }
+      }
     });
     var previousClose = Number(q.regularMarketPreviousClose || q.chartPreviousClose);
     if (isFinite(previousClose) && previousClose > 0) {
@@ -16527,6 +16508,7 @@ function _applyFearGreedScore(opts) {
   var operationalUse = opts.operationalUse || (sourceKind === 'live' ? 'decision' : sourceKind === 'proxy' ? 'decision' : 'reference-only');
   var badge      = document.getElementById('fg-live-badge');
   var big        = document.getElementById('fg-score-big');
+  var val        = document.getElementById('fg-score-val');
   var rat        = document.getElementById('fg-rating-text');
   var homeFG     = document.getElementById('home-fg-score');
   var fgRef      = document.getElementById('fg-historical-ref');
@@ -16534,6 +16516,12 @@ function _applyFearGreedScore(opts) {
   var col        = (typeof fgColor === 'function' && score != null) ? fgColor(score) : null;
   if (score != null && isFinite(score)) {
     if (big)    { big.textContent = score; if (col) big.style.color = col; }
+    // P570/R261: this "single responsibility" updater's own header comment claims it handles
+    // all F&G DOM sinks in one place, but #fg-score-val (the "점수: X/100" line right below
+    // #fg-score-big on the sentiment page) was missing from that list — it stayed frozen at
+    // its static HTML placeholder forever while the big number correctly updated live,
+    // producing two different F&G numbers on the same card.
+    if (val)    { val.textContent = score; if (col) val.style.color = col; }
     if (rat && typeof fgRating === 'function') { rat.textContent = fgRating(score); if (col) rat.style.color = col; }
     if (homeFG) { homeFG.textContent = score; if (col) homeFG.style.color = col; }
     if (typeof fgUpdateNeedle === 'function') fgUpdateNeedle(score);
@@ -16553,7 +16541,7 @@ function _applyFearGreedScore(opts) {
     badge.setAttribute('data-source-ts', sourceTs);
   }
   // sink 정합 — big/home FG도 동일 lineage 부여 (R114 가시 sink 보호)
-  [big, homeFG, rat].forEach(function(el) {
+  [big, val, homeFG, rat].forEach(function(el) {
     if (!el) return;
     el.setAttribute('data-operational-use', operationalUse);
     el.setAttribute('data-source-kind', sourceKind);

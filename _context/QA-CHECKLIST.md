@@ -3,11 +3,28 @@ verified_by: agent
 last_verified: 2026-07-01
 confidence: high
 version: v3.7
-checklist_version: v51.82
-total_items: 453
+checklist_version: v51.83
+total_items: 467
 stages: 22
-latest_P_covered: P557
+latest_P_covered: P571
 ---
+
+## v51.83 - Systematic full-site audit: XSS, fundamentals data, score parity, data pipeline, medium hardening (R249-R262)
+
+- [ ] Telegram feed cards (`_aioProcessTelegramItem`/`_aioRenderTelegramFeedHtml`) never render raw `<`/`>`/`"` from `it.text`/`it.url` — headline, body, ticker labels, and href are all escaped.
+- [ ] Fundamental page (search any ticker): Market Cap is not "N/A" when a live price is present; the revenue card's "FY" year is not multiple years stale; Gross Margin is never shown above 100%; the pinned preview card for a just-searched ticker does not show all-dash metrics.
+- [ ] Signal page's decision header and its own score gauge always show the same number — `AIO_PAGE_SCORE_MODE.signal === 'swing'` and `_aioDefaultDecision` reads it.
+- [ ] KR home "KOSPI 상위 상승/하락" cards never show a live percentage whose sign contradicts the section header without the `.kr-sign-mismatch` flag being applied.
+- [ ] Breadth page 50SMA big number, bar width, and readout sentence always agree — `updateBreadthBars()` reads `DATA_SNAPSHOT.breadth50sma` first in all three.
+- [ ] `classifyTopic()`'s zero-keyword-match fallback only accepts `item.topics[0]` if `TOPIC_KEYWORDS.hasOwnProperty(...)` — never an arbitrary source-provided string. Briefing prompt contains the topic-tag caveat text.
+- [ ] `refresh-data.yml`'s commit step retries with fetch+rebase on push rejection (bounded attempts) instead of a bare single `git push`.
+- [ ] `fetchFred()` populates `_failedSeries` on any per-series error; `data.meta.fredFailedSeries` and the job-summary table reflect it.
+- [ ] Ticker recent-search (`_fundRecentSearches`) rejects non-ticker-format input at `fundamentalSearch()`'s input boundary and escapes the rendered label.
+- [ ] `_appendAIMsg()` (global chat panel) routes `html` through `window.safeHtml()` before setting `innerHTML`.
+- [ ] `initBreadthPage()`'s `bp-price-chart` canvas guards against duplicate `mouseleave` listener registration the same way `bp-chart` does.
+- [ ] Only one `function _aioRenderOperatorNote()` definition exists in js/aio-data.js.
+- [ ] `_applyFearGreedScore()`'s sink list includes `#fg-score-val`, not just `#fg-score-big`.
+- [ ] `fetch-telegram-digest.mjs` persists and reads back `channels[].lastPostId`; a second consecutive run against an unchanged remote should show `reachedKnown: true` and far fewer `pages` than the first run.
 
 ## v51.82 - Live full-site audit fixes: score consistency, news catch-up, CI hint, CDN timing, CI-gated deploy (R244-R248)
 

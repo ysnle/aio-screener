@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 
 const CHANNELS = ['aetherjapanresearch', 'insidertracking', 'bornlupin'];
 const DEFAULT_DAYS = 14;
@@ -21,6 +21,31 @@ const days = Number(argValue('days', DEFAULT_DAYS));
 const outPath = argValue('out');
 const now = new Date(argValue('now', new Date().toISOString()));
 const since = sinceArg ? new Date(sinceArg) : new Date(now.getTime() - days * 86400000);
+
+// P571/R262: this used to re-walk the full PAGE_LIMIT×3-channel×14-day window from scratch on
+// every run (every 30 min via refresh-data.yml — 48x/day), with no cursor/state persisted
+// between runs, unlike enrichScreener's 6h self-throttle. The digest we write only keeps a
+// per-channel summary (count/pages), not the full item list, so we persist a lightweight
+// `lastPostId` cursor per channel and use it to stop pagination as soon as a page's newest
+// post ID is already <= what the previous run last saw, instead of always walking the
+// entire 14-day window every cycle.
+const previousLastPostId = new Map();
+// Merge pool: the digest we write never persists the full raw item list (only capped
+// topItems/broadItems), so those are what we carry forward to backfill whatever an
+// early-stopped scrapeChannel run no longer re-fetches from prior pages.
+let previousMergePool = [];
+if (outPath && existsSync(outPath)) {
+  try {
+    const prev = JSON.parse(readFileSync(outPath, 'utf8'));
+    for (const ch of (prev.channels || [])) {
+      if (ch.channel && Number.isFinite(ch.lastPostId)) previousLastPostId.set(ch.channel, ch.lastPostId);
+    }
+    const prevSeen = new Set();
+    for (const it of [...(prev.topItems || []), ...(prev.broadItems || [])]) {
+      if (it && it.id && !prevSeen.has(it.id)) { prevSeen.add(it.id); previousMergePool.push(it); }
+    }
+  } catch (e) { console.warn(`[fetch-telegram-digest] previous digest read failed (non-fatal, full re-scan): ${e.message}`); }
+}
 
 function decodeEntities(s) {
   return String(s || '')
@@ -181,6 +206,9 @@ async function scrapeChannel(channel) {
   let before = null;
   let pages = 0;
   let reachedOlder = false;
+  let reachedKnown = false;
+  let maxIdSeen = null;
+  const cursor = previousLastPostId.get(channel);
   while (pages < PAGE_LIMIT) {
     pages += 1;
     const url = `https://t.me/s/${channel}${before ? `?before=${before}` : ''}`;
@@ -195,15 +223,23 @@ async function scrapeChannel(channel) {
       }
     }
     const nums = pageItems.map(x => Number(String(x.id).split('/')[1])).filter(Number.isFinite);
+    if (nums.length) maxIdSeen = maxIdSeen == null ? Math.max(...nums) : Math.max(maxIdSeen, ...nums);
     const oldest = pageItems.reduce((a, b) => new Date(a.datetime) < new Date(b.datetime) ? a : b);
     if (!nums.length || new Date(oldest.datetime) < since) {
       reachedOlder = true;
       break;
     }
+    // P571/R262: once every post on this page is already <= what the previous run last saw,
+    // every earlier page (further back in time) is guaranteed to be already-known too —
+    // stop here instead of continuing to walk the full window every single cycle.
+    if (Number.isFinite(cursor) && Math.max(...nums) <= cursor) {
+      reachedKnown = true;
+      break;
+    }
     before = Math.min(...nums);
     await new Promise(r => setTimeout(r, 150));
   }
-  return { channel, pages, reachedOlder, items };
+  return { channel, pages, reachedOlder, reachedKnown, items, lastPostId: maxIdSeen };
 }
 
 const channels = [];
@@ -215,7 +251,18 @@ for (const ch of CHANNELS) {
   }
 }
 
-const items = channels.flatMap(c => c.items).sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+// P571/R262: union freshly-scraped items with the carried-forward merge pool (dedup by id,
+// re-applying the since/until window) so an early-stopped scrapeChannel run does not silently
+// shrink topItems/broadItems down to only what was re-fetched this cycle.
+const freshItems = channels.flatMap(c => c.items);
+const mergedById = new Map();
+for (const it of [...previousMergePool, ...freshItems]) {
+  if (!it || !it.id) continue;
+  const d = new Date(it.datetime);
+  if (!(d >= since && d <= now)) continue;
+  mergedById.set(it.id, it); // fresh items processed after pool entries win on id collision
+}
+const items = [...mergedById.values()].sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
 const topicCounts = {};
 const tickerCounts = {};
 for (const it of items) {
@@ -227,7 +274,7 @@ const digest = {
   since: since.toISOString(),
   until: now.toISOString(),
   source: 'telegram-public-mirror',
-  channels: channels.map(c => ({ channel: c.channel, pages: c.pages, reachedOlder: c.reachedOlder, count: c.items.length, error: c.error || null })),
+  channels: channels.map(c => ({ channel: c.channel, pages: c.pages, reachedOlder: c.reachedOlder, reachedKnown: !!c.reachedKnown, count: c.items.length, error: c.error || null, lastPostId: Number.isFinite(c.lastPostId) ? c.lastPostId : (previousLastPostId.get(c.channel) ?? null) })),
   count: items.length,
   topicCounts,
   tickerCounts,

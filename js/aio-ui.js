@@ -823,8 +823,15 @@ function updateBreadthBars() {
     });
   // v50.17: breadth 페이지 50SMA 막대(width) + 해석 readout 동적 갱신
   // (큰 숫자 breadth-50sma-big은 data-snap으로 갱신되나 막대 width·readout 텍스트는 정적 46% 잔존 → 카드 52%와 모순 시정)
-  var b50r = (typeof window._breadth50 === 'number') ? window._breadth50 :
-             ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth50sma != null) ? DATA_SNAPSHOT.breadth50sma : null);
+  // P562/R253: this used to prefer window._breadth50 (derived from a hardcoded simulated
+  // SPY/QQQ closing-price array in initBreadthPage, defaulting to 52 before real data loads)
+  // over DATA_SNAPSHOT.breadth50sma — the opposite priority from the big-number display
+  // (breadth-50sma-big via _snap, which reads DATA_SNAPSHOT.breadth50sma first). When the
+  // snapshot value was corrected to 48 (v51.63) without also regenerating the simulated
+  // array, the bar/readout kept showing the stale 52 while the big number correctly showed
+  // 48 — same field, same page, two numbers. Now both read DATA_SNAPSHOT.breadth50sma first.
+  var b50r = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth50sma != null) ? DATA_SNAPSHOT.breadth50sma :
+             ((typeof window._breadth50 === 'number') ? window._breadth50 : null);
   if (b50r != null && !isNaN(b50r)) {
     var b50Bar = document.getElementById('breadth-50sma-bar');
     if (b50Bar) b50Bar.style.width = b50r + '%';
@@ -1088,6 +1095,11 @@ function initBreadthPage(forceReinit) {
     function bpPriceMouseLeave() {
       Object.values(bpChartInstances).forEach(c => { if (c && typeof c.draw === 'function') { c._cursorX = null; c.draw(); } });
     }
+    // P568/R259: the sibling bp-chart canvas above guards re-registration with
+    // `if (ctx._bpMouseLeave) ctx.removeEventListener(...)` before adding a new listener —
+    // this canvas omitted that guard, so every revisit of the breadth page stacked one more
+    // 'mouseleave' listener on priceCtx (initBreadthPage re-runs on each page (re)visit).
+    if (priceCtx._bpMouseLeave) priceCtx.removeEventListener('mouseleave', priceCtx._bpMouseLeave);
     priceCtx._bpMouseLeave = bpPriceMouseLeave;
     priceCtx.addEventListener('mouseleave', bpPriceMouseLeave);
   }
@@ -4083,6 +4095,7 @@ function _renderFundFinancials(d) {
   var lastOpCF = (sf.opCashFlow && sf.opCashFlow.length > 0) ? sf.opCashFlow[sf.opCashFlow.length - 1] : null;
   var lastCapex = (sf.capex && sf.capex.length > 0) ? sf.capex[sf.capex.length - 1] : null;
   var lastDebt = (sf.totalDebt && sf.totalDebt.length > 0) ? sf.totalDebt[sf.totalDebt.length - 1] : null;
+  var lastShares = (sf.sharesOut && sf.sharesOut.length > 0) ? sf.sharesOut[sf.sharesOut.length - 1] : null;
 
   // SEC 값 헬퍼
   function sv(item) { return item ? (item.val || item.value || 0) : 0; }
@@ -4103,7 +4116,11 @@ function _renderFundFinancials(d) {
   var secGrossMargin = (secRevVal && secGrossVal) ? secGrossVal / secRevVal : null;
   var secFCF = secOpCFVal - Math.abs(secCapexVal);
   var secDE = (secEquityVal && secDebtVal) ? secDebtVal / secEquityVal : null;
-  var secMktCap = d.price ? d.price * (d.sharesOut || 0) : 0;
+  // P560/R251: d.sharesOut was never set anywhere — this always multiplied by 0, which is why
+  // Market Cap showed "N/A" even with a live, non-null price. sf.sharesOut (from
+  // _parseSECFinancials' new CommonStockSharesOutstanding/dei extraction) is now used instead.
+  var secSharesVal = sv(lastShares);
+  var secMktCap = (d.price && secSharesVal) ? d.price * secSharesVal : 0;
   // PE from SEC
   var secPE = (secEpsVal && d.price) ? d.price / secEpsVal : null;
 

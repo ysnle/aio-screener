@@ -3757,8 +3757,18 @@ window.AIO.getPageEvidenceState = function(pageId, proposedKind) {
   };
 };
 
+// P559/R250: pages whose own dashboard/engine calls computeTradingScore() with a non-default
+// mode (e.g. 'swing' for signal's refreshSignalDashboard and ticker's Minervini engine). The
+// TTL cache inside computeTradingScore() is keyed by mode, so if the shared decision header
+// always requests the default mode while the page's own widget requests 'swing', the two can
+// legitimately disagree even within the cache window — this is the same P553 bug class,
+// recurring wherever a page's own mode differs from the header's. Keeping the mapping here
+// means the header always asks for the SAME score the page itself is already showing.
+var AIO_PAGE_SCORE_MODE = { signal: 'swing', ticker: 'swing' };
+
 function _aioDefaultDecision(pageId) {
   var snap = window.DATA_SNAPSHOT || {};
+  var _scoreMode = AIO_PAGE_SCORE_MODE[pageId];
   var vix = _aioDecisionMetric('^VIX', 'price', 'vix');
   var spx = _aioDecisionMetric('^GSPC', 'price', 'spx');
   var tnx = _aioDecisionMetric('^TNX', 'price', 'tnx');
@@ -3773,7 +3783,7 @@ function _aioDefaultDecision(pageId) {
   // 기존 refreshHomeDashboard 5밴드와 동일 기준으로 라이브 스코어 읽기
   var _sc = 50;
   try {
-    if (typeof computeTradingScore === 'function') { _sc = computeTradingScore().total; }
+    if (typeof computeTradingScore === 'function') { _sc = computeTradingScore(_scoreMode).total; }
     else if (window._tradingScore != null) { _sc = window._tradingScore; }
   } catch(_) { _sc = window._tradingScore != null ? window._tradingScore : 50; }
   var _band = _sc >= 75 ? { label:'매수 우호', action:'ATR 손절선과 무효화 가격을 정한 뒤 분할 진입 검토. 80+ 구간은 차익실현 병행.' }
@@ -17645,7 +17655,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.82';
+const APP_VERSION = 'v51.83';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
