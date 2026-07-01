@@ -2,11 +2,20 @@
 verified_by: agent
 last_verified: 2026-06-30
 confidence: high
-latest_version: v51.75
-latest_P_number: P550
-total_entries: 549
-next_P_number: P551
+latest_version: v51.76
+latest_P_number: P551
+total_entries: 550
+next_P_number: P552
 ---
+
+## P551 - v51.76 - Public share readiness existed only as console audit, not visible product contract
+
+- **발생**: `AIO.getShareReadinessAudit()` and page/data audits existed, but the default home path did not show an external user whether the deployed screener was safe to treat as current, stale, or beta-with-warnings. The home topbar also still had a static `FINNHUB 실시간` label and runtime topbar paths could promote fresh source reception to "실시간" wording.
+- **원인**: Internal audit contracts and user-facing readiness were separated. CI verified audit functions existed, but did not require a home readiness surface that combines version, public-data age, page currentness, and pipeline status.
+- **수정**: Added `#aio-public-readiness`, `_aioBuildPublicShareReadiness()`, `AIO.getPublicShareReadiness()`, and `_aioRenderPublicReadiness()` so home shows beta share status from the same runtime audits. Downgraded static/topbar quote labels to source-aware wording. Reworked `krSupply` scheduler optional call through `_aioCallOptionalGlobal()` to remove the undefined guarded-function WARN. Runtime CI now requires the public readiness panel and blocks `FINNHUB 실시간`.
+- **violated_rule**: R238, R239.
+- **prevention**: External-share readiness must have both console audit and visible home surface. Runtime gate must fail if the visible home readiness surface is removed or static live labels reappear.
+- **verification**: `node --check js/aio-data.js`; `node --check js/aio-core.js`; `node scripts/ci-runtime-contract-check.mjs`.
 
 ## P550 - v51.75 - Residual static LIVE and rolling 48h news labels survived page-level currentness contract
 

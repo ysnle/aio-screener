@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.75 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.81 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4494,6 +4494,105 @@ body {
   border-color: rgba(244,184,96,0.26) !important;
   color: #ffd58a !important;
 }
+.aio-public-readiness {
+  display: none;
+  grid-template-columns: minmax(180px, 0.8fr) repeat(3, minmax(130px, 1fr));
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px;
+  border: 1px solid rgba(148,163,184,0.18);
+  border-left: 4px solid var(--text-muted);
+  border-radius: 8px;
+  background: rgba(15,23,42,0.58);
+}
+.aio-public-readiness.is-ok { border-left-color: var(--data-green); }
+.aio-public-readiness.is-warn { border-left-color: var(--data-amber); }
+.aio-public-readiness.is-block { border-left-color: var(--data-red); }
+.aio-public-readiness-main {
+  min-width: 0;
+}
+.aio-public-readiness-kicker {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.aio-public-readiness-label {
+  margin-top: 3px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.aio-public-readiness-card {
+  min-width: 0;
+  padding: 8px 9px;
+  border: 1px solid rgba(148,163,184,0.14);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.025);
+}
+.aio-public-readiness-card b {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.aio-public-readiness-card span,
+.aio-public-readiness-main span {
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+.aio-public-readiness-issues {
+  grid-column: 1 / -1;
+  padding-top: 2px;
+  font-size: 11px;
+  color: var(--data-amber);
+  line-height: 1.55;
+}
+.aio-public-readiness-pages {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 6px;
+}
+.aio-public-page-source {
+  min-width: 0;
+  padding: 6px 7px;
+  border: 1px solid rgba(148,163,184,0.14);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.022);
+}
+.aio-public-page-source b,
+.aio-public-page-source em,
+.aio-public-page-source small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.aio-public-page-source b {
+  font-size: 11px;
+  color: var(--text-primary);
+}
+.aio-public-page-source em {
+  margin-top: 2px;
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+.aio-public-page-source small {
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+.aio-public-page-source.is-live em,
+.aio-public-page-source.is-delayed em { color: var(--data-green); }
+.aio-public-page-source.is-reference em,
+.aio-public-page-source.is-unavailable em { color: var(--data-amber); }
 #page-kr-technical > .insight-box:first-child {
   display: none !important;
 }
@@ -4525,6 +4624,9 @@ body {
   }
   #home-operator-note .aio-operator-note-lead {
     font-size: 14px;
+  }
+  .aio-public-readiness {
+    grid-template-columns: 1fr !important;
   }
 }
 /* v50.85: page body redesign — decision -> action -> data -> AI, with dense legacy controls folded */
@@ -5128,12 +5230,12 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.75</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.81</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <span id="home-risk-regime-badge" class="status-pill sp-neutral">시장 국면 분석중</span>
-      <span class="freshness-badge fb-live">● FINNHUB 실시간</span>
+      <span id="live-source-static-badge" class="freshness-badge fb-static">시세 source 확인</span>
       <span id="live-quote-ts-topbar" class="freshness-badge fb-static" style="font-size:11px;" title="외부 API 연결 필요 — CORS 프록시 사용">시세 연결 중...</span>
       <span id="server-data-age" class="freshness-badge fb-static" style="font-size:11px;display:none;" title="서버(GitHub Actions)가 받아둔 데이터의 나이 — 30분마다 자동 갱신">서버 데이터 확인 중...</span>
       <span id="llm-header-badge" data-action="toggleLLM"
@@ -5145,6 +5247,13 @@ button[data-filter-active="true"] {
 
   <!-- v51.65: 파이프라인 상태 배너 — AI/FMP/FRED 이슈 있을 때만 표시 (R234: 기본 hidden) -->
   <div id="aio-pipeline-status-bar" style="display:none;flex-wrap:wrap;gap:6px;padding:6px 0 2px;"></div>
+  <div id="aio-public-readiness" class="aio-public-readiness" aria-live="polite">
+    <div class="aio-public-readiness-main">
+      <div class="aio-public-readiness-kicker">Public Status</div>
+      <div class="aio-public-readiness-label">공개 사용 상태 확인 중</div>
+      <span>버전, 데이터 기준 시각, 페이지 현재성, 파이프라인 상태를 대조합니다.</span>
+    </div>
+  </div>
 
   <!-- v50.30: 초보자 시작 패널 제거 (사용자 지시 — 추가형 안내 패널 금지, 페이지는 핵심 기능만) -->
 
@@ -7654,7 +7763,7 @@ button[data-filter-active="true"] {
 
   <!-- v50.5: 인플레이션·고용 핵심 (FRED 공식 발표 자동 갱신 — 키 설정 시 BLS/BEA 최신 릴리스 YoY, 미설정 시 스냅샷 폴백) -->
   <div id="macro-fred-stale-banner" style="font-size:10px;color:var(--data-amber);background:rgba(255,163,26,0.07);border:1px solid rgba(255,163,26,0.2);border-radius:3px;padding:6px 12px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-    <span>⚠</span><span>CPI/PCE: <b>스냅샷 폴백</b> · FRED API 키 미설정 시 DATA_SNAPSHOT 값 표시 (CPI·PCE 2026-04~05 기준) · 6/25 May PCE 발표 후 갱신 예정</span>
+    <span>⚠</span><span>CPI/PCE: <b>스냅샷 폴백</b> · FRED 수신 실패 시 DATA_SNAPSHOT 값 표시 · 후속 발표와 public-data 갱신 시 자동 교체</span>
   </div>
   <script>
     (function(){
@@ -7680,7 +7789,7 @@ button[data-filter-active="true"] {
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">PCE <span style="font-size:9px;color:var(--data-amber);">4월</span></div>
       <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--data-amber);"><span data-snap="pce-yoy">3.8%</span> <span id="pce-yoy-delta" class="aio-metric-delta" style="display:none;font-size:11px;" title="전월 대비 YoY 변화"></span></div>
       <div style="font-size:11px;color:var(--text-muted);">YoY · 헤드라인</div>
-      <div style="font-size:11px;color:var(--data-amber);margin-top:3px;">연준 선호 지표 · 6/25 May 발표</div>
+      <div style="font-size:11px;color:var(--data-amber);margin-top:3px;">연준 선호 지표 · FRED/public-data 우선</div>
     </div>
     <div class="macro-card" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:700;">근원 PCE <span style="font-size:9px;color:var(--data-amber);">4월</span></div>
@@ -9457,6 +9566,41 @@ button[data-filter-active="true"] {
       </span>
     </div>
 
+    <!-- v51.80: 사용자가 바로 쓰는 AI 운용 노트 / 복기 패널 -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">AI 운용 노트</span></div>
+    <div id="pf-ai-workbench" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;">
+      <div style="display:grid;grid-template-columns:minmax(220px,0.9fr) minmax(260px,1.1fr);gap:12px;align-items:stretch;">
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:0;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <label style="font-size:11px;color:var(--text-muted);font-weight:700;display:flex;align-items:center;gap:6px;flex:1;min-width:170px;">분석 종목
+              <select id="pf-ai-ticker-select" aria-label="AI 분석 대상 보유 종목 선택" style="flex:1;min-width:110px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);padding:7px 9px;font-size:12px;font-family:var(--font-mono);">
+                <option value="">전체 포트폴리오</option>
+              </select>
+            </label>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
+            <button class="aio-btn-table primary" data-action="_aioPortfolioAsk" data-arg="overview" style="font-size:12px;font-weight:800;padding:8px 10px;">종합 분석</button>
+            <button class="aio-btn-table" data-action="_aioPortfolioAsk" data-arg="ticker" style="font-size:12px;font-weight:700;padding:8px 10px;">종목 점검</button>
+            <button class="aio-btn-table" data-action="_aioPortfolioAsk" data-arg="rebalance" style="font-size:12px;font-weight:700;padding:8px 10px;">리밸런싱</button>
+            <button class="aio-btn-table" data-action="_aioPortfolioAsk" data-arg="lesson" style="font-size:12px;font-weight:700;padding:8px 10px;">학습 과제</button>
+          </div>
+          <div id="pf-ai-status" style="font-size:11px;color:var(--text-muted);line-height:1.6;">포지션 등록 후 AI 분석을 실행할 수 있습니다.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:0;">
+          <textarea id="pf-journal-note" aria-label="매매 복기 노트" placeholder="매수/매도 근거, 감정, 놓친 점, 다음에 지킬 규칙" style="width:100%;min-height:82px;resize:vertical;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);padding:9px 10px;font-size:12px;line-height:1.55;box-sizing:border-box;"></textarea>
+          <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+            <span id="pf-journal-status" style="font-size:11px;color:var(--text-muted);">노트는 브라우저에만 저장됩니다.</span>
+            <span style="display:flex;gap:6px;">
+              <button class="aio-btn-table" data-action="_aioSavePortfolioJournal" style="font-size:11px;">노트 저장</button>
+              <button class="aio-btn-table primary" data-action="_aioPortfolioAsk" data-arg="journal" style="font-size:11px;font-weight:800;">복기 분석</button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /aio-section AI 운용 노트 -->
+
     <!-- Summary Cards -->
     <div class="aio-section">
     <div class="aio-section-hd"><span class="aio-section-label">포트폴리오 요약</span></div>
@@ -9527,6 +9671,43 @@ button[data-filter-active="true"] {
       </div>
     </div>
     </div><!-- /aio-section SPY비교 -->
+
+    <!-- v51.79: Portfolio Visualizer-style 장기 백테스트 Lab -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">백테스트 Lab</span></div>
+    <div id="pf-backtest-lab" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:12px;font-weight:800;color:var(--text-secondary);">장기 포트폴리오 백테스트</div>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-top:3px;">월말 가격 기준으로 CAGR, MDD, Sharpe/Sortino, 벤치마크 대비 active risk, 연간 수익률, 회복 기간을 계산합니다.</div>
+        </div>
+        <span style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">source: Yahoo chart · monthly model</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:8px;margin-bottom:10px;">
+        <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;">초기 금액
+          <input id="pf-bt-initial" type="number" min="100" step="100" value="10000" aria-label="백테스트 초기 금액" style="margin-top:4px;width:100%;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);padding:7px 9px;font-size:12px;font-family:var(--font-mono);">
+        </label>
+        <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;">시작 연도
+          <input id="pf-bt-start-year" type="number" min="1985" max="2026" step="1" value="2017" aria-label="백테스트 시작 연도" style="margin-top:4px;width:100%;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);padding:7px 9px;font-size:12px;font-family:var(--font-mono);">
+        </label>
+        <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;">리밸런싱
+          <select id="pf-bt-rebalance" aria-label="백테스트 리밸런싱 방식" style="margin-top:4px;width:100%;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);padding:7px 9px;font-size:12px;">
+            <option value="annual">연 1회</option>
+            <option value="quarterly">분기 1회</option>
+            <option value="monthly">월 1회</option>
+            <option value="none">리밸런싱 없음</option>
+          </select>
+        </label>
+        <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;">벤치마크
+          <input id="pf-bt-benchmark" type="text" value="SPY" aria-label="백테스트 벤치마크 티커" style="margin-top:4px;width:100%;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);padding:7px 9px;font-size:12px;font-family:var(--font-mono);text-transform:uppercase;">
+        </label>
+        <div style="display:flex;align-items:end;">
+          <button class="aio-btn-table primary" data-action="runPortfolioBacktestLab" style="width:100%;font-size:12px;font-weight:800;padding:8px 12px;">백테스트 실행</button>
+        </div>
+      </div>
+      <div id="pf-backtest-output" style="font-size:11px;color:var(--text-muted);padding:8px 0;">보유 종목을 추가한 뒤 실행하세요. 결과는 브라우저에서 계산되며 서버로 전송되지 않습니다.</div>
+    </div>
+    </div><!-- /aio-section 백테스트 Lab -->
 
     <!-- ══ v48.47: 위험/보상 계산기 (포지션 연동) — from technical ══ -->
     <details class="aio-page-advanced-toggle" style="margin-bottom:14px;">
@@ -10048,7 +10229,7 @@ button[data-filter-active="true"] {
     <!-- 뉴스 데이터 출처 타임스탬프 표시줄 -->
     <div style="font-size:11px;color:var(--text-muted);padding:5px 10px;background:var(--surface-1);border:1px solid var(--border);border-radius:3px;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <span>캐시 갱신:</span>
-      <span id="news-cache-ts" style="font-family:var(--font-mono);color:var(--text-secondary);">데이터 로딩 중...</span>
+      <span id="news-cache-ts" style="font-family:var(--font-mono);color:var(--text-secondary);">캐시 확인 중...</span>
       <span style="color:var(--border);">|</span>
       <span>주기: 45분 자동 갱신 (GitHub Actions)</span>
       <span style="color:var(--border);">|</span>
@@ -11209,7 +11390,7 @@ button[data-filter-active="true"] {
       <table class="kr-flow-table">
         <tr><th>날짜</th><th>이벤트</th><th>영향</th></tr>
         <tr><td data-evidence-id="kr-macro-fomc-date" data-source-kind="SNAPSHOT" data-as-of="2026-06-17">06/17</td><td>미국 FOMC 결과</td><td style="color:var(--yellow);">▶ 금리·달러 반응 확인</td></tr>
-        <tr><td>06/25</td><td>미국 5월 PCE</td><td style="color:var(--yellow);">▶ Fed 선호 물가 후속 확인</td></tr>
+        <tr><td>다음 발표</td><td>미국 PCE</td><td style="color:var(--yellow);">▶ Fed 선호 물가와 달러·금리 반응 확인</td></tr>
         <tr><td>07/10</td><td>한국은행 금통위</td><td style="color:var(--yellow);">▶ 환율·물가·수출 모멘텀 확인 후 판단</td></tr>
       </table>
     </div>
@@ -11255,7 +11436,7 @@ button[data-filter-active="true"] {
         <tr><td>주식시장 YTD</td><td style="color:var(--green);">+5.2%</td><td style="color:var(--red);">-3.8%</td><td style="color:var(--red);">-4.2%</td><td style="color:var(--green);">+1.8%</td></tr>
       </table>
       <div data-evidence-id="kr-us-rate-calendar" data-source-kind="official-calendar" data-as-of="2026-06-16" style="margin-top:10px;padding:8px 10px;background:rgba(0,212,255,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
-        한국과 미국의 금리차는 원화와 외국인 수급의 핵심 변수입니다. 6/17 FOMC 결과 이후 미국 금리·달러 반응과 6/25 PCE를 함께 확인하고, 한국은 7/10 금통위 전까지 환율·물가·수출 모멘텀을 함께 봅니다.
+        한국과 미국의 금리차는 원화와 외국인 수급의 핵심 변수입니다. 최근 FOMC 결과는 금리·달러·2Y/10Y 반응으로 재평가하고, 후속 고용·CPI·PCE 발표와 한국 7/10 금통위 전 환율·물가·수출 모멘텀을 함께 봅니다.
       </div>
     </div>
     </div><!-- /aio-section 매크로환경분석 -->
@@ -11818,7 +11999,7 @@ button[data-filter-active="true"] {
         </div>
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;">
           <div style="font-size:11px;font-weight:700;color:var(--data-green);margin-bottom:4px;"> 데이터 갱신 주기</div>
-          <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;"><b>실시간 (API 연결 시):</b> 시세, 뉴스, Fear&Greed 지수 — 수분~수십분 간격 자동 갱신<br><b>정적 데이터:</b> Breadth(이동평균 비율), 포지셔닝 리스크, 경기 사이클 — 주 1회 수동 갱신<br><b>FRED 데이터:</b> CPI, GDP, 금리 등 — 발표 일정에 따라 갱신</div>
+          <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;"><b>자동 수집:</b> GitHub Actions/public-data가 시세, 뉴스, Fear&Greed, FRED를 주기 갱신<br><b>스냅샷/참고:</b> 자동 소스가 비거나 지연될 때만 표시되는 보조 데이터<br><b>FRED 데이터:</b> CPI, GDP, 금리 등은 발표 일정과 수신 성공 여부에 따라 갱신</div>
         </div>
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;">
           <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:4px;">통합 전문 분석</div>
@@ -12068,7 +12249,7 @@ button[data-filter-active="true"] {
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 데이터가 "수신 대기"에서 멈춰요</div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 네트워크 연결 확인 → Ctrl+Shift+R로 강제 새로고침 → 사이드바 데이터 연결 설정을 확인하세요. Finnhub 키가 없으면 실시간 시세가 제한됩니다.</div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">A. 네트워크 연결 확인 → Ctrl+Shift+R로 강제 새로고침 → 상단 public-data 갱신 시각과 파이프라인 상태를 확인하세요. 일부 보조 API가 실패해도 GitHub Actions 캐시가 있으면 핵심 화면은 계속 표시됩니다.</div>
           </div>
           <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:10px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Q. 차트가 비어 있어요 / 안 나와요</div>
@@ -12263,9 +12444,9 @@ button[data-filter-active="true"] {
   })();
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.75"></script>
-  <script src="./js/aio-data.js?v=51.75"></script>
-  <script src="./js/aio-ui.js?v=51.75"></script>
+  <script src="./js/aio-core.js?v=51.81"></script>
+  <script src="./js/aio-data.js?v=51.81"></script>
+  <script src="./js/aio-ui.js?v=51.81"></script>
 
   <script>
 
@@ -13041,6 +13222,7 @@ function renderPortfolio() {
   if (!tbody) return;
   // v48.47: R:R 계산기 포지션 드롭다운 동기화
   try { if (typeof window._aioRRPopulateSelect === 'function') window._aioRRPopulateSelect(); } catch(_){}
+  try { if (typeof window._aioSyncPortfolioAiWorkbench === 'function') window._aioSyncPortfolioAiWorkbench(); } catch(_){}
 
   if (positions.length === 0) {
     // v48.3: 빈 상태 안내 강화 — 폰트 크기 상향 + 명확한 3단계 가이드
@@ -13052,6 +13234,7 @@ function renderPortfolio() {
     updatePortfolioSummary(positions, ld);
     // v48.3: 빈 상태에서도 도넛 리셋(이전 데이터 잔존 방지)
     if (typeof drawPositionDonut === 'function') drawPositionDonut();
+    try { if (typeof window._aioSyncPortfolioAiWorkbench === 'function') window._aioSyncPortfolioAiWorkbench(); } catch(_){}
     return;
   }
 
@@ -13111,6 +13294,7 @@ function renderPortfolio() {
   // 현금 입력 필드 복원
   var cashInp = document.getElementById('pf-cash-input');
   if (cashInp) { try { cashInp.value = localStorage.getItem('aio_portfolio_cash') || ''; } catch(e) {} }
+  try { if (typeof window._aioSyncPortfolioAiWorkbench === 'function') window._aioSyncPortfolioAiWorkbench(); } catch(_){}
 }
 
 function updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDailyChg) {
@@ -13480,6 +13664,262 @@ function _renderRiskMetrics(el, data) {
   el.innerHTML = cards + heatHtml + note;
 }
 
+function _aioFmtBtPct(v, d) {
+  if (v === null || v === undefined || !isFinite(v)) return '—';
+  return (v >= 0 ? '+' : '') + (v * 100).toFixed(d == null ? 2 : d) + '%';
+}
+function _aioFmtBtNum(v, d) {
+  if (v === null || v === undefined || !isFinite(v)) return '—';
+  return Number(v).toFixed(d == null ? 2 : d);
+}
+function _aioFmtBtMoney(v) {
+  if (v === null || v === undefined || !isFinite(v)) return '—';
+  return '$' + Math.round(v).toLocaleString();
+}
+function _aioBtTd(value, cls) {
+  return '<td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);' + (cls || '') + '">' + value + '</td>';
+}
+function _aioRenderPortfolioBacktestLab(model) {
+  var el = document.getElementById('pf-backtest-output');
+  if (!el) return;
+  if (!model || !model.ok) {
+    var reason = model && model.warnings && model.warnings.length ? model.warnings.join(' · ') : '백테스트를 계산할 수 없습니다.';
+    el.innerHTML = '<div style="color:var(--data-amber);font-size:11px;padding:8px 0;">' + _escHtmlSafe(reason) + '</div>';
+    return;
+  }
+  var p = model.performance || {};
+  var tone = function(v) { return v < 0 ? 'color:var(--data-red);' : 'color:var(--data-green);'; };
+  var metricRows = [
+    ['Start Balance', _aioFmtBtMoney(p.startBalance), _aioFmtBtMoney(p.startBalance)],
+    ['End Balance', _aioFmtBtMoney(p.endBalance), _aioFmtBtMoney(p.benchmarkEndBalance)],
+    ['CAGR', _aioFmtBtPct(p.cagr), _aioFmtBtPct(p.benchmarkCagr)],
+    ['Stdev', _aioFmtBtPct(p.stdev), _aioFmtBtPct(p.benchmarkStdev)],
+    ['Best Year', _aioFmtBtPct(p.bestYear), '—'],
+    ['Worst Year', _aioFmtBtPct(p.worstYear), '—'],
+    ['Max Drawdown', _aioFmtBtPct(-p.maxDrawdown), '—'],
+    ['Sharpe / Sortino', _aioFmtBtNum(p.sharpe) + ' / ' + _aioFmtBtNum(p.sortino), '—'],
+    ['Active / Tracking Error / IR', _aioFmtBtPct(p.activeReturn) + ' / ' + _aioFmtBtPct(p.trackingError) + ' / ' + _aioFmtBtNum(p.informationRatio), '—'],
+    ['Beta / Alpha / Corr', _aioFmtBtNum(p.beta) + ' / ' + _aioFmtBtPct(p.alpha) + ' / ' + _aioFmtBtNum(p.benchmarkCorrelation), '—'],
+    ['VaR / CVaR 5% monthly', _aioFmtBtPct(-p.historicalVar5) + ' / ' + _aioFmtBtPct(-p.conditionalVar5), '—'],
+    ['Up / Down Capture', _aioFmtBtPct(p.upsideCapture) + ' / ' + _aioFmtBtPct(p.downsideCapture), '—']
+  ];
+  var metricHtml = metricRows.map(function(r) {
+    return '<tr><td style="padding:6px 8px;color:var(--text-secondary);">' + _escHtmlSafe(r[0]) + '</td>' +
+      _aioBtTd(r[1]) + _aioBtTd(r[2]) + '</tr>';
+  }).join('');
+  var annualHtml = (model.annualRows || []).slice(-12).reverse().map(function(r) {
+    return '<tr><td style="padding:6px 8px;font-family:var(--font-mono);">' + _escHtmlSafe(r.year) + '</td>' +
+      _aioBtTd(_aioFmtBtPct(r.return), tone(r.return)) +
+      _aioBtTd(_aioFmtBtMoney(r.balance)) +
+      _aioBtTd(_aioFmtBtPct(r.benchmarkReturn), tone(r.benchmarkReturn)) +
+      _aioBtTd(_aioFmtBtMoney(r.benchmarkBalance)) + '</tr>';
+  }).join('');
+  var ddHtml = (model.drawdowns || []).slice(0, 6).map(function(d, i) {
+    return '<tr><td style="padding:6px 8px;text-align:center;">' + (i + 1) + '</td>' +
+      '<td style="padding:6px 8px;font-family:var(--font-mono);">' + _escHtmlSafe(d.start || '—') + '</td>' +
+      '<td style="padding:6px 8px;font-family:var(--font-mono);">' + _escHtmlSafe(d.end || '—') + '</td>' +
+      '<td style="padding:6px 8px;font-family:var(--font-mono);">' + _escHtmlSafe(d.recoveryBy || '—') + '</td>' +
+      _aioBtTd(d.recoveryMonths == null ? '—' : d.recoveryMonths + 'm') +
+      _aioBtTd(d.underwaterMonths == null ? '—' : d.underwaterMonths + 'm') +
+      _aioBtTd(_aioFmtBtPct(-d.drawdown), 'color:var(--data-red);font-weight:800;') + '</tr>';
+  }).join('');
+  var compHtml = (model.components || []).slice(0, 8).map(function(c) {
+    return '<tr><td style="padding:6px 8px;font-family:var(--font-mono);font-weight:800;">' + _escHtmlSafe(c.ticker) + '</td>' +
+      _aioBtTd(_aioFmtBtPct(c.weight, 1)) +
+      _aioBtTd(_aioFmtBtPct(c.standaloneReturn)) +
+      _aioBtTd(_aioFmtBtMoney(c.returnContribution)) +
+      _aioBtTd(c.riskContribution == null ? '—' : _aioFmtBtPct(c.riskContribution, 1)) + '</tr>';
+  }).join('');
+  el.innerHTML =
+    '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">' +
+      '<div style="font-size:11px;color:var(--text-muted);">기간 <b style="color:var(--text-primary);font-family:var(--font-mono);">' + _escHtmlSafe(model.settings.startMonth) + ' ~ ' + _escHtmlSafe(model.settings.endMonth) + '</b> · ' +
+      '리밸런싱 <b style="color:var(--text-primary);">' + _escHtmlSafe(model.settings.rebalanceType) + '</b> · 벤치마크 <b style="color:var(--text-primary);font-family:var(--font-mono);">' + _escHtmlSafe(model.settings.benchmarkSymbol) + '</b></div>' +
+      '<span class="aio-source-badge is-delayed">DELAYED monthly backtest</span>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px;">' +
+      '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">CAGR</div><div style="font-size:18px;font-family:var(--font-mono);font-weight:900;color:' + (p.cagr >= p.benchmarkCagr ? 'var(--data-green)' : 'var(--data-amber)') + ';">' + _aioFmtBtPct(p.cagr) + '</div><div style="font-size:10px;color:var(--text-muted);">bench ' + _aioFmtBtPct(p.benchmarkCagr) + '</div></div>' +
+      '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Max Drawdown</div><div style="font-size:18px;font-family:var(--font-mono);font-weight:900;color:var(--data-red);">' + _aioFmtBtPct(-p.maxDrawdown) + '</div><div style="font-size:10px;color:var(--text-muted);">worst underwater path</div></div>' +
+      '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Sharpe / Sortino</div><div style="font-size:18px;font-family:var(--font-mono);font-weight:900;color:var(--text-primary);">' + _aioFmtBtNum(p.sharpe) + ' / ' + _aioFmtBtNum(p.sortino) + '</div><div style="font-size:10px;color:var(--text-muted);">RF ' + _aioFmtBtPct(model.settings.rfAnnual, 1) + '</div></div>' +
+      '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;"><div style="font-size:10px;color:var(--text-muted);font-weight:800;">Active / IR</div><div style="font-size:18px;font-family:var(--font-mono);font-weight:900;color:' + (p.activeReturn >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + _aioFmtBtPct(p.activeReturn) + ' / ' + _aioFmtBtNum(p.informationRatio) + '</div><div style="font-size:10px;color:var(--text-muted);">tracking error ' + _aioFmtBtPct(p.trackingError) + '</div></div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:10px;">' +
+      '<div style="overflow-x:auto;"><div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">Performance Summary</div><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--text-muted);"><th style="text-align:left;padding:6px 8px;">Metric</th><th style="text-align:right;padding:6px 8px;">Portfolio</th><th style="text-align:right;padding:6px 8px;">Benchmark</th></tr></thead><tbody>' + metricHtml + '</tbody></table></div>' +
+      '<div style="overflow-x:auto;"><div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">Annual Returns</div><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--text-muted);"><th style="text-align:left;padding:6px 8px;">Year</th><th style="text-align:right;padding:6px 8px;">Return</th><th style="text-align:right;padding:6px 8px;">Balance</th><th style="text-align:right;padding:6px 8px;">Bench</th><th style="text-align:right;padding:6px 8px;">Bench Bal</th></tr></thead><tbody>' + annualHtml + '</tbody></table></div>' +
+      '<div style="overflow-x:auto;"><div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">Worst Drawdowns</div><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--text-muted);"><th style="padding:6px 8px;">#</th><th style="text-align:left;padding:6px 8px;">Start</th><th style="text-align:left;padding:6px 8px;">Trough</th><th style="text-align:left;padding:6px 8px;">Recovery</th><th style="text-align:right;padding:6px 8px;">Recover</th><th style="text-align:right;padding:6px 8px;">Underwater</th><th style="text-align:right;padding:6px 8px;">DD</th></tr></thead><tbody>' + ddHtml + '</tbody></table></div>' +
+      '<div style="overflow-x:auto;"><div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;">Return / Risk Attribution</div><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--text-muted);"><th style="text-align:left;padding:6px 8px;">Ticker</th><th style="text-align:right;padding:6px 8px;">Weight</th><th style="text-align:right;padding:6px 8px;">Standalone</th><th style="text-align:right;padding:6px 8px;">Return $</th><th style="text-align:right;padding:6px 8px;">Risk</th></tr></thead><tbody>' + compHtml + '</tbody></table></div>' +
+    '</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-top:10px;border-top:1px solid var(--border);padding-top:8px;">' + model.warnings.map(_escHtmlSafe).join(' · ') + '</div>';
+}
+
+async function runPortfolioBacktestLab() {
+  var out = document.getElementById('pf-backtest-output');
+  if (!out) return;
+  var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
+  if (!positions || !positions.length) {
+    out.innerHTML = '<div style="color:var(--data-amber);font-size:11px;padding:8px 0;">보유 종목을 먼저 추가하세요.</div>';
+    return;
+  }
+  var initial = Number((document.getElementById('pf-bt-initial') || {}).value) || 10000;
+  var startYear = Number((document.getElementById('pf-bt-start-year') || {}).value) || 2017;
+  var rebalance = String((document.getElementById('pf-bt-rebalance') || {}).value || 'annual');
+  var benchmark = String((document.getElementById('pf-bt-benchmark') || {}).value || 'SPY').trim().toUpperCase();
+  var tickers = positions.map(function(p) { return String(p.ticker || '').trim().toUpperCase(); }).filter(Boolean);
+  if (benchmark && tickers.indexOf(benchmark) < 0) tickers.push(benchmark);
+  out.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">월말 가격 이력을 수집하는 중입니다... (' + tickers.map(_escHtmlSafe).join(', ') + ')</div>';
+  var priceMap = {};
+  var settled = await Promise.allSettled(tickers.map(async function(t) {
+    var d = (typeof _fetchYahooChartData === 'function') ? await _fetchYahooChartData(t, '10y', '1d') : null;
+    if (d && d.timestamps && d.closes) priceMap[t] = d;
+  }));
+  var failed = tickers.filter(function(t) { return !priceMap[t]; });
+  var model = window.AIO && typeof window.AIO.buildPortfolioBacktestLab === 'function'
+    ? window.AIO.buildPortfolioBacktestLab(priceMap, positions, {
+        initialAmount: initial,
+        startYear: startYear,
+        endYear: new Date().getFullYear(),
+        rebalanceType: rebalance,
+        benchmarkSymbol: benchmark || 'SPY',
+        rfAnnual: 0.043
+      })
+    : { ok: false, warnings: ['백테스트 엔진을 찾을 수 없습니다.'] };
+  if (model && failed.length) {
+    model.warnings = (model.warnings || []).concat(['가격 이력 수신 실패: ' + failed.join(', ')]);
+  }
+  window._lastPortfolioBacktestLab = { model: model, priceMap: priceMap, checkedAt: Date.now(), fetchStatuses: settled.map(function(r, i) { return { ticker: tickers[i], status: r.status }; }) };
+  _aioRenderPortfolioBacktestLab(model);
+}
+window.runPortfolioBacktestLab = runPortfolioBacktestLab;
+
+var PF_JOURNAL_KEY = 'aio_portfolio_journal_v1';
+
+function _aioPortfolioJournalEntries() {
+  try {
+    var raw = localStorage.getItem(PF_JOURNAL_KEY);
+    var parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(_) { return []; }
+}
+
+window._aioSavePortfolioJournal = function() {
+  var noteEl = document.getElementById('pf-journal-note');
+  var statusEl = document.getElementById('pf-journal-status');
+  var note = noteEl ? String(noteEl.value || '').trim() : '';
+  if (!note) {
+    if (statusEl) statusEl.textContent = '저장할 노트가 없습니다.';
+    if (typeof showToast === 'function') showToast('매매 복기 노트를 입력하세요.');
+    return null;
+  }
+  var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
+  var entries = _aioPortfolioJournalEntries();
+  var entry = {
+    ts: Date.now(),
+    date: new Date().toISOString(),
+    note: note.slice(0, 2000),
+    tickers: positions.map(function(p) { return p.ticker; }).filter(Boolean)
+  };
+  entries.unshift(entry);
+  entries = entries.slice(0, 80);
+  try { localStorage.setItem(PF_JOURNAL_KEY, JSON.stringify(entries)); } catch(_) {}
+  if (statusEl) statusEl.textContent = '최근 노트 저장: ' + new Date(entry.ts).toLocaleString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+  if (typeof showToast === 'function') showToast('매매 복기 노트 저장 완료');
+  return entry;
+};
+
+window._aioSyncPortfolioAiWorkbench = function() {
+  var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
+  var sel = document.getElementById('pf-ai-ticker-select');
+  if (sel) {
+    var current = sel.value;
+    var opts = ['<option value="">전체 포트폴리오</option>'].concat(positions.map(function(p) {
+      var tk = escHtml(String(p.ticker || '').toUpperCase());
+      return '<option value="' + tk + '">' + tk + '</option>';
+    }));
+    sel.innerHTML = opts.join('');
+    if (current && positions.some(function(p) { return p.ticker === current; })) sel.value = current;
+  }
+  var entries = _aioPortfolioJournalEntries();
+  var status = document.getElementById('pf-ai-status');
+  if (status) {
+    if (!positions.length) status.textContent = '포지션 등록 후 AI 분석을 실행할 수 있습니다.';
+    else {
+      var top = positions.slice(0, 4).map(function(p) { return p.ticker; }).join(', ');
+      status.textContent = positions.length + '종목 분석 준비 · ' + top + (positions.length > 4 ? ' 외' : '') + (entries.length ? ' · 복기 노트 ' + entries.length + '건' : '');
+    }
+  }
+  var journalStatus = document.getElementById('pf-journal-status');
+  if (journalStatus && entries.length) {
+    journalStatus.textContent = '최근 노트: ' + new Date(entries[0].ts).toLocaleString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+  }
+};
+
+function _aioSelectedPortfolioTicker() {
+  var sel = document.getElementById('pf-ai-ticker-select');
+  return sel ? String(sel.value || '').trim().toUpperCase() : '';
+}
+
+function _aioBuildPortfolioActionPrompt(kind) {
+  var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
+  var ticker = _aioSelectedPortfolioTicker();
+  var noteEl = document.getElementById('pf-journal-note');
+  var note = noteEl ? String(noteEl.value || '').trim() : '';
+  var recent = _aioPortfolioJournalEntries().slice(0, 3).map(function(e, idx) {
+    return (idx + 1) + '. ' + (e.date || '').slice(0, 10) + ' ' + e.note;
+  }).join('\n');
+  var tickers = positions.map(function(p) { return p.ticker; }).join(', ');
+  var targetLine = ticker ? ('선택 종목: ' + ticker + '\n') : '대상: 전체 포트폴리오\n';
+  var noteLine = note ? ('\n이번 복기 노트:\n' + note + '\n') : '';
+  var recentLine = recent ? ('\n최근 저장 노트:\n' + recent + '\n') : '';
+  if (kind === 'ticker') {
+    return targetLine + '보유 종목 ' + (ticker || tickers || '전체') + '를 현재 포트폴리오 맥락에서 분석해줘. 1) 현재가/수익률/비중 2) 차트 추세와 지지·저항 3) 보유 지속/축소/추가매수 조건 4) 손절·무효화 기준 5) 다음 확인 데이터 순서로 정리해줘.' + noteLine + recentLine;
+  }
+  if (kind === 'rebalance') {
+    return '내 포트폴리오 리밸런싱 메모를 만들어줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 과집중 종목/섹터 2) 줄일 후보와 유지 후보 3) 현금/헤지 필요성 4) 다음 매수는 어떤 조건까지 기다릴지 5) 실행 우선순위로 정리해줘.' + noteLine + recentLine;
+  }
+  if (kind === 'lesson') {
+    return '내 포트폴리오를 학습 관점에서 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 내가 반복하는 실수 가능성 2) 잘한 의사결정 3) 다음 매매 전 체크리스트 4) 공부할 개념 5) 기록해야 할 지표를 초보자도 이해하게 정리해줘.' + noteLine + recentLine;
+  }
+  if (kind === 'journal') {
+    return '아래 매매 복기 노트를 기준으로 내 의사결정을 리뷰해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + noteLine + recentLine + '\n1) 사실/감정/추정 분리 2) 진입 근거가 유지되는지 3) 손절 또는 보유 기준 4) 다음에 반복할 규칙 5) 한 줄 교훈으로 정리해줘.';
+  }
+  return '내 포트폴리오 전체를 현재 보유 데이터 기준으로 종합 분석해줘.\n보유 종목: ' + (tickers || '없음') + '\n' + targetLine + '1) 핵심 결론 2) 수익/손실 기여 3) 비중·섹터·상관 리스크 4) 보유/축소/추가매수 조건 5) 이번 주 체크할 뉴스·차트·매크로 6) 공부할 포인트를 정리해줘.' + noteLine + recentLine;
+}
+
+window._aioPortfolioAsk = function(kind) {
+  var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
+  if (!positions.length) {
+    if (typeof showToast === 'function') showToast('먼저 보유 종목을 추가하세요.');
+    var tickerInput = document.getElementById('pf-add-ticker');
+    if (tickerInput) tickerInput.focus();
+    return;
+  }
+  if (kind === 'journal') {
+    var noteEl = document.getElementById('pf-journal-note');
+    var note = noteEl ? String(noteEl.value || '').trim() : '';
+    var savedNotes = _aioPortfolioJournalEntries();
+    if (!note && !savedNotes.length) {
+      if (typeof showToast === 'function') showToast('복기 노트를 먼저 입력하세요.');
+      if (noteEl) noteEl.focus();
+      return;
+    }
+    if (note) window._aioSavePortfolioJournal();
+  }
+  var prompt = _aioBuildPortfolioActionPrompt(kind || 'overview');
+  if (typeof updateAIPanelContext === 'function') updateAIPanelContext('portfolio');
+  var panel = document.getElementById('ai-panel');
+  if (panel && !panel.classList.contains('open') && typeof toggleAIPanel === 'function') toggleAIPanel();
+  setTimeout(function() {
+    try {
+      if (typeof updateAIPanelContext === 'function') updateAIPanelContext('portfolio');
+      var inp = document.getElementById('ai-panel-inp');
+      if (!inp) return;
+      inp.value = prompt;
+      if (typeof chatSendUnified === 'function') chatSendUnified();
+    } catch(e) {
+      if (typeof showToast === 'function') showToast('AI 패널 실행 오류: ' + (e && e.message || e));
+    }
+  }, 120);
+};
+
 function exportPortfolio() {
   const data = getPortfolioData();
   if (!data.length) { showToast('내보낼 포지션이 없습니다.'); return; }
@@ -13822,7 +14262,24 @@ function getPortfolioContextForAI() {
     var pctStr = pct !== null ? '(' + (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%)' : '';
     return `${p.ticker}: ${p.qty}주, 매수$${p.cost}, 현재$${price.toFixed(2)}${pctStr}, 손익 ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(0)} (${pnlPct}%), 보유${holdDays}일${targetStr}${p.memo ? ', 메모:'+p.memo : ''}`;
   });
-  return `【사용자 포트폴리오】총 자산: $${totalValue.toLocaleString('en',{maximumFractionDigits:0})}, ${positions.length}종목\n` + lines.join('\n');
+  var bt = window._lastPortfolioBacktestLab && window._lastPortfolioBacktestLab.model;
+  var btLine = '';
+  if (bt && bt.ok && bt.performance && bt.settings) {
+    var bp = bt.performance;
+    var _btPct = function(v) { return Number.isFinite(v) ? (v * 100).toFixed(2) + '%' : 'N/A'; };
+    var _btNum = function(v) { return Number.isFinite(v) ? v.toFixed(2) : 'N/A'; };
+    btLine = '\n【백테스트 Lab】기간 ' + bt.settings.startMonth + '~' + bt.settings.endMonth
+      + ', 방식 ' + bt.settings.rebalanceType
+      + ', 벤치마크 ' + bt.settings.benchmarkSymbol
+      + ', CAGR ' + _btPct(bp.cagr)
+      + ', MDD -' + _btPct(bp.maxDrawdown)
+      + ', Sharpe ' + _btNum(bp.sharpe)
+      + ', Sortino ' + _btNum(bp.sortino)
+      + ', Active ' + _btPct(bp.activeReturn)
+      + ', IR ' + _btNum(bp.informationRatio)
+      + '. 월간 재구성/연간 수익률/최악 드로다운 회복기간/기여도는 포트폴리오 페이지 백테스트 Lab 결과를 우선 참조.';
+  }
+  return `【사용자 포트폴리오】총 자산: $${totalValue.toLocaleString('en',{maximumFractionDigits:0})}, ${positions.length}종목\n` + lines.join('\n') + btLine;
 }
 
 // 워치리스트 컨텍스트 for AI
@@ -15464,7 +15921,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.75"></script>
+<script src="./js/aio-chat.js?v=51.81"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28061,7 +28518,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.75"></script>
+<script src="./js/aio-glossary.js?v=51.81"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -30941,7 +31398,7 @@ var _aiDefaultChips = {
   'fxbond':['환율 전망','채권 전략','수익률곡선','캐리트레이드'],
   'fundamental':['기업 분석','밸류에이션','재무제표 해석','경쟁 구도'],
   'themes':['주도 테마는?','AI 테마 전망','섹터 로테이션','테마 진입 시점'],
-  'portfolio':['리스크 분석','리밸런싱 시점','섹터 배분','손절/익절 전략'],
+  'portfolio':['포트폴리오 종합 분석','보유 종목 점검','매매 복기','다음 학습 과제'],
   'signal':['매매 타이밍','리스크 점수','진입 조건','분배 단계 진단'],
   'screener':['팩터 리더','섹터 분산','결측/저신뢰','후보 재랭킹'],
   'ticker':['투자 논지','기술 계획','재무/뉴스 검증','17관점 리포트'],

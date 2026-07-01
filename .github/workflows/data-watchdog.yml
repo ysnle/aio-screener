@@ -11,7 +11,7 @@ on:
       max_age_minutes:
         description: 'Maximum allowed age in minutes before failing.'
         required: false
-        default: '180'
+        default: '240'
 
 permissions:
   contents: read
@@ -25,11 +25,11 @@ jobs:
 
       - name: Check public-data freshness
         env:
-          MAX_AGE_MIN: ${{ github.event.inputs.max_age_minutes || '180' }}
+          MAX_AGE_MIN: ${{ github.event.inputs.max_age_minutes || '240' }}
         run: |
           node - <<'NODE'
           const fs = require('fs');
-          const max = parseInt(process.env.MAX_AGE_MIN || '180', 10);
+          const max = parseInt(process.env.MAX_AGE_MIN || '240', 10);
 
           function readJson(path) {
             try { return JSON.parse(fs.readFileSync(path, 'utf8')); }

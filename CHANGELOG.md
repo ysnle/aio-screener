@@ -1,3 +1,40 @@
+## v51.80 (2026-07-01)
+- **Portfolio AI Workbench**: Added a first-screen portfolio action panel with holding selector, direct AI actions for portfolio overview, ticker review, rebalance plan, learning tasks, and trade journal reflection.
+- **Trade journal loop**: Added browser-local `aio_portfolio_journal_v1` entries, latest-note status, and journal-aware AI prompts so users can turn buy/sell notes into rules, mistakes, and next checks.
+- **Direct AI execution**: `_aioPortfolioAsk()` now opens the unified AI panel, forces portfolio context, injects selected ticker/journal/recent notes, and sends the analysis prompt without requiring the user to craft the question manually.
+- **AI answer contract**: Portfolio chat now includes a trade reflection and learning-coach mode: facts/emotions/assumptions, thesis validity, sizing/stop, repeated mistakes, next checklist, and study concepts.
+- **Regression gate**: Runtime CI now requires the AI workbench DOM, journal storage handlers, direct portfolio AI execution path, and reflection prompt contract.
+- R243/QA v51.80 added. R1 7 surfaces v51.80.
+
+## v51.79 (2026-07-01)
+- **Portfolio Backtest Lab**: Added a separate long-horizon backtest section to the portfolio page with initial capital, start year, benchmark, and rebalance controls.
+- **PV-style monthly model**: `AIO.buildPortfolioBacktestLab()` now reconstructs aligned month-end portfolio and benchmark paths, producing CAGR, stdev, Sharpe, Sortino, active return, tracking error, information ratio, beta/alpha, VaR/CVaR, annual returns, worst drawdowns with recovery/underwater months, and return/risk attribution.
+- **AI integration**: `getPortfolioContextForAI()` now includes the latest Backtest Lab summary when available, so portfolio chat can reason from both current holdings and long-horizon performance evidence.
+- **Regression gates**: Runtime CI and `aio-tests.js` now require the Portfolio Visualizer-style monthly report contract, deterministic engine output, UI IDs, and AI context linkage.
+- R242/QA v51.79 added. R1 7 surfaces v51.79.
+
+## v51.78 (2026-07-01)
+- **Public readiness depth**: `AIO.getPublicShareReadiness()` now exposes a page-level `pageEvidenceRows` matrix with `pageId`, `sourceKind`, `sourceLabel`, `asOf`, confidence, DOM lineage counts, and weak-page summaries.
+- **Visible source/asOf matrix**: Home `#aio-public-readiness` renders compact per-page source/asOf chips so external users can see which pages are live/delayed/snapshot/reference before trusting decisions.
+- **Compaction signal cleanup**: `ci-workflow-compaction-check.mjs` now separates governed long-running context ledgers (`RULES`, `QA-CHECKLIST`, `BUG-POSTMORTEM`) from unmanaged oversized context warnings.
+- **Regression gates**: runtime CI now requires the readiness source/asOf matrix and workflow CI verifies governed large context routing through `_context/INDEX.md` and the workflow gate.
+- R241/QA v51.78 added. R1 7 surfaces v51.78.
+
+## v51.77 (2026-06-30)
+- **Trader tactical framework integration**: Added `AIO_TACTICAL_TRADER_FRAMEWORK` from the 2026-06-30 02:36 KST user-supplied trader screenshots as a `REFERENCE` framework, not live market data.
+- **Execution logic wiring**: Page decision headers now surface the framework on signal, technical, ticker, themes, market-news, and related pages; `calcBreadthRotation()` now accepts SMH/IGV rotation, failed-breakdown reclaim, and low-volume short-cover checks.
+- **AI/data integration**: AI chat now injects the framework with explicit volume-backed vs short-cover, support/reclaim vs confirmed breakdown, and IGV-to-SMH rotation discipline. MACRO_KW/TECH_KW now classify failed breakdown, support reclaim, volume-backed rally, and software-to-semi rotation news.
+- **Regression gate**: `scripts/ci-runtime-contract-check.mjs` now fails if the trader framework is removed from the central registry, page decisions, AI chat, or keyword layer.
+- R240/QA v51.77 added. R1 7 surfaces v51.77.
+
+
+## v51.76 (2026-06-30)
+- **Public-share readiness surface**: Home now renders `#aio-public-readiness`, backed by runtime audits for version, public-data age, page currentness, and data pipeline state.
+- **Source-aware quote chrome**: Removed the static `FINNHUB 실시간` home badge and downgraded topbar quote wording to source-aware labels.
+- **Scheduler warning closure**: KR supply scheduler optional calls now use `_aioCallOptionalGlobal()`, removing the undefined guarded-function runtime-contract WARN.
+- **Regression gate**: runtime contract CI now requires the public readiness panel and fails on `FINNHUB 실시간` reintroduction.
+- P551/R239/QA v51.76 added. R1 7 surfaces v51.76.
+
 ## v51.75 (2026-06-30)
 - **Residual currentness cleanup**: Removed remaining static `● LIVE` / `LIVE RSS` / `BUY / LONG` style overstatement from visible page chrome and downgraded labels to source-aware wording.
 - **News 24h contract closure**: KR issue cards and news risk signals now reuse the KST 08:00 completed 24h cycle instead of rolling `filterByAge(newsCache, 48)`.

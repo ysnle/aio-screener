@@ -14,6 +14,36 @@ confidence: high
 
 ---
 
+## v51.80 Portfolio UX: 기록을 분석으로 바꾸는 루프 (2026-07-01)
+
+### PF-UX-I. 포트폴리오 페이지의 핵심 가치는 "보유 현황"보다 "의사결정 개선"이다
+- 사용자는 티커/수량/평단을 입력한 직후 자기 포트폴리오를 분석하고 싶어 한다. 따라서 AI 진입점은 글로벌 채팅에만 있으면 부족하고, 포트폴리오 페이지 내부에 있어야 한다.
+- 좋은 포트폴리오 UX는 `입력 -> 현재 상태 -> AI 분석 -> 매매 복기 -> 다음 규칙/학습 과제` 흐름을 한 화면에서 닫는다.
+- 복기 노트는 live market data가 아니라 user-supplied context다. AI 답변은 노트를 근거로 삼되, 현재 가격/뉴스/지표처럼 취급하면 안 된다.
+
+### PF-UX-II. AI 답변은 P&L 평가보다 의사결정 품질 평가가 먼저다
+- 손익이 좋았는지보다 ①진입 근거가 명확했는지 ②손절/무효화 기준이 있었는지 ③포지션 크기가 적절했는지 ④감정과 사실을 분리했는지 ⑤다음에 반복할 규칙이 생겼는지가 더 중요하다.
+- 사용자가 "내 보유 종목 분석"을 누르면 전체 포트폴리오, 선택 종목, 최근 복기 노트, 백테스트 결과가 서로 다른 evidence layer로 들어가야 한다.
+- UX regression gate는 DOM 존재만 보지 말고, AI 패널 context forcing, prompt injection, local journal storage, reflection prompt contract를 함께 확인해야 한다.
+
+## v51.79 Portfolio Visualizer식 백테스트 결과 계약 (2026-07-01)
+> 출처: Portfolio Visualizer Backtest Portfolio 페이지 직접 점검, AIO portfolio 페이지 비교
+
+### BT-I. 백테스트는 "현재 보유 상태"가 아니라 "가정 기반 시간 경로"다
+- 입력 계약은 초기 금액, 기간, 현금흐름, 인플레이션/인출, 리밸런싱, 레버리지, 배당 재투자, 벤치마크, 자산별 배분을 명시한다.
+- AIO는 현재 단계에서 현금흐름/세금/수수료/레버리지까지 구현하지 않고, 월말 가격 기반 장기 경로와 리밸런싱 규칙을 명시한 `Portfolio Backtest Lab`으로 분리한다.
+- 사용자에게는 live holdings/P&L과 historical simulation을 같은 판단 근거로 섞지 말고, 서로 다른 evidence layer로 보여줘야 한다.
+
+### BT-II. 결과 표는 성과 요약 하나로 끝나면 안 된다
+- 핵심 결과 묶음: performance summary(CAGR, stdev, best/worst year, MDD, Sharpe, Sortino), active risk(active return, tracking error, information ratio, benchmark correlation), risk metrics(beta/alpha, VaR/CVaR, capture), growth path, annual/monthly returns, drawdowns, stress/rolling context, attribution.
+- AIO v51.79의 최소 계약은 `monthlyRows`, `annualRows`, `drawdowns`, `components`, `performance`이며 visible table은 `Performance Summary`, `Annual Returns`, `Worst Drawdowns`, `Return / Risk Attribution`을 같은 모델에서 렌더링한다.
+- 드로다운은 단순 MDD 숫자가 아니라 Start, trough/end, recovery by, recovery months, underwater period를 보여줘야 실제 운용 리스크가 해석된다.
+
+### BT-III. 회귀 방지 포인트
+- factor ranking, ticker snapshot, 현재 손익률, 스크리너 점수는 portfolio backtest가 아니다. construction, holding path, rebalance, benchmark, assumptions가 있어야 백테스트로 부른다.
+- AI 포트폴리오 컨텍스트는 마지막 성공 모델만 요약하고, 엔진 미실행/실패 상태를 추정으로 채우지 않는다.
+- Runtime CI는 UI ID, 엔진 모델명, 월간/연간/드로다운/active risk 필드, deterministic test, AI context linkage를 동시에 확인해야 한다.
+
 ## 🧠 v51.09 브리핑 통합 3개 패러다임 (2026-06-22)
 > **출처**: 2026-06-22 미국 장 전 브리핑 8포인트 + BROS Minervini VCP 차트
 
@@ -757,3 +787,19 @@ INTC DCAI 2026E +22% YoY, 서버 두 자릿수 성장 2027 지속 전망.
 - 중국 생태계: CXMT → 중국 브랜드 공급망
 - US+동맹국 생태계: MU(CHIPS Act +, 미국 내 DRAM 40% 목표) / SK하이닉스(HBM 독점) / 삼성
 - 5~10년 메가트렌드: 공급망 분기 = MU/LRCX/AMAT 구조적 수혜
+
+### TM-IV. Trader Tactical Framework — Support/Reclaim + Short-Cover + Semi Rotation [2026-06-30 02:36 KST]
+> 출처: 사용자 제공 트레이더 Telegram 스크린샷. 구현: `AIO_TACTICAL_TRADER_FRAMEWORK` (`sourceKind: REFERENCE`). 날짜·레벨은 당시 예시이며 현재 레벨로 사용 금지.
+
+**핵심 판단 구조**:
+- 방향성이 불명확하면 성급한 진입 금지. 기본값은 “확인 대기”이며, 신규 진입은 지수 리클레임/거래량/섹터 리더십이 같이 맞을 때만 강화.
+- 지지·리클레임 구간에서 숏 금지. 종가 이탈, 거래량 동반 하락, failed retest가 확인되기 전까지 단순 약세로 단정하지 않는다.
+- 상승의 질을 분리: 거래량 있는 상승 = 실수요 매수세 가능성, 거래량 없는 상승 = 숏 익절/커버 가능성. breadth와 leadership이 뒤따라야 지속성 인정.
+- 반도체 약세는 “반도체 사망”이 아니라 분기말/포트 리밸런싱일 수 있음. SMH가 QQQ/SPY 대비 회복하고 IGV에서 SMH로 수급이 이동하면 semi leadership으로 재분류.
+- 하단 이탈 후 재진입 + 반도체 리더십 회복은 failed breakdown/bear trap 가능성. 반대로 지지선 하회 + 거래량 매도 + 재돌파 실패면 “단순 눌림”이 아니다.
+
+**스크리너 통합 위치**:
+- `calcBreadthRotation()`: `SMH vs QQQ/SPY`, `IGV vs SMH`, `failedBreakdownReclaim`, `shortCoveringOnly` 입력 축 추가.
+- `_aioBuildPageDecision()`: signal/technical/ticker/themes/market-news overlays.
+- `CHAT_CONTEXTS`: `_aioTacticalTraderFrameworkContext()`로 AI 답변에 주입.
+- `MACRO_KW`/`TECH_KW`: failed breakdown, support reclaim, volume-backed rally, software-to-semi rotation 감지.

@@ -59,7 +59,13 @@ const skillStats = skillFiles.map((file) => ({
   hasScripts: existsSync(join(dirname(file), 'scripts'))
 })).sort((a, b) => b.bytes - a.bytes);
 
-const oversizedContext = contextStats.filter((item) => item.bytes > 100_000);
+const governedLargeContextNames = new Set([
+  'BUG-POSTMORTEM.md',
+  'RULES.md',
+  'QA-CHECKLIST.md'
+]);
+const oversizedContext = contextStats.filter((item) => item.bytes > 100_000 && !governedLargeContextNames.has(item.name));
+const governedLargeContext = contextStats.filter((item) => item.bytes > 100_000 && governedLargeContextNames.has(item.name));
 const oversizedSkills = skillStats.filter((item) => item.lines > 300 || item.bytes > 15_000);
 
 check('workflow compaction rule R220 exists', /R220/.test(rules) && /Workflow memory must be compacted/.test(rules));
@@ -68,6 +74,7 @@ check('workflow compaction postmortem P514 exists', /P514/.test(postmortem) && /
 check('workflow compaction changelog entry exists', /workflow compaction/i.test(changelog) && /v50\.89/.test(changelog));
 check('context index acknowledges compaction policy', /Workflow Compaction/.test(index) || /WORKFLOW-COMPACTION/.test(index));
 check('semantic gate remains present', exists('scripts/ci-semantic-review-check.mjs') && /R219/.test(rules));
+check('governed large context files are routed through INDEX and gates', governedLargeContext.every((item) => index.includes('`' + item.name + '`')) && /ci-workflow-compaction-check\.mjs/.test(qa) && /Postmortem-To-Gate Rule/.test(read('_context/WORKFLOW-GOVERNANCE.md')));
 
 if (oversizedContext.length) {
   warnings.push('Oversized context files: ' + oversizedContext.map((item) => `${item.name}:${item.bytes}`).join(', '));
@@ -96,3 +103,7 @@ skillStats.filter((item) => item.lines > 250 || item.bytes > 10_000).forEach((it
   console.log(` - ${item.name}: ${item.lines} lines, ${item.bytes} bytes, refs=${item.hasReferences}, scripts=${item.hasScripts}`);
 });
 if (warnings.length) warnings.forEach((warning) => console.warn('WARN: ' + warning));
+if (governedLargeContext.length) {
+  console.log('Governed large context files:');
+  governedLargeContext.forEach((item) => console.log(` - ${item.name}: ${item.lines} lines, ${item.bytes} bytes, routed=true`));
+}

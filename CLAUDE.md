@@ -3,8 +3,12 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.75**
+- 현재 버전: **v51.80**
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다.
+- **v51.80 Portfolio AI Workbench**: 포트폴리오 페이지에 보유종목 선택 기반 AI 운용 노트 패널 추가. 종합 분석/종목 점검/리밸런싱/학습 과제/매매 복기를 통합 AI 패널로 바로 실행하고, 브라우저 로컬 복기 노트를 프롬프트에 연결. R243/QA v51.80.
+- **v51.79 Portfolio Backtest Lab**: 포트폴리오 페이지에 Portfolio Visualizer식 월말 기반 장기 백테스트를 분리 추가. CAGR/MDD/Sharpe/Sortino/active risk/annual returns/worst drawdowns/attribution을 같은 모델에서 렌더하고 AI 컨텍스트와 runtime CI/T845에 연결. R242/QA v51.79.
+- **v51.78 public readiness source/asOf matrix**: 홈 상태판이 페이지별 `sourceKind/sourceLabel/asOf` 칩을 렌더하고, `AIO.getPublicShareReadiness()`가 `pageEvidenceRows/weakPages`를 반환. workflow compaction은 관리되는 장기 ledger와 unmanaged oversized context를 분리. R241/QA v51.78.
+- **v51.77 트레이더 전술 프레임워크 통합**: 2026-06-30 02:36 KST 사용자 제공 트레이더 스크린샷을 `AIO_TACTICAL_TRADER_FRAMEWORK(sourceKind=REFERENCE)`로 중앙화. 지지/리클레임, 볼륨 있는 매수세 vs 저볼륨 숏커버, IGV→SMH 수급 전환, failed breakdown/bear trap을 page decision·AI chat·MACRO_KW/TECH_KW·runtime CI에 연결. R240/QA v51.77.
 - **v51.73 스킬 라우터/reference 구조 분해**: 6개 주요 스킬을 concise `SKILL.md` router + `references/` 세부 문서로 재설계. `.claude/skills/_shared/operating-contract.md` 공통 계약 추가, 6개 command wrapper thin-router화, `ci-skill-contract-check.mjs`가 reference 존재/공통 계약/라우터 크기 제한을 검사. R237/QA v51.73. R1 7곳 v51.73.
 - **v51.73 스킬 운영 계약 게이트**: .claude/skills 6개 주요 스킬과 .claude/commands 6개 wrapper에 AIO Skill Operating Contract를 추가. scripts/ci-skill-contract-check.mjs 신설 + CI 연결, workflow compaction이 .claude/skills를 스캔하도록 수정. R236/QA v51.73. R1 7곳 v51.73.
 - **v51.71 calcTechnicalSnapshot 소비 경로 계약 폐쇄**: 주봉 컨텍스트 필드 alias(lastWeekClose/wClose, wRsi/wRsi14)와 티커 UI fallback을 맞추고, AI 채팅에 VCP/Fibonacci·Volume Profile/RSI divergence/weekly context를 주입. public-data/screener.json VCP score artifact 재생성 + ci-runtime-contract-check.mjs에 P548/R235 게이트 추가. R1 7곳 v51.71.

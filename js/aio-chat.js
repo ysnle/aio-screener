@@ -39,6 +39,28 @@ function _getImportedResearchContext(ctxId) {
 }
 if (typeof window !== 'undefined') window._getImportedResearchContext = _getImportedResearchContext;
 
+function _aioTacticalTraderFrameworkContext(ctxId, q) {
+  try {
+    var relevant = {
+      home:1, signal:1, briefing:1, 'market-news':1, technical:1, screener:1,
+      ticker:1, fundamental:1, themes:1, 'theme-detail':1, portfolio:1
+    };
+    var ask = String(q || '').toLowerCase();
+    var keywordHit = /smh|igv|qqq|spy|semi|semiconductor|software|short.?cover|failed breakdown|volume profile|support|reclaim|rotation/.test(ask);
+    if (!relevant[ctxId] && !keywordHit) return '';
+    var f = (window.AIO && typeof window.AIO.getTacticalTraderFramework === 'function') ? window.AIO.getTacticalTraderFramework() : window.AIO_TACTICAL_TRADER_FRAMEWORK;
+    if (!f || !Array.isArray(f.rules)) return '';
+    var lines = f.rules.map(function(r) {
+      return '- ' + r.id + ': ' + r.meaning + ' Evidence=' + (r.requiredEvidence || []).join('/');
+    }).join('\n');
+    return '\n\n[User supplied trader tactical framework | sourceKind=' + (f.sourceKind || 'REFERENCE') + ' | asOf=' + (f.asOf || '2026-06-30T02:36:00+09:00') + ']\n' +
+      'Use this as a durable trading-decision framework, not as live market data.\n' +
+      lines + '\n' +
+      'Required answer discipline: separate (1) volume-backed buying vs low-volume short-cover rally, (2) support/reclaim vs confirmed breakdown, (3) IGV-to-SMH rotation vs real semiconductor thesis break. Exact SPX/QQQ levels from the screenshot are historical examples only; current levels must come from injected live/snapshot technical data.\n';
+  } catch(_) { return ''; }
+}
+if (typeof window !== 'undefined') window._aioTacticalTraderFrameworkContext = _aioTacticalTraderFrameworkContext;
+
 const CHAT_CONTEXTS = {
   // ── 차트/기술 분석 (enhanced version overridden later) ──
   technical: {
@@ -851,6 +873,11 @@ const CHAT_CONTEXTS = {
         '• 진입 타이밍: 현재가 vs 52주 범위 위치 + 시장 환경(스코어/VIX) 조합 판단\n' +
         '• 비교 분석: "워치리스트의 A vs 이미 보유한 B — 어느 쪽이 포트폴리오에 더 유리한가?"\n' +
         '• 포지션 사이징 제안: 위 1-2% 룰 기반으로 추천 포지션 크기와 손절가 계산\n\n' +
+        '【매매 복기·학습 코치 모드】\n' +
+        '사용자가 포트폴리오 AI 운용 노트나 복기 메모를 제공하면 성과 평가보다 의사결정 품질을 먼저 평가한다.\n' +
+        '반드시 ①사실/감정/추정 분리 ②진입 근거 유지/훼손 여부 ③포지션 크기와 손절 기준 ④반복 실수/잘한 행동 ⑤다음 매매 전 체크리스트 ⑥공부할 개념을 포함한다.\n' +
+        '사용자에게 죄책감을 주는 표현은 피하고, 다음 행동 규칙으로 바꿔준다. 예: "FOMO였다"로 끝내지 말고 "다음에는 거래 전 20MA/거래량/손절가가 모두 충족될 때만 진입"처럼 검증 가능한 규칙으로 재작성한다.\n' +
+        '개별 종목 점검 요청이면 포트폴리오 내 비중·손익·매수 메모와 현재 시장/차트 맥락을 연결해서, 보유 지속/축소/추가매수/무효화 조건을 구분한다.\n\n' +
         '반드시 사용자의 실제 보유 종목 티커를 인용하면서 분석.\n' +
         '【포트폴리오 운용 철학 (v42.1: 대장주·MDD·전쟁 프레임워크)】\n' +
         '• 대장주 원칙: 섹터 내 3등주(라가드) 매수 금지. 1등 종목이 올라야 나머지가 따라옴. 약세장에서 3등주는 1등보다 더 큰 낙폭.\n' +
@@ -5395,6 +5422,7 @@ async function chatSend(ctxId) {
     portfolioData: ctxId === 'portfolio'
   }) : '';
   var memoryContextStr = _buildChatMemoryContext(ctxId, q);
+  var tacticalTraderContextStr = (typeof _aioTacticalTraderFrameworkContext === 'function') ? _aioTacticalTraderFrameworkContext(ctxId, q) : '';
 
   // v20+: dynamic system prompts (portfolio injects live data)
   var systemPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
@@ -5402,6 +5430,7 @@ async function chatSend(ctxId) {
   if (coverageContextStr) systemPrompt += coverageContextStr;
   if (integratedContextStr) systemPrompt += integratedContextStr;
   if (memoryContextStr) systemPrompt += memoryContextStr;
+  if (tacticalTraderContextStr) systemPrompt += tacticalTraderContextStr;
   if (tickerDataStr) systemPrompt += tickerDataStr;
   if (technicalDataStr) systemPrompt += technicalDataStr;  // v50.12: 기술적 실측 데이터 주입
   if (sectorCompareStr) systemPrompt += sectorCompareStr;

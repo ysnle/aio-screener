@@ -6819,6 +6819,39 @@
       t844detail = JSON.stringify({ runtime:runtime844 && runtime844.status, share:share844 && share844.status, deploy:deploy844 && deploy844.status, oldCache:oldCache844, scripts:scripts844.length });
     } catch(e) { t844detail = 'ERR:' + e.message; }
     _assert('T844 v5079_runtime_contract_share_gate: AI callables, digest contract, cachebusters, deployment gate, and share readiness are wired', t844ok, t844detail);
+
+    // T845: v51.79 Portfolio Backtest Lab produces PV-style monthly outputs from deterministic price history.
+    var t845ok = false, t845detail = '';
+    try {
+      var ts845 = [];
+      var a845 = [];
+      var b845 = [];
+      var spy845 = [];
+      for (var i845 = 0; i845 < 18; i845++) {
+        ts845.push(Date.UTC(2025, i845, 28) / 1000);
+        a845.push(100 + i845 * 2);
+        b845.push(80 + i845 * 1.2 + (i845 % 5 === 0 ? -3 : 0));
+        spy845.push(100 + i845 * 1.4);
+      }
+      var model845 = window.AIO && typeof window.AIO.buildPortfolioBacktestLab === 'function'
+        ? window.AIO.buildPortfolioBacktestLab({
+            A845: { timestamps: ts845, closes: a845 },
+            B845: { timestamps: ts845, closes: b845 },
+            SPY: { timestamps: ts845, closes: spy845 }
+          }, [
+            { ticker: 'A845', qty: 6, cost: 90 },
+            { ticker: 'B845', qty: 4, cost: 75 }
+          ], { initialAmount: 10000, startYear: 2025, endYear: 2026, rebalanceType: 'quarterly', benchmarkSymbol: 'SPY', rfAnnual: 0 })
+        : null;
+      t845ok = !!(model845 && model845.ok && model845.monthlyRows && model845.monthlyRows.length >= 12 &&
+        model845.annualRows && model845.annualRows.length >= 2 &&
+        model845.drawdowns && Array.isArray(model845.drawdowns) &&
+        model845.components && model845.components.length === 2 &&
+        model845.performance && typeof model845.performance.trackingError === 'number' &&
+        typeof model845.performance.informationRatio === 'number');
+      t845detail = JSON.stringify({ ok:model845 && model845.ok, months:model845 && model845.monthlyRows && model845.monthlyRows.length, years:model845 && model845.annualRows && model845.annualRows.length, components:model845 && model845.components && model845.components.length });
+    } catch(e) { t845detail = 'ERR:' + e.message; }
+    _assert('T845 v5179_portfolio_backtest_lab: monthly returns, annual table, drawdown table, active risk, and attribution are produced', t845ok, t845detail);
   }
 
   window.AIO = window.AIO || {};

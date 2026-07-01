@@ -3,11 +3,54 @@ verified_by: agent
 last_verified: 2026-06-30
 confidence: high
 version: v3.7
-checklist_version: v51.75
-total_items: 418
+checklist_version: v51.80
+total_items: 446
 stages: 22
-latest_P_covered: P550
+latest_P_covered: P551
 ---
+
+## v51.80 - Portfolio AI workbench + journal reflection learning loop (R243)
+
+- [ ] `#pf-ai-workbench` is visible inside the portfolio page and contains holding selector, overview, ticker review, rebalance, learning, note save, and journal analysis actions.
+- [ ] `_aioPortfolioAsk()` opens the unified AI panel, calls `updateAIPanelContext('portfolio')`, injects a generated prompt into `#ai-panel-inp`, and calls `chatSendUnified()`.
+- [ ] `_aioSavePortfolioJournal()` stores notes only in browser localStorage under `aio_portfolio_journal_v1` and does not send notes until the user explicitly runs an AI action.
+- [ ] `_aioBuildPortfolioActionPrompt()` includes selected ticker, current holdings, current note, and recent saved notes while keeping them as user context rather than live market evidence.
+- [ ] Portfolio `CHAT_CONTEXTS.portfolio` contains the trade reflection/learning coach contract: facts/emotions/assumptions, thesis validity, sizing/stop, repeated mistakes, next checklist, and study concepts.
+- [ ] `scripts/ci-runtime-contract-check.mjs` fails if the AI workbench DOM, journal handlers, direct AI execution path, or reflection prompt contract regresses.
+
+## v51.79 - Portfolio Backtest Lab monthly model + PV-style report contract (R242)
+
+- [ ] `#pf-backtest-lab` exposes initial capital, start year, rebalance type, benchmark, run action, and source/assumption caveat without blending into live portfolio P&L.
+- [ ] `AIO.buildPortfolioBacktestLab()` returns `monthlyRows`, `annualRows`, `drawdowns`, `components`, and `performance` with CAGR, stdev, Sharpe, Sortino, active return, tracking error, information ratio, beta/alpha, VaR/CVaR, and capture ratios.
+- [ ] Visible output renders `Performance Summary`, `Annual Returns`, `Worst Drawdowns`, and `Return / Risk Attribution` from the same model object.
+- [ ] `getPortfolioContextForAI()` includes the latest Backtest Lab summary only when a successful model exists, and keeps historical simulation distinct from current holdings.
+- [ ] `scripts/ci-runtime-contract-check.mjs` and `T845 v5179_portfolio_backtest_lab` fail if the UI, engine, deterministic output, or AI linkage regresses.
+
+## v51.78 - Public readiness source/asOf matrix + governed context compaction (R241)
+
+- [ ] `AIO.getPageEvidenceCurrentnessAudit().rows[]` returns `sourceLabel`, `asOf`, `confidence`, `snapshotDom`, and `referenceDom` in addition to existing source/blocker fields.
+- [ ] `AIO.getPublicShareReadiness()` returns `pageEvidenceRows` and `weakPages`.
+- [ ] Home `#aio-public-readiness` renders `.aio-public-readiness-pages` and `.aio-public-page-source` chips with page id, source label, and asOf.
+- [ ] `scripts/ci-runtime-contract-check.mjs` fails if the page-level readiness source/asOf matrix is removed.
+- [ ] `scripts/ci-workflow-compaction-check.mjs` no longer warns on governed ledgers (`RULES.md`, `QA-CHECKLIST.md`, `BUG-POSTMORTEM.md`) while still warning on unmanaged oversized context files.
+- [ ] Browser visual QA confirms the readiness panel is visible and not blank/overlapping on the home path.
+
+## v51.77 - Trader tactical framework integration (R240)
+
+- [ ] `AIO_TACTICAL_TRADER_FRAMEWORK` exists in `js/aio-core.js` with `sourceKind: 'REFERENCE'`, `asOf: 2026-06-30T02:36:00+09:00`, durable rules, and dated examples marked `notRuntimeLevel`.
+- [ ] `_aioBuildPageDecision()` surfaces the framework through structured `tacticalTraderFramework` metadata and page overlays, not copied standalone prose.
+- [ ] `calcBreadthRotation()` accepts SMH/QQQ, SMH/SPY, IGV/SMH, software-to-semi rotation, failed-breakdown reclaim, and low-volume short-cover checks.
+- [ ] `js/aio-chat.js` injects `_aioTacticalTraderFrameworkContext()` and explicitly prevents screenshot SPX/QQQ levels from being treated as current live levels.
+- [ ] `MACRO_KW`/`TECH_KW` classify failed breakdown, support reclaim, volume-backed rally, and software-to-semi rotation terms.
+- [ ] `scripts/ci-runtime-contract-check.mjs` fails if the framework registry, page decision integration, chat context, or keywords are removed.
+
+## v51.76 - Public share readiness home surface (P551/R239)
+
+- [ ] Home default path contains `#aio-public-readiness` and it renders from runtime audit data, not static marketing copy.
+- [ ] `AIO.getPublicShareReadiness()` returns version, public-data age/status, page currentness status, pipeline status, blockers, and warnings.
+- [ ] Static home quote badges do not say `FINNHUB 실시간`; runtime labels use source-aware wording.
+- [ ] KR supply scheduler optional task does not produce the `fetchKrSupplyData` undefined guarded-function WARN in `scripts/ci-runtime-contract-check.mjs`.
+- [ ] `scripts/ci-runtime-contract-check.mjs` fails if the home readiness panel or public readiness function is removed.
 
 ## v51.75 - Residual static LIVE / rolling 48h cleanup (P550/R238)
 

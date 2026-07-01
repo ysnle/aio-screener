@@ -83,7 +83,65 @@ check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core
 check('page evidence currentness contract exists', /AIO_PAGE_EVIDENCE_CONTRACT/.test(core) && /getPageEvidenceState/.test(core) && /getPageEvidenceCurrentnessAudit/.test(core));
 check('decision header renders page evidence caveat', /aio-decision-caveat/.test(core) && /d\.caveat/.test(core));
 check('high-risk pages are capped below raw LIVE when data is mixed', /technical:\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /'market-news':\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /ticker:\s*\{[\s\S]{0,160}emptyKind:\s*'UNAVAILABLE'/.test(core));
-check('visible static labels do not overstate live/action state', !/\u25cf\s*LIVE|LIVE RSS|BUY\s*\/\s*LONG|공격적 매매|\(실시간\)|실시간 감지|실시간 수급|FMP 실시간/.test(visibleHtml));
+check('home public readiness panel is wired to runtime audits', /id="aio-public-readiness"/.test(html) && /_aioBuildPublicShareReadiness/.test(data) && /getPublicShareReadiness/.test(data) && /getShareReadinessAudit/.test(core));
+check('visible static labels do not overstate live/action state', !/\u25cf\s*LIVE|LIVE RSS|BUY\s*\/\s*LONG|공격적 매매|\(실시간\)|실시간 감지|실시간 수급|FMP 실시간|FINNHUB\s*실시간/.test(visibleHtml));
+check('public readiness exposes page-level source/asOf matrix', /pageEvidenceRows/.test(data) && /weakPages/.test(data) && /aio-public-readiness-pages/.test(data) && /aio-public-page-source/.test(html) && /asOf pending/.test(data));
+check(
+  'portfolio backtest lab exposes Portfolio Visualizer-style monthly report contract',
+  /id="pf-backtest-lab"/.test(html)
+    && /runPortfolioBacktestLab/.test(html)
+    && /pf-bt-rebalance/.test(html)
+    && /pf-backtest-output/.test(html)
+    && /Performance Summary/.test(html)
+    && /Annual Returns/.test(html)
+    && /Worst Drawdowns/.test(html)
+    && /Return \/ Risk Attribution/.test(html)
+    && /백테스트 Lab/.test(html)
+    && /buildPortfolioBacktestLab/.test(core)
+    && /AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V1/.test(core)
+    && /monthlyRows/.test(core)
+    && /annualRows/.test(core)
+    && /drawdowns/.test(core)
+    && /trackingError/.test(core)
+    && /informationRatio/.test(core)
+    && /getPortfolioContextForAI[\s\S]{0,1800}_lastPortfolioBacktestLab/.test(html)
+    && /T845 v5179_portfolio_backtest_lab/.test(tests)
+);
+check(
+  'portfolio page exposes direct AI workflow for analysis, journal review, and learning',
+  /id="pf-ai-workbench"/.test(html)
+    && /id="pf-ai-ticker-select"/.test(html)
+    && /id="pf-journal-note"/.test(html)
+    && /data-action="_aioPortfolioAsk"/.test(html)
+    && /data-arg="overview"/.test(html)
+    && /data-arg="ticker"/.test(html)
+    && /data-arg="journal"/.test(html)
+    && /function\s+_aioBuildPortfolioActionPrompt/.test(html)
+    && /window\._aioPortfolioAsk/.test(html)
+    && /window\._aioSavePortfolioJournal/.test(html)
+    && /복기 노트를 먼저 입력하세요/.test(html)
+    && /updateAIPanelContext\('portfolio'\)/.test(html)
+    && /chatSendUnified\(\)/.test(html)
+    && /매매 복기·학습 코치 모드/.test(chat)
+    && /사실\/감정\/추정 분리/.test(chat)
+);
+check(
+  'trader tactical framework is centralized as REFERENCE and exposed through AIO',
+  /AIO_TACTICAL_TRADER_FRAMEWORK/.test(core)
+    && /sourceKind:\s*'REFERENCE'/.test(core)
+    && /volume-backed-vs-short-cover/.test(core)
+    && /igv-to-smh-rotation/.test(core)
+    && /failed-breakdown-bear-trap/.test(core)
+    && /getTacticalTraderFrameworkAudit/.test(core)
+);
+check(
+  'trader tactical framework feeds page decisions, AI chat, and news keywords',
+  /tacticalTraderFramework/.test(core)
+    && /_aioTacticalTraderFrameworkContext/.test(chat)
+    && /volume-backed buying vs low-volume short-cover rally/.test(chat)
+    && /failed breakdown/.test(data)
+    && /software to semi rotation/.test(data)
+);
 for (const pageId of ['home','signal','market-news','technical','screener','ticker','portfolio','macro','fxbond','fundamental','kr-home','kr-supply','kr-themes','kr-macro','kr-technical']) {
   check(`page redesign config exists for ${pageId}`, new RegExp(`${pageId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`).test(core) || core.includes(`'${pageId}':`));
 }

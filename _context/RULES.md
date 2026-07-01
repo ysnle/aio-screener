@@ -2,9 +2,48 @@
 verified_by: agent
 last_verified: 2026-06-27
 confidence: high
-target_version: v51.74
+target_version: v51.80
 
 ---
+
+## R243. Portfolio UX must close input -> AI analysis -> journal reflection -> learning loop (v51.80)
+
+- The portfolio page must provide a direct user workflow after holdings are entered: selected holding/all-holdings analysis, single-ticker review, rebalance planning, trade journal reflection, and learning tasks.
+- Portfolio AI actions must be visible inside the portfolio page, not hidden only in the global chat panel. A user should not need to know prompt wording to ask for portfolio analysis.
+- Trade journal notes must remain browser-local and must be available to the AI prompt as user-supplied context, clearly separated from live quote/market evidence.
+- Portfolio AI answers must evaluate decision quality, not only current P&L: facts vs emotions vs assumptions, thesis validity, sizing/stop discipline, repeated mistakes, next checklist, and study concepts.
+- Runtime CI must fail if the portfolio AI workbench DOM, journal handlers, direct AI execution path, or reflection prompt contract is removed.
+
+## R242. Portfolio backtests must expose assumptions, monthly construction, drawdown recovery, and active risk (v51.79)
+
+- A portfolio backtest must be structurally separate from live holdings/P&L. Live portfolio cards answer "what do I hold now"; Backtest Lab answers "how would this allocation have behaved under stated assumptions."
+- The visible report must expose at minimum: initial capital, start/end period, benchmark, rebalance rule, source/freshness caveat, CAGR, volatility, Sharpe/Sortino, maximum drawdown, annual returns, worst drawdowns with recovery/underwater period, active return, tracking error, information ratio, beta/alpha, and return/risk attribution.
+- The model must build from aligned month-end price paths or a clearly named alternate sampling contract. Do not label factor rankings, ticker snapshots, or current portfolio P&L as portfolio backtests unless they include construction, holding path, rebalance, and benchmark assumptions.
+- AI portfolio context may summarize the latest backtest result, but it must keep current holdings evidence and historical simulation evidence distinct.
+- Runtime CI must fail if the Backtest Lab UI, engine, deterministic test, or AI context linkage is removed.
+
+## R241. Public readiness must expose page-level source/asOf, not only aggregate status (v51.78)
+
+- The default home readiness surface must show a compact page-level matrix derived from `AIO.getPageEvidenceCurrentnessAudit().rows`, including `pageId`, `sourceKind`, `sourceLabel`, and `asOf`.
+- `AIO.getPublicShareReadiness()` must return `pageEvidenceRows` and `weakPages` so the visible UI, AI/debug tooling, and CI consume the same readiness model.
+- Runtime CI must fail if the visible readiness panel regresses to aggregate-only version/data/page/pipeline status without page-level source/asOf rows.
+- Workflow compaction CI should distinguish governed long-running ledgers (`RULES.md`, `QA-CHECKLIST.md`, `BUG-POSTMORTEM.md`) from unmanaged oversized context files. Large governed ledgers are acceptable only when routed through `_context/INDEX.md` and workflow gates.
+
+## R240. User-supplied trader frameworks must be centralized as REFERENCE, not live levels (v51.77)
+
+- Trader screenshots, Telegram notes, broadcasts, and similar operator frameworks may be integrated into the screener only as a named central registry with `sourceKind: 'REFERENCE'`, `asOf`, source label, durable rules, and explicit `notRuntimeLevel` markings for dated examples.
+- Exact index levels, support/reject zones, and dated ticker reactions from screenshots must not be promoted into live page decisions. Current prices/levels must come from live/snapshot technical engines such as `calcTechnicalSnapshot()`, Volume Profile, breadth, and current quote evidence.
+- The framework must be wired structurally, not copied as prose: page decision overlays, AI chat context, news/topic keywords, and a runtime-contract CI check must all reference the same registry.
+- For the 2026-06-30 trader framework, always separate: volume-backed buying vs low-volume short-cover rally, support/reclaim vs confirmed breakdown, IGV-to-SMH rotation vs true semiconductor thesis break, and failed breakdown reclaim vs bearish continuation.
+- `scripts/ci-runtime-contract-check.mjs` is the minimum regression gate for this rule.
+
+## R239. External-share readiness must be visible on the default home path (v51.76, P551)
+
+- Public sharing is not ready when readiness exists only as console commands. The home page must expose a compact visible readiness surface that combines app version, public-data age, page currentness, and pipeline status.
+- The visible readiness surface must reuse existing runtime audits such as `AIO.getShareReadinessAudit()`, `AIO.getPageEvidenceCurrentnessAudit()`, and `AIO.getDataPipelineAudit()` or a single wrapper over them. Do not create a second source of truth.
+- Quote/source badges on the default path must use source-aware wording such as `source 확인` or `최근 수신`; static `FINNHUB 실시간` or equivalent live claims are forbidden unless generated from current runtime evidence and clearly scoped.
+- Scheduler optional tasks that depend on functions declared outside `js/aio-data.js` must call through a named optional-global adapter or otherwise expose a definition in the checked runtime bundle. Guarded undefined function warnings must not be left as accepted noise.
+- `scripts/ci-runtime-contract-check.mjs` is the minimum gate for this rule.
 
 ## R238. Page currentness must be source-capped before visible decisions (v51.74, P549)
 

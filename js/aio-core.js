@@ -3213,7 +3213,7 @@ window._aioUpdateFreshness = function() {
   var ageSec = Math.round((now - lastFetch) / 1000);
   var ageMin = Math.round(ageSec / 60);
   var state, color, src;
-  if (ageSec < 90) { state = '실시간'; color = 'var(--data-green)'; }
+  if (ageSec < 90) { state = 'source 확인'; color = 'var(--data-green)'; }
   else if (ageSec < 300) { state = '지연'; color = 'var(--data-amber)'; }
   else if (ageSec < 1800) { state = '스테일'; color = 'var(--data-amber)'; }
   else { state = '연결 끊김'; color = 'var(--data-red)'; }
@@ -3236,7 +3236,7 @@ if (typeof document !== 'undefined') {
       if (cnt > 0) {
         tb.textContent = '● 시세 ' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ' (' + cnt + '개)';
         tb.className = 'freshness-badge fb-live';
-        tb.setAttribute('title', '실시간 시세 수신 · ' + cnt + '개 종목');
+        tb.setAttribute('title', '최근 source 확인 시세 수신 · ' + cnt + '개 종목');
       }
     } catch (_) {}
   });
@@ -3586,9 +3586,9 @@ window.AIO_EVENT_FRESHNESS_REGISTRY = {
     label: 'FOMC',
     eventDate: '2026-06-17',
     status: 'RESULT_REVIEW',
-    result: '6/17 FOMC 이후 금리 경로와 점도표/발언 반응을 확인하는 구간',
+    result: '최근 FOMC 결과는 이미 가격에 반영된 상태로 보고, 금리 경로는 2Y/10Y·달러·물가/고용 후속 데이터로 재평가하는 구간',
     marketReaction: '장기금리·2년물·달러가 성장주 멀티플에 주는 압력을 우선 확인',
-    nextCheckpoint: '6/25 PCE, 다음 FOMC 공식 일정, 2Y/10Y 방향'
+    nextCheckpoint: '다음 고용·CPI·PCE 발표, 7월 FOMC 공식 일정, 2Y/10Y·달러 방향'
   },
   iranHormuzOil: {
     label: 'Iran/Hormuz/Oil',
@@ -3953,6 +3953,21 @@ function _aioDefaultDecision(pageId) {
 window._aioBuildPageDecision = function(pageId) {
   var d = _aioDefaultDecision(pageId || 'home');
   if (!Array.isArray(d.reasons)) d.reasons = [];
+  var tacticalTraderFramework = window.AIO_TACTICAL_TRADER_FRAMEWORK || null;
+  if (tacticalTraderFramework && ['home','signal','briefing','market-news','technical','screener','ticker','themes','theme-detail'].indexOf(d.pageId || pageId) >= 0) {
+    var overlay = tacticalTraderFramework.pageOverlay || {};
+    var pageOverlay = overlay[d.pageId || pageId] || overlay.default || null;
+    if (pageOverlay) {
+      d.reasons.unshift(pageOverlay.reason);
+      d.action = pageOverlay.action || d.action;
+      d.tacticalTraderFramework = {
+        id: tacticalTraderFramework.id,
+        version: tacticalTraderFramework.version,
+        sourceKind: tacticalTraderFramework.sourceKind,
+        overlay: pageOverlay.id
+      };
+    }
+  }
   while (d.reasons.length < 3) d.reasons.push('추가 데이터 확인 필요');
   d.reasons = d.reasons.slice(0, 3);
   var evidence = null;
@@ -3974,7 +3989,8 @@ window._aioBuildPageDecision = function(pageId) {
     asOf: d.asOf || _aioDecisionAsOf(d.sourceKind || 'SNAPSHOT'),
     sourceKind: d.sourceKind || 'SNAPSHOT',
     caveat: d.caveat || '',
-    evidence: d.evidence || null
+    evidence: d.evidence || null,
+    tacticalTraderFramework: d.tacticalTraderFramework || null
   };
 };
 
@@ -4479,15 +4495,28 @@ window.AIO.getPageEvidenceCurrentnessAudit = function() {
   var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
     ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
     : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+  var sourceLabelMap = {
+    LIVE: 'LIVE',
+    DELAYED: 'DELAYED',
+    SNAPSHOT: 'SNAPSHOT',
+    REFERENCE: 'REFERENCE',
+    UNAVAILABLE: 'UNAVAILABLE'
+  };
   var rows = ids.map(function(id) {
     var d = null;
     try { d = window._aioBuildPageDecision ? window._aioBuildPageDecision(id) : null; } catch(_) {}
     var e = d && d.evidence ? d.evidence : (window.AIO.getPageEvidenceState ? window.AIO.getPageEvidenceState(id, d && d.sourceKind) : null);
+    var sourceKind = e && e.sourceKind || d && d.sourceKind || 'SNAPSHOT';
     return {
       pageId: id,
-      sourceKind: e && e.sourceKind || d && d.sourceKind || 'SNAPSHOT',
+      sourceKind: sourceKind,
+      sourceLabel: sourceLabelMap[String(sourceKind || '').toUpperCase()] || sourceKind,
+      asOf: e && e.asOf || d && d.asOf || '',
+      confidence: e && e.confidence || d && d.confidence || '',
       caveat: e && e.caveat || d && d.caveat || '',
       liveDom: e && e.liveDom || 0,
+      snapshotDom: e && e.snapshotDom || 0,
+      referenceDom: e && e.referenceDom || 0,
       unavailableDom: e && e.unavailableDom || 0,
       blockers: e && e.blockers || []
     };
@@ -17100,9 +17129,13 @@ function calcBreadthRotation(ctx) {
   if (ctx.rspLaggingSpy) add(-16, 'RSP_LAGGING_SPY');
   if (ctx.kreDown && ctx.xbiDown) add(-14, 'CYCLICAL_SPEC_ROTATION_FAILED');
   if (ctx.smhSidewaysNotDown && score > 0) flags.push('SEMI_DIGESTING_WHILE_BREADTH_BROADENS');
+  if (Number(ctx.smhVsQqqRS_5d) > 0 || Number(ctx.smhVsSpyRS_5d) > 0) add(12, 'SEMI_LEADERSHIP_CONFIRMATION');
+  if (ctx.softwareToSemiRotation || Number(ctx.igvVsSmhRS_5d) < 0) add(10, 'IGV_TO_SMH_ROTATION');
+  if (ctx.failedBreakdownReclaim) add(16, 'FAILED_BREAKDOWN_RECLAIM');
+  if (ctx.priceUpNoVolume || ctx.shortCoveringOnly) flags.push('LOW_VOLUME_RALLY_SHORT_COVER_CHECK');
   score = Math.max(-100, Math.min(100, Math.round(score)));
   var regime = score >= 30 ? 'BREADTH_BROADENING' : score <= -25 ? 'FAILED_ROTATION' : 'NARROW_LEADERSHIP';
-  return { regime: regime, score: score, flags: flags.length ? flags : ['BREADTH_NEUTRAL_OR_INSUFFICIENT'], iwmVsQqqRS_5d: Number(ctx.iwmVsQqqRS_5d) || 0, rspVsSpyRS_5d: Number(ctx.rspVsSpyRS_5d) || 0 };
+  return { regime: regime, score: score, flags: flags.length ? flags : ['BREADTH_NEUTRAL_OR_INSUFFICIENT'], iwmVsQqqRS_5d: Number(ctx.iwmVsQqqRS_5d) || 0, rspVsSpyRS_5d: Number(ctx.rspVsSpyRS_5d) || 0, smhVsQqqRS_5d: Number(ctx.smhVsQqqRS_5d) || 0, smhVsSpyRS_5d: Number(ctx.smhVsSpyRS_5d) || 0, igvVsSmhRS_5d: Number(ctx.igvVsSmhRS_5d) || 0 };
 }
 
 function calcLockoutRegime(modules) {
@@ -17165,6 +17198,124 @@ var AIO_EVENT_RISK_CONTEXT = {
     handling: 'Public Telegram messages are treated as fast secondary sources: tag, dedupe, score, and require confirmation before promoting to live-like conclusions.'
   }
 };
+
+var AIO_TACTICAL_TRADER_FRAMEWORK = {
+  id: 'trader-20260630-support-reclaim-semi-rotation',
+  version: 'v51.77',
+  sourceKind: 'REFERENCE',
+  asOf: '2026-06-30T02:36:00+09:00',
+  sourceLabel: 'User-supplied trader Telegram screenshot',
+  handling: 'Use as a reusable decision framework only. Do not treat the SPX/QQQ levels in the screenshot as current live levels unless current market data independently confirms them.',
+  rules: [
+    {
+      id: 'no-rush-ambiguous-direction',
+      label: 'Direction unclear: no rushed entry',
+      meaning: 'When index direction is unresolved, the default action is wait/confirm, not forced long or forced short.',
+      requiredEvidence: ['index reclaim/reject', 'volume confirmation', 'QQQ support confirmation']
+    },
+    {
+      id: 'support-reclaim-short-ban',
+      label: 'No short into unconfirmed support/reclaim',
+      meaning: 'A support-zone bounce or reclaim can punish shorts unless breakdown is confirmed by close, volume, and failed retest.',
+      requiredEvidence: ['close below support', 'failed retest', 'breadth deterioration']
+    },
+    {
+      id: 'volume-backed-vs-short-cover',
+      label: 'Volume-backed rally vs short-cover rally',
+      meaning: 'Up move with real volume implies fresh buying; up move without volume is treated as short-cover/take-profit until breadth and leadership confirm.',
+      requiredEvidence: ['RVOL', 'close position', 'breadth participation']
+    },
+    {
+      id: 'igv-to-smh-rotation',
+      label: 'Software to semiconductor flow change',
+      meaning: 'If IGV fades while SMH/semis reclaim and lead QQQ/SPY, read semi underperformance as rotation/rebalancing unless thesis-break evidence appears.',
+      requiredEvidence: ['SMH vs QQQ/SPY RS', 'IGV vs SMH RS', 'semiconductor breadth']
+    },
+    {
+      id: 'failed-breakdown-bear-trap',
+      label: 'Failed breakdown / bear trap check',
+      meaning: 'Lower-channel break followed by reclaim plus semi leadership is a trap-risk setup for shorts, not automatic bearish confirmation.',
+      requiredEvidence: ['lower-channel reclaim', 'volume profile base', 'leadership recovery']
+    }
+  ],
+  referenceExamples: [
+    { label: 'SPX 7400 base / 7460-7470 reject zone', note: 'Historical screenshot example only; route current levels through live/snapshot technical engines.', notRuntimeLevel: true },
+    { label: 'QQQ 51-day support check', note: 'Durable idea is support confirmation; the exact line must come from current OHLCV.', notRuntimeLevel: true },
+    { label: 'CXMT and RLKB examples', note: 'Treat as event-interpretation examples, not persistent ticker recommendations.', notRuntimeLevel: true }
+  ],
+  pageOverlay: {
+    default: {
+      id: 'tactical-confirmation',
+      reason: '전술 프레임: 방향 불명확 시 성급한 진입 금지, 볼륨·지지/리클레임·섹터 수급 확인 우선',
+      action: '상승은 거래량 있는 매수세인지, 저볼륨 숏커버인지 먼저 구분한 뒤 실행한다.'
+    },
+    signal: {
+      id: 'signal-short-ban',
+      reason: '전술 프레임: 지지/리클레임 미확정 구간에서는 숏 금지, 하락은 종가·거래량·재이탈로 확인',
+      action: '신규 진입은 QQQ/SMH 리더십과 breadth 확산 확인 후, 무효화 라인을 먼저 둔다.'
+    },
+    technical: {
+      id: 'technical-volume-profile',
+      reason: '전술 프레임: 볼륨 있는 상승은 매수세, 볼륨 없는 상승은 숏커버로 분리',
+      action: '현재 차트의 Volume Profile, RVOL, failed retest/reclaim 여부를 먼저 확인한다.'
+    },
+    ticker: {
+      id: 'ticker-thesis-vs-noise',
+      reason: '전술 프레임: 개별 뉴스 충격은 구조 훼손인지 리밸런싱/노이즈인지 분리',
+      action: '티커 결론은 차트 추세, 섹터 상대강도, 뉴스 후속 가격 반응을 함께 확인한다.'
+    },
+    themes: {
+      id: 'theme-rotation',
+      reason: '전술 프레임: 소프트웨어 IGV에서 반도체 SMH로 수급이 넘어가는지 추적',
+      action: '테마 강도는 하루 등락보다 IGV/SMH/QQQ/SPY 상대강도 변화로 판단한다.'
+    },
+    'theme-detail': {
+      id: 'theme-detail-rotation',
+      reason: '전술 프레임: 테마 내 순환은 리밸런싱과 thesis-break를 분리',
+      action: '편입 종목은 SMH/IGV 상대강도와 거래량 동반 여부로 재랭킹한다.'
+    },
+    'market-news': {
+      id: 'news-event-interpretation',
+      reason: '전술 프레임: 뉴스 헤드라인보다 실제 임팩트·수급 반응·가격 확인을 우선',
+      action: 'CXMT/RLKB류 이벤트는 영향 크기, 지속성, 장중 수급 반응을 분리해 태깅한다.'
+    }
+  }
+};
+
+function calcTacticalTraderRead(ctx) {
+  ctx = ctx || {};
+  var flags = [];
+  var score = 50;
+  function add(points, flag) { score += points; flags.push(flag); }
+  if (ctx.directionUnknown || (Number(ctx.marketScore) >= 45 && Number(ctx.marketScore) <= 60)) add(-10, 'DIRECTION_UNCLEAR_NO_RUSH_ENTRY');
+  if (ctx.nearSupport && !ctx.breakdownConfirmed) add(12, 'SUPPORT_RECLAIM_SHORT_BAN');
+  if (ctx.volumeBackedRally || Number(ctx.rvol20) >= 1.5) add(12, 'VOLUME_BACKED_BUYING');
+  if (ctx.priceUpNoVolume || ctx.shortCoveringOnly || Number(ctx.rvol20) > 0 && Number(ctx.rvol20) < 1.0) add(-8, 'LOW_VOLUME_UP_MOVE_SHORT_COVER_CHECK');
+  if (ctx.softwareToSemiRotation || Number(ctx.smhVsQqqRS_5d) > 0 || Number(ctx.smhVsSpyRS_5d) > 0) add(14, 'SEMI_ROTATION_LEADERSHIP');
+  if (ctx.failedBreakdownReclaim) add(16, 'FAILED_BREAKDOWN_BEAR_TRAP_RISK');
+  if (ctx.closeBelowSupport && ctx.failedRetest && ctx.volumeBackedSelloff) add(-25, 'CONFIRMED_BREAKDOWN_NOT_SIMPLE_DIP');
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  var stance = score >= 68 ? 'CONFIRMATION_FAVORABLE' : score >= 48 ? 'WAIT_FOR_CONFIRMATION' : 'DEFENSIVE_OR_BREAKDOWN_RISK';
+  return {
+    stance: stance,
+    score: score,
+    flags: flags.length ? flags : ['TACTICAL_FRAMEWORK_NEEDS_MARKET_INPUTS'],
+    frameworkId: AIO_TACTICAL_TRADER_FRAMEWORK.id,
+    sourceKind: AIO_TACTICAL_TRADER_FRAMEWORK.sourceKind,
+    asOf: AIO_TACTICAL_TRADER_FRAMEWORK.asOf
+  };
+}
+
+function getTacticalTraderFrameworkAudit() {
+  var f = AIO_TACTICAL_TRADER_FRAMEWORK;
+  var issues = [];
+  if (!f || f.sourceKind !== 'REFERENCE') issues.push('framework must remain REFERENCE, not LIVE');
+  if (!f || !Array.isArray(f.rules) || f.rules.length < 5) issues.push('expected at least five tactical rules');
+  if (!f || !f.pageOverlay || !f.pageOverlay.signal || !f.pageOverlay.technical || !f.pageOverlay.ticker) issues.push('missing key page overlays');
+  var exampleLive = (f.referenceExamples || []).some(function(e) { return e.notRuntimeLevel !== true; });
+  if (exampleLive) issues.push('reference examples must be marked notRuntimeLevel');
+  return { status: issues.length ? 'warn' : 'ok', issues: issues, id: f && f.id, version: f && f.version, sourceKind: f && f.sourceKind, ruleCount: f && f.rules ? f.rules.length : 0 };
+}
 
 function _aioEventDays(dateStr, refDate) {
   var ref = refDate ? new Date(refDate) : new Date();
@@ -17479,6 +17630,11 @@ window.calcBreadthRotation = calcBreadthRotation;
 window.calcLockoutRegime = calcLockoutRegime;
 window.calcLockoutAction = calcLockoutAction;
 window.AIO_EVENT_RISK_CONTEXT = AIO_EVENT_RISK_CONTEXT;
+window.AIO_TACTICAL_TRADER_FRAMEWORK = AIO_TACTICAL_TRADER_FRAMEWORK;
+window.calcTacticalTraderRead = calcTacticalTraderRead;
+window.getTacticalTraderFrameworkAudit = getTacticalTraderFrameworkAudit;
+window.AIO.getTacticalTraderFramework = function() { return AIO_TACTICAL_TRADER_FRAMEWORK; };
+window.AIO.getTacticalTraderFrameworkAudit = getTacticalTraderFrameworkAudit;
 window.calcBlowoffTopChecklist = calcBlowoffTopChecklist;
 window.calcSellPressure = calcSellPressure;
 window.calcSemiHeatMap = calcSemiHeatMap;
@@ -17489,7 +17645,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.75';
+const APP_VERSION = 'v51.81';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -18513,7 +18669,7 @@ const DATA_SNAPSHOT = {
   fedStatus:   '동결',                              // v45.6: 동적화 — Fed 금리 변경 시 이 값 갱신 (인하/인상/동결)
   fomc:        '6/17 결과',
   fomcNext:    '결과 확인',                            // v50.70: 6/17 FOMC 이후 예정 → 결과/시장 반응 구간으로 전환
-  fomcDotPlot: '2026-06-17 FOMC 이후 결과 확인 구간. 금리 경로·점도표·발언은 인플레 2% 복귀 의지를 강조하는 방향으로 해석되며, 다음 체크포인트는 6/25 PCE와 2Y/10Y·달러 반응.',  // v50.70: upcoming 문구 제거
+  fomcDotPlot: '최근 FOMC 결과 확인 이후 구간. 금리 경로·점도표·발언은 인플레 2% 복귀 의지를 강조하는 방향으로 해석되며, 다음 체크포인트는 고용·CPI·PCE 후속 발표와 2Y/10Y·달러 반응.',  // v51.81: stale fixed-date checkpoint 제거
   ecbRate:      2.15,  ecbStatus: '동결',
   bojRate:      1.00,   // v50.61: BOJ 6/16 overnight call rate 25bp hike to 1.00% (Telegram/Aether digest; live macro source overrides when available)
   boeRate:      3.75,   // v49.93: BOE 4/30 회의 8-1 동결 3.75% (기존 4.50 stale, 0.75%p — 중동 인플레로 추가 인하 보류)
@@ -23300,6 +23456,270 @@ function _calcCorrelationMatrix(returnsMap) {
   });
   return { tickers: tickers, matrix: matrix };
 }
+
+function _aioBtFinite(v) {
+  var n = Number(v);
+  return isFinite(n) ? n : null;
+}
+
+function _aioBtMonthKeyFromTs(ts) {
+  var d = new Date(Number(ts) * 1000);
+  if (isNaN(d.getTime())) return null;
+  return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0');
+}
+
+function _aioBtMonthDiff(a, b) {
+  if (!a || !b) return null;
+  var ap = String(a).split('-'), bp = String(b).split('-');
+  return (Number(bp[0]) - Number(ap[0])) * 12 + (Number(bp[1]) - Number(ap[1]));
+}
+
+function _aioBtMonthEnds(series) {
+  var out = {};
+  var ts = series && series.timestamps || [];
+  var closes = series && series.closes || [];
+  for (var i = 0; i < Math.min(ts.length, closes.length); i++) {
+    var close = _aioBtFinite(closes[i]);
+    if (close === null || close <= 0) continue;
+    var key = _aioBtMonthKeyFromTs(ts[i]);
+    if (!key) continue;
+    out[key] = close;
+  }
+  return out;
+}
+
+function _aioBtCompound(returns) {
+  return (returns || []).reduce(function(v, r) { return v * (1 + r); }, 1) - 1;
+}
+
+function _aioBtSortino(returns, rfAnnual) {
+  var clean = (returns || []).filter(function(v) { return typeof v === 'number' && isFinite(v); });
+  if (clean.length < 10) return null;
+  var rfMonthly = ((typeof rfAnnual === 'number') ? rfAnnual : 0.043) / 12;
+  var excess = clean.map(function(r) { return r - rfMonthly; });
+  var downside = excess.filter(function(r) { return r < 0; });
+  if (downside.length < 2) return null;
+  var dd = Math.sqrt(downside.reduce(function(s, r) { return s + r * r; }, 0) / (downside.length - 1));
+  if (dd < 1e-10) return null;
+  return (_statMean(excess) / dd) * Math.sqrt(12);
+}
+
+function _aioBtWorstDrawdowns(rows, startMonth, startBalance) {
+  var events = [];
+  var peak = startBalance || 1;
+  var peakMonth = startMonth || '';
+  var active = null;
+  (rows || []).forEach(function(r) {
+    var bal = Number(r.balance);
+    if (!isFinite(bal) || bal <= 0) return;
+    if (bal >= peak) {
+      if (active) {
+        active.recoveryBy = r.month;
+        active.recoveryMonths = Math.max(0, _aioBtMonthDiff(active.troughMonth, r.month) || 0);
+        active.underwaterMonths = Math.max(0, _aioBtMonthDiff(active.start, r.month) || 0);
+        events.push(active);
+        active = null;
+      }
+      peak = bal;
+      peakMonth = r.month;
+      return;
+    }
+    var dd = (peak - bal) / peak;
+    if (!active) {
+      active = { start: peakMonth, end: r.month, troughMonth: r.month, drawdown: dd, recoveryBy: null, recoveryMonths: null, underwaterMonths: null };
+    } else if (dd > active.drawdown) {
+      active.end = r.month;
+      active.troughMonth = r.month;
+      active.drawdown = dd;
+    }
+  });
+  if (active) {
+    active.recoveryBy = 'Unrecovered';
+    active.recoveryMonths = null;
+    active.underwaterMonths = _aioBtMonthDiff(active.start, (rows[rows.length - 1] || {}).month) || null;
+    events.push(active);
+  }
+  return events.sort(function(a, b) { return (b.drawdown || 0) - (a.drawdown || 0); }).slice(0, 10);
+}
+
+function _aioBtCovariance(a, b) {
+  var n = Math.min((a || []).length, (b || []).length);
+  if (n < 2) return 0;
+  var aa = a.slice(a.length - n), bb = b.slice(b.length - n);
+  var ma = _statMean(aa), mb = _statMean(bb);
+  var s = 0;
+  for (var i = 0; i < n; i++) s += (aa[i] - ma) * (bb[i] - mb);
+  return s / (n - 1);
+}
+
+function _aioBtShouldRebalance(type, monthKey) {
+  var m = Number(String(monthKey || '').slice(5, 7));
+  if (type === 'monthly') return true;
+  if (type === 'quarterly') return m === 3 || m === 6 || m === 9 || m === 12;
+  if (type === 'annual') return m === 12;
+  return false;
+}
+
+window.AIO.buildPortfolioBacktestLab = function(priceMap, positions, options) {
+  options = options || {};
+  var initialAmount = Math.max(1, Number(options.initialAmount) || 10000);
+  var rfAnnual = (typeof options.rfAnnual === 'number') ? options.rfAnnual : 0.043;
+  var benchmarkSymbol = String(options.benchmarkSymbol || 'SPY').trim().toUpperCase() || 'SPY';
+  var rebalanceType = String(options.rebalanceType || 'annual').toLowerCase();
+  var startYear = Number(options.startYear) || 2017;
+  var endYear = Number(options.endYear) || 2099;
+  var raw = (positions || []).filter(function(p) {
+    return p && p.ticker && Number(p.qty) > 0 && Number(p.cost) > 0;
+  }).map(function(p) {
+    return { ticker: String(p.ticker).trim().toUpperCase(), value: Number(p.qty) * Number(p.cost) };
+  });
+  var byTicker = {};
+  raw.forEach(function(p) { byTicker[p.ticker] = (byTicker[p.ticker] || 0) + p.value; });
+  var tickers = Object.keys(byTicker).filter(function(t) { return priceMap && priceMap[t]; });
+  var totalValue = tickers.reduce(function(s, t) { return s + byTicker[t]; }, 0);
+  if (!tickers.length || totalValue <= 0) return { ok: false, reason: 'no valid portfolio price series', warnings: ['가격 이력이 있는 포지션이 없습니다.'] };
+  if (!priceMap || !priceMap[benchmarkSymbol]) return { ok: false, reason: 'missing benchmark', warnings: [benchmarkSymbol + ' 벤치마크 가격 이력이 없습니다.'] };
+
+  var monthEnds = {};
+  tickers.concat([benchmarkSymbol]).forEach(function(t) { monthEnds[t] = _aioBtMonthEnds(priceMap[t]); });
+  var common = Object.keys(monthEnds[benchmarkSymbol]).filter(function(k) {
+    var y = Number(k.slice(0, 4));
+    return y >= startYear && y <= endYear && tickers.every(function(t) { return monthEnds[t][k] != null; });
+  }).sort();
+  if (common.length < 14) {
+    return { ok: false, reason: 'insufficient aligned monthly data', warnings: ['공통 월말 가격 이력이 14개월 미만입니다.'] };
+  }
+
+  var targetWeights = {};
+  tickers.forEach(function(t) { targetWeights[t] = byTicker[t] / totalValue; });
+  var assetBalances = {};
+  tickers.forEach(function(t) { assetBalances[t] = initialAmount * targetWeights[t]; });
+  var benchBalance = initialAmount;
+  var monthlyRows = [];
+  var assetReturnMap = {};
+  tickers.forEach(function(t) { assetReturnMap[t] = []; });
+
+  for (var i = 1; i < common.length; i++) {
+    var prevMonth = common[i - 1], month = common[i];
+    var before = tickers.reduce(function(s, t) { return s + assetBalances[t]; }, 0);
+    var assetReturns = {};
+    tickers.forEach(function(t) {
+      var r = (monthEnds[t][month] / monthEnds[t][prevMonth]) - 1;
+      assetReturns[t] = r;
+      assetReturnMap[t].push(r);
+      assetBalances[t] *= (1 + r);
+    });
+    var balance = tickers.reduce(function(s, t) { return s + assetBalances[t]; }, 0);
+    var pfRet = before > 0 ? (balance / before) - 1 : 0;
+    var bRet = (monthEnds[benchmarkSymbol][month] / monthEnds[benchmarkSymbol][prevMonth]) - 1;
+    benchBalance *= (1 + bRet);
+    monthlyRows.push({ month: month, return: pfRet, balance: balance, benchmarkReturn: bRet, benchmarkBalance: benchBalance, assetReturns: assetReturns });
+    if (_aioBtShouldRebalance(rebalanceType, month)) {
+      tickers.forEach(function(t) { assetBalances[t] = balance * targetWeights[t]; });
+    }
+  }
+
+  var monthlyReturns = monthlyRows.map(function(r) { return r.return; });
+  var benchmarkReturns = monthlyRows.map(function(r) { return r.benchmarkReturn; });
+  var years = {};
+  monthlyRows.forEach(function(r) {
+    var y = r.month.slice(0, 4);
+    if (!years[y]) years[y] = { returns: [], benchmarkReturns: [], balance: null, benchmarkBalance: null };
+    years[y].returns.push(r.return);
+    years[y].benchmarkReturns.push(r.benchmarkReturn);
+    years[y].balance = r.balance;
+    years[y].benchmarkBalance = r.benchmarkBalance;
+  });
+  var annualRows = Object.keys(years).sort().map(function(y) {
+    return {
+      year: y,
+      return: _aioBtCompound(years[y].returns),
+      balance: years[y].balance,
+      benchmarkReturn: _aioBtCompound(years[y].benchmarkReturns),
+      benchmarkBalance: years[y].benchmarkBalance
+    };
+  });
+
+  var nMonths = monthlyReturns.length;
+  var endBalance = monthlyRows[monthlyRows.length - 1].balance;
+  var benchEndBalance = monthlyRows[monthlyRows.length - 1].benchmarkBalance;
+  var cagr = Math.pow(endBalance / initialAmount, 12 / nMonths) - 1;
+  var benchCagr = Math.pow(benchEndBalance / initialAmount, 12 / nMonths) - 1;
+  var stdev = _statStdDev(monthlyReturns) * Math.sqrt(12);
+  var benchStdev = _statStdDev(benchmarkReturns) * Math.sqrt(12);
+  var sharpe = stdev > 1e-10 ? (cagr - rfAnnual) / stdev : null;
+  var sortino = _aioBtSortino(monthlyReturns, rfAnnual);
+  var activeMonthly = monthlyReturns.map(function(r, idx) { return r - benchmarkReturns[idx]; });
+  var trackingError = _statStdDev(activeMonthly) * Math.sqrt(12);
+  var infoRatio = trackingError > 1e-10 ? (cagr - benchCagr) / trackingError : null;
+  var corr = _pearsonCorr(monthlyReturns, benchmarkReturns);
+  var beta = _aioBtCovariance(monthlyReturns, benchmarkReturns) / Math.max(1e-12, Math.pow(_statStdDev(benchmarkReturns), 2));
+  var alpha = cagr - (rfAnnual + beta * (benchCagr - rfAnnual));
+  var annualReturns = annualRows.map(function(r) { return r.return; });
+  var cleanMonthly = monthlyReturns.slice().sort(function(a, b) { return a - b; });
+  var var5 = cleanMonthly.length ? Math.max(0, -_quantileR7(cleanMonthly, 0.05)) : null;
+  var tail = cleanMonthly.filter(function(r) { return r <= _quantileR7(cleanMonthly, 0.05); });
+  var cvar5 = tail.length ? Math.max(0, -_statMean(tail)) : null;
+  var upBench = [], upPf = [], downBench = [], downPf = [];
+  benchmarkReturns.forEach(function(br, idx) {
+    if (br >= 0) { upBench.push(br); upPf.push(monthlyReturns[idx]); }
+    else { downBench.push(br); downPf.push(monthlyReturns[idx]); }
+  });
+  var upCapture = _statMean(upBench) !== 0 ? _statMean(upPf) / _statMean(upBench) : null;
+  var downCapture = _statMean(downBench) !== 0 ? _statMean(downPf) / _statMean(downBench) : null;
+  var mddRows = _aioBtWorstDrawdowns(monthlyRows, common[0], initialAmount);
+  var mdd = mddRows.length ? mddRows[0].drawdown : 0;
+  var portVar = Math.pow(_statStdDev(monthlyReturns), 2);
+  var components = tickers.map(function(t) {
+    var standalone = _aioBtCompound(assetReturnMap[t]);
+    var contribution = initialAmount * targetWeights[t] * standalone;
+    var cov = _aioBtCovariance(assetReturnMap[t], monthlyReturns);
+    var riskContribution = portVar > 1e-12 ? targetWeights[t] * cov / portVar : null;
+    return { ticker: t, weight: targetWeights[t], standaloneReturn: standalone, returnContribution: contribution, riskContribution: riskContribution };
+  }).sort(function(a, b) { return Math.abs(b.riskContribution || 0) - Math.abs(a.riskContribution || 0); });
+
+  return {
+    ok: true,
+    sourceKind: 'DELAYED',
+    model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V1',
+    settings: { initialAmount: initialAmount, startMonth: common[0], endMonth: common[common.length - 1], months: nMonths, rebalanceType: rebalanceType, benchmarkSymbol: benchmarkSymbol, rfAnnual: rfAnnual },
+    tickers: tickers,
+    weights: targetWeights,
+    monthlyRows: monthlyRows,
+    annualRows: annualRows,
+    drawdowns: mddRows,
+    components: components,
+    performance: {
+      startBalance: initialAmount,
+      endBalance: endBalance,
+      benchmarkEndBalance: benchEndBalance,
+      cagr: cagr,
+      benchmarkCagr: benchCagr,
+      stdev: stdev,
+      benchmarkStdev: benchStdev,
+      bestYear: annualReturns.length ? Math.max.apply(null, annualReturns) : null,
+      worstYear: annualReturns.length ? Math.min.apply(null, annualReturns) : null,
+      maxDrawdown: mdd,
+      sharpe: sharpe,
+      sortino: sortino,
+      activeReturn: cagr - benchCagr,
+      trackingError: trackingError,
+      informationRatio: infoRatio,
+      benchmarkCorrelation: corr,
+      beta: beta,
+      alpha: alpha,
+      historicalVar5: var5,
+      conditionalVar5: cvar5,
+      upsideCapture: upCapture,
+      downsideCapture: downCapture
+    },
+    warnings: [
+      '월말 수정주가 기반 추정치입니다. 세금, 슬리피지, 수수료, 생존편향 보정은 포함하지 않습니다.',
+      '무료 Yahoo chart 데이터 범위와 각 종목 상장일에 따라 시작 월이 자동 제한됩니다.'
+    ]
+  };
+};
+window._aioBuildPortfolioBacktestLab = window.AIO.buildPortfolioBacktestLab;
 
 // ═══ v48.92: AIO.getColorContrastAudit() — WCAG AA 명도비 진단 API ═══════
 // 용도: 핵심 색상 페어링의 명도비 자동 계산 · WCAG AA 준수 여부 보고

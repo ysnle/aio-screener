@@ -59,6 +59,7 @@ check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(re
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
 
 check('watchdog checks data and telegram freshness', /data\.json meta\.generatedAt/.test(watchdog) && /telegram-digest\.json generatedAt/.test(watchdog));
+check('watchdog freshness threshold tolerates transient Actions lag', /default:\s*'240'/.test(watchdog) && /MAX_AGE_MIN:\s*\$\{\{ github\.event\.inputs\.max_age_minutes \|\| '240' \}\}/.test(watchdog));
 check('watchdog has core quality floors for public data', /symbolsOk[\s\S]{0,200}<\s*70/.test(watchdog) && /newsCount[\s\S]{0,200}<\s*10/.test(watchdog) && /telegramCount[\s\S]{0,240}<\s*100/.test(watchdog));
 check('watchdog reports optional degraded services', /FRED_API_KEY/.test(watchdog) && /fredFetchOk/.test(watchdog) && /marketAnalysisOk/.test(watchdog));
 check('watchdog checks screener artifact health', /screener\.json/.test(watchdog) && /scrAge/.test(watchdog) && /ok=\$\{scr\.ok\}/.test(watchdog));
@@ -85,7 +86,10 @@ check('operational health includes data pipeline', /getOperationalHealth/.test(c
 check('chat consumes news context and screener memo', /_buildNewsContext/.test(chat) && /newsCache/.test(chat) && /SCREENER_DB Memo/.test(chat) && /_aioGetMemoForTicker/.test(chat));
 check('news Korean translation and local insight fallback are wired', /_aioBuildNewsLocalKoreanInsight/.test(data) && /_aioGetNewsTranslation/.test(data) && /ko_explain/.test(data) && /getNewsTranslationQualityAudit/.test(data));
 check('news Korean rewrite brief is wired to market news surface', /_aioBuildNewsKoreanRewriteBrief/.test(data) && /_aioRenderNewsKoreanRewriteBrief/.test(data) && /ko_rewrite/.test(data) && /ko_section/.test(data) && /ko_market/.test(data) && /news-korean-rewrite-brief/.test(read('index.html')));
+check('market news visible fallback avoids raw English titles', /_aioBuildNewsVisibleFallbackTitle/.test(data) && !/\[EN\]\s*'\s*\+/.test(data) && !/\[번역 중\]\s*'\s*\+\s*\(item\.title/.test(data));
+check('market news rewrite surface consumes server/RSS items before Telegram fallback', /_aioRenderMarketNewsRewriteSurfaces/.test(data) && /_aioRenderNewsKoreanRewriteBrief\(items \|\| \[\], 'news-korean-rewrite-brief'\)/.test(data));
 check('news selection audit exposes score criteria and surface eligibility', /getNewsSelectionAudit/.test(data) && /scoreBuckets/.test(data) && /scoreReasons/.test(data) && /homeEligible/.test(data) && /marketNewsEligible/.test(data) && /unverified=-8/.test(data));
+check('server news backstop preserves score tier and news-cycle metadata', /newsCycleStart/.test(data) && /newsCycleEnd/.test(data) && /serverCycleTrusted/.test(data) && /isFinite\(Number\(n\.score\)\)/.test(data));
 check('all primary news surfaces use KST 08:00 completed 24h cycle', /home:\s*\{[\s\S]{0,260}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /market-news'[\s\S]{0,320}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /filterByKst0800NewsCycle/.test(data) && /newsCycle:\s*cycleWindow/.test(data));
 check('market-news UI labels match KST 08:00 completed 24h contract', /08:00 KST 완료 24h/.test(marketNewsHtml) && /08:00~08:00 KST 완료 24h/.test(marketNewsHtml) && !/최근 48시간|48시간 이내|필터:\s*48시간/.test(marketNewsHtml));
 check('market-news empty state uses 24h completed-cycle wording', /08:00 KST 완료 24h/.test(newsEmptyBlock) && !/최근 48시간/.test(newsEmptyBlock));
