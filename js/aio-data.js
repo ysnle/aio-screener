@@ -2293,12 +2293,19 @@ window._aioRenderScreenerBacktest = function() {
   }).join('');
   var spread = (bt.quantileSpread != null) ? ((bt.quantileSpread>=0?'+':'')+bt.quantileSpread.toFixed(1)+'%') : '—';
   var hit = (bt.hitRate != null) ? (bt.hitRate.toFixed(0)+'%') : '—';
+  // v51.91 P586/C2: honest scope disclosure — this panel previously implied the live composite
+  // rank itself was what got validated, but the backtest only ever covers a fixed 4-factor subset
+  // at NEUTRAL-regime weights, never the live 7-factor regime-adaptive ranking users actually see.
+  // Read excludedFactors/weightRegime from the payload (falls back to the known-current set for a
+  // screener.json cached before this field existed).
+  var excluded = Array.isArray(bt.excludedFactors) ? bt.excludedFactors : ['size', 'value', 'quality'];
+  var weightRegime = bt.weightRegime || 'NEUTRAL';
   el.innerHTML =
     '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">팩터 검증 <span style="font-weight:400;color:var(--text-muted);">— 최근 1년 횡단면, forward ' + (bt.fwdDays||21) + '일 · ' + (bt.n||'?') + '종목 · ' + (bt.asOf?String(bt.asOf).slice(0,10):'') + '</span></div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;">' + rows +
     '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">상-하위 분위 스프레드</span><span style="font-weight:700;">'+spread+'</span></div>' +
     '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">방향 적중률</span><span style="font-weight:700;">'+hit+'</span></div></div>' +
-    '<div style="font-size:9px;color:var(--text-muted);margin-top:4px;">IC>0.05 = 유의미한 예측력(랭크↑→수익↑). 종합 랭크가 검증 기반.</div>';
+    '<div style="font-size:9px;color:var(--text-muted);margin-top:4px;">IC&gt;0.05 = 유의미한 예측력(랭크↑→수익↑). <b style="color:var(--data-amber);">검증 범위: 가격 파생 4팩터만(모멘텀/추세/저변동/칼만), 항상 '+weightRegime+' 고정 가중.</b> 라이브 랭킹에 있는 '+excluded.join('/')+' 팩터와 레짐 적응 가중은 이 검증에 포함되지 않음 — 라이브 종합 랭크 전체의 검증이 아닙니다.</div>';
 };
 
 // ═══ 스파크라인 미니차트 시스템 ═══════════════════════════════════════
@@ -16039,7 +16046,13 @@ const _YAHOO_FRED_MAP = {
   '^IRX':     { fredId: 'DGS3MO',   transform: v => v,         label: '3M 국채금리' },
   '^VIX':     { fredId: 'VIXCLS',   transform: v => v,         label: 'VIX' },
   'DX-Y.NYB': { fredId: 'DTWEXBGS', transform: v => v,         label: '달러인덱스' },
-  'HYG':      { fredId: '_HY_PROXY', transform: v => Math.max(1.5, (82.5 - v) * 0.8 + 2.4), label: 'HY스프레드(추정)' },
+  // v51.91 P585/R266/C4: removed a 'HYG' entry that wrote a HYG-price-derived spread approximation
+  // to a synthetic fredId ('_HY_PROXY') that no real FRED series uses and no code ever read back —
+  // a confirmed dead write (this map's real entries are read via window._fredData[cfg.fredId], but
+  // nothing ever queries '_HY_PROXY' specifically, and no code generically iterates _fredData/
+  // MacroStore._data keys). The live, actually-consumed HY spread path is fetchHYSpread() (real FRED
+  // BAMLH0A0HYM2 measurement -> window._hySpreadBp / DATA_SNAPSHOT.hySpread), whose priority over a
+  // HYG-price approximation was already fixed by P576/R266.
 };
 
 function _syncYahooToFred() {

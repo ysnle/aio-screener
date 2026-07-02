@@ -30,6 +30,24 @@ const checkNodeHeredocSyntax = (label, text) => {
     }
   });
 };
+// P584/R265/C1: extract a top-level `function NAME(...) { ... }` by brace-depth counting (not a
+// regex bound) so nested control-flow braces inside the function don't truncate the extraction.
+const extractFunctionSource = (text, name) => {
+  const sig = `function ${name}(`;
+  const start = text.indexOf(sig);
+  if (start < 0) return null;
+  const braceStart = text.indexOf('{', start);
+  if (braceStart < 0) return null;
+  let depth = 0;
+  for (let i = braceStart; i < text.length; i++) {
+    if (text[i] === '{') depth++;
+    else if (text[i] === '}') {
+      depth--;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  return null;
+};
 
 const refresh = read('.github/workflows/refresh-data.yml');
 const watchdog = read('.github/workflows/data-watchdog.yml');
@@ -54,7 +72,7 @@ check('refresh workflow runs twice hourly', /cron:\s*'17,47 \* \* \* \*'/.test(r
 check('refresh workflow has write permission and no cancel-in-progress', /contents:\s*write/.test(refresh) && /cancel-in-progress:\s*false/.test(refresh));
 check('refresh workflow fetches market data with required optional secrets', /node scripts\/fetch-data\.mjs/.test(refresh) && /FRED_API_KEY/.test(refresh) && /FMP_API_KEY/.test(refresh) && /ANTHROPIC_API_KEY/.test(refresh));
 check('refresh workflow fetches Telegram digest artifact', /node scripts\/fetch-telegram-digest\.mjs --days=(?:7|14) --out=public-data\/telegram-digest\.json/.test(refresh));
-check('refresh workflow commits all public-data artifacts', /git add public-data\/data\.json public-data\/history\.json/.test(refresh) && /public-data\/screener\.json/.test(refresh) && /public-data\/telegram-digest\.json/.test(refresh));
+check('refresh workflow commits all public-data artifacts', /git add public-data\/data\.json public-data\/history\.json/.test(refresh) && /public-data\/screener\.json/.test(refresh) && /public-data\/telegram-digest\.json/.test(refresh) && /public-data\/backtest-history\.json/.test(refresh));
 check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(refresh) && /fearGreedOk/.test(refresh) && /fredFetchOk/.test(refresh) && /marketAnalysisOk/.test(refresh));
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
 
@@ -74,6 +92,63 @@ check('fetch-data ranks news by actual article source tier, not Google feed tier
 check('fetch-data queries current Korea AI/semi market movers', /KOSPI Samsung Electronics SK Hynix AI semiconductor selloff rebound Micron/.test(fetchData));
 check('fetch-data enforces KST 08:00 completed 24h news cycle', /NEWS_CYCLE_POLICY\s*=\s*'kst-0800-completed-24h'/.test(fetchData) && /getKst0800NewsCycle/.test(fetchData) && /newsCycleStart/.test(fetchData) && /newsCycleEnd/.test(fetchData) && /newsCycleLabel/.test(fetchData));
 check('screener Kalman factor uses comparable log percent scale', /Math\.log\(v\)/.test(fetchData) && /Math\.expm1\(s1\)\s*\*\s*100/.test(fetchData) && /scale:\s*'log_pct_day'/.test(fetchData) && /kalmanScale/.test(fetchData) && /kalmanScale:\s*'log_pct_day'/.test(fetchData));
+// P586/C2: backtest must self-disclose that it does not cover the live model's size/value/quality
+// factors or its regime-adaptive weights, and the client panel must actually surface that disclosure
+// rather than implying the full live composite rank is validated.
+check('server backtest discloses its excluded factors and fixed weight regime', /excludedFactors/.test(fetchData) && /weightRegime:\s*'NEUTRAL'/.test(fetchData) && /excludedFactorsReason/.test(fetchData));
+check('server backtest accumulates an IC time series artifact', /updateBacktestHistory/.test(fetchData) && /public-data\/backtest-history\.json/.test(fetchData));
+check('client backtest panel surfaces the excluded-factors/weight-regime disclosure, not a blanket "validated" claim', /bt\.excludedFactors/.test(data) && /bt\.weightRegime/.test(data) && !/종합 랭크가 검증 기반/.test(data));
+
+// P587/R265/C6: dividend-unadjusted close systematically understates momentum/trend for
+// high-yield names (measured: KO 6m return understated by 1.56pp raw vs adjusted). Factor/backtest
+// math must consume the adjusted series; VCP stays on raw OHLC (price-structure pattern, not return).
+check('fetchHistory exposes adjusted close alongside raw OHLCV', /adjClose:/.test(fetchData) && /indicators\?\.adjclose\?\.\[0\]\?\.adjclose/.test(fetchData));
+check('screener factor enrichment scores returns/trend/RSI/kalman on adjusted close, not raw', /adjCloses:/.test(fetchData) && /closesToFactors\(r\.adjCloses/.test(fetchData));
+check('VCP pattern recognition stays on raw OHLC (not adjusted close)', /_calcVCPServer\(r\.closes, r\.highs, r\.lows, r\.volumes\)/.test(fetchData));
+check('backtest cross-sectional scoring prefers adjusted close', /s\.adjCloses && s\.adjCloses\.length === s\.closes\.length\) \? s\.adjCloses : s\.closes/.test(fetchData));
+
+// P584/R265/C1: server screener.json RSI and the client's own displayed RSI must agree —
+// previously the server used Cutler's RSI (windowed simple average) while the client used
+// Wilder's RSI (recursively smoothed), same label, different numbers. Recompute both against
+// identical synthetic input rather than trusting that matching source comments mean matching math.
+let rsiParityDetail = '';
+const rsiParityOk = (() => {
+  try {
+    const serverSrc = extractFunctionSource(fetchData, '_rsi14');
+    const clientRsiSrc = extractFunctionSource(core, '_calcRSILast');
+    const cleanNumsSrc = extractFunctionSource(core, '_aioCleanNums');
+    if (!serverSrc) { rsiParityDetail = 'could not extract _rsi14 from fetch-data.mjs'; return false; }
+    if (!clientRsiSrc) { rsiParityDetail = 'could not extract _calcRSILast from aio-core.js'; return false; }
+    if (!cleanNumsSrc) { rsiParityDetail = 'could not extract _aioCleanNums from aio-core.js'; return false; }
+    const roundFn = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
+    const serverRsi14 = new Function('round', `${serverSrc}\nreturn _rsi14;`)(roundFn);
+    const clientCalcRsiLast = new Function(`${cleanNumsSrc}\n${clientRsiSrc}\nreturn _calcRSILast;`)();
+    // Deterministic synthetic series long enough (300 bars) for Wilder's smoothing to be well
+    // past its warm-up window, matching real usage (screener enrichment runs on ~1y of history).
+    const closes = [];
+    let p = 100;
+    for (let i = 0; i < 300; i++) {
+      p += Math.sin(i / 7) * 1.3 + (i % 23 === 0 ? 4 : 0) - (i % 31 === 0 ? 3 : 0) + 0.02;
+      closes.push(Math.max(1, p));
+    }
+    const serverVal = serverRsi14(closes);
+    const clientVal = roundFn(clientCalcRsiLast(closes, 14), 1);
+    if (typeof serverVal !== 'number' || typeof clientVal !== 'number') {
+      rsiParityDetail = `non-numeric result: server=${serverVal} client=${clientVal}`;
+      return false;
+    }
+    const diff = Math.abs(serverVal - clientVal);
+    if (diff > 0.5) {
+      rsiParityDetail = `server=${serverVal} client=${clientVal} diff=${diff.toFixed(2)} (tolerance 0.5)`;
+      return false;
+    }
+    return true;
+  } catch (e) {
+    rsiParityDetail = e.message;
+    return false;
+  }
+})();
+check('server _rsi14 and client _calcRSILast are numerically equivalent (P584/R265 parity)', rsiParityOk, rsiParityDetail);
 check('telegram digest script extracts topics, tickers, topItems', /topicCounts/.test(fetchTelegram) && /tickerCounts/.test(fetchTelegram) && /topItems/.test(fetchTelegram) && /telegram-public-mirror/.test(fetchTelegram));
 
 check('app loads server data artifact', /public-data\/data\.json/.test(data) && /_aioLoadServerData/.test(data));

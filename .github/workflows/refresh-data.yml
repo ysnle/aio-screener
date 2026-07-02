@@ -83,6 +83,7 @@ jobs:
           git add public-data/data.json public-data/history.json
           [ -f public-data/screener.json ] && git add public-data/screener.json || true
           [ -f public-data/telegram-digest.json ] && git add public-data/telegram-digest.json || true
+          [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
           if git diff --staged --quiet; then
             echo "No public-data changes to commit"
             exit 0

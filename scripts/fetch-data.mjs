@@ -486,15 +486,26 @@ async function fetchHistory(symbol, range = '6mo') {
       const ts = res?.timestamp;
       const q0 = res?.indicators?.quote?.[0];
       const closes = q0?.close;
+      // v51.91 P587/R265/C6: Yahoo's chart endpoint already returns a parallel
+      // indicators.adjclose[0].adjclose series (split+dividend adjusted, no extra query param
+      // needed — verified by direct fetch, not assumed) alongside the raw OHLCV. Expose it as
+      // `adjClose` per row; callers that compute returns/momentum on dividend-paying equities
+      // should prefer it (see _enrichPriceFactors below) since raw close systematically understates
+      // total return for high-yield names — measured divergence on KO: +14.6% (raw) vs +17.9%
+      // (adjusted) over 1y, a 3.3pp gap from dividends alone. `high`/`low`/`volume` and this
+      // function's other consumer (backfillHistory, index-level symbols only) stay on raw values.
+      const adjArr = res?.indicators?.adjclose?.[0]?.adjclose;
       if (!Array.isArray(ts) || !Array.isArray(closes)) throw new Error('no history arrays');
       const out = [];
       for (let i = 0; i < ts.length; i++) {
         const c = closes[i];
         if (typeof c !== 'number' || !isFinite(c)) continue;
         const h = q0.high?.[i], l = q0.low?.[i], v = q0.volume?.[i];
+        const a = Array.isArray(adjArr) ? adjArr[i] : undefined;
         out.push({
           date: new Date(ts[i] * 1000).toISOString().slice(0, 10),
           close: round(c, 2),
+          adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, 2) : round(c, 2),
           high:   typeof h === 'number' && isFinite(h) ? round(h, 2)    : round(c, 2),
           low:    typeof l === 'number' && isFinite(l) ? round(l, 2)    : round(c, 2),
           volume: typeof v === 'number' && isFinite(v) ? Math.round(v)  : 0,
@@ -622,15 +633,34 @@ function _annVol(closes, n) {
   const v = rets.reduce((s, r) => s + (r - mu) * (r - mu), 0) / (rets.length - 1);
   return round(Math.sqrt(v) * Math.sqrt(252) * 100, 2);   // 연율화 %
 }
+// v51.91 P584/R265/C1: switched from Cutler's RSI (simple average over only the last 14 bars,
+// recomputed fresh each call) to Wilder's RSI (initial 14-bar average, then recursively smoothed
+// over the full input history) — matching js/aio-core.js:_calcRSILast exactly. The two methods
+// carried the same "RSI(14)" label but produced different numbers whenever there was a meaningful
+// gain/loss regime earlier in the series, so screener.json's rsi and the client's own RSI display
+// could diverge by several points. Wilder's method is what TradingView/TA-Lib/most brokers mean by
+// "RSI" by default — the named-methodology-parity requirement from R265. Verified by extraction:
+// scripts/ci-data-pipeline-contract-check.mjs runs both implementations against identical synthetic
+// closes and asserts the outputs match within tolerance.
 function _rsi14(closes) {
-  if (closes.length < 15) return null;
-  const seg = closes.slice(-15);
-  let g = 0, l = 0;
-  for (let i = 1; i < seg.length; i++) { const d = seg[i] - seg[i - 1]; if (d >= 0) g += d; else l -= d; }
-  g /= 14; l /= 14;
-  if (l === 0) return 100;
-  const rs = g / l;
-  return round(100 - 100 / (1 + rs), 1);
+  const period = 14;
+  const nums = closes.filter((v) => typeof v === 'number' && isFinite(v) && v > 0);
+  if (nums.length < period + 1) return null;
+  let gain = 0, loss = 0;
+  for (let i = 1; i <= period; i++) {
+    const d = nums[i] - nums[i - 1];
+    if (d >= 0) gain += d; else loss -= d;
+  }
+  let avgGain = gain / period;
+  let avgLoss = loss / period;
+  for (let j = period + 1; j < nums.length; j++) {
+    const diff = nums[j] - nums[j - 1];
+    avgGain = ((avgGain * (period - 1)) + Math.max(diff, 0)) / period;
+    avgLoss = ((avgLoss * (period - 1)) + Math.max(-diff, 0)) / period;
+  }
+  if (avgLoss === 0) return 100;
+  const rs = avgGain / avgLoss;
+  return round(100 - (100 / (1 + rs)), 1);
 }
 // v51.32: 칼만 추세 필터 — 숨겨진 가격 레벨과 추세 속도(velocity)를 재귀 추정.
 // 노이즈 측정에서 실제 추세 속도를 분리 (Rolling OLS보다 연속적이고 안정적).
@@ -703,8 +733,27 @@ function _spearman(xs, ys) {
 function backtestFactors(stockData) {
   var OFFSETS = [147, 126, 105, 84, 63, 42], FWD = 21;     // 끝에서 N일 전 리밸 시점들
   var isNum = function(v){ return typeof v === 'number' && isFinite(v); };
-  // 백테스트 4팩터 가중 (라이브 라이브 NEUTRAL과 비율 동일 기조, value/quality/size는 FMP 의존 또는 미시계열 제외)
-  var COMP_W = { mom: 0.35, trend: 0.25, lowvol: 0.25, kalman: 0.15 };
+  // v51.91 P586/C2: this backtest validates a *fixed* 4-factor subset, not the live ranking model
+  // (js/aio-data.js:_aioComputeFactorRanks), which uses 7 factors with regime-adaptive weights
+  // (_aioFactorWeights: NEUTRAL/RISK_OFF/RISK_ON, lerp-blended by current market risk score). The
+  // UI previously implied "종합 랭크가 검증 기반" (the live composite rank is what's validated) —
+  // that was not accurate. What IS validated here: momentum/trend/lowvol/kalman, always at the
+  // live model's NEUTRAL-regime weights (never risk-off/risk-on), because this script has no
+  // access to the live market-state signal that drives the regime blend.
+  //   size/value/quality are excluded — not because they don't matter, but because backtesting
+  //   them here would either be infeasible or methodologically unsound with data this pipeline
+  //   actually has: size needs historical shares-outstanding (not fetched anywhere — mcap is a
+  //   hand-maintained static seed in SCREENER_DB, not a live time series); value/quality come from
+  //   FMP as today-only TTM snapshots (fetch-data.mjs:enrichFundamentals), so scoring a rebalance
+  //   147 days ago with today's P/E/ROE would be look-ahead bias — using information that wasn't
+  //   actually available at that date. Do not add them without solving those two problems first.
+  //   Weights below are the live NEUTRAL constant's momentum/trend/lowvol/kalman entries
+  //   (.27/.20/.16/.10, subset sum .73), renormalized to sum to 1 over just this subset — a single
+  //   source of truth instead of an independently hand-picked second weight set (see P584/C1 for
+  //   why two independent copies of the same "thing" drift apart over time).
+  var COMP_W = { mom: 0.370, trend: 0.274, lowvol: 0.219, kalman: 0.137 };
+  var EXCLUDED_FACTORS = ['size', 'value', 'quality'];
+  var EXCLUDED_FACTORS_REASON = 'size needs historical shares-outstanding data this pipeline does not fetch; value/quality are FMP today-only TTM snapshots with no historical time series, so backtesting them would use look-ahead information';
   var IC_FACTORS = ['momentum','trend','lowvol','kalman','composite'];
   var icS = {}, icN = {};
   IC_FACTORS.forEach(function(k){ icS[k]=0; icN[k]=0; });
@@ -719,7 +768,10 @@ function backtestFactors(stockData) {
   OFFSETS.forEach(function(off) {
     var rows = [];
     stockData.forEach(function(s) {
-      var c = s.closes; if (!c || c.length < off + 1) return;
+      // v51.91 P587/R265/C6: prefer adjusted close for return-based factor scoring (see
+      // _enrichPriceFactors) — falls back to raw close if adjCloses is absent/mismatched length.
+      var c = (s.adjCloses && s.adjCloses.length === s.closes.length) ? s.adjCloses : s.closes;
+      if (!c || c.length < off + 1) return;
       var p = c.length - off; if (p < 63 || p + FWD > c.length - 1) return;
       var f = closesToFactors(c.slice(0, p + 1)); if (!f) return;
       var fwd = (c[p] > 0) ? (c[p + FWD] / c[p] - 1) : null; if (!isNum(fwd)) return;
@@ -771,8 +823,44 @@ function backtestFactors(stockData) {
     quantileSpread: spreadN ? round(spreadSum / spreadN * 100, 2) : null,
     hitRate: hitN ? round(hit / hitN * 100, 1) : null,
     compWeights: COMP_W,
+    weightRegime: 'NEUTRAL',
+    excludedFactors: EXCLUDED_FACTORS,
+    excludedFactorsReason: EXCLUDED_FACTORS_REASON,
     kalmanScale: 'log_pct_day',
   };
+}
+
+// v51.91 P586/C2: append each backtest run's IC/spread/hitRate to a small time series so drift
+// (or a broken factor silently going to IC~0) is visible across runs instead of being overwritten
+// every 6h with no history. Separate file from history.json (daily market data, different
+// producer/cadence) to avoid entangling two independently-working accumulation paths.
+const BACKTEST_HIST = `${__dir}/../public-data/backtest-history.json`;
+async function updateBacktestHistory(backtest) {
+  if (!backtest || !backtest.ic) return null;
+  try {
+    let hist = [];
+    try { const raw = JSON.parse(await readFile(BACKTEST_HIST, 'utf8')); if (Array.isArray(raw)) hist = raw; } catch { /* 최초 실행 */ }
+    const today = new Date().toISOString().slice(0, 10);
+    const rec = {
+      date: today,
+      asOf: backtest.asOf,
+      n: backtest.n,
+      dates: backtest.dates,
+      ic: backtest.ic,
+      quantileSpread: backtest.quantileSpread,
+      hitRate: backtest.hitRate,
+      weightRegime: backtest.weightRegime,
+    };
+    const idx = hist.findIndex((h) => h && h.date === today);
+    if (idx >= 0) hist[idx] = rec; else hist.push(rec);   // 같은 날 재실행 = upsert(최신 실행 우선)
+    hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    if (hist.length > 180) hist = hist.slice(hist.length - 180);   // ~6개월 cap (일 단위)
+    await writeFile(BACKTEST_HIST, JSON.stringify(hist));
+    return { days: hist.length, today, upsert: idx >= 0 ? 'update' : 'append' };
+  } catch (e) {
+    console.warn('[fetch-data] backtest history 갱신 실패(무시):', e && e.message || e);
+    return null;
+  }
 }
 
 // v50.54 3B/3C: FMP 밸류/퀄리티/어닝 enrichment — process.env.FMP_API_KEY 있을 때만(유료 티어 권장).
@@ -918,19 +1006,25 @@ async function _enrichPriceFactors(syms) {
     const rows = await fetchHistory(_yhSym(sym), '1y');
     return {
       sym,
-      closes:  (rows || []).map(r => r.close),
-      highs:   (rows || []).map(r => r.high   || r.close),
-      lows:    (rows || []).map(r => r.low    || r.close),
-      volumes: (rows || []).map(r => r.volume || 0),
+      closes:    (rows || []).map(r => r.close),
+      // v51.91 P587/R265/C6: separate adjusted-close series for return/momentum/trend/RSI/kalman
+      // factor math (see fetchHistory) — raw `closes`/`highs`/`lows`/`volumes` stay untouched for
+      // VCP pattern recognition below, which is about price *structure* (swing highs/lows,
+      // contraction depth), not total return, and mixing an adjusted close into an otherwise-raw
+      // OHLC set would distort swing-depth math against the un-adjusted high/low bars.
+      adjCloses: (rows || []).map(r => (typeof r.adjClose === 'number' ? r.adjClose : r.close)),
+      highs:     (rows || []).map(r => r.high   || r.close),
+      lows:      (rows || []).map(r => r.low    || r.close),
+      volumes:   (rows || []).map(r => r.volume || 0),
     };
   });
   const data = {};
   let ok = 0;
   for (const r of results) {
     if (!r || r.__error || !r.closes) continue;
-    const f = closesToFactors(r.closes);
+    const f = closesToFactors(r.adjCloses && r.adjCloses.length === r.closes.length ? r.adjCloses : r.closes);
     if (f) {
-      // v51.68: VCP 패턴 인식 — OHLCV 60봉 이상일 때 계산
+      // v51.68: VCP 패턴 인식 — OHLCV 60봉 이상일 때 계산 (raw close, 조정종가 아님 — 위 주석 참조)
       if (r.closes.length >= 60 && r.highs && r.lows && r.volumes) {
         const vcp = _calcVCPServer(r.closes, r.highs, r.lows, r.volumes);
         if (vcp) { f.vcpScore = vcp.vcpScore; f.vcpStage = vcp.vcpStage; f.vcpPivot = vcp.pivotLevel; }
@@ -998,6 +1092,13 @@ async function enrichScreener() {
   let backtest = null;
   try { backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148)); }
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
+
+  // v51.91 P586/C2: IC/spread/hitRate 시계열 누적(별도 아티팩트) — 매 실행 덮어쓰기로 드리프트가
+  // 안 보이던 문제 시정. screener.json 자체는 계속 최신 1개 스냅샷만 유지(기존 소비자 영향 없음).
+  let backtestHistInfo = null;
+  try { backtestHistInfo = await updateBacktestHistory(backtest); }
+  catch (e) { console.warn('[fetch-data] backtest history 실패(무시):', e && e.message || e); }
+  if (backtestHistInfo) console.log(`[fetch-data] backtest history: ${backtestHistInfo.days}일 누적 (${backtestHistInfo.upsert})`);
 
   const payload = {
     asOf: new Date().toISOString(),
