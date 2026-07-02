@@ -6,6 +6,13 @@ target_version: v51.80
 
 ---
 
+## R264. An API key in a URL must never be routed through a third-party proxy; a "sensitive URL" guard must block the egress, not just caching (v51.85)
+
+- Any URL containing a credential (`api_key`/`apikey`/`token`/`access_token`/`client_secret`) must only be sent to (a) the credential's own owning service directly, or (b) a proxy the operator controls (e.g. the project's own CF Worker). It must never be sent through a shared third-party CORS proxy (`corsproxy.io`, `allorigins.win`, `codetabs.com`, etc.) — the proxy operator can log the key.
+- A guard that detects a "sensitive URL" must block the actual network egress. `fetchViaProxy`'s `_isSensitive` flag only suppressed response caching while still sending the request through the proxy — a guard that stops a downstream side effect but not the leak itself is worse than none, because its name implies protection it does not provide.
+- When adding any proxy fallback to a fetch path, verify the URL being proxied can never contain a credential. `fetchFredSeries` (CF Worker + direct call only, no third-party proxy tier) is the corrected precedent.
+- See P573/BUG-POSTMORTEM.md for the incident.
+
 ## R263. Every producer of deployable artifacts must actually trigger the deploy path, and the watchdog must verify the DEPLOYED surface, not just the repo (v51.84)
 
 - When the deploy mechanism changes (e.g. legacy branch-deploy → CI-gated workflow deploy, P557/R248), audit **every** commit producer for compatibility in the same change: a `[skip ci]` marker that was harmless under branch-deploy (deploys anyway) becomes a total deploy blocker under workflow deploy (skips the deploy job too). `refresh-data.yml`'s 2-hourly data commits are the concrete precedent — they silently stopped reaching the live site the moment P557 merged.

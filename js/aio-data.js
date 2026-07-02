@@ -3153,11 +3153,17 @@ async function fetchFredSeries(seriesId, limit = 30) {
     if (r.status === 429) { _aioLog('warn', 'fetch', 'FRED rate limit hit — 60s 대기'); await new Promise(ok => setTimeout(ok, T.COOLDOWN)); return null; }
     if (r.status === 403 || r.status === 400) { showDataError('FRED', 'API 키가 유효하지 않거나 한도 초과', 'error'); return null; }
   } catch(e) { /* CORS blocked — fallback to proxy */ }
-  // 3차: CORS 프록시 경유 (corsproxy, allorigins 등)
-  try {
-    const r = await fetchViaProxy(url, 8000);
-    if (r.ok) { return _extractObs(await r.json()); }
-  } catch(e) { _aioLog('warn', 'fetch', 'FRED proxy error: ' + seriesId + ' ' + (e.message || e)); }
+  // v51.85 P573/R264: 3차 서드파티 CORS 프록시 폴백 제거 (키 유출 차단).
+  //   이 url 은 `?api_key=<사용자 개인 FRED 키>` 를 포함한다. corsproxy.io/allorigins/
+  //   codetabs 같은 제3자 프록시로 보내면 그 운영자 로그에 키가 평문 노출된다
+  //   (fetchViaProxy 의 _isSensitive 플래그는 캐시 저장만 막고 전송은 못 막음 — 이름이
+  //   방어를 암시하지만 실제로는 안 막는 함정). 신뢰 가능한 경로(CF Worker = 사용자 본인
+  //   도메인, 직접 호출 = 브라우저→FRED TLS)만 허용한다. 둘 다 실패하면 라이브 갱신을
+  //   포기하고 null 반환 → 서버 data.json(GitHub Actions 가 FRED_API_KEY 로 이미 공급) /
+  //   정적 폴백 사용. 실질 기능 손실 없이 개인 키 유출 경로를 완전히 제거.
+  if (typeof _aioLog === 'function') {
+    _aioLog('warn', 'fetch', 'FRED live 갱신 스킵 (' + seriesId + '): CORS 차단 + CF Worker 미설정. 개인 키 유출 방지로 제3자 프록시 미사용 — 서버 data.json/정적 폴백 사용. CF Worker URL 설정 시 라이브 갱신 가능.');
+  }
   return null;
 }
 

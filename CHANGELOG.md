@@ -3,6 +3,10 @@
 - **Watchdog live-surface check**: `data-watchdog.yml` gained a "Check LIVE site freshness" step that fetches the deployed `public-data/data.json` and fails when `meta.generatedAt` exceeds 360min — the repo-only check had a structural blind spot for deploy-path breakage. P572/R263.
 - R1 7곳 v51.84.
 
+## v51.85 (2026-07-02)
+- **FRED personal API key leak fix (security)**: `fetchFredSeries()` (js/aio-data.js) had a 3rd-tier fallback that sent its request — URL including `?api_key=<user's personal FRED key>` — through a third-party CORS proxy (corsproxy.io/allorigins/codetabs), exposing the key in plaintext to the proxy operator. `api.stlouisfed.org` sends no CORS headers, so the direct-call tier reliably failed and control fell to the proxy tier. `fetchViaProxy`'s `_isSensitive` flag only suppressed response caching, not the egress. Removed the third-party proxy tier: only the CF Worker (user's own domain) and the direct TLS call remain; on failure it returns null and the app falls back to server `data.json` (GitHub Actions already fetches FRED via `FRED_API_KEY`) + static seeds. No functional loss. Audited all other keyed APIs — Finnhub/FMP use `_fetchJson` (no proxy fallback), NewsData.io/rss2json hit their own key-owning services directly, fredgraph.csv carries no key — all safe. P573/R264.
+- R1 7곳 v51.85.
+
 ## v51.83 (2026-07-01)
 - **Systematic full-site audit**: 4 parallel agents covering all 22 live pages, backend logic/race-condition patterns, the data pipeline (fetch-data.mjs/fetch-telegram-digest.mjs/workflows), and security (XSS/credential handling). Found and fixed 14 concrete issues (P558-P571/R249-R262), 8 critical + 6 medium.
 - **XSS fix (critical)**: `_aioProcessTelegramItem()`/`_aioRenderTelegramFeedHtml()` inserted raw external Telegram-channel text into innerHTML across 9 pages with no escaping. Now escaped at the pipeline entry point. P558/R249.
