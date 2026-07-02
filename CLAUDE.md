@@ -3,8 +3,9 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v51.86**
+- 현재 버전: **v51.87**
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다.
+- **v51.87 OPEX 만기일 시간대 off-by-one 수정**: `_aioDataNextOpex()`가 `new Date(y,m,d)` 로컬 자정 Date를 `toISOString().slice(0,10)`로 문자열화 → UTC 변환으로 UTC+ 시간대(KST) 사용자에게 만기일이 하루 앞당겨 표시(실측: 2026년 1월 3rd Fri 01-16이 "01-15"로). 로컬 달력 컴포넌트(`getFullYear/getMonth/getDate`)로 포맷하도록 정정, daysToOpex는 원래 정확. 5개월(연도 롤오버 포함) 검증 — 전부 실제 3rd Friday. 타 `toISOString().slice(0,10)`는 epoch/UTC 또는 의도적 +9h KST 또는 캐시키라 안전. 심층 timezone/float/ReDoS/async 감사에서 나머지(ReDoS 정규식 `\d+(?:sep\d+)*` 형태·float 표시용 반올림)는 모두 clean. P575.
 - **v51.86 Sortino 하방편차 분모 정정 (수치 정확성)**: `_aioBtSortino()`가 하방편차 분모로 전체 관측수 N이 아니라 음수 관측 개수(`downside.length-1`)를 써서 Sortino를 표준(Sortino&Price/Portfolio Visualizer, CLAUDE.md v51.79가 표방한 모델) 대비 ~46% 과소평가(실측 0.83 vs 1.54). 분모를 `excess.length`(N)로 정정, 분자(Σ min(0,excess)²)는 동일. 재계산 검증: 수정 후 1.539871로 표준과 1e-9 일치. 전 금융수식 추출 실측 결과 나머지(StdDev/Sharpe/MDD/Pearson/VaR/quantileR7)는 모두 이미 정확. P574/R265.
 - **v51.85 FRED 개인 API 키 유출 수정 (보안)**: `fetchFredSeries()`의 3차 폴백이 `?api_key=<사용자 개인 FRED 키>` 포함 URL을 서드파티 CORS 프록시(corsproxy/allorigins/codetabs)로 보내 키가 프록시 운영자 로그에 평문 노출되던 경로 제거. `api.stlouisfed.org`가 CORS 헤더를 안 줘 직접호출이 막히면 반드시 프록시 폴백이 실행됨. `fetchViaProxy`의 `_isSensitive` 플래그는 캐시 저장만 막고 전송(egress)은 안 막던 함정. CF Worker(사용자 본인 도메인)+직접 TLS 호출만 남기고, 실패 시 null 반환→서버 data.json(Actions가 FRED_API_KEY로 이미 공급)+정적 폴백. 기능 손실 없음. 타 키 API(Finnhub/FMP=프록시 폴백 없는 `_fetchJson`, NewsData/rss2json=자체 서비스 직접호출, fredgraph.csv=키 없음) 전수 감사 완료 — 모두 안전. P573/R264.
 - **v51.84 라이브 데이터 배포 단절 수정 (인프라 치명)**: v51.82의 CI-게이트 Pages 배포(P557/R248)와 `refresh-data.yml`의 `[skip ci]` 커밋 마커가 결합해 배포 완전 차단 — 2시간마다 데이터 갱신이 저장소에는 커밋되지만 라이브 사이트에는 절대 도달하지 않음(라이브 data.json 13h+ stale 실측, watchdog은 저장소만 검사해 success 보고). `[skip ci]` 제거로 데이터 커밋도 CI validate + deploy 실행 + watchdog에 배포된 라이브 data.json 신선도 검사 스텝 추가(360min 초과 시 실패). P572/R263.
