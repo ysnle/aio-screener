@@ -1,0 +1,25 @@
+# Local scratch / legacy artifacts — never meant to ship or be tracked.
+# See _context/BUG-POSTMORTEM.md P572 session (v51.84) for why this file exists:
+# repo had zero .gitignore, so these accumulated as permanent `git status` noise.
+
+# Pre-edit backup hoard from a deprecated v30-era rule (working-rules.md §1/§6a,
+# itself gitignored below) that mandated copying the whole file before every edit.
+# Superseded by git history; these .bak snapshots are redundant with old commits.
+_backup/
+
+# Build/dev output scratch.
+outputs/
+
+# Empty placeholder directory.
+.agents/
+
+# Legacy Codex-only governance docs that duplicate/contradict the current
+# git-tracked _context/RULES.md + QA-CHECKLIST.md (e.g. mandatory-backup-before-edit,
+# "never delete files" — both superseded). Kept locally for history, not tracked.
+_context/working-rules.md
+_context/voice-and-style.md
+_context/archive-reports/
+
+# autoresearch skill session-save output — ephemeral working state, not a
+# committed artifact.
+autoresearch-session-save/

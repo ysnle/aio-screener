@@ -109,7 +109,7 @@ AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터
 
 ---
 
-## 절대 규칙 (R1~R3만 — 나머지 R4~R53은 `_context/RULES.md`)
+## 절대 규칙 (R1~R3만 — 나머지 R4~R263+는 `_context/RULES.md`)
 
 **R1. 버전 동기화**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · root/context docs · CHANGELOG.md · JS cachebusters — **반드시 `node scripts/bump-version.mjs <버전>`으로 일괄 패치** (v51.64~)
 **R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (예: v48.76 → v48.77). 최신 실제 체계는 두 자리 patch 허용.
